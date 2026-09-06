@@ -6,7 +6,7 @@
 # See: https://github.com/github/gitignore/tree/main/Global
 #
 .utmp/
-/build_log.txt
+/build*.txt
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
