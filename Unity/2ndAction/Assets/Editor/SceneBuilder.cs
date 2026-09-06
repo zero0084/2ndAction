@@ -1,0 +1,2725 @@
+using System.Collections.Generic;
+using System.IO;
+using UnityEditor;
+using UnityEditor.Android;
+using UnityEditor.Build;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public static class SceneBuilder
+{
+    const string SpritePath = "Assets/Art/square.png";
+    const string ScenePath = "Assets/Scenes/Main.unity";
+    const string OrnateFramePath = "Assets/Art/UI/OrnateFrame.png";
+
+    [MenuItem("Tools/2ndAction/Build Prototype Scene")]
+    public static void Build()
+    {
+        ConfigureMobilePlayerSettings();
+
+        EnsureTag("Ground");
+        EnsureTag("Enemy");
+        EnsureTag("PlayerAttack");
+        EnsureTag("Boss");
+
+        Sprite squareSprite = EnsureSquareSprite();
+
+        EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+        // Camera
+        GameObject camGO = new GameObject("Main Camera");
+        camGO.tag = "MainCamera";
+        Camera cam = camGO.AddComponent<Camera>();
+        cam.orthographic = true;
+        cam.orthographicSize = 10.4f;
+        cam.clearFlags = CameraClearFlags.SolidColor;
+        cam.backgroundColor = new Color(0.75f, 0.85f, 0.97f);
+        cam.transform.position = new Vector3(4f, 1f, -10f);
+        camGO.AddComponent<AudioListener>();
+        CameraFollow follow = camGO.AddComponent<CameraFollow>();
+        follow.offsetX = 6f;
+
+        // Background (fixed backdrop that always fills the camera view)
+        // Distance Level Design Ver.1 - dayBackgroundSr hoisted to method
+        // scope (was local to this if-block) so WorldTimeCycle setup further
+        // down can wire it in as dayLayer without a second lookup.
+        Sprite backgroundSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Background/background.png");
+        SpriteRenderer dayBackgroundSr = null;
+        if (backgroundSprite != null)
+        {
+            GameObject bgGO = new GameObject("Background");
+            dayBackgroundSr = bgGO.AddComponent<SpriteRenderer>();
+            dayBackgroundSr.sprite = backgroundSprite;
+            dayBackgroundSr.sortingOrder = -100;
+            var bgFollower = bgGO.AddComponent<BackgroundFollower>();
+            bgFollower.cam = cam;
+        }
+
+        // Card database - built/refreshed first so every CardDefinition
+        // asset (icons included) exists under Resources/Cards before
+        // anything below reads through CardDatabase.AllCards.
+        CardDatabaseBuilder.Build();
+
+        // Card UI / Rarity Frame pass - one-time Editor-side import
+        // configuration for the Rarity frame PNGs under Resources/
+        // CardFrames/ (see its own comment - CardRarityFrames itself loads
+        // the actual Sprites lazily at runtime via Resources.Load, not from
+        // anything this method caches).
+        LoadCardRarityFrames();
+
+        // Distance-unlock system - the UnlockDefinition assets themselves
+        // (EnemyDatabaseBuilder runs later, once the goblin sprite import
+        // is configured - see the terrain setup block below).
+        UnlockDatabaseBuilder.Build();
+
+        // GameManager
+        GameObject gmGO = new GameObject("GameManager");
+        GameManager gameManager = gmGO.AddComponent<GameManager>();
+        // Home Room UI reconstruction pass - new logo ("ONE MORE MILE / To
+        // the Next Me"), real alpha (confirmed via pixel inspection), no
+        // extra processing needed.
+        gameManager.titleLogo = LoadIconTexture("Assets/Art/UI/TitleLogoV2.png");
+        // TOP screen is now "Home Room" (the player's own room, returned to
+        // after a Run) instead of the previous floating-continents scene -
+        // see GameManager.OnGUI's title-screen block for the room's tap
+        // targets (door/bed/book/desk gacha machine). Still a single static
+        // painted scene, drawn fully static (no scroll/parallax) exactly
+        // like its predecessor.
+        gameManager.topBackground = LoadIconTexture("Assets/Art/UI/TopBackgroundHomeRoom.png");
+        // Imported ONCE as a Sprite (ForegroundCloudLayer needs that for
+        // in-game SpriteRenderer use - see Build() below) - gameManager's
+        // own Texture2D field is then just a cheap AssetDatabase lookup of
+        // the same already-imported asset, not a second reimport with
+        // conflicting settings (same pattern as OrnateFrame's two textures).
+        Sprite topCloudSprite = LoadTiledSprite("Assets/Art/UI/TopCloud.png", 300f);
+        // Home Room pass - the drifting-cloud layer was designed for the
+        // old floating-continents sky backdrop; a fully enclosed room has
+        // no sky to drift clouds across, so GameManager.OnGUI's title
+        // block no longer calls DrawScrollingCloud. topCloud itself is left
+        // wired (still used in-game by ForegroundCloudLayer above, unrelated
+        // to the TOP screen) rather than removed.
+        gameManager.topCloud = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/UI/TopCloud.png");
+
+        // Game Feel refinement pass, section 14 - the in-game foreground
+        // cloud layer (see ForegroundCloudLayer's own comment), now its own
+        // dedicated Foreground Cloud.png rather than reusing the TOP
+        // screen's cloud art. PPU chosen so the source image's own width
+        // maps to ~4.4 world units - ForegroundCloudLayer's own
+        // scaleMin/scaleMax (0.35-0.65) then brings the actual on-screen
+        // size down from that to something small per "小さく短く控えめに".
+        GameObject cloudLayerGO = new GameObject("ForegroundCloudLayer");
+        ForegroundCloudLayer cloudLayer = cloudLayerGO.AddComponent<ForegroundCloudLayer>();
+        cloudLayer.cam = cam;
+        cloudLayer.cloudSprite = LoadTiledSprite("Assets/Art/Effects/ForegroundCloudNew.png", 350f);
+        // The large OrnateFrame.png (uGUI's Deck Edit screen, via
+        // CreateOrnatePanel) and the small OrnateFrameSmall.png (IMGUI's
+        // OrnateUi, TOP screen) are two SEPARATE texture files - see
+        // OrnateUi.FrameTexture's comment for why one texture can't serve
+        // both button-sized and panel-sized elements.
+        LoadOrnateFrameSprite();
+        gameManager.ornateFrame = LoadIconTexture("Assets/Art/UI/OrnateFrameSmall.png");
+
+        // OneMoreMile Presentation pass - shared screen transition (see
+        // ScreenTransitionManager's own class comment for the design/why).
+        // No sprite/scene asset to load here - it draws entirely from
+        // procedural 1x1 textures via OnGUI, same as UiBackdrop.
+        GameObject transitionGO = new GameObject("ScreenTransitionManager");
+        transitionGO.AddComponent<ScreenTransitionManager>();
+
+        // Audio (AudioManager generates its own placeholder tones at runtime,
+        // since procedural AudioClips can't be saved into the scene file).
+        GameObject audioGO = new GameObject("AudioManager");
+        AudioManager audioManager = audioGO.AddComponent<AudioManager>();
+        ConfigureMusicImport("Assets/Audio/TitleBgm.wav");
+        ConfigureMusicImport("Assets/Audio/GameplayBgm.wav");
+        audioManager.titleBgm = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/TitleBgm.wav");
+        audioManager.gameplayBgm = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/GameplayBgm.wav");
+
+        ConfigureSfxImport("Assets/Audio/SE/JumpSe.wav");
+        ConfigureSfxImport("Assets/Audio/SE/DoubleJumpSe.wav");
+        ConfigureSfxImport("Assets/Audio/SE/AttackSe1.wav");
+        ConfigureSfxImport("Assets/Audio/SE/AttackSe2.wav");
+        ConfigureSfxImport("Assets/Audio/SE/AttackSe3.wav");
+        ConfigureSfxImport("Assets/Audio/SE/LandSe.wav");
+        audioManager.jumpSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/JumpSe.wav");
+        audioManager.doubleJumpSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/DoubleJumpSe.wav");
+        audioManager.landSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/LandSe.wav");
+        audioManager.attackSe1 = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/AttackSe1.wav");
+        audioManager.attackSe2 = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/AttackSe2.wav");
+        audioManager.attackSe3 = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/AttackSe3.wav");
+
+        // Game Feel pass - OneMoreMile_SE_Subtle_Pack (see AudioManager's
+        // own field comments for the volume/role each of these plays).
+        ConfigureSfxImport("Assets/Audio/SE/01_attack_hit.wav");
+        ConfigureSfxImport("Assets/Audio/SE/02_player_damage.wav");
+        ConfigureSfxImport("Assets/Audio/SE/03_enemy_defeat.wav");
+        ConfigureSfxImport("Assets/Audio/SE/04_player_death.wav");
+        ConfigureSfxImport("Assets/Audio/SE/05_landing.wav");
+        audioManager.attackHitSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/01_attack_hit.wav");
+        audioManager.playerDamageSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/02_player_damage.wav");
+        audioManager.enemyDefeatSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/03_enemy_defeat.wav");
+        audioManager.playerDeathSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/04_player_death.wav");
+        audioManager.landingSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/05_landing.wav");
+
+        ConfigureSfxImport("Assets/Audio/SE/CardDeckAppearSe.wav");
+        ConfigureSfxImport("Assets/Audio/SE/CardDrawSe.wav");
+        ConfigureSfxImport("Assets/Audio/SE/CardFlipSe.wav");
+        ConfigureSfxImport("Assets/Audio/SE/CardSelectSe.wav");
+        ConfigureSfxImport("Assets/Audio/SE/CardConfirmSe.wav");
+
+        gameManager.rewardCardSequence = BuildRewardCardCanvas();
+        gameManager.deckEditUI = BuildDeckEditCanvas();
+        gameManager.cardFusionUI = BuildCardFusionCanvas();
+        // Home Room UI reconstruction pass, item 4 - the Gacha machine is
+        // now a prop drawn directly onto the TOP room (see GameManager.
+        // OnGUI's title-screen block), not a Sprite inside a Canvas -
+        // plain Texture2D import (LoadIconTexture, same as topBackground/
+        // titleLogo) since GUI.DrawTexture takes a Texture2D, not a Sprite.
+        gameManager.gachaMachineTexture = LoadIconTexture("Assets/Art/UI/GachaMachine.png");
+        // Ver.1 finishing pass, item 8 - reuses the already-imported Card
+        // Select SE (see ConfigureSfxImport("...CardSelectSe.wav") above)
+        // for the room hotspots' tap feedback.
+        gameManager.roomTapSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/CardSelectSe.wav");
+
+        // Player
+        GameObject player = CreatePlayer(squareSprite);
+        // Y=0 matches groundOffset=0 (see PlayerController) - Move() will
+        // recompute this from GetHeightAt on the very first frame anyway,
+        // but starting it at the same value avoids a one-frame pop.
+        player.transform.position = new Vector3(1f, 0f, 0f);
+
+        follow.target = player.transform;
+
+        // Terrain (infinite chunk-based course generator)
+        GameObject terrainGO = new GameObject("TerrainManager");
+        TerrainManager terrain = terrainGO.AddComponent<TerrainManager>();
+        terrain.squareSprite = squareSprite;
+        // Legacy single-tile cloud texture - kept assigned as the fallback
+        // groundSprite/skyPathSprite (GroundFactory only falls back to
+        // these if platformArt below isn't valid), so clearing
+        // terrain.platformArt reverts to this old look instantly.
+        Sprite cloudSprite = LoadTiledSprite("Assets/Art/Ground/CloudPlatform.png", 1024f);
+        terrain.groundSprite = cloudSprite;
+        terrain.skyPathSprite = cloudSprite;
+        // Game Feel refinement pass - imported (and available on
+        // TerrainManager, unused for now) but not yet wired into the sky
+        // path's actual visual - see TerrainManager.AddSkyChunk's own
+        // comment on why this needs real Game View verification first.
+        LoadTiledSprite("Assets/Art/Ground/CloudPlatformNew.png", 1024f);
+
+        // Visual Style Ver.1 floating-platform art (left-cap/mid-tile/
+        // right-cap, all three sharing one PPU so their world-space
+        // heights agree with platformVisualHeight and each other's aspect
+        // ratios stay correct). Used for both the ground path and the sky
+        // path. 768 is the source crop's pixel height (all three pieces
+        // share it, since CropPlatform.ps1 cropped them from the same
+        // source image without changing height) - update this if the
+        // platform art is ever re-cropped at a different resolution.
+        const float PlatformSourcePixelHeight = 768f;
+        float platformPpu = PlatformSourcePixelHeight / terrain.platformVisualHeight;
+        terrain.platformArt = new PlatformSpriteSet
+        {
+            left = LoadTiledSprite("Assets/Art/VisualStyleV1/Ground/platform_left.png", platformPpu),
+            mid = LoadTiledSprite("Assets/Art/VisualStyleV1/Ground/platform_mid.png", platformPpu),
+            right = LoadTiledSprite("Assets/Art/VisualStyleV1/Ground/platform_right.png", platformPpu)
+        };
+        // Measured directly from platform_mid.png: rows 0-155/768 are fully
+        // transparent canvas margin, and grass coverage doesn't read as
+        // solid ground until row ~190/768 - i.e. the actual walkable
+        // surface sits ~190px below the canvas top. 190/768 * platformVisualHeight
+        // = the world-unit inset GroundFactory needs to subtract so the
+        // drawn grass line - not the empty canvas edge - lines up with the
+        // math ground line characters actually stand on.
+        terrain.platformSurfaceInset = 190f / PlatformSourcePixelHeight * terrain.platformVisualHeight;
+
+        // Visual Style Ver.1 grunt enemy (goblin) - enemy.png (the old
+        // flying-creature sprite) stays untouched on disk for an easy
+        // revert; PPU chosen to match its old on-screen size (measured:
+        // old sprite's visible silhouette is ~1665px tall at 1329 px/unit
+        // -> ~1.25 world units; new sprite's silhouette is ~1308px tall
+        // within a 1320px padded canvas, so 1320/1.25 =~ 1053 px/unit
+        // reproduces that same in-game size).
+        terrain.enemySprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/enemy_v1.png", 1053f);
+        terrain.player = player.transform;
+        // Game Feel refinement pass - OneMoreMile_GameFeel pack, individual
+        // PNGs (see AGENTS/PR notes) - imported at a consistent ~1-world-
+        // unit BASE size each (PPU == the source file's own pixel width),
+        // so every per-effect Scale multiplier already living in code
+        // (EnemyController.hitParticleScale/deathCloudScale,
+        // PlayerDustEffects.dustScale, etc.) is what actually determines
+        // the small final on-screen size - not two separate, easy-to-
+        // double-count shrink factors fighting each other.
+        terrain.enemyHitSparkSprite = LoadTiledSprite("Assets/Art/Effects/HitSpark.png", 1536f);
+        terrain.enemyDeathCloudSprite = LoadTiledSprite("Assets/Art/Effects/EnemyDeathSmoke.png", 1536f);
+        terrain.enemyGroundShadowSprite = LoadTiledSprite("Assets/Art/Effects/GroundShadow.png", 1672f);
+
+        // Game Feel refinement pass, section 13 - bottom-content-pivoted
+        // (same approach as every foot-pivoted character sprite - see
+        // ConfigureAndLoadSpriteWithFootPivot) so DecorationScatter can
+        // just place each one directly on the surface Y with no per-item
+        // offset math ("素材下端が地面に接するように" - never floating,
+        // never buried). Per-item PPU (not the same ~1-unit base the
+        // effects above use) since these are meant to read as different
+        // physical sizes relative to each other and the player - Rock/
+        // RuinsSign deliberately smaller than their source canvas implies
+        // ("Playerと比較して巨大にしすぎない"), DecorationScatter's own
+        // scaleMin/scaleMax then adds a further +/-  random variance on
+        // top of whichever of these base sizes gets picked each spawn.
+        terrain.decorationSprites = new[]
+        {
+            ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Decoration/DecorGrass.png", 3072f),
+            ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Decoration/DecorFlowers.png", 3413f),
+            ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Decoration/DecorRock.png", 1920f),
+            ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Decoration/DecorRuinsSign.png", 1536f),
+        };
+
+        // Distance Level Design Ver.1 - the 5 new enemy species' art.
+        // Same ConfigureAndLoadSpriteWithFootPivot every character sprite
+        // in this project already goes through (Texture Type=Sprite,
+        // Alpha Source=Input Texture Alpha, alphaIsTransparency=ON, foot
+        // pivot) - "過去にGameFeel素材で発生した黒/白い矩形背景...再発させ
+        // ない" from the brief is what that shared helper already exists to
+        // guarantee. PPU chosen per-species (each source canvas is
+        // 1536x1024, generously padded - NOT used as the world size
+        // directly) so each reads at a sensible size relative to the
+        // Player's own 1-unit collider and the existing goblin (~1.25
+        // units tall) - Heavy noticeably bigger, Irregular noticeably
+        // smaller, matching their brief descriptions ("巨大な重装オーガ" /
+        // "小型の獣人"). Actual on-screen sizing is a first pass - expect
+        // to retune these PPU values after seeing them in Game View.
+        // EnemyDatabaseBuilder below self-loads each of these by path once
+        // this import config is applied - the returned Sprite references
+        // aren't otherwise needed here.
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/FlyingEnemy.png", 730f);
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/IrregularEnemy.png", 1140f);
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/ShooterEnemy.png", 850f);
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/HeavyEnemy.png", 570f);
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/RunnerEnemy.png", 1020f);
+
+        // Runner Enemy Run Animation - 5 individually-sliced frames (see
+        // the scratchpad slicing step this pass added; Assets/Art/RunnerRun/
+        // runner_run_0..4.png), each with its own foot pivot via the SAME
+        // per-frame-lowest-pixel technique the Player/Dragon/Majin
+        // animations already use - "足元位置を揃えて、走行中にガタつかない
+        // ように". EnemyDatabaseBuilder below self-loads these by
+        // sorted-filename order once this import config is applied.
+        //
+        // Bugfix 2026-09-06 - "Enemyサイズがまだ小さい/個体差が出る"
+        // (Chaser/Rusher specifically). The PPU here used to be 724 (each
+        // frame's own raw canvas HEIGHT), on the assumption "canvas height
+        // ≈ character height" - wrong for this specific sprite sheet: each
+        // 434x724 frame is a narrow slice of a wide horizontal running
+        // strip, so the character's actual alpha content only fills
+        // ~41-53% of that canvas (PowerShell/LockBits measured 298-383px
+        // of real content per frame, not 724). At PPU 724 the run frames
+        // rendered at barely HALF the world size of RunnerEnemy.png's own
+        // static portrait (measured separately at PPU 1020) - since
+        // Chaser/Rusher show these run frames essentially the whole time
+        // they're moving, and the SAME visualScaleMultiplier below has to
+        // look right on BOTH the portrait (idle/stagger states) and these
+        // run frames (moving), the two needed to share one natural PPU
+        // baseline. 374 was solved for exactly that: at PPU 374, the 5
+        // frames' average content height (~349.8px) reproduces
+        // RunnerEnemy.png's own natural world height (~0.935 units) as
+        // closely as a single shared PPU can - one visualScaleMultiplier
+        // now sizes both states consistently instead of the run animation
+        // silently rendering at roughly half scale.
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/RunnerRun", 374f);
+
+        // Distance-unlock system - enemy species database, built now that
+        // the goblin sprite's import (foot pivot/PPU) is configured, since
+        // EnemyDatabaseBuilder just references that already-set-up Sprite
+        // rather than reconfiguring it. terrain.enemyPool below is every
+        // species that exists (locked or not) - which of them actually
+        // spawns is re-checked per-spawn against UnlockManager, not here.
+        // The 5 new species above are imported first for the same reason -
+        // EnemyDatabaseBuilder self-loads them by path (see its own class
+        // comment) rather than taking them as parameters.
+        EnemyDatabaseBuilder.Build(terrain.enemySprite);
+        terrain.enemyPool = new List<EnemyDefinition>(EnemyDatabase.AllEnemies);
+
+        // Distance Level Design Ver.1 - Shooter Enemy's projectile visual;
+        // "簡易Sprite/既存VFX流用で構いません" from the brief, so this just
+        // reuses the already-imported Hit Spark art rather than needing a
+        // dedicated arrow/bolt asset.
+        terrain.shooterProjectileSprite = terrain.enemyHitSparkSprite;
+
+        // Boss (watches distance, spawns dragon/majin encounters starting
+        // at 1000m)
+        GameObject bossGO = new GameObject("BossManager");
+        BossManager boss = bossGO.AddComponent<BossManager>();
+        boss.player = player.transform;
+        boss.squareSprite = squareSprite;
+        boss.dragonIdleFrames = LoadSpriteSequence("Assets/Art/DragonIdle");
+        boss.dragonChargeFrames = LoadSpriteSequence("Assets/Art/DragonCharge");
+        boss.dragonFireFrames = LoadSpriteSequence("Assets/Art/DragonFire");
+
+        // Majin frames are freshly extracted GIF frames each with their own
+        // native resolution (420x630 idle, 720x720 attack) - normalize both
+        // to the same in-world character height so switching from idle to
+        // attack doesn't visibly pop in scale.
+        const float majinWorldHeight = 3.45f;
+        ConfigureSpriteFolderImport("Assets/Art/MajinIdle", 630f / majinWorldHeight);
+        ConfigureSpriteFolderImport("Assets/Art/MajinAttack", 720f / majinWorldHeight);
+        boss.majinIdleFrames = LoadSpriteSequence("Assets/Art/MajinIdle");
+        boss.majinAttackFrames = LoadSpriteSequence("Assets/Art/MajinAttack");
+
+        // Boss Defeat Presentation pass - reuses the same already-imported
+        // Hit Spark / Enemy Death Smoke art regular enemies use (cheap
+        // AssetDatabase lookup, same pattern as gameManager.topCloud) -
+        // per-boss scale fields (finalHitSparkScale/bossDeathSmokeScale)
+        // are what actually make these read bigger than a regular enemy's
+        // own hit/death, not a separate texture.
+        boss.bossHitSparkSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Effects/HitSpark.png");
+        boss.bossDeathSmokeSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Effects/EnemyDeathSmoke.png");
+
+        // Distance Level Design Ver.1 - Mechanical Dragon (item 7). Same
+        // "PPU chosen for a base world height, dragonScale multiplies on
+        // top" convention as the real Dragon/Majin art.
+        boss.mechanicalDragonSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Boss/MechanicalDragon.png", 1152f / 3.2f);
+
+        // Distance Level Design Ver.1 - Death/Grim Reaper (item 8).
+        // INTENTIONALLY NOT WIRED - the provided file (Death.jpg) has the
+        // transparency checkerboard baked in as opaque pixel content
+        // rather than a real alpha channel (it's a .jpg - no alpha
+        // channel is even possible), so importing it as-is would reproduce
+        // exactly the "黒/白い矩形背景" bug the brief explicitly warns
+        // against, just with a checkerboard pattern instead of a solid
+        // color. boss.deathSprite stays null (SpawnDeath already no-ops
+        // without one - see BossManager) until a real transparent PNG is
+        // provided; see the chat response for the actual ask back to the
+        // user.
+        // No dedicated files yet (LoadAssetAtPath safely returns null if
+        // missing, and PlaySfx is null-safe too) - drop these 2 .wav files
+        // in later to wire them up with no code change.
+        boss.bossFinalHitSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/BossFinalHitSe.wav");
+        boss.bossDefeatSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/BossDefeatSe.wav");
+
+        // Boss Milestone Presentation pass - the short "1000m到達->Boss登
+        // 場" beat BossManager.Update() hands off to instead of spawning
+        // the encounter immediately (see BossManager's own comment). Drawn
+        // entirely from a procedural 1x1 texture via OnGUI, same as
+        // ScreenTransitionManager - no sprite/scene asset needed here.
+        GameObject bossPresentationGO = new GameObject("BossMilestonePresentation");
+        BossMilestonePresentation bossPresentation = bossPresentationGO.AddComponent<BossMilestonePresentation>();
+        // No dedicated files yet (LoadAssetAtPath safely returns null if
+        // missing, and PlaySfx is null-safe too) - drop these 3 .wav files
+        // in later to wire them up with no code change.
+        bossPresentation.milestoneSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/MilestoneSe.wav");
+        bossPresentation.bossWarningSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/BossWarningSe.wav");
+        bossPresentation.bossAppearSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/BossAppearSe.wav");
+
+        // Boss Defeat Presentation pass - the "Boss撃破 -> GAME CLEAR" beat
+        // (see BossManager.CheckEncounterComplete, which calls into this).
+        GameObject bossDefeatGO = new GameObject("BossDefeatPresentation");
+        BossDefeatPresentation bossDefeatPresentation = bossDefeatGO.AddComponent<BossDefeatPresentation>();
+        bossDefeatPresentation.milestoneClearSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/MilestoneClearSe.wav");
+
+        // Distance Level Design Ver.1/1.1 - the Tier table (Enemy Category
+        // availability) and Formation table (pre-defined SpawnPoint
+        // patterns, own minDistance/maxDistance each) - both are public
+        // Inspector arrays on the component afterward, this is just the
+        // starting data. Tiers are cumulative (a later one only ADDS
+        // categories); Formations each carry their own valid distance
+        // range now instead of being nested under a Tier.
+        GameObject tierGO = new GameObject("DistanceTierManager");
+        DistanceTierManager tierManager = tierGO.AddComponent<DistanceTierManager>();
+        tierManager.tiers = BuildDistanceTiers();
+        tierManager.formations = BuildFormations();
+
+        // Distance Level Design Ver.1, item 9 - World Time Cycle. The
+        // EXISTING "Background" GameObject (bgGO, created near the top of
+        // this method) is dayLayer, untouched; nightLayer is a fresh
+        // second BackgroundFollower-driven layer (same cover-scale/camera-
+        // follow code, just a different sprite/sortingOrder/alpha), only
+        // created if the Night art actually imported successfully.
+        GameObject timeGO = new GameObject("WorldTimeCycle");
+        WorldTimeCycle timeCycle = timeGO.AddComponent<WorldTimeCycle>();
+        timeCycle.dayLayer = dayBackgroundSr;
+        Sprite nightSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Background/NightFloatingIsland.png", 941f);
+        if (nightSprite != null)
+        {
+            GameObject nightGO = new GameObject("NightBackground");
+            var nightSr = nightGO.AddComponent<SpriteRenderer>();
+            nightSr.sprite = nightSprite;
+            nightSr.sortingOrder = -99; // one above the Day background's -100, still well behind gameplay
+            var nightFollower = nightGO.AddComponent<BackgroundFollower>();
+            nightFollower.cam = cam;
+            timeCycle.nightLayer = nightSr;
+        }
+
+        // Enemy wall (every 500m, a vertical column of grunt enemies -
+        // skipped whenever that milestone coincides with a boss encounter)
+        GameObject wallGO = new GameObject("EnemyWallManager");
+        EnemyWallManager wallManager = wallGO.AddComponent<EnemyWallManager>();
+        wallManager.player = player.transform;
+        wallManager.squareSprite = squareSprite;
+        wallManager.enemySprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Enemy/enemy_v1.png");
+        wallManager.enemyPool = new List<EnemyDefinition>(EnemyDatabase.AllEnemies);
+
+        EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene(), ScenePath);
+
+        EditorBuildSettings.scenes = new[]
+        {
+            new EditorBuildSettingsScene(ScenePath, true)
+        };
+
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        Debug.Log("SceneBuilder: prototype scene built at " + ScenePath);
+    }
+
+    // Builds the whole card-draw presentation (Canvas, EventSystem, dim
+    // background, deck stack, 3 cards, glow) for the level-up reward
+    // sequence - see RewardCardSequence for the coroutine that drives it.
+    // Starts fully hidden (RewardCardRoot inactive); GameManager activates
+    // it by calling StartSequence when a level-up actually happens.
+    static RewardCardSequence BuildRewardCardCanvas()
+    {
+        GameObject canvasGO = new GameObject("RewardCardCanvas");
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 100; // above everything else Unity renders (OnGUI still draws on top of this)
+
+        CanvasScaler scaler = canvasGO.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        scaler.matchWidthOrHeight = 0.5f;
+
+        canvasGO.AddComponent<GraphicRaycaster>();
+
+        if (Object.FindFirstObjectByType<EventSystem>() == null)
+        {
+            GameObject esGO = new GameObject("EventSystem");
+            esGO.AddComponent<EventSystem>();
+            esGO.AddComponent<StandaloneInputModule>();
+        }
+
+        Sprite cardBackSprite = LoadTiledSprite("Assets/Art/UI/CardBack.png", 100f);
+        Sprite cardFrameSprite = LoadTiledSprite("Assets/Art/UI/CardFrame.png", 100f);
+        Sprite glowSprite = CreateRadialGlowSprite();
+
+        GameObject rootGO = new GameObject("RewardCardRoot");
+        rootGO.transform.SetParent(canvasGO.transform, false);
+        RectTransform rootRect = rootGO.AddComponent<RectTransform>();
+        rootRect.anchorMin = Vector2.zero;
+        rootRect.anchorMax = Vector2.one;
+        rootRect.offsetMin = Vector2.zero;
+        rootRect.offsetMax = Vector2.zero;
+        CanvasGroup rootGroup = rootGO.AddComponent<CanvasGroup>();
+        rootGroup.alpha = 0f;
+        RewardCardSequence sequence = rootGO.AddComponent<RewardCardSequence>();
+        sequence.rootGroup = rootGroup;
+        rootGO.SetActive(false);
+
+        // Level Up Presentation pass - "LEVEL UP" pop text. A SIBLING of
+        // rootGO (parented directly to canvasGO), not a child of it -
+        // rootGroup.alpha starts at 0 and CanvasGroup alpha multiplies down
+        // the hierarchy, so a child of rootGO couldn't be shown before the
+        // card UI itself starts fading in. Its own CanvasGroup lets
+        // RewardCardSequence show/hide it completely independently (see
+        // PlayLevelUpAnnouncement).
+        GameObject levelUpTextGO = new GameObject("LevelUpText");
+        levelUpTextGO.transform.SetParent(canvasGO.transform, false);
+        RectTransform levelUpTextRect = levelUpTextGO.AddComponent<RectTransform>();
+        levelUpTextRect.anchorMin = levelUpTextRect.anchorMax = new Vector2(0.5f, 0.5f);
+        levelUpTextRect.pivot = new Vector2(0.5f, 0.5f);
+        levelUpTextRect.sizeDelta = new Vector2(700f, 120f);
+        levelUpTextRect.anchoredPosition = new Vector2(0f, 60f);
+        CanvasGroup levelUpTextGroup = levelUpTextGO.AddComponent<CanvasGroup>();
+        levelUpTextGroup.alpha = 0f;
+        levelUpTextGroup.blocksRaycasts = false;
+        levelUpTextGO.SetActive(false);
+        Text levelUpText = levelUpTextGO.AddComponent<Text>();
+        ConfigureCardText(levelUpText, 64, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        levelUpText.text = "LEVEL UP";
+        sequence.levelUpTextGroup = levelUpTextGroup;
+        sequence.levelUpTextRect = levelUpTextRect;
+        // Run Continuation/Checkpoint Ver.1 - RewardCardSequence now
+        // overwrites this text per-call ("LEVEL UP" vs "BOSS REWARD" - see
+        // StartSequence's announcementText param), so it needs the actual
+        // Text component wired, not just the group/rect.
+        sequence.levelUpText = levelUpText;
+
+        // Dim background - a plain full-screen black Image (not IMGUI,
+        // unlike the pause dim used elsewhere) so it sits correctly behind
+        // the cards in this Canvas instead of always drawing on top the way
+        // OnGUI would.
+        GameObject dimGO = new GameObject("Dim");
+        dimGO.transform.SetParent(rootGO.transform, false);
+        RectTransform dimRect = dimGO.AddComponent<RectTransform>();
+        StretchFull(dimRect);
+        Image dimImage = dimGO.AddComponent<Image>();
+        dimImage.color = new Color(0f, 0f, 0f, 0.75f);
+        dimImage.raycastTarget = false;
+        sequence.dimImage = dimImage;
+
+        // Deck: a small stack of card-back copies near the bottom center,
+        // purely decorative - never shrinks as cards are drawn.
+        GameObject deckRootGO = new GameObject("DeckRoot");
+        deckRootGO.transform.SetParent(rootGO.transform, false);
+        RectTransform deckRect = deckRootGO.AddComponent<RectTransform>();
+        deckRect.anchorMin = deckRect.anchorMax = new Vector2(0.5f, 0.5f);
+        deckRect.pivot = new Vector2(0.5f, 0.5f);
+        deckRect.sizeDelta = Vector2.zero;
+        deckRect.anchoredPosition = new Vector2(0f, -420f);
+        sequence.deckRoot = deckRect;
+
+        const float cardWidth = 260f;
+        float cardAspect = cardFrameSprite != null ? cardFrameSprite.rect.height / cardFrameSprite.rect.width : 1010f / 612f;
+        float cardHeight = cardWidth * cardAspect;
+
+        var deckImages = new Image[3];
+        for (int i = 0; i < 3; i++)
+        {
+            GameObject stackGO = new GameObject("DeckCard" + i);
+            stackGO.transform.SetParent(deckRootGO.transform, false);
+            RectTransform stackRect = stackGO.AddComponent<RectTransform>();
+            stackRect.anchorMin = stackRect.anchorMax = new Vector2(0.5f, 0.5f);
+            stackRect.pivot = new Vector2(0.5f, 0.5f);
+            stackRect.sizeDelta = new Vector2(cardWidth * 0.75f, cardHeight * 0.75f);
+            // Slight offset per layer so the stack reads as several cards,
+            // not one.
+            stackRect.anchoredPosition = new Vector2(i * 4f, i * -3f);
+            Image stackImage = stackGO.AddComponent<Image>();
+            stackImage.sprite = cardBackSprite;
+            stackImage.raycastTarget = false;
+            stackImage.enabled = false;
+            deckImages[i] = stackImage;
+        }
+        sequence.deckStackImages = deckImages;
+
+        // The 3 drawn cards, and the slots they fly out to.
+        sequence.cardSlotPositions = new[]
+        {
+            new Vector2(-340f, 40f),
+            new Vector2(0f, 40f),
+            new Vector2(340f, 40f)
+        };
+        var cardComponents = new RewardCardUI[3];
+        for (int i = 0; i < 3; i++)
+        {
+            cardComponents[i] = CreateRewardCard(rootGO.transform, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, sequence.OnCardClicked);
+        }
+        sequence.cards = cardComponents;
+
+        // Glow burst behind whichever card gets confirmed.
+        GameObject glowGO = new GameObject("Glow");
+        glowGO.transform.SetParent(rootGO.transform, false);
+        RectTransform glowRect = glowGO.AddComponent<RectTransform>();
+        glowRect.anchorMin = glowRect.anchorMax = new Vector2(0.5f, 0.5f);
+        glowRect.pivot = new Vector2(0.5f, 0.5f);
+        glowRect.sizeDelta = new Vector2(cardWidth * 2.2f, cardWidth * 2.2f);
+        Image glowImage = glowGO.AddComponent<Image>();
+        glowImage.sprite = glowSprite;
+        glowImage.raycastTarget = false;
+        glowImage.color = new Color(1f, 0.82f, 0.35f, 0f);
+        glowGO.SetActive(false);
+        sequence.glowImage = glowImage;
+
+        // Level Up Presentation pass - no dedicated file yet (LoadAssetAtPath
+        // safely returns null if missing, and PlaySfx is null-safe too);
+        // drop Assets/Audio/SE/LevelUpSe.wav in later to wire it up with no
+        // code change.
+        sequence.levelUpSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/LevelUpSe.wav");
+        sequence.deckAppearSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/CardDeckAppearSe.wav");
+        sequence.drawSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/CardDrawSe.wav");
+        sequence.flipSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/CardFlipSe.wav");
+        sequence.selectSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/CardSelectSe.wav");
+        sequence.confirmSe = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/SE/CardConfirmSe.wav");
+
+        return sequence;
+    }
+
+    // Deck Edit screen: a left panel of every CardDatabase.AllCards entry
+    // (all owned, since there's no unlock/collection system yet) and a
+    // right panel of the DeckCapacity slots currently filled by the deck -
+    // both scrolling grids (GridLayoutGroup inside a ScrollRect) built from
+    // the same card visuals as the reward-card sequence (CreateRewardCard),
+    // so growing the database later needs no layout changes here. Tapping
+    // an owned card adds it; tapping a filled deck slot removes it -
+    // DeckEditUI hit-tests these taps itself (see its class comment for
+    // why it doesn't use Button.onClick here), so this method passes null
+    // for CreateRewardCard's onClick and doesn't wire the back button's
+    // onClick either.
+    // Starts hidden; GameManager.OpenDeckEdit() activates it.
+    static DeckEditUI BuildDeckEditCanvas()
+    {
+        GameObject canvasGO = new GameObject("DeckEditCanvas");
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 90; // below RewardCardCanvas (100), above default rendering
+
+        CanvasScaler scaler = canvasGO.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        scaler.matchWidthOrHeight = 0.5f;
+
+        canvasGO.AddComponent<GraphicRaycaster>();
+
+        if (Object.FindFirstObjectByType<EventSystem>() == null)
+        {
+            GameObject esGO = new GameObject("EventSystem");
+            esGO.AddComponent<EventSystem>();
+            esGO.AddComponent<StandaloneInputModule>();
+        }
+
+        Sprite cardBackSprite = LoadTiledSprite("Assets/Art/UI/CardBack.png", 100f);
+        Sprite cardFrameSprite = LoadTiledSprite("Assets/Art/UI/CardFrame.png", 100f);
+
+        GameObject rootGO = new GameObject("DeckEditRoot");
+        rootGO.transform.SetParent(canvasGO.transform, false);
+        RectTransform rootRect = rootGO.AddComponent<RectTransform>();
+        StretchFull(rootRect);
+
+        DeckEditUI deckEdit = rootGO.AddComponent<DeckEditUI>();
+        deckEdit.root = rootGO;
+        deckEdit.rootGroup = rootGO.AddComponent<CanvasGroup>();
+
+        // Opaque backdrop - not just a dim overlay like the reward-card
+        // sequence's, since this screen sits over the TOP screen's own
+        // IMGUI which GameManager separately stops drawing while this is
+        // open, but should still look like a distinct full screen.
+        GameObject bgGO = new GameObject("Backdrop");
+        bgGO.transform.SetParent(rootGO.transform, false);
+        RectTransform bgRect = bgGO.AddComponent<RectTransform>();
+        StretchFull(bgRect);
+        Image bgImage = bgGO.AddComponent<Image>();
+        bgImage.color = new Color(0.05f, 0.06f, 0.12f, 0.96f);
+
+        // 4 columns fits comfortably within the narrower side panels the
+        // new 3-column COLLECTION / detail / DECK layout below leaves them
+        // (see the reference mockup) - ScrollRect dragging used to depend
+        // on the same EventSystem pipeline DeckEditUI's taps bypass, so a
+        // low column count used to matter for keeping everything reachable
+        // without scrolling; now that DeckEditUI drives the scroll
+        // manually itself (see its Update), that's no longer load-bearing,
+        // just still a reasonable density.
+        const float cardWidth = 130f;
+        float cardAspect = cardFrameSprite != null ? cardFrameSprite.rect.height / cardFrameSprite.rect.width : 1010f / 612f;
+        float cardHeight = cardWidth * cardAspect;
+        const int columns = 4;
+
+        // Three columns side by side - COLLECTION (left) -> selected-card
+        // detail (center) -> DECK (right) - matching the reference mockup's
+        // left-to-right reading order. Each has its own ornate-framed panel
+        // (via BuildDeckPanel/CreateOrnatePanel), so their borders alone
+        // separate the three regions without needing extra divider lines.
+        const float sideCenterX = 590f;
+        // 700, not 640 - with DeckPanelContentPad's wider content margin
+        // (45px/side, up from the old 30px, for the border-overflow fix -
+        // see CreateOrnatePanel/OrnatePanelPixelsPerUnit), a 640-wide panel
+        // no longer leaves quite enough innerWidth for 4 columns of
+        // cardWidth-wide cards plus GridLayoutGroup's own spacing (needs
+        // 4*130 + 3*22 = 586px) without clipping the 4th column - card size
+        // itself is unchanged (per the "don't change it" brief), only the
+        // panel grew to comfortably fit it again.
+        const float sidePanelWidth = 700f;
+        const float detailPanelWidth = 440f;
+
+        // BuildDeckPanel creates ONE shared header+scroll+grid - every card
+        // is parented under that single Content transform, not a fresh
+        // panel per card (an earlier version of this method accidentally
+        // called BuildDeckPanel inside the loop, creating 15 fully
+        // separate overlapping panels that stacked on top of each other
+        // and hid all but one card).
+        ScrollRect ownedScroll = BuildDeckPanel(rootGO.transform, "COLLECTION", -sideCenterX, sidePanelWidth, cardWidth, cardHeight, columns);
+        deckEdit.ownedScrollRect = ownedScroll;
+        Transform ownedPanelContent = ownedScroll.content;
+
+        // Category filter row - COLLECTION only (see BuildCategoryFilterTabs).
+        BuildCategoryFilterTabs(rootGO.transform, -sideCenterX, sidePanelWidth - DeckPanelContentPad * 2f, out var filterRects, out var filterBackgrounds, out var filterLabels);
+        deckEdit.filterButtonRects = filterRects;
+        deckEdit.filterButtonBackgrounds = filterBackgrounds;
+        deckEdit.filterButtonLabels = filterLabels;
+        // Home Room UI reconstruction pass, item 6 - COLLECTION is now one
+        // slot per OWNED (cardId, level) stack (see DeckEditUI.Refresh),
+        // not one slot per CardDefinition - a fixed pool sized generously
+        // (16 cards x up to MaxCardLevel(5)) rather than CardDatabase.
+        // AllCards.Count, same convention CardFusionUI's owned list uses.
+        const int ownedPoolSize = 48;
+        var ownedCards = new RewardCardUI[ownedPoolSize];
+        for (int i = 0; i < ownedPoolSize; i++)
+        {
+            ownedCards[i] = CreateRewardCard(ownedPanelContent, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, null);
+        }
+        deckEdit.ownedCards = ownedCards;
+
+        ScrollRect deckScroll = BuildDeckPanel(rootGO.transform, "DECK", sideCenterX, sidePanelWidth, cardWidth, cardHeight, columns);
+        deckEdit.deckScrollRect = deckScroll;
+        Transform deckPanelContent = deckScroll.content;
+        var deckSlotCards = new RewardCardUI[GameManager.DeckCapacity];
+        for (int i = 0; i < GameManager.DeckCapacity; i++)
+        {
+            deckSlotCards[i] = CreateRewardCard(deckPanelContent, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, null);
+        }
+        deckEdit.deckSlotCards = deckSlotCards;
+
+        // "おすすめ編成" / "全て外す" - DECK panel only (see
+        // BuildDeckActionButtons).
+        BuildDeckActionButtons(rootGO.transform, sideCenterX, sidePanelWidth - DeckPanelContentPad * 2f, out var recommendRect, out var clearRect);
+        deckEdit.recommendButtonRect = recommendRect;
+        deckEdit.clearButtonRect = clearRect;
+
+        // "DECK 10 / 10" / "COLLECTION 15 / 15" - English chrome labels
+        // matching the game's other UI text (START/DECK/BEST/DISTANCE are
+        // all already English), each sitting under the panel it counts.
+        Text collectionCountText = CreateDeckCountText(rootGO.transform, -sideCenterX);
+        deckEdit.collectionCountText = collectionCountText;
+
+        Text countText = CreateDeckCountText(rootGO.transform, sideCenterX);
+        deckEdit.countText = countText;
+
+        // Center detail column - card icon, name, category, and effect
+        // description for whichever card was most recently tapped in
+        // either side panel, at a size that's actually comfortable to
+        // read (the grid cards themselves are only 130px wide). Same
+        // height as the side panels so all three read as one aligned row.
+        RectTransform detailPanelRect = CreateOrnatePanel(rootGO.transform, "DetailPanel");
+        detailPanelRect.anchorMin = detailPanelRect.anchorMax = new Vector2(0.5f, 1f);
+        detailPanelRect.pivot = new Vector2(0.5f, 1f);
+        detailPanelRect.sizeDelta = new Vector2(detailPanelWidth, DeckPanelHeight);
+        detailPanelRect.anchoredPosition = new Vector2(0f, -100f);
+
+        // Same top/bottom content margin every other panel uses
+        // (DeckPanelContentPad/DeckPanelContentBottom - see BuildDeckPanel)
+        // so this panel's own ornate border never overlaps the icon/text
+        // either. Top-to-bottom info flow: card preview -> name/category ->
+        // effect description, per the reference layout.
+        const float iconSize = 200f;
+        const float nameHeight = 40f;
+        const float categoryHeight = 26f;
+        const float sideMargin = DeckPanelContentPad;
+
+        GameObject detailIconGO = new GameObject("DetailIcon");
+        detailIconGO.transform.SetParent(detailPanelRect, false);
+        RectTransform detailIconRect = detailIconGO.AddComponent<RectTransform>();
+        detailIconRect.anchorMin = detailIconRect.anchorMax = new Vector2(0.5f, 1f);
+        detailIconRect.pivot = new Vector2(0.5f, 1f);
+        detailIconRect.sizeDelta = new Vector2(iconSize, iconSize);
+        detailIconRect.anchoredPosition = new Vector2(0f, DeckPanelHeaderY);
+        Image detailIcon = detailIconGO.AddComponent<Image>();
+        detailIcon.preserveAspect = true;
+        detailIcon.raycastTarget = false;
+        detailIcon.enabled = false; // hidden until a card is actually selected
+        deckEdit.detailIcon = detailIcon;
+
+        float nameY = DeckPanelHeaderY - iconSize - 20f;
+        GameObject detailNameGO = new GameObject("DetailName");
+        detailNameGO.transform.SetParent(detailPanelRect, false);
+        RectTransform detailNameRect = detailNameGO.AddComponent<RectTransform>();
+        detailNameRect.anchorMin = detailNameRect.anchorMax = new Vector2(0.5f, 1f);
+        detailNameRect.pivot = new Vector2(0.5f, 1f);
+        detailNameRect.sizeDelta = new Vector2(detailPanelWidth - sideMargin * 2f, nameHeight);
+        detailNameRect.anchoredPosition = new Vector2(0f, nameY);
+        Text detailName = detailNameGO.AddComponent<Text>();
+        ConfigureCardText(detailName, 26, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        deckEdit.detailName = detailName;
+
+        float categoryY = nameY - nameHeight - 4f;
+        GameObject detailCategoryGO = new GameObject("DetailCategory");
+        detailCategoryGO.transform.SetParent(detailPanelRect, false);
+        RectTransform detailCategoryRect = detailCategoryGO.AddComponent<RectTransform>();
+        detailCategoryRect.anchorMin = detailCategoryRect.anchorMax = new Vector2(0.5f, 1f);
+        detailCategoryRect.pivot = new Vector2(0.5f, 1f);
+        detailCategoryRect.sizeDelta = new Vector2(detailPanelWidth - sideMargin * 2f, categoryHeight);
+        detailCategoryRect.anchoredPosition = new Vector2(0f, categoryY);
+        Text detailCategory = detailCategoryGO.AddComponent<Text>();
+        ConfigureCardText(detailCategory, 16, FontStyle.Normal, new Color(0.85f, 0.85f, 0.92f, 0.85f));
+        deckEdit.detailCategory = detailCategory;
+
+        // Fills the remaining space down to the panel's own safe bottom
+        // margin (DeckPanelContentBottom) instead of a fixed height, so it
+        // never runs under the panel's bottom border regardless of how
+        // tall the icon/name/category block above ends up. Home Room UI
+        // reconstruction pass, item 9 - reserves a CONVERT button's height
+        // at the very bottom of that space (convertReserve), only ever
+        // shown/active for a COLLECTION-originated selection (see
+        // DeckEditUI.RefreshConvertButton).
+        const float convertReserve = 66f;
+        float descY = categoryY - categoryHeight - 20f;
+        float descHeight = descY - DeckPanelContentBottom - convertReserve;
+        GameObject detailDescGO = new GameObject("DetailDescription");
+        detailDescGO.transform.SetParent(detailPanelRect, false);
+        RectTransform detailDescRect = detailDescGO.AddComponent<RectTransform>();
+        detailDescRect.anchorMin = new Vector2(0f, 1f);
+        detailDescRect.anchorMax = new Vector2(1f, 1f);
+        detailDescRect.pivot = new Vector2(0.5f, 1f);
+        detailDescRect.offsetMin = new Vector2(sideMargin, 0f);
+        detailDescRect.offsetMax = new Vector2(-sideMargin, 0f);
+        detailDescRect.sizeDelta = new Vector2(0f, descHeight);
+        detailDescRect.anchoredPosition = new Vector2(0f, descY);
+        Text detailDesc = detailDescGO.AddComponent<Text>();
+        ConfigureCardText(detailDesc, 20, FontStyle.Normal, Color.white);
+        detailDesc.alignment = TextAnchor.UpperCenter;
+        deckEdit.detailText = detailDesc;
+        deckEdit.detailPlaceholder = "カードをタップして\n詳細を確認";
+        detailDesc.text = deckEdit.detailPlaceholder;
+
+        // Item 9 - CONVERT button, right at the panel's own bottom margin.
+        // Starts inactive (RefreshConvertButton toggles it) - no card is
+        // selected yet on a fresh Open().
+        GameObject convertGO = new GameObject("ConvertButton");
+        convertGO.transform.SetParent(detailPanelRect, false);
+        RectTransform convertRect = convertGO.AddComponent<RectTransform>();
+        convertRect.anchorMin = new Vector2(0f, 1f);
+        convertRect.anchorMax = new Vector2(1f, 1f);
+        convertRect.pivot = new Vector2(0.5f, 1f);
+        convertRect.offsetMin = new Vector2(sideMargin, 0f);
+        convertRect.offsetMax = new Vector2(-sideMargin, 0f);
+        convertRect.sizeDelta = new Vector2(0f, convertReserve - 10f);
+        convertRect.anchoredPosition = new Vector2(0f, DeckPanelContentBottom + convertReserve - 10f);
+        Image convertBg = convertGO.AddComponent<Image>();
+        convertBg.color = new Color(0.55f, 0.42f, 0.14f, 0.9f); // same warm gold as "おすすめ編成" - a constructive action
+        convertBg.raycastTarget = false;
+        GameObject convertLabelGO = new GameObject("Label");
+        convertLabelGO.transform.SetParent(convertGO.transform, false);
+        StretchFull(convertLabelGO.AddComponent<RectTransform>());
+        Text convertLabel = convertLabelGO.AddComponent<Text>();
+        ConfigureCardText(convertLabel, 18, FontStyle.Bold, new Color(1f, 0.93f, 0.75f));
+        deckEdit.convertButtonRect = convertRect;
+        deckEdit.convertButtonLabel = convertLabel;
+        convertGO.SetActive(false);
+
+        // borderScale 2 - at 180x70 this panel is much smaller than
+        // COLLECTION/DECK/SELECTED CARD (600-900 units), where the
+        // baseline ~31-unit border would eat nearly half its height.
+        RectTransform backRect = CreateOrnatePanel(rootGO.transform, "BackButton", borderScale: 2f);
+        backRect.anchorMin = backRect.anchorMax = new Vector2(0f, 1f);
+        backRect.pivot = new Vector2(0f, 1f);
+        backRect.sizeDelta = new Vector2(180f, 70f);
+        backRect.anchoredPosition = new Vector2(30f, -30f);
+        GameObject backGO = backRect.gameObject;
+        // Not wired via Button.onClick - DeckEditUI hit-tests this rect
+        // itself (see its class comment). Button/Image stay purely for the
+        // visible box.
+        backGO.AddComponent<Button>().targetGraphic = backGO.GetComponent<Image>();
+        deckEdit.backButtonRect = backRect;
+
+        GameObject backLabelGO = new GameObject("Label");
+        backLabelGO.transform.SetParent(backGO.transform, false);
+        StretchFull(backLabelGO.AddComponent<RectTransform>());
+        Text backLabel = backLabelGO.AddComponent<Text>();
+        ConfigureCardText(backLabel, 26, FontStyle.Bold, Color.white);
+        backLabel.text = "戻る";
+
+        // Item 7 - Character Card slots (max 3), a small row tucked above
+        // the DECK panel (clear of the back button, top-left) since the
+        // three main panels already claim y=-100 downward.
+        const float charSlotSize = 84f;
+        const float charSlotGap = 14f;
+        float charRowWidth = GameManager.CharacterCardSlotCount * charSlotSize + (GameManager.CharacterCardSlotCount - 1) * charSlotGap;
+        float charStartX = sideCenterX - charRowWidth / 2f + charSlotSize / 2f;
+        const float charSlotY = -58f;
+
+        GameObject charHeaderGO = new GameObject("CharacterCardsHeader");
+        charHeaderGO.transform.SetParent(rootGO.transform, false);
+        RectTransform charHeaderRect = charHeaderGO.AddComponent<RectTransform>();
+        charHeaderRect.anchorMin = charHeaderRect.anchorMax = new Vector2(0.5f, 1f);
+        charHeaderRect.pivot = new Vector2(0.5f, 1f);
+        charHeaderRect.sizeDelta = new Vector2(400f, 26f);
+        charHeaderRect.anchoredPosition = new Vector2(sideCenterX, -8f);
+        Text charHeaderText = charHeaderGO.AddComponent<Text>();
+        ConfigureCardText(charHeaderText, 16, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        charHeaderText.text = "CHARACTER CARDS";
+
+        var characterSlots = new RewardCardUI[GameManager.CharacterCardSlotCount];
+        for (int i = 0; i < GameManager.CharacterCardSlotCount; i++)
+        {
+            RewardCardUI slot = CreateRewardCard(rootGO.transform, 1000 + i, charSlotSize, charSlotSize, cardBackSprite, cardFrameSprite, null);
+            slot.rect.anchorMin = slot.rect.anchorMax = new Vector2(0.5f, 1f);
+            slot.rect.pivot = new Vector2(0.5f, 1f);
+            slot.rect.anchoredPosition = new Vector2(charStartX + i * (charSlotSize + charSlotGap), charSlotY);
+            characterSlots[i] = slot;
+        }
+        deckEdit.characterSlotCards = characterSlots;
+
+        // Item 9 - shared "magic circle" glow for Convert (see
+        // DeckEditUI.PlayConvertGlow), centered on screen, hidden by
+        // default. Reuses the same tintable ring CardFusionUI uses.
+        Sprite magicCircleSprite = LoadTiledSprite("Assets/Art/Effects/DoubleJumpRing.png", 1672f);
+        GameObject circleGO = new GameObject("MagicCircle");
+        circleGO.transform.SetParent(rootGO.transform, false);
+        RectTransform circleRect = circleGO.AddComponent<RectTransform>();
+        circleRect.anchorMin = circleRect.anchorMax = new Vector2(0.5f, 0.5f);
+        circleRect.pivot = new Vector2(0.5f, 0.5f);
+        circleRect.sizeDelta = new Vector2(500f, 500f);
+        circleRect.anchoredPosition = Vector2.zero;
+        Image circleImage = circleGO.AddComponent<Image>();
+        circleImage.sprite = magicCircleSprite;
+        circleImage.preserveAspect = true;
+        circleImage.raycastTarget = false;
+        circleGO.SetActive(false);
+        deckEdit.magicCircleImage = circleImage;
+
+        // Built last so it's the last sibling under rootGO.transform and
+        // renders above every panel/card already built above (uGUI draws
+        // by sibling order) - starts hidden (see BuildConfirmDialog).
+        deckEdit.confirmDialog = BuildConfirmDialog(rootGO.transform);
+
+        rootGO.SetActive(false);
+        return deckEdit;
+    }
+
+    // Home Room UI reconstruction pass - the new independent Card Fusion
+    // screen (see CardFusionUI's own class comment). Same overlay-Canvas
+    // pattern as BuildDeckEditCanvas (raw-touch, no Button.onClick), but a
+    // simpler layout: MAIN/SUB slots + FUSE button + one owned-cards list -
+    // deliberately does NOT reuse BuildDeckPanel's own Y-position constants
+    // (DeckPanelHeaderY etc.), since those are tightly coupled to
+    // DeckEditUI's specific two-side-panel layout.
+    static CardFusionUI BuildCardFusionCanvas()
+    {
+        GameObject canvasGO = new GameObject("CardFusionCanvas");
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 90; // same layer as DeckEditCanvas - never open simultaneously (see GameManager.AnyOverlayOpen)
+
+        CanvasScaler scaler = canvasGO.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        scaler.matchWidthOrHeight = 0.5f;
+
+        canvasGO.AddComponent<GraphicRaycaster>();
+        if (Object.FindFirstObjectByType<EventSystem>() == null)
+        {
+            GameObject esGO = new GameObject("EventSystem");
+            esGO.AddComponent<EventSystem>();
+            esGO.AddComponent<StandaloneInputModule>();
+        }
+
+        Sprite cardBackSprite = LoadTiledSprite("Assets/Art/UI/CardBack.png", 100f);
+        Sprite cardFrameSprite = LoadTiledSprite("Assets/Art/UI/CardFrame.png", 100f);
+        // Reuses the existing Double Jump Ring effect sprite (Game Feel
+        // pass) as a stand-in "magic circle" - see CardFusionUI.
+        // magicCircleImage's own comment for why (no dedicated magic-
+        // circle art was cut from the reference storyboards).
+        Sprite magicCircleSprite = LoadTiledSprite("Assets/Art/Effects/DoubleJumpRing.png", 1672f);
+        float gridCardAspect = cardFrameSprite != null ? cardFrameSprite.rect.height / cardFrameSprite.rect.width : 1010f / 612f;
+
+        GameObject rootGO = new GameObject("CardFusionRoot");
+        rootGO.transform.SetParent(canvasGO.transform, false);
+        RectTransform rootRect = rootGO.AddComponent<RectTransform>();
+        StretchFull(rootRect);
+
+        CardFusionUI menu = rootGO.AddComponent<CardFusionUI>();
+        menu.root = rootGO;
+        menu.rootGroup = rootGO.AddComponent<CanvasGroup>();
+
+        GameObject bgGO = new GameObject("Backdrop");
+        bgGO.transform.SetParent(rootGO.transform, false);
+        RectTransform bgRect = bgGO.AddComponent<RectTransform>();
+        StretchFull(bgRect);
+        Image bgImage = bgGO.AddComponent<Image>();
+        bgImage.color = new Color(0.05f, 0.06f, 0.12f, 0.96f);
+
+        // ===== MAIN / SUB slots (item 10) ===== //
+        const float slotSize = 220f;
+        const float slotGap = 140f; // leaves room for the magic circle between them
+        const float slotY = -160f;
+        RewardCardUI mainSlot = CreateRewardCard(rootGO.transform, 1, slotSize, slotSize, cardBackSprite, cardFrameSprite, null);
+        mainSlot.rect.anchorMin = mainSlot.rect.anchorMax = new Vector2(0.5f, 1f);
+        mainSlot.rect.pivot = new Vector2(0.5f, 1f);
+        mainSlot.rect.anchoredPosition = new Vector2(-(slotSize + slotGap) / 2f, slotY);
+        menu.mainSlotCard = mainSlot;
+
+        RewardCardUI subSlot = CreateRewardCard(rootGO.transform, 2, slotSize, slotSize, cardBackSprite, cardFrameSprite, null);
+        subSlot.rect.anchorMin = subSlot.rect.anchorMax = new Vector2(0.5f, 1f);
+        subSlot.rect.pivot = new Vector2(0.5f, 1f);
+        subSlot.rect.anchoredPosition = new Vector2((slotSize + slotGap) / 2f, slotY);
+        menu.subSlotCard = subSlot;
+
+        GameObject mainLabelGO = new GameObject("MainLabel");
+        mainLabelGO.transform.SetParent(rootGO.transform, false);
+        RectTransform mainLabelRect = mainLabelGO.AddComponent<RectTransform>();
+        mainLabelRect.anchorMin = mainLabelRect.anchorMax = new Vector2(0.5f, 1f);
+        mainLabelRect.pivot = new Vector2(0.5f, 1f);
+        mainLabelRect.sizeDelta = new Vector2(slotSize, 30f);
+        mainLabelRect.anchoredPosition = new Vector2(-(slotSize + slotGap) / 2f, slotY - slotSize - 8f);
+        Text mainLabel = mainLabelGO.AddComponent<Text>();
+        ConfigureCardText(mainLabel, 18, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        mainLabel.text = "MAIN CARD";
+
+        GameObject subLabelGO = new GameObject("SubLabel");
+        subLabelGO.transform.SetParent(rootGO.transform, false);
+        RectTransform subLabelRect = subLabelGO.AddComponent<RectTransform>();
+        subLabelRect.anchorMin = subLabelRect.anchorMax = new Vector2(0.5f, 1f);
+        subLabelRect.pivot = new Vector2(0.5f, 1f);
+        subLabelRect.sizeDelta = new Vector2(slotSize, 30f);
+        subLabelRect.anchoredPosition = new Vector2((slotSize + slotGap) / 2f, slotY - slotSize - 8f);
+        Text subLabel = subLabelGO.AddComponent<Text>();
+        ConfigureCardText(subLabel, 18, FontStyle.Bold, new Color(0.85f, 0.85f, 0.92f, 0.85f));
+        subLabel.text = "SUB / MATERIAL CARD";
+
+        // ===== Magic circle - centered between MAIN and SUB ===== //
+        GameObject circleGO = new GameObject("MagicCircle");
+        circleGO.transform.SetParent(rootGO.transform, false);
+        RectTransform circleRect = circleGO.AddComponent<RectTransform>();
+        circleRect.anchorMin = circleRect.anchorMax = new Vector2(0.5f, 1f);
+        circleRect.pivot = new Vector2(0.5f, 1f);
+        circleRect.sizeDelta = new Vector2(180f, 180f);
+        circleRect.anchoredPosition = new Vector2(0f, slotY - slotSize / 2f + 90f);
+        Image circleImage = circleGO.AddComponent<Image>();
+        circleImage.sprite = magicCircleSprite;
+        circleImage.preserveAspect = true;
+        circleImage.raycastTarget = false;
+        circleGO.SetActive(false);
+        menu.magicCircleImage = circleImage;
+
+        // ===== FUSE button ===== //
+        RectTransform fuseRect = CreateOrnatePanel(rootGO.transform, "FuseButton", borderScale: 2f);
+        fuseRect.anchorMin = fuseRect.anchorMax = new Vector2(0.5f, 1f);
+        fuseRect.pivot = new Vector2(0.5f, 1f);
+        fuseRect.sizeDelta = new Vector2(320f, 64f);
+        fuseRect.anchoredPosition = new Vector2(0f, slotY - slotSize - 60f);
+        menu.fuseButtonRect = fuseRect;
+        GameObject fuseLabelGO = new GameObject("Label");
+        fuseLabelGO.transform.SetParent(fuseRect, false);
+        StretchFull(fuseLabelGO.AddComponent<RectTransform>());
+        Text fuseLabel = fuseLabelGO.AddComponent<Text>();
+        ConfigureCardText(fuseLabel, 22, FontStyle.Bold, Color.white);
+        fuseLabel.text = "SELECT MAIN / SUB";
+        menu.fuseButtonLabel = fuseLabel;
+
+        // ===== Status text ===== //
+        float statusY = slotY - slotSize - 140f;
+        GameObject statusGO = new GameObject("StatusText");
+        statusGO.transform.SetParent(rootGO.transform, false);
+        RectTransform statusRect = statusGO.AddComponent<RectTransform>();
+        statusRect.anchorMin = statusRect.anchorMax = new Vector2(0.5f, 1f);
+        statusRect.pivot = new Vector2(0.5f, 1f);
+        statusRect.sizeDelta = new Vector2(1700f, 34f);
+        statusRect.anchoredPosition = new Vector2(0f, statusY);
+        Text statusText = statusGO.AddComponent<Text>();
+        ConfigureCardText(statusText, 18, FontStyle.Normal, new Color(0.9f, 0.92f, 1f, 0.85f));
+        menu.statusText = statusText;
+
+        // ===== Owned cards list (item 11 - shows EVERY owned stack, never
+        // hides a locked one) ===== //
+        const float gridPanelWidth = 1750f;
+        float gridTopY = statusY - 46f;
+        const float gridBottomMargin = 40f;
+        const int gridColumns = 7;
+        const float gridCardWidth = 150f;
+        float gridCardHeight = gridCardWidth * gridCardAspect;
+
+        RectTransform gridPanelRect = CreateOrnatePanel(rootGO.transform, "OwnedCardsPanel");
+        float gridPanelHeight = 1080f + gridTopY - gridBottomMargin; // from gridTopY down to gridBottomMargin above the bottom edge
+        gridPanelRect.anchorMin = gridPanelRect.anchorMax = new Vector2(0.5f, 1f);
+        gridPanelRect.pivot = new Vector2(0.5f, 1f);
+        gridPanelRect.sizeDelta = new Vector2(gridPanelWidth, gridPanelHeight);
+        gridPanelRect.anchoredPosition = new Vector2(0f, gridTopY);
+
+        const float gridPad = 45f;
+        GameObject countGO = new GameObject("OwnedCountText");
+        countGO.transform.SetParent(rootGO.transform, false);
+        RectTransform countRect = countGO.AddComponent<RectTransform>();
+        countRect.anchorMin = countRect.anchorMax = new Vector2(0.5f, 1f);
+        countRect.pivot = new Vector2(0.5f, 1f);
+        countRect.sizeDelta = new Vector2(600f, 34f);
+        countRect.anchoredPosition = new Vector2(0f, gridTopY - gridPad);
+        Text ownedCountText = countGO.AddComponent<Text>();
+        ConfigureCardText(ownedCountText, 20, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        menu.ownedCountText = ownedCountText;
+
+        GameObject scrollGO = new GameObject("OwnedScroll");
+        scrollGO.transform.SetParent(rootGO.transform, false);
+        RectTransform scrollRect = scrollGO.AddComponent<RectTransform>();
+        scrollRect.anchorMin = scrollRect.anchorMax = new Vector2(0.5f, 1f);
+        scrollRect.pivot = new Vector2(0.5f, 1f);
+        scrollRect.sizeDelta = new Vector2(gridPanelWidth - gridPad * 2f, gridPanelHeight - gridPad - 40f - gridPad);
+        scrollRect.anchoredPosition = new Vector2(0f, gridTopY - gridPad - 40f);
+        ScrollRect scroll = scrollGO.AddComponent<ScrollRect>();
+        scroll.horizontal = false;
+        scroll.vertical = true;
+        scroll.movementType = ScrollRect.MovementType.Clamped;
+        scrollGO.AddComponent<RectMask2D>();
+
+        GameObject contentGO = new GameObject("Content");
+        contentGO.transform.SetParent(scrollGO.transform, false);
+        RectTransform contentRect = contentGO.AddComponent<RectTransform>();
+        contentRect.anchorMin = new Vector2(0f, 1f);
+        contentRect.anchorMax = new Vector2(1f, 1f);
+        contentRect.pivot = new Vector2(0.5f, 1f);
+        contentRect.sizeDelta = Vector2.zero;
+        scroll.content = contentRect;
+        scroll.viewport = scrollRect;
+
+        GridLayoutGroup grid = contentGO.AddComponent<GridLayoutGroup>();
+        grid.cellSize = new Vector2(gridCardWidth, gridCardHeight);
+        grid.spacing = new Vector2(18f, 18f);
+        grid.childAlignment = TextAnchor.UpperCenter;
+        grid.startAxis = GridLayoutGroup.Axis.Horizontal;
+        grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        grid.constraintCount = gridColumns;
+        ContentSizeFitter fitter = contentGO.AddComponent<ContentSizeFitter>();
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        scroll.verticalNormalizedPosition = 1f;
+        menu.ownedScrollRect = scroll;
+
+        // Pre-built pool of owned-card slots - see CardFusionUI.Refresh for
+        // how many can actually be shown at once (deactivates the rest).
+        // 48 comfortably covers every (cardId, level) combination realistic
+        // for this Ver.1's 16 cards x MaxCardLevel(5) without being wasteful.
+        const int ownedPoolSize = 48;
+        var ownedCards = new RewardCardUI[ownedPoolSize];
+        for (int i = 0; i < ownedPoolSize; i++)
+        {
+            ownedCards[i] = CreateRewardCard(contentGO.transform, 2000 + i, gridCardWidth, gridCardHeight, cardBackSprite, cardFrameSprite, null);
+        }
+        menu.ownedCards = ownedCards;
+
+        // ===== Reveal card (Fusion success) - centered, large, hidden by
+        // default, built after everything else so it renders on top ===== //
+        RewardCardUI revealCard = CreateRewardCard(rootGO.transform, 9000, 300f, 300f * gridCardAspect, cardBackSprite, cardFrameSprite, null);
+        revealCard.rect.anchorMin = revealCard.rect.anchorMax = new Vector2(0.5f, 0.5f);
+        revealCard.rect.pivot = new Vector2(0.5f, 0.5f);
+        revealCard.rect.anchoredPosition = Vector2.zero;
+        revealCard.gameObject.SetActive(false);
+        menu.revealCard = revealCard;
+
+        // ===== Back button ===== //
+        RectTransform backRect = CreateOrnatePanel(rootGO.transform, "BackButton", borderScale: 2f);
+        backRect.anchorMin = backRect.anchorMax = new Vector2(0f, 1f);
+        backRect.pivot = new Vector2(0f, 1f);
+        backRect.sizeDelta = new Vector2(180f, 70f);
+        backRect.anchoredPosition = new Vector2(30f, -30f);
+        GameObject backGO = backRect.gameObject;
+        backGO.AddComponent<Button>().targetGraphic = backGO.GetComponent<Image>();
+        menu.backButtonRect = backRect;
+        GameObject backLabelGO = new GameObject("Label");
+        backLabelGO.transform.SetParent(backGO.transform, false);
+        StretchFull(backLabelGO.AddComponent<RectTransform>());
+        Text backLabel = backLabelGO.AddComponent<Text>();
+        ConfigureCardText(backLabel, 26, FontStyle.Bold, Color.white);
+        backLabel.text = "戻る";
+
+        rootGO.SetActive(false);
+        return menu;
+    }
+
+    // "LABEL n / m" count readout sitting under one Deck Edit panel -
+    // shared by both COLLECTION (left, centerX=-500) and DECK (right,
+    // centerX=500). DeckEditUI.Refresh() sets the actual text each time.
+    // DeckPanelCountY (below) sits directly below BOTH panels' scroll/grid -
+    // the same Y works for COLLECTION and DECK even though only DECK also
+    // reserves an action-button row above this, because that row's height
+    // is already folded into DeckPanelActionY/DeckPanelCountY's derivation.
+    static Text CreateDeckCountText(Transform parent, float centerX)
+    {
+        GameObject countGO = new GameObject("CountText");
+        countGO.transform.SetParent(parent, false);
+        RectTransform countRect = countGO.AddComponent<RectTransform>();
+        countRect.anchorMin = new Vector2(0.5f, 1f);
+        countRect.anchorMax = new Vector2(0.5f, 1f);
+        countRect.pivot = new Vector2(0.5f, 1f);
+        countRect.sizeDelta = new Vector2(400f, DeckPanelCountHeight);
+        countRect.anchoredPosition = new Vector2(centerX, DeckPanelCountY);
+        Text countText = countGO.AddComponent<Text>();
+        ConfigureCardText(countText, 22, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        return countText;
+    }
+
+    // Builds one Deck Edit panel: a header label plus a scrolling
+    // GridLayoutGroup grid beneath it, centered at `centerX` (so -500/+500
+    // gives a left/right pair within the 1920-wide reference canvas).
+    // Returns the ScrollRect itself (its .content is where the caller
+    // parents cards under - CreateRewardCard's own placeholder size/
+    // position gets overridden by GridLayoutGroup on the next layout pass
+    // regardless; its .viewport is what DeckEditUI's manual drag-scroll
+    // hit-tests against and scrolls, see DeckEditUI.Update).
+    // Shared layout constants for the COLLECTION/DECK panels - a panel is
+    // "Frame" (CreateOrnatePanel's decorative border) plus a ContentRoot
+    // laid out entirely within DeckPanelContentPad of every edge, so
+    // nothing (header text, filter tabs, cards) ever sits under the
+    // frame's painted border. DeckPanelContentPad is comfortably larger
+    // than the ~31-unit on-screen border OrnatePanelPixelsPerUnit produces
+    // (see CreateOrnatePanel), not just equal to it - deliberate breathing
+    // room, not a bare minimum.
+    const float DeckPanelHeight = 870f;
+    const float DeckPanelContentPad = 45f;
+    const float DeckPanelHeaderHeight = 50f;
+    const float DeckPanelFilterHeight = 34f;
+    const float DeckPanelGap = 12f;
+    const float DeckPanelActionHeight = 50f;
+    const float DeckPanelCountHeight = 36f;
+
+    // Derived Y positions (top-pivoted, relative to the same origin the
+    // panel itself uses, -100) - every other panel-content Y in this file
+    // is one of these so header/filter/action/count row heights can change
+    // without hand-recomputing anything downstream.
+    const float DeckPanelHeaderY = -100f - DeckPanelContentPad;
+    const float DeckPanelFilterY = DeckPanelHeaderY - DeckPanelHeaderHeight - DeckPanelGap;
+    const float DeckPanelContentBottom = -100f - DeckPanelHeight + DeckPanelContentPad;
+    const float DeckPanelCountY = DeckPanelContentBottom + DeckPanelCountHeight;
+    const float DeckPanelActionY = DeckPanelCountY + DeckPanelGap + DeckPanelActionHeight;
+
+    static ScrollRect BuildDeckPanel(Transform parent, string headerText, float centerX, float panelWidth, float cardWidth, float cardHeight, int columns)
+    {
+        float innerWidth = panelWidth - DeckPanelContentPad * 2f;
+
+        // Navy+gold region panel behind the header+grid, sized to enclose
+        // both with some margin - gives COLLECTION/DECK each a clearly
+        // bounded area instead of just floating text and cards over the
+        // plain screen backdrop. Created first so it renders behind
+        // everything else built below (uGUI draws in sibling order).
+        RectTransform panelRect = CreateOrnatePanel(parent, "Panel_" + headerText);
+        panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 1f);
+        panelRect.pivot = new Vector2(0.5f, 1f);
+        panelRect.sizeDelta = new Vector2(panelWidth, DeckPanelHeight);
+        panelRect.anchoredPosition = new Vector2(centerX, -100f);
+
+        // Y positions here start well below the back button (which occupies
+        // roughly y=-30..-100 in the top-left corner) even for the left
+        // panel, whose header would otherwise sit directly behind it, AND
+        // below the panel's own top border (DeckPanelContentPad). A fixed
+        // gap is always left between the header and the scroll grid (even
+        // on the DECK panel, which has no filter tabs of its own) so both
+        // panels' card grids start at the same Y and read as one aligned
+        // row - see BuildCategoryFilterTabs, called separately by
+        // BuildDeckEditCanvas only for the COLLECTION panel.
+        GameObject headerGO = new GameObject("Header_" + headerText);
+        headerGO.transform.SetParent(parent, false);
+        RectTransform headerRect = headerGO.AddComponent<RectTransform>();
+        headerRect.anchorMin = headerRect.anchorMax = new Vector2(0.5f, 1f);
+        headerRect.pivot = new Vector2(0.5f, 1f);
+        headerRect.sizeDelta = new Vector2(innerWidth, DeckPanelHeaderHeight);
+        headerRect.anchoredPosition = new Vector2(centerX, DeckPanelHeaderY);
+        Text headerLabel = headerGO.AddComponent<Text>();
+        ConfigureCardText(headerLabel, 26, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        headerLabel.text = headerText;
+
+        // Always reserves the filter row's height below the header (even
+        // for DECK, which has no filter tabs of its own - see above) so
+        // the scroll/grid always starts at the same Y regardless.
+        float scrollY = DeckPanelFilterY - DeckPanelFilterHeight - DeckPanelGap;
+        // DECK additionally reserves its action-button row (see
+        // BuildDeckActionButtons) above the count text row (see
+        // CreateDeckCountText) that both panels reserve below the scroll -
+        // the scroll itself just fills whatever's left down to whichever
+        // of those actually starts first, so bumping either height never
+        // needs a matching hand-recomputed scroll height here.
+        float reservedTop = headerText == "DECK" ? DeckPanelActionY : DeckPanelCountY;
+        float scrollHeight = scrollY - (reservedTop + DeckPanelGap);
+
+        GameObject scrollGO = new GameObject("Scroll_" + headerText);
+        scrollGO.transform.SetParent(parent, false);
+        RectTransform scrollRect = scrollGO.AddComponent<RectTransform>();
+        scrollRect.anchorMin = scrollRect.anchorMax = new Vector2(0.5f, 1f);
+        scrollRect.pivot = new Vector2(0.5f, 1f);
+        scrollRect.sizeDelta = new Vector2(innerWidth, scrollHeight);
+        scrollRect.anchoredPosition = new Vector2(centerX, scrollY);
+        ScrollRect scroll = scrollGO.AddComponent<ScrollRect>();
+        scroll.horizontal = false;
+        scroll.vertical = true;
+        scroll.movementType = ScrollRect.MovementType.Clamped;
+        scrollGO.AddComponent<RectMask2D>();
+
+        GameObject contentGO = new GameObject("Content");
+        contentGO.transform.SetParent(scrollGO.transform, false);
+        RectTransform contentRect = contentGO.AddComponent<RectTransform>();
+        contentRect.anchorMin = new Vector2(0f, 1f);
+        contentRect.anchorMax = new Vector2(1f, 1f);
+        contentRect.pivot = new Vector2(0.5f, 1f);
+        contentRect.sizeDelta = Vector2.zero;
+        scroll.content = contentRect;
+        scroll.viewport = scrollRect;
+
+        GridLayoutGroup grid = contentGO.AddComponent<GridLayoutGroup>();
+        grid.cellSize = new Vector2(cardWidth, cardHeight);
+        grid.spacing = new Vector2(22f, 20f);
+        grid.childAlignment = TextAnchor.UpperCenter;
+        grid.startAxis = GridLayoutGroup.Axis.Horizontal;
+        grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        grid.constraintCount = columns;
+        ContentSizeFitter fitter = contentGO.AddComponent<ContentSizeFitter>();
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        // Card grids must always open scrolled to the top (never mid-scroll
+        // from a stale layout pass) - forced again defensively in
+        // DeckEditUI.Open() every time the screen is (re)opened, but also
+        // set here so it's correct even before that ever runs once.
+        scroll.verticalNormalizedPosition = 1f;
+
+        return scroll;
+    }
+
+    // ALL/ATTACK/DEFENSE/SUPPORT/SPECIAL - the category filter row under
+    // COLLECTION's header (see the reference mockup's "empty DECK screen"
+    // sheet). DeckEditUI maps these 5 buckets onto the existing
+    // CardCategory enum itself (see DeckEditUI.MatchesFilter) rather than
+    // this method knowing anything about card data - it just builds the
+    // buttons and hands their Rects/backgrounds/labels back for DeckEditUI
+    // to hit-test (raw-touch, same as every other tap on this screen) and
+    // highlight. Only called for the COLLECTION panel; DECK has no filter
+    // row of its own.
+    static readonly string[] CategoryFilterNames = { "ALL", "ATTACK", "DEFENSE", "SUPPORT", "SPECIAL" };
+
+    static void BuildCategoryFilterTabs(Transform parent, float centerX, float innerWidth, out RectTransform[] rects, out Image[] backgrounds, out Text[] labels)
+    {
+        int count = CategoryFilterNames.Length;
+        rects = new RectTransform[count];
+        backgrounds = new Image[count];
+        labels = new Text[count];
+
+        const float spacing = 6f;
+        float tabWidth = (innerWidth - spacing * (count - 1)) / count;
+
+        for (int i = 0; i < count; i++)
+        {
+            GameObject tabGO = new GameObject("Filter_" + CategoryFilterNames[i]);
+            tabGO.transform.SetParent(parent, false);
+            RectTransform tabRect = tabGO.AddComponent<RectTransform>();
+            tabRect.anchorMin = tabRect.anchorMax = new Vector2(0.5f, 1f);
+            tabRect.pivot = new Vector2(0f, 1f);
+            tabRect.sizeDelta = new Vector2(tabWidth, DeckPanelFilterHeight);
+            tabRect.anchoredPosition = new Vector2(centerX - innerWidth / 2f + i * (tabWidth + spacing), DeckPanelFilterY);
+
+            Image bg = tabGO.AddComponent<Image>();
+            bg.color = new Color(0.08f, 0.09f, 0.16f, 0.85f);
+            bg.raycastTarget = false;
+
+            GameObject labelGO = new GameObject("Label");
+            labelGO.transform.SetParent(tabGO.transform, false);
+            StretchFull(labelGO.AddComponent<RectTransform>());
+            Text label = labelGO.AddComponent<Text>();
+            ConfigureCardText(label, 14, FontStyle.Bold, Color.white);
+            label.text = CategoryFilterNames[i];
+
+            rects[i] = tabRect;
+            backgrounds[i] = bg;
+            labels[i] = label;
+        }
+    }
+
+    // "おすすめ編成" / "全て外す" - side by side under the DECK panel's card
+    // grid (see the reference mockup), sitting in the gap between the
+    // scroll region's bottom and the "DECK n / 10" count text below it.
+    // Raw-touch hit-tested by DeckEditUI like every other tap on this
+    // screen, not Button.onClick - flat colored buttons (not the ornate
+    // frame) since they're secondary actions, not hero CTAs.
+    static void BuildDeckActionButtons(Transform parent, float centerX, float innerWidth, out RectTransform recommendRect, out RectTransform clearRect)
+    {
+        const float y = DeckPanelActionY;
+        const float height = DeckPanelActionHeight;
+        const float gap = 12f;
+        float buttonWidth = (innerWidth - gap) / 2f;
+
+        GameObject recommendGO = new GameObject("RecommendButton");
+        recommendGO.transform.SetParent(parent, false);
+        recommendRect = recommendGO.AddComponent<RectTransform>();
+        recommendRect.anchorMin = recommendRect.anchorMax = new Vector2(0.5f, 1f);
+        recommendRect.pivot = new Vector2(0f, 1f);
+        recommendRect.sizeDelta = new Vector2(buttonWidth, height);
+        recommendRect.anchoredPosition = new Vector2(centerX - innerWidth / 2f, y);
+        Image recommendBg = recommendGO.AddComponent<Image>();
+        recommendBg.color = new Color(0.55f, 0.42f, 0.14f, 0.9f); // warm gold - a positive/constructive action
+        recommendBg.raycastTarget = false;
+        GameObject recommendLabelGO = new GameObject("Label");
+        recommendLabelGO.transform.SetParent(recommendGO.transform, false);
+        StretchFull(recommendLabelGO.AddComponent<RectTransform>());
+        Text recommendLabel = recommendLabelGO.AddComponent<Text>();
+        ConfigureCardText(recommendLabel, 16, FontStyle.Bold, new Color(1f, 0.93f, 0.75f));
+        recommendLabel.text = "おすすめ編成";
+
+        GameObject clearGO = new GameObject("ClearAllButton");
+        clearGO.transform.SetParent(parent, false);
+        clearRect = clearGO.AddComponent<RectTransform>();
+        clearRect.anchorMin = clearRect.anchorMax = new Vector2(0.5f, 1f);
+        clearRect.pivot = new Vector2(0f, 1f);
+        clearRect.sizeDelta = new Vector2(buttonWidth, height);
+        clearRect.anchoredPosition = new Vector2(centerX - innerWidth / 2f + buttonWidth + gap, y);
+        Image clearBg = clearGO.AddComponent<Image>();
+        clearBg.color = new Color(0.42f, 0.12f, 0.12f, 0.9f); // muted red - a destructive action
+        clearBg.raycastTarget = false;
+        GameObject clearLabelGO = new GameObject("Label");
+        clearLabelGO.transform.SetParent(clearGO.transform, false);
+        StretchFull(clearLabelGO.AddComponent<RectTransform>());
+        Text clearLabel = clearLabelGO.AddComponent<Text>();
+        ConfigureCardText(clearLabel, 16, FontStyle.Bold, Color.white);
+        clearLabel.text = "全て外す";
+    }
+
+    // A small reusable yes/no confirm modal (see ConfirmDialogUI) - a
+    // screen-covering dim backdrop plus one centered ornate panel with a
+    // message and two buttons. Built once per Deck Edit canvas, parented
+    // last under rootGO.transform so it renders above every panel/card
+    // already built (uGUI draws by sibling order) - starts hidden.
+    static ConfirmDialogUI BuildConfirmDialog(Transform parent)
+    {
+        GameObject rootGO = new GameObject("ConfirmDialog");
+        rootGO.transform.SetParent(parent, false);
+        RectTransform rootRect = rootGO.AddComponent<RectTransform>();
+        StretchFull(rootRect);
+        ConfirmDialogUI dialog = rootGO.AddComponent<ConfirmDialogUI>();
+        dialog.root = rootGO;
+
+        GameObject dimGO = new GameObject("Dim");
+        dimGO.transform.SetParent(rootGO.transform, false);
+        RectTransform dimRect = dimGO.AddComponent<RectTransform>();
+        StretchFull(dimRect);
+        Image dim = dimGO.AddComponent<Image>();
+        dim.color = new Color(0f, 0f, 0f, 0.6f);
+        dim.raycastTarget = false;
+
+        RectTransform panelRect = CreateOrnatePanel(rootGO.transform, "Panel");
+        panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        panelRect.pivot = new Vector2(0.5f, 0.5f);
+        panelRect.sizeDelta = new Vector2(560f, 280f);
+        panelRect.anchoredPosition = Vector2.zero;
+
+        GameObject messageGO = new GameObject("Message");
+        messageGO.transform.SetParent(panelRect, false);
+        RectTransform messageRect = messageGO.AddComponent<RectTransform>();
+        messageRect.anchorMin = new Vector2(0f, 1f);
+        messageRect.anchorMax = new Vector2(1f, 1f);
+        messageRect.pivot = new Vector2(0.5f, 1f);
+        messageRect.offsetMin = new Vector2(30f, 0f);
+        messageRect.offsetMax = new Vector2(-30f, 0f);
+        messageRect.sizeDelta = new Vector2(0f, 140f);
+        messageRect.anchoredPosition = new Vector2(0f, -40f);
+        Text messageText = messageGO.AddComponent<Text>();
+        ConfigureCardText(messageText, 22, FontStyle.Normal, Color.white);
+        dialog.messageText = messageText;
+
+        const float buttonWidth = 220f;
+        const float buttonHeight = 64f;
+        const float buttonGap = 20f;
+
+        GameObject yesGO = new GameObject("Yes");
+        yesGO.transform.SetParent(panelRect, false);
+        RectTransform yesRect = yesGO.AddComponent<RectTransform>();
+        yesRect.anchorMin = yesRect.anchorMax = new Vector2(0.5f, 0f);
+        yesRect.pivot = new Vector2(1f, 0f);
+        yesRect.sizeDelta = new Vector2(buttonWidth, buttonHeight);
+        yesRect.anchoredPosition = new Vector2(-buttonGap / 2f, 30f);
+        Image yesBg = yesGO.AddComponent<Image>();
+        yesBg.color = new Color(0.55f, 0.42f, 0.14f, 0.95f);
+        yesBg.raycastTarget = false;
+        GameObject yesLabelGO = new GameObject("Label");
+        yesLabelGO.transform.SetParent(yesGO.transform, false);
+        StretchFull(yesLabelGO.AddComponent<RectTransform>());
+        Text yesLabel = yesLabelGO.AddComponent<Text>();
+        ConfigureCardText(yesLabel, 20, FontStyle.Bold, new Color(1f, 0.93f, 0.75f));
+        yesLabel.text = "はい";
+        dialog.yesRect = yesRect;
+
+        GameObject noGO = new GameObject("No");
+        noGO.transform.SetParent(panelRect, false);
+        RectTransform noRect = noGO.AddComponent<RectTransform>();
+        noRect.anchorMin = noRect.anchorMax = new Vector2(0.5f, 0f);
+        noRect.pivot = new Vector2(0f, 0f);
+        noRect.sizeDelta = new Vector2(buttonWidth, buttonHeight);
+        noRect.anchoredPosition = new Vector2(buttonGap / 2f, 30f);
+        Image noBg = noGO.AddComponent<Image>();
+        noBg.color = new Color(0.14f, 0.16f, 0.24f, 0.95f);
+        noBg.raycastTarget = false;
+        GameObject noLabelGO = new GameObject("Label");
+        noLabelGO.transform.SetParent(noGO.transform, false);
+        StretchFull(noLabelGO.AddComponent<RectTransform>());
+        Text noLabel = noLabelGO.AddComponent<Text>();
+        ConfigureCardText(noLabel, 20, FontStyle.Bold, Color.white);
+        noLabel.text = "いいえ";
+        dialog.noRect = noRect;
+
+        rootGO.SetActive(false);
+        return dialog;
+    }
+
+    // One reward card: back image, frame image, icon, title, description,
+    // and a Button covering the whole card for tap-to-select - the same
+    // structure every time, only the content (set later via SetContent)
+    // differs, standing in for a shared Prefab in a project where every
+    // object is built by code.
+    static RewardCardUI CreateRewardCard(Transform parent, int index, float width, float height, Sprite backSprite, Sprite frameSprite, System.Action<int> onClick)
+    {
+        GameObject cardGO = new GameObject("RewardCard" + index);
+        cardGO.transform.SetParent(parent, false);
+        RectTransform rect = cardGO.AddComponent<RectTransform>();
+        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.sizeDelta = new Vector2(width, height);
+
+        CanvasGroup group = cardGO.AddComponent<CanvasGroup>();
+
+        RewardCardUI card = cardGO.AddComponent<RewardCardUI>();
+        card.rect = rect;
+        card.canvasGroup = group;
+
+        GameObject backGO = new GameObject("Back");
+        backGO.transform.SetParent(cardGO.transform, false);
+        StretchFull(backGO.AddComponent<RectTransform>());
+        Image backImage = backGO.AddComponent<Image>();
+        backImage.sprite = backSprite;
+        backImage.raycastTarget = false;
+        card.backImage = backImage;
+
+        GameObject frameGO = new GameObject("Frame");
+        frameGO.transform.SetParent(cardGO.transform, false);
+        StretchFull(frameGO.AddComponent<RectTransform>());
+        Image frameImage = frameGO.AddComponent<Image>();
+        frameImage.sprite = frameSprite;
+        frameImage.raycastTarget = false;
+        // Card UI / Rarity Frame pass, item 8 - the 5 Rarity frame images
+        // are NOT all the same aspect ratio (and this card's own
+        // RectTransform size must never change per-Rarity), so the frame
+        // Image fits within the card bounds instead of stretching to fill
+        // it - keeps every Rarity's art undistorted regardless of which
+        // differently-proportioned frame Sprite ends up swapped in here at
+        // SetContent() time.
+        frameImage.preserveAspect = true;
+        card.frameImage = frameImage;
+        card.defaultFrameSprite = frameSprite;
+
+        // Plain dark panels between the frame and the icon/text - the frame
+        // art's own interior is too see-through on its own (the game world
+        // behind the card was showing through enough to hurt legibility),
+        // so these sit just behind the icon/text specifically without
+        // touching the frame's decorative border, which stays fully
+        // opaque as-is.
+        Color cardPanelColor = new Color(0.04f, 0.05f, 0.12f, 1f);
+        // Bugfix 2026-09-06 (Card frame見切れ修正) - re-derived Safe Area
+        // from scratch: the Rarity/Level pass's first layout packed
+        // everything too tightly against the frame's own corner ornaments
+        // (worst at small card sizes - Character Card/Fusion slots as small
+        // as 84px wide) and gave the EquippedBadge a fixed-width slot too
+        // narrow for its own "EQUIPPED" text ("EQUIPP" got clipped). New
+        // margins: top row (Rarity/Level) pulled in further from both the
+        // top edge and the sides; Icon shrunk slightly; EquippedBadge now
+        // spans almost the full card width as its own row (not a
+        // corner-overlay) so its text always has room; Title/Description
+        // both use Best Fit (see ConfigureCardText's own comment) so they
+        // shrink to actually fit their box instead of clipping.
+        GameObject iconBackdropGO = new GameObject("IconBackdrop");
+        iconBackdropGO.transform.SetParent(cardGO.transform, false);
+        RectTransform iconBackdropRect = iconBackdropGO.AddComponent<RectTransform>();
+        iconBackdropRect.anchorMin = new Vector2(0.16f, 0.44f);
+        iconBackdropRect.anchorMax = new Vector2(0.84f, 0.87f);
+        iconBackdropRect.offsetMin = Vector2.zero;
+        iconBackdropRect.offsetMax = Vector2.zero;
+        Image iconBackdropImage = iconBackdropGO.AddComponent<Image>();
+        iconBackdropImage.color = new Color(cardPanelColor.r, cardPanelColor.g, cardPanelColor.b, 0.85f);
+        iconBackdropImage.raycastTarget = false;
+        card.iconBackdrop = iconBackdropImage;
+
+        GameObject textBackdropGO = new GameObject("TextBackdrop");
+        textBackdropGO.transform.SetParent(cardGO.transform, false);
+        RectTransform textBackdropRect = textBackdropGO.AddComponent<RectTransform>();
+        textBackdropRect.anchorMin = new Vector2(0.07f, 0.03f);
+        textBackdropRect.anchorMax = new Vector2(0.93f, 0.34f);
+        textBackdropRect.offsetMin = Vector2.zero;
+        textBackdropRect.offsetMax = Vector2.zero;
+        Image textBackdropImage = textBackdropGO.AddComponent<Image>();
+        textBackdropImage.color = new Color(cardPanelColor.r, cardPanelColor.g, cardPanelColor.b, 0.93f);
+        textBackdropImage.raycastTarget = false;
+        card.textBackdrop = textBackdropImage;
+
+        GameObject iconGO = new GameObject("Icon");
+        iconGO.transform.SetParent(cardGO.transform, false);
+        RectTransform iconRect = iconGO.AddComponent<RectTransform>();
+        iconRect.anchorMin = new Vector2(0.20f, 0.46f);
+        iconRect.anchorMax = new Vector2(0.80f, 0.85f);
+        iconRect.offsetMin = Vector2.zero;
+        iconRect.offsetMax = Vector2.zero;
+        Image iconImage = iconGO.AddComponent<Image>();
+        iconImage.preserveAspect = true;
+        iconImage.raycastTarget = false;
+        card.iconImage = iconImage;
+
+        // Item 5 - a full-width strip between Icon and Title (not a corner
+        // overlay any more - too narrow for "EQUIPPED" to ever fit cleanly
+        // at small card sizes, which is exactly what clipped before).
+        GameObject equippedGO = new GameObject("EquippedBadge");
+        equippedGO.transform.SetParent(cardGO.transform, false);
+        RectTransform equippedRect = equippedGO.AddComponent<RectTransform>();
+        equippedRect.anchorMin = new Vector2(0.12f, 0.365f);
+        equippedRect.anchorMax = new Vector2(0.88f, 0.435f);
+        equippedRect.offsetMin = Vector2.zero;
+        equippedRect.offsetMax = Vector2.zero;
+        Image equippedBg = equippedGO.AddComponent<Image>();
+        equippedBg.color = new Color(0.55f, 0.42f, 0.14f, 0.95f);
+        equippedBg.raycastTarget = false;
+        GameObject equippedLabelGO = new GameObject("Label");
+        equippedLabelGO.transform.SetParent(equippedGO.transform, false);
+        StretchFull(equippedLabelGO.AddComponent<RectTransform>());
+        Text equippedLabel = equippedLabelGO.AddComponent<Text>();
+        ConfigureCardText(equippedLabel, Mathf.Max(8, DescFontSizeFor(width) - 2), FontStyle.Bold, new Color(1f, 0.93f, 0.75f));
+        // Best Fit - a full-width strip is still only ~30px tall on an
+        // 84px Character Card slot, so the text must be free to shrink
+        // below its nominal size rather than clip ("EQUIPP" before this).
+        equippedLabel.resizeTextForBestFit = true;
+        equippedLabel.resizeTextMinSize = 6;
+        equippedLabel.resizeTextMaxSize = Mathf.Max(8, DescFontSizeFor(width) - 2);
+        equippedLabel.text = "EQUIPPED";
+        card.equippedBadge = equippedGO;
+        equippedGO.SetActive(false);
+
+        GameObject titleGO = new GameObject("Title");
+        titleGO.transform.SetParent(cardGO.transform, false);
+        RectTransform titleRect = titleGO.AddComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0.06f, 0.22f);
+        titleRect.anchorMax = new Vector2(0.94f, 0.34f);
+        titleRect.offsetMin = Vector2.zero;
+        titleRect.offsetMax = Vector2.zero;
+        Text titleText = titleGO.AddComponent<Text>();
+        ConfigureCardText(titleText, TitleFontSizeFor(width), FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        titleText.resizeTextForBestFit = true;
+        titleText.resizeTextMinSize = 8;
+        titleText.resizeTextMaxSize = TitleFontSizeFor(width);
+        card.titleText = titleText;
+
+        GameObject descGO = new GameObject("Description");
+        descGO.transform.SetParent(cardGO.transform, false);
+        RectTransform descRect = descGO.AddComponent<RectTransform>();
+        descRect.anchorMin = new Vector2(0.09f, 0.035f);
+        descRect.anchorMax = new Vector2(0.91f, 0.205f);
+        descRect.offsetMin = Vector2.zero;
+        descRect.offsetMax = Vector2.zero;
+        Text descText = descGO.AddComponent<Text>();
+        ConfigureCardText(descText, DescFontSizeFor(width), FontStyle.Normal, Color.white);
+        descText.resizeTextForBestFit = true;
+        descText.resizeTextMinSize = 6;
+        descText.resizeTextMaxSize = DescFontSizeFor(width);
+        card.descriptionText = descText;
+
+        // Card UI / Rarity Frame pass, item 2 - Rarity (top-left) and Level
+        // (top-right) are their own small rows, separate from Title so
+        // Title stays the single most prominent element per the brief.
+        // Pulled further in from the top/side edges (0.90/0.965 -> 0.87/
+        // 0.955, x-inset 0.08 -> 0.09) than the first pass, which sat close
+        // enough to the frame's own corner ornaments (visible in the ★
+        // reference art) to visually collide with them, especially at
+        // higher Rarity where those ornaments are busier.
+        GameObject rarityGO = new GameObject("Rarity");
+        rarityGO.transform.SetParent(cardGO.transform, false);
+        RectTransform rarityRect = rarityGO.AddComponent<RectTransform>();
+        rarityRect.anchorMin = new Vector2(0.11f, 0.865f);
+        rarityRect.anchorMax = new Vector2(0.46f, 0.94f);
+        rarityRect.offsetMin = Vector2.zero;
+        rarityRect.offsetMax = Vector2.zero;
+        Text rarityText = rarityGO.AddComponent<Text>();
+        ConfigureCardText(rarityText, Mathf.Max(9, DescFontSizeFor(width)), FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        rarityText.alignment = TextAnchor.MiddleLeft;
+        rarityText.resizeTextForBestFit = true;
+        rarityText.resizeTextMinSize = 6;
+        rarityText.resizeTextMaxSize = Mathf.Max(9, DescFontSizeFor(width));
+        card.rarityText = rarityText;
+
+        GameObject levelGO = new GameObject("Level");
+        levelGO.transform.SetParent(cardGO.transform, false);
+        RectTransform levelRect = levelGO.AddComponent<RectTransform>();
+        levelRect.anchorMin = new Vector2(0.52f, 0.865f);
+        levelRect.anchorMax = new Vector2(0.89f, 0.94f);
+        levelRect.offsetMin = Vector2.zero;
+        levelRect.offsetMax = Vector2.zero;
+        Text levelText = levelGO.AddComponent<Text>();
+        ConfigureCardText(levelText, Mathf.Max(8, DescFontSizeFor(width) - 1), FontStyle.Bold, Color.white);
+        levelText.alignment = TextAnchor.MiddleRight;
+        levelText.resizeTextForBestFit = true;
+        levelText.resizeTextMinSize = 6;
+        levelText.resizeTextMaxSize = Mathf.Max(8, DescFontSizeFor(width) - 1);
+        card.levelText = levelText;
+
+        // Invisible full-card button purely for tap-to-select - its own
+        // Image target graphic is the frame (already drawn above), not a
+        // separate visible box.
+        Button button = cardGO.AddComponent<Button>();
+        button.targetGraphic = frameImage;
+        button.transition = Selectable.Transition.None; // no built-in tint/flash on hover or press
+        int capturedIndex = index;
+        // onClick may be null (DeckEditUI's cards) - that screen hit-tests
+        // taps itself instead, see DeckEditUI's class comment for why.
+        if (onClick != null) button.onClick.AddListener(() => onClick(capturedIndex));
+        card.button = button;
+
+        card.ShowBack();
+        card.SetInteractable(false);
+        return card;
+    }
+
+    // Title/description font sizes scale with card width instead of being
+    // fixed - they were hardcoded to the reward-card sequence's 260-wide
+    // cards' sizes (30/22) regardless of actual card width, so the Deck
+    // Edit screen's much smaller 130-wide cards ended up with severely
+    // oversized text that the title/description boxes clipped down to
+    // nothing readable. 260f is the reward-card sequence's own cardWidth,
+    // kept as the scale's reference point so those cards render identically
+    // to before.
+    const float ReferenceCardWidth = 260f;
+
+    static int TitleFontSizeFor(float width) => Mathf.Max(10, Mathf.RoundToInt(width * (30f / ReferenceCardWidth)));
+    static int DescFontSizeFor(float width) => Mathf.Max(9, Mathf.RoundToInt(width * (22f / ReferenceCardWidth)));
+
+    static void ConfigureCardText(Text text, int fontSize, FontStyle style, Color color)
+    {
+        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.fontSize = fontSize;
+        text.fontStyle = style;
+        text.color = color;
+        text.alignment = TextAnchor.MiddleCenter;
+        text.horizontalOverflow = HorizontalWrapMode.Wrap;
+        text.verticalOverflow = VerticalWrapMode.Truncate;
+        text.raycastTarget = false;
+    }
+
+    static void StretchFull(RectTransform rect)
+    {
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+    }
+
+    // Visual Style Ver.1 panel: a navy semi-transparent fill with a thin
+    // gold edge, for uGUI screens (Deck Edit) - the uGUI equivalent of
+    // UiBackdrop's IMGUI treatment used everywhere else, built from two
+    // stacked Images (gold behind, an inset navy fill on top) since uGUI
+    // has no built-in bordered-box primitive. Returns the outer
+    // RectTransform for the caller to position/size.
+    static RectTransform CreateNavyGoldPanel(Transform parent, string name, float borderThickness = 2.5f)
+    {
+        GameObject goldGO = new GameObject(name);
+        goldGO.transform.SetParent(parent, false);
+        RectTransform goldRect = goldGO.AddComponent<RectTransform>();
+        Image gold = goldGO.AddComponent<Image>();
+        gold.color = new Color(0.83f, 0.68f, 0.32f, 0.9f);
+        gold.raycastTarget = false;
+
+        GameObject fillGO = new GameObject("Fill");
+        fillGO.transform.SetParent(goldGO.transform, false);
+        RectTransform fillRect = fillGO.AddComponent<RectTransform>();
+        fillRect.anchorMin = Vector2.zero;
+        fillRect.anchorMax = Vector2.one;
+        fillRect.offsetMin = new Vector2(borderThickness, borderThickness);
+        fillRect.offsetMax = new Vector2(-borderThickness, -borderThickness);
+        Image fill = fillGO.AddComponent<Image>();
+        fill.color = new Color(0.06f, 0.08f, 0.17f, 0.85f);
+        fill.raycastTarget = false;
+
+        return goldRect;
+    }
+
+    // Imports Assets/Art/UI/OrnateFrame.png (generated to match CardFrame.png/
+    // CardBack.png's art direction) as a Sliced Sprite - a decorative navy+
+    // gold+blue-accent ring with a fully transparent interior, authored at
+    // 1536x1024 with a uniform 280px border.
+    //
+    // spritePixelsPerUnit is the critical setting here: left at its default
+    // (100), a 280px border renders as a ~280-CANVAS-UNIT on-screen border
+    // (uGUI's Sliced Image maps sprite.border through sprite.pixelsPerUnit
+    // 1:1 against the Canvas's own referencePixelsPerUnit, which also
+    // defaults to 100) - on a 640-900 unit wide panel that's most of the
+    // panel, which is exactly the "frame invading the content" bug this
+    // fixes. OrnatePanelPixelsPerUnit instead maps that same 280px border
+    // down to a reasonable ~31 on-screen units, while every pixel of the
+    // authored corner/edge art is still there (see
+    // Image.pixelsPerUnitMultiplier on individual CreateOrnatePanel calls
+    // for further-scaled-down instances like the small BackButton).
+    const float OrnatePanelBorderPx = 280f;
+    const float OrnatePanelPixelsPerUnit = 900f;
+
+    static Sprite ornateFrameSpriteCache;
+
+    static Sprite LoadOrnateFrameSprite()
+    {
+        if (ornateFrameSpriteCache != null) return ornateFrameSpriteCache;
+
+        AssetDatabase.ImportAsset(OrnateFramePath, ImportAssetOptions.ForceUpdate);
+        TextureImporter importer = AssetImporter.GetAtPath(OrnateFramePath) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.alphaIsTransparency = true;
+            // Game Feel refinement pass - explicit, not left to Unity's own
+            // auto-detection: the user reported effect/decoration sprites
+            // rendering as solid black/white rectangles in Game View, and
+            // this is the one alpha-related import setting this file never
+            // set explicitly anywhere. FromInput = "use the PNG's own alpha
+            // channel" (as opposed to None/FromGrayScale).
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.mipmapEnabled = false;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.spritePixelsPerUnit = OrnatePanelPixelsPerUnit;
+            importer.spriteBorder = new Vector4(OrnatePanelBorderPx, OrnatePanelBorderPx, OrnatePanelBorderPx, OrnatePanelBorderPx);
+            importer.SaveAndReimport();
+        }
+        ornateFrameSpriteCache = AssetDatabase.LoadAssetAtPath<Sprite>(OrnateFramePath);
+        return ornateFrameSpriteCache;
+    }
+
+    // Visual Style Ver.2's uGUI panel: the same navy-fill-plus-ornate-frame
+    // treatment as OrnateUi.DrawPanel (IMGUI, TOP screen), built here as a
+    // Sliced Image so it 9-slice-stretches correctly at any RectTransform
+    // size. Used for every panel/card-shaped element on the Deck Edit
+    // screen (COLLECTION/DECK/SELECTED CARD panels, empty card/deck-slot
+    // placeholders) instead of CreateNavyGoldPanel's plain thin-edge
+    // treatment, which stays in place only as a fallback for anything not
+    // yet migrated. A genuinely reusable primitive (Panel), not a TOP/DECK-
+    // only one-off - later screens (RESULT/GAME OVER/AREA UNLOCK/SETTING)
+    // can call this exact same method. Returns the outer RectTransform for
+    // the caller to position/size, same convention as CreateNavyGoldPanel.
+    //
+    // borderScale further divides the on-screen border beyond
+    // OrnatePanelPixelsPerUnit's own baseline (~31 units) via uGUI's
+    // Image.pixelsPerUnitMultiplier, for panels much smaller than
+    // COLLECTION/DECK/SELECTED CARD (e.g. BackButton, ~180x70) where even
+    // that baseline border would eat too much of the available space -
+    // 1 = baseline, 2 = half as thick, etc.
+    static RectTransform CreateOrnatePanel(Transform parent, string name, float borderScale = 1f)
+    {
+        Sprite frame = LoadOrnateFrameSprite();
+
+        GameObject rootGO = new GameObject(name);
+        rootGO.transform.SetParent(parent, false);
+        RectTransform rootRect = rootGO.AddComponent<RectTransform>();
+
+        GameObject fillGO = new GameObject("Fill");
+        fillGO.transform.SetParent(rootGO.transform, false);
+        RectTransform fillRect = fillGO.AddComponent<RectTransform>();
+        // Inset slightly further than the frame's own painted edge so the
+        // navy fill never peeks past the ornate border's outer gold line.
+        fillRect.anchorMin = Vector2.zero;
+        fillRect.anchorMax = Vector2.one;
+        fillRect.offsetMin = new Vector2(6f, 6f);
+        fillRect.offsetMax = new Vector2(-6f, -6f);
+        Image fill = fillGO.AddComponent<Image>();
+        // Darker/more opaque than CreateNavyGoldPanel's fill (per the "keep
+        // the world barely visible, panel interior dark enough that cards
+        // stay readable" brief) - the ornate frame drawn on top is already
+        // fairly opaque itself, so this mostly matters for the panel
+        // interior the frame's own border doesn't cover.
+        fill.color = new Color(0.03f, 0.035f, 0.07f, 0.92f);
+        fill.raycastTarget = false;
+
+        GameObject frameGO = new GameObject("Frame");
+        frameGO.transform.SetParent(rootGO.transform, false);
+        RectTransform frameRect = frameGO.AddComponent<RectTransform>();
+        StretchFull(frameRect);
+        Image frameImage = frameGO.AddComponent<Image>();
+        frameImage.sprite = frame;
+        frameImage.type = Image.Type.Sliced;
+        frameImage.pixelsPerUnitMultiplier = borderScale;
+        frameImage.raycastTarget = false;
+
+        return rootRect;
+    }
+
+    // A soft white radial falloff, generated once - tinted/scaled/faded at
+    // runtime for the confirm glow instead of needing a hand-authored glow
+    // asset.
+    static Sprite CreateRadialGlowSprite()
+    {
+        const int size = 256;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        var pixels = new Color[size * size];
+        Vector2 center = new Vector2(size / 2f, size / 2f);
+        float maxDist = size / 2f;
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float dist = Vector2.Distance(new Vector2(x, y), center) / maxDist;
+                float alpha = Mathf.Clamp01(1f - dist);
+                alpha = alpha * alpha; // softer falloff toward the edge
+                pixels[y * size + x] = new Color(1f, 1f, 1f, alpha);
+            }
+        }
+        tex.SetPixels(pixels);
+        tex.Apply();
+
+        return Sprite.Create(tex, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f));
+    }
+
+    // For sprites drawn tiled in the game world (via SpriteRenderer.drawMode
+    // = Tiled, e.g. GroundFactory.CreateSlopeVisual) - pixelsPerUnit is set
+    // from the source texture's own height so it renders at a sensible
+    // world-space scale (one texture-height tall per world unit) instead of
+    // whatever a generic default would give a texture this size.
+    // Bugfix 2026-09-06, item 3 - "Rarity Frameが反映されていない". This used
+    // to also cache the loaded Sprites into CardRarityFrames.frames, but
+    // that's a plain static C# field with no Unity serialization - writing
+    // to it from THIS Editor-only batchmode process had zero effect on the
+    // actual game process (Play mode or a device build starts with a fresh,
+    // empty array every time), so every card was silently always falling
+    // back to the old CardFrame.png. CardRarityFrames now loads its own
+    // Sprites lazily at runtime via Resources.Load (see its own comment) -
+    // this method's only remaining job is configuring each PNG's import
+    // settings once (Editor-only work that genuinely does need to run
+    // here), which is why the 4 usable frames (★2-★5; ★1's supplied source
+    // has no real alpha channel - see CardRarityFrames' own comment, so
+    // it's deliberately skipped here) live under Assets/Resources/
+    // CardFrames/ - Resources.Load can only ever find assets physically
+    // inside a folder literally named "Resources".
+    static void LoadCardRarityFrames()
+    {
+        ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity2.png");
+        ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity3.png");
+        ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity4.png");
+        ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity5.png");
+    }
+
+    // Item 7 - plain single-sprite UI import (Sprite (2D and UI), alpha
+    // enabled, Full Rect mesh - a Full Rect mesh is what lets
+    // Image.preserveAspect letterbox correctly instead of assuming a tight
+    // alpha-cropped mesh). Not tiled/9-sliced (Clamp, not Repeat) - every
+    // Rarity frame here is shown as one whole image via
+    // RewardCardUI.frameImage, never sliced. A path that doesn't exist on
+    // disk is a no-op (Resources.Load simply returns null for it later,
+    // same "missing asset degrades gracefully" pattern as
+    // EnemyDatabaseBuilder's per-species sprite paths).
+    static void ConfigureCardFrameImport(string path)
+    {
+        if (!System.IO.File.Exists(path)) return;
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.wrapMode = TextureWrapMode.Clamp;
+
+            TextureImporterSettings settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            settings.spriteMeshType = SpriteMeshType.FullRect;
+            importer.SetTextureSettings(settings);
+
+            importer.SaveAndReimport();
+        }
+    }
+
+    static Sprite LoadTiledSprite(string path, float pixelsPerUnit)
+    {
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            // Game Feel refinement pass - explicit, not left to Unity's own
+            // auto-detection: the user reported effect/decoration sprites
+            // rendering as solid black/white rectangles in Game View, and
+            // this is the one alpha-related import setting this file never
+            // set explicitly anywhere. FromInput = "use the PNG's own alpha
+            // channel" (as opposed to None/FromGrayScale).
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.wrapMode = TextureWrapMode.Repeat;
+            importer.SaveAndReimport();
+        }
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
+
+    // Level-up choice icons are plain UI images (not sprites drawn in the
+    // game world), so import as a regular Texture2D for GUI.DrawTexture /
+    // GUI.Button to use directly.
+    static Texture2D LoadIconTexture(string path)
+    {
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Default;
+            importer.mipmapEnabled = false;
+            importer.alphaIsTransparency = true;
+            // Game Feel refinement pass - explicit, not left to Unity's own
+            // auto-detection: the user reported effect/decoration sprites
+            // rendering as solid black/white rectangles in Game View, and
+            // this is the one alpha-related import setting this file never
+            // set explicitly anywhere. FromInput = "use the PNG's own alpha
+            // channel" (as opposed to None/FromGrayScale).
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.SaveAndReimport();
+        }
+        return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+    }
+
+    // Full-length music tracks import as huge uncompressed WAVs by default -
+    // switch to compressed/streaming so the APK doesn't balloon and the
+    // whole track isn't decompressed into memory at once.
+    static void ConfigureMusicImport(string path)
+    {
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        AudioImporter importer = AssetImporter.GetAtPath(path) as AudioImporter;
+        if (importer == null) return;
+
+        AudioImporterSampleSettings settings = importer.defaultSampleSettings;
+        settings.loadType = AudioClipLoadType.Streaming;
+        settings.compressionFormat = AudioCompressionFormat.Vorbis;
+        settings.quality = 0.7f;
+        importer.defaultSampleSettings = settings;
+        importer.SaveAndReimport();
+    }
+
+    // Short one-shot SFX: decompress fully into memory up front (no
+    // streaming latency) rather than the music tracks' streaming setup.
+    static void ConfigureSfxImport(string path)
+    {
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        AudioImporter importer = AssetImporter.GetAtPath(path) as AudioImporter;
+        if (importer == null) return;
+
+        AudioImporterSampleSettings settings = importer.defaultSampleSettings;
+        settings.loadType = AudioClipLoadType.DecompressOnLoad;
+        settings.compressionFormat = AudioCompressionFormat.PCM;
+        importer.defaultSampleSettings = settings;
+        importer.SaveAndReimport();
+    }
+
+    static void ConfigureMobilePlayerSettings()
+    {
+        PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
+        PlayerSettings.allowedAutorotateToLandscapeLeft = true;
+        PlayerSettings.allowedAutorotateToLandscapeRight = true;
+        PlayerSettings.allowedAutorotateToPortrait = true;
+        PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
+
+        // Was still "2ndAction" (the working/codename) - this is what shows
+        // as the installed app's label under the home-screen icon.
+        PlayerSettings.productName = "One More Mile";
+        PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.zero0084.action2nd");
+        PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, "com.zero0084.action2nd");
+        PlayerSettings.iOS.targetOSVersionString = "13.0";
+        PlayerSettings.iOS.targetDevice = iOSTargetDevice.iPhoneAndiPad;
+
+        ConfigureAppIcon();
+    }
+
+    // Replaces the default Unity icon shown on the device home screen -
+    // the same source texture is assigned to every required Android icon
+    // slot; Unity's build step scales it down as needed for each. Also sets
+    // up the Adaptive Icon (Android 8+) background/foreground layers -
+    // without those, a launcher that expects an adaptive icon synthesizes
+    // its own by shrinking the single legacy icon onto a white circle,
+    // which is the "small icon floating in a white circle" look.
+    static void ConfigureAppIcon()
+    {
+        Texture2D icon = LoadIconTexture("Assets/Art/UI/AppIcon.png");
+        if (icon == null) return;
+
+        int[] sizes = PlayerSettings.GetIconSizesForTargetGroup(BuildTargetGroup.Android);
+        var icons = new Texture2D[sizes.Length];
+        for (int i = 0; i < icons.Length; i++) icons[i] = icon;
+        PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, icons);
+
+        int[] unknownSizes = PlayerSettings.GetIconSizesForTargetGroup(BuildTargetGroup.Unknown);
+        if (unknownSizes.Length > 0)
+        {
+            var unknownIcons = new Texture2D[unknownSizes.Length];
+            for (int i = 0; i < unknownIcons.Length; i++) unknownIcons[i] = icon;
+            PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown, unknownIcons);
+        }
+
+        Texture2D transparentForeground = LoadIconTexture("Assets/Art/UI/AppIconForeground.png");
+        if (transparentForeground != null)
+        {
+            ConfigureAdaptiveIcon(icon, transparentForeground);
+        }
+    }
+
+    // Background carries the full artwork edge-to-edge (it's the layer the
+    // OS mask - circle, squircle, rounded square, whatever the device uses
+    // - crops against, which is exactly what we want so no white shows
+    // outside the mask); foreground is fully transparent since there's no
+    // separate cutout element meant to sit above it. Also fills the "Round"
+    // icon slot some launchers read directly, with the same full artwork.
+    static void ConfigureAdaptiveIcon(Texture2D background, Texture2D foreground)
+    {
+        NamedBuildTarget target = NamedBuildTarget.Android;
+
+        PlatformIcon[] adaptiveIcons = PlayerSettings.GetPlatformIcons(target, AndroidPlatformIconKind.Adaptive);
+        foreach (PlatformIcon slot in adaptiveIcons)
+        {
+            slot.SetTextures(new[] { background, foreground });
+        }
+        PlayerSettings.SetPlatformIcons(target, AndroidPlatformIconKind.Adaptive, adaptiveIcons);
+
+        PlatformIcon[] roundIcons = PlayerSettings.GetPlatformIcons(target, AndroidPlatformIconKind.Round);
+        foreach (PlatformIcon slot in roundIcons)
+        {
+            slot.SetTextures(new[] { background });
+        }
+        PlayerSettings.SetPlatformIcons(target, AndroidPlatformIconKind.Round, roundIcons);
+    }
+
+    // Root/Visual split (see the same convention on GroundFactory.
+    // CreateEnemy): Root is the gameplay-authoritative transform - position
+    // (foot/ground line, groundOffset=0), rotation (slope tilt), and scale
+    // (facing flip) that PlayerController/TerrainManager/BodyCollider/
+    // AttackHitbox all key off. Visual is the one child that actually
+    // renders the sprite, so a future per-asset visual nudge only ever
+    // needs Visual's own localPosition - never Root, never the collider.
+    static GameObject CreatePlayer(Sprite sprite)
+    {
+        GameObject go = new GameObject("Player");
+        go.tag = "Player";
+
+        GameObject visualGO = new GameObject("Visual");
+        visualGO.transform.SetParent(go.transform, false);
+
+        var sr = visualGO.AddComponent<SpriteRenderer>();
+        sr.sprite = sprite;
+        // The source art's actual pixel colors are now pre-brightened
+        // (PlayerAnimGenerator.BrightenBaseSprites) instead of relying on
+        // transparency to fake a lighter look - half-transparent black over
+        // a similarly-dark background still reads as "a dark shadow", so
+        // near-opaque here lets the genuinely lighter colors show clearly.
+        sr.color = new Color(1f, 1f, 1f, 0.95f);
+        sr.sortingOrder = RenderOrder.Player;
+        visualGO.AddComponent<SpriteOutline>();
+
+        // Documents where the ground-contact sample point is (Root's own
+        // X/Y - see PlayerController.Move()/TerrainManager.GetHeightAt).
+        // Not read by any code itself - grounding here is math-driven, not
+        // a physics raycast - but gives every Ground-type character the
+        // same named node in its hierarchy for anyone looking for it.
+        GameObject groundCheckGO = new GameObject("GroundCheck");
+        groundCheckGO.transform.SetParent(go.transform, false);
+
+        var col = go.AddComponent<BoxCollider2D>();
+        col.size = Vector2.one;
+        // Offset up by 0.5 to compensate for the root transform now sitting
+        // at the sprite's FOOT (groundOffset=0 - see PlayerController) instead
+        // of at body-center like it did when this collider size/position was
+        // originally tuned. This puts the collider at exactly the same
+        // world-space span it always had (root.y .. root.y+1, back when
+        // root.y was ground+0.5) - i.e. restores prior hit-detection
+        // behavior unchanged, rather than leaving it centered on the feet.
+        col.offset = new Vector2(0f, 0.5f);
+        var colDebug = go.AddComponent<ColliderDebugView>();
+        colDebug.color = new Color(0.2f, 0.6f, 1f);
+
+        var rb = go.AddComponent<Rigidbody2D>();
+        rb.bodyType = RigidbodyType2D.Kinematic;
+        rb.gravityScale = 0f;
+
+        // Added early, before PlayerAnimator/PlayerDustEffects, on purpose:
+        // a component added later that [RequireComponent]s PlayerController
+        // would otherwise auto-create one right then, and this explicit
+        // AddComponent would add a SECOND, independent instance on top of
+        // it - both running Update()/Move() every frame and silently
+        // doubling the player's effective movement speed. (Exactly this
+        // happened once - PlayerDustEffects used to declare that attribute.)
+        var pc = go.AddComponent<PlayerController>();
+        // Game Feel pass - a soft round particle (the same procedural dot
+        // Polish Pass 1's hit-spark/run-dust already use) instead of the
+        // flat square placeholder, for a less "ハリボテ" death burst. No new
+        // asset needed - see OneShotSpriteEffect.SoftDotSprite's own comment.
+        pc.explosionParticleSprite = OneShotSpriteEffect.SoftDotSprite();
+        // Run Continuation/Checkpoint Ver.1, item 4 - reuses the existing
+        // Double Jump Ring effect sprite as the escape-charge magic circle
+        // (see PlayerController.escapeRingSprite's own comment) - same
+        // already-imported asset PlayerDustEffects.doubleJumpRingSprite
+        // uses, loaded again here (idempotent, same pattern already used
+        // for CardBack.png/CardFrame.png across multiple Canvases).
+        pc.escapeRingSprite = LoadTiledSprite("Assets/Art/Effects/DoubleJumpRing.png", 1672f);
+
+        // ===== Common rendering rule: sizing =====
+        // Root's transform.localScale must stay (1,1,1) - the only scale
+        // ever applied to it is ApplyAttackDirection's facing flip
+        // ((-1,1,1) / (1,1,1)), which is a gameplay-direction flag, not a
+        // sizing knob. All actual on-screen sizing comes from each
+        // sprite's own pixelsPerUnit, chosen so its measured content-
+        // pixel-height maps to the SAME target world height as every
+        // other Ground-type character (~1.13 units - see below). Adding a
+        // new Player/Ground-Enemy sprite folder later: measure its
+        // representative frame's opaque-pixel bounding-box height (the
+        // same bottom-up alpha scan ComputeLowestContentPivotY already
+        // does for the foot pivot), then set pixelsPerUnit =
+        // thatHeightPx / 1.13. Don't touch Root's scale to compensate for
+        // a mis-sized asset - fix the PPU instead.
+        //
+        // Visual Style Ver.1 - AI-generated replacement art in *_v1 folders,
+        // pointed at instead of the original PlayerRun/PlayerJump/etc.
+        // folders (left untouched on disk for an easy revert: just swap
+        // these 8 paths back). Each folder's own AI-generated sheet drew
+        // the character at a slightly different scale (the "same character
+        // scale" instruction in the generation prompt wasn't perfectly
+        // consistent across separately-generated sheets), so a single
+        // shared pixelsPerUnit made the player visibly change size between
+        // e.g. running and airborne. Each folder gets its own
+        // pixelsPerUnit instead, individually measured so the character's
+        // on-screen height matches across all of them (target: the old
+        // art's ~1.13-world-unit-tall silhouette, i.e. each value here is
+        // that folder's measured content-pixel-height / 1.13). Each sprite
+        // also gets a per-frame foot/lowest-point pivot (see
+        // ConfigureSpriteFolderImportWithFootPivot) instead of dead-center,
+        // so the player doesn't appear to float above or sink into
+        // platforms depending on which animation is playing.
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerRun_v1", 186f);
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerJump_v1", 167f);
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttack_v1", 237f);
+        // AttackSmall (combo stage 1) was originally calibrated (250) against
+        // a mid-swing frame, but this clip's very FIRST frame - the one the
+        // player actually sees the instant a stage-1 attack starts, right
+        // after Run - draws the character in a compact windup pose that's
+        // measurably shorter (234px) than every other folder's starting
+        // pose, so at 250 it rendered ~17% smaller than normal the moment
+        // the swing began (measured via a bottom-up alpha scan, same method
+        // as the foot pivot). Lowered so THAT frame matches the ~1.13-unit
+        // baseline (234/1.13); later frames in the swing grow larger as the
+        // sword extends, same as the other attack folders already do.
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttackSmall_v1", 207f);
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttackLarge_v1", 180f);
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerJumpStart_v1", 149f);
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerDoubleJump_v1", 227f);
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerLand_v1", 213f);
+
+        Sprite[] runFrames = LoadSpriteSequence("Assets/Art/PlayerRun_v1");
+        Sprite[] jumpFrames = LoadSpriteSequence("Assets/Art/PlayerJump_v1");
+        Sprite[] attackFrames = LoadSpriteSequence("Assets/Art/PlayerAttack_v1");
+        Sprite[] attackFramesSmall = LoadSpriteSequence("Assets/Art/PlayerAttackSmall_v1");
+        Sprite[] attackFramesLarge = LoadSpriteSequence("Assets/Art/PlayerAttackLarge_v1");
+        Sprite[] jumpStartFrames = LoadSpriteSequence("Assets/Art/PlayerJumpStart_v1");
+        Sprite[] doubleJumpFrames = LoadSpriteSequence("Assets/Art/PlayerDoubleJump_v1");
+        Sprite[] landFrames = LoadSpriteSequence("Assets/Art/PlayerLand_v1");
+        if (runFrames.Length > 0)
+        {
+            var animator = go.AddComponent<PlayerAnimator>();
+            animator.runFrames = runFrames;
+            animator.jumpFrames = jumpFrames;
+            animator.attackFrames = attackFrames;
+            animator.attackFramesSmall = attackFramesSmall;
+            animator.attackFramesLarge = attackFramesLarge;
+            animator.jumpStartFrames = jumpStartFrames;
+            animator.doubleJumpFrames = doubleJumpFrames;
+            animator.landFrames = landFrames;
+            sr.sprite = runFrames[0];
+        }
+
+        var dustFx = go.AddComponent<PlayerDustEffects>();
+        // Legacy fallbacks only (see PlayerDustEffects' own field comments) -
+        // kept wired so an already-built scene never goes silently blank,
+        // but jumpPuffSprite/landingPuffSprite below take priority.
+        dustFx.jumpStartDustFrames = LoadSpriteSequence("Assets/Art/JumpDust");
+        dustFx.doubleJumpDustSprite = FirstSprite("Assets/Art/DoubleJumpDust");
+        dustFx.ascensionSmokeFrames = LoadSpriteSequence("Assets/Art/AscensionSmoke");
+        // Game Feel refinement pass - OneMoreMile_GameFeel pack, same
+        // ~1-unit-base-then-code-multiplier convention as the enemy effects
+        // above (see that block's comment).
+        dustFx.jumpPuffSprite = LoadTiledSprite("Assets/Art/Effects/JumpPuff.png", 1536f);
+        dustFx.landingPuffSprite = LoadTiledSprite("Assets/Art/Effects/LandingPuff.png", 1536f);
+        dustFx.doubleJumpRingSprite = LoadTiledSprite("Assets/Art/Effects/DoubleJumpRing.png", 1672f);
+        dustFx.runDustSprite = LoadTiledSprite("Assets/Art/Effects/RunDust.png", 1536f);
+        dustFx.grassDustSprite = LoadTiledSprite("Assets/Art/Effects/GrassDust.png", 1536f);
+        dustFx.groundShadowSprite = LoadTiledSprite("Assets/Art/Effects/GroundShadow.png", 1672f);
+
+        // Attack hitbox (child) - scaled to 2x the original reach/size, with
+        // its near edge kept roughly where the old (smaller) box started.
+        // Y=0.5 for the same reason as the body collider's offset above -
+        // restores this child's original world-space height (it used to sit
+        // at root.y+0 when root.y was ground+0.5; root.y is now the foot
+        // line, so it needs the +0.5 back explicitly) instead of drifting
+        // down to foot height along with the (intentionally) lowered root.
+        GameObject hitbox = new GameObject("AttackHitbox");
+        hitbox.transform.SetParent(go.transform);
+        hitbox.transform.localPosition = new Vector3(1.0f, 0.5f, 0f);
+        hitbox.transform.localScale = new Vector3(1.4f, 1.8f, 1f);
+        hitbox.tag = "PlayerAttack";
+
+        var hitboxCol = hitbox.AddComponent<BoxCollider2D>();
+        hitboxCol.isTrigger = true;
+        var hitboxDebug = hitbox.AddComponent<ColliderDebugView>();
+        hitboxDebug.color = new Color(1f, 0.9f, 0.1f);
+
+        // Slash FX (separate from the invisible hitbox) - a short one-shot
+        // sword-swing animation (extracted from reference art) showing the
+        // attack's reach, sized per combo stage.
+        GameObject slashGO = new GameObject("AttackSlash");
+        slashGO.transform.SetParent(go.transform);
+        // Same +0.5 restoration as AttackHitbox above, so the visible
+        // slash swoosh still lines up with the sword/hitbox instead of
+        // trailing down at foot height.
+        slashGO.transform.localPosition = new Vector3(0.3f, 0.5f, 0f);
+        var slashVisual = slashGO.AddComponent<AttackSlashVisual>();
+        slashVisual.frames = LoadSpriteSequence("Assets/Art/AttackSlashFx");
+
+        pc.attackHitbox = hitboxCol;
+        pc.attackSlashVisual = slashVisual;
+
+        return go;
+    }
+
+    static Sprite FirstSprite(string dir)
+    {
+        Sprite[] frames = LoadSpriteSequence(dir);
+        return frames.Length > 0 ? frames[0] : null;
+    }
+
+    // Explicitly configures every PNG in a folder as a single Sprite with a
+    // given pixels-per-unit before LoadSpriteSequence reads it - needed for
+    // any frame folder that wasn't already produced by a tool that set this
+    // itself (the existing Dragon*/Player* folders were), otherwise a fresh
+    // import can default to a non-Sprite texture type.
+    static void ConfigureSpriteFolderImport(string dir, float pixelsPerUnit)
+    {
+        if (!Directory.Exists(dir)) return;
+        foreach (string f in Directory.GetFiles(dir, "*.png"))
+        {
+            string assetPath = f.Replace('\\', '/');
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null) continue;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            // Game Feel refinement pass - explicit, not left to Unity's own
+            // auto-detection: the user reported effect/decoration sprites
+            // rendering as solid black/white rectangles in Game View, and
+            // this is the one alpha-related import setting this file never
+            // set explicitly anywhere. FromInput = "use the PNG's own alpha
+            // channel" (as opposed to None/FromGrayScale).
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.SaveAndReimport();
+        }
+    }
+
+    // Like ConfigureSpriteFolderImport, but also gives each sprite its own
+    // custom pivot instead of the default dead-center one - the Visual
+    // Style Ver.1 player frames were each cropped to their own sheet's
+    // full canvas height for baseline consistency WITHIN a sheet (see
+    // CropSheet.ps1), so different sheets (run/jump/attack/...) ended up
+    // with different amounts of empty headroom above the character. A
+    // fixed center pivot then put PlayerController's transform.position -
+    // which is what actually gets pinned to the ground/jump-physics height
+    // - at a different point relative to the character in every state,
+    // making the player appear to float above or sink into the platform
+    // depending on which animation was playing. Anchoring each frame's
+    // pivot to its own LOWEST non-transparent pixel instead means that
+    // point (feet when grounded, whatever's lowest mid-swing/mid-air
+    // otherwise) is what tracks transform.position, which is exactly what
+    // a 2D character sprite's anchor should represent.
+    static void ConfigureSpriteFolderImportWithFootPivot(string dir, float pixelsPerUnit)
+    {
+        if (!Directory.Exists(dir)) return;
+        foreach (string f in Directory.GetFiles(dir, "*.png"))
+        {
+            string assetPath = f.Replace('\\', '/');
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null) continue;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            // Game Feel refinement pass - explicit, not left to Unity's own
+            // auto-detection: the user reported effect/decoration sprites
+            // rendering as solid black/white rectangles in Game View, and
+            // this is the one alpha-related import setting this file never
+            // set explicitly anywhere. FromInput = "use the PNG's own alpha
+            // channel" (as opposed to None/FromGrayScale).
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            ApplyCustomPivot(importer, ComputeLowestContentPivotY(f));
+            importer.SaveAndReimport();
+        }
+    }
+
+    // Configures a single sprite file the same way (foot/lowest-point
+    // pivot) - for one-off sprites like the enemy that aren't part of a
+    // whole animation folder.
+    // Distance Level Design Ver.1, item 3 - starting Tier data: Enemy
+    // Category availability only as of Ver.1.1 (Formation availability
+    // moved to each FormationData's own minDistance/maxDistance - see
+    // BuildFormations below). Cumulative: each tier includes everything
+    // the previous one already had, only adding new categories, per
+    // "20,000mまでに基本Enemy Typeが一通り解禁される". The last tier's
+    // endDistance (100,000m) is also what DistanceTierManager.CurrentTier
+    // falls back to indefinitely past that point, so nothing needs a tier
+    // past it.
+    static DistanceTier[] BuildDistanceTiers()
+    {
+        var normal = new[] { EnemyCategory.Normal };
+        var tier1Types = new[] { EnemyCategory.Normal, EnemyCategory.Flying, EnemyCategory.Irregular };
+        var tier2Types = new[] { EnemyCategory.Normal, EnemyCategory.Flying, EnemyCategory.Irregular, EnemyCategory.Shooter, EnemyCategory.Heavy, EnemyCategory.Chaser };
+        var tier3Types = new[] { EnemyCategory.Normal, EnemyCategory.Flying, EnemyCategory.Irregular, EnemyCategory.Shooter, EnemyCategory.Heavy, EnemyCategory.Chaser, EnemyCategory.Rusher };
+
+        return new[]
+        {
+            new DistanceTier { tierName = "0-1000m Tutorial", startDistance = 0f, endDistance = 1000f, availableEnemyTypes = normal },
+            new DistanceTier { tierName = "1000-5000m", startDistance = 1000f, endDistance = 5000f, availableEnemyTypes = tier1Types },
+            new DistanceTier { tierName = "5000-10000m", startDistance = 5000f, endDistance = 10000f, availableEnemyTypes = tier2Types },
+            new DistanceTier { tierName = "10000-20000m", startDistance = 10000f, endDistance = 20000f, availableEnemyTypes = tier3Types },
+            new DistanceTier { tierName = "20000-100000m", startDistance = 20000f, endDistance = 100000f, availableEnemyTypes = tier3Types }
+        };
+    }
+
+    // Distance Level Design Ver.1.1, item 2 - the actual pre-defined
+    // Formation shapes, as real World-Unit SpawnPoint offsets (this is the
+    // core fix for "Formationが意図した形になっていない" - see
+    // DistanceTierManager's own class comment). Every xOffset is >=0 by
+    // convention (each Formation only ever grows RIGHTWARD from its own
+    // anchor - TerrainManager.RequestFlatRun only ever reserves forward,
+    // never backward into unverified terrain). Spacing between points is
+    // chosen generously (>=1.1 units, comfortably more than any enemy's own
+    // ~1 unit collider width) so Enemy同士 never overlap.
+    static FormationData[] BuildFormations()
+    {
+        FormationSpawnPoint P(float x, float y, EnemyRole role) => new FormationSpawnPoint { xOffset = x, yOffset = y, role = role };
+
+        // Horizontal Line - "5～10体程度...Playerが攻撃しながら連続撃破し
+        // やすい程度" - 7 points, 1.5 unit spacing (comfortably chainable
+        // with the player's own attack range/combo timing).
+        var horizontalLine = new FormationData
+        {
+            formationId = "horizontal_line",
+            formationType = EnemyFormationType.HorizontalLine,
+            weight = 2.5f,
+            minDistance = 0f, // item 2 - "1000mまでに最低一度は必ず出現" - available from distance 0 so the very first eligible chunk can already roll it
+            maxDistance = 999999f,
+            spawnPoints = new[]
+            {
+                P(0f, 0f, EnemyRole.Any), P(1.5f, 0f, EnemyRole.Any), P(3f, 0f, EnemyRole.Any), P(4.5f, 0f, EnemyRole.Any),
+                P(6f, 0f, EnemyRole.Any), P(7.5f, 0f, EnemyRole.Any), P(9f, 0f, EnemyRole.Any)
+            }
+        };
+
+        // Vertical Line - "高さ方向へ...通常Jump/Double Jumpで攻略可能な範
+        // 囲、画面上端へはみ出さない" - 4 points stacked at a modest 0.9
+        // unit step (screenTopMargin/DistanceTierManager still clamps any
+        // that would exceed the camera regardless of this authored height).
+        var verticalLine = new FormationData
+        {
+            formationId = "vertical_line",
+            formationType = EnemyFormationType.VerticalLine,
+            weight = 1f,
+            minDistance = 1000f,
+            maxDistance = 999999f,
+            spawnPoints = new[] { P(0f, 0f, EnemyRole.Any), P(0f, 0.9f, EnemyRole.Any), P(0f, 1.8f, EnemyRole.Any), P(0f, 2.7f, EnemyRole.Any) }
+        };
+
+        // Diagonal Up - "XとYを段階的に増加、Jumpしながら斬っていく流れ".
+        var diagonalUp = new FormationData
+        {
+            formationId = "diagonal_up",
+            formationType = EnemyFormationType.DiagonalUp,
+            weight = 1.2f,
+            minDistance = 1000f,
+            maxDistance = 999999f,
+            spawnPoints = new[] { P(0f, 0f, EnemyRole.Any), P(1.6f, 0.8f, EnemyRole.Any), P(3.2f, 1.6f, EnemyRole.Any), P(4.8f, 2.4f, EnemyRole.Any), P(6.4f, 3.2f, EnemyRole.Any) }
+        };
+
+        // Cluster - "多少密集しているが完全にCollider同士が重ならない" - a
+        // tight but non-overlapping diamond, 1.1-1.3 unit spacing.
+        var cluster = new FormationData
+        {
+            formationId = "cluster",
+            formationType = EnemyFormationType.Cluster,
+            weight = 1.2f,
+            minDistance = 1000f,
+            maxDistance = 999999f,
+            spawnPoints = new[] { P(0f, 0f, EnemyRole.Any), P(1.2f, 0f, EnemyRole.Any), P(0.6f, 0f, EnemyRole.Any), P(1.8f, 0f, EnemyRole.Any) }
+        };
+
+        // Ground + Air - "別Y座標に明確に配置、空中Enemyが地面へ埋まらない"
+        // - 2 ground (y=0) + 2 air (y=1.8, well above flyingMinHeight).
+        var groundAir = new FormationData
+        {
+            formationId = "ground_air",
+            formationType = EnemyFormationType.GroundAir,
+            weight = 1.3f,
+            minDistance = 5000f,
+            maxDistance = 999999f,
+            spawnPoints = new[] { P(0f, 0f, EnemyRole.Normal), P(3f, 0f, EnemyRole.Normal), P(1.5f, 1.8f, EnemyRole.Flying), P(4.5f, 1.8f, EnemyRole.Flying) }
+        };
+
+        // Frontline + Shooter - "Normal/Heavyが前衛、Shooterは前衛の少し後
+        // 方...画面外から一方的に撃つ配置は禁止" - Shooter sits only 2.5
+        // units behind the frontline (well within its own shooterRange), so
+        // it's always on-screen alongside the melee it's protecting.
+        var frontlineShooter = new FormationData
+        {
+            formationId = "frontline_shooter",
+            formationType = EnemyFormationType.FrontlineShooter,
+            weight = 1.4f,
+            minDistance = 5000f,
+            maxDistance = 999999f,
+            spawnPoints = new[] { P(0f, 0f, EnemyRole.Frontline), P(1.6f, 0f, EnemyRole.Frontline), P(3.2f, 0f, EnemyRole.Shooter) }
+        };
+
+        // Heavy + Normal - "Heavyを壁として使い、その周囲にNormalを配置".
+        var heavyNormal = new FormationData
+        {
+            formationId = "heavy_normal",
+            formationType = EnemyFormationType.HeavyNormal,
+            weight = 1.4f,
+            minDistance = 5000f,
+            maxDistance = 999999f,
+            spawnPoints = new[] { P(1.5f, 0f, EnemyRole.Heavy), P(0f, 0f, EnemyRole.Normal), P(3f, 0f, EnemyRole.Normal) }
+        };
+
+        // Rush - a tight burst of Chaser/Rusher-role members; the actual
+        // "rush" character comes entirely from THEIR OWN Behavior
+        // (EnemySpecialBehavior.UpdateRusher's telegraph->dash), not from
+        // the spawn shape itself, so this is just a small tight cluster.
+        var rush = new FormationData
+        {
+            formationId = "rush",
+            formationType = EnemyFormationType.Rush,
+            weight = 1.5f,
+            minDistance = 10000f,
+            maxDistance = 999999f,
+            spawnPoints = new[] { P(0f, 0f, EnemyRole.Any), P(1.3f, 0f, EnemyRole.Any), P(2.6f, 0f, EnemyRole.Any) }
+        };
+
+        var single = new FormationData
+        {
+            formationId = "single",
+            formationType = EnemyFormationType.Single,
+            weight = 2f,
+            minDistance = 0f,
+            maxDistance = 999999f,
+            spawnPoints = new[] { P(0f, 0f, EnemyRole.Any) }
+        };
+
+        var smallGroup = new FormationData
+        {
+            formationId = "small_group",
+            formationType = EnemyFormationType.SmallGroup,
+            weight = 2f,
+            minDistance = 0f,
+            maxDistance = 999999f,
+            spawnPoints = new[] { P(0f, 0f, EnemyRole.Any), P(1.4f, 0f, EnemyRole.Any) }
+        };
+
+        return new[] { single, smallGroup, horizontalLine, verticalLine, cluster, diagonalUp, groundAir, frontlineShooter, heavyNormal, rush };
+    }
+
+    static Sprite ConfigureAndLoadSpriteWithFootPivot(string path, float pixelsPerUnit)
+    {
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            // Game Feel refinement pass - explicit, not left to Unity's own
+            // auto-detection: the user reported effect/decoration sprites
+            // rendering as solid black/white rectangles in Game View, and
+            // this is the one alpha-related import setting this file never
+            // set explicitly anywhere. FromInput = "use the PNG's own alpha
+            // channel" (as opposed to None/FromGrayScale).
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            ApplyCustomPivot(importer, ComputeLowestContentPivotY(path));
+            importer.SaveAndReimport();
+        }
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
+
+    // TextureImporter doesn't expose spriteAlignment directly - it has to
+    // go through TextureImporterSettings.
+    static void ApplyCustomPivot(TextureImporter importer, float pivotY)
+    {
+        TextureImporterSettings settings = new TextureImporterSettings();
+        importer.ReadTextureSettings(settings);
+        settings.spriteAlignment = (int)SpriteAlignment.Custom;
+        settings.spritePivot = new Vector2(0.5f, pivotY);
+        importer.SetTextureSettings(settings);
+    }
+
+    // Reads the raw PNG bytes directly (not through the AssetDatabase, so
+    // no readable-texture import setting is needed) and returns the
+    // normalized Y (0 = bottom, 1 = top, matching Unity's own pivot
+    // convention) of the lowest row containing any non-transparent pixel.
+    static float ComputeLowestContentPivotY(string filePath)
+    {
+        byte[] bytes = File.ReadAllBytes(filePath);
+        Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        tex.LoadImage(bytes);
+
+        int w = tex.width, h = tex.height;
+        Color32[] pixels = tex.GetPixels32();
+        int lowestY = -1;
+        for (int y = 0; y < h && lowestY < 0; y++)
+        {
+            int rowStart = y * w;
+            for (int x = 0; x < w; x += 2)
+            {
+                if (pixels[rowStart + x].a > 15) { lowestY = y; break; }
+            }
+        }
+        Object.DestroyImmediate(tex);
+
+        return lowestY < 0 ? 0.5f : Mathf.Clamp01((float)lowestY / h);
+    }
+
+    static Sprite[] LoadSpriteSequence(string dir)
+    {
+        if (!Directory.Exists(dir)) return new Sprite[0];
+
+        string[] files = Directory.GetFiles(dir, "*.png");
+        System.Array.Sort(files);
+
+        var list = new List<Sprite>();
+        foreach (string f in files)
+        {
+            string assetPath = f.Replace('\\', '/');
+            Sprite s = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+            if (s != null) list.Add(s);
+        }
+        return list.ToArray();
+    }
+
+    static Sprite EnsureSquareSprite()
+    {
+        Sprite existing = AssetDatabase.LoadAssetAtPath<Sprite>(SpritePath);
+        if (existing != null) return existing;
+
+        string dir = Path.GetDirectoryName(SpritePath);
+        if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
+        const int size = 64;
+        Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        Color[] pixels = new Color[size * size];
+        for (int i = 0; i < pixels.Length; i++) pixels[i] = Color.white;
+        tex.SetPixels(pixels);
+        tex.Apply();
+
+        File.WriteAllBytes(SpritePath, tex.EncodeToPNG());
+        Object.DestroyImmediate(tex);
+
+        AssetDatabase.ImportAsset(SpritePath, ImportAssetOptions.ForceUpdate);
+
+        TextureImporter importer = (TextureImporter)AssetImporter.GetAtPath(SpritePath);
+        importer.textureType = TextureImporterType.Sprite;
+        importer.spriteImportMode = SpriteImportMode.Single;
+        importer.spritePixelsPerUnit = size;
+        importer.filterMode = FilterMode.Point;
+        importer.SaveAndReimport();
+
+        return AssetDatabase.LoadAssetAtPath<Sprite>(SpritePath);
+    }
+
+    static void EnsureTag(string tag)
+    {
+        SerializedObject tagManager = new SerializedObject(
+            AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
+        SerializedProperty tagsProp = tagManager.FindProperty("tags");
+
+        for (int i = 0; i < tagsProp.arraySize; i++)
+        {
+            if (tagsProp.GetArrayElementAtIndex(i).stringValue == tag) return;
+        }
+
+        tagsProp.InsertArrayElementAtIndex(tagsProp.arraySize);
+        tagsProp.GetArrayElementAtIndex(tagsProp.arraySize - 1).stringValue = tag;
+        tagManager.ApplyModifiedProperties();
+    }
+}

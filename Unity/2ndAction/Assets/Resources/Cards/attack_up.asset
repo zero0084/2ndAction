@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: attack_up
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: attack_up
+  cardName: ATTACK UP
+  icon: {fileID: 2800000, guid: d93e27a2436d6b5439c6a72e7216c096, type: 3}
+  description: "\u653B\u6483\u529B\u304C\u4E0A\u6607\u3059\u308B"
+  category: 1
+  sortOrder: 3
+  effects:
+  - type: 1
+    value: 1

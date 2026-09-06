@@ -1,0 +1,83 @@
+using UnityEngine;
+
+[RequireComponent(typeof(Camera))]
+public class CameraFollow : MonoBehaviour
+{
+    public Transform target;
+    public float offsetX = 6f;
+    public float yDamping = 0.15f;
+
+    // Half the world-width the camera should show, regardless of screen
+    // orientation. Orthographic size (vertical half-height) is derived from
+    // this every frame, so portrait and landscape always show the same
+    // horizontal "zoom" instead of portrait looking more zoomed in just
+    // because the screen is narrower.
+    public float targetHorizontalHalfWidth = 20.8f;
+
+    Camera cam;
+    Vector3 velocity;
+
+    // Game Feel pass, section 19 - "非常に小さなShake" for boss/strong hits
+    // only (see DragonController.TakeDamage) - never for a normal enemy
+    // kill, and never anything big enough to risk reading as screen shake/
+    // motion sickness. A simple decaying random jitter added on top of the
+    // normal follow position each frame, not a separate transform.
+    float shakeTimer;
+    float shakeDuration = 1f;
+    float shakeMagnitude;
+
+    void Awake()
+    {
+        cam = GetComponent<Camera>();
+    }
+
+    public void Shake(float magnitude, float duration)
+    {
+        shakeMagnitude = magnitude;
+        shakeDuration = Mathf.Max(0.001f, duration);
+        shakeTimer = shakeDuration;
+    }
+
+    void LateUpdate()
+    {
+        if (cam != null && Screen.height > 0)
+        {
+            float aspect = (float)Screen.width / Screen.height;
+            cam.orthographicSize = targetHorizontalHalfWidth / aspect;
+        }
+
+        if (shakeTimer > 0f) shakeTimer = Mathf.Max(0f, shakeTimer - Time.unscaledDeltaTime);
+
+        if (target == null) return;
+
+        // Freeze the camera in place once the win-ascension starts, so the
+        // player visibly flies up and off the top of the screen instead of
+        // the camera awkwardly chasing them forever.
+        if (PlayerController.Instance != null && PlayerController.Instance.IsAscending) return;
+
+        // Bugfix 2026-09-06, item 1 - "Level Up Card選択中はCamera Follow
+        // も停止". LateUpdate runs every rendered frame regardless of
+        // Time.timeScale (unlike Time.deltaTime-based movement, which
+        // already freezes on its own), so this was re-snapping to the
+        // player's X every single frame throughout a Level Up/Boss Reward
+        // pause (and every brief HitStop.Freeze) even though the player
+        // itself was correctly frozen - harmless today only because the
+        // player never actually moves during those pauses, but explicit
+        // now rather than relying on that coincidence.
+        if (Time.timeScale <= 0f) return;
+
+        Vector3 pos = transform.position;
+        pos.x = target.position.x + offsetX;
+        float smoothedY = Mathf.SmoothDamp(pos.y, target.position.y, ref velocity.y, yDamping);
+        pos.y = smoothedY;
+
+        if (shakeTimer > 0f)
+        {
+            float falloff = shakeTimer / shakeDuration;
+            pos.x += Random.Range(-1f, 1f) * shakeMagnitude * falloff;
+            pos.y += Random.Range(-1f, 1f) * shakeMagnitude * falloff;
+        }
+
+        transform.position = pos;
+    }
+}

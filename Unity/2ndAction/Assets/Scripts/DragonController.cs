@@ -1,0 +1,715 @@
+using System.Collections;
+using UnityEngine;
+
+[RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(BoxCollider2D))]
+public class DragonController : MonoBehaviour
+{
+    enum State { Entering, Idle, Telegraphing, Charging, Firing, Dead }
+
+    [Header("Animation")]
+    public Sprite[] idleFrames;
+    public Sprite[] chargeFrames;
+    public Sprite[] fireFrames;
+    public float animFps = 8f;
+
+    [Header("Health / Damage")]
+    public int maxHp = 20;
+    public int playerAttackDamage = 2;
+    public int fireballDamage = 2;
+
+    [Header("Behaviour Timing")]
+    // Distance Level Design Ver.1 - Mechanical Dragon's placeholder: "出現
+    //確認用の最低限Placeholder Behaviorでも構いません" (item 7 of that
+    // brief) - it uses this exact same DragonController (entrance/HP/hit/
+    // death all identical) with attacksEnabled=false (see BossManager.
+    // SpawnMechanicalDragon), so it appears, can be fought and defeated,
+    // but never attacks - no attack Pattern has been designed for it yet,
+    // and this field is what keeps that true rather than silently
+    // inheriting the fire-breath Dragon's own attacks. true (unchanged) for
+    // every real Dragon.
+    public bool attacksEnabled = true;
+    // Reward/MILE System Ver.1 - "ボスMILE: Dragon 50、Mechanical Dragon
+    // 200". BossManager.SpawnMechanicalDragon overrides this to 200 right
+    // alongside setting attacksEnabled=false; every real Dragon keeps the
+    // default 50.
+    public int mileReward = 50;
+    public float attackIntervalMin = 1.5f;
+    public float attackIntervalMax = 3f;
+    // Charge attack is currently disabled (design is being revisited) - the
+    // dragon only ever fires. Flip this back on to bring it back.
+    public bool chargeAttackEnabled = false;
+
+    [Header("Attack Telegraph")]
+    public float telegraphDuration = 3f;
+    public float telegraphBlinkInterval = 0.3f;
+
+    [Header("Charge Attack (dive under, then swoop away)")]
+    public float diveDuration = 1.1f;
+    public float riseDuration = 0.9f;
+    public float chargeReturnDuration = 0.6f;
+    // Height above ground the dragon dives down to - low enough to be a
+    // contact threat for a player who doesn't jump over it.
+    public float diveHeight = 0.5f;
+    // How far inside the camera's right edge the dragon rises up at, after
+    // diving under the player - so the whole charge reads as "swoop in,
+    // then bank away off-screen" rather than stopping mid-air nearby.
+    public float riseEdgeMargin = 1.5f;
+
+    [Header("Fire Attack")]
+    public float fireWindupDuration = 0.5f;
+    public float fireRecoverDuration = 0.6f;
+    public float fireballSpeed = 6f;
+    public Vector2 fireballSpawnOffset = new Vector2(-1.2f, 0.1f);
+    public float fireballInterval = 0.25f;
+
+    [Header("Fire Attack Patterns")]
+    // 5 patterns: single shot, a burst of tripleCount, a burst of
+    // quintupleCount, a spread fan, and (only once at/below half HP) a
+    // double fan. Picked uniformly at random each time from whichever set
+    // is currently available.
+    public int tripleCount = 3;
+    public int quintupleCount = 5;
+    public int fanCount = 5;
+    public float fanSpreadDegrees = 60f;
+    public float fanRepeatDelay = 0.4f;
+
+    [Header("Positioning")]
+    // Ground clearance (world units) kept under the dragon's belly while
+    // hovering idle - derived together with the sprite's actual half-height
+    // so resizing the dragon doesn't require re-tuning this by hand.
+    public float groundClearance = 0.6f;
+    public float standoffDistance = 8f;
+    // Hard caps on how far ahead of / behind the player's actual position
+    // the dragon's home spot can drift (see AdvanceTrackedX) - keeps it
+    // from ever getting pushed off the visible screen by accumulated
+    // lunge/recoil attacks in either direction.
+    public float maxAheadOfPlayer = 20f;
+    public float maxBehindPlayer = 10f;
+
+    [Header("Idle Bob")]
+    // The dragon drifts up and down while hovering instead of holding a
+    // perfectly flat line, using per-instance Perlin noise so several
+    // dragons on screen at once don't bob in visible lockstep.
+    public float bobAmplitude = 1.4f;
+    public float bobSpeedMin = 0.5f;
+    public float bobSpeedMax = 1.4f;
+    // A second, faster/smaller noise layered on top of the main bob so the
+    // motion doesn't read as one smooth, predictable up-down drift.
+    public float bobAmplitude2 = 0.6f;
+    public float bobSpeedMin2 = 1.5f;
+    public float bobSpeedMax2 = 3f;
+
+    [Header("Entrance")]
+    // On spawn the dragon starts off past the camera's right edge and flies
+    // in to its hover position, instead of just popping into view.
+    public float entranceDuration = 1.2f;
+    public float entranceOffscreenMargin = 3f;
+
+    // Boss Milestone Presentation pass - the "所定位置到達" beat, once
+    // ReturnToHome finishes (see EnterThenSchedule/ArrivalPresentation).
+    // Scale Emphasis (item 6 of the brief) is deliberately NOT implemented
+    // here - this GameObject has no separate Root/Visual split (the
+    // SpriteRenderer/Collider/Rigidbody all live on this same Transform,
+    // unlike Player/ground Enemy), so a scale punch here would also punch
+    // the trigger Collider, which the brief explicitly says not to touch.
+    // Left out rather than done wrong.
+    [Header("Boss Milestone Presentation - Arrival")]
+    public float hpBarRevealDuration = 0.25f;
+    public float arrivalShakeMagnitude = 0.06f;
+    public float arrivalShakeDuration = 0.15f;
+
+    // Boss Defeat Presentation pass - "最後のHitを強調" (item 1). Scale
+    // Emphasis on Death (item 2's Scale 1.0->1.05->0.9) DOES touch this
+    // GameObject's own transform.localScale, unlike Arrival's - safe here
+    // specifically because state is already Dead by the time it runs (see
+    // TakeDamage/FinalHitAndDie), so the Collider/Rigidbody riding along
+    // with it can no longer register or deal any damage either way.
+    [Header("Boss Defeat Presentation - Final Hit")]
+    public float finalHitStopDuration = 0.14f;
+    public float finalHitShakeStrength = 0.14f;
+    public float finalHitShakeDuration = 0.16f;
+    public Sprite finalHitSparkSprite;
+    public float finalHitSparkScale = 0.75f;
+    public AudioClip finalHitSe;
+
+    [Header("Boss Defeat Presentation - Death")]
+    public float bossDeathFlashDuration = 0.08f;
+    public Color bossDeathFlashColor = new Color(0.7f, 0.9f, 1f, 1f);
+    public float bossDeathDuration = 0.6f;
+    public float bossDeathPunchScale = 1.05f;
+    public float bossDeathFinalScale = 0.9f;
+    public Sprite bossDeathSmokeSprite;
+    public float bossDeathSmokeScale = 1f;
+    public AudioClip bossDefeatSe;
+
+    [Header("Boss Defeat Presentation - HP Bar")]
+    public float hpBarEmptyHoldDuration = 0.15f;
+    public float bossHpBarFadeDuration = 0.25f;
+
+    [Header("Refs")]
+    public Sprite squareSprite;
+    public Transform player;
+    public Color explosionColor = new Color(1f, 0.5f, 0.1f);
+
+    public int Hp { get; private set; }
+    public bool IsDead => state == State.Dead;
+
+    State state = State.Idle;
+    SpriteRenderer sr;
+    SpriteRenderer flashOverlay;
+    SpriteRenderer hitFlashOverlay;
+    PlayerController playerController;
+    Vector3 homePos;
+    float hoverHeight;
+    float riseHeight;
+    float nextAttackTime;
+    int frameIndex;
+    float frameTimer;
+    Sprite[] currentFrames;
+    DragonHealthBar hpBar;
+    float bobSeed;
+    float bobSpeed;
+    float bobSeed2;
+    float bobSpeed2;
+
+    // Tracks the player's BASE auto-run progress only (not attack lunges),
+    // so ordinary running keeps a constant gap while a forward/backward
+    // attack lunge actually changes the distance by that same amount.
+    float trackedX;
+
+    public void Init(Transform playerTransform)
+    {
+        player = playerTransform;
+        playerController = player != null ? player.GetComponent<PlayerController>() : null;
+        sr = GetComponent<SpriteRenderer>();
+        SetFrames(idleFrames);
+
+        CreateFlashOverlay();
+        CreateHitFlashOverlay();
+        RecomputeVerticalOffsets();
+
+        trackedX = player.position.x;
+        bobSeed = Random.Range(0f, 1000f);
+        bobSpeed = Random.Range(bobSpeedMin, bobSpeedMax);
+        bobSeed2 = Random.Range(0f, 1000f);
+        bobSpeed2 = Random.Range(bobSpeedMin2, bobSpeedMax2);
+
+        homePos = ComputeHomePosition();
+        transform.position = ComputeOffscreenEntryPosition(homePos);
+
+        Hp = maxHp;
+
+        hpBar = DragonHealthBar.Create(squareSprite, transform, 2.6f, 0.24f);
+        hpBar.offset = new Vector3(0f, hoverHeight * 0.5f + 0.5f, 0f);
+        // Boss Milestone Presentation pass - "Boss HP BarはDragon出現前か
+        // ら表示しない" (see ArrivalPresentation for the reveal).
+        hpBar.SetHidden();
+
+        state = State.Entering;
+        StartCoroutine(EnterThenSchedule());
+    }
+
+    // Starts past the camera's right edge (never behind the player, even if
+    // the dragon's hover spot is close by) so it always flies in from
+    // off-screen instead of popping into view.
+    Vector3 ComputeOffscreenEntryPosition(Vector3 target)
+    {
+        Camera cam = Camera.main;
+        float rightEdge = cam != null
+            ? cam.transform.position.x + cam.orthographicSize * cam.aspect
+            : target.x + 6f;
+        float startX = Mathf.Max(target.x, rightEdge) + entranceOffscreenMargin;
+        return new Vector3(startX, target.y, 0f);
+    }
+
+    IEnumerator EnterThenSchedule()
+    {
+        yield return ReturnToHome(entranceDuration);
+        yield return ArrivalPresentation();
+        state = State.Idle;
+        ScheduleNextAttack();
+    }
+
+    // Boss Milestone Presentation pass - fires once, right as the dragon
+    // settles into its hover spot: reveal the HP bar, and one small camera
+    // shake ("Bossが所定位置に入った瞬間に一度だけ使用" - never repeated,
+    // never on every attack). Runs before ScheduleNextAttack, so the dragon
+    // still can't attack until this finishes.
+    IEnumerator ArrivalPresentation()
+    {
+        if (hpBar != null) StartCoroutine(hpBar.RevealRoutine(hpBarRevealDuration));
+
+        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (camFollow != null) camFollow.Shake(arrivalShakeMagnitude, arrivalShakeDuration);
+
+        yield return null;
+    }
+
+    void CreateFlashOverlay()
+    {
+        GameObject go = new GameObject("FlashOverlay");
+        go.transform.SetParent(transform, false);
+        flashOverlay = go.AddComponent<SpriteRenderer>();
+        flashOverlay.color = Color.white;
+        flashOverlay.sortingOrder = sr.sortingOrder + 1;
+        flashOverlay.enabled = false;
+    }
+
+    void CreateHitFlashOverlay()
+    {
+        GameObject go = new GameObject("HitFlashOverlay");
+        go.transform.SetParent(transform, false);
+        hitFlashOverlay = go.AddComponent<SpriteRenderer>();
+        hitFlashOverlay.color = new Color(1f, 0.15f, 0.15f, 0.85f);
+        hitFlashOverlay.sortingOrder = sr.sortingOrder + 1;
+        hitFlashOverlay.enabled = false;
+    }
+
+    // Derives hover/rise heights from the sprite's actual world-space bounds
+    // (which already reflect the GameObject's scale), so a bigger or smaller
+    // dragon doesn't need its clearance values re-tuned by hand.
+    void RecomputeVerticalOffsets()
+    {
+        float halfHeight = 1.5f;
+        if (sr != null && sr.sprite != null)
+        {
+            halfHeight = sr.sprite.bounds.extents.y * transform.lossyScale.y;
+        }
+        hoverHeight = groundClearance + halfHeight;
+        riseHeight = hoverHeight + halfHeight * 1.5f;
+    }
+
+    void Update()
+    {
+        if (state == State.Dead) return;
+
+        AnimateSprite();
+        AdvanceTrackedX();
+
+        if (state == State.Idle || state == State.Telegraphing || state == State.Firing)
+        {
+            ApplyHomePosition();
+        }
+
+        if (attacksEnabled && state == State.Idle && Time.time >= nextAttackTime)
+        {
+            bool isCharge = chargeAttackEnabled && Random.value < 0.5f;
+            StartCoroutine(TelegraphAndAttack(isCharge));
+        }
+    }
+
+    // Advances at the player's current BASE auto-run speed only (never their
+    // attack-lunge velocity), keeping the standoff distance's baseline fixed
+    // regardless of how far the player has actually run.
+    void AdvanceTrackedX()
+    {
+        float baseSpeed = playerController != null ? playerController.CurrentAutoRunSpeed : 0f;
+        trackedX += baseSpeed * Time.deltaTime;
+
+        // Repeated attack lunges in the same direction (e.g. several
+        // backward/recoil hits in a row) would otherwise let the gap
+        // between the dragon's home spot and the player grow without
+        // bound in either direction, eventually pushing it off-screen for
+        // good. Clamp every frame, symmetrically, against the player's
+        // CURRENT actual position - not a one-way "only ever shrink the
+        // ceiling" clamp, which would itself get permanently stuck low
+        // after even a single backward attack and never recover (that was
+        // the bug: it ratcheted trackedX down and never let it back up).
+        if (player != null)
+        {
+            float minTrackedX = player.position.x - maxBehindPlayer - standoffDistance;
+            float maxTrackedX = player.position.x + maxAheadOfPlayer - standoffDistance;
+            trackedX = Mathf.Clamp(trackedX, minTrackedX, maxTrackedX);
+        }
+    }
+
+    // Derives the current hover target from tracked distance, ground height,
+    // and a per-instance Perlin-noise bob so the dragon drifts up and down
+    // instead of holding a dead-flat line - shared by idle tracking, the
+    // charge-attack return glide, and the entrance flight-in.
+    Vector3 ComputeHomePosition()
+    {
+        float groundY = GroundYAt(trackedX);
+        float bobOffset = (Mathf.PerlinNoise(Time.time * bobSpeed + bobSeed, 0f) * 2f - 1f) * bobAmplitude
+            + (Mathf.PerlinNoise(Time.time * bobSpeed2 + bobSeed2, 0f) * 2f - 1f) * bobAmplitude2;
+        return new Vector3(trackedX + standoffDistance, groundY + hoverHeight + bobOffset, 0f);
+    }
+
+    void ApplyHomePosition()
+    {
+        homePos = ComputeHomePosition();
+        transform.position = homePos;
+    }
+
+    void SetFrames(Sprite[] frames)
+    {
+        currentFrames = frames;
+        frameIndex = 0;
+        frameTimer = 0f;
+        if (frames != null && frames.Length > 0) sr.sprite = frames[0];
+    }
+
+    void AnimateSprite()
+    {
+        if (currentFrames == null || currentFrames.Length == 0) return;
+
+        frameTimer += Time.deltaTime;
+        if (frameTimer >= 1f / animFps)
+        {
+            frameTimer = 0f;
+            frameIndex = (frameIndex + 1) % currentFrames.Length;
+            sr.sprite = currentFrames[frameIndex];
+        }
+
+        if (flashOverlay != null) flashOverlay.sprite = sr.sprite;
+        if (hitFlashOverlay != null) hitFlashOverlay.sprite = sr.sprite;
+    }
+
+    void ScheduleNextAttack()
+    {
+        nextAttackTime = Time.time + Random.Range(attackIntervalMin, attackIntervalMax);
+    }
+
+    float GroundYAt(float x)
+    {
+        if (TerrainManager.Instance == null) return 0f;
+        return TerrainManager.Instance.GetHeightAt(x) ?? 0f;
+    }
+
+    // World-space X of the camera's current right edge, so the charge
+    // attack's rise-away phase can target "right at the edge of the visible
+    // screen" regardless of zoom/aspect.
+    float CameraRightEdgeX()
+    {
+        Camera cam = Camera.main;
+        if (cam == null) return transform.position.x + 6f;
+        return cam.transform.position.x + cam.orthographicSize * cam.aspect - riseEdgeMargin;
+    }
+
+    IEnumerator TelegraphAndAttack(bool isCharge)
+    {
+        state = State.Telegraphing;
+
+        float t = 0f;
+        bool flash = false;
+        while (t < telegraphDuration)
+        {
+            flash = !flash;
+            if (flashOverlay != null) flashOverlay.enabled = flash;
+            yield return new WaitForSeconds(telegraphBlinkInterval);
+            t += telegraphBlinkInterval;
+        }
+        if (flashOverlay != null) flashOverlay.enabled = false;
+
+        if (state != State.Telegraphing) yield break; // dragon died mid-telegraph
+
+        yield return isCharge ? ChargeAttack() : FireAttack();
+    }
+
+    // Dives down to ground level right at the player's position (dodgeable
+    // by jumping over it), then rises up at the edge of the screen, then
+    // glides back down into its normal tracked hover position. The target
+    // X is captured once here, at the moment the actual attack motion
+    // begins (after the telegraph has already finished) - not re-read as
+    // the player keeps moving during the dive itself.
+    IEnumerator ChargeAttack()
+    {
+        state = State.Charging;
+        SetFrames(chargeFrames);
+
+        Vector3 start = transform.position;
+        float diveX = player != null ? player.position.x : start.x;
+        Vector3 divePos = new Vector3(diveX, GroundYAt(diveX) + diveHeight, 0f);
+        yield return LerpPosition(start, divePos, diveDuration);
+
+        float riseX = CameraRightEdgeX();
+        Vector3 risePos = new Vector3(riseX, GroundYAt(riseX) + riseHeight, 0f);
+        yield return LerpPosition(transform.position, risePos, riseDuration);
+
+        yield return ReturnToHome(chargeReturnDuration);
+
+        state = State.Idle;
+        SetFrames(idleFrames);
+        ScheduleNextAttack();
+    }
+
+    // Glides back toward the CURRENT tracked home position (recomputed each
+    // frame) rather than a fixed snapshot, so it lands exactly where normal
+    // idle-tracking would already be and there's no post-attack snap.
+    IEnumerator ReturnToHome(float duration)
+    {
+        Vector3 start = transform.position;
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / Mathf.Max(0.01f, duration);
+            Vector3 target = ComputeHomePosition();
+            transform.position = Vector3.Lerp(start, target, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t)));
+            yield return null;
+        }
+    }
+
+    enum FirePattern { Single, TripleLine, QuintupleLine, Fan, DoubleFanLowHp }
+
+    // DoubleFanLowHp only enters the pool once HP is at/below half, per the
+    // 5th-pattern requirement - otherwise it picks uniformly among the first 4.
+    FirePattern PickFirePattern()
+    {
+        bool lowHp = Hp <= maxHp / 2;
+        int optionCount = lowHp ? 5 : 4;
+        return (FirePattern)Random.Range(0, optionCount);
+    }
+
+    IEnumerator FireAttack()
+    {
+        state = State.Firing;
+        SetFrames(fireFrames);
+
+        yield return new WaitForSeconds(fireWindupDuration);
+
+        FirePattern pattern = PickFirePattern();
+        switch (pattern)
+        {
+            case FirePattern.Single:
+                if (state == State.Firing) SpawnFireball(0f);
+                break;
+            case FirePattern.TripleLine:
+                yield return FireLine(tripleCount);
+                break;
+            case FirePattern.QuintupleLine:
+                yield return FireLine(quintupleCount);
+                break;
+            case FirePattern.Fan:
+                FireFan();
+                break;
+            case FirePattern.DoubleFanLowHp:
+                FireFan();
+                yield return new WaitForSeconds(fanRepeatDelay);
+                if (state == State.Firing) FireFan();
+                break;
+        }
+
+        yield return new WaitForSeconds(fireRecoverDuration);
+
+        state = State.Idle;
+        SetFrames(idleFrames);
+        ScheduleNextAttack();
+    }
+
+    IEnumerator FireLine(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            if (state != State.Firing) yield break;
+            SpawnFireball(0f);
+            if (i < count - 1) yield return new WaitForSeconds(fireballInterval);
+        }
+    }
+
+    void FireFan()
+    {
+        if (player == null || squareSprite == null || fanCount <= 0) return;
+
+        float startOffset = -fanSpreadDegrees / 2f;
+        for (int i = 0; i < fanCount; i++)
+        {
+            float t = fanCount > 1 ? i / (float)(fanCount - 1) : 0.5f;
+            float angleOffset = startOffset + fanSpreadDegrees * t;
+            SpawnFireball(angleOffset);
+        }
+    }
+
+    void SpawnFireball(float angleOffsetDegrees)
+    {
+        if (player == null || squareSprite == null) return;
+
+        // fireballSpawnOffset is defined relative to the dragon's own art, so
+        // it needs to scale with the dragon's size.
+        Vector3 scaledOffset = Vector3.Scale((Vector3)fireballSpawnOffset, transform.lossyScale);
+        Vector3 spawnPos = transform.position + scaledOffset;
+        Vector2 dir = ((Vector2)player.position - (Vector2)spawnPos).normalized;
+
+        if (Mathf.Abs(angleOffsetDegrees) > 0.01f)
+        {
+            float rad = angleOffsetDegrees * Mathf.Deg2Rad;
+            float cos = Mathf.Cos(rad);
+            float sin = Mathf.Sin(rad);
+            dir = new Vector2(dir.x * cos - dir.y * sin, dir.x * sin + dir.y * cos);
+        }
+
+        FireballController.Create(squareSprite, spawnPos, dir * fireballSpeed);
+    }
+
+    IEnumerator LerpPosition(Vector3 from, Vector3 to, float duration)
+    {
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / Mathf.Max(0.01f, duration);
+            transform.position = Vector3.Lerp(from, to, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t)));
+            yield return null;
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (state == State.Dead) return;
+
+        if (other.CompareTag("PlayerAttack"))
+        {
+            // Grows with the player's "Attack Power UP" level-up choice;
+            // playerAttackDamage is only the fallback if that's unavailable.
+            int damage = PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage;
+            TakeDamage(damage);
+            return;
+        }
+
+        // The dragon's body only hurts the player while it's actively
+        // charging (diving in/swooping through) - just standing/hovering
+        // near it, or being near it while it breathes fire, is safe.
+        if (other.CompareTag("Player") && state == State.Charging)
+        {
+            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage();
+            return;
+        }
+
+        FireballController fb = other.GetComponent<FireballController>();
+        if (fb != null && fb.reflected)
+        {
+            TakeDamage(fireballDamage);
+            Destroy(fb.gameObject);
+        }
+    }
+
+    public void TakeDamage(int amount)
+    {
+        if (state == State.Dead) return;
+
+        Hp = Mathf.Max(0, Hp - amount);
+        if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
+
+        if (Hp <= 0)
+        {
+            // Claimed immediately (not at the end of the death coroutine
+            // any more) - OnTriggerEnter2D/Update's own state==Dead guards
+            // then stop the dragon attacking/taking further damage right
+            // away, while FinalHitAndDie below keeps it visually on screen
+            // for its short death presentation instead of vanishing this
+            // same frame.
+            state = State.Dead;
+            StartCoroutine(FinalHitAndDie());
+            return;
+        }
+
+        // Game Feel pass, section 19 - a very small camera shake, boss hits
+        // only (regular EnemyController kills deliberately never do this -
+        // "通常攻撃では基本Shakeなし").
+        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (camFollow != null) camFollow.Shake(0.08f, 0.1f);
+        StartCoroutine(HitFlash());
+    }
+
+    // Brief red flash to signal "that hit landed" while the boss is still
+    // alive - a separate overlay from the (white) attack telegraph so the
+    // two never fight over the same renderer if their timing overlaps.
+    IEnumerator HitFlash()
+    {
+        if (hitFlashOverlay == null) yield break;
+        hitFlashOverlay.enabled = true;
+        yield return new WaitForSeconds(0.15f);
+        hitFlashOverlay.enabled = false;
+    }
+
+    // Boss Defeat Presentation pass - replaces the old instant Die()
+    // (StopAllCoroutines + immediate SetActive(false)) with a short,
+    // visible sequence: Final Hit emphasis -> Death flash/scale/fade+smoke
+    // -> HP Bar empty-hold-then-fade -> only THEN deactivate and notify
+    // GameManager/BossManager. state is already Dead by the time this
+    // starts (set in TakeDamage), so every other coroutine on this object
+    // (attack scheduling, telegraph blink, idle bob via Update) is already
+    // inert - StopAllCoroutines is no longer called here, since this
+    // coroutine itself needs to keep running.
+    IEnumerator FinalHitAndDie()
+    {
+        if (flashOverlay != null) flashOverlay.enabled = false;
+        if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
+
+        // ===== Item 1 - Final Hit: a slightly longer Hit Stop, a boosted
+        // Hit Spark, and a stronger Camera Shake than a normal hit. Only
+        // the camera and a separate one-shot VFX object are touched - this
+        // GameObject's own Collider/Rigidbody are untouched here. =====
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(finalHitSe);
+        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (camFollow != null) camFollow.Shake(finalHitShakeStrength, finalHitShakeDuration);
+        Sprite spark = finalHitSparkSprite != null ? finalHitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
+        OneShotSpriteEffect.CreateTweened(spark, transform.position, Color.white, duration: 0.18f, startScale: finalHitSparkScale * 0.7f, endScale: finalHitSparkScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.2f);
+
+        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Boss defeated");
+
+        yield return HitStop.Freeze(finalHitStopDuration);
+
+        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Final hit presentation");
+
+        // ===== Item 2 - Death Presentation: flash (white->blue/cyan) ->
+        // scale punch+fade (1.0->1.05->0.9, Alpha->0) -> a Death Smoke
+        // accent, sized up from a regular enemy's own (Boss用は少し大き
+        // く). Collider scaling along with this is safe now - state is
+        // already Dead, so it can neither deal nor take any further
+        // damage regardless of its current size. =====
+        if (flashOverlay != null)
+        {
+            flashOverlay.sprite = sr.sprite;
+            flashOverlay.color = bossDeathFlashColor;
+            flashOverlay.enabled = true;
+        }
+        yield return new WaitForSeconds(bossDeathFlashDuration);
+        if (flashOverlay != null) flashOverlay.enabled = false;
+
+        Vector3 baseScale = transform.localScale;
+        Color startColor = sr.color;
+        float punchDuration = bossDeathDuration * 0.3f;
+        float settleDuration = Mathf.Max(0.05f, bossDeathDuration - punchDuration);
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / Mathf.Max(0.001f, punchDuration);
+            transform.localScale = baseScale * Mathf.Lerp(1f, bossDeathPunchScale, Mathf.Clamp01(t));
+            yield return null;
+        }
+
+        t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / Mathf.Max(0.001f, settleDuration);
+            float f = Mathf.Clamp01(t);
+            transform.localScale = baseScale * Mathf.Lerp(bossDeathPunchScale, bossDeathFinalScale, f);
+            Color c = startColor; c.a = Mathf.Lerp(startColor.a, 0f, f);
+            sr.color = c;
+            yield return null;
+        }
+
+        if (bossDeathSmokeSprite != null)
+        {
+            OneShotSpriteEffect.CreateTweened(bossDeathSmokeSprite, transform.position, Color.white, duration: 0.4f, startScale: bossDeathSmokeScale * 0.7f, endScale: bossDeathSmokeScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.3f);
+        }
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(bossDefeatSe);
+
+        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Death presentation");
+
+        // ===== Item 3 - Boss HP Bar: sit at empty a moment (already 0 from
+        // TakeDamage's SetFraction above) before fading out. =====
+        if (hpBar != null)
+        {
+            yield return new WaitForSeconds(hpBarEmptyHoldDuration);
+            yield return hpBar.FadeOutRoutine(bossHpBarFadeDuration);
+            Destroy(hpBar.gameObject);
+        }
+
+        gameObject.SetActive(false);
+
+        if (GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
+        if (BossManager.Instance != null) BossManager.Instance.OnDragonDefeated();
+    }
+}

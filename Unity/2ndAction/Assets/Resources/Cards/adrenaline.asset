@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: adrenaline
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: adrenaline
+  cardName: ADRENALINE
+  icon: {fileID: 2800000, guid: 658a0d1f1a4f1e943805e38115373cff, type: 3}
+  description: "HP\u304C\u6E1B\u3063\u3066\u3044\u308B\u307B\u3069\u653B\u6483\u529B\u3068\u30C6\u30F3\u30DD\u304C\u4E0A\u304C\u308B"
+  category: 6
+  sortOrder: 123
+  recommendPriority: 5
+  effects:
+  - type: 16
+    value: 3
+  - type: 6
+    value: 0.1
+  rarity: 3
+  unlockDistance: 5000
+  gachaStage: 2
+  element: 0

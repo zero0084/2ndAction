@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: chain_explosion
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: chain_explosion
+  cardName: CHAIN EXPLOSION
+  icon: {fileID: 2800000, guid: c322efdc8f08344448e5bd01d51d47de, type: 3}
+  description: "\u653B\u6483\u306E\u9593\u5408\u3044\u304C\u5E83\u304C\u308A\u3001\u30B3\u30F3\u30DC\u6700\u7D42\u6BB5\u306E\u5A01\u529B\u3082\u4E0A\u304C\u308B"
+  category: 1
+  sortOrder: 131
+  recommendPriority: 5
+  effects:
+  - type: 5
+    value: 0.3
+  - type: 14
+    value: 2
+  rarity: 4
+  unlockDistance: 20000
+  gachaStage: 3
+  element: 0

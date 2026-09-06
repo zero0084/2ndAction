@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: brake_attack
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: brake_attack
+  cardName: BRAKE ATTACK
+  icon: {fileID: 2800000, guid: b945560701f1a9442ad7b19a20bb6bd7, type: 3}
+  description: "\u653B\u6483\u5F8C\u308F\u305A\u304B\u306B\u6E1B\u901F\u3059\u308B\u4EE3\u308F\u308A\u306B\u3001\u5A01\u529B\u304C\u4E0A\u304C\u308B"
+  category: 1
+  sortOrder: 101
+  recommendPriority: 5
+  effects:
+  - type: 1
+    value: 1
+  - type: 0
+    value: -0.05
+  rarity: 2
+  unlockDistance: 0
+  gachaStage: 1
+  element: 0

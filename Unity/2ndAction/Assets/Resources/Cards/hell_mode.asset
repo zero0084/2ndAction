@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: hell_mode
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: hell_mode
+  cardName: HELL MODE
+  icon: {fileID: 2800000, guid: ab1be4d0e591e914aa00b517b7ba1abd, type: 3}
+  description: "\u6575\u304C\u5927\u5E45\u306B\u5F37\u5316\u3055\u308C\u308B\u4EE3\u308F\u308A\u306B\u3001\u7D4C\u9A13\u5024/MILE\u304C\u5927\u5E45\u306B\u5897\u52A0\u3059\u308B"
+  category: 6
+  sortOrder: 158
+  recommendPriority: 5
+  effects:
+  - type: 20
+    value: 0.6
+  - type: 12
+    value: 0.4
+  - type: 22
+    value: 0.5
+  - type: 23
+    value: 0.3
+  rarity: 4
+  unlockDistance: 50000
+  gachaStage: 4
+  element: 0

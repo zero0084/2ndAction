@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: chaser_runner
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: chaser_runner
+  displayName: CHASER
+  sprite: {fileID: 21300000, guid: b5b9a1d8bd9a78f4fb10a29711b23b8f, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 0
+  category: 5
+  behaviorKind: 5
+  hpMultiplier: 1
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 0
+  runFrames:
+  - {fileID: 21300000, guid: f0600406d632e224e8e717b523960715, type: 3}
+  - {fileID: 21300000, guid: fc6c50f00dd88ae48b577773a2746aff, type: 3}
+  - {fileID: 21300000, guid: 3fb67ecb113cc754ba44003d3ea481e2, type: 3}
+  - {fileID: 21300000, guid: dc462fe4c38a19442bbb68dab100d207, type: 3}
+  - {fileID: 21300000, guid: 83bab69c7503a0d44a7c227004465d1b, type: 3}
+  mileReward: 3
+  visualScaleMultiplier: 1.52

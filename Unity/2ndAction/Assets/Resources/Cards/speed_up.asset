@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: speed_up
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: speed_up
+  cardName: SPEED UP
+  icon: {fileID: 2800000, guid: c4d93dce4f8b1534c98c7888ed4ff7a9, type: 3}
+  description: "\u79FB\u52D5\u901F\u5EA6\u304C\u4E0A\u6607\u3059\u308B"
+  category: 0
+  sortOrder: 1
+  effects:
+  - type: 0
+    value: 0.12

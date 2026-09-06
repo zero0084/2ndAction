@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: skybound
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: skybound
+  cardName: SKYBOUND
+  icon: {fileID: 2800000, guid: 776d9aab7b541a14a9517aecc0f31f33, type: 3}
+  description: "\u5730\u4E0A\u653B\u6483\u529B\u3092\u72A0\u7272\u306B\u3001\u7A7A\u4E2D\u653B\u6483\u529B\u3092\u5927\u5E45\u306B\u9AD8\u3081\u308B"
+  category: 6
+  sortOrder: 154
+  recommendPriority: 5
+  effects:
+  - type: 13
+    value: -2
+  - type: 7
+    value: 5
+  rarity: 4
+  unlockDistance: 20000
+  gachaStage: 3
+  element: 0

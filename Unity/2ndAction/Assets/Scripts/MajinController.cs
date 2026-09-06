@@ -1,0 +1,549 @@
+using System.Collections;
+using UnityEngine;
+
+// A larger, tougher boss than the dragon - no charge/dive attack, just 5
+// fireball patterns, and it wanders up/down/left/right around its tracked
+// standoff spot instead of holding a fixed line (see ComputeHomePosition).
+[RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(BoxCollider2D))]
+public class MajinController : MonoBehaviour
+{
+    enum State { Entering, Idle, Telegraphing, Firing, Dead }
+
+    [Header("Animation")]
+    public Sprite[] idleFrames;
+    public Sprite[] attackFrames;
+    public float animFps = 10f;
+
+    [Header("Health / Damage")]
+    public int maxHp = 120;
+    public int playerAttackDamage = 2;
+    public int fireballDamage = 2;
+    // Reward/MILE System Ver.1 - "ボスMILE: Demon/魔人 100".
+    public int mileReward = 100;
+
+    [Header("Behaviour Timing")]
+    public float attackIntervalMin = 1.8f;
+    public float attackIntervalMax = 3.5f;
+
+    [Header("Attack Telegraph")]
+    public float telegraphDuration = 3f;
+    public float telegraphBlinkInterval = 0.3f;
+
+    [Header("Fire Attack")]
+    public float fireWindupDuration = 0.5f;
+    public float fireRecoverDuration = 0.6f;
+    public float fireballSpeed = 6f;
+    public Vector2 fireballSpawnOffset = new Vector2(-1.4f, 0.2f);
+    public float fireballInterval = 0.2f;
+
+    [Header("Fire Attack Patterns")]
+    // 5 patterns, picked uniformly at random each attack: a straight line of
+    // 5, a straight line of 10, a 12-fireball ring that pauses then flies at
+    // the player, a 12-fireball ring that pauses then scatters outward, and
+    // a 24-fireball ring that pauses then scatters outward.
+    public int lineCountSmall = 5;
+    public int lineCountLarge = 10;
+    public int ringCountSmall = 12;
+    public int ringCountLarge = 24;
+    public float ringRadius = 2.5f;
+    public float ringHoldDuration = 1f;
+
+    [Header("Positioning")]
+    public float groundClearance = 0.8f;
+    public float standoffDistance = 14f;
+    public float maxAheadOfPlayer = 24f;
+    public float maxBehindPlayer = 12f;
+
+    [Header("Idle Bob (vertical)")]
+    public float bobAmplitude = 1.2f;
+    public float bobSpeedMin = 0.4f;
+    public float bobSpeedMax = 1.1f;
+
+    [Header("Roaming (horizontal drift on top of the tracked standoff spot)")]
+    // Together with the vertical bob above, this is what makes the majin
+    // wander up/down/left/right around its spot instead of holding a flat
+    // line like the dragon does - the underlying distance-tracking
+    // (AdvanceTrackedX/standoffDistance) is otherwise identical to it.
+    public float roamAmplitudeX = 3.5f;
+    public float roamSpeedXMin = 0.25f;
+    public float roamSpeedXMax = 0.6f;
+
+    [Header("Entrance")]
+    public float entranceDuration = 1.4f;
+    public float entranceOffscreenMargin = 3f;
+
+    // Boss Milestone Presentation pass - see DragonController's matching
+    // fields/comment (Scale Emphasis deliberately skipped - no separate
+    // Root/Visual split on this GameObject either).
+    [Header("Boss Milestone Presentation - Arrival")]
+    public float hpBarRevealDuration = 0.25f;
+    public float arrivalShakeMagnitude = 0.06f;
+    public float arrivalShakeDuration = 0.15f;
+
+    // Boss Defeat Presentation pass - see DragonController's matching
+    // fields/comments.
+    [Header("Boss Defeat Presentation - Final Hit")]
+    public float finalHitStopDuration = 0.14f;
+    public float finalHitShakeStrength = 0.14f;
+    public float finalHitShakeDuration = 0.16f;
+    public Sprite finalHitSparkSprite;
+    public float finalHitSparkScale = 0.85f;
+    public AudioClip finalHitSe;
+
+    [Header("Boss Defeat Presentation - Death")]
+    public float bossDeathFlashDuration = 0.08f;
+    public Color bossDeathFlashColor = new Color(0.7f, 0.9f, 1f, 1f);
+    public float bossDeathDuration = 0.6f;
+    public float bossDeathPunchScale = 1.05f;
+    public float bossDeathFinalScale = 0.9f;
+    public Sprite bossDeathSmokeSprite;
+    public float bossDeathSmokeScale = 1.2f;
+    public AudioClip bossDefeatSe;
+
+    [Header("Boss Defeat Presentation - HP Bar")]
+    public float hpBarEmptyHoldDuration = 0.15f;
+    public float bossHpBarFadeDuration = 0.25f;
+
+    [Header("Refs")]
+    public Sprite squareSprite;
+    public Transform player;
+    public Color explosionColor = new Color(0.6f, 0.1f, 0.7f);
+
+    public int Hp { get; private set; }
+    public bool IsDead => state == State.Dead;
+
+    State state = State.Idle;
+    SpriteRenderer sr;
+    SpriteRenderer flashOverlay;
+    SpriteRenderer hitFlashOverlay;
+    PlayerController playerController;
+    Vector3 homePos;
+    float hoverHeight;
+    float nextAttackTime;
+    int frameIndex;
+    float frameTimer;
+    Sprite[] currentFrames;
+    DragonHealthBar hpBar;
+    float bobSeed;
+    float bobSpeed;
+    float roamSeedX;
+    float roamSpeedX;
+
+    float trackedX;
+
+    public void Init(Transform playerTransform)
+    {
+        player = playerTransform;
+        playerController = player != null ? player.GetComponent<PlayerController>() : null;
+        sr = GetComponent<SpriteRenderer>();
+        SetFrames(idleFrames);
+
+        CreateFlashOverlay();
+        CreateHitFlashOverlay();
+        RecomputeVerticalOffsets();
+
+        trackedX = player.position.x;
+        bobSeed = Random.Range(0f, 1000f);
+        bobSpeed = Random.Range(bobSpeedMin, bobSpeedMax);
+        roamSeedX = Random.Range(0f, 1000f);
+        roamSpeedX = Random.Range(roamSpeedXMin, roamSpeedXMax);
+
+        homePos = ComputeHomePosition();
+        transform.position = ComputeOffscreenEntryPosition(homePos);
+
+        Hp = maxHp;
+
+        hpBar = DragonHealthBar.Create(squareSprite, transform, 3.2f, 0.28f);
+        hpBar.offset = new Vector3(0f, hoverHeight * 0.5f + 0.7f, 0f);
+        hpBar.SetHidden();
+
+        state = State.Entering;
+        StartCoroutine(EnterThenSchedule());
+    }
+
+    Vector3 ComputeOffscreenEntryPosition(Vector3 target)
+    {
+        Camera cam = Camera.main;
+        float rightEdge = cam != null
+            ? cam.transform.position.x + cam.orthographicSize * cam.aspect
+            : target.x + 6f;
+        float startX = Mathf.Max(target.x, rightEdge) + entranceOffscreenMargin;
+        return new Vector3(startX, target.y, 0f);
+    }
+
+    IEnumerator EnterThenSchedule()
+    {
+        yield return ReturnToHome(entranceDuration);
+        yield return ArrivalPresentation();
+        state = State.Idle;
+        ScheduleNextAttack();
+    }
+
+    // Boss Milestone Presentation pass - see DragonController's matching
+    // method comment.
+    IEnumerator ArrivalPresentation()
+    {
+        if (hpBar != null) StartCoroutine(hpBar.RevealRoutine(hpBarRevealDuration));
+
+        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (camFollow != null) camFollow.Shake(arrivalShakeMagnitude, arrivalShakeDuration);
+
+        yield return null;
+    }
+
+    void CreateFlashOverlay()
+    {
+        GameObject go = new GameObject("FlashOverlay");
+        go.transform.SetParent(transform, false);
+        flashOverlay = go.AddComponent<SpriteRenderer>();
+        flashOverlay.color = Color.white;
+        flashOverlay.sortingOrder = sr.sortingOrder + 1;
+        flashOverlay.enabled = false;
+    }
+
+    void CreateHitFlashOverlay()
+    {
+        GameObject go = new GameObject("HitFlashOverlay");
+        go.transform.SetParent(transform, false);
+        hitFlashOverlay = go.AddComponent<SpriteRenderer>();
+        hitFlashOverlay.color = new Color(1f, 0.15f, 0.15f, 0.85f);
+        hitFlashOverlay.sortingOrder = sr.sortingOrder + 1;
+        hitFlashOverlay.enabled = false;
+    }
+
+    void RecomputeVerticalOffsets()
+    {
+        float halfHeight = 1.8f;
+        if (sr != null && sr.sprite != null)
+        {
+            halfHeight = sr.sprite.bounds.extents.y * transform.lossyScale.y;
+        }
+        hoverHeight = groundClearance + halfHeight;
+    }
+
+    void Update()
+    {
+        if (state == State.Dead) return;
+
+        AnimateSprite();
+        AdvanceTrackedX();
+
+        if (state == State.Idle || state == State.Telegraphing || state == State.Firing)
+        {
+            ApplyHomePosition();
+        }
+
+        if (state == State.Idle && Time.time >= nextAttackTime)
+        {
+            StartCoroutine(TelegraphAndAttack());
+        }
+    }
+
+    void AdvanceTrackedX()
+    {
+        float baseSpeed = playerController != null ? playerController.CurrentAutoRunSpeed : 0f;
+        trackedX += baseSpeed * Time.deltaTime;
+
+        if (player != null)
+        {
+            float minTrackedX = player.position.x - maxBehindPlayer - standoffDistance;
+            float maxTrackedX = player.position.x + maxAheadOfPlayer - standoffDistance;
+            trackedX = Mathf.Clamp(trackedX, minTrackedX, maxTrackedX);
+        }
+    }
+
+    Vector3 ComputeHomePosition()
+    {
+        float roamOffsetX = (Mathf.PerlinNoise(Time.time * roamSpeedX + roamSeedX, 0f) * 2f - 1f) * roamAmplitudeX;
+        float x = trackedX + standoffDistance + roamOffsetX;
+        float groundY = GroundYAt(x);
+        float bobOffset = (Mathf.PerlinNoise(Time.time * bobSpeed + bobSeed, 0f) * 2f - 1f) * bobAmplitude;
+        return new Vector3(x, groundY + hoverHeight + bobOffset, 0f);
+    }
+
+    void ApplyHomePosition()
+    {
+        homePos = ComputeHomePosition();
+        transform.position = homePos;
+    }
+
+    void SetFrames(Sprite[] frames)
+    {
+        currentFrames = frames;
+        frameIndex = 0;
+        frameTimer = 0f;
+        if (frames != null && frames.Length > 0) sr.sprite = frames[0];
+    }
+
+    void AnimateSprite()
+    {
+        if (currentFrames == null || currentFrames.Length == 0) return;
+
+        frameTimer += Time.deltaTime;
+        if (frameTimer >= 1f / animFps)
+        {
+            frameTimer = 0f;
+            frameIndex = (frameIndex + 1) % currentFrames.Length;
+            sr.sprite = currentFrames[frameIndex];
+        }
+
+        if (flashOverlay != null) flashOverlay.sprite = sr.sprite;
+        if (hitFlashOverlay != null) hitFlashOverlay.sprite = sr.sprite;
+    }
+
+    void ScheduleNextAttack()
+    {
+        nextAttackTime = Time.time + Random.Range(attackIntervalMin, attackIntervalMax);
+    }
+
+    float GroundYAt(float x)
+    {
+        if (TerrainManager.Instance == null) return 0f;
+        return TerrainManager.Instance.GetHeightAt(x) ?? 0f;
+    }
+
+    IEnumerator TelegraphAndAttack()
+    {
+        state = State.Telegraphing;
+
+        float t = 0f;
+        bool flash = false;
+        while (t < telegraphDuration)
+        {
+            flash = !flash;
+            if (flashOverlay != null) flashOverlay.enabled = flash;
+            yield return new WaitForSeconds(telegraphBlinkInterval);
+            t += telegraphBlinkInterval;
+        }
+        if (flashOverlay != null) flashOverlay.enabled = false;
+
+        if (state != State.Telegraphing) yield break; // died mid-telegraph
+
+        yield return FireAttack();
+    }
+
+    IEnumerator ReturnToHome(float duration)
+    {
+        Vector3 start = transform.position;
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / Mathf.Max(0.01f, duration);
+            Vector3 target = ComputeHomePosition();
+            transform.position = Vector3.Lerp(start, target, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t)));
+            yield return null;
+        }
+    }
+
+    enum FirePattern { Line5, Line10, Ring12ToPlayer, Ring12Scatter, Ring24Scatter }
+
+    IEnumerator FireAttack()
+    {
+        state = State.Firing;
+        SetFrames(attackFrames);
+
+        yield return new WaitForSeconds(fireWindupDuration);
+
+        FirePattern pattern = (FirePattern)Random.Range(0, 5);
+        switch (pattern)
+        {
+            case FirePattern.Line5:
+                yield return FireLine(lineCountSmall);
+                break;
+            case FirePattern.Line10:
+                yield return FireLine(lineCountLarge);
+                break;
+            case FirePattern.Ring12ToPlayer:
+                SpawnRing(ringCountSmall, towardPlayer: true);
+                yield return new WaitForSeconds(ringHoldDuration + 0.15f);
+                break;
+            case FirePattern.Ring12Scatter:
+                SpawnRing(ringCountSmall, towardPlayer: false);
+                yield return new WaitForSeconds(ringHoldDuration + 0.15f);
+                break;
+            case FirePattern.Ring24Scatter:
+                SpawnRing(ringCountLarge, towardPlayer: false);
+                yield return new WaitForSeconds(ringHoldDuration + 0.15f);
+                break;
+        }
+
+        yield return new WaitForSeconds(fireRecoverDuration);
+
+        state = State.Idle;
+        SetFrames(idleFrames);
+        ScheduleNextAttack();
+    }
+
+    IEnumerator FireLine(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            if (state != State.Firing) yield break;
+            SpawnFireball(0f, 0f);
+            if (i < count - 1) yield return new WaitForSeconds(fireballInterval);
+        }
+    }
+
+    // A ring of `count` fireballs placed evenly around the majin, held in
+    // place for ringHoldDuration, then launched either all straight at the
+    // player (towardPlayer) or scattered outward radially from the ring.
+    void SpawnRing(int count, bool towardPlayer)
+    {
+        if (squareSprite == null || count <= 0) return;
+
+        Vector3 center = transform.position;
+        for (int i = 0; i < count; i++)
+        {
+            float angle = (360f / count) * i * Mathf.Deg2Rad;
+            Vector2 offset = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * ringRadius;
+            Vector3 spawnPos = center + (Vector3)offset;
+
+            Vector2 dir = towardPlayer && player != null
+                ? ((Vector2)player.position - (Vector2)spawnPos).normalized
+                : offset.normalized;
+
+            FireballController.Create(squareSprite, spawnPos, dir * fireballSpeed, ringHoldDuration);
+        }
+    }
+
+    void SpawnFireball(float angleOffsetDegrees, float holdDuration)
+    {
+        if (player == null || squareSprite == null) return;
+
+        Vector3 scaledOffset = Vector3.Scale((Vector3)fireballSpawnOffset, transform.lossyScale);
+        Vector3 spawnPos = transform.position + scaledOffset;
+        Vector2 dir = ((Vector2)player.position - (Vector2)spawnPos).normalized;
+
+        if (Mathf.Abs(angleOffsetDegrees) > 0.01f)
+        {
+            float rad = angleOffsetDegrees * Mathf.Deg2Rad;
+            float cos = Mathf.Cos(rad);
+            float sin = Mathf.Sin(rad);
+            dir = new Vector2(dir.x * cos - dir.y * sin, dir.x * sin + dir.y * cos);
+        }
+
+        FireballController.Create(squareSprite, spawnPos, dir * fireballSpeed, holdDuration);
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (state == State.Dead) return;
+
+        if (other.CompareTag("PlayerAttack"))
+        {
+            int damage = PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage;
+            TakeDamage(damage);
+            return;
+        }
+
+        FireballController fb = other.GetComponent<FireballController>();
+        if (fb != null && fb.reflected)
+        {
+            TakeDamage(fireballDamage);
+            Destroy(fb.gameObject);
+        }
+    }
+
+    public void TakeDamage(int amount)
+    {
+        if (state == State.Dead) return;
+
+        Hp = Mathf.Max(0, Hp - amount);
+        if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
+
+        if (Hp <= 0)
+        {
+            state = State.Dead;
+            StartCoroutine(FinalHitAndDie());
+            return;
+        }
+
+        // Game Feel pass, section 19 - see DragonController.TakeDamage's
+        // matching comment.
+        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (camFollow != null) camFollow.Shake(0.08f, 0.1f);
+        StartCoroutine(HitFlash());
+    }
+
+    IEnumerator HitFlash()
+    {
+        if (hitFlashOverlay == null) yield break;
+        hitFlashOverlay.enabled = true;
+        yield return new WaitForSeconds(0.15f);
+        hitFlashOverlay.enabled = false;
+    }
+
+    // Boss Defeat Presentation pass - see DragonController.FinalHitAndDie's
+    // matching comment.
+    IEnumerator FinalHitAndDie()
+    {
+        if (flashOverlay != null) flashOverlay.enabled = false;
+        if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
+
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(finalHitSe);
+        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (camFollow != null) camFollow.Shake(finalHitShakeStrength, finalHitShakeDuration);
+        Sprite spark = finalHitSparkSprite != null ? finalHitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
+        OneShotSpriteEffect.CreateTweened(spark, transform.position, Color.white, duration: 0.18f, startScale: finalHitSparkScale * 0.7f, endScale: finalHitSparkScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.2f);
+
+        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Boss defeated");
+
+        yield return HitStop.Freeze(finalHitStopDuration);
+
+        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Final hit presentation");
+
+        if (flashOverlay != null)
+        {
+            flashOverlay.sprite = sr.sprite;
+            flashOverlay.color = bossDeathFlashColor;
+            flashOverlay.enabled = true;
+        }
+        yield return new WaitForSeconds(bossDeathFlashDuration);
+        if (flashOverlay != null) flashOverlay.enabled = false;
+
+        Vector3 baseScale = transform.localScale;
+        Color startColor = sr.color;
+        float punchDuration = bossDeathDuration * 0.3f;
+        float settleDuration = Mathf.Max(0.05f, bossDeathDuration - punchDuration);
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / Mathf.Max(0.001f, punchDuration);
+            transform.localScale = baseScale * Mathf.Lerp(1f, bossDeathPunchScale, Mathf.Clamp01(t));
+            yield return null;
+        }
+
+        t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / Mathf.Max(0.001f, settleDuration);
+            float f = Mathf.Clamp01(t);
+            transform.localScale = baseScale * Mathf.Lerp(bossDeathPunchScale, bossDeathFinalScale, f);
+            Color c = startColor; c.a = Mathf.Lerp(startColor.a, 0f, f);
+            sr.color = c;
+            yield return null;
+        }
+
+        if (bossDeathSmokeSprite != null)
+        {
+            OneShotSpriteEffect.CreateTweened(bossDeathSmokeSprite, transform.position, Color.white, duration: 0.4f, startScale: bossDeathSmokeScale * 0.7f, endScale: bossDeathSmokeScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.3f);
+        }
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(bossDefeatSe);
+
+        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Death presentation");
+
+        if (hpBar != null)
+        {
+            yield return new WaitForSeconds(hpBarEmptyHoldDuration);
+            yield return hpBar.FadeOutRoutine(bossHpBarFadeDuration);
+            Destroy(hpBar.gameObject);
+        }
+
+        gameObject.SetActive(false);
+
+        if (GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
+        if (BossManager.Instance != null) BossManager.Instance.OnMajinDefeated();
+    }
+}

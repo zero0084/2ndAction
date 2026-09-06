@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: shield
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: shield
+  cardName: SHIELD
+  icon: {fileID: 2800000, guid: 32fd9f4d79dedec4ea7bbfece1d493f6, type: 3}
+  description: "\u30C0\u30E1\u30FC\u30B8\u30921\u56DE\u3060\u3051\u7121\u52B9\u5316\u3059\u308B"
+  category: 2
+  sortOrder: 10
+  recommendPriority: 5
+  effects:
+  - type: 8
+    value: 1
+  rarity: 2
+  unlockDistance: 0
+  gachaStage: 1
+  element: 0

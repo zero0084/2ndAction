@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: ground_fighter
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: ground_fighter
+  cardName: GROUND FIGHTER
+  icon: {fileID: 2800000, guid: c6a056fd444785848ae62a659fe33cef, type: 3}
+  description: "\u5730\u4E0A\u306B\u3044\u308B\u9593\u3001\u653B\u6483\u529B\u304C\u4E0A\u6607\u3059\u308B"
+  category: 1
+  sortOrder: 107
+  recommendPriority: 5
+  effects:
+  - type: 13
+    value: 2
+  rarity: 2
+  unlockDistance: 0
+  gachaStage: 1
+  element: 0

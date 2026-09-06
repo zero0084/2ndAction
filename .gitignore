@@ -1,0 +1,10 @@
+# このリポジトリのUnityプロジェクト本体はUnity/2ndAction配下にあり、
+# そちらのUnity/2ndAction/.gitignoreでLibrary/Temp/Logs/Builds/*.log等を除外済み。
+# ここではリポジトリ直下(Unity外)に出力される作業用ログを除外する。
+
+# 過去の自動ビルド・スクリプト実行時に直下へ吐かれた使い捨てログ(すべて再生成可能)
+/*.txt
+
+# OS/エディタの一時ファイル
+.DS_Store
+Thumbs.db

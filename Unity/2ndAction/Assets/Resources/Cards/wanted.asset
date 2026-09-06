@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: wanted
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: wanted
+  cardName: WANTED
+  icon: {fileID: 2800000, guid: fdbcd0cbe1bbb1f4d8a37d1012494426, type: 3}
+  description: "\u8FFD\u8DE1\u8005\u30FB\u6025\u8972\u8005\u304C\u51FA\u3084\u3059\u304F\u306A\u308B\u4EE3\u308F\u308A\u306B\u3001\u6575\u6483\u7834MILE\u304C\u5897\u52A0\u3059\u308B"
+  category: 6
+  sortOrder: 160
+  recommendPriority: 5
+  effects:
+  - type: 22
+    value: 0.35
+  rarity: 4
+  unlockDistance: 50000
+  gachaStage: 4
+  element: 0
