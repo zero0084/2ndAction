@@ -167,6 +167,7 @@ public class BossManager : MonoBehaviour
             // playing - MaxDistance stays >= nextBossDistance continuously
             // until the encounter actually ends, well after this moment.
             IsBossPhase = true;
+            if (GameManager.Instance != null) GameManager.Instance.LogBoss("PhaseStart");
 
             // Distance Level Design Ver.1.1, item 1 - Boss Gate locks here:
             // snap Distance to EXACTLY this checkpoint (not whatever
@@ -174,7 +175,16 @@ public class BossManager : MonoBehaviour
             // GameManager.ReportDistance's own early-return, which is what
             // actually keeps it frozen at this value for the rest of the
             // fight.
-            if (GameManager.Instance != null) GameManager.Instance.ClampMaxDistanceTo(nextBossDistance);
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.ClampMaxDistanceTo(nextBossDistance);
+                // Bugfix 2026-09-06, item "Boss中Distanceの根本修正" - marks
+                // the exact moment raw Player movement stops counting
+                // toward Distance (see GameManager.BeginBossDistanceExclusion's
+                // own comment for why this is needed on top of the
+                // IsBossPhase freeze above).
+                GameManager.Instance.BeginBossDistanceExclusion();
+            }
 
             // Boss Milestone Presentation pass - wraps the existing
             // StartBossPhase (untouched below) as a callback; falls back to
@@ -234,6 +244,8 @@ public class BossManager : MonoBehaviour
             aliveDragonsThisEncounter++;
             SpawnMechanicalDragon(dragonStandoffDistance + dragonSpacing * (dragonCount + majinCount + 1));
         }
+
+        if (GameManager.Instance != null) GameManager.Instance.LogBoss("CombatStart");
     }
 
     // Lays out one evenly-spaced "slot" per boss so they can never end up
@@ -458,6 +470,11 @@ public class BossManager : MonoBehaviour
     {
         if (aliveDragonsThisEncounter <= 0 && aliveMajinsThisEncounter <= 0)
         {
+            // Bugfix 2026-09-06, item 2 - "Boss撃破後にゲームが停止する"
+            // state-transition trace, stage 1/9.
+            if (GameManager.Instance != null) GameManager.Instance.LogBossRewardStage("BossDefeated (CheckEncounterComplete entry)");
+            if (GameManager.Instance != null) GameManager.Instance.LogBoss("Defeated");
+
             // Boss Defeat Presentation pass - captured BEFORE nextBossDistance
             // advances, so the Clear text reports the checkpoint that was
             // just cleared (1000m/2000m/...), not the next one.
@@ -493,6 +510,7 @@ public class BossManager : MonoBehaviour
             {
                 BossDefeatPresentation.Instance.Play(clearedDistance, isFirstEncounter);
             }
+            if (GameManager.Instance != null) GameManager.Instance.LogBossRewardStage("BossDefeatPresentation.Play returned (stage 2/9)");
 
             // Run Continuation/Checkpoint Ver.1, item 6/7 - "Boss撃破 ->
             // Boss Defeat Presentation -> BOSS REWARD". Reuses the exact

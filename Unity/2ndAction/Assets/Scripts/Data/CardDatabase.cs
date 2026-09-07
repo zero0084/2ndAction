@@ -33,6 +33,7 @@ public static class CardDatabase
     public static void Reset()
     {
         cachedCards = null;
+        compoundCache.Clear();
     }
 
     public static CardDefinition FindById(string cardId)
@@ -42,26 +43,102 @@ public static class CardDatabase
         {
             if (card.cardId == cardId) return card;
         }
-        return null;
+        return FindOrBuildCompound(cardId);
     }
 
-    // The subset of AllCards currently unlocked (see UnlockManager) - what
-    // the Deck Edit "owned cards" list and any deck-default/fallback pool
-    // should actually offer, so a distance-gated card can't be added to a
-    // deck or drawn on level-up before it's earned. Cards with no matching
-    // UnlockDefinition are always included, so every pre-existing card
-    // keeps working unchanged. Allocates a fresh list and re-filters every
-    // call (unlocks can happen mid-run) rather than caching - fine for the
-    // occasional callers this is meant for (deck screen refresh, level-up
-    // trigger), not a per-frame call.
+    // Fusion Ver.1 restoration (2026-09-06), item "Fusionの仕様を本来の設
+    // 計へ戻す" - a compound card (both Main and Sub inheritance rolls
+    // succeed in CardFusionUI.DoCrossNameFusion) is never saved as its own
+    // asset or as a separate "recipe" record; its cardId IS the recipe
+    // ("mainId+subId"), and CardInventory only ever needs to remember that
+    // one string (its Stack rows are just (cardId, level, count), exactly
+    // like any real card) - so this regenerates an equivalent
+    // CardDefinition on demand, purely by splitting the id at its first '+'
+    // and resolving each half back through FindById itself. That
+    // recursion is intentional and safe: each half is always strictly
+    // shorter than the original id, so it terminates once a half contains
+    // no more '+' and resolves directly out of AllCards (or fails) - which
+    // also means fusing an already-compound card as a further Main/Sub
+    // works with no extra code, nesting arbitrarily deep, even though nothing
+    // currently requires that. Real (non-compound) card ids must never
+    // contain '+' for this scheme to stay unambiguous - none currently do
+    // (see CardDatabaseBuilder's Specs, all snake_case).
+    //
+    // Capped, per the brief's own "Main 1 Effect + Sub 1 Effect" (no need
+    // for unlimited stacking), at each half's own FIRST effect only - a
+    // card with multiple effects (e.g. BERSERKER) only contributes its
+    // primary one to a compound. Cached (keyed by the full id) so repeated
+    // lookups (every RewardCardUI refresh) don't reallocate a new
+    // ScriptableObject instance each time.
+    static readonly Dictionary<string, CardDefinition> compoundCache = new Dictionary<string, CardDefinition>();
+
+    static CardDefinition FindOrBuildCompound(string cardId)
+    {
+        int plus = cardId.IndexOf('+');
+        if (plus <= 0 || plus >= cardId.Length - 1) return null; // no '+', or '+' at either end - not a compound id
+
+        if (compoundCache.TryGetValue(cardId, out CardDefinition cached) && cached != null) return cached;
+
+        string mainId = cardId.Substring(0, plus);
+        string subId = cardId.Substring(plus + 1);
+        CardDefinition mainCard = FindById(mainId);
+        CardDefinition subCard = FindById(subId);
+        if (mainCard == null || subCard == null) return null; // dangling reference to a card that no longer exists
+
+        var compound = ScriptableObject.CreateInstance<CardDefinition>();
+        compound.cardId = cardId;
+        compound.cardName = $"{mainCard.cardName}【{subCard.cardName}】";
+        compound.icon = mainCard.icon;
+        compound.description = $"{mainCard.description}\n+ {subCard.description}";
+        compound.category = mainCard.category;
+        compound.sortOrder = mainCard.sortOrder;
+        compound.recommendPriority = Mathf.Min(mainCard.recommendPriority, subCard.recommendPriority);
+        // A compound reads as a cut above either ingredient, capped at ★5
+        // like every other card's rarity.
+        compound.rarity = Mathf.Clamp(Mathf.Max(mainCard.rarity, subCard.rarity) + 1, 1, 5);
+        compound.element = mainCard.element != ElementType.None ? mainCard.element : subCard.element;
+        compound.effects = new List<CardEffect>();
+        if (mainCard.effects.Count > 0) compound.effects.Add(new CardEffect { type = mainCard.effects[0].type, value = mainCard.effects[0].value });
+        if (subCard.effects.Count > 0) compound.effects.Add(new CardEffect { type = subCard.effects[0].type, value = subCard.effects[0].value });
+        // unlockDistance/gachaStage are left at CardDefinition's own bare
+        // defaults (0/1) - harmless, since a compound is never a member of
+        // AllCards (only ever synthesized on demand here), so it can never
+        // actually appear in BuildGachaPool/UnlockedCards regardless of
+        // these values.
+
+        compoundCache[cardId] = compound;
+        return compound;
+    }
+
+    // Bugfix 2026-09-06, item "Card Unlockシステムを一元化" - the subset of
+    // AllCards currently unlocked, used for the starter-deck fill
+    // (GameManager.LoadDeck) and the corrupted-deck recovery pool
+    // (RunLevelUpChoice/RunBossRewardChoice). Previously gated by a
+    // SEPARATE UnlockManager/UnlockDefinition entry
+    // (unlock_pathfinder_card_500m, UnlockType.Card) that duplicated - and
+    // could disagree with - the Gacha draw pool's own eligibility rule
+    // (GachaStage.IsCardEligible, driven by CardDefinition.unlockDistance/
+    // gachaStage). That duplication is exactly the "Gachaで引いたのに
+    // Deckで使えない" risk the brief called out: a card could be eligible
+    // to draw from Gacha but still fail this check (or vice versa) if the
+    // two definitions ever drifted. Now unified onto the single source of
+    // truth (CardDefinition.unlockDistance/gachaStage, the same rule
+    // BuildGachaPool uses) - UnlockManager/UnlockDefinition entries for
+    // UnlockType.Enemy (goblin_elite, etc.) are untouched, this only
+    // changes Card-type gating. Falls back to "every card" if
+    // GameManager.Instance isn't available yet (shouldn't happen in
+    // practice - Awake sets Instance before LoadDeck runs - but avoids a
+    // null-reference if some caller ever runs earlier).
     public static List<CardDefinition> UnlockedCards
     {
         get
         {
             var result = new List<CardDefinition>();
+            GameManager gm = GameManager.Instance;
             foreach (CardDefinition card in AllCards)
             {
-                if (UnlockManager.IsTargetUnlocked(UnlockType.Card, card.cardId)) result.Add(card);
+                bool eligible = gm == null || GachaStage.IsCardEligible(card, gm.BestDistance, gm.CurrentGachaStage);
+                if (eligible) result.Add(card);
             }
             return result;
         }

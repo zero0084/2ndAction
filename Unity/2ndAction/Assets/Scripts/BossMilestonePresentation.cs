@@ -140,6 +140,7 @@ public class BossMilestonePresentation : MonoBehaviour
 
         LogPresentation($"[BossPresentation] Milestone reached: {Mathf.RoundToInt(milestoneDistance)}m");
         LogPresentation("[BossPresentation] Started");
+        if (GameManager.Instance != null) GameManager.Instance.LogBoss("SpawnPresentationStart");
 
         if (GameManager.Instance != null) GameManager.Instance.SetPresentationDamageLock(true);
 
@@ -178,6 +179,8 @@ public class BossMilestonePresentation : MonoBehaviour
             // Time.deltaTime) plays out at normal speed instead of
             // crawling through whatever's left of the slowdown.
             Time.timeScale = 1f;
+            if (GameManager.Instance != null) GameManager.Instance.LogBoss("TimeScale = 1");
+            if (GameManager.Instance != null) GameManager.Instance.LogBoss("SpawnPresentationEnd");
 
             PlaySfx(bossAppearSe);
             SpawnOnce();
@@ -235,6 +238,7 @@ public class BossMilestonePresentation : MonoBehaviour
             Time.timeScale = Mathf.Lerp(1f, tempoMidScale, Mathf.Clamp01(t));
             yield return null;
         }
+        if (GameManager.Instance != null) GameManager.Instance.LogBoss($"TimeScale = {tempoMidScale:F1}");
         t = 0f;
         while (t < 1f)
         {
@@ -243,6 +247,7 @@ public class BossMilestonePresentation : MonoBehaviour
             yield return null;
         }
         Time.timeScale = 0f;
+        if (GameManager.Instance != null) GameManager.Instance.LogBoss("TimeScale = 0");
     }
 
     IEnumerator FadeDark(float target, float duration)

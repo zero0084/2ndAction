@@ -6,6 +6,15 @@ public class CameraFollow : MonoBehaviour
     public Transform target;
     public float offsetX = 6f;
     public float yDamping = 0.15f;
+    // 方向攻撃システム Ver.2、項目6 - "下降攻撃を使用した際に、安全な下層
+    // へ移動しているのか、死亡領域へ向かっているのかが分からなくならな
+    // いよう注意"。下降攻撃はdiveAttackSpeedによる一定の速い下降のため、
+    // 通常のyDamping(SmoothDamp)だと追従が一瞬遅れ、実際の危険度より画
+    // 面上のカメラ位置(≒PlayerController.DrawFallDeadlineWarningの見た
+    // 目上の基準ではないが、プレイヤー自身の画面内位置)がズレて見える
+    // 恐れがある。カメラシステム自体は作り直さず、下降攻撃中だけ追従を
+    // 少し締める、という最小限の調整。
+    public float yDampingDiveAttack = 0.05f;
 
     // Half the world-width the camera should show, regardless of screen
     // orientation. Orthographic size (vertical half-height) is derived from
@@ -68,7 +77,8 @@ public class CameraFollow : MonoBehaviour
 
         Vector3 pos = transform.position;
         pos.x = target.position.x + offsetX;
-        float smoothedY = Mathf.SmoothDamp(pos.y, target.position.y, ref velocity.y, yDamping);
+        bool diving = PlayerController.Instance != null && PlayerController.Instance.IsDiveAttacking;
+        float smoothedY = Mathf.SmoothDamp(pos.y, target.position.y, ref velocity.y, diving ? yDampingDiveAttack : yDamping);
         pos.y = smoothedY;
 
         if (shakeTimer > 0f)

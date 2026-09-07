@@ -1158,13 +1158,65 @@ public class GameManager : MonoBehaviour
         return true;
     }
 
-    public void ReportDistance(float distance)
+    // Bugfix 2026-09-06, item "Boss中Distanceの根本修正". The old design
+    // only ever froze MaxDistance's own VALUE while IsBossPhase was true -
+    // the raw incoming `distance` (Player.transform.x - startX) kept
+    // climbing normally underneath that freeze the whole time (correctly -
+    // Player/World must keep moving during a Boss fight), but nothing ever
+    // compensated for that climb once the freeze lifted. The very next
+    // ReportDistance call after Boss Reward completed would see a `distance`
+    // value far ahead of the still-frozen MaxDistance, and the existing
+    // "distance > MaxDistance" branch would treat that WHOLE Boss-fight
+    // movement as legitimate new progress in one lump sum (a single large
+    // GainExp/HighestReachedDistance/MILE jump instead of "resume exactly
+    // from the checkpoint"). Fixed by tracking exactly how much raw
+    // distance accumulated between Boss Gate lock and Boss Reward
+    // completion (`distanceExclusionOffset`, updated by
+    // BeginBossDistanceExclusion/EndBossDistanceExclusion below) and
+    // permanently subtracting that from every future raw distance before
+    // it ever reaches the comparison against MaxDistance - so Distance
+    // truly resumes from the checkpoint with no catch-up jump, while the
+    // Player's own on-screen position/movement during the fight is
+    // completely unaffected (this offset only ever touches the Distance
+    // bookkeeping, never transform.position itself).
+    float distanceExclusionOffset;
+    float lastRawDistanceSeen;
+    float bossPhaseEntryRawDistance;
+
+    // Called once, right when BossManager locks the Gate (immediately
+    // after ClampMaxDistanceTo) - captures "what raw distance corresponds
+    // to the moment Distance froze", the reference point EndBossDistance
+    // Exclusion needs to compute how far the Player travelled during the
+    // fight.
+    public void BeginBossDistanceExclusion()
     {
+        bossPhaseEntryRawDistance = lastRawDistanceSeen;
+    }
+
+    // Called once, right where GameManager already calls BossManager.
+    // EndBossPhase() (Boss Reward completion) - folds the whole fight's
+    // raw movement into the permanent exclusion offset.
+    public void EndBossDistanceExclusion()
+    {
+        distanceExclusionOffset += (lastRawDistanceSeen - bossPhaseEntryRawDistance);
+    }
+
+    public void ReportDistance(float rawDistance)
+    {
+        // lastRawDistanceSeen updates unconditionally, every call, even
+        // while IsBossPhase is freezing everything below this line - it's
+        // what lets BeginBossDistanceExclusion/EndBossDistanceExclusion
+        // above measure the fight's own raw movement independently of
+        // whichever MonoBehaviour's Update() happens to run first this
+        // frame.
+        lastRawDistanceSeen = rawDistance;
+        float distance = rawDistance - distanceExclusionOffset;
+
         // Distance Level Design Ver.1.1, item 1 - Boss Gate: while a Boss
         // checkpoint is active (BossManager.IsBossPhase - reused directly
         // as the gate flag rather than a second, easy-to-desync bool),
         // Distance itself stops advancing entirely, even though the
-        // player's own transform.position.x (what `distance` is computed
+        // player's own transform.position.x (what `rawDistance` is computed
         // from) keeps climbing normally - Player/Auto Run/Ground Scroll/
         // Background Scroll/Enemy Battle/Player操作 are all completely
         // untouched by this, since none of them read GameManager.
@@ -1322,11 +1374,43 @@ public class GameManager : MonoBehaviour
     // by BossManager once a Boss encounter (all its bosses) is fully
     // cleared. Same Presentation-priority deferral as Level Up (waits for
     // the Boss Defeat Presentation banner to finish, then a short buffer).
+    // Bugfix 2026-09-06 - "Boss撃破後にゲームが停止する", item 2 (根本原因
+    // まで追跡するための状態ログ). Logs the exact set of flags the report
+    // asked to track, at every named stage of the Boss Reward pipeline.
+    // DebugMode-gated (existing project convention for diagnostic logs) -
+    // enable Debug Mode before reproducing to capture the full trail via
+    // logcat/Console. Deliberately reads every value fresh each call rather
+    // than caching, since the whole point is to see it change (or fail to
+    // change) across stages.
+    public void LogBossRewardStage(string stage)
+    {
+        if (!DebugMode) return;
+        bool? sequenceRunning = rewardCardSequence != null ? rewardCardSequence.IsRunning : (bool?)null;
+        bool? sequenceWaiting = rewardCardSequence != null ? rewardCardSequence.IsWaitingForSelection : (bool?)null;
+        Debug.Log($"[BossRewardTrace] {stage}: timeScale={Time.timeScale:F2}  IsBossPhase={(BossManager.Instance != null ? BossManager.Instance.IsBossPhase : (bool?)null)}  levelUpPending={levelUpPending}  pendingChoiceKind={pendingChoiceKind}  bossRewardDeferredPending={bossRewardDeferredPending}  RewardSequence.IsRunning={sequenceRunning}  RewardSequence.IsWaitingForSelection={sequenceWaiting}  HasStarted={HasStarted}  IsGameOver={IsGameOver}  MaxDistance={MaxDistance:F1}");
+    }
+
+    // Bugfix 2026-09-07 (Bug #001 - "Boss中/Boss撃破後にGameplayが停止する")
+    // - the exact [BOSS] tag/field set the bug report itself asked for,
+    // covering the WHOLE encounter flow end-to-end (PhaseStart -> ... ->
+    // GameplayResume) verbatim against the report's own flow diagram. Kept
+    // deliberately separate from LogBossRewardStage/[BossRewardTrace] above
+    // (that one already covers the Boss Reward sub-pipeline in finer detail
+    // with its own field set) rather than merging the two - both are
+    // DebugMode-gated and harmless to leave in permanently.
+    public void LogBoss(string tag)
+    {
+        if (!DebugMode) return;
+        Debug.Log($"[BOSS] {tag}  timeScale={Time.timeScale:F2}  IsBossPhase={(BossManager.Instance != null ? BossManager.Instance.IsBossPhase : (bool?)null)}  HasStarted={HasStarted}  levelUpPending={levelUpPending}  pendingChoice={pendingChoiceKind}  InputEnabled={Time.timeScale > 0f}  MaxDistance={MaxDistance:F1}");
+    }
+
     public void TriggerBossRewardChoice()
     {
+        LogBossRewardStage("BossRewardStart (TriggerBossRewardChoice entry)");
         if (IsBossPresentationActive() || levelUpPending)
         {
             bossRewardDeferredPending = true;
+            LogBossRewardStage("BossRewardStart -> deferred (Presentation/LevelUp active)");
             return;
         }
         RunBossRewardChoice();
@@ -1430,6 +1514,7 @@ public class GameManager : MonoBehaviour
         {
             SaveCheckpoint();
             if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
+            EndBossDistanceExclusion();
             UnlockEscape();
         }
     }
@@ -1443,6 +1528,8 @@ public class GameManager : MonoBehaviour
     // "Boss Reward処理まで正常に終了した時点" still holds either way.
     void RunBossRewardChoice()
     {
+        LogBossRewardStage("RunBossRewardChoice entry");
+        LogBoss("RewardStart");
         var pool = new List<CardDefinition>();
         foreach (string id in deckCards)
         {
@@ -1453,14 +1540,32 @@ public class GameManager : MonoBehaviour
 
         if (pool.Count == 0)
         {
-            SaveCheckpoint();
+            LogBossRewardStage("RunBossRewardChoice: pool empty -> SaveCheckpoint");
+            // Bugfix 2026-09-07 (Bug #001, report item 4) - same
+            // SaveCheckpoint-failure-must-not-block-resume guard as
+            // ApplyUpgradeByCardId's matching try/catch.
+            try
+            {
+                SaveCheckpoint();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("[BossReward] SaveCheckpoint threw (empty-pool path) - continuing the resume regardless: " + e);
+            }
+            LogBoss("CheckpointSaved");
             // Bugfix 2026-09-06, item "Boss戦中Distance停止" - this is a
             // Boss Reward that resolved with nothing to actually offer (an
             // empty/corrupted deck), but it's still "Boss Reward処理まで
             // 正常に終了した" - the Distance freeze must lift here too, not
             // just on the normal 3-card path below.
             if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
+            EndBossDistanceExclusion();
+            LogBossRewardStage("RunBossRewardChoice: pool empty -> EndBossPhase done");
+            LogBoss("EndBossPhase");
             UnlockEscape();
+            LogBossRewardStage("GameplayResume/InputResume/DistanceResume (empty-pool path)");
+            LogBoss("GameplayResume");
+            LogBoss("RewardEnd");
             return;
         }
 
@@ -1485,7 +1590,9 @@ public class GameManager : MonoBehaviour
             {
                 cards[i] = MakeChoiceCardData(pendingChoices[i]);
             }
+            LogBossRewardStage("RewardCardSequence Start (about to call StartSequence)");
             rewardCardSequence.StartSequence(cards, ApplyUpgradeByCardId, "BOSS REWARD");
+            LogBossRewardStage("RewardCardSequence Start (StartSequence call returned)");
         }
         else
         {
@@ -1686,43 +1793,80 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Bugfix 2026-09-07 (Bug #001, root cause) - this method's resume-
+    // critical lines (levelUpPending=false/Time.timeScale=1f and, for a
+    // Boss Reward, Checkpoint/EndBossPhase/EndBossDistanceExclusion/
+    // UnlockEscape) used to run unconditionally AFTER ApplyCardEffects(card)
+    // in plain sequence - if ApplyCardEffects ever threw (a malformed
+    // CardEffect, an unexpected value, etc.), NONE of the resume logic below
+    // it would run at all, leaving Time.timeScale/levelUpPending/IsBossPhase
+    // stuck exactly like the report describes (recoverable only via the 30s
+    // pendingChoiceStuckTimer watchdog). Now wrapped in try/finally so the
+    // resume itself is unconditional. SaveCheckpoint() specifically is ALSO
+    // now wrapped in its own try/catch (report's own explicit instruction -
+    // "SaveCheckpoint()成功をResume条件にしすぎないよう注意...Save処理が失
+    // 敗してもGameplay Stateが永久停止しない設計に") so a save failure can
+    // never block EndBossPhase/EndBossDistanceExclusion/UnlockEscape either.
     void ApplyUpgradeByCardId(string cardId)
     {
-        CardDefinition card = CardDatabase.FindById(cardId);
-        if (card != null)
-        {
-            // "そのRun中だけ有効な強化...Owned CardとしてHome Roomへ追加し
-            // ないでください" - a Boss Reward pick goes through this EXACT
-            // same path as a normal Level Up pick (ApplyCardEffects +
-            // upgradeHistory only), which already never touches
-            // CardInventory - so that requirement holds for free just by
-            // reusing this method verbatim.
-            ApplyCardEffects(card);
-            upgradeHistory.Add(card);
-            // Bugfix 2026-09-05, item 4 - see ApplyCharacterCardEffects's
-            // matching log; GetCurrentRunStack already includes the Add
-            // above (upgradeHistory was just appended to).
-            if (DebugMode) Debug.Log($"[CardStack] Run pick: {card.cardName} -> runStackNow={GetCurrentRunStack(card.cardId)} (kind={pendingChoiceKind})");
-        }
-
-        // Item 7 - a Boss Reward choice resolving (even to nothing, if
-        // card==null) is exactly "Boss Reward処理まで正常に終了した時点" -
-        // the Checkpoint updates here, AFTER the pick, not before.
+        LogBossRewardStage($"Reward Selected (cardId={cardId})");
         bool wasBossReward = pendingChoiceKind == PendingChoiceKind.BossReward;
+        if (wasBossReward) LogBoss("RewardCardSelected");
 
-        levelUpPending = false;
-        pendingChoices = null;
-        Time.timeScale = 1f;
-
-        if (wasBossReward)
+        try
         {
-            SaveCheckpoint();
-            // Bugfix 2026-09-06, item "Boss戦中Distance停止" - Distance (and
-            // Enemy Wall spawn/TerrainManager safe-terrain suppression) only
-            // resumes here, at actual Boss Reward completion - not at the
-            // boss's own death (see CheckEncounterComplete's own comment).
-            if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
-            UnlockEscape();
+            CardDefinition card = CardDatabase.FindById(cardId);
+            if (card != null)
+            {
+                // "そのRun中だけ有効な強化...Owned CardとしてHome Roomへ追加し
+                // ないでください" - a Boss Reward pick goes through this EXACT
+                // same path as a normal Level Up pick (ApplyCardEffects +
+                // upgradeHistory only), which already never touches
+                // CardInventory - so that requirement holds for free just by
+                // reusing this method verbatim.
+                ApplyCardEffects(card);
+                upgradeHistory.Add(card);
+                // Bugfix 2026-09-05, item 4 - see ApplyCharacterCardEffects's
+                // matching log; GetCurrentRunStack already includes the Add
+                // above (upgradeHistory was just appended to).
+                if (DebugMode) Debug.Log($"[CardStack] Run pick: {card.cardName} -> runStackNow={GetCurrentRunStack(card.cardId)} (kind={pendingChoiceKind})");
+            }
+        }
+        finally
+        {
+            // Item 7 - a Boss Reward choice resolving (even to nothing, if
+            // card==null, or if ApplyCardEffects above threw) is exactly
+            // "Boss Reward処理まで正常に終了した時点" - the Checkpoint updates
+            // here, AFTER the pick, not before.
+            levelUpPending = false;
+            pendingChoices = null;
+            Time.timeScale = 1f;
+            LogBossRewardStage("GameplayResume/InputResume (Time.timeScale=1f, levelUpPending=false)");
+            if (wasBossReward) LogBoss("GameplayResume");
+
+            if (wasBossReward)
+            {
+                try
+                {
+                    SaveCheckpoint();
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError("[BossReward] SaveCheckpoint threw - continuing the resume regardless (report item 4): " + e);
+                }
+                LogBossRewardStage("SaveCheckpoint done");
+                LogBoss("CheckpointSaved");
+                // Bugfix 2026-09-06, item "Boss戦中Distance停止" - Distance (and
+                // Enemy Wall spawn/TerrainManager safe-terrain suppression) only
+                // resumes here, at actual Boss Reward completion - not at the
+                // boss's own death (see CheckEncounterComplete's own comment).
+                if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
+                EndBossDistanceExclusion();
+                LogBossRewardStage("EndBossPhase done -> DistanceResume");
+                LogBoss("EndBossPhase");
+                UnlockEscape();
+                LogBoss("RewardEnd");
+            }
         }
     }
 
@@ -2145,7 +2289,20 @@ public class GameManager : MonoBehaviour
             // Item 9 - small Pause/Menu button, hidden while a Level Up/
             // Boss Reward card choice is already showing its own pause
             // overlay (avoids stacking two independent pause states).
-            if (!IsGameOver && !levelUpPending)
+            // Bugfix 2026-09-07 (Bug #001, contributing factor) - this used
+            // to be gated ONLY on levelUpPending, not on
+            // IsBossPresentationActive() - meaning during Boss Spawn/Defeat
+            // Presentation (BEFORE levelUpPending ever flips true for the
+            // Boss Reward choice), this button was still fully visible and
+            // tappable, and since OnGUI runs regardless of Time.timeScale, a
+            // tap here could set Time.timeScale directly while
+            // BossMilestonePresentation's own TempoDown/PlayWarning coroutine
+            // was independently animating that SAME value - the two writers
+            // could race, and closing Pause mid-Presentation would forcibly
+            // resume gameplay out from under whichever Presentation was still
+            // expecting to hold it paused. Excluded now too, same as
+            // levelUpPending.
+            if (!IsGameOver && !levelUpPending && !IsBossPresentationActive())
             {
                 if (DrawStyledButton(GetPauseButtonRect(), "II", 22f, primary: showPauseMenu))
                 {

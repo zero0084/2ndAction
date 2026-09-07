@@ -2274,15 +2274,52 @@ public static class SceneBuilder
         ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerJumpStart_v1", 149f);
         ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerDoubleJump_v1", 227f);
         ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerLand_v1", 213f);
+        // 方向攻撃システム Ver.2(2026-09-07)、項目2 - "下降攻撃"用の新規
+        // フレーム。実体はAssets/Art/PlayerJump_v1/jump_01.pngをPowerShell
+        // (System.Drawing、既存のalpha-bounding-box計測と同じ手法)で
+        // ピクセルの再スケールなし・純粋な回転(0°/20°/35°、足元付近を
+        // 回転軸)のみ加工した3枚 - キャラクター本体のピクセルサイズ自体
+        // は元のjump_01と全く変わらないため、PPUも同じ167で正しく揃う
+        // (回転でキャンバスの見かけの高さが変わっても、その分だけpivot
+        // 計算がフレームごとに追従するので破綻しない)。新規の手描きアニ
+        // メーションを起こす画像生成ツールが無いため、既存素材を回転さ
+        // せて「下向きに構え直す」動きへ転用した設計判断(マスターへの開
+        // 示事項 - 実機で違和感があれば専用アートへの差し替えも検討)。
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerDownAttack_v1", 167f);
 
         Sprite[] runFrames = LoadSpriteSequence("Assets/Art/PlayerRun_v1");
         Sprite[] jumpFrames = LoadSpriteSequence("Assets/Art/PlayerJump_v1");
         Sprite[] attackFrames = LoadSpriteSequence("Assets/Art/PlayerAttack_v1");
         Sprite[] attackFramesSmall = LoadSpriteSequence("Assets/Art/PlayerAttackSmall_v1");
         Sprite[] attackFramesLarge = LoadSpriteSequence("Assets/Art/PlayerAttackLarge_v1");
-        Sprite[] jumpStartFrames = LoadSpriteSequence("Assets/Art/PlayerJumpStart_v1");
+        Sprite[] jumpStartRawFrames = LoadSpriteSequence("Assets/Art/PlayerJumpStart_v1");
         Sprite[] doubleJumpFrames = LoadSpriteSequence("Assets/Art/PlayerDoubleJump_v1");
         Sprite[] landFrames = LoadSpriteSequence("Assets/Art/PlayerLand_v1");
+        Sprite[] downAttackFrames = LoadSpriteSequence("Assets/Art/PlayerDownAttack_v1");
+
+        // 方向攻撃システム Ver.2、項目2 - "上昇攻撃専用モーション"(地上側)。
+        // ブリーフの「踏み込み→剣を下から上へ振り上げる→上昇→空中姿勢へ
+        // 自然につながる」という流れを、新規手描きフレームなしで既存素材
+        // の「組み合わせ」として実現: jumpStart_00(既存の膝を落とした
+        // 踏み込みポーズ)を先頭に、既存のPlayerAttackSmall_v1の5枚
+        // (attacksmall_00→04、元々は前方攻撃Stage1用だが、実際には低い
+        // 構えから剣が真上に達するまでの綺麗な「振り上げ」アークになって
+        // いる - たまたま見つかった好都合な流用先)をそのまま繋げる。この
+        // 6枚をJumpStart状態(既存のState.JumpStart、PlayerController.
+        // JumpStartedイベントで再生される)にそのまま割り当てるだけで、
+        // PlayerAnimator/State機械自体は無改造で済む。
+        Sprite[] upAttackGroundFrames;
+        if (jumpStartRawFrames.Length > 0 && attackFramesSmall.Length > 0)
+        {
+            upAttackGroundFrames = new Sprite[1 + attackFramesSmall.Length];
+            upAttackGroundFrames[0] = jumpStartRawFrames[0];
+            for (int i = 0; i < attackFramesSmall.Length; i++) upAttackGroundFrames[i + 1] = attackFramesSmall[i];
+        }
+        else
+        {
+            upAttackGroundFrames = jumpStartRawFrames.Length > 0 ? jumpStartRawFrames : attackFramesSmall;
+        }
+
         if (runFrames.Length > 0)
         {
             var animator = go.AddComponent<PlayerAnimator>();
@@ -2291,9 +2328,22 @@ public static class SceneBuilder
             animator.attackFrames = attackFrames;
             animator.attackFramesSmall = attackFramesSmall;
             animator.attackFramesLarge = attackFramesLarge;
-            animator.jumpStartFrames = jumpStartFrames;
+            animator.jumpStartFrames = upAttackGroundFrames;
             animator.doubleJumpFrames = doubleJumpFrames;
             animator.landFrames = landFrames;
+            animator.downAttackFrames = downAttackFrames;
+            // jumpStartFrames grew from 2 frames to 6 (see above) - slowed
+            // down from the original 7fps so the new windup+swing-up reads
+            // clearly rather than blurring past in the same short window
+            // the old 2-frame crouch used.
+            animator.jumpStartFps = 9f;
+            // 項目2 - 空中側(二段ジャンプ相当)は既存のPlayerDoubleJump_v1
+            // 3枚(doublejump_00→02、たまたま既に「屈み込み→上昇→剣が頭
+            // 上に達する」という綺麗な流れになっていた)をそのまま流用、
+            // 新規フレームは追加していない。デフォルトの9fpsだと「剣が
+            // 頭上に達した」最終フレームがほぼ一瞬しか見えなかったため、
+            // 7fpsへ落として「振り上げた」ことが視認できる時間を確保。
+            animator.doubleJumpFps = 7f;
             sr.sprite = runFrames[0];
         }
 
@@ -2346,6 +2396,71 @@ public static class SceneBuilder
 
         pc.attackHitbox = hitboxCol;
         pc.attackSlashVisual = slashVisual;
+
+        // Operation System Ver.2 (2026-09-06), item 2 - "上フリック=ジャンプ
+        // 攻撃"用の独立したHitbox+Slash FX。既存のAttackHitbox/AttackSlash
+        // とは別オブジェクト(Forward/Backwardの3段コンボ系統には一切触れ
+        // ないよう分離、詳細はPlayerController.DoUpAttackのコメント参照)。
+        // プレイヤー正面やや上〜頭上をカバーする位置・サイズにして、上方
+        // または進行方向上部の敵を攻撃できるようにする。Slash FXは既存の
+        // AttackSlashFxスプライトをそのまま再利用し、90°回転させて「上へ
+        // の斬撃」に見せる(新規アート不要 - 新しい手描きアニメーションを
+        // 起こす手段が現状ないため、既存素材の組み合わせで代替した設計判
+        // 断であることをコメントとして明記)。
+        GameObject upHitbox = new GameObject("UpAttackHitbox");
+        upHitbox.transform.SetParent(go.transform);
+        upHitbox.transform.localPosition = new Vector3(0.3f, 1.7f, 0f);
+        upHitbox.transform.localScale = new Vector3(1.6f, 1.4f, 1f);
+        upHitbox.tag = "PlayerAttack";
+
+        var upHitboxCol = upHitbox.AddComponent<BoxCollider2D>();
+        upHitboxCol.isTrigger = true;
+        var upHitboxDebug = upHitbox.AddComponent<ColliderDebugView>();
+        upHitboxDebug.color = new Color(0.6f, 0.9f, 1f);
+
+        GameObject upSlashGO = new GameObject("UpAttackSlash");
+        upSlashGO.transform.SetParent(go.transform);
+        upSlashGO.transform.localPosition = new Vector3(0.2f, 1.4f, 0f);
+        // Base slash art points along +X (matches the forward attack's own
+        // unrotated orientation) - rotating this instance 80° around Z
+        // tilts it to read as an upward slash without needing a separate
+        // sprite sheet.
+        upSlashGO.transform.localRotation = Quaternion.Euler(0f, 0f, 80f);
+        var upSlashVisual = upSlashGO.AddComponent<AttackSlashVisual>();
+        upSlashVisual.frames = LoadSpriteSequence("Assets/Art/AttackSlashFx");
+
+        pc.upAttackHitbox = upHitboxCol;
+        pc.upAttackSlashVisual = upSlashVisual;
+
+        // 方向攻撃システム Ver.2(2026-09-07)、項目3 - "空中で↓フリック=
+        // 下降攻撃"用の独立したHitbox+Slash FX。UpAttackHitbox/UpAttackSlash
+        // と全く同じ構造(別オブジェクト、Forward/Backwardコンボには一切
+        // 触れない)をY軸で反転させただけ。プレイヤーの真下〜やや前方下
+        // をカバーする位置・サイズにして、下降中の敵を攻撃できるように
+        // する(「剣先だけではなく真下付近にも多少余裕のある判定」との指
+        // 示どおり、UpAttackHitboxと同程度の余裕を持たせたサイズ)。Slash
+        // FXは既存のAttackSlashFxスプライトを-80°回転させ、上昇攻撃とは
+        // 対になる「上から下へ抜ける斬撃」に見せる(新規アート不要)。
+        GameObject downHitbox = new GameObject("DownAttackHitbox");
+        downHitbox.transform.SetParent(go.transform);
+        downHitbox.transform.localPosition = new Vector3(0.15f, -0.4f, 0f);
+        downHitbox.transform.localScale = new Vector3(1.5f, 1.3f, 1f);
+        downHitbox.tag = "PlayerAttack";
+
+        var downHitboxCol = downHitbox.AddComponent<BoxCollider2D>();
+        downHitboxCol.isTrigger = true;
+        var downHitboxDebug = downHitbox.AddComponent<ColliderDebugView>();
+        downHitboxDebug.color = new Color(1f, 0.5f, 0.2f);
+
+        GameObject downSlashGO = new GameObject("DownAttackSlash");
+        downSlashGO.transform.SetParent(go.transform);
+        downSlashGO.transform.localPosition = new Vector3(0.1f, -0.3f, 0f);
+        downSlashGO.transform.localRotation = Quaternion.Euler(0f, 0f, -80f);
+        var downSlashVisual = downSlashGO.AddComponent<AttackSlashVisual>();
+        downSlashVisual.frames = LoadSpriteSequence("Assets/Art/AttackSlashFx");
+
+        pc.downAttackHitbox = downHitboxCol;
+        pc.downAttackSlashVisual = downSlashVisual;
 
         return go;
     }

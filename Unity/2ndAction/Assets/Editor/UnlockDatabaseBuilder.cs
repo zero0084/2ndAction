@@ -11,9 +11,18 @@ using UnityEngine;
 // UnlockManager/CardDatabase/EnemyDatabase already read through
 // UnlockDatabase generically, no other code changes needed.
 //
-// Ver.0.1 test data only, per the current spec: 500m unlocks a placeholder
-// card, 1000m unlocks a placeholder enemy variant. Both distances and both
-// targets are meant to be replaced/retuned once real content exists.
+// Ver.0.1 test data only, per the current spec: 1000m unlocks a placeholder
+// enemy variant. Distance and target are meant to be replaced/retuned once
+// real content exists.
+//
+// Bugfix 2026-09-06, item "Card Unlockシステムを一元化" - UnlockType.Card
+// entries used to live here too (unlock_pathfinder_card_500m), duplicating
+// CardDefinition.unlockDistance/gachaStage (the rule BuildGachaPool/
+// CardDatabase.UnlockedCards actually use) with a second, independent gate
+// that could disagree with it. Card-type unlocks are no longer read from
+// this system at all (see CardDatabase.UnlockedCards's own comment) -
+// UnlockType.Enemy/Feature entries are untouched, this system still owns
+// those.
 public static class UnlockDatabaseBuilder
 {
     const string UnlocksFolder = "Assets/Resources/Unlocks";
@@ -61,14 +70,6 @@ public static class UnlockDatabaseBuilder
 
     static IEnumerable<Spec> Specs()
     {
-        yield return new Spec
-        {
-            id = "unlock_pathfinder_card_500m",
-            distance = 500f,
-            type = UnlockType.Card,
-            targetId = "pathfinder", // see CardDatabaseBuilder's Specs()
-            displayName = "新しいカード: PATHFINDER"
-        };
         yield return new Spec
         {
             id = "unlock_elite_goblin_1000m",

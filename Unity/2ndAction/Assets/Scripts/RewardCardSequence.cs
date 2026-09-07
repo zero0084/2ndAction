@@ -122,6 +122,12 @@ public class RewardCardSequence : MonoBehaviour
     public bool debugLogEnabled = true;
 
     bool running;
+    // Bugfix 2026-09-06 - exposed read-only so GameManager's state-transition
+    // logging (LogBossRewardStage) can report this sequence's own status
+    // alongside Time.timeScale/IsBossPhase/levelUpPending while diagnosing
+    // "Boss撃破後にゲームが停止する".
+    public bool IsRunning => running;
+    public bool IsWaitingForSelection => waitingForSelection;
     int selectedIndex = -1;
     bool waitingForSelection;
 
@@ -204,6 +210,40 @@ public class RewardCardSequence : MonoBehaviour
 
         LogPresentation("[LevelUpPresentation] Started");
 
+        // Bugfix 2026-09-07 (Bug #001, root cause) - everything from here to
+        // the end of the method used to run with NO exception/early-exit
+        // protection at all: `running` (and this GameObject staying active)
+        // were only ever cleared at the very bottom, after every yield above
+        // it had already completed successfully. If ANYTHING threw partway
+        // through - a null card icon, a malformed RewardCardData, anything
+        // inside onApply()/GameManager.ApplyUpgradeByCardId - `running`
+        // would stay stuck true forever (blocking StartSequence's own
+        // re-entry guard) AND, since onApply is what actually clears
+        // GameManager.levelUpPending/restores Time.timeScale, THAT would
+        // stay stuck too - exactly the report's "同じ意味のFlagが複数存在
+        // している場合、片方だけ解除されてGameplay停止" concern, except here
+        // it's worse: neither flag clears at all without reaching onApply.
+        // Wrapped in try/finally so this Presentation always releases its
+        // own state no matter what happens above, INCLUDING inside onApply
+        // itself (GameManager.ApplyUpgradeByCardId, which now has its own
+        // matching try/finally protecting levelUpPending/Time.timeScale -
+        // see its own comment). GameManager's 30s pendingChoiceStuckTimer
+        // watchdog remains the outermost net regardless, in case both of
+        // these somehow still aren't enough.
+        try
+        {
+            yield return RunSequenceBody(cardData, onApply, announcementText, cardCount);
+        }
+        finally
+        {
+            running = false;
+            waitingForSelection = false;
+            if (gameObject != null) gameObject.SetActive(false);
+        }
+    }
+
+    IEnumerator RunSequenceBody(RewardCardData[] cardData, System.Action<string> onApply, string announcementText, int cardCount)
+    {
         rootGroup.alpha = 0f;
         dimImage.color = new Color(dimImage.color.r, dimImage.color.g, dimImage.color.b, 0f);
         glowImage.gameObject.SetActive(false);
@@ -357,8 +397,9 @@ public class RewardCardSequence : MonoBehaviour
         LogStep("Apply Upgrade Complete");
 
         yield return FadeRoot(0f, rootCloseDuration);
-        gameObject.SetActive(false);
-        running = false;
+        // gameObject.SetActive(false)/running=false are now handled by the
+        // outer RunSequence's finally block (see its own comment) so they
+        // still happen even if something above this point threw.
         LogStep("Sequence Complete");
         LogPresentation("[LevelUpPresentation] Presentation finished");
     }

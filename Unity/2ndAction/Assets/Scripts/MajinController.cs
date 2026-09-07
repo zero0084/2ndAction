@@ -476,74 +476,94 @@ public class MajinController : MonoBehaviour
 
     // Boss Defeat Presentation pass - see DragonController.FinalHitAndDie's
     // matching comment.
-    IEnumerator FinalHitAndDie()
+    // Bugfix 2026-09-07 (Bug #001, root cause) - see DragonController.
+    // FinalHitAndDie's matching comment for the full reasoning (identical
+    // gap existed here too - no exception/early-exit protection around the
+    // reward-pipeline calls at the end, and scaled WaitForSeconds/
+    // Time.deltaTime that an unrelated external pause could stall
+    // indefinitely before the reward pipeline even starts).
+    bool bossDefeatRegistered;
+    void RegisterDefeatOnce()
     {
-        if (flashOverlay != null) flashOverlay.enabled = false;
-        if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
-
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(finalHitSe);
-        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
-        if (camFollow != null) camFollow.Shake(finalHitShakeStrength, finalHitShakeDuration);
-        Sprite spark = finalHitSparkSprite != null ? finalHitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
-        OneShotSpriteEffect.CreateTweened(spark, transform.position, Color.white, duration: 0.18f, startScale: finalHitSparkScale * 0.7f, endScale: finalHitSparkScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.2f);
-
-        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Boss defeated");
-
-        yield return HitStop.Freeze(finalHitStopDuration);
-
-        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Final hit presentation");
-
-        if (flashOverlay != null)
-        {
-            flashOverlay.sprite = sr.sprite;
-            flashOverlay.color = bossDeathFlashColor;
-            flashOverlay.enabled = true;
-        }
-        yield return new WaitForSeconds(bossDeathFlashDuration);
-        if (flashOverlay != null) flashOverlay.enabled = false;
-
-        Vector3 baseScale = transform.localScale;
-        Color startColor = sr.color;
-        float punchDuration = bossDeathDuration * 0.3f;
-        float settleDuration = Mathf.Max(0.05f, bossDeathDuration - punchDuration);
-
-        float t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime / Mathf.Max(0.001f, punchDuration);
-            transform.localScale = baseScale * Mathf.Lerp(1f, bossDeathPunchScale, Mathf.Clamp01(t));
-            yield return null;
-        }
-
-        t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime / Mathf.Max(0.001f, settleDuration);
-            float f = Mathf.Clamp01(t);
-            transform.localScale = baseScale * Mathf.Lerp(bossDeathPunchScale, bossDeathFinalScale, f);
-            Color c = startColor; c.a = Mathf.Lerp(startColor.a, 0f, f);
-            sr.color = c;
-            yield return null;
-        }
-
-        if (bossDeathSmokeSprite != null)
-        {
-            OneShotSpriteEffect.CreateTweened(bossDeathSmokeSprite, transform.position, Color.white, duration: 0.4f, startScale: bossDeathSmokeScale * 0.7f, endScale: bossDeathSmokeScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.3f);
-        }
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(bossDefeatSe);
-
-        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Death presentation");
-
-        if (hpBar != null)
-        {
-            yield return new WaitForSeconds(hpBarEmptyHoldDuration);
-            yield return hpBar.FadeOutRoutine(bossHpBarFadeDuration);
-            Destroy(hpBar.gameObject);
-        }
-
-        gameObject.SetActive(false);
-
+        if (bossDefeatRegistered) return;
+        bossDefeatRegistered = true;
         if (GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
         if (BossManager.Instance != null) BossManager.Instance.OnMajinDefeated();
+    }
+
+    IEnumerator FinalHitAndDie()
+    {
+        try
+        {
+            if (flashOverlay != null) flashOverlay.enabled = false;
+            if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
+
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(finalHitSe);
+            var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+            if (camFollow != null) camFollow.Shake(finalHitShakeStrength, finalHitShakeDuration);
+            Sprite spark = finalHitSparkSprite != null ? finalHitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
+            OneShotSpriteEffect.CreateTweened(spark, transform.position, Color.white, duration: 0.18f, startScale: finalHitSparkScale * 0.7f, endScale: finalHitSparkScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.2f);
+
+            if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Boss defeated");
+
+            yield return HitStop.Freeze(finalHitStopDuration);
+
+            if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Final hit presentation");
+
+            if (flashOverlay != null)
+            {
+                flashOverlay.sprite = sr.sprite;
+                flashOverlay.color = bossDeathFlashColor;
+                flashOverlay.enabled = true;
+            }
+            yield return new WaitForSecondsRealtime(bossDeathFlashDuration);
+            if (flashOverlay != null) flashOverlay.enabled = false;
+
+            Vector3 baseScale = transform.localScale;
+            Color startColor = sr.color;
+            float punchDuration = bossDeathDuration * 0.3f;
+            float settleDuration = Mathf.Max(0.05f, bossDeathDuration - punchDuration);
+
+            float t = 0f;
+            while (t < 1f)
+            {
+                t += Time.unscaledDeltaTime / Mathf.Max(0.001f, punchDuration);
+                transform.localScale = baseScale * Mathf.Lerp(1f, bossDeathPunchScale, Mathf.Clamp01(t));
+                yield return null;
+            }
+
+            t = 0f;
+            while (t < 1f)
+            {
+                t += Time.unscaledDeltaTime / Mathf.Max(0.001f, settleDuration);
+                float f = Mathf.Clamp01(t);
+                transform.localScale = baseScale * Mathf.Lerp(bossDeathPunchScale, bossDeathFinalScale, f);
+                Color c = startColor; c.a = Mathf.Lerp(startColor.a, 0f, f);
+                sr.color = c;
+                yield return null;
+            }
+
+            if (bossDeathSmokeSprite != null)
+            {
+                OneShotSpriteEffect.CreateTweened(bossDeathSmokeSprite, transform.position, Color.white, duration: 0.4f, startScale: bossDeathSmokeScale * 0.7f, endScale: bossDeathSmokeScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.3f);
+            }
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(bossDefeatSe);
+
+            if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Death presentation");
+
+            if (hpBar != null)
+            {
+                yield return new WaitForSecondsRealtime(hpBarEmptyHoldDuration);
+                yield return hpBar.FadeOutRoutine(bossHpBarFadeDuration);
+                Destroy(hpBar.gameObject);
+            }
+
+            gameObject.SetActive(false);
+            RegisterDefeatOnce();
+        }
+        finally
+        {
+            RegisterDefeatOnce(); // no-op if already done above - guarantees the Boss Reward pipeline is always reached even on an early exit/exception
+        }
     }
 }

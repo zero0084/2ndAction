@@ -56,11 +56,6 @@ public class CardFusionUI : MonoBehaviour
     public const float MainInheritChance = 0.50f;
     public const float SubInheritChance = 0.25f;
     public const int FusionFailureRefundMile = 200;
-    // Not in the original brief verbatim - a small consolation MILE amount
-    // for the "Sub succeeded but Main didn't" edge case (see
-    // DoCrossNameFusion's own comment for why this exists instead of a real
-    // compound card).
-    public const int FusionSubBonusMile = 50;
 
     // Selection state - Main/Sub each hold a specific owned (cardId, level)
     // stack, cleared back to unselected by tapping their own slot display.
@@ -344,19 +339,24 @@ public class CardFusionUI : MonoBehaviour
         StartCoroutine(PlayFusionSuccessReveal(card, newLevel));
     }
 
-    // Fusion Ver.1, item 13 - Main+Sub cross-name fusion. Both cards are
-    // consumed as material up front; MainSuccess (50%) grants a leveled-up
-    // Main card back, SubSuccess (25%, rolled independently) grants a small
-    // bonus MILE payout. NOTE - the brief describes an eventual compound
-    // card ("Attack Up【Vampire】") as the long-term goal for Sub
-    // inheritance, but generating that kind of new compound-ability card is
-    // explicitly out of scope this round ("複雑なFusion能力生成はやらな
-    // い"); SubSuccess instead grants FusionSubBonusMile as a placeholder
-    // stand-in for "something recovered from the Sub card", disclosed to
-    // the user rather than silently simplified. If NEITHER roll succeeds,
-    // Main is returned unconsumed and only Sub is lost with no bonus - the
-    // "両方失敗" (total failure, full MILE refund instead of any card) case
-    // is reserved for when Main also fails.
+    // Fusion Ver.1 restoration (2026-09-06), item "Fusionの仕様を本来の設
+    // 計へ戻す" - Main+Sub cross-name fusion, both cards consumed as
+    // material up front, Main/Sub inheritance rolled independently
+    // (MainInheritChance/SubInheritChance). Previously (Ver.1 finishing
+    // pass) SubSuccess-only granted a flat MILE bonus instead of any card,
+    // and Main+Sub both succeeding just granted a leveled Main card plus
+    // that same flat bonus - silently discarding Sub's contribution
+    // entirely rather than the compound card the original design called
+    // for. Restored to the brief's own 3-outcome table:
+    //   Main only succeeds  -> leveled-up MAIN card (Main's effect only)
+    //   Sub only succeeds   -> leveled-up SUB card (Sub's effect only)
+    //   Both succeed        -> a genuine compound card carrying BOTH
+    //                          effects (e.g. "Attack Up【Vampire】"), via
+    //                          CardDatabase's on-demand compound synthesis
+    //                          (see its own comment for how "mId+sId" as
+    //                          the cardId doubles as the save format - no
+    //                          separate recipe record needed)
+    //   Neither succeeds     -> both cards lost, MILE refund (unchanged)
     void DoCrossNameFusion(string mId, int mLevel, string sId, int sLevel)
     {
         CardDefinition mainCard = CardDatabase.FindById(mId);
@@ -376,27 +376,41 @@ public class CardFusionUI : MonoBehaviour
         bool subSuccess = Random.value < SubInheritChance;
         var gm = GameManager.Instance;
 
-        if (mainSuccess)
+        if (mainSuccess && subSuccess)
         {
-            int newLevel = Mathf.Min(CardInventory.MaxCardLevel, mLevel + 1);
-            CardInventory.AddCard(mId, newLevel, 1);
-            if (subSuccess && gm != null)
+            string compoundId = mId + "+" + sId;
+            CardDefinition compound = CardDatabase.FindById(compoundId);
+            if (compound != null)
             {
-                gm.AddMile(FusionSubBonusMile);
-                SetStatus($"合成成功！{mainCard.cardName} Lv.{newLevel} を獲得（Subの力でMILE+{FusionSubBonusMile}）");
+                CardInventory.AddCard(compoundId, 1, 1);
+                SetStatus($"合成成功！複合カード「{compound.cardName}」を獲得");
+                StartCoroutine(PlayFusionSuccessReveal(compound, 1));
             }
             else
             {
-                SetStatus($"合成成功！{mainCard.cardName} Lv.{newLevel} を獲得");
+                // Shouldn't happen (both mainCard/subCard were just
+                // confirmed non-null above) - defensive fallback so a
+                // Fusion can never silently consume both cards and grant
+                // nothing back at all.
+                int fallbackLevel = Mathf.Min(CardInventory.MaxCardLevel, mLevel + 1);
+                CardInventory.AddCard(mId, fallbackLevel, 1);
+                SetStatus($"合成成功！(複合カード生成に失敗したため{mainCard.cardName} Lv.{fallbackLevel} を獲得)");
+                StartCoroutine(PlayFusionSuccessReveal(mainCard, fallbackLevel));
             }
+        }
+        else if (mainSuccess)
+        {
+            int newLevel = Mathf.Min(CardInventory.MaxCardLevel, mLevel + 1);
+            CardInventory.AddCard(mId, newLevel, 1);
+            SetStatus($"合成成功！{mainCard.cardName} Lv.{newLevel} を獲得");
             StartCoroutine(PlayFusionSuccessReveal(mainCard, newLevel));
         }
         else if (subSuccess)
         {
-            CardInventory.AddCard(mId, mLevel, 1); // Main preserved, not leveled
-            if (gm != null) gm.AddMile(FusionSubBonusMile);
-            SetStatus($"Mainの継承に失敗しましたが、Subの力を回収しました（MILE+{FusionSubBonusMile}）");
-            StartCoroutine(PlayFusionFailureReveal());
+            int newLevel = Mathf.Min(CardInventory.MaxCardLevel, sLevel + 1);
+            CardInventory.AddCard(sId, newLevel, 1);
+            SetStatus($"Mainの継承には失敗しましたが、{subCard.cardName} Lv.{newLevel} を獲得しました");
+            StartCoroutine(PlayFusionSuccessReveal(subCard, newLevel));
         }
         else
         {

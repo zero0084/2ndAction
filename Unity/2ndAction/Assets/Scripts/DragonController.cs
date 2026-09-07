@@ -630,86 +630,123 @@ public class DragonController : MonoBehaviour
     // (attack scheduling, telegraph blink, idle bob via Update) is already
     // inert - StopAllCoroutines is no longer called here, since this
     // coroutine itself needs to keep running.
-    IEnumerator FinalHitAndDie()
+    // Bugfix 2026-09-07 (Bug #001, root cause) - this coroutine used to have
+    // NO exception/early-exit protection at all around the two calls at its
+    // very end (RegisterBossDefeat/OnDragonDefeated) - if ANYTHING threw
+    // partway through (or this GameObject got disabled/destroyed - e.g. a
+    // scene transition, GAME OVER racing the same frame), those two calls
+    // would simply never run. Since BossManager.CheckEncounterComplete
+    // (called from OnDragonDefeated) is the ONLY thing that ever calls
+    // GameManager.TriggerBossRewardChoice - which is in turn the ONLY thing
+    // that starts the bossRewardStuckTimer/pendingChoiceStuckTimer safety
+    // nets - a failure here meant NONE of the existing timeouts would ever
+    // even begin counting. IsBossPhase (and therefore Distance/Enemy Spawn)
+    // would then stay frozen forever with no recovery path whatsoever, the
+    // single most severe gap found while investigating Bug #001. Wrapped in
+    // try/finally (RegisterDefeatOnce guards against calling it twice - once
+    // normally at the end of try, once as the fail-safe in finally) so the
+    // reward pipeline is now GUARANTEED to be reached exactly once no matter
+    // what happens above it. Also switched every WaitForSeconds/Time.deltaTime
+    // in this coroutine to WaitForSecondsRealtime/Time.unscaledDeltaTime -
+    // this sequence starts the instant the boss's HP hits 0, independent of
+    // any OTHER system that might be holding Time.timeScale at 0 at that
+    // exact moment (e.g. the Pause Menu, or a concurrent HitStop) - it must
+    // never be at the mercy of an unrelated pause to even START the reward
+    // pipeline.
+    bool bossDefeatRegistered;
+    void RegisterDefeatOnce()
     {
-        if (flashOverlay != null) flashOverlay.enabled = false;
-        if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
-
-        // ===== Item 1 - Final Hit: a slightly longer Hit Stop, a boosted
-        // Hit Spark, and a stronger Camera Shake than a normal hit. Only
-        // the camera and a separate one-shot VFX object are touched - this
-        // GameObject's own Collider/Rigidbody are untouched here. =====
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(finalHitSe);
-        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
-        if (camFollow != null) camFollow.Shake(finalHitShakeStrength, finalHitShakeDuration);
-        Sprite spark = finalHitSparkSprite != null ? finalHitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
-        OneShotSpriteEffect.CreateTweened(spark, transform.position, Color.white, duration: 0.18f, startScale: finalHitSparkScale * 0.7f, endScale: finalHitSparkScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.2f);
-
-        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Boss defeated");
-
-        yield return HitStop.Freeze(finalHitStopDuration);
-
-        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Final hit presentation");
-
-        // ===== Item 2 - Death Presentation: flash (white->blue/cyan) ->
-        // scale punch+fade (1.0->1.05->0.9, Alpha->0) -> a Death Smoke
-        // accent, sized up from a regular enemy's own (Boss用は少し大き
-        // く). Collider scaling along with this is safe now - state is
-        // already Dead, so it can neither deal nor take any further
-        // damage regardless of its current size. =====
-        if (flashOverlay != null)
-        {
-            flashOverlay.sprite = sr.sprite;
-            flashOverlay.color = bossDeathFlashColor;
-            flashOverlay.enabled = true;
-        }
-        yield return new WaitForSeconds(bossDeathFlashDuration);
-        if (flashOverlay != null) flashOverlay.enabled = false;
-
-        Vector3 baseScale = transform.localScale;
-        Color startColor = sr.color;
-        float punchDuration = bossDeathDuration * 0.3f;
-        float settleDuration = Mathf.Max(0.05f, bossDeathDuration - punchDuration);
-
-        float t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime / Mathf.Max(0.001f, punchDuration);
-            transform.localScale = baseScale * Mathf.Lerp(1f, bossDeathPunchScale, Mathf.Clamp01(t));
-            yield return null;
-        }
-
-        t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime / Mathf.Max(0.001f, settleDuration);
-            float f = Mathf.Clamp01(t);
-            transform.localScale = baseScale * Mathf.Lerp(bossDeathPunchScale, bossDeathFinalScale, f);
-            Color c = startColor; c.a = Mathf.Lerp(startColor.a, 0f, f);
-            sr.color = c;
-            yield return null;
-        }
-
-        if (bossDeathSmokeSprite != null)
-        {
-            OneShotSpriteEffect.CreateTweened(bossDeathSmokeSprite, transform.position, Color.white, duration: 0.4f, startScale: bossDeathSmokeScale * 0.7f, endScale: bossDeathSmokeScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.3f);
-        }
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(bossDefeatSe);
-
-        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Death presentation");
-
-        // ===== Item 3 - Boss HP Bar: sit at empty a moment (already 0 from
-        // TakeDamage's SetFraction above) before fading out. =====
-        if (hpBar != null)
-        {
-            yield return new WaitForSeconds(hpBarEmptyHoldDuration);
-            yield return hpBar.FadeOutRoutine(bossHpBarFadeDuration);
-            Destroy(hpBar.gameObject);
-        }
-
-        gameObject.SetActive(false);
-
+        if (bossDefeatRegistered) return;
+        bossDefeatRegistered = true;
         if (GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
         if (BossManager.Instance != null) BossManager.Instance.OnDragonDefeated();
+    }
+
+    IEnumerator FinalHitAndDie()
+    {
+        try
+        {
+            if (flashOverlay != null) flashOverlay.enabled = false;
+            if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
+
+            // ===== Item 1 - Final Hit: a slightly longer Hit Stop, a boosted
+            // Hit Spark, and a stronger Camera Shake than a normal hit. Only
+            // the camera and a separate one-shot VFX object are touched - this
+            // GameObject's own Collider/Rigidbody are untouched here. =====
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(finalHitSe);
+            var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+            if (camFollow != null) camFollow.Shake(finalHitShakeStrength, finalHitShakeDuration);
+            Sprite spark = finalHitSparkSprite != null ? finalHitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
+            OneShotSpriteEffect.CreateTweened(spark, transform.position, Color.white, duration: 0.18f, startScale: finalHitSparkScale * 0.7f, endScale: finalHitSparkScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.2f);
+
+            if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Boss defeated");
+
+            yield return HitStop.Freeze(finalHitStopDuration);
+
+            if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Final hit presentation");
+
+            // ===== Item 2 - Death Presentation: flash (white->blue/cyan) ->
+            // scale punch+fade (1.0->1.05->0.9, Alpha->0) -> a Death Smoke
+            // accent, sized up from a regular enemy's own (Boss用は少し大き
+            // く). Collider scaling along with this is safe now - state is
+            // already Dead, so it can neither deal nor take any further
+            // damage regardless of its current size. =====
+            if (flashOverlay != null)
+            {
+                flashOverlay.sprite = sr.sprite;
+                flashOverlay.color = bossDeathFlashColor;
+                flashOverlay.enabled = true;
+            }
+            yield return new WaitForSecondsRealtime(bossDeathFlashDuration);
+            if (flashOverlay != null) flashOverlay.enabled = false;
+
+            Vector3 baseScale = transform.localScale;
+            Color startColor = sr.color;
+            float punchDuration = bossDeathDuration * 0.3f;
+            float settleDuration = Mathf.Max(0.05f, bossDeathDuration - punchDuration);
+
+            float t = 0f;
+            while (t < 1f)
+            {
+                t += Time.unscaledDeltaTime / Mathf.Max(0.001f, punchDuration);
+                transform.localScale = baseScale * Mathf.Lerp(1f, bossDeathPunchScale, Mathf.Clamp01(t));
+                yield return null;
+            }
+
+            t = 0f;
+            while (t < 1f)
+            {
+                t += Time.unscaledDeltaTime / Mathf.Max(0.001f, settleDuration);
+                float f = Mathf.Clamp01(t);
+                transform.localScale = baseScale * Mathf.Lerp(bossDeathPunchScale, bossDeathFinalScale, f);
+                Color c = startColor; c.a = Mathf.Lerp(startColor.a, 0f, f);
+                sr.color = c;
+                yield return null;
+            }
+
+            if (bossDeathSmokeSprite != null)
+            {
+                OneShotSpriteEffect.CreateTweened(bossDeathSmokeSprite, transform.position, Color.white, duration: 0.4f, startScale: bossDeathSmokeScale * 0.7f, endScale: bossDeathSmokeScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.3f);
+            }
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(bossDefeatSe);
+
+            if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Death presentation");
+
+            // ===== Item 3 - Boss HP Bar: sit at empty a moment (already 0 from
+            // TakeDamage's SetFraction above) before fading out. =====
+            if (hpBar != null)
+            {
+                yield return new WaitForSecondsRealtime(hpBarEmptyHoldDuration);
+                yield return hpBar.FadeOutRoutine(bossHpBarFadeDuration);
+                Destroy(hpBar.gameObject);
+            }
+
+            gameObject.SetActive(false);
+            RegisterDefeatOnce();
+        }
+        finally
+        {
+            RegisterDefeatOnce(); // no-op if already done above - guarantees the Boss Reward pipeline is always reached even on an early exit/exception
+        }
     }
 }

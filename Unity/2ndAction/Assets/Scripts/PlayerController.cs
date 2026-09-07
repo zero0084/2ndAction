@@ -5,7 +5,23 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider2D))]
 public class PlayerController : MonoBehaviour
 {
-    public enum AttackDirection { Neutral, Forward, Backward }
+    // Operation System Ver.2 (2026-09-06) - "タップ=ジャンプ/前後スワイプ=
+    // 攻撃" を廃止し、全操作を方向フリックによる「移動攻撃」へ統一。
+    // Neutral (旧: キーボードZ/Bテスト用の「その場攻撃」)は廃止 - 新設計
+    // では全ての攻撃が必ず移動を伴う("攻撃することで移動する")ため、方向
+    // なしの攻撃という概念自体が存在しない。
+    public enum AttackDirection { Forward, Backward }
+
+    // 生のフリックジェスチャー分類 - Forward/Backwardはそのまま
+    // AttackDirectionへ1:1で流れ込み既存のコンボ/Lunge処理(HandleAttackInput
+    // /DoAttack)をそのまま再利用するが、UpはForward/Backwardの3段コンボ
+    // チェーンとは完全に別系統として扱う(DoUpAttack参照) - 既存の
+    // Forward/Backwardコンボを壊すリスクを避けるため。
+    // 方向攻撃システム Ver.2(2026-09-07)、項目1 - Downを追加、4方向に拡張。
+    // Downも(Up同様)Forward/Backwardのコンボ系統には一切関与しない、独立
+    // した「空中下降攻撃」専用トリガー(Move()内で直接処理 - DoDiveAttack
+    // 参照)。地上でのDownフリックは項目4の指示どおり無効(何もしない)。
+    public enum FlickDirection { Up, Forward, Backward, Down }
 
     [Header("Move")]
     public float runSpeed = 5f;
@@ -25,6 +41,24 @@ public class PlayerController : MonoBehaviour
     public float groundOffset = 0f;
     public float failY = -8f;
     public int maxJumps = 2;
+
+    // 方向攻撃システム Ver.2、項目5 - "ここより下へ落ちると死亡する"落下
+    // デッドラインの視認性改善。下降攻撃(項目3)でプレイヤーが自分の意思
+    // で下方向へ移動できるようになったため、常時ではなく「近づいたとき
+    // だけ段階的に」警告を出す(常時大きな赤線などにはしない、との明示的
+    // な指示)。Player自身のY座標基準(カメラのY追従はSmoothDampで多少遅
+    // 延するため、下降攻撃のような速い下降中はカメラ側の値だと警告が実
+    // 際の危険より遅れる恐れがある - 見た目の画面位置ではなく実際の危険
+    // 度に忠実な基準を優先)。
+    [Header("Fall Deadline Warning (Direction Attack System Ver.2, item 5)")]
+    // failYまでこの距離を切ったら警告が出始める(この値より遠ければ完全
+    // に非表示 - 通常プレイでは見えない、という要件)。
+    public float deadlineWarningStartDistance = 5f;
+    public Color deadlineWarningColor = new Color(0.75f, 0.12f, 0.12f);
+    // 警告が画面を覆う最大高さ(画面高さに対する割合) - 最大接近時でも
+    // 画面の下側だけに留め、視界の大部分を邪魔しない。
+    public float deadlineWarningMaxHeightFraction = 0.32f;
+    public float deadlineWarningMaxAlpha = 0.4f;
     // Visually tilts the whole player to match the ground slope while
     // grounded (never while airborne/jumping, and never on the always-flat
     // sky path), so an upright sprite doesn't show a wedge-shaped gap on
@@ -61,8 +95,51 @@ public class PlayerController : MonoBehaviour
     public float hitboxScaleStep = 0.18f;
     public float hitboxReachStep = 0.25f;
 
-    [Header("Touch Controls")]
-    public float swipeThreshold = 60f;
+    // Operation System Ver.2, item 2 - "上フリック=ジャンプ攻撃"。物理挙動
+    // は既存のジャンプ(velocityY=jumpForce)をそのまま流用、見た目だけ
+    // 「攻撃しながら上昇している」ように専用のHitbox+Slash FXを追加する。
+    // isAttacking/comboCount/DoAttackの3段コンボ系統には一切触れない、
+    // 完全に独立した仕組み(既存Forward/Backwardコンボを壊さないため) -
+    // 詳細はDoUpAttackのコメント参照。地上からの1段目(通常ジャンプ相当)/
+    // 空中での2段目(二段ジャンプ相当)でSlash FXのステージ・SEを変えて
+    // 「上昇するにつれて強くなる」印象だけ出す(既存の
+    // AttackSlashVisual.SetComboStage/AudioManager.PlayAttackをそのまま
+    // 再利用、新規アセット不要)。
+    [Header("Up Attack (Flick Ver.2 - jump-linked, separate from the Forward/Backward combo)")]
+    public Collider2D upAttackHitbox;
+    public AttackSlashVisual upAttackSlashVisual;
+    public float upAttackActiveTime = 0.28f;
+
+    // 方向攻撃システム Ver.2、項目3 - "空中で↓フリック=下降攻撃"。上昇攻撃
+    // (DoUpAttack)と同じ「isAttacking/comboCount/DoAttackの3段コンボ系統
+    // には一切関与しない独立した仕組み」という設計方針をそのまま踏襲。
+    // 上昇攻撃が「短いパルス」だったのに対し、下降攻撃は「着地するまで持
+    // 続するHitbox+専用アニメーション」という違いがある(DoDiveAttack/
+    // Move()の着地処理参照)。地上での↓フリックは項目4の指示どおり無効
+    // (isGrounded中はこのHitbox/Stateが一切トリガーされない)。
+    [Header("Down Attack (Flick Ver.2 - air-only dive attack, separate from the Forward/Backward combo)")]
+    public Collider2D downAttackHitbox;
+    public AttackSlashVisual downAttackSlashVisual;
+    // "素早く下降" - 通常の重力落下より明確に速い、一定の下降速度に上書き
+    // する(重力による自然加速ではなく、攻撃の勢いによる下降という体感を
+    // 優先)。
+    public float diveAttackSpeed = 16f;
+
+    // Operation System Ver.2 (2026-09-06) - 旧「タップ=ジャンプ/前後スワイ
+    // プ=攻撃」を廃止し、全操作を上/前/後の3方向フリックに統一。
+    // フリック成立は指を離すまで待たず(pointerDown中に閾値超過した瞬間に
+    // 発動)、閾値は「距離」(flickDistanceThreshold、じっくりした操作向け)
+    // と「速度」(flickVelocityThreshold、素早い短いフリック向け - 上攻撃
+    // =実質ジャンプの反応遅延を大きくしないため特に重要)の2way判定。
+    // 斜めフリックは3方向のうち最も近いものへ内積で吸着させる
+    // (ClassifyFlickDirection参照) - 「厳密な方向入力を要求しない」との
+    // 指示どおり、下向きフリックも自動的にForward/Backwardいずれかへ解決
+    // される(Up方向とは常に90°以上離れるため誤ってUpと判定されることは
+    // ない)。
+    [Header("Touch Controls - Flick Ver.2")]
+    public float flickDistanceThreshold = 60f;
+    public float flickVelocityThreshold = 1400f;
+    public float flickMinDistanceForVelocityTrigger = 16f;
 
     [Header("Death")]
     public Sprite explosionParticleSprite;
@@ -135,6 +212,9 @@ public class PlayerController : MonoBehaviour
 
     public bool IsGrounded => isGrounded;
     public bool IsAttacking => isAttacking;
+    // 方向攻撃システム Ver.2、項目3 - PlayerAnimatorのState.DownAttack選択
+    // と、着地/死亡/脱出時のHitbox後始末の両方から参照される。
+    public bool IsDiveAttacking => isDiveAttacking;
     public bool IsHitInvincible => hitInvincibleTimer > 0f;
     public bool IsAscending => isAscending;
     // Item 3/4 - true while actively holding the escape charge (not yet
@@ -287,6 +367,11 @@ public class PlayerController : MonoBehaviour
     bool onSky;
     int jumpsUsed;
     bool isAttacking;
+    // 方向攻撃システム Ver.2、項目3 - trueの間、Move()の落下速度がgravity
+    // 積分の代わりにdiveAttackSpeedへ上書きされ、downAttackHitboxが有効に
+    // なる。着地(landedSky/landedGround)・Fall死亡・GAME OVER・ESCAPE成功
+    // のいずれかで必ずfalseへ戻され、Hitboxも無効化される。
+    bool isDiveAttacking;
     float attackCooldownTimer;
     float startX;
     bool hasDied;
@@ -310,26 +395,20 @@ public class PlayerController : MonoBehaviour
     Vector3 hitboxBaseScale = Vector3.one;
     Vector3 hitboxBaseLocalPos;
 
+    // Operation System Ver.2 - タップ=ジャンプが廃止されたことで、旧
+    // jumpSuppressionAfterAttack(「連続攻撃中の誤ジャンプ」抑制タイマー)
+    // はそもそも起こり得ないバグへの対処だったため丸ごと削除した - タップ
+    // という入力解釈自体が存在しない以上、フリック後の短いタップがジャン
+    // プに化けることも構造的になくなった。
     Vector2 touchStartPos;
+    Vector2 lastPointerPos;
     bool touchActive;
-    bool swipeFiredThisTouch;
-    bool touchJumpRequested;
-    bool touchAttackRequested;
-    float touchAttackDeltaX;
+    bool flickFiredThisTouch;
+    // その場フレームだけ有効な"リクエスト" - UpdatePointerInput()の先頭で
+    // 毎フレームnullへ戻し、そのフレーム内でMove()(Up方向のみ消費)と
+    // HandleAttackInput()(Forward/Backwardのみ消費)の両方から参照される。
+    FlickDirection? requestedFlick;
     bool wasStarted;
-
-    // Input fix - "連続攻撃中の誤ジャンプ". A real swipe already never
-    // re-classifies as a tap for the rest of THAT touch (swipeFiredThisTouch
-    // stays true until release, see below - this part already worked). The
-    // actual bug: rapid successive swipes can produce a brief stray touch-
-    // down/up pair that never crosses swipeThreshold, which a fresh touch
-    // legitimately reads as a tap -> Jump. This window suppresses ONLY that
-    // Jump interpretation for a short beat right after a real swipe fires -
-    // never the attack/swipe detection itself, so the very next real swipe
-    // still fires instantly regardless of this timer ("攻撃をロックするの
-    // ではなくJump判定だけ抑制する" from the brief).
-    public float jumpSuppressionAfterAttack = 0.18f;
-    float jumpSuppressedUntil = -1f;
 
     void Awake()
     {
@@ -348,6 +427,8 @@ public class PlayerController : MonoBehaviour
             hitboxBaseScale = attackHitbox.transform.localScale;
             hitboxBaseLocalPos = attackHitbox.transform.localPosition;
         }
+        if (upAttackHitbox != null) upAttackHitbox.enabled = false;
+        if (downAttackHitbox != null) downAttackHitbox.enabled = false;
     }
 
     void Update()
@@ -362,9 +443,9 @@ public class PlayerController : MonoBehaviour
         {
             // Just started this frame: discard any pointer state left over
             // from the tap that started the game, so it doesn't also count
-            // as a jump/attack input.
+            // as a flick input.
             touchActive = false;
-            swipeFiredThisTouch = false;
+            flickFiredThisTouch = false;
             wasStarted = true;
         }
 
@@ -412,15 +493,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Reads either the first touch (on device) or the mouse (in the Editor, for
-    // easy testing) and turns it into a tap (jump) or swipe (attack) request.
-    // A swipe fires the moment the finger crosses the threshold while still
-    // down, so it feels immediate; a short, small movement counts as a tap
-    // only once the finger is lifted.
+    // Operation System Ver.2 - reads either the first touch (on device) or
+    // the mouse (in the Editor, for easy testing) and classifies it into one
+    // of exactly 3 flick directions (Up/Forward/Backward - see
+    // ClassifyFlickDirection). A flick fires the moment either the total
+    // drag distance crosses flickDistanceThreshold OR (for a fast short
+    // flick, so the "上攻撃=実質ジャンプ" input-to-action delay stays low)
+    // this frame's instantaneous speed crosses flickVelocityThreshold while
+    // already past a small minimum distance - in both cases WHILE the
+    // finger is still down, never waiting for release (item 6). Releasing
+    // without ever crossing either threshold now does nothing at all (item
+    // 5 - tap-jump is gone).
     void UpdatePointerInput()
     {
-        touchJumpRequested = false;
-        touchAttackRequested = false;
+        requestedFlick = null;
 
         Vector2 pointerPos;
         bool pointerJustDown, pointerJustUp, pointerDown;
@@ -444,28 +530,57 @@ public class PlayerController : MonoBehaviour
         if (pointerJustDown)
         {
             touchStartPos = pointerPos;
+            lastPointerPos = pointerPos;
             touchActive = true;
-            swipeFiredThisTouch = false;
+            flickFiredThisTouch = false;
         }
-        else if (pointerDown && touchActive && !swipeFiredThisTouch)
+        else if (pointerDown && touchActive && !flickFiredThisTouch)
         {
-            if (Vector2.Distance(pointerPos, touchStartPos) >= swipeThreshold)
+            Vector2 totalDelta = pointerPos - touchStartPos;
+            float totalDist = totalDelta.magnitude;
+            float frameDist = (pointerPos - lastPointerPos).magnitude;
+            float frameSpeed = Time.unscaledDeltaTime > 0f ? frameDist / Time.unscaledDeltaTime : 0f;
+
+            bool distanceTrigger = totalDist >= flickDistanceThreshold;
+            bool velocityTrigger = totalDist >= flickMinDistanceForVelocityTrigger && frameSpeed >= flickVelocityThreshold;
+
+            if (distanceTrigger || velocityTrigger)
             {
-                touchAttackRequested = true;
-                touchAttackDeltaX = pointerPos.x - touchStartPos.x;
-                swipeFiredThisTouch = true;
-                jumpSuppressedUntil = Time.unscaledTime + jumpSuppressionAfterAttack;
+                requestedFlick = ClassifyFlickDirection(totalDelta);
+                flickFiredThisTouch = true;
             }
         }
 
-        if (pointerJustUp && touchActive)
-        {
-            if (!swipeFiredThisTouch && Time.unscaledTime >= jumpSuppressedUntil)
-            {
-                touchJumpRequested = true;
-            }
-            touchActive = false;
-        }
+        if (pointerDown) lastPointerPos = pointerPos;
+        if (pointerJustUp) touchActive = false;
+
+        // Editor/keyboard test convenience (mirrors the old Space=jump/
+        // Z,B=attack shortcuts) - bypasses the drag-distance system
+        // entirely, since a key press has no drag distance to measure.
+        if (Input.GetKeyDown(KeyCode.Space)) requestedFlick = FlickDirection.Up;
+        else if (Input.GetKeyDown(KeyCode.Z)) requestedFlick = FlickDirection.Forward;
+        else if (Input.GetKeyDown(KeyCode.B)) requestedFlick = FlickDirection.Backward;
+    }
+
+    // 方向攻撃システム Ver.2、項目7 - 4方向化後も「斜めフリックなどは、最
+    // も近い基本方向へ吸着させる...厳密な方向入力を要求するゲームにはし
+    // ないでください」は不変。4方向それぞれの単位ベクトルとの内積(=cos
+    // (なす角)相当)が最大のものを選ぶだけで、角度計算なしに「最も近い方
+    // 向」への吸着が実現できる(downDot = -upDotなので実質2回のDot計算で
+    // 4方向すべて判定可能)。Forward/Backwardはワールド+X(自動前進方向)
+    // を基準にしており、画面の向き・回転に依存しない。
+    static FlickDirection ClassifyFlickDirection(Vector2 delta)
+    {
+        Vector2 dir = delta.normalized;
+        float upDot = Vector2.Dot(dir, Vector2.up);
+        float downDot = -upDot;
+        float fwdDot = dir.x; // Vector2.Dot(dir, Vector2.right)
+        float backDot = -fwdDot;
+
+        float best = Mathf.Max(Mathf.Max(upDot, downDot), Mathf.Max(fwdDot, backDot));
+        if (best == upDot) return FlickDirection.Up;
+        if (best == downDot) return FlickDirection.Down;
+        return best == fwdDot ? FlickDirection.Forward : FlickDirection.Backward;
     }
 
     float GetSpeedMultiplier()
@@ -504,7 +619,12 @@ public class PlayerController : MonoBehaviour
         float? prevSkyHeight = TerrainManager.Instance != null ? TerrainManager.Instance.GetSkyHeightAt(prevX) : null;
         float prevY = transform.position.y;
 
-        bool jumpPressed = allowJump && (Input.GetKeyDown(KeyCode.Space) || touchJumpRequested);
+        // Operation System Ver.2, item 2 - 旧タップ判定(touchJumpRequested)
+        // を廃止し、上フリック(requestedFlick==Up)のみがジャンプを起動す
+        // る。物理挙動(velocityY/jumpsUsed等)自体は完全に既存のまま - 上
+        // フリックは「ジャンプの新しい起動トリガー」であって、ジャンプの
+        // 挙動そのものを変えるものではない。
+        bool jumpPressed = allowJump && requestedFlick == FlickDirection.Up;
         if (jumpPressed && jumpsUsed < maxJumps)
         {
             velocityY = jumpForce;
@@ -520,6 +640,20 @@ public class PlayerController : MonoBehaviour
                 DoubleJumped?.Invoke();
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayDoubleJump();
             }
+            // Item 2 - "上フリック=ジャンプ攻撃"/"空中でのもう一度=空中上昇
+            // 攻撃"。ジャンプが実際に発動した場合のみ(=jumpsUsed<maxJumpsの
+            // ガードを通過した場合のみ)発火するので、既にmaxJumps使い切っ
+            // ている状態でのUpフリックは何も起きない(仕様どおり)。
+            StartCoroutine(DoUpAttack(jumpsUsed >= 2));
+        }
+        // 方向攻撃システム Ver.2、項目3/4 - "空中で↓フリック=下降攻撃"、
+        // "地上での↓フリックは無効"。!isGroundedガードがそのまま項目4の
+        // 「地上では無効」要件を実現する - isGrounded中はこの分岐に到達
+        // すらしない。既に下降攻撃中(isDiveAttacking)の再トリガーは無視
+        // (Hitbox/SE/Slash FXの再スタートによる違和感を避けるため)。
+        else if (allowJump && !isGrounded && !isDiveAttacking && requestedFlick == FlickDirection.Down)
+        {
+            DoDiveAttack();
         }
         else if (isGrounded)
         {
@@ -539,7 +673,12 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            velocityY -= gravity * dt;
+            // 項目3 - 下降攻撃中は通常の重力加速ではなく、一定の速い下降
+            // 速度に固定("単純に落下速度を上げるだけではなく...攻撃した
+            // 結果、その勢いで下降している"という体感を優先 - 毎フレーム
+            // 同じ速度を再代入することで、通常落下との違いを明確にする)。
+            if (isDiveAttacking) velocityY = -diveAttackSpeed;
+            else velocityY -= gravity * dt;
             newY = prevY + velocityY * dt;
 
             // Only land if we actually crossed a surface this frame. We
@@ -584,6 +723,7 @@ public class PlayerController : MonoBehaviour
                 isGrounded = true;
                 jumpsUsed = 0;
                 onSky = true;
+                EndDiveAttack();
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
                 Landed?.Invoke();
             }
@@ -594,6 +734,7 @@ public class PlayerController : MonoBehaviour
                 isGrounded = true;
                 jumpsUsed = 0;
                 onSky = false;
+                EndDiveAttack();
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
                 Landed?.Invoke();
             }
@@ -708,6 +849,7 @@ public class PlayerController : MonoBehaviour
         lungeVelocityX = 0f;
         onSky = false;
         transform.localScale = Vector3.one;
+        EndDiveAttack();
 
         float x = transform.position.x;
         if (TerrainManager.Instance != null)
@@ -769,6 +911,8 @@ public class PlayerController : MonoBehaviour
         if (escapeRingRenderer != null) escapeRingRenderer.enabled = false;
         lungeVelocityX = 0f;
         if (attackHitbox != null) attackHitbox.enabled = false;
+        if (upAttackHitbox != null) upAttackHitbox.enabled = false;
+        EndDiveAttack();
 
         // CameraFollow freezes the camera the instant isAscending flips true
         // (above), so its current framing IS the frame the player needs to
@@ -834,10 +978,43 @@ public class PlayerController : MonoBehaviour
     {
         if (GameManager.Instance == null || GameManager.Instance.IsGameOver) return;
 
+        DrawFallDeadlineWarning();
+
         if (IsEscapeCharging)
         {
             DrawEscapeChargeGauge();
         }
+    }
+
+    // 方向攻撃システム Ver.2、項目5/6 - 画面下部を何本もの水平ストリップ
+    // に分けてAlphaを線形補間するだけの実装(専用シェーダー/グラデーショ
+    // ンテクスチャ不要、GUI.DrawTexture+GUI.colorのみ - DrawEscapeChargeGauge
+    // と同じ既存IMGUIの使い方に揃えている)。「下ほど濃い霧」+「近づくほ
+    // ど全体のIntensityが強くなる」の2軸で「段階的な表示」(項目5の要件)
+    // を表現する。deadlineWarningStartDistanceより遠ければ即return - 常
+    // 時は完全に非表示。
+    void DrawFallDeadlineWarning()
+    {
+        if (isAscending) return; // ESCAPE成功後の上昇中は無関係な警告を出さない
+
+        float distance = transform.position.y - failY;
+        float intensity = Mathf.Clamp01((deadlineWarningStartDistance - distance) / Mathf.Max(0.01f, deadlineWarningStartDistance));
+        if (intensity <= 0.001f) return;
+
+        const int stripCount = 20;
+        float maxHeight = Screen.height * deadlineWarningMaxHeightFraction;
+        float stripHeight = maxHeight / stripCount;
+
+        Color prev = GUI.color;
+        for (int i = 0; i < stripCount; i++)
+        {
+            float fadeT = stripCount > 1 ? (float)i / (stripCount - 1) : 0f; // 0=画面最下部(最も濃い) -> 1=霧の上端(透明)
+            float alpha = Mathf.Lerp(deadlineWarningMaxAlpha, 0f, fadeT) * intensity;
+            float y = Screen.height - (i + 1) * stripHeight;
+            GUI.color = new Color(deadlineWarningColor.r, deadlineWarningColor.g, deadlineWarningColor.b, alpha);
+            GUI.DrawTexture(new Rect(0f, y, Screen.width, stripHeight + 1f), Texture2D.whiteTexture);
+        }
+        GUI.color = prev;
     }
 
     // Item 3 - "実際には文字主体ではなく、円形ゲージを中心にしてくださ
@@ -892,6 +1069,8 @@ public class PlayerController : MonoBehaviour
     {
         if (sr != null) sr.enabled = false;
         if (attackHitbox != null) attackHitbox.enabled = false;
+        if (upAttackHitbox != null) upAttackHitbox.enabled = false;
+        EndDiveAttack();
 
         // "最後の被弾 -> Player死亡状態 -> Death SE -> 短い死亡Visual ->
         // GAME OVER" (Game Feel pass, section 12) - Death SE plays instead
@@ -914,22 +1093,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Returns the attack direction requested THIS frame, or null if no
-    // attack input happened this frame.
-    AttackDirection? GetRequestedAttackDirection()
-    {
-        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.B)) return AttackDirection.Neutral;
-        if (touchAttackRequested)
-        {
-            return touchAttackDeltaX >= 0f ? AttackDirection.Forward : AttackDirection.Backward;
-        }
-        return null;
-    }
-
+    // Operation System Ver.2, item 3/4 - Up方向は既存のForward/Backwardコ
+    // ンボチェーンに一切関与しない(Move()側のDoUpAttackで独立に処理済み -
+    // その専用コメント参照)ので、ここではForward/Backwardだけをそのまま
+    // AttackDirectionへ1:1変換する。既存の3段コンボ/Lunge/Recoil処理
+    // (DoAttack以下)はコード変更なしでそのまま動く。
     void HandleAttackInput()
     {
         attackCooldownTimer -= Time.deltaTime;
-        AttackDirection? requested = GetRequestedAttackDirection();
+        AttackDirection? requested = requestedFlick switch
+        {
+            FlickDirection.Forward => AttackDirection.Forward,
+            FlickDirection.Backward => AttackDirection.Backward,
+            _ => (AttackDirection?)null
+        };
         if (requested == null) return;
 
         if (!isAttacking && attackCooldownTimer <= 0f)
@@ -993,6 +1170,51 @@ public class PlayerController : MonoBehaviour
             comboBuffered = false;
             StartCoroutine(DoAttack(bufferedDirection));
         }
+    }
+
+    // Operation System Ver.2, item 2 - "上フリック=ジャンプ攻撃"/"空中で
+    // もう一度=空中上昇攻撃"。isAttacking/comboCount/DoAttackの3段コンボ系
+    // 統には一切触れない、独立した短いHitbox+Slash FXパルスとして実装 -
+    // 上フリックは仕様上「ジャンプ回数(1段目=地上発射、2段目=空中)」に直
+    // 結しており、Forward/Backwardのような3段コンボではないため、既存コ
+    // ンボチェーンへ無理に統合するより完全に分離した方が既存処理を壊すリ
+    // スクがない(brief item 3の"既存処理を優先して流用"の精神)。
+    // キャラクター本体のポーズは新規アニメーションを起こさず、既存の
+    // JumpStart/DoubleJumpアニメーション(PlayerAnimator、JumpStarted/
+    // DoubleJumped イベント経由・本メソッドとは無関係に既に再生される)を
+    // そのまま「上昇攻撃の見た目」として流用し、このHitbox+回転させた
+    // Slash FX(既存のAttackSlashFxスプライトをそのまま再利用、新規アート
+    // 不要)を重ねることで「攻撃している」印象を追加する、という設計判断
+    // - 現時点で新規手描きアニメーションを起こす手段がないため、既存素材
+    // の組み合わせで違和感なく繋がる形を優先した(マスターへの開示事項)。
+    IEnumerator DoUpAttack(bool isAirborne)
+    {
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(isAirborne ? 2 : 1);
+        if (upAttackSlashVisual != null) upAttackSlashVisual.SetComboStage(isAirborne ? 2 : 1, AttackRangeMultiplier);
+        if (upAttackHitbox != null) upAttackHitbox.enabled = true;
+
+        yield return new WaitForSeconds(upAttackActiveTime);
+
+        if (upAttackHitbox != null) upAttackHitbox.enabled = false;
+    }
+
+    // 方向攻撃システム Ver.2、項目3 - 上昇攻撃(短いパルス)とは違い、下降
+    // 攻撃は「着地するまで持続する」ため、コルーチンではなく単純にフラグ
+    // /Hitboxを立てるだけ(Move()自身が毎フレームisDiveAttackingを見て
+    // velocityYを上書きし続ける)。EndDiveAttack()が着地/Fall死亡/GAME
+    // OVER/ESCAPE成功のいずれからも呼ばれ、後始末を一箇所に集約している。
+    void DoDiveAttack()
+    {
+        isDiveAttacking = true;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(2);
+        if (downAttackSlashVisual != null) downAttackSlashVisual.SetComboStage(1, AttackRangeMultiplier);
+        if (downAttackHitbox != null) downAttackHitbox.enabled = true;
+    }
+
+    void EndDiveAttack()
+    {
+        isDiveAttacking = false;
+        if (downAttackHitbox != null) downAttackHitbox.enabled = false;
     }
 
     // Grows the (invisible) attack hitbox across the combo chain - stage 1

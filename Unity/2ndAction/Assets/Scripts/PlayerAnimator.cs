@@ -21,6 +21,13 @@ public class PlayerAnimator : MonoBehaviour
     public Sprite[] jumpStartFrames;
     public Sprite[] doubleJumpFrames;
     public Sprite[] landFrames;
+    // Direction Attack System Ver.2 (2026-09-07), item 3 - dedicated "下降
+    // 攻撃" body animation, held for the whole PlayerController.IsDiveAttacking
+    // duration (see Update()'s own State.DownAttack branch) rather than a
+    // one-shot timer like jumpStart/doubleJump above, since a dive's actual
+    // duration depends on how far the player is from the ground, not a
+    // fixed clip length.
+    public Sprite[] downAttackFrames;
     public float runFps = 10f;
     public float jumpFps = 10f;
     public float attackFps = 12f;
@@ -29,11 +36,12 @@ public class PlayerAnimator : MonoBehaviour
     public float jumpStartFps = 7f;
     public float doubleJumpFps = 9f;
     public float landFps = 7f;
+    public float downAttackFps = 11f;
 
     [Header("Brighten overlay (emphasizes white on the dark source art)")]
     public Color brightenColor = new Color(1f, 1f, 1f, 0.15f);
 
-    enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack }
+    enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack }
 
     SpriteRenderer sr;
     SpriteRenderer brightenOverlay;
@@ -123,10 +131,17 @@ public class PlayerAnimator : MonoBehaviour
         bool attacking = controller != null && controller.IsAttacking && attackFrames != null && attackFrames.Length > 0;
         bool grounded = controller == null || controller.IsGrounded;
         int attackStage = controller != null ? controller.CurrentAttackStage : 2;
+        // Direction Attack System Ver.2, item 3 - checked below Landing (so
+        // touching ground always overrides it the instant it happens, same
+        // priority slot JumpStart/DoubleJump already use) but above the
+        // plain Jump fallback, so a dive-attack always shows its own pose
+        // rather than the generic falling loop.
+        bool diveAttacking = controller != null && controller.IsDiveAttacking && downAttackFrames != null && downAttackFrames.Length > 0;
 
         State newState;
         if (attacking) newState = State.Attack;
         else if (grounded && landTimer > 0f) newState = State.Landing;
+        else if (!grounded && diveAttacking) newState = State.DownAttack;
         else if (!grounded && doubleJumpTimer > 0f) newState = State.DoubleJump;
         else if (!grounded && jumpStartTimer > 0f) newState = State.JumpStart;
         else if (!grounded) newState = State.Jump;
@@ -146,6 +161,7 @@ public class PlayerAnimator : MonoBehaviour
             State.JumpStart => jumpStartFrames,
             State.DoubleJump => doubleJumpFrames,
             State.Landing => landFrames,
+            State.DownAttack => downAttackFrames,
             _ => runFrames
         };
         if (frames == null || frames.Length == 0) return;
@@ -157,6 +173,7 @@ public class PlayerAnimator : MonoBehaviour
             State.JumpStart => jumpStartFps,
             State.DoubleJump => doubleJumpFps,
             State.Landing => landFps,
+            State.DownAttack => downAttackFps,
             _ => runFps
         };
 

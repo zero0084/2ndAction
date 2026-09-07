@@ -28,6 +28,30 @@ public static class HitStop
 
         if (activeCount == 0)
         {
+            // Bugfix 2026-09-06 - root cause of "Boss撃破後にゲームが停止
+            // する". activeCount==0 means no OTHER HitStop.Freeze call
+            // currently owns the timeScale=0 state - but Time.timeScale
+            // can still already be <=0 for a completely unrelated reason
+            // (Level Up/Boss Reward's own direct Time.timeScale=0 pause,
+            // or Boss Milestone's tempo-down). If a stray Enemy hit
+            // reaction (HitAndDie/NonLethalHit, EnemyController.cs) landed
+            // during that window - e.g. an attack hitbox already
+            // overlapping a second enemy the same physics step the last
+            // Boss died - this method used to capture 0 as "the value to
+            // restore to", then restore exactly that 0 after its own brief
+            // duration, WELL AFTER the Boss Reward pause had already
+            // legitimately resolved and set Time.timeScale back to 1
+            // (ApplyUpgradeByCardId) - permanently re-freezing the run
+            // with no further event left to un-freeze it. Since we're not
+            // the one holding time at 0 in this case, we must not manage
+            // it at all - just wait out the duration for the caller's own
+            // animation timing and let whichever system actually owns the
+            // pause resolve it on its own schedule.
+            if (Time.timeScale <= 0f)
+            {
+                yield return new WaitForSecondsRealtime(durationRealSeconds);
+                yield break;
+            }
             capturedTimeScale = Time.timeScale;
             Time.timeScale = 0f;
         }

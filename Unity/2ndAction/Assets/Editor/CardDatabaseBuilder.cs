@@ -261,21 +261,36 @@ public static class CardDatabaseBuilder
             rarity = 3, unlockDistance = 5000f, gachaStage = 2
         };
 
-        // Distance-unlock system Ver.0.1 test content (see
-        // UnlockDatabaseBuilder, unlocked at 500m for Deck purposes - that
-        // gate is completely separate from the new Gacha unlockDistance
-        // below, see CardDefinition.unlockDistance's own comment) - reuses
-        // the existing ArrowUp glyph rather than adding new glyph-drawing
-        // code, since this card only exists to verify the unlock pipeline
-        // end-to-end. Swap its icon/description/effect any time real
-        // content replaces it.
+        // Distance-unlock system Ver.0.1 test content - reuses the existing
+        // ArrowUp glyph rather than adding new glyph-drawing code, since
+        // this card only exists to verify the unlock pipeline end-to-end.
+        // Swap its icon/description/effect any time real content replaces
+        // it.
+        //
+        // Bugfix 2026-09-06, item "Card Unlockシステムを一元化" - this
+        // card's 500m gate used to live ONLY in a separate UnlockManager/
+        // UnlockDefinition entry (unlock_pathfinder_card_500m,
+        // UnlockType.Card), completely independent of unlockDistance below
+        // (which sat at 0, i.e. "always eligible") - so this card was
+        // already drawable from the Gacha machine at 0m (BuildGachaPool
+        // reads unlockDistance/gachaStage directly, never that separate
+        // entry) while simultaneously excluded from the starter-deck-fill/
+        // corrupted-deck-fallback pool until 500m (those read
+        // CardDatabase.UnlockedCards, which DID check the separate entry) -
+        // exactly the "two gates can disagree" risk the brief called out.
+        // Now unified: unlockDistance carries the real 500m gate directly,
+        // and CardDatabase.UnlockedCards reads this same field (see its own
+        // comment) instead of the old separate entry. The
+        // UnlockDefinition asset itself was deleted (see
+        // UnlockDatabaseBuilder.Specs) rather than left as dead
+        // configuration.
         yield return new Spec
         {
             id = "pathfinder", name = "PATHFINDER", sortOrder = 16, category = CardCategory.Growth,
             description = "遠くまで到達した証。経験値獲得量が少し増加する",
             glyph = IconGlyph.ArrowUp, glyphColor = new Color(0.3f, 0.85f, 0.75f),
             effects = new[] { (EffectType.ExpGain, 0.1f) },
-            rarity = 2, gachaStage = 1
+            rarity = 2, unlockDistance = 500f, gachaStage = 1
         };
 
         // ===== Card Expansion/Gacha Evolution Ver.1 - new cards ===== //
