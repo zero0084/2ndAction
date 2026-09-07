@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using UnityEngine;
 
@@ -142,7 +143,9 @@ public static class BossDiagnostics
         lastException = $"{condition}\n{stackTrace}";
         bool isBossPhase = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
         if (!isBossPhase) return; // 次のSnapshotのためlastExceptionには残すが、強制Dumpするのは実際にBoss Phase中の例外のみ
-        Debug.LogError("[BOSS ERROR SNAPSHOT]\n" + BuildSnapshot());
+        string snapshot = BuildSnapshot();
+        Debug.LogError("[BOSS ERROR SNAPSHOT]\n" + snapshot);
+        RecordSnapshot(snapshot);
     }
 
     // ===== 項目3 - Freeze Watchdog(検知してLogを出すだけ、修正はしない) ===== //
@@ -283,7 +286,37 @@ public static class BossDiagnostics
     static void ReportSuspected(string reason)
     {
         LogEvent("[FREEZE SUSPECTED] " + reason);
-        Debug.LogWarning("[BOSS FREEZE SUSPECTED] " + reason + "\n" + BuildSnapshot());
+        string snapshot = BuildSnapshot();
+        Debug.LogWarning("[BOSS FREEZE SUSPECTED] " + reason + "\n" + snapshot);
+        RecordSnapshot("[FREEZE SUSPECTED] " + reason + "\n\n" + snapshot);
+    }
+
+    // Bugfix 2026-09-08 - マスターから「そのファイルはどこにある?スマホ
+    // 内?」との質問。logcat/adbが使える前提を置かず、誰でもすぐ読める形
+    // にするための2本立て: (1) 画面上に直接スクロール可能なテキストとして
+    // 表示する(showSnapshotOverlay - フリーズ検知/例外検知で自動的に開く
+    // ので、その場でスクリーンショットを撮るだけで済む。IMGUI/OnGUIは
+    // Time.timeScale==0の間も普通に動くため、本当にフリーズしていても
+    // ボタン操作・表示は機能する)、(2) 念のためAndroidの
+    // Application.persistentDataPath配下にもテキストファイルとして追記
+    // 保存する(PC接続時にファイルとして取り出したい場合向け、必須ではない)。
+    static string lastSnapshotText = "(まだSnapshotは記録されていません)";
+    static bool showSnapshotOverlay;
+    static Vector2 snapshotScrollPos;
+
+    static void RecordSnapshot(string text)
+    {
+        lastSnapshotText = text;
+        showSnapshotOverlay = true;
+        try
+        {
+            string path = Path.Combine(Application.persistentDataPath, "boss_freeze_log.txt");
+            File.AppendAllText(path, $"\n===== {DateTime.Now:yyyy-MM-dd HH:mm:ss} =====\n{text}\n");
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("[BossDiagnostics] Failed to write boss_freeze_log.txt: " + e);
+        }
     }
 
     // ===== 項目2/10 - Debug Snapshot ===== //
@@ -417,7 +450,54 @@ public static class BossDiagnostics
         buttonStyle.hover.textColor = Color.white;
         if (GUI.Button(new Rect(panelRect.x + 8f, y, panelRect.width - 16f, 28f), "Dump Snapshot Now (手動)", buttonStyle))
         {
-            Debug.Log("[BOSS MANUAL SNAPSHOT]\n" + BuildSnapshot());
+            string snapshot = BuildSnapshot();
+            Debug.Log("[BOSS MANUAL SNAPSHOT]\n" + snapshot);
+            RecordSnapshot(snapshot);
         }
+    }
+
+    // Bugfix 2026-09-08 - 画面に直接表示するSnapshotビューア。DrawDebugPanel
+    // と同じくDebugMode時のみGameManager.OnGUIから呼ばれる想定だが、こちら
+    // はshowSnapshotOverlayがtrueの間だけ実際に描画される(=フリーズ/例外
+    // 検知で自動的に開くか、手動Dumpボタンを押した直後のみ)。スクリーン
+    // ショットを撮ればそのままテキストとして残せるよう、大きめのフォント・
+    // 十分な行間・スクロール可能な領域で表示する。
+    public static void DrawSnapshotOverlayIfAny()
+    {
+        if (!showSnapshotOverlay) return;
+
+        Rect area = new Rect(Screen.width * 0.04f, Screen.height * 0.05f, Screen.width * 0.92f, Screen.height * 0.85f);
+        UiBackdrop.Draw(area, 0.95f);
+
+        GUIStyle headerStyle = new GUIStyle(GUI.skin.label)
+        {
+            fontSize = 15,
+            fontStyle = FontStyle.Bold,
+            normal = { textColor = new Color(1f, 0.92f, 0.6f) }
+        };
+        GUI.Label(new Rect(area.x + 10f, area.y + 6f, area.width - 120f, 26f), "Boss Freeze Snapshot (スクリーンショットして保存してください)", headerStyle);
+
+        GUIStyle closeStyle = new GUIStyle(GUI.skin.button) { fontSize = 14, normal = { textColor = Color.white } };
+        if (GUI.Button(new Rect(area.xMax - 100f, area.y + 4f, 90f, 30f), "閉じる", closeStyle))
+        {
+            showSnapshotOverlay = false;
+            return;
+        }
+
+        GUIStyle textStyle = new GUIStyle(GUI.skin.label)
+        {
+            fontSize = 13,
+            wordWrap = true,
+            alignment = TextAnchor.UpperLeft,
+            normal = { textColor = Color.white }
+        };
+
+        Rect viewRect = new Rect(area.x + 10f, area.y + 42f, area.width - 20f, area.height - 52f);
+        float innerWidth = viewRect.width - 24f; // scrollbar分を差し引いておく
+        float contentHeight = Mathf.Max(viewRect.height, textStyle.CalcHeight(new GUIContent(lastSnapshotText), innerWidth) + 20f);
+
+        snapshotScrollPos = GUI.BeginScrollView(viewRect, snapshotScrollPos, new Rect(0f, 0f, innerWidth, contentHeight));
+        GUI.Label(new Rect(0f, 0f, innerWidth, contentHeight), lastSnapshotText, textStyle);
+        GUI.EndScrollView();
     }
 }

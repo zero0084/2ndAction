@@ -2360,6 +2360,11 @@ public class GameManager : MonoBehaviour
         // 分岐の外(=Level Up/Boss Reward/Pauseで隠れている最中でも見える
         // 位置)に置く。まさにFreeze中こそこのパネルを見たいため。
         if (HasStarted && DebugMode) BossDiagnostics.DrawDebugPanel();
+        // Bugfix 2026-09-08 - マスターから「Snapshotファイルはどこにある
+        // か」との質問。logcat/adbを前提にせず、フリーズ/例外検知時に自動
+        // で画面上に直接テキスト表示する(手動Dumpボタンでも同様) - スク
+        // リーンショットを撮るだけで内容を保存・共有できる。
+        if (HasStarted && DebugMode) BossDiagnostics.DrawSnapshotOverlayIfAny();
 
         // Drawn first (before every other element) so everything else on
         // the top screen layers on top of it, and only while that screen
