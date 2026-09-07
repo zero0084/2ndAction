@@ -1626,6 +1626,18 @@ public class GameManager : MonoBehaviour
         pendingChoices = null;
         Time.timeScale = 1f;
         pendingChoiceStuckTimer = 0f;
+        // Bugfix 2026-09-08 - lastLevelUpDiagnostic (Debug Mode's
+        // "rewardCardSequence OK, starting sequence..." on-screen text) used
+        // to never get cleared anywhere - it's a plain string field set once
+        // in RunLevelUpChoice and never reset, so it stayed on screen for
+        // the rest of the run even after that particular Level Up fully
+        // resolved. Master mistook a stale one (left over from an earlier,
+        // already-resolved Level Up much earlier in the run) for evidence
+        // about a LATER, unrelated freeze in a Freeze Snapshot screenshot -
+        // clearing it here (and at every other place a pending choice
+        // resolves, see ApplyUpgradeByCardId/FinishRun) so it only ever
+        // reflects a genuinely still-in-flight sequence.
+        lastLevelUpDiagnostic = "";
 
         if (wasBossReward)
         {
@@ -1958,6 +1970,10 @@ public class GameManager : MonoBehaviour
             levelUpPending = false;
             pendingChoices = null;
             Time.timeScale = 1f;
+            // Bugfix 2026-09-08 - see UpdatePendingChoiceWatchdog's matching
+            // comment for why this needs clearing on every resolution path,
+            // not just left to persist until the next Level Up overwrites it.
+            lastLevelUpDiagnostic = "";
             LogBossRewardStage("GameplayResume/InputResume (Time.timeScale=1f, levelUpPending=false)");
             if (wasBossReward) LogBoss("GameplayResume");
 
@@ -2114,6 +2130,7 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         levelUpPending = false;
         pendingChoices = null;
+        lastLevelUpDiagnostic = ""; // Bugfix 2026-09-08 - see UpdatePendingChoiceWatchdog's matching comment
         // Time.time itself doesn't advance while paused for a level-up
         // choice (Time.timeScale = 0), so this naturally excludes any time
         // spent on those pauses from the recorded run time.
