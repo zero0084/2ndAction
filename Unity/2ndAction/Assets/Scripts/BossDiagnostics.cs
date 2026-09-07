@@ -63,6 +63,7 @@ public static class BossDiagnostics
     static bool lastLevelUpPending;
     static GameManager.PendingChoiceKind lastPendingChoiceKind;
     static bool lastInputEnabled;
+    static bool lastHitStopActive;
     static string lastStateTransition = "(none)";
 
     // GameManager.Update()から毎フレーム呼ばれる(既存のUpdateDeferred*系と
@@ -79,6 +80,7 @@ public static class BossDiagnostics
         GameManager.PendingChoiceKind pendingChoiceKind = gm.CurrentPendingChoiceKind;
         bool inputEnabled = Time.timeScale > 0f;
         float timeScale = Time.timeScale;
+        bool hitStopActive = HitStop.IsActive;
 
         if (!initializedTransitionTracking)
         {
@@ -90,6 +92,7 @@ public static class BossDiagnostics
             lastLevelUpPending = levelUpPending;
             lastPendingChoiceKind = pendingChoiceKind;
             lastInputEnabled = inputEnabled;
+            lastHitStopActive = hitStopActive;
             return;
         }
 
@@ -109,6 +112,12 @@ public static class BossDiagnostics
         }
         if (pendingChoiceKind != lastPendingChoiceKind) Transition($"pendingChoice {lastPendingChoiceKind} -> {pendingChoiceKind}");
         if (inputEnabled != lastInputEnabled) Transition($"InputEnabled {lastInputEnabled} -> {inputEnabled}");
+        // Bugfix 2026-09-08 (Bug #001 - "TimeScale Deadlock"仮説) - HitStop
+        // 自身がTime.timeScaleを掴んだ/離した瞬間を直接Ring Bufferへ記録
+        // する。次にFreezeが起きた際、この行が「(true->false)」で終わって
+        // いない(=trueのまま残っている)ことが、まさにこのクラスが原因
+        // だったことの直接的な証拠になる。
+        if (hitStopActive != lastHitStopActive) Transition($"HitStop.IsActive {lastHitStopActive} -> {hitStopActive}");
 
         lastTimeScaleLogged = timeScale;
         lastIsBossPhase = isBossPhase;
@@ -116,6 +125,7 @@ public static class BossDiagnostics
         lastRewardRunning = rewardRunning;
         lastLevelUpPending = levelUpPending;
         lastPendingChoiceKind = pendingChoiceKind;
+        lastHitStopActive = hitStopActive;
         lastInputEnabled = inputEnabled;
     }
 
@@ -171,6 +181,13 @@ public static class BossDiagnostics
     // GameManager.Update()から毎フレーム呼ばれる。
     public static void UpdateFreezeWatchdog()
     {
+        // Bugfix 2026-09-08 - HitStopのリーク監視はBoss Phaseの内外を問わ
+        // ず常に動かす(元々2026-09-06に修正された「同フレーム2体死亡」
+        // バグも通常のEnemy同士の話で、Boss Phase専用の問題ではないため)。
+        // このメソッドの残り(Boss Phase専用のWatchdog群)より先に、かつ
+        // 早期returnの影響を受けない位置で呼ぶ。
+        HitStop.PollForLeakedFreeze();
+
         GameManager gm = GameManager.Instance;
         BossManager bm = BossManager.Instance;
         if (gm == null || bm == null || !gm.HasStarted || gm.IsGameOver)
@@ -361,9 +378,25 @@ public static class BossDiagnostics
         sb.AppendLine($"LevelUpPending: {(gm != null ? gm.LevelUpPending.ToString() : "?")}");
         sb.AppendLine($"LevelUpDeferredPending: {(gm != null ? gm.LevelUpDeferredPending.ToString() : "?")} (PendingLevelUpCount={(gm != null ? gm.PendingLevelUpCount.ToString() : "?")})");
         sb.AppendLine($"BossRewardDeferredPending: {(gm != null ? gm.BossRewardDeferredPending.ToString() : "?")}");
-        sb.AppendLine($"PendingChoice: {(gm != null ? gm.CurrentPendingChoiceKind.ToString() : "?")}");
+        // Bugfix 2026-09-08 - PendingChoiceは「今どちらが実行中か」ではな
+        // く「直近に開始/解決した選択の種類」を指す値で、LevelUpPending/
+        // RewardSequence.IsRunningが両方falseの間は単なる残留値(直近の
+        // 選択が既に正常解決した後もそのまま残る - lastLevelUpDiagnostic
+        // と同種の性質)。ここで明示注記しないと「Boss生存中にBossReward
+        // がPending化されている」ように誤読されかねない(実際に一度この
+        // 誤読が起きた)。
+        bool pendingChoiceCurrentlyLive = gm != null && (gm.LevelUpPending || gm.IsRewardSequenceRunning);
+        sb.AppendLine($"PendingChoice: {(gm != null ? gm.CurrentPendingChoiceKind.ToString() : "?")} ({(pendingChoiceCurrentlyLive ? "現在進行中" : "直近に解決済みの残留値 - 現在Pending中ではない")})");
         sb.AppendLine($"RewardSequence.IsWaitingForSelection: {(gm != null ? gm.IsRewardSequenceWaitingForSelection.ToString() : "?")}");
         sb.AppendLine($"InputEnabled: {Time.timeScale > 0f}");
+        sb.AppendLine();
+        // Bugfix 2026-09-08 (Bug #001 - "TimeScale Deadlock"仮説) - 上の
+        // どのFlagもtrueでない状態でTime.timeScale<=0が続いている場合、
+        // このHitStop.IsActiveが唯一の残る説明候補(コードベース内でTime.
+        // timeScaleへ直接書き込む箇所はBossMilestonePresentation/
+        // RunLevelUpChoice/RunBossRewardChoice/このHitStopの4箇所のみで、
+        // 前3つは上の3つのFlagで既に追跡済みのため)。
+        sb.AppendLine($"HitStop.IsActive: {HitStop.IsActive} (ActiveCount={HitStop.ActiveCount}, SecondsSinceFreezeStarted={HitStop.SecondsSinceFreezeStarted:F1})");
         sb.AppendLine();
         sb.AppendLine($"PlayerPos: {(pc != null ? pc.transform.position.ToString("F2") : "?")}");
         sb.AppendLine($"PlayerVelocity: (x≈{horizontalSpeedApprox:F2}/s, y={(pc != null ? pc.VerticalVelocity.ToString("F2") : "?")})");
