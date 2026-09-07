@@ -374,17 +374,50 @@ public static class BossDiagnostics
     }
 
     // ===== 項目7/8/11 用の簡易パネル(DebugMode時のみ、GameManager.OnGUIから呼ぶ) ===== //
+    // Bugfix 2026-09-08 - マスターから「文言が白文字・背景も白で見えな
+    // かった」との報告(Freeze中のスクリーンショットで確認)。GUILayout.Box
+    // /Toggle/Buttonはこのプロジェクトが他で一切使っていないUnity標準
+    // GUISkinへ丸ごと依存しており、明るい空背景の上では白っぽく溶けて
+    // ほぼ読めなくなっていた。既存の`UiBackdrop.Draw`(濃紺+金縁、HUDの
+    // 他要素と同じ見た目)で不透明に近い背景を敷いた上、明示的に白文字の
+    // GUIStyleを使う生GUI呼び出しに書き換え - スカイ背景の上でも常に
+    // 読めることを優先し、GUILayoutの自動配置には頼らない。
     public static void DrawDebugPanel()
     {
-        GUILayout.BeginArea(new Rect(10f, Screen.height - 230f, 360f, 220f));
-        GUILayout.Box("Bug#001 診断Toggle(診断フェーズ専用・自動修復しません)");
-        DisableBossTimeScalePresentation = GUILayout.Toggle(DisableBossTimeScalePresentation, "B: DisableBossTimeScalePresentation");
-        DisableBossRewardSequence = GUILayout.Toggle(DisableBossRewardSequence, "C: DisableBossRewardSequence");
-        DisableSafetyTimers = GUILayout.Toggle(DisableSafetyTimers, "既存12s/30s Safety TimerをOFF");
-        if (GUILayout.Button("Dump Snapshot Now (手動)"))
+        Rect panelRect = new Rect(10f, Screen.height - 230f, 360f, 220f);
+        UiBackdrop.Draw(panelRect, 0.85f);
+
+        GUIStyle titleStyle = new GUIStyle(GUI.skin.label);
+        titleStyle.fontSize = 13;
+        titleStyle.fontStyle = FontStyle.Bold;
+        titleStyle.wordWrap = true;
+        titleStyle.normal.textColor = Color.white;
+        GUI.Label(new Rect(panelRect.x + 8f, panelRect.y + 6f, panelRect.width - 16f, 34f),
+            "Bug#001 診断Toggle(診断フェーズ専用・自動修復しません)", titleStyle);
+
+        GUIStyle toggleStyle = new GUIStyle(GUI.skin.toggle);
+        toggleStyle.fontSize = 13;
+        toggleStyle.normal.textColor = Color.white;
+        toggleStyle.onNormal.textColor = Color.white;
+        toggleStyle.hover.textColor = Color.white;
+        toggleStyle.onHover.textColor = Color.white;
+
+        float y = panelRect.y + 44f;
+        const float rowHeight = 26f;
+        DisableBossTimeScalePresentation = GUI.Toggle(new Rect(panelRect.x + 8f, y, panelRect.width - 16f, rowHeight), DisableBossTimeScalePresentation, " B: DisableBossTimeScalePresentation", toggleStyle);
+        y += rowHeight;
+        DisableBossRewardSequence = GUI.Toggle(new Rect(panelRect.x + 8f, y, panelRect.width - 16f, rowHeight), DisableBossRewardSequence, " C: DisableBossRewardSequence", toggleStyle);
+        y += rowHeight;
+        DisableSafetyTimers = GUI.Toggle(new Rect(panelRect.x + 8f, y, panelRect.width - 16f, rowHeight), DisableSafetyTimers, " 既存12s/30s Safety TimerをOFF", toggleStyle);
+        y += rowHeight + 6f;
+
+        GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
+        buttonStyle.fontSize = 13;
+        buttonStyle.normal.textColor = Color.white;
+        buttonStyle.hover.textColor = Color.white;
+        if (GUI.Button(new Rect(panelRect.x + 8f, y, panelRect.width - 16f, 28f), "Dump Snapshot Now (手動)", buttonStyle))
         {
             Debug.Log("[BOSS MANUAL SNAPSHOT]\n" + BuildSnapshot());
         }
-        GUILayout.EndArea();
     }
 }
