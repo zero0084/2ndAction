@@ -109,6 +109,11 @@ public class BossManager : MonoBehaviour
     public void EndBossPhase() => IsBossPhase = false;
     public int BossesDefeated { get; private set; }
     public float NextBossDistance => nextBossDistance;
+    // Bugfix 2026-09-08 (Bug #001 診断フェーズ) - read-only surface for
+    // BossDiagnostics' Freeze Snapshot ("AliveBossCount"/"CurrentBossCount").
+    public int AliveDragonCount => Mathf.Max(0, aliveDragonsThisEncounter);
+    public int AliveMajinCount => Mathf.Max(0, aliveMajinsThisEncounter);
+    public int AliveBossCount => AliveDragonCount + AliveMajinCount;
 
     float nextBossDistance;
     int aliveDragonsThisEncounter;

@@ -211,6 +211,13 @@ public class PlayerController : MonoBehaviour
     public static PlayerController Instance { get; private set; }
 
     public bool IsGrounded => isGrounded;
+    // Bugfix 2026-09-08 (Bug #001 診断フェーズ) - for BossDiagnostics'
+    // Freeze Snapshot ("PlayerVelocity"). Only the vertical component is a
+    // real tracked field (horizontal speed is a local in Move(), never
+    // stored) - BossDiagnostics derives an approximate horizontal speed
+    // itself from frame-to-frame position deltas, which is plenty accurate
+    // for a diagnostic dump.
+    public float VerticalVelocity => velocityY;
     public bool IsAttacking => isAttacking;
     // 方向攻撃システム Ver.2、項目3 - PlayerAnimatorのState.DownAttack選択
     // と、着地/死亡/脱出時のHitbox後始末の両方から参照される。

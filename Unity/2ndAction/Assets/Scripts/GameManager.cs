@@ -306,7 +306,11 @@ public class GameManager : MonoBehaviour
     // ApplyUpgradeByCardId knows whether to also SaveCheckpoint() (Boss
     // Reward only - a normal mid-run Level Up is not a checkpoint moment)
     // and RewardCardSequence knows which announcement text to show.
-    enum PendingChoiceKind { LevelUp, BossReward }
+    // Bugfix 2026-09-08 (Bug #001 診断フェーズ) - widened from private to
+    // public purely so BossDiagnostics (a separate class) can read/report
+    // this in its Freeze Snapshot without GameManager needing to expose a
+    // duplicate string-typed accessor - no other behavior change.
+    public enum PendingChoiceKind { LevelUp, BossReward }
     PendingChoiceKind pendingChoiceKind = PendingChoiceKind.LevelUp;
 
     // Presentation Priority pass, extended - same deferred-until-Boss-
@@ -817,6 +821,11 @@ public class GameManager : MonoBehaviour
         LoadDeck();
         LoadMile();
         LoadCharacterCards();
+
+        // Bug #001 診断フェーズ (2026-09-08) - Application.logMessageReceived
+        // フックは一度だけ登録すれば十分(static event、二重登録防止は
+        // EnsureHooked自身が行う)。
+        BossDiagnostics.EnsureHooked();
     }
 
     // Item 11 - "強制終了による逃げ対策": mobile OSes suspend/kill a
@@ -879,6 +888,12 @@ public class GameManager : MonoBehaviour
 
         // Item 3 - one-shot "ESCAPE AVAILABLE" banner countdown.
         if (escapeAvailableBannerTimer > 0f) escapeAvailableBannerTimer -= Time.unscaledDeltaTime;
+
+        // Bug #001 診断フェーズ (2026-09-08) - 毎フレーム末尾で呼ぶ(この
+        // フレーム中に他の処理が行った状態変化を全て反映した「最終状態」
+        // を見るため)。両方とも監視/記録のみで、Gameplayには一切影響しない。
+        BossDiagnostics.PollStateTransitions();
+        BossDiagnostics.UpdateFreezeWatchdog();
     }
 
     // Distance-unlock system - shows a brief "NEW UNLOCK" toast the first
@@ -1400,9 +1415,31 @@ public class GameManager : MonoBehaviour
     // DebugMode-gated and harmless to leave in permanently.
     public void LogBoss(string tag)
     {
+        // Bugfix 2026-09-08 (Bug #001 診断フェーズ) - fed into BossDiagnostics'
+        // Ring Buffer unconditionally (NOT gated on DebugMode) - the whole
+        // point of this diagnostic phase is catching an elusive freeze that
+        // might happen during an ordinary play session where DebugMode was
+        // never turned on, so the buffer that a freeze snapshot dumps must
+        // already have real history in it regardless. Only the console
+        // Debug.Log below (existing behavior) stays DebugMode-gated, so a
+        // normal build's logcat isn't spammed by default.
+        BossDiagnostics.LogEvent(tag);
         if (!DebugMode) return;
         Debug.Log($"[BOSS] {tag}  timeScale={Time.timeScale:F2}  IsBossPhase={(BossManager.Instance != null ? BossManager.Instance.IsBossPhase : (bool?)null)}  HasStarted={HasStarted}  levelUpPending={levelUpPending}  pendingChoice={pendingChoiceKind}  InputEnabled={Time.timeScale > 0f}  MaxDistance={MaxDistance:F1}");
     }
+
+    // Bugfix 2026-09-08 (Bug #001 診断フェーズ) - narrow, read-only surface
+    // purely for BossDiagnostics (a separate class - see its own comment for
+    // why this lives outside GameManager) to read otherwise-private state
+    // for its Freeze Snapshot/state-transition polling. None of these add
+    // new behavior, they just expose what already exists.
+    public bool LevelUpPending => levelUpPending;
+    public bool LevelUpDeferredPending => levelUpDeferredPending;
+    public bool BossRewardDeferredPending => bossRewardDeferredPending;
+    public PendingChoiceKind CurrentPendingChoiceKind => pendingChoiceKind;
+    public bool IsRewardSequenceRunning => rewardCardSequence != null && rewardCardSequence.IsRunning;
+    public bool IsRewardSequenceWaitingForSelection => rewardCardSequence != null && rewardCardSequence.IsWaitingForSelection;
+    public bool IsBossPresentationActivePublic => IsBossPresentationActive();
 
     public void TriggerBossRewardChoice()
     {
@@ -1413,7 +1450,42 @@ public class GameManager : MonoBehaviour
             LogBossRewardStage("BossRewardStart -> deferred (Presentation/LevelUp active)");
             return;
         }
+        // Bug #001 診断フェーズ (2026-09-08), 項目8 - "DisableBossRewardSequence"
+        // 比較Toggle。ONの間はカード選択UI自体を丸ごとスキップし、Boss撃破
+        // →Checkpoint→EndBossPhase→Gameplay Resumeだけを即座に行う -
+        // RewardCardSequence側がFreeze原因候補かどうかを切り分けるための
+        // 診断専用の分岐(本仕様として削除するものではない)。
+        if (BossDiagnostics.DisableBossRewardSequence)
+        {
+            SkipBossRewardChoice();
+            return;
+        }
         RunBossRewardChoice();
+    }
+
+    // Bug #001 診断フェーズ - RunBossRewardChoiceの空プール分岐と全く同じ
+    // 「カードは出さないが、Boss Reward処理としては正常完了」の後始末を、
+    // DisableBossRewardSequence診断Toggle専用にもう一度呼べる形にしたもの。
+    void SkipBossRewardChoice()
+    {
+        LogBossRewardStage("RunBossRewardChoice: DisableBossRewardSequence -> skip straight to SaveCheckpoint");
+        LogBoss("RewardStart (skipped by DisableBossRewardSequence)");
+        try
+        {
+            SaveCheckpoint();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("[BossReward] SaveCheckpoint threw (DisableBossRewardSequence path) - continuing the resume regardless: " + e);
+        }
+        LogBoss("CheckpointSaved");
+        if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
+        EndBossDistanceExclusion();
+        LogBoss("EndBossPhase");
+        UnlockEscape();
+        LogBossRewardStage("GameplayResume/InputResume/DistanceResume (DisableBossRewardSequence path)");
+        LogBoss("GameplayResume");
+        LogBoss("RewardEnd");
     }
 
     float bossRewardDeferredResumeDelay = 0.4f;
@@ -1451,7 +1523,11 @@ public class GameManager : MonoBehaviour
         {
             bossRewardDeferredTimer = -1f;
             bossRewardStuckTimer += Time.unscaledDeltaTime;
-            if (bossRewardStuckTimer >= BossRewardStuckTimeoutSeconds)
+            // Bug #001 診断フェーズ, 項目11 - DisableSafetyTimersが立って
+            // いる間は、この安全弁自体は「詰まった」まま維持する(強制解決
+            // しない) - 原因がタイムアウトで隠れてしまうのを防ぐための
+            // 診断専用ガード。
+            if (!BossDiagnostics.DisableSafetyTimers && bossRewardStuckTimer >= BossRewardStuckTimeoutSeconds)
             {
                 Debug.LogWarning("[BossReward] Deferred wait exceeded " + BossRewardStuckTimeoutSeconds + "s (a Presentation's IsRunning is stuck true) - forcing Boss Reward through anyway.");
                 bossRewardDeferredPending = false;
@@ -1499,6 +1575,9 @@ public class GameManager : MonoBehaviour
         }
 
         pendingChoiceStuckTimer += Time.unscaledDeltaTime;
+        // Bug #001 診断フェーズ, 項目11 - DisableSafetyTimers中はこの最終
+        // 安全弁も発動させず、詰まった状態をそのまま保持する。
+        if (BossDiagnostics.DisableSafetyTimers) return;
         if (pendingChoiceStuckTimer < PendingChoiceStuckTimeoutSeconds) return;
 
         Debug.LogWarning($"[BossReward] Pending choice ({pendingChoiceKind}) stuck for {PendingChoiceStuckTimeoutSeconds}s - forcing recovery so gameplay/distance/spawning don't stay frozen.");
@@ -2222,6 +2301,11 @@ public class GameManager : MonoBehaviour
 
     void OnGUI()
     {
+        // Bug #001 診断フェーズ (2026-09-08) - 意図的にAnyOverlayOpen等の
+        // 分岐の外(=Level Up/Boss Reward/Pauseで隠れている最中でも見える
+        // 位置)に置く。まさにFreeze中こそこのパネルを見たいため。
+        if (HasStarted && DebugMode) BossDiagnostics.DrawDebugPanel();
+
         // Drawn first (before every other element) so everything else on
         // the top screen layers on top of it, and only while that screen
         // is showing - it must never bleed into gameplay. A single static
