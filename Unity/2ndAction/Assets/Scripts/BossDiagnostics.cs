@@ -326,7 +326,7 @@ public static class BossDiagnostics
         sb.AppendLine($"BossRewardRunning: {bossRewardRunning} (RewardSequence.IsRunning && pendingChoice==BossReward)");
         sb.AppendLine();
         sb.AppendLine($"LevelUpPending: {(gm != null ? gm.LevelUpPending.ToString() : "?")}");
-        sb.AppendLine($"LevelUpDeferredPending: {(gm != null ? gm.LevelUpDeferredPending.ToString() : "?")}");
+        sb.AppendLine($"LevelUpDeferredPending: {(gm != null ? gm.LevelUpDeferredPending.ToString() : "?")} (PendingLevelUpCount={(gm != null ? gm.PendingLevelUpCount.ToString() : "?")})");
         sb.AppendLine($"BossRewardDeferredPending: {(gm != null ? gm.BossRewardDeferredPending.ToString() : "?")}");
         sb.AppendLine($"PendingChoice: {(gm != null ? gm.CurrentPendingChoiceKind.ToString() : "?")}");
         sb.AppendLine($"RewardSequence.IsWaitingForSelection: {(gm != null ? gm.IsRewardSequenceWaitingForSelection.ToString() : "?")}");

@@ -1308,18 +1308,56 @@ public class GameManager : MonoBehaviour
     // Otherwise this is exactly the original TriggerLevelUpChoice, just
     // renamed to RunLevelUpChoice so the deferral wrapper below could reuse
     // its name at the call site (GainExp) without changing that caller.
+    // Bugfix 2026-09-08 (Bug #001 - root cause confirmed via diagnostic
+    // Freeze Snapshot) - "Boss Phase中はLevel Up Card Choiceを開始しない"。
+    // 以前はBoss Presentation実行中/既存choice実行中のみdeferしており、
+    // BossManager.IsBossPhase自体は見ていなかった - そのためBoss撃破時の
+    // EXP付与(RegisterBossDefeat -> GainExp、Boss自身のFinalHitAndDie死亡
+    // コルーチン内の、BossManager.OnDragonDefeated()/CheckEncounterComplete()
+    // より前の行で呼ばれる)がLevel Up閾値を跨ぐと、**他のBossがまだ生存/
+    // 戦闘中の複数Boss Encounterであっても**Level Up Card Choiceがその場
+    // で即座に開始されてしまい、Boss Presentation/Combat/Defeat/Rewardの
+    // Stateと衝突していた - 実際に「rewardCardSequence OK, starting
+    // sequence...」表示中にBossがまだ生存しているFreeze Snapshotスクリー
+    // ンショットで確認された、Bug #001の確定した根本原因の1つ。
+    //
+    // 同時に見つかったもう1つのバグも修正: levelUpDeferredPendingが単純な
+    // boolだったため、GainExpのwhileループが1回のEXP付与で複数Levelを
+    // 跨いだ場合(大きなEXPジャンプ、または複数Boss撃破分が積み重なった
+    // 場合)、2回目以降のTriggerLevelUpChoice()呼び出しは同じboolを
+    // 再度trueにするだけで、**1つ分のLevel Up Choiceしか実際には開始
+    // されず、残りは静かに消失していた**。pendingLevelUpCountをカウンタ
+    // 化し、呼ばれた回数だけ確実にインクリメント、実際に1つ開始した時だ
+    // けデクリメントする形にしたので、N回同時にLevel Upしても必ずN回分の
+    // Card Choiceが順番に(1つ解決してから次を開始)処理される。
+    int pendingLevelUpCount;
+
     void TriggerLevelUpChoice()
     {
-        // Run Continuation/Checkpoint Ver.1 - also defers while a Boss
-        // Reward choice is showing (shared levelUpPending flag), so the
-        // two card-choice screens can never overlap.
-        if (IsBossPresentationActive() || levelUpPending)
+        pendingLevelUpCount++;
+        TryStartNextPendingLevelUp();
+    }
+
+    // Boss Phase(Spawn Presentation/Combat/Defeat Presentation/Reward -
+    // BossManager.IsBossPhaseがtrueである全期間)が、既存の2つのBoss
+    // Presentationと同じ優先順位でLevel Upより優先される。呼ぶたびに
+    // pendingLevelUpCountが1つ消化できたかどうかを返す - UpdateDeferredLevelUp
+    // からも同じロジックをそのまま再利用する。
+    bool TryStartNextPendingLevelUp()
+    {
+        if (pendingLevelUpCount <= 0) return false;
+
+        bool bossPhaseActive = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
+        if (IsBossPresentationActive() || levelUpPending || bossPhaseActive)
         {
-            levelUpDeferredPending = true;
-            Debug.Log("[PresentationPriority] Level Up deferred - Boss Presentation/Boss Reward active");
-            return;
+            if (bossPhaseActive) LogBoss($"LevelUpDeferred(BossPhase, pending={pendingLevelUpCount})");
+            Debug.Log($"[PresentationPriority] Level Up deferred (pending={pendingLevelUpCount}, bossPhaseActive={bossPhaseActive}) - Boss Presentation/Boss Reward/Boss Phase active");
+            return false;
         }
+
+        pendingLevelUpCount--;
         RunLevelUpChoice();
+        return true;
     }
 
     // Presentation Priority pass - Boss Spawn/Defeat outranks Level Up.
@@ -1338,39 +1376,39 @@ public class GameManager : MonoBehaviour
 
     // Presentation Priority pass - fields backing the deferral above.
     // levelUpDeferredTimer counts down in real time (unscaled) once the
-    // Boss Presentation actually finishes, so "Boss Presentation終了 ->
-    // Gameplayを正常状態へ戻す -> 0.3〜0.5秒待つ -> Pending Level Upがあれば
-    // 開始" holds even though gameplay itself has already resumed at normal
-    // Time.timeScale by that point.
-    bool levelUpDeferredPending;
+    // Boss Presentation/Boss Phase actually finishes, so "Boss Presentation
+    // 終了 -> Gameplayを正常状態へ戻す -> 0.3〜0.5秒待つ -> Pending Level Up
+    // があれば開始" holds even though gameplay itself has already resumed
+    // at normal Time.timeScale by that point.
     float levelUpDeferredTimer = -1f;
     public float levelUpDeferredResumeDelay = 0.4f;
 
     // Presentation Priority pass - called every frame from Update()
     // (mid-run only, same as heartDamageFlashTimer/DebugMode above). Not
-    // reached at all while levelUpDeferredPending is false, so this is a
-    // no-op the overwhelming majority of the time.
+    // reached at all while pendingLevelUpCount is 0, so this is a no-op
+    // the overwhelming majority of the time.
     void UpdateDeferredLevelUp()
     {
-        if (!levelUpDeferredPending) return;
+        if (pendingLevelUpCount <= 0) return;
 
         // Presentation Priority pass - Player Death/Game Clear outranks
         // Level Up: if the run already ended while this was waiting
         // (e.g. the player died mid-boss-fight, after the Boss Presentation
-        // itself finished but before this buffer ran out), drop the
-        // deferred level-up outright instead of popping the card UI open
-        // on top of an already-finished run.
+        // itself finished but before this buffer ran out), drop every
+        // remaining deferred level-up outright instead of popping the card
+        // UI open on top of an already-finished run.
         if (IsGameOver)
         {
-            levelUpDeferredPending = false;
+            Debug.Log($"[PresentationPriority] {pendingLevelUpCount} deferred Level Up(s) cancelled - run already ended");
+            pendingLevelUpCount = 0;
             levelUpDeferredTimer = -1f;
-            Debug.Log("[PresentationPriority] Deferred Level Up cancelled - run already ended");
             return;
         }
 
-        if (IsBossPresentationActive() || levelUpPending)
+        bool bossPhaseActive = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
+        if (IsBossPresentationActive() || levelUpPending || bossPhaseActive)
         {
-            levelUpDeferredTimer = -1f; // reset the buffer - only starts counting once the Boss Presentation/Boss Reward actually finishes
+            levelUpDeferredTimer = -1f; // reset the buffer - only starts counting once every one of these actually clears
             return;
         }
 
@@ -1378,10 +1416,9 @@ public class GameManager : MonoBehaviour
         levelUpDeferredTimer -= Time.unscaledDeltaTime;
         if (levelUpDeferredTimer <= 0f)
         {
-            levelUpDeferredPending = false;
             levelUpDeferredTimer = -1f;
-            Debug.Log("[PresentationPriority] Deferred Level Up starting now");
-            RunLevelUpChoice();
+            Debug.Log($"[PresentationPriority] Deferred Level Up starting now (pending before this={pendingLevelUpCount})");
+            TryStartNextPendingLevelUp();
         }
     }
 
@@ -1434,7 +1471,8 @@ public class GameManager : MonoBehaviour
     // for its Freeze Snapshot/state-transition polling. None of these add
     // new behavior, they just expose what already exists.
     public bool LevelUpPending => levelUpPending;
-    public bool LevelUpDeferredPending => levelUpDeferredPending;
+    public bool LevelUpDeferredPending => pendingLevelUpCount > 0;
+    public int PendingLevelUpCount => pendingLevelUpCount;
     public bool BossRewardDeferredPending => bossRewardDeferredPending;
     public PendingChoiceKind CurrentPendingChoiceKind => pendingChoiceKind;
     public bool IsRewardSequenceRunning => rewardCardSequence != null && rewardCardSequence.IsRunning;
