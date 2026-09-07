@@ -193,6 +193,51 @@ public static class SceneBuilder
 
         follow.target = player.transform;
 
+        // Vertical Mode Prototype (2026-09-08) - the second, Portrait-mode
+        // camera (see PortraitCameraRig's own comment for the full "斜め上
+        // 視点" reasoning). Tagged MainCamera same as the Landscape camera
+        // above - Camera.main resolves to whichever tagged camera is
+        // currently ENABLED, so every existing Camera.main call site
+        // elsewhere in the project (CameraFollow.Shake, the Escape charge
+        // gauge, etc.) automatically follows whichever mode is active with
+        // zero changes needed there. Disabled by default (and its
+        // AudioListener with it) - the Landscape build's behavior is
+        // unchanged until ViewModeToggle actually switches modes.
+        GameObject portraitCamGO = new GameObject("Portrait Camera");
+        portraitCamGO.tag = "MainCamera";
+        Camera portraitCam = portraitCamGO.AddComponent<Camera>();
+        portraitCam.orthographic = false;
+        portraitCam.fieldOfView = 62f;
+        portraitCam.nearClipPlane = 1f;
+        portraitCam.farClipPlane = 100f;
+        portraitCam.clearFlags = CameraClearFlags.SolidColor;
+        portraitCam.backgroundColor = cam.backgroundColor;
+        portraitCam.enabled = false;
+        var portraitListener = portraitCamGO.AddComponent<AudioListener>();
+        portraitListener.enabled = false;
+        PortraitCameraRig portraitRig = portraitCamGO.AddComponent<PortraitCameraRig>();
+        portraitRig.target = player.transform;
+        portraitRig.cam = portraitCam;
+
+        // Billboard (see its own comment) on the Player's Visual child only
+        // - Root carries the Collider2D/Rigidbody2D and must never be
+        // rotated in 3D. No-ops entirely while portraitCam is disabled, so
+        // this has zero effect on the Landscape build.
+        Transform playerVisual = player.transform.Find("Visual");
+        if (playerVisual != null)
+        {
+            var playerBillboard = playerVisual.gameObject.AddComponent<Billboard>();
+            playerBillboard.targetCamera = portraitCam;
+        }
+
+        // One-key (V) Landscape/Portrait switch for Editor comparison - see
+        // ViewModeToggle's own comment. Lives on the same GameObject as the
+        // Landscape camera purely so it's easy to find in the Hierarchy;
+        // has no functional dependency on that placement.
+        var viewModeToggle = camGO.AddComponent<ViewModeToggle>();
+        viewModeToggle.landscapeCam = cam;
+        viewModeToggle.portraitRig = portraitRig;
+
         // Terrain (infinite chunk-based course generator)
         GameObject terrainGO = new GameObject("TerrainManager");
         TerrainManager terrain = terrainGO.AddComponent<TerrainManager>();

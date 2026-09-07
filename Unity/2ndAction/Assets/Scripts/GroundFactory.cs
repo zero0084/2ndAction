@@ -197,6 +197,18 @@ public static class GroundFactory
         sr.sortingOrder = RenderOrder.Enemy;
         visualGO.AddComponent<SpriteOutline>();
 
+        // Vertical Mode Prototype (2026-09-08) - see Billboard's own comment.
+        // No-ops entirely while PortraitCameraRig isn't active (Landscape
+        // build, or the scene was built before this prototype existed) -
+        // PortraitCameraRig.Instance is only ever non-null once SceneBuilder
+        // has actually created that camera, which happens well before any
+        // enemy is ever spawned at runtime.
+        if (PortraitCameraRig.Instance != null)
+        {
+            var enemyBillboard = visualGO.AddComponent<Billboard>();
+            enemyBillboard.targetCamera = PortraitCameraRig.Instance.cam;
+        }
+
         var col = go.AddComponent<BoxCollider2D>();
         col.isTrigger = true;
         // Sprite.bounds already accounts for the sprite's own custom foot
