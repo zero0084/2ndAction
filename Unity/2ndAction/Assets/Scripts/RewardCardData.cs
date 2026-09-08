@@ -28,4 +28,11 @@ public struct RewardCardData
     // equip state (Character Card slots / Collection); false everywhere
     // else rather than re-deriving it from CardId at display time.
     public bool ShowEquippedBadge;
+
+    // Card UI改修(2026-09-08) - 所持枚数を「×N」として常に固定位置に表示
+    // するための専用フィールド。以前はLevelLine文字列に"Lv.3 x2"のように
+    // 埋め込んでいたが、新デザインではLv(右上固定)とCount(タイトル帯右端
+    // 固定)を別々の場所に表示する仕様のため分離した。0以下は「表示しな
+    // い」(単発所持、または所持枚数の概念がない画面向け)。
+    public int Count;
 }

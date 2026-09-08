@@ -3123,11 +3123,10 @@ public class GameManager : MonoBehaviour
     public RewardCardData MakeOwnedCardData(CardDefinition card, int level, int count, bool equipped = false)
     {
         string levelLabel = level >= CardInventory.MaxCardLevel ? $"Lv.{level} MAX" : $"Lv.{level}";
-        // Card UI / Rarity Frame pass - the owned count now shows via
-        // LevelLine's "xN" suffix (Collection mode) instead of also being
-        // repeated inside Description, which is back to plain flavor text
-        // only (item 11 - "2-3行程度").
-        string levelLine = equipped ? levelLabel : $"{levelLabel} x{count}";
+        // Card UI改修(2026-09-08) - 所持枚数はもうLevelLine文字列へ埋め込
+        // まず、RewardCardData.Count(タイトル帯右端固定表示)へ分離した。
+        // equipped(Character Card装備中)はスロットに1枚しか入らない概念
+        // なのでCountは常に0(非表示)のまま。
         return new RewardCardData
         {
             CardId = card.cardId,
@@ -3135,7 +3134,8 @@ public class GameManager : MonoBehaviour
             Title = card.cardName,
             Description = card.description,
             Rarity = card.rarity,
-            LevelLine = levelLine,
+            LevelLine = levelLabel,
+            Count = equipped ? 0 : count,
             ShowEquippedBadge = equipped
         };
     }
@@ -3513,15 +3513,21 @@ public class GameManager : MonoBehaviour
         headlineStyle.fontStyle = FontStyle.Bold;
         headlineStyle.alignment = TextAnchor.MiddleCenter;
         headlineStyle.normal.textColor = new Color(1f, 0.85f, 0.4f);
-        GUI.Label(new Rect(panelRect.x, panelRect.y + 24f, panelRect.width, 34f), "NEW CARD", headlineStyle);
+        // Card UI改修(2026-09-08), item 6-5 - 「NEW/DUPLICATEを別ラベルで
+        // 表示」。Gacha抽選は常にLv.1を1枚付与するため(下の"Lv.1  GAINED
+        // +1"参照)、抽選後の合計所持数(gachaResultOwnedCount)が1ならその
+        // 1枚が今回初めて得たもの=NEW、2以上なら既に持っていた=DUPLICATE
+        // と判定できる(抽選ロジック自体には手を入れず、表示側だけで導出)。
+        bool isNewCard = gachaResultOwnedCount <= 1;
+        headlineStyle.normal.textColor = isNewCard ? new Color(1f, 0.85f, 0.4f) : new Color(0.7f, 0.85f, 1f);
+        GUI.Label(new Rect(panelRect.x, panelRect.y + 24f, panelRect.width, 34f), isNewCard ? "NEW CARD" : "DUPLICATE", headlineStyle);
 
         // Card UI / Rarity Frame pass, item 15 - "GachaでCardを引いた際も、
         // RevealしたCardのRarityに応じて同じFrameを使用". Drawn as a border
         // just around the icon (rather than replacing the popup's own
-        // OrnateUi dialog chrome) - Rarity 1 has no frame Sprite yet (see
-        // CardRarityFrames' own comment on the ★1 source image's missing
-        // alpha), so this simply draws nothing extra for ★1, unchanged
-        // from before this pass.
+        // OrnateUi dialog chrome). Rarity 1 now also has a real frame Sprite
+        // (Card UI改修2026-09-08 - CardFrameRarity1.png), so every Rarity
+        // draws its own frame here now.
         float iconSize = highRarity ? 110f + 14f * revealT : 110f;
         Rect iconDrawRect = new Rect(panelRect.x + panelRect.width / 2f - iconSize / 2f, panelRect.y + 70f - (iconSize - 110f) / 2f, iconSize, iconSize);
         Sprite rarityFrameSprite = CardRarityFrames.GetFrame(gachaResultCard.rarity, null);

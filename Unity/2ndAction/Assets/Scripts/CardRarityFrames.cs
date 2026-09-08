@@ -27,25 +27,20 @@ public static class CardRarityFrames
     // process - same lifecycle as CardDatabase.cachedCards.
     static Sprite[] frames;
 
-    // Bugfix note (Card UI / Rarity Frame pass) - the ★1 source image
-    // supplied for this pass has NO real alpha channel (Format24bppRgb) -
-    // its "transparent" interior is a checker pattern baked in as opaque
-    // gray pixels, the same class of issue as the earlier Death.jpg
-    // problem this project already hit once. Unlike that case, attempting
-    // to algorithmically recover transparency here was judged too risky
-    // (the checker pixels aren't a clean flat 2-color pattern - they carry
-    // soft shading/noise - so a color-threshold mask would just as easily
-    // eat into the frame's own silver/gray border art). Rarity 1 has no
-    // entry under Resources/CardFrames at all, so GetFrame's null check
-    // below always falls back to the caller-supplied default (the
-    // project's original CardFrame.png) for it - swap in a real
-    // transparent ★1 export under Resources/CardFrames/CardFrameRarity1
-    // the moment one exists, nothing else needs to change.
+    // Bugfix note (Card UI / Rarity Frame pass) - the ★1 source image THEN
+    // supplied had NO real alpha channel (Format24bppRgb) - its
+    // "transparent" interior was a checker pattern baked in as opaque gray
+    // pixels, the same class of issue as the earlier Death.jpg problem this
+    // project already hit once, and too risky to algorithmically recover.
+    // Card UI改修(2026-09-08) - a proper transparent ★1 export now exists
+    // (CardFrameRarity1.png, verified via PowerShell/System.Drawing to have
+    // real alpha: A=0 at the corners/center, A≈253 on the border art), so
+    // Rarity 1 finally has its own entry here like every other tier.
     static void EnsureLoaded()
     {
         if (frames != null) return;
         frames = new Sprite[6];
-        for (int r = 2; r <= 5; r++)
+        for (int r = 1; r <= 5; r++)
         {
             frames[r] = Resources.Load<Sprite>($"CardFrames/CardFrameRarity{r}");
         }

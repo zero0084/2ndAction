@@ -547,6 +547,9 @@ public static class SceneBuilder
 
         Sprite cardBackSprite = LoadTiledSprite("Assets/Art/UI/CardBack.png", 100f);
         Sprite cardFrameSprite = LoadTiledSprite("Assets/Art/UI/CardFrame.png", 100f);
+        // Card UI改修(2026-09-08) - 新共通素材(カード下地/タイトル帯)。
+        Sprite cardBaseSprite = LoadTiledSprite("Assets/Art/UI/CardFrames/CardBase.png", 100f);
+        Sprite cardTitleBandSprite = LoadTiledSprite("Assets/Art/UI/CardFrames/CardTitlePlate.png", 100f);
         Sprite glowSprite = CreateRadialGlowSprite();
 
         GameObject rootGO = new GameObject("RewardCardRoot");
@@ -615,9 +618,8 @@ public static class SceneBuilder
         deckRect.anchoredPosition = new Vector2(0f, -420f);
         sequence.deckRoot = deckRect;
 
-        const float cardWidth = 260f;
-        float cardAspect = cardFrameSprite != null ? cardFrameSprite.rect.height / cardFrameSprite.rect.width : 1010f / 612f;
-        float cardHeight = cardWidth * cardAspect;
+        const float cardWidth = 260f; // Card UI改修 - spec's "報酬選択: 260x390"
+        float cardHeight = cardWidth * CardAspect;
 
         var deckImages = new Image[3];
         for (int i = 0; i < 3; i++)
@@ -649,7 +651,7 @@ public static class SceneBuilder
         var cardComponents = new RewardCardUI[3];
         for (int i = 0; i < 3; i++)
         {
-            cardComponents[i] = CreateRewardCard(rootGO.transform, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, sequence.OnCardClicked);
+            cardComponents[i] = CreateRewardCard(rootGO.transform, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, sequence.OnCardClicked, cardBaseSprite, cardTitleBandSprite);
         }
         sequence.cards = cardComponents;
 
@@ -717,6 +719,8 @@ public static class SceneBuilder
 
         Sprite cardBackSprite = LoadTiledSprite("Assets/Art/UI/CardBack.png", 100f);
         Sprite cardFrameSprite = LoadTiledSprite("Assets/Art/UI/CardFrame.png", 100f);
+        Sprite cardBaseSprite = LoadTiledSprite("Assets/Art/UI/CardFrames/CardBase.png", 100f);
+        Sprite cardTitleBandSprite = LoadTiledSprite("Assets/Art/UI/CardFrames/CardTitlePlate.png", 100f);
 
         GameObject rootGO = new GameObject("DeckEditRoot");
         rootGO.transform.SetParent(canvasGO.transform, false);
@@ -738,18 +742,16 @@ public static class SceneBuilder
         Image bgImage = bgGO.AddComponent<Image>();
         bgImage.color = new Color(0.05f, 0.06f, 0.12f, 0.96f);
 
-        // 4 columns fits comfortably within the narrower side panels the
-        // new 3-column COLLECTION / detail / DECK layout below leaves them
-        // (see the reference mockup) - ScrollRect dragging used to depend
-        // on the same EventSystem pipeline DeckEditUI's taps bypass, so a
-        // low column count used to matter for keeping everything reachable
-        // without scrolling; now that DeckEditUI drives the scroll
-        // manually itself (see its Update), that's no longer load-bearing,
-        // just still a reasonable density.
-        const float cardWidth = 130f;
-        float cardAspect = cardFrameSprite != null ? cardFrameSprite.rect.height / cardFrameSprite.rect.width : 1010f / 612f;
-        float cardHeight = cardWidth * cardAspect;
-        const int columns = 4;
+        // Card UI改修(2026-09-08) - spec's統一基準サイズ「コレクション一
+        // 覧/デッキ一覧: 180x270」に合わせてcardWidthを130->180へ(2:3固定
+        // - CardAspect参照)。180幅では4列だとGridLayoutGroupの列間隔込み
+        // で収まらない(4*180+3*22=786 > innerWidth 610)ため3列へ減らした
+        // - スクロールは既にDeckEditUI自身が手動ドライブしているため
+        // (Update参照)、列数を減らしても画面に収まらない項目はスクロー
+        // ルで見える。
+        const float cardWidth = 180f;
+        float cardHeight = cardWidth * CardAspect;
+        const int columns = 3;
 
         // Three columns side by side - COLLECTION (left) -> selected-card
         // detail (center) -> DECK (right) - matching the reference mockup's
@@ -792,7 +794,7 @@ public static class SceneBuilder
         var ownedCards = new RewardCardUI[ownedPoolSize];
         for (int i = 0; i < ownedPoolSize; i++)
         {
-            ownedCards[i] = CreateRewardCard(ownedPanelContent, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, null);
+            ownedCards[i] = CreateRewardCard(ownedPanelContent, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
         }
         deckEdit.ownedCards = ownedCards;
 
@@ -802,7 +804,7 @@ public static class SceneBuilder
         var deckSlotCards = new RewardCardUI[GameManager.DeckCapacity];
         for (int i = 0; i < GameManager.DeckCapacity; i++)
         {
-            deckSlotCards[i] = CreateRewardCard(deckPanelContent, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, null);
+            deckSlotCards[i] = CreateRewardCard(deckPanelContent, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
         }
         deckEdit.deckSlotCards = deckSlotCards;
 
@@ -957,10 +959,21 @@ public static class SceneBuilder
         // Item 7 - Character Card slots (max 3), a small row tucked above
         // the DECK panel (clear of the back button, top-left) since the
         // three main panels already claim y=-100 downward.
-        const float charSlotSize = 84f;
+        //
+        // Card UI改修(2026-09-08), item 9-1 - 「CHARACTER CARDSの小さい装
+        // 備枠が見切れやすい」の根本原因: 旧charSlotSize(84)はCreateReward
+        // Cardへ幅・高さ両方に渡されており、実質「正方形」の枠にfitさせて
+        // いた。frameImageはpreserveAspect=trueで実際は2:3の縦長フレーム
+        // 画像を正方形の枠内にletterboxする形になり、上下(またはleft/
+        // right)に大きな余白ができてカード自体が実際より小さく・窮屈に見
+        // える(「見切れて」いるように感じる)原因になっていた。spec通り
+        // 2:3固定(CardAspect)の縦長スロットに修正 - 幅は72(旧84よりやや
+        // 狭いが、高さが108に伸びる分、正方形時とほぼ同じ「面積」感)。
+        const float charSlotWidth = 72f;
+        float charSlotHeight = charSlotWidth * CardAspect;
         const float charSlotGap = 14f;
-        float charRowWidth = GameManager.CharacterCardSlotCount * charSlotSize + (GameManager.CharacterCardSlotCount - 1) * charSlotGap;
-        float charStartX = sideCenterX - charRowWidth / 2f + charSlotSize / 2f;
+        float charRowWidth = GameManager.CharacterCardSlotCount * charSlotWidth + (GameManager.CharacterCardSlotCount - 1) * charSlotGap;
+        float charStartX = sideCenterX - charRowWidth / 2f + charSlotWidth / 2f;
         const float charSlotY = -58f;
 
         GameObject charHeaderGO = new GameObject("CharacterCardsHeader");
@@ -977,10 +990,10 @@ public static class SceneBuilder
         var characterSlots = new RewardCardUI[GameManager.CharacterCardSlotCount];
         for (int i = 0; i < GameManager.CharacterCardSlotCount; i++)
         {
-            RewardCardUI slot = CreateRewardCard(rootGO.transform, 1000 + i, charSlotSize, charSlotSize, cardBackSprite, cardFrameSprite, null);
+            RewardCardUI slot = CreateRewardCard(rootGO.transform, 1000 + i, charSlotWidth, charSlotHeight, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
             slot.rect.anchorMin = slot.rect.anchorMax = new Vector2(0.5f, 1f);
             slot.rect.pivot = new Vector2(0.5f, 1f);
-            slot.rect.anchoredPosition = new Vector2(charStartX + i * (charSlotSize + charSlotGap), charSlotY);
+            slot.rect.anchoredPosition = new Vector2(charStartX + i * (charSlotWidth + charSlotGap), charSlotY);
             characterSlots[i] = slot;
         }
         deckEdit.characterSlotCards = characterSlots;
@@ -1042,12 +1055,13 @@ public static class SceneBuilder
 
         Sprite cardBackSprite = LoadTiledSprite("Assets/Art/UI/CardBack.png", 100f);
         Sprite cardFrameSprite = LoadTiledSprite("Assets/Art/UI/CardFrame.png", 100f);
+        Sprite cardBaseSprite = LoadTiledSprite("Assets/Art/UI/CardFrames/CardBase.png", 100f);
+        Sprite cardTitleBandSprite = LoadTiledSprite("Assets/Art/UI/CardFrames/CardTitlePlate.png", 100f);
         // Reuses the existing Double Jump Ring effect sprite (Game Feel
         // pass) as a stand-in "magic circle" - see CardFusionUI.
         // magicCircleImage's own comment for why (no dedicated magic-
         // circle art was cut from the reference storyboards).
         Sprite magicCircleSprite = LoadTiledSprite("Assets/Art/Effects/DoubleJumpRing.png", 1672f);
-        float gridCardAspect = cardFrameSprite != null ? cardFrameSprite.rect.height / cardFrameSprite.rect.width : 1010f / 612f;
 
         GameObject rootGO = new GameObject("CardFusionRoot");
         rootGO.transform.SetParent(canvasGO.transform, false);
@@ -1066,19 +1080,24 @@ public static class SceneBuilder
         bgImage.color = new Color(0.05f, 0.06f, 0.12f, 0.96f);
 
         // ===== MAIN / SUB slots (item 10) ===== //
-        const float slotSize = 220f;
+        // Card UI改修(2026-09-08) - 旧slotSize(220の正方形)をspec通り2:3
+        // 固定(CardAspect)へ - Character Card slotと同じ「正方形へletterbox
+        // されて小さく見える」バグ(item 9-1と同根)を持っていたため。幅は
+        // Collection/Deckグリッドと同じ180に揃え、高さはCardAspectで270。
+        const float slotWidth = 180f;
+        float slotHeight = slotWidth * CardAspect;
         const float slotGap = 140f; // leaves room for the magic circle between them
         const float slotY = -160f;
-        RewardCardUI mainSlot = CreateRewardCard(rootGO.transform, 1, slotSize, slotSize, cardBackSprite, cardFrameSprite, null);
+        RewardCardUI mainSlot = CreateRewardCard(rootGO.transform, 1, slotWidth, slotHeight, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
         mainSlot.rect.anchorMin = mainSlot.rect.anchorMax = new Vector2(0.5f, 1f);
         mainSlot.rect.pivot = new Vector2(0.5f, 1f);
-        mainSlot.rect.anchoredPosition = new Vector2(-(slotSize + slotGap) / 2f, slotY);
+        mainSlot.rect.anchoredPosition = new Vector2(-(slotWidth + slotGap) / 2f, slotY);
         menu.mainSlotCard = mainSlot;
 
-        RewardCardUI subSlot = CreateRewardCard(rootGO.transform, 2, slotSize, slotSize, cardBackSprite, cardFrameSprite, null);
+        RewardCardUI subSlot = CreateRewardCard(rootGO.transform, 2, slotWidth, slotHeight, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
         subSlot.rect.anchorMin = subSlot.rect.anchorMax = new Vector2(0.5f, 1f);
         subSlot.rect.pivot = new Vector2(0.5f, 1f);
-        subSlot.rect.anchoredPosition = new Vector2((slotSize + slotGap) / 2f, slotY);
+        subSlot.rect.anchoredPosition = new Vector2((slotWidth + slotGap) / 2f, slotY);
         menu.subSlotCard = subSlot;
 
         GameObject mainLabelGO = new GameObject("MainLabel");
@@ -1086,8 +1105,8 @@ public static class SceneBuilder
         RectTransform mainLabelRect = mainLabelGO.AddComponent<RectTransform>();
         mainLabelRect.anchorMin = mainLabelRect.anchorMax = new Vector2(0.5f, 1f);
         mainLabelRect.pivot = new Vector2(0.5f, 1f);
-        mainLabelRect.sizeDelta = new Vector2(slotSize, 30f);
-        mainLabelRect.anchoredPosition = new Vector2(-(slotSize + slotGap) / 2f, slotY - slotSize - 8f);
+        mainLabelRect.sizeDelta = new Vector2(slotWidth, 30f);
+        mainLabelRect.anchoredPosition = new Vector2(-(slotWidth + slotGap) / 2f, slotY - slotHeight - 8f);
         Text mainLabel = mainLabelGO.AddComponent<Text>();
         ConfigureCardText(mainLabel, 18, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
         mainLabel.text = "MAIN CARD";
@@ -1097,8 +1116,8 @@ public static class SceneBuilder
         RectTransform subLabelRect = subLabelGO.AddComponent<RectTransform>();
         subLabelRect.anchorMin = subLabelRect.anchorMax = new Vector2(0.5f, 1f);
         subLabelRect.pivot = new Vector2(0.5f, 1f);
-        subLabelRect.sizeDelta = new Vector2(slotSize, 30f);
-        subLabelRect.anchoredPosition = new Vector2((slotSize + slotGap) / 2f, slotY - slotSize - 8f);
+        subLabelRect.sizeDelta = new Vector2(slotWidth, 30f);
+        subLabelRect.anchoredPosition = new Vector2((slotWidth + slotGap) / 2f, slotY - slotHeight - 8f);
         Text subLabel = subLabelGO.AddComponent<Text>();
         ConfigureCardText(subLabel, 18, FontStyle.Bold, new Color(0.85f, 0.85f, 0.92f, 0.85f));
         subLabel.text = "SUB / MATERIAL CARD";
@@ -1110,7 +1129,7 @@ public static class SceneBuilder
         circleRect.anchorMin = circleRect.anchorMax = new Vector2(0.5f, 1f);
         circleRect.pivot = new Vector2(0.5f, 1f);
         circleRect.sizeDelta = new Vector2(180f, 180f);
-        circleRect.anchoredPosition = new Vector2(0f, slotY - slotSize / 2f + 90f);
+        circleRect.anchoredPosition = new Vector2(0f, slotY - slotHeight / 2f + 90f);
         Image circleImage = circleGO.AddComponent<Image>();
         circleImage.sprite = magicCircleSprite;
         circleImage.preserveAspect = true;
@@ -1123,7 +1142,7 @@ public static class SceneBuilder
         fuseRect.anchorMin = fuseRect.anchorMax = new Vector2(0.5f, 1f);
         fuseRect.pivot = new Vector2(0.5f, 1f);
         fuseRect.sizeDelta = new Vector2(320f, 64f);
-        fuseRect.anchoredPosition = new Vector2(0f, slotY - slotSize - 60f);
+        fuseRect.anchoredPosition = new Vector2(0f, slotY - slotHeight - 60f);
         menu.fuseButtonRect = fuseRect;
         GameObject fuseLabelGO = new GameObject("Label");
         fuseLabelGO.transform.SetParent(fuseRect, false);
@@ -1134,7 +1153,7 @@ public static class SceneBuilder
         menu.fuseButtonLabel = fuseLabel;
 
         // ===== Status text ===== //
-        float statusY = slotY - slotSize - 140f;
+        float statusY = slotY - slotHeight - 140f;
         GameObject statusGO = new GameObject("StatusText");
         statusGO.transform.SetParent(rootGO.transform, false);
         RectTransform statusRect = statusGO.AddComponent<RectTransform>();
@@ -1152,8 +1171,11 @@ public static class SceneBuilder
         float gridTopY = statusY - 46f;
         const float gridBottomMargin = 40f;
         const int gridColumns = 7;
-        const float gridCardWidth = 150f;
-        float gridCardHeight = gridCardWidth * gridCardAspect;
+        // Card UI改修(2026-09-08) - Collection/Deckグリッドと同じ180x270
+        // (spec統一基準サイズ)に揃えた。7列 * 180 + 6*18(spacing) = 1368,
+        // gridPanelWidth(1750) - gridPad*2(45*2=90) = 1660以内に収まる。
+        const float gridCardWidth = 180f;
+        float gridCardHeight = gridCardWidth * CardAspect;
 
         RectTransform gridPanelRect = CreateOrnatePanel(rootGO.transform, "OwnedCardsPanel");
         float gridPanelHeight = 1080f + gridTopY - gridBottomMargin; // from gridTopY down to gridBottomMargin above the bottom edge
@@ -1217,13 +1239,15 @@ public static class SceneBuilder
         var ownedCards = new RewardCardUI[ownedPoolSize];
         for (int i = 0; i < ownedPoolSize; i++)
         {
-            ownedCards[i] = CreateRewardCard(contentGO.transform, 2000 + i, gridCardWidth, gridCardHeight, cardBackSprite, cardFrameSprite, null);
+            ownedCards[i] = CreateRewardCard(contentGO.transform, 2000 + i, gridCardWidth, gridCardHeight, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
         }
         menu.ownedCards = ownedCards;
 
         // ===== Reveal card (Fusion success) - centered, large, hidden by
-        // default, built after everything else so it renders on top ===== //
-        RewardCardUI revealCard = CreateRewardCard(rootGO.transform, 9000, 300f, 300f * gridCardAspect, cardBackSprite, cardFrameSprite, null);
+        // default, built after everything else so it renders on top =====
+        // Card UI改修(2026-09-08) - spec's「詳細表示: 360x540」に合わせた
+        // (2:3固定)。
+        RewardCardUI revealCard = CreateRewardCard(rootGO.transform, 9000, 360f, 360f * CardAspect, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
         revealCard.rect.anchorMin = revealCard.rect.anchorMax = new Vector2(0.5f, 0.5f);
         revealCard.rect.pivot = new Vector2(0.5f, 0.5f);
         revealCard.rect.anchoredPosition = Vector2.zero;
@@ -1578,12 +1602,15 @@ public static class SceneBuilder
         return dialog;
     }
 
-    // One reward card: back image, frame image, icon, title, description,
-    // and a Button covering the whole card for tap-to-select - the same
-    // structure every time, only the content (set later via SetContent)
-    // differs, standing in for a shared Prefab in a project where every
-    // object is built by code.
-    static RewardCardUI CreateRewardCard(Transform parent, int index, float width, float height, Sprite backSprite, Sprite frameSprite, System.Action<int> onClick)
+    // One reward card: back image, base art, icon, frame, title band, title,
+    // level, count, (description/rarity - detail mode only), and a Button
+    // covering the whole card for tap-to-select - the same structure every
+    // time, only the content (set later via SetContent) differs, standing
+    // in for a shared Prefab in a project where every object is built by
+    // code. Card UI改修(2026-09-08) - overloaded to also accept the 2 new
+    // common art pieces (baseSprite/titleBandSprite); every existing call
+    // site is updated to pass them (see each BuildXxxCanvas method).
+    static RewardCardUI CreateRewardCard(Transform parent, int index, float width, float height, Sprite backSprite, Sprite frameSprite, System.Action<int> onClick, Sprite baseSprite = null, Sprite titleBandSprite = null)
     {
         GameObject cardGO = new GameObject("RewardCard" + index);
         cardGO.transform.SetParent(parent, false);
@@ -1606,6 +1633,51 @@ public static class SceneBuilder
         backImage.raycastTarget = false;
         card.backImage = backImage;
 
+        // Card UI改修(2026-09-08) - 新レイアウトの土台となる「カード下地」
+        // (深い青の共通背景アート、全Rarity共通) - Backのすぐ上、Frameより
+        // 下に配置。表向き時は常時表示、裏向き(Back)時は非表示。
+        GameObject baseGO = new GameObject("Base");
+        baseGO.transform.SetParent(cardGO.transform, false);
+        StretchFull(baseGO.AddComponent<RectTransform>());
+        Image baseImageComp = baseGO.AddComponent<Image>();
+        baseImageComp.sprite = baseSprite;
+        baseImageComp.raycastTarget = false;
+        card.baseImage = baseImageComp;
+
+        // Plain dark panel behind the icon - baseSprite already darkens the
+        // whole face, but icon art (colorful, sometimes light-edged) still
+        // reads more clearly against a touch more contrast right behind it.
+        Color cardPanelColor = new Color(0.04f, 0.05f, 0.12f, 1f);
+        GameObject iconBackdropGO = new GameObject("IconBackdrop");
+        iconBackdropGO.transform.SetParent(cardGO.transform, false);
+        RectTransform iconBackdropRect = iconBackdropGO.AddComponent<RectTransform>();
+        iconBackdropRect.anchorMin = new Vector2(0.13f, 0.42f);
+        iconBackdropRect.anchorMax = new Vector2(0.87f, 0.87f);
+        iconBackdropRect.offsetMin = Vector2.zero;
+        iconBackdropRect.offsetMax = Vector2.zero;
+        Image iconBackdropImage = iconBackdropGO.AddComponent<Image>();
+        iconBackdropImage.color = new Color(cardPanelColor.r, cardPanelColor.g, cardPanelColor.b, 0.55f);
+        iconBackdropImage.raycastTarget = false;
+        card.iconBackdrop = iconBackdropImage;
+
+        GameObject iconGO = new GameObject("Icon");
+        iconGO.transform.SetParent(cardGO.transform, false);
+        RectTransform iconRect = iconGO.AddComponent<RectTransform>();
+        iconRect.anchorMin = new Vector2(0.20f, 0.44f);
+        iconRect.anchorMax = new Vector2(0.80f, 0.85f);
+        iconRect.offsetMin = Vector2.zero;
+        iconRect.offsetMax = Vector2.zero;
+        Image iconImage = iconGO.AddComponent<Image>();
+        iconImage.preserveAspect = true;
+        iconImage.raycastTarget = false;
+        card.iconImage = iconImage;
+
+        // Card UI改修(2026-09-08) - Frameはこの位置(Icon/IconBackdropの
+        // "後"、つまり描画順で"上")に移動。以前はBackの直後(Iconより下)
+        // に置かれていたが、フレームの縁飾りが常にIcon/下地より手前に来る
+        // よう仕様の描画順(1.下地 2.イラスト 3.フレーム 4.タイトル帯...)
+        // に合わせた。フレーム自体は中央が透過(枠のみ不透明)なので、以前
+        // の順序でも見た目上の破綻はなかったが、こちらがより正しい/安全。
         GameObject frameGO = new GameObject("Frame");
         frameGO.transform.SetParent(cardGO.transform, false);
         StretchFull(frameGO.AddComponent<RectTransform>());
@@ -1623,69 +1695,52 @@ public static class SceneBuilder
         card.frameImage = frameImage;
         card.defaultFrameSprite = frameSprite;
 
-        // Plain dark panels between the frame and the icon/text - the frame
-        // art's own interior is too see-through on its own (the game world
-        // behind the card was showing through enough to hurt legibility),
-        // so these sit just behind the icon/text specifically without
-        // touching the frame's decorative border, which stays fully
-        // opaque as-is.
-        Color cardPanelColor = new Color(0.04f, 0.05f, 0.12f, 1f);
-        // Bugfix 2026-09-06 (Card frame見切れ修正) - re-derived Safe Area
-        // from scratch: the Rarity/Level pass's first layout packed
-        // everything too tightly against the frame's own corner ornaments
-        // (worst at small card sizes - Character Card/Fusion slots as small
-        // as 84px wide) and gave the EquippedBadge a fixed-width slot too
-        // narrow for its own "EQUIPPED" text ("EQUIPP" got clipped). New
-        // margins: top row (Rarity/Level) pulled in further from both the
-        // top edge and the sides; Icon shrunk slightly; EquippedBadge now
-        // spans almost the full card width as its own row (not a
-        // corner-overlay) so its text always has room; Title/Description
-        // both use Best Fit (see ConfigureCardText's own comment) so they
-        // shrink to actually fit their box instead of clipping.
-        GameObject iconBackdropGO = new GameObject("IconBackdrop");
-        iconBackdropGO.transform.SetParent(cardGO.transform, false);
-        RectTransform iconBackdropRect = iconBackdropGO.AddComponent<RectTransform>();
-        iconBackdropRect.anchorMin = new Vector2(0.16f, 0.44f);
-        iconBackdropRect.anchorMax = new Vector2(0.84f, 0.87f);
-        iconBackdropRect.offsetMin = Vector2.zero;
-        iconBackdropRect.offsetMax = Vector2.zero;
-        Image iconBackdropImage = iconBackdropGO.AddComponent<Image>();
-        iconBackdropImage.color = new Color(cardPanelColor.r, cardPanelColor.g, cardPanelColor.b, 0.85f);
-        iconBackdropImage.raycastTarget = false;
-        card.iconBackdrop = iconBackdropImage;
+        // Card UI改修(2026-09-08) - 新共通素材「タイトル帯」。旧レイアウ
+        // トのTitle領域をこのプレート画像で置き換え、その上にTitleText/
+        // CountTextを重ねる(タイトル帯右端に所持枚数)。
+        GameObject titleBandGO = new GameObject("TitleBand");
+        titleBandGO.transform.SetParent(cardGO.transform, false);
+        RectTransform titleBandRect = titleBandGO.AddComponent<RectTransform>();
+        titleBandRect.anchorMin = new Vector2(0.03f, 0.185f);
+        titleBandRect.anchorMax = new Vector2(0.97f, 0.355f);
+        titleBandRect.offsetMin = Vector2.zero;
+        titleBandRect.offsetMax = Vector2.zero;
+        Image titleBandImageComp = titleBandGO.AddComponent<Image>();
+        titleBandImageComp.sprite = titleBandSprite;
+        titleBandImageComp.raycastTarget = false;
+        // preserveAspect=false (stretch to fill) - the supplied banner art's
+        // own native aspect (~2:1) is narrower than the width this slot
+        // needs to span on a 2:3 card, so a preserveAspect fit would
+        // letterbox it down to roughly half the card's width instead of
+        // reading as a full-width title plate. A disclosed simplification
+        // for this pass (mild horizontal stretch on the ornamental gems) -
+        // a future pass could either 9-slice this art (fixed-size end caps,
+        // stretchy middle) or source a wider-proportioned banner instead.
+        titleBandImageComp.preserveAspect = false;
+        card.titleBandImage = titleBandImageComp;
 
+        // Description backdrop - now only ever shown behind Description
+        // (showDetails mode), since Title moved onto TitleBandImage above.
         GameObject textBackdropGO = new GameObject("TextBackdrop");
         textBackdropGO.transform.SetParent(cardGO.transform, false);
         RectTransform textBackdropRect = textBackdropGO.AddComponent<RectTransform>();
-        textBackdropRect.anchorMin = new Vector2(0.07f, 0.03f);
-        textBackdropRect.anchorMax = new Vector2(0.93f, 0.34f);
+        textBackdropRect.anchorMin = new Vector2(0.07f, 0.02f);
+        textBackdropRect.anchorMax = new Vector2(0.93f, 0.175f);
         textBackdropRect.offsetMin = Vector2.zero;
         textBackdropRect.offsetMax = Vector2.zero;
         Image textBackdropImage = textBackdropGO.AddComponent<Image>();
-        textBackdropImage.color = new Color(cardPanelColor.r, cardPanelColor.g, cardPanelColor.b, 0.93f);
+        textBackdropImage.color = new Color(cardPanelColor.r, cardPanelColor.g, cardPanelColor.b, 0.85f);
         textBackdropImage.raycastTarget = false;
         card.textBackdrop = textBackdropImage;
 
-        GameObject iconGO = new GameObject("Icon");
-        iconGO.transform.SetParent(cardGO.transform, false);
-        RectTransform iconRect = iconGO.AddComponent<RectTransform>();
-        iconRect.anchorMin = new Vector2(0.20f, 0.46f);
-        iconRect.anchorMax = new Vector2(0.80f, 0.85f);
-        iconRect.offsetMin = Vector2.zero;
-        iconRect.offsetMax = Vector2.zero;
-        Image iconImage = iconGO.AddComponent<Image>();
-        iconImage.preserveAspect = true;
-        iconImage.raycastTarget = false;
-        card.iconImage = iconImage;
-
-        // Item 5 - a full-width strip between Icon and Title (not a corner
-        // overlay any more - too narrow for "EQUIPPED" to ever fit cleanly
-        // at small card sizes, which is exactly what clipped before).
+        // Item 5 - a full-width strip between Icon and the title band (not
+        // a corner overlay - too narrow for "EQUIPPED" to ever fit cleanly
+        // at small card sizes).
         GameObject equippedGO = new GameObject("EquippedBadge");
         equippedGO.transform.SetParent(cardGO.transform, false);
         RectTransform equippedRect = equippedGO.AddComponent<RectTransform>();
         equippedRect.anchorMin = new Vector2(0.12f, 0.365f);
-        equippedRect.anchorMax = new Vector2(0.88f, 0.435f);
+        equippedRect.anchorMax = new Vector2(0.88f, 0.43f);
         equippedRect.offsetMin = Vector2.zero;
         equippedRect.offsetMax = Vector2.zero;
         Image equippedBg = equippedGO.AddComponent<Image>();
@@ -1696,9 +1751,10 @@ public static class SceneBuilder
         StretchFull(equippedLabelGO.AddComponent<RectTransform>());
         Text equippedLabel = equippedLabelGO.AddComponent<Text>();
         ConfigureCardText(equippedLabel, Mathf.Max(8, DescFontSizeFor(width) - 2), FontStyle.Bold, new Color(1f, 0.93f, 0.75f));
-        // Best Fit - a full-width strip is still only ~30px tall on an
-        // 84px Character Card slot, so the text must be free to shrink
-        // below its nominal size rather than clip ("EQUIPP" before this).
+        // Best Fit - a full-width strip is still only ~30px tall on the
+        // smallest (Character Card) slots, so the text must be free to
+        // shrink below its nominal size rather than clip ("EQUIPP" before
+        // this bugfix).
         equippedLabel.resizeTextForBestFit = true;
         equippedLabel.resizeTextMinSize = 6;
         equippedLabel.resizeTextMaxSize = Mathf.Max(8, DescFontSizeFor(width) - 2);
@@ -1706,11 +1762,14 @@ public static class SceneBuilder
         card.equippedBadge = equippedGO;
         equippedGO.SetActive(false);
 
+        // Title text sits over the LEFT/CENTER portion of TitleBand -
+        // CountText (below) claims the band's own right edge, so Title
+        // never overlaps it.
         GameObject titleGO = new GameObject("Title");
         titleGO.transform.SetParent(cardGO.transform, false);
         RectTransform titleRect = titleGO.AddComponent<RectTransform>();
-        titleRect.anchorMin = new Vector2(0.06f, 0.22f);
-        titleRect.anchorMax = new Vector2(0.94f, 0.34f);
+        titleRect.anchorMin = new Vector2(0.09f, 0.20f);
+        titleRect.anchorMax = new Vector2(0.76f, 0.335f);
         titleRect.offsetMin = Vector2.zero;
         titleRect.offsetMax = Vector2.zero;
         Text titleText = titleGO.AddComponent<Text>();
@@ -1720,11 +1779,28 @@ public static class SceneBuilder
         titleText.resizeTextMaxSize = TitleFontSizeFor(width);
         card.titleText = titleText;
 
+        // Card UI改修(2026-09-08) - 所持枚数「×N」、タイトル帯の右端に固
+        // 定(所持枚数表示の位置を固定したい、という要望どおり)。
+        GameObject countGO = new GameObject("Count");
+        countGO.transform.SetParent(cardGO.transform, false);
+        RectTransform countRect = countGO.AddComponent<RectTransform>();
+        countRect.anchorMin = new Vector2(0.775f, 0.20f);
+        countRect.anchorMax = new Vector2(0.95f, 0.335f);
+        countRect.offsetMin = Vector2.zero;
+        countRect.offsetMax = Vector2.zero;
+        Text countTextComp = countGO.AddComponent<Text>();
+        ConfigureCardText(countTextComp, Mathf.Max(8, DescFontSizeFor(width) - 1), FontStyle.Bold, new Color(0.75f, 0.9f, 1f));
+        countTextComp.alignment = TextAnchor.MiddleRight;
+        countTextComp.resizeTextForBestFit = true;
+        countTextComp.resizeTextMinSize = 6;
+        countTextComp.resizeTextMaxSize = Mathf.Max(8, DescFontSizeFor(width) - 1);
+        card.countText = countTextComp;
+
         GameObject descGO = new GameObject("Description");
         descGO.transform.SetParent(cardGO.transform, false);
         RectTransform descRect = descGO.AddComponent<RectTransform>();
-        descRect.anchorMin = new Vector2(0.09f, 0.035f);
-        descRect.anchorMax = new Vector2(0.91f, 0.205f);
+        descRect.anchorMin = new Vector2(0.09f, 0.025f);
+        descRect.anchorMax = new Vector2(0.91f, 0.17f);
         descRect.offsetMin = Vector2.zero;
         descRect.offsetMax = Vector2.zero;
         Text descText = descGO.AddComponent<Text>();
@@ -1734,14 +1810,10 @@ public static class SceneBuilder
         descText.resizeTextMaxSize = DescFontSizeFor(width);
         card.descriptionText = descText;
 
-        // Card UI / Rarity Frame pass, item 2 - Rarity (top-left) and Level
-        // (top-right) are their own small rows, separate from Title so
-        // Title stays the single most prominent element per the brief.
-        // Pulled further in from the top/side edges (0.90/0.965 -> 0.87/
-        // 0.955, x-inset 0.08 -> 0.09) than the first pass, which sat close
-        // enough to the frame's own corner ornaments (visible in the ★
-        // reference art) to visually collide with them, especially at
-        // higher Rarity where those ornaments are busier.
+        // Card UI / Rarity Frame pass, item 2 - Rarity (top-left, shown only
+        // in showDetails mode now) and Level (top-right, ALWAYS shown per
+        // the new spec) are their own small rows, pulled in from the top/
+        // side edges to clear the frame's own corner ornaments.
         GameObject rarityGO = new GameObject("Rarity");
         rarityGO.transform.SetParent(cardGO.transform, false);
         RectTransform rarityRect = rarityGO.AddComponent<RectTransform>();
@@ -1801,6 +1873,16 @@ public static class SceneBuilder
 
     static int TitleFontSizeFor(float width) => Mathf.Max(10, Mathf.RoundToInt(width * (30f / ReferenceCardWidth)));
     static int DescFontSizeFor(float width) => Mathf.Max(9, Mathf.RoundToInt(width * (22f / ReferenceCardWidth)));
+
+    // Card UI改修(2026-09-08) - 「全カードの基準サイズを統一(512x768、縦
+    // 長2:3)」。従来はカードのRectTransform自体の縦横比がcardFrameSprite
+    // (Rarity 1のフォールバック用に読み込んでいた古いCardFrame.png)の
+    // 実ピクセル比にそのまま連動していた(cardHeight = cardWidth *
+    // (frameSprite.rect.height / width))ため、フォールバック画像を差し替
+    // えるたびにカード全体の比率が意図せず変わりうる脆い設計だった。今回
+    // 全画面で512x768=2:3に統一するにあたり、Spriteの実ピクセル比からは
+    // 完全に切り離した固定定数に変更。
+    const float CardAspect = 1.5f; // 768 / 512
 
     static void ConfigureCardText(Text text, int fontSize, FontStyle style, Color color)
     {
@@ -1998,13 +2080,22 @@ public static class SceneBuilder
     // Sprites lazily at runtime via Resources.Load (see its own comment) -
     // this method's only remaining job is configuring each PNG's import
     // settings once (Editor-only work that genuinely does need to run
-    // here), which is why the 4 usable frames (★2-★5; ★1's supplied source
-    // has no real alpha channel - see CardRarityFrames' own comment, so
-    // it's deliberately skipped here) live under Assets/Resources/
+    // here), which is why the 5 frames (★1-★5) live under Assets/Resources/
     // CardFrames/ - Resources.Load can only ever find assets physically
     // inside a folder literally named "Resources".
+    //
+    // Card UI改修(2026-09-08) - ★1は新しく供給された素材(元は
+    // Assets/Art/UI/CardFrames/CardFrameRarity1_raw.pngとして置かれていた
+    // が、本当にアルファチャンネルを持たない(Format24bppRgb)ことをPowerShell/
+    // System.Drawingで確認済みだった)を、今回マスターから新規に供給された
+    // ☆1.png(PowerShell/System.Drawingでコーナー/中央A=0・枠部分A≈253を
+    // 実際に確認済み、正しい透過を持つ)に差し替え、Resources/CardFrames/
+    // CardFrameRarity1.pngとして配置 - これで長年空いていた★1の穴が埋まり、
+    // CardRarityFrames.GetFrame(1, ...)がようやく実際のRarity 1専用フレー
+    // ムを返せるようになった。
     static void LoadCardRarityFrames()
     {
+        ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity1.png");
         ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity2.png");
         ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity3.png");
         ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity4.png");

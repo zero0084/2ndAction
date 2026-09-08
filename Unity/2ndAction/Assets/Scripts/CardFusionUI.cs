@@ -175,7 +175,11 @@ public class CardFusionUI : MonoBehaviour
             bool inDeck = gm.GetDeckLockedCountForStack(stack.cardId, stack.level) > 0;
 
             ownedCards[i].gameObject.SetActive(true);
-            ownedCards[i].ShowFrontImmediate(MakeStackCardData(card, stack.level, stack.count, equipped, inDeck));
+            // Card UI改修(2026-09-08) - showDetails:true。この画面には別
+            // 途詳細パネルがまだないため、合成素材を選ぶ判断に必要な効果
+            // 文を引き続き表示する(RewardCardUI.showDetailsのコメント参
+            // 照)。
+            ownedCards[i].ShowFrontImmediate(MakeStackCardData(card, stack.level, stack.count, equipped, inDeck), showDetails: true);
 
             bool isSelected = (stack.cardId == mainCardId && stack.level == mainLevel)
                 || (stack.cardId == subCardId && stack.level == subLevel);
@@ -200,7 +204,7 @@ public class CardFusionUI : MonoBehaviour
         if (card != null)
         {
             slot.gameObject.SetActive(true);
-            slot.ShowFrontImmediate(MakeStackCardData(card, level, CardInventory.GetCount(cardId, level), false, false));
+            slot.ShowFrontImmediate(MakeStackCardData(card, level, CardInventory.GetCount(cardId, level), false, false), showDetails: true);
             slot.SetSelected(true);
         }
         else
@@ -221,6 +225,8 @@ public class CardFusionUI : MonoBehaviour
     {
         string levelLabel = level >= CardInventory.MaxCardLevel ? $"Lv.{level} MAX" : $"Lv.{level}";
         string lockTag = equipped && inDeck ? "\nEQUIPPED / IN DECK" : equipped ? "\nEQUIPPED" : inDeck ? "\nIN DECK" : "";
+        // Card UI改修(2026-09-08) - 所持枚数はLevelLineから分離しCountへ
+        // (RewardCardData.Countのコメント参照)。
         return new RewardCardData
         {
             CardId = card.cardId,
@@ -228,7 +234,8 @@ public class CardFusionUI : MonoBehaviour
             Title = card.cardName,
             Description = card.description + lockTag,
             Rarity = card.rarity,
-            LevelLine = $"{levelLabel} x{count}",
+            LevelLine = levelLabel,
+            Count = count,
             ShowEquippedBadge = equipped
         };
     }
@@ -429,7 +436,7 @@ public class CardFusionUI : MonoBehaviour
         {
             var data = MakeStackCardData(card, level, CardInventory.GetTotalCount(card.cardId), false, false);
             revealCard.gameObject.SetActive(true);
-            revealCard.SetContent(data);
+            revealCard.SetContent(data, showDetails: true);
             revealCard.ShowBack();
             yield return revealCard.FlipToFront(0.35f);
             yield return revealCard.FlashFrame(0.3f);

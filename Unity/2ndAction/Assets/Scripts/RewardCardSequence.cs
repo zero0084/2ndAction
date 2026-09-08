@@ -303,7 +303,13 @@ public class RewardCardSequence : MonoBehaviour
         LogStep("Flip Start");
         for (int i = 0; i < cardCount; i++)
         {
-            cards[i].SetContent(cardData[i]);
+            // Card UI改修(2026-09-08) - showDetails:true。Level Up/Boss
+            // Reward選択はこの3枚を見て即決めるため、効果文/★を隠す新デ
+            // フォルトのシンプル表示ではなく、従来どおり常時表示のまま。
+            // DeckEditUIと違いこの画面には別途詳細パネルがないため、情報
+            // を失わせないための意図的な措置(RewardCardUI.showDetailsの
+            // コメント参照)。
+            cards[i].SetContent(cardData[i], showDetails: true);
             PlaySfx(flipSe);
             LogStep("Flip Card " + i);
             StartCoroutine(cards[i].FlipToFront(cardFlipDuration));

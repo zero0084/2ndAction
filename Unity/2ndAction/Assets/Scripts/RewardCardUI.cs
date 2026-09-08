@@ -17,12 +17,19 @@ public class RewardCardUI : MonoBehaviour
     public RectTransform rect;
     public CanvasGroup canvasGroup;
     public Image backImage;
+    // Card UI改修(2026-09-08) - 新しい共通デザイン素材(カード下地/タイト
+    // ル帯)。baseImageは表向き時の背景全体(旧: iconBackdrop/textBackdrop
+    // の単色パネルに代わるもの、ただしiconBackdropは可読性のため引き続き
+    // 併用)、titleBandImageはタイトル文字の背景となる横長の紺+金プレート。
+    // どちらもRarityに関係なく共通(frameImageだけがRarityで差し替わる)。
+    public Image baseImage;
+    public Image titleBandImage;
     public Image frameImage;
     // Card UI / Rarity Frame pass - the sprite CreateRewardCard was
     // originally built with (the project's existing generic CardFrame.png),
-    // kept as a fallback for CardRarityFrames.GetFrame - see that class's
-    // own comment for why Rarity 1 specifically still falls back to this
-    // for now.
+    // kept as CardRarityFrames.GetFrame's fallback for the rare case a
+    // Rarity Sprite fails to load (every Rarity 1-5 now has its own real
+    // frame asset - see CardRarityFrames' own comment).
     public Sprite defaultFrameSprite;
     // Plain dark panels sitting between the frame and the icon/text, purely
     // so the game world behind the card doesn't show through the frame
@@ -39,6 +46,11 @@ public class RewardCardUI : MonoBehaviour
     // 情報として") rather than folded into Title's own string.
     public Text rarityText;
     public Text levelText;
+    // Card UI改修(2026-09-08) - 所持枚数「×N」専用表示(RewardCardData.
+    // Countが1以下、またはこのカード自体が「所持枚数」の概念を持たない
+    // 呼び出し元(Reward/LevelUp選択・Fusionスロット等、Count未設定=0の
+    // まま)では非表示)。タイトル帯の右端に固定配置。
+    public Text countText;
     // Item 5 - a small "EQUIPPED" tag, toggled on/off rather than built per
     // call - RewardCardData.ShowEquippedBadge is false everywhere except
     // where a caller actually knows equip state.
@@ -48,9 +60,22 @@ public class RewardCardUI : MonoBehaviour
     RewardCardData data;
     public RewardCardData Data => data;
 
+    // Card UI改修(2026-09-08) - カード表面に常時表示するのはフレーム/イラ
+    // スト/タイトル/Lvの4つだけにする新方針(効果文/レア度★は詳細画面での
+    // み)。既存のRewardCardSequence(Level Up/Boss Reward選択)や
+    // CardFusionUI(合成素材選択)はまだ専用の詳細パネルを持たないため、
+    // それらの呼び出し元は引き続きshowDetails:trueを渡して従来どおり効果
+    // 文/★を表示させる(情報が全く見えなくなる退行を避けるための意図的な
+    // 経過措置 - 詳細パネルが用意され次第simpleに揃えられる)。DeckEditUI
+    // (COLLECTION/DECK/CHARACTER CARDS)は既存の中央詳細カラムがそのまま
+    // このuseに対応するため、デフォルト(false)のシンプル表示で問題ない。
+    bool showDetails;
+
     public void ShowBack()
     {
         backImage.enabled = true;
+        if (baseImage != null) baseImage.enabled = false;
+        if (titleBandImage != null) titleBandImage.enabled = false;
         frameImage.enabled = false;
         iconBackdrop.enabled = false;
         textBackdrop.enabled = false;
@@ -59,6 +84,7 @@ public class RewardCardUI : MonoBehaviour
         descriptionText.enabled = false;
         if (rarityText != null) rarityText.enabled = false;
         if (levelText != null) levelText.enabled = false;
+        if (countText != null) countText.enabled = false;
         if (equippedBadge != null) equippedBadge.SetActive(false);
         rect.localScale = Vector3.one;
         canvasGroup.alpha = 1f;
@@ -72,6 +98,8 @@ public class RewardCardUI : MonoBehaviour
     public void ShowEmpty()
     {
         backImage.enabled = false;
+        if (baseImage != null) baseImage.enabled = false;
+        if (titleBandImage != null) titleBandImage.enabled = false;
         frameImage.enabled = true;
         frameImage.sprite = defaultFrameSprite;
         frameImage.color = new Color(1f, 1f, 1f, 0.32f);
@@ -82,15 +110,20 @@ public class RewardCardUI : MonoBehaviour
         descriptionText.enabled = false;
         if (rarityText != null) rarityText.enabled = false;
         if (levelText != null) levelText.enabled = false;
+        if (countText != null) countText.enabled = false;
         if (equippedBadge != null) equippedBadge.SetActive(false);
         rect.localScale = Vector3.one;
         canvasGroup.alpha = 1f;
         canvasGroup.blocksRaycasts = false;
     }
 
-    public void SetContent(RewardCardData cardData)
+    // showDetails=false (new default) - "常時表示は フレーム/イラスト/
+    // タイトル/Lvのみ" (効果文・★は非表示、詳細画面用)。showDetails=true
+    // で従来どおり効果文/★も表示する(呼び出し元のコメント参照)。
+    public void SetContent(RewardCardData cardData, bool showDetails = false)
     {
         data = cardData;
+        this.showDetails = showDetails;
         if (iconImage.sprite != null) Destroy(iconImage.sprite);
         iconImage.sprite = cardData.Icon != null
             ? Sprite.Create(cardData.Icon, new Rect(0f, 0f, cardData.Icon.width, cardData.Icon.height), new Vector2(0.5f, 0.5f))
@@ -113,9 +146,11 @@ public class RewardCardUI : MonoBehaviour
         {
             Debug.Log($"[CardFrame] Card={cardData.Title}  Rarity={cardData.Rarity}  Frame={(frameImage.sprite != null ? frameImage.sprite.name : "null")}");
         }
+        // Card UI改修(2026-09-08) - ★はもう常時表示ではなく、showDetails
+        // (詳細表示)時のみ。
         if (rarityText != null)
         {
-            rarityText.enabled = true;
+            rarityText.enabled = showDetails;
             rarityText.text = new string('★', Mathf.Clamp(cardData.Rarity <= 0 ? 1 : cardData.Rarity, 1, 5));
         }
         if (levelText != null)
@@ -124,22 +159,36 @@ public class RewardCardUI : MonoBehaviour
             levelText.enabled = hasLevel;
             levelText.text = cardData.LevelLine;
         }
+        // Card UI改修(2026-09-08) - 所持枚数「×N」。Countが1以下(未設定含
+        // む)なら非表示 - 「複数所持している場合」だけ表示する仕様どおり。
+        if (countText != null)
+        {
+            bool hasCount = cardData.Count > 1;
+            countText.enabled = hasCount;
+            countText.text = hasCount ? $"×{cardData.Count}" : "";
+        }
         if (equippedBadge != null) equippedBadge.SetActive(cardData.ShowEquippedBadge);
     }
 
     // Static (no animation) face-up display for grid-style UI like the Deck
     // Edit screen, which reuses this same component instead of building its
-    // own card visuals from scratch.
-    public void ShowFrontImmediate(RewardCardData cardData)
+    // own card visuals from scratch. showDetails - see the class-level
+    // field comment; defaults to the new simplified face.
+    public void ShowFrontImmediate(RewardCardData cardData, bool showDetails = false)
     {
-        SetContent(cardData);
+        SetContent(cardData, showDetails);
         backImage.enabled = false;
+        if (baseImage != null) baseImage.enabled = true;
+        if (titleBandImage != null) titleBandImage.enabled = true;
         frameImage.enabled = true;
         iconBackdrop.enabled = true;
-        textBackdrop.enabled = true;
+        // Card UI改修(2026-09-08) - textBackdropは今やDescription専用(旧
+        // レイアウトのTitle領域はTitleBandImage自身が担うため)。showDetails
+        // がfalseの新シンプル表示ではDescription自体を出さないので不要。
+        textBackdrop.enabled = showDetails;
         iconImage.enabled = true;
         titleText.enabled = true;
-        descriptionText.enabled = true;
+        descriptionText.enabled = showDetails;
         rect.localScale = Vector3.one;
         canvasGroup.alpha = 1f;
         SetInteractable(true);
@@ -181,21 +230,26 @@ public class RewardCardUI : MonoBehaviour
         yield return ScaleXTo(0f, half);
 
         backImage.enabled = false;
+        if (baseImage != null) baseImage.enabled = true;
+        if (titleBandImage != null) titleBandImage.enabled = true;
         frameImage.enabled = true;
         iconBackdrop.enabled = true;
-        textBackdrop.enabled = true;
+        textBackdrop.enabled = showDetails;
         iconImage.enabled = true;
         titleText.enabled = true;
-        descriptionText.enabled = true;
+        descriptionText.enabled = showDetails;
         // Card UI / Rarity Frame pass - ShowBack() (always called just
         // before this, per every caller's SetContent->ShowBack->
         // FlipToFront sequence) turns these back off, so the flip needs to
         // explicitly restore them here alongside the rest of the front face
         // - data is still whatever SetContent last set (rarityText/
         // levelText's actual displayed text is unaffected by
-        // ShowBack/FlipToFront, only their enabled state is).
-        if (rarityText != null) rarityText.enabled = true;
+        // ShowBack/FlipToFront, only their enabled state is). showDetails is
+        // likewise whatever the preceding SetContent call was given (Card
+        // UI改修2026-09-08).
+        if (rarityText != null) rarityText.enabled = showDetails;
         if (levelText != null) levelText.enabled = !string.IsNullOrEmpty(data.LevelLine);
+        if (countText != null) countText.enabled = data.Count > 1;
         if (equippedBadge != null) equippedBadge.SetActive(data.ShowEquippedBadge);
 
         yield return ScaleXTo(1f, half);
