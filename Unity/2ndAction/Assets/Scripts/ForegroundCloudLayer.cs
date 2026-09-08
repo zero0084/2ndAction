@@ -76,10 +76,21 @@ public class ForegroundCloudLayer : MonoBehaviour
             if (clouds[i] == null) continue;
             clouds[i].position += Vector3.right * speeds[i] * Time.deltaTime;
 
+            // Bugfix 2026-09-08, item5 - 「空に浮く雲が最初のほうにしか出
+            // てこない」。雲の絶対速度(speeds[i]、最大でも~1.8)はカメラ自
+            // 身の移動速度(プレイヤーの走行速度、5以上でむしろ距離ととも
+            // に加速していく)より常に遅いため、relativeは開始直後から単
+            // 調減少し続け、カメラより後方(画面外左側)へ落ちていく一方に
+            // なる - つまり「カメラより速く前方へ出過ぎた」場合しか検知
+            // していなかった元のrelative > spanWidth*0.5fは実際には一度も
+            // 成立せず、3つの雲は開始直後に画面外へ流れ切ったら二度と再配
+            // 置されなかった(=「最初のほうにしか出てこない」の直接原因)。
+            // 正しくは「カメラより後方へ落ちすぎた」ほうを検知して前方へ
+            // 再配置する。
             float relative = clouds[i].position.x - camX;
-            if (relative > spanWidth * 0.5f)
+            if (relative < -spanWidth * 0.5f)
             {
-                PlaceAt(i, -spanWidth * 0.5f);
+                PlaceAt(i, spanWidth * 0.5f);
             }
         }
     }

@@ -320,11 +320,13 @@ public static class EnemyDatabaseBuilder
             hpMultiplier = 1f,
             bigKnockbackOnHit = false,
             enableVisualFacing = true,
-            // The Run Animation reference sheet clearly faces left in every
-            // frame (confirmed by inspection) - Chaser/Rusher are ALWAYS
-            // moving per their own Behavior, so the run frames are what's
-            // visible essentially all the time; false here matches that.
-            defaultFacingRight = false,
+            // Bugfix 2026-09-08 - 「雑魚敵Runnerの向きが逆」報告を受けて
+            // RunnerEnemy.png(idle)とAssets/Art/RunnerRun/runner_run_0.png
+            // (走行1コマ目)を実際に目視確認した結果、両方とも頭/口先が
+            // 画像の右側にある=素材はRIGHT向きだと判明。旧コメントの
+            // 「明確に左向き」という前提が誤りだった(このコメントを書いた
+            // 時点で実際の画像を再確認していなかったと思われる)。
+            defaultFacingRight = true,
             useRunnerRunFrames = true,
             mileReward = 3,
             // Bugfix 2026-09-06 (再調整, root cause found) - the previous
@@ -362,7 +364,7 @@ public static class EnemyDatabaseBuilder
             hpMultiplier = 1f,
             bigKnockbackOnHit = false,
             enableVisualFacing = true,
-            defaultFacingRight = false, // see chaser_runner's matching comment
+            defaultFacingRight = true, // Bugfix 2026-09-08 - see chaser_runner's matching comment
             useRunnerRunFrames = true,
             mileReward = 3,
             visualScaleMultiplier = 1.52f // same shared Runner art - see chaser_runner's matching comment

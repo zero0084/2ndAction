@@ -55,10 +55,19 @@ public class PlayerController : MonoBehaviour
     // に非表示 - 通常プレイでは見えない、という要件)。
     public float deadlineWarningStartDistance = 5f;
     public Color deadlineWarningColor = new Color(0.75f, 0.12f, 0.12f);
-    // 警告が画面を覆う最大高さ(画面高さに対する割合) - 最大接近時でも
-    // 画面の下側だけに留め、視界の大部分を邪魔しない。
-    public float deadlineWarningMaxHeightFraction = 0.32f;
-    public float deadlineWarningMaxAlpha = 0.4f;
+    // Bugfix 2026-09-08, item6 - 「デッドラインが見ずらいため、デッドラ
+    // インより下を赤い雲で覆い隠すように表示して」。上の4つは「画面下端
+    // からの固定割合」でぼんやり滲ませるだけで、実際のデッドライン(failY)
+    // の画面上の位置とは無関係だった - 見た目の警告と実際の危険度が視覚
+    // 的に一致しないため分かりづらかった。以下は failY を実際にワールド
+    // →スクリーン変換し、その線から下を丸ごと不透明に近い赤霧で覆う
+    // (=文字通り"デッドラインより下"を覆い隠す)ための追加設定。
+    // fadeBandHeight: 覆いの上端(デッドライン位置)にモヤ状のグラデーシ
+    // ョンを付ける高さ(px) - 硬い直線で切り替わらないようにする。
+    // solidAlpha: 覆いの本体(fadeBand より下)の不透明度 - 0.4程度だった
+    // 旧実装よりずっと濃く、実質「見えなくする」レベルまで強める。
+    public float deadlineFogFadeBandHeight = 180f;
+    public float deadlineFogSolidAlpha = 0.92f;
     // Visually tilts the whole player to match the ground slope while
     // grounded (never while airborne/jumping, and never on the always-flat
     // sky path), so an upright sprite doesn't show a wedge-shaped gap on
@@ -401,6 +410,18 @@ public class PlayerController : MonoBehaviour
 
     Vector3 hitboxBaseScale = Vector3.one;
     Vector3 hitboxBaseLocalPos;
+    // Bugfix 2026-09-08 - 「攻撃範囲拡張カードが上/下攻撃に効かない」修正
+    // 用。Forward/Backward側はApplyComboStageToHitboxが毎回attackHitboxの
+    // localScale/localPositionをAttackRangeMultiplier込みで再計算していた
+    // が、DoUpAttack/DoDiveAttackはSlash FXの見た目(SetComboStage)にしか
+    // AttackRangeMultiplierを渡しておらず、実際のupAttackHitbox/
+    // downAttackHitboxのCollider2Dサイズは常に固定のままだった(見た目だけ
+    // 伸びて実際の判定は伸びない)。Forwardと同じ「Awakeで基準値を保存→
+    // 発動時にAttackRangeMultiplierを掛けて上書き」の形に揃える。
+    Vector3 upHitboxBaseScale = Vector3.one;
+    Vector3 upHitboxBaseLocalPos;
+    Vector3 downHitboxBaseScale = Vector3.one;
+    Vector3 downHitboxBaseLocalPos;
 
     // Operation System Ver.2 - タップ=ジャンプが廃止されたことで、旧
     // jumpSuppressionAfterAttack(「連続攻撃中の誤ジャンプ」抑制タイマー)
@@ -434,8 +455,18 @@ public class PlayerController : MonoBehaviour
             hitboxBaseScale = attackHitbox.transform.localScale;
             hitboxBaseLocalPos = attackHitbox.transform.localPosition;
         }
-        if (upAttackHitbox != null) upAttackHitbox.enabled = false;
-        if (downAttackHitbox != null) downAttackHitbox.enabled = false;
+        if (upAttackHitbox != null)
+        {
+            upAttackHitbox.enabled = false;
+            upHitboxBaseScale = upAttackHitbox.transform.localScale;
+            upHitboxBaseLocalPos = upAttackHitbox.transform.localPosition;
+        }
+        if (downAttackHitbox != null)
+        {
+            downAttackHitbox.enabled = false;
+            downHitboxBaseScale = downAttackHitbox.transform.localScale;
+            downHitboxBaseLocalPos = downAttackHitbox.transform.localPosition;
+        }
     }
 
     void Update()
@@ -1008,19 +1039,50 @@ public class PlayerController : MonoBehaviour
         float intensity = Mathf.Clamp01((deadlineWarningStartDistance - distance) / Mathf.Max(0.01f, deadlineWarningStartDistance));
         if (intensity <= 0.001f) return;
 
-        const int stripCount = 20;
-        float maxHeight = Screen.height * deadlineWarningMaxHeightFraction;
-        float stripHeight = maxHeight / stripCount;
+        // Bugfix 2026-09-08, item6 - failYをワールド→スクリーンY(GUI座標、
+        // 0=画面最上部)へ変換し、その線から画面最下部までを丸ごと覆う。
+        // Camera.mainが取れない/デッドラインがまだ画面下端より下(=遠く
+        // てまだ見えないはず)の時は何も描かない。
+        Camera cam = Camera.main;
+        if (cam == null) return;
+
+        float camTopWorldY = cam.transform.position.y + cam.orthographicSize;
+        float worldHeight = cam.orthographicSize * 2f;
+        if (worldHeight <= 0.0001f) return;
+        float deadlineScreenY = (camTopWorldY - failY) / worldHeight * Screen.height;
+
+        float topY = Mathf.Clamp(deadlineScreenY, 0f, Screen.height);
+        float coverHeight = Screen.height - topY;
+        if (coverHeight <= 0f) return; // デッドラインがまだ画面下端より下 - 覆う範囲なし
 
         Color prev = GUI.color;
-        for (int i = 0; i < stripCount; i++)
+
+        // モヤ状のグラデーション帯(デッドライン直上、intensityで滲みの
+        // 濃さも一緒に強める) - coverHeightがfadeBandより浅い(デッドラ
+        // インが画面のほぼ下端にある)場合はcoverHeight全体をグラデーシ
+        // ョンにする。
+        const int fadeStrips = 16;
+        float fadeBandHeight = Mathf.Min(deadlineFogFadeBandHeight, coverHeight);
+        float fadeStripHeight = fadeBandHeight / fadeStrips;
+        for (int i = 0; i < fadeStrips; i++)
         {
-            float fadeT = stripCount > 1 ? (float)i / (stripCount - 1) : 0f; // 0=画面最下部(最も濃い) -> 1=霧の上端(透明)
-            float alpha = Mathf.Lerp(deadlineWarningMaxAlpha, 0f, fadeT) * intensity;
-            float y = Screen.height - (i + 1) * stripHeight;
+            float fadeT = fadeStrips > 1 ? (float)i / (fadeStrips - 1) : 0f; // 0=デッドライン直上(透明)->1=帯の下端(ほぼ本体濃度)
+            float alpha = Mathf.Lerp(0f, deadlineFogSolidAlpha, fadeT) * intensity;
+            float y = topY + i * fadeStripHeight;
             GUI.color = new Color(deadlineWarningColor.r, deadlineWarningColor.g, deadlineWarningColor.b, alpha);
-            GUI.DrawTexture(new Rect(0f, y, Screen.width, stripHeight + 1f), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(0f, y, Screen.width, fadeStripHeight + 1f), Texture2D.whiteTexture);
         }
+
+        // 帯の下、画面最下部までは本体(ほぼ不透明) - "デッドラインより下
+        // を覆い隠す"の本体部分。
+        float solidTop = topY + fadeBandHeight;
+        float solidHeight = Screen.height - solidTop;
+        if (solidHeight > 0f)
+        {
+            GUI.color = new Color(deadlineWarningColor.r, deadlineWarningColor.g, deadlineWarningColor.b, deadlineFogSolidAlpha * intensity);
+            GUI.DrawTexture(new Rect(0f, solidTop, Screen.width, solidHeight), Texture2D.whiteTexture);
+        }
+
         GUI.color = prev;
     }
 
@@ -1198,7 +1260,12 @@ public class PlayerController : MonoBehaviour
     {
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(isAirborne ? 2 : 1);
         if (upAttackSlashVisual != null) upAttackSlashVisual.SetComboStage(isAirborne ? 2 : 1, AttackRangeMultiplier);
-        if (upAttackHitbox != null) upAttackHitbox.enabled = true;
+        if (upAttackHitbox != null)
+        {
+            upAttackHitbox.transform.localScale = upHitboxBaseScale * AttackRangeMultiplier;
+            upAttackHitbox.transform.localPosition = upHitboxBaseLocalPos * AttackRangeMultiplier;
+            upAttackHitbox.enabled = true;
+        }
 
         yield return new WaitForSeconds(upAttackActiveTime);
 
@@ -1215,7 +1282,12 @@ public class PlayerController : MonoBehaviour
         isDiveAttacking = true;
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(2);
         if (downAttackSlashVisual != null) downAttackSlashVisual.SetComboStage(1, AttackRangeMultiplier);
-        if (downAttackHitbox != null) downAttackHitbox.enabled = true;
+        if (downAttackHitbox != null)
+        {
+            downAttackHitbox.transform.localScale = downHitboxBaseScale * AttackRangeMultiplier;
+            downAttackHitbox.transform.localPosition = downHitboxBaseLocalPos * AttackRangeMultiplier;
+            downAttackHitbox.enabled = true;
+        }
     }
 
     void EndDiveAttack()

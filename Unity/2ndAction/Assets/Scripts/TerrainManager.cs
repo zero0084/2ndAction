@@ -54,6 +54,8 @@ public class TerrainManager : MonoBehaviour
     public float flatLength = 6f;
     public float slopeLength = 6f;
     public float slopeHeight = 2f;
+    // Bugfix 2026-09-08, item4 - see AddChunk's leftBleed comment.
+    public float cornerBleedSafetyMargin = 1.4f;
     public float pitWidth = 3f;
     public float groundThickness = 1f;
 
@@ -102,6 +104,14 @@ public class TerrainManager : MonoBehaviour
     public float skyPathGapMin = 15f;
     public float skyPathGapMax = 30f;
     public float skyPathStartDistance = 60f;
+    // Bugfix 2026-09-08, item3 - 「空中に斜めの道とかも生成されるように
+    // して」。従来はSkyChunkが常にy一定(完全水平)だったのを、UpSlope/
+    // DownSlopeと同じ考え方でたまに傾斜させる。skyPathMinClearanceAbove
+    // Groundは、下り斜面が自分の着地点直下の地面に近づきすぎない/めり込
+    // まないようにするための下限クランプ。
+    public float skyPathSlopeChance = 0.35f;
+    public float skyPathSlopeHeight = 1.5f;
+    public float skyPathMinClearanceAboveGround = 1.6f;
 
     enum ChunkType { Flat, UpSlope, DownSlope, Pit }
 
@@ -123,7 +133,7 @@ public class TerrainManager : MonoBehaviour
 
     class SkyChunk
     {
-        public float startX, endX, y;
+        public float startX, endX, startY, endY;
     }
 
     readonly List<RuntimeChunk> chunks = new List<RuntimeChunk>();
@@ -215,7 +225,12 @@ public class TerrainManager : MonoBehaviour
         for (int i = 0; i < skyChunks.Count; i++)
         {
             SkyChunk c = skyChunks[i];
-            if (x >= c.startX && x <= c.endX) return c.y;
+            if (x >= c.startX && x <= c.endX)
+            {
+                float span = c.endX - c.startX;
+                float t = span > 0.0001f ? (x - c.startX) / span : 0f;
+                return Mathf.Lerp(c.startY, c.endY, t);
+            }
         }
         return null;
     }
@@ -224,8 +239,21 @@ public class TerrainManager : MonoBehaviour
     {
         float startX = nextSkyStartX;
         float endX = startX + skyPathSegmentLength;
-        float groundY = GetHeightAt((startX + endX) * 0.5f) ?? nextStartY;
-        float y = groundY + skyPathHeightAboveGround;
+        float groundYStart = GetHeightAt(startX) ?? nextStartY;
+        float groundYEnd = GetHeightAt(endX) ?? groundYStart;
+        float startY = groundYStart + skyPathHeightAboveGround;
+
+        // Bugfix 2026-09-08, item3 - occasionally slope this segment up or
+        // down across its length instead of always staying perfectly flat,
+        // same spirit as the ground path's UpSlope/DownSlope chunks.
+        float endY = startY;
+        if (Random.value < skyPathSlopeChance)
+        {
+            float delta = Random.value < 0.5f ? skyPathSlopeHeight : -skyPathSlopeHeight;
+            endY = startY + delta;
+            float minEndY = groundYEnd + skyPathMinClearanceAboveGround;
+            if (endY < minEndY) endY = minEndY;
+        }
 
         // Uses the cloud sprite instead of the regular ground texture, since
         // these platforms float in the sky rather than sitting on the
@@ -246,9 +274,9 @@ public class TerrainManager : MonoBehaviour
         // (LoadTiledSprite in Build()) for whenever this gets picked back
         // up with a way to actually see the result.
         GroundFactory.CreateSlopeVisual(transform, squareSprite, skyPathSprite, platformArt,
-            new Vector2(startX, y), new Vector2(endX, y), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor);
+            new Vector2(startX, startY), new Vector2(endX, endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor);
 
-        skyChunks.Add(new SkyChunk { startX = startX, endX = endX, y = y });
+        skyChunks.Add(new SkyChunk { startX = startX, endX = endX, startY = startY, endY = endY });
         nextSkyStartX = endX + Random.Range(skyPathGapMin, skyPathGapMax);
     }
 
@@ -408,7 +436,15 @@ public class TerrainManager : MonoBehaviour
             {
                 float theta = Mathf.Atan2(slopeHeight, slopeLength);
                 float outerDepth = platformVisualHeight - platformSurfaceInset;
-                leftBleed = outerDepth * Mathf.Tan(theta);
+                // Bugfix 2026-09-08, item4 - 「道の角が少し浮いたり、離れた
+                // りする」報告。上のtan(theta)は幾何学的には既に必要量を満
+                // たしているはずだが、実際の素材(岩/雲の下面)は完全な矩形
+                // ではなく縁がギザギザ/丸みを帯びているため、テクスチャの
+                // 不透明部分がクアッドの端まで届いておらず、ジオメトリ上は
+                // 覆えていてもアルファの隙間として稀に見えてしまう -
+                // cornerBleedSafetyMarginで少し多めに食い込ませ、素材の縁の
+                // 不整形分を吸収する。
+                leftBleed = outerDepth * Mathf.Tan(theta) * cornerBleedSafetyMargin;
             }
 
             chunk.visual = GroundFactory.CreateSlopeVisual(transform, squareSprite, groundSprite, platformArt,
