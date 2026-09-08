@@ -2407,54 +2407,65 @@ public static class SceneBuilder
         // sword extends, same as the other attack folders already do.
         ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttackSmall_v1", 207f);
         ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttackLarge_v1", 180f);
-        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerJumpStart_v1", 149f);
-        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerDoubleJump_v1", 227f);
         ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerLand_v1", 213f);
-        // 方向攻撃システム Ver.2(2026-09-07)、項目2 - "下降攻撃"用の新規
-        // フレーム。実体はAssets/Art/PlayerJump_v1/jump_01.pngをPowerShell
-        // (System.Drawing、既存のalpha-bounding-box計測と同じ手法)で
-        // ピクセルの再スケールなし・純粋な回転(0°/20°/35°、足元付近を
-        // 回転軸)のみ加工した3枚 - キャラクター本体のピクセルサイズ自体
-        // は元のjump_01と全く変わらないため、PPUも同じ167で正しく揃う
-        // (回転でキャンバスの見かけの高さが変わっても、その分だけpivot
-        // 計算がフレームごとに追従するので破綻しない)。新規の手描きアニ
-        // メーションを起こす画像生成ツールが無いため、既存素材を回転さ
-        // せて「下向きに構え直す」動きへ転用した設計判断(マスターへの開
-        // 示事項 - 実機で違和感があれば専用アートへの差し替えも検討)。
-        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerDownAttack_v1", 167f);
+
+        // 上下攻撃アニメーション差し替え(2026-09-08) - マスターから供給
+        // された専用手描きアニメーション3種(地上上攻撃5枚/空中上攻撃5枚/
+        // 下降攻撃3枚)に差し替え。旧実装(既存のJumpStart/AttackSmall/
+        // DoubleJump素材を「たまたま流用」していたもの、および
+        // PlayerJump_v1/jump_01.pngを回転加工しただけの下降攻撃3枚)を全て
+        // 置き換える - PlayerAnimator/PlayerController側のState機械(Jump
+        // Start/DoubleJump/DownAttack)自体は無改造のまま(ブリーフの「既存
+        // のGround判定が利用できる場合は新しい判定システムを作らない」指示
+        // どおり - 地上上攻撃はJumpStarted、空中上攻撃はDoubleJumpedという
+        // 既存イベントがそのまま「Grounded/Airborne」の判別を兼ねている)。
+        //
+        // Pivot: 供給されたシートは剣の振り幅に応じて各コマの実効横幅が
+        // 変わり、キャラクター本体が水平方向に中央固定されていない(既存
+        // のConfigureSpriteFolderImportWithFootPivotが前提とするX=0.5固定
+        // が使えない) - マスターの依頼書自身が名指しで警告していた「画像
+        // サイズ基準で中央揃えするとガクガクする」症状を避けるため、地上
+        // 版は自動足元検出(X,Y両方)、空中版と下降攻撃は目視で選んだ胴体/
+        // 剣先基準点を個別に指定している(下記ConfigureSpriteFolderImport
+        // WithFootPivotXY/WithManualPivots参照)。
+        //
+        // PPU: 各フォルダのPPUは、そのState開始直後にプレイヤーが最初に
+        // 見るフレーム(=直前のState、Run/Jumpと同じ高さで違和感なく繋がる
+        // べきフレーム)のアルファ内容の高さを1.13ワールド単位の基準に
+        // 合わせて算出(既存のPlayerAttackSmall_v1が「Stage1開始直後に見
+        // える最初のフレーム」を基準にPPUを再調整した、という前例と同じ
+        // 考え方)。剣が伸びきる中盤コマではその分やや大きく見える(=既存
+        // の攻撃アニメ群も同様に許容している、振りの勢いによる自然な変化)。
+        ConfigureSpriteFolderImportWithFootPivotXY("Assets/Art/PlayerUpAttackGround_v1", 249f);
+        Vector2[] upAttackAirPivots =
+        {
+            new Vector2(0.564f, 0.351f), // upattackair_00 - 振りかぶり開始
+            new Vector2(0.530f, 0.406f),
+            new Vector2(0.426f, 0.523f), // upattackair_02 - 頭上へ最大に振り抜いた瞬間
+            new Vector2(0.449f, 0.406f),
+            new Vector2(0.576f, 0.351f), // upattackair_04 - 空中姿勢へ復帰
+        };
+        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerUpAttackAir_v1", 321f, upAttackAirPivots);
+
+        Vector2[] downAttackPivots =
+        {
+            new Vector2(0.666f, 0.445f), // downattack_00 - 振りかぶり(胴体基準)
+            new Vector2(0.575f, 0.535f), // downattack_01 - 急降下姿勢(胴体基準、急降下中はこのコマを保持)
+        };
+        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttack_v1", 551f, downAttackPivots);
+        Vector2[] downAttackLandPivots = { new Vector2(0.504f, 0.077f) }; // downattackland_00 - 剣先/衝撃エフェクトの接地点基準(他フォルダの足元Pivot(~0.08)と近い値で一貫性を確認済み)
+        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttackLand_v1", 345f, downAttackLandPivots);
 
         Sprite[] runFrames = LoadSpriteSequence("Assets/Art/PlayerRun_v1");
         Sprite[] jumpFrames = LoadSpriteSequence("Assets/Art/PlayerJump_v1");
         Sprite[] attackFrames = LoadSpriteSequence("Assets/Art/PlayerAttack_v1");
         Sprite[] attackFramesSmall = LoadSpriteSequence("Assets/Art/PlayerAttackSmall_v1");
         Sprite[] attackFramesLarge = LoadSpriteSequence("Assets/Art/PlayerAttackLarge_v1");
-        Sprite[] jumpStartRawFrames = LoadSpriteSequence("Assets/Art/PlayerJumpStart_v1");
-        Sprite[] doubleJumpFrames = LoadSpriteSequence("Assets/Art/PlayerDoubleJump_v1");
+        Sprite[] upAttackGroundFrames = LoadSpriteSequence("Assets/Art/PlayerUpAttackGround_v1");
+        Sprite[] upAttackAirFrames = LoadSpriteSequence("Assets/Art/PlayerUpAttackAir_v1");
         Sprite[] landFrames = LoadSpriteSequence("Assets/Art/PlayerLand_v1");
         Sprite[] downAttackFrames = LoadSpriteSequence("Assets/Art/PlayerDownAttack_v1");
-
-        // 方向攻撃システム Ver.2、項目2 - "上昇攻撃専用モーション"(地上側)。
-        // ブリーフの「踏み込み→剣を下から上へ振り上げる→上昇→空中姿勢へ
-        // 自然につながる」という流れを、新規手描きフレームなしで既存素材
-        // の「組み合わせ」として実現: jumpStart_00(既存の膝を落とした
-        // 踏み込みポーズ)を先頭に、既存のPlayerAttackSmall_v1の5枚
-        // (attacksmall_00→04、元々は前方攻撃Stage1用だが、実際には低い
-        // 構えから剣が真上に達するまでの綺麗な「振り上げ」アークになって
-        // いる - たまたま見つかった好都合な流用先)をそのまま繋げる。この
-        // 6枚をJumpStart状態(既存のState.JumpStart、PlayerController.
-        // JumpStartedイベントで再生される)にそのまま割り当てるだけで、
-        // PlayerAnimator/State機械自体は無改造で済む。
-        Sprite[] upAttackGroundFrames;
-        if (jumpStartRawFrames.Length > 0 && attackFramesSmall.Length > 0)
-        {
-            upAttackGroundFrames = new Sprite[1 + attackFramesSmall.Length];
-            upAttackGroundFrames[0] = jumpStartRawFrames[0];
-            for (int i = 0; i < attackFramesSmall.Length; i++) upAttackGroundFrames[i + 1] = attackFramesSmall[i];
-        }
-        else
-        {
-            upAttackGroundFrames = jumpStartRawFrames.Length > 0 ? jumpStartRawFrames : attackFramesSmall;
-        }
+        Sprite[] downAttackLandFrames = LoadSpriteSequence("Assets/Art/PlayerDownAttackLand_v1");
 
         if (runFrames.Length > 0)
         {
@@ -2464,22 +2475,22 @@ public static class SceneBuilder
             animator.attackFrames = attackFrames;
             animator.attackFramesSmall = attackFramesSmall;
             animator.attackFramesLarge = attackFramesLarge;
+            // 上下攻撃アニメーション差し替え(2026-09-08) - jumpStartFrames/
+            // doubleJumpFramesという既存フィールド名自体は変更していない
+            // (タップジャンプ廃止以降、ジャンプは常に上攻撃を伴うため、
+            // 「JumpStart State = 地上上攻撃」「DoubleJump State = 空中上
+            // 攻撃」という対応そのものは既に成立している - フィールドの
+            // 中身だけを専用アートへ差し替えた)。
             animator.jumpStartFrames = upAttackGroundFrames;
-            animator.doubleJumpFrames = doubleJumpFrames;
+            animator.doubleJumpFrames = upAttackAirFrames;
             animator.landFrames = landFrames;
             animator.downAttackFrames = downAttackFrames;
-            // jumpStartFrames grew from 2 frames to 6 (see above) - slowed
-            // down from the original 7fps so the new windup+swing-up reads
-            // clearly rather than blurring past in the same short window
-            // the old 2-frame crouch used.
-            animator.jumpStartFps = 9f;
-            // 項目2 - 空中側(二段ジャンプ相当)は既存のPlayerDoubleJump_v1
-            // 3枚(doublejump_00→02、たまたま既に「屈み込み→上昇→剣が頭
-            // 上に達する」という綺麗な流れになっていた)をそのまま流用、
-            // 新規フレームは追加していない。デフォルトの9fpsだと「剣が
-            // 頭上に達した」最終フレームがほぼ一瞬しか見えなかったため、
-            // 7fpsへ落として「振り上げた」ことが視認できる時間を確保。
-            animator.doubleJumpFps = 7f;
+            animator.downAttackLandFrames = downAttackLandFrames;
+            // 5枚を、Hitbox有効時間(upAttackActiveTime=0.28s、PlayerController
+            // 参照)とほぼ同じ長さで再生しきるfps - 見た目の振りとHitboxの
+            // タイミングが大きくズレないようにする。
+            animator.jumpStartFps = 18f;
+            animator.doubleJumpFps = 18f;
             sr.sprite = runFrames[0];
         }
 
@@ -2563,7 +2574,17 @@ public static class SceneBuilder
         // sprite sheet.
         upSlashGO.transform.localRotation = Quaternion.Euler(0f, 0f, 80f);
         var upSlashVisual = upSlashGO.AddComponent<AttackSlashVisual>();
-        upSlashVisual.frames = LoadSpriteSequence("Assets/Art/AttackSlashFx");
+        // 上下攻撃アニメーション差し替え(2026-09-08) - この汎用SlashFXは
+        // 「新しい専用アートに斬撃エフェクトが描かれていなかった旧構成」
+        // 向けの代替品だった。新しい地上/空中上攻撃フレーム自体に青白い
+        // 斬撃(三日月状のswoosh)が描き込まれているため、framesを敢えて
+        // 割り当てず未使用のままにする - AttackSlashVisual.SetComboStageは
+        // frames未設定なら何もしない(null安全)ので、PlayerController側の
+        // upAttackSlashVisual参照・AttackRangeMultiplier反映コードは無改
+        // 造のまま安全に「二重表示なし」を実現できる。DownAttackSlash側は
+        // 新しい下降攻撃フレーム(windup/tuck)自体には斬撃が描かれていない
+        // ため、従来どおりframesを割り当てて残す(下記)。
+        // upSlashVisual.frames = LoadSpriteSequence("Assets/Art/AttackSlashFx");
 
         pc.upAttackHitbox = upHitboxCol;
         pc.upAttackSlashVisual = upSlashVisual;
@@ -2878,10 +2899,22 @@ public static class SceneBuilder
     // go through TextureImporterSettings.
     static void ApplyCustomPivot(TextureImporter importer, float pivotY)
     {
+        ApplyCustomPivot(importer, new Vector2(0.5f, pivotY));
+    }
+
+    // 上下攻撃アニメーション差し替え(2026-09-08) - X も明示指定できる版。
+    // 既存のApplyCustomPivot(pivotYのみ)はX=0.5固定 - 供給元シートが
+    // "キャラクターが各コマで水平方向に完全に中央揃えされている"前提に依
+    // 存しており、その前提が崩れる(このパスの上/下攻撃シートは剣の振り
+    // 幅に応じて各コマの実効幅が変わり、キャラクター本体の水平位置が0.5
+    // からズレる)と再生中に本体がガクガク横移動して見える - マスターの
+    // 依頼書自身が名指しで警告していた症状そのもの。
+    static void ApplyCustomPivot(TextureImporter importer, Vector2 pivot)
+    {
         TextureImporterSettings settings = new TextureImporterSettings();
         importer.ReadTextureSettings(settings);
         settings.spriteAlignment = (int)SpriteAlignment.Custom;
-        settings.spritePivot = new Vector2(0.5f, pivotY);
+        settings.spritePivot = pivot;
         importer.SetTextureSettings(settings);
     }
 
@@ -2909,6 +2942,114 @@ public static class SceneBuilder
         Object.DestroyImmediate(tex);
 
         return lowestY < 0 ? 0.5f : Mathf.Clamp01((float)lowestY / h);
+    }
+
+    // 上下攻撃アニメーション差し替え(2026-09-08) - 足元PivotのX,Y両方版。
+    // 「最下段の非透明行」だけでなく、その最下段付近(下から高さの4%、
+    // 最低6px)の非透明ピクセルのX平均も求め、その帯における実際の足の
+    // 水平位置をXピボットに使う - ComputeLowestContentPivotYと違い、剣の
+    // 振り幅でシート内キャラクターの水平占有位置が変わる新素材向け。
+    static Vector2 ComputeLowestContentPivotXY(string filePath)
+    {
+        byte[] bytes = File.ReadAllBytes(filePath);
+        Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        tex.LoadImage(bytes);
+
+        int w = tex.width, h = tex.height;
+        Color32[] pixels = tex.GetPixels32();
+        int lowestY = -1;
+        for (int y = 0; y < h && lowestY < 0; y++)
+        {
+            int rowStart = y * w;
+            for (int x = 0; x < w; x++)
+            {
+                if (pixels[rowStart + x].a > 15) { lowestY = y; break; }
+            }
+        }
+        if (lowestY < 0) { Object.DestroyImmediate(tex); return new Vector2(0.5f, 0.5f); }
+
+        // Bugfix (this pass) - GetPixels32 is bottom-up (y=0 at the bottom
+        // edge), so lowestY (found scanning UPWARD from y=0) is already the
+        // bottom-most content row - the band must extend from there toward
+        // LARGER y (up into the body) to sample "the bottom N rows of actual
+        // content", not smaller y (which runs off the bottom edge into the
+        // empty margin below the foot and picked up only a stray sliver of
+        // whichever single pixel column happened to sit exactly at lowestY -
+        // the original version of this method had this backwards, producing
+        // wildly-off pivotX values caught by cross-checking against an
+        // independent top-down reference scan before shipping).
+        int bandHeight = Mathf.Max(6, Mathf.RoundToInt(h * 0.04f));
+        int yEnd = Mathf.Min(h - 1, lowestY + bandHeight - 1);
+        double sumX = 0.0;
+        int count = 0;
+        for (int y = lowestY; y <= yEnd; y++)
+        {
+            int rowStart = y * w;
+            for (int x = 0; x < w; x++)
+            {
+                if (pixels[rowStart + x].a > 15) { sumX += x; count++; }
+            }
+        }
+        Object.DestroyImmediate(tex);
+
+        float pivotX = count > 0 ? Mathf.Clamp01((float)(sumX / count) / w) : 0.5f;
+        float pivotY = Mathf.Clamp01((float)lowestY / h);
+        return new Vector2(pivotX, pivotY);
+    }
+
+    // 上下攻撃アニメーション差し替え(2026-09-08) - 足元(接地/自動計算)で
+    // はなく、胴体・剣先など「目視で選んだ基準点」を各ファイルへ個別に割
+    // り当てる版。Directory.GetFiles+Sortの並び(LoadSpriteSequenceが読む
+    // 並びと同じ)にpivots配列を対応させる - 空中上攻撃(胴体基準)や下降
+    // 攻撃の3コマ(胴体/接地点基準)のように、自動検出可能な「最下段」基準
+    // が意味を持たないケース向け。
+    static void ConfigureSpriteFolderImportWithManualPivots(string dir, float pixelsPerUnit, Vector2[] pivots)
+    {
+        if (!Directory.Exists(dir)) return;
+        string[] files = Directory.GetFiles(dir, "*.png");
+        System.Array.Sort(files);
+        for (int i = 0; i < files.Length; i++)
+        {
+            string assetPath = files[i].Replace('\\', '/');
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null) continue;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            Vector2 pivot = i < pivots.Length ? pivots[i] : new Vector2(0.5f, 0.5f);
+            ApplyCustomPivot(importer, pivot);
+            importer.SaveAndReimport();
+        }
+    }
+
+    // 上下攻撃アニメーション差し替え(2026-09-08) - ConfigureSpriteFolder
+    // ImportWithFootPivotのX,Y自動版(ComputeLowestContentPivotXY使用)。
+    // 地上上攻撃(足が地面に接地したまま振るモーション)のように、自動の
+    // 足元検出がそのまま正しい基準になる場合に使う。
+    static void ConfigureSpriteFolderImportWithFootPivotXY(string dir, float pixelsPerUnit)
+    {
+        if (!Directory.Exists(dir)) return;
+        foreach (string f in Directory.GetFiles(dir, "*.png"))
+        {
+            string assetPath = f.Replace('\\', '/');
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null) continue;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            ApplyCustomPivot(importer, ComputeLowestContentPivotXY(f));
+            importer.SaveAndReimport();
+        }
     }
 
     static Sprite[] LoadSpriteSequence(string dir)

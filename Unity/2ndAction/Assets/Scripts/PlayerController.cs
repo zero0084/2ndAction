@@ -362,6 +362,14 @@ public class PlayerController : MonoBehaviour
     public event System.Action JumpStarted;
     public event System.Action DoubleJumped;
     public event System.Action Landed;
+    // 上下攻撃アニメーション差し替え(2026-09-08) - 下降攻撃(DoDiveAttack)
+    // の着地専用Frame(Frame3、衝撃エフェクト込みの1枚絵)をLanded(通常の
+    // 着地でも常に発火する)とは区別して表示するための専用イベント。
+    // 着地した"実際のその瞬間"にのみ発火するよう、Move()の着地判定内
+    // (isDiveAttackingがまだtrueの間)からのみ呼ぶ - OnDeath/DoEscapeSuccess
+    // のようなクリーンアップ経由のEndDiveAttack()呼び出しでは発火させない
+    // (あれらは本当の着地ではないため)。
+    public event System.Action DiveAttackLanded;
     // The player's base auto-scroll speed this frame, NOT including attack
     // lunge/recoil. Used by the boss to keep pace with ordinary running
     // without also cancelling out the player's attack-driven movement.
@@ -761,7 +769,9 @@ public class PlayerController : MonoBehaviour
                 isGrounded = true;
                 jumpsUsed = 0;
                 onSky = true;
+                bool wasDiveAttacking = isDiveAttacking;
                 EndDiveAttack();
+                if (wasDiveAttacking) DiveAttackLanded?.Invoke();
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
                 Landed?.Invoke();
             }
@@ -772,7 +782,9 @@ public class PlayerController : MonoBehaviour
                 isGrounded = true;
                 jumpsUsed = 0;
                 onSky = false;
+                bool wasDiveAttacking = isDiveAttacking;
                 EndDiveAttack();
+                if (wasDiveAttacking) DiveAttackLanded?.Invoke();
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
                 Landed?.Invoke();
             }

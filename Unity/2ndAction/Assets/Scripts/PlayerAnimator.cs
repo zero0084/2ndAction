@@ -28,6 +28,16 @@ public class PlayerAnimator : MonoBehaviour
     // duration depends on how far the player is from the ground, not a
     // fixed clip length.
     public Sprite[] downAttackFrames;
+    // 上下攻撃アニメーション差し替え(2026-09-08) - 下降攻撃の「着地専用
+    // Frame」(衝撃エフェクト込みの1枚絵)。downAttackFramesとは別配列にし
+    // てある - downAttackFramesは通常のState切替(hold last frame)に任せ
+    // ると、急降下が長引いた場合に最終フレーム(=このLand Frameと誤認され
+    // かねない絵)へ自然に到達してしまい、「空中なのに着地エフェクトが
+    // 出る」というマスター指摘のバグを起こしうる。Land専用の別State
+    // (DownAttackLand)・別タイマー(downAttackLandTimer、jumpStartTimer等
+    // と同じ「実際にそのイベントが起きた瞬間だけ発火するone-shot」方式)
+    // にすることで、実際に着地した瞬間にのみ表示されるよう保証する。
+    public Sprite[] downAttackLandFrames;
     public float runFps = 10f;
     public float jumpFps = 10f;
     public float attackFps = 12f;
@@ -37,11 +47,14 @@ public class PlayerAnimator : MonoBehaviour
     public float doubleJumpFps = 9f;
     public float landFps = 7f;
     public float downAttackFps = 11f;
+    // 着地専用Frameを表示し続ける実時間(秒) - フレーム数ベースではなく
+    // 固定時間(landFps同様、短い一呼吸分だけ見せてRunへ戻る)。
+    public float downAttackLandDuration = 0.22f;
 
     [Header("Brighten overlay (emphasizes white on the dark source art)")]
     public Color brightenColor = new Color(1f, 1f, 1f, 0.15f);
 
-    enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack }
+    enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack, DownAttackLand }
 
     SpriteRenderer sr;
     SpriteRenderer brightenOverlay;
@@ -58,6 +71,7 @@ public class PlayerAnimator : MonoBehaviour
     float jumpStartTimer;
     float doubleJumpTimer;
     float landTimer;
+    float downAttackLandTimer;
 
     void Awake()
     {
@@ -82,6 +96,7 @@ public class PlayerAnimator : MonoBehaviour
         controller.JumpStarted += OnJumpStarted;
         controller.DoubleJumped += OnDoubleJumped;
         controller.Landed += OnLanded;
+        controller.DiveAttackLanded += OnDiveAttackLanded;
     }
 
     void OnDisable()
@@ -90,6 +105,7 @@ public class PlayerAnimator : MonoBehaviour
         controller.JumpStarted -= OnJumpStarted;
         controller.DoubleJumped -= OnDoubleJumped;
         controller.Landed -= OnLanded;
+        controller.DiveAttackLanded -= OnDiveAttackLanded;
     }
 
     void OnJumpStarted()
@@ -105,6 +121,11 @@ public class PlayerAnimator : MonoBehaviour
     void OnLanded()
     {
         if (landFrames != null && landFrames.Length > 0) landTimer = landFrames.Length / landFps;
+    }
+
+    void OnDiveAttackLanded()
+    {
+        if (downAttackLandFrames != null && downAttackLandFrames.Length > 0) downAttackLandTimer = downAttackLandDuration;
     }
 
     Sprite[] GetAttackFrames(int stage)
@@ -127,6 +148,7 @@ public class PlayerAnimator : MonoBehaviour
         if (jumpStartTimer > 0f) jumpStartTimer -= dt;
         if (doubleJumpTimer > 0f) doubleJumpTimer -= dt;
         if (landTimer > 0f) landTimer -= dt;
+        if (downAttackLandTimer > 0f) downAttackLandTimer -= dt;
 
         bool attacking = controller != null && controller.IsAttacking && attackFrames != null && attackFrames.Length > 0;
         bool grounded = controller == null || controller.IsGrounded;
@@ -140,6 +162,10 @@ public class PlayerAnimator : MonoBehaviour
 
         State newState;
         if (attacking) newState = State.Attack;
+        // 着地専用Frame(downAttackLandTimer)は通常のLandingより優先 - 下降
+        // 攻撃からの着地の瞬間は両タイマーが同時にセットされうるため、
+        // より具体的な方(衝撃エフェクト込みの絵)を優先して表示する。
+        else if (grounded && downAttackLandTimer > 0f) newState = State.DownAttackLand;
         else if (grounded && landTimer > 0f) newState = State.Landing;
         else if (!grounded && diveAttacking) newState = State.DownAttack;
         else if (!grounded && doubleJumpTimer > 0f) newState = State.DoubleJump;
@@ -162,6 +188,7 @@ public class PlayerAnimator : MonoBehaviour
             State.DoubleJump => doubleJumpFrames,
             State.Landing => landFrames,
             State.DownAttack => downAttackFrames,
+            State.DownAttackLand => downAttackLandFrames,
             _ => runFrames
         };
         if (frames == null || frames.Length == 0) return;
@@ -174,6 +201,10 @@ public class PlayerAnimator : MonoBehaviour
             State.DoubleJump => doubleJumpFps,
             State.Landing => landFps,
             State.DownAttack => downAttackFps,
+            // 1フレームだけの絵をdownAttackLandDuration秒キープするだけな
+            // ので、fps自体は「Duration中に次のフレームへ進まない」程度に
+            // 低ければ何でもよい(frames.Length==1なら実質参照されない)。
+            State.DownAttackLand => Mathf.Max(1f, downAttackLandFrames != null ? downAttackLandFrames.Length / Mathf.Max(0.01f, downAttackLandDuration) : 1f),
             _ => runFps
         };
 
