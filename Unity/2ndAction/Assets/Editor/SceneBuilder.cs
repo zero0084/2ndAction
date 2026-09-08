@@ -1644,15 +1644,18 @@ public static class SceneBuilder
         baseImageComp.raycastTarget = false;
         card.baseImage = baseImageComp;
 
-        // Plain dark panel behind the icon - baseSprite already darkens the
-        // whole face, but icon art (colorful, sometimes light-edged) still
-        // reads more clearly against a touch more contrast right behind it.
+        // カードUIデザイン提案(2026-09-09)反映 - 「01 イラスト重視: カード
+        // の約65-70%をイラスト領域に」に合わせ、Icon/IconBackdropを大幅に
+        // 拡大(旧: 高さ約41% → 新: 約67%)。タイトル帯を画面下端近くまで
+        // 押し下げ、Lv表示はコンパクトなバッジ化(下記LevelBadge参照)、
+        // カード表面の常時表示は「イラスト/タイトル/Lv」のみ(「04 情報を
+        // 絞る」)という提案どおり。
         Color cardPanelColor = new Color(0.04f, 0.05f, 0.12f, 1f);
         GameObject iconBackdropGO = new GameObject("IconBackdrop");
         iconBackdropGO.transform.SetParent(cardGO.transform, false);
         RectTransform iconBackdropRect = iconBackdropGO.AddComponent<RectTransform>();
-        iconBackdropRect.anchorMin = new Vector2(0.13f, 0.42f);
-        iconBackdropRect.anchorMax = new Vector2(0.87f, 0.87f);
+        iconBackdropRect.anchorMin = new Vector2(0.06f, 0.205f);
+        iconBackdropRect.anchorMax = new Vector2(0.94f, 0.875f);
         iconBackdropRect.offsetMin = Vector2.zero;
         iconBackdropRect.offsetMax = Vector2.zero;
         Image iconBackdropImage = iconBackdropGO.AddComponent<Image>();
@@ -1660,11 +1663,16 @@ public static class SceneBuilder
         iconBackdropImage.raycastTarget = false;
         card.iconBackdrop = iconBackdropImage;
 
+        // カードUIデザイン提案「不足パーツ - イラストマスク」- イラストを
+        // 美しく見せる専用マスクフレーム画像はまだない(新規アート生成が
+        // 必要、今回のパスの対象外)ため、代わりにIconBackdropの角丸/縁で
+        // 簡易的に代替している(将来的に専用マスク画像が用意でき次第、
+        // ここへ差し込む形にできる)。
         GameObject iconGO = new GameObject("Icon");
         iconGO.transform.SetParent(cardGO.transform, false);
         RectTransform iconRect = iconGO.AddComponent<RectTransform>();
-        iconRect.anchorMin = new Vector2(0.20f, 0.44f);
-        iconRect.anchorMax = new Vector2(0.80f, 0.85f);
+        iconRect.anchorMin = new Vector2(0.08f, 0.22f);
+        iconRect.anchorMax = new Vector2(0.92f, 0.86f);
         iconRect.offsetMin = Vector2.zero;
         iconRect.offsetMax = Vector2.zero;
         Image iconImage = iconGO.AddComponent<Image>();
@@ -1698,11 +1706,13 @@ public static class SceneBuilder
         // Card UI改修(2026-09-08) - 新共通素材「タイトル帯」。旧レイアウ
         // トのTitle領域をこのプレート画像で置き換え、その上にTitleText/
         // CountTextを重ねる(タイトル帯右端に所持枚数)。
+        // カードUIデザイン提案(2026-09-09)反映 - 「02 タイトル帯」を画面
+        // 下端近くまで押し下げ、上のイラスト領域を最大化。
         GameObject titleBandGO = new GameObject("TitleBand");
         titleBandGO.transform.SetParent(cardGO.transform, false);
         RectTransform titleBandRect = titleBandGO.AddComponent<RectTransform>();
-        titleBandRect.anchorMin = new Vector2(0.03f, 0.185f);
-        titleBandRect.anchorMax = new Vector2(0.97f, 0.355f);
+        titleBandRect.anchorMin = new Vector2(0.03f, 0.025f);
+        titleBandRect.anchorMax = new Vector2(0.97f, 0.195f);
         titleBandRect.offsetMin = Vector2.zero;
         titleBandRect.offsetMax = Vector2.zero;
         Image titleBandImageComp = titleBandGO.AddComponent<Image>();
@@ -1719,13 +1729,17 @@ public static class SceneBuilder
         titleBandImageComp.preserveAspect = false;
         card.titleBandImage = titleBandImageComp;
 
-        // Description backdrop - now only ever shown behind Description
-        // (showDetails mode), since Title moved onto TitleBandImage above.
+        // カードUIデザイン提案(2026-09-09)反映 - Descriptionはもうカード
+        // 自身の専用スペースを持たず(タイトル帯が下端へ移動したため空き
+        // がない)、showDetails時のみイラスト領域の下寄りにオーバーレイ
+        // 表示する(Iconより後ろに置いているので描画順でIconの上に重なる)。
+        // Collection/Deck(showDetails:false)では常に非表示のままなので、
+        // イラストが隠れることはない。
         GameObject textBackdropGO = new GameObject("TextBackdrop");
         textBackdropGO.transform.SetParent(cardGO.transform, false);
         RectTransform textBackdropRect = textBackdropGO.AddComponent<RectTransform>();
-        textBackdropRect.anchorMin = new Vector2(0.07f, 0.02f);
-        textBackdropRect.anchorMax = new Vector2(0.93f, 0.175f);
+        textBackdropRect.anchorMin = new Vector2(0.09f, 0.225f);
+        textBackdropRect.anchorMax = new Vector2(0.91f, 0.40f);
         textBackdropRect.offsetMin = Vector2.zero;
         textBackdropRect.offsetMax = Vector2.zero;
         Image textBackdropImage = textBackdropGO.AddComponent<Image>();
@@ -1733,14 +1747,15 @@ public static class SceneBuilder
         textBackdropImage.raycastTarget = false;
         card.textBackdrop = textBackdropImage;
 
-        // Item 5 - a full-width strip between Icon and the title band (not
-        // a corner overlay - too narrow for "EQUIPPED" to ever fit cleanly
-        // at small card sizes).
+        // Item 5 - イラスト領域の上寄りを横断するリボン状(小さいサイズで
+        // も"EQUIPPED"が収まるよう全幅を使う、という既存方針は維持)。
         GameObject equippedGO = new GameObject("EquippedBadge");
         equippedGO.transform.SetParent(cardGO.transform, false);
         RectTransform equippedRect = equippedGO.AddComponent<RectTransform>();
-        equippedRect.anchorMin = new Vector2(0.12f, 0.365f);
-        equippedRect.anchorMax = new Vector2(0.88f, 0.43f);
+        // LevelBadge(右上、常時表示)と重ならないよう、右端は0.66手前まで
+        // (LevelBadgeの左端)に収める。
+        equippedRect.anchorMin = new Vector2(0.10f, 0.795f);
+        equippedRect.anchorMax = new Vector2(0.62f, 0.855f);
         equippedRect.offsetMin = Vector2.zero;
         equippedRect.offsetMax = Vector2.zero;
         Image equippedBg = equippedGO.AddComponent<Image>();
@@ -1768,8 +1783,8 @@ public static class SceneBuilder
         GameObject titleGO = new GameObject("Title");
         titleGO.transform.SetParent(cardGO.transform, false);
         RectTransform titleRect = titleGO.AddComponent<RectTransform>();
-        titleRect.anchorMin = new Vector2(0.09f, 0.20f);
-        titleRect.anchorMax = new Vector2(0.76f, 0.335f);
+        titleRect.anchorMin = new Vector2(0.09f, 0.04f);
+        titleRect.anchorMax = new Vector2(0.76f, 0.175f);
         titleRect.offsetMin = Vector2.zero;
         titleRect.offsetMax = Vector2.zero;
         Text titleText = titleGO.AddComponent<Text>();
@@ -1784,8 +1799,8 @@ public static class SceneBuilder
         GameObject countGO = new GameObject("Count");
         countGO.transform.SetParent(cardGO.transform, false);
         RectTransform countRect = countGO.AddComponent<RectTransform>();
-        countRect.anchorMin = new Vector2(0.775f, 0.20f);
-        countRect.anchorMax = new Vector2(0.95f, 0.335f);
+        countRect.anchorMin = new Vector2(0.775f, 0.04f);
+        countRect.anchorMax = new Vector2(0.95f, 0.175f);
         countRect.offsetMin = Vector2.zero;
         countRect.offsetMax = Vector2.zero;
         Text countTextComp = countGO.AddComponent<Text>();
@@ -1796,11 +1811,13 @@ public static class SceneBuilder
         countTextComp.resizeTextMaxSize = Mathf.Max(8, DescFontSizeFor(width) - 1);
         card.countText = countTextComp;
 
+        // カードUIデザイン提案(2026-09-09)反映 - TextBackdrop(上で移動
+        // 済み)に合わせてイラスト下寄りのオーバーレイ位置へ。
         GameObject descGO = new GameObject("Description");
         descGO.transform.SetParent(cardGO.transform, false);
         RectTransform descRect = descGO.AddComponent<RectTransform>();
-        descRect.anchorMin = new Vector2(0.09f, 0.025f);
-        descRect.anchorMax = new Vector2(0.91f, 0.17f);
+        descRect.anchorMin = new Vector2(0.11f, 0.24f);
+        descRect.anchorMax = new Vector2(0.89f, 0.385f);
         descRect.offsetMin = Vector2.zero;
         descRect.offsetMax = Vector2.zero;
         Text descText = descGO.AddComponent<Text>();
@@ -1811,14 +1828,15 @@ public static class SceneBuilder
         card.descriptionText = descText;
 
         // Card UI / Rarity Frame pass, item 2 - Rarity (top-left, shown only
-        // in showDetails mode now) and Level (top-right, ALWAYS shown per
-        // the new spec) are their own small rows, pulled in from the top/
-        // side edges to clear the frame's own corner ornaments.
+        // in showDetails mode now)。イラスト領域の上に直接乗る形になった
+        // (カードUIデザイン提案でイラストが拡大されたため)- Levelと違い
+        // 常時表示ではなくshowDetails限定のままなので、常設のバッジ背景は
+        // 付けていない。
         GameObject rarityGO = new GameObject("Rarity");
         rarityGO.transform.SetParent(cardGO.transform, false);
         RectTransform rarityRect = rarityGO.AddComponent<RectTransform>();
-        rarityRect.anchorMin = new Vector2(0.11f, 0.865f);
-        rarityRect.anchorMax = new Vector2(0.46f, 0.94f);
+        rarityRect.anchorMin = new Vector2(0.08f, 0.895f);
+        rarityRect.anchorMax = new Vector2(0.42f, 0.965f);
         rarityRect.offsetMin = Vector2.zero;
         rarityRect.offsetMax = Vector2.zero;
         Text rarityText = rarityGO.AddComponent<Text>();
@@ -1829,16 +1847,57 @@ public static class SceneBuilder
         rarityText.resizeTextMaxSize = Mathf.Max(9, DescFontSizeFor(width));
         card.rarityText = rarityText;
 
-        GameObject levelGO = new GameObject("Level");
+        // カードUIデザイン提案「03 Lv表示: 右上にコンパクトで上品なレベル
+        // バッジを配置」「不足パーツ - レベルバッジ(汎用)」への対応。
+        // 専用のバッジ画像はまだない(新規アート生成が必要、今回のパスの
+        // 対象外)ため、既存のUI Spriteを45°回転させた菱形(ダイヤ)背景で
+        // 簡易的に代替した - 他のUI(カードフレームの縁飾り等)と同系統の
+        // 菱形モチーフなので、見た目の統一感は保てる。LevelBadge(親、無
+        // 回転)の中にDiamond(回転)とLabel(無回転、テキストが斜めになら
+        // ないようDiamondの子ではなく親の子として並列に置く)を分ける構成。
+        GameObject levelGO = new GameObject("LevelBadge");
         levelGO.transform.SetParent(cardGO.transform, false);
         RectTransform levelRect = levelGO.AddComponent<RectTransform>();
-        levelRect.anchorMin = new Vector2(0.52f, 0.865f);
-        levelRect.anchorMax = new Vector2(0.89f, 0.94f);
+        levelRect.anchorMin = new Vector2(0.66f, 0.785f);
+        levelRect.anchorMax = new Vector2(0.945f, 0.975f);
         levelRect.offsetMin = Vector2.zero;
         levelRect.offsetMax = Vector2.zero;
-        Text levelText = levelGO.AddComponent<Text>();
-        ConfigureCardText(levelText, Mathf.Max(8, DescFontSizeFor(width) - 1), FontStyle.Bold, Color.white);
-        levelText.alignment = TextAnchor.MiddleRight;
+        // 上記anchorMin/Maxは、カード比率(2:3固定、CardAspect参照)込みで
+        // 実ピクセル換算するとほぼ正方形になるよう調整済み(幅0.285*width
+        // ≈高さ0.19*height=0.19*1.5*width=0.285*width) - 回転させる菱形が
+        // 縦にはみ出さないようにするための計算。
+
+        GameObject levelDiamondGO = new GameObject("Diamond");
+        levelDiamondGO.transform.SetParent(levelGO.transform, false);
+        RectTransform levelDiamondRect = levelDiamondGO.AddComponent<RectTransform>();
+        levelDiamondRect.anchorMin = new Vector2(0.5f, 0.5f);
+        levelDiamondRect.anchorMax = new Vector2(0.5f, 0.5f);
+        levelDiamondRect.pivot = new Vector2(0.5f, 0.5f);
+        // 正方形を45°回転 - 親の矩形いっぱいに菱形が収まるよう、対角線
+        // (=sqrt(2)倍)で計算した一辺の長さにする。
+        levelDiamondRect.sizeDelta = new Vector2(width * 0.19f, width * 0.19f);
+        levelDiamondRect.localRotation = Quaternion.Euler(0f, 0f, 45f);
+        Image levelDiamondImage = levelDiamondGO.AddComponent<Image>();
+        levelDiamondImage.color = new Color(0.06f, 0.08f, 0.16f, 0.92f);
+        levelDiamondImage.raycastTarget = false;
+        GameObject levelDiamondBorderGO = new GameObject("Border");
+        levelDiamondBorderGO.transform.SetParent(levelDiamondGO.transform, false);
+        RectTransform levelDiamondBorderRect = levelDiamondBorderGO.AddComponent<RectTransform>();
+        levelDiamondBorderRect.anchorMin = Vector2.zero;
+        levelDiamondBorderRect.anchorMax = Vector2.one;
+        levelDiamondBorderRect.offsetMin = new Vector2(-3f, -3f);
+        levelDiamondBorderRect.offsetMax = new Vector2(3f, 3f);
+        Image levelDiamondBorderImage = levelDiamondBorderGO.AddComponent<Image>();
+        levelDiamondBorderImage.color = new Color(0.83f, 0.68f, 0.32f, 0.95f);
+        levelDiamondBorderImage.raycastTarget = false;
+        levelDiamondBorderGO.transform.SetAsFirstSibling(); // 縁取り(金)を内側の紺より後ろへ
+
+        GameObject levelLabelGO = new GameObject("Label");
+        levelLabelGO.transform.SetParent(levelGO.transform, false);
+        StretchFull(levelLabelGO.AddComponent<RectTransform>());
+        Text levelText = levelLabelGO.AddComponent<Text>();
+        ConfigureCardText(levelText, Mathf.Max(8, DescFontSizeFor(width) - 1), FontStyle.Bold, new Color(1f, 0.92f, 0.7f));
+        levelText.alignment = TextAnchor.MiddleCenter;
         levelText.resizeTextForBestFit = true;
         levelText.resizeTextMinSize = 6;
         levelText.resizeTextMaxSize = Mathf.Max(8, DescFontSizeFor(width) - 1);
@@ -2447,14 +2506,27 @@ public static class SceneBuilder
         };
         ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerUpAttackAir_v1", 321f, upAttackAirPivots);
 
+        // 不具合修正(2026-09-09) - 「プレイヤーのキャラサイズがまた変わって
+        // いる気がする」。再確認したところ、下降攻撃2フォルダのPPU(551/
+        // 345)は、斜めに大きく伸ばした剣や、着地Frameの巨大な衝撃エフェ
+        // クトまで含めた「アルファ全体の高さ」を基準に算出していた誤りが
+        // あった - 剣やエフェクトはキャラクター本体ではないため、これを
+        // 含めた高さで正規化すると、実際のキャラクター本体は基準(1.13
+        // ワールド単位)よりかなり小さく描画されてしまう(=「キャラが小さ
+        // く見える」原因)。目視で頭頂〜足先のみを再計測し直し(下記コメ
+        // ントの実測値)、PPUを算出し直した。
         Vector2[] downAttackPivots =
         {
             new Vector2(0.666f, 0.445f), // downattack_00 - 振りかぶり(胴体基準)
             new Vector2(0.575f, 0.535f), // downattack_01 - 急降下姿勢(胴体基準、急降下中はこのコマを保持)
         };
-        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttack_v1", 551f, downAttackPivots);
+        // downattack_00の本体のみの高さ(剣・マント除く、頭頂〜足先)を
+        // 実測 約428px -> 428/1.13 ≈ 379
+        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttack_v1", 379f, downAttackPivots);
         Vector2[] downAttackLandPivots = { new Vector2(0.504f, 0.077f) }; // downattackland_00 - 剣先/衝撃エフェクトの接地点基準(他フォルダの足元Pivot(~0.08)と近い値で一貫性を確認済み)
-        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttackLand_v1", 345f, downAttackLandPivots);
+        // downattackland_00の本体のみの高さ(衝撃エフェクト・岩の破片除く、
+        // 頭頂〜足先)を実測 約210px -> 210/1.13 ≈ 186
+        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttackLand_v1", 186f, downAttackLandPivots);
 
         Sprite[] runFrames = LoadSpriteSequence("Assets/Art/PlayerRun_v1");
         Sprite[] jumpFrames = LoadSpriteSequence("Assets/Art/PlayerJump_v1");

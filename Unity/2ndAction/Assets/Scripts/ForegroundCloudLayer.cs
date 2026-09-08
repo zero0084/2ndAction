@@ -29,6 +29,17 @@ public class ForegroundCloudLayer : MonoBehaviour
 
     Transform[] clouds;
     float[] speeds;
+    // Bugfix 2026-09-09 - 「雲の動きを右端から左端へ移動するように」。旧
+    // 実装はクラウドをワールド座標で常に+X(右)へ動かし、カメラ自身の方が
+    // 常に速い(runSpeed 5+ > driftSpeed 1.4-1.8)ため相対的に画面上では
+    // 右から左へ流れる"はず"だったが、この関係はrunSpeedがdriftSpeedを
+    // 上回っている間だけ成立する脆い間接的な仕組みだった。カメラの絶対
+    // 速度に一切依存せず、常に確実に右から左へ流れるよう、カメラからの
+    // 相対オフセット(offsets)を直接毎フレーム減算する方式に変更した。
+    float[] offsets;
+    // Y座標は初回配置/リサイクル時にのみ決める(毎フレーム再抽選すると
+    // 上下にジッターして見える)。
+    float[] ys;
     float spanWidth;
 
     void Start()
@@ -41,6 +52,8 @@ public class ForegroundCloudLayer : MonoBehaviour
 
         clouds = new Transform[cloudCount];
         speeds = new float[cloudCount];
+        offsets = new float[cloudCount];
+        ys = new float[cloudCount];
         for (int i = 0; i < cloudCount; i++)
         {
             GameObject go = new GameObject("ForegroundCloud" + i);
@@ -59,39 +72,34 @@ public class ForegroundCloudLayer : MonoBehaviour
 
     void PlaceAt(int i, float offsetX)
     {
-        float camX = cam.transform.position.x;
+        offsets[i] = offsetX;
         // Upper portion of the frame only (55%-85% of the way up from
         // center to the top edge) - stays clear of the player/enemies
         // below, and clear of the very top edge too.
-        float y = cam.transform.position.y + cam.orthographicSize * Random.Range(0.55f, 0.85f) + Random.Range(-verticalJitter, verticalJitter);
-        clouds[i].position = new Vector3(camX + offsetX, y, 0f);
+        ys[i] = Random.Range(0.55f, 0.85f);
+        float y = cam.transform.position.y + cam.orthographicSize * ys[i] + Random.Range(-verticalJitter, verticalJitter);
+        ys[i] = y - cam.transform.position.y; // store as an offset from the camera too, so Y also stays stable while the camera itself moves vertically
+        clouds[i].position = new Vector3(cam.transform.position.x + offsetX, y, 0f);
     }
 
     void Update()
     {
         if (cam == null || clouds == null) return;
-        float camX = cam.transform.position.x;
+        Vector3 camPos = cam.transform.position;
         for (int i = 0; i < clouds.Length; i++)
         {
             if (clouds[i] == null) continue;
-            clouds[i].position += Vector3.right * speeds[i] * Time.deltaTime;
 
-            // Bugfix 2026-09-08, item5 - 「空に浮く雲が最初のほうにしか出
-            // てこない」。雲の絶対速度(speeds[i]、最大でも~1.8)はカメラ自
-            // 身の移動速度(プレイヤーの走行速度、5以上でむしろ距離ととも
-            // に加速していく)より常に遅いため、relativeは開始直後から単
-            // 調減少し続け、カメラより後方(画面外左側)へ落ちていく一方に
-            // なる - つまり「カメラより速く前方へ出過ぎた」場合しか検知
-            // していなかった元のrelative > spanWidth*0.5fは実際には一度も
-            // 成立せず、3つの雲は開始直後に画面外へ流れ切ったら二度と再配
-            // 置されなかった(=「最初のほうにしか出てこない」の直接原因)。
-            // 正しくは「カメラより後方へ落ちすぎた」ほうを検知して前方へ
-            // 再配置する。
-            float relative = clouds[i].position.x - camX;
-            if (relative < -spanWidth * 0.5f)
+            // 画面(カメラ)に対して常に左向きへ流れる - カメラ自身の速度と
+            // は無関係(上記コメント参照)。
+            offsets[i] -= speeds[i] * Time.deltaTime;
+            if (offsets[i] < -spanWidth * 0.5f)
             {
                 PlaceAt(i, spanWidth * 0.5f);
+                continue;
             }
+
+            clouds[i].position = new Vector3(camPos.x + offsets[i], camPos.y + ys[i], 0f);
         }
     }
 }

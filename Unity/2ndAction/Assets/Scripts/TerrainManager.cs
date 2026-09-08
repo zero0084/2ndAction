@@ -372,6 +372,20 @@ public class TerrainManager : MonoBehaviour
         float upChance = Mathf.Clamp(0.3f + bias, 0.05f, 0.55f);
         float downChance = Mathf.Clamp(0.3f - bias, 0.05f, 0.55f);
 
+        // Bugfix 2026-09-09 - 「道が下のデッドラインを超えて生成される場合
+        // がある」。上のbiasはあくまで「下り坂を選ぶ確率」を弱めるだけの
+        // ソフトな調整で、どれだけ下がっていても最低15%はDownSlopeが選ば
+        // れうる(downChanceのクランプ下限0.05はPitChance込みなので実質
+        // もう少し高い) - 長時間プレイで下り坂が連続すれば理論上どこまで
+        // でも下がりうるハードな上限が存在しなかった。ここでMinGroundY
+        // (PlayerController.failYに安全マージンを足した値)を下回る位置
+        // までは絶対に下らせないよう、DownSlopeの選択肢自体を確率から
+        // 除外する(0%にしてFlatへ振り替え)ハードな床を追加。
+        if (nextStartY - slopeHeight < MinGroundY)
+        {
+            downChance = 0f;
+        }
+
         float roll = Random.value;
         if (roll < pitChance) return ChunkType.Pit;
         roll -= pitChance;
@@ -381,6 +395,14 @@ public class TerrainManager : MonoBehaviour
         return ChunkType.Flat;
     }
 
+    // Bugfix 2026-09-09 - 地形が実際に生成してよい最低の高さ(これを下回る
+    // 生成は行わない)。PlayerController.failY(死亡ライン)に安全マージン
+    // を足した値 - PlayerController.Instanceがまだ存在しない(ビルド順の
+    // 都合等)場合のフォールバックはPlayerController.failYの既定値と同じ
+    // -8fを使う。
+    public float terrainFloorMarginAboveDeadline = 1.5f;
+    float MinGroundY => (PlayerController.Instance != null ? PlayerController.Instance.failY : -8f) + terrainFloorMarginAboveDeadline;
+
     void AddChunk(ChunkType type, float length)
     {
         float startX = nextStartX;
@@ -389,7 +411,7 @@ public class TerrainManager : MonoBehaviour
         float endY = startY;
 
         if (type == ChunkType.UpSlope) endY = startY + slopeHeight;
-        else if (type == ChunkType.DownSlope) endY = startY - slopeHeight;
+        else if (type == ChunkType.DownSlope) endY = Mathf.Max(startY - slopeHeight, MinGroundY); // Bugfix 2026-09-09 - 保険のハードクランプ(PickNextType側で確率自体は既に0にしているが、念のため二重に保証)
 
         var chunk = new RuntimeChunk { type = type, startX = startX, endX = endX, startY = startY, endY = endY };
 

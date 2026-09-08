@@ -100,8 +100,13 @@ public class DistanceTierManager : MonoBehaviour
 {
     public static DistanceTierManager Instance { get; private set; }
 
-    [Header("Enemy HP Scaling - unchanged this pass")]
+    [Header("Enemy HP Scaling")]
     public float hpIncreaseDistance = 2000f;
+    // 不具合修正/バランス調整(2026-09-09) - 「雑魚敵の体力を少し増やして」。
+    // 成長カーブの傾き(hpIncreaseDistance)自体は変えず、開始HPだけ底上げ
+    // する形で全体を底上げ(1→2、序盤の敵が常に1発で倒れきってしまう状態
+    // を緩和)。CurrentEnemyHp参照。
+    public int baseHpBonus = 1;
 
     [Header("Tiers - Enemy Category availability only (item 3, Ver.1)")]
     public DistanceTier[] tiers = new DistanceTier[0];
@@ -132,7 +137,7 @@ public class DistanceTierManager : MonoBehaviour
 
     float CurrentDistance => GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f;
 
-    public int CurrentEnemyHp => Mathf.Max(1, 1 + Mathf.FloorToInt(CurrentDistance / Mathf.Max(1f, hpIncreaseDistance)));
+    public int CurrentEnemyHp => Mathf.Max(1, 1 + baseHpBonus + Mathf.FloorToInt(CurrentDistance / Mathf.Max(1f, hpIncreaseDistance)));
 
     public DistanceTier CurrentTier
     {

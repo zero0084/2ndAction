@@ -446,6 +446,20 @@ public class PlayerController : MonoBehaviour
     Vector2 touchStartPos;
     Vector2 lastPointerPos;
     bool touchActive;
+    // 不具合修正(2026-09-09) - 「初期の二段ジャンプができなくなっている」
+    // の原因。前回パス(2026-09-08)で「指を離さず連続スワイプしても方向
+    // 転換を検出できるように」touchStartPosをflick発火のたびにリセット
+    // する方式へ変更したが、これにより"1本の長い連続上スワイプ"が閾値
+    // (flickDistanceThreshold=60px)を2回以上跨いでしまうケースで、
+    // ユーザーが1回だけ振ったつもりでも上フリックが2回検出され、1回の
+    // ジェスチャーでjumpsUsedが0→1→2まで一気に進んでしまっていた(=二段
+    // ジャンプが「初手で両方消費される」ため、2回目の入力をしても何も
+    // 起きないように見える)。flick発火後は短いクールダウンを設け、"同じ
+    // 連続ドラッグの続き"では次のflickを検出しないようにしつつ、指を
+    // 離さない方向転換(下攻撃→上攻撃)は引き続き検出できるようにした
+    // (クールダウンは方向転換に要する現実的な時間より十分短い)。
+    public float flickCooldown = 0.15f;
+    float flickCooldownTimer;
     // その場フレームだけ有効な"リクエスト" - UpdatePointerInput()の先頭で
     // 毎フレームnullへ戻し、そのフレーム内でMove()(Up方向のみ消費)と
     // HandleAttackInput()(Forward/Backwardのみ消費)の両方から参照される。
@@ -583,6 +597,7 @@ public class PlayerController : MonoBehaviour
             touchStartPos = pointerPos;
             lastPointerPos = pointerPos;
             touchActive = true;
+            flickCooldownTimer = 0f; // 新しいタッチ開始 - 前のタッチのクールダウンを引きずらない
         }
         // Bugfix 2026-09-08 - 「下攻撃を使用したあと、上攻撃ができなくなる」
         // の実装調査で発見した実際の原因の1つ: 指を離さず連続でスワイプ
@@ -600,7 +615,7 @@ public class PlayerController : MonoBehaviour
         // に閾値を超える動き"を要求されるため、同一ドラッグの連射防止(
         // 元々の目的)は保たれたまま、指を離さない連続スワイプでの方向転
         // 換(下攻撃→上攻撃 等)が可能になる。
-        else if (pointerDown && touchActive)
+        else if (pointerDown && touchActive && flickCooldownTimer <= 0f)
         {
             Vector2 totalDelta = pointerPos - touchStartPos;
             float totalDist = totalDelta.magnitude;
@@ -614,8 +629,10 @@ public class PlayerController : MonoBehaviour
             {
                 requestedFlick = ClassifyFlickDirection(totalDelta);
                 touchStartPos = pointerPos;
+                flickCooldownTimer = flickCooldown;
             }
         }
+        if (flickCooldownTimer > 0f) flickCooldownTimer -= Time.unscaledDeltaTime;
 
         if (pointerDown) lastPointerPos = pointerPos;
         if (pointerJustUp) touchActive = false;
@@ -692,7 +709,24 @@ public class PlayerController : MonoBehaviour
         // フリックは「ジャンプの新しい起動トリガー」であって、ジャンプの
         // 挙動そのものを変えるものではない。
         bool jumpPressed = allowJump && requestedFlick == FlickDirection.Up;
-        if (jumpPressed && jumpsUsed < maxJumps)
+        // 不具合修正(2026-09-09) - 「下攻撃中に上攻撃を押してもキャンセル
+        // されず、そのまま下攻撃のままになる」。下降攻撃中はjumpsUsedが
+        // 既にmaxJumpsに達しているのが通常のため、下のjumpPressed&&
+        // jumpsUsed<maxJumpsを満たせず、また(前回パスで追加した)着地バッ
+        // ファへ回されるだけで、実際には着地するまで何も起きなかった -
+        // 「それぞれ各攻撃が反映される」ようにするため、下降攻撃中の上フ
+        // リックは最優先で判定し、下降攻撃を即キャンセル(強制急降下速度
+        // を止め、通常の重力へ戻す)した上でその場で上昇攻撃(空中版の
+        // Hitbox+VFXのみ - ジャンプ物理・jumpsUsedには触れない、あくまで
+        // 「攻撃の切り替え」であって追加のジャンプ高度を与えるものではな
+        // い)を発動する。
+        if (jumpPressed && isDiveAttacking)
+        {
+            EndDiveAttack();
+            velocityY = 0f;
+            StartCoroutine(DoUpAttack(true));
+        }
+        else if (jumpPressed && jumpsUsed < maxJumps)
         {
             FireJump();
         }

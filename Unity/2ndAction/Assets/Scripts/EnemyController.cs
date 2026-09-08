@@ -167,16 +167,21 @@ public class EnemyController : MonoBehaviour
     // "画面端まで吹っ飛ばす" is just hitKnockbackDistance/Duration set much
     // larger at spawn time (see GroundFactory.CreateEnemy) - this method
     // itself doesn't know or care which species it's playing for.
+    //
+    // 不具合修正/演出調整(2026-09-09) - 「雑魚敵が攻撃を受けた後に体力が
+    // 0でなければ、右上（進行方向のすこし上部）へ画面端へ飛ぶように」。
+    // 従来の小さな水平パンチ(KnockbackRoutine)の代わりに、専用の
+    // LaunchAwayRoutineへ差し替え - 現在のカメラ視野の右上端の少し外側
+    // まで実際に飛んでいき、画面外に出たところで(击破ではなく)非アクティ
+    // ブ化する(HPは0のまま残る値だが、RegisterEnemyKill/MILE報酬などの
+    // 撃破処理は一切行わない - 生存中の敵をその場から取り除くだけ)。
     IEnumerator NonLethalHit(Vector3 contactPoint)
     {
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttackHit();
 
         if (hitKnockbackEnabled)
         {
-            float dir = PlayerController.Instance != null
-                ? Mathf.Sign(transform.position.x - PlayerController.Instance.transform.position.x)
-                : 1f;
-            StartCoroutine(KnockbackRoutine(dir));
+            StartCoroutine(LaunchAwayRoutine());
         }
 
         if (hitParticleEnabled)
@@ -291,5 +296,67 @@ public class EnemyController : MonoBehaviour
             transform.position = Vector3.Lerp(start, peak, Mathf.Clamp01(outFrac) - settleFrac);
             yield return null;
         }
+    }
+
+    // 不具合修正/演出調整(2026-09-09) - 「体力が0でなければ、右上（進行方
+    // 向のすこし上部）へ画面端へ飛ぶように」。KnockbackRoutine(その場で
+    // 小さく揺れて戻るだけ)とは別の、現在のカメラ視野を基準に「右上の
+    // 画面端の少し外側」まで実際に飛んでいく専用ルーチン。撃破ではない
+    // ので RegisterEnemyKill/MILE報酬/Death Smoke等の撃破演出は一切行わ
+    // ない - 画面外へ出たところでSetActive(false)するだけ(HPは0のまま
+    // 残らず、単にその場から取り除かれる)。
+    [Header("Non-lethal Hit - Launch Away (Inspectorから調整可能)")]
+    public float launchAwayDuration = 0.45f;
+    // 画面端からどれだけ外側まで飛ばすか(カメラ半幅/半高に対する比率) -
+    // 1.0でちょうど画面端、それより大きいほど完全に画面外まで飛ぶ。
+    public float launchAwayOvershootX = 1.35f;
+    public float launchAwayOvershootY = 0.9f;
+
+    IEnumerator LaunchAwayRoutine()
+    {
+        // 飛んでいる間は再度PlayerAttack/Playerと衝突しないよう、判定を
+        // 止めておく(この後SetActive(false)するので最終的には自動的に
+        // 解決するが、それまでの短い間に暴れないようにする保険)。
+        foreach (Collider2D col in GetComponentsInChildren<Collider2D>())
+        {
+            col.enabled = false;
+        }
+        // HitAndDie(致死Hit)側と同じ理由 - EnemyAnimator(idle squash/sway)
+        // やEnemySpecialBehavior(独自の移動)がtransform位置を毎フレーム
+        // 上書きし続けると、この後の飛翔Tweenと同じTransformを奪い合って
+        // 目に見えてガクつく/目的地まで届かない、という不具合になる
+        // (HitAndDieのコメント参照、同じクラスの問題)。
+        var idleAnimator = GetComponent<EnemyAnimator>();
+        if (idleAnimator != null) idleAnimator.enabled = false;
+        var specialBehavior = GetComponent<EnemySpecialBehavior>();
+        if (specialBehavior != null) specialBehavior.enabled = false;
+
+        Camera cam = Camera.main;
+        Vector3 start = transform.position;
+        Vector3 target = start + new Vector3(3f, 3f, 0f); // camがまだ無い場合の最低限のフォールバック
+        if (cam != null)
+        {
+            float halfHeight = cam.orthographicSize;
+            float halfWidth = halfHeight * cam.aspect;
+            Vector3 camPos = cam.transform.position;
+            // 「右上（進行方向のすこし上部）へ画面端へ」 - 進行方向(常に+X)
+            // 側の右上角の少し外側を狙う。
+            target = new Vector3(camPos.x + halfWidth * launchAwayOvershootX, camPos.y + halfHeight * launchAwayOvershootY, 0f);
+        }
+
+        float t = 0f;
+        while (t < launchAwayDuration)
+        {
+            // KnockbackRoutine同様、Time.timeScaleに従う(Level Up選択中等
+            // に飛び続けないように)。
+            t += Time.deltaTime;
+            float frac = Mathf.Clamp01(t / launchAwayDuration);
+            // 加速していくイーズイン(吹っ飛ばされた勢いが増していく感じ)。
+            float eased = frac * frac;
+            transform.position = Vector3.Lerp(start, target, eased);
+            yield return null;
+        }
+
+        gameObject.SetActive(false);
     }
 }
