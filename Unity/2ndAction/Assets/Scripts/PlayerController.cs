@@ -396,6 +396,13 @@ public class PlayerController : MonoBehaviour
     // なる。着地(landedSky/landedGround)・Fall死亡・GAME OVER・ESCAPE成功
     // のいずれかで必ずfalseへ戻され、Hitboxも無効化される。
     bool isDiveAttacking;
+    // 不具合修正(2026-09-08) - 「下攻撃→着地→上攻撃」の入力バッファ。
+    // 下降攻撃中(jumpsUsedが既にmaxJumpsで即座にはジャンプできない状態)
+    // に上フリックした場合、この時間だけ「地上上攻撃をしたがっている」
+    // ことを覚えておき、着地でjumpsUsedが0に戻った瞬間に自動でFireJump()
+    // する(Move()のjumpPressed分岐、および着地処理側のバッファ消化を参照)。
+    public float upAttackBufferWindow = 0.15f;
+    float bufferedUpAttackTimer;
     float attackCooldownTimer;
     float startX;
     bool hasDied;
@@ -439,7 +446,6 @@ public class PlayerController : MonoBehaviour
     Vector2 touchStartPos;
     Vector2 lastPointerPos;
     bool touchActive;
-    bool flickFiredThisTouch;
     // その場フレームだけ有効な"リクエスト" - UpdatePointerInput()の先頭で
     // 毎フレームnullへ戻し、そのフレーム内でMove()(Up方向のみ消費)と
     // HandleAttackInput()(Forward/Backwardのみ消費)の両方から参照される。
@@ -491,7 +497,6 @@ public class PlayerController : MonoBehaviour
             // from the tap that started the game, so it doesn't also count
             // as a flick input.
             touchActive = false;
-            flickFiredThisTouch = false;
             wasStarted = true;
         }
 
@@ -578,9 +583,24 @@ public class PlayerController : MonoBehaviour
             touchStartPos = pointerPos;
             lastPointerPos = pointerPos;
             touchActive = true;
-            flickFiredThisTouch = false;
         }
-        else if (pointerDown && touchActive && !flickFiredThisTouch)
+        // Bugfix 2026-09-08 - 「下攻撃を使用したあと、上攻撃ができなくなる」
+        // の実装調査で発見した実際の原因の1つ: 指を離さず連続でスワイプ
+        // する操作(下攻撃→着地→そのまま同じ指で上へ振り返す、という自然
+        // な操作)では、下攻撃のフリックが発火した時点でflickFiredThisTouch
+        // がtrueになり、"同じタッチが続く限り"二度とflickを検出しなくなっ
+        // ていた(pointerJustUpで指を一度完全に離すまでロックされる設計
+        // だった)。元々のflickFiredThisTouchガード自体の目的は「1回の連続
+        // ドラッグ動作が閾値を満たし続ける間、毎フレーム再発火してしまう
+        // のを防ぐ」ことであり、"タッチ中は1回しかflickできない"という制
+        // 限は意図した仕様ではなかった(コード中に明示的な設計意図のコメ
+        // ントはない)。修正: flickFiredThisTouchで永続ロックする代わりに、
+        // 発火のたびにtouchStartPos/lastPointerPosをその場の位置へリセッ
+        // トする - 同じ指を離さずに振り続けても、次のflickは"そこから新た
+        // に閾値を超える動き"を要求されるため、同一ドラッグの連射防止(
+        // 元々の目的)は保たれたまま、指を離さない連続スワイプでの方向転
+        // 換(下攻撃→上攻撃 等)が可能になる。
+        else if (pointerDown && touchActive)
         {
             Vector2 totalDelta = pointerPos - touchStartPos;
             float totalDist = totalDelta.magnitude;
@@ -593,7 +613,7 @@ public class PlayerController : MonoBehaviour
             if (distanceTrigger || velocityTrigger)
             {
                 requestedFlick = ClassifyFlickDirection(totalDelta);
-                flickFiredThisTouch = true;
+                touchStartPos = pointerPos;
             }
         }
 
@@ -646,6 +666,7 @@ public class PlayerController : MonoBehaviour
     void Move(bool allowJump = true)
     {
         float dt = Time.deltaTime;
+        if (bufferedUpAttackTimer > 0f) bufferedUpAttackTimer -= dt;
         float autoSpeed = autoRunEnabled ? runSpeed * GetSpeedMultiplier() : 0f;
         // Linear ease-out over knockbackDuration, not a flat velocity for
         // the whole window - reads as a shove that fades, not a sustained
@@ -673,24 +694,19 @@ public class PlayerController : MonoBehaviour
         bool jumpPressed = allowJump && requestedFlick == FlickDirection.Up;
         if (jumpPressed && jumpsUsed < maxJumps)
         {
-            velocityY = jumpForce;
-            isGrounded = false;
-            jumpsUsed++;
-            if (jumpsUsed == 1)
-            {
-                JumpStarted?.Invoke();
-                if (AudioManager.Instance != null) AudioManager.Instance.PlayJump();
-            }
-            else
-            {
-                DoubleJumped?.Invoke();
-                if (AudioManager.Instance != null) AudioManager.Instance.PlayDoubleJump();
-            }
-            // Item 2 - "上フリック=ジャンプ攻撃"/"空中でのもう一度=空中上昇
-            // 攻撃"。ジャンプが実際に発動した場合のみ(=jumpsUsed<maxJumpsの
-            // ガードを通過した場合のみ)発火するので、既にmaxJumps使い切っ
-            // ている状態でのUpフリックは何も起きない(仕様どおり)。
-            StartCoroutine(DoUpAttack(jumpsUsed >= 2));
+            FireJump();
+        }
+        // 不具合修正(2026-09-08) - 「下攻撃を使用したあと、上攻撃ができな
+        // くなる」の依頼に含まれていた「入力バッファ」対応(任意実装扱い)。
+        // 下降攻撃中(≒jumpsUsedが既にmaxJumps)に上フリックしても、上の
+        // 条件を満たせず何も起きずそのまま入力が失われていた(次フレーム
+        // でrequestedFlickはnullへ戻る) - 着地直前〜着地直後の一瞬だけ狙う
+        // のは実機ではシビアなので、短時間だけ「地上上攻撃をしたがってい
+        // る」ことを覚えておき、着地でjumpsUsedが0に戻った瞬間に自動的に
+        // FireJump()(=Ground Up Attack)を発動する。
+        else if (jumpPressed)
+        {
+            bufferedUpAttackTimer = upAttackBufferWindow;
         }
         // 方向攻撃システム Ver.2、項目3/4 - "空中で↓フリック=下降攻撃"、
         // "地上での↓フリックは無効"。!isGroundedガードがそのまま項目4の
@@ -774,6 +790,14 @@ public class PlayerController : MonoBehaviour
                 if (wasDiveAttacking) DiveAttackLanded?.Invoke();
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
                 Landed?.Invoke();
+                // 不具合修正(2026-09-08) - 着地直前に上フリックした分の
+                // バッファ消化(入力バッファ、上のbufferedUpAttackTimerの
+                // コメント参照)。
+                if (bufferedUpAttackTimer > 0f)
+                {
+                    bufferedUpAttackTimer = 0f;
+                    FireJump();
+                }
             }
             else if (landedGround)
             {
@@ -787,6 +811,11 @@ public class PlayerController : MonoBehaviour
                 if (wasDiveAttacking) DiveAttackLanded?.Invoke();
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
                 Landed?.Invoke();
+                if (bufferedUpAttackTimer > 0f)
+                {
+                    bufferedUpAttackTimer = 0f;
+                    FireJump();
+                }
             }
         }
 
@@ -1253,6 +1282,31 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // 不具合修正(2026-09-08) - 上フリックによるジャンプ発動本体をMove()
+    // から抜き出したもの(通常の即時発動と、着地バッファ消化からの発動の
+    // 両方で使う - 重複を避けるための単純な抽出、挙動自体は無変更)。
+    void FireJump()
+    {
+        velocityY = jumpForce;
+        isGrounded = false;
+        jumpsUsed++;
+        if (jumpsUsed == 1)
+        {
+            JumpStarted?.Invoke();
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayJump();
+        }
+        else
+        {
+            DoubleJumped?.Invoke();
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayDoubleJump();
+        }
+        // Item 2 - "上フリック=ジャンプ攻撃"/"空中でのもう一度=空中上昇
+        // 攻撃"。ジャンプが実際に発動した場合のみ(=jumpsUsed<maxJumpsの
+        // ガードを通過した場合のみ)発火するので、既にmaxJumps使い切っ
+        // ている状態でのUpフリックは何も起きない(仕様どおり)。
+        StartCoroutine(DoUpAttack(jumpsUsed >= 2));
+    }
+
     // Operation System Ver.2, item 2 - "上フリック=ジャンプ攻撃"/"空中で
     // もう一度=空中上昇攻撃"。isAttacking/comboCount/DoAttackの3段コンボ系
     // 統には一切触れない、独立した短いHitbox+Slash FXパルスとして実装 -
@@ -1271,7 +1325,12 @@ public class PlayerController : MonoBehaviour
     IEnumerator DoUpAttack(bool isAirborne)
     {
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(isAirborne ? 2 : 1);
-        if (upAttackSlashVisual != null) upAttackSlashVisual.SetComboStage(isAirborne ? 2 : 1, AttackRangeMultiplier);
+        // 攻撃エフェクト全面調整(2026-09-08) - 旧SetComboStage(巨大な紫剣
+        // AttackSlashFx流用)から、剣の軌跡に沿った控えめな青白い三日月
+        // VFX(PlaySingle、1枚絵をScale/Alphaで演出)へ切り替え。空中版は
+        // 地上版よりわずかに大きい(1.15倍)程度に留め、「巨大化させない」
+        // 指示どおり控えめに。
+        if (upAttackSlashVisual != null) upAttackSlashVisual.PlaySingle(isAirborne ? 1.15f : 1f, AttackRangeMultiplier);
         if (upAttackHitbox != null)
         {
             upAttackHitbox.transform.localScale = upHitboxBaseScale * AttackRangeMultiplier;
@@ -1293,7 +1352,11 @@ public class PlayerController : MonoBehaviour
     {
         isDiveAttacking = true;
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(2);
-        if (downAttackSlashVisual != null) downAttackSlashVisual.SetComboStage(1, AttackRangeMultiplier);
+        // 攻撃エフェクト全面調整(2026-09-08) - 旧SetComboStage(巨大な紫剣、
+        // 一度再生して消えるだけ)から、着地まで持続表示するShowSustained
+        // (細い縦方向トレイル)へ切り替え。EndDiveAttack()側で必ず
+        // HideSustained()するので、着地後に残り続けることはない。
+        if (downAttackSlashVisual != null) downAttackSlashVisual.ShowSustained(AttackRangeMultiplier);
         if (downAttackHitbox != null)
         {
             downAttackHitbox.transform.localScale = downHitboxBaseScale * AttackRangeMultiplier;
@@ -1306,6 +1369,11 @@ public class PlayerController : MonoBehaviour
     {
         isDiveAttacking = false;
         if (downAttackHitbox != null) downAttackHitbox.enabled = false;
+        // 攻撃エフェクト全面調整(2026-09-08) - ShowSustained側の後始末。
+        // 着地/Fall死亡/GAME OVER/ESCAPE成功のいずれのEndDiveAttack()呼び
+        // 出し経路でも必ず呼ばれるため、トレイルVFXが表示されたまま残る
+        // ことはない。
+        if (downAttackSlashVisual != null) downAttackSlashVisual.HideSustained();
     }
 
     // Grows the (invisible) attack hitbox across the combo chain - stage 1

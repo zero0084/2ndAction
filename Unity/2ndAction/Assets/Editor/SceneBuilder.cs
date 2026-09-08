@@ -2565,39 +2565,35 @@ public static class SceneBuilder
         var upHitboxDebug = upHitbox.AddComponent<ColliderDebugView>();
         upHitboxDebug.color = new Color(0.6f, 0.9f, 1f);
 
+        // 攻撃エフェクト全面調整(2026-09-08) - 「巨大な紫剣エフェクト」
+        // (AttackSlashFx流用)から、剣の軌跡に沿った控えめな青白いVFXへ
+        // 差し替え。新素材は既に「三日月が右上へ向けて自然に振り上がる」
+        // 形状で供給されているため、旧構成が必要としていた80°回転(汎用の
+        // 斜め剣画像を無理やり上向きに見せるための回転)はもう不要 -
+        // 回転0のまま、位置とScaleだけをInspectorから調整する運用にした。
+        Sprite crescentVfx = LoadTiledSprite("Assets/Art/Effects/SlashCrescentBlue.png", 700f);
+        Sprite diveTrailVfx = LoadTiledSprite("Assets/Art/Effects/DiveTrailBlue.png", 700f);
+
         GameObject upSlashGO = new GameObject("UpAttackSlash");
         upSlashGO.transform.SetParent(go.transform);
-        upSlashGO.transform.localPosition = new Vector3(0.2f, 1.4f, 0f);
-        // Base slash art points along +X (matches the forward attack's own
-        // unrotated orientation) - rotating this instance 80° around Z
-        // tilts it to read as an upward slash without needing a separate
-        // sprite sheet.
-        upSlashGO.transform.localRotation = Quaternion.Euler(0f, 0f, 80f);
+        upSlashGO.transform.localPosition = new Vector3(0.35f, 1.5f, 0f);
         var upSlashVisual = upSlashGO.AddComponent<AttackSlashVisual>();
-        // 上下攻撃アニメーション差し替え(2026-09-08) - この汎用SlashFXは
-        // 「新しい専用アートに斬撃エフェクトが描かれていなかった旧構成」
-        // 向けの代替品だった。新しい地上/空中上攻撃フレーム自体に青白い
-        // 斬撃(三日月状のswoosh)が描き込まれているため、framesを敢えて
-        // 割り当てず未使用のままにする - AttackSlashVisual.SetComboStageは
-        // frames未設定なら何もしない(null安全)ので、PlayerController側の
-        // upAttackSlashVisual参照・AttackRangeMultiplier反映コードは無改
-        // 造のまま安全に「二重表示なし」を実現できる。DownAttackSlash側は
-        // 新しい下降攻撃フレーム(windup/tuck)自体には斬撃が描かれていない
-        // ため、従来どおりframesを割り当てて残す(下記)。
-        // upSlashVisual.frames = LoadSpriteSequence("Assets/Art/AttackSlashFx");
-
+        upSlashVisual.singleSprite = crescentVfx;
+        // Item「重要：エフェクトサイズ」- 「巨大なエフェクトを画面いっぱ
+        // いに表示する必要はない」「キャラクターの剣の軌跡＋少し外側」程
+        // 度。singleDuration/opacityもここでInspector調整可能。
+        upSlashVisual.singleDuration = 0.24f;
+        upSlashVisual.opacity = 0.85f;
         pc.upAttackHitbox = upHitboxCol;
         pc.upAttackSlashVisual = upSlashVisual;
 
         // 方向攻撃システム Ver.2(2026-09-07)、項目3 - "空中で↓フリック=
         // 下降攻撃"用の独立したHitbox+Slash FX。UpAttackHitbox/UpAttackSlash
         // と全く同じ構造(別オブジェクト、Forward/Backwardコンボには一切
-        // 触れない)をY軸で反転させただけ。プレイヤーの真下〜やや前方下
-        // をカバーする位置・サイズにして、下降中の敵を攻撃できるように
-        // する(「剣先だけではなく真下付近にも多少余裕のある判定」との指
-        // 示どおり、UpAttackHitboxと同程度の余裕を持たせたサイズ)。Slash
-        // FXは既存のAttackSlashFxスプライトを-80°回転させ、上昇攻撃とは
-        // 対になる「上から下へ抜ける斬撃」に見せる(新規アート不要)。
+        // 触れない)。プレイヤーの真下〜やや前方下をカバーする位置・サイ
+        // ズにして、下降中の敵を攻撃できるようにする(「剣先だけではなく
+        // 真下付近にも多少余裕のある判定」との指示どおり、UpAttackHitbox
+        // と同程度の余裕を持たせたサイズ)。
         GameObject downHitbox = new GameObject("DownAttackHitbox");
         downHitbox.transform.SetParent(go.transform);
         downHitbox.transform.localPosition = new Vector3(0.15f, -0.4f, 0f);
@@ -2609,12 +2605,17 @@ public static class SceneBuilder
         var downHitboxDebug = downHitbox.AddComponent<ColliderDebugView>();
         downHitboxDebug.color = new Color(1f, 0.5f, 0.2f);
 
+        // 攻撃エフェクト全面調整(2026-09-08) - 縦方向の細いトレイルVFX。
+        // キャラクターの少し上(=急降下中は進行方向の後方)に配置し、
+        // ShowSustained/HideSustainedで急降下中ずっと表示し続ける(着地の
+        // 瞬間にHideSustained - PlayerController.EndDiveAttack参照)。新
+        // 素材は既に縦向きなので回転は不要。
         GameObject downSlashGO = new GameObject("DownAttackSlash");
         downSlashGO.transform.SetParent(go.transform);
-        downSlashGO.transform.localPosition = new Vector3(0.1f, -0.3f, 0f);
-        downSlashGO.transform.localRotation = Quaternion.Euler(0f, 0f, -80f);
+        downSlashGO.transform.localPosition = new Vector3(0f, 0.9f, 0f);
         var downSlashVisual = downSlashGO.AddComponent<AttackSlashVisual>();
-        downSlashVisual.frames = LoadSpriteSequence("Assets/Art/AttackSlashFx");
+        downSlashVisual.singleSprite = diveTrailVfx;
+        downSlashVisual.opacity = 0.8f;
 
         pc.downAttackHitbox = downHitboxCol;
         pc.downAttackSlashVisual = downSlashVisual;
