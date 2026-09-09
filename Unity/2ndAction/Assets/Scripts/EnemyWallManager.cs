@@ -101,10 +101,28 @@ public class EnemyWallManager : MonoBehaviour
         bool defaultFacingRight = enemyDef == null || enemyDef.defaultFacingRight;
 
         int mileReward = enemyDef != null ? enemyDef.mileReward : 1;
+
+        // 雑魚敵配置修正(2026-09-10) - 「Flying以外は地上の道の上に、Flying
+        // は空中どこでもランダムに」。以前はmovementTypeを一切渡していな
+        // かったため(常にデフォルトのGround)、Flying種が壁として選ばれて
+        // もFlyingの浮遊/追尾Behaviorが付かず、かつ縦に積み上げる位置計算
+        // (i*columnSpacing)がGround種にもそのまま適用されて地上専用アニメ
+        // ーションの種族が宙に浮いて見える不具合があった。Flying種は
+        // TerrainManagerと同じ高さ範囲でランダムな高度に、それ以外は縦積
+        // みではなく横に並べて必ず地面に接地させる(見た目・当たり判定と
+        // も他のGround種と同じ扱いにする)。
+        bool isFlying = enemyDef != null && enemyDef.movementType == EnemyMovementType.Flying;
+        EnemyMovementType movementType = isFlying ? EnemyMovementType.Flying : EnemyMovementType.Ground;
+        EnemyBehaviorKind behaviorKind = enemyDef != null ? enemyDef.behaviorKind : EnemyBehaviorKind.None;
+        float flyMinY = groundY.Value + (TerrainManager.Instance != null ? TerrainManager.Instance.flyingSpawnMinHeight : 1.2f);
+        float flyMaxY = groundY.Value + (TerrainManager.Instance != null ? TerrainManager.Instance.flyingSpawnMaxHeight : 4f);
+
         for (int i = 0; i < columnCount; i++)
         {
-            Vector2 pos = new Vector2(worldX, groundY.Value + groundClearance + i * columnSpacing);
-            GroundFactory.CreateEnemy(transform, eSprite, pos, eColor, squareSprite, maxHp: wallEnemyHp, enableVisualFacing: enableVisualFacing, defaultFacingRight: defaultFacingRight, runFrames: enemyDef != null ? enemyDef.runFrames : null, mileReward: mileReward, visualScaleMultiplier: enemyDef != null ? enemyDef.visualScaleMultiplier : 1f);
+            Vector2 pos = isFlying
+                ? new Vector2(worldX, Random.Range(flyMinY, flyMaxY))
+                : new Vector2(worldX + i * columnSpacing, groundY.Value);
+            GroundFactory.CreateEnemy(transform, eSprite, pos, eColor, squareSprite, movementType: movementType, maxHp: wallEnemyHp, behaviorKind: behaviorKind, enableVisualFacing: enableVisualFacing, defaultFacingRight: defaultFacingRight, runFrames: enemyDef != null ? enemyDef.runFrames : null, mileReward: mileReward, visualScaleMultiplier: enemyDef != null ? enemyDef.visualScaleMultiplier : 1f);
         }
     }
 }

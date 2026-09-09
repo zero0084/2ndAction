@@ -82,6 +82,12 @@ public class TerrainManager : MonoBehaviour
     // floatingEnemyHeight above) are an intentional obstacle variety, not
     // a bug, and are unaffected by this.
     public float groundEnemyHeight = 0f;
+    // 雑魚敵配置修正(2026-09-10) - 「Flyingは空中どこでもランダムに配置」。
+    // Formation側のyOffsetパターンではなく、この範囲(地面からの高さ)の中
+    // でSpawnFormationMemberが毎回ランダムに選ぶ。上限は画面上端(screenTopY)
+    // でも別途クランプされるので、実際にはこれと画面サイズの小さい方になる。
+    public float flyingSpawnMinHeight = 1.2f;
+    public float flyingSpawnMaxHeight = 4f;
 
     [Header("Difficulty Ramp (starts past a distance threshold)")]
     public float difficultyStartDistance = 1000f;
@@ -538,18 +544,23 @@ public class TerrainManager : MonoBehaviour
         foreach (EnemySpawnRequest req in requests)
         {
             float ex = anchorX + req.xOffset;
-            float ey = anchorY + req.yOffset;
-
-            // Spawn Validation (item 2) - "画面上下端の外に出ない": a member
-            // whose absolute Y would exceed the camera's own top edge is
-            // skipped outright rather than spawned off-screen.
-            if (screenTopY.HasValue && ey > screenTopY.Value) continue;
-
-            SpawnFormationMember(chunk, req, ex, ey);
+            SpawnFormationMember(chunk, req, ex, anchorY, screenTopY);
         }
     }
 
-    void SpawnFormationMember(RuntimeChunk chunk, EnemySpawnRequest req, float ex, float ey)
+    // 雑魚敵配置修正(2026-09-10) - 「雑魚敵の配置を、Flying以外は地上の道の
+    // 上にいるように」「Flyingは空中どこでもランダムに配置」。以前はFormation
+    // が指定するyOffset(SpawnPointごとの高さパターン、VerticalLine/
+    // DiagonalUp/GroundAir等で使用)がそのまま実際の配置高さになり、かつ
+    // 「yOffset>0なら見た目もFlying扱いにする」実装だったため、その位置に
+    // たまたま選ばれたNon-Flying種(Runner等、地上専用の走行アニメーション
+    // しか持たない種族)までもが宙に浮いて見える不具合があった。実際の配置
+    // 高さは種族自身のmovementTypeだけで決め、Formationのyoffsetは(役割/
+    // カテゴリの決定にのみ使われ)高さの計算には一切使わないよう変更 -
+    // Flying種はflyingSpawnMinHeight〜flyingSpawnMaxHeight(画面上端でも別
+    // 途クランプ)の範囲でランダムな高度に、それ以外は必ずanchorY(実際に
+    // 生成された地面の高さ)に接地させる。
+    void SpawnFormationMember(RuntimeChunk chunk, EnemySpawnRequest req, float ex, float anchorY, float? screenTopY)
     {
         EnemyDefinition enemyDef = EnemyDatabase.PickRandomUnlockedOfCategory(enemyPool, req.category);
         // Category had nothing available (species not added to enemyPool
@@ -558,12 +569,33 @@ public class TerrainManager : MonoBehaviour
         // Formation slot never spawns literally nothing.
         if (enemyDef == null) enemyDef = EnemyDatabase.PickRandomUnlocked(enemyPool);
 
+        bool airborne = enemyDef != null && enemyDef.movementType == EnemyMovementType.Flying;
+
+        float ey;
+        if (airborne)
+        {
+            float minY = anchorY + flyingSpawnMinHeight;
+            float maxY = anchorY + flyingSpawnMaxHeight;
+            if (screenTopY.HasValue) maxY = Mathf.Min(maxY, screenTopY.Value);
+            if (maxY < minY) maxY = minY;
+            ey = Random.Range(minY, maxY);
+        }
+        else
+        {
+            ey = anchorY;
+        }
+
+        // Spawn Validation (item 2) - "画面上下端の外に出ない": a member
+        // whose absolute Y would exceed the camera's own top edge is skipped
+        // outright rather than spawned off-screen (ground-level members
+        // never realistically hit this, but kept as a safety net).
+        if (screenTopY.HasValue && ey > screenTopY.Value) return;
+
         Sprite eSprite = enemyDef != null ? enemyDef.sprite : (enemySprite != null ? enemySprite : squareSprite);
         Color eColor = enemyDef != null ? enemyDef.tint : (enemySprite != null ? Color.white : enemyColor);
 
-        bool airborne = req.yOffset > 0.01f || (enemyDef != null && enemyDef.movementType == EnemyMovementType.Flying);
         EnemyMovementType movementType = airborne ? EnemyMovementType.Flying : EnemyMovementType.Ground;
-        float heightOffset = airborne ? 0f : groundEnemyHeight; // yOffset (already folded into ey by the caller) IS the airborne height for a Formation member - groundEnemyHeight only applies to true ground placements
+        float heightOffset = airborne ? 0f : groundEnemyHeight;
 
         int maxHp = DistanceTierManager.Instance != null && enemyDef != null ? DistanceTierManager.Instance.EnemyHpFor(enemyDef.hpMultiplier) : 1;
         EnemyBehaviorKind behaviorKind = enemyDef != null ? enemyDef.behaviorKind : EnemyBehaviorKind.None;
