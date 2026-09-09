@@ -430,11 +430,14 @@ public class PlayerController : MonoBehaviour
     // AttackHitboxと違って完全固定(コンボ段/Attack Range Upで一切動かな
     // い)だったため、Hitbox自体はApplyComboStageToHitboxでどんどん前方へ
     // 伸びていくのに、見た目のVFXはその場でScaleが大きくなるだけで「攻撃
-    // 範囲が伸びている」という実感に繋がっていなかった。Hitboxと全く同じ
-    // 基準値保存パターン(Awakeで保存→発動時に同じstep*hitboxReachStep*
-    // AttackRangeMultiplierを加算)をVFXの位置にも適用し、Hitboxの実際の
-    // 判定位置とVFXの見た目の位置が常に一致するようにする。
-    Vector3 slashBaseLocalPos;
+    // 範囲が伸びている」という実感に繋がっていなかった。当初は別途
+    // slashBaseLocalPosを持たせていたが、AttackVfxCapture(Editor専用デバ
+    // ッグツール)での実機相当の直接検証で「Hitboxの基準位置(1.0,0.5)と
+    // Slashの基準位置(0.3,0.5)がそもそもズレていた」ことが判明したため、
+    // SceneBuilder側でSlashの初期位置をHitboxと完全に同じ値へ揃えた上で、
+    // ここでも同じhitboxBaseLocalPosを共有基準として使う形に統一 - 別々の
+    // 定数を持たないことで、今後Hitbox側だけ調整してVFXとズレる、という
+    // 事態が構造的に起こらないようにする。
     // Bugfix 2026-09-08 - 「攻撃範囲拡張カードが上/下攻撃に効かない」修正
     // 用。Forward/Backward側はApplyComboStageToHitboxが毎回attackHitboxの
     // localScale/localPositionをAttackRangeMultiplier込みで再計算していた
@@ -492,10 +495,6 @@ public class PlayerController : MonoBehaviour
             attackHitbox.enabled = false;
             hitboxBaseScale = attackHitbox.transform.localScale;
             hitboxBaseLocalPos = attackHitbox.transform.localPosition;
-        }
-        if (attackSlashVisual != null)
-        {
-            slashBaseLocalPos = attackSlashVisual.transform.localPosition;
         }
         if (upAttackHitbox != null)
         {
@@ -1302,18 +1301,19 @@ public class PlayerController : MonoBehaviour
         // は従来どおりHitboxと完全に同じAttackRangeMultiplierを渡すので、
         // Attack Range Upで見た目も一緒に大きくなる(item 12)。
         // 不具合修正(2026-09-09) - 「攻撃範囲がちゃんと見えるように」。
-        // ApplyComboStageToHitbox(上)と全く同じstep*hitboxReachStep*
-        // AttackRangeMultiplierの位置オフセットをVFXにも与え、Hitboxが
-        // 実際に前方へ伸びる分だけVFXの表示位置も一緒に前へ出すことで、
-        // Scaleが大きくなるだけでなく「間合いそのものが伸びている」こと
-        // が見た目でも分かるようにする(HitboxとVFXが同じ式を共有してい
-        // るので、両者が視覚的にズレることもない)。
+        // ApplyComboStageToHitbox(上)と全く同じhitboxBaseLocalPos基準+
+        // step*hitboxReachStep*AttackRangeMultiplierの位置オフセットを
+        // VFXにも与え、Hitboxが実際に前方へ伸びる分だけVFXの表示位置も
+        // 一緒に前へ出すことで、Scaleが大きくなるだけでなく「間合いその
+        // ものが伸びている」ことが見た目でも分かるようにする(Hitboxと
+        // VFXが同じhitboxBaseLocalPos・同じ式を共有しているので、両者が
+        // 視覚的にズレることは構造的に起こらない)。
         if (attackSlashVisual != null)
         {
             float stageScale = comboCount switch { 1 => 0.9f, 2 => 1.15f, _ => 1.5f };
             int reachStep = Mathf.Max(0, comboCount - 1);
             attackSlashVisual.transform.localPosition =
-                slashBaseLocalPos + new Vector3(reachStep * hitboxReachStep * AttackRangeMultiplier, 0f, 0f);
+                hitboxBaseLocalPos + new Vector3(reachStep * hitboxReachStep * AttackRangeMultiplier, 0f, 0f);
             attackSlashVisual.PlaySingle(stageScale, AttackRangeMultiplier);
         }
 

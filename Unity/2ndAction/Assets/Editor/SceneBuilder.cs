@@ -2626,21 +2626,35 @@ public static class SceneBuilder
         Sprite crescentVfx = LoadTiledSprite("Assets/Art/Effects/SlashCrescentBlue.png", 700f);
         Sprite diveTrailVfx = LoadTiledSprite("Assets/Art/Effects/DiveTrailBlue.png", 700f);
 
+        // 不具合修正(2026-09-09) - 「攻撃エフェクトが表示されていない」。
+        // マスター提供の実機動画+新設のAttackVfxCapture(Editor専用デバッグ
+        // ツール、Tools/2ndAction/Capture Attack VFX)による直接検証で判明
+        // した実際の原因は「描画されていない」のではなく「描画はされて
+        // いるが小さすぎる上にキャラクター/剣から離れた位置に浮いて見え、
+        // 実機の明るい空背景に溶け込んでほぼ視認できない」だった。通常
+        // 攻撃向けにChatGPTで新規生成した、太くはっきりした専用VFX
+        // (SlashArcBlue.png、旧SlashCrescentBlueより大幅に大きく明るい)
+        // へ差し替える(上/空中/下降攻撃は旧クレセントのまま、今回は通常
+        // 攻撃のみに影響を絞る)。PPUはHitbox本体のサイズ(hitboxBaseScale
+        // ≒1.4x1.8)とほぼ揃うように算出(897px÷1.8u≒500)。
+        Sprite slashArcVfx = LoadTiledSprite("Assets/Art/Effects/SlashArcBlue.png", 500f);
+
         // Slash FX (separate from the invisible hitbox) - a short one-shot
         // sword-swing effect showing the attack's reach, sized per combo
-        // stage. 品質改善 Bug #002、item 8/9 - 通常攻撃(横方向Slash)向けに
-        // 三日月VFXを浅め(-35°)に傾けて横振りらしく見せる。
+        // stage. 不具合修正(2026-09-09) - 「攻撃範囲がちゃんと見えるよう
+        // に」。位置をAttackHitboxの基準位置(hitboxBaseLocalPos)と完全に
+        // 一致させ(以前は(0.3,0.5)という別の固定値で、Hitboxの実際の位置
+        // (1.0,0.5)とズレていた)、PlayerController.DoAttack側でも同じ
+        // hitboxBaseLocalPosを使って毎回位置を合わせ直すことで、Hitboxと
+        // VFXが常に同じ場所に表示されるようにする。
         GameObject slashGO = new GameObject("AttackSlash");
         slashGO.transform.SetParent(go.transform);
-        // Same +0.5 restoration as AttackHitbox above, so the visible
-        // slash swoosh still lines up with the sword/hitbox instead of
-        // trailing down at foot height.
-        slashGO.transform.localPosition = new Vector3(0.3f, 0.5f, 0f);
+        slashGO.transform.localPosition = hitbox.transform.localPosition;
         slashGO.transform.localRotation = Quaternion.Euler(0f, 0f, -35f);
         var slashVisual = slashGO.AddComponent<AttackSlashVisual>();
-        slashVisual.singleSprite = crescentVfx;
-        slashVisual.singleDuration = 0.2f;
-        slashVisual.opacity = 0.85f;
+        slashVisual.singleSprite = slashArcVfx;
+        slashVisual.singleDuration = 0.28f;
+        slashVisual.opacity = 0.92f;
 
         pc.attackHitbox = hitboxCol;
         pc.attackSlashVisual = slashVisual;
