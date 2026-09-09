@@ -2478,9 +2478,17 @@ public static class SceneBuilder
         // (3コマ204/227/230pxの中間217pxを基準)。旧180だと全コマが基準
         // より26-28%大きく描画されていた。
         ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttackLarge_v1", 192f);
-        // 品質改善 Bug #002、item 3/6 - land_00/land_01が241px/205pxと約
-        // 15%の差があり(旧213だとland_01が-15%)、中間223pxを基準に変更。
-        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerLand_v1", 197f);
+        // 不具合修正(2026-09-10) - 「地上着地時のキャラサイズが一時的に
+        // 大きくなる」。品質改善Bug #002では land_00/land_01(241px/205px)
+        // の中間223pxを基準(197)にしていたが、これは「Landステート開始直
+        // 後にプレイヤーが最初に見るフレーム」であるland_00自身がRun/Jump
+        // より約8%大きく描画される結果になっており、まさにこの実機報告の
+        // 症状そのものだった。他の攻撃アニメ群と同じ「State開始直後に最初
+        // に見えるフレームを基準にする」原則どおり、land_00(241px)を基準
+        // に戻す(land_01は着地から走行へ戻る一瞬の中間コマで、about -15%
+        // 小さく見えるトレードオフはあるが、「大きくなる」よりは目立ちに
+        // くいと判断)。
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerLand_v1", 213f);
 
         // 上下攻撃アニメーション差し替え(2026-09-08) - マスターから供給
         // された専用手描きアニメーション3種(地上上攻撃5枚/空中上攻撃5枚/

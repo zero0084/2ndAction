@@ -1402,12 +1402,23 @@ public class PlayerController : MonoBehaviour
         // 指示どおり控えめに。
         // 不具合修正(2026-09-09) - 通常攻撃と同じ「HitboxとVFXの表示位置が
         // ズレていた」バグが上攻撃にも存在していた(upAttackSlashVisualの
-        // transform位置が固定のままだった)。upAttackHitboxと全く同じ
-        // upHitboxBaseLocalPos*AttackRangeMultiplierをVFXの位置にも適用し、
-        // 両者が常に一致するようにする。
+        // transform位置が固定のままだった)ため、upAttackHitboxと全く同じ
+        // upHitboxBaseLocalPos*AttackRangeMultiplierをVFXの位置にも適用した
+        // が、これはHitbox本体には正しくても見た目には別の問題を生んだ。
+        // 不具合修正(2026-09-10) - 「空中上攻撃のエフェクトが攻撃範囲拡張
+        // とともにプレイヤーから離れてしまう」。基準位置をそのままAttack
+        // RangeMultiplier倍すると、Range Upを積むほどVFX全体(位置ごと)が
+        // プレイヤーから遠くへ移動し、キャラクターと繋がって見えなくなる
+        // (Hitbox自体は当たり判定なので離れて問題ないが、VFXは「プレイヤ
+        // ーから攻撃範囲まで」を見せる役割のため、離れて浮くのはNG)。
+        // 位置の移動量はAttackRangeMultiplierの半分だけに抑え(positionRange
+        // Factor)、Scale自体は従来どおりPlaySingle側でAttackRangeMultiplier
+        // ぶん丸ごと大きくする - 結果、近い側の端はプレイヤーの近くに留ま
+        // りつつ、遠い側の端(=剣が実際に届く範囲)だけが伸びるように見える。
         if (upAttackSlashVisual != null)
         {
-            upAttackSlashVisual.transform.localPosition = upHitboxBaseLocalPos * AttackRangeMultiplier;
+            float positionRangeFactor = 1f + (AttackRangeMultiplier - 1f) * 0.5f;
+            upAttackSlashVisual.transform.localPosition = upHitboxBaseLocalPos * positionRangeFactor;
             upAttackSlashVisual.PlaySingle(isAirborne ? 1.15f : 1f, AttackRangeMultiplier);
         }
         if (upAttackHitbox != null)

@@ -35,9 +35,23 @@ public static class AttackVfxCapture
             new Vector3(0.3f, 1.7f, 0f), 1.15f, false);
         CaptureOne(player, cam, "down", player.downAttackSlashVisual,
             new Vector3(0.15f, -0.4f + 1.1f, 0f), 1f, true);
+
+        // 不具合修正(2026-09-10) - 「空中上攻撃のエフェクトが攻撃範囲拡張
+        // とともにプレイヤーから離れてしまう」検証用。Attack Range Upカード
+        // を2枚積んだ状態(AttackRangeMultiplier=3)を再現し、
+        // PlayerController.DoUpAttackと全く同じpositionRangeFactorの式で
+        // 位置を計算、実際のupAttackHitbox位置(離れて正しい)と並べて確認
+        // できるよう、Hitboxの位置にも目印を置く。
+        float boostedRangeMultiplier = 3f;
+        Vector3 upBase = new Vector3(0.3f, 1.7f, 0f);
+        float positionRangeFactor = 1f + (boostedRangeMultiplier - 1f) * 0.5f;
+        Vector3 boostedVfxPos = upBase * positionRangeFactor;
+        Vector3 boostedHitboxPos = upBase * boostedRangeMultiplier;
+        Debug.Log($"AttackVfxCapture[up-boosted]: rangeMultiplier={boostedRangeMultiplier}, vfxPos={boostedVfxPos}, actualHitboxPos={boostedHitboxPos}");
+        CaptureOne(player, cam, "up_boosted", player.upAttackSlashVisual, boostedVfxPos, 1.15f, false, boostedRangeMultiplier, boostedHitboxPos);
     }
 
-    static void CaptureOne(PlayerController player, Camera cam, string label, AttackSlashVisual visual, Vector3 forcedLocalPos, float scale, bool sustained)
+    static void CaptureOne(PlayerController player, Camera cam, string label, AttackSlashVisual visual, Vector3 forcedLocalPos, float scale, bool sustained, float rangeMultiplier = 1f, Vector3? hitboxMarkerLocalPos = null)
     {
         if (visual == null)
         {
@@ -54,25 +68,48 @@ public static class AttackVfxCapture
 
         visual.transform.localPosition = forcedLocalPos;
         if (sustained) visual.ShowSustained(scale);
-        else visual.PlaySingle(scale, 1f);
+        else visual.PlaySingle(scale, rangeMultiplier);
 
         SpriteRenderer sr = visual.GetComponent<SpriteRenderer>();
         Debug.Log($"AttackVfxCapture[{label}]: enabled={sr.enabled}, sprite={sr.sprite}, sortingOrder={sr.sortingOrder}, worldPos={visual.transform.position}, localScale={visual.transform.localScale}");
+
+        // 不具合修正(2026-09-10)検証用 - 実際のHitbox位置(離れて正しい)を
+        // 小さな黄色いマーカーで示し、VFXがそこへ向かって伸びているように
+        // 見えるか(=離れて浮いてしまっていないか)を1枚の画像で比較できる
+        // ようにする。
+        GameObject marker = null;
+        if (hitboxMarkerLocalPos.HasValue)
+        {
+            marker = new GameObject("__HitboxMarker");
+            marker.transform.SetParent(player.transform);
+            marker.transform.localPosition = hitboxMarkerLocalPos.Value;
+            marker.transform.localScale = Vector3.one * 0.15f;
+            var markerSr = marker.AddComponent<SpriteRenderer>();
+            Texture2D tex = new Texture2D(4, 4);
+            Color[] px = new Color[16];
+            for (int i = 0; i < 16; i++) px[i] = Color.yellow;
+            tex.SetPixels(px);
+            tex.Apply();
+            markerSr.sprite = Sprite.Create(tex, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f), 4f);
+            markerSr.sortingOrder = 10;
+        }
 
         // Hide every other nearby SpriteRenderer (background art etc.) for
         // an isolated zoom shot, then restore them for a gameplay-scale shot.
         foreach (SpriteRenderer r in Object.FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None))
         {
             if (Vector3.Distance(r.transform.position, player.transform.position) < 5f
-                && r.gameObject.name != "Visual" && r != sr)
+                && r.gameObject.name != "Visual" && r != sr && r != (marker != null ? marker.GetComponent<SpriteRenderer>() : null))
             {
                 r.enabled = false;
             }
         }
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0.2f, 0.2f, 0.2f);
-        cam.transform.position = new Vector3(player.transform.position.x + forcedLocalPos.x * 0.5f, player.transform.position.y + forcedLocalPos.y * 0.5f + 0.3f, -10f);
-        cam.orthographicSize = 2.6f;
+        float zoomTargetX = hitboxMarkerLocalPos.HasValue ? hitboxMarkerLocalPos.Value.x * 0.5f : forcedLocalPos.x * 0.5f;
+        float zoomTargetY = hitboxMarkerLocalPos.HasValue ? hitboxMarkerLocalPos.Value.y * 0.5f : forcedLocalPos.y * 0.5f;
+        cam.transform.position = new Vector3(player.transform.position.x + zoomTargetX, player.transform.position.y + zoomTargetY + 0.3f, -10f);
+        cam.orthographicSize = hitboxMarkerLocalPos.HasValue ? 4f : 2.6f;
         RenderAndSave(cam, $"attack_vfx_{label}_zoom.png");
 
         foreach (SpriteRenderer r in Object.FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None))
@@ -85,6 +122,7 @@ public static class AttackVfxCapture
         RenderAndSave(cam, $"attack_vfx_{label}_gameplay.png");
 
         if (sustained) visual.HideSustained();
+        if (marker != null) Object.DestroyImmediate(marker);
     }
 
     static void RenderAndSave(Camera cam, string fileName)
