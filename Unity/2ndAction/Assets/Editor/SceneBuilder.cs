@@ -2453,7 +2453,16 @@ public static class SceneBuilder
         // platforms depending on which animation is playing.
         ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerRun_v1", 186f);
         ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerJump_v1", 167f);
-        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttack_v1", 237f);
+        // 品質改善 Bug #002(2026-09-09), item 3/6 - 「Player Attack Animation
+        // 中にCharacter Sizeが変わる」の再調査。実測(頭頂〜足先のアルファ
+        // 境界、bottom-up alpha scan)したところ、この3コマの高さは268/301/
+        // 312pxとコマごとにばらつきがあり(振りの姿勢差、自然な範囲)、旧
+        // PPU(237)はそのどれとも噛み合わない値だった(frame0が基準の
+        // +32%という大きな乖離)。基準フレームを1枚選ぶのではなく、3コマ
+        // の最大/最小の中間(290px)を基準に据えることで、最大でも約±8%の
+        // 乖離に収める(1枚に厳密に合わせると他のコマがより大きくズレる
+        // ため、3コマ全体でのバランスを優先)。
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttack_v1", 257f);
         // AttackSmall (combo stage 1) was originally calibrated (250) against
         // a mid-swing frame, but this clip's very FIRST frame - the one the
         // player actually sees the instant a stage-1 attack starts, right
@@ -2465,8 +2474,13 @@ public static class SceneBuilder
         // baseline (234/1.13); later frames in the swing grow larger as the
         // sword extends, same as the other attack folders already do.
         ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttackSmall_v1", 207f);
-        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttackLarge_v1", 180f);
-        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerLand_v1", 213f);
+        // 品質改善 Bug #002、item 3/6 - PlayerAttack_v1と同じ理由・同じ方式
+        // (3コマ204/227/230pxの中間217pxを基準)。旧180だと全コマが基準
+        // より26-28%大きく描画されていた。
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttackLarge_v1", 192f);
+        // 品質改善 Bug #002、item 3/6 - land_00/land_01が241px/205pxと約
+        // 15%の差があり(旧213だとland_01が-15%)、中間223pxを基準に変更。
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerLand_v1", 197f);
 
         // 上下攻撃アニメーション差し替え(2026-09-08) - マスターから供給
         // された専用手描きアニメーション3種(地上上攻撃5枚/空中上攻撃5枚/
@@ -2601,17 +2615,32 @@ public static class SceneBuilder
         var hitboxDebug = hitbox.AddComponent<ColliderDebugView>();
         hitboxDebug.color = new Color(1f, 0.9f, 0.1f);
 
+        // 攻撃エフェクト全面調整(2026-09-08)/品質改善 Bug #002(2026-09-09)
+        // - 「巨大な紫剣エフェクト」(AttackSlashFx流用)から、剣の軌跡に
+        // 沿った控えめな青白いVFXへ差し替え。新素材は既に「三日月が右上
+        // へ向けて自然に振り上がる」形状で供給されているため、旧構成が
+        // 必要としていた80°回転(汎用の斜め剣画像を無理やり上向きに見せる
+        // ための回転)はもう不要 - 回転0のまま、位置とScaleだけをInspector
+        // から調整する運用にした(上/空中/下降攻撃と共通、ここで一度だけ
+        // ロードして使い回す)。
+        Sprite crescentVfx = LoadTiledSprite("Assets/Art/Effects/SlashCrescentBlue.png", 700f);
+        Sprite diveTrailVfx = LoadTiledSprite("Assets/Art/Effects/DiveTrailBlue.png", 700f);
+
         // Slash FX (separate from the invisible hitbox) - a short one-shot
-        // sword-swing animation (extracted from reference art) showing the
-        // attack's reach, sized per combo stage.
+        // sword-swing effect showing the attack's reach, sized per combo
+        // stage. 品質改善 Bug #002、item 8/9 - 通常攻撃(横方向Slash)向けに
+        // 三日月VFXを浅め(-35°)に傾けて横振りらしく見せる。
         GameObject slashGO = new GameObject("AttackSlash");
         slashGO.transform.SetParent(go.transform);
         // Same +0.5 restoration as AttackHitbox above, so the visible
         // slash swoosh still lines up with the sword/hitbox instead of
         // trailing down at foot height.
         slashGO.transform.localPosition = new Vector3(0.3f, 0.5f, 0f);
+        slashGO.transform.localRotation = Quaternion.Euler(0f, 0f, -35f);
         var slashVisual = slashGO.AddComponent<AttackSlashVisual>();
-        slashVisual.frames = LoadSpriteSequence("Assets/Art/AttackSlashFx");
+        slashVisual.singleSprite = crescentVfx;
+        slashVisual.singleDuration = 0.2f;
+        slashVisual.opacity = 0.85f;
 
         pc.attackHitbox = hitboxCol;
         pc.attackSlashVisual = slashVisual;
@@ -2636,15 +2665,6 @@ public static class SceneBuilder
         upHitboxCol.isTrigger = true;
         var upHitboxDebug = upHitbox.AddComponent<ColliderDebugView>();
         upHitboxDebug.color = new Color(0.6f, 0.9f, 1f);
-
-        // 攻撃エフェクト全面調整(2026-09-08) - 「巨大な紫剣エフェクト」
-        // (AttackSlashFx流用)から、剣の軌跡に沿った控えめな青白いVFXへ
-        // 差し替え。新素材は既に「三日月が右上へ向けて自然に振り上がる」
-        // 形状で供給されているため、旧構成が必要としていた80°回転(汎用の
-        // 斜め剣画像を無理やり上向きに見せるための回転)はもう不要 -
-        // 回転0のまま、位置とScaleだけをInspectorから調整する運用にした。
-        Sprite crescentVfx = LoadTiledSprite("Assets/Art/Effects/SlashCrescentBlue.png", 700f);
-        Sprite diveTrailVfx = LoadTiledSprite("Assets/Art/Effects/DiveTrailBlue.png", 700f);
 
         GameObject upSlashGO = new GameObject("UpAttackSlash");
         upSlashGO.transform.SetParent(go.transform);

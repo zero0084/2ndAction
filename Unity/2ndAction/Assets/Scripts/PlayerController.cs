@@ -1280,10 +1280,18 @@ public class PlayerController : MonoBehaviour
         ApplyAttackDirection(dir);
         if (attackHitbox != null) attackHitbox.enabled = true;
         ApplyComboStageToHitbox(comboCount);
-        // Bugfix 2026-09-06 - pass the SAME AttackRangeMultiplier the hitbox
-        // itself uses (see ApplyComboStageToHitbox below) so the visible
-        // slash and the actual hit range can never disagree.
-        if (attackSlashVisual != null) attackSlashVisual.SetComboStage(comboCount, AttackRangeMultiplier);
+        // 品質改善 Bug #002(2026-09-09), item 8/9/11/12 - 通常攻撃も旧
+        // 「巨大な紫剣」(framesベースのSetComboStage)から、上/空中/下降
+        // 攻撃と同じ青白いVFX(PlaySingle、1枚絵をScale/Alphaで演出)へ
+        // 統一。段階ごとのScaleは「通常攻撃0.8-1.3倍/Combo Final 1.3-1.6
+        // 倍」の目安どおり(1段目0.9/2段目1.15/3段目1.5)。rangeMultiplier
+        // は従来どおりHitboxと完全に同じAttackRangeMultiplierを渡すので、
+        // Attack Range Upで見た目も一緒に大きくなる(item 12)。
+        if (attackSlashVisual != null)
+        {
+            float stageScale = comboCount switch { 1 => 0.9f, 2 => 1.15f, _ => 1.5f };
+            attackSlashVisual.PlaySingle(stageScale, AttackRangeMultiplier);
+        }
 
         // Once the chain has reached the cap, skip re-opening the combo
         // window: no input gets buffered this swing, so the player falls

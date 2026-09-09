@@ -71,24 +71,51 @@ public class RewardCardUI : MonoBehaviour
     // このuseに対応するため、デフォルト(false)のシンプル表示で問題ない。
     bool showDetails;
 
+    // 品質改善 Bug #002(2026-09-09), item 1/2 - 「Card裏面表示時にLv表示
+    // が貫通する」の根本原因。以前のSetContent()はrarityText/levelText/
+    // countText/equippedBadgeの表示状態(.enabled/.SetActive)を、現在
+    // カードが表か裏かに関係なく「データの内容(Lvがあるか等)」だけで直接
+    // 決めていた - RewardCardSequence等の実際の呼び出し順は
+    // 「ShowBack()(裏面表示開始)→...→SetContent()(次に見せるカードの
+    // データを先読みで設定)→FlipToFront()(実際にめくる)」であり、
+    // SetContent()が呼ばれた瞬間、まだScaleX=1・backImage表示中の"裏面"
+    // の上にLevelBadge等が(描画順で最前面にあるため)いきなり出現してし
+    // まっていた。マスター提案の"SetFaceState"方式を採用し、"見せてよい
+    // かどうか(isFront)"と"表示すべき中身(データ)"を分離 - ApplyFace
+    // Visibility()が両方を突き合わせて最終的な.enabledを決める唯一の
+    // 場所にした。ShowBack/ShowFrontImmediate/FlipToFrontの3箇所は全て
+    // isFrontを切り替えてこれを呼ぶだけになり、個別にフィールドを列挙
+    // する重複コードも解消した。
+    bool isFront;
+
     public void ShowBack()
     {
+        isFront = false;
         backImage.enabled = true;
-        if (baseImage != null) baseImage.enabled = false;
-        if (titleBandImage != null) titleBandImage.enabled = false;
-        frameImage.enabled = false;
-        iconBackdrop.enabled = false;
-        textBackdrop.enabled = false;
-        iconImage.enabled = false;
-        titleText.enabled = false;
-        descriptionText.enabled = false;
-        if (rarityText != null) rarityText.enabled = false;
-        if (levelText != null) levelText.enabled = false;
-        if (countText != null) countText.enabled = false;
-        if (equippedBadge != null) equippedBadge.SetActive(false);
+        ApplyFaceVisibility();
         rect.localScale = Vector3.one;
         canvasGroup.alpha = 1f;
         canvasGroup.blocksRaycasts = false;
+    }
+
+    // isFrontと現在のdata/showDetailsを突き合わせて、表面専用UI全ての
+    // 表示状態を一括で確定させる。裏面(isFront=false)の間はここで必ず
+    // 全て非表示になる - データ側(SetContent)が何を持っていても、表に
+    // なるまでは絶対に見えない。
+    void ApplyFaceVisibility()
+    {
+        if (baseImage != null) baseImage.enabled = isFront;
+        if (titleBandImage != null) titleBandImage.enabled = isFront;
+        frameImage.enabled = isFront;
+        iconBackdrop.enabled = isFront;
+        iconImage.enabled = isFront;
+        titleText.enabled = isFront;
+        textBackdrop.enabled = isFront && showDetails;
+        descriptionText.enabled = isFront && showDetails;
+        if (rarityText != null) rarityText.enabled = isFront && showDetails;
+        if (levelText != null) levelText.enabled = isFront && !string.IsNullOrEmpty(data.LevelLine);
+        if (countText != null) countText.enabled = isFront && data.Count > 1;
+        if (equippedBadge != null) equippedBadge.SetActive(isFront && data.ShowEquippedBadge);
     }
 
     // An unfilled DECK slot - shows just the card frame art, dimmed, with
@@ -97,6 +124,7 @@ public class RewardCardUI : MonoBehaviour
     // instead of the grid just showing nothing where the slot would be.
     public void ShowEmpty()
     {
+        isFront = false; // frameだけ個別にtrueへ - ApplyFaceVisibilityは使わず、このメソッド内で明示的に全て指定する
         backImage.enabled = false;
         if (baseImage != null) baseImage.enabled = false;
         if (titleBandImage != null) titleBandImage.enabled = false;
@@ -146,28 +174,24 @@ public class RewardCardUI : MonoBehaviour
         {
             Debug.Log($"[CardFrame] Card={cardData.Title}  Rarity={cardData.Rarity}  Frame={(frameImage.sprite != null ? frameImage.sprite.name : "null")}");
         }
-        // Card UI改修(2026-09-08) - ★はもう常時表示ではなく、showDetails
-        // (詳細表示)時のみ。
+        // 品質改善 Bug #002(2026-09-09) - ここではテキストの"中身"だけを
+        // 設定し、実際に見せるかどうか(.enabled)はApplyFaceVisibility()
+        // に一本化した(このメソッドの先頭コメント参照) - SetContent()は
+        // 「次に表示する内容を仕込む」だけで、現在裏面表示中のカードに
+        // 対して呼ばれても何も見た目を変えない。
         if (rarityText != null)
         {
-            rarityText.enabled = showDetails;
             rarityText.text = new string('★', Mathf.Clamp(cardData.Rarity <= 0 ? 1 : cardData.Rarity, 1, 5));
         }
         if (levelText != null)
         {
-            bool hasLevel = !string.IsNullOrEmpty(cardData.LevelLine);
-            levelText.enabled = hasLevel;
             levelText.text = cardData.LevelLine;
         }
-        // Card UI改修(2026-09-08) - 所持枚数「×N」。Countが1以下(未設定含
-        // む)なら非表示 - 「複数所持している場合」だけ表示する仕様どおり。
         if (countText != null)
         {
-            bool hasCount = cardData.Count > 1;
-            countText.enabled = hasCount;
-            countText.text = hasCount ? $"×{cardData.Count}" : "";
+            countText.text = cardData.Count > 1 ? $"×{cardData.Count}" : "";
         }
-        if (equippedBadge != null) equippedBadge.SetActive(cardData.ShowEquippedBadge);
+        ApplyFaceVisibility();
     }
 
     // Static (no animation) face-up display for grid-style UI like the Deck
@@ -176,19 +200,9 @@ public class RewardCardUI : MonoBehaviour
     // field comment; defaults to the new simplified face.
     public void ShowFrontImmediate(RewardCardData cardData, bool showDetails = false)
     {
-        SetContent(cardData, showDetails);
+        isFront = true;
         backImage.enabled = false;
-        if (baseImage != null) baseImage.enabled = true;
-        if (titleBandImage != null) titleBandImage.enabled = true;
-        frameImage.enabled = true;
-        iconBackdrop.enabled = true;
-        // Card UI改修(2026-09-08) - textBackdropは今やDescription専用(旧
-        // レイアウトのTitle領域はTitleBandImage自身が担うため)。showDetails
-        // がfalseの新シンプル表示ではDescription自体を出さないので不要。
-        textBackdrop.enabled = showDetails;
-        iconImage.enabled = true;
-        titleText.enabled = true;
-        descriptionText.enabled = showDetails;
+        SetContent(cardData, showDetails); // ApplyFaceVisibility()を内部で呼ぶ(isFront=true済みなので正しく全て表示される)
         rect.localScale = Vector3.one;
         canvasGroup.alpha = 1f;
         SetInteractable(true);
@@ -229,28 +243,15 @@ public class RewardCardUI : MonoBehaviour
         float half = totalDuration * 0.5f;
         yield return ScaleXTo(0f, half);
 
+        // 品質改善 Bug #002(2026-09-09), item 2 - Sprite切替(Back非表示/
+        // Front表示)とScaleX(=0の瞬間、カードが真横向きで見えない)を同じ
+        // タイミングに揃える。ScaleXTo(0,...)が完了した"中央"のこの1点で
+        // isFront=trueへ切り替え、ApplyFaceVisibility()で表側UI一式を
+        // まとめて表示する - 個別列挙の重複を解消しつつ、ShowBack()と
+        // 完全に同じロジックで裏⇔表を切り替えるため、貫通のリスクがない。
         backImage.enabled = false;
-        if (baseImage != null) baseImage.enabled = true;
-        if (titleBandImage != null) titleBandImage.enabled = true;
-        frameImage.enabled = true;
-        iconBackdrop.enabled = true;
-        textBackdrop.enabled = showDetails;
-        iconImage.enabled = true;
-        titleText.enabled = true;
-        descriptionText.enabled = showDetails;
-        // Card UI / Rarity Frame pass - ShowBack() (always called just
-        // before this, per every caller's SetContent->ShowBack->
-        // FlipToFront sequence) turns these back off, so the flip needs to
-        // explicitly restore them here alongside the rest of the front face
-        // - data is still whatever SetContent last set (rarityText/
-        // levelText's actual displayed text is unaffected by
-        // ShowBack/FlipToFront, only their enabled state is). showDetails is
-        // likewise whatever the preceding SetContent call was given (Card
-        // UI改修2026-09-08).
-        if (rarityText != null) rarityText.enabled = showDetails;
-        if (levelText != null) levelText.enabled = !string.IsNullOrEmpty(data.LevelLine);
-        if (countText != null) countText.enabled = data.Count > 1;
-        if (equippedBadge != null) equippedBadge.SetActive(data.ShowEquippedBadge);
+        isFront = true;
+        ApplyFaceVisibility();
 
         yield return ScaleXTo(1f, half);
     }
