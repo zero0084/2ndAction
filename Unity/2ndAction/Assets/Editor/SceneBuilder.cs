@@ -2482,65 +2482,52 @@ public static class SceneBuilder
         // 15%の差があり(旧213だとland_01が-15%)、中間223pxを基準に変更。
         ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerLand_v1", 197f);
 
-        // 上下攻撃アニメーション差し替え(2026-09-08) - マスターから供給
-        // された専用手描きアニメーション3種(地上上攻撃5枚/空中上攻撃5枚/
-        // 下降攻撃3枚)に差し替え。旧実装(既存のJumpStart/AttackSmall/
-        // DoubleJump素材を「たまたま流用」していたもの、および
-        // PlayerJump_v1/jump_01.pngを回転加工しただけの下降攻撃3枚)を全て
-        // 置き換える - PlayerAnimator/PlayerController側のState機械(Jump
-        // Start/DoubleJump/DownAttack)自体は無改造のまま(ブリーフの「既存
-        // のGround判定が利用できる場合は新しい判定システムを作らない」指示
-        // どおり - 地上上攻撃はJumpStarted、空中上攻撃はDoubleJumpedという
-        // 既存イベントがそのまま「Grounded/Airborne」の判別を兼ねている)。
+        // 上下攻撃アニメーション再生成(2026-09-09) - マスター依頼により、
+        // 走行アニメ(PlayerRun_v1)と同一キャラクター・同一サイズ・同一
+        // 画風でChatGPT生成した専用アニメーション3種(地上上攻撃5枚/空中
+        // 上攻撃5枚/下降攻撃3枚=振りかぶり+急降下+着地)に総入れ替え。
+        // PlayerAnimator/PlayerController側のState機械(JumpStart/
+        // DoubleJump/DownAttack)自体は無改造のまま(既存のGround判定を
+        // 流用 - 地上上攻撃はJumpStarted、空中上攻撃はDoubleJumpedという
+        // 既存イベントがそのまま「Grounded/Airborne」の判別を兼ねる)。
         //
-        // Pivot: 供給されたシートは剣の振り幅に応じて各コマの実効横幅が
-        // 変わり、キャラクター本体が水平方向に中央固定されていない(既存
-        // のConfigureSpriteFolderImportWithFootPivotが前提とするX=0.5固定
-        // が使えない) - マスターの依頼書自身が名指しで警告していた「画像
-        // サイズ基準で中央揃えするとガクガクする」症状を避けるため、地上
-        // 版は自動足元検出(X,Y両方)、空中版と下降攻撃は目視で選んだ胴体/
-        // 剣先基準点を個別に指定している(下記ConfigureSpriteFolderImport
-        // WithFootPivotXY/WithManualPivots参照)。
+        // Pivot: 生成シートも剣の振り幅に応じて各コマの実効横幅が変わり、
+        // キャラクター本体が水平方向に中央固定されていないため、地上版は
+        // 自動足元検出(X,Y両方、ComputeLowestContentPivotXY)、空中版と
+        // 下降攻撃(振りかぶり/急降下)はアルファ加重重心(centroid.ps1で
+        // 実測)を胴体の目安として使用、着地コマのみ剣先が地面に刺さる
+        // 衝撃点を目視で指定。
         //
-        // PPU: 各フォルダのPPUは、そのState開始直後にプレイヤーが最初に
-        // 見るフレーム(=直前のState、Run/Jumpと同じ高さで違和感なく繋がる
-        // べきフレーム)のアルファ内容の高さを1.13ワールド単位の基準に
-        // 合わせて算出(既存のPlayerAttackSmall_v1が「Stage1開始直後に見
-        // える最初のフレーム」を基準にPPUを再調整した、という前例と同じ
-        // 考え方)。剣が伸びきる中盤コマではその分やや大きく見える(=既存
-        // の攻撃アニメ群も同様に許容している、振りの勢いによる自然な変化)。
-        ConfigureSpriteFolderImportWithFootPivotXY("Assets/Art/PlayerUpAttackGround_v1", 249f);
+        // PPU: 地上/空中上攻撃はその State 開始直後にプレイヤーが最初に
+        // 見るフレーム(=直前のRun/Jumpと同じ高さで繋がるべきフレーム、
+        // frame_00)のアルファ内容の高さ(detect_vbounds.ps1実測)を1.13
+        // ワールド単位の基準に合わせて算出(既存のPlayerAttackSmall_v1等
+        // と同じ考え方)。下降攻撃2フォルダは剣・衝撃エフェクトを含めると
+        // 実際のキャラクター本体より過大な高さになるため、頭頂〜足先の
+        // 本体のみを目視実測してPPUを算出(こちらも既存踏襲)。
+        ConfigureSpriteFolderImportWithFootPivotXY("Assets/Art/PlayerUpAttackGround_v1", 277f); // frame_00実測313px -> 313/1.13≈277
         Vector2[] upAttackAirPivots =
         {
-            new Vector2(0.564f, 0.351f), // upattackair_00 - 振りかぶり開始
-            new Vector2(0.530f, 0.406f),
-            new Vector2(0.426f, 0.523f), // upattackair_02 - 頭上へ最大に振り抜いた瞬間
-            new Vector2(0.449f, 0.406f),
-            new Vector2(0.576f, 0.351f), // upattackair_04 - 空中姿勢へ復帰
+            new Vector2(0.564f, 0.467f), // upattackair_00 - 空中で剣を下段に構える(重心実測)
+            new Vector2(0.457f, 0.469f), // upattackair_01 - 下から斬り上げ開始
+            new Vector2(0.463f, 0.529f), // upattackair_02 - 頭上へ最大に振り抜いた瞬間
+            new Vector2(0.454f, 0.487f), // upattackair_03 - 振り抜き直後のフォロースルー
+            new Vector2(0.463f, 0.446f), // upattackair_04 - 空中姿勢へ復帰
         };
-        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerUpAttackAir_v1", 321f, upAttackAirPivots);
+        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerUpAttackAir_v1", 296f, upAttackAirPivots); // frame_00実測334px -> 334/1.13≈296
 
-        // 不具合修正(2026-09-09) - 「プレイヤーのキャラサイズがまた変わって
-        // いる気がする」。再確認したところ、下降攻撃2フォルダのPPU(551/
-        // 345)は、斜めに大きく伸ばした剣や、着地Frameの巨大な衝撃エフェ
-        // クトまで含めた「アルファ全体の高さ」を基準に算出していた誤りが
-        // あった - 剣やエフェクトはキャラクター本体ではないため、これを
-        // 含めた高さで正規化すると、実際のキャラクター本体は基準(1.13
-        // ワールド単位)よりかなり小さく描画されてしまう(=「キャラが小さ
-        // く見える」原因)。目視で頭頂〜足先のみを再計測し直し(下記コメ
-        // ントの実測値)、PPUを算出し直した。
         Vector2[] downAttackPivots =
         {
-            new Vector2(0.666f, 0.445f), // downattack_00 - 振りかぶり(胴体基準)
-            new Vector2(0.575f, 0.535f), // downattack_01 - 急降下姿勢(胴体基準、急降下中はこのコマを保持)
+            new Vector2(0.478f, 0.541f), // downattack_00 - 振りかぶり(胴体重心実測)
+            new Vector2(0.420f, 0.555f), // downattack_01 - 急降下姿勢(胴体重心実測、急降下中はこのコマを保持)
         };
         // downattack_00の本体のみの高さ(剣・マント除く、頭頂〜足先)を
-        // 実測 約428px -> 428/1.13 ≈ 379
-        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttack_v1", 379f, downAttackPivots);
-        Vector2[] downAttackLandPivots = { new Vector2(0.504f, 0.077f) }; // downattackland_00 - 剣先/衝撃エフェクトの接地点基準(他フォルダの足元Pivot(~0.08)と近い値で一貫性を確認済み)
+        // 目視実測 約429px(2コマ平均) -> 429/1.13 ≈ 380
+        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttack_v1", 380f, downAttackPivots);
+        Vector2[] downAttackLandPivots = { new Vector2(0.583f, 0.148f) }; // downattackland_00 - 剣先が地面に刺さる衝撃点を目視で指定
         // downattackland_00の本体のみの高さ(衝撃エフェクト・岩の破片除く、
-        // 頭頂〜足先)を実測 約210px -> 210/1.13 ≈ 186
-        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttackLand_v1", 186f, downAttackLandPivots);
+        // 頭頂〜足先)を目視実測 約258px -> 258/1.13 ≈ 228
+        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttackLand_v1", 228f, downAttackLandPivots);
 
         Sprite[] runFrames = LoadSpriteSequence("Assets/Art/PlayerRun_v1");
         Sprite[] jumpFrames = LoadSpriteSequence("Assets/Art/PlayerJump_v1");
