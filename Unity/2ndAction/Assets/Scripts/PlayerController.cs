@@ -425,6 +425,16 @@ public class PlayerController : MonoBehaviour
 
     Vector3 hitboxBaseScale = Vector3.one;
     Vector3 hitboxBaseLocalPos;
+    // 不具合修正(2026-09-09) - 「通常攻撃の斬撃エフェクトを追加、攻撃範囲
+    // がちゃんと見えるように」。以前はattackSlashVisualのtransform位置が
+    // AttackHitboxと違って完全固定(コンボ段/Attack Range Upで一切動かな
+    // い)だったため、Hitbox自体はApplyComboStageToHitboxでどんどん前方へ
+    // 伸びていくのに、見た目のVFXはその場でScaleが大きくなるだけで「攻撃
+    // 範囲が伸びている」という実感に繋がっていなかった。Hitboxと全く同じ
+    // 基準値保存パターン(Awakeで保存→発動時に同じstep*hitboxReachStep*
+    // AttackRangeMultiplierを加算)をVFXの位置にも適用し、Hitboxの実際の
+    // 判定位置とVFXの見た目の位置が常に一致するようにする。
+    Vector3 slashBaseLocalPos;
     // Bugfix 2026-09-08 - 「攻撃範囲拡張カードが上/下攻撃に効かない」修正
     // 用。Forward/Backward側はApplyComboStageToHitboxが毎回attackHitboxの
     // localScale/localPositionをAttackRangeMultiplier込みで再計算していた
@@ -482,6 +492,10 @@ public class PlayerController : MonoBehaviour
             attackHitbox.enabled = false;
             hitboxBaseScale = attackHitbox.transform.localScale;
             hitboxBaseLocalPos = attackHitbox.transform.localPosition;
+        }
+        if (attackSlashVisual != null)
+        {
+            slashBaseLocalPos = attackSlashVisual.transform.localPosition;
         }
         if (upAttackHitbox != null)
         {
@@ -1287,9 +1301,19 @@ public class PlayerController : MonoBehaviour
         // 倍」の目安どおり(1段目0.9/2段目1.15/3段目1.5)。rangeMultiplier
         // は従来どおりHitboxと完全に同じAttackRangeMultiplierを渡すので、
         // Attack Range Upで見た目も一緒に大きくなる(item 12)。
+        // 不具合修正(2026-09-09) - 「攻撃範囲がちゃんと見えるように」。
+        // ApplyComboStageToHitbox(上)と全く同じstep*hitboxReachStep*
+        // AttackRangeMultiplierの位置オフセットをVFXにも与え、Hitboxが
+        // 実際に前方へ伸びる分だけVFXの表示位置も一緒に前へ出すことで、
+        // Scaleが大きくなるだけでなく「間合いそのものが伸びている」こと
+        // が見た目でも分かるようにする(HitboxとVFXが同じ式を共有してい
+        // るので、両者が視覚的にズレることもない)。
         if (attackSlashVisual != null)
         {
             float stageScale = comboCount switch { 1 => 0.9f, 2 => 1.15f, _ => 1.5f };
+            int reachStep = Mathf.Max(0, comboCount - 1);
+            attackSlashVisual.transform.localPosition =
+                slashBaseLocalPos + new Vector3(reachStep * hitboxReachStep * AttackRangeMultiplier, 0f, 0f);
             attackSlashVisual.PlaySingle(stageScale, AttackRangeMultiplier);
         }
 
