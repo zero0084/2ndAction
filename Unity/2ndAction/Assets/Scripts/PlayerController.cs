@@ -450,6 +450,10 @@ public class PlayerController : MonoBehaviour
     Vector3 upHitboxBaseLocalPos;
     Vector3 downHitboxBaseScale = Vector3.one;
     Vector3 downHitboxBaseLocalPos;
+    // 不具合修正(2026-09-09) - 新しい縦長トレイルVFX(DiveTrailBlue.png)を
+    // downHitboxBaseLocalPosからこの分だけ上にずらして表示する(トレイル
+    // が衝撃点=Hitbox付近から上へ伸びているように見せるため)。
+    public float downSlashUpwardOffset = 1.1f;
 
     // Operation System Ver.2 - タップ=ジャンプが廃止されたことで、旧
     // jumpSuppressionAfterAttack(「連続攻撃中の誤ジャンプ」抑制タイマー)
@@ -1396,7 +1400,16 @@ public class PlayerController : MonoBehaviour
         // VFX(PlaySingle、1枚絵をScale/Alphaで演出)へ切り替え。空中版は
         // 地上版よりわずかに大きい(1.15倍)程度に留め、「巨大化させない」
         // 指示どおり控えめに。
-        if (upAttackSlashVisual != null) upAttackSlashVisual.PlaySingle(isAirborne ? 1.15f : 1f, AttackRangeMultiplier);
+        // 不具合修正(2026-09-09) - 通常攻撃と同じ「HitboxとVFXの表示位置が
+        // ズレていた」バグが上攻撃にも存在していた(upAttackSlashVisualの
+        // transform位置が固定のままだった)。upAttackHitboxと全く同じ
+        // upHitboxBaseLocalPos*AttackRangeMultiplierをVFXの位置にも適用し、
+        // 両者が常に一致するようにする。
+        if (upAttackSlashVisual != null)
+        {
+            upAttackSlashVisual.transform.localPosition = upHitboxBaseLocalPos * AttackRangeMultiplier;
+            upAttackSlashVisual.PlaySingle(isAirborne ? 1.15f : 1f, AttackRangeMultiplier);
+        }
         if (upAttackHitbox != null)
         {
             upAttackHitbox.transform.localScale = upHitboxBaseScale * AttackRangeMultiplier;
@@ -1422,7 +1435,18 @@ public class PlayerController : MonoBehaviour
         // 一度再生して消えるだけ)から、着地まで持続表示するShowSustained
         // (細い縦方向トレイル)へ切り替え。EndDiveAttack()側で必ず
         // HideSustained()するので、着地後に残り続けることはない。
-        if (downAttackSlashVisual != null) downAttackSlashVisual.ShowSustained(AttackRangeMultiplier);
+        // 不具合修正(2026-09-09) - 上と同じ理由。トレイルは(演出上)Hitbox
+        // の真上から伸びる形にしたいので、downHitboxBaseLocalPosそのままで
+        // はなく、そこから一定量(downSlashUpwardOffset)だけ上にずらした
+        // 位置を基準にする - ただしAttackRangeMultiplierによる拡縮はHitbox
+        // と共有しているので、Range Upカードを積んだ時にHitboxとVFXが
+        // 一緒に動く/伸びる関係は保たれる。
+        if (downAttackSlashVisual != null)
+        {
+            downAttackSlashVisual.transform.localPosition =
+                downHitboxBaseLocalPos * AttackRangeMultiplier + new Vector3(0f, downSlashUpwardOffset, 0f);
+            downAttackSlashVisual.ShowSustained(AttackRangeMultiplier);
+        }
         if (downAttackHitbox != null)
         {
             downAttackHitbox.transform.localScale = downHitboxBaseScale * AttackRangeMultiplier;

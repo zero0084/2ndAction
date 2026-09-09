@@ -8,8 +8,10 @@ using UnityEngine;
 // 表示されていない」という実機動画の報告を受け、原因調査のために作成。この
 // セッションにはUnity Editorのゲーム画面を直接見る手段がないため、
 // PortraitPreviewCapture.csと同じ手法(Editor専用、batchmode上でカメラを
-// 直接RenderTextureへレンダリングしPNG保存)で、通常攻撃のPlaySingle呼び出し
-// 直後のGame View相当を静止画として確認する。シーンは絶対に保存しない。
+// 直接RenderTextureへレンダリングしPNG保存)で、各攻撃のVFX呼び出し直後の
+// Game View相当を静止画として確認する。シーンは絶対に保存しない。
+// PortraitPreviewCapture.cs同様、今後も戦闘VFXの見た目確認に再利用可能な
+// 常設ツールとして残す(通常/上/下降の3攻撃すべてを1回の実行で撮影する)。
 public static class AttackVfxCapture
 {
     [MenuItem("Tools/2ndAction/Capture Attack VFX")]
@@ -25,68 +27,64 @@ public static class AttackVfxCapture
             return;
         }
 
-        Debug.Log($"AttackVfxCapture: attackSlashVisual={player.attackSlashVisual}, attackHitbox={player.attackHitbox}");
-
         player.transform.position = new Vector3(0f, 0f, 0f);
 
-        // Directly force the same call DoAttack() makes for a stage-3 combo
-        // hit (largest scale, easiest to spot if it renders at all).
-        if (player.attackSlashVisual != null)
-        {
-            // Edit-mode scenes opened via OpenScene do NOT run Awake() the
-            // way Play mode does, so AttackSlashVisual's private `sr` field
-            // would still be null here - force it via reflection first so
-            // this test matches actual runtime behavior instead of throwing.
-            MethodInfo awakeMethod = typeof(AttackSlashVisual).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance);
-            awakeMethod?.Invoke(player.attackSlashVisual, null);
+        CaptureOne(player, cam, "normal", player.attackSlashVisual,
+            new Vector3(1.5f, 0.5f, 0f), 1.5f, false);
+        CaptureOne(player, cam, "up", player.upAttackSlashVisual,
+            new Vector3(0.3f, 1.7f, 0f), 1.15f, false);
+        CaptureOne(player, cam, "down", player.downAttackSlashVisual,
+            new Vector3(0.15f, -0.4f + 1.1f, 0f), 1f, true);
+    }
 
-            player.attackSlashVisual.transform.localPosition = new Vector3(1.0f + 2f * 0.25f, 0.5f, 0f);
-            player.attackSlashVisual.PlaySingle(1.5f, 1f);
-            Debug.Log($"AttackVfxCapture: after PlaySingle - sprite renderer enabled={player.attackSlashVisual.GetComponent<SpriteRenderer>().enabled}, sprite={player.attackSlashVisual.GetComponent<SpriteRenderer>().sprite}, color={player.attackSlashVisual.GetComponent<SpriteRenderer>().color}, sortingOrder={player.attackSlashVisual.GetComponent<SpriteRenderer>().sortingOrder}, worldPos={player.attackSlashVisual.transform.position}, localScale={player.attackSlashVisual.transform.localScale}");
+    static void CaptureOne(PlayerController player, Camera cam, string label, AttackSlashVisual visual, Vector3 forcedLocalPos, float scale, bool sustained)
+    {
+        if (visual == null)
+        {
+            Debug.LogError($"AttackVfxCapture[{label}]: visual is null");
+            return;
         }
 
-        // Debug: enumerate every SpriteRenderer near the player to find out
-        // what else might be rendering at/near world origin.
-        foreach (SpriteRenderer r in Object.FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None))
-        {
-            if (Vector3.Distance(r.transform.position, player.transform.position) < 5f)
-            {
-                Debug.Log($"AttackVfxCapture: nearby SpriteRenderer '{r.gameObject.name}' pos={r.transform.position} sprite={r.sprite} enabled={r.enabled} sortingOrder={r.sortingOrder} scale={r.transform.lossyScale}");
-            }
-        }
+        // Edit-mode scenes opened via OpenScene do NOT run Awake() the way
+        // Play mode does, so AttackSlashVisual's private `sr` field would
+        // still be null here - force it via reflection first so this test
+        // matches actual runtime behavior instead of throwing.
+        MethodInfo awakeMethod = typeof(AttackSlashVisual).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance);
+        awakeMethod?.Invoke(visual, null);
 
-        // Shot 1: tight isolated zoom (background art hidden) so the VFX's
-        // own shape/size is unambiguous.
+        visual.transform.localPosition = forcedLocalPos;
+        if (sustained) visual.ShowSustained(scale);
+        else visual.PlaySingle(scale, 1f);
+
+        SpriteRenderer sr = visual.GetComponent<SpriteRenderer>();
+        Debug.Log($"AttackVfxCapture[{label}]: enabled={sr.enabled}, sprite={sr.sprite}, sortingOrder={sr.sortingOrder}, worldPos={visual.transform.position}, localScale={visual.transform.localScale}");
+
+        // Hide every other nearby SpriteRenderer (background art etc.) for
+        // an isolated zoom shot, then restore them for a gameplay-scale shot.
         foreach (SpriteRenderer r in Object.FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None))
         {
             if (Vector3.Distance(r.transform.position, player.transform.position) < 5f
-                && r.gameObject.name != "Visual" && r.gameObject.name != "AttackSlash")
+                && r.gameObject.name != "Visual" && r != sr)
             {
                 r.enabled = false;
             }
         }
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0.2f, 0.2f, 0.2f);
-        cam.transform.position = new Vector3(player.transform.position.x + 0.5f, player.transform.position.y + 0.7f, -10f);
-        cam.orthographicSize = 2.2f;
-        RenderAndSave(cam, "attack_vfx_preview_zoom.png");
+        cam.transform.position = new Vector3(player.transform.position.x + forcedLocalPos.x * 0.5f, player.transform.position.y + forcedLocalPos.y * 0.5f + 0.3f, -10f);
+        cam.orthographicSize = 2.6f;
+        RenderAndSave(cam, $"attack_vfx_{label}_zoom.png");
 
-        // Shot 2: same position/scale as actual gameplay (orthographicSize
-        // 10.4, matching CameraFollow's own camera setup in SceneBuilder)
-        // against the REAL sky background, to judge visibility the way the
-        // player would actually see it on a real device.
         foreach (SpriteRenderer r in Object.FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None))
         {
-            if (Vector3.Distance(r.transform.position, player.transform.position) < 5f)
-            {
-                r.enabled = true;
-            }
+            if (Vector3.Distance(r.transform.position, player.transform.position) < 5f) r.enabled = true;
         }
-        cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0.75f, 0.85f, 0.97f);
         cam.transform.position = new Vector3(player.transform.position.x + 3f, player.transform.position.y + 1f, -10f);
         cam.orthographicSize = 10.4f;
-        RenderAndSave(cam, "attack_vfx_preview_gameplay.png");
+        RenderAndSave(cam, $"attack_vfx_{label}_gameplay.png");
+
+        if (sustained) visual.HideSustained();
     }
 
     static void RenderAndSave(Camera cam, string fileName)

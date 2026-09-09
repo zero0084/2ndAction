@@ -2520,27 +2520,26 @@ public static class SceneBuilder
         };
         ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerUpAttackAir_v1", 321f, upAttackAirPivots);
 
-        // 不具合修正(2026-09-09) - 「プレイヤーのキャラサイズがまた変わって
-        // いる気がする」。再確認したところ、下降攻撃2フォルダのPPU(551/
-        // 345)は、斜めに大きく伸ばした剣や、着地Frameの巨大な衝撃エフェ
-        // クトまで含めた「アルファ全体の高さ」を基準に算出していた誤りが
-        // あった - 剣やエフェクトはキャラクター本体ではないため、これを
-        // 含めた高さで正規化すると、実際のキャラクター本体は基準(1.13
-        // ワールド単位)よりかなり小さく描画されてしまう(=「キャラが小さ
-        // く見える」原因)。目視で頭頂〜足先のみを再計測し直し(下記コメ
-        // ントの実測値)、PPUを算出し直した。
+        // 下降攻撃アート差し替え(2026-09-09) - マスターから直接供給された
+        // 2枚(急降下ダイブ姿勢/着地衝撃姿勢)へ総入れ替え。振りかぶりコマ
+        // は供給されなかったため、PlayerDownAttack_v1の2枚(downattack_00/
+        // 01)には同じダイブ姿勢を複製配置 - 元々downattack_01(ダイブ)は
+        // 急降下中ずっと保持され続けるコマなので、開始直後から同じ絵が
+        // 続くだけで見た目上の不整合はない。Pivotは頭部・胴体のアルファ
+        // 加重重心を実測(centroid.ps1)、PPUは頭頂〜足先の本体のみ(剣・
+        // マント除く)を目視実測して算出(既存踏襲)。
         Vector2[] downAttackPivots =
         {
-            new Vector2(0.666f, 0.445f), // downattack_00 - 振りかぶり(胴体基準)
-            new Vector2(0.575f, 0.535f), // downattack_01 - 急降下姿勢(胴体基準、急降下中はこのコマを保持)
+            new Vector2(0.568f, 0.582f), // downattack_00/01 - 胴体重心実測(共通、供給素材が1枚のため複製)
+            new Vector2(0.568f, 0.582f),
         };
-        // downattack_00の本体のみの高さ(剣・マント除く、頭頂〜足先)を
-        // 実測 約428px -> 428/1.13 ≈ 379
-        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttack_v1", 379f, downAttackPivots);
-        Vector2[] downAttackLandPivots = { new Vector2(0.504f, 0.077f) }; // downattackland_00 - 剣先/衝撃エフェクトの接地点基準(他フォルダの足元Pivot(~0.08)と近い値で一貫性を確認済み)
+        // downattack_00の本体のみの高さ(剣・マント除く、足先(頭上)〜頭頂
+        // (体下端))を実測 約738px -> 738/1.13 ≈ 653
+        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttack_v1", 653f, downAttackPivots);
+        Vector2[] downAttackLandPivots = { new Vector2(0.546f, 0.172f) }; // downattackland_00 - 剣先が地面に刺さる衝撃点を目視で指定
         // downattackland_00の本体のみの高さ(衝撃エフェクト・岩の破片除く、
-        // 頭頂〜足先)を実測 約210px -> 210/1.13 ≈ 186
-        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttackLand_v1", 186f, downAttackLandPivots);
+        // 頭頂〜膝/足先)を実測 約385px -> 385/1.13 ≈ 341
+        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttackLand_v1", 341f, downAttackLandPivots);
 
         Sprite[] runFrames = LoadSpriteSequence("Assets/Art/PlayerRun_v1");
         Sprite[] jumpFrames = LoadSpriteSequence("Assets/Art/PlayerJump_v1");
@@ -2623,8 +2622,16 @@ public static class SceneBuilder
         // ための回転)はもう不要 - 回転0のまま、位置とScaleだけをInspector
         // から調整する運用にした(上/空中/下降攻撃と共通、ここで一度だけ
         // ロードして使い回す)。
-        Sprite crescentVfx = LoadTiledSprite("Assets/Art/Effects/SlashCrescentBlue.png", 700f);
-        Sprite diveTrailVfx = LoadTiledSprite("Assets/Art/Effects/DiveTrailBlue.png", 700f);
+        // 不具合修正(2026-09-09、下降攻撃アート差し替えと同時) - 通常攻撃
+        // と同じ原因(素材が小さすぎる+位置がHitboxとズレている)が上/下降
+        // 攻撃にも残っていたため、ChatGPTで新規に太く大きい専用VFXを生成
+        // (SlashUpBlue.png=斬り上げ用クレセント、DiveTrailBlue.png=急降下
+        // トレイル本体を差し替え)。PPUはそれぞれの対応Hitbox実寸に揃うよ
+        // う算出(SlashUpBlue: 1478px÷1.8u≒821、DiveTrailBlue: 1651px÷
+        // 2.2u≒751 - トレイルはHitbox本体よりやや大きめの2.2uを基準にし
+        // ている、急降下中ずっと表示され続ける演出上の効果のため)。
+        Sprite diveTrailVfx = LoadTiledSprite("Assets/Art/Effects/DiveTrailBlue.png", 751f);
+        Sprite slashUpVfx = LoadTiledSprite("Assets/Art/Effects/SlashUpBlue.png", 821f);
 
         // 不具合修正(2026-09-09) - 「攻撃エフェクトが表示されていない」。
         // マスター提供の実機動画+新設のAttackVfxCapture(Editor専用デバッグ
@@ -2680,16 +2687,19 @@ public static class SceneBuilder
         var upHitboxDebug = upHitbox.AddComponent<ColliderDebugView>();
         upHitboxDebug.color = new Color(0.6f, 0.9f, 1f);
 
+        // 不具合修正(2026-09-09) - 通常攻撃と同じ理由で、位置をUpAttack
+        // Hitboxの基準位置と完全に一致させる(以前は(0.35,1.5)という別の
+        // 固定値で、Hitboxの実際の位置(0.3,1.7)とズレていた)。
         GameObject upSlashGO = new GameObject("UpAttackSlash");
         upSlashGO.transform.SetParent(go.transform);
-        upSlashGO.transform.localPosition = new Vector3(0.35f, 1.5f, 0f);
+        upSlashGO.transform.localPosition = upHitbox.transform.localPosition;
         var upSlashVisual = upSlashGO.AddComponent<AttackSlashVisual>();
-        upSlashVisual.singleSprite = crescentVfx;
+        upSlashVisual.singleSprite = slashUpVfx;
         // Item「重要：エフェクトサイズ」- 「巨大なエフェクトを画面いっぱ
         // いに表示する必要はない」「キャラクターの剣の軌跡＋少し外側」程
         // 度。singleDuration/opacityもここでInspector調整可能。
-        upSlashVisual.singleDuration = 0.24f;
-        upSlashVisual.opacity = 0.85f;
+        upSlashVisual.singleDuration = 0.28f;
+        upSlashVisual.opacity = 0.92f;
         pc.upAttackHitbox = upHitboxCol;
         pc.upAttackSlashVisual = upSlashVisual;
 
@@ -2711,17 +2721,19 @@ public static class SceneBuilder
         var downHitboxDebug = downHitbox.AddComponent<ColliderDebugView>();
         downHitboxDebug.color = new Color(1f, 0.5f, 0.2f);
 
-        // 攻撃エフェクト全面調整(2026-09-08) - 縦方向の細いトレイルVFX。
-        // キャラクターの少し上(=急降下中は進行方向の後方)に配置し、
+        // 攻撃エフェクト全面調整(2026-09-08)/不具合修正(2026-09-09) - 縦
+        // 方向の太いトレイルVFX。DownAttackHitboxの基準位置から
+        // PlayerController.downSlashUpwardOffset分だけ上にずらした位置に
+        // 配置し(トレイルが衝撃点付近から上へ伸びているように見せる)、
         // ShowSustained/HideSustainedで急降下中ずっと表示し続ける(着地の
         // 瞬間にHideSustained - PlayerController.EndDiveAttack参照)。新
         // 素材は既に縦向きなので回転は不要。
         GameObject downSlashGO = new GameObject("DownAttackSlash");
         downSlashGO.transform.SetParent(go.transform);
-        downSlashGO.transform.localPosition = new Vector3(0f, 0.9f, 0f);
+        downSlashGO.transform.localPosition = downHitbox.transform.localPosition + new Vector3(0f, pc.downSlashUpwardOffset, 0f);
         var downSlashVisual = downSlashGO.AddComponent<AttackSlashVisual>();
         downSlashVisual.singleSprite = diveTrailVfx;
-        downSlashVisual.opacity = 0.8f;
+        downSlashVisual.opacity = 0.85f;
 
         pc.downAttackHitbox = downHitboxCol;
         pc.downAttackSlashVisual = downSlashVisual;
