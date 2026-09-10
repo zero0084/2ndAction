@@ -108,6 +108,35 @@ public class AttackSlashVisual : MonoBehaviour
         sr.sprite = frames[0];
     }
 
+    // 派手なコマ送りアニメーション(2026-09-10) - マスターの「通常攻撃と
+    // 上攻撃のエフェクトをもっと派手なアニメーションにしたい」という指示
+    // 対応。PlaySingleの手続き的な「1枚絵を拡大→フェード」ではなく、
+    // ChatGPTで生成した5コマのスプライトシート(細い先行線→太いピーク→
+    // 二次バースト→残像→消えかけ)を実際にframes配列でコマ送り再生する。
+    // scale/rangeMultiplierの扱いはPlaySingleと完全に同一(Attack Range
+    // UpカードでVFXも一緒に伸びる、rangeInfluenceX/Yで演出量を調整可能)
+    // なので、PlayerController側は呼び出しをPlaySingle→PlayFramesに差し
+    // 替えるだけでよい。frames未設定なら何もしない(呼び出し側でPlaySingle
+    // にフォールバックさせる想定はしていない - SceneBuilderで必ず設定する)。
+    public void PlayFrames(float scale = 1f, float rangeMultiplier = 1f)
+    {
+        if (frames == null || frames.Length == 0) return;
+
+        float rangeDelta = Mathf.Max(0f, rangeMultiplier - 1f);
+        float scaleX = scale * (1f + rangeDelta * rangeInfluenceX);
+        float scaleY = scale * (1f + rangeDelta * rangeInfluenceY);
+        transform.localScale = new Vector3(scaleX, scaleY, 1f);
+
+        playingSingle = false;
+        sustained = false;
+        frameIndex = 0;
+        frameTimer = 0f;
+        playing = true;
+        sr.enabled = true;
+        sr.color = new Color(1f, 1f, 1f, opacity);
+        sr.sprite = frames[0];
+    }
+
     // 攻撃エフェクト全面調整(2026-09-08) - 1枚絵を「小さく開始→拡大→
     // フェードアウト」で見せる単発再生。地上/空中上攻撃の斬撃で使用(剣の
     // 軌跡に沿った控えめなエフェクト、という新方針)。rangeMultiplierの

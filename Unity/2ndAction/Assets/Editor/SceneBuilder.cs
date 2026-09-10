@@ -2667,6 +2667,21 @@ public static class SceneBuilder
         Sprite diveTrailVfx = LoadTiledSprite("Assets/Art/Effects/DiveTrailBlue.png", 751f);
         Sprite slashUpVfx = LoadTiledSprite("Assets/Art/Effects/SlashUpBlue.png", 821f);
 
+        // 派手なアニメーション化(2026-09-10) - マスターの「通常攻撃と上攻撃
+        // のエフェクトをもっと派手なアニメーションにしたい」という指示で、
+        // ChatGPTで「細い先行線→太いピーク+バースト→二次衝撃波→残像→
+        // 消えかけ」の5コマシートを新規生成し、5枚を等幅スライス+共通キャン
+        // バス中央寄せで書き出したもの(scratchpad/attackframes/split_center_
+        // frames.ps1)。従来のPlaySingle(1枚絵をScale/Alphaで手続き的に演
+        // 出)ではなく、AttackSlashVisual.PlayFramesでframes配列を実コマ送り
+        // 再生する。PPUは旧1枚絵VFX(SlashArcBlue=500想定897px÷1.8u、
+        // SlashUpBlue=821想定1478px÷1.8u)のクレセント実寸(約435px)が
+        // ほぼ同じ世界サイズになるよう算出(435px÷約1.78u≒245前後)。
+        ConfigureSpriteFolderImport("Assets/Art/Effects/SlashArcBlueFrames", 250f);
+        ConfigureSpriteFolderImport("Assets/Art/Effects/SlashUpBlueFrames", 245f);
+        Sprite[] slashArcFrames = LoadSpriteSequence("Assets/Art/Effects/SlashArcBlueFrames");
+        Sprite[] slashUpFrames = LoadSpriteSequence("Assets/Art/Effects/SlashUpBlueFrames");
+
         // 不具合修正(2026-09-09) - 「攻撃エフェクトが表示されていない」。
         // マスター提供の実機動画+新設のAttackVfxCapture(Editor専用デバッグ
         // ツール、Tools/2ndAction/Capture Attack VFX)による直接検証で判明
@@ -2691,9 +2706,15 @@ public static class SceneBuilder
         GameObject slashGO = new GameObject("AttackSlash");
         slashGO.transform.SetParent(go.transform);
         slashGO.transform.localPosition = hitbox.transform.localPosition;
-        slashGO.transform.localRotation = Quaternion.Euler(0f, 0f, -35f);
+        // 派手なアニメーション化(2026-09-10) - 新しい5コマシートは素材自体が
+        // 「左下→右上」の斜めクレセントとして描かれているため、旧1枚絵向け
+        // の-35°補正は不要(かけると逆に傾く)。回転0のまま位置/Scaleだけ
+        // 合わせる。
+        slashGO.transform.localRotation = Quaternion.identity;
         var slashVisual = slashGO.AddComponent<AttackSlashVisual>();
-        slashVisual.singleSprite = slashArcVfx;
+        slashVisual.singleSprite = slashArcVfx;   // PlaySingleフォールバック用に残す
+        slashVisual.frames = slashArcFrames;      // PlayFrames(実コマ送り)で使う主役
+        slashVisual.fps = 17f;                    // 5コマ÷17fps≒0.29秒(旧singleDuration相当)
         slashVisual.singleDuration = 0.28f;
         slashVisual.opacity = 0.92f;
 
@@ -2730,7 +2751,9 @@ public static class SceneBuilder
         upSlashGO.transform.SetParent(go.transform);
         upSlashGO.transform.localPosition = upHitbox.transform.localPosition;
         var upSlashVisual = upSlashGO.AddComponent<AttackSlashVisual>();
-        upSlashVisual.singleSprite = slashUpVfx;
+        upSlashVisual.singleSprite = slashUpVfx;   // PlaySingleフォールバック用に残す
+        upSlashVisual.frames = slashUpFrames;      // PlayFrames(実コマ送り)で使う主役
+        upSlashVisual.fps = 17f;                   // 5コマ÷17fps≒0.29秒
         // Item「重要：エフェクトサイズ」- 「巨大なエフェクトを画面いっぱ
         // いに表示する必要はない」「キャラクターの剣の軌跡＋少し外側」程
         // 度。singleDuration/opacityもここでInspector調整可能。

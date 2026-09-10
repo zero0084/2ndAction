@@ -1330,7 +1330,12 @@ public class PlayerController : MonoBehaviour
             int reachStep = Mathf.Max(0, comboCount - 1);
             attackSlashVisual.transform.localPosition =
                 hitboxBaseLocalPos + new Vector3(reachStep * hitboxReachStep * AttackRangeMultiplier, 0f, 0f);
-            attackSlashVisual.PlaySingle(stageScale, AttackRangeMultiplier);
+            // 派手なアニメーション化(2026-09-10) - マスターの指示で、1枚絵
+            // をScale/Alphaで演出するPlaySingleから、ChatGPT生成の5コマ
+            // スプライトシートを実コマ送りするPlayFramesへ差し替え(位置
+            // オフセット・stageScale・AttackRangeMultiplierの扱いは一切
+            // 変えず、見た目の再生方式だけを差し替える)。
+            attackSlashVisual.PlayFrames(stageScale, AttackRangeMultiplier);
         }
 
         // Once the chain has reached the cap, skip re-opening the combo
@@ -1431,7 +1436,10 @@ public class PlayerController : MonoBehaviour
         {
             float positionRangeFactor = 1f + (AttackRangeMultiplier - 1f) * 0.5f;
             upAttackSlashVisual.transform.localPosition = upHitboxBaseLocalPos * positionRangeFactor;
-            upAttackSlashVisual.PlaySingle(isAirborne ? 1.15f : 1f, AttackRangeMultiplier);
+            // 派手なアニメーション化(2026-09-10) - 通常攻撃と同様、PlaySingle
+            // からChatGPT生成5コマの実コマ送りPlayFramesへ差し替え(位置・
+            // Scale・rangeの扱いは不変、再生方式のみ差し替え)。
+            upAttackSlashVisual.PlayFrames(isAirborne ? 1.15f : 1f, AttackRangeMultiplier);
         }
         if (upAttackHitbox != null)
         {

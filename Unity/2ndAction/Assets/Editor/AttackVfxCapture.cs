@@ -29,13 +29,16 @@ public static class AttackVfxCapture
 
         player.transform.position = new Vector3(0f, 0f, 0f);
 
+        // 派手なアニメーション化(2026-09-10) - 通常/上攻撃はPlaySingleの
+        // 1枚絵演出から5コマの実コマ送り(PlayFrames)へ移行したので、検証
+        // ショットも「最も派手なピークのコマ」(frames[1])を表示させて撮る。
         CaptureOne(player, cam, "normal", player.attackSlashVisual,
-            new Vector3(1.5f, 0.5f, 0f), 1.5f, false);
+            new Vector3(1.5f, 0.5f, 0f), 1.5f, false, 1f, null, 1);
         // 不具合修正(2026-09-10) - UpAttackHitboxをY=1.7→0.9・高さ1.4→2.0
         // へ変更(キャラクター本体と重なるように)したのに合わせて検証位置
         // も更新。
         CaptureOne(player, cam, "up", player.upAttackSlashVisual,
-            new Vector3(0.3f, 0.9f, 0f), 1.15f, false);
+            new Vector3(0.3f, 0.9f, 0f), 1.15f, false, 1f, null, 1);
         CaptureOne(player, cam, "down", player.downAttackSlashVisual,
             new Vector3(0.15f, -0.4f + 1.1f, 0f), 1f, true);
         // 不具合修正(2026-09-10) - 新設した下降攻撃・着地衝撃VFXの検証。
@@ -57,7 +60,7 @@ public static class AttackVfxCapture
         CaptureOne(player, cam, "up_boosted", player.upAttackSlashVisual, boostedVfxPos, 1.15f, false, boostedRangeMultiplier, boostedHitboxPos);
     }
 
-    static void CaptureOne(PlayerController player, Camera cam, string label, AttackSlashVisual visual, Vector3 forcedLocalPos, float scale, bool sustained, float rangeMultiplier = 1f, Vector3? hitboxMarkerLocalPos = null)
+    static void CaptureOne(PlayerController player, Camera cam, string label, AttackSlashVisual visual, Vector3 forcedLocalPos, float scale, bool sustained, float rangeMultiplier = 1f, Vector3? hitboxMarkerLocalPos = null, int framesPreviewIndex = -1)
     {
         if (visual == null)
         {
@@ -72,11 +75,26 @@ public static class AttackVfxCapture
         MethodInfo awakeMethod = typeof(AttackSlashVisual).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance);
         awakeMethod?.Invoke(visual, null);
 
-        visual.transform.localPosition = forcedLocalPos;
-        if (sustained) visual.ShowSustained(scale);
-        else visual.PlaySingle(scale, rangeMultiplier);
-
         SpriteRenderer sr = visual.GetComponent<SpriteRenderer>();
+
+        visual.transform.localPosition = forcedLocalPos;
+        if (sustained)
+        {
+            visual.ShowSustained(scale);
+        }
+        else if (framesPreviewIndex >= 0 && visual.frames != null && visual.frames.Length > 0)
+        {
+            // 派手なアニメーション化(2026-09-10) - PlayFramesはframes[0]
+            // (細い先行線)をセットするだけなので、静止画検証では指定コマ
+            // (通常はピークのframes[1])へ強制的に差し替えて撮る。
+            visual.PlayFrames(scale, rangeMultiplier);
+            int idx = Mathf.Clamp(framesPreviewIndex, 0, visual.frames.Length - 1);
+            sr.sprite = visual.frames[idx];
+        }
+        else
+        {
+            visual.PlaySingle(scale, rangeMultiplier);
+        }
         Debug.Log($"AttackVfxCapture[{label}]: enabled={sr.enabled}, sprite={sr.sprite}, sortingOrder={sr.sortingOrder}, worldPos={visual.transform.position}, localScale={visual.transform.localScale}");
 
         // 不具合修正(2026-09-10)検証用 - 実際のHitbox位置(離れて正しい)を
