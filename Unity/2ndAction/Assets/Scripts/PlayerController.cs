@@ -133,6 +133,17 @@ public class PlayerController : MonoBehaviour
     // する(重力による自然加速ではなく、攻撃の勢いによる下降という体感を
     // 優先)。
     public float diveAttackSpeed = 16f;
+    // 不具合修正(2026-09-10) - 「下攻撃の着地時に衝撃エフェクトを追加し、
+    // それにも攻撃判定が入るように」。これまで下降攻撃のHitboxは着地の
+    // 瞬間(EndDiveAttack)に無効化されるだけで、着地の衝撃そのものは誰に
+    // もダメージを与えていなかった。着地の瞬間だけ短時間(diveImpact
+    // HitboxDuration)有効になる別Hitbox+専用の衝撃VFXを追加し、着地の一瞬
+    // だけ地面付近の敵をまとめて巻き込めるようにする(DoDiveAttack中の
+    // Hitboxとは別オブジェクト、Forward/Backward・上/下降本体のコンボ系統
+    // には一切触れない)。
+    public Collider2D downAttackLandHitbox;
+    public AttackSlashVisual downAttackLandSlashVisual;
+    public float diveImpactHitboxDuration = 0.15f;
 
     // Operation System Ver.2 (2026-09-06) - 旧「タップ=ジャンプ/前後スワイ
     // プ=攻撃」を廃止し、全操作を上/前/後の3方向フリックに統一。
@@ -512,6 +523,7 @@ public class PlayerController : MonoBehaviour
             downHitboxBaseScale = downAttackHitbox.transform.localScale;
             downHitboxBaseLocalPos = downAttackHitbox.transform.localPosition;
         }
+        if (downAttackLandHitbox != null) downAttackLandHitbox.enabled = false;
     }
 
     void Update()
@@ -838,7 +850,7 @@ public class PlayerController : MonoBehaviour
                 onSky = true;
                 bool wasDiveAttacking = isDiveAttacking;
                 EndDiveAttack();
-                if (wasDiveAttacking) DiveAttackLanded?.Invoke();
+                if (wasDiveAttacking) { DiveAttackLanded?.Invoke(); TriggerDiveImpact(); }
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
                 Landed?.Invoke();
                 // 不具合修正(2026-09-08) - 着地直前に上フリックした分の
@@ -859,7 +871,7 @@ public class PlayerController : MonoBehaviour
                 onSky = false;
                 bool wasDiveAttacking = isDiveAttacking;
                 EndDiveAttack();
-                if (wasDiveAttacking) DiveAttackLanded?.Invoke();
+                if (wasDiveAttacking) { DiveAttackLanded?.Invoke(); TriggerDiveImpact(); }
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
                 Landed?.Invoke();
                 if (bufferedUpAttackTimer > 0f)
@@ -1475,6 +1487,30 @@ public class PlayerController : MonoBehaviour
         // 出し経路でも必ず呼ばれるため、トレイルVFXが表示されたまま残る
         // ことはない。
         if (downAttackSlashVisual != null) downAttackSlashVisual.HideSustained();
+    }
+
+    // 不具合修正(2026-09-10) - 「下攻撃の着地時に衝撃エフェクトを追加し、
+    // それにも攻撃判定が入るように」。DiveAttackLandedと同じ「実際に急降下
+    // 中だった場合の着地」でのみ呼ばれる(Move()の2箇所、landedSky/
+    // landedGround)。ダイブ本体のHitboxは既にEndDiveAttack()で無効化済み
+    // なので、ここでは全く別の新しいHitboxを短時間だけ有効にする。
+    void TriggerDiveImpact()
+    {
+        if (downAttackLandHitbox != null)
+        {
+            downAttackLandHitbox.enabled = true;
+            StartCoroutine(DisableDiveImpactHitboxAfterDelay());
+        }
+        if (downAttackLandSlashVisual != null)
+        {
+            downAttackLandSlashVisual.PlaySingle(1f, AttackRangeMultiplier);
+        }
+    }
+
+    IEnumerator DisableDiveImpactHitboxAfterDelay()
+    {
+        yield return new WaitForSeconds(diveImpactHitboxDuration);
+        if (downAttackLandHitbox != null) downAttackLandHitbox.enabled = false;
     }
 
     // Grows the (invisible) attack hitbox across the combo chain - stage 1

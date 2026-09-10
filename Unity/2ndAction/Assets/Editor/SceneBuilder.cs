@@ -2215,6 +2215,29 @@ public static class SceneBuilder
         return AssetDatabase.LoadAssetAtPath<Sprite>(path);
     }
 
+    // 不具合修正(2026-09-10) - LoadTiledSpriteの派生版。既存のVFX単発画像
+    // (SlashArcBlue等)は全てCenter Pivot前提で、位置はコード側のtransform
+    // 調整で合わせていたが、地面衝撃VFX(ImpactBurstBlue)は「爆発の根本=
+    // 地面接地点」を基準にしたいため、Custom Pivotを直接指定できるように
+    // した(ApplyCustomPivotを既存のPlayerアニメーション用と共通で再利用)。
+    static Sprite LoadTiledSpriteWithPivot(string path, float pixelsPerUnit, Vector2 pivot)
+    {
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.wrapMode = TextureWrapMode.Repeat;
+            ApplyCustomPivot(importer, pivot);
+            importer.SaveAndReimport();
+        }
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
+
     // Level-up choice icons are plain UI images (not sprites drawn in the
     // game world), so import as a regular Texture2D for GUI.DrawTexture /
     // GUI.Button to use directly.
@@ -2545,9 +2568,12 @@ public static class SceneBuilder
         // (体下端))を実測 約738px -> 738/1.13 ≈ 653
         ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttack_v1", 653f, downAttackPivots);
         Vector2[] downAttackLandPivots = { new Vector2(0.546f, 0.172f) }; // downattackland_00 - 剣先が地面に刺さる衝撃点を目視で指定
-        // downattackland_00の本体のみの高さ(衝撃エフェクト・岩の破片除く、
-        // 頭頂〜膝/足先)を実測 約385px -> 385/1.13 ≈ 341
-        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttackLand_v1", 341f, downAttackLandPivots);
+        // 不具合修正(2026-09-10) - 「下攻撃の着地時の画像がまだ少し大きい」。
+        // 前回の実測(385px)は頭頂位置を少し低く見誤っており、髪の生え際
+        // 込みで再計測すると頭頂〜足先(衝撃エフェクト・岩の破片除く)は
+        // 約400px -> 400/1.13 ≈ 354 だった(前回のPPU341だと約4%大きく
+        // 描画されていた)。
+        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttackLand_v1", 354f, downAttackLandPivots);
 
         Sprite[] runFrames = LoadSpriteSequence("Assets/Art/PlayerRun_v1");
         Sprite[] jumpFrames = LoadSpriteSequence("Assets/Art/PlayerJump_v1");
@@ -2678,16 +2704,18 @@ public static class SceneBuilder
         // 攻撃"用の独立したHitbox+Slash FX。既存のAttackHitbox/AttackSlash
         // とは別オブジェクト(Forward/Backwardの3段コンボ系統には一切触れ
         // ないよう分離、詳細はPlayerController.DoUpAttackのコメント参照)。
-        // プレイヤー正面やや上〜頭上をカバーする位置・サイズにして、上方
-        // または進行方向上部の敵を攻撃できるようにする。Slash FXは既存の
-        // AttackSlashFxスプライトをそのまま再利用し、90°回転させて「上へ
-        // の斬撃」に見せる(新規アート不要 - 新しい手描きアニメーションを
-        // 起こす手段が現状ないため、既存素材の組み合わせで代替した設計判
-        // 断であることをコメントとして明記)。
+        // 不具合修正(2026-09-10) - 「空中上攻撃時、攻撃範囲がプレイヤーキ
+        // ャラから離れたところから開始している」。デバッグ表示(Collider
+        // DebugView)で確認したところ、旧位置(Y=1.7、高さ1.4→Y範囲
+        // [1.0,2.4])はキャラクター本体の高さ(約1.13)と一切重ならず、頭上
+        // にぽっかり浮いた判定になっていた - 通常攻撃のHitbox(Y=0.5、高さ
+        // 1.8→Y範囲[-0.4,1.4]、キャラクター全身を包含)と同じ考え方に揃え、
+        // Y=0.9・高さ2.0(Y範囲[-0.1,1.9])へ変更 - 下端がキャラクター本体
+        // (足元付近)と重なりつつ、上端は従来同様頭上高くまで届く。
         GameObject upHitbox = new GameObject("UpAttackHitbox");
         upHitbox.transform.SetParent(go.transform);
-        upHitbox.transform.localPosition = new Vector3(0.3f, 1.7f, 0f);
-        upHitbox.transform.localScale = new Vector3(1.6f, 1.4f, 1f);
+        upHitbox.transform.localPosition = new Vector3(0.3f, 0.9f, 0f);
+        upHitbox.transform.localScale = new Vector3(1.6f, 2.0f, 1f);
         upHitbox.tag = "PlayerAttack";
 
         var upHitboxCol = upHitbox.AddComponent<BoxCollider2D>();
@@ -2745,6 +2773,42 @@ public static class SceneBuilder
 
         pc.downAttackHitbox = downHitboxCol;
         pc.downAttackSlashVisual = downSlashVisual;
+
+        // 不具合修正(2026-09-10) - 「下攻撃の着地時に衝撃はエフェクトを
+        // 追加し、それにも攻撃判定が入るように」。DownAttackHitbox(ダイブ
+        // 中のみ有効)とは別の独立したHitbox+VFX - 着地の瞬間だけ短時間
+        // (PlayerController.diveImpactHitboxDuration)有効になり、地面沿い
+        // に左右へ広い判定(ダイブ本体より横に広く、縦は低い)で周囲の敵を
+        // まとめて巻き込む。VFXはChatGPTで新規生成した地面衝撃バースト
+        // (ImpactBurstBlue.png、他のエネルギーエフェクトと同じ配色で統一)
+        // - Pivotを爆発の根本(接地点)に指定し、地面にめり込まず自然に接地
+        // して見えるようにする(横長1634x795px、PPUはHitbox幅3.0uに揃うよ
+        // う算出: 1634px÷3.0u≒545)。
+        Sprite impactBurstVfx = LoadTiledSpriteWithPivot("Assets/Art/Effects/ImpactBurstBlue.png", 545f, new Vector2(0.5f, 0.05f));
+
+        GameObject downLandHitbox = new GameObject("DownAttackLandHitbox");
+        downLandHitbox.transform.SetParent(go.transform);
+        downLandHitbox.transform.localPosition = new Vector3(0f, 0.1f, 0f);
+        downLandHitbox.transform.localScale = new Vector3(3.0f, 1.0f, 1f);
+        downLandHitbox.tag = "PlayerAttack";
+
+        var downLandHitboxCol = downLandHitbox.AddComponent<BoxCollider2D>();
+        downLandHitboxCol.isTrigger = true;
+        downLandHitboxCol.enabled = false;
+        var downLandHitboxDebug = downLandHitbox.AddComponent<ColliderDebugView>();
+        downLandHitboxDebug.color = new Color(1f, 0.85f, 0.2f);
+
+        GameObject downLandSlashGO = new GameObject("DownAttackLandSlash");
+        downLandSlashGO.transform.SetParent(go.transform);
+        downLandSlashGO.transform.localPosition = new Vector3(0f, 0f, 0f);
+        var downLandSlashVisual = downLandSlashGO.AddComponent<AttackSlashVisual>();
+        downLandSlashVisual.singleSprite = impactBurstVfx;
+        downLandSlashVisual.singleDuration = 0.3f;
+        downLandSlashVisual.singleStartScaleFraction = 0.5f;
+        downLandSlashVisual.opacity = 0.9f;
+
+        pc.downAttackLandHitbox = downLandHitboxCol;
+        pc.downAttackLandSlashVisual = downLandSlashVisual;
 
         return go;
     }

@@ -31,10 +31,16 @@ public static class AttackVfxCapture
 
         CaptureOne(player, cam, "normal", player.attackSlashVisual,
             new Vector3(1.5f, 0.5f, 0f), 1.5f, false);
+        // 不具合修正(2026-09-10) - UpAttackHitboxをY=1.7→0.9・高さ1.4→2.0
+        // へ変更(キャラクター本体と重なるように)したのに合わせて検証位置
+        // も更新。
         CaptureOne(player, cam, "up", player.upAttackSlashVisual,
-            new Vector3(0.3f, 1.7f, 0f), 1.15f, false);
+            new Vector3(0.3f, 0.9f, 0f), 1.15f, false);
         CaptureOne(player, cam, "down", player.downAttackSlashVisual,
             new Vector3(0.15f, -0.4f + 1.1f, 0f), 1f, true);
+        // 不具合修正(2026-09-10) - 新設した下降攻撃・着地衝撃VFXの検証。
+        CaptureOne(player, cam, "down_land", player.downAttackLandSlashVisual,
+            new Vector3(0f, 0f, 0f), 1f, false);
 
         // 不具合修正(2026-09-10) - 「空中上攻撃のエフェクトが攻撃範囲拡張
         // とともにプレイヤーから離れてしまう」検証用。Attack Range Upカード
