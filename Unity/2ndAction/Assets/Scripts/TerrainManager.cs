@@ -52,10 +52,19 @@ public class TerrainManager : MonoBehaviour
 
     [Header("Chunk Sizes")]
     public float flatLength = 6f;
-    public float slopeLength = 6f;
-    public float slopeHeight = 2f;
+    // 道のなめらか化(2026-09-10) - マスター報告「道の角が少し出ている箇所が
+    // いくつかある。もう少しなめらかに」。slope1本あたりの角度 θ = atan2(
+    // slopeHeight, slopeLength) を浅くすると、flat↔slopeの継ぎ目でできる
+    // くさび状のはみ出し(leftBleedで覆っている量、tan(θ)に比例)が小さくな
+    // り、かつ坂そのものの折れ角も緩くなって道全体がなめらかに見える。
+    // 6/2(≒18.4°)→ 8.5/1.5(≒10.0°)で tan(θ) は約53%に低下。
+    public float slopeLength = 8.5f;
+    public float slopeHeight = 1.5f;
     // Bugfix 2026-09-08, item4 - see AddChunk's leftBleed comment.
-    public float cornerBleedSafetyMargin = 1.4f;
+    // 道のなめらか化(2026-09-10) - 上記で必要bleed量自体が減ったので、
+    // 素材の縁ギザギザ吸収用の安全マージンも 1.4→1.2 へ控えめに(過大な
+    // bleedは逆に継ぎ目の角が下側へリップ状にはみ出して見える一因)。
+    public float cornerBleedSafetyMargin = 1.2f;
     public float pitWidth = 3f;
     public float groundThickness = 1f;
 

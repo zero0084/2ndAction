@@ -142,6 +142,11 @@ public class DragonController : MonoBehaviour
     public Sprite bossDeathSmokeSprite;
     public float bossDeathSmokeScale = 1f;
     public AudioClip bossDefeatSe;
+    // ボス撃破時の飛散パーティクル(2026-09-10) - 雑魚敵と同じ
+    // ExplosionEffect.CreateForDefeatをボスの実寸で。色はBossManagerが
+    // スポーン時に設定する(通常ドラゴン=赤、機械龍=黄)。
+    public bool defeatBurstEnabled = true;
+    public Color defeatBurstColor = new Color(1f, 0.3f, 0.18f, 1f);
 
     [Header("Boss Defeat Presentation - HP Bar")]
     public float hpBarEmptyHoldDuration = 0.15f;
@@ -728,6 +733,16 @@ public class DragonController : MonoBehaviour
             {
                 OneShotSpriteEffect.CreateTweened(bossDeathSmokeSprite, transform.position, Color.white, duration: 0.4f, startScale: bossDeathSmokeScale * 0.7f, endScale: bossDeathSmokeScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.3f);
             }
+
+            // ボス撃破時の飛散パーティクル(2026-09-10) - ボスのワールド高さ
+            // (sr.boundsはlossyScale込み)で数/粒サイズ/速度をスケール。色は
+            // defeatBurstColor(BossManagerが通常=赤/機械龍=黄で設定)。
+            if (defeatBurstEnabled)
+            {
+                float subjectHeight = sr != null ? sr.bounds.size.y : 6f;
+                ExplosionEffect.CreateForDefeat(transform.position, defeatBurstColor, subjectHeight, sortingOrder: RenderOrder.CombatFx);
+            }
+
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(bossDefeatSe);
 
             if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Death presentation");

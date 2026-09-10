@@ -100,6 +100,10 @@ public class MajinController : MonoBehaviour
     public Sprite bossDeathSmokeSprite;
     public float bossDeathSmokeScale = 1.2f;
     public AudioClip bossDefeatSe;
+    // ボス撃破時の飛散パーティクル(2026-09-10) - 魔人は紫。数/サイズ/速度は
+    // ExplosionEffect.CreateForDefeatが実寸から算出。
+    public bool defeatBurstEnabled = true;
+    public Color defeatBurstColor = new Color(0.7f, 0.35f, 1f, 1f);
 
     [Header("Boss Defeat Presentation - HP Bar")]
     public float hpBarEmptyHoldDuration = 0.15f;
@@ -547,6 +551,16 @@ public class MajinController : MonoBehaviour
             {
                 OneShotSpriteEffect.CreateTweened(bossDeathSmokeSprite, transform.position, Color.white, duration: 0.4f, startScale: bossDeathSmokeScale * 0.7f, endScale: bossDeathSmokeScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.3f);
             }
+
+            // ボス撃破時の飛散パーティクル(2026-09-10) - 魔人は紫
+            // (defeatBurstColor)。数/粒サイズ/速度は魔人のワールド高さで
+            // スケール。
+            if (defeatBurstEnabled)
+            {
+                float subjectHeight = sr != null ? sr.bounds.size.y : 6f;
+                ExplosionEffect.CreateForDefeat(transform.position, defeatBurstColor, subjectHeight, sortingOrder: RenderOrder.CombatFx);
+            }
+
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(bossDefeatSe);
 
             if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Death presentation");

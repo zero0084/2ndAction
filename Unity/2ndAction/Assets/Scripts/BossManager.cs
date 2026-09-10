@@ -37,6 +37,13 @@ public class BossManager : MonoBehaviour
     // bossDeathSmokeSprite fields, which these get copied into at spawn).
     public Sprite bossHitSparkSprite;
     public Sprite bossDeathSmokeSprite;
+
+    // ボス撃破時の飛散パーティクル色(2026-09-10) - マスター指定「ドラゴン=
+    // 赤、機械龍=黄、魔人=紫」。各Spawn*でController.defeatBurstColorへ
+    // コピーする。雑魚敵の青はEnemyController側の既定値。
+    public Color dragonDefeatBurstColor = new Color(1f, 0.3f, 0.18f, 1f);
+    public Color mechanicalDragonDefeatBurstColor = new Color(1f, 0.82f, 0.15f, 1f);
+    public Color majinDefeatBurstColor = new Color(0.7f, 0.35f, 1f, 1f);
     // No dedicated files yet - PlaySfx is null-safe, so these can stay
     // unassigned without breaking anything (see SceneBuilder).
     public AudioClip bossFinalHitSe;
@@ -317,6 +324,7 @@ public class BossManager : MonoBehaviour
         dragon.bossDeathSmokeSprite = bossDeathSmokeSprite;
         dragon.finalHitSe = bossFinalHitSe;
         dragon.bossDefeatSe = bossDefeatSe;
+        dragon.defeatBurstColor = dragonDefeatBurstColor; // 撃破パーティクル=赤
 
         // Bugfix 2026-09-05, item 6 - "Boss/EnemyがPlayer方向を向かない"
         // covered every OTHER species already (see EnemyFacing.cs's own
@@ -379,6 +387,7 @@ public class BossManager : MonoBehaviour
         dragon.bossDeathSmokeSprite = bossDeathSmokeSprite;
         dragon.finalHitSe = bossFinalHitSe;
         dragon.bossDefeatSe = bossDefeatSe;
+        dragon.defeatBurstColor = mechanicalDragonDefeatBurstColor; // 撃破パーティクル=黄
 
         // Distance Level Design Ver.1.1 - facing fix. No separate Visual
         // child here (DragonController's SpriteRenderer/Collider share this
@@ -439,6 +448,7 @@ public class BossManager : MonoBehaviour
         majin.bossDeathSmokeSprite = bossDeathSmokeSprite;
         majin.finalHitSe = bossFinalHitSe;
         majin.bossDefeatSe = bossDefeatSe;
+        majin.defeatBurstColor = majinDefeatBurstColor; // 撃破パーティクル=紫
 
         // Bugfix 2026-09-05, item 6 - same reasoning as SpawnDragon's
         // matching block above. majinIdleFrames' art is a roughly

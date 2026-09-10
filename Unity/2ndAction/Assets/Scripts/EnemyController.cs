@@ -96,6 +96,15 @@ public class EnemyController : MonoBehaviour
     public float deathCloudScale = 0.75f;
     public float deathCloudDuration = 0.5f;
     [Range(0f, 1f)] public float deathCloudHoldFraction = 0.3f;
+    // 敵撃破時の飛散パーティクル(2026-09-10) - マスターの「敵を倒した後に
+    // 以前出していたパーティクルを出して」対応。小さな消滅Smoke(上記)とは
+    // 別に、四方へ飛び散る粒のバースト(ExplosionEffect)を撃破の瞬間に出す。
+    // 数・サイズ・飛散速度は敵のワールド高さに比例(ExplosionEffect.
+    // CreateForDefeat)。色は種族ごとに変える想定で、雑魚敵の既定は青
+    // (GroundFactory.CreateEnemyがボス以外の全雑魚に対してこの既定値の
+    // ままにする)。
+    public bool deathBurstEnabled = true;
+    public Color deathBurstColor = new Color(0.32f, 0.68f, 1f, 1f);
     // A short scale-down + fade on the enemy's own sprite right before it
     // disappears, so "Hit -> Flash -> Fade/Scale -> 消滅" reads as one
     // continuous reaction instead of the sprite just vanishing outright.
@@ -238,6 +247,16 @@ public class EnemyController : MonoBehaviour
             // multi-particle burst this time (see the field comment).
             OneShotSpriteEffect.CreateTweened(deathCloudSprite, transform.position, Color.white, duration: deathCloudDuration, startScale: deathCloudScale * 0.7f, endScale: deathCloudScale, sortingOrder: RenderOrder.CombatFx, holdFraction: deathCloudHoldFraction);
         }
+
+        // 敵撃破時の飛散パーティクル(2026-09-10) - 敵のワールド高さ(sr.bounds
+        // はlossyScale込みの実寸)を渡して、数/粒サイズ/飛散速度を大きさに
+        // 比例させる。色は種族ごと(deathBurstColor、雑魚敵の既定は青)。
+        if (deathBurstEnabled)
+        {
+            float subjectHeight = sr != null ? sr.bounds.size.y : 1f;
+            ExplosionEffect.CreateForDefeat(transform.position, deathBurstColor, subjectHeight, sortingOrder: RenderOrder.CombatFx);
+        }
+
         if (AudioManager.Instance != null) AudioManager.Instance.PlayEnemyDefeat();
 
         // The enemy's own sprite side of "Hit -> Flash -> Fade/Scale ->

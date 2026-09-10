@@ -1,105 +1,134 @@
 using UnityEngine;
 
 // Game Feel pass, section 16 - a thin decorative cloud layer drifting past
-// independently of (and slightly slower than) the camera's own pan speed,
-// so it reads as a closer foreground layer than the fixed backdrop behind
-// it - the actual "reduce the flat one-image feel" fix for this pass (see
-// BackgroundFollower's own comment on why the main background itself stays
-// locked to the camera for now). Wraps within a fixed span around the
-// camera rather than tracking absolute world position, so unlike a true
-// parallax offset this never drifts out of range no matter how far an
-// endless run goes. Purely cosmetic - no collider, no gameplay interaction
-// - and kept toward the top of the screen ("画面端・上下を中心に配置") so
-// it never sits over the player or enemies, which stay lower in frame.
+// in the sky. Purely cosmetic - no collider, no gameplay interaction.
+//
+// 雲の挙動全面見直し(2026-09-10) - マスター報告2点:
+//   ①「空の雲が途中から出現し、途中で消えてしまう。敵のように右端から
+//      出現し、左端になったら消えるように」
+//   ②「雲が画面を追従しているように見える。もっとばらけさせて、数を増やして」
+// 旧実装は毎フレーム雲の位置を「カメラ位置 + オフセット」で決め直して
+// いたため、カメラ(=プレイヤーの自動走行)がどれだけ進んでも雲は画面に
+// 貼り付いたまま、ゆっくり左へずれるだけ = 「画面を追従している」ように
+// 見えていた。しかも再配置マージンが画面端 +30% しかなく、大きめの雲は
+// 画面内に一部が残ったままワープ = 「途中で出現/消滅」して見えた。
+// 新実装:雑魚敵と同じく X はワールド座標に固定し、カメラが通り過ぎる
+// ことで相対的に右→左へ流れる。画面左端の充分外側まで来たら、右端の
+// 充分外側へ回して Y/スケール/濃さ/流れる速さ/左右反転を引き直す。
+// 数は 3→16 に増やし、配置する高さの帯も広げた(上寄りは維持しつつ
+// 画面中央付近まで散らす。濃さは薄いのでプレイに被っても邪魔にならない)。
 public class ForegroundCloudLayer : MonoBehaviour
 {
     public Camera cam;
     public Sprite cloudSprite;
-    public int cloudCount = 3;
-    // Deliberately slow relative to the player's own run speed (5+) - this
-    // is what makes the layer read as "drifting past", not "racing by".
-    public float driftSpeed = 1.4f;
-    // Small - "小さく短く控えめに" per the brief. cloudSprite itself
-    // (TopCloud.png) is already a fairly large/wide source image, so even
-    // these modest multipliers read as a real cloud, not a speck.
-    public float scaleMin = 0.35f;
-    public float scaleMax = 0.65f;
-    public float alpha = 0.45f;
-    public float verticalJitter = 1.5f;
+    // ②「数を増やして」。
+    public int cloudCount = 16;
+    // それぞれの雲が持つ、カメラ速度とは別の「自前の左流れ速度」の範囲。
+    // カメラ(プレイヤー自動走行 5+)よりずっと遅いので主役はあくまで
+    // カメラ通過による相対移動だが、これがあることで Level Up/ボス演出で
+    // カメラが止まっている間も雲は流れ続ける + 雲ごとに僅かな速度差が出て
+    // 平行移動のばらつきになる。
+    public float driftSpeedMin = 0.35f;
+    public float driftSpeedMax = 1.2f;
+    // ②「ばらけさせて」。1つの雲が小さすぎない範囲でサイズをばらつかせる。
+    public float scaleMin = 0.32f;
+    public float scaleMax = 0.82f;
+    // 薄め + 雲ごとにばらつき(奥行き感)。
+    public float alphaMin = 0.22f;
+    public float alphaMax = 0.46f;
+    // 配置する高さの帯(カメラ中心からの上方向オフセット、orthographicSize
+    // に対する比率)。0=画面中央の高さ、1=画面上端。上寄りだが中央付近まで
+    // 散らす。
+    public float bandLowFrac = 0.02f;
+    public float bandHighFrac = 0.96f;
 
-    Transform[] clouds;
-    float[] speeds;
-    // Bugfix 2026-09-09 - 「雲の動きを右端から左端へ移動するように」。旧
-    // 実装はクラウドをワールド座標で常に+X(右)へ動かし、カメラ自身の方が
-    // 常に速い(runSpeed 5+ > driftSpeed 1.4-1.8)ため相対的に画面上では
-    // 右から左へ流れる"はず"だったが、この関係はrunSpeedがdriftSpeedを
-    // 上回っている間だけ成立する脆い間接的な仕組みだった。カメラの絶対
-    // 速度に一切依存せず、常に確実に右から左へ流れるよう、カメラからの
-    // 相対オフセット(offsets)を直接毎フレーム減算する方式に変更した。
-    float[] offsets;
-    // Y座標は初回配置/リサイクル時にのみ決める(毎フレーム再抽選すると
-    // 上下にジッターして見える)。
-    float[] ys;
-    float spanWidth;
+    class Cloud
+    {
+        public Transform t;
+        public SpriteRenderer sr;
+        public float worldX;       // ワールドX(カメラには追従しない)
+        public float yOffsetFromCam; // 画面上の高さは保つ(遠景の平行移動レイヤー扱い)
+        public float driftSpeed;
+    }
+
+    Cloud[] clouds;
+    float halfWidthAtStart;
+    // 雲の見た目上の最大ハーフ幅ぶんは端の外へ出してからワープ/生成する
+    // ための固定パディング(素材幅 約4.4u × scaleMax の半分 + 余裕)。
+    const float EdgePad = 4f;
 
     void Start()
     {
         if (cam == null || cloudSprite == null) { enabled = false; return; }
-        // Generous margin (2.6x the camera's own width) so a cloud wrapping
-        // back around reappears well outside the visible frame, never
-        // popping into view mid-screen.
-        spanWidth = cam.orthographicSize * cam.aspect * 2.6f;
 
-        clouds = new Transform[cloudCount];
-        speeds = new float[cloudCount];
-        offsets = new float[cloudCount];
-        ys = new float[cloudCount];
-        for (int i = 0; i < cloudCount; i++)
+        clouds = new Cloud[Mathf.Max(1, cloudCount)];
+        float halfW = CamHalfWidth();
+        for (int i = 0; i < clouds.Length; i++)
         {
             GameObject go = new GameObject("ForegroundCloud" + i);
             go.transform.SetParent(transform, false);
             var sr = go.AddComponent<SpriteRenderer>();
             sr.sprite = cloudSprite;
             sr.sortingOrder = RenderOrder.EnvironmentFx;
-            sr.color = new Color(1f, 1f, 1f, alpha);
-            float scale = Random.Range(scaleMin, scaleMax);
-            go.transform.localScale = new Vector3(scale, scale, 1f);
-            clouds[i] = go.transform;
-            speeds[i] = driftSpeed * Random.Range(0.7f, 1.3f);
-            PlaceAt(i, Random.Range(-spanWidth * 0.5f, spanWidth * 0.5f));
+
+            var c = new Cloud { t = go.transform, sr = sr };
+            clouds[i] = c;
+
+            // 初期配置だけは画面内〜左右の外側にまんべんなく散らす(全部が
+            // 右端の外から入ってくるのを待つ必要はない)。
+            float x0 = cam.transform.position.x + Random.Range(-halfW - EdgePad, halfW + EdgePad);
+            Recycle(c, x0);
         }
     }
 
-    void PlaceAt(int i, float offsetX)
+    float CamHalfWidth() => cam.orthographicSize * cam.aspect;
+
+    // 右端の外へ(もしくは指定Xへ)雲を置き直し、見た目のパラメータを
+    // すべて引き直す。
+    void Recycle(Cloud c, float? forceX = null)
     {
-        offsets[i] = offsetX;
-        // Upper portion of the frame only (55%-85% of the way up from
-        // center to the top edge) - stays clear of the player/enemies
-        // below, and clear of the very top edge too.
-        ys[i] = Random.Range(0.55f, 0.85f);
-        float y = cam.transform.position.y + cam.orthographicSize * ys[i] + Random.Range(-verticalJitter, verticalJitter);
-        ys[i] = y - cam.transform.position.y; // store as an offset from the camera too, so Y also stays stable while the camera itself moves vertically
-        clouds[i].position = new Vector3(cam.transform.position.x + offsetX, y, 0f);
+        float halfW = CamHalfWidth();
+        c.worldX = forceX ?? (cam.transform.position.x + halfW + EdgePad + Random.Range(0.5f, halfW * 0.9f));
+
+        float band = Random.Range(bandLowFrac, bandHighFrac);
+        c.yOffsetFromCam = cam.orthographicSize * band;
+
+        float scale = Random.Range(scaleMin, scaleMax);
+        // 大きい雲ほど僅かに遅く流す(近くにある小さめの雲の方が速い、
+        // という平行移動の見え方)。
+        float scaleT = Mathf.InverseLerp(scaleMin, scaleMax, scale);
+        c.driftSpeed = Mathf.Lerp(driftSpeedMax, driftSpeedMin, scaleT) * Random.Range(0.85f, 1.15f);
+
+        c.t.localScale = new Vector3(Random.value < 0.5f ? -scale : scale, scale, 1f);
+        c.sr.color = new Color(1f, 1f, 1f, Random.Range(alphaMin, alphaMax));
+
+        c.t.position = new Vector3(c.worldX, cam.transform.position.y + c.yOffsetFromCam, 0f);
     }
 
     void Update()
     {
         if (cam == null || clouds == null) return;
-        Vector3 camPos = cam.transform.position;
+        float camX = cam.transform.position.x;
+        float camY = cam.transform.position.y;
+        float leftKill = camX - CamHalfWidth() - EdgePad;
+
         for (int i = 0; i < clouds.Length; i++)
         {
-            if (clouds[i] == null) continue;
+            Cloud c = clouds[i];
+            if (c == null) continue;
 
-            // 画面(カメラ)に対して常に左向きへ流れる - カメラ自身の速度と
-            // は無関係(上記コメント参照)。
-            offsets[i] -= speeds[i] * Time.deltaTime;
-            if (offsets[i] < -spanWidth * 0.5f)
+            // Xはワールド固定(自前のゆるい左流れのみ) - カメラが右へ進む
+            // ぶんは相対移動として画面上で勝手に左へ流れる。
+            c.worldX -= c.driftSpeed * Time.deltaTime;
+
+            if (c.worldX < leftKill)
             {
-                PlaceAt(i, spanWidth * 0.5f);
+                Recycle(c); // 左端の外に出たら右端の外へ、パラメータ引き直し
                 continue;
             }
 
-            clouds[i].position = new Vector3(camPos.x + offsets[i], camPos.y + ys[i], 0f);
+            // 高さは画面上で一定(遠景平行移動レイヤー) - Xだけワールド固定。
+            c.t.position = new Vector3(c.worldX, camY + c.yOffsetFromCam, 0f);
         }
     }
 }
