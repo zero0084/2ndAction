@@ -96,30 +96,45 @@ public class RewardCardSequence : MonoBehaviour
     // Time.timeScale=0 before calling StartSequence), so this alone reads
     // as the "軽いHit Stop的な停止" the brief asks for; a separate
     // HitStop.Freeze would be redundant at timeScale already 0.
-    public float preAnnouncementPause = 0.08f;
-    public float levelUpPopDuration = 0.4f;
+    //
+    // Level Up UI微調整(2026-09-11) - 「もっさり感」の最大の原因がここ
+    // だった: 旧実装はPlayLevelUpAnnouncement全体(pre-pause+pop+hold+
+    // fade、合計約0.48秒)を`yield return`で待ってから初めてデッキ/カード
+    // 演出を開始していた - "LEVEL UP"の文字が完全に消えるまで何も起きない
+    // 「ただ見ているだけ」の時間になっていた。RunSequenceBody側を
+    // `StartCoroutine`(fire-and-forget)へ変更し、デッキ出現と"LEVEL UP"
+    // ポップを同時進行にした(このコルーチン自体の長さ・演出内容は不変 -
+    // 「演出そのものは削除せず」の指示どおり)。
+    public float preAnnouncementPause = 0.05f;
+    public float levelUpPopDuration = 0.35f;
 
     [Header("Timing - Background Overlay")]
     [Range(0f, 1f)] public float backgroundOverlayAlpha = 0.6f;
-    public float backgroundFadeDuration = 0.2f;
+    public float backgroundFadeDuration = 0.15f;
 
-    // Everything up through "cards become tappable" (fade -> deck -> draw ->
-    // flip) is the part players just have to wait through before they can
-    // act, so it's tuned for pace ("カードが表示されるまで：約0.7〜1.0秒以
-    // 内"). Everything from a tap onward is the payoff for the choice they
-    // just made ("カード選択後：約0.4〜0.6秒以内").
-    [Header("Timing - Wait (target ~0.7-1.0s to Reveal complete)")]
-    public float rootFadeDuration = 0.18f;
-    public float deckShowPause = 0.15f;
-    public float cardDrawDuration = 0.22f;
+    // Level Up UI微調整(2026-09-11) - 「LEVEL UP発生から選択可能になる
+    // まで、可能なら全体約1秒前後を目標」。旧デフォルト(約3.1秒)から、
+    // 「演出そのものは削除せず、各待機時間を短縮する」方針でおよそ半分
+    // 以下(約1.3秒)へ短縮。カードのドロー/フリップは「各カードの移動が
+    // 終わるのを待ってから次を始める」直列処理から、「短い間隔で次々に
+    // 開始し、複数枚が同時に動いている」並行処理へ変更(下のDraw Cards
+    // Start/Flip Startループ参照) - "0.1〜0.15秒間隔でテンポよく出現"を
+    // 実現しつつ、各カード自体の移動時間(cardDrawDuration)は見た目の
+    // 滑らかさのためあえて短くしすぎていない(間隔より長くても、次のカード
+    // と重なって動くだけで全体の待ち時間は増えない)。
+    [Header("Timing - Wait (target ~1.0-1.5s to Reveal complete)")]
+    public float rootFadeDuration = 0.08f;
+    public float deckShowPause = 0.06f;
+    public float cardDrawDuration = 0.18f;
     // Stagger between each card starting its own appear (fly + scale-in +
-    // fade-in) - Left -> Center -> Right, per the brief.
-    public float cardAppearInterval = 0.08f;
-    public float postDrawPause = 0.1f;
-    public float cardFlipDuration = 0.26f;
-    public float cardRevealInterval = 0.08f;
-    public float revealFlashDuration = 0.22f;
-    public float flipFinishPause = 0.12f;
+    // fade-in) - Left -> Center -> Right。マスター指示の「0.1〜0.15秒
+    // 間隔」に合わせた値。
+    public float cardAppearInterval = 0.12f;
+    public float postDrawPause = 0.05f;
+    public float cardFlipDuration = 0.18f;
+    public float cardRevealInterval = 0.05f;
+    public float revealFlashDuration = 0.16f;
+    public float flipFinishPause = 0.05f;
 
     // レベルアップ選択UI改修(2026-09-11) - 旧: 表になったカード自身に
     // タップ待ちのIdle Pulseをかけていたが、カードはもう選択UIではなく
@@ -131,14 +146,14 @@ public class RewardCardSequence : MonoBehaviour
 
     [Header("Timing - Card Showcase (「今回引いたのはこの3枚」を短く見せる)")]
     // マスター指示:「3枚が表になった状態は長時間表示する必要はない」
-    // 「テンポを優先」。タップ不可のまま、ただ見せるだけの短い保持時間。
-    public float cardShowcaseHold = 0.45f;
+    // 「テンポを優先」「3枚が揃った後の待機は約0.3〜0.5秒程度」。
+    public float cardShowcaseHold = 0.32f;
 
     [Header("Timing - Card -> Choice Row Transition")]
-    public float cardExitDuration = 0.16f;
-    public float choicePanelFadeInDuration = 0.18f;
-    public float rowAppearInterval = 0.06f;
-    public float rowAppearDuration = 0.16f;
+    public float cardExitDuration = 0.1f;
+    public float choicePanelFadeInDuration = 0.1f;
+    public float rowAppearInterval = 0.05f;
+    public float rowAppearDuration = 0.12f;
 
     [Header("Timing - Row Selection Payoff (target ~0.4-0.6s total)")]
     // Step 6 - immediate in-place "picked" feedback(行の拡大+縁の発光)。
@@ -308,7 +323,12 @@ public class RewardCardSequence : MonoBehaviour
 
         // ===== Level Up announcement - EXP bar flash + "LEVEL UP"/"BOSS
         // REWARD" pop =====
-        yield return PlayLevelUpAnnouncement(announcementText);
+        // Level Up UI微調整(2026-09-11) - 「もっさり感」の主因だった
+        // ブロッキングyieldを撤廃。ポップ演出自体(pre-pause+pop+hold+
+        // fade)は完全に維持したまま、fire-and-forgetにしてデッキ/カード
+        // 演出と同時進行させる - "LEVEL UP"の文字が画面中央でポップして
+        // いる間に、下ではもうデッキが出てカードが飛び出し始める。
+        StartCoroutine(PlayLevelUpAnnouncement(announcementText));
 
         // ===== Background dim + card UI fade in (run together) =====
         StartCoroutine(FadeDim(backgroundOverlayAlpha, backgroundFadeDuration));
@@ -326,6 +346,16 @@ public class RewardCardSequence : MonoBehaviour
         // riding the same fly-from-deck motion this project already had -
         // "Card Back出現" from the brief layered onto the existing motion
         // rather than replacing it outright. =====
+        //
+        // Level Up UI微調整(2026-09-11) - 「3枚のカードは約0.1〜0.15秒間隔
+        // でテンポよく出現」。以前はcard.MoveToを`yield return`していた
+        // ため、1枚の移動(cardDrawDuration)が完全に終わってから次の1枚が
+        // 動き出す直列処理になっており、3枚で"間隔+移動時間"を3回分足した
+        // 長さがそのままかかっていた。MoveToもFadeTo/ScaleToと同じ
+        // fire-and-forgetにし、ループ自体はcardAppearIntervalぶんだけ待って
+        // 次のカードを動かし始める並行処理へ変更 - 複数枚が同時に空中を
+        // 飛んでいる状態になる(見た目はテンポアップするだけで、各カード
+        // 自体の飛び方(移動時間・イージング)は一切変えていない)。
         LogStep("Draw Cards Start");
         for (int i = 0; i < cardCount; i++)
         {
@@ -339,9 +369,15 @@ public class RewardCardSequence : MonoBehaviour
             LogStep("Draw Card " + i);
             StartCoroutine(card.FadeTo(1f, cardDrawDuration));
             StartCoroutine(card.ScaleTo(1f, cardDrawDuration));
-            yield return card.MoveTo(cardSlotPositions[i], cardDrawDuration);
+            StartCoroutine(card.MoveTo(cardSlotPositions[i], cardDrawDuration));
             if (i < cardCount - 1) yield return new WaitForSecondsRealtime(cardAppearInterval);
         }
+        // 最後のカードがまだ飛んでいる途中でも次の演出(Flip)へ進んでしまわ
+        // ないよう、ループの合計待機時間(cardAppearInterval×(N-1))を差し
+        // 引いた残り分だけ追加で待つ - cardDrawDurationがcardAppearInterval
+        // より短い/同程度なら実質待たない(既にループの間隔待ちだけで十分)。
+        float remainingDrawTime = cardDrawDuration - cardAppearInterval * (cardCount - 1);
+        if (remainingDrawTime > 0f) yield return new WaitForSecondsRealtime(remainingDrawTime);
         LogStep("Draw Cards Complete");
         LogPresentation("[LevelUpPresentation] Cards spawned");
 

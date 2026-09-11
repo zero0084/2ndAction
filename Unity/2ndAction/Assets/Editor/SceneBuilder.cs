@@ -2094,31 +2094,53 @@ public static class SceneBuilder
         // テキスト列(中央) - アイコンの右端〜数値欄の左端まで。上段:
         // タイトル、下段: 詳細説明(2-3行分の高さを確保 - 「今後複雑な
         // 効果を持たせる可能性がある」ための余裕)。
+        //
+        // Level Up UI微調整(2026-09-11) - 「ATTACK RANGE UPのような長い
+        // 名前でもアイコンと重ならない」対応。旧実装はTitle/Descriptionの
+        // RectTransformを「横方向stretch(anchorMin.x=0/anchorMax.x=1)+
+        // offsetMin/offsetMaxで左右マージン」と設定した直後に、さらに
+        // anchoredPosition/sizeDeltaを直接上書きしていた - Unityの
+        // RectTransformはこの4値が同じ内部状態の別表現(offsetMin/Maxを
+        // 設定してもanchoredPosition/sizeDeltaを後から代入すると完全に
+        // 上書きされる)であるため、Titleの左右マージンが実質ゼロ(行の
+        // 全幅、アイコンや数値欄と重なる位置)に戻ってしまっていた -
+        // これが実機で報告された重なりの直接の原因。修正: 他の要素
+        // (IconBackdrop/Value)と同じ「単一アンカー点+sizeDelta+
+        // anchoredPositionのみ」の書き方に統一し、offsetMin/Maxとの併用を
+        // 一切行わないようにした。
         float textLeft = 16f + iconSize + 24f;
+        float textWidth = Mathf.Max(50f, width - textLeft - valueColumnWidth - 8f);
+        float titleHeight = height * 0.36f;
+
         GameObject titleGO = new GameObject("Title");
         titleGO.transform.SetParent(rowGO.transform, false);
         RectTransform titleRect = titleGO.AddComponent<RectTransform>();
-        titleRect.anchorMin = new Vector2(0f, 1f);
-        titleRect.anchorMax = new Vector2(1f, 1f);
+        titleRect.anchorMin = titleRect.anchorMax = new Vector2(0f, 1f);
         titleRect.pivot = new Vector2(0f, 1f);
-        titleRect.offsetMin = new Vector2(textLeft, 0f);
-        titleRect.offsetMax = new Vector2(-valueColumnWidth - 8f, 0f);
-        titleRect.anchoredPosition = new Vector2(0f, -14f);
-        titleRect.sizeDelta = new Vector2(0f, height * 0.32f);
+        titleRect.sizeDelta = new Vector2(textWidth, titleHeight);
+        titleRect.anchoredPosition = new Vector2(textLeft, -10f);
         Text titleText = titleGO.AddComponent<Text>();
         ConfigureCardText(titleText, Mathf.RoundToInt(height * 0.22f), FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
         titleText.alignment = TextAnchor.MiddleLeft;
-        titleText.horizontalOverflow = HorizontalWrapMode.Overflow;
+        // 「必要であればカード名のみAuto Shrinkを使用...ただし極端に小さく
+        // ならないように」 - Best Fitで自動縮小しつつ下限を設定。Best Fit
+        // にはWrap設定が必須(Overflowとは併用しない)。
+        titleText.horizontalOverflow = HorizontalWrapMode.Wrap;
         titleText.verticalOverflow = VerticalWrapMode.Truncate;
+        titleText.resizeTextForBestFit = true;
+        titleText.resizeTextMinSize = Mathf.Max(10, Mathf.RoundToInt(height * 0.13f));
+        titleText.resizeTextMaxSize = Mathf.RoundToInt(height * 0.22f);
         row.titleText = titleText;
 
+        float descTop = titleHeight + 2f;
+        float descHeight = Mathf.Max(20f, height - descTop - 12f);
         GameObject descGO = new GameObject("Description");
         descGO.transform.SetParent(rowGO.transform, false);
         RectTransform descRect = descGO.AddComponent<RectTransform>();
-        descRect.anchorMin = new Vector2(0f, 0f);
-        descRect.anchorMax = new Vector2(1f, 1f);
-        descRect.offsetMin = new Vector2(textLeft, 14f);
-        descRect.offsetMax = new Vector2(-valueColumnWidth - 8f, -(height * 0.34f));
+        descRect.anchorMin = descRect.anchorMax = new Vector2(0f, 1f);
+        descRect.pivot = new Vector2(0f, 1f);
+        descRect.sizeDelta = new Vector2(textWidth, descHeight);
+        descRect.anchoredPosition = new Vector2(textLeft, -descTop);
         Text descriptionText = descGO.AddComponent<Text>();
         ConfigureCardText(descriptionText, Mathf.RoundToInt(height * 0.145f), FontStyle.Normal, new Color(0.88f, 0.9f, 0.96f));
         descriptionText.alignment = TextAnchor.UpperLeft;
