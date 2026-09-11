@@ -101,8 +101,16 @@ public class EnemyController : MonoBehaviour
     public float deathKnockbackDurationMultiplier = 1.4f;
 
     [Header("Aerial Combo - Up Attack (敵を打ち上げる)")]
-    public float launchUpSpeed = 8f;
-    public float launchGravity = 18f;
+    // 不具合修正(2026-09-12) - 「上攻撃を当ててもゴブリンがほぼ浮かない」。
+    // 根本原因は打ち上げ物理そのものではなく、下のDisableMotionComponents
+    // が実際には一度も効いていなかったこと(Awakeの説明コメント参照) -
+    // EnemyAnimatorが毎フレームtransform.position=spawn時の位置へ戻し
+    // 続け、Update()側の上昇/落下を全て打ち消していた。修正済みだが、
+    // 「最初は多少大げさなくらい高く」という指示に合わせて数値も底上げ
+    // (旧8/18→9/15、山なり頂点で約2.7ワールド単位=キャラ身長の2倍以上、
+    // 頂点到達まで約0.6秒でプレイヤーが二段ジャンプで追いつきやすい)。
+    public float launchUpSpeed = 9f;
+    public float launchGravity = 15f;
     // 打ち上げの瞬間、進行方向へ少しだけ運ぶ(「ここから空中コンボへ移行
     // 可能」、プレイヤーが追いつきやすいよう大きくは動かさない)。
     public float launchForwardBoost = 0.6f;
@@ -147,16 +155,34 @@ public class EnemyController : MonoBehaviour
     float launchBaseGroundY;
     float juggleElapsed;
 
-    EnemyAnimator cachedAnimator;
-    EnemySpecialBehavior cachedSpecialBehavior;
+    // 不具合修正(2026-09-12) - 「上攻撃で敵を明確に打ち上げる」が実機で
+    // 機能しなかった根本原因。GroundFactory.CreateEnemyはEnemyController
+    // を先にAddComponentし、EnemyAnimator/EnemySpecialBehaviorは後から
+    // 追加する - UnityはAddComponent時点でその場でAwake()を同期実行する
+    // ため、EnemyController.Awake()が走った瞬間にはEnemyAnimator/
+    // EnemySpecialBehaviorはまだGameObjectに存在せず、ここでGetComponent
+    // していた旧実装(cachedAnimator/cachedSpecialBehaviorをAwakeで一度
+    // だけ取得)は常にnullを掴んでいた。結果、DisableMotionComponentsが
+    // 何もせず、EnemyAnimatorの毎フレームtransform.position=spawn位置への
+    // 上書き(Update内、待機の揺れ用)がLaunch中もずっと効き続け、Y軸の
+    // 上昇/落下を毎フレーム打ち消していた("ほぼ浮かない"の直接原因)。
+    // 修正: Awake時点でのキャッシュをやめ、実際に必要になった瞬間
+    // (DisableMotionComponents/RestoreMotionComponents呼び出し時 - 既に
+    // 敵が何フレームも存在した後のヒット処理タイミング)に都度GetComponent
+    // する(旧HitAndDieが元々そうしていた、実際に動いていたパターンへ戻す)。
+
+    public enum EnemyAerialState { Grounded, Launched, Slamming }
+    // 項目3「Grounded/Launched/Airborne/Slammingの状態管理」に対応する
+    // 読み取り専用の公開プロパティ(デバッグ表示・将来の拡張用)。内部の
+    // 実装はisLaunched/isSlammingの2フラグのままだが、外部からは単純な
+    // 状態として見える。
+    public EnemyAerialState AerialState => isSlamming ? EnemyAerialState.Slamming : (isLaunched ? EnemyAerialState.Launched : EnemyAerialState.Grounded);
 
     void Awake()
     {
         // The SpriteRenderer lives on the "Visual" child, not this Root -
         // see GroundFactory.CreateEnemy.
         sr = GetComponentInChildren<SpriteRenderer>();
-        cachedAnimator = GetComponent<EnemyAnimator>();
-        cachedSpecialBehavior = GetComponent<EnemySpecialBehavior>();
     }
 
     // エリアルコンボ改修(2026-09-11) - 打ち上げ/叩き落とし中のY軸物理の
@@ -332,6 +358,14 @@ public class EnemyController : MonoBehaviour
             DisableMotionComponents();
         }
 
+        // 不具合修正(2026-09-12) - 「実際にLaunch処理が適用されているか」
+        // を実機のlogcatだけでも確認できるように(見た目が直った後の再発
+        // 検知・今後の数値調整の当たりを付ける用途)。
+        if (GameManager.Instance != null && GameManager.Instance.DebugMode)
+        {
+            Debug.Log($"[AerialCombo] LaunchUpward {name} y={transform.position.y:F2} velocityY={launchVelocityY:F2} alreadyLaunched={wasAlreadyLaunched}");
+        }
+
         StartCoroutine(ForwardCarryRoutine(launchForwardBoost, 0.25f));
     }
 
@@ -368,6 +402,11 @@ public class EnemyController : MonoBehaviour
         bool wasSlamming = isSlamming;
         isSlamming = false;
         transform.position = new Vector3(transform.position.x, landY, transform.position.z);
+
+        if (GameManager.Instance != null && GameManager.Instance.DebugMode)
+        {
+            Debug.Log($"[AerialCombo] LandFromLaunch {name} y={landY:F2} wasSlamming={wasSlamming} pendingDeath={pendingDeathOnLand}");
+        }
 
         if (wasSlamming && pendingDeathOnLand)
         {
@@ -408,10 +447,15 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    // 不具合修正(2026-09-12) - Awakeキャッシュをやめ、呼ばれるたびに
+    // GetComponentする(このメソッド自体は打ち上げ開始/着地の2回程度しか
+    // 呼ばれないため、毎回のGetComponentコストは無視できる)。
     void DisableMotionComponents()
     {
-        if (cachedAnimator != null) cachedAnimator.enabled = false;
-        if (cachedSpecialBehavior != null) cachedSpecialBehavior.enabled = false;
+        var animator = GetComponent<EnemyAnimator>();
+        if (animator != null) animator.enabled = false;
+        var special = GetComponent<EnemySpecialBehavior>();
+        if (special != null) special.enabled = false;
     }
 
     void RestoreMotionComponents()
@@ -419,8 +463,10 @@ public class EnemyController : MonoBehaviour
         // dying中(死亡演出突入後)は絶対に復帰させない - HitAndDie/
         // DieFadeRoutineが引き続きこのTransformを排他的に握っている。
         if (dying) return;
-        if (cachedAnimator != null) cachedAnimator.enabled = true;
-        if (cachedSpecialBehavior != null) cachedSpecialBehavior.enabled = true;
+        var animator = GetComponent<EnemyAnimator>();
+        if (animator != null) animator.enabled = true;
+        var special = GetComponent<EnemySpecialBehavior>();
+        if (special != null) special.enabled = true;
     }
 
     // ===== 撃破 =====
