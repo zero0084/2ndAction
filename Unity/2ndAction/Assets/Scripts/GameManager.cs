@@ -3088,7 +3088,10 @@ public class GameManager : MonoBehaviour
             Title = card.cardName,
             Description = card.description,
             Rarity = card.rarity,
-            LevelLine = stackLabel
+            LevelLine = stackLabel,
+            // レベルアップ選択UI改修(2026-09-11) - 横長3択UI右端の「主要な
+            // 強化数値」。CardEffectFormat参照。
+            ValueLine = CardEffectFormat.FormatPrimaryValue(card)
         };
     }
 

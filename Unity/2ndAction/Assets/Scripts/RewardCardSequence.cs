@@ -4,20 +4,32 @@ using UnityEngine.UI;
 
 // Orchestrates the card-draw presentation for a level-up choice:
 // LEVEL UP announcement -> deck appears -> 3 cards fade/scale in -> flip
-// face-up (each with a small Gold Edge Glow flash) -> idle while waiting ->
-// player taps one -> a quick "picked" bump -> the other two lose the
-// spotlight -> the pick drifts to center, glows once, shrinks away -> the
-// caller's onApply callback actually applies the upgrade (GameManager.
-// ApplyUpgradeByCardId, passed in untouched) -> everything closes.
+// face-up (each with a small Gold Edge Glow flash) -> briefly showcased
+// (no tap yet - "今回引いたのはこの3枚" per the brief) -> cards shrink away
+// and a horizontal 3-row "choice panel" fades in (icon + title + detailed
+// description + key value per row, Vampire Survivors-style) -> player taps
+// a ROW (not a card) -> the picked row glows and grows, the other two
+// vanish, its icon gets a brief highlight -> the caller's onApply callback
+// actually applies the upgrade (GameManager.ApplyUpgradeByCardId, passed in
+// untouched) -> everything closes.
+//
+// レベルアップ選択UI改修(2026-09-11) - マスター提供の参考画像「レベル
+// アップ演出案 - カードからアイコンへ(ヴァンサバ風選択UI)」に基づく2段階
+// 化。「カードから引いた感(デッキ感)」はカード演出のまま残し、実際の
+// 選択・比較はLevelUpChoiceRowUI 3行の横長UIへ切り替える - 「デッキ・
+// カード=引く楽しさ」「横長選択UI=情報の読みやすさ・選びやすさ」という
+// 役割分担(マスターの指示どおり)。
 //
 // This class only ever receives already-decided data (RewardCardData) and
 // hands back the chosen card's id (a plain string) through onApply - it has
 // no opinion on what the 3 choices are, how they were picked, or what
 // picking one does (deck/probability/effect/EXP logic all live in
-// GameManager/CardDatabase, untouched by this file). Level Up Presentation
-// pass (2026-09-02): everything below is the Presentation layer for that
-// same, unchanged contract - existing StartSequence(cardData, onApply)
-// signature and GameManager's call site are both untouched.
+// GameManager/CardDatabase, untouched by this file, and RewardCardData
+// itself is unchanged except for the new optional ValueLine field). Level
+// Up Presentation pass (2026-09-02): everything below is the Presentation
+// layer for that same, unchanged contract - existing StartSequence
+// (cardData, onApply) signature and GameManager's call site are both
+// untouched.
 //
 // Runs entirely on unscaled time/WaitForSecondsRealtime since it's active
 // while Time.timeScale == 0.
@@ -47,6 +59,18 @@ public class RewardCardSequence : MonoBehaviour
     [Header("Cards")]
     public RewardCardUI[] cards = new RewardCardUI[3];
     public Vector2[] cardSlotPositions = new Vector2[3];
+
+    // レベルアップ選択UI改修(2026-09-11) - マスター提供の参考画像どおり、
+    // 「カードを引く演出」(上のCards)→「横長の詳細選択UI」(この
+    // ChoicePanel)という2段階に変更。カードは3枚を短く見せる"デッキ感"の
+    // 演出専用になり(タップ不可)、実際の選択はこちらのLevelUpChoiceRowUI
+    // 3行で行う。既存のカード抽選/効果適用ロジック(GameManager側)・
+    // RewardCardData自体は完全に不変 - 見せ方(Presentation)だけの追加。
+    [Header("Choice Panel (横長3択、Vampire Survivors風)")]
+    public CanvasGroup choicePanelGroup;
+    public Text choiceHeaderText;
+    public Text choiceSubText;
+    public LevelUpChoiceRowUI[] rows = new LevelUpChoiceRowUI[3];
 
     [Header("Glow")]
     public Image glowImage;
@@ -97,22 +121,35 @@ public class RewardCardSequence : MonoBehaviour
     public float revealFlashDuration = 0.22f;
     public float flipFinishPause = 0.12f;
 
-    [Header("Idle - while waiting for a tap")]
-    [Range(0f, 1f)] public float idlePulseMinIntensity = 0.08f;
-    [Range(0f, 1f)] public float idlePulseMaxIntensity = 0.28f;
-    public float idlePulsePeriod = 1.1f;
+    // レベルアップ選択UI改修(2026-09-11) - 旧: 表になったカード自身に
+    // タップ待ちのIdle Pulseをかけていたが、カードはもう選択UIではなく
+    // 「引いた3枚を短く見せるだけ」の演出になったため、この明滅は横長行
+    // (LevelUpChoiceRowUI)側の縁色にのみ意味を持つ。フィールド自体は
+    // カード表示中には使わなくなったが、行が「選択可能」であることを示す
+    // 視覚的な手がかりは持たせず(参考画像どおり縁は常時金色で静止、タップ
+    // で初めて発光する設計)、このセクションは削除。
 
-    [Header("Timing - Selection Payoff (target ~0.4-0.6s total)")]
-    // Step 6 - immediate in-place "picked" feedback.
-    public float selectedCardScale = 1.12f;
-    public float selectedCardDuration = 0.12f;
-    // Step 7 - the other two losing the spotlight (runs concurrently with
-    // the winner's own move below, not serially).
-    public float unselectedFadeDuration = 0.18f;
-    // Step 8 - drift toward center, one small glow, then shrink away.
-    // Split roughly 35% move / 20% settle-to-glow-scale / 45% shrink-away.
-    public float selectedCardExitDuration = 0.42f;
+    [Header("Timing - Card Showcase (「今回引いたのはこの3枚」を短く見せる)")]
+    // マスター指示:「3枚が表になった状態は長時間表示する必要はない」
+    // 「テンポを優先」。タップ不可のまま、ただ見せるだけの短い保持時間。
+    public float cardShowcaseHold = 0.45f;
+
+    [Header("Timing - Card -> Choice Row Transition")]
+    public float cardExitDuration = 0.16f;
+    public float choicePanelFadeInDuration = 0.18f;
+    public float rowAppearInterval = 0.06f;
+    public float rowAppearDuration = 0.16f;
+
+    [Header("Timing - Row Selection Payoff (target ~0.4-0.6s total)")]
+    // Step 6 - immediate in-place "picked" feedback(行の拡大+縁の発光)。
+    public float selectedRowScale = 1.04f;
+    public float selectedRowFlashDuration = 0.22f;
+    // Step 7 - 他の2候補が消える。
+    public float unselectedRowFadeDuration = 0.16f;
+    // Step 8 - 選択したアイコンを短時間強調表示するGlow(既存PlayGlowを
+    // 行の位置で再利用)からApply Upgradeまでの間。
     public float glowDuration = 0.24f;
+    public float choicePanelCloseDuration = 0.16f;
     public float rootCloseDuration = 0.18f;
 
     [Header("Debug")]
@@ -252,6 +289,20 @@ public class RewardCardSequence : MonoBehaviour
             cards[i].StopIdlePulse();
             cards[i].gameObject.SetActive(false);
         }
+        // レベルアップ選択UI改修(2026-09-11) - 横長選択パネルも毎回同じ
+        // 「非表示・不透明度0」からスタートさせる(カード側と同じ理由 -
+        // 前回の実行の見た目が次回に持ち越らないように)。
+        if (choicePanelGroup != null)
+        {
+            choicePanelGroup.alpha = 0f;
+            choicePanelGroup.gameObject.SetActive(false);
+        }
+        for (int i = 0; i < rows.Length; i++)
+        {
+            if (rows[i] == null) continue;
+            rows[i].SetInteractable(false);
+            rows[i].gameObject.SetActive(false);
+        }
         if (levelUpTextGroup != null) levelUpTextGroup.alpha = 0f;
         LogStep("Pause Complete");
 
@@ -320,19 +371,61 @@ public class RewardCardSequence : MonoBehaviour
         LogStep("Flip Complete");
         LogPresentation("[LevelUpPresentation] Reveal complete");
 
-        // Input Lock (item 14) - Reveal complete -> Input Enable, exactly
-        // at this line; nothing before this point can register a tap
-        // (SetInteractable(true) is the only thing that flips
-        // button.interactable/canvasGroup.blocksRaycasts on).
+        // ===== カードの見せ場はここまで - 「3枚が表になった状態は長時間
+        // 表示する必要はありません」「今回引いたのはこの3枚、と認識できる
+        // 程度の短い演出にして、テンポを優先してください」。カードはまだ
+        // タップ不可のまま(SetInteractableを一度も呼んでいない = 常に
+        // 非インタラクティブ)、ただ短く見せるだけ。 =====
+        yield return new WaitForSecondsRealtime(cardShowcaseHold);
+        LogStep("Card Showcase Complete");
+        LogPresentation("[LevelUpPresentation] Card showcase complete");
+
+        // ===== 「カードから横長選択UIへ切り替え」 - カードを縮めて消し、
+        // 入れ替わりに横長3択パネル(LevelUpChoiceRowUI×3)をフェード/
+        // スケールインさせる。RewardCardData自体(cardData)はカード表示の
+        // ときと完全に同じものをそのまま行UIへ渡すだけ - 抽選/効果適用
+        // ロジックには一切触れていない。 =====
+        LogStep("Card->Row Transition Start");
         for (int i = 0; i < cardCount; i++)
         {
-            cards[i].SetInteractable(true);
-            cards[i].StartIdlePulse(idlePulseMinIntensity, idlePulseMaxIntensity, idlePulsePeriod);
+            StartCoroutine(cards[i].FadeTo(0f, cardExitDuration));
+            StartCoroutine(cards[i].ScaleTo(0.85f, cardExitDuration));
         }
+        yield return new WaitForSecondsRealtime(cardExitDuration);
+        for (int i = 0; i < cards.Length; i++) cards[i].gameObject.SetActive(false);
+
+        if (choiceHeaderText != null) choiceHeaderText.text = announcementText;
+        for (int i = 0; i < cardCount; i++)
+        {
+            rows[i].gameObject.SetActive(true);
+            rows[i].SetContent(cardData[i]);
+            rows[i].rect.localScale = Vector3.one * 0.92f;
+            rows[i].canvasGroup.alpha = 0f;
+        }
+        if (choicePanelGroup != null)
+        {
+            choicePanelGroup.gameObject.SetActive(true);
+            yield return FadeCanvasGroup(choicePanelGroup, 1f, choicePanelFadeInDuration);
+        }
+        for (int i = 0; i < cardCount; i++)
+        {
+            StartCoroutine(rows[i].FadeTo(1f, rowAppearDuration));
+            StartCoroutine(rows[i].ScaleTo(1f, rowAppearDuration));
+            if (i < cardCount - 1) yield return new WaitForSecondsRealtime(rowAppearInterval);
+        }
+        yield return new WaitForSecondsRealtime(rowAppearDuration);
+        LogStep("Card->Row Transition Complete");
+        LogPresentation("[LevelUpPresentation] Choice rows shown");
+
+        // Input Lock (item 14) - Rows shown -> Input Enable, exactly at
+        // this line; nothing before this point can register a tap
+        // (SetInteractable(true) is the only thing that flips
+        // button.interactable/canvasGroup.blocksRaycasts on).
+        for (int i = 0; i < cardCount; i++) rows[i].SetInteractable(true);
 
         // Belt-and-suspenders: if a tap somehow never gets recognized by
         // either input path above, this guarantees the run can never be
-        // stuck paused forever - it just auto-picks the first card after a
+        // stuck paused forever - it just auto-picks the first row after a
         // long wait instead.
         LogStep("Waiting For Selection");
         waitingForSelection = true;
@@ -352,72 +445,56 @@ public class RewardCardSequence : MonoBehaviour
 
         // Input Lock (item 14) - selection resolved -> Input Disable
         // immediately, before any animation, so a double-tap can't select a
-        // second card or re-enter this block (OnCardClicked's own
+        // second row or re-enter this block (OnRowClicked's own
         // selectedIndex>=0 guard already blocks it too - belt-and-suspenders
         // against Card Effect double-apply / coroutine double-run).
         PlaySfx(selectSe);
-        for (int i = 0; i < cardCount; i++)
-        {
-            cards[i].SetInteractable(false);
-            cards[i].StopIdlePulse();
-        }
+        for (int i = 0; i < cardCount; i++) rows[i].SetInteractable(false);
 
-        var winner = cards[selectedIndex];
+        var winner = rows[selectedIndex];
         LogPresentation($"[LevelUpPresentation] Card selected: {winner.Data.CardId}");
 
-        // Step 6 - immediate in-place "picked" feedback (scale bump + a
-        // border flash), before anything else moves or fades - "これを選ん
-        // だ、というFeedbackを明確に".
+        // ===== 選択後の演出 - マスター指示どおり短く、素早くゲーム再開へ
+        // 戻れるように。「選択した横長UIが発光→他の2候補が消える→選択した
+        // 能力アイコンを短時間強調表示→能力取得処理→LEVEL UP画面を閉じる
+        // →ゲーム再開」の順。 =====
+
+        // Step 6 - 選択した行がその場で発光+軽く拡大 - "これを選んだ、
+        // というFeedbackを明確に".
         LogStep("Select Feedback Start");
-        StartCoroutine(winner.FlashFrame(selectedCardDuration + 0.1f));
-        yield return winner.ScaleTo(selectedCardScale, selectedCardDuration);
+        StartCoroutine(winner.FlashEdge(selectedRowFlashDuration + 0.1f));
+        yield return winner.ScaleTo(selectedRowScale, selectedRowFlashDuration);
+        winner.SetSelectedVisual(true);
         LogStep("Select Feedback Complete");
 
-        // Step 7 - the other two lose the spotlight quickly, concurrently
-        // with the winner's own exit below (fire-and-forget) - "選択カード
-        // より先に視線から外す".
+        // Step 7 - 他の2候補が消える。
         for (int i = 0; i < cardCount; i++)
         {
             if (i == selectedIndex) continue;
-            StartCoroutine(cards[i].FadeTo(0f, unselectedFadeDuration));
-            StartCoroutine(cards[i].ScaleTo(0.9f, unselectedFadeDuration));
+            StartCoroutine(rows[i].FadeTo(0f, unselectedRowFadeDuration));
         }
+        yield return new WaitForSecondsRealtime(unselectedRowFadeDuration);
 
-        // Step 8 - drift toward center, one small Gold/Blue glow, then
-        // shrink away - "カードがPlayerへ吸収されたというより、Upgradeを獲
-        // 得したと感じられる程度で構わない" (no big scale-up/hold any more).
-        LogStep("Confirm Move Start");
-        float moveDuration = selectedCardExitDuration * 0.35f;
-        float settleDuration = selectedCardExitDuration * 0.2f;
-        float shrinkDuration = selectedCardExitDuration - moveDuration - settleDuration;
-        yield return winner.MoveTo(Vector2.zero, moveDuration);
+        // Step 8 - 選択した能力アイコンを短時間強調表示(既存のGold Glow
+        // バーストを、カードの中心ではなく選択された行の位置で再利用)。
+        LogStep("Confirm Glow Start");
         PlaySfx(confirmSe);
         StartCoroutine(PlayGlow(winner.rect.anchoredPosition));
-        yield return winner.ScaleTo(1.1f, settleDuration);
-        yield return ShrinkAway(winner, shrinkDuration);
-        LogStep("Confirm Move Complete");
+        yield return new WaitForSecondsRealtime(glowDuration * 0.6f);
+        LogStep("Confirm Glow Complete");
 
         LogStep("Apply Upgrade");
         onApply(winner.Data.CardId);
         LogPresentation("[LevelUpPresentation] Gameplay resumed");
         LogStep("Apply Upgrade Complete");
 
+        if (choicePanelGroup != null) yield return FadeCanvasGroup(choicePanelGroup, 0f, choicePanelCloseDuration);
         yield return FadeRoot(0f, rootCloseDuration);
         // gameObject.SetActive(false)/running=false are now handled by the
         // outer RunSequence's finally block (see its own comment) so they
         // still happen even if something above this point threw.
         LogStep("Sequence Complete");
         LogPresentation("[LevelUpPresentation] Presentation finished");
-    }
-
-    // Scale 1.1 -> 0 and alpha 1 -> 0 together (not two separate serial
-    // tweens) - "Scale 1.1 -> 0.9 -> 0, Alpha 1 -> 0" from the brief,
-    // simplified to one continuous shrink since the card is already at 1.1
-    // from the settle step just before this runs.
-    IEnumerator ShrinkAway(RewardCardUI card, float duration)
-    {
-        StartCoroutine(card.FadeTo(0f, duration));
-        yield return card.ScaleTo(0f, duration);
     }
 
     // "EXP Barが一瞬発光 -> LEVEL UP表示" - GameManager owns the actual EXP
@@ -493,6 +570,22 @@ public class RewardCardSequence : MonoBehaviour
         }
     }
 
+    // レベルアップ選択UI改修(2026-09-11) - FadeRoot/FadeDimと同じ形の汎用
+    // 版。choicePanelGroup(横長3択パネル全体)のフェードイン/アウトに使う -
+    // 専用のFadeChoicePanelを別途書く代わりに、任意のCanvasGroupを受け取
+    // れるようにして重複を避けた。
+    IEnumerator FadeCanvasGroup(CanvasGroup group, float target, float duration)
+    {
+        float start = group.alpha;
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.unscaledDeltaTime / Mathf.Max(0.001f, duration);
+            group.alpha = Mathf.Lerp(start, target, Mathf.Clamp01(t));
+            yield return null;
+        }
+    }
+
     // Background Dark Overlay (item 2) - separate from FadeRoot above:
     // rootGroup.alpha covers the whole card-UI subtree (deck/cards/glow)
     // fading together, while dimImage's OWN alpha is animated here
@@ -544,9 +637,11 @@ public class RewardCardSequence : MonoBehaviour
         glowImage.gameObject.SetActive(false);
     }
 
-    // Wired to each card's Button.onClick by SceneBuilder. This is the
-    // "normal" path via UGUI's EventSystem/GraphicRaycaster.
-    public void OnCardClicked(int index)
+    // レベルアップ選択UI改修(2026-09-11) - 選択はもうカードではなく横長行
+    // (LevelUpChoiceRowUI)に対して行う。SceneBuilderが各行のButton.
+    // onClickへこれを配線する - "normal" path via UGUI's EventSystem/
+    // GraphicRaycaster.
+    public void OnRowClicked(int index)
     {
         if (selectedIndex >= 0) return; // already picked; ignore further taps
         selectedIndex = index;
@@ -554,23 +649,24 @@ public class RewardCardSequence : MonoBehaviour
 
     // Backup path that doesn't depend on the EventSystem/Button pipeline at
     // all - hit-tests raw touch/mouse-down position directly against each
-    // card's RectTransform, the same way the rest of this project (which
-    // has no other uGUI anywhere) already handles taps. Whichever path
-    // notices the tap first wins; this exists purely so a level-up can
-    // never get stuck waiting on a tap that the EventSystem, for whatever
-    // reason, didn't deliver.
+    // row's RectTransform ("行全体をタップ可能に" - the row's own rect IS
+    // the full tap area, no separate hit-box needed), the same way the rest
+    // of this project (which has no other uGUI anywhere) already handles
+    // taps. Whichever path notices the tap first wins; this exists purely
+    // so a level-up can never get stuck waiting on a tap that the
+    // EventSystem, for whatever reason, didn't deliver.
     void Update()
     {
         if (!waitingForSelection || selectedIndex >= 0) return;
 
         if (!TouchInputUtil.TryGetTapPosition(out Vector2 screenPos)) return;
 
-        for (int i = 0; i < cards.Length; i++)
+        for (int i = 0; i < rows.Length; i++)
         {
-            if (cards[i] == null || !cards[i].gameObject.activeInHierarchy) continue;
-            if (RectTransformUtility.RectangleContainsScreenPoint(cards[i].rect, screenPos, null))
+            if (rows[i] == null || !rows[i].gameObject.activeInHierarchy) continue;
+            if (RectTransformUtility.RectangleContainsScreenPoint(rows[i].rect, screenPos, null))
             {
-                OnCardClicked(i);
+                OnRowClicked(i);
                 return;
             }
         }

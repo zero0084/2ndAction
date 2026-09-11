@@ -35,4 +35,12 @@ public struct RewardCardData
     // 固定)を別々の場所に表示する仕様のため分離した。0以下は「表示しな
     // い」(単発所持、または所持枚数の概念がない画面向け)。
     public int Count;
+
+    // レベルアップ選択UI改修(2026-09-11) - 横長3択UI(LevelUpChoiceRowUI)
+    // の右端に出す「主要な強化数値」(例: "+10%"/"+3")。CardEffectFormat.
+    // FormatPrimaryValueで呼び出し側(GameManager.MakeChoiceCardData)が
+    // 事前に文字列化する(Title/Descriptionと同じ「呼び出し側が整形済み
+    // 文字列を渡す」方針)。空文字なら数値欄を表示しない(表示できない/
+    // 複数効果すぎて代表値が出せないカード向け)。
+    public string ValueLine;
 }
