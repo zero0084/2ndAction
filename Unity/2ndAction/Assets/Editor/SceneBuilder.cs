@@ -129,6 +129,12 @@ public static class SceneBuilder
         GameObject transitionGO = new GameObject("ScreenTransitionManager");
         transitionGO.AddComponent<ScreenTransitionManager>();
 
+        // エリアルコンボ改修(2026-09-11), item 7 - 「3 HIT/4 HIT...のような
+        // 簡単なコンボ表示」。既存HUDと同じOnGUIの単純なテキスト表示
+        // (ComboCounterUI.cs参照)、専用のuGUI Canvasは不要。
+        GameObject comboCounterGO = new GameObject("ComboCounterUI");
+        comboCounterGO.AddComponent<ComboCounterUI>();
+
         // Audio (AudioManager generates its own placeholder tones at runtime,
         // since procedural AudioClips can't be saved into the scene file).
         GameObject audioGO = new GameObject("AudioManager");
@@ -300,6 +306,10 @@ public static class SceneBuilder
         terrain.enemyHitSparkSprite = LoadTiledSprite("Assets/Art/Effects/HitSpark.png", 1536f);
         terrain.enemyDeathCloudSprite = LoadTiledSprite("Assets/Art/Effects/EnemyDeathSmoke.png", 1536f);
         terrain.enemyGroundShadowSprite = LoadTiledSprite("Assets/Art/Effects/GroundShadow.png", 1672f);
+        // エリアルコンボ改修(2026-09-11), item 8 - プレイヤー自身の下攻撃
+        // 着地(CreatePlayer内のdownAttackLandSlashVisual)と全く同じ素材/
+        // Pivotを共有(「既存素材が使用できる場合はそれを利用」)。
+        terrain.enemyGroundImpactSprite = LoadTiledSpriteWithPivot("Assets/Art/Effects/ImpactBurstBlue.png", 545f, new Vector2(0.5f, 0.05f));
 
         // Game Feel refinement pass, section 13 - bottom-content-pivoted
         // (same approach as every foot-pivoted character sprite - see
@@ -2873,6 +2883,10 @@ public static class SceneBuilder
         hitbox.transform.localPosition = new Vector3(1.0f, 0.5f, 0f);
         hitbox.transform.localScale = new Vector3(1.4f, 1.8f, 1f);
         hitbox.tag = "PlayerAttack";
+        // エリアルコンボ改修(2026-09-11) - EnemyControllerが「どの攻撃に
+        // 当たったか」を判定できるよう、各Hitboxへ種別タグを付与
+        // (PlayerAttackInfo.cs参照)。
+        hitbox.AddComponent<PlayerAttackInfo>().kind = PlayerAttackKind.Normal;
 
         var hitboxCol = hitbox.AddComponent<BoxCollider2D>();
         hitboxCol.isTrigger = true;
@@ -2969,6 +2983,7 @@ public static class SceneBuilder
         upHitbox.transform.localPosition = new Vector3(0.3f, 0.9f, 0f);
         upHitbox.transform.localScale = new Vector3(1.6f, 2.0f, 1f);
         upHitbox.tag = "PlayerAttack";
+        upHitbox.AddComponent<PlayerAttackInfo>().kind = PlayerAttackKind.Up;
 
         var upHitboxCol = upHitbox.AddComponent<BoxCollider2D>();
         upHitboxCol.isTrigger = true;
@@ -3005,6 +3020,7 @@ public static class SceneBuilder
         downHitbox.transform.localPosition = new Vector3(0.15f, -0.4f, 0f);
         downHitbox.transform.localScale = new Vector3(1.5f, 1.3f, 1f);
         downHitbox.tag = "PlayerAttack";
+        downHitbox.AddComponent<PlayerAttackInfo>().kind = PlayerAttackKind.Down;
 
         var downHitboxCol = downHitbox.AddComponent<BoxCollider2D>();
         downHitboxCol.isTrigger = true;
@@ -3045,6 +3061,7 @@ public static class SceneBuilder
         downLandHitbox.transform.localPosition = new Vector3(0f, 0.1f, 0f);
         downLandHitbox.transform.localScale = new Vector3(3.0f, 1.0f, 1f);
         downLandHitbox.tag = "PlayerAttack";
+        downLandHitbox.AddComponent<PlayerAttackInfo>().kind = PlayerAttackKind.DownImpact;
 
         var downLandHitboxCol = downLandHitbox.AddComponent<BoxCollider2D>();
         downLandHitboxCol.isTrigger = true;

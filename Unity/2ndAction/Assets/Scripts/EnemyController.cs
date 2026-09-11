@@ -22,9 +22,15 @@ public class EnemyController : MonoBehaviour
     // own hpMultiplier (EnemyDefinition.hpMultiplier - Heavy's "追加倍率").
     // Set by GroundFactory.CreateEnemy right after spawn, BEFORE this
     // component's own Awake runs its first frame - never left at the
-    // default 1 for a species that should be tougher. A hit that doesn't
-    // bring hp to 0 now plays a NON-lethal reaction (NonLethalHit) instead
-    // of always killing on the first hit like every enemy used to.
+    // default 1 for a species that should be tougher.
+    //
+    // エリアルコンボ改修(2026-09-11) - 「ゴブリンを一撃で倒れないように」。
+    // このmaxHp自体はDistanceTierManager.CurrentEnemyHp(=1+baseHpBonus+
+    // 距離ボーナス)から来ており、baseHpBonusのデフォルトを1→4へ引き上げ
+    // た(DistanceTierManager.cs参照、開始距離0でHP=5、AttackPower既定2
+    // の攻撃で通常2〜3発)。将来の強敵はEnemyDefinition.hpMultiplierを
+    // 上げるだけ(既存の仕組みのまま)で4〜6発相当にできる - 今回新しい
+    // 敵種は追加していない。
     public int maxHp = 1;
     int hp = -1; // -1 sentinel: not yet initialized from maxHp (see EnsureHp)
     void EnsureHp() { if (hp < 0) hp = Mathf.Max(1, maxHp); }
@@ -34,90 +40,143 @@ public class EnemyController : MonoBehaviour
     // RegisterEnemyKill on the killing blow (see HitAndDie below).
     public int mileReward = 1;
 
-    // Heavy Enemy - "画面端まで吹っ飛ばすような感じ" on every non-lethal
-    // hit; reuses the existing small KnockbackRoutine, just with these two
-    // set much larger (see GroundFactory.CreateEnemy) instead of a new
-    // mechanic. Every other species keeps the original small "punch" feel.
-
     // Polish Pass 1, item 2 - makes the moment an attack actually lands
     // read clearly, without slowing the game down. Everything here is
-    // individually toggleable/tunable and purely cosmetic (kill timing
-    // shifts by at most hitFlashHoldDuration, well under a frame's worth
-    // of gameplay-relevant delay) - RegisterEnemyKill/scoring/damage
-    // numbers are completely untouched.
-    [Header("Polish Pass 1 - Hit Feedback (tunable)")]
+    // individually toggleable/tunable and purely cosmetic.
+    [Header("Hit Feedback (tunable)")]
     public bool hitFlashEnabled = true;
     public Color hitFlashColor = Color.white;
     // How long the flash+knockback hold before the explosion/despawn plays
     // - deliberately brief so the kill still feels instant, not delayed.
     public float hitFlashHoldDuration = 0.05f;
     public bool hitStopEnabled = true;
-    [Range(0.02f, 0.08f)] public float hitStopDuration = 0.03f;
+    // エリアルコンボ改修(2026-09-11), item 5 - 「通常ヒット：約0.03〜0.05秒」
+    // に合わせて既定値を調整(旧0.03のまま、レンジのみ明示)。
+    [Range(0.02f, 0.08f)] public float hitStopDuration = 0.04f;
     // Game Feel pass - re-enabled with an actual eased tween (see
-    // KnockbackRoutine) instead of the old instant position snap that was
-    // reported as not reading well; still small/brief per "小さなKnockback".
+    // KnockbackRoutine) instead of the old instant position snap.
     public bool hitKnockbackEnabled = true;
-    public float hitKnockbackDistance = 0.1f;
-    public float hitKnockbackDuration = 0.08f;
+    // Heavy Enemy - "画面端まで吹っ飛ばすような感じ" は、この2つを
+    // GroundFactory.CreateEnemyが大きく上書きすることで表現する(このク
+    // ラス自身はどの種族か知らない)。エリアルコンボ改修(2026-09-11)で
+    // KnockbackRoutineを非致死ヒットの主経路に戻したため、この上書きが
+    // 実際に効くようになった(旧実装は非致死ヒットが専らLaunchAwayRoutine
+    // を使っていたため、実は死亡時にしか反映されていなかった)。
+    public float hitKnockbackDistance = 0.12f;
+    public float hitKnockbackDuration = 0.1f;
     public bool hitParticleEnabled = true;
     // Assets/Art/Effects/HitSpark.png (see SceneBuilder) - falls back to
     // the plain procedural dot if not assigned, so this never breaks an
     // older scene build.
     public Sprite hitSparkSprite;
-    // Visibility Pass - alpha raised to fully opaque (was 0.85); "Hit Spark
-    // は攻撃命中の重要Feedbackなので、他より多少目立って構わない".
-    public Color hitParticleColor = new Color(1f, 1f, 1f, 1f);
-    // Game Feel refinement pass - smaller and much shorter than before
-    // ("はっきり見えることより、一瞬光ったと感じる程度" - the spark isn't
-    // meant to be the focal point of the hit, just a quick flash confirming
-    // it landed) and now spawned at the actual attack-hitbox/enemy contact
-    // point (see HitAndDie) instead of the enemy's own center.
-    //
-    // Visibility Pass (2026-09-02): that pass turned out to have gone too
-    // far - scale/duration raised ~1.75x (was 0.3/0.11) so a hit reads
-    // clearly instead of "a single frame" ("1フレームのように見えない状態
-    // は避けてください"), with a short hold before fading (see HitAndDie).
+    // エリアルコンボ改修(2026-09-11), item 6 - 「水色/シアン＋白の攻撃VFX
+    // に合わせて」。旧・純白から、既存の斬撃VFX(SlashArcBlue等)と同系統
+    // のシアン寄りの白へ変更 - 新規アート生成はせず、既存のSoftDotSprite/
+    // HitSpark.pngを引き続き使い回す(サイズは攻撃VFXよりずっと小さいまま
+    // で「攻撃エフェクト」と「命中エフェクト」が視覚的に混同しない)。
+    public Color hitParticleColor = new Color(0.75f, 0.95f, 1f, 1f);
     public float hitParticleScale = 0.52f;
     public float hitParticleDuration = 0.2f;
     [Range(0f, 1f)] public float hitParticleHoldFraction = 0.25f;
-    // Assets/Art/Effects/EnemyDeathSmoke.png (Game Feel refinement pass) -
-    // used SMALL (deathCloudScale), as a brief accent alongside the
-    // enemy's own Hit->Flash->Fade/Scale->消滅 sequence (DieFadeRoutine),
-    // never at anywhere near the enemy's own full size - "Enemyと同じ大き
-    // さでそのまま表示する必要はありません。小さな消滅Particleとして".
-    //
-    // Visibility Pass: scale/duration raised ~1.5x (was 0.5/0.3s) with a
-    // hold window - "Enemy消滅と同時に全部消えるのではなく、Death Smokeが
-    // 少し残ってからFade". Already spawned as its own independent
-    // GameObject (not parented to the enemy - see HitAndDie), so it already
-    // naturally outlives the enemy's own SetActive(false); this just makes
-    // that lingering moment last long enough to actually notice.
+    // Assets/Art/Effects/EnemyDeathSmoke.png - a brief accent alongside the
+    // enemy's own Hit->Flash->Fade/Scale->消滅 sequence.
     public Sprite deathCloudSprite;
     public float deathCloudScale = 0.75f;
     public float deathCloudDuration = 0.5f;
     [Range(0f, 1f)] public float deathCloudHoldFraction = 0.3f;
-    // 敵撃破時の飛散パーティクル(2026-09-10) - マスターの「敵を倒した後に
-    // 以前出していたパーティクルを出して」対応。小さな消滅Smoke(上記)とは
-    // 別に、四方へ飛び散る粒のバースト(ExplosionEffect)を撃破の瞬間に出す。
-    // 数・サイズ・飛散速度は敵のワールド高さに比例(ExplosionEffect.
-    // CreateForDefeat)。色は種族ごとに変える想定で、雑魚敵の既定は青
-    // (GroundFactory.CreateEnemyがボス以外の全雑魚に対してこの既定値の
-    // ままにする)。
+    // 敵撃破時の飛散パーティクル(2026-09-10) - 撃破の瞬間に四方へ飛び散る
+    // 粒のバースト(ExplosionEffect)。数・サイズ・飛散速度は敵のワールド
+    // 高さに比例。色は種族ごと(雑魚敵の既定は青)。
     public bool deathBurstEnabled = true;
     public Color deathBurstColor = new Color(0.32f, 0.68f, 1f, 1f);
     // A short scale-down + fade on the enemy's own sprite right before it
-    // disappears, so "Hit -> Flash -> Fade/Scale -> 消滅" reads as one
-    // continuous reaction instead of the sprite just vanishing outright.
+    // disappears.
     public float dieFadeDuration = 0.14f;
+
+    // エリアルコンボ改修(2026-09-11) - 「敵を倒した攻撃：通常ヒットより
+    // 大きく吹き飛ばす」。非致死ヒットと同じKnockbackRoutineを使うが、
+    // 距離/時間をこの倍率ぶん大きくする。
+    [Header("Death Knockback (通常ヒットより大きく吹き飛ばす)")]
+    public float deathKnockbackDistanceMultiplier = 2.5f;
+    public float deathKnockbackDurationMultiplier = 1.4f;
+
+    [Header("Aerial Combo - Up Attack (敵を打ち上げる)")]
+    public float launchUpSpeed = 8f;
+    public float launchGravity = 18f;
+    // 打ち上げの瞬間、進行方向へ少しだけ運ぶ(「ここから空中コンボへ移行
+    // 可能」、プレイヤーが追いつきやすいよう大きくは動かさない)。
+    public float launchForwardBoost = 0.6f;
+
+    [Header("Aerial Combo - Air Hit (浮いている敵を追撃)")]
+    // 空中ヒットのたびに落下速度をこの値まで戻す(0にはしない = 「簡単に
+    // 地面へ落ちない」程度に留め、完全な空中停止は避ける)。
+    public float juggleHoverFallSpeed = -1.5f;
+    // 空中ヒット1回ごとに、少し前方向へ運ぶ。
+    public float juggleForwardCarry = 1.0f;
+    // 安全装置 - 永久に空中へ拘束しない。打ち上げ開始からこの時間を過ぎ
+    // ると、以降のヒットで滞空を延長できなくなり、重力に任せて自然落下
+    // する。
+    public float maxJuggleDuration = 3f;
+
+    [Header("Aerial Combo - Down Attack Slam (空中の敵を叩き落とす)")]
+    // 通常の重力加速ではなく、一定の速い下降速度に固定(プレイヤー自身の
+    // 下降攻撃と同じ考え方)。
+    public float slamSpeed = 20f;
+    // エリアルコンボ改修(2026-09-11), item 5 - 「強攻撃／叩き落とし：約
+    // 0.05〜0.08秒」。
+    [Range(0.04f, 0.1f)] public float slamHitStopDuration = 0.07f;
+    // 地面到達時の衝撃VFXのスケール(TerrainManager.enemyGroundImpactSprite
+    // - プレイヤー自身の下攻撃着地と同じImpactBurstBlue.pngを流用)。
+    public float groundImpactScale = 1f;
+    // 生存した場合(このヒットでは倒せなかった場合)の着地後の軽い跳ね -
+    // 大きすぎるとそのまま追撃困難な位置まで転がってしまうため小さめ。
+    public float slamSurviveBounce = 0.15f;
 
     SpriteRenderer sr;
     bool dying;
+
+    // ===== エリアルコンボ状態(Launched/Slamming) =====
+    bool isLaunched;
+    bool isSlamming;
+    // Downが致死だった場合、演出上「地面へ叩きつけてから死なせる」ため、
+    // 判定自体(hp<=0)はヒットの瞬間に確定させつつ、実際の死亡演出は着地
+    // まで遅延させる(item 8「地面到達→地面衝撃VFX→強めのヒットストップ
+    // →死亡していれば大きく吹き飛ぶ」の順序を再現するため)。
+    bool pendingDeathOnLand;
+    float launchVelocityY;
+    float launchBaseGroundY;
+    float juggleElapsed;
+
+    EnemyAnimator cachedAnimator;
+    EnemySpecialBehavior cachedSpecialBehavior;
 
     void Awake()
     {
         // The SpriteRenderer lives on the "Visual" child, not this Root -
         // see GroundFactory.CreateEnemy.
         sr = GetComponentInChildren<SpriteRenderer>();
+        cachedAnimator = GetComponent<EnemyAnimator>();
+        cachedSpecialBehavior = GetComponent<EnemySpecialBehavior>();
+    }
+
+    // エリアルコンボ改修(2026-09-11) - 打ち上げ/叩き落とし中のY軸物理の
+    // みここで積分する。他のあらゆる移動(EnemyAnimatorの待機bob、
+    // EnemySpecialBehaviorの各種挙動)は、Launch開始時にDisableMotion
+    // Componentsで止めているため、Transformの取り合いは起きない。
+    void Update()
+    {
+        if (dying || !isLaunched) return;
+
+        juggleElapsed += Time.deltaTime;
+        launchVelocityY -= launchGravity * Time.deltaTime;
+        transform.position += new Vector3(0f, launchVelocityY * Time.deltaTime, 0f);
+
+        float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(transform.position.x) : (float?)null;
+        float floor = groundY ?? launchBaseGroundY;
+        if (transform.position.y <= floor)
+        {
+            LandFromLaunch(floor);
+        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -128,38 +187,29 @@ public class EnemyController : MonoBehaviour
         {
             EnsureHp();
             // The actual point the two colliders meet, not either object's
-            // center - other.ClosestPoint(transform.position) is the point
-            // on the ATTACK HITBOX's own boundary nearest this enemy, which
-            // reads as "where the blade actually reached" (see HitAndDie's
-            // spark spawn) rather than always landing dead-center on the
-            // enemy regardless of which side got hit.
+            // center - reads as "where the blade actually reached".
             Vector3 contactPoint = other.ClosestPoint(transform.position);
             int damage = PlayerController.Instance != null ? PlayerController.Instance.EffectiveAttackPower : 1;
             hp -= Mathf.Max(1, damage);
+            bool killed = hp <= 0;
 
-            if (hp > 0)
+            PlayerAttackKind kind = PlayerAttackKind.Normal;
+            var info = other.GetComponent<PlayerAttackInfo>();
+            if (info != null) kind = info.kind;
+
+            // エリアルコンボ改修(2026-09-11), item 4 - 「空中で攻撃が敵に
+            // ヒットした瞬間、プレイヤーの落下速度を少しだけ弱める」。
+            // 敵の生死や種類を問わず、プレイヤーが空中にいる間の命中で
+            // 常に発動する。
+            if (PlayerController.Instance != null && !PlayerController.Instance.IsGrounded)
             {
-                // Distance Level Design Ver.1 - a multi-hp species (any
-                // maxHp>1 - see EnemyDefinition.hpMultiplier) survives this
-                // hit: flash/knock/spark, but no death sequence, no
-                // RegisterEnemyKill.
-                StartCoroutine(NonLethalHit(contactPoint));
-                return;
+                PlayerController.Instance.NotifyAerialHit();
             }
+            // item 7 - コンボカウンター。命中のたびに必ず加算(倒した/倒し
+            // ていないに関わらず「連続して当てた」という事実がコンボ)。
+            if (ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
 
-            dying = true;
-            // EnemyAnimator's idle squash/sway (Update, unconditional) sets
-            // visual.localScale/localRotation every frame - left enabled,
-            // it would fight DieFadeRoutine's own scale-down below for
-            // ownership of the exact same Transform, flickering between
-            // the two every other frame depending on component execution
-            // order. The death sequence owns this Transform exclusively
-            // from here on.
-            var idleAnimator = GetComponent<EnemyAnimator>();
-            if (idleAnimator != null) idleAnimator.enabled = false;
-            var specialBehavior = GetComponent<EnemySpecialBehavior>();
-            if (specialBehavior != null) specialBehavior.enabled = false;
-            StartCoroutine(HitAndDie(contactPoint));
+            ProcessHit(kind, contactPoint, killed);
             return;
         }
 
@@ -169,29 +219,76 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // Distance Level Design Ver.1 - the multi-hp survive-a-hit reaction:
-    // the same Hit Spark/Flash/Knockback HitAndDie already used for the
-    // killing blow, just without the death half (no Death Smoke, no
-    // DieFadeRoutine, no SetActive(false)/RegisterEnemyKill). Heavy's
-    // "画面端まで吹っ飛ばす" is just hitKnockbackDistance/Duration set much
-    // larger at spawn time (see GroundFactory.CreateEnemy) - this method
-    // itself doesn't know or care which species it's playing for.
-    //
-    // 不具合修正/演出調整(2026-09-09) - 「雑魚敵が攻撃を受けた後に体力が
-    // 0でなければ、右上（進行方向のすこし上部）へ画面端へ飛ぶように」。
-    // 従来の小さな水平パンチ(KnockbackRoutine)の代わりに、専用の
-    // LaunchAwayRoutineへ差し替え - 現在のカメラ視野の右上端の少し外側
-    // まで実際に飛んでいき、画面外に出たところで(击破ではなく)非アクティ
-    // ブ化する(HPは0のまま残る値だが、RegisterEnemyKill/MILE報酬などの
-    // 撃破処理は一切行わない - 生存中の敵をその場から取り除くだけ)。
-    IEnumerator NonLethalHit(Vector3 contactPoint)
+    // エリアルコンボ改修(2026-09-11) - 攻撃種別・現在の空中状態・致死判定
+    // の組み合わせから、実際のリアクションを振り分ける中心メソッド。
+    void ProcessHit(PlayerAttackKind kind, Vector3 contactPoint, bool killed)
+    {
+        // item 8 - 下攻撃フィニッシュ。浮いている敵への下攻撃は、致死でも
+        // 即座には死なせず、地面へ叩き落としてから結果を出す。
+        if (kind == PlayerAttackKind.Down && isLaunched)
+        {
+            StartCoroutine(ReactToHit(contactPoint, slamHitStopDuration));
+            pendingDeathOnLand = killed;
+            if (killed) dying = true; // これ以上の被弾判定は無視する(演出は着地までお預け)
+            StartSlam();
+            return;
+        }
+
+        if (killed)
+        {
+            dying = true;
+            DisableMotionComponents();
+            StartCoroutine(HitAndDie(contactPoint, viaSlam: false));
+            return;
+        }
+
+        switch (kind)
+        {
+            case PlayerAttackKind.Up:
+                // item 2 - 「敵を上方向へ打ち上げる、ここから空中コンボへ
+                // 移行可能」。
+                StartCoroutine(ReactToHit(contactPoint, hitStopDuration));
+                LaunchUpward();
+                break;
+
+            case PlayerAttackKind.Down:
+                // isLaunchedでない(浮いていない)敵への下攻撃 - 叩き落とす
+                // 対象がないので通常ヒットと同じ扱い。
+                StartCoroutine(ReactToHit(contactPoint, hitStopDuration));
+                StartCoroutine(KnockbackRoutine(AwayDirFromPlayer(), hitKnockbackDistance, hitKnockbackDuration));
+                break;
+
+            case PlayerAttackKind.Normal:
+            case PlayerAttackKind.DownImpact:
+            default:
+                StartCoroutine(ReactToHit(contactPoint, hitStopDuration));
+                if (isLaunched)
+                {
+                    // item 2 - 「浮いている敵を追撃、少し前方向へ運ぶ、
+                    // 攻撃がつながっている間は簡単に地面へ落ちない」。
+                    ExtendJuggle();
+                }
+                else
+                {
+                    // item 2 - 「小さく後方へノックバック、軽いひるみ」。
+                    StartCoroutine(KnockbackRoutine(AwayDirFromPlayer(), hitKnockbackDistance, hitKnockbackDuration));
+                }
+                break;
+        }
+    }
+
+    float AwayDirFromPlayer() => PlayerController.Instance != null
+        ? Mathf.Sign(transform.position.x - PlayerController.Instance.transform.position.x)
+        : 1f;
+
+    // 生存ヒット共通の「命中演出」(ヒットスパーク+ヒットストップ+被弾
+    // フラッシュ) - 旧NonLethalHit/HitAndDie前半の共通部分を1箇所に統合。
+    // 物理的なノックバック/打ち上げ/叩き落としは呼び出し側が別途担当する
+    // (演出とリアクション物理を分離、Slam等で組み合わせを変えやすくする
+    // ため)。
+    IEnumerator ReactToHit(Vector3 contactPoint, float hitStopDur)
     {
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttackHit();
-
-        if (hitKnockbackEnabled)
-        {
-            StartCoroutine(LaunchAwayRoutine());
-        }
 
         if (hitParticleEnabled)
         {
@@ -199,12 +296,11 @@ public class EnemyController : MonoBehaviour
             OneShotSpriteEffect.CreateTweened(spark, contactPoint, hitParticleColor, duration: hitParticleDuration, startScale: hitParticleScale * 0.7f, endScale: hitParticleScale, sortingOrder: RenderOrder.CombatFx, holdFraction: hitParticleHoldFraction);
         }
 
-        if (hitStopEnabled) yield return HitStop.Freeze(hitStopDuration);
+        if (hitStopEnabled && hitStopDur > 0f) yield return HitStop.Freeze(hitStopDur);
 
-        // Flash to hitFlashColor and back (HitAndDie's flash never reverts -
-        // the enemy dies right after it - but a surviving enemy needs to
-        // visibly return to normal, or every subsequent hit would just look
-        // like nothing changed).
+        // Flash to hitFlashColor and back - a surviving enemy needs to
+        // visibly return to normal, or every subsequent hit would just
+        // look like nothing changed.
         if (hitFlashEnabled && sr != null)
         {
             Color normal = sr.color;
@@ -214,43 +310,168 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    IEnumerator HitAndDie(Vector3 contactPoint)
+    // ===== 打ち上げ/空中追撃/叩き落とし =====
+
+    void LaunchUpward()
+    {
+        // 安全装置 - 最大滞空時間を使い切った後は再度打ち上げない(重力に
+        // 任せて自然落下させる)。
+        if (isLaunched && juggleElapsed >= maxJuggleDuration) return;
+
+        bool wasAlreadyLaunched = isLaunched;
+        isLaunched = true;
+        isSlamming = false;
+        launchVelocityY = launchUpSpeed;
+
+        if (!wasAlreadyLaunched)
+        {
+            juggleElapsed = 0f;
+            launchBaseGroundY = TerrainManager.Instance != null
+                ? (TerrainManager.Instance.GetHeightAt(transform.position.x) ?? transform.position.y)
+                : transform.position.y;
+            DisableMotionComponents();
+        }
+
+        StartCoroutine(ForwardCarryRoutine(launchForwardBoost, 0.25f));
+    }
+
+    void ExtendJuggle()
+    {
+        if (!isLaunched || juggleElapsed >= maxJuggleDuration) return;
+        launchVelocityY = Mathf.Max(launchVelocityY, juggleHoverFallSpeed);
+        StartCoroutine(ForwardCarryRoutine(juggleForwardCarry, 0.2f));
+    }
+
+    void StartSlam()
+    {
+        isSlamming = true;
+        launchVelocityY = -slamSpeed;
+    }
+
+    // Launch中の一定速度の前方ドリフト - KnockbackRoutineと違い、狙った
+    // 位置へLerpするのではなく、その場から速度ぶんだけ加算し続ける単純な
+    // 実装(Update()側のY軸物理と独立に、Xだけをここで動かす)。
+    IEnumerator ForwardCarryRoutine(float speed, float duration)
+    {
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            transform.position += new Vector3(speed * Time.deltaTime, 0f, 0f);
+            yield return null;
+        }
+    }
+
+    void LandFromLaunch(float landY)
+    {
+        isLaunched = false;
+        bool wasSlamming = isSlamming;
+        isSlamming = false;
+        transform.position = new Vector3(transform.position.x, landY, transform.position.z);
+
+        if (wasSlamming && pendingDeathOnLand)
+        {
+            pendingDeathOnLand = false;
+            // dyingは既にProcessHitの時点でtrue - HitAndDieが以降の演出を
+            // 引き継ぐ(DisableMotionComponentsは打ち上げ開始時に済んでい
+            // るので再度呼ぶ必要はない)。
+            StartCoroutine(HitAndDie(transform.position, viaSlam: true));
+            return;
+        }
+
+        RestoreMotionComponents();
+
+        if (wasSlamming)
+        {
+            // item 8 - 生存した場合も、地面到達の衝撃自体は演出として出す。
+            StartCoroutine(SlamImpactRoutine());
+        }
+    }
+
+    // item 8 - 「地面到達 -> 地面衝撃VFX -> 通常より強めのヒットストップ」
+    // を、致死ではなく生存した場合にも(小さめに)再現する。
+    IEnumerator SlamImpactRoutine()
     {
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttackHit();
 
+        Sprite impactSprite = TerrainManager.Instance != null ? TerrainManager.Instance.enemyGroundImpactSprite : null;
+        if (impactSprite != null)
+        {
+            OneShotSpriteEffect.CreateTweened(impactSprite, transform.position, Color.white, duration: 0.3f, startScale: groundImpactScale * 0.7f, endScale: groundImpactScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.2f);
+        }
+
+        if (hitStopEnabled) yield return HitStop.Freeze(slamHitStopDuration);
+
+        if (hitKnockbackEnabled && slamSurviveBounce > 0f)
+        {
+            StartCoroutine(KnockbackRoutine(AwayDirFromPlayer(), slamSurviveBounce, hitKnockbackDuration));
+        }
+    }
+
+    void DisableMotionComponents()
+    {
+        if (cachedAnimator != null) cachedAnimator.enabled = false;
+        if (cachedSpecialBehavior != null) cachedSpecialBehavior.enabled = false;
+    }
+
+    void RestoreMotionComponents()
+    {
+        // dying中(死亡演出突入後)は絶対に復帰させない - HitAndDie/
+        // DieFadeRoutineが引き続きこのTransformを排他的に握っている。
+        if (dying) return;
+        if (cachedAnimator != null) cachedAnimator.enabled = true;
+        if (cachedSpecialBehavior != null) cachedSpecialBehavior.enabled = true;
+    }
+
+    // ===== 撃破 =====
+
+    // viaSlam=true - item 8の下攻撃フィニッシュ経由(地面衝撃VFX+強め
+    // ヒットストップを先に処理してから、通常の撃破演出(Flash/Knockback/
+    // Burst/Fade)へ合流する)。
+    IEnumerator HitAndDie(Vector3 contactPoint, bool viaSlam)
+    {
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayAttackHit();
+
+        if (viaSlam)
+        {
+            Sprite impactSprite = TerrainManager.Instance != null ? TerrainManager.Instance.enemyGroundImpactSprite : null;
+            if (impactSprite != null)
+            {
+                OneShotSpriteEffect.CreateTweened(impactSprite, transform.position, Color.white, duration: 0.3f, startScale: groundImpactScale * 0.7f, endScale: groundImpactScale * 1.15f, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.2f);
+            }
+            if (hitStopEnabled) yield return HitStop.Freeze(slamHitStopDuration);
+        }
+
+        // item 2/最終確認3 - 「敵を倒した攻撃：通常ヒットより大きく吹き
+        // 飛ぶ」。非致死ヒットと同じKnockbackRoutineを、距離/時間だけ
+        // 大きくして再利用する。
         if (hitKnockbackEnabled)
         {
-            float dir = PlayerController.Instance != null
-                ? Mathf.Sign(transform.position.x - PlayerController.Instance.transform.position.x)
-                : 1f;
-            StartCoroutine(KnockbackRoutine(dir));
+            StartCoroutine(KnockbackRoutine(AwayDirFromPlayer(), hitKnockbackDistance * deathKnockbackDistanceMultiplier, hitKnockbackDuration * deathKnockbackDurationMultiplier));
         }
 
         if (hitParticleEnabled)
         {
             Sprite spark = hitSparkSprite != null ? hitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
-            // A quick small pop (not just a fade) - grows slightly then
-            // gone, over hitParticleDuration, held briefly at full alpha
-            // first so it doesn't read as a single frame.
             OneShotSpriteEffect.CreateTweened(spark, contactPoint, hitParticleColor, duration: hitParticleDuration, startScale: hitParticleScale * 0.7f, endScale: hitParticleScale, sortingOrder: RenderOrder.CombatFx, holdFraction: hitParticleHoldFraction);
         }
 
         if (hitFlashEnabled && sr != null) sr.color = hitFlashColor;
 
-        if (hitStopEnabled) yield return HitStop.Freeze(hitStopDuration);
+        // viaSlamの場合は上で既に強めのHitStopを消化済み - 通常の
+        // hitStopDurationを二重にかけると「叩き落とし」の一撃なのに
+        // 停止が長すぎてテンポを損なうため、ここではスキップする。
+        if (!viaSlam && hitStopEnabled) yield return HitStop.Freeze(hitStopDuration);
         if (hitFlashHoldDuration > 0f) yield return new WaitForSecondsRealtime(hitFlashHoldDuration);
 
         if (deathCloudSprite != null)
         {
-            // "Enemy撃破 -> Death Smoke生成 -> ... -> Effect Fade Out" - one
-            // small tweened accent (grows in slightly, then fades), not a
-            // multi-particle burst this time (see the field comment).
             OneShotSpriteEffect.CreateTweened(deathCloudSprite, transform.position, Color.white, duration: deathCloudDuration, startScale: deathCloudScale * 0.7f, endScale: deathCloudScale, sortingOrder: RenderOrder.CombatFx, holdFraction: deathCloudHoldFraction);
         }
 
-        // 敵撃破時の飛散パーティクル(2026-09-10) - 敵のワールド高さ(sr.bounds
-        // はlossyScale込みの実寸)を渡して、数/粒サイズ/飛散速度を大きさに
-        // 比例させる。色は種族ごと(deathBurstColor、雑魚敵の既定は青)。
+        // 敵撃破時の飛散パーティクル(2026-09-10) - 敵のワールド高さ(sr.
+        // boundsはlossyScale込みの実寸)を渡して、数/粒サイズ/飛散速度を
+        // 大きさに比例させる。色は種族ごと(雑魚敵の既定は青)。
         if (deathBurstEnabled)
         {
             float subjectHeight = sr != null ? sr.bounds.size.y : 1f;
@@ -260,9 +481,7 @@ public class EnemyController : MonoBehaviour
         if (AudioManager.Instance != null) AudioManager.Instance.PlayEnemyDefeat();
 
         // The enemy's own sprite side of "Hit -> Flash -> Fade/Scale ->
-        // 消滅" - previously this jumped straight from the flash hold to
-        // gameObject.SetActive(false) with no transition at all, which is
-        // what read as the sprite just vanishing outright.
+        // 消滅".
         if (sr != null) yield return DieFadeRoutine();
 
         gameObject.SetActive(false);
@@ -288,26 +507,21 @@ public class EnemyController : MonoBehaviour
 
     // A short eased punch-back-and-settle instead of an instant position
     // snap - out fast, drifts back only partway (doesn't undo the whole hit,
-    // reads as "knocked" not "teleported and un-teleported").
-    IEnumerator KnockbackRoutine(float dir)
+    // reads as "knocked" not "teleported and un-teleported"). distance/
+    // duration are now explicit params (エリアルコンボ改修 2026-09-11 -
+    // 以前はhitKnockbackDistance/Durationフィールドを直接読んでいたが、
+    // 撃破時に別の倍率をかけた値で同じ演出を再利用したいため引数化した)。
+    IEnumerator KnockbackRoutine(float dir, float distance, float duration)
     {
         Vector3 start = transform.position;
-        Vector3 peak = start + new Vector3(hitKnockbackDistance * dir, 0f, 0f);
+        Vector3 peak = start + new Vector3(distance * dir, 0f, 0f);
         float t = 0f;
-        while (t < hitKnockbackDuration)
+        while (t < duration)
         {
             // Bugfix 2026-09-06, item 1 - "Level Up Card選択中にEnemyが動き
-            // 続ける". This drives transform.position directly, so it must
-            // respect Time.timeScale like every other gameplay movement in
-            // the project (see HitStop.cs's own class comment - "so every
-            // animation/movement/physics update actually pauses" is already
-            // this project's stated design principle; this one coroutine
-            // was the exception). Was Time.unscaledDeltaTime - a knockback
-            // already mid-flight when Level Up (Time.timeScale=0) or even
-            // this enemy's own HitStop.Freeze triggers kept sliding across
-            // the screen throughout, since unscaled time never stops.
+            // 続ける" - Time.timeScaleに従う(HitStop.cs参照)。
             t += Time.deltaTime;
-            float frac = Mathf.Clamp01(t / hitKnockbackDuration);
+            float frac = Mathf.Clamp01(t / duration);
             // Out quickly (eased), then settle back about halfway - never
             // fully undoes the punch, so it still reads as a net shove.
             float outFrac = 1f - Mathf.Pow(1f - Mathf.Clamp01(frac / 0.4f), 2f);
@@ -315,67 +529,5 @@ public class EnemyController : MonoBehaviour
             transform.position = Vector3.Lerp(start, peak, Mathf.Clamp01(outFrac) - settleFrac);
             yield return null;
         }
-    }
-
-    // 不具合修正/演出調整(2026-09-09) - 「体力が0でなければ、右上（進行方
-    // 向のすこし上部）へ画面端へ飛ぶように」。KnockbackRoutine(その場で
-    // 小さく揺れて戻るだけ)とは別の、現在のカメラ視野を基準に「右上の
-    // 画面端の少し外側」まで実際に飛んでいく専用ルーチン。撃破ではない
-    // ので RegisterEnemyKill/MILE報酬/Death Smoke等の撃破演出は一切行わ
-    // ない - 画面外へ出たところでSetActive(false)するだけ(HPは0のまま
-    // 残らず、単にその場から取り除かれる)。
-    [Header("Non-lethal Hit - Launch Away (Inspectorから調整可能)")]
-    public float launchAwayDuration = 0.45f;
-    // 画面端からどれだけ外側まで飛ばすか(カメラ半幅/半高に対する比率) -
-    // 1.0でちょうど画面端、それより大きいほど完全に画面外まで飛ぶ。
-    public float launchAwayOvershootX = 1.35f;
-    public float launchAwayOvershootY = 0.9f;
-
-    IEnumerator LaunchAwayRoutine()
-    {
-        // 飛んでいる間は再度PlayerAttack/Playerと衝突しないよう、判定を
-        // 止めておく(この後SetActive(false)するので最終的には自動的に
-        // 解決するが、それまでの短い間に暴れないようにする保険)。
-        foreach (Collider2D col in GetComponentsInChildren<Collider2D>())
-        {
-            col.enabled = false;
-        }
-        // HitAndDie(致死Hit)側と同じ理由 - EnemyAnimator(idle squash/sway)
-        // やEnemySpecialBehavior(独自の移動)がtransform位置を毎フレーム
-        // 上書きし続けると、この後の飛翔Tweenと同じTransformを奪い合って
-        // 目に見えてガクつく/目的地まで届かない、という不具合になる
-        // (HitAndDieのコメント参照、同じクラスの問題)。
-        var idleAnimator = GetComponent<EnemyAnimator>();
-        if (idleAnimator != null) idleAnimator.enabled = false;
-        var specialBehavior = GetComponent<EnemySpecialBehavior>();
-        if (specialBehavior != null) specialBehavior.enabled = false;
-
-        Camera cam = Camera.main;
-        Vector3 start = transform.position;
-        Vector3 target = start + new Vector3(3f, 3f, 0f); // camがまだ無い場合の最低限のフォールバック
-        if (cam != null)
-        {
-            float halfHeight = cam.orthographicSize;
-            float halfWidth = halfHeight * cam.aspect;
-            Vector3 camPos = cam.transform.position;
-            // 「右上（進行方向のすこし上部）へ画面端へ」 - 進行方向(常に+X)
-            // 側の右上角の少し外側を狙う。
-            target = new Vector3(camPos.x + halfWidth * launchAwayOvershootX, camPos.y + halfHeight * launchAwayOvershootY, 0f);
-        }
-
-        float t = 0f;
-        while (t < launchAwayDuration)
-        {
-            // KnockbackRoutine同様、Time.timeScaleに従う(Level Up選択中等
-            // に飛び続けないように)。
-            t += Time.deltaTime;
-            float frac = Mathf.Clamp01(t / launchAwayDuration);
-            // 加速していくイーズイン(吹っ飛ばされた勢いが増していく感じ)。
-            float eased = frac * frac;
-            transform.position = Vector3.Lerp(start, target, eased);
-            yield return null;
-        }
-
-        gameObject.SetActive(false);
     }
 }

@@ -15,6 +15,15 @@ public class TerrainManager : MonoBehaviour
     public Sprite enemyHitSparkSprite;
     public Sprite enemyDeathCloudSprite;
     public Sprite enemyGroundShadowSprite;
+    // エリアルコンボ改修(2026-09-11), item 8 - 下攻撃で叩き落とされた敵が
+    // 地面へ到達した瞬間の衝撃VFX。「既存素材が使用できる場合はそれを
+    // 利用」の指示どおり、プレイヤー自身の下攻撃着地と全く同じ
+    // ImpactBurstBlue.pngをSceneBuilderが共有で流し込む(EnemyController.
+    // SlamImpactRoutine/HitAndDie(viaSlam)参照)。全種族共通の1枚なので、
+    // GroundFactory.CreateEnemyの引数を増やすのではなく、既存の
+    // enemyHitSparkSprite等と同じ「TerrainManagerが持つ共有アセット」に
+    // した。
+    public Sprite enemyGroundImpactSprite;
     // Distance Level Design Ver.1 - Shooter Enemy's projectile. Reuses
     // FireballController (see EnemySpecialBehavior.UpdateShooter) rather
     // than a new projectile class; "簡易Sprite/既存VFX流用で構いません"

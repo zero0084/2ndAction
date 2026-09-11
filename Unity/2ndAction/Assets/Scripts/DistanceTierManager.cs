@@ -102,11 +102,17 @@ public class DistanceTierManager : MonoBehaviour
 
     [Header("Enemy HP Scaling")]
     public float hpIncreaseDistance = 2000f;
-    // 不具合修正/バランス調整(2026-09-09) - 「雑魚敵の体力を少し増やして」。
-    // 成長カーブの傾き(hpIncreaseDistance)自体は変えず、開始HPだけ底上げ
-    // する形で全体を底上げ(1→2、序盤の敵が常に1発で倒れきってしまう状態
-    // を緩和)。CurrentEnemyHp参照。
-    public int baseHpBonus = 1;
+    // エリアルコンボ改修(2026-09-11) - 「ゴブリンを一撃で倒れないように、
+    // 通常攻撃2〜3発程度で倒れるように」。PlayerController.AttackPower
+    // の既定値(2)に対し、CurrentEnemyHp = 1+baseHpBonus (距離0時点) が
+    // ちょうど「通常攻撃→上方向攻撃(打ち上げ)→下方向攻撃(叩き落とし)」
+    // の3発で倒せる値になるよう、旧2(不具合修正2026-09-09の値)から4へ
+    // 引き上げた(HP=5、2ダメージ×3発=6≧5)。将来の強敵は
+    // EnemyDefinition.hpMultiplierを上げるだけ(既存の仕組みのまま)で
+    // 4〜6発相当にできる - ここは変更不要。数値はあくまで暫定値なので、
+    // 実際にプレイして「硬すぎる/柔らかすぎる」と感じたらここか
+    // PlayerController.AttackPowerをInspector/コードで調整すること。
+    public int baseHpBonus = 4;
 
     [Header("Tiers - Enemy Category availability only (item 3, Ver.1)")]
     public DistanceTier[] tiers = new DistanceTier[0];

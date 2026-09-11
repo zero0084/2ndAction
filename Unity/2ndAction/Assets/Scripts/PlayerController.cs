@@ -84,6 +84,28 @@ public class PlayerController : MonoBehaviour
     public float speedUpPer100m = 0.05f;
     public float maxSpeedMultiplier = 2f;
 
+    // エリアルコンボ改修(2026-09-11), item 4 - 「空中で攻撃が敵にヒットし
+    // た瞬間、プレイヤーの落下速度を少しだけ弱める」。EnemyController.
+    // OnTriggerEnter2Dが(プレイヤーが空中にいる間の命中で)毎回
+    // NotifyAerialHit()を呼ぶ - どの攻撃種別か・敵が浮いているかどうかは
+    // 一切問わない、「空中で当てた」という事実だけで発動するシンプルな
+    // 仕組み。完全な空中停止にはせず、①落下速度を少しリセット、②短時間
+    // だけ重力を弱める、の2つを組み合わせる。最大滞空時間(累積)の
+    // ハードキャップも用意し、連打で無限に浮き続けられないようにする。
+    [Header("Aerial Assist (空中攻撃時の滞空補助)")]
+    // ヒットの瞬間、現在の落下速度がこれより速ければこの値まで戻す
+    // (0にはしない = 完全な空中停止を避ける、"少しだけ"の補正)。
+    public float aerialAssistFallResetSpeed = -2f;
+    // 上のリセット直後から、この時間だけ重力の影響を弱める(次のヒットで
+    // 上書き/延長される)。
+    public float aerialAssistWindowDuration = 0.22f;
+    // ウィンドウ中にかかる重力の割合(1=通常のまま、0=無重力)。
+    [Range(0f, 1f)] public float aerialAssistGravityScale = 0.35f;
+    // 安全装置 - 空中にいる間(着地するまで)にこの補助を使える合計時間の
+    // 上限。連続ヒットでも無限に浮遊し続けないようにする。着地すると
+    // リセットされる。
+    public float aerialAssistMaxTotalDuration = 1.2f;
+
     [Header("Attack")]
     public Collider2D attackHitbox;
     public AttackSlashVisual attackSlashVisual;
@@ -389,6 +411,12 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rb;
     SpriteRenderer sr;
     float velocityY;
+    // エリアルコンボ改修(2026-09-11) - Aerial Assist(NotifyAerialHit参照)
+    // の残り時間(>0の間、重力にaerialAssistGravityScaleがかかる)と、
+    // 空中にいる間の累積使用量(着地でリセット、aerialAssistMaxTotal
+    // Durationの上限管理用)。
+    float aerialAssistTimer;
+    float aerialAssistTotalUsed;
     // Game Feel pass - a brief backward velocity on taking damage (see
     // ApplyKnockback), decayed linearly to 0 over knockbackTimer rather
     // than cut off sharply, folded into Move()'s own newX alongside
@@ -802,8 +830,26 @@ public class PlayerController : MonoBehaviour
             // 速度に固定("単純に落下速度を上げるだけではなく...攻撃した
             // 結果、その勢いで下降している"という体感を優先 - 毎フレーム
             // 同じ速度を再代入することで、通常落下との違いを明確にする)。
-            if (isDiveAttacking) velocityY = -diveAttackSpeed;
-            else velocityY -= gravity * dt;
+            if (isDiveAttacking)
+            {
+                velocityY = -diveAttackSpeed;
+            }
+            else
+            {
+                // エリアルコンボ改修(2026-09-11), item 4 - Aerial Assist
+                // ウィンドウ中は重力を弱める。ウィンドウ自体の残り時間は
+                // ここで消費し、消費した分だけ累積使用量に積む(着地時に
+                // リセット - 下のisGrounded分岐参照)。
+                float gravityScale = 1f;
+                if (aerialAssistTimer > 0f)
+                {
+                    gravityScale = aerialAssistGravityScale;
+                    float used = Mathf.Min(dt, aerialAssistTimer);
+                    aerialAssistTimer -= used;
+                    aerialAssistTotalUsed += used;
+                }
+                velocityY -= gravity * gravityScale * dt;
+            }
             newY = prevY + velocityY * dt;
 
             // Only land if we actually crossed a surface this frame. We
@@ -847,6 +893,11 @@ public class PlayerController : MonoBehaviour
                 velocityY = 0f;
                 isGrounded = true;
                 jumpsUsed = 0;
+                // エリアルコンボ改修(2026-09-11) - 着地でAerial Assistの
+                // 累積使用量をリセット(次に空中へ出た時、また上限いっぱい
+                // まで使えるようにする)。
+                aerialAssistTimer = 0f;
+                aerialAssistTotalUsed = 0f;
                 onSky = true;
                 bool wasDiveAttacking = isDiveAttacking;
                 EndDiveAttack();
@@ -868,6 +919,8 @@ public class PlayerController : MonoBehaviour
                 velocityY = 0f;
                 isGrounded = true;
                 jumpsUsed = 0;
+                aerialAssistTimer = 0f;
+                aerialAssistTotalUsed = 0f;
                 onSky = false;
                 bool wasDiveAttacking = isDiveAttacking;
                 EndDiveAttack();
@@ -968,6 +1021,23 @@ public class PlayerController : MonoBehaviour
         knockbackTimer = knockbackDuration;
     }
 
+    // エリアルコンボ改修(2026-09-11), item 4 - EnemyController.
+    // OnTriggerEnter2Dが、プレイヤーが空中(!isGrounded)にいる間に攻撃が
+    // 命中するたびに呼ぶ。地上にいる間の呼び出しは無視する(このAssist自体
+    // が「空中攻撃時の滞空補助」なので、地上ヒットに意味はない)。
+    public void NotifyAerialHit()
+    {
+        if (isGrounded) return;
+        if (aerialAssistTotalUsed >= aerialAssistMaxTotalDuration) return; // 安全装置 - 使い切ったら以降は効かない
+
+        // ①落下速度を少しリセット(既にこれより遅い=上昇中/緩やかな場合は
+        // 触らない)。
+        if (velocityY < aerialAssistFallResetSpeed) velocityY = aerialAssistFallResetSpeed;
+        // ②短時間だけ重力を弱める(連続ヒットで延長 - 上限はMove()側の
+        // 累積カウントで別途キャップする)。
+        aerialAssistTimer = aerialAssistWindowDuration;
+    }
+
     IEnumerator DamageFlashRoutine()
     {
         Color normal = sr.color;
@@ -988,6 +1058,8 @@ public class PlayerController : MonoBehaviour
         velocityY = 0f;
         isGrounded = true;
         jumpsUsed = 0;
+        aerialAssistTimer = 0f;
+        aerialAssistTotalUsed = 0f;
         lungeVelocityX = 0f;
         onSky = false;
         transform.localScale = Vector3.one;
