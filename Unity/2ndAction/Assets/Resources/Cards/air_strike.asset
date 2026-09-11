@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
-  m_Name: shockwave
+  m_Name: air_strike
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
-  cardId: shockwave
-  cardName: SHOCKWAVE
-  icon: {fileID: 2800000, guid: 7ec0cc1a26d878f4e9c7fc755a044d77, type: 3}
-  description: "\u653B\u6483\u306E\u9593\u5408\u3044\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B"
+  cardId: air_strike
+  cardName: AIR STRIKE
+  icon: {fileID: 2800000, guid: abb719105174b2b43bbf9de929469851, type: 3}
+  description: "\u7A7A\u4E2D\u653B\u6483\u306E\u5A01\u529B\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B"
   category: 1
-  sortOrder: 112
+  sortOrder: 171
   recommendPriority: 5
   effects:
-  - type: 5
-    value: 0.4
+  - type: 7
+    value: 4
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2
