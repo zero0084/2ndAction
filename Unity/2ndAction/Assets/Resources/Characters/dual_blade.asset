@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d76904403939c804f938790c00070d4d, type: 3}
+  m_Name: dual_blade
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
+  characterId: dual_blade
+  displayName: DUAL BLADE
+  subtitle: Swift Steel, Endless Motion
+  role: GROUND COMBO
+  flavorText: 'A swift dual-wielder who chains strikes
+
+    together without ever
+    slowing down.
+
+    Speed and momentum are her greatest weapons.'
+  portrait: {fileID: 2800000, guid: 40114704b1c395048a34252de46b5b07, type: 3}
+  mainVisual: {fileID: 2800000, guid: 40114704b1c395048a34252de46b5b07, type: 3}
+  lifeRating: 2
+  powerRating: 3
+  speedRating: 5
+  comboRating: 4
+  challengeFlag: 0
+  sortOrder: 1

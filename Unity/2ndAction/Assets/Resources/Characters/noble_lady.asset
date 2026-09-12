@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d76904403939c804f938790c00070d4d, type: 3}
+  m_Name: noble_lady
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
+  characterId: noble_lady
+  displayName: NOBLE LADY
+  subtitle: A Hero Not Yet Awakened
+  role: CHALLENGE
+  flavorText: 'She looks every bit the hero -
+
+    but her true strength has yet
+    to awaken.
+
+    For those who seek a real challenge.'
+  portrait: {fileID: 2800000, guid: 7e80f0e6e90e79a4a8d0e4d0c30cb12d, type: 3}
+  mainVisual: {fileID: 2800000, guid: 7e80f0e6e90e79a4a8d0e4d0c30cb12d, type: 3}
+  lifeRating: 1
+  powerRating: 1
+  speedRating: 1
+  comboRating: 1
+  challengeFlag: 1
+  sortOrder: 2

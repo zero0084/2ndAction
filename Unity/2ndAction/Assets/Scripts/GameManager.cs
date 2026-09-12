@@ -19,6 +19,13 @@ public class GameManager : MonoBehaviour
     const string DeckKey = "DeckCardIds";
     const string TotalMileKey = "TotalOwnedMile";
     const string CharacterCardSlotsKey = "CharacterCardSlots";
+    // キャラクター選択画面(2026-09-12) - 「選択キャラクター=次回NEW RUNで
+    // 使用するキャラクター」の永続化キー。CharacterCardSlotsKeyと同じ
+    // 「単純なPlayerPrefs文字列1つ」パターン(SetSelectedCharacterの
+    // コメント参照)。Active Run/Checkpoint(RunCheckpoint.cs)側にはこの
+    // 概念自体が存在しない - Continueは常にそのRunが始まった時点の状態を
+    // そのまま復元するだけで、ここを勝手に読み書きすることはない。
+    const string SelectedCharacterKey = "SelectedCharacterId";
 
     // The deck the player has built out of their (currently: always-owned -
     // there's no unlock/collection system yet) cards - TriggerLevelUpChoice
@@ -341,6 +348,43 @@ public class GameManager : MonoBehaviour
     public IReadOnlyList<string> CharacterCardIds => characterCardIds;
     public int GetCharacterCardLevel(int slot) => (slot >= 0 && slot < CharacterCardSlotCount) ? Mathf.Max(1, characterCardLevels[slot]) : 1;
 
+    // ===== キャラクター選択(2026-09-12) ===== //
+    // 「どの主人公を使うか」の永続化。今回はまだ戦闘性能への反映を行わない
+    // (CharacterSelectUI/CharacterDefinition参照) - この文字列はCharacter
+    // Select画面の表示・Home左上の新規ホットスポットの表示にのみ使われる。
+    public string SelectedCharacterId { get; private set; }
+
+    void LoadSelectedCharacter()
+    {
+        string saved = PlayerPrefs.GetString(SelectedCharacterKey, "");
+        // 未保存(初回起動)、または保存値がデータベースに存在しない(アセ
+        // ットが削除された等)場合は、CharacterDatabaseの先頭(=黒剣士、
+        // CharacterDatabaseBuilder.Specsのswordsman、sortOrder=0)へ安全に
+        // フォールバックする。現在の黒剣士の戦闘性能・スプライトはこの値
+        // に一切影響を受けないため、フォールバックしても実際のプレイには
+        // 何の影響もない。
+        if (!string.IsNullOrEmpty(saved) && CharacterDatabase.FindById(saved) != null)
+        {
+            SelectedCharacterId = saved;
+            return;
+        }
+        var all = CharacterDatabase.AllCharacters;
+        SelectedCharacterId = all.Count > 0 ? all[0].characterId : null;
+    }
+
+    // Character Select画面のSELECTからのみ呼ばれる。「選択キャラクター=
+    // 次回NEW RUNで使用するキャラクター」という仕様どおり、Active Run/
+    // Checkpoint(RunCheckpoint.cs)には一切触れない - RunCheckpointはそもそ
+    // も「どのキャラクターで走っているか」という概念自体を持たないため、
+    // Continue中のRunがこの変更で差し替わることは構造的に起こり得ない。
+    public void SetSelectedCharacter(string characterId)
+    {
+        if (string.IsNullOrEmpty(characterId) || CharacterDatabase.FindById(characterId) == null) return;
+        SelectedCharacterId = characterId;
+        PlayerPrefs.SetString(SelectedCharacterKey, characterId);
+        PlayerPrefs.Save();
+    }
+
     void LoadCharacterCards()
     {
         string saved = PlayerPrefs.GetString(CharacterCardSlotsKey, "");
@@ -515,6 +559,8 @@ public class GameManager : MonoBehaviour
     float bedHotspotFlashTimer;
     float bookHotspotFlashTimer;
     float deskHotspotFlashTimer;
+    // キャラクター選択画面(2026-09-12) - Home左上の新規ホットスポット用。
+    float characterHotspotFlashTimer;
 
     // Desk "CARD GACHA" machine prop, drawn directly onto the room scene
     // (not its own screen/canvas) - see SceneBuilder for the import.
@@ -600,11 +646,39 @@ public class GameManager : MonoBehaviour
     public CardFusionUI cardFusionUI;
     bool cardFusionOpen;
 
+    // キャラクター選択画面(2026-09-12) - DeckEdit/CardFusionと全く同じ
+    // 「ScreenTransitionManagerのGold Slash Wipeが完全に覆ってから開く」
+    // 開閉パターン(OpenDeckEdit/OpenCardFusionのコメント参照)。
+    public CharacterSelectUI characterSelectUI;
+    bool characterSelectOpen;
+
     // Every OnGUI guard that used to check "!deckEditOpen" alone now also
     // needs to hide while the Card Fusion overlay is open - folded into
     // one helper so those call sites don't need two separate negated
     // conditions each.
-    bool AnyOverlayOpen => deckEditOpen || cardFusionOpen;
+    bool AnyOverlayOpen => deckEditOpen || cardFusionOpen || characterSelectOpen;
+
+    public void OpenCharacterSelect()
+    {
+        if (characterSelectUI == null) return;
+        if (ScreenTransitionManager.Instance != null)
+        {
+            if (ScreenTransitionManager.Instance.IsTransitioning) return;
+            ScreenTransitionManager.Instance.PlayTransition(() =>
+            {
+                characterSelectOpen = true;
+                characterSelectUI.Open();
+            });
+            return;
+        }
+        characterSelectOpen = true;
+        characterSelectUI.Open();
+    }
+
+    public void CloseCharacterSelect()
+    {
+        characterSelectOpen = false;
+    }
 
     public void OpenCardFusion()
     {
@@ -821,6 +895,7 @@ public class GameManager : MonoBehaviour
         LoadDeck();
         LoadMile();
         LoadCharacterCards();
+        LoadSelectedCharacter();
 
         // Bug #001 診断フェーズ (2026-09-08) - Application.logMessageReceived
         // フックは一度だけ登録すれば十分(static event、二重登録防止は
@@ -2596,6 +2671,16 @@ public class GameManager : MonoBehaviour
                     }
                 }
 
+                // キャラクター選択画面(2026-09-12) - 参考画像の「マント+
+                // 剣が置かれている装備スペース」に相当する導線。既存の
+                // 室内アートにはこれに対応する物が描かれていないため(他の
+                // 4つと違い完全に透明なDrawRoomHotspotだけでは押せることが
+                // 伝わらない)、マスター指示どおりここだけ簡単なパネル+
+                // アイコン+ラベル+淡い発光を明示的に描画する。Bedの真上、
+                // Doorとは重ならない領域。
+                Rect characterRect = FracRect(bgRoomRect, 0.02f, 0.05f, 0.30f, 0.35f);
+                DrawCharacterHotspot(characterRect, roomInteractable, roomFadeAlpha);
+
                 // Bed/scattered cards (bottom-left) - Card Edit (Owned/
                 // Character Cards/Deck/Convert).
                 Rect bedRect = FracRect(bgRoomRect, 0.0f, 0.52f, 0.32f, 1.0f);
@@ -3467,6 +3552,74 @@ public class GameManager : MonoBehaviour
             GUI.color = prev;
         }
         return tapped;
+    }
+
+    // キャラクター選択画面(2026-09-12) - 他の4つのホットスポット(Door/
+    // Bed/Book/Gacha機)と違い、対応する物が室内アートに一切描かれていない
+    // ため、DrawRoomHotspotのような完全に透明な当たり判定だけでは「ここが
+    // 押せる」ことが伝わらない。マスター指示の「CHARACTER・キャラクター
+    // アイコン・軽い金色発光・タップ可能だと分かる表示」どおり、簡単な
+    // パネル+選択中キャラクターのポートレート+ラベル+常時のゆるい金色
+    // パルスを明示的に描画する。
+    void DrawCharacterHotspot(Rect rect, bool roomInteractable, float roomFadeAlpha)
+    {
+        OrnateUi.DrawPanel(rect, 0.85f);
+
+        // 常時のゆっくりした金色パルス - 「タップ可能だと分かる表示」。
+        float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 2.2f);
+        Color prevGlow = GUI.color;
+        GUI.color = new Color(1f, 0.85f, 0.4f, (0.10f + 0.10f * pulse) * roomFadeAlpha);
+        GUI.DrawTexture(rect, Texture2D.whiteTexture);
+        GUI.color = prevGlow;
+
+        GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
+        labelStyle.fontSize = 18;
+        labelStyle.fontStyle = FontStyle.Bold;
+        labelStyle.alignment = TextAnchor.UpperCenter;
+        labelStyle.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, roomFadeAlpha);
+        GUI.Label(new Rect(rect.x, rect.y + 6f, rect.width, 24f), "CHARACTER", labelStyle);
+
+        CharacterDefinition selectedDef = CharacterDatabase.FindById(SelectedCharacterId);
+        Texture2D portrait = selectedDef != null ? selectedDef.portrait : null;
+        if (portrait != null)
+        {
+            float availableW = rect.width - 24f;
+            float availableH = rect.height - 40f;
+            float portraitAspect = portrait.height / (float)portrait.width;
+            float iconW = availableW;
+            float iconH = iconW * portraitAspect;
+            if (iconH > availableH)
+            {
+                iconH = availableH;
+                iconW = iconH / portraitAspect;
+            }
+            Rect iconRect = new Rect(rect.x + (rect.width - iconW) / 2f, rect.y + 32f, iconW, iconH);
+            Color prevIcon = GUI.color;
+            GUI.color = new Color(1f, 1f, 1f, roomFadeAlpha);
+            GUI.DrawTexture(iconRect, portrait, ScaleMode.ScaleToFit);
+            GUI.color = prevIcon;
+        }
+
+        bool tapped = roomInteractable && GUI.Button(rect, GUIContent.none, GUIStyle.none);
+        if (tapped)
+        {
+            characterHotspotFlashTimer = roomHotspotFlashDuration;
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(roomTapSe);
+        }
+
+        if (characterHotspotFlashTimer > 0f)
+        {
+            float f = characterHotspotFlashTimer / roomHotspotFlashDuration;
+            Color prevFlash = GUI.color;
+            GUI.color = new Color(1f, 0.95f, 0.75f, f * 0.35f * roomFadeAlpha);
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            GUI.color = prevFlash;
+        }
+
+        if (tapped && roomFadeAlpha > 0.99f)
+        {
+            OpenCharacterSelect();
+        }
     }
 
     // Gacha Result popup (item 4) - "NEW CARD / SPEED UP / Lv.1 / OWNED x3

@@ -179,6 +179,14 @@ public static class SceneBuilder
         gameManager.rewardCardSequence = BuildRewardCardCanvas();
         gameManager.deckEditUI = BuildDeckEditCanvas();
         gameManager.cardFusionUI = BuildCardFusionCanvas();
+        // キャラクター選択画面(2026-09-12) - CharacterDatabaseBuilder.Build
+        // をここで呼ぶ(EnemyDatabaseBuilder.Buildと同じ扱い) - 4人目・5人目
+        // を追加する際もCharacterDefinitionアセットを1つ足すだけで、この
+        // SceneBuilder.Buildを再実行すれば自動的にCharacter Select画面へ
+        // 反映される(BuildCharacterSelectCanvas側がCharacterDatabase.
+        // AllCharactersの件数ぶん動的にカードスロットを生成するため)。
+        CharacterDatabaseBuilder.Build();
+        gameManager.characterSelectUI = BuildCharacterSelectCanvas();
         // Home Room UI reconstruction pass, item 4 - the Gacha machine is
         // now a prop drawn directly onto the TOP room (see GameManager.
         // OnGUI's title-screen block), not a Sprite inside a Canvas -
@@ -1388,6 +1396,322 @@ public static class SceneBuilder
 
         rootGO.SetActive(false);
         return menu;
+    }
+
+    // キャラクター選択画面(2026-09-12) - Home画面左上の新規ホットスポット
+    // (GameManager.DrawCharacterHotspot)から開く全画面uGUI。DeckEditUI/
+    // CardFusionUIと同じ「Button.onClick/EventSystemに頼らず自前でタップ
+    // 位置を照合する」方式(CharacterSelectUI.HandleTap参照)。左のカード
+    // 一覧はCharacterDatabase.AllCharactersの件数ぶんここで動的に生成する
+    // ため、4人目・5人目を追加した後も本メソッド自体は変更不要。
+    static CharacterSelectUI BuildCharacterSelectCanvas()
+    {
+        GameObject canvasGO = new GameObject("CharacterSelectCanvas");
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 90; // DeckEdit/CardFusionと同じ帯 - 同時に開くことはない(GameManager.AnyOverlayOpen)
+
+        CanvasScaler scaler = canvasGO.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        scaler.matchWidthOrHeight = 0.5f;
+
+        canvasGO.AddComponent<GraphicRaycaster>();
+        if (Object.FindFirstObjectByType<EventSystem>() == null)
+        {
+            GameObject esGO = new GameObject("EventSystem");
+            esGO.AddComponent<EventSystem>();
+            esGO.AddComponent<StandaloneInputModule>();
+        }
+
+        GameObject rootGO = new GameObject("CharacterSelectRoot");
+        rootGO.transform.SetParent(canvasGO.transform, false);
+        RectTransform rootRect = rootGO.AddComponent<RectTransform>();
+        StretchFull(rootRect);
+        CanvasGroup rootGroup = rootGO.AddComponent<CanvasGroup>();
+
+        CharacterSelectUI ui = rootGO.AddComponent<CharacterSelectUI>();
+        ui.root = rootRect;
+        ui.rootGroup = rootGroup;
+
+        // 背景 - DeckEditUI/CardFusionUIの"Backdrop"と同じ単色塗り(濃紺)に
+        // 統一した。当初はHome部屋背景(TopBackgroundHomeRoom.png)を暗め
+        // に転用する案も検討したが、その画像は既にGameManager.topBackground
+        // (LoadIconTexture、Texture2D/Default設定)としてHome画面のOnGUI
+        // 描画に使われており、ここで別の設定(LoadTiledSprite、Sprite/
+        // Repeat設定)で読み込み直すと同じアセットのインポート設定を
+        // 上書きしてしまい、Home画面側の見た目に意図しない影響が出る恐れ
+        // があった(「既存Home全体のレイアウトを大改造しない」という明示
+        //的な制約に抵触するリスク) - 新規アートを増やさずに済み、かつ
+        // 既存の他画面と統一感もあるこの単色塗りを採用した。
+        GameObject bgGO = new GameObject("Background");
+        bgGO.transform.SetParent(rootGO.transform, false);
+        RectTransform bgRect = bgGO.AddComponent<RectTransform>();
+        StretchFull(bgRect);
+        Image bgImage = bgGO.AddComponent<Image>();
+        bgImage.color = new Color(0.04f, 0.05f, 0.1f, 0.97f);
+        bgImage.raycastTarget = false;
+
+        // ヘッダー
+        GameObject headerGO = new GameObject("HeaderTitle");
+        headerGO.transform.SetParent(rootGO.transform, false);
+        RectTransform headerRect = headerGO.AddComponent<RectTransform>();
+        headerRect.anchorMin = headerRect.anchorMax = new Vector2(0f, 1f);
+        headerRect.pivot = new Vector2(0f, 1f);
+        headerRect.sizeDelta = new Vector2(760f, 64f);
+        headerRect.anchoredPosition = new Vector2(56f, -36f);
+        Text headerText = headerGO.AddComponent<Text>();
+        ConfigureCardText(headerText, 44, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        headerText.alignment = TextAnchor.MiddleLeft;
+        headerText.text = "CHARACTER SELECT";
+
+        // BACK(左下)
+        RectTransform backRect = CreateOrnatePanel(rootGO.transform, "BackButton", borderScale: 2f);
+        backRect.anchorMin = backRect.anchorMax = new Vector2(0f, 0f);
+        backRect.pivot = new Vector2(0f, 0f);
+        backRect.sizeDelta = new Vector2(220f, 76f);
+        backRect.anchoredPosition = new Vector2(56f, 40f);
+        GameObject backLabelGO = new GameObject("Label");
+        backLabelGO.transform.SetParent(backRect, false);
+        StretchFull(backLabelGO.AddComponent<RectTransform>());
+        Text backLabel = backLabelGO.AddComponent<Text>();
+        ConfigureCardText(backLabel, 28, FontStyle.Bold, new Color(0.9f, 0.92f, 0.97f));
+        backLabel.text = "« BACK";
+        ui.backButtonRect = backRect;
+
+        // SELECT(右下)
+        RectTransform selectRect = CreateOrnatePanel(rootGO.transform, "SelectButton", borderScale: 2f);
+        selectRect.anchorMin = selectRect.anchorMax = new Vector2(1f, 0f);
+        selectRect.pivot = new Vector2(1f, 0f);
+        selectRect.sizeDelta = new Vector2(280f, 76f);
+        selectRect.anchoredPosition = new Vector2(-56f, 40f);
+        GameObject selectLabelGO = new GameObject("Label");
+        selectLabelGO.transform.SetParent(selectRect, false);
+        StretchFull(selectLabelGO.AddComponent<RectTransform>());
+        Text selectLabel = selectLabelGO.AddComponent<Text>();
+        ConfigureCardText(selectLabel, 30, FontStyle.Bold, new Color(1f, 0.9f, 0.5f));
+        selectLabel.text = "SELECT";
+        ui.selectButtonRect = selectRect;
+
+        // 左: キャラクター一覧 - CharacterDatabase.AllCharactersの件数ぶん
+        // 動的に生成(将来キャラクターが増えてもここは変更不要)。
+        var allCharacters = CharacterDatabase.AllCharacters;
+        const float cardWidth = 210f;
+        const float cardHeight = cardWidth * 1.85f; // 参考画像のカード比率に近い縦長
+        const float cardSpacing = 24f;
+
+        var cardSlotRects = new RectTransform[allCharacters.Count];
+        var cardGlowImages = new Image[allCharacters.Count];
+
+        for (int i = 0; i < allCharacters.Count; i++)
+        {
+            CharacterDefinition def = allCharacters[i];
+
+            GameObject slotGO = new GameObject("CharacterSlot_" + def.characterId);
+            slotGO.transform.SetParent(rootGO.transform, false);
+            RectTransform slotRect = slotGO.AddComponent<RectTransform>();
+            slotRect.anchorMin = slotRect.anchorMax = new Vector2(0f, 0.5f);
+            slotRect.pivot = new Vector2(0f, 0.5f);
+            slotRect.sizeDelta = new Vector2(cardWidth, cardHeight);
+            slotRect.anchoredPosition = new Vector2(56f + i * (cardWidth + cardSpacing), 60f);
+
+            // 選択中の縁の発光 - 金枠+シアン寄りの淡い外周(マスター指示の
+            // 「金枠・シアン発光・Selection marker」)。ポートレート画像
+            // より一回り大きい丸角パネルとして背後に重ね、選択中のスロット
+            // だけSetActive(true)にする(EquippedBadgeと同じ「表示状態だけ
+            // 切り替える」パターン)。
+            GameObject glowGO = new GameObject("SelectionGlow");
+            glowGO.transform.SetParent(slotGO.transform, false);
+            RectTransform glowRect = glowGO.AddComponent<RectTransform>();
+            glowRect.anchorMin = Vector2.zero;
+            glowRect.anchorMax = Vector2.one;
+            glowRect.offsetMin = new Vector2(-10f, -10f);
+            glowRect.offsetMax = new Vector2(10f, 10f);
+            Image glowImage = glowGO.AddComponent<Image>();
+            glowImage.sprite = RoundedPanelSprite();
+            glowImage.type = Image.Type.Sliced;
+            glowImage.color = new Color(1f, 0.85f, 0.4f, 0.95f);
+            glowImage.raycastTarget = false;
+            glowGO.SetActive(false);
+
+            GameObject portraitGO = new GameObject("Portrait");
+            portraitGO.transform.SetParent(slotGO.transform, false);
+            RectTransform portraitRect = portraitGO.AddComponent<RectTransform>();
+            StretchFull(portraitRect);
+            Image portraitImage = portraitGO.AddComponent<Image>();
+            portraitImage.sprite = ToUiSprite(def.portrait);
+            portraitImage.preserveAspect = true;
+
+            // 見た目のButton(タップ判定自体はCharacterSelectUI.HandleTapが
+            // 自前で行う、DeckEditUI等と同じ方針) - targetGraphicがあると
+            // ポインタの状態変化を素直に受け付けられる。
+            Button slotButton = slotGO.AddComponent<Button>();
+            slotButton.targetGraphic = portraitImage;
+            slotButton.transition = Selectable.Transition.None;
+
+            cardSlotRects[i] = slotRect;
+            cardGlowImages[i] = glowImage;
+        }
+        ui.cardSlotRects = cardSlotRects;
+        ui.cardGlowImages = cardGlowImages;
+
+        // 中央: 選択中キャラクターの大きなビジュアル。
+        GameObject mainVisualGO = new GameObject("MainVisual");
+        mainVisualGO.transform.SetParent(rootGO.transform, false);
+        RectTransform mainVisualRect = mainVisualGO.AddComponent<RectTransform>();
+        mainVisualRect.anchorMin = mainVisualRect.anchorMax = new Vector2(0.5f, 0.46f);
+        mainVisualRect.pivot = new Vector2(0.5f, 0.5f);
+        mainVisualRect.sizeDelta = new Vector2(560f, 880f);
+        mainVisualRect.anchoredPosition = new Vector2(60f, 0f);
+        CanvasGroup mainVisualGroup = mainVisualGO.AddComponent<CanvasGroup>();
+        Image mainVisualImage = mainVisualGO.AddComponent<Image>();
+        mainVisualImage.preserveAspect = true;
+        mainVisualImage.raycastTarget = false;
+        ui.mainVisualImage = mainVisualImage;
+        ui.mainVisualGroup = mainVisualGroup;
+
+        // 右: 情報パネル(役割/説明/星評価)。
+        RectTransform infoRect = CreateOrnatePanel(rootGO.transform, "InfoPanel");
+        infoRect.anchorMin = infoRect.anchorMax = new Vector2(1f, 0.5f);
+        infoRect.pivot = new Vector2(1f, 0.5f);
+        infoRect.sizeDelta = new Vector2(560f, 780f);
+        infoRect.anchoredPosition = new Vector2(-64f, 30f);
+
+        GameObject infoTitleGO = new GameObject("Title");
+        infoTitleGO.transform.SetParent(infoRect, false);
+        RectTransform infoTitleRect = infoTitleGO.AddComponent<RectTransform>();
+        infoTitleRect.anchorMin = new Vector2(0f, 1f);
+        infoTitleRect.anchorMax = new Vector2(1f, 1f);
+        infoTitleRect.pivot = new Vector2(0.5f, 1f);
+        infoTitleRect.sizeDelta = new Vector2(-80f, 52f);
+        infoTitleRect.anchoredPosition = new Vector2(0f, -46f);
+        Text infoTitleText = infoTitleGO.AddComponent<Text>();
+        ConfigureCardText(infoTitleText, 38, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        ui.titleText = infoTitleText;
+
+        GameObject subtitleGO = new GameObject("Subtitle");
+        subtitleGO.transform.SetParent(infoRect, false);
+        RectTransform subtitleRect = subtitleGO.AddComponent<RectTransform>();
+        subtitleRect.anchorMin = new Vector2(0f, 1f);
+        subtitleRect.anchorMax = new Vector2(1f, 1f);
+        subtitleRect.pivot = new Vector2(0.5f, 1f);
+        subtitleRect.sizeDelta = new Vector2(-80f, 32f);
+        subtitleRect.anchoredPosition = new Vector2(0f, -96f);
+        Text subtitleText = subtitleGO.AddComponent<Text>();
+        ConfigureCardText(subtitleText, 20, FontStyle.Italic, new Color(0.75f, 0.9f, 1f));
+        ui.subtitleText = subtitleText;
+
+        // Role Badge - 「見た目は強そうだが最弱」等の特殊枠は赤系(マスター
+        // 指示どおり)、通常は紺系。RefreshDetailが色/文言を書き換える。
+        GameObject roleBadgeGO = new GameObject("RoleBadge");
+        roleBadgeGO.transform.SetParent(infoRect, false);
+        RectTransform roleBadgeRect = roleBadgeGO.AddComponent<RectTransform>();
+        roleBadgeRect.anchorMin = new Vector2(0.5f, 1f);
+        roleBadgeRect.anchorMax = new Vector2(0.5f, 1f);
+        roleBadgeRect.pivot = new Vector2(0.5f, 1f);
+        roleBadgeRect.sizeDelta = new Vector2(320f, 46f);
+        roleBadgeRect.anchoredPosition = new Vector2(0f, -140f);
+        Image roleBadgeBg = roleBadgeGO.AddComponent<Image>();
+        roleBadgeBg.sprite = RoundedPanelSprite();
+        roleBadgeBg.type = Image.Type.Sliced;
+        GameObject roleBadgeLabelGO = new GameObject("Label");
+        roleBadgeLabelGO.transform.SetParent(roleBadgeGO.transform, false);
+        StretchFull(roleBadgeLabelGO.AddComponent<RectTransform>());
+        Text roleBadgeText = roleBadgeLabelGO.AddComponent<Text>();
+        ConfigureCardText(roleBadgeText, 22, FontStyle.Bold, new Color(1f, 0.92f, 0.7f));
+        ui.roleBadgeText = roleBadgeText;
+        ui.roleBadgeBg = roleBadgeBg;
+
+        // 「CHALLENGE HERO」の小さな追加バッジ(役割バッジと重ねて強調 -
+        // マスター指示の「見た目は強そうだが実は最弱、であることが分かる
+        // ように」)。
+        GameObject challengeBadgeGO = new GameObject("ChallengeBadge");
+        challengeBadgeGO.transform.SetParent(infoRect, false);
+        RectTransform challengeBadgeRect = challengeBadgeGO.AddComponent<RectTransform>();
+        challengeBadgeRect.anchorMin = new Vector2(0.5f, 1f);
+        challengeBadgeRect.anchorMax = new Vector2(0.5f, 1f);
+        challengeBadgeRect.pivot = new Vector2(0.5f, 1f);
+        challengeBadgeRect.sizeDelta = new Vector2(320f, 24f);
+        challengeBadgeRect.anchoredPosition = new Vector2(0f, -188f);
+        Text challengeBadgeText = challengeBadgeGO.AddComponent<Text>();
+        ConfigureCardText(challengeBadgeText, 15, FontStyle.Italic, new Color(1f, 0.55f, 0.5f));
+        challengeBadgeText.text = "Strong in appearance. Weak in truth.";
+        challengeBadgeGO.SetActive(false);
+        ui.challengeBadge = challengeBadgeGO;
+
+        // 説明文。
+        GameObject flavorGO = new GameObject("FlavorText");
+        flavorGO.transform.SetParent(infoRect, false);
+        RectTransform flavorRect = flavorGO.AddComponent<RectTransform>();
+        flavorRect.anchorMin = new Vector2(0f, 1f);
+        flavorRect.anchorMax = new Vector2(1f, 1f);
+        flavorRect.pivot = new Vector2(0.5f, 1f);
+        flavorRect.sizeDelta = new Vector2(-80f, 170f);
+        flavorRect.anchoredPosition = new Vector2(0f, -230f);
+        Text flavorText = flavorGO.AddComponent<Text>();
+        ConfigureCardText(flavorText, 22, FontStyle.Normal, new Color(0.92f, 0.93f, 0.97f));
+        flavorText.alignment = TextAnchor.UpperLeft;
+        ui.flavorText = flavorText;
+
+        // 星評価4行(LIFE/POWER/SPEED/COMBO) - 内部戦闘値ではなく表示専用
+        // (マスター指示どおり、CharacterDefinitionの説明コメント参照)。
+        string[] statLabels = { "LIFE", "POWER", "SPEED", "COMBO" };
+        Text[] statTexts = new Text[statLabels.Length];
+        float statStartY = -420f;
+        float statRowHeight = 56f;
+        for (int s = 0; s < statLabels.Length; s++)
+        {
+            GameObject rowGO = new GameObject("Stat_" + statLabels[s]);
+            rowGO.transform.SetParent(infoRect, false);
+            RectTransform rowRect = rowGO.AddComponent<RectTransform>();
+            rowRect.anchorMin = new Vector2(0f, 1f);
+            rowRect.anchorMax = new Vector2(1f, 1f);
+            rowRect.pivot = new Vector2(0.5f, 1f);
+            rowRect.sizeDelta = new Vector2(-80f, statRowHeight);
+            rowRect.anchoredPosition = new Vector2(0f, statStartY - s * statRowHeight);
+
+            GameObject labelGO = new GameObject("Label");
+            labelGO.transform.SetParent(rowGO.transform, false);
+            RectTransform labelRect = labelGO.AddComponent<RectTransform>();
+            labelRect.anchorMin = new Vector2(0f, 0f);
+            labelRect.anchorMax = new Vector2(0.4f, 1f);
+            labelRect.offsetMin = Vector2.zero;
+            labelRect.offsetMax = Vector2.zero;
+            Text labelText = labelGO.AddComponent<Text>();
+            ConfigureCardText(labelText, 22, FontStyle.Bold, new Color(0.85f, 0.88f, 0.95f));
+            labelText.alignment = TextAnchor.MiddleLeft;
+            labelText.text = statLabels[s];
+
+            GameObject starsGO = new GameObject("Stars");
+            starsGO.transform.SetParent(rowGO.transform, false);
+            RectTransform starsRect = starsGO.AddComponent<RectTransform>();
+            starsRect.anchorMin = new Vector2(0.4f, 0f);
+            starsRect.anchorMax = new Vector2(1f, 1f);
+            starsRect.offsetMin = Vector2.zero;
+            starsRect.offsetMax = Vector2.zero;
+            Text starsText = starsGO.AddComponent<Text>();
+            ConfigureCardText(starsText, 26, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+            starsText.alignment = TextAnchor.MiddleRight;
+            statTexts[s] = starsText;
+        }
+        ui.lifeStarsText = statTexts[0];
+        ui.powerStarsText = statTexts[1];
+        ui.speedStarsText = statTexts[2];
+        ui.comboStarsText = statTexts[3];
+
+        rootGO.SetActive(false);
+        return ui;
+    }
+
+    // CharacterDefinition.portrait/mainVisualはTexture2D(RewardCardData.
+    // Iconと同じ「表示側でSprite.Createする」方式 - CharacterDefinitionの
+    // 説明コメント参照)なので、Editor側でuGUI Imageへ割り当てる際も同じ
+    // 変換をここで行う。
+    static Sprite ToUiSprite(Texture2D tex)
+    {
+        if (tex == null) return null;
+        return Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f));
     }
 
     // "LABEL n / m" count readout sitting under one Deck Edit panel -
