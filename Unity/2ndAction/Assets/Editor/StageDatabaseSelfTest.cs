@@ -24,9 +24,12 @@ public static class StageDatabaseSelfTest
         StageDefinition wasteland = StageDatabase.FindById("wasteland_road");
         bool wastelandUnlockedOk = wasteland != null && wasteland.unlocked;
 
+        // 天空回廊解禁(2026-09-13) - 「いままでの天空マップ」を選択可能な
+        // 別枠として解禁したため、ロックされたままなのは地下遺跡のみ。
         StageDefinition ruins = StageDatabase.FindById("underground_ruins");
         StageDefinition sky = StageDatabase.FindById("sky_corridor");
-        bool othersLockedOk = ruins != null && !ruins.unlocked && sky != null && !sky.unlocked;
+        bool ruinsLockedOk = ruins != null && !ruins.unlocked;
+        bool skyUnlockedOk = sky != null && sky.unlocked;
 
         bool missingIdOk = StageDatabase.FindById("no_such_stage") == null;
 
@@ -35,11 +38,11 @@ public static class StageDatabaseSelfTest
         var restored = JsonUtility.FromJson<RunCheckpoint.Data>(json);
         bool checkpointRoundTripOk = restored != null && restored.stageId == "wasteland_road";
 
-        bool pass = countOk && orderOk && wastelandUnlockedOk && othersLockedOk && missingIdOk && checkpointRoundTripOk;
+        bool pass = countOk && orderOk && wastelandUnlockedOk && ruinsLockedOk && skyUnlockedOk && missingIdOk && checkpointRoundTripOk;
 
         string result = pass ? "PASS" : "FAIL";
         Debug.Log($"[StageDatabaseSelfTest] {result} - count={all.Count} orderOk={orderOk} " +
-                  $"wastelandUnlockedOk={wastelandUnlockedOk} othersLockedOk={othersLockedOk} " +
+                  $"wastelandUnlockedOk={wastelandUnlockedOk} ruinsLockedOk={ruinsLockedOk} skyUnlockedOk={skyUnlockedOk} " +
                   $"missingIdOk={missingIdOk} checkpointRoundTripOk={checkpointRoundTripOk}");
 
         if (!pass)

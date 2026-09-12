@@ -118,6 +118,81 @@ public class TerrainManager : MonoBehaviour
     public Color groundColor = new Color(0.35f, 0.28f, 0.2f);
     public Color enemyColor = new Color(0.9f, 0.15f, 0.15f);
 
+    // ステージ別ビジュアル差し替え(2026-09-13) - 「荒野街道(地上の草地/土)」
+    // と「天空回廊(既存の岩+雲の浮遊足場)」を見た目でも区別できるように
+    // する仕組み。stageIdが一致するTerrainThemeSetが無ければ何もしない
+    // (=現状の見た目のまま)ので、天空回廊はこの配列に何もエントリを
+    // 足さない限り常に既存の見た目のまま - 「いままでの天空マップ」を
+    // 無改造で温存する、という要件を安全側で満たす。
+    [System.Serializable]
+    public struct TerrainThemeSet
+    {
+        public string stageId;
+        public PlatformSpriteSet platformArt;
+        public Sprite groundSprite;
+        public Color groundColor;
+        // 任意 - 指定時のみWorldTimeCycleの昼背景を差し替える(夜背景/
+        // 昼夜遷移そのものには一切触れない、今回のスコープを最小限に
+        // 保つため)。
+        public Sprite backgroundSprite;
+    }
+    public TerrainThemeSet[] stageThemes = new TerrainThemeSet[0];
+    // SceneBuilderが既存のday backgroundのSpriteRendererをそのまま渡す
+    // (WorldTimeCycle.dayLayerと同一のコンポーネント参照)。
+    public SpriteRenderer backgroundRenderer;
+
+    // GameManager.StartGame/BeginContinuedRunの両方から、Run開始時(かつ
+    // Playerがワープする前 - BeginContinuedRunのコメント参照)に一度だけ
+    // 呼ばれる。マッチする場合のみgroundSprite/platformArt/groundColor/
+    // 背景を差し替え、既に生成済みのチャンク(Start()が起動直後に必ず
+    // 作る最初の数十m分の"滑走路" - Home画面はこれを覆い隠しているため
+    // 見えないが、NEW RUN開始と同時に見えてしまう)の見た目もその場で
+    // 描き直す。マッチしない(=未知のstageId、あるいは天空回廊のように
+    // エントリ自体が無い)場合は何も変更しない - 安全側のデフォルト動作。
+    public void ApplyStageTheme(string stageId)
+    {
+        TerrainThemeSet? match = null;
+        foreach (TerrainThemeSet t in stageThemes)
+        {
+            if (t.stageId == stageId) { match = t; break; }
+        }
+        if (!match.HasValue) return;
+
+        TerrainThemeSet theme = match.Value;
+        platformArt = theme.platformArt;
+        if (theme.groundSprite != null) groundSprite = theme.groundSprite;
+        groundColor = theme.groundColor;
+        if (backgroundRenderer != null && theme.backgroundSprite != null) backgroundRenderer.sprite = theme.backgroundSprite;
+
+        RebuildAllChunkVisuals();
+    }
+
+    // AddRightCapToPreviousChunk(既存)と全く同じ「Destroy→GroundFactory.
+    // CreateSlopeVisualで再構築」パターンを、全チャンクへ一括適用したもの。
+    // leftBleedは(既存のAddRightCapToPreviousChunk同様)厳密には再計算せず
+    // 0扱いにする簡略化 - 元々このリトロフィット経路でも同じ簡略化がされ
+    // ており、見た目への影響は継ぎ目にごくわずかな隙間が出得る程度の
+    // 既存の許容範囲内(このメソッド固有の新しい問題ではない)。
+    void RebuildAllChunkVisuals()
+    {
+        for (int i = 0; i < chunks.Count; i++)
+        {
+            RuntimeChunk c = chunks[i];
+            if (c.type == ChunkType.Pit || c.visual == null) continue;
+
+            Destroy(c.visual);
+            bool needsRightCap = i + 1 < chunks.Count && chunks[i + 1].type == ChunkType.Pit;
+            c.visual = GroundFactory.CreateSlopeVisual(transform, squareSprite, groundSprite, platformArt,
+                new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
+                c.needsLeftCap, needsRightCap: needsRightCap);
+
+            if (decorationSprites != null && decorationSprites.Length > 0)
+            {
+                DecorationScatter.ScatterAlongChunk(c.visual.transform, decorationSprites, new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY));
+            }
+        }
+    }
+
     [Header("Sky Path")]
     // Occasional elevated platforms floating above the main ground path,
     // reachable by jumping - a separate, parallel height-map (see

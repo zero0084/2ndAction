@@ -305,6 +305,11 @@ public static class SceneBuilder
         // reproduces that same in-game size).
         terrain.enemySprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/enemy_v1.png", 1053f);
         terrain.player = player.transform;
+        // ステージ別ビジュアル差し替え(2026-09-13) - 天空回廊(既存の見た目
+        // そのまま)はstageThemesに何も追加しない。荒野街道の専用アートが
+        // 用意でき次第、ここへTerrainThemeSetを1件追加するだけで済む。
+        terrain.backgroundRenderer = dayBackgroundSr;
+        terrain.stageThemes = BuildTerrainThemes();
         // Game Feel refinement pass - OneMoreMile_GameFeel pack, individual
         // PNGs (see AGENTS/PR notes) - imported at a consistent ~1-world-
         // unit BASE size each (PPU == the source file's own pixel width),
@@ -3684,6 +3689,16 @@ public static class SceneBuilder
     // endDistance (100,000m) is also what DistanceTierManager.CurrentTier
     // falls back to indefinitely past that point, so nothing needs a tier
     // past it.
+    // ステージ別ビジュアル差し替え(2026-09-13) - 荒野街道専用の地上アート
+    // (草地/土)が用意でき次第、ここへ"wasteland_road"のTerrainThemeSet
+    // エントリを1件追加する(TerrainManager.ApplyStageThemeのコメント
+    // 参照)。天空回廊はエントリを追加しない=既存の岩+雲の浮遊足場アート
+    // のまま、という設計。
+    static TerrainManager.TerrainThemeSet[] BuildTerrainThemes()
+    {
+        return new TerrainManager.TerrainThemeSet[0];
+    }
+
     static DistanceTier[] BuildDistanceTiers()
     {
         // Stage01 荒野街道 最小実装(2026-09-13) - マスター指示「敵はゴブリン

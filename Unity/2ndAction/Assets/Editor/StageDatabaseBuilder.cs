@@ -48,12 +48,19 @@ public static class StageDatabaseBuilder
         },
         new Spec
         {
+            // マスター指示(2026-09-13)「いままでの天空マップを天空回廊
+            // として選択できるように」- これまでこのゲームがずっと使って
+            // きた既存コンテンツ(岩+雲の浮遊足場アート、ゴブリン/フライ
+            // ング等の全Enemy進行、上空の道)をそのまま指す。TerrainManager.
+            // stageThemesにこのIDのエントリを追加していない限り、荒野街道
+            // 追加前と見た目・中身は完全に無改造のまま(ApplyStageThemeの
+            // コメント参照)。
             id = "sky_corridor",
             displayName = "天空回廊",
-            enemyText = "敵: フライヤー / 浮遊兵",
-            featureText = "障害物: 強風・移動足場・崩れる床",
-            routeText = "ルート: 未開放",
-            unlocked = false,
+            enemyText = "敵: ゴブリン系 + 距離進行で徐々に解禁",
+            featureText = "特徴: 岩と雲の浮遊足場、上空の道",
+            routeText = "ルート: 進むほど危険度が上昇",
+            unlocked = true,
             sortOrder = 2,
         },
     };

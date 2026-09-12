@@ -19,6 +19,12 @@ public class ObstacleSpawner : MonoBehaviour
     public Transform player;
     public Sprite squareSprite;
 
+    // ステージ別ビジュアル差し替え(2026-09-13) - 「いままでの天空マップ
+    // (天空回廊)」は無改造で温存する、というマスター指示のため、この
+    // Spawnerは荒野街道のRun中だけ稼働する(GameManager.ActiveRunStageId
+    // で判定)。天空回廊選択中は障害物を一切配置しない。
+    public string obstacleStageId = "wasteland_road";
+
     public float obstacleInterval = 18f;
     public float spawnAheadDistance = 28f;
 
@@ -61,6 +67,7 @@ public class ObstacleSpawner : MonoBehaviour
         if (GameManager.Instance == null || !GameManager.Instance.HasStarted || GameManager.Instance.IsGameOver) return;
         if (player == null) return;
         if (BossManager.Instance != null && BossManager.Instance.IsBossPhase) return;
+        if (GameManager.Instance.ActiveRunStageId != obstacleStageId) return;
 
         while (GameManager.Instance.MaxDistance >= nextObstacleDistance)
         {

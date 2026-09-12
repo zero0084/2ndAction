@@ -374,6 +374,9 @@ public class GameManager : MonoBehaviour
     // 出発したステージ)から復元する - Homeで選択ステージを変えても既に
     // Activeなrunには影響しない。
     string activeRunStageId;
+    // ObstacleSpawner等、「今このRunがどのステージなのか」をゲームプレイ
+    // ロジック側から参照する必要がある場所向けの読み取り専用アクセサ。
+    public string ActiveRunStageId => activeRunStageId;
 
     // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - Run開始時
     // (StartGame/BeginContinuedRunの両方、ApplyCharacterCardEffectsより
@@ -1205,6 +1208,7 @@ public class GameManager : MonoBehaviour
                 runStartTime = Time.time;
                 activeRunCharacterId = SelectedCharacterId;
                 activeRunStageId = SelectedStageId;
+                if (TerrainManager.Instance != null) TerrainManager.Instance.ApplyStageTheme(activeRunStageId);
                 ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
                 ApplyCharacterCardEffects();
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
@@ -1231,6 +1235,7 @@ public class GameManager : MonoBehaviour
         runStartTime = Time.time;
         activeRunCharacterId = SelectedCharacterId;
         activeRunStageId = SelectedStageId;
+        if (TerrainManager.Instance != null) TerrainManager.Instance.ApplyStageTheme(activeRunStageId);
         ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
         ApplyCharacterCardEffects();
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
@@ -2495,6 +2500,12 @@ public class GameManager : MonoBehaviour
         // ステージ選択導線追加(2026-09-12) - 上と全く同じ理由。data.stageId
         // が空(旧いActive Run)の場合のみSelectedStageIdへフォールバック。
         activeRunStageId = !string.IsNullOrEmpty(data.stageId) ? data.stageId : SelectedStageId;
+        // ステージ別ビジュアル差し替え(2026-09-13) - 必ずこの下のPlayer
+        // ワープ(p.x = data.checkpointDistance)より前に呼ぶこと - ワープ
+        // した瞬間にTerrainManager.Update()がx=0からcheckpointDistanceまで
+        // 一気にチャンクを生成し直す(既存のDebug Warp機構と同じ)ため、
+        // その生成が始まる前にテーマを確定させておく必要がある。
+        if (TerrainManager.Instance != null) TerrainManager.Instance.ApplyStageTheme(activeRunStageId);
 
         // Item 8 - "Run中カード効果/各カードStack/Character Card由来の効
         // 果/Run中の現在能力" are reconstructed by REPLAYING the exact same
