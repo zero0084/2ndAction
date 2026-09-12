@@ -23,7 +23,29 @@ public static class CharacterDatabaseBuilder
         public int lifeRating, powerRating, speedRating, comboRating;
         public bool challengeFlag;
         public int sortOrder;
+
+        // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - 実プレイに反映
+        // されるベース性能。黒剣士はPlayerControllerの既存デフォルトと
+        // 完全一致させ、この仕組みを通しても性能が変化しないことを保証。
+        public int baseLives, baseMaxLives;
+        public int attackPower, attackComboCount;
+        public float attackSpeedMultiplier, attackRangeMultiplier, knockbackPowerMultiplier;
+        public int jumpCount;
+        public float jumpForceMultiplier, groundMobilityMultiplier, airControlMultiplier;
+        public bool canUseUpAttack, canUseAirAttack, canUseDownAttack;
     }
+
+    // 黒剣士=PlayerController/GameManagerの既存デフォルトそのもの(性能
+    // 保護のため、全倍率=1.0)。これをコピーしてキャラごとに差分だけ書く。
+    static Spec DefaultBaseline => new Spec
+    {
+        baseLives = 3, baseMaxLives = 5,
+        attackPower = 2, attackComboCount = 3,
+        attackSpeedMultiplier = 1f, attackRangeMultiplier = 1f, knockbackPowerMultiplier = 1f,
+        jumpCount = 2,
+        jumpForceMultiplier = 1f, groundMobilityMultiplier = 1f, airControlMultiplier = 1f,
+        canUseUpAttack = true, canUseAirAttack = true, canUseDownAttack = true,
+    };
 
     // 初期3人 - マスター提供の参考画像(Character Selectモックアップ)から
     // 切り出したカードイラストをそのままportrait/mainVisualとして使う
@@ -33,45 +55,78 @@ public static class CharacterDatabaseBuilder
     // 嬢様騎士はマスターの説明文("Ground Combo・機動力"/"初期能力が
     // すべて最低クラス")から妥当な暫定値を割り当てた - 戦闘性能への反映は
     // まだ行わないため、実際のゲームプレイには影響しない表示専用の値。
-    static Spec[] Specs() => new[]
+    // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - 各Specは
+    // DefaultBaseline(=黒剣士の既存性能そのまま)をコピーしてから差分だけ
+    // 上書きする方式に変更。黒剣士自身は一切上書きしない=既存性能の完全
+    // 保護、双剣士も今回は戦闘性能そのものへ手を付けない(将来の設計方針
+    // はマスターの変更禁止指示どおり据え置き)ため黒剣士と同一のまま。
+    static Spec[] Specs()
     {
-        new Spec
-        {
-            id = "swordsman",
-            displayName = "SWORDSMAN",
-            subtitle = "The One Who Keeps Moving",
-            role = "BALANCED",
-            flavorText = "A lone swordsman who walks his own path.\nNo matter how many times he falls,\nhe rises again - because there is still\na further place to reach.",
-            portraitPath = $"{PortraitFolder}/swordsman_portrait.png",
-            lifeRating = 3, powerRating = 4, speedRating = 3, comboRating = 3,
-            challengeFlag = false,
-            sortOrder = 0,
-        },
-        new Spec
-        {
-            id = "dual_blade",
-            displayName = "DUAL BLADE",
-            subtitle = "Swift Steel, Endless Motion",
-            role = "GROUND COMBO",
-            flavorText = "A swift dual-wielder who chains strikes\ntogether without ever slowing down.\nSpeed and momentum are her greatest weapons.",
-            portraitPath = $"{PortraitFolder}/dual_blade_portrait.png",
-            lifeRating = 2, powerRating = 3, speedRating = 5, comboRating = 4,
-            challengeFlag = false,
-            sortOrder = 1,
-        },
-        new Spec
-        {
-            id = "noble_lady",
-            displayName = "NOBLE LADY",
-            subtitle = "A Hero Not Yet Awakened",
-            role = "CHALLENGE",
-            flavorText = "She looks every bit the hero -\nbut her true strength has yet to awaken.\nFor those who seek a real challenge.",
-            portraitPath = $"{PortraitFolder}/noble_lady_portrait.png",
-            lifeRating = 1, powerRating = 1, speedRating = 1, comboRating = 1,
-            challengeFlag = true,
-            sortOrder = 2,
-        },
-    };
+        Spec swordsman = DefaultBaseline;
+        swordsman.id = "swordsman";
+        swordsman.displayName = "SWORDSMAN";
+        swordsman.subtitle = "The One Who Keeps Moving";
+        swordsman.role = "BALANCED";
+        swordsman.flavorText = "A lone swordsman who walks his own path.\nNo matter how many times he falls,\nhe rises again - because there is still\na further place to reach.";
+        swordsman.portraitPath = $"{PortraitFolder}/swordsman_portrait.png";
+        swordsman.lifeRating = 3; swordsman.powerRating = 4; swordsman.speedRating = 3; swordsman.comboRating = 3;
+        swordsman.challengeFlag = false;
+        swordsman.sortOrder = 0;
+
+        Spec dualBlade = DefaultBaseline;
+        dualBlade.id = "dual_blade";
+        dualBlade.displayName = "DUAL BLADE";
+        dualBlade.subtitle = "Swift Steel, Endless Motion";
+        dualBlade.role = "GROUND COMBO";
+        dualBlade.flavorText = "A swift dual-wielder who chains strikes\ntogether without ever slowing down.\nSpeed and momentum are her greatest weapons.";
+        dualBlade.portraitPath = $"{PortraitFolder}/dual_blade_portrait.png";
+        dualBlade.lifeRating = 2; dualBlade.powerRating = 3; dualBlade.speedRating = 5; dualBlade.comboRating = 4;
+        dualBlade.challengeFlag = false;
+        dualBlade.sortOrder = 1;
+        // 戦闘性能の差別化は「双剣士の今後の設計方針」そのもの(今回の
+        // 変更禁止対象)のため、意図的にDefaultBaseline(黒剣士と同一)の
+        // ままにしてある。
+
+        // お嬢様騎士 - マスター指示「見た目は非常に強そうだが性能はかなり
+        // 弱い、ただし入力遅延ではなく性能値のみで表現する」。CHALLENGE
+        // HERO等の特別バッジは今回のマスター指示で明示的に廃止
+        // (challengeFlag=false、role=通常の名称のみ)。
+        Spec nobleLady = DefaultBaseline;
+        nobleLady.id = "noble_lady";
+        nobleLady.displayName = "NOBLE LADY";
+        nobleLady.subtitle = "A Hero Not Yet Awakened";
+        nobleLady.role = "HEAVY KNIGHT";
+        nobleLady.flavorText = "Clad in silver and gold, she wields a\ngreatsword said to fell dragons.\nHer legend, however, has yet to catch\nup with her armor.";
+        nobleLady.portraitPath = $"{PortraitFolder}/noble_lady_portrait.png";
+        // 表示専用の星評価 - マスター提示例(LIFE3/POWER1/SPEED1/COMBO1)
+        // に合わせ、他2キャラより明確に見劣りするようにする。
+        nobleLady.lifeRating = 3; nobleLady.powerRating = 1; nobleLady.speedRating = 1; nobleLady.comboRating = 1;
+        nobleLady.challengeFlag = false;
+        nobleLady.sortOrder = 2;
+
+        // ここから実プレイに反映される値(マスター初期案どおり)。
+        nobleLady.baseLives = 3;
+        nobleLady.baseMaxLives = 3;
+        nobleLady.attackPower = 1; // 黒剣士の2より低い、POWER最低
+        nobleLady.attackComboCount = 1; // 1段止まり、Attack2/3へ接続しない
+        nobleLady.attackSpeedMultiplier = 1.35f; // 大きいほど遅い(既存のAddAttackSpeedBonusと同じ方向)
+        nobleLady.attackRangeMultiplier = 0.75f; // リーチ最低
+        nobleLady.knockbackPowerMultiplier = 0.5f; // 吹き飛ばし最低
+        nobleLady.jumpCount = 1; // 二段ジャンプなし
+        // 「完全に詰む高さにはしない」との明示指示のため控えめな
+        // 減少幅に留めた - 実機で既存ステージの隙間が飛び越えられるか
+        // 必ず確認すること(マスターへの開示事項、Inspectorでも調整可)。
+        nobleLady.jumpForceMultiplier = 0.85f;
+        nobleLady.groundMobilityMultiplier = 0.95f; // 地上機動力最低(ノックバックは速度追従方式のため副作用なし)
+        nobleLady.airControlMultiplier = 1.1f; // 空中制御最低の代替として重力をわずかに強化
+        // 「技自体を持たせない/接続しない」というマスターの理想形どおり、
+        // 上/空中/下の3攻撃はまず全て未接続にする(今回のスコープ)。
+        nobleLady.canUseUpAttack = false;
+        nobleLady.canUseAirAttack = false;
+        nobleLady.canUseDownAttack = false;
+
+        return new[] { swordsman, dualBlade, nobleLady };
+    }
 
     [MenuItem("Tools/OneMoreMile/Build Character Database")]
     public static void Build()
@@ -103,6 +158,21 @@ public static class CharacterDatabaseBuilder
             def.comboRating = spec.comboRating;
             def.challengeFlag = spec.challengeFlag;
             def.sortOrder = spec.sortOrder;
+
+            def.baseLives = spec.baseLives;
+            def.baseMaxLives = spec.baseMaxLives;
+            def.attackPower = spec.attackPower;
+            def.attackComboCount = spec.attackComboCount;
+            def.attackSpeedMultiplier = spec.attackSpeedMultiplier;
+            def.attackRangeMultiplier = spec.attackRangeMultiplier;
+            def.knockbackPowerMultiplier = spec.knockbackPowerMultiplier;
+            def.jumpCount = spec.jumpCount;
+            def.jumpForceMultiplier = spec.jumpForceMultiplier;
+            def.groundMobilityMultiplier = spec.groundMobilityMultiplier;
+            def.airControlMultiplier = spec.airControlMultiplier;
+            def.canUseUpAttack = spec.canUseUpAttack;
+            def.canUseAirAttack = spec.canUseAirAttack;
+            def.canUseDownAttack = spec.canUseDownAttack;
 
             AssetDatabase.CreateAsset(def, assetPath);
         }

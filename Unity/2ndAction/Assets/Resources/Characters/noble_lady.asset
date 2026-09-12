@@ -15,18 +15,34 @@ MonoBehaviour:
   characterId: noble_lady
   displayName: NOBLE LADY
   subtitle: A Hero Not Yet Awakened
-  role: CHALLENGE
-  flavorText: 'She looks every bit the hero -
+  role: HEAVY KNIGHT
+  flavorText: 'Clad in silver and gold, she wields a
 
-    but her true strength has yet
-    to awaken.
+    greatsword said to fell
+    dragons.
 
-    For those who seek a real challenge.'
+    Her legend, however, has yet to catch
+
+    up with her armor.'
   portrait: {fileID: 2800000, guid: 7e80f0e6e90e79a4a8d0e4d0c30cb12d, type: 3}
   mainVisual: {fileID: 2800000, guid: 7e80f0e6e90e79a4a8d0e4d0c30cb12d, type: 3}
-  lifeRating: 1
+  lifeRating: 3
   powerRating: 1
   speedRating: 1
   comboRating: 1
-  challengeFlag: 1
+  challengeFlag: 0
   sortOrder: 2
+  baseLives: 3
+  baseMaxLives: 3
+  attackPower: 1
+  attackComboCount: 1
+  attackSpeedMultiplier: 1.35
+  attackRangeMultiplier: 0.75
+  knockbackPowerMultiplier: 0.5
+  jumpCount: 1
+  jumpForceMultiplier: 0.85
+  groundMobilityMultiplier: 0.95
+  airControlMultiplier: 1.1
+  canUseUpAttack: 0
+  canUseAirAttack: 0
+  canUseDownAttack: 0

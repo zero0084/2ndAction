@@ -23,19 +23,23 @@ public static class CharacterDatabaseSelfTest
         CharacterDefinition swordsman = CharacterDatabase.FindById("swordsman");
         bool findByIdOk = swordsman != null && swordsman.portrait != null && swordsman.mainVisual != null;
 
+        // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - マスターの新
+        // 明示指示「CHALLENGE HERO/特別枠/専用バッジは不要」により、前回
+        // パスで立てていたnoble_lady.challengeFlag=trueを撤回した。現在は
+        // 3人とも「普通に並ぶ」通常キャラクターであることを検証する。
         CharacterDefinition nobleLady = CharacterDatabase.FindById("noble_lady");
-        bool challengeFlagOk = nobleLady != null && nobleLady.challengeFlag;
+        bool nobleLadyNoBadgeOk = nobleLady != null && !nobleLady.challengeFlag;
 
         CharacterDefinition dualBlade = CharacterDatabase.FindById("dual_blade");
         bool nonChallengeFlagOk = dualBlade != null && !dualBlade.challengeFlag;
 
         bool missingIdOk = CharacterDatabase.FindById("no_such_character") == null;
 
-        bool pass = countOk && orderOk && findByIdOk && challengeFlagOk && nonChallengeFlagOk && missingIdOk;
+        bool pass = countOk && orderOk && findByIdOk && nobleLadyNoBadgeOk && nonChallengeFlagOk && missingIdOk;
 
         string result = pass ? "PASS" : "FAIL";
         Debug.Log($"[CharacterDatabaseSelfTest] {result} - count={all.Count} orderOk={orderOk} " +
-                  $"findByIdOk={findByIdOk} challengeFlagOk={challengeFlagOk} nonChallengeFlagOk={nonChallengeFlagOk} " +
+                  $"findByIdOk={findByIdOk} nobleLadyNoBadgeOk={nobleLadyNoBadgeOk} nonChallengeFlagOk={nonChallengeFlagOk} " +
                   $"missingIdOk={missingIdOk}");
 
         if (!pass)

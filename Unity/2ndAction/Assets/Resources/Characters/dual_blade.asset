@@ -30,3 +30,17 @@ MonoBehaviour:
   comboRating: 4
   challengeFlag: 0
   sortOrder: 1
+  baseLives: 3
+  baseMaxLives: 5
+  attackPower: 2
+  attackComboCount: 3
+  attackSpeedMultiplier: 1
+  attackRangeMultiplier: 1
+  knockbackPowerMultiplier: 1
+  jumpCount: 2
+  jumpForceMultiplier: 1
+  groundMobilityMultiplier: 1
+  airControlMultiplier: 1
+  canUseUpAttack: 1
+  canUseAirAttack: 1
+  canUseDownAttack: 1

@@ -331,6 +331,57 @@ public class PlayerController : MonoBehaviour
     public float AttackSpeedMultiplier { get; private set; } = 1f;
     public void AddAttackSpeedBonus(float fractionFaster) => AttackSpeedMultiplier = Mathf.Max(0.25f, AttackSpeedMultiplier * (1f - fractionFaster));
 
+    // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - Enemy側の
+    // groundKnockbackSpeedBonus(EnemyController.ApplyGroundKnockback)へ
+    // 掛ける倍率。AttackPower等と同じ「カードで積み上げるベース値」では
+    // なく、キャラクターごとの固定ベース(ApplyCharacterBaseStats)のみが
+    // 触る - 現時点でこの値を伸ばすカードは存在しない。
+    public float KnockbackPowerMultiplier { get; private set; } = 1f;
+
+    // 同上、項目4「アクロバット技(上/空中/下攻撃)を持たせない/接続しない」
+    // - 通常のジャンプ物理(velocityY/jumpsUsed/JumpStarted等)やDoAttackの
+    // 3段コンボには一切関与しない、上/空中/下の3攻撃それぞれの発動可否の
+    // みを個別に止めるフラグ(FireJump/DoDiveAttack側の各トリガーで参照)。
+    public bool canUseUpAttack = true;
+    public bool canUseAirAttack = true;
+    public bool canUseDownAttack = true;
+
+    // ApplyCharacterBaseStatsがrunSpeed/jumpForce/gravityを上書きする際の
+    // 「乗算元」- SceneBuilderはこれらのフィールドを一切上書きしないため
+    // (黒剣士の性能そのもの)、Awake()時点の値=黒剣士の素の性能として保持
+    // しておく。CharacterDefinitionの各Multiplierは常にこの値からの相対
+    // 倍率として適用するため、複数回ApplyCharacterBaseStatsを呼んでも
+    // (例:一度NEW RUNしてから別キャラでもう一度)値が際限なく縮小/増大
+    // することはない。
+    float baseRunSpeed;
+    float baseJumpForce;
+    float baseGravity;
+
+    // Priority 3 - GameManager.ApplyCharacterBaseStatsから、Run開始時
+    // (StartGame/BeginContinuedRunの両方、ApplyCharacterCardEffectsより
+    // 前)に一度だけ呼ばれる。カード効果は全てこの後に「現在値を追加で
+    // 変更する」形で積み重なる(pc.runSpeed *= 1f+effect.value 等)ため、
+    // 呼び出し順を間違えるとキャラクターのハンデがカード効果を丸ごと
+    // 消し飛ばしてしまう - 必ずカード再生よりも前に呼ぶこと。
+    // 黒剣士のSpec値は全倍率=1.0/現行のAttackPower=2等そのままなので、
+    // 黒剣士自身の性能はこの仕組みを通しても一切変化しない。
+    public void ApplyCharacterBaseStats(CharacterDefinition def)
+    {
+        if (def == null) return;
+        AttackPower = def.attackPower;
+        AttackRangeMultiplier = def.attackRangeMultiplier;
+        AttackSpeedMultiplier = def.attackSpeedMultiplier;
+        KnockbackPowerMultiplier = def.knockbackPowerMultiplier;
+        maxComboChain = Mathf.Max(1, def.attackComboCount);
+        maxJumps = Mathf.Max(1, def.jumpCount);
+        runSpeed = baseRunSpeed * def.groundMobilityMultiplier;
+        jumpForce = baseJumpForce * def.jumpForceMultiplier;
+        gravity = baseGravity * def.airControlMultiplier;
+        canUseUpAttack = def.canUseUpAttack;
+        canUseAirAttack = def.canUseAirAttack;
+        canUseDownAttack = def.canUseDownAttack;
+    }
+
     // Grown by "AIR ATTACK UP" - only added on top of AttackPower while
     // airborne (see EffectiveAttackPower); grounded attacks are unaffected.
     public int AirAttackPowerBonus { get; private set; }
@@ -555,6 +606,9 @@ public class PlayerController : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        baseRunSpeed = runSpeed;
+        baseJumpForce = jumpForce;
+        baseGravity = gravity;
         rb = GetComponent<Rigidbody2D>();
         // The SpriteRenderer lives on the "Visual" child, not this Root -
         // see SceneBuilder.CreatePlayer. Only used here for the hit-
@@ -821,7 +875,7 @@ public class PlayerController : MonoBehaviour
         {
             EndDiveAttack();
             velocityY = 0f;
-            StartCoroutine(DoUpAttack(true));
+            if (canUseAirAttack) StartCoroutine(DoUpAttack(true));
         }
         else if (jumpPressed && jumpsUsed < maxJumps)
         {
@@ -844,7 +898,7 @@ public class PlayerController : MonoBehaviour
         // 「地上では無効」要件を実現する - isGrounded中はこの分岐に到達
         // すらしない。既に下降攻撃中(isDiveAttacking)の再トリガーは無視
         // (Hitbox/SE/Slash FXの再スタートによる違和感を避けるため)。
-        else if (allowJump && !isGrounded && !isDiveAttacking && requestedFlick == FlickDirection.Down)
+        else if (allowJump && !isGrounded && !isDiveAttacking && canUseDownAttack && requestedFlick == FlickDirection.Down)
         {
             DoDiveAttack();
         }
@@ -1513,7 +1567,15 @@ public class PlayerController : MonoBehaviour
         // 攻撃"。ジャンプが実際に発動した場合のみ(=jumpsUsed<maxJumpsの
         // ガードを通過した場合のみ)発火するので、既にmaxJumps使い切っ
         // ている状態でのUpフリックは何も起きない(仕様どおり)。
-        StartCoroutine(DoUpAttack(jumpsUsed >= 2));
+        // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - canUseUpAttack/
+        // canUseAirAttackはこのDoUpAttack(見た目+Hitboxのみ)を止めるだけで、
+        // 直前のvelocityY=jumpForce/jumpsUsed++/JumpStarted等のジャンプ物理
+        // 自体には一切関与しない - ジャンプそのものは常に正常に機能する。
+        bool isAirborneUpAttack = jumpsUsed >= 2;
+        if (isAirborneUpAttack ? canUseAirAttack : canUseUpAttack)
+        {
+            StartCoroutine(DoUpAttack(isAirborneUpAttack));
+        }
     }
 
     // Operation System Ver.2, item 2 - "上フリック=ジャンプ攻撃"/"空中で

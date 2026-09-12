@@ -598,7 +598,14 @@ public class EnemyController : MonoBehaviour
     // (Update()側のタイマー終了時にRestoreMotionComponentsで戻す)。
     void ApplyGroundKnockback()
     {
-        groundKnockbackVelocityX = PlayerForwardSpeed() + groundKnockbackSpeedBonus;
+        // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - KnockbackPower
+        // Multiplier(既定1、弱いキャラほど<1)はEnemy側のこのボーナス分にの
+        // み掛かる - PlayerForwardSpeed()自体(=主人公の現在の自動前進速度)
+        // には触れないので、「敵に追いつかれない」ための速度パリティ自体
+        // は弱いキャラでも常に保たれる(=一瞬で密着してしまうことはない)。
+        float bonus = groundKnockbackSpeedBonus;
+        if (PlayerController.Instance != null) bonus *= PlayerController.Instance.KnockbackPowerMultiplier;
+        groundKnockbackVelocityX = PlayerForwardSpeed() + bonus;
         groundKnockbackTimer = groundKnockbackDuration;
         DisableMotionComponents();
 

@@ -21,6 +21,13 @@ public static class RunCheckpoint
     public class Data
     {
         public bool active;
+        // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - このRunが
+        // どのキャラクターで開始されたか。GameManager.SelectedCharacterId
+        // (Homeでいつでも変えられる「次回NEW RUNの既定値」)とは別物 -
+        // 一度Runが始まったら、その後Character Selectで選択を変えても
+        // このRun自体のキャラクターは変わらない(BeginContinuedRunは必ず
+        // この値を使う、SelectedCharacterIdは使わない)。
+        public string characterId;
         // Where Gameplay actually resumes (the last Boss Reward's
         // completion point) - item 10/12's "距離だけCheckpointへ戻る".
         public float checkpointDistance;

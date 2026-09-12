@@ -349,10 +349,34 @@ public class GameManager : MonoBehaviour
     public int GetCharacterCardLevel(int slot) => (slot >= 0 && slot < CharacterCardSlotCount) ? Mathf.Max(1, characterCardLevels[slot]) : 1;
 
     // ===== キャラクター選択(2026-09-12) ===== //
-    // 「どの主人公を使うか」の永続化。今回はまだ戦闘性能への反映を行わない
-    // (CharacterSelectUI/CharacterDefinition参照) - この文字列はCharacter
-    // Select画面の表示・Home左上の新規ホットスポットの表示にのみ使われる。
+    // 「どの主人公を使うか」の永続化 - Homeでいつでも変更できる「次回
+    // NEW RUNの既定値」。プレイアブル主人公追加(2026-09-12、お嬢様騎士)
+    // 以降は実際の戦闘性能にも反映されるが、あくまで"次回"の既定値であり、
+    // 既にActiveなRun自身のキャラクター(RunCheckpoint.Data.characterId/
+    // activeRunCharacterId)には一切影響しない。
     public string SelectedCharacterId { get; private set; }
+
+    // Run開始時(StartGame)にSelectedCharacterIdのスナップショットとして
+    // 記録し、以後そのRunがずっと使い続けるキャラクターID。Continueでは
+    // RunCheckpoint.Data.characterId(保存済みのRunが実際に使っていた値)
+    // から復元する - SelectedCharacterIdをそのまま使わないのは、Continue
+    // より前にHomeでCharacter Selectの選択を変えてしまった場合にRunの
+    // キャラクターが差し替わってしまうのを防ぐため(マスターの明示要件)。
+    string activeRunCharacterId;
+
+    // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - Run開始時
+    // (StartGame/BeginContinuedRunの両方、ApplyCharacterCardEffectsより
+    // 前)に一度だけ呼ばれ、選択中/保存済みキャラクターのベース性能を
+    // maxLives/Lives、およびPlayerController側の各種性能へ適用する。
+    // defがnull(未知のcharacterId等の異常系)の場合は何もせず、Awake()で
+    // 既に設定済みの既定値のまま進む(安全側 - 黒剣士相当のまま)。
+    void ApplyCharacterBaseStats(CharacterDefinition def)
+    {
+        if (def == null) return;
+        maxLives = def.baseMaxLives;
+        Lives = def.baseLives;
+        if (PlayerController.Instance != null) PlayerController.Instance.ApplyCharacterBaseStats(def);
+    }
 
     void LoadSelectedCharacter()
     {
@@ -1091,6 +1115,8 @@ public class GameManager : MonoBehaviour
             {
                 HasStarted = true;
                 runStartTime = Time.time;
+                activeRunCharacterId = SelectedCharacterId;
+                ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
                 ApplyCharacterCardEffects();
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
                 startTransitioning = false;
@@ -1114,6 +1140,8 @@ public class GameManager : MonoBehaviour
 
         HasStarted = true;
         runStartTime = Time.time;
+        activeRunCharacterId = SelectedCharacterId;
+        ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
         ApplyCharacterCardEffects();
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
 
@@ -2289,6 +2317,7 @@ public class GameManager : MonoBehaviour
 
     void FillCheckpointSnapshot(RunCheckpoint.Data data)
     {
+        data.characterId = activeRunCharacterId;
         data.highestReachedDistance = HighestReachedDistance;
         data.lives = Lives;
         data.maxLives = maxLives;
@@ -2361,6 +2390,16 @@ public class GameManager : MonoBehaviour
         RunEnemyMile = data.runEnemyMile;
         RunBossMile = data.runBossMile;
         escapeUnlocked = data.escapeUnlocked;
+
+        // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - このRunが実際
+        // に開始された時のキャラクター(data.characterId)を使う。Homeで
+        // Character Selectの選択(SelectedCharacterId)がその後変わって
+        // いても、このRun自体のキャラクターは変わらない(マスターの明示
+        // 要件)。data.characterIdが空(=この仕組みが入る前に保存された
+        // 旧いActive Run)の場合のみ、後方互換としてSelectedCharacterIdへ
+        // フォールバックする。
+        activeRunCharacterId = !string.IsNullOrEmpty(data.characterId) ? data.characterId : SelectedCharacterId;
+        ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
 
         // Item 8 - "Run中カード効果/各カードStack/Character Card由来の効
         // 果/Run中の現在能力" are reconstructed by REPLAYING the exact same
