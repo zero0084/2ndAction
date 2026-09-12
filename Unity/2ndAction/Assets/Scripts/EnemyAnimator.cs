@@ -112,8 +112,26 @@ public class EnemyAnimator : MonoBehaviour
 
         if (!ownsRootMotion)
         {
-            Vector3 bob = isFlying ? new Vector3(0f, s * bobAmount, 0f) : Vector3.zero;
-            transform.position = basePos + bob;
+            // 不具合修正(2026-09-12) - 「地上通常攻撃のノックバックが効いて
+            // いない、敵がその場に留まりやすい」の根本原因。従来はここで
+            // transform.position全体(X/Y/Z)を、Start()時にキャプチャした
+            // 固定のbasePosへ毎フレーム無条件で書き戻していた。
+            // EnemyController.KnockbackRoutine(通常ヒットの軽いノックバッ
+            // ク)実行中はコルーチン側の書き込みが同フレーム内で後勝ちする
+            // ため一瞬だけ効いて見えるが、コルーチンが終わった直後の次の
+            // フレームでここが即座にX座標をスポーン時の位置まで巻き戻し
+            // ていた - 「攻撃するたびに敵と主人公が一緒に前へ移動する」が
+            // 一切蓄積せず、ヒットのたびにスポーン地点へ引き戻されていた
+            // (エリアルコンボのLaunchが機能しなかった不具合と全く同じ
+            // パターン - 参照: EnemyControllerのAwake/AddComponentの説明)。
+            // 「足を地面に固定する」という本来の意図はY軸(浮かない)だけの
+            // ためであり、X軸まで固定する設計上の理由はない(Flyingのbobも
+            // Yのみ) - Y軸だけbasePosへ固定し、X軸はKnockbackRoutine等の
+            // 他ロジックによる書き込みをそのまま尊重する。
+            float bobY = isFlying ? s * bobAmount : 0f;
+            Vector3 pos = transform.position;
+            pos.y = basePos.y + bobY;
+            transform.position = pos;
         }
 
         bool hasRunAnimation = runFrames != null && runFrames.Length > 0 && visualRenderer != null;

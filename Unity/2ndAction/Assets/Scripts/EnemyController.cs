@@ -64,6 +64,16 @@ public class EnemyController : MonoBehaviour
     // を使っていたため、実は死亡時にしか反映されていなかった)。
     public float hitKnockbackDistance = 0.12f;
     public float hitKnockbackDuration = 0.1f;
+
+    [Header("Ground Normal Attack Knockback (2026-09-12: 敵をその場に固定しない)")]
+    // アエリアルコンボ追加調整(2026-09-12), item 1 - 「地上通常攻撃にも
+    // 軽いノックバックを追加、敵と主人公が一緒に少しずつ前へ移動する」。
+    // 上のhitKnockbackDistance/Durationは下攻撃(非Launch時)やHeavy種族の
+    // 上書き等でも共用される汎用値のため、地上通常攻撃専用にこちらを新設
+    // - 「敵を遠くへ吹き飛ばす」のではなく次の一撃がそのまま届く程度の
+    // 距離を維持する狙い。
+    public float groundHitKnockbackDistance = 0.35f;
+    public float groundHitKnockbackDuration = 0.15f;
     public bool hitParticleEnabled = true;
     // Assets/Art/Effects/HitSpark.png (see SceneBuilder) - falls back to
     // the plain procedural dot if not assigned, so this never breaks an
@@ -100,7 +110,7 @@ public class EnemyController : MonoBehaviour
     public float deathKnockbackDistanceMultiplier = 2.5f;
     public float deathKnockbackDurationMultiplier = 1.4f;
 
-    [Header("Aerial Combo - Up Attack (敵を打ち上げる)")]
+    [Header("Aerial Combo - Up Attack (敵を斜め前方へ打ち上げる)")]
     // 不具合修正(2026-09-12) - 「上攻撃を当ててもゴブリンがほぼ浮かない」。
     // 根本原因は打ち上げ物理そのものではなく、下のDisableMotionComponents
     // が実際には一度も効いていなかったこと(Awakeの説明コメント参照) -
@@ -111,19 +121,42 @@ public class EnemyController : MonoBehaviour
     // 頂点到達まで約0.6秒でプレイヤーが二段ジャンプで追いつきやすい)。
     public float launchUpSpeed = 9f;
     public float launchGravity = 15f;
-    // 打ち上げの瞬間、進行方向へ少しだけ運ぶ(「ここから空中コンボへ移行
-    // 可能」、プレイヤーが追いつきやすいよう大きくは動かさない)。
-    public float launchForwardBoost = 0.6f;
+    // アエリアルコンボ追加調整(2026-09-12) - 「主人公が自動前進中でも空中
+    // 追撃につなげられるように、真上ではなく斜め前方へLaunchする」。旧
+    // launchForwardBoost(0.25秒だけの一時的な後押し、ForwardCarryRoutine
+    // 経由)は前進が短時間しか続かず、その後は敵が空中で静止したままに
+    // 見えていた可能性が高い - 主人公は自動前進を続けるため、結果的に敵
+    // が置き去りになる/真下をすり抜けるように感じられる。代わりに、Launch
+    // 中はPlayerController.CurrentAutoRunSpeed(距離によるSpeed Up後の値も
+    // 自動追従)にこの値を上乗せした水平速度をUpdate()で毎フレーム積分し
+    // 続ける(launchVelocityX、下記)方式へ変更 - 「主人公と一緒に前進し
+    // ながら浮いている」を維持する。
+    public float launchForwardExtraSpeed = 1.5f;
+
+    [Header("Aerial Combo - Air Re-Launch (空中の敵に上攻撃を当てた場合、地上より弱く浮かせ直す)")]
+    // 今回追加(2026-09-12) - 「上攻撃→Launch→追撃→空中上攻撃→再度浮かせ
+    // る→さらに追撃」を可能にする。地上からの初回Launch(launchUpSpeed)
+    // より弱めにすることで「地上上攻撃：大きく打ち上げる/空中上攻撃：
+    // 落ちてきた敵をもう一度軽く浮かせ直す」という強弱の差を付ける。
+    // 再Launch自体の回数制限は設けない(マスター指示:「無限に敵を浮かせ
+    // 続けられる状態でも問題ない、まずは気持ちよくつながることを優先」)。
+    public float airLaunchUpSpeed = 6f;
+    public float airLaunchForwardExtraSpeed = 0.8f;
 
     [Header("Aerial Combo - Air Hit (浮いている敵を追撃)")]
     // 空中ヒットのたびに落下速度をこの値まで戻す(0にはしない = 「簡単に
     // 地面へ落ちない」程度に留め、完全な空中停止は避ける)。
     public float juggleHoverFallSpeed = -1.5f;
-    // 空中ヒット1回ごとに、少し前方向へ運ぶ。
-    public float juggleForwardCarry = 1.0f;
+    // アエリアルコンボ追加調整(2026-09-12), item 5 - 「空中通常攻撃は敵を
+    // 前へ運ぶ」。既に上攻撃でこれより速く前進中なら減速させないよう、
+    // 水平速度の下限としてのみ適用する(ExtendJuggle参照)。旧
+    // juggleForwardCarry(ForwardCarryRoutineによる0.2秒間の一時的な位置
+    // 加算)から、launchVelocityXへの速度目標方式に統一した。
+    public float juggleForwardExtraSpeed = 1.0f;
     // 安全装置 - 永久に空中へ拘束しない。打ち上げ開始からこの時間を過ぎ
-    // ると、以降のヒットで滞空を延長できなくなり、重力に任せて自然落下
-    // する。
+    // ると、以降の空中"通常"攻撃では滞空を延長できなくなり、重力に任せて
+    // 自然落下する(上攻撃による再Launchはこの制限を受けない - 上のAir
+    // Re-Launchヘッダー参照)。
     public float maxJuggleDuration = 3f;
 
     [Header("Aerial Combo - Down Attack Slam (空中の敵を叩き落とす)")]
@@ -152,6 +185,12 @@ public class EnemyController : MonoBehaviour
     // →死亡していれば大きく吹き飛ぶ」の順序を再現するため)。
     bool pendingDeathOnLand;
     float launchVelocityY;
+    // アエリアルコンボ追加調整(2026-09-12) - Launch中の水平方向の速度。
+    // ForwardCarryRoutine(一時的な位置加算コルーチン)を廃止し、こちらを
+    // launchVelocityYと同様にUpdate()で毎フレーム積分し続ける方式にした
+    // - Launch/再Launch/空中通常攻撃のたびに目標速度へ更新される
+    // (LaunchUpward/ExtendJuggle参照)。
+    float launchVelocityX;
     float launchBaseGroundY;
     float juggleElapsed;
 
@@ -195,7 +234,7 @@ public class EnemyController : MonoBehaviour
 
         juggleElapsed += Time.deltaTime;
         launchVelocityY -= launchGravity * Time.deltaTime;
-        transform.position += new Vector3(0f, launchVelocityY * Time.deltaTime, 0f);
+        transform.position += new Vector3(launchVelocityX * Time.deltaTime, launchVelocityY * Time.deltaTime, 0f);
 
         float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(transform.position.x) : (float?)null;
         float floor = groundY ?? launchBaseGroundY;
@@ -296,8 +335,14 @@ public class EnemyController : MonoBehaviour
                 }
                 else
                 {
-                    // item 2 - 「小さく後方へノックバック、軽いひるみ」。
-                    StartCoroutine(KnockbackRoutine(AwayDirFromPlayer(), hitKnockbackDistance, hitKnockbackDuration));
+                    // アエリアルコンボ追加調整(2026-09-12) - 「地上通常攻撃
+                    // にも軽いノックバックを追加、敵をその場に固定しない」。
+                    // 汎用のhitKnockbackDistance/AwayDirFromPlayerではなく、
+                    // 専用のgroundHitKnockbackDistanceを常にForwardDir(=
+                    // 主人公の自動前進方向)へ適用する - 「敵を遠くへ吹き
+                    // 飛ばす」のではなく「攻撃するたびに敵と主人公が一緒に
+                    // 少しずつ前へ移動する」ため。
+                    StartCoroutine(KnockbackRoutine(ForwardDir, groundHitKnockbackDistance, groundHitKnockbackDuration));
                 }
                 break;
         }
@@ -306,6 +351,14 @@ public class EnemyController : MonoBehaviour
     float AwayDirFromPlayer() => PlayerController.Instance != null
         ? Mathf.Sign(transform.position.x - PlayerController.Instance.transform.position.x)
         : 1f;
+
+    // アエリアルコンボ追加調整(2026-09-12) - OneMoreMileは常にワールド+X
+    // 方向へのみ自動前進するランナーのため、「主人公の進行方向」はPlayer
+    // 位置との相対計算(AwayDirFromPlayer)を介さず常にこの定数で表せる。
+    // 地上通常攻撃のノックバック・Launchの前方速度はいずれも「主人公の
+    // 進行方向」を意図しているため、万一敵がPlayerの後方にいる状況でも
+    // 一貫して+Xへ押す/運ぶ。
+    const float ForwardDir = 1f;
 
     // 生存ヒット共通の「命中演出」(ヒットスパーク+ヒットストップ+被弾
     // フラッシュ) - 旧NonLethalHit/HitAndDie前半の共通部分を1箇所に統合。
@@ -340,14 +393,27 @@ public class EnemyController : MonoBehaviour
 
     void LaunchUpward()
     {
-        // 安全装置 - 最大滞空時間を使い切った後は再度打ち上げない(重力に
-        // 任せて自然落下させる)。
-        if (isLaunched && juggleElapsed >= maxJuggleDuration) return;
+        // アエリアルコンボ追加調整(2026-09-12) - 「空中上攻撃の再Launchは
+        // 無限に可能でよい」との明示的な指示のため、maxJuggleDurationに
+        // よる打ち止めはここでは行わない(ExtendJuggle側の通常空中攻撃の
+        // 滞空延長のみ、既存どおりこの安全装置の対象のまま)。
 
         bool wasAlreadyLaunched = isLaunched;
         isLaunched = true;
         isSlamming = false;
-        launchVelocityY = launchUpSpeed;
+
+        // 地上からの初回Launchは大きく、空中での再Launch("空中上攻撃")は
+        // それより弱く - 「地上上攻撃：大きく打ち上げる/空中上攻撃：もう
+        // 一度軽く浮かせ直す」という強弱の差(項目4)。launchVelocityYを
+        // 無条件に上書きするため、再Launch時点の落下速度も同時にリセット
+        // される(項目4「現在の下降速度を一度弱める、またはリセット」)。
+        float upSpeed = wasAlreadyLaunched ? airLaunchUpSpeed : launchUpSpeed;
+        float forwardExtra = wasAlreadyLaunched ? airLaunchForwardExtraSpeed : launchForwardExtraSpeed;
+        launchVelocityY = upSpeed;
+        // 主人公が自動前進中でも追いつける位置関係を保つため、常に「主人
+        // 公の現在の自動前進速度」を基準に上乗せする(固定値だけだと、
+        // 距離が進んでSpeed Upした後は相対的に敵が置いていかれる)。
+        launchVelocityX = ForwardLaunchSpeed(forwardExtra);
 
         if (!wasAlreadyLaunched)
         {
@@ -363,37 +429,33 @@ public class EnemyController : MonoBehaviour
         // 検知・今後の数値調整の当たりを付ける用途)。
         if (GameManager.Instance != null && GameManager.Instance.DebugMode)
         {
-            Debug.Log($"[AerialCombo] LaunchUpward {name} y={transform.position.y:F2} velocityY={launchVelocityY:F2} alreadyLaunched={wasAlreadyLaunched}");
+            Debug.Log($"[AerialCombo] LaunchUpward {name} y={transform.position.y:F2} velocityY={launchVelocityY:F2} velocityX={launchVelocityX:F2} alreadyLaunched={wasAlreadyLaunched}");
         }
-
-        StartCoroutine(ForwardCarryRoutine(launchForwardBoost, 0.25f));
     }
+
+    // 主人公の現在の自動前進速度(距離によるSpeed Up込み、PlayerController.
+    // CurrentAutoRunSpeed)に、Launch種別ごとの上乗せ分を足した水平速度 -
+    // Update()でlaunchVelocityXとして毎フレーム積分され続ける(一時的な
+    // コルーチンではなく、Launch中ずっと有効)。
+    float ForwardLaunchSpeed(float extra) => (PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f) + extra;
 
     void ExtendJuggle()
     {
         if (!isLaunched || juggleElapsed >= maxJuggleDuration) return;
         launchVelocityY = Mathf.Max(launchVelocityY, juggleHoverFallSpeed);
-        StartCoroutine(ForwardCarryRoutine(juggleForwardCarry, 0.2f));
+        // item 5 - 「空中通常攻撃は敵を前へ運ぶ」。既に上攻撃でこれより
+        // 速く前進中なら減速させないよう、下限としてのみ適用する。
+        launchVelocityX = Mathf.Max(launchVelocityX, ForwardLaunchSpeed(juggleForwardExtraSpeed));
     }
 
     void StartSlam()
     {
         isSlamming = true;
         launchVelocityY = -slamSpeed;
-    }
-
-    // Launch中の一定速度の前方ドリフト - KnockbackRoutineと違い、狙った
-    // 位置へLerpするのではなく、その場から速度ぶんだけ加算し続ける単純な
-    // 実装(Update()側のY軸物理と独立に、Xだけをここで動かす)。
-    IEnumerator ForwardCarryRoutine(float speed, float duration)
-    {
-        float t = 0f;
-        while (t < duration)
-        {
-            t += Time.deltaTime;
-            transform.position += new Vector3(speed * Time.deltaTime, 0f, 0f);
-            yield return null;
-        }
+        // item 6 - 下攻撃はコンボ終了用の縦の叩き落とし。水平方向の
+        // ドリフトが残っていると斜めに落ちてしまい「叩き落とす」フィニ
+        // ッシュの見た目を損なうため、Slam開始時にゼロへ戻す。
+        launchVelocityX = 0f;
     }
 
     void LandFromLaunch(float landY)
@@ -401,6 +463,7 @@ public class EnemyController : MonoBehaviour
         isLaunched = false;
         bool wasSlamming = isSlamming;
         isSlamming = false;
+        launchVelocityX = 0f;
         transform.position = new Vector3(transform.position.x, landY, transform.position.z);
 
         if (GameManager.Instance != null && GameManager.Instance.DebugMode)
