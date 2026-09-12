@@ -149,11 +149,18 @@ public class RewardCardSequence : MonoBehaviour
     // 「テンポを優先」「3枚が揃った後の待機は約0.3〜0.5秒程度」。
     public float cardShowcaseHold = 0.32f;
 
+    // カード選出演出の修正(2026-09-12) - カード→行の切り替えを「カードを
+    // 消してから行を出す」の2段階から、「カードが行の位置へ移動しながら
+    // 入れ替わる」1回のクロスフェードへ統合したため、旧
+    // choicePanelFadeInDuration/rowAppearInterval/rowAppearDuration
+    // (段階ごとに別々の長さ・出現間隔を持たせていた)は不要になり削除 -
+    // 今はcardExitDuration1つだけが遷移全体の長さを決める。
     [Header("Timing - Card -> Choice Row Transition")]
-    public float cardExitDuration = 0.1f;
-    public float choicePanelFadeInDuration = 0.1f;
-    public float rowAppearInterval = 0.05f;
-    public float rowAppearDuration = 0.12f;
+    // カードが実際に行の位置まで滑っていくのが見える程度の長さ(短すぎる
+    // と瞬間移動に見え、「移動している」という肝心の連続性が伝わらない)。
+    // 旧実装(カード退場0.1s+行入場側だけで最大0.42s)より遷移全体は
+    // 短いままなので、ここを少し伸ばしても体感テンポは悪化しない。
+    public float cardExitDuration = 0.2f;
 
     [Header("Timing - Row Selection Payoff (target ~0.4-0.6s total)")]
     // Step 6 - immediate in-place "picked" feedback(行の拡大+縁の発光)。
@@ -416,40 +423,52 @@ public class RewardCardSequence : MonoBehaviour
         LogStep("Card Showcase Complete");
         LogPresentation("[LevelUpPresentation] Card showcase complete");
 
-        // ===== 「カードから横長選択UIへ切り替え」 - カードを縮めて消し、
-        // 入れ替わりに横長3択パネル(LevelUpChoiceRowUI×3)をフェード/
-        // スケールインさせる。RewardCardData自体(cardData)はカード表示の
-        // ときと完全に同じものをそのまま行UIへ渡すだけ - 抽選/効果適用
-        // ロジックには一切触れていない。 =====
+        // ===== 「カードから横長選択UIへ切り替え」 =====
+        // カード選出演出の修正(2026-09-12) - マスター報告「抽選された3枚
+        // が一度なくなってから、選択用の3枚が改めて表示される」という
+        // 見え方の解消。以前はカード3枚をその場でフェードアウトさせて
+        // 完全に消してから、無関係な位置で横長行3つを別途フェードインさ
+        // せていた(=「引いたカード」と「選ぶカード」が別物に見える)。
+        // 今回は同じインデックスのカード/行が同じRewardCardDataを表示す
+        // る対応関係を利用し、各カードをそれぞれの行の最終位置(rows[i].
+        // rect.anchoredPosition)へ向けて実際に移動させながら縮小/フェード
+        // アウトし、"同じ場所・同じタイミング"でその行を拡大/フェードイン
+        // させる - カードが消える一瞬前にはもう行が育っており、「抽選した
+        // 3枚がそのまま選択肢へ展開していく」ように見える(空白時間なし、
+        // カードを完全に消してから行を出す、という順序自体をやめた)。
+        // 「過度に派手な新規演出は不要」との指示どおり、3枚同時・単一の
+        // cardExitDurationのみで完結させる(個別の出現間隔は付けない)。
         LogStep("Card->Row Transition Start");
-        for (int i = 0; i < cardCount; i++)
-        {
-            StartCoroutine(cards[i].FadeTo(0f, cardExitDuration));
-            StartCoroutine(cards[i].ScaleTo(0.85f, cardExitDuration));
-        }
-        yield return new WaitForSecondsRealtime(cardExitDuration);
-        for (int i = 0; i < cards.Length; i++) cards[i].gameObject.SetActive(false);
-
         if (choiceHeaderText != null) choiceHeaderText.text = announcementText;
         for (int i = 0; i < cardCount; i++)
         {
             rows[i].gameObject.SetActive(true);
             rows[i].SetContent(cardData[i]);
-            rows[i].rect.localScale = Vector3.one * 0.92f;
+            rows[i].rect.localScale = Vector3.one * 0.94f;
             rows[i].canvasGroup.alpha = 0f;
         }
         if (choicePanelGroup != null)
         {
             choicePanelGroup.gameObject.SetActive(true);
-            yield return FadeCanvasGroup(choicePanelGroup, 1f, choicePanelFadeInDuration);
+            choicePanelGroup.alpha = 1f; // 個々の行のalphaで見え方を制御するので、パネル自体は最初から不透明でよい
         }
+
         for (int i = 0; i < cardCount; i++)
         {
-            StartCoroutine(rows[i].FadeTo(1f, rowAppearDuration));
-            StartCoroutine(rows[i].ScaleTo(1f, rowAppearDuration));
-            if (i < cardCount - 1) yield return new WaitForSecondsRealtime(rowAppearInterval);
+            // カード自身を、対応する行がこれから表示される「その場所」へ
+            // 実際に移動させる - 「同じカードオブジェクト、または少なくと
+            // も見た目として同じカードがそのまま移動している」ように。
+            StartCoroutine(cards[i].MoveTo(rows[i].rect.anchoredPosition, cardExitDuration));
+            StartCoroutine(cards[i].ScaleTo(0.9f, cardExitDuration));
+            StartCoroutine(cards[i].FadeTo(0f, cardExitDuration));
+            // カードが向かっているのと全く同じ場所・同じ長さで、対応する
+            // 行を拡大しながらフェードインさせる - 「カードが行に置き換
+            // わっていく」ように重ねる。
+            StartCoroutine(rows[i].FadeTo(1f, cardExitDuration));
+            StartCoroutine(rows[i].ScaleTo(1f, cardExitDuration));
         }
-        yield return new WaitForSecondsRealtime(rowAppearDuration);
+        yield return new WaitForSecondsRealtime(cardExitDuration);
+        for (int i = 0; i < cards.Length; i++) cards[i].gameObject.SetActive(false);
         LogStep("Card->Row Transition Complete");
         LogPresentation("[LevelUpPresentation] Choice rows shown");
 
