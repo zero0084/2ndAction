@@ -110,27 +110,26 @@ public class EnemyAnimator : MonoBehaviour
         swayPhase += Time.deltaTime * swaySpeed;
         float s = Mathf.Sin(phase);
 
-        if (!ownsRootMotion)
+        if (!ownsRootMotion && isFlying)
         {
             // 不具合修正(2026-09-12) - 「地上通常攻撃のノックバックが効いて
-            // いない、敵がその場に留まりやすい」の根本原因。従来はここで
-            // transform.position全体(X/Y/Z)を、Start()時にキャプチャした
-            // 固定のbasePosへ毎フレーム無条件で書き戻していた。
-            // EnemyController.KnockbackRoutine(通常ヒットの軽いノックバッ
-            // ク)実行中はコルーチン側の書き込みが同フレーム内で後勝ちする
-            // ため一瞬だけ効いて見えるが、コルーチンが終わった直後の次の
-            // フレームでここが即座にX座標をスポーン時の位置まで巻き戻し
-            // ていた - 「攻撃するたびに敵と主人公が一緒に前へ移動する」が
-            // 一切蓄積せず、ヒットのたびにスポーン地点へ引き戻されていた
-            // (エリアルコンボのLaunchが機能しなかった不具合と全く同じ
-            // パターン - 参照: EnemyControllerのAwake/AddComponentの説明)。
-            // 「足を地面に固定する」という本来の意図はY軸(浮かない)だけの
-            // ためであり、X軸まで固定する設計上の理由はない(Flyingのbobも
-            // Yのみ) - Y軸だけbasePosへ固定し、X軸はKnockbackRoutine等の
-            // 他ロジックによる書き込みをそのまま尊重する。
-            float bobY = isFlying ? s * bobAmount : 0f;
+            // いない、敵がその場に留まりやすい」の根本原因だった、Y軸だけを
+            // Start()時の固定basePosへ毎フレーム書き戻す処理(X軸は既に
+            // このパスで対象外)。
+            //
+            // 実機フィードバック(2026-09-12第4弾) - 「足場のない場所へ敵が
+            // 吹き飛ばされた後もその場で立った状態になることがある」の
+            // 根本原因もこれだった。EnemyController側にLaunch/Slam以外の
+            // 状態でも常時接地判定(UpdateNormalGroundCheck)を行う仕組みを
+            // 新設したため、Y軸の管理は完全にEnemyController(通常時は各
+            // Behaviorの配置ロジック、地面が消えた場合はUpdateNormalGround
+            // Check自身の重力落下)に一本化した - ここでの固定basePos.yへの
+            // 書き戻しは、地形追従にも落下にも対応できない古い代替実装
+            // だったため完全に撤去し、Flying種のY方向bobのみ残す(Flyingは
+            // UpdateNormalGroundCheckの対象外 - EnemySpecialBehavior.
+            // UpdateFlyingが独自の高度管理を持つため)。
             Vector3 pos = transform.position;
-            pos.y = basePos.y + bobY;
+            pos.y = basePos.y + s * bobAmount;
             transform.position = pos;
         }
 

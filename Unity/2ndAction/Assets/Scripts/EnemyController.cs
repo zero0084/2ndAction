@@ -79,6 +79,33 @@ public class EnemyController : MonoBehaviour
     // ノックバック速度を維持する時間 - この間は主人公より速く前進し続け、
     // 0になった瞬間に通常状態へ戻る(以降は主人公が追いつく側に回る)。
     public float groundKnockbackDuration = 0.2f;
+
+    // 実機フィードバック(2026-09-12第4弾) - 「攻撃後、敵との横方向の距離
+    // が開きすぎて追撃しづらい」。上のノックバックが終わった瞬間に敵を
+    // 完全静止させていたため、そこから先は主人公だけが進み続け、一度開い
+    // た距離がそのまま維持/拡大してしまっていた。ノックバック終了直後、
+    // 短時間だけ敵のX速度を「主人公の現在速度 × groundFollowAssistFactor」
+    // へ切り替える追従補正フェーズを追加した - 敵を主人公へ完全吸着させる
+    // のではなく(factor<1なら主人公がゆっくり追いつく、>1なら敵がわずか
+    // に先行し続ける)、次の攻撃が届く程度の間合いを保つことが狙い。
+    [Header("Ground Knockback Follow Assist (ノックバック後、短時間だけ間合いを維持)")]
+    public float groundFollowAssistDuration = 0.2f;
+    [Range(0.5f, 1.5f)] public float groundFollowAssistFactor = 1.0f;
+
+    // 実機フィードバック(2026-09-12第4弾) - 「足場のない場所へ敵が吹き
+    // 飛ばされた後もその場で立った状態になることがある」。従来、Launch/
+    // Slam以外の状態(通常のノックバック・追従補正・単なる静止)では敵の
+    // Y座標に対する接地判定が一切行われていなかった(EnemyAnimatorが
+    // Spawn時の固定Yへピン留めしていただけ - 下記EnemyAnimator.csの修正
+    // 参照)。UpdateNormalGroundCheck()が、Launch中でない間ずっと毎フレー
+    // ム「今のX位置に地面があるか」を監視し、無ければ即座にAirborneへ
+    // 切り替えて重力で落下させる(Movementの通常の地面判定に相当) -
+    // ノックバック/追従補正中も含めて常時有効。
+    [Header("Ground Check (足場のない場所で敵が浮いたまま/立ったままにならないように)")]
+    public float groundFallGravity = 20f;
+    // Player.failYと同じ考え方 - これを下回ったら落下死として処理する
+    // (item 9 - 足場外へ落とすことを正式な戦闘手段として成立させる)。
+    public float enemyDeathBelowY = -8f;
     public bool hitParticleEnabled = true;
     // Assets/Art/Effects/HitSpark.png (see SceneBuilder) - falls back to
     // the plain procedural dot if not assigned, so this never breaks an
@@ -158,8 +185,11 @@ public class EnemyController : MonoBehaviour
     // アエリアルコンボ追加調整(2026-09-12), item 5 - 「空中通常攻撃は敵を
     // 前へ運ぶ」。上のlaunchForwardBurstSpeedと同じ「短時間バースト」方式
     // (launchForwardBurstDurationを共有)、ヒットのたびにバーストを再ス
-    // タートする(ExtendJuggle参照)。
-    public float juggleForwardBurstSpeed = 4f;
+    // タートする(ExtendJuggle参照)。実機フィードバック(2026-09-12第4弾)
+    // item 4「空中コンボ時は追従を少し強めても構わない」を受けて4→5に
+    // 微調整(地上の追従補正と違い、空中は既にパリティ+バーストで常時
+    // 主人公と並走しているため、この値は「並走速度への上乗せ分」のみ)。
+    public float juggleForwardBurstSpeed = 5f;
     // 安全装置 - 永久に空中へ拘束しない。打ち上げ開始からこの時間を過ぎ
     // ると、以降の空中"通常"攻撃では滞空を延長できなくなり、重力に任せて
     // 自然落下する(上攻撃による再Launchはこの制限を受けない - 上のAir
@@ -204,7 +234,6 @@ public class EnemyController : MonoBehaviour
     // (Update()参照)。
     float launchForwardBurstVelocity;
     float launchForwardBurstTimer;
-    float launchBaseGroundY;
     float juggleElapsed;
 
     // 実機フィードバック(2026-09-12第3弾) - 地上ノックバックの速度ベース
@@ -212,6 +241,15 @@ public class EnemyController : MonoBehaviour
     // Knockback/Update参照)。
     float groundKnockbackVelocityX;
     float groundKnockbackTimer;
+    // 実機フィードバック(2026-09-12第4弾) - ノックバック終了後の追従補正
+    // タイマー(groundKnockbackTimerが0になった瞬間にこちらへ引き継ぐ)。
+    float groundFollowAssistTimer;
+    // 実機フィードバック(2026-09-12第4弾) - Launch/Slamとは独立した、
+    // 「今、足元に地面があるか」の状態。trueの間はY座標に一切触れない
+    // (地形追従は各Behavior/既存配置ロジックの責務のまま)。falseの間は
+    // UpdateNormalGroundCheckが重力で落下させる。
+    bool normalGrounded = true;
+    float normalFallVelocityY;
 
     // 不具合修正(2026-09-12) - 「上攻撃で敵を明確に打ち上げる」が実機で
     // 機能しなかった根本原因。GroundFactory.CreateEnemyはEnemyController
@@ -278,22 +316,39 @@ public class EnemyController : MonoBehaviour
 
             transform.position += new Vector3(launchVelocityX * Time.deltaTime, launchVelocityY * Time.deltaTime, 0f);
 
+            // 実機フィードバック(2026-09-12第4弾) - 「Launchによって敵が
+            // 足場の外へ移動した後でも、地面がない位置で立った状態になる
+            // ことがある」。旧実装は現在X位置に地面が無い場合、打ち上げ
+            // 開始時点の地面高さ(launchBaseGroundY)を代替の床として着地
+            // させてしまっていた(=何もない場所での見えない床)。修正:
+            // 実在する地面が見つかった時だけ着地させ、見つからない間は
+            // そのまま重力に従って落下を続けさせ、デッドラインを超えた
+            // 時点で通常のノックバック経由の落下死と同じ扱いで撃破する。
             float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(transform.position.x) : (float?)null;
-            float floor = groundY ?? launchBaseGroundY;
-            if (transform.position.y <= floor)
+            if (groundY.HasValue && transform.position.y <= groundY.Value)
             {
-                LandFromLaunch(floor);
+                LandFromLaunch(groundY.Value);
+            }
+            else if (transform.position.y < enemyDeathBelowY)
+            {
+                dying = true;
+                gameObject.SetActive(false);
+                if (GameManager.Instance != null) GameManager.Instance.RegisterEnemyKill(mileReward);
             }
             return;
         }
 
-        // 実機フィードバック(2026-09-12第3弾) - 地上ノックバック(速度
-        // ベース)。ApplyGroundKnockbackが設定したgroundKnockbackVelocityX
-        // を、groundKnockbackTimerが尽きるまで毎フレーム積分し続ける -
-        // 「一定距離だけ瞬間移動」ではなく「短時間、主人公より速く前進」
-        // という質感の違いがここに表れる。タイマーが尽きたら通常状態へ
-        // 復帰(DisableMotionComponentsで止めていたEnemyAnimator/
-        // EnemySpecialBehaviorをRestoreMotionComponentsで戻す)。
+        // 実機フィードバック(2026-09-12第3弾/第4弾) - 地上ノックバック
+        // (速度ベース)→ノックバック後の追従補正、の2段階。ApplyGround
+        // Knockbackが設定したgroundKnockbackVelocityXを、groundKnockback
+        // Timerが尽きるまで毎フレーム積分し続ける - 「一定距離だけ瞬間
+        // 移動」ではなく「短時間、主人公より速く前進」という質感の違いが
+        // ここに表れる。タイマーが尽きたら即座に静止させるのではなく、
+        // groundFollowAssistDuration秒だけ「敵のX速度を主人公の現在速度
+        // ×groundFollowAssistFactorへ寄せる」追従補正フェーズへ引き継ぐ
+        // (第4弾で追加 - 「攻撃後、距離が開きすぎて追撃しづらい」の対策)。
+        // どちらのフェーズも完全な吸着(同じ座標への固定)ではなく、あくま
+        // で速度の一時的な上乗せ/追従であることに注意。
         if (groundKnockbackTimer > 0f)
         {
             groundKnockbackTimer -= Time.deltaTime;
@@ -301,8 +356,97 @@ public class EnemyController : MonoBehaviour
             if (groundKnockbackTimer <= 0f)
             {
                 groundKnockbackVelocityX = 0f;
+                groundFollowAssistTimer = groundFollowAssistDuration;
+            }
+        }
+        else if (groundFollowAssistTimer > 0f)
+        {
+            groundFollowAssistTimer -= Time.deltaTime;
+            float followSpeed = PlayerForwardSpeed() * groundFollowAssistFactor;
+            transform.position += new Vector3(followSpeed * Time.deltaTime, 0f, 0f);
+            if (groundFollowAssistTimer <= 0f && normalGrounded)
+            {
+                // 接地中であればモーション処理を復帰する - 追従補正が
+                // 終わった時点でまだ落下中(normalGrounded=false)なら
+                // ここでは復帰せず、UpdateNormalGroundCheckの着地処理に
+                // 委ねる(EnemySpecialBehavior/EnemyAnimatorが落下中に
+                // 動き出してしまうのを防ぐため)。
                 RestoreMotionComponents();
             }
+        }
+
+        UpdateNormalGroundCheck();
+    }
+
+    // 実機フィードバック(2026-09-12第4弾) - 「足場のない場所へ敵が吹き
+    // 飛ばされた後もその場で立った状態になることがある」の修正。Launch/
+    // Slam中(専用のY軸物理を持つ)を除く、通常状態(静止/ノックバック/
+    // 追従補正いずれの間も)で毎フレーム「今のX位置に地面があるか」を
+    // 監視する。地面が無くなった瞬間に即Airborneへ切り替えて重力落下させ、
+    // 着地したら元の状態へ戻す/デッドラインを超えたら撃破処理する
+    // (item 9 - 足場外への落下を正式な戦闘手段として成立させる)。
+    // Flyingは対象外(EnemySpecialBehavior.UpdateFlyingが独自の高度管理を
+    // 持ち、そもそも「地面」という概念に縛られないため)。
+    void UpdateNormalGroundCheck()
+    {
+        if (movementType == EnemyMovementType.Flying) return;
+
+        float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(transform.position.x) : (float?)null;
+
+        if (normalGrounded)
+        {
+            if (!groundY.HasValue)
+            {
+                normalGrounded = false;
+                normalFallVelocityY = 0f;
+                // 二重に無効化しても副作用はない(GetComponent<T>().enabled
+                // =falseの再代入なだけ) - ノックバック/追従補正中に足場が
+                // 切れた場合も含め、確実にモーション処理を止める。
+                DisableMotionComponents();
+                if (GameManager.Instance != null && GameManager.Instance.DebugMode)
+                {
+                    Debug.Log($"[GroundCheck] {name} lost ground at x={transform.position.x:F2} - falling");
+                }
+            }
+            return;
+        }
+
+        // Airborne(通常落下) - Player.Move()の落下処理と同じ考え方で、
+        // 一定の重力加速度に従って落下させる。
+        normalFallVelocityY -= groundFallGravity * Time.deltaTime;
+        transform.position += new Vector3(0f, normalFallVelocityY * Time.deltaTime, 0f);
+
+        if (groundY.HasValue && transform.position.y <= groundY.Value)
+        {
+            Vector3 pos = transform.position;
+            pos.y = groundY.Value;
+            transform.position = pos;
+            normalGrounded = true;
+            normalFallVelocityY = 0f;
+            // ノックバック/追従補正がまだ進行中でなければここでモーション
+            // 処理を復帰する(進行中ならそちらの終了時に復帰される)。
+            if (groundKnockbackTimer <= 0f && groundFollowAssistTimer <= 0f) RestoreMotionComponents();
+            if (GameManager.Instance != null && GameManager.Instance.DebugMode)
+            {
+                Debug.Log($"[GroundCheck] {name} landed at y={groundY.Value:F2}");
+            }
+            return;
+        }
+
+        if (transform.position.y < enemyDeathBelowY)
+        {
+            // item 9 - 「足場外への落下は不具合として防ぐのではなく、
+            // 戦闘上の正式な選択肢として成立させる」。通常のHitAndDie系の
+            // 演出(Flash/Knockback/Burst/Fade)は経由せず、即座に撃破扱い
+            // にする - 画面外へ落下していく最中なのでこれらの演出自体が
+            // 見えないため、必要最小限の処理に留めた。
+            if (GameManager.Instance != null && GameManager.Instance.DebugMode)
+            {
+                Debug.Log($"[GroundCheck] {name} fell past deadline y={transform.position.y:F2} - fall death");
+            }
+            dying = true;
+            gameObject.SetActive(false);
+            if (GameManager.Instance != null) GameManager.Instance.RegisterEnemyKill(mileReward);
         }
     }
 
@@ -496,9 +640,6 @@ public class EnemyController : MonoBehaviour
         if (!wasAlreadyLaunched)
         {
             juggleElapsed = 0f;
-            launchBaseGroundY = TerrainManager.Instance != null
-                ? (TerrainManager.Instance.GetHeightAt(transform.position.x) ?? transform.position.y)
-                : transform.position.y;
             DisableMotionComponents();
         }
 
