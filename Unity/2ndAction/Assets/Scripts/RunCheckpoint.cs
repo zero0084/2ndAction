@@ -28,6 +28,9 @@ public static class RunCheckpoint
         // このRun自体のキャラクターは変わらない(BeginContinuedRunは必ず
         // この値を使う、SelectedCharacterIdは使わない)。
         public string characterId;
+        // ステージ選択導線追加(2026-09-12) - characterIdと全く同じ理由・
+        // 役割。このRunが実際に出発したステージ。
+        public string stageId;
         // Where Gameplay actually resumes (the last Boss Reward's
         // completion point) - item 10/12's "距離だけCheckpointへ戻る".
         public float checkpointDistance;

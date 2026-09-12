@@ -26,6 +26,10 @@ public class GameManager : MonoBehaviour
     // 概念自体が存在しない - Continueは常にそのRunが始まった時点の状態を
     // そのまま復元するだけで、ここを勝手に読み書きすることはない。
     const string SelectedCharacterKey = "SelectedCharacterId";
+    // ステージ選択導線追加(2026-09-12) - 「選択ステージ=次回NEW RUNで
+    // 出発するステージ」の永続化キー。SelectedCharacterKeyと全く同じ
+    // パターン。
+    const string SelectedStageKey = "SelectedStageId";
 
     // The deck the player has built out of their (currently: always-owned -
     // there's no unlock/collection system yet) cards - TriggerLevelUpChoice
@@ -364,6 +368,13 @@ public class GameManager : MonoBehaviour
     // キャラクターが差し替わってしまうのを防ぐため(マスターの明示要件)。
     string activeRunCharacterId;
 
+    // ステージ選択導線追加(2026-09-12) - activeRunCharacterIdと全く同じ
+    // 理由・同じ役割。Run開始時にSelectedStageIdをスナップショットし、
+    // Continueでは必ずRunCheckpoint.Data.stageId(保存済みのRunが実際に
+    // 出発したステージ)から復元する - Homeで選択ステージを変えても既に
+    // Activeなrunには影響しない。
+    string activeRunStageId;
+
     // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - Run開始時
     // (StartGame/BeginContinuedRunの両方、ApplyCharacterCardEffectsより
     // 前)に一度だけ呼ばれ、選択中/保存済みキャラクターのベース性能を
@@ -406,6 +417,45 @@ public class GameManager : MonoBehaviour
         if (string.IsNullOrEmpty(characterId) || CharacterDatabase.FindById(characterId) == null) return;
         SelectedCharacterId = characterId;
         PlayerPrefs.SetString(SelectedCharacterKey, characterId);
+        PlayerPrefs.Save();
+    }
+
+    // ===== ステージ選択(2026-09-12) ===== //
+    // 「どのステージへ出発するか」の永続化 - Homeでいつでも変更できる
+    // 「次回NEW RUNの既定値」。SelectedCharacterIdと全く同じ設計、CONTINUE
+    // には一切影響しない(RunCheckpoint.Data.stageIdがそのRun自身の値を
+    // 別途保持する - activeRunStageIdのコメント参照)。
+    public string SelectedStageId { get; private set; }
+
+    void LoadSelectedStage()
+    {
+        string saved = PlayerPrefs.GetString(SelectedStageKey, "");
+        StageDefinition savedDef = StageDatabase.FindById(saved);
+        if (!string.IsNullOrEmpty(saved) && savedDef != null && savedDef.unlocked)
+        {
+            SelectedStageId = saved;
+            return;
+        }
+        // 未保存、保存値が存在しない、または保存値が(その後ロックされた
+        // 等で)未開放の場合は、開放済みの先頭ステージへ安全にフォール
+        // バックする(sortOrder順、CharacterDatabase.LoadSelectedCharacter
+        // と同じ考え方)。
+        foreach (StageDefinition def in StageDatabase.AllStages)
+        {
+            if (def.unlocked) { SelectedStageId = def.stageId; return; }
+        }
+        SelectedStageId = null;
+    }
+
+    // Stage Select画面のConfirmからのみ呼ばれる。「選択ステージ=次回
+    // NEW RUNで出発するステージ」という仕様どおり、Active Run/Checkpoint
+    // (RunCheckpoint.cs)には一切触れない。
+    public void SetSelectedStage(string stageId)
+    {
+        StageDefinition def = StageDatabase.FindById(stageId);
+        if (def == null || !def.unlocked) return;
+        SelectedStageId = stageId;
+        PlayerPrefs.SetString(SelectedStageKey, stageId);
         PlayerPrefs.Save();
     }
 
@@ -585,6 +635,8 @@ public class GameManager : MonoBehaviour
     float deskHotspotFlashTimer;
     // キャラクター選択画面(2026-09-12) - Home左上の新規ホットスポット用。
     float characterHotspotFlashTimer;
+    // ステージ選択導線追加(2026-09-12) - Home中央下の新規ホットスポット用。
+    float stageHotspotFlashTimer;
 
     // Desk "CARD GACHA" machine prop, drawn directly onto the room scene
     // (not its own screen/canvas) - see SceneBuilder for the import.
@@ -676,11 +728,16 @@ public class GameManager : MonoBehaviour
     public CharacterSelectUI characterSelectUI;
     bool characterSelectOpen;
 
+    // ステージ選択導線追加(2026-09-12) - CharacterSelectと全く同じ
+    // 開閉パターン。
+    public StageSelectUI stageSelectUI;
+    bool stageSelectOpen;
+
     // Every OnGUI guard that used to check "!deckEditOpen" alone now also
     // needs to hide while the Card Fusion overlay is open - folded into
     // one helper so those call sites don't need two separate negated
     // conditions each.
-    bool AnyOverlayOpen => deckEditOpen || cardFusionOpen || characterSelectOpen;
+    bool AnyOverlayOpen => deckEditOpen || cardFusionOpen || characterSelectOpen || stageSelectOpen;
 
     public void OpenCharacterSelect()
     {
@@ -702,6 +759,28 @@ public class GameManager : MonoBehaviour
     public void CloseCharacterSelect()
     {
         characterSelectOpen = false;
+    }
+
+    public void OpenStageSelect()
+    {
+        if (stageSelectUI == null) return;
+        if (ScreenTransitionManager.Instance != null)
+        {
+            if (ScreenTransitionManager.Instance.IsTransitioning) return;
+            ScreenTransitionManager.Instance.PlayTransition(() =>
+            {
+                stageSelectOpen = true;
+                stageSelectUI.Open();
+            });
+            return;
+        }
+        stageSelectOpen = true;
+        stageSelectUI.Open();
+    }
+
+    public void CloseStageSelect()
+    {
+        stageSelectOpen = false;
     }
 
     public void OpenCardFusion()
@@ -738,6 +817,14 @@ public class GameManager : MonoBehaviour
         if (bedHotspotFlashTimer > 0f) bedHotspotFlashTimer -= Time.unscaledDeltaTime;
         if (bookHotspotFlashTimer > 0f) bookHotspotFlashTimer -= Time.unscaledDeltaTime;
         if (deskHotspotFlashTimer > 0f) deskHotspotFlashTimer -= Time.unscaledDeltaTime;
+        // 不具合修正(2026-09-12、ステージ選択導線追加のついでに発見) -
+        // characterHotspotFlashTimerがこの減衰リストに元々含まれておらず、
+        // Characterホットスポットをタップした後、金色のタップフラッシュが
+        // 消えずに表示され続けたままになる不具合があった(前回パスの
+        // 見落とし)。新設のstageHotspotFlashTimerも同じ仕組みのため、
+        // ここで両方まとめて追加する。
+        if (characterHotspotFlashTimer > 0f) characterHotspotFlashTimer -= Time.unscaledDeltaTime;
+        if (stageHotspotFlashTimer > 0f) stageHotspotFlashTimer -= Time.unscaledDeltaTime;
         if (gachaInsufficientMessageTimer > 0f) gachaInsufficientMessageTimer -= Time.unscaledDeltaTime;
 
         if (gachaMachineShakeTimer > 0f)
@@ -920,6 +1007,7 @@ public class GameManager : MonoBehaviour
         LoadMile();
         LoadCharacterCards();
         LoadSelectedCharacter();
+        LoadSelectedStage();
 
         // Bug #001 診断フェーズ (2026-09-08) - Application.logMessageReceived
         // フックは一度だけ登録すれば十分(static event、二重登録防止は
@@ -1116,6 +1204,7 @@ public class GameManager : MonoBehaviour
                 HasStarted = true;
                 runStartTime = Time.time;
                 activeRunCharacterId = SelectedCharacterId;
+                activeRunStageId = SelectedStageId;
                 ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
                 ApplyCharacterCardEffects();
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
@@ -1141,6 +1230,7 @@ public class GameManager : MonoBehaviour
         HasStarted = true;
         runStartTime = Time.time;
         activeRunCharacterId = SelectedCharacterId;
+        activeRunStageId = SelectedStageId;
         ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
         ApplyCharacterCardEffects();
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
@@ -2318,6 +2408,7 @@ public class GameManager : MonoBehaviour
     void FillCheckpointSnapshot(RunCheckpoint.Data data)
     {
         data.characterId = activeRunCharacterId;
+        data.stageId = activeRunStageId;
         data.highestReachedDistance = HighestReachedDistance;
         data.lives = Lives;
         data.maxLives = maxLives;
@@ -2400,6 +2491,10 @@ public class GameManager : MonoBehaviour
         // フォールバックする。
         activeRunCharacterId = !string.IsNullOrEmpty(data.characterId) ? data.characterId : SelectedCharacterId;
         ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
+
+        // ステージ選択導線追加(2026-09-12) - 上と全く同じ理由。data.stageId
+        // が空(旧いActive Run)の場合のみSelectedStageIdへフォールバック。
+        activeRunStageId = !string.IsNullOrEmpty(data.stageId) ? data.stageId : SelectedStageId;
 
         // Item 8 - "Run中カード効果/各カードStack/Character Card由来の効
         // 果/Run中の現在能力" are reconstructed by REPLAYING the exact same
@@ -2719,6 +2814,19 @@ public class GameManager : MonoBehaviour
                 // Doorとは重ならない領域。
                 Rect characterRect = FracRect(bgRoomRect, 0.02f, 0.05f, 0.30f, 0.35f);
                 DrawCharacterHotspot(characterRect, roomInteractable, roomFadeAlpha);
+
+                // ステージ選択導線追加(2026-09-12) - 参考画像の「中央の床
+                // ラグに次の行き先を表示」に相当。Active Runが既にある間は
+                // (CONTINUEでしか再開できず、ステージは変更不可のため)
+                // 表示自体を出さない - Acceptance Test 7。Door(0.40-0.565
+                // /0.14-0.65)・Bed(0.0-0.32/0.52-1.0)・Book(0.78-1.0/
+                // 0.78-1.0)のどれとも重ならない、床が見えている中央下部の
+                // 領域を使う。
+                if (!RunCheckpoint.HasActiveRun)
+                {
+                    Rect stageRect = FracRect(bgRoomRect, 0.34f, 0.68f, 0.66f, 0.97f);
+                    DrawStageHotspot(stageRect, roomInteractable, roomFadeAlpha);
+                }
 
                 // Bed/scattered cards (bottom-left) - Card Edit (Owned/
                 // Character Cards/Deck/Convert).
@@ -3658,6 +3766,68 @@ public class GameManager : MonoBehaviour
         if (tapped && roomFadeAlpha > 0.99f)
         {
             OpenCharacterSelect();
+        }
+    }
+
+    // ステージ選択導線追加(2026-09-12) - マスター提供の参考画像「中央の
+    // 床ラグに次の行き先(NEXT STAGE)を表示」に相当。DrawCharacterHotspot
+    // と同じ「対応する物が室内アートに描かれていないため、パネル+ラベル+
+    // 淡い金色パルスを明示的に描画する」パターン。タップでStage Selectを
+    // 開くだけで、Run開始そのものはDoorホットスポット(OnDoorTapped)が
+    // 引き続き担う。
+    void DrawStageHotspot(Rect rect, bool roomInteractable, float roomFadeAlpha)
+    {
+        OrnateUi.DrawPanel(rect, 0.85f);
+
+        float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 2.2f);
+        Color prevGlow = GUI.color;
+        GUI.color = new Color(1f, 0.85f, 0.4f, (0.10f + 0.10f * pulse) * roomFadeAlpha);
+        GUI.DrawTexture(rect, Texture2D.whiteTexture);
+        GUI.color = prevGlow;
+
+        GUIStyle headerStyle = new GUIStyle(GUI.skin.label);
+        headerStyle.fontSize = 14;
+        headerStyle.fontStyle = FontStyle.Bold;
+        headerStyle.alignment = TextAnchor.UpperCenter;
+        headerStyle.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, roomFadeAlpha);
+        GUI.Label(new Rect(rect.x, rect.y + 6f, rect.width, 20f), "NEXT STAGE", headerStyle);
+
+        StageDefinition selectedDef = StageDatabase.FindById(SelectedStageId);
+
+        GUIStyle nameStyle = new GUIStyle(GUI.skin.label);
+        nameStyle.fontSize = 22;
+        nameStyle.fontStyle = FontStyle.Bold;
+        nameStyle.alignment = TextAnchor.MiddleCenter;
+        nameStyle.normal.textColor = new Color(1f, 1f, 1f, roomFadeAlpha);
+        GUI.Label(new Rect(rect.x, rect.y + rect.height * 0.32f, rect.width, 32f),
+            selectedDef != null ? selectedDef.displayName : "-", nameStyle);
+
+        GUIStyle routeStyle = new GUIStyle(GUI.skin.label);
+        routeStyle.fontSize = 13;
+        routeStyle.alignment = TextAnchor.MiddleCenter;
+        routeStyle.normal.textColor = new Color(0.8f, 0.85f, 0.95f, roomFadeAlpha);
+        GUI.Label(new Rect(rect.x, rect.y + rect.height * 0.62f, rect.width, 24f),
+            selectedDef != null ? selectedDef.routeText : "", routeStyle);
+
+        bool tapped = roomInteractable && GUI.Button(rect, GUIContent.none, GUIStyle.none);
+        if (tapped)
+        {
+            stageHotspotFlashTimer = roomHotspotFlashDuration;
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(roomTapSe);
+        }
+
+        if (stageHotspotFlashTimer > 0f)
+        {
+            float f = stageHotspotFlashTimer / roomHotspotFlashDuration;
+            Color prevFlash = GUI.color;
+            GUI.color = new Color(1f, 0.95f, 0.75f, f * 0.35f * roomFadeAlpha);
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            GUI.color = prevFlash;
+        }
+
+        if (tapped && roomFadeAlpha > 0.99f)
+        {
+            OpenStageSelect();
         }
     }
 

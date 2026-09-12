@@ -187,6 +187,8 @@ public static class SceneBuilder
         // AllCharactersの件数ぶん動的にカードスロットを生成するため)。
         CharacterDatabaseBuilder.Build();
         gameManager.characterSelectUI = BuildCharacterSelectCanvas();
+        StageDatabaseBuilder.Build();
+        gameManager.stageSelectUI = BuildStageSelectCanvas();
         // Home Room UI reconstruction pass, item 4 - the Gacha machine is
         // now a prop drawn directly onto the TOP room (see GameManager.
         // OnGUI's title-screen block), not a Sprite inside a Canvas -
@@ -1699,6 +1701,220 @@ public static class SceneBuilder
         ui.powerStarsText = statTexts[1];
         ui.speedStarsText = statTexts[2];
         ui.comboStarsText = statTexts[3];
+
+        rootGO.SetActive(false);
+        return ui;
+    }
+
+    // ステージ選択導線追加(2026-09-12) - CharacterSelectと違い中央の大きな
+    // メインビジュアル/右側の詳細情報パネルは持たない、マスター指示
+    // 「ヴァンサバ系のように、サムネ・名前・特徴だけの簡易表示」どおりの
+    // より単純な構成 - 各カード自体に名前・特徴テキストを直接焼き込む。
+    static StageSelectUI BuildStageSelectCanvas()
+    {
+        GameObject canvasGO = new GameObject("StageSelectCanvas");
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 90; // DeckEdit/CardFusion/CharacterSelectと同じ帯 - 同時に開くことはない(GameManager.AnyOverlayOpen)
+
+        CanvasScaler scaler = canvasGO.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        scaler.matchWidthOrHeight = 0.5f;
+
+        canvasGO.AddComponent<GraphicRaycaster>();
+        if (Object.FindFirstObjectByType<EventSystem>() == null)
+        {
+            GameObject esGO = new GameObject("EventSystem");
+            esGO.AddComponent<EventSystem>();
+            esGO.AddComponent<StandaloneInputModule>();
+        }
+
+        GameObject rootGO = new GameObject("StageSelectRoot");
+        rootGO.transform.SetParent(canvasGO.transform, false);
+        RectTransform rootRect = rootGO.AddComponent<RectTransform>();
+        StretchFull(rootRect);
+        CanvasGroup rootGroup = rootGO.AddComponent<CanvasGroup>();
+
+        StageSelectUI ui = rootGO.AddComponent<StageSelectUI>();
+        ui.root = rootRect;
+        ui.rootGroup = rootGroup;
+
+        // 背景 - CharacterSelect/DeckEdit/CardFusionと同じ単色塗り(濃紺)。
+        // 既存アセットの使い回しによるインポート設定汚染リスク(過去に
+        // BuildCharacterSelectCanvasで自己発見・修正済みの副作用)を避ける
+        // ため、ここでも新規/共有アセットは一切読み込まない。
+        GameObject bgGO = new GameObject("Background");
+        bgGO.transform.SetParent(rootGO.transform, false);
+        RectTransform bgRect = bgGO.AddComponent<RectTransform>();
+        StretchFull(bgRect);
+        Image bgImage = bgGO.AddComponent<Image>();
+        bgImage.color = new Color(0.04f, 0.05f, 0.1f, 0.97f);
+        bgImage.raycastTarget = false;
+
+        GameObject headerGO = new GameObject("HeaderTitle");
+        headerGO.transform.SetParent(rootGO.transform, false);
+        RectTransform headerRect = headerGO.AddComponent<RectTransform>();
+        headerRect.anchorMin = headerRect.anchorMax = new Vector2(0.5f, 1f);
+        headerRect.pivot = new Vector2(0.5f, 1f);
+        headerRect.sizeDelta = new Vector2(760f, 64f);
+        headerRect.anchoredPosition = new Vector2(0f, -36f);
+        Text headerText = headerGO.AddComponent<Text>();
+        ConfigureCardText(headerText, 44, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        headerText.alignment = TextAnchor.MiddleCenter;
+        headerText.text = "STAGE SELECT";
+
+        // BACK(左下) - 選択を確定せずHomeへ戻る(StageSelectUI.Close参照)。
+        RectTransform backRect = CreateOrnatePanel(rootGO.transform, "BackButton", borderScale: 2f);
+        backRect.anchorMin = backRect.anchorMax = new Vector2(0f, 0f);
+        backRect.pivot = new Vector2(0f, 0f);
+        backRect.sizeDelta = new Vector2(220f, 76f);
+        backRect.anchoredPosition = new Vector2(56f, 40f);
+        GameObject backLabelGO = new GameObject("Label");
+        backLabelGO.transform.SetParent(backRect, false);
+        StretchFull(backLabelGO.AddComponent<RectTransform>());
+        Text backLabel = backLabelGO.AddComponent<Text>();
+        ConfigureCardText(backLabel, 28, FontStyle.Bold, new Color(0.9f, 0.92f, 0.97f));
+        backLabel.text = "« BACK";
+        ui.backButtonRect = backRect;
+
+        // 出発(中央下) - 参考画像どおり中央配置。選択を確定してHomeへ戻る
+        // だけで、Run開始そのものはHome側の既存Doorホットスポット
+        // (OnDoorTapped)が行う(StageSelectUI.Confirmのコメント参照)。
+        RectTransform departRect = CreateOrnatePanel(rootGO.transform, "DepartButton", borderScale: 2f);
+        departRect.anchorMin = departRect.anchorMax = new Vector2(0.5f, 0f);
+        departRect.pivot = new Vector2(0.5f, 0f);
+        departRect.sizeDelta = new Vector2(280f, 76f);
+        departRect.anchoredPosition = new Vector2(0f, 40f);
+        GameObject departLabelGO = new GameObject("Label");
+        departLabelGO.transform.SetParent(departRect, false);
+        StretchFull(departLabelGO.AddComponent<RectTransform>());
+        Text departLabel = departLabelGO.AddComponent<Text>();
+        ConfigureCardText(departLabel, 30, FontStyle.Bold, new Color(1f, 0.9f, 0.5f));
+        departLabel.text = "出発";
+        ui.departButtonRect = departRect;
+
+        // ステージカード一覧 - StageDatabase.AllStagesの件数ぶん動的に生成
+        // (将来ステージが増えてもここは変更不要)。
+        var allStages = StageDatabase.AllStages;
+        const float cardWidth = 380f;
+        const float cardHeight = 560f;
+        const float cardSpacing = 40f;
+        float totalWidth = allStages.Count * cardWidth + Mathf.Max(0, allStages.Count - 1) * cardSpacing;
+        float startX = -totalWidth / 2f;
+
+        var cardSlotRects = new RectTransform[allStages.Count];
+        var cardGlowImages = new Image[allStages.Count];
+        var cardUnlocked = new bool[allStages.Count];
+
+        for (int i = 0; i < allStages.Count; i++)
+        {
+            StageDefinition def = allStages[i];
+
+            RectTransform cardRect = CreateOrnatePanel(rootGO.transform, "StageCard_" + def.stageId);
+            cardRect.anchorMin = cardRect.anchorMax = new Vector2(0.5f, 0.5f);
+            cardRect.pivot = new Vector2(0.5f, 0.5f);
+            cardRect.sizeDelta = new Vector2(cardWidth, cardHeight);
+            cardRect.anchoredPosition = new Vector2(startX + cardWidth / 2f + i * (cardWidth + cardSpacing), 20f);
+
+            // 選択中の縁の発光 - CharacterSelectUIのSelectionGlowと同じ
+            // 「一回り大きい丸角パネルを背後に重ね、選択中だけ表示する」
+            // 方式。CreateOrnatePanelは既にFill/Frameの2子を持つため、
+            // SetSiblingIndex(0)でその手前(=描画上は最背面)へ回し、Fill/
+            // Frameの外周からわずかにはみ出すリングとして見せる。
+            GameObject glowGO = new GameObject("SelectionGlow");
+            glowGO.transform.SetParent(cardRect, false);
+            RectTransform glowRect = glowGO.AddComponent<RectTransform>();
+            glowRect.anchorMin = Vector2.zero;
+            glowRect.anchorMax = Vector2.one;
+            glowRect.offsetMin = new Vector2(-12f, -12f);
+            glowRect.offsetMax = new Vector2(12f, 12f);
+            Image glowImage = glowGO.AddComponent<Image>();
+            glowImage.sprite = RoundedPanelSprite();
+            glowImage.type = Image.Type.Sliced;
+            glowImage.color = new Color(1f, 0.85f, 0.4f, 0.95f);
+            glowImage.raycastTarget = false;
+            glowGO.transform.SetSiblingIndex(0);
+            glowGO.SetActive(false);
+
+            // サムネ領域 - 専用画像が無い間は単色パネルへフォールバック
+            // (StageDefinition.thumbnailのコメント、マスター指示「難しけれ
+            // ばステージ名のみでも可」に対応)。
+            GameObject thumbGO = new GameObject("Thumbnail");
+            thumbGO.transform.SetParent(cardRect, false);
+            RectTransform thumbRect = thumbGO.AddComponent<RectTransform>();
+            thumbRect.anchorMin = new Vector2(0f, 1f);
+            thumbRect.anchorMax = new Vector2(1f, 1f);
+            thumbRect.pivot = new Vector2(0.5f, 1f);
+            thumbRect.sizeDelta = new Vector2(-40f, 220f);
+            thumbRect.anchoredPosition = new Vector2(0f, -30f);
+            Image thumbImage = thumbGO.AddComponent<Image>();
+            if (def.thumbnail != null)
+            {
+                thumbImage.sprite = ToUiSprite(def.thumbnail);
+                thumbImage.preserveAspect = true;
+            }
+            else
+            {
+                thumbImage.sprite = RoundedPanelSprite();
+                thumbImage.type = Image.Type.Sliced;
+                thumbImage.color = def.unlocked ? new Color(0.16f, 0.22f, 0.35f, 1f) : new Color(0.12f, 0.12f, 0.14f, 1f);
+            }
+            thumbImage.raycastTarget = false;
+
+            GameObject nameGO = new GameObject("Name");
+            nameGO.transform.SetParent(cardRect, false);
+            RectTransform nameRect = nameGO.AddComponent<RectTransform>();
+            nameRect.anchorMin = new Vector2(0f, 1f);
+            nameRect.anchorMax = new Vector2(1f, 1f);
+            nameRect.pivot = new Vector2(0.5f, 1f);
+            nameRect.sizeDelta = new Vector2(-40f, 48f);
+            nameRect.anchoredPosition = new Vector2(0f, -266f);
+            Text nameText = nameGO.AddComponent<Text>();
+            ConfigureCardText(nameText, 30, FontStyle.Bold, def.unlocked ? new Color(1f, 0.9f, 0.6f) : new Color(0.55f, 0.55f, 0.58f));
+            nameText.alignment = TextAnchor.MiddleCenter;
+            nameText.text = def.displayName;
+
+            // 特徴テキスト3行(敵/障害物/ルート) - マスター指示「サムネ・
+            // 名前・特徴だけの簡易表示」どおり最小限、長文説明は入れない。
+            GameObject featGO = new GameObject("FeatureText");
+            featGO.transform.SetParent(cardRect, false);
+            RectTransform featRect = featGO.AddComponent<RectTransform>();
+            featRect.anchorMin = new Vector2(0f, 1f);
+            featRect.anchorMax = new Vector2(1f, 1f);
+            featRect.pivot = new Vector2(0.5f, 1f);
+            featRect.sizeDelta = new Vector2(-40f, 190f);
+            featRect.anchoredPosition = new Vector2(0f, -320f);
+            Text featText = featGO.AddComponent<Text>();
+            ConfigureCardText(featText, 18, FontStyle.Normal, def.unlocked ? new Color(0.88f, 0.9f, 0.95f) : new Color(0.5f, 0.5f, 0.53f));
+            featText.alignment = TextAnchor.UpperLeft;
+            featText.text = $"{def.enemyText}\n{def.featureText}\n{def.routeText}";
+
+            // Lockアイコン代替 - 専用アート未用意のためテキスト表示(マス
+            // ター指示「Lock icon」の簡易代用、未開放が伝われば機能面は
+            // 十分)。
+            GameObject lockGO = new GameObject("LockLabel");
+            lockGO.transform.SetParent(cardRect, false);
+            RectTransform lockRect = lockGO.AddComponent<RectTransform>();
+            lockRect.anchorMin = new Vector2(0f, 1f);
+            lockRect.anchorMax = new Vector2(1f, 1f);
+            lockRect.pivot = new Vector2(0.5f, 1f);
+            lockRect.sizeDelta = new Vector2(-40f, 100f);
+            lockRect.anchoredPosition = new Vector2(0f, -110f);
+            Text lockText = lockGO.AddComponent<Text>();
+            ConfigureCardText(lockText, 40, FontStyle.Bold, new Color(0.8f, 0.8f, 0.82f, 0.9f));
+            lockText.alignment = TextAnchor.MiddleCenter;
+            lockText.text = "LOCKED";
+            lockGO.SetActive(!def.unlocked);
+
+            cardSlotRects[i] = cardRect;
+            cardGlowImages[i] = glowImage;
+            cardUnlocked[i] = def.unlocked;
+        }
+        ui.cardSlotRects = cardSlotRects;
+        ui.cardGlowImages = cardGlowImages;
+        ui.cardUnlocked = cardUnlocked;
 
         rootGO.SetActive(false);
         return ui;
