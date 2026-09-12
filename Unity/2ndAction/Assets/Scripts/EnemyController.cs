@@ -65,27 +65,20 @@ public class EnemyController : MonoBehaviour
     public float hitKnockbackDistance = 0.12f;
     public float hitKnockbackDuration = 0.1f;
 
-    [Header("Ground Normal Attack Knockback (2026-09-12: 敵をその場に固定しない)")]
-    // アエリアルコンボ追加調整(2026-09-12), item 1 - 「地上通常攻撃にも
-    // 軽いノックバックを追加、敵と主人公が一緒に少しずつ前へ移動する」。
-    // 上のhitKnockbackDistance/Durationは下攻撃(非Launch時)やHeavy種族の
-    // 上書き等でも共用される汎用値のため、地上通常攻撃専用にこちらを新設
-    // - 「敵を遠くへ吹き飛ばす」のではなく次の一撃がそのまま届く程度の
-    // 距離を維持する狙い。
-    //
-    // 実機フィードバック追加調整(2026-09-12 第2弾) - 「ノックバックが弱く
-    // 見える」との報告を受け、根本原因をKnockbackRoutine自体ではなく
-    // EnemyAnimator側(下記EnemyAnimator.csの修正参照)に特定・修正した上で
-    // 値も調整した。旧KnockbackRoutineは「distance分押し出した後、半分
-    // だけ元へ戻る」イージングだったため、旧distance=0.35の実質的な最終
-    // 移動量は約0.175 - マスター指示の「現在(この0.175)の約1.5倍」を、
-    // 新設したKnockbackRoutineのretainFraction=1.0(完全保持、戻らない)
-    // 呼び出しと組み合わせて素直に反映すると約0.26になる(distance値その
-    // ものが最終移動量と一致するため)。"押した後に半分戻る"という曖昧な
-    // 見た目をなくし、「一瞬で前に出てそこに留まる」という素直な前進へ
-    // 統一した。
-    public float groundHitKnockbackDistance = 0.26f;
-    public float groundHitKnockbackDuration = 0.15f;
+    [Header("Ground Normal Attack Knockback (速度ベース、2026-09-12第3弾)")]
+    // 実機フィードバック(2026-09-12第3弾) - 距離(位置Lerp)ベースの前回
+    // 実装は、コルーチンの間だけ動いてすぐ静止するため、静止した瞬間から
+    // 主人公の自動前進にすぐ追いつかれてしまい「押した→即密着」になって
+    // いた、との報告。OneMoreMileは距離でPlayerの走行速度が上がり続ける
+    // ため、固定の距離/速度ではいずれ機能しなくなる - 「敵を一定距離だけ
+    // 瞬間移動させる」のではなく「主人公の現在速度を基準にした速度で、
+    // 短時間だけ主人公より速く前進させる」方式に全面変更した(下記
+    // ApplyGroundKnockback/Update参照)。速度を主人公の現在速度からの相対
+    // 値で計算するため、距離によるSpeed Up後もこの仕組みは機能し続ける。
+    public float groundKnockbackSpeedBonus = 2.5f;
+    // ノックバック速度を維持する時間 - この間は主人公より速く前進し続け、
+    // 0になった瞬間に通常状態へ戻る(以降は主人公が追いつく側に回る)。
+    public float groundKnockbackDuration = 0.2f;
     public bool hitParticleEnabled = true;
     // Assets/Art/Effects/HitSpark.png (see SceneBuilder) - falls back to
     // the plain procedural dot if not assigned, so this never breaks an
@@ -214,6 +207,12 @@ public class EnemyController : MonoBehaviour
     float launchBaseGroundY;
     float juggleElapsed;
 
+    // 実機フィードバック(2026-09-12第3弾) - 地上ノックバックの速度ベース
+    // 状態。isLaunchedがfalseの間だけUpdate()で積分される(ApplyGround
+    // Knockback/Update参照)。
+    float groundKnockbackVelocityX;
+    float groundKnockbackTimer;
+
     // 不具合修正(2026-09-12) - 「上攻撃で敵を明確に打ち上げる」が実機で
     // 機能しなかった根本原因。GroundFactory.CreateEnemyはEnemyController
     // を先にAddComponentし、EnemyAnimator/EnemySpecialBehaviorは後から
@@ -248,36 +247,62 @@ public class EnemyController : MonoBehaviour
     // みここで積分する。他のあらゆる移動(EnemyAnimatorの待機bob、
     // EnemySpecialBehaviorの各種挙動)は、Launch開始時にDisableMotion
     // Componentsで止めているため、Transformの取り合いは起きない。
+    //
+    // 実機フィードバック(2026-09-12第3弾) - Launch中でない場合も、地上
+    // ノックバック(速度ベース)の水平方向の積分をここで行うよう拡張した。
     void Update()
     {
-        if (dying || !isLaunched) return;
+        if (dying) return;
 
-        juggleElapsed += Time.deltaTime;
-        launchVelocityY -= launchGravity * Time.deltaTime;
-
-        // アエリアルコンボ追加調整(2026-09-12第2弾) - Slam中(縦の叩き落と
-        // し)以外は、毎フレーム「主人公の現在速度(パリティ)+減衰中のバー
-        // スト」へ再計算する。パリティ部分を毎フレーム主人公から直接読む
-        // ことで、Speed Upで主人公が加速してもズレが生じず、バースト部分
-        // は時間経過で必ず0へ減衰するため横方向のズレが際限なく開かない。
-        if (!isSlamming)
+        if (isLaunched)
         {
-            float burst = 0f;
-            if (launchForwardBurstTimer > 0f)
+            juggleElapsed += Time.deltaTime;
+            launchVelocityY -= launchGravity * Time.deltaTime;
+
+            // アエリアルコンボ追加調整(2026-09-12第2弾) - Slam中(縦の叩き
+            // 落とし)以外は、毎フレーム「主人公の現在速度(パリティ)+減衰
+            // 中のバースト」へ再計算する。パリティ部分を毎フレーム主人公
+            // から直接読むことで、Speed Upで主人公が加速してもズレが生じ
+            // ず、バースト部分は時間経過で必ず0へ減衰するため横方向のズレ
+            // が際限なく開かない。
+            if (!isSlamming)
             {
-                burst = launchForwardBurstVelocity * Mathf.Clamp01(launchForwardBurstTimer / launchForwardBurstDuration);
-                launchForwardBurstTimer -= Time.deltaTime;
+                float burst = 0f;
+                if (launchForwardBurstTimer > 0f)
+                {
+                    burst = launchForwardBurstVelocity * Mathf.Clamp01(launchForwardBurstTimer / launchForwardBurstDuration);
+                    launchForwardBurstTimer -= Time.deltaTime;
+                }
+                launchVelocityX = PlayerForwardSpeed() + burst;
             }
-            launchVelocityX = PlayerForwardSpeed() + burst;
+
+            transform.position += new Vector3(launchVelocityX * Time.deltaTime, launchVelocityY * Time.deltaTime, 0f);
+
+            float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(transform.position.x) : (float?)null;
+            float floor = groundY ?? launchBaseGroundY;
+            if (transform.position.y <= floor)
+            {
+                LandFromLaunch(floor);
+            }
+            return;
         }
 
-        transform.position += new Vector3(launchVelocityX * Time.deltaTime, launchVelocityY * Time.deltaTime, 0f);
-
-        float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(transform.position.x) : (float?)null;
-        float floor = groundY ?? launchBaseGroundY;
-        if (transform.position.y <= floor)
+        // 実機フィードバック(2026-09-12第3弾) - 地上ノックバック(速度
+        // ベース)。ApplyGroundKnockbackが設定したgroundKnockbackVelocityX
+        // を、groundKnockbackTimerが尽きるまで毎フレーム積分し続ける -
+        // 「一定距離だけ瞬間移動」ではなく「短時間、主人公より速く前進」
+        // という質感の違いがここに表れる。タイマーが尽きたら通常状態へ
+        // 復帰(DisableMotionComponentsで止めていたEnemyAnimator/
+        // EnemySpecialBehaviorをRestoreMotionComponentsで戻す)。
+        if (groundKnockbackTimer > 0f)
         {
-            LandFromLaunch(floor);
+            groundKnockbackTimer -= Time.deltaTime;
+            transform.position += new Vector3(groundKnockbackVelocityX * Time.deltaTime, 0f, 0f);
+            if (groundKnockbackTimer <= 0f)
+            {
+                groundKnockbackVelocityX = 0f;
+                RestoreMotionComponents();
+            }
         }
     }
 
@@ -372,15 +397,13 @@ public class EnemyController : MonoBehaviour
                 }
                 else
                 {
-                    // アエリアルコンボ追加調整(2026-09-12) - 「地上通常攻撃
-                    // にも軽いノックバックを追加、敵をその場に固定しない」。
-                    // 汎用のhitKnockbackDistance/AwayDirFromPlayerではなく、
-                    // 専用のgroundHitKnockbackDistanceを常にForwardDir(=
-                    // 主人公の自動前進方向)へ適用する - 「敵を遠くへ吹き
-                    // 飛ばす」のではなく「攻撃するたびに敵と主人公が一緒に
-                    // 少しずつ前へ移動する」ため。retainFraction:1fで完全
-                    // 保持(押した後に半分戻る、という曖昧さをなくす)。
-                    StartCoroutine(KnockbackRoutine(ForwardDir, groundHitKnockbackDistance, groundHitKnockbackDuration, retainFraction: 1f));
+                    // 実機フィードバック(2026-09-12第3弾) - 「地上通常攻撃
+                    // にも軽いノックバックを追加、敵をその場に固定しない」
+                    // →「まだ密着してしまう」との追加報告を受け、距離ベース
+                    // (KnockbackRoutine)から速度ベース(ApplyGroundKnockback)
+                    // へ全面変更。
+                    ApplyGroundKnockback();
+                    if (PlayerController.Instance != null) PlayerController.Instance.NotifyGroundHitConnect();
                 }
                 break;
         }
@@ -390,13 +413,28 @@ public class EnemyController : MonoBehaviour
         ? Mathf.Sign(transform.position.x - PlayerController.Instance.transform.position.x)
         : 1f;
 
-    // アエリアルコンボ追加調整(2026-09-12) - OneMoreMileは常にワールド+X
-    // 方向へのみ自動前進するランナーのため、「主人公の進行方向」はPlayer
-    // 位置との相対計算(AwayDirFromPlayer)を介さず常にこの定数で表せる。
-    // 地上通常攻撃のノックバック・Launchの前方速度はいずれも「主人公の
-    // 進行方向」を意図しているため、万一敵がPlayerの後方にいる状況でも
-    // 一貫して+Xへ押す/運ぶ。
-    const float ForwardDir = 1f;
+    // 実機フィードバック(2026-09-12第3弾) - 「主人公の現在速度 + 上乗せ
+    // 分」を短時間だけ与える、速度ベースの地上ノックバック。距離ベース
+    // (旧KnockbackRoutine呼び出し)は「コルーチンの間だけ動いてすぐ止ま
+    // る」ため、止まった瞬間から主人公の自動前進にすぐ追いつかれてしまい
+    // 「攻撃→即密着」になっていた、というマスターの実機報告が根本原因。
+    // OneMoreMileは距離でPlayerの走行速度が上がり続けるため、固定値では
+    // いずれ機能しなくなる - PlayerController.CurrentAutoRunSpeedを毎回
+    // 基準にすることで、どの速度状態でも「敵が主人公より少し速く前へ進む
+    // 時間」を作れる。EnemySpecialBehavior(Chaser等)の毎フレーム上書きと
+    // 競合しないよう、Launch開始時と同じDisableMotionComponentsを流用する
+    // (Update()側のタイマー終了時にRestoreMotionComponentsで戻す)。
+    void ApplyGroundKnockback()
+    {
+        groundKnockbackVelocityX = PlayerForwardSpeed() + groundKnockbackSpeedBonus;
+        groundKnockbackTimer = groundKnockbackDuration;
+        DisableMotionComponents();
+
+        if (GameManager.Instance != null && GameManager.Instance.DebugMode)
+        {
+            Debug.Log($"[GroundKnockback] {name} velocityX={groundKnockbackVelocityX:F2} duration={groundKnockbackTimer:F2}");
+        }
+    }
 
     // 生存ヒット共通の「命中演出」(ヒットスパーク+ヒットストップ+被弾
     // フラッシュ) - 旧NonLethalHit/HitAndDie前半の共通部分を1箇所に統合。

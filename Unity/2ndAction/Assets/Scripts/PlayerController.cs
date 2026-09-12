@@ -106,6 +106,19 @@ public class PlayerController : MonoBehaviour
     // リセットされる。
     public float aerialAssistMaxTotalDuration = 1.2f;
 
+    // 実機フィードバック(2026-09-12第3弾) - 「敵側の速度ベースノックバック
+    // だけで十分な間合いが作れない場合の補助策」としてマスターから提案
+    // された、地上通常攻撃が命中した瞬間だけ主人公の前進速度をごく短時間
+    // 弱める仕組み。「主人公を停止させない」程度に留めるため既定は無効
+    // (factor=0)- Enemy側の調整だけで十分な間合いが確保できるか実機で
+    // 確認した上で、必要ならInspectorから有効化する想定。
+    [Header("Ground Hit Connect Assist (地上通常攻撃命中時、任意で主人公を一瞬だけ減速)")]
+    // 0 = 無効(既定)、1 = その間完全停止。疾走感を壊さない範囲(0.1〜0.3
+    // 程度)を目安に。
+    [Range(0f, 1f)] public float groundHitConnectSlowdownFactor = 0f;
+    public float groundHitConnectSlowdownDuration = 0.08f;
+    float groundHitConnectSlowdownTimer;
+
     [Header("Attack")]
     public Collider2D attackHitbox;
     public AttackSlashVisual attackSlashVisual;
@@ -742,6 +755,15 @@ public class PlayerController : MonoBehaviour
         float dt = Time.deltaTime;
         if (bufferedUpAttackTimer > 0f) bufferedUpAttackTimer -= dt;
         float autoSpeed = autoRunEnabled ? runSpeed * GetSpeedMultiplier() : 0f;
+        // 実機フィードバック(2026-09-12第3弾) - Ground Hit Connect Assist
+        // (既定は無効、groundHitConnectSlowdownFactor>0の場合のみ)。
+        // 主人公を完全に停止させることはない(autoSpeedを弱めるだけで
+        // lungeVelocityX/effectiveKnockback等は一切触らない)。
+        if (groundHitConnectSlowdownTimer > 0f)
+        {
+            groundHitConnectSlowdownTimer -= dt;
+            autoSpeed *= 1f - groundHitConnectSlowdownFactor;
+        }
         // Linear ease-out over knockbackDuration, not a flat velocity for
         // the whole window - reads as a shove that fades, not a sustained
         // shove-then-stop.
@@ -1036,6 +1058,16 @@ public class PlayerController : MonoBehaviour
         // ②短時間だけ重力を弱める(連続ヒットで延長 - 上限はMove()側の
         // 累積カウントで別途キャップする)。
         aerialAssistTimer = aerialAssistWindowDuration;
+    }
+
+    // 実機フィードバック(2026-09-12第3弾) - EnemyController.ProcessHitが
+    // 地上通常攻撃の命中時に毎回呼ぶ。groundHitConnectSlowdownFactorが0
+    // (既定)の間は完全に無効 - Enemy側の速度ベースノックバックだけで
+    // 間合いが作れない場合の補助として、必要ならInspectorで有効化する。
+    public void NotifyGroundHitConnect()
+    {
+        if (groundHitConnectSlowdownFactor <= 0f) return;
+        groundHitConnectSlowdownTimer = groundHitConnectSlowdownDuration;
     }
 
     IEnumerator DamageFlashRoutine()
