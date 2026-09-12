@@ -250,6 +250,11 @@ public class EnemyController : MonoBehaviour
     // UpdateNormalGroundCheckが重力で落下させる。
     bool normalGrounded = true;
     float normalFallVelocityY;
+    // 実機フィードバック(2026-09-12第5弾) - 上攻撃のPickup/Vacuumで引き
+    // 寄せられている間、trueになる。この間はUpdate()側の通常のLaunch物理
+    // (launchVelocityX/Y積分)を止め、VacuumPickupRoutineだけがこの敵の
+    // 位置を専有する(TryVacuumPickup/VacuumPickupRoutine参照)。
+    bool beingVacuumed;
 
     // 不具合修正(2026-09-12) - 「上攻撃で敵を明確に打ち上げる」が実機で
     // 機能しなかった根本原因。GroundFactory.CreateEnemyはEnemyController
@@ -291,6 +296,11 @@ public class EnemyController : MonoBehaviour
     void Update()
     {
         if (dying) return;
+
+        // 実機フィードバック(2026-09-12第5弾) - Pickup/Vacuum中は
+        // VacuumPickupRoutineがこの敵の位置を専有する(通常のLaunch物理と
+        // 同時に書き込むと競合するため)。
+        if (beingVacuumed) return;
 
         if (isLaunched)
         {
@@ -486,9 +496,27 @@ public class EnemyController : MonoBehaviour
 
         if (other.CompareTag("Player"))
         {
+            // 実機フィードバック(2026-09-12第5弾) - 「Playerの攻撃がEnemy
+            // へ命中し、Enemyが吹き飛ばされている最中なのに、その身体へ
+            // 触れたことでPlayerもダメージを受ける」という相打ちの防止。
+            // Enemy自身の攻撃HitBox(FireballController等、別の仕組み)は
+            // 一切対象外 - あくまで「Enemy本体との接触ダメージ」だけを、
+            // HitReaction/Knockback/Launched/Airborne/Slam中に限って無効化
+            // する。
+            if (IsReactingToHit) return;
             if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage();
         }
     }
+
+    // 実機フィードバック(2026-09-12第5弾) - 「Playerの攻撃が正常に命中して
+    // いる最中のEnemy本体」との接触ダメージを無効化する条件。isSlammingは
+    // isLaunchedの部分状態なので個別チェック不要。normalGroundedがfalse
+    // (足場を失って落下中)も含める - これも広義の「攻撃によって行動を
+    // 潰されている最中」であるため。dyingは呼び出し元のOnTriggerEnter2D
+    // 冒頭で既にガード済みだが、他の場所からも安全に参照できるようここに
+    // 含めておく。
+    bool IsReactingToHit => dying || isLaunched || beingVacuumed
+        || groundKnockbackTimer > 0f || groundFollowAssistTimer > 0f || !normalGrounded;
 
     // エリアルコンボ改修(2026-09-11) - 攻撃種別・現在の空中状態・致死判定
     // の組み合わせから、実際のリアクションを振り分ける中心メソッド。
@@ -650,6 +678,50 @@ public class EnemyController : MonoBehaviour
         {
             Debug.Log($"[AerialCombo] LaunchUpward {name} y={transform.position.y:F2} velocityY={launchVelocityY:F2} velocityX={launchVelocityX:F2} alreadyLaunched={wasAlreadyLaunched}");
         }
+    }
+
+    // 実機フィードバック(2026-09-12第5弾) - 上攻撃のPickup/Vacuum。既に
+    // 空中(isLaunched)にいる敵だけを対象にする - 地上の敵をここから引き
+    // 寄せることはしない(それはMain HitBoxの役目)。PlayerController.
+    // DoUpAttackが、上攻撃のたびにVacuum判定範囲内の対象へこれを呼ぶ。
+    public void TryVacuumPickup(Vector2 offsetFromPlayer, float pullDuration)
+    {
+        if (dying || !isLaunched || beingVacuumed) return;
+        beingVacuumed = true;
+        StartCoroutine(VacuumPickupRoutine(offsetFromPlayer, pullDuration));
+    }
+
+    // 「瞬間移動にしない、0.08〜0.15秒程度でシュッと吸い込まれるように」。
+    // 目標位置は主人公の"今の"位置を毎フレーム基準にする(固定座標を1回
+    // だけ計算するのではなく) - 主人公は自動前進を続けるため、固定座標
+    // だと吸い込み完了時には既にPlayerの後方に取り残されてしまう
+    // (このセッションで繰り返し出てきた「相対速度は毎フレーム再計算する」
+    // 教訓と同じ理由)。吸い込み終了時にLaunchUpward()を呼ぶことで、
+    // 既存の「空中再Launch」の強さ(地上の初回Launchより弱い)をそのまま
+    // 再利用する - item 5「斜め前上へ再Launch」に対応。
+    IEnumerator VacuumPickupRoutine(Vector2 offsetFromPlayer, float pullDuration)
+    {
+        Vector3 start = transform.position;
+        float t = 0f;
+        while (t < pullDuration)
+        {
+            // 吸い込み中に別の攻撃で撃破された場合、このコルーチンは
+            // Update()のdyingガードの外側で独立して動き続けてしまう
+            // (StartCoroutineはUpdate()に紐づいていないため) - 死亡演出
+            // (HitAndDie/DieFadeRoutine)と位置の取り合いにならないよう
+            // 即座に打ち切る。
+            if (dying) yield break;
+            t += Time.deltaTime;
+            float frac = Mathf.Clamp01(t / Mathf.Max(0.001f, pullDuration));
+            // Ease-out - 「シュッと」勢いよく吸い込まれ、最後は緩やかに収まる。
+            float eased = 1f - Mathf.Pow(1f - frac, 2f);
+            Vector3 targetNow = (PlayerController.Instance != null ? PlayerController.Instance.transform.position : transform.position)
+                + new Vector3(offsetFromPlayer.x, offsetFromPlayer.y, 0f);
+            transform.position = Vector3.Lerp(start, targetNow, eased);
+            yield return null;
+        }
+        beingVacuumed = false;
+        LaunchUpward();
     }
 
     // 主人公の現在の自動前進速度(距離によるSpeed Up込み) - 0ならPlayer

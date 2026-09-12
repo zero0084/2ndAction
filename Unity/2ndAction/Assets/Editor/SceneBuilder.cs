@@ -2912,10 +2912,17 @@ public static class SceneBuilder
         // 1.8→Y範囲[-0.4,1.4]、キャラクター全身を包含)と同じ考え方に揃え、
         // Y=0.9・高さ2.0(Y範囲[-0.1,1.9])へ変更 - 下端がキャラクター本体
         // (足元付近)と重なりつつ、上端は従来同様頭上高くまで届く。
+        //
+        // 実機フィードバック(2026-09-12第5弾) - 「主人公の前方～斜め前上
+        // 方向への攻撃判定が狭く、上攻撃を出しても敵に届かず相打ちになる」。
+        // X方向の半径を0.8→1.2、中心を0.3→0.5前方へ移動(X範囲[-0.7,1.7]、
+        // 旧[-0.5,1.1]) - 「真上だけの縦長判定」ではなく前方～斜め前上まで
+        // まとめてカバーする扇形に近い範囲を狙う(VFXの見た目から極端に
+        // はみ出さない程度の拡張に留めた)。Y方向は変更なし。
         GameObject upHitbox = new GameObject("UpAttackHitbox");
         upHitbox.transform.SetParent(go.transform);
-        upHitbox.transform.localPosition = new Vector3(0.3f, 0.9f, 0f);
-        upHitbox.transform.localScale = new Vector3(1.6f, 2.0f, 1f);
+        upHitbox.transform.localPosition = new Vector3(0.5f, 0.9f, 0f);
+        upHitbox.transform.localScale = new Vector3(2.4f, 2.0f, 1f);
         upHitbox.tag = "PlayerAttack";
         upHitbox.AddComponent<PlayerAttackInfo>().kind = PlayerAttackKind.Up;
 
@@ -2941,6 +2948,26 @@ public static class SceneBuilder
         upSlashVisual.opacity = 0.92f;
         pc.upAttackHitbox = upHitboxCol;
         pc.upAttackSlashVisual = upSlashVisual;
+
+        // 実機フィードバック(2026-09-12第5弾) - 「上攻撃で主人公の真上
+        // 付近のEnemyも拾い直せるように」。ダメージ判定(UpAttackHitbox)
+        // とは別の、Pickup/Vacuum専用のマーカー範囲。"PlayerAttack"タグは
+        // 付けない(EnemyController.OnTriggerEnter2Dの通常ダメージ判定には
+        // 一切関与させない、あくまでPlayerController.TriggerUpAttackVacuum
+        // がPhysics2D.OverlapBoxAllで.boundsだけを読み取る手動判定用) -
+        // 主人公の真上を中心に、少し前後までカバーする範囲(item 9「吸い
+        // 込み範囲は広げすぎない、剣の斬り上げに巻き込まれても違和感のない
+        // 範囲に限定」に沿って、まずは控えめなサイズから)。
+        GameObject vacuumGO = new GameObject("UpAttackVacuumArea");
+        vacuumGO.transform.SetParent(go.transform);
+        vacuumGO.transform.localPosition = new Vector3(0.2f, 2.1f, 0f);
+        vacuumGO.transform.localScale = new Vector3(2.2f, 2.2f, 1f);
+        var vacuumCol = vacuumGO.AddComponent<BoxCollider2D>();
+        vacuumCol.isTrigger = true;
+        vacuumCol.enabled = false; // DoUpAttack中のみ一時的に有効化(他のHitboxと同じ慣習、デバッグ表示用)
+        var vacuumDebug = vacuumGO.AddComponent<ColliderDebugView>();
+        vacuumDebug.color = new Color(0.9f, 0.6f, 1f);
+        pc.upAttackVacuumHitbox = vacuumCol;
 
         // 方向攻撃システム Ver.2(2026-09-07)、項目3 - "空中で↓フリック=
         // 下降攻撃"用の独立したHitbox+Slash FX。UpAttackHitbox/UpAttackSlash

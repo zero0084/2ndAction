@@ -154,6 +154,23 @@ public class PlayerController : MonoBehaviour
     public AttackSlashVisual upAttackSlashVisual;
     public float upAttackActiveTime = 0.28f;
 
+    // 実機フィードバック(2026-09-12第5弾) - 「上攻撃で主人公の真上付近の
+    // Enemyも拾い直せるように」。upAttackHitbox(ダメージ判定、前方～斜め
+    // 前上)とは別に、真上を中心とした「Pickup/Vacuum」範囲を追加。この
+    // Colliderは通常のトリガー通知には使わず(EnemyController.OnTriggerEnter2D
+    // が拾わないよう"PlayerAttack"タグは付けていない)、DoUpAttackが上攻撃
+    // のたびにこの.boundsだけを読み取ってPhysics2D.OverlapBoxAllを手動実行
+    // する - 既に空中(isLaunched)にいる敵だけを対象に、主人公の斜め前上
+    // (vacuumTargetOffset)へ短時間(vacuumPullDuration)かけて引き寄せた上で
+    // 再Launchする(EnemyController.TryVacuumPickup参照)。
+    [Header("Up Attack Pickup / Vacuum (頭上のEnemyをコンボへ拾い直す)")]
+    public Collider2D upAttackVacuumHitbox;
+    // "瞬間移動にしない、0.08〜0.15秒程度でシュッと" - マスター指定のレンジ。
+    public float vacuumPullDuration = 0.12f;
+    // 引き寄せ後の目標位置(主人公からの相対オフセット、ワールド座標系) -
+    // 「主人公→斜め前上にEnemy」という位置関係を作る。
+    public Vector2 vacuumTargetOffset = new Vector2(1.0f, 1.2f);
+
     // 方向攻撃システム Ver.2、項目3 - "空中で↓フリック=下降攻撃"。上昇攻撃
     // (DoUpAttack)と同じ「isAttacking/comboCount/DoAttackの3段コンボ系統
     // には一切関与しない独立した仕組み」という設計方針をそのまま踏襲。
@@ -565,6 +582,7 @@ public class PlayerController : MonoBehaviour
             downHitboxBaseLocalPos = downAttackHitbox.transform.localPosition;
         }
         if (downAttackLandHitbox != null) downAttackLandHitbox.enabled = false;
+        if (upAttackVacuumHitbox != null) upAttackVacuumHitbox.enabled = false;
     }
 
     void Update()
@@ -1552,9 +1570,38 @@ public class PlayerController : MonoBehaviour
             upAttackHitbox.enabled = true;
         }
 
+        // 実機フィードバック(2026-09-12第5弾) - Pickup/Vacuum。剣を振り上げ
+        // た瞬間の一度だけ、頭上付近の空中Enemyを巻き込む(持続的な吸引に
+        // はしない - "剣の勢いに巻き込まれた"という一瞬の出来事として扱う)。
+        // 他のHitboxと同じ慣習でupAttackActiveTimeの間だけenabled=true(実際
+        // の判定はPhysics2D.OverlapBoxAllで一度きり行うため機能上は必須では
+        // ないが、DebugMode時のColliderDebugView表示に必要)。
+        if (upAttackVacuumHitbox != null) upAttackVacuumHitbox.enabled = true;
+        TriggerUpAttackVacuum();
+
         yield return new WaitForSeconds(upAttackActiveTime);
 
         if (upAttackHitbox != null) upAttackHitbox.enabled = false;
+        if (upAttackVacuumHitbox != null) upAttackVacuumHitbox.enabled = false;
+    }
+
+    // Main HitBox(通常のダメージ判定)とは別に、真上を中心としたPickup/
+    // Vacuum範囲内にいる「既に空中の敵」だけを、主人公の斜め前上へ引き
+    // 寄せる。upAttackVacuumHitboxはPlayerAttackタグを持たない(=通常の
+    // OnTriggerEnter2D経由のダメージ判定には一切関与しない)ため、ここで
+    // Physics2D.OverlapBoxAllを直接呼んで手動で対象を探す。
+    void TriggerUpAttackVacuum()
+    {
+        if (upAttackVacuumHitbox == null) return;
+        Bounds b = upAttackVacuumHitbox.bounds;
+        Collider2D[] hits = Physics2D.OverlapBoxAll(b.center, b.size, 0f);
+        foreach (Collider2D col in hits)
+        {
+            if (!col.CompareTag("Enemy")) continue;
+            var enemy = col.GetComponent<EnemyController>();
+            if (enemy == null) continue;
+            enemy.TryVacuumPickup(vacuumTargetOffset, vacuumPullDuration);
+        }
     }
 
     // 方向攻撃システム Ver.2、項目3 - 上昇攻撃(短いパルス)とは違い、下降
