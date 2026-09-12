@@ -5,20 +5,24 @@ using UnityEngine.UI;
 // Orchestrates the card-draw presentation for a level-up choice:
 // LEVEL UP announcement -> deck appears -> 3 cards fade/scale in -> flip
 // face-up (each with a small Gold Edge Glow flash) -> briefly showcased
-// (no tap yet - "今回引いたのはこの3枚" per the brief) -> cards shrink away
-// and a horizontal 3-row "choice panel" fades in (icon + title + detailed
-// description + key value per row, Vampire Survivors-style) -> player taps
-// a ROW (not a card) -> the picked row glows and grows, the other two
-// vanish, its icon gets a brief highlight -> the caller's onApply callback
-// actually applies the upgrade (GameManager.ApplyUpgradeByCardId, passed in
-// untouched) -> everything closes.
+// (no tap yet - "今回引いたのはこの3枚" per the brief) -> the SAME 3 cards
+// become the selection UI in place (no panel switch, no repositioning) ->
+// player taps a card once to highlight it (lift/scale/glow, the other two
+// dim, and a shared detail panel below the cards fills in with that card's
+// full description/Lv line) -> tapping the SAME card again confirms it,
+// tapping a DIFFERENT card re-highlights instead -> the picked card flashes
+// and grows, the other two fade out, a brief Gold Glow burst plays -> the
+// caller's onApply callback actually applies the upgrade
+// (GameManager.ApplyUpgradeByCardId, passed in untouched) -> everything
+// closes.
 //
-// レベルアップ選択UI改修(2026-09-11) - マスター提供の参考画像「レベル
-// アップ演出案 - カードからアイコンへ(ヴァンサバ風選択UI)」に基づく2段階
-// 化。「カードから引いた感(デッキ感)」はカード演出のまま残し、実際の
-// 選択・比較はLevelUpChoiceRowUI 3行の横長UIへ切り替える - 「デッキ・
-// カード=引く楽しさ」「横長選択UI=情報の読みやすさ・選びやすさ」という
-// 役割分担(マスターの指示どおり)。
+// カード選択UI再設計(2026-09-12第3弾) - 前回パス(2026-09-11)まではここで
+// 「カードは引く演出専用、実際の選択は別の横長3択パネル(LevelUpChoiceRowUI)
+// へ切り替える」という2段階構成だったが、マスターから「カードを引いた
+// 直後にUIの形が大きく変わり、"引いたカードから選ぶ"感覚が途切れる」との
+// フィードバックを受け、「引いた3枚のカードそのものを最後まで選択UIとして
+// 使う」方式へ再設計した。カードは移動も変形もせず、そのままタップ可能
+// になるだけ - 別パネルへの切り替えという概念自体をなくした。
 //
 // This class only ever receives already-decided data (RewardCardData) and
 // hands back the chosen card's id (a plain string) through onApply - it has
@@ -60,17 +64,19 @@ public class RewardCardSequence : MonoBehaviour
     public RewardCardUI[] cards = new RewardCardUI[3];
     public Vector2[] cardSlotPositions = new Vector2[3];
 
-    // レベルアップ選択UI改修(2026-09-11) - マスター提供の参考画像どおり、
-    // 「カードを引く演出」(上のCards)→「横長の詳細選択UI」(この
-    // ChoicePanel)という2段階に変更。カードは3枚を短く見せる"デッキ感"の
-    // 演出専用になり(タップ不可)、実際の選択はこちらのLevelUpChoiceRowUI
-    // 3行で行う。既存のカード抽選/効果適用ロジック(GameManager側)・
-    // RewardCardData自体は完全に不変 - 見せ方(Presentation)だけの追加。
-    [Header("Choice Panel (横長3択、Vampire Survivors風)")]
-    public CanvasGroup choicePanelGroup;
-    public Text choiceHeaderText;
-    public Text choiceSubText;
-    public LevelUpChoiceRowUI[] rows = new LevelUpChoiceRowUI[3];
+    // カード選択UI再設計(2026-09-12第3弾) - マスター指示「引いた3枚の
+    // カードそのものを最後まで選択UIとして使用する」。前回パスまでの
+    // 「カードを引く演出→横長3択UIへ切り替え」という2段階構成(旧
+    // ChoicePanel/LevelUpChoiceRowUI)を廃止し、Cards自体をタップ可能に
+    // した上で、その下にこのDetailPanel(共通の詳細説明エリア、1つだけ)
+    // を置く。既存のカード抽選/効果適用ロジック(GameManager側)・
+    // RewardCardData自体は完全に不変 - 見せ方(Presentation)だけの変更。
+    [Header("Detail Panel (カード下の共通詳細説明エリア)")]
+    public CanvasGroup detailPanelGroup;
+    public Text detailTitleText;
+    public Text detailLevelText;
+    public Text detailDescriptionText;
+    public Text detailHintText;
 
     [Header("Glow")]
     public Image glowImage;
@@ -136,42 +142,37 @@ public class RewardCardSequence : MonoBehaviour
     public float revealFlashDuration = 0.16f;
     public float flipFinishPause = 0.05f;
 
-    // レベルアップ選択UI改修(2026-09-11) - 旧: 表になったカード自身に
-    // タップ待ちのIdle Pulseをかけていたが、カードはもう選択UIではなく
-    // 「引いた3枚を短く見せるだけ」の演出になったため、この明滅は横長行
-    // (LevelUpChoiceRowUI)側の縁色にのみ意味を持つ。フィールド自体は
-    // カード表示中には使わなくなったが、行が「選択可能」であることを示す
-    // 視覚的な手がかりは持たせず(参考画像どおり縁は常時金色で静止、タップ
-    // で初めて発光する設計)、このセクションは削除。
-
     [Header("Timing - Card Showcase (「今回引いたのはこの3枚」を短く見せる)")]
     // マスター指示:「3枚が表になった状態は長時間表示する必要はない」
     // 「テンポを優先」「3枚が揃った後の待機は約0.3〜0.5秒程度」。
     public float cardShowcaseHold = 0.32f;
 
-    // カード選出演出の修正(2026-09-12) - カード→行の切り替えを「カードを
-    // 消してから行を出す」の2段階から、「カードが行の位置へ移動しながら
-    // 入れ替わる」1回のクロスフェードへ統合したため、旧
-    // choicePanelFadeInDuration/rowAppearInterval/rowAppearDuration
-    // (段階ごとに別々の長さ・出現間隔を持たせていた)は不要になり削除 -
-    // 今はcardExitDuration1つだけが遷移全体の長さを決める。
-    [Header("Timing - Card -> Choice Row Transition")]
-    // カードが実際に行の位置まで滑っていくのが見える程度の長さ(短すぎる
-    // と瞬間移動に見え、「移動している」という肝心の連続性が伝わらない)。
-    // 旧実装(カード退場0.1s+行入場側だけで最大0.42s)より遷移全体は
-    // 短いままなので、ここを少し伸ばしても体感テンポは悪化しない。
-    public float cardExitDuration = 0.2f;
+    // カード選択UI再設計(2026-09-12第3弾) - カードが行へ切り替わる遷移
+    // (旧cardExitDuration)自体が不要になった - カードはもう位置も見た目
+    // も変えずそのまま選択UIになる。代わりに「タップで選択状態にする/
+    // 別のカードへ切り替える」ときの短いフィードバック用の時間だけ必要。
+    [Header("Timing - Card Highlight (1回目のタップで選択状態にする)")]
+    // 選択/非選択の切り替え(リフト/拡大/縮小/フェード)の速さ - 「演出は
+    // 重くせず、素早く切り替わるように」との指示どおり短め。
+    public float cardHighlightTransitionDuration = 0.12f;
+    // 選択中のカードを上へ持ち上げる量(px)。
+    public float cardLiftAmount = 24f;
+    public float selectedCardScale = 1.08f;
+    // 非選択の2枚を少し暗くする(完全に消しはしない - まだタップし直せる
+    // ため)。
+    [Range(0f, 1f)] public float unselectedCardDimAlpha = 0.55f;
+    public float detailPanelFadeInDuration = 0.15f;
 
-    [Header("Timing - Row Selection Payoff (target ~0.4-0.6s total)")]
-    // Step 6 - immediate in-place "picked" feedback(行の拡大+縁の発光)。
-    public float selectedRowScale = 1.04f;
-    public float selectedRowFlashDuration = 0.22f;
-    // Step 7 - 他の2候補が消える。
-    public float unselectedRowFadeDuration = 0.16f;
-    // Step 8 - 選択したアイコンを短時間強調表示するGlow(既存PlayGlowを
-    // 行の位置で再利用)からApply Upgradeまでの間。
+    [Header("Timing - Confirm Payoff (同じカードを再タップで確定、target ~0.4-0.6s total)")]
+    // 確定した瞬間の一段強いフラッシュ+拡大。
+    public float confirmFlashDuration = 0.22f;
+    public float confirmScale = 1.12f;
+    // 確定後、他の2枚が消える。
+    public float unselectedCardFadeOutDuration = 0.16f;
+    // 確定したカードを短時間強調表示するGlow(既存PlayGlowをカードの
+    // 位置で再利用)からApply Upgradeまでの間。
     public float glowDuration = 0.24f;
-    public float choicePanelCloseDuration = 0.16f;
+    public float detailPanelCloseDuration = 0.16f;
     public float rootCloseDuration = 0.18f;
 
     [Header("Debug")]
@@ -187,8 +188,18 @@ public class RewardCardSequence : MonoBehaviour
     // "Boss撃破後にゲームが停止する".
     public bool IsRunning => running;
     public bool IsWaitingForSelection => waitingForSelection;
+    // selectedIndex: 確定済み(2回目のタップ)、これが>=0になるとWaiting
+    // ループが終わる。highlightedIndex: 1回目のタップで「選択状態」に
+    // なっている(まだ確定していない)カード - カード選択UI再設計
+    // (2026-09-12第3弾)で新設。同じカードを再タップすると確定、別の
+    // カードをタップすると切り替わる(OnCardClicked参照)。
     int selectedIndex = -1;
+    int highlightedIndex = -1;
     bool waitingForSelection;
+    // OnCardClicked/HighlightCardが詳細パネルの内容を参照するために保持
+    // する、今回のRunSequenceBody呼び出し中だけ有効な参照。
+    RewardCardData[] currentCardData;
+    int currentCardCount;
 
     // Diagnostic only: the name of whatever step RunSequence is currently
     // on, shown on-screen (see GameManager.OnGUI) and logged, so a freeze
@@ -250,6 +261,7 @@ public class RewardCardSequence : MonoBehaviour
         LogStep("LevelUp Start");
         running = true;
         selectedIndex = -1;
+        highlightedIndex = -1;
 
         // Item 13 safety net - GameManager guarantees at least 1 entry
         // whenever StartSequence is actually called (pool.Count==0 returns
@@ -308,22 +320,17 @@ public class RewardCardSequence : MonoBehaviour
         glowImage.gameObject.SetActive(false);
         for (int i = 0; i < cards.Length; i++)
         {
-            cards[i].StopIdlePulse();
+            cards[i].StopIdlePulse(); // frameImage.colorをFrameNormalColorへ戻す副作用込み(前回実行のSetChoiceGlowの残り香を消す)
+            cards[i].SetInteractable(false);
             cards[i].gameObject.SetActive(false);
         }
-        // レベルアップ選択UI改修(2026-09-11) - 横長選択パネルも毎回同じ
+        // カード選択UI再設計(2026-09-12第3弾) - DetailPanelも毎回同じ
         // 「非表示・不透明度0」からスタートさせる(カード側と同じ理由 -
         // 前回の実行の見た目が次回に持ち越らないように)。
-        if (choicePanelGroup != null)
+        if (detailPanelGroup != null)
         {
-            choicePanelGroup.alpha = 0f;
-            choicePanelGroup.gameObject.SetActive(false);
-        }
-        for (int i = 0; i < rows.Length; i++)
-        {
-            if (rows[i] == null) continue;
-            rows[i].SetInteractable(false);
-            rows[i].gameObject.SetActive(false);
+            detailPanelGroup.alpha = 0f;
+            detailPanelGroup.gameObject.SetActive(false);
         }
         if (levelUpTextGroup != null) levelUpTextGroup.alpha = 0f;
         LogStep("Pause Complete");
@@ -397,13 +404,14 @@ public class RewardCardSequence : MonoBehaviour
         LogStep("Flip Start");
         for (int i = 0; i < cardCount; i++)
         {
-            // Card UI改修(2026-09-08) - showDetails:true。Level Up/Boss
-            // Reward選択はこの3枚を見て即決めるため、効果文/★を隠す新デ
-            // フォルトのシンプル表示ではなく、従来どおり常時表示のまま。
-            // DeckEditUIと違いこの画面には別途詳細パネルがないため、情報
-            // を失わせないための意図的な措置(RewardCardUI.showDetailsの
-            // コメント参照)。
-            cards[i].SetContent(cardData[i], showDetails: true);
+            // カード選択UI再設計(2026-09-12第3弾) - showDetails:false。
+            // 「カード本体には長い説明文を詰め込む必要はない、イラスト/
+            // タイトル/主要効果の短い表記程度」との指示どおり、効果文/★
+            // はもうカード面には出さない(下のDetailPanelが専用の詳細表示
+            // を担当する)。ValueLine(短い主要効果、例:"HP +20%")は
+            // showDetailsに関係なく常時表示される独立行(RewardCardUI.
+            // ApplyFaceVisibility参照)。
+            cards[i].SetContent(cardData[i], showDetails: false);
             PlaySfx(flipSe);
             LogStep("Flip Card " + i);
             StartCoroutine(cards[i].FlipToFront(cardFlipDuration));
@@ -423,74 +431,48 @@ public class RewardCardSequence : MonoBehaviour
         LogStep("Card Showcase Complete");
         LogPresentation("[LevelUpPresentation] Card showcase complete");
 
-        // ===== 「カードから横長選択UIへ切り替え」 =====
-        // カード選出演出の修正(2026-09-12) - マスター報告「抽選された3枚
-        // が一度なくなってから、選択用の3枚が改めて表示される」という
-        // 見え方の解消。以前はカード3枚をその場でフェードアウトさせて
-        // 完全に消してから、無関係な位置で横長行3つを別途フェードインさ
-        // せていた(=「引いたカード」と「選ぶカード」が別物に見える)。
-        // 今回は同じインデックスのカード/行が同じRewardCardDataを表示す
-        // る対応関係を利用し、各カードをそれぞれの行の最終位置(rows[i].
-        // rect.anchoredPosition)へ向けて実際に移動させながら縮小/フェード
-        // アウトし、"同じ場所・同じタイミング"でその行を拡大/フェードイン
-        // させる - カードが消える一瞬前にはもう行が育っており、「抽選した
-        // 3枚がそのまま選択肢へ展開していく」ように見える(空白時間なし、
-        // カードを完全に消してから行を出す、という順序自体をやめた)。
-        // 「過度に派手な新規演出は不要」との指示どおり、3枚同時・単一の
-        // cardExitDurationのみで完結させる(個別の出現間隔は付けない)。
-        LogStep("Card->Row Transition Start");
-        if (choiceHeaderText != null) choiceHeaderText.text = announcementText;
+        // ===== カード自身を選択UIとして有効化 =====
+        // カード選択UI再設計(2026-09-12第3弾) - マスター指示「引いた3枚の
+        // カードそのものを最後まで選択UIとして使用する」。以前のように
+        // 別のUI(横長3択パネル)へ切り替えず、今表示されているこの3枚に
+        // そのままタップを受け付けさせるだけ - 位置も見た目も一切変わらな
+        // い(前回までの「引いた直後にUIの形が大きく変わる」という違和感
+        // の解消)。DetailPanelだけを新たにフェードインさせる。
+        LogStep("Cards As Choice UI Start");
+        currentCardData = cardData;
+        currentCardCount = cardCount;
+        highlightedIndex = -1;
+        ShowDetailPrompt();
+        if (detailPanelGroup != null)
+        {
+            detailPanelGroup.gameObject.SetActive(true);
+            yield return FadeCanvasGroup(detailPanelGroup, 1f, detailPanelFadeInDuration);
+        }
         for (int i = 0; i < cardCount; i++)
         {
-            rows[i].gameObject.SetActive(true);
-            rows[i].SetContent(cardData[i]);
-            rows[i].rect.localScale = Vector3.one * 0.94f;
-            rows[i].canvasGroup.alpha = 0f;
+            cards[i].SetInteractable(true);
+            // 「選択可能であることが自然に分かればOK」- 既存のIdle Pulse
+            // (縁の淡い明滅)をそのまま流用、タップされたら止まる
+            // (HighlightCard参照)。
+            cards[i].StartIdlePulse(0.15f, 0.55f, 1.1f);
         }
-        if (choicePanelGroup != null)
-        {
-            choicePanelGroup.gameObject.SetActive(true);
-            choicePanelGroup.alpha = 1f; // 個々の行のalphaで見え方を制御するので、パネル自体は最初から不透明でよい
-        }
-
-        for (int i = 0; i < cardCount; i++)
-        {
-            // カード自身を、対応する行がこれから表示される「その場所」へ
-            // 実際に移動させる - 「同じカードオブジェクト、または少なくと
-            // も見た目として同じカードがそのまま移動している」ように。
-            StartCoroutine(cards[i].MoveTo(rows[i].rect.anchoredPosition, cardExitDuration));
-            StartCoroutine(cards[i].ScaleTo(0.9f, cardExitDuration));
-            StartCoroutine(cards[i].FadeTo(0f, cardExitDuration));
-            // カードが向かっているのと全く同じ場所・同じ長さで、対応する
-            // 行を拡大しながらフェードインさせる - 「カードが行に置き換
-            // わっていく」ように重ねる。
-            StartCoroutine(rows[i].FadeTo(1f, cardExitDuration));
-            StartCoroutine(rows[i].ScaleTo(1f, cardExitDuration));
-        }
-        yield return new WaitForSecondsRealtime(cardExitDuration);
-        for (int i = 0; i < cards.Length; i++) cards[i].gameObject.SetActive(false);
-        LogStep("Card->Row Transition Complete");
-        LogPresentation("[LevelUpPresentation] Choice rows shown");
-
-        // Input Lock (item 14) - Rows shown -> Input Enable, exactly at
-        // this line; nothing before this point can register a tap
-        // (SetInteractable(true) is the only thing that flips
-        // button.interactable/canvasGroup.blocksRaycasts on).
-        for (int i = 0; i < cardCount; i++) rows[i].SetInteractable(true);
+        LogStep("Cards As Choice UI Complete");
 
         // Belt-and-suspenders: if a tap somehow never gets recognized by
-        // either input path above, this guarantees the run can never be
-        // stuck paused forever - it just auto-picks the first row after a
-        // long wait instead.
+        // either input path below, this guarantees the run can never be
+        // stuck paused forever - it just auto-picks the currently
+        // highlighted card (or the first one) after a long wait instead.
         LogStep("Waiting For Selection");
         waitingForSelection = true;
         float waitStart = Time.unscaledTime;
-        const float selectionTimeoutSeconds = 20f;
+        // 1回目のタップ(選択)→2回目のタップ(確定)の2段階になった分、
+        // 旧来の単純な1タップ選択より余裕を持たせる。
+        const float selectionTimeoutSeconds = 30f;
         while (selectedIndex < 0)
         {
             if (Time.unscaledTime - waitStart > selectionTimeoutSeconds)
             {
-                selectedIndex = 0;
+                selectedIndex = highlightedIndex >= 0 ? highlightedIndex : 0;
                 break;
             }
             yield return null;
@@ -500,54 +482,60 @@ public class RewardCardSequence : MonoBehaviour
 
         // Input Lock (item 14) - selection resolved -> Input Disable
         // immediately, before any animation, so a double-tap can't select a
-        // second row or re-enter this block (OnRowClicked's own
-        // selectedIndex>=0 guard already blocks it too - belt-and-suspenders
-        // against Card Effect double-apply / coroutine double-run).
-        PlaySfx(selectSe);
-        for (int i = 0; i < cardCount; i++) rows[i].SetInteractable(false);
+        // second card or re-enter this block (OnCardClicked's own
+        // waitingForSelection/selectedIndex>=0 guards already block it too -
+        // belt-and-suspenders against Card Effect double-apply / coroutine
+        // double-run).
+        for (int i = 0; i < cardCount; i++)
+        {
+            cards[i].SetInteractable(false);
+            cards[i].StopIdlePulse();
+        }
 
-        var winner = rows[selectedIndex];
-        LogPresentation($"[LevelUpPresentation] Card selected: {winner.Data.CardId}");
+        var winnerData = cardData[selectedIndex];
+        var winnerCard = cards[selectedIndex];
+        LogPresentation($"[LevelUpPresentation] Card selected: {winnerData.CardId}");
 
-        // ===== 選択後の演出 - マスター指示どおり短く、素早くゲーム再開へ
-        // 戻れるように。「選択した横長UIが発光→他の2候補が消える→選択した
-        // 能力アイコンを短時間強調表示→能力取得処理→LEVEL UP画面を閉じる
-        // →ゲーム再開」の順。 =====
+        // ===== 確定演出 - マスター指示どおり短く、素早くゲーム再開へ戻れ
+        // るように。「選択したカードが一段強く発光→他の2枚が消える→短時間
+        // 強調表示→能力取得処理→閉じる→ゲーム再開」の順。 =====
 
-        // Step 6 - 選択した行がその場で発光+軽く拡大 - "これを選んだ、
-        // というFeedbackを明確に".
+        // 確定した瞬間の一段強いフラッシュ+拡大 - "これを選んだ、という
+        // Feedbackを明確に"。FlashFrameは終了時にFrameNormalColorへ戻す
+        // ため、その後SetChoiceGlow(true)で改めて発光を維持する。
         LogStep("Select Feedback Start");
-        StartCoroutine(winner.FlashEdge(selectedRowFlashDuration + 0.1f));
-        yield return winner.ScaleTo(selectedRowScale, selectedRowFlashDuration);
-        winner.SetSelectedVisual(true);
+        PlaySfx(confirmSe);
+        StartCoroutine(winnerCard.FlashFrame(confirmFlashDuration));
+        yield return winnerCard.ScaleTo(confirmScale, confirmFlashDuration);
+        winnerCard.SetChoiceGlow(true);
         LogStep("Select Feedback Complete");
 
-        // Step 7 - 他の2候補が消える。
+        // 他の2枚が消える。
         for (int i = 0; i < cardCount; i++)
         {
             if (i == selectedIndex) continue;
-            StartCoroutine(rows[i].FadeTo(0f, unselectedRowFadeDuration));
+            StartCoroutine(cards[i].FadeTo(0f, unselectedCardFadeOutDuration));
         }
-        yield return new WaitForSecondsRealtime(unselectedRowFadeDuration);
+        yield return new WaitForSecondsRealtime(unselectedCardFadeOutDuration);
 
-        // Step 8 - 選択した能力アイコンを短時間強調表示(既存のGold Glow
-        // バーストを、カードの中心ではなく選択された行の位置で再利用)。
+        // 選択したカードを短時間強調表示(既存のGold Glowバーストをカード
+        // の位置で再利用)。
         LogStep("Confirm Glow Start");
-        PlaySfx(confirmSe);
-        StartCoroutine(PlayGlow(winner.rect.anchoredPosition));
+        StartCoroutine(PlayGlow(winnerCard.rect.anchoredPosition));
         yield return new WaitForSecondsRealtime(glowDuration * 0.6f);
         LogStep("Confirm Glow Complete");
 
         LogStep("Apply Upgrade");
-        onApply(winner.Data.CardId);
+        onApply(winnerData.CardId);
         LogPresentation("[LevelUpPresentation] Gameplay resumed");
         LogStep("Apply Upgrade Complete");
 
-        if (choicePanelGroup != null) yield return FadeCanvasGroup(choicePanelGroup, 0f, choicePanelCloseDuration);
+        if (detailPanelGroup != null) yield return FadeCanvasGroup(detailPanelGroup, 0f, detailPanelCloseDuration);
         yield return FadeRoot(0f, rootCloseDuration);
         // gameObject.SetActive(false)/running=false are now handled by the
         // outer RunSequence's finally block (see its own comment) so they
         // still happen even if something above this point threw.
+        currentCardData = null;
         LogStep("Sequence Complete");
         LogPresentation("[LevelUpPresentation] Presentation finished");
     }
@@ -626,9 +614,9 @@ public class RewardCardSequence : MonoBehaviour
     }
 
     // レベルアップ選択UI改修(2026-09-11) - FadeRoot/FadeDimと同じ形の汎用
-    // 版。choicePanelGroup(横長3択パネル全体)のフェードイン/アウトに使う -
-    // 専用のFadeChoicePanelを別途書く代わりに、任意のCanvasGroupを受け取
-    // れるようにして重複を避けた。
+    // 版。detailPanelGroup(共通詳細説明エリア)のフェードイン/アウトに
+    // 使う - 専用のFadeDetailPanelを別途書く代わりに、任意のCanvasGroup
+    // を受け取れるようにして重複を避けた。
     IEnumerator FadeCanvasGroup(CanvasGroup group, float target, float duration)
     {
         float start = group.alpha;
@@ -692,36 +680,86 @@ public class RewardCardSequence : MonoBehaviour
         glowImage.gameObject.SetActive(false);
     }
 
-    // レベルアップ選択UI改修(2026-09-11) - 選択はもうカードではなく横長行
-    // (LevelUpChoiceRowUI)に対して行う。SceneBuilderが各行のButton.
-    // onClickへこれを配線する - "normal" path via UGUI's EventSystem/
-    // GraphicRaycaster.
-    public void OnRowClicked(int index)
+    // カード選択UI再設計(2026-09-12第3弾) - 選択はカード自身に対して行う。
+    // SceneBuilderが各カードのButton.onClickへこれを配線する -
+    // "normal" path via UGUI's EventSystem/GraphicRaycaster。
+    //
+    // ■ 操作方法(マスター指示どおり)
+    // 1回目のタップ: そのカードを選択状態にする+詳細説明を表示
+    // 同じカードをもう一度タップ: そのカードの取得を確定
+    // 別のカードをタップ: 選択対象を変更し、詳細説明も切り替える
+    public void OnCardClicked(int index)
     {
-        if (selectedIndex >= 0) return; // already picked; ignore further taps
-        selectedIndex = index;
+        if (!waitingForSelection || selectedIndex >= 0) return; // 未受付、または既に確定済み
+        if (highlightedIndex == index)
+        {
+            selectedIndex = index; // 同じカードへの2回目のタップ - 確定
+        }
+        else
+        {
+            HighlightCard(index);
+        }
+    }
+
+    // 1回目のタップ(または選択対象の切り替え) - 対象カードを持ち上げ/
+    // 拡大/発光させ、他の2枚を少し暗くする。詳細説明エリアの内容もこの
+    // カードのものへ書き換える。「演出は重くせず、素早く切り替わるよう
+    // に」との指示どおり、既存のScaleTo/MoveTo/FadeTo(いずれも既に確立
+    // 済みの汎用tween)をそのまま再利用するだけで完結させる。
+    void HighlightCard(int index)
+    {
+        highlightedIndex = index;
+        PlaySfx(selectSe);
+        UpdateDetailPanel(currentCardData[index]);
+        for (int i = 0; i < currentCardCount; i++)
+        {
+            RewardCardUI card = cards[i];
+            bool isSelected = i == index;
+            card.StopIdlePulse(); // タップされたら「タップして」の明滅は不要
+            card.SetChoiceGlow(isSelected);
+            Vector2 targetPos = cardSlotPositions[i] + (isSelected ? new Vector2(0f, cardLiftAmount) : Vector2.zero);
+            StartCoroutine(card.MoveTo(targetPos, cardHighlightTransitionDuration));
+            StartCoroutine(card.ScaleTo(isSelected ? selectedCardScale : 1f, cardHighlightTransitionDuration));
+            StartCoroutine(card.FadeTo(isSelected ? 1f : unselectedCardDimAlpha, cardHighlightTransitionDuration));
+        }
+    }
+
+    void UpdateDetailPanel(RewardCardData data)
+    {
+        if (detailTitleText != null) detailTitleText.text = data.Title;
+        if (detailLevelText != null) detailLevelText.text = data.LevelLine;
+        if (detailDescriptionText != null) detailDescriptionText.text = data.Description;
+        if (detailHintText != null) detailHintText.text = "もう一度タップして決定";
+    }
+
+    // 1枚もまだ選ばれていない間、詳細説明エリアに出す案内文。
+    void ShowDetailPrompt()
+    {
+        if (detailTitleText != null) detailTitleText.text = "";
+        if (detailLevelText != null) detailLevelText.text = "";
+        if (detailDescriptionText != null) detailDescriptionText.text = "カードをタップして選択してください";
+        if (detailHintText != null) detailHintText.text = "";
     }
 
     // Backup path that doesn't depend on the EventSystem/Button pipeline at
     // all - hit-tests raw touch/mouse-down position directly against each
-    // row's RectTransform ("行全体をタップ可能に" - the row's own rect IS
-    // the full tap area, no separate hit-box needed), the same way the rest
-    // of this project (which has no other uGUI anywhere) already handles
-    // taps. Whichever path notices the tap first wins; this exists purely
-    // so a level-up can never get stuck waiting on a tap that the
-    // EventSystem, for whatever reason, didn't deliver.
+    // card's RectTransform, the same way the rest of this project (which
+    // has no other uGUI anywhere) already handles taps. Whichever path
+    // notices the tap first wins; this exists purely so a level-up can
+    // never get stuck waiting on a tap that the EventSystem, for whatever
+    // reason, didn't deliver.
     void Update()
     {
         if (!waitingForSelection || selectedIndex >= 0) return;
 
         if (!TouchInputUtil.TryGetTapPosition(out Vector2 screenPos)) return;
 
-        for (int i = 0; i < rows.Length; i++)
+        for (int i = 0; i < cards.Length; i++)
         {
-            if (rows[i] == null || !rows[i].gameObject.activeInHierarchy) continue;
-            if (RectTransformUtility.RectangleContainsScreenPoint(rows[i].rect, screenPos, null))
+            if (cards[i] == null || !cards[i].gameObject.activeInHierarchy) continue;
+            if (RectTransformUtility.RectangleContainsScreenPoint(cards[i].rect, screenPos, null))
             {
-                OnRowClicked(i);
+                OnCardClicked(i);
                 return;
             }
         }

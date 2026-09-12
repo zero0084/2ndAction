@@ -40,6 +40,12 @@ public class RewardCardUI : MonoBehaviour
     public Image iconImage;
     public Text titleText;
     public Text descriptionText;
+    // カード選択UI再設計(2026-09-12第3弾) - 「カード本体には短い主要効果
+    // だけを常時表示、詳しい説明は共通の詳細パネルへ」。levelText/count
+    // Textと同じく"常にこのデータの有無だけで表示可否が決まる"(showDetails
+    // に左右されない)独立した行 - RewardCardData.ValueLine(既存、横長行
+    // UI用に追加されていたのを流用)をそのまま使う。
+    public Text valueLineText;
     // Card UI / Rarity Frame pass - Rarity (top-left, ★ text) and Level
     // (top-right, "Lv.2 -> Lv.3" etc.) are now separate rows from Title/
     // Description (item 2 - "Card Nameを最も目立つ情報に、Rarity/Lvは補助
@@ -114,6 +120,7 @@ public class RewardCardUI : MonoBehaviour
         descriptionText.enabled = isFront && showDetails;
         if (rarityText != null) rarityText.enabled = isFront && showDetails;
         if (levelText != null) levelText.enabled = isFront && !string.IsNullOrEmpty(data.LevelLine);
+        if (valueLineText != null) valueLineText.enabled = isFront && !string.IsNullOrEmpty(data.ValueLine);
         if (countText != null) countText.enabled = isFront && data.Count > 1;
         if (equippedBadge != null) equippedBadge.SetActive(isFront && data.ShowEquippedBadge);
     }
@@ -138,6 +145,7 @@ public class RewardCardUI : MonoBehaviour
         descriptionText.enabled = false;
         if (rarityText != null) rarityText.enabled = false;
         if (levelText != null) levelText.enabled = false;
+        if (valueLineText != null) valueLineText.enabled = false;
         if (countText != null) countText.enabled = false;
         if (equippedBadge != null) equippedBadge.SetActive(false);
         rect.localScale = Vector3.one;
@@ -158,6 +166,7 @@ public class RewardCardUI : MonoBehaviour
             : null;
         titleText.text = cardData.Title;
         descriptionText.text = cardData.Description;
+        if (valueLineText != null) valueLineText.text = cardData.ValueLine;
 
         // Card UI / Rarity Frame pass - frame Sprite switches with Rarity;
         // frameImage.color stays whatever SetSelected/FlashFrame/idle pulse
@@ -228,6 +237,19 @@ public class RewardCardUI : MonoBehaviour
     {
         frameImage.color = selected ? FrameSelectedColor : FrameNormalColor;
         rect.localScale = Vector3.one * (selected ? SelectedScale : 1f);
+    }
+
+    // カード選択UI再設計(2026-09-12第3弾) - Level Up/Boss Reward選択で
+    // 「今どのカードを選んでいるか」を示す青白系の発光(SetSelectedの金色
+    // はDeck画面の「所持デッキに入っている」印と意味が違うため、あえて
+    // 別の色・別メソッドにした)。Scale/位置/フェードはRewardCardSequence
+    // 側が既存のScaleTo/MoveTo/FadeToで個別に制御するため、ここでは色だけ
+    // を切り替える。
+    static readonly Color FrameChoiceGlowColor = new Color(0.55f, 0.85f, 1f, 1f);
+
+    public void SetChoiceGlow(bool on)
+    {
+        frameImage.color = on ? FrameChoiceGlowColor : FrameNormalColor;
     }
 
     // Scales X down to 0 (looks like an edge-on card), swaps from back to

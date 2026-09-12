@@ -661,66 +661,115 @@ public static class SceneBuilder
         var cardComponents = new RewardCardUI[3];
         for (int i = 0; i < 3; i++)
         {
-            // レベルアップ選択UI改修(2026-09-11) - カードはもう選択UIでは
-            // なく「短く見せるだけ」の演出になったため、タップは受け付け
-            // ない(onClick: null) - RewardCardSequence側もこれらのカード
-            // のSetInteractableを一度もtrueにしない。
-            cardComponents[i] = CreateRewardCard(rootGO.transform, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
+            // カード選択UI再設計(2026-09-12第3弾) - 「引いた3枚のカードその
+            // ものを最後まで選択UIとして使う」との明示的な依頼により、この
+            // カード自身をタップ可能にする(旧: onClick=null、横長行UIへの
+            // 切り替え後にだけタップ可能にしていた)。
+            cardComponents[i] = CreateRewardCard(rootGO.transform, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, sequence.OnCardClicked, cardBaseSprite, cardTitleBandSprite);
         }
         sequence.cards = cardComponents;
 
-        // レベルアップ選択UI改修(2026-09-11) - マスター提供の参考画像
-        // 「レベルアップ演出案」のStep3「シンプルな選択UIに切り替え」。
-        // カード表示の後、この横長3択パネルへフェード切り替えする
-        // (RewardCardSequence.RunSequenceBody参照)。ChoicePanelはrootGO
-        // の子(cards/deck/glowと同じ階層)にし、独自のCanvasGroupで
-        // カードのフェードアウトと入れ替わりにフェードインできるように
-        // する。
-        GameObject choicePanelGO = new GameObject("ChoicePanel");
-        choicePanelGO.transform.SetParent(rootGO.transform, false);
-        RectTransform choicePanelRect = choicePanelGO.AddComponent<RectTransform>();
-        StretchFull(choicePanelRect);
-        CanvasGroup choicePanelGroup = choicePanelGO.AddComponent<CanvasGroup>();
-        choicePanelGroup.alpha = 0f;
-        choicePanelGO.SetActive(false);
-        sequence.choicePanelGroup = choicePanelGroup;
+        // カード選択UI再設計(2026-09-12第3弾) - マスター指示「前回の横長
+        // 3段リスト形式は今回は使用せず、カード3枚＋共通の詳細説明エリア
+        // という構成で」。旧ChoicePanel(横長3行UIとその見出し)は完全に
+        // 廃止し、代わりにカードの下に1つだけの「詳細説明エリア」を置く -
+        // タップされたカードのTitle/Lv/効果説明をここに書き換える方式
+        // (RewardCardSequence.UpdateDetailPanel参照)、カードごとに別々の
+        // パネルは出さない。
+        GameObject detailPanelGO = new GameObject("DetailPanel");
+        detailPanelGO.transform.SetParent(rootGO.transform, false);
+        RectTransform detailPanelRect = detailPanelGO.AddComponent<RectTransform>();
+        detailPanelRect.anchorMin = detailPanelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        detailPanelRect.pivot = new Vector2(0.5f, 0.5f);
+        const float detailPanelWidth = 1200f;
+        const float detailPanelHeight = 220f;
+        detailPanelRect.sizeDelta = new Vector2(detailPanelWidth, detailPanelHeight);
+        // カードは(-340/0/340, 40)、半分の高さ195なので下端はy=-155 -
+        // その少し下に余白を空けて配置する。
+        detailPanelRect.anchoredPosition = new Vector2(0f, -300f);
+        CanvasGroup detailPanelGroup = detailPanelGO.AddComponent<CanvasGroup>();
+        detailPanelGroup.alpha = 0f;
+        detailPanelGO.SetActive(false);
+        sequence.detailPanelGroup = detailPanelGroup;
 
-        GameObject choiceHeaderGO = new GameObject("ChoiceHeader");
-        choiceHeaderGO.transform.SetParent(choicePanelGO.transform, false);
-        RectTransform choiceHeaderRect = choiceHeaderGO.AddComponent<RectTransform>();
-        choiceHeaderRect.anchorMin = choiceHeaderRect.anchorMax = new Vector2(0.5f, 0.5f);
-        choiceHeaderRect.pivot = new Vector2(0.5f, 0.5f);
-        choiceHeaderRect.sizeDelta = new Vector2(900f, 90f);
-        choiceHeaderRect.anchoredPosition = new Vector2(0f, 360f);
-        Text choiceHeaderText = choiceHeaderGO.AddComponent<Text>();
-        ConfigureCardText(choiceHeaderText, 56, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
-        choiceHeaderText.text = "LEVEL UP";
-        sequence.choiceHeaderText = choiceHeaderText;
+        Sprite panelSprite = RoundedPanelSprite();
+        const float detailBorderPx = 5f;
+        GameObject detailEdgeGO = new GameObject("Edge");
+        detailEdgeGO.transform.SetParent(detailPanelGO.transform, false);
+        StretchFull(detailEdgeGO.AddComponent<RectTransform>());
+        Image detailEdgeImage = detailEdgeGO.AddComponent<Image>();
+        detailEdgeImage.sprite = panelSprite;
+        detailEdgeImage.type = Image.Type.Sliced;
+        detailEdgeImage.color = new Color(0.83f, 0.68f, 0.32f, 1f);
+        detailEdgeImage.raycastTarget = false;
 
-        GameObject choiceSubGO = new GameObject("ChoiceSubtitle");
-        choiceSubGO.transform.SetParent(choicePanelGO.transform, false);
-        RectTransform choiceSubRect = choiceSubGO.AddComponent<RectTransform>();
-        choiceSubRect.anchorMin = choiceSubRect.anchorMax = new Vector2(0.5f, 0.5f);
-        choiceSubRect.pivot = new Vector2(0.5f, 0.5f);
-        choiceSubRect.sizeDelta = new Vector2(900f, 50f);
-        choiceSubRect.anchoredPosition = new Vector2(0f, 300f);
-        Text choiceSubText = choiceSubGO.AddComponent<Text>();
-        ConfigureCardText(choiceSubText, 28, FontStyle.Normal, new Color(0.85f, 0.88f, 0.95f));
-        choiceSubText.text = "新たな力を選んでください";
-        sequence.choiceSubText = choiceSubText;
+        GameObject detailBgGO = new GameObject("Background");
+        detailBgGO.transform.SetParent(detailPanelGO.transform, false);
+        RectTransform detailBgRect = detailBgGO.AddComponent<RectTransform>();
+        detailBgRect.anchorMin = Vector2.zero;
+        detailBgRect.anchorMax = Vector2.one;
+        detailBgRect.offsetMin = new Vector2(detailBorderPx, detailBorderPx);
+        detailBgRect.offsetMax = new Vector2(-detailBorderPx, -detailBorderPx);
+        Image detailBgImage = detailBgGO.AddComponent<Image>();
+        detailBgImage.sprite = panelSprite;
+        detailBgImage.type = Image.Type.Sliced;
+        detailBgImage.color = new Color(0.06f, 0.08f, 0.17f, 0.92f);
+        detailBgImage.raycastTarget = false;
 
-        // 3行、上から順に並べる - "スマホ横画面なので、大きなタップ領域を
-        // 確保" per the brief。
-        const float rowWidth = 1500f;
-        const float rowHeight = 170f;
-        const float rowSpacing = 200f;
-        var rowComponents = new LevelUpChoiceRowUI[3];
-        for (int i = 0; i < 3; i++)
-        {
-            float y = -30f + rowSpacing * (1 - i); // i=0 top, i=1 middle, i=2 bottom
-            rowComponents[i] = CreateLevelUpChoiceRow(choicePanelGO.transform, i, rowWidth, rowHeight, new Vector2(0f, y), sequence.OnRowClicked);
-        }
-        sequence.rows = rowComponents;
+        GameObject detailTitleGO = new GameObject("Title");
+        detailTitleGO.transform.SetParent(detailPanelGO.transform, false);
+        RectTransform detailTitleRect = detailTitleGO.AddComponent<RectTransform>();
+        detailTitleRect.anchorMin = new Vector2(0f, 1f);
+        detailTitleRect.anchorMax = new Vector2(1f, 1f);
+        detailTitleRect.pivot = new Vector2(0.5f, 1f);
+        detailTitleRect.sizeDelta = new Vector2(-64f, 56f);
+        detailTitleRect.anchoredPosition = new Vector2(0f, -18f);
+        Text detailTitleText = detailTitleGO.AddComponent<Text>();
+        ConfigureCardText(detailTitleText, 40, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        detailTitleText.resizeTextForBestFit = true;
+        detailTitleText.resizeTextMinSize = 16;
+        detailTitleText.resizeTextMaxSize = 40;
+        sequence.detailTitleText = detailTitleText;
+
+        GameObject detailLevelGO = new GameObject("LevelLine");
+        detailLevelGO.transform.SetParent(detailPanelGO.transform, false);
+        RectTransform detailLevelRect = detailLevelGO.AddComponent<RectTransform>();
+        detailLevelRect.anchorMin = new Vector2(1f, 1f);
+        detailLevelRect.anchorMax = new Vector2(1f, 1f);
+        detailLevelRect.pivot = new Vector2(1f, 1f);
+        detailLevelRect.sizeDelta = new Vector2(280f, 40f);
+        detailLevelRect.anchoredPosition = new Vector2(-32f, -20f);
+        Text detailLevelText = detailLevelGO.AddComponent<Text>();
+        ConfigureCardText(detailLevelText, 24, FontStyle.Bold, new Color(1f, 0.92f, 0.7f));
+        detailLevelText.alignment = TextAnchor.MiddleRight;
+        sequence.detailLevelText = detailLevelText;
+
+        GameObject detailDescGO = new GameObject("Description");
+        detailDescGO.transform.SetParent(detailPanelGO.transform, false);
+        RectTransform detailDescRect = detailDescGO.AddComponent<RectTransform>();
+        detailDescRect.anchorMin = new Vector2(0f, 0f);
+        detailDescRect.anchorMax = new Vector2(1f, 1f);
+        detailDescRect.offsetMin = new Vector2(32f, 44f);
+        detailDescRect.offsetMax = new Vector2(-32f, -66f);
+        Text detailDescriptionText = detailDescGO.AddComponent<Text>();
+        ConfigureCardText(detailDescriptionText, 26, FontStyle.Normal, new Color(0.9f, 0.92f, 0.97f));
+        detailDescriptionText.alignment = TextAnchor.UpperLeft;
+        detailDescriptionText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        detailDescriptionText.verticalOverflow = VerticalWrapMode.Overflow;
+        sequence.detailDescriptionText = detailDescriptionText;
+
+        GameObject detailHintGO = new GameObject("Hint");
+        detailHintGO.transform.SetParent(detailPanelGO.transform, false);
+        RectTransform detailHintRect = detailHintGO.AddComponent<RectTransform>();
+        detailHintRect.anchorMin = new Vector2(0f, 0f);
+        detailHintRect.anchorMax = new Vector2(1f, 0f);
+        detailHintRect.pivot = new Vector2(0.5f, 0f);
+        detailHintRect.sizeDelta = new Vector2(-64f, 34f);
+        detailHintRect.anchoredPosition = new Vector2(0f, 14f);
+        Text detailHintText = detailHintGO.AddComponent<Text>();
+        ConfigureCardText(detailHintText, 20, FontStyle.Italic, new Color(0.65f, 0.9f, 1f));
+        detailHintText.alignment = TextAnchor.LowerRight;
+        sequence.detailHintText = detailHintText;
 
         // Glow burst behind whichever card gets confirmed.
         GameObject glowGO = new GameObject("Glow");
@@ -1894,6 +1943,27 @@ public static class SceneBuilder
         descText.resizeTextMaxSize = DescFontSizeFor(width);
         card.descriptionText = descText;
 
+        // カード選択UI再設計(2026-09-12第3弾) - 「カード本体には長い説明文
+        // を詰め込まず、イラスト/タイトル/主要効果の短い表記のみ」。
+        // IconBackdropの暗い下地(0.205〜0.875)の下端に重ねる形で、
+        // TitleBand(0.025〜0.195)のすぐ上に短い1行(例: "HP +20%")を常時
+        // 表示する。levelText/countTextと同じく、showDetailsの値に関係なく
+        // データ(ValueLine)の有無だけで表示可否が決まる独立行(RewardCardUI.
+        // ApplyFaceVisibility参照)。
+        GameObject valueLineGO = new GameObject("ValueLine");
+        valueLineGO.transform.SetParent(cardGO.transform, false);
+        RectTransform valueLineRect = valueLineGO.AddComponent<RectTransform>();
+        valueLineRect.anchorMin = new Vector2(0.09f, 0.205f);
+        valueLineRect.anchorMax = new Vector2(0.91f, 0.30f);
+        valueLineRect.offsetMin = Vector2.zero;
+        valueLineRect.offsetMax = Vector2.zero;
+        Text valueLineText = valueLineGO.AddComponent<Text>();
+        ConfigureCardText(valueLineText, Mathf.Max(10, DescFontSizeFor(width) + 2), FontStyle.Bold, new Color(0.65f, 0.9f, 1f));
+        valueLineText.resizeTextForBestFit = true;
+        valueLineText.resizeTextMinSize = 8;
+        valueLineText.resizeTextMaxSize = Mathf.Max(10, DescFontSizeFor(width) + 2);
+        card.valueLineText = valueLineText;
+
         // Card UI / Rarity Frame pass, item 2 - Rarity (top-left, shown only
         // in showDetails mode now)。イラスト領域の上に直接乗る形になった
         // (カードUIデザイン提案でイラストが拡大されたため)- Levelと違い
@@ -1987,178 +2057,20 @@ public static class SceneBuilder
         return card;
     }
 
-    // レベルアップ選択UI改修(2026-09-11) - 横長1行ぶんの選択肢(Vampire
-    // Survivors風)。CreateRewardCardと同じ「1つのファクトリ関数、データは
-    // 後で流し込む」構造。行全体にButtonを付け(「大きなタップ領域を確
-    // 保」)、左にアイコン・中央にタイトル+詳細説明(2-3行分の高さを確
-    // 保)・右端に主要な強化数値、という参考画像どおりのレイアウト。
-    // 専用アートは新規生成せず(既存OneMoreMile UIの配色 - UiBackdrop.
-    // NavyFill/GoldEdgeと同じ処方 - を手続き的に再現した丸角パネルのみ)、
-    // アイコンは既存のCardDefinition.icon(初代6種の実アート含む、今回の
-    // リデザインは対象外)をそのまま使う。
-    static LevelUpChoiceRowUI CreateLevelUpChoiceRow(Transform parent, int index, float width, float height, Vector2 anchoredPosition, System.Action<int> onClick)
+    // カード選択UI再設計(2026-09-12第3弾) - 「前回の横長3段リスト形式は
+    // 今回は使用せず」との明示的な指示によりCreateLevelUpChoiceRow(横長
+    // 1行ぶんの選択肢)は廃止し、DetailPanel(BuildRewardCardCanvas内、
+    // RoundedPanelSpriteを共有)へ置き換えた。LevelUpChoiceRowUI.cs自体も
+    // 削除済み(他に参照箇所なし)。
+
+    // DetailPanel(BuildRewardCardCanvas)が使う、丸角パネル用の1枚の
+    // 9-sliceスプライト(白塗り、実際の色はImage.colorで着色 - Edge/
+    // Backgroundの2枚で共有する)。CreateRadialGlowSprite等と同じ「手続き
+    // 的にテクスチャを生成する」パターンを踏襲、新規アート不要。
+    static Sprite roundedPanelSpriteCache;
+    static Sprite RoundedPanelSprite()
     {
-        Sprite panelSprite = ChoiceRowPanelSprite();
-
-        GameObject rowGO = new GameObject("LevelUpChoiceRow" + index);
-        rowGO.transform.SetParent(parent, false);
-        RectTransform rect = rowGO.AddComponent<RectTransform>();
-        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.pivot = new Vector2(0.5f, 0.5f);
-        rect.sizeDelta = new Vector2(width, height);
-        rect.anchoredPosition = anchoredPosition;
-
-        CanvasGroup group = rowGO.AddComponent<CanvasGroup>();
-        LevelUpChoiceRowUI row = rowGO.AddComponent<LevelUpChoiceRowUI>();
-        row.rect = rect;
-        row.canvasGroup = group;
-
-        // 縁(金) - 行いっぱい。選択時にSetSelectedVisual/FlashEdgeで発光色へ。
-        GameObject edgeGO = new GameObject("Edge");
-        edgeGO.transform.SetParent(rowGO.transform, false);
-        StretchFull(edgeGO.AddComponent<RectTransform>());
-        Image edgeImage = edgeGO.AddComponent<Image>();
-        edgeImage.sprite = panelSprite;
-        edgeImage.type = Image.Type.Sliced;
-        edgeImage.color = new Color(0.83f, 0.68f, 0.32f, 1f);
-        edgeImage.raycastTarget = false;
-        row.edgeImage = edgeImage;
-
-        // 下地(紺) - Edgeよりひとまわり内側(同じ丸角スプライトを9-slice
-        // で小さく敷くことで「縁」に見せる、専用の別スプライト不要)。
-        const float borderPx = 5f;
-        GameObject bgGO = new GameObject("Background");
-        bgGO.transform.SetParent(rowGO.transform, false);
-        RectTransform bgRect = bgGO.AddComponent<RectTransform>();
-        bgRect.anchorMin = Vector2.zero;
-        bgRect.anchorMax = Vector2.one;
-        bgRect.offsetMin = new Vector2(borderPx, borderPx);
-        bgRect.offsetMax = new Vector2(-borderPx, -borderPx);
-        Image bgImage = bgGO.AddComponent<Image>();
-        bgImage.sprite = panelSprite;
-        bgImage.type = Image.Type.Sliced;
-        bgImage.color = new Color(0.06f, 0.08f, 0.17f, 0.92f);
-        bgImage.raycastTarget = false;
-        row.bgImage = bgImage;
-
-        // Button = 行全体(「行全体をタップ可能にする」「大きなタップ領域」)。
-        Button button = rowGO.AddComponent<Button>();
-        button.targetGraphic = bgImage;
-        button.transition = Selectable.Transition.None;
-        int capturedIndex = index;
-        if (onClick != null) button.onClick.AddListener(() => onClick(capturedIndex));
-        row.button = button;
-
-        // アイコン(左) - 既存カードと同じ暗い正方形の下地+アイコン。
-        float iconSize = height - 24f;
-        GameObject iconBackdropGO = new GameObject("IconBackdrop");
-        iconBackdropGO.transform.SetParent(rowGO.transform, false);
-        RectTransform iconBackdropRect = iconBackdropGO.AddComponent<RectTransform>();
-        iconBackdropRect.anchorMin = iconBackdropRect.anchorMax = new Vector2(0f, 0.5f);
-        iconBackdropRect.pivot = new Vector2(0f, 0.5f);
-        iconBackdropRect.sizeDelta = new Vector2(iconSize, iconSize);
-        iconBackdropRect.anchoredPosition = new Vector2(16f, 0f);
-        Image iconBackdropImage = iconBackdropGO.AddComponent<Image>();
-        iconBackdropImage.color = new Color(0.04f, 0.05f, 0.12f, 0.7f);
-        iconBackdropImage.raycastTarget = false;
-        row.iconBackdrop = iconBackdropImage;
-
-        GameObject iconGO = new GameObject("Icon");
-        iconGO.transform.SetParent(iconBackdropGO.transform, false);
-        RectTransform iconRect = iconGO.AddComponent<RectTransform>();
-        iconRect.anchorMin = new Vector2(0.08f, 0.08f);
-        iconRect.anchorMax = new Vector2(0.92f, 0.92f);
-        iconRect.offsetMin = Vector2.zero;
-        iconRect.offsetMax = Vector2.zero;
-        Image iconImage = iconGO.AddComponent<Image>();
-        iconImage.preserveAspect = true;
-        iconImage.raycastTarget = false;
-        row.iconImage = iconImage;
-
-        // 数値(右端) - 「主要な強化数値」。先に配置して、中央のテキスト
-        // 列がその左端までを幅として使えるようにする。
-        const float valueColumnWidth = 190f;
-        GameObject valueGO = new GameObject("Value");
-        valueGO.transform.SetParent(rowGO.transform, false);
-        RectTransform valueRect = valueGO.AddComponent<RectTransform>();
-        valueRect.anchorMin = new Vector2(1f, 0f);
-        valueRect.anchorMax = new Vector2(1f, 1f);
-        valueRect.pivot = new Vector2(1f, 0.5f);
-        valueRect.sizeDelta = new Vector2(valueColumnWidth, 0f);
-        valueRect.anchoredPosition = new Vector2(-24f, 0f);
-        Text valueText = valueGO.AddComponent<Text>();
-        ConfigureCardText(valueText, Mathf.RoundToInt(height * 0.24f), FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
-        valueText.alignment = TextAnchor.MiddleRight;
-        row.valueText = valueText;
-
-        // テキスト列(中央) - アイコンの右端〜数値欄の左端まで。上段:
-        // タイトル、下段: 詳細説明(2-3行分の高さを確保 - 「今後複雑な
-        // 効果を持たせる可能性がある」ための余裕)。
-        //
-        // Level Up UI微調整(2026-09-11) - 「ATTACK RANGE UPのような長い
-        // 名前でもアイコンと重ならない」対応。旧実装はTitle/Descriptionの
-        // RectTransformを「横方向stretch(anchorMin.x=0/anchorMax.x=1)+
-        // offsetMin/offsetMaxで左右マージン」と設定した直後に、さらに
-        // anchoredPosition/sizeDeltaを直接上書きしていた - Unityの
-        // RectTransformはこの4値が同じ内部状態の別表現(offsetMin/Maxを
-        // 設定してもanchoredPosition/sizeDeltaを後から代入すると完全に
-        // 上書きされる)であるため、Titleの左右マージンが実質ゼロ(行の
-        // 全幅、アイコンや数値欄と重なる位置)に戻ってしまっていた -
-        // これが実機で報告された重なりの直接の原因。修正: 他の要素
-        // (IconBackdrop/Value)と同じ「単一アンカー点+sizeDelta+
-        // anchoredPositionのみ」の書き方に統一し、offsetMin/Maxとの併用を
-        // 一切行わないようにした。
-        float textLeft = 16f + iconSize + 24f;
-        float textWidth = Mathf.Max(50f, width - textLeft - valueColumnWidth - 8f);
-        float titleHeight = height * 0.36f;
-
-        GameObject titleGO = new GameObject("Title");
-        titleGO.transform.SetParent(rowGO.transform, false);
-        RectTransform titleRect = titleGO.AddComponent<RectTransform>();
-        titleRect.anchorMin = titleRect.anchorMax = new Vector2(0f, 1f);
-        titleRect.pivot = new Vector2(0f, 1f);
-        titleRect.sizeDelta = new Vector2(textWidth, titleHeight);
-        titleRect.anchoredPosition = new Vector2(textLeft, -10f);
-        Text titleText = titleGO.AddComponent<Text>();
-        ConfigureCardText(titleText, Mathf.RoundToInt(height * 0.22f), FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
-        titleText.alignment = TextAnchor.MiddleLeft;
-        // 「必要であればカード名のみAuto Shrinkを使用...ただし極端に小さく
-        // ならないように」 - Best Fitで自動縮小しつつ下限を設定。Best Fit
-        // にはWrap設定が必須(Overflowとは併用しない)。
-        titleText.horizontalOverflow = HorizontalWrapMode.Wrap;
-        titleText.verticalOverflow = VerticalWrapMode.Truncate;
-        titleText.resizeTextForBestFit = true;
-        titleText.resizeTextMinSize = Mathf.Max(10, Mathf.RoundToInt(height * 0.13f));
-        titleText.resizeTextMaxSize = Mathf.RoundToInt(height * 0.22f);
-        row.titleText = titleText;
-
-        float descTop = titleHeight + 2f;
-        float descHeight = Mathf.Max(20f, height - descTop - 12f);
-        GameObject descGO = new GameObject("Description");
-        descGO.transform.SetParent(rowGO.transform, false);
-        RectTransform descRect = descGO.AddComponent<RectTransform>();
-        descRect.anchorMin = descRect.anchorMax = new Vector2(0f, 1f);
-        descRect.pivot = new Vector2(0f, 1f);
-        descRect.sizeDelta = new Vector2(textWidth, descHeight);
-        descRect.anchoredPosition = new Vector2(textLeft, -descTop);
-        Text descriptionText = descGO.AddComponent<Text>();
-        ConfigureCardText(descriptionText, Mathf.RoundToInt(height * 0.145f), FontStyle.Normal, new Color(0.88f, 0.9f, 0.96f));
-        descriptionText.alignment = TextAnchor.UpperLeft;
-        row.descriptionText = descriptionText;
-
-        row.SetSelectedVisual(false);
-        row.SetInteractable(false);
-        return row;
-    }
-
-    // 上のCreateLevelUpChoiceRowが使う、丸角パネル用の1枚の9-sliceスプ
-    // ライト(白塗り、実際の色はImage.colorで着色 - Edge/Backgroundの2枚
-    // で共有する)。CreateRadialGlowSprite等と同じ「手続き的にテクスチャ
-    // を生成する」パターンを踏襲、新規アート不要。
-    static Sprite choiceRowPanelSpriteCache;
-    static Sprite ChoiceRowPanelSprite()
-    {
-        if (choiceRowPanelSpriteCache != null) return choiceRowPanelSpriteCache;
+        if (roundedPanelSpriteCache != null) return roundedPanelSpriteCache;
 
         const int size = 128;
         const int radius = 22;
@@ -2179,8 +2091,8 @@ public static class SceneBuilder
         tex.SetPixels(pixels);
         tex.Apply();
 
-        choiceRowPanelSpriteCache = Sprite.Create(tex, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, new Vector4(radius, radius, radius, radius));
-        return choiceRowPanelSpriteCache;
+        roundedPanelSpriteCache = Sprite.Create(tex, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, new Vector4(radius, radius, radius, radius));
+        return roundedPanelSpriteCache;
     }
 
     // Title/description font sizes scale with card width instead of being
