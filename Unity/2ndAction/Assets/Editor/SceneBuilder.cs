@@ -3690,13 +3690,38 @@ public static class SceneBuilder
     // falls back to indefinitely past that point, so nothing needs a tier
     // past it.
     // ステージ別ビジュアル差し替え(2026-09-13) - 荒野街道専用の地上アート
-    // (草地/土)が用意でき次第、ここへ"wasteland_road"のTerrainThemeSet
-    // エントリを1件追加する(TerrainManager.ApplyStageThemeのコメント
-    // 参照)。天空回廊はエントリを追加しない=既存の岩+雲の浮遊足場アート
-    // のまま、という設計。
+    // (草地/土、ChatGPT生成→黒背景をしきい値透過処理→均等3分割)。天空回廊
+    // はエントリを追加しない=既存の岩+雲の浮遊足場アートのまま、という
+    // 設計(TerrainManager.ApplyStageThemeのコメント参照)。
     static TerrainManager.TerrainThemeSet[] BuildTerrainThemes()
     {
-        return new TerrainManager.TerrainThemeSet[0];
+        // 既存のplatform_left/mid/right.pngと同じ考え方 - ソース画像の実
+        // ピクセル高さをterrain.platformVisualHeight(3.5)へ割り当てる
+        // PPUを算出し、既存の岩+雲テーマと物理的な見た目の高さを揃える。
+        const float WastelandSourcePixelHeight = 724f;
+        float wastelandPpu = WastelandSourcePixelHeight / 3.5f;
+        var wastelandPlatformArt = new PlatformSpriteSet
+        {
+            left = LoadTiledSprite("Assets/Art/VisualStyleV1/Ground/platform_wasteland_left.png", wastelandPpu),
+            mid = LoadTiledSprite("Assets/Art/VisualStyleV1/Ground/platform_wasteland_mid.png", wastelandPpu),
+            right = LoadTiledSprite("Assets/Art/VisualStyleV1/Ground/platform_wasteland_right.png", wastelandPpu)
+        };
+        // BackgroundFollowerは常に画面を覆うようスケールし直す(cover方式)
+        // ため、PPUの実際の値はアスペクト比にしか影響しない - 他の背景と
+        // 同じ簡便な値でよい。
+        Sprite wastelandBackground = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Background/WastelandBackground.png", 1000f);
+
+        return new[]
+        {
+            new TerrainManager.TerrainThemeSet
+            {
+                stageId = "wasteland_road",
+                platformArt = wastelandPlatformArt,
+                groundSprite = null, // platformArtが有効な間は未使用(フォールバック専用)
+                groundColor = Color.white, // platformArt使用中は各ピースがColor.white固定で描画されるため実質未参照
+                backgroundSprite = wastelandBackground,
+            }
+        };
     }
 
     static DistanceTier[] BuildDistanceTiers()
