@@ -291,4 +291,42 @@ public static class GroundFactory
 
         return go;
     }
+
+    // Stage01 荒野街道 最小実装(2026-09-13) - 石/小木/壁/壊せる木/巨大石の
+    // 5種類全てをこの1メソッドで生成する。専用アートはまだ無いため
+    // (ObstacleSpawnerのコメント参照)、CreateEnemyのフォールバック描画と
+    // 同じ「単色の四角スプライトをサイズ分だけスケールする」プレース
+    // ホルダー方式 - 種類ごとの見た目の違いは今のところサイズ/色だけで
+    // 表現している。`position`は地面と接する足元の座標(Enemyの足元配置と
+    // 同じ考え方) - Visual/Colliderはどちらも(position.x, position.y)を
+    // 下端としてsize.y分だけ上に伸びる。
+    public static GameObject CreateObstacle(Transform parent, Sprite squareSprite, Vector2 position, Vector2 size, Color color, bool breakable, int hp)
+    {
+        GameObject go = new GameObject("Obstacle");
+        go.transform.SetParent(parent);
+        go.transform.position = new Vector3(position.x, position.y, 0f);
+        go.tag = "Obstacle";
+
+        GameObject visualGO = new GameObject("Visual");
+        visualGO.transform.SetParent(go.transform, false);
+        visualGO.transform.localPosition = new Vector3(0f, size.y * 0.5f, 0f);
+        visualGO.transform.localScale = new Vector3(size.x, size.y, 1f);
+        var sr = visualGO.AddComponent<SpriteRenderer>();
+        sr.sprite = squareSprite;
+        sr.color = color;
+        sr.sortingOrder = RenderOrder.Enemy;
+
+        var col = go.AddComponent<BoxCollider2D>();
+        col.isTrigger = true;
+        col.size = size;
+        col.offset = new Vector2(0f, size.y * 0.5f);
+        var colDebug = go.AddComponent<ColliderDebugView>();
+        colDebug.color = Color.yellow;
+
+        var obstacle = go.AddComponent<ObstacleController>();
+        obstacle.breakable = breakable;
+        obstacle.hp = Mathf.Max(1, hp);
+
+        return go;
+    }
 }

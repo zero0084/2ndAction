@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - PlayerAttack
   - Boss
+  - Obstacle
   layers:
   - Default
   - TransparentFX

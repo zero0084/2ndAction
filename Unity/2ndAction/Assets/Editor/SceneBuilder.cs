@@ -525,6 +525,14 @@ public static class SceneBuilder
         wallManager.enemySprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Enemy/enemy_v1.png");
         wallManager.enemyPool = new List<EnemyDefinition>(EnemyDatabase.AllEnemies);
 
+        // Stage01 荒野街道 最小実装(2026-09-13) - 石/小木/壁/壊せる木/
+        // 巨大石を一定間隔で配置する。EnemyWallManagerと同じ「player直下に
+        // 生成しplayer.position.xを起点に前方の距離だけ管理する」配置。
+        GameObject obstacleGO = new GameObject("ObstacleSpawner");
+        ObstacleSpawner obstacleSpawner = obstacleGO.AddComponent<ObstacleSpawner>();
+        obstacleSpawner.player = player.transform;
+        obstacleSpawner.squareSprite = squareSprite;
+
         EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene(), ScenePath);
 
         EditorBuildSettings.scenes = new[]
@@ -3678,14 +3686,19 @@ public static class SceneBuilder
     // past it.
     static DistanceTier[] BuildDistanceTiers()
     {
-        var normal = new[] { EnemyCategory.Normal };
+        // Stage01 荒野街道 最小実装(2026-09-13) - マスター指示「敵はゴブリン
+        // /鳥のみ」に対応するため、0-1000mのTutorial帯にもFlying(=鳥の
+        // 代役、EnemyDatabaseBuilder.Specs参照)を追加した。Irregular等は
+        // 引き続き1000m以降まで解禁しない(1stステージは敵種を増やしすぎ
+        // ない、という明示指示どおり)。
+        var tutorial = new[] { EnemyCategory.Normal, EnemyCategory.Flying };
         var tier1Types = new[] { EnemyCategory.Normal, EnemyCategory.Flying, EnemyCategory.Irregular };
         var tier2Types = new[] { EnemyCategory.Normal, EnemyCategory.Flying, EnemyCategory.Irregular, EnemyCategory.Shooter, EnemyCategory.Heavy, EnemyCategory.Chaser };
         var tier3Types = new[] { EnemyCategory.Normal, EnemyCategory.Flying, EnemyCategory.Irregular, EnemyCategory.Shooter, EnemyCategory.Heavy, EnemyCategory.Chaser, EnemyCategory.Rusher };
 
         return new[]
         {
-            new DistanceTier { tierName = "0-1000m Tutorial", startDistance = 0f, endDistance = 1000f, availableEnemyTypes = normal },
+            new DistanceTier { tierName = "0-1000m Tutorial", startDistance = 0f, endDistance = 1000f, availableEnemyTypes = tutorial },
             new DistanceTier { tierName = "1000-5000m", startDistance = 1000f, endDistance = 5000f, availableEnemyTypes = tier1Types },
             new DistanceTier { tierName = "5000-10000m", startDistance = 5000f, endDistance = 10000f, availableEnemyTypes = tier2Types },
             new DistanceTier { tierName = "10000-20000m", startDistance = 10000f, endDistance = 20000f, availableEnemyTypes = tier3Types },
@@ -3762,12 +3775,19 @@ public static class SceneBuilder
 
         // Ground + Air - "別Y座標に明確に配置、空中Enemyが地面へ埋まらない"
         // - 2 ground (y=0) + 2 air (y=1.8, well above flyingMinHeight).
+        // Stage01 荒野街道 最小実装(2026-09-13) - minDistanceを5000f→0fへ
+        // 変更し、0m(荒野街道)から利用可能にした。EnemyRole.Anyは意図的に
+        // Flyingを含まない(DistanceTierManager.ResolveRole既定分岐 -
+        // GroundLikeCategoriesにFlyingが無い)ため、「ゴブリンと鳥をたまに
+        // 混ぜる」を実現する唯一の既存手段がこのGroundAir(Normal+Flyingを
+        // 明示的な別ロールとして両方持つ)formationだった - 新規Formation
+        // コードを足さず、既存の仕組みをそのまま早期解禁するだけで済んだ。
         var groundAir = new FormationData
         {
             formationId = "ground_air",
             formationType = EnemyFormationType.GroundAir,
             weight = 1.3f,
-            minDistance = 5000f,
+            minDistance = 0f,
             maxDistance = 999999f,
             spawnPoints = new[] { P(0f, 0f, EnemyRole.Normal), P(3f, 0f, EnemyRole.Normal), P(1.5f, 1.8f, EnemyRole.Flying), P(4.5f, 1.8f, EnemyRole.Flying) }
         };
