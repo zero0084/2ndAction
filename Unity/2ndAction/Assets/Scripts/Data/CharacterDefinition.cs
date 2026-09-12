@@ -108,4 +108,20 @@ public class CharacterDefinition : ScriptableObject
     public bool canUseUpAttack = true;
     public bool canUseAirAttack = true;
     public bool canUseDownAttack = true;
+
+    // ===== キャラクター専用アニメーション差し替え(2026-09-13) ===== //
+    // PlayerAnimator.ApplyCharacterAnimationSetが読む。空(要素数0/null)の
+    // ままなら「専用アートがまだ無い」を意味し、黒剣士のSceneBuilder焼き
+    // 込みデフォルトのまま変更されない(マスター許可の「一時的に既存
+    // アニメーション流用でも構わない」に対応 - 黒剣士・双剣士は現時点で
+    // 全て空のままにしてある)。attackFrames以外の上/空中/下攻撃用State
+    // (jumpStartFrames/doubleJumpFrames等)は黒剣士では上攻撃の絵を兼ねて
+    // いるが、上攻撃を持たないキャラではPlayerAnimator側が「素のジャンプ
+    // 演出」として再定義して使う - 詳細はPlayerAnimatorのコメント参照。
+    [Header("Dedicated Animation (optional - empty falls back to swordsman art)")]
+    public Sprite[] runFrames;
+    public Sprite[] jumpStartFrames;
+    public Sprite[] jumpFrames;
+    public Sprite[] landFrames;
+    public Sprite[] attackFrames;
 }

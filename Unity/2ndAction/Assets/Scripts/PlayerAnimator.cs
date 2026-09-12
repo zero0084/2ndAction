@@ -56,6 +56,17 @@ public class PlayerAnimator : MonoBehaviour
 
     enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack, DownAttackLand }
 
+    // キャラクター専用アニメーション差し替え(2026-09-13) - PlayerController.
+    // baseRunSpeed等と全く同じ理由の「素のスナップショット」。SceneBuilder
+    // は黒剣士のアートを一度だけ焼き込むため、初回のApplyCharacterAnimationSet
+    // 呼び出し時点のフィールド値=黒剣士の素のアニメーションとして保持し、
+    // 以後は常にこのスナップショット+選択中キャラクターの上書きから再計算
+    // する(蓄積的に上書きしない - 一度お嬢様騎士を選んだ後に黒剣士へ戻す、
+    // といった切り替えでも正しく黒剣士本来のアートへ戻る)。
+    Sprite[] defaultRunFrames, defaultJumpStartFrames, defaultJumpFrames, defaultLandFrames;
+    Sprite[] defaultAttackFrames, defaultAttackFramesSmall, defaultAttackFramesLarge;
+    bool defaultAnimationCaptured;
+
     SpriteRenderer sr;
     SpriteRenderer brightenOverlay;
     PlayerController controller;
@@ -141,6 +152,60 @@ public class PlayerAnimator : MonoBehaviour
         if (stage >= 3) return attackFpsLarge;
         return attackFps;
     }
+
+    // キャラクター専用アニメーション差し替え(2026-09-13) - GameManager.
+    // ApplyCharacterBaseStatsから、PlayerController.ApplyCharacterBaseStats
+    // と同じタイミング(Run開始時、カード効果より前)に呼ばれる。defの
+    // 該当フィールドが空なら黒剣士の素のアート(defaultXxxFrames)へ
+    // フォールバックする。
+    //
+    // 黒剣士の既存State機構は「JumpStart=地上上攻撃の絵」「DoubleJump=
+    // 空中上攻撃の絵」を兼ねている(SceneBuilder.CreatePlayerのコメント
+    // 参照)が、上攻撃/空中攻撃を持たないキャラクター(canUseUpAttack/
+    // canUseAirAttack=false)ではその意味が成立しない。CharacterDefinition.
+    // jumpStartFramesはそういうキャラクター向けに「素のジャンプ演出」
+    // として再定義したフィールドであり、黒剣士のjumpStartFrames(=上攻撃
+    // の絵)とは意味が異なる点に注意 - この差し替えメソッドはあくまで
+    // 「JumpStart StateでどのSpriteを表示するか」だけを差し替えており、
+    // Stateそのものの発火条件(PlayerController.canUseUpAttack等)には
+    // 一切関与しない。
+    public void ApplyCharacterAnimationSet(CharacterDefinition def)
+    {
+        if (!defaultAnimationCaptured)
+        {
+            defaultAnimationCaptured = true;
+            defaultRunFrames = runFrames;
+            defaultJumpStartFrames = jumpStartFrames;
+            defaultJumpFrames = jumpFrames;
+            defaultLandFrames = landFrames;
+            defaultAttackFrames = attackFrames;
+            defaultAttackFramesSmall = attackFramesSmall;
+            defaultAttackFramesLarge = attackFramesLarge;
+        }
+        if (def == null) return;
+
+        runFrames = HasFrames(def.runFrames) ? def.runFrames : defaultRunFrames;
+        jumpStartFrames = HasFrames(def.jumpStartFrames) ? def.jumpStartFrames : defaultJumpStartFrames;
+        jumpFrames = HasFrames(def.jumpFrames) ? def.jumpFrames : defaultJumpFrames;
+        landFrames = HasFrames(def.landFrames) ? def.landFrames : defaultLandFrames;
+        if (HasFrames(def.attackFrames))
+        {
+            attackFrames = def.attackFrames;
+            // このキャラは1段攻撃のみを想定(専用の2/3段目差し替えを持た
+            // ない) - GetAttackFrames内の既存フォールバック(attackFrames
+            // へ)に任せるため、Small/Largeは明示的にnullへ戻す。
+            attackFramesSmall = null;
+            attackFramesLarge = null;
+        }
+        else
+        {
+            attackFrames = defaultAttackFrames;
+            attackFramesSmall = defaultAttackFramesSmall;
+            attackFramesLarge = defaultAttackFramesLarge;
+        }
+    }
+
+    static bool HasFrames(Sprite[] frames) => frames != null && frames.Length > 0;
 
     void Update()
     {

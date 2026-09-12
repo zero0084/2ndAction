@@ -33,6 +33,24 @@ public static class CharacterDatabaseBuilder
         public int jumpCount;
         public float jumpForceMultiplier, groundMobilityMultiplier, airControlMultiplier;
         public bool canUseUpAttack, canUseAirAttack, canUseDownAttack;
+
+        // キャラクター専用アニメーション差し替え(2026-09-13) - 空文字なら
+        // そのStateは黒剣士のSceneBuilder焼き込みアートのまま(マスター
+        // 許可の「一時的に既存アニメーション流用」に対応、黒剣士/双剣士は
+        // 現時点で全て空のまま)。folderPPUは各フォルダの「そのState開始
+        // 直後に最初に見えるフレーム」の実測コンテンツ高さ÷1.13(黒剣士の
+        // 基準身長)から算出した値 - SceneBuilder既存の各PlayerXxx_v1
+        // フォルダと同じ考え方。
+        public string runFramesDir;
+        public float runFramesPpu;
+        public string jumpStartFramesDir;
+        public float jumpStartFramesPpu;
+        public string jumpFramesDir;
+        public float jumpFramesPpu;
+        public string landFramesDir;
+        public float landFramesPpu;
+        public string attackFramesDir;
+        public float attackFramesPpu;
     }
 
     // 黒剣士=PlayerController/GameManagerの既存デフォルトそのもの(性能
@@ -135,6 +153,27 @@ public static class CharacterDatabaseBuilder
         nobleLady.canUseAirAttack = false;
         nobleLady.canUseDownAttack = false;
 
+        // キャラクター専用アニメーション差し替え(2026-09-13) - ChatGPTで
+        // 生成した専用スプライトシート(走り7コマ/ジャンプ4コマを3分割/
+        // 通常攻撃4コマ)。PPUは各フォルダの「そのState開始直後に最初に
+        // 見えるフレーム」の実測コンテンツ高さ(bottom-up alphaスキャン)
+        // ÷1.13(黒剣士PlayerRun_v1と同じ基準身長)で算出した一次値 -
+        // 実機で黒剣士と並べて見た際にサイズ差があれば要再調整(マスター
+        // への開示事項)。jumpStartFrames/jumpFramesは黒剣士の「上攻撃」
+        // ではなく素のジャンプ演出として再定義している(PlayerAnimator.
+        // ApplyCharacterAnimationSetのコメント参照) - このキャラは上攻撃
+        // 自体を持たない(canUseUpAttack=false)ため意味の衝突は起きない。
+        nobleLady.runFramesDir = "Assets/Art/NobleLadyRun_v1";
+        nobleLady.runFramesPpu = 272f;
+        nobleLady.jumpStartFramesDir = "Assets/Art/NobleLadyJumpStart_v1";
+        nobleLady.jumpStartFramesPpu = 249f;
+        nobleLady.jumpFramesDir = "Assets/Art/NobleLadyJumpAir_v1";
+        nobleLady.jumpFramesPpu = 350f;
+        nobleLady.landFramesDir = "Assets/Art/NobleLadyLand_v1";
+        nobleLady.landFramesPpu = 282f;
+        nobleLady.attackFramesDir = "Assets/Art/NobleLadyAttack_v1";
+        nobleLady.attackFramesPpu = 310f;
+
         return new[] { swordsman, dualBlade, nobleLady };
     }
 
@@ -184,6 +223,12 @@ public static class CharacterDatabaseBuilder
             def.canUseAirAttack = spec.canUseAirAttack;
             def.canUseDownAttack = spec.canUseDownAttack;
 
+            def.runFrames = LoadAnimationFolder(spec.runFramesDir, spec.runFramesPpu);
+            def.jumpStartFrames = LoadAnimationFolder(spec.jumpStartFramesDir, spec.jumpStartFramesPpu);
+            def.jumpFrames = LoadAnimationFolder(spec.jumpFramesDir, spec.jumpFramesPpu);
+            def.landFrames = LoadAnimationFolder(spec.landFramesDir, spec.landFramesPpu);
+            def.attackFrames = LoadAnimationFolder(spec.attackFramesDir, spec.attackFramesPpu);
+
             AssetDatabase.CreateAsset(def, assetPath);
         }
 
@@ -208,5 +253,19 @@ public static class CharacterDatabaseBuilder
             importer.SaveAndReimport();
         }
         return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+    }
+
+    // キャラクター専用アニメーション差し替え(2026-09-13) - SceneBuilderの
+    // PlayerXxx_v1フォルダ群と全く同じ「足元Pivot自動検出+フォルダ単位の
+    // 実測PPU」インポート設定を再利用する(SceneBuilder.
+    // ConfigureSpriteFolderImportWithFootPivot/LoadSpriteSequenceをinternal
+    // 化して直接呼び出し、二重実装を避けた)。dirが空文字/未指定なら
+    // そのStateは黒剣士のデフォルトアートのまま(空配列を返す -
+    // PlayerAnimator.ApplyCharacterAnimationSetのフォールバック参照)。
+    static Sprite[] LoadAnimationFolder(string dir, float pixelsPerUnit)
+    {
+        if (string.IsNullOrEmpty(dir)) return new Sprite[0];
+        SceneBuilder.ConfigureSpriteFolderImportWithFootPivot(dir, pixelsPerUnit);
+        return SceneBuilder.LoadSpriteSequence(dir);
     }
 }

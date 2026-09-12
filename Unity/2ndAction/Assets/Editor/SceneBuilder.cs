@@ -3650,7 +3650,10 @@ public static class SceneBuilder
     // point (feet when grounded, whatever's lowest mid-swing/mid-air
     // otherwise) is what tracks transform.position, which is exactly what
     // a 2D character sprite's anchor should represent.
-    static void ConfigureSpriteFolderImportWithFootPivot(string dir, float pixelsPerUnit)
+    // internal(privateではない) - プレイアブル主人公アニメーション差し替え
+    // (2026-09-13)でCharacterDatabaseBuilder.csからも同じ足元Pivot自動検出
+    // ロジックを再利用するため。
+    internal static void ConfigureSpriteFolderImportWithFootPivot(string dir, float pixelsPerUnit)
     {
         if (!Directory.Exists(dir)) return;
         foreach (string f in Directory.GetFiles(dir, "*.png"))
@@ -4075,7 +4078,8 @@ public static class SceneBuilder
         }
     }
 
-    static Sprite[] LoadSpriteSequence(string dir)
+    // internal - 上のConfigureSpriteFolderImportWithFootPivotと同じ理由。
+    internal static Sprite[] LoadSpriteSequence(string dir)
     {
         if (!Directory.Exists(dir)) return new Sprite[0];
 

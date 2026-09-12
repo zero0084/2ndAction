@@ -389,7 +389,15 @@ public class GameManager : MonoBehaviour
         if (def == null) return;
         maxLives = def.baseMaxLives;
         Lives = def.baseLives;
-        if (PlayerController.Instance != null) PlayerController.Instance.ApplyCharacterBaseStats(def);
+        if (PlayerController.Instance != null)
+        {
+            PlayerController.Instance.ApplyCharacterBaseStats(def);
+            // キャラクター専用アニメーション差し替え(2026-09-13) - 見た目
+            // (Sprite)側はPlayerAnimatorが別コンポーネントとして持つため、
+            // ここでもう一段委譲する。
+            PlayerAnimator animator = PlayerController.Instance.GetComponent<PlayerAnimator>();
+            if (animator != null) animator.ApplyCharacterAnimationSet(def);
+        }
     }
 
     void LoadSelectedCharacter()
