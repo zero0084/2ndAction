@@ -95,7 +95,11 @@ public static class CharacterDatabaseBuilder
         nobleLady.id = "noble_lady";
         nobleLady.displayName = "NOBLE LADY";
         nobleLady.subtitle = "A Hero Not Yet Awakened";
-        nobleLady.role = "HEAVY KNIGHT";
+        // マスターとエステル(相談用ChatGPT)のレビューで「HEAVY=強い/硬い
+        // 印象があり、LIFE3・POWER1のこのキャラには誤解を招く」との指摘
+        // を反映し、性能タイプを一切示唆しないNOBLE KNIGHTへ変更(2026-09-
+        // 13)。星評価を見て初めて弱さに気づく、というギャップ狙いを維持。
+        nobleLady.role = "NOBLE KNIGHT";
         nobleLady.flavorText = "Clad in silver and gold, she wields a\ngreatsword said to fell dragons.\nHer legend, however, has yet to catch\nup with her armor.";
         nobleLady.portraitPath = $"{PortraitFolder}/noble_lady_portrait.png";
         // 表示専用の星評価 - マスター提示例(LIFE3/POWER1/SPEED1/COMBO1)
@@ -118,7 +122,13 @@ public static class CharacterDatabaseBuilder
         // 必ず確認すること(マスターへの開示事項、Inspectorでも調整可)。
         nobleLady.jumpForceMultiplier = 0.85f;
         nobleLady.groundMobilityMultiplier = 0.95f; // 地上機動力最低(ノックバックは速度追従方式のため副作用なし)
-        nobleLady.airControlMultiplier = 1.1f; // 空中制御最低の代替として重力をわずかに強化
+        // 実機確認+エステル(相談用ChatGPT)のレビューを受けて撤回(2026-09-
+        // 13) - 重力を強めると「ジャンプが低い上に落下も速く、穴を越え
+        // られない」リスクがあり、逆に弱めると滞空時間が伸びて穴越えが
+        // 楽になってしまう。「穴を越えるのがギリギリ」は既にjumpForce
+        // Multiplier(0.85)+jumpCount(1)だけで十分表現できるため、
+        // airControlMultiplierは他キャラと同じ1.0(無変更)に戻した。
+        nobleLady.airControlMultiplier = 1f;
         // 「技自体を持たせない/接続しない」というマスターの理想形どおり、
         // 上/空中/下の3攻撃はまず全て未接続にする(今回のスコープ)。
         nobleLady.canUseUpAttack = false;

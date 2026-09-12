@@ -15,7 +15,7 @@ MonoBehaviour:
   characterId: noble_lady
   displayName: NOBLE LADY
   subtitle: A Hero Not Yet Awakened
-  role: HEAVY KNIGHT
+  role: NOBLE KNIGHT
   flavorText: 'Clad in silver and gold, she wields a
 
     greatsword said to fell
@@ -42,7 +42,7 @@ MonoBehaviour:
   jumpCount: 1
   jumpForceMultiplier: 0.85
   groundMobilityMultiplier: 0.95
-  airControlMultiplier: 1.1
+  airControlMultiplier: 1
   canUseUpAttack: 0
   canUseAirAttack: 0
   canUseDownAttack: 0
