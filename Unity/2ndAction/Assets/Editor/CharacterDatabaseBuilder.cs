@@ -51,6 +51,12 @@ public static class CharacterDatabaseBuilder
         public float jumpStartFramesPpu;
         public string jumpFramesDir;
         public float jumpFramesPpu;
+        // お嬢様騎士 二段ジャンプ演出バグ修正(2026-09-13) - 未指定のままだと
+        // PlayerAnimator.doubleJumpFramesが黒剣士の焼き込みアート(空中上
+        // 攻撃の絵)のままになる(CharacterDefinition.doubleJumpFramesの
+        // コメント参照)。
+        public string doubleJumpFramesDir;
+        public float doubleJumpFramesPpu;
         public string landFramesDir;
         public float landFramesPpu;
         public string attackFramesDir;
@@ -180,6 +186,13 @@ public static class CharacterDatabaseBuilder
         nobleLady.jumpStartFramesPpu = 249f;
         nobleLady.jumpFramesDir = "Assets/Art/NobleLadyJumpAir_v1";
         nobleLady.jumpFramesPpu = 350f;
+        // お嬢様騎士 二段ジャンプ演出バグ修正(2026-09-13) - 剣を掲げる
+        // 華麗な専用フラッシュポーズ(実際の空中攻撃ではなく見た目だけの
+        // 演出、canUseAirAttack=falseのまま)。PPUはjumpFramesと同じ基準
+        // 身長(実測コンテンツ高さ÷1.13、jumpair_00.pngの397px÷350ppu≒
+        // 1.134が基準)に揃えて算出(1384px÷1.134≒1220.5)。
+        nobleLady.doubleJumpFramesDir = "Assets/Art/NobleLadyDoubleJump_v1";
+        nobleLady.doubleJumpFramesPpu = 1220.5f;
         nobleLady.landFramesDir = "Assets/Art/NobleLadyLand_v1";
         nobleLady.landFramesPpu = 282f;
         nobleLady.attackFramesDir = "Assets/Art/NobleLadyAttack_v1";
@@ -244,6 +257,7 @@ public static class CharacterDatabaseBuilder
             def.runFrames = LoadRunAnimationFolder(spec.runFramesDir, spec.runFramesPpu);
             def.jumpStartFrames = LoadAnimationFolder(spec.jumpStartFramesDir, spec.jumpStartFramesPpu);
             def.jumpFrames = LoadAnimationFolder(spec.jumpFramesDir, spec.jumpFramesPpu);
+            def.doubleJumpFrames = LoadAnimationFolder(spec.doubleJumpFramesDir, spec.doubleJumpFramesPpu);
             def.landFrames = LoadAnimationFolder(spec.landFramesDir, spec.landFramesPpu);
             def.attackFrames = LoadAnimationFolder(spec.attackFramesDir, spec.attackFramesPpu);
 

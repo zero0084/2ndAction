@@ -28,6 +28,10 @@ public static class PlayerAnimatorCharacterSetSelfTest
         // お嬢様騎士Run読みやすさ改善(2026-09-13) - runFpsも同じスナップ
         // ショット/上書きパターンで検証する。
         animator.runFps = 10f;
+        // お嬢様騎士 二段ジャンプ演出バグ修正(2026-09-13) - doubleJumpFrames
+        // も同じスナップショット/上書きパターンで検証する。
+        Sprite defaultDoubleJump = MakeDummySprite("DefaultDoubleJump");
+        animator.doubleJumpFrames = new[] { defaultDoubleJump };
 
         // 黒剣士(専用アート未設定=CharacterDefinitionの各配列が空) - 適用
         // しても何も変わらないこと(初回呼び出しでスナップショットも取る)。
@@ -36,7 +40,8 @@ public static class PlayerAnimatorCharacterSetSelfTest
         bool swordsmanUnchanged = animator.runFrames.Length == 1 && animator.runFrames[0] == defaultRun
             && animator.attackFrames.Length == 1 && animator.attackFrames[0] == defaultAttack
             && animator.attackFramesSmall != null && animator.attackFramesSmall.Length == 1
-            && animator.runFps == 10f;
+            && animator.runFps == 10f
+            && animator.doubleJumpFrames.Length == 1 && animator.doubleJumpFrames[0] == defaultDoubleJump;
 
         // お嬢様騎士(専用アート設定あり) - 実際に差し替わり、Small/Largeは
         // nullになること(1段攻撃のみのフォールバック設計)。
@@ -46,11 +51,14 @@ public static class PlayerAnimatorCharacterSetSelfTest
         nobleLadyDef.runFrames = new[] { nobleLadyRun };
         nobleLadyDef.attackFrames = new[] { nobleLadyAttack };
         nobleLadyDef.runFps = 6f;
+        Sprite nobleLadyDoubleJump = MakeDummySprite("NobleLadyDoubleJump");
+        nobleLadyDef.doubleJumpFrames = new[] { nobleLadyDoubleJump };
         animator.ApplyCharacterAnimationSet(nobleLadyDef);
         bool nobleLadyApplied = animator.runFrames.Length == 1 && animator.runFrames[0] == nobleLadyRun
             && animator.attackFrames.Length == 1 && animator.attackFrames[0] == nobleLadyAttack
             && animator.attackFramesSmall == null
-            && animator.runFps == 6f;
+            && animator.runFps == 6f
+            && animator.doubleJumpFrames.Length == 1 && animator.doubleJumpFrames[0] == nobleLadyDoubleJump;
 
         // 黒剣士へ戻す - 蓄積的な上書きになっていなければ、ここで元の
         // デフォルトへ正しく復元される(このテストの核心)。
@@ -58,7 +66,8 @@ public static class PlayerAnimatorCharacterSetSelfTest
         bool revertedToDefault = animator.runFrames.Length == 1 && animator.runFrames[0] == defaultRun
             && animator.attackFrames.Length == 1 && animator.attackFrames[0] == defaultAttack
             && animator.attackFramesSmall != null && animator.attackFramesSmall.Length == 1 && animator.attackFramesSmall[0] == defaultAttackSmall
-            && animator.runFps == 10f;
+            && animator.runFps == 10f
+            && animator.doubleJumpFrames.Length == 1 && animator.doubleJumpFrames[0] == defaultDoubleJump;
 
         bool pass = swordsmanUnchanged && nobleLadyApplied && revertedToDefault;
 

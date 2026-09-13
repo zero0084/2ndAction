@@ -124,6 +124,14 @@ public class CharacterDefinition : ScriptableObject
     public Sprite[] jumpFrames;
     public Sprite[] landFrames;
     public Sprite[] attackFrames;
+    // お嬢様騎士 二段ジャンプ演出バグ修正(2026-09-13) - 従来ここに
+    // doubleJumpFramesが無かったため、PlayerAnimator.doubleJumpFramesが
+    // 一度も上書きされず、常に黒剣士の焼き込みアート(=黒剣士の空中上攻撃
+    // の絵)のままだった。二段ジャンプした瞬間だけ見た目が黒剣士に変わって
+    // 見える、というマスター報告のバグの原因。canUseAirAttack=falseの
+    // キャラでは実際の空中攻撃判定は一切発火しない(あくまで見た目だけの
+    // 差し替え)。
+    public Sprite[] doubleJumpFrames;
     // お嬢様騎士Run読みやすさ改善(2026-09-13) - runFramesのコマ数がPlayer
     // Animator.runFps(黒剣士と共有の単一フィールド)の前提コマ数と異なる
     // 場合に、このキャラだけ再生速度を上書きする。0(未指定)ならPlayer
