@@ -24,23 +24,45 @@ MonoBehaviour:
     Speed and momentum are her greatest weapons.'
   portrait: {fileID: 2800000, guid: 40114704b1c395048a34252de46b5b07, type: 3}
   mainVisual: {fileID: 2800000, guid: 40114704b1c395048a34252de46b5b07, type: 3}
-  lifeRating: 2
-  powerRating: 3
+  lifeRating: 4
+  powerRating: 2
   speedRating: 5
-  comboRating: 4
+  comboRating: 5
   challengeFlag: 0
   sortOrder: 1
-  baseLives: 3
+  baseLives: 5
   baseMaxLives: 5
-  attackPower: 2
-  attackComboCount: 3
-  attackSpeedMultiplier: 1
-  attackRangeMultiplier: 1
-  knockbackPowerMultiplier: 1
+  attackPower: 1
+  attackComboCount: 5
+  attackSpeedMultiplier: 0.75
+  attackRangeMultiplier: 0.85
+  knockbackPowerMultiplier: 0.6
   jumpCount: 2
   jumpForceMultiplier: 1
-  groundMobilityMultiplier: 1
+  groundMobilityMultiplier: 1.15
   airControlMultiplier: 1
   canUseUpAttack: 1
   canUseAirAttack: 1
   canUseDownAttack: 1
+  runFrames:
+  - {fileID: 21300000, guid: e0f0bb8ffbd36c54c94390fff602d537, type: 3}
+  - {fileID: 21300000, guid: 947ea381fbbdcde4e8a6269af7ccef43, type: 3}
+  - {fileID: 21300000, guid: a0bf7343643666f468a1297cc4bc6295, type: 3}
+  - {fileID: 21300000, guid: 8612d0bf35b14a3458accdfa1cfc64b5, type: 3}
+  jumpStartFrames:
+  - {fileID: 21300000, guid: 0a8bcd5a71e065c46b6c02913e59f860, type: 3}
+  jumpFrames:
+  - {fileID: 21300000, guid: a5f5249453f927d4b8787c9213a2265f, type: 3}
+  landFrames:
+  - {fileID: 21300000, guid: e602feb152df03742b0520180543bede, type: 3}
+  attackFrames:
+  - {fileID: 21300000, guid: b13eb4c7a8d9eb34a87dabdd21bf7ca5, type: 3}
+  - {fileID: 21300000, guid: f6f9f381c1d5ffd428d23e8fca9a97d7, type: 3}
+  doubleJumpFrames: []
+  runFps: 0
+  attackFramesSmall:
+  - {fileID: 21300000, guid: ae5912f3c7d06734991acca5328b79be, type: 3}
+  - {fileID: 21300000, guid: f61f366ae34630b46afb12e0a7ce2d1a, type: 3}
+  attackFramesLarge:
+  - {fileID: 21300000, guid: 3ad27d0854f552e429ebff84bee0de96, type: 3}
+  - {fileID: 21300000, guid: c8b6610a27c139e41abf8d6ca3b72258, type: 3}

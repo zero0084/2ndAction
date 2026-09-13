@@ -137,4 +137,15 @@ public class CharacterDefinition : ScriptableObject
     // 場合に、このキャラだけ再生速度を上書きする。0(未指定)ならPlayer
     // Animatorの素のrunFpsをそのまま使う - 黒剣士の表示には一切影響しない。
     public float runFps;
+
+    // 3人目の主人公追加(2026-09-13、双剣士) - PlayerAnimator.attackFrames
+    // Small/Large(黒剣士が元々SceneBuilderで焼き込んでいた1-2段目/3段目
+    // 専用アート)と同じ意味の「攻撃コンボの段階別アート」を、他キャラでも
+    // 持てるようにする追加フィールド。空(要素数0)のままなら、その段階は
+    // 黒剣士のデフォルトアートへフォールバックしない(PlayerAnimator.
+    // ApplyCharacterAnimationSet参照 - attackFramesを上書きするキャラは
+    // Small/Largeも自分の値かnullかのどちらかになり、黒剣士のSmall/Large
+    // が紛れ込むことはない)。
+    public Sprite[] attackFramesSmall;
+    public Sprite[] attackFramesLarge;
 }

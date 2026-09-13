@@ -61,6 +61,14 @@ public static class CharacterDatabaseBuilder
         public float landFramesPpu;
         public string attackFramesDir;
         public float attackFramesPpu;
+        // 3人目の主人公追加(2026-09-13、双剣士) - 5段コンボを3段階アート
+        // (小/中/大)で表現するための追加スロット。空文字ならその段階は
+        // 黒剣士のデフォルトへフォールバックする(CharacterDefinition.
+        // attackFramesSmall/Largeのコメント参照)。
+        public string attackFramesSmallDir;
+        public float attackFramesSmallPpu;
+        public string attackFramesLargeDir;
+        public float attackFramesLargePpu;
     }
 
     // 黒剣士=PlayerController/GameManagerの既存デフォルトそのもの(性能
@@ -108,12 +116,62 @@ public static class CharacterDatabaseBuilder
         dualBlade.role = "GROUND COMBO";
         dualBlade.flavorText = "A swift dual-wielder who chains strikes\ntogether without ever slowing down.\nSpeed and momentum are her greatest weapons.";
         dualBlade.portraitPath = $"{PortraitFolder}/dual_blade_portrait.png";
-        dualBlade.lifeRating = 2; dualBlade.powerRating = 3; dualBlade.speedRating = 5; dualBlade.comboRating = 4;
+        // マスター指示(2026-09-13、3人目主人公追加)の星評価方向どおり -
+        // 「黒剣士より手数・速度寄り」と伝わる表示。LIFEは黒剣士と同等
+        // (実際のbaseLives=5、黒剣士の3より多いので星も高め)。
+        dualBlade.lifeRating = 4; dualBlade.powerRating = 2; dualBlade.speedRating = 5; dualBlade.comboRating = 5;
         dualBlade.challengeFlag = false;
         dualBlade.sortOrder = 1;
-        // 戦闘性能の差別化は「双剣士の今後の設計方針」そのもの(今回の
-        // 変更禁止対象)のため、意図的にDefaultBaseline(黒剣士と同一)の
-        // ままにしてある。
+
+        // 3人目のプレイアブル主人公(2026-09-13) - マスター初期案どおりの
+        // 実プレイ反映値。「地上コンボ型 - 一発は軽いが手数・速度・機動力
+        // で黒剣士を上回り、大きな吹き飛ばしはしない」という差別化方針。
+        dualBlade.baseLives = 5;
+        dualBlade.baseMaxLives = 5;
+        dualBlade.attackPower = 1; // 黒剣士の2より低い(一発の重さより手数で削るキャラ)
+        dualBlade.attackComboCount = 5; // 黒剣士の3より多い、5段の高速連撃
+        dualBlade.attackSpeedMultiplier = 0.75f; // 小さいほど速い(既存のAddAttackSpeedBonusと同じ方向) - 高速連撃
+        dualBlade.attackRangeMultiplier = 0.85f; // 黒剣士よりやや短め(コンパクトな双剣の間合い)
+        dualBlade.knockbackPowerMultiplier = 0.6f; // 黒剣士より弱め(大きく吹き飛ばさず地上で刻む設計)
+        dualBlade.jumpCount = 2; // 黒剣士と同じ(二段ジャンプ対応)
+        dualBlade.jumpForceMultiplier = 1f; // マスター案の「黒剣士と同等」を採用(据え置きが最も安全)
+        dualBlade.groundMobilityMultiplier = 1.15f; // 黒剣士より高い地上機動力(速度追従方式のため副作用なし)
+        dualBlade.airControlMultiplier = 1f; // 標準
+        // 上/空中/下攻撃は黒剣士と同じく全て有効(マスター指示「空中技を
+        // 主役にしない」ため性能そのものは黒剣士の初期値のまま、DefaultBaseline
+        // 由来のtrue/true/trueを変更しない) - このキャラの個性は通常地上
+        // コンボ側の速度/手数/リーチ/ノックバックの差で表現する。
+
+        // 見た目(2026-09-13) - マスター提供の参考イラスト(銀髪ポニーテール
+        // /濃紺軽装/ティール布アクセント/双剣)を基準に生成した専用アニメ。
+        // お嬢様騎士のPPUは各フォルダごとに異なる値だった(フォルダごとに
+        // 元画像の実測コンテンツ高さがバラバラだったため)が、双剣士は
+        // 生成/加工パイプライン側で全フォルダの全フレームを同一の目標値
+        // (実測コンテンツ高さ306px、= PlayerRun_v1の基準1.125world units)
+        // へリサイズ済みのため、Run/JumpStart/JumpAir/Land/Attack(3段階)の
+        // 全てで同一PPU=272を使う(=黒剣士のRunと全く同じ基準身長)。
+        // Runのみ全コマ共通の接地ライン(LoadRunAnimationFolder)、それ以外は
+        // フレームごとの個別Foot Pivot自動検出(LoadAnimationFolder)。
+        dualBlade.runFramesDir = "Assets/Art/DualBladeRun_v1";
+        dualBlade.runFramesPpu = 272f;
+        dualBlade.jumpStartFramesDir = "Assets/Art/DualBladeJumpStart_v1";
+        dualBlade.jumpStartFramesPpu = 272f;
+        dualBlade.jumpFramesDir = "Assets/Art/DualBladeJumpAir_v1";
+        dualBlade.jumpFramesPpu = 272f;
+        dualBlade.landFramesDir = "Assets/Art/DualBladeLand_v1";
+        dualBlade.landFramesPpu = 272f;
+        // 通常攻撃コンボ(最重要) - 5段の高速連撃を「素早い右手斬り(小)/
+        // 返す左手斬り(中)/踏み込み連斬・締めの交差斬り(大)」の3段階アート
+        // で表現する(PlayerAnimator.GetAttackFramesの既存3段階フォール
+        // バック機構をそのまま利用 - stage<=1→Small、stage>=3→Large、
+        // それ以外→Mid)。CharacterDefinition.attackFramesSmall/Largeを
+        // 新設して黒剣士以外のキャラでも3段階を持てるようにした。
+        dualBlade.attackFramesDir = "Assets/Art/DualBladeAttackMid_v1";
+        dualBlade.attackFramesPpu = 272f;
+        dualBlade.attackFramesSmallDir = "Assets/Art/DualBladeAttackSmall_v1";
+        dualBlade.attackFramesSmallPpu = 272f;
+        dualBlade.attackFramesLargeDir = "Assets/Art/DualBladeAttackLarge_v1";
+        dualBlade.attackFramesLargePpu = 272f;
 
         // お嬢様騎士 - マスター指示「見た目は非常に強そうだが性能はかなり
         // 弱い、ただし入力遅延ではなく性能値のみで表現する」。CHALLENGE
@@ -260,6 +318,8 @@ public static class CharacterDatabaseBuilder
             def.doubleJumpFrames = LoadAnimationFolder(spec.doubleJumpFramesDir, spec.doubleJumpFramesPpu);
             def.landFrames = LoadAnimationFolder(spec.landFramesDir, spec.landFramesPpu);
             def.attackFrames = LoadAnimationFolder(spec.attackFramesDir, spec.attackFramesPpu);
+            def.attackFramesSmall = LoadAnimationFolder(spec.attackFramesSmallDir, spec.attackFramesSmallPpu);
+            def.attackFramesLarge = LoadAnimationFolder(spec.attackFramesLargeDir, spec.attackFramesLargePpu);
 
             AssetDatabase.CreateAsset(def, assetPath);
         }

@@ -32,6 +32,10 @@ public static class PlayerAnimatorCharacterSetSelfTest
         // も同じスナップショット/上書きパターンで検証する。
         Sprite defaultDoubleJump = MakeDummySprite("DefaultDoubleJump");
         animator.doubleJumpFrames = new[] { defaultDoubleJump };
+        // 3人目の主人公追加(2026-09-13、双剣士) - attackFramesSmall/Large
+        // も同じスナップショット/上書きパターンで検証する(黒剣士本来の
+        // Small/Largeが、専用Small/Largeを持たないキャラへ紛れ込まない
+        // ことの確認が目的)。
 
         // 黒剣士(専用アート未設定=CharacterDefinitionの各配列が空) - 適用
         // しても何も変わらないこと(初回呼び出しでスナップショットも取る)。
@@ -60,6 +64,24 @@ public static class PlayerAnimatorCharacterSetSelfTest
             && animator.runFps == 6f
             && animator.doubleJumpFrames.Length == 1 && animator.doubleJumpFrames[0] == nobleLadyDoubleJump;
 
+        // 双剣士(専用のSmall/Mid/Large 3段階アートを持つキャラ) - 黒剣士の
+        // Small/Largeが紛れ込まず、このキャラ自身の3段階アートに正しく
+        // 差し替わること。
+        Sprite dualBladeRun = MakeDummySprite("DualBladeRun");
+        Sprite dualBladeAttackMid = MakeDummySprite("DualBladeAttackMid");
+        Sprite dualBladeAttackSmall = MakeDummySprite("DualBladeAttackSmall");
+        Sprite dualBladeAttackLarge = MakeDummySprite("DualBladeAttackLarge");
+        var dualBladeDef = ScriptableObject.CreateInstance<CharacterDefinition>();
+        dualBladeDef.runFrames = new[] { dualBladeRun };
+        dualBladeDef.attackFrames = new[] { dualBladeAttackMid };
+        dualBladeDef.attackFramesSmall = new[] { dualBladeAttackSmall };
+        dualBladeDef.attackFramesLarge = new[] { dualBladeAttackLarge };
+        animator.ApplyCharacterAnimationSet(dualBladeDef);
+        bool dualBladeApplied = animator.runFrames.Length == 1 && animator.runFrames[0] == dualBladeRun
+            && animator.attackFrames.Length == 1 && animator.attackFrames[0] == dualBladeAttackMid
+            && animator.attackFramesSmall != null && animator.attackFramesSmall.Length == 1 && animator.attackFramesSmall[0] == dualBladeAttackSmall
+            && animator.attackFramesLarge != null && animator.attackFramesLarge.Length == 1 && animator.attackFramesLarge[0] == dualBladeAttackLarge;
+
         // 黒剣士へ戻す - 蓄積的な上書きになっていなければ、ここで元の
         // デフォルトへ正しく復元される(このテストの核心)。
         animator.ApplyCharacterAnimationSet(swordsmanDef);
@@ -69,11 +91,11 @@ public static class PlayerAnimatorCharacterSetSelfTest
             && animator.runFps == 10f
             && animator.doubleJumpFrames.Length == 1 && animator.doubleJumpFrames[0] == defaultDoubleJump;
 
-        bool pass = swordsmanUnchanged && nobleLadyApplied && revertedToDefault;
+        bool pass = swordsmanUnchanged && nobleLadyApplied && dualBladeApplied && revertedToDefault;
 
         string result = pass ? "PASS" : "FAIL";
         Debug.Log($"[PlayerAnimatorCharacterSetSelfTest] {result} - swordsmanUnchanged={swordsmanUnchanged} " +
-                  $"nobleLadyApplied={nobleLadyApplied} revertedToDefault={revertedToDefault}");
+                  $"nobleLadyApplied={nobleLadyApplied} dualBladeApplied={dualBladeApplied} revertedToDefault={revertedToDefault}");
 
         if (!pass)
         {
@@ -83,6 +105,7 @@ public static class PlayerAnimatorCharacterSetSelfTest
         Object.DestroyImmediate(rootGO);
         Object.DestroyImmediate(swordsmanDef);
         Object.DestroyImmediate(nobleLadyDef);
+        Object.DestroyImmediate(dualBladeDef);
     }
 
     static Sprite MakeDummySprite(string name)

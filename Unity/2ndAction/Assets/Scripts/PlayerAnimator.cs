@@ -202,11 +202,15 @@ public class PlayerAnimator : MonoBehaviour
         if (HasFrames(def.attackFrames))
         {
             attackFrames = def.attackFrames;
-            // このキャラは1段攻撃のみを想定(専用の2/3段目差し替えを持た
-            // ない) - GetAttackFrames内の既存フォールバック(attackFrames
-            // へ)に任せるため、Small/Largeは明示的にnullへ戻す。
-            attackFramesSmall = null;
-            attackFramesLarge = null;
+            // 3人目の主人公追加(2026-09-13、双剣士) - このキャラが専用の
+            // Small/Largeを持っていればそれを使う(5段コンボを3段階アート
+            // で表現、GetAttackFramesの既存フォールバックがstageに応じて
+            // 選択する)。持っていなければ(=お嬢様騎士のような1段攻撃
+            // 専用キャラ)nullのままにして、黒剣士のSmall/Largeが紛れ込む
+            // ことを防ぐ(このキャラは常にstage<=1で止まるため実害は無い
+            // が、意味的に正しい状態を保つ)。
+            attackFramesSmall = HasFrames(def.attackFramesSmall) ? def.attackFramesSmall : null;
+            attackFramesLarge = HasFrames(def.attackFramesLarge) ? def.attackFramesLarge : null;
         }
         else
         {
