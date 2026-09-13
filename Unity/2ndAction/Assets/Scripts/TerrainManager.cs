@@ -262,10 +262,16 @@ public class TerrainManager : MonoBehaviour
     public float branchStartDistance = 100f;
     public float branchMinInterval = 90f;
     public float branchMaxInterval = 150f;
-    public float branchLength = 45f;
-    public float branchRampLength = 6f;
+    // Stage01仕上げ調整(2026-09-13深夜) - マスター指摘「上ルートが独立
+    // した道としては弱い/分岐・合流が曖昧」に対応。branchLengthを45→70
+    // (上ルートを単に走れる距離として1.5倍以上に延長、「上ルートを選んで
+    // 進んでいる」実感を強める)、branchRampLength/branchHeightAboveGround
+    // を6→9/2.4→3.0(坂そのものを長く・高低差もはっきりさせ、「ここで
+    // 道が上下に分かれる/戻る」と視覚的に伝わる上り坂/下り坂にする)。
+    public float branchLength = 70f;
+    public float branchRampLength = 9f;
     public float branchSegmentLength = 9f;
-    public float branchHeightAboveGround = 2.4f;
+    public float branchHeightAboveGround = 3f;
     // 上ルートは「比較的平坦で走りやすい」という要求のため、Sky Pathより
     // 起伏を穏やかにしてある(発生確率・高さともに控えめ)。
     public float branchSlopeChance = 0.25f;
@@ -275,8 +281,15 @@ public class TerrainManager : MonoBehaviour
     // 生成される穴/敵の確率へ掛ける倍率。GetPitChance/GetEnemyChance側で
     // 参照する(危険度の上限=pitChanceMax/enemyChanceMaxは既存のまま、
     // 理不尽な値までは上げない)。
+    // Stage01仕上げ調整(2026-09-13深夜) - マスター指摘「下ルートの危険が
+    // 敵密度の高さに寄りすぎている」に対応し、敵ブーストを1.3→1.15へ
+    // 弱めた(穴側のブーストは据え置き=穴は敵とは質の異なる危険要素の
+    // ままにする)。敵を減らした分の「忙しさ」はObstacleSpawner.
+    // dangerHeavyWeightMultiplier(壁/巨大石/壊せる木の重み)を1.8→2.4へ
+    // 引き上げて補う - 「敵の壁」ではなく「敵+障害物+穴の複合」で危険度
+    // を表現する狙い。
     public float branchDangerPitMultiplier = 1.6f;
-    public float branchDangerEnemyMultiplier = 1.3f;
+    public float branchDangerEnemyMultiplier = 1.15f;
     bool routeBranchEnabled;
     Sprite branchMarkerSprite;
 
@@ -537,8 +550,13 @@ public class TerrainManager : MonoBehaviour
             new Vector2(x, y), new Vector2(rampUpEndX, rampUpEndY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
             needsLeftCap: true, needsRightCap: false);
         skyChunks.Add(new SkyChunk { startX = x, endX = rampUpEndX, startY = y, endY = rampUpEndY, visual = rampUpVisual });
+        // Stage01仕上げ調整(2026-09-13深夜) - マスター指摘「浮遊足場感が
+        // 残る」への軽い緩和策として、分岐区間だけ既定(0.35)より密に
+        // 装飾を撒き、道自体の存在感/賑やかさを上げる(崖面のような専用
+        // 埋め合わせ visualは別途新規アセットが要るため今回は見送り、
+        // マスターへ別途報告)。
         if (decorationSprites != null && decorationSprites.Length > 0)
-            DecorationScatter.ScatterAlongChunk(rampUpVisual.transform, decorationSprites, new Vector2(x, y), new Vector2(rampUpEndX, rampUpEndY));
+            DecorationScatter.ScatterAlongChunk(rampUpVisual.transform, decorationSprites, new Vector2(x, y), new Vector2(rampUpEndX, rampUpEndY), spawnChance: 0.55f);
         x = rampUpEndX; y = rampUpEndY;
 
         // 2) 並走区間 - ランプダウン分の余地(branchRampLength)を残して
@@ -562,7 +580,7 @@ public class TerrainManager : MonoBehaviour
                 needsLeftCap: false, needsRightCap: false);
             skyChunks.Add(new SkyChunk { startX = x, endX = segEndX, startY = y, endY = segEndY, visual = segVisual });
             if (decorationSprites != null && decorationSprites.Length > 0)
-                DecorationScatter.ScatterAlongChunk(segVisual.transform, decorationSprites, new Vector2(x, y), new Vector2(segEndX, segEndY));
+                DecorationScatter.ScatterAlongChunk(segVisual.transform, decorationSprites, new Vector2(x, y), new Vector2(segEndX, segEndY), spawnChance: 0.55f);
 
             x = segEndX; y = segEndY;
         }
@@ -574,6 +592,11 @@ public class TerrainManager : MonoBehaviour
             new Vector2(x, y), new Vector2(mergeX, groundYAtMerge), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
             needsLeftCap: false, needsRightCap: true);
         skyChunks.Add(new SkyChunk { startX = x, endX = mergeX, startY = y, endY = groundYAtMerge, visual = rampDownVisual });
+        // Stage01仕上げ調整(2026-09-13深夜) - ランプダウンにはこれまで
+        // 装飾が撒かれていなかった(ランプアップ/並走区間のみ)。合流地点
+        // にも同じ賑やかさを持たせ、「戻ってきた」感を統一する。
+        if (decorationSprites != null && decorationSprites.Length > 0)
+            DecorationScatter.ScatterAlongChunk(rampDownVisual.transform, decorationSprites, new Vector2(x, y), new Vector2(mergeX, groundYAtMerge), spawnChance: 0.55f);
 
         // 分岐/合流地点そのものが「ここでルートが分かれる/戻る」と視覚的
         // に分かるよう、道標を1本ずつ地上側に直接置く(DecorationScatter

@@ -34,7 +34,11 @@ public class ObstacleSpawner : MonoBehaviour
     // 分岐が無い区間(routeBranchEnabled=false、または分岐と分岐の間)
     // では従来と完全に同じ密度・比率のまま。
     public float dangerIntervalMultiplier = 0.6f;
-    public float dangerHeavyWeightMultiplier = 1.8f;
+    // Stage01仕上げ調整(2026-09-13深夜) - マスター指摘「下ルートの危険が
+    // 敵の過密に寄りすぎている」に対応し、TerrainManager.branchDanger
+    // EnemyMultiplierを弱めた分、こちらを1.8→2.4へ引き上げて「敵+障害物
+    // +穴の複合」で危険度を作るバランスへ調整。
+    public float dangerHeavyWeightMultiplier = 2.4f;
 
     // ルート構造再調整(2026-09-13) - 上ルート(Easy)専用の軽い障害物配置。
     // 分岐区間の中でだけ、間隔を大きく(疎に)取り、石/小木のみをTerrain
