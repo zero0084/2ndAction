@@ -148,4 +148,14 @@ public class CharacterDefinition : ScriptableObject
     // が紛れ込むことはない)。
     public Sprite[] attackFramesSmall;
     public Sprite[] attackFramesLarge;
+
+    // 双剣士専用アニメ追加(2026-09-13深夜) - マスター報告「双剣士の下攻撃
+    // /下着地が黒剣士と同じになっている」に対応。PlayerAnimator.
+    // downAttackFrames/downAttackLandFramesには元々per-character上書き
+    // 経路が無く(黒剣士の焼き込みアートを直接参照するのみだった)、
+    // canUseDownAttack=trueの他キャラを追加した際に見た目が黒剣士のまま
+    // 残ってしまうバグの温床になっていた。doubleJumpFrames/attackFrames
+    // Small/Largeと同じ「空なら黒剣士のデフォルトへフォールバック」方式。
+    public Sprite[] downAttackFrames;
+    public Sprite[] downAttackLandFrames;
 }

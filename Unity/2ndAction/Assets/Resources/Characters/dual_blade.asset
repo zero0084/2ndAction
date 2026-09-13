@@ -47,10 +47,6 @@ MonoBehaviour:
   runFrames:
   - {fileID: 21300000, guid: e0f0bb8ffbd36c54c94390fff602d537, type: 3}
   - {fileID: 21300000, guid: 947ea381fbbdcde4e8a6269af7ccef43, type: 3}
-  - {fileID: 21300000, guid: 39db5e2c0808a4d4d8e0d17315fe0586, type: 3}
-  - {fileID: 21300000, guid: a76cf51b3bd317444a4a611b6aff305d, type: 3}
-  - {fileID: 21300000, guid: 944ae3e23175fbe45bf7cb1c0596bbde, type: 3}
-  - {fileID: 21300000, guid: d3946d996d892e94989533619ffa14f2, type: 3}
   jumpStartFrames:
   - {fileID: 21300000, guid: 0a8bcd5a71e065c46b6c02913e59f860, type: 3}
   jumpFrames:
@@ -60,7 +56,8 @@ MonoBehaviour:
   attackFrames:
   - {fileID: 21300000, guid: b13eb4c7a8d9eb34a87dabdd21bf7ca5, type: 3}
   - {fileID: 21300000, guid: f6f9f381c1d5ffd428d23e8fca9a97d7, type: 3}
-  doubleJumpFrames: []
+  doubleJumpFrames:
+  - {fileID: 21300000, guid: fe6455f689c28d44e839852d6ab66cb8, type: 3}
   runFps: 7
   attackFramesSmall:
   - {fileID: 21300000, guid: ae5912f3c7d06734991acca5328b79be, type: 3}
@@ -68,3 +65,7 @@ MonoBehaviour:
   attackFramesLarge:
   - {fileID: 21300000, guid: 3ad27d0854f552e429ebff84bee0de96, type: 3}
   - {fileID: 21300000, guid: c8b6610a27c139e41abf8d6ca3b72258, type: 3}
+  downAttackFrames:
+  - {fileID: 21300000, guid: 90df6749b32b71e4893983cd2cd5fc95, type: 3}
+  downAttackLandFrames:
+  - {fileID: 21300000, guid: 48301354a1380b84da086df3a3cff8b6, type: 3}

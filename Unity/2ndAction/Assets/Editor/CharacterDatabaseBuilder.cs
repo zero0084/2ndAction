@@ -69,6 +69,14 @@ public static class CharacterDatabaseBuilder
         public float attackFramesSmallPpu;
         public string attackFramesLargeDir;
         public float attackFramesLargePpu;
+        // 双剣士専用アニメ追加(2026-09-13深夜) - 下攻撃/下攻撃着地も他の
+        // Stateと同じ「空文字なら黒剣士のデフォルトへフォールバック」方式
+        // にした(CharacterDefinition.downAttackFrames/downAttackLandFrames
+        // のコメント参照)。
+        public string downAttackFramesDir;
+        public float downAttackFramesPpu;
+        public string downAttackLandFramesDir;
+        public float downAttackLandFramesPpu;
     }
 
     // 黒剣士=PlayerController/GameManagerの既存デフォルトそのもの(性能
@@ -154,17 +162,22 @@ public static class CharacterDatabaseBuilder
         // フレームごとの個別Foot Pivot自動検出(LoadAnimationFolder)。
         dualBlade.runFramesDir = "Assets/Art/DualBladeRun_v1";
         dualBlade.runFramesPpu = 272f;
-        // Run素材差し替え(2026-09-13夜) - マスター提供の6コマRunスプライト
-        // シートへ全面差し替え(従来の4コマ・ChatGPT生成分から置き換え)。
-        // マスター指示「6~8fps程度を目安に、実機で見て軽快/俊敏/速すぎ
-        // ない/もっさりしないように微調整」に対応し、まず中間の7fpsを
-        // 初期値とした(6コマ/7fps≒0.86秒の周期) - 実機確認後にマスター
-        // 判断で調整可能。
+        // Run素材再差し替え(2026-09-13深夜) - マスター確認済みの「頭基準
+        // ピボット・2コマ構成」はそのまま維持しつつ、絵そのものをより
+        // 「疾走感」のある低い重心・大きな歩幅のダッシュポーズへ差し替え。
+        // fps(7)は前回確認済みの値のまま据え置き(今回はコマ数・速度では
+        // なく絵柄の変更が主目的のため)。
         dualBlade.runFpsOverride = 7f;
         dualBlade.jumpStartFramesDir = "Assets/Art/DualBladeJumpStart_v1";
         dualBlade.jumpStartFramesPpu = 272f;
         dualBlade.jumpFramesDir = "Assets/Art/DualBladeJumpAir_v1";
         dualBlade.jumpFramesPpu = 272f;
+        // 双剣士専用アニメ追加(2026-09-13深夜) - マスター報告「上空中攻撃
+        // が黒剣士と同じアニメーションになっている」に対応。双剣士は
+        // canUseAirAttack=trueのため、DoubleJump Stateの絵は実際にプレイ
+        // 中に見える(お嬢様騎士のような純粋演出用途とは違う)。
+        dualBlade.doubleJumpFramesDir = "Assets/Art/DualBladeDoubleJump_v1";
+        dualBlade.doubleJumpFramesPpu = 272f;
         dualBlade.landFramesDir = "Assets/Art/DualBladeLand_v1";
         dualBlade.landFramesPpu = 272f;
         // 通常攻撃コンボ(最重要) - 5段の高速連撃を「素早い右手斬り(小)/
@@ -179,6 +192,13 @@ public static class CharacterDatabaseBuilder
         dualBlade.attackFramesSmallPpu = 272f;
         dualBlade.attackFramesLargeDir = "Assets/Art/DualBladeAttackLarge_v1";
         dualBlade.attackFramesLargePpu = 272f;
+        // 双剣士専用アニメ追加(2026-09-13深夜) - マスター報告「下攻撃/
+        // 下着地が黒剣士と同じになっている」に対応。双剣士はcanUseDown
+        // Attack=trueのため、この2つも実プレイ中に見える。
+        dualBlade.downAttackFramesDir = "Assets/Art/DualBladeDownAttack_v1";
+        dualBlade.downAttackFramesPpu = 272f;
+        dualBlade.downAttackLandFramesDir = "Assets/Art/DualBladeDownAttackLand_v1";
+        dualBlade.downAttackLandFramesPpu = 272f;
 
         // お嬢様騎士 - マスター指示「見た目は非常に強そうだが性能はかなり
         // 弱い、ただし入力遅延ではなく性能値のみで表現する」。CHALLENGE
@@ -327,6 +347,8 @@ public static class CharacterDatabaseBuilder
             def.attackFrames = LoadAnimationFolder(spec.attackFramesDir, spec.attackFramesPpu);
             def.attackFramesSmall = LoadAnimationFolder(spec.attackFramesSmallDir, spec.attackFramesSmallPpu);
             def.attackFramesLarge = LoadAnimationFolder(spec.attackFramesLargeDir, spec.attackFramesLargePpu);
+            def.downAttackFrames = LoadAnimationFolder(spec.downAttackFramesDir, spec.downAttackFramesPpu);
+            def.downAttackLandFrames = LoadAnimationFolder(spec.downAttackLandFramesDir, spec.downAttackLandFramesPpu);
 
             AssetDatabase.CreateAsset(def, assetPath);
         }

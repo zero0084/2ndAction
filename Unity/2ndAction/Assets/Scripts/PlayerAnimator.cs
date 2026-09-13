@@ -68,6 +68,11 @@ public class PlayerAnimator : MonoBehaviour
     // お嬢様騎士 二段ジャンプ演出バグ修正(2026-09-13) - 他のStateと同じ
     // スナップショット/上書きパターンをdoubleJumpFramesにも適用する。
     Sprite[] defaultDoubleJumpFrames;
+    // 双剣士専用アニメ追加(2026-09-13深夜) - canUseDownAttack=trueの
+    // キャラは黒剣士のdownAttackFrames/downAttackLandFramesをそのまま
+    // 表示してしまっていた(この2つには元々per-character上書き経路が
+    // 無かった)。他のStateと同じスナップショット/上書きパターンを追加。
+    Sprite[] defaultDownAttackFrames, defaultDownAttackLandFrames;
     // お嬢様騎士Run読みやすさ改善(2026-09-13) - runFramesと同じ「スナップ
     // ショット→上書き」パターンでrunFpsも上書きできるようにした(コマ数が
     // 黒剣士と異なるキャラのため)。
@@ -190,6 +195,8 @@ public class PlayerAnimator : MonoBehaviour
             defaultAttackFramesLarge = attackFramesLarge;
             defaultRunFps = runFps;
             defaultDoubleJumpFrames = doubleJumpFrames;
+            defaultDownAttackFrames = downAttackFrames;
+            defaultDownAttackLandFrames = downAttackLandFrames;
         }
         if (def == null) return;
 
@@ -199,6 +206,8 @@ public class PlayerAnimator : MonoBehaviour
         jumpFrames = HasFrames(def.jumpFrames) ? def.jumpFrames : defaultJumpFrames;
         doubleJumpFrames = HasFrames(def.doubleJumpFrames) ? def.doubleJumpFrames : defaultDoubleJumpFrames;
         landFrames = HasFrames(def.landFrames) ? def.landFrames : defaultLandFrames;
+        downAttackFrames = HasFrames(def.downAttackFrames) ? def.downAttackFrames : defaultDownAttackFrames;
+        downAttackLandFrames = HasFrames(def.downAttackLandFrames) ? def.downAttackLandFrames : defaultDownAttackLandFrames;
         if (HasFrames(def.attackFrames))
         {
             attackFrames = def.attackFrames;
