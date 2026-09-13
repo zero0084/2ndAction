@@ -4305,10 +4305,14 @@ public static class SceneBuilder
             importer.alphaIsTransparency = true;
             importer.alphaSource = TextureImporterAlphaSource.FromInput;
             importer.filterMode = FilterMode.Bilinear;
-            // X(左右)は従来どおり足元付近の重心を使う(歩幅による自然な
-            // 左右のブレは今回問題視されていない、足元固定パターンの
-            // 既存挙動をそのまま踏襲)。
-            float pivotX = ComputeLowestContentPivotXY(f).x;
+            // Run頭基準ピボット改善(2026-09-13深夜、続き) - マスター報告
+            // 「まだ頭が前後に動いている」への対応。前回パスではYのみ頭
+            // 基準化し、X(左右)は従来どおり足元付近の重心のままにしていた
+            // が、走行ポーズは左右の脚が大きく開くため、足元basisの重心は
+            // コマごとに大きく左右へブレる(=キャラ全体が前後(画面左右)に
+            // 揺れて見える、まさに今回の報告内容)。頭部(上端付近の帯)は
+            // 脚ほど開かないため、Xも頭基準の重心に切り替える。
+            float pivotX = ComputeHighestContentPivotX(f);
             int height = heightByFile[f];
             // このコマの頭頂位置から基準身長ぶん下げた「仮想接地ピクセル」
             // をpivotYへ変換する(ConfigureSpriteFolderImportWithShared
@@ -4318,6 +4322,47 @@ public static class SceneBuilder
             ApplyCustomPivot(importer, new Vector2(pivotX, pivotY));
             importer.SaveAndReimport();
         }
+    }
+
+    // ConfigureSpriteFolderImportWithSharedHeadPivot専用のヘルパー -
+    // ComputeLowestContentPivotXYのX計算部分の上下反転版。「上端付近の帯
+    // (頭部)の非透明ピクセルの重心X」を返す。ComputeLowestContentPivotXY
+    // と同じ「見つけた端の行からband幅ぶん内側(=下)へ向かってサンプル
+    // する」考え方を上下反転して適用。
+    static float ComputeHighestContentPivotX(string filePath)
+    {
+        byte[] bytes = File.ReadAllBytes(filePath);
+        Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        tex.LoadImage(bytes);
+
+        int w = tex.width, h = tex.height;
+        Color32[] pixels = tex.GetPixels32();
+        int highestY = -1;
+        for (int y = h - 1; y >= 0 && highestY < 0; y--)
+        {
+            int rowStart = y * w;
+            for (int x = 0; x < w; x++)
+            {
+                if (pixels[rowStart + x].a > 15) { highestY = y; break; }
+            }
+        }
+        if (highestY < 0) { Object.DestroyImmediate(tex); return 0.5f; }
+
+        int bandHeight = Mathf.Max(6, Mathf.RoundToInt(h * 0.04f));
+        int yStart = Mathf.Max(0, highestY - bandHeight + 1);
+        double sumX = 0.0;
+        int count = 0;
+        for (int y = yStart; y <= highestY; y++)
+        {
+            int rowStart = y * w;
+            for (int x = 0; x < w; x++)
+            {
+                if (pixels[rowStart + x].a > 15) { sumX += x; count++; }
+            }
+        }
+        Object.DestroyImmediate(tex);
+
+        return count > 0 ? Mathf.Clamp01((float)(sumX / count) / w) : 0.5f;
     }
 
     // ConfigureSpriteFolderImportWithSharedHeadPivot専用のヘルパー -
