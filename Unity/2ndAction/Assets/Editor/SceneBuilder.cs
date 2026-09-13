@@ -3738,6 +3738,19 @@ public static class SceneBuilder
         // 同じ簡便な値でよい。
         Sprite wastelandBackground = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Background/WastelandBackground.png", 1000f);
 
+        // Stage01完成版要求仕様書「街道らしさ」対応(2026-09-13) - 天空回廊
+        // 用の花/岩/廃墟看板(既存decorationSprites、DecorRuinsSign.png等
+        // PPU 1536-3413=世界高さ約0.53-0.67)とは別に、道標/柵/木箱・樽/
+        // 壊れた荷車の4種を用意し、荒野街道選択時だけDecorationScatterへ
+        // 渡す(TerrainManager.TerrainThemeSet.decorationSprites参照)。
+        // PPUは各画像の実クロップ高さ(px)から目標world heightへ逆算 -
+        // 既存の廃墟看板より一回り大きめ(0.55〜0.85)にして、単なる草花
+        // クラッターより「街道の生活感」がひと目でわかる存在感を出した。
+        Sprite wastelandDecorSignpost = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Decoration/Wasteland_v1/decor_signpost.png", 524.7f);
+        Sprite wastelandDecorFence = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Decoration/Wasteland_v1/decor_fence.png", 516.4f);
+        Sprite wastelandDecorCrateBarrel = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Decoration/Wasteland_v1/decor_cratebarrel.png", 525f);
+        Sprite wastelandDecorCart = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Decoration/Wasteland_v1/decor_cart.png", 550f);
+
         return new[]
         {
             new TerrainManager.TerrainThemeSet
@@ -3747,6 +3760,7 @@ public static class SceneBuilder
                 groundSprite = null, // platformArtが有効な間は未使用(フォールバック専用)
                 groundColor = Color.white, // platformArt使用中は各ピースがColor.white固定で描画されるため実質未参照
                 backgroundSprite = wastelandBackground,
+                decorationSprites = new[] { wastelandDecorSignpost, wastelandDecorFence, wastelandDecorCrateBarrel, wastelandDecorCart },
             }
         };
     }

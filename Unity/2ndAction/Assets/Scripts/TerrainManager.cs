@@ -135,6 +135,12 @@ public class TerrainManager : MonoBehaviour
         // 昼夜遷移そのものには一切触れない、今回のスコープを最小限に
         // 保つため)。
         public Sprite backgroundSprite;
+        // Stage01完成版要求仕様書「街道らしさ」対応(2026-09-13) - 指定時
+        // のみ道端の散策物(DecorationScatter)を差し替える。天空回廊用の
+        // 花/岩/廃墟看板(既存decorationSprites)はこの配列を空のまま
+        // にすれば一切変更されない - platformArt/groundColor/
+        // backgroundSpriteと全く同じ「未指定なら無変更」ルール。
+        public Sprite[] decorationSprites;
     }
     public TerrainThemeSet[] stageThemes = new TerrainThemeSet[0];
     // SceneBuilderが既存のday backgroundのSpriteRendererをそのまま渡す
@@ -163,6 +169,7 @@ public class TerrainManager : MonoBehaviour
         if (theme.groundSprite != null) groundSprite = theme.groundSprite;
         groundColor = theme.groundColor;
         if (backgroundRenderer != null && theme.backgroundSprite != null) backgroundRenderer.sprite = theme.backgroundSprite;
+        if (theme.decorationSprites != null && theme.decorationSprites.Length > 0) decorationSprites = theme.decorationSprites;
 
         RebuildAllChunkVisuals();
     }
