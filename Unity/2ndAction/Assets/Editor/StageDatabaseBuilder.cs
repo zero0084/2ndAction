@@ -18,6 +18,10 @@ public static class StageDatabaseBuilder
         public string routeText;
         public bool unlocked;
         public int sortOrder;
+        // Stage01完成版要求仕様書対応(2026-09-13) - 未指定(null/空文字)なら
+        // 従来どおりStageSelectUIが単色パネル+テキストへフォールバックする
+        // (CharacterDatabaseBuilder.LoadIconTextureをinternal化して再利用)。
+        public string thumbnailPath;
     }
 
     // 初期3ステージ - 実際に遊べるのは荒野街道のみ(現状のTerrainManagerは
@@ -35,6 +39,7 @@ public static class StageDatabaseBuilder
             routeText = "ルート: 上 Easy / 下 Danger",
             unlocked = true,
             sortOrder = 0,
+            thumbnailPath = "Assets/Art/Background/WastelandThumbnail.png",
         },
         new Spec
         {
@@ -83,7 +88,7 @@ public static class StageDatabaseBuilder
             var def = ScriptableObject.CreateInstance<StageDefinition>();
             def.stageId = spec.id;
             def.displayName = spec.displayName;
-            def.thumbnail = null; // サムネ未用意 - StageSelectUI/DrawStageHotspotは単色パネル+テキストへフォールバックする
+            def.thumbnail = !string.IsNullOrEmpty(spec.thumbnailPath) ? CharacterDatabaseBuilder.LoadIconTexture(spec.thumbnailPath) : null;
             def.enemyText = spec.enemyText;
             def.featureText = spec.featureText;
             def.routeText = spec.routeText;

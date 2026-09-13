@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageDefinition
   stageId: wasteland_road
   displayName: "\u8352\u91CE\u8857\u9053"
-  thumbnail: {fileID: 0}
+  thumbnail: {fileID: 2800000, guid: a36e9f69458a4094faa8ae6a753c3157, type: 3}
   enemyText: "\u6575: \u30B4\u30D6\u30EA\u30F3 / \u9CE5"
   featureText: "\u969C\u5BB3\u7269: \u77F3\u30FB\u5C0F\u6728\u30FB\u58C1\u30FB\u58CA\u305B\u308B\u6728\u30FB\u5DE8\u5927\u77F3\u30FB\u7A74"
   routeText: "\u30EB\u30FC\u30C8: \u4E0A Easy / \u4E0B Danger"

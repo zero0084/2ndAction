@@ -240,7 +240,7 @@ public static class CharacterDatabaseBuilder
     // SceneBuilder.LoadIconTexture(private)と同じ設定 - CardDatabaseBuilder
     // 自身のLoadIconTextureと同じミラーパターン(Texture2Dとして読み込み、
     // 表示側でSprite.Createする方式に合わせる)。
-    static Texture2D LoadIconTexture(string path)
+    internal static Texture2D LoadIconTexture(string path)
     {
         AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
         TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
