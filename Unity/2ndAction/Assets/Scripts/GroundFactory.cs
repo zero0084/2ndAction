@@ -155,6 +155,54 @@ public static class GroundFactory
         }
     }
 
+    // 荒野街道 地面埋め修整(2026-09-13深夜) - マスター報告「下ルートの下側
+    // に見えている空白部分を、地面で埋める」への対応。CameraFollowの
+    // orthographicSize計算(targetHorizontalHalfWidth/aspect)から、通常の
+    // 画面比率でも地面ラインの下に約9世界単位、ワイドな比率ではさらに
+    // 大きく見えてしまう一方、既存のplatformVisualHeight(3.5)はそのごく
+    // 一部しか覆わない - これが「浮遊足場感」の実測できる原因だった。
+    // このメソッドは、CreateSlopeVisualが描く表面スラブの底辺から真下へ
+    // fillDepth分だけ、同じ角度で新しい岩/土断面テクスチャ(縦タイリング
+    // 前提でChatGPT生成済み)を敷き詰める - Pit区間はTerrainManager側で
+    // そもそも呼び出されないため、「穴の部分だけ道が途切れて見える」と
+    // いう要件は自然に満たされる(このメソッド自体は常に不透明な帯を
+    // 描くので、呼び出し側の分岐だけが穴の可視性を担保する)。
+    // overlapは表面スラブの底辺とこの帯の上端の間にヘアラインの隙間が
+    // 出ないための保険的な食い込み量(CreateSlopeVisualのleftBleedと同じ
+    // 発想) - スラブ自体が完全な矩形でキャップも無いため、通常は0に近い
+    // 値で十分。
+    public static GameObject CreateGroundFillVisual(Transform parent, Sprite fillSprite, Vector2 a, Vector2 b, float surfaceVisualHeight, float surfaceInset, float fillDepth, float overlap, int sortingOrder)
+    {
+        GameObject go = new GameObject("GroundFill");
+        go.transform.SetParent(parent);
+        go.tag = "Ground";
+
+        Vector2 delta = b - a;
+        float length = Mathf.Max(delta.magnitude, 0.01f);
+        Vector2 dir = delta / length;
+        Vector2 down = new Vector2(dir.y, -dir.x);
+        float angle = Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg;
+
+        Vector2 mid = (a + b) * 0.5f;
+        // CreateSlopeVisualの表面スラブと同じ式(center = mid + down*(h*0.5
+        // - inset))から逆算した、そのスラブの底辺までのdown方向オフセット。
+        float slabBottomOffset = surfaceVisualHeight - surfaceInset;
+        float centerOffset = slabBottomOffset - overlap + fillDepth * 0.5f;
+        Vector2 center = mid + down * centerOffset;
+
+        go.transform.position = new Vector3(center.x, center.y, 0f);
+        go.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+
+        var sr = go.AddComponent<SpriteRenderer>();
+        sr.sprite = fillSprite;
+        sr.color = Color.white;
+        sr.drawMode = SpriteDrawMode.Tiled;
+        sr.size = new Vector2(length, fillDepth);
+        sr.sortingOrder = sortingOrder;
+
+        return go;
+    }
+
     // Root/Visual split (see the class-level convention this and
     // CreatePlayer both follow): Root is the gameplay-authoritative
     // transform - position (foot/ground line), rotation (slope tilt, set

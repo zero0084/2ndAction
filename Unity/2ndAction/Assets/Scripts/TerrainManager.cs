@@ -59,6 +59,20 @@ public class TerrainManager : MonoBehaviour
     // above the drawn grass. Only applies when platformArt is set.
     public float platformSurfaceInset = 0.85f;
 
+    // 荒野街道 地面埋め修整(2026-09-13深夜) - マスター報告「下ルートの下側
+    // に見えている空白部分を、地面で埋める」への対応。null(未指定)のまま
+    // なら何も描かれず、既存の見た目(天空回廊含む他ステージ)は完全に
+    // 無改造。GroundFactory.CreateGroundFillVisual参照 - Pit区間は
+    // AddChunk/RebuildAllChunkVisuals側の分岐でそもそも呼び出さないため、
+    // 「穴の部分だけ道が途切れて見える」要件は自動的に満たされる。
+    public Sprite groundFillSprite;
+    // カメラのorthographicSize(CameraFollow.targetHorizontalHalfWidth/
+    // aspect)が示す「地面ラインの下に実際に見えている世界単位数」の
+    // 実測値(標準的な横長比率で約9.3)に、縦長比率でも確実に足りるよう
+    // 余裕を持たせた既定値。
+    public float groundFillDepth = 30f;
+    public float groundFillOverlap = 0.05f;
+
     [Header("Chunk Sizes")]
     public float flatLength = 6f;
     // 道のなめらか化(2026-09-10) - マスター報告「道の角が少し出ている箇所が
@@ -141,6 +155,10 @@ public class TerrainManager : MonoBehaviour
         // にすれば一切変更されない - platformArt/groundColor/
         // backgroundSpriteと全く同じ「未指定なら無変更」ルール。
         public Sprite[] decorationSprites;
+        // 荒野街道 地面埋め修整(2026-09-13深夜) - 指定時のみ地面の断面埋め
+        // テクスチャを差し替える。未指定(null)のままなら他フィールドと
+        // 同じ「無変更」ルール。
+        public Sprite groundFillSprite;
         // ルート構造再調整(2026-09-13) - trueの場合のみ、後述のRoute Branch
         // システム(上下ルートの分岐→並走→合流)を使う。falseのまま(=未
         // 指定、天空回廊など)なら、既存の「短い浮遊足場がランダムに点在
@@ -180,6 +198,7 @@ public class TerrainManager : MonoBehaviour
         groundColor = theme.groundColor;
         if (backgroundRenderer != null && theme.backgroundSprite != null) backgroundRenderer.sprite = theme.backgroundSprite;
         if (theme.decorationSprites != null && theme.decorationSprites.Length > 0) decorationSprites = theme.decorationSprites;
+        if (theme.groundFillSprite != null) groundFillSprite = theme.groundFillSprite;
         routeBranchEnabled = theme.enableRouteBranch;
         branchMarkerSprite = theme.branchMarkerSprite;
 
@@ -204,6 +223,18 @@ public class TerrainManager : MonoBehaviour
             c.visual = GroundFactory.CreateSlopeVisual(transform, squareSprite, groundSprite, platformArt,
                 new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
                 c.needsLeftCap, needsRightCap: needsRightCap);
+
+            // 荒野街道 地面埋め修整(2026-09-13深夜) - テーマ切り替え時も
+            // 断面帯を作り直す(差し替え前のテーマの帯が残り続けたり、
+            // 逆に新テーマにgroundFillSpriteが無いのに前のテーマの帯が
+            // 残ったりしないように、毎回いったん破棄してから要否を見る)。
+            if (c.fillVisual != null) Destroy(c.fillVisual);
+            if (groundFillSprite != null)
+            {
+                c.fillVisual = GroundFactory.CreateGroundFillVisual(transform, groundFillSprite,
+                    new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY),
+                    platformVisualHeight, platformSurfaceInset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill);
+            }
 
             if (decorationSprites != null && decorationSprites.Length > 0)
             {
@@ -300,6 +331,9 @@ public class TerrainManager : MonoBehaviour
         public ChunkType type;
         public float startX, endX, startY, endY;
         public GameObject visual;
+        // 荒野街道 地面埋め修整(2026-09-13深夜) - visualとは別に保持し、
+        // RebuildAllChunkVisualsで一緒に破棄・再生成できるようにする。
+        public GameObject fillVisual;
         // Distance Level Design Ver.1 - a List instead of a single
         // GameObject, since a Burst Formation (see DistanceTierManager)
         // can now place several enemies at one chunk instead of always
@@ -812,6 +846,17 @@ public class TerrainManager : MonoBehaviour
             chunk.visual = GroundFactory.CreateSlopeVisual(transform, squareSprite, groundSprite, platformArt,
                 new Vector2(startX, startY), new Vector2(endX, endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
                 needsLeftCap, needsRightCap: false, leftBleed: leftBleed);
+
+            // 荒野街道 地面埋め修整(2026-09-13深夜) - Pit以外の全チャンクの
+            // 表面スラブの真下に、断面テクスチャの帯を敷く(このif自体が
+            // ChunkType.Pitでは通らないため、穴は自動的に埋まらず可視の
+            // ギャップとして残る)。
+            if (groundFillSprite != null)
+            {
+                chunk.fillVisual = GroundFactory.CreateGroundFillVisual(transform, groundFillSprite,
+                    new Vector2(startX, startY), new Vector2(endX, endY),
+                    platformVisualHeight, platformSurfaceInset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill);
+            }
 
             // Game Feel pass, section 17 - visual-only clutter along this
             // chunk's top surface, purely to break up "the ground repeats

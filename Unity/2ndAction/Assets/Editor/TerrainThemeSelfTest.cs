@@ -18,9 +18,14 @@ public static class TerrainThemeSelfTest
 
         Color defaultColor = terrain.groundColor;
         Sprite defaultGroundSprite = terrain.groundSprite;
+        Sprite defaultGroundFillSprite = terrain.groundFillSprite;
 
         var wastelandGroundSprite = Sprite.Create(new Texture2D(4, 4), new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f));
         Color wastelandColor = new Color(0.4f, 0.6f, 0.2f);
+        // 荒野街道 地面埋め修整(2026-09-13深夜) - groundFillSpriteも他の
+        // フィールドと同じ「未指定なら無変更、指定時のみ差し替え」パター
+        // ンで検証する。
+        var wastelandGroundFillSprite = Sprite.Create(new Texture2D(4, 4), new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f));
 
         terrain.stageThemes = new[]
         {
@@ -31,6 +36,7 @@ public static class TerrainThemeSelfTest
                 groundSprite = wastelandGroundSprite,
                 groundColor = wastelandColor,
                 backgroundSprite = null,
+                groundFillSprite = wastelandGroundFillSprite,
             }
         };
 
@@ -38,12 +44,14 @@ public static class TerrainThemeSelfTest
         // 想定)を渡しても、既存の値を一切変更しないこと(「無改造で温存」
         // という要件の直接検証)。
         terrain.ApplyStageTheme("sky_corridor");
-        bool unknownStageUnchanged = terrain.groundColor == defaultColor && terrain.groundSprite == defaultGroundSprite;
+        bool unknownStageUnchanged = terrain.groundColor == defaultColor && terrain.groundSprite == defaultGroundSprite
+            && terrain.groundFillSprite == defaultGroundFillSprite;
 
         // 2) 一致するstageIdを渡すと、そのエントリの値へ実際に差し替わる
         // こと。
         terrain.ApplyStageTheme("wasteland_road");
-        bool matchingStageApplied = terrain.groundColor == wastelandColor && terrain.groundSprite == wastelandGroundSprite;
+        bool matchingStageApplied = terrain.groundColor == wastelandColor && terrain.groundSprite == wastelandGroundSprite
+            && terrain.groundFillSprite == wastelandGroundFillSprite;
 
         bool pass = unknownStageUnchanged && matchingStageApplied;
 

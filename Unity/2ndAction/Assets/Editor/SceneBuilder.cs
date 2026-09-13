@@ -3753,6 +3753,15 @@ public static class SceneBuilder
         // 同じ簡便な値でよい。
         Sprite wastelandBackground = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Background/WastelandBackground.png", 1000f);
 
+        // Stage01基礎見た目修整依頼(2026-09-13深夜) - マスター報告「下ルー
+        // トの下側に見えている空白部分を、地面で埋める」への対応。既存の
+        // platform_wasteland_mid.pngの岩下面バンドは光源が上部に偏ってお
+        // り縦タイリングすると縞模様の継ぎ目が出るため流用せず、ChatGPTで
+        // 均一光源・縦シームレス前提の新規岩/土断面テクスチャを生成した。
+        // 同じwastelandPpuを使うことで、既存の岩下面バンドと粒感のスケー
+        // ルを揃えている。
+        Sprite wastelandGroundFill = LoadTiledSprite("Assets/Art/VisualStyleV1/Ground/groundfill_wasteland.png", wastelandPpu);
+
         // Stage01完成版要求仕様書「街道らしさ」対応(2026-09-13) - 天空回廊
         // 用の花/岩/廃墟看板(既存decorationSprites、DecorRuinsSign.png等
         // PPU 1536-3413=世界高さ約0.53-0.67)とは別に、道標/柵/木箱・樽/
@@ -3776,6 +3785,7 @@ public static class SceneBuilder
                 groundColor = Color.white, // platformArt使用中は各ピースがColor.white固定で描画されるため実質未参照
                 backgroundSprite = wastelandBackground,
                 decorationSprites = new[] { wastelandDecorSignpost, wastelandDecorFence, wastelandDecorCrateBarrel, wastelandDecorCart },
+                groundFillSprite = wastelandGroundFill,
                 // ルート構造再調整(2026-09-13) - マスター提供の参考画像を
                 // 仕様図として、上ルート/下ルートが分岐→並走→合流する
                 // Route Branchシステムを荒野街道だけで有効化する。天空回廊

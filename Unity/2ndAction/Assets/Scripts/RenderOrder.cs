@@ -16,6 +16,11 @@
 // never be "behind" anything here.
 public static class RenderOrder
 {
+    // 荒野街道 地面埋め修整(2026-09-13深夜) - Groundの表面スラブ(0)より
+    // 手前に出てはいけないが、Background(-100/-99)よりは確実に手前に
+    // 出したい「地面の断面埋め」用。Ground-1という相対値にしているのは
+    // Backgroundの-100/-99と衝突しない安全な間隔を確保するため。
+    public const int GroundFill = Ground - 1;
     public const int Ground = 0;
     // Ground-type enemies, and the environmental FX that hugs the ground
     // near them (running dust, contact shadow) - the two never actually
