@@ -223,7 +223,13 @@ public static class CharacterDatabaseBuilder
             def.canUseAirAttack = spec.canUseAirAttack;
             def.canUseDownAttack = spec.canUseDownAttack;
 
-            def.runFrames = LoadAnimationFolder(spec.runFramesDir, spec.runFramesPpu);
+            // お嬢様騎士Run表示基準統一(2026-09-13) - Runだけ「フレームごと
+            // に個別pivot」ではなく「全コマ共通の接地ライン」を使う専用の
+            // 読み込み方式に変更(通常Run中にキャラ全体が上下へガクガク跳ね
+            // る不具合の修正、SceneBuilder.ConfigureSpriteFolderImportWith
+            // SharedGroundPivotのコメント参照)。Jump/Land/Attackは今回報告
+            // が無いため、従来どおりLoadAnimationFolder(個別pivot)のまま。
+            def.runFrames = LoadRunAnimationFolder(spec.runFramesDir, spec.runFramesPpu);
             def.jumpStartFrames = LoadAnimationFolder(spec.jumpStartFramesDir, spec.jumpStartFramesPpu);
             def.jumpFrames = LoadAnimationFolder(spec.jumpFramesDir, spec.jumpFramesPpu);
             def.landFrames = LoadAnimationFolder(spec.landFramesDir, spec.landFramesPpu);
@@ -277,6 +283,16 @@ public static class CharacterDatabaseBuilder
     {
         if (string.IsNullOrEmpty(dir)) return new Sprite[0];
         SceneBuilder.ConfigureSpriteFolderImportWithFootPivotXY(dir, pixelsPerUnit);
+        return SceneBuilder.LoadSpriteSequence(dir);
+    }
+
+    // お嬢様騎士Run表示基準統一(2026-09-13) - LoadAnimationFolderと同じ
+    // 形だが、pivot計算だけSceneBuilder.ConfigureSpriteFolderImportWith
+    // SharedGroundPivot(全コマ共通の接地ライン)を使う。
+    static Sprite[] LoadRunAnimationFolder(string dir, float pixelsPerUnit)
+    {
+        if (string.IsNullOrEmpty(dir)) return new Sprite[0];
+        SceneBuilder.ConfigureSpriteFolderImportWithSharedGroundPivot(dir, pixelsPerUnit);
         return SceneBuilder.LoadSpriteSequence(dir);
     }
 }

@@ -4124,6 +4124,82 @@ public static class SceneBuilder
         }
     }
 
+    // お嬢様騎士Run表示基準統一(2026-09-13) - 通常Run中にキャラ全体が
+    // フレームごとに上下へガクガク跳ねて見える不具合の修正。原因:
+    // ConfigureSpriteFolderImportWithFootPivotXY(上記)はフレームごとに
+    // 「そのフレーム自身の最下段コンテンツ行」を個別にpivotY化していた -
+    // NobleLadyRun_v1の各フレームはfind_best_cuts.ps1で横方向のみ切り出し
+    // たもの(全フレーム高さ724pxが共通=同じ座標系を共有)なので、脚が
+    // 地面に着いているコマと、歩幅の合間で脚が浮いているコマとで「その
+    // コマ自身の最下点」の絵の中での高さが本来かなり異なる。それを毎回
+    // そのコマ自身の最下点に合わせて接地させてしまうと、脚が浮いている
+    // コマだけキャラ全体が不自然に持ち上がって見える(=今回の症状)。
+    // 正しくは「実際に足が最も深く地面へ接地しているコマ」1つを基準に、
+    // 全コマ共通の接地ラインを1本だけ使うこと - 脚が浮いているコマは、
+    // その分だけ足が地面から離れて描かれて当然良い(それが本来の走行の
+    // 弾みそのもの)。Xは従来どおりコマごとの最下段付近の重心を使う(歩幅
+    // による自然な左右のブレは今回問題視されていない)。
+    // 対象はお嬢様騎士Runのみ - ConfigureSpriteFolderImportWithFootPivotXY
+    // 自体(PlayerUpAttackGround_v1等の既存利用箇所)には一切触れないため、
+    // 黒剣士や他のState(Jump/Land/Attack)の表示には影響しない。
+    internal static void ConfigureSpriteFolderImportWithSharedGroundPivot(string dir, float pixelsPerUnit)
+    {
+        if (!Directory.Exists(dir)) return;
+        string[] files = Directory.GetFiles(dir, "*.png");
+        System.Array.Sort(files);
+        if (files.Length == 0) return;
+
+        float sharedGroundY = 1f;
+        foreach (string f in files)
+        {
+            float frac = LowestContentRowFraction(f);
+            if (frac < sharedGroundY) sharedGroundY = frac;
+        }
+
+        foreach (string f in files)
+        {
+            string assetPath = f.Replace('\\', '/');
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null) continue;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            float pivotX = ComputeLowestContentPivotXY(f).x;
+            ApplyCustomPivot(importer, new Vector2(pivotX, sharedGroundY));
+            importer.SaveAndReimport();
+        }
+    }
+
+    // ConfigureSpriteFolderImportWithSharedGroundPivot専用のヘルパー -
+    // ComputeLowestContentPivotXYと同じアルファ走査だが、Xは使わず「下から
+    // 何割の位置に最初の非透明ピクセルがあるか」だけを返す。
+    static float LowestContentRowFraction(string filePath)
+    {
+        byte[] bytes = File.ReadAllBytes(filePath);
+        Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        tex.LoadImage(bytes);
+
+        int w = tex.width, h = tex.height;
+        Color32[] pixels = tex.GetPixels32();
+        int lowestY = -1;
+        for (int y = 0; y < h && lowestY < 0; y++)
+        {
+            int rowStart = y * w;
+            for (int x = 0; x < w; x++)
+            {
+                if (pixels[rowStart + x].a > 15) { lowestY = y; break; }
+            }
+        }
+        Object.DestroyImmediate(tex);
+
+        return lowestY < 0 ? 0.5f : Mathf.Clamp01((float)lowestY / h);
+    }
+
     // internal - 上のConfigureSpriteFolderImportWithFootPivotと同じ理由。
     internal static Sprite[] LoadSpriteSequence(string dir)
     {
