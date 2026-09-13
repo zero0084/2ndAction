@@ -258,14 +258,25 @@ public static class CharacterDatabaseBuilder
     // キャラクター専用アニメーション差し替え(2026-09-13) - SceneBuilderの
     // PlayerXxx_v1フォルダ群と全く同じ「足元Pivot自動検出+フォルダ単位の
     // 実測PPU」インポート設定を再利用する(SceneBuilder.
-    // ConfigureSpriteFolderImportWithFootPivot/LoadSpriteSequenceをinternal
+    // ConfigureSpriteFolderImportWithFootPivotXY/LoadSpriteSequenceをinternal
     // 化して直接呼び出し、二重実装を避けた)。dirが空文字/未指定なら
     // そのStateは黒剣士のデフォルトアートのまま(空配列を返す -
     // PlayerAnimator.ApplyCharacterAnimationSetのフォールバック参照)。
+    //
+    // 不具合修正(2026-09-13、隣接コマ混入) - 当初はX=0.5固定のFootPivot
+    // (ConfigureSpriteFolderImportWithFootPivot)を使っていたが、これは
+    // 「各コマがキャンバス内で水平中央に配置されている」ことが前提。この
+    // キャラの各コマは元シートの隣接ポーズが近接/接触していたため、隣接
+    // コマへの混入を避けるコマごとに異なる幅でクロップし直した(=もう
+    // キャンバス中央に一律配置されていない)結果、X=0.5固定だとコマ間で
+    // 見た目の左右位置が微妙にズレる恐れがあった。X,Y両方を自動検出する
+    // ConfigureSpriteFolderImportWithFootPivotXY(既存のPlayerUpAttackGround_v1
+    // 等と同じ、剣の振り幅でコマごとに実効横幅が変わる素材向けの方式)へ
+    // 変更し、見た目の位置ズレを防いでいる。
     static Sprite[] LoadAnimationFolder(string dir, float pixelsPerUnit)
     {
         if (string.IsNullOrEmpty(dir)) return new Sprite[0];
-        SceneBuilder.ConfigureSpriteFolderImportWithFootPivot(dir, pixelsPerUnit);
+        SceneBuilder.ConfigureSpriteFolderImportWithFootPivotXY(dir, pixelsPerUnit);
         return SceneBuilder.LoadSpriteSequence(dir);
     }
 }

@@ -4057,7 +4057,9 @@ public static class SceneBuilder
     // ImportWithFootPivotのX,Y自動版(ComputeLowestContentPivotXY使用)。
     // 地上上攻撃(足が地面に接地したまま振るモーション)のように、自動の
     // 足元検出がそのまま正しい基準になる場合に使う。
-    static void ConfigureSpriteFolderImportWithFootPivotXY(string dir, float pixelsPerUnit)
+    // internal(privateではない) - プレイアブル主人公アニメーション差し替え
+    // (2026-09-13)でCharacterDatabaseBuilder.csからも再利用するため。
+    internal static void ConfigureSpriteFolderImportWithFootPivotXY(string dir, float pixelsPerUnit)
     {
         if (!Directory.Exists(dir)) return;
         foreach (string f in Directory.GetFiles(dir, "*.png"))
