@@ -198,6 +198,22 @@ public class TerrainManager : MonoBehaviour
                 DecorationScatter.ScatterAlongChunk(c.visual.transform, decorationSprites, new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY));
             }
         }
+
+        // Stage01完成版要求仕様書バグ修正(2026-09-13) - Sky Path(空中足場)
+        // もここで作り直す。修正前は`chunks`(地上)だけが対象で、Run開始前
+        // (Start()時点、まだApplyStageThemeが呼ばれる前)に既に生成済みの
+        // Sky PathがデフォルトのplatformArt(岩+雲の天空回廊アート)のまま
+        // 取り残され、荒野街道を選んでも最初の区間だけ「岩+雲の浮遊足場」
+        // が混ざって見えてしまっていた。
+        for (int i = 0; i < skyChunks.Count; i++)
+        {
+            SkyChunk sc = skyChunks[i];
+            if (sc.visual == null) continue;
+
+            Destroy(sc.visual);
+            sc.visual = GroundFactory.CreateSlopeVisual(transform, squareSprite, skyPathSprite, platformArt,
+                new Vector2(sc.startX, sc.startY), new Vector2(sc.endX, sc.endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor);
+        }
     }
 
     [Header("Sky Path")]
@@ -240,6 +256,15 @@ public class TerrainManager : MonoBehaviour
     class SkyChunk
     {
         public float startX, endX, startY, endY;
+        // Stage01完成版要求仕様書バグ修正(2026-09-13) - 以前はここに参照を
+        // 保持していなかったため、RunStart時点で既に生成済みのSky Path
+        // (Start()がApplyStageTheme呼び出しより前に走るため、常にデフォルト
+        // のplatformArt=岩+雲の天空回廊アートで生成される)が、荒野街道を
+        // 選んでも二度と描き直されず「岩+雲の浮遊足場」のまま残ってしまう
+        // バグがあった(RebuildAllChunkVisualsは`chunks`だけを対象にしてお
+        // り`skyChunks`には触れていなかった)。visualを保持することで
+        // RebuildAllChunkVisualsからSky Pathも作り直せるようにした。
+        public GameObject visual;
     }
 
     readonly List<RuntimeChunk> chunks = new List<RuntimeChunk>();
@@ -379,10 +404,10 @@ public class TerrainManager : MonoBehaviour
         // ません" - Cloud Platform.png is imported and available
         // (LoadTiledSprite in Build()) for whenever this gets picked back
         // up with a way to actually see the result.
-        GroundFactory.CreateSlopeVisual(transform, squareSprite, skyPathSprite, platformArt,
+        GameObject skyVisual = GroundFactory.CreateSlopeVisual(transform, squareSprite, skyPathSprite, platformArt,
             new Vector2(startX, startY), new Vector2(endX, endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor);
 
-        skyChunks.Add(new SkyChunk { startX = startX, endX = endX, startY = startY, endY = endY });
+        skyChunks.Add(new SkyChunk { startX = startX, endX = endX, startY = startY, endY = endY, visual = skyVisual });
         nextSkyStartX = endX + Random.Range(skyPathGapMin, skyPathGapMax);
     }
 
