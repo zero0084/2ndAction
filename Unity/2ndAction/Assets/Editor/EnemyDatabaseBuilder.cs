@@ -25,7 +25,12 @@ public static class EnemyDatabaseBuilder
 
     // Distance Level Design Ver.1 - new species art, imported by
     // SceneBuilder (foot-pivot PPU, alpha settings) before this runs.
-    const string FlyingSpritePath = "Assets/Art/Enemy/FlyingEnemy.png";
+    // Stage01完成版要求仕様書「鳥」対応(2026-09-13) - flying_wyvern(現状
+    // 実際にゲーム中へ出現する唯一の飛行種)の見た目を、ドラゴン風で強敵
+    // に見えすぎていた元のFlyingEnemy.pngから、自然な鷹のイラストへ
+    // 差し替え。元の画像は削除せず温存(将来天空回廊が本実装される際の
+    // 強敵系飛行種として再利用できるようにするため)。
+    const string FlyingSpritePath = "Assets/Art/Enemy/WastelandBird.png";
     const string IrregularSpritePath = "Assets/Art/Enemy/IrregularEnemy.png";
     const string ShooterSpritePath = "Assets/Art/Enemy/ShooterEnemy.png";
     const string HeavySpritePath = "Assets/Art/Enemy/HeavyEnemy.png";
@@ -220,7 +225,7 @@ public static class EnemyDatabaseBuilder
         yield return new Spec
         {
             id = "flying_wyvern",
-            displayName = "FLYING",
+            displayName = "BIRD",
             spritePath = FlyingSpritePath,
             tint = Color.white,
             movementType = EnemyMovementType.Flying,
@@ -231,13 +236,14 @@ public static class EnemyDatabaseBuilder
             enableVisualFacing = true,
             defaultFacingRight = true,
             mileReward = 2,
-            // Bugfix 2026-09-06 (再調整) - re-measured against Player
-            // directly (see goblin's own comment): Flying's raw art body
-            // height is ~1.35 world units vs Player's ~1.18. First pass
-            // targeted exactly 100% (0.87); nudged slightly over to ~105%
-            // (0.92) so it doesn't read as smaller than Player even though
-            // the brief says "100%前後" (still comfortably "around 100%").
-            visualScaleMultiplier = 0.92f
+            // Stage01完成版要求仕様書「鳥」対応(2026-09-13) - 新しい鷹アート
+            // (WastelandBird.png、PPU 1117.6で読み込み済み)は素の状態で
+            // 既に約0.85 world units - マスター指示「もう少し小型で自然な
+            // 鳥系素材へ」に沿って、旧ドラゴン風アート(実効高さ約1.24、
+            // Playerの約105%)よりはっきり小さく(Playerの約72%)、かつ
+            // ゴブリンより小柄な「小型の障害物的な敵」として読める大きさに
+            // 調整。追加の拡大縮小は不要なため1fのまま。
+            visualScaleMultiplier = 1f
         };
 
         yield return new Spec

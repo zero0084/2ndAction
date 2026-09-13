@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: flying_wyvern
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
   enemyId: flying_wyvern
-  displayName: FLYING
-  sprite: {fileID: 21300000, guid: d91ef0c91714e124f848c6b95979b9a9, type: 3}
+  displayName: BIRD
+  sprite: {fileID: 21300000, guid: 5a675f0d7764f524193321196dc80f26, type: 3}
   tint: {r: 1, g: 1, b: 1, a: 1}
   movementType: 1
   category: 1
@@ -25,4 +25,4 @@ MonoBehaviour:
   defaultFacingRight: 1
   runFrames: []
   mileReward: 2
-  visualScaleMultiplier: 0.92
+  visualScaleMultiplier: 1

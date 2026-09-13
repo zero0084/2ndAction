@@ -363,6 +363,12 @@ public static class SceneBuilder
         // EnemyDatabaseBuilder below self-loads each of these by path once
         // this import config is applied - the returned Sprite references
         // aren't otherwise needed here.
+        // Stage01完成版要求仕様書「鳥」対応(2026-09-13) - 元のFlyingEnemy.png
+        // (ドラゴン風で強敵に見えすぎる)は温存しつつ(将来天空回廊が本実装
+        // される際に強敵系の飛行敵として再利用できるよう削除しない)、
+        // 現状で実際にゲーム中に出現する唯一の飛行種(flying_wyvern、
+        // wasteland_road専用)にはこちらの新しい鷹アートを使う。
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/WastelandBird.png", 1117.6f);
         ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/FlyingEnemy.png", 730f);
         ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/IrregularEnemy.png", 1140f);
         ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/ShooterEnemy.png", 850f);
