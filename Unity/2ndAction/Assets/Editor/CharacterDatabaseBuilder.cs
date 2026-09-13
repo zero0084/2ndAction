@@ -154,6 +154,13 @@ public static class CharacterDatabaseBuilder
         // フレームごとの個別Foot Pivot自動検出(LoadAnimationFolder)。
         dualBlade.runFramesDir = "Assets/Art/DualBladeRun_v1";
         dualBlade.runFramesPpu = 272f;
+        // Run素材差し替え(2026-09-13夜) - マスター提供の6コマRunスプライト
+        // シートへ全面差し替え(従来の4コマ・ChatGPT生成分から置き換え)。
+        // マスター指示「6~8fps程度を目安に、実機で見て軽快/俊敏/速すぎ
+        // ない/もっさりしないように微調整」に対応し、まず中間の7fpsを
+        // 初期値とした(6コマ/7fps≒0.86秒の周期) - 実機確認後にマスター
+        // 判断で調整可能。
+        dualBlade.runFpsOverride = 7f;
         dualBlade.jumpStartFramesDir = "Assets/Art/DualBladeJumpStart_v1";
         dualBlade.jumpStartFramesPpu = 272f;
         dualBlade.jumpFramesDir = "Assets/Art/DualBladeJumpAir_v1";
