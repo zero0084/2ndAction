@@ -124,4 +124,9 @@ public class CharacterDefinition : ScriptableObject
     public Sprite[] jumpFrames;
     public Sprite[] landFrames;
     public Sprite[] attackFrames;
+    // お嬢様騎士Run読みやすさ改善(2026-09-13) - runFramesのコマ数がPlayer
+    // Animator.runFps(黒剣士と共有の単一フィールド)の前提コマ数と異なる
+    // 場合に、このキャラだけ再生速度を上書きする。0(未指定)ならPlayer
+    // Animatorの素のrunFpsをそのまま使う - 黒剣士の表示には一切影響しない。
+    public float runFps;
 }

@@ -4164,12 +4164,24 @@ public static class SceneBuilder
         System.Array.Sort(files);
         if (files.Length == 0) return;
 
-        float sharedGroundY = 1f;
+        // お嬢様騎士Runモーション読みやすさ改善(2026-09-13) - 4コマ目の
+        // 追加生成で、フレームごとにソース画像の解像度が異なる(ChatGPTの
+        // 別セッションで生成した新規コマを、既存コマと同じキャラクター
+        // 表示サイズになるよう別途リサイズしてから追加した)ケースが
+        // 出てきたため、「下から何割」という比率(=キャンバス高さが全コマ
+        // 共通という前提)ではなく、「下から何ピクセル」という絶対値を
+        // 共有してからフレームごとの高さで割ってpivotYへ変換するよう修正。
+        // キャンバス高さが全コマ共通だった場合(従来のケース)は数学的に
+        // 同じ結果になる。
+        int sharedGroundPixels = int.MaxValue;
+        var heightByFile = new System.Collections.Generic.Dictionary<string, int>();
         foreach (string f in files)
         {
-            float frac = LowestContentRowFraction(f);
-            if (frac < sharedGroundY) sharedGroundY = frac;
+            int lowestY = LowestContentRowPixels(f, out int height);
+            heightByFile[f] = height;
+            if (lowestY >= 0 && lowestY < sharedGroundPixels) sharedGroundPixels = lowestY;
         }
+        if (sharedGroundPixels == int.MaxValue) sharedGroundPixels = 0;
 
         foreach (string f in files)
         {
@@ -4185,21 +4197,24 @@ public static class SceneBuilder
             importer.alphaSource = TextureImporterAlphaSource.FromInput;
             importer.filterMode = FilterMode.Bilinear;
             float pivotX = ComputeLowestContentPivotXY(f).x;
-            ApplyCustomPivot(importer, new Vector2(pivotX, sharedGroundY));
+            int height = heightByFile[f];
+            float pivotY = height > 0 ? Mathf.Clamp01((float)sharedGroundPixels / height) : 0.5f;
+            ApplyCustomPivot(importer, new Vector2(pivotX, pivotY));
             importer.SaveAndReimport();
         }
     }
 
     // ConfigureSpriteFolderImportWithSharedGroundPivot専用のヘルパー -
     // ComputeLowestContentPivotXYと同じアルファ走査だが、Xは使わず「下から
-    // 何割の位置に最初の非透明ピクセルがあるか」だけを返す。
-    static float LowestContentRowFraction(string filePath)
+    // 何ピクセルの位置に最初の非透明ピクセルがあるか」(と画像の高さ)を返す。
+    static int LowestContentRowPixels(string filePath, out int height)
     {
         byte[] bytes = File.ReadAllBytes(filePath);
         Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
         tex.LoadImage(bytes);
 
         int w = tex.width, h = tex.height;
+        height = h;
         Color32[] pixels = tex.GetPixels32();
         int lowestY = -1;
         for (int y = 0; y < h && lowestY < 0; y++)
@@ -4212,7 +4227,7 @@ public static class SceneBuilder
         }
         Object.DestroyImmediate(tex);
 
-        return lowestY < 0 ? 0.5f : Mathf.Clamp01((float)lowestY / h);
+        return lowestY;
     }
 
     // internal - 上のConfigureSpriteFolderImportWithFootPivotと同じ理由。

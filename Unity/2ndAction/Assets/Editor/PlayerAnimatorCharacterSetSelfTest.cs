@@ -25,6 +25,9 @@ public static class PlayerAnimatorCharacterSetSelfTest
         animator.runFrames = new[] { defaultRun };
         animator.attackFrames = new[] { defaultAttack };
         animator.attackFramesSmall = new[] { defaultAttackSmall };
+        // お嬢様騎士Run読みやすさ改善(2026-09-13) - runFpsも同じスナップ
+        // ショット/上書きパターンで検証する。
+        animator.runFps = 10f;
 
         // 黒剣士(専用アート未設定=CharacterDefinitionの各配列が空) - 適用
         // しても何も変わらないこと(初回呼び出しでスナップショットも取る)。
@@ -32,7 +35,8 @@ public static class PlayerAnimatorCharacterSetSelfTest
         animator.ApplyCharacterAnimationSet(swordsmanDef);
         bool swordsmanUnchanged = animator.runFrames.Length == 1 && animator.runFrames[0] == defaultRun
             && animator.attackFrames.Length == 1 && animator.attackFrames[0] == defaultAttack
-            && animator.attackFramesSmall != null && animator.attackFramesSmall.Length == 1;
+            && animator.attackFramesSmall != null && animator.attackFramesSmall.Length == 1
+            && animator.runFps == 10f;
 
         // お嬢様騎士(専用アート設定あり) - 実際に差し替わり、Small/Largeは
         // nullになること(1段攻撃のみのフォールバック設計)。
@@ -41,17 +45,20 @@ public static class PlayerAnimatorCharacterSetSelfTest
         var nobleLadyDef = ScriptableObject.CreateInstance<CharacterDefinition>();
         nobleLadyDef.runFrames = new[] { nobleLadyRun };
         nobleLadyDef.attackFrames = new[] { nobleLadyAttack };
+        nobleLadyDef.runFps = 6f;
         animator.ApplyCharacterAnimationSet(nobleLadyDef);
         bool nobleLadyApplied = animator.runFrames.Length == 1 && animator.runFrames[0] == nobleLadyRun
             && animator.attackFrames.Length == 1 && animator.attackFrames[0] == nobleLadyAttack
-            && animator.attackFramesSmall == null;
+            && animator.attackFramesSmall == null
+            && animator.runFps == 6f;
 
         // 黒剣士へ戻す - 蓄積的な上書きになっていなければ、ここで元の
         // デフォルトへ正しく復元される(このテストの核心)。
         animator.ApplyCharacterAnimationSet(swordsmanDef);
         bool revertedToDefault = animator.runFrames.Length == 1 && animator.runFrames[0] == defaultRun
             && animator.attackFrames.Length == 1 && animator.attackFrames[0] == defaultAttack
-            && animator.attackFramesSmall != null && animator.attackFramesSmall.Length == 1 && animator.attackFramesSmall[0] == defaultAttackSmall;
+            && animator.attackFramesSmall != null && animator.attackFramesSmall.Length == 1 && animator.attackFramesSmall[0] == defaultAttackSmall
+            && animator.runFps == 10f;
 
         bool pass = swordsmanUnchanged && nobleLadyApplied && revertedToDefault;
 

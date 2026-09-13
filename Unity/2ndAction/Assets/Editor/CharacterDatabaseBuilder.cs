@@ -43,6 +43,10 @@ public static class CharacterDatabaseBuilder
         // フォルダと同じ考え方。
         public string runFramesDir;
         public float runFramesPpu;
+        // お嬢様騎士Run読みやすさ改善(2026-09-13) - runFramesDirのコマ数が
+        // 黒剣士(PlayerAnimator.runFps基準)と異なる場合の再生速度上書き。
+        // 0なら黒剣士のrunFpsをそのまま使う。
+        public float runFpsOverride;
         public string jumpStartFramesDir;
         public float jumpStartFramesPpu;
         public string jumpFramesDir;
@@ -165,6 +169,13 @@ public static class CharacterDatabaseBuilder
         // 自体を持たない(canUseUpAttack=false)ため意味の衝突は起きない。
         nobleLady.runFramesDir = "Assets/Art/NobleLadyRun_v1";
         nobleLady.runFramesPpu = 272f;
+        // お嬢様騎士Run読みやすさ改善(2026-09-13) - 「片足で走っているよう
+        // に見える」報告への対応で、左右交互の接地/パッシングポーズが
+        // はっきり読める4コマ(接地A/パッシング/接地B/パッシング)へ全面的
+        // に描き直した。黒剣士と共有のPlayerAnimator.runFps(10fps)を7コマ
+        // にそのまま適用していた頃と同じ1周期の長さ(7/10=0.7秒)を保つよう、
+        // 4コマ用に6fps(4/6≈0.67秒)へこのキャラだけ再生速度を落とす。
+        nobleLady.runFpsOverride = 6f;
         nobleLady.jumpStartFramesDir = "Assets/Art/NobleLadyJumpStart_v1";
         nobleLady.jumpStartFramesPpu = 249f;
         nobleLady.jumpFramesDir = "Assets/Art/NobleLadyJumpAir_v1";
@@ -222,6 +233,7 @@ public static class CharacterDatabaseBuilder
             def.canUseUpAttack = spec.canUseUpAttack;
             def.canUseAirAttack = spec.canUseAirAttack;
             def.canUseDownAttack = spec.canUseDownAttack;
+            def.runFps = spec.runFpsOverride;
 
             // お嬢様騎士Run表示基準統一(2026-09-13) - Runだけ「フレームごと
             // に個別pivot」ではなく「全コマ共通の接地ライン」を使う専用の

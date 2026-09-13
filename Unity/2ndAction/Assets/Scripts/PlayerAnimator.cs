@@ -65,6 +65,10 @@ public class PlayerAnimator : MonoBehaviour
     // といった切り替えでも正しく黒剣士本来のアートへ戻る)。
     Sprite[] defaultRunFrames, defaultJumpStartFrames, defaultJumpFrames, defaultLandFrames;
     Sprite[] defaultAttackFrames, defaultAttackFramesSmall, defaultAttackFramesLarge;
+    // お嬢様騎士Run読みやすさ改善(2026-09-13) - runFramesと同じ「スナップ
+    // ショット→上書き」パターンでrunFpsも上書きできるようにした(コマ数が
+    // 黒剣士と異なるキャラのため)。
+    float defaultRunFps;
     bool defaultAnimationCaptured;
 
     SpriteRenderer sr;
@@ -181,10 +185,12 @@ public class PlayerAnimator : MonoBehaviour
             defaultAttackFrames = attackFrames;
             defaultAttackFramesSmall = attackFramesSmall;
             defaultAttackFramesLarge = attackFramesLarge;
+            defaultRunFps = runFps;
         }
         if (def == null) return;
 
         runFrames = HasFrames(def.runFrames) ? def.runFrames : defaultRunFrames;
+        runFps = def.runFps > 0f ? def.runFps : defaultRunFps;
         jumpStartFrames = HasFrames(def.jumpStartFrames) ? def.jumpStartFrames : defaultJumpStartFrames;
         jumpFrames = HasFrames(def.jumpFrames) ? def.jumpFrames : defaultJumpFrames;
         landFrames = HasFrames(def.landFrames) ? def.landFrames : defaultLandFrames;
