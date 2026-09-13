@@ -141,6 +141,16 @@ public class TerrainManager : MonoBehaviour
         // にすれば一切変更されない - platformArt/groundColor/
         // backgroundSpriteと全く同じ「未指定なら無変更」ルール。
         public Sprite[] decorationSprites;
+        // ルート構造再調整(2026-09-13) - trueの場合のみ、後述のRoute Branch
+        // システム(上下ルートの分岐→並走→合流)を使う。falseのまま(=未
+        // 指定、天空回廊など)なら、既存の「短い浮遊足場がランダムに点在
+        // する」Sky Path生成ロジックが完全に無改造で動き続ける - 生成
+        // コード自体は共通クラス(SkyChunk/GetSkyHeightAt等)を再利用する
+        // ため、既存の「他ステージ本実装禁止」要件を満たすには生成の
+        // *中身*をこのフラグで完全に分岐させる必要があった。
+        public bool enableRouteBranch;
+        // 分岐/合流地点に置く目印(道標)。null なら何も置かない。
+        public Sprite branchMarkerSprite;
     }
     public TerrainThemeSet[] stageThemes = new TerrainThemeSet[0];
     // SceneBuilderが既存のday backgroundのSpriteRendererをそのまま渡す
@@ -170,6 +180,8 @@ public class TerrainManager : MonoBehaviour
         groundColor = theme.groundColor;
         if (backgroundRenderer != null && theme.backgroundSprite != null) backgroundRenderer.sprite = theme.backgroundSprite;
         if (theme.decorationSprites != null && theme.decorationSprites.Length > 0) decorationSprites = theme.decorationSprites;
+        routeBranchEnabled = theme.enableRouteBranch;
+        branchMarkerSprite = theme.branchMarkerSprite;
 
         RebuildAllChunkVisuals();
     }
@@ -235,6 +247,39 @@ public class TerrainManager : MonoBehaviour
     public float skyPathSlopeHeight = 1.5f;
     public float skyPathMinClearanceAboveGround = 1.6f;
 
+    [Header("Route Branch (荒野街道 上/下ルート分岐 - ApplyStageThemeのenableRouteBranchで有効化)")]
+    // Stage01「荒野街道」ルート構造再調整(2026-09-13) - マスター提供の参考
+    // 画像を仕様図として扱った再実装。従来のSky Pathは「短い浮遊足場が
+    // ランダムに点在する」構造だったが、今回の要求は「上ルート/下ルート
+    // が分岐→一定区間並走→合流する、それぞれ独立した"道"」。SkyChunk/
+    // GetSkyHeightAt/onSky(PlayerController)等の既存の仕組み(地上と空中
+    // の2つの高さを毎フレーム両方チェックし、着地した方に追従する)は
+    // 完全に再利用し、変えたのは「生成される区間の形」だけ - 点在する
+    // 短い足場ではなく、ランプアップ→(ほぼ平坦な)並走区間→ランプダウン
+    // という一続きの長い区間を生成する。routeBranchEnabled=falseの間は
+    // 既存のGenerateNextSkyChunkが完全に無改造のまま動き続ける(天空回廊
+    // 用)。
+    public float branchStartDistance = 100f;
+    public float branchMinInterval = 90f;
+    public float branchMaxInterval = 150f;
+    public float branchLength = 45f;
+    public float branchRampLength = 6f;
+    public float branchSegmentLength = 9f;
+    public float branchHeightAboveGround = 2.4f;
+    // 上ルートは「比較的平坦で走りやすい」という要求のため、Sky Pathより
+    // 起伏を穏やかにしてある(発生確率・高さともに控えめ)。
+    public float branchSlopeChance = 0.25f;
+    public float branchSlopeHeight = 1f;
+    public float branchMinClearanceAboveGround = 1.6f;
+    // 下ルート(danger)側の危険度ブースト - 分岐区間中に地上(chunks)側で
+    // 生成される穴/敵の確率へ掛ける倍率。GetPitChance/GetEnemyChance側で
+    // 参照する(危険度の上限=pitChanceMax/enemyChanceMaxは既存のまま、
+    // 理不尽な値までは上げない)。
+    public float branchDangerPitMultiplier = 1.6f;
+    public float branchDangerEnemyMultiplier = 1.3f;
+    bool routeBranchEnabled;
+    Sprite branchMarkerSprite;
+
     enum ChunkType { Flat, UpSlope, DownSlope, Pit }
 
     class RuntimeChunk
@@ -267,11 +312,22 @@ public class TerrainManager : MonoBehaviour
         public GameObject visual;
     }
 
+    // ルート構造再調整(2026-09-13) - 1つの分岐(フォーク)から合流(マージ)
+    // までのXレンジを覚えておくためだけの軽量レコード。IsInBranchRoute
+    // (地上=下ルート側の危険度ブースト判定)とObstacleSpawner/
+    // UpperRouteEnemySpawner(上ルート側の軽い配置判定)の両方から使う。
+    class BranchRange
+    {
+        public float forkX, mergeX;
+    }
+
     readonly List<RuntimeChunk> chunks = new List<RuntimeChunk>();
     readonly List<SkyChunk> skyChunks = new List<SkyChunk>();
+    readonly List<BranchRange> branchRanges = new List<BranchRange>();
     float nextStartX;
     float nextStartY;
     float nextSkyStartX;
+    float nextBranchX;
     ChunkType lastType;
     float lastEnemyX = float.NegativeInfinity;
 
@@ -285,6 +341,7 @@ public class TerrainManager : MonoBehaviour
         nextStartX = 0f;
         nextStartY = 0f;
         nextSkyStartX = skyPathStartDistance;
+        nextBranchX = branchStartDistance;
 
         // Guaranteed safe runway before any obstacle.
         AddChunk(ChunkType.Flat, flatLength * 2f);
@@ -293,9 +350,18 @@ public class TerrainManager : MonoBehaviour
         {
             GenerateNext();
         }
-        while (nextSkyStartX < generateAheadDistance)
+        // ルート構造再調整(2026-09-13) - branchStartDistance/skyPathStart
+        // Distanceは共にgenerateAheadDistanceより十分大きい既定値なので、
+        // Run開始直後のこの初回バッチではどちらの分岐も実際には発火しない
+        // (=ApplyStageThemeがrouteBranchEnabledを設定し終えるまでの間に
+        // 誤った方の生成ロジックが動いてしまう心配がない)。
+        if (routeBranchEnabled)
         {
-            GenerateNextSkyChunk();
+            while (nextBranchX < generateAheadDistance) GenerateNextBranch();
+        }
+        else
+        {
+            while (nextSkyStartX < generateAheadDistance) GenerateNextSkyChunk();
         }
     }
 
@@ -308,9 +374,13 @@ public class TerrainManager : MonoBehaviour
         {
             GenerateNext();
         }
-        while (nextSkyStartX < player.position.x + generateAheadDistance)
+        if (routeBranchEnabled)
         {
-            GenerateNextSkyChunk();
+            while (nextBranchX < player.position.x + generateAheadDistance) GenerateNextBranch();
+        }
+        else
+        {
+            while (nextSkyStartX < player.position.x + generateAheadDistance) GenerateNextSkyChunk();
         }
 
         // Old chunks are intentionally never destroyed: getting hit sends the
@@ -366,6 +436,20 @@ public class TerrainManager : MonoBehaviour
         return null;
     }
 
+    // ルート構造再調整(2026-09-13) - xが現在生成済みのいずれかの分岐区間
+    // (フォーク〜マージ)の内側にあるか。ObstacleSpawner/EnemyWallManager
+    // 相当の各スポナーが「下ルート側の危険度を上げる」「上ルート側にだけ
+    // 軽い配置をする」を判断するのに使う。routeBranchEnabled=false(天空
+    // 回廊等)の間はbranchRangesが常に空なので、常にfalseを返す。
+    public bool IsInBranchRoute(float x)
+    {
+        foreach (BranchRange r in branchRanges)
+        {
+            if (x >= r.forkX && x <= r.mergeX) return true;
+        }
+        return false;
+    }
+
     void GenerateNextSkyChunk()
     {
         float startX = nextSkyStartX;
@@ -409,6 +493,108 @@ public class TerrainManager : MonoBehaviour
 
         skyChunks.Add(new SkyChunk { startX = startX, endX = endX, startY = startY, endY = endY, visual = skyVisual });
         nextSkyStartX = endX + Random.Range(skyPathGapMin, skyPathGapMax);
+    }
+
+    // ルート構造再調整(2026-09-13) - マスター提供の参考画像を仕様図として
+    // 実装した「分岐→並走→合流」区間の生成。routeBranchEnabled=trueの
+    // 間、GenerateNextSkyChunkの代わりにこちらが呼ばれる。
+    //
+    // 生成する3パーツ(すべてskyChunksへ積む=既存のGetSkyHeightAt/onSky/
+    // RebuildAllChunkVisuals等の仕組みをそのまま再利用できる):
+    //   1) ランプアップ: forkXの地上高さから、branchHeightAboveGroundぶん
+    //      登る1コマ。プレイヤー目線では「ここから上ルートへの坂」に見える。
+    //   2) 並走区間: branchSegmentLength刻みで複数コマ、ゆるい起伏
+    //      (branchSlopeChance)を持たせつつ、常に地上よりbranchMinClearance
+    //      AboveGround以上高い位置を保つ - 上ルートが下ルートの穴/斜面に
+    //      潰されないようにするための下限クランプ。
+    //   3) ランプダウン: mergeXの実際の地上高さまで戻し、合流させる。
+    //
+    // 分岐区間の合計X長は乱数(高さのブレ)に一切依存しない完全な定数
+    // (branchRampLength*2 + branchLength)なので、forkX/mergeXは生成前
+    // から正確に分かる - これを利用して、地上(chunks)側の生成がこの区間
+    // へ追いつく前にbranchRangesへ範囲を登録してから地上生成を強制的に
+    // 進める(下のwhileループ)。そうしないと、この区間で生成される地上
+    // チャンクがGetPitChance/GetEnemyChanceの危険度ブースト(IsInBranch
+    // Route判定)を受け損ねてしまう。
+    void GenerateNextBranch()
+    {
+        float forkX = nextBranchX;
+        float mergeX = forkX + branchRampLength * 2f + branchLength;
+        branchRanges.Add(new BranchRange { forkX = forkX, mergeX = mergeX });
+
+        while (nextStartX < mergeX) GenerateNext();
+
+        float groundYAtFork = GetHeightAt(forkX) ?? nextStartY;
+
+        float x = forkX;
+        float y = groundYAtFork;
+
+        // 1) ランプアップ - 左端は地上と地続き(露出していない=キャップ不要)
+        // ではなく、ここが上ルートの本当の起点なので左キャップを付ける。
+        float rampUpEndX = x + branchRampLength;
+        float rampUpEndY = groundYAtFork + branchHeightAboveGround;
+        GameObject rampUpVisual = GroundFactory.CreateSlopeVisual(transform, squareSprite, skyPathSprite, platformArt,
+            new Vector2(x, y), new Vector2(rampUpEndX, rampUpEndY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
+            needsLeftCap: true, needsRightCap: false);
+        skyChunks.Add(new SkyChunk { startX = x, endX = rampUpEndX, startY = y, endY = rampUpEndY, visual = rampUpVisual });
+        if (decorationSprites != null && decorationSprites.Length > 0)
+            DecorationScatter.ScatterAlongChunk(rampUpVisual.transform, decorationSprites, new Vector2(x, y), new Vector2(rampUpEndX, rampUpEndY));
+        x = rampUpEndX; y = rampUpEndY;
+
+        // 2) 並走区間 - ランプダウン分の余地(branchRampLength)を残して
+        // 複数コマ生成する。
+        float parallelEndX = forkX + branchRampLength + branchLength;
+        while (x < parallelEndX)
+        {
+            float segEndX = Mathf.Min(x + branchSegmentLength, parallelEndX);
+            float segEndY = y;
+            if (Random.value < branchSlopeChance)
+            {
+                float delta = Random.value < 0.5f ? branchSlopeHeight : -branchSlopeHeight;
+                segEndY = y + delta;
+            }
+            float groundYAtSegEnd = GetHeightAt(segEndX) ?? groundYAtFork;
+            float minY = groundYAtSegEnd + branchMinClearanceAboveGround;
+            if (segEndY < minY) segEndY = minY;
+
+            GameObject segVisual = GroundFactory.CreateSlopeVisual(transform, squareSprite, skyPathSprite, platformArt,
+                new Vector2(x, y), new Vector2(segEndX, segEndY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
+                needsLeftCap: false, needsRightCap: false);
+            skyChunks.Add(new SkyChunk { startX = x, endX = segEndX, startY = y, endY = segEndY, visual = segVisual });
+            if (decorationSprites != null && decorationSprites.Length > 0)
+                DecorationScatter.ScatterAlongChunk(segVisual.transform, decorationSprites, new Vector2(x, y), new Vector2(segEndX, segEndY));
+
+            x = segEndX; y = segEndY;
+        }
+
+        // 3) ランプダウン - mergeXの実際の地上高さへ戻す。右端は合流して
+        // 道が終わる=露出しているので右キャップを付ける。
+        float groundYAtMerge = GetHeightAt(mergeX) ?? y;
+        GameObject rampDownVisual = GroundFactory.CreateSlopeVisual(transform, squareSprite, skyPathSprite, platformArt,
+            new Vector2(x, y), new Vector2(mergeX, groundYAtMerge), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
+            needsLeftCap: false, needsRightCap: true);
+        skyChunks.Add(new SkyChunk { startX = x, endX = mergeX, startY = y, endY = groundYAtMerge, visual = rampDownVisual });
+
+        // 分岐/合流地点そのものが「ここでルートが分かれる/戻る」と視覚的
+        // に分かるよう、道標を1本ずつ地上側に直接置く(DecorationScatter
+        // のようなランダム配置ではなく、狙った位置への確定配置)。
+        if (branchMarkerSprite != null)
+        {
+            PlaceBranchMarker(forkX, groundYAtFork);
+            PlaceBranchMarker(mergeX, groundYAtMerge);
+        }
+
+        nextBranchX = mergeX + Random.Range(branchMinInterval, branchMaxInterval);
+    }
+
+    void PlaceBranchMarker(float x, float y)
+    {
+        GameObject markerGO = new GameObject("RouteMarker");
+        markerGO.transform.SetParent(transform);
+        markerGO.transform.position = new Vector3(x, y, 0f);
+        var sr = markerGO.AddComponent<SpriteRenderer>();
+        sr.sprite = branchMarkerSprite;
+        sr.sortingOrder = RenderOrder.Ground;
     }
 
     public float? GetHeightAt(float x)
@@ -777,11 +963,19 @@ public class TerrainManager : MonoBehaviour
 
     float GetPitChance()
     {
-        return Mathf.Min(pitChanceBase + GetDifficultyProgress() * pitChanceRampPer1000m, pitChanceMax);
+        float chance = Mathf.Min(pitChanceBase + GetDifficultyProgress() * pitChanceRampPer1000m, pitChanceMax);
+        // ルート構造再調整(2026-09-13) - 今生成中の地上チャンク(nextStartX,
+        // AddChunk呼び出し時点でまだ加算前の値=このチャンクの開始X)が
+        // 分岐区間の内側なら、下ルート(Danger)の危険度を上げる。上限は
+        // 既存のpitChanceMaxのまま(理不尽な値までは上げない)。
+        if (IsInBranchRoute(nextStartX)) chance = Mathf.Min(chance * branchDangerPitMultiplier, pitChanceMax);
+        return chance;
     }
 
     float GetEnemyChance()
     {
-        return Mathf.Min(enemySpawnChance + GetDifficultyProgress() * enemyChanceRampPer1000m, enemyChanceMax);
+        float chance = Mathf.Min(enemySpawnChance + GetDifficultyProgress() * enemyChanceRampPer1000m, enemyChanceMax);
+        if (IsInBranchRoute(nextStartX)) chance = Mathf.Min(chance * branchDangerEnemyMultiplier, enemyChanceMax);
+        return chance;
     }
 }

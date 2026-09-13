@@ -568,6 +568,15 @@ public static class SceneBuilder
             new ObstacleSpawner.ObstacleSpec { name = "GiantRock", sprite = obstacleGiantRockSprite, targetHeight = 2.8f, color = Color.white, breakable = false, hp = 1, weight = 10f },
         };
 
+        // ルート構造再調整(2026-09-13) - 上ルート(Easy)専用の軽い敵配置。
+        // EnemyWallManagerと同じ敵プール(EnemyDatabase.AllEnemies=ゴブリン
+        // /鳥)をそのまま再利用する - 新種族や新しいFormationは追加しない。
+        GameObject upperEnemyGO = new GameObject("UpperRouteEnemySpawner");
+        UpperRouteEnemySpawner upperEnemySpawner = upperEnemyGO.AddComponent<UpperRouteEnemySpawner>();
+        upperEnemySpawner.player = player.transform;
+        upperEnemySpawner.squareSprite = squareSprite;
+        upperEnemySpawner.enemyPool = new List<EnemyDefinition>(EnemyDatabase.AllEnemies);
+
         EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene(), ScenePath);
 
         EditorBuildSettings.scenes = new[]
@@ -3767,6 +3776,12 @@ public static class SceneBuilder
                 groundColor = Color.white, // platformArt使用中は各ピースがColor.white固定で描画されるため実質未参照
                 backgroundSprite = wastelandBackground,
                 decorationSprites = new[] { wastelandDecorSignpost, wastelandDecorFence, wastelandDecorCrateBarrel, wastelandDecorCart },
+                // ルート構造再調整(2026-09-13) - マスター提供の参考画像を
+                // 仕様図として、上ルート/下ルートが分岐→並走→合流する
+                // Route Branchシステムを荒野街道だけで有効化する。天空回廊
+                // はこのフラグ自体を持たない(既定false)ので無改造のまま。
+                enableRouteBranch = true,
+                branchMarkerSprite = wastelandDecorSignpost,
             }
         };
     }
