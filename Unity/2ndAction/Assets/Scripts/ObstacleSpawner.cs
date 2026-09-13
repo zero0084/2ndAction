@@ -32,7 +32,14 @@ public class ObstacleSpawner : MonoBehaviour
     public struct ObstacleSpec
     {
         public string name;
-        public Vector2 size;
+        // Stage01 荒野街道 完成版素材(2026-09-13) - sprite未設定(null)の
+        // 場合のみ、GroundFactory.CreateObstacleがsquareSprite+colorの
+        // 単色四角プレースホルダーへフォールバックする(専用アート未生成の
+        // 別ステージ/テストシーンでも壊れないようにするための保険)。
+        // 本番のwasteland_road用specsはSceneBuilderが実スプライトを
+        // ロードして上書きする。
+        public Sprite sprite;
+        public float targetHeight;
         public Color color;
         public bool breakable;
         public int hp;
@@ -43,14 +50,18 @@ public class ObstacleSpawner : MonoBehaviour
     // 練習)、「壊せる木」はやや高いが攻撃で先に消せる、「壁/巨大石」は
     // 高めで避けなければ確実に被弾する(ObstacleControllerのコメント
     // 参照)。weightは合計100基準の比率(石/小木を主体に、壁/巨大石は
-    // たまに、というマスター指示の密度感に合わせた)。
+    // たまに、というマスター指示の密度感に合わせた)。targetHeightは
+    // ゴブリンの実効表示高さ(~1.41 world units)を基準にした完成版
+    // 要求仕様書の相対サイズ(石70%/小木90%/壁150%/壊せる木100%/
+    // 巨大石200%+)に合わせて調整済み - spriteがSceneBuilderで
+    // 差し替えられなかった場合のみ使われるフォールバック値。
     public ObstacleSpec[] specs = new[]
     {
-        new ObstacleSpec { name = "Rock", size = new Vector2(0.8f, 0.6f), color = new Color(0.5f, 0.5f, 0.52f), breakable = false, hp = 1, weight = 30f },
-        new ObstacleSpec { name = "SmallTree", size = new Vector2(0.6f, 1.0f), color = new Color(0.42f, 0.28f, 0.16f), breakable = false, hp = 1, weight = 25f },
-        new ObstacleSpec { name = "BreakableTree", size = new Vector2(0.7f, 1.3f), color = new Color(0.25f, 0.45f, 0.22f), breakable = true, hp = 2, weight = 20f },
-        new ObstacleSpec { name = "Wall", size = new Vector2(0.5f, 1.3f), color = new Color(0.25f, 0.25f, 0.3f), breakable = false, hp = 1, weight = 15f },
-        new ObstacleSpec { name = "GiantRock", size = new Vector2(1.3f, 1.5f), color = new Color(0.35f, 0.35f, 0.38f), breakable = false, hp = 1, weight = 10f },
+        new ObstacleSpec { name = "Rock", sprite = null, targetHeight = 1.0f, color = new Color(0.5f, 0.5f, 0.52f), breakable = false, hp = 1, weight = 30f },
+        new ObstacleSpec { name = "SmallTree", sprite = null, targetHeight = 1.25f, color = new Color(0.42f, 0.28f, 0.16f), breakable = false, hp = 1, weight = 25f },
+        new ObstacleSpec { name = "BreakableTree", sprite = null, targetHeight = 1.4f, color = new Color(0.25f, 0.45f, 0.22f), breakable = true, hp = 2, weight = 20f },
+        new ObstacleSpec { name = "Wall", sprite = null, targetHeight = 2.1f, color = new Color(0.25f, 0.25f, 0.3f), breakable = false, hp = 1, weight = 15f },
+        new ObstacleSpec { name = "GiantRock", sprite = null, targetHeight = 2.8f, color = new Color(0.35f, 0.35f, 0.38f), breakable = false, hp = 1, weight = 10f },
     };
 
     float startX;
@@ -99,7 +110,7 @@ public class ObstacleSpawner : MonoBehaviour
         ObstacleSpec spec = PickWeightedSpec();
         if (string.IsNullOrEmpty(spec.name)) return;
 
-        GroundFactory.CreateObstacle(transform, squareSprite, new Vector2(worldX, groundY.Value), spec.size, spec.color, spec.breakable, spec.hp);
+        GroundFactory.CreateObstacle(transform, squareSprite, spec.sprite, new Vector2(worldX, groundY.Value), spec.targetHeight, spec.color, spec.breakable, spec.hp);
     }
 
     ObstacleSpec PickWeightedSpec()

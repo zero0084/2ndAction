@@ -538,6 +538,30 @@ public static class SceneBuilder
         obstacleSpawner.player = player.transform;
         obstacleSpawner.squareSprite = squareSprite;
 
+        // Stage01 荒野街道 完成版素材(2026-09-13) - 「プレースホルダー/
+        // 単色四角は残さないでください」への対応。5種類それぞれ専用に
+        // ChatGPTで生成・content-awareクロップ済みの実スプライトを
+        // ConfigureAndLoadSpriteWithFootPivotで(足元pivotで)読み込み、
+        // ObstacleSpawnerのデフォルトspecs(色付き四角フォールバック)を
+        // 実アート版で上書きする。PPUはtargetHeight(ゴブリン実効高さ
+        // ~1.41 world unitsを基準にした完成版要求仕様書の相対サイズ:
+        // 石70%/小木90%/壁150%/壊せる木100%/巨大石200%+)から
+        // 各画像の実クロップ高さ(px)を割って算出した。
+        Sprite obstacleRockSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Obstacles_v1/obstacle_rock.png", 138f);
+        Sprite obstacleSmallTreeSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Obstacles_v1/obstacle_smalltree.png", 196.8f);
+        Sprite obstacleBreakableTreeSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Obstacles_v1/obstacle_breakabletree.png", 235f);
+        Sprite obstacleWallSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Obstacles_v1/obstacle_wall.png", 186.7f);
+        Sprite obstacleGiantRockSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Obstacles_v1/obstacle_giantrock.png", 181.4f);
+
+        obstacleSpawner.specs = new[]
+        {
+            new ObstacleSpawner.ObstacleSpec { name = "Rock", sprite = obstacleRockSprite, targetHeight = 1.0f, color = Color.white, breakable = false, hp = 1, weight = 30f },
+            new ObstacleSpawner.ObstacleSpec { name = "SmallTree", sprite = obstacleSmallTreeSprite, targetHeight = 1.25f, color = Color.white, breakable = false, hp = 1, weight = 25f },
+            new ObstacleSpawner.ObstacleSpec { name = "BreakableTree", sprite = obstacleBreakableTreeSprite, targetHeight = 1.4f, color = Color.white, breakable = true, hp = 2, weight = 20f },
+            new ObstacleSpawner.ObstacleSpec { name = "Wall", sprite = obstacleWallSprite, targetHeight = 2.1f, color = Color.white, breakable = false, hp = 1, weight = 15f },
+            new ObstacleSpawner.ObstacleSpec { name = "GiantRock", sprite = obstacleGiantRockSprite, targetHeight = 2.8f, color = Color.white, breakable = false, hp = 1, weight = 10f },
+        };
+
         EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene(), ScenePath);
 
         EditorBuildSettings.scenes = new[]
