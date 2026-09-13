@@ -4230,6 +4230,123 @@ public static class SceneBuilder
         return lowestY;
     }
 
+    // 双剣士/お嬢様騎士Run頭基準ピボット化(2026-09-13深夜) - マスター
+    // 指摘「画像がブレる理由がわかってきた、頭を中心にアニメーションする
+    // ことは可能か」に対応。
+    //
+    // 原理: 足元基準(ConfigureSpriteFolderImportWithSharedGroundPivot)は
+    // 「実際に足が最も深く接地しているコマ」を基準に全コマ共通の接地
+    // ラインを1本使うことで、脚が浮いているコマでもキャラ全体が不自然に
+    // 持ち上がらないようにしていた。これは「足の接地位置さえ揃えれば
+    // 良い」という前提では正しいが、AI生成素材のようにコマごとの頭身
+    // バランスが微妙に揺れる場合、足元を固定した結果として頭部側にその
+    // 揺れがそのまま「ブレ」として現れる(視線は自然と顔・頭を追うため、
+    // この部分のブレが最も目につきやすい)。
+    //
+    // 重要な注意(単純な上下反転では済まない理由) - Root(PlayerControllerの
+    // 乗る本体)は常にスプライトの"足元"(pivotYが0に近い値)に来る設計
+    // (CreatePlayerのコメント「Root sitting at the sprite's FOOT」参照)。
+    // Jump/Attack等の他StateはすべてこのFoot Pivot前提のまま(このメソッド
+    // はRunのみに使う想定)なので、もしpivotYを単純に「頭頂基準」(1に近い
+    // 値)にしてしまうと、Rootの位置は変わらないままスプライトの表示だけ
+    // 「頭がRoot位置(=地面の高さ)に来る」形になり、キャラが地面に頭まで
+    // 埋まって見える大穴になる上、Run⇔Jump/Attackの状態切り替えの瞬間に
+    // キャラの表示位置が体1つぶんガクッと飛ぶ(ここは絶対に避けたい)。
+    //
+    // 正しい実装: pivotYの値そのものは他Stateと同じ「0に近い、足元寄り」
+    // の範囲に保ったまま、その足元基準点を「実際のそのコマの最下段ピクセル」
+    // ではなく「頭の位置から逆算した仮想の接地ライン」に置き換える。
+    // 具体的には、①ConfigureSpriteFolderImportWithSharedGroundPivotと
+    // 同じ基準コマ(足が最も深く接地しているコマ)の「頭頂〜接地点の
+    // ピクセル距離」を基準身長(standingSpanPixels)として求め、②各コマの
+    // 頭頂位置からstandingSpanPixelsぶん下がった位置を「このコマの仮想
+    // 接地ピクセル」として使う。これにより見た目の位置レンジは従来の
+    // 足元基準と同じ(pivotYはごく小さい値のまま)でありながら、実際に
+    // 揃うのは頭の高さになる - 揺れ(ブレ)が足元側(=通常の走行の弾みと
+    // して自然に見える)へ移る。
+    internal static void ConfigureSpriteFolderImportWithSharedHeadPivot(string dir, float pixelsPerUnit)
+    {
+        if (!Directory.Exists(dir)) return;
+        string[] files = Directory.GetFiles(dir, "*.png");
+        System.Array.Sort(files);
+        if (files.Length == 0) return;
+
+        int referenceLowestY = int.MaxValue;
+        string referenceFile = null;
+        var lowestYByFile = new System.Collections.Generic.Dictionary<string, int>();
+        var highestYByFile = new System.Collections.Generic.Dictionary<string, int>();
+        var heightByFile = new System.Collections.Generic.Dictionary<string, int>();
+        foreach (string f in files)
+        {
+            int lowestY = LowestContentRowPixels(f, out int height);
+            int highestY = HighestContentRowPixels(f);
+            lowestYByFile[f] = lowestY;
+            highestYByFile[f] = highestY;
+            heightByFile[f] = height;
+            if (lowestY >= 0 && lowestY < referenceLowestY) { referenceLowestY = lowestY; referenceFile = f; }
+        }
+        // 基準コマ(足が最も深く接地しているコマ)自身の頭頂〜接地点の
+        // ピクセル距離を「基準身長」とする - 全コマ共通のPPU/スケールで
+        // 生成済みのフォルダである前提のため、この絶対ピクセル値がそのまま
+        // 他のコマにも通用する。
+        int standingSpanPixels = 0;
+        if (referenceFile != null) standingSpanPixels = Mathf.Max(0, highestYByFile[referenceFile] - lowestYByFile[referenceFile]);
+
+        foreach (string f in files)
+        {
+            string assetPath = f.Replace('\\', '/');
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null) continue;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            // X(左右)は従来どおり足元付近の重心を使う(歩幅による自然な
+            // 左右のブレは今回問題視されていない、足元固定パターンの
+            // 既存挙動をそのまま踏襲)。
+            float pivotX = ComputeLowestContentPivotXY(f).x;
+            int height = heightByFile[f];
+            // このコマの頭頂位置から基準身長ぶん下げた「仮想接地ピクセル」
+            // をpivotYへ変換する(ConfigureSpriteFolderImportWithShared
+            // GroundPivotと同じ「絶対ピクセル÷このコマの高さ」の式)。
+            int virtualGroundPixels = highestYByFile[f] - standingSpanPixels;
+            float pivotY = height > 0 ? Mathf.Clamp01((float)virtualGroundPixels / height) : 0.5f;
+            ApplyCustomPivot(importer, new Vector2(pivotX, pivotY));
+            importer.SaveAndReimport();
+        }
+    }
+
+    // ConfigureSpriteFolderImportWithSharedHeadPivot専用のヘルパー -
+    // LowestContentRowPixelsの上下反転版。「下から何ピクセルの位置に
+    // 最後の(=最も上にある)非透明ピクセル行(頭頂/髪やマントの最高点)が
+    // あるか」を返す(heightはLowestContentRowPixels側で取得済みのため
+    // ここでは返さない)。
+    static int HighestContentRowPixels(string filePath)
+    {
+        byte[] bytes = File.ReadAllBytes(filePath);
+        Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        tex.LoadImage(bytes);
+
+        int w = tex.width, h = tex.height;
+        Color32[] pixels = tex.GetPixels32();
+        int highestY = -1;
+        for (int y = h - 1; y >= 0 && highestY < 0; y--)
+        {
+            int rowStart = y * w;
+            for (int x = 0; x < w; x++)
+            {
+                if (pixels[rowStart + x].a > 15) { highestY = y; break; }
+            }
+        }
+        Object.DestroyImmediate(tex);
+
+        return highestY;
+    }
+
     // internal - 上のConfigureSpriteFolderImportWithFootPivotと同じ理由。
     internal static Sprite[] LoadSpriteSequence(string dir)
     {

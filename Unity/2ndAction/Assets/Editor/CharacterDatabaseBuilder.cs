@@ -379,13 +379,17 @@ public static class CharacterDatabaseBuilder
         return SceneBuilder.LoadSpriteSequence(dir);
     }
 
-    // お嬢様騎士Run表示基準統一(2026-09-13) - LoadAnimationFolderと同じ
-    // 形だが、pivot計算だけSceneBuilder.ConfigureSpriteFolderImportWith
-    // SharedGroundPivot(全コマ共通の接地ライン)を使う。
+    // 双剣士/お嬢様騎士Run頭基準ピボット化(2026-09-13深夜) - マスター
+    // 指摘「頭を中心にアニメーションすることは可能か」に対応し、従来の
+    // ConfigureSpriteFolderImportWithSharedGroundPivot(全コマ共通の接地
+    // ライン、足元固定)からConfigureSpriteFolderImportWithSharedHeadPivot
+    // (全コマ共通の頭頂ライン、頭部固定)へ切り替えた。視線は自然と頭・
+    // 顔を追うため、コマ間のわずかな頭身バランスのブレは足元を固定する
+    // よりも頭を固定した方が目立ちにくい、というマスターの見立てに対応。
     static Sprite[] LoadRunAnimationFolder(string dir, float pixelsPerUnit)
     {
         if (string.IsNullOrEmpty(dir)) return new Sprite[0];
-        SceneBuilder.ConfigureSpriteFolderImportWithSharedGroundPivot(dir, pixelsPerUnit);
+        SceneBuilder.ConfigureSpriteFolderImportWithSharedHeadPivot(dir, pixelsPerUnit);
         return SceneBuilder.LoadSpriteSequence(dir);
     }
 }
