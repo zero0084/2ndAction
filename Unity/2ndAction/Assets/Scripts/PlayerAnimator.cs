@@ -293,10 +293,24 @@ public class PlayerAnimator : MonoBehaviour
         {
             frameTimer = 0f;
             frameIndex++;
-            frameIndex = state == State.Run
-                ? frameIndex % frames.Length // loop while running
-                : Mathf.Min(frameIndex, frames.Length - 1); // hold last frame otherwise
         }
+        // 不具合修正(2026-09-13深夜) - 実機のDevelopment Console上で
+        // 「IndexOutOfRangeException: Index was outside the bounds of the
+        // array.」が走行開始直後から繰り返し出ていた根本原因。従来はこの
+        // クランプ処理がframeTimerが閾値を超えた「進むタイミング」の中に
+        // しかなく、frames[frameIndex]自体は毎フレーム無条件に実行されて
+        // いた。ApplyCharacterAnimationSetでキャラを切り替えた際、state
+        // (Run/Jump等)自体は変化しないままrunFrames等の配列だけがより短い
+        // ものに差し替わるケース(例: 6コマの配列を使っていた直後に2コマの
+        // 配列へ切り替わる)で、frameIndexが古い(長い)配列基準の値のまま
+        // 残ってしまい、次に「進むタイミング」が来るまでの間、毎フレーム
+        // frames[frameIndex]が新しい(短い)配列の範囲外を指して例外を投げて
+        // いた。クランプをif文の外(毎フレーム必ず実行)へ移動し、フレーム
+        // が進んだかどうかに関係なく常にその時点のframes.Lengthへ合わせて
+        // 補正するよう修正。
+        frameIndex = state == State.Run
+            ? frameIndex % frames.Length // loop while running
+            : Mathf.Min(frameIndex, frames.Length - 1); // hold last frame otherwise
 
         sr.sprite = frames[frameIndex];
 
