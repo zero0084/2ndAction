@@ -3799,6 +3799,19 @@ public static class SceneBuilder
             {
                 stageId = "wasteland_road",
                 platformArt = wastelandPlatformArt,
+                // 接地ズレ修整(2026-09-15) - マスター報告「Player/Enemy/
+                // Obstacleが地面から浮いて見える」の根本原因。platform_mid.png
+                // (天空回廊)用に測定したplatformSurfaceInset(190/768)を
+                // 荒野街道でも使い続けていたのが原因 - platform_wasteland_
+                // mid.pngはキャンバス内の透明マージン比率が全く違う。
+                // PowerShellでplatform_wasteland_mid.png(724x724)をアルファ
+                // チャンネル走査し、天空回廊の測定基準(「完全に不透明になる
+                // 最初の行」=platform_mid.pngでは190/768)と同じ基準を適用
+                // した結果、荒野街道では行239で完全に不透明になる
+                // (それ以前は岩肌のギザギザで徐々に不透明度が上がる遷移帯)。
+                // TerrainManager.ApplyStageThemeがこの値をplatformArtと
+                // セットで差し替える。
+                platformSurfaceInset = 239f / WastelandSourcePixelHeight * 3.5f,
                 groundSprite = null, // platformArtが有効な間は未使用(フォールバック専用)
                 groundColor = Color.white, // platformArt使用中は各ピースがColor.white固定で描画されるため実質未参照
                 backgroundSprite = wastelandBackground,

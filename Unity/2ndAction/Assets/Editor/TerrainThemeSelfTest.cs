@@ -26,6 +26,12 @@ public static class TerrainThemeSelfTest
         Color defaultColor = terrain.groundColor;
         Sprite defaultGroundSprite = terrain.groundSprite;
         Sprite defaultGroundFillSprite = terrain.groundFillSprite;
+        // 接地ズレ修整(2026-09-15) - platformSurfaceInsetも他のフィールドと
+        // 同じ「未指定(0以下)なら無変更、指定時のみ差し替え」パターンで
+        // 検証する。デフォルト値自体を0以下にしてしまうと「未指定」判定と
+        // 区別できなくなるため、テスト用に明示的に正の値へ設定しておく。
+        terrain.platformSurfaceInset = 0.85f;
+        float defaultSurfaceInset = terrain.platformSurfaceInset;
 
         var wastelandGroundSprite = Sprite.Create(new Texture2D(4, 4), new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f));
         Color wastelandColor = new Color(0.4f, 0.6f, 0.2f);
@@ -36,6 +42,7 @@ public static class TerrainThemeSelfTest
         // 基礎品質修整(2026-09-14) - backgroundTintも同じ「未指定(alpha=0)
         // なら無変更、指定時のみ上書き」パターンで検証する。
         Color wastelandTint = new Color(0.8f, 0.82f, 0.85f, 1f);
+        float wastelandSurfaceInset = 1.16f;
 
         terrain.stageThemes = new[]
         {
@@ -43,6 +50,7 @@ public static class TerrainThemeSelfTest
             {
                 stageId = "wasteland_road",
                 platformArt = default,
+                platformSurfaceInset = wastelandSurfaceInset,
                 groundSprite = wastelandGroundSprite,
                 groundColor = wastelandColor,
                 backgroundSprite = null,
@@ -56,13 +64,15 @@ public static class TerrainThemeSelfTest
         // という要件の直接検証)。
         terrain.ApplyStageTheme("sky_corridor");
         bool unknownStageUnchanged = terrain.groundColor == defaultColor && terrain.groundSprite == defaultGroundSprite
-            && terrain.groundFillSprite == defaultGroundFillSprite && bgRenderer.color == defaultBackgroundColor;
+            && terrain.groundFillSprite == defaultGroundFillSprite && bgRenderer.color == defaultBackgroundColor
+            && terrain.platformSurfaceInset == defaultSurfaceInset;
 
         // 2) 一致するstageIdを渡すと、そのエントリの値へ実際に差し替わる
         // こと。
         terrain.ApplyStageTheme("wasteland_road");
         bool matchingStageApplied = terrain.groundColor == wastelandColor && terrain.groundSprite == wastelandGroundSprite
-            && terrain.groundFillSprite == wastelandGroundFillSprite && bgRenderer.color == wastelandTint;
+            && terrain.groundFillSprite == wastelandGroundFillSprite && bgRenderer.color == wastelandTint
+            && terrain.platformSurfaceInset == wastelandSurfaceInset;
 
         bool pass = unknownStageUnchanged && matchingStageApplied;
 

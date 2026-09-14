@@ -170,6 +170,18 @@ public class TerrainManager : MonoBehaviour
         // テクスチャを差し替える。未指定(null)のままなら他フィールドと
         // 同じ「無変更」ルール。
         public Sprite groundFillSprite;
+        // 接地ズレ修整(2026-09-15) - マスター報告「Player/Enemy/Obstacleが
+        // 地面から浮いて見える」の根本原因調査で発覚: platformSurfaceInset
+        // はplatformArt(見た目のテクスチャ)と対になる値のはずなのに、
+        // これまでApplyStageThemeがplatformArtだけを差し替え、
+        // platformSurfaceInsetは天空回廊の元アート(platform_mid.png)から
+        // 測定した値のまま据え置かれていた。荒野街道のテクスチャ
+        // (platform_wasteland_mid.png)は透明マージンの比率が全く違う
+        // ため、この値を使い続けると「数式上の地面ライン」と「見た目の
+        // 地面ライン」がズレ、荒野街道でだけPlayer/Enemy/Obstacle全てが
+        // 浮いて見えていた。0以下(未指定)なら他フィールドと同じ「無
+        // 変更」ルールに従う。
+        public float platformSurfaceInset;
         // ルート構造再調整(2026-09-13) - trueの場合のみ、後述のRoute Branch
         // システム(上下ルートの分岐→並走→合流)を使う。falseのまま(=未
         // 指定、天空回廊など)なら、既存の「短い浮遊足場がランダムに点在
@@ -205,6 +217,10 @@ public class TerrainManager : MonoBehaviour
 
         TerrainThemeSet theme = match.Value;
         platformArt = theme.platformArt;
+        // 接地ズレ修整(2026-09-15) - platformArtと必ずセットで差し替える。
+        // これを忘れるとテーマ切り替え後もplatformSurfaceInsetだけ前の
+        // テーマ(=前のテクスチャの透明マージン測定値)のまま残ってしまう。
+        if (theme.platformSurfaceInset > 0f) platformSurfaceInset = theme.platformSurfaceInset;
         if (theme.groundSprite != null) groundSprite = theme.groundSprite;
         groundColor = theme.groundColor;
         if (backgroundRenderer != null && theme.backgroundSprite != null) backgroundRenderer.sprite = theme.backgroundSprite;
