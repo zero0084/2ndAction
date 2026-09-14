@@ -2797,6 +2797,11 @@ public class GameManager : MonoBehaviour
                 // 13 - CONTINUE (if an Active Run exists) or a fresh Run,
                 // same as the old START button.
                 Rect doorRect = FracRect(bgRoomRect, 0.40f, 0.14f, 0.565f, 0.65f);
+                // Home画面改善依頼②(2026-09-15), item 4 - 扉は背景の絵に
+                // 完全に溶け込んでおり、タップ可能だと伝わる手がかりが
+                // 従来皆無だった(タップ時のフラッシュのみ)。中央の扉は
+                // 画面の主役でもあるため、他より少し目立つ枠線にした。
+                DrawTapAffordanceBorder(doorRect, roomFadeAlpha, 2.5f);
                 if (DrawRoomHotspot(doorRect, ref doorHotspotFlashTimer, roomInteractable) && roomFadeAlpha > 0.99f)
                 {
                     OnDoorTapped();
@@ -2843,7 +2848,12 @@ public class GameManager : MonoBehaviour
                 // UiMargin基準の固定72px矩形)と実際に重なっていた既存の
                 // 不具合(「CHARACTER」ラベルの頭が隠れていた)も合わせて
                 // 解消した。
-                Rect characterRect = FracRect(bgRoomRect, 0.02f, 0.10f, 0.17f, 0.37f);
+                // Home画面改善依頼②(2026-09-15), item 2 - 「BEST表示と
+                // CHARACTERパネルの間に少し余白を」に対応し、y0を0.10→
+                // 0.14へさらに下げてBESTパネルとの間隔を広げた。パネルを
+                // 必要以上に大きくしないよう高さは0.27→0.24へわずかに
+                // 縮めた(内部の余白はDrawCharacterHotspot側で確保)。
+                Rect characterRect = FracRect(bgRoomRect, 0.02f, 0.14f, 0.17f, 0.38f);
                 DrawCharacterHotspot(characterRect, roomInteractable, roomFadeAlpha);
 
                 // ステージ選択導線追加(2026-09-12) - 参考画像の「中央の床
@@ -2861,7 +2871,13 @@ public class GameManager : MonoBehaviour
                     // ステージ名/ルート)は維持したまま「情報は確認できる
                     // が主役にはならない」程度の存在感へ調整。横幅も左右
                     // 中心(0.5)を保ったまま少し絞った。
-                    Rect stageRect = FracRect(bgRoomRect, 0.35f, 0.73f, 0.65f, 0.90f);
+                    // Home画面改善依頼②(2026-09-15), item 3 - まだ「床に
+                    // 浮く半透明の仮UI窓」感が残るとの指摘に対応し、高さを
+                    // 0.17→0.14へさらに圧縮(上下パディングを削減)。中心
+                    // (0.5)・横幅(0.30)は変更せず、扉が画面の主役という
+                    // 位置づけを保つ。背景色の透明度自体はDrawStageHotspot
+                    // 側のOrnateUi.DrawPanel呼び出しで軽減する。
+                    Rect stageRect = FracRect(bgRoomRect, 0.35f, 0.745f, 0.65f, 0.885f);
                     DrawStageHotspot(stageRect, roomInteractable, roomFadeAlpha);
                 }
 
@@ -2885,13 +2901,13 @@ public class GameManager : MonoBehaviour
                 // executes the Gacha inline (item 4) - no dedicated screen.
                 if (gachaMachineTexture != null)
                 {
-                    // Home画面レイアウト調整(2026-09-14) - マスター報告
-                    // 「Gacha筐体が画面右下の床側に大きく置かれ、背景とは
-                    // 別画像を貼り付けたように見える」への対応。幅を
-                    // 0.15→0.12へ縮小し、Y位置を0.50(床の高さ)→0.38(机の
-                    // 側面〜奥行き)へ引き上げて、机まわりに存在している
-                    // ように見せた。
-                    float machineWidth = bgRoomRect.width * 0.12f;
+                    // Home画面改善依頼②(2026-09-15) - マスター報告「椅子の
+                    // 前で宙に浮いている」への対応。前回(0.83/0.38)はまだ
+                    // 机の奥行きより低く、椅子の背もたれ付近まで機体の下端
+                    // が届いていたと判断し、Y位置を0.38→0.26(机の天板の
+                    // 高さ)へさらに引き上げ、幅も0.12→0.10へ縮小して周囲の
+                    // 家具(本・カップ・コンパス)との遠近感を合わせた。
+                    float machineWidth = bgRoomRect.width * 0.10f;
                     float machineAspect = gachaMachineTexture.height / (float)gachaMachineTexture.width;
                     float machineHeight = machineWidth * machineAspect;
                     float shakeOffset = gachaMachineShakeTimer > 0f
@@ -2899,18 +2915,16 @@ public class GameManager : MonoBehaviour
                         : 0f;
                     Rect machineRect = new Rect(
                         bgRoomRect.x + bgRoomRect.width * 0.83f - machineWidth / 2f + shakeOffset,
-                        bgRoomRect.y + bgRoomRect.height * 0.38f,
+                        bgRoomRect.y + bgRoomRect.height * 0.26f,
                         machineWidth, machineHeight);
 
-                    // Contact shadow - a soft, squashed dark ellipse-ish
-                    // patch right at the machine's own base, giving it a
-                    // grounded feel independent of exactly how its Rect
-                    // lines up with the painted desk beneath it.
+                    // Contact shadow - 接地感をさらに強めるため、前回より
+                    // 幅を広く・濃くした(0.75→0.85倍幅、不透明度0.35→0.45)。
                     Color prevShadow = GUI.color;
-                    float shadowWidth = machineWidth * 0.75f;
+                    float shadowWidth = machineWidth * 0.85f;
                     float shadowHeight = machineHeight * 0.12f;
                     Rect shadowRect = new Rect(machineRect.x + (machineWidth - shadowWidth) / 2f, machineRect.yMax - shadowHeight * 0.5f, shadowWidth, shadowHeight);
-                    GUI.color = new Color(0f, 0f, 0f, 0.35f * roomFadeAlpha);
+                    GUI.color = new Color(0f, 0f, 0f, 0.45f * roomFadeAlpha);
                     GUI.DrawTexture(shadowRect, Texture2D.whiteTexture);
                     GUI.color = prevShadow;
 
@@ -2922,10 +2936,20 @@ public class GameManager : MonoBehaviour
                     // per-case color with Color.white once it exists, no
                     // other code changes needed).
                     Color stageTint = GachaMachineStageTint(CurrentGachaStage);
-                    Color baseColor = new Color(stageTint.r, stageTint.g, stageTint.b, roomFadeAlpha);
+                    // Home画面改善依頼②(2026-09-15) - マスター報告「背景
+                    // 光源に対して明るさ・コントラストが浮きすぎる」への
+                    // 対応。室内の暖色ランプ光に馴染むよう、タップ時の発光
+                    // (glow)が無い通常時はわずかに(12%)減光する - 各ステージ
+                    // 色の相対的な違いはそのまま保ちつつ、部屋の照度に近づけた。
+                    Color dimmedTint = stageTint * 0.88f;
+                    Color baseColor = new Color(dimmedTint.r, dimmedTint.g, dimmedTint.b, roomFadeAlpha);
                     GUI.color = Color.Lerp(baseColor, new Color(1f, 0.92f, 0.6f, roomFadeAlpha), Mathf.Clamp01(glow));
                     GUI.DrawTexture(machineRect, gachaMachineTexture, ScaleMode.ScaleToFit);
                     GUI.color = prevMachine;
+
+                    // Home画面改善依頼②(2026-09-15), item 4 - タップ可能
+                    // 箇所の分かりやすさ。常時薄く光る金の縁取りを追加。
+                    DrawTapAffordanceBorder(machineRect, roomFadeAlpha);
 
                     if (roomInteractable && GUI.Button(machineRect, GUIContent.none, GUIStyle.none) && roomFadeAlpha > 0.99f)
                     {
@@ -3705,6 +3729,26 @@ public class GameManager : MonoBehaviour
             bounds.height * (y1 - y0));
     }
 
+    // Home画面改善依頼②(2026-09-15), item 4 - 「タップ可能箇所の分かり
+    // やすさ」への対応。Character/NEXT STAGEは既にOrnateUi.DrawPanel+常時
+    // ゆるい金色パルスでタップ可能だと伝わっていたが、Door(背景に完全に
+    // 溶け込んだ透明ホットスポット)とGacha機(タップ後のフラッシュのみ)
+    // には常時の手がかりが一切無かった。マスター指示「常時派手に光らせ
+    // たり大きなボタンを追加する必要はない」「薄いシアンまたは金の縁取
+    // り」どおり、細い金色の枠線を控えめな不透明度で常時描画する軽量な
+    // 共通ヘルパー。点滅させず一定の明るさに留める(「常時点滅する演出
+    // は不要」)。
+    static void DrawTapAffordanceBorder(Rect rect, float roomFadeAlpha, float thickness = 2f)
+    {
+        Color prev = GUI.color;
+        GUI.color = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, 0.45f * roomFadeAlpha);
+        GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, thickness), Texture2D.whiteTexture);
+        GUI.DrawTexture(new Rect(rect.x, rect.yMax - thickness, rect.width, thickness), Texture2D.whiteTexture);
+        GUI.DrawTexture(new Rect(rect.x, rect.y, thickness, rect.height), Texture2D.whiteTexture);
+        GUI.DrawTexture(new Rect(rect.xMax - thickness, rect.y, thickness, rect.height), Texture2D.whiteTexture);
+        GUI.color = prev;
+    }
+
     // A completely invisible tap target (no backdrop, no label - "大きな
     // メニューボタンとして見えないように") with a brief "少し光る" flash on
     // tap (item 3). flashTimer is one of the per-hotspot fields in Update's
@@ -3751,19 +3795,24 @@ public class GameManager : MonoBehaviour
         GUI.DrawTexture(rect, Texture2D.whiteTexture);
         GUI.color = prevGlow;
 
+        // Home画面改善依頼②(2026-09-15), item 2 - 「CHARACTERのタイトルが
+        // 窮屈に見えないように」「カードをパネル内で自然に配置し、端へ
+        // 寄りすぎないように」に対応。ラベル自体の見た目は変えず、ラベル
+        // 下からアイコンまでの間隔(32f→38f)と左右・下の余白(availableW/H
+        // の差分)を広げ、カードがパネル枠に接して見えないようにした。
         GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
         labelStyle.fontSize = 18;
         labelStyle.fontStyle = FontStyle.Bold;
         labelStyle.alignment = TextAnchor.UpperCenter;
         labelStyle.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, roomFadeAlpha);
-        GUI.Label(new Rect(rect.x, rect.y + 6f, rect.width, 24f), "CHARACTER", labelStyle);
+        GUI.Label(new Rect(rect.x, rect.y + 8f, rect.width, 24f), "CHARACTER", labelStyle);
 
         CharacterDefinition selectedDef = CharacterDatabase.FindById(SelectedCharacterId);
         Texture2D portrait = selectedDef != null ? selectedDef.portrait : null;
         if (portrait != null)
         {
-            float availableW = rect.width - 24f;
-            float availableH = rect.height - 40f;
+            float availableW = rect.width - 30f;
+            float availableH = rect.height - 50f;
             float portraitAspect = portrait.height / (float)portrait.width;
             float iconW = availableW;
             float iconH = iconW * portraitAspect;
@@ -3772,7 +3821,7 @@ public class GameManager : MonoBehaviour
                 iconH = availableH;
                 iconW = iconH / portraitAspect;
             }
-            Rect iconRect = new Rect(rect.x + (rect.width - iconW) / 2f, rect.y + 32f, iconW, iconH);
+            Rect iconRect = new Rect(rect.x + (rect.width - iconW) / 2f, rect.y + 38f, iconW, iconH);
             Color prevIcon = GUI.color;
             GUI.color = new Color(1f, 1f, 1f, roomFadeAlpha);
             GUI.DrawTexture(iconRect, portrait, ScaleMode.ScaleToFit);
@@ -3809,7 +3858,12 @@ public class GameManager : MonoBehaviour
     // 引き続き担う。
     void DrawStageHotspot(Rect rect, bool roomInteractable, float roomFadeAlpha)
     {
-        OrnateUi.DrawPanel(rect, 0.85f);
+        // Home画面改善依頼②(2026-09-15), item 3 - 「パネル背景の透明度を
+        // 調整し重たさを軽減、ただし金フレームや装飾は維持する」に対応。
+        // OrnateUi.DrawPanelのfillAlphaのみ0.85→0.60へ下げる(金フレーム
+        // 自体はfillAlphaの影響を受けない実装のため、この変更だけで
+        // 「枠は保ったまま背景だけ軽く」なる)。
+        OrnateUi.DrawPanel(rect, 0.60f);
 
         float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 2.2f);
         Color prevGlow = GUI.color;
@@ -3817,28 +3871,36 @@ public class GameManager : MonoBehaviour
         GUI.DrawTexture(rect, Texture2D.whiteTexture);
         GUI.color = prevGlow;
 
+        // item 3 - 「NEXT STAGEタイトルやルート情報は控えめに、荒野街道
+        // (ステージ名)が最も視認しやすい表示に」に対応。ヘッダーは
+        // フォントを14→12、不透明度を7割へ落として後退させ、上余白も
+        // 6f→4fへ詰めてパネルの上下パディングを削減した。
         GUIStyle headerStyle = new GUIStyle(GUI.skin.label);
-        headerStyle.fontSize = 14;
+        headerStyle.fontSize = 12;
         headerStyle.fontStyle = FontStyle.Bold;
         headerStyle.alignment = TextAnchor.UpperCenter;
-        headerStyle.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, roomFadeAlpha);
-        GUI.Label(new Rect(rect.x, rect.y + 6f, rect.width, 20f), "NEXT STAGE", headerStyle);
+        headerStyle.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, roomFadeAlpha * 0.7f);
+        GUI.Label(new Rect(rect.x, rect.y + 4f, rect.width, 18f), "NEXT STAGE", headerStyle);
 
         StageDefinition selectedDef = StageDatabase.FindById(SelectedStageId);
 
+        // ステージ名(荒野街道)はパネル内で唯一の全不透明・最大フォント
+        // 要素のまま据え置き、「主役はドアだがパネル内での主役はステージ
+        // 名」という優先順位を保つ。
         GUIStyle nameStyle = new GUIStyle(GUI.skin.label);
         nameStyle.fontSize = 22;
         nameStyle.fontStyle = FontStyle.Bold;
         nameStyle.alignment = TextAnchor.MiddleCenter;
         nameStyle.normal.textColor = new Color(1f, 1f, 1f, roomFadeAlpha);
-        GUI.Label(new Rect(rect.x, rect.y + rect.height * 0.32f, rect.width, 32f),
+        GUI.Label(new Rect(rect.x, rect.y + rect.height * 0.34f, rect.width, 32f),
             selectedDef != null ? selectedDef.displayName : "-", nameStyle);
 
+        // ルート情報もヘッダー同様に控えめな不透明度(8割)へ。
         GUIStyle routeStyle = new GUIStyle(GUI.skin.label);
         routeStyle.fontSize = 13;
         routeStyle.alignment = TextAnchor.MiddleCenter;
-        routeStyle.normal.textColor = new Color(0.8f, 0.85f, 0.95f, roomFadeAlpha);
-        GUI.Label(new Rect(rect.x, rect.y + rect.height * 0.62f, rect.width, 24f),
+        routeStyle.normal.textColor = new Color(0.8f, 0.85f, 0.95f, roomFadeAlpha * 0.8f);
+        GUI.Label(new Rect(rect.x, rect.y + rect.height * 0.68f, rect.width, 22f),
             selectedDef != null ? selectedDef.routeText : "", routeStyle);
 
         bool tapped = roomInteractable && GUI.Button(rect, GUIContent.none, GUIStyle.none);
