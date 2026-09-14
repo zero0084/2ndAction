@@ -2831,7 +2831,19 @@ public class GameManager : MonoBehaviour
                 // 伝わらない)、マスター指示どおりここだけ簡単なパネル+
                 // アイコン+ラベル+淡い発光を明示的に描画する。Bedの真上、
                 // Doorとは重ならない領域。
-                Rect characterRect = FracRect(bgRoomRect, 0.02f, 0.05f, 0.30f, 0.35f);
+                // Home画面レイアウト調整(2026-09-14) - マスター報告
+                // 「パネルが大きい割にカードの右側に大きな空白がある」への
+                // 対応。根本原因はパネルの縦横比(幅0.28:高さ0.30≒横長)が
+                // 縦長のポートレート画像と噛み合っておらず、DrawCharacter
+                // Hotspot内でiconHがavailableHに合わせて縮められた結果
+                // iconWがavailableW未満になり、余白が生まれていたこと。
+                // 幅を約半分(0.30→0.16)に絞ってポートレート自身の縦横比へ
+                // 近づけ、「大きな空箱にカード1枚」に見えないようにした。
+                // また、y0を0.05→0.10へ下げ、左上のBEST表示(SafeTop()+
+                // UiMargin基準の固定72px矩形)と実際に重なっていた既存の
+                // 不具合(「CHARACTER」ラベルの頭が隠れていた)も合わせて
+                // 解消した。
+                Rect characterRect = FracRect(bgRoomRect, 0.02f, 0.10f, 0.17f, 0.37f);
                 DrawCharacterHotspot(characterRect, roomInteractable, roomFadeAlpha);
 
                 // ステージ選択導線追加(2026-09-12) - 参考画像の「中央の床
@@ -2843,7 +2855,13 @@ public class GameManager : MonoBehaviour
                 // 領域を使う。
                 if (!RunCheckpoint.HasActiveRun)
                 {
-                    Rect stageRect = FracRect(bgRoomRect, 0.34f, 0.68f, 0.66f, 0.97f);
+                    // Home画面レイアウト調整(2026-09-14) - マスター報告
+                    // 「NEXT STAGEパネルが床や扉より存在感が強い」への対応。
+                    // 高さを約4割縮小(0.29→0.17)し、表示内容(NEXT STAGE/
+                    // ステージ名/ルート)は維持したまま「情報は確認できる
+                    // が主役にはならない」程度の存在感へ調整。横幅も左右
+                    // 中心(0.5)を保ったまま少し絞った。
+                    Rect stageRect = FracRect(bgRoomRect, 0.35f, 0.73f, 0.65f, 0.90f);
                     DrawStageHotspot(stageRect, roomInteractable, roomFadeAlpha);
                 }
 
@@ -2867,26 +2885,21 @@ public class GameManager : MonoBehaviour
                 // executes the Gacha inline (item 4) - no dedicated screen.
                 if (gachaMachineTexture != null)
                 {
-                    float machineWidth = bgRoomRect.width * 0.15f;
+                    // Home画面レイアウト調整(2026-09-14) - マスター報告
+                    // 「Gacha筐体が画面右下の床側に大きく置かれ、背景とは
+                    // 別画像を貼り付けたように見える」への対応。幅を
+                    // 0.15→0.12へ縮小し、Y位置を0.50(床の高さ)→0.38(机の
+                    // 側面〜奥行き)へ引き上げて、机まわりに存在している
+                    // ように見せた。
+                    float machineWidth = bgRoomRect.width * 0.12f;
                     float machineAspect = gachaMachineTexture.height / (float)gachaMachineTexture.width;
                     float machineHeight = machineWidth * machineAspect;
                     float shakeOffset = gachaMachineShakeTimer > 0f
                         ? Mathf.Sin(gachaMachineShakeTimer * 55f) * 4f * (gachaMachineShakeTimer / gachaMachineShakeDuration)
                         : 0f;
-                    // Bugfix 2026-09-06 (再調整) - the previous 0.87/0.47
-                    // anchor still read as floating in front of the chair
-                    // rather than resting on the desk once seen on a real
-                    // device (aspect-ratio letterboxing shifts how a fixed
-                    // fraction of the source image actually lands on screen
-                    // in ways a single Editor-side composite check against
-                    // the raw 1536x1024 art can't fully catch). Nudged
-                    // further right/down (0.85/0.50) toward the desk's
-                    // open surface, and paired with an explicit contact
-                    // shadow below (see shadowRect) so it reads as "resting
-                    // on something" regardless of the exact pixel alignment.
                     Rect machineRect = new Rect(
-                        bgRoomRect.x + bgRoomRect.width * 0.85f - machineWidth / 2f + shakeOffset,
-                        bgRoomRect.y + bgRoomRect.height * 0.50f,
+                        bgRoomRect.x + bgRoomRect.width * 0.83f - machineWidth / 2f + shakeOffset,
+                        bgRoomRect.y + bgRoomRect.height * 0.38f,
                         machineWidth, machineHeight);
 
                     // Contact shadow - a soft, squashed dark ellipse-ish
