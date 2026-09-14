@@ -68,9 +68,12 @@ public class TerrainManager : MonoBehaviour
     public Sprite groundFillSprite;
     // カメラのorthographicSize(CameraFollow.targetHorizontalHalfWidth/
     // aspect)が示す「地面ラインの下に実際に見えている世界単位数」の
-    // 実測値(標準的な横長比率で約9.3)に、縦長比率でも確実に足りるよう
-    // 余裕を持たせた既定値。
-    public float groundFillDepth = 30f;
+    // 実測値(標準的な横長比率で約9.3)に余裕を持たせた既定値。
+    // 基礎品質修整(2026-09-14) - 初期値30は実機確認の結果、穴(Pit)の
+    // 側壁が過剰に深く見え、穴の存在感を誇張しすぎていた(「穴とわかる」
+    // より「描画が壊れている」ように見えるリスク)ため、カメラに実際に
+    // 映る範囲を十分覆いつつ側壁の圧迫感を抑えた14まで縮小した。
+    public float groundFillDepth = 14f;
     public float groundFillOverlap = 0.05f;
 
     [Header("Chunk Sizes")]
@@ -149,6 +152,14 @@ public class TerrainManager : MonoBehaviour
         // 昼夜遷移そのものには一切触れない、今回のスコープを最小限に
         // 保つため)。
         public Sprite backgroundSprite;
+        // 基礎品質修整(2026-09-14) - マスター報告「背景の情報量が強く、
+        // Player/Enemy/Object/Terrainが背景に埋もれる」への対応。背景
+        // スプライトへ乗算するティント色。既定Color.white(=無変更)なら
+        // 他フィールドと同じ「未指定なら無変更」ルールに従う - 新規アート
+        // 生成やBlur等のシェーダー変更を伴わない、最も安全な視認性向上策
+        // として採用(コントラスト/彩度を落とし暗部を持ち上げる効果を、
+        // 単純な乗算ティントで近似する)。
+        public Color backgroundTint;
         // Stage01完成版要求仕様書「街道らしさ」対応(2026-09-13) - 指定時
         // のみ道端の散策物(DecorationScatter)を差し替える。天空回廊用の
         // 花/岩/廃墟看板(既存decorationSprites)はこの配列を空のまま
@@ -197,6 +208,11 @@ public class TerrainManager : MonoBehaviour
         if (theme.groundSprite != null) groundSprite = theme.groundSprite;
         groundColor = theme.groundColor;
         if (backgroundRenderer != null && theme.backgroundSprite != null) backgroundRenderer.sprite = theme.backgroundSprite;
+        // backgroundTintのColor構造体としての既定値はCol(0,0,0,0)(未指定)
+        // なので、alpha>0を「実際に指定された」判定に使う(Color.white等の
+        // 「変更なし」を意味する値ではなく、フィールド自体が触られたか
+        // どうかを見分けるため)。
+        if (backgroundRenderer != null && theme.backgroundTint.a > 0f) backgroundRenderer.color = theme.backgroundTint;
         if (theme.decorationSprites != null && theme.decorationSprites.Length > 0) decorationSprites = theme.decorationSprites;
         if (theme.groundFillSprite != null) groundFillSprite = theme.groundFillSprite;
         routeBranchEnabled = theme.enableRouteBranch;

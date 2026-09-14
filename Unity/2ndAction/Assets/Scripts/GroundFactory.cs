@@ -349,20 +349,25 @@ public static class GroundFactory
     // 状況向けフォールバック - ObstacleSpawnerのデフォルトspecs参照)の
     // 場合のみ、以前どおりsquareSpriteをtargetHeight基準の四角へ
     // 引き伸ばして表示する。`position`は地面と接する足元の座標。
-    public static GameObject CreateObstacle(Transform parent, Sprite squareSprite, Sprite objSprite, Vector2 position, float targetHeight, Color color, bool breakable, int hp)
+    // 基礎品質修整(2026-09-14) - groundAngle(度)はTerrainManager.
+    // GetSlopeAngleAtから渡される、その設置X位置における地面の傾き。
+    // 以前は常に0(世界基準で直立)固定だったため、坂の上に置かれた障害物
+    // が足元の1点だけで接地し、見た目には浮いている/斜めに食い込んでいる
+    // ように見えていた - マスター報告「地面の傾斜に合わせて自然に配置」
+    // への対応。既定0fなので、傾き情報を渡さない既存の呼び出し元(現状
+    // 無し)があっても従来どおり直立のまま。
+    public static GameObject CreateObstacle(Transform parent, Sprite squareSprite, Sprite objSprite, Vector2 position, float targetHeight, Color color, bool breakable, int hp, float groundAngle = 0f)
     {
         GameObject go = new GameObject("Obstacle");
         go.transform.SetParent(parent);
         go.transform.position = new Vector3(position.x, position.y, 0f);
+        go.transform.rotation = Quaternion.Euler(0f, 0f, groundAngle);
         go.tag = "Obstacle";
 
         GameObject visualGO = new GameObject("Visual");
         visualGO.transform.SetParent(go.transform, false);
         var sr = visualGO.AddComponent<SpriteRenderer>();
         sr.sortingOrder = RenderOrder.Enemy;
-
-        Vector2 colliderSize;
-        Vector2 colliderOffset;
 
         if (objSprite != null)
         {
@@ -374,8 +379,41 @@ public static class GroundFactory
             sr.color = Color.white;
             float scale = objSprite.bounds.size.y > 0.001f ? targetHeight / objSprite.bounds.size.y : 1f;
             visualGO.transform.localScale = Vector3.one * scale;
-            colliderSize = objSprite.bounds.size * scale;
-            colliderOffset = (Vector2)objSprite.bounds.center * scale;
+
+            // 当たり判定基礎品質修整(2026-09-14) - マスター報告「見た目で
+            // 判断した範囲と実際に当たる範囲がズレる」への対応。矩形の
+            // BoxCollider2Dは丸い石・先細りの木といった非矩形シルエットの
+            // 四隅で見た目より大きく張り出してしまう(「避けたつもりなのに
+            // 当たる」の主因)。objSpriteはコンテンツを詰めてトリムした上で
+            // Mesh Type=Tight(既定)でインポートされているため、Unityが
+            // 自動生成する物理シェイプ(GetPhysicsShapeCount/GetPhysicsShape)
+            // をそのままPolygonCollider2Dへ渡すだけで、実シルエットに沿った
+            // 判定になる。GetPhysicsShapeが取得できない(形状データ無し)
+            // 場合のみ、従来のバウンディングボックス矩形へ安全にフォール
+            // バックする。
+            int shapeCount = objSprite.GetPhysicsShapeCount();
+            if (shapeCount > 0)
+            {
+                var poly = go.AddComponent<PolygonCollider2D>();
+                poly.pathCount = shapeCount;
+                var pointBuffer = new System.Collections.Generic.List<Vector2>();
+                for (int i = 0; i < shapeCount; i++)
+                {
+                    pointBuffer.Clear();
+                    objSprite.GetPhysicsShape(i, pointBuffer);
+                    var scaledPoints = new Vector2[pointBuffer.Count];
+                    for (int p = 0; p < pointBuffer.Count; p++) scaledPoints[p] = pointBuffer[p] * scale;
+                    poly.SetPath(i, scaledPoints);
+                }
+                poly.isTrigger = true;
+            }
+            else
+            {
+                var col = go.AddComponent<BoxCollider2D>();
+                col.isTrigger = true;
+                col.size = objSprite.bounds.size * scale;
+                col.offset = (Vector2)objSprite.bounds.center * scale;
+            }
         }
         else
         {
@@ -384,14 +422,13 @@ public static class GroundFactory
             visualGO.transform.localScale = new Vector3(width, targetHeight, 1f);
             sr.sprite = squareSprite;
             sr.color = color;
-            colliderSize = new Vector2(width, targetHeight);
-            colliderOffset = new Vector2(0f, targetHeight * 0.5f);
+
+            var col = go.AddComponent<BoxCollider2D>();
+            col.isTrigger = true;
+            col.size = new Vector2(width, targetHeight);
+            col.offset = new Vector2(0f, targetHeight * 0.5f);
         }
 
-        var col = go.AddComponent<BoxCollider2D>();
-        col.isTrigger = true;
-        col.size = colliderSize;
-        col.offset = colliderOffset;
         var colDebug = go.AddComponent<ColliderDebugView>();
         colDebug.color = Color.yellow;
 

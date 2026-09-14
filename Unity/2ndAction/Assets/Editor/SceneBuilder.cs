@@ -2977,9 +2977,26 @@ public static class SceneBuilder
             // channel" (as opposed to None/FromGrayScale).
             importer.alphaSource = TextureImporterAlphaSource.FromInput;
             importer.wrapMode = TextureWrapMode.Repeat;
+            // Stage01基礎品質修整(2026-09-14) - このヘルパーで読み込む全ての
+            // スプライトはSpriteRenderer.drawMode=Tiledで使われる(地面の
+            // 断面埋め/プラットフォーム中央タイル/天空回廊の道等)。デフォルト
+            // のMesh Type(Tight、アルファ形状に沿った凹凸メッシュ)のままだと
+            // Unity自身が実機コンソールで警告する「Sprite Tiling might not
+            // appear correctly because the Sprite used is not generated with
+            // Full Rect」の状態になり、タイル境界で隙間ができる - マスター
+            // 報告「地面断面同士の縦の隙間」の実機再現で確認した実際の原因。
+            ApplySpriteMeshTypeFullRect(importer);
             importer.SaveAndReimport();
         }
         return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
+
+    static void ApplySpriteMeshTypeFullRect(TextureImporter importer)
+    {
+        TextureImporterSettings settings = new TextureImporterSettings();
+        importer.ReadTextureSettings(settings);
+        settings.spriteMeshType = SpriteMeshType.FullRect;
+        importer.SetTextureSettings(settings);
     }
 
     // 不具合修正(2026-09-10) - LoadTiledSpriteの派生版。既存のVFX単発画像
@@ -3000,6 +3017,7 @@ public static class SceneBuilder
             importer.alphaSource = TextureImporterAlphaSource.FromInput;
             importer.wrapMode = TextureWrapMode.Repeat;
             ApplyCustomPivot(importer, pivot);
+            ApplySpriteMeshTypeFullRect(importer);
             importer.SaveAndReimport();
         }
         return AssetDatabase.LoadAssetAtPath<Sprite>(path);
@@ -3784,6 +3802,13 @@ public static class SceneBuilder
                 groundSprite = null, // platformArtが有効な間は未使用(フォールバック専用)
                 groundColor = Color.white, // platformArt使用中は各ピースがColor.white固定で描画されるため実質未参照
                 backgroundSprite = wastelandBackground,
+                // 基礎品質修整(2026-09-14) - マスター報告「背景の情報量が
+                // 強く、Player/Enemy/Objectが埋もれる」への対応。新規アート
+                // 生成やシェーダーでのBlur/彩度調整はせず、既存背景への
+                // 乗算ティントのみで明度・コントラストを控えめに落とす
+                // (約15-20%減、若干寒色寄り) - 「消す」のではなく前景を
+                // 相対的に目立たせるための最小限の調整。
+                backgroundTint = new Color(0.8f, 0.82f, 0.85f, 1f),
                 decorationSprites = new[] { wastelandDecorSignpost, wastelandDecorFence, wastelandDecorCrateBarrel, wastelandDecorCart },
                 groundFillSprite = wastelandGroundFill,
                 // ルート構造再調整(2026-09-13) - マスター提供の参考画像を

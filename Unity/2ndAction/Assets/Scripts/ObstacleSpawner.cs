@@ -149,7 +149,10 @@ public class ObstacleSpawner : MonoBehaviour
         ObstacleSpec spec = PickWeightedSpec(danger);
         if (string.IsNullOrEmpty(spec.name)) return;
 
-        GroundFactory.CreateObstacle(transform, squareSprite, spec.sprite, new Vector2(worldX, groundY.Value), spec.targetHeight, spec.color, spec.breakable, spec.hp);
+        // 基礎品質修整(2026-09-14) - 坂の上でも障害物が地面の傾きに沿って
+        // 自然に見えるよう、その場所の地面角度を取得して渡す。
+        float groundAngle = TerrainManager.Instance != null ? TerrainManager.Instance.GetSlopeAngleAt(worldX) : 0f;
+        GroundFactory.CreateObstacle(transform, squareSprite, spec.sprite, new Vector2(worldX, groundY.Value), spec.targetHeight, spec.color, spec.breakable, spec.hp, groundAngle);
     }
 
     // ルート構造再調整(2026-09-13) - 上ルート(Easy)側。TerrainManager.

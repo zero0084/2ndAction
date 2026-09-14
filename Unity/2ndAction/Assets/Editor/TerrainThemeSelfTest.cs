@@ -16,6 +16,13 @@ public static class TerrainThemeSelfTest
         GameObject go = new GameObject("TerrainThemeSelfTest_Terrain", typeof(TerrainManager));
         TerrainManager terrain = go.GetComponent<TerrainManager>();
 
+        // 基礎品質修整(2026-09-14) - backgroundTintの検証にはbackgroundRenderer
+        // (SpriteRenderer)の実体が要る。
+        GameObject bgGo = new GameObject("TerrainThemeSelfTest_Background", typeof(SpriteRenderer));
+        SpriteRenderer bgRenderer = bgGo.GetComponent<SpriteRenderer>();
+        terrain.backgroundRenderer = bgRenderer;
+        Color defaultBackgroundColor = bgRenderer.color;
+
         Color defaultColor = terrain.groundColor;
         Sprite defaultGroundSprite = terrain.groundSprite;
         Sprite defaultGroundFillSprite = terrain.groundFillSprite;
@@ -26,6 +33,9 @@ public static class TerrainThemeSelfTest
         // フィールドと同じ「未指定なら無変更、指定時のみ差し替え」パター
         // ンで検証する。
         var wastelandGroundFillSprite = Sprite.Create(new Texture2D(4, 4), new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f));
+        // 基礎品質修整(2026-09-14) - backgroundTintも同じ「未指定(alpha=0)
+        // なら無変更、指定時のみ上書き」パターンで検証する。
+        Color wastelandTint = new Color(0.8f, 0.82f, 0.85f, 1f);
 
         terrain.stageThemes = new[]
         {
@@ -37,6 +47,7 @@ public static class TerrainThemeSelfTest
                 groundColor = wastelandColor,
                 backgroundSprite = null,
                 groundFillSprite = wastelandGroundFillSprite,
+                backgroundTint = wastelandTint,
             }
         };
 
@@ -45,13 +56,13 @@ public static class TerrainThemeSelfTest
         // という要件の直接検証)。
         terrain.ApplyStageTheme("sky_corridor");
         bool unknownStageUnchanged = terrain.groundColor == defaultColor && terrain.groundSprite == defaultGroundSprite
-            && terrain.groundFillSprite == defaultGroundFillSprite;
+            && terrain.groundFillSprite == defaultGroundFillSprite && bgRenderer.color == defaultBackgroundColor;
 
         // 2) 一致するstageIdを渡すと、そのエントリの値へ実際に差し替わる
         // こと。
         terrain.ApplyStageTheme("wasteland_road");
         bool matchingStageApplied = terrain.groundColor == wastelandColor && terrain.groundSprite == wastelandGroundSprite
-            && terrain.groundFillSprite == wastelandGroundFillSprite;
+            && terrain.groundFillSprite == wastelandGroundFillSprite && bgRenderer.color == wastelandTint;
 
         bool pass = unknownStageUnchanged && matchingStageApplied;
 
@@ -65,5 +76,6 @@ public static class TerrainThemeSelfTest
         }
 
         Object.DestroyImmediate(go);
+        Object.DestroyImmediate(bgGo);
     }
 }
