@@ -49,6 +49,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 947ea381fbbdcde4e8a6269af7ccef43, type: 3}
   - {fileID: 21300000, guid: 0c76b930f8fefe24590cc4ded3a828a5, type: 3}
   - {fileID: 21300000, guid: dc492d07fbecedf4b9a20dc0b7437011, type: 3}
+  - {fileID: 21300000, guid: 0f4356254190b4749b808e55fc712bf1, type: 3}
+  - {fileID: 21300000, guid: 438f6078a242d174eb06c2a2679a60dd, type: 3}
   jumpStartFrames:
   - {fileID: 21300000, guid: 0a8bcd5a71e065c46b6c02913e59f860, type: 3}
   jumpFrames:
