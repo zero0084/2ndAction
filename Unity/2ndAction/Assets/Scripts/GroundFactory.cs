@@ -391,6 +391,20 @@ public static class GroundFactory
             sr.color = Color.white;
             float scale = objSprite.bounds.size.y > 0.001f ? targetHeight / objSprite.bounds.size.y : 1f;
             visualGO.transform.localScale = Vector3.one * scale;
+            // 基礎品質修整 続報(2026-09-14) - マスター報告「オブジェクトが
+            // まだ浮いている」の実機スクリーンショットを受け、前回のMesh
+            // Type=Full Rect修正だけでは解消しきれなかったことが判明した。
+            // 地面テクスチャ自体に草むら等の細かい凹凸が描き込まれており
+            // (視覚的な起伏)、これは当たり判定・接地計算が使う数学的な
+            // 直線(GetHeightAt)とは独立した装飾なので、障害物の設置X座標
+            // によっては「数学的には接地しているが、その場所のテクスチャ
+            // の凹み・盛り上がりと噛み合わず浮いて見える」ケースが起こり
+            // うる - Colliderの精度(基準はRootのgroundY)には触れず、
+            // 見た目(Visualの子オブジェクト)だけをごくわずかに沈め、
+            // 「浮いて見える」方向の見た目のズレを常に相殺する側へ倒した
+            // (地面へわずかに埋まる側の誤差は、浮いて見えるよりも違和感が
+            // 少ないという判断)。
+            visualGO.transform.localPosition += new Vector3(0f, -0.06f, 0f);
 
             // 当たり判定基礎品質修整(2026-09-14) - マスター報告「見た目で
             // 判断した範囲と実際に当たる範囲がズレる」への対応。矩形の

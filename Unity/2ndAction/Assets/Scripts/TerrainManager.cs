@@ -234,11 +234,27 @@ public class TerrainManager : MonoBehaviour
             RuntimeChunk c = chunks[i];
             if (c.type == ChunkType.Pit || c.visual == null) continue;
 
-            Destroy(c.visual);
+            // 基礎品質修整 続報(2026-09-14) - マスター報告「地面の描画と道の
+            // 描画のズレ」の実機スクリーンショット確認で発見: このリトロ
+            // フィット経路(Run開始前の"滑走路"区間 - ApplyStageThemeが
+            // 呼ばれる前にStart()が生成した最初の数十m分)は、AddChunkと
+            // 違いleftBleed(flat<->slope継ぎ目の楔形隙間を覆う量)を一切
+            // 計算していなかった - スラブ・Fillのどちらも隙間が残ったまま
+            // だった。AddChunkと全く同じ式で、直前のチャンク(i-1)との
+            // 継ぎ目についてbleed量を計算し直す。
             bool needsRightCap = i + 1 < chunks.Count && chunks[i + 1].type == ChunkType.Pit;
+            float rebuildLeftBleed = 0f;
+            if (!c.needsLeftCap && platformArt.IsValid && i > 0 && (c.type == ChunkType.Flat) != (chunks[i - 1].type == ChunkType.Flat))
+            {
+                float theta = Mathf.Atan2(slopeHeight, slopeLength);
+                float outerDepth = platformVisualHeight - platformSurfaceInset;
+                rebuildLeftBleed = outerDepth * Mathf.Tan(theta) * cornerBleedSafetyMargin;
+            }
+
+            Destroy(c.visual);
             c.visual = GroundFactory.CreateSlopeVisual(transform, squareSprite, groundSprite, platformArt,
                 new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
-                c.needsLeftCap, needsRightCap: needsRightCap);
+                c.needsLeftCap, needsRightCap: needsRightCap, leftBleed: rebuildLeftBleed);
 
             // 荒野街道 地面埋め修整(2026-09-13深夜) - テーマ切り替え時も
             // 断面帯を作り直す(差し替え前のテーマの帯が残り続けたり、
@@ -247,9 +263,16 @@ public class TerrainManager : MonoBehaviour
             if (c.fillVisual != null) Destroy(c.fillVisual);
             if (groundFillSprite != null)
             {
+                float rebuildFillLeftBleed = 0f;
+                if (!c.needsLeftCap && platformArt.IsValid && i > 0 && (c.type == ChunkType.Flat) != (chunks[i - 1].type == ChunkType.Flat))
+                {
+                    float theta = Mathf.Atan2(slopeHeight, slopeLength);
+                    float fillOuterDepth = (platformVisualHeight - platformSurfaceInset) - groundFillOverlap + groundFillDepth;
+                    rebuildFillLeftBleed = fillOuterDepth * Mathf.Tan(theta) * cornerBleedSafetyMargin;
+                }
                 c.fillVisual = GroundFactory.CreateGroundFillVisual(transform, groundFillSprite,
                     new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY),
-                    platformVisualHeight, platformSurfaceInset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill);
+                    platformVisualHeight, platformSurfaceInset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, rebuildFillLeftBleed);
             }
 
             if (decorationSprites != null && decorationSprites.Length > 0)

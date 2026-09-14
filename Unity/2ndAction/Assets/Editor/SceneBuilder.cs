@@ -515,7 +515,7 @@ public static class SceneBuilder
         GameObject timeGO = new GameObject("WorldTimeCycle");
         WorldTimeCycle timeCycle = timeGO.AddComponent<WorldTimeCycle>();
         timeCycle.dayLayer = dayBackgroundSr;
-        Sprite nightSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Background/NightFloatingIsland.png", 941f);
+        Sprite nightSprite = ConfigureAndLoadSpriteWithCenterPivot("Assets/Art/Background/NightFloatingIsland.png", 941f);
         if (nightSprite != null)
         {
             GameObject nightGO = new GameObject("NightBackground");
@@ -3769,7 +3769,7 @@ public static class SceneBuilder
         // BackgroundFollowerは常に画面を覆うようスケールし直す(cover方式)
         // ため、PPUの実際の値はアスペクト比にしか影響しない - 他の背景と
         // 同じ簡便な値でよい。
-        Sprite wastelandBackground = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Background/WastelandBackground.png", 1000f);
+        Sprite wastelandBackground = ConfigureAndLoadSpriteWithCenterPivot("Assets/Art/Background/WastelandBackground.png", 1000f);
 
         // Stage01基礎見た目修整依頼(2026-09-13深夜) - マスター報告「下ルー
         // トの下側に見えている空白部分を、地面で埋める」への対応。既存の
@@ -4023,6 +4023,36 @@ public static class SceneBuilder
             // 見た目のメッシュはそこまで届かず浮いて見える。Full Rectに
             // 切り替えると単純な矩形+テクスチャのアルファそのものを描画
             // するため、簡略化による誤差が原理的に発生しない。
+            ApplySpriteMeshTypeFullRect(importer);
+            importer.SaveAndReimport();
+        }
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
+
+    // 基礎品質修整 続報(2026-09-14) - マスター報告「背景画像が画面の上半分
+    // にしか見えない」の実機動画確認で発見: WastelandBackground.png/
+    // NightFloatingIsland.pngが、地上オブジェクト用のConfigureAndLoad
+    // SpriteWithFootPivot(接地点=画像下端付近にピボットを置く)で読み込ま
+    // れていた。BackgroundFollowerは「スプライトの中心をカメラ位置に合わ
+    // せ、cover方式で拡大縮小する」設計のため、ピボットが下端寄りだと
+    // 背景全体がカメラより大きく上へずれてしまい、画面下半分が覆われずに
+    // 背景の外側(透明/クリアカラー)が見えてしまっていた - 元から無改造
+    // だった既定の"background.png"(AssetDatabase.LoadAssetAtPathで素の
+    // まま読み込み=Unity既定のCenter pivotのまま)には無かった問題。
+    // 背景用に、ピボットをCenterのまま維持する専用ローダーを用意した。
+    static Sprite ConfigureAndLoadSpriteWithCenterPivot(string path, float pixelsPerUnit)
+    {
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            ApplyCustomPivot(importer, new Vector2(0.5f, 0.5f));
             ApplySpriteMeshTypeFullRect(importer);
             importer.SaveAndReimport();
         }
