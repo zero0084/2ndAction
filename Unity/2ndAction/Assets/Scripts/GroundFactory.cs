@@ -171,7 +171,19 @@ public static class GroundFactory
     // 出ないための保険的な食い込み量(CreateSlopeVisualのleftBleedと同じ
     // 発想) - スラブ自体が完全な矩形でキャップも無いため、通常は0に近い
     // 値で十分。
-    public static GameObject CreateGroundFillVisual(Transform parent, Sprite fillSprite, Vector2 a, Vector2 b, float surfaceVisualHeight, float surfaceInset, float fillDepth, float overlap, int sortingOrder)
+    // 基礎品質修整 続報(2026-09-14) - マスター報告「道の曲がりで穴が気に
+    // なる」の実機動画確認で発見: flat<->slope継ぎ目で、このFillだけに
+    // 楔形の隙間が見えていた(スラブ自身は無事)。原因はCreateSlopeVisual
+    // のleftBleedと全く同じ「隣接する2つの回転した矩形が、角度の違う
+    // 継ぎ目で完全には重ならない」現象だが、Fillはスラブよりずっと深い
+    // (groundFillDepth)ため、同じ角度でも楔の幅が比例して大きくなり、
+    // スラブ用に計算したleftBleedでは足りていなかった。leftBleedは
+    // このメソッド自身の深さ基準で呼び出し側が計算し直して渡す想定
+    // (TerrainManager.AddChunk参照)。実装はCreateSlopeVisualのキャップ
+    // 付き構成と違い単一の矩形なので、GameObject自体をdir方向へ
+    // -leftBleed/2だけずらしつつ幅をleftBleedぶん広げることで、右端は
+    // 元の位置のまま左端だけ隣接チャンク側へ食い込ませている。
+    public static GameObject CreateGroundFillVisual(Transform parent, Sprite fillSprite, Vector2 a, Vector2 b, float surfaceVisualHeight, float surfaceInset, float fillDepth, float overlap, int sortingOrder, float leftBleed = 0f)
     {
         GameObject go = new GameObject("GroundFill");
         go.transform.SetParent(parent);
@@ -188,7 +200,7 @@ public static class GroundFactory
         // - inset))から逆算した、そのスラブの底辺までのdown方向オフセット。
         float slabBottomOffset = surfaceVisualHeight - surfaceInset;
         float centerOffset = slabBottomOffset - overlap + fillDepth * 0.5f;
-        Vector2 center = mid + down * centerOffset;
+        Vector2 center = mid + down * centerOffset - dir * (leftBleed * 0.5f);
 
         go.transform.position = new Vector3(center.x, center.y, 0f);
         go.transform.rotation = Quaternion.Euler(0f, 0f, angle);
@@ -197,7 +209,7 @@ public static class GroundFactory
         sr.sprite = fillSprite;
         sr.color = Color.white;
         sr.drawMode = SpriteDrawMode.Tiled;
-        sr.size = new Vector2(length, fillDepth);
+        sr.size = new Vector2(length + leftBleed, fillDepth);
         sr.sortingOrder = sortingOrder;
 
         return go;

@@ -4010,6 +4010,20 @@ public static class SceneBuilder
             importer.alphaSource = TextureImporterAlphaSource.FromInput;
             importer.filterMode = FilterMode.Bilinear;
             ApplyCustomPivot(importer, ComputeLowestContentPivotY(path));
+            // 基礎品質修整 続報(2026-09-14) - マスター報告「オブジェクトが
+            // 地面から浮いて見える」の実機動画確認で発見: 障害物(特に
+            // 双剣士の攻撃と違い矩形でない、木の柵のような穴の多い複雑な
+            // シルエット)が接地点の少し上に浮いて描画されていた。原因は
+            // 既定のMesh Type=Tightにある - Unityのポリゴン簡略化
+            // (Tessellation)が、ピボット計算(ComputeLowestContentPivotY、
+            // 生のアルファ値を直接スキャン)が捉えた最下端の細い突起(柵の
+            // 脚等)をメッシュ生成時に削ってしまうことがあり、その場合
+            // 「ピボットの位置」と「実際に描画されるメッシュの最下端」が
+            // 一致しなくなる - ピボット基準では正しく接地しているのに、
+            // 見た目のメッシュはそこまで届かず浮いて見える。Full Rectに
+            // 切り替えると単純な矩形+テクスチャのアルファそのものを描画
+            // するため、簡略化による誤差が原理的に発生しない。
+            ApplySpriteMeshTypeFullRect(importer);
             importer.SaveAndReimport();
         }
         return AssetDatabase.LoadAssetAtPath<Sprite>(path);

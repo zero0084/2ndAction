@@ -863,6 +863,24 @@ public class TerrainManager : MonoBehaviour
                 new Vector2(startX, startY), new Vector2(endX, endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
                 needsLeftCap, needsRightCap: false, leftBleed: leftBleed);
 
+            // 基礎品質修整 続報(2026-09-14) - マスター報告「道の曲がりで
+            // 穴が気になる」の実機動画を確認したところ、実際にプレイヤーが
+            // 落ちられる穴ではなく、flat<->slope継ぎ目でスラブの真下の
+            // 断面帯(GroundFill)にだけ楔形の隙間が見えていた - 上のleft
+            // Bleedはスラブ自身の薄い厚み(platformVisualHeight基準)向けに
+            // 計算された値で、遥かに深いGroundFill(groundFillDepth基準)の
+            // 外周まではカバーできていなかった(楔の幅は深さに比例して
+            // 広がるため、スラブでは見えない量でもFillの下端では顕著に
+            // なる)。同じtheta/cornerBleedSafetyMarginを使い、Fill自身の
+            // 深さ基準でleftBleedを別途計算し直す。
+            float fillLeftBleed = 0f;
+            if (!needsLeftCap && platformArt.IsValid && (type == ChunkType.Flat) != (lastType == ChunkType.Flat))
+            {
+                float theta = Mathf.Atan2(slopeHeight, slopeLength);
+                float fillOuterDepth = (platformVisualHeight - platformSurfaceInset) - groundFillOverlap + groundFillDepth;
+                fillLeftBleed = fillOuterDepth * Mathf.Tan(theta) * cornerBleedSafetyMargin;
+            }
+
             // 荒野街道 地面埋め修整(2026-09-13深夜) - Pit以外の全チャンクの
             // 表面スラブの真下に、断面テクスチャの帯を敷く(このif自体が
             // ChunkType.Pitでは通らないため、穴は自動的に埋まらず可視の
@@ -871,7 +889,7 @@ public class TerrainManager : MonoBehaviour
             {
                 chunk.fillVisual = GroundFactory.CreateGroundFillVisual(transform, groundFillSprite,
                     new Vector2(startX, startY), new Vector2(endX, endY),
-                    platformVisualHeight, platformSurfaceInset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill);
+                    platformVisualHeight, platformSurfaceInset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, fillLeftBleed);
             }
 
             // Game Feel pass, section 17 - visual-only clutter along this
