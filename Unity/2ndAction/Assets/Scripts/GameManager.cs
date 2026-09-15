@@ -2808,7 +2808,12 @@ public class GameManager : MonoBehaviour
                 // 完全に溶け込んでおり、タップ可能だと伝わる手がかりが
                 // 従来皆無だった(タップ時のフラッシュのみ)。中央の扉は
                 // 画面の主役でもあるため、他より少し目立つ枠線にした。
-                DrawTapAffordanceBorder(doorRect, roomFadeAlpha, 2.5f);
+                // Home画面改善依頼⑤(2026-09-16), item 4 - 常時の矩形の縁が
+                // 「判定枠」に見え貼り付け感の一因になっていたため撤去し、
+                // 扉の形に沿って重ねる柔らかい明滅(DrawAmbientGlow)へ置き
+                // 換えた。扉は引き続き画面の主役(item 7)なので、他の
+                // hotspotより上限の明るさをわずかに高くしてある。
+                DrawAmbientGlow(doorRect, roomFadeAlpha, 0.03f, 0.11f, 1.8f);
                 if (DrawRoomHotspot(doorRect, ref doorHotspotFlashTimer, roomInteractable) && roomFadeAlpha > 0.99f)
                 {
                     OnDoorTapped();
@@ -2949,14 +2954,24 @@ public class GameManager : MonoBehaviour
                         bgRoomRect.y + bgRoomRect.height * 0.26f,
                         machineWidth, machineHeight);
 
-                    // Contact shadow - 接地感をさらに強めるため、前回より
-                    // 幅を広く・濃くした(0.75→0.85倍幅、不透明度0.35→0.45)。
+                    // Home画面改善依頼⑤(2026-09-16), item 3 - 「独立した
+                    // スタンプのように見えないように」。単一の均一な影
+                    // 矩形は縁がくっきりして見え、それ自体が「貼った影
+                    // 画像」に見えてしまっていた。外側ほど薄い2枚重ねに
+                    // し、縁が滲んだ柔らかい接地影に近づけた(新規テクス
+                    // チャなしで済む、このファイル内の他の影と同じ単色
+                    // 矩形近似の延長)。
                     Color prevShadow = GUI.color;
-                    float shadowWidth = machineWidth * 0.85f;
-                    float shadowHeight = machineHeight * 0.12f;
-                    Rect shadowRect = new Rect(machineRect.x + (machineWidth - shadowWidth) / 2f, machineRect.yMax - shadowHeight * 0.5f, shadowWidth, shadowHeight);
-                    GUI.color = new Color(0f, 0f, 0f, 0.45f * roomFadeAlpha);
-                    GUI.DrawTexture(shadowRect, Texture2D.whiteTexture);
+                    float shadowWidthOuter = machineWidth * 0.95f;
+                    float shadowHeightOuter = machineHeight * 0.16f;
+                    Rect shadowRectOuter = new Rect(machineRect.x + (machineWidth - shadowWidthOuter) / 2f, machineRect.yMax - shadowHeightOuter * 0.55f, shadowWidthOuter, shadowHeightOuter);
+                    GUI.color = new Color(0f, 0f, 0f, 0.22f * roomFadeAlpha);
+                    GUI.DrawTexture(shadowRectOuter, Texture2D.whiteTexture);
+                    float shadowWidthInner = machineWidth * 0.68f;
+                    float shadowHeightInner = machineHeight * 0.10f;
+                    Rect shadowRectInner = new Rect(machineRect.x + (machineWidth - shadowWidthInner) / 2f, machineRect.yMax - shadowHeightInner * 0.55f, shadowWidthInner, shadowHeightInner);
+                    GUI.color = new Color(0f, 0f, 0f, 0.32f * roomFadeAlpha);
+                    GUI.DrawTexture(shadowRectInner, Texture2D.whiteTexture);
                     GUI.color = prevShadow;
 
                     Color prevMachine = GUI.color;
@@ -2978,9 +2993,11 @@ public class GameManager : MonoBehaviour
                     GUI.DrawTexture(machineRect, gachaMachineTexture, ScaleMode.ScaleToFit);
                     GUI.color = prevMachine;
 
-                    // Home画面改善依頼②(2026-09-15), item 4 - タップ可能
-                    // 箇所の分かりやすさ。常時薄く光る金の縁取りを追加。
-                    DrawTapAffordanceBorder(machineRect, roomFadeAlpha);
+                    // Home画面改善依頼⑤(2026-09-16), item 3/4 - 常時の金の
+                    // 縁取りを撤去。Gacha機はタップ/振動時に`glow`で暖色
+                    // ハイライトへ寄る反応が既にあり、それ自体が「ホバー/
+                    // タップ時の軽い発光で示す」という要望を満たしている
+                    // ため、常時枠を重ねて貼り付け感を足す必要がなかった。
 
                     if (roomInteractable && GUI.Button(machineRect, GUIContent.none, GUIStyle.none) && roomFadeAlpha > 0.99f)
                     {
@@ -3802,6 +3819,23 @@ public class GameManager : MonoBehaviour
         GUI.color = prev;
     }
 
+    // Home画面改善依頼⑤(2026-09-16) - 「常時表示の枠線や判定枠っぽい見た目
+    // は貼り付け感の原因になる」への対応。DrawTapAffordanceBorderの矩形の
+    // 縁取り(いかにも「ここがボタンです」という見た目)をやめ、形状全体へ
+    // 重ねるごく薄い明滅に置き換えた - 縁が無いぶん「UIのボタン」ではなく
+    // 「そこにある物がわずかに息づいている」ように見える。Door/Gacha機/
+    // NEXT STAGE地図など、各hotspotの見た目そのもの(扉の絵・機械の実写・
+    // 地図の装飾フレーム)がすでに存在を主張しているため、常時の強い枠は
+    // もう不要という判断。
+    static void DrawAmbientGlow(Rect rect, float roomFadeAlpha, float minAlpha = 0.03f, float maxAlpha = 0.09f, float speed = 1.6f)
+    {
+        float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * speed);
+        Color prev = GUI.color;
+        GUI.color = new Color(1f, 0.9f, 0.6f, Mathf.Lerp(minAlpha, maxAlpha, pulse) * roomFadeAlpha);
+        GUI.DrawTexture(rect, Texture2D.whiteTexture);
+        GUI.color = prev;
+    }
+
     // A completely invisible tap target (no backdrop, no label - "大きな
     // メニューボタンとして見えないように") with a brief "少し光る" flash on
     // tap (item 3). flashTimer is one of the per-hotspot fields in Update's
@@ -3940,11 +3974,33 @@ public class GameManager : MonoBehaviour
         rect = new Rect(safeRectX, rect.y, rect.xMax - safeRectX, rect.height);
 
         int count = Mathf.Min(items.Length, 4);
-        float gap = 8f;
-        float slotSize = Mathf.Min(rect.height * 0.86f, (rect.width - gap * (count - 1)) / count);
+        // Home画面改善依頼⑤(2026-09-16), item 1 - 「棚の上に飾られている
+        // 私物」に寄せるため、アイコンを一回り小さくして(0.86→0.74)棚板・
+        // 傾き・段差ぶんの余白を確保した。
+        float gap = 10f;
+        float slotSize = Mathf.Min(rect.height * 0.74f, (rect.width - gap * (count - 1)) / count);
         float totalWidth = slotSize * count + gap * (count - 1);
         float startX = rect.x + (rect.width - totalWidth) / 2f;
-        float slotY = rect.y + (rect.height - slotSize) * 0.35f;
+        float baseSlotY = rect.y + (rect.height - slotSize) * 0.30f;
+
+        // 各アイテムに小さな個体差(段差の高さ・傾き)を持たせ、「等間隔に
+        // 並べたUIアイコン列」ではなく「無造作に棚へ置かれた私物」に見せる。
+        // countの最大値(4)ぶんだけ用意すれば足りる固定パターン。
+        float[] yJitter = { 0f, -slotSize * 0.10f, slotSize * 0.04f, -slotSize * 0.05f };
+        float[] tilt = { -5f, 4f, -3f, 6f };
+
+        // 棚板 - アイコンの足元に渡した横長の板。「置き場所の根拠」その
+        // ものを与える(共通ルール項目1)。上端にごく薄い明るいハイライト
+        // (板の上面が光を受けている)を重ね、本体はやや暗い木目色で近似。
+        float shelfY = baseSlotY + slotSize * 0.92f;
+        float shelfPad = slotSize * 0.18f;
+        Rect shelfRect = new Rect(startX - shelfPad, shelfY, totalWidth + shelfPad * 2f, slotSize * 0.10f);
+        Color prevShelf = GUI.color;
+        GUI.color = new Color(0.22f, 0.15f, 0.08f, 0.55f * roomFadeAlpha);
+        GUI.DrawTexture(shelfRect, Texture2D.whiteTexture);
+        GUI.color = new Color(0.55f, 0.42f, 0.26f, 0.35f * roomFadeAlpha);
+        GUI.DrawTexture(new Rect(shelfRect.x, shelfRect.y, shelfRect.width, Mathf.Max(1f, shelfRect.height * 0.25f)), Texture2D.whiteTexture);
+        GUI.color = prevShelf;
 
         GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
         labelStyle.fontSize = Mathf.Max(9, Mathf.RoundToInt(slotSize * 0.42f));
@@ -3953,14 +4009,19 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            Rect slotRect = new Rect(startX + i * (slotSize + gap), slotY, slotSize, slotSize);
+            Rect slotRect = new Rect(startX + i * (slotSize + gap), baseSlotY + yJitter[i], slotSize, slotSize);
             CharacterDefinition.BelongingItem item = items[i];
+
+            // このアイテムだけをtilt[i]ぶん回転させる(棚に無造作に置かれた
+            // 感じ)。影・本体とも同じ回転の中で描き、抜けたら必ず元へ戻す。
+            Matrix4x4 prevItemMatrix = GUI.matrix;
+            GUIUtility.RotateAroundPivot(tilt[i], slotRect.center);
 
             // 「そこに置かれている」感を出すための、足元のごく薄い影
             // (単色の横長矩形で近似 - 新しい素材追加なしで済む簡易表現)。
-            Rect shadowRect = new Rect(slotRect.x + slotSize * 0.12f, slotRect.yMax - slotSize * 0.10f, slotSize * 0.76f, slotSize * 0.14f);
+            Rect shadowRect = new Rect(slotRect.x + slotSize * 0.16f, slotRect.yMax - slotSize * 0.08f, slotSize * 0.68f, slotSize * 0.12f);
             Color prevShadow = GUI.color;
-            GUI.color = new Color(0f, 0f, 0f, 0.30f * roomFadeAlpha);
+            GUI.color = new Color(0f, 0f, 0f, 0.32f * roomFadeAlpha);
             GUI.DrawTexture(shadowRect, Texture2D.whiteTexture);
             GUI.color = prevShadow;
 
@@ -3984,6 +4045,8 @@ public class GameManager : MonoBehaviour
                     GUI.Label(slotRect, item.label.Substring(0, 1), labelStyle);
                 }
             }
+
+            GUI.matrix = prevItemMatrix;
         }
     }
 
@@ -4004,13 +4067,35 @@ public class GameManager : MonoBehaviour
         // 防ぐ)。フレーム未設定(null)の場合は矩形のフレーム相当の領域を
         // そのままステージ写真の表示先として使う(Acceptance Test 8 - 画像
         // 未設定でも壊れない)。
+        // Home画面改善依頼⑤(2026-09-16), item 2 - 「机に広げた地図」に見せる
+        // ため、わずかな傾き(mapTilt)を掛けて描画する。回転の中心はframe
+        // Rectの中心のまま、外接矩形がrectからはみ出さないよう先に一回り
+        // (3%)小さい領域でフィットさせておく安全マージン。
+        const float mapTilt = -2.2f;
+        float fitInsetX = rect.width * 0.03f;
+        float fitInsetY = rect.height * 0.03f;
+        Rect fitBounds = new Rect(rect.x + fitInsetX, rect.y + fitInsetY, rect.width - fitInsetX * 2f, rect.height - fitInsetY * 2f);
         Texture2D frame = stageMapFrameTexture;
         Rect frameRect = frame != null
-            ? FitRectPreserveAspect(rect, (float)frame.width / Mathf.Max(1, frame.height))
-            : FitRectPreserveAspect(rect, 1672f / 941f);
+            ? FitRectPreserveAspect(fitBounds, (float)frame.width / Mathf.Max(1, frame.height))
+            : FitRectPreserveAspect(fitBounds, 1672f / 941f);
 
         StageDefinition selectedDef = StageDatabase.FindById(SelectedStageId);
         Texture2D thumbnail = selectedDef != null ? selectedDef.thumbnail : null;
+
+        // 地図全体(影・フレーム・写真・文字)をmapTiltぶんだけ回転させる。
+        // ボタンの当たり判定は元のrect(回転なし)のままにしたいので、
+        // 復元はこの後の描画がすべて終わってから行う。
+        Matrix4x4 prevMatrix = GUI.matrix;
+        GUIUtility.RotateAroundPivot(mapTilt, frameRect.center);
+
+        // 「机の上に置かれた紙」の接地影 - フレームよりひとまわり大きく、
+        // 少し下にずらした単色矩形(このファイル内の他の影と同じ近似手法)。
+        Color prevMapShadow = GUI.color;
+        Rect mapShadowRect = new Rect(frameRect.x - frameRect.width * 0.02f, frameRect.y + frameRect.height * 0.035f, frameRect.width * 1.04f, frameRect.height * 1.04f);
+        GUI.color = new Color(0f, 0f, 0f, 0.28f * roomFadeAlpha);
+        GUI.DrawTexture(mapShadowRect, Texture2D.whiteTexture);
+        GUI.color = prevMapShadow;
 
         // フレーム画像は中央の約68%幅×62%高さ(中心配置)だけが無地の
         // パーチメント領域になるよう生成時に指定済み(Assets/Art/UI/
@@ -4082,10 +4167,15 @@ public class GameManager : MonoBehaviour
         headerStyle.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, roomFadeAlpha * 0.7f);
         GUI.Label(new Rect(rect.x, rect.y, rect.width, Mathf.Max(0f, frameRect.y - rect.y)), "NEXT STAGE", headerStyle);
 
-        // Home画面改善依頼②由来のタップ可能表示を、フレーム自体の縁へ
-        // 引き継ぐ(常時点滅しない薄い金枠、item 4)。
-        DrawTapAffordanceBorder(frameRect, roomFadeAlpha);
+        // 傾きを戻す - これ以降(当たり判定・タップフラッシュ)は元の
+        // 軸並行なrect基準のまま扱う(回転した矩形の当たり判定までは
+        // 今回のスコープ外)。
+        GUI.matrix = prevMatrix;
 
+        // Home画面改善依頼⑤(2026-09-16), item 2/4 - 常時の金枠を撤去。
+        // 地図自体がすでに装飾フレーム画像+わずかな傾き+落ち影を持ち、
+        // 「そこに紙が置いてある」という説得力を得たため、追加の判定枠は
+        // もう必要ない。
         bool tapped = roomInteractable && GUI.Button(rect, GUIContent.none, GUIStyle.none);
         if (tapped)
         {
