@@ -231,7 +231,24 @@ public static class GroundFactory
     // 付き構成と違い単一の矩形なので、GameObject自体をdir方向へ
     // -leftBleed/2だけずらしつつ幅をleftBleedぶん広げることで、右端は
     // 元の位置のまま左端だけ隣接チャンク側へ食い込ませている。
-    public static GameObject CreateGroundFillVisual(Transform parent, Sprite fillSprite, Vector2 a, Vector2 b, float surfaceVisualHeight, float surfaceInset, float fillDepth, float overlap, int sortingOrder, float leftBleed = 0f)
+    // 路面と地中断面の接続見た目修正(2026-09-15) - マスター報告「路面の
+    // 下に空色の帯が見える、道路パーツが浮いて別の断面ブロックが下に
+    // 置かれているように見える」の根本原因を特定・修正。以前はこの帯の
+    // 開始位置を「表面スラブの見た目上のキャンバス矩形の底辺」
+    // (surfaceVisualHeight-surfaceInset)から逆算していたが、実際の
+    // platform_wasteland_mid.png自身の岩肌イラストは、そのキャンバス
+    // 矩形の底辺よりずっと手前(実測約78%の高さ)で終わっており、そこから
+    // 下・矩形の本当の底辺までは透明マージンだった(素材が岩の下面の
+    // ギザギザした輪郭を表現するため、キャンバスいっぱいには描かれて
+    // いない)。従来の計算はこの透明マージン分(約0.76ワールド単位)だけ
+    // Fillの開始位置を実際の岩肌より深く配置してしまっており、「岩肌の
+    // 見えている部分の終わり」から「Fillの開始位置」までの間が両方とも
+    // 透明で、背景の空色がそのまま見えてしまっていた。呼び出し側
+    // (TerrainManager)で、このキャンバス矩形底辺ではなく実測した「岩肌が
+    // 実際に見えている部分の底辺」を基準にしたオフセット
+    // (slabContentBottomOffset)を渡すよう変更し、この透明ギャップそのもの
+    // を無くした。
+    public static GameObject CreateGroundFillVisual(Transform parent, Sprite fillSprite, Vector2 a, Vector2 b, float slabContentBottomOffset, float fillDepth, float overlap, int sortingOrder, float leftBleed = 0f)
     {
         GameObject go = new GameObject("GroundFill");
         go.transform.SetParent(parent);
@@ -244,10 +261,7 @@ public static class GroundFactory
         float angle = Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg;
 
         Vector2 mid = (a + b) * 0.5f;
-        // CreateSlopeVisualの表面スラブと同じ式(center = mid + down*(h*0.5
-        // - inset))から逆算した、そのスラブの底辺までのdown方向オフセット。
-        float slabBottomOffset = surfaceVisualHeight - surfaceInset;
-        float centerOffset = slabBottomOffset - overlap + fillDepth * 0.5f;
+        float centerOffset = slabContentBottomOffset - overlap + fillDepth * 0.5f;
         Vector2 center = mid + down * centerOffset - dir * (leftBleed * 0.5f);
 
         go.transform.position = new Vector3(center.x, center.y, 0f);

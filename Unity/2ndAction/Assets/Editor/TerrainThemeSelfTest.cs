@@ -32,6 +32,11 @@ public static class TerrainThemeSelfTest
         // 区別できなくなるため、テスト用に明示的に正の値へ設定しておく。
         terrain.platformSurfaceInset = 0.85f;
         float defaultSurfaceInset = terrain.platformSurfaceInset;
+        // 路面/地中断面の接続見た目修整(2026-09-15) - groundFillTopOffsetも
+        // 同じ「未指定(0以下)なら無変更、指定時のみ差し替え」パターンで
+        // 検証する。
+        terrain.groundFillTopOffset = 2.634f;
+        float defaultFillTopOffset = terrain.groundFillTopOffset;
 
         var wastelandGroundSprite = Sprite.Create(new Texture2D(4, 4), new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f));
         Color wastelandColor = new Color(0.4f, 0.6f, 0.2f);
@@ -43,6 +48,7 @@ public static class TerrainThemeSelfTest
         // なら無変更、指定時のみ上書き」パターンで検証する。
         Color wastelandTint = new Color(0.8f, 0.82f, 0.85f, 1f);
         float wastelandSurfaceInset = 1.16f;
+        float wastelandFillTopOffset = 1.54f;
 
         terrain.stageThemes = new[]
         {
@@ -56,6 +62,7 @@ public static class TerrainThemeSelfTest
                 backgroundSprite = null,
                 groundFillSprite = wastelandGroundFillSprite,
                 backgroundTint = wastelandTint,
+                groundFillTopOffset = wastelandFillTopOffset,
             }
         };
 
@@ -65,14 +72,16 @@ public static class TerrainThemeSelfTest
         terrain.ApplyStageTheme("sky_corridor");
         bool unknownStageUnchanged = terrain.groundColor == defaultColor && terrain.groundSprite == defaultGroundSprite
             && terrain.groundFillSprite == defaultGroundFillSprite && bgRenderer.color == defaultBackgroundColor
-            && terrain.platformSurfaceInset == defaultSurfaceInset;
+            && terrain.platformSurfaceInset == defaultSurfaceInset
+            && terrain.groundFillTopOffset == defaultFillTopOffset;
 
         // 2) 一致するstageIdを渡すと、そのエントリの値へ実際に差し替わる
         // こと。
         terrain.ApplyStageTheme("wasteland_road");
         bool matchingStageApplied = terrain.groundColor == wastelandColor && terrain.groundSprite == wastelandGroundSprite
             && terrain.groundFillSprite == wastelandGroundFillSprite && bgRenderer.color == wastelandTint
-            && terrain.platformSurfaceInset == wastelandSurfaceInset;
+            && terrain.platformSurfaceInset == wastelandSurfaceInset
+            && terrain.groundFillTopOffset == wastelandFillTopOffset;
 
         bool pass = unknownStageUnchanged && matchingStageApplied;
 

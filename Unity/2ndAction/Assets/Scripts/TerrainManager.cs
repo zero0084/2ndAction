@@ -75,6 +75,23 @@ public class TerrainManager : MonoBehaviour
     // 映る範囲を十分覆いつつ側壁の圧迫感を抑えた14まで縮小した。
     public float groundFillDepth = 14f;
     public float groundFillOverlap = 0.05f;
+    // 路面と地中断面の接続見た目修正(2026-09-15) - マスター報告「路面の下に
+    // 空色の帯が見える」の根本原因。GroundFillの開始位置は、以前は表面
+    // スラブの「見た目上のキャンバス矩形の底辺」(platformVisualHeight-
+    // platformSurfaceInset)から逆算していたが、実際のプラットフォーム
+    // アート(platform_wasteland_mid.png)の岩肌イラストはそのキャンバス
+    // 矩形の底辺よりずっと手前(実測、キャンバス高さの約78%)で終わって
+    // おり、そこから下は透明なマージンだった(岩の下面のギザギザした
+    // 輪郭を表現するための余白で、キャンバス全域には描かれていない)。
+    // GroundFillの開始位置をキャンバスの「見た目上の底辺」に合わせて
+    // いた結果、「岩肌が実際に見えている部分の終わり」から「Fillの開始
+    // 位置」までの間、両方とも透明な帯ができ、背景の空色がそのまま透けて
+    // 見えていた。この値は、表面ラインから実測した「岩肌が実際に見えて
+    // いる部分の底辺」までのワールド単位オフセットで、SceneBuilder側で
+    // ステージごとの実測値に差し替える(TerrainThemeSet.groundFillTop
+    // Offset参照) - platformSurfaceInsetと同じくplatformArtとセットで
+    // 差し替わる必要がある値。
+    public float groundFillTopOffset = 2.634f;
 
     [Header("Chunk Sizes")]
     public float flatLength = 6f;
@@ -182,6 +199,12 @@ public class TerrainManager : MonoBehaviour
         // 浮いて見えていた。0以下(未指定)なら他フィールドと同じ「無
         // 変更」ルールに従う。
         public float platformSurfaceInset;
+        // 路面と地中断面の接続見た目修正(2026-09-15) - platformSurfaceInset
+        // と同じ理由・同じ「platformArtとセットで差し替える」ルール。表面
+        // ラインから実測した「岩肌が実際に見えている部分の底辺」までの
+        // ワールド単位オフセット(TerrainManager.groundFillTopOffset参照)。
+        // 0以下(未指定)なら他フィールドと同じ「無変更」ルールに従う。
+        public float groundFillTopOffset;
         // ルート構造再調整(2026-09-13) - trueの場合のみ、後述のRoute Branch
         // システム(上下ルートの分岐→並走→合流)を使う。falseのまま(=未
         // 指定、天空回廊など)なら、既存の「短い浮遊足場がランダムに点在
@@ -221,6 +244,9 @@ public class TerrainManager : MonoBehaviour
         // これを忘れるとテーマ切り替え後もplatformSurfaceInsetだけ前の
         // テーマ(=前のテクスチャの透明マージン測定値)のまま残ってしまう。
         if (theme.platformSurfaceInset > 0f) platformSurfaceInset = theme.platformSurfaceInset;
+        // 路面と地中断面の接続見た目修正(2026-09-15) - platformSurfaceInset
+        // と同じくplatformArtとセットで差し替える。
+        if (theme.groundFillTopOffset > 0f) groundFillTopOffset = theme.groundFillTopOffset;
         if (theme.groundSprite != null) groundSprite = theme.groundSprite;
         groundColor = theme.groundColor;
         if (backgroundRenderer != null && theme.backgroundSprite != null) backgroundRenderer.sprite = theme.backgroundSprite;
@@ -283,12 +309,12 @@ public class TerrainManager : MonoBehaviour
                 if (!c.needsLeftCap && platformArt.IsValid && i > 0 && (c.type == ChunkType.Flat) != (chunks[i - 1].type == ChunkType.Flat))
                 {
                     float theta = Mathf.Atan2(slopeHeight, slopeLength);
-                    float fillOuterDepth = (platformVisualHeight - platformSurfaceInset) - groundFillOverlap + groundFillDepth;
+                    float fillOuterDepth = groundFillTopOffset - groundFillOverlap + groundFillDepth;
                     rebuildFillLeftBleed = fillOuterDepth * Mathf.Tan(theta) * cornerBleedSafetyMargin;
                 }
                 c.fillVisual = GroundFactory.CreateGroundFillVisual(transform, groundFillSprite,
                     new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY),
-                    platformVisualHeight, platformSurfaceInset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, rebuildFillLeftBleed);
+                    groundFillTopOffset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, rebuildFillLeftBleed);
             }
 
             if (decorationSprites != null && decorationSprites.Length > 0)
@@ -931,7 +957,7 @@ public class TerrainManager : MonoBehaviour
             if (!needsLeftCap && platformArt.IsValid && (type == ChunkType.Flat) != (lastType == ChunkType.Flat))
             {
                 float theta = Mathf.Atan2(slopeHeight, slopeLength);
-                float fillOuterDepth = (platformVisualHeight - platformSurfaceInset) - groundFillOverlap + groundFillDepth;
+                float fillOuterDepth = groundFillTopOffset - groundFillOverlap + groundFillDepth;
                 fillLeftBleed = fillOuterDepth * Mathf.Tan(theta) * cornerBleedSafetyMargin;
             }
 
@@ -943,7 +969,7 @@ public class TerrainManager : MonoBehaviour
             {
                 chunk.fillVisual = GroundFactory.CreateGroundFillVisual(transform, groundFillSprite,
                     new Vector2(startX, startY), new Vector2(endX, endY),
-                    platformVisualHeight, platformSurfaceInset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, fillLeftBleed);
+                    groundFillTopOffset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, fillLeftBleed);
             }
 
             // Game Feel pass, section 17 - visual-only clutter along this

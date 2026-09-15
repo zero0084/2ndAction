@@ -3880,6 +3880,15 @@ public static class SceneBuilder
                 // TerrainManager.ApplyStageThemeがこの値をplatformArtと
                 // セットで差し替える。
                 platformSurfaceInset = 239f / WastelandSourcePixelHeight * 3.5f,
+                // 路面/地中断面の接続見た目修整(2026-09-15) - platform_wasteland_mid.pngの
+                // アルファチャンネルを行単位で走査すると、岩の不透明部分は上端(行239)
+                // から始まり、下端は行555(不透明度98.1%)~行582(0%)にかけて
+                // ギザギザに透明フェードしていく(岩の裂け目の縁取り表現)。
+                // GroundFillの上端をキャンバス矩形の下端(旧実装)ではなく、
+                // この岩の不透明部分がほぼ途切れる行558(不透明度約87%、安全
+                // マージンを見て50%地点(行567)より早め)に合わせることで、
+                // スラブとFillの間に空色の隙間が生じないようにする。
+                groundFillTopOffset = (558f - 239f) / WastelandSourcePixelHeight * 3.5f,
                 groundSprite = null, // platformArtが有効な間は未使用(フォールバック専用)
                 groundColor = Color.white, // platformArt使用中は各ピースがColor.white固定で描画されるため実質未参照
                 backgroundSprite = wastelandBackground,
