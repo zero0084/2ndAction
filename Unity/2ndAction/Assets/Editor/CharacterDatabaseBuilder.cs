@@ -128,9 +128,9 @@ public static class CharacterDatabaseBuilder
         // flavorTextに沿った持ち物3点。
         swordsman.belongings = new[]
         {
-            new CharacterDefinition.BelongingItem { label = "剣", placeholderColor = new Color(0.75f, 0.78f, 0.85f) },
-            new CharacterDefinition.BelongingItem { label = "外套", placeholderColor = new Color(0.25f, 0.25f, 0.3f) },
-            new CharacterDefinition.BelongingItem { label = "紋章", placeholderColor = new Color(0.6f, 0.5f, 0.25f) },
+            new CharacterDefinition.BelongingItem { label = "剣", placeholderColor = new Color(0.75f, 0.78f, 0.85f), icon = LoadIconTexture("Assets/Art/UI/Characters/SwordsmanItems/swordsman_item_0.png") },
+            new CharacterDefinition.BelongingItem { label = "外套", placeholderColor = new Color(0.25f, 0.25f, 0.3f), icon = LoadIconTexture("Assets/Art/UI/Characters/SwordsmanItems/swordsman_item_1.png") },
+            new CharacterDefinition.BelongingItem { label = "紋章", placeholderColor = new Color(0.6f, 0.5f, 0.25f), icon = LoadIconTexture("Assets/Art/UI/Characters/SwordsmanItems/swordsman_item_2.png") },
         };
 
         Spec dualBlade = DefaultBaseline;
@@ -150,9 +150,9 @@ public static class CharacterDatabaseBuilder
         // /軽装らしい小物)をそのまま採用。
         dualBlade.belongings = new[]
         {
-            new CharacterDefinition.BelongingItem { label = "双剣", placeholderColor = new Color(0.55f, 0.75f, 0.85f) },
-            new CharacterDefinition.BelongingItem { label = "羽根", placeholderColor = new Color(0.9f, 0.9f, 0.95f) },
-            new CharacterDefinition.BelongingItem { label = "布飾り", placeholderColor = new Color(0.2f, 0.55f, 0.55f) },
+            new CharacterDefinition.BelongingItem { label = "双剣", placeholderColor = new Color(0.55f, 0.75f, 0.85f), icon = LoadIconTexture("Assets/Art/UI/Characters/DualBladeItems/dual_blade_item_0.png") },
+            new CharacterDefinition.BelongingItem { label = "羽根", placeholderColor = new Color(0.9f, 0.9f, 0.95f), icon = LoadIconTexture("Assets/Art/UI/Characters/DualBladeItems/dual_blade_item_1.png") },
+            new CharacterDefinition.BelongingItem { label = "布飾り", placeholderColor = new Color(0.2f, 0.55f, 0.55f), icon = LoadIconTexture("Assets/Art/UI/Characters/DualBladeItems/dual_blade_item_2.png") },
         };
 
         // 3人目のプレイアブル主人公(2026-09-13) - マスター初期案どおりの
@@ -248,9 +248,9 @@ public static class CharacterDatabaseBuilder
         // /青金の紋章)をそのまま採用。
         nobleLady.belongings = new[]
         {
-            new CharacterDefinition.BelongingItem { label = "大剣", placeholderColor = new Color(0.8f, 0.8f, 0.85f) },
-            new CharacterDefinition.BelongingItem { label = "王冠", placeholderColor = new Color(0.95f, 0.85f, 0.35f) },
-            new CharacterDefinition.BelongingItem { label = "紋章", placeholderColor = new Color(0.25f, 0.35f, 0.75f) },
+            new CharacterDefinition.BelongingItem { label = "大剣", placeholderColor = new Color(0.8f, 0.8f, 0.85f), icon = LoadIconTexture("Assets/Art/UI/Characters/NobleLadyItems/noble_lady_item_0.png") },
+            new CharacterDefinition.BelongingItem { label = "王冠", placeholderColor = new Color(0.95f, 0.85f, 0.35f), icon = LoadIconTexture("Assets/Art/UI/Characters/NobleLadyItems/noble_lady_item_1.png") },
+            new CharacterDefinition.BelongingItem { label = "紋章", placeholderColor = new Color(0.25f, 0.35f, 0.75f), icon = LoadIconTexture("Assets/Art/UI/Characters/NobleLadyItems/noble_lady_item_2.png") },
         };
 
         // ここから実プレイに反映される値(マスター初期案どおり)。
@@ -342,6 +342,27 @@ public static class CharacterDatabaseBuilder
                 {
                     existing.belongings = spec.belongings;
                     EditorUtility.SetDirty(existing);
+                }
+                // Home画面改善依頼④(2026-09-15) - 前回(③)の時点ではicon
+                // (実画像)がまだ用意できておらず、belongings配列自体は
+                // 既にexistingへ入っている(=上のbelongings丸ごとバック
+                // フィルは発火しない)。今回ChatGPTで実際にアイコン画像を
+                // 生成できたので、「配列は既にあるがiconだけがnullのまま」
+                // の項目にだけ画像を差し込む、より細かいバックフィルを
+                // 追加した。ラベルやplaceholderColor等、既に手動調整された
+                // かもしれない値には一切触れない。
+                else if (existing.belongings != null && spec.belongings != null)
+                {
+                    bool changed = false;
+                    for (int i = 0; i < existing.belongings.Length && i < spec.belongings.Length; i++)
+                    {
+                        if (existing.belongings[i].icon == null && spec.belongings[i].icon != null)
+                        {
+                            existing.belongings[i].icon = spec.belongings[i].icon;
+                            changed = true;
+                        }
+                    }
+                    if (changed) EditorUtility.SetDirty(existing);
                 }
                 continue;
             }

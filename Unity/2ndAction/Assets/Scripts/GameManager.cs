@@ -652,6 +652,13 @@ public class GameManager : MonoBehaviour
     // Desk "CARD GACHA" machine prop, drawn directly onto the room scene
     // (not its own screen/canvas) - see SceneBuilder for the import.
     public Texture2D gachaMachineTexture;
+    // Home画面改善依頼④(2026-09-15) - NEXT STAGEパネルを「地図・旅の資料
+    // から出てきた」ように見せるための、経年変化した地図帳風の装飾フレーム
+    // 画像(ChatGPT生成、黒背景をしきい値透過処理済み)。ステージのサムネ
+    // イル画像はこのフレームの中央の無地パーチメント領域(実測、フレーム
+    // 自身の幅68%×高さ62%・中央寄せ)へ重ねて描画する - DrawStageHotspot
+    // 参照。
+    public Texture2D stageMapFrameTexture;
     // Ver.1 finishing pass, item 8 - "短いSE" tap feedback for the room's
     // hotspots (door/bed/book/desk). Reuses the existing Card Select SE
     // (already imported for RewardCardSequence) rather than adding new
@@ -2861,7 +2868,11 @@ public class GameManager : MonoBehaviour
                 // 拡張せず(カードの優先度を落とさないため)、パネル下と
                 // Bedホットスポット(y0.52〜)の間に空いている床スペースへ
                 // 専用の細い帯を新設した。タップ機能は無し(表示専用)。
-                Rect characterBelongingsRect = FracRect(bgRoomRect, 0.02f, 0.395f, 0.17f, 0.45f);
+                // Home画面改善依頼④(2026-09-15), item 1 - 文字ラベルから
+                // 実画像アイコン表示へ強化するにあたり、アイコンをもう
+                // 少し大きく見せられるよう高さを0.055→0.09へ広げた
+                // (Bedホットスポットのy0.52より十分手前で収まる)。
+                Rect characterBelongingsRect = FracRect(bgRoomRect, 0.02f, 0.39f, 0.17f, 0.48f);
                 DrawCharacterBelongings(characterBelongingsRect, roomFadeAlpha);
 
                 // ステージ選択導線追加(2026-09-12) - 参考画像の「中央の床
@@ -2890,7 +2901,14 @@ public class GameManager : MonoBehaviour
                     // 戻した(マスター指示「横幅は大きく変えず、必要なら
                     // 高さを少しだけ調整」に対応)。横幅(0.30)・中心(0.5)は
                     // 無変更。上端(0.70)はDoorの範囲(0.14-0.65)と重ならない。
-                    Rect stageRect = FracRect(bgRoomRect, 0.35f, 0.70f, 0.65f, 0.89f);
+                    // Home画面改善依頼④(2026-09-15), item 2 - 「NEXT STAGEの
+                    // 画像を現在より明確に大きくする」に対応し、幅0.30→0.37
+                    // ・高さ0.19→0.27へ拡大。左端は0.33(Bedホットスポット
+                    // の右端0.32と重ならないよう0.01の余白を残す)、右端は
+                    // 0.70(Bookホットスポットの左端0.78より手前)、下端は
+                    // 0.95(画面下端の手前)。Doorの範囲(0.14-0.65)とは上端
+                    // 0.68で重ならない。
+                    Rect stageRect = FracRect(bgRoomRect, 0.33f, 0.68f, 0.70f, 0.95f);
                     DrawStageHotspot(stageRect, roomInteractable, roomFadeAlpha);
                 }
 
@@ -3742,6 +3760,28 @@ public class GameManager : MonoBehaviour
             bounds.height * (y1 - y0));
     }
 
+    // Home画面改善依頼④(2026-09-15) - 「地図から出たような旅先表示」演出用。
+    // outerの中に、指定アスペクト比(例: 地図フレーム画像自身の縦横比)を
+    // 保ったまま最大サイズで収まる中央寄せのRectを返す(GUI.DrawTextureの
+    // ScaleToFitと同じ考え方を、後段でその領域の内側にさらに写真を重ね
+    // 描きしたい場合など、実際のRect自体が必要なケース向けに関数化した)。
+    static Rect FitRectPreserveAspect(Rect outer, float aspect)
+    {
+        float outerAspect = outer.width / Mathf.Max(1f, outer.height);
+        float w, h;
+        if (outerAspect > aspect)
+        {
+            h = outer.height;
+            w = h * aspect;
+        }
+        else
+        {
+            w = outer.width;
+            h = w / aspect;
+        }
+        return new Rect(outer.x + (outer.width - w) / 2f, outer.y + (outer.height - h) / 2f, w, h);
+    }
+
     // Home画面改善依頼②(2026-09-15), item 4 - 「タップ可能箇所の分かり
     // やすさ」への対応。Character/NEXT STAGEは既にOrnateUi.DrawPanel+常時
     // ゆるい金色パルスでタップ可能だと伝わっていたが、Door(背景に完全に
@@ -3873,17 +3913,38 @@ public class GameManager : MonoBehaviour
     // タイルへ自動フォールバックする - 後からInspectorでiconを設定すれば
     // コード変更なしに実画像表示へ切り替わる(マスター指示「最終的な画像
     // 素材は後から差し替えられる構造に」に対応)。
+    // Home画面改善依頼④(2026-09-15), item 1 - マスター指摘「文字ラベル
+    // 中心の表示は演出として弱い」に対応し、①ChatGPTで各キャラの持ち物を
+    // 実際のアイテムイラスト(icon)として生成・設定した(CharacterDatabase
+    // Builder参照、フォールバック文言は「文字だけの小さなラベル表示は
+    // 補助程度に」の指示どおり未設定時のみの保険として残す)、②各アイコン
+    // の下にごく薄い楕円の影を敷き、「持ち物一覧UIの並び」ではなく「小物が
+    // そこに置かれている」ような接地感を演出した(新しいパネル的な縁取り
+    // は追加していない)。
     void DrawCharacterBelongings(Rect rect, float roomFadeAlpha)
     {
         CharacterDefinition selectedDef = CharacterDatabase.FindById(SelectedCharacterId);
         CharacterDefinition.BelongingItem[] items = selectedDef != null ? selectedDef.belongings : null;
         if (items == null || items.Length == 0) return;
 
+        // 実機確認(2026-09-15、Unity Editor Play Mode)で発見・修正 - bgRoomRect
+        // は背景画像のcover-scale都合で画面幅より広くなり(左右に少しずつ
+        // はみ出す)、そのX0がわずかに負の値になることがある。CHARACTER
+        // パネル本体のような大きな矩形は左端が数十px画面外に出てもほとんど
+        // 気づかれないが、この持ち物アイコンの列のように「左端ぴったりに
+        // 小さいアイコンを置く」場合は、そのアイコン自体が丸ごと画面外
+        // (X<0)に描画されて完全に見えなくなってしまう実害を確認した(1番目
+        // の持ち物が常に消えていた)。rectの右端は変えず、左端だけ画面の
+        // 内側(X>=4)へ安全に寄せることで解決する。
+        float safeRectX = Mathf.Max(rect.x, 4f);
+        rect = new Rect(safeRectX, rect.y, rect.xMax - safeRectX, rect.height);
+
         int count = Mathf.Min(items.Length, 4);
-        float gap = 4f;
-        float slotSize = Mathf.Min(rect.height, (rect.width - gap * (count - 1)) / count);
+        float gap = 8f;
+        float slotSize = Mathf.Min(rect.height * 0.86f, (rect.width - gap * (count - 1)) / count);
         float totalWidth = slotSize * count + gap * (count - 1);
         float startX = rect.x + (rect.width - totalWidth) / 2f;
+        float slotY = rect.y + (rect.height - slotSize) * 0.35f;
 
         GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
         labelStyle.fontSize = Mathf.Max(9, Mathf.RoundToInt(slotSize * 0.42f));
@@ -3892,8 +3953,16 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            Rect slotRect = new Rect(startX + i * (slotSize + gap), rect.y, slotSize, slotSize);
+            Rect slotRect = new Rect(startX + i * (slotSize + gap), slotY, slotSize, slotSize);
             CharacterDefinition.BelongingItem item = items[i];
+
+            // 「そこに置かれている」感を出すための、足元のごく薄い影
+            // (単色の横長矩形で近似 - 新しい素材追加なしで済む簡易表現)。
+            Rect shadowRect = new Rect(slotRect.x + slotSize * 0.12f, slotRect.yMax - slotSize * 0.10f, slotSize * 0.76f, slotSize * 0.14f);
+            Color prevShadow = GUI.color;
+            GUI.color = new Color(0f, 0f, 0f, 0.30f * roomFadeAlpha);
+            GUI.DrawTexture(shadowRect, Texture2D.whiteTexture);
+            GUI.color = prevShadow;
 
             if (item.icon != null)
             {
@@ -3926,68 +3995,96 @@ public class GameManager : MonoBehaviour
     // 引き続き担う。
     void DrawStageHotspot(Rect rect, bool roomInteractable, float roomFadeAlpha)
     {
-        // Home画面改善依頼②(2026-09-15), item 3 - 「パネル背景の透明度を
-        // 調整し重たさを軽減、ただし金フレームや装飾は維持する」に対応。
-        // OrnateUi.DrawPanelのfillAlphaのみ0.85→0.60へ下げる(金フレーム
-        // 自体はfillAlphaの影響を受けない実装のため、この変更だけで
-        // 「枠は保ったまま背景だけ軽く」なる)。
-        OrnateUi.DrawPanel(rect, 0.60f);
-
-        float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 2.2f);
-        Color prevGlow = GUI.color;
-        GUI.color = new Color(1f, 0.85f, 0.4f, (0.10f + 0.10f * pulse) * roomFadeAlpha);
-        GUI.DrawTexture(rect, Texture2D.whiteTexture);
-        GUI.color = prevGlow;
-
-        // item 3 - 「NEXT STAGEタイトルやルート情報は控えめに、荒野街道
-        // (ステージ名)が最も視認しやすい表示に」に対応。ヘッダーは
-        // フォントを14→12、不透明度を7割へ落として後退させ、上余白も
-        // 6f→4fへ詰めてパネルの上下パディングを削減した。
-        GUIStyle headerStyle = new GUIStyle(GUI.skin.label);
-        headerStyle.fontSize = 12;
-        headerStyle.fontStyle = FontStyle.Bold;
-        headerStyle.alignment = TextAnchor.UpperCenter;
-        headerStyle.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, roomFadeAlpha * 0.7f);
-        GUI.Label(new Rect(rect.x, rect.y + 4f, rect.width, 18f), "NEXT STAGE", headerStyle);
+        // Home画面改善依頼④(2026-09-15), item 2 - 「単なる小型プレビュー
+        // ではなく、地図や旅の資料から出てきたような演出」に対応するため、
+        // 従来のOrnateUi.DrawPanel(半透明パネル+常時パルス)は撤去し、
+        // 経年変化した地図帳風の装飾フレーム画像(stageMapFrameTexture)へ
+        // 全面的に置き換えた。フレーム画像自身のアスペクト比を保ったまま
+        // rect内に収まる最大サイズで中央寄せする(引き伸ばしによる歪みを
+        // 防ぐ)。フレーム未設定(null)の場合は矩形のフレーム相当の領域を
+        // そのままステージ写真の表示先として使う(Acceptance Test 8 - 画像
+        // 未設定でも壊れない)。
+        Texture2D frame = stageMapFrameTexture;
+        Rect frameRect = frame != null
+            ? FitRectPreserveAspect(rect, (float)frame.width / Mathf.Max(1, frame.height))
+            : FitRectPreserveAspect(rect, 1672f / 941f);
 
         StageDefinition selectedDef = StageDatabase.FindById(SelectedStageId);
-
-        // Home画面改善依頼③(2026-09-15), item 3 - 「NEXT STAGEにステージ
-        // 画像プレビューを追加」。既存StageDefinition.thumbnail(元々Stage
-        // SelectUI用に用意されていたフィールドをそのまま流用、新規フィー
-        // ルドは追加していない)をヘッダーの下・ステージ名の上に横長で
-        // 表示する。未設定(null)の場合は単に描画をスキップするだけで、
-        // NullReferenceException等は起きない(Acceptance Test 8)。
         Texture2D thumbnail = selectedDef != null ? selectedDef.thumbnail : null;
+
+        // フレーム画像は中央の約68%幅×62%高さ(中心配置)だけが無地の
+        // パーチメント領域になるよう生成時に指定済み(Assets/Art/UI/
+        // TravelAtlasFrame.png、外周16%ずつに地図らしい装飾を描き込んで
+        // ある)。写真はその領域だけに収まるよう先にサイズを決めておく
+        // (フレームより先に写真を描き、フレームを重ねて縁を隠す方式だと
+        // 縁が写真の上に乗って見えてしまうため、逆に「フレームを描いた後
+        // その無地領域だけに写真を重ねる」順序にする)。
+        Rect photoWindowRect = new Rect(
+            frameRect.x + frameRect.width * 0.16f,
+            frameRect.y + frameRect.height * 0.19f,
+            frameRect.width * 0.68f,
+            frameRect.height * 0.62f);
+
+        if (frame != null)
+        {
+            Color prevFrame = GUI.color;
+            GUI.color = new Color(1f, 1f, 1f, roomFadeAlpha);
+            GUI.DrawTexture(frameRect, frame, ScaleMode.StretchToFill);
+            GUI.color = prevFrame;
+        }
+
+        // Home画面改善依頼③(2026-09-15), item 3 - 既存StageDefinition.
+        // thumbnail(元々StageSelectUI用に用意されていたフィールドをその
+        // まま流用、新規フィールドは追加していない)を地図の無地領域へ
+        // 重ねて表示する。未設定(null)の場合は単に描画をスキップする
+        // だけで、NullReferenceException等は起きない(Acceptance Test 8)。
         if (thumbnail != null)
         {
-            float thumbW = rect.width - 20f;
-            float thumbH = rect.height * 0.40f;
-            Rect thumbRect = new Rect(rect.x + (rect.width - thumbW) / 2f, rect.y + rect.height * 0.16f, thumbW, thumbH);
+            Rect photoRect = FitRectPreserveAspect(photoWindowRect, (float)thumbnail.width / Mathf.Max(1, thumbnail.height));
             Color prevThumb = GUI.color;
             GUI.color = new Color(1f, 1f, 1f, roomFadeAlpha);
-            GUI.DrawTexture(thumbRect, thumbnail, ScaleMode.ScaleToFit);
+            GUI.DrawTexture(photoRect, thumbnail, ScaleMode.ScaleToFit);
             GUI.color = prevThumb;
         }
 
-        // ステージ名(荒野街道)はパネル内で唯一の全不透明・最大フォント
-        // 要素のまま据え置き、「主役はドアだがパネル内での主役はステージ
-        // 名」という優先順位を保つ。
+        // item 6 - 「ステージ名は読みやすく、ルート情報は補助情報として
+        // 控えめに」。写真の下端に薄暗いグラデーション相当の帯(単色半透明
+        // で近似)を敷き、その上にステージ名+ルート情報を乗せる - 地図に
+        // 書き込まれた地名ラベルのような見た目を狙った。
+        float labelBarH = photoWindowRect.height * 0.30f;
+        Rect labelBarRect = new Rect(photoWindowRect.x, photoWindowRect.yMax - labelBarH, photoWindowRect.width, labelBarH);
+        Color prevBar = GUI.color;
+        GUI.color = new Color(0.1f, 0.07f, 0.03f, 0.45f * roomFadeAlpha);
+        GUI.DrawTexture(labelBarRect, Texture2D.whiteTexture);
+        GUI.color = prevBar;
+
         GUIStyle nameStyle = new GUIStyle(GUI.skin.label);
-        nameStyle.fontSize = 22;
+        nameStyle.fontSize = Mathf.Max(14, Mathf.RoundToInt(labelBarH * 0.52f));
         nameStyle.fontStyle = FontStyle.Bold;
-        nameStyle.alignment = TextAnchor.MiddleCenter;
-        nameStyle.normal.textColor = new Color(1f, 1f, 1f, roomFadeAlpha);
-        GUI.Label(new Rect(rect.x, rect.y + rect.height * 0.60f, rect.width, 30f),
+        nameStyle.alignment = TextAnchor.UpperCenter;
+        nameStyle.normal.textColor = new Color(1f, 0.96f, 0.85f, roomFadeAlpha);
+        GUI.Label(new Rect(labelBarRect.x, labelBarRect.y + 2f, labelBarRect.width, labelBarH * 0.6f),
             selectedDef != null ? selectedDef.displayName : "-", nameStyle);
 
-        // ルート情報もヘッダー同様に控えめな不透明度(8割)へ。
         GUIStyle routeStyle = new GUIStyle(GUI.skin.label);
-        routeStyle.fontSize = 13;
-        routeStyle.alignment = TextAnchor.MiddleCenter;
-        routeStyle.normal.textColor = new Color(0.8f, 0.85f, 0.95f, roomFadeAlpha * 0.8f);
-        GUI.Label(new Rect(rect.x, rect.y + rect.height * 0.83f, rect.width, 20f),
+        routeStyle.fontSize = Mathf.Max(10, Mathf.RoundToInt(labelBarH * 0.24f));
+        routeStyle.alignment = TextAnchor.LowerCenter;
+        routeStyle.normal.textColor = new Color(0.85f, 0.88f, 0.95f, roomFadeAlpha * 0.75f);
+        GUI.Label(new Rect(labelBarRect.x, labelBarRect.y + labelBarH * 0.55f, labelBarRect.width, labelBarH * 0.45f),
             selectedDef != null ? selectedDef.routeText : "", routeStyle);
+
+        // 見出し「NEXT STAGE」はフレームの上・控えめな金色のまま維持する
+        // (視覚優先順位「ドア>Character>NEXT STAGE」を保つ、item 4)。
+        GUIStyle headerStyle = new GUIStyle(GUI.skin.label);
+        headerStyle.fontSize = 12;
+        headerStyle.fontStyle = FontStyle.Bold;
+        headerStyle.alignment = TextAnchor.LowerCenter;
+        headerStyle.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, roomFadeAlpha * 0.7f);
+        GUI.Label(new Rect(rect.x, rect.y, rect.width, Mathf.Max(0f, frameRect.y - rect.y)), "NEXT STAGE", headerStyle);
+
+        // Home画面改善依頼②由来のタップ可能表示を、フレーム自体の縁へ
+        // 引き継ぐ(常時点滅しない薄い金枠、item 4)。
+        DrawTapAffordanceBorder(frameRect, roomFadeAlpha);
 
         bool tapped = roomInteractable && GUI.Button(rect, GUIContent.none, GUIStyle.none);
         if (tapped)

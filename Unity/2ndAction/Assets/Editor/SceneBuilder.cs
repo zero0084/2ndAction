@@ -195,6 +195,9 @@ public static class SceneBuilder
         // plain Texture2D import (LoadIconTexture, same as topBackground/
         // titleLogo) since GUI.DrawTexture takes a Texture2D, not a Sprite.
         gameManager.gachaMachineTexture = LoadIconTexture("Assets/Art/UI/GachaMachine.png");
+        // Home画面改善依頼④(2026-09-15) - NEXT STAGEの「地図から出てきた」
+        // 演出用フレーム。ChatGPTで生成し、黒背景をしきい値透過処理済み。
+        gameManager.stageMapFrameTexture = LoadIconTexture("Assets/Art/UI/TravelAtlasFrame.png");
         // Ver.1 finishing pass, item 8 - reuses the already-imported Card
         // Select SE (see ConfigureSfxImport("...CardSelectSe.wav") above)
         // for the room hotspots' tap feedback.

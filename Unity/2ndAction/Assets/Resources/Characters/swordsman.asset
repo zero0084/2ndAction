@@ -60,11 +60,11 @@ MonoBehaviour:
   downAttackLandFrames: []
   belongings:
   - label: "\u5263"
-    icon: {fileID: 0}
+    icon: {fileID: 2800000, guid: cf4106940795dce468b0cf55c281055c, type: 3}
     placeholderColor: {r: 0.75, g: 0.78, b: 0.85, a: 1}
   - label: "\u5916\u5957"
-    icon: {fileID: 0}
+    icon: {fileID: 2800000, guid: 77e2dad6af766bb4991ef20ee943b82d, type: 3}
     placeholderColor: {r: 0.25, g: 0.25, b: 0.3, a: 1}
   - label: "\u7D0B\u7AE0"
-    icon: {fileID: 0}
+    icon: {fileID: 2800000, guid: 8d49f51c701540641a0717c706747e80, type: 3}
     placeholderColor: {r: 0.6, g: 0.5, b: 0.25, a: 1}
