@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: executioner
   cardName: EXECUTIONER
-  icon: {fileID: 2800000, guid: 0e43e459916e45448a99fb3ebd8f9fe4, type: 3}
+  icon: {fileID: 2800000, guid: 8461a75df636e264b9ad63541776deb2, type: 3}
   description: "\u6575\u6483\u7834\u3067\u5F97\u3089\u308C\u308BMILE\u304C\u5897\u52A0\u3059\u308B"
   category: 6
   sortOrder: 103

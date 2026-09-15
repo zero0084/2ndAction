@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: exp_converter
   cardName: EXP CONVERTER
-  icon: {fileID: 2800000, guid: a593d6687e4d4e442b9015a11a3485d5, type: 3}
+  icon: {fileID: 2800000, guid: 8afb6a51cf11ac440a776a667a059856, type: 3}
   description: "\u7D4C\u9A13\u5024\u52B9\u7387\u3092\u72A0\u7272\u306B\u3001MILE\u7372\u5F97\u91CF\u3092\u9AD8\u3081\u308B"
   category: 6
   sortOrder: 152

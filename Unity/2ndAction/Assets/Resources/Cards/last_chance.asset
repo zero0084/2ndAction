@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: last_chance
   cardName: LAST CHANCE
-  icon: {fileID: 2800000, guid: d0f8c9d2f29fc8547b7630ed9ce7d1d3, type: 3}
+  icon: {fileID: 2800000, guid: d4d1c4a860db9be4985dd69e7935f613, type: 3}
   description: "\u88AB\u5F3E\u30921\u56DE\u9632\u304E\u3001\u6483\u7834\u6642\u306E\u56DE\u5FA9\u91CF\u3082\u5C11\u3057\u4E0A\u304C\u308B"
   category: 2
   sortOrder: 172

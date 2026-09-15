@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: elite_enemies
   cardName: ELITE ENEMIES
-  icon: {fileID: 2800000, guid: b03955f1405fa2841817b701cc7e1d57, type: 3}
+  icon: {fileID: 2800000, guid: 72c25eb9fe5a5004b9bdbe5a65425eb0, type: 3}
   description: "\u96D1\u9B5A\u6575\u306EHP\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B\u4EE3\u308F\u308A\u306B\u3001\u7D4C\u9A13\u5024/MILE\u304C\u5927\u304D\u304F\u5897\u52A0\u3059\u308B"
   category: 6
   sortOrder: 126

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: greed
   cardName: GREED
-  icon: {fileID: 2800000, guid: 5ad1358bcd93124429cefe8dd30928b7, type: 3}
+  icon: {fileID: 2800000, guid: a3ef72bf399db36448d317c6f49dd463, type: 3}
   description: "\u79FB\u52D5\u901F\u5EA6\u304C\u4E0A\u6607\u3059\u308B\u304C\u3001\u6575\u306E\u51FA\u73FE\u983B\u5EA6\u304C\u4E0A\u304C\u308B"
   category: 6
   sortOrder: 15

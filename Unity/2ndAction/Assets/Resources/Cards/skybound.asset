@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: skybound
   cardName: SKYBOUND
-  icon: {fileID: 2800000, guid: 776d9aab7b541a14a9517aecc0f31f33, type: 3}
+  icon: {fileID: 2800000, guid: c80702dd1fe270f4fad0018153bbf3b1, type: 3}
   description: "\u5730\u4E0A\u653B\u6483\u529B\u3092\u72A0\u7272\u306B\u3001\u7A7A\u4E2D\u653B\u6483\u529B\u3092\u5927\u5E45\u306B\u9AD8\u3081\u308B"
   category: 6
   sortOrder: 154

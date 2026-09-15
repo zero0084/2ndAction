@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: flame_counter
   cardName: FLAME COUNTER
-  icon: {fileID: 2800000, guid: 1bf99c33d951e6b428ec2d694546de8a, type: 3}
+  icon: {fileID: 2800000, guid: dd978a13191dd0d49921d00fccad29b1, type: 3}
   description: "\u88AB\u5F3E\u30921\u56DE\u9632\u304E\u3001\u53CD\u6483\u306E\u5A01\u529B\u3082\u4E0A\u304C\u308B"
   category: 2
   sortOrder: 169

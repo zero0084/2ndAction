@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: combo_plus
   cardName: COMBO PLUS
-  icon: {fileID: 2800000, guid: 1002495d39560144ea402fd67fb7ea88, type: 3}
+  icon: {fileID: 2800000, guid: f73d3b414c94d614ea875675ca822c75, type: 3}
   description: "\u30B3\u30F3\u30DC\u6700\u7D42\u6BB5\u306E\u5A01\u529B\u304C\u4E0A\u304C\u308B"
   category: 1
   sortOrder: 105

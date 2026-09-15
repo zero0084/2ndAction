@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: horde
   cardName: HORDE
-  icon: {fileID: 2800000, guid: 4b3b4f74a68496e4b9f7458ad10523e4, type: 3}
+  icon: {fileID: 2800000, guid: 28fffd58759e156488ef6d24c22b20f4, type: 3}
   description: "\u6575\u306E\u51FA\u73FE\u983B\u5EA6\u304C\u4E0A\u304C\u308B"
   category: 6
   sortOrder: 127

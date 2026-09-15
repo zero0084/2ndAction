@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: shockwave
   cardName: SHOCKWAVE
-  icon: {fileID: 2800000, guid: 7ec0cc1a26d878f4e9c7fc755a044d77, type: 3}
+  icon: {fileID: 2800000, guid: 712683ce3789f204ba48f04382d42b0e, type: 3}
   description: "\u653B\u6483\u306E\u9593\u5408\u3044\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B"
   category: 1
   sortOrder: 112

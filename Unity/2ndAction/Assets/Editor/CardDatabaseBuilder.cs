@@ -20,6 +20,26 @@ public static class CardDatabaseBuilder
 {
     const string CardsFolder = "Assets/Resources/Cards";
     const string GeneratedIconFolder = "Assets/Art/Icons/Generated";
+    // 全カードアイコン統一・カード表示品質改修(2026-09-16) - Visual Style
+    // Ver.1準拠の新規アイコン91種をChatGPTで生成し、
+    // Assets/Art/Icons/CardIcons/<cardId>.png という命名規則で配置した。
+    // 91個のSpecエントリすべてにexistingIconPathを個別に書き込むと巨大な
+    // 差分になる上、今後カードを追加するたびに書き忘れるリスクがあるため、
+    // 「そのcardId.pngが実在すれば自動的に使う」という規約ベースの解決を
+    // ResolveIconPath1箇所に集約した。
+    const string UnifiedIconFolder = "Assets/Art/Icons/CardIcons";
+
+    // spec.existingIconPathが明示されていればそちらを優先(将来、特定
+    // カードだけ命名規則から外れた場所の素材を使いたくなった場合の抜け道)。
+    // 何も指定が無ければUnifiedIconFolder内のcardId.pngを探し、存在すれば
+    // そのパスを返す(無ければnullを返し、呼び出し元は従来どおり
+    // GenerateIcon()の手続き生成プレースホルダーへフォールバックする)。
+    static string ResolveIconPath(Spec spec)
+    {
+        if (spec.existingIconPath != null) return spec.existingIconPath;
+        string candidate = $"{UnifiedIconFolder}/{spec.id}.png";
+        return AssetDatabase.LoadAssetAtPath<Texture2D>(candidate) != null ? candidate : null;
+    }
 
     struct Spec
     {
@@ -110,9 +130,10 @@ public static class CardDatabaseBuilder
                 // existingIconPathが指定された場合は都度アイコンだけ同期
                 // する(誰かがInspectorで別アートに差し替えていない限り、
                 // 何度Buildを実行しても同じ結果になる)。
-                if (spec.existingIconPath != null)
+                string resolvedIconPath = ResolveIconPath(spec);
+                if (resolvedIconPath != null)
                 {
-                    Texture2D newIcon = LoadIconTexture(spec.existingIconPath);
+                    Texture2D newIcon = LoadIconTexture(resolvedIconPath);
                     if (newIcon != null && existing.icon != newIcon)
                     {
                         existing.icon = newIcon;
@@ -133,8 +154,9 @@ public static class CardDatabaseBuilder
             card.unlockDistance = spec.unlockDistance;
             card.gachaStage = spec.gachaStage != 0 ? spec.gachaStage : 1;
             card.element = spec.element;
-            card.icon = spec.existingIconPath != null
-                ? LoadIconTexture(spec.existingIconPath)
+            string newCardIconPath = ResolveIconPath(spec);
+            card.icon = newCardIconPath != null
+                ? LoadIconTexture(newCardIconPath)
                 : GenerateIcon(spec.id, spec.glyph, spec.glyphColor);
 
             card.effects = new List<CardEffect>();
@@ -166,7 +188,6 @@ public static class CardDatabaseBuilder
         {
             id = "speed_up", name = "SPEED UP", sortOrder = 1, category = CardCategory.Movement,
             description = "移動速度が上昇する",
-            existingIconPath = "Assets/Art/Icons/IconSpeedUp.png",
             effects = new[] { (EffectType.MoveSpeed, 0.12f) },
             rarity = 1, gachaStage = 1
         };
@@ -174,7 +195,6 @@ public static class CardDatabaseBuilder
         {
             id = "speed_down", name = "SPEED DOWN", sortOrder = 2, recommendPriority = 1, category = CardCategory.Movement,
             description = "移動速度が低下する",
-            existingIconPath = "Assets/Art/Icons/IconSpeedDown.png",
             effects = new[] { (EffectType.MoveSpeed, -0.12f) },
             rarity = 1, gachaStage = 1
         };
@@ -182,7 +202,6 @@ public static class CardDatabaseBuilder
         {
             id = "attack_up", name = "ATTACK UP", sortOrder = 3, category = CardCategory.Attack,
             description = "攻撃力が上昇する",
-            existingIconPath = "Assets/Art/Icons/IconAttackPower.png",
             effects = new[] { (EffectType.AttackPower, 1f) },
             rarity = 1, gachaStage = 1
         };
@@ -190,7 +209,6 @@ public static class CardDatabaseBuilder
         {
             id = "jump_power_up", name = "JUMP POWER UP", sortOrder = 4, category = CardCategory.Movement,
             description = "ジャンプ力が上昇する",
-            existingIconPath = "Assets/Art/Icons/IconJumpPower.png",
             effects = new[] { (EffectType.JumpPower, 0.15f) },
             rarity = 1, gachaStage = 1
         };
@@ -198,7 +216,6 @@ public static class CardDatabaseBuilder
         {
             id = "jump_count_up", name = "JUMP COUNT UP", sortOrder = 5, category = CardCategory.Movement,
             description = "空中ジャンプ回数が増える",
-            existingIconPath = "Assets/Art/Icons/IconJumpCount.png",
             effects = new[] { (EffectType.JumpCount, 1f) },
             rarity = 2, gachaStage = 1
         };
@@ -206,7 +223,6 @@ public static class CardDatabaseBuilder
         {
             id = "heart_up", name = "HEART UP", sortOrder = 6, category = CardCategory.Defense,
             description = "ハート上限が増え、HPが回復する",
-            existingIconPath = "Assets/Art/Icons/IconHeal.png",
             effects = new[] { (EffectType.MaxHp, 1f) },
             rarity = 1, gachaStage = 1
         };
@@ -441,7 +457,6 @@ public static class CardDatabaseBuilder
             // 替え(旧glyph手続き生成アイコンから)。glyph/glyphColorは
             // existingIconPath指定時は使われないが記録として残す。
             glyph = IconGlyph.Ring, glyphColor = new Color(0.9f, 0.7f, 0.3f),
-            existingIconPath = "Assets/Art/Icons/IconShockwave.png",
             effects = new[] { (EffectType.AttackRange, 0.4f) },
             rarity = 3, unlockDistance = 5000f, gachaStage = 2
         };
@@ -589,7 +604,6 @@ public static class CardDatabaseBuilder
             id = "momentum", name = "MOMENTUM", sortOrder = so++, category = CardCategory.Movement,
             description = "走り続けて速度が上がるほど、攻撃力も上がる",
             glyph = IconGlyph.SpeedLines, glyphColor = new Color(0.4f, 0.9f, 1f),
-            existingIconPath = "Assets/Art/Icons/IconMomentum.png", // アイコン素材追加(2026-09-11)
             effects = new[] { (EffectType.MomentumBonus, 3f) },
             rarity = 4, unlockDistance = 20000f, gachaStage = 3
         };
@@ -673,7 +687,6 @@ public static class CardDatabaseBuilder
             id = "long_blade", name = "LONG BLADE", sortOrder = so++, category = CardCategory.Attack,
             description = "攻撃の間合いが大幅に上がる",
             glyph = IconGlyph.Ring, glyphColor = new Color(0.85f, 0.65f, 0.35f),
-            existingIconPath = "Assets/Art/Icons/IconLongBlade.png", // アイコン素材追加(2026-09-11)
             effects = new[] { (EffectType.AttackRange, 0.5f) },
             rarity = 4, unlockDistance = 20000f, gachaStage = 3
         };
@@ -959,7 +972,6 @@ public static class CardDatabaseBuilder
         {
             id = "ground_breaker", name = "GROUND BREAKER", sortOrder = so++, category = CardCategory.Attack,
             description = "地上での攻撃力が大きく上がる",
-            existingIconPath = "Assets/Art/Icons/IconGroundBreaker.png",
             effects = new[] { (EffectType.GroundAttackPower, 4f) },
             rarity = 3, unlockDistance = 5000f, gachaStage = 2
         };
@@ -970,7 +982,6 @@ public static class CardDatabaseBuilder
             // トリガーは未実装。被弾防止+反撃火力アップという固定効果で
             // 表現。
             description = "被弾を1回防ぎ、反撃の威力も上がる",
-            existingIconPath = "Assets/Art/Icons/IconFlameCounter.png",
             effects = new[] { (EffectType.Shield, 1f), (EffectType.AttackPower, 2f) },
             rarity = 3, unlockDistance = 5000f, gachaStage = 2
         };
@@ -978,7 +989,6 @@ public static class CardDatabaseBuilder
         {
             id = "combo_rush", name = "COMBO RUSH", sortOrder = so++, category = CardCategory.Attack,
             description = "攻撃のテンポが上がり、コンボ最終段の威力も上がる",
-            existingIconPath = "Assets/Art/Icons/IconComboRush.png",
             effects = new[] { (EffectType.AttackSpeed, 0.15f), (EffectType.ComboFinalStageBonus, 2f) },
             rarity = 3, unlockDistance = 5000f, gachaStage = 2
         };
@@ -986,7 +996,6 @@ public static class CardDatabaseBuilder
         {
             id = "air_strike", name = "AIR STRIKE", sortOrder = so++, category = CardCategory.Attack,
             description = "空中攻撃の威力が大きく上がる",
-            existingIconPath = "Assets/Art/Icons/IconAirStrike.png",
             effects = new[] { (EffectType.AirAttackPower, 4f) },
             rarity = 3, unlockDistance = 5000f, gachaStage = 2
         };
@@ -996,7 +1005,6 @@ public static class CardDatabaseBuilder
             // 天使の羽+光輪のアイコンに合わせ、「もう一度だけ救われる」
             // 守護のイメージをShield(被弾1回無効)+回復量アップで表現。
             description = "被弾を1回防ぎ、撃破時の回復量も少し上がる",
-            existingIconPath = "Assets/Art/Icons/IconLastChance.png",
             effects = new[] { (EffectType.Shield, 1f), (EffectType.LifestealAmount, 1f) },
             rarity = 3, unlockDistance = 5000f, gachaStage = 2
         };
@@ -1007,7 +1015,6 @@ public static class CardDatabaseBuilder
             // 無効。LAST CHANCE(Shield+回復)とは違う軸(Shield+速度)で
             // 差別化。
             description = "移動速度が上がり、被弾も1回防ぐ",
-            existingIconPath = "Assets/Art/Icons/IconCloseCall.png",
             effects = new[] { (EffectType.MoveSpeed, 0.1f), (EffectType.Shield, 1f) },
             rarity = 3, unlockDistance = 5000f, gachaStage = 2
         };
@@ -1018,7 +1025,6 @@ public static class CardDatabaseBuilder
             // "boss_killer"(BossDamageBonus+3)と同系統だが、こちらは
             // アート専用の別カードとして少し強めに設定。
             description = "ボスへの攻撃力が大きく上がる",
-            existingIconPath = "Assets/Art/Icons/IconHunter.png",
             effects = new[] { (EffectType.BossDamageBonus, 4f) },
             rarity = 3, unlockDistance = 5000f, gachaStage = 2
         };

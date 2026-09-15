@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: long_haul
   cardName: LONG HAUL
-  icon: {fileID: 2800000, guid: 2f66fcc894be7364d8aee299743ce602, type: 3}
+  icon: {fileID: 2800000, guid: 559f048692312a2488da3ec10f174924, type: 3}
   description: "\u7D4C\u9A13\u5024\u7372\u5F97\u91CF\u3068\u6700\u5927HP\u304C\u3068\u3082\u306B\u4E0A\u304C\u308B"
   category: 3
   sortOrder: 121

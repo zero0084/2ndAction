@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: piercing_blade
   cardName: PIERCING BLADE
-  icon: {fileID: 2800000, guid: 6da08712f6c72f24a9d5a0cc20cd8381, type: 3}
+  icon: {fileID: 2800000, guid: ce0a1798944e08e48af50f65e052bca3, type: 3}
   description: "\u653B\u6483\u306E\u9593\u5408\u3044\u3068\u5A01\u529B\u304C\u4E0A\u304C\u308B"
   category: 1
   sortOrder: 111

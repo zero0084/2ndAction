@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: sonic_blade
   cardName: SONIC BLADE
-  icon: {fileID: 2800000, guid: 4f1e316f4428241428accc85d3e967b8, type: 3}
+  icon: {fileID: 2800000, guid: eca9bd4263a82e84e9459afccc21783b, type: 3}
   description: "\u30B3\u30F3\u30DC1\u6BB5\u76EE\u306E\u5A01\u529B\u3068\u30C6\u30F3\u30DD\u304C\u4E0A\u304C\u308B"
   category: 1
   sortOrder: 135

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: ground_breaker
   cardName: GROUND BREAKER
-  icon: {fileID: 2800000, guid: c22f13f828785324f8e531293dfa238b, type: 3}
+  icon: {fileID: 2800000, guid: 8d825c773e933ae4c94cb2e05dfff640, type: 3}
   description: "\u5730\u4E0A\u3067\u306E\u653B\u6483\u529B\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B"
   category: 1
   sortOrder: 168

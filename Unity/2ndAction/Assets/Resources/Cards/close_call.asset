@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: close_call
   cardName: CLOSE CALL
-  icon: {fileID: 2800000, guid: ebf71daae48005a49b79314a45b0de9c, type: 3}
+  icon: {fileID: 2800000, guid: 5a538bebf6f95c045b6989edecb0f245, type: 3}
   description: "\u79FB\u52D5\u901F\u5EA6\u304C\u4E0A\u304C\u308A\u3001\u88AB\u5F3E\u30821\u56DE\u9632\u3050"
   category: 0
   sortOrder: 173

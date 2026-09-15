@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: shield
   cardName: SHIELD
-  icon: {fileID: 2800000, guid: 32fd9f4d79dedec4ea7bbfece1d493f6, type: 3}
+  icon: {fileID: 2800000, guid: d8d08c6a0ec19614c92ca76c14a2c838, type: 3}
   description: "\u30C0\u30E1\u30FC\u30B8\u30921\u56DE\u3060\u3051\u7121\u52B9\u5316\u3059\u308B"
   category: 2
   sortOrder: 10
