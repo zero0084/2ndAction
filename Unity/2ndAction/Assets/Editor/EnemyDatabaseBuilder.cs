@@ -44,6 +44,20 @@ public static class EnemyDatabaseBuilder
     // 既存の仕組み(spritePath=null、tintだけ紫)なので、走行アニメーションも
     // そのまま共用できる。
     const string GoblinRunFramesFolder = "Assets/Art/GoblinRun";
+    // 敵アニメーション追加(2026-09-15) - Shooter用の走行5コマ(ChatGPTで
+    // ShooterEnemy.pngを参照画像として生成)。
+    const string ShooterRunFramesFolder = "Assets/Art/ShooterRun";
+    // 敵アニメーション追加(2026-09-15) - Heavy用の走行5コマ(ChatGPTで
+    // HeavyEnemy.pngを参照画像として生成)。
+    const string HeavyRunFramesFolder = "Assets/Art/HeavyRun";
+    // 敵アニメーション追加(2026-09-15) - Irregular用の走行5コマ(ChatGPTで
+    // IrregularEnemy.pngを参照画像として生成)。
+    const string IrregularRunFramesFolder = "Assets/Art/IrregularRun";
+    // 敵アニメーション追加(2026-09-15) - Flying(Bird)用の羽ばたき5コマ
+    // (ChatGPTでWastelandBird.pngを参照画像として生成)。命名はrunFrames
+    // のままだが(EnemyAnimator.runFramesは「移動中サイクルするコマ配列」
+    // という汎用の意味で、走行に限らない)、中身は羽ばたきサイクル。
+    const string BirdFlapFramesFolder = "Assets/Art/WastelandBirdFlap";
 
     struct Spec
     {
@@ -281,7 +295,10 @@ public static class EnemyDatabaseBuilder
             // Playerの約105%)よりはっきり小さく(Playerの約72%)、かつ
             // ゴブリンより小柄な「小型の障害物的な敵」として読める大きさに
             // 調整。追加の拡大縮小は不要なため1fのまま。
-            visualScaleMultiplier = 1f
+            visualScaleMultiplier = 1f,
+            // 敵アニメーション追加(2026-09-15) - WastelandBird.pngを参照
+            // 画像にChatGPTで生成した右向き羽ばたき5コマ。
+            runFramesDir = BirdFlapFramesFolder
         };
 
         yield return new Spec
@@ -304,7 +321,11 @@ public static class EnemyDatabaseBuilder
             // pass targeted ~110% (1.55); re-targeted to ~120% (1.69),
             // Largest multiplier of the batch since the source art itself
             // is genuinely the shortest/most compact of the six.
-            visualScaleMultiplier = 1.69f
+            visualScaleMultiplier = 1.69f,
+            // 敵アニメーション追加(2026-09-15) - IrregularEnemy.pngを参照
+            // 画像にChatGPTで生成した右向き走行5コマ(四足で駆けるポーズ)。
+            // 暗い青黒い体色のため背景は蛍光グリーンで透過処理した。
+            runFramesDir = IrregularRunFramesFolder
         };
 
         yield return new Spec
@@ -325,7 +346,11 @@ public static class EnemyDatabaseBuilder
             // directly: Shooter's raw art measures ~1.19 world units tall
             // vs Player's ~1.18 (already ~100%). First pass targeted ~110%
             // (1.09); re-targeted to ~120% (1.19).
-            visualScaleMultiplier = 1.19f
+            visualScaleMultiplier = 1.19f,
+            // 敵アニメーション追加(2026-09-15) - ShooterEnemy.pngを参照画像
+            // にChatGPTで生成した右向き走行5コマ。衣装が暗色のため背景は
+            // 黒ではなく蛍光グリーンを指定して透過処理した。
+            runFramesDir = ShooterRunFramesFolder
         };
 
         yield return new Spec
@@ -349,7 +374,11 @@ public static class EnemyDatabaseBuilder
             // (->~140%); nudged back up slightly to 0.98 (->~145%) so Heavy
             // reads unambiguously larger even next to the also-enlarged
             // Normal/Shooter/Irregular/Chaser/Rusher above.
-            visualScaleMultiplier = 0.98f
+            visualScaleMultiplier = 0.98f,
+            // 敵アニメーション追加(2026-09-15) - HeavyEnemy.pngを参照画像に
+            // ChatGPTで生成した右向き走行5コマ。衣装/金属が暗色のため背景は
+            // 蛍光グリーンで透過処理した。
+            runFramesDir = HeavyRunFramesFolder
         };
 
         yield return new Spec

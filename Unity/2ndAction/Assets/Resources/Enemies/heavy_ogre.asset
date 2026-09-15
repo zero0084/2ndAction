@@ -23,6 +23,11 @@ MonoBehaviour:
   bigKnockbackOnHit: 1
   enableVisualFacing: 1
   defaultFacingRight: 1
-  runFrames: []
+  runFrames:
+  - {fileID: 21300000, guid: fe32ca53098e22a4c8c224ffeb3b44bd, type: 3}
+  - {fileID: 21300000, guid: 8a688509f0ffa3544bcb1a5a2d1cde08, type: 3}
+  - {fileID: 21300000, guid: ecafcbbdf04ac7d4ea682bbb31d4bcfd, type: 3}
+  - {fileID: 21300000, guid: 39812c84bda94d841a0a00b4cb6c2ab2, type: 3}
+  - {fileID: 21300000, guid: be6b30580bf80f34eaa65d3dd288a55d, type: 3}
   mileReward: 5
   visualScaleMultiplier: 0.98

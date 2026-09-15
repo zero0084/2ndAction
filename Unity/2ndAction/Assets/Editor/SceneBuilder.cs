@@ -424,6 +424,39 @@ public static class SceneBuilder
         // (Runnerで発見したのと同じ種類のズレ)が起きない状態で導入する。
         ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/GoblinRun", 1308f / 1053f);
 
+        // 敵アニメーション追加(2026-09-15) - 第2弾(Shooter)。ShooterEnemy.png
+        // 自身の実測ワールド高さ(1009px÷PPU850=1.1871)をtargetWorldHeightに
+        // 渡す。
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/ShooterRun", 1009f / 850f);
+
+        // 敵アニメーション追加(2026-09-15) - 第3弾(Heavy)。HeavyEnemy.png
+        // 自身の実測ワールド高さ(996px÷PPU570=1.7474)をtargetWorldHeightに
+        // 渡す。
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/HeavyRun", 996f / 570f);
+
+        // 敵アニメーション追加(2026-09-15) - 第4弾(Irregular)。IrregularEnemy.
+        // png自身の実測ワールド高さ(956px÷PPU1140=0.8386)をtargetWorld
+        // Heightに渡す。
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/IrregularRun", 956f / 1140f);
+
+        // 敵アニメーション追加(2026-09-15) - 第5弾(Flying/Bird)、最後の1種。
+        // 他4種と違い「走行」ではなく「羽ばたき」5コマ(WastelandBird.pngを
+        // 参照画像にChatGPTで生成、黒背景・しきい値透過処理済み)。ここだけ
+        // 足元Pivot系の関数を使わない - 翼を広げたコマと畳んだコマとでは
+        // シルエットの縦幅が本来大きく異なる(実測297-425px、約43%差)ため、
+        // Runner/Goblin等と同じ「コマ個別PPUで揃える」処理をすると本来の
+        // 翼の広がりごと胴体まで拡大縮小されてしまい逆効果。さらに「最下点
+        // 基準Pivot」も、翼を下げたコマでは翼先が最下点になってしまい
+        // 胴体が上下にジャンプして見える(実測、コンテンツ中心が308〜505px
+        // まで変動)。Flying種はGetHeightAt基準の接地もそもそも無く
+        // (EnemyAnimator.Update、isFlyingの独自bobのみ)、必要なのは「胴体の
+        // 位置がコマ間で一定であること」だけなので、既存のConfigureSprite
+        // FolderImport(Pivot指定なし=Unity既定のCenter Pivot、PPUは全コマ
+        // 共有のWastelandBird.png自身の値)をそのまま使う - 生成時に「胸位置
+        // をコマ間で揃える」よう指示済みなので、固定Center Pivotで胴体が
+        // ブレずに揃う。
+        ConfigureSpriteFolderImport("Assets/Art/WastelandBirdFlap", 1117.6f);
+
         // Distance-unlock system - enemy species database, built now that
         // the goblin sprite's import (foot pivot/PPU) is configured, since
         // EnemyDatabaseBuilder just references that already-set-up Sprite
