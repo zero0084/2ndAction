@@ -414,6 +414,16 @@ public static class SceneBuilder
         // なり、伸び縮み(ズレ)が原理的に解消される。
         ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/RunnerRun", 954f / 1020f);
 
+        // 敵アニメーション追加(2026-09-15) - マスター報告「各敵キャラの
+        // アニメーションを追加してほしい」への対応、第1弾(Goblin)。ChatGPT
+        // にenemy_v1.pngを参照画像として渡し、同じキャラクター・同じ画風の
+        // 左向き走行5コマを生成(黒背景、しきい値透過処理済み)。Runnerの
+        // ズレ修正で新設したConfigureSpriteFolderImportWithFootPivotUniform
+        // Sizeをそのまま使い、targetWorldHeight=enemy_v1.png自身の実測ワー
+        // ルド高さ(1308px÷PPU1053=1.2422)を渡すことで、最初から伸び縮み
+        // (Runnerで発見したのと同じ種類のズレ)が起きない状態で導入する。
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/GoblinRun", 1308f / 1053f);
+
         // Distance-unlock system - enemy species database, built now that
         // the goblin sprite's import (foot pivot/PPU) is configured, since
         // EnemyDatabaseBuilder just references that already-set-up Sprite

@@ -36,8 +36,14 @@ public static class EnemyDatabaseBuilder
     const string HeavySpritePath = "Assets/Art/Enemy/HeavyEnemy.png";
     const string RunnerSpritePath = "Assets/Art/Enemy/RunnerEnemy.png";
     // Runner Enemy Run Animation - 5 frames, imported by SceneBuilder
-    // (ConfigureSpriteFolderImportWithFootPivot) before this runs.
+    // (ConfigureSpriteFolderImportWithFootPivotUniformSize) before this runs.
     const string RunnerRunFramesFolder = "Assets/Art/RunnerRun";
+    // 敵アニメーション追加(2026-09-15) - Goblin用の走行5コマ(ChatGPTでenemy_v1.
+    // pngを参照画像として生成、SceneBuilderが同じUniformSize方式でインポート
+    // 済み)。goblin_eliteは同じ素材+色ティントのみで見た目を差別化している
+    // 既存の仕組み(spritePath=null、tintだけ紫)なので、走行アニメーションも
+    // そのまま共用できる。
+    const string GoblinRunFramesFolder = "Assets/Art/GoblinRun";
 
     struct Spec
     {
@@ -56,10 +62,12 @@ public static class EnemyDatabaseBuilder
         // enableVisualFacing = true explicitly.
         public bool enableVisualFacing;
         public bool defaultFacingRight;
-        // Runner Enemy Run Animation - true only for chaser_runner/
-        // rusher_runner (see LoadRunFrames below for how this resolves to
-        // the actual Sprite[]).
-        public bool useRunnerRunFrames;
+        // 敵アニメーション追加(2026-09-15) - 元々useRunnerRunFrames(bool、
+        // Runner専用)だったものを汎用化。空文字なら従来どおりrunFrames=
+        // null(=EnemyAnimatorの手続き的idleのみ)、指定時はそのフォルダから
+        // LoadRunFrames()で読み込む。Runner種はRunnerRunFramesFolder、
+        // Goblin/EliteGoblinはGoblinRunFramesFolderを指定する。
+        public string runFramesDir;
         // Reward/MILE System Ver.1 - per-species MILE value (see
         // EnemyDefinition.mileReward's own comment). Defaults to 1 (C#
         // struct default) so any Spec below that doesn't set this
@@ -72,18 +80,21 @@ public static class EnemyDatabaseBuilder
         public float visualScaleMultiplier;
     }
 
-    // Runner Enemy Run Animation - loads the 5 already-configured frame
-    // Sprites from RunnerRunFramesFolder, sorted by filename (runner_run_0
+    // Runner Enemy Run Animation - loads the already-configured frame
+    // Sprites from the given folder, sorted by filename (e.g. runner_run_0
     // .. runner_run_4), same "load whatever's there, sorted" pattern
     // SceneBuilder's own LoadSpriteSequence uses for Dragon/Majin/Player.
     // Returns an empty array (never null) if the folder/frames aren't
     // there yet, so a species referencing this just falls back to its
     // single static `sprite` - EnemyAnimator already treats an empty
     // runFrames array as "no run animation".
-    static Sprite[] LoadRunFrames()
+    // 敵アニメーション追加(2026-09-15) - 元々RunnerRunFramesFolder固定
+    // だったものをフォルダ引数化(GoblinRunFramesFolder等、他種でも再利用
+    // するため)。
+    static Sprite[] LoadRunFrames(string folder)
     {
-        if (!Directory.Exists(RunnerRunFramesFolder)) return new Sprite[0];
-        string[] files = Directory.GetFiles(RunnerRunFramesFolder, "*.png");
+        if (string.IsNullOrEmpty(folder) || !Directory.Exists(folder)) return new Sprite[0];
+        string[] files = Directory.GetFiles(folder, "*.png");
         System.Array.Sort(files);
         var list = new List<Sprite>();
         foreach (string f in files)
@@ -131,6 +142,20 @@ public static class EnemyDatabaseBuilder
                     existing.defaultFacingRight = spec.defaultFacingRight;
                     EditorUtility.SetDirty(existing);
                 }
+                // 敵アニメーション追加(2026-09-15) - runFramesも同じ「まだ
+                // 一度もこのフィールドを持ったことがない既存アセット(空配列
+                // /null)だけバックフィルする」パターン。既にコマが設定されて
+                // いる場合(Runner種、または手動でInspectorから外した場合)は
+                // 一切触れない。
+                if ((existing.runFrames == null || existing.runFrames.Length == 0) && !string.IsNullOrEmpty(spec.runFramesDir))
+                {
+                    Sprite[] frames = LoadRunFrames(spec.runFramesDir);
+                    if (frames.Length > 0)
+                    {
+                        existing.runFrames = frames;
+                        EditorUtility.SetDirty(existing);
+                    }
+                }
                 continue; // never overwrite anything else, see class comment
             }
 
@@ -146,7 +171,7 @@ public static class EnemyDatabaseBuilder
             def.bigKnockbackOnHit = spec.bigKnockbackOnHit;
             def.enableVisualFacing = spec.enableVisualFacing;
             def.defaultFacingRight = spec.defaultFacingRight;
-            def.runFrames = spec.useRunnerRunFrames ? LoadRunFrames() : null;
+            def.runFrames = !string.IsNullOrEmpty(spec.runFramesDir) ? LoadRunFrames(spec.runFramesDir) : null;
             // Reward/MILE System Ver.1 - Spec.mileReward defaults to 0 (C#
             // struct default) when a Spec below doesn't set it explicitly;
             // treat that as "1" (Normal's value) rather than an accidental
@@ -200,7 +225,14 @@ public static class EnemyDatabaseBuilder
             // raw art measures ~1.24 world units (PPU 1053). First pass
             // targeted ~110% of Player (1.05); still read as too small once
             // seen in motion, so re-targeted to ~120% (1.14).
-            visualScaleMultiplier = 1.14f
+            visualScaleMultiplier = 1.14f,
+            // 敵アニメーション追加(2026-09-15) - マスター報告「各敵キャラの
+            // アニメーションを追加してほしい」への対応。ChatGPTへenemy_v1.png
+            // を参照画像として渡し、同じキャラクター・同じ画風で左向きの
+            // 走行5コマを生成(SceneBuilder.ConfigureSpriteFolderImportWith
+            // FootPivotUniformSizeでインポート、Runnerと同じ「コマ個別PPU」
+            // 方式のため伸び縮みのズレは発生しない)。
+            runFramesDir = GoblinRunFramesFolder
         };
 
         yield return new Spec
@@ -218,7 +250,13 @@ public static class EnemyDatabaseBuilder
             // sprite, just re-tinted).
             enableVisualFacing = true,
             defaultFacingRight = false,
-            visualScaleMultiplier = 1.14f
+            visualScaleMultiplier = 1.14f,
+            // 敵アニメーション追加(2026-09-15) - goblin_eliteはgoblinと全く
+            // 同じ素材(spritePath=null)を紫ティントで差別化しているだけの
+            // 種なので、走行アニメーションも同じGoblinRunFramesFolderを共用
+            // する(tintはSpriteRenderer.colorへ適用され、表示中のどのコマ
+            // にも独立して効くため、コマ切り替えとティントは干渉しない)。
+            runFramesDir = GoblinRunFramesFolder
         };
 
         // ===== Distance Level Design Ver.1 - 6 new species ===== //
@@ -333,7 +371,7 @@ public static class EnemyDatabaseBuilder
             // 「明確に左向き」という前提が誤りだった(このコメントを書いた
             // 時点で実際の画像を再確認していなかったと思われる)。
             defaultFacingRight = true,
-            useRunnerRunFrames = true,
+            runFramesDir = RunnerRunFramesFolder,
             mileReward = 3,
             // Bugfix 2026-09-06 (再調整, root cause found) - the previous
             // pass's own comment flagged "run frames weren't independently
@@ -371,7 +409,7 @@ public static class EnemyDatabaseBuilder
             bigKnockbackOnHit = false,
             enableVisualFacing = true,
             defaultFacingRight = true, // Bugfix 2026-09-08 - see chaser_runner's matching comment
-            useRunnerRunFrames = true,
+            runFramesDir = RunnerRunFramesFolder,
             mileReward = 3,
             visualScaleMultiplier = 1.52f // same shared Runner art - see chaser_runner's matching comment
         };
