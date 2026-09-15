@@ -270,7 +270,7 @@ public class TerrainManager : MonoBehaviour
             Destroy(c.visual);
             c.visual = GroundFactory.CreateSlopeVisual(transform, squareSprite, groundSprite, platformArt,
                 new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
-                c.needsLeftCap, needsRightCap: needsRightCap, leftBleed: rebuildLeftBleed);
+                c.needsLeftCap, needsRightCap: needsRightCap, leftBleed: rebuildLeftBleed, addWallCollider: routeBranchEnabled);
 
             // 荒野街道 地面埋め修整(2026-09-13深夜) - テーマ切り替え時も
             // 断面帯を作り直す(差し替え前のテーマの帯が残り続けたり、
@@ -508,13 +508,21 @@ public class TerrainManager : MonoBehaviour
     // If x lands inside a pit (no ground), returns the solid ground just
     // behind the pit's start edge instead - used to respawn the player on
     // solid footing after a fall, rather than back inside empty space.
+    // Stage01仕上げ前調整(2026-09-15) - マスター指摘「復帰直後に同じ穴へ
+    // 再落下しない」への対応。0.5fだと自動前進速度(通常5〜6 units/秒)で
+    // ノックバック分を差し引いてもコンマ数秒で穴の縁へ戻ってしまい、
+    // 再落下を避ける実質的な反応時間がほぼ無かった(TakeDamageのisFallは
+    // hitInvincibleTimerによる連続ヒット防止を素通りするため、無敵時間の
+    // 長さでは救えない - 純粋に距離の問題)。pitReactionBufferぶん手前まで
+    // 下げ、目視して助走してから穴へ向き直えるだけの間合いを確保する。
+    public float pitReactionBuffer = 2.5f;
     public float FindSafeRespawnX(float x)
     {
         foreach (RuntimeChunk c in chunks)
         {
             if (c.type == ChunkType.Pit && x >= c.startX && x <= c.endX)
             {
-                return c.startX - 0.5f;
+                return c.startX - pitReactionBuffer;
             }
         }
         return x;
@@ -635,9 +643,13 @@ public class TerrainManager : MonoBehaviour
         // ではなく、ここが上ルートの本当の起点なので左キャップを付ける。
         float rampUpEndX = x + branchRampLength;
         float rampUpEndY = groundYAtFork + branchHeightAboveGround;
+        // 崖面Collider追加(2026-09-15) - ランプアップの起点(forkX)は下ルート
+        // (danger)がすぐ脇を通る、まさにマスター指摘「上下ルート間の崖面」
+        // の実例。このメソッドはrouteBranchEnabled=trueの間しか呼ばれない
+        // ので、常時trueで問題ない。
         GameObject rampUpVisual = GroundFactory.CreateSlopeVisual(transform, squareSprite, skyPathSprite, platformArt,
             new Vector2(x, y), new Vector2(rampUpEndX, rampUpEndY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
-            needsLeftCap: true, needsRightCap: false);
+            needsLeftCap: true, needsRightCap: false, addWallCollider: true);
         skyChunks.Add(new SkyChunk { startX = x, endX = rampUpEndX, startY = y, endY = rampUpEndY, visual = rampUpVisual });
         // Stage01仕上げ調整(2026-09-13深夜) - マスター指摘「浮遊足場感が
         // 残る」への軽い緩和策として、分岐区間だけ既定(0.35)より密に
@@ -679,7 +691,7 @@ public class TerrainManager : MonoBehaviour
         float groundYAtMerge = GetHeightAt(mergeX) ?? y;
         GameObject rampDownVisual = GroundFactory.CreateSlopeVisual(transform, squareSprite, skyPathSprite, platformArt,
             new Vector2(x, y), new Vector2(mergeX, groundYAtMerge), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
-            needsLeftCap: false, needsRightCap: true);
+            needsLeftCap: false, needsRightCap: true, addWallCollider: true);
         skyChunks.Add(new SkyChunk { startX = x, endX = mergeX, startY = y, endY = groundYAtMerge, visual = rampDownVisual });
         // Stage01仕上げ調整(2026-09-13深夜) - ランプダウンにはこれまで
         // 装飾が撒かれていなかった(ランプアップ/並走区間のみ)。合流地点
@@ -898,9 +910,12 @@ public class TerrainManager : MonoBehaviour
                 leftBleed = outerDepth * Mathf.Tan(theta) * cornerBleedSafetyMargin;
             }
 
+            // 崖面Collider追加(2026-09-15) - routeBranchEnabled(=荒野街道の
+            // 間だけtrue)をそのままaddWallColliderへ渡すことで、天空回廊
+            // (routeBranchEnabled常にfalse)には一切影響を与えない。
             chunk.visual = GroundFactory.CreateSlopeVisual(transform, squareSprite, groundSprite, platformArt,
                 new Vector2(startX, startY), new Vector2(endX, endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
-                needsLeftCap, needsRightCap: false, leftBleed: leftBleed);
+                needsLeftCap, needsRightCap: false, leftBleed: leftBleed, addWallCollider: routeBranchEnabled);
 
             // 基礎品質修整 続報(2026-09-14) - マスター報告「道の曲がりで
             // 穴が気になる」の実機動画を確認したところ、実際にプレイヤーが
@@ -1092,7 +1107,7 @@ public class TerrainManager : MonoBehaviour
         Destroy(prev.visual);
         prev.visual = GroundFactory.CreateSlopeVisual(transform, squareSprite, groundSprite, platformArt,
             new Vector2(prev.startX, prev.startY), new Vector2(prev.endX, prev.endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
-            prev.needsLeftCap, needsRightCap: true);
+            prev.needsLeftCap, needsRightCap: true, addWallCollider: routeBranchEnabled);
     }
 
     // How far the chunk currently being placed sits past the difficulty

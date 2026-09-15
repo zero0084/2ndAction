@@ -25,7 +25,7 @@ public static class GroundFactory
     // whole-segment look. Falls back to the legacy single groundSprite
     // (still tiled across the full length) if platformArt isn't set, and
     // to a plain colored square if neither is set.
-    public static GameObject CreateSlopeVisual(Transform parent, Sprite fallbackSprite, Sprite groundSprite, PlatformSpriteSet platformArt, Vector2 a, Vector2 b, float thickness, float visualHeight, float surfaceInset, Color color, bool needsLeftCap = true, bool needsRightCap = true, float leftBleed = 0f, float rightBleed = 0f)
+    public static GameObject CreateSlopeVisual(Transform parent, Sprite fallbackSprite, Sprite groundSprite, PlatformSpriteSet platformArt, Vector2 a, Vector2 b, float thickness, float visualHeight, float surfaceInset, Color color, bool needsLeftCap = true, bool needsRightCap = true, float leftBleed = 0f, float rightBleed = 0f, bool addWallCollider = false)
     {
         GameObject go = new GameObject("GroundSegment");
         go.transform.SetParent(parent);
@@ -61,7 +61,12 @@ public static class GroundFactory
 
         if (usingNewArt)
         {
-            BuildThreePieceVisual(go.transform, platformArt, length, visualHeight, needsLeftCap, needsRightCap, leftBleed, rightBleed);
+            // 崖面Collider追加(2026-09-15) - addWallColliderがtrueの場合のみ、
+            // 露出しているキャップ(needsLeftCap/needsRightCap)の位置に
+            // 「歩行面ラインより下だけ」を覆う当たり判定を追加する。既定
+            // falseなので、この引数を渡さない全ての既存呼び出し(天空回廊
+            // のGenerateNextSkyChunk等)は完全に無改造のまま。
+            BuildThreePieceVisual(go.transform, platformArt, length, visualHeight, usedInset, needsLeftCap, needsRightCap, leftBleed, rightBleed, addWallCollider);
         }
         else if (groundSprite != null)
         {
@@ -102,7 +107,7 @@ public static class GroundFactory
     // amount is derived from the fixed slope angle. Harmless where there's
     // no angle difference (flat-to-flat), since bleed is 0 there and the
     // tile pattern repeats seamlessly regardless of length.
-    static void BuildThreePieceVisual(Transform parent, PlatformSpriteSet art, float length, float visualHeight, bool needsLeftCap, bool needsRightCap, float leftBleed = 0f, float rightBleed = 0f)
+    static void BuildThreePieceVisual(Transform parent, PlatformSpriteSet art, float length, float visualHeight, float surfaceInset, bool needsLeftCap, bool needsRightCap, float leftBleed = 0f, float rightBleed = 0f, bool addWallCollider = false)
     {
         float leftCapWidth = needsLeftCap ? visualHeight * (art.left.rect.width / art.left.rect.height) : 0f;
         float rightCapWidth = needsRightCap ? visualHeight * (art.right.rect.width / art.right.rect.height) : 0f;
@@ -124,9 +129,52 @@ public static class GroundFactory
         float midWidth = Mathf.Max(0.01f, midRightEdge - midLeftEdge);
         float midX = (midLeftEdge + midRightEdge) / 2f;
 
-        if (needsLeftCap) CreatePieceChild(parent, "Left", art.left, leftCapWidth, visualHeight, leftX, tiled: false);
+        if (needsLeftCap)
+        {
+            CreatePieceChild(parent, "Left", art.left, leftCapWidth, visualHeight, leftX, tiled: false);
+            if (addWallCollider) CreateWallHazard(parent, leftCapWidth, visualHeight, surfaceInset, leftX);
+        }
         CreatePieceChild(parent, "Mid", art.mid, midWidth, visualHeight, midX, tiled: true);
-        if (needsRightCap) CreatePieceChild(parent, "Right", art.right, rightCapWidth, visualHeight, rightX, tiled: false);
+        if (needsRightCap)
+        {
+            CreatePieceChild(parent, "Right", art.right, rightCapWidth, visualHeight, rightX, tiled: false);
+            if (addWallCollider) CreateWallHazard(parent, rightCapWidth, visualHeight, surfaceInset, rightX);
+        }
+    }
+
+    // 崖面Collider追加(2026-09-15) - マスター報告「見た目上は壁なのに物理的
+    // には通過できる箇所がある」への対応。露出したキャップ(Pitの縁/上下
+    // ルート分岐の坂の起点・合流点)にだけ、歩行面ライン(surfaceInset)より
+    // 下の「崖の側面・地面の断面」に相当する範囲だけを覆うTriggerを追加
+    // する。キャップ本体(CreatePieceChild)とは別の子オブジェクトにする
+    // ことで、見た目側のスケール変換(width/nativeWidth比)を気にせず
+    // GroundSegment自身のローカル座標(スケール1)でそのまま計算できる。
+    // 歩行面ラインちょうどではなく少しだけ下(buffer分)から始めているのは、
+    // 普通に接地して歩いているだけの状態を「壁に当たった」と誤反応しない
+    // ようにするための緩衝。当たり判定の大きさで表現する既存のObstacle
+    // Controllerと同じ思想(GroundFactory.CreateObstacle参照) - 新しい
+    // 壁専用の物理ブロックは追加しない。実際の反応(ダメージ/復帰)は
+    // TerrainWallHazard.cs、PlayerController.TakeDamage()を経由する既存
+    // ロジックをそのまま再利用する。
+    static void CreateWallHazard(Transform parent, float capWidth, float visualHeight, float surfaceInset, float localX)
+    {
+        const float buffer = 0.15f;
+        float topLocalY = (visualHeight * 0.5f - surfaceInset) - buffer;
+        float bottomLocalY = -visualHeight * 0.5f;
+        float colliderHeight = Mathf.Max(0.05f, topLocalY - bottomLocalY);
+        float centerLocalY = (topLocalY + bottomLocalY) * 0.5f;
+
+        GameObject go = new GameObject("WallHazard");
+        go.transform.SetParent(parent, false);
+        go.transform.localPosition = new Vector3(localX, centerLocalY, 0f);
+
+        var col = go.AddComponent<BoxCollider2D>();
+        col.isTrigger = true;
+        // 見た目の幅より少し内側(90%)に収め、「Colliderが壁から大きく
+        // はみ出さない」というマスター指示を満たす。
+        col.size = new Vector2(capWidth * 0.9f, colliderHeight);
+
+        go.AddComponent<TerrainWallHazard>();
     }
 
     static void CreatePieceChild(Transform parent, string name, Sprite sprite, float width, float height, float localX, bool tiled)
