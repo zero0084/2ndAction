@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageDefinition
   stageId: sky_corridor
   displayName: "\u5929\u7A7A\u56DE\u5ECA"
-  thumbnail: {fileID: 0}
+  thumbnail: {fileID: 2800000, guid: ebf81788d5542e64eab24a8decbeed76, type: 3}
   enemyText: "\u6575: \u30B4\u30D6\u30EA\u30F3\u7CFB + \u8DDD\u96E2\u9032\u884C\u3067\u5F90\u3005\u306B\u89E3\u7981"
   featureText: "\u7279\u5FB4: \u5CA9\u3068\u96F2\u306E\u6D6E\u904A\u8DB3\u5834\u3001\u4E0A\u7A7A\u306E\u9053"
   routeText: "\u30EB\u30FC\u30C8: \u9032\u3080\u307B\u3069\u5371\u967A\u5EA6\u304C\u4E0A\u6607"

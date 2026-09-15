@@ -47,3 +47,24 @@ MonoBehaviour:
   canUseUpAttack: 1
   canUseAirAttack: 1
   canUseDownAttack: 1
+  runFrames: []
+  jumpStartFrames: []
+  jumpFrames: []
+  landFrames: []
+  attackFrames: []
+  doubleJumpFrames: []
+  runFps: 0
+  attackFramesSmall: []
+  attackFramesLarge: []
+  downAttackFrames: []
+  downAttackLandFrames: []
+  belongings:
+  - label: "\u5263"
+    icon: {fileID: 0}
+    placeholderColor: {r: 0.75, g: 0.78, b: 0.85, a: 1}
+  - label: "\u5916\u5957"
+    icon: {fileID: 0}
+    placeholderColor: {r: 0.25, g: 0.25, b: 0.3, a: 1}
+  - label: "\u7D0B\u7AE0"
+    icon: {fileID: 0}
+    placeholderColor: {r: 0.6, g: 0.5, b: 0.25, a: 1}

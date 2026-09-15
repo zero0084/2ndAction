@@ -158,4 +158,21 @@ public class CharacterDefinition : ScriptableObject
     // Small/Largeと同じ「空なら黒剣士のデフォルトへフォールバック」方式。
     public Sprite[] downAttackFrames;
     public Sprite[] downAttackLandFrames;
+
+    // Home画面改善依頼③(2026-09-15) - 「選択中キャラクターの持ち物・装備の
+    // 視覚表示」。新しい装備システムではなく、あくまでHome画面で「このキャ
+    // ラクターらしさ」を見せるための表示専用データ。武器/防具/象徴的な
+    // 小物などを2〜4個想定。iconが未設定の間はGameManager側がlabelの頭文字
+    // +placeholderColorの簡易表示へフォールバックする(マスター指示「最終
+    // 的な画像素材は後から差し替えられる構造に」に対応 - iconを後から
+    // Inspectorで設定するだけで自動的に実画像表示へ切り替わる)。
+    [System.Serializable]
+    public struct BelongingItem
+    {
+        public string label;
+        public Texture2D icon;
+        public Color placeholderColor;
+    }
+    [Header("Home画面 持ち物表示 (2026-09-15, 表示専用・装備システムではない)")]
+    public BelongingItem[] belongings;
 }

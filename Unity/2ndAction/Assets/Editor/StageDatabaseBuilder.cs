@@ -67,6 +67,10 @@ public static class StageDatabaseBuilder
             routeText = "ルート: 進むほど危険度が上昇",
             unlocked = true,
             sortOrder = 2,
+            // Home画面改善依頼③(2026-09-15) - 新規画像生成はせず、既存の
+            // 天空回廊デフォルト背景をそのままプレビューに流用する(マスター
+            // 指示「新しい画像をUnity側で生成する必要はありません」に対応)。
+            thumbnailPath = "Assets/Art/Background/background.png",
         },
     };
 
@@ -83,12 +87,23 @@ public static class StageDatabaseBuilder
         {
             string assetPath = $"{StagesFolder}/{spec.id}.asset";
             StageDefinition existing = AssetDatabase.LoadAssetAtPath<StageDefinition>(assetPath);
-            if (existing != null) continue; // 既存のハンドチューニング値は一切上書きしない
+            if (existing != null)
+            {
+                // Home画面改善依頼③(2026-09-15) - 既存アセットの他フィールド
+                // には触れず、thumbnailが未設定(null)の場合だけバックフィル
+                // する(荒野街道は既に設定済みなのでこの分岐には来ない)。
+                if (existing.thumbnail == null && !string.IsNullOrEmpty(spec.thumbnailPath))
+                {
+                    existing.thumbnail = LoadThumbnailTexture(spec.thumbnailPath);
+                    EditorUtility.SetDirty(existing);
+                }
+                continue;
+            }
 
             var def = ScriptableObject.CreateInstance<StageDefinition>();
             def.stageId = spec.id;
             def.displayName = spec.displayName;
-            def.thumbnail = !string.IsNullOrEmpty(spec.thumbnailPath) ? CharacterDatabaseBuilder.LoadIconTexture(spec.thumbnailPath) : null;
+            def.thumbnail = !string.IsNullOrEmpty(spec.thumbnailPath) ? LoadThumbnailTexture(spec.thumbnailPath) : null;
             def.enemyText = spec.enemyText;
             def.featureText = spec.featureText;
             def.routeText = spec.routeText;
@@ -101,5 +116,19 @@ public static class StageDatabaseBuilder
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         StageDatabase.Reset();
+    }
+
+    // Home画面改善依頼③(2026-09-15) - background.png等、既に他の用途
+    // (Sprite等)でインポート設定済みの画像を「壊さず」再利用するための
+    // 専用ローダー。CharacterDatabaseBuilder.LoadIconTextureはtextureType
+    // をDefaultへ強制上書きするため、既にSprite型でインポート済みの画像
+    // (例: 天空回廊のbackground.png、SceneBuilder.Buildで実際のゲーム背景
+    // としてSprite参照されている)に使うと、そちらの参照がnullになって
+    // 天空回廊の背景が消える regression を起こす(実機ビルドで実際に発生を
+    // 確認し、このヘルパーへ差し替えて修正した)。単純にTexture2Dとして
+    // 読み込むだけで、インポート設定には一切触れない。
+    static Texture2D LoadThumbnailTexture(string path)
+    {
+        return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
     }
 }

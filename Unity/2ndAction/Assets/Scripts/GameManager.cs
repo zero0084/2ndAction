@@ -2856,6 +2856,14 @@ public class GameManager : MonoBehaviour
                 Rect characterRect = FracRect(bgRoomRect, 0.02f, 0.14f, 0.17f, 0.38f);
                 DrawCharacterHotspot(characterRect, roomInteractable, roomFadeAlpha);
 
+                // Home画面改善依頼③(2026-09-15), item 1 - 「選択中キャラ
+                // クターの持ち物・装備の視覚表示」。CHARACTERパネル自体は
+                // 拡張せず(カードの優先度を落とさないため)、パネル下と
+                // Bedホットスポット(y0.52〜)の間に空いている床スペースへ
+                // 専用の細い帯を新設した。タップ機能は無し(表示専用)。
+                Rect characterBelongingsRect = FracRect(bgRoomRect, 0.02f, 0.395f, 0.17f, 0.45f);
+                DrawCharacterBelongings(characterBelongingsRect, roomFadeAlpha);
+
                 // ステージ選択導線追加(2026-09-12) - 参考画像の「中央の床
                 // ラグに次の行き先を表示」に相当。Active Runが既にある間は
                 // (CONTINUEでしか再開できず、ステージは変更不可のため)
@@ -2877,7 +2885,12 @@ public class GameManager : MonoBehaviour
                     // (0.5)・横幅(0.30)は変更せず、扉が画面の主役という
                     // 位置づけを保つ。背景色の透明度自体はDrawStageHotspot
                     // 側のOrnateUi.DrawPanel呼び出しで軽減する。
-                    Rect stageRect = FracRect(bgRoomRect, 0.35f, 0.745f, 0.65f, 0.885f);
+                    // Home画面改善依頼③(2026-09-15), item 3/6 - ステージ
+                    // 画像プレビューを収めるため高さのみ0.14→0.19へ少し
+                    // 戻した(マスター指示「横幅は大きく変えず、必要なら
+                    // 高さを少しだけ調整」に対応)。横幅(0.30)・中心(0.5)は
+                    // 無変更。上端(0.70)はDoorの範囲(0.14-0.65)と重ならない。
+                    Rect stageRect = FracRect(bgRoomRect, 0.35f, 0.70f, 0.65f, 0.89f);
                     DrawStageHotspot(stageRect, roomInteractable, roomFadeAlpha);
                 }
 
@@ -3850,6 +3863,61 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Home画面改善依頼③(2026-09-15), item 1 - 「選択中キャラクターの持ち物
+    // ・装備の視覚表示」。新しい装備システムではなく、CharacterDefinition.
+    // belongings(表示専用データ、CharacterDatabaseBuilder参照)を横並びの
+    // 小さいアイコンとして見せるだけの演出。タップ判定・詳細画面は無し
+    // (マスター指示どおり)。キャラクターカードより目立たないよう、枠は
+    // 簡易的な半透明の小箱のみ・パルスや発光などの強い演出も付けない。
+    // 実画像(icon)が未設定の間は、labelの頭文字+placeholderColorの単色
+    // タイルへ自動フォールバックする - 後からInspectorでiconを設定すれば
+    // コード変更なしに実画像表示へ切り替わる(マスター指示「最終的な画像
+    // 素材は後から差し替えられる構造に」に対応)。
+    void DrawCharacterBelongings(Rect rect, float roomFadeAlpha)
+    {
+        CharacterDefinition selectedDef = CharacterDatabase.FindById(SelectedCharacterId);
+        CharacterDefinition.BelongingItem[] items = selectedDef != null ? selectedDef.belongings : null;
+        if (items == null || items.Length == 0) return;
+
+        int count = Mathf.Min(items.Length, 4);
+        float gap = 4f;
+        float slotSize = Mathf.Min(rect.height, (rect.width - gap * (count - 1)) / count);
+        float totalWidth = slotSize * count + gap * (count - 1);
+        float startX = rect.x + (rect.width - totalWidth) / 2f;
+
+        GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
+        labelStyle.fontSize = Mathf.Max(9, Mathf.RoundToInt(slotSize * 0.42f));
+        labelStyle.alignment = TextAnchor.MiddleCenter;
+        labelStyle.normal.textColor = new Color(1f, 1f, 1f, 0.9f * roomFadeAlpha);
+
+        for (int i = 0; i < count; i++)
+        {
+            Rect slotRect = new Rect(startX + i * (slotSize + gap), rect.y, slotSize, slotSize);
+            CharacterDefinition.BelongingItem item = items[i];
+
+            if (item.icon != null)
+            {
+                Color prevIcon = GUI.color;
+                GUI.color = new Color(1f, 1f, 1f, roomFadeAlpha);
+                GUI.DrawTexture(slotRect, item.icon, ScaleMode.ScaleToFit);
+                GUI.color = prevIcon;
+            }
+            else
+            {
+                Color placeholder = item.placeholderColor.a > 0f ? item.placeholderColor : new Color(0.4f, 0.4f, 0.45f);
+                Color prevBox = GUI.color;
+                GUI.color = new Color(placeholder.r, placeholder.g, placeholder.b, 0.75f * roomFadeAlpha);
+                GUI.DrawTexture(slotRect, Texture2D.whiteTexture);
+                GUI.color = prevBox;
+
+                if (!string.IsNullOrEmpty(item.label))
+                {
+                    GUI.Label(slotRect, item.label.Substring(0, 1), labelStyle);
+                }
+            }
+        }
+    }
+
     // ステージ選択導線追加(2026-09-12) - マスター提供の参考画像「中央の
     // 床ラグに次の行き先(NEXT STAGE)を表示」に相当。DrawCharacterHotspot
     // と同じ「対応する物が室内アートに描かれていないため、パネル+ラベル+
@@ -3884,6 +3952,24 @@ public class GameManager : MonoBehaviour
 
         StageDefinition selectedDef = StageDatabase.FindById(SelectedStageId);
 
+        // Home画面改善依頼③(2026-09-15), item 3 - 「NEXT STAGEにステージ
+        // 画像プレビューを追加」。既存StageDefinition.thumbnail(元々Stage
+        // SelectUI用に用意されていたフィールドをそのまま流用、新規フィー
+        // ルドは追加していない)をヘッダーの下・ステージ名の上に横長で
+        // 表示する。未設定(null)の場合は単に描画をスキップするだけで、
+        // NullReferenceException等は起きない(Acceptance Test 8)。
+        Texture2D thumbnail = selectedDef != null ? selectedDef.thumbnail : null;
+        if (thumbnail != null)
+        {
+            float thumbW = rect.width - 20f;
+            float thumbH = rect.height * 0.40f;
+            Rect thumbRect = new Rect(rect.x + (rect.width - thumbW) / 2f, rect.y + rect.height * 0.16f, thumbW, thumbH);
+            Color prevThumb = GUI.color;
+            GUI.color = new Color(1f, 1f, 1f, roomFadeAlpha);
+            GUI.DrawTexture(thumbRect, thumbnail, ScaleMode.ScaleToFit);
+            GUI.color = prevThumb;
+        }
+
         // ステージ名(荒野街道)はパネル内で唯一の全不透明・最大フォント
         // 要素のまま据え置き、「主役はドアだがパネル内での主役はステージ
         // 名」という優先順位を保つ。
@@ -3892,7 +3978,7 @@ public class GameManager : MonoBehaviour
         nameStyle.fontStyle = FontStyle.Bold;
         nameStyle.alignment = TextAnchor.MiddleCenter;
         nameStyle.normal.textColor = new Color(1f, 1f, 1f, roomFadeAlpha);
-        GUI.Label(new Rect(rect.x, rect.y + rect.height * 0.34f, rect.width, 32f),
+        GUI.Label(new Rect(rect.x, rect.y + rect.height * 0.60f, rect.width, 30f),
             selectedDef != null ? selectedDef.displayName : "-", nameStyle);
 
         // ルート情報もヘッダー同様に控えめな不透明度(8割)へ。
@@ -3900,7 +3986,7 @@ public class GameManager : MonoBehaviour
         routeStyle.fontSize = 13;
         routeStyle.alignment = TextAnchor.MiddleCenter;
         routeStyle.normal.textColor = new Color(0.8f, 0.85f, 0.95f, roomFadeAlpha * 0.8f);
-        GUI.Label(new Rect(rect.x, rect.y + rect.height * 0.68f, rect.width, 22f),
+        GUI.Label(new Rect(rect.x, rect.y + rect.height * 0.83f, rect.width, 20f),
             selectedDef != null ? selectedDef.routeText : "", routeStyle);
 
         bool tapped = roomInteractable && GUI.Button(rect, GUIContent.none, GUIStyle.none);

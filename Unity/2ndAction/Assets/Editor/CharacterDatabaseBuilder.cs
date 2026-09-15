@@ -77,6 +77,14 @@ public static class CharacterDatabaseBuilder
         public float downAttackFramesPpu;
         public string downAttackLandFramesDir;
         public float downAttackLandFramesPpu;
+
+        // Home画面改善依頼③(2026-09-15) - 持ち物表示用データ。実画像は
+        // まだ用意していないため、labelとplaceholderColorのみを指定する
+        // (CharacterDefinition.BelongingItem.iconはnullのまま = GameManager
+        // 側が簡易プレースホルダー表示にフォールバックする)。後で専用の
+        // アイコン画像を用意したら、このSpecへ画像パスを足すかInspectorで
+        // iconを直接差し替えるだけで済む。
+        public CharacterDefinition.BelongingItem[] belongings;
     }
 
     // 黒剣士=PlayerController/GameManagerの既存デフォルトそのもの(性能
@@ -116,6 +124,14 @@ public static class CharacterDatabaseBuilder
         swordsman.lifeRating = 3; swordsman.powerRating = 4; swordsman.speedRating = 3; swordsman.comboRating = 3;
         swordsman.challengeFlag = false;
         swordsman.sortOrder = 0;
+        // Home画面改善依頼③(2026-09-15) - 「独り道を歩み続ける剣士」という
+        // flavorTextに沿った持ち物3点。
+        swordsman.belongings = new[]
+        {
+            new CharacterDefinition.BelongingItem { label = "剣", placeholderColor = new Color(0.75f, 0.78f, 0.85f) },
+            new CharacterDefinition.BelongingItem { label = "外套", placeholderColor = new Color(0.25f, 0.25f, 0.3f) },
+            new CharacterDefinition.BelongingItem { label = "紋章", placeholderColor = new Color(0.6f, 0.5f, 0.25f) },
+        };
 
         Spec dualBlade = DefaultBaseline;
         dualBlade.id = "dual_blade";
@@ -130,6 +146,14 @@ public static class CharacterDatabaseBuilder
         dualBlade.lifeRating = 4; dualBlade.powerRating = 2; dualBlade.speedRating = 5; dualBlade.comboRating = 5;
         dualBlade.challengeFlag = false;
         dualBlade.sortOrder = 1;
+        // Home画面改善依頼③(2026-09-15) - マスター指定の例(双剣/羽根モチーフ
+        // /軽装らしい小物)をそのまま採用。
+        dualBlade.belongings = new[]
+        {
+            new CharacterDefinition.BelongingItem { label = "双剣", placeholderColor = new Color(0.55f, 0.75f, 0.85f) },
+            new CharacterDefinition.BelongingItem { label = "羽根", placeholderColor = new Color(0.9f, 0.9f, 0.95f) },
+            new CharacterDefinition.BelongingItem { label = "布飾り", placeholderColor = new Color(0.2f, 0.55f, 0.55f) },
+        };
 
         // 3人目のプレイアブル主人公(2026-09-13) - マスター初期案どおりの
         // 実プレイ反映値。「地上コンボ型 - 一発は軽いが手数・速度・機動力
@@ -220,6 +244,14 @@ public static class CharacterDatabaseBuilder
         nobleLady.lifeRating = 3; nobleLady.powerRating = 1; nobleLady.speedRating = 1; nobleLady.comboRating = 1;
         nobleLady.challengeFlag = false;
         nobleLady.sortOrder = 2;
+        // Home画面改善依頼③(2026-09-15) - マスター指定の例(大剣/王冠モチーフ
+        // /青金の紋章)をそのまま採用。
+        nobleLady.belongings = new[]
+        {
+            new CharacterDefinition.BelongingItem { label = "大剣", placeholderColor = new Color(0.8f, 0.8f, 0.85f) },
+            new CharacterDefinition.BelongingItem { label = "王冠", placeholderColor = new Color(0.95f, 0.85f, 0.35f) },
+            new CharacterDefinition.BelongingItem { label = "紋章", placeholderColor = new Color(0.25f, 0.35f, 0.75f) },
+        };
 
         // ここから実プレイに反映される値(マスター初期案どおり)。
         nobleLady.baseLives = 3;
@@ -299,7 +331,20 @@ public static class CharacterDatabaseBuilder
         {
             string assetPath = $"{CharactersFolder}/{spec.id}.asset";
             CharacterDefinition existing = AssetDatabase.LoadAssetAtPath<CharacterDefinition>(assetPath);
-            if (existing != null) continue; // 既存のハンドチューニング値は一切上書きしない
+            if (existing != null)
+            {
+                // Home画面改善依頼③(2026-09-15) - 既存アセットの他フィールド
+                // (星評価・アニメーション等の手動チューニング値)には一切
+                // 触れず、今回新設したbelongingsフィールドだけを後方互換
+                // バックフィルする(まだ一度もこのフィールドを持ったことが
+                // ない既存アセットが対象、未設定=null/空配列の間だけ)。
+                if ((existing.belongings == null || existing.belongings.Length == 0) && spec.belongings != null && spec.belongings.Length > 0)
+                {
+                    existing.belongings = spec.belongings;
+                    EditorUtility.SetDirty(existing);
+                }
+                continue;
+            }
 
             var def = ScriptableObject.CreateInstance<CharacterDefinition>();
             def.characterId = spec.id;
@@ -316,6 +361,7 @@ public static class CharacterDatabaseBuilder
             def.comboRating = spec.comboRating;
             def.challengeFlag = spec.challengeFlag;
             def.sortOrder = spec.sortOrder;
+            def.belongings = spec.belongings;
 
             def.baseLives = spec.baseLives;
             def.baseMaxLives = spec.baseMaxLives;
