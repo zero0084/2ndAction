@@ -397,13 +397,22 @@ public static class SceneBuilder
         // they're moving, and the SAME visualScaleMultiplier below has to
         // look right on BOTH the portrait (idle/stagger states) and these
         // run frames (moving), the two needed to share one natural PPU
-        // baseline. 374 was solved for exactly that: at PPU 374, the 5
-        // frames' average content height (~349.8px) reproduces
-        // RunnerEnemy.png's own natural world height (~0.935 units) as
-        // closely as a single shared PPU can - one visualScaleMultiplier
-        // now sizes both states consistently instead of the run animation
-        // silently rendering at roughly half scale.
-        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/RunnerRun", 374f);
+        // baseline. This pass's own follow-up bug (see below) is exactly
+        // the residual (~103-132%) unevenness a single shared PPU couldn't
+        // fully remove.
+        //
+        // 敵Runnerアニメーションのズレ修正(2026-09-15) - マスター報告
+        // 「Runnerのアニメーションのズレ」の根本原因が上記コメントにまさに
+        // 記録されていた「374という1つの共有PPUでは平均値しか合わせられず、
+        // 実測103〜132%の個体差(コマごとの伸び縮み)が残る」という既知の
+        // 限界そのものだった。ConfigureSpriteFolderImportWithFootPivotUniform
+        // Size(新設、SceneBuilder.cs内の同関数のコメント参照)へ切り替え、
+        // 共有PPUではなく「コマ個別のPPU」をそのコマ自身のアルファコンテン
+        // ツ高さから逆算する方式にした。targetWorldHeight=RunnerEnemy.png
+        // 自身の実測ワールド高さ(954px÷PPU1020=0.9353)を渡すことで、5コマ
+        // 全てがポートレートと寸分違わず同じワールド高さで描画されるように
+        // なり、伸び縮み(ズレ)が原理的に解消される。
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/RunnerRun", 954f / 1020f);
 
         // Distance-unlock system - enemy species database, built now that
         // the goblin sprite's import (foot pivot/PPU) is configured, since
@@ -418,10 +427,23 @@ public static class SceneBuilder
         terrain.enemyPool = new List<EnemyDefinition>(EnemyDatabase.AllEnemies);
 
         // Distance Level Design Ver.1 - Shooter Enemy's projectile visual;
-        // "簡易Sprite/既存VFX流用で構いません" from the brief, so this just
-        // reuses the already-imported Hit Spark art rather than needing a
-        // dedicated arrow/bolt asset.
-        terrain.shooterProjectileSprite = terrain.enemyHitSparkSprite;
+        // "簡易Sprite/既存VFX流用で構いません" from the brief, so this
+        // originally just reused the already-imported Hit Spark art rather
+        // than needing a dedicated arrow/bolt asset.
+        //
+        // 敵の攻撃VFX修正(2026-09-15) - マスター報告「敵の攻撃時の炎などの
+        // アニメーションがうまく反映されていない」を調査。HitSpark.png は
+        // 静止した被弾の閃光(放射状にギザギザ/羽根状に広がる形状)用の絵で、
+        // FireballController の常時回転+脈動スケール(DragonController/
+        // MajinController の火球と全く同じ手続き的アニメーション、詳細は
+        // FireballController.cs参照)と組み合わせると、飛翔する一塊の弾に
+        // 見えるべきところが回転する放射状の閃光になってしまい、明らかに
+        // 「炎の塊」としては破綻して見えていた。ボス(ドラゴン/魔人)の火球は
+        // 同じFireballControllerでsquareSprite(単色四角、色は暖色に着色)を
+        // 使っており、こちらは正しく「回転+脈動+燃えかすの尾」で炎の塊らし
+        // く見えている(既に実績のある組み合わせ) - Shooter敵もこれに合わ
+        // せ、専用の炎/矢アートが用意できるまでの間はsquareSpriteへ統一する。
+        terrain.shooterProjectileSprite = squareSprite;
 
         // Boss (watches distance, spawns dragon/majin encounters starting
         // at 1000m)
@@ -4229,6 +4251,78 @@ public static class SceneBuilder
             ApplyCustomPivot(importer, ComputeLowestContentPivotXY(f));
             importer.SaveAndReimport();
         }
+    }
+
+    // 敵Runnerアニメーションのズレ修正(2026-09-15) - マスター報告「Runner
+    // のアニメーションのズレ」の原因調査。RunnerRunの5コマは横長のスプライ
+    // トシートから個別に切り出されたもので、実際のアルファコンテンツの縦
+    // 幅がコマごとに298〜382px(約28%の差)とバラバラだった。従来の
+    // ConfigureSpriteFolderImportWithFootPivot/XYはフォルダ全体で単一の
+    // pixelsPerUnitを共有するため(EnemyDatabaseBuilder.chaser_runnerの
+    // コメントに記録済みの既知の限界、実測103〜132%の個体差)、足元の接地
+    // 位置こそ揃っていても、コマが切り替わるたびにキャラクター全体の背丈
+    // (頭の高さ)が伸び縮みして見えていた - これが「アニメーションのズレ」
+    // の正体。
+    // 対処: フォルダ共有ではなく「コマ個別」のpixelsPerUnitを、そのコマ
+    // 自身のアルファコンテンツ実測高さから逆算する(targetWorldHeightは
+    // 全コマ共通の出力先ワールド高さ)。これにより全コマが常に同じワール
+    // ド高さで描画されるようになり、伸び縮みが原理的に無くなる。足元
+    // Pivot(X,Y自動検出)は既存のConfigureSpriteFolderImportWithFootPivotXY
+    // と同じロジックをそのまま使うため、接地感には影響しない。
+    internal static void ConfigureSpriteFolderImportWithFootPivotUniformSize(string dir, float targetWorldHeight)
+    {
+        if (!Directory.Exists(dir)) return;
+        foreach (string f in Directory.GetFiles(dir, "*.png"))
+        {
+            string assetPath = f.Replace('\\', '/');
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null) continue;
+
+            int contentHeightPx = MeasureContentHeightPixels(f);
+            float ppu = targetWorldHeight > 0.001f && contentHeightPx > 0 ? contentHeightPx / targetWorldHeight : 1000f;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = ppu;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            ApplyCustomPivot(importer, ComputeLowestContentPivotXY(f));
+            importer.SaveAndReimport();
+        }
+    }
+
+    // ConfigureSpriteFolderImportWithFootPivotUniformSize専用ヘルパー -
+    // 非透明ピクセルが存在する最上段〜最下段の行数(=そのコマ自身の実際の
+    // キャラクター高さ、px)を返す。ComputeLowestContentPivotY/XYと同じ
+    // アルファ走査方式だが、最下段だけでなく最上段も求める点が異なる。
+    static int MeasureContentHeightPixels(string filePath)
+    {
+        byte[] bytes = File.ReadAllBytes(filePath);
+        Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        tex.LoadImage(bytes);
+
+        int w = tex.width, h = tex.height;
+        Color32[] pixels = tex.GetPixels32();
+        int lowestY = -1, highestY = -1;
+        for (int y = 0; y < h; y++)
+        {
+            int rowStart = y * w;
+            bool rowHasContent = false;
+            for (int x = 0; x < w; x++)
+            {
+                if (pixels[rowStart + x].a > 15) { rowHasContent = true; break; }
+            }
+            if (rowHasContent)
+            {
+                if (lowestY < 0) lowestY = y;
+                highestY = y;
+            }
+        }
+        Object.DestroyImmediate(tex);
+
+        return lowestY < 0 ? h : (highestY - lowestY + 1);
     }
 
     // お嬢様騎士Run表示基準統一(2026-09-13) - 通常Run中にキャラ全体が
