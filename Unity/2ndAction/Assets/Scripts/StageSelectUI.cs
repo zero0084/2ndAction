@@ -95,18 +95,19 @@ public class StageSelectUI : MonoBehaviour
         }
     }
 
-    // 「決定後にHomeへ戻ると、床表示が選択ステージに更新されている」との
-    // 要件どおり、出発ボタンはここでSelectedStageIdを確定してからHomeへ
-    // 戻る(実際のRun開始はHome側の既存Doorホットスポット/OnDoorTapped経由
-    // - このボタンは「Run開始」そのものではなく「選択の確定+Homeへ戻る」)。
+    // Home画面 / Stage Select改善依頼(2026-09-16), item5/6/9/10 - Stage
+    // Selectは「出発時だけの専用画面」という方針になったため、出発ボタンは
+    // 選択を確定してHomeへ戻るだけでなく、そのままRunを開始する
+    // (GameManager.DepartFromStageSelectが、ステージ確定→この画面を閉じる
+    // →Run開始を1回の画面遷移でまとめて行う - Close()は使わない、二重に
+    // PlayTransitionを呼ぶとデッドロックするため)。
     void Confirm()
     {
         var all = StageDatabase.AllStages;
         if (selectedIndex < 0 || selectedIndex >= all.Count) return;
         StageDefinition def = all[selectedIndex];
         if (!def.unlocked) return; // 未開放ステージでは確定できない(安全側の二重ガード)
-        if (GameManager.Instance != null) GameManager.Instance.SetSelectedStage(def.stageId);
-        Close();
+        if (GameManager.Instance != null) GameManager.Instance.DepartFromStageSelect(def.stageId);
     }
 
     void SelectIndex(int index)

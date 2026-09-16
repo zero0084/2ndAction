@@ -466,20 +466,13 @@ public class GameManager : MonoBehaviour
         SelectedStageId = null;
     }
 
-    // Stage Select画面のConfirmからのみ呼ばれる。「選択ステージ=次回
-    // NEW RUNで出発するステージ」という仕様どおり、Active Run/Checkpoint
-    // (RunCheckpoint.cs)には一切触れない。
+    // Stage Select画面のDepartFromStageSelectからのみ呼ばれる。「選択
+    // ステージ=次回NEW RUNで出発するステージ」という仕様どおり、Active
+    // Run/Checkpoint(RunCheckpoint.cs)には一切触れない。
     public void SetSelectedStage(string stageId)
     {
         StageDefinition def = StageDatabase.FindById(stageId);
         if (def == null || !def.unlocked) return;
-        // Home画面改善依頼⑦(2026-09-16), item 7 - 実際にステージが変わる
-        // 場合だけNEXT STAGEのクロスフェードを開始する。
-        if (stageId != SelectedStageId)
-        {
-            stageTransitionPrevStageId = SelectedStageId;
-            stageTransitionElapsed = 0f;
-        }
         SelectedStageId = stageId;
         PlayerPrefs.SetString(SelectedStageKey, stageId);
         PlayerPrefs.Save();
@@ -668,8 +661,6 @@ public class GameManager : MonoBehaviour
     float deskHotspotFlashTimer;
     // キャラクター選択画面(2026-09-12) - Home左上の新規ホットスポット用。
     float characterHotspotFlashTimer;
-    // ステージ選択導線追加(2026-09-12) - Home中央下の新規ホットスポット用。
-    float stageHotspotFlashTimer;
 
     // Home画面改善依頼⑦(2026-09-16), item 2 - Character Selectから戻った
     // 瞬間に持ち物表示が瞬時に切り替わるのではなく短くクロスフェードする。
@@ -682,25 +673,16 @@ public class GameManager : MonoBehaviour
     string belongingsTransitionPrevCharacterId;
     float belongingsTransitionElapsed = -1f;
 
-    // Home画面改善依頼⑦(2026-09-16), item 7 - Stage Selectから戻った瞬間、
-    // NEXT STAGEの風景画像がクロスフェードし、ステージ名がわずかに遅れて
-    // Fade Inする。考え方はbelongingsTransition*と同じ。
-    public const float StageCrossfadeDuration = 0.3f;
-    public const float StageNameFadeDelay = 0.08f;
-    public const float StageNameFadeDuration = 0.22f;
-    string stageTransitionPrevStageId;
-    float stageTransitionElapsed = -1f;
-
     // Desk "CARD GACHA" machine prop, drawn directly onto the room scene
     // (not its own screen/canvas) - see SceneBuilder for the import.
     public Texture2D gachaMachineTexture;
-    // Home画面改善依頼④(2026-09-15) - NEXT STAGEパネルを「地図・旅の資料
-    // から出てきた」ように見せるための、経年変化した地図帳風の装飾フレーム
-    // 画像(ChatGPT生成、黒背景をしきい値透過処理済み)。ステージのサムネ
-    // イル画像はこのフレームの中央の無地パーチメント領域(実測、フレーム
-    // 自身の幅68%×高さ62%・中央寄せ)へ重ねて描画する - DrawStageHotspot
-    // 参照。
-    public Texture2D stageMapFrameTexture;
+    // Home画面 / Stage Select改善依頼(2026-09-16), item2 - Characterの肖像画
+    // (壁に飾られた額縁)用のフレーム画像(ChatGPT生成、透明中央窓+木/金の
+    // 縁)。DrawCharacterHotspot参照 - フレーム自身のアスペクト比を保った
+    // まま表示し、その内側の透明窓(実測、フレーム自身の幅80.2%×高さ
+    // 79.5%・x=9.85%~90.06%/y=13.02%~92.51%)へ選択中キャラのポートレート
+    // を重ねる。
+    public Texture2D portraitFrameTexture;
     // Ver.1 finishing pass, item 8 - "短いSE" tap feedback for the room's
     // hotspots (door/bed/book/desk). Reuses the existing Card Select SE
     // (already imported for RewardCardSequence) rather than adding new
@@ -881,25 +863,17 @@ public class GameManager : MonoBehaviour
         // characterHotspotFlashTimerがこの減衰リストに元々含まれておらず、
         // Characterホットスポットをタップした後、金色のタップフラッシュが
         // 消えずに表示され続けたままになる不具合があった(前回パスの
-        // 見落とし)。新設のstageHotspotFlashTimerも同じ仕組みのため、
-        // ここで両方まとめて追加する。
+        // 見落とし)。
         if (characterHotspotFlashTimer > 0f) characterHotspotFlashTimer -= Time.unscaledDeltaTime;
-        if (stageHotspotFlashTimer > 0f) stageHotspotFlashTimer -= Time.unscaledDeltaTime;
         if (gachaInsufficientMessageTimer > 0f) gachaInsufficientMessageTimer -= Time.unscaledDeltaTime;
 
-        // Home画面改善依頼⑦(2026-09-16) - 持ち物/NEXT STAGEのクロスフェード
-        // 演出タイマー。elapsedが両方のFade Duration(長い方)を超えたら
-        // 番兵値-1へ戻し、以降DrawCharacterBelongings/DrawStageHotspotは
-        // 通常描画(新しい方だけ)に戻る。
+        // Home画面改善依頼⑦(2026-09-16) - 持ち物のクロスフェード演出
+        // タイマー。elapsedがFade Inの尺を超えたら番兵値-1へ戻し、以降
+        // DrawCharacterBelongingsは通常描画(新しい方だけ)に戻る。
         if (belongingsTransitionElapsed >= 0f)
         {
             belongingsTransitionElapsed += Time.unscaledDeltaTime;
             if (belongingsTransitionElapsed > CharacterBelongingsFadeInDuration) belongingsTransitionElapsed = -1f;
-        }
-        if (stageTransitionElapsed >= 0f)
-        {
-            stageTransitionElapsed += Time.unscaledDeltaTime;
-            if (stageTransitionElapsed > StageCrossfadeDuration) stageTransitionElapsed = -1f;
         }
 
         if (gachaMachineShakeTimer > 0f)
@@ -1262,6 +1236,22 @@ public class GameManager : MonoBehaviour
     bool startTransitioning;
     float startTransitionOverlayAlpha;
 
+    // Run開始の瞬間に確定させる値・副作用をまとめたもの。StartGame()と
+    // DepartFromStageSelect()の両方から、それぞれの画面遷移が完全に画面を
+    // 覆った瞬間(onFullyCovered/フェード最深部)に一度だけ呼ばれる - 2箇所
+    // に全く同じ処理を書いていた重複を解消した共通ヘルパー。
+    void ApplyGameStart()
+    {
+        HasStarted = true;
+        runStartTime = Time.time;
+        activeRunCharacterId = SelectedCharacterId;
+        activeRunStageId = SelectedStageId;
+        if (TerrainManager.Instance != null) TerrainManager.Instance.ApplyStageTheme(activeRunStageId);
+        ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
+        ApplyCharacterCardEffects();
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
+    }
+
     void StartGame()
     {
         if (startTransitioning || HasStarted) return;
@@ -1276,19 +1266,39 @@ public class GameManager : MonoBehaviour
             startTransitioning = true;
             ScreenTransitionManager.Instance.PlayTransition(() =>
             {
-                HasStarted = true;
-                runStartTime = Time.time;
-                activeRunCharacterId = SelectedCharacterId;
-                activeRunStageId = SelectedStageId;
-                if (TerrainManager.Instance != null) TerrainManager.Instance.ApplyStageTheme(activeRunStageId);
-                ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
-                ApplyCharacterCardEffects();
-                if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
+                ApplyGameStart();
                 startTransitioning = false;
             });
             return;
         }
         StartCoroutine(StartGameTransition());
+    }
+
+    // Home画面 / Stage Select改善依頼(2026-09-16), item5/9/10 - Stage
+    // Selectの「出発」ボタン専用の入口。従来はStage Select側でステージを
+    // 確定してHomeへ戻り、改めて扉をタップしてRunを開始する二段階だった
+    // (「Stage Selectは出発時だけの専用画面」という今回の方針とは、Home
+    // へ一度戻る一手間がある点で噛み合わない)。ステージ確定→Stage Select
+    // を閉じる→Run開始を、ScreenTransitionManagerの1回の被覆(onFullyCovered)
+    // の中でまとめて行うことで、二重にPlayTransitionを呼ぶことによる
+    // デッドロック(内側のStartGame()がIsTransitioning==trueで即return
+    // してしまい、画面が覆われたまま何も始まらない不具合)を避けている。
+    public void DepartFromStageSelect(string stageId)
+    {
+        if (startTransitioning || HasStarted) return;
+        StageDefinition def = StageDatabase.FindById(stageId);
+        if (def == null || !def.unlocked) return;
+        if (ScreenTransitionManager.Instance == null || ScreenTransitionManager.Instance.IsTransitioning) return;
+
+        SetSelectedStage(stageId);
+        startTransitioning = true;
+        ScreenTransitionManager.Instance.PlayTransition(() =>
+        {
+            stageSelectOpen = false;
+            if (stageSelectUI != null) stageSelectUI.gameObject.SetActive(false);
+            ApplyGameStart();
+            startTransitioning = false;
+        });
     }
 
     IEnumerator StartGameTransition()
@@ -1303,14 +1313,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        HasStarted = true;
-        runStartTime = Time.time;
-        activeRunCharacterId = SelectedCharacterId;
-        activeRunStageId = SelectedStageId;
-        if (TerrainManager.Instance != null) TerrainManager.Instance.ApplyStageTheme(activeRunStageId);
-        ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
-        ApplyCharacterCardEffects();
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
+        ApplyGameStart();
 
         t = 0f;
         while (t < 1f)
@@ -2938,60 +2941,18 @@ public class GameManager : MonoBehaviour
                 Rect characterRect = FracRect(bgRoomRect, 0.02f, 0.14f, 0.17f, 0.38f);
                 DrawCharacterHotspot(characterRect, roomInteractable, roomFadeAlpha);
 
-                // Home画面改善依頼③(2026-09-15), item 1 - 「選択中キャラ
-                // クターの持ち物・装備の視覚表示」。CHARACTERパネル自体は
-                // 拡張せず(カードの優先度を落とさないため)、パネル下と
-                // Bedホットスポット(y0.52〜)の間に空いている床スペースへ
-                // 専用の細い帯を新設した。タップ機能は無し(表示専用)。
-                // Home画面改善依頼④(2026-09-15), item 1 - 文字ラベルから
-                // 実画像アイコン表示へ強化するにあたり、アイコンをもう
-                // 少し大きく見せられるよう高さを0.055→0.09へ広げた
-                // (Bedホットスポットのy0.52より十分手前で収まる)。
-                Rect characterBelongingsRect = FracRect(bgRoomRect, 0.02f, 0.39f, 0.17f, 0.48f);
-                DrawCharacterBelongings(characterBelongingsRect, roomFadeAlpha);
+                // Home画面 / Stage Select改善依頼(2026-09-16), item3 -
+                // 「選択中キャラクターの持ち物・装備の視覚表示」。タップ
+                // 機能は無し(表示専用)。各持ち物の置き場所(spot)は
+                // DrawCharacterBelongings内で家具に合わせて個別に定義して
+                // いるため、ここでは呼び出すだけでよい。
+                DrawCharacterBelongings(roomFadeAlpha);
 
-                // ステージ選択導線追加(2026-09-12) - 参考画像の「中央の床
-                // ラグに次の行き先を表示」に相当。Active Runが既にある間は
-                // (CONTINUEでしか再開できず、ステージは変更不可のため)
-                // 表示自体を出さない - Acceptance Test 7。Door(0.40-0.565
-                // /0.14-0.65)・Bed(0.0-0.32/0.52-1.0)・Book(0.78-1.0/
-                // 0.78-1.0)のどれとも重ならない、床が見えている中央下部の
-                // 領域を使う。
-                if (!RunCheckpoint.HasActiveRun)
-                {
-                    // Home画面レイアウト調整(2026-09-14) - マスター報告
-                    // 「NEXT STAGEパネルが床や扉より存在感が強い」への対応。
-                    // 高さを約4割縮小(0.29→0.17)し、表示内容(NEXT STAGE/
-                    // ステージ名/ルート)は維持したまま「情報は確認できる
-                    // が主役にはならない」程度の存在感へ調整。横幅も左右
-                    // 中心(0.5)を保ったまま少し絞った。
-                    // Home画面改善依頼②(2026-09-15), item 3 - まだ「床に
-                    // 浮く半透明の仮UI窓」感が残るとの指摘に対応し、高さを
-                    // 0.17→0.14へさらに圧縮(上下パディングを削減)。中心
-                    // (0.5)・横幅(0.30)は変更せず、扉が画面の主役という
-                    // 位置づけを保つ。背景色の透明度自体はDrawStageHotspot
-                    // 側のOrnateUi.DrawPanel呼び出しで軽減する。
-                    // Home画面改善依頼③(2026-09-15), item 3/6 - ステージ
-                    // 画像プレビューを収めるため高さのみ0.14→0.19へ少し
-                    // 戻した(マスター指示「横幅は大きく変えず、必要なら
-                    // 高さを少しだけ調整」に対応)。横幅(0.30)・中心(0.5)は
-                    // 無変更。上端(0.70)はDoorの範囲(0.14-0.65)と重ならない。
-                    // Home画面改善依頼④(2026-09-15), item 2 - 「NEXT STAGEの
-                    // 画像を現在より明確に大きくする」に対応し、幅0.30→0.37
-                    // ・高さ0.19→0.27へ拡大。左端は0.33(Bedホットスポット
-                    // の右端0.32と重ならないよう0.01の余白を残す)、右端は
-                    // 0.70(Bookホットスポットの左端0.78より手前)、下端は
-                    // 0.95(画面下端の手前)。Doorの範囲(0.14-0.65)とは上端
-                    // 0.68で重ならない。
-                    // Home画面改善依頼⑦(2026-09-16), item 8 - 中心をDoor
-                    // CenterFrac(0.4825)へ揃えるため左端0.33はそのまま、
-                    // 右端だけ0.70→0.6325へ詰めて中心を扉と一致させた(左端
-                    // をこれ以上左へ動かすとBedホットスポットの右端0.32と
-                    // 衝突するため)。横幅は0.37→0.3025とやや小さくなるが、
-                    // 視覚優先順位「ドア>NEXT STAGE」にもむしろ合致する。
-                    Rect stageRect = FracRect(bgRoomRect, 0.33f, 0.68f, 0.6325f, 0.95f);
-                    DrawStageHotspot(stageRect, roomInteractable, roomFadeAlpha);
-                }
+                // Home画面 / Stage Select改善依頼(2026-09-16), item4/5 -
+                // マスター指示「Homeにはマップを常設しない」に対応し、
+                // NEXT STAGEホットスポット(旧DrawStageHotspot)自体を撤去
+                // した。行き先の選択は出発時(扉タップ→Stage Select)専用の
+                // 画面へ完全に分離している - OnDoorTapped参照。
 
                 // Bed/scattered cards (bottom-left) - Card Edit (Owned/
                 // Character Cards/Deck/Convert).
@@ -3912,23 +3873,6 @@ public class GameManager : MonoBehaviour
         GUI.color = prev;
     }
 
-    // Home画面改善依頼⑦(2026-09-16), item 5 - 写真が「単なる長方形」に
-    // 見えないための簡易ビネット。四辺に沿ってtint色のごく薄い帯を重ね、
-    // 写真の縁を台紙/地図の色へわずかに溶け込ませる(新規マスク画像なし
-    // の近似 - このファイル内の他の影/明滅と同じ単色矩形の重ね描き手法)。
-    static void DrawEdgeVignette(Rect rect, Color tint, float alpha)
-    {
-        float t = Mathf.Min(rect.width, rect.height) * 0.10f;
-        if (t <= 0f) return;
-        Color prev = GUI.color;
-        GUI.color = new Color(tint.r, tint.g, tint.b, alpha * 0.30f);
-        GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, t), Texture2D.whiteTexture);
-        GUI.DrawTexture(new Rect(rect.x, rect.yMax - t, rect.width, t), Texture2D.whiteTexture);
-        GUI.DrawTexture(new Rect(rect.x, rect.y, t, rect.height), Texture2D.whiteTexture);
-        GUI.DrawTexture(new Rect(rect.xMax - t, rect.y, t, rect.height), Texture2D.whiteTexture);
-        GUI.color = prev;
-    }
-
     // A completely invisible tap target (no backdrop, no label - "大きな
     // メニューボタンとして見えないように") with a brief "少し光る" flash on
     // tap (item 3). flashTimer is one of the per-hotspot fields in Update's
@@ -4000,56 +3944,68 @@ public class GameManager : MonoBehaviour
         return tapped;
     }
 
-    // キャラクター選択画面(2026-09-12) - 他の4つのホットスポット(Door/
-    // Bed/Book/Gacha機)と違い、対応する物が室内アートに一切描かれていない
-    // ため、DrawRoomHotspotのような完全に透明な当たり判定だけでは「ここが
-    // 押せる」ことが伝わらない。マスター指示の「CHARACTER・キャラクター
-    // アイコン・軽い金色発光・タップ可能だと分かる表示」どおり、簡単な
-    // パネル+選択中キャラクターのポートレート+ラベル+常時のゆるい金色
-    // パルスを明示的に描画する。
+    // Home画面 / Stage Select改善依頼(2026-09-16), item2 - Characterカード
+    // UI(半透明パネル+見出し+アイコン)をHomeから撤去し、「壁に飾られた
+    // 額縁付きの肖像画」として見せる。portraitFrameTexture(ChatGPT生成、
+    // 中央が実アルファ透明)を自身のアスペクト比のまま中央寄せし、その
+    // 内側の透明窓へ選択中キャラクターのportraitを重ねる - Home画面改善
+    // 依頼④のNEXT STAGE地図フレーム+写真と全く同じ「フレームを描いた後
+    // その無地/透明領域だけに絵を重ねる」合成パターン。常時の判定枠・
+    // パルスするパネル地色は廃止し、フレーム全体へのごく薄い息づき
+    // (DrawAmbientGlow)だけに絞った - 「タップ可能」は伝えつつ、主役は
+    // あくまで肖像画自身であることを優先している。
     void DrawCharacterHotspot(Rect rect, bool roomInteractable, float roomFadeAlpha)
     {
-        OrnateUi.DrawPanel(rect, 0.85f);
+        Rect frameRect = portraitFrameTexture != null
+            ? FitRectPreserveAspect(rect, (float)portraitFrameTexture.width / Mathf.Max(1, portraitFrameTexture.height))
+            : rect;
 
-        // 常時のゆっくりした金色パルス - 「タップ可能だと分かる表示」。
-        float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 2.2f);
-        Color prevGlow = GUI.color;
-        GUI.color = new Color(1f, 0.85f, 0.4f, (0.10f + 0.10f * pulse) * roomFadeAlpha);
-        GUI.DrawTexture(rect, Texture2D.whiteTexture);
-        GUI.color = prevGlow;
-
-        // Home画面改善依頼②(2026-09-15), item 2 - 「CHARACTERのタイトルが
-        // 窮屈に見えないように」「カードをパネル内で自然に配置し、端へ
-        // 寄りすぎないように」に対応。ラベル自体の見た目は変えず、ラベル
-        // 下からアイコンまでの間隔(32f→38f)と左右・下の余白(availableW/H
-        // の差分)を広げ、カードがパネル枠に接して見えないようにした。
-        GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-        labelStyle.fontSize = 18;
-        labelStyle.fontStyle = FontStyle.Bold;
-        labelStyle.alignment = TextAnchor.UpperCenter;
-        labelStyle.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, roomFadeAlpha);
-        GUI.Label(new Rect(rect.x, rect.y + 8f, rect.width, 24f), "CHARACTER", labelStyle);
+        // 壁に掛かっている説得力のための、ごく薄い設置影(単色近似)。
+        Color prevShadow = GUI.color;
+        Rect shadowRect = new Rect(frameRect.x + frameRect.width * 0.035f, frameRect.y + frameRect.height * 0.03f, frameRect.width, frameRect.height);
+        GUI.color = new Color(0f, 0f, 0f, 0.22f * roomFadeAlpha);
+        GUI.DrawTexture(shadowRect, Texture2D.whiteTexture);
+        GUI.color = prevShadow;
 
         CharacterDefinition selectedDef = CharacterDatabase.FindById(SelectedCharacterId);
         Texture2D portrait = selectedDef != null ? selectedDef.portrait : null;
         if (portrait != null)
         {
-            float availableW = rect.width - 30f;
-            float availableH = rect.height - 50f;
-            float portraitAspect = portrait.height / (float)portrait.width;
-            float iconW = availableW;
-            float iconH = iconW * portraitAspect;
-            if (iconH > availableH)
-            {
-                iconH = availableH;
-                iconW = iconH / portraitAspect;
-            }
-            Rect iconRect = new Rect(rect.x + (rect.width - iconW) / 2f, rect.y + 38f, iconW, iconH);
+            // フレーム画像自身の内側の透明窓(実測、幅80.2%×高さ79.5%、
+            // x=9.85%〜90.06%/y=13.02%〜92.51%)へポートレートを重ねる。
+            // フレーム未設定時はrect全体を窓として扱う(Acceptance Test -
+            // 画像未設定でも壊れない)。
+            Rect windowRect = portraitFrameTexture != null
+                ? new Rect(frameRect.x + frameRect.width * 0.0985f, frameRect.y + frameRect.height * 0.1302f, frameRect.width * 0.802f, frameRect.height * 0.795f)
+                : frameRect;
+            Rect portraitRect = FitRectPreserveAspect(windowRect, (float)portrait.width / Mathf.Max(1, portrait.height));
             Color prevIcon = GUI.color;
             GUI.color = new Color(1f, 1f, 1f, roomFadeAlpha);
-            GUI.DrawTexture(iconRect, portrait, ScaleMode.ScaleToFit);
+            GUI.DrawTexture(portraitRect, portrait, ScaleMode.ScaleToFit);
             GUI.color = prevIcon;
         }
+
+        if (portraitFrameTexture != null)
+        {
+            Color prevFrame = GUI.color;
+            GUI.color = new Color(1f, 1f, 1f, roomFadeAlpha);
+            GUI.DrawTexture(frameRect, portraitFrameTexture, ScaleMode.ScaleToFit);
+            GUI.color = prevFrame;
+        }
+
+        // 常時のごく控えめな息づき - 扉(DrawAmbientGlow既定値)よりさらに
+        // 控えめな上限にして、視覚優先順位「ドア>肖像画」を保つ。
+        DrawAmbientGlow(frameRect, roomFadeAlpha, 0.02f, 0.06f, 2.2f);
+
+        // 主役はあくまで肖像画自身なので、名前はフレーム下にごく小さく
+        // 添えるだけに留める(常時の大きな「CHARACTER」見出しは撤去)。
+        GUIStyle nameStyle = new GUIStyle(GUI.skin.label);
+        nameStyle.fontSize = 13;
+        nameStyle.fontStyle = FontStyle.Bold;
+        nameStyle.alignment = TextAnchor.UpperCenter;
+        nameStyle.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, roomFadeAlpha * 0.85f);
+        string nameLabel = selectedDef != null ? selectedDef.displayName : "";
+        GUI.Label(new Rect(rect.x, frameRect.yMax + 2f, rect.width, 20f), nameLabel, nameStyle);
 
         bool tapped = roomInteractable && GUI.Button(rect, GUIContent.none, GUIStyle.none);
         if (tapped)
@@ -4063,7 +4019,7 @@ public class GameManager : MonoBehaviour
             float f = characterHotspotFlashTimer / roomHotspotFlashDuration;
             Color prevFlash = GUI.color;
             GUI.color = new Color(1f, 0.95f, 0.75f, f * 0.35f * roomFadeAlpha);
-            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            GUI.DrawTexture(frameRect, Texture2D.whiteTexture);
             GUI.color = prevFlash;
         }
 
@@ -4073,53 +4029,28 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Home画面改善依頼③(2026-09-15), item 1 - 「選択中キャラクターの持ち物
-    // ・装備の視覚表示」。新しい装備システムではなく、CharacterDefinition.
-    // belongings(表示専用データ、CharacterDatabaseBuilder参照)を横並びの
-    // 小さいアイコンとして見せるだけの演出。タップ判定・詳細画面は無し
-    // (マスター指示どおり)。キャラクターカードより目立たないよう、枠は
-    // 簡易的な半透明の小箱のみ・パルスや発光などの強い演出も付けない。
-    // 実画像(icon)が未設定の間は、labelの頭文字+placeholderColorの単色
-    // タイルへ自動フォールバックする - 後からInspectorでiconを設定すれば
-    // コード変更なしに実画像表示へ切り替わる(マスター指示「最終的な画像
-    // 素材は後から差し替えられる構造に」に対応)。
-    // Home画面改善依頼④(2026-09-15), item 1 - マスター指摘「文字ラベル
-    // 中心の表示は演出として弱い」に対応し、①ChatGPTで各キャラの持ち物を
-    // 実際のアイテムイラスト(icon)として生成・設定した(CharacterDatabase
-    // Builder参照、フォールバック文言は「文字だけの小さなラベル表示は
-    // 補助程度に」の指示どおり未設定時のみの保険として残す)、②各アイコン
-    // の下にごく薄い楕円の影を敷き、「持ち物一覧UIの並び」ではなく「小物が
-    // そこに置かれている」ような接地感を演出した(新しいパネル的な縁取り
-    // は追加していない)。
-    void DrawCharacterBelongings(Rect rect, float roomFadeAlpha)
+    // Home画面 / Stage Select改善依頼(2026-09-16), item3 - 「装備アイコンを
+    // 並べる」のをやめ、Weapon/Cloth/Shield-or-Smallの3種類それぞれに
+    // 専用の置き場所(spot)を割り当て、そこへ選択中キャラクターの持ち物を
+    // 重ねて表示する。以前のバージョンにあった手描きの棚板は撤去した -
+    // 棚自体は部屋の背景アートに既に描かれているため、新たに描き足すと
+    // 逆に「UIが敷いた板」に見えてしまう。3つのspotは背景アート上の
+    // 実際の家具(棚に立てかけられた剣、フックに掛かったマント、トランク
+    // の天板)にできるだけ近い位置を狙って調整したもの - 実機/Editor
+    // Play Modeでの見え方次第で座標は追加調整の余地がある。
+    Rect WeaponBelongingSpot => FracRect(bgRoomRect, 0.175f, 0.30f, 0.255f, 0.515f);
+    Rect ClothBelongingSpot => FracRect(bgRoomRect, 0.03f, 0.37f, 0.13f, 0.515f);
+    Rect ShelfBelongingSpot => FracRect(bgRoomRect, 0.26f, 0.40f, 0.32f, 0.515f);
+
+    void DrawCharacterBelongings(float roomFadeAlpha)
     {
+        if (bgRoomRect.width <= 0f) return;
         CharacterDefinition selectedDef = CharacterDatabase.FindById(SelectedCharacterId);
         if (selectedDef == null) return;
 
-        // 実機確認(2026-09-15、Unity Editor Play Mode)で発見・修正 - bgRoomRect
-        // は背景画像のcover-scale都合で画面幅より広くなり(左右に少しずつ
-        // はみ出す)、そのX0がわずかに負の値になることがある。CHARACTER
-        // パネル本体のような大きな矩形は左端が数十px画面外に出てもほとんど
-        // 気づかれないが、この持ち物アイコンの列のように「左端ぴったりに
-        // 小さいアイコンを置く」場合は、そのアイコン自体が丸ごと画面外
-        // (X<0)に描画されて完全に見えなくなってしまう実害を確認した(1番目
-        // の持ち物が常に消えていた)。rectの右端は変えず、左端だけ画面の
-        // 内側(X>=4)へ安全に寄せることで解決する。
-        float safeRectX = Mathf.Max(rect.x, 4f);
-        rect = new Rect(safeRectX, rect.y, rect.xMax - safeRectX, rect.height);
-
-        // 棚板 - 常設の家具そのもの(キャラクターが変わっても棚自体は動か
-        // ない)。Home画面改善依頼⑦(2026-09-16)でクロスフェード対応する
-        // 際も、棚板だけは新旧セットの描画とは独立して一度だけ描く。
-        float shelfY = rect.y + rect.height * 0.66f;
-        float shelfPad = rect.width * 0.02f;
-        Rect shelfRect = new Rect(rect.x - shelfPad, shelfY, rect.width + shelfPad * 2f, rect.height * 0.10f);
-        Color prevShelf = GUI.color;
-        GUI.color = new Color(0.22f, 0.15f, 0.08f, 0.55f * roomFadeAlpha);
-        GUI.DrawTexture(shelfRect, Texture2D.whiteTexture);
-        GUI.color = new Color(0.55f, 0.42f, 0.26f, 0.35f * roomFadeAlpha);
-        GUI.DrawTexture(new Rect(shelfRect.x, shelfRect.y, shelfRect.width, Mathf.Max(1f, shelfRect.height * 0.25f)), Texture2D.whiteTexture);
-        GUI.color = prevShelf;
+        Rect weaponSpot = WeaponBelongingSpot;
+        Rect clothSpot = ClothBelongingSpot;
+        Rect shelfSpot = ShelfBelongingSpot;
 
         // Home画面改善依頼⑦(2026-09-16), item 2 - Character変更直後だけ、
         // 旧セット(Fade Out)と新セット(Fade In+わずかなスライド/Scale In)
@@ -4131,376 +4062,161 @@ public class GameManager : MonoBehaviour
             float oldAlpha = (1f - outT) * roomFadeAlpha;
             if (prevDef != null && oldAlpha > 0.001f)
             {
-                DrawBelongingsSet(rect, shelfY, prevDef.belongings, oldAlpha, 0f, 1f);
+                DrawBelongingsSet(weaponSpot, clothSpot, shelfSpot, prevDef.belongings, oldAlpha, 0f, 1f);
             }
 
             float inT = Mathf.Clamp01(belongingsTransitionElapsed / CharacterBelongingsFadeInDuration);
             float newAlpha = inT * roomFadeAlpha;
             float newSlide = (1f - inT) * 6f;
             float newScale = Mathf.Lerp(0.95f, 1f, inT);
-            DrawBelongingsSet(rect, shelfY, selectedDef.belongings, newAlpha, newSlide, newScale);
+            DrawBelongingsSet(weaponSpot, clothSpot, shelfSpot, selectedDef.belongings, newAlpha, newSlide, newScale);
             return;
         }
 
-        DrawBelongingsSet(rect, shelfY, selectedDef.belongings, roomFadeAlpha, 0f, 1f);
+        DrawBelongingsSet(weaponSpot, clothSpot, shelfSpot, selectedDef.belongings, roomFadeAlpha, 0f, 1f);
     }
 
-    // Home画面改善依頼⑦(2026-09-16), item 1 - 「装備アイコン3個を同じ
-    // サイズ・高さ・間隔で横一列に並べない」ため、BelongingKindごとに
-    // 別々の置き方(立てかける/壁に掛ける/垂らす/置く)をする。slideYOffset
-    // /scaleはCharacter変更時のFade In演出専用(通常時は0/1で呼ばれ実質
-    // 何もしない)。rect/shelfYはDrawCharacterBelongings側で計算済みの
-    // ものをそのまま受け取る(棚板自体はここでは描かない)。
-    void DrawBelongingsSet(Rect rect, float shelfY, CharacterDefinition.BelongingItem[] items, float alpha, float slideYOffset, float scale)
+    // kindごとに対応するspotへ1個ずつ描画する。slideYOffset/scaleは
+    // Character変更時のFade In演出専用(通常時は0/1で呼ばれ実質何もしない)。
+    // Shield/Small(どちらもshelfSpot共用)が同じキャラクターに2個とも
+    // 存在する場合(例: Noble Ladyの王冠+紋章)、同じ矩形へ描くと完全に
+    // 重なって片方が隠れてしまう不具合が実機確認で見つかった - shelfSpot
+    // を使うアイテムの個数ぶんだけ等分割してから割り当てることで解決。
+    void DrawBelongingsSet(Rect weaponSpot, Rect clothSpot, Rect shelfSpot, CharacterDefinition.BelongingItem[] items, float alpha, float slideYOffset, float scale)
     {
         if (items == null || items.Length == 0 || alpha <= 0.001f) return;
 
-        int count = Mathf.Min(items.Length, 4);
-        float colWidth = rect.width / count;
-        float[] tiltBase = { -7f, 6f, -5f, 6f };
-
-        for (int i = 0; i < count; i++)
+        int shelfCount = 0;
+        foreach (CharacterDefinition.BelongingItem it in items)
         {
-            CharacterDefinition.BelongingItem item = items[i];
-            float colCenterX = rect.x + colWidth * (i + 0.5f);
-            float tilt = tiltBase[i % tiltBase.Length];
-            Rect itemRect;
-            Vector2 pivot;
-            bool isCloth = item.kind == CharacterDefinition.BelongingKind.Cloth;
+            if (it.kind != CharacterDefinition.BelongingKind.Weapon && it.kind != CharacterDefinition.BelongingKind.Cloth) shelfCount++;
+        }
+        int shelfIndex = 0;
 
-            switch (item.kind)
-            {
-                case CharacterDefinition.BelongingKind.Weapon:
-                {
-                    // 棚/壁に立てかける - 縦長・他より一回り大きく、根本
-                    // (刃先ではなく持ち手側)を軸に傾ける。
-                    float h = rect.height * 0.62f * scale;
-                    float w = h * 0.42f;
-                    itemRect = new Rect(colCenterX - w / 2f, shelfY - h + slideYOffset, w, h);
-                    pivot = new Vector2(itemRect.center.x, itemRect.yMax);
-                    tilt *= 2.1f;
-                    break;
-                }
-                case CharacterDefinition.BelongingKind.Shield:
-                {
-                    // 壁に掛ける - 棚面には触れず、棚のやや上の壁面に浮かせて
-                    // 配置する(下にごく小さな金具の点を添える)。
-                    float h = rect.height * 0.40f * scale;
-                    float w = h * 0.92f;
-                    float bottom = shelfY - rect.height * 0.12f;
-                    itemRect = new Rect(colCenterX - w / 2f, bottom - h + slideYOffset, w, h);
-                    pivot = itemRect.center;
-                    tilt *= 0.35f;
-                    break;
-                }
-                case CharacterDefinition.BelongingKind.Cloth:
-                {
-                    // 棚の端から垂らす - 上端を棚のすぐ上に固定し、棚の前面
-                    // へ向かって垂れ下がるよう下端は棚下(rectの外)まで
-                    // 伸ばす(このRectはOnGUI側でクリップされないため安全)。
-                    float h = rect.height * 0.60f * scale;
-                    float w = h * 0.52f;
-                    float top = shelfY - rect.height * 0.05f;
-                    itemRect = new Rect(colCenterX - w / 2f, top + slideYOffset, w, h);
-                    pivot = new Vector2(itemRect.center.x, itemRect.y);
-                    tilt *= 0.55f;
-                    break;
-                }
-                default: // Small - 棚の上にそのまま置く
-                {
-                    float h = rect.height * 0.34f * scale;
-                    float w = h;
-                    itemRect = new Rect(colCenterX - w / 2f, shelfY - h + slideYOffset, w, h);
-                    pivot = itemRect.center;
-                    tilt *= 0.5f;
-                    break;
-                }
-            }
-
-            Matrix4x4 prevItemMatrix = GUI.matrix;
-            GUIUtility.RotateAroundPivot(tilt, pivot);
-
-            // 足元(または垂れた布の下端)のごく薄い影 - 単色矩形の簡易近似。
-            Rect shadowRect = isCloth
-                ? new Rect(itemRect.x + itemRect.width * 0.14f, itemRect.yMax - itemRect.height * 0.05f, itemRect.width * 0.72f, rect.height * 0.045f)
-                : new Rect(itemRect.x + itemRect.width * 0.12f, shelfY - rect.height * 0.02f, itemRect.width * 0.76f, rect.height * 0.045f);
-            Color prevShadow = GUI.color;
-            GUI.color = new Color(0f, 0f, 0f, 0.28f * alpha);
-            GUI.DrawTexture(shadowRect, Texture2D.whiteTexture);
-            GUI.color = prevShadow;
-
-            // Shield用の小さな金具(壁掛けの根拠)。
-            if (item.kind == CharacterDefinition.BelongingKind.Shield)
-            {
-                float pegSize = rect.height * 0.035f;
-                Rect pegRect = new Rect(itemRect.center.x - pegSize / 2f, itemRect.y - pegSize * 0.6f, pegSize, pegSize);
-                Color prevPeg = GUI.color;
-                GUI.color = new Color(0.15f, 0.12f, 0.08f, 0.6f * alpha);
-                GUI.DrawTexture(pegRect, Texture2D.whiteTexture);
-                GUI.color = prevPeg;
-            }
-
-            if (item.icon != null)
-            {
-                Color prevIcon = GUI.color;
-                GUI.color = new Color(1f, 1f, 1f, alpha);
-                GUI.DrawTexture(itemRect, item.icon, ScaleMode.ScaleToFit);
-                GUI.color = prevIcon;
-            }
+        foreach (CharacterDefinition.BelongingItem item in items)
+        {
+            Rect spot;
+            if (item.kind == CharacterDefinition.BelongingKind.Weapon) spot = weaponSpot;
+            else if (item.kind == CharacterDefinition.BelongingKind.Cloth) spot = clothSpot;
             else
             {
-                Color placeholder = item.placeholderColor.a > 0f ? item.placeholderColor : new Color(0.4f, 0.4f, 0.45f);
-                Color prevBox = GUI.color;
-                GUI.color = new Color(placeholder.r, placeholder.g, placeholder.b, 0.75f * alpha);
-                GUI.DrawTexture(itemRect, Texture2D.whiteTexture);
-                GUI.color = prevBox;
-
-                if (!string.IsNullOrEmpty(item.label))
-                {
-                    GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-                    labelStyle.fontSize = Mathf.Max(9, Mathf.RoundToInt(itemRect.width * 0.4f));
-                    labelStyle.alignment = TextAnchor.MiddleCenter;
-                    labelStyle.normal.textColor = new Color(1f, 1f, 1f, 0.9f * alpha);
-                    GUI.Label(itemRect, item.label.Substring(0, 1), labelStyle);
-                }
+                spot = SubdivideHorizontally(shelfSpot, shelfCount, shelfIndex);
+                shelfIndex++;
             }
-
-            GUI.matrix = prevItemMatrix;
+            DrawOneBelonging(spot, item, alpha, slideYOffset, scale);
         }
     }
 
-    // ステージ選択導線追加(2026-09-12) - マスター提供の参考画像「中央の
-    // 床ラグに次の行き先(NEXT STAGE)を表示」に相当。DrawCharacterHotspot
-    // と同じ「対応する物が室内アートに描かれていないため、パネル+ラベル+
-    // 淡い金色パルスを明示的に描画する」パターン。タップでStage Selectを
-    // 開くだけで、Run開始そのものはDoorホットスポット(OnDoorTapped)が
-    // 引き続き担う。
-    void DrawStageHotspot(Rect rect, bool roomInteractable, float roomFadeAlpha)
+    static Rect SubdivideHorizontally(Rect spot, int count, int index)
     {
-        // Home画面改善依頼④(2026-09-15), item 2 - 「単なる小型プレビュー
-        // ではなく、地図や旅の資料から出てきたような演出」に対応するため、
-        // 従来のOrnateUi.DrawPanel(半透明パネル+常時パルス)は撤去し、
-        // 経年変化した地図帳風の装飾フレーム画像(stageMapFrameTexture)へ
-        // 全面的に置き換えた。フレーム画像自身のアスペクト比を保ったまま
-        // rect内に収まる最大サイズで中央寄せする(引き伸ばしによる歪みを
-        // 防ぐ)。フレーム未設定(null)の場合は矩形のフレーム相当の領域を
-        // そのままステージ写真の表示先として使う(Acceptance Test 8 - 画像
-        // 未設定でも壊れない)。
-        // Home画面改善依頼⑤(2026-09-16), item 2 - 「机に広げた地図」に見せる
-        // ため、わずかな傾き(mapTilt)を掛けて描画する。回転の中心はframe
-        // Rectの中心のまま、外接矩形がrectからはみ出さないよう先に一回り
-        // (3%)小さい領域でフィットさせておく安全マージン。
-        const float mapTilt = -2.2f;
-        float fitInsetX = rect.width * 0.03f;
-        float fitInsetY = rect.height * 0.03f;
-        Rect fitBounds = new Rect(rect.x + fitInsetX, rect.y + fitInsetY, rect.width - fitInsetX * 2f, rect.height - fitInsetY * 2f);
-        Texture2D frame = stageMapFrameTexture;
-        Rect frameRect = frame != null
-            ? FitRectPreserveAspect(fitBounds, (float)frame.width / Mathf.Max(1, frame.height))
-            : FitRectPreserveAspect(fitBounds, 1672f / 941f);
+        if (count <= 1) return spot;
+        float w = spot.width / count;
+        return new Rect(spot.x + w * index, spot.y, w, spot.height);
+    }
 
-        StageDefinition selectedDef = StageDatabase.FindById(SelectedStageId);
-        Texture2D newThumbnail = selectedDef != null ? selectedDef.thumbnail : null;
+    // 1個ぶんの持ち物をspot内へ配置する。種類ごとに「立てかける(spotの
+    // 下端を軸に大きく傾ける)」「垂らす(spotの上端に吊るす)」「置く
+    // (spot中央に小さく収まる、軽い傾きのみ)」の3パターンに分ける。
+    void DrawOneBelonging(Rect spot, CharacterDefinition.BelongingItem item, float alpha, float slideYOffset, float scale)
+    {
+        bool isWeapon = item.kind == CharacterDefinition.BelongingKind.Weapon;
+        bool isCloth = item.kind == CharacterDefinition.BelongingKind.Cloth;
 
-        // Home画面改善依頼⑦(2026-09-16), item 7 - Stage変更直後だけ、旧
-        // ステージのサムネイルをクロスフェードで消しながら新しいものへ
-        // 差し替える。stageTransitionElapsed<0(非遷移中)ならnewAlphaが
-        // そのままroomFadeAlpha、oldAlphaは0になり通常描画と同じになる。
-        bool stageTransitioning = stageTransitionElapsed >= 0f;
-        StageDefinition prevStageDef = stageTransitioning ? StageDatabase.FindById(stageTransitionPrevStageId) : null;
-        Texture2D oldThumbnail = prevStageDef != null ? prevStageDef.thumbnail : null;
-        float crossfadeT = stageTransitioning ? Mathf.Clamp01(stageTransitionElapsed / StageCrossfadeDuration) : 1f;
-        float oldPhotoAlpha = stageTransitioning ? (1f - crossfadeT) * roomFadeAlpha : 0f;
-        float newPhotoAlpha = stageTransitioning ? crossfadeT * roomFadeAlpha : roomFadeAlpha;
-        float nameAlpha = stageTransitioning
-            ? Mathf.Clamp01((stageTransitionElapsed - StageNameFadeDelay) / StageNameFadeDuration) * roomFadeAlpha
-            : roomFadeAlpha;
+        // プレースホルダー(icon未設定)時の既定アスペクト比も種類ごとに
+        // それらしい縦横比にしておく - 実画像が入ればそちらのアスペクト
+        // 比がそのまま使われる。
+        float defaultAspect = isWeapon ? 3.2f : isCloth ? 1.6f : 1.0f;
+        float iconAspect = item.icon != null ? (float)item.icon.height / Mathf.Max(1, item.icon.width) : defaultAspect;
 
-        // 地図全体(影・フレーム・写真・文字)をmapTiltぶんだけ回転させる。
-        // ボタンの当たり判定は元のrect(回転なし)のままにしたいので、
-        // 復元はこの後の描画がすべて終わってから行う。
-        Matrix4x4 prevMatrix = GUI.matrix;
-        GUIUtility.RotateAroundPivot(mapTilt, frameRect.center);
+        float fillFrac = isWeapon ? 0.85f : isCloth ? 0.9f : 0.62f;
+        float w = spot.width * fillFrac * scale;
+        float h = w * iconAspect;
+        float maxH = spot.height * (isWeapon || isCloth ? 1.0f : 0.62f) * scale;
+        if (h > maxH) { h = maxH; w = h / iconAspect; }
 
-        // 「机の上に置かれた紙」の接地影 - フレームよりひとまわり大きく、
-        // 少し下にずらした単色矩形(このファイル内の他の影と同じ近似手法)。
-        Color prevMapShadow = GUI.color;
-        Rect mapShadowRect = new Rect(frameRect.x - frameRect.width * 0.02f, frameRect.y + frameRect.height * 0.035f, frameRect.width * 1.04f, frameRect.height * 1.04f);
-        GUI.color = new Color(0f, 0f, 0f, 0.28f * roomFadeAlpha);
-        GUI.DrawTexture(mapShadowRect, Texture2D.whiteTexture);
-        GUI.color = prevMapShadow;
-
-        // フレーム画像は中央の約68%幅×62%高さ(中心配置)だけが無地の
-        // パーチメント領域になるよう生成時に指定済み(Assets/Art/UI/
-        // TravelAtlasFrame.png、外周16%ずつに地図らしい装飾を描き込んで
-        // ある)。写真はその領域だけに収まるよう先にサイズを決めておく
-        // (フレームより先に写真を描き、フレームを重ねて縁を隠す方式だと
-        // 縁が写真の上に乗って見えてしまうため、逆に「フレームを描いた後
-        // その無地領域だけに写真を重ねる」順序にする)。
-        Rect photoWindowRect = new Rect(
-            frameRect.x + frameRect.width * 0.16f,
-            frameRect.y + frameRect.height * 0.19f,
-            frameRect.width * 0.68f,
-            frameRect.height * 0.62f);
-
-        if (frame != null)
+        float cx = spot.center.x;
+        float itemY;
+        Vector2 pivot;
+        float tilt;
+        if (isWeapon)
         {
-            Color prevFrame = GUI.color;
-            GUI.color = new Color(1f, 1f, 1f, roomFadeAlpha);
-            GUI.DrawTexture(frameRect, frame, ScaleMode.StretchToFill);
-            GUI.color = prevFrame;
+            // 立てかける - 根本(spotの下端)を軸に大きく傾ける。
+            itemY = spot.yMax - h + slideYOffset;
+            pivot = new Vector2(cx, spot.yMax);
+            tilt = -11f;
+        }
+        else if (isCloth)
+        {
+            // フックから垂らす - spotの上端に吊るす。
+            itemY = spot.y + slideYOffset;
+            pivot = new Vector2(cx, spot.y);
+            tilt = 5f;
+        }
+        else
+        {
+            // トランクの天板等にそのまま置く - spot下寄りに小さく収める。
+            itemY = spot.yMax - h + slideYOffset;
+            pivot = new Vector2(cx, spot.center.y);
+            tilt = -5f;
         }
 
-        // Home画面改善依頼⑦(2026-09-16), item 5 - 「単なる長方形サムネイル」
-        // に見えないよう、地図案Bの「旅のスケッチ/絵葉書」に寄せる。写真
-        // 部分だけ地図本体とは独立にわずかに傾け(postcardTilt)、ひとまわり
-        // 大きいクリーム色の紙台紙を敷いてから写真を重ね、縁にはパーチ
-        // メント色の薄いビネットを重ねて硬い矩形の輪郭を和らげる。この
-        // 追加の回転は文字(地名・ルート)には掛けたくないため、地図本体の
-        // 回転(mapTilt)はそのままに、このブロックの中だけ一時的に重ねて
-        // 抜けたら必ず元(mapTiltのみ)へ戻す。
-        const float postcardTilt = 2.6f;
-        Matrix4x4 mapOnlyMatrix = GUI.matrix;
-        GUIUtility.RotateAroundPivot(postcardTilt, photoWindowRect.center);
+        Rect itemRect = new Rect(cx - w / 2f, itemY, w, h);
 
-        float paperPad = Mathf.Min(photoWindowRect.width, photoWindowRect.height) * 0.06f;
-        Rect paperRect = new Rect(photoWindowRect.x - paperPad, photoWindowRect.y - paperPad, photoWindowRect.width + paperPad * 2f, photoWindowRect.height + paperPad * 2f);
-        Color prevPaperShadow = GUI.color;
-        GUI.color = new Color(0f, 0f, 0f, 0.22f * roomFadeAlpha);
-        GUI.DrawTexture(new Rect(paperRect.x + paperRect.width * 0.03f, paperRect.y + paperRect.height * 0.04f, paperRect.width, paperRect.height), Texture2D.whiteTexture);
-        GUI.color = new Color(0.97f, 0.95f, 0.87f, roomFadeAlpha);
-        GUI.DrawTexture(paperRect, Texture2D.whiteTexture);
-        GUI.color = prevPaperShadow;
+        Matrix4x4 prevItemMatrix = GUI.matrix;
+        GUIUtility.RotateAroundPivot(tilt, pivot);
 
-        // Home画面改善依頼③(2026-09-15), item 3 - 既存StageDefinition.
-        // thumbnail(元々StageSelectUI用に用意されていたフィールドをその
-        // まま流用、新規フィールドは追加していない)を地図の無地領域へ
-        // 重ねて表示する。未設定(null)の場合は単に描画をスキップする
-        // だけで、NullReferenceException等は起きない(Acceptance Test 8)。
-        if (oldThumbnail != null && oldPhotoAlpha > 0.001f)
+        // 足元(または垂れた布の下端)のごく薄い影 - 単色矩形の簡易近似。
+        Rect shadowRect = isCloth
+            ? new Rect(itemRect.x + itemRect.width * 0.14f, itemRect.yMax - itemRect.height * 0.05f, itemRect.width * 0.72f, spot.height * 0.045f)
+            : new Rect(itemRect.x + itemRect.width * 0.12f, spot.yMax - spot.height * 0.02f, itemRect.width * 0.76f, spot.height * 0.045f);
+        Color prevShadow = GUI.color;
+        GUI.color = new Color(0f, 0f, 0f, 0.28f * alpha);
+        GUI.DrawTexture(shadowRect, Texture2D.whiteTexture);
+        GUI.color = prevShadow;
+
+        // Shield用の小さな金具(壁掛けの根拠) - Shield/Small兼用spotの
+        // うちShieldだけに付ける。
+        if (item.kind == CharacterDefinition.BelongingKind.Shield)
         {
-            Rect oldPhotoRect = FitRectPreserveAspect(photoWindowRect, (float)oldThumbnail.width / Mathf.Max(1, oldThumbnail.height));
-            Color prevOldThumb = GUI.color;
-            GUI.color = new Color(1f, 1f, 1f, oldPhotoAlpha);
-            GUI.DrawTexture(oldPhotoRect, oldThumbnail, ScaleMode.ScaleToFit);
-            GUI.color = prevOldThumb;
-        }
-        if (newThumbnail != null)
-        {
-            Rect photoRect = FitRectPreserveAspect(photoWindowRect, (float)newThumbnail.width / Mathf.Max(1, newThumbnail.height));
-            Color prevThumb = GUI.color;
-            GUI.color = new Color(1f, 1f, 1f, newPhotoAlpha);
-            GUI.DrawTexture(photoRect, newThumbnail, ScaleMode.ScaleToFit);
-            GUI.color = prevThumb;
+            float pegSize = spot.height * 0.06f;
+            Rect pegRect = new Rect(itemRect.center.x - pegSize / 2f, itemRect.y - pegSize * 0.6f, pegSize, pegSize);
+            Color prevPeg = GUI.color;
+            GUI.color = new Color(0.15f, 0.12f, 0.08f, 0.6f * alpha);
+            GUI.DrawTexture(pegRect, Texture2D.whiteTexture);
+            GUI.color = prevPeg;
         }
 
-        DrawEdgeVignette(photoWindowRect, new Color(0.97f, 0.95f, 0.87f), roomFadeAlpha);
-
-        // item 7, ステップ4 - Stage変更直後だけ、地図中央にごく薄い光が
-        // 一度だけ広がる(強い魔法エフェクトにはしない、Ver.1のガチャ
-        // Reveal演出と同じ「外へ広がりながら消えるパッド+アルファ」近似)。
-        if (stageTransitioning)
+        if (item.icon != null)
         {
-            const float pulseDuration = 0.35f;
-            if (stageTransitionElapsed <= pulseDuration)
+            Color prevIcon = GUI.color;
+            GUI.color = new Color(1f, 1f, 1f, alpha);
+            GUI.DrawTexture(itemRect, item.icon, ScaleMode.ScaleToFit);
+            GUI.color = prevIcon;
+        }
+        else
+        {
+            Color placeholder = item.placeholderColor.a > 0f ? item.placeholderColor : new Color(0.4f, 0.4f, 0.45f);
+            Color prevBox = GUI.color;
+            GUI.color = new Color(placeholder.r, placeholder.g, placeholder.b, 0.75f * alpha);
+            GUI.DrawTexture(itemRect, Texture2D.whiteTexture);
+            GUI.color = prevBox;
+
+            if (!string.IsNullOrEmpty(item.label))
             {
-                float pulseT = Mathf.Clamp01(stageTransitionElapsed / pulseDuration);
-                float pulseAlpha = (1f - pulseT) * 0.26f * roomFadeAlpha;
-                float pulsePad = pulseT * photoWindowRect.width * 0.16f;
-                Color prevPulse = GUI.color;
-                GUI.color = new Color(0.75f, 0.88f, 1f, pulseAlpha);
-                GUI.DrawTexture(new Rect(photoWindowRect.x - pulsePad, photoWindowRect.y - pulsePad, photoWindowRect.width + pulsePad * 2f, photoWindowRect.height + pulsePad * 2f), Texture2D.whiteTexture);
-                GUI.color = prevPulse;
+                GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
+                labelStyle.fontSize = Mathf.Max(9, Mathf.RoundToInt(itemRect.width * 0.4f));
+                labelStyle.alignment = TextAnchor.MiddleCenter;
+                labelStyle.normal.textColor = new Color(1f, 1f, 1f, 0.9f * alpha);
+                GUI.Label(itemRect, item.label.Substring(0, 1), labelStyle);
             }
         }
 
-        // postcardTilt分の回転をここで戻す - 以降の地名/ルート文字は地図
-        // 本体の傾き(mapTilt)だけを受けた状態で描く。
-        GUI.matrix = mapOnlyMatrix;
-
-        // item 4/6 - 「黒い半透明の文字帯」を廃止し、フレーム下部の余白
-        // (写真窓とフレーム下端の間、装飾枠の一部)に地名を直接書き込む。
-        // 黒帯backdropの代わりに、濃い焦げ茶インク色+わずかな金色ハイ
-        // ライトの二重描画で「地図に焼き印/インクで書かれた地名」に近い
-        // 見た目にする(新規フォント/シェーダなし)。
-        float bottomBandY0 = photoWindowRect.yMax;
-        float bottomBandY1 = frameRect.yMax;
-        float bottomBandH = Mathf.Max(0f, bottomBandY1 - bottomBandY0);
-        Rect nameRect = new Rect(frameRect.x, bottomBandY0 + bottomBandH * 0.06f, frameRect.width, bottomBandH * 0.56f);
-        Rect routeRect = new Rect(frameRect.x, bottomBandY0 + bottomBandH * 0.64f, frameRect.width, bottomBandH * 0.34f);
-
-        // 実機確認(2026-09-16、Unity Editor Play Mode)で発見・修正 - 濃い
-        // 焦げ茶インクだけでは、フレーム画像自身の暗い縁飾りの上でほとんど
-        // 読めなかった(黒帯を廃止した副作用)。「小さな紙札が貼られている」
-        // という代替案どおり、地名の背後だけにごく薄いクリーム色の紙片を
-        // 2枚重ね(外側ほど低不透明度)で敷き、UIパネルではなく色褪せた
-        // 貼り紙に見える程度の可読性を確保する。
-        float tagPadX = nameRect.width * 0.06f;
-        Rect tagOuter = new Rect(nameRect.x + tagPadX, bottomBandY0 + bottomBandH * 0.02f, nameRect.width - tagPadX * 2f, bottomBandH * 0.97f);
-        Rect tagInner = new Rect(tagOuter.x + tagOuter.width * 0.05f, tagOuter.y + tagOuter.height * 0.10f, tagOuter.width * 0.9f, tagOuter.height * 0.82f);
-        Color prevTag = GUI.color;
-        GUI.color = new Color(0.93f, 0.87f, 0.7f, 0.18f * roomFadeAlpha);
-        GUI.DrawTexture(tagOuter, Texture2D.whiteTexture);
-        GUI.color = new Color(0.96f, 0.91f, 0.76f, 0.30f * roomFadeAlpha);
-        GUI.DrawTexture(tagInner, Texture2D.whiteTexture);
-        GUI.color = prevTag;
-
-        string stageName = selectedDef != null ? selectedDef.displayName : "-";
-        GUIStyle nameStyle = new GUIStyle(GUI.skin.label);
-        nameStyle.fontSize = Mathf.Max(13, Mathf.RoundToInt(bottomBandH * 0.42f));
-        nameStyle.fontStyle = FontStyle.Bold;
-        nameStyle.alignment = TextAnchor.UpperCenter;
-        nameStyle.normal.textColor = new Color(1f, 0.93f, 0.68f, nameAlpha * 0.6f);
-        GUI.Label(new Rect(nameRect.x, nameRect.y + 1f, nameRect.width, nameRect.height), stageName, nameStyle);
-        nameStyle.normal.textColor = new Color(0.24f, 0.12f, 0.05f, nameAlpha);
-        GUI.Label(nameRect, stageName, nameStyle);
-
-        GUIStyle routeStyle = new GUIStyle(GUI.skin.label);
-        routeStyle.fontSize = Mathf.Max(10, Mathf.RoundToInt(bottomBandH * 0.26f));
-        routeStyle.alignment = TextAnchor.UpperCenter;
-        routeStyle.normal.textColor = new Color(0.28f, 0.18f, 0.09f, nameAlpha);
-        GUI.Label(routeRect, selectedDef != null ? selectedDef.routeText : "", routeStyle);
-
-        // 見出し「NEXT STAGE」はフレームの上・控えめな金色のまま維持する
-        // (視覚優先順位「ドア>Character>NEXT STAGE」を保つ、item 4)。
-        GUIStyle headerStyle = new GUIStyle(GUI.skin.label);
-        headerStyle.fontSize = 12;
-        headerStyle.fontStyle = FontStyle.Bold;
-        headerStyle.alignment = TextAnchor.LowerCenter;
-        headerStyle.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, roomFadeAlpha * 0.7f);
-        GUI.Label(new Rect(rect.x, rect.y, rect.width, Mathf.Max(0f, frameRect.y - rect.y)), "NEXT STAGE", headerStyle);
-
-        // 傾きを戻す - これ以降(当たり判定・タップフラッシュ)は元の
-        // 軸並行なrect基準のまま扱う(回転した矩形の当たり判定までは
-        // 今回のスコープ外)。
-        GUI.matrix = prevMatrix;
-
-        // Home画面改善依頼⑤(2026-09-16), item 2/4 - 常時の金枠を撤去。
-        // 地図自体がすでに装飾フレーム画像+わずかな傾き+落ち影を持ち、
-        // 「そこに紙が置いてある」という説得力を得たため、追加の判定枠は
-        // もう必要ない。
-        bool tapped = roomInteractable && GUI.Button(rect, GUIContent.none, GUIStyle.none);
-        if (tapped)
-        {
-            stageHotspotFlashTimer = roomHotspotFlashDuration;
-            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(roomTapSe);
-        }
-
-        if (stageHotspotFlashTimer > 0f)
-        {
-            float f = stageHotspotFlashTimer / roomHotspotFlashDuration;
-            Color prevFlash = GUI.color;
-            GUI.color = new Color(1f, 0.95f, 0.75f, f * 0.35f * roomFadeAlpha);
-            GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = prevFlash;
-        }
-
-        if (tapped && roomFadeAlpha > 0.99f)
-        {
-            OpenStageSelect();
-        }
+        GUI.matrix = prevItemMatrix;
     }
 
+    // Home画面 / Stage Select改善依頼(2026-09-16), item4 - NEXT STAGE
+    // ホットスポット(旧DrawStageHotspot)はHomeから撤去した。行き先選択は
+    // 出発専用のStage Select画面(StageSelectUI)へ完全に分離している。
     // Gacha Result popup (item 4) - "NEW CARD / SPEED UP / Lv.1 / OWNED x3
     // / OK", closing straight back to the room (no forced navigation to
     // Card Edit). A fresh Gacha draw is always Lv.1, so this doesn't need
@@ -4649,8 +4365,12 @@ public class GameManager : MonoBehaviour
         GUI.Label(rect, text, style);
     }
 
-    // Item 13 - the door's tap action, split between CONTINUE (an Active
-    // Run already exists) and a fresh Run.
+    // Home画面 / Stage Select改善依頼(2026-09-16), item5/6/10 - 扉の
+    // タップ動作。Active Runがあればそのまま再開(Continue)、無ければ
+    // Stage Selectへ直接遷移する(以前はここで即Runを開始していたが、
+    // 「出発時だけの専用画面」というStage Select方針に伴い、行き先を
+    // 選んでから出発する流れへ変更した - 実際のRun開始はStage Select側の
+    // 出発ボタン、DepartFromStageSelect参照)。
     void OnDoorTapped()
     {
         if (RunCheckpoint.HasActiveRun)
@@ -4659,8 +4379,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            StartGame();
-            startPressFlashTimer = startPressFlashDuration;
+            OpenStageSelect();
         }
     }
 
@@ -4695,8 +4414,9 @@ public class GameManager : MonoBehaviour
         {
             showNewRunConfirm = false;
             RunCheckpoint.Clear();
-            StartGame();
-            startPressFlashTimer = startPressFlashDuration;
+            // item5/6 - 破棄後はStage Selectへ遷移し、そこで行き先を
+            // 選んでから出発する(DepartFromStageSelect参照)。
+            OpenStageSelect();
         }
         if (DrawStyledButton(noRect, "キャンセル", 16f, primary: false))
         {
