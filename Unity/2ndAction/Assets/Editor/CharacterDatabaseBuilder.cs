@@ -128,9 +128,9 @@ public static class CharacterDatabaseBuilder
         // flavorTextに沿った持ち物3点。
         swordsman.belongings = new[]
         {
-            new CharacterDefinition.BelongingItem { label = "剣", placeholderColor = new Color(0.75f, 0.78f, 0.85f), icon = LoadIconTexture("Assets/Art/UI/Characters/SwordsmanItems/swordsman_item_0.png") },
-            new CharacterDefinition.BelongingItem { label = "外套", placeholderColor = new Color(0.25f, 0.25f, 0.3f), icon = LoadIconTexture("Assets/Art/UI/Characters/SwordsmanItems/swordsman_item_1.png") },
-            new CharacterDefinition.BelongingItem { label = "紋章", placeholderColor = new Color(0.6f, 0.5f, 0.25f), icon = LoadIconTexture("Assets/Art/UI/Characters/SwordsmanItems/swordsman_item_2.png") },
+            new CharacterDefinition.BelongingItem { label = "剣", placeholderColor = new Color(0.75f, 0.78f, 0.85f), icon = LoadIconTexture("Assets/Art/UI/Characters/SwordsmanItems/swordsman_item_0.png"), kind = CharacterDefinition.BelongingKind.Weapon },
+            new CharacterDefinition.BelongingItem { label = "外套", placeholderColor = new Color(0.25f, 0.25f, 0.3f), icon = LoadIconTexture("Assets/Art/UI/Characters/SwordsmanItems/swordsman_item_1.png"), kind = CharacterDefinition.BelongingKind.Cloth },
+            new CharacterDefinition.BelongingItem { label = "紋章", placeholderColor = new Color(0.6f, 0.5f, 0.25f), icon = LoadIconTexture("Assets/Art/UI/Characters/SwordsmanItems/swordsman_item_2.png"), kind = CharacterDefinition.BelongingKind.Shield },
         };
 
         Spec dualBlade = DefaultBaseline;
@@ -150,9 +150,9 @@ public static class CharacterDatabaseBuilder
         // /軽装らしい小物)をそのまま採用。
         dualBlade.belongings = new[]
         {
-            new CharacterDefinition.BelongingItem { label = "双剣", placeholderColor = new Color(0.55f, 0.75f, 0.85f), icon = LoadIconTexture("Assets/Art/UI/Characters/DualBladeItems/dual_blade_item_0.png") },
-            new CharacterDefinition.BelongingItem { label = "羽根", placeholderColor = new Color(0.9f, 0.9f, 0.95f), icon = LoadIconTexture("Assets/Art/UI/Characters/DualBladeItems/dual_blade_item_1.png") },
-            new CharacterDefinition.BelongingItem { label = "布飾り", placeholderColor = new Color(0.2f, 0.55f, 0.55f), icon = LoadIconTexture("Assets/Art/UI/Characters/DualBladeItems/dual_blade_item_2.png") },
+            new CharacterDefinition.BelongingItem { label = "双剣", placeholderColor = new Color(0.55f, 0.75f, 0.85f), icon = LoadIconTexture("Assets/Art/UI/Characters/DualBladeItems/dual_blade_item_0.png"), kind = CharacterDefinition.BelongingKind.Weapon },
+            new CharacterDefinition.BelongingItem { label = "羽根", placeholderColor = new Color(0.9f, 0.9f, 0.95f), icon = LoadIconTexture("Assets/Art/UI/Characters/DualBladeItems/dual_blade_item_1.png"), kind = CharacterDefinition.BelongingKind.Cloth },
+            new CharacterDefinition.BelongingItem { label = "布飾り", placeholderColor = new Color(0.2f, 0.55f, 0.55f), icon = LoadIconTexture("Assets/Art/UI/Characters/DualBladeItems/dual_blade_item_2.png"), kind = CharacterDefinition.BelongingKind.Small },
         };
 
         // 3人目のプレイアブル主人公(2026-09-13) - マスター初期案どおりの
@@ -248,9 +248,9 @@ public static class CharacterDatabaseBuilder
         // /青金の紋章)をそのまま採用。
         nobleLady.belongings = new[]
         {
-            new CharacterDefinition.BelongingItem { label = "大剣", placeholderColor = new Color(0.8f, 0.8f, 0.85f), icon = LoadIconTexture("Assets/Art/UI/Characters/NobleLadyItems/noble_lady_item_0.png") },
-            new CharacterDefinition.BelongingItem { label = "王冠", placeholderColor = new Color(0.95f, 0.85f, 0.35f), icon = LoadIconTexture("Assets/Art/UI/Characters/NobleLadyItems/noble_lady_item_1.png") },
-            new CharacterDefinition.BelongingItem { label = "紋章", placeholderColor = new Color(0.25f, 0.35f, 0.75f), icon = LoadIconTexture("Assets/Art/UI/Characters/NobleLadyItems/noble_lady_item_2.png") },
+            new CharacterDefinition.BelongingItem { label = "大剣", placeholderColor = new Color(0.8f, 0.8f, 0.85f), icon = LoadIconTexture("Assets/Art/UI/Characters/NobleLadyItems/noble_lady_item_0.png"), kind = CharacterDefinition.BelongingKind.Weapon },
+            new CharacterDefinition.BelongingItem { label = "王冠", placeholderColor = new Color(0.95f, 0.85f, 0.35f), icon = LoadIconTexture("Assets/Art/UI/Characters/NobleLadyItems/noble_lady_item_1.png"), kind = CharacterDefinition.BelongingKind.Small },
+            new CharacterDefinition.BelongingItem { label = "紋章", placeholderColor = new Color(0.25f, 0.35f, 0.75f), icon = LoadIconTexture("Assets/Art/UI/Characters/NobleLadyItems/noble_lady_item_2.png"), kind = CharacterDefinition.BelongingKind.Shield },
         };
 
         // ここから実プレイに反映される値(マスター初期案どおり)。
@@ -359,6 +359,18 @@ public static class CharacterDatabaseBuilder
                         if (existing.belongings[i].icon == null && spec.belongings[i].icon != null)
                         {
                             existing.belongings[i].icon = spec.belongings[i].icon;
+                            changed = true;
+                        }
+                        // Home画面改善依頼⑦(2026-09-16) - kindは今回新設した
+                        // フィールドのため、③④時点で既に生成済みの既存
+                        // アセットはまだ持っておらず(deserialize時は既定値
+                        // Small=0のまま)、この配列自体が空でないぶん上の
+                        // 「配列丸ごとバックフィル」も発火しない。iconと違い
+                        // 手動でInspector調整される類の値ではないため、常に
+                        // 最新のSpec側の値へ同期する。
+                        if (existing.belongings[i].kind != spec.belongings[i].kind)
+                        {
+                            existing.belongings[i].kind = spec.belongings[i].kind;
                             changed = true;
                         }
                     }

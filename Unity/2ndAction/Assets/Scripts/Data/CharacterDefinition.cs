@@ -166,12 +166,25 @@ public class CharacterDefinition : ScriptableObject
     // +placeholderColorの簡易表示へフォールバックする(マスター指示「最終
     // 的な画像素材は後から差し替えられる構造に」に対応 - iconを後から
     // Inspectorで設定するだけで自動的に実画像表示へ切り替わる)。
+    // Home画面改善依頼⑦(2026-09-16) - 「3個の装備アイコンを同じ置き方で
+    // 並べない」ため、アイテムごとに置き方(GameManager.DrawBelongingsSet
+    // 参照)を変えるための分類。表示専用の追加情報であり、既存のicon/label
+    // /placeholderColorには一切手を入れていない。
+    public enum BelongingKind
+    {
+        Small,   // 棚の上に置く小物(現状維持に近い置き方)
+        Weapon,  // 棚/壁に立てかける、または壁のフックに掛ける
+        Shield,  // 壁に掛ける(盾・紋章など)
+        Cloth,   // 棚の端やフックから垂らす(マント・羽根・布飾りなど)
+    }
+
     [System.Serializable]
     public struct BelongingItem
     {
         public string label;
         public Texture2D icon;
         public Color placeholderColor;
+        public BelongingKind kind;
     }
     [Header("Home画面 持ち物表示 (2026-09-15, 表示専用・装備システムではない)")]
     public BelongingItem[] belongings;
