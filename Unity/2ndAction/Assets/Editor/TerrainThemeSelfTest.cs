@@ -49,6 +49,11 @@ public static class TerrainThemeSelfTest
         Color wastelandTint = new Color(0.8f, 0.82f, 0.85f, 1f);
         float wastelandSurfaceInset = 1.16f;
         float wastelandFillTopOffset = 1.54f;
+        // Stage01次段階調整(2026-09-16), item5 - groundFillTintも他のtint
+        // フィールドと同じ「未指定(alpha=0)なら無変更、指定時のみ上書き」
+        // パターンで検証する。
+        Color defaultGroundFillTint = terrain.groundFillTint;
+        Color wastelandFillTint = new Color(0.72f, 0.7f, 0.68f, 1f);
 
         terrain.stageThemes = new[]
         {
@@ -63,6 +68,7 @@ public static class TerrainThemeSelfTest
                 groundFillSprite = wastelandGroundFillSprite,
                 backgroundTint = wastelandTint,
                 groundFillTopOffset = wastelandFillTopOffset,
+                groundFillTint = wastelandFillTint,
             }
         };
 
@@ -73,7 +79,8 @@ public static class TerrainThemeSelfTest
         bool unknownStageUnchanged = terrain.groundColor == defaultColor && terrain.groundSprite == defaultGroundSprite
             && terrain.groundFillSprite == defaultGroundFillSprite && bgRenderer.color == defaultBackgroundColor
             && terrain.platformSurfaceInset == defaultSurfaceInset
-            && terrain.groundFillTopOffset == defaultFillTopOffset;
+            && terrain.groundFillTopOffset == defaultFillTopOffset
+            && terrain.groundFillTint == defaultGroundFillTint;
 
         // 2) 一致するstageIdを渡すと、そのエントリの値へ実際に差し替わる
         // こと。
@@ -81,7 +88,8 @@ public static class TerrainThemeSelfTest
         bool matchingStageApplied = terrain.groundColor == wastelandColor && terrain.groundSprite == wastelandGroundSprite
             && terrain.groundFillSprite == wastelandGroundFillSprite && bgRenderer.color == wastelandTint
             && terrain.platformSurfaceInset == wastelandSurfaceInset
-            && terrain.groundFillTopOffset == wastelandFillTopOffset;
+            && terrain.groundFillTopOffset == wastelandFillTopOffset
+            && terrain.groundFillTint == wastelandFillTint;
 
         bool pass = unknownStageUnchanged && matchingStageApplied;
 

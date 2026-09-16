@@ -109,6 +109,16 @@ public class TerrainManager : MonoBehaviour
     // Offset参照) - platformSurfaceInsetと同じくplatformArtとセットで
     // 差し替わる必要がある値。
     public float groundFillTopOffset = 2.634f;
+    // Stage01次段階調整(2026-09-16), item5 - マスター報告「下側を地面で
+    // 埋めたことで、画面下部の岩断面が大きく占有し窮屈に見える」への対応。
+    // groundFillDepth(見せる高さ)自体はワイドな画面比率でのカメラ可視
+    // 範囲をぎりぎりカバーする値として既に一度実測調整済みで、これ以上
+    // 縮めると再びアスペクト比によっては空色の帯が覗くリスクがある
+    // (このフィールドのすぐ上のコメント参照)。そのため「高さ」ではなく
+    // 「濃さ」側で圧迫感を弱める - このColorをGroundFillのSpriteRenderer
+    // へ乗算適用する(Color.white=無変更)。alpha<=0のままなら常にColor.
+    // whiteとして扱う(backgroundTintと同じ「未指定」判定パターン)。
+    public Color groundFillTint = Color.white;
 
     [Header("Chunk Sizes")]
     public float flatLength = 6f;
@@ -129,7 +139,20 @@ public class TerrainManager : MonoBehaviour
     public float groundThickness = 1f;
 
     [Header("Generation")]
-    public float generateAheadDistance = 30f;
+    // Stage01次段階調整(2026-09-16) - ObstacleSpawner/EnemyWallManager/
+    // UpperRouteEnemySpawnerはいずれも「MaxDistance(=このRunで到達した
+    // 最大到達距離、TakeDamageのノックバックで下がってもMaxDistance自体は
+    // 減らない)+spawnAheadDistance(28)」を配置先Xとして使う。ノックバック
+    // 直後などplayer.position.xがMaxDistanceより後ろへ下がっている間、
+    // このTerrainManager側のチャンク生成は現在のplayer.position.x基準
+    // (+generateAheadDistance)でしか先読みしないため、以前の30ではその
+    // 配置先Xがまだチャンク未生成の領域に入り込む余地が実質2程度しか無く、
+    // 危うい状態だった(未生成領域をGetHeightAtへ問い合わせると、実際に
+    // 後で生成される地形とは無関係な「末尾チャンクの高さ」へ静かにフォー
+    // ルバックしてしまう - 見た目上「地形として成立していない」配置の
+    // 一因になり得る)。各スポナーのspawnAheadDistance(28)に対して確実な
+    // 余裕を持たせるため45へ引き上げた。IsGenerated(x)も参照。
+    public float generateAheadDistance = 45f;
     public float minEnemySpacing = 14f;
     public float pitChanceBase = 0.2f;
     public float enemySpawnChance = 0.5f;
@@ -222,6 +245,10 @@ public class TerrainManager : MonoBehaviour
         // ワールド単位オフセット(TerrainManager.groundFillTopOffset参照)。
         // 0以下(未指定)なら他フィールドと同じ「無変更」ルールに従う。
         public float groundFillTopOffset;
+        // Stage01次段階調整(2026-09-16), item5 - GroundFillへ乗算するティ
+        // ント。backgroundTintと同じ「alpha>0のときだけ指定されたとみなす」
+        // ルール(既定のColor構造体はalpha=0)。
+        public Color groundFillTint;
         // ルート構造再調整(2026-09-13) - trueの場合のみ、後述のRoute Branch
         // システム(上下ルートの分岐→並走→合流)を使う。falseのまま(=未
         // 指定、天空回廊など)なら、既存の「短い浮遊足場がランダムに点在
@@ -274,6 +301,7 @@ public class TerrainManager : MonoBehaviour
         if (backgroundRenderer != null && theme.backgroundTint.a > 0f) backgroundRenderer.color = theme.backgroundTint;
         if (theme.decorationSprites != null && theme.decorationSprites.Length > 0) decorationSprites = theme.decorationSprites;
         if (theme.groundFillSprite != null) groundFillSprite = theme.groundFillSprite;
+        if (theme.groundFillTint.a > 0f) groundFillTint = theme.groundFillTint;
         routeBranchEnabled = theme.enableRouteBranch;
         branchMarkerSprite = theme.branchMarkerSprite;
 
@@ -290,54 +318,8 @@ public class TerrainManager : MonoBehaviour
     {
         for (int i = 0; i < chunks.Count; i++)
         {
-            RuntimeChunk c = chunks[i];
-            if (c.type == ChunkType.Pit || c.visual == null) continue;
-
-            // 基礎品質修整 続報(2026-09-14) - マスター報告「地面の描画と道の
-            // 描画のズレ」の実機スクリーンショット確認で発見: このリトロ
-            // フィット経路(Run開始前の"滑走路"区間 - ApplyStageThemeが
-            // 呼ばれる前にStart()が生成した最初の数十m分)は、AddChunkと
-            // 違いleftBleed(flat<->slope継ぎ目の楔形隙間を覆う量)を一切
-            // 計算していなかった - スラブ・Fillのどちらも隙間が残ったまま
-            // だった。AddChunkと全く同じ式で、直前のチャンク(i-1)との
-            // 継ぎ目についてbleed量を計算し直す。
-            bool needsRightCap = i + 1 < chunks.Count && chunks[i + 1].type == ChunkType.Pit;
-            float rebuildLeftBleed = 0f;
-            if (!c.needsLeftCap && platformArt.IsValid && i > 0 && (c.type == ChunkType.Flat) != (chunks[i - 1].type == ChunkType.Flat))
-            {
-                float theta = Mathf.Atan2(slopeHeight, slopeLength);
-                float outerDepth = platformVisualHeight - platformSurfaceInset;
-                rebuildLeftBleed = outerDepth * Mathf.Tan(theta) * cornerBleedSafetyMargin;
-            }
-
-            Destroy(c.visual);
-            c.visual = GroundFactory.CreateSlopeVisual(transform, squareSprite, groundSprite, platformArt,
-                new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
-                c.needsLeftCap, needsRightCap: needsRightCap, leftBleed: rebuildLeftBleed, addWallCollider: routeBranchEnabled);
-
-            // 荒野街道 地面埋め修整(2026-09-13深夜) - テーマ切り替え時も
-            // 断面帯を作り直す(差し替え前のテーマの帯が残り続けたり、
-            // 逆に新テーマにgroundFillSpriteが無いのに前のテーマの帯が
-            // 残ったりしないように、毎回いったん破棄してから要否を見る)。
-            if (c.fillVisual != null) Destroy(c.fillVisual);
-            if (groundFillSprite != null)
-            {
-                float rebuildFillLeftBleed = 0f;
-                if (!c.needsLeftCap && platformArt.IsValid && i > 0 && (c.type == ChunkType.Flat) != (chunks[i - 1].type == ChunkType.Flat))
-                {
-                    float theta = Mathf.Atan2(slopeHeight, slopeLength);
-                    float fillOuterDepth = groundFillTopOffset - groundFillOverlap + groundFillDepth;
-                    rebuildFillLeftBleed = fillOuterDepth * Mathf.Tan(theta) * cornerBleedSafetyMargin;
-                }
-                c.fillVisual = GroundFactory.CreateGroundFillVisual(transform, groundFillSprite,
-                    new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY),
-                    groundFillTopOffset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, rebuildFillLeftBleed);
-            }
-
-            if (decorationSprites != null && decorationSprites.Length > 0)
-            {
-                DecorationScatter.ScatterAlongChunk(c.visual.transform, decorationSprites, new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY));
-            }
+            if (chunks[i].type == ChunkType.Pit || chunks[i].visual == null) continue;
+            RebuildChunkVisual(i);
         }
 
         // Stage01完成版要求仕様書バグ修正(2026-09-13) - Sky Path(空中足場)
@@ -356,6 +338,131 @@ public class TerrainManager : MonoBehaviour
                 new Vector2(sc.startX, sc.startY), new Vector2(sc.endX, sc.endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor);
         }
     }
+
+    // Stage01次段階調整(2026-09-16) - RebuildAllChunkVisuals本体から、
+    // 「chunks[i]1個ぶんのVisual/Fill/Decorationを、現在のフィールド値
+    // (テーマ切り替え後の色/アート等)とc.type/近隣チャンクの型に基づいて
+    // 破棄→再構築する」処理をそのまま抜き出したもの。EnsureSolidGroundAt
+    // (Pit→Flat変換後の再描画)からも呼べるようにするための単純なリファ
+    // クタで、ロジック自体は一切変えていない。
+    void RebuildChunkVisual(int i)
+    {
+        RuntimeChunk c = chunks[i];
+
+        // 基礎品質修整 続報(2026-09-14) - マスター報告「地面の描画と道の
+        // 描画のズレ」の実機スクリーンショット確認で発見: このリトロ
+        // フィット経路(Run開始前の"滑走路"区間 - ApplyStageThemeが
+        // 呼ばれる前にStart()が生成した最初の数十m分)は、AddChunkと
+        // 違いleftBleed(flat<->slope継ぎ目の楔形隙間を覆う量)を一切
+        // 計算していなかった - スラブ・Fillのどちらも隙間が残ったまま
+        // だった。AddChunkと全く同じ式で、直前のチャンク(i-1)との
+        // 継ぎ目についてbleed量を計算し直す。
+        bool needsRightCap = i + 1 < chunks.Count && chunks[i + 1].type == ChunkType.Pit;
+        float rebuildLeftBleed = 0f;
+        if (!c.needsLeftCap && platformArt.IsValid && i > 0 && (c.type == ChunkType.Flat) != (chunks[i - 1].type == ChunkType.Flat))
+        {
+            float theta = Mathf.Atan2(slopeHeight, slopeLength);
+            float outerDepth = platformVisualHeight - platformSurfaceInset;
+            rebuildLeftBleed = outerDepth * Mathf.Tan(theta) * cornerBleedSafetyMargin;
+        }
+
+        if (c.visual != null) Destroy(c.visual);
+        c.visual = GroundFactory.CreateSlopeVisual(transform, squareSprite, groundSprite, platformArt,
+            new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
+            c.needsLeftCap, needsRightCap: needsRightCap, leftBleed: rebuildLeftBleed, addWallCollider: routeBranchEnabled);
+
+        // 荒野街道 地面埋め修整(2026-09-13深夜) - テーマ切り替え時も
+        // 断面帯を作り直す(差し替え前のテーマの帯が残り続けたり、
+        // 逆に新テーマにgroundFillSpriteが無いのに前のテーマの帯が
+        // 残ったりしないように、毎回いったん破棄してから要否を見る)。
+        if (c.fillVisual != null) Destroy(c.fillVisual);
+        if (groundFillSprite != null)
+        {
+            float rebuildFillLeftBleed = 0f;
+            if (!c.needsLeftCap && platformArt.IsValid && i > 0 && (c.type == ChunkType.Flat) != (chunks[i - 1].type == ChunkType.Flat))
+            {
+                float theta = Mathf.Atan2(slopeHeight, slopeLength);
+                float fillOuterDepth = groundFillTopOffset - groundFillOverlap + groundFillDepth;
+                rebuildFillLeftBleed = fillOuterDepth * Mathf.Tan(theta) * cornerBleedSafetyMargin;
+            }
+            c.fillVisual = GroundFactory.CreateGroundFillVisual(transform, groundFillSprite,
+                new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY),
+                groundFillTopOffset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, rebuildFillLeftBleed, groundFillTint);
+        }
+
+        if (decorationSprites != null && decorationSprites.Length > 0)
+        {
+            DecorationScatter.ScatterAlongChunk(c.visual.transform, decorationSprites, new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY));
+        }
+    }
+
+    // Stage01次段階調整(2026-09-16), item1/3/4 - GenerateNextBranchが
+    // forkX/mergeXの実際の地面高さを読む前に呼ぶ。両地点はブランチ登録
+    // (branchRanges.Add)によりその時点で既にIsInBranchRoute==trueとなって
+    // おりPitChanceの危険度ブーストを受けるため、運悪くforkX/mergeXちょう
+    // どがPitチャンクとして生成されてしまうことがあり得る - その場合、
+    // ①GetHeightAt(forkX/mergeX)がnullを返し、ランプの起点/終点が
+    // 「??」フォールバック(直近生成チャンクの高さ、forkX/mergeXの実際の
+    // 高さとは無関係)を使って誤った高さに置かれる、②道標(branchMarker)
+    // が穴の上に浮いて見える、③合流地点が実は穴で「合流したのに即転落」
+    // になる、という3つの見た目/配置矛盾が同時に起こり得た。xを含む
+    // チャンクがPitなら、その場でFlatへ変換し(そのチャンク自身と、Cap
+    // フラグが変わる両隣を再描画)、以降のGetHeightAt(x)が必ず有効な高さ
+    // を返すようにする。
+    void EnsureSolidGroundAt(float x)
+    {
+        int idx = -1;
+        for (int i = chunks.Count - 1; i >= 0; i--)
+        {
+            if (x >= chunks[i].startX && x <= chunks[i].endX) { idx = i; break; }
+            if (chunks[i].endX < x) break; // これより前のチャンクはさらに手前 - 見つからない
+        }
+        if (idx < 0 || chunks[idx].type != ChunkType.Pit) return;
+
+        RuntimeChunk pit = chunks[idx];
+        pit.type = ChunkType.Flat;
+        pit.endY = pit.startY;
+        // Pitチャンク自身はAddChunkの見た目分岐を素通りしていたため左
+        // キャップを持ったことが無い - 直前が無い(先頭)か直前もPit(通常
+        // 起こらないが念のため)の場合のみ、今回新たに必要になる。
+        pit.needsLeftCap = idx == 0 || chunks[idx - 1].type == ChunkType.Pit;
+
+        if (idx > 0) RebuildChunkVisual(idx - 1);
+        RebuildChunkVisual(idx);
+        if (idx + 1 < chunks.Count)
+        {
+            // 直後のチャンクはlastType==Pitだった時点でneedsLeftCap=trueを
+            // 持って生成済み - もう穴の縁ではなくなったので、そのフラグを
+            // 落としてから描き直す。
+            chunks[idx + 1].needsLeftCap = false;
+            RebuildChunkVisual(idx + 1);
+        }
+    }
+
+    // Stage01次段階調整(2026-09-16), item2/3 - 穴(Pit)の前後marginメート
+    // ル以内にxが入っているか。xそのものが穴の中の場合も含む。Obstacle
+    // Spawner/EnemyWallManagerが「穴の直前・直後には大型障害物/敵を置き
+    // すぎない/即被弾させない」を実装するために使う。xの近く(生成済み
+    // チャンクの末尾寄り)から逆順に見て、margin分以上手前まで外れたら
+    // 打ち切るので、Runが長時間続いてchunksが大きくなっても軽量。
+    public bool IsNearPit(float x, float margin)
+    {
+        for (int i = chunks.Count - 1; i >= 0; i--)
+        {
+            RuntimeChunk c = chunks[i];
+            if (c.endX < x - margin) break;
+            if (c.type == ChunkType.Pit && x >= c.startX - margin && x <= c.endX + margin) return true;
+        }
+        return false;
+    }
+
+    // Stage01次段階調整(2026-09-16) - xまで実際に地面チャンクが生成済み
+    // か。ObstacleSpawner等の「spawnAheadDistanceぶん先」を狙う配置系が、
+    // GetHeightAtへの問い合わせ時点でまだ生成されていない領域(=末尾
+    // チャンクの高さへ静かにフォールバックしてしまう領域)を狙っていない
+    // かを確認するために使う - generateAheadDistanceの引き上げと合わせた
+    // 二重の安全策(このコメント群のgenerateAheadDistance解説参照)。
+    public bool IsGenerated(float x) => x <= nextStartX;
 
     [Header("Sky Path")]
     // Occasional elevated platforms floating above the main ground path,
@@ -677,6 +784,22 @@ public class TerrainManager : MonoBehaviour
 
         while (nextStartX < mergeX) GenerateNext();
 
+        // Stage01次段階調整(2026-09-16), item1/3/4 - forkX/mergeXちょうど
+        // がPitとして生成されてしまっていないかをここで確定させる(上の
+        // whileループで地上チャンクは既にmergeXまで生成済み)。EnsureSolid
+        // GroundAt自体のコメント参照 - これを怠ると、直後のGetHeightAt
+        // (forkX)/(mergeX)がnullを返し「??」フォールバック(実際のforkX/
+        // mergeXの高さとは無関係な値)を使ってランプの起点/終点や道標が
+        // 誤った高さ・穴の上に置かれ得た。
+        EnsureSolidGroundAt(forkX);
+        EnsureSolidGroundAt(mergeX);
+        // item4 - 「合流地点に降りた直後、安全に接地できる」ため、merge
+        // 直後の1チャンクを強制的にFlatで予約しておく(Formationが使う
+        // RequestFlatRunと全く同じ仕組み)。まだ生成されていない先の
+        // チャンクに対する予約なので、実際に消費されるのはこの先の
+        // GenerateNext呼び出し時点。
+        RequestFlatRun(1);
+
         float groundYAtFork = GetHeightAt(forkX) ?? nextStartY;
 
         float x = forkX;
@@ -986,7 +1109,7 @@ public class TerrainManager : MonoBehaviour
             {
                 chunk.fillVisual = GroundFactory.CreateGroundFillVisual(transform, groundFillSprite,
                     new Vector2(startX, startY), new Vector2(endX, endY),
-                    groundFillTopOffset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, fillLeftBleed);
+                    groundFillTopOffset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, fillLeftBleed, groundFillTint);
             }
 
             // Game Feel pass, section 17 - visual-only clutter along this

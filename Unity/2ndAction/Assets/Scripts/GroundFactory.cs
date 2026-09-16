@@ -248,7 +248,12 @@ public static class GroundFactory
     // 実際に見えている部分の底辺」を基準にしたオフセット
     // (slabContentBottomOffset)を渡すよう変更し、この透明ギャップそのもの
     // を無くした。
-    public static GameObject CreateGroundFillVisual(Transform parent, Sprite fillSprite, Vector2 a, Vector2 b, float slabContentBottomOffset, float fillDepth, float overlap, int sortingOrder, float leftBleed = 0f)
+    // Stage01次段階調整(2026-09-16), item5 - tint(既定Color.white=無変更)
+    // はGroundFillのSpriteRendererへそのまま乗算適用する。groundFillDepth
+    // (見せる高さ)自体は画面比率次第で下限が決まっている実測値のため、
+    // 「圧迫感を弱める」はここで高さではなく濃さ側から近似する
+    // (TerrainManager.groundFillTintのコメント参照)。
+    public static GameObject CreateGroundFillVisual(Transform parent, Sprite fillSprite, Vector2 a, Vector2 b, float slabContentBottomOffset, float fillDepth, float overlap, int sortingOrder, float leftBleed = 0f, Color tint = default)
     {
         GameObject go = new GameObject("GroundFill");
         go.transform.SetParent(parent);
@@ -269,7 +274,7 @@ public static class GroundFactory
 
         var sr = go.AddComponent<SpriteRenderer>();
         sr.sprite = fillSprite;
-        sr.color = Color.white;
+        sr.color = tint.a > 0f ? tint : Color.white;
         sr.drawMode = SpriteDrawMode.Tiled;
         sr.size = new Vector2(length + leftBleed, fillDepth);
         sr.sortingOrder = sortingOrder;

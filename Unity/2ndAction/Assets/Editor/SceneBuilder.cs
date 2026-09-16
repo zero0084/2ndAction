@@ -3909,6 +3909,14 @@ public static class SceneBuilder
                 backgroundTint = new Color(0.8f, 0.82f, 0.85f, 1f),
                 decorationSprites = new[] { wastelandDecorSignpost, wastelandDecorFence, wastelandDecorCrateBarrel, wastelandDecorCart },
                 groundFillSprite = wastelandGroundFill,
+                // Stage01次段階調整(2026-09-16), item5 - マスター報告「下側を
+                // 地面で埋めたことで、画面下部の岩断面が大きく占有し窮屈に
+                // 見える」への対応。groundFillDepth(見せる高さ)はワイドな
+                // 画面比率でのカメラ可視範囲をぎりぎりカバーする実測値なので
+                // そのまま維持し、代わりにこの帯へ乗算するティントで濃さ/
+                // コントラストだけを約25-30%控えめにする(「再び空色の帯を
+                // 出さない」ため高さ側には触れない、という制約に対応)。
+                groundFillTint = new Color(0.72f, 0.7f, 0.68f, 1f),
                 // ルート構造再調整(2026-09-13) - マスター提供の参考画像を
                 // 仕様図として、上ルート/下ルートが分岐→並走→合流する
                 // Route Branchシステムを荒野街道だけで有効化する。天空回廊

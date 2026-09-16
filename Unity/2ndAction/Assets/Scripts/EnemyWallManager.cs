@@ -28,6 +28,11 @@ public class EnemyWallManager : MonoBehaviour
     // Tolerance (meters) for treating a wall milestone as "the same spot" as
     // the boss's next scheduled encounter.
     public float bossCollisionTolerance = 1f;
+    // Stage01次段階調整(2026-09-16), item2/3 - ObstacleSpawner.
+    // pitObstacleClearanceと同じ考え方 - 穴の縁からこの距離以内には敵の
+    // 列を置かない(「穴を避けようとしたら必ず敵に当たる」を避ける)。
+    public float pitEnemyClearance = 2.5f;
+    public float maxPitAvoidSearch = 16f;
 
     float startX;
     float nextWallDistance;
@@ -74,17 +79,27 @@ public class EnemyWallManager : MonoBehaviour
     {
         float worldX = startX + milestoneDistance + spawnAheadDistance;
 
-        // If that exact X lands in a pit, nudge forward in small steps to
-        // find solid ground rather than spawning enemies over empty air.
+        // Stage01次段階調整(2026-09-16) - ObstacleSpawner.SpawnObstacleと
+        // 同じ理由の安全策(TerrainManager.generateAheadDistanceのコメント
+        // 参照)。まだ地形が生成されていない位置を狙っている間はこの回の
+        // Wallを諦める。
+        if (TerrainManager.Instance != null && !TerrainManager.Instance.IsGenerated(worldX)) return;
+
+        // If that exact X lands in a pit, or too close to one, nudge
+        // forward in small steps to find solid ground rather than spawning
+        // enemies over empty air or right next to a hole (item2/3 - 「穴を
+        // 避けようとしたら必ず敵に当たる」を避ける)。
         float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(worldX) : null;
+        bool nearPit = TerrainManager.Instance != null && TerrainManager.Instance.IsNearPit(worldX, pitEnemyClearance);
         float searched = 0f;
-        while (!groundY.HasValue && searched < 10f)
+        while ((!groundY.HasValue || nearPit) && searched < maxPitAvoidSearch)
         {
             worldX += 0.5f;
             searched += 0.5f;
             groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(worldX) : null;
+            nearPit = TerrainManager.Instance != null && TerrainManager.Instance.IsNearPit(worldX, pitEnemyClearance);
         }
-        if (!groundY.HasValue) return;
+        if (!groundY.HasValue || nearPit) return;
 
         EnemyDefinition enemyDef = EnemyDatabase.PickRandomUnlocked(enemyPool);
         Sprite eSprite = enemyDef != null ? enemyDef.sprite : (enemySprite != null ? enemySprite : squareSprite);

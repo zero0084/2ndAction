@@ -27,6 +27,14 @@ public class ObstacleSpawner : MonoBehaviour
 
     public float obstacleInterval = 18f;
     public float spawnAheadDistance = 28f;
+    // Stage01次段階調整(2026-09-16), item2/3 - 穴(Pit)の縁からこの距離
+    // 以内には障害物を置かない(「穴の上」だけでなく「穴の直前/直後」も
+    // 避ける)。TerrainManager.IsNearPit参照。pitReactionBuffer(2.5f、
+    // 落下後の安全復帰位置)と同程度の「見てから反応できる間合い」を狙った
+    // 値。
+    public float pitObstacleClearance = 2.5f;
+    // 穴+穴回避の探索を合わせても十分抜けられるよう、既存の10fから拡大。
+    public float maxPitAvoidSearch = 16f;
 
     // ルート構造再調整(2026-09-13) - 下ルート(Danger)側の危険度ブースト。
     // TerrainManager.IsInBranchRouteがtrueの区間(=分岐中)だけ、間隔を
@@ -134,19 +142,36 @@ public class ObstacleSpawner : MonoBehaviour
     {
         float worldX = startX + milestoneDistance + spawnAheadDistance;
 
-        // Pitの真上に置かないよう、EnemyWallManager.SpawnWallと同じ探索。
+        // Stage01次段階調整(2026-09-16) - TerrainManager側の生成がまだ
+        // worldXまで届いていない場合、GetHeightAtは「実際に後で生成される
+        // 地形」とは無関係な末尾チャンクの高さへ静かにフォールバックして
+        // しまう(TerrainManager.generateAheadDistanceのコメント参照)。
+        // 通常はgenerateAheadDistanceに十分な余裕を持たせてあるので発生
+        // しないはずだが、二重の安全策としてここでも確認し、まだなら今回
+        // は諦める(次のマイルストーンで再挑戦されるので恒久的に消えは
+        // しない)。
+        if (TerrainManager.Instance != null && !TerrainManager.Instance.IsGenerated(worldX)) return;
+
+        // Pitの真上・Pitの縁からpitObstacleClearance以内には置かない
+        // (item2「穴の直前/直後」、item3「復帰地点に障害物を置かない」)。
         float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(worldX) : null;
+        bool nearPit = TerrainManager.Instance != null && TerrainManager.Instance.IsNearPit(worldX, pitObstacleClearance);
         float searched = 0f;
-        while (!groundY.HasValue && searched < 10f)
+        while ((!groundY.HasValue || nearPit) && searched < maxPitAvoidSearch)
         {
             worldX += 0.5f;
             searched += 0.5f;
             groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(worldX) : null;
+            nearPit = TerrainManager.Instance != null && TerrainManager.Instance.IsNearPit(worldX, pitObstacleClearance);
         }
-        if (!groundY.HasValue) return;
+        if (!groundY.HasValue || nearPit) return;
 
         bool danger = TerrainManager.Instance != null && TerrainManager.Instance.IsInBranchRoute(worldX);
-        ObstacleSpec spec = PickWeightedSpec(danger);
+        // item3 - 穴のすぐ近くでは、既にnearPitチェックで確保した間合いに
+        // 加えて、壁/巨大石のような重い障害物の出現率ブースト自体も掛けな
+        // い(「穴の直前:大型障害物を置きすぎない」)。石/小木/壊せる木は
+        // 通常どおり出現し得る。
+        ObstacleSpec spec = PickWeightedSpec(danger && !nearPit);
         if (string.IsNullOrEmpty(spec.name)) return;
 
         // 基礎品質修整(2026-09-14) - 坂の上でも障害物が地面の傾きに沿って
@@ -164,6 +189,7 @@ public class ObstacleSpawner : MonoBehaviour
     {
         float worldX = startX + milestoneDistance + spawnAheadDistance;
         if (TerrainManager.Instance == null || !TerrainManager.Instance.IsInBranchRoute(worldX)) return;
+        if (!TerrainManager.Instance.IsGenerated(worldX)) return;
 
         float? skyY = TerrainManager.Instance.GetSkyHeightAt(worldX);
         if (!skyY.HasValue) return;
