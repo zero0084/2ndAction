@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: goblin_t1
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: goblin_t1
+  displayName: GOBLIN (T1)
+  sprite: {fileID: 21300000, guid: a38e71d7ab324244c89cbe5c9e8268af, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 0
+  category: 0
+  behaviorKind: 7
+  hpMultiplier: 1
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 0
+  runFrames:
+  - {fileID: 21300000, guid: 6918dca4ba5ea2a43a1a25168b11d27b, type: 3}
+  - {fileID: 21300000, guid: 71b2ef5341609e5459d846f145db5d4a, type: 3}
+  - {fileID: 21300000, guid: fc584f2bb9b144a40a800651af243e92, type: 3}
+  - {fileID: 21300000, guid: 7f8d2cc6cd62e2e46b0e0acf60509202, type: 3}
+  - {fileID: 21300000, guid: 8afe585a2204c8a459f2dcd38aae168e, type: 3}
+  mileReward: 1
+  visualScaleMultiplier: 1.14
+  aiTier: 1

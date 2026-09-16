@@ -472,6 +472,14 @@ public static class SceneBuilder
         EnemyDatabaseBuilder.Build(terrain.enemySprite);
         terrain.enemyPool = new List<EnemyDefinition>(EnemyDatabase.AllEnemies);
 
+        // 敵AI行動Tier試験実装(2026-09-16) - T0/T1/T2比較用の3体
+        // (goblin_t0/t1/t2)は通常のenemyPoolには含めない別Resourcesフォル
+        // ダに作られる(EnemyDatabaseBuilder.BuildTierTestEnemies自身の
+        // コメント参照)。TerrainManager.debugTierTestEnemiesへ直接割り当て、
+        // GameManager.DebugModeがONの間だけ走行開始直後にT0→T1→T2の順で
+        // 強制スポーンされる。
+        terrain.debugTierTestEnemies = EnemyDatabaseBuilder.BuildTierTestEnemies(terrain.enemySprite);
+
         // Distance Level Design Ver.1 - Shooter Enemy's projectile visual;
         // "簡易Sprite/既存VFX流用で構いません" from the brief, so this
         // originally just reused the already-imported Hit Spark art rather

@@ -294,7 +294,10 @@ public static class GroundFactory
     // any existing caller that doesn't pass them keeps spawning exactly the
     // same enemy as before - only TerrainManager's Formation spawn path
     // passes real values, sourced from EnemyDefinition.
-    public static GameObject CreateEnemy(Transform parent, Sprite sprite, Vector2 position, Color color, Sprite hitSparkSprite = null, Sprite deathCloudSprite = null, EnemyMovementType movementType = EnemyMovementType.Ground, Sprite groundShadowSprite = null, int maxHp = 1, EnemyBehaviorKind behaviorKind = EnemyBehaviorKind.None, bool bigKnockbackOnHit = false, Sprite projectileSprite = null, bool enableVisualFacing = false, bool defaultFacingRight = true, Sprite[] runFrames = null, int mileReward = 1, float visualScaleMultiplier = 1f)
+    // 敵AI行動Tier試験実装(2026-09-16) - aiTier/telegraphMarkerSpriteは
+    // デフォルトT0/nullなので、これらを渡さない既存の全呼び出し元は今まで
+    // どおり無改造で動く。
+    public static GameObject CreateEnemy(Transform parent, Sprite sprite, Vector2 position, Color color, Sprite hitSparkSprite = null, Sprite deathCloudSprite = null, EnemyMovementType movementType = EnemyMovementType.Ground, Sprite groundShadowSprite = null, int maxHp = 1, EnemyBehaviorKind behaviorKind = EnemyBehaviorKind.None, bool bigKnockbackOnHit = false, Sprite projectileSprite = null, bool enableVisualFacing = false, bool defaultFacingRight = true, Sprite[] runFrames = null, int mileReward = 1, float visualScaleMultiplier = 1f, EnemyAiTier aiTier = EnemyAiTier.T0, Sprite telegraphMarkerSprite = null)
     {
         GameObject go = new GameObject("Enemy");
         go.transform.SetParent(parent);
@@ -372,6 +375,8 @@ public static class GroundFactory
             var special = go.AddComponent<EnemySpecialBehavior>();
             special.kind = behaviorKind;
             special.projectileSprite = projectileSprite;
+            special.aiTier = aiTier;
+            special.telegraphMarkerSprite = telegraphMarkerSprite;
         }
 
         // Distance Level Design Ver.1.1 - facing fix, opt-in per species

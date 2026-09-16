@@ -12,7 +12,31 @@ public enum EnemyBehaviorKind
     Shooter,
     Heavy,
     Chaser,
-    Rusher
+    Rusher,
+    // 敵AI行動Tier試験実装(2026-09-16) - 「その場から動かず、時々ゆっくり
+    // Telegraph→Attack→Recoveryの近接攻撃を行う」パターン。Goblin専用では
+    // なく、将来ほかの種族がT1/T2的な挙動を使いたくなった場合にも再利用
+    // できるよう、種族名ではなく行動パターン名で命名した(Flying/Irregular
+    // 等、既存の値と同じ命名方針)。実際の強度差(T1=移動なし/T2=+ランダム
+    // 小移動)はEnemyAiTierで切り替える - こちらは「近接攻撃できる」という
+    // 種族側の能力フラグに過ぎない。
+    StationaryMelee
+}
+
+// 敵AI行動Tier試験実装(2026-09-16) - 「敵AIの行動・攻撃性の段階」を表す、
+// HP・サイズ・武器・近接/遠距離とは完全に独立した軸(EnemyBehaviorKind/
+// EnemyCategoryのどちらとも別物)。将来的に「T5だが柔らかい敵」「T2だが
+// 硬いHeavy」のような組み合わせが成立するよう、他のフィールドと掛け合わせ
+// で使う前提。今回はT0〜T2のみ実装(EnemySpecialBehavior参照)、T3〜T5は
+// 将来の拡張用に列挙子だけ用意してある。
+public enum EnemyAiTier
+{
+    T0, // Passive - 棒立ち、自発的攻撃なし(既存ゴブリンの挙動そのもの)
+    T1, // Slow Random Attack - その場から動かず、遅いランダム近接攻撃
+    T2, // Random Movement + Slow Random Attack - T1の攻撃 + 基本位置周辺のランダムな小移動/Hop
+    T3, // 将来実装 - Playerを対象に通常速度で攻撃しつつゆっくり接近
+    T4, // 将来実装 - 棒立ちのまま激しいランダム攻撃
+    T5  // 将来実装 - Playerを積極的に追跡し、高速かつ積極的に攻撃
 }
 
 // Distance Level Design Ver.1 - the "Enemy Type" DistanceTierManager's
@@ -112,4 +136,10 @@ public class EnemyDefinition : ScriptableObject
     // "corrected" by also resizing the Collider). 1 for goblin/goblin_elite
     // (the size baseline every other species is measured against).
     public float visualScaleMultiplier = 1f;
+
+    // 敵AI行動Tier試験実装(2026-09-16) - HP/サイズ/種族とは独立した「行動
+    // Tier」。EnemyAiTierの型コメント参照。デフォルトT0(既存ゴブリンと
+    // 完全に同じ、追加コンポーネントなし)なので、この値を明示的に設定
+    // しない既存の全EnemyDefinitionアセットは今までどおり無改造で動く。
+    public EnemyAiTier aiTier = EnemyAiTier.T0;
 }

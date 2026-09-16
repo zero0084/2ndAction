@@ -92,6 +92,10 @@ public static class EnemyDatabaseBuilder
         // "not set" and resolves to 1 in Build() below, same pattern as
         // mileReward above.
         public float visualScaleMultiplier;
+        // 敵AI行動Tier試験実装(2026-09-16) - EnemyDefinition.aiTierと同じ
+        // フィールド。C#のenum既定値(0=T0)なので、これを明示的に設定しない
+        // 既存の全Specは今までどおりT0のまま(挙動無変更)。
+        public EnemyAiTier aiTier;
     }
 
     // Runner Enemy Run Animation - loads the already-configured frame
@@ -194,6 +198,7 @@ public static class EnemyDatabaseBuilder
             // Enemy Visual Size Unification pass - same "0 = not set"
             // convention as mileReward above.
             def.visualScaleMultiplier = spec.visualScaleMultiplier > 0f ? spec.visualScaleMultiplier : 1f;
+            def.aiTier = spec.aiTier;
 
             AssetDatabase.CreateAsset(def, assetPath);
         }
@@ -201,6 +206,99 @@ public static class EnemyDatabaseBuilder
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         EnemyDatabase.Reset();
+    }
+
+    // 敵AI行動Tier試験実装(2026-09-16) - T0/T1/T2比較用の3体を、通常の
+    // EnemiesFolder("Assets/Resources/Enemies")とは別のResourcesサブ
+    // フォルダに作る。EnemyDatabase.AllEnemiesは"Enemies"フォルダしか
+    // 見ないため、この3体はenemyPool(通常のランダム抽選プール)へ一切
+    // 混ざらない - 「Formationや敵種類を一気に増やすのではなく」という
+    // 指示どおり、通常プレイの敵バリエーションには何の影響も与えない。
+    // TerrainManager.debugTierTestEnemies(SceneBuilderが直接パス指定で
+    // 割り当てる)からのみ参照される、DebugMode専用の比較用データ。
+    const string TierTestFolder = "Assets/Resources/EnemyTierTest";
+
+    public static EnemyDefinition[] BuildTierTestEnemies(Sprite goblinSprite)
+    {
+        if (!AssetDatabase.IsValidFolder(TierTestFolder))
+        {
+            Directory.CreateDirectory(TierTestFolder);
+            AssetDatabase.Refresh();
+        }
+
+        var specs = new[]
+        {
+            new Spec
+            {
+                id = "goblin_t0", displayName = "GOBLIN (T0)", spritePath = null, tint = Color.white,
+                movementType = EnemyMovementType.Ground, category = EnemyCategory.Normal,
+                // T0=Passive - 「現在のゴブリンの挙動を極力そのまま利用」
+                // なので既存goblinと同じNone(EnemySpecialBehavior自体を
+                // 付けない)。
+                behaviorKind = EnemyBehaviorKind.None,
+                hpMultiplier = 1f, bigKnockbackOnHit = false,
+                enableVisualFacing = true, defaultFacingRight = false,
+                visualScaleMultiplier = 1.14f, runFramesDir = GoblinRunFramesFolder,
+                aiTier = EnemyAiTier.T0
+            },
+            new Spec
+            {
+                id = "goblin_t1", displayName = "GOBLIN (T1)", spritePath = null, tint = Color.white,
+                movementType = EnemyMovementType.Ground, category = EnemyCategory.Normal,
+                behaviorKind = EnemyBehaviorKind.StationaryMelee,
+                hpMultiplier = 1f, bigKnockbackOnHit = false,
+                enableVisualFacing = true, defaultFacingRight = false,
+                visualScaleMultiplier = 1.14f, runFramesDir = GoblinRunFramesFolder,
+                aiTier = EnemyAiTier.T1
+            },
+            new Spec
+            {
+                id = "goblin_t2", displayName = "GOBLIN (T2)", spritePath = null, tint = Color.white,
+                movementType = EnemyMovementType.Ground, category = EnemyCategory.Normal,
+                behaviorKind = EnemyBehaviorKind.StationaryMelee,
+                hpMultiplier = 1f, bigKnockbackOnHit = false,
+                enableVisualFacing = true, defaultFacingRight = false,
+                visualScaleMultiplier = 1.14f, runFramesDir = GoblinRunFramesFolder,
+                aiTier = EnemyAiTier.T2
+            }
+        };
+
+        var results = new EnemyDefinition[specs.Length];
+        for (int i = 0; i < specs.Length; i++)
+        {
+            Spec spec = specs[i];
+            string assetPath = $"{TierTestFolder}/{spec.id}.asset";
+            EnemyDefinition existing = AssetDatabase.LoadAssetAtPath<EnemyDefinition>(assetPath);
+            if (existing != null)
+            {
+                results[i] = existing;
+                continue; // never overwrite - same "hand-tuned values survive a rebuild" rule as Build() above
+            }
+
+            var def = ScriptableObject.CreateInstance<EnemyDefinition>();
+            def.enemyId = spec.id;
+            def.displayName = spec.displayName;
+            def.sprite = goblinSprite;
+            def.tint = spec.tint;
+            def.movementType = spec.movementType;
+            def.category = spec.category;
+            def.behaviorKind = spec.behaviorKind;
+            def.hpMultiplier = spec.hpMultiplier;
+            def.bigKnockbackOnHit = spec.bigKnockbackOnHit;
+            def.enableVisualFacing = spec.enableVisualFacing;
+            def.defaultFacingRight = spec.defaultFacingRight;
+            def.runFrames = !string.IsNullOrEmpty(spec.runFramesDir) ? LoadRunFrames(spec.runFramesDir) : null;
+            def.mileReward = 1;
+            def.visualScaleMultiplier = spec.visualScaleMultiplier > 0f ? spec.visualScaleMultiplier : 1f;
+            def.aiTier = spec.aiTier;
+
+            AssetDatabase.CreateAsset(def, assetPath);
+            results[i] = def;
+        }
+
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        return results;
     }
 
     static IEnumerable<Spec> Specs(Sprite goblinSprite)

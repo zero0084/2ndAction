@@ -45,6 +45,23 @@ public class TerrainManager : MonoBehaviour
     public List<EnemyDefinition> enemyPool = new List<EnemyDefinition>();
     public Transform player;
 
+    // 敵AI行動Tier試験実装(2026-09-16) - 「T0→T1→T2を順番に遭遇できる
+    // デバッグ配置」。enemyPool([0]=goblin_t0,[1]=goblin_t1,[2]=goblin_t2、
+    // SceneBuilderが割り当てる)には含めない別アセット - 通常のランダム
+    // 抽選(EnemyDatabase.PickRandomUnlockedOfCategory)には一切乗らない
+    // (Resources/Enemies/ではなく別フォルダに置いてあるため)ので、
+    // Formation自体・敵種類のバリエーションは今までどおり無改造。
+    // GameManager.DebugMode(実機のDEBUGトグルでON/OFFできる、Editor専用
+    // ではない)がONの間だけ、ラン開始から近い距離のNormal category枠を
+    // 順番に横取りしてT0/T1/T2を1体ずつ強制スポーンする。
+    public EnemyDefinition[] debugTierTestEnemies;
+    // 1体あたりの割り当て距離幅(m)。noEnemyBeforeDistanceより後ろから
+    // 開始し、T0はそこから0〜この幅、T1は1〜2倍、T2は2〜3倍の区間で
+    // 最初に現れたNormal枠を横取りする。DebugMode中はBoss出現も早まる
+    // (最初のBossが200m前後)ため、既定値を控えめにしてT0〜T2の3体が
+    // Boss戦より手前で出揃うようにしてある。
+    public float debugTierTestSpanMeters = 30f;
+
     // Visual Style Ver.1 floating-platform art (left-cap/mid-tile/right-cap)
     // - used for both the ground path and the sky path if set, taking over
     // from groundSprite/skyPathSprite above (which stay as the fallback if
@@ -1053,9 +1070,48 @@ public class TerrainManager : MonoBehaviour
     // Flying種はflyingSpawnMinHeight〜flyingSpawnMaxHeight(画面上端でも別
     // 途クランプ)の範囲でランダムな高度に、それ以外は必ずanchorY(実際に
     // 生成された地面の高さ)に接地させる。
+    // 敵AI行動Tier試験実装(2026-09-16) - ラン距離を3つの帯(noEnemyBefore
+    // Distance起点、debugTierTestSpanMetersごと)に分け、それぞれの帯で
+    // 最初に来たNormal category枠を1回だけT0/T1/T2で横取りする。
+    // TerrainManager自体に明示的な「ラン開始」コールバックが無いため、
+    // 距離がほぼ0(=新しいランが始まった)まで戻ったことをリセットの合図
+    // として使う。
+    bool[] debugTierTestSpawnedFlags = new bool[3];
+
+    EnemyDefinition TryGetDebugTierTestEnemy(EnemyCategory category)
+    {
+        if (category != EnemyCategory.Normal) return null;
+        if (GameManager.Instance == null || !GameManager.Instance.DebugMode) return null;
+        if (debugTierTestEnemies == null || debugTierTestEnemies.Length < 3) return null;
+
+        float dist = GameManager.Instance.MaxDistance;
+        if (dist < 1f)
+        {
+            for (int i = 0; i < debugTierTestSpawnedFlags.Length; i++) debugTierTestSpawnedFlags[i] = false;
+        }
+
+        for (int i = 0; i < 3; i++)
+        {
+            float windowStart = noEnemyBeforeDistance + debugTierTestSpanMeters * i;
+            float windowEnd = noEnemyBeforeDistance + debugTierTestSpanMeters * (i + 1);
+            if (!debugTierTestSpawnedFlags[i] && dist >= windowStart && dist < windowEnd)
+            {
+                debugTierTestSpawnedFlags[i] = true;
+                return debugTierTestEnemies[i];
+            }
+        }
+        return null;
+    }
+
     void SpawnFormationMember(RuntimeChunk chunk, EnemySpawnRequest req, float ex, float anchorY, float? screenTopY)
     {
-        EnemyDefinition enemyDef = EnemyDatabase.PickRandomUnlockedOfCategory(enemyPool, req.category);
+        // 敵AI行動Tier試験実装(2026-09-16) - DebugMode中だけ、通常のランダム
+        // 抽選より優先してT0→T1→T2を順番に強制スポーンする(実機のDEBUG
+        // トグルで比較テストできるようにする「テストしやすい構造」)。
+        // Normal以外のcategory(Flying等)には絶対に割り込まない - 「Flying
+        // 系以外の敵は地上に存在する」という前提を壊さないため。
+        EnemyDefinition enemyDef = TryGetDebugTierTestEnemy(req.category);
+        if (enemyDef == null) enemyDef = EnemyDatabase.PickRandomUnlockedOfCategory(enemyPool, req.category);
         // Category had nothing available (species not added to enemyPool
         // yet, or its art hasn't been dropped in) - the ORIGINAL
         // category-agnostic pick is still a reasonable fallback so a
@@ -1099,7 +1155,8 @@ public class TerrainManager : MonoBehaviour
 
         int mileReward = enemyDef != null ? enemyDef.mileReward : 1;
         float visualScaleMultiplier = enemyDef != null ? enemyDef.visualScaleMultiplier : 1f;
-        GameObject enemyGO = GroundFactory.CreateEnemy(transform, eSprite, new Vector2(ex, ey + heightOffset), eColor, enemyHitSparkSprite, enemyDeathCloudSprite, movementType, enemyGroundShadowSprite, maxHp, behaviorKind, bigKnockback, shooterProjectileSprite, enableVisualFacing, defaultFacingRight, runFrames, mileReward, visualScaleMultiplier);
+        EnemyAiTier aiTier = enemyDef != null ? enemyDef.aiTier : EnemyAiTier.T0;
+        GameObject enemyGO = GroundFactory.CreateEnemy(transform, eSprite, new Vector2(ex, ey + heightOffset), eColor, enemyHitSparkSprite, enemyDeathCloudSprite, movementType, enemyGroundShadowSprite, maxHp, behaviorKind, bigKnockback, shooterProjectileSprite, enableVisualFacing, defaultFacingRight, runFrames, mileReward, visualScaleMultiplier, aiTier, squareSprite);
         enemyGO.GetComponent<EnemyController>().movementType = movementType;
         if (GameManager.Instance != null && GameManager.Instance.DebugMode)
         {
