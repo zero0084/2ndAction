@@ -52,6 +52,13 @@ public class RewardCardUI : MonoBehaviour
     // 情報として") rather than folded into Title's own string.
     public Text rarityText;
     public Text levelText;
+    // カード裏面Lvバッジ修正(2026-09-17) - levelTextはバッジ内の文字だけで、
+    // 菱形の背景(Diamond)+金縁(Border)を持つ親GameObject(SceneBuilderが
+    // "LevelBadge"として生成)は別物。以前はlevelText.enabledしか切り替え
+    // ていなかったため、裏面でテキストは消えても菱形バッジの枠自体が常時
+    // 表示され続けていた(マスター指摘の再現バグ)。この親GOごとisFrontで
+    // ON/OFFすることで、バッジ全体(枠含む)を表裏で確実に切り替える。
+    public GameObject levelBadge;
     // Card UI改修(2026-09-08) - 所持枚数「×N」専用表示(RewardCardData.
     // Countが1以下、またはこのカード自体が「所持枚数」の概念を持たない
     // 呼び出し元(Reward/LevelUp選択・Fusionスロット等、Count未設定=0の
@@ -119,7 +126,9 @@ public class RewardCardUI : MonoBehaviour
         textBackdrop.enabled = isFront && showDetails;
         descriptionText.enabled = isFront && showDetails;
         if (rarityText != null) rarityText.enabled = isFront && showDetails;
-        if (levelText != null) levelText.enabled = isFront && !string.IsNullOrEmpty(data.LevelLine);
+        bool showLevel = isFront && !string.IsNullOrEmpty(data.LevelLine);
+        if (levelText != null) levelText.enabled = showLevel;
+        if (levelBadge != null) levelBadge.SetActive(showLevel);
         if (valueLineText != null) valueLineText.enabled = isFront && !string.IsNullOrEmpty(data.ValueLine);
         if (countText != null) countText.enabled = isFront && data.Count > 1;
         if (equippedBadge != null) equippedBadge.SetActive(isFront && data.ShowEquippedBadge);
@@ -145,6 +154,7 @@ public class RewardCardUI : MonoBehaviour
         descriptionText.enabled = false;
         if (rarityText != null) rarityText.enabled = false;
         if (levelText != null) levelText.enabled = false;
+        if (levelBadge != null) levelBadge.SetActive(false);
         if (valueLineText != null) valueLineText.enabled = false;
         if (countText != null) countText.enabled = false;
         if (equippedBadge != null) equippedBadge.SetActive(false);

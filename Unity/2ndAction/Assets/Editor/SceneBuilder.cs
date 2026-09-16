@@ -2666,6 +2666,10 @@ public static class SceneBuilder
         RectTransform levelRect = levelGO.AddComponent<RectTransform>();
         levelRect.anchorMin = new Vector2(0.66f, 0.785f);
         levelRect.anchorMax = new Vector2(0.945f, 0.975f);
+        // カード裏面Lvバッジ修正(2026-09-17) - Diamond/Border/Labelをまとめて
+        // 表裏で切り替えられるよう、この親GOごとRewardCardUI.levelBadgeへ渡す
+        // (levelTextだけでは菱形の枠自体は非表示にできないため)。
+        card.levelBadge = levelGO;
         levelRect.offsetMin = Vector2.zero;
         levelRect.offsetMax = Vector2.zero;
         // 上記anchorMin/Maxは、カード比率(2:3固定、CardAspect参照)込みで
