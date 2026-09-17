@@ -710,6 +710,21 @@ public class TerrainManager : MonoBehaviour
         return false;
     }
 
+    // Stage01オブジェクト配置整理依頼(2026-09-17), item3 - 「分岐/合流
+    // 地点はルート選択区間として、大型障害物を置かない」に対応する公開
+    // アクセサ。branchRanges自体はprivateのまま保つ(書き込みは許可しない)
+    // - ObstacleSpawnerが「xはどこかのfork/mergeからmargin以内か」だけを
+    // 真偽値で問い合わせられるようにした。
+    public bool IsNearBranchEdge(float x, float margin)
+    {
+        foreach (BranchRange r in branchRanges)
+        {
+            if (Mathf.Abs(x - r.forkX) <= margin) return true;
+            if (Mathf.Abs(x - r.mergeX) <= margin) return true;
+        }
+        return false;
+    }
+
     void GenerateNextSkyChunk()
     {
         float startX = nextSkyStartX;

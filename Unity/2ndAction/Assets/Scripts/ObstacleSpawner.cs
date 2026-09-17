@@ -48,6 +48,38 @@ public class ObstacleSpawner : MonoBehaviour
     // +穴の複合」で危険度を作るバランスへ調整。
     public float dangerHeavyWeightMultiplier = 2.4f;
 
+    // Stage01オブジェクト配置整理依頼(2026-09-17) - 「回避不能配置の撤去 +
+    // 配置ルール固定」。既存のIsNearPitチェックだけでは、(a)障害物どうし
+    // の間隔(前の障害物との実際の距離)が一切見られていない、(b)分岐
+    // (fork)/合流(merge)地点の近くにも普通に置かれ得る、(c)壁/巨大石が
+    // 坂の途中に置かれ得る、という3つの穴があり、「連続配置」「分岐地点
+    // に大型障害物」「坂の途中の巨大石」といった回避不能配置の原因になって
+    // いた。これらを毎回の配置判定に固定ルールとして追加する。
+    //
+    // minGapBetweenObstacles: 障害物どうしの最低間隔(種類を問わず)。
+    // minGapBeforeLargeObstacle/AfterLargeObstacle: 壁/巨大石(GiantRock/
+    // Wall)の前後だけ、より広い間隔を要求する - 大型障害物は「見て避ける
+    // 大きな障害」であるべきで、直前直後に別の障害物が詰まっていると
+    // 反応時間が無くなる(依頼書item4)。
+    // branchEdgeClearance: 分岐/合流地点(fork/merge)からこの距離以内には
+    // 大型障害物も含め障害物を一切置かない(依頼書item3「ルート選択区間」)。
+    // pitObstacleClearanceForLarge: 穴の近くでは大型障害物により大きな
+    // 安全マージンを要求する(依頼書item2)。
+    // 大型障害物がこれらの条件を満たせない場合は、配置自体を諦めるのでは
+    // なく石/小木/壊せる木へ格下げする(密度は維持しつつ「詰む」配置だけ
+    // を排除する)。
+    public float minGapBetweenObstacles = 6f;
+    public float minGapBeforeLargeObstacle = 9f;
+    public float minGapAfterLargeObstacle = 9f;
+    public float branchEdgeClearance = 5f;
+    public float pitObstacleClearanceForLarge = 4.5f;
+
+    float lastLowerObstacleX = float.NegativeInfinity;
+    bool lastLowerObstacleWasLarge;
+    float lastUpperObstacleX = float.NegativeInfinity;
+
+    static bool IsLarge(ObstacleSpec s) => s.name == "Wall" || s.name == "GiantRock";
+
     // ルート構造再調整(2026-09-13) - 上ルート(Easy)専用の軽い障害物配置。
     // 分岐区間の中でだけ、間隔を大きく(疎に)取り、石/小木のみをTerrain
     // Manager.GetSkyHeightAtの高さへ置く。分岐が無い区間では上ルート自体
@@ -153,19 +185,26 @@ public class ObstacleSpawner : MonoBehaviour
         // しない)。
         if (TerrainManager.Instance != null && !TerrainManager.Instance.IsGenerated(worldX)) return;
 
-        // Pitの真上・Pitの縁からpitObstacleClearance以内には置かない
-        // (item2「穴の直前/直後」、item3「復帰地点に障害物を置かない」)。
+        // Pitの真上・Pitの縁からpitObstacleClearance以内、分岐/合流地点
+        // からbranchEdgeClearance以内、前の障害物からminGapBetween
+        // Obstacles未満の場所には置かない(item2「穴の直前/直後」、item3
+        // 「分岐/合流地点」、item4「連続配置しない」)。いずれも満たすまで
+        // 少しずつ前方へ探す - 既存のPit回避探索と同じ仕組みを拡張した。
         float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(worldX) : null;
         bool nearPit = TerrainManager.Instance != null && TerrainManager.Instance.IsNearPit(worldX, pitObstacleClearance);
+        bool nearBranchEdge = TerrainManager.Instance != null && TerrainManager.Instance.IsNearBranchEdge(worldX, branchEdgeClearance);
+        bool tooCloseToLast = (worldX - lastLowerObstacleX) < minGapBetweenObstacles;
         float searched = 0f;
-        while ((!groundY.HasValue || nearPit) && searched < maxPitAvoidSearch)
+        while ((!groundY.HasValue || nearPit || nearBranchEdge || tooCloseToLast) && searched < maxPitAvoidSearch)
         {
             worldX += 0.5f;
             searched += 0.5f;
             groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(worldX) : null;
             nearPit = TerrainManager.Instance != null && TerrainManager.Instance.IsNearPit(worldX, pitObstacleClearance);
+            nearBranchEdge = TerrainManager.Instance != null && TerrainManager.Instance.IsNearBranchEdge(worldX, branchEdgeClearance);
+            tooCloseToLast = (worldX - lastLowerObstacleX) < minGapBetweenObstacles;
         }
-        if (!groundY.HasValue || nearPit) return;
+        if (!groundY.HasValue || nearPit || nearBranchEdge || tooCloseToLast) return;
 
         bool danger = TerrainManager.Instance != null && TerrainManager.Instance.IsInBranchRoute(worldX);
         // item3 - 穴のすぐ近くでは、既にnearPitチェックで確保した間合いに
@@ -175,10 +214,54 @@ public class ObstacleSpawner : MonoBehaviour
         ObstacleSpec spec = PickWeightedSpec(danger && !nearPit);
         if (string.IsNullOrEmpty(spec.name)) return;
 
+        // item2/4 - 大型障害物(壁/巨大石)だけは、さらに厳しい条件
+        // (前後の広い間隔・穴からの余裕・坂の途中でないこと)を満たさない
+        // 限り採用しない。満たせない場合は配置自体をやめるのではなく
+        // 石/小木/壊せる木へ格下げする(密度は保ちつつ詰む配置だけを除く)。
+        if (IsLarge(spec))
+        {
+            bool onSlope = TerrainManager.Instance != null && Mathf.Abs(TerrainManager.Instance.GetSlopeAngleAt(worldX)) > 0.01f;
+            bool gapBeforeOk = (worldX - lastLowerObstacleX) >= minGapBeforeLargeObstacle;
+            bool gapAfterPrevLargeOk = !lastLowerObstacleWasLarge || (worldX - lastLowerObstacleX) >= minGapAfterLargeObstacle;
+            bool pitOk = TerrainManager.Instance == null || !TerrainManager.Instance.IsNearPit(worldX, pitObstacleClearanceForLarge);
+            if (onSlope || !gapBeforeOk || !gapAfterPrevLargeOk || !pitOk)
+            {
+                spec = PickSmallOnlySpec();
+                if (string.IsNullOrEmpty(spec.name)) return;
+            }
+        }
+
         // 基礎品質修整(2026-09-14) - 坂の上でも障害物が地面の傾きに沿って
         // 自然に見えるよう、その場所の地面角度を取得して渡す。
         float groundAngle = TerrainManager.Instance != null ? TerrainManager.Instance.GetSlopeAngleAt(worldX) : 0f;
         GroundFactory.CreateObstacle(transform, squareSprite, spec.sprite, new Vector2(worldX, groundY.Value), spec.targetHeight, spec.color, spec.breakable, spec.hp, groundAngle);
+
+        lastLowerObstacleX = worldX;
+        lastLowerObstacleWasLarge = IsLarge(spec);
+    }
+
+    // item4/5 - 大型障害物を格下げする際の代わり(石/小木/壊せる木のみ)。
+    // PickEasySpecは石/小木しか選ばない(上ルート専用)ため、壊せる木を
+    // 含むこの専用の絞り込みを別に用意した。
+    ObstacleSpec PickSmallOnlySpec()
+    {
+        float total = 0f;
+        foreach (ObstacleSpec s in specs)
+        {
+            if (IsLarge(s)) continue;
+            total += Mathf.Max(0f, s.weight);
+        }
+        if (total <= 0f) return default;
+
+        float roll = Random.value * total;
+        float acc = 0f;
+        foreach (ObstacleSpec s in specs)
+        {
+            if (IsLarge(s)) continue;
+            acc += Mathf.Max(0f, s.weight);
+            if (roll <= acc) return s;
+        }
+        return default;
     }
 
     // ルート構造再調整(2026-09-13) - 上ルート(Easy)側。TerrainManager.
@@ -192,13 +275,28 @@ public class ObstacleSpawner : MonoBehaviour
         if (TerrainManager.Instance == null || !TerrainManager.Instance.IsInBranchRoute(worldX)) return;
         if (!TerrainManager.Instance.IsGenerated(worldX)) return;
 
+        // item3/6 - 上ルートでも、分岐(fork)直後・合流(merge)直前は
+        // ジャンプで登り切る/降り切るための空間として空けておく。前の
+        // 上ルート障害物からの最低間隔も、下ルートと同じ発想で確保する。
+        bool nearBranchEdge = TerrainManager.Instance.IsNearBranchEdge(worldX, branchEdgeClearance);
+        bool tooCloseToLast = (worldX - lastUpperObstacleX) < minGapBetweenObstacles;
+        float searched = 0f;
         float? skyY = TerrainManager.Instance.GetSkyHeightAt(worldX);
-        if (!skyY.HasValue) return;
+        while ((!skyY.HasValue || nearBranchEdge || tooCloseToLast) && searched < maxPitAvoidSearch)
+        {
+            worldX += 0.5f;
+            searched += 0.5f;
+            skyY = TerrainManager.Instance.GetSkyHeightAt(worldX);
+            nearBranchEdge = TerrainManager.Instance.IsNearBranchEdge(worldX, branchEdgeClearance);
+            tooCloseToLast = (worldX - lastUpperObstacleX) < minGapBetweenObstacles;
+        }
+        if (!skyY.HasValue || nearBranchEdge || tooCloseToLast) return;
 
         ObstacleSpec spec = PickEasySpec();
         if (string.IsNullOrEmpty(spec.name)) return;
 
         GroundFactory.CreateObstacle(transform, squareSprite, spec.sprite, new Vector2(worldX, skyY.Value), spec.targetHeight, spec.color, spec.breakable, spec.hp);
+        lastUpperObstacleX = worldX;
     }
 
     ObstacleSpec PickEasySpec()
