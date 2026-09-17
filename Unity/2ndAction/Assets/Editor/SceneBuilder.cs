@@ -203,7 +203,6 @@ public static class SceneBuilder
         // nullを返すだけで安全(GameManager側もnull許容)。生成でき次第この
         // パスにPNGを置くだけで反映される。
         gameManager.portraitAgingOverlayTexture = LoadIconTexture("Assets/Art/UI/PortraitAgingOverlay.png");
-        gameManager.hangerRackTexture = LoadIconTexture("Assets/Art/UI/HangerRack.png");
         // Ver.1 finishing pass, item 8 - reuses the already-imported Card
         // Select SE (see ConfigureSfxImport("...CardSelectSe.wav") above)
         // for the room hotspots' tap feedback.
