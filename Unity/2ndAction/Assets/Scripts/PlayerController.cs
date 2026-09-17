@@ -642,7 +642,12 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         bool hasStarted = GameManager.Instance == null || GameManager.Instance.HasStarted;
-        if (!hasStarted)
+        // Stage01地形挙動修整(2026-09-17), item4 - Run開始カウントダウン中
+        // (GameManager.CountdownActive)は、HasStartedが既にtrueでも
+        // HasStarted=false相当として扱い、移動/入力/距離加算(この早期
+        // returnより先には進めない)を止める。
+        bool countdownActive = GameManager.Instance != null && GameManager.Instance.CountdownActive;
+        if (!hasStarted || countdownActive)
         {
             wasStarted = false;
             return;
@@ -1092,7 +1097,7 @@ public class PlayerController : MonoBehaviour
         GameManager.DamageResult result = GameManager.Instance.TryDamagePlayer(bypassInvincibleMode: isFall, reason: isFall ? "DeathY" : "HPZero");
         if (result != GameManager.DamageResult.Hit) return;
 
-        RespawnAtCurrentPosition();
+        RespawnAtCurrentPosition(isFall);
         hitInvincibleTimer = hitInvincibleDuration;
         StartCoroutine(FlickerWhileInvincible());
 
@@ -1157,25 +1162,45 @@ public class PlayerController : MonoBehaviour
     // happened, rather than sending the player all the way back to the start
     // of the run. If that X is inside a pit (the falling case), it finds the
     // solid ground just behind the pit instead of respawning into empty air.
-    void RespawnAtCurrentPosition()
+    // Stage01地形挙動修整(2026-09-17), item2 - マスター指摘「上ルートで
+    // 被弾しても下ルートへ強制移動しない」。以前はここで無条件にonSky=
+    // falseへ戻し、GetHeightAt(下ルートの地面高さ)だけを見ていたため、
+    // 上ルート(分岐区間)上で通常被弾すると即座に下ルートへ落とされて
+    // いた。isFall=falseかつ被弾時点でonSky=true(かつ実際に分岐区間内)
+    // の場合だけ上ルート上に留める - isFall=true(穴への落下)は必ず
+    // 下ルートの穴からしか発生しない(上ルートにはPitが存在しない)ため、
+    // 従来どおり下ルート側の安全地点(FindSafeRespawnX)を使う。
+    void RespawnAtCurrentPosition(bool isFall = false)
     {
+        bool recoverOnSky = !isFall && onSky && TerrainManager.Instance != null && TerrainManager.Instance.IsInBranchRoute(transform.position.x);
+
         velocityY = 0f;
         isGrounded = true;
         jumpsUsed = 0;
         aerialAssistTimer = 0f;
         aerialAssistTotalUsed = 0f;
         lungeVelocityX = 0f;
-        onSky = false;
         transform.localScale = Vector3.one;
         EndDiveAttack();
 
         float x = transform.position.x;
-        if (TerrainManager.Instance != null)
+        if (!recoverOnSky && TerrainManager.Instance != null)
         {
             x = TerrainManager.Instance.FindSafeRespawnX(x);
         }
-        float groundY = TerrainManager.Instance != null ? (TerrainManager.Instance.GetHeightAt(x) ?? 0f) : 0f;
-        transform.position = new Vector3(x, groundY + groundOffset, 0f);
+
+        if (recoverOnSky)
+        {
+            onSky = true;
+            float skyY = TerrainManager.Instance.GetSkyHeightAt(x) ?? (TerrainManager.Instance.GetHeightAt(x) ?? 0f);
+            transform.position = new Vector3(x, skyY + groundOffset, 0f);
+        }
+        else
+        {
+            onSky = false;
+            float groundY = TerrainManager.Instance != null ? (TerrainManager.Instance.GetHeightAt(x) ?? 0f) : 0f;
+            transform.position = new Vector3(x, groundY + groundOffset, 0f);
+        }
     }
 
     IEnumerator FlickerWhileInvincible()

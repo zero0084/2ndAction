@@ -1260,6 +1260,64 @@ public class GameManager : MonoBehaviour
         ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
         ApplyCharacterCardEffects();
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
+        StartCoroutine(RunStartCountdownRoutine());
+    }
+
+    // Stage01地形挙動修整(2026-09-17), item4 - 全ステージ共通のRun開始
+    // カウントダウン。HasStarted自体は(Home画面⇔ゲーム画面のOnGUI分岐や
+    // HUD表示を従来どおり保つため)このApplyGameStart呼び出し時点で即座に
+    // trueへ切り替える - ゲーム画面/HUDはすぐ表示される。プレイヤー操作/
+    // 敵の湧き/距離加算だけを、別途のCountdownActiveで止める
+    // (PlayerController.Update、ObstacleSpawner、EnemyWallManager、
+    // UpperRouteEnemySpawnerの各早期returnに追記)。BossManagerは意図的に
+    // 変更しない - Run開始直後(距離0)でBoss開始条件を満たすことはないため
+    // 無関係であり、誤ってBoss開始処理にもカウントダウンを適用してしまう
+    // リスクを避けるため既存の!HasStartedガードのみで済ませる。
+    // 「New Run」経由(StartGame/DepartFromStageSelect)のみが対象 -
+    // Continue(BeginContinuedRun)は中断データの続きから即再開する既存
+    // 挙動を維持し、対象外とした(再開時に敵が近くに既に存在し得るため、
+    // カウントダウン中に凍結しきれない可能性がある - スコープ外として
+    // 意図的に見送り)。
+    public bool CountdownActive { get; private set; }
+    public string CountdownLabel { get; private set; } = "";
+
+    [Header("Stage01地形挙動修整(2026-09-17) - Run開始カウントダウン")]
+    public float countdownStepDuration = 0.8f;
+    public float countdownGoDuration = 0.6f;
+
+    IEnumerator RunStartCountdownRoutine()
+    {
+        CountdownActive = true;
+        CountdownLabel = "3";
+        yield return new WaitForSecondsRealtime(countdownStepDuration);
+        CountdownLabel = "2";
+        yield return new WaitForSecondsRealtime(countdownStepDuration);
+        CountdownLabel = "1";
+        yield return new WaitForSecondsRealtime(countdownStepDuration);
+        CountdownLabel = "GO!";
+        yield return new WaitForSecondsRealtime(countdownGoDuration);
+        CountdownLabel = "";
+        CountdownActive = false;
+    }
+
+    void DrawRunStartCountdown()
+    {
+        if (string.IsNullOrEmpty(CountdownLabel)) return;
+
+        bool isGo = CountdownLabel == "GO!";
+        GUIStyle style = new GUIStyle(GUI.skin.label);
+        style.fontSize = isGo ? 96 : 120;
+        style.fontStyle = FontStyle.Bold;
+        style.alignment = TextAnchor.MiddleCenter;
+        style.normal.textColor = isGo ? new Color(0.65f, 0.9f, 1f) : new Color(0.95f, 0.83f, 0.45f);
+
+        Rect rect = new Rect(0f, Screen.height * 0.5f - 90f, Screen.width, 180f);
+
+        GUIStyle shadowStyle = new GUIStyle(style);
+        shadowStyle.normal.textColor = new Color(0.04f, 0.06f, 0.14f, 0.85f);
+        Rect shadowRect = new Rect(rect.x + 4f, rect.y + 4f, rect.width, rect.height);
+        GUI.Label(shadowRect, CountdownLabel, shadowStyle);
+        GUI.Label(rect, CountdownLabel, style);
     }
 
     void StartGame()
@@ -2734,6 +2792,7 @@ public class GameManager : MonoBehaviour
 
             DrawUnlockAnnouncement();
             DrawEscapeAvailableBanner();
+            if (CountdownActive) DrawRunStartCountdown();
 
             // Item 9 - small Pause/Menu button, hidden while a Level Up/
             // Boss Reward card choice is already showing its own pause

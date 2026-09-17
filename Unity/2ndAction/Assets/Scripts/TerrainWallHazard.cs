@@ -14,17 +14,25 @@ using UnityEngine;
 // 「壁に当たった際の既存ダメージ処理、少し手前への復帰...など既存ロジック
 // と整合を取ってください」にそのまま合致する)。
 //
-// IsGroundedがtrueの間だけ反応させているのが唯一の判断ポイント: 上ルート/
-// 分岐路へジャンプで到達する際、上昇中のプレイヤーは必ずこの当たり判定の
-// 縦方向の範囲を通過する(合流地点の坂の下を通ってから登る、等)が、その間
-// は常にisGrounded=falseなので絶対に誤反応しない。「壁として見える場所を
-// 歩いて(=接地した状態で)横から突っ切ろうとした」場合にのみ反応する。
+// IsGroundedがtrueの間(歩いて横から突っ切った場合)に加え、Stage01地形
+// 挙動修整(2026-09-17), item1 - マスター指摘「穴へ落下時、側壁へ衝突して
+// もダメージが発生しない場合がある」への対応で、落下中(VerticalVelocity
+// が負)の接触も反応対象に加えた。上ルート/分岐路へジャンプで到達する際は
+// 上昇中(VerticalVelocity>=0)なので引き続き誤反応しない - 「合流地点の
+// 坂の下を通ってから登る」動きは速度が正のままこの当たり判定を通過する。
+// 反応した瞬間にTakeDamage内部のRespawnAtCurrentPositionがプレイヤーを
+// 即座に安全地点へスナップし直すため、同じ落下でさらに沈んでfailYの
+// 通常落下ダメージ(PlayerController.Move()参照)が追加で発生することは
+// ない(スナップ後はもう穴の中にいない)。
 public class TerrainWallHazard : MonoBehaviour
 {
     void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player")) return;
-        if (PlayerController.Instance == null || !PlayerController.Instance.IsGrounded) return;
+        if (PlayerController.Instance == null) return;
+        bool walkedIntoWall = PlayerController.Instance.IsGrounded;
+        bool fallingIntoWall = !PlayerController.Instance.IsGrounded && PlayerController.Instance.VerticalVelocity < 0f;
+        if (!walkedIntoWall && !fallingIntoWall) return;
         PlayerController.Instance.TakeDamage();
     }
 }

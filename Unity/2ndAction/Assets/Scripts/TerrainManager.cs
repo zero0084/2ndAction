@@ -817,6 +817,7 @@ public class TerrainManager : MonoBehaviour
             new Vector2(x, y), new Vector2(rampUpEndX, rampUpEndY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
             needsLeftCap: true, needsRightCap: false, addWallCollider: true);
         skyChunks.Add(new SkyChunk { startX = x, endX = rampUpEndX, startY = y, endY = rampUpEndY, visual = rampUpVisual });
+        CreateBranchUndersideFill(new Vector2(x, y), new Vector2(rampUpEndX, rampUpEndY));
         // Stage01仕上げ調整(2026-09-13深夜) - マスター指摘「浮遊足場感が
         // 残る」への軽い緩和策として、分岐区間だけ既定(0.35)より密に
         // 装飾を撒き、道自体の存在感/賑やかさを上げる(崖面のような専用
@@ -846,6 +847,7 @@ public class TerrainManager : MonoBehaviour
                 new Vector2(x, y), new Vector2(segEndX, segEndY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
                 needsLeftCap: false, needsRightCap: false);
             skyChunks.Add(new SkyChunk { startX = x, endX = segEndX, startY = y, endY = segEndY, visual = segVisual });
+            CreateBranchUndersideFill(new Vector2(x, y), new Vector2(segEndX, segEndY));
             if (decorationSprites != null && decorationSprites.Length > 0)
                 DecorationScatter.ScatterAlongChunk(segVisual.transform, decorationSprites, new Vector2(x, y), new Vector2(segEndX, segEndY), spawnChance: 0.55f);
 
@@ -859,6 +861,7 @@ public class TerrainManager : MonoBehaviour
             new Vector2(x, y), new Vector2(mergeX, groundYAtMerge), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
             needsLeftCap: false, needsRightCap: true, addWallCollider: true);
         skyChunks.Add(new SkyChunk { startX = x, endX = mergeX, startY = y, endY = groundYAtMerge, visual = rampDownVisual });
+        CreateBranchUndersideFill(new Vector2(x, y), new Vector2(mergeX, groundYAtMerge));
         // Stage01仕上げ調整(2026-09-13深夜) - ランプダウンにはこれまで
         // 装飾が撒かれていなかった(ランプアップ/並走区間のみ)。合流地点
         // にも同じ賑やかさを持たせ、「戻ってきた」感を統一する。
@@ -875,6 +878,35 @@ public class TerrainManager : MonoBehaviour
         }
 
         nextBranchX = mergeX + Random.Range(branchMinInterval, branchMaxInterval);
+    }
+
+    // Stage01地形挙動修整(2026-09-17), item3 - マスター指摘「上下ルート間の
+    // 大きな空洞が橋のように見える」。上ルート(sky route)のスラブは元々
+    // 下に何も敷いていない浮遊足場だったため、下ルートの地面との間が素通し
+    // の空洞になっていた。既存のGroundFill(下ルート用、常にgroundFillDepth
+    // 固定の深さで敷く)とは違い、こちらは実際の下ルート地面の高さ
+    // (GetHeightAt)までの「本当の隙間」ぶんだけ動的に深さを計算し、断面
+    // テクスチャがちょうど下ルートの地面に届くようにする - 深すぎて下
+    // ルートの走行スペースにめり込む/浅すぎて隙間が残る、のどちらも避ける
+    // ため。GetHeightAtが取れない(区間内がPit等)場合はbranchHeightAbove
+    // Groundを既定の隙間とみなして安全側にフォールバックする。
+    void CreateBranchUndersideFill(Vector2 a, Vector2 b)
+    {
+        if (groundFillSprite == null) return;
+
+        float groundYAtA = GetHeightAt(a.x) ?? (a.y - branchHeightAboveGround);
+        float groundYAtB = GetHeightAt(b.x) ?? (b.y - branchHeightAboveGround);
+        float gapA = a.y - groundYAtA;
+        float gapB = b.y - groundYAtB;
+        float avgGap = (gapA + gapB) * 0.5f;
+
+        // スラブ自身の可視部分(groundFillTopOffset-overlap)より下だけを
+        // Fillが担当するため、その分を差し引く。わずかな安全マージン
+        // (0.2f)を足し、隙間ぴったりでヘアラインの隙間が残らないようにする。
+        float fillDepth = Mathf.Max(0.5f, avgGap - (groundFillTopOffset - groundFillOverlap) + 0.2f);
+
+        GroundFactory.CreateGroundFillVisual(transform, groundFillSprite, a, b,
+            groundFillTopOffset, fillDepth, groundFillOverlap, RenderOrder.GroundFill, 0f, groundFillTint);
     }
 
     void PlaceBranchMarker(float x, float y)

@@ -30,6 +30,7 @@ public class UpperRouteEnemySpawner : MonoBehaviour
     void Update()
     {
         if (GameManager.Instance == null || !GameManager.Instance.HasStarted || GameManager.Instance.IsGameOver) return;
+        if (GameManager.Instance.CountdownActive) return; // Stage01地形挙動修整(2026-09-17), item4
         if (player == null) return;
         if (BossManager.Instance != null && BossManager.Instance.IsBossPhase) return;
         if (GameManager.Instance.ActiveRunStageId != stageId) return;
