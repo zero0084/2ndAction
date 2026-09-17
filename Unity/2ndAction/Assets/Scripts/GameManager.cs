@@ -668,6 +668,12 @@ public class GameManager : MonoBehaviour
     // 寄せるための紙/キャンバス質感の経年風オーバーレイ(ChatGPT生成予定、
     // 未生成の間はnullのまま安全にスキップ - DrawCharacterHotspot参照)。
     public Texture2D portraitAgingOverlayTexture;
+    // Home環境アニメーション強化+肖像画背景追加依頼(2026-09-17) -
+    // キャラportraitテクスチャ自身が透明背景の切り抜きなので、額縁の窓
+    // いっぱいにこの共通背景(暗い油彩風、ChatGPT生成)を先に敷いてから
+    // portraitを重ねる - 「切り抜きを貼った」感を減らし、額縁の中で1枚の
+    // 絵として成立させる。全キャラ共通(キャラごとに用意しない)。
+    public Texture2D portraitBackdropTexture;
     // Ver.1 finishing pass, item 8 - "短いSE" tap feedback for the room's
     // hotspots (door/bed/book/desk). Reuses the existing Card Select SE
     // (already imported for RewardCardSequence) rather than adding new
@@ -2921,7 +2927,10 @@ public class GameManager : MonoBehaviour
                 // 扉の形に沿って重ねる柔らかい明滅(DrawAmbientGlow)へ置き
                 // 換えた。扉は引き続き画面の主役(item 7)なので、他の
                 // hotspotより上限の明るさをわずかに高くしてある。
-                DrawAmbientGlow(doorRect, roomFadeAlpha, 0.03f, 0.11f, 1.8f);
+                // Home環境アニメーション強化依頼(2026-09-17), item5 -
+                // 「扉下部/隙間にごく薄い暖色光のゆらぎ」がまだ弱く見えた
+                // ため上限を0.11→0.16へ引き上げた(周期はそのまま)。
+                DrawAmbientGlow(doorRect, roomFadeAlpha, 0.03f, 0.16f, 1.8f);
                 // Home画面改善依頼⑦(2026-09-16), item 9 - 扉だけは共通の
                 // DrawRoomHotspot(全面が白くフラッシュするだけの汎用反応)
                 // ではなく専用のDrawDoorHotspotを使い、「取っ手が少し明るく
@@ -3952,35 +3961,36 @@ public class GameManager : MonoBehaviour
 
         DrawCurtainSway(roomFadeAlpha, t);
 
-        // B. 窓からの光のゆらぎ - 右上の窓/カーテン付近に暖色の柔らかい
-        // 光だまりを重ね、alphaだけを長い周期(約28秒)でゆっくり明暗させる
-        // (明滅ではなく、木漏れ日のような緩やかな変化)。
+        // B. 窓からの光のゆらぎ - Home環境アニメーション強化依頼(2026-09-17)
+        // で「ほぼ静止画に見える」との指摘に対応し、alpha変化の振れ幅を
+        // 約1.5倍に広げた(明滅ではなく、木漏れ日のような緩やかな明暗変化
+        // という方向性自体は変えず、振れ幅だけを強めている)。
         Rect windowGlowRect = FracRect(bgRoomRect, 0.74f, 0.06f, 1.02f, 0.5f);
         float lightPulse = 0.5f + 0.5f * Mathf.Sin(t * 0.22f);
         Color prevLight = GUI.color;
-        GUI.color = new Color(1f, 0.94f, 0.78f, Mathf.Lerp(0.025f, 0.07f, lightPulse) * roomFadeAlpha);
+        GUI.color = new Color(1f, 0.94f, 0.78f, Mathf.Lerp(0.04f, 0.12f, lightPulse) * roomFadeAlpha);
         GUI.DrawTexture(windowGlowRect, SoftGlowTex());
         GUI.color = prevLight;
 
-        // D. 左のランタンの灯り揺れ - 背景アート実測位置(棚の上、フックに
-        // 掛かったランタン)へ、炎らしい不規則さを出すため周期の違う2つの
-        // Sin波を合成した弱いScale/Alpha変化を重ねる。大きな点滅はしない。
+        // D. 左のランタンの灯り揺れ - 同依頼対応、Scale/Alphaの振れ幅を
+        // 拡大(0.92-1.08→0.86-1.16、0.12-0.24→0.16-0.34)。周期(2つのSin波
+        // の合成)自体は変えていない。
         Rect lanternRect = FracRect(bgRoomRect, 0.208f, 0.155f, 0.29f, 0.30f);
         float flameWave = 0.5f + 0.5f * (Mathf.Sin(t * 1.9f) * 0.6f + Mathf.Sin(t * 0.61f) * 0.4f);
-        float flameScale = Mathf.Lerp(0.92f, 1.08f, flameWave);
+        float flameScale = Mathf.Lerp(0.86f, 1.16f, flameWave);
         Rect lanternGlowRect = new Rect(
             lanternRect.center.x - lanternRect.width * flameScale * 0.5f,
             lanternRect.center.y - lanternRect.height * flameScale * 0.5f,
             lanternRect.width * flameScale,
             lanternRect.height * flameScale);
         Color prevLantern = GUI.color;
-        GUI.color = new Color(1f, 0.72f, 0.32f, Mathf.Lerp(0.12f, 0.24f, flameWave) * roomFadeAlpha);
+        GUI.color = new Color(1f, 0.72f, 0.32f, Mathf.Lerp(0.16f, 0.34f, flameWave) * roomFadeAlpha);
         GUI.DrawTexture(lanternGlowRect, SoftGlowTex());
         GUI.color = prevLantern;
 
-        // C. 埃/光の粒 - 窓の光だまりの中を、ごく少量だけゆっくり上昇/漂わ
-        // せる。フェード込みで常時薄いまま(最大alpha約0.3)なので、じっと
-        // 見ないと気付かない程度に留めている。
+        // C. 埃/光の粒 - 同依頼対応、粒数を6→11に増量し「空気が流れている」
+        // 感を強めた(1粒あたりの最大alphaは僅かに上げた程度で、派手にはし
+        // ていない)。
         DrawDustMotes(FracRect(bgRoomRect, 0.55f, 0.1f, 0.98f, 0.78f), roomFadeAlpha, t);
     }
 
@@ -3999,7 +4009,10 @@ public class GameManager : MonoBehaviour
         Rect curtainClip = FracRect(bgRoomRect, 0.90f, 0f, 1.0f, 0.55f);
         if (curtainClip.width <= 0f || curtainClip.height <= 0f) return;
 
-        float swayAngle = Mathf.Sin(t * 0.3f) * 1.4f; // 周期約21秒・振れ幅は最大でも±1.4°
+        // Home環境アニメーション強化依頼(2026-09-17) - 「目で分かる程度に
+        // 揺れていることが分かるように」との指摘で振れ幅を約1.4°→3.8°へ
+        // 拡大(周期はほぼ据え置き、速すぎる/激しい揺れにはしない)。
+        float swayAngle = Mathf.Sin(t * 0.32f) * 3.8f;
 
         GUI.BeginGroup(curtainClip);
         Matrix4x4 prevMatrix = GUI.matrix;
@@ -4022,7 +4035,9 @@ public class GameManager : MonoBehaviour
     {
         if (area.width <= 0f || area.height <= 0f) return;
         Texture2D glow = SoftGlowTex();
-        const int moteCount = 6;
+        // Home環境アニメーション強化依頼(2026-09-17) - 「埃/光粒を少し
+        // 増やして空気が流れている感を出す」に対応し6→11粒へ増量。
+        const int moteCount = 11;
         for (int i = 0; i < moteCount; i++)
         {
             float seed = i * 12.9898f;
@@ -4036,7 +4051,7 @@ public class GameManager : MonoBehaviour
             float size = Mathf.Lerp(3f, 6f, frac01);
             Rect moteRect = new Rect(baseX - size * 0.5f, y - size * 0.5f, size, size);
             Color prev = GUI.color;
-            GUI.color = new Color(1f, 0.96f, 0.85f, 0.32f * fade * roomFadeAlpha);
+            GUI.color = new Color(1f, 0.96f, 0.85f, 0.4f * fade * roomFadeAlpha);
             GUI.DrawTexture(moteRect, glow);
             GUI.color = prev;
         }
@@ -4048,14 +4063,16 @@ public class GameManager : MonoBehaviour
     static void DrawHomeLogoHighlight(Rect logoRect, float logoFadeAlpha)
     {
         if (logoFadeAlpha <= 0.001f || logoRect.width <= 0f || logoRect.height <= 0f) return;
-        const float cycle = 6f;
+        // Home環境アニメーション強化依頼(2026-09-17) - 「5〜8秒に1回程度」
+        // に合わせ周期を6→7秒へ、帯自体もやや明るく太くした。
+        const float cycle = 7f;
         const float sweepWindow = 0.18f; // 周期のうちこの割合の間だけ帯が発生する
         float phase = Mathf.Repeat(Time.unscaledTime, cycle) / cycle;
         if (phase > sweepWindow) return;
 
         float sweepT = phase / sweepWindow;
         float travel = Mathf.Lerp(-logoRect.width * 0.3f, logoRect.width * 1.3f, sweepT);
-        float streakAlpha = Mathf.Sin(sweepT * Mathf.PI) * 0.22f * logoFadeAlpha;
+        float streakAlpha = Mathf.Sin(sweepT * Mathf.PI) * 0.32f * logoFadeAlpha;
         if (streakAlpha <= 0.001f) return;
 
         GUI.BeginGroup(logoRect);
@@ -4064,7 +4081,7 @@ public class GameManager : MonoBehaviour
         GUIUtility.RotateAroundPivot(20f, pivotLocal);
         Color prevColor = GUI.color;
         GUI.color = new Color(1f, 0.97f, 0.85f, streakAlpha);
-        GUI.DrawTexture(new Rect(travel - logoRect.height * 0.15f, -logoRect.height, logoRect.height * 0.3f, logoRect.height * 3f), Texture2D.whiteTexture);
+        GUI.DrawTexture(new Rect(travel - logoRect.height * 0.19f, -logoRect.height, logoRect.height * 0.38f, logoRect.height * 3f), Texture2D.whiteTexture);
         GUI.color = prevColor;
         GUI.matrix = prevMatrix;
         GUI.EndGroup();
@@ -4177,6 +4194,18 @@ public class GameManager : MonoBehaviour
                 : frameRect;
             Rect portraitRect = FitRectPreserveAspect(windowRect, (float)portrait.width / Mathf.Max(1, portrait.height));
             Color prevIcon = GUI.color;
+
+            // 肖像画背景追加依頼(2026-09-17) - portrait自身は透明背景の
+            // 切り抜きなので、先に窓いっぱい(portraitRectではなくwindow
+            // Rect全体 - キャラの周囲に隙間なく)へ共通の油彩風背景を敷く。
+            // 「キャラの切り抜き」ではなく「額縁の中の1枚の絵」に見せる
+            // ための下地 - portraitBackdropTextureが未生成の間はnullを
+            // 許容し安全にスキップする。
+            if (portraitBackdropTexture != null)
+            {
+                GUI.color = new Color(0.9f, 0.86f, 0.8f, roomFadeAlpha);
+                GUI.DrawTexture(windowRect, portraitBackdropTexture, ScaleMode.StretchToFill);
+            }
 
             // Home画面改善依頼⑨(2026-09-17), item1 - 「きれいな画像を額に
             // 貼った感」を減らし「壁に長く飾られた装飾画」に寄せるための

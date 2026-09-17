@@ -203,6 +203,11 @@ public static class SceneBuilder
         // nullを返すだけで安全(GameManager側もnull許容)。生成でき次第この
         // パスにPNGを置くだけで反映される。
         gameManager.portraitAgingOverlayTexture = LoadIconTexture("Assets/Art/UI/PortraitAgingOverlay.png");
+        // Home環境アニメーション強化+肖像画背景追加依頼(2026-09-17) -
+        // キャラのportraitテクスチャは透明背景の切り抜きのため、額縁の中に
+        // 「貼った」感が出てしまっていた。全キャラ共通の1枚(暗い油彩風の
+        // 抽象背景)をportrait本体の下に敷き、1枚の絵として見せる。
+        gameManager.portraitBackdropTexture = LoadIconTexture("Assets/Art/UI/PortraitBackdrop.png");
         // Ver.1 finishing pass, item 8 - reuses the already-imported Card
         // Select SE (see ConfigureSfxImport("...CardSelectSe.wav") above)
         // for the room hotspots' tap feedback.
