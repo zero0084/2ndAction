@@ -4080,7 +4080,12 @@ public class GameManager : MonoBehaviour
     // 置き場)、その右にCloth(ハンガーラック)を並べる。下端はBed
     // ホットスポット(FracRect x0-0.32 y0.52-1.0, Card Edit導線)の直前
     // y=0.505までに収め、タップ領域と競合しないようにした。
-    Rect WeaponBelongingSpot => FracRect(bgRoomRect, 0.02f, 0.39f, 0.145f, 0.505f);
+    // Home画面改善依頼⑩(2026-09-17), item2 - 実機Play Modeで確認したところ、
+    // WeaponSpotが部屋の左端(x0=0.02)に寄りすぎており、立てかけの傾き
+    // (-11°、根本を軸に先端が左へ流れる)と相まって剣の切っ先が画面外
+    // (bgRoomRectの外)へはみ出し、"宙に浮いて途切れている"ように見える
+    // 不具合があった。x0を0.07へ右へ寄せて先端が収まる余白を確保した。
+    Rect WeaponBelongingSpot => FracRect(bgRoomRect, 0.07f, 0.395f, 0.195f, 0.51f);
     Rect ClothBelongingSpot => FracRect(bgRoomRect, 0.16f, 0.37f, 0.305f, 0.505f);
     Rect ShelfBelongingSpot => FracRect(bgRoomRect, 0.19f, 0.15f, 0.305f, 0.335f);
 
@@ -4212,7 +4217,9 @@ public class GameManager : MonoBehaviour
         float defaultAspect = isWeapon ? 3.2f : isCloth ? 1.6f : 1.0f;
         float iconAspect = item.icon != null ? (float)item.icon.height / Mathf.Max(1, item.icon.width) : defaultAspect;
 
-        float fillFrac = isWeapon ? 0.85f : isCloth ? 0.9f : 0.62f;
+        // Home画面改善依頼⑩(2026-09-17), item6 - 「少し飛び出して見える」
+        // 対策として武器を約8%縮小(0.85→0.78)。
+        float fillFrac = isWeapon ? 0.78f : isCloth ? 0.9f : 0.62f;
         float w = spot.width * fillFrac * scale;
         float h = w * iconAspect;
         float maxH = spot.height * (isWeapon || isCloth ? 1.0f : 0.62f) * scale;
@@ -4249,23 +4256,47 @@ public class GameManager : MonoBehaviour
         Matrix4x4 prevItemMatrix = GUI.matrix;
         GUIUtility.RotateAroundPivot(tilt, pivot);
 
-        // 足元(または垂れた布の下端)のごく薄い影 - 単色矩形の簡易近似。
-        Rect shadowRect = isCloth
-            ? new Rect(itemRect.x + itemRect.width * 0.14f, itemRect.yMax - itemRect.height * 0.05f, itemRect.width * 0.72f, spot.height * 0.045f)
-            : new Rect(itemRect.x + itemRect.width * 0.12f, spot.yMax - spot.height * 0.02f, itemRect.width * 0.76f, spot.height * 0.045f);
+        // Home画面改善依頼⑩(2026-09-17), item2/7 - 武器は実機確認で「宙に
+        // 浮いた棒」に見える度合いが一番強かったため、他種より濃く/広い
+        // 二重影(広く薄い影+狭く濃い影)にして「その場に立てかけてある」
+        // 接地感を強調した。Cloth/Shelfは従来どおりの単層影のまま。
         Color prevShadow = GUI.color;
-        GUI.color = new Color(0f, 0f, 0f, 0.28f * alpha);
-        GUI.DrawTexture(shadowRect, Texture2D.whiteTexture);
+        if (isWeapon)
+        {
+            Rect wideShadow = new Rect(itemRect.x + itemRect.width * 0.05f, spot.yMax - spot.height * 0.028f, itemRect.width * 0.9f, spot.height * 0.07f);
+            GUI.color = new Color(0f, 0f, 0f, 0.18f * alpha);
+            GUI.DrawTexture(wideShadow, Texture2D.whiteTexture);
+
+            Rect tightShadow = new Rect(itemRect.x + itemRect.width * 0.2f, spot.yMax - spot.height * 0.02f, itemRect.width * 0.6f, spot.height * 0.04f);
+            GUI.color = new Color(0f, 0f, 0f, 0.4f * alpha);
+            GUI.DrawTexture(tightShadow, Texture2D.whiteTexture);
+        }
+        else
+        {
+            // 足元(または垂れた布の下端)のごく薄い影 - 単色矩形の簡易近似。
+            Rect shadowRect = isCloth
+                ? new Rect(itemRect.x + itemRect.width * 0.14f, itemRect.yMax - itemRect.height * 0.05f, itemRect.width * 0.72f, spot.height * 0.045f)
+                : new Rect(itemRect.x + itemRect.width * 0.12f, spot.yMax - spot.height * 0.02f, itemRect.width * 0.76f, spot.height * 0.045f);
+            GUI.color = new Color(0f, 0f, 0f, 0.28f * alpha);
+            GUI.DrawTexture(shadowRect, Texture2D.whiteTexture);
+        }
         GUI.color = prevShadow;
 
-        // Shield用の小さな金具(壁掛けの根拠) - Shield/Small兼用spotの
-        // うちShieldだけに付ける。
+        // Shield用の壁面への所属感 - 実機確認で「壁から浮いた小さなアイコン」
+        // に見えたため、(a)本体の少し背後に柔らかい壁影を敷き、(b)金具
+        // (釘/フック)を一回り大きくして視認性を上げた(⑩ item4/7)。
         if (item.kind == CharacterDefinition.BelongingKind.Shield)
         {
-            float pegSize = spot.height * 0.06f;
+            Rect wallShadow = new Rect(itemRect.x - itemRect.width * 0.06f, itemRect.y - itemRect.height * 0.04f + itemRect.height * 0.05f, itemRect.width * 1.12f, itemRect.height * 1.05f);
+            Color prevWall = GUI.color;
+            GUI.color = new Color(0f, 0f, 0f, 0.22f * alpha);
+            GUI.DrawTexture(wallShadow, Texture2D.whiteTexture);
+            GUI.color = prevWall;
+
+            float pegSize = spot.height * 0.08f;
             Rect pegRect = new Rect(itemRect.center.x - pegSize / 2f, itemRect.y - pegSize * 0.6f, pegSize, pegSize);
             Color prevPeg = GUI.color;
-            GUI.color = new Color(0.15f, 0.12f, 0.08f, 0.6f * alpha);
+            GUI.color = new Color(0.15f, 0.12f, 0.08f, 0.7f * alpha);
             GUI.DrawTexture(pegRect, Texture2D.whiteTexture);
             GUI.color = prevPeg;
         }
