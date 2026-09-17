@@ -199,6 +199,11 @@ public static class SceneBuilder
         // 肖像画を「壁に飾られた額縁」に見せるためのフレーム。ChatGPTで
         // 生成した、中央が完全透明(実アルファ)のPNG。
         gameManager.portraitFrameTexture = LoadIconTexture("Assets/Art/UI/PortraitFrame.png");
+        // Home画面改善依頼⑨(2026-09-17) - 素材未生成の間はLoadIconTextureが
+        // nullを返すだけで安全(GameManager側もnull許容)。生成でき次第この
+        // パスにPNGを置くだけで反映される。
+        gameManager.portraitAgingOverlayTexture = LoadIconTexture("Assets/Art/UI/PortraitAgingOverlay.png");
+        gameManager.hangerRackTexture = LoadIconTexture("Assets/Art/UI/HangerRack.png");
         // Ver.1 finishing pass, item 8 - reuses the already-imported Card
         // Select SE (see ConfigureSfxImport("...CardSelectSe.wav") above)
         // for the room hotspots' tap feedback.

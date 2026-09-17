@@ -683,6 +683,16 @@ public class GameManager : MonoBehaviour
     // 79.5%・x=9.85%~90.06%/y=13.02%~92.51%)へ選択中キャラのポートレート
     // を重ねる。
     public Texture2D portraitFrameTexture;
+    // Home画面改善依頼⑨(2026-09-17), item1 - 「壁に長く飾られた装飾画」に
+    // 寄せるための紙/キャンバス質感の経年風オーバーレイ(ChatGPT生成予定、
+    // 未生成の間はnullのまま安全にスキップ - DrawCharacterHotspot参照)。
+    public Texture2D portraitAgingOverlayTexture;
+    // Home画面改善依頼⑨(2026-09-17), item3 - 武器置き場の隣に置く共通の
+    // ハンガーラック(キャラ別に家具を増やすのではなく、掛かる衣装だけを
+    // 差し替える方針 - DrawHangerRackBackdrop参照)。未生成の間は同様に
+    // nullを許容し、簡易プレースホルダー(木製ポール+バーの単色近似)を
+    // 代わりに描画する。
+    public Texture2D hangerRackTexture;
     // Ver.1 finishing pass, item 8 - "短いSE" tap feedback for the room's
     // hotspots (door/bed/book/desk). Reuses the existing Card Select SE
     // (already imported for RewardCardSequence) rather than adding new
@@ -3980,8 +3990,33 @@ public class GameManager : MonoBehaviour
                 : frameRect;
             Rect portraitRect = FitRectPreserveAspect(windowRect, (float)portrait.width / Mathf.Max(1, portrait.height));
             Color prevIcon = GUI.color;
-            GUI.color = new Color(1f, 1f, 1f, roomFadeAlpha);
+
+            // Home画面改善依頼⑨(2026-09-17), item1 - 「きれいな画像を額に
+            // 貼った感」を減らし「壁に長く飾られた装飾画」に寄せるための
+            // 2段構成。(a)わずかに拡大して低alphaで下敷きにした同じ
+            // ポートレートがソフトフォーカス/ハレーションのように輪郭を
+            // にじませる(IMGUIには本物のガウスぼかしが無いための代替)。
+            // (b)本体は彩度/コントラストを落とす暖色寄りの乗算Tintで描く。
+            // portraitAgingOverlayTexture(紙/キャンバス質感、ChatGPT生成
+            // 予定)が用意でき次第(c)としてさらに重ねる - 現状はnullなので
+            // 安全にスキップされる。
+            Rect softRect = new Rect(
+                portraitRect.x - portraitRect.width * 0.015f,
+                portraitRect.y - portraitRect.height * 0.015f,
+                portraitRect.width * 1.03f,
+                portraitRect.height * 1.03f);
+            GUI.color = new Color(0.82f, 0.78f, 0.7f, roomFadeAlpha * 0.35f);
+            GUI.DrawTexture(softRect, portrait, ScaleMode.ScaleToFit);
+
+            GUI.color = new Color(0.86f, 0.82f, 0.74f, roomFadeAlpha);
             GUI.DrawTexture(portraitRect, portrait, ScaleMode.ScaleToFit);
+
+            if (portraitAgingOverlayTexture != null)
+            {
+                GUI.color = new Color(1f, 1f, 1f, roomFadeAlpha * 0.4f);
+                GUI.DrawTexture(portraitRect, portraitAgingOverlayTexture, ScaleMode.ScaleToFit);
+            }
+
             GUI.color = prevIcon;
         }
 
@@ -4038,9 +4073,16 @@ public class GameManager : MonoBehaviour
     // 実際の家具(棚に立てかけられた剣、フックに掛かったマント、トランク
     // の天板)にできるだけ近い位置を狙って調整したもの - 実機/Editor
     // Play Modeでの見え方次第で座標は追加調整の余地がある。
-    Rect WeaponBelongingSpot => FracRect(bgRoomRect, 0.175f, 0.30f, 0.255f, 0.515f);
-    Rect ClothBelongingSpot => FracRect(bgRoomRect, 0.03f, 0.37f, 0.13f, 0.515f);
-    Rect ShelfBelongingSpot => FracRect(bgRoomRect, 0.26f, 0.40f, 0.32f, 0.515f);
+    // Home画面改善依頼⑨(2026-09-17), item2/3/5 - 「肖像画/壁飾り/武器/
+    // ハンガーラックを左側の同一エリアに集約」に対応した再配置。上段
+    // (壁): 肖像画(characterRect, x0.02-0.17)のすぐ右にShelf(盾/紋章)を
+    // 並べ「同じ壁」に見せる。下段(家具): 肖像画の真下にWeapon(武器
+    // 置き場)、その右にCloth(ハンガーラック)を並べる。下端はBed
+    // ホットスポット(FracRect x0-0.32 y0.52-1.0, Card Edit導線)の直前
+    // y=0.505までに収め、タップ領域と競合しないようにした。
+    Rect WeaponBelongingSpot => FracRect(bgRoomRect, 0.02f, 0.39f, 0.145f, 0.505f);
+    Rect ClothBelongingSpot => FracRect(bgRoomRect, 0.16f, 0.37f, 0.305f, 0.505f);
+    Rect ShelfBelongingSpot => FracRect(bgRoomRect, 0.19f, 0.15f, 0.305f, 0.335f);
 
     void DrawCharacterBelongings(float roomFadeAlpha)
     {
@@ -4051,6 +4093,12 @@ public class GameManager : MonoBehaviour
         Rect weaponSpot = WeaponBelongingSpot;
         Rect clothSpot = ClothBelongingSpot;
         Rect shelfSpot = ShelfBelongingSpot;
+
+        // Home画面改善依頼⑨(2026-09-17), item3 - ハンガーラック自体は
+        // キャラに依らない共通の家具なので、Fade Out/In両セットで重複
+        // させず、常にroomFadeAlphaだけで1回だけ描く(掛かる衣装だけが
+        // DrawBelongingsSet側でキャラごとに差し替わる)。
+        DrawHangerRackBackdrop(clothSpot, roomFadeAlpha);
 
         // Home画面改善依頼⑦(2026-09-16), item 2 - Character変更直後だけ、
         // 旧セット(Fade Out)と新セット(Fade In+わずかなスライド/Scale In)
@@ -4074,6 +4122,42 @@ public class GameManager : MonoBehaviour
         }
 
         DrawBelongingsSet(weaponSpot, clothSpot, shelfSpot, selectedDef.belongings, roomFadeAlpha, 0f, 1f);
+    }
+
+    // Home画面改善依頼⑨(2026-09-17), item3 - 「キャラごとに家具そのものを
+    // 増やすのではなく、ラック自体は共通で掛かっている衣装だけを差し替え
+    // る」方針のハンガーラック本体。hangerRackTexture(ChatGPT生成予定)が
+    // 未設定の間は、木製ポール2本+横バーを単色矩形で近似した簡易
+    // プレースホルダーを描く - 実アートが入り次第、portraitFrameTexture
+    // と同じ要領でSceneBuilder側の1行差し替えだけで済む。
+    void DrawHangerRackBackdrop(Rect clothSpot, float alpha)
+    {
+        if (alpha <= 0.001f) return;
+
+        Rect rackRect = new Rect(
+            clothSpot.x - clothSpot.width * 0.08f,
+            clothSpot.y - clothSpot.height * 0.08f,
+            clothSpot.width * 1.16f,
+            clothSpot.height * 1.15f);
+
+        if (hangerRackTexture != null)
+        {
+            Color prevTex = GUI.color;
+            // item6 - 新品感を減らすための、わずかにくすませたTint。
+            GUI.color = new Color(0.85f, 0.82f, 0.77f, alpha);
+            GUI.DrawTexture(rackRect, hangerRackTexture, ScaleMode.ScaleToFit);
+            GUI.color = prevTex;
+            return;
+        }
+
+        Color prevRack = GUI.color;
+        GUI.color = new Color(0.3f, 0.21f, 0.13f, 0.55f * alpha);
+        // 縦ポール(左右2本)
+        GUI.DrawTexture(new Rect(rackRect.x + rackRect.width * 0.08f, rackRect.y, rackRect.width * 0.05f, rackRect.height), Texture2D.whiteTexture);
+        GUI.DrawTexture(new Rect(rackRect.xMax - rackRect.width * 0.13f, rackRect.y, rackRect.width * 0.05f, rackRect.height), Texture2D.whiteTexture);
+        // 横バー(上部、衣装を掛けるフック代わり)
+        GUI.DrawTexture(new Rect(rackRect.x, rackRect.y, rackRect.width, rackRect.height * 0.045f), Texture2D.whiteTexture);
+        GUI.color = prevRack;
     }
 
     // kindごとに対応するspotへ1個ずつ描画する。slideYOffset/scaleは
@@ -4189,7 +4273,10 @@ public class GameManager : MonoBehaviour
         if (item.icon != null)
         {
             Color prevIcon = GUI.color;
-            GUI.color = new Color(1f, 1f, 1f, alpha);
+            // Home画面改善依頼⑨(2026-09-17), item6 - 新品のアイコンがその
+            // まま浮いて見えないよう、部屋の暖色照明に寄せたわずかな
+            // くすみTintを乗算(彩度/明度をやや落とす)。
+            GUI.color = new Color(0.85f, 0.81f, 0.73f, alpha);
             GUI.DrawTexture(itemRect, item.icon, ScaleMode.ScaleToFit);
             GUI.color = prevIcon;
         }
