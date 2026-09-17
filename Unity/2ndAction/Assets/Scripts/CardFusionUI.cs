@@ -236,7 +236,8 @@ public class CardFusionUI : MonoBehaviour
             Rarity = card.rarity,
             LevelLine = levelLabel,
             Count = count,
-            ShowEquippedBadge = equipped
+            ShowEquippedBadge = equipped,
+            Category = card.category
         };
     }
 

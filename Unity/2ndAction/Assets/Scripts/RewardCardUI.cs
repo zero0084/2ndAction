@@ -59,6 +59,13 @@ public class RewardCardUI : MonoBehaviour
     // 表示され続けていた(マスター指摘の再現バグ)。この親GOごとisFrontで
     // ON/OFFすることで、バッジ全体(枠含む)を表裏で確実に切り替える。
     public GameObject levelBadge;
+    // カードVisual最終調整依頼(2026-09-18), item2/3 - 左上のCategory Icon。
+    // LevelBadge(右上)と全く同じ構造(菱形+金縁の親GameObject)を左右対称
+    // に配置したもの - 表裏の切り替えもlevelBadgeと同じ扱いにする。
+    // categoryIconImageはBorderの内側に重ねるアイコン本体(CardCategoryIcons
+    // 参照、未生成のカテゴリはnullのままスキップされる)。
+    public GameObject categoryBadge;
+    public Image categoryIconImage;
     // Card UI改修(2026-09-08) - 所持枚数「×N」専用表示(RewardCardData.
     // Countが1以下、またはこのカード自体が「所持枚数」の概念を持たない
     // 呼び出し元(Reward/LevelUp選択・Fusionスロット等、Count未設定=0の
@@ -67,7 +74,13 @@ public class RewardCardUI : MonoBehaviour
     // Item 5 - a small "EQUIPPED" tag, toggled on/off rather than built per
     // call - RewardCardData.ShowEquippedBadge is false everywhere except
     // where a caller actually knows equip state.
+    // カードVisual最終調整依頼(2026-09-18), item1 - このリボン1本を
+    // EQUIPPED/NEWの二役で共用する(同時にはほぼ起こらない状態のため、
+    // 新しいUI要素を増やさずに済ませた - EQUIPPEDの方が情報として優先度が
+    // 高いのでRewardCardData側で二重にtrueにはしない設計)。表示する文字
+    // 列自体はequippedBadgeLabelへSetContentで書き込む。
     public GameObject equippedBadge;
+    public Text equippedBadgeLabel;
     public Button button;
 
     RewardCardData data;
@@ -129,9 +142,13 @@ public class RewardCardUI : MonoBehaviour
         bool showLevel = isFront && !string.IsNullOrEmpty(data.LevelLine);
         if (levelText != null) levelText.enabled = showLevel;
         if (levelBadge != null) levelBadge.SetActive(showLevel);
+        // item2/3/6 - Category Iconはlevelと同じ扱い(表面のみ)。スプライト
+        // 自体が無い(未生成カテゴリ)場合は空の菱形だけが残らないよう隠す。
+        bool showCategory = isFront && categoryIconImage != null && categoryIconImage.sprite != null;
+        if (categoryBadge != null) categoryBadge.SetActive(showCategory);
         if (valueLineText != null) valueLineText.enabled = isFront && !string.IsNullOrEmpty(data.ValueLine);
         if (countText != null) countText.enabled = isFront && data.Count > 1;
-        if (equippedBadge != null) equippedBadge.SetActive(isFront && data.ShowEquippedBadge);
+        if (equippedBadge != null) equippedBadge.SetActive(isFront && (data.ShowEquippedBadge || data.ShowNewBadge));
     }
 
     // An unfilled DECK slot - shows just the card frame art, dimmed, with
@@ -155,6 +172,7 @@ public class RewardCardUI : MonoBehaviour
         if (rarityText != null) rarityText.enabled = false;
         if (levelText != null) levelText.enabled = false;
         if (levelBadge != null) levelBadge.SetActive(false);
+        if (categoryBadge != null) categoryBadge.SetActive(false);
         if (valueLineText != null) valueLineText.enabled = false;
         if (countText != null) countText.enabled = false;
         if (equippedBadge != null) equippedBadge.SetActive(false);
@@ -209,6 +227,20 @@ public class RewardCardUI : MonoBehaviour
         if (countText != null)
         {
             countText.text = cardData.Count > 1 ? $"×{cardData.Count}" : "";
+        }
+        // item2/3 - Category Icon本体。スプライトが無い(未生成カテゴリ)場合
+        // はnullのままにしておき、ApplyFaceVisibility側がそれを見てバッジ
+        // ごと隠す。
+        if (categoryIconImage != null)
+        {
+            categoryIconImage.sprite = CardCategoryIcons.GetIcon(cardData.Category);
+        }
+        // item1 - EQUIPPED/NEWの二役リボン。EQUIPPEDが優先(RewardCardData
+        // 側で同時にtrueにしない設計だが、念のためここでも同じ優先順位を
+        // 踏襲する)。
+        if (equippedBadgeLabel != null)
+        {
+            equippedBadgeLabel.text = cardData.ShowEquippedBadge ? "EQUIPPED" : cardData.ShowNewBadge ? "NEW" : "";
         }
         ApplyFaceVisibility();
     }

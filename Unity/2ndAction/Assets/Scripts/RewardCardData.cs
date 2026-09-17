@@ -43,4 +43,16 @@ public struct RewardCardData
     // 文字列を渡す」方針)。空文字なら数値欄を表示しない(表示できない/
     // 複数効果すぎて代表値が出せないカード向け)。
     public string ValueLine;
+
+    // カードVisual最終調整依頼(2026-09-18), item3 - 左上のCategory Icon用。
+    // CardDefinition.categoryをそのまま渡す(表示可否はRewardCardUI側で
+    // CardIdの有無等ではなくisFrontだけを見て判断するため、値自体は常に
+    // 渡してよい)。
+    public CardCategory Category;
+    // item1 - 「実際に初めて取得したが、まだプレイヤーが確認していない」
+    // カードにのみtrue。CardInventory.IsNewUnconfirmedを呼び出し側
+    // (GameManager.MakeOwnedCardData)が確認して渡す - Level Up/Boss
+    // Reward候補(MakeChoiceCardData)では意図的に渡さない(常にfalseの
+    // まま)。
+    public bool ShowNewBadge;
 }

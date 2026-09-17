@@ -3487,7 +3487,8 @@ public class GameManager : MonoBehaviour
             Title = card.cardName,
             Description = card.description,
             Rarity = card.rarity,
-            LevelLine = highest > 0 ? $"Lv.{highest}" : ""
+            LevelLine = highest > 0 ? $"Lv.{highest}" : "",
+            Category = card.category
         };
     }
 
@@ -3501,7 +3502,12 @@ public class GameManager : MonoBehaviour
     RewardCardData MakeChoiceCardData(CardDefinition card)
     {
         int currentStack = GetCurrentRunStack(card.cardId);
-        string stackLabel = currentStack > 0 ? $"Lv.{currentStack} -> Lv.{currentStack + 1}" : "NEW  Lv.1";
+        // カードVisual最終調整依頼(2026-09-18), item1 - 候補として表示
+        // されているだけの段階では「NEW」を出さない(実際に選んで初めて
+        // 取得した時だけがNEW - CardInventory.AddCard/MakeOwnedCardData
+        // 参照)。以前はここで"NEW  Lv.1"と表示しており、「候補に出た＝
+        // NEW」という誤った意味になっていた。
+        string stackLabel = currentStack > 0 ? $"Lv.{currentStack} -> Lv.{currentStack + 1}" : "Lv.1";
         return new RewardCardData
         {
             CardId = card.cardId,
@@ -3510,6 +3516,7 @@ public class GameManager : MonoBehaviour
             Description = card.description,
             Rarity = card.rarity,
             LevelLine = stackLabel,
+            Category = card.category,
             // レベルアップ選択UI改修(2026-09-11) - 横長3択UI右端の「主要な
             // 強化数値」。CardEffectFormat参照。
             ValueLine = CardEffectFormat.FormatPrimaryValue(card)
@@ -3560,7 +3567,14 @@ public class GameManager : MonoBehaviour
             Rarity = card.rarity,
             LevelLine = levelLabel,
             Count = equipped ? 0 : count,
-            ShowEquippedBadge = equipped
+            ShowEquippedBadge = equipped,
+            Category = card.category,
+            // カードVisual最終調整依頼(2026-09-18), item1 - Collection/
+            // Character Cardスロットで「実際に新規取得済みだが未確認」の
+            // カードにだけNEWを出す。EQUIPPED状態の方が情報として優先度が
+            // 高いため、RewardCardUI側でEQUIPPEDと同時にはならないよう
+            // 一本化して扱う(両方trueでもEQUIPPED表示が勝つ)。
+            ShowNewBadge = !equipped && CardInventory.IsNewUnconfirmed(card.cardId)
         };
     }
 

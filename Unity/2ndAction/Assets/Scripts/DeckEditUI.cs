@@ -416,6 +416,10 @@ public class DeckEditUI : MonoBehaviour
         CardInventory.Stack stack = displayedStacks[index];
         CardDefinition tapped = CardDatabase.FindById(stack.cardId);
         if (tapped == null) return;
+        // カードVisual最終調整依頼(2026-09-18), item1 - Collectionで実際に
+        // タップして見た時点で「新規取得済み・未確認」状態を解除する。
+        // 以降のRefresh()でNEWバッジが消えた状態が反映される。
+        CardInventory.ClearNewUnconfirmed(stack.cardId);
         ShowDetail(tapped, stack.level, stack.count);
 
         // Item 7 - a Character Card slot is armed - this tap fills it,

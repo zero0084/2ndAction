@@ -2547,8 +2547,11 @@ public static class SceneBuilder
         equippedGO.transform.SetParent(cardGO.transform, false);
         RectTransform equippedRect = equippedGO.AddComponent<RectTransform>();
         // LevelBadge(右上、常時表示)と重ならないよう、右端は0.66手前まで
-        // (LevelBadgeの左端)に収める。
-        equippedRect.anchorMin = new Vector2(0.10f, 0.795f);
+        // (LevelBadgeの左端)に収める。カードVisual最終調整依頼
+        // (2026-09-18), item3で左上にCategoryBadge(下記、LevelBadgeと左右
+        // 対称)を新設したため、左端も0.10→0.38(CategoryBadgeの右端の先)
+        // へ寄せて重ならないようにした。
+        equippedRect.anchorMin = new Vector2(0.38f, 0.795f);
         equippedRect.anchorMax = new Vector2(0.62f, 0.855f);
         equippedRect.offsetMin = Vector2.zero;
         equippedRect.offsetMax = Vector2.zero;
@@ -2569,6 +2572,7 @@ public static class SceneBuilder
         equippedLabel.resizeTextMaxSize = Mathf.Max(8, DescFontSizeFor(width) - 2);
         equippedLabel.text = "EQUIPPED";
         card.equippedBadge = equippedGO;
+        card.equippedBadgeLabel = equippedLabel;
         equippedGO.SetActive(false);
 
         // Title text sits over the LEFT/CENTER portion of TitleBand -
@@ -2642,16 +2646,17 @@ public static class SceneBuilder
         valueLineText.resizeTextMaxSize = Mathf.Max(10, DescFontSizeFor(width) + 2);
         card.valueLineText = valueLineText;
 
-        // Card UI / Rarity Frame pass, item 2 - Rarity (top-left, shown only
-        // in showDetails mode now)。イラスト領域の上に直接乗る形になった
-        // (カードUIデザイン提案でイラストが拡大されたため)- Levelと違い
-        // 常時表示ではなくshowDetails限定のままなので、常設のバッジ背景は
+        // Card UI / Rarity Frame pass, item 2 - Rarity (shown only in
+        // showDetails mode)。カードVisual最終調整依頼(2026-09-18), item3で
+        // 左上に常設のCategoryBadge(下記)を新設したため、Rarityはそれと
+        // 重ならないよう少し下(CategoryBadge/EquippedBadgeの帯より下)へ
+        // 位置を下げた。showDetails限定のままなので、常設のバッジ背景は
         // 付けていない。
         GameObject rarityGO = new GameObject("Rarity");
         rarityGO.transform.SetParent(cardGO.transform, false);
         RectTransform rarityRect = rarityGO.AddComponent<RectTransform>();
-        rarityRect.anchorMin = new Vector2(0.08f, 0.895f);
-        rarityRect.anchorMax = new Vector2(0.42f, 0.965f);
+        rarityRect.anchorMin = new Vector2(0.08f, 0.715f);
+        rarityRect.anchorMax = new Vector2(0.42f, 0.785f);
         rarityRect.offsetMin = Vector2.zero;
         rarityRect.offsetMax = Vector2.zero;
         Text rarityText = rarityGO.AddComponent<Text>();
@@ -2721,6 +2726,58 @@ public static class SceneBuilder
         levelText.resizeTextMinSize = 6;
         levelText.resizeTextMaxSize = Mathf.Max(8, DescFontSizeFor(width) - 1);
         card.levelText = levelText;
+
+        // カードVisual最終調整依頼(2026-09-18), item2/3/5 - 左上に
+        // Category Icon。LevelBadge(右上)と全く同じ構造(菱形+金縁)を
+        // 左右対称の位置に置く - 「右上:Lv/左上:Category」で視覚的に
+        // バランスするようにするため。中身はテキストではなくCategoryIcon
+        // (CardCategoryIcons参照)のImageにする点だけがLevelBadgeと違う。
+        GameObject categoryGO = new GameObject("CategoryBadge");
+        categoryGO.transform.SetParent(cardGO.transform, false);
+        RectTransform categoryRect = categoryGO.AddComponent<RectTransform>();
+        categoryRect.anchorMin = new Vector2(0.055f, 0.785f);
+        categoryRect.anchorMax = new Vector2(0.34f, 0.975f);
+        categoryRect.offsetMin = Vector2.zero;
+        categoryRect.offsetMax = Vector2.zero;
+        card.categoryBadge = categoryGO;
+
+        GameObject categoryDiamondGO = new GameObject("Diamond");
+        categoryDiamondGO.transform.SetParent(categoryGO.transform, false);
+        RectTransform categoryDiamondRect = categoryDiamondGO.AddComponent<RectTransform>();
+        categoryDiamondRect.anchorMin = new Vector2(0.5f, 0.5f);
+        categoryDiamondRect.anchorMax = new Vector2(0.5f, 0.5f);
+        categoryDiamondRect.pivot = new Vector2(0.5f, 0.5f);
+        categoryDiamondRect.sizeDelta = new Vector2(width * 0.19f, width * 0.19f);
+        categoryDiamondRect.localRotation = Quaternion.Euler(0f, 0f, 45f);
+        Image categoryDiamondImage = categoryDiamondGO.AddComponent<Image>();
+        categoryDiamondImage.color = new Color(0.06f, 0.08f, 0.16f, 0.92f);
+        categoryDiamondImage.raycastTarget = false;
+        GameObject categoryDiamondBorderGO = new GameObject("Border");
+        categoryDiamondBorderGO.transform.SetParent(categoryDiamondGO.transform, false);
+        RectTransform categoryDiamondBorderRect = categoryDiamondBorderGO.AddComponent<RectTransform>();
+        categoryDiamondBorderRect.anchorMin = Vector2.zero;
+        categoryDiamondBorderRect.anchorMax = Vector2.one;
+        categoryDiamondBorderRect.offsetMin = new Vector2(-3f, -3f);
+        categoryDiamondBorderRect.offsetMax = new Vector2(3f, 3f);
+        Image categoryDiamondBorderImage = categoryDiamondBorderGO.AddComponent<Image>();
+        categoryDiamondBorderImage.color = new Color(0.83f, 0.68f, 0.32f, 0.95f);
+        categoryDiamondBorderImage.raycastTarget = false;
+        categoryDiamondBorderGO.transform.SetAsFirstSibling();
+
+        // アイコン本体は菱形(45°回転)の子ではなく、CategoryBadge直下に
+        // 無回転で置く(Labelと同じ理由 - アイコン自体が傾いて見えない
+        // ように)。菱形の内側に収まる程度に少し小さめのサイズにする。
+        GameObject categoryIconGO = new GameObject("Icon");
+        categoryIconGO.transform.SetParent(categoryGO.transform, false);
+        RectTransform categoryIconRect = categoryIconGO.AddComponent<RectTransform>();
+        categoryIconRect.anchorMin = new Vector2(0.22f, 0.22f);
+        categoryIconRect.anchorMax = new Vector2(0.78f, 0.78f);
+        categoryIconRect.offsetMin = Vector2.zero;
+        categoryIconRect.offsetMax = Vector2.zero;
+        Image categoryIconImage = categoryIconGO.AddComponent<Image>();
+        categoryIconImage.raycastTarget = false;
+        categoryIconImage.preserveAspect = true;
+        card.categoryIconImage = categoryIconImage;
 
         // Invisible full-card button purely for tap-to-select - its own
         // Image target graphic is the frame (already drawn above), not a
@@ -3016,6 +3073,16 @@ public static class SceneBuilder
         ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity3.png");
         ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity4.png");
         ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity5.png");
+        // カードVisual最終調整依頼(2026-09-18), item2/3 - Category Icon
+        // (CardCategoryIcons参照)。未生成のカテゴリはConfigureCardFrame
+        // Import内のFile.Existsガードで安全にスキップされる。
+        ConfigureCardFrameImport("Assets/Resources/CardCategoryIcons/Icon_Movement.png");
+        ConfigureCardFrameImport("Assets/Resources/CardCategoryIcons/Icon_Attack.png");
+        ConfigureCardFrameImport("Assets/Resources/CardCategoryIcons/Icon_Defense.png");
+        ConfigureCardFrameImport("Assets/Resources/CardCategoryIcons/Icon_Growth.png");
+        ConfigureCardFrameImport("Assets/Resources/CardCategoryIcons/Icon_Heal.png");
+        ConfigureCardFrameImport("Assets/Resources/CardCategoryIcons/Icon_Special.png");
+        ConfigureCardFrameImport("Assets/Resources/CardCategoryIcons/Icon_Risk.png");
     }
 
     // Item 7 - plain single-sprite UI import (Sprite (2D and UI), alpha

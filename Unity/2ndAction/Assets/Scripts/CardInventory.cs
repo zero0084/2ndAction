@@ -132,10 +132,65 @@ public static class CardInventory
     {
         if (string.IsNullOrEmpty(cardId) || count <= 0) return;
         EnsureLoaded();
+        // カードVisual最終調整依頼(2026-09-18), item1 - 「候補に出た=NEW」
+        // ではなく「実際に取得した=NEW」にするための判定はここ一箇所に
+        // 集約する。AddCardはLevel Up選択確定時/Gacha抽選時のどちらから
+        // 呼ばれても必ずここを通る唯一の入口なので、呼び出し側ごとに
+        // 個別判定させる必要がない。「このカードを1枚でも既に所持して
+        // いたか」を加算前に見て、初めてなら新規取得済み(未確認)として
+        // マークする。
+        bool wasOwnedBefore = GetTotalCount(cardId) > 0;
         Stack existing = Find(cardId, level);
         if (existing != null) existing.count += count;
         else stacks.Add(new Stack { cardId = cardId, level = level, count = count });
+        if (!wasOwnedBefore) MarkNewUnconfirmed(cardId);
         Save();
+    }
+
+    // カードVisual最終調整依頼(2026-09-18), item1 - 「実際に新規取得した
+    // が、まだプレイヤーが確認していないカード」の集合。AddCard内で自動的
+    // に追加され、Collection等でそのカードを実際に見た(タップした)時点で
+    // ClearNewを呼んで解除する想定。CardInventory本体(所持数)とは別の
+    // 軽量な状態なので、別のPlayerPrefsキーに分けて保存する。
+    const string NewUnconfirmedSaveKey = "NewUnconfirmedCardsV1";
+    static HashSet<string> newUnconfirmed;
+
+    static void EnsureNewUnconfirmedLoaded()
+    {
+        if (newUnconfirmed != null) return;
+        newUnconfirmed = new HashSet<string>();
+        string raw = PlayerPrefs.GetString(NewUnconfirmedSaveKey, "");
+        if (string.IsNullOrEmpty(raw)) return;
+        foreach (string id in raw.Split(','))
+        {
+            if (!string.IsNullOrEmpty(id)) newUnconfirmed.Add(id);
+        }
+    }
+
+    static void SaveNewUnconfirmed()
+    {
+        PlayerPrefs.SetString(NewUnconfirmedSaveKey, string.Join(",", newUnconfirmed));
+        PlayerPrefs.Save();
+    }
+
+    static void MarkNewUnconfirmed(string cardId)
+    {
+        EnsureNewUnconfirmedLoaded();
+        if (newUnconfirmed.Add(cardId)) SaveNewUnconfirmed();
+    }
+
+    public static bool IsNewUnconfirmed(string cardId)
+    {
+        EnsureNewUnconfirmedLoaded();
+        return !string.IsNullOrEmpty(cardId) && newUnconfirmed.Contains(cardId);
+    }
+
+    // プレイヤーがCollection等でこのカードを実際に確認した時に呼ぶ -
+    // NEW状態を解除する。
+    public static void ClearNewUnconfirmed(string cardId)
+    {
+        EnsureNewUnconfirmedLoaded();
+        if (newUnconfirmed.Remove(cardId)) SaveNewUnconfirmed();
     }
 
     // Consumes `count` copies at exactly (cardId, level) - fails (no
