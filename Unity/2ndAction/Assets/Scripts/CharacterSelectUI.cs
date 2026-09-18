@@ -221,6 +221,13 @@ public class CharacterSelectUI : MonoBehaviour
     void Update()
     {
         if (!gameObject.activeInHierarchy) return;
+        // Input Lock(ブラッシュアップ点検2026-09-18で追加) - DeckEditUI.
+        // Updateと同じガード。これが無いと、SELECT確定後の画面遷移
+        // (ScreenTransitionManagerのCloseRoutine、約0.25秒)が終わる前に
+        // 別カードをタップ→再度SELECTタップができてしまい、既に確定した
+        // はずの選択が遷移中に別のキャラクターへ静かに上書きされる不具合
+        // があった。
+        if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (!TouchInputUtil.TryGetTapPosition(out Vector2 screenPos)) return;
         HandleTap(screenPos);
     }

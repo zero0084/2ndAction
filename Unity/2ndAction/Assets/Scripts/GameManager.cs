@@ -2988,6 +2988,16 @@ public class GameManager : MonoBehaviour
                 // 必要以上に大きくしないよう高さは0.27→0.24へわずかに
                 // 縮めた(内部の余白はDrawCharacterHotspot側で確保)。
                 Rect characterRect = FracRect(bgRoomRect, 0.02f, 0.14f, 0.17f, 0.38f);
+                // ブラッシュアップ点検(2026-09-18)で発覚した不具合の修正:
+                // 背景画像(1536x1024、縦横比1.5)よりも横長な画面(最近の
+                // スマホの横画面によくある20:9等)では、cover-scaleのcropで
+                // bgRoomRect.yが負値になり、上記フラクション計算の結果
+                // characterRectが左上の固定BEST表示パネル(titleBestRect、
+                // 高さ72px)と重なってしまっていた。フラクション自体は
+                // そのままに、最終的なyだけBESTパネルの下端を下回らないよう
+                // 安全側にクランプする(通常のアスペクト比では発火しない)。
+                float minCharacterTop = SafeTop() + UiMargin + 72f + 16f;
+                if (characterRect.y < minCharacterTop) characterRect.y = minCharacterTop;
                 DrawCharacterHotspot(characterRect, roomInteractable, roomFadeAlpha);
 
                 // Home画面改善依頼⑪(2026-09-17), item1 - キャラ連動の装備/

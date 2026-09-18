@@ -196,6 +196,14 @@ public class RewardCardSequence : MonoBehaviour
     int selectedIndex = -1;
     int highlightedIndex = -1;
     bool waitingForSelection;
+    // ブラッシュアップ点検(2026-09-18)で発覚した不具合の修正: Update()の
+    // 生入力hit-test(タップ"down"で発火)とUGUIのButton.onClick(タップ
+    // "up"で発火)が同じ物理タップに対して両方とも発火し、1回目のタップ
+    // だけでハイライト+確定が同時に起きてしまっていた(2回タップして
+    // 確定、という設計が機能していなかった)。同一物理タップからの
+    // 二重発火をここで吸収する。
+    float lastCardClickTime = -1f;
+    const float CardClickDebounceSeconds = 0.2f;
     // OnCardClicked/HighlightCardが詳細パネルの内容を参照するために保持
     // する、今回のRunSequenceBody呼び出し中だけ有効な参照。
     RewardCardData[] currentCardData;
@@ -691,6 +699,8 @@ public class RewardCardSequence : MonoBehaviour
     public void OnCardClicked(int index)
     {
         if (!waitingForSelection || selectedIndex >= 0) return; // 未受付、または既に確定済み
+        if (Time.unscaledTime - lastCardClickTime < CardClickDebounceSeconds) return; // 同一タップの二重発火を無視
+        lastCardClickTime = Time.unscaledTime;
         if (highlightedIndex == index)
         {
             selectedIndex = index; // 同じカードへの2回目のタップ - 確定

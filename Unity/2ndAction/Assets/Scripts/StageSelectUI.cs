@@ -153,6 +153,12 @@ public class StageSelectUI : MonoBehaviour
     void Update()
     {
         if (!gameObject.activeInHierarchy) return;
+        // Input Lock(ブラッシュアップ点検2026-09-18で追加、CharacterSelectUI
+        // /DeckEditUIと同じガード) - DepartFromStageSelect自体は多重発火
+        // から守られているが、画面遷移が始まった後もこのガードが無いと
+        // 覆い隠されていく最中に選択カードが裏で切り替わってしまう
+        // (見た目上は問題にならないが、他画面との一貫性のため統一)。
+        if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (!TouchInputUtil.TryGetTapPosition(out Vector2 screenPos)) return;
         HandleTap(screenPos);
     }

@@ -88,13 +88,19 @@ public class RewardCardUI : MonoBehaviour
 
     // Card UI改修(2026-09-08) - カード表面に常時表示するのはフレーム/イラ
     // スト/タイトル/Lvの4つだけにする新方針(効果文/レア度★は詳細画面での
-    // み)。既存のRewardCardSequence(Level Up/Boss Reward選択)や
-    // CardFusionUI(合成素材選択)はまだ専用の詳細パネルを持たないため、
-    // それらの呼び出し元は引き続きshowDetails:trueを渡して従来どおり効果
-    // 文/★を表示させる(情報が全く見えなくなる退行を避けるための意図的な
-    // 経過措置 - 詳細パネルが用意され次第simpleに揃えられる)。DeckEditUI
-    // (COLLECTION/DECK/CHARACTER CARDS)は既存の中央詳細カラムがそのまま
-    // このuseに対応するため、デフォルト(false)のシンプル表示で問題ない。
+    // み)。CardFusionUI(合成素材選択)はまだ専用の詳細パネルを持たないため
+    // 引き続きshowDetails:trueを渡して従来どおり効果文/★を表示させる
+    // (情報が全く見えなくなる退行を避けるための意図的な経過措置 - 詳細
+    // パネルが用意され次第simpleに揃えられる)。DeckEditUI(COLLECTION/
+    // DECK/CHARACTER CARDS)は既存の中央詳細カラムが、RewardCardSequence
+    // (Level Up/Boss Reward選択、カード選択UI再設計2026-09-12第3弾)は
+    // 自前のdetail*系フィールドによる専用パネルがそれぞれ既にこのuseに
+    // 対応しているため、どちらもデフォルト(false)のシンプル表示を渡す。
+    // 【注意】RarityText(y=0.715-0.785)はCategoryBadge追加時にこの
+    // showDetails:trueのケース(CardFusionUI)と衝突しないよう調整済み -
+    // RewardCardSequence側を将来showDetails:trueへ戻す場合は、valueLine
+    // Text(y=0.205-0.30)とdescriptionText(y=0.24-0.385)が重なる範囲を
+    // 再確認すること(現状はどちらもfalseなので問題化していないだけ)。
     bool showDetails;
 
     // 品質改善 Bug #002(2026-09-09), item 1/2 - 「Card裏面表示時にLv表示

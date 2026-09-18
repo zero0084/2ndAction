@@ -237,6 +237,13 @@ public class CardFusionUI : MonoBehaviour
             LevelLine = levelLabel,
             Count = count,
             ShowEquippedBadge = equipped,
+            // ブラッシュアップ点検(2026-09-18)で発覚した不具合の修正:
+            // Fusion画面の所持カード一覧はGameManager.MakeOwnedCardDataと
+            // 違いShowNewBadgeを一切設定していなかったため、Fusionでしか
+            // カードを見ない場合にNEWリボンが表示される機会自体が無かった。
+            // GameManager.MakeOwnedCardDataと同じ優先順位(EQUIPPED中は
+            // NEWを出さない)を踏襲する。
+            ShowNewBadge = !equipped && CardInventory.IsNewUnconfirmed(card.cardId),
             Category = card.category
         };
     }
@@ -259,6 +266,13 @@ public class CardFusionUI : MonoBehaviour
 
         var gm = GameManager.Instance;
         if (gm == null) return;
+
+        // ブラッシュアップ点検(2026-09-18)で発覚した不具合の修正:
+        // DeckEditUI.OnOwnedCardTappedと同じ「実際にタップして見た時点で
+        // NEW未確認状態を解除する」処理がFusion画面には無く、Fusion経由
+        // でしかカードに触れなかった場合、NEWバッジがCollectionでずっと
+        // 消えないままになっていた。
+        CardInventory.ClearNewUnconfirmed(stack.cardId);
 
         bool sameAsMain = stack.cardId == mainCardId && stack.level == mainLevel;
         bool sameAsSub = stack.cardId == subCardId && stack.level == subLevel;

@@ -298,13 +298,22 @@ public class DeckEditUI : MonoBehaviour
             {
                 characterSlotCards[i].gameObject.SetActive(true);
                 characterSlotCards[i].ShowFrontImmediate(gm.MakeOwnedCardData(card, gm.GetCharacterCardLevel(i), CardInventory.GetTotalCount(id), equipped: true));
+                characterSlotCards[i].SetSelected(i == pendingEquipSlot);
             }
             else
             {
                 characterSlotCards[i].gameObject.SetActive(true);
                 characterSlotCards[i].ShowEmpty();
+                // ブラッシュアップ点検(2026-09-18)で発覚した不具合の修正:
+                // 空スロットに対しても無条件でSetSelected(i==pendingEquip
+                // Slot)を呼んでいたため、装備待ち状態でない空スロットまで
+                // SetSelected(false)がShowEmpty()の暗い枠(alpha0.32)を
+                // 不透明な白(FrameNormalColor)へ上書きしてしまい、Deck欄の
+                // 空スロットと違って明るく浮いて見えていた。装備待ち
+                // (ゴールド発光)にする必要がある時だけSetSelected(true)を
+                // 呼び、それ以外はShowEmpty()の暗さをそのまま維持する。
+                if (i == pendingEquipSlot) characterSlotCards[i].SetSelected(true);
             }
-            characterSlotCards[i].SetSelected(i == pendingEquipSlot);
         }
 
         if (countText != null)
