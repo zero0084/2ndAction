@@ -610,6 +610,9 @@ public class GameManager : MonoBehaviour
     public Texture2D titleLogo;
     public Texture2D topBackground;
     public Texture2D topCloud;
+    // 環境アニメーション構造修正依頼(2026-09-18) - カーテン単体の透過素材
+    // (DrawCurtainSway参照)。topBackground自体は既にカーテンを消した版。
+    public Texture2D homeCurtain;
     // Decorative navy+gold+blue-accent frame (Assets/Art/UI/OrnateFrame.png)
     // for START/DECK/BEST - see OrnateUi, assigned to its static field in
     // Awake().
@@ -4018,37 +4021,56 @@ public class GameManager : MonoBehaviour
         DrawDustMotes(FracRect(bgRoomRect, 0.55f, 0.1f, 0.98f, 0.78f), roomFadeAlpha, t);
     }
 
-    // A. カーテンの揺れ - 新規アセットは使わず、背景テクスチャ自身を
-    // カーテンの範囲だけGUI.BeginGroupで切り出してもう一度重ね描きし、
-    // その切り出し範囲だけを上端(レール)を軸にごくわずかに回転させる。
-    // 同じ画像そのものを使うため、素材の色/質感がズレるリスクが原理的に
-    // ない(ChatGPTで同配色のカーテン単体素材(HomeCurtain.png)を試作した
-    // が、実際のカーテンは幅0.076/高さ0.68という極端に縦長の比率で、
-    // 生成素材の比率(横:縦≈2:3)とはあまりに違い、単純な拡縮では「天井
-    // 付近に浮いた小さいカーテン」か「壁の1/3を覆う不自然に太いカーテン」
-    // のどちらかにしかならなかったため、この回では採用を見送った)。
+    // A. カーテンの揺れ - 環境アニメーション構造修正依頼(2026-09-18):
+    // 旧実装は背景テクスチャ自身をカーテンの範囲だけ切り出してもう一度
+    // 重ね描きする方式だったが、背景に元々描かれた静止カーテンの上に
+    // 動くカーテンが重なり「二重に見える」不自然さがあった。今回、
+    // topBackground自体をカーテンを取り除いた版へ差し替え、カーテンは
+    // 完全に独立した透過素材(homeCurtain、元画像からAI背景除去で切り出し
+    // た同一アセットなので色/質感のズレが無い)を別レイヤーとして重ね、
+    // その素材だけを上端(レール)を軸に回転させる、背景と分離した構造へ
+    // 変更した。
     void DrawCurtainSway(float roomFadeAlpha, float t)
     {
-        if (topBackground == null) return;
-        Rect curtainClip = FracRect(bgRoomRect, 0.90f, 0f, 1.0f, 0.55f);
-        if (curtainClip.width <= 0f || curtainClip.height <= 0f) return;
+        if (homeCurtain == null) return;
+        // bgRoomRectはcover-scaleの都合で画面の外側へはみ出すことがある
+        // (背景素材とScreenのアスペクト比の組み合わせ次第で、上下方向・
+        // 左右方向のどちらにもはみ出し得る - 実機で2048x1024として読み
+        // 込まれるNPOTスケール後の実寸で確認済み)。bgRoomRectの右端の
+        // フラクションをそのまま基準にすると、はみ出し方向によっては
+        // カーテンが画面外へ出て見切れてしまうため、実際に画面に見えて
+        // いる範囲(bgRoomRectとScreenの共通部分)を基準にする。
+        float visibleLeft = Mathf.Max(bgRoomRect.x, 0f);
+        float visibleTop = Mathf.Max(bgRoomRect.y, 0f);
+        float visibleRight = Mathf.Min(bgRoomRect.xMax, Screen.width);
+        float visibleBottom = Mathf.Min(bgRoomRect.yMax, Screen.height);
+        float visibleWidth = visibleRight - visibleLeft;
+        float visibleHeight = visibleBottom - visibleTop;
+        if (visibleWidth <= 0f || visibleHeight <= 0f) return;
+
+        // 素材の実寸(縦横比)をそのまま使い、歪めずに配置する。
+        float destHeight = visibleHeight * 0.55f;
+        float destWidth = destHeight * (homeCurtain.width / (float)homeCurtain.height);
+        Rect curtainRect = new Rect(
+            visibleRight - visibleWidth * 0.005f - destWidth,
+            visibleTop,
+            destWidth,
+            destHeight);
+        if (curtainRect.width <= 0f || curtainRect.height <= 0f) return;
 
         // Home環境アニメーション強化依頼(2026-09-17) - 「目で分かる程度に
         // 揺れていることが分かるように」との指摘で振れ幅を約1.4°→3.8°へ
         // 拡大(周期はほぼ据え置き、速すぎる/激しい揺れにはしない)。
         float swayAngle = Mathf.Sin(t * 0.32f) * 3.8f;
 
-        GUI.BeginGroup(curtainClip);
         Matrix4x4 prevMatrix = GUI.matrix;
-        Vector2 pivotLocal = new Vector2(curtainClip.width * 0.5f, 0f);
-        GUIUtility.RotateAroundPivot(swayAngle, pivotLocal);
+        Vector2 pivot = new Vector2(curtainRect.x + curtainRect.width * 0.5f, curtainRect.y);
+        GUIUtility.RotateAroundPivot(swayAngle, pivot);
         Color prevColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, roomFadeAlpha);
-        Rect localBgRect = new Rect(bgRoomRect.x - curtainClip.x, bgRoomRect.y - curtainClip.y, bgRoomRect.width, bgRoomRect.height);
-        GUI.DrawTexture(localBgRect, topBackground, ScaleMode.StretchToFill);
+        GUI.DrawTexture(curtainRect, homeCurtain, ScaleMode.StretchToFill);
         GUI.color = prevColor;
         GUI.matrix = prevMatrix;
-        GUI.EndGroup();
     }
 
     // C. 埃/光の粒。位置・速度・周期をindexから決定論的に散らし(乱数を

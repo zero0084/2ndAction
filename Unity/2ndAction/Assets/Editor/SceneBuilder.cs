@@ -89,6 +89,22 @@ public static class SceneBuilder
         // painted scene, drawn fully static (no scroll/parallax) exactly
         // like its predecessor.
         gameManager.topBackground = LoadIconTexture("Assets/Art/UI/TopBackgroundHomeRoom.png");
+        // 環境アニメーション構造修正依頼(2026-09-18) - カーテンを背景から
+        // 完全に分離。TopBackgroundHomeRoom.png自体は元のカーテンを消して
+        // 窓/壁を描き足した版へ差し替え済み、カーテン本体はこの
+        // HomeCurtainStandalone.png(元画像からカーテン部分だけをAI背景
+        // 除去で切り出した透過素材、色・質感は元と完全一致)を別レイヤー
+        // として上に重ねて揺らす(GameManager.DrawCurtainSway参照)。
+        gameManager.homeCurtain = LoadIconTexture("Assets/Art/UI/HomeCurtainStandalone.png");
+        // LoadIconTextureはNPOT(非2のべき乗)画像を既定のToNearestで2の
+        // べき乗サイズへ引き伸ばしてしまう(460x1536→512x2048、幅と高さで
+        // 別々の倍率がかかるため縦横比が歪む)。topBackground側はこの歪みを
+        // bgRoomRectのcover-scale計算も同じ.width/.heightを参照すること
+        // で結果的に吸収できていた(既存の広範な挙動のため今回は変更せず
+        // 維持)が、homeCurtainは実寸の縦横比をDrawCurtainSway側で直接
+        // 参照して配置に使うため、歪みがそのまま見た目の破綻に繋がる。
+        // npotScale=Noneで元の460x1536のまま保持する。
+        ConfigureNoNpotScale("Assets/Art/UI/HomeCurtainStandalone.png");
         // Imported ONCE as a Sprite (ForegroundCloudLayer needs that for
         // in-game SpriteRenderer use - see Build() below) - gameManager's
         // own Texture2D field is then just a cheap AssetDatabase lookup of
@@ -3202,6 +3218,20 @@ public static class SceneBuilder
             importer.SaveAndReimport();
         }
         return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+    }
+
+    // 環境アニメーション構造修正依頼(2026-09-18) - LoadIconTexture済みの
+    // アセットに対し、NPOTスケール(既定ToNearest、幅・高さを別々の倍率で
+    // 2のべき乗へ引き伸ばし、縦横比が歪む)だけを後から無効化する。
+    // 呼び出し元がその素材の実寸の縦横比を直接コードで参照して配置に
+    // 使う場合(homeCurtain等)にのみ使う - 既存のtopBackground等は
+    // 変更しない(bgRoomRect計算が現状の挙動に依存しているため)。
+    static void ConfigureNoNpotScale(string path)
+    {
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer == null) return;
+        importer.npotScale = TextureImporterNPOTScale.None;
+        importer.SaveAndReimport();
     }
 
     // Full-length music tracks import as huge uncompressed WAVs by default -
