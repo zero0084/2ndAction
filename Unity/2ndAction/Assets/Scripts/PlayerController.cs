@@ -832,6 +832,14 @@ public class PlayerController : MonoBehaviour
         float dt = Time.deltaTime;
         if (bufferedUpAttackTimer > 0f) bufferedUpAttackTimer -= dt;
         float autoSpeed = autoRunEnabled ? runSpeed * GetSpeedMultiplier() : 0f;
+        // 荒野街道ボス追加(2026-09-20) - 巨大蜘蛛の糸による短時間の移動妨害。
+        // CurrentAutoRunSpeed(ボス側の追従基準)には含めない - ボスは通常速度で
+        // 走り続けるので、糸を受けたプレイヤーは相対的に後ろへ取り残される。
+        if (moveSlowTimer > 0f)
+        {
+            moveSlowTimer -= dt;
+            autoSpeed *= moveSlowFactor;
+        }
         // 実機フィードバック(2026-09-12第3弾) - Ground Hit Connect Assist
         // (既定は無効、groundHitConnectSlowdownFactor>0の場合のみ)。
         // 主人公を完全に停止させることはない(autoSpeedを弱めるだけで
@@ -1113,6 +1121,19 @@ public class PlayerController : MonoBehaviour
     // fighting Move()'s own per-frame position write (see
     // knockbackVelocityX's field comment for why a raw transform.position
     // offset wouldn't survive the next frame here).
+    float moveSlowFactor = 1f;
+    float moveSlowTimer;
+    public bool IsMoveSlowed => moveSlowTimer > 0f;
+
+    // 一時的な走行速度低下(ダメージなし・操作不能にはならない)。既に
+    // 減速中なら弱い方で上書きせず、長い方の残り時間/強い方の係数を採用。
+    public void ApplyMoveSlow(float factor, float duration)
+    {
+        factor = Mathf.Clamp(factor, 0.2f, 1f);
+        moveSlowFactor = moveSlowTimer > 0f ? Mathf.Min(moveSlowFactor, factor) : factor;
+        moveSlowTimer = Mathf.Max(moveSlowTimer, duration);
+    }
+
     public void ApplyKnockback(float velocityX, float duration)
     {
         knockbackVelocityX = velocityX;

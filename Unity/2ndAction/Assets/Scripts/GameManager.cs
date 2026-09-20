@@ -1437,6 +1437,10 @@ public class GameManager : MonoBehaviour
     Rect GetGameFeelFxButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop() + 230f, 140f, 40f);
     Rect GetResetHighScoreButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop() + 276f, 140f, 40f);
 
+#if UNITY_EDITOR
+    public void DebugSetInvincible(bool on) { InvincibleMode = on; Lives = 999; }
+#endif
+
     void ToggleInvincible()
     {
         InvincibleMode = !InvincibleMode;

@@ -175,7 +175,7 @@ public static class BossDiagnostics
 
     public const float NoProgressThresholdSeconds = 3f;
     public const float TimeScaleZeroThresholdSeconds = 25f;
-    public const float LongBossPhaseThresholdSeconds = 90f;
+    public const float LongBossPhaseThresholdSeconds = 600f; // 荒野街道の大型ボス(HP最大280)は90秒を超えうるため延長(2026-09-20)
     public const float RewardResolvedGraceSeconds = 2f;
 
     // GameManager.Update()から毎フレーム呼ばれる。

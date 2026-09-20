@@ -108,6 +108,56 @@ public class BossManager : MonoBehaviour
     // starts, regardless of how the random jitter/shuffle played out.
     public float maxGuaranteedVisibleDistance = 16f;
 
+    // ===== 荒野街道ボス追加(2026-09-20) =====
+    // 荒野街道の固定スケジュール(距離→ボス)。true(既定)なら従来の
+    // 「1000mごとにドラゴン/魔人」の周期ロジックの代わりにこの表で出現する
+    // (従来ロジックのコードは残してあり、falseで復帰できる)。Debug Mode
+    // では距離をbossRepeatIntervalDebug/bossRepeatInterval倍(=0.2倍)に縮める。
+    // 100,000mの死神は従来どおり別系統(SpawnDeath、Gateにはならない)。
+    public bool useWildSchedule = true;
+    [System.Serializable]
+    public class WildBossArt
+    {
+        public WildBossKind kind;
+        public Sprite idle, move, windup, attack;
+    }
+    public WildBossArt[] wildArt;
+
+    struct WildEntry
+    {
+        public float distance; public WildBossKind kind; public int count;
+        public WildEntry(float d, WildBossKind k, int c) { distance = d; kind = k; count = c; }
+    }
+    static readonly WildEntry[] WildSchedule =
+    {
+        new WildEntry(1000f, WildBossKind.Wolf, 1),
+        new WildEntry(5000f, WildBossKind.GoblinRider, 1),
+        new WildEntry(10000f, WildBossKind.Serpent, 1),
+        new WildEntry(20000f, WildBossKind.Cyclops, 1),
+        new WildEntry(30000f, WildBossKind.Spider, 1),
+        new WildEntry(40000f, WildBossKind.Golem, 1),
+        new WildEntry(50000f, WildBossKind.Griffin, 1),
+        new WildEntry(60000f, WildBossKind.Hydra, 1),
+        new WildEntry(70000f, WildBossKind.Demon, 1),
+        new WildEntry(80000f, WildBossKind.Dragon, 1),
+        new WildEntry(90000f, WildBossKind.BlackKnight, 1),
+    };
+    int scheduleIndex;
+    int aliveWildThisEncounter;
+
+    float WildDistanceScale()
+    {
+        return GameManager.Instance != null && GameManager.Instance.DebugMode ? bossRepeatIntervalDebug / Mathf.Max(1f, bossRepeatInterval) : 1f;
+    }
+
+    float WildTargetDistance()
+    {
+        if (scheduleIndex >= WildSchedule.Length) return float.MaxValue;
+        return WildSchedule[scheduleIndex].distance * WildDistanceScale();
+    }
+
+    float CurrentTargetDistance() => useWildSchedule ? WildTargetDistance() : nextBossDistance;
+
     public bool IsBossPhase { get; private set; }
     // Bugfix 2026-09-06, item "Boss戦中Distance停止" - called by GameManager
     // exactly where Boss Reward processing actually finishes (SaveCheckpoint
@@ -115,12 +165,13 @@ public class BossManager : MonoBehaviour
     // comment for why IsBossPhase itself no longer flips false there.
     public void EndBossPhase() => IsBossPhase = false;
     public int BossesDefeated { get; private set; }
-    public float NextBossDistance => nextBossDistance;
+    public float NextBossDistance => CurrentTargetDistance();
     // Bugfix 2026-09-08 (Bug #001 診断フェーズ) - read-only surface for
     // BossDiagnostics' Freeze Snapshot ("AliveBossCount"/"CurrentBossCount").
     public int AliveDragonCount => Mathf.Max(0, aliveDragonsThisEncounter);
     public int AliveMajinCount => Mathf.Max(0, aliveMajinsThisEncounter);
-    public int AliveBossCount => AliveDragonCount + AliveMajinCount;
+    public int AliveWildCount => Mathf.Max(0, aliveWildThisEncounter);
+    public int AliveBossCount => AliveDragonCount + AliveMajinCount + AliveWildCount;
 
     float nextBossDistance;
     int aliveDragonsThisEncounter;
@@ -154,6 +205,18 @@ public class BossManager : MonoBehaviour
     {
         if (GameManager.Instance == null || !GameManager.Instance.HasStarted || GameManager.Instance.IsGameOver) return;
 
+#if UNITY_EDITOR
+        // 動作確認用(Editor専用): F1〜F11で荒野街道ボスを即時出現(順序は
+        // WildBossKind: Wolf, GoblinRider, Serpent, Cyclops, Spider, Golem,
+        // Griffin, Hydra, Demon, Dragon, BlackKnight)。実機/ビルドには含まれない。
+        for (int k = 0; k < 11; k++)
+        {
+            if (Input.GetKeyDown(KeyCode.F1 + k)) DebugForceSpawn((WildBossKind)k);
+        }
+        if (Input.GetKeyDown(KeyCode.Backspace)) { foreach (var wb in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None)) wb.TakeDamage(99999, wb.CenterWorld); }
+        if (Input.GetKeyDown(KeyCode.F12)) { GameManager.Instance.DebugSetInvincible(true); }
+#endif
+
         // Distance Level Design Ver.1, item 8 - "100,000m検知 -> Death出現
         // -> ゲーム継続". Deliberately checked BEFORE the IsBossPhase guard
         // below (and independent of the 1000m checkpoint cycle entirely) -
@@ -171,7 +234,8 @@ public class BossManager : MonoBehaviour
         if (IsBossPhase) return;
         if (player == null || dragonIdleFrames == null || dragonIdleFrames.Length == 0) return;
 
-        if (GameManager.Instance.MaxDistance >= nextBossDistance)
+        float targetDistance = CurrentTargetDistance();
+        if (GameManager.Instance.MaxDistance >= targetDistance)
         {
             // Reserved immediately (not inside StartBossPhase any more) so
             // this Update() guard (top of the method) stops re-triggering
@@ -189,7 +253,7 @@ public class BossManager : MonoBehaviour
             // fight.
             if (GameManager.Instance != null)
             {
-                GameManager.Instance.ClampMaxDistanceTo(nextBossDistance);
+                GameManager.Instance.ClampMaxDistanceTo(targetDistance);
                 // Bugfix 2026-09-06, item "Boss中Distanceの根本修正" - marks
                 // the exact moment raw Player movement stops counting
                 // toward Distance (see GameManager.BeginBossDistanceExclusion's
@@ -202,11 +266,11 @@ public class BossManager : MonoBehaviour
             // StartBossPhase (untouched below) as a callback; falls back to
             // calling it directly if the scene was built before this
             // manager existed, so a boss can never fail to spawn.
-            int checkpointIndexForPresentation = Mathf.RoundToInt(nextBossDistance / EffectiveRepeatInterval());
-            bool isFirstEncounter = checkpointIndexForPresentation <= 1;
+            int checkpointIndexForPresentation = Mathf.RoundToInt(targetDistance / EffectiveRepeatInterval());
+            bool isFirstEncounter = useWildSchedule ? scheduleIndex == 0 : checkpointIndexForPresentation <= 1;
             if (BossMilestonePresentation.Instance != null)
             {
-                BossMilestonePresentation.Instance.Play(nextBossDistance, isFirstEncounter, StartBossPhase);
+                BossMilestonePresentation.Instance.Play(targetDistance, isFirstEncounter, StartBossPhase);
             }
             else
             {
@@ -218,6 +282,12 @@ public class BossManager : MonoBehaviour
     void StartBossPhase()
     {
         IsBossPhase = true; // idempotent - already set above when the presentation exists
+
+        if (useWildSchedule)
+        {
+            StartWildPhase();
+            return;
+        }
 
         int checkpointIndex = Mathf.RoundToInt(nextBossDistance / EffectiveRepeatInterval());
         int majinCount = checkpointIndex / majinCycleLength;
@@ -483,7 +553,7 @@ public class BossManager : MonoBehaviour
 
     void CheckEncounterComplete()
     {
-        if (aliveDragonsThisEncounter <= 0 && aliveMajinsThisEncounter <= 0)
+        if (aliveDragonsThisEncounter <= 0 && aliveMajinsThisEncounter <= 0 && aliveWildThisEncounter <= 0)
         {
             // Bugfix 2026-09-06, item 2 - "Boss撃破後にゲームが停止する"
             // state-transition trace, stage 1/9.
@@ -493,9 +563,9 @@ public class BossManager : MonoBehaviour
             // Boss Defeat Presentation pass - captured BEFORE nextBossDistance
             // advances, so the Clear text reports the checkpoint that was
             // just cleared (1000m/2000m/...), not the next one.
-            float clearedDistance = nextBossDistance;
-            int checkpointIndex = Mathf.RoundToInt(nextBossDistance / EffectiveRepeatInterval());
-            bool isFirstEncounter = checkpointIndex <= 1;
+            float clearedDistance = CurrentTargetDistance();
+            int checkpointIndex = Mathf.RoundToInt(clearedDistance / EffectiveRepeatInterval());
+            bool isFirstEncounter = useWildSchedule ? scheduleIndex == 0 : checkpointIndex <= 1;
 
             // Bugfix 2026-09-06, item "Boss戦中Distance停止" - IsBossPhase
             // used to flip false right here, at the exact moment the last
@@ -511,7 +581,8 @@ public class BossManager : MonoBehaviour
             // the exact point Boss Reward processing itself completes
             // (SaveCheckpoint time - see ApplyUpgradeByCardId/
             // RunBossRewardChoice).
-            nextBossDistance += EffectiveRepeatInterval();
+            if (useWildSchedule) scheduleIndex++;
+            else nextBossDistance += EffectiveRepeatInterval();
 
             // Presentation only - fires once the encounter's LAST boss has
             // finished its own individual death presentation (see
@@ -553,6 +624,182 @@ public class BossManager : MonoBehaviour
     {
         IsBossPhase = false;
         nextBossDistance = checkpointDistance + EffectiveRepeatInterval();
+
+        // 荒野街道スケジュール: チェックポイント距離より先の最初のエントリへ。
+        scheduleIndex = 0;
+        while (scheduleIndex < WildSchedule.Length && WildTargetDistance() <= checkpointDistance + 1f) scheduleIndex++;
+    }
+
+    // ===== 荒野街道ボス(WildBossBase系) =====
+    void StartWildPhase()
+    {
+        if (scheduleIndex >= WildSchedule.Length) { IsBossPhase = false; return; }
+        WildEntry e = WildSchedule[scheduleIndex];
+
+        aliveDragonsThisEncounter = 0;
+        aliveMajinsThisEncounter = 0;
+        aliveWildThisEncounter = 0;
+        if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
+
+        if (e.kind == WildBossKind.Dragon)
+        {
+            aliveDragonsThisEncounter = e.count;
+            for (int i = 0; i < e.count; i++) SpawnWastelandDragon(dragonStandoffDistance + i * dragonSpacing);
+        }
+        else
+        {
+            aliveWildThisEncounter = e.count;
+            for (int i = 0; i < e.count; i++) SpawnWild(e.kind, i);
+        }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.LogBoss("CombatStart");
+            if (GameManager.Instance.DebugMode) Debug.Log($"[Boss] Wild spawn kind={e.kind} count={e.count} at {WildTargetDistance()}m");
+        }
+    }
+
+    // 種別ごとの既定値(HP/MILE/世界の高さ/入場時の間合い/撃破パーティクル色)。
+    struct WildSpec
+    {
+        public int hp, mile; public float height, gap; public Color burst;
+        public WildSpec(int hp, int mile, float height, float gap, Color burst) { this.hp = hp; this.mile = mile; this.height = height; this.gap = gap; this.burst = burst; }
+    }
+
+    static WildSpec SpecFor(WildBossKind kind)
+    {
+        switch (kind)
+        {
+            case WildBossKind.Wolf: return new WildSpec(24, 30, 2.8f, 9f, new Color(0.7f, 0.7f, 0.8f));
+            case WildBossKind.GoblinRider: return new WildSpec(40, 60, 3.6f, 9f, new Color(0.5f, 0.8f, 0.3f));
+            case WildBossKind.Serpent: return new WildSpec(55, 90, 3.2f, 9f, new Color(0.4f, 0.9f, 0.4f));
+            case WildBossKind.Cyclops: return new WildSpec(80, 120, 6.0f, 10f, new Color(0.9f, 0.6f, 0.3f));
+            case WildBossKind.Spider: return new WildSpec(100, 150, 2.8f, 9f, new Color(0.7f, 0.4f, 0.8f));
+            case WildBossKind.Golem: return new WildSpec(130, 200, 5.5f, 10f, new Color(0.8f, 0.7f, 0.5f));
+            case WildBossKind.Griffin: return new WildSpec(150, 260, 3.4f, 9f, new Color(1f, 0.9f, 0.5f));
+            case WildBossKind.Hydra: return new WildSpec(180, 320, 5.0f, 10f, new Color(0.3f, 1f, 0.6f));
+            case WildBossKind.Demon: return new WildSpec(200, 400, 4.5f, 9f, new Color(0.8f, 0.3f, 1f));
+            case WildBossKind.BlackKnight: return new WildSpec(280, 500, 3.2f, 9f, new Color(0.5f, 0.6f, 1f));
+            default: return new WildSpec(30, 50, 3f, 9f, Color.white);
+        }
+    }
+
+    WildBossArt FindArt(WildBossKind kind)
+    {
+        if (wildArt == null) return null;
+        foreach (var a in wildArt) if (a != null && a.kind == kind) return a;
+        return null;
+    }
+
+    void SpawnWild(WildBossKind kind, int index)
+    {
+        WildBossArt art = FindArt(kind);
+        WildSpec spec = SpecFor(kind);
+
+        GameObject go = new GameObject("WildBoss_" + kind);
+        go.tag = "Boss";
+        WildBossBase boss;
+        switch (kind)
+        {
+            case WildBossKind.Wolf: boss = go.AddComponent<WolfBoss>(); break;
+            case WildBossKind.GoblinRider: boss = go.AddComponent<GoblinRiderBoss>(); break;
+            case WildBossKind.Serpent: boss = go.AddComponent<SerpentBoss>(); break;
+            case WildBossKind.Cyclops: boss = go.AddComponent<CyclopsBoss>(); break;
+            case WildBossKind.Spider: boss = go.AddComponent<SpiderBoss>(); break;
+            case WildBossKind.Golem: boss = go.AddComponent<GolemBoss>(); break;
+            case WildBossKind.Griffin: boss = go.AddComponent<GriffinBoss>(); break;
+            case WildBossKind.Hydra: boss = go.AddComponent<HydraBoss>(); break;
+            case WildBossKind.Demon: boss = go.AddComponent<DemonBoss>(); break;
+            default: boss = go.AddComponent<BlackKnightBoss>(); break;
+        }
+
+        boss.bossName = kind.ToString();
+        boss.maxHp = EffectiveBossMaxHp(spec.hp);
+        boss.mileReward = spec.mile;
+        boss.bodyHeight = spec.height;
+        boss.startGap = spec.gap + index * 5f; // 複数出現時は少しずつ間隔をずらす
+        boss.defeatBurstColor = spec.burst;
+        boss.squareSprite = squareSprite;
+        boss.hitSparkSprite = bossHitSparkSprite;
+        boss.deathSmokeSprite = bossDeathSmokeSprite;
+        boss.finalHitSe = bossFinalHitSe;
+        boss.defeatSe = bossDefeatSe;
+        if (art != null)
+        {
+            boss.idleSprite = art.idle;
+            boss.moveSprite = art.move;
+            boss.windupSprite = art.windup;
+            boss.attackSprite = art.attack;
+        }
+        // 素材が無い場合でも戦えるよう、単色ブロックで代用(見た目は仮)
+        if (boss.idleSprite == null) boss.idleSprite = squareSprite;
+
+        boss.Init(player);
+    }
+
+    // 80,000m ドラゴン: 既存DragonControllerに突進と着地攻撃を有効化して流用。
+    void SpawnWastelandDragon(float standoff)
+    {
+        GameObject go = new GameObject("WildBoss_Dragon");
+        go.tag = "Boss";
+        go.transform.localScale = Vector3.one * dragonScale;
+
+        SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
+        sr.sortingOrder = RenderOrder.Boss;
+
+        BoxCollider2D col = go.AddComponent<BoxCollider2D>();
+        col.isTrigger = true;
+        col.size = new Vector2(2.2f, 2.0f);
+        var colDebug = go.AddComponent<ColliderDebugView>();
+        colDebug.color = new Color(1f, 0.4f, 0f);
+
+        var rb = go.AddComponent<Rigidbody2D>();
+        rb.bodyType = RigidbodyType2D.Kinematic;
+        rb.gravityScale = 0f;
+
+        DragonController dragon = go.AddComponent<DragonController>();
+        dragon.idleFrames = dragonIdleFrames;
+        dragon.chargeFrames = dragonChargeFrames;
+        dragon.fireFrames = dragonFireFrames;
+        dragon.squareSprite = squareSprite;
+        dragon.maxHp = EffectiveBossMaxHp(250);
+        dragon.standoffDistance = standoff;
+        dragon.chargeAttackEnabled = true;
+        dragon.landingAttackEnabled = true;
+        dragon.mileReward = 450;
+        dragon.finalHitSparkSprite = bossHitSparkSprite;
+        dragon.bossDeathSmokeSprite = bossDeathSmokeSprite;
+        dragon.finalHitSe = bossFinalHitSe;
+        dragon.bossDefeatSe = bossDefeatSe;
+        dragon.defeatBurstColor = dragonDefeatBurstColor;
+
+        var facing = go.AddComponent<EnemyFacing>();
+        facing.visual = go.transform;
+        facing.defaultFacingRight = false;
+        facing.alwaysFacePlayer = true;
+        facing.player = player;
+
+        dragon.Init(player);
+    }
+
+#if UNITY_EDITOR
+    void DebugForceSpawn(WildBossKind kind)
+    {
+        IsBossPhase = true;
+        if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
+        foreach (var o in GameObject.FindGameObjectsWithTag("Boss")) Destroy(o);
+        aliveDragonsThisEncounter = 0; aliveMajinsThisEncounter = 0; aliveWildThisEncounter = 0;
+        if (kind == WildBossKind.Dragon) { aliveDragonsThisEncounter = 1; SpawnWastelandDragon(dragonStandoffDistance); }
+        else { aliveWildThisEncounter = 1; SpawnWild(kind, 0); }
+        Debug.Log("[Boss] DebugForceSpawn " + kind);
+    }
+#endif
+
+    public void OnWildBossDefeated()
+    {
+        BossesDefeated++;
+        aliveWildThisEncounter--;
+        CheckEncounterComplete();
     }
 
     // Card Expansion/Gacha Evolution Ver.1 - "Boss Challenge"-family cards

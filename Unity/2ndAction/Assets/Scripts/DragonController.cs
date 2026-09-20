@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider2D))]
 public class DragonController : MonoBehaviour
 {
-    enum State { Entering, Idle, Telegraphing, Charging, Firing, Dead }
+    enum State { Entering, Idle, Telegraphing, Charging, Firing, Landing, Dead }
 
     [Header("Animation")]
     public Sprite[] idleFrames;
@@ -39,6 +39,16 @@ public class DragonController : MonoBehaviour
     // Charge attack is currently disabled (design is being revisited) - the
     // dragon only ever fires. Flip this back on to bring it back.
     public bool chargeAttackEnabled = false;
+
+    // 荒野街道ボス追加(2026-09-20) - 80,000mのドラゴン用。天空回廊の既存
+    // ドラゴン(炎/突進)の挙動はそのまま、「飛行→着地→噛みつき→再上昇」を
+    // 追加攻撃として足す。既存ドラゴンはlandingAttackEnabled=falseのまま無影響。
+    [Header("Landing Attack (荒野街道ドラゴン)")]
+    public bool landingAttackEnabled = false;
+    public float landingAttackChance = 0.3f;
+    public float landingWarnDuration = 1.3f;
+    public float landedStandoffDistance = 3.5f;
+    public float landedDuration = 3.2f;
 
     [Header("Attack Telegraph")]
     public float telegraphDuration = 3f;
@@ -299,9 +309,118 @@ public class DragonController : MonoBehaviour
 
         if (attacksEnabled && state == State.Idle && Time.time >= nextAttackTime)
         {
+            if (landingAttackEnabled && Random.value < landingAttackChance)
+            {
+                StartCoroutine(LandingAttack());
+                return;
+            }
             bool isCharge = chargeAttackEnabled && Random.value < 0.5f;
             StartCoroutine(TelegraphAndAttack(isCharge));
         }
+    }
+
+    // ===== 着地攻撃(荒野街道ドラゴン): 予告 → 降下 → 着地衝撃 → 噛みつき → 隙 → 再上昇 =====
+    BossHitbox landHitbox, biteHitbox;
+
+    void EnsureLandingHitboxes()
+    {
+        if (landHitbox != null) return;
+        float sc = Mathf.Max(0.01f, Mathf.Abs(transform.localScale.x));
+        float halfW = sr.sprite != null ? sr.sprite.bounds.extents.x : 1f;   // ローカル単位
+        float halfH = sr.sprite != null ? sr.sprite.bounds.extents.y : 1f;
+
+        // ローカル座標(親スケール込み)で指定 - 判定サイズ=見えるVFXサイズ
+        landHitbox = BossHitbox.Create(transform, BossFx.Ring(), new Color(1f, 0.7f, 0.3f, 0.9f), "Land", RenderOrder.Boss + 1);
+        landHitbox.Configure(new Vector2(0f, -halfH * 0.4f), new Vector2(halfW * 2.0f, halfH * 0.9f));
+
+        // 顔は素材の向き通り左(-x)。親スケールのx反転に自動で追従する。
+        biteHitbox = BossHitbox.Create(transform, BossFx.Fang(), new Color(1f, 1f, 1f, 0.95f), "Bite", RenderOrder.Boss + 1);
+        biteHitbox.Configure(new Vector2(-(halfW + 0.9f / sc), -halfH * 0.1f), new Vector2(2.6f / sc, 2.0f / sc));
+    }
+
+    IEnumerator BlinkFlash(float duration)
+    {
+        float t = 0f;
+        bool flash = false;
+        while (t < duration && state != State.Dead)
+        {
+            flash = !flash;
+            if (flashOverlay != null) flashOverlay.enabled = flash;
+            yield return new WaitForSeconds(0.12f);
+            t += 0.12f;
+        }
+        if (flashOverlay != null) flashOverlay.enabled = false;
+    }
+
+    IEnumerator LandingAttack()
+    {
+        EnsureLandingHitboxes();
+        float sc = Mathf.Abs(transform.lossyScale.x);
+        float halfHWorld = sr.sprite != null ? sr.sprite.bounds.extents.y * transform.lossyScale.y : 1.5f;
+        float origStandoff = standoffDistance;
+
+        state = State.Telegraphing; // ホバー追従を続けたまま予告
+        float landX = trackedX + landedStandoffDistance;
+        TrackedHazard.Create(landX, halfHWorld * 2.4f, halfHWorld * 1.2f, landingWarnDuration, 0f, Color.clear);
+        yield return BlinkFlash(landingWarnDuration);
+        if (state == State.Dead) yield break;
+
+        // 降下(間合いを詰めながら地面へ)
+        state = State.Landing;
+        Vector3 start = transform.position;
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / 0.8f;
+            float e = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t));
+            standoffDistance = Mathf.Lerp(origStandoff, landedStandoffDistance, e);
+            float x = trackedX + standoffDistance;
+            float y = Mathf.Lerp(start.y, GroundYAt(x) + halfHWorld * 0.95f, e);
+            transform.position = new Vector3(x, y, 0f);
+            yield return null;
+            if (state == State.Dead) yield break;
+        }
+
+        // 着地衝撃
+        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (camFollow != null) camFollow.Shake(0.2f, 0.25f);
+        OneShotSpriteEffect.CreateScatterBurst(OneShotSpriteEffect.SoftDotSprite(), transform.position + Vector3.down * halfHWorld * 0.8f, new Color(0.75f, 0.65f, 0.5f, 0.8f), 12, 0.5f, 0.7f, 1.3f, 3.5f, 2.4f, RenderOrder.CombatFx);
+        yield return landHitbox.Strike(1f, 0.35f);
+        if (state == State.Dead) yield break;
+
+        // 着地状態: 地面に張り付いて追従(プレイヤーが殴れる隙)。途中で噛みつき。
+        float grounded = 0f;
+        bool biteDone = false;
+        while (grounded < landedDuration)
+        {
+            grounded += Time.deltaTime;
+            float x = trackedX + standoffDistance;
+            transform.position = new Vector3(x, GroundYAt(x) + halfHWorld * 0.95f, 0f);
+
+            if (!biteDone && grounded > 0.8f)
+            {
+                biteDone = true;
+                float frontDir = -Mathf.Sign(transform.lossyScale.x);
+                float halfWWorld = sr.sprite.bounds.extents.x * sc;
+                TrackedHazard.Create(transform.position.x + frontDir * (halfWWorld + 0.9f), 2.6f, 2.0f, 0.8f, 0f, Color.clear);
+                yield return BlinkFlash(0.8f);
+                if (state == State.Dead) yield break;
+                yield return biteHitbox.Strike(1f, 0.3f);
+                if (state == State.Dead) yield break;
+                grounded += 1.1f;
+                continue;
+            }
+            yield return null;
+            if (state == State.Dead) yield break;
+        }
+
+        // 再上昇
+        standoffDistance = origStandoff;
+        state = State.Landing;
+        yield return ReturnToHome(0.9f);
+        if (state == State.Dead) yield break;
+        state = State.Idle;
+        ScheduleNextAttack();
     }
 
     // Advances at the player's current BASE auto-run speed only (never their
@@ -671,6 +790,8 @@ public class DragonController : MonoBehaviour
     {
         try
         {
+            if (landHitbox != null) landHitbox.Deactivate();
+            if (biteHitbox != null) biteHitbox.Deactivate();
             if (flashOverlay != null) flashOverlay.enabled = false;
             if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
 

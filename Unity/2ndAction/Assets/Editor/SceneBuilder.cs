@@ -559,6 +559,31 @@ public static class SceneBuilder
         // top" convention as the real Dragon/Majin art.
         boss.mechanicalDragonSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Boss/MechanicalDragon.png", 1152f / 3.2f);
 
+        // 荒野街道ボス追加(2026-09-20) - 新ボス10種の姿勢別スプライト。画像は
+        // Assets/Art/WildBoss/<name>_<pose>.png(ChatGPT生成、マゼンタ背景を
+        // キー抜き+個別に切り出し済み)。無い姿勢はnull(ボス側でIdle代用)。
+        // 表示サイズはWildBossBase.bodyHeightからの逆算なのでPPUは任意。
+        boss.wildArt = new[]
+        {
+            LoadWildArt(WildBossKind.Wolf, "wolf"),
+            LoadWildArt(WildBossKind.GoblinRider, "rider"),
+            LoadWildArt(WildBossKind.Serpent, "serpent"),
+            LoadWildArt(WildBossKind.Cyclops, "cyclops"),
+            LoadWildArt(WildBossKind.Spider, "spider"),
+            LoadWildArt(WildBossKind.Golem, "golem"),
+            LoadWildArt(WildBossKind.Griffin, "griffin"),
+            LoadWildArt(WildBossKind.Hydra, "hydra"),
+            LoadWildArt(WildBossKind.Demon, "demon"),
+            LoadWildArt(WildBossKind.BlackKnight, "knight"),
+        };
+        // 100,000m 死神(従来仕様=追跡はせず出現のみ、を維持したまま素材を設定)
+        Sprite reaperSprite = LoadWildSprite("reaper", "idle", 1.4f);
+        if (reaperSprite != null)
+        {
+            boss.deathSprite = reaperSprite;
+            boss.deathDefaultFacingRight = false; // 素材は左向き
+        }
+
         // Distance Level Design Ver.1 - Death/Grim Reaper (item 8).
         // INTENTIONALLY NOT WIRED - the provided file (Death.jpg) has the
         // transparency checkerboard baked in as opaque pixel content
@@ -4206,6 +4231,37 @@ public static class SceneBuilder
         };
 
         return new[] { single, smallGroup, horizontalLine, verticalLine, cluster, diagonalUp, groundAir, frontlineShooter, heavyNormal, rush };
+    }
+
+    static BossManager.WildBossArt LoadWildArt(WildBossKind kind, string name)
+    {
+        return new BossManager.WildBossArt
+        {
+            kind = kind,
+            idle = LoadWildSprite(name, "idle", 0f),
+            windup = LoadWildSprite(name, "windup", 0f),
+            move = LoadWildSprite(name, "move", 0f),
+            attack = LoadWildSprite(name, "attack", 0f),
+        };
+    }
+
+    // worldHeight<=0ならPPU=100固定(ボス側が高さから逆算してスケールする)。
+    static Sprite LoadWildSprite(string name, string pose, float worldHeight)
+    {
+        string path = "Assets/Art/WildBoss/" + name + "_" + pose + ".png";
+        if (!File.Exists(path)) return null;
+        float ppu = 100f;
+        if (worldHeight > 0f)
+        {
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            var imp = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (imp != null)
+            {
+                imp.GetSourceTextureWidthAndHeight(out int w, out int h);
+                ppu = h / worldHeight;
+            }
+        }
+        return ConfigureAndLoadSpriteWithFootPivot(path, ppu);
     }
 
     static Sprite ConfigureAndLoadSpriteWithFootPivot(string path, float pixelsPerUnit)
