@@ -677,6 +677,26 @@ public class GameManager : MonoBehaviour
     // portraitを重ねる - 「切り抜きを貼った」感を減らし、額縁の中で1枚の
     // 絵として成立させる。全キャラ共通(キャラごとに用意しない)。
     public Texture2D portraitBackdropTexture;
+
+    // Home待機演出(2026-09-21) - HomeIdleFx.cs参照。扉の葉/開口部の奥の光/
+    // ベッド上のカード(A,B,C,D,E,G,H)は背景から分離した独立の透過素材。
+    // 背景(topBackground)側は、これらを除去して補完済みの版。
+    public Texture2D homeDoorLeaf;
+    public Texture2D homeDoorBackdrop;
+    public Texture2D[] homeIdleCards;
+    // 待ち時間/揺れ幅/動作時間/発光量/コイン出現率/粒子数などの調整値。
+    public HomeIdleSettings homeIdle = new HomeIdleSettings();
+    HomeIdleFx idleFx;
+
+    HomeIdleFx GetIdleFx()
+    {
+        if (idleFx == null) idleFx = new HomeIdleFx(homeIdle);
+        idleFx.S = homeIdle;
+        idleFx.doorLeaf = homeDoorLeaf;
+        idleFx.doorBackdrop = homeDoorBackdrop;
+        idleFx.cards = homeIdleCards;
+        return idleFx;
+    }
     // Ver.1 finishing pass, item 8 - "短いSE" tap feedback for the room's
     // hotspots (door/bed/book/desk). Reuses the existing Card Select SE
     // (already imported for RewardCardSequence) rather than adding new
@@ -2726,6 +2746,10 @@ public class GameManager : MonoBehaviour
         // "cover" crop/letterbox math. The old drifting-cloud layer is
         // gone - an enclosed room has no sky to drift clouds across (see
         // SceneBuilder's own comment on topCloud).
+        // Home待機演出: Home非表示(ラン中/サブ画面)の間は毎回Resetして、途中の
+        // 姿勢・コイン・粒子を残さない(戻った時に多重起動もしない)。
+        GetIdleFx().SetVisible(!HasStarted && !AnyOverlayOpen && topBackground != null);
+
         if (!HasStarted && !AnyOverlayOpen && topBackground != null)
         {
             float coverScale = Mathf.Max((float)Screen.width / topBackground.width, (float)Screen.height / topBackground.height);
@@ -2859,6 +2883,22 @@ public class GameManager : MonoBehaviour
             float logoFadeAlpha = Mathf.Clamp01(titleIntroTimer / 0.5f);
             float roomFadeAlpha = Mathf.Clamp01((titleIntroTimer - 0.25f) / 0.5f);
 
+            // Home待機演出(2026-09-21) - 背景側の演出(静止カーテン/扉/カード/本の光/
+            // 光の粒子)はロゴより奥・各ホットスポットの絵より奥に描く。粒子はロゴ
+            // と肖像画の領域では薄くする(視認性優先)。
+            {
+                var quiet = new System.Collections.Generic.List<Rect>();
+                if (titleLogo != null && bgRoomRect.width > 0f)
+                {
+                    float lcx = bgRoomRect.x + bgRoomRect.width * DoorCenterFrac;
+                    float lw = Mathf.Min(Screen.width * 0.46f, titleLogo.width);
+                    float lh = lw * (titleLogo.height / (float)titleLogo.width);
+                    quiet.Add(new Rect(lcx - lw / 2f, Screen.height * 0.015f, lw, lh));
+                }
+                if (bgRoomRect.width > 0f) quiet.Add(FracRect(bgRoomRect, 0.02f, 0.14f, 0.17f, 0.38f));
+                DrawHomeAmbientAnimations(roomFadeAlpha, quiet.ToArray());
+            }
+
             if (titleLogo != null)
             {
                 // Home Room UI reconstruction pass - new "ONE MORE MILE /
@@ -2883,7 +2923,6 @@ public class GameManager : MonoBehaviour
                 GUI.color = new Color(1f, 1f, 1f, logoFadeAlpha);
                 GUI.DrawTexture(logoRect, titleLogo, ScaleMode.ScaleToFit);
                 GUI.color = prevLogo;
-                DrawHomeLogoHighlight(logoRect, logoFadeAlpha);
             }
             else
             {
@@ -2909,7 +2948,6 @@ public class GameManager : MonoBehaviour
             // visible objects once seen on a real device.
             // Home画面改善依頼⑪(2026-09-17), item3-5 - 装備表示を撤去した
             // ぶんの「寂しさ」を、控えめな環境アニメーションで補う。
-            DrawHomeAmbientAnimations(roomFadeAlpha);
 
             if (bgRoomRect.width > 0f)
             {
@@ -2937,7 +2975,6 @@ public class GameManager : MonoBehaviour
                 // Home環境アニメーション強化依頼(2026-09-17), item5 -
                 // 「扉下部/隙間にごく薄い暖色光のゆらぎ」がまだ弱く見えた
                 // ため上限を0.11→0.16へ引き上げた(周期はそのまま)。
-                DrawAmbientGlow(doorRect, roomFadeAlpha, 0.03f, 0.16f, 1.8f);
                 // Home画面改善依頼⑦(2026-09-16), item 9 - 扉だけは共通の
                 // DrawRoomHotspot(全面が白くフラッシュするだけの汎用反応)
                 // ではなく専用のDrawDoorHotspotを使い、「取っ手が少し明るく
@@ -3092,8 +3129,18 @@ public class GameManager : MonoBehaviour
                     Color dimmedTint = stageTint * 0.88f;
                     Color baseColor = new Color(dimmedTint.r, dimmedTint.g, dimmedTint.b, roomFadeAlpha);
                     GUI.color = Color.Lerp(baseColor, new Color(1f, 0.92f, 0.6f, roomFadeAlpha), Mathf.Clamp01(glow));
+                    // Home待機演出(2026-09-21) - 機械本体だけが接地点(下端中央)を軸にぐらぐら
+                    // 揺れて収まる。影と、下のGUI.Button(machineRect)のタップ判定は回転しない。
+                    HomeIdleFx idleGacha = GetIdleFx();
+                    Matrix4x4 gachaPrevMatrix = GUI.matrix;
+                    float gachaAngle = idleGacha.GachaAngle();
+                    if (Mathf.Abs(gachaAngle) > 0.0001f) GUIUtility.RotateAroundPivot(gachaAngle, new Vector2(machineRect.center.x, machineRect.yMax));
                     GUI.DrawTexture(machineRect, gachaMachineTexture, ScaleMode.ScaleToFit);
+                    GUI.matrix = gachaPrevMatrix;
                     GUI.color = prevMachine;
+                    // 揺れに合わせたコイン(装飾のみ。所持金・報酬処理とは無関係)。
+                    idleGacha.UpdateCoins(machineRect);
+                    idleGacha.DrawCoins(roomFadeAlpha);
 
                     // Home画面改善依頼⑤(2026-09-16), item 3/4 - 常時の金の
                     // 縁取りを撤去。Gacha機はタップ/振動時に`glow`で暖色
@@ -3985,44 +4032,27 @@ public class GameManager : MonoBehaviour
         return softGlowTexCache;
     }
 
-    void DrawHomeAmbientAnimations(float roomFadeAlpha)
+    // Home待機演出(2026-09-21)へ置き換え: 背景装飾(カーテンの揺れ/窓の光
+    // 明滅/ランタンの揺らぎ/旧埃)のアニメは停止した(カーテンは静止表示のまま)。
+    // 代わりに操作対象5か所の待機演出と光の粒子をHomeIdleFxで描く。
+    void DrawHomeAmbientAnimations(float roomFadeAlpha, Rect[] quietZones)
     {
         if (bgRoomRect.width <= 0f || roomFadeAlpha <= 0.001f) return;
-        float t = Time.unscaledTime;
+        HomeIdleFx fx = GetIdleFx();
+        fx.Tick();
+#if UNITY_EDITOR
+        // 確認用(Editor専用): Home表示中に数字キー1..5で 扉/ガチャ/肖像画/カード/本 を即再生。
+        if (Event.current != null && Event.current.type == EventType.KeyDown && Event.current.keyCode >= KeyCode.Alpha1 && Event.current.keyCode <= KeyCode.Alpha5)
+            fx.DebugStart((int)Event.current.keyCode - (int)KeyCode.Alpha1);
+        if (Event.current != null && Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Alpha6)
+            homeIdle.playbackSpeed = homeIdle.playbackSpeed < 0.5f ? 1f : 0.15f;
+#endif
 
-        DrawCurtainSway(roomFadeAlpha, t);
-
-        // B. 窓からの光のゆらぎ - Home環境アニメーション強化依頼(2026-09-17)
-        // で「ほぼ静止画に見える」との指摘に対応し、alpha変化の振れ幅を
-        // 約1.5倍に広げた(明滅ではなく、木漏れ日のような緩やかな明暗変化
-        // という方向性自体は変えず、振れ幅だけを強めている)。
-        Rect windowGlowRect = FracRect(bgRoomRect, 0.74f, 0.06f, 1.02f, 0.5f);
-        float lightPulse = 0.5f + 0.5f * Mathf.Sin(t * 0.22f);
-        Color prevLight = GUI.color;
-        GUI.color = new Color(1f, 0.94f, 0.78f, Mathf.Lerp(0.04f, 0.12f, lightPulse) * roomFadeAlpha);
-        GUI.DrawTexture(windowGlowRect, SoftGlowTex());
-        GUI.color = prevLight;
-
-        // D. 左のランタンの灯り揺れ - 同依頼対応、Scale/Alphaの振れ幅を
-        // 拡大(0.92-1.08→0.86-1.16、0.12-0.24→0.16-0.34)。周期(2つのSin波
-        // の合成)自体は変えていない。
-        Rect lanternRect = FracRect(bgRoomRect, 0.208f, 0.155f, 0.29f, 0.30f);
-        float flameWave = 0.5f + 0.5f * (Mathf.Sin(t * 1.9f) * 0.6f + Mathf.Sin(t * 0.61f) * 0.4f);
-        float flameScale = Mathf.Lerp(0.86f, 1.16f, flameWave);
-        Rect lanternGlowRect = new Rect(
-            lanternRect.center.x - lanternRect.width * flameScale * 0.5f,
-            lanternRect.center.y - lanternRect.height * flameScale * 0.5f,
-            lanternRect.width * flameScale,
-            lanternRect.height * flameScale);
-        Color prevLantern = GUI.color;
-        GUI.color = new Color(1f, 0.72f, 0.32f, Mathf.Lerp(0.16f, 0.34f, flameWave) * roomFadeAlpha);
-        GUI.DrawTexture(lanternGlowRect, SoftGlowTex());
-        GUI.color = prevLantern;
-
-        // C. 埃/光の粒 - 同依頼対応、粒数を6→11に増量し「空気が流れている」
-        // 感を強めた(1粒あたりの最大alphaは僅かに上げた程度で、派手にはし
-        // ていない)。
-        DrawDustMotes(FracRect(bgRoomRect, 0.55f, 0.1f, 0.98f, 0.78f), roomFadeAlpha, t);
+        DrawCurtainSway(roomFadeAlpha, 0f);   // 静止表示(揺れなし)
+        fx.DrawDoor(bgRoomRect, roomFadeAlpha);
+        fx.DrawCards(bgRoomRect, roomFadeAlpha);
+        fx.DrawBookGlow(bgRoomRect, roomFadeAlpha);
+        fx.DrawMotes(bgRoomRect, roomFadeAlpha, quietZones);
     }
 
     // A. カーテンの揺れ - 環境アニメーション構造修正依頼(2026-09-18):
@@ -4065,7 +4095,7 @@ public class GameManager : MonoBehaviour
         // Home環境アニメーション強化依頼(2026-09-17) - 「目で分かる程度に
         // 揺れていることが分かるように」との指摘で振れ幅を約1.4°→3.8°へ
         // 拡大(周期はほぼ据え置き、速すぎる/激しい揺れにはしない)。
-        float swayAngle = Mathf.Sin(t * 0.32f) * 3.8f;
+        float swayAngle = 0f; // 2026-09-21 揺れは停止(静止表示)。tは互換のため残す
 
         Matrix4x4 prevMatrix = GUI.matrix;
         Vector2 pivot = new Vector2(curtainRect.x + curtainRect.width * 0.5f, curtainRect.y);
@@ -4224,6 +4254,13 @@ public class GameManager : MonoBehaviour
             ? FitRectPreserveAspect(rect, (float)portraitFrameTexture.width / Mathf.Max(1, portraitFrameTexture.height))
             : rect;
 
+        // Home待機演出(2026-09-21) - 肖像画は額縁上中央の吊り位置を軸に、影・背景・
+        // キャラ・質感・額縁をすべて同じ回転で一体に揺らす(キャラ切替後も同じ)。
+        // タップ判定(下のGUI.Button(rect))と名前ラベルは回転させない。
+        Matrix4x4 idlePrevMatrix = GUI.matrix;
+        float idleAngle = GetIdleFx().PortraitAngle();
+        if (Mathf.Abs(idleAngle) > 0.0001f) GUIUtility.RotateAroundPivot(idleAngle, new Vector2(frameRect.center.x, frameRect.y + frameRect.height * 0.035f));
+
         // 壁に掛かっている説得力のための、ごく薄い設置影(単色近似)。
         Color prevShadow = GUI.color;
         Rect shadowRect = new Rect(frameRect.x + frameRect.width * 0.035f, frameRect.y + frameRect.height * 0.03f, frameRect.width, frameRect.height);
@@ -4296,7 +4333,8 @@ public class GameManager : MonoBehaviour
 
         // 常時のごく控えめな息づき - 扉(DrawAmbientGlow既定値)よりさらに
         // 控えめな上限にして、視覚優先順位「ドア>肖像画」を保つ。
-        DrawAmbientGlow(frameRect, roomFadeAlpha, 0.02f, 0.06f, 2.2f);
+
+        GUI.matrix = idlePrevMatrix; // ここから先(名前/タップ判定)は回転させない
 
         // 主役はあくまで肖像画自身なので、名前はフレーム下にごく小さく
         // 添えるだけに留める(常時の大きな「CHARACTER」見出しは撤去)。

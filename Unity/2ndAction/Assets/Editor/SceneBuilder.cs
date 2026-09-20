@@ -105,6 +105,17 @@ public static class SceneBuilder
         // 参照して配置に使うため、歪みがそのまま見た目の破綻に繋がる。
         // npotScale=Noneで元の460x1536のまま保持する。
         ConfigureNoNpotScale("Assets/Art/UI/HomeCurtainStandalone.png");
+
+        // Home待機演出(2026-09-21) - 背景から分離した扉の葉/開口部の奥の光/ベッド上の
+        // カード。topBackgroundはこれらを除去・補完済みの版に差し替え済み。
+        gameManager.homeDoorLeaf = LoadHomeIdleTexture("door_leaf");
+        gameManager.homeDoorBackdrop = LoadHomeIdleTexture("door_backdrop");
+        gameManager.homeIdleCards = new[]
+        {
+            LoadHomeIdleTexture("card_A"), LoadHomeIdleTexture("card_B"), LoadHomeIdleTexture("card_C"),
+            LoadHomeIdleTexture("card_D"), LoadHomeIdleTexture("card_E"), LoadHomeIdleTexture("card_G"),
+            LoadHomeIdleTexture("card_H"),
+        };
         // Imported ONCE as a Sprite (ForegroundCloudLayer needs that for
         // in-game SpriteRenderer use - see Build() below) - gameManager's
         // own Texture2D field is then just a cheap AssetDatabase lookup of
@@ -3251,6 +3262,22 @@ public static class SceneBuilder
     // 呼び出し元がその素材の実寸の縦横比を直接コードで参照して配置に
     // 使う場合(homeCurtain等)にのみ使う - 既存のtopBackground等は
     // 変更しない(bgRoomRect計算が現状の挙動に依存しているため)。
+    static Texture2D LoadHomeIdleTexture(string name)
+    {
+        string path = "Assets/Art/UI/HomeIdle/" + name + ".png";
+        Texture2D tex = LoadIconTexture(path);
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.npotScale = TextureImporterNPOTScale.None;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.SaveAndReimport();
+            tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        }
+        return tex;
+    }
+
     static void ConfigureNoNpotScale(string path)
     {
         TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
