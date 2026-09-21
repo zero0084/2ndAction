@@ -2858,6 +2858,9 @@ public class GameManager : MonoBehaviour
             GUI.Label(stepRect, stepText, stepStyle);
         }
 
+        // ホーム(!HasStarted)では、ギア/設定/DEBUG列を「入力判定は従来どおり最初(ここ)」で行い、
+        // 見た目の描画はRepaint時に部屋の演出・ホットスポットより手前(後ろの方)で行う。
+        // (IMGUIは呼び出し順=描画順のため、ここで描くと演出画像に隠れていた。)
         if ((!HasStarted || IsGameOver) && !AnyOverlayOpen)
         {
             // A small gear icon (bottom-left, per the reference mockup)
@@ -2867,12 +2870,7 @@ public class GameManager : MonoBehaviour
             // DEBUG's own, which must stay reachable somehow or it could
             // never be turned back on) exactly as available as before,
             // just one tap further away.
-            if (DrawStyledButton(GetGearButtonRect(), "⚙", 26f, primary: showSettingsPanel))
-            {
-                showSettingsPanel = !showSettingsPanel;
-            }
-
-            if (showSettingsPanel) DrawSettingsColumn();
+            if (HasStarted || Event.current.type != EventType.Repaint) DrawSettingsChrome();
         }
 
         if (!HasStarted && !AnyOverlayOpen)
@@ -3175,6 +3173,9 @@ public class GameManager : MonoBehaviour
 
             Rect titleMileRect = new Rect(Screen.width - SafeRight() - UiMargin - 190f, SafeTop() + UiMargin, 190f, 72f);
             DrawStatPanel(titleMileRect, "MILE", TotalOwnedMile.ToString(), HudGoldColor, ornate: true);
+
+            // ギア/設定列/DEBUGなどのボタンは、背景・分離画像・演出・粒子より手前に描く。
+            if (Event.current.type == EventType.Repaint) DrawSettingsChrome();
 
             // Also tucked behind the gear icon (see DrawSettingsColumn) -
             // only actually drawn/reachable while that panel is open, not
@@ -3834,6 +3835,17 @@ public class GameManager : MonoBehaviour
     // development builds - INVINCIBLE/DEBUG/RESET SCORE are how this
     // project's own testing has been done all along, and hiding DEBUG's
     // own toggle would mean no way to ever turn it back on.
+    // ギアボタンと(開いていれば)設定/DEBUG列。ホームの手前描画用に切り出した。
+    void DrawSettingsChrome()
+    {
+        if (DrawStyledButton(GetGearButtonRect(), "⚙", 26f, primary: showSettingsPanel))
+        {
+            showSettingsPanel = !showSettingsPanel;
+        }
+
+        if (showSettingsPanel) DrawSettingsColumn();
+    }
+
     void DrawSettingsColumn()
     {
         string orientationLabel = preferredOrientation == ScreenOrientation.Portrait ? "⇄ Portrait" : "⇄ Landscape";

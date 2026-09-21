@@ -50,18 +50,18 @@ public class HomeIdleSettings
     public float portraitSwingCycles = 2.5f;
 
     [Header("カード編集(ベッド上のカード)")]
-    public float cardLiftPx = 7f;      // 1080p基準の持ち上がり量
-    public float cardTiltDegrees = 9f;
-    public float cardDuration = 2.6f;
-    public float cardStagger = 0.2f;
+    public float cardLiftPx = 13f;      // 1080p基準の持ち上がり量
+    public float cardTiltDegrees = 16f;
+    public float cardDuration = 3.0f;
+    public float cardStagger = 0.32f;
 
     [Header("カード合成(本の光)")]
-    [Range(0f, 1f)] public float bookGlowMax = 0.62f;
-    public float bookGlowDuration = 3.2f;
+    [Range(0f, 1f)] public float bookGlowMax = 0.92f;
+    public float bookGlowDuration = 4.4f;
 
     [Header("光の粒子")]
     public bool particlesEnabled = true;
-    [Range(0, 16)] public int particleCount = 8;
+    [Range(0, 48)] public int particleCount = 20;
     [Range(0f, 1f)] public float particleMaxAlpha = 0.55f;
     public float particleSpeed = 1f;
 }
@@ -430,10 +430,10 @@ public class HomeIdleFx
             e = e * e * (3f - 2f * e) * 0.5f + e * 0.5f;
             float lift = e * S.cardLiftPx * px;
             float tilt = e * S.cardTiltDegrees * ((idx % 2 == 0) ? 1f : -1f);
-            float flip = 1f - 0.22f * e; // めくれる(縦に少し縮む)
+            float flip = 1f - 0.34f * e; // めくれる(縦に少し縮む)
 
             // 落ち影(持ち上がった分だけ薄く出る)
-            Color sh = new Color(0.05f, 0.03f, 0.1f, 0.34f * e * alpha);
+            Color sh = new Color(0.05f, 0.03f, 0.1f, 0.4f * e * alpha);
             GUI.color = sh;
             GUI.DrawTexture(new Rect(r.x - r.width * 0.05f, r.y + r.height * 0.15f, r.width * 1.1f, r.height * 0.9f), SoftTex());
 
@@ -452,19 +452,24 @@ public class HomeIdleFx
     {
         float u = U(Target.Book);
         if (!S.enabled || u < 0f) return;
-        // ふわっと強まり、ゆっくり消える(立ち上がり30%・減衰70%)
-        float env = u < 0.3f ? Mathf.SmoothStep(0f, 1f, u / 0.3f) : 1f - Mathf.SmoothStep(0f, 1f, (u - 0.3f) / 0.7f);
+        // ゆっくり明るくなる(立ち上がり35%) -> 少し明るさを保つ(20%) -> ゆっくり消える(45%)
+        float env = u < 0.35f ? Mathf.SmoothStep(0f, 1f, u / 0.35f) : (u < 0.55f ? 1f : 1f - Mathf.SmoothStep(0f, 1f, (u - 0.55f) / 0.45f));
         if (env <= 0.001f) return;
 
         Texture2D soft = SoftTex();
         Color prev = GUI.color;
         // 本の隙間(ページ小口/表紙の際)に沿った3つの柔らかい光。円形グラデ+滑らか
         // な縁なので、周囲に四角い発光領域は出ない。
-        DrawGlowBlob(soft, FracRect(bg, 0.865f, 0.885f, 1.0f, 0.975f), new Color(1f, 0.9f, 0.6f), 1.0f * env * S.bookGlowMax * alpha);
-        DrawGlowBlob(soft, FracRect(bg, 0.775f, 0.855f, 0.9f, 0.935f), new Color(1f, 0.88f, 0.55f), 0.85f * env * S.bookGlowMax * alpha);
-        DrawGlowBlob(soft, FracRect(bg, 0.8f, 0.8f, 0.93f, 0.875f), new Color(1f, 0.93f, 0.7f), 0.7f * env * S.bookGlowMax * alpha);
+        // 漏れる光の範囲は少し広め(各ブロブを中心から約18%拡大)。本の形に沿った円形グラデ。
+        DrawGlowBlob(soft, Grow(FracRect(bg, 0.865f, 0.885f, 1.0f, 0.975f), 1.18f), new Color(1f, 0.9f, 0.6f), 1.0f * env * S.bookGlowMax * alpha);
+        DrawGlowBlob(soft, Grow(FracRect(bg, 0.775f, 0.855f, 0.9f, 0.935f), 1.18f), new Color(1f, 0.88f, 0.55f), 0.9f * env * S.bookGlowMax * alpha);
+        DrawGlowBlob(soft, Grow(FracRect(bg, 0.8f, 0.8f, 0.93f, 0.875f), 1.18f), new Color(1f, 0.93f, 0.7f), 0.75f * env * S.bookGlowMax * alpha);
+        // 16:9などで右端が切れる画面でも見えるよう、本の手前(左)側の縁にも1つ。
+        DrawGlowBlob(soft, Grow(FracRect(bg, 0.72f, 0.845f, 0.86f, 0.945f), 1.15f), new Color(1f, 0.9f, 0.6f), 0.95f * env * S.bookGlowMax * alpha);
         GUI.color = prev;
     }
+
+    static Rect Grow(Rect r, float k) { Vector2 c = r.center; return new Rect(c.x - r.width * k * 0.5f, c.y - r.height * k * 0.5f, r.width * k, r.height * k); }
 
     static void DrawGlowBlob(Texture2D soft, Rect r, Color c, float a)
     {
@@ -519,7 +524,7 @@ public class HomeIdleFx
     Mote NewMote(bool prewarm)
     {
         // 大半は小さい点、ときどき少し大きい粒
-        bool big = Random.value < 0.14f;
+        bool big = Random.value < 0.08f;
         float angle = Random.value * Mathf.PI * 2f; // 上昇一辺倒にしない(全方向へ)
         float spd = Random.Range(0.004f, 0.011f);
         var m = new Mote
