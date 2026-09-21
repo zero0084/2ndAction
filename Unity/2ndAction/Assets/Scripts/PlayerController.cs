@@ -218,8 +218,37 @@ public class PlayerController : MonoBehaviour
     public Color explosionColor = new Color(0.3f, 0.7f, 1f);
 
     [Header("Hit / Lives")]
+    // 旧: 被弾直後から5秒の無敵点滅。2026-09-22の被弾リアクション導入で、被弾直後のHurt(下記)の後に続く
+    // 無敵点滅は hurtInvincibleDuration に置き換えた(この値は互換のため残すが使用しない)。
     public float hitInvincibleDuration = 5f;
     public float hitFlickerInterval = 0.1f;
+
+    // ===== 被弾リアクション(2026-09-22) =====
+    // 通常被弾: Hurt(自動前進停止+入力不可+軽いノックバック+Hurtアニメ) → Run復帰 → 無敵点滅。
+    // 穴からの復帰: Recovery(復帰位置で短い停止+着地アニメ) → Run再開 → 無敵点滅。
+    // 数値はキャラクターごとにCharacterDefinitionで上書きできる(0/未指定ならこの既定値)。
+    [Header("Hit Reaction (被弾リアクション)")]
+    public float hurtDuration = 0.25f;            // Hurt中の停止時間
+    public float hurtKnockbackSpeed = 4f;         // Hurt中に後方へ押し戻す初速(Hurt時間で減衰、約0.5ユニット)
+    public float hurtInvincibleDuration = 0.7f;   // Hurt終了後の点滅無敵
+    public float recoveryDuration = 0.45f;        // 落下復帰後のRecovery停止時間
+    public float recoveryInvincibleDuration = 1.0f; // Recovery終了後の点滅無敵
+
+#if UNITY_EDITOR
+    public FlickDirection? debugInjectFlick; // 自動テスト用: 毎フレームこの入力があったことにする
+#endif
+    public enum ReactionKind { None, Hurt, Recovery }
+    public ReactionKind Reaction { get; private set; }
+    public bool IsReacting => Reaction != ReactionKind.None;
+    public bool IsHurt => Reaction == ReactionKind.Hurt;
+    public bool IsRecovering => Reaction == ReactionKind.Recovery;
+    // 0(開始)〜1(終了)。アニメーション側が姿勢を補間するのに使う。
+    public float ReactionProgress => reactionTotal > 0.0001f ? Mathf.Clamp01(1f - reactionTimer / reactionTotal) : 1f;
+    float reactionTimer, reactionTotal;
+    // キャラクター別の上書き(ApplyCharacterBaseStats)。0=既定値を使う、倍率は1=既定。
+    float charHurtDuration, charHurtInvincible, charRecoveryDuration, charRecoveryInvincible;
+    float charHurtKnockbackMultiplier = 1f;
+    int attackGeneration; // 攻撃コルーチンの世代。被弾で進めると実行中のDoAttackが打ち切られる
 
     [Header("Game Feel - Damage Feedback (tunable)")]
     public bool damageFlashEnabled = true;
@@ -380,6 +409,11 @@ public class PlayerController : MonoBehaviour
         canUseUpAttack = def.canUseUpAttack;
         canUseAirAttack = def.canUseAirAttack;
         canUseDownAttack = def.canUseDownAttack;
+        charHurtDuration = def.hurtDuration;
+        charHurtInvincible = def.hurtInvincibleDuration;
+        charRecoveryDuration = def.recoveryDuration;
+        charRecoveryInvincible = def.recoveryInvincibleDuration;
+        charHurtKnockbackMultiplier = def.hurtKnockbackMultiplier > 0f ? def.hurtKnockbackMultiplier : 1f;
     }
 
     // Grown by "AIR ATTACK UP" - only added on top of AttackPower while
@@ -710,6 +744,12 @@ public class PlayerController : MonoBehaviour
 
         if (knockbackTimer > 0f) knockbackTimer = Mathf.Max(0f, knockbackTimer - Time.deltaTime);
 
+        if (Reaction != ReactionKind.None)
+        {
+            reactionTimer -= Time.deltaTime;
+            if (reactionTimer <= 0f) { reactionTimer = 0f; Reaction = ReactionKind.None; }
+        }
+
         if (isAscending) return; // the ascend coroutine drives position directly
 
         // Item 2 - snapshot BEFORE this frame's UpdateEscapeInput() runs
@@ -719,8 +759,14 @@ public class PlayerController : MonoBehaviour
         wasEscapeChargingLastFrame = IsEscapeCharging;
 
         UpdatePointerInput();
-        Move(allowJump: !wasEscapeChargingLastFrame);
-        if (!wasEscapeChargingLastFrame) HandleAttackInput();
+        // Hurt/Recovery中は新規の攻撃/ジャンプ入力を受け付けない(入力は捨てる=終了後に暴発しない)。
+#if UNITY_EDITOR
+        if (debugInjectFlick.HasValue) { requestedFlick = debugInjectFlick; }
+#endif
+        bool reactionBlocked = IsReacting;
+        if (reactionBlocked) { requestedFlick = null; bufferedUpAttackTimer = 0f; }
+        Move(allowJump: !wasEscapeChargingLastFrame && !reactionBlocked);
+        if (!wasEscapeChargingLastFrame && !reactionBlocked) HandleAttackInput();
 
         UpdateEscapeInput();
         UpdateEscapeVisuals();
@@ -878,6 +924,7 @@ public class PlayerController : MonoBehaviour
         // Linear ease-out over knockbackDuration, not a flat velocity for
         // the whole window - reads as a shove that fades, not a sustained
         // shove-then-stop.
+        if (IsReacting) autoSpeed = 0f; // Hurt/Recovery中は自動前進を一時停止(重力/着地/ノックバックは通常どおり)
         float knockbackFrac = knockbackDuration > 0f ? knockbackTimer / knockbackDuration : 0f;
         float effectiveKnockback = knockbackVelocityX * knockbackFrac;
         float newX = transform.position.x + (autoSpeed + lungeVelocityX + effectiveKnockback) * dt;
@@ -1148,7 +1195,7 @@ public class PlayerController : MonoBehaviour
         // from a previous hit - otherwise falling while still hit-invincible
         // silently no-ops every frame and the player free-falls forever
         // instead of ever landing back on solid ground.
-        if (!isFall && hitInvincibleTimer > 0f) return;
+        if (!isFall && (hitInvincibleTimer > 0f || IsReacting)) return;
         if (GameManager.Instance == null) return;
 
         // Bugfix 2026-09-06, item 2 - GameOverReason passthrough for the
@@ -1160,7 +1207,9 @@ public class PlayerController : MonoBehaviour
         if (result != GameManager.DamageResult.Hit) return;
 
         RespawnAtCurrentPosition(isFall);
-        hitInvincibleTimer = hitInvincibleDuration;
+        // 被弾リアクション: 通常被弾=Hurt、落下復帰=Recovery。無敵時間はリアクション中から数え始め、
+        // リアクションが終わってから点滅する(Hurt=被弾の瞬間、点滅=その後の無敵)。
+        BeginReaction(isFall ? ReactionKind.Recovery : ReactionKind.Hurt);
         StartCoroutine(FlickerWhileInvincible());
 
         // Game Feel pass - flash/knockback/SE synchronized with this same
@@ -1168,7 +1217,48 @@ public class PlayerController : MonoBehaviour
         // hit feedback (see section 20's "Feedbackの同期" brief).
         if (AudioManager.Instance != null) AudioManager.Instance.PlayPlayerDamage();
         if (damageFlashEnabled && sr != null) StartCoroutine(DamageFlashRoutine());
-        if (damageKnockbackEnabled) ApplyKnockback(-damageKnockbackSpeed, damageKnockbackDuration);
+        if (!isFall && !damageKnockbackEnabled) { /* ノックバック無効設定でもHurt停止は行う */ }
+    }
+
+    // 被弾リアクションの開始。実行中の攻撃はキャンセルし、Run/攻撃へは一度Normalを経由して戻す。
+    void BeginReaction(ReactionKind kind)
+    {
+        CancelAttacksForReaction();
+        Reaction = kind;
+        float dur = kind == ReactionKind.Hurt
+            ? (charHurtDuration > 0f ? charHurtDuration : hurtDuration)
+            : (charRecoveryDuration > 0f ? charRecoveryDuration : recoveryDuration);
+        float inv = kind == ReactionKind.Hurt
+            ? (charHurtInvincible > 0f ? charHurtInvincible : hurtInvincibleDuration)
+            : (charRecoveryInvincible > 0f ? charRecoveryInvincible : recoveryInvincibleDuration);
+        reactionTotal = Mathf.Max(0.05f, dur);
+        reactionTimer = reactionTotal;
+        // 無敵はリアクション中から効かせる(Hurt終了直後に接触中の敵から二重に被弾しない)。
+        hitInvincibleTimer = Mathf.Max(hitInvincibleTimer, reactionTotal + inv);
+        velocityY = 0f;
+        lungeVelocityX = 0f;
+        moveSlowTimer = 0f;
+        if (kind == ReactionKind.Hurt && damageKnockbackEnabled)
+            ApplyKnockback(-hurtKnockbackSpeed * charHurtKnockbackMultiplier, reactionTotal);
+        else
+            knockbackTimer = 0f; // Recoveryは復帰位置でその場停止(押し戻さない)
+    }
+
+    // 実行中の攻撃(通常コンボ/上/下)を止める。死亡やボス演出などは呼び出し側(TakeDamage)が既に除外している。
+    void CancelAttacksForReaction()
+    {
+        attackGeneration++;
+        isAttacking = false;
+        comboWindowOpen = false;
+        comboBuffered = false;
+        comboCount = 0;
+        lungeVelocityX = 0f;
+        transform.localScale = Vector3.one;
+        if (attackHitbox != null) attackHitbox.enabled = false;
+        if (upAttackHitbox != null) upAttackHitbox.enabled = false;
+        if (upAttackVacuumHitbox != null) upAttackVacuumHitbox.enabled = false;
+        if (downAttackLandHitbox != null) downAttackLandHitbox.enabled = false;
+        EndDiveAttack();
     }
 
     // A brief backward push, decayed over its own duration rather than
@@ -1280,6 +1370,8 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator FlickerWhileInvincible()
     {
+        // Hurt/Recovery中は点滅せず(リアクション姿勢を見せる)、終わってから無敵点滅に入る。
+        while (IsReacting) yield return null;
         while (hitInvincibleTimer > 0f)
         {
             if (sr != null) sr.enabled = !sr.enabled;
@@ -1575,6 +1667,7 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator DoAttack(AttackDirection dir)
     {
+        int gen = attackGeneration;
         isAttacking = true;
         comboWindowOpen = false;
         comboBuffered = false;
@@ -1628,6 +1721,7 @@ public class PlayerController : MonoBehaviour
         {
             t += Time.deltaTime;
             if (allowChain && t >= effectiveActiveTime * comboWindowStart) comboWindowOpen = true;
+            if (gen != attackGeneration) yield break; // 被弾でキャンセルされた(後始末はCancelAttacksForReaction済み)
             yield return null;
         }
 

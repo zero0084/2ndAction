@@ -159,6 +159,24 @@ public class CharacterDefinition : ScriptableObject
     public Sprite[] downAttackFrames;
     public Sprite[] downAttackLandFrames;
 
+    // ===== 被弾リアクション(2026-09-22) ===== //
+    // 全キャラ共通の仕組み(PlayerController: Hurt/Recovery)の、キャラ別の上書き。0(未指定)ならPlayerControllerの
+    // 既定値(Hurt 0.25秒/無敵0.7秒/Recovery 0.45秒/復帰後無敵1.0秒)を使う。専用のHurt/Recovery絵が用意できたら
+    // hurtFrames/recoveryFramesへ設定するだけで差し替わる(空なら既存の絵を使った簡易の姿勢アニメーション)。
+    [Header("Hit Reaction (0 = PlayerControllerの既定値)")]
+    public float hurtDuration;
+    public float hurtInvincibleDuration;
+    public float recoveryDuration;
+    public float recoveryInvincibleDuration;
+    // Hurt中の後方ノックバック倍率(1=既定)。
+    public float hurtKnockbackMultiplier = 1f;
+    public Sprite[] hurtFrames;
+    public Sprite[] recoveryFrames;
+    // 専用絵が無い間の簡易アニメーション(既存の絵に姿勢変化を付ける)の見せ方。
+    public float hurtLeanDegrees = 12f;      // のけぞり角度
+    public float hurtStaggerDistance = 0.12f; // 後方へよろける距離(ワールド単位)
+    public float recoveryCrouchDepth = 0.14f; // 復帰時に沈み込む割合
+
     // Home画面改善依頼③(2026-09-15) - 「選択中キャラクターの持ち物・装備の
     // 視覚表示」。新しい装備システムではなく、あくまでHome画面で「このキャ
     // ラクターらしさ」を見せるための表示専用データ。武器/防具/象徴的な

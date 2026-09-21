@@ -71,6 +71,16 @@ MonoBehaviour:
   attackFramesLarge: []
   downAttackFrames: []
   downAttackLandFrames: []
+  hurtDuration: 0
+  hurtInvincibleDuration: 0
+  recoveryDuration: 0
+  recoveryInvincibleDuration: 0
+  hurtKnockbackMultiplier: 1.2
+  hurtFrames: []
+  recoveryFrames: []
+  hurtLeanDegrees: 20
+  hurtStaggerDistance: 0.2
+  recoveryCrouchDepth: 0.12
   belongings:
   - label: "\u5927\u5263"
     icon: {fileID: 2800000, guid: 838b4e7d0dcccf741b2d46c693132b26, type: 3}

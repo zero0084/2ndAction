@@ -54,7 +54,24 @@ public class PlayerAnimator : MonoBehaviour
     [Header("Brighten overlay (emphasizes white on the dark source art)")]
     public Color brightenColor = new Color(1f, 1f, 1f, 0.15f);
 
-    enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack, DownAttackLand }
+    // ===== 被弾リアクション(2026-09-22) =====
+    // 専用のHurt/Recovery絵(hurtFrames/recoveryFrames)があればそれを再生。無ければ既存の絵(Hurt=Runの先頭コマ、
+    // Recovery=着地コマ)に姿勢変化(のけぞり/よろけ/沈み込み)を付けた簡易アニメーションで表現する。
+    // 見せ方はCharacterDefinition(hurtLeanDegrees等)でキャラごとに変えられる。
+    public Sprite[] hurtFrames;
+    public Sprite[] recoveryFrames;
+    public float hurtFps = 12f;
+    public float recoveryFps = 8f;
+    public float hurtLeanDegrees = 12f;
+    public float hurtStaggerDistance = 0.12f;
+    public float recoveryCrouchDepth = 0.14f;
+    Sprite[] defaultHurtFrames, defaultRecoveryFrames;
+    Transform visualT;
+    Vector3 visualBasePos, visualBaseScale;
+    Quaternion visualBaseRot;
+    bool reactionPoseApplied;
+
+    enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack, DownAttackLand, Hurt, Recovery }
 
     // キャラクター専用アニメーション差し替え(2026-09-13) - PlayerController.
     // baseRunSpeed等と全く同じ理由の「素のスナップショット」。SceneBuilder
@@ -102,6 +119,10 @@ public class PlayerAnimator : MonoBehaviour
         // see SceneBuilder.CreatePlayer.
         sr = GetComponentInChildren<SpriteRenderer>();
         controller = GetComponent<PlayerController>();
+        visualT = sr.transform;
+        visualBasePos = visualT.localPosition;
+        visualBaseRot = visualT.localRotation;
+        visualBaseScale = visualT.localScale;
 
         // Parented under the same Visual sr lives on (not this component's
         // own Root transform) so it stays exactly aligned with the main
@@ -197,8 +218,16 @@ public class PlayerAnimator : MonoBehaviour
             defaultDoubleJumpFrames = doubleJumpFrames;
             defaultDownAttackFrames = downAttackFrames;
             defaultDownAttackLandFrames = downAttackLandFrames;
+            defaultHurtFrames = hurtFrames;
+            defaultRecoveryFrames = recoveryFrames;
         }
         if (def == null) return;
+
+        hurtFrames = HasFrames(def.hurtFrames) ? def.hurtFrames : defaultHurtFrames;
+        recoveryFrames = HasFrames(def.recoveryFrames) ? def.recoveryFrames : defaultRecoveryFrames;
+        hurtLeanDegrees = def.hurtLeanDegrees;
+        hurtStaggerDistance = def.hurtStaggerDistance;
+        recoveryCrouchDepth = def.recoveryCrouchDepth;
 
         runFrames = HasFrames(def.runFrames) ? def.runFrames : defaultRunFrames;
         runFps = def.runFps > 0f ? def.runFps : defaultRunFps;
@@ -231,6 +260,57 @@ public class PlayerAnimator : MonoBehaviour
 
     static bool HasFrames(Sprite[] frames) => frames != null && frames.Length > 0;
 
+    // 専用絵が無い間の代用: Hurtは走りの先頭コマ(=通常姿勢)、Recoveryは着地コマがあればその最後、無ければ走りの先頭コマ。
+    readonly Sprite[] fallbackOne = new Sprite[1];
+    Sprite[] FallbackReactionFrames(bool recovery)
+    {
+        Sprite s = recovery && HasFrames(landFrames) ? landFrames[landFrames.Length - 1] : (HasFrames(runFrames) ? runFrames[0] : null);
+        if (s == null) return null;
+        fallbackOne[0] = s;
+        return fallbackOne;
+    }
+
+    // 簡易の姿勢アニメーション(Visualの子Transformに、リアクションの進行度に応じた回転/位置/縦つぶれを乗せる)。
+    // Hurt: 1コマ目=のけぞる → 2コマ目=後方へよろける → 3コマ目=姿勢を戻し始める、を進行度0〜1で表現。
+    // Recovery: 着地して沈み込み、ゆっくり立ち上がる。リアクション以外の時は元の姿勢へ戻す(他のStateの見た目は変えない)。
+    void ApplyReactionPose()
+    {
+        if (visualT == null) return;
+        bool hurt = state == State.Hurt, recov = state == State.Recovery;
+        if (!hurt && !recov)
+        {
+            if (reactionPoseApplied)
+            {
+                visualT.localPosition = visualBasePos; visualT.localRotation = visualBaseRot; visualT.localScale = visualBaseScale;
+                reactionPoseApplied = false;
+            }
+            return;
+        }
+        float p = controller != null ? controller.ReactionProgress : 1f;
+        Vector3 pos = visualBasePos; Quaternion rot = visualBaseRot; Vector3 scl = visualBaseScale;
+        if (hurt)
+        {
+            // 0〜0.3: 素早くのけぞる / 0.3〜0.65: 後ろへよろける / 0.65〜1: 戻し始める
+            float lean = p < 0.3f ? Mathf.SmoothStep(0f, 1f, p / 0.3f)
+                       : p < 0.65f ? 1f - 0.15f * ((p - 0.3f) / 0.35f)
+                       : 0.85f * (1f - Mathf.SmoothStep(0f, 1f, (p - 0.65f) / 0.35f));
+            float stagger = Mathf.Sin(Mathf.Clamp01(p) * Mathf.PI);
+            rot = visualBaseRot * Quaternion.Euler(0f, 0f, hurtLeanDegrees * lean); // 右向きの体は+Zで後ろへ倒れる
+            pos += new Vector3(-hurtStaggerDistance * stagger, 0f, 0f);
+            scl = new Vector3(visualBaseScale.x, visualBaseScale.y * (1f - 0.05f * lean), visualBaseScale.z);
+        }
+        else
+        {
+            float crouch = Mathf.Sin(Mathf.Clamp01(p) * Mathf.PI * 0.85f); // 沈んで、ゆっくり戻る
+            float s = 1f - recoveryCrouchDepth * crouch;
+            scl = new Vector3(visualBaseScale.x * (1f + recoveryCrouchDepth * 0.4f * crouch), visualBaseScale.y * s, visualBaseScale.z);
+            // 足元が浮かないよう、スプライトの下端を固定するぶん位置を下げる(pivotが中央でも足元でも成立)。
+            if (sr != null && sr.sprite != null) pos += new Vector3(0f, sr.sprite.bounds.min.y * (1f - s) * visualBaseScale.y, 0f);
+        }
+        visualT.localPosition = pos; visualT.localRotation = rot; visualT.localScale = scl;
+        reactionPoseApplied = true;
+    }
+
     void Update()
     {
         float dt = Time.deltaTime;
@@ -250,7 +330,9 @@ public class PlayerAnimator : MonoBehaviour
         bool diveAttacking = controller != null && controller.IsDiveAttacking && downAttackFrames != null && downAttackFrames.Length > 0;
 
         State newState;
-        if (attacking) newState = State.Attack;
+        if (controller != null && controller.IsHurt) newState = State.Hurt;
+        else if (controller != null && controller.IsRecovering) newState = State.Recovery;
+        else if (attacking) newState = State.Attack;
         // 着地専用Frame(downAttackLandTimer)は通常のLandingより優先 - 下降
         // 攻撃からの着地の瞬間は両タイマーが同時にセットされうるため、
         // より具体的な方(衝撃エフェクト込みの絵)を優先して表示する。
@@ -278,8 +360,11 @@ public class PlayerAnimator : MonoBehaviour
             State.Landing => landFrames,
             State.DownAttack => downAttackFrames,
             State.DownAttackLand => downAttackLandFrames,
+            State.Hurt => HasFrames(hurtFrames) ? hurtFrames : FallbackReactionFrames(false),
+            State.Recovery => HasFrames(recoveryFrames) ? recoveryFrames : FallbackReactionFrames(true),
             _ => runFrames
         };
+        ApplyReactionPose();
         if (frames == null || frames.Length == 0) return;
 
         float fps = state switch
@@ -290,6 +375,8 @@ public class PlayerAnimator : MonoBehaviour
             State.DoubleJump => doubleJumpFps,
             State.Landing => landFps,
             State.DownAttack => downAttackFps,
+            State.Hurt => hurtFps,
+            State.Recovery => recoveryFps,
             // 1フレームだけの絵をdownAttackLandDuration秒キープするだけな
             // ので、fps自体は「Duration中に次のフレームへ進まない」程度に
             // 低ければ何でもよい(frames.Length==1なら実質参照されない)。
