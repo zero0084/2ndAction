@@ -123,27 +123,52 @@ public class BossManager : MonoBehaviour
     }
     public WildBossArt[] wildArt;
 
-    struct WildEntry
+    // ===== ボス遭遇スケジュール(1000m周期の階層構造) =====
+    // 優先順位: 10,000m単位の専用大型ボス > 5,000m単位のゴブリン・ウルフライダー > 1,000m単位の巨大オオカミ。
+    // 10,000m単位は同じ地点で下位のボスを重複出現させない。100,000mは死神(SpawnDeath)なのでゲートを作らない。
+    public float gateIntervalMeters = 1000f;
+    public int wolfMaxCount = 4;               // 巨大オオカミの最大同時出現数
+    public float wolfCountStepMeters = 12000f; // この距離ごとに1体増える
+    public int riderMaxCount = 3;              // ウルフライダーの最大同時出現数
+    public float riderCountStepMeters = 20000f;
+    public float smallBossHpPerKm = 0.03f;     // 距離に応じた雑魚ボスHP倍率(1+km*この値、上限3倍)
+    static readonly WildBossKind[] TenKmBosses =
     {
-        public float distance; public WildBossKind kind; public int count;
-        public WildEntry(float d, WildBossKind k, int c) { distance = d; kind = k; count = c; }
-    }
-    static readonly WildEntry[] WildSchedule =
-    {
-        new WildEntry(1000f, WildBossKind.Wolf, 1),
-        new WildEntry(5000f, WildBossKind.GoblinRider, 1),
-        new WildEntry(10000f, WildBossKind.Serpent, 1),
-        new WildEntry(20000f, WildBossKind.Cyclops, 1),
-        new WildEntry(30000f, WildBossKind.Spider, 1),
-        new WildEntry(40000f, WildBossKind.Golem, 1),
-        new WildEntry(50000f, WildBossKind.Griffin, 1),
-        new WildEntry(60000f, WildBossKind.Hydra, 1),
-        new WildEntry(70000f, WildBossKind.Demon, 1),
-        new WildEntry(80000f, WildBossKind.Dragon, 1),
-        new WildEntry(90000f, WildBossKind.BlackKnight, 1),
+        WildBossKind.Serpent, WildBossKind.Cyclops, WildBossKind.Spider, WildBossKind.Golem, WildBossKind.Griffin,
+        WildBossKind.Hydra, WildBossKind.Demon, WildBossKind.Dragon, WildBossKind.BlackKnight,
     };
-    int scheduleIndex;
+    int gateK = 1;               // 次に来るゲートは gateK * gateIntervalMeters(m)
+    int currentGateK = 1;
     int aliveWildThisEncounter;
+
+    // k番目のゲート(k*1000m)に出すボス。falseなら通常ボスのゲートは無い(100,000mの死神など)。
+    bool ResolveGate(int k, out WildBossKind kind, out int count)
+    {
+        float meters = k * gateIntervalMeters;
+        count = 1;
+        if (k % 10 == 0)
+        {
+            int idx = (k / 10 - 1) % 10;
+            if (idx >= TenKmBosses.Length) { kind = WildBossKind.Wolf; return false; }
+            kind = TenKmBosses[idx];
+            return true;
+        }
+        if (k % 5 == 0)
+        {
+            kind = WildBossKind.GoblinRider;
+            count = Mathf.Clamp(1 + Mathf.FloorToInt(meters / Mathf.Max(1f, riderCountStepMeters)), 1, Mathf.Max(1, riderMaxCount));
+            return true;
+        }
+        kind = WildBossKind.Wolf;
+        count = Mathf.Clamp(1 + Mathf.FloorToInt(meters / Mathf.Max(1f, wolfCountStepMeters)), 1, Mathf.Max(1, wolfMaxCount));
+        return true;
+    }
+
+    void SkipEmptyGates()
+    {
+        int guard = 0;
+        while (guard++ < 20 && !ResolveGate(gateK, out _, out _)) gateK++;
+    }
 
     float WildDistanceScale()
     {
@@ -152,8 +177,7 @@ public class BossManager : MonoBehaviour
 
     float WildTargetDistance()
     {
-        if (scheduleIndex >= WildSchedule.Length) return float.MaxValue;
-        return WildSchedule[scheduleIndex].distance * WildDistanceScale();
+        return gateK * gateIntervalMeters * WildDistanceScale();
     }
 
     float CurrentTargetDistance() => useWildSchedule ? WildTargetDistance() : nextBossDistance;
@@ -215,6 +239,9 @@ public class BossManager : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.Backspace)) { foreach (var wb in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None)) wb.TakeDamage(99999, wb.CenterWorld); }
         if (Input.GetKeyDown(KeyCode.F12)) { GameManager.Instance.DebugSetInvincible(true); }
+        if (Input.GetKeyDown(KeyCode.M)) DebugForceSpawn(WildBossKind.Wolf, 4);        // 複数体確認: 巨大オオカミx4
+        if (Input.GetKeyDown(KeyCode.N)) DebugForceSpawn(WildBossKind.GoblinRider, 3); // ウルフライダーx3
+        if (Input.GetKeyDown(KeyCode.R)) SpawnDeath();                                 // 死神
 #endif
 
         // Distance Level Design Ver.1, item 8 - "100,000m検知 -> Death出現
@@ -267,7 +294,7 @@ public class BossManager : MonoBehaviour
             // calling it directly if the scene was built before this
             // manager existed, so a boss can never fail to spawn.
             int checkpointIndexForPresentation = Mathf.RoundToInt(targetDistance / EffectiveRepeatInterval());
-            bool isFirstEncounter = useWildSchedule ? scheduleIndex == 0 : checkpointIndexForPresentation <= 1;
+            bool isFirstEncounter = useWildSchedule ? gateK == 1 : checkpointIndexForPresentation <= 1;
             if (BossMilestonePresentation.Instance != null)
             {
                 BossMilestonePresentation.Instance.Play(targetDistance, isFirstEncounter, StartBossPhase);
@@ -565,7 +592,7 @@ public class BossManager : MonoBehaviour
             // just cleared (1000m/2000m/...), not the next one.
             float clearedDistance = CurrentTargetDistance();
             int checkpointIndex = Mathf.RoundToInt(clearedDistance / EffectiveRepeatInterval());
-            bool isFirstEncounter = useWildSchedule ? scheduleIndex == 0 : checkpointIndex <= 1;
+            bool isFirstEncounter = useWildSchedule ? currentGateK == 1 : checkpointIndex <= 1;
 
             // Bugfix 2026-09-06, item "Boss戦中Distance停止" - IsBossPhase
             // used to flip false right here, at the exact moment the last
@@ -581,7 +608,7 @@ public class BossManager : MonoBehaviour
             // the exact point Boss Reward processing itself completes
             // (SaveCheckpoint time - see ApplyUpgradeByCardId/
             // RunBossRewardChoice).
-            if (useWildSchedule) scheduleIndex++;
+            if (useWildSchedule) { gateK++; SkipEmptyGates(); }
             else nextBossDistance += EffectiveRepeatInterval();
 
             // Presentation only - fires once the encounter's LAST boss has
@@ -626,15 +653,17 @@ public class BossManager : MonoBehaviour
         nextBossDistance = checkpointDistance + EffectiveRepeatInterval();
 
         // 荒野街道スケジュール: チェックポイント距離より先の最初のエントリへ。
-        scheduleIndex = 0;
-        while (scheduleIndex < WildSchedule.Length && WildTargetDistance() <= checkpointDistance + 1f) scheduleIndex++;
+        gateK = Mathf.Max(1, Mathf.FloorToInt((checkpointDistance + 1f) / Mathf.Max(1f, gateIntervalMeters * WildDistanceScale())) + 1);
+        SkipEmptyGates();
     }
 
     // ===== 荒野街道ボス(WildBossBase系) =====
     void StartWildPhase()
     {
-        if (scheduleIndex >= WildSchedule.Length) { IsBossPhase = false; return; }
-        WildEntry e = WildSchedule[scheduleIndex];
+        SkipEmptyGates();
+        currentGateK = gateK;
+        if (!ResolveGate(gateK, out WildBossKind gateKind, out int gateCount)) { IsBossPhase = false; return; }
+        var e = new { kind = gateKind, count = gateCount };
 
         aliveDragonsThisEncounter = 0;
         aliveMajinsThisEncounter = 0;
@@ -714,10 +743,12 @@ public class BossManager : MonoBehaviour
         }
 
         boss.bossName = kind.ToString();
-        boss.maxHp = EffectiveBossMaxHp(spec.hp);
+        float hpScale = (kind == WildBossKind.Wolf || kind == WildBossKind.GoblinRider) ? Mathf.Min(3f, 1f + currentGateK * smallBossHpPerKm) : 1f;
+        boss.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(spec.hp * hpScale));
+        boss.slotIndex = index;
         boss.mileReward = spec.mile;
         boss.bodyHeight = spec.height;
-        boss.startGap = spec.gap + index * 5f; // 複数出現時は少しずつ間隔をずらす
+        boss.startGap = spec.gap + index * 3.5f; // 複数出現時は少しずつ間隔をずらす
         boss.defeatBurstColor = spec.burst;
         boss.squareSprite = squareSprite;
         boss.hitSparkSprite = bossHitSparkSprite;
@@ -783,14 +814,14 @@ public class BossManager : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    void DebugForceSpawn(WildBossKind kind)
+    void DebugForceSpawn(WildBossKind kind, int count = 1)
     {
         IsBossPhase = true;
         if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
         foreach (var o in GameObject.FindGameObjectsWithTag("Boss")) Destroy(o);
         aliveDragonsThisEncounter = 0; aliveMajinsThisEncounter = 0; aliveWildThisEncounter = 0;
         if (kind == WildBossKind.Dragon) { aliveDragonsThisEncounter = 1; SpawnWastelandDragon(dragonStandoffDistance); }
-        else { aliveWildThisEncounter = 1; SpawnWild(kind, 0); }
+        else { aliveWildThisEncounter = count; for (int i = 0; i < count; i++) SpawnWild(kind, i); }
         Debug.Log("[Boss] DebugForceSpawn " + kind);
     }
 #endif

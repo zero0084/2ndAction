@@ -59,6 +59,19 @@ public abstract class WildBossBase : MonoBehaviour
     public float lungeRatio = 0.10f;
     public float hitStopOnHit = 0.03f;
 
+    [Header("Locomotion (移動アニメーション: 棒立ち移動禁止)")]
+    public LocoStyle locoStyle = LocoStyle.None;
+    [Range(0f, 1f)] public float windupMoveFactor = 0.45f;  // 予備動作中も脚/身体を動かす割合
+    [Range(0f, 1f)] public float attackMoveFactor = 0.4f;
+    public int rigCols = 8, rigRows = 8;
+    public float speedLineInterval = 0.10f;
+    public bool footstepShake = false;                       // 重量級: 一歩ごとの小さな揺れ+砂埃
+
+    [Header("Multi (複数出現時)")]
+    public int slotIndex = 0;                // 同時出現の何体目か
+    public float slotSpacing = 3.2f;         // 体ごとに戦闘位置をずらす間隔
+    public float initialDelayPerSlot = 1.1f; // 体ごとに最初の攻撃を遅らせる秒数
+
     [Header("Behaviour")]
     public bool interruptible = false; // 予備動作中の被弾で攻撃キャンセル
     public int playerAttackDamageFallback = 2;
@@ -87,6 +100,9 @@ public abstract class WildBossBase : MonoBehaviour
 
     Transform visual;
     protected SpriteRenderer sr;
+    BossRig rig;
+    float speedLineTimer, stepDustTimer, lastStepSin;
+    protected float slotOffset => slotIndex * slotSpacing;
     BoxCollider2D hurtCol;
     DragonHealthBar hpBar;
     float hitTimer;
@@ -142,6 +158,9 @@ public abstract class WildBossBase : MonoBehaviour
         sr = v.AddComponent<SpriteRenderer>();
         sr.sortingOrder = RenderOrder.Boss;
         sr.sprite = idleSprite;
+        sr.enabled = false; // 表示は格子セル(BossRig)が担当
+        rig = new BossRig(visual, rigCols, rigRows, RenderOrder.Boss);
+        rig.SetSprite(idleSprite);
 
         float spriteH = idleSprite != null ? idleSprite.bounds.size.y : 1f;
         float spriteW = idleSprite != null ? idleSprite.bounds.size.x : 1f;
@@ -194,6 +213,24 @@ public abstract class WildBossBase : MonoBehaviour
     IEnumerator Run()
     {
         SetPose(Pose.Move);
+        yield return Enter();
+        relVelocity = 0f;
+        SetPose(Pose.Move);
+
+        if (hpBar != null) StartCoroutine(hpBar.RevealRoutine(0.25f));
+        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (camFollow != null) camFollow.Shake(0.06f, 0.15f);
+        entering = false;
+
+        // 複数体のときは体ごとに最初の攻撃を遅らせる(同時攻撃で回避不能にならないように)。
+        if (slotIndex > 0) yield return Wait(slotIndex * initialDelayPerSlot);
+        yield return AI();
+    }
+
+    // 登場: 既定は前方から高速で走り込んで間合い(startGap)まで詰める。ボスごとに上書きする。
+    protected virtual IEnumerator Enter()
+    {
+        SetPose(Pose.Move);
         float safety = 0f;
         while (Gap > startGap && safety < 6f)
         {
@@ -202,14 +239,6 @@ public abstract class WildBossBase : MonoBehaviour
             yield return null;
         }
         relVelocity = 0f;
-        SetPose(Pose.Idle);
-
-        if (hpBar != null) StartCoroutine(hpBar.RevealRoutine(0.25f));
-        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
-        if (camFollow != null) camFollow.Shake(0.06f, 0.15f);
-        entering = false;
-
-        yield return AI();
     }
 
     // ================= 毎フレーム =================
@@ -239,6 +268,7 @@ public abstract class WildBossBase : MonoBehaviour
         if (hitTimer > 0f) hitTimer -= dt;
         ApplyTransform();
         AnimateVisual();
+        LocomotionFx(dt);
     }
 
     void ApplyTransform()
@@ -270,20 +300,23 @@ public abstract class WildBossBase : MonoBehaviour
         switch (pose)
         {
             case Pose.Move:
-                if (moveSprite != null) return ((int)(Time.time * 5f) % 2 == 0) ? idleSprite : moveSprite;
+                if (moveSprite != null) return ((int)(Time.time * 6f) % 2 == 0) ? idleSprite : moveSprite;
                 return idleSprite;
             case Pose.Windup: return windupSprite != null ? windupSprite : idleSprite;
             case Pose.Attack: return attackSprite != null ? attackSprite : idleSprite;
             case Pose.Fly: return moveSprite != null ? moveSprite : idleSprite;
             case Pose.Landing: return idleSprite;
-            default: return idleSprite;
+            default:
+                // 待機(Idle)は「棒立ち」にしない: 移動アニメーションを持つボスはMove姿勢で表示する。
+                if (locoStyle != LocoStyle.None && moveSprite != null) return ((int)(Time.time * 6f) % 2 == 0) ? idleSprite : moveSprite;
+                return idleSprite;
         }
     }
 
     void AnimateVisual()
     {
-        if (sr == null || visual == null) return;
-        sr.sprite = PickSprite();
+        if (visual == null || rig == null) return;
+        rig.SetSprite(PickSprite());
 
         float h = bodyHeight;
         float t = poseTime;
@@ -294,12 +327,20 @@ public abstract class WildBossBase : MonoBehaviour
         switch (pose)
         {
             case Pose.Idle:
-                sy = 1f + 0.025f * Mathf.Sin(Time.time * 2.4f);
-                sx = 1f - 0.012f * Mathf.Sin(Time.time * 2.4f);
+                if (locoStyle != LocoStyle.None)
+                {
+                    off.y = Mathf.Abs(Mathf.Sin(Time.time * 8f)) * 0.03f * h;
+                    rot = -leanDegrees * 0.25f * facing;   // 前傾して走る
+                }
+                else
+                {
+                    sy = 1f + 0.025f * Mathf.Sin(Time.time * 2.4f);
+                    sx = 1f - 0.012f * Mathf.Sin(Time.time * 2.4f);
+                }
                 break;
             case Pose.Move:
-                off.y = Mathf.Abs(Mathf.Sin(Time.time * 8f)) * 0.05f * h;
-                rot = Mathf.Sin(Time.time * 8f) * 1.8f;
+                off.y = Mathf.Abs(Mathf.Sin(Time.time * 8f)) * 0.03f * h;
+                rot = locoStyle == LocoStyle.None ? Mathf.Sin(Time.time * 8f) * 1.8f : -leanDegrees * 0.25f * facing;
                 sy = 1f + 0.02f * Mathf.Sin(Time.time * 16f);
                 break;
             case Pose.Windup:
@@ -343,11 +384,70 @@ public abstract class WildBossBase : MonoBehaviour
             tint = Color.Lerp(tint, new Color(1f, 0.25f, 0.25f, baseColor.a), 0.7f * Mathf.Clamp01(k));
         }
 
-        sr.color = tint;
+        rig.SetColor(tint);
         float artSign = artFacesLeft ? (facing < 0f ? 1f : -1f) : (facing < 0f ? -1f : 1f);
         visual.localScale = new Vector3(scaleFactor * artSign * sx, scaleFactor * sy, 1f);
         visual.localRotation = Quaternion.Euler(0f, 0f, rot);
         visual.localPosition = new Vector3(off.x, off.y, 0f);
+
+        // 格子リグの変形(走り/這い/羽ばたき/なびき)。姿勢に応じて強さを変える。
+        float loco = 1f;
+        switch (pose)
+        {
+            case Pose.Windup: loco = windupMoveFactor; break;
+            case Pose.Attack: loco = attackMoveFactor; break;
+            case Pose.Landing: loco = 0.15f; break;
+        }
+        if (hitTimer > 0f) loco *= 0.5f;
+        rig.Update(locoStyle, locoStyle == LocoStyle.None ? 0f : loco, Time.deltaTime, artFacesLeft ? -1f : 1f);
+    }
+
+    protected void SetVisualColor(Color c)
+    {
+        if (rig != null) rig.SetColor(c);
+    }
+
+    // 移動中の演出: 足元の砂埃、速度線、重量級の足音(小さな画面揺れ)。
+    void LocomotionFx(float dt)
+    {
+        if (locoStyle == LocoStyle.None || dead || pose == Pose.Landing) return;
+        float baseSpeed = pc != null ? pc.CurrentAutoRunSpeed : 0f;
+        float speed = Mathf.Abs(baseSpeed + relVelocity);
+        if (speed < 1f) return;
+
+        // 速度線(ボスの後方、身体の高さのどこかに)
+        speedLineTimer -= dt;
+        if (speedLineTimer <= 0f)
+        {
+            speedLineTimer = speedLineInterval * Random.Range(0.8f, 1.4f);
+            float hy = GroundY + yOffset + bodyHeight * Random.Range(0.15f, 0.9f);
+            Vector3 p = new Vector3(worldX - facing * halfWidth * Random.Range(0.4f, 1.1f), hy, 0f);
+            SpeedLine.Spawn(p, Random.Range(1.2f, 2.6f) * Mathf.Clamp(speed / 8f, 0.6f, 1.6f), new Color(1f, 1f, 1f, 0.22f));
+        }
+
+        bool ground = locoStyle != LocoStyle.Wing && locoStyle != LocoStyle.Cloth;
+        if (ground && yOffset < 0.5f)
+        {
+            stepDustTimer -= dt;
+            float interval = footstepShake ? 0.55f : 0.16f;
+            if (stepDustTimer <= 0f)
+            {
+                stepDustTimer = interval;
+                Vector3 fp = new Vector3(worldX - facing * halfWidth * 0.5f, GroundY + 0.1f, 0f);
+                ImpactDust(fp, footstepShake ? 6 : 2, footstepShake ? 0.9f : 0.45f);
+                if (footstepShake) Shake(0.035f, 0.1f);
+            }
+        }
+        else if (locoStyle == LocoStyle.Wing)
+        {
+            // 低空飛行: 翼の起こす風(足元の砂埃)
+            stepDustTimer -= dt;
+            if (stepDustTimer <= 0f && yOffset < 2.5f)
+            {
+                stepDustTimer = 0.3f;
+                ImpactDust(new Vector3(worldX, GroundY + 0.1f, 0f), 2, 0.5f);
+            }
+        }
     }
 
     // ================= AI用ヘルパー =================
@@ -362,7 +462,7 @@ public abstract class WildBossBase : MonoBehaviour
     {
         SetPose(Pose.Move);
         float t = 0f;
-        while (t < timeout && FrontDist > stopDist)
+        while (t < timeout && FrontDist > stopDist + slotOffset)
         {
             relVelocity = facing * speed;
             t += Time.deltaTime;
@@ -377,9 +477,9 @@ public abstract class WildBossBase : MonoBehaviour
     {
         SetPose(Pose.Move);
         float t = 0f;
-        while (t < timeout && Mathf.Abs(Gap - targetGap) > 0.25f)
+        while (t < timeout && Mathf.Abs(Gap - (targetGap + slotOffset)) > 0.25f)
         {
-            relVelocity = Mathf.Sign(targetGap - Gap) * speed;
+            relVelocity = Mathf.Sign(targetGap + slotOffset - Gap) * speed;
             t += Time.deltaTime;
             yield return null;
         }
@@ -405,6 +505,16 @@ public abstract class WildBossBase : MonoBehaviour
     // 点滅しながら濃くなる。interruptible時にプレイヤー攻撃を受けたら中断。
     protected IEnumerator Telegraph(float duration, params BossTelegraphMarker[] zones)
     {
+        // 複数体: 予備動作の開始を全体で少しずらす(同時に攻撃が重ならないように)。待つ間は走り続ける。
+        float gateWait = 0f;
+        while (Time.time < BossAttackGate.NextTime && !dead && gateWait < 2.5f)
+        {
+            gateWait += Time.deltaTime;
+            relVelocity = 0f;
+            SetPose(Pose.Move);
+            yield return null;
+        }
+        BossAttackGate.NextTime = Time.time + BossAttackGate.Interval;
         interrupted = false;
         windingUp = true;
         facingLocked = true;
@@ -659,7 +769,7 @@ public abstract class WildBossBase : MonoBehaviour
             // 撃破ポーズ: 崩れ落ちる(Hit扱い、暗転して沈みながらフェード)
             SetPose(Pose.Idle);
             baseColor = new Color(1f, 1f, 1f, 1f);
-            sr.color = new Color(0.7f, 0.9f, 1f, 1f);
+            SetVisualColor(new Color(0.7f, 0.9f, 1f, 1f));
             yield return new WaitForSecondsRealtime(0.08f);
 
             Vector3 startScale = transform.localScale;
@@ -672,7 +782,7 @@ public abstract class WildBossBase : MonoBehaviour
                 float squash = Mathf.Lerp(1f, 0.6f, f);
                 transform.localScale = new Vector3(Mathf.Lerp(1f, 1.15f, f), squash, 1f);
                 Color c = Color.Lerp(Color.white, new Color(0.35f, 0.3f, 0.3f), f); c.a = Mathf.Lerp(1f, 0f, f);
-                sr.color = c;
+                SetVisualColor(c);
                 yield return null;
             }
 
@@ -798,4 +908,11 @@ public class TrackedHazard : MonoBehaviour
         if (!damages || !activated) return;
         if (other.CompareTag("Player") && PlayerController.Instance != null) PlayerController.Instance.TakeDamage();
     }
+}
+
+// 複数体のボスが同時に予備動作を始めないよう、開始タイミングを全体でずらす共有ゲート。
+public static class BossAttackGate
+{
+    public static float NextTime;
+    public static float Interval = 0.8f; // 調整用: 次の体が予備動作を始めるまでの最短間隔(秒)
 }

@@ -25,10 +25,32 @@ public class WolfBoss : WildBossBase
 {
     BossHitbox bite;
     BossTelegraphMarker biteMark;
+    bool fromBehind;
+    public float wolfFromBehindChance = 0.5f;
+
+    // 後方から: 高速で追い抜き、前へ出てから振り向く。前方から: 高速で走り込む。
+    protected override IEnumerator Enter()
+    {
+        SetPose(Pose.Move);
+        if (!fromBehind) { yield return base.Enter(); yield break; }
+        float safety = 0f;
+        while (Gap < startGap * 0.8f && safety < 6f)
+        {
+            relVelocity = 10f;
+            safety += Time.deltaTime;
+            yield return null;
+        }
+        relVelocity = 0f;
+    }
 
     protected override void OnInit()
     {
         interruptible = true;
+        locoStyle = LocoStyle.Gallop;
+        enterSpeed = 9f;
+        // 登場: 半分の確率で後方から追い抜いて前に出る(高速疾走で接近)。
+        fromBehind = Random.value < wolfFromBehindChance;
+        if (fromBehind) worldX = PlayerX - 15f - slotIndex * 3f;
         Vector2 c = new Vector2(FrontReach + 0.8f, 0.7f), s = new Vector2(2.2f, 1.3f);
         bite = NewHitbox("Bite", c, s, BossFx.Fang(), new Color(1f, 1f, 1f, 0.95f));
         biteMark = NewMarker(c, s);
@@ -54,10 +76,14 @@ public class GoblinRiderBoss : WildBossBase
     BossHitbox club;
     BossTelegraphMarker clubMark;
     SpriteRenderer orb;
+    float lastMagicTime = -99f;
+    public float magicCooldown = 3.2f; // 魔法弾の発射間隔(複数体でも弾幕にならないように)
 
     protected override void OnInit()
     {
         interruptible = true;
+        locoStyle = LocoStyle.Gallop;
+        enterSpeed = 8f;
         Vector2 c = new Vector2(FrontReach + 0.5f, 1.2f), s = new Vector2(2.6f, 2.4f);
         club = NewHitbox("Club", c, s, BossFx.Slash(), new Color(1f, 0.85f, 0.5f, 0.95f));
         clubMark = NewMarker(c, s);
@@ -75,8 +101,10 @@ public class GoblinRiderBoss : WildBossBase
     {
         while (true)
         {
-            if (FrontDist > 6f)
+            if (FrontDist > 6f && Time.time - lastMagicTime > magicCooldown && Time.time >= RiderMagicGate.NextTime)
             {
+                lastMagicTime = Time.time;
+                RiderMagicGate.NextTime = Time.time + RiderMagicGate.Interval;
                 yield return CastMagic();
                 if (interrupted) { yield return Stagger(0.8f); }
                 continue;
@@ -138,6 +166,9 @@ public class SerpentBoss : WildBossBase
 
     protected override void OnInit()
     {
+        locoStyle = LocoStyle.Slither;
+        enterSpeed = 8f;
+        windupMoveFactor = 0.6f;
         float r = FrontReach;
         // 素材の蛇は頭が高い位置にある(とぐろ+鎌首)ので、噛みつきは頭の高さに出す
         Vector2 bc = new Vector2(r + 0.9f, 1.6f), bs = new Vector2(2.2f, 1.8f);
@@ -237,6 +268,10 @@ public class CyclopsBoss : WildBossBase
 
     protected override void OnInit()
     {
+        locoStyle = LocoStyle.Stride;
+        footstepShake = true;
+        enterSpeed = 6.5f;
+        windupMoveFactor = 0.25f;
         float r = FrontReach;
         Vector2 a = new Vector2(r + 1.0f, 1.3f), sa = new Vector2(3.2f, 2.6f);
         slam = NewHitbox("Slam", a, sa, BossFx.Slash(), new Color(1f, 0.7f, 0.3f, 0.9f));
@@ -297,6 +332,9 @@ public class SpiderBoss : WildBossBase
 
     protected override void OnInit()
     {
+        locoStyle = LocoStyle.Crawl;
+        enterSpeed = 10f;
+        windupMoveFactor = 0.3f;
         float r = FrontReach;
         Vector2 a = new Vector2(r + 0.8f, 0.7f), sa = new Vector2(1.9f, 1.3f);
         bite = NewHitbox("Bite", a, sa, BossFx.Fang(), new Color(1f, 1f, 1f, 0.95f));
@@ -318,6 +356,7 @@ public class SpiderBoss : WildBossBase
             {
                 yield return Approach(1.4f, 3.0f, 6f);
                 yield return Telegraph(0.7f, biteMark);
+                StartCoroutine(DashMove(0.18f, 6f)); // 牙で短く飛び込む
                 yield return Strike(bite, 0.25f);
                 yield return Recover(0.7f);
             }
@@ -379,13 +418,43 @@ public class SpiderBoss : WildBossBase
 // 拳の叩きつけ / 前方パンチ / 地面を叩いて衝撃波。遅く重い。
 public class GolemBoss : WildBossBase
 {
-    BossHitbox slam, punch, pound;
-    BossTelegraphMarker slamMark, punchMark, poundMark;
+    BossHitbox slam, punch, pound, dbl;
+    BossTelegraphMarker slamMark, punchMark, poundMark, dblMark;
     int lastPick = -1;
+
+    // 登場: 地面の岩が集まって形成される(砂埃と揺れ + 下からせり上がって実体化)。
+    protected override IEnumerator Enter()
+    {
+        SetPose(Pose.Move);
+        float t = 0f;
+        const float dur = 1.7f;
+        while (t < dur)
+        {
+            t += Time.deltaTime;
+            float f = Mathf.Clamp01(t / dur);
+            yOffset = Mathf.Lerp(-bodyHeight * 0.85f, 0f, Mathf.SmoothStep(0f, 1f, f));
+            SetAlpha(Mathf.Clamp01(f * 1.6f));
+            relVelocity = -1.5f;
+            if (Random.value < 0.15f) ImpactDust(new Vector3(worldX + Random.Range(-halfWidth, halfWidth), GroundY, 0f), 4, 0.9f);
+            if (Random.value < 0.08f) Shake(0.06f, 0.12f);
+            yield return null;
+        }
+        yOffset = 0f;
+        SetAlpha(1f);
+        relVelocity = 0f;
+        float g = 0f;
+        while (Gap > startGap && g < 5f) { g += Time.deltaTime; relVelocity = -enterSpeed; yield return null; }
+    }
 
     protected override void OnInit()
     {
         hitStopOnHit = 0.045f;
+        locoStyle = LocoStyle.Stride;
+        footstepShake = true;
+        enterSpeed = 3f;
+        windupMoveFactor = 0.2f;
+        yOffset = -bodyHeight * 0.85f;
+        SetAlpha(0f);
         float r = FrontReach;
         Vector2 a = new Vector2(r + 1.3f, 1.0f), sa = new Vector2(3.2f, 2.2f);
         slam = NewHitbox("Slam", a, sa, BossFx.Block(), new Color(0.8f, 0.7f, 0.55f, 0.6f));
@@ -398,6 +467,11 @@ public class GolemBoss : WildBossBase
         Vector2 c = new Vector2(r + 0.9f, 0.8f), sc = new Vector2(2.4f, 1.6f);
         pound = NewHitbox("Pound", c, sc, BossFx.Ring(), new Color(1f, 0.85f, 0.6f, 0.9f));
         poundMark = NewMarker(c, sc);
+
+        // HP半分以下の両拳叩きつけ(長い溜め+衝撃波)
+        Vector2 d = new Vector2(r + 1.2f, 1.0f), sd = new Vector2(4.8f, 2.4f);
+        dbl = NewHitbox("DoubleSlam", d, sd, BossFx.Block(), new Color(1f, 0.8f, 0.5f, 0.65f));
+        dblMark = NewMarker(d, sd);
     }
 
     protected override IEnumerator AI()
@@ -405,8 +479,15 @@ public class GolemBoss : WildBossBase
         while (true)
         {
             yield return Approach(2.3f, 1.2f, 9f);
-            int pick = BossAiUtil.PickNoRepeat(3, ref lastPick);
-            if (pick == 0)
+            int pick = BossAiUtil.PickNoRepeat(Hp <= maxHp / 2 ? 4 : 3, ref lastPick);
+            if (pick == 3)
+            {
+                yield return Telegraph(2.3f, dblMark);
+                StartCoroutine(Impact(4.8f));
+                SpawnShockwave();
+                yield return Strike(dbl, 0.4f, 0.4f, 0.12f);
+            }
+            else if (pick == 0)
             {
                 yield return Telegraph(1.6f, slamMark);
                 StartCoroutine(Impact(3.2f));
@@ -452,8 +533,26 @@ public class GriffinBoss : WildBossBase
     BossHitbox claw, charge, dive;
     BossTelegraphMarker clawMark, chargeMark;
 
+    // 登場: 上空から飛来して低空へ降りる。
+    protected override IEnumerator Enter()
+    {
+        SetPose(Pose.Fly);
+        float t = 0f;
+        while ((Gap > startGap || yOffset > 0.95f) && t < 5f)
+        {
+            t += Time.deltaTime;
+            relVelocity = Gap > startGap ? -9f : 0f;
+            yOffset = Mathf.MoveTowards(yOffset, 0.9f, 7f * Time.deltaTime);
+            yield return null;
+        }
+        relVelocity = 0f;
+    }
+
     protected override void OnInit()
     {
+        locoStyle = LocoStyle.Wing;
+        yOffset = 7f;
+        windupMoveFactor = 0.6f;
         float r = FrontReach;
         Vector2 a = new Vector2(r + 0.9f, 1.0f), sa = new Vector2(2.2f, 1.6f);
         claw = NewHitbox("Claw", a, sa, BossFx.Slash(), new Color(1f, 1f, 0.8f, 0.95f));
@@ -541,8 +640,33 @@ public class HydraBoss : WildBossBase
     readonly BossHitbox[] heads = new BossHitbox[3];
     readonly BossTelegraphMarker[] marks = new BossTelegraphMarker[3];
 
+    // 登場: 前方の地面から巨体が這い出てくる。
+    protected override IEnumerator Enter()
+    {
+        SetPose(Pose.Move);
+        float t = 0f;
+        while (t < 1.8f)
+        {
+            t += Time.deltaTime;
+            yOffset = Mathf.Lerp(-bodyHeight * 0.85f, 0f, Mathf.SmoothStep(0f, 1f, t / 1.8f));
+            SetAlpha(Mathf.Clamp01(t / 0.9f));
+            relVelocity = -2.2f;
+            if (Random.value < 0.08f) ImpactDust(new Vector3(worldX, GroundY, 0f), 4, 0.9f);
+            if (Random.value < 0.05f) Shake(0.05f, 0.12f);
+            yield return null;
+        }
+        SetAlpha(1f);
+        yOffset = 0f;
+        relVelocity = 0f;
+        while (Gap > startGap && t < 6f) { t += Time.deltaTime; relVelocity = -3f; yield return null; }
+    }
+
     protected override void OnInit()
     {
+        locoStyle = LocoStyle.Slither;
+        SetAlpha(0f);
+        yOffset = -bodyHeight * 0.85f;
+        windupMoveFactor = 0.6f;
         float r = FrontReach;
         float[] xs = { r + 0.4f, r + 3.0f, r + 5.6f };
         for (int i = 0; i < 3; i++)
@@ -615,8 +739,26 @@ public class DemonBoss : WildBossBase
     BossTelegraphMarker clawMark;
     int lastPick = -1;
 
+    // 登場: 魔法的な出現(上空に現れて低空浮遊位置まで降りる)。
+    protected override IEnumerator Enter()
+    {
+        SetPose(Pose.Fly);
+        float t = 0f;
+        while ((Gap > startGap || yOffset > 0.65f) && t < 5f)
+        {
+            t += Time.deltaTime;
+            relVelocity = Gap > startGap ? -8f : 0f;
+            yOffset = Mathf.MoveTowards(yOffset, 0.6f, 5f * Time.deltaTime);
+            yield return null;
+        }
+        relVelocity = 0f;
+    }
+
     protected override void OnInit()
     {
+        locoStyle = LocoStyle.Wing;
+        yOffset = 5f;
+        windupMoveFactor = 0.6f;
         Vector2 c = new Vector2(FrontReach + 1.0f, 1.6f), s = new Vector2(2.8f, 2.4f);
         claw = NewHitbox("Claw", c, s, BossFx.Slash(), new Color(0.9f, 0.4f, 1f, 0.95f));
         clawMark = NewMarker(c, s);
@@ -680,6 +822,8 @@ public class BlackKnightBoss : WildBossBase
 
     protected override void OnInit()
     {
+        locoStyle = LocoStyle.Run;
+        enterSpeed = 10f;
         float r = FrontReach;
         Vector2 a = new Vector2(r + 0.9f, 1.0f), sa = new Vector2(2.4f, 1.9f);
         slash = NewHitbox("Slash", a, sa, BossFx.Slash(), new Color(0.6f, 0.8f, 1f, 0.95f));
@@ -748,4 +892,11 @@ public class BlackKnightBoss : WildBossBase
         yield return Strike(air, 0.35f, 0.1f);
         yield return Recover(0.8f);
     }
+}
+
+// 複数のウルフライダーが同時に魔法弾を撃たないための共有ゲート(弾幕防止)。
+static class RiderMagicGate
+{
+    public static float NextTime;
+    public static float Interval = 1.4f;
 }
