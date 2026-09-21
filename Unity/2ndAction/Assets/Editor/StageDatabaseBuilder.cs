@@ -43,13 +43,14 @@ public static class StageDatabaseBuilder
         },
         new Spec
         {
-            id = "underground_ruins",
-            displayName = "地下遺跡",
-            enemyText = "敵: スケルトン / コウモリ",
-            featureText = "障害物: 段差・落下床・トゲ・動く足場",
-            routeText = "ルート: 未開放",
-            unlocked = false,
+            id = "natural_cave",
+            displayName = "自然洞窟",
+            enemyText = "敵: ゴブリン / 鳥",
+            featureText = "特徴: 岩の天井・天井の針・暗がりとたいまつ",
+            routeText = "ルート: 上 Easy / 下 Danger",
+            unlocked = true,
             sortOrder = 1,
+            thumbnailPath = "Assets/Art/Background/CaveThumbnail.png",
         },
         new Spec
         {

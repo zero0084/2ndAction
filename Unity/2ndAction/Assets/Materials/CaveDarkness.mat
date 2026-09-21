@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: CaveDarkness
+  m_Shader: {fileID: 4800000, guid: a3788d9b24f5f6f4fa9baf98b3b0df67, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _Dark: 0.74
+    - _PlayerBoost: 1
+    - _PlayerSoft: 0.2
+    - _TorchCount: 1
+    - _TorchWarm: 0.32
+    m_Colors:
+    - _DarkColor: {r: 0.02, g: 0.03, b: 0.07, a: 1}
+    - _Player: {r: 212.49974, g: -8.592006, b: 11.20134, a: 8.5}
+    - _TorchColor: {r: 1, g: 0.55, b: 0.2, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

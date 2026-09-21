@@ -18,7 +18,7 @@ public static class StageDatabaseSelfTest
         bool countOk = all.Count == 3;
         bool orderOk = countOk
             && all[0].stageId == "wasteland_road"
-            && all[1].stageId == "underground_ruins"
+            && all[1].stageId == "natural_cave"
             && all[2].stageId == "sky_corridor";
 
         StageDefinition wasteland = StageDatabase.FindById("wasteland_road");
@@ -26,9 +26,9 @@ public static class StageDatabaseSelfTest
 
         // 天空回廊解禁(2026-09-13) - 「いままでの天空マップ」を選択可能な
         // 別枠として解禁したため、ロックされたままなのは地下遺跡のみ。
-        StageDefinition ruins = StageDatabase.FindById("underground_ruins");
+        StageDefinition ruins = StageDatabase.FindById("natural_cave");
         StageDefinition sky = StageDatabase.FindById("sky_corridor");
-        bool ruinsLockedOk = ruins != null && !ruins.unlocked;
+        bool ruinsLockedOk = ruins != null && ruins.unlocked; // 自然洞窟(2026-09-21): 地下遺跡枠を自然洞窟に置き換え、解禁済み
         bool skyUnlockedOk = sky != null && sky.unlocked;
 
         bool missingIdOk = StageDatabase.FindById("no_such_stage") == null;

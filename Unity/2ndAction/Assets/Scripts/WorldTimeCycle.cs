@@ -64,8 +64,22 @@ public class WorldTimeCycle : MonoBehaviour
         Apply(d);
     }
 
+    // 自然洞窟(2026-09-21) - 洞窟では昼夜の切り替え(空の背景の入れ替え)を行わない。
+    // 洞窟側(CaveStage)が背景と明るさを持つので、夜レイヤーは常に透明のままにする。
+    public bool forceDayOnly;
+
     void Apply(float d)
     {
+        if (forceDayOnly)
+        {
+            if (nightLayer != null)
+            {
+                Color nc = nightLayer.color;
+                nc.a = 0f;
+                nightLayer.color = nc;
+            }
+            return;
+        }
         float nightAmount = ComputeNightAmount(d);
 
         if (nightLayer != null)

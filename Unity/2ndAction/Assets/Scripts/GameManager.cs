@@ -1459,6 +1459,7 @@ public class GameManager : MonoBehaviour
 
 #if UNITY_EDITOR
     public void DebugSetInvincible(bool on) { InvincibleMode = on; Lives = 999; }
+    public void DebugSetLives(int n) { Lives = n; }
 #endif
 
     void ToggleInvincible()

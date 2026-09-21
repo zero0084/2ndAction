@@ -259,11 +259,48 @@ public class TerrainManager : MonoBehaviour
         public bool enableRouteBranch;
         // 分岐/合流地点に置く目印(道標)。null なら何も置かない。
         public Sprite branchMarkerSprite;
+        // 自然洞窟(2026-09-21) - trueのステージだけ天井/針/たいまつ/暗さ(CaveStage)を
+        // 有効化する。既存ステージはfalse(未指定)のまま無改造。
+        public bool enableCave;
     }
     public TerrainThemeSet[] stageThemes = new TerrainThemeSet[0];
     // SceneBuilderが既存のday backgroundのSpriteRendererをそのまま渡す
     // (WorldTimeCycle.dayLayerと同一のコンポーネント参照)。
     public SpriteRenderer backgroundRenderer;
+    // 自然洞窟(2026-09-21) - 洞窟固有の天井/針/暗さ。SceneBuilderが割り当てる
+    // (未割り当てなら洞窟機能は何もしない)。
+    public CaveStage cave;
+
+    // ApplyStageThemeが差し替える値の「初期状態」。テーマの無いステージ(天空回廊等)を
+    // 別テーマのRunの後に選んでも、前のテーマの見た目/設定が残らないよう復元するために使う。
+    bool themeDefaultsCaptured;
+    bool themeDirty;
+    PlatformSpriteSet defPlatformArt;
+    float defSurfaceInset, defFillTopOffset;
+    Sprite defGroundSprite, defBackgroundSprite, defGroundFillSprite, defBranchMarker;
+    Color defGroundColor, defBackgroundColor, defFillTint;
+    Sprite[] defDecorations;
+    bool defRouteBranch;
+
+    void CaptureThemeDefaults()
+    {
+        themeDefaultsCaptured = true;
+        defPlatformArt = platformArt; defSurfaceInset = platformSurfaceInset; defFillTopOffset = groundFillTopOffset;
+        defGroundSprite = groundSprite; defGroundColor = groundColor;
+        defBackgroundSprite = backgroundRenderer != null ? backgroundRenderer.sprite : null;
+        defBackgroundColor = backgroundRenderer != null ? backgroundRenderer.color : Color.white;
+        defDecorations = decorationSprites; defGroundFillSprite = groundFillSprite; defFillTint = groundFillTint;
+        defRouteBranch = routeBranchEnabled; defBranchMarker = branchMarkerSprite;
+    }
+
+    void RestoreThemeDefaults()
+    {
+        platformArt = defPlatformArt; platformSurfaceInset = defSurfaceInset; groundFillTopOffset = defFillTopOffset;
+        groundSprite = defGroundSprite; groundColor = defGroundColor;
+        if (backgroundRenderer != null) { backgroundRenderer.sprite = defBackgroundSprite; backgroundRenderer.color = defBackgroundColor; }
+        decorationSprites = defDecorations; groundFillSprite = defGroundFillSprite; groundFillTint = defFillTint;
+        routeBranchEnabled = defRouteBranch; branchMarkerSprite = defBranchMarker;
+    }
 
     // GameManager.StartGame/BeginContinuedRunの両方から、Run開始時(かつ
     // Playerがワープする前 - BeginContinuedRunのコメント参照)に一度だけ
@@ -275,12 +312,24 @@ public class TerrainManager : MonoBehaviour
     // エントリ自体が無い)場合は何も変更しない - 安全側のデフォルト動作。
     public void ApplyStageTheme(string stageId)
     {
+        if (!themeDefaultsCaptured) CaptureThemeDefaults();
+        if (cave != null) cave.SetActive(false);
         TerrainThemeSet? match = null;
         foreach (TerrainThemeSet t in stageThemes)
         {
             if (t.stageId == stageId) { match = t; break; }
         }
-        if (!match.HasValue) return;
+        if (!match.HasValue)
+        {
+            if (themeDirty)
+            {
+                RestoreThemeDefaults();
+                themeDirty = false;
+                RebuildAllChunkVisuals();
+            }
+            return;
+        }
+        themeDirty = true;
 
         TerrainThemeSet theme = match.Value;
         platformArt = theme.platformArt;
@@ -299,12 +348,14 @@ public class TerrainManager : MonoBehaviour
         // 「変更なし」を意味する値ではなく、フィールド自体が触られたか
         // どうかを見分けるため)。
         if (backgroundRenderer != null && theme.backgroundTint.a > 0f) backgroundRenderer.color = theme.backgroundTint;
-        if (theme.decorationSprites != null && theme.decorationSprites.Length > 0) decorationSprites = theme.decorationSprites;
+        if (theme.decorationSprites != null && (theme.decorationSprites.Length > 0 || theme.enableCave)) decorationSprites = theme.decorationSprites; // 洞窟は空配列=道端の装飾を出さない
         if (theme.groundFillSprite != null) groundFillSprite = theme.groundFillSprite;
         if (theme.groundFillTint.a > 0f) groundFillTint = theme.groundFillTint;
         routeBranchEnabled = theme.enableRouteBranch;
         branchMarkerSprite = theme.branchMarkerSprite;
 
+        // 洞窟は先に有効化する(地面の断面の深さ等を、再構築より前に切り替えるため)。
+        if (cave != null && theme.enableCave) cave.SetActive(true);
         RebuildAllChunkVisuals();
     }
 
@@ -463,6 +514,48 @@ public class TerrainManager : MonoBehaviour
     // かを確認するために使う - generateAheadDistanceの引き上げと合わせた
     // 二重の安全策(このコメント群のgenerateAheadDistance解説参照)。
     public bool IsGenerated(float x) => x <= nextStartX;
+    public float GeneratedEndX => nextStartX;
+
+    // 穴(Pit)を無視した「地面ライン」の高さ。洞窟の天井は穴の上でも連続した高さに
+    // したいので、GetHeightAt(穴でnull)ではなくこちらを使う。未生成なら末尾の高さ。
+    public float GetGroundLineAt(float x)
+    {
+        int lo = 0, hi = chunks.Count - 1;
+        if (hi < 0) return 0f;
+        while (lo < hi)
+        {
+            int mid = (lo + hi) / 2;
+            if (chunks[mid].endX < x) lo = mid + 1; else hi = mid;
+        }
+        RuntimeChunk c = chunks[lo];
+        float span = c.endX - c.startX;
+        float t = span > 0.0001f ? Mathf.Clamp01((x - c.startX) / span) : 0f;
+        return Mathf.Lerp(c.startY, c.endY, t);
+    }
+
+    // xが上下ルート分岐(登録済み/次に予定されている分岐)からmargin以内か。
+    // 次の分岐の範囲は乱数に依存しない(GenerateNextBranch参照)ので未生成でも先読みできる。
+    public bool IsBranchNear(float x, float margin)
+    {
+        if (!routeBranchEnabled) return false;
+        foreach (BranchRange r in branchRanges)
+        {
+            if (x >= r.forkX - margin && x <= r.mergeX + margin) return true;
+        }
+        float plannedMerge = nextBranchX + branchRampLength * 2f + branchLength;
+        return x >= nextBranchX - margin && x <= plannedMerge + margin;
+    }
+
+    // 自然洞窟(2026-09-21) - 天井の高さ/針との接触。洞窟でなければ常にnull/false。
+    public float? GetCeilingHeightAt(float x) => cave != null ? cave.GetCeilingHeightAt(x) : null;
+    // プレイヤー足元Yがこれを超えると頭が天井にめり込む、という上限(洞窟でなければnull)。
+    public float? GetCeilingLimitY(float x)
+    {
+        if (cave == null) return null;
+        float? c = cave.GetCeilingHeightAt(x);
+        return c.HasValue ? c.Value - cave.playerHeadHeight : (float?)null;
+    }
+    public bool IsCeilingSpikeHit(float x, float feetY) => cave != null && cave.IsSpikeHit(x, feetY + cave.playerHeadHeight);
 
     [Header("Sky Path")]
     // Occasional elevated platforms floating above the main ground path,

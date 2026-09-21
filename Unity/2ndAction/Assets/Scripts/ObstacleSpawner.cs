@@ -73,6 +73,8 @@ public class ObstacleSpawner : MonoBehaviour
     public float minGapAfterLargeObstacle = 9f;
     public float branchEdgeClearance = 5f;
     public float pitObstacleClearanceForLarge = 4.5f;
+    // 洞窟専用: 大型障害物(壁/巨大石)を置くのに必要な、地面から天井までの最小高さ。
+    public float largeObstacleMinCeilingClearance = 5.6f;
 
     float lastLowerObstacleX = float.NegativeInfinity;
     bool lastLowerObstacleWasLarge;
@@ -224,7 +226,15 @@ public class ObstacleSpawner : MonoBehaviour
             bool gapBeforeOk = (worldX - lastLowerObstacleX) >= minGapBeforeLargeObstacle;
             bool gapAfterPrevLargeOk = !lastLowerObstacleWasLarge || (worldX - lastLowerObstacleX) >= minGapAfterLargeObstacle;
             bool pitOk = TerrainManager.Instance == null || !TerrainManager.Instance.IsNearPit(worldX, pitObstacleClearanceForLarge);
-            if (onSlope || !gapBeforeOk || !gapAfterPrevLargeOk || !pitOk)
+            // 自然洞窟(2026-09-21) - 低い天井の下では大型障害物を置かない(2段ジャンプの
+            // 頭上が天井に当たって越えにくくなるため)。洞窟以外ではceilがnullで常にfalse。
+            bool lowCeiling = false;
+            if (TerrainManager.Instance != null)
+            {
+                float? ceil = TerrainManager.Instance.GetCeilingHeightAt(worldX);
+                if (ceil.HasValue) lowCeiling = ceil.Value - groundY.Value < largeObstacleMinCeilingClearance;
+            }
+            if (onSlope || !gapBeforeOk || !gapAfterPrevLargeOk || !pitOk || lowCeiling)
             {
                 spec = PickSmallOnlySpec();
                 if (string.IsNullOrEmpty(spec.name)) return;

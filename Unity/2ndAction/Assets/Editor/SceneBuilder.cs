@@ -350,6 +350,8 @@ public static class SceneBuilder
         // 用意でき次第、ここへTerrainThemeSetを1件追加するだけで済む。
         terrain.backgroundRenderer = dayBackgroundSr;
         terrain.stageThemes = BuildTerrainThemes();
+        // 自然洞窟(2026-09-21) - 天井/針/たいまつ/暗さ。洞窟ステージ選択時だけ有効化される。
+        BuildCaveStage(terrain, cam, cloudLayerGO);
         // Game Feel refinement pass - OneMoreMile_GameFeel pack, individual
         // PNGs (see AGENTS/PR notes) - imported at a consistent ~1-world-
         // unit BASE size each (PPU == the source file's own pixel width),
@@ -714,6 +716,7 @@ public static class SceneBuilder
         upperEnemySpawner.player = player.transform;
         upperEnemySpawner.squareSprite = squareSprite;
         upperEnemySpawner.enemyPool = new List<EnemyDefinition>(EnemyDatabase.AllEnemies);
+        BuildCaveSpawners(player.transform, squareSprite);
 
         EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene(), ScenePath);
 
@@ -4086,8 +4089,137 @@ public static class SceneBuilder
                 // はこのフラグ自体を持たない(既定false)ので無改造のまま。
                 enableRouteBranch = true,
                 branchMarkerSprite = wastelandDecorSignpost,
-            }
+            },
+            BuildCaveTheme()
         };
+    }
+
+    // ---- 自然洞窟(2026-09-21) ----
+    // 床アート(platform_cave_*)はChatGPT生成→マゼンタ背景を透過処理→継ぎ目なしタイル化済み。
+    // 画像の岩部分(高さ571px)を2.4ユニット、上下の余白込みキャンバス(833px)を
+    // 既存のplatformVisualHeight(3.5)に合わせるPPU=237.9167で読み込む。
+    const float CavePpu = 237.9167f;
+    // 歩行ライン: キャンバス上端の余白0.3u + 岩の上面(見下ろした路面)の手前寄り0.22u。
+    const float CaveSurfaceInset = 0.52f;
+    // 岩の下端(ギザギザの平均的な位置)までの、歩行ラインからの深さ。
+    const float CaveFillTopOffset = 1.82f;
+
+    static Texture2D LoadRepeatTexture(string path)
+    {
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Default;
+            importer.npotScale = TextureImporterNPOTScale.None;
+            importer.wrapMode = TextureWrapMode.Repeat;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.mipmapEnabled = false;
+            importer.alphaIsTransparency = true;
+            importer.maxTextureSize = 4096;
+            importer.SaveAndReimport();
+        }
+        return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+    }
+
+    static TerrainManager.TerrainThemeSet BuildCaveTheme()
+    {
+        var art = new PlatformSpriteSet
+        {
+            left = LoadTiledSprite("Assets/Art/Cave/platform_cave_left.png", CavePpu),
+            mid = LoadTiledSprite("Assets/Art/Cave/platform_cave_mid.png", CavePpu),
+            right = LoadTiledSprite("Assets/Art/Cave/platform_cave_right.png", CavePpu)
+        };
+        Sprite bg = ConfigureAndLoadSpriteWithCenterPivot("Assets/Art/Background/CaveBackground.png", 1000f);
+        Sprite fill = LoadTiledSprite("Assets/Art/Cave/groundfill_cave.png", CavePpu);
+        return new TerrainManager.TerrainThemeSet
+        {
+            stageId = "natural_cave",
+            platformArt = art,
+            platformSurfaceInset = CaveSurfaceInset,
+            groundFillTopOffset = CaveFillTopOffset,
+            groundSprite = null,
+            groundColor = Color.white,
+            backgroundSprite = bg,
+            backgroundTint = new Color(1f, 1f, 1f, 1f),
+            decorationSprites = new Sprite[0],
+            groundFillSprite = fill,
+            groundFillTint = new Color(0.85f, 0.85f, 0.88f, 1f),
+            enableRouteBranch = true,
+            branchMarkerSprite = null,
+            enableCave = true,
+        };
+    }
+
+    static void BuildCaveStage(TerrainManager terrain, Camera cam, GameObject cloudLayerGO)
+    {
+        if (!AssetDatabase.IsValidFolder("Assets/Materials")) AssetDatabase.CreateFolder("Assets", "Materials");
+        const string matPath = "Assets/Materials/CaveDarkness.mat";
+        Material mat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
+        Shader shader = Shader.Find("OneMoreMile/CaveDarkness");
+        if (mat == null)
+        {
+            mat = new Material(shader);
+            AssetDatabase.CreateAsset(mat, matPath);
+        }
+        else if (mat.shader != shader)
+        {
+            mat.shader = shader;
+        }
+        EditorUtility.SetDirty(mat);
+
+        var stageGO = new GameObject("CaveStage");
+        var stage = stageGO.AddComponent<CaveStage>();
+        Texture2D band = LoadRepeatTexture("Assets/Art/Cave/ceiling_band.png");
+        stage.ceilingBandTexture = band;
+        stage.ceilingBandAspect = band != null ? (float)band.width / band.height : 4.8f;
+        Sprite caveFillSprite = LoadTiledSprite("Assets/Art/Cave/groundfill_cave.png", CavePpu);
+        stage.ceilingFillTexture = caveFillSprite != null ? caveFillSprite.texture : null;
+        stage.spikeSprites = new[]
+        {
+            ConfigureAndLoadSpriteWithCenterPivot("Assets/Art/Cave/spike_0.png", 200f),
+            ConfigureAndLoadSpriteWithCenterPivot("Assets/Art/Cave/spike_1.png", 200f),
+            ConfigureAndLoadSpriteWithCenterPivot("Assets/Art/Cave/spike_2.png", 200f),
+        };
+        stage.torchSprite = ConfigureAndLoadSpriteWithCenterPivot("Assets/Art/Cave/torch.png", 200f);
+        stage.hideWhileActive = new[] { cloudLayerGO };
+
+        var lightGO = new GameObject("CaveLighting");
+        var lighting = lightGO.AddComponent<CaveLighting>();
+        lighting.material = mat;
+        lighting.cam = cam;
+        lighting.stage = stage;
+        stage.lighting = lighting;
+        terrain.cave = stage;
+    }
+
+    // 洞窟専用の障害物/上ルート敵スポナー。荒野街道用とは別コンポーネントで、
+    // ステージIDが自然洞窟の間だけ動く(既存のスポナーは洞窟中は何もしない)。
+    static void BuildCaveSpawners(Transform player, Sprite squareSprite)
+    {
+        var obstacleGO = new GameObject("CaveObstacleSpawner");
+        var spawner = obstacleGO.AddComponent<ObstacleSpawner>();
+        spawner.player = player;
+        spawner.squareSprite = squareSprite;
+        spawner.obstacleStageId = "natural_cave";
+        Sprite rock = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Cave/obstacle_rock.png", 167f);
+        Sprite breakable = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Cave/obstacle_breakable.png", 153f);
+        Sprite wall = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Cave/obstacle_wall.png", 224f);
+        spawner.specs = new[]
+        {
+            new ObstacleSpawner.ObstacleSpec { name = "Rock", sprite = rock, targetHeight = 1.0f, color = Color.white, breakable = false, hp = 1, weight = 30f },
+            new ObstacleSpawner.ObstacleSpec { name = "SmallTree", sprite = rock, targetHeight = 1.3f, color = Color.white, breakable = false, hp = 1, weight = 25f },
+            new ObstacleSpawner.ObstacleSpec { name = "BreakableTree", sprite = breakable, targetHeight = 1.4f, color = Color.white, breakable = true, hp = 2, weight = 20f },
+            new ObstacleSpawner.ObstacleSpec { name = "Wall", sprite = wall, targetHeight = 2.0f, color = Color.white, breakable = false, hp = 1, weight = 15f },
+            new ObstacleSpawner.ObstacleSpec { name = "GiantRock", sprite = rock, targetHeight = 2.5f, color = Color.white, breakable = false, hp = 1, weight = 10f },
+        };
+
+        var upperGO = new GameObject("CaveUpperRouteEnemySpawner");
+        var upper = upperGO.AddComponent<UpperRouteEnemySpawner>();
+        upper.player = player;
+        upper.squareSprite = squareSprite;
+        upper.enemyPool = new List<EnemyDefinition>(EnemyDatabase.AllEnemies);
+        upper.stageId = "natural_cave";
     }
 
     static DistanceTier[] BuildDistanceTiers()

@@ -528,6 +528,8 @@ public class PlayerController : MonoBehaviour
     bool hasDied;
     float lungeVelocityX;
     float hitInvincibleTimer;
+    // Cave spike contact cooldown: guarantees one spike touch is one damage event even when TakeDamage is ignored (shield etc.).
+    float caveSpikeCooldown;
     float escapeHoldTimer;
     bool isAscending;
     // Item 2 - "脱出チャージ中はPlayerは通常操作を行えない" - snapshotted at
@@ -959,6 +961,16 @@ public class PlayerController : MonoBehaviour
             }
             newY = prevY + velocityY * dt;
 
+            // 自然洞窟(2026-09-21) - 天井にぶつかったら上昇を止める(ダメージ無し)。
+            // 速度を0にするので、張り付かず次フレームから通常どおり落下に移れる。
+            // 洞窟以外のステージではnullなので何も起きない。
+            float? caveLimitY = TerrainManager.Instance != null ? TerrainManager.Instance.GetCeilingLimitY(newX) : null;
+            if (caveLimitY.HasValue && newY > caveLimitY.Value)
+            {
+                newY = caveLimitY.Value;
+                if (velocityY > 0f) velocityY = 0f;
+            }
+
             // Only land if we actually crossed a surface this frame. We
             // compare *surface-relative* height (position minus the terrain
             // height directly below) rather than raw Y, because on an
@@ -1044,6 +1056,17 @@ public class PlayerController : MonoBehaviour
 
         transform.position = new Vector3(newX, newY, 0f);
         UpdateSlopeTilt(newX);
+
+        // 自然洞窟(2026-09-21) - 天井の針。既存のTakeDamage(無敵時間+安全地点復帰)を
+        // そのまま使うので、接触し続けても毎フレームのダメージや挟まりは起きない。
+        if (caveSpikeCooldown > 0f) caveSpikeCooldown -= dt;
+        if (caveSpikeCooldown <= 0f && hitInvincibleTimer <= 0f && !hasDied && TerrainManager.Instance != null && TerrainManager.Instance.IsCeilingSpikeHit(newX, newY))
+        {
+            caveSpikeCooldown = 1.5f;
+            CaveStage.SpikeHitCount++;
+            Debug.Log($"[Cave] Spike hit x={newX:F1} feetY={newY:F1}");
+            TakeDamage();
+        }
 
         // Bugfix 2026-09-06, item 2 - "下り坂走行中に突然GAME OVER". Root
         // cause: this check used to fire on raw newY alone, with no
