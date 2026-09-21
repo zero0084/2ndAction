@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[DefaultExecutionOrder(-50)] // 背景など追従物より先にカメラ位置を確定させる
 [RequireComponent(typeof(Camera))]
 public class CameraFollow : MonoBehaviour
 {
@@ -22,6 +23,17 @@ public class CameraFollow : MonoBehaviour
     // horizontal "zoom" instead of portrait looking more zoomed in just
     // because the screen is narrower.
     public float targetHorizontalHalfWidth = 20.8f;
+
+    // 高速走行の視認性補正(2026-09-22) - Playerの速度は変えず、速くなるほどカメラを少し引いて
+    // 進行方向側(先)の表示領域を広げ、「同じ速度でも先を判断できる」ようにする。
+    // 速度倍率(1〜最大)に比例し、SmoothDampでゆっくり追従させるので急なズームにならない。
+    [Header("High-speed view (高速走行の視認性補正)")]
+    public float highSpeedZoomOut = 0.12f;     // 最高速付近で視野を何割広げるか(0.12 = +12%)
+    public float highSpeedLookAhead = 2.5f;    // 最高速付近でPlayerをさらに後方へ寄せる量(offsetXへ加算)
+    public float highSpeedSmoothTime = 1.4f;   // 補正量が変化する速さ(秒)
+    float speedBlend;      // 0=基礎速度 〜 1=最高速(平滑化済み)
+    float speedBlendVel;
+    public float SpeedBlend => speedBlend;
 
     Camera cam;
     Vector3 velocity;
@@ -49,10 +61,15 @@ public class CameraFollow : MonoBehaviour
 
     void LateUpdate()
     {
+        var pc = PlayerController.Instance;
+        float speedTarget = 0f;
+        if (pc != null) speedTarget = Mathf.Clamp01((pc.SpeedRatio - 1f) / Mathf.Max(0.01f, pc.MaxSpeedRatio - 1f));
+        speedBlend = Mathf.SmoothDamp(speedBlend, speedTarget, ref speedBlendVel, Mathf.Max(0.05f, highSpeedSmoothTime));
+
         if (cam != null && Screen.height > 0)
         {
             float aspect = (float)Screen.width / Screen.height;
-            cam.orthographicSize = targetHorizontalHalfWidth / aspect;
+            cam.orthographicSize = targetHorizontalHalfWidth * (1f + highSpeedZoomOut * speedBlend) / aspect;
         }
 
         if (shakeTimer > 0f) shakeTimer = Mathf.Max(0f, shakeTimer - Time.unscaledDeltaTime);
@@ -76,7 +93,7 @@ public class CameraFollow : MonoBehaviour
         if (Time.timeScale <= 0f) return;
 
         Vector3 pos = transform.position;
-        pos.x = target.position.x + offsetX;
+        pos.x = target.position.x + offsetX + highSpeedLookAhead * speedBlend;
         bool diving = PlayerController.Instance != null && PlayerController.Instance.IsDiveAttacking;
         float smoothedY = Mathf.SmoothDamp(pos.y, target.position.y, ref velocity.y, diving ? yDampingDiveAttack : yDamping);
         pos.y = smoothedY;

@@ -809,6 +809,11 @@ public abstract class WildBossBase : MonoBehaviour
         }
     }
 
+    // Floating Origin: 座標を戻した分、ボス自身のワールドXも戻す(プレイヤーとの間合いは不変)。
+    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; }
+    void OnOriginShifted(float s) { worldX -= s; }
+
     void OnDestroy()
     {
         if (hpBar != null) Destroy(hpBar.gameObject);

@@ -178,6 +178,7 @@ public class EnemySpecialBehavior : MonoBehaviour
 
     void Start()
     {
+        FloatingOrigin.Shifted += OnOriginShifted;
         spawnX = transform.position.x;
         float? spawnGroundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(spawnX) : null;
         groundYOffset = spawnGroundY.HasValue ? transform.position.y - spawnGroundY.Value : 0f;
@@ -198,6 +199,10 @@ public class EnemySpecialBehavior : MonoBehaviour
     // する。meleeHitboxGO!=nullのチェックにより、初回起動時(Start()より
     // 前にOnEnableが走るUnityのライフサイクル順)は何もしない - 初期化は
     // Start()/InitStationaryMeleeが一度だけ担う。
+    // Floating Origin: 一時的にDisableされる間も追従するようStart~OnDestroyで購読する。
+    void OnOriginShifted(float s) { spawnX -= s; }
+    void OnDestroy() { FloatingOrigin.Shifted -= OnOriginShifted; }
+
     void OnEnable()
     {
         if (kind != EnemyBehaviorKind.StationaryMelee || meleeHitboxGO == null) return;

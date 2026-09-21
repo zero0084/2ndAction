@@ -488,6 +488,28 @@ public class PlayerController : MonoBehaviour
     // lunge/recoil. Used by the boss to keep pace with ordinary running
     // without also cancelling out the player's attack-driven movement.
     public float CurrentAutoRunSpeed => autoRunEnabled ? runSpeed * GetSpeedMultiplier() : 0f;
+    // 高速走行の視認性補正(2026-09-22) - 基礎速度に対する現在のAuto Run速度の倍率(1.0〜maxSpeedMultiplier)。
+    // 表示/カメラ補正/配置間隔が参照するだけで、実際の移動速度計算には一切影響しない。
+    public float SpeedRatio => autoRunEnabled ? GetSpeedMultiplier() : 1f;
+    public float MaxSpeedRatio => Mathf.Max(1.01f, maxSpeedMultiplier);
+    // 走行開始位置からの論理距離(Floating Originで座標を戻しても連続)。
+    public float DistanceFromStart => transform.position.x - startX;
+
+    void OnEnable()
+    {
+        FloatingOrigin.Shifted += OnOriginShifted;
+        FloatingOrigin.Warped += OnOriginWarped;
+    }
+
+    void OnDisable()
+    {
+        FloatingOrigin.Shifted -= OnOriginShifted;
+        FloatingOrigin.Warped -= OnOriginWarped;
+    }
+
+    // Floating Origin: 座標をs戻したので、走行距離の基準(startX)も同じだけ戻して論理距離を保つ。
+    void OnOriginShifted(float s) { startX -= s; }
+    void OnOriginWarped(float d) { startX -= d; }
 
     Rigidbody2D rb;
     SpriteRenderer sr;

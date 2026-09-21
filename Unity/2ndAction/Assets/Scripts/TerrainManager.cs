@@ -681,6 +681,49 @@ public class TerrainManager : MonoBehaviour
         Instance = this;
     }
 
+    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; }
+
+    // 高速走行対応(2026-09-22) - Floating Origin。シーン全体を-sだけ戻したので、
+    // 地形が持つX座標のデータ(チャンク範囲/次の生成位置/分岐範囲)も同じだけ戻す。
+    // 論理距離が必要な箇所(難易度/敵の出現開始距離)は FloatingOrigin.Offset を足して評価する。
+    // あわせて、プレイヤーよりずっと後ろのチャンク(見た目/敵)を破棄する。以前は全チャンクを
+    // 永久に保持していたため、長距離走行で GameObject が数千個に膨らんでいた。
+    public float chunkKeepBehindDistance = 300f;
+    void OnOriginShifted(float s)
+    {
+        for (int i = 0; i < chunks.Count; i++) { chunks[i].startX -= s; chunks[i].endX -= s; }
+        for (int i = 0; i < skyChunks.Count; i++) { skyChunks[i].startX -= s; skyChunks[i].endX -= s; }
+        for (int i = 0; i < branchRanges.Count; i++) { branchRanges[i].forkX -= s; branchRanges[i].mergeX -= s; }
+        nextStartX -= s;
+        nextSkyStartX -= s;
+        nextBranchX -= s;
+        if (!float.IsNegativeInfinity(lastEnemyX)) lastEnemyX -= s;
+
+        float px = player != null ? player.position.x : 0f;
+        float cutoff = px - chunkKeepBehindDistance;
+        int removeChunks = 0;
+        while (removeChunks < chunks.Count - 2 && chunks[removeChunks].endX < cutoff) removeChunks++;
+        for (int i = 0; i < removeChunks; i++)
+        {
+            RuntimeChunk c = chunks[i];
+            if (c.visual != null) Destroy(c.visual);
+            if (c.fillVisual != null) Destroy(c.fillVisual);
+            for (int e = 0; e < c.enemies.Count; e++) if (c.enemies[e] != null) Destroy(c.enemies[e]);
+        }
+        if (removeChunks > 0) chunks.RemoveRange(0, removeChunks);
+        for (int i = skyChunks.Count - 1; i >= 0; i--)
+        {
+            if (skyChunks[i].endX < cutoff)
+            {
+                if (skyChunks[i].visual != null) Destroy(skyChunks[i].visual);
+                skyChunks.RemoveAt(i);
+            }
+        }
+        for (int i = branchRanges.Count - 1; i >= 0; i--)
+            if (branchRanges[i].mergeX < cutoff) branchRanges.RemoveAt(i);
+    }
+
     void Start()
     {
         nextStartX = 0f;
@@ -1269,10 +1312,12 @@ public class TerrainManager : MonoBehaviour
             // window just stays plain/empty ground instead, so there's no
             // spawn backlog to "catch up on" once the zone ends.
             bool inSafeZone = GameManager.Instance != null && GameManager.Instance.IsInSafeZone;
-            bool safeForEnemy = !bossActive && !inSafeZone && type == ChunkType.Flat && lastType != ChunkType.Pit && startX >= noEnemyBeforeDistance;
+            bool safeForEnemy = !bossActive && !inSafeZone && type == ChunkType.Flat && lastType != ChunkType.Pit && FloatingOrigin.ToLogical(startX) >= noEnemyBeforeDistance;
             if (safeForEnemy)
             {
-                bool spacingOk = startX - lastEnemyX > minEnemySpacing;
+                // 高速走行の視認性補正 - 速くなったぶん敵どうしの最低距離も広げる(反応時間を保つ)。
+                float speedRatio = PlayerController.Instance != null ? Mathf.Max(1f, PlayerController.Instance.SpeedRatio) : 1f;
+                bool spacingOk = startX - lastEnemyX > minEnemySpacing * speedRatio;
                 // Distance Level Design Ver.1.1, item 2 - DistanceTierManager
                 // returns a pre-defined Formation's SpawnPoints as WORLD-UNIT
                 // offsets from a single anchor (this chunk's own LEFT edge,
@@ -1460,7 +1505,7 @@ public class TerrainManager : MonoBehaviour
     // start line, in units of 1000m. Used to ramp pit/enemy odds gently.
     float GetDifficultyProgress()
     {
-        return Mathf.Max(0f, nextStartX - difficultyStartDistance) / 1000f;
+        return Mathf.Max(0f, FloatingOrigin.ToLogical(nextStartX) - difficultyStartDistance) / 1000f;
     }
 
     float GetPitChance()

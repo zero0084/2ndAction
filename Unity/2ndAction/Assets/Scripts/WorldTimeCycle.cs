@@ -46,6 +46,8 @@ public class WorldTimeCycle : MonoBehaviour
     public bool debugLogEnabled = true;
 
     public string CurrentTimeName { get; private set; } = "Day";
+    // 高速走行の視認性補正 - 夜の度合い(0=昼〜1=夜)。雲など背景演出が夜に動きを抑えるために参照する。
+    public float NightAmount { get; private set; }
     string loggedTimeName = "";
 
     void Awake()
@@ -72,6 +74,7 @@ public class WorldTimeCycle : MonoBehaviour
     {
         if (forceDayOnly)
         {
+            NightAmount = 0f;
             if (nightLayer != null)
             {
                 Color nc = nightLayer.color;
@@ -81,6 +84,7 @@ public class WorldTimeCycle : MonoBehaviour
             return;
         }
         float nightAmount = ComputeNightAmount(d);
+        NightAmount = nightAmount;
 
         if (nightLayer != null)
         {

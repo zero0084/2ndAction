@@ -49,6 +49,10 @@ public class EnemyFacing : MonoBehaviour
     Vector3 lastPosition;
     float lastFacingDir = -1f; // -1=left, 1=right - defaults to facing left (the player's usual approach side) until the first real frame resolves it
 
+    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; }
+    void OnOriginShifted(float s) { lastPosition.x -= s; }
+
     void Start()
     {
         lastPosition = transform.position;

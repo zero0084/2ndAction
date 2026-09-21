@@ -21,6 +21,16 @@ public class UpperRouteEnemySpawner : MonoBehaviour
     float startX;
     float nextSpawnDistance;
 
+    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; FloatingOrigin.Warped += OnOriginWarped; }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; FloatingOrigin.Warped -= OnOriginWarped; }
+    // Floating Origin: 座標を戻した分、配置の基準X(startX)も戻す。
+    void OnOriginShifted(float s) { startX -= s; }
+    void OnOriginWarped(float d)
+    {
+        startX -= d;
+        if (GameManager.Instance != null) nextSpawnDistance = Mathf.Max(nextSpawnDistance, GameManager.Instance.MaxDistance);
+    }
+
     void Start()
     {
         startX = player != null ? player.position.x : 0f;

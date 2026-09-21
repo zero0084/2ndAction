@@ -37,6 +37,16 @@ public class EnemyWallManager : MonoBehaviour
     float startX;
     float nextWallDistance;
 
+    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; FloatingOrigin.Warped += OnOriginWarped; }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; FloatingOrigin.Warped -= OnOriginWarped; }
+    // Floating Origin: 座標を戻した分、配置の基準X(startX)も戻す。
+    void OnOriginShifted(float s) { startX -= s; }
+    void OnOriginWarped(float d)
+    {
+        startX -= d;
+        if (GameManager.Instance != null) nextWallDistance = Mathf.Max(nextWallDistance, GameManager.Instance.MaxDistance);
+    }
+
     void Start()
     {
         startX = player != null ? player.position.x : 0f;

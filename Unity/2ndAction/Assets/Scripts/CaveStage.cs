@@ -100,6 +100,54 @@ public partial class CaveStage : MonoBehaviour
     float sectionEndX;
     float nextTorchX;
     float spikeClusterBlockedUntilX;
+    // Floating Origin: ノード列の先頭(nodes[0])のX。以前は「index*nodeSpacing」で絶対Xと結び付けていたが、
+    // 座標を戻す/古いノードを捨てるので、先頭Xを別に持つ。
+    float nodeBaseX;
+    public float keepBehindDistance = 120f; // プレイヤーよりこれ以上後ろの天井/針/たいまつ/メッシュは破棄
+
+    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; }
+
+    void OnOriginShifted(float s)
+    {
+        nodeBaseX -= s;
+        for (int i = 0; i < nodes.Count; i++) nodes[i].x -= s;
+        for (int i = 0; i < spikes.Count; i++) { Spike sp = spikes[i]; sp.x -= s; spikes[i] = sp; }
+        for (int i = 0; i < torches.Count; i++) { Torch t = torches[i]; t.lightPos.x -= s; torches[i] = t; }
+        sectionEndX -= s;
+        nextTorchX -= s;
+        spikeClusterBlockedUntilX -= s;
+        if (!Active || player == null) return;
+        PruneBehind(player.position.x - keepBehindDistance);
+    }
+
+    // 古い区間(プレイヤーのずっと後ろ)を捨てる。長距離走行で天井ノード/メッシュが際限なく増えるのを防ぐ。
+    void PruneBehind(float cutoffX)
+    {
+        int k = Mathf.FloorToInt((cutoffX - nodeBaseX) / nodeSpacing);
+        k = Mathf.Min(k, builtNodeIndex - 1, nodes.Count - 3);
+        if (k > 0)
+        {
+            nodes.RemoveRange(0, k);
+            nodeBaseX += k * nodeSpacing;
+            builtNodeIndex -= k;
+        }
+        int rs = 0; while (rs < spikes.Count && spikes[rs].x < cutoffX) rs++;
+        if (rs > 0) spikes.RemoveRange(0, rs);
+        int rt = 0; while (rt < torches.Count && torches[rt].lightPos.x < cutoffX) rt++;
+        if (rt > 0) torches.RemoveRange(0, rt);
+        for (int i = spawned.Count - 1; i >= 0; i--)
+        {
+            GameObject g = spawned[i];
+            if (g == null) { spawned.RemoveAt(i); continue; }
+            var r = g.GetComponent<Renderer>();
+            if (r == null || r.bounds.max.x >= cutoffX) continue;
+            var mf = g.GetComponent<MeshFilter>();
+            if (mf != null && mf.sharedMesh != null) Destroy(mf.sharedMesh);
+            Destroy(g);
+            spawned.RemoveAt(i);
+        }
+    }
     Material bandMat, fillMat;
     Transform player;
 
@@ -159,6 +207,7 @@ public partial class CaveStage : MonoBehaviour
         spikes.Clear();
         torches.Clear();
         builtNodeIndex = 0;
+        nodeBaseX = 0f;
         spikeClusterBlockedUntilX = 0f;
         if (bandMat != null) Destroy(bandMat);
         if (fillMat != null) Destroy(fillMat);
@@ -194,7 +243,7 @@ public partial class CaveStage : MonoBehaviour
         int guard = 0;
         while (guard++ < 600)
         {
-            float x = nodes.Count * nodeSpacing;
+            float x = nodeBaseX + nodes.Count * nodeSpacing;
             if (x > px + generateAhead) break;
             // 穴/分岐の判定に必要な範囲まで地形が生成済みになるまで待つ(未生成
             // 領域の地面高さは実際の地形と無関係なため)。
@@ -327,6 +376,11 @@ public partial class CaveStage : MonoBehaviour
         var fillV = new Vector3[n * 2];
         var fillUV = new Vector2[n * 2];
         float bandTileW = bandHeight * Mathf.Max(0.1f, ceilingBandAspect);
+        // UVは論理X(Transform X + Offset)基準にして、座標を戻しても模様がつながるようにする。
+        // 値が大きくなるとfloat精度が落ちるので、メッシュごとに整数タイルぶんを引いておく(Repeatなので見た目は同じ)。
+        double logical0 = nodes[i0].x + FloatingOrigin.Offset;
+        double bandBase = System.Math.Floor(logical0 / bandTileW);
+        double fillBase = System.Math.Floor(logical0 / fillTileWorld);
         for (int k = 0; k < n; k++)
         {
             Node nd = nodes[i0 + k];
@@ -334,15 +388,17 @@ public partial class CaveStage : MonoBehaviour
             float top = bottom + bandHeight;
             bandV[k * 2] = new Vector3(nd.x, bottom, 0f);
             bandV[k * 2 + 1] = new Vector3(nd.x, top, 0f);
-            bandUV[k * 2] = new Vector2(nd.x / bandTileW, 0f);
-            bandUV[k * 2 + 1] = new Vector2(nd.x / bandTileW, 1f);
+            float bu = (float)((nd.x + FloatingOrigin.Offset) / bandTileW - bandBase);
+            bandUV[k * 2] = new Vector2(bu, 0f);
+            bandUV[k * 2 + 1] = new Vector2(bu, 1f);
             // 帯の上端に少し食い込ませて塗りつぶし(継ぎ目の隙間防止)。
             float fillBottom = top - 0.3f;
             float fillTop = nd.y + fillHeight;
             fillV[k * 2] = new Vector3(nd.x, fillBottom, 0f);
             fillV[k * 2 + 1] = new Vector3(nd.x, fillTop, 0f);
-            fillUV[k * 2] = new Vector2(nd.x / fillTileWorld, fillBottom / fillTileWorld);
-            fillUV[k * 2 + 1] = new Vector2(nd.x / fillTileWorld, fillTop / fillTileWorld);
+            float fu = (float)((nd.x + FloatingOrigin.Offset) / fillTileWorld - fillBase);
+            fillUV[k * 2] = new Vector2(fu, fillBottom / fillTileWorld);
+            fillUV[k * 2 + 1] = new Vector2(fu, fillTop / fillTileWorld);
         }
         var tris = new int[(n - 1) * 6];
         for (int k = 0; k < n - 1; k++)
@@ -379,7 +435,7 @@ public partial class CaveStage : MonoBehaviour
     float? GetCeilingHeightAtInternal(float x)
     {
         if (nodes.Count < 2) return null;
-        float f = x / nodeSpacing;
+        float f = (x - nodeBaseX) / nodeSpacing;
         int i = Mathf.FloorToInt(f);
         if (i < 0) i = 0;
         if (i >= nodes.Count - 1) return null;

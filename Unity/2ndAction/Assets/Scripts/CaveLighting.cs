@@ -7,6 +7,7 @@ using UnityEngine;
 //
 // プレイヤーの明かりは前方へ伸ばした楕円で、速度が上がるほど前方の照射範囲を
 // 広げる(速度上昇後も穴/針を見てから避けられるように)。
+[DefaultExecutionOrder(100)]
 public class CaveLighting : MonoBehaviour
 {
     public Material material;

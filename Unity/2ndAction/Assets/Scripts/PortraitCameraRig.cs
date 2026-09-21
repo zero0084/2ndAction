@@ -33,6 +33,7 @@ using UnityEngine;
 // for a native Editor window in this environment). Expect to need a real
 // visual tuning pass in the Editor/on-device before these read exactly like
 // the reference mockup.
+[DefaultExecutionOrder(-50)]
 public class PortraitCameraRig : MonoBehaviour
 {
     public static PortraitCameraRig Instance { get; private set; }

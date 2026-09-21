@@ -136,6 +136,11 @@ public class MajinController : MonoBehaviour
 
     float trackedX;
 
+    // Floating Origin: 座標を戻した分、追従基準X/待機位置も戻す。
+    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; }
+    void OnOriginShifted(float s) { trackedX -= s; homePos.x -= s; }
+
     public void Init(Transform playerTransform)
     {
         player = playerTransform;

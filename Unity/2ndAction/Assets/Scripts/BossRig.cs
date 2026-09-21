@@ -206,16 +206,16 @@ public class SpeedLine : MonoBehaviour
     SpriteRenderer sr;
     Color baseColor;
 
-    public static void Spawn(Vector3 pos, float length, Color color, float lifetime = 0.32f)
+    public static void Spawn(Vector3 pos, float length, Color color, float lifetime = 0.32f, int sortingOrder = int.MinValue, float thickness = 0.05f)
     {
         var go = new GameObject("SpeedLine");
         go.transform.position = pos;
-        go.transform.localScale = new Vector3(length, 0.05f, 1f);
+        go.transform.localScale = new Vector3(length, thickness, 1f);
         var s = go.AddComponent<SpeedLine>();
         s.life = lifetime;
         s.sr = go.AddComponent<SpriteRenderer>();
         s.sr.sprite = BossFx.Block();
-        s.sr.sortingOrder = RenderOrder.Boss - 1;
+        s.sr.sortingOrder = sortingOrder == int.MinValue ? RenderOrder.Boss - 1 : sortingOrder;
         s.baseColor = color;
         s.sr.color = color;
     }

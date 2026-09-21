@@ -1435,6 +1435,51 @@ public class GameManager : MonoBehaviour
 
     Rect GetBestPanelRect() => new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, 168f, HudPanelHeight);
     Rect GetDistancePanelRect() => new Rect(SafeLeft() + UiMargin, GetBestPanelRect().yMax + HudPanelGap, 168f, HudPanelHeight);
+    // 高速走行の視認性補正(2026-09-22) - 現在のAuto Run速度を基礎速度に対する倍率で常時表示する小さなHUD。
+    // 既存の速度値(PlayerController.SpeedRatio)を参照して表示するだけで、移動速度の計算には影響しない。
+    Rect GetSpeedPanelRect() => new Rect(SafeLeft() + UiMargin, GetDistancePanelRect().yMax + HudPanelGap, 168f, 30f);
+    int speedHudStep = -1;
+    float speedUpShownAt = -100f;
+    float speedUpShownRatio = 1f;
+    const float SpeedUpNoticeSeconds = 1.6f;
+
+    void DrawSpeedHud()
+    {
+        var pc = PlayerController.Instance;
+        if (pc == null) return;
+        float ratio = pc.SpeedRatio;
+        // 0.25刻みの段を超えた瞬間に短い通知(初回描画では鳴らさない)。
+        int step = Mathf.FloorToInt(ratio * 4f + 0.0001f);
+        if (Event.current.type == EventType.Repaint)
+        {
+            if (speedHudStep >= 0 && step > speedHudStep)
+            {
+                speedUpShownAt = Time.unscaledTime;
+                speedUpShownRatio = step / 4f;
+            }
+            speedHudStep = step;
+        }
+
+        Rect r = GetSpeedPanelRect();
+        UiBackdrop.Draw(r, 0.6f);
+        var labelStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
+        labelStyle.normal.textColor = HudLabelColor;
+        GUI.Label(new Rect(r.x + 12f, r.y, 70f, r.height), "SPEED", labelStyle);
+        var valueStyle = new GUIStyle(GUI.skin.label) { fontSize = 17, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleRight };
+        valueStyle.normal.textColor = ratio >= 1.01f ? HudGoldColor : HudValueColor;
+        GUI.Label(new Rect(r.x + 60f, r.y, r.width - 72f, r.height), "×" + ratio.ToString("0.00"), valueStyle);
+
+        float since = Time.unscaledTime - speedUpShownAt;
+        if (since >= 0f && since < SpeedUpNoticeSeconds)
+        {
+            float a = since < 0.2f ? since / 0.2f : Mathf.Clamp01((SpeedUpNoticeSeconds - since) / 0.5f);
+            var nStyle = new GUIStyle(GUI.skin.label) { fontSize = 15, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft };
+            Color c = HudGoldColor; c.a = a;
+            nStyle.normal.textColor = c;
+            GUI.Label(new Rect(r.x + 4f, r.yMax + 2f, 220f, 22f), "SPEED UP! ×" + speedUpShownRatio.ToString("0.00"), nStyle);
+        }
+    }
+
     Rect GetLevelExpPanelRect() => new Rect(Screen.width / 2f - 190f, SafeTop() + UiMargin, 380f, HudPanelHeight);
     Rect GetHeartsPanelRect()
     {
@@ -2787,6 +2832,7 @@ public class GameManager : MonoBehaviour
             // placed boxes.
             DrawStatPanel(GetBestPanelRect(), "BEST", FormatDistance(BestDistance), HudGoldColor);
             DrawStatPanel(GetDistancePanelRect(), "DISTANCE", FormatDistance(MaxDistance), HudValueColor, flashIntensity: DistanceFlashIntensity);
+            DrawSpeedHud();
 
             DrawLevelAndExp();
             DrawHeartsPanel();
@@ -3792,9 +3838,11 @@ public class GameManager : MonoBehaviour
         MaxDistance = targetDistance;
         if (PlayerController.Instance != null)
         {
-            Vector3 p = PlayerController.Instance.transform.position;
-            p.x = targetDistance;
-            PlayerController.Instance.transform.position = p;
+            // Floating Origin(2026-09-22) - プレイヤーを何万ユニットも実際に動かすと、地形チャンクを大量生成
+            // してしまううえ座標精度も落ちる。論理距離だけを加算してその場で「N mに来た」ことにする
+            // (地形/配置/ボスは論理距離で判断するので、その後は通常どおり進む)。
+            float current = PlayerController.Instance.DistanceFromStart;
+            FloatingOrigin.LogicalWarp(targetDistance - current);
         }
         Debug.Log($"[Debug] Warped to {targetDistance}m");
     }

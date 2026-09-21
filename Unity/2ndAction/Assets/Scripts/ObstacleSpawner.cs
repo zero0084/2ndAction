@@ -128,6 +128,47 @@ public class ObstacleSpawner : MonoBehaviour
     float startX;
     float nextObstacleDistance;
 
+    // 高速走行の視認性補正(2026-09-22) - 配置間隔を「メートル固定」ではなく「反応時間」基準にする。
+    // Auto Run速度が基礎の何倍かをGapScaleとし、障害物の間隔/最低間隔/穴・分岐からの余裕を同じ倍率で
+    // 広げる(=速く走っていても、次の危険が見えてから反応できる秒数は変わらない)。
+    // 速度そのものは落とさない。倍率1(基礎速度)では従来と完全に同じ値。
+    public float highSpeedHazardFocusMargin = 6f; // 高速時、大型障害物を穴からさらに離す量(倍率-1あたり)
+    float GapScale => PlayerController.Instance != null ? Mathf.Max(1f, PlayerController.Instance.SpeedRatio) : 1f;
+    float MinGapBetween => minGapBetweenObstacles * GapScale;
+    float MinGapBeforeLarge => minGapBeforeLargeObstacle * GapScale;
+    float MinGapAfterLarge => minGapAfterLargeObstacle * GapScale;
+    float PitClear => pitObstacleClearance * GapScale;
+    float PitClearLarge => pitObstacleClearanceForLarge * GapScale + highSpeedHazardFocusMargin * (GapScale - 1f);
+    float BranchEdgeClear => branchEdgeClearance * GapScale;
+
+    void OnEnable()
+    {
+        FloatingOrigin.Shifted += OnOriginShifted;
+        FloatingOrigin.Warped += OnOriginWarped;
+    }
+
+    void OnDisable()
+    {
+        FloatingOrigin.Shifted -= OnOriginShifted;
+        FloatingOrigin.Warped -= OnOriginWarped;
+    }
+
+    void OnOriginShifted(float s)
+    {
+        startX -= s;
+        if (!float.IsNegativeInfinity(lastLowerObstacleX)) lastLowerObstacleX -= s;
+        if (!float.IsNegativeInfinity(lastUpperObstacleX)) lastUpperObstacleX -= s;
+    }
+
+    // デバッグワープ: MaxDistanceが飛ぶので、次の配置マイルストーンも現在距離まで進める(過去位置への大量配置を防ぐ)。
+    void OnOriginWarped(float d)
+    {
+        startX -= d;
+        float md = GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f;
+        nextObstacleDistance = Mathf.Max(nextObstacleDistance, md);
+        nextUpperObstacleDistance = Mathf.Max(nextUpperObstacleDistance, md);
+    }
+
     void Start()
     {
         startX = player != null ? player.position.x : 0f;
@@ -158,7 +199,7 @@ public class ObstacleSpawner : MonoBehaviour
             // まま。
             float worldX = startX + milestoneDistance + spawnAheadDistance;
             bool danger = TerrainManager.Instance != null && TerrainManager.Instance.IsInBranchRoute(worldX);
-            nextObstacleDistance += danger ? obstacleInterval * dangerIntervalMultiplier : obstacleInterval;
+            nextObstacleDistance += (danger ? obstacleInterval * dangerIntervalMultiplier : obstacleInterval) * GapScale;
         }
 
         // ルート構造再調整(2026-09-13) - 上ルート(Easy)専用の軽い障害物。
@@ -169,7 +210,7 @@ public class ObstacleSpawner : MonoBehaviour
             bool inSafeZone = GameManager.Instance.IsInSafeZone;
             if (!inSafeZone) SpawnUpperObstacle(nextUpperObstacleDistance);
 
-            nextUpperObstacleDistance += upperObstacleInterval;
+            nextUpperObstacleDistance += upperObstacleInterval * GapScale;
         }
     }
 
@@ -193,18 +234,18 @@ public class ObstacleSpawner : MonoBehaviour
         // 「分岐/合流地点」、item4「連続配置しない」)。いずれも満たすまで
         // 少しずつ前方へ探す - 既存のPit回避探索と同じ仕組みを拡張した。
         float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(worldX) : null;
-        bool nearPit = TerrainManager.Instance != null && TerrainManager.Instance.IsNearPit(worldX, pitObstacleClearance);
-        bool nearBranchEdge = TerrainManager.Instance != null && TerrainManager.Instance.IsNearBranchEdge(worldX, branchEdgeClearance);
-        bool tooCloseToLast = (worldX - lastLowerObstacleX) < minGapBetweenObstacles;
+        bool nearPit = TerrainManager.Instance != null && TerrainManager.Instance.IsNearPit(worldX, PitClear);
+        bool nearBranchEdge = TerrainManager.Instance != null && TerrainManager.Instance.IsNearBranchEdge(worldX, BranchEdgeClear);
+        bool tooCloseToLast = (worldX - lastLowerObstacleX) < MinGapBetween;
         float searched = 0f;
         while ((!groundY.HasValue || nearPit || nearBranchEdge || tooCloseToLast) && searched < maxPitAvoidSearch)
         {
             worldX += 0.5f;
             searched += 0.5f;
             groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(worldX) : null;
-            nearPit = TerrainManager.Instance != null && TerrainManager.Instance.IsNearPit(worldX, pitObstacleClearance);
-            nearBranchEdge = TerrainManager.Instance != null && TerrainManager.Instance.IsNearBranchEdge(worldX, branchEdgeClearance);
-            tooCloseToLast = (worldX - lastLowerObstacleX) < minGapBetweenObstacles;
+            nearPit = TerrainManager.Instance != null && TerrainManager.Instance.IsNearPit(worldX, PitClear);
+            nearBranchEdge = TerrainManager.Instance != null && TerrainManager.Instance.IsNearBranchEdge(worldX, BranchEdgeClear);
+            tooCloseToLast = (worldX - lastLowerObstacleX) < MinGapBetween;
         }
         if (!groundY.HasValue || nearPit || nearBranchEdge || tooCloseToLast) return;
 
@@ -223,9 +264,9 @@ public class ObstacleSpawner : MonoBehaviour
         if (IsLarge(spec))
         {
             bool onSlope = TerrainManager.Instance != null && Mathf.Abs(TerrainManager.Instance.GetSlopeAngleAt(worldX)) > 0.01f;
-            bool gapBeforeOk = (worldX - lastLowerObstacleX) >= minGapBeforeLargeObstacle;
-            bool gapAfterPrevLargeOk = !lastLowerObstacleWasLarge || (worldX - lastLowerObstacleX) >= minGapAfterLargeObstacle;
-            bool pitOk = TerrainManager.Instance == null || !TerrainManager.Instance.IsNearPit(worldX, pitObstacleClearanceForLarge);
+            bool gapBeforeOk = (worldX - lastLowerObstacleX) >= MinGapBeforeLarge;
+            bool gapAfterPrevLargeOk = !lastLowerObstacleWasLarge || (worldX - lastLowerObstacleX) >= MinGapAfterLarge;
+            bool pitOk = TerrainManager.Instance == null || !TerrainManager.Instance.IsNearPit(worldX, PitClearLarge);
             // 自然洞窟(2026-09-21) - 低い天井の下では大型障害物を置かない(2段ジャンプの
             // 頭上が天井に当たって越えにくくなるため)。洞窟以外ではceilがnullで常にfalse。
             bool lowCeiling = false;
@@ -288,8 +329,8 @@ public class ObstacleSpawner : MonoBehaviour
         // item3/6 - 上ルートでも、分岐(fork)直後・合流(merge)直前は
         // ジャンプで登り切る/降り切るための空間として空けておく。前の
         // 上ルート障害物からの最低間隔も、下ルートと同じ発想で確保する。
-        bool nearBranchEdge = TerrainManager.Instance.IsNearBranchEdge(worldX, branchEdgeClearance);
-        bool tooCloseToLast = (worldX - lastUpperObstacleX) < minGapBetweenObstacles;
+        bool nearBranchEdge = TerrainManager.Instance.IsNearBranchEdge(worldX, BranchEdgeClear);
+        bool tooCloseToLast = (worldX - lastUpperObstacleX) < MinGapBetween;
         float searched = 0f;
         float? skyY = TerrainManager.Instance.GetSkyHeightAt(worldX);
         while ((!skyY.HasValue || nearBranchEdge || tooCloseToLast) && searched < maxPitAvoidSearch)
@@ -297,8 +338,8 @@ public class ObstacleSpawner : MonoBehaviour
             worldX += 0.5f;
             searched += 0.5f;
             skyY = TerrainManager.Instance.GetSkyHeightAt(worldX);
-            nearBranchEdge = TerrainManager.Instance.IsNearBranchEdge(worldX, branchEdgeClearance);
-            tooCloseToLast = (worldX - lastUpperObstacleX) < minGapBetweenObstacles;
+            nearBranchEdge = TerrainManager.Instance.IsNearBranchEdge(worldX, BranchEdgeClear);
+            tooCloseToLast = (worldX - lastUpperObstacleX) < MinGapBetween;
         }
         if (!skyY.HasValue || nearBranchEdge || tooCloseToLast) return;
 

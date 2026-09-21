@@ -77,6 +77,11 @@ public class EnemyAnimator : MonoBehaviour
     float phase;
     float swayPhase;
 
+    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; }
+    // Floating Origin: 座標を戻した1フレームだけ「大きく動いた」と誤判定しないようキャッシュも戻す。
+    void OnOriginShifted(float s) { lastRootPos.x -= s; basePos.x -= s; }
+
     void Start()
     {
         var controller = GetComponent<EnemyController>();
