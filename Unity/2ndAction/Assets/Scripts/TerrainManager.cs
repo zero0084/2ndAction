@@ -555,6 +555,16 @@ public class TerrainManager : MonoBehaviour
         float? c = cave.GetCeilingHeightAt(x);
         return c.HasValue ? c.Value - cave.playerHeadHeight : (float?)null;
     }
+    // 針の先端まで含めた「通行できる天井の高さ」(針が無ければ通常の天井と同じ)。障害物配置などが
+    // 通路の空間を判断するのに使う。洞窟でなければnull。
+    public float? GetEffectiveCeilingHeightAt(float x) => cave != null ? cave.GetEffectiveCeilingHeightAt(x) : null;
+    // 「乗って走れる一番高い床」(下ルートの地面ライン と 上ルートの床 の高い方)。
+    public float GetFloorTopAt(float x)
+    {
+        float g = GetGroundLineAt(x);
+        float? s = GetSkyHeightAt(x);
+        return s.HasValue ? Mathf.Max(g, s.Value) : g;
+    }
     public bool IsCeilingSpikeHit(float x, float feetY) => cave != null && cave.IsSpikeHit(x, feetY + cave.playerHeadHeight);
 
     [Header("Sky Path")]

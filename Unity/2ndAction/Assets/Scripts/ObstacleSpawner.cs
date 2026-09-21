@@ -75,6 +75,31 @@ public class ObstacleSpawner : MonoBehaviour
     public float pitObstacleClearanceForLarge = 4.5f;
     // 洞窟専用: 大型障害物(壁/巨大石)を置くのに必要な、地面から天井までの最小高さ。
     public float largeObstacleMinCeilingClearance = 5.6f;
+    // 洞窟専用: 障害物の上面から天井(針があれば針の先端)までに残す最低間隔。これを満たせない高さの障害物は
+    // より低いものへ格下げし、それでも満たせなければ置かない(低い天井の下で通路を塞がない)。
+    public float caveObstaclePassClearance = 3.0f;
+
+    // 位置worldX付近(障害物の幅ぶん)の通れる天井の最低の高さ。洞窟でなければnull。
+    float? CaveEffectiveCeiling(float worldX)
+    {
+        if (TerrainManager.Instance == null) return null;
+        float? best = null;
+        for (float dx = -1f; dx <= 1.001f; dx += 1f)
+        {
+            float? c = TerrainManager.Instance.GetEffectiveCeilingHeightAt(worldX + dx);
+            if (c.HasValue) best = best.HasValue ? Mathf.Min(best.Value, c.Value) : c.Value;
+        }
+        return best;
+    }
+
+    ObstacleSpec PickLowestSpec()
+    {
+        ObstacleSpec best = default;
+        float h = float.MaxValue;
+        foreach (ObstacleSpec s in specs)
+            if (!string.IsNullOrEmpty(s.name) && s.targetHeight < h) { h = s.targetHeight; best = s; }
+        return best;
+    }
 
     float lastLowerObstacleX = float.NegativeInfinity;
     bool lastLowerObstacleWasLarge;
@@ -282,6 +307,14 @@ public class ObstacleSpawner : MonoBehaviour
             }
         }
 
+        // 洞窟: 天井(針先)までの間隔が足りない高さの障害物は使わない。
+        float? capCeil = CaveEffectiveCeiling(worldX);
+        if (capCeil.HasValue && capCeil.Value - (groundY.Value + spec.targetHeight) < caveObstaclePassClearance)
+        {
+            spec = PickLowestSpec();
+            if (string.IsNullOrEmpty(spec.name) || capCeil.Value - (groundY.Value + spec.targetHeight) < caveObstaclePassClearance) return;
+        }
+
         // 基礎品質修整(2026-09-14) - 坂の上でも障害物が地面の傾きに沿って
         // 自然に見えるよう、その場所の地面角度を取得して渡す。
         float groundAngle = TerrainManager.Instance != null ? TerrainManager.Instance.GetSlopeAngleAt(worldX) : 0f;
@@ -345,6 +378,9 @@ public class ObstacleSpawner : MonoBehaviour
 
         ObstacleSpec spec = PickEasySpec();
         if (string.IsNullOrEmpty(spec.name)) return;
+        // 洞窟: 上ルートの障害物も、上面から天井(針先)までの間隔を確保できなければ置かない。
+        float? upCeil = CaveEffectiveCeiling(worldX);
+        if (upCeil.HasValue && upCeil.Value - (skyY.Value + spec.targetHeight) < caveObstaclePassClearance) return;
 
         GroundFactory.CreateObstacle(transform, squareSprite, spec.sprite, new Vector2(worldX, skyY.Value), spec.targetHeight, spec.color, spec.breakable, spec.hp);
         lastUpperObstacleX = worldX;

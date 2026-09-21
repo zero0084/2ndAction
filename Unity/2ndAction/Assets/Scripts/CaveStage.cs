@@ -37,6 +37,16 @@ public partial class CaveStage : MonoBehaviour
     public float lowCeilingPitMargin = 10f;
     public float lowCeilingBranchMargin = 9f;
 
+    [Header("Passage (通路の最低空間 / 調整用)")]
+    // 床(上ルートの床も含む)から天井までの最低間隔 = プレイヤーの頭の高さ + この余裕。
+    // 針のある所は「針の先端まで」で測る。通常/針/低天井のどの区間・地形の継ぎ目でも下回らない。
+    public float passageMargin = 1.6f;
+    // 上ルートの床から天井までを、下ルートより何ユニット詰めてよいか(洞窟が極端に高くなりすぎないように)。
+    public float upperRouteClearanceReduction = 1.0f;
+    // 天井の各ノードで、床の高さを調べる範囲(ノード間隔の何倍を両側に見るか)。坂・段差・接続部の取りこぼし防止。
+    public float floorSampleStep = 1f;
+    public float MinPassageHeight => playerHeadHeight + passageMargin;
+
     [Header("Spikes (調整用)")]
     [Range(0f, 1f)] public float spikeClusterChancePerNode = 0.7f;
     public int spikeClusterMax = 3;
@@ -271,8 +281,24 @@ public partial class CaveStage : MonoBehaviour
         }
         float clearance = mode == 2 ? lowClearance : (mode == 1 ? spikeSectionClearance : normalClearance);
         if (mode != 2) clearance += Random.Range(-normalClearanceJitter, normalClearanceJitter);
+        // 針の区間は、最も長い針の先端でも最低間隔が残る高さを下限にする。
+        float minClear = MinPassageHeight + (mode == 1 ? spikeLengthMax : 0f);
+        clearance = Mathf.Max(clearance, minClear);
 
-        var node = new Node { x = x, y = tm.GetGroundLineAt(x) + clearance, mode = mode };
+        // 床の高さ: このノードの前後(隣のノードとの間の線分を含む範囲)で、下ルートの地面ラインと
+        // 上ルートの床の高い方を調べる。上ルートを走るプレイヤーの頭上にも十分な空間を確保する。
+        float groundTop = float.NegativeInfinity, upperTop = float.NegativeInfinity;
+        for (float sx = x - nodeSpacing; sx <= x + nodeSpacing + 0.001f; sx += Mathf.Max(0.25f, floorSampleStep))
+        {
+            groundTop = Mathf.Max(groundTop, tm.GetGroundLineAt(sx));
+            float? sky = tm.GetSkyHeightAt(sx);
+            if (sky.HasValue) upperTop = Mathf.Max(upperTop, sky.Value);
+        }
+        float ceilY = groundTop + clearance;
+        if (upperTop > float.NegativeInfinity)
+            ceilY = Mathf.Max(ceilY, upperTop + Mathf.Max(minClear, clearance - upperRouteClearanceReduction));
+
+        var node = new Node { x = x, y = ceilY, mode = mode };
         nodes.Add(node);
 
         // 針: 直前ノードとこのノードの間(両端が針区間のとき)に置く。両ノードが確定
@@ -334,6 +360,11 @@ public partial class CaveStage : MonoBehaviour
         Sprite sp = hasArt ? spikeSprites[Random.Range(0, spikeSprites.Length)] : null;
         // 絵の縦横比を保ったまま幅を決める(当たり判定の三角形も同じ寸法)。
         float w = hasArt ? len * (sp.bounds.size.x / sp.bounds.size.y) * Random.Range(0.9f, 1.1f) : Random.Range(spikeWidthMin, spikeWidthMax);
+        // 針の先端から床(上ルート含む)までが最低間隔に満たない場所には針を置かない。
+        float floorTop = float.NegativeInfinity;
+        for (float fx = x - w * 0.5f - 0.5f; fx <= x + w * 0.5f + 0.5f; fx += 0.5f)
+            floorTop = Mathf.Max(floorTop, TerrainManager.Instance.GetFloorTopAt(fx));
+        if (top - len - floorTop < MinPassageHeight) return;
         spikes.Add(new Spike { x = x, topY = top, len = len, hw = w * 0.5f });
 
         if (!hasArt) return;
@@ -442,6 +473,23 @@ public partial class CaveStage : MonoBehaviour
         float t = f - i;
         return Mathf.Lerp(nodes[i].y, nodes[i + 1].y, t);
     }
+
+    // 針の先端も含めた通行可能な天井の高さ。
+    public float? GetEffectiveCeilingHeightAt(float x)
+    {
+        float? c = GetCeiling(x);
+        if (!c.HasValue) return null;
+        float best = c.Value;
+        for (int i = 0; i < spikes.Count; i++)
+        {
+            Spike s = spikes[i];
+            if (s.x < x - spikeWidthMax - 1f) continue;
+            if (s.x > x + spikeWidthMax + 1f) break;
+            if (Mathf.Abs(x - s.x) <= s.hw + playerHalfWidth) best = Mathf.Min(best, s.topY - s.len);
+        }
+        return best;
+    }
+    float? GetCeiling(float x) => Active ? GetCeilingHeightAtInternal(x) : null;
 
     // 天井の高さ(コリジョン面)。ステージが洞窟でない/まだ生成されていなければnull。
     public float? GetCeilingHeightAt(float x)

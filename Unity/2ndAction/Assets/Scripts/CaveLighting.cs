@@ -14,7 +14,7 @@ public class CaveLighting : MonoBehaviour
     public Camera cam;
 
     [Header("暗さ (調整用)")]
-    [Range(0f, 1f)] public float maxDarkness = 0.74f;
+    [Range(0f, 1f)] public float maxDarkness = 0.88f; // 光が届かない部分の暗さ(0.74→0.88: 奥の背景や離れた通路を一段暗く)
     public Color darkColor = new Color(0.02f, 0.03f, 0.07f, 1f);
 
     [Header("プレイヤーの明かり (調整用)")]

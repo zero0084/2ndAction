@@ -989,8 +989,15 @@ public class PlayerController : MonoBehaviour
             float? caveLimitY = TerrainManager.Instance != null ? TerrainManager.Instance.GetCeilingLimitY(newX) : null;
             if (caveLimitY.HasValue && newY > caveLimitY.Value)
             {
-                newY = caveLimitY.Value;
+                // 通路の空間が足りない場所(生成側で保証しているが念のため)でも、足元より下へは押し込まない。
+                // 押し込むと「床の下」に入って着地判定をすり抜け、挟まる/落ち続ける原因になる。
+                float lim = caveLimitY.Value;
+                if (skyHeight.HasValue && prevY >= skyHeight.Value + groundOffset - 0.05f) lim = Mathf.Max(lim, skyHeight.Value + groundOffset);
+                if (groundHeight.HasValue && prevY >= groundHeight.Value + groundOffset - 0.05f) lim = Mathf.Max(lim, groundHeight.Value + groundOffset);
+                newY = Mathf.Min(newY, lim);
                 if (velocityY > 0f) velocityY = 0f;
+                // 天井に触れたら空中滞空補助(重力低下)を打ち切り、通常の重力で自然に落ちる(張り付き防止)。
+                aerialAssistTimer = 0f;
             }
 
             // Only land if we actually crossed a surface this frame. We
