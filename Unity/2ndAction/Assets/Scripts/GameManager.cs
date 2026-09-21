@@ -997,6 +997,35 @@ public class GameManager : MonoBehaviour
     public bool IsWin { get; private set; }
     public float MaxDistance { get; private set; }
     public float BestDistance { get; private set; }
+
+    // ===== マップ別BEST(2026-09-22) =====
+    // 保存キーは表示名ではなく安定したステージIDで分ける("BestDistance_v2_<stageId>")。値は倍精度をinvariantな文字列で保存。
+    // 旧・共通のBestDistance(float)は「どのマップの記録か」を示す情報が無いので、どのマップにも割り当てず、
+    // 解放/ガチャ進行の全体最高距離としてのみ従来どおり使う。旧値は初回起動時に別キーへ退避して保持する。
+    const string StageBestKeyPrefix = "BestDistance_v2_";
+    const string LegacyBestBackupKey = "BestDistance_legacyBackup";
+    readonly System.Collections.Generic.Dictionary<string, double> stageBestCache = new System.Collections.Generic.Dictionary<string, double>();
+
+    public double GetStageBest(string stageId)
+    {
+        if (string.IsNullOrEmpty(stageId)) return 0.0;
+        if (stageBestCache.TryGetValue(stageId, out double v)) return v;
+        string s = PlayerPrefs.GetString(StageBestKeyPrefix + stageId, "");
+        double.TryParse(s, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out v);
+        stageBestCache[stageId] = v;
+        return v;
+    }
+
+    void SetStageBest(string stageId, double value)
+    {
+        if (string.IsNullOrEmpty(stageId)) return;
+        stageBestCache[stageId] = value;
+        PlayerPrefs.SetString(StageBestKeyPrefix + stageId, value.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+    }
+
+    // HUD/タイトルに出すBEST対象のステージ: ラン中はそのランのステージ、タイトルでは次に出発する選択中ステージ。
+    string BestDisplayStageId => HasStarted && !string.IsNullOrEmpty(activeRunStageId) ? activeRunStageId : SelectedStageId;
+    double BestDisplayValue => GetStageBest(BestDisplayStageId);
     public float BestTime { get; private set; }
     public float RunTime { get; private set; }
     public bool InvincibleMode { get; private set; }
@@ -1043,6 +1072,8 @@ public class GameManager : MonoBehaviour
         // SceneBuilder already populated on this component.
         OrnateUi.FrameTexture = ornateFrame;
         BestDistance = PlayerPrefs.GetFloat(BestDistanceKey, 0f);
+        if (!PlayerPrefs.HasKey(LegacyBestBackupKey) && PlayerPrefs.HasKey(BestDistanceKey))
+            PlayerPrefs.SetFloat(LegacyBestBackupKey, BestDistance); // 元データを保持(マップへの割り当ては行わない)
         BestTime = PlayerPrefs.GetFloat(BestTimeKey, 0f);
         InvincibleMode = PlayerPrefs.GetInt(InvincibleKey, 0) != 0;
         DebugMode = PlayerPrefs.GetInt(DebugModeKey, 0) != 0;
@@ -1393,6 +1424,9 @@ public class GameManager : MonoBehaviour
     // used by the TOP-screen "RESET HIGH SCORE" button.
     void ResetHighScores()
     {
+        foreach (string k in new System.Collections.Generic.List<string>(stageBestCache.Keys)) PlayerPrefs.DeleteKey(StageBestKeyPrefix + k);
+        stageBestCache.Clear();
+        if (StageDatabase.AllStages != null) foreach (var st in StageDatabase.AllStages) PlayerPrefs.DeleteKey(StageBestKeyPrefix + st.stageId);
         BestDistance = 0f;
         BestTime = 0f;
         PlayerPrefs.DeleteKey(BestDistanceKey);
@@ -1433,21 +1467,22 @@ public class GameManager : MonoBehaviour
     static readonly Color HudValueColor = Color.white;
     static readonly Color HudGoldColor = new Color(1f, 0.85f, 0.35f);
 
-    Rect GetBestPanelRect() => new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, 168f, HudPanelHeight);
-    Rect GetDistancePanelRect() => new Rect(SafeLeft() + UiMargin, GetBestPanelRect().yMax + HudPanelGap, 168f, HudPanelHeight);
+    Rect GetBestPanelRect() => new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, DistancePanelWidth(false), HudPanelHeight);
+    Rect GetDistancePanelRect() => new Rect(SafeLeft() + UiMargin, GetBestPanelRect().yMax + HudPanelGap, DistancePanelWidth(false), HudPanelHeight);
     // 高速走行の視認性補正(2026-09-22) - 現在のAuto Run速度を基礎速度に対する倍率で常時表示する小さなHUD。
     // 既存の速度値(PlayerController.SpeedRatio)を参照して表示するだけで、移動速度の計算には影響しない。
-    Rect GetSpeedPanelRect() => new Rect(SafeLeft() + UiMargin, GetDistancePanelRect().yMax + HudPanelGap, 168f, 30f);
+    Rect GetSpeedPanelRect() => new Rect(SafeLeft() + UiMargin, GetDistancePanelRect().yMax + HudPanelGap, DistancePanelWidth(false), 30f);
     int speedHudStep = -1;
     float speedUpShownAt = -100f;
-    float speedUpShownRatio = 1f;
+    float speedUpShownKmh;
     const float SpeedUpNoticeSeconds = 1.6f;
 
     void DrawSpeedHud()
     {
         var pc = PlayerController.Instance;
         if (pc == null) return;
-        float ratio = pc.SpeedRatio;
+        float ratio = pc.SpeedRatio; // 通知の段を判定するためだけに使う(表示は km/h)
+        float kmh = SpeedKmh(pc.CurrentAutoRunSpeed);
         // 0.25刻みの段を超えた瞬間に短い通知(初回描画では鳴らさない)。
         int step = Mathf.FloorToInt(ratio * 4f + 0.0001f);
         if (Event.current.type == EventType.Repaint)
@@ -1455,7 +1490,7 @@ public class GameManager : MonoBehaviour
             if (speedHudStep >= 0 && step > speedHudStep)
             {
                 speedUpShownAt = Time.unscaledTime;
-                speedUpShownRatio = step / 4f;
+                speedUpShownKmh = kmh;
             }
             speedHudStep = step;
         }
@@ -1467,7 +1502,7 @@ public class GameManager : MonoBehaviour
         GUI.Label(new Rect(r.x + 12f, r.y, 70f, r.height), "SPEED", labelStyle);
         var valueStyle = new GUIStyle(GUI.skin.label) { fontSize = 17, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleRight };
         valueStyle.normal.textColor = ratio >= 1.01f ? HudGoldColor : HudValueColor;
-        GUI.Label(new Rect(r.x + 60f, r.y, r.width - 72f, r.height), "×" + ratio.ToString("0.00"), valueStyle);
+        GUI.Label(new Rect(r.x + 60f, r.y, r.width - 72f, r.height), kmh.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " km/h", valueStyle);
 
         float since = Time.unscaledTime - speedUpShownAt;
         if (since >= 0f && since < SpeedUpNoticeSeconds)
@@ -1476,7 +1511,7 @@ public class GameManager : MonoBehaviour
             var nStyle = new GUIStyle(GUI.skin.label) { fontSize = 15, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft };
             Color c = HudGoldColor; c.a = a;
             nStyle.normal.textColor = c;
-            GUI.Label(new Rect(r.x + 4f, r.yMax + 2f, 220f, 22f), "SPEED UP! ×" + speedUpShownRatio.ToString("0.00"), nStyle);
+            GUI.Label(new Rect(r.x + 4f, r.yMax + 2f, 220f, 22f), "SPEED UP! " + speedUpShownKmh.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " km/h", nStyle);
         }
     }
 
@@ -1583,6 +1618,12 @@ public class GameManager : MonoBehaviour
     float distanceExclusionOffset;
     float lastRawDistanceSeen;
     float bossPhaseEntryRawDistance;
+    // cm単位表示用の倍精度の並行トラッキング(2026-09-22)。MaxDistance(float)は距離条件/ボス/報酬にそのまま使い、
+    // こちらは表示と記録(BEST)専用。float(100,000m超で刻み0.008m以上)ではcm精度が保てないため。
+    double distanceExclusionOffsetExact;
+    double lastRawDistanceSeenExact;
+    double bossPhaseEntryRawDistanceExact;
+    public double MaxDistanceExact { get; private set; }
 
     // Called once, right when BossManager locks the Gate (immediately
     // after ClampMaxDistanceTo) - captures "what raw distance corresponds
@@ -1592,6 +1633,7 @@ public class GameManager : MonoBehaviour
     public void BeginBossDistanceExclusion()
     {
         bossPhaseEntryRawDistance = lastRawDistanceSeen;
+        bossPhaseEntryRawDistanceExact = lastRawDistanceSeenExact;
     }
 
     // Called once, right where GameManager already calls BossManager.
@@ -1600,10 +1642,14 @@ public class GameManager : MonoBehaviour
     public void EndBossDistanceExclusion()
     {
         distanceExclusionOffset += (lastRawDistanceSeen - bossPhaseEntryRawDistance);
+        distanceExclusionOffsetExact += (lastRawDistanceSeenExact - bossPhaseEntryRawDistanceExact);
     }
 
-    public void ReportDistance(float rawDistance)
+    public void ReportDistance(float rawDistance) { ReportDistance(rawDistance, rawDistance); }
+
+    public void ReportDistance(float rawDistance, double rawDistanceExact)
     {
+        lastRawDistanceSeenExact = rawDistanceExact;
         // lastRawDistanceSeen updates unconditionally, every call, even
         // while IsBossPhase is freezing everything below this line - it's
         // what lets BeginBossDistanceExclusion/EndBossDistanceExclusion
@@ -1623,6 +1669,9 @@ public class GameManager : MonoBehaviour
         // untouched by this, since none of them read GameManager.
         // MaxDistance at all. This early-return is the ENTIRE gate.
         if (BossManager.Instance != null && BossManager.Instance.IsBossPhase) return;
+
+        double distanceExact = rawDistanceExact - distanceExclusionOffsetExact;
+        if (distanceExact > MaxDistanceExact) MaxDistanceExact = distanceExact;
 
         if (distance > MaxDistance)
         {
@@ -1657,6 +1706,7 @@ public class GameManager : MonoBehaviour
     public void ClampMaxDistanceTo(float value)
     {
         MaxDistance = value;
+        MaxDistanceExact = value;
     }
 
     // Accumulates EXP and rolls over into as many level-ups as it covers
@@ -2522,8 +2572,12 @@ public class GameManager : MonoBehaviour
         // spent on those pauses from the recorded run time.
         RunTime = Time.time - runStartTime;
 
-        IsNewBestDistance = MaxDistance > BestDistance;
-        if (IsNewBestDistance)
+        // マップ別BEST: そのランのステージIDの記録だけを更新する(帰還/ゲームオーバーの確定タイミングは従来どおりここ)。
+        string bestStageId = activeRunStageId;
+        IsNewBestDistance = MaxDistanceExact > GetStageBest(bestStageId);
+        if (IsNewBestDistance) SetStageBest(bestStageId, MaxDistanceExact);
+        // 全体の最高距離(解放/ガチャ進行用)は従来どおり。
+        if (MaxDistance > BestDistance)
         {
             BestDistance = MaxDistance;
             PlayerPrefs.SetFloat(BestDistanceKey, BestDistance);
@@ -2665,6 +2719,7 @@ public class GameManager : MonoBehaviour
         runStartTime = Time.time;
 
         MaxDistance = data.checkpointDistance;
+        MaxDistanceExact = data.checkpointDistance;
         HighestReachedDistance = Mathf.Max(data.highestReachedDistance, data.checkpointDistance);
         Level = Mathf.Max(1, data.level);
         Exp = data.exp;
@@ -2830,8 +2885,8 @@ public class GameManager : MonoBehaviour
             // HudPanelHeight/top offset - see the Get*PanelRect getters -
             // so this reads as one aligned strip instead of separately
             // placed boxes.
-            DrawStatPanel(GetBestPanelRect(), "BEST", FormatDistance(BestDistance), HudGoldColor);
-            DrawStatPanel(GetDistancePanelRect(), "DISTANCE", FormatDistance(MaxDistance), HudValueColor, flashIntensity: DistanceFlashIntensity);
+            DrawStatPanel(GetBestPanelRect(), "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor);
+            DrawStatPanel(GetDistancePanelRect(), "DISTANCE", FormatDistanceExact(MaxDistanceExact), HudValueColor, flashIntensity: DistanceFlashIntensity);
             DrawSpeedHud();
 
             DrawLevelAndExp();
@@ -3214,8 +3269,8 @@ public class GameManager : MonoBehaviour
             // BEST (top-left) and MILE (top-right) - the room's only
             // persistent chrome besides the gear icon, both tucked into
             // corners so they never sit over the door/bed/book/desk.
-            Rect titleBestRect = new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, 190f, 72f);
-            DrawStatPanel(titleBestRect, "BEST", FormatDistance(BestDistance), HudGoldColor, ornate: true);
+            Rect titleBestRect = new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, DistancePanelWidth(true), 72f);
+            DrawStatPanel(titleBestRect, "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor, ornate: true);
 
             Rect titleMileRect = new Rect(Screen.width - SafeRight() - UiMargin - 190f, SafeTop() + UiMargin, 190f, 72f);
             DrawStatPanel(titleMileRect, "MILE", TotalOwnedMile.ToString(), HudGoldColor, ornate: true);
@@ -3396,6 +3451,36 @@ public class GameManager : MonoBehaviour
         return $"{m:N0}<size={HudValueFontSize - 6}>m</size>";
     }
 
+    // cm単位(小数2桁)のHUD表記: "1,234.56 m"。桁区切りはコンマ、小数点はドット(CultureInfo固定)。
+    // 四捨五入ではなく切り捨て(まだ届いていないcmを先取りしない)。単位は少し小さく。
+    static string FormatDistanceExact(double meters)
+    {
+        double v = System.Math.Floor(System.Math.Max(0.0, meters) * 100.0 + 1e-6) / 100.0;
+        return v.ToString("N2", System.Globalization.CultureInfo.InvariantCulture) + $"<size={HudValueFontSize - 6}> m</size>";
+    }
+
+    // HUD左上パネルの幅: 最長想定("9,999,999.99 m")を実測した固定幅。数値が変わっても枠/文字位置が揺れない。
+    float distancePanelWidthCache;
+    float distancePanelWidthScreen = -1f;
+    float DistancePanelWidth(bool ornate)
+    {
+        if (distancePanelWidthScreen != Screen.width)
+        {
+            var st = new GUIStyle(GUI.skin.label) { fontSize = HudValueFontSize, fontStyle = FontStyle.Bold, richText = true };
+            float w = st.CalcSize(new GUIContent(FormatDistanceExact(9999999.99))).x;
+            // 中央のLv/EXPパネル(画面中央-190から)に重ならない上限。狭い画面(縦画面の小さい解像度)では文字側を縮小して収める(DrawStatPanel)。
+            float roomForLeftPanels = Screen.width * 0.5f - 190f - 14f - UiMargin;
+            distancePanelWidthCache = Mathf.Max(168f, Mathf.Min(w + 26f, roomForLeftPanels));
+            distancePanelWidthScreen = Screen.width;
+        }
+        return distancePanelWidthCache + (ornate ? 30f : 0f);
+    }
+
+    // 速度表示(km/h): ゲーム内メートル(=距離表示と同じ単位)/秒 × 3.6。走行速度(基本のAuto Run速度、カード効果・速度上昇込み)を参照し、
+    // カメラ/背景のスクロール速度や攻撃の踏み込み・ノックバック・ジャンプ/落下・復帰時の位置補正は含めない。
+    public const float KmhPerMps = 3.6f;
+    public static float SpeedKmh(float metersPerSecond) => metersPerSecond * KmhPerMps;
+
     // Shared "small info panel" for BEST/DISTANCE: a small dim label on
     // top, a bigger bold value below, both left-aligned inside one navy+
     // gold panel - the label/value split every HUD panel here uses.
@@ -3426,6 +3511,12 @@ public class GameManager : MonoBehaviour
         valueStyle.fontStyle = FontStyle.Bold;
         valueStyle.alignment = TextAnchor.UpperLeft;
         valueStyle.richText = true;
+        // 枠に収まらないほど長い値/狭い画面では、文字サイズを縮めて欠けを防ぐ(桁が増えても枠は動かさない)。
+        {
+            float availW = rect.width - pad * 2f;
+            Vector2 vs = valueStyle.CalcSize(new GUIContent(valueText));
+            if (vs.x > availW && vs.x > 1f) valueStyle.fontSize = Mathf.Max(11, Mathf.FloorToInt(valueStyle.fontSize * availW / vs.x));
+        }
         valueStyle.normal.textColor = flashIntensity > 0f ? Color.Lerp(valueColor, new Color(1f, 0.85f, 0.4f), flashIntensity) : valueColor;
         GUI.Label(new Rect(rect.x + pad, rect.y + topPad + 16f, rect.width - pad * 2f, rect.height - topPad - 18f), valueText, valueStyle);
     }
@@ -3693,7 +3784,9 @@ public class GameManager : MonoBehaviour
     void DrawDebugSpeedReadout()
     {
         bool autoRun = PlayerController.Instance != null && PlayerController.Instance.autoRunEnabled;
-        string text = $"P-speed {measuredPlayerSpeed:F2}   AutoRun {(autoRun ? "ON" : "OFF")}";
+        // 通常のSPEED表示と同じ換算(m/s×3.6=km/h)。括弧内は実測(dx/dt)のm/s。
+        float shownKmh = PlayerController.Instance != null ? SpeedKmh(PlayerController.Instance.CurrentAutoRunSpeed) : 0f;
+        string text = $"P-speed {shownKmh:F1} km/h (measured {measuredPlayerSpeed:F2} m/s)   AutoRun {(autoRun ? "ON" : "OFF")}";
 
         if (debugDragon != null && PlayerController.Instance != null)
         {
@@ -3711,7 +3804,7 @@ public class GameManager : MonoBehaviour
         style.normal.textColor = Color.yellow;
 
         Vector2 size = style.CalcSize(new GUIContent(text));
-        Rect rect = new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin + 36f, size.x + 10f, size.y + 6f);
+        Rect rect = new Rect(SafeLeft() + UiMargin, GetSpeedPanelRect().yMax + HudPanelGap + 22f, size.x + 10f, size.y + 6f);
         UiBackdrop.Draw(rect, 0.55f);
         GUI.Label(rect, text, style);
     }
@@ -3836,6 +3929,7 @@ public class GameManager : MonoBehaviour
     {
         if (!Debug.isDebugBuild) return; // Release Build safety net - a stray call can never actually warp outside a dev build
         MaxDistance = targetDistance;
+        MaxDistanceExact = targetDistance;
         if (PlayerController.Instance != null)
         {
             // Floating Origin(2026-09-22) - プレイヤーを何万ユニットも実際に動かすと、地形チャンクを大量生成

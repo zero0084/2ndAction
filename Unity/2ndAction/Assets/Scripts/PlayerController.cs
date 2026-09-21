@@ -493,7 +493,9 @@ public class PlayerController : MonoBehaviour
     public float SpeedRatio => autoRunEnabled ? GetSpeedMultiplier() : 1f;
     public float MaxSpeedRatio => Mathf.Max(1.01f, maxSpeedMultiplier);
     // 走行開始位置からの論理距離(Floating Originで座標を戻しても連続)。
-    public float DistanceFromStart => transform.position.x - startX;
+    public float DistanceFromStart => (float)(transform.position.x - startX);
+    // cm単位の表示/保存用(floatだと100,000m超でcm精度が保てないため、startXをdoubleで持つ)。
+    public double DistanceExact => transform.position.x - startX;
 
     void OnEnable()
     {
@@ -546,7 +548,7 @@ public class PlayerController : MonoBehaviour
     public float upAttackBufferWindow = 0.15f;
     float bufferedUpAttackTimer;
     float attackCooldownTimer;
-    float startX;
+    double startX;
     bool hasDied;
     float lungeVelocityX;
     float hitInvincibleTimer;
@@ -725,7 +727,7 @@ public class PlayerController : MonoBehaviour
 
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.ReportDistance(transform.position.x - startX);
+            GameManager.Instance.ReportDistance((float)(transform.position.x - startX), transform.position.x - startX);
         }
     }
 
@@ -839,7 +841,7 @@ public class PlayerController : MonoBehaviour
 
     float GetSpeedMultiplier()
     {
-        float distance = transform.position.x - startX;
+        float distance = (float)(transform.position.x - startX);
         if (distance <= speedUpStartDistance) return 1f;
 
         float multiplier = 1f + (distance - speedUpStartDistance) / 100f * speedUpPer100m;

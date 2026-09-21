@@ -25,14 +25,14 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Dark: 0.74
+    - _Dark: 0.88
     - _PlayerBoost: 1
     - _PlayerSoft: 0.2
     - _TorchCount: 1
     - _TorchWarm: 0.32
     m_Colors:
     - _DarkColor: {r: 0.02, g: 0.03, b: 0.07, a: 1}
-    - _Player: {r: 212.49974, g: -8.592006, b: 11.20134, a: 8.5}
+    - _Player: {r: 17.26947, g: 1.5, b: 13.752408, a: 8.5}
     - _TorchColor: {r: 1, g: 0.55, b: 0.2, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

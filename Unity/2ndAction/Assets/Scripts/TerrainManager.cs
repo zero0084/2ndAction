@@ -396,6 +396,31 @@ public class TerrainManager : MonoBehaviour
     // 破棄→再構築する」処理をそのまま抜き出したもの。EnsureSolidGroundAt
     // (Pit→Flat変換後の再描画)からも呼べるようにするための単純なリファ
     // クタで、ロジック自体は一切変えていない。
+    // 地面断面(GroundFill)の作り直し。穴に面した端(左=needsLeftCap、右=次が穴)は、表面スラブの丸いキャップより
+    // 断面が四角く飛び出さないよう内側へ縮め、上端をスラブの裏へ伸ばして岩の下面の隙間から背景が見えないようにする。
+    public float pitEdgeFillInset = 0.28f;
+    public float pitEdgeFillTopExtra = 0.35f;
+    void RebuildFill(int i, bool nextIsPit)
+    {
+        RuntimeChunk c = chunks[i];
+        if (c.fillVisual != null) Destroy(c.fillVisual);
+        c.fillVisual = null;
+        if (groundFillSprite == null || c.type == ChunkType.Pit) return;
+        float bleed = 0f;
+        if (!c.needsLeftCap && platformArt.IsValid && i > 0 && (c.type == ChunkType.Flat) != (chunks[i - 1].type == ChunkType.Flat))
+        {
+            float theta = Mathf.Atan2(slopeHeight, slopeLength);
+            float fillOuterDepth = groundFillTopOffset - groundFillOverlap + groundFillDepth;
+            bleed = fillOuterDepth * Mathf.Tan(theta) * cornerBleedSafetyMargin;
+        }
+        float li = c.needsLeftCap ? pitEdgeFillInset : 0f;
+        float ri = nextIsPit ? pitEdgeFillInset : 0f;
+        float topExtra = (c.needsLeftCap || nextIsPit) ? pitEdgeFillTopExtra : 0f;
+        c.fillVisual = GroundFactory.CreateGroundFillVisual(transform, groundFillSprite,
+            new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY),
+            groundFillTopOffset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, bleed, groundFillTint, li, ri, topExtra);
+    }
+
     void RebuildChunkVisual(int i)
     {
         RuntimeChunk c = chunks[i];
@@ -426,20 +451,7 @@ public class TerrainManager : MonoBehaviour
         // 断面帯を作り直す(差し替え前のテーマの帯が残り続けたり、
         // 逆に新テーマにgroundFillSpriteが無いのに前のテーマの帯が
         // 残ったりしないように、毎回いったん破棄してから要否を見る)。
-        if (c.fillVisual != null) Destroy(c.fillVisual);
-        if (groundFillSprite != null)
-        {
-            float rebuildFillLeftBleed = 0f;
-            if (!c.needsLeftCap && platformArt.IsValid && i > 0 && (c.type == ChunkType.Flat) != (chunks[i - 1].type == ChunkType.Flat))
-            {
-                float theta = Mathf.Atan2(slopeHeight, slopeLength);
-                float fillOuterDepth = groundFillTopOffset - groundFillOverlap + groundFillDepth;
-                rebuildFillLeftBleed = fillOuterDepth * Mathf.Tan(theta) * cornerBleedSafetyMargin;
-            }
-            c.fillVisual = GroundFactory.CreateGroundFillVisual(transform, groundFillSprite,
-                new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY),
-                groundFillTopOffset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, rebuildFillLeftBleed, groundFillTint);
-        }
+        RebuildFill(i, i + 1 < chunks.Count && chunks[i + 1].type == ChunkType.Pit);
 
         if (decorationSprites != null && decorationSprites.Length > 0)
         {
@@ -824,6 +836,39 @@ public class TerrainManager : MonoBehaviour
         return x;
     }
 
+    // デバッグ/自動テスト用: 地形の継ぎ目(種類が変わる位置/穴の縁/上ルートの起点・終点)の一覧。
+    public System.Collections.Generic.List<KeyValuePair<float, string>> DebugListJoints()
+    {
+        var list = new System.Collections.Generic.List<KeyValuePair<float, string>>();
+        for (int i = 1; i < chunks.Count; i++)
+        {
+            if (chunks[i].type != chunks[i - 1].type)
+                list.Add(new KeyValuePair<float, string>(chunks[i].startX, chunks[i - 1].type + "->" + chunks[i].type));
+        }
+        foreach (SkyChunk s in skyChunks) list.Add(new KeyValuePair<float, string>(s.startX, "sky-start"));
+        foreach (BranchRange r in branchRanges) { list.Add(new KeyValuePair<float, string>(r.forkX, "fork")); list.Add(new KeyValuePair<float, string>(r.mergeX, "merge")); }
+        list.Sort((a, b) => a.Key.CompareTo(b.Key));
+        return list;
+    }
+
+    // デバッグ/自動テスト用: xがどの地形チャンクか・穴/分岐との関係を文字列で返す。
+    public string DebugDescribeAt(float x)
+    {
+        string chunk = "none";
+        for (int i = 0; i < chunks.Count; i++)
+        {
+            RuntimeChunk c = chunks[i];
+            if (x >= c.startX && x <= c.endX)
+            {
+                string prev = i > 0 ? chunks[i - 1].type.ToString() : "-";
+                string next = i + 1 < chunks.Count ? chunks[i + 1].type.ToString() : "-";
+                chunk = c.type + "[" + prev + "<" + "|>" + next + "] leftCap=" + c.needsLeftCap + " x=" + c.startX.ToString("F1") + ".." + c.endX.ToString("F1");
+                break;
+            }
+        }
+        return chunk + " nearPit(3)=" + IsNearPit(x, 3f) + " inBranch=" + IsInBranchRoute(x) + " sky=" + (GetSkyHeightAt(x).HasValue ? "y" : "n");
+    }
+
     // Elevated platform floating above the ground at x, if any - checked
     // alongside GetHeightAt (never instead of it) so the player can land on
     // whichever surface is actually beneath them.
@@ -970,13 +1015,15 @@ public class TerrainManager : MonoBehaviour
         // ではなく、ここが上ルートの本当の起点なので左キャップを付ける。
         float rampUpEndX = x + branchRampLength;
         float rampUpEndY = groundYAtFork + branchHeightAboveGround;
+        // 2026-09-22 - ランプ(上ルートの起点/終点)の壁ハザードは撤去。ランプの真下は下ルートの地面が続いており、
+        // 歩いて通るだけの下ルートのプレイヤーが「壁」に触れてダメージを受けていた(TerrainDamageAutoTestで確認)。
         // 崖面Collider追加(2026-09-15) - ランプアップの起点(forkX)は下ルート
         // (danger)がすぐ脇を通る、まさにマスター指摘「上下ルート間の崖面」
         // の実例。このメソッドはrouteBranchEnabled=trueの間しか呼ばれない
         // ので、常時trueで問題ない。
         GameObject rampUpVisual = GroundFactory.CreateSlopeVisual(transform, squareSprite, skyPathSprite, platformArt,
             new Vector2(x, y), new Vector2(rampUpEndX, rampUpEndY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
-            needsLeftCap: true, needsRightCap: false, addWallCollider: true);
+            needsLeftCap: true, needsRightCap: false, addWallCollider: false);
         skyChunks.Add(new SkyChunk { startX = x, endX = rampUpEndX, startY = y, endY = rampUpEndY, visual = rampUpVisual });
         CreateBranchUndersideFill(new Vector2(x, y), new Vector2(rampUpEndX, rampUpEndY));
         // Stage01仕上げ調整(2026-09-13深夜) - マスター指摘「浮遊足場感が
@@ -986,6 +1033,7 @@ public class TerrainManager : MonoBehaviour
         // マスターへ別途報告)。
         if (decorationSprites != null && decorationSprites.Length > 0)
             DecorationScatter.ScatterAlongChunk(rampUpVisual.transform, decorationSprites, new Vector2(x, y), new Vector2(rampUpEndX, rampUpEndY), spawnChance: 0.55f);
+        float prevAng = SegAngleDeg(new Vector2(forkX, groundYAtFork), new Vector2(rampUpEndX, rampUpEndY));
         x = rampUpEndX; y = rampUpEndY;
 
         // 2) 並走区間 - ランプダウン分の余地(branchRampLength)を残して
@@ -1004,11 +1052,14 @@ public class TerrainManager : MonoBehaviour
             float minY = groundYAtSegEnd + branchMinClearanceAboveGround;
             if (segEndY < minY) segEndY = minY;
 
+            float segAng = SegAngleDeg(new Vector2(x, y), new Vector2(segEndX, segEndY));
+            float segBleed = platformArt.IsValid ? SkyJoinBleed(prevAng, segAng, platformVisualHeight - platformSurfaceInset) : 0f;
             GameObject segVisual = GroundFactory.CreateSlopeVisual(transform, squareSprite, skyPathSprite, platformArt,
                 new Vector2(x, y), new Vector2(segEndX, segEndY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
-                needsLeftCap: false, needsRightCap: false);
+                needsLeftCap: false, needsRightCap: false, leftBleed: segBleed);
             skyChunks.Add(new SkyChunk { startX = x, endX = segEndX, startY = y, endY = segEndY, visual = segVisual });
-            CreateBranchUndersideFill(new Vector2(x, y), new Vector2(segEndX, segEndY));
+            CreateBranchUndersideFill(new Vector2(x, y), new Vector2(segEndX, segEndY), SkyJoinBleed(prevAng, segAng, groundFillTopOffset - groundFillOverlap + 4f));
+            prevAng = segAng;
             if (decorationSprites != null && decorationSprites.Length > 0)
                 DecorationScatter.ScatterAlongChunk(segVisual.transform, decorationSprites, new Vector2(x, y), new Vector2(segEndX, segEndY), spawnChance: 0.55f);
 
@@ -1018,11 +1069,13 @@ public class TerrainManager : MonoBehaviour
         // 3) ランプダウン - mergeXの実際の地上高さへ戻す。右端は合流して
         // 道が終わる=露出しているので右キャップを付ける。
         float groundYAtMerge = GetHeightAt(mergeX) ?? y;
+        float downAng = SegAngleDeg(new Vector2(x, y), new Vector2(mergeX, groundYAtMerge));
+        float downBleed = platformArt.IsValid ? SkyJoinBleed(prevAng, downAng, platformVisualHeight - platformSurfaceInset) : 0f;
         GameObject rampDownVisual = GroundFactory.CreateSlopeVisual(transform, squareSprite, skyPathSprite, platformArt,
             new Vector2(x, y), new Vector2(mergeX, groundYAtMerge), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
-            needsLeftCap: false, needsRightCap: true, addWallCollider: true);
+            needsLeftCap: false, needsRightCap: true, leftBleed: downBleed, addWallCollider: false);
         skyChunks.Add(new SkyChunk { startX = x, endX = mergeX, startY = y, endY = groundYAtMerge, visual = rampDownVisual });
-        CreateBranchUndersideFill(new Vector2(x, y), new Vector2(mergeX, groundYAtMerge));
+        CreateBranchUndersideFill(new Vector2(x, y), new Vector2(mergeX, groundYAtMerge), SkyJoinBleed(prevAng, downAng, groundFillTopOffset - groundFillOverlap + 4f));
         // Stage01仕上げ調整(2026-09-13深夜) - ランプダウンにはこれまで
         // 装飾が撒かれていなかった(ランプアップ/並走区間のみ)。合流地点
         // にも同じ賑やかさを持たせ、「戻ってきた」感を統一する。
@@ -1051,7 +1104,17 @@ public class TerrainManager : MonoBehaviour
     // ルートの走行スペースにめり込む/浅すぎて隙間が残る、のどちらも避ける
     // ため。GetHeightAtが取れない(区間内がPit等)場合はbranchHeightAbove
     // Groundを既定の隙間とみなして安全側にフォールバックする。
-    void CreateBranchUndersideFill(Vector2 a, Vector2 b)
+    // 上ルートの継ぎ目(ランプ<->並走区間、並走区間どうし)で、角度の違う矩形が重ならずに残る楔形の隙間を
+    // 覆うための食い込み量。deltaDegは隣り合う2区間の角度差、depthはその素材の下方向の厚み。
+    float SkyJoinBleed(float prevAngleDeg, float angleDeg, float depth)
+    {
+        float d = Mathf.Abs(Mathf.DeltaAngle(prevAngleDeg, angleDeg)) * Mathf.Deg2Rad;
+        if (d < 0.005f) return 0f;
+        return Mathf.Min(depth * Mathf.Tan(Mathf.Min(d, 1.2f)) * cornerBleedSafetyMargin, 6f);
+    }
+    static float SegAngleDeg(Vector2 a, Vector2 b) => Mathf.Atan2(b.y - a.y, b.x - a.x) * Mathf.Rad2Deg;
+
+    void CreateBranchUndersideFill(Vector2 a, Vector2 b, float leftBleed = 0f)
     {
         if (groundFillSprite == null) return;
 
@@ -1067,7 +1130,7 @@ public class TerrainManager : MonoBehaviour
         float fillDepth = Mathf.Max(0.5f, avgGap - (groundFillTopOffset - groundFillOverlap) + 0.2f);
 
         GroundFactory.CreateGroundFillVisual(transform, groundFillSprite, a, b,
-            groundFillTopOffset, fillDepth, groundFillOverlap, RenderOrder.GroundFill, 0f, groundFillTint);
+            groundFillTopOffset, fillDepth, groundFillOverlap, RenderOrder.GroundFill, leftBleed, groundFillTint);
     }
 
     void PlaceBranchMarker(float x, float y)
@@ -1302,7 +1365,8 @@ public class TerrainManager : MonoBehaviour
             {
                 chunk.fillVisual = GroundFactory.CreateGroundFillVisual(transform, groundFillSprite,
                     new Vector2(startX, startY), new Vector2(endX, endY),
-                    groundFillTopOffset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, fillLeftBleed, groundFillTint);
+                    groundFillTopOffset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, fillLeftBleed, groundFillTint,
+                    needsLeftCap ? pitEdgeFillInset : 0f, 0f, needsLeftCap ? pitEdgeFillTopExtra : 0f);
             }
 
             // Game Feel pass, section 17 - visual-only clutter along this
@@ -1509,6 +1573,8 @@ public class TerrainManager : MonoBehaviour
         prev.visual = GroundFactory.CreateSlopeVisual(transform, squareSprite, groundSprite, platformArt,
             new Vector2(prev.startX, prev.startY), new Vector2(prev.endX, prev.endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
             prev.needsLeftCap, needsRightCap: true, addWallCollider: routeBranchEnabled);
+        // 断面も、右端(穴の縁)がスラブの丸いキャップより飛び出さないよう作り直す。
+        RebuildFill(chunks.Count - 1, true);
     }
 
     // How far the chunk currently being placed sits past the difficulty

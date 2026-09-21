@@ -57,9 +57,10 @@ public class FloatingOriginAutoTest : MonoBehaviour
 
         // --- 論理ワープ(50,000m)
         gm.expPerMeter = 0f; // 距離ワープでレベルアップの選択画面(停止)が出ないように
-        gm.DebugWarpToDistance(50000f);
-        BossManager.Instance.RestoreNextBossDistance(50000f);
-        if (EditorPrefs.GetInt("FoHold", 0) == 1) { EditorPrefs.SetInt("FoHold", 0); yield break; } // 目視確認用: ワープ後はそのまま走らせる
+        float warpTarget = EditorPrefs.GetInt("FoHold", 0) == 1 ? 1000000f : 50000f;
+        gm.DebugWarpToDistance(warpTarget);
+        BossManager.Instance.RestoreNextBossDistance(warpTarget);
+        if (EditorPrefs.GetInt("FoHold", 0) == 1) { EditorPrefs.SetInt("FoHold", 0); var dm = typeof(GameManager).GetProperty("DebugMode"); if (dm != null && dm.GetSetMethod(true) != null) dm.SetValue(gm, false); yield break; } // 目視確認用: ワープ後はそのまま走らせる
         yield return new WaitForSeconds(0.5f);
         L($"after LogicalWarp: playerX={pc.transform.position.x:F2} dist={pc.DistanceFromStart:F2} MaxDistance={gm.MaxDistance:F1} Offset={FloatingOrigin.Offset:F1} ratio={pc.SpeedRatio:F3} chunks={ChunkCount()} height={(TerrainManager.Instance.GetHeightAt(pc.transform.position.x)?.ToString("F2") ?? "null")}");
 

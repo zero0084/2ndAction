@@ -253,7 +253,9 @@ public static class GroundFactory
     // (見せる高さ)自体は画面比率次第で下限が決まっている実測値のため、
     // 「圧迫感を弱める」はここで高さではなく濃さ側から近似する
     // (TerrainManager.groundFillTintのコメント参照)。
-    public static GameObject CreateGroundFillVisual(Transform parent, Sprite fillSprite, Vector2 a, Vector2 b, float slabContentBottomOffset, float fillDepth, float overlap, int sortingOrder, float leftBleed = 0f, Color tint = default)
+    // leftInset/rightInset: 断面の端をその分だけ内側へ縮める(穴に面した端で、表面スラブの丸い端より断面が四角く飛び出さないように)。
+    // topExtra: 断面の上端をさらに上(スラブの裏側)へ伸ばす量。スラブの岩の下面の凹凸/丸い端の下に背景が透けないようにする。
+    public static GameObject CreateGroundFillVisual(Transform parent, Sprite fillSprite, Vector2 a, Vector2 b, float slabContentBottomOffset, float fillDepth, float overlap, int sortingOrder, float leftBleed = 0f, Color tint = default, float leftInset = 0f, float rightInset = 0f, float topExtra = 0f)
     {
         GameObject go = new GameObject("GroundFill");
         go.transform.SetParent(parent);
@@ -266,8 +268,11 @@ public static class GroundFactory
         float angle = Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg;
 
         Vector2 mid = (a + b) * 0.5f;
-        float centerOffset = slabContentBottomOffset - overlap + fillDepth * 0.5f;
-        Vector2 center = mid + down * centerOffset - dir * (leftBleed * 0.5f);
+        float totalDepth = fillDepth + topExtra;
+        float centerOffset = slabContentBottomOffset - overlap - topExtra + totalDepth * 0.5f;
+        float edgeL = -leftBleed + leftInset;                 // aからdir方向への左端位置
+        float edgeR = Mathf.Max(edgeL + 0.1f, length - rightInset); // 右端位置
+        Vector2 center = a + dir * ((edgeL + edgeR) * 0.5f) + down * centerOffset;
 
         go.transform.position = new Vector3(center.x, center.y, 0f);
         go.transform.rotation = Quaternion.Euler(0f, 0f, angle);
@@ -276,7 +281,7 @@ public static class GroundFactory
         sr.sprite = fillSprite;
         sr.color = tint.a > 0f ? tint : Color.white;
         sr.drawMode = SpriteDrawMode.Tiled;
-        sr.size = new Vector2(length + leftBleed, fillDepth);
+        sr.size = new Vector2(edgeR - edgeL, totalDepth);
         sr.sortingOrder = sortingOrder;
 
         return go;

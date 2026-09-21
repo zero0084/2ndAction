@@ -26,6 +26,8 @@ using UnityEngine;
 // ない(スナップ後はもう穴の中にいない)。
 public class TerrainWallHazard : MonoBehaviour
 {
+    // 自動テスト用: 壁ハザードが実際にダメージを起こしたときに通知する。
+    public static System.Action<TerrainWallHazard, bool> Triggered;
     void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player")) return;
@@ -33,6 +35,7 @@ public class TerrainWallHazard : MonoBehaviour
         bool walkedIntoWall = PlayerController.Instance.IsGrounded;
         bool fallingIntoWall = !PlayerController.Instance.IsGrounded && PlayerController.Instance.VerticalVelocity < 0f;
         if (!walkedIntoWall && !fallingIntoWall) return;
+        Triggered?.Invoke(this, walkedIntoWall);
         PlayerController.Instance.TakeDamage();
     }
 }
