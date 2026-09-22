@@ -277,7 +277,11 @@ public abstract class WildBossBase : MonoBehaviour
         transform.position = new Vector3(worldX, g + yOffset, 0f);
     }
 
-    float TerrainGround(float x)
+    // 自然洞窟ボス拡張(2026-09-22) - 荒野街道は単一のflatな下ルートしか
+    // 想定していなかったため`protected virtual`にし、洞窟ボス(上下ルート/
+    // 地中移動)側で「今どのルートの床を基準にするか」を差し替えられる
+    // ようにした。既定の挙動(下ルートのGetHeightAt)は完全に不変。
+    protected virtual float TerrainGround(float x)
     {
         if (TerrainManager.Instance != null)
         {
@@ -286,6 +290,17 @@ public abstract class WildBossBase : MonoBehaviour
         }
         return lastGroundY;
     }
+
+    // 自然洞窟ボス拡張(2026-09-22) - 天井を利用する攻撃(落石/天井めり込み
+    // 回避判定)用のヘルパー。荒野街道では常にnull(天井なし)を返すだけで
+    // 既存ボスの挙動には一切影響しない。cave==null(非洞窟ステージ)でも
+    // 安全にnullを返す。
+    protected float? CeilingWorldYAt(float x) => TerrainManager.Instance != null ? TerrainManager.Instance.GetEffectiveCeilingHeightAt(x) : null;
+    protected float? CeilingWorldY => CeilingWorldYAt(worldX);
+    // 通路の最低垂直間隔(自然洞窟のみ有効な値、それ以外はfloat.MaxValueで
+    // 「制限なし」を表す) - 大型ボスが天井に埋まる/狭すぎる場所で攻撃不能
+    // になるのを避けるための目安として使う。
+    protected float PassageMinClearance => TerrainManager.Instance != null && TerrainManager.Instance.cave != null ? TerrainManager.Instance.cave.MinPassageHeight : float.MaxValue;
 
     // ================= 姿勢/手続き的アニメーション =================
     protected void SetPose(Pose p)

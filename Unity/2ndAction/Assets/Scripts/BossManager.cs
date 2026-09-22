@@ -141,6 +141,57 @@ public class BossManager : MonoBehaviour
     int currentGateK = 1;
     int aliveWildThisEncounter;
 
+    // ===== 自然洞窟ボス追加(2026-09-22) =====
+    // 荒野街道(WildBossKind/ResolveGate/SpecFor/SpawnWild)をそのまま流用し、
+    // ステージが自然洞窟の間だけこちらの表を使う並行実装。ゲート進行(gateK/
+    // currentGateK/aliveWildThisEncounter/100,000mの死神)自体はステージに
+    // 依存しない共通の仕組みなのでそのまま共有し、「kが来たときにどのボスを
+    // 出すか/どう生成するか」だけをステージで分岐する。
+    bool IsCaveStage => GameManager.Instance != null && GameManager.Instance.ActiveRunStageId == "natural_cave";
+
+    [System.Serializable]
+    public class CaveBossArt
+    {
+        public CaveBossKind kind;
+        public Sprite idle, move, windup, attack;
+    }
+    public CaveBossArt[] caveArt;
+
+    public int centipedeMaxCount = 4;               // 巨大ムカデの最大同時出現数
+    public float centipedeCountStepMeters = 12000f;
+    public int scorpionCaveMaxCount = 3;            // 巨大サソリの最大同時出現数
+    public float scorpionCaveCountStepMeters = 20000f;
+
+    static readonly CaveBossKind[] CaveTenKmBosses =
+    {
+        CaveBossKind.Mole, CaveBossKind.Troll, CaveBossKind.Worm, CaveBossKind.CrystalGolem, CaveBossKind.Bat,
+        CaveBossKind.ScorpionKing, CaveBossKind.Basilisk, CaveBossKind.Drake, CaveBossKind.AncientDemon,
+    };
+
+    // 荒野街道のResolveGateと全く同じ形(優先順位: 10,000m専用大型 > 5,000m系
+    // > 1,000m系。同じkで複数種類が重複することはif/else-ifの構造上起きない)。
+    bool ResolveCaveGate(int k, out CaveBossKind kind, out int count)
+    {
+        float meters = k * gateIntervalMeters;
+        count = 1;
+        if (k % 10 == 0)
+        {
+            int idx = (k / 10 - 1) % 10;
+            if (idx >= CaveTenKmBosses.Length) { kind = CaveBossKind.Centipede; return false; }
+            kind = CaveTenKmBosses[idx];
+            return true;
+        }
+        if (k % 5 == 0)
+        {
+            kind = CaveBossKind.Scorpion;
+            count = Mathf.Clamp(1 + Mathf.FloorToInt(meters / Mathf.Max(1f, scorpionCaveCountStepMeters)), 1, Mathf.Max(1, scorpionCaveMaxCount));
+            return true;
+        }
+        kind = CaveBossKind.Centipede;
+        count = Mathf.Clamp(1 + Mathf.FloorToInt(meters / Mathf.Max(1f, centipedeCountStepMeters)), 1, Mathf.Max(1, centipedeMaxCount));
+        return true;
+    }
+
     // k番目のゲート(k*1000m)に出すボス。falseなら通常ボスのゲートは無い(100,000mの死神など)。
     bool ResolveGate(int k, out WildBossKind kind, out int count)
     {
@@ -167,7 +218,14 @@ public class BossManager : MonoBehaviour
     void SkipEmptyGates()
     {
         int guard = 0;
-        while (guard++ < 20 && !ResolveGate(gateK, out _, out _)) gateK++;
+        if (IsCaveStage)
+        {
+            while (guard++ < 20 && !ResolveCaveGate(gateK, out _, out _)) gateK++;
+        }
+        else
+        {
+            while (guard++ < 20 && !ResolveGate(gateK, out _, out _)) gateK++;
+        }
     }
 
     float WildDistanceScale()
@@ -233,14 +291,22 @@ public class BossManager : MonoBehaviour
         // 動作確認用(Editor専用): F1〜F11で荒野街道ボスを即時出現(順序は
         // WildBossKind: Wolf, GoblinRider, Serpent, Cyclops, Spider, Golem,
         // Griffin, Hydra, Demon, Dragon, BlackKnight)。実機/ビルドには含まれない。
+        // 自然洞窟ボス追加(2026-09-22) - F1〜F11は荒野街道の11種で既に埋まって
+        // いるため、Shift+F1〜F11で自然洞窟ボス(CaveBossKind: Centipede,
+        // Scorpion, Mole, Troll, Worm, CrystalGolem, Bat, ScorpionKing,
+        // Basilisk, Drake, AncientDemon)を即時出現させる(Shift併用時は荒野
+        // 街道側を発火させない)。
+        bool shift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
         for (int k = 0; k < 11; k++)
         {
-            if (Input.GetKeyDown(KeyCode.F1 + k)) DebugForceSpawn((WildBossKind)k);
+            if (!Input.GetKeyDown(KeyCode.F1 + k)) continue;
+            if (shift) DebugForceSpawnCave((CaveBossKind)k);
+            else DebugForceSpawn((WildBossKind)k);
         }
         if (Input.GetKeyDown(KeyCode.Backspace)) { foreach (var wb in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None)) wb.TakeDamage(99999, wb.CenterWorld); }
         if (Input.GetKeyDown(KeyCode.F12)) { GameManager.Instance.DebugSetInvincible(true); }
-        if (Input.GetKeyDown(KeyCode.M)) DebugForceSpawn(WildBossKind.Wolf, 4);        // 複数体確認: 巨大オオカミx4
-        if (Input.GetKeyDown(KeyCode.N)) DebugForceSpawn(WildBossKind.GoblinRider, 3); // ウルフライダーx3
+        if (Input.GetKeyDown(KeyCode.M)) { if (shift) DebugForceSpawnCave(CaveBossKind.Centipede, 4); else DebugForceSpawn(WildBossKind.Wolf, 4); }        // 複数体確認
+        if (Input.GetKeyDown(KeyCode.N)) { if (shift) DebugForceSpawnCave(CaveBossKind.Scorpion, 3); else DebugForceSpawn(WildBossKind.GoblinRider, 3); } // 複数体確認
         if (Input.GetKeyDown(KeyCode.R)) SpawnDeath();                                 // 死神
 #endif
 
@@ -582,6 +648,13 @@ public class BossManager : MonoBehaviour
     {
         if (aliveDragonsThisEncounter <= 0 && aliveMajinsThisEncounter <= 0 && aliveWildThisEncounter <= 0)
         {
+            // 自然洞窟ボス拡張(2026-09-22) - StartWildPhaseで設定したボス
+            // 遭遇区間の戦闘可能スペース保証を、遭遇終了時に必ず解除する。
+            if (TerrainManager.Instance != null && TerrainManager.Instance.cave != null)
+            {
+                TerrainManager.Instance.cave.ClearBossClearZone();
+            }
+
             // Bugfix 2026-09-06, item 2 - "Boss撃破後にゲームが停止する"
             // state-transition trace, stage 1/9.
             if (GameManager.Instance != null) GameManager.Instance.LogBossRewardStage("BossDefeated (CheckEncounterComplete entry)");
@@ -657,18 +730,40 @@ public class BossManager : MonoBehaviour
         SkipEmptyGates();
     }
 
-    // ===== 荒野街道ボス(WildBossBase系) =====
+    // ===== 荒野街道ボス(WildBossBase系) / 自然洞窟ボス =====
     void StartWildPhase()
     {
         SkipEmptyGates();
         currentGateK = gateK;
-        if (!ResolveGate(gateK, out WildBossKind gateKind, out int gateCount)) { IsBossPhase = false; return; }
-        var e = new { kind = gateKind, count = gateCount };
 
         aliveDragonsThisEncounter = 0;
         aliveMajinsThisEncounter = 0;
         aliveWildThisEncounter = 0;
         if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
+
+        if (IsCaveStage)
+        {
+            if (!ResolveCaveGate(gateK, out CaveBossKind caveKind, out int caveCount)) { IsBossPhase = false; return; }
+            aliveWildThisEncounter = caveCount;
+            // ボス遭遇区間だけ、最低限の戦闘可能スペース(通常天井相当・針なし)
+            // を保証する。マップ全体の生成システムは変更しない(区間限定・
+            // このコンポーネントの寿命(CheckEncounterComplete)で必ず解除)。
+            if (TerrainManager.Instance != null && TerrainManager.Instance.cave != null && player != null)
+            {
+                TerrainManager.Instance.cave.SetBossClearZone(player.position.x, 40f);
+            }
+            for (int i = 0; i < caveCount; i++) SpawnCaveBoss(caveKind, i);
+
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.LogBoss("CombatStart");
+                if (GameManager.Instance.DebugMode) Debug.Log($"[Boss] Cave spawn kind={caveKind} count={caveCount} at {WildTargetDistance()}m");
+            }
+            return;
+        }
+
+        if (!ResolveGate(gateK, out WildBossKind gateKind, out int gateCount)) { IsBossPhase = false; return; }
+        var e = new { kind = gateKind, count = gateCount };
 
         if (e.kind == WildBossKind.Dragon)
         {
@@ -768,6 +863,109 @@ public class BossManager : MonoBehaviour
         boss.Init(player);
     }
 
+    // ===== 自然洞窟ボス: 種別ごとの既定値/生成(SpecFor/FindArt/SpawnWildと同じ形) =====
+    struct CaveSpec
+    {
+        public int hp, mile; public float height, gap; public Color burst;
+        public CaveSpec(int hp, int mile, float height, float gap, Color burst) { this.hp = hp; this.mile = mile; this.height = height; this.gap = gap; this.burst = burst; }
+    }
+
+    static CaveSpec SpecForCave(CaveBossKind kind)
+    {
+        switch (kind)
+        {
+            case CaveBossKind.Centipede: return new CaveSpec(26, 32, 2.6f, 9f, new Color(0.7f, 0.75f, 0.5f));
+            case CaveBossKind.Scorpion: return new CaveSpec(42, 62, 3.2f, 9f, new Color(0.6f, 0.9f, 0.5f));
+            case CaveBossKind.Mole: return new CaveSpec(55, 95, 3.0f, 9f, new Color(0.6f, 0.45f, 0.3f));
+            case CaveBossKind.Troll: return new CaveSpec(85, 125, 5.8f, 10f, new Color(0.85f, 0.6f, 0.3f));
+            case CaveBossKind.Worm: return new CaveSpec(110, 160, 4.2f, 10f, new Color(0.45f, 0.85f, 0.5f));
+            case CaveBossKind.CrystalGolem: return new CaveSpec(140, 210, 5.6f, 10f, new Color(0.55f, 0.85f, 1f));
+            case CaveBossKind.Bat: return new CaveSpec(160, 270, 3.0f, 9f, new Color(0.7f, 0.6f, 0.9f));
+            case CaveBossKind.ScorpionKing: return new CaveSpec(190, 330, 4.6f, 10f, new Color(0.9f, 0.5f, 0.55f));
+            case CaveBossKind.Basilisk: return new CaveSpec(210, 410, 3.4f, 9f, new Color(0.6f, 0.9f, 0.35f));
+            case CaveBossKind.Drake: return new CaveSpec(260, 470, 4.4f, 9f, new Color(1f, 0.55f, 0.25f));
+            case CaveBossKind.AncientDemon: return new CaveSpec(290, 520, 3.6f, 9f, new Color(0.75f, 0.25f, 1f));
+            default: return new CaveSpec(30, 50, 3f, 9f, Color.white);
+        }
+    }
+
+    CaveBossArt FindCaveArt(CaveBossKind kind)
+    {
+        if (caveArt == null) return null;
+        foreach (var a in caveArt) if (a != null && a.kind == kind) return a;
+        return null;
+    }
+
+    void SpawnCaveBoss(CaveBossKind kind, int index)
+    {
+        CaveBossArt art = FindCaveArt(kind);
+        CaveSpec spec = SpecForCave(kind);
+
+        GameObject go = new GameObject("CaveBoss_" + kind);
+        go.tag = "Boss";
+        WildBossBase boss;
+        switch (kind)
+        {
+            case CaveBossKind.Centipede: boss = go.AddComponent<CentipedeBoss>(); break;
+            case CaveBossKind.Scorpion: boss = go.AddComponent<ScorpionBoss>(); break;
+            case CaveBossKind.Mole: boss = go.AddComponent<MoleBoss>(); break;
+            case CaveBossKind.Troll: boss = go.AddComponent<TrollBoss>(); break;
+            case CaveBossKind.Worm: boss = go.AddComponent<WormBoss>(); break;
+            case CaveBossKind.CrystalGolem: boss = go.AddComponent<CrystalGolemBoss>(); break;
+            case CaveBossKind.Bat: boss = go.AddComponent<BatBoss>(); break;
+            case CaveBossKind.ScorpionKing: boss = go.AddComponent<ScorpionKingBoss>(); break;
+            case CaveBossKind.Basilisk: boss = go.AddComponent<BasiliskBoss>(); break;
+            case CaveBossKind.Drake: boss = go.AddComponent<DrakeBoss>(); break;
+            default: boss = go.AddComponent<AncientDemonBoss>(); break;
+        }
+
+        boss.bossName = kind.ToString();
+        float hpScale = (kind == CaveBossKind.Centipede || kind == CaveBossKind.Scorpion) ? Mathf.Min(3f, 1f + currentGateK * smallBossHpPerKm) : 1f;
+        boss.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(spec.hp * hpScale));
+        boss.slotIndex = index;
+        boss.mileReward = spec.mile;
+        boss.bodyHeight = spec.height;
+        boss.startGap = spec.gap + index * 3.5f;
+        boss.defeatBurstColor = spec.burst;
+        boss.squareSprite = squareSprite;
+        boss.hitSparkSprite = bossHitSparkSprite;
+        boss.deathSmokeSprite = bossDeathSmokeSprite;
+        boss.finalHitSe = bossFinalHitSe;
+        boss.defeatSe = bossDefeatSe;
+        if (art != null)
+        {
+            boss.idleSprite = art.idle;
+            boss.moveSprite = art.move;
+            boss.windupSprite = art.windup;
+            boss.attackSprite = art.attack;
+        }
+        // 実イラスト未着手の間は、CaveBossFxの手続き的シルエットを暫定ボディ
+        // として使う(荒野街道のsquareSprite代用と同じ位置づけ - 差し替え
+        // 前提の仮素材)。
+        if (boss.idleSprite == null) boss.idleSprite = CaveBodySilhouette(kind);
+        if (boss.windupSprite == null) boss.windupSprite = boss.idleSprite;
+
+        boss.Init(player);
+    }
+
+    static Sprite CaveBodySilhouette(CaveBossKind kind)
+    {
+        switch (kind)
+        {
+            case CaveBossKind.Centipede: return CaveBossFx.Centipede();
+            case CaveBossKind.Scorpion: return CaveBossFx.Scorpion();
+            case CaveBossKind.Mole: return CaveBossFx.Mole();
+            case CaveBossKind.Troll: return CaveBossFx.Troll();
+            case CaveBossKind.Worm: return CaveBossFx.Worm();
+            case CaveBossKind.CrystalGolem: return CaveBossFx.CrystalGolem();
+            case CaveBossKind.Bat: return CaveBossFx.Bat();
+            case CaveBossKind.ScorpionKing: return CaveBossFx.ScorpionKing();
+            case CaveBossKind.Basilisk: return CaveBossFx.Basilisk();
+            case CaveBossKind.Drake: return CaveBossFx.Drake();
+            default: return CaveBossFx.AncientDemon();
+        }
+    }
+
     // 80,000m ドラゴン: 既存DragonControllerに突進と着地攻撃を有効化して流用。
     void SpawnWastelandDragon(float standoff)
     {
@@ -823,6 +1021,21 @@ public class BossManager : MonoBehaviour
         if (kind == WildBossKind.Dragon) { aliveDragonsThisEncounter = 1; SpawnWastelandDragon(dragonStandoffDistance); }
         else { aliveWildThisEncounter = count; for (int i = 0; i < count; i++) SpawnWild(kind, i); }
         Debug.Log("[Boss] DebugForceSpawn " + kind);
+    }
+
+    void DebugForceSpawnCave(CaveBossKind kind, int count = 1)
+    {
+        IsBossPhase = true;
+        if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
+        foreach (var o in GameObject.FindGameObjectsWithTag("Boss")) Destroy(o);
+        aliveDragonsThisEncounter = 0; aliveMajinsThisEncounter = 0; aliveWildThisEncounter = 0;
+        if (TerrainManager.Instance != null && TerrainManager.Instance.cave != null && player != null)
+        {
+            TerrainManager.Instance.cave.SetBossClearZone(player.position.x, 40f);
+        }
+        aliveWildThisEncounter = count;
+        for (int i = 0; i < count; i++) SpawnCaveBoss(kind, i);
+        Debug.Log("[Boss] DebugForceSpawnCave " + kind);
     }
 #endif
 

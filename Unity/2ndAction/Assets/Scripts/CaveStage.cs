@@ -115,6 +115,27 @@ public partial class CaveStage : MonoBehaviour
     float nodeBaseX;
     public float keepBehindDistance = 120f; // プレイヤーよりこれ以上後ろの天井/針/たいまつ/メッシュは破棄
 
+    // 自然洞窟ボス拡張(2026-09-22) - ボス遭遇区間だけ、最低限の戦闘可能
+    // スペース(通常天井相当の高さ・針なし)を保証するための一時的な範囲。
+    // マップ全体の生成システム自体は変更せず、AddNode/AddSpikeの判定に
+    // このチェックを1つ足すだけ。範囲外(通常の生成)には一切影響しない。
+    // 既にノードが確定してしまっている「戦闘開始位置の直上」までは遡って
+    // 直せない(生成はプレイヤーの少し先を走り続けているため) - この点は
+    // 既知の制約として報告する。
+    bool bossClearZoneActive;
+    float bossClearZoneCenterX, bossClearZoneRadius;
+
+    public void SetBossClearZone(float centerX, float radius)
+    {
+        bossClearZoneActive = true;
+        bossClearZoneCenterX = centerX;
+        bossClearZoneRadius = radius;
+    }
+
+    public void ClearBossClearZone() { bossClearZoneActive = false; }
+
+    bool InBossClearZone(float x) => bossClearZoneActive && Mathf.Abs(x - bossClearZoneCenterX) <= bossClearZoneRadius;
+
     void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; }
     void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; }
 
@@ -127,6 +148,7 @@ public partial class CaveStage : MonoBehaviour
         sectionEndX -= s;
         nextTorchX -= s;
         spikeClusterBlockedUntilX -= s;
+        if (bossClearZoneActive) bossClearZoneCenterX -= s;
         if (!Active || player == null) return;
         PruneBehind(player.position.x - keepBehindDistance);
     }
@@ -279,6 +301,8 @@ public partial class CaveStage : MonoBehaviour
             // 上ルートの頭上を確保)。ノード単位で通常へ降格する。
             if (tm.IsNearPit(x, lowCeilingPitMargin) || tm.IsBranchNear(x, lowCeilingBranchMargin)) mode = 0;
         }
+        // ボス遭遇区間: 低天井/針区間へ降格させず、常に通常天井にする。
+        if (InBossClearZone(x)) mode = 0;
         float clearance = mode == 2 ? lowClearance : (mode == 1 ? spikeSectionClearance : normalClearance);
         if (mode != 2) clearance += Random.Range(-normalClearanceJitter, normalClearanceJitter);
         // 針の区間は、最も長い針の先端でも最低間隔が残る高さを下限にする。
@@ -316,7 +340,7 @@ public partial class CaveStage : MonoBehaviour
                 for (int k = 0; k < count && ok; k++)
                 {
                     float cx = sx + k * spikeSpacing;
-                    if (tm.IsNearPit(cx, spikePitMargin) || tm.IsBranchNear(cx, spikeBranchMargin)) ok = false;
+                    if (tm.IsNearPit(cx, spikePitMargin) || tm.IsBranchNear(cx, spikeBranchMargin) || InBossClearZone(cx)) ok = false;
                 }
                 if (ok)
                 {
