@@ -36,6 +36,6 @@ public class TerrainWallHazard : MonoBehaviour
         bool fallingIntoWall = !PlayerController.Instance.IsGrounded && PlayerController.Instance.VerticalVelocity < 0f;
         if (!walkedIntoWall && !fallingIntoWall) return;
         Triggered?.Invoke(this, walkedIntoWall);
-        PlayerController.Instance.TakeDamage();
+        PlayerController.Instance.TakeDamage(source: "TerrainWall:" + name);
     }
 }

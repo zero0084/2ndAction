@@ -1188,7 +1188,11 @@ public class PlayerController : MonoBehaviour
     // few seconds of flickering invincibility; running out of lives lets
     // GameManager end the run, which the normal per-frame IsGameOver check
     // above then reacts to.
-    public void TakeDamage(bool isFall = false)
+    // source: 高速走行中のフリーズ/ワープ調査(2026-09-22)向けの診断専用
+    // パラメータ - 呼び出し元(敵/ボス/障害物/地形など)を識別するための
+    // 短い文字列。省略可能(既存呼び出し全て無変更のままコンパイル通る)で、
+    // 挙動には一切影響しない。GameManager.TryDamagePlayerのreasonへ渡す。
+    public void TakeDamage(bool isFall = false, string source = null)
     {
         if (hasDied) return;
         // A fall past failY must always respawn the player, even mid-flicker
@@ -1203,7 +1207,8 @@ public class PlayerController : MonoBehaviour
         // one signal this project has to distinguish a fall death from
         // every other damage source - enemy/boss/fireball contact all call
         // TakeDamage() with isFall left at its false default).
-        GameManager.DamageResult result = GameManager.Instance.TryDamagePlayer(bypassInvincibleMode: isFall, reason: isFall ? "DeathY" : "HPZero");
+        string reason = (isFall ? "DeathY" : "HPZero") + (string.IsNullOrEmpty(source) ? "" : ":" + source);
+        GameManager.DamageResult result = GameManager.Instance.TryDamagePlayer(bypassInvincibleMode: isFall, reason: reason);
         if (result != GameManager.DamageResult.Hit) return;
 
         RespawnAtCurrentPosition(isFall);
@@ -1283,6 +1288,7 @@ public class PlayerController : MonoBehaviour
         knockbackVelocityX = velocityX;
         knockbackDuration = Mathf.Max(0.001f, duration);
         knockbackTimer = knockbackDuration;
+        FreezeDiagnostics.LogEvent($"[Knockback] velocityX={velocityX:F2} duration={duration:F2} pos=({transform.position.x:F2},{transform.position.y:F2}) timeScale={Time.timeScale:F2}");
     }
 
     // エリアルコンボ改修(2026-09-11), item 4 - EnemyController.
@@ -1338,6 +1344,7 @@ public class PlayerController : MonoBehaviour
     void RespawnAtCurrentPosition(bool isFall = false)
     {
         bool recoverOnSky = !isFall && onSky && TerrainManager.Instance != null && TerrainManager.Instance.IsInBranchRoute(transform.position.x);
+        Vector3 beforePos = transform.position;
 
         velocityY = 0f;
         isGrounded = true;
@@ -1366,6 +1373,8 @@ public class PlayerController : MonoBehaviour
             float groundY = TerrainManager.Instance != null ? (TerrainManager.Instance.GetHeightAt(x) ?? 0f) : 0f;
             transform.position = new Vector3(x, groundY + groundOffset, 0f);
         }
+
+        FreezeDiagnostics.LogEvent($"[Respawn] isFall={isFall} recoverOnSky={recoverOnSky} before=({beforePos.x:F2},{beforePos.y:F2}) after=({transform.position.x:F2},{transform.position.y:F2}) timeScale={Time.timeScale:F2}");
     }
 
     IEnumerator FlickerWhileInvincible()

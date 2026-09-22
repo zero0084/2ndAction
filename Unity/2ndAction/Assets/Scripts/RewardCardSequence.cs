@@ -218,6 +218,7 @@ public class RewardCardSequence : MonoBehaviour
     {
         DebugStep = step;
         Debug.Log("RewardCardSequence: " + step);
+        FreezeDiagnostics.LogEvent("[CardSequence] " + step);
     }
 
     void LogPresentation(string message)

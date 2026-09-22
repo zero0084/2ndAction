@@ -911,7 +911,7 @@ public class TrackedHazard : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         if (!damages || !activated) return;
-        if (other.CompareTag("Player") && PlayerController.Instance != null) PlayerController.Instance.TakeDamage();
+        if (other.CompareTag("Player") && PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "WildBoss:" + name);
     }
 }
 

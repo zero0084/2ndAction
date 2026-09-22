@@ -699,7 +699,7 @@ public class DragonController : MonoBehaviour
         // near it, or being near it while it breathes fire, is safe.
         if (other.CompareTag("Player") && state == State.Charging)
         {
-            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage();
+            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "Dragon:" + name);
             return;
         }
 

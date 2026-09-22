@@ -1047,6 +1047,12 @@ public class GameManager : MonoBehaviour
 
     bool levelUpPending;
     CardDefinition[] pendingChoices;
+    // 高速走行中のフリーズ/ワープ調査(2026-09-22) - Time.timeScaleへの
+    // 直接書き込みをTimeControl(理由付き参照カウント)へ一本化する際の
+    // owner。Level Up/Boss Reward選択は同じlevelUpPendingフラグで排他制御
+    // されている(同時に両方Pendingにはならない)ため、共通の1つでよい。
+    static readonly object pendingChoiceTimeOwner = new object();
+    static readonly object pauseMenuTimeOwner = new object();
     // Diagnostic only - see TriggerLevelUpChoice.
     string lastLevelUpDiagnostic = "";
     // Every card picked this run, in order - drives the "obtained so far"
@@ -1098,6 +1104,21 @@ public class GameManager : MonoBehaviour
         // フックは一度だけ登録すれば十分(static event、二重登録防止は
         // EnsureHooked自身が行う)。
         BossDiagnostics.EnsureHooked();
+
+        // 高速走行中のフリーズ/ワープ調査(2026-09-22) - Unityの既定値
+        // (Maximum Allowed Timestep=0.333秒、ProjectSettings/TimeManager.
+        // asset)のままだと、GC/アセット読み込み等で実時間0.3秒級のヒッチが
+        // 起きた際、その1フレームのTime.deltaTimeがそのまま0.333秒に
+        // クランプされて渡ってしまう。高速走行中(基礎速度の倍率が上がって
+        // いる状態)はこの1フレームだけでプレイヤーが数十ユニット分まとめて
+        // 進んでしまい、「画面が一瞬止まって、再開時に位置が飛んだように
+        // 見える」不具合の主要因の1つになっていた(ヒッチ自体をゼロには
+        // できないが、1フレームが表せる移動量の上限を下げることで見た目の
+        // 飛びを大幅に軽減できる)。これはスローモーション演出の追加では
+        // なく、既存の実効速度計算(PlayerController.Move等、Time.deltaTime
+        // ベース)に対する上限のクランプのみ - 通常フレーム(1/60秒前後)の
+        // 挙動には一切影響しない。
+        Time.maximumDeltaTime = 0.1f;
     }
 
     // Item 11 - "強制終了による逃げ対策": mobile OSes suspend/kill a
@@ -1166,6 +1187,11 @@ public class GameManager : MonoBehaviour
         // を見るため)。両方とも監視/記録のみで、Gameplayには一切影響しない。
         BossDiagnostics.PollStateTransitions();
         BossDiagnostics.UpdateFreezeWatchdog();
+        // 高速走行中のフリーズ/ワープ調査(2026-09-22) - Boss Phase専用の
+        // 上2つとは別に、通常時(Level Up/被弾/HitStop絡み)も含めて毎フレーム
+        // 記録する。DebugModeの有無に関わらず常時軽量に記録し、異常時だけ
+        // 詳細を書き出す(FreezeDiagnostics自身のコメント参照)。
+        FreezeDiagnostics.Tick();
     }
 
     // Distance-unlock system - shows a brief "NEW UNLOCK" toast the first
@@ -2060,7 +2086,8 @@ public class GameManager : MonoBehaviour
         if (rewardCardSequence != null) rewardCardSequence.ForceReset();
         levelUpPending = false;
         pendingChoices = null;
-        Time.timeScale = 1f;
+        FreezeDiagnostics.LogEvent("[Pause] Watchdog force-resolved stuck choice -> TimeControl.Resume(pendingChoice)");
+        TimeControl.Resume(pendingChoiceTimeOwner);
         pendingChoiceStuckTimer = 0f;
         // Bugfix 2026-09-08 - lastLevelUpDiagnostic (Debug Mode's
         // "rewardCardSequence OK, starting sequence..." on-screen text) used
@@ -2146,7 +2173,8 @@ public class GameManager : MonoBehaviour
 
         pendingChoiceKind = PendingChoiceKind.BossReward;
         levelUpPending = true;
-        Time.timeScale = 0f;
+        FreezeDiagnostics.LogEvent("[Pause] BossReward choice start");
+        TimeControl.Pause(pendingChoiceTimeOwner);
 
         if (rewardCardSequence != null && pendingChoices.Length > 0)
         {
@@ -2213,7 +2241,8 @@ public class GameManager : MonoBehaviour
 
         pendingChoiceKind = PendingChoiceKind.LevelUp;
         levelUpPending = true;
-        Time.timeScale = 0f;
+        FreezeDiagnostics.LogEvent("[Pause] LevelUp choice start");
+        TimeControl.Pause(pendingChoiceTimeOwner);
 
         // Diagnostic: proves whether rewardCardSequence actually survived
         // into the build, unconditionally (not gated behind anything the
@@ -2405,7 +2434,8 @@ public class GameManager : MonoBehaviour
             // here, AFTER the pick, not before.
             levelUpPending = false;
             pendingChoices = null;
-            Time.timeScale = 1f;
+            FreezeDiagnostics.LogEvent("[Pause] Choice resolved -> TimeControl.Resume(pendingChoice)");
+            TimeControl.Resume(pendingChoiceTimeOwner);
             // Bugfix 2026-09-08 - see UpdatePendingChoiceWatchdog's matching
             // comment for why this needs clearing on every resolution path,
             // not just left to persist until the next Level Up overwrites it.
@@ -2469,11 +2499,13 @@ public class GameManager : MonoBehaviour
     // be confirmed on a real device rather than inferred from review alone.
     public DamageResult TryDamagePlayer(bool bypassInvincibleMode = false, string reason = "Other")
     {
+        Vector3 dmgPos = PlayerController.Instance != null ? PlayerController.Instance.transform.position : Vector3.zero;
         if (IsGameOver) return DamageResult.Ignored;
-        if (PresentationDamageLock) return DamageResult.Ignored;
+        if (PresentationDamageLock) { FreezeDiagnostics.LogEvent($"[Damage] Ignored(PresentationDamageLock) reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); return DamageResult.Ignored; }
         if (!bypassInvincibleMode && InvincibleMode) return DamageResult.Ignored;
-        if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) return DamageResult.Ignored;
+        if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); return DamageResult.Ignored; }
 
+        FreezeDiagnostics.LogEvent($"[Damage] Hit reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2}) livesBefore={Lives} timeScale={Time.timeScale:F2}");
         Lives = Mathf.Max(0, Lives - 1);
         heartDamageFlashTimer = heartDamageFlashDuration;
         if (Lives <= 0)
@@ -2561,9 +2593,11 @@ public class GameManager : MonoBehaviour
         gameOverTime = Time.time;
         // Safety net: Time.timeScale is a global engine setting that would
         // otherwise persist across a scene reload (Retry) - if the run
-        // somehow ended while a level-up pause was still active, this
-        // guarantees the next run doesn't start frozen.
-        Time.timeScale = 1f;
+        // somehow ended while a level-up pause (or any other TimeControl
+        // reason, including a leaked HitStop) was still active, this
+        // guarantees the next run doesn't start frozen. TimeControl.ResetAll
+        // clears every registered pause reason, not just this one, on purpose.
+        TimeControl.ResetAll();
         levelUpPending = false;
         pendingChoices = null;
         lastLevelUpDiagnostic = ""; // Bugfix 2026-09-08 - see UpdatePendingChoiceWatchdog's matching comment
@@ -2680,7 +2714,7 @@ public class GameManager : MonoBehaviour
     public void ReturnToHome()
     {
         if (!HasStarted || IsGameOver) return;
-        Time.timeScale = 1f; // defensive - same reasoning as FinishRun's own reset, in case this is ever reached while still paused
+        TimeControl.ResetAll(); // defensive - same reasoning as FinishRun's own reset, in case this is ever reached while still paused
         SaveInterruptState();
         RetryWithTransition();
     }
@@ -2829,6 +2863,19 @@ public class GameManager : MonoBehaviour
         // リーンショットを撮るだけで内容を保存・共有できる。
         if (HasStarted && DebugMode) BossDiagnostics.DrawSnapshotOverlayIfAny();
 
+        // 高速走行中のフリーズ/ワープ調査(2026-09-22) - 記録自体は常時
+        // 行っているが、表示/手動ダンプはBossDiagnostics同様DebugMode時
+        // のみ。異常検知時は自動でオーバーレイが開く(FreezeDiagnostics.
+        // ReportAnomaly参照)。
+        if (HasStarted && DebugMode)
+        {
+            if (GUI.Button(new Rect(10f, Screen.height - 264f, 200f, 28f), "Dump Freeze/Warp Log"))
+            {
+                FreezeDiagnostics.ManualDump();
+            }
+            FreezeDiagnostics.DrawSnapshotOverlayIfAny();
+        }
+
         // Drawn first (before every other element) so everything else on
         // the top screen layers on top of it, and only while that screen
         // is showing - it must never bleed into gameplay. A single static
@@ -2920,7 +2967,8 @@ public class GameManager : MonoBehaviour
                 if (DrawStyledButton(GetPauseButtonRect(), "II", 22f, primary: showPauseMenu))
                 {
                     showPauseMenu = !showPauseMenu;
-                    Time.timeScale = showPauseMenu ? 0f : 1f;
+                    if (showPauseMenu) TimeControl.Pause(pauseMenuTimeOwner);
+                    else TimeControl.Resume(pauseMenuTimeOwner);
                 }
                 if (showPauseMenu) DrawPauseMenu();
             }
@@ -4746,7 +4794,7 @@ public class GameManager : MonoBehaviour
         if (DrawStyledButton(resumeRect, "RESUME", 18f, primary: true))
         {
             showPauseMenu = false;
-            Time.timeScale = 1f;
+            TimeControl.Resume(pauseMenuTimeOwner);
         }
 
         Rect returnRect = new Rect(panelRect.x + 12f, panelRect.y + 74f, panelRect.width - 24f, 52f);
@@ -4787,7 +4835,7 @@ public class GameManager : MonoBehaviour
         {
             showReturnHomeConfirm = false;
             showPauseMenu = false;
-            Time.timeScale = 1f;
+            TimeControl.Resume(pauseMenuTimeOwner);
             ReturnToHome();
         }
         if (DrawStyledButton(noRect, "キャンセル", 16f, primary: false))

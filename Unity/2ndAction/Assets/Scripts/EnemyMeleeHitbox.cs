@@ -16,7 +16,7 @@ public class EnemyMeleeHitbox : MonoBehaviour
     {
         if (other.CompareTag("Player") && PlayerController.Instance != null)
         {
-            PlayerController.Instance.TakeDamage();
+            PlayerController.Instance.TakeDamage(source: "EnemyMelee:" + name);
         }
     }
 }

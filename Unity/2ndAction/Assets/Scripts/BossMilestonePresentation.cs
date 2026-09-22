@@ -146,6 +146,13 @@ public class BossMilestonePresentation : MonoBehaviour
 
         float totalDuration = isFirstEncounter ? firstBossPresentationDuration : repeatBossPresentationDuration;
         float capturedTimeScale = Time.timeScale;
+        // 高速走行中のフリーズ/ワープ調査(2026-09-22) - このクラスは
+        // Time.timeScaleへ直接連続的な値(1.0→中間値→0)を書き込む独自の
+        // 演出用ランプであり、TimeControl(0/1の二値のみ)には一本化して
+        // いない。既存のIsBossPresentationActive()によりLevel Up/Boss
+        // Reward/Pause Menuの開始はこの演出中は既に抑制されているため
+        // 実害は確認していないが、記録だけは残す(挙動は変更しない)。
+        FreezeDiagnostics.LogEvent($"[BossPresentation] TimeScale ramp begin captured={capturedTimeScale:F2}");
 
         // Fail-safe (item 17): wrapped so ANY early exit still restores
         // timeScale/damage-lock and still spawns the boss rather than
@@ -200,6 +207,7 @@ public class BossMilestonePresentation : MonoBehaviour
         {
             SpawnOnce(); // no-op if already spawned above - guarantees Boss Spawn is always reached even on an early exit
             Time.timeScale = capturedTimeScale > 0f ? capturedTimeScale : 1f;
+            FreezeDiagnostics.LogEvent($"[BossPresentation] TimeScale ramp end restored={Time.timeScale:F2}");
             if (GameManager.Instance != null) GameManager.Instance.SetPresentationDamageLock(false);
             if (AudioManager.Instance != null) AudioManager.Instance.UnduckBgm(bgmDuckFadeDuration);
         }

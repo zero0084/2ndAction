@@ -45,7 +45,7 @@ public class ObstacleController : MonoBehaviour
 
         if (other.CompareTag("Player"))
         {
-            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage();
+            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "Obstacle:" + name);
             // 石/小木/壁/巨大石(breakable=false)はここで即座に退場させる -
             // 被弾後もその場に視覚的に残り続けてプレイヤーの見た目に重なり
             // 続けることを避けるため(ObstacleControllerクラスコメント

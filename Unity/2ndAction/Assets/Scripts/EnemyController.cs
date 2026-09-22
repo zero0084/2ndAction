@@ -504,7 +504,7 @@ public class EnemyController : MonoBehaviour
             // HitReaction/Knockback/Launched/Airborne/Slam中に限って無効化
             // する。
             if (IsReactingToHit) return;
-            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage();
+            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "Enemy:" + name);
         }
     }
 
