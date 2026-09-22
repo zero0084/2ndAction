@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: cave_bat
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: cave_bat
+  displayName: CAVE BAT
+  sprite: {fileID: 21300000, guid: e4088c6d49f38de49ac62c8550659594, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 1
+  category: 1
+  behaviorKind: 1
+  hpMultiplier: 1
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 1
+  runFrames:
+  - {fileID: 21300000, guid: b5543019c078a274e8d8be63d4895a77, type: 3}
+  - {fileID: 21300000, guid: e84ed8e81e6020b438d39bcb898c36da, type: 3}
+  - {fileID: 21300000, guid: f545237f6b425ab4789420a3df9f58a9, type: 3}
+  - {fileID: 21300000, guid: a169425b41320d94e8bdd4be3e84bf24, type: 3}
+  - {fileID: 21300000, guid: e48c0544ffeea454eab6e82b55f74a91, type: 3}
+  mileReward: 2
+  visualScaleMultiplier: 1
+  aiTier: 0
+  stageIds:
+  - natural_cave

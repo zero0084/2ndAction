@@ -59,6 +59,22 @@ public static class EnemyDatabaseBuilder
     // という汎用の意味で、走行に限らない)、中身は羽ばたきサイクル。
     const string BirdFlapFramesFolder = "Assets/Art/WastelandBirdFlap";
 
+    // 自然洞窟雑魚敵追加(2026-09-22) - CaveEnemyArtGenerator(Tools/
+    // OneMoreMile/Generate Cave Enemy Art)が生成する暫定シルエット素材への
+    // パス。実イラストへ差し替える場合は、この5ファイル+対応するRunフォル
+    // ダの中身を同名のまま入れ替えるだけでよい。
+    const string CaveAntSpritePath = "Assets/Art/Enemy/CaveAnt.png";
+    const string CaveAntRunFramesFolder = "Assets/Art/CaveAntRun";
+    const string SoldierAntSpritePath = "Assets/Art/Enemy/SoldierAnt.png";
+    const string SoldierAntRunFramesFolder = "Assets/Art/SoldierAntRun";
+    const string CaveHopperSpritePath = "Assets/Art/Enemy/CaveHopper.png";
+    const string CaveHopperRunFramesFolder = "Assets/Art/CaveHopperRun";
+    const string CaveBatSpritePath = "Assets/Art/Enemy/CaveBat.png";
+    const string CaveBatRunFramesFolder = "Assets/Art/CaveBatRun";
+    const string BurrowWormSpritePath = "Assets/Art/Enemy/BurrowWorm.png";
+    const string BurrowWormRunFramesFolder = "Assets/Art/BurrowWormRun";
+    static readonly string[] NaturalCaveOnly = { "natural_cave" };
+
     struct Spec
     {
         public string id;
@@ -96,6 +112,9 @@ public static class EnemyDatabaseBuilder
         // フィールド。C#のenum既定値(0=T0)なので、これを明示的に設定しない
         // 既存の全Specは今までどおりT0のまま(挙動無変更)。
         public EnemyAiTier aiTier;
+        // 自然洞窟雑魚敵追加(2026-09-22) - EnemyDefinition.stageIdsと同じ
+        // フィールド。null(既定)なら従来どおり全ステージ。
+        public string[] stageIds;
     }
 
     // Runner Enemy Run Animation - loads the already-configured frame
@@ -199,6 +218,7 @@ public static class EnemyDatabaseBuilder
             // convention as mileReward above.
             def.visualScaleMultiplier = spec.visualScaleMultiplier > 0f ? spec.visualScaleMultiplier : 1f;
             def.aiTier = spec.aiTier;
+            def.stageIds = spec.stageIds;
 
             AssetDatabase.CreateAsset(def, assetPath);
         }
@@ -539,6 +559,118 @@ public static class EnemyDatabaseBuilder
             runFramesDir = RunnerRunFramesFolder,
             mileReward = 3,
             visualScaleMultiplier = 1.52f // same shared Runner art - see chaser_runner's matching comment
+        };
+
+        // ===== 自然洞窟雑魚敵追加(2026-09-22) - 5種、いずれもstageIds=
+        // natural_caveのみ(荒野街道/天空回廊には一切出現しない)。 ===== //
+        yield return new Spec
+        {
+            id = "cave_ant",
+            displayName = "CAVE ANT",
+            spritePath = CaveAntSpritePath,
+            tint = Color.white,
+            movementType = EnemyMovementType.Ground,
+            category = EnemyCategory.Normal, // T0=Passive、既存goblinと同じ枠(棒立ち・自発攻撃なし)
+            behaviorKind = EnemyBehaviorKind.None,
+            hpMultiplier = 1f,
+            bigKnockbackOnHit = false,
+            enableVisualFacing = true,
+            defaultFacingRight = false, // 素材は頭部が左側
+            mileReward = 1,
+            // SceneBuilder側のPPU(CaveAntSpritePathのConfigureAndLoadSpriteWithFootPivot
+            // 呼び出し)で既にPlayerの約105%相当に合わせてあるため1f
+            // (Collider/Visualのズレを避けるため、掛け算による調整はしない)。
+            visualScaleMultiplier = 1f,
+            runFramesDir = CaveAntRunFramesFolder,
+            aiTier = EnemyAiTier.T0,
+            stageIds = NaturalCaveOnly
+        };
+
+        yield return new Spec
+        {
+            id = "soldier_ant",
+            displayName = "SOLDIER ANT",
+            spritePath = SoldierAntSpritePath,
+            tint = Color.white,
+            movementType = EnemyMovementType.Ground,
+            category = EnemyCategory.Normal,
+            // T1: その場から動かず、Telegraph→Bite→Recoveryの近接攻撃
+            // (StationaryMeleeをそのまま再利用)。
+            behaviorKind = EnemyBehaviorKind.StationaryMelee,
+            hpMultiplier = 1.3f,
+            bigKnockbackOnHit = false,
+            enableVisualFacing = true,
+            defaultFacingRight = false,
+            mileReward = 2,
+            // SceneBuilder側のPPUで約118%相当に合わせてあるため1f。
+            visualScaleMultiplier = 1f,
+            runFramesDir = SoldierAntRunFramesFolder,
+            aiTier = EnemyAiTier.T1,
+            stageIds = NaturalCaveOnly
+        };
+
+        yield return new Spec
+        {
+            id = "cave_hopper",
+            displayName = "CAVE HOPPER",
+            spritePath = CaveHopperSpritePath,
+            tint = Color.white,
+            movementType = EnemyMovementType.Ground,
+            category = EnemyCategory.Irregular, // 既存のDistanceTier解放条件をそのまま流用
+            behaviorKind = EnemyBehaviorKind.CaveHopper,
+            hpMultiplier = 1f,
+            bigKnockbackOnHit = false,
+            enableVisualFacing = true,
+            defaultFacingRight = false,
+            mileReward = 2,
+            // SceneBuilder側のPPUで約105%相当に合わせてあるため1f。
+            visualScaleMultiplier = 1f,
+            runFramesDir = CaveHopperRunFramesFolder,
+            stageIds = NaturalCaveOnly
+        };
+
+        yield return new Spec
+        {
+            id = "cave_bat",
+            displayName = "CAVE BAT",
+            spritePath = CaveBatSpritePath,
+            tint = Color.white,
+            movementType = EnemyMovementType.Flying,
+            category = EnemyCategory.Flying,
+            behaviorKind = EnemyBehaviorKind.Flying, // 天井クランプ+任意Diveは共通UpdateFlying側で処理(EnemySpecialBehavior参照)
+            hpMultiplier = 1f,
+            bigKnockbackOnHit = false,
+            enableVisualFacing = true,
+            defaultFacingRight = true, // 左右対称に近い素材のため向きの影響は小さい
+            mileReward = 2,
+            // SceneBuilder側のPPUで翼を含め約110%相当に合わせてあるため1f。
+            visualScaleMultiplier = 1f,
+            runFramesDir = CaveBatRunFramesFolder,
+            stageIds = NaturalCaveOnly
+        };
+
+        yield return new Spec
+        {
+            id = "burrow_worm",
+            displayName = "BURROW WORM",
+            spritePath = BurrowWormSpritePath,
+            tint = Color.white,
+            movementType = EnemyMovementType.Ground,
+            // 既存カテゴリを流用(新規EnemyCategoryを増やすとDistanceTierManager.
+            // tiers/GroundLikeCategories等 数か所のシーンデータ側も同時に
+            // 増やす必要が生じるため、危険度が近いHeavyの解放条件を流用する
+            // 形にした)。
+            category = EnemyCategory.Heavy,
+            behaviorKind = EnemyBehaviorKind.BurrowWorm,
+            hpMultiplier = 1.6f,
+            bigKnockbackOnHit = false,
+            enableVisualFacing = true,
+            defaultFacingRight = true, // 素材は口が右側
+            mileReward = 3,
+            // SceneBuilder側のPPUで地上へ出た状態の約140%相当に合わせてあるため1f。
+            visualScaleMultiplier = 1f,
+            runFramesDir = BurrowWormRunFramesFolder,
+            stageIds = NaturalCaveOnly
         };
     }
 }

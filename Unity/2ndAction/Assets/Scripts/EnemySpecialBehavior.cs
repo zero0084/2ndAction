@@ -41,6 +41,31 @@ public class EnemySpecialBehavior : MonoBehaviour
     public float flyingStopDistance = 3f;
     public float flyingMinHeight = 1.2f; // world units above ground - never allowed to sink below this (item 3 - "地面へ着地しない")
 
+    // 自然洞窟雑魚敵追加(2026-09-22) - Cave Bat用。天井のある洞窟ステージ
+    // でだけ効く追加の高度クランプ(GetEffectiveCeilingHeightAtがnullを返す
+    // 荒野街道/天空回廊では何も変わらない、既存Flying種は無改造のまま)。
+    [Header("Flying - Cave ceiling awareness (洞窟以外では常にno-op)")]
+    public bool flyingRespectCeiling = true;
+    public float flyingCeilingMargin = 0.6f;
+
+    // 自然洞窟雑魚敵追加(2026-09-22) - Cave Bat用の任意のDive攻撃。既定
+    // false(=既存Flying種と完全に同じ、単に飛び続けるだけ)。有効な場合、
+    // 一定間隔でTelegraph(頭上マーカー点滅)→Dive(Player方向へ急降下)→
+    // Hold(攻撃判定)→Returnを1サイクルとして繰り返す。
+    [Header("Flying - Dive Attack (任意、既定OFF)")]
+    public bool flyingDiveEnabled = false;
+    public float flyingDiveIntervalMin = 3.5f;
+    public float flyingDiveIntervalMax = 6f;
+    public float flyingDiveRange = 9f; // このX距離内にPlayerがいる時だけ次のDiveを狙う
+    public float flyingDiveTelegraphDuration = 0.55f;
+    public float flyingDiveMarkerScale = 0.5f;
+    public float flyingDiveSpeed = 7f;
+    public float flyingDiveMinAltitude = 1.0f; // 急降下の最低高度(地面/床からの高さ)
+    public float flyingDiveHoldDuration = 0.16f; // 最下点付近で攻撃判定が出る時間
+    public float flyingDiveRecoverSpeed = 3.5f;
+    public float flyingDiveHitboxWidth = 1.5f;
+    public float flyingDiveHitboxHeight = 1.2f;
+
     [Header("Irregular - random Move/Pause/Hop, action-based (not per-frame)")]
     public float irregularMoveSpeed = 1.6f;
     public float irregularLeashRange = 2.5f; // never wanders further than this from its own spawn X
@@ -123,6 +148,44 @@ public class EnemySpecialBehavior : MonoBehaviour
     public float meleeMoveActionDurationMin = 0.8f;
     public float meleeMoveActionDurationMax = 1.8f;
 
+    [Header("Cave Hopper - 基本位置周辺のランダム移動+小Hop+時々近接攻撃")]
+    public float hopperMoveSpeed = 1.4f;
+    public float hopperLeashRange = 2.2f;
+    public float hopperHopHeight = 0.55f;
+    public float hopperHopDuration = 0.3f;
+    public float hopperHopDistanceMin = 0.6f;
+    public float hopperHopDistanceMax = 1.6f;
+    // 「Action決定 -> 0.4〜1.2秒実行 -> 次Action」T2よりやや短め(不規則さを強調)。
+    public float hopperActionDurationMin = 0.4f;
+    public float hopperActionDurationMax = 1.2f;
+    public float hopperAttackIntervalMin = 2.5f;
+    public float hopperAttackIntervalMax = 5f;
+    public float hopperTelegraphDurationMin = 0.35f;
+    public float hopperTelegraphDurationMax = 0.6f;
+    public float hopperTelegraphMarkerScale = 0.4f;
+    public float hopperAttackActiveDuration = 0.2f;
+    public float hopperRecoverDuration = 0.4f;
+    public float hopperHitboxWidth = 1.0f;
+    public float hopperHitboxHeight = 0.9f;
+    public float hopperHitboxOffsetX = 0.7f;
+
+    [Header("Burrow Worm - 地中待機→予兆→出現→攻撃→退避")]
+    public Sprite wormDustSprite; // 予兆VFX用(未指定ならSoftDotSpriteで代用)
+    public float wormUndergroundMin = 1.2f;
+    public float wormUndergroundMax = 2.5f;
+    // このX距離内にPlayerがいる時だけ出現を狙う - 「Playerを長時間追跡する
+    // 敵ではなく、地面から突然出現する危険」として、画面外からの一方的な
+    // 奇襲にならない範囲に留める。
+    public float wormAttackRange = 8f;
+    public float wormTelegraphDuration = 0.9f;
+    public float wormEmergeDuration = 0.35f;
+    public float wormAttackActiveDuration = 0.3f;
+    public float wormRecoverDuration = 0.35f;
+    public float wormRetreatDuration = 0.35f;
+    public float wormHitboxWidth = 1.6f;
+    public float wormHitboxHeight = 1.4f;
+    public float wormBuriedDepth = 1.3f; // 地中にいる間、地面からどれだけ沈めるか
+
     [Header("Safety - Despawn (item 3)")]
     // Chaser/Rusher give up and self-despawn if they end up this far behind
     // the player (off-screen-left, behind the auto-run direction) - "永久
@@ -176,6 +239,46 @@ public class EnemySpecialBehavior : MonoBehaviour
     GameObject meleeTelegraphMarkerGO;
     Transform meleeTelegraphMarkerTransform;
 
+    // 自然洞窟雑魚敵追加(2026-09-22) - Flying Dive攻撃の状態。
+    enum FlyingDiveState { None, Telegraph, Diving, Holding, Returning }
+    FlyingDiveState flyingDiveState;
+    float flyingDiveTimer;
+    float flyingDiveTargetY;
+    GameObject flyingDiveHitboxGO;
+    GameObject flyingDiveMarkerGO;
+    Transform flyingDiveMarkerTransform;
+
+    // 自然洞窟雑魚敵追加(2026-09-22) - Cave Hopperの移動サイクル(Irregular/
+    // T2と同じUpdate()駆動のタイマー方式)。
+    enum HopperMoveState { Pause, Move, Hop }
+    HopperMoveState hopperMoveState;
+    float hopperActionTimer;
+    float hopperMoveDirSign = 1f;
+    float hopperHopStartX, hopperHopTargetX, hopperHopElapsed;
+
+    // 自然洞窟雑魚敵追加(2026-09-22) - Cave Hopperの攻撃サイクル(Stationary
+    // Melee攻撃サイクルと同形、独立したTimer/Stateを持つ - Hop中は新規攻撃
+    // を開始しない)。
+    enum HopperAttackState { Idle, Telegraph, Attack, Recover }
+    HopperAttackState hopperAttackState;
+    float hopperAttackTimer;
+    float hopperTelegraphTotalDuration;
+    float hopperAttackFacingDir = -1f;
+    GameObject hopperHitboxGO;
+    GameObject hopperTelegraphMarkerGO;
+    Transform hopperTelegraphMarkerTransform;
+
+    // 自然洞窟雑魚敵追加(2026-09-22) - Burrow Wormの状態機械。
+    enum WormState { Underground, Telegraph, Emerge, Attack, Recover, Retreat }
+    WormState wormState;
+    float wormTimer;
+    float wormFacingDir = -1f;
+    float wormGroundY;
+    GameObject wormHitboxGO;
+    SpriteRenderer wormVisualRenderer;
+    BoxCollider2D wormBodyCollider;
+    float wormDustCooldown;
+
     void Start()
     {
         FloatingOrigin.Shifted += OnOriginShifted;
@@ -188,6 +291,9 @@ public class EnemySpecialBehavior : MonoBehaviour
         flyingBaseY = transform.position.y;
         PickIrregularAction();
         if (kind == EnemyBehaviorKind.StationaryMelee) InitStationaryMelee();
+        if (kind == EnemyBehaviorKind.CaveHopper) InitCaveHopper();
+        if (kind == EnemyBehaviorKind.BurrowWorm) InitBurrowWorm();
+        if (kind == EnemyBehaviorKind.Flying && flyingDiveEnabled) InitFlyingDive();
     }
 
     // 敵AI行動Tier試験実装(2026-09-16) - Hit Reaction/Knockback/Launchに
@@ -205,13 +311,51 @@ public class EnemySpecialBehavior : MonoBehaviour
 
     void OnEnable()
     {
-        if (kind != EnemyBehaviorKind.StationaryMelee || meleeHitboxGO == null) return;
-        meleeAttackState = MeleeAttackState.Idle;
-        meleeAttackTimer = Random.Range(meleeAttackIntervalMin, meleeAttackIntervalMax);
-        meleeMoveState = MeleeMoveState.Idle;
-        meleeMoveTimer = Random.Range(meleeMoveActionDurationMin, meleeMoveActionDurationMax);
-        meleeHitboxGO.SetActive(false);
-        if (meleeTelegraphMarkerGO != null) meleeTelegraphMarkerGO.SetActive(false);
+        if (kind == EnemyBehaviorKind.StationaryMelee && meleeHitboxGO != null)
+        {
+            meleeAttackState = MeleeAttackState.Idle;
+            meleeAttackTimer = Random.Range(meleeAttackIntervalMin, meleeAttackIntervalMax);
+            meleeMoveState = MeleeMoveState.Idle;
+            meleeMoveTimer = Random.Range(meleeMoveActionDurationMin, meleeMoveActionDurationMax);
+            meleeHitboxGO.SetActive(false);
+            if (meleeTelegraphMarkerGO != null) meleeTelegraphMarkerGO.SetActive(false);
+        }
+
+        // 自然洞窟雑魚敵追加(2026-09-22) - CaveHopper/BurrowWorm/Flying Dive
+        // も同じ「中断されたら途中状態から再開せず、必ず安全なIdle相当へ
+        // 戻す」方針(StationaryMeleeの既存コメント参照)。
+        if (kind == EnemyBehaviorKind.CaveHopper && hopperHitboxGO != null)
+        {
+            hopperAttackState = HopperAttackState.Idle;
+            hopperAttackTimer = Random.Range(hopperAttackIntervalMin, hopperAttackIntervalMax);
+            hopperMoveState = HopperMoveState.Pause;
+            hopperActionTimer = Random.Range(hopperActionDurationMin, hopperActionDurationMax);
+            hopperHitboxGO.SetActive(false);
+            if (hopperTelegraphMarkerGO != null) hopperTelegraphMarkerGO.SetActive(false);
+        }
+
+        if (kind == EnemyBehaviorKind.BurrowWorm && wormHitboxGO != null)
+        {
+            // 被弾で中断された場合、安全に地中へ戻す(地上に出た状態のまま
+            // Colliderが変な状態で固着することを避ける) - 「地中に完全に
+            // 潜っている間は攻撃対象外でも構いません」に沿った安全なリセット。
+            wormState = WormState.Underground;
+            wormTimer = Random.Range(wormUndergroundMin, wormUndergroundMax);
+            wormHitboxGO.SetActive(false);
+            if (wormBodyCollider != null) wormBodyCollider.enabled = false;
+            if (wormVisualRenderer != null) wormVisualRenderer.enabled = false;
+            Vector3 p = transform.position;
+            p.y = wormGroundY - wormBuriedDepth;
+            transform.position = p;
+        }
+
+        if (kind == EnemyBehaviorKind.Flying && flyingDiveEnabled && flyingDiveHitboxGO != null)
+        {
+            flyingDiveState = FlyingDiveState.None;
+            flyingDiveTimer = Random.Range(flyingDiveIntervalMin, flyingDiveIntervalMax);
+            flyingDiveHitboxGO.SetActive(false);
+            if (flyingDiveMarkerGO != null) flyingDiveMarkerGO.SetActive(false);
+        }
     }
 
     // Hit Reaction/Knockback/Launch中は攻撃判定・Telegraph表示を即座に
@@ -221,6 +365,11 @@ public class EnemySpecialBehavior : MonoBehaviour
     {
         if (meleeHitboxGO != null) meleeHitboxGO.SetActive(false);
         if (meleeTelegraphMarkerGO != null) meleeTelegraphMarkerGO.SetActive(false);
+        if (hopperHitboxGO != null) hopperHitboxGO.SetActive(false);
+        if (hopperTelegraphMarkerGO != null) hopperTelegraphMarkerGO.SetActive(false);
+        if (wormHitboxGO != null) wormHitboxGO.SetActive(false);
+        if (flyingDiveHitboxGO != null) flyingDiveHitboxGO.SetActive(false);
+        if (flyingDiveMarkerGO != null) flyingDiveMarkerGO.SetActive(false);
     }
 
     void Update()
@@ -246,6 +395,8 @@ public class EnemySpecialBehavior : MonoBehaviour
             case EnemyBehaviorKind.Chaser: UpdateChaser(); break;
             case EnemyBehaviorKind.Rusher: UpdateRusher(); break;
             case EnemyBehaviorKind.StationaryMelee: UpdateStationaryMelee(); break;
+            case EnemyBehaviorKind.CaveHopper: UpdateCaveHopper(); break;
+            case EnemyBehaviorKind.BurrowWorm: UpdateBurrowWorm(); break;
         }
     }
 
@@ -255,6 +406,15 @@ public class EnemySpecialBehavior : MonoBehaviour
     // flyingMinHeight added on top), never actually snapping to it.
     void UpdateFlying()
     {
+        // 自然洞窟雑魚敵追加(2026-09-22) - Dive中/Telegraph中はこの通常の
+        // 徘徊ロジックを完全に止め、専用のDive状態機械(UpdateFlyingDive)
+        // だけがRootを動かす。Diveが無効/Noneの間は従来どおり無改造。
+        if (flyingDiveEnabled && flyingDiveState != FlyingDiveState.None)
+        {
+            UpdateFlyingDive();
+            return;
+        }
+
         // flyingBaseY is a FIXED resting altitude (set once in Start, never
         // reassigned here) - horizontal drift only ever touches X, and Y is
         // always recomputed fresh from that fixed baseline + the current
@@ -270,7 +430,119 @@ public class EnemySpecialBehavior : MonoBehaviour
         float floor = (groundY ?? (flyingBaseY - flyingMinHeight)) + flyingMinHeight;
         float bob = Mathf.Sin((Time.time + flyingBobSeed) * flyingBobSpeed) * flyingBobAmplitude;
         float targetY = Mathf.Max(flyingBaseY, floor) + bob;
+        // 自然洞窟雑魚敵追加(2026-09-22) - 天井のある洞窟ステージでだけ効く
+        // 高度クランプ(GetEffectiveCeilingHeightAtは非洞窟ステージ/未生成
+        // 区間ではnullを返すため、荒野街道/天空回廊のFlyingEnemyは完全に
+        // 無改造のまま)。ObstacleSpawner.CaveEffectiveCeilingと同じ考え方。
+        if (flyingRespectCeiling && TerrainManager.Instance != null)
+        {
+            float? ceil = TerrainManager.Instance.GetEffectiveCeilingHeightAt(x);
+            if (ceil.HasValue) targetY = Mathf.Min(targetY, ceil.Value - flyingCeilingMargin);
+        }
         transform.position = new Vector3(x, targetY, transform.position.z);
+
+        if (flyingDiveEnabled)
+        {
+            flyingDiveTimer -= Time.deltaTime;
+            if (flyingDiveTimer <= 0f && Mathf.Abs(dx) <= flyingDiveRange)
+            {
+                StartFlyingDiveTelegraph();
+            }
+        }
+    }
+
+    void InitFlyingDive()
+    {
+        flyingDiveHitboxGO = new GameObject("DiveHitbox");
+        flyingDiveHitboxGO.transform.SetParent(transform, false);
+        var hitboxCol = flyingDiveHitboxGO.AddComponent<BoxCollider2D>();
+        hitboxCol.isTrigger = true;
+        hitboxCol.size = new Vector2(flyingDiveHitboxWidth, flyingDiveHitboxHeight);
+        flyingDiveHitboxGO.AddComponent<EnemyMeleeHitbox>();
+        flyingDiveHitboxGO.SetActive(false);
+
+        if (telegraphMarkerSprite != null)
+        {
+            flyingDiveMarkerGO = new GameObject("DiveTelegraphMarker");
+            flyingDiveMarkerGO.transform.SetParent(transform, false);
+            flyingDiveMarkerGO.transform.localPosition = new Vector3(0f, 0.9f, 0f);
+            var markerSr = flyingDiveMarkerGO.AddComponent<SpriteRenderer>();
+            markerSr.sprite = telegraphMarkerSprite;
+            markerSr.color = new Color(1f, 0.35f, 0.15f, 0.95f);
+            markerSr.sortingOrder = RenderOrder.CombatFx;
+            flyingDiveMarkerTransform = flyingDiveMarkerGO.transform;
+            flyingDiveMarkerGO.SetActive(false);
+        }
+
+        flyingDiveTimer = Random.Range(flyingDiveIntervalMin, flyingDiveIntervalMax);
+    }
+
+    void StartFlyingDiveTelegraph()
+    {
+        flyingDiveState = FlyingDiveState.Telegraph;
+        flyingDiveTimer = flyingDiveTelegraphDuration;
+        if (flyingDiveMarkerGO != null) flyingDiveMarkerGO.SetActive(true);
+    }
+
+    void UpdateFlyingDive()
+    {
+        switch (flyingDiveState)
+        {
+            case FlyingDiveState.Telegraph:
+                flyingDiveTimer -= Time.deltaTime;
+                if (flyingDiveMarkerTransform != null)
+                {
+                    float total = Mathf.Max(0.05f, flyingDiveTelegraphDuration);
+                    float progress = Mathf.Clamp01(1f - flyingDiveTimer / total);
+                    float pulse = Mathf.Sin(progress * Mathf.PI);
+                    flyingDiveMarkerTransform.localScale = Vector3.one * flyingDiveMarkerScale * (0.4f + 0.6f * pulse);
+                }
+                if (flyingDiveTimer <= 0f)
+                {
+                    if (flyingDiveMarkerGO != null) flyingDiveMarkerGO.SetActive(false);
+                    float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(transform.position.x) : null;
+                    float minY = (groundY ?? (transform.position.y - flyingDiveMinAltitude)) + flyingDiveMinAltitude;
+                    flyingDiveTargetY = Mathf.Max(minY, player.position.y);
+                    flyingDiveState = FlyingDiveState.Diving;
+                }
+                break;
+
+            case FlyingDiveState.Diving:
+            {
+                Vector3 p = transform.position;
+                p.y = Mathf.MoveTowards(p.y, flyingDiveTargetY, flyingDiveSpeed * Time.deltaTime);
+                transform.position = p;
+                if (Mathf.Abs(p.y - flyingDiveTargetY) < 0.05f)
+                {
+                    flyingDiveState = FlyingDiveState.Holding;
+                    flyingDiveTimer = flyingDiveHoldDuration;
+                    if (flyingDiveHitboxGO != null) flyingDiveHitboxGO.SetActive(true);
+                }
+                break;
+            }
+
+            case FlyingDiveState.Holding:
+                flyingDiveTimer -= Time.deltaTime;
+                if (flyingDiveTimer <= 0f)
+                {
+                    if (flyingDiveHitboxGO != null) flyingDiveHitboxGO.SetActive(false);
+                    flyingDiveState = FlyingDiveState.Returning;
+                }
+                break;
+
+            case FlyingDiveState.Returning:
+            {
+                Vector3 p = transform.position;
+                p.y = Mathf.MoveTowards(p.y, flyingBaseY, flyingDiveRecoverSpeed * Time.deltaTime);
+                transform.position = p;
+                if (Mathf.Abs(p.y - flyingBaseY) < 0.1f)
+                {
+                    flyingDiveState = FlyingDiveState.None;
+                    flyingDiveTimer = Random.Range(flyingDiveIntervalMin, flyingDiveIntervalMax);
+                }
+                break;
+            }
+        }
     }
 
     void PickIrregularAction()
@@ -614,5 +886,314 @@ public class EnemySpecialBehavior : MonoBehaviour
             meleeHopElapsed = 0f;
             meleeMoveTimer = meleeHopDuration;
         }
+    }
+
+    // ===== Cave Hopper - 自然洞窟雑魚敵追加(2026-09-22) ===== //
+    // 「不規則に動く」を、Irregularのランダム行動選択(Pause/Move/Hop)と
+    // StationaryMeleeの攻撃サイクル(Telegraph→Attack→Recovery)を1つの
+    // Behaviorへ合成する形で実装。Hop自体は「その場での垂直跳躍」を既定
+    // としつつ、安全確認が取れた時だけ水平方向の短い移動を混ぜる
+    // (SetGroundedX/SetGroundedXWithExtraYの「着地先に地面が無ければ移動
+    // しない」フェイルセーフに完全に乗るため、穴の上で空中停止することは
+    // 構造上起こらない)。
+    void InitCaveHopper()
+    {
+        hopperMoveState = HopperMoveState.Pause;
+        hopperActionTimer = Random.Range(hopperActionDurationMin, hopperActionDurationMax);
+        hopperAttackState = HopperAttackState.Idle;
+        hopperAttackTimer = Random.Range(hopperAttackIntervalMin, hopperAttackIntervalMax);
+
+        hopperHitboxGO = new GameObject("HopperHitbox");
+        hopperHitboxGO.transform.SetParent(transform, false);
+        var hitboxCol = hopperHitboxGO.AddComponent<BoxCollider2D>();
+        hitboxCol.isTrigger = true;
+        hitboxCol.size = new Vector2(hopperHitboxWidth, hopperHitboxHeight);
+        hopperHitboxGO.AddComponent<EnemyMeleeHitbox>();
+        hopperHitboxGO.SetActive(false);
+
+        if (telegraphMarkerSprite != null)
+        {
+            hopperTelegraphMarkerGO = new GameObject("TelegraphMarker");
+            hopperTelegraphMarkerGO.transform.SetParent(transform, false);
+            hopperTelegraphMarkerGO.transform.localPosition = new Vector3(0f, 1.0f, 0f);
+            var markerSr = hopperTelegraphMarkerGO.AddComponent<SpriteRenderer>();
+            markerSr.sprite = telegraphMarkerSprite;
+            markerSr.color = new Color(1f, 0.35f, 0.15f, 0.95f);
+            markerSr.sortingOrder = RenderOrder.CombatFx;
+            hopperTelegraphMarkerTransform = hopperTelegraphMarkerGO.transform;
+            hopperTelegraphMarkerGO.SetActive(false);
+        }
+    }
+
+    void UpdateCaveHopper()
+    {
+        UpdateHopperAttackCycle();
+        UpdateHopperMovement();
+    }
+
+    void UpdateHopperAttackCycle()
+    {
+        hopperAttackTimer -= Time.deltaTime;
+        switch (hopperAttackState)
+        {
+            case HopperAttackState.Idle:
+                // Hop中(空中)は新規攻撃を開始しない - StationaryMelee T2と同じ理由。
+                if (hopperAttackTimer <= 0f && hopperMoveState != HopperMoveState.Hop)
+                {
+                    StartHopperTelegraph();
+                }
+                break;
+
+            case HopperAttackState.Telegraph:
+                if (hopperTelegraphMarkerTransform != null)
+                {
+                    float total = Mathf.Max(0.05f, hopperTelegraphTotalDuration);
+                    float progress = Mathf.Clamp01(1f - hopperAttackTimer / total);
+                    float pulse = Mathf.Sin(progress * Mathf.PI);
+                    hopperTelegraphMarkerTransform.localScale = Vector3.one * hopperTelegraphMarkerScale * (0.4f + 0.6f * pulse);
+                }
+                if (hopperAttackTimer <= 0f) StartHopperAttack();
+                break;
+
+            case HopperAttackState.Attack:
+                if (hopperAttackTimer <= 0f) EndHopperAttack();
+                break;
+
+            case HopperAttackState.Recover:
+                if (hopperAttackTimer <= 0f)
+                {
+                    hopperAttackState = HopperAttackState.Idle;
+                    hopperAttackTimer = Random.Range(hopperAttackIntervalMin, hopperAttackIntervalMax);
+                }
+                break;
+        }
+    }
+
+    void StartHopperTelegraph()
+    {
+        hopperAttackState = HopperAttackState.Telegraph;
+        hopperTelegraphTotalDuration = Random.Range(hopperTelegraphDurationMin, hopperTelegraphDurationMax);
+        hopperAttackTimer = hopperTelegraphTotalDuration;
+        float dx = player != null ? player.position.x - transform.position.x : hopperAttackFacingDir;
+        hopperAttackFacingDir = Mathf.Abs(dx) > 0.01f ? Mathf.Sign(dx) : hopperAttackFacingDir;
+        if (hopperTelegraphMarkerGO != null) hopperTelegraphMarkerGO.SetActive(true);
+    }
+
+    void StartHopperAttack()
+    {
+        hopperAttackState = HopperAttackState.Attack;
+        hopperAttackTimer = hopperAttackActiveDuration;
+        if (hopperTelegraphMarkerGO != null) hopperTelegraphMarkerGO.SetActive(false);
+        if (hopperHitboxGO != null)
+        {
+            hopperHitboxGO.transform.localPosition = new Vector3(hopperAttackFacingDir * hopperHitboxOffsetX, 0f, 0f);
+            hopperHitboxGO.SetActive(true);
+        }
+    }
+
+    void EndHopperAttack()
+    {
+        hopperAttackState = HopperAttackState.Recover;
+        hopperAttackTimer = hopperRecoverDuration;
+        if (hopperHitboxGO != null) hopperHitboxGO.SetActive(false);
+    }
+
+    void UpdateHopperMovement()
+    {
+        hopperActionTimer -= Time.deltaTime;
+
+        if (hopperMoveState == HopperMoveState.Hop)
+        {
+            hopperHopElapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(hopperHopElapsed / Mathf.Max(0.05f, hopperHopDuration));
+            float x = Mathf.Lerp(hopperHopStartX, hopperHopTargetX, t);
+            float arc = Mathf.Sin(t * Mathf.PI) * hopperHopHeight;
+            SetGroundedXWithExtraY(x, arc);
+            if (t >= 1f) SetGroundedXWithExtraY(hopperHopTargetX, 0f); // 浮動小数誤差を消して確実に地面へ
+        }
+        else if (hopperMoveState == HopperMoveState.Move)
+        {
+            float nextX = transform.position.x + hopperMoveDirSign * hopperMoveSpeed * Time.deltaTime;
+            if (Mathf.Abs(nextX - spawnX) > hopperLeashRange) hopperMoveDirSign = -hopperMoveDirSign;
+            SetGroundedX(transform.position.x + hopperMoveDirSign * hopperMoveSpeed * Time.deltaTime);
+        }
+
+        if (hopperActionTimer <= 0f) PickHopperMoveAction();
+    }
+
+    void PickHopperMoveAction()
+    {
+        float roll = Random.value;
+        if (roll < 0.35f)
+        {
+            hopperMoveState = HopperMoveState.Pause;
+            hopperActionTimer = Random.Range(hopperActionDurationMin, hopperActionDurationMax);
+        }
+        else if (roll < 0.65f)
+        {
+            hopperMoveState = HopperMoveState.Move;
+            hopperMoveDirSign = Random.value < 0.5f ? -1f : 1f;
+            hopperActionTimer = Random.Range(hopperActionDurationMin, hopperActionDurationMax);
+        }
+        else
+        {
+            // Hop先を事前に決めて安全確認する - 地面が無い/穴に近い/leash外
+            // ならその場(水平移動なし)でHopする(「穴や地形を無視して空中
+            // 停止しない」を構造的に保証)。
+            float dir = Random.value < 0.5f ? -1f : 1f;
+            float dist = Random.Range(hopperHopDistanceMin, hopperHopDistanceMax);
+            float destX = transform.position.x + dir * dist;
+            bool safe = TerrainManager.Instance != null
+                && TerrainManager.Instance.GetHeightAt(destX).HasValue
+                && !TerrainManager.Instance.IsNearPit(destX, 1.0f)
+                && Mathf.Abs(destX - spawnX) <= hopperLeashRange;
+            hopperHopStartX = transform.position.x;
+            hopperHopTargetX = safe ? destX : transform.position.x;
+            hopperMoveState = HopperMoveState.Hop;
+            hopperHopElapsed = 0f;
+            hopperActionTimer = hopperHopDuration;
+        }
+    }
+
+    // ===== Burrow Worm - 自然洞窟雑魚敵追加(2026-09-22) ===== //
+    // Underground(地中待機、Collider/Attackとも無効・非表示) -> Telegraph
+    // (地面に土煙、まだ無害) -> Emerge(浮上、この時点でCollider再有効化=
+    // 攻撃可能) -> Attack(AttackHitbox有効) -> Recover -> Retreat(沈降) ->
+    // Undergroundへ戻る、を繰り返す。PlayerがwormAttackRange内にいる時だけ
+    // 出現を狙う(画面外からの一方的な奇襲を避ける)。
+    void InitBurrowWorm()
+    {
+        wormVisualRenderer = GetComponentInChildren<SpriteRenderer>();
+        wormBodyCollider = GetComponent<BoxCollider2D>();
+        wormGroundY = transform.position.y;
+
+        wormHitboxGO = new GameObject("WormHitbox");
+        wormHitboxGO.transform.SetParent(transform, false);
+        var hitboxCol = wormHitboxGO.AddComponent<BoxCollider2D>();
+        hitboxCol.isTrigger = true;
+        hitboxCol.size = new Vector2(wormHitboxWidth, wormHitboxHeight);
+        wormHitboxGO.AddComponent<EnemyMeleeHitbox>();
+        wormHitboxGO.SetActive(false);
+
+        wormState = WormState.Underground;
+        wormTimer = Random.Range(wormUndergroundMin, wormUndergroundMax);
+        if (wormBodyCollider != null) wormBodyCollider.enabled = false;
+        if (wormVisualRenderer != null) wormVisualRenderer.enabled = false;
+        Vector3 p = transform.position;
+        p.y = wormGroundY - wormBuriedDepth;
+        transform.position = p;
+    }
+
+    void UpdateBurrowWorm()
+    {
+        wormTimer -= Time.deltaTime;
+        switch (wormState)
+        {
+            case WormState.Underground:
+                if (wormTimer <= 0f)
+                {
+                    if (player != null && Mathf.Abs(player.position.x - transform.position.x) <= wormAttackRange)
+                    {
+                        StartWormTelegraph();
+                    }
+                    else
+                    {
+                        // Playerが射程外 - 奇襲にならないよう再抽選して待つ。
+                        wormTimer = Random.Range(wormUndergroundMin, wormUndergroundMax) * 0.5f;
+                    }
+                }
+                break;
+
+            case WormState.Telegraph:
+                wormDustCooldown -= Time.deltaTime;
+                if (wormDustCooldown <= 0f)
+                {
+                    wormDustCooldown = 0.15f;
+                    Sprite dust = wormDustSprite != null ? wormDustSprite : OneShotSpriteEffect.SoftDotSprite();
+                    Vector3 dustPos = new Vector3(transform.position.x + Random.Range(-0.4f, 0.4f), wormGroundY + 0.05f, 0f);
+                    OneShotSpriteEffect.CreateTweened(dust, dustPos, new Color(0.55f, 0.45f, 0.35f), duration: 0.35f, startScale: 0.3f, endScale: 0.7f, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.1f);
+                }
+                if (wormTimer <= 0f) StartWormEmerge();
+                break;
+
+            case WormState.Emerge:
+            {
+                float total = Mathf.Max(0.05f, wormEmergeDuration);
+                float f = Mathf.Clamp01(1f - wormTimer / total);
+                Vector3 p = transform.position;
+                p.y = Mathf.Lerp(wormGroundY - wormBuriedDepth, wormGroundY, f);
+                transform.position = p;
+                if (wormTimer <= 0f) StartWormAttack();
+                break;
+            }
+
+            case WormState.Attack:
+                if (wormTimer <= 0f) EndWormAttack();
+                break;
+
+            case WormState.Recover:
+                if (wormTimer <= 0f) StartWormRetreat();
+                break;
+
+            case WormState.Retreat:
+            {
+                float total = Mathf.Max(0.05f, wormRetreatDuration);
+                float f = Mathf.Clamp01(1f - wormTimer / total);
+                Vector3 p = transform.position;
+                p.y = Mathf.Lerp(wormGroundY, wormGroundY - wormBuriedDepth, f);
+                transform.position = p;
+                if (wormTimer <= 0f)
+                {
+                    if (wormBodyCollider != null) wormBodyCollider.enabled = false;
+                    if (wormVisualRenderer != null) wormVisualRenderer.enabled = false;
+                    wormState = WormState.Underground;
+                    wormTimer = Random.Range(wormUndergroundMin, wormUndergroundMax);
+                }
+                break;
+            }
+        }
+    }
+
+    void StartWormTelegraph()
+    {
+        wormState = WormState.Telegraph;
+        wormTimer = wormTelegraphDuration;
+        wormDustCooldown = 0f;
+        float dx = player != null ? player.position.x - transform.position.x : wormFacingDir;
+        wormFacingDir = Mathf.Abs(dx) > 0.01f ? Mathf.Sign(dx) : wormFacingDir;
+    }
+
+    void StartWormEmerge()
+    {
+        wormState = WormState.Emerge;
+        wormTimer = wormEmergeDuration;
+        // 出現し始めた瞬間から攻撃対象にする(「地上へ出ているAttack/Emerge
+        // 中はPlayerから攻撃可能に」)。
+        if (wormBodyCollider != null) wormBodyCollider.enabled = true;
+        if (wormVisualRenderer != null) wormVisualRenderer.enabled = true;
+    }
+
+    void StartWormAttack()
+    {
+        wormState = WormState.Attack;
+        wormTimer = wormAttackActiveDuration;
+        if (wormHitboxGO != null)
+        {
+            wormHitboxGO.transform.localPosition = new Vector3(wormFacingDir * (wormHitboxWidth * 0.4f), 0f, 0f);
+            wormHitboxGO.SetActive(true);
+        }
+    }
+
+    void EndWormAttack()
+    {
+        wormState = WormState.Recover;
+        wormTimer = wormRecoverDuration;
+        if (wormHitboxGO != null) wormHitboxGO.SetActive(false);
+    }
+
+    void StartWormRetreat()
+    {
+        wormState = WormState.Retreat;
+        wormTimer = wormRetreatDuration;
     }
 }

@@ -20,7 +20,15 @@ public enum EnemyBehaviorKind
     // 等、既存の値と同じ命名方針)。実際の強度差(T1=移動なし/T2=+ランダム
     // 小移動)はEnemyAiTierで切り替える - こちらは「近接攻撃できる」という
     // 種族側の能力フラグに過ぎない。
-    StationaryMelee
+    StationaryMelee,
+    // 自然洞窟雑魚敵追加(2026-09-22) - 基本位置周辺をランダムに動き回り、
+    // 時々Hopし、たまに近接攻撃も行う(StationaryMelee T2の移動+攻撃を
+    // 1種にまとめた挙動)。Cave Hopper用。
+    CaveHopper,
+    // 自然洞窟雑魚敵追加(2026-09-22) - 地中で待機→予兆→出現→攻撃→退避を
+    // 繰り返す。地中の間はCollider/AttackHitboxとも無効(攻撃対象外)。
+    // Burrow Worm用。
+    BurrowWorm
 }
 
 // 敵AI行動Tier試験実装(2026-09-16) - 「敵AIの行動・攻撃性の段階」を表す、
@@ -142,4 +150,11 @@ public class EnemyDefinition : ScriptableObject
     // 完全に同じ、追加コンポーネントなし)なので、この値を明示的に設定
     // しない既存の全EnemyDefinitionアセットは今までどおり無改造で動く。
     public EnemyAiTier aiTier = EnemyAiTier.T0;
+
+    // 自然洞窟雑魚敵追加(2026-09-22) - このEnemyDefinitionを出現させて良い
+    // ステージIDの一覧。null/空 = 従来どおり全ステージ(既存8種は全てこの
+    // まま、挙動無変更)。1つ以上指定した場合、GameManager.ActiveRunStageId
+    // がこの中に含まれる場合だけ抽選対象になる(EnemyDatabase.PickRandom*
+    // 参照)。
+    public string[] stageIds;
 }

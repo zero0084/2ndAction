@@ -499,6 +499,30 @@ public static class SceneBuilder
         // ブレずに揃う。
         ConfigureSpriteFolderImport("Assets/Art/WastelandBirdFlap", 1117.6f);
 
+        // 自然洞窟雑魚敵追加(2026-09-22) - CaveEnemyArtGenerator(Tools/
+        // OneMoreMile/Generate Cave Enemy Art)が生成する手続き的な仮素材
+        // (実イラスト未着手のプレースホルダー、輪郭のみ)。キャンバス自体
+        // がFull Rectでそのままsprite.bounds(=Collider/Visualの基準)になる
+        // (足元Pivot系関数のコメント参照)ため、PPU=キャンバス高さ÷目標
+        // ワールド高さで直接その種の目標サイズになるよう合わせてある -
+        // EnemyDatabaseBuilder側のvisualScaleMultiplierは全種1fのまま
+        // (Collider/Visualのズレを生まないため)。将来ChatGPT等で本物の
+        // イラストに差し替える場合は、同名ファイルの中身を入れ替えた上で
+        // ここのPPUを実測値に合わせて再調整すること。
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/CaveAnt.png", 113f);       // 220x140 -> 約1.24u(Playerの約105%)
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/SoldierAnt.png", 115f);    // 240x160 -> 約1.39u(Playerの約118%)
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/CaveHopper.png", 153f);    // 200x190 -> 約1.24u(Playerの約105%)
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/CaveBat.png", 154f);       // 260x200 -> 約1.30u(Playerの約110%)
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/BurrowWorm.png", 103f);    // 320x170 -> 約1.65u(Playerの約140%)
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/CaveAntRun", 140f / 113f);
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/SoldierAntRun", 160f / 115f);
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/CaveHopperRun", 190f / 153f);
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/BurrowWormRun", 170f / 103f);
+        // Cave Batは羽ばたきで縦幅がコマごとに変わる(WastelandBirdFlapと
+        // 同じ理由) - 足元Pivot/コマ別均一サイズではなく、中心Pivot+共有PPU
+        // のConfigureSpriteFolderImportを使う。
+        ConfigureSpriteFolderImport("Assets/Art/CaveBatRun", 154f);
+
         // Distance-unlock system - enemy species database, built now that
         // the goblin sprite's import (foot pivot/PPU) is configured, since
         // EnemyDatabaseBuilder just references that already-set-up Sprite
