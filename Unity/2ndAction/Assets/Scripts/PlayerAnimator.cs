@@ -38,6 +38,11 @@ public class PlayerAnimator : MonoBehaviour
     // と同じ「実際にそのイベントが起きた瞬間だけ発火するone-shot」方式)
     // にすることで、実際に着地した瞬間にのみ表示されるよう保証する。
     public Sprite[] downAttackLandFrames;
+    // 二丁拳銃士(2026-09-23) - "ジャンプしながら斜め上へ射撃"専用ポーズ。
+    // PlayerController.IsRangedUpShootingがtrueの間だけ選ばれる、新設の
+    // State.UpShot用(空なら他Stateと同様フォールバックし、従来の3キャラ
+    // には一切表示されない)。
+    public Sprite[] upShotFrames;
     public float runFps = 10f;
     public float jumpFps = 10f;
     public float attackFps = 12f;
@@ -47,6 +52,7 @@ public class PlayerAnimator : MonoBehaviour
     public float doubleJumpFps = 9f;
     public float landFps = 7f;
     public float downAttackFps = 11f;
+    public float upShotFps = 12f;
     // 着地専用Frameを表示し続ける実時間(秒) - フレーム数ベースではなく
     // 固定時間(landFps同様、短い一呼吸分だけ見せてRunへ戻る)。
     public float downAttackLandDuration = 0.22f;
@@ -71,7 +77,7 @@ public class PlayerAnimator : MonoBehaviour
     Quaternion visualBaseRot;
     bool reactionPoseApplied;
 
-    enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack, DownAttackLand, Hurt, Recovery }
+    enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack, DownAttackLand, UpShot, Hurt, Recovery }
 
     // キャラクター専用アニメーション差し替え(2026-09-13) - PlayerController.
     // baseRunSpeed等と全く同じ理由の「素のスナップショット」。SceneBuilder
@@ -90,6 +96,10 @@ public class PlayerAnimator : MonoBehaviour
     // 表示してしまっていた(この2つには元々per-character上書き経路が
     // 無かった)。他のStateと同じスナップショット/上書きパターンを追加。
     Sprite[] defaultDownAttackFrames, defaultDownAttackLandFrames;
+    // 二丁拳銃士(2026-09-23) - upShotFramesも他Stateと同じスナップショット
+    // /上書きパターン(既存3キャラはこのフィールドを持たないため常に空の
+    // まま=State.UpShotはそもそも選ばれない、Update()参照)。
+    Sprite[] defaultUpShotFrames;
     // お嬢様騎士Run読みやすさ改善(2026-09-13) - runFramesと同じ「スナップ
     // ショット→上書き」パターンでrunFpsも上書きできるようにした(コマ数が
     // 黒剣士と異なるキャラのため)。
@@ -218,6 +228,7 @@ public class PlayerAnimator : MonoBehaviour
             defaultDoubleJumpFrames = doubleJumpFrames;
             defaultDownAttackFrames = downAttackFrames;
             defaultDownAttackLandFrames = downAttackLandFrames;
+            defaultUpShotFrames = upShotFrames;
             defaultHurtFrames = hurtFrames;
             defaultRecoveryFrames = recoveryFrames;
         }
@@ -237,6 +248,7 @@ public class PlayerAnimator : MonoBehaviour
         landFrames = HasFrames(def.landFrames) ? def.landFrames : defaultLandFrames;
         downAttackFrames = HasFrames(def.downAttackFrames) ? def.downAttackFrames : defaultDownAttackFrames;
         downAttackLandFrames = HasFrames(def.downAttackLandFrames) ? def.downAttackLandFrames : defaultDownAttackLandFrames;
+        upShotFrames = HasFrames(def.upShotFrames) ? def.upShotFrames : defaultUpShotFrames;
         if (HasFrames(def.attackFrames))
         {
             attackFrames = def.attackFrames;
@@ -327,7 +339,13 @@ public class PlayerAnimator : MonoBehaviour
         // priority slot JumpStart/DoubleJump already use) but above the
         // plain Jump fallback, so a dive-attack always shows its own pose
         // rather than the generic falling loop.
-        bool diveAttacking = controller != null && controller.IsDiveAttacking && downAttackFrames != null && downAttackFrames.Length > 0;
+        // 二丁拳銃士(2026-09-23) - Down Shot(空中で斜め下射撃+短時間だけ
+        // 落下速度低下)もIsDiveAttackingとは別のisHoverShooting経由だが、
+        // 見た目のポーズはdownAttackFrames(既存フィールド)をそのまま
+        // 流用するため、ここでOR条件にするだけでよい(専用のポーズ
+        // フィールドを新設していない)。
+        bool diveAttacking = controller != null && (controller.IsDiveAttacking || controller.IsRangedHoverShooting) && downAttackFrames != null && downAttackFrames.Length > 0;
+        bool upShooting = controller != null && controller.IsRangedUpShooting && upShotFrames != null && upShotFrames.Length > 0;
 
         State newState;
         if (controller != null && controller.IsHurt) newState = State.Hurt;
@@ -339,6 +357,7 @@ public class PlayerAnimator : MonoBehaviour
         else if (grounded && downAttackLandTimer > 0f) newState = State.DownAttackLand;
         else if (grounded && landTimer > 0f) newState = State.Landing;
         else if (!grounded && diveAttacking) newState = State.DownAttack;
+        else if (!grounded && upShooting) newState = State.UpShot;
         else if (!grounded && doubleJumpTimer > 0f) newState = State.DoubleJump;
         else if (!grounded && jumpStartTimer > 0f) newState = State.JumpStart;
         else if (!grounded) newState = State.Jump;
@@ -360,6 +379,7 @@ public class PlayerAnimator : MonoBehaviour
             State.Landing => landFrames,
             State.DownAttack => downAttackFrames,
             State.DownAttackLand => downAttackLandFrames,
+            State.UpShot => upShotFrames,
             State.Hurt => HasFrames(hurtFrames) ? hurtFrames : FallbackReactionFrames(false),
             State.Recovery => HasFrames(recoveryFrames) ? recoveryFrames : FallbackReactionFrames(true),
             _ => runFrames
@@ -375,6 +395,7 @@ public class PlayerAnimator : MonoBehaviour
             State.DoubleJump => doubleJumpFps,
             State.Landing => landFps,
             State.DownAttack => downAttackFps,
+            State.UpShot => upShotFps,
             State.Hurt => hurtFps,
             State.Recovery => recoveryFps,
             // 1フレームだけの絵をdownAttackLandDuration秒キープするだけな

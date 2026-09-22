@@ -212,6 +212,11 @@ public static class SceneBuilder
         // SceneBuilder.Buildを再実行すれば自動的にCharacter Select画面へ
         // 反映される(BuildCharacterSelectCanvas側がCharacterDatabase.
         // AllCharactersの件数ぶん動的にカードスロットを生成するため)。
+        // 二丁拳銃士追加(2026-09-23) - 専用素材がまだ無い間の手続き的プレー
+        // スホルダー画像生成(CaveEnemyArtGenerator/CaveBossFxと同じ「既存
+        // ファイルはスキップ」方式)。CharacterDatabaseBuilder.Buildが読み
+        // 込む前に必ず用意しておく必要があるため、ここで先に呼ぶ。
+        GunslingerArtGenerator.Generate();
         CharacterDatabaseBuilder.Build();
         gameManager.characterSelectUI = BuildCharacterSelectCanvas();
         StageDatabaseBuilder.Build();
@@ -4496,7 +4501,12 @@ public static class SceneBuilder
     // だった既定の"background.png"(AssetDatabase.LoadAssetAtPathで素の
     // まま読み込み=Unity既定のCenter pivotのまま)には無かった問題。
     // 背景用に、ピボットをCenterのまま維持する専用ローダーを用意した。
-    static Sprite ConfigureAndLoadSpriteWithCenterPivot(string path, float pixelsPerUnit)
+    // 二丁拳銃士追加(2026-09-23) - CharacterDatabaseBuilderが弾スプライト
+    // (回転して進行方向を向くProjectile、Foot Pivotではなく中央Pivotが
+    // 必要)を読み込むためinternalへ昇格(既存のConfigureSpriteFolderImport
+    // WithFootPivotXY等と同じ理由・同じ昇格パターン)。既存の呼び出し元
+    // (BackgroundFollower用)の挙動には一切影響しない。
+    internal static Sprite ConfigureAndLoadSpriteWithCenterPivot(string path, float pixelsPerUnit)
     {
         AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
         TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;

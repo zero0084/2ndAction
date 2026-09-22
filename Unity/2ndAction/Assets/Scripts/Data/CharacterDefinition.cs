@@ -177,6 +177,37 @@ public class CharacterDefinition : ScriptableObject
     public float hurtStaggerDistance = 0.12f; // 後方へよろける距離(ワールド単位)
     public float recoveryCrouchDepth = 0.14f; // 復帰時に沈み込む割合
 
+    // ===== 二丁拳銃士(2026-09-23) ===== //
+    // 4人目の主人公追加 - 「面で攻撃する剣士」に対して「点で攻撃する遠距離
+    // キャラクター」という構造そのものが違う枠。PlayerController側で
+    // isRanged==trueの間だけForward/Backward/Up/Downの4攻撃すべてが専用の
+    // 弾丸ロジック(DoRangedForwardBackShot/DoRangedUpShot/DoRangedDownShot)
+    // へ分岐する - 他3キャラのisRanged==falseの経路(既存のDoAttack/
+    // DoUpAttack/DoDiveAttack)は一切変更していない。
+    [Header("二丁拳銃士 (Ranged) - 2026-09-23")]
+    public bool isRanged;
+    // 弾の見た目(細い直線状、進行方向へ自動で回転)。
+    public Sprite bulletSprite;
+    public float bulletSpeed = 15f;
+    public float bulletLifetime = 1.6f;
+    // 下攻撃(空中で斜め下へ撃ちながら短時間だけ落下速度を弱める)の挙動。
+    // 「Player共通のGravity値そのものは変更しない」よう、Move()側で
+    // isHoverShooting中だけvelocityYをこの値へ直接上書きし、Hurt/Death/
+    // Respawn/着地のいずれでも必ずEndDiveAttack()経由で解除される。
+    public float hoverDuration = 0.22f;
+    public float hoverFallSpeed = 0.6f;
+    // 上攻撃(ジャンプ+斜め上射撃)専用ポーズ。空(未指定)なら通常のJump/
+    // DoubleJump演出のまま(PlayerAnimator.State.UpShot参照) - 黒剣士の
+    // ような「上攻撃を持つが専用Stateを持たないキャラ」には一切影響しない
+    // 新設の専用Stateなので、既存3キャラのJumpStart/DoubleJumpの意味は
+    // 変わらない。
+    public Sprite[] upShotFrames;
+    // 下攻撃(斜め下射撃)のポーズは、既存のdownAttackFrames(上のダイブ
+    // 攻撃用フィールド)をそのまま流用する - このキャラはisDiveAttacking
+    // (急降下)を一切使わない(isHoverShootingという完全に別のフラグ)ため、
+    // フィールドを二重に持たせず流用で衝突を避ける(PlayerAnimator.Update
+    // のdiveAttacking判定を参照)。
+
     // Home画面改善依頼③(2026-09-15) - 「選択中キャラクターの持ち物・装備の
     // 視覚表示」。新しい装備システムではなく、あくまでHome画面で「このキャ
     // ラクターらしさ」を見せるための表示専用データ。武器/防具/象徴的な

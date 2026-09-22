@@ -78,6 +78,18 @@ public static class CharacterDatabaseBuilder
         public string downAttackLandFramesDir;
         public float downAttackLandFramesPpu;
 
+        // 二丁拳銃士追加(2026-09-23) - 遠距離キャラクター専用データ。
+        // isRanged=falseの間は以下全て無視される(既存3キャラには一切影響
+        // しない)。
+        public bool isRanged;
+        public string bulletSpritePath;
+        public float bulletSpeed;
+        public float bulletLifetime;
+        public float hoverDuration;
+        public float hoverFallSpeed;
+        public string upShotFramesDir;
+        public float upShotFramesPpu;
+
         // Home画面改善依頼③(2026-09-15) - 持ち物表示用データ。実画像は
         // まだ用意していないため、labelとplaceholderColorのみを指定する
         // (CharacterDefinition.BelongingItem.iconはnullのまま = GameManager
@@ -315,7 +327,92 @@ public static class CharacterDatabaseBuilder
         nobleLady.attackFramesDir = "Assets/Art/NobleLadyAttack_v1";
         nobleLady.attackFramesPpu = 310f;
 
-        return new[] { swordsman, dualBlade, nobleLady };
+        // 4人目のプレイアブル主人公(2026-09-23、二丁拳銃士) - 「面で攻撃する
+        // 剣士」に対して「点で攻撃する遠距離キャラクター」という構造その
+        // ものが違う枠。isRanged=trueがPlayerController側の全く別の攻撃
+        // ロジック(DoRangedForwardBackShot/DoRangedUpShot/DoRangedDownShot)
+        // へ分岐させるスイッチになる。内部名は正式名称未決定のため仮
+        // (GUNSLINGER)。
+        Spec gunslinger = DefaultBaseline;
+        gunslinger.id = "gunslinger";
+        gunslinger.displayName = "GUNSLINGER";
+        gunslinger.subtitle = "One Shot, One Distance";
+        gunslinger.role = "RANGED";
+        gunslinger.flavorText = "Twin pistols, a single sharp line of fire.\nShe wins the fight before it ever\ncloses in - but let an enemy through,\nand she has no answer for it.";
+        gunslinger.portraitPath = $"{PortraitFolder}/gunslinger_portrait.png";
+        // 表示専用の星評価 - 「遠距離では非常に強いが近距離が苦手」という
+        // 武器特性を伝える暫定値(POWERは高いがLIFE低め、近接キャラとは
+        // 違う尖り方であることを示す)。
+        gunslinger.lifeRating = 2; gunslinger.powerRating = 4; gunslinger.speedRating = 3; gunslinger.comboRating = 3;
+        gunslinger.challengeFlag = false;
+        gunslinger.sortOrder = 3;
+        gunslinger.belongings = new[]
+        {
+            new CharacterDefinition.BelongingItem { label = "二丁拳銃", placeholderColor = new Color(0.3f, 0.3f, 0.35f), kind = CharacterDefinition.BelongingKind.Weapon },
+            new CharacterDefinition.BelongingItem { label = "外套", placeholderColor = new Color(0.2f, 0.22f, 0.28f), kind = CharacterDefinition.BelongingKind.Cloth },
+        };
+
+        // 実プレイ反映値 - 「まずは4方向射撃の操作感確認を優先」との指示
+        // どおり、極端な調整はせず既存キャラと同程度のレンジに収める
+        // (Cooldown/AttackSpeed等はAttackSpeedMultiplier経由で後から調整可能)。
+        gunslinger.baseLives = 3;
+        gunslinger.baseMaxLives = 5;
+        gunslinger.attackPower = 2;
+        gunslinger.attackComboCount = 3;
+        gunslinger.attackSpeedMultiplier = 1f;
+        gunslinger.attackRangeMultiplier = 1f; // 弾自体の射程はbulletLifetime*bulletSpeedで決まる(Hitbox系のこの値はマズルフラッシュVFXにのみ使う)
+        gunslinger.knockbackPowerMultiplier = 1f;
+        gunslinger.jumpCount = 2;
+        gunslinger.jumpForceMultiplier = 1f;
+        gunslinger.groundMobilityMultiplier = 1f;
+        gunslinger.airControlMultiplier = 1f;
+        // 上/空中/下いずれも「専用の射撃」として持つ(通常の近接上/下攻撃
+        // ではなくDoRangedUpShot/DoRangedDownShotへ分岐 - PlayerController.
+        // ApplyCharacterBaseStats/FireJump/Move参照)。
+        gunslinger.canUseUpAttack = true;
+        gunslinger.canUseAirAttack = true;
+        gunslinger.canUseDownAttack = true;
+
+        gunslinger.isRanged = true;
+        gunslinger.bulletSpritePath = "Assets/Art/GunslingerBullet.png";
+        gunslinger.bulletSpeed = 15f;
+        gunslinger.bulletLifetime = 1.6f; // 15*1.6=24u先まで届く(既存の剣士Hitboxより明確に長い射程)
+        gunslinger.hoverDuration = 0.22f;
+        gunslinger.hoverFallSpeed = 0.6f;
+
+        // 見た目(2026-09-23) - GunslingerArtGeneratorが生成する手続き的
+        // シルエット(実イラスト未着手のプレースホルダー、SceneBuilder.Build
+        // 冒頭で自動生成)。PPUは各フォルダの基準身長(コンテンツ高さ÷1.13)
+        // からの一次算出値(canvas 200x260、人物の頭頂〜足先が概ね192px
+        // 相当と仮定した近似) - 実機で黒剣士と並べてサイズ差があれば要
+        // 再調整(マスターへの開示事項、双剣士/お嬢様騎士のPPU算出時と同じ
+        // 位置づけ)。
+        gunslinger.runFramesDir = "Assets/Art/GunslingerRun_v1";
+        gunslinger.runFramesPpu = 170f;
+        gunslinger.runFpsOverride = 8f;
+        gunslinger.jumpStartFramesDir = "Assets/Art/GunslingerJumpStart_v1";
+        gunslinger.jumpStartFramesPpu = 170f;
+        gunslinger.jumpFramesDir = "Assets/Art/GunslingerJumpAir_v1";
+        gunslinger.jumpFramesPpu = 170f;
+        gunslinger.doubleJumpFramesDir = "Assets/Art/GunslingerDoubleJump_v1";
+        gunslinger.doubleJumpFramesPpu = 170f;
+        gunslinger.landFramesDir = "Assets/Art/GunslingerLand_v1";
+        gunslinger.landFramesPpu = 170f;
+        // Forward/Backward Shot共有(PlayerController.DoRangedForwardBackShot
+        // がattackFrames/State.Attackをそのまま使う - Backwardはtransform
+        // 反転で自動ミラー)。
+        gunslinger.attackFramesDir = "Assets/Art/GunslingerAttack_v1";
+        gunslinger.attackFramesPpu = 170f;
+        // Up Shot専用(新設のState.UpShot、PlayerController.IsRangedUpShooting
+        // がtrueの間だけ表示)。
+        gunslinger.upShotFramesDir = "Assets/Art/GunslingerUpShot_v1";
+        gunslinger.upShotFramesPpu = 170f;
+        // Down Shotは既存downAttackFramesフィールドを流用(isDiveAttacking
+        // ではなくisHoverShooting中に表示、PlayerAnimator.Update参照)。
+        gunslinger.downAttackFramesDir = "Assets/Art/GunslingerDownAttack_v1";
+        gunslinger.downAttackFramesPpu = 170f;
+
+        return new[] { swordsman, dualBlade, nobleLady, gunslinger };
     }
 
     [MenuItem("Tools/OneMoreMile/Build Character Database")]
@@ -429,6 +526,17 @@ public static class CharacterDatabaseBuilder
             def.downAttackFrames = LoadAnimationFolder(spec.downAttackFramesDir, spec.downAttackFramesPpu);
             def.downAttackLandFrames = LoadAnimationFolder(spec.downAttackLandFramesDir, spec.downAttackLandFramesPpu);
 
+            def.isRanged = spec.isRanged;
+            if (spec.isRanged && !string.IsNullOrEmpty(spec.bulletSpritePath))
+            {
+                def.bulletSprite = LoadBulletSprite(spec.bulletSpritePath);
+                def.bulletSpeed = spec.bulletSpeed;
+                def.bulletLifetime = spec.bulletLifetime;
+                def.hoverDuration = spec.hoverDuration;
+                def.hoverFallSpeed = spec.hoverFallSpeed;
+            }
+            def.upShotFrames = LoadAnimationFolder(spec.upShotFramesDir, spec.upShotFramesPpu);
+
             AssetDatabase.CreateAsset(def, assetPath);
         }
 
@@ -492,5 +600,14 @@ public static class CharacterDatabaseBuilder
         if (string.IsNullOrEmpty(dir)) return new Sprite[0];
         SceneBuilder.ConfigureSpriteFolderImportWithSharedHeadPivot(dir, pixelsPerUnit);
         return SceneBuilder.LoadSpriteSequence(dir);
+    }
+
+    // 二丁拳銃士追加(2026-09-23) - 弾丸は「回転して進行方向を向くProjectile」
+    // のため、キャラクター本体のような足元Pivotではなく中央Pivotで読み込む
+    // (PlayerBullet.Create側でtransform.rotationを直接設定するため、Pivot
+    // が中心からズレると回転の軸もズレて見た目が破綻する)。
+    static Sprite LoadBulletSprite(string path)
+    {
+        return SceneBuilder.ConfigureAndLoadSpriteWithCenterPivot(path, 96f);
     }
 }

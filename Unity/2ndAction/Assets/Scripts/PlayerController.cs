@@ -323,6 +323,14 @@ public class PlayerController : MonoBehaviour
     // 方向攻撃システム Ver.2、項目3 - PlayerAnimatorのState.DownAttack選択
     // と、着地/死亡/脱出時のHitbox後始末の両方から参照される。
     public bool IsDiveAttacking => isDiveAttacking;
+    // 二丁拳銃士(2026-09-23) - Down Shot(空中で斜め下射撃+短時間だけ落下
+    // 速度低下)専用の別フラグ。isDiveAttacking(急降下)とは物理挙動が違う
+    // ため完全に独立させているが、PlayerAnimatorの見た目Stateだけは
+    // downAttackFrames/State.DownAttackを共用する(両フラグをORで見る)。
+    public bool IsRangedHoverShooting => isHoverShooting;
+    // "ジャンプしながら斜め上へ射撃"のポーズ表示期間中だけtrue(実際の
+    // ジャンプ物理・判定には関与しない、見た目State切り替え専用)。
+    public bool IsRangedUpShooting => upShotVisualTimer > 0f;
     public bool IsHitInvincible => hitInvincibleTimer > 0f;
     public bool IsAscending => isAscending;
     // Item 3/4 - true while actively holding the escape charge (not yet
@@ -414,6 +422,17 @@ public class PlayerController : MonoBehaviour
         charRecoveryDuration = def.recoveryDuration;
         charRecoveryInvincible = def.recoveryInvincibleDuration;
         charHurtKnockbackMultiplier = def.hurtKnockbackMultiplier > 0f ? def.hurtKnockbackMultiplier : 1f;
+
+        // 二丁拳銃士(2026-09-23) - isRanged==trueの間だけForward/Backward/
+        // Up/Downの4攻撃すべてが専用の弾丸ロジックへ分岐する(DoAttack/
+        // FireJump/Move()の各分岐参照)。他3キャラはisRanged=falseのまま
+        // なので既存の挙動に一切影響しない。
+        isRangedCharacter = def.isRanged;
+        rangedBulletSprite = def.bulletSprite;
+        rangedBulletSpeed = def.bulletSpeed > 0f ? def.bulletSpeed : rangedBulletSpeed;
+        rangedBulletLifetime = def.bulletLifetime > 0f ? def.bulletLifetime : rangedBulletLifetime;
+        rangedHoverDuration = def.hoverDuration > 0f ? def.hoverDuration : rangedHoverDuration;
+        rangedHoverFallSpeed = def.hoverFallSpeed > 0f ? def.hoverFallSpeed : rangedHoverFallSpeed;
     }
 
     // Grown by "AIR ATTACK UP" - only added on top of AttackPower while
@@ -574,6 +593,26 @@ public class PlayerController : MonoBehaviour
     // なる。着地(landedSky/landedGround)・Fall死亡・GAME OVER・ESCAPE成功
     // のいずれかで必ずfalseへ戻され、Hitboxも無効化される。
     bool isDiveAttacking;
+    // 二丁拳銃士(2026-09-23) - isDiveAttackingとは完全に独立したDown Shot
+    // 専用の状態(Move()のvelocityY上書き分岐/PlayerAnimatorの見た目State
+    // 判定の両方で参照)。hoverShotUsedThisAirtimeは「1回の滞空中に1回」
+    // 制限用で、着地の瞬間(jumpsUsed=0に戻る箇所)にのみfalseへ戻す。
+    bool isRangedCharacter;
+    bool isHoverShooting;
+    bool hoverShotUsedThisAirtime;
+    int hoverGeneration;
+    float rangedBulletSpeed = 15f;
+    float rangedBulletLifetime = 1.6f;
+    float rangedHoverDuration = 0.22f;
+    float rangedHoverFallSpeed = 0.6f;
+    Sprite rangedBulletSprite;
+    // Root基準のローカルオフセット(銃口位置) - transform.localScale.xの
+    // 符号で自動的に左右ミラーされる(ApplyAttackDirectionと同じ考え方)。
+    public Vector2 rangedMuzzleOffset = new Vector2(0.55f, 0.55f);
+    // "ジャンプしながら斜め上へ射撃"のポーズ表示用ワンショットタイマー
+    // (jumpStartTimer等と同じ方式、Move()側で毎フレーム減算)。
+    float upShotVisualTimer;
+    public float rangedUpShotPoseDuration = 0.22f;
     // 不具合修正(2026-09-08) - 「下攻撃→着地→上攻撃」の入力バッファ。
     // 下降攻撃中(jumpsUsedが既にmaxJumpsで即座にはジャンプできない状態)
     // に上フリックした場合、この時間だけ「地上上攻撃をしたがっている」
@@ -903,6 +942,7 @@ public class PlayerController : MonoBehaviour
     {
         float dt = Time.deltaTime;
         if (bufferedUpAttackTimer > 0f) bufferedUpAttackTimer -= dt;
+        if (upShotVisualTimer > 0f) upShotVisualTimer -= dt;
         float autoSpeed = autoRunEnabled ? runSpeed * GetSpeedMultiplier() : 0f;
         // 荒野街道ボス追加(2026-09-20) - 巨大蜘蛛の糸による短時間の移動妨害。
         // CurrentAutoRunSpeed(ボス側の追従基準)には含めない - ボスは通常速度で
@@ -963,6 +1003,16 @@ public class PlayerController : MonoBehaviour
             velocityY = 0f;
             if (canUseAirAttack) StartCoroutine(DoUpAttack(true));
         }
+        // 二丁拳銃士(2026-09-23) - Down Shotのホバー中に上フリックした場合も、
+        // 剣士の「急降下→即キャンセルしてその場で上昇攻撃」と同じ考え方で
+        // ホバーを終了し、即座にUp Shotへ切り替える(ジャンプ物理自体は
+        // 使わない、あくまで攻撃の切り替え)。
+        else if (jumpPressed && isHoverShooting)
+        {
+            EndDiveAttack();
+            velocityY = 0f;
+            if (canUseAirAttack) DoRangedUpShot();
+        }
         else if (jumpPressed && jumpsUsed < maxJumps)
         {
             FireJump();
@@ -984,9 +1034,20 @@ public class PlayerController : MonoBehaviour
         // 「地上では無効」要件を実現する - isGrounded中はこの分岐に到達
         // すらしない。既に下降攻撃中(isDiveAttacking)の再トリガーは無視
         // (Hitbox/SE/Slash FXの再スタートによる違和感を避けるため)。
-        else if (allowJump && !isGrounded && !isDiveAttacking && canUseDownAttack && requestedFlick == FlickDirection.Down)
+        else if (allowJump && !isGrounded && canUseDownAttack && requestedFlick == FlickDirection.Down)
         {
-            DoDiveAttack();
+            // 二丁拳銃士(2026-09-23) - 急降下(isDiveAttacking)ではなく、
+            // 斜め下射撃+短時間のホバーへ分岐(isHoverShooting、DoRangedDownShot
+            // 参照)。「1回の滞空中に1回」制限はhoverShotUsedThisAirtime
+            // (着地の瞬間にのみリセット)で管理する。
+            if (isRangedCharacter)
+            {
+                if (!isHoverShooting && !hoverShotUsedThisAirtime) DoRangedDownShot();
+            }
+            else if (!isDiveAttacking)
+            {
+                DoDiveAttack();
+            }
         }
         else if (isGrounded)
         {
@@ -1013,6 +1074,16 @@ public class PlayerController : MonoBehaviour
             if (isDiveAttacking)
             {
                 velocityY = -diveAttackSpeed;
+            }
+            // 二丁拳銃士(2026-09-23) - Down Shot中は「Player共通のGravity
+            // 値そのものは変えず」、急降下と同じ"一定速度への直接上書き"
+            // パターンだけを流用して落下速度を短時間だけ大幅に弱める。
+            // isHoverShooting自体がEndDiveAttack()で必ずfalseへ戻る(着地/
+            // Hurt/Death/Respawnのいずれでも)ため、通常のGravity計算へ
+            // 必ず復帰する。
+            else if (isHoverShooting)
+            {
+                velocityY = -rangedHoverFallSpeed;
             }
             else
             {
@@ -1090,6 +1161,7 @@ public class PlayerController : MonoBehaviour
                 velocityY = 0f;
                 isGrounded = true;
                 jumpsUsed = 0;
+                hoverShotUsedThisAirtime = false; // 二丁拳銃士: Down Shotは着地で再使用可能に
                 // エリアルコンボ改修(2026-09-11) - 着地でAerial Assistの
                 // 累積使用量をリセット(次に空中へ出た時、また上限いっぱい
                 // まで使えるようにする)。
@@ -1116,6 +1188,7 @@ public class PlayerController : MonoBehaviour
                 velocityY = 0f;
                 isGrounded = true;
                 jumpsUsed = 0;
+                hoverShotUsedThisAirtime = false; // 二丁拳銃士: Down Shotは着地で再使用可能に
                 aerialAssistTimer = 0f;
                 aerialAssistTotalUsed = 0f;
                 onSky = false;
@@ -1349,6 +1422,7 @@ public class PlayerController : MonoBehaviour
         velocityY = 0f;
         isGrounded = true;
         jumpsUsed = 0;
+        hoverShotUsedThisAirtime = false; // 二丁拳銃士: Down Shotは着地(復帰)で再使用可能に
         aerialAssistTimer = 0f;
         aerialAssistTotalUsed = 0f;
         lungeVelocityX = 0f;
@@ -1676,6 +1750,16 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator DoAttack(AttackDirection dir)
     {
+        // 二丁拳銃士(2026-09-23) - Forward/Backwardとも「面で斬る」既存の
+        // 剣士コンボ(Lunge/Recoil/成長するHitbox)には一切乗せず、専用の
+        // 弾丸ロジックへ完全に分岐する。isRanged=falseの既存3キャラの
+        // この先の処理(コンボ/Lunge/Hitbox)は一切変更していない。
+        if (isRangedCharacter)
+        {
+            yield return DoRangedForwardBackShot(dir);
+            yield break;
+        }
+
         int gen = attackGeneration;
         isAttacking = true;
         comboWindowOpen = false;
@@ -1753,6 +1837,13 @@ public class PlayerController : MonoBehaviour
     // 両方で使う - 重複を避けるための単純な抽出、挙動自体は無変更)。
     void FireJump()
     {
+        // 二丁拳銃士(2026-09-23) - 念のための安全装置。Move()側の分岐で
+        // ホバー中の上フリックは既にDoRangedUpShot直行(EndDiveAttack経由
+        // でisHoverShooting解除済み)へ振り分けているため通常ここには来
+        // ないが、万一isHoverShootingが残ったままjumpForceが入ると、この
+        // フレームのMove()内で「Move()のisHoverShooting分岐がvelocityYを
+        // 再度落下速度へ上書きしてジャンプが無かったことになる」事故を防ぐ。
+        if (isHoverShooting) { isHoverShooting = false; hoverGeneration++; }
         velocityY = jumpForce;
         isGrounded = false;
         jumpsUsed++;
@@ -1777,7 +1868,12 @@ public class PlayerController : MonoBehaviour
         bool isAirborneUpAttack = jumpsUsed >= 2;
         if (isAirborneUpAttack ? canUseAirAttack : canUseUpAttack)
         {
-            StartCoroutine(DoUpAttack(isAirborneUpAttack));
+            // 二丁拳銃士(2026-09-23) - "ジャンプしながら斜め上へ射撃"。
+            // ジャンプ物理(上の velocityY=jumpForce 等)には一切関与しない、
+            // 見た目Stateの切り替え+弾の発射のみ(敵をLaunchしない=既存の
+            // Up Hitbox/Vacuumを一切使わない)。
+            if (isRangedCharacter) DoRangedUpShot();
+            else StartCoroutine(DoUpAttack(isAirborneUpAttack));
         }
     }
 
@@ -1911,6 +2007,14 @@ public class PlayerController : MonoBehaviour
         // 出し経路でも必ず呼ばれるため、トレイルVFXが表示されたまま残る
         // ことはない。
         if (downAttackSlashVisual != null) downAttackSlashVisual.HideSustained();
+        // 二丁拳銃士(2026-09-23) - Down Shotのホバー状態も、急降下と全く同じ
+        // 4つの後始末経路(着地/Hurt(CancelAttacksForReaction)/Death/
+        // Respawn)を通して必ず解除する。hoverGenerationを進めることで、
+        // 実行中のEndHoverShotAfterDelay(古い世代)がこの後で誤って
+        // isHoverShooting=falseへ"戻す"だけの無害な二重書きに留まる
+        // (次のホバー開始と競合しない)。
+        isHoverShooting = false;
+        hoverGeneration++;
     }
 
     // 不具合修正(2026-09-10) - 「下攻撃の着地時に衝撃エフェクトを追加し、
@@ -1965,5 +2069,115 @@ public class PlayerController : MonoBehaviour
             transform.localScale = Vector3.one;
             lungeVelocityX = dir == AttackDirection.Forward ? lungeDistance / attackActiveTime : 0f;
         }
+    }
+
+    // ===== 二丁拳銃士(2026-09-23) ===== //
+    // 「面で攻撃する剣士」に対する「点で攻撃する遠距離キャラクター」。
+    // Forward/Backward/Up/Downの4方向すべてが、既存の剣士Hitbox(近接・
+    // 太い判定)ではなくPlayerBullet(細い直線・高速・射程長)を撃つ専用
+    // ロジックへ完全に分岐する。ダメージ適用自体は既存のEnemyController/
+    // WildBossBase/DragonController/MajinControllerの各OnTriggerEnter2D
+    // (タグ"PlayerAttack"+PlayerAttackInfoを読む既存の仕組み)がそのまま
+    // 処理するため、Hit Stop/Hit VFX/コンボカウンター/被ダメージリアク
+    // ションは変更なしで機能する。
+
+    // Forward/Backward - 水平射撃。既存のApplyAttackDirection(左右反転+
+    // Forward/Backwardの区別)はそのまま流用するが、"敵の攻撃範囲外から
+    // 一方的に攻撃できる"という武器特性を活かすため、剣士のようなLunge/
+    // Recoil(踏み込み)は与えない - 自動前進を一切乱さない。
+    IEnumerator DoRangedForwardBackShot(AttackDirection dir)
+    {
+        int gen = attackGeneration;
+        isAttacking = true;
+        comboWindowOpen = false;
+        comboBuffered = false;
+        comboCount++;
+        attackCooldownTimer = attackCooldown * AttackSpeedMultiplier;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(comboCount);
+
+        ApplyAttackDirection(dir);
+        lungeVelocityX = 0f; // 「銃を撃つたびに完全停止/踏み込みする仕様にはしない」- 自動前進のみ維持
+
+        float facing = transform.localScale.x >= 0f ? 1f : -1f;
+        FireRangedBullet(new Vector2(facing, 0f));
+
+        if (attackSlashVisual != null)
+        {
+            // マズルフラッシュ代わりに、既存のSlash VFXを小さく一瞬だけ流用
+            // (新規アート不要、Hitboxのreach位置とは無関係なのでAttackRange
+            // Multiplierは掛けない)。
+            attackSlashVisual.transform.localPosition = hitboxBaseLocalPos;
+            attackSlashVisual.PlayFrames(0.6f, 1f);
+        }
+
+        bool allowChain = comboCount < maxComboChain;
+        float effectiveActiveTime = attackActiveTime * AttackSpeedMultiplier;
+        float t = 0f;
+        while (t < effectiveActiveTime)
+        {
+            t += Time.deltaTime;
+            if (allowChain && t >= effectiveActiveTime * comboWindowStart) comboWindowOpen = true;
+            if (gen != attackGeneration) yield break; // 被弾でキャンセルされた
+            yield return null;
+        }
+
+        isAttacking = false;
+        comboWindowOpen = false;
+
+        if (comboBuffered)
+        {
+            comboBuffered = false;
+            StartCoroutine(DoAttack(bufferedDirection));
+        }
+    }
+
+    // Up - "ジャンプしながら斜め上へ射撃"。ジャンプ自体はFireJump側で既に
+    // 発動済み(この呼び出しより前)なので、ここでは見た目Stateの切り替え
+    // (upShotVisualTimer)と弾の発射だけを行う。剣士のUp Attackと違い、
+    // 敵を打ち上げるHitbox/Vacuumは一切使わない(弾自体もPlayerAttackKind.
+    // Normalなので、EnemyController側でもUp Launchは発生しない)。
+    void DoRangedUpShot()
+    {
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(1);
+        float facing = transform.localScale.x >= 0f ? 1f : -1f;
+        FireRangedBullet(new Vector2(facing, 1f));
+        upShotVisualTimer = rangedUpShotPoseDuration;
+    }
+
+    // Down - 空中で斜め下へ撃ちながら、短時間だけ落下速度を大幅に弱める
+    // ("急降下"の逆)。Player共通のGravity値そのものは一切変更せず、
+    // Move()側でisHoverShooting中だけvelocityYを直接上書きする方式
+    // (既存のisDiveAttackingと全く同じパターン)。EndDiveAttack()が着地/
+    // Hurt/Death/Respawnのいずれからも呼ばれるため、ホバー状態が残る
+    // ことはない。「1回の滞空中に1回」はhoverShotUsedThisAirtime
+    // (着地の瞬間にのみリセット)で管理する。
+    void DoRangedDownShot()
+    {
+        isHoverShooting = true;
+        hoverShotUsedThisAirtime = true;
+        hoverGeneration++;
+        int gen = hoverGeneration;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(2);
+        float facing = transform.localScale.x >= 0f ? 1f : -1f;
+        FireRangedBullet(new Vector2(facing, -1f));
+        StartCoroutine(EndHoverShotAfterDelay(gen));
+    }
+
+    IEnumerator EndHoverShotAfterDelay(int gen)
+    {
+        yield return new WaitForSeconds(rangedHoverDuration);
+        // 世代が変わっていたら(=着地/被弾/死亡/復帰で既に別の経路から
+        // EndDiveAttack()済み、または既に次のホバーが始まっている)何もしない。
+        if (gen == hoverGeneration) EndDiveAttack();
+    }
+
+    // 銃口位置(rangedMuzzleOffset)からワールド空間の方向へ1発発射する。
+    // rangedBulletSpriteが未設定(専用素材未生成)の間は安全に何もしない。
+    void FireRangedBullet(Vector2 worldDir)
+    {
+        if (rangedBulletSprite == null) return;
+        float facing = transform.localScale.x >= 0f ? 1f : -1f;
+        Vector3 spawnPos = transform.position + new Vector3(rangedMuzzleOffset.x * facing, rangedMuzzleOffset.y, 0f);
+        PlayerBullet.Create(rangedBulletSprite, spawnPos, worldDir.normalized * rangedBulletSpeed, rangedBulletLifetime);
     }
 }
