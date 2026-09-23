@@ -10,6 +10,21 @@ public static class BossFx
 {
     static Sprite fang, slash, ring, block, orb;
 
+    // 攻撃エフェクト本番素材化(2026-09-23) - Fang/Slash/Ring/Orbは白色基調の
+    // ChatGPT生成イラスト(Assets/Resources/Effects/<name>.png、SceneBuilder
+    // が編集時にSprite/PPU=512へ設定)があればそれを使い、無ければ従来の
+    // 手続き的シルエットへフォールバックする(caveArt[]/wildArt[]と同じ
+    // 安全策)。呼び出し側は各攻撃ごとに任意の色でSpriteRenderer.colorを
+    // 乗算するため(例: 氷attackは青、溶岩attackは橙)、素材は白基調のまま
+    // にしてある - 色を焼き込んだ絵にすると乗算時に濁るため。Block()は
+    // 警告ゾーン/岩などの単色矩形として機能上ずっと使われる(参照比較で
+    // 判定している箇所もある、BossCombatParts.cs BossProjectile参照)ため
+    // 対象外。
+    static Sprite LoadEffectArt(string name)
+    {
+        return Resources.Load<Sprite>("Effects/" + name);
+    }
+
     static Sprite Make(int size, System.Func<float, float, float> alphaAt)
     {
         Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
@@ -33,6 +48,8 @@ public static class BossFx
     public static Sprite Fang()
     {
         if (fang != null) return fang;
+        fang = LoadEffectArt("fang");
+        if (fang != null) return fang;
         fang = Make(128, (u, v) =>
         {
             const int teeth = 4;
@@ -54,6 +71,8 @@ public static class BossFx
     public static Sprite Slash()
     {
         if (slash != null) return slash;
+        slash = LoadEffectArt("slash");
+        if (slash != null) return slash;
         slash = Make(128, (u, v) =>
         {
             float dx = u - 0.15f, dy = v - 0.5f;
@@ -72,6 +91,8 @@ public static class BossFx
     // 地面の衝撃波リング(横長に潰して使う)。
     public static Sprite Ring()
     {
+        if (ring != null) return ring;
+        ring = LoadEffectArt("ring");
         if (ring != null) return ring;
         ring = Make(128, (u, v) =>
         {
@@ -92,6 +113,8 @@ public static class BossFx
 
     public static Sprite Orb()
     {
+        if (orb != null) return orb;
+        orb = LoadEffectArt("orb");
         if (orb != null) return orb;
         orb = Make(64, (u, v) =>
         {

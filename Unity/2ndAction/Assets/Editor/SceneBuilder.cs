@@ -646,6 +646,18 @@ public static class SceneBuilder
             LoadCaveArt(CaveBossKind.AncientDemon, "ancientdemon"),
         };
 
+        // 攻撃エフェクト本番素材化(2026-09-23) - BossFx/CaveBossFxは
+        // Resources.Load("Effects/<name>")で実行時に自前取得するため、ここでは
+        // 「アセットのインポート設定をSprite化する」ことだけが目的(戻り値は
+        // 使わない)。PPU=512は素材生成側のsquarepad2.ps1が常に512x512正方形へ
+        // 出力する前提と一致させ、Make()時代と同じ「等倍で1x1unit」契約を保つ。
+        ConfigureEffectSpriteIfPresent("fang");
+        ConfigureEffectSpriteIfPresent("slash");
+        ConfigureEffectSpriteIfPresent("ring");
+        ConfigureEffectSpriteIfPresent("orb");
+        ConfigureEffectSpriteIfPresent("rockchunk");
+        ConfigureEffectSpriteIfPresent("crystalshard");
+
         // 100,000m 死神(従来仕様=追跡はせず出現のみ、を維持したまま素材を設定)
         Sprite reaperSprite = LoadWildSprite("reaper", "idle", 1.4f);
         if (reaperSprite != null)
@@ -4519,6 +4531,13 @@ public static class SceneBuilder
         string path = "Assets/Art/CaveBoss/" + name + "_" + pose + ".png";
         if (!File.Exists(path)) return null;
         return ConfigureAndLoadSpriteWithFootPivot(path, 100f);
+    }
+
+    static void ConfigureEffectSpriteIfPresent(string name)
+    {
+        string path = "Assets/Resources/Effects/" + name + ".png";
+        if (!File.Exists(path)) return;
+        ConfigureAndLoadSpriteWithCenterPivot(path, 512f);
     }
 
     static Sprite ConfigureAndLoadSpriteWithFootPivot(string path, float pixelsPerUnit)

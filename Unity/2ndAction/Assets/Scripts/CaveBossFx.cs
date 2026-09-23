@@ -310,8 +310,13 @@ public static class CaveBossFx
     }
 
     // ---- 攻撃VFX追加分(既存BossFx.Fang/Slash/Ring/Block/Orbで足りない形だけ) ----
+    // 攻撃エフェクト本番素材化(2026-09-23) - BossFx.csと同じ考え方
+    // (Assets/Resources/Effects/<name>.pngがあれば使用、無ければ手続き的
+    // フォールバック)。
     public static Sprite RockChunk()
     {
+        if (rockChunk != null) return rockChunk;
+        rockChunk = Resources.Load<Sprite>("Effects/rockchunk");
         if (rockChunk != null) return rockChunk;
         rockChunk = Make(64, (u, v) =>
         {
@@ -324,6 +329,8 @@ public static class CaveBossFx
 
     public static Sprite CrystalShard()
     {
+        if (crystalShard != null) return crystalShard;
+        crystalShard = Resources.Load<Sprite>("Effects/crystalshard");
         if (crystalShard != null) return crystalShard;
         crystalShard = Make(64, (u, v) =>
         {
