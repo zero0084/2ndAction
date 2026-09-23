@@ -474,6 +474,16 @@ public static class CharacterDatabaseBuilder
                     }
                     if (changed) EditorUtility.SetDirty(existing);
                 }
+                // 弾スプライト本番素材化(2026-09-23) - bulletSpriteは星評価等と
+                // 違い手動でInspector調整される類の値ではない、純粋な素材参照
+                // なので、既存アセットでも常に最新のPNG(Assets/Art/
+                // GunslingerBullet.png)へ同期し直す(差し替え後にSceneBuilder.
+                // Buildを再実行するだけで反映されるようにするため)。
+                if (existing.isRanged && !string.IsNullOrEmpty(spec.bulletSpritePath))
+                {
+                    existing.bulletSprite = LoadBulletSprite(spec.bulletSpritePath);
+                    EditorUtility.SetDirty(existing);
+                }
                 continue;
             }
 
@@ -607,8 +617,22 @@ public static class CharacterDatabaseBuilder
     // のため、キャラクター本体のような足元Pivotではなく中央Pivotで読み込む
     // (PlayerBullet.Create側でtransform.rotationを直接設定するため、Pivot
     // が中心からズレると回転の軸もズレて見た目が破綻する)。
+    // 弾スプライト本番素材化(2026-09-23) - 旧プレースホルダー(64x24px)は
+    // PPU=96固定で世界サイズ0.667x0.25unitだった。実イラストは解像度が
+    // 全く異なる(ChatGPT生成+chroma key抽出)ため、旧来と同じ見た目の
+    // 弾サイズ(高さ0.25unit)になるよう、画像の実測高さから逆算する
+    // (LoadWildSpriteと同じ考え方)。
     static Sprite LoadBulletSprite(string path)
     {
-        return SceneBuilder.ConfigureAndLoadSpriteWithCenterPivot(path, 96f);
+        const float targetWorldHeight = 0.25f;
+        float ppu = 96f;
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        var imp = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (imp != null)
+        {
+            imp.GetSourceTextureWidthAndHeight(out int w, out int h);
+            ppu = h / targetWorldHeight;
+        }
+        return SceneBuilder.ConfigureAndLoadSpriteWithCenterPivot(path, ppu);
     }
 }

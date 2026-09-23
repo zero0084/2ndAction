@@ -6,6 +6,23 @@ using UnityEngine;
 // spawned it so it always finishes its full duration.
 public class ExplosionEffect : MonoBehaviour
 {
+    static Sprite burstParticle;
+
+    // 撃破エフェクト本番素材化(2026-09-23) - BossFx/CaveBossFxと同じ考え方。
+    // Assets/Resources/Effects/burst.png(ChatGPT生成、白基調)があれば使い、
+    // 無ければ従来のOneShotSpriteEffect.SoftDotSprite()(走行ダスト/ヒット
+    // スパークと共用の丸い粒)へフォールバックする。ダスト/スパーク自体は
+    // 意図的にSoftDotSpriteのままにする(OneShotSpriteEffect.cs参照、
+    // 「新規アセットは増やさない」という別の意図的な設計判断のため)。
+    static Sprite BurstParticleSprite()
+    {
+        if (burstParticle != null) return burstParticle;
+        burstParticle = Resources.Load<Sprite>("Effects/burst");
+        if (burstParticle != null) return burstParticle;
+        burstParticle = OneShotSpriteEffect.SoftDotSprite();
+        return burstParticle;
+    }
+
     class Particle
     {
         public Transform t;
@@ -47,7 +64,7 @@ public class ExplosionEffect : MonoBehaviour
 
         Color c = color;
         c.a = 1f;
-        return Create(OneShotSpriteEffect.SoftDotSprite(), position, c, count: count, duration: duration, sizeScale: sizeScale, speedScale: speedScale, sortingOrder: sortingOrder);
+        return Create(BurstParticleSprite(), position, c, count: count, duration: duration, sizeScale: sizeScale, speedScale: speedScale, sortingOrder: sortingOrder);
     }
 
     void Init(Sprite sprite, Color color, int count, float sizeScale, float speedScale, int sortingOrder)

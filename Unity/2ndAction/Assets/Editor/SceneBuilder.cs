@@ -657,6 +657,7 @@ public static class SceneBuilder
         ConfigureEffectSpriteIfPresent("orb");
         ConfigureEffectSpriteIfPresent("rockchunk");
         ConfigureEffectSpriteIfPresent("crystalshard");
+        ConfigureEffectSpriteIfPresent("burst");
 
         // 100,000m 死神(従来仕様=追跡はせず出現のみ、を維持したまま素材を設定)
         Sprite reaperSprite = LoadWildSprite("reaper", "idle", 1.4f);
