@@ -77,7 +77,25 @@ public class PlayerAnimator : MonoBehaviour
     Quaternion visualBaseRot;
     bool reactionPoseApplied;
 
-    enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack, DownAttackLand, UpShot, Hurt, Recovery }
+    // ===== RUN開始準備/正常終了演出(2026-09-23) =====
+    // StartPrep: 開始カウントダウン中(PlayerController.IsPreparingStart)に
+    // 再生する準備ポーズ。Finish: 正常終了時(IsFinishing)の距離Tier別
+    // リアクション。専用絵が無ければ、Hurt/Recoveryと同じ考え方で
+    // 走りの先頭コマ+手続き的な姿勢変化(ApplyStartFinishPose)を使う。
+    public Sprite[] startFrames;
+    public Sprite[] finishShortFrames, finishMediumFrames, finishLongFrames, finishExtremeFrames;
+    public float startFps = 6f;
+    public float finishFps = 6f;
+    public float startLeanDegrees = 8f;
+    public float[] finishTierCrouchDepth = new float[] { 0.03f, 0.08f, 0.16f, 0.30f };
+    // カウントダウン実時間(3・2・1=0.8秒×3=2.4秒)に合わせた既定値 - 準備
+    // ポーズがGO!までに自然に「走り出す構え」へ到達するよう調整する。
+    public float startPrepPoseDuration = 2.2f;
+    Sprite[] defaultStartFrames, defaultFinishShortFrames, defaultFinishMediumFrames, defaultFinishLongFrames, defaultFinishExtremeFrames;
+    float startPrepElapsed;
+    bool startFinishPoseApplied;
+
+    enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack, DownAttackLand, UpShot, Hurt, Recovery, StartPrep, Finish }
 
     // キャラクター専用アニメーション差し替え(2026-09-13) - PlayerController.
     // baseRunSpeed等と全く同じ理由の「素のスナップショット」。SceneBuilder
@@ -231,6 +249,11 @@ public class PlayerAnimator : MonoBehaviour
             defaultUpShotFrames = upShotFrames;
             defaultHurtFrames = hurtFrames;
             defaultRecoveryFrames = recoveryFrames;
+            defaultStartFrames = startFrames;
+            defaultFinishShortFrames = finishShortFrames;
+            defaultFinishMediumFrames = finishMediumFrames;
+            defaultFinishLongFrames = finishLongFrames;
+            defaultFinishExtremeFrames = finishExtremeFrames;
         }
         if (def == null) return;
 
@@ -239,6 +262,16 @@ public class PlayerAnimator : MonoBehaviour
         hurtLeanDegrees = def.hurtLeanDegrees;
         hurtStaggerDistance = def.hurtStaggerDistance;
         recoveryCrouchDepth = def.recoveryCrouchDepth;
+
+        startFrames = HasFrames(def.startFrames) ? def.startFrames : defaultStartFrames;
+        startFps = def.startFps > 0f ? def.startFps : 6f;
+        startLeanDegrees = def.startLeanDegrees;
+        finishShortFrames = HasFrames(def.finishShortFrames) ? def.finishShortFrames : defaultFinishShortFrames;
+        finishMediumFrames = HasFrames(def.finishMediumFrames) ? def.finishMediumFrames : defaultFinishMediumFrames;
+        finishLongFrames = HasFrames(def.finishLongFrames) ? def.finishLongFrames : defaultFinishLongFrames;
+        finishExtremeFrames = HasFrames(def.finishExtremeFrames) ? def.finishExtremeFrames : defaultFinishExtremeFrames;
+        finishFps = def.finishFps > 0f ? def.finishFps : 6f;
+        if (def.finishTierCrouchDepth != null && def.finishTierCrouchDepth.Length == 4) finishTierCrouchDepth = def.finishTierCrouchDepth;
 
         runFrames = HasFrames(def.runFrames) ? def.runFrames : defaultRunFrames;
         runFps = def.runFps > 0f ? def.runFps : defaultRunFps;
@@ -282,6 +315,23 @@ public class PlayerAnimator : MonoBehaviour
         return fallbackOne;
     }
 
+    // StartPrep/Finish専用絵が無い間の代用: 走りの先頭コマを保持し、
+    // ApplyStartFinishPoseの手続き的な姿勢変化だけで見せる。
+    Sprite[] FallbackSingleFrame()
+    {
+        if (!HasFrames(runFrames)) return null;
+        fallbackOne[0] = runFrames[0];
+        return fallbackOne;
+    }
+
+    Sprite[] GetFinishFrames(int tier) => tier switch
+    {
+        0 => finishShortFrames,
+        1 => finishMediumFrames,
+        2 => finishLongFrames,
+        _ => finishExtremeFrames,
+    };
+
     // 簡易の姿勢アニメーション(Visualの子Transformに、リアクションの進行度に応じた回転/位置/縦つぶれを乗せる)。
     // Hurt: 1コマ目=のけぞる → 2コマ目=後方へよろける → 3コマ目=姿勢を戻し始める、を進行度0〜1で表現。
     // Recovery: 着地して沈み込み、ゆっくり立ち上がる。リアクション以外の時は元の姿勢へ戻す(他のStateの見た目は変えない)。
@@ -323,6 +373,47 @@ public class PlayerAnimator : MonoBehaviour
         reactionPoseApplied = true;
     }
 
+    // RUN開始準備/正常終了演出(2026-09-23) - ApplyReactionPoseと同じ手法
+    // (Visualの子Transformへ進行度に応じた回転/位置/縦つぶれを乗せる)を
+    // StartPrep/Finishにも適用する、専用絵が無い間の代用。StartPrepは
+    // 徐々に前傾して「走り出す構え」へ、Finishは距離Tierが長いほど深く
+    // 沈み込む(キャラ別finishTierCrouchDepthで強度調整可)。
+    void ApplyStartFinishPose()
+    {
+        if (visualT == null) return;
+        bool starting = state == State.StartPrep, finishing = state == State.Finish;
+        if (!starting && !finishing)
+        {
+            if (startFinishPoseApplied)
+            {
+                visualT.localPosition = visualBasePos; visualT.localRotation = visualBaseRot; visualT.localScale = visualBaseScale;
+                startFinishPoseApplied = false;
+            }
+            return;
+        }
+        startPrepElapsed += Time.deltaTime;
+        float p = starting
+            ? Mathf.Clamp01(startPrepElapsed / Mathf.Max(0.01f, startPrepPoseDuration))
+            : (controller != null ? controller.FinishProgress : 1f);
+        Vector3 pos = visualBasePos; Quaternion rot = visualBaseRot; Vector3 scl = visualBaseScale;
+        if (starting)
+        {
+            float lean = Mathf.SmoothStep(0f, 1f, p);
+            rot = visualBaseRot * Quaternion.Euler(0f, 0f, -startLeanDegrees * lean); // 前傾=-Z(右向きの体)
+        }
+        else
+        {
+            int tier = controller != null ? controller.FinishTierIndex : 0;
+            float depth = finishTierCrouchDepth[Mathf.Clamp(tier, 0, finishTierCrouchDepth.Length - 1)];
+            float crouch = Mathf.SmoothStep(0f, 1f, p);
+            float s = 1f - depth * crouch;
+            scl = new Vector3(visualBaseScale.x * (1f + depth * 0.3f * crouch), visualBaseScale.y * s, visualBaseScale.z);
+            if (sr != null && sr.sprite != null) pos += new Vector3(0f, sr.sprite.bounds.min.y * (1f - s) * visualBaseScale.y, 0f);
+        }
+        visualT.localPosition = pos; visualT.localRotation = rot; visualT.localScale = scl;
+        startFinishPoseApplied = true;
+    }
+
     void Update()
     {
         float dt = Time.deltaTime;
@@ -348,7 +439,14 @@ public class PlayerAnimator : MonoBehaviour
         bool upShooting = controller != null && controller.IsRangedUpShooting && upShotFrames != null && upShotFrames.Length > 0;
 
         State newState;
-        if (controller != null && controller.IsHurt) newState = State.Hurt;
+        // RUN開始準備/正常終了演出(2026-09-23) - 他の全Stateより最優先。
+        // IsFinishing/IsPreparingStart中はHurt/Recovery等が同時に成立する
+        // ことはない(ダメージはPresentationDamageLock/IsFinishingで防がれ、
+        // カウントダウン中は敵/障害物自体が出現しないため)が、念のため
+        // 一番上でチェックする。
+        if (controller != null && controller.IsFinishing) newState = State.Finish;
+        else if (controller != null && controller.IsPreparingStart) newState = State.StartPrep;
+        else if (controller != null && controller.IsHurt) newState = State.Hurt;
         else if (controller != null && controller.IsRecovering) newState = State.Recovery;
         else if (attacking) newState = State.Attack;
         // 着地専用Frame(downAttackLandTimer)は通常のLandingより優先 - 下降
@@ -368,6 +466,7 @@ public class PlayerAnimator : MonoBehaviour
             state = newState;
             frameIndex = 0;
             frameTimer = 0f;
+            if (newState == State.StartPrep || newState == State.Finish) startPrepElapsed = 0f;
         }
 
         Sprite[] frames = state switch
@@ -382,9 +481,12 @@ public class PlayerAnimator : MonoBehaviour
             State.UpShot => upShotFrames,
             State.Hurt => HasFrames(hurtFrames) ? hurtFrames : FallbackReactionFrames(false),
             State.Recovery => HasFrames(recoveryFrames) ? recoveryFrames : FallbackReactionFrames(true),
+            State.StartPrep => HasFrames(startFrames) ? startFrames : FallbackSingleFrame(),
+            State.Finish => HasFrames(GetFinishFrames(controller != null ? controller.FinishTierIndex : 0)) ? GetFinishFrames(controller.FinishTierIndex) : FallbackSingleFrame(),
             _ => runFrames
         };
         ApplyReactionPose();
+        ApplyStartFinishPose();
         if (frames == null || frames.Length == 0) return;
 
         float fps = state switch
@@ -398,6 +500,8 @@ public class PlayerAnimator : MonoBehaviour
             State.UpShot => upShotFps,
             State.Hurt => hurtFps,
             State.Recovery => recoveryFps,
+            State.StartPrep => startFps,
+            State.Finish => finishFps,
             // 1フレームだけの絵をdownAttackLandDuration秒キープするだけな
             // ので、fps自体は「Duration中に次のフレームへ進まない」程度に
             // 低ければ何でもよい(frames.Length==1なら実質参照されない)。

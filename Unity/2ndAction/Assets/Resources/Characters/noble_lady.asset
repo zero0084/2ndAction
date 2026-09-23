@@ -81,6 +81,26 @@ MonoBehaviour:
   hurtLeanDegrees: 20
   hurtStaggerDistance: 0.2
   recoveryCrouchDepth: 0.12
+  startFrames: []
+  startFps: 0
+  startLeanDegrees: 8
+  finishShortFrames: []
+  finishMediumFrames: []
+  finishLongFrames: []
+  finishExtremeFrames: []
+  finishFps: 0
+  finishTierCrouchDepth:
+  - 0.03
+  - 0.08
+  - 0.16
+  - 0.3
+  isRanged: 0
+  bulletSprite: {fileID: 0}
+  bulletSpeed: 15
+  bulletLifetime: 1.6
+  hoverDuration: 0.22
+  hoverFallSpeed: 0.6
+  upShotFrames: []
   belongings:
   - label: "\u5927\u5263"
     icon: {fileID: 2800000, guid: 838b4e7d0dcccf741b2d46c693132b26, type: 3}

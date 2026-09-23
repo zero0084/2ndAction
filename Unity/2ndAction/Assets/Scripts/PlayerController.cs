@@ -301,6 +301,14 @@ public class PlayerController : MonoBehaviour
     // Safety cap in case the camera can't be found, so the coroutine can't
     // spin forever.
     public float ascendMaxDuration = 6f;
+    // RUN正常終了演出(2026-09-23) - 脱出成功後は上昇して消える代わりに、
+    // 減速して停止→距離Tier別のFinish Animation→余韻、という地面ベースの
+    // 演出へ切り替える(DoFinishSequence参照)。距離境界は3値で4段階を
+    // 定義(後から調整できるようハードコードしない)。
+    [Header("Run Finish (正常終了) - 距離Tier境界(m)")]
+    public float[] finishTierBoundaries = new float[] { 1000f, 10000f, 50000f };
+    public float finishDecelDuration = 0.22f;
+    public float[] finishHoldDurationByTier = new float[] { 1.0f, 1.3f, 1.6f, 2.0f };
     // Item 4 - Dark Navy/Gold/Cyan magic circle at the player's feet,
     // brightening/scaling up as the charge progresses. Reuses the existing
     // Double Jump Ring effect sprite (already in the project, see
@@ -333,6 +341,14 @@ public class PlayerController : MonoBehaviour
     public bool IsRangedUpShooting => upShotVisualTimer > 0f;
     public bool IsHitInvincible => hitInvincibleTimer > 0f;
     public bool IsAscending => isAscending;
+    // RUN開始準備/正常終了演出(2026-09-23) - IsPreparingStartはStart
+    // Animation(カウントダウン中の準備ポーズ)、IsFinishing以下3つは
+    // Finish Animation(距離Tier別の正常終了リアクション)用。どちらも
+    // PlayerAnimatorが見た目Stateを選ぶためだけに参照する。
+    public bool IsPreparingStart => GameManager.Instance != null && GameManager.Instance.CountdownActive;
+    public bool IsFinishing { get; private set; }
+    public int FinishTierIndex { get; private set; } = -1; // 0=Short,1=Medium,2=Long,3=Extreme
+    public float FinishProgress { get; private set; }
     // Item 3/4 - true while actively holding the escape charge (not yet
     // committed to the fly-up itself). 0..1 progress for the circular
     // gauge/magic circle brightness.
@@ -1267,7 +1283,9 @@ public class PlayerController : MonoBehaviour
     // 挙動には一切影響しない。GameManager.TryDamagePlayerのreasonへ渡す。
     public void TakeDamage(bool isFall = false, string source = null)
     {
-        if (hasDied) return;
+        // GameManager.PresentationDamageLockでも防いでいるが、Finish演出中
+        // (RUN正常終了)はPlayerController側でも二重に無敵化しておく。
+        if (hasDied || IsFinishing) return;
         // A fall past failY must always respawn the player, even mid-flicker
         // from a previous hit - otherwise falling while still hit-invincible
         // silently no-ops every frame and the player free-falls forever
@@ -1487,17 +1505,19 @@ public class PlayerController : MonoBehaviour
         escapeHoldTimer += Time.deltaTime;
         if (escapeHoldTimer >= escapeHoldDuration)
         {
-            StartCoroutine(DoEscapeSuccess());
+            StartCoroutine(DoFinishSequence());
         }
     }
 
-    // Item 2 - "3秒完了 -> 魔法陣完成 -> Playerを光で包む -> FINISH演出へ".
-    // Directly reuses the original Ascension fly-up-and-off-screen visual
-    // (camera-relative rise) as that "FINISH演出" - Win() is the same
-    // method a Boss-clear win already called, so the Result screen's
-    // existing "GAME CLEAR" headline and the full-RunMile-banking behavior
-    // (see GameManager.FinishRun) both already apply correctly here too.
-    IEnumerator DoEscapeSuccess()
+    // RUN正常終了演出(2026-09-23) - 旧"3秒完了→魔法陣→上昇して画面外へ"
+    // (元DoEscapeSuccess)を、"減速→停止→距離Tier別Finish Animation→
+    // 余韻→Win()"という地面ベースの演出へ置き換え(マスター確認済み、
+    // 上昇ビジュアルは廃止)。isAscendingは既存の意味(Move/HandleAttack
+    // Input/UpdateEscapeInputを止め、CameraFollowを固定する)のまま流用 -
+    // 新しい別フラグを増やさず既存ガード全てを無改造で通す。Win()は
+    // GameManager.FinishRun(IsGameOver/IsWin/DrawResults()の"GAME CLEAR")
+    // を無改造で呼ぶだけ。
+    IEnumerator DoFinishSequence()
     {
         isAscending = true;
         escapeHoldTimer = 0f;
@@ -1507,25 +1527,45 @@ public class PlayerController : MonoBehaviour
         if (upAttackHitbox != null) upAttackHitbox.enabled = false;
         EndDiveAttack();
 
-        // CameraFollow freezes the camera the instant isAscending flips true
-        // (above), so its current framing IS the frame the player needs to
-        // rise clear of. Deriving the target from it (rather than a fixed
-        // distance) means this clears the top of the screen regardless of
-        // orientation or aspect ratio.
-        Camera cam = Camera.main;
-        float targetY = cam != null
-            ? cam.transform.position.y + cam.orthographicSize + ascendClearMargin
-            : transform.position.y + 20f;
+        IsFinishing = true;
+        if (GameManager.Instance != null) GameManager.Instance.SetPresentationDamageLock(true);
+        FinishTierIndex = ResolveFinishTier(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f);
+        FinishProgress = 0f;
 
+        // 減速(既定0.22秒、0.15〜0.30秒枠): 現在の自動前進速度から自然に0へ。
+        float startSpeed = runSpeed * GetSpeedMultiplier();
         float t = 0f;
-        while (transform.position.y < targetY && t < ascendMaxDuration)
+        while (t < finishDecelDuration)
         {
             t += Time.deltaTime;
-            transform.position += Vector3.up * ascendRiseSpeed * Time.deltaTime;
+            float speed = Mathf.Lerp(startSpeed, 0f, Mathf.Clamp01(t / finishDecelDuration));
+            transform.position += Vector3.right * speed * Time.deltaTime;
             yield return null;
         }
 
-        if (GameManager.Instance != null) GameManager.Instance.Win();
+        // FinishAnimation + 余韻。距離が長いほど長め(全Tier約1〜2秒枠)。
+        // PlayerAnimatorはFinishProgressを見て手続き的ポーズを進める。
+        float hold = finishHoldDurationByTier[Mathf.Clamp(FinishTierIndex, 0, finishHoldDurationByTier.Length - 1)];
+        float poseT = 0f;
+        while (poseT < hold)
+        {
+            poseT += Time.deltaTime;
+            FinishProgress = Mathf.Clamp01(poseT / hold);
+            yield return null;
+        }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SetPresentationDamageLock(false);
+            GameManager.Instance.Win();
+        }
+    }
+
+    int ResolveFinishTier(float distance)
+    {
+        for (int i = 0; i < finishTierBoundaries.Length; i++)
+            if (distance < finishTierBoundaries[i]) return i;
+        return finishTierBoundaries.Length;
     }
 
     // Item 4 - "長押し開始 -> 足元付近に薄い青+金の帰還魔法陣...0秒->1秒->

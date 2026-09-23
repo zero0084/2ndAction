@@ -78,6 +78,21 @@ public static class CharacterDatabaseBuilder
         public string downAttackLandFramesDir;
         public float downAttackLandFramesPpu;
 
+        // RUN開始準備/正常終了演出(2026-09-23) - 今回は全キャラ未設定
+        // (空文字)のまま=LoadAnimationFolderが空配列を返し、PlayerAnimator
+        // 側の手続き的フォールバックが使われる。後でフォルダを用意したら
+        // ここへパスを足すだけで、SceneBuilder.Build再実行時に反映される。
+        public string startFramesDir;
+        public float startFramesPpu;
+        public string finishShortFramesDir;
+        public float finishShortFramesPpu;
+        public string finishMediumFramesDir;
+        public float finishMediumFramesPpu;
+        public string finishLongFramesDir;
+        public float finishLongFramesPpu;
+        public string finishExtremeFramesDir;
+        public float finishExtremeFramesPpu;
+
         // 二丁拳銃士追加(2026-09-23) - 遠距離キャラクター専用データ。
         // isRanged=falseの間は以下全て無視される(既存3キャラには一切影響
         // しない)。
@@ -484,6 +499,17 @@ public static class CharacterDatabaseBuilder
                     existing.bulletSprite = LoadBulletSprite(spec.bulletSpritePath);
                     EditorUtility.SetDirty(existing);
                 }
+                // RUN開始準備/正常終了演出(2026-09-23) - bulletSpriteと同じ
+                // 理由(手動チューニング値ではない純粋な素材参照)で、既存
+                // アセットでも常に最新のフォルダ内容へ同期し直す。今は全て
+                // 空フォルダのため空配列のままだが、後でフォルダに絵を
+                // 置いてSceneBuilder.Buildを再実行するだけで反映される。
+                existing.startFrames = LoadAnimationFolder(spec.startFramesDir, spec.startFramesPpu);
+                existing.finishShortFrames = LoadAnimationFolder(spec.finishShortFramesDir, spec.finishShortFramesPpu);
+                existing.finishMediumFrames = LoadAnimationFolder(spec.finishMediumFramesDir, spec.finishMediumFramesPpu);
+                existing.finishLongFrames = LoadAnimationFolder(spec.finishLongFramesDir, spec.finishLongFramesPpu);
+                existing.finishExtremeFrames = LoadAnimationFolder(spec.finishExtremeFramesDir, spec.finishExtremeFramesPpu);
+                EditorUtility.SetDirty(existing);
                 continue;
             }
 
@@ -536,6 +562,12 @@ public static class CharacterDatabaseBuilder
             def.attackFramesLarge = LoadAnimationFolder(spec.attackFramesLargeDir, spec.attackFramesLargePpu);
             def.downAttackFrames = LoadAnimationFolder(spec.downAttackFramesDir, spec.downAttackFramesPpu);
             def.downAttackLandFrames = LoadAnimationFolder(spec.downAttackLandFramesDir, spec.downAttackLandFramesPpu);
+
+            def.startFrames = LoadAnimationFolder(spec.startFramesDir, spec.startFramesPpu);
+            def.finishShortFrames = LoadAnimationFolder(spec.finishShortFramesDir, spec.finishShortFramesPpu);
+            def.finishMediumFrames = LoadAnimationFolder(spec.finishMediumFramesDir, spec.finishMediumFramesPpu);
+            def.finishLongFrames = LoadAnimationFolder(spec.finishLongFramesDir, spec.finishLongFramesPpu);
+            def.finishExtremeFrames = LoadAnimationFolder(spec.finishExtremeFramesDir, spec.finishExtremeFramesPpu);
 
             def.isRanged = spec.isRanged;
             if (spec.isRanged && !string.IsNullOrEmpty(spec.bulletSpritePath))

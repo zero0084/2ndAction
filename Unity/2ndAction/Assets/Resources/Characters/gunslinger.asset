@@ -76,6 +76,19 @@ MonoBehaviour:
   hurtLeanDegrees: 12
   hurtStaggerDistance: 0.12
   recoveryCrouchDepth: 0.14
+  startFrames: []
+  startFps: 0
+  startLeanDegrees: 8
+  finishShortFrames: []
+  finishMediumFrames: []
+  finishLongFrames: []
+  finishExtremeFrames: []
+  finishFps: 0
+  finishTierCrouchDepth:
+  - 0.03
+  - 0.08
+  - 0.16
+  - 0.3
   isRanged: 1
   bulletSprite: {fileID: 21300000, guid: fb493b89efb9a7441bcb1a4ad634314f, type: 3}
   bulletSpeed: 15

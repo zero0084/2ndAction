@@ -177,6 +177,22 @@ public class CharacterDefinition : ScriptableObject
     public float hurtStaggerDistance = 0.12f; // 後方へよろける距離(ワールド単位)
     public float recoveryCrouchDepth = 0.14f; // 復帰時に沈み込む割合
 
+    // ===== RUN開始準備/正常終了演出(2026-09-23) ===== //
+    // 開始カウントダウン中の準備ポーズ(StartFrames)と、正常終了時の距離
+    // Tier別リアクション(FinishXxxFrames、0-999m/1000-9999m/10000-49999m/
+    // 50000m+の4段階)。専用絵が無ければPlayerAnimatorが走りの先頭コマ+
+    // 手続き的な姿勢変化(前傾/しゃがみ込み)へフォールバックする。
+    [Header("Run Start/Finish (0 = PlayerAnimatorの既定値)")]
+    public Sprite[] startFrames;
+    public float startFps;
+    public float startLeanDegrees = 8f;
+    public Sprite[] finishShortFrames;   // Tier0: 0-999m
+    public Sprite[] finishMediumFrames;  // Tier1: 1000-9999m
+    public Sprite[] finishLongFrames;    // Tier2: 10000-49999m
+    public Sprite[] finishExtremeFrames; // Tier3: 50000m+
+    public float finishFps;
+    public float[] finishTierCrouchDepth = new float[] { 0.03f, 0.08f, 0.16f, 0.30f };
+
     // ===== 二丁拳銃士(2026-09-23) ===== //
     // 4人目の主人公追加 - 「面で攻撃する剣士」に対して「点で攻撃する遠距離
     // キャラクター」という構造そのものが違う枠。PlayerController側で
