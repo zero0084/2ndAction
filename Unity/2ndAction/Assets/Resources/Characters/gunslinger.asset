@@ -76,13 +76,23 @@ MonoBehaviour:
   hurtLeanDegrees: 12
   hurtStaggerDistance: 0.12
   recoveryCrouchDepth: 0.14
-  startFrames: []
+  startFrames:
+  - {fileID: 21300000, guid: 4021faf9a62ab6c4ba9bd8e7cbb48e22, type: 3}
+  - {fileID: 21300000, guid: 3afd25947648c094f8b93f7f8885e51b, type: 3}
   startFps: 0
   startLeanDegrees: 8
-  finishShortFrames: []
-  finishMediumFrames: []
-  finishLongFrames: []
-  finishExtremeFrames: []
+  finishShortFrames:
+  - {fileID: 21300000, guid: 39a19097d580f9c4ba8dad462072ef45, type: 3}
+  - {fileID: 21300000, guid: 7bae90aee08ba5f4b8085edbaa9c146d, type: 3}
+  finishMediumFrames:
+  - {fileID: 21300000, guid: a0b9e46a75624cf438ae86fb4daaeb8b, type: 3}
+  - {fileID: 21300000, guid: 36db6ae48bd0a7a458ba511f24fa6b89, type: 3}
+  finishLongFrames:
+  - {fileID: 21300000, guid: bbc50d88ff8774a46b3144b8db18ed87, type: 3}
+  - {fileID: 21300000, guid: 76c25e31b1266704bb256ca1a4045600, type: 3}
+  finishExtremeFrames:
+  - {fileID: 21300000, guid: f3a31ff12b5ca67418b2bbde9805824c, type: 3}
+  - {fileID: 21300000, guid: 7eb2b3842ace04240bf824b93d7f1d02, type: 3}
   finishFps: 0
   finishTierCrouchDepth:
   - 0.03

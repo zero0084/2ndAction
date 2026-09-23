@@ -159,6 +159,19 @@ public static class CharacterDatabaseBuilder
             new CharacterDefinition.BelongingItem { label = "外套", placeholderColor = new Color(0.25f, 0.25f, 0.3f), icon = LoadIconTexture("Assets/Art/UI/Characters/SwordsmanItems/swordsman_item_1.png"), kind = CharacterDefinition.BelongingKind.Cloth },
             new CharacterDefinition.BelongingItem { label = "紋章", placeholderColor = new Color(0.6f, 0.5f, 0.25f), icon = LoadIconTexture("Assets/Art/UI/Characters/SwordsmanItems/swordsman_item_2.png"), kind = CharacterDefinition.BelongingKind.Shield },
         };
+        // RUN開始準備/正常終了演出 本番素材化(2026-09-24) - ChatGPT生成の
+        // 実イラスト(2ポーズ)に差し替え。PPUは他Stateと同じ「frame0の実測
+        // コンテンツ高さ÷1.13」方式。
+        swordsman.startFramesDir = "Assets/Art/PlayerStart_v1";
+        swordsman.startFramesPpu = 668.1f; // 755/1.13
+        swordsman.finishShortFramesDir = "Assets/Art/PlayerFinishShort_v1";
+        swordsman.finishShortFramesPpu = 641.6f; // 725/1.13
+        swordsman.finishMediumFramesDir = "Assets/Art/PlayerFinishMedium_v1";
+        swordsman.finishMediumFramesPpu = 682.3f; // 771/1.13
+        swordsman.finishLongFramesDir = "Assets/Art/PlayerFinishLong_v1";
+        swordsman.finishLongFramesPpu = 585.8f; // 662/1.13
+        swordsman.finishExtremeFramesDir = "Assets/Art/PlayerFinishExtreme_v1";
+        swordsman.finishExtremeFramesPpu = 642.5f; // 726/1.13
 
         Spec dualBlade = DefaultBaseline;
         dualBlade.id = "dual_blade";
@@ -250,6 +263,17 @@ public static class CharacterDatabaseBuilder
         dualBlade.downAttackFramesPpu = 272f;
         dualBlade.downAttackLandFramesDir = "Assets/Art/DualBladeDownAttackLand_v1";
         dualBlade.downAttackLandFramesPpu = 272f;
+        // RUN開始準備/正常終了演出 本番素材化(2026-09-24)
+        dualBlade.startFramesDir = "Assets/Art/DualBladeStart_v1";
+        dualBlade.startFramesPpu = 680.5f; // 769/1.13
+        dualBlade.finishShortFramesDir = "Assets/Art/DualBladeFinishShort_v1";
+        dualBlade.finishShortFramesPpu = 585.0f; // 661/1.13
+        dualBlade.finishMediumFramesDir = "Assets/Art/DualBladeFinishMedium_v1";
+        dualBlade.finishMediumFramesPpu = 725.7f; // 820/1.13
+        dualBlade.finishLongFramesDir = "Assets/Art/DualBladeFinishLong_v1";
+        dualBlade.finishLongFramesPpu = 911.5f; // 1030/1.13
+        dualBlade.finishExtremeFramesDir = "Assets/Art/DualBladeFinishExtreme_v1";
+        dualBlade.finishExtremeFramesPpu = 597.3f; // 675/1.13
 
         // お嬢様騎士 - マスター指示「見た目は非常に強そうだが性能はかなり
         // 弱い、ただし入力遅延ではなく性能値のみで表現する」。CHALLENGE
@@ -341,6 +365,19 @@ public static class CharacterDatabaseBuilder
         nobleLady.landFramesPpu = 282f;
         nobleLady.attackFramesDir = "Assets/Art/NobleLadyAttack_v1";
         nobleLady.attackFramesPpu = 310f;
+        // RUN開始準備/正常終了演出 本番素材化(2026-09-24) - マスター指示
+        // 「見た目は強そうなのに実際は弱いというギャップ」を踏まえ、超長
+        // 距離Finishでは完全に疲れ切って座り込むポーズを他キャラより強調。
+        nobleLady.startFramesDir = "Assets/Art/NobleLadyStart_v1";
+        nobleLady.startFramesPpu = 761.1f; // 860/1.13
+        nobleLady.finishShortFramesDir = "Assets/Art/NobleLadyFinishShort_v1";
+        nobleLady.finishShortFramesPpu = 708.0f; // 800/1.13
+        nobleLady.finishMediumFramesDir = "Assets/Art/NobleLadyFinishMedium_v1";
+        nobleLady.finishMediumFramesPpu = 710.6f; // 803/1.13
+        nobleLady.finishLongFramesDir = "Assets/Art/NobleLadyFinishLong_v1";
+        nobleLady.finishLongFramesPpu = 718.6f; // 812/1.13
+        nobleLady.finishExtremeFramesDir = "Assets/Art/NobleLadyFinishExtreme_v1";
+        nobleLady.finishExtremeFramesPpu = 667.3f; // 754/1.13
 
         // 4人目のプレイアブル主人公(2026-09-23、二丁拳銃士) - 「面で攻撃する
         // 剣士」に対して「点で攻撃する遠距離キャラクター」という構造その
@@ -427,6 +464,17 @@ public static class CharacterDatabaseBuilder
         // ではなくisHoverShooting中に表示、PlayerAnimator.Update参照)。
         gunslinger.downAttackFramesDir = "Assets/Art/GunslingerDownAttack_v1"; // 空中斜め下撃ちポーズ(656px)
         gunslinger.downAttackFramesPpu = 581f; // 656/1.13
+        // RUN開始準備/正常終了演出 本番素材化(2026-09-24)
+        gunslinger.startFramesDir = "Assets/Art/GunslingerStart_v1";
+        gunslinger.startFramesPpu = 754.0f; // 852/1.13
+        gunslinger.finishShortFramesDir = "Assets/Art/GunslingerFinishShort_v1";
+        gunslinger.finishShortFramesPpu = 746.9f; // 844/1.13
+        gunslinger.finishMediumFramesDir = "Assets/Art/GunslingerFinishMedium_v1";
+        gunslinger.finishMediumFramesPpu = 906.2f; // 1024/1.13
+        gunslinger.finishLongFramesDir = "Assets/Art/GunslingerFinishLong_v1";
+        gunslinger.finishLongFramesPpu = 916.8f; // 1036/1.13
+        gunslinger.finishExtremeFramesDir = "Assets/Art/GunslingerFinishExtreme_v1";
+        gunslinger.finishExtremeFramesPpu = 721.2f; // 815/1.13
 
         return new[] { swordsman, dualBlade, nobleLady, gunslinger };
     }
