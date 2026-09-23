@@ -26,9 +26,6 @@ MonoBehaviour:
   runFrames:
   - {fileID: 21300000, guid: 7768f643fdf6ff54a85370fc2baf6b5e, type: 3}
   - {fileID: 21300000, guid: dc440dce29f080a44bba2ba9c224a1e9, type: 3}
-  - {fileID: 21300000, guid: 9c5dff690915eca40a2b7bbf0c5d16e1, type: 3}
-  - {fileID: 21300000, guid: b404388d2138352449aac4b8ab8eb495, type: 3}
-  - {fileID: 21300000, guid: 997a905a3642a3945bd8046a111e4746, type: 3}
   mileReward: 1
   visualScaleMultiplier: 1
   aiTier: 0

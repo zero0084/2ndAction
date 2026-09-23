@@ -514,11 +514,19 @@ public static class SceneBuilder
         // (Collider/Visualのズレを生まないため)。将来ChatGPT等で本物の
         // イラストに差し替える場合は、同名ファイルの中身を入れ替えた上で
         // ここのPPUを実測値に合わせて再調整すること。
-        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/CaveAnt.png", 113f);       // 220x140 -> 約1.24u(Playerの約105%)
-        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/SoldierAnt.png", 115f);    // 240x160 -> 約1.39u(Playerの約118%)
-        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/CaveHopper.png", 153f);    // 200x190 -> 約1.24u(Playerの約105%)
-        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/CaveBat.png", 154f);       // 260x200 -> 約1.30u(Playerの約110%)
-        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/BurrowWorm.png", 103f);    // 320x170 -> 約1.65u(Playerの約140%)
+        // 本番素材差し替え(2026-09-23、ChatGPT生成) - 実測コンテンツ高さ
+        // 461px÷372≒1.24u(元の手続き的プレースホルダーと同じ「Playerの
+        // 約105%」を維持する形で再算出、Run側はUniformSize方式のため
+        // 解像度非依存で変更不要)。
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/CaveAnt.png", 372f);
+        // 本番素材差し替え(2026-09-23) - 実測504px÷363≒1.39u(同じ「Playerの約118%」を維持)。
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/SoldierAnt.png", 363f);
+        // 本番素材差し替え(2026-09-23) - 実測497px÷401≒1.24u(同じ「Playerの約105%」を維持)。
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/CaveHopper.png", 401f);
+        // 本番素材差し替え(2026-09-23) - 実測475px÷365≒1.30u(同じ「Playerの約110%」を維持)。
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/CaveBat.png", 365f);
+        // 本番素材差し替え(2026-09-23) - 実測794px÷481≒1.65u(同じ「Playerの約140%」を維持)。
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/BurrowWorm.png", 481f);
         ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/CaveAntRun", 140f / 113f);
         ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/SoldierAntRun", 160f / 115f);
         ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/CaveHopperRun", 190f / 153f);
@@ -526,7 +534,7 @@ public static class SceneBuilder
         // Cave Batは羽ばたきで縦幅がコマごとに変わる(WastelandBirdFlapと
         // 同じ理由) - 足元Pivot/コマ別均一サイズではなく、中心Pivot+共有PPU
         // のConfigureSpriteFolderImportを使う。
-        ConfigureSpriteFolderImport("Assets/Art/CaveBatRun", 154f);
+        ConfigureSpriteFolderImport("Assets/Art/CaveBatRun", 365f); // 本番素材差し替え(2026-09-23) - ポートレートと同じPPU(羽ばたきコマ間の体サイズ一貫性のため)
 
         // Distance-unlock system - enemy species database, built now that
         // the goblin sprite's import (foot pivot/PPU) is configured, since
