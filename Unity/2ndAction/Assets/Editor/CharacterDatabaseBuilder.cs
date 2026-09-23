@@ -380,37 +380,38 @@ public static class CharacterDatabaseBuilder
         gunslinger.hoverDuration = 0.22f;
         gunslinger.hoverFallSpeed = 0.6f;
 
-        // 見た目(2026-09-23) - GunslingerArtGeneratorが生成する手続き的
-        // シルエット(実イラスト未着手のプレースホルダー、SceneBuilder.Build
-        // 冒頭で自動生成)。PPUは各フォルダの基準身長(コンテンツ高さ÷1.13)
-        // からの一次算出値(canvas 200x260、人物の頭頂〜足先が概ね192px
-        // 相当と仮定した近似) - 実機で黒剣士と並べてサイズ差があれば要
-        // 再調整(マスターへの開示事項、双剣士/お嬢様騎士のPPU算出時と同じ
-        // 位置づけ)。
-        gunslinger.runFramesDir = "Assets/Art/GunslingerRun_v1";
-        gunslinger.runFramesPpu = 170f;
-        gunslinger.runFpsOverride = 8f;
-        gunslinger.jumpStartFramesDir = "Assets/Art/GunslingerJumpStart_v1";
-        gunslinger.jumpStartFramesPpu = 170f;
-        gunslinger.jumpFramesDir = "Assets/Art/GunslingerJumpAir_v1";
-        gunslinger.jumpFramesPpu = 170f;
-        gunslinger.doubleJumpFramesDir = "Assets/Art/GunslingerDoubleJump_v1";
-        gunslinger.doubleJumpFramesPpu = 170f;
-        gunslinger.landFramesDir = "Assets/Art/GunslingerLand_v1";
-        gunslinger.landFramesPpu = 170f;
+        // 見た目(2026-09-23、ChatGPT生成の本番素材に差し替え済み) - PPUは
+        // 各フォルダの基準身長(そのStateで最初に見えるフレームの実測
+        // コンテンツ高さ÷1.13、黒剣士PlayerRun_v1と同じ基準)から算出。
+        // ChatGPT生成イラストはポーズごとに実測コンテンツ高さが大きく
+        // 異なる(直立/疾走/ジャンプ等でbounding boxの縦横比が変わるため)
+        // ので、双剣士/お嬢様騎士と同様フォルダごとに個別のPPUを設定して
+        // いる - 実機で黒剣士と並べてサイズ差があれば要再調整(マスターへ
+        // の開示事項)。
+        gunslinger.runFramesDir = "Assets/Art/GunslingerRun_v1"; // frame0(idle,679px)/frame1(windup,579px)
+        gunslinger.runFramesPpu = 601f; // 679/1.13
+        gunslinger.runFpsOverride = 6f;
+        gunslinger.jumpStartFramesDir = "Assets/Art/GunslingerJumpStart_v1"; // windup(579px)を流用(実際にはUpShotが優先表示され、まず表示されない安全策)
+        gunslinger.jumpStartFramesPpu = 512f; // 579/1.13
+        gunslinger.jumpFramesDir = "Assets/Art/GunslingerJumpAir_v1"; // windup(579px)を流用 - UpShotの表示が終わった後の素の滞空ポーズ
+        gunslinger.jumpFramesPpu = 512f;
+        gunslinger.doubleJumpFramesDir = "Assets/Art/GunslingerDoubleJump_v1"; // windup(579px)を流用(JumpStartと同じ理由で安全策)
+        gunslinger.doubleJumpFramesPpu = 512f;
+        gunslinger.landFramesDir = "Assets/Art/GunslingerLand_v1"; // 着地ポーズ(545px)
+        gunslinger.landFramesPpu = 482f; // 545/1.13
         // Forward/Backward Shot共有(PlayerController.DoRangedForwardBackShot
         // がattackFrames/State.Attackをそのまま使う - Backwardはtransform
         // 反転で自動ミラー)。
-        gunslinger.attackFramesDir = "Assets/Art/GunslingerAttack_v1";
-        gunslinger.attackFramesPpu = 170f;
+        gunslinger.attackFramesDir = "Assets/Art/GunslingerAttack_v1"; // 正面二丁撃ちポーズ(819px)
+        gunslinger.attackFramesPpu = 725f; // 819/1.13
         // Up Shot専用(新設のState.UpShot、PlayerController.IsRangedUpShooting
         // がtrueの間だけ表示)。
-        gunslinger.upShotFramesDir = "Assets/Art/GunslingerUpShot_v1";
-        gunslinger.upShotFramesPpu = 170f;
+        gunslinger.upShotFramesDir = "Assets/Art/GunslingerUpShot_v1"; // ジャンプ+斜め上撃ちポーズ(766px)
+        gunslinger.upShotFramesPpu = 678f; // 766/1.13
         // Down Shotは既存downAttackFramesフィールドを流用(isDiveAttacking
         // ではなくisHoverShooting中に表示、PlayerAnimator.Update参照)。
-        gunslinger.downAttackFramesDir = "Assets/Art/GunslingerDownAttack_v1";
-        gunslinger.downAttackFramesPpu = 170f;
+        gunslinger.downAttackFramesDir = "Assets/Art/GunslingerDownAttack_v1"; // 空中斜め下撃ちポーズ(656px)
+        gunslinger.downAttackFramesPpu = 581f; // 656/1.13
 
         return new[] { swordsman, dualBlade, nobleLady, gunslinger };
     }

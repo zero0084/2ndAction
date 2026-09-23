@@ -50,8 +50,6 @@ MonoBehaviour:
   runFrames:
   - {fileID: 21300000, guid: 8b7a12ec10b24e446923d2c9e8f996ff, type: 3}
   - {fileID: 21300000, guid: 5373d21db5fae5f43a343c2575d0d251, type: 3}
-  - {fileID: 21300000, guid: 034d4aeb6c9695542bddaec810b1e47f, type: 3}
-  - {fileID: 21300000, guid: d80f5ce204375a446a5fa30c9d22f19f, type: 3}
   jumpStartFrames:
   - {fileID: 21300000, guid: a25bddf48e1563b4cb9249d528a956d2, type: 3}
   jumpFrames:
@@ -60,16 +58,13 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 40d8885239da66643885bd947e5d4250, type: 3}
   attackFrames:
   - {fileID: 21300000, guid: 1ee999710b72b9d4c92bc79181ca4a55, type: 3}
-  - {fileID: 21300000, guid: 519fbb9470f38f4498d5c1262c9cc936, type: 3}
-  - {fileID: 21300000, guid: 4dfbdc20e60dd2d458ecc07b980d8add, type: 3}
   doubleJumpFrames:
   - {fileID: 21300000, guid: a510dc8cfa99ab641afd2ff280bc084b, type: 3}
-  runFps: 8
+  runFps: 6
   attackFramesSmall: []
   attackFramesLarge: []
   downAttackFrames:
   - {fileID: 21300000, guid: 4847e3ffcd608cc40be60a5a8f43da62, type: 3}
-  - {fileID: 21300000, guid: af114ecb0bfb5554485590aa08ceebfa, type: 3}
   downAttackLandFrames: []
   hurtDuration: 0
   hurtInvincibleDuration: 0
@@ -89,7 +84,6 @@ MonoBehaviour:
   hoverFallSpeed: 0.6
   upShotFrames:
   - {fileID: 21300000, guid: 912c22c105c96074087ae7dab85e21e2, type: 3}
-  - {fileID: 21300000, guid: 26b8cdf10b9a4f740abde9f86e4bbfde, type: 3}
   belongings:
   - label: "\u4E8C\u4E01\u62F3\u9283"
     icon: {fileID: 0}

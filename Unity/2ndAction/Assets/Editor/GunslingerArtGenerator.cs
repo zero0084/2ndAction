@@ -37,7 +37,14 @@ public static class GunslingerArtGenerator
         // ポートレート(Character Select用) - 直立、両手の銃を胸の前で構える。
         WriteIfMissing($"{PortraitFolder}/gunslinger_portrait.png", W, H, new Pose { armAngle = 20f, lean = 0f, crouch = 0f, legPhase = 0f, flash = false });
 
-        WriteSequence("GunslingerRun_v1", 4, i =>
+        // 本番素材差し替え(2026-09-23、ChatGPT生成) - Run/Attack/UpShot/
+        // DownAttackは実イラスト2枚(idle/windup等)に差し替え済みのため、
+        // コマ数をそれに合わせて縮小した(手続き的プレースホルダーが
+        // 削除済みの旧コマindexを勝手に埋め直さないようにするため - この
+        // Generateメソッド自体はWriteIfMissing/WriteSequence内部で「既存
+        // ファイルはスキップ」するので、実イラストが既にある限り上書き
+        // されることはない)。
+        WriteSequence("GunslingerRun_v1", 2, i =>
         {
             float t = i / 4f;
             return new Pose { armAngle = -6f + Mathf.Sin(t * Mathf.PI * 2f) * 10f, lean = 4f, crouch = 0f, legPhase = t, flash = false };
@@ -49,21 +56,21 @@ public static class GunslingerArtGenerator
 
         // Forward/Backward Shot(共有 - Backward側はPlayerController側の
         // transform.localScale.x反転で自動的にミラーされる)。0度=水平前方。
-        WriteSequence("GunslingerAttack_v1", 3, i =>
+        WriteSequence("GunslingerAttack_v1", 1, i =>
         {
             float t = i / 2f;
             return new Pose { armAngle = 0f, lean = -2f, crouch = 0f, legPhase = 0f, flash = t < 0.7f };
         });
 
         // Up Shot - ジャンプしながら斜め上(約55度)。
-        WriteSequence("GunslingerUpShot_v1", 2, i =>
+        WriteSequence("GunslingerUpShot_v1", 1, i =>
         {
             float t = i / 1f;
             return new Pose { armAngle = 58f, lean = -10f, crouch = 0f, legPhase = 0.3f, flash = t < 0.6f };
         });
 
         // Down Shot(既存downAttackFramesフィールドを流用) - 斜め下(約-55度)。
-        WriteSequence("GunslingerDownAttack_v1", 2, i =>
+        WriteSequence("GunslingerDownAttack_v1", 1, i =>
         {
             float t = i / 1f;
             return new Pose { armAngle = -58f, lean = 12f, crouch = 0f, legPhase = -0.1f, flash = t < 0.6f };
