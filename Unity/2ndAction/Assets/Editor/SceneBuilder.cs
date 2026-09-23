@@ -1720,10 +1720,28 @@ public static class SceneBuilder
 
         // 左: キャラクター一覧 - CharacterDatabase.AllCharactersの件数ぶん
         // 動的に生成(将来キャラクターが増えてもここは変更不要)。
+        // レイアウト修正(2026-09-23、4人目二丁拳銃士追加時に発覚) - 元の
+        // 固定cardWidth/cardSpacingは3人ぶん(右端x=734)がちょうど中央の
+        // MainVisual(x=740から開始)の手前に収まるようピッタリ調整された
+        // 値だった。4人目を追加してもこの2定数を変えていなかったため、
+        // 4枚目のカード(x=758〜968)が丸ごとMainVisualへ重なって表示され
+        // ていた。カード数が3以下の間は従来と完全に同じ見た目のまま、
+        // 4人以上になったら3人ぶんと同じ右端(x=734)に収まるようカード幅/
+        // 間隔を均等に縮小する(5人目以降を追加してもこの計算式のままで
+        // 自動的に詰めて収まる)。
         var allCharacters = CharacterDatabase.AllCharacters;
-        const float cardWidth = 210f;
-        const float cardHeight = cardWidth * 1.85f; // 参考画像のカード比率に近い縦長
-        const float cardSpacing = 24f;
+        const float baseCardWidth = 210f;
+        const float baseCardSpacing = 24f;
+        // 3人ぶんの元の右端(56 + 3*210 + 2*24 = 734) - MainVisual開始位置
+        // (x=740)の手前に収まる、これまで実機確認済みの安全な合計幅。
+        const float cardsRowAvailableWidth = 3f * baseCardWidth + 2f * baseCardSpacing;
+        int characterCount = Mathf.Max(1, allCharacters.Count);
+        float cardRowShrink = characterCount <= 3
+            ? 1f
+            : cardsRowAvailableWidth / (characterCount * baseCardWidth + (characterCount - 1) * baseCardSpacing);
+        float cardWidth = baseCardWidth * cardRowShrink;
+        float cardHeight = cardWidth * 1.85f; // 参考画像のカード比率に近い縦長
+        float cardSpacing = baseCardSpacing * cardRowShrink;
 
         var cardSlotRects = new RectTransform[allCharacters.Count];
         var cardGlowImages = new Image[allCharacters.Count];
