@@ -756,6 +756,13 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+#if UNITY_EDITOR
+        // RUN開始/終了演出 動画撮影用の一時デバッグキー(2026-09-23) -
+        // マスターの動画確認が終わったら残すか削除するか相談する。
+        if (Input.GetKeyDown(KeyCode.Comma) && GameManager.Instance != null) GameManager.Instance.DebugWarpToDistance(500f);
+        if (Input.GetKeyDown(KeyCode.Period) && GameManager.Instance != null) GameManager.Instance.DebugWarpToDistance(60000f);
+        if (Input.GetKeyDown(KeyCode.Slash) && !isAscending) StartCoroutine(DoFinishSequence());
+#endif
         bool hasStarted = GameManager.Instance == null || GameManager.Instance.HasStarted;
         // Stage01地形挙動修整(2026-09-17), item4 - Run開始カウントダウン中
         // (GameManager.CountdownActive)は、HasStartedが既にtrueでも
