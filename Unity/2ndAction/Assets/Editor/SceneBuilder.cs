@@ -626,6 +626,26 @@ public static class SceneBuilder
             LoadWildArt(WildBossKind.Demon, "demon"),
             LoadWildArt(WildBossKind.BlackKnight, "knight"),
         };
+
+        // 自然洞窟ボス本番素材化(2026-09-23) - wildArtと全く同じ考え方。画像は
+        // Assets/Art/CaveBoss/<name>_<pose>.png(ChatGPT生成)。無いkind/姿勢は
+        // 従来どおりnull(BossManager.SpecForCave側でCaveBodySilhouetteの
+        // 手続き的プレースホルダーへフォールバック)。
+        boss.caveArt = new[]
+        {
+            LoadCaveArt(CaveBossKind.Centipede, "centipede"),
+            LoadCaveArt(CaveBossKind.Scorpion, "scorpion"),
+            LoadCaveArt(CaveBossKind.Mole, "mole"),
+            LoadCaveArt(CaveBossKind.Troll, "troll"),
+            LoadCaveArt(CaveBossKind.Worm, "wormboss"),
+            LoadCaveArt(CaveBossKind.CrystalGolem, "crystalgolem"),
+            LoadCaveArt(CaveBossKind.Bat, "batboss"),
+            LoadCaveArt(CaveBossKind.ScorpionKing, "scorpionking"),
+            LoadCaveArt(CaveBossKind.Basilisk, "basilisk"),
+            LoadCaveArt(CaveBossKind.Drake, "drake"),
+            LoadCaveArt(CaveBossKind.AncientDemon, "ancientdemon"),
+        };
+
         // 100,000m 死神(従来仕様=追跡はせず出現のみ、を維持したまま素材を設定)
         Sprite reaperSprite = LoadWildSprite("reaper", "idle", 1.4f);
         if (reaperSprite != null)
@@ -4476,6 +4496,29 @@ public static class SceneBuilder
             }
         }
         return ConfigureAndLoadSpriteWithFootPivot(path, ppu);
+    }
+
+    // 自然洞窟ボス本番素材化(2026-09-23) - LoadWildArt/LoadWildSpriteと全く
+    // 同じ考え方(WildBossBase.bodyHeightからの逆算でPPUは任意=idle/windup
+    // だけあれば良い、moveは省略可)。画像はAssets/Art/CaveBoss/<name>_
+    // <pose>.png(ChatGPT生成、既存のbossart.ps1で連結成分抽出済み)。
+    static BossManager.CaveBossArt LoadCaveArt(CaveBossKind kind, string name)
+    {
+        return new BossManager.CaveBossArt
+        {
+            kind = kind,
+            idle = LoadCaveSprite(name, "idle"),
+            windup = LoadCaveSprite(name, "windup"),
+            move = LoadCaveSprite(name, "move"),
+            attack = LoadCaveSprite(name, "attack"),
+        };
+    }
+
+    static Sprite LoadCaveSprite(string name, string pose)
+    {
+        string path = "Assets/Art/CaveBoss/" + name + "_" + pose + ".png";
+        if (!File.Exists(path)) return null;
+        return ConfigureAndLoadSpriteWithFootPivot(path, 100f);
     }
 
     static Sprite ConfigureAndLoadSpriteWithFootPivot(string path, float pixelsPerUnit)
