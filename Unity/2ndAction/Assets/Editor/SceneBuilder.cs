@@ -1761,28 +1761,46 @@ public static class SceneBuilder
 
         // 左: キャラクター一覧 - CharacterDatabase.AllCharactersの件数ぶん
         // 動的に生成(将来キャラクターが増えてもここは変更不要)。
-        // レイアウト修正(2026-09-23、4人目二丁拳銃士追加時に発覚) - 元の
-        // 固定cardWidth/cardSpacingは3人ぶん(右端x=734)がちょうど中央の
-        // MainVisual(x=740から開始)の手前に収まるようピッタリ調整された
-        // 値だった。4人目を追加してもこの2定数を変えていなかったため、
-        // 4枚目のカード(x=758〜968)が丸ごとMainVisualへ重なって表示され
-        // ていた。カード数が3以下の間は従来と完全に同じ見た目のまま、
-        // 4人以上になったら3人ぶんと同じ右端(x=734)に収まるようカード幅/
-        // 間隔を均等に縮小する(5人目以降を追加してもこの計算式のままで
-        // 自動的に詰めて収まる)。
+        // カルーセル化(2026-09-24) - 旧実装は4人目二丁拳銃士追加時に発覚
+        // した「カードを均等に縮めて詰め込む」場当たり対応(3人ぶんの幅
+        // 734pxへカード幅ごと圧縮)のままで、5人目以降を見据えていない
+        // とマスターから指摘された。カード幅/間隔を固定のまま、DeckEditUI
+        // (Assets/Scripts/DeckEditUI.cs)と同じ「ScrollRect+RectMask2Dを
+        // 状態コンテナとして使い、実際のドラッグ処理はCharacterSelectUI側
+        // で自前に行う」既存パターンを横方向へ流用する。旧実装が占めていた
+        // 領域(x=56、幅734px、MainVisual開始位置x=740の手前)をそのまま
+        // Viewportの外形として再利用するため、他のレイアウトへの影響なし。
         var allCharacters = CharacterDatabase.AllCharacters;
-        const float baseCardWidth = 210f;
-        const float baseCardSpacing = 24f;
-        // 3人ぶんの元の右端(56 + 3*210 + 2*24 = 734) - MainVisual開始位置
-        // (x=740)の手前に収まる、これまで実機確認済みの安全な合計幅。
-        const float cardsRowAvailableWidth = 3f * baseCardWidth + 2f * baseCardSpacing;
+        const float cardWidth = 210f;
+        const float cardHeight = cardWidth * 1.85f; // 参考画像のカード比率に近い縦長
+        const float cardSpacing = 24f;
+        const float carouselViewportWidth = 3f * cardWidth + 2f * cardSpacing; // = 734px、旧実装と同じ安全な幅
         int characterCount = Mathf.Max(1, allCharacters.Count);
-        float cardRowShrink = characterCount <= 3
-            ? 1f
-            : cardsRowAvailableWidth / (characterCount * baseCardWidth + (characterCount - 1) * baseCardSpacing);
-        float cardWidth = baseCardWidth * cardRowShrink;
-        float cardHeight = cardWidth * 1.85f; // 参考画像のカード比率に近い縦長
-        float cardSpacing = baseCardSpacing * cardRowShrink;
+        float contentWidth = characterCount * cardWidth + (characterCount - 1) * cardSpacing;
+
+        GameObject carouselGO = new GameObject("CharacterCarousel");
+        carouselGO.transform.SetParent(rootGO.transform, false);
+        RectTransform carouselRect = carouselGO.AddComponent<RectTransform>();
+        carouselRect.anchorMin = carouselRect.anchorMax = new Vector2(0f, 0.5f);
+        carouselRect.pivot = new Vector2(0f, 0.5f);
+        carouselRect.sizeDelta = new Vector2(carouselViewportWidth, cardHeight + 40f); // 選択中カードの拡大ぶんの余白を縦に確保
+        carouselRect.anchoredPosition = new Vector2(56f, 60f);
+        ScrollRect carouselScroll = carouselGO.AddComponent<ScrollRect>();
+        carouselScroll.horizontal = true;
+        carouselScroll.vertical = false;
+        carouselScroll.movementType = ScrollRect.MovementType.Clamped;
+        carouselGO.AddComponent<RectMask2D>();
+
+        GameObject carouselContentGO = new GameObject("Content");
+        carouselContentGO.transform.SetParent(carouselGO.transform, false);
+        RectTransform carouselContentRect = carouselContentGO.AddComponent<RectTransform>();
+        carouselContentRect.anchorMin = new Vector2(0f, 0.5f);
+        carouselContentRect.anchorMax = new Vector2(0f, 0.5f);
+        carouselContentRect.pivot = new Vector2(0f, 0.5f);
+        carouselContentRect.sizeDelta = new Vector2(contentWidth, cardHeight + 40f);
+        carouselContentRect.anchoredPosition = Vector2.zero;
+        carouselScroll.content = carouselContentRect;
+        carouselScroll.viewport = carouselRect;
 
         var cardSlotRects = new RectTransform[allCharacters.Count];
         var cardGlowImages = new Image[allCharacters.Count];
@@ -1792,18 +1810,19 @@ public static class SceneBuilder
             CharacterDefinition def = allCharacters[i];
 
             GameObject slotGO = new GameObject("CharacterSlot_" + def.characterId);
-            slotGO.transform.SetParent(rootGO.transform, false);
+            slotGO.transform.SetParent(carouselContentGO.transform, false);
             RectTransform slotRect = slotGO.AddComponent<RectTransform>();
             slotRect.anchorMin = slotRect.anchorMax = new Vector2(0f, 0.5f);
             slotRect.pivot = new Vector2(0f, 0.5f);
             slotRect.sizeDelta = new Vector2(cardWidth, cardHeight);
-            slotRect.anchoredPosition = new Vector2(56f + i * (cardWidth + cardSpacing), 60f);
+            slotRect.anchoredPosition = new Vector2(i * (cardWidth + cardSpacing), 0f);
 
             // 選択中の縁の発光 - 金枠+シアン寄りの淡い外周(マスター指示の
             // 「金枠・シアン発光・Selection marker」)。ポートレート画像
-            // より一回り大きい丸角パネルとして背後に重ね、選択中のスロット
-            // だけSetActive(true)にする(EquippedBadgeと同じ「表示状態だけ
-            // 切り替える」パターン)。
+            // より一回り大きい丸角パネルとして背後に重ねる。カルーセル化に
+            // 伴い、中心からの距離に応じてCharacterSelectUIが毎フレーム
+            // アルファ値を連続的に更新する方式へ変更(常時SetActive(true)、
+            // 以前のバイナリSetActiveは廃止)。
             GameObject glowGO = new GameObject("SelectionGlow");
             glowGO.transform.SetParent(slotGO.transform, false);
             RectTransform glowRect = glowGO.AddComponent<RectTransform>();
@@ -1814,9 +1833,8 @@ public static class SceneBuilder
             Image glowImage = glowGO.AddComponent<Image>();
             glowImage.sprite = RoundedPanelSprite();
             glowImage.type = Image.Type.Sliced;
-            glowImage.color = new Color(1f, 0.85f, 0.4f, 0.95f);
+            glowImage.color = new Color(1f, 0.85f, 0.4f, 0f);
             glowImage.raycastTarget = false;
-            glowGO.SetActive(false);
 
             GameObject portraitGO = new GameObject("Portrait");
             portraitGO.transform.SetParent(slotGO.transform, false);
@@ -1838,6 +1856,11 @@ public static class SceneBuilder
         }
         ui.cardSlotRects = cardSlotRects;
         ui.cardGlowImages = cardGlowImages;
+        ui.carouselScroll = carouselScroll;
+        ui.carouselContent = carouselContentRect;
+        ui.carouselViewportWidth = carouselViewportWidth;
+        ui.cardStride = cardWidth + cardSpacing;
+        ui.cardWidth = cardWidth;
 
         // 中央: 選択中キャラクターの大きなビジュアル。
         GameObject mainVisualGO = new GameObject("MainVisual");

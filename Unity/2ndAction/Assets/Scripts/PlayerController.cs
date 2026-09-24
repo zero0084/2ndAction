@@ -1570,7 +1570,18 @@ public class PlayerController : MonoBehaviour
         if (GameManager.Instance != null)
         {
             GameManager.Instance.SetPresentationDamageLock(false);
-            GameManager.Instance.Win();
+            // Finish→Result間の間(ま)追加(2026-09-24) - 以前は余韻の直後に
+            // Win()を同期的に呼ぶだけで、Result画面が無演出のまま瞬間的に
+            // 切り替わっていた(マスター報告「Result遷移が不自然」の原因)。
+            // 既存のScreenTransitionManager(TOP↔GAME等の画面遷移で実績
+            // あり、画面を覆う→コールバック→開く、合計約0.58秒)を再利用し、
+            // 画面が完全に覆われた瞬間にWin()を呼ぶことで、テンポを壊さない
+            // 程度の短い暗転を挟む。CharacterSelectUI.Close()と同じ、nullなら
+            // 直接Win()を呼ぶ防御パターン。
+            if (ScreenTransitionManager.Instance != null)
+                ScreenTransitionManager.Instance.PlayTransition(() => GameManager.Instance.Win());
+            else
+                GameManager.Instance.Win();
         }
     }
 

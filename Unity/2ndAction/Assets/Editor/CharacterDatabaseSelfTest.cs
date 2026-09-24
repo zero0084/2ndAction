@@ -14,11 +14,15 @@ public static class CharacterDatabaseSelfTest
         CharacterDatabase.Reset();
         var all = CharacterDatabase.AllCharacters;
 
-        bool countOk = all.Count == 3;
+        // 4人目の拳銃士追加(2026-09-23)に伴い3→4へ更新(このテスト自体は
+        // 2026-09-12時点のまま放置されており、拳銃士追加後もcount==3の
+        // ハードコードのままFAILし続けていた - 発見のたび更新すること)。
+        bool countOk = all.Count == 4;
         bool orderOk = countOk
             && all[0].characterId == "swordsman"
             && all[1].characterId == "dual_blade"
-            && all[2].characterId == "noble_lady";
+            && all[2].characterId == "noble_lady"
+            && all[3].characterId == "gunslinger";
 
         CharacterDefinition swordsman = CharacterDatabase.FindById("swordsman");
         bool findByIdOk = swordsman != null && swordsman.portrait != null && swordsman.mainVisual != null;
@@ -44,7 +48,7 @@ public static class CharacterDatabaseSelfTest
 
         if (!pass)
         {
-            Debug.LogError("[CharacterDatabaseSelfTest] FAIL - CharacterDatabase did not load the expected 3 " +
+            Debug.LogError("[CharacterDatabaseSelfTest] FAIL - CharacterDatabase did not load the expected 4 " +
                             "characters in the expected order with the expected portrait/challengeFlag data. " +
                             "Run Tools/OneMoreMile/Build Character Database (or SceneBuilder.Build) first if the " +
                             "Resources/Characters assets don't exist yet.");

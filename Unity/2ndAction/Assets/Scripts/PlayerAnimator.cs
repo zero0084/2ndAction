@@ -91,9 +91,23 @@ public class PlayerAnimator : MonoBehaviour
     // カウントダウン実時間(3・2・1=0.8秒×3=2.4秒)に合わせた既定値 - 準備
     // ポーズがGO!までに自然に「走り出す構え」へ到達するよう調整する。
     public float startPrepPoseDuration = 2.2f;
+    // Start/Finish自然化(2026-09-24) - 実イラスト(各State2コマ)表示中の
+    // 2段階ホールドの配分。進行度pがこの値未満はコマ0(準備中)を保持し、
+    // 以降はコマ1(構え/結果)へ切り替える。Startは「カウントダウン終盤で
+    // まもなくGOという予兆」、Finishは「Tierの余韻の大半はまだ息を整えて
+    // いる最中、終盤で結果の姿勢に落ち着く」という狙いの数値(Update()参照)。
+    public float startFrame0HoldFraction = 0.75f;
+    public float finishFrame0HoldFraction = 0.6f;
+    // StartPrep/Finishを抜ける瞬間、基準Transformへ瞬時にリセットせず
+    // 短時間でLerpする(ApplyStartFinishPose参照)。
+    public float poseExitDuration = 0.15f;
     Sprite[] defaultStartFrames, defaultFinishShortFrames, defaultFinishMediumFrames, defaultFinishLongFrames, defaultFinishExtremeFrames;
     float startPrepElapsed;
     bool startFinishPoseApplied;
+    float poseExitElapsed = -1f; // -1 = 抜けるアニメーション中でない
+    Vector3 poseExitFromPos;
+    Quaternion poseExitFromRot;
+    Vector3 poseExitFromScale;
 
     enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack, DownAttackLand, UpShot, Hurt, Recovery, StartPrep, Finish }
 
@@ -373,25 +387,58 @@ public class PlayerAnimator : MonoBehaviour
         reactionPoseApplied = true;
     }
 
-    // RUN開始準備/正常終了演出(2026-09-23) - ApplyReactionPoseと同じ手法
-    // (Visualの子Transformへ進行度に応じた回転/位置/縦つぶれを乗せる)を
-    // StartPrep/Finishにも適用する、専用絵が無い間の代用。StartPrepは
-    // 徐々に前傾して「走り出す構え」へ、Finishは距離Tierが長いほど深く
-    // 沈み込む(キャラ別finishTierCrouchDepthで強度調整可)。
+    // RUN開始準備/正常終了演出(2026-09-23、2026-09-24自然化改修) -
+    // ApplyReactionPoseと同じ手法(Visualの子Transformへ進行度に応じた
+    // 回転/位置/縦つぶれを乗せる)を使うが、これは専用絵(startFrames/
+    // finishXxxFrames)が無い間だけの代用に限定する。実イラスト表示中は
+    // そのポーズ絵自体が進行度を運んでいるため、この手続き的な傾き/つぶれ
+    // を重ねて適用しない(以前はここが無条件に効いており、今回追加した
+    // 実イラストの上から余計な回転/スケール変形が二重に掛かっていた -
+    // マスター報告の「見た目がうまく機能していない」の主因だった)。
     void ApplyStartFinishPose()
     {
         if (visualT == null) return;
         bool starting = state == State.StartPrep, finishing = state == State.Finish;
+
         if (!starting && !finishing)
         {
             if (startFinishPoseApplied)
             {
-                visualT.localPosition = visualBasePos; visualT.localRotation = visualBaseRot; visualT.localScale = visualBaseScale;
+                // 瞬時リセットではなく短時間でLerpして基準Transformへ戻す
+                // (抜け際の"ポン"を和らげる、2026-09-24追加)。
+                poseExitFromPos = visualT.localPosition;
+                poseExitFromRot = visualT.localRotation;
+                poseExitFromScale = visualT.localScale;
+                poseExitElapsed = 0f;
                 startFinishPoseApplied = false;
+            }
+            if (poseExitElapsed >= 0f)
+            {
+                poseExitElapsed += Time.deltaTime;
+                float et = Mathf.Clamp01(poseExitElapsed / Mathf.Max(0.01f, poseExitDuration));
+                visualT.localPosition = Vector3.Lerp(poseExitFromPos, visualBasePos, et);
+                visualT.localRotation = Quaternion.Slerp(poseExitFromRot, visualBaseRot, et);
+                visualT.localScale = Vector3.Lerp(poseExitFromScale, visualBaseScale, et);
+                if (et >= 1f) poseExitElapsed = -1f;
             }
             return;
         }
+
+        // startPrepElapsedはUpdate()の2段階コマホールド計算が参照するため、
+        // 実イラスト表示中かどうかに関わらず必ず進める。
         startPrepElapsed += Time.deltaTime;
+
+        bool usingRealArt = starting
+            ? HasFrames(startFrames)
+            : HasFrames(GetFinishFrames(controller != null ? controller.FinishTierIndex : 0));
+        if (usingRealArt)
+        {
+            // Visualは基準Transformのまま(何も変形しない) - ポーズの
+            // 進行はコマ0→コマ1の切り替わり(Update()側)だけで表現する。
+            startFinishPoseApplied = false;
+            return;
+        }
+
         float p = starting
             ? Mathf.Clamp01(startPrepElapsed / Mathf.Max(0.01f, startPrepPoseDuration))
             : (controller != null ? controller.FinishProgress : 1f);
@@ -489,51 +536,76 @@ public class PlayerAnimator : MonoBehaviour
         ApplyStartFinishPose();
         if (frames == null || frames.Length == 0) return;
 
-        float fps = state switch
+        // Start/Finish自然化(2026-09-24) - 実イラスト表示中は「fps任せの
+        // 一瞬切り替え+長い静止」ではなく、進行度pに応じた明示的な2段階
+        // ホールド(コマ0=準備中/コマ1=構え・結果)へ切り替える。Startは
+        // カウントダウン終盤でコマ1へ切り替わるため「まもなくGO」という
+        // 予兆になり、FinishはTierが長いほどhold自体が長い
+        // (PlayerController.finishHoldDurationByTier)ため、コマ0を見せる
+        // 時間もTierに応じて自動的に伸びる(=Tier差の手がかりになる)。
+        // 専用絵が無い間のフォールバック(FallbackSingleFrame、常に1枚)は
+        // このぶんを通らず、従来どおり下のfps任せパスを通る(1枚しか無い
+        // ため実質何も変わらない)。
+        if (state == State.StartPrep && HasFrames(startFrames))
         {
-            State.Attack => GetAttackFps(attackStage),
-            State.Jump => jumpFps,
-            State.JumpStart => jumpStartFps,
-            State.DoubleJump => doubleJumpFps,
-            State.Landing => landFps,
-            State.DownAttack => downAttackFps,
-            State.UpShot => upShotFps,
-            State.Hurt => hurtFps,
-            State.Recovery => recoveryFps,
-            State.StartPrep => startFps,
-            State.Finish => finishFps,
-            // 1フレームだけの絵をdownAttackLandDuration秒キープするだけな
-            // ので、fps自体は「Duration中に次のフレームへ進まない」程度に
-            // 低ければ何でもよい(frames.Length==1なら実質参照されない)。
-            State.DownAttackLand => Mathf.Max(1f, downAttackLandFrames != null ? downAttackLandFrames.Length / Mathf.Max(0.01f, downAttackLandDuration) : 1f),
-            _ => runFps
-        };
-
-        frameTimer += dt;
-        if (frameTimer >= 1f / fps)
-        {
-            frameTimer = 0f;
-            frameIndex++;
+            float p = Mathf.Clamp01(startPrepElapsed / Mathf.Max(0.01f, startPrepPoseDuration));
+            frameIndex = p < startFrame0HoldFraction ? 0 : Mathf.Min(1, frames.Length - 1);
+            sr.sprite = frames[frameIndex];
         }
-        // 不具合修正(2026-09-13深夜) - 実機のDevelopment Console上で
-        // 「IndexOutOfRangeException: Index was outside the bounds of the
-        // array.」が走行開始直後から繰り返し出ていた根本原因。従来はこの
-        // クランプ処理がframeTimerが閾値を超えた「進むタイミング」の中に
-        // しかなく、frames[frameIndex]自体は毎フレーム無条件に実行されて
-        // いた。ApplyCharacterAnimationSetでキャラを切り替えた際、state
-        // (Run/Jump等)自体は変化しないままrunFrames等の配列だけがより短い
-        // ものに差し替わるケース(例: 6コマの配列を使っていた直後に2コマの
-        // 配列へ切り替わる)で、frameIndexが古い(長い)配列基準の値のまま
-        // 残ってしまい、次に「進むタイミング」が来るまでの間、毎フレーム
-        // frames[frameIndex]が新しい(短い)配列の範囲外を指して例外を投げて
-        // いた。クランプをif文の外(毎フレーム必ず実行)へ移動し、フレーム
-        // が進んだかどうかに関係なく常にその時点のframes.Lengthへ合わせて
-        // 補正するよう修正。
-        frameIndex = state == State.Run
-            ? frameIndex % frames.Length // loop while running
-            : Mathf.Min(frameIndex, frames.Length - 1); // hold last frame otherwise
+        else if (state == State.Finish && HasFrames(GetFinishFrames(controller != null ? controller.FinishTierIndex : 0)))
+        {
+            float p = controller != null ? controller.FinishProgress : 1f;
+            frameIndex = p < finishFrame0HoldFraction ? 0 : Mathf.Min(1, frames.Length - 1);
+            sr.sprite = frames[frameIndex];
+        }
+        else
+        {
+            float fps = state switch
+            {
+                State.Attack => GetAttackFps(attackStage),
+                State.Jump => jumpFps,
+                State.JumpStart => jumpStartFps,
+                State.DoubleJump => doubleJumpFps,
+                State.Landing => landFps,
+                State.DownAttack => downAttackFps,
+                State.UpShot => upShotFps,
+                State.Hurt => hurtFps,
+                State.Recovery => recoveryFps,
+                State.StartPrep => startFps,
+                State.Finish => finishFps,
+                // 1フレームだけの絵をdownAttackLandDuration秒キープするだけな
+                // ので、fps自体は「Duration中に次のフレームへ進まない」程度に
+                // 低ければ何でもよい(frames.Length==1なら実質参照されない)。
+                State.DownAttackLand => Mathf.Max(1f, downAttackLandFrames != null ? downAttackLandFrames.Length / Mathf.Max(0.01f, downAttackLandDuration) : 1f),
+                _ => runFps
+            };
 
-        sr.sprite = frames[frameIndex];
+            frameTimer += dt;
+            if (frameTimer >= 1f / fps)
+            {
+                frameTimer = 0f;
+                frameIndex++;
+            }
+            // 不具合修正(2026-09-13深夜) - 実機のDevelopment Console上で
+            // 「IndexOutOfRangeException: Index was outside the bounds of the
+            // array.」が走行開始直後から繰り返し出ていた根本原因。従来はこの
+            // クランプ処理がframeTimerが閾値を超えた「進むタイミング」の中に
+            // しかなく、frames[frameIndex]自体は毎フレーム無条件に実行されて
+            // いた。ApplyCharacterAnimationSetでキャラを切り替えた際、state
+            // (Run/Jump等)自体は変化しないままrunFrames等の配列だけがより短い
+            // ものに差し替わるケース(例: 6コマの配列を使っていた直後に2コマの
+            // 配列へ切り替わる)で、frameIndexが古い(長い)配列基準の値のまま
+            // 残ってしまい、次に「進むタイミング」が来るまでの間、毎フレーム
+            // frames[frameIndex]が新しい(短い)配列の範囲外を指して例外を投げて
+            // いた。クランプをif文の外(毎フレーム必ず実行)へ移動し、フレーム
+            // が進んだかどうかに関係なく常にその時点のframes.Lengthへ合わせて
+            // 補正するよう修正。
+            frameIndex = state == State.Run
+                ? frameIndex % frames.Length // loop while running
+                : Mathf.Min(frameIndex, frames.Length - 1); // hold last frame otherwise
+
+            sr.sprite = frames[frameIndex];
+        }
 
         if (brightenOverlay != null)
         {

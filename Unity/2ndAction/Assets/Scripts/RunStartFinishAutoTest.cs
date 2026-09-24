@@ -78,10 +78,37 @@ public class RunStartFinishAutoTest : MonoBehaviour
         L($"[Setup] HasStarted={gm.HasStarted} CountdownActive={gm.CountdownActive} character={gm.SelectedCharacterId}");
         L($"[StartPrep] IsPreparingStart={pc.IsPreparingStart} (expect True, while CountdownActive)");
 
+        // Start/Finish自然化(2026-09-24)の回帰確認用ハンドル。visualT/
+        // visualBaseRotはPlayerAnimatorのprivateフィールド、SpriteRendererは
+        // 公開APIのGetComponentInChildrenでそのまま取れる。
+        PlayerAnimator anim = pc.GetComponent<PlayerAnimator>();
+        FieldInfo visualTField = F(typeof(PlayerAnimator), "visualT");
+        FieldInfo visualBaseRotField = F(typeof(PlayerAnimator), "visualBaseRot");
+        SpriteRenderer visualSr = pc.GetComponentInChildren<SpriteRenderer>();
+        float countdownStart = Time.unscaledTime;
+
         float xAtCountdownStart = pc.transform.position.x;
         yield return new WaitForSecondsRealtime(0.5f);
         float xMidCountdown = pc.transform.position.x;
         L($"[StartPrep] x unchanged mid-countdown: {Mathf.Approximately(xAtCountdownStart, xMidCountdown)} (expect True - auto-run withheld)");
+
+        // 二重変形バグの回帰確認(2026-09-24) - 実Start絵表示中はVisualの
+        // 回転が基準Transformのまま(手続き的な傾きが乗っていない)である
+        // ことを確認する。ApplyStartFinishPoseの実イラスト判定分岐の
+        // 直接的なガード。
+        Transform visualT = (Transform)visualTField.GetValue(anim);
+        Quaternion visualBaseRot = (Quaternion)visualBaseRotField.GetValue(anim);
+        bool noDoubleTransform = visualT != null && Quaternion.Angle(visualT.localRotation, visualBaseRot) < 0.01f;
+        L($"[StartPrep] no double-transform on real Start art (visualT.localRotation==base): {noDoubleTransform} (expect True)");
+
+        // 2段階コマホールドの直接検証(2026-09-24) - カウントダウン総3.0秒
+        // (0.8秒×3+0.6秒)に対し、25%時点(0.75秒)はコマ0、90%時点(2.7秒)
+        // ではコマ1へ切り替わっていることを確認する。
+        while (Time.unscaledTime - countdownStart < 0.75f) yield return null;
+        Sprite spriteEarly = visualSr != null ? visualSr.sprite : null;
+        while (Time.unscaledTime - countdownStart < 2.7f && gm.CountdownActive) yield return null;
+        Sprite spriteLate = visualSr != null ? visualSr.sprite : null;
+        L($"[StartPrep] frame differs between 25%/90% of countdown: {spriteEarly != spriteLate} (expect True - held frame0 then switched to frame1)");
 
         float t1 = Time.time;
         while (gm.CountdownActive && Time.time - t1 < 8f) yield return null;
@@ -115,6 +142,10 @@ public class RunStartFinishAutoTest : MonoBehaviour
         const float testDistance = 25000f; // Tier2 (Long)
         gm.DebugWarpToDistance(testDistance);
 
+        PlayerAnimator anim = pc.GetComponent<PlayerAnimator>();
+        FieldInfo visualTField = F(typeof(PlayerAnimator), "visualT");
+        FieldInfo visualBaseScaleField = F(typeof(PlayerAnimator), "visualBaseScale");
+
         MethodInfo doFinish = M(typeof(PlayerController), "DoFinishSequence");
         pc.StartCoroutine((IEnumerator)doFinish.Invoke(pc, null));
         yield return null;
@@ -127,9 +158,43 @@ public class RunStartFinishAutoTest : MonoBehaviour
         yield return null;
         L($"[Finish] TakeDamage during Finish has no effect: livesBefore={livesBefore} livesAfter={gm.Lives} (expect equal)");
 
+        // 二重変形バグの回帰確認、Finish側(2026-09-24) - 実Finish絵表示中は
+        // Visualのスケールが基準Transformのまま(手続き的な縦つぶれが乗って
+        // いない)ことを確認する。
+        Transform visualT = (Transform)visualTField.GetValue(anim);
+        Vector3 visualBaseScale = (Vector3)visualBaseScaleField.GetValue(anim);
+        bool noDoubleTransformFinish = visualT != null && Vector3.Distance(visualT.localScale, visualBaseScale) < 0.001f;
+        L($"[Finish] no double-transform on real Finish art (visualT.localScale==base): {noDoubleTransformFinish} (expect True)");
+
+        // Finish→Result間の間(ま)の直接検証(2026-09-24) - 余韻(hold)が
+        // 終わりPresentationDamageLockが解除された瞬間から、実際に
+        // IsGameOverがtrueになるまでの間にScreenTransitionManagerのclose
+        // 分(約0.25秒)以上のギャップがあること、その間IsTransitioning==
+        // trueであることを確認する(Win()が画面遷移経由で呼ばれている
+        // ことの直接的な証拠)。
+        float tLock = 0f;
+        while (tLock < 5f && gm.PresentationDamageLock) { yield return null; tLock += Time.deltaTime; }
+        float finishSequenceCompleteTime = Time.unscaledTime;
+
+        // IsTransitioningは短時間(合計約0.58秒)しかtrueのままでないため、
+        // フラグが立った瞬間をたまたま外すと1回のサンプリングだけでは
+        // 見逃しうる。IsGameOverになるまでの間、毎フレームチェックして
+        // 「一度でもtrueだった」ことを記録する方式にする(PresentationDamageLock
+        // が外れてからIsGameOverになるまでの間、実際に画面遷移が進行して
+        // いたことの直接的な証拠)。
+        bool transitionManagerNull = ScreenTransitionManager.Instance == null;
+        bool sawTransitioning = !transitionManagerNull && ScreenTransitionManager.Instance.IsTransitioning;
+
         float t = 0f;
-        while (t < 5f && !gm.IsGameOver) { yield return null; t += Time.deltaTime; }
+        while (t < 5f && !gm.IsGameOver)
+        {
+            if (!transitionManagerNull && ScreenTransitionManager.Instance.IsTransitioning) sawTransitioning = true;
+            yield return null;
+            t += Time.deltaTime;
+        }
+        float resultGap = Time.unscaledTime - finishSequenceCompleteTime;
         L($"[Finish] after hold: IsGameOver={gm.IsGameOver} IsWin={gm.IsWin} PresentationDamageLock={gm.PresentationDamageLock} elapsed={t:F2}s (expect True,True,False)");
+        L($"[Finish] Result transition gap={resultGap:F2}s (expect >=0.2s) sawTransitioning={sawTransitioning} (expect True)");
     }
 }
 

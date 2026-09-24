@@ -37,18 +37,19 @@ public static class GunslingerArtGenerator
         // ポートレート(Character Select用) - 直立、両手の銃を胸の前で構える。
         WriteIfMissing($"{PortraitFolder}/gunslinger_portrait.png", W, H, new Pose { armAngle = 20f, lean = 0f, crouch = 0f, legPhase = 0f, flash = false });
 
-        // 本番素材差し替え(2026-09-23、ChatGPT生成) - Run/Attack/UpShot/
+        // 本番素材差し替え(2026-09-23、ChatGPT生成) - Attack/UpShot/
         // DownAttackは実イラスト2枚(idle/windup等)に差し替え済みのため、
         // コマ数をそれに合わせて縮小した(手続き的プレースホルダーが
         // 削除済みの旧コマindexを勝手に埋め直さないようにするため - この
         // Generateメソッド自体はWriteIfMissing/WriteSequence内部で「既存
         // ファイルはスキップ」するので、実イラストが既にある限り上書き
         // されることはない)。
-        WriteSequence("GunslingerRun_v1", 2, i =>
-        {
-            float t = i / 4f;
-            return new Pose { armAngle = -6f + Mathf.Sin(t * Mathf.PI * 2f) * 10f, lean = 4f, crouch = 0f, legPhase = t, flash = false };
-        });
+        // Run6コマ拡張(2026-09-24) - GunslingerRun_v1は`gunslingerrun_0/1.png`
+        // から`run_00〜run_05.png`(他キャラと同じ命名)へ実イラスト6コマに
+        // 全面差し替えたため、このWriteSequence呼び出し自体を削除した
+        // (残したままだと、旧ファイル名`gunslingerrun_0/1.png`が「存在
+        // しない」と判定され、SceneBuilder.Build()を再実行するたびに小さな
+        // プレースホルダーPNGがフォルダへ紛れ込み続けてしまっていた)。
         WriteSequence("GunslingerJumpStart_v1", 1, i => new Pose { armAngle = -20f, lean = -4f, crouch = 0.5f, legPhase = 0.25f, flash = false });
         WriteSequence("GunslingerJumpAir_v1", 1, i => new Pose { armAngle = -15f, lean = -6f, crouch = 0f, legPhase = 0.4f, flash = false });
         WriteSequence("GunslingerDoubleJump_v1", 1, i => new Pose { armAngle = -10f, lean = -8f, crouch = 0f, legPhase = 0.6f, flash = false });

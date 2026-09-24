@@ -440,9 +440,18 @@ public static class CharacterDatabaseBuilder
         // ので、双剣士/お嬢様騎士と同様フォルダごとに個別のPPUを設定して
         // いる - 実機で黒剣士と並べてサイズ差があれば要再調整(マスターへ
         // の開示事項)。
-        gunslinger.runFramesDir = "Assets/Art/GunslingerRun_v1"; // frame0(idle,679px)/frame1(windup,579px)
-        gunslinger.runFramesPpu = 601f; // 679/1.13
-        gunslinger.runFpsOverride = 6f;
+        // Run簡素化改修(2026-09-24) - 従来2コマ(idle/windup)のみで「ちゃん
+        // と走っている」感が出ないとの指摘を受け、中間ストライド4コマを
+        // 追加し計6コマへ拡張(run_00〜run_05、双剣士/お嬢様騎士と同規模)。
+        // 新規4コマは生成時のキャンバス倍率が既存2コマと異なっていたため、
+        // 実測コンテンツ高さを既存の範囲(579〜679px)に収まる630px基準へ
+        // 個別にリサイズしてから設置した(フォルダ全体で単一のPPUを使う
+        // ConfigureSpriteFolderImportWithSharedHeadPivotの性質上、フレーム
+        // ごとの実寸が大きく異なるとキャラクターのサイズがコマごとに
+        // ポップして見えるため)。fpsは双剣士(6コマ@7fps)に合わせ6→7fへ。
+        gunslinger.runFramesDir = "Assets/Art/GunslingerRun_v1";
+        gunslinger.runFramesPpu = 601f; // 679/1.13(既存run_00基準、新規4コマもこの基準へ合わせてリサイズ済み)
+        gunslinger.runFpsOverride = 7f;
         gunslinger.jumpStartFramesDir = "Assets/Art/GunslingerJumpStart_v1"; // windup(579px)を流用(実際にはUpShotが優先表示され、まず表示されない安全策)
         gunslinger.jumpStartFramesPpu = 512f; // 579/1.13
         gunslinger.jumpFramesDir = "Assets/Art/GunslingerJumpAir_v1"; // windup(579px)を流用 - UpShotの表示が終わった後の素の滞空ポーズ
