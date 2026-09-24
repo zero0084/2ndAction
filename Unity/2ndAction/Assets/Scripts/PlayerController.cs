@@ -611,11 +611,17 @@ public class PlayerController : MonoBehaviour
     bool isDiveAttacking;
     // 二丁拳銃士(2026-09-23) - isDiveAttackingとは完全に独立したDown Shot
     // 専用の状態(Move()のvelocityY上書き分岐/PlayerAnimatorの見た目State
-    // 判定の両方で参照)。hoverShotUsedThisAirtimeは「1回の滞空中に1回」
-    // 制限用で、着地の瞬間(jumpsUsed=0に戻る箇所)にのみfalseへ戻す。
+    // 判定の両方で参照)。hoverShotsUsedThisAirtimeは「1回の滞空中に
+    // maxHoverShotsPerAirtime回まで」制限用(2026-09-24、マスター指示で
+    // 二丁拳銃士のみ1回→3回へ拡張)で、着地の瞬間(jumpsUsed=0に戻る箇所)
+    // にのみ0へ戻す。次弾は前弾のホバー終了(EndHoverShotAfterDelay経由の
+    // isHoverShooting=false)を待ってから、という既存の間隔を維持したまま
+    // 回数だけ増やす方式(ホバー中の割り込み再発射は不可、hoverGenerationの
+    // 排他制御を変えずに済む)。
     bool isRangedCharacter;
     bool isHoverShooting;
-    bool hoverShotUsedThisAirtime;
+    int hoverShotsUsedThisAirtime;
+    const int maxHoverShotsPerAirtime = 3;
     int hoverGeneration;
     float rangedBulletSpeed = 15f;
     float rangedBulletLifetime = 1.6f;
@@ -1061,11 +1067,11 @@ public class PlayerController : MonoBehaviour
         {
             // 二丁拳銃士(2026-09-23) - 急降下(isDiveAttacking)ではなく、
             // 斜め下射撃+短時間のホバーへ分岐(isHoverShooting、DoRangedDownShot
-            // 参照)。「1回の滞空中に1回」制限はhoverShotUsedThisAirtime
-            // (着地の瞬間にのみリセット)で管理する。
+            // 参照)。「1回の滞空中にmaxHoverShotsPerAirtime回まで」制限は
+            // hoverShotsUsedThisAirtime(着地の瞬間にのみ0へリセット)で管理する。
             if (isRangedCharacter)
             {
-                if (!isHoverShooting && !hoverShotUsedThisAirtime) DoRangedDownShot();
+                if (!isHoverShooting && hoverShotsUsedThisAirtime < maxHoverShotsPerAirtime) DoRangedDownShot();
             }
             else if (!isDiveAttacking)
             {
@@ -1184,7 +1190,7 @@ public class PlayerController : MonoBehaviour
                 velocityY = 0f;
                 isGrounded = true;
                 jumpsUsed = 0;
-                hoverShotUsedThisAirtime = false; // 二丁拳銃士: Down Shotは着地で再使用可能に
+                hoverShotsUsedThisAirtime = 0; // 二丁拳銃士: Down Shotは着地で再使用可能に
                 // エリアルコンボ改修(2026-09-11) - 着地でAerial Assistの
                 // 累積使用量をリセット(次に空中へ出た時、また上限いっぱい
                 // まで使えるようにする)。
@@ -1211,7 +1217,7 @@ public class PlayerController : MonoBehaviour
                 velocityY = 0f;
                 isGrounded = true;
                 jumpsUsed = 0;
-                hoverShotUsedThisAirtime = false; // 二丁拳銃士: Down Shotは着地で再使用可能に
+                hoverShotsUsedThisAirtime = 0; // 二丁拳銃士: Down Shotは着地で再使用可能に
                 aerialAssistTimer = 0f;
                 aerialAssistTotalUsed = 0f;
                 onSky = false;
@@ -1447,7 +1453,7 @@ public class PlayerController : MonoBehaviour
         velocityY = 0f;
         isGrounded = true;
         jumpsUsed = 0;
-        hoverShotUsedThisAirtime = false; // 二丁拳銃士: Down Shotは着地(復帰)で再使用可能に
+        hoverShotsUsedThisAirtime = 0; // 二丁拳銃士: Down Shotは着地(復帰)で再使用可能に
         aerialAssistTimer = 0f;
         aerialAssistTotalUsed = 0f;
         lungeVelocityX = 0f;
@@ -2196,12 +2202,12 @@ public class PlayerController : MonoBehaviour
     // Move()側でisHoverShooting中だけvelocityYを直接上書きする方式
     // (既存のisDiveAttackingと全く同じパターン)。EndDiveAttack()が着地/
     // Hurt/Death/Respawnのいずれからも呼ばれるため、ホバー状態が残る
-    // ことはない。「1回の滞空中に1回」はhoverShotUsedThisAirtime
-    // (着地の瞬間にのみリセット)で管理する。
+    // ことはない。「1回の滞空中にmaxHoverShotsPerAirtime回まで」は
+    // hoverShotsUsedThisAirtime(着地の瞬間にのみリセット)で管理する。
     void DoRangedDownShot()
     {
         isHoverShooting = true;
-        hoverShotUsedThisAirtime = true;
+        hoverShotsUsedThisAirtime++;
         hoverGeneration++;
         int gen = hoverGeneration;
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(2);

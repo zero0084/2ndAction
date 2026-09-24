@@ -47,16 +47,50 @@ public class PlayerBullet : MonoBehaviour
         go.transform.position = position;
         float angle = Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg;
         go.transform.rotation = Quaternion.Euler(0f, 0f, angle);
-        // 「細い直線状の攻撃判定」- 巨大なProjectile Colliderにはしない。
-        go.transform.localScale = new Vector3(0.55f, 0.16f, 1f);
 
-        SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
+        // 弾道の視認性向上(2026-09-24、マスター指示「弾が見づらいので弾道が
+        // わかるような線を」)でTrailRendererを追加するにあたり、見た目の
+        // スプライトを子オブジェクト"Visual"へ分離した。TrailRendererは
+        // 自分の付いたTransformの非一様スケール(下の0.55,0.16)をそのまま
+        // メッシュへ適用してしまい、尾が扁平に潰れて見える不具合があった
+        // ため、ルート自体は等倍スケールのまま保ち、ストレッチは子だけに
+        // 適用する。BoxCollider2Dも(元はこのscaleを利用して"細い直線状の
+        // 攻撃判定"を作っていたが)scaleに頼らずcol.sizeで直接同じ大きさを
+        // 指定することで、見た目と当たり判定を分離しても効果に変化がない
+        // ようにした。
+        GameObject visual = new GameObject("Visual");
+        visual.transform.SetParent(go.transform, false);
+        visual.transform.localScale = new Vector3(0.55f, 0.16f, 1f);
+
+        SpriteRenderer sr = visual.AddComponent<SpriteRenderer>();
         sr.sprite = sprite;
         sr.color = new Color(1f, 0.92f, 0.55f);
         sr.sortingOrder = RenderOrder.CombatFx;
 
         BoxCollider2D col = go.AddComponent<BoxCollider2D>();
         col.isTrigger = true;
+        col.size = new Vector2(0.55f, 0.16f);
+
+        // 弾道の視認性向上(2026-09-24) - 飛翔中ずっと後方へ短い光の尾を
+        // 引くTrailRenderer。弾自体の色調(暖色)に合わせ、先端が明るく尾へ
+        // 向けて透明化するグラデーションにした。CombatFxより1つ手前の
+        // sortingOrderにして、常に弾本体のスプライトの後ろに描かれるように
+        // する(先端が霞まないように)。
+        TrailRenderer trail = go.AddComponent<TrailRenderer>();
+        trail.time = 0.12f;
+        trail.minVertexDistance = 0.03f;
+        trail.startWidth = 0.14f;
+        trail.endWidth = 0.01f;
+        trail.material = new Material(Shader.Find("Sprites/Default"));
+        trail.sortingLayerID = sr.sortingLayerID;
+        trail.sortingOrder = RenderOrder.CombatFx - 1;
+        trail.textureMode = LineTextureMode.Stretch;
+        trail.numCapVertices = 4;
+        Gradient trailGradient = new Gradient();
+        trailGradient.SetKeys(
+            new[] { new GradientColorKey(new Color(1f, 0.95f, 0.7f), 0f), new GradientColorKey(new Color(1f, 0.75f, 0.3f), 1f) },
+            new[] { new GradientAlphaKey(0.85f, 0f), new GradientAlphaKey(0f, 1f) });
+        trail.colorGradient = trailGradient;
 
         // 不具合修正(2026-09-23) - EnemyControllerにはRigidbody2Dが無い
         // (地面判定/移動はTransform直操作)。既存の剣士Hitboxは常にPlayer

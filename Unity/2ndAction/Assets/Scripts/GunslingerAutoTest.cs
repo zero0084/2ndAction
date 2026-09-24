@@ -192,8 +192,14 @@ public class GunslingerAutoTest : MonoBehaviour
         // Up Shotの直後でまだ空中にいるはず。
         FieldInfo velField = F(typeof(PlayerController), "velocityY");
         FieldInfo hoverFallField = F(typeof(PlayerController), "rangedHoverFallSpeed");
-        FieldInfo hoverUsedField = F(typeof(PlayerController), "hoverShotUsedThisAirtime");
+        FieldInfo hoverUsedField = F(typeof(PlayerController), "hoverShotsUsedThisAirtime");
         float hoverFallSpeed = (float)hoverFallField.GetValue(pc);
+
+        // 3連続Down Shot検証(2026-09-24)のため、この先1〜2秒分の滞空時間を
+        // 通常のジャンプ高度だけに頼らず確実に確保しておく(本番のジャンプ力
+        // /重力チューニングとは無関係な、テストの決定性のためだけの上方
+        // テレポート)。
+        pc.transform.position += new Vector3(0f, 8f, 0f);
 
         var beforeDown = FindBullets();
         yield return InjectFlick(pc, PlayerController.FlickDirection.Down);
@@ -203,7 +209,8 @@ public class GunslingerAutoTest : MonoBehaviour
         PlayerBullet downBullet = NewestBullet(beforeDown, FindBullets());
         L($"[DownShot] hovering={hoveringNow} velocityY≈-hoverFallSpeed={Mathf.Approximately(velDuringHover, -hoverFallSpeed)} bullet spawned={downBullet != null} velocity.y<0={(downBullet != null && downBullet.velocity.y < 0f)} (expect True,True,True,True)");
 
-        // 「1回の滞空中に1回」- ホバー中に再度フリックしても新しい弾は出ない。
+        // ホバー中に再度フリックしても新しい弾は出ない(1発分のホバーが
+        // 終わるまでは次弾を撃てない、という間隔自体は維持)。
         var beforeRetry = FindBullets();
         yield return InjectFlick(pc, PlayerController.FlickDirection.Down);
         PlayerBullet retryBullet = NewestBullet(beforeRetry, FindBullets());
@@ -213,10 +220,42 @@ public class GunslingerAutoTest : MonoBehaviour
         while (t < 1.5f && pc.IsRangedHoverShooting) { yield return null; t += Time.deltaTime; }
         L($"[DownShot] hover ended within 1.5s: {!pc.IsRangedHoverShooting}");
 
-        // 着地するまで待ち、着地後にもう一度使用可能になるか確認。
+        // 3連続Down Shot(2026-09-24、マスター指示で1回→3回へ拡張) - ホバー
+        // 終了後なら同じ滞空中でも2発目・3発目が撃てること、4発目は撃てない
+        // ことを確認する。テスト環境の1回のジャンプでは実際の重力次第で
+        // 3発分の滞空時間が足りず着地してしまう(=カウントが0へリセット
+        // されて本来の上限チェックを検証できない)ことがあるため、各ホバー
+        // 終了直後・まだ空中にいる間だけvelocityYを軽く持ち上げて滞空を
+        // 延長する(本番のジャンプ力/重力調整とは無関係な、テスト専用の
+        // 決定的な検証のための措置)。
+        if (!pc.IsGrounded) velField.SetValue(pc, 4f);
+        var before2nd = FindBullets();
+        yield return InjectFlick(pc, PlayerController.FlickDirection.Down);
+        yield return null;
+        PlayerBullet secondBullet = NewestBullet(before2nd, FindBullets());
+        L($"[DownShot] 2nd shot same airtime: bullet spawned={secondBullet != null} hoverShotsUsedThisAirtime={hoverUsedField.GetValue(pc)} (expect True, 2)");
+        float t3 = 0f;
+        while (t3 < 1.5f && pc.IsRangedHoverShooting) { yield return null; t3 += Time.deltaTime; }
+
+        if (!pc.IsGrounded) velField.SetValue(pc, 4f);
+        var before3rd = FindBullets();
+        yield return InjectFlick(pc, PlayerController.FlickDirection.Down);
+        yield return null;
+        PlayerBullet thirdBullet = NewestBullet(before3rd, FindBullets());
+        L($"[DownShot] 3rd shot same airtime: bullet spawned={thirdBullet != null} hoverShotsUsedThisAirtime={hoverUsedField.GetValue(pc)} (expect True, 3)");
+        float t4 = 0f;
+        while (t4 < 1.5f && pc.IsRangedHoverShooting) { yield return null; t4 += Time.deltaTime; }
+
+        var before4th = FindBullets();
+        yield return InjectFlick(pc, PlayerController.FlickDirection.Down);
+        yield return null;
+        PlayerBullet fourthBullet = NewestBullet(before4th, FindBullets());
+        L($"[DownShot] 4th attempt same airtime is blocked: bullet spawned={fourthBullet != null} (expect False)");
+
+        // 着地するまで待ち、着地後に回数がリセットされるか確認。
         float t2 = 0f;
         while (t2 < 6f && !pc.IsGrounded) { yield return null; t2 += Time.deltaTime; }
-        L($"[DownShot] landed within 6s: {pc.IsGrounded} hoverShotUsedThisAirtime reset={!(bool)hoverUsedField.GetValue(pc)}");
+        L($"[DownShot] landed within 6s: {pc.IsGrounded} hoverShotsUsedThisAirtime reset={(int)hoverUsedField.GetValue(pc) == 0}");
     }
 
     IEnumerator TestSwordsmanRegression(PlayerController pc, GameManager gm)
