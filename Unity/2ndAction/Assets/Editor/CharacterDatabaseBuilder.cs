@@ -572,6 +572,39 @@ public static class CharacterDatabaseBuilder
                     existing.bulletSprite = LoadBulletSprite(spec.bulletSpritePath);
                     EditorUtility.SetDirty(existing);
                 }
+                // 不具合修正(2026-09-25) - 拳銃士のRunコマ数を3→8枚に増やした
+                // 直後、マスターの実機確認で「2コマ分しか反映されていない」
+                // と指摘されて発覚した重大な穴。このexisting != nullブロックは
+                // 既存アセットに対してstartFrames/finishXFrames/portrait/
+                // mainVisual/bulletSprite/belongingsは同期し直していたが、
+                // **runFrames自体は一度も同期対象に入っていなかった**(新規
+                // 生成ブロック側にしかLoadRunAnimationFolder呼び出しが無い)。
+                // このためgunslinger.asset(2026-09-13作成済み)のruntimeFrames
+                // は初回生成時の中身(2枚)のまま固定され、以後何度Runフォルダ
+                // の中身を差し替えて`Build Character Database`/`Build Prototype
+                // Scene`を再実行しても、実際にゲームで再生されるのは常にその
+                // 最初の2枚のGUID参照のままだった(PNGファイル自体の中身は
+                // 都度上書きされていたため、目視確認では「絵柄が変わった」
+                // ように見えて気づきにくかった)。jump/attack/land等の他の
+                // アニメーションフォルダ系フィールドも同じ抜け穴を持っていた
+                // ため、まとめて「既存アセットでも常に最新のフォルダ内容へ
+                // 同期し直す」対象に追加した(bulletSprite/startFrames等と
+                // 同じ「手動チューニング値ではない純粋な素材参照」)。
+                existing.runFrames = LoadRunAnimationFolder(spec.runFramesDir, spec.runFramesPpu);
+                existing.runFps = spec.runFpsOverride; // runFramesと同じ理由でfps上書き値も同期し直す(今回のfps 7→9変更も未反映になっていた)
+                existing.jumpStartFrames = LoadAnimationFolder(spec.jumpStartFramesDir, spec.jumpStartFramesPpu);
+                existing.jumpFrames = LoadAnimationFolder(spec.jumpFramesDir, spec.jumpFramesPpu);
+                existing.doubleJumpFrames = LoadAnimationFolder(spec.doubleJumpFramesDir, spec.doubleJumpFramesPpu);
+                existing.landFrames = LoadAnimationFolder(spec.landFramesDir, spec.landFramesPpu);
+                existing.attackFrames = LoadAnimationFolder(spec.attackFramesDir, spec.attackFramesPpu);
+                existing.attackFramesSmall = LoadAnimationFolder(spec.attackFramesSmallDir, spec.attackFramesSmallPpu);
+                existing.attackFramesLarge = LoadAnimationFolder(spec.attackFramesLargeDir, spec.attackFramesLargePpu);
+                existing.downAttackFrames = LoadAnimationFolder(spec.downAttackFramesDir, spec.downAttackFramesPpu);
+                existing.downAttackLandFrames = LoadAnimationFolder(spec.downAttackLandFramesDir, spec.downAttackLandFramesPpu);
+                if (existing.isRanged)
+                {
+                    existing.upShotFrames = LoadAnimationFolder(spec.upShotFramesDir, spec.upShotFramesPpu);
+                }
                 // RUN開始準備/正常終了演出(2026-09-23) - bulletSpriteと同じ
                 // 理由(手動チューニング値ではない純粋な素材参照)で、既存
                 // アセットでも常に最新のフォルダ内容へ同期し直す。今は全て
