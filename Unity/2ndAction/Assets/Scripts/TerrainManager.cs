@@ -779,6 +779,7 @@ public class TerrainManager : MonoBehaviour
     {
         if (GameManager.Instance != null && GameManager.Instance.IsGameOver) return;
         if (player == null) return;
+        if (WorldRng.IsDeterministic) { UpdateDeterministic(); return; }
 
         while (nextStartX < player.position.x + generateAheadDistance)
         {
@@ -797,6 +798,65 @@ public class TerrainManager : MonoBehaviour
         // player back to the very start of the run, so the ground from x=0
         // onward has to stay intact and walkable the whole game, not just
         // whatever's near the player's current position.
+    }
+
+    // マルチプレイ対応Phase 1(2026-09-25) - 通常のUpdateは分岐/空中足場を「プレイヤーの
+    // 位置+先読み距離」を基準に生成するため、同じ乱数でも端末ごとに「どこまで地面を
+    // 生成済みか」のタイミングがずれ、合流直後の平地予約(RequestFlatRun)や空中足場の
+    // 高さ(未生成地点の高さのフォールバック)が変わって地形が食い違う。マルチプレイRun中は
+    // 分岐/空中足場を「地面の生成位置(nextStartX)がその地点に達した瞬間」に生成する
+    // (地面チャンクの列の中の決まった位置で必ず生成される)ことで全端末の地形を一致させる。
+    // ステージのテーマ(分岐の有無)が確定する前に生成しないよう、Run開始までは待つ。
+    void UpdateDeterministic()
+    {
+        if (GameManager.Instance != null && !GameManager.Instance.HasStarted) return;
+        float target = player.position.x + generateAheadDistance;
+        int guard = 0;
+        while (guard++ < 10000)
+        {
+            if (routeBranchEnabled)
+            {
+                if (nextBranchX <= nextStartX) { GenerateNextBranch(); continue; }
+            }
+            else if (nextSkyStartX + skyPathSegmentLength <= nextStartX)
+            {
+                GenerateNextSkyChunk();
+                continue;
+            }
+            if (nextStartX >= target) break;
+            GenerateNext();
+        }
+    }
+
+    // デバッグ/検証用: 生成済みの地面の並び(種類・論理X・高さ)を要約した値。
+    // 同じWorldSeedで走っている2端末でこの値が一致すれば、地形が一致している。
+    public string DebugTerrainSignature(float minLogicalX, float maxLogicalX)
+    {
+        unchecked
+        {
+            int h = 17, count = 0;
+            foreach (RuntimeChunk c in chunks)
+            {
+                float lx = FloatingOrigin.ToLogical(c.startX);
+                if (lx < minLogicalX) continue;
+                if (lx > maxLogicalX) break;
+                h = h * 31 + (int)c.type;
+                h = h * 31 + Mathf.RoundToInt(lx * 10f);
+                h = h * 31 + Mathf.RoundToInt(c.startY * 100f);
+                h = h * 31 + Mathf.RoundToInt(c.endY * 100f);
+                count++;
+            }
+            foreach (SkyChunk s in skyChunks)
+            {
+                float lx = FloatingOrigin.ToLogical(s.startX);
+                if (lx < minLogicalX || lx > maxLogicalX) continue;
+                h = h * 31 + Mathf.RoundToInt(lx * 10f);
+                h = h * 31 + Mathf.RoundToInt(s.startY * 100f);
+                h = h * 31 + Mathf.RoundToInt(s.endY * 100f);
+                count++;
+            }
+            return $"{count}:{h:X8}";
+        }
     }
 
     // Clears any currently-alive regular enemies (used when the boss fight
@@ -928,9 +988,9 @@ public class TerrainManager : MonoBehaviour
         // down across its length instead of always staying perfectly flat,
         // same spirit as the ground path's UpSlope/DownSlope chunks.
         float endY = startY;
-        if (Random.value < skyPathSlopeChance)
+        if (WorldRng.Sky.Value < skyPathSlopeChance)
         {
-            float delta = Random.value < 0.5f ? skyPathSlopeHeight : -skyPathSlopeHeight;
+            float delta = WorldRng.Sky.Value < 0.5f ? skyPathSlopeHeight : -skyPathSlopeHeight;
             endY = startY + delta;
             float minEndY = groundYEnd + skyPathMinClearanceAboveGround;
             if (endY < minEndY) endY = minEndY;
@@ -958,7 +1018,7 @@ public class TerrainManager : MonoBehaviour
             new Vector2(startX, startY), new Vector2(endX, endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor);
 
         skyChunks.Add(new SkyChunk { startX = startX, endX = endX, startY = startY, endY = endY, visual = skyVisual });
-        nextSkyStartX = endX + Random.Range(skyPathGapMin, skyPathGapMax);
+        nextSkyStartX = endX + WorldRng.Sky.Range(skyPathGapMin, skyPathGapMax);
     }
 
     // ルート構造再調整(2026-09-13) - マスター提供の参考画像を仕様図として
@@ -1043,9 +1103,9 @@ public class TerrainManager : MonoBehaviour
         {
             float segEndX = Mathf.Min(x + branchSegmentLength, parallelEndX);
             float segEndY = y;
-            if (Random.value < branchSlopeChance)
+            if (WorldRng.Branch.Value < branchSlopeChance)
             {
-                float delta = Random.value < 0.5f ? branchSlopeHeight : -branchSlopeHeight;
+                float delta = WorldRng.Branch.Value < 0.5f ? branchSlopeHeight : -branchSlopeHeight;
                 segEndY = y + delta;
             }
             float groundYAtSegEnd = GetHeightAt(segEndX) ?? groundYAtFork;
@@ -1091,7 +1151,7 @@ public class TerrainManager : MonoBehaviour
             PlaceBranchMarker(mergeX, groundYAtMerge);
         }
 
-        nextBranchX = mergeX + Random.Range(branchMinInterval, branchMaxInterval);
+        nextBranchX = mergeX + WorldRng.Branch.Range(branchMinInterval, branchMaxInterval);
     }
 
     // Stage01地形挙動修整(2026-09-17), item3 - マスター指摘「上下ルート間の
@@ -1249,7 +1309,7 @@ public class TerrainManager : MonoBehaviour
             downChance = 0f;
         }
 
-        float roll = Random.value;
+        float roll = WorldRng.Terrain.Value;
         if (roll < pitChance) return ChunkType.Pit;
         roll -= pitChance;
         if (roll < upChance) return ChunkType.UpSlope;
@@ -1387,7 +1447,11 @@ public class TerrainManager : MonoBehaviour
             // spawn backlog to "catch up on" once the zone ends.
             bool inSafeZone = GameManager.Instance != null && GameManager.Instance.IsInSafeZone;
             bool safeForEnemy = !bossActive && !inSafeZone && type == ChunkType.Flat && lastType != ChunkType.Pit && FloatingOrigin.ToLogical(startX) >= noEnemyBeforeDistance;
-            if (safeForEnemy)
+            if (WorldRng.IsDeterministic)
+            {
+                ReserveFormationDeterministic(chunk, type, startX, startY, endX, !bossActive && !inSafeZone);
+            }
+            else if (safeForEnemy)
             {
                 // 高速走行の視認性補正 - 速くなったぶん敵どうしの最低距離も広げる(反応時間を保つ)。
                 float speedRatio = PlayerController.Instance != null ? Mathf.Max(1f, PlayerController.Instance.SpeedRatio) : 1f;
@@ -1428,6 +1492,34 @@ public class TerrainManager : MonoBehaviour
     // ground height at the anchor - safe to reuse for every member's ground
     // level since the whole reserved span is guaranteed Flat (see
     // RequestFlatRun), so Flat chunks keep startY==endY throughout it.
+    // マルチプレイ対応Phase 1(2026-09-25) - 編成(Formation)は地形に「平地の予約」
+    // (RequestFlatRun)を入れるため、シングルプレイと同じく「その時点のプレイヤー速度/
+    // ボス戦中か/安全地帯か」で決めると、端末ごとに地形そのものがずれてしまう。
+    // マルチプレイRun中だけは、全端末で一致する入力(チャンクの論理X・WorldSeed)のみで
+    // 予約の有無と幅を決め、実際に敵を出すかどうか(ボス戦中等)はこの端末のローカル状況で
+    // 判断する(敵自体はPhase 1ではネット同期しない)。
+    void ReserveFormationDeterministic(RuntimeChunk chunk, ChunkType type, float startX, float startY, float endX, bool localSpawnAllowed)
+    {
+        float logicalX = FloatingOrigin.ToLogical(startX);
+        if (type != ChunkType.Flat || lastType == ChunkType.Pit || logicalX < noEnemyBeforeDistance) return;
+        if (DistanceTierManager.Instance == null) return;
+
+        PlayerController pc = PlayerController.Instance;
+        float speedRatio = 1f;
+        if (pc != null && logicalX > pc.speedUpStartDistance)
+            speedRatio = Mathf.Min(1f + (logicalX - pc.speedUpStartDistance) / 100f * pc.speedUpPer100m, pc.maxSpeedMultiplier);
+        bool spacingOk = startX - lastEnemyX > minEnemySpacing * Mathf.Max(1f, speedRatio);
+
+        if (!DistanceTierManager.Instance.TryStartFormationWorld(spacingOk, GetEnemyChance(), logicalX, out List<EnemySpawnRequest> requests, out float maxXOffsetNeeded))
+            return;
+
+        float rightMostNeededX = startX + maxXOffsetNeeded;
+        int additionalChunks = Mathf.Max(0, Mathf.CeilToInt((rightMostNeededX - endX) / Mathf.Max(1f, flatLength)));
+        if (additionalChunks > 0) RequestFlatRun(additionalChunks);
+        lastEnemyX = startX;
+        if (localSpawnAllowed) SpawnFormation(chunk, requests, startX, startY);
+    }
+
     void SpawnFormation(RuntimeChunk chunk, List<EnemySpawnRequest> requests, float anchorX, float anchorY)
     {
         Camera cam = Camera.main;

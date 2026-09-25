@@ -286,11 +286,17 @@ public partial class CaveStage : MonoBehaviour
 
     void AddNode(TerrainManager tm, float x)
     {
+        // マルチプレイ(2026-09-25) - ノードごとに(論理位置で決まる)独立した乱数列を使う。
+        // シングルプレイでは何もしない(従来どおりUnityEngine.Random)。
+        int nodeKey = Mathf.RoundToInt(FloatingOrigin.ToLogical(x) / Mathf.Max(0.01f, nodeSpacing));
+        WorldRng.Cave.ReseedAt(nodeKey);
+        WorldRng.CaveDetail.ReseedAt(nodeKey);
+
         if (x >= sectionEndX)
         {
-            float r = testMode == 1 ? 0.5f : (testMode == 2 ? 0.05f : Random.value);
+            float r = testMode == 1 ? 0.5f : (testMode == 2 ? 0.05f : WorldRng.Cave.Value);
             sectionMode = r < lowSectionChance ? 2 : (r < lowSectionChance + spikeSectionChance ? 1 : 0);
-            sectionEndX = x + Random.Range(sectionLengthMin, sectionLengthMax);
+            sectionEndX = x + WorldRng.Cave.Range(sectionLengthMin, sectionLengthMax);
             // 通常区間が続きすぎないよう、直前が通常なら通常を選び直す確率は下げない(単純)。
         }
 
@@ -304,7 +310,14 @@ public partial class CaveStage : MonoBehaviour
         // ボス遭遇区間: 低天井/針区間へ降格させず、常に通常天井にする。
         if (InBossClearZone(x)) mode = 0;
         float clearance = mode == 2 ? lowClearance : (mode == 1 ? spikeSectionClearance : normalClearance);
-        if (mode != 2) clearance += Random.Range(-normalClearanceJitter, normalClearanceJitter);
+        if (WorldRng.IsDeterministic)
+        {
+            // マルチプレイ(2026-09-25) - ボス付近の降格など端末ごとに差が出うるmodeに関係なく
+            // 毎ノード1回だけ消費し、以降の乱数列が端末間でずれないようにする。
+            float jitter = WorldRng.CaveDetail.Range(-normalClearanceJitter, normalClearanceJitter);
+            if (mode != 2) clearance += jitter;
+        }
+        else if (mode != 2) clearance += Random.Range(-normalClearanceJitter, normalClearanceJitter);
         // 針の区間は、最も長い針の先端でも最低間隔が残る高さを下限にする。
         float minClear = MinPassageHeight + (mode == 1 ? spikeLengthMax : 0f);
         clearance = Mathf.Max(clearance, minClear);
@@ -330,12 +343,12 @@ public partial class CaveStage : MonoBehaviour
         if (nodes.Count >= 2)
         {
             Node prev = nodes[nodes.Count - 2];
-            if (prev.mode == 1 && mode == 1 && prev.x >= spikeClusterBlockedUntilX && Random.value < spikeClusterChancePerNode)
+            if (prev.mode == 1 && mode == 1 && prev.x >= spikeClusterBlockedUntilX && WorldRng.CaveDetail.Value < spikeClusterChancePerNode)
             {
-                int count = Random.Range(1, spikeClusterMax + 1);
+                int count = WorldRng.CaveDetail.Range(1, spikeClusterMax + 1);
                 float span = nodeSpacing - 0.8f - (count - 1) * spikeSpacing;
                 if (span < 0f) { count = 1; span = nodeSpacing - 0.8f; }
-                float sx = prev.x + 0.4f + Random.value * span;
+                float sx = prev.x + 0.4f + WorldRng.CaveDetail.Value * span;
                 bool ok = true;
                 for (int k = 0; k < count && ok; k++)
                 {
@@ -362,7 +375,7 @@ public partial class CaveStage : MonoBehaviour
                 PlaceTorch(tx, gy.Value);
                 break;
             }
-            nextTorchX = x + Random.Range(torchSpacingMin, torchSpacingMax);
+            nextTorchX = x + WorldRng.CaveDetail.Range(torchSpacingMin, torchSpacingMax);
         }
 
         // メッシュはmeshNodeGroup区間ぶんまとまったら作る。
@@ -379,11 +392,11 @@ public partial class CaveStage : MonoBehaviour
         // 該当ノードがまだ無い(次ノード側にはみ出す)場合は次ノードの高さを外挿せず、
         // 現在の最後のノードの高さで代用(針は天井から生えるだけなので数cmの差)。
         float top = cy ?? nodes[nodes.Count - 1].y;
-        float len = Random.Range(spikeLengthMin, spikeLengthMax);
+        float len = WorldRng.CaveDetail.Range(spikeLengthMin, spikeLengthMax);
         bool hasArt = spikeSprites != null && spikeSprites.Length > 0;
-        Sprite sp = hasArt ? spikeSprites[Random.Range(0, spikeSprites.Length)] : null;
+        Sprite sp = hasArt ? spikeSprites[WorldRng.CaveDetail.Range(0, spikeSprites.Length)] : null;
         // 絵の縦横比を保ったまま幅を決める(当たり判定の三角形も同じ寸法)。
-        float w = hasArt ? len * (sp.bounds.size.x / sp.bounds.size.y) * Random.Range(0.9f, 1.1f) : Random.Range(spikeWidthMin, spikeWidthMax);
+        float w = hasArt ? len * (sp.bounds.size.x / sp.bounds.size.y) * WorldRng.CaveDetail.Range(0.9f, 1.1f) : WorldRng.CaveDetail.Range(spikeWidthMin, spikeWidthMax);
         // 針の先端から床(上ルート含む)までが最低間隔に満たない場所には針を置かない。
         float floorTop = float.NegativeInfinity;
         for (float fx = x - w * 0.5f - 0.5f; fx <= x + w * 0.5f + 0.5f; fx += 0.5f)

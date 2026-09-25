@@ -205,6 +205,51 @@ public class DistanceTierManager : MonoBehaviour
         if (!spacingOk || Random.value >= chance) return false;
 
         FormationData chosen = PickWeightedFormation();
+        return BuildFormationRequests(chosen, out requests, out halfWidthNeeded);
+    }
+
+    // マルチプレイ対応Phase 1(2026-09-25) - TerrainManager.ReserveFormationDeterministic用。
+    // 出現判定と編成の選択を「チャンクの論理距離」と地形専用の決定的乱数(WorldRng.Formation)
+    // だけで行い、全端末で同じ結果(=同じ平地予約)にする。乱数は出現しない場合も含めて毎回
+    // 同じ回数だけ消費し、端末間で乱数列がずれないようにしている。編成の中身(どの敵種に
+    // するか)は地形に影響しないため、従来どおり端末ごとのUnityEngine.Randomのまま。
+    public bool TryStartFormationWorld(bool spacingOk, float chance, float distance, out List<EnemySpawnRequest> requests, out float halfWidthNeeded)
+    {
+        requests = null;
+        halfWidthNeeded = 0f;
+        float spawnRoll = WorldRng.Formation.Value;
+        float pickRoll = WorldRng.Formation.Value;
+        if (!spacingOk || spawnRoll >= chance) return false;
+        return BuildFormationRequests(PickWeightedFormationAt(distance, pickRoll), out requests, out halfWidthNeeded);
+    }
+
+    FormationData PickWeightedFormationAt(float d, float roll01)
+    {
+        float total = 0f;
+        for (int i = 0; i < formations.Length; i++)
+        {
+            FormationData f = formations[i];
+            if (f == null || d < f.minDistance || d >= f.maxDistance) continue;
+            total += Mathf.Max(0f, f.weight);
+        }
+        if (total <= 0f) return null;
+
+        float roll = roll01 * total;
+        float acc = 0f;
+        for (int i = 0; i < formations.Length; i++)
+        {
+            FormationData f = formations[i];
+            if (f == null || d < f.minDistance || d >= f.maxDistance) continue;
+            acc += Mathf.Max(0f, f.weight);
+            if (roll <= acc) return f;
+        }
+        return null;
+    }
+
+    bool BuildFormationRequests(FormationData chosen, out List<EnemySpawnRequest> requests, out float halfWidthNeeded)
+    {
+        requests = null;
+        halfWidthNeeded = 0f;
         if (chosen == null || chosen.spawnPoints == null || chosen.spawnPoints.Length == 0) return false;
 
         if (debugLogEnabled) Debug.Log($"[Formation] Spawn {chosen.formationType} ({chosen.formationId})");

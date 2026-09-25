@@ -234,8 +234,8 @@ public class PlayerController : MonoBehaviour
     public float recoveryDuration = 0.45f;        // 落下復帰後のRecovery停止時間
     public float recoveryInvincibleDuration = 1.0f; // Recovery終了後の点滅無敵
 
-#if UNITY_EDITOR
-    public FlickDirection? debugInjectFlick; // 自動テスト用: 毎フレームこの入力があったことにする
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public FlickDirection? debugInjectFlick; // 自動テスト用: 毎フレームこの入力があったことにする(マルチプレイ自動テストのため開発ビルドでも有効)
 #endif
     public enum ReactionKind { None, Hurt, Recovery }
     public ReactionKind Reaction { get; private set; }
@@ -828,7 +828,7 @@ public class PlayerController : MonoBehaviour
 
         UpdatePointerInput();
         // Hurt/Recovery中は新規の攻撃/ジャンプ入力を受け付けない(入力は捨てる=終了後に暴発しない)。
-#if UNITY_EDITOR
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (debugInjectFlick.HasValue) { requestedFlick = debugInjectFlick; }
 #endif
         bool reactionBlocked = IsReacting;

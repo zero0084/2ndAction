@@ -109,7 +109,13 @@ public class PlayerAnimator : MonoBehaviour
     Quaternion poseExitFromRot;
     Vector3 poseExitFromScale;
 
-    enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack, DownAttackLand, UpShot, Hurt, Recovery, StartPrep, Finish }
+    // マルチプレイ対応Phase 1(2026-09-25) - 相手端末へ「今どのStateの何コマ目か」を
+    // 送るためpublicにした(値の並びはネット上の番号なので、末尾以外へ追加しないこと)。
+    public enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack, DownAttackLand, UpShot, Hurt, Recovery, StartPrep, Finish }
+
+    public State CurrentState => state;
+    public int CurrentFrameIndex => frameIndex;
+    public SpriteRenderer VisualRenderer => sr;
 
     // キャラクター専用アニメーション差し替え(2026-09-13) - PlayerController.
     // baseRunSpeed等と全く同じ理由の「素のスナップショット」。SceneBuilder
@@ -461,8 +467,108 @@ public class PlayerAnimator : MonoBehaviour
         startFinishPoseApplied = true;
     }
 
+    // ===== マルチプレイ対応Phase 1(2026-09-25) - リモートプレイヤー表示用のパペットモード =====
+    // RemotePlayerAvatarが持つPlayerAnimatorはPlayerControllerを持たず、相手端末から届いた
+    // State/コマ番号をそのまま表示するだけ(姿勢の変形は相手端末で計算済みの値をAvatar側が
+    // Visualへ直接書き込む)。スプライトの選び方(キャラ別の差し替え/フォールバック)は
+    // 通常モードと同じApplyCharacterAnimationSet/ResolveFramesを使うので、相手のキャラ
+    // クターの絵が正しく出る。
+    bool puppet;
+    State puppetState;
+    int puppetFrame, puppetAttackStage = 2, puppetFinishTier;
+
+    public void InitPuppet(PlayerAnimator template, CharacterDefinition def)
+    {
+        puppet = true;
+        if (template != null)
+        {
+            template.CaptureDefaultsIfNeeded();
+            defaultRunFrames = template.defaultRunFrames;
+            defaultJumpStartFrames = template.defaultJumpStartFrames;
+            defaultJumpFrames = template.defaultJumpFrames;
+            defaultLandFrames = template.defaultLandFrames;
+            defaultAttackFrames = template.defaultAttackFrames;
+            defaultAttackFramesSmall = template.defaultAttackFramesSmall;
+            defaultAttackFramesLarge = template.defaultAttackFramesLarge;
+            defaultRunFps = template.defaultRunFps;
+            defaultDoubleJumpFrames = template.defaultDoubleJumpFrames;
+            defaultDownAttackFrames = template.defaultDownAttackFrames;
+            defaultDownAttackLandFrames = template.defaultDownAttackLandFrames;
+            defaultUpShotFrames = template.defaultUpShotFrames;
+            defaultHurtFrames = template.defaultHurtFrames;
+            defaultRecoveryFrames = template.defaultRecoveryFrames;
+            defaultStartFrames = template.defaultStartFrames;
+            defaultFinishShortFrames = template.defaultFinishShortFrames;
+            defaultFinishMediumFrames = template.defaultFinishMediumFrames;
+            defaultFinishLongFrames = template.defaultFinishLongFrames;
+            defaultFinishExtremeFrames = template.defaultFinishExtremeFrames;
+            defaultAnimationCaptured = true;
+            brightenColor = template.brightenColor;
+            if (brightenOverlay != null) brightenOverlay.color = brightenColor;
+        }
+        // defがnull(相手のキャラIDが未知)なら黒剣士の既定アートのまま。
+        if (def != null) ApplyCharacterAnimationSet(def);
+        else RestoreDefaultArrays();
+    }
+
+    public void SetPuppetPose(State s, int frame, int attackStage, int finishTier)
+    {
+        puppetState = s;
+        puppetFrame = frame;
+        puppetAttackStage = attackStage;
+        puppetFinishTier = finishTier;
+    }
+
+    void CaptureDefaultsIfNeeded()
+    {
+        if (!defaultAnimationCaptured) ApplyCharacterAnimationSet(null);
+    }
+
+    void RestoreDefaultArrays()
+    {
+        runFrames = defaultRunFrames; runFps = defaultRunFps;
+        jumpStartFrames = defaultJumpStartFrames; jumpFrames = defaultJumpFrames; doubleJumpFrames = defaultDoubleJumpFrames;
+        landFrames = defaultLandFrames; downAttackFrames = defaultDownAttackFrames; downAttackLandFrames = defaultDownAttackLandFrames;
+        upShotFrames = defaultUpShotFrames; hurtFrames = defaultHurtFrames; recoveryFrames = defaultRecoveryFrames;
+        startFrames = defaultStartFrames; finishShortFrames = defaultFinishShortFrames; finishMediumFrames = defaultFinishMediumFrames;
+        finishLongFrames = defaultFinishLongFrames; finishExtremeFrames = defaultFinishExtremeFrames;
+        attackFrames = defaultAttackFrames; attackFramesSmall = defaultAttackFramesSmall; attackFramesLarge = defaultAttackFramesLarge;
+    }
+
+    Sprite[] ResolveFrames(State s, int attackStage, int finishTier) => s switch
+    {
+        State.Attack => GetAttackFrames(attackStage),
+        State.Jump => jumpFrames,
+        State.JumpStart => jumpStartFrames,
+        State.DoubleJump => doubleJumpFrames,
+        State.Landing => landFrames,
+        State.DownAttack => downAttackFrames,
+        State.DownAttackLand => downAttackLandFrames,
+        State.UpShot => upShotFrames,
+        State.Hurt => HasFrames(hurtFrames) ? hurtFrames : FallbackReactionFrames(false),
+        State.Recovery => HasFrames(recoveryFrames) ? recoveryFrames : FallbackReactionFrames(true),
+        State.StartPrep => HasFrames(startFrames) ? startFrames : FallbackSingleFrame(),
+        State.Finish => HasFrames(GetFinishFrames(finishTier)) ? GetFinishFrames(finishTier) : FallbackSingleFrame(),
+        _ => runFrames
+    };
+
+    void UpdatePuppet()
+    {
+        Sprite[] frames = ResolveFrames(puppetState, puppetAttackStage, puppetFinishTier);
+        // 相手と自分でコマ数が違うことは無い(同じビルド・同じキャラ定義)が、念のため範囲内へ丸める。
+        if (frames != null && frames.Length > 0) sr.sprite = frames[Mathf.Clamp(puppetFrame, 0, frames.Length - 1)];
+        if (brightenOverlay != null)
+        {
+            brightenOverlay.sprite = sr.sprite;
+            brightenOverlay.sortingOrder = sr.sortingOrder + 1;
+            brightenOverlay.enabled = sr.enabled;
+        }
+    }
+
     void Update()
     {
+        if (puppet) { UpdatePuppet(); return; }
+
         float dt = Time.deltaTime;
         if (jumpStartTimer > 0f) jumpStartTimer -= dt;
         if (doubleJumpTimer > 0f) doubleJumpTimer -= dt;
@@ -516,22 +622,7 @@ public class PlayerAnimator : MonoBehaviour
             if (newState == State.StartPrep || newState == State.Finish) startPrepElapsed = 0f;
         }
 
-        Sprite[] frames = state switch
-        {
-            State.Attack => GetAttackFrames(attackStage),
-            State.Jump => jumpFrames,
-            State.JumpStart => jumpStartFrames,
-            State.DoubleJump => doubleJumpFrames,
-            State.Landing => landFrames,
-            State.DownAttack => downAttackFrames,
-            State.DownAttackLand => downAttackLandFrames,
-            State.UpShot => upShotFrames,
-            State.Hurt => HasFrames(hurtFrames) ? hurtFrames : FallbackReactionFrames(false),
-            State.Recovery => HasFrames(recoveryFrames) ? recoveryFrames : FallbackReactionFrames(true),
-            State.StartPrep => HasFrames(startFrames) ? startFrames : FallbackSingleFrame(),
-            State.Finish => HasFrames(GetFinishFrames(controller != null ? controller.FinishTierIndex : 0)) ? GetFinishFrames(controller.FinishTierIndex) : FallbackSingleFrame(),
-            _ => runFrames
-        };
+        Sprite[] frames = ResolveFrames(state, attackStage, controller != null ? controller.FinishTierIndex : 0);
         ApplyReactionPose();
         ApplyStartFinishPose();
         if (frames == null || frames.Length == 0) return;

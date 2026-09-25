@@ -1302,12 +1302,12 @@ public class GameManager : MonoBehaviour
     // DepartFromStageSelect()の両方から、それぞれの画面遷移が完全に画面を
     // 覆った瞬間(onFullyCovered/フェード最深部)に一度だけ呼ばれる - 2箇所
     // に全く同じ処理を書いていた重複を解消した共通ヘルパー。
-    void ApplyGameStart()
+    void ApplyGameStart(string stageIdOverride = null)
     {
         HasStarted = true;
         runStartTime = Time.time;
         activeRunCharacterId = SelectedCharacterId;
-        activeRunStageId = SelectedStageId;
+        activeRunStageId = stageIdOverride ?? SelectedStageId;
         if (TerrainManager.Instance != null) TerrainManager.Instance.ApplyStageTheme(activeRunStageId);
         ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
         ApplyCharacterCardEffects();
@@ -1337,9 +1337,28 @@ public class GameManager : MonoBehaviour
     public float countdownStepDuration = 0.8f;
     public float countdownGoDuration = 0.6f;
 
+    // マルチプレイ対応Phase 1(2026-09-25) - NetRunLauncherがシーンを読み込み直した直後に
+    // 呼ぶRun開始口。ステージはHOSTが選んだものを直接使う(この端末で未解放でも同じ
+    // ステージを走れるよう、SetSelectedStageの解放チェックを通さない)。
+    public void BeginMultiplayerRun(string stageId)
+    {
+        if (HasStarted) return;
+        stageSelectOpen = false;
+        if (stageSelectUI != null) stageSelectUI.gameObject.SetActive(false);
+        ApplyGameStart(StageDatabase.FindById(stageId) != null ? stageId : null);
+    }
+
+    public string ActiveRunCharacterId => activeRunCharacterId;
+
     IEnumerator RunStartCountdownRoutine()
     {
         CountdownActive = true;
+        // マルチプレイ時のみ、全員のGO!が同じ瞬間になるよう開始時刻まで待つ(シングルでは即false)。
+        while (NetRunLauncher.ShouldHoldCountdown(countdownStepDuration * 3f))
+        {
+            CountdownLabel = "READY";
+            yield return null;
+        }
         CountdownLabel = "3";
         yield return new WaitForSecondsRealtime(countdownStepDuration);
         CountdownLabel = "2";
@@ -1375,6 +1394,7 @@ public class GameManager : MonoBehaviour
     void StartGame()
     {
         if (startTransitioning || HasStarted) return;
+        if (NetRunLauncher.InterceptDepart(SelectedStageId)) return; // DepartFromStageSelectと同じ(マルチプレイ時のみ)
         // Presentation pass - TOP->GAME now goes through the shared wipe
         // (see ScreenTransitionManager) instead of this file's own plain
         // navy fade below; HasStarted only flips once the screen is 100%
@@ -1406,6 +1426,9 @@ public class GameManager : MonoBehaviour
     public void DepartFromStageSelect(string stageId)
     {
         if (startTransitioning || HasStarted) return;
+        // マルチプレイ対応Phase 1(2026-09-25) - セッション接続中はHOSTの出発で全員同時に
+        // 開始する(NetRunLauncher)。セッションが無ければ何もせずfalseが返り、従来どおり。
+        if (NetRunLauncher.InterceptDepart(stageId)) return;
         StageDefinition def = StageDatabase.FindById(stageId);
         if (def == null || !def.unlocked) return;
         if (ScreenTransitionManager.Instance == null || ScreenTransitionManager.Instance.IsTransitioning) return;
@@ -2530,7 +2553,7 @@ public class GameManager : MonoBehaviour
             // OWN next Update(), i.e. strictly after this call returns, so
             // clearing the checkpoint here already happens before the
             // death Presentation with no extra ordering needed.
-            RunCheckpoint.Clear();
+            if (!NetRunLauncher.IsMultiplayerRun) RunCheckpoint.Clear(); // マルチプレイRunの死亡でシングルのCONTINUEを消さない
             FinishRun();
             return DamageResult.GameOver;
         }
@@ -2649,7 +2672,8 @@ public class GameManager : MonoBehaviour
         // condition (idempotent with the earlier RunCheckpoint.Clear() call
         // in TryDamagePlayer's GAME OVER branch, and the only call for the
         // FINISH/Win() path).
-        RunCheckpoint.Clear();
+        // マルチプレイRunの終了で、シングルの中断データ(CONTINUE)を消さない。
+        if (!NetRunLauncher.IsMultiplayerRun) RunCheckpoint.Clear();
     }
 
     public void Retry()
@@ -2667,6 +2691,8 @@ public class GameManager : MonoBehaviour
     void SaveInterruptState()
     {
         if (!HasStarted || IsGameOver) return;
+        // マルチプレイRunはシングル用の中断データ(CONTINUE)を上書きしない。
+        if (NetRunLauncher.IsMultiplayerRun) return;
         RunCheckpoint.Data data = RunCheckpoint.Load();
         data.active = true;
         FillCheckpointSnapshot(data);
@@ -2679,6 +2705,7 @@ public class GameManager : MonoBehaviour
     void SaveCheckpoint()
     {
         if (!HasStarted || IsGameOver) return;
+        if (NetRunLauncher.IsMultiplayerRun) return; // SaveInterruptStateと同じ理由
         RunCheckpoint.Data data = RunCheckpoint.Load();
         data.active = true;
         data.checkpointDistance = MaxDistance;
@@ -3105,7 +3132,7 @@ public class GameManager : MonoBehaviour
                 // the Gacha Result popup is up, so a tap can't be consumed
                 // out from under that popup's own OK button (see
                 // DrawRoomHotspot's own comment).
-                bool roomInteractable = !gachaResultOpen && !showNewRunConfirm;
+                bool roomInteractable = !gachaResultOpen && !showNewRunConfirm && !NetDebugUI.BlocksHomeInput;
 
                 // Door (center) - Run Continuation/Checkpoint Ver.1, item
                 // 13 - CONTINUE (if an Active Run exists) or a fresh Run,
@@ -4730,7 +4757,8 @@ public class GameManager : MonoBehaviour
     // 出発ボタン、DepartFromStageSelect参照)。
     void OnDoorTapped()
     {
-        if (RunCheckpoint.HasActiveRun)
+        // マルチプレイ接続中はCONTINUE(シングルの中断データ)ではなく、Stage Selectから全員で出発する。
+        if (RunCheckpoint.HasActiveRun && !NetSession.IsActive)
         {
             ContinueActiveRun();
         }
