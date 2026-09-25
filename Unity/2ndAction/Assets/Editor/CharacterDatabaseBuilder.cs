@@ -20,6 +20,17 @@ public static class CharacterDatabaseBuilder
         public string role;
         public string flavorText;
         public string portraitPath;
+        // Character Selectカルーセルのカード枠問題(2026-09-25) - 拳銃士
+        // 追加時、既存3キャラの「枠・アイコン・名前プレートまで焼き込んだ
+        // カード完成品」画像と違い、拳銃士のportraitPathには枠なしの単なる
+        // 立ち絵切り抜きを割り当ててしまっていた(カルーセルの小さいカードに
+        // その切り抜きがそのまま表示され、他キャラだけ枠があるのに拳銃士
+        // だけ枠なしという見た目の不整合が発生)。mainVisualPathが空文字の
+        // 間は従来どおりportraitPathと同じ画像をmainVisualにも使う(既存
+        // 3キャラの挙動を変えない)。拳銃士のみ、カード枠入りの新規画像を
+        // portraitPathに、中央の大きな全身表示には元の枠なし切り抜きを
+        // mainVisualPathに、と役割を分離した。
+        public string mainVisualPath;
         public int lifeRating, powerRating, speedRating, comboRating;
         public bool challengeFlag;
         public int sortOrder;
@@ -391,7 +402,11 @@ public static class CharacterDatabaseBuilder
         gunslinger.subtitle = "One Shot, One Distance";
         gunslinger.role = "RANGED";
         gunslinger.flavorText = "Twin pistols, a single sharp line of fire.\nShe wins the fight before it ever\ncloses in - but let an enemy through,\nand she has no answer for it.";
-        gunslinger.portraitPath = $"{PortraitFolder}/gunslinger_portrait.png";
+        // カード枠問題修正(2026-09-25) - portraitPath(カルーセルの小さい
+        // カード)は新規生成した枠入りカード画像へ、mainVisualPath(中央の
+        // 大きな全身表示)は元の枠なし立ち絵切り抜きへ、と役割を分離。
+        gunslinger.portraitPath = $"{PortraitFolder}/gunslinger_card.png";
+        gunslinger.mainVisualPath = $"{PortraitFolder}/gunslinger_portrait.png";
         // 表示専用の星評価 - 「遠距離では非常に強いが近距離が苦手」という
         // 武器特性を伝える暫定値(POWERは高いがLIFE低め、近接キャラとは
         // 違う尖り方であることを示す)。
@@ -442,15 +457,25 @@ public static class CharacterDatabaseBuilder
         // の開示事項)。
         // Run簡素化改修(2026-09-24) - 従来2コマ(idle/windup)のみで「ちゃん
         // と走っている」感が出ないとの指摘を受け、中間ストライド4コマを
-        // 追加し計6コマへ拡張(run_00〜run_05、双剣士/お嬢様騎士と同規模)。
-        // 新規4コマは生成時のキャンバス倍率が既存2コマと異なっていたため、
-        // 実測コンテンツ高さを既存の範囲(579〜679px)に収まる630px基準へ
-        // 個別にリサイズしてから設置した(フォルダ全体で単一のPPUを使う
+        // 追加し計6コマへ拡張した。しかし追加した4コマは全て同じ脚の
+        // ポーズ(前脚が同じ角度で曲がり、後ろ脚が同じ角度で伸びたまま)の
+        // 髪の毛違いバリエーションに過ぎず、脚が一切交互に動いていない
+        // ことが2026-09-25にマスターの目視確認で判明(「うまく反映
+        // できていない」との指摘の真因)。ChatGPTへのグリッド一括生成
+        // (6ポーズを1枚で指示)では毎回同一の脚ポーズしか返らず、1枚ずつ
+        // 個別に「タック(両膝を体の下に引き寄せた空中姿勢)」「エクステンド
+        // (タックから脚が開き始める中間姿勢)」を指示してようやく実際に
+        // 異なる脚のシルエットを得られた(左右の脚を入れ替える指示は
+        // 複数回試行しても効かなかった)。結果、idle立ちポーズと重複4コマを
+        // 全て破棄し、実際に姿勢が変化する3コマ(run_00=接地/伸展、
+        // run_01=タック、run_02=エクステンド)のみのループへ作り直した。
+        // 新規2コマ(タック/エクステンド)はrun_00(旧run_01、579px)と同じ
+        // 実測コンテンツ高さへリサイズ済み(フォルダ全体で単一のPPUを使う
         // ConfigureSpriteFolderImportWithSharedHeadPivotの性質上、フレーム
-        // ごとの実寸が大きく異なるとキャラクターのサイズがコマごとに
-        // ポップして見えるため)。fpsは双剣士(6コマ@7fps)に合わせ6→7fへ。
+        // ごとの実寸が異なるとキャラクターのサイズがコマごとにポップして
+        // 見えるため)。
         gunslinger.runFramesDir = "Assets/Art/GunslingerRun_v1";
-        gunslinger.runFramesPpu = 601f; // 679/1.13(既存run_00基準、新規4コマもこの基準へ合わせてリサイズ済み)
+        gunslinger.runFramesPpu = 601f; // 579/0.96相当、旧run_01(接地ポーズ)基準。3コマとも579px content heightへ揃えたためこの値のまま変更不要
         gunslinger.runFpsOverride = 7f;
         gunslinger.jumpStartFramesDir = "Assets/Art/GunslingerJumpStart_v1"; // windup(579px)を流用(実際にはUpShotが優先表示され、まず表示されない安全策)
         gunslinger.jumpStartFramesPpu = 512f; // 579/1.13
@@ -566,6 +591,12 @@ public static class CharacterDatabaseBuilder
                 existing.finishMediumFrames = LoadAnimationFolder(spec.finishMediumFramesDir, spec.finishMediumFramesPpu);
                 existing.finishLongFrames = LoadAnimationFolder(spec.finishLongFramesDir, spec.finishLongFramesPpu);
                 existing.finishExtremeFrames = LoadAnimationFolder(spec.finishExtremeFramesDir, spec.finishExtremeFramesPpu);
+                // Character Selectカード枠問題修正(2026-09-25) - portrait/
+                // mainVisualもbulletSprite等と同じ「純粋な素材参照」なので、
+                // 既存アセットでも常に最新のPNGへ同期し直す。
+                Texture2D existingPortrait = LoadIconTexture(spec.portraitPath);
+                existing.portrait = existingPortrait;
+                existing.mainVisual = string.IsNullOrEmpty(spec.mainVisualPath) ? existingPortrait : LoadIconTexture(spec.mainVisualPath);
                 EditorUtility.SetDirty(existing);
                 continue;
             }
@@ -578,7 +609,7 @@ public static class CharacterDatabaseBuilder
             def.flavorText = spec.flavorText;
             Texture2D portrait = LoadIconTexture(spec.portraitPath);
             def.portrait = portrait;
-            def.mainVisual = portrait;
+            def.mainVisual = string.IsNullOrEmpty(spec.mainVisualPath) ? portrait : LoadIconTexture(spec.mainVisualPath);
             def.lifeRating = spec.lifeRating;
             def.powerRating = spec.powerRating;
             def.speedRating = spec.speedRating;
