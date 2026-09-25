@@ -575,7 +575,13 @@ public static class EnemyDatabaseBuilder
             hpMultiplier = 1f,
             bigKnockbackOnHit = false,
             enableVisualFacing = true,
-            defaultFacingRight = false, // 素材は頭部が左側
+            // 不具合修正(2026-09-25) - マスターから「敵キャラでも向きが逆の
+            // ものがいる」と報告を受けて再確認。旧コメント「素材は頭部が
+            // 左側」は誤りで、実際は`CaveAnt.png`(idle)・`CaveAntRun`の
+            // 走行コマともに頭部/大顎は画像の右側にある(=defaultFacingRight
+            // はtrueが正しい)。Runner種の2026-09-08バグ修正時と同じ「コメント
+            // を書いた時点で実際の画像を再確認していなかった」パターン。
+            defaultFacingRight = true,
             mileReward = 1,
             // SceneBuilder側のPPU(CaveAntSpritePathのConfigureAndLoadSpriteWithFootPivot
             // 呼び出し)で既にPlayerの約105%相当に合わせてあるため1f
@@ -600,7 +606,7 @@ public static class EnemyDatabaseBuilder
             hpMultiplier = 1.3f,
             bigKnockbackOnHit = false,
             enableVisualFacing = true,
-            defaultFacingRight = false,
+            defaultFacingRight = true, // 不具合修正(2026-09-25) - cave_antと同じ誤り(実際は頭部が右側)
             mileReward = 2,
             // SceneBuilder側のPPUで約118%相当に合わせてあるため1f。
             visualScaleMultiplier = 1f,
@@ -621,7 +627,7 @@ public static class EnemyDatabaseBuilder
             hpMultiplier = 1f,
             bigKnockbackOnHit = false,
             enableVisualFacing = true,
-            defaultFacingRight = false,
+            defaultFacingRight = true, // 不具合修正(2026-09-25) - cave_antと同じ誤り(実際は頭部が右側)
             mileReward = 2,
             // SceneBuilder側のPPUで約105%相当に合わせてあるため1f。
             visualScaleMultiplier = 1f,
