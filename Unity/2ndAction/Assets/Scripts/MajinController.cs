@@ -30,6 +30,8 @@ public class MajinController : MonoBehaviour
     public float telegraphDuration = 3f;
     public float telegraphBlinkInterval = 0.3f;
 
+    public Color recoveryTint = new Color(0.72f, 0.66f, 0.8f, 1f);
+
     [Header("Fire Attack")]
     public float fireWindupDuration = 0.5f;
     public float fireRecoverDuration = 0.6f;
@@ -245,6 +247,13 @@ public class MajinController : MonoBehaviour
 
         if (state == State.Idle && Time.time >= nextAttackTime)
         {
+            // 天空回廊ボス追加(2026-09-25) - 複数体の魔人が同時に火球を撃たないようずらす。
+            if (Time.time < BossStaggerGate.NextMajinTime)
+            {
+                nextAttackTime = BossStaggerGate.NextMajinTime + Random.Range(0.1f, 0.6f);
+                return;
+            }
+            BossStaggerGate.NextMajinTime = Time.time + BossStaggerGate.MajinInterval;
             StartCoroutine(TelegraphAndAttack());
         }
     }
@@ -377,7 +386,12 @@ public class MajinController : MonoBehaviour
                 break;
         }
 
+        // 天空回廊ボス追加(2026-09-25) - Recovery(攻撃後の隙)を視覚的に区別する:
+        // 待機コマへ戻し、少し暗く沈んだ色で「今は撃ってこない」ことを見せる。
+        SetFrames(idleFrames);
+        if (sr != null && state == State.Firing) sr.color = recoveryTint;
         yield return new WaitForSeconds(fireRecoverDuration);
+        if (sr != null && state == State.Firing) sr.color = Color.white;
 
         state = State.Idle;
         SetFrames(idleFrames);

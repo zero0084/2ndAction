@@ -399,6 +399,8 @@ public abstract class WildBossBase : MonoBehaviour
             tint = Color.Lerp(tint, new Color(1f, 0.25f, 0.25f, baseColor.a), 0.7f * Mathf.Clamp01(k));
         }
 
+        sx *= extraScale.x;
+        sy *= extraScale.y;
         rig.SetColor(tint);
         float artSign = artFacesLeft ? (facing < 0f ? 1f : -1f) : (facing < 0f ? -1f : 1f);
         visual.localScale = new Vector3(scaleFactor * artSign * sx, scaleFactor * sy, 1f);
@@ -440,7 +442,7 @@ public abstract class WildBossBase : MonoBehaviour
             SpeedLine.Spawn(p, Random.Range(1.2f, 2.6f) * Mathf.Clamp(speed / 8f, 0.6f, 1.6f), new Color(1f, 1f, 1f, 0.22f));
         }
 
-        bool ground = locoStyle != LocoStyle.Wing && locoStyle != LocoStyle.Cloth;
+        bool ground = locoStyle != LocoStyle.Wing && locoStyle != LocoStyle.Cloth && !suppressLocoDust;
         if (ground && yOffset < 0.5f)
         {
             stepDustTimer -= dt;
@@ -665,6 +667,52 @@ public abstract class WildBossBase : MonoBehaviour
         if (hurtCol != null) hurtCol.enabled = on;
     }
 
+    // ===== 天空回廊ボス追加(2026-09-25): サブクラス用の追加フック(既存ボスは使わない) =====
+    // 被弾判定の範囲を差し替える(Root基準のローカル座標)。本体の一部だけが見えている
+    // 超大型ボス(タイタン/リヴァイアサン等)で「見えている部分=被弾範囲」にするため。
+    protected void ConfigureHurtbox(Vector2 localCenter, Vector2 size)
+    {
+        if (hurtCol == null) return;
+        hurtCol.transform.localPosition = new Vector3(localCenter.x, localCenter.y, 0f);
+        hurtCol.size = new Vector2(Mathf.Max(0.3f, size.x), Mathf.Max(0.3f, size.y));
+    }
+
+    protected void SetVisualSortingOrder(int sortingOrder)
+    {
+        if (rig != null) rig.SetSortingOrder(sortingOrder);
+    }
+
+    // 致死ダメージを受けた瞬間に呼ばれる。trueを返すと撃破処理に進まない(復活演出用)。
+    protected virtual bool OnLethalDamage() => false;
+
+    protected void RestoreHp(int hp)
+    {
+        Hp = Mathf.Clamp(hp, 1, maxHp);
+        if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
+    }
+
+    // 実行中の攻撃判定/予告をすべて止める(StopAllCoroutinesで攻撃を中断する時用)。
+    protected void DisableCombatParts()
+    {
+        DisableAllHitboxes();
+        windingUp = false;
+        windupProgress = 0f;
+    }
+
+    // 身体の伸縮(クラゲの脈動等)。AnimateVisualの姿勢変形に掛け合わせる。既定=変化なし。
+    protected Vector2 extraScale = Vector2.one;
+    // 雲海の中を進むボス等で、足元の砂埃/足音を出さない。既定=false(従来どおり)。
+    protected bool suppressLocoDust;
+
+    // HPバーの高さ(Root基準)。雲海に半分沈んだ超大型ボスで画面外に出ないよう調整する。
+    protected void SetHpBarOffset(float heightAboveRoot)
+    {
+        if (hpBar != null) hpBar.offset = new Vector3(0f, heightAboveRoot, 0f);
+    }
+
+    protected Sprite CurrentBodySprite => idleSprite;
+    protected Vector3 VisualLocalScale => visual != null ? visual.localScale : Vector3.one;
+
     protected void SetAlpha(float a)
     {
         baseColor.a = a;
@@ -740,6 +788,13 @@ public abstract class WildBossBase : MonoBehaviour
 
         if (PlayerController.Instance != null) PlayerController.Instance.NotifyAerialHit();
         if (ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
+
+        if (Hp <= 0 && OnLethalDamage())
+        {
+            // 天空回廊ボス追加(2026-09-25) - フェニックスの復活など、致死ダメージを
+            // サブクラスが引き受けた場合は撃破処理に進まない(既定はfalse=従来どおり)。
+            return;
+        }
 
         if (Hp <= 0)
         {

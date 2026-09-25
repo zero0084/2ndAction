@@ -90,6 +90,13 @@ public class BossRig
         for (int k = 0; k < cells.Count; k++) cells[k].enabled = on;
     }
 
+    // 天空回廊ボス追加(2026-09-25) - 雲海/回廊の奥を並走する超大型ボス(天空タイタン等)
+    // を地面より奥のレイヤーへ置くため。既存ボスは呼ばないので従来どおり。
+    public void SetSortingOrder(int sortingOrder)
+    {
+        for (int k = 0; k < cells.Count; k++) cells[k].sortingOrder = sortingOrder;
+    }
+
     static float Freq(LocoStyle s)
     {
         switch (s)

@@ -314,6 +314,14 @@ public class DragonController : MonoBehaviour
 
         if (attacksEnabled && state == State.Idle && Time.time >= nextAttackTime)
         {
+            // 天空回廊ボス追加(2026-09-25) - 複数体(最大4体)が同時に予備動作を始めて
+            // 回避不能にならないよう、ドラゴン同士で攻撃開始をずらす(1体のみなら従来どおり)。
+            if (Time.time < BossStaggerGate.NextDragonTime)
+            {
+                nextAttackTime = BossStaggerGate.NextDragonTime + Random.Range(0.1f, 0.5f);
+                return;
+            }
+            BossStaggerGate.NextDragonTime = Time.time + BossStaggerGate.DragonInterval;
             if (landingAttackEnabled && Random.value < landingAttackChance)
             {
                 StartCoroutine(LandingAttack());
@@ -890,4 +898,13 @@ public class DragonController : MonoBehaviour
             RegisterDefeatOnce(); // no-op if already done above - guarantees the Boss Reward pipeline is always reached even on an early exit/exception
         }
     }
+}
+
+// 天空回廊ボス追加(2026-09-25) - ドラゴン/魔人が複数体いる時に攻撃開始をずらす共有ゲート。
+public static class BossStaggerGate
+{
+    public static float NextDragonTime;
+    public static float DragonInterval = 1.3f;
+    public static float NextMajinTime;
+    public static float MajinInterval = 1.8f;
 }

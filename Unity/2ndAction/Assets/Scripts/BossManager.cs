@@ -215,10 +215,62 @@ public class BossManager : MonoBehaviour
         return true;
     }
 
+    // ===== 天空回廊ボス追加(2026-09-25) =====
+    // 荒野街道/自然洞窟と同じゲート進行を共有し、天空回廊の間だけこの表を使う。
+    //   10,000m単位: 専用大型ボス(ベヒーモス〜天界の守護者) > 5,000m単位: 魔人 > 1,000m単位: ドラゴン
+    // ドラゴン/魔人は既存のDragonController/MajinController(天空回廊の元々のボス)をそのまま使う。
+    bool IsSkyStage => GameManager.Instance != null && GameManager.Instance.ActiveRunStageId == "sky_corridor";
+
+    [System.Serializable]
+    public class SkyBossArt
+    {
+        public SkyBossKind kind;
+        public Sprite idle, move, windup, attack;
+    }
+    public SkyBossArt[] skyArt;
+
+    public int skyDragonMaxCount = 4;               // ドラゴンの最大同時出現数
+    public float skyDragonCountStepMeters = 12000f; // この距離ごとに1体増える
+    public int skyMajinMaxCount = 3;                // 魔人の最大同時出現数
+    public float skyMajinCountStepMeters = 10000f;  // 15,000m以降で2体、25,000m以降で3体
+    public float skyDragonLandingFromMeters = 3000f; // この距離以降のドラゴンは着地噛みつきも使う
+
+    static readonly SkyBossKind[] SkyTenKmBosses =
+    {
+        SkyBossKind.Behemoth, SkyBossKind.Titan, SkyBossKind.Jellyfish, SkyBossKind.Leviathan, SkyBossKind.Fenrir,
+        SkyBossKind.SkyGolem, SkyBossKind.Phoenix, SkyBossKind.SkySerpent, SkyBossKind.Guardian,
+    };
+
+    bool ResolveSkyGate(int k, out SkyBossKind kind, out int count)
+    {
+        float meters = k * gateIntervalMeters;
+        count = 1;
+        if (k % 10 == 0)
+        {
+            int idx = (k / 10 - 1) % 10;
+            if (idx >= SkyTenKmBosses.Length) { kind = SkyBossKind.Dragon; return false; } // 100,000m = 死神
+            kind = SkyTenKmBosses[idx];
+            return true;
+        }
+        if (k % 5 == 0)
+        {
+            kind = SkyBossKind.Majin;
+            count = Mathf.Clamp(1 + Mathf.FloorToInt((meters - 5000f) / Mathf.Max(1f, skyMajinCountStepMeters)), 1, Mathf.Max(1, skyMajinMaxCount));
+            return true;
+        }
+        kind = SkyBossKind.Dragon;
+        count = Mathf.Clamp(1 + Mathf.FloorToInt(meters / Mathf.Max(1f, skyDragonCountStepMeters)), 1, Mathf.Max(1, skyDragonMaxCount));
+        return true;
+    }
+
     void SkipEmptyGates()
     {
         int guard = 0;
-        if (IsCaveStage)
+        if (IsSkyStage)
+        {
+            while (guard++ < 20 && !ResolveSkyGate(gateK, out _, out _)) gateK++;
+        }
+        else if (IsCaveStage)
         {
             while (guard++ < 20 && !ResolveCaveGate(gateK, out _, out _)) gateK++;
         }
@@ -297,16 +349,20 @@ public class BossManager : MonoBehaviour
         // Basilisk, Drake, AncientDemon)を即時出現させる(Shift併用時は荒野
         // 街道側を発火させない)。
         bool shift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+        // 天空回廊ボス追加(2026-09-25) - Ctrl+F1〜F11で天空回廊ボス(SkyBossKind: Dragon, Majin,
+        // Behemoth, Titan, Jellyfish, Leviathan, Fenrir, SkyGolem, Phoenix, SkySerpent, Guardian)。
+        bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
         for (int k = 0; k < 11; k++)
         {
             if (!Input.GetKeyDown(KeyCode.F1 + k)) continue;
-            if (shift) DebugForceSpawnCave((CaveBossKind)k);
+            if (ctrl) DebugForceSpawnSky((SkyBossKind)k);
+            else if (shift) DebugForceSpawnCave((CaveBossKind)k);
             else DebugForceSpawn((WildBossKind)k);
         }
         if (Input.GetKeyDown(KeyCode.Backspace)) { foreach (var wb in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None)) wb.TakeDamage(99999, wb.CenterWorld); }
         if (Input.GetKeyDown(KeyCode.F12)) { GameManager.Instance.DebugSetInvincible(true); }
-        if (Input.GetKeyDown(KeyCode.M)) { if (shift) DebugForceSpawnCave(CaveBossKind.Centipede, 4); else DebugForceSpawn(WildBossKind.Wolf, 4); }        // 複数体確認
-        if (Input.GetKeyDown(KeyCode.N)) { if (shift) DebugForceSpawnCave(CaveBossKind.Scorpion, 3); else DebugForceSpawn(WildBossKind.GoblinRider, 3); } // 複数体確認
+        if (Input.GetKeyDown(KeyCode.M)) { if (ctrl) DebugForceSpawnSky(SkyBossKind.Dragon, 4); else if (shift) DebugForceSpawnCave(CaveBossKind.Centipede, 4); else DebugForceSpawn(WildBossKind.Wolf, 4); }        // 複数体確認
+        if (Input.GetKeyDown(KeyCode.N)) { if (ctrl) DebugForceSpawnSky(SkyBossKind.Majin, 3); else if (shift) DebugForceSpawnCave(CaveBossKind.Scorpion, 3); else DebugForceSpawn(WildBossKind.GoblinRider, 3); } // 複数体確認
         if (Input.GetKeyDown(KeyCode.R)) SpawnDeath();                                 // 死神
 #endif
 
@@ -457,7 +513,8 @@ public class BossManager : MonoBehaviour
         return distances;
     }
 
-    void SpawnDragon(float standoffDistanceForThisDragon)
+    // configure: Init直前の追加設定(天空回廊のドラゴン用、2026-09-25追加。既存呼び出しはnull=従来どおり)。
+    void SpawnDragon(float standoffDistanceForThisDragon, System.Action<DragonController> configure = null)
     {
         GameObject go = new GameObject("Dragon");
         go.tag = "Boss";
@@ -506,6 +563,7 @@ public class BossManager : MonoBehaviour
         dragonFacing.alwaysFacePlayer = true;
         dragonFacing.player = player;
 
+        configure?.Invoke(dragon);
         dragon.Init(player);
     }
 
@@ -582,7 +640,7 @@ public class BossManager : MonoBehaviour
         if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[Boss] Death Spawn");
     }
 
-    void SpawnMajin(float standoffDistanceForThisMajin)
+    void SpawnMajin(float standoffDistanceForThisMajin, System.Action<MajinController> configure = null)
     {
         GameObject go = new GameObject("Majin");
         go.tag = "Boss";
@@ -624,6 +682,7 @@ public class BossManager : MonoBehaviour
         majinFacing.alwaysFacePlayer = true;
         majinFacing.player = player;
 
+        configure?.Invoke(majin);
         majin.Init(player);
     }
 
@@ -740,6 +799,18 @@ public class BossManager : MonoBehaviour
         aliveMajinsThisEncounter = 0;
         aliveWildThisEncounter = 0;
         if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
+
+        if (IsSkyStage)
+        {
+            if (!ResolveSkyGate(gateK, out SkyBossKind skyKind, out int skyCount)) { IsBossPhase = false; return; }
+            StartSkyEncounter(skyKind, skyCount);
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.LogBoss("CombatStart");
+                if (GameManager.Instance.DebugMode) Debug.Log($"[Boss] Sky spawn kind={skyKind} count={skyCount} at {WildTargetDistance()}m");
+            }
+            return;
+        }
 
         if (IsCaveStage)
         {
@@ -966,6 +1037,149 @@ public class BossManager : MonoBehaviour
         }
     }
 
+    // ===== 天空回廊ボス: 遭遇開始/種別ごとの既定値/生成 =====
+    void StartSkyEncounter(SkyBossKind kind, int count)
+    {
+        if (kind == SkyBossKind.Dragon || kind == SkyBossKind.Majin)
+        {
+            // 既存コントローラーのボス: 遭遇数だけ先に確定し、遠方シルエットの接近演出の後に実体を出す。
+            if (kind == SkyBossKind.Dragon) aliveDragonsThisEncounter = count;
+            else aliveMajinsThisEncounter = count;
+            StartCoroutine(SkyAirborneEntrance(kind, count));
+            return;
+        }
+        aliveWildThisEncounter = count;
+        for (int i = 0; i < count; i++) SpawnSkyBoss(kind, i);
+    }
+
+    // 遠方(背景レイヤー)を小さなシルエットが近づいてくる → 画面右外から実体が飛来(既存の登場処理)。
+    System.Collections.IEnumerator SkyAirborneEntrance(SkyBossKind kind, int count)
+    {
+        Sprite[] frames = kind == SkyBossKind.Dragon ? dragonIdleFrames : majinIdleFrames;
+        float baseScale = kind == SkyBossKind.Dragon ? dragonScale : majinScale;
+        for (int i = 0; i < count; i++)
+        {
+            Vector2 from = new Vector2(0.62f + i * 0.08f, 0.9f - i * 0.05f);
+            Vector2 to = new Vector2(1.08f, 0.66f - i * 0.06f);
+            // ドラゴン素材は左向き(頭が左)なので、右へ流れる間は反転させない方が「こちらへ向かってくる」に見える
+            SkyFlyby.Create(frames, from, to, baseScale * 0.18f, baseScale * 0.6f, 1.3f, new Color(0.4f, 0.47f, 0.66f, 0.8f), false);
+        }
+        yield return new WaitForSeconds(1.15f);
+        if (kind == SkyBossKind.Dragon)
+        {
+            float[] d = BuildScatteredDistances(count, dragonStandoffDistance, dragonSpacing, dragonScatterJitter);
+            for (int i = 0; i < count; i++) SpawnSkyDragon(d[i]);
+        }
+        else
+        {
+            float[] d = BuildScatteredDistances(count, majinStandoffDistance, majinSpacing, majinScatterJitter);
+            for (int i = 0; i < count; i++) SpawnSkyMajin(d[i]);
+        }
+    }
+
+    float SkySmallBossHpScale() => Mathf.Min(3f, 1f + currentGateK * smallBossHpPerKm);
+
+    // 1,000m ドラゴン(天空回廊の既存ドラゴン)。火炎弾(反射可能)はそのまま、低空突進を有効化、
+    // skyDragonLandingFromMeters以降は着地噛みつきも使う(いずれもDragonControllerの既存機能)。
+    void SpawnSkyDragon(float standoff)
+    {
+        SpawnDragon(standoff, dragon =>
+        {
+            dragon.gameObject.name = "SkyDragon";
+            dragon.chargeAttackEnabled = true;
+            dragon.landingAttackEnabled = currentGateK * gateIntervalMeters >= skyDragonLandingFromMeters;
+            dragon.landingAttackChance = 0.2f;
+            dragon.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(dragonMaxHp * SkySmallBossHpScale()));
+        });
+    }
+
+    void SpawnSkyMajin(float standoff)
+    {
+        SpawnMajin(standoff, majin =>
+        {
+            majin.gameObject.name = "SkyMajin";
+            majin.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(dragonMaxHp * majinHpMultiplier * SkySmallBossHpScale()));
+        });
+    }
+
+    struct SkySpec
+    {
+        public int hp, mile; public float height, gap; public Color burst;
+        public SkySpec(int hp, int mile, float height, float gap, Color burst) { this.hp = hp; this.mile = mile; this.height = height; this.gap = gap; this.burst = burst; }
+    }
+
+    // 神話級・天災級のため、同じ距離帯の荒野街道/自然洞窟ボスよりHP/MILE/体格を一段上げる。
+    static SkySpec SpecForSky(SkyBossKind kind)
+    {
+        switch (kind)
+        {
+            case SkyBossKind.Behemoth: return new SkySpec(70, 110, 4.8f, 9f, new Color(0.55f, 0.8f, 1f));
+            case SkyBossKind.Titan: return new SkySpec(110, 160, 14f, 9f, new Color(0.8f, 0.85f, 0.95f));
+            case SkyBossKind.Jellyfish: return new SkySpec(130, 200, 4.4f, 8f, new Color(0.6f, 0.95f, 1f));
+            case SkyBossKind.Leviathan: return new SkySpec(160, 250, 4.6f, 7f, new Color(0.7f, 0.85f, 1f));
+            case SkyBossKind.Fenrir: return new SkySpec(180, 310, 3.8f, 7f, new Color(0.6f, 0.85f, 1f));
+            case SkyBossKind.SkyGolem: return new SkySpec(210, 370, 6.2f, 9f, new Color(0.85f, 0.8f, 0.7f));
+            case SkyBossKind.Phoenix: return new SkySpec(220, 430, 4.4f, 8f, new Color(1f, 0.55f, 0.2f));
+            case SkyBossKind.SkySerpent: return new SkySpec(250, 490, 3.4f, 8f, new Color(0.75f, 0.85f, 1f));
+            case SkyBossKind.Guardian: return new SkySpec(320, 580, 3.6f, 7f, new Color(1f, 0.92f, 0.65f));
+            default: return new SkySpec(60, 80, 3f, 9f, Color.white);
+        }
+    }
+
+    SkyBossArt FindSkyArt(SkyBossKind kind)
+    {
+        if (skyArt == null) return null;
+        foreach (var a in skyArt) if (a != null && a.kind == kind) return a;
+        return null;
+    }
+
+    void SpawnSkyBoss(SkyBossKind kind, int index)
+    {
+        SkyBossArt art = FindSkyArt(kind);
+        SkySpec spec = SpecForSky(kind);
+
+        GameObject go = new GameObject("SkyBoss_" + kind);
+        go.tag = "Boss";
+        WildBossBase boss;
+        switch (kind)
+        {
+            case SkyBossKind.Behemoth: boss = go.AddComponent<BehemothBoss>(); break;
+            case SkyBossKind.Titan: boss = go.AddComponent<SkyTitanBoss>(); break;
+            case SkyBossKind.Jellyfish: boss = go.AddComponent<SkyJellyfishBoss>(); break;
+            case SkyBossKind.Leviathan: boss = go.AddComponent<LeviathanBoss>(); break;
+            case SkyBossKind.Fenrir: boss = go.AddComponent<FenrirBoss>(); break;
+            case SkyBossKind.SkyGolem: boss = go.AddComponent<SkyGolemBoss>(); break;
+            case SkyBossKind.Phoenix: boss = go.AddComponent<PhoenixBoss>(); break;
+            case SkyBossKind.SkySerpent: boss = go.AddComponent<SkySerpentBoss>(); break;
+            default: boss = go.AddComponent<CelestialGuardianBoss>(); break;
+        }
+
+        boss.bossName = kind.ToString();
+        boss.maxHp = EffectiveBossMaxHp(spec.hp);
+        boss.slotIndex = index;
+        boss.mileReward = spec.mile;
+        boss.bodyHeight = spec.height;
+        boss.startGap = spec.gap + index * 3.5f;
+        boss.defeatBurstColor = spec.burst;
+        boss.squareSprite = squareSprite;
+        boss.hitSparkSprite = bossHitSparkSprite;
+        boss.deathSmokeSprite = bossDeathSmokeSprite;
+        boss.finalHitSe = bossFinalHitSe;
+        boss.defeatSe = bossDefeatSe;
+        if (art != null)
+        {
+            boss.idleSprite = art.idle;
+            boss.moveSprite = art.move;
+            boss.windupSprite = art.windup;
+            boss.attackSprite = art.attack;
+        }
+        // 実イラストが無い場合の暫定ボディ(自然洞窟のCaveBodySilhouetteと同じ位置づけ)
+        if (boss.idleSprite == null) boss.idleSprite = SkyBossFx.Placeholder(kind);
+        if (boss.windupSprite == null) boss.windupSprite = boss.idleSprite;
+
+        boss.Init(player);
+    }
+
     // 80,000m ドラゴン: 既存DragonControllerに突進と着地攻撃を有効化して流用。
     void SpawnWastelandDragon(float standoff)
     {
@@ -1036,6 +1250,18 @@ public class BossManager : MonoBehaviour
         aliveWildThisEncounter = count;
         for (int i = 0; i < count; i++) SpawnCaveBoss(kind, i);
         Debug.Log("[Boss] DebugForceSpawnCave " + kind);
+    }
+
+    void DebugForceSpawnSky(SkyBossKind kind, int count = 1)
+    {
+        IsBossPhase = true;
+        if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
+        foreach (var o in GameObject.FindGameObjectsWithTag("Boss")) Destroy(o);
+        aliveDragonsThisEncounter = 0; aliveMajinsThisEncounter = 0; aliveWildThisEncounter = 0;
+        // 実際のゲートと同じく「戦闘中の移動を距離から除外」を開始しておく(報酬完了時のEndと対になる)。
+        if (GameManager.Instance != null) GameManager.Instance.BeginBossDistanceExclusion();
+        StartSkyEncounter(kind, count);
+        Debug.Log("[Boss] DebugForceSpawnSky " + kind + " x" + count);
     }
 #endif
 

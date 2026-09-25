@@ -651,6 +651,27 @@ public static class SceneBuilder
         // 「アセットのインポート設定をSprite化する」ことだけが目的(戻り値は
         // 使わない)。PPU=512は素材生成側のsquarepad2.ps1が常に512x512正方形へ
         // 出力する前提と一致させ、Make()時代と同じ「等倍で1x1unit」契約を保つ。
+        // 天空回廊ボス追加(2026-09-25) - caveArtと同じ考え方。画像はAssets/Art/SkyBoss/<name>_<pose>.png
+        // (ChatGPT生成、bossart.ps1で切り出し)。無いkind/姿勢はnull(SkyBossFx.Placeholderへフォールバック)。
+        // ドラゴン/魔人は既存のDragonIdle/MajinIdle等をそのまま使うのでここには含めない。
+        boss.skyArt = new[]
+        {
+            LoadSkyArt(SkyBossKind.Behemoth, "behemoth"),
+            LoadSkyArt(SkyBossKind.Titan, "titan"),
+            LoadSkyArt(SkyBossKind.Jellyfish, "jellyfish"),
+            LoadSkyArt(SkyBossKind.Leviathan, "leviathan"),
+            LoadSkyArt(SkyBossKind.Fenrir, "fenrir"),
+            LoadSkyArt(SkyBossKind.SkyGolem, "skygolem"),
+            LoadSkyArt(SkyBossKind.Phoenix, "phoenix"),
+            LoadSkyArt(SkyBossKind.SkySerpent, "skyserpent"),
+            LoadSkyArt(SkyBossKind.Guardian, "guardian"),
+        };
+        ConfigureEffectSpriteIfPresent("skybolt");
+        ConfigureEffectSpriteIfPresent("titanfist");
+        ConfigureEffectSpriteIfPresent("flamefeather");
+        ConfigureEffectSpriteIfPresent("cloudpuff");
+        ConfigureEffectSpriteIfPresent("thunderspear");
+
         ConfigureEffectSpriteIfPresent("fang");
         ConfigureEffectSpriteIfPresent("slash");
         ConfigureEffectSpriteIfPresent("ring");
@@ -4553,6 +4574,25 @@ public static class SceneBuilder
     static Sprite LoadCaveSprite(string name, string pose)
     {
         string path = "Assets/Art/CaveBoss/" + name + "_" + pose + ".png";
+        if (!File.Exists(path)) return null;
+        return ConfigureAndLoadSpriteWithFootPivot(path, 100f);
+    }
+
+    static BossManager.SkyBossArt LoadSkyArt(SkyBossKind kind, string name)
+    {
+        return new BossManager.SkyBossArt
+        {
+            kind = kind,
+            idle = LoadSkySprite(name, "idle"),
+            windup = LoadSkySprite(name, "windup"),
+            move = LoadSkySprite(name, "move"),
+            attack = LoadSkySprite(name, "attack"),
+        };
+    }
+
+    static Sprite LoadSkySprite(string name, string pose)
+    {
+        string path = "Assets/Art/SkyBoss/" + name + "_" + pose + ".png";
         if (!File.Exists(path)) return null;
         return ConfigureAndLoadSpriteWithFootPivot(path, 100f);
     }

@@ -152,6 +152,12 @@ public class AudioManager : MonoBehaviour
         if (SfxEnabled && clip != null) sfxSource.PlayOneShot(clip);
     }
 
+    // 天空回廊ボス追加(2026-09-25) - 音量指定つきの効果音(ログ出力なし、ボス攻撃音は頻繁なため)。
+    public void PlaySfxVolume(AudioClip clip, float volumeScale)
+    {
+        if (SfxEnabled && clip != null) sfxSource.PlayOneShot(clip, volumeScale);
+    }
+
     // volumeScale is per-call (via AudioSource.PlayOneShot's own overload),
     // not a change to sfxSource.volume itself - every other concurrently
     // playing one-shot on this shared source keeps its own separately-
