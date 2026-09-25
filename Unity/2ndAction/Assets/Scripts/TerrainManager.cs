@@ -57,9 +57,8 @@ public class TerrainManager : MonoBehaviour
     public EnemyDefinition[] debugTierTestEnemies;
     // 1体あたりの割り当て距離幅(m)。noEnemyBeforeDistanceより後ろから
     // 開始し、T0はそこから0〜この幅、T1は1〜2倍、T2は2〜3倍の区間で
-    // 最初に現れたNormal枠を横取りする。DebugMode中はBoss出現も早まる
-    // (最初のBossが200m前後)ため、既定値を控えめにしてT0〜T2の3体が
-    // Boss戦より手前で出揃うようにしてある。
+    // 最初に現れたNormal枠を横取りする。既定値を控えめにしてT0〜T2の3体が
+    // 最初のBoss戦(1,000m)より十分手前で出揃うようにしてある。
     public float debugTierTestSpanMeters = 30f;
 
     // Visual Style Ver.1 floating-platform art (left-cap/mid-tile/right-cap)

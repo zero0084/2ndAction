@@ -1601,6 +1601,8 @@ public class GameManager : MonoBehaviour
     void ToggleDebugMode()
     {
         DebugMode = !DebugMode;
+        // DEBUGをOFFにしたら、見えないまま速度倍率が残らないよう必ず等倍へ戻す。
+        if (!DebugMode) PlayerController.DebugSpeedScale = 1f;
         PlayerPrefs.SetInt(DebugModeKey, DebugMode ? 1 : 0);
         PlayerPrefs.Save();
     }
@@ -3946,6 +3948,44 @@ public class GameManager : MonoBehaviour
                 mileButtons[i].action();
             }
         }
+
+        // 走行速度のデバッグ調整(2026-09-26) - SPD -/+で段階的に上げ下げ、x1で元に戻す。
+        // 距離による通常の加速に掛け合わせる倍率(PlayerController.DebugSpeedScale)。
+        float speedRowY = debugRowY + bh + 6f;
+        float scale = PlayerController.DebugSpeedScale;
+        (string label, System.Action action)[] speedButtons =
+        {
+            ("SPD -", () => PlayerController.DebugSpeedScale = StepDebugSpeed(scale, -1)),
+            ("SPD +", () => PlayerController.DebugSpeedScale = StepDebugSpeed(scale, +1)),
+            ("SPD x1", () => PlayerController.DebugSpeedScale = 1f),
+        };
+        for (int i = 0; i < speedButtons.Length; i++)
+        {
+            Rect r = new Rect(SafeLeft() + UiMargin + i * (bw + gap), speedRowY, bw, bh);
+            if (DrawStyledButton(r, speedButtons[i].label, 11f, primary: i == 2 && Mathf.Abs(scale - 1f) > 0.001f))
+            {
+                speedButtons[i].action();
+            }
+        }
+        float kmh = PlayerController.Instance != null ? SpeedKmh(PlayerController.Instance.CurrentAutoRunSpeed) : 0f;
+        string speedText = $"x{PlayerController.DebugSpeedScale:0.##}  ({kmh:F0} km/h)";
+        GUIStyle speedStyle = new GUIStyle(GUI.skin.label) { fontSize = 14, alignment = TextAnchor.MiddleLeft };
+        speedStyle.normal.textColor = Mathf.Abs(PlayerController.DebugSpeedScale - 1f) > 0.001f ? new Color(1f, 0.85f, 0.3f) : new Color(0.6f, 1f, 0.7f);
+        Rect speedRect = new Rect(SafeLeft() + UiMargin + speedButtons.Length * (bw + gap), speedRowY, 150f, bh);
+        UiBackdrop.Draw(speedRect, 0.55f);
+        GUI.Label(new Rect(speedRect.x + 6f, speedRect.y, speedRect.width - 6f, speedRect.height), speedText, speedStyle);
+    }
+
+    static readonly float[] DebugSpeedSteps = { 0.25f, 0.5f, 0.75f, 1f, 1.25f, 1.5f, 2f, 2.5f, 3f, 4f, 5f, 6f, 8f };
+
+    static float StepDebugSpeed(float current, int dir)
+    {
+        int nearest = 0;
+        for (int i = 1; i < DebugSpeedSteps.Length; i++)
+        {
+            if (Mathf.Abs(DebugSpeedSteps[i] - current) < Mathf.Abs(DebugSpeedSteps[nearest] - current)) nearest = i;
+        }
+        return DebugSpeedSteps[Mathf.Clamp(nearest + dir, 0, DebugSpeedSteps.Length - 1)];
     }
 
     // Card Expansion/Gacha Evolution Ver.1, item 18 - Dev Build/Editor-only

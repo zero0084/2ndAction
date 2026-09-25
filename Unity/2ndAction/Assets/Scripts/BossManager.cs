@@ -74,7 +74,6 @@ public class BossManager : MonoBehaviour
     bool deathSpawned;
 
     public float bossRepeatInterval = 1000f;
-    public float bossRepeatIntervalDebug = 200f;
     // Every this-many checkpoints, the majin count steps up by one and the
     // dragon count wraps back to 0 (see the table above).
     public int majinCycleLength = 5;
@@ -111,8 +110,8 @@ public class BossManager : MonoBehaviour
     // ===== 荒野街道ボス追加(2026-09-20) =====
     // 荒野街道の固定スケジュール(距離→ボス)。true(既定)なら従来の
     // 「1000mごとにドラゴン/魔人」の周期ロジックの代わりにこの表で出現する
-    // (従来ロジックのコードは残してあり、falseで復帰できる)。Debug Mode
-    // では距離をbossRepeatIntervalDebug/bossRepeatInterval倍(=0.2倍)に縮める。
+    // (従来ロジックのコードは残してあり、falseで復帰できる)。
+    // (2026-09-26) Debug Modeでの距離短縮(0.2倍)は廃止 - 距離ワープボタンで代替する。
     // 100,000mの死神は従来どおり別系統(SpawnDeath、Gateにはならない)。
     public bool useWildSchedule = true;
     [System.Serializable]
@@ -280,14 +279,9 @@ public class BossManager : MonoBehaviour
         }
     }
 
-    float WildDistanceScale()
-    {
-        return GameManager.Instance != null && GameManager.Instance.DebugMode ? bossRepeatIntervalDebug / Mathf.Max(1f, bossRepeatInterval) : 1f;
-    }
-
     float WildTargetDistance()
     {
-        return gateK * gateIntervalMeters * WildDistanceScale();
+        return gateK * gateIntervalMeters;
     }
 
     float CurrentTargetDistance() => useWildSchedule ? WildTargetDistance() : nextBossDistance;
@@ -323,7 +317,7 @@ public class BossManager : MonoBehaviour
 
     float EffectiveRepeatInterval()
     {
-        return GameManager.Instance != null && GameManager.Instance.DebugMode ? bossRepeatIntervalDebug : bossRepeatInterval;
+        return bossRepeatInterval;
     }
 
     // First encounter is checkpoint 1 (one interval in), matching the
@@ -785,7 +779,7 @@ public class BossManager : MonoBehaviour
         nextBossDistance = checkpointDistance + EffectiveRepeatInterval();
 
         // 荒野街道スケジュール: チェックポイント距離より先の最初のエントリへ。
-        gateK = Mathf.Max(1, Mathf.FloorToInt((checkpointDistance + 1f) / Mathf.Max(1f, gateIntervalMeters * WildDistanceScale())) + 1);
+        gateK = Mathf.Max(1, Mathf.FloorToInt((checkpointDistance + 1f) / Mathf.Max(1f, gateIntervalMeters)) + 1);
         SkipEmptyGates();
     }
 

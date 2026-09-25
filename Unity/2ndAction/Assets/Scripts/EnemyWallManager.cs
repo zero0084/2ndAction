@@ -20,7 +20,6 @@ public class EnemyWallManager : MonoBehaviour
     public List<EnemyDefinition> enemyPool = new List<EnemyDefinition>();
 
     public float wallInterval = 500f;
-    public float wallIntervalDebug = 100f;
     public int columnCount = 3;
     public float columnSpacing = 1.6f;
     public float groundClearance = 0.5f;
@@ -55,7 +54,8 @@ public class EnemyWallManager : MonoBehaviour
 
     float EffectiveWallInterval()
     {
-        float baseInterval = GameManager.Instance != null && GameManager.Instance.DebugMode ? wallIntervalDebug : wallInterval;
+        // (2026-09-26) Debug Modeでの間隔短縮(100m)は廃止 - 距離ワープボタンで代替する。
+        float baseInterval = wallInterval;
         // "GREED" raises GameManager.EnemySpawnRateMultiplier above 1, which
         // shortens this interval - more frequent walls, as its downside.
         float multiplier = GameManager.Instance != null ? GameManager.Instance.EnemySpawnRateMultiplier : 1f;

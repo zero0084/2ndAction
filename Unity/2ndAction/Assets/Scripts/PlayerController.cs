@@ -556,10 +556,10 @@ public class PlayerController : MonoBehaviour
     // The player's base auto-scroll speed this frame, NOT including attack
     // lunge/recoil. Used by the boss to keep pace with ordinary running
     // without also cancelling out the player's attack-driven movement.
-    public float CurrentAutoRunSpeed => autoRunEnabled ? runSpeed * GetSpeedMultiplier() : 0f;
+    public float CurrentAutoRunSpeed => autoRunEnabled ? runSpeed * EffectiveSpeedMultiplier() : 0f;
     // 高速走行の視認性補正(2026-09-22) - 基礎速度に対する現在のAuto Run速度の倍率(1.0〜maxSpeedMultiplier)。
     // 表示/カメラ補正/配置間隔が参照するだけで、実際の移動速度計算には一切影響しない。
-    public float SpeedRatio => autoRunEnabled ? GetSpeedMultiplier() : 1f;
+    public float SpeedRatio => autoRunEnabled ? EffectiveSpeedMultiplier() : 1f;
     public float MaxSpeedRatio => Mathf.Max(1.01f, maxSpeedMultiplier);
     // 走行開始位置からの論理距離(Floating Originで座標を戻しても連続)。
     public float DistanceFromStart => (float)(transform.position.x - startX);
@@ -953,6 +953,12 @@ public class PlayerController : MonoBehaviour
         return best == fwdDot ? FlickDirection.Forward : FlickDirection.Backward;
     }
 
+    // デバッグ用の走行速度倍率(2026-09-26) - DEBUG ON時のSPD -/+ボタンで変更する(GameManager.
+    // DrawDistanceWarpDebugUI)。DEBUGをOFFにすると1へ戻る。移動速度だけに掛け、攻撃力の
+    // 速度ボーナス(MomentumBonus)は距離由来のGetSpeedMultiplierのまま変えない。
+    public static float DebugSpeedScale = 1f;
+    float EffectiveSpeedMultiplier() => GetSpeedMultiplier() * DebugSpeedScale;
+
     float GetSpeedMultiplier()
     {
         float distance = (float)(transform.position.x - startX);
@@ -972,7 +978,7 @@ public class PlayerController : MonoBehaviour
         float dt = Time.deltaTime;
         if (bufferedUpAttackTimer > 0f) bufferedUpAttackTimer -= dt;
         if (upShotVisualTimer > 0f) upShotVisualTimer -= dt;
-        float autoSpeed = autoRunEnabled ? runSpeed * GetSpeedMultiplier() : 0f;
+        float autoSpeed = autoRunEnabled ? runSpeed * EffectiveSpeedMultiplier() : 0f;
         // 荒野街道ボス追加(2026-09-20) - 巨大蜘蛛の糸による短時間の移動妨害。
         // CurrentAutoRunSpeed(ボス側の追従基準)には含めない - ボスは通常速度で
         // 走り続けるので、糸を受けたプレイヤーは相対的に後ろへ取り残される。
@@ -1546,7 +1552,7 @@ public class PlayerController : MonoBehaviour
         FinishProgress = 0f;
 
         // 減速(既定0.22秒、0.15〜0.30秒枠): 現在の自動前進速度から自然に0へ。
-        float startSpeed = runSpeed * GetSpeedMultiplier();
+        float startSpeed = runSpeed * EffectiveSpeedMultiplier();
         float t = 0f;
         while (t < finishDecelDuration)
         {

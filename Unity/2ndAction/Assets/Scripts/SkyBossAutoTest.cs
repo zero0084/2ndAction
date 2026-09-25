@@ -146,9 +146,8 @@ public class SkyBossAutoTest : MonoBehaviour
         yield return WaitEncounterEnd(gm, bm, "Majin x3");
 
         // ---- 3b) 実際の距離ゲート経由(WARNING演出→出現)。1,000m=ドラゴン、10,000m=ベヒーモス ----
-        // Editor(DebugMode)ではゲート間隔が0.2倍(WildDistanceScale)なので、k番目のゲート距離はk*1000*scale。
         var restore = bmType.GetMethod("RestoreNextBossDistance");
-        float scale = (float)bmType.GetMethod("WildDistanceScale", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(bm, null);
+        const float scale = 1f; // Debug Modeの距離短縮は2026-09-26に廃止
         float G(int k) => k * 1000f * scale;
         // 前半のForce Spawn戦闘で溜まった「戦闘中の移動除外」オフセットを0に戻し、ワープ後の距離=ワープ先にする。
         var gmType = typeof(GameManager);
@@ -191,6 +190,22 @@ public class SkyBossAutoTest : MonoBehaviour
         float rawAfter = PlayerController.Instance.DistanceFromStart;
         L($"[ContinueRun] run distance {rawBefore:F1} -> {rawAfter:F1} gameOver={gm.IsGameOver}");
         Check(rawAfter > rawBefore + 2f && !gm.IsGameOver, "run keeps going after all encounters");
+
+        // ---- 6) デバッグ速度ボタン(SPD -/+/x1)の倍率が実際の走行速度に効くか ----
+        var step = typeof(GameManager).GetMethod("StepDebugSpeed", BindingFlags.NonPublic | BindingFlags.Static);
+        float up = (float)step.Invoke(null, new object[] { 1f, +1 });
+        float down = (float)step.Invoke(null, new object[] { 1f, -1 });
+        var pc = PlayerController.Instance;
+        float baseSpeed = pc.CurrentAutoRunSpeed;
+        PlayerController.DebugSpeedScale = 3f;
+        float fastSpeed = pc.CurrentAutoRunSpeed;
+        float x0 = pc.DistanceFromStart;
+        yield return new WaitForSeconds(1.0f);
+        float moved = pc.DistanceFromStart - x0;
+        PlayerController.DebugSpeedScale = 1f;
+        L($"[DebugSpeed] step up={up} down={down} base={baseSpeed:F1} x3={fastSpeed:F1} moved1s={moved:F1}");
+        Check(up > 1f && down < 1f, "speed step up/down");
+        Check(Mathf.Abs(fastSpeed - baseSpeed * 3f) < 0.5f && moved > baseSpeed * 2f, "debug speed x3 applies to actual run speed");
 
         Application.logMessageReceived -= handler;
         L("");
