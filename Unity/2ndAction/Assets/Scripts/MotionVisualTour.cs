@@ -40,6 +40,7 @@ public class MotionVisualTour : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
         var gm = GameManager.Instance;
         if (characterId.StartsWith("demo:")) { yield return Demo(characterId.Substring(5)); yield break; }
+        if (characterId.StartsWith("demo2:")) { yield return Demo2(characterId.Substring(6)); yield break; }
         gm.SetSelectedCharacter(characterId);
         gm.SetSelectedStage("wasteland_road");
         typeof(GameManager).GetMethod("StartGame", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(gm, null);
@@ -186,6 +187,90 @@ public class MotionVisualTour : MonoBehaviour
         EditorApplication.isPlaying = false;
     }
 
+    // 竜騎士 改修第2弾の確認動画: ①通常Run(ジャンプ込み、絵が消えない) ②3段突き連続 ③ジャンプ→急降下→衝撃波。
+    // 各区間の開始/終了時刻(go.txtからの実時間)を demo2_times.txt に書き出す(動画の切り出し用)。
+    IEnumerator Demo2(string target)
+    {
+        var gm = GameManager.Instance;
+        string prevChar = gm.SelectedCharacterId, prevStage = gm.SelectedStageId;
+        gm.SetSelectedCharacter(target);
+        gm.SetSelectedStage("wasteland_road");
+        typeof(GameManager).GetMethod("StartGame", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(gm, null);
+        float t0 = Time.time;
+        while (!(gm.HasStarted && !gm.CountdownActive) && Time.time - t0 < 10f) yield return null;
+        gm.DebugSetInvincible(true);
+        foreach (var s in FindObjectsByType<ObstacleSpawner>(FindObjectsSortMode.None)) s.enabled = false;
+        foreach (var s in FindObjectsByType<EnemyWallManager>(FindObjectsSortMode.None)) s.enabled = false;
+        if (BossManager.Instance != null) BossManager.Instance.enabled = false;
+        if (TerrainManager.Instance != null) TerrainManager.Instance.enemySpawnChance = 0f;
+        foreach (var e in FindObjectsByType<EnemyController>(FindObjectsSortMode.None)) Destroy(e.gameObject);
+        StartCoroutine(Pump());
+        var pc = PlayerController.Instance;
+
+        System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "ready.txt"), "ready");
+        string go = System.IO.Path.Combine(dir, "go.txt");
+        float w = 0f;
+        while (!System.IO.File.Exists(go) && w < 120f) { w += Time.unscaledDeltaTime; yield return null; }
+        float r0 = Time.realtimeSinceStartup;
+        var times = new System.Text.StringBuilder();
+        void Mark(string what) => times.AppendLine($"{what} {Time.realtimeSinceStartup - r0:F2}");
+
+        // ① 通常Run(穴はジャンプで越える、途中で普通のジャンプも挟む)
+        yield return new WaitForSecondsRealtime(0.8f);
+        Mark("run_start");
+        float rt = 0f; float nextJump = 2.2f;
+        while (rt < 7f)
+        {
+            var tm = TerrainManager.Instance;
+            float lead = 1.1f * Mathf.Max(1f, pc.CurrentAutoRunSpeed / 5f);
+            bool pit = pc.IsGrounded && tm != null && tm.IsNearPit(pc.transform.position.x + lead, 0.4f);
+            if (pit || rt >= nextJump) { if (!pit) nextJump += 2.4f; yield return DemoFlick(pc, PlayerController.FlickDirection.Up); }
+            yield return null; rt += Time.deltaTime;
+        }
+        Mark("run_end");
+
+        // ② 3段突き(前方に敵を並べ、Quick Thrust → Step Thrust → Dragon Pierce を2回)
+        for (int rep = 0; rep < 2; rep++)
+        {
+            for (int i = 0; i < 6; i++) DemoEnemy(pc, 2.2f + i * 0.85f, 0f);
+            yield return new WaitForSeconds(0.35f);
+            if (rep == 0) Mark("combo_start");
+            for (int k = 0; k < 3; k++)
+            {
+                yield return DemoFlick(pc, PlayerController.FlickDirection.Forward);
+                float ct = 0f;
+                while (ct < 1.2f && pc.LanceComboStage == k + 1 && pc.LanceFrameIndex == 0) { yield return null; ct += Time.deltaTime; }
+                yield return new WaitForSeconds(0.14f);
+            }
+            yield return new WaitForSeconds(1.3f);
+        }
+        Mark("combo_end");
+
+        // ③ ジャンプ → 急降下 → 突き刺し着地の衝撃波(着地点の前後に敵)
+        for (int rep = 0; rep < 2; rep++)
+        {
+            yield return new WaitForSeconds(0.5f);
+            if (rep == 0) Mark("dive_start");
+            yield return DemoFlick(pc, PlayerController.FlickDirection.Up);
+            yield return new WaitForSeconds(0.2f);
+            if (rep == 1) { yield return DemoFlick(pc, PlayerController.FlickDirection.Up); yield return new WaitForSeconds(0.25f); }
+            DemoEnemy(pc, 1.0f, 0f); DemoEnemy(pc, 1.9f, 0f); DemoEnemy(pc, -0.4f, 0f);
+            yield return new WaitForSeconds(0.2f);
+            yield return DemoFlick(pc, PlayerController.FlickDirection.Down);
+            float dt2 = 0f;
+            while (dt2 < 3f && (pc.LanceMove == PlayerController.LanceMoveKind.Dive || !pc.IsGrounded)) { yield return null; dt2 += Time.unscaledDeltaTime; }
+            yield return new WaitForSeconds(1.4f);
+        }
+        Mark("dive_end");
+        yield return new WaitForSecondsRealtime(0.5f);
+
+        System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "demo2_times.txt"), times.ToString());
+        if (!string.IsNullOrEmpty(prevChar)) gm.SetSelectedCharacter(prevChar);
+        if (!string.IsNullOrEmpty(prevStage)) gm.SetSelectedStage(prevStage);
+        System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "done_demo2.txt"), System.DateTime.Now.ToString());
+        EditorApplication.isPlaying = false;
+    }
+
     void DemoEnemy(PlayerController pc, float dx, float dy)
     {
         EnemyDefinition d = EnemyDatabase.FindById("goblin");
@@ -252,5 +337,8 @@ public static class MotionVisualTourMenu
 
     [MenuItem("Tools/OneMoreMile/Demo Video: Dragon Lancer")]
     public static void DemoLancer() => Launch("demo:dragon_lancer");
+
+    [MenuItem("Tools/OneMoreMile/Demo Video: Dragon Lancer (Fix2)")]
+    public static void DemoLancer2() => Launch("demo2:dragon_lancer");
 }
 #endif

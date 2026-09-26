@@ -125,6 +125,7 @@ public static class CharacterDatabaseBuilder
         public bool isLancer;
         public string lanceBackFramesDir;
         public string lanceDownFramesDir;
+        public string lanceDiveFramesDir; // 空中の急降下突き(構え/落下/突き刺し着地)
         public string hurtFramesDir;
         public string recoveryFramesDir;
         public string deathFramesDir;
@@ -600,6 +601,7 @@ public static class CharacterDatabaseBuilder
         lancer.attackHeadPivot = true;
         lancer.lanceBackFramesDir = "Assets/Art/LancerBack_v1";
         lancer.lanceDownFramesDir = "Assets/Art/LancerDown_v1";
+        lancer.lanceDiveFramesDir = "Assets/Art/LancerDive_v1";
         lancer.upShotFramesDir = "Assets/Art/LancerUp_v1";
         lancer.upShotFramesPpu = lp;
         lancer.hurtFramesDir = "Assets/Art/LancerHurt_v1";
@@ -888,6 +890,8 @@ public static class CharacterDatabaseBuilder
             d.isLancer = true;
             d.lanceBackFrames = LoadAnimationFolder(spec.lanceBackFramesDir, spec.lancerPpu);
             d.lanceDownFrames = LoadAnimationFolder(spec.lanceDownFramesDir, spec.lancerPpu);
+            if (!string.IsNullOrEmpty(spec.lanceDiveFramesDir) && AssetDatabase.IsValidFolder(spec.lanceDiveFramesDir))
+                d.lanceDiveFrames = LoadAnimationFolder(spec.lanceDiveFramesDir, spec.lancerPpu);
         }
         if (!string.IsNullOrEmpty(spec.hurtFramesDir)) d.hurtFrames = LoadAnimationFolder(spec.hurtFramesDir, spec.lancerPpu);
         if (!string.IsNullOrEmpty(spec.recoveryFramesDir)) d.recoveryFrames = LoadAnimationFolder(spec.recoveryFramesDir, spec.lancerPpu);

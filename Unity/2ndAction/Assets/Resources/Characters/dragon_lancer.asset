@@ -138,6 +138,62 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 02d28202864a26248a8b7727b5a42b79, type: 3}
   lanceDownFrames:
   - {fileID: 21300000, guid: 807c5d9405f3a3c4a85447d4986070ea, type: 3}
+  lanceComboWindup:
+  - 0.07
+  - 0.1
+  - 0.16
+  lanceComboActive:
+  - 0.11
+  - 0.13
+  - 0.18
+  lanceComboRecovery:
+  - 0.15
+  - 0.2
+  - 0.46
+  lanceComboReachScale:
+  - 0.9
+  - 1.05
+  - 1.3
+  lanceComboDashScale:
+  - 0.6
+  - 1.1
+  - 1.8
+  lanceComboDamageScale:
+  - 1
+  - 1.25
+  - 1.7
+  lanceComboKnockbackScale:
+  - 1
+  - 1.3
+  - 1.8
+  lanceComboHitStop:
+  - 0
+  - 0.02
+  - 0.11
+  lanceComboFxThickness:
+  - 0.8
+  - 1
+  - 1.6
+  lanceComboGrace: 0.45
+  lanceDiveWindup: 0.1
+  lanceDiveSpeed: 22
+  lanceDiveHorizontalScale: 0.1
+  lanceDiveMaxTime: 2.5
+  lanceDiveImpactRadius: 1.8
+  lanceDiveImpactHeight: 1.2
+  lanceDiveImpactDamageScale: 1.5
+  lanceDiveImpactKnockbackScale: 1.6
+  lanceDiveImpactHitStop: 0.1
+  lanceDiveImpactActive: 0.14
+  lanceDiveRecovery: 0.3
+  lanceDiveFrames:
+  - {fileID: 21300000, guid: ff246123f6288624e90d7fa8e8ab2d31, type: 3}
+  - {fileID: 21300000, guid: acc9aa721afd43140a20c5de00493272, type: 3}
+  - {fileID: 21300000, guid: 52658682143d1c14b9105b6e96bd2663, type: 3}
+  lanceDiveFrameOffsetY:
+  - -0.48
+  - -0.3
+  - 0
   deathFrames:
   - {fileID: 21300000, guid: 73a7ce139a78153439aa27984802ae18, type: 3}
   belongings:

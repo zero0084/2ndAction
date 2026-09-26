@@ -260,6 +260,39 @@ public class CharacterDefinition : ScriptableObject
     public float lanceDownActive = 0.16f;
     public Sprite[] lanceBackFrames;
     public Sprite[] lanceDownFrames;
+
+    // 竜騎士 改修(2026-09-26 第2弾) - 前突きの3段コンボ(Quick Thrust → Step Thrust →
+    // Dragon Pierce)。配列の[0]〜[2]が1〜3段目。リーチ/突進/威力/KBは上の基準値に掛ける倍率。
+    // 3段とも「細長く非常に長い前方判定」のまま、段が進むほど長く・重く・隙が大きい。
+    public float[] lanceComboWindup = { 0.07f, 0.1f, 0.16f };
+    public float[] lanceComboActive = { 0.11f, 0.13f, 0.18f };
+    public float[] lanceComboRecovery = { 0.15f, 0.2f, 0.46f };
+    public float[] lanceComboReachScale = { 0.9f, 1.05f, 1.3f };
+    public float[] lanceComboDashScale = { 0.6f, 1.1f, 1.8f };
+    public float[] lanceComboDamageScale = { 1f, 1.25f, 1.7f };
+    public float[] lanceComboKnockbackScale = { 1f, 1.3f, 1.8f };
+    public float[] lanceComboHitStop = { 0f, 0.02f, 0.11f };   // 命中時のHitStop(0=敵側の既定値)
+    public float[] lanceComboFxThickness = { 0.8f, 1f, 1.6f };  // 槍先の衝撃波の太さ
+    public float lanceComboGrace = 0.45f; // 突き終わってからこの秒数以内の入力は次の段へ(過ぎると1段目に戻る)
+
+    // 空中の下攻撃 = 急降下突き(構え→真下へ高速落下→地面へ突き刺して着地→衝撃波)。
+    // 地上の下攻撃は従来どおり前方下への突き。
+    public float lanceDiveWindup = 0.1f;
+    public float lanceDiveSpeed = 22f;
+    public float lanceDiveHorizontalScale = 0.1f;  // 落下中の前進速度の倍率(ほぼ真下へ落ちる)
+    public float lanceDiveMaxTime = 2.5f;          // 念のための上限(着地しないまま続かない)
+    public float lanceDiveImpactRadius = 1.8f;     // 着地の衝撃の横半径
+    public float lanceDiveImpactHeight = 1.2f;
+    public float lanceDiveImpactDamageScale = 1.5f;
+    public float lanceDiveImpactKnockbackScale = 1.6f;
+    public float lanceDiveImpactHitStop = 0.1f;
+    public float lanceDiveImpactActive = 0.14f;
+    public float lanceDiveRecovery = 0.3f;         // 突き刺した後の硬直
+    public Sprite[] lanceDiveFrames;               // [0]=構え(穂先を真下へ) [1]=落下 [2]=突き刺して着地
+    // 急降下の絵は穂先が足より下にある(下端中央ピボット=穂先の先)。足元をプレイヤー位置に
+    // 合わせるため、コマごとに絵を下へずらす量(world)。着地コマは足元が下端なので0。
+    public float[] lanceDiveFrameOffsetY = { -0.48f, -0.3f, 0f };
+
     // 死亡時の専用ポーズ(全キャラ共通の仕組み。空なら従来どおり消えて爆散)。
     public Sprite[] deathFrames;
 

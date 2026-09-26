@@ -47,6 +47,9 @@ public class PlayerAnimator : MonoBehaviour
     // (全キャラ共通の仕組み、空なら従来どおり)。竜騎士以外は常にnull。
     [System.NonSerialized] public Sprite[] lanceBackFrames;
     [System.NonSerialized] public Sprite[] lanceDownFrames;
+    [System.NonSerialized] public Sprite[] lanceDiveFrames;
+    [System.NonSerialized] public float[] lanceDiveFrameOffsetY;
+    bool diveOffsetApplied;
     [System.NonSerialized] public Sprite[] deathFrames;
     public float deathFps = 6f;
     public float runFps = 10f;
@@ -285,6 +288,8 @@ public class PlayerAnimator : MonoBehaviour
 
         lanceBackFrames = def.isLancer && HasFrames(def.lanceBackFrames) ? def.lanceBackFrames : null;
         lanceDownFrames = def.isLancer && HasFrames(def.lanceDownFrames) ? def.lanceDownFrames : null;
+        lanceDiveFrames = def.isLancer && HasFrames(def.lanceDiveFrames) ? def.lanceDiveFrames : null;
+        lanceDiveFrameOffsetY = def.isLancer ? def.lanceDiveFrameOffsetY : null;
         deathFrames = HasFrames(def.deathFrames) ? def.deathFrames : null;
 
         hurtFrames = HasFrames(def.hurtFrames) ? def.hurtFrames : defaultHurtFrames;
@@ -543,7 +548,7 @@ public class PlayerAnimator : MonoBehaviour
         startFrames = defaultStartFrames; finishShortFrames = defaultFinishShortFrames; finishMediumFrames = defaultFinishMediumFrames;
         finishLongFrames = defaultFinishLongFrames; finishExtremeFrames = defaultFinishExtremeFrames;
         attackFrames = defaultAttackFrames; attackFramesSmall = defaultAttackFramesSmall; attackFramesLarge = defaultAttackFramesLarge;
-        lanceBackFrames = null; lanceDownFrames = null; deathFrames = null;
+        lanceBackFrames = null; lanceDownFrames = null; lanceDiveFrames = null; deathFrames = null;
     }
 
     // 竜騎士の攻撃中は技ごとの専用ポーズ(無ければ通常の攻撃絵)。
@@ -553,6 +558,11 @@ public class PlayerAnimator : MonoBehaviour
         {
             if (controller.LanceMove == PlayerController.LanceMoveKind.Backward && HasFrames(lanceBackFrames)) return lanceBackFrames;
             if (controller.LanceMove == PlayerController.LanceMoveKind.Down && HasFrames(lanceDownFrames)) return lanceDownFrames;
+            if (controller.LanceMove == PlayerController.LanceMoveKind.Dive)
+            {
+                if (HasFrames(lanceDiveFrames)) return lanceDiveFrames;
+                if (HasFrames(lanceDownFrames)) return lanceDownFrames;
+            }
         }
         return GetAttackFrames(attackStage);
     }
@@ -574,6 +584,34 @@ public class PlayerAnimator : MonoBehaviour
         State.Finish => HasFrames(GetFinishFrames(finishTier)) ? GetFinishFrames(finishTier) : FallbackSingleFrame(),
         _ => runFrames
     };
+
+    // 竜騎士Sprite消失の対策(2026-09-26 第2弾) - どのState/コマ切り替えでも、空(null)の
+    // Spriteを割り当てて1フレームでもキャラが消えることがないようにする(nullなら直前の絵を保つ)。
+    void SetSpriteSafe(Sprite next)
+    {
+        if (next != null) { sr.sprite = next; return; }
+        if (sr.sprite == null && HasFrames(runFrames)) sr.sprite = runFrames[0];
+    }
+
+    // 竜騎士の急降下突き: 穂先が足より下にある絵なので、足元がプレイヤー位置に来るよう下へずらす。
+    void ApplyLanceDiveOffset(Sprite[] frames)
+    {
+        if (visualT == null) return;
+        bool on = state == State.Attack && controller != null && controller.IsLancer
+            && controller.LanceMove == PlayerController.LanceMoveKind.Dive
+            && frames == lanceDiveFrames && lanceDiveFrameOffsetY != null && lanceDiveFrameOffsetY.Length > 0;
+        if (on)
+        {
+            float oy = lanceDiveFrameOffsetY[Mathf.Clamp(frameIndex, 0, lanceDiveFrameOffsetY.Length - 1)];
+            visualT.localPosition = visualBasePos + new Vector3(0f, oy, 0f);
+            diveOffsetApplied = true;
+        }
+        else if (diveOffsetApplied)
+        {
+            visualT.localPosition = visualBasePos;
+            diveOffsetApplied = false;
+        }
+    }
 
     void UpdatePuppet()
     {
@@ -669,13 +707,13 @@ public class PlayerAnimator : MonoBehaviour
             frameIndex = frames.Length > 2
                 ? Mathf.Min(frames.Length - 1, (int)(p * frames.Length))
                 : (p < startFrame0HoldFraction ? 0 : Mathf.Min(1, frames.Length - 1));
-            sr.sprite = frames[frameIndex];
+            SetSpriteSafe(frames[frameIndex]);
         }
         else if (state == State.Finish && HasFrames(GetFinishFrames(controller != null ? controller.FinishTierIndex : 0)))
         {
             float p = controller != null ? controller.FinishProgress : 1f;
             frameIndex = p < finishFrame0HoldFraction ? 0 : Mathf.Min(1, frames.Length - 1);
-            sr.sprite = frames[frameIndex];
+            SetSpriteSafe(frames[frameIndex]);
         }
         else
         {
@@ -727,7 +765,8 @@ public class PlayerAnimator : MonoBehaviour
             if (state == State.Attack && controller != null && controller.IsLancer && controller.LanceMove != PlayerController.LanceMoveKind.None)
                 frameIndex = Mathf.Min(controller.LanceFrameIndex, frames.Length - 1);
 
-            sr.sprite = frames[frameIndex];
+            SetSpriteSafe(frames[frameIndex]);
+            ApplyLanceDiveOffset(frames);
         }
 
         if (brightenOverlay != null)

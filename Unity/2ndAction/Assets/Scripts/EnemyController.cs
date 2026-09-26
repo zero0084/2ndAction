@@ -562,14 +562,14 @@ public class EnemyController : MonoBehaviour
             case PlayerAttackKind.Down:
                 // isLaunchedでない(浮いていない)敵への下攻撃 - 叩き落とす
                 // 対象がないので通常ヒットと同じ扱い。
-                StartCoroutine(ReactToHit(contactPoint, hitStopDuration));
+                StartCoroutine(ReactToHit(contactPoint, HitStopForPlayerAttack()));
                 StartCoroutine(KnockbackRoutine(AwayDirFromPlayer(), hitKnockbackDistance, hitKnockbackDuration));
                 break;
 
             case PlayerAttackKind.Normal:
             case PlayerAttackKind.DownImpact:
             default:
-                StartCoroutine(ReactToHit(contactPoint, hitStopDuration));
+                StartCoroutine(ReactToHit(contactPoint, HitStopForPlayerAttack()));
                 if (isLaunched)
                 {
                     // item 2 - 「浮いている敵を追撃、少し前方向へ運ぶ、
@@ -588,6 +588,14 @@ public class EnemyController : MonoBehaviour
                 }
                 break;
         }
+    }
+
+    // 竜騎士の3段目/急降下の着地など「強めのHitStop」を持つ攻撃(この端末のプレイヤーの攻撃だけ)。
+    // 他キャラはAttackHitStopOverride=0なので従来のhitStopDurationのまま。
+    float HitStopForPlayerAttack()
+    {
+        if (netReactionAttacker > 0 || PlayerController.Instance == null) return hitStopDuration;
+        return Mathf.Max(hitStopDuration, PlayerController.Instance.AttackHitStopOverride);
     }
 
     float AwayDirFromPlayer()

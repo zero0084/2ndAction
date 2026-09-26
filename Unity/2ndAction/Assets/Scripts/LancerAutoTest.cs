@@ -68,11 +68,15 @@ public class LancerAutoTest : MonoBehaviour
         Check(n(def.runFrames) >= 4 && n(def.attackFrames) == 2 && n(def.lanceBackFrames) > 0 && n(def.lanceDownFrames) > 0 && n(def.upShotFrames) > 0, "attack/run art");
         Check(n(def.hurtFrames) > 0 && n(def.deathFrames) > 0 && n(def.startFrames) == 4 && n(def.finishExtremeFrames) == 2, "reaction/start/finish art");
 
+        StartCoroutine(AutoPickLevelUp());
         yield return TestForwardPierce(pc, anim);
         yield return TestBackward(pc, anim);
         yield return TestUp(pc);
         yield return TestDown(pc, anim);
         yield return TestHurt(pc, anim, gm);
+        yield return TestCombo(pc);
+        yield return TestDive(pc, anim);
+        yield return TestUpThenHorizontal(pc, gm);
         yield return TestRegression(pc, def);
         yield return TestDeath(pc, anim, gm);
 
@@ -96,6 +100,24 @@ public class LancerAutoTest : MonoBehaviour
     }
 
     int Hp(EnemyController e) => e == null ? -9999 : (int)hpF.GetValue(e);
+    float hitboxFeetY;
+
+    // 走行距離のEXPでレベルアップしてもカード選択で止まらないよう自動で選ぶ(時間が止まると判定がずれる)。
+    IEnumerator AutoPickLevelUp()
+    {
+        while (true)
+        {
+            var gm = GameManager.Instance;
+            if (gm != null && gm.IsRewardSequenceWaitingForSelection)
+            {
+                var seq = FindFirstObjectByType<RewardCardSequence>();
+                if (seq != null) { seq.OnCardClicked(0); yield return new WaitForSecondsRealtime(0.15f); seq.OnCardClicked(0); }
+                yield return new WaitForSecondsRealtime(0.3f);
+                continue;
+            }
+            yield return null;
+        }
+    }
 
     IEnumerator Flick(PlayerController pc, PlayerController.FlickDirection dir)
     {
@@ -213,11 +235,11 @@ public class LancerAutoTest : MonoBehaviour
         {
             if (pc.LanceMove == PlayerController.LanceMoveKind.Down) downMove = true;
             if (pc.IsDiveAttacking) dove = true;
-            if (pc.LanceHitbox != null && pc.LanceHitbox.enabled) { Physics2D.SyncTransforms(); hb = pc.LanceHitbox.bounds; }
+            if (pc.LanceHitbox != null && pc.LanceHitbox.enabled) { Physics2D.SyncTransforms(); hb = pc.LanceHitbox.bounds; hitboxFeetY = pc.transform.position.y; }
             if (anim != null && anim.VisualRenderer.sprite != null && anim.VisualRenderer.sprite.name.StartsWith("down")) downPose = true;
             yield return null; t += Time.unscaledDeltaTime;
         }
-        float gy = pc.transform.position.y;
+        float gy = hitboxFeetY;
         L($"[Down] move={downMove} dove={dove} downPose={downPose} hitbox y={hb.min.y - gy:F2}..{hb.max.y - gy:F2} hp={Hp(e)}");
         Check(downMove && !dove, "ground down thrust (no dive)");
         Check(hb.max.y - gy < 0.7f, "down hitbox is low");
@@ -227,12 +249,189 @@ public class LancerAutoTest : MonoBehaviour
         Cleanup(e);
     }
 
+    // ===== 2026-09-26 第2弾: 3段突き / 急降下突き / 上攻撃→横攻撃の停止バグ ===== //
+
+    IEnumerator TestCombo(PlayerController pc)
+    {
+        yield return WaitIdle(pc);
+        var enemies = new List<EnemyController>();
+        for (int i = 0; i < 6; i++) enemies.Add(Spawn(pc, 1.6f + i * 0.9f, 0f));
+        yield return null;
+        var stageSeen = new List<int>(); var reachByStage = new float[4]; var dmgByStage = new float[4]; var kbByStage = new float[4];
+        float stage3End = -1f, idleAfter3 = -1f, t = 0f;
+        int lastStage = 0;
+        // 突きの最中に次の入力を送り続ける(連打)
+        float nextFlick = 0f;
+        while (t < 2.6f)
+        {
+            if (t >= nextFlick && stageSeen.Count < 3) { pc.debugInjectFlick = PlayerController.FlickDirection.Forward; nextFlick = t + 0.12f; }
+            else pc.debugInjectFlick = null;
+            int st = pc.LanceComboStage;
+            if (st > 0 && st != lastStage) { stageSeen.Add(st); lastStage = st; }
+            if (st > 0 && pc.LanceHitbox != null && pc.LanceHitbox.enabled)
+            {
+                reachByStage[st] = Mathf.Max(reachByStage[st], pc.LanceHitbox.transform.localScale.x);
+                dmgByStage[st] = Mathf.Max(dmgByStage[st], pc.EffectiveAttackPower);
+                kbByStage[st] = Mathf.Max(kbByStage[st], pc.KnockbackPowerMultiplier);
+            }
+            if (st == 3 && pc.LanceHitbox != null && !pc.LanceHitbox.enabled && pc.LanceFrameIndex == 1 && stage3End < 0f) stage3End = t;
+            if (stage3End >= 0f && idleAfter3 < 0f && !pc.IsAttacking) idleAfter3 = t;
+            yield return null; t += Time.unscaledDeltaTime;
+        }
+        pc.debugInjectFlick = null;
+        L($"[Combo] stages={string.Join(">", stageSeen)} reach1..3={reachByStage[1]:F2}/{reachByStage[2]:F2}/{reachByStage[3]:F2} dmg={dmgByStage[1]}/{dmgByStage[2]}/{dmgByStage[3]} kb={kbByStage[1]:F2}/{kbByStage[2]:F2}/{kbByStage[3]:F2} recovery3={(idleAfter3 - stage3End):F2}s");
+        Check(stageSeen.Count >= 3 && stageSeen[0] == 1 && stageSeen[1] == 2 && stageSeen[2] == 3, "combo 1>2>3");
+        Check(reachByStage[1] < reachByStage[2] && reachByStage[2] < reachByStage[3], "reach grows per stage");
+        Check(dmgByStage[3] >= dmgByStage[2] && dmgByStage[2] >= dmgByStage[1] && dmgByStage[3] > dmgByStage[1], "damage grows per stage");
+        Check(kbByStage[1] < kbByStage[2] && kbByStage[2] < kbByStage[3], "knockback grows per stage");
+        Check(reachByStage[3] > 2.5f, "stage3 long thin reach");
+        Check(idleAfter3 - stage3End > 0.35f, "stage3 has bigger recovery");
+        // 入力が途切れたら1段目へ戻る
+        yield return WaitIdle(pc);
+        yield return Flick(pc, PlayerController.FlickDirection.Forward);
+        yield return null;
+        int again = pc.LanceComboStage;
+        L($"[Combo] after pause next stage={again} (expect 1)");
+        Check(again == 1, "combo resets after pause");
+        yield return WaitIdle(pc);
+        Cleanup(enemies.ToArray());
+    }
+
+    // 前方に穴が無い区間まで待つ(落下復帰が挟まると着地の確認ができないため)
+    IEnumerator WaitNoPitAhead(PlayerController pc, float distance)
+    {
+        var tm = TerrainManager.Instance;
+        float t = 0f;
+        while (tm != null && t < 20f)
+        {
+            bool pit = false;
+            for (float d = -1f; d <= distance; d += 0.5f) if (tm.IsNearPit(pc.transform.position.x + d, 0.3f)) { pit = true; break; }
+            if (!pit && pc.IsGrounded) break;
+            yield return null; t += Time.unscaledDeltaTime;
+        }
+    }
+
+    IEnumerator TestDive(PlayerController pc, PlayerAnimator anim)
+    {
+        yield return WaitIdle(pc);
+        yield return WaitNoPitAhead(pc, 6f);
+        yield return Flick(pc, PlayerController.FlickDirection.Up);
+        // 上昇のピーク付近まで待つ
+        float t = 0f;
+        while (t < 0.45f) { yield return null; t += Time.unscaledDeltaTime; }
+        float airY = pc.transform.position.y;
+        // 着地点の周り(前後)に敵を置く
+        var near = new[] { Spawn(pc, 0.9f, 0f), Spawn(pc, -0.6f, 0f), Spawn(pc, 1.6f, 0f) };
+        yield return null;
+        yield return Flick(pc, PlayerController.FlickDirection.Down);
+        float x0 = pc.transform.position.x, y0 = pc.transform.position.y;
+        bool dive = false, landed = false, sawHitStop = false, sawImpactPose = false; float fallX = 0f, fallY = 0f, maxVy = 0f; t = 0f;
+        float prevY = y0; float landT = -1f, runT = -1f;
+        while (t < 3f)
+        {
+            if (pc.LanceMove == PlayerController.LanceMoveKind.Dive) dive = true;
+            if (pc.IsLanceDiving && pc.LanceFrameIndex == 1) { fallX = pc.transform.position.x - x0; fallY = y0 - pc.transform.position.y; if (Time.deltaTime > 0f) maxVy = Mathf.Max(maxVy, (prevY - pc.transform.position.y) / Time.deltaTime); }
+            if (dive && pc.LanceFrameIndex == 2) { landed = true; sawImpactPose = true; if (landT < 0f) landT = t; }
+            if (HitStop.IsActive && landed) sawHitStop = true;
+            if (landed && runT < 0f && !pc.IsAttacking && pc.IsGrounded && pc.LanceMove == PlayerController.LanceMoveKind.None) runT = t;
+            prevY = pc.transform.position.y;
+            yield return null; t += Time.unscaledDeltaTime;
+        }
+        int hit = 0; foreach (var e in near) if (Hp(e) < 999) hit++;
+        L($"[Dive] dive={dive} fall dx={fallX:F2} dy={fallY:F2} (vertical ratio {(fallY > 0.01f ? fallX / fallY : 99):F2}) maxFallSpeed={maxVy:F1} landed={landed} impactPose={sawImpactPose} hitStop={sawHitStop} enemiesHit={hit}/3 backToRun={(runT - landT):F2}s airY={airY:F2}");
+        Check(dive && landed, "air down = dive + landing");
+        Check(fallY > 0.3f && Mathf.Abs(fallX) < fallY * 0.5f, "dive falls almost straight down");
+        Check(maxVy > 12f, "dive is fast");
+        Check(sawHitStop, "landing hitstop");
+        Check(hit >= 2, "impact damages nearby enemies");
+        Check(runT > 0f && runT - landT < 1.2f, "returns to run after dive");
+        yield return WaitIdle(pc);
+        Cleanup(near);
+    }
+
+    // 攻撃の後、走れる/攻撃できる状態へ戻っているか(永久停止していないか)。
+    IEnumerator CheckRecovered(PlayerController pc, string label)
+    {
+        float t = 0f;
+        var trace = new StringBuilder();
+        string last = "";
+        while ((pc.IsAttacking || pc.LanceMove != PlayerController.LanceMoveKind.None || !pc.IsGrounded || pc.IsReacting) && t < 3f)
+        {
+            string now = $"{pc.LanceMove}/{pc.LanceComboStage}/{pc.LanceFrameIndex}/{(pc.IsGrounded ? "G" : "A")}/ts{Time.timeScale:F0}";
+            if (now != last) { trace.Append($" {t:F2}:{now}"); last = now; }
+            yield return null; t += Time.deltaTime; // レベルアップ等の一時停止中は数えない
+        }
+        bool idle = !pc.IsAttacking && pc.LanceMove == PlayerController.LanceMoveKind.None && pc.IsGrounded;
+        float waited = t;
+        if (!idle || t > 1.5f) L($"  [Recover] {label} trace:{trace}");
+        if (!idle) L($"  [Recover] {label} still busy: attacking={pc.IsAttacking} lance={pc.LanceMove} grounded={pc.IsGrounded} reacting={pc.IsReacting} y={pc.transform.position.y:F2}");
+        yield return new WaitForSecondsRealtime(0.55f);
+        float x0 = pc.transform.position.x;
+        yield return new WaitForSeconds(0.4f);
+        float moved = pc.transform.position.x - x0;
+        yield return Flick(pc, PlayerController.FlickDirection.Forward);
+        bool canAttack = false; t = 0f;
+        while (t < 0.4f) { if (pc.IsAttacking) canAttack = true; yield return null; t += Time.unscaledDeltaTime; }
+        L($"[Recover] {label}: idle={idle} ({waited:F2}s) runMoved={moved:F2} canAttackAgain={canAttack}");
+        Check(idle && moved > 0.5f && canAttack, label + " recovers (run + attack)");
+        yield return WaitIdle(pc);
+    }
+
+    IEnumerator Sequence(PlayerController pc, params (PlayerController.FlickDirection dir, float wait)[] steps)
+    {
+        foreach (var s in steps)
+        {
+            yield return Flick(pc, s.dir);
+            float t = 0f; while (t < s.wait) { yield return null; t += Time.unscaledDeltaTime; }
+        }
+    }
+
+    IEnumerator TestUpThenHorizontal(PlayerController pc, GameManager gm)
+    {
+        var U = PlayerController.FlickDirection.Up; var F = PlayerController.FlickDirection.Forward;
+        var B = PlayerController.FlickDirection.Backward; var D = PlayerController.FlickDirection.Down;
+        yield return WaitIdle(pc);
+        yield return WaitNoPitAhead(pc, 8f);
+        yield return Sequence(pc, (U, 0.08f), (F, 0f));
+        yield return CheckRecovered(pc, "1 Up>Forward>Land>Run");
+        yield return Sequence(pc, (U, 0.08f), (B, 0f));
+        yield return CheckRecovered(pc, "2 Up>Back>Land>Run");
+        yield return Sequence(pc, (U, 0.05f), (F, 0.1f), (F, 0.1f), (F, 0f));
+        yield return CheckRecovered(pc, "3 Up>Forward>Forward>Forward");
+        yield return Sequence(pc, (U, 0.05f), (F, 0.05f), (U, 0.05f), (F, 0f));
+        yield return CheckRecovered(pc, "3b Up>F>Up(2nd jump)>F");
+        yield return Sequence(pc, (F, 0.2f), (U, 0f));
+        yield return CheckRecovered(pc, "3c Forward>Up during recovery (old freeze)");
+        yield return Sequence(pc, (D, 0.08f), (U, 0f));
+        yield return CheckRecovered(pc, "3d GroundDown>Up");
+        yield return Sequence(pc, (U, 0.12f), (D, 0f));
+        yield return CheckRecovered(pc, "4 Up>Dive>Land");
+        // 5: 攻撃中の被弾から復帰
+        gm.DebugSetInvincible(false);
+        yield return Sequence(pc, (U, 0.05f), (F, 0.05f));
+        pc.TakeDamage(source: "LancerTest");
+        gm.DebugSetInvincible(true);
+        yield return CheckRecovered(pc, "5 Hurt during Up/Forward");
+        gm.DebugSetInvincible(false);
+        yield return Sequence(pc, (U, 0.1f), (D, 0.1f));
+        pc.TakeDamage(source: "LancerTest");
+        gm.DebugSetInvincible(true);
+        yield return CheckRecovered(pc, "5b Hurt during Dive");
+    }
+
     IEnumerator TestHurt(PlayerController pc, PlayerAnimator anim, GameManager gm)
     {
         yield return WaitIdle(pc);
         gm.DebugSetInvincible(false);
-        pc.TakeDamage(source: "LancerTest");
-        yield return null; yield return null;
+        // レベルアップの一時停止中などは被弾しないので、通常時に当たるまで数回試す
+        for (int attempt = 0; attempt < 5 && !pc.IsHurt; attempt++)
+        {
+            float w = 0f;
+            while ((Time.timeScale == 0f || gm.IsRewardSequenceWaitingForSelection) && w < 5f) { yield return null; w += Time.unscaledDeltaTime; }
+            pc.TakeDamage(source: "LancerTest");
+            yield return null; yield return null;
+            if (!pc.IsHurt) yield return new WaitForSecondsRealtime(0.8f);
+        }
         bool hurt = pc.IsHurt;
         string spr = anim != null && anim.VisualRenderer.sprite != null ? anim.VisualRenderer.sprite.name : "?";
         L($"[Hurt] IsHurt={hurt} state={(anim != null ? anim.CurrentState.ToString() : "?")} sprite={spr}");
@@ -266,6 +465,7 @@ public class LancerAutoTest : MonoBehaviour
 
     IEnumerator TestRegression(PlayerController pc, CharacterDefinition lancer)
     {
+        yield return WaitIdle(pc);
         foreach (string id in new[] { "swordsman", "gunslinger" })
         {
             pc.ApplyCharacterBaseStats(CharacterDatabase.FindById(id));
@@ -274,8 +474,8 @@ public class LancerAutoTest : MonoBehaviour
             if (id == "swordsman")
             {
                 yield return Flick(pc, PlayerController.FlickDirection.Forward);
-                yield return new WaitForSeconds(0.05f);
-                bool melee = pc.attackHitbox.enabled; bool lance = pc.LanceHitbox != null && pc.LanceHitbox.enabled;
+                bool melee = false, lance = false; float mt = 0f;
+                while (mt < 0.5f) { if (pc.attackHitbox.enabled) melee = true; if (pc.LanceHitbox != null && pc.LanceHitbox.enabled) lance = true; yield return null; mt += Time.deltaTime; }
                 L($"[Regression] swordsman forward: meleeHitbox={melee} lanceHitbox={lance} (expect True,False)");
                 Check(melee && !lance, "swordsman uses its own hitbox");
                 Check(Mathf.Approximately(pc.KnockbackPowerMultiplier, 1f), "swordsman knockback unchanged");

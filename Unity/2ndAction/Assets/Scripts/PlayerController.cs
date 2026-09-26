@@ -838,6 +838,10 @@ public partial class PlayerController : MonoBehaviour
         {
             hitInvincibleTimer = Mathf.Max(0f, hitInvincibleTimer - Time.deltaTime);
         }
+        // 表示の安全装置(2026-09-26、竜騎士Sprite消失対策) - 絵を意図的に消すのは被弾後の無敵点滅
+        // (hitInvincibleTimer中)と死亡時だけ。それ以外でSpriteRendererが無効のまま残っていたら
+        // (点滅の途中で処理が打ち切られた等)必ず表示へ戻す。
+        if (sr != null && !sr.enabled && hitInvincibleTimer <= 0f && !hasDied) sr.enabled = true;
 
         if (knockbackTimer > 0f) knockbackTimer = Mathf.Max(0f, knockbackTimer - Time.deltaTime);
 
@@ -864,6 +868,7 @@ public partial class PlayerController : MonoBehaviour
         if (reactionBlocked) { requestedFlick = null; bufferedUpAttackTimer = 0f; }
         Move(allowJump: !wasEscapeChargingLastFrame && !reactionBlocked);
         if (!wasEscapeChargingLastFrame && !reactionBlocked) HandleAttackInput();
+        LancerSafetyUpdate(); // 竜騎士: 実行中の技が無いのに攻撃状態だけ残らないようにする(他キャラは何もしない)
 
         UpdateEscapeInput();
         UpdateEscapeVisuals();
@@ -1029,6 +1034,8 @@ public partial class PlayerController : MonoBehaviour
         // the whole window - reads as a shove that fades, not a sustained
         // shove-then-stop.
         if (IsReacting) autoSpeed = 0f; // Hurt/Recovery中は自動前進を一時停止(重力/着地/ノックバックは通常どおり)
+        // 竜騎士の急降下突き/突き刺し着地の間は前進をほぼ止める(ほぼ真下へ落ちる)。他キャラは常に1。
+        if (isLancerCharacter) autoSpeed *= lanceMoveSlowFactor;
         float knockbackFrac = knockbackDuration > 0f ? knockbackTimer / knockbackDuration : 0f;
         float effectiveKnockback = knockbackVelocityX * knockbackFrac;
         float newX = transform.position.x + (autoSpeed + lungeVelocityX + effectiveKnockback) * dt;
@@ -1153,6 +1160,11 @@ public partial class PlayerController : MonoBehaviour
             {
                 velocityY = -rangedHoverFallSpeed;
             }
+            // 竜騎士(2026-09-26 第2弾) - 急降下突き: 構え中は空中で一瞬止まり、落下中は一定の速い速度で真下へ。
+            else if (isLancerCharacter && lanceDiving)
+            {
+                velocityY = LanceDiveVelocityY();
+            }
             else
             {
                 // エリアルコンボ改修(2026-09-11), item 4 - Aerial Assist
@@ -1239,6 +1251,7 @@ public partial class PlayerController : MonoBehaviour
                 bool wasDiveAttacking = isDiveAttacking;
                 EndDiveAttack();
                 if (wasDiveAttacking) { DiveAttackLanded?.Invoke(); TriggerDiveImpact(); }
+                OnLancerLanded(); // 竜騎士: 急降下の着地/残った攻撃状態の安全な解除(他キャラは何もしない)
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
                 Landed?.Invoke();
                 // 不具合修正(2026-09-08) - 着地直前に上フリックした分の
@@ -1263,6 +1276,7 @@ public partial class PlayerController : MonoBehaviour
                 bool wasDiveAttacking = isDiveAttacking;
                 EndDiveAttack();
                 if (wasDiveAttacking) { DiveAttackLanded?.Invoke(); TriggerDiveImpact(); }
+                OnLancerLanded(); // 竜騎士: 急降下の着地/残った攻撃状態の安全な解除(他キャラは何もしない)
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
                 Landed?.Invoke();
                 if (bufferedUpAttackTimer > 0f)
@@ -1499,6 +1513,7 @@ public partial class PlayerController : MonoBehaviour
         lungeVelocityX = 0f;
         transform.localScale = Vector3.one;
         EndDiveAttack();
+        if (isLancerCharacter) CancelLanceMoves();
 
         float x = transform.position.x;
         if (!recoverOnSky && TerrainManager.Instance != null)
@@ -1845,6 +1860,12 @@ public partial class PlayerController : MonoBehaviour
             _ => (AttackDirection?)null
         };
         if (requested == null) return;
+        // 竜騎士(2026-09-26 第2弾) - 3段突きの予約/受付時間は専用処理で(他キャラは下の従来処理のまま)。
+        if (isLancerCharacter)
+        {
+            HandleLanceHorizontalInput(requested.Value);
+            return;
+        }
 
         if (!isAttacking && attackCooldownTimer <= 0f)
         {
