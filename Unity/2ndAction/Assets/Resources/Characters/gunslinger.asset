@@ -67,8 +67,10 @@ MonoBehaviour:
   doubleJumpFrames:
   - {fileID: 21300000, guid: a510dc8cfa99ab641afd2ff280bc084b, type: 3}
   runFps: 9
-  attackFramesSmall: []
-  attackFramesLarge: []
+  attackFramesSmall:
+  - {fileID: 21300000, guid: afd7a7096de3ad746b9c7cc1be1e678f, type: 3}
+  attackFramesLarge:
+  - {fileID: 21300000, guid: 2711cc2dace2d5443a20e98fcc3f406e, type: 3}
   downAttackFrames:
   - {fileID: 21300000, guid: 4847e3ffcd608cc40be60a5a8f43da62, type: 3}
   downAttackLandFrames: []

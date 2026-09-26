@@ -675,6 +675,7 @@ public static class SceneBuilder
         ConfigureEffectSpriteIfPresent("warning");
         ConfigureEffectSpriteIfPresent("arrow");
         ConfigureEffectSpriteIfPresent("fireball");
+        ConfigureEffectSpriteIfPresent("muzzleflash"); // 二丁拳銃士の前方射撃(2026-09-26)
 
         ConfigureEffectSpriteIfPresent("fang");
         ConfigureEffectSpriteIfPresent("slash");

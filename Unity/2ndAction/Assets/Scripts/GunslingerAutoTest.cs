@@ -65,6 +65,7 @@ public class GunslingerAutoTest : MonoBehaviour
         };
         Application.logMessageReceived += handler;
 
+        yield return TestShotHeightCoversGroundEnemies(pc);
         yield return TestForwardShot(pc);
         yield return TestBackwardShot(pc);
         yield return TestUpShot(pc);
@@ -109,6 +110,36 @@ public class GunslingerAutoTest : MonoBehaviour
     {
         foreach (var b in after) if (!before.Contains(b)) return b;
         return null;
+    }
+
+    // 攻撃モーション見直し(2026-09-26) - 前方射撃の銃口を新素材に合わせて
+    // 0.55→0.71へ上げたため、全地上雑魚敵の当たり判定の高さ範囲に弾の帯
+    // (中心y±弾コライダー半分)が入るかを確認する。背の低い敵を撃ち漏らす
+    // 回帰のガード。
+    IEnumerator TestShotHeightCoversGroundEnemies(PlayerController pc)
+    {
+        float groundY = pc.transform.position.y;
+        float fy = pc.rangedForwardMuzzleOffset.y;
+        const float bulletHalf = 0.08f; // PlayerBulletのcol.size.y(0.16)の半分
+        float groundEnemyHeight = TerrainManager.Instance != null ? TerrainManager.Instance.groundEnemyHeight : 0f;
+        int miss = 0, checkedCount = 0;
+        foreach (var def in EnemyDatabase.AllEnemies)
+        {
+            if (def == null || def.sprite == null || def.movementType == EnemyMovementType.Flying) continue;
+            Vector3 p = pc.transform.position + new Vector3(30f, 0f, 0f);
+            GameObject go = GroundFactory.CreateEnemy(null, def.sprite, new Vector2(p.x, groundY + groundEnemyHeight), def.tint,
+                maxHp: 999, behaviorKind: EnemyBehaviorKind.None, visualScaleMultiplier: def.visualScaleMultiplier);
+            var col = go.GetComponent<BoxCollider2D>();
+            Physics2D.SyncTransforms();
+            float lo = col.bounds.min.y - groundY, hi = col.bounds.max.y - groundY;
+            bool hit = fy + bulletHalf >= lo && fy - bulletHalf <= hi;
+            checkedCount++;
+            if (!hit) miss++;
+            L($"[ShotHeight] {def.enemyId}: collider y={lo:F2}..{hi:F2} bullet y={fy:F2} hit={hit}");
+            Destroy(go);
+        }
+        L($"[ShotHeight] checked={checkedCount} miss={miss} (expect miss=0)");
+        yield return null;
     }
 
     IEnumerator TestForwardShot(PlayerController pc)

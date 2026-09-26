@@ -638,6 +638,10 @@ public class PlayerController : MonoBehaviour
     // Root基準のローカルオフセット(銃口位置) - transform.localScale.xの
     // 符号で自動的に左右ミラーされる(ApplyAttackDirectionと同じ考え方)。
     public Vector2 rangedMuzzleOffset = new Vector2(0.55f, 0.55f);
+    // 前方/後方射撃専用の銃口位置(2026-09-26) - 真横へ腕を伸ばす走り撃ち
+    // 素材(GunslingerAttack*_v1)の実測銃口(3ポーズ平均)。上/下撃ちは
+    // 従来のrangedMuzzleOffsetのまま。
+    public Vector2 rangedForwardMuzzleOffset = new Vector2(0.62f, 0.71f);
     // "ジャンプしながら斜め上へ射撃"のポーズ表示用ワンショットタイマー
     // (jumpStartTimer等と同じ方式、Move()側で毎フレーム減算)。
     float upShotVisualTimer;
@@ -2176,13 +2180,13 @@ public class PlayerController : MonoBehaviour
         lungeVelocityX = 0f; // 「銃を撃つたびに完全停止/踏み込みする仕様にはしない」- 自動前進のみ維持
 
         float facing = transform.localScale.x >= 0f ? 1f : -1f;
-        FireRangedBullet(new Vector2(facing, 0f));
+        FireRangedBullet(new Vector2(facing, 0f), rangedForwardMuzzleOffset);
 
-        if (attackSlashVisual != null)
+        // 攻撃モーション見直し(2026-09-26) - 以前は剣のSlash VFXを小さく
+        // 流用していたが「撃っている」と読めなかったため、銃口位置に専用の
+        // マズルフラッシュを出す(素材が無ければ従来のSlash流用へフォールバック)。
+        if (!PlayMuzzleFlash() && attackSlashVisual != null)
         {
-            // マズルフラッシュ代わりに、既存のSlash VFXを小さく一瞬だけ流用
-            // (新規アート不要、Hitboxのreach位置とは無関係なのでAttackRange
-            // Multiplierは掛けない)。
             attackSlashVisual.transform.localPosition = hitboxBaseLocalPos;
             attackSlashVisual.PlayFrames(0.6f, 1f);
         }
@@ -2248,13 +2252,62 @@ public class PlayerController : MonoBehaviour
         if (gen == hoverGeneration) EndDiveAttack();
     }
 
+    // 前方射撃のマズルフラッシュ(Resources/Effects/muzzleflash、中心Pivot・
+    // 右向きの炎)。Player子として出すので自動前進中も銃口に張り付いたまま、
+    // 左右反転もRootのlocalScale.xで自動的に付いてくる。
+    static Sprite muzzleFlashArt;
+    static bool muzzleFlashLoaded;
+    public float muzzleFlashDuration = 0.09f;
+    public float muzzleFlashSize = 0.8f; // 炎の全長(world unit)。素材は正方形の横いっぱいに炎が伸びる
+    SpriteRenderer muzzleFlashRenderer;
+    Coroutine muzzleFlashRoutine;
+
+    bool PlayMuzzleFlash()
+    {
+        if (!muzzleFlashLoaded) { muzzleFlashLoaded = true; muzzleFlashArt = Resources.Load<Sprite>("Effects/muzzleflash"); }
+        if (muzzleFlashArt == null) return false;
+        if (muzzleFlashRenderer == null)
+        {
+            var go = new GameObject("MuzzleFlash");
+            go.transform.SetParent(transform, false);
+            muzzleFlashRenderer = go.AddComponent<SpriteRenderer>();
+            muzzleFlashRenderer.sprite = muzzleFlashArt;
+            muzzleFlashRenderer.sortingOrder = RenderOrder.SlashFx;
+        }
+        if (muzzleFlashRoutine != null) StopCoroutine(muzzleFlashRoutine);
+        muzzleFlashRoutine = StartCoroutine(MuzzleFlashRoutine());
+        return true;
+    }
+
+    IEnumerator MuzzleFlashRoutine()
+    {
+        var t = muzzleFlashRenderer.transform;
+        // 素材は幅いっぱいに炎が伸びる正方形 - 中心を銃口から半径ぶん前へ出す。
+        t.localPosition = new Vector3(rangedForwardMuzzleOffset.x + muzzleFlashSize * 0.5f, rangedForwardMuzzleOffset.y, 0f);
+        t.localRotation = Quaternion.Euler(0f, 0f, Random.Range(-6f, 6f));
+        muzzleFlashRenderer.enabled = true;
+        float e = 0f;
+        while (e < muzzleFlashDuration)
+        {
+            float k = e / muzzleFlashDuration;
+            t.localScale = Vector3.one * muzzleFlashSize * Mathf.Lerp(1.15f, 0.7f, k);
+            muzzleFlashRenderer.color = new Color(1f, 1f, 1f, 1f - k * k);
+            e += Time.deltaTime;
+            yield return null;
+        }
+        muzzleFlashRenderer.enabled = false;
+        muzzleFlashRoutine = null;
+    }
+
     // 銃口位置(rangedMuzzleOffset)からワールド空間の方向へ1発発射する。
     // rangedBulletSpriteが未設定(専用素材未生成)の間は安全に何もしない。
-    void FireRangedBullet(Vector2 worldDir)
+    void FireRangedBullet(Vector2 worldDir) => FireRangedBullet(worldDir, rangedMuzzleOffset);
+
+    void FireRangedBullet(Vector2 worldDir, Vector2 muzzleOffset)
     {
         if (rangedBulletSprite == null) return;
         float facing = transform.localScale.x >= 0f ? 1f : -1f;
-        Vector3 spawnPos = transform.position + new Vector3(rangedMuzzleOffset.x * facing, rangedMuzzleOffset.y, 0f);
+        Vector3 spawnPos = transform.position + new Vector3(muzzleOffset.x * facing, muzzleOffset.y, 0f);
         PlayerBullet.Create(rangedBulletSprite, spawnPos, worldDir.normalized * rangedBulletSpeed, rangedBulletLifetime);
     }
 }

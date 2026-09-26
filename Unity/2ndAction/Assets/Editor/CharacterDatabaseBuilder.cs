@@ -80,6 +80,10 @@ public static class CharacterDatabaseBuilder
         public float attackFramesSmallPpu;
         public string attackFramesLargeDir;
         public float attackFramesLargePpu;
+        // 通常攻撃3段のピボットをRunと同じ頭基準にする(二丁拳銃士の射撃
+        // ポーズ用、2026-09-26)。足元重心だと踏み込み姿勢ごとに体が前後へ
+        // 跳ぶため、Run→射撃の切り替えで頭の位置を揃える。
+        public bool attackHeadPivot;
         // 双剣士専用アニメ追加(2026-09-13深夜) - 下攻撃/下攻撃着地も他の
         // Stateと同じ「空文字なら黒剣士のデフォルトへフォールバック」方式
         // にした(CharacterDefinition.downAttackFrames/downAttackLandFrames
@@ -236,13 +240,18 @@ public static class CharacterDatabaseBuilder
         // Runのみ全コマ共通の接地ライン(LoadRunAnimationFolder)、それ以外は
         // フレームごとの個別Foot Pivot自動検出(LoadAnimationFolder)。
         dualBlade.runFramesDir = "Assets/Art/DualBladeRun_v1";
-        dualBlade.runFramesPpu = 272f;
+        // Run 7コマ化(2026-09-26) - マスター提供の連番7枚(594x495、共通
+        // スケール)へ差し替え。地面の影線と砂埃は除去済み。コマごとに
+        // リサイズせず元の相対サイズのまま置いている(頭基準ピボットが
+        // 「全コマ共通スケール」を前提にしているため)。PPUは実測コンテンツ
+        // 高さ(470〜488px、平均≒478)÷旧基準身長1.125unit(=306/272)。
+        dualBlade.runFramesPpu = 425f;
         // Run素材再差し替え(2026-09-13深夜) - マスター確認済みの「頭基準
         // ピボット・2コマ構成」はそのまま維持しつつ、絵そのものをより
         // 「疾走感」のある低い重心・大きな歩幅のダッシュポーズへ差し替え。
         // fps(7)は前回確認済みの値のまま据え置き(今回はコマ数・速度では
         // なく絵柄の変更が主目的のため)。
-        dualBlade.runFpsOverride = 7f;
+        dualBlade.runFpsOverride = 8f; // 7コマ化で7→8fps(7/8≒0.88秒/周、旧6コマ@7fpsの0.86秒とほぼ同じ周期)
         dualBlade.jumpStartFramesDir = "Assets/Art/DualBladeJumpStart_v1";
         dualBlade.jumpStartFramesPpu = 272f;
         dualBlade.jumpFramesDir = "Assets/Art/DualBladeJumpAir_v1";
@@ -479,8 +488,19 @@ public static class CharacterDatabaseBuilder
         // Forward/Backward Shot共有(PlayerController.DoRangedForwardBackShot
         // がattackFrames/State.Attackをそのまま使う - Backwardはtransform
         // 反転で自動ミラー)。
-        gunslinger.attackFramesDir = "Assets/Art/GunslingerAttack_v1"; // 正面二丁撃ちポーズ(819px)
-        gunslinger.attackFramesPpu = 725f; // 819/1.13
+        // 攻撃モーション見直し(2026-09-26) - 旧素材は正面向きの立ち撃ち1枚で
+        // 「前へ撃っている」と読めなかったため、真横向き・腕を前へ伸ばした
+        // 走り撃ち3種(ChatGPT生成)へ差し替え。コンボ段ごとに右手撃ち(1段目)
+        // →左手撃ち(2段目)→二丁同時撃ち(3段目)と交互に撃つ。
+        // PPUは同じシートに描かせたRun基準ポーズ(497px)がRun素材(530px
+        // @550ppu)と同じ大きさになる値=550*497/530。ピボットはRunと同じ頭基準。
+        gunslinger.attackFramesDir = "Assets/Art/GunslingerAttack_v1"; // 左手撃ち
+        gunslinger.attackFramesPpu = 516f;
+        gunslinger.attackFramesSmallDir = "Assets/Art/GunslingerAttackSmall_v1"; // 右手撃ち
+        gunslinger.attackFramesSmallPpu = 516f;
+        gunslinger.attackFramesLargeDir = "Assets/Art/GunslingerAttackLarge_v1"; // 二丁同時撃ち
+        gunslinger.attackFramesLargePpu = 516f;
+        gunslinger.attackHeadPivot = true;
         // Up Shot専用(新設のState.UpShot、PlayerController.IsRangedUpShooting
         // がtrueの間だけ表示)。
         gunslinger.upShotFramesDir = "Assets/Art/GunslingerUpShot_v1"; // ジャンプ+斜め上撃ちポーズ(766px)
@@ -596,9 +616,9 @@ public static class CharacterDatabaseBuilder
                 existing.jumpFrames = LoadAnimationFolder(spec.jumpFramesDir, spec.jumpFramesPpu);
                 existing.doubleJumpFrames = LoadAnimationFolder(spec.doubleJumpFramesDir, spec.doubleJumpFramesPpu);
                 existing.landFrames = LoadAnimationFolder(spec.landFramesDir, spec.landFramesPpu);
-                existing.attackFrames = LoadAnimationFolder(spec.attackFramesDir, spec.attackFramesPpu);
-                existing.attackFramesSmall = LoadAnimationFolder(spec.attackFramesSmallDir, spec.attackFramesSmallPpu);
-                existing.attackFramesLarge = LoadAnimationFolder(spec.attackFramesLargeDir, spec.attackFramesLargePpu);
+                existing.attackFrames = LoadAttackFolder(spec.attackFramesDir, spec.attackFramesPpu, spec.attackHeadPivot);
+                existing.attackFramesSmall = LoadAttackFolder(spec.attackFramesSmallDir, spec.attackFramesSmallPpu, spec.attackHeadPivot);
+                existing.attackFramesLarge = LoadAttackFolder(spec.attackFramesLargeDir, spec.attackFramesLargePpu, spec.attackHeadPivot);
                 existing.downAttackFrames = LoadAnimationFolder(spec.downAttackFramesDir, spec.downAttackFramesPpu);
                 existing.downAttackLandFrames = LoadAnimationFolder(spec.downAttackLandFramesDir, spec.downAttackLandFramesPpu);
                 if (existing.isRanged)
@@ -669,9 +689,9 @@ public static class CharacterDatabaseBuilder
             def.jumpFrames = LoadAnimationFolder(spec.jumpFramesDir, spec.jumpFramesPpu);
             def.doubleJumpFrames = LoadAnimationFolder(spec.doubleJumpFramesDir, spec.doubleJumpFramesPpu);
             def.landFrames = LoadAnimationFolder(spec.landFramesDir, spec.landFramesPpu);
-            def.attackFrames = LoadAnimationFolder(spec.attackFramesDir, spec.attackFramesPpu);
-            def.attackFramesSmall = LoadAnimationFolder(spec.attackFramesSmallDir, spec.attackFramesSmallPpu);
-            def.attackFramesLarge = LoadAnimationFolder(spec.attackFramesLargeDir, spec.attackFramesLargePpu);
+            def.attackFrames = LoadAttackFolder(spec.attackFramesDir, spec.attackFramesPpu, spec.attackHeadPivot);
+            def.attackFramesSmall = LoadAttackFolder(spec.attackFramesSmallDir, spec.attackFramesSmallPpu, spec.attackHeadPivot);
+            def.attackFramesLarge = LoadAttackFolder(spec.attackFramesLargeDir, spec.attackFramesLargePpu, spec.attackHeadPivot);
             def.downAttackFrames = LoadAnimationFolder(spec.downAttackFramesDir, spec.downAttackFramesPpu);
             def.downAttackLandFrames = LoadAnimationFolder(spec.downAttackLandFramesDir, spec.downAttackLandFramesPpu);
 
@@ -750,6 +770,9 @@ public static class CharacterDatabaseBuilder
     // (全コマ共通の頭頂ライン、頭部固定)へ切り替えた。視線は自然と頭・
     // 顔を追うため、コマ間のわずかな頭身バランスのブレは足元を固定する
     // よりも頭を固定した方が目立ちにくい、というマスターの見立てに対応。
+    static Sprite[] LoadAttackFolder(string dir, float pixelsPerUnit, bool headPivot)
+        => headPivot ? LoadRunAnimationFolder(dir, pixelsPerUnit) : LoadAnimationFolder(dir, pixelsPerUnit);
+
     static Sprite[] LoadRunAnimationFolder(string dir, float pixelsPerUnit)
     {
         if (string.IsNullOrEmpty(dir)) return new Sprite[0];
