@@ -43,6 +43,12 @@ public class PlayerAnimator : MonoBehaviour
     // State.UpShot用(空なら他Stateと同様フォールバックし、従来の3キャラ
     // には一切表示されない)。
     public Sprite[] upShotFrames;
+    // 竜騎士(2026-09-26) - 後ろ攻撃(石突き)/下攻撃(低い突き)専用ポーズと、死亡ポーズ
+    // (全キャラ共通の仕組み、空なら従来どおり)。竜騎士以外は常にnull。
+    [System.NonSerialized] public Sprite[] lanceBackFrames;
+    [System.NonSerialized] public Sprite[] lanceDownFrames;
+    [System.NonSerialized] public Sprite[] deathFrames;
+    public float deathFps = 6f;
     public float runFps = 10f;
     public float jumpFps = 10f;
     public float attackFps = 12f;
@@ -111,7 +117,7 @@ public class PlayerAnimator : MonoBehaviour
 
     // マルチプレイ対応Phase 1(2026-09-25) - 相手端末へ「今どのStateの何コマ目か」を
     // 送るためpublicにした(値の並びはネット上の番号なので、末尾以外へ追加しないこと)。
-    public enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack, DownAttackLand, UpShot, Hurt, Recovery, StartPrep, Finish }
+    public enum State { Run, JumpStart, Jump, DoubleJump, Landing, Attack, DownAttack, DownAttackLand, UpShot, Hurt, Recovery, StartPrep, Finish, Death }
 
     public State CurrentState => state;
     public int CurrentFrameIndex => frameIndex;
@@ -276,6 +282,10 @@ public class PlayerAnimator : MonoBehaviour
             defaultFinishExtremeFrames = finishExtremeFrames;
         }
         if (def == null) return;
+
+        lanceBackFrames = def.isLancer && HasFrames(def.lanceBackFrames) ? def.lanceBackFrames : null;
+        lanceDownFrames = def.isLancer && HasFrames(def.lanceDownFrames) ? def.lanceDownFrames : null;
+        deathFrames = HasFrames(def.deathFrames) ? def.deathFrames : null;
 
         hurtFrames = HasFrames(def.hurtFrames) ? def.hurtFrames : defaultHurtFrames;
         recoveryFrames = HasFrames(def.recoveryFrames) ? def.recoveryFrames : defaultRecoveryFrames;
@@ -533,11 +543,24 @@ public class PlayerAnimator : MonoBehaviour
         startFrames = defaultStartFrames; finishShortFrames = defaultFinishShortFrames; finishMediumFrames = defaultFinishMediumFrames;
         finishLongFrames = defaultFinishLongFrames; finishExtremeFrames = defaultFinishExtremeFrames;
         attackFrames = defaultAttackFrames; attackFramesSmall = defaultAttackFramesSmall; attackFramesLarge = defaultAttackFramesLarge;
+        lanceBackFrames = null; lanceDownFrames = null; deathFrames = null;
+    }
+
+    // 竜騎士の攻撃中は技ごとの専用ポーズ(無ければ通常の攻撃絵)。
+    Sprite[] ResolveAttackFrames(int attackStage)
+    {
+        if (controller != null && controller.IsLancer)
+        {
+            if (controller.LanceMove == PlayerController.LanceMoveKind.Backward && HasFrames(lanceBackFrames)) return lanceBackFrames;
+            if (controller.LanceMove == PlayerController.LanceMoveKind.Down && HasFrames(lanceDownFrames)) return lanceDownFrames;
+        }
+        return GetAttackFrames(attackStage);
     }
 
     Sprite[] ResolveFrames(State s, int attackStage, int finishTier) => s switch
     {
-        State.Attack => GetAttackFrames(attackStage),
+        State.Attack => ResolveAttackFrames(attackStage),
+        State.Death => deathFrames,
         State.Jump => jumpFrames,
         State.JumpStart => jumpStartFrames,
         State.DoubleJump => doubleJumpFrames,
@@ -597,7 +620,8 @@ public class PlayerAnimator : MonoBehaviour
         // ことはない(ダメージはPresentationDamageLock/IsFinishingで防がれ、
         // カウントダウン中は敵/障害物自体が出現しないため)が、念のため
         // 一番上でチェックする。
-        if (controller != null && controller.IsFinishing) newState = State.Finish;
+        if (controller != null && controller.IsDeadPosing && HasFrames(deathFrames)) newState = State.Death;
+        else if (controller != null && controller.IsFinishing) newState = State.Finish;
         else if (controller != null && controller.IsPreparingStart) newState = State.StartPrep;
         else if (controller != null && controller.IsHurt) newState = State.Hurt;
         else if (controller != null && controller.IsRecovering) newState = State.Recovery;
@@ -640,7 +664,11 @@ public class PlayerAnimator : MonoBehaviour
         if (state == State.StartPrep && HasFrames(startFrames))
         {
             float p = Mathf.Clamp01(startPrepElapsed / Mathf.Max(0.01f, startPrepPoseDuration));
-            frameIndex = p < startFrame0HoldFraction ? 0 : Mathf.Min(1, frames.Length - 1);
+            // 3コマ以上ある場合(竜騎士の「穂先確認→石突き→構え→走り出し」等)は
+            // カウントダウン全体へ均等に割り振る。2コマ以下は従来の2段階ホールドのまま。
+            frameIndex = frames.Length > 2
+                ? Mathf.Min(frames.Length - 1, (int)(p * frames.Length))
+                : (p < startFrame0HoldFraction ? 0 : Mathf.Min(1, frames.Length - 1));
             sr.sprite = frames[frameIndex];
         }
         else if (state == State.Finish && HasFrames(GetFinishFrames(controller != null ? controller.FinishTierIndex : 0)))
@@ -664,6 +692,7 @@ public class PlayerAnimator : MonoBehaviour
                 State.Recovery => recoveryFps,
                 State.StartPrep => startFps,
                 State.Finish => finishFps,
+                State.Death => deathFps,
                 // 1フレームだけの絵をdownAttackLandDuration秒キープするだけな
                 // ので、fps自体は「Duration中に次のフレームへ進まない」程度に
                 // 低ければ何でもよい(frames.Length==1なら実質参照されない)。
@@ -694,6 +723,9 @@ public class PlayerAnimator : MonoBehaviour
             frameIndex = state == State.Run
                 ? frameIndex % frames.Length // loop while running
                 : Mathf.Min(frameIndex, frames.Length - 1); // hold last frame otherwise
+            // 竜騎士の前/後/下攻撃は「構え→突き」を攻撃フェーズに合わせて表示(判定と絵を同期)。
+            if (state == State.Attack && controller != null && controller.IsLancer && controller.LanceMove != PlayerController.LanceMoveKind.None)
+                frameIndex = Mathf.Min(controller.LanceFrameIndex, frames.Length - 1);
 
             sr.sprite = frames[frameIndex];
         }

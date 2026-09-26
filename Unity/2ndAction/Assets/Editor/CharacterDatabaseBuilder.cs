@@ -120,6 +120,22 @@ public static class CharacterDatabaseBuilder
         public string upShotFramesDir;
         public float upShotFramesPpu;
 
+        // 竜騎士(2026-09-26) - isLancer==trueの間だけ4方向攻撃が専用処理へ分岐。
+        // 後ろ/下攻撃の専用ポーズ、被弾/復帰/死亡の専用ポーズ(空文字なら従来どおり)。
+        public bool isLancer;
+        public string lanceBackFramesDir;
+        public string lanceDownFramesDir;
+        public string hurtFramesDir;
+        public string recoveryFramesDir;
+        public string deathFramesDir;
+        public float hurtKnockbackMultiplier;
+        public float hurtLeanDegrees;
+        // 竜騎士は全アニメーションを同じ縮尺(シートごとの基準ポーズで正規化済み)で
+        // 用意しているので、全フォルダ共通のPPUを1つだけ持つ。
+        public float lancerPpu;
+        // 全フォルダを下端中央固定ピボットで読み込む(素材側で顔=横中央・足元=下端に揃え済み)。
+        public bool bottomCenterPivot;
+
         // Home画面改善依頼③(2026-09-15) - 持ち物表示用データ。実画像は
         // まだ用意していないため、labelとplaceholderColorのみを指定する
         // (CharacterDefinition.BelongingItem.iconはnullのまま = GameManager
@@ -521,7 +537,85 @@ public static class CharacterDatabaseBuilder
         gunslinger.finishExtremeFramesDir = "Assets/Art/GunslingerFinishExtreme_v1";
         gunslinger.finishExtremeFramesPpu = 721.2f; // 815/1.13
 
-        return new[] { swordsman, dualBlade, nobleLady, gunslinger };
+        // 5人目のプレイアブル主人公(2026-09-26、竜騎士) - 巨大ランスの前方突進・
+        // 貫通・高威力。4方向攻撃はPlayerController.Lancer.csの専用処理
+        // (isLancer)。仮名称DRAGON LANCER/役割BREAKER、正式名称は未決定。
+        Spec lancer = DefaultBaseline;
+        lancer.id = "dragon_lancer";
+        lancer.displayName = "DRAGON LANCER";
+        lancer.subtitle = "Break Through, Never Yield";
+        lancer.role = "BREAKER";
+        lancer.flavorText = "A young dragon knight bearing a lance\nforged from a dragon's fang.\nHe breaks every line head-on -\nbut anything that slips inside his reach\nis hard for him to answer.";
+        lancer.portraitPath = $"{PortraitFolder}/dragon_lancer_card.png";
+        lancer.mainVisualPath = $"{PortraitFolder}/dragon_lancer_portrait.png";
+        lancer.lifeRating = 4; lancer.powerRating = 5; lancer.speedRating = 2; lancer.comboRating = 1;
+        lancer.challengeFlag = false;
+        lancer.sortOrder = 4;
+        lancer.belongings = new[]
+        {
+            new CharacterDefinition.BelongingItem { label = "竜槍", placeholderColor = new Color(0.55f, 0.75f, 0.72f), kind = CharacterDefinition.BelongingKind.Weapon },
+            new CharacterDefinition.BelongingItem { label = "竜鱗の外套", placeholderColor = new Color(0.12f, 0.4f, 0.38f), kind = CharacterDefinition.BelongingKind.Cloth },
+        };
+        // 性能の方向性(細かな数値は実機確認後に調整): 一撃が重い/前方リーチが
+        // 非常に長い(判定は細長い帯、CharacterDefinition.lanceXxx)/ノックバック
+        // 強/攻撃速度遅め/コンボ少/懐と背後が弱い。
+        lancer.baseLives = 4;
+        lancer.baseMaxLives = 5;
+        lancer.attackPower = 4;
+        lancer.attackComboCount = 2;
+        lancer.attackSpeedMultiplier = 1.35f; // 大きいほど遅い
+        lancer.attackRangeMultiplier = 1f;    // ランスの長さ自体はlanceReachで決まる(この値はカードのRange Upで伸びる倍率)
+        lancer.knockbackPowerMultiplier = 1.8f;
+        lancer.jumpCount = 2;
+        lancer.jumpForceMultiplier = 0.95f;
+        lancer.groundMobilityMultiplier = 1f;
+        lancer.airControlMultiplier = 1f;
+        lancer.canUseUpAttack = true;
+        lancer.canUseAirAttack = true;
+        lancer.canUseDownAttack = true;
+        lancer.isLancer = true;
+        // 重装騎士らしく、大きく吹き飛ばず踏ん張ってよろける。
+        lancer.hurtKnockbackMultiplier = 0.45f;
+        lancer.hurtLeanDegrees = 6f;
+
+        // 見た目 - ChatGPT生成。全シートに同じ基準ポーズ(直立・ランスを縦に持つ)を
+        // 描かせ、その高さで全ポーズを同じ縮尺へ正規化済み(基準ポーズ=700px)。
+        // 各画像は「顔=横中央・足元=下端」に余白を付けて書き出し、下端中央ピボットで読む。
+        const float lp = 417f; // 基準ポーズ700px ÷ 1.68unit(体の高さ≒1.24unit)
+        lancer.lancerPpu = lp;
+        lancer.bottomCenterPivot = true;
+        lancer.runFramesDir = "Assets/Art/LancerRun_v1";
+        lancer.runFramesPpu = lp;
+        lancer.runFpsOverride = 8f;
+        lancer.jumpStartFramesDir = "Assets/Art/LancerJump_v1";
+        lancer.jumpStartFramesPpu = lp;
+        lancer.jumpFramesDir = "Assets/Art/LancerJump_v1";
+        lancer.jumpFramesPpu = lp;
+        lancer.doubleJumpFramesDir = "Assets/Art/LancerJump_v1";
+        lancer.doubleJumpFramesPpu = lp;
+        lancer.landFramesDir = "Assets/Art/LancerLand_v1";
+        lancer.landFramesPpu = lp;
+        lancer.attackFramesDir = "Assets/Art/LancerThrust_v1"; // 構え/突き
+        lancer.attackFramesPpu = lp;
+        lancer.attackHeadPivot = true;
+        lancer.lanceBackFramesDir = "Assets/Art/LancerBack_v1";
+        lancer.lanceDownFramesDir = "Assets/Art/LancerDown_v1";
+        lancer.upShotFramesDir = "Assets/Art/LancerUp_v1";
+        lancer.upShotFramesPpu = lp;
+        lancer.hurtFramesDir = "Assets/Art/LancerHurt_v1";
+        lancer.deathFramesDir = "Assets/Art/LancerDeath_v1";
+        lancer.startFramesDir = "Assets/Art/LancerStart_v1";
+        lancer.startFramesPpu = lp;
+        lancer.finishShortFramesDir = "Assets/Art/LancerFinishShort_v1";
+        lancer.finishShortFramesPpu = lp;
+        lancer.finishMediumFramesDir = "Assets/Art/LancerFinishMedium_v1";
+        lancer.finishMediumFramesPpu = lp;
+        lancer.finishLongFramesDir = "Assets/Art/LancerFinishLong_v1";
+        lancer.finishLongFramesPpu = lp;
+        lancer.finishExtremeFramesDir = "Assets/Art/LancerFinishExtreme_v1";
+        lancer.finishExtremeFramesPpu = lp;
+
+        return new[] { swordsman, dualBlade, nobleLady, gunslinger, lancer };
     }
 
     [MenuItem("Tools/OneMoreMile/Build Character Database")]
@@ -535,6 +629,7 @@ public static class CharacterDatabaseBuilder
 
         foreach (Spec spec in Specs())
         {
+            bottomCenterPivotMode = spec.bottomCenterPivot;
             string assetPath = $"{CharactersFolder}/{spec.id}.asset";
             CharacterDefinition existing = AssetDatabase.LoadAssetAtPath<CharacterDefinition>(assetPath);
             if (existing != null)
@@ -621,10 +716,11 @@ public static class CharacterDatabaseBuilder
                 existing.attackFramesLarge = LoadAttackFolder(spec.attackFramesLargeDir, spec.attackFramesLargePpu, spec.attackHeadPivot);
                 existing.downAttackFrames = LoadAnimationFolder(spec.downAttackFramesDir, spec.downAttackFramesPpu);
                 existing.downAttackLandFrames = LoadAnimationFolder(spec.downAttackLandFramesDir, spec.downAttackLandFramesPpu);
-                if (existing.isRanged)
+                if (existing.isRanged || spec.isLancer)
                 {
                     existing.upShotFrames = LoadAnimationFolder(spec.upShotFramesDir, spec.upShotFramesPpu);
                 }
+                ApplyLancerFrames(existing, spec);
                 // RUN開始準備/正常終了演出(2026-09-23) - bulletSpriteと同じ
                 // 理由(手動チューニング値ではない純粋な素材参照)で、既存
                 // アセットでも常に最新のフォルダ内容へ同期し直す。今は全て
@@ -711,10 +807,15 @@ public static class CharacterDatabaseBuilder
                 def.hoverFallSpeed = spec.hoverFallSpeed;
             }
             def.upShotFrames = LoadAnimationFolder(spec.upShotFramesDir, spec.upShotFramesPpu);
+            def.isLancer = spec.isLancer;
+            if (spec.hurtKnockbackMultiplier > 0f) def.hurtKnockbackMultiplier = spec.hurtKnockbackMultiplier;
+            if (spec.hurtLeanDegrees > 0f) def.hurtLeanDegrees = spec.hurtLeanDegrees;
+            ApplyLancerFrames(def, spec);
 
             AssetDatabase.CreateAsset(def, assetPath);
         }
 
+        bottomCenterPivotMode = false;
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         CharacterDatabase.Reset();
@@ -756,9 +857,17 @@ public static class CharacterDatabaseBuilder
     // ConfigureSpriteFolderImportWithFootPivotXY(既存のPlayerUpAttackGround_v1
     // 等と同じ、剣の振り幅でコマごとに実効横幅が変わる素材向けの方式)へ
     // 変更し、見た目の位置ズレを防いでいる。
+    // 処理中のSpecがbottomCenterPivotなら、全アニメーションフォルダを下端中央固定ピボットで読む。
+    static bool bottomCenterPivotMode;
+
     static Sprite[] LoadAnimationFolder(string dir, float pixelsPerUnit)
     {
         if (string.IsNullOrEmpty(dir)) return new Sprite[0];
+        if (bottomCenterPivotMode)
+        {
+            SceneBuilder.ConfigureSpriteFolderImportWithBottomCenterPivot(dir, pixelsPerUnit);
+            return SceneBuilder.LoadSpriteSequence(dir);
+        }
         SceneBuilder.ConfigureSpriteFolderImportWithFootPivotXY(dir, pixelsPerUnit);
         return SceneBuilder.LoadSpriteSequence(dir);
     }
@@ -770,12 +879,29 @@ public static class CharacterDatabaseBuilder
     // (全コマ共通の頭頂ライン、頭部固定)へ切り替えた。視線は自然と頭・
     // 顔を追うため、コマ間のわずかな頭身バランスのブレは足元を固定する
     // よりも頭を固定した方が目立ちにくい、というマスターの見立てに対応。
+    // 竜騎士(2026-09-26) - 専用フォルダ(後ろ/下攻撃・被弾・復帰・死亡)の素材参照を
+    // 常に最新へ同期する(他キャラはフォルダ未指定=何も変えない)。
+    static void ApplyLancerFrames(CharacterDefinition d, Spec spec)
+    {
+        if (spec.isLancer)
+        {
+            d.isLancer = true;
+            d.lanceBackFrames = LoadAnimationFolder(spec.lanceBackFramesDir, spec.lancerPpu);
+            d.lanceDownFrames = LoadAnimationFolder(spec.lanceDownFramesDir, spec.lancerPpu);
+        }
+        if (!string.IsNullOrEmpty(spec.hurtFramesDir)) d.hurtFrames = LoadAnimationFolder(spec.hurtFramesDir, spec.lancerPpu);
+        if (!string.IsNullOrEmpty(spec.recoveryFramesDir)) d.recoveryFrames = LoadAnimationFolder(spec.recoveryFramesDir, spec.lancerPpu);
+        if (!string.IsNullOrEmpty(spec.deathFramesDir)) d.deathFrames = LoadAnimationFolder(spec.deathFramesDir, spec.lancerPpu);
+        EditorUtility.SetDirty(d);
+    }
+
     static Sprite[] LoadAttackFolder(string dir, float pixelsPerUnit, bool headPivot)
         => headPivot ? LoadRunAnimationFolder(dir, pixelsPerUnit) : LoadAnimationFolder(dir, pixelsPerUnit);
 
     static Sprite[] LoadRunAnimationFolder(string dir, float pixelsPerUnit)
     {
         if (string.IsNullOrEmpty(dir)) return new Sprite[0];
+        if (bottomCenterPivotMode) return LoadAnimationFolder(dir, pixelsPerUnit);
         SceneBuilder.ConfigureSpriteFolderImportWithSharedHeadPivot(dir, pixelsPerUnit);
         return SceneBuilder.LoadSpriteSequence(dir);
     }

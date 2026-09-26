@@ -54,7 +54,7 @@ public class AttackVisualAutoTest : MonoBehaviour
         Application.logMessageReceived += handler;
 
         // ---- 素材の有無 ----
-        foreach (string n in new[] { "warning", "arrow", "fireball", "skybolt", "titanfist", "flamefeather", "cloudpuff", "thunderspear", "muzzleflash" })
+        foreach (string n in new[] { "warning", "arrow", "fireball", "skybolt", "titanfist", "flamefeather", "cloudpuff", "thunderspear", "muzzleflash", "lancethrust" })
         {
             bool ok = Resources.Load<Sprite>("Effects/" + n) != null;
             L($"[EffectArt] {n}: {(ok ? "ok" : "MISSING")}");

@@ -676,6 +676,7 @@ public static class SceneBuilder
         ConfigureEffectSpriteIfPresent("arrow");
         ConfigureEffectSpriteIfPresent("fireball");
         ConfigureEffectSpriteIfPresent("muzzleflash"); // 二丁拳銃士の前方射撃(2026-09-26)
+        ConfigureEffectSpriteIfPresent("lancethrust"); // 竜騎士の突きの衝撃波(2026-09-26)
 
         ConfigureEffectSpriteIfPresent("fang");
         ConfigureEffectSpriteIfPresent("slash");
@@ -4820,6 +4821,30 @@ public static class SceneBuilder
     // 足元検出がそのまま正しい基準になる場合に使う。
     // internal(privateではない) - プレイアブル主人公アニメーション差し替え
     // (2026-09-13)でCharacterDatabaseBuilder.csからも再利用するため。
+    // 竜騎士(2026-09-26) - 巨大ランスの穂先が頭より上に来るポーズが多く、頭基準/足元重心の
+    // 自動ピボットが穂先や槍の石突きに引っ張られてしまう。素材側で「顔の位置=画像の横中央、
+    // 足元(最下行)=画像の下端」になるよう余白を付けて書き出してあるので、ピボットは
+    // 下端中央に固定する。
+    internal static void ConfigureSpriteFolderImportWithBottomCenterPivot(string dir, float pixelsPerUnit)
+    {
+        if (!Directory.Exists(dir)) return;
+        foreach (string f in Directory.GetFiles(dir, "*.png"))
+        {
+            string assetPath = f.Replace('\\', '/');
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null) continue;
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            ApplyCustomPivot(importer, new Vector2(0.5f, 0f));
+            importer.SaveAndReimport();
+        }
+    }
+
     internal static void ConfigureSpriteFolderImportWithFootPivotXY(string dir, float pixelsPerUnit)
     {
         if (!Directory.Exists(dir)) return;

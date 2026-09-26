@@ -3,7 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(BoxCollider2D))]
-public class PlayerController : MonoBehaviour
+public partial class PlayerController : MonoBehaviour
 {
     // Operation System Ver.2 (2026-09-06) - "タップ=ジャンプ/前後スワイプ=
     // 攻撃" を廃止し、全操作を方向フリックによる「移動攻撃」へ統一。
@@ -389,7 +389,14 @@ public class PlayerController : MonoBehaviour
     // 掛ける倍率。AttackPower等と同じ「カードで積み上げるベース値」では
     // なく、キャラクターごとの固定ベース(ApplyCharacterBaseStats)のみが
     // 触る - 現時点でこの値を伸ばすカードは存在しない。
-    public float KnockbackPowerMultiplier { get; private set; } = 1f;
+    // 竜騎士(2026-09-26) - 攻撃ごとの一時倍率(lanceKnockbackScale、後ろ攻撃は弱く・
+    // 前突きは速度連動で強く)を竜騎士の間だけ掛ける。他キャラは常に基準値そのまま。
+    float knockbackPowerBase = 1f;
+    public float KnockbackPowerMultiplier
+    {
+        get => isLancerCharacter ? knockbackPowerBase * lanceKnockbackScale : knockbackPowerBase;
+        private set => knockbackPowerBase = value;
+    }
 
     // 同上、項目4「アクロバット技(上/空中/下攻撃)を持たせない/接続しない」
     // - 通常のジャンプ物理(velocityY/jumpsUsed/JumpStarted等)やDoAttackの
@@ -449,7 +456,16 @@ public class PlayerController : MonoBehaviour
         rangedBulletLifetime = def.bulletLifetime > 0f ? def.bulletLifetime : rangedBulletLifetime;
         rangedHoverDuration = def.hoverDuration > 0f ? def.hoverDuration : rangedHoverDuration;
         rangedHoverFallSpeed = def.hoverFallSpeed > 0f ? def.hoverFallSpeed : rangedHoverFallSpeed;
+
+        // 竜騎士(2026-09-26) - isLancer==trueの間だけ4方向攻撃がPlayerController.Lancer.csへ分岐。
+        ApplyLancerStats(def);
+        charHasDeathFrames = def.deathFrames != null && def.deathFrames.Length > 0;
     }
+
+    // 死亡時の専用ポーズ(CharacterDefinition.deathFrames)を持つキャラは、消えて爆散する
+    // 代わりにその場でポーズを見せる(PlayerAnimatorがState.Deathで再生)。
+    bool charHasDeathFrames;
+    public bool IsDeadPosing => hasDied && charHasDeathFrames;
 
     // Grown by "AIR ATTACK UP" - only added on top of AttackPower while
     // airborne (see EffectiveAttackPower); grounded attacks are unaffected.
@@ -519,6 +535,8 @@ public class PlayerController : MonoBehaviour
             }
 
             power += Mathf.RoundToInt(MomentumBonus * Mathf.Max(0f, GetSpeedMultiplier() - 1f));
+            // 竜騎士(2026-09-26) - 後ろ攻撃(石突き)だけ威力を下げる。他キャラは常に1倍。
+            if (isLancerCharacter && lanceDamageScale != 1f) power = Mathf.Max(1, Mathf.RoundToInt(power * lanceDamageScale));
             return power;
         }
     }
@@ -1090,6 +1108,10 @@ public class PlayerController : MonoBehaviour
             {
                 if (!isHoverShooting && hoverShotsUsedThisAirtime < maxHoverShotsPerAirtime) DoRangedDownShot();
             }
+            else if (isLancerCharacter)
+            {
+                // 竜騎士の下攻撃はHandleAttackInputで処理(急降下はしない)。
+            }
             else if (!isDiveAttacking)
             {
                 DoDiveAttack();
@@ -1385,6 +1407,7 @@ public class PlayerController : MonoBehaviour
         if (upAttackVacuumHitbox != null) upAttackVacuumHitbox.enabled = false;
         if (downAttackLandHitbox != null) downAttackLandHitbox.enabled = false;
         EndDiveAttack();
+        CancelLanceMoves();
     }
 
     // A brief backward push, decayed over its own duration rather than
@@ -1772,7 +1795,9 @@ public class PlayerController : MonoBehaviour
 
     void OnDeath()
     {
-        if (sr != null) sr.enabled = false;
+        CancelLanceMoves();
+        // 専用の死亡ポーズを持つキャラは消さずにその場でポーズを見せる(PlayerAnimator.State.Death)。
+        if (sr != null && !charHasDeathFrames) sr.enabled = false;
         if (attackHitbox != null) attackHitbox.enabled = false;
         if (upAttackHitbox != null) upAttackHitbox.enabled = false;
         EndDiveAttack();
@@ -1788,7 +1813,7 @@ public class PlayerController : MonoBehaviour
             AudioManager.Instance.FadeOutBgm();
         }
 
-        if (explosionParticleSprite != null)
+        if (explosionParticleSprite != null && !charHasDeathFrames)
         {
             // 0.6s (was ExplosionEffect.Create's own 3s default) - "短い死
             // 亡Visual" per the brief; GameManager's own game-over flow
@@ -1806,6 +1831,13 @@ public class PlayerController : MonoBehaviour
     void HandleAttackInput()
     {
         attackCooldownTimer -= Time.deltaTime;
+        // 竜騎士(2026-09-26) - 下攻撃は地上でも空中でも「前方下への突き」(Move()の
+        // 空中↓フリック分岐=急降下/ホバーは竜騎士では何もしない)。
+        if (isLancerCharacter && requestedFlick == FlickDirection.Down)
+        {
+            if (canUseDownAttack) TryLanceDownThrust();
+            return;
+        }
         AttackDirection? requested = requestedFlick switch
         {
             FlickDirection.Forward => AttackDirection.Forward,
@@ -1838,6 +1870,11 @@ public class PlayerController : MonoBehaviour
         if (isRangedCharacter)
         {
             yield return DoRangedForwardBackShot(dir);
+            yield break;
+        }
+        if (isLancerCharacter)
+        {
+            yield return DoLanceHorizontal(dir);
             yield break;
         }
 
@@ -1954,6 +1991,7 @@ public class PlayerController : MonoBehaviour
             // 見た目Stateの切り替え+弾の発射のみ(敵をLaunchしない=既存の
             // Up Hitbox/Vacuumを一切使わない)。
             if (isRangedCharacter) DoRangedUpShot();
+            else if (isLancerCharacter) StartCoroutine(DoLanceUpThrust());
             else StartCoroutine(DoUpAttack(isAirborneUpAttack));
         }
     }

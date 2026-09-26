@@ -224,6 +224,45 @@ public class CharacterDefinition : ScriptableObject
     // フィールドを二重に持たせず流用で衝突を避ける(PlayerAnimator.Update
     // のdiveAttacking判定を参照)。
 
+    // ===== 竜騎士(2026-09-26) ===== //
+    // 5人目の主人公 - 巨大ランスによる前方突進・貫通・高威力。isLancer==true
+    // の間だけ4方向の攻撃がPlayerController.Lancer.csの専用処理へ分岐する
+    // (他4キャラはfalseのまま=既存のDoAttack/DoUpAttack/DoDiveAttack/射撃に
+    // 一切触れない)。数値はInspectorで調整可能(Build Character Databaseは
+    // 既存アセットのこれらの値を上書きしない)。
+    [Header("竜騎士 (Lancer) - 2026-09-26")]
+    public bool isLancer;
+    // 前突き: 構え→突き(判定あり+短い突進)→硬直。判定は体の少し前から
+    // 始まる細長い帯(懐=体に重なる距離は届かない)。
+    public float lanceWindup = 0.12f;
+    public float lanceThrustActive = 0.14f;
+    public float lanceRecovery = 0.24f;
+    public float lanceReach = 2.45f;          // 判定の長さ(world)
+    public float lanceReachStart = 0.45f;     // 判定の開始位置(体の中心からの距離)
+    public float lanceThickness = 0.42f;     // 判定の太さ
+    public float lanceHeight = 0.68f;        // 判定の高さ(足元から)
+    public float lanceDashDistance = 0.9f;   // 突き中の前方突進距離
+    // 速度連動(将来拡張用の入口): 走行速度倍率が1を超えた分×この係数だけ
+    // 突進距離/ノックバックを強める(上限lanceSpeedBonusMax)。0で固定性能。
+    public float lanceSpeedBonusPerSpeed = 0.2f;
+    public float lanceSpeedBonusMax = 0.6f;
+    // 後攻撃(石突き): 前突きより短く・弱く・ノックバック弱め。
+    public float lanceBackReach = 0.85f;
+    public float lanceBackDamageScale = 0.5f;
+    public float lanceBackKnockbackScale = 0.45f;
+    // 上攻撃(斜め上への突き上げ、小ジャンプ付き・打ち上げなし)。
+    public float lanceUpReach = 1.9f;
+    public float lanceUpAngle = 50f;
+    public float lanceUpActive = 0.2f;
+    // 下攻撃(低い姿勢で前方下への突き)。
+    public float lanceDownReach = 1.7f;
+    public float lanceDownHeight = 0.22f;
+    public float lanceDownActive = 0.16f;
+    public Sprite[] lanceBackFrames;
+    public Sprite[] lanceDownFrames;
+    // 死亡時の専用ポーズ(全キャラ共通の仕組み。空なら従来どおり消えて爆散)。
+    public Sprite[] deathFrames;
+
     // Home画面改善依頼③(2026-09-15) - 「選択中キャラクターの持ち物・装備の
     // 視覚表示」。新しい装備システムではなく、あくまでHome画面で「このキャ
     // ラクターらしさ」を見せるための表示専用データ。武器/防具/象徴的な

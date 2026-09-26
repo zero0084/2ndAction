@@ -115,6 +115,29 @@ MonoBehaviour:
   hoverFallSpeed: 0.6
   upShotFrames:
   - {fileID: 21300000, guid: 912c22c105c96074087ae7dab85e21e2, type: 3}
+  isLancer: 0
+  lanceWindup: 0.12
+  lanceThrustActive: 0.14
+  lanceRecovery: 0.24
+  lanceReach: 2.45
+  lanceReachStart: 0.45
+  lanceThickness: 0.42
+  lanceHeight: 0.68
+  lanceDashDistance: 0.9
+  lanceSpeedBonusPerSpeed: 0.2
+  lanceSpeedBonusMax: 0.6
+  lanceBackReach: 0.85
+  lanceBackDamageScale: 0.5
+  lanceBackKnockbackScale: 0.45
+  lanceUpReach: 1.9
+  lanceUpAngle: 50
+  lanceUpActive: 0.2
+  lanceDownReach: 1.7
+  lanceDownHeight: 0.22
+  lanceDownActive: 0.16
+  lanceBackFrames: []
+  lanceDownFrames: []
+  deathFrames: []
   belongings:
   - label: "\u4E8C\u4E01\u62F3\u9283"
     icon: {fileID: 0}
