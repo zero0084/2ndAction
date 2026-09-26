@@ -469,6 +469,7 @@ public class EnemySpecialBehavior : MonoBehaviour
             var markerSr = flyingDiveMarkerGO.AddComponent<SpriteRenderer>();
             markerSr.sprite = telegraphMarkerSprite;
             markerSr.color = new Color(1f, 0.35f, 0.15f, 0.95f);
+            ApplyWarningArt(markerSr);
             markerSr.sortingOrder = RenderOrder.CombatFx;
             flyingDiveMarkerTransform = flyingDiveMarkerGO.transform;
             flyingDiveMarkerGO.SetActive(false);
@@ -495,7 +496,7 @@ public class EnemySpecialBehavior : MonoBehaviour
                     float total = Mathf.Max(0.05f, flyingDiveTelegraphDuration);
                     float progress = Mathf.Clamp01(1f - flyingDiveTimer / total);
                     float pulse = Mathf.Sin(progress * Mathf.PI);
-                    flyingDiveMarkerTransform.localScale = Vector3.one * flyingDiveMarkerScale * (0.4f + 0.6f * pulse);
+                    flyingDiveMarkerTransform.localScale = Vector3.one * flyingDiveMarkerScale * MarkerArtScale * (0.4f + 0.6f * pulse);
                 }
                 if (flyingDiveTimer <= 0f)
                 {
@@ -597,6 +598,7 @@ public class EnemySpecialBehavior : MonoBehaviour
     {
         float dx = player.position.x - transform.position.x;
         float absDx = Mathf.Abs(dx);
+        shooterInRange = absDx <= shooterRange;
 
         if (absDx < shooterRetreatDistance)
         {
@@ -612,6 +614,19 @@ public class EnemySpecialBehavior : MonoBehaviour
             shooterTimer = shooterCooldown;
             if (projectileSprite == null) return; // fail-safe - no asset, no throw, just skip firing
             Vector2 dir = ((Vector2)player.position - (Vector2)transform.position).normalized;
+            shooterPoseUntil = Time.time + 0.3f;
+            Sprite arrow = ArrowArt();
+            if (arrow != null)
+            {
+                // 攻撃エフェクト本番素材化(2026-09-26) - 弓兵は回転する単色四角ではなく、
+                // 進行方向を向いた矢(Resources/Effects/arrow)を撃つ。反射などの挙動は火球と同じ。
+                GameObject ar = FireballController.Create(arrow, transform.position + (Vector3)(dir * 0.4f), dir * shooterProjectileSpeed);
+                var fc = ar.GetComponent<FireballController>();
+                fc.SetStaticVisual(new Vector3(1.1f, 1.1f, 1f), Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
+                var arSr = ar.GetComponent<SpriteRenderer>();
+                if (arSr != null) arSr.color = Color.white;
+                return;
+            }
             GameObject fb = FireballController.Create(projectileSprite, transform.position, dir * shooterProjectileSpeed);
             var fbSr = fb.GetComponent<SpriteRenderer>();
             if (fbSr != null) fbSr.color = projectileColor;
@@ -749,6 +764,7 @@ public class EnemySpecialBehavior : MonoBehaviour
             var markerSr = meleeTelegraphMarkerGO.AddComponent<SpriteRenderer>();
             markerSr.sprite = telegraphMarkerSprite;
             markerSr.color = new Color(1f, 0.35f, 0.15f, 0.95f);
+            ApplyWarningArt(markerSr);
             markerSr.sortingOrder = RenderOrder.CombatFx;
             meleeTelegraphMarkerTransform = meleeTelegraphMarkerGO.transform;
             meleeTelegraphMarkerGO.SetActive(false);
@@ -786,7 +802,7 @@ public class EnemySpecialBehavior : MonoBehaviour
                     float total = Mathf.Max(0.05f, meleeTelegraphTotalDuration);
                     float progress = Mathf.Clamp01(1f - meleeAttackTimer / total);
                     float pulse = Mathf.Sin(progress * Mathf.PI);
-                    meleeTelegraphMarkerTransform.localScale = Vector3.one * meleeTelegraphMarkerScale * (0.4f + 0.6f * pulse);
+                    meleeTelegraphMarkerTransform.localScale = Vector3.one * meleeTelegraphMarkerScale * MarkerArtScale * (0.4f + 0.6f * pulse);
                 }
                 if (meleeAttackTimer <= 0f) StartMeleeAttack();
                 break;
@@ -827,6 +843,7 @@ public class EnemySpecialBehavior : MonoBehaviour
         {
             meleeHitboxGO.transform.localPosition = new Vector3(meleeAttackFacingDir * meleeHitboxOffsetX, 0f, 0f);
             meleeHitboxGO.SetActive(true);
+            SpawnMeleeSlash(meleeHitboxGO.transform.position, meleeAttackFacingDir, Mathf.Max(meleeHitboxWidth, meleeHitboxHeight));
         }
     }
 
@@ -919,6 +936,7 @@ public class EnemySpecialBehavior : MonoBehaviour
             var markerSr = hopperTelegraphMarkerGO.AddComponent<SpriteRenderer>();
             markerSr.sprite = telegraphMarkerSprite;
             markerSr.color = new Color(1f, 0.35f, 0.15f, 0.95f);
+            ApplyWarningArt(markerSr);
             markerSr.sortingOrder = RenderOrder.CombatFx;
             hopperTelegraphMarkerTransform = hopperTelegraphMarkerGO.transform;
             hopperTelegraphMarkerGO.SetActive(false);
@@ -950,7 +968,7 @@ public class EnemySpecialBehavior : MonoBehaviour
                     float total = Mathf.Max(0.05f, hopperTelegraphTotalDuration);
                     float progress = Mathf.Clamp01(1f - hopperAttackTimer / total);
                     float pulse = Mathf.Sin(progress * Mathf.PI);
-                    hopperTelegraphMarkerTransform.localScale = Vector3.one * hopperTelegraphMarkerScale * (0.4f + 0.6f * pulse);
+                    hopperTelegraphMarkerTransform.localScale = Vector3.one * hopperTelegraphMarkerScale * MarkerArtScale * (0.4f + 0.6f * pulse);
                 }
                 if (hopperAttackTimer <= 0f) StartHopperAttack();
                 break;
@@ -988,6 +1006,7 @@ public class EnemySpecialBehavior : MonoBehaviour
         {
             hopperHitboxGO.transform.localPosition = new Vector3(hopperAttackFacingDir * hopperHitboxOffsetX, 0f, 0f);
             hopperHitboxGO.SetActive(true);
+            SpawnMeleeSlash(hopperHitboxGO.transform.position, hopperAttackFacingDir, Mathf.Max(hopperHitboxWidth, hopperHitboxHeight));
         }
     }
 
@@ -1195,5 +1214,54 @@ public class EnemySpecialBehavior : MonoBehaviour
     {
         wormState = WormState.Retreat;
         wormTimer = wormRetreatDuration;
+    }
+
+    // ===== 攻撃の見た目(2026-09-26) =====
+    // EnemyAnimatorが攻撃ポーズ(EnemyDefinition.attackSprite)を出すかどうか。予備動作〜攻撃の間。
+    float shooterPoseUntil;
+    bool shooterInRange;
+    public bool IsInAttackPose
+    {
+        get
+        {
+            switch (kind)
+            {
+                case EnemyBehaviorKind.StationaryMelee:
+                    return meleeAttackState == MeleeAttackState.Telegraph || meleeAttackState == MeleeAttackState.Attack;
+                case EnemyBehaviorKind.CaveHopper:
+                    return hopperAttackState == HopperAttackState.Telegraph || hopperAttackState == HopperAttackState.Attack;
+                case EnemyBehaviorKind.Shooter:
+                    return (shooterInRange && shooterTimer <= 0.4f) || Time.time < shooterPoseUntil;
+                case EnemyBehaviorKind.BurrowWorm:
+                    return wormState == WormState.Emerge || wormState == WormState.Attack;
+                default:
+                    return false;
+            }
+        }
+    }
+
+    static Sprite warningArt, arrowArt;
+    static bool warningLoaded, arrowLoaded;
+    static Sprite WarningArt() { if (!warningLoaded) { warningLoaded = true; warningArt = Resources.Load<Sprite>("Effects/warning"); } return warningArt; }
+    static Sprite ArrowArt() { if (!arrowLoaded) { arrowLoaded = true; arrowArt = Resources.Load<Sprite>("Effects/arrow"); } return arrowArt; }
+    // 警告マーク素材(1x1unit)は単色四角(マーカー倍率0.4前後)より見やすい大きさにする。
+    float MarkerArtScale => WarningArt() != null ? 1.9f : 1f;
+
+    // 予告マーカーを警告アイコン素材に差し替える(素材が無ければ従来の単色四角のまま)。
+    static void ApplyWarningArt(SpriteRenderer markerSr)
+    {
+        Sprite art = WarningArt();
+        if (art == null || markerSr == null) return;
+        markerSr.sprite = art;
+        markerSr.color = Color.white;
+    }
+
+    // 近接攻撃の判定が出た瞬間に、判定と同じ位置へ斬撃エフェクトを出す(見えている攻撃=判定)。
+    void SpawnMeleeSlash(Vector3 pos, float facingDir, float size)
+    {
+        var fx = OneShotSpriteEffect.CreateTweened(BossFx.Slash(), pos, new Color(1f, 0.85f, 0.7f, 0.95f), 0.2f, size * 0.9f, size * 1.25f, 1f, 0f, default,
+            0f, RenderOrder.CombatFx, 0.25f);
+        var fxSr = fx != null ? fx.GetComponent<SpriteRenderer>() : null;
+        if (fxSr != null) fxSr.flipX = facingDir < 0f; // 斬撃素材は右向き
     }
 }

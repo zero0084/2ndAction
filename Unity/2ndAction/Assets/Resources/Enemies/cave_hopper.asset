@@ -26,6 +26,7 @@ MonoBehaviour:
   runFrames:
   - {fileID: 21300000, guid: 4d6b6f432ec8aaf4d97a03f308d01a81, type: 3}
   - {fileID: 21300000, guid: 2cb430d5e79b8db4e9e1fac671d6c3ff, type: 3}
+  attackSprite: {fileID: 21300000, guid: ad73e314f6ba7594ea1e05823d9e185a, type: 3}
   mileReward: 2
   visualScaleMultiplier: 1
   aiTier: 0

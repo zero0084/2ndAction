@@ -79,6 +79,7 @@ public class UpperRouteEnemySpawner : MonoBehaviour
             maxHp: maxHp, behaviorKind: enemyDef.behaviorKind, enableVisualFacing: enemyDef.enableVisualFacing,
             defaultFacingRight: enemyDef.defaultFacingRight, runFrames: enemyDef.runFrames, mileReward: enemyDef.mileReward,
             visualScaleMultiplier: enemyDef.visualScaleMultiplier);
+        GroundFactory.ApplyAttackSprite(enemyGO, enemyDef);
 
         if (movementType == EnemyMovementType.Ground) enemyGO.transform.rotation = Quaternion.identity;
     }

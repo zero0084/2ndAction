@@ -1631,6 +1631,7 @@ public class TerrainManager : MonoBehaviour
         EnemyAiTier aiTier = enemyDef != null ? enemyDef.aiTier : EnemyAiTier.T0;
         GameObject enemyGO = GroundFactory.CreateEnemy(transform, eSprite, new Vector2(ex, ey + heightOffset), eColor, enemyHitSparkSprite, enemyDeathCloudSprite, movementType, enemyGroundShadowSprite, maxHp, behaviorKind, bigKnockback, shooterProjectileSprite, enableVisualFacing, defaultFacingRight, runFrames, mileReward, visualScaleMultiplier, aiTier, squareSprite);
         enemyGO.GetComponent<EnemyController>().movementType = movementType;
+        GroundFactory.ApplyAttackSprite(enemyGO, enemyDef);
         if (GameManager.Instance != null && GameManager.Instance.DebugMode)
         {
             Debug.Log($"[Enemy] Spawn {(enemyDef != null ? enemyDef.displayName : "Normal")} HP={maxHp}");

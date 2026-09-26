@@ -128,6 +128,35 @@ public static class EnemyDatabaseBuilder
     // 敵アニメーション追加(2026-09-15) - 元々RunnerRunFramesFolder固定
     // だったものをフォルダ引数化(GoblinRunFramesFolder等、他種でも再利用
     // するため)。
+    // 攻撃ポーズ(2026-09-26) - Assets/Art/EnemyAttack/<id>_attack.png があれば読み込む。
+    // 縮尺はrunFramesの1コマ目と同じPPU(画像側を事前にその縮尺へ合わせてある)、足元中央ピボット。
+    const string EnemyAttackArtDir = "Assets/Art/EnemyAttack";
+    static Sprite LoadAttackSprite(Spec spec)
+    {
+        string path = $"{EnemyAttackArtDir}/{spec.id}_attack.png";
+        if (!File.Exists(path)) return null;
+        float ppu = 100f;
+        Sprite[] frames = LoadRunFrames(spec.runFramesDir);
+        if (frames.Length > 0 && frames[0] != null) ppu = frames[0].pixelsPerUnit;
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = ppu;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            var settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            settings.spriteAlignment = (int)SpriteAlignment.BottomCenter;
+            importer.SetTextureSettings(settings);
+            importer.SaveAndReimport();
+        }
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
+
     static Sprite[] LoadRunFrames(string folder)
     {
         if (string.IsNullOrEmpty(folder) || !Directory.Exists(folder)) return new Sprite[0];
@@ -193,6 +222,14 @@ public static class EnemyDatabaseBuilder
                         EditorUtility.SetDirty(existing);
                     }
                 }
+                // 攻撃ポーズ(2026-09-26) - 手動調整値ではなく素材そのものなので、bulletSpriteと同じく
+                // 常に最新のPNG(Assets/Art/EnemyAttack/<id>_attack.png)へ同期する。
+                Sprite attackForExisting = LoadAttackSprite(spec);
+                if (attackForExisting != null && existing.attackSprite != attackForExisting)
+                {
+                    existing.attackSprite = attackForExisting;
+                    EditorUtility.SetDirty(existing);
+                }
                 continue; // never overwrite anything else, see class comment
             }
 
@@ -219,6 +256,7 @@ public static class EnemyDatabaseBuilder
             def.visualScaleMultiplier = spec.visualScaleMultiplier > 0f ? spec.visualScaleMultiplier : 1f;
             def.aiTier = spec.aiTier;
             def.stageIds = spec.stageIds;
+            def.attackSprite = LoadAttackSprite(spec);
 
             AssetDatabase.CreateAsset(def, assetPath);
         }

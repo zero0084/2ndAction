@@ -122,6 +122,10 @@ public class EnemyDefinition : ScriptableObject
     // GroundFactory.CreateEnemy/EnemyAnimator.runFrames for how this plays.
     public Sprite[] runFrames;
 
+    // 攻撃ポーズ(2026-09-26) - 予備動作〜攻撃中にEnemyAnimatorが表示する1枚絵(任意)。
+    // runFramesの1コマ目と同じ縮尺(同じPPU・足元ピボット)で読み込む(EnemyDatabaseBuilder)。
+    public Sprite attackSprite;
+
     // Reward/MILE System Ver.1 - MILE granted to GameManager.RegisterEnemyKill
     // when a spawn from this species dies (see GroundFactory.CreateEnemy /
     // EnemyController.mileReward). Per-species and Inspector-tunable, per

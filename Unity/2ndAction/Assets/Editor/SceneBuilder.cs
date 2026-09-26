@@ -671,6 +671,10 @@ public static class SceneBuilder
         ConfigureEffectSpriteIfPresent("flamefeather");
         ConfigureEffectSpriteIfPresent("cloudpuff");
         ConfigureEffectSpriteIfPresent("thunderspear");
+        // 攻撃エフェクト本番素材化(2026-09-26) - 雑魚敵の警告マーク/弓兵の矢/ドラゴン・魔人の火球。
+        ConfigureEffectSpriteIfPresent("warning");
+        ConfigureEffectSpriteIfPresent("arrow");
+        ConfigureEffectSpriteIfPresent("fireball");
 
         ConfigureEffectSpriteIfPresent("fang");
         ConfigureEffectSpriteIfPresent("slash");

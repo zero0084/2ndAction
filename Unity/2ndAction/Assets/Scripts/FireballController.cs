@@ -138,7 +138,12 @@ public class FireballController : MonoBehaviour
     {
         GameObject go = new GameObject("Fireball");
         go.transform.position = position;
-        go.transform.localScale = new Vector3(0.6f, 0.45f, 1f);
+        // 攻撃エフェクト本番素材化(2026-09-26) - 単色四角(square)が渡された場合、火球の実イラスト
+        // (Resources/Effects/fireball、白基調で色はsr.colorで乗算)があればそちらを使う。
+        // 当たり判定の大きさ(0.6x0.45)は従来どおりに保つ。
+        bool useArt = sprite != null && sprite.name == "square" && FireballArt() != null;
+        if (useArt) sprite = FireballArt();
+        go.transform.localScale = useArt ? new Vector3(0.8f, 0.8f, 1f) : new Vector3(0.6f, 0.45f, 1f);
 
         SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
         sr.sprite = sprite;
@@ -147,11 +152,32 @@ public class FireballController : MonoBehaviour
 
         BoxCollider2D col = go.AddComponent<BoxCollider2D>();
         col.isTrigger = true;
+        if (useArt) col.size = new Vector2(0.6f / 0.8f, 0.45f / 0.8f);
 
         FireballController fb = go.AddComponent<FireballController>();
         fb.velocity = velocity;
         fb.holdDuration = holdDuration;
 
         return go;
+    }
+
+    static Sprite fireballArt;
+    static bool fireballLoaded;
+    public static Sprite FireballArt()
+    {
+        if (!fireballLoaded) { fireballLoaded = true; fireballArt = Resources.Load<Sprite>("Effects/fireball"); }
+        return fireballArt;
+    }
+
+    // 回転/脈動しない飛翔体(矢など)として見せる。scaleは見た目の大きさ、angleは進行方向。
+    public void SetStaticVisual(Vector3 scale, float angleDegrees)
+    {
+        spinSpeed = 0f;
+        pulseAmount = 0f;
+        baseScale = scale;
+        transform.localScale = scale;
+        transform.rotation = Quaternion.Euler(0f, 0f, angleDegrees);
+        var col = GetComponent<BoxCollider2D>();
+        if (col != null) col.size = new Vector2(0.8f, 0.25f);
     }
 }

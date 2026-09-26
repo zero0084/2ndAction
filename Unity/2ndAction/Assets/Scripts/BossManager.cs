@@ -985,6 +985,10 @@ public class BossManager : MonoBehaviour
         }
 
         boss.bossName = kind.ToString();
+        // 不具合修正(2026-09-26) - 自然洞窟ボスの素材(実イラスト/手続き的シルエットとも)は
+        // 頭が画面右向きに描かれているのに、WildBossBaseの既定(artFacesLeft=true=左向き素材)の
+        // ままだったため、常にプレイヤーと逆を向いて表示されていた。
+        boss.artFacesLeft = false;
         float hpScale = (kind == CaveBossKind.Centipede || kind == CaveBossKind.Scorpion) ? Mathf.Min(3f, 1f + currentGateK * smallBossHpPerKm) : 1f;
         boss.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(spec.hp * hpScale));
         boss.slotIndex = index;

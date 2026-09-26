@@ -68,6 +68,11 @@ public class EnemyAnimator : MonoBehaviour
     // for the Player/Dragon/Majin's own multi-frame animations.
     public Sprite[] runFrames;
     public float runFrameRate = 10f;
+    // 攻撃ポーズ(2026-09-26) - EnemySpecialBehavior.IsInAttackPose(予備動作〜攻撃中)の間だけ表示。
+    public Sprite attackSprite;
+    EnemySpecialBehavior specialForPose;
+    Sprite poseRestoreSprite;
+    bool inAttackPose;
     SpriteRenderer visualRenderer;
     float runFrameTimer;
     Vector3 lastRootPos;
@@ -88,6 +93,7 @@ public class EnemyAnimator : MonoBehaviour
         isFlying = controller != null && controller.movementType == EnemyMovementType.Flying;
 
         var special = GetComponent<EnemySpecialBehavior>();
+        specialForPose = special;
         ownsRootMotion = special != null && special.kind != EnemyBehaviorKind.None;
         // A Flying-Behavior enemy's own UpdateFlying already includes its
         // own bob - this class's bob would otherwise fight it for the same
@@ -136,6 +142,22 @@ public class EnemyAnimator : MonoBehaviour
             Vector3 pos = transform.position;
             pos.y = basePos.y + s * bobAmount;
             transform.position = pos;
+        }
+
+        if (attackSprite != null && visualRenderer != null && specialForPose != null && specialForPose.IsInAttackPose)
+        {
+            if (!inAttackPose) { inAttackPose = true; poseRestoreSprite = visualRenderer.sprite; }
+            visualRenderer.sprite = attackSprite;
+            visual.localScale = baseVisualScale;
+            visual.localRotation = Quaternion.identity;
+            lastRootPos = transform.position;
+            return;
+        }
+
+        if (inAttackPose)
+        {
+            inAttackPose = false;
+            if (visualRenderer != null && poseRestoreSprite != null) visualRenderer.sprite = poseRestoreSprite;
         }
 
         bool hasRunAnimation = runFrames != null && runFrames.Length > 0 && visualRenderer != null;

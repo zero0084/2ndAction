@@ -537,4 +537,12 @@ public static class GroundFactory
 
         return go;
     }
+
+    // 攻撃ポーズ(2026-09-26) - 生成済みの敵にEnemyDefinition.attackSpriteを渡す(無ければ何もしない)。
+    public static void ApplyAttackSprite(GameObject enemyGO, EnemyDefinition def)
+    {
+        if (enemyGO == null || def == null || def.attackSprite == null) return;
+        var anim = enemyGO.GetComponent<EnemyAnimator>();
+        if (anim != null) anim.attackSprite = def.attackSprite;
+    }
 }

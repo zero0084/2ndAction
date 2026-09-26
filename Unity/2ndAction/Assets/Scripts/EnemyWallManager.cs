@@ -148,7 +148,8 @@ public class EnemyWallManager : MonoBehaviour
             Vector2 pos = isFlying
                 ? new Vector2(worldX, Random.Range(flyMinY, flyMaxY))
                 : new Vector2(worldX + i * columnSpacing, groundY.Value);
-            GroundFactory.CreateEnemy(transform, eSprite, pos, eColor, squareSprite, movementType: movementType, maxHp: wallEnemyHp, behaviorKind: behaviorKind, enableVisualFacing: enableVisualFacing, defaultFacingRight: defaultFacingRight, runFrames: enemyDef != null ? enemyDef.runFrames : null, mileReward: mileReward, visualScaleMultiplier: enemyDef != null ? enemyDef.visualScaleMultiplier : 1f);
+            GameObject wallEnemyGO = GroundFactory.CreateEnemy(transform, eSprite, pos, eColor, squareSprite, movementType: movementType, maxHp: wallEnemyHp, behaviorKind: behaviorKind, enableVisualFacing: enableVisualFacing, defaultFacingRight: defaultFacingRight, runFrames: enemyDef != null ? enemyDef.runFrames : null, mileReward: mileReward, visualScaleMultiplier: enemyDef != null ? enemyDef.visualScaleMultiplier : 1f);
+            GroundFactory.ApplyAttackSprite(wallEnemyGO, enemyDef);
         }
     }
 }
