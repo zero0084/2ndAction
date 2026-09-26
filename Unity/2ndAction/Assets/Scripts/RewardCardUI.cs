@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -83,6 +84,26 @@ public class RewardCardUI : MonoBehaviour
     public Text equippedBadgeLabel;
     public Button button;
 
+    // カードUI最終デザイン改修(2026-09-26) - Name Plate/エンブレム/選択状態の部品
+    // (SceneBuilder.CreateRewardCardが生成)。古いシーンで作られたカード(これらがnull)でも
+    // 動くよう、全てnullチェックして使う。
+    public Image selectGlow;
+    public GameObject namePlate;
+    public Image namePlateRim;
+    public Image namePlateAccent;
+    public GameObject countChip;
+    public GameObject inDeckMark;
+    public Image categoryEmblemRim;
+    public Image categoryEmblemAccent;
+    public Image levelEmblemRim;
+    public Image levelEmblemAccent;
+    // 実行時にCardFaceArtのスプライトを割り当てるImage(Editorで作ったSpriteはシーンに残らないため)
+    public Image[] roundedImages = new Image[0];
+    public Image[] diamondImages = new Image[0];
+    public Image[] circleImages = new Image[0];
+    // Card Name 1行時の最大フォントサイズ(0 = 旧カード、Best Fit任せ)
+    public int titleMaxFontSize;
+
     RewardCardData data;
     public RewardCardData Data => data;
 
@@ -136,7 +157,10 @@ public class RewardCardUI : MonoBehaviour
     // なるまでは絶対に見えない。
     void ApplyFaceVisibility()
     {
+        EnsureArt();
         if (baseImage != null) baseImage.enabled = isFront;
+        if (namePlate != null) namePlate.SetActive(isFront);
+        if (inDeckMark != null) inDeckMark.SetActive(isFront && inDeckMarked);
         if (titleBandImage != null) titleBandImage.enabled = isFront;
         frameImage.enabled = isFront;
         iconBackdrop.enabled = isFront;
@@ -153,8 +177,10 @@ public class RewardCardUI : MonoBehaviour
         bool showCategory = isFront && categoryIconImage != null && categoryIconImage.sprite != null;
         if (categoryBadge != null) categoryBadge.SetActive(showCategory);
         if (valueLineText != null) valueLineText.enabled = isFront && !string.IsNullOrEmpty(data.ValueLine);
-        if (countText != null) countText.enabled = isFront && data.Count > 1;
+        if (countChip != null) countChip.SetActive(isFront && data.Count > 1);
+        else if (countText != null) countText.enabled = isFront && data.Count > 1;
         if (equippedBadge != null) equippedBadge.SetActive(isFront && (data.ShowEquippedBadge || data.ShowNewBadge));
+        ApplyFocusVisual();
     }
 
     // An unfilled DECK slot - shows just the card frame art, dimmed, with
@@ -164,12 +190,20 @@ public class RewardCardUI : MonoBehaviour
     public void ShowEmpty()
     {
         isFront = false; // frameだけ個別にtrueへ - ApplyFaceVisibilityは使わず、このメソッド内で明示的に全て指定する
+        isEmpty = true;
+        EnsureArt();
         backImage.enabled = false;
         if (baseImage != null) baseImage.enabled = false;
         if (titleBandImage != null) titleBandImage.enabled = false;
         frameImage.enabled = true;
-        frameImage.sprite = defaultFrameSprite;
+        SetFrameSprite(defaultFrameSprite, false, 0f, 1f);
         frameImage.color = new Color(1f, 1f, 1f, 0.32f);
+        if (namePlate != null) namePlate.SetActive(false);
+        if (countChip != null) countChip.SetActive(false);
+        if (inDeckMark != null) inDeckMark.SetActive(false);
+        focused = false;
+        inDeckMarked = false;
+        if (selectGlow != null) selectGlow.gameObject.SetActive(false);
         iconBackdrop.enabled = false;
         textBackdrop.enabled = false;
         iconImage.enabled = false;
@@ -192,6 +226,13 @@ public class RewardCardUI : MonoBehaviour
     // で従来どおり効果文/★も表示する(呼び出し元のコメント参照)。
     public void SetContent(RewardCardData cardData, bool showDetails = false)
     {
+        EnsureArt();
+        if (isEmpty)
+        {
+            // 空きスロット表示から実カードへ戻る時は、枠の暗さを通常の色へ戻す
+            isEmpty = false;
+            frameImage.color = focused ? FrameFocusedColor : FrameNormalColor;
+        }
         data = cardData;
         this.showDetails = showDetails;
         if (iconImage.sprite != null) Destroy(iconImage.sprite);
@@ -199,6 +240,7 @@ public class RewardCardUI : MonoBehaviour
             ? Sprite.Create(cardData.Icon, new Rect(0f, 0f, cardData.Icon.width, cardData.Icon.height), new Vector2(0.5f, 0.5f))
             : null;
         titleText.text = cardData.Title;
+        FitTitle();
         descriptionText.text = cardData.Description;
         if (valueLineText != null) valueLineText.text = cardData.ValueLine;
 
@@ -206,7 +248,11 @@ public class RewardCardUI : MonoBehaviour
         // frameImage.color stays whatever SetSelected/FlashFrame/idle pulse
         // last left it (this method never touches color) since those are
         // independent of which frame art is showing.
-        frameImage.sprite = CardRarityFrames.GetFrame(cardData.Rarity, defaultFrameSprite);
+        // カードUI最終デザイン改修(2026-09-26) - レア度フレームはカード全面を覆うSliced表示
+        // (全レア度でName Plate/エンブレムの位置が揃う - CardRarityFrames.GetSlicedFrame参照)。
+        Sprite slicedFrame = CardRarityFrames.GetSlicedFrame(cardData.Rarity, out float cropWidthPx, out float frameVScale);
+        if (slicedFrame != null) SetFrameSprite(slicedFrame, true, cropWidthPx, frameVScale);
+        else SetFrameSprite(CardRarityFrames.GetFrame(cardData.Rarity, defaultFrameSprite), false, 0f, 1f);
         // Bugfix 2026-09-06, item 3 - "Card=X / Rarity=N / Frame=Y" so a
         // Data-says-★4-but-Frame-is-still-old case (or the reverse) can be
         // confirmed directly from a real device's logcat rather than review
@@ -228,7 +274,16 @@ public class RewardCardUI : MonoBehaviour
         }
         if (levelText != null)
         {
-            levelText.text = cardData.LevelLine;
+            // カードUI最終デザイン改修(2026-09-26) - 右上の菱形 = Levelというルールが左上の
+            // Categoryと対になって伝わるため、小カードでは「Lv.」を省いて数字だけを大きく出す
+            // (実機の小さいカードでは「Lv.3」の方が文字が小さくなり読みにくかった)。
+            // 「Lv.2 -> Lv.3」(Level Up候補)は選んだ後のLv、「Lv.9 MAX」は数字を明るい色に。
+            // 詳細な表記は各画面の詳細パネルがLevelLineをそのまま出す。
+            string line = cardData.LevelLine ?? "";
+            MatchCollection lv = LevelNumberPattern.Matches(line);
+            bool isMax = line.Contains("MAX");
+            levelText.text = lv.Count > 0 ? lv[lv.Count - 1].Groups[1].Value : line;
+            levelText.color = isMax ? LevelMaxColor : LevelColor;
         }
         if (countText != null)
         {
@@ -247,6 +302,8 @@ public class RewardCardUI : MonoBehaviour
         if (equippedBadgeLabel != null)
         {
             equippedBadgeLabel.text = cardData.ShowEquippedBadge ? "EQUIPPED" : cardData.ShowNewBadge ? "NEW" : "";
+            // NEWはエメラルド、EQUIPPEDは金(同じ部品で役割の違いを色で分ける)
+            equippedBadgeLabel.color = cardData.ShowEquippedBadge ? new Color(1f, 0.9f, 0.62f) : new Color(0.62f, 1f, 0.86f);
         }
         ApplyFaceVisibility();
     }
@@ -260,7 +317,7 @@ public class RewardCardUI : MonoBehaviour
         isFront = true;
         backImage.enabled = false;
         SetContent(cardData, showDetails); // ApplyFaceVisibility()を内部で呼ぶ(isFront=true済みなので正しく全て表示される)
-        rect.localScale = Vector3.one;
+        rect.localScale = Vector3.one * FocusScale;
         canvasGroup.alpha = 1f;
         SetInteractable(true);
     }
@@ -271,20 +328,166 @@ public class RewardCardUI : MonoBehaviour
         canvasGroup.blocksRaycasts = value;
     }
 
-    static readonly Color FrameNormalColor = Color.white;
+    // カードUI最終デザイン改修(2026-09-26) - 通常状態はフレームを少しだけ落ち着かせる
+    // (大量に並べてもギラギラしない)。選択中はFrameFocusedColor(=元の明るさ)へ戻して発光させる。
+    static readonly Color FrameNormalColor = new Color(0.86f, 0.84f, 0.80f, 1f);
+    static readonly Color FrameFocusedColor = Color.white;
     // Visual Style Ver.1's gold accent, matching the navy+gold+white
     // treatment used everywhere else (HUD, buttons, panels) - was a green
     // tint before, which didn't match anything else in the game.
     static readonly Color FrameSelectedColor = new Color(1f, 0.85f, 0.4f, 1f);
-    const float SelectedScale = 1.05f;
+    const float SelectedScale = 1.06f;
 
-    // Used by DeckEditUI to show which cards are currently in the deck -
-    // tints the frame art gold and grows it slightly instead of drawing a
-    // separate checkmark overlay, so no new art asset is needed.
-    public void SetSelected(bool selected)
+    // カードUI最終デザイン改修(2026-09-26) - 「選択状態(いま見ているカード)」を明確にする。
+    // 通常: 落ち着いた金+エメラルド / 選択: 金縁が明るく、エメラルドが発光、背後に淡いGlow、
+    // 少し拡大。点滅はせず、Glowがごくゆっくり呼吸するだけ。
+    // (旧仕様ではDeckEditUIが「デッキに入っている」印にもこれを使っていたが、それは
+    // SetInDeckMarkの小さなチェックに分けた。合成画面のメイン/素材の選択はこちらのまま。)
+    public void SetSelected(bool selected) => SetFocused(selected);
+
+    bool focused;
+    bool inDeckMarked;
+    bool isEmpty;
+    public bool IsFocused => focused;
+    public float FocusScale => focused ? SelectedScale : 1f;
+
+    public void SetFocused(bool value)
     {
-        frameImage.color = selected ? FrameSelectedColor : FrameNormalColor;
-        rect.localScale = Vector3.one * (selected ? SelectedScale : 1f);
+        focused = value;
+        rect.localScale = Vector3.one * FocusScale;
+        if (isEmpty)
+        {
+            // 空きスロット(キャラカードの装備待ち等): 暗い枠のまま、選択時だけ金色に
+            frameImage.color = value ? FrameSelectedColor : new Color(1f, 1f, 1f, 0.32f);
+            if (selectGlow != null) selectGlow.gameObject.SetActive(value);
+            return;
+        }
+        frameImage.color = value ? FrameFocusedColor : FrameNormalColor;
+        ApplyFocusVisual();
+    }
+
+    // デッキに入っているカードの印(Collection一覧用、選択の発光とは別の静かな表示)。
+    public void SetInDeckMark(bool value)
+    {
+        inDeckMarked = value;
+        if (inDeckMark != null) inDeckMark.SetActive(isFront && value);
+    }
+
+    static readonly Color RimNormal = new Color(0.74f, 0.60f, 0.32f, 1f);
+    static readonly Color RimFocused = new Color(1f, 0.86f, 0.48f, 1f);
+    static readonly Color EmblemAccentNormal = new Color(0.30f, 0.88f, 0.78f, 0.45f);
+    static readonly Color PlateAccentNormal = new Color(0.30f, 0.88f, 0.78f, 0.35f);
+    static readonly Color AccentFocused = new Color(0.45f, 1f, 0.88f, 1f);
+    static readonly Color LevelColor = new Color(1f, 0.92f, 0.68f);
+    static readonly Color LevelMaxColor = new Color(0.72f, 1f, 0.92f);
+    static readonly Regex LevelNumberPattern = new Regex(@"Lv\.(\d+)");
+    const float GlowAlpha = 0.8f;
+
+    void ApplyFocusVisual()
+    {
+        bool on = focused && isFront;
+        if (selectGlow != null) selectGlow.gameObject.SetActive(on);
+        Color rim = on ? RimFocused : RimNormal;
+        if (namePlateRim != null) namePlateRim.color = rim;
+        if (categoryEmblemRim != null) categoryEmblemRim.color = rim;
+        if (levelEmblemRim != null) levelEmblemRim.color = rim;
+        if (namePlateAccent != null) namePlateAccent.color = on ? AccentFocused : PlateAccentNormal;
+        if (categoryEmblemAccent != null) categoryEmblemAccent.color = on ? AccentFocused : EmblemAccentNormal;
+        if (levelEmblemAccent != null) levelEmblemAccent.color = on ? AccentFocused : EmblemAccentNormal;
+    }
+
+    void Update()
+    {
+        // 選択中のGlowだけ、ごくゆっくり呼吸させる(点滅はさせない)
+        if (!focused || selectGlow == null || !selectGlow.gameObject.activeSelf) return;
+        Color c = selectGlow.color;
+        c.a = GlowAlpha * (0.82f + 0.18f * Mathf.Sin(Time.unscaledTime * 2.2f));
+        selectGlow.color = c;
+    }
+
+    bool artReady;
+
+    // CardFaceArtの手続き生成スプライトを割り当てる(1回だけ)。
+    void EnsureArt()
+    {
+        if (artReady) return;
+        artReady = true;
+        foreach (var img in roundedImages) if (img != null) img.sprite = CardFaceArt.RoundedRect();
+        foreach (var img in diamondImages) if (img != null) img.sprite = CardFaceArt.Diamond();
+        foreach (var img in circleImages) if (img != null) img.sprite = CardFaceArt.Circle();
+        if (selectGlow != null) selectGlow.sprite = CardFaceArt.SoftGlow();
+    }
+
+    // sliced=true: カード全面を覆う9-slice表示(横はカード幅ぴったり、縦はvScale倍+レール区間で吸収)。
+    void SetFrameSprite(Sprite sprite, bool sliced, float cropWidthPx, float vScale)
+    {
+        frameImage.sprite = sprite;
+        if (sliced && cropWidthPx > 0f && sprite != null)
+        {
+            frameImage.type = Image.Type.Sliced;
+            frameImage.preserveAspect = false;
+            frameImage.fillCenter = true;
+            float w = Mathf.Max(1f, frameImage.rectTransform.rect.width);
+            Canvas c = frameImage.canvas;
+            float refPpu = c != null ? c.referencePixelsPerUnit : 100f;
+            // 上下の装飾部(ボーダー)の表示倍率 = カード幅/切り出し幅 × vScale
+            frameImage.pixelsPerUnitMultiplier = cropWidthPx / (w * Mathf.Max(0.01f, vScale)) * (refPpu / sprite.pixelsPerUnit);
+        }
+        else
+        {
+            frameImage.type = Image.Type.Simple;
+            frameImage.preserveAspect = true;
+            frameImage.pixelsPerUnitMultiplier = 1f;
+        }
+    }
+
+    // Card NameをName Plateに収める: まず1行のままフォントを一定範囲(最大の72%まで)縮小し、
+    // それでも入らない時だけ2行にする(Legacy TextのBest Fitは縮める前に2行へ折り返してしまう)。
+    // 全カードでプレートの位置/高さは同じ - 文字サイズと行数だけが変わる。
+    void FitTitle()
+    {
+        if (titleText == null || titleMaxFontSize <= 0) return;
+        string s = titleText.text ?? "";
+        Rect r = titleText.rectTransform.rect;
+        if (r.width <= 1f || r.height <= 1f) return;
+        titleText.resizeTextForBestFit = false;
+        titleText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        titleText.verticalOverflow = VerticalWrapMode.Truncate;
+        TextGenerator gen = titleText.cachedTextGeneratorForLayout;
+        float ppu = Mathf.Max(0.01f, titleText.pixelsPerUnit);
+        int max = titleMaxFontSize;
+        int minSingle = Mathf.Max(6, Mathf.RoundToInt(max * 0.72f));
+        int minTwo = Mathf.Max(6, Mathf.RoundToInt(max * 0.6f));
+
+        titleText.lineSpacing = 1f;
+        for (int size = max; size >= minSingle; size--)
+        {
+            TextGenerationSettings st = titleText.GetGenerationSettings(Vector2.zero);
+            st.fontSize = size;
+            st.resizeTextForBestFit = false;
+            if (gen.GetPreferredWidth(s, st) / ppu <= r.width)
+            {
+                titleText.fontSize = size;
+                return;
+            }
+        }
+
+        const float twoLineSpacing = 0.9f;
+        titleText.lineSpacing = twoLineSpacing;
+        for (int size = minSingle; size >= minTwo; size--)
+        {
+            TextGenerationSettings st = titleText.GetGenerationSettings(new Vector2(r.width, 0f));
+            st.fontSize = size;
+            st.resizeTextForBestFit = false;
+            st.horizontalOverflow = HorizontalWrapMode.Wrap;
+            st.lineSpacing = twoLineSpacing;
+            if (gen.GetPreferredHeight(s, st) / ppu <= r.height)
+            {
+                titleText.fontSize = size;
+                return;
+            }
+        }
+        titleText.fontSize = minTwo;
     }
 
     // カード選択UI再設計(2026-09-12第3弾) - Level Up/Boss Reward選択で
@@ -383,10 +586,11 @@ public class RewardCardUI : MonoBehaviour
     // 1f otherwise - see SetSelected). Used by DeckEditUI on add/remove
     // instead of a persistent select-then-confirm step, since every tap
     // there already commits immediately.
-    public IEnumerator PulseSelect(float settleScale = 1f)
+    public IEnumerator PulseSelect(float settleScale = -1f)
     {
         yield return ScaleTo(1.18f, 0.09f);
-        yield return ScaleTo(settleScale, 0.14f);
+        // 既定(-1): 押した後の選択状態に合わせた大きさへ戻る(選択中なら少し大きいまま)
+        yield return ScaleTo(settleScale < 0f ? FocusScale : settleScale, 0.14f);
     }
 
     // Level Up Presentation pass - a brief, self-contained brightening of
@@ -460,6 +664,9 @@ public class RewardCardUI : MonoBehaviour
 
     public void ResetForReuse()
     {
+        focused = false;
+        inDeckMarked = false;
+        if (selectGlow != null) selectGlow.gameObject.SetActive(false);
         rect.localScale = Vector3.one;
         canvasGroup.alpha = 1f;
         SetInteractable(false);

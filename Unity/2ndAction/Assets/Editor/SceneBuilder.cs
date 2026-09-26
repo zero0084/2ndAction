@@ -1252,30 +1252,25 @@ public static class SceneBuilder
         detailPanelRect.sizeDelta = new Vector2(detailPanelWidth, DeckPanelHeight);
         detailPanelRect.anchoredPosition = new Vector2(0f, -100f);
 
-        // Same top/bottom content margin every other panel uses
-        // (DeckPanelContentPad/DeckPanelContentBottom - see BuildDeckPanel)
-        // so this panel's own ornate border never overlaps the icon/text
-        // either. Top-to-bottom info flow: card preview -> name/category ->
-        // effect description, per the reference layout.
-        const float iconSize = 200f;
-        const float nameHeight = 40f;
-        const float categoryHeight = 26f;
+        // カードUI最終デザイン改修(2026-09-26) - 中央パネルをカード詳細として使う:
+        // 上から 大きめのカードプレビュー(一覧と同じ部品) → Card Name → Category / Lv →
+        // 区切り線 → 主な効果(Main Value) → 効果説明 → (CONVERTボタン)。
+        // 未選択時は中央に案内文だけ(DetailPlaceholder)。
         const float sideMargin = DeckPanelContentPad;
+        const float previewWidth = 196f;
+        float previewHeight = previewWidth * CardAspect;
+        const float nameHeight = 40f;
+        const float categoryHeight = 28f;
+        const float valueHeight = 62f;
 
-        GameObject detailIconGO = new GameObject("DetailIcon");
-        detailIconGO.transform.SetParent(detailPanelRect, false);
-        RectTransform detailIconRect = detailIconGO.AddComponent<RectTransform>();
-        detailIconRect.anchorMin = detailIconRect.anchorMax = new Vector2(0.5f, 1f);
-        detailIconRect.pivot = new Vector2(0.5f, 1f);
-        detailIconRect.sizeDelta = new Vector2(iconSize, iconSize);
-        detailIconRect.anchoredPosition = new Vector2(0f, DeckPanelHeaderY);
-        Image detailIcon = detailIconGO.AddComponent<Image>();
-        detailIcon.preserveAspect = true;
-        detailIcon.raycastTarget = false;
-        detailIcon.enabled = false; // hidden until a card is actually selected
-        deckEdit.detailIcon = detailIcon;
+        RewardCardUI detailPreview = CreateRewardCard(detailPanelRect, 2000, previewWidth, previewHeight, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
+        detailPreview.rect.anchorMin = detailPreview.rect.anchorMax = new Vector2(0.5f, 1f);
+        detailPreview.rect.pivot = new Vector2(0.5f, 1f);
+        detailPreview.rect.anchoredPosition = new Vector2(0f, DeckPanelHeaderY + 12f);
+        detailPreview.gameObject.SetActive(false); // カードを選ぶまで非表示
+        deckEdit.detailPreviewCard = detailPreview;
 
-        float nameY = DeckPanelHeaderY - iconSize - 20f;
+        float nameY = DeckPanelHeaderY + 12f - previewHeight - 14f;
         GameObject detailNameGO = new GameObject("DetailName");
         detailNameGO.transform.SetParent(detailPanelRect, false);
         RectTransform detailNameRect = detailNameGO.AddComponent<RectTransform>();
@@ -1284,10 +1279,14 @@ public static class SceneBuilder
         detailNameRect.sizeDelta = new Vector2(detailPanelWidth - sideMargin * 2f, nameHeight);
         detailNameRect.anchoredPosition = new Vector2(0f, nameY);
         Text detailName = detailNameGO.AddComponent<Text>();
-        ConfigureCardText(detailName, 26, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        ConfigureCardText(detailName, 28, FontStyle.Bold, new Color(1f, 0.88f, 0.55f));
+        detailName.resizeTextForBestFit = true;
+        detailName.resizeTextMinSize = 16;
+        detailName.resizeTextMaxSize = 28;
+        AddCardTextOutline(detailName, 300f);
         deckEdit.detailName = detailName;
 
-        float categoryY = nameY - nameHeight - 4f;
+        float categoryY = nameY - nameHeight;
         GameObject detailCategoryGO = new GameObject("DetailCategory");
         detailCategoryGO.transform.SetParent(detailPanelRect, false);
         RectTransform detailCategoryRect = detailCategoryGO.AddComponent<RectTransform>();
@@ -1296,19 +1295,50 @@ public static class SceneBuilder
         detailCategoryRect.sizeDelta = new Vector2(detailPanelWidth - sideMargin * 2f, categoryHeight);
         detailCategoryRect.anchoredPosition = new Vector2(0f, categoryY);
         Text detailCategory = detailCategoryGO.AddComponent<Text>();
-        ConfigureCardText(detailCategory, 16, FontStyle.Normal, new Color(0.85f, 0.85f, 0.92f, 0.85f));
+        ConfigureCardText(detailCategory, 18, FontStyle.Bold, new Color(0.78f, 0.84f, 0.95f, 0.95f));
+        detailCategory.resizeTextForBestFit = true;
+        detailCategory.resizeTextMinSize = 12;
+        detailCategory.resizeTextMaxSize = 18;
         deckEdit.detailCategory = detailCategory;
 
-        // Fills the remaining space down to the panel's own safe bottom
-        // margin (DeckPanelContentBottom) instead of a fixed height, so it
-        // never runs under the panel's bottom border regardless of how
-        // tall the icon/name/category block above ends up. Home Room UI
-        // reconstruction pass, item 9 - reserves a CONVERT button's height
-        // at the very bottom of that space (convertReserve), only ever
-        // shown/active for a COLLECTION-originated selection (see
-        // DeckEditUI.RefreshConvertButton).
+        // 区切り線(金の細線+中央の小さな菱形 - カードのName Plateと同じモチーフ)
+        float dividerY = categoryY - categoryHeight - 8f;
+        GameObject dividerGO = new GameObject("DetailDivider");
+        dividerGO.transform.SetParent(detailPanelRect, false);
+        RectTransform dividerRect = dividerGO.AddComponent<RectTransform>();
+        dividerRect.anchorMin = dividerRect.anchorMax = new Vector2(0.5f, 1f);
+        dividerRect.pivot = new Vector2(0.5f, 0.5f);
+        dividerRect.sizeDelta = new Vector2(detailPanelWidth - sideMargin * 2f - 40f, 12f);
+        dividerRect.anchoredPosition = new Vector2(0f, dividerY);
+        Image dividerLine = CardFaceImage(dividerGO.transform, "Line", new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), new Color(0.74f, 0.60f, 0.32f, 0.8f));
+        dividerLine.rectTransform.sizeDelta = new Vector2(0f, 1.5f);
+        var dividerDiamonds = new List<Image>();
+        Image dividerGem = CardFaceImage(dividerGO.transform, "Gem", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Color(0.74f, 0.60f, 0.32f, 1f));
+        dividerGem.rectTransform.sizeDelta = new Vector2(12f, 12f);
+        dividerDiamonds.Add(dividerGem);
+        detailPreview.diamondImages = AppendImages(detailPreview.diamondImages, dividerDiamonds);
+        dividerGO.SetActive(false);
+        deckEdit.detailDivider = dividerGO;
+
+        float valueY = dividerY - 10f;
+        GameObject detailValueGO = new GameObject("DetailValue");
+        detailValueGO.transform.SetParent(detailPanelRect, false);
+        RectTransform detailValueRect = detailValueGO.AddComponent<RectTransform>();
+        detailValueRect.anchorMin = detailValueRect.anchorMax = new Vector2(0.5f, 1f);
+        detailValueRect.pivot = new Vector2(0.5f, 1f);
+        detailValueRect.sizeDelta = new Vector2(detailPanelWidth - sideMargin * 2f, valueHeight);
+        detailValueRect.anchoredPosition = new Vector2(0f, valueY);
+        Text detailValue = detailValueGO.AddComponent<Text>();
+        ConfigureCardText(detailValue, 19, FontStyle.Bold, new Color(0.86f, 0.95f, 1f));
+        detailValue.supportRichText = true;
+        detailValue.resizeTextForBestFit = true;
+        detailValue.resizeTextMinSize = 12;
+        detailValue.resizeTextMaxSize = 19;
+        deckEdit.detailValue = detailValue;
+
+        // 効果説明 - パネル下端の安全マージン(DeckPanelContentBottom)とCONVERTボタンの分を残して埋める
         const float convertReserve = 66f;
-        float descY = categoryY - categoryHeight - 20f;
+        float descY = valueY - valueHeight - 6f;
         float descHeight = descY - DeckPanelContentBottom - convertReserve;
         GameObject detailDescGO = new GameObject("DetailDescription");
         detailDescGO.transform.SetParent(detailPanelRect, false);
@@ -1321,12 +1351,22 @@ public static class SceneBuilder
         detailDescRect.sizeDelta = new Vector2(0f, descHeight);
         detailDescRect.anchoredPosition = new Vector2(0f, descY);
         Text detailDesc = detailDescGO.AddComponent<Text>();
-        ConfigureCardText(detailDesc, 20, FontStyle.Normal, Color.white);
+        ConfigureCardText(detailDesc, 19, FontStyle.Normal, new Color(0.93f, 0.94f, 0.98f));
         detailDesc.alignment = TextAnchor.UpperCenter;
+        detailDesc.resizeTextForBestFit = true;
+        detailDesc.resizeTextMinSize = 12;
+        detailDesc.resizeTextMaxSize = 19;
         deckEdit.detailText = detailDesc;
         deckEdit.detailPlaceholder = "カードをタップして\n詳細を確認";
-        detailDesc.text = deckEdit.detailPlaceholder;
 
+        GameObject placeholderGO = new GameObject("DetailPlaceholder");
+        placeholderGO.transform.SetParent(detailPanelRect, false);
+        RectTransform placeholderRect = placeholderGO.AddComponent<RectTransform>();
+        StretchFull(placeholderRect);
+        Text placeholder = placeholderGO.AddComponent<Text>();
+        ConfigureCardText(placeholder, 22, FontStyle.Normal, new Color(0.8f, 0.84f, 0.95f, 0.85f));
+        placeholder.text = deckEdit.detailPlaceholder;
+        deckEdit.detailPlaceholderLabel = placeholder;
         // Item 9 - CONVERT button, right at the panel's own bottom margin.
         // Starts inactive (RefreshConvertButton toggles it) - no card is
         // selected yet on a fresh Open().
@@ -1392,15 +1432,17 @@ public static class SceneBuilder
         const float charSlotGap = 14f;
         float charRowWidth = GameManager.CharacterCardSlotCount * charSlotWidth + (GameManager.CharacterCardSlotCount - 1) * charSlotGap;
         float charStartX = sideCenterX - charRowWidth / 2f + charSlotWidth / 2f;
-        const float charSlotY = -58f;
+        // カードUI最終デザイン改修(2026-09-26) - 旧-58ではスロット下端(-166)がDECKパネルの見出し
+        // (-145〜)に重なっていたため、見出しに掛からない高さへ上げた。
+        const float charSlotY = -34f;
 
         GameObject charHeaderGO = new GameObject("CharacterCardsHeader");
         charHeaderGO.transform.SetParent(rootGO.transform, false);
         RectTransform charHeaderRect = charHeaderGO.AddComponent<RectTransform>();
         charHeaderRect.anchorMin = charHeaderRect.anchorMax = new Vector2(0.5f, 1f);
         charHeaderRect.pivot = new Vector2(0.5f, 1f);
-        charHeaderRect.sizeDelta = new Vector2(400f, 26f);
-        charHeaderRect.anchoredPosition = new Vector2(sideCenterX, -8f);
+        charHeaderRect.sizeDelta = new Vector2(400f, 24f);
+        charHeaderRect.anchoredPosition = new Vector2(sideCenterX, -6f);
         Text charHeaderText = charHeaderGO.AddComponent<Text>();
         ConfigureCardText(charHeaderText, 16, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
         charHeaderText.text = "CHARACTER CARDS";
@@ -2429,6 +2471,11 @@ public static class SceneBuilder
         card.rect = rect;
         card.canvasGroup = group;
 
+        // カードUI最終デザイン改修(2026-09-26) - 選択中(いま見ているカード)だけに出す、カード背後の
+        // 淡いエメラルド〜金のGlow。一番最初の子 = 最背面。
+        Image selectGlow = CardFaceImage(cardGO.transform, "SelectGlow", new Vector2(-0.2f, -0.14f), new Vector2(1.2f, 1.14f), new Color(0.62f, 0.95f, 0.82f, 0.8f));
+        card.selectGlow = selectGlow;
+        selectGlow.gameObject.SetActive(false);
         GameObject backGO = new GameObject("Back");
         backGO.transform.SetParent(cardGO.transform, false);
         StretchFull(backGO.AddComponent<RectTransform>());
@@ -2448,184 +2495,177 @@ public static class SceneBuilder
         baseImageComp.raycastTarget = false;
         card.baseImage = baseImageComp;
 
-        // カードUIデザイン提案(2026-09-09)反映 - 「01 イラスト重視: カード
-        // の約65-70%をイラスト領域に」に合わせ、Icon/IconBackdropを大幅に
-        // 拡大(旧: 高さ約41% → 新: 約67%)。タイトル帯を画面下端近くまで
-        // 押し下げ、Lv表示はコンパクトなバッジ化(下記LevelBadge参照)、
-        // カード表面の常時表示は「イラスト/タイトル/Lv」のみ(「04 情報を
-        // 絞る」)という提案どおり。
+        // カードUI最終デザイン改修(2026-09-26) - カード1枚を「フレーム/イラスト/Category/
+        // Level/Card Name」まで含めた1つの完成したUIとして組む。レイアウトはカード全面を
+        // 覆うフレーム(CardRarityFrames.GetSlicedFrame、全レア度で同じ位置に揃う)を基準に:
+        //   左上 = Category Emblem / 右上 = Level Emblem(左右対称、フレームの角に食い込む)
+        //   中央 = イラスト / 下部約15.5% = Card Name専用のName Plate
+        // 角丸板・菱形・Glowのスプライトは実行時にCardFaceArtが作る(Editorで作ったSpriteは
+        // シーンに保存されないため) - ここでは形/色/サイズだけを決め、RewardCardUI.EnsureArtで割り当てる。
+        Color navy = new Color(0.035f, 0.045f, 0.10f, 0.97f);
+        Color antiqueGold = new Color(0.74f, 0.60f, 0.32f, 1f);
+        Color emerald = new Color(0.30f, 0.88f, 0.78f, 1f);
+        var roundedImages = new List<Image>();
+        var diamondImages = new List<Image>();
+        var circleImages = new List<Image>();
+
+        // イラストの下地(フレームの内側を埋める暗いパネル、フレームの下に描く)
         Color cardPanelColor = new Color(0.04f, 0.05f, 0.12f, 1f);
-        GameObject iconBackdropGO = new GameObject("IconBackdrop");
-        iconBackdropGO.transform.SetParent(cardGO.transform, false);
-        RectTransform iconBackdropRect = iconBackdropGO.AddComponent<RectTransform>();
-        iconBackdropRect.anchorMin = new Vector2(0.06f, 0.205f);
-        iconBackdropRect.anchorMax = new Vector2(0.94f, 0.875f);
-        iconBackdropRect.offsetMin = Vector2.zero;
-        iconBackdropRect.offsetMax = Vector2.zero;
-        Image iconBackdropImage = iconBackdropGO.AddComponent<Image>();
-        iconBackdropImage.color = new Color(cardPanelColor.r, cardPanelColor.g, cardPanelColor.b, 0.55f);
-        iconBackdropImage.raycastTarget = false;
+        Image iconBackdropImage = CardFaceImage(cardGO.transform, "IconBackdrop", new Vector2(0.085f, 0.235f), new Vector2(0.915f, 0.93f), new Color(cardPanelColor.r, cardPanelColor.g, cardPanelColor.b, 0.5f));
         card.iconBackdrop = iconBackdropImage;
 
-        // カードUIデザイン提案「不足パーツ - イラストマスク」- イラストを
-        // 美しく見せる専用マスクフレーム画像はまだない(新規アート生成が
-        // 必要、今回のパスの対象外)ため、代わりにIconBackdropの角丸/縁で
-        // 簡易的に代替している(将来的に専用マスク画像が用意でき次第、
-        // ここへ差し込む形にできる)。
-        GameObject iconGO = new GameObject("Icon");
-        iconGO.transform.SetParent(cardGO.transform, false);
-        RectTransform iconRect = iconGO.AddComponent<RectTransform>();
-        iconRect.anchorMin = new Vector2(0.08f, 0.22f);
-        iconRect.anchorMax = new Vector2(0.92f, 0.86f);
-        iconRect.offsetMin = Vector2.zero;
-        iconRect.offsetMax = Vector2.zero;
-        Image iconImage = iconGO.AddComponent<Image>();
+        // イラスト本体 - Name Plate上端とエンブレム下端の間の中央に置く(既存アイコン画像はそのまま)
+        Image iconImage = CardFaceImage(cardGO.transform, "Icon", new Vector2(0.08f, 0.255f), new Vector2(0.92f, 0.855f), Color.white);
         iconImage.preserveAspect = true;
-        iconImage.raycastTarget = false;
         card.iconImage = iconImage;
 
-        // Card UI改修(2026-09-08) - Frameはこの位置(Icon/IconBackdropの
-        // "後"、つまり描画順で"上")に移動。以前はBackの直後(Iconより下)
-        // に置かれていたが、フレームの縁飾りが常にIcon/下地より手前に来る
-        // よう仕様の描画順(1.下地 2.イラスト 3.フレーム 4.タイトル帯...)
-        // に合わせた。フレーム自体は中央が透過(枠のみ不透明)なので、以前
-        // の順序でも見た目上の破綻はなかったが、こちらがより正しい/安全。
+        // ---- Name Plate(フレームより先に描く = フレームの内縁/下の宝石がプレートの上に重なり、
+        // 枠に組み込まれた板に見える) ----
+        GameObject plateGO = new GameObject("NamePlate");
+        plateGO.transform.SetParent(cardGO.transform, false);
+        RectTransform plateRect = plateGO.AddComponent<RectTransform>();
+        plateRect.anchorMin = new Vector2(0.09f, 0.08f);
+        plateRect.anchorMax = new Vector2(0.91f, 0.235f);
+        plateRect.offsetMin = plateRect.offsetMax = Vector2.zero;
+        float rim = Mathf.Max(1.5f, width * 0.009f);
+        float plateRadius = width * 0.035f;
+        Image plateRim = CardFaceImage(plateGO.transform, "Rim", Vector2.zero, Vector2.one, antiqueGold);
+        MakeRounded(plateRim, plateRadius, roundedImages);
+        Image plateFill = CardFaceImage(plateGO.transform, "Fill", Vector2.zero, Vector2.one, navy);
+        plateFill.rectTransform.offsetMin = new Vector2(rim, rim);
+        plateFill.rectTransform.offsetMax = new Vector2(-rim, -rim);
+        MakeRounded(plateFill, plateRadius - rim, roundedImages);
+        // 上半分にほんのり明るい帯 - 平板にならないよう奥行きを付ける
+        Image plateSheen = CardFaceImage(plateGO.transform, "Sheen", new Vector2(0f, 0.5f), Vector2.one, new Color(0.16f, 0.22f, 0.40f, 0.35f));
+        plateSheen.rectTransform.offsetMin = new Vector2(rim * 2f, 0f);
+        plateSheen.rectTransform.offsetMax = new Vector2(-rim * 2f, -rim * 2f);
+        MakeRounded(plateSheen, plateRadius - rim * 2f, roundedImages);
+        // 内側の細いエメラルドの線(選択時に明るくなる)
+        Image plateAccent = CardFaceImage(plateGO.transform, "Accent", new Vector2(0.08f, 1f), new Vector2(0.92f, 1f), new Color(emerald.r, emerald.g, emerald.b, 0.35f));
+        plateAccent.rectTransform.pivot = new Vector2(0.5f, 1f);
+        plateAccent.rectTransform.sizeDelta = new Vector2(0f, Mathf.Max(1f, width * 0.006f));
+        plateAccent.rectTransform.anchoredPosition = new Vector2(0f, -rim * 2.2f);
+        // 上辺中央の小さな金の菱形(フレームの宝石と同じモチーフで、板と枠をつなぐ)
+        Image plateGem = CardFaceImage(plateGO.transform, "Gem", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), antiqueGold);
+        plateGem.rectTransform.sizeDelta = new Vector2(width * 0.075f, width * 0.075f);
+        diamondImages.Add(plateGem);
+        card.namePlate = plateGO;
+        card.namePlateRim = plateRim;
+        card.namePlateAccent = plateAccent;
+
+        // Card UI改修(2026-09-08) - Frameはイラスト/プレートの"上"に描く。カードUI最終デザイン
+        // 改修(2026-09-26) - レア度フレームはRewardCardUIがSliced(カード全面)に切り替える。
         GameObject frameGO = new GameObject("Frame");
         frameGO.transform.SetParent(cardGO.transform, false);
         StretchFull(frameGO.AddComponent<RectTransform>());
         Image frameImage = frameGO.AddComponent<Image>();
         frameImage.sprite = frameSprite;
         frameImage.raycastTarget = false;
-        // Card UI / Rarity Frame pass, item 8 - the 5 Rarity frame images
-        // are NOT all the same aspect ratio (and this card's own
-        // RectTransform size must never change per-Rarity), so the frame
-        // Image fits within the card bounds instead of stretching to fill
-        // it - keeps every Rarity's art undistorted regardless of which
-        // differently-proportioned frame Sprite ends up swapped in here at
-        // SetContent() time.
-        frameImage.preserveAspect = true;
+        frameImage.preserveAspect = true; // 既定(フォールバックの古いCardFrame.png/空きスロット)用
         card.frameImage = frameImage;
         card.defaultFrameSprite = frameSprite;
 
-        // Card UI改修(2026-09-08) - 新共通素材「タイトル帯」。旧レイアウ
-        // トのTitle領域をこのプレート画像で置き換え、その上にTitleText/
-        // CountTextを重ねる(タイトル帯右端に所持枚数)。
-        // カードUIデザイン提案(2026-09-09)反映 - 「02 タイトル帯」を画面
-        // 下端近くまで押し下げ、上のイラスト領域を最大化。
-        GameObject titleBandGO = new GameObject("TitleBand");
-        titleBandGO.transform.SetParent(cardGO.transform, false);
-        RectTransform titleBandRect = titleBandGO.AddComponent<RectTransform>();
-        titleBandRect.anchorMin = new Vector2(0.03f, 0.025f);
-        titleBandRect.anchorMax = new Vector2(0.97f, 0.195f);
-        titleBandRect.offsetMin = Vector2.zero;
-        titleBandRect.offsetMax = Vector2.zero;
-        Image titleBandImageComp = titleBandGO.AddComponent<Image>();
-        titleBandImageComp.sprite = titleBandSprite;
-        titleBandImageComp.raycastTarget = false;
-        // preserveAspect=false (stretch to fill) - the supplied banner art's
-        // own native aspect (~2:1) is narrower than the width this slot
-        // needs to span on a 2:3 card, so a preserveAspect fit would
-        // letterbox it down to roughly half the card's width instead of
-        // reading as a full-width title plate. A disclosed simplification
-        // for this pass (mild horizontal stretch on the ornamental gems) -
-        // a future pass could either 9-slice this art (fixed-size end caps,
-        // stretchy middle) or source a wider-proportioned banner instead.
-        titleBandImageComp.preserveAspect = false;
-        card.titleBandImage = titleBandImageComp;
+        // Card Name - Name Plate内で中央揃え。サイズの自動縮小→それでも入らない時だけ2行、
+        // はRewardCardUI.FitTitleが行う(Legacy TextのBest Fitは1行に縮める前に2行へ折り返すため)。
+        GameObject titleGO = new GameObject("Title");
+        titleGO.transform.SetParent(cardGO.transform, false);
+        RectTransform titleRect = titleGO.AddComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0.125f, 0.093f);
+        titleRect.anchorMax = new Vector2(0.875f, 0.222f);
+        titleRect.offsetMin = Vector2.zero;
+        titleRect.offsetMax = Vector2.zero;
+        Text titleText = titleGO.AddComponent<Text>();
+        ConfigureCardText(titleText, CardNameFontSizeFor(width), FontStyle.Bold, new Color(1f, 0.9f, 0.64f));
+        AddCardTextOutline(titleText, width);
+        card.titleText = titleText;
+        card.titleMaxFontSize = CardNameFontSizeFor(width);
 
-        // カードUIデザイン提案(2026-09-09)反映 - Descriptionはもうカード
-        // 自身の専用スペースを持たず(タイトル帯が下端へ移動したため空き
-        // がない)、showDetails時のみイラスト領域の下寄りにオーバーレイ
-        // 表示する(Iconより後ろに置いているので描画順でIconの上に重なる)。
-        // Collection/Deck(showDetails:false)では常に非表示のままなので、
-        // イラストが隠れることはない。
-        GameObject textBackdropGO = new GameObject("TextBackdrop");
-        textBackdropGO.transform.SetParent(cardGO.transform, false);
-        RectTransform textBackdropRect = textBackdropGO.AddComponent<RectTransform>();
-        textBackdropRect.anchorMin = new Vector2(0.09f, 0.225f);
-        textBackdropRect.anchorMax = new Vector2(0.91f, 0.40f);
-        textBackdropRect.offsetMin = Vector2.zero;
-        textBackdropRect.offsetMax = Vector2.zero;
-        Image textBackdropImage = textBackdropGO.AddComponent<Image>();
-        textBackdropImage.color = new Color(cardPanelColor.r, cardPanelColor.g, cardPanelColor.b, 0.85f);
-        textBackdropImage.raycastTarget = false;
-        card.textBackdrop = textBackdropImage;
+        // 所持枚数「×N」 - プレート上辺の左寄りに乗る小さなチップ(Collection/合成一覧で2枚以上の時だけ)
+        GameObject countGO = new GameObject("CountChip");
+        countGO.transform.SetParent(cardGO.transform, false);
+        RectTransform countRect = countGO.AddComponent<RectTransform>();
+        countRect.anchorMin = countRect.anchorMax = new Vector2(0.2f, 0.262f);
+        countRect.sizeDelta = new Vector2(width * 0.22f, width * 0.105f);
+        Image countRim = CardFaceImage(countGO.transform, "Rim", Vector2.zero, Vector2.one, antiqueGold);
+        MakeRounded(countRim, width * 0.05f, roundedImages);
+        Image countFill = CardFaceImage(countGO.transform, "Fill", Vector2.zero, Vector2.one, navy);
+        countFill.rectTransform.offsetMin = new Vector2(rim, rim);
+        countFill.rectTransform.offsetMax = new Vector2(-rim, -rim);
+        MakeRounded(countFill, width * 0.05f - rim, roundedImages);
+        GameObject countLabelGO = new GameObject("Label");
+        countLabelGO.transform.SetParent(countGO.transform, false);
+        StretchFull(countLabelGO.AddComponent<RectTransform>());
+        Text countTextComp = countLabelGO.AddComponent<Text>();
+        ConfigureCardText(countTextComp, Mathf.Max(8, Mathf.RoundToInt(width * 0.075f)), FontStyle.Bold, new Color(0.8f, 0.92f, 1f));
+        countTextComp.resizeTextForBestFit = true;
+        countTextComp.resizeTextMinSize = 6;
+        countTextComp.resizeTextMaxSize = Mathf.Max(8, Mathf.RoundToInt(width * 0.075f));
+        card.countText = countTextComp;
+        card.countChip = countGO;
 
-        // Item 5 - イラスト領域の上寄りを横断するリボン状(小さいサイズで
-        // も"EQUIPPED"が収まるよう全幅を使う、という既存方針は維持)。
+        // デッキに入っている印 - プレート上辺の右寄りに乗る小さな丸チップ(金縁+紺+エメラルドのチェック)。
+        // 「選択中(いま見ているカード)」の発光とは別の、静かな状態表示。
+        GameObject deckMarkGO = new GameObject("InDeckMark");
+        deckMarkGO.transform.SetParent(cardGO.transform, false);
+        RectTransform deckMarkRect = deckMarkGO.AddComponent<RectTransform>();
+        deckMarkRect.anchorMin = deckMarkRect.anchorMax = new Vector2(0.84f, 0.262f);
+        deckMarkRect.sizeDelta = new Vector2(width * 0.14f, width * 0.14f);
+        Image deckMarkRim = CardFaceImage(deckMarkGO.transform, "Rim", Vector2.zero, Vector2.one, antiqueGold);
+        circleImages.Add(deckMarkRim);
+        Image deckMarkFill = CardFaceImage(deckMarkGO.transform, "Fill", Vector2.zero, Vector2.one, navy);
+        deckMarkFill.rectTransform.offsetMin = new Vector2(rim, rim);
+        deckMarkFill.rectTransform.offsetMax = new Vector2(-rim, -rim);
+        circleImages.Add(deckMarkFill);
+        // チェックマーク(短い棒と長い棒)
+        float checkT = Mathf.Max(1.5f, width * 0.016f);
+        Image checkShort = CardFaceImage(deckMarkGO.transform, "CheckA", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), emerald);
+        checkShort.rectTransform.sizeDelta = new Vector2(width * 0.045f, checkT);
+        checkShort.rectTransform.anchoredPosition = new Vector2(-width * 0.022f, -width * 0.004f);
+        checkShort.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -45f);
+        Image checkLong = CardFaceImage(deckMarkGO.transform, "CheckB", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), emerald);
+        checkLong.rectTransform.sizeDelta = new Vector2(width * 0.075f, checkT);
+        checkLong.rectTransform.anchoredPosition = new Vector2(width * 0.012f, width * 0.006f);
+        checkLong.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 50f);
+        card.inDeckMark = deckMarkGO;
+        deckMarkGO.SetActive(false);
+
+        // EQUIPPED/NEWの二役リボン(カードVisual最終調整依頼(2026-09-18), item1) - 左右エンブレムの間、
+        // フレーム上辺の宝石の下。紺の角丸プレート+金縁で、Name Plateと同じ部品感に揃える。
         GameObject equippedGO = new GameObject("EquippedBadge");
         equippedGO.transform.SetParent(cardGO.transform, false);
         RectTransform equippedRect = equippedGO.AddComponent<RectTransform>();
-        // LevelBadge(右上、常時表示)と重ならないよう、右端は0.66手前まで
-        // (LevelBadgeの左端)に収める。カードVisual最終調整依頼
-        // (2026-09-18), item3で左上にCategoryBadge(下記、LevelBadgeと左右
-        // 対称)を新設したため、左端も0.10→0.38(CategoryBadgeの右端の先)
-        // へ寄せて重ならないようにした。
-        equippedRect.anchorMin = new Vector2(0.38f, 0.795f);
-        equippedRect.anchorMax = new Vector2(0.62f, 0.855f);
+        equippedRect.anchorMin = new Vector2(0.3f, 0.8f);
+        equippedRect.anchorMax = new Vector2(0.7f, 0.866f);
         equippedRect.offsetMin = Vector2.zero;
         equippedRect.offsetMax = Vector2.zero;
-        Image equippedBg = equippedGO.AddComponent<Image>();
-        equippedBg.color = new Color(0.55f, 0.42f, 0.14f, 0.95f);
-        equippedBg.raycastTarget = false;
+        Image equippedBg = CardFaceImage(equippedGO.transform, "Rim", Vector2.zero, Vector2.one, antiqueGold);
+        MakeRounded(equippedBg, width * 0.03f, roundedImages);
+        Image equippedFill = CardFaceImage(equippedGO.transform, "Fill", Vector2.zero, Vector2.one, navy);
+        equippedFill.rectTransform.offsetMin = new Vector2(rim * 0.8f, rim * 0.8f);
+        equippedFill.rectTransform.offsetMax = new Vector2(-rim * 0.8f, -rim * 0.8f);
+        MakeRounded(equippedFill, width * 0.03f - rim * 0.8f, roundedImages);
         GameObject equippedLabelGO = new GameObject("Label");
         equippedLabelGO.transform.SetParent(equippedGO.transform, false);
         StretchFull(equippedLabelGO.AddComponent<RectTransform>());
         Text equippedLabel = equippedLabelGO.AddComponent<Text>();
-        ConfigureCardText(equippedLabel, Mathf.Max(8, DescFontSizeFor(width) - 2), FontStyle.Bold, new Color(1f, 0.93f, 0.75f));
-        // Best Fit - a full-width strip is still only ~30px tall on the
-        // smallest (Character Card) slots, so the text must be free to
-        // shrink below its nominal size rather than clip ("EQUIPP" before
-        // this bugfix).
+        ConfigureCardText(equippedLabel, Mathf.Max(8, Mathf.RoundToInt(width * 0.07f)), FontStyle.Bold, new Color(1f, 0.9f, 0.62f));
+        // Best Fit - Character Card枠(幅72)でも文字が切れないよう縮められるようにしておく
         equippedLabel.resizeTextForBestFit = true;
-        equippedLabel.resizeTextMinSize = 6;
-        equippedLabel.resizeTextMaxSize = Mathf.Max(8, DescFontSizeFor(width) - 2);
+        equippedLabel.resizeTextMinSize = 5;
+        equippedLabel.resizeTextMaxSize = Mathf.Max(8, Mathf.RoundToInt(width * 0.07f));
         equippedLabel.text = "EQUIPPED";
         card.equippedBadge = equippedGO;
         card.equippedBadgeLabel = equippedLabel;
         equippedGO.SetActive(false);
 
-        // Title text sits over the LEFT/CENTER portion of TitleBand -
-        // CountText (below) claims the band's own right edge, so Title
-        // never overlaps it.
-        GameObject titleGO = new GameObject("Title");
-        titleGO.transform.SetParent(cardGO.transform, false);
-        RectTransform titleRect = titleGO.AddComponent<RectTransform>();
-        titleRect.anchorMin = new Vector2(0.09f, 0.04f);
-        titleRect.anchorMax = new Vector2(0.76f, 0.175f);
-        titleRect.offsetMin = Vector2.zero;
-        titleRect.offsetMax = Vector2.zero;
-        Text titleText = titleGO.AddComponent<Text>();
-        ConfigureCardText(titleText, TitleFontSizeFor(width), FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
-        titleText.resizeTextForBestFit = true;
-        titleText.resizeTextMinSize = 8;
-        titleText.resizeTextMaxSize = TitleFontSizeFor(width);
-        card.titleText = titleText;
-
-        // Card UI改修(2026-09-08) - 所持枚数「×N」、タイトル帯の右端に固
-        // 定(所持枚数表示の位置を固定したい、という要望どおり)。
-        GameObject countGO = new GameObject("Count");
-        countGO.transform.SetParent(cardGO.transform, false);
-        RectTransform countRect = countGO.AddComponent<RectTransform>();
-        countRect.anchorMin = new Vector2(0.775f, 0.04f);
-        countRect.anchorMax = new Vector2(0.95f, 0.175f);
-        countRect.offsetMin = Vector2.zero;
-        countRect.offsetMax = Vector2.zero;
-        Text countTextComp = countGO.AddComponent<Text>();
-        ConfigureCardText(countTextComp, Mathf.Max(8, DescFontSizeFor(width) - 1), FontStyle.Bold, new Color(0.75f, 0.9f, 1f));
-        countTextComp.alignment = TextAnchor.MiddleRight;
-        countTextComp.resizeTextForBestFit = true;
-        countTextComp.resizeTextMinSize = 6;
-        countTextComp.resizeTextMaxSize = Mathf.Max(8, DescFontSizeFor(width) - 1);
-        card.countText = countTextComp;
-
-        // カードUIデザイン提案(2026-09-09)反映 - TextBackdrop(上で移動
-        // 済み)に合わせてイラスト下寄りのオーバーレイ位置へ。
+        // showDetails時のみ(合成画面の旧仕様など)の効果文 - イラスト下寄りへのオーバーレイ
+        Image textBackdropImage = CardFaceImage(cardGO.transform, "TextBackdrop", new Vector2(0.1f, 0.25f), new Vector2(0.9f, 0.42f), new Color(cardPanelColor.r, cardPanelColor.g, cardPanelColor.b, 0.85f));
+        card.textBackdrop = textBackdropImage;
         GameObject descGO = new GameObject("Description");
         descGO.transform.SetParent(cardGO.transform, false);
         RectTransform descRect = descGO.AddComponent<RectTransform>();
-        descRect.anchorMin = new Vector2(0.11f, 0.24f);
-        descRect.anchorMax = new Vector2(0.89f, 0.385f);
+        descRect.anchorMin = new Vector2(0.12f, 0.26f);
+        descRect.anchorMax = new Vector2(0.88f, 0.41f);
         descRect.offsetMin = Vector2.zero;
         descRect.offsetMax = Vector2.zero;
         Text descText = descGO.AddComponent<Text>();
@@ -2635,38 +2675,28 @@ public static class SceneBuilder
         descText.resizeTextMaxSize = DescFontSizeFor(width);
         card.descriptionText = descText;
 
-        // カード選択UI再設計(2026-09-12第3弾) - 「カード本体には長い説明文
-        // を詰め込まず、イラスト/タイトル/主要効果の短い表記のみ」。
-        // IconBackdropの暗い下地(0.205〜0.875)の下端に重ねる形で、
-        // TitleBand(0.025〜0.195)のすぐ上に短い1行(例: "HP +20%")を常時
-        // 表示する。levelText/countTextと同じく、showDetailsの値に関係なく
-        // データ(ValueLine)の有無だけで表示可否が決まる独立行(RewardCardUI.
-        // ApplyFaceVisibility参照)。
+        // Level Up/Boss Reward選択カードの短い主要効果(例 "+12%") - Name Plateのすぐ上
         GameObject valueLineGO = new GameObject("ValueLine");
         valueLineGO.transform.SetParent(cardGO.transform, false);
         RectTransform valueLineRect = valueLineGO.AddComponent<RectTransform>();
-        valueLineRect.anchorMin = new Vector2(0.09f, 0.205f);
-        valueLineRect.anchorMax = new Vector2(0.91f, 0.30f);
+        valueLineRect.anchorMin = new Vector2(0.1f, 0.245f);
+        valueLineRect.anchorMax = new Vector2(0.9f, 0.33f);
         valueLineRect.offsetMin = Vector2.zero;
         valueLineRect.offsetMax = Vector2.zero;
         Text valueLineText = valueLineGO.AddComponent<Text>();
         ConfigureCardText(valueLineText, Mathf.Max(10, DescFontSizeFor(width) + 2), FontStyle.Bold, new Color(0.65f, 0.9f, 1f));
+        AddCardTextOutline(valueLineText, width);
         valueLineText.resizeTextForBestFit = true;
         valueLineText.resizeTextMinSize = 8;
         valueLineText.resizeTextMaxSize = Mathf.Max(10, DescFontSizeFor(width) + 2);
         card.valueLineText = valueLineText;
 
-        // Card UI / Rarity Frame pass, item 2 - Rarity (shown only in
-        // showDetails mode)。カードVisual最終調整依頼(2026-09-18), item3で
-        // 左上に常設のCategoryBadge(下記)を新設したため、Rarityはそれと
-        // 重ならないよう少し下(CategoryBadge/EquippedBadgeの帯より下)へ
-        // 位置を下げた。showDetails限定のままなので、常設のバッジ背景は
-        // 付けていない。
+        // Rarity(★、showDetails時のみ) - 左エンブレムの下
         GameObject rarityGO = new GameObject("Rarity");
         rarityGO.transform.SetParent(cardGO.transform, false);
         RectTransform rarityRect = rarityGO.AddComponent<RectTransform>();
-        rarityRect.anchorMin = new Vector2(0.08f, 0.715f);
-        rarityRect.anchorMax = new Vector2(0.42f, 0.785f);
+        rarityRect.anchorMin = new Vector2(0.08f, 0.73f);
+        rarityRect.anchorMax = new Vector2(0.42f, 0.79f);
         rarityRect.offsetMin = Vector2.zero;
         rarityRect.offsetMax = Vector2.zero;
         Text rarityText = rarityGO.AddComponent<Text>();
@@ -2677,118 +2707,52 @@ public static class SceneBuilder
         rarityText.resizeTextMaxSize = Mathf.Max(9, DescFontSizeFor(width));
         card.rarityText = rarityText;
 
-        // カードUIデザイン提案「03 Lv表示: 右上にコンパクトで上品なレベル
-        // バッジを配置」「不足パーツ - レベルバッジ(汎用)」への対応。
-        // 専用のバッジ画像はまだない(新規アート生成が必要、今回のパスの
-        // 対象外)ため、既存のUI Spriteを45°回転させた菱形(ダイヤ)背景で
-        // 簡易的に代替した - 他のUI(カードフレームの縁飾り等)と同系統の
-        // 菱形モチーフなので、見た目の統一感は保てる。LevelBadge(親、無
-        // 回転)の中にDiamond(回転)とLabel(無回転、テキストが斜めになら
-        // ないようDiamondの子ではなく親の子として並列に置く)を分ける構成。
-        GameObject levelGO = new GameObject("LevelBadge");
-        levelGO.transform.SetParent(cardGO.transform, false);
-        RectTransform levelRect = levelGO.AddComponent<RectTransform>();
-        levelRect.anchorMin = new Vector2(0.66f, 0.785f);
-        levelRect.anchorMax = new Vector2(0.945f, 0.975f);
-        // カード裏面Lvバッジ修正(2026-09-17) - Diamond/Border/Labelをまとめて
-        // 表裏で切り替えられるよう、この親GOごとRewardCardUI.levelBadgeへ渡す
-        // (levelTextだけでは菱形の枠自体は非表示にできないため)。
-        card.levelBadge = levelGO;
-        levelRect.offsetMin = Vector2.zero;
-        levelRect.offsetMax = Vector2.zero;
-        // 上記anchorMin/Maxは、カード比率(2:3固定、CardAspect参照)込みで
-        // 実ピクセル換算するとほぼ正方形になるよう調整済み(幅0.285*width
-        // ≈高さ0.19*height=0.19*1.5*width=0.285*width) - 回転させる菱形が
-        // 縦にはみ出さないようにするための計算。
-
-        GameObject levelDiamondGO = new GameObject("Diamond");
-        levelDiamondGO.transform.SetParent(levelGO.transform, false);
-        RectTransform levelDiamondRect = levelDiamondGO.AddComponent<RectTransform>();
-        levelDiamondRect.anchorMin = new Vector2(0.5f, 0.5f);
-        levelDiamondRect.anchorMax = new Vector2(0.5f, 0.5f);
-        levelDiamondRect.pivot = new Vector2(0.5f, 0.5f);
-        // 正方形を45°回転 - 親の矩形いっぱいに菱形が収まるよう、対角線
-        // (=sqrt(2)倍)で計算した一辺の長さにする。
-        levelDiamondRect.sizeDelta = new Vector2(width * 0.19f, width * 0.19f);
-        levelDiamondRect.localRotation = Quaternion.Euler(0f, 0f, 45f);
-        Image levelDiamondImage = levelDiamondGO.AddComponent<Image>();
-        levelDiamondImage.color = new Color(0.06f, 0.08f, 0.16f, 0.92f);
-        levelDiamondImage.raycastTarget = false;
-        GameObject levelDiamondBorderGO = new GameObject("Border");
-        levelDiamondBorderGO.transform.SetParent(levelDiamondGO.transform, false);
-        RectTransform levelDiamondBorderRect = levelDiamondBorderGO.AddComponent<RectTransform>();
-        levelDiamondBorderRect.anchorMin = Vector2.zero;
-        levelDiamondBorderRect.anchorMax = Vector2.one;
-        levelDiamondBorderRect.offsetMin = new Vector2(-3f, -3f);
-        levelDiamondBorderRect.offsetMax = new Vector2(3f, 3f);
-        Image levelDiamondBorderImage = levelDiamondBorderGO.AddComponent<Image>();
-        levelDiamondBorderImage.color = new Color(0.83f, 0.68f, 0.32f, 0.95f);
-        levelDiamondBorderImage.raycastTarget = false;
-        levelDiamondBorderGO.transform.SetAsFirstSibling(); // 縁取り(金)を内側の紺より後ろへ
-
-        GameObject levelLabelGO = new GameObject("Label");
-        levelLabelGO.transform.SetParent(levelGO.transform, false);
-        StretchFull(levelLabelGO.AddComponent<RectTransform>());
-        Text levelText = levelLabelGO.AddComponent<Text>();
-        ConfigureCardText(levelText, Mathf.Max(8, DescFontSizeFor(width) - 1), FontStyle.Bold, new Color(1f, 0.92f, 0.7f));
-        levelText.alignment = TextAnchor.MiddleCenter;
-        levelText.resizeTextForBestFit = true;
-        levelText.resizeTextMinSize = 6;
-        levelText.resizeTextMaxSize = Mathf.Max(8, DescFontSizeFor(width) - 1);
-        card.levelText = levelText;
-
-        // カードVisual最終調整依頼(2026-09-18), item2/3/5 - 左上に
-        // Category Icon。LevelBadge(右上)と全く同じ構造(菱形+金縁)を
-        // 左右対称の位置に置く - 「右上:Lv/左上:Category」で視覚的に
-        // バランスするようにするため。中身はテキストではなくCategoryIcon
-        // (CardCategoryIcons参照)のImageにする点だけがLevelBadgeと違う。
-        GameObject categoryGO = new GameObject("CategoryBadge");
-        categoryGO.transform.SetParent(cardGO.transform, false);
-        RectTransform categoryRect = categoryGO.AddComponent<RectTransform>();
-        categoryRect.anchorMin = new Vector2(0.055f, 0.785f);
-        categoryRect.anchorMax = new Vector2(0.34f, 0.975f);
-        categoryRect.offsetMin = Vector2.zero;
-        categoryRect.offsetMax = Vector2.zero;
+        // ---- 左上 Category / 右上 Level のエンブレム ----
+        // 大きさ/高さ/フレームへの食い込み量を左右で完全に揃える(中心はカード角から幅の12.5%)。
+        // 旧: 幅19%の正方形を45°回転した平らな金の菱形 → 新: 約79%の大きさで、影+金縁+紺+
+        // エメラルドの細線+紺の多層菱形(フレームの宝石座と同じ作り)。★2〜★5のフレームが
+        // 左上に持っている空の宝石座にちょうど重なる位置。
+        float emblemBox = width * 0.25f;
+        float emblemInset = width * 0.13f;
+        float emblemCenterY = 1f - emblemInset / (width * CardAspect);
+        GameObject categoryGO = BuildCardEmblem(cardGO.transform, "CategoryBadge", new Vector2(emblemInset / width, emblemCenterY), emblemBox, antiqueGold, navy, emerald, diamondImages, out Image categoryRim, out Image categoryAccent);
         card.categoryBadge = categoryGO;
-
-        GameObject categoryDiamondGO = new GameObject("Diamond");
-        categoryDiamondGO.transform.SetParent(categoryGO.transform, false);
-        RectTransform categoryDiamondRect = categoryDiamondGO.AddComponent<RectTransform>();
-        categoryDiamondRect.anchorMin = new Vector2(0.5f, 0.5f);
-        categoryDiamondRect.anchorMax = new Vector2(0.5f, 0.5f);
-        categoryDiamondRect.pivot = new Vector2(0.5f, 0.5f);
-        categoryDiamondRect.sizeDelta = new Vector2(width * 0.19f, width * 0.19f);
-        categoryDiamondRect.localRotation = Quaternion.Euler(0f, 0f, 45f);
-        Image categoryDiamondImage = categoryDiamondGO.AddComponent<Image>();
-        categoryDiamondImage.color = new Color(0.06f, 0.08f, 0.16f, 0.92f);
-        categoryDiamondImage.raycastTarget = false;
-        GameObject categoryDiamondBorderGO = new GameObject("Border");
-        categoryDiamondBorderGO.transform.SetParent(categoryDiamondGO.transform, false);
-        RectTransform categoryDiamondBorderRect = categoryDiamondBorderGO.AddComponent<RectTransform>();
-        categoryDiamondBorderRect.anchorMin = Vector2.zero;
-        categoryDiamondBorderRect.anchorMax = Vector2.one;
-        categoryDiamondBorderRect.offsetMin = new Vector2(-3f, -3f);
-        categoryDiamondBorderRect.offsetMax = new Vector2(3f, 3f);
-        Image categoryDiamondBorderImage = categoryDiamondBorderGO.AddComponent<Image>();
-        categoryDiamondBorderImage.color = new Color(0.83f, 0.68f, 0.32f, 0.95f);
-        categoryDiamondBorderImage.raycastTarget = false;
-        categoryDiamondBorderGO.transform.SetAsFirstSibling();
-
-        // アイコン本体は菱形(45°回転)の子ではなく、CategoryBadge直下に
-        // 無回転で置く(Labelと同じ理由 - アイコン自体が傾いて見えない
-        // ように)。菱形の内側に収まる程度に少し小さめのサイズにする。
+        card.categoryEmblemRim = categoryRim;
+        card.categoryEmblemAccent = categoryAccent;
         GameObject categoryIconGO = new GameObject("Icon");
         categoryIconGO.transform.SetParent(categoryGO.transform, false);
         RectTransform categoryIconRect = categoryIconGO.AddComponent<RectTransform>();
-        categoryIconRect.anchorMin = new Vector2(0.22f, 0.22f);
-        categoryIconRect.anchorMax = new Vector2(0.78f, 0.78f);
-        categoryIconRect.offsetMin = Vector2.zero;
-        categoryIconRect.offsetMax = Vector2.zero;
+        categoryIconRect.anchorMin = categoryIconRect.anchorMax = new Vector2(0.5f, 0.5f);
+        categoryIconRect.sizeDelta = new Vector2(width * 0.135f, width * 0.135f);
         Image categoryIconImage = categoryIconGO.AddComponent<Image>();
         categoryIconImage.raycastTarget = false;
         categoryIconImage.preserveAspect = true;
         card.categoryIconImage = categoryIconImage;
 
+        GameObject levelGO = BuildCardEmblem(cardGO.transform, "LevelBadge", new Vector2(1f - emblemInset / width, emblemCenterY), emblemBox, antiqueGold, navy, emerald, diamondImages, out Image levelRim, out Image levelAccent);
+        // カード裏面Lvバッジ修正(2026-09-17) - エンブレム一式(枠含む)をこの親GOごと表裏で切り替える
+        card.levelBadge = levelGO;
+        card.levelEmblemRim = levelRim;
+        card.levelEmblemAccent = levelAccent;
+        GameObject levelLabelGO = new GameObject("Label");
+        levelLabelGO.transform.SetParent(levelGO.transform, false);
+        RectTransform levelLabelRect = levelLabelGO.AddComponent<RectTransform>();
+        levelLabelRect.anchorMin = levelLabelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        levelLabelRect.sizeDelta = new Vector2(width * 0.16f, width * 0.14f);
+        Text levelText = levelLabelGO.AddComponent<Text>();
+        int levelFont = Mathf.Max(9, Mathf.RoundToInt(width * 0.12f));
+        ConfigureCardText(levelText, levelFont, FontStyle.Bold, new Color(1f, 0.92f, 0.68f));
+        AddCardTextOutline(levelText, width);
+        levelText.alignment = TextAnchor.MiddleCenter;
+        levelText.horizontalOverflow = HorizontalWrapMode.Overflow;
+        levelText.resizeTextForBestFit = true;
+        levelText.resizeTextMinSize = 5;
+        levelText.resizeTextMaxSize = levelFont;
+        card.levelText = levelText;
+
+        card.roundedImages = roundedImages.ToArray();
+        card.diamondImages = diamondImages.ToArray();
+        card.circleImages = circleImages.ToArray();
         // Invisible full-card button purely for tap-to-select - its own
         // Image target graphic is the frame (already drawn above), not a
         // separate visible box.
@@ -2855,6 +2819,74 @@ public static class SceneBuilder
     const float ReferenceCardWidth = 260f;
 
     static int TitleFontSizeFor(float width) => Mathf.Max(10, Mathf.RoundToInt(width * (30f / ReferenceCardWidth)));
+    // カードUI最終デザイン改修(2026-09-26) - Name Plate内のCard Name(1行時の最大サイズ)。
+    static int CardNameFontSizeFor(float width) => Mathf.Max(8, Mathf.RoundToInt(width * 0.105f));
+
+    // カード表面の部品用: 親の割合(anchor)で置く、クリック判定なしのImage。
+    static Image CardFaceImage(Transform parent, string name, Vector2 anchorMin, Vector2 anchorMax, Color color)
+    {
+        GameObject go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        RectTransform r = go.AddComponent<RectTransform>();
+        r.anchorMin = anchorMin;
+        r.anchorMax = anchorMax;
+        r.offsetMin = r.offsetMax = Vector2.zero;
+        Image img = go.AddComponent<Image>();
+        img.color = color;
+        img.raycastTarget = false;
+        return img;
+    }
+
+    static Image[] AppendImages(Image[] a, List<Image> b)
+    {
+        var list = new List<Image>(a ?? new Image[0]);
+        list.AddRange(b);
+        return list.ToArray();
+    }
+
+    // CardFaceArt.RoundedRect(実行時に割り当て)を、角の半径radiusUnitsで描く9-sliceにする。
+    static void MakeRounded(Image img, float radiusUnits, List<Image> list)
+    {
+        img.type = Image.Type.Sliced;
+        img.pixelsPerUnitMultiplier = CardFaceArt.RoundedRadiusPx / Mathf.Max(0.5f, radiusUnits);
+        list.Add(img);
+    }
+
+    // 暗い縁取り(Dark Outline) - 濃紺の上でも金文字が読めるように。発光はさせない。
+    static void AddCardTextOutline(Text text, float cardWidth)
+    {
+        var outline = text.gameObject.AddComponent<Outline>();
+        outline.effectColor = new Color(0.01f, 0.01f, 0.03f, 0.85f);
+        float d = Mathf.Max(0.8f, cardWidth * 0.006f);
+        outline.effectDistance = new Vector2(d, -d);
+    }
+
+    // 左上Category/右上Levelの共通エンブレム: 影→金縁→紺→エメラルドの細線→紺の多層菱形。
+    // center = カード内の割合位置、box = 菱形の対角線長(カード単位)。
+    static GameObject BuildCardEmblem(Transform parent, string name, Vector2 center, float box, Color gold, Color navy, Color emerald, List<Image> diamonds, out Image rim, out Image accent)
+    {
+        GameObject go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        RectTransform r = go.AddComponent<RectTransform>();
+        r.anchorMin = r.anchorMax = center;
+        r.sizeDelta = new Vector2(box, box);
+
+        Image Layer(string n, float scale, Color c, Vector2 offset)
+        {
+            Image img = CardFaceImage(go.transform, n, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), c);
+            img.rectTransform.sizeDelta = new Vector2(box * scale, box * scale);
+            img.rectTransform.anchoredPosition = offset;
+            diamonds.Add(img);
+            return img;
+        }
+
+        Layer("Shadow", 1.02f, new Color(0f, 0f, 0.02f, 0.55f), new Vector2(0f, -box * 0.05f));
+        rim = Layer("Rim", 0.95f, gold, Vector2.zero);
+        Layer("Fill", 0.82f, navy, Vector2.zero);
+        accent = Layer("Accent", 0.7f, new Color(emerald.r, emerald.g, emerald.b, 0.45f), Vector2.zero);
+        Layer("Inner", 0.64f, new Color(0.05f, 0.07f, 0.15f, 1f), Vector2.zero);
+        return go;
+    }
     static int DescFontSizeFor(float width) => Mathf.Max(9, Mathf.RoundToInt(width * (22f / ReferenceCardWidth)));
 
     // Card UI改修(2026-09-08) - 「全カードの基準サイズを統一(512x768、縦

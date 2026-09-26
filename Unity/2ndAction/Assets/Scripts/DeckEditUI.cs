@@ -56,6 +56,18 @@ public class DeckEditUI : MonoBehaviour
     public Text detailText;
     // What detailText shows before anything's been tapped yet this Open().
     public string detailPlaceholder = "カードをタップして詳細を確認";
+    // カードUI最終デザイン改修(2026-09-26) - 中央パネルを「カード詳細」として使う:
+    // 大きめのカードプレビュー(一覧と同じRewardCardUI) / Card Name / Category・Lv /
+    // 主な効果(Main Value、合成カードはSUBも) / 効果説明。未選択時はplaceholderLabelだけ。
+    // 値は全てCardDefinition/CardVariant/CardEffectFormatから組み立てる(ハードコードしない)。
+    public RewardCardUI detailPreviewCard;
+    public Text detailValue;
+    public Text detailPlaceholderLabel;
+    public GameObject detailDivider;
+    // いま見ているカード(一覧で選択状態として光らせる)。focusLevel=-1はDeck側から選んだ
+    // 場合 - 同じcardIdのCollectionの束(最初の1つ)を選択状態にする。
+    string focusCardId;
+    int focusLevel = -1;
 
     // Home Room UI reconstruction pass, item 9 - CONVERT only shows/works
     // when the current detail selection came from a COLLECTION stack (a
@@ -228,6 +240,7 @@ public class DeckEditUI : MonoBehaviour
         // card in the database with an unlock flag". Sorted for a stable/
         // predictable layout (CardDatabase's own sortOrder, then ascending
         // level) - same convention CardFusionUI's owned list uses.
+        bool focusFound = false;
         displayedStacks.Clear();
         displayedStacks.AddRange(CardInventory.Stacks);
         displayedStacks.Sort((a, b) =>
@@ -265,7 +278,13 @@ public class DeckEditUI : MonoBehaviour
             {
                 if (deck[d] == stack.cardId) { inDeck = true; break; }
             }
-            ownedCards[i].SetSelected(inDeck);
+            // カードUI最終デザイン改修(2026-09-26) - 「デッキに入っている」は小さなチェック印、
+            // 「いま見ている(タップした)カード」は発光+拡大の選択状態、と役割を分けた
+            // (以前はどちらも同じ金色の枠で、選択状態との差が分かりにくかった)。
+            ownedCards[i].SetInDeckMark(inDeck);
+            bool isFocus = !focusFound && focusCardId != null && stack.cardId == focusCardId && (focusLevel < 0 || stack.level == focusLevel);
+            if (isFocus) focusFound = true;
+            ownedCards[i].SetFocused(isFocus);
         }
 
         for (int i = 0; i < deckSlotCards.Length; i++)
@@ -275,7 +294,9 @@ public class DeckEditUI : MonoBehaviour
             {
                 deckSlotCards[i].gameObject.SetActive(true);
                 deckSlotCards[i].ShowFrontImmediate(gm.MakeCardData(card));
-                deckSlotCards[i].SetSelected(true);
+                // Deck側は全てデッキ内なのでチェック印は不要。表示ルール自体はCollectionと同じ部品。
+                deckSlotCards[i].SetInDeckMark(false);
+                deckSlotCards[i].SetFocused(false);
             }
             else
             {
@@ -298,7 +319,8 @@ public class DeckEditUI : MonoBehaviour
             {
                 characterSlotCards[i].gameObject.SetActive(true);
                 characterSlotCards[i].ShowFrontImmediate(gm.MakeOwnedCardData(card, gm.GetCharacterCardLevel(i), CardInventory.GetTotalCount(id), equipped: true));
-                characterSlotCards[i].SetSelected(i == pendingEquipSlot);
+                characterSlotCards[i].SetInDeckMark(false);
+                characterSlotCards[i].SetFocused(i == pendingEquipSlot);
             }
             else
             {
@@ -312,7 +334,7 @@ public class DeckEditUI : MonoBehaviour
                 // 空スロットと違って明るく浮いて見えていた。装備待ち
                 // (ゴールド発光)にする必要がある時だけSetSelected(true)を
                 // 呼び、それ以外はShowEmpty()の暗さをそのまま維持する。
-                if (i == pendingEquipSlot) characterSlotCards[i].SetSelected(true);
+                if (i == pendingEquipSlot) characterSlotCards[i].SetFocused(true);
             }
         }
 
@@ -361,9 +383,20 @@ public class DeckEditUI : MonoBehaviour
         }
         if (detailName != null) detailName.text = "";
         if (detailCategory != null) detailCategory.text = "";
-        if (detailText != null) detailText.text = detailPlaceholder;
+        if (detailValue != null) detailValue.text = "";
+        if (detailDivider != null) detailDivider.SetActive(false);
+        if (detailPreviewCard != null) detailPreviewCard.gameObject.SetActive(false);
+        if (detailPlaceholderLabel != null)
+        {
+            detailPlaceholderLabel.gameObject.SetActive(true);
+            detailPlaceholderLabel.text = detailPlaceholder;
+            if (detailText != null) detailText.text = "";
+        }
+        else if (detailText != null) detailText.text = detailPlaceholder;
         detailCardId = null;
         detailLevel = -1;
+        focusCardId = null;
+        focusLevel = -1;
         RefreshConvertButton();
     }
 
@@ -374,7 +407,19 @@ public class DeckEditUI : MonoBehaviour
     {
         if (card == null) return;
 
-        if (detailIcon != null)
+        var gmForData = GameManager.Instance;
+        // Deck側から選んだ時(level=-1)も、表示用のLvはそのカードの所持Lv(合成カードはキー自体がLvを持つ)
+        int shownLevel = level >= 1 ? level : Mathf.Max(1, CardInventory.GetHighestLevel(card.cardId));
+        if (detailPlaceholderLabel != null) detailPlaceholderLabel.gameObject.SetActive(false);
+        if (detailDivider != null) detailDivider.SetActive(true);
+        if (detailPreviewCard != null && gmForData != null)
+        {
+            detailPreviewCard.gameObject.SetActive(true);
+            detailPreviewCard.ShowFrontImmediate(gmForData.MakeOwnedCardData(card, shownLevel, 0));
+            detailPreviewCard.SetInteractable(false);
+        }
+
+        if (detailIcon != null && detailPreviewCard == null)
         {
             if (detailIcon.sprite != null) Destroy(detailIcon.sprite);
             if (card.icon != null)
@@ -391,10 +436,21 @@ public class DeckEditUI : MonoBehaviour
 
         // Item 6/8 - Lv and owned count folded into the name/category
         // lines (detailText keeps the plain card description below).
-        string levelLabel = level >= 1 ? (level >= CardInventory.MaxCardLevel ? $" Lv.{level} MAX" : $" Lv.{level}") : "";
-        if (detailName != null) detailName.text = $"{card.cardName} {card.RarityStars}" + levelLabel;
-        string countLabel = level >= 1 ? $"  x{count}" : "";
-        if (detailCategory != null) detailCategory.text = card.category.ToString().ToUpperInvariant() + countLabel;
+        string levelLabel = shownLevel >= CardInventory.MaxCardLevel ? $"Lv.{shownLevel} MAX" : $"Lv.{shownLevel}";
+        if (detailPreviewCard != null)
+        {
+            // カードUI最終デザイン改修(2026-09-26) - 名前 / Category・Lv / 主な効果 / 説明 の順
+            if (detailName != null) detailName.text = card.cardName;
+            string countLabel = level >= 1 && count > 1 ? $"   所持 x{count}" : "";
+            if (detailCategory != null) detailCategory.text = $"{card.category.ToString().ToUpperInvariant()}  /  {levelLabel}   {card.RarityStars}{countLabel}";
+            if (detailValue != null) detailValue.text = BuildDetailValueText(card);
+        }
+        else
+        {
+            if (detailName != null) detailName.text = $"{card.cardName} {card.RarityStars} " + (level >= 1 ? levelLabel : "");
+            string countLabel = level >= 1 ? $"  x{count}" : "";
+            if (detailCategory != null) detailCategory.text = card.category.ToString().ToUpperInvariant() + countLabel;
+        }
 
         // Item 2/9 - "Character装備状態" / "Deck使用状態" always visible in
         // the detail panel, not just as an error message after a blocked
@@ -411,11 +467,78 @@ public class DeckEditUI : MonoBehaviour
             else if (equipped) statusLine = "\n\n[EQUIPPED]";
             else if (inDeck) statusLine = "\n\n[IN DECK]";
         }
-        if (detailText != null) detailText.text = card.description + statusLine;
+        if (detailText != null) detailText.text = (detailPreviewCard != null ? DetailDescription(card) : card.description) + statusLine;
 
         detailCardId = card.cardId;
         detailLevel = level;
         RefreshConvertButton();
+    }
+
+    // 主な効果(Main Value)。合成カードは主能力(MAIN)と引き継いだ能力(SUB)を強化量つきで、
+    // 通常カードはCardEffectの一覧を「効果名 +値」で出す。
+    static string BuildDetailValueText(CardDefinition card)
+    {
+        const string mainTag = "<color=#8FE9D6>MAIN</color>  ";
+        const string subTag = "<color=#8FB8E9>SUB</color>  ";
+        var sb = new System.Text.StringBuilder();
+        CardVariant v = CardVariant.IsVariantKey(card.cardId) ? CardVariant.Parse(card.cardId) : null;
+        if (v != null && v.abilities.Count > 0)
+        {
+            for (int i = 0; i < v.abilities.Count; i++)
+            {
+                var a = v.abilities[i];
+                if (i > 0) sb.Append('\n');
+                sb.Append(i == 0 ? mainTag : subTag);
+                if (i > 0) sb.Append(CardVariant.AbilityName(a.id)).Append("  ");
+                sb.Append(CardVariant.AbilityEffectText(a.id));
+                if (a.stacks > 1) sb.Append($"  ×{a.stacks}");
+            }
+            return sb.ToString();
+        }
+        if (card.effects == null || card.effects.Count == 0) return "";
+        sb.Append(mainTag);
+        for (int i = 0; i < card.effects.Count; i++)
+        {
+            if (i > 0) sb.Append(" / ");
+            sb.Append(CardVariant.EffectLabel(card.effects[i].type)).Append(' ').Append(CardEffectFormat.Format(card.effects[i]));
+        }
+        return sb.ToString();
+    }
+
+    // 効果説明。合成カードの説明文(【主】【副】の能力一覧)はMain Valueと重なるので、
+    // 主能力の元カードの説明文を出す。
+    static string DetailDescription(CardDefinition card)
+    {
+        CardVariant v = CardVariant.IsVariantKey(card.cardId) ? CardVariant.Parse(card.cardId) : null;
+        if (v != null)
+        {
+            CardDefinition main = CardDatabase.FindBaseById(v.mainId);
+            if (main != null) return main.description;
+        }
+        return card.description;
+    }
+
+    // 目視確認ツアー(CardVisualTour)用: 一覧のカードを「見ている」状態にする(デッキ操作はしない)。
+    public void DebugFocusOwned(int index)
+    {
+        if (index < 0 || index >= displayedStacks.Count) return;
+        CardInventory.Stack stack = displayedStacks[index];
+        CardDefinition card = CardDatabase.FindById(stack.cardId);
+        if (card == null) return;
+        ShowDetail(card, stack.level, stack.count);
+        focusCardId = stack.cardId;
+        focusLevel = stack.level;
+        Refresh();
+    }
+
+    public int DebugIndexOfOwned(string cardIdPrefix)
+    {
+        for (int i = 0; i < displayedStacks.Count; i++)
+        {
+            string id = displayedStacks[i].cardId;
+            if (id == cardIdPrefix || id.Contains("|" + cardIdPrefix + "|")) return i;
+        }
+        return -1;
     }
 
     void OnOwnedCardTapped(int index)
@@ -430,6 +553,8 @@ public class DeckEditUI : MonoBehaviour
         // 以降のRefresh()でNEWバッジが消えた状態が反映される。
         CardInventory.ClearNewUnconfirmed(stack.cardId);
         ShowDetail(tapped, stack.level, stack.count);
+        focusCardId = stack.cardId;
+        focusLevel = stack.level;
 
         // Item 7 - a Character Card slot is armed - this tap fills it,
         // overriding "add to deck" for exactly this one tap (see
@@ -438,7 +563,7 @@ public class DeckEditUI : MonoBehaviour
         {
             bool equipped = gm.EquipCharacterCard(pendingEquipSlot, stack.cardId, stack.level);
             pendingEquipSlot = -1;
-            StartCoroutine(ownedCards[index].PulseSelect(1f));
+            StartCoroutine(ownedCards[index].PulseSelect());
             if (!equipped)
             {
                 // Owned copies were all already spent elsewhere (Deck/
@@ -454,7 +579,7 @@ public class DeckEditUI : MonoBehaviour
         // settles at the card's ACTUAL resulting state either way, rather
         // than assuming it always succeeded.
         bool added = gm.AddToDeck(stack.cardId);
-        StartCoroutine(ownedCards[index].PulseSelect(1f));
+        StartCoroutine(ownedCards[index].PulseSelect());
         if (added && deckScrollRect != null) StartCoroutine(PlayCardFly(ownedCards[index].rect, deckScrollRect.viewport, tapped.icon));
         Refresh();
     }
@@ -470,6 +595,7 @@ public class DeckEditUI : MonoBehaviour
         // is, so CONVERT is unavailable from a Deck-originated selection
         // (see ShowDetail/RefreshConvertButton).
         ShowDetail(tapped, -1, 0);
+        if (tapped != null) { focusCardId = tapped.cardId; focusLevel = -1; }
         bool removed = gm.RemoveFromDeck(deck[index]);
         if (removed && ownedScrollRect != null && tapped != null) StartCoroutine(PlayCardFly(deckSlotCards[index].rect, ownedScrollRect.viewport, tapped.icon));
         Refresh();
