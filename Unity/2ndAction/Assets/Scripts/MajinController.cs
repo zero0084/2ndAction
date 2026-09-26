@@ -35,7 +35,9 @@ public class MajinController : MonoBehaviour
     [Header("Fire Attack")]
     public float fireWindupDuration = 0.5f;
     public float fireRecoverDuration = 0.6f;
-    public float fireballSpeed = 6f;
+    // 弾速の走行補正(2026-09-26) - 弾は走行速度で流れる座標系の中を飛ぶようになったため(PlayerController.
+    // RunFrameSpeed)、正面から迫る見た目の速さが従来(=走行速度ぶん上乗せ)より遅くならないよう底上げ。
+    public float fireballSpeed = 9f;
     public Vector2 fireballSpawnOffset = new Vector2(-1.4f, 0.2f);
     public float fireballInterval = 0.2f;
 

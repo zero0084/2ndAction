@@ -557,6 +557,13 @@ public class PlayerController : MonoBehaviour
     // lunge/recoil. Used by the boss to keep pace with ordinary running
     // without also cancelling out the player's attack-driven movement.
     public float CurrentAutoRunSpeed => autoRunEnabled ? runSpeed * EffectiveSpeedMultiplier() : 0f;
+
+    // 弾速の走行補正(2026-09-26) - 弾/飛び道具はすべて「プレイヤーの基本走行速度で一緒に流れる
+    // 座標系」の中を、それぞれの設計速度で飛ぶ(=画面上の見た目の速さが走行速度に左右されない)。
+    // これが無いと、高速走行中にプレイヤーが自分の弾や跳ね返した火球を追い越してしまい、
+    // 逆に正面から来る敵弾は走行速度ぶん速く迫って避けられなくなる。ボス自身もこの速度で
+    // 並走しているため、ボスの弾・跳ね返した弾の当たり方も設計どおりに保たれる。
+    public static float RunFrameSpeed => Instance != null ? Instance.CurrentAutoRunSpeed : 0f;
     // 高速走行の視認性補正(2026-09-22) - 基礎速度に対する現在のAuto Run速度の倍率(1.0〜maxSpeedMultiplier)。
     // 表示/カメラ補正/配置間隔が参照するだけで、実際の移動速度計算には一切影響しない。
     public float SpeedRatio => autoRunEnabled ? EffectiveSpeedMultiplier() : 1f;

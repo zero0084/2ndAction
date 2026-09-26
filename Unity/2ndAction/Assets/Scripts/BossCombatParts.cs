@@ -294,8 +294,13 @@ public class BossProjectile : MonoBehaviour
     public bool damage = true;
     float age;
 
+    // 弾速の走行補正(2026-09-26) - 各ボスの弾速は「世界に固定された弾」前提で調整されていたため、走行速度で
+    // 流れる座標系へ移したぶん(PlayerController.RunFrameSpeed)を一律の倍率で補う。
+    public static float SpeedScale = 1.35f;
+
     public static BossProjectile Create(Sprite sprite, Color color, Vector3 pos, Vector2 size, Vector2 velocity, float lifetime, int sortingOrder)
     {
+        velocity *= SpeedScale;
         GameObject go = new GameObject("BossProjectile");
         go.transform.position = pos;
         go.transform.localScale = new Vector3(size.x, size.y, 1f);
@@ -319,7 +324,8 @@ public class BossProjectile : MonoBehaviour
 
     void Update()
     {
-        transform.position += (Vector3)(velocity * Time.deltaTime);
+        // 弾速の走行補正(2026-09-26) - PlayerController.RunFrameSpeed参照(ボスと同じく走行速度で流れる)。
+        transform.position += (Vector3)((velocity + new Vector2(PlayerController.RunFrameSpeed, 0f)) * Time.deltaTime);
         if (hugGround && TerrainManager.Instance != null)
         {
             float? h = TerrainManager.Instance.GetHeightAt(transform.position.x);

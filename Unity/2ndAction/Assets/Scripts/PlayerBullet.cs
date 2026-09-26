@@ -19,7 +19,9 @@ public class PlayerBullet : MonoBehaviour
 
     void Update()
     {
-        transform.position += (Vector3)(velocity * Time.deltaTime);
+        // 弾速の走行補正(2026-09-26) - PlayerController.RunFrameSpeed参照。撃った本人の走行速度を
+        // 引き継ぐので、高速走行中でも自分の弾を追い越さない(後ろ撃ちも一定の速さで後方へ飛ぶ)。
+        transform.position += (Vector3)((velocity + new Vector2(PlayerController.RunFrameSpeed, 0f)) * Time.deltaTime);
         age += Time.deltaTime;
         if (age > lifetime) Destroy(gameObject);
     }

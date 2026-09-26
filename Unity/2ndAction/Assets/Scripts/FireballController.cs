@@ -55,14 +55,18 @@ public class FireballController : MonoBehaviour
 
     void Update()
     {
+        // 弾速の走行補正(2026-09-26) - PlayerController.RunFrameSpeed参照。発射前の保持中(魔人の火球の輪)
+        // も含めて、走行と同じ速度で流れた上に自分の速度で飛ぶ。
+        float frame = PlayerController.RunFrameSpeed;
         if (!launched)
         {
             holdTimer += Time.deltaTime;
             if (holdTimer >= holdDuration) launched = true;
+            transform.position += new Vector3(frame * Time.deltaTime, 0f, 0f);
         }
         else
         {
-            transform.position += (Vector3)(velocity * Time.deltaTime);
+            transform.position += (Vector3)((velocity + new Vector2(frame, 0f)) * Time.deltaTime);
         }
 
         Animate();

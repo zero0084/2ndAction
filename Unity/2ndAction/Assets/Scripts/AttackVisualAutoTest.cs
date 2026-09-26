@@ -81,6 +81,30 @@ public class AttackVisualAutoTest : MonoBehaviour
         yield return TestEnemy("shooter_archer", pc, 8f);
         yield return TestEnemy("burrow_worm", pc, 12f);
 
+        // ---- 弾速の走行補正: 高速走行(x4)でも自分の弾・跳ね返した火球を追い越さず、敵弾は設計速度で迫る ----
+        PlayerController.DebugSpeedScale = 4f;
+        yield return new WaitForSeconds(0.2f);
+        float run = pc.CurrentAutoRunSpeed;
+        Vector3 basePos = pc.transform.position + new Vector3(0f, 6f, 0f); // プレイヤーに当たらない高さ
+        var bullet = PlayerBullet.Create(null, basePos + new Vector3(1f, 0f, 0f), new Vector2(15f, 0f), 3f);
+        var reflected = FireballController.Create(TerrainManager.Instance.squareSprite, basePos + new Vector3(1f, 1f, 0f), new Vector2(18f, 0f));
+        reflected.GetComponent<FireballController>().reflected = true;
+        var incoming = FireballController.Create(TerrainManager.Instance.squareSprite, basePos + new Vector3(8f, 2f, 0f), new Vector2(-9f, 0f));
+        float px0 = pc.transform.position.x;
+        yield return new WaitForSeconds(0.5f);
+        float dpx = pc.transform.position.x - px0;
+        float bulletGap = bullet != null ? bullet.transform.position.x - pc.transform.position.x : -99f;
+        float reflGap = reflected != null ? reflected.transform.position.x - pc.transform.position.x : -99f;
+        float inGap = incoming != null ? incoming.transform.position.x - pc.transform.position.x : -99f;
+        L($"[RunFrame] run={run:F1} playerMoved={dpx:F1} bulletGap={bulletGap:F1} (expect ~8.5) reflectedGap={reflGap:F1} (expect ~10) incomingGap={inGap:F1} (expect ~3.5)");
+        Check(bulletGap > 6f, "player bullet stays ahead at x4 speed");
+        Check(reflGap > 7f, "reflected fireball stays ahead at x4 speed");
+        Check(inGap > 2f && inGap < 5f, "incoming fireball closes at its own speed");
+        PlayerController.DebugSpeedScale = 1f;
+        if (bullet != null) Destroy(bullet);
+        if (reflected != null) Destroy(reflected);
+        if (incoming != null) Destroy(incoming);
+
         // ---- 洞窟ボスの向き ----
         var spawnCave = typeof(BossManager).GetMethod("DebugForceSpawnCave", BindingFlags.NonPublic | BindingFlags.Instance);
         bm.enabled = true;

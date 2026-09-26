@@ -78,7 +78,9 @@ public class EnemySpecialBehavior : MonoBehaviour
     [Header("Shooter - holds range, fires on Cooldown, backs off if crowded")]
     public Sprite projectileSprite;
     public Color projectileColor = new Color(0.72f, 0.5f, 0.95f);
-    public float shooterProjectileSpeed = 7f;
+    // 弾速の走行補正(2026-09-26) - 弾は走行速度で流れる座標系の中を飛ぶようになったため(PlayerController.
+    // RunFrameSpeed)、正面から迫る見た目の速さが従来(=走行速度ぶん上乗せ)より遅くならないよう底上げ。
+    public float shooterProjectileSpeed = 9f;
     // Only fires while the player is within this X distance - "Shooterが
     // 画面外から一方的に撃つ配置は禁止" (item 2) / "画面外から攻撃し続けな
     // いように" (item 3) satisfied the same way: no range, no shot.
