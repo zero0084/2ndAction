@@ -332,6 +332,8 @@ public class BossManager : MonoBehaviour
     void Update()
     {
         if (GameManager.Instance == null || !GameManager.Instance.HasStarted || GameManager.Instance.IsGameOver) return;
+        // マルチプレイPhase 2 - JOIN側はボスを自分で出現させない(HOSTが出現を確定して共有する)。
+        if (NetCombat.SuppressLocalBossSpawn) return;
 
 #if UNITY_EDITOR
         // 動作確認用(Editor専用): F1〜F11で荒野街道ボスを即時出現(順序は
@@ -508,7 +510,10 @@ public class BossManager : MonoBehaviour
     }
 
     // configure: Init直前の追加設定(天空回廊のドラゴン用、2026-09-25追加。既存呼び出しはnull=従来どおり)。
-    void SpawnDragon(float standoffDistanceForThisDragon, System.Action<DragonController> configure = null)
+    // マルチプレイPhase 2 - 共有ボスの出現記録(HOST)/パペットの再構築(JOIN)用の入口。
+    void SpawnDragon(float standoffDistanceForThisDragon, System.Action<DragonController> configure = null) { NetCombat.BeginBossSpawn(NetCombat.BossMethod.Dragon, 0, 0, standoffDistanceForThisDragon); try { SpawnDragonImpl(standoffDistanceForThisDragon, configure); } finally { NetCombat.EndBossSpawn(); } }
+
+    void SpawnDragonImpl(float standoffDistanceForThisDragon, System.Action<DragonController> configure = null)
     {
         GameObject go = new GameObject("Dragon");
         go.tag = "Boss";
@@ -568,7 +573,10 @@ public class BossManager : MonoBehaviour
     // length-1 array fine - it just never changes), and attacksEnabled is
     // false, so it appears, can be hit/killed (full Boss Defeat
     // Presentation included), but never attacks.
-    void SpawnMechanicalDragon(float standoffDistanceForThisDragon)
+    // マルチプレイPhase 2 - 共有ボスの出現記録(HOST)/パペットの再構築(JOIN)用の入口。
+    void SpawnMechanicalDragon(float standoffDistanceForThisDragon) { NetCombat.BeginBossSpawn(NetCombat.BossMethod.MechDragon, 0, 0, standoffDistanceForThisDragon); try { SpawnMechanicalDragonImpl(standoffDistanceForThisDragon); } finally { NetCombat.EndBossSpawn(); } }
+
+    void SpawnMechanicalDragonImpl(float standoffDistanceForThisDragon)
     {
         GameObject go = new GameObject("MechanicalDragon");
         go.tag = "Boss";
@@ -626,7 +634,10 @@ public class BossManager : MonoBehaviour
     // distance BEHIND the player (not ahead, not on top of them) so it
     // reads as "something arrived from behind" without ever risking
     // overlapping the player or any terrain/enemy at the moment it spawns.
-    void SpawnDeath()
+    // マルチプレイPhase 2 - 共有ボスの出現記録(HOST)/パペットの再構築(JOIN)用の入口。
+    void SpawnDeath() { NetCombat.BeginBossSpawn(NetCombat.BossMethod.Reaper); try { SpawnDeathImpl(); } finally { NetCombat.EndBossSpawn(); } }
+
+    void SpawnDeathImpl()
     {
         if (deathSprite == null || player == null) return;
         Vector3 pos = player.position + new Vector3(-deathSpawnBehindPlayer, 1f, 0f);
@@ -634,7 +645,10 @@ public class BossManager : MonoBehaviour
         if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[Boss] Death Spawn");
     }
 
-    void SpawnMajin(float standoffDistanceForThisMajin, System.Action<MajinController> configure = null)
+    // マルチプレイPhase 2 - 共有ボスの出現記録(HOST)/パペットの再構築(JOIN)用の入口。
+    void SpawnMajin(float standoffDistanceForThisMajin, System.Action<MajinController> configure = null) { NetCombat.BeginBossSpawn(NetCombat.BossMethod.Majin, 0, 0, standoffDistanceForThisMajin); try { SpawnMajinImpl(standoffDistanceForThisMajin, configure); } finally { NetCombat.EndBossSpawn(); } }
+
+    void SpawnMajinImpl(float standoffDistanceForThisMajin, System.Action<MajinController> configure = null)
     {
         GameObject go = new GameObject("Majin");
         go.tag = "Boss";
@@ -880,7 +894,10 @@ public class BossManager : MonoBehaviour
         return null;
     }
 
-    void SpawnWild(WildBossKind kind, int index)
+    // マルチプレイPhase 2 - 共有ボスの出現記録(HOST)/パペットの再構築(JOIN)用の入口。
+    void SpawnWild(WildBossKind kind, int index) { NetCombat.BeginBossSpawn(NetCombat.BossMethod.Wild, (int)kind, index); try { SpawnWildImpl(kind, index); } finally { NetCombat.EndBossSpawn(); } }
+
+    void SpawnWildImpl(WildBossKind kind, int index)
     {
         WildBossArt art = FindArt(kind);
         WildSpec spec = SpecFor(kind);
@@ -961,7 +978,10 @@ public class BossManager : MonoBehaviour
         return null;
     }
 
-    void SpawnCaveBoss(CaveBossKind kind, int index)
+    // マルチプレイPhase 2 - 共有ボスの出現記録(HOST)/パペットの再構築(JOIN)用の入口。
+    void SpawnCaveBoss(CaveBossKind kind, int index) { NetCombat.BeginBossSpawn(NetCombat.BossMethod.Cave, (int)kind, index); try { SpawnCaveBossImpl(kind, index); } finally { NetCombat.EndBossSpawn(); } }
+
+    void SpawnCaveBossImpl(CaveBossKind kind, int index)
     {
         CaveBossArt art = FindCaveArt(kind);
         CaveSpec spec = SpecForCave(kind);
@@ -1079,7 +1099,10 @@ public class BossManager : MonoBehaviour
 
     // 1,000m ドラゴン(天空回廊の既存ドラゴン)。火炎弾(反射可能)はそのまま、低空突進を有効化、
     // skyDragonLandingFromMeters以降は着地噛みつきも使う(いずれもDragonControllerの既存機能)。
-    void SpawnSkyDragon(float standoff)
+    // マルチプレイPhase 2 - 共有ボスの出現記録(HOST)/パペットの再構築(JOIN)用の入口。
+    void SpawnSkyDragon(float standoff) { NetCombat.BeginBossSpawn(NetCombat.BossMethod.SkyDragon, 0, 0, standoff); try { SpawnSkyDragonImpl(standoff); } finally { NetCombat.EndBossSpawn(); } }
+
+    void SpawnSkyDragonImpl(float standoff)
     {
         SpawnDragon(standoff, dragon =>
         {
@@ -1091,7 +1114,10 @@ public class BossManager : MonoBehaviour
         });
     }
 
-    void SpawnSkyMajin(float standoff)
+    // マルチプレイPhase 2 - 共有ボスの出現記録(HOST)/パペットの再構築(JOIN)用の入口。
+    void SpawnSkyMajin(float standoff) { NetCombat.BeginBossSpawn(NetCombat.BossMethod.SkyMajin, 0, 0, standoff); try { SpawnSkyMajinImpl(standoff); } finally { NetCombat.EndBossSpawn(); } }
+
+    void SpawnSkyMajinImpl(float standoff)
     {
         SpawnMajin(standoff, majin =>
         {
@@ -1131,7 +1157,10 @@ public class BossManager : MonoBehaviour
         return null;
     }
 
-    void SpawnSkyBoss(SkyBossKind kind, int index)
+    // マルチプレイPhase 2 - 共有ボスの出現記録(HOST)/パペットの再構築(JOIN)用の入口。
+    void SpawnSkyBoss(SkyBossKind kind, int index) { NetCombat.BeginBossSpawn(NetCombat.BossMethod.Sky, (int)kind, index); try { SpawnSkyBossImpl(kind, index); } finally { NetCombat.EndBossSpawn(); } }
+
+    void SpawnSkyBossImpl(SkyBossKind kind, int index)
     {
         SkyBossArt art = FindSkyArt(kind);
         SkySpec spec = SpecForSky(kind);
@@ -1179,7 +1208,10 @@ public class BossManager : MonoBehaviour
     }
 
     // 80,000m ドラゴン: 既存DragonControllerに突進と着地攻撃を有効化して流用。
-    void SpawnWastelandDragon(float standoff)
+    // マルチプレイPhase 2 - 共有ボスの出現記録(HOST)/パペットの再構築(JOIN)用の入口。
+    void SpawnWastelandDragon(float standoff) { NetCombat.BeginBossSpawn(NetCombat.BossMethod.WastelandDragon, 0, 0, standoff); try { SpawnWastelandDragonImpl(standoff); } finally { NetCombat.EndBossSpawn(); } }
+
+    void SpawnWastelandDragonImpl(float standoff)
     {
         GameObject go = new GameObject("WildBoss_Dragon");
         go.tag = "Boss";
@@ -1275,7 +1307,43 @@ public class BossManager : MonoBehaviour
     // existing Dragon/Majin/Mechanical Dragon formulas already compute.
     int EffectiveBossMaxHp(int baseHp)
     {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (NetTestBossHpOverride > 0) return NetTestBossHpOverride;
+#endif
         float multiplier = GameManager.Instance != null ? GameManager.Instance.BossHpMultiplier : 1f;
         return Mathf.Max(1, Mathf.RoundToInt(baseHp * Mathf.Max(0.01f, multiplier)));
+    }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // マルチプレイPhase 2の自動テスト用(開発ビルドのみ): 荒野街道ボスを即時出現させる。
+    public static int NetTestBossHpOverride;
+    public void NetTestSpawnWild(WildBossKind kind, int count)
+    {
+        IsBossPhase = true;
+        if (GameManager.Instance != null) GameManager.Instance.BeginBossDistanceExclusion();
+        if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
+        currentGateK = gateK;
+        aliveWildThisEncounter = count;
+        for (int i = 0; i < count; i++) SpawnWild(kind, i);
+    }
+#endif
+
+    // マルチプレイPhase 2 - JOIN側: HOSTが出現させたボスと同じ生成処理でパペットを作る
+    // (NetCombat.CreatingPuppet中なので、各ボスのInitはAIを始めずに戻る)。
+    public void NetSpawnPuppet(NetCombat.BossMethod method, int kind, int index, float standoff)
+    {
+        switch (method)
+        {
+            case NetCombat.BossMethod.Wild: SpawnWild((WildBossKind)kind, index); break;
+            case NetCombat.BossMethod.Cave: SpawnCaveBoss((CaveBossKind)kind, index); break;
+            case NetCombat.BossMethod.Sky: SpawnSkyBoss((SkyBossKind)kind, index); break;
+            case NetCombat.BossMethod.Dragon: SpawnDragon(standoff); break;
+            case NetCombat.BossMethod.WastelandDragon: SpawnWastelandDragon(standoff); break;
+            case NetCombat.BossMethod.SkyDragon: SpawnSkyDragon(standoff); break;
+            case NetCombat.BossMethod.Majin: SpawnMajin(standoff); break;
+            case NetCombat.BossMethod.SkyMajin: SpawnSkyMajin(standoff); break;
+            case NetCombat.BossMethod.MechDragon: SpawnMechanicalDragon(standoff); break;
+            case NetCombat.BossMethod.Reaper: SpawnDeath(); break;
+        }
     }
 }

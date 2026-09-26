@@ -26,6 +26,14 @@ public class NetAutoTest : MonoBehaviour
     // FloatingOrigin(長距離でシーン全体を戻す処理)を短い間隔で頻繁に起こし、端末ごとに
     // 異なるタイミングで起きるシフトの下でも相手の表示がずれないかを確かめる。
     bool shiftTest;
+    // Phase 2: 共有の敵を狙って攻撃するボット+戦闘ログ。-netAutoBossAt N でHOSTがN秒後にボスを出す。
+    bool combat;
+    bool combatMix; // 上攻撃(打ち上げ)/下攻撃(叩き落とし)も混ぜる
+    int mixStep;
+    float bossAt = -1f;
+    int bossHp = 20;
+    bool bossSpawned;
+    float combatAttackTimer;
 
     enum Step { Connect, WaitPlayers, WaitRun, Running, AfterLeave, Done }
     Step step = Step.Connect;
@@ -53,6 +61,9 @@ public class NetAutoTest : MonoBehaviour
     // 「相手に表示された位置」と「本人の実際の位置」の誤差をフレーム単位で求めるため)。
     string tracePath;
     System.IO.StreamWriter trace;
+    // -netAutoEnemyTrace path: 毎フレーム、共有の敵/ボスの論理位置(HOST=正解/JOIN=表示)をUTC付きで書く。
+    string enemyTracePath;
+    System.IO.StreamWriter enemyTrace;
 
     public static bool ShouldRun => Array.Exists(Environment.GetCommandLineArgs(), a => a.StartsWith("-netAuto"));
 
@@ -71,11 +82,21 @@ public class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoLeaveAt") float.TryParse(next, out leaveAt);
             else if (a == "-netAutoShiftTest") shiftTest = true;
             else if (a == "-netAutoTrace") tracePath = next;
+            else if (a == "-netAutoEnemyTrace") enemyTracePath = next;
+            else if (a == "-netAutoCombat") combat = true;
+            else if (a == "-netAutoCombatMix") { combat = true; combatMix = true; }
+            else if (a == "-netAutoBossAt") float.TryParse(next, out bossAt);
+            else if (a == "-netAutoBossHp") int.TryParse(next, out bossHp);
         }
         if (!string.IsNullOrEmpty(tracePath))
         {
             try { trace = new System.IO.StreamWriter(tracePath, false); trace.WriteLine("utc,localX,localY,remoteShown,remoteX,remoteY,lag"); }
             catch (Exception e) { Debug.LogWarning("[NETTEST] trace open failed: " + e.Message); trace = null; }
+        }
+        if (!string.IsNullOrEmpty(enemyTracePath))
+        {
+            try { enemyTrace = new System.IO.StreamWriter(enemyTracePath, false); enemyTrace.WriteLine("utc,id,x,y,localX,localSpeed"); }
+            catch (Exception e) { Debug.LogWarning("[NETTEST] enemy trace open failed: " + e.Message); enemyTrace = null; }
         }
         Application.logMessageReceived += OnLog;
         L($"start role={role} stage={stage} speed={speedMul} runSeconds={runSeconds} leaveAt={leaveAt}");
@@ -103,6 +124,23 @@ public class NetAutoTest : MonoBehaviour
             shown ? 1 : 0,
             shown ? a.transform.position.x + FloatingOrigin.Offset : 0.0, shown ? a.transform.position.y : 0f,
             remote != null ? remote.PlaybackLag : 0f));
+    }
+
+    void WriteEnemyTrace()
+    {
+        if (enemyTrace == null || NetCombat.Instance == null) return;
+        PlayerController pc = PlayerController.Instance;
+        if (pc == null) return;
+        double utc = (DateTime.UtcNow - DateTime.UtcNow.Date).TotalSeconds;
+        var ci = System.Globalization.CultureInfo.InvariantCulture;
+        float px = pc.transform.position.x;
+        foreach (var e in NetCombat.Instance.Entities.Values)
+        {
+            if (e.Go == null || !e.Go.activeInHierarchy) continue;
+            Vector3 p = e.Go.transform.position;
+            if (Mathf.Abs(p.x - px) > 25f) continue;
+            enemyTrace.WriteLine(string.Format(ci, "{0:F4},{1},{2:F3},{3:F3},{4:F3},{5:F2}", utc, e.Id, p.x + FloatingOrigin.Offset, p.y, px + FloatingOrigin.Offset, pc.CurrentAutoRunSpeed));
+        }
     }
 
     void OnLog(string condition, string stackTrace, LogType type)
@@ -156,6 +194,7 @@ public class NetAutoTest : MonoBehaviour
                     break;
                 }
                 PeriodicLog(gm);
+                if (role == "HOST" && bossAt > 0f && !bossSpawned && runTime >= bossAt) SpawnTestBoss();
                 if (runTime >= runSeconds) Finish("run time elapsed");
                 break;
             case Step.AfterLeave:
@@ -170,7 +209,7 @@ public class NetAutoTest : MonoBehaviour
 
     void LateUpdate()
     {
-        if (step == Step.Running || step == Step.AfterLeave) { MeasureRemote(); WriteTrace(); }
+        if (step == Step.Running || step == Step.AfterLeave) { MeasureRemote(); WriteTrace(); WriteEnemyTrace(); }
     }
 
     // レベルアップ/ボス報酬のカード選択(ゲームが一時停止する)を、実プレイヤーと同じ
@@ -229,6 +268,52 @@ public class NetAutoTest : MonoBehaviour
         if (setter != null) setter.Invoke(target, new[] { value });
     }
 
+    void SpawnTestBoss()
+    {
+        bossSpawned = true;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        BossManager bm = BossManager.Instance;
+        if (bm == null || bm.IsBossPhase) { L("test boss skipped (boss phase already running)"); return; }
+        BossManager.NetTestBossHpOverride = bossHp;
+        bm.NetTestSpawnWild(WildBossKind.Wolf, 1);
+        BossManager.NetTestBossHpOverride = 0;
+        L($"test boss spawned (Wolf hp={bossHp})");
+#endif
+    }
+
+    // 共有の敵/ボスが攻撃の届く距離にいれば前攻撃する(両プレイヤーがほぼ同時に同じ敵を叩く状況を作る)。
+    bool CombatBot(PlayerController pc)
+    {
+        if (!combat || NetCombat.Instance == null) return false;
+        combatAttackTimer -= Time.unscaledDeltaTime;
+        if (combatAttackTimer > 0f) return false;
+        float px = pc.transform.position.x, py = pc.transform.position.y;
+        foreach (var e in NetCombat.Instance.Entities.Values)
+        {
+            if (e.Dead || e.Go == null || !e.Go.activeInHierarchy) continue;
+            Vector3 ep = e.Go.transform.position;
+            float dx = ep.x - px;
+            float reach = e.Kind == NetCombat.Kind.Boss ? 4.5f : 2.4f;
+            if (dx > -0.4f && dx < reach && Mathf.Abs(ep.y - py) < (e.Kind == NetCombat.Kind.Boss ? 4f : 1.6f))
+            {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                PlayerController.FlickDirection dir = PlayerController.FlickDirection.Forward;
+                if (combatMix)
+                {
+                    // 地上: 前→上(打ち上げ+ジャンプ) / 空中: 前→下(叩き落とし) を順に
+                    mixStep++;
+                    if (pc.IsGrounded) dir = mixStep % 3 == 0 ? PlayerController.FlickDirection.Up : PlayerController.FlickDirection.Forward;
+                    else dir = mixStep % 2 == 0 ? PlayerController.FlickDirection.Down : PlayerController.FlickDirection.Forward;
+                }
+                pc.debugInjectFlick = dir;
+#endif
+                combatAttackTimer = 0.3f;
+                return true;
+            }
+        }
+        return false;
+    }
+
     void Bot()
     {
         PlayerController pc = PlayerController.Instance;
@@ -243,6 +328,8 @@ public class NetAutoTest : MonoBehaviour
             pc.debugInjectFlick = PlayerController.FlickDirection.Up;
             return;
         }
+        if (CombatBot(pc)) return;
+        if (combat) return; // 戦闘テストでは敵を狙う攻撃だけにする(ジャンプの乱入で当たり方がばらつかないように)
         botTimer += Time.unscaledDeltaTime;
         if (botTimer < 0.9f) return;
         botTimer = 0f;
@@ -315,6 +402,11 @@ public class NetAutoTest : MonoBehaviour
         totalFrames += secFrames;
         secMaxStepErr = secMaxStep = 0f; secBackSteps = secFrames = 0;
 
+        if (combat && NetCombat.Instance != null)
+        {
+            var nc = NetCombat.Instance;
+            L($"combat t={runTime:F1} me=P{NetCombat.LocalPlayerNumber} {nc.DebugSignature()} spawns={nc.StatSpawns} dmgEvents={nc.StatDamageEvents} deaths={nc.StatDeaths} reqSent={nc.StatHitRequestsSent} reqApplied={nc.StatHitRequestsApplied} reqIgnored={nc.StatHitRequestsIgnored} dup={nc.StatDuplicateHits} kills(local)={(gm != null ? gm.EnemyKillCount : 0)} bossKills(local)={(gm != null ? gm.BossKillCount : 0)}");
+        }
         L($"t={runTime:F1} local X={lx:F2} Y={(pc != null ? pc.transform.position.y : 0f):F2} speed={(pc != null ? pc.CurrentAutoRunSpeed : 0f):F1} grounded={(pc != null && pc.IsGrounded)} dist={(gm != null ? gm.MaxDistance : 0f):F0} offset={FloatingOrigin.Offset:F0} | remote {remoteStr} | connected={NetSession.IsConnected}");
 
         TerrainManager tm = TerrainManager.Instance;
@@ -331,6 +423,10 @@ public class NetAutoTest : MonoBehaviour
     {
         if (step == Step.Done) return;
         step = Step.Done;
+        if (NetCombat.Instance != null)
+        {
+            foreach (string k in NetCombat.Instance.KillLog) L("KILL " + k);
+        }
         L($"SUMMARY reason={reason} role={role} exceptions={exceptions} errors={errors} remoteShownSeconds={remoteShownSeconds} maxStepErr={totalMaxStepErr:F3} maxStep={totalMaxStep:F3} backSteps={totalBackSteps}/{totalFrames} sigA={sigA} sigB={sigB}");
         Invoke(nameof(Quit), 1f);
     }
@@ -338,6 +434,7 @@ public class NetAutoTest : MonoBehaviour
     void Quit()
     {
         if (trace != null) { trace.Dispose(); trace = null; }
+        if (enemyTrace != null) { enemyTrace.Dispose(); enemyTrace = null; }
         if (NetSession.IsActive) NetSession.Instance.Leave();
         Application.Quit();
 #if UNITY_EDITOR

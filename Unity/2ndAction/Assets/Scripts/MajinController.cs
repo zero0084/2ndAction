@@ -172,6 +172,8 @@ public class MajinController : MonoBehaviour
         hpBar.SetHidden();
 
         state = State.Entering;
+        // マルチプレイPhase 2 - HOSTでは共有ボスとして登録。JOINでパペットとして作っている時はAIを始めない。
+        if (NetCombat.OnBossInit(this)) return;
         StartCoroutine(EnterThenSchedule());
     }
 
@@ -237,6 +239,7 @@ public class MajinController : MonoBehaviour
 
     void Update()
     {
+        if (NetPuppet) { if (state != State.Dead) AnimateSprite(); return; }
         if (state == State.Dead) return;
 
         AnimateSprite();
@@ -455,6 +458,12 @@ public class MajinController : MonoBehaviour
     {
         if (state == State.Dead) return;
 
+        if (other.CompareTag("PlayerAttack") && NetPuppet)
+        {
+            NetPuppetHit(other);
+            return;
+        }
+
         if (other.CompareTag("PlayerAttack"))
         {
             int damage = PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage;
@@ -472,10 +481,11 @@ public class MajinController : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        if (state == State.Dead) return;
+        if (state == State.Dead || NetPuppet) return;
 
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
+        NetCombat.AuthorityDamaged(NetId, netAttacker, amount, Hp, 0, transform.position, Hp <= 0);
 
         if (Hp <= 0)
         {
@@ -512,7 +522,8 @@ public class MajinController : MonoBehaviour
     {
         if (bossDefeatRegistered) return;
         bossDefeatRegistered = true;
-        if (GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
+        if (NetPuppet) return; // JOINのパペット: 撃破報酬/ボス戦終了はHOSTとラストヒットの本人が処理する
+        if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
         if (BossManager.Instance != null) BossManager.Instance.OnMajinDefeated();
     }
 
@@ -599,6 +610,112 @@ public class MajinController : MonoBehaviour
         finally
         {
             RegisterDefeatOnce(); // no-op if already done above - guarantees the Boss Reward pipeline is always reached even on an early exit/exception
+        }
+    }
+
+    // ===================================================================== //
+    // マルチプレイPhase 2(共有ボス)
+    // ===================================================================== //
+    [System.NonSerialized] public int NetId;
+    [System.NonSerialized] public bool NetPuppet;
+    int netAttacker; // 0 = この端末のプレイヤー
+    int netFramesSet = -1;
+    Collider2D netLastHitCollider;
+    float netHitCooldown;
+
+    byte CurrentFramesSet()
+    {
+        if (currentFrames == idleFrames) return 0;
+        if (currentFrames == attackFrames) return 1;
+        return 0;
+    }
+
+    // HOST: JOINのプレイヤーの攻撃を、この端末の攻撃と同じ被弾処理へ流す。
+    public void NetApplyRemoteHit(int attacker, int damage)
+    {
+        if (state == State.Dead || NetPuppet) return;
+        netAttacker = attacker;
+        try { TakeDamage(damage); }
+        finally { netAttacker = 0; }
+    }
+
+    public void NetMakePuppet(int id, int hp, int maxHpValue)
+    {
+        NetId = id;
+        NetPuppet = true;
+        maxHp = Mathf.Max(1, maxHpValue);
+        Hp = hp;
+        StopAllCoroutines();
+        if (hpBar != null) { hpBar.SetFraction((float)Hp / maxHp); hpBar.SetHidden(); }
+    }
+
+    void NetPuppetHit(Collider2D other)
+    {
+        if (other == netLastHitCollider && netHitCooldown > Time.time) return;
+        netLastHitCollider = other;
+        netHitCooldown = Time.time + 0.18f;
+        int damage = PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage;
+        PlayerAttackKind kind = PlayerAttackKind.Normal;
+        var info = other.GetComponent<PlayerAttackInfo>();
+        if (info != null) kind = info.kind;
+        NetCombat.RequestHit(NetId, damage, kind, transform.position);
+        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (camFollow != null) camFollow.Shake(0.08f, 0.1f);
+        StartCoroutine(HitFlash());
+    }
+
+    public void NetSetHp(int hp, bool showHitFx)
+    {
+        if (state == State.Dead) return;
+        Hp = Mathf.Max(0, hp);
+        if (hpBar != null) hpBar.SetFraction((float)Hp / Mathf.Max(1, maxHp));
+        if (showHitFx && isActiveAndEnabled) StartCoroutine(HitFlash());
+    }
+
+    public void NetPuppetDie()
+    {
+        if (state == State.Dead) return;
+        Hp = 0;
+        if (hpBar != null) hpBar.SetFraction(0f);
+        StopAllCoroutines();
+        state = State.Dead;
+        StartCoroutine(FinalHitAndDie());
+    }
+
+    public void NetCaptureVisual(ref NetCombat.State s)
+    {
+        s.FramesSet = CurrentFramesSet();
+        s.Pose = (byte)state;
+        if (state != State.Entering) s.Flags |= NetCombat.FlagHpBar;
+        if (sr != null) s.Color = NetPlayerSnapshot.PackColor(sr.color);
+        if (flashOverlay != null && flashOverlay.enabled) { s.Flags |= NetCombat.FlagFlash; s.Flash = NetPlayerSnapshot.PackColor(flashOverlay.color); }
+        if (hitFlashOverlay != null && hitFlashOverlay.enabled) s.Flags |= NetCombat.FlagHitFlash;
+    }
+
+    bool netHpRevealed;
+    public void NetApplyVisual(NetCombat.State s)
+    {
+        if (state == State.Dead) return;
+        if (s.FramesSet != netFramesSet)
+        {
+            netFramesSet = s.FramesSet;
+            switch (s.FramesSet)
+            {
+            case 0: SetFrames(idleFrames); break;
+            case 1: SetFrames(attackFrames); break;
+            }
+        }
+        if (sr != null) sr.color = NetPlayerSnapshot.UnpackColor(s.Color);
+        if (flashOverlay != null)
+        {
+            bool on = (s.Flags & NetCombat.FlagFlash) != 0;
+            flashOverlay.enabled = on;
+            if (on) { flashOverlay.color = NetPlayerSnapshot.UnpackColor(s.Flash); flashOverlay.sprite = sr.sprite; }
+        }
+        if (!netHpRevealed && (s.Flags & NetCombat.FlagHpBar) != 0)
+        {
+            netHpRevealed = true;
+            if (hpBar != null) StartCoroutine(hpBar.RevealRoutine(0.25f));
         }
     }
 }

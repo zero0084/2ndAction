@@ -381,8 +381,9 @@ public class EnemySpecialBehavior : MonoBehaviour
         // Safety - a Chaser/Rusher that somehow ended up hopelessly behind
         // the auto-scrolling player is despawned rather than left running
         // forever off-screen (item 3).
+        // マルチプレイPhase 2 - HOSTでは最後尾のプレイヤーを基準にする(後ろのプレイヤーの敵を消さない)。
         if ((kind == EnemyBehaviorKind.Chaser || kind == EnemyBehaviorKind.Rusher)
-            && player.position.x - transform.position.x > giveUpDistanceBehindPlayer)
+            && NetCombat.RearmostPlayerX(player.position.x) - transform.position.x > giveUpDistanceBehindPlayer)
         {
             gameObject.SetActive(false);
             return;

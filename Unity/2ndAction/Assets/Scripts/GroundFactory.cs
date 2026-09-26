@@ -309,6 +309,18 @@ public static class GroundFactory
     // どおり無改造で動く。
     public static GameObject CreateEnemy(Transform parent, Sprite sprite, Vector2 position, Color color, Sprite hitSparkSprite = null, Sprite deathCloudSprite = null, EnemyMovementType movementType = EnemyMovementType.Ground, Sprite groundShadowSprite = null, int maxHp = 1, EnemyBehaviorKind behaviorKind = EnemyBehaviorKind.None, bool bigKnockbackOnHit = false, Sprite projectileSprite = null, bool enableVisualFacing = false, bool defaultFacingRight = true, Sprite[] runFrames = null, int mileReward = 1, float visualScaleMultiplier = 1f, EnemyAiTier aiTier = EnemyAiTier.T0, Sprite telegraphMarkerSprite = null)
     {
+        // マルチプレイPhase 2(2026-09-26) - JOIN側は敵を自分で生成しない(HOSTから届いた物だけを
+        // パペットとして作る)。呼び出し元が戻り値に触れても安全なよう、空のオブジェクトを返して
+        // すぐ破棄する(地形の乱数や生成の流れはシングル/HOSTと同じまま)。
+        if (NetCombat.SuppressLocalEnemySpawn)
+        {
+            GameObject dummy = new GameObject("NetSuppressedEnemy");
+            dummy.SetActive(false);
+            dummy.AddComponent<EnemyController>().enabled = false; // 呼び出し元のGetComponent<EnemyController>()用
+            Object.Destroy(dummy);
+            return dummy;
+        }
+
         GameObject go = new GameObject("Enemy");
         go.transform.SetParent(parent);
         go.transform.position = new Vector3(position.x, position.y, 0f);
@@ -426,6 +438,27 @@ public static class GroundFactory
             shadowGO.transform.localPosition = new Vector3(0f, 0.02f, 0f);
         }
 
+        // マルチプレイPhase 2 - HOSTでは共有エンティティとして登録する(シングルでは何もしない)。
+        if (NetCombat.Authority)
+        {
+            byte flags = 0;
+            if (hitSparkSprite != null) flags |= EnemySpawnInfo.FHitSpark;
+            if (deathCloudSprite != null) flags |= EnemySpawnInfo.FDeathCloud;
+            if (groundShadowSprite != null) flags |= EnemySpawnInfo.FShadow;
+            if (projectileSprite != null) flags |= EnemySpawnInfo.FProjectile;
+            if (enableVisualFacing) flags |= EnemySpawnInfo.FVisualFacing;
+            if (defaultFacingRight) flags |= EnemySpawnInfo.FFacingRight;
+            if (bigKnockbackOnHit) flags |= EnemySpawnInfo.FBigKnockback;
+            if (telegraphMarkerSprite != null) flags |= EnemySpawnInfo.FMarker;
+            NetCombat.OnEnemyCreated(go, new EnemySpawnInfo
+            {
+                DefId = EnemyDatabase.FindBySprite(sprite),
+                Flags = flags, MovementType = movementType, BehaviorKind = behaviorKind, AiTier = aiTier,
+                VisualScale = visualScaleMultiplier, MileReward = mileReward, Tint = NetPlayerSnapshot.PackColor(color),
+                KnockbackDistance = enemyController.hitKnockbackDistance, KnockbackDuration = enemyController.hitKnockbackDuration,
+            });
+        }
+
         return go;
     }
 
@@ -541,6 +574,7 @@ public static class GroundFactory
     // 攻撃ポーズ(2026-09-26) - 生成済みの敵にEnemyDefinition.attackSpriteを渡す(無ければ何もしない)。
     public static void ApplyAttackSprite(GameObject enemyGO, EnemyDefinition def)
     {
+        NetCombat.OnEnemyDefinitionKnown(enemyGO, def);
         if (enemyGO == null || def == null || def.attackSprite == null) return;
         var anim = enemyGO.GetComponent<EnemyAnimator>();
         if (anim != null) anim.attackSprite = def.attackSprite;

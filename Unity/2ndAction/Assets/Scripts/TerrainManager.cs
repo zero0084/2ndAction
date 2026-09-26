@@ -722,6 +722,9 @@ public class TerrainManager : MonoBehaviour
         if (!float.IsNegativeInfinity(lastEnemyX)) lastEnemyX -= s;
 
         float px = player != null ? player.position.x : 0f;
+        // マルチプレイPhase 2 - HOSTは共有の敵が乗っている地形を、最後尾のプレイヤーが通過するまで残す
+        // (前のプレイヤーの都合で後ろのプレイヤーの敵/足場を消さない)。シングル/JOINでは従来どおり。
+        px = NetCombat.RearmostPlayerX(px);
         float cutoff = px - chunkKeepBehindDistance;
         int removeChunks = 0;
         while (removeChunks < chunks.Count - 2 && chunks[removeChunks].endX < cutoff) removeChunks++;
@@ -809,7 +812,8 @@ public class TerrainManager : MonoBehaviour
     void UpdateDeterministic()
     {
         if (GameManager.Instance != null && !GameManager.Instance.HasStarted) return;
-        float target = player.position.x + generateAheadDistance;
+        // マルチプレイPhase 2 - HOSTは先頭のプレイヤーの前方まで生成する(共有の敵をその先に出すため)。
+        float target = NetCombat.ForemostPlayerX(player.position.x) + generateAheadDistance;
         int guard = 0;
         while (guard++ < 10000)
         {

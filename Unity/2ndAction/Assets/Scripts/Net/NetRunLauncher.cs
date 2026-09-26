@@ -27,6 +27,9 @@ public class NetRunLauncher : MonoBehaviour
     public static bool IsMultiplayerRun { get; private set; }
     public static int ActiveRunSeed { get; private set; }
     public static string ActiveRunStageId { get; private set; } = "";
+    // 出発の通知は受け取ったがシーン読み込みがまだのRunのSeed(0=無し)。Phase 2の共有敵の
+    // 出現通知がシーン読み込みより先に届いた場合に、捨てずに保持しておくのに使う。
+    public static int PendingRunSeed => pending ? pendingSeed : 0;
 
     static bool pending;
     static string pendingStageId;

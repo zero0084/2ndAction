@@ -147,6 +147,8 @@ public abstract class WildBossBase : MonoBehaviour
 
         OnInit();
         ApplyTransform();
+        // マルチプレイPhase 2 - HOSTでは共有ボスとして登録。JOINでパペットとして作っている時はAIを始めない。
+        if (NetCombat.OnBossInit(this)) return;
         StartCoroutine(Run());
     }
 
@@ -244,6 +246,7 @@ public abstract class WildBossBase : MonoBehaviour
     // ================= 毎フレーム =================
     void Update()
     {
+        if (NetPuppet) { NetPuppetUpdate(); return; }
         if (dead) return;
         float dt = Time.deltaTime;
         float baseSpeed = pc != null ? pc.CurrentAutoRunSpeed : 0f;
@@ -765,6 +768,12 @@ public abstract class WildBossBase : MonoBehaviour
     {
         if (dead || invulnerable) return;
 
+        if (other.CompareTag("PlayerAttack") && NetPuppet)
+        {
+            NetPuppetHit(other);
+            return;
+        }
+
         if (other.CompareTag("PlayerAttack"))
         {
             int dmg = PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamageFallback;
@@ -782,19 +791,26 @@ public abstract class WildBossBase : MonoBehaviour
 
     public void TakeDamage(int amount, Vector3 hitPos)
     {
-        if (dead) return;
+        if (dead || NetPuppet) return;
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
 
-        if (PlayerController.Instance != null) PlayerController.Instance.NotifyAerialHit();
-        if (ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
+        // マルチプレイPhase 2 - 相手プレイヤーの攻撃では、この端末のプレイヤーの空中補助/コンボは進めない。
+        if (netAttacker <= 0)
+        {
+            if (PlayerController.Instance != null) PlayerController.Instance.NotifyAerialHit();
+            if (ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
+        }
 
         if (Hp <= 0 && OnLethalDamage())
         {
             // 天空回廊ボス追加(2026-09-25) - フェニックスの復活など、致死ダメージを
             // サブクラスが引き受けた場合は撃破処理に進まない(既定はfalse=従来どおり)。
+            NetCombat.AuthorityDamaged(NetId, netAttacker, amount, Hp, 0, hitPos, false);
             return;
         }
+
+        NetCombat.AuthorityDamaged(NetId, netAttacker, amount, Hp, 0, hitPos, Hp <= 0);
 
         if (Hp <= 0)
         {
@@ -822,7 +838,8 @@ public abstract class WildBossBase : MonoBehaviour
     {
         if (defeatRegistered) return;
         defeatRegistered = true;
-        if (GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
+        if (NetPuppet) return; // JOINのパペット: 撃破報酬/ボス戦終了はHOSTとラストヒットの本人が処理する
+        if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
         if (BossManager.Instance != null) BossManager.Instance.OnWildBossDefeated();
     }
 
@@ -880,6 +897,124 @@ public abstract class WildBossBase : MonoBehaviour
     }
 
     // Floating Origin: 座標を戻した分、ボス自身のワールドXも戻す(プレイヤーとの間合いは不変)。
+    // ================= マルチプレイPhase 2(共有ボス) =================
+    [System.NonSerialized] public int NetId;
+    [System.NonSerialized] public bool NetPuppet;
+    int netAttacker; // 0 = この端末のプレイヤー / それ以外 = プレイヤー番号(HOSTでリモートの攻撃を処理中)
+    int netVisualOrder = int.MinValue;
+    Collider2D netLastHitCollider;
+    float netHitCooldown;
+
+    // HOST: JOINのプレイヤーの攻撃を、この端末の攻撃と同じ被弾処理へ流す。
+    public void NetApplyRemoteHit(int attacker, int damage, Vector3 hitPos)
+    {
+        if (dead || invulnerable || NetPuppet) return;
+        netAttacker = attacker;
+        try { TakeDamage(damage, hitPos); }
+        finally { netAttacker = 0; }
+    }
+
+    // JOIN: HOSTから届いたボスを「見た目と被弾判定だけ」のパペットにする(AIは動かさない)。
+    public void NetMakePuppet(int id, int hp, int maxHpValue)
+    {
+        NetId = id;
+        NetPuppet = true;
+        maxHp = Mathf.Max(1, maxHpValue);
+        Hp = hp;
+        entering = true;
+        StopAllCoroutines();
+        DisableAllHitboxes();
+        if (hpBar != null) { hpBar.SetFraction((float)Hp / maxHp); hpBar.SetHidden(); }
+    }
+
+    void NetPuppetUpdate()
+    {
+        float dt = Time.deltaTime;
+        poseTime += dt;
+        if (hitTimer > 0f) hitTimer -= dt;
+        if (!dead) AnimateVisual();
+    }
+
+    void NetPuppetHit(Collider2D other)
+    {
+        if (other == netLastHitCollider && netHitCooldown > Time.time) return;
+        netLastHitCollider = other;
+        netHitCooldown = Time.time + 0.18f;
+        int dmg = PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamageFallback;
+        PlayerAttackKind kind = PlayerAttackKind.Normal;
+        var info = other.GetComponent<PlayerAttackInfo>();
+        if (info != null) kind = info.kind;
+        Vector3 hitPos = other.bounds.center;
+        NetCombat.RequestHit(NetId, dmg, kind, hitPos);
+        if (PlayerController.Instance != null) PlayerController.Instance.NotifyAerialHit();
+        if (ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
+        NetHitFx(hitPos, true);
+    }
+
+    void NetHitFx(Vector3 hitPos, bool withHitStop)
+    {
+        hitTimer = 0.16f;
+        Shake(0.06f, 0.1f);
+        Sprite spark = hitSparkSprite != null ? hitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
+        OneShotSpriteEffect.CreateTweened(spark, hitPos, Color.white, 0.14f, 0.35f, 0.6f, 1f, 0f, default, 0f, RenderOrder.CombatFx, 0.2f);
+        if (withHitStop && hitStopOnHit > 0f) RunHitStop(hitStopOnHit);
+    }
+
+    // JOIN: HOSTが確定したHP(HPバーはこの値を表示する)。
+    public void NetSetHp(int hp, bool showHitFx, Vector3 hitPos)
+    {
+        if (dead) return;
+        Hp = Mathf.Max(0, hp);
+        if (hpBar != null) hpBar.SetFraction((float)Hp / Mathf.Max(1, maxHp));
+        if (showHitFx) NetHitFx(hitPos, false);
+    }
+
+    // JOIN: HOSTが撃破を確定した → 撃破演出(報酬/ボス戦終了はRegisterDefeatOnceで行わない)。
+    public void NetPuppetDie()
+    {
+        if (dead) return;
+        dead = true;
+        Hp = 0;
+        if (hpBar != null) hpBar.SetFraction(0f);
+        StopAllCoroutines();
+        DisableAllHitboxes();
+        if (hurtCol != null) hurtCol.enabled = false;
+        StartCoroutine(FinalHitAndDie());
+    }
+
+    public void NetCaptureVisual(ref NetCombat.State s)
+    {
+        s.Pose = (byte)pose;
+        s.Facing = (sbyte)(facing < 0f ? -1 : 1);
+        s.Windup = (byte)Mathf.RoundToInt(Mathf.Clamp01(windupProgress) * 255f);
+        s.Attack = (byte)Mathf.RoundToInt(Mathf.Clamp01(attackProgress) * 255f);
+        s.BaseColor = NetPlayerSnapshot.PackColor(baseColor);
+        s.ExtraX = extraScale.x; s.ExtraY = extraScale.y;
+        s.Order = (short)Mathf.Clamp(rig != null ? rig.SortingOrder : RenderOrder.Boss, short.MinValue, short.MaxValue);
+        if (!entering) s.Flags |= NetCombat.FlagHpBar;
+        if (hurtCol != null && hurtCol.enabled) s.Flags |= NetCombat.FlagHurtbox;
+    }
+
+    public void NetApplyVisual(NetCombat.State s)
+    {
+        if (dead) return;
+        Pose p = (Pose)s.Pose;
+        if (p != pose) { pose = p; poseTime = 0f; }
+        facing = s.Facing < 0 ? -1f : 1f;
+        windupProgress = s.Windup / 255f;
+        attackProgress = s.Attack / 255f;
+        baseColor = NetPlayerSnapshot.UnpackColor(s.BaseColor);
+        extraScale = new Vector2(s.ExtraX, s.ExtraY);
+        if (s.Order != netVisualOrder) { netVisualOrder = s.Order; SetVisualSortingOrder(s.Order); }
+        bool hpShown = (s.Flags & NetCombat.FlagHpBar) != 0;
+        if (hpShown && entering)
+        {
+            entering = false;
+            if (hpBar != null) StartCoroutine(hpBar.RevealRoutine(0.25f));
+        }
+        if (hurtCol != null) hurtCol.enabled = (s.Flags & NetCombat.FlagHurtbox) != 0;
+    }
+
     void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; }
     void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; }
     void OnOriginShifted(float s) { worldX -= s; }

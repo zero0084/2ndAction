@@ -295,6 +295,8 @@ public class EnemyController : MonoBehaviour
     // ノックバック(速度ベース)の水平方向の積分をここで行うよう拡張した。
     void Update()
     {
+        // マルチプレイPhase 2 - JOIN側のパペットは物理/AIを持たない(位置はHOSTから補間表示)。
+        if (NetReplica) return;
         if (dying) return;
 
         // 実機フィードバック(2026-09-12第5弾) - Pickup/Vacuum中は
@@ -343,7 +345,7 @@ public class EnemyController : MonoBehaviour
             {
                 dying = true;
                 gameObject.SetActive(false);
-                if (GameManager.Instance != null) GameManager.Instance.RegisterEnemyKill(mileReward);
+                RegisterKillReward(fallDeath: true);
             }
             return;
         }
@@ -456,7 +458,7 @@ public class EnemyController : MonoBehaviour
             }
             dying = true;
             gameObject.SetActive(false);
-            if (GameManager.Instance != null) GameManager.Instance.RegisterEnemyKill(mileReward);
+            RegisterKillReward(fallDeath: true);
         }
     }
 
@@ -466,6 +468,10 @@ public class EnemyController : MonoBehaviour
 
         if (other.CompareTag("PlayerAttack"))
         {
+            // マルチプレイPhase 2 - JOIN側のパペットはHPを持たない: ダメージ要求をHOSTへ送り、
+            // 手応え(ヒットスパーク/SE/ヒットストップ/コンボ)だけをこの端末で出す。
+            if (NetReplica) { NetReplicaHit(other); return; }
+
             EnsureHp();
             // The actual point the two colliders meet, not either object's
             // center - reads as "where the blade actually reached".
@@ -477,6 +483,8 @@ public class EnemyController : MonoBehaviour
             PlayerAttackKind kind = PlayerAttackKind.Normal;
             var info = other.GetComponent<PlayerAttackInfo>();
             if (info != null) kind = info.kind;
+            netReactionAttacker = 0; // この端末のプレイヤーの攻撃
+            NetCombat.AuthorityDamaged(NetId, 0, Mathf.Max(1, damage), hp, (byte)kind, contactPoint, killed);
 
             // エリアルコンボ改修(2026-09-11), item 4 - 「空中で攻撃が敵に
             // ヒットした瞬間、プレイヤーの落下速度を少しだけ弱める」。
@@ -504,6 +512,7 @@ public class EnemyController : MonoBehaviour
             // HitReaction/Knockback/Launched/Airborne/Slam中に限って無効化
             // する。
             if (IsReactingToHit) return;
+            if (NetReplica && (dying || NetRemoteReacting)) return;
             if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "Enemy:" + name);
         }
     }
@@ -581,9 +590,11 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    float AwayDirFromPlayer() => PlayerController.Instance != null
-        ? Mathf.Sign(transform.position.x - PlayerController.Instance.transform.position.x)
-        : 1f;
+    float AwayDirFromPlayer()
+    {
+        if (netReactionAttacker > 0 && NetCombat.TryGetAttacker(netReactionAttacker, out Vector3 ap, out _)) return Mathf.Sign(transform.position.x - ap.x);
+        return PlayerController.Instance != null ? Mathf.Sign(transform.position.x - PlayerController.Instance.transform.position.x) : 1f;
+    }
 
     // 実機フィードバック(2026-09-12第3弾) - 「主人公の現在速度 + 上乗せ
     // 分」を短時間だけ与える、速度ベースの地上ノックバック。距離ベース
@@ -693,6 +704,7 @@ public class EnemyController : MonoBehaviour
     // DoUpAttackが、上攻撃のたびにVacuum判定範囲内の対象へこれを呼ぶ。
     public void TryVacuumPickup(Vector2 offsetFromPlayer, float pullDuration)
     {
+        if (NetReplica) { if (!dying) NetCombat.RequestVacuum(NetId, offsetFromPlayer, pullDuration); return; }
         if (dying || !isLaunched || beingVacuumed) return;
         beingVacuumed = true;
         StartCoroutine(VacuumPickupRoutine(offsetFromPlayer, pullDuration));
@@ -722,8 +734,9 @@ public class EnemyController : MonoBehaviour
             float frac = Mathf.Clamp01(t / Mathf.Max(0.001f, pullDuration));
             // Ease-out - 「シュッと」勢いよく吸い込まれ、最後は緩やかに収まる。
             float eased = 1f - Mathf.Pow(1f - frac, 2f);
-            Vector3 targetNow = (PlayerController.Instance != null ? PlayerController.Instance.transform.position : transform.position)
-                + new Vector3(offsetFromPlayer.x, offsetFromPlayer.y, 0f);
+            Vector3 attackerPos = NetCombat.TryGetAttacker(netReactionAttacker, out Vector3 ap, out _) ? ap
+                : (PlayerController.Instance != null ? PlayerController.Instance.transform.position : transform.position);
+            Vector3 targetNow = attackerPos + new Vector3(offsetFromPlayer.x, offsetFromPlayer.y, 0f);
             transform.position = Vector3.Lerp(start, targetNow, eased);
             yield return null;
         }
@@ -735,7 +748,13 @@ public class EnemyController : MonoBehaviour
     // Controllerが見つからない場合のフォールバック。Update()で毎フレーム
     // 呼ばれ、Launch中の敵が常に主人公と同じ速度で並走する基準となる
     // (パリティ、上のlaunchVelocityXの説明コメント参照)。
-    float PlayerForwardSpeed() => PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f;
+    // マルチプレイPhase 2 - ノックバック/打ち上げの基準は「この敵を最後に攻撃したプレイヤー」
+    // (シングル/HOST自身の攻撃では従来どおりこの端末のプレイヤー)。
+    float PlayerForwardSpeed()
+    {
+        if (netReactionAttacker > 0 && NetCombat.TryGetAttacker(netReactionAttacker, out _, out float sp)) return sp;
+        return PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f;
+    }
 
     void ExtendJuggle()
     {
@@ -897,7 +916,7 @@ public class EnemyController : MonoBehaviour
         if (sr != null) yield return DieFadeRoutine();
 
         gameObject.SetActive(false);
-        if (GameManager.Instance != null) GameManager.Instance.RegisterEnemyKill(mileReward);
+        RegisterKillReward(fallDeath: false);
     }
 
     IEnumerator DieFadeRoutine()
@@ -949,5 +968,130 @@ public class EnemyController : MonoBehaviour
             transform.position = Vector3.Lerp(start, peak, Mathf.Clamp01(outFrac) - settleFrac);
             yield return null;
         }
+    }
+
+    // ===================================================================== //
+    // マルチプレイPhase 2 - 共有敵(HOST=本体/JOIN=パペット)
+    // ===================================================================== //
+
+    [System.NonSerialized] public int NetId;
+    [System.NonSerialized] public bool NetReplica;
+    [System.NonSerialized] public bool NetRemoteReacting;
+    [System.NonSerialized] public bool NetLocalFlashActive;
+    int netReactionAttacker; // 0 = この端末のプレイヤー / それ以外 = プレイヤー番号
+    int netDisplayHp = -1;
+    float netLocalHitCooldown;
+    Collider2D netLastHitCollider;
+
+    public int NetHp => NetReplica ? netDisplayHp : (hp < 0 ? Mathf.Max(1, maxHp) : Mathf.Max(0, hp));
+    public bool NetIsReacting => IsReactingToHit;
+
+    // 撃破報酬の付与(シングル/HOST自身がラストヒットなら従来どおりこの端末で付与)。
+    void RegisterKillReward(bool fallDeath)
+    {
+        if (NetCombat.RouteEnemyKillReward(NetId, fallDeath)) return;
+        if (GameManager.Instance != null) GameManager.Instance.RegisterEnemyKill(mileReward);
+    }
+
+    // JOIN: HOSTから届いた敵を「見た目と当たり判定だけ」のパペットにする。
+    public void NetMakeReplica(int id, int currentHp)
+    {
+        NetId = id;
+        NetReplica = true;
+        netDisplayHp = currentHp;
+        var animator = GetComponent<EnemyAnimator>();
+        if (animator != null) animator.enabled = false;
+        var special = GetComponent<EnemySpecialBehavior>();
+        if (special != null) special.enabled = false;
+        var facing = GetComponent<EnemyFacing>();
+        if (facing != null) facing.enabled = false;
+    }
+
+    // JOIN: 自分の攻撃がパペットに当たった。
+    void NetReplicaHit(Collider2D other)
+    {
+        if (dying) return;
+        // 同じ攻撃判定が補間による位置更新で出入りを繰り返しても1回として扱う(1Hitが複数ダメージに
+        // ならないように)。別の攻撃(判定の出し直し)は十分後なので通る。
+        if (other == netLastHitCollider && netLocalHitCooldown > Time.time) return;
+        netLastHitCollider = other;
+        netLocalHitCooldown = Time.time + 0.18f;
+
+        Vector3 contactPoint = other.ClosestPoint(transform.position);
+        int damage = PlayerController.Instance != null ? PlayerController.Instance.EffectiveAttackPower : 1;
+        PlayerAttackKind kind = PlayerAttackKind.Normal;
+        var info = other.GetComponent<PlayerAttackInfo>();
+        if (info != null) kind = info.kind;
+        NetCombat.RequestHit(NetId, Mathf.Max(1, damage), kind, contactPoint);
+
+        if (PlayerController.Instance != null && !PlayerController.Instance.IsGrounded) PlayerController.Instance.NotifyAerialHit();
+        if (ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
+        StartCoroutine(NetLocalHitFx(contactPoint, hitStopDuration));
+    }
+
+    IEnumerator NetLocalHitFx(Vector3 contactPoint, float hitStopDur)
+    {
+        NetLocalFlashActive = true;
+        yield return ReactToHit(contactPoint, hitStopDur);
+        NetLocalFlashActive = false;
+    }
+
+    // HOST: JOINのプレイヤーの攻撃を、この端末の攻撃と全く同じ被弾処理へ流す
+    // (ノックバック/打ち上げ/叩き落としの基準だけ攻撃したプレイヤーにする)。
+    public void NetApplyRemoteHit(int attacker, int damage, PlayerAttackKind kind, Vector3 contactPoint)
+    {
+        if (dying || NetReplica) return;
+        EnsureHp();
+        hp -= Mathf.Max(1, damage);
+        bool killed = hp <= 0;
+        netReactionAttacker = attacker;
+        NetCombat.AuthorityDamaged(NetId, attacker, Mathf.Max(1, damage), hp, (byte)kind, contactPoint, killed);
+        ProcessHit(kind, contactPoint, killed);
+    }
+
+    public void NetRemoteVacuum(int attacker, Vector2 offset, float duration)
+    {
+        if (dying || NetReplica || !isLaunched || beingVacuumed) return;
+        netReactionAttacker = attacker;
+        beingVacuumed = true;
+        StartCoroutine(VacuumPickupRoutine(offset, duration));
+    }
+
+    // JOIN: HOSTが確定したHP。他のプレイヤーの攻撃なら手応え(スパーク/フラッシュ)をここで出す。
+    public void NetOnAuthoritativeHp(int newHp, bool showHitFx, Vector3 contactPoint)
+    {
+        netDisplayHp = newHp;
+        if (showHitFx && !dying && isActiveAndEnabled) StartCoroutine(NetLocalHitFx(contactPoint, 0f));
+    }
+
+    // JOIN: HOSTが死亡を確定した(以降は当たり判定も接触ダメージも無し)。
+    public void NetMarkDead()
+    {
+        dying = true;
+        netDisplayHp = 0;
+        var col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+        if (sr != null && hitFlashEnabled) { NetLocalFlashActive = true; sr.color = hitFlashColor; }
+    }
+
+    // JOIN: HOSTの撃破演出が終わって消えた瞬間に、同じ撃破演出(煙/飛散/SE/フェード)を出して消す。
+    public void NetPlayDeathVisualAndRemove()
+    {
+        if (!isActiveAndEnabled) { Destroy(gameObject); return; }
+        StartCoroutine(NetDeathRoutine());
+    }
+
+    IEnumerator NetDeathRoutine()
+    {
+        if (deathCloudSprite != null)
+            OneShotSpriteEffect.CreateTweened(deathCloudSprite, transform.position, Color.white, duration: deathCloudDuration, startScale: deathCloudScale * 0.7f, endScale: deathCloudScale, sortingOrder: RenderOrder.CombatFx, holdFraction: deathCloudHoldFraction);
+        if (deathBurstEnabled)
+        {
+            float subjectHeight = sr != null ? sr.bounds.size.y : 1f;
+            ExplosionEffect.CreateForDefeat(transform.position, deathBurstColor, subjectHeight, sortingOrder: RenderOrder.CombatFx);
+        }
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayEnemyDefeat();
+        if (sr != null) yield return DieFadeRoutine();
+        Destroy(gameObject);
     }
 }

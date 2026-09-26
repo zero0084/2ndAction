@@ -27,6 +27,15 @@ public static class EnemyDatabase
         cached = null;
     }
 
+    // マルチプレイPhase 2 - 生成時のスプライトから種類IDを推定する(同じ見た目の種は区別できないが、
+    // 呼び出し元がApplyAttackSpriteで正しい種類を後から確定させる)。
+    public static string FindBySprite(Sprite sprite)
+    {
+        if (sprite == null) return "";
+        foreach (EnemyDefinition d in AllEnemies) if (d != null && d.sprite == sprite) return d.enemyId;
+        return "";
+    }
+
     public static EnemyDefinition FindById(string enemyId)
     {
         if (string.IsNullOrEmpty(enemyId)) return null;

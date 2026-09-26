@@ -34,7 +34,7 @@ public class BossRig
 
     public BossRig(Transform parent, int cols, int rows, int sortingOrder)
     {
-        this.parent = parent; this.cols = cols; this.rows = rows; order = sortingOrder;
+        this.parent = parent; this.cols = cols; this.rows = rows; order = sortingOrder; SortingOrder = sortingOrder;
         for (int j = 0; j < rows; j++)
         {
             for (int i = 0; i < cols; i++)
@@ -94,8 +94,12 @@ public class BossRig
     // を地面より奥のレイヤーへ置くため。既存ボスは呼ばないので従来どおり。
     public void SetSortingOrder(int sortingOrder)
     {
+        SortingOrder = sortingOrder;
         for (int k = 0; k < cells.Count; k++) cells[k].sortingOrder = sortingOrder;
     }
+
+    // マルチプレイPhase 2 - 現在の描画順(共有ボスの見た目の同期用)。
+    public int SortingOrder { get; private set; }
 
     static float Freq(LocoStyle s)
     {

@@ -57,6 +57,8 @@ public class GrimReaperController : MonoBehaviour
         c.scytheMark.Configure(sc, ss);
 
         c.gap = startGapDefault; // 画面外(後方)から追いかけて来る
+        // マルチプレイPhase 2 - HOSTでは共有ボスとして登録(JOINのパペットはNetCombat側で止める)。
+        NetCombat.OnBossInit(c);
         return go;
     }
 
