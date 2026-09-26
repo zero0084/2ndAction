@@ -1206,7 +1206,9 @@ public static class SceneBuilder
         // not one slot per CardDefinition - a fixed pool sized generously
         // (16 cards x up to MaxCardLevel(5)) rather than CardDatabase.
         // AllCards.Count, same convention CardFusionUI's owned list uses.
-        const int ownedPoolSize = 48;
+        // カード合成改修(2026-09-26) - 合成で性能違いのカードが増える(1性能=1枠)うえ、
+        // カード自体も84種あり48枠では足りず後ろが表示されなかったため160枠へ。
+        const int ownedPoolSize = 160;
         var ownedCards = new RewardCardUI[ownedPoolSize];
         for (int i = 0; i < ownedPoolSize; i++)
         {
@@ -1448,6 +1450,10 @@ public static class SceneBuilder
     // deliberately does NOT reuse BuildDeckPanel's own Y-position constants
     // (DeckPanelHeaderY etc.), since those are tightly coupled to
     // DeckEditUI's specific two-side-panel layout.
+    // カード合成画面(2026-09-26 全面改修) - キャンバス/ルートと、画面が実行時に組み立てる
+    // ための部品(カードのひな形・飾り枠・魔法陣の画像・フォント)だけをここで用意する。
+    // レイアウト(左60%の所持カード一覧/右40%の操作・詳細/演出/リザルト)は画面比率に
+    // 合わせてCardFusionUI.EnsureBuiltが組み立てる。
     static CardFusionUI BuildCardFusionCanvas()
     {
         GameObject canvasGO = new GameObject("CardFusionCanvas");
@@ -1473,11 +1479,10 @@ public static class SceneBuilder
         Sprite cardFrameSprite = LoadTiledSprite("Assets/Art/UI/CardFrame.png", 100f);
         Sprite cardBaseSprite = LoadTiledSprite("Assets/Art/UI/CardFrames/CardBase.png", 100f);
         Sprite cardTitleBandSprite = LoadTiledSprite("Assets/Art/UI/CardFrames/CardTitlePlate.png", 100f);
-        // Reuses the existing Double Jump Ring effect sprite (Game Feel
-        // pass) as a stand-in "magic circle" - see CardFusionUI.
-        // magicCircleImage's own comment for why (no dedicated magic-
-        // circle art was cut from the reference storyboards).
-        Sprite magicCircleSprite = LoadTiledSprite("Assets/Art/Effects/DoubleJumpRing.png", 1672f);
+        const string magicCirclePath = "Assets/Art/Effects/FusionMagicCircle.png";
+        Sprite magicCircleSprite = File.Exists(magicCirclePath)
+            ? LoadTiledSprite(magicCirclePath, 100f)
+            : LoadTiledSprite("Assets/Art/Effects/DoubleJumpRing.png", 1672f);
 
         GameObject rootGO = new GameObject("CardFusionRoot");
         rootGO.transform.SetParent(canvasGO.transform, false);
@@ -1487,204 +1492,16 @@ public static class SceneBuilder
         CardFusionUI menu = rootGO.AddComponent<CardFusionUI>();
         menu.root = rootGO;
         menu.rootGroup = rootGO.AddComponent<CanvasGroup>();
+        menu.panelFrameSprite = LoadOrnateFrameSprite();
+        menu.magicCircleSprite = magicCircleSprite;
+        menu.uiFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
-        GameObject bgGO = new GameObject("Backdrop");
-        bgGO.transform.SetParent(rootGO.transform, false);
-        RectTransform bgRect = bgGO.AddComponent<RectTransform>();
-        StretchFull(bgRect);
-        Image bgImage = bgGO.AddComponent<Image>();
-        bgImage.color = new Color(0.05f, 0.06f, 0.12f, 0.96f);
-
-        // ===== MAIN / SUB slots (item 10) ===== //
-        // Card UI改修(2026-09-08) - 旧slotSize(220の正方形)をspec通り2:3
-        // 固定(CardAspect)へ - Character Card slotと同じ「正方形へletterbox
-        // されて小さく見える」バグ(item 9-1と同根)を持っていたため。幅は
-        // Collection/Deckグリッドと同じ180に揃え、高さはCardAspectで270。
-        const float slotWidth = 180f;
-        float slotHeight = slotWidth * CardAspect;
-        const float slotGap = 140f; // leaves room for the magic circle between them
-        const float slotY = -160f;
-        RewardCardUI mainSlot = CreateRewardCard(rootGO.transform, 1, slotWidth, slotHeight, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
-        mainSlot.rect.anchorMin = mainSlot.rect.anchorMax = new Vector2(0.5f, 1f);
-        mainSlot.rect.pivot = new Vector2(0.5f, 1f);
-        mainSlot.rect.anchoredPosition = new Vector2(-(slotWidth + slotGap) / 2f, slotY);
-        menu.mainSlotCard = mainSlot;
-
-        RewardCardUI subSlot = CreateRewardCard(rootGO.transform, 2, slotWidth, slotHeight, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
-        subSlot.rect.anchorMin = subSlot.rect.anchorMax = new Vector2(0.5f, 1f);
-        subSlot.rect.pivot = new Vector2(0.5f, 1f);
-        subSlot.rect.anchoredPosition = new Vector2((slotWidth + slotGap) / 2f, slotY);
-        menu.subSlotCard = subSlot;
-
-        GameObject mainLabelGO = new GameObject("MainLabel");
-        mainLabelGO.transform.SetParent(rootGO.transform, false);
-        RectTransform mainLabelRect = mainLabelGO.AddComponent<RectTransform>();
-        mainLabelRect.anchorMin = mainLabelRect.anchorMax = new Vector2(0.5f, 1f);
-        mainLabelRect.pivot = new Vector2(0.5f, 1f);
-        mainLabelRect.sizeDelta = new Vector2(slotWidth, 30f);
-        mainLabelRect.anchoredPosition = new Vector2(-(slotWidth + slotGap) / 2f, slotY - slotHeight - 8f);
-        Text mainLabel = mainLabelGO.AddComponent<Text>();
-        ConfigureCardText(mainLabel, 18, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
-        mainLabel.text = "MAIN CARD";
-
-        GameObject subLabelGO = new GameObject("SubLabel");
-        subLabelGO.transform.SetParent(rootGO.transform, false);
-        RectTransform subLabelRect = subLabelGO.AddComponent<RectTransform>();
-        subLabelRect.anchorMin = subLabelRect.anchorMax = new Vector2(0.5f, 1f);
-        subLabelRect.pivot = new Vector2(0.5f, 1f);
-        subLabelRect.sizeDelta = new Vector2(slotWidth, 30f);
-        subLabelRect.anchoredPosition = new Vector2((slotWidth + slotGap) / 2f, slotY - slotHeight - 8f);
-        Text subLabel = subLabelGO.AddComponent<Text>();
-        ConfigureCardText(subLabel, 18, FontStyle.Bold, new Color(0.85f, 0.85f, 0.92f, 0.85f));
-        subLabel.text = "SUB / MATERIAL CARD";
-
-        // ===== Magic circle - centered between MAIN and SUB ===== //
-        GameObject circleGO = new GameObject("MagicCircle");
-        circleGO.transform.SetParent(rootGO.transform, false);
-        RectTransform circleRect = circleGO.AddComponent<RectTransform>();
-        circleRect.anchorMin = circleRect.anchorMax = new Vector2(0.5f, 1f);
-        circleRect.pivot = new Vector2(0.5f, 1f);
-        circleRect.sizeDelta = new Vector2(180f, 180f);
-        circleRect.anchoredPosition = new Vector2(0f, slotY - slotHeight / 2f + 90f);
-        Image circleImage = circleGO.AddComponent<Image>();
-        circleImage.sprite = magicCircleSprite;
-        circleImage.preserveAspect = true;
-        circleImage.raycastTarget = false;
-        circleGO.SetActive(false);
-        menu.magicCircleImage = circleImage;
-
-        // ===== FUSE button ===== //
-        RectTransform fuseRect = CreateOrnatePanel(rootGO.transform, "FuseButton", borderScale: 2f);
-        fuseRect.anchorMin = fuseRect.anchorMax = new Vector2(0.5f, 1f);
-        fuseRect.pivot = new Vector2(0.5f, 1f);
-        fuseRect.sizeDelta = new Vector2(320f, 64f);
-        fuseRect.anchoredPosition = new Vector2(0f, slotY - slotHeight - 60f);
-        menu.fuseButtonRect = fuseRect;
-        GameObject fuseLabelGO = new GameObject("Label");
-        fuseLabelGO.transform.SetParent(fuseRect, false);
-        StretchFull(fuseLabelGO.AddComponent<RectTransform>());
-        Text fuseLabel = fuseLabelGO.AddComponent<Text>();
-        ConfigureCardText(fuseLabel, 22, FontStyle.Bold, Color.white);
-        fuseLabel.text = "SELECT MAIN / SUB";
-        menu.fuseButtonLabel = fuseLabel;
-
-        // ===== Status text ===== //
-        float statusY = slotY - slotHeight - 140f;
-        GameObject statusGO = new GameObject("StatusText");
-        statusGO.transform.SetParent(rootGO.transform, false);
-        RectTransform statusRect = statusGO.AddComponent<RectTransform>();
-        statusRect.anchorMin = statusRect.anchorMax = new Vector2(0.5f, 1f);
-        statusRect.pivot = new Vector2(0.5f, 1f);
-        statusRect.sizeDelta = new Vector2(1700f, 34f);
-        statusRect.anchoredPosition = new Vector2(0f, statusY);
-        Text statusText = statusGO.AddComponent<Text>();
-        ConfigureCardText(statusText, 18, FontStyle.Normal, new Color(0.9f, 0.92f, 1f, 0.85f));
-        menu.statusText = statusText;
-
-        // ===== Owned cards list (item 11 - shows EVERY owned stack, never
-        // hides a locked one) ===== //
-        const float gridPanelWidth = 1750f;
-        float gridTopY = statusY - 46f;
-        const float gridBottomMargin = 40f;
-        const int gridColumns = 7;
-        // Card UI改修(2026-09-08) - Collection/Deckグリッドと同じ180x270
-        // (spec統一基準サイズ)に揃えた。7列 * 180 + 6*18(spacing) = 1368,
-        // gridPanelWidth(1750) - gridPad*2(45*2=90) = 1660以内に収まる。
-        const float gridCardWidth = 180f;
-        float gridCardHeight = gridCardWidth * CardAspect;
-
-        RectTransform gridPanelRect = CreateOrnatePanel(rootGO.transform, "OwnedCardsPanel");
-        float gridPanelHeight = 1080f + gridTopY - gridBottomMargin; // from gridTopY down to gridBottomMargin above the bottom edge
-        gridPanelRect.anchorMin = gridPanelRect.anchorMax = new Vector2(0.5f, 1f);
-        gridPanelRect.pivot = new Vector2(0.5f, 1f);
-        gridPanelRect.sizeDelta = new Vector2(gridPanelWidth, gridPanelHeight);
-        gridPanelRect.anchoredPosition = new Vector2(0f, gridTopY);
-
-        const float gridPad = 45f;
-        GameObject countGO = new GameObject("OwnedCountText");
-        countGO.transform.SetParent(rootGO.transform, false);
-        RectTransform countRect = countGO.AddComponent<RectTransform>();
-        countRect.anchorMin = countRect.anchorMax = new Vector2(0.5f, 1f);
-        countRect.pivot = new Vector2(0.5f, 1f);
-        countRect.sizeDelta = new Vector2(600f, 34f);
-        countRect.anchoredPosition = new Vector2(0f, gridTopY - gridPad);
-        Text ownedCountText = countGO.AddComponent<Text>();
-        ConfigureCardText(ownedCountText, 20, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
-        menu.ownedCountText = ownedCountText;
-
-        GameObject scrollGO = new GameObject("OwnedScroll");
-        scrollGO.transform.SetParent(rootGO.transform, false);
-        RectTransform scrollRect = scrollGO.AddComponent<RectTransform>();
-        scrollRect.anchorMin = scrollRect.anchorMax = new Vector2(0.5f, 1f);
-        scrollRect.pivot = new Vector2(0.5f, 1f);
-        scrollRect.sizeDelta = new Vector2(gridPanelWidth - gridPad * 2f, gridPanelHeight - gridPad - 40f - gridPad);
-        scrollRect.anchoredPosition = new Vector2(0f, gridTopY - gridPad - 40f);
-        ScrollRect scroll = scrollGO.AddComponent<ScrollRect>();
-        scroll.horizontal = false;
-        scroll.vertical = true;
-        scroll.movementType = ScrollRect.MovementType.Clamped;
-        scrollGO.AddComponent<RectMask2D>();
-
-        GameObject contentGO = new GameObject("Content");
-        contentGO.transform.SetParent(scrollGO.transform, false);
-        RectTransform contentRect = contentGO.AddComponent<RectTransform>();
-        contentRect.anchorMin = new Vector2(0f, 1f);
-        contentRect.anchorMax = new Vector2(1f, 1f);
-        contentRect.pivot = new Vector2(0.5f, 1f);
-        contentRect.sizeDelta = Vector2.zero;
-        scroll.content = contentRect;
-        scroll.viewport = scrollRect;
-
-        GridLayoutGroup grid = contentGO.AddComponent<GridLayoutGroup>();
-        grid.cellSize = new Vector2(gridCardWidth, gridCardHeight);
-        grid.spacing = new Vector2(18f, 18f);
-        grid.childAlignment = TextAnchor.UpperCenter;
-        grid.startAxis = GridLayoutGroup.Axis.Horizontal;
-        grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        grid.constraintCount = gridColumns;
-        ContentSizeFitter fitter = contentGO.AddComponent<ContentSizeFitter>();
-        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        scroll.verticalNormalizedPosition = 1f;
-        menu.ownedScrollRect = scroll;
-
-        // Pre-built pool of owned-card slots - see CardFusionUI.Refresh for
-        // how many can actually be shown at once (deactivates the rest).
-        // 48 comfortably covers every (cardId, level) combination realistic
-        // for this Ver.1's 16 cards x MaxCardLevel(5) without being wasteful.
-        const int ownedPoolSize = 48;
-        var ownedCards = new RewardCardUI[ownedPoolSize];
-        for (int i = 0; i < ownedPoolSize; i++)
-        {
-            ownedCards[i] = CreateRewardCard(contentGO.transform, 2000 + i, gridCardWidth, gridCardHeight, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
-        }
-        menu.ownedCards = ownedCards;
-
-        // ===== Reveal card (Fusion success) - centered, large, hidden by
-        // default, built after everything else so it renders on top =====
-        // Card UI改修(2026-09-08) - spec's「詳細表示: 360x540」に合わせた
-        // (2:3固定)。
-        RewardCardUI revealCard = CreateRewardCard(rootGO.transform, 9000, 360f, 360f * CardAspect, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
-        revealCard.rect.anchorMin = revealCard.rect.anchorMax = new Vector2(0.5f, 0.5f);
-        revealCard.rect.pivot = new Vector2(0.5f, 0.5f);
-        revealCard.rect.anchoredPosition = Vector2.zero;
-        revealCard.gameObject.SetActive(false);
-        menu.revealCard = revealCard;
-
-        // ===== Back button ===== //
-        RectTransform backRect = CreateOrnatePanel(rootGO.transform, "BackButton", borderScale: 2f);
-        backRect.anchorMin = backRect.anchorMax = new Vector2(0f, 1f);
-        backRect.pivot = new Vector2(0f, 1f);
-        backRect.sizeDelta = new Vector2(180f, 70f);
-        backRect.anchoredPosition = new Vector2(30f, -30f);
-        GameObject backGO = backRect.gameObject;
-        backGO.AddComponent<Button>().targetGraphic = backGO.GetComponent<Image>();
-        menu.backButtonRect = backRect;
-        GameObject backLabelGO = new GameObject("Label");
-        backLabelGO.transform.SetParent(backGO.transform, false);
-        StretchFull(backLabelGO.AddComponent<RectTransform>());
-        Text backLabel = backLabelGO.AddComponent<Text>();
-        ConfigureCardText(backLabel, 26, FontStyle.Bold, Color.white);
-        backLabel.text = "戻る";
+        // 共通カード表示部品(RewardCardUI)の最新版をひな形として1枚だけ作る(180x270=2:3)。
+        const float cardWidth = 180f;
+        RewardCardUI template = CreateRewardCard(rootGO.transform, 1, cardWidth, cardWidth * CardAspect, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
+        template.gameObject.name = "CardTemplate";
+        template.gameObject.SetActive(false);
+        menu.cardTemplate = template;
 
         rootGO.SetActive(false);
         return menu;

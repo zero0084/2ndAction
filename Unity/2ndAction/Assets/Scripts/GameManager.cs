@@ -58,7 +58,10 @@ public class GameManager : MonoBehaviour
                 // CardDatabase.FindById filters out any id that no longer
                 // exists (e.g. a card removed from the database after this
                 // deck was saved), so a stale save can't wedge the deck.
-                if (!string.IsNullOrEmpty(id) && CardDatabase.FindById(id) != null && !deckCards.Contains(id))
+                // カード合成改修(2026-09-26)で見つけた不具合の修正: 同じカードを複数枚
+                // デッキへ入れられる仕様(AddToDeck/SetDeck)なのに、読み込み時だけ
+                // 重複を捨てていたため、再起動で2枚目以降が消えていた。容量だけで制限する。
+                if (!string.IsNullOrEmpty(id) && CardDatabase.FindById(id) != null && deckCards.Count < DeckCapacity)
                 {
                     deckCards.Add(id);
                 }
@@ -237,6 +240,15 @@ public class GameManager : MonoBehaviour
     {
         PlayerPrefs.SetInt(TotalMileKey, TotalOwnedMile);
         PlayerPrefs.Save();
+    }
+
+    // カード合成の確定処理用 - 値だけ変えてPlayerPrefsへ書き、Save()は呼び出し側が
+    // 所持カードと一緒に1回だけ行う(CardFusionLogic.Execute)。
+    public void AddMileWithoutFlush(int amount)
+    {
+        if (amount == 0) return;
+        TotalOwnedMile = Mathf.Max(0, TotalOwnedMile + amount);
+        PlayerPrefs.SetInt(TotalMileKey, TotalOwnedMile);
     }
 
     public void AddMile(int amount)
@@ -558,7 +570,10 @@ public class GameManager : MonoBehaviour
             if (string.IsNullOrEmpty(id)) continue;
             CardDefinition card = CardDatabase.FindById(id);
             if (card == null) continue;
-            int stacks = Mathf.Max(1, characterCardLevels[i]);
+            // カード合成改修(2026-09-26) - 合成カード(v2キー)は能力ごとの強化量が
+            // 定義(effects)に既に含まれているので1回だけ適用する(合成Lvを掛けると
+            // 二重適用になる)。素のカードIDは常にLv.1=1回。
+            int stacks = CardVariant.IsVariantKey(id) ? 1 : Mathf.Max(1, characterCardLevels[i]);
             ApplyCardEffectsStacked(card, stacks);
             // Bugfix 2026-09-05, item 4 - "Card Lv表示だけ増えて実Effectが
             // 1回しか適用されていないケースがないか". Code review found the
@@ -794,6 +809,7 @@ public class GameManager : MonoBehaviour
     // one helper so those call sites don't need two separate negated
     // conditions each.
     bool AnyOverlayOpen => deckEditOpen || cardFusionOpen || characterSelectOpen || stageSelectOpen;
+    public bool IsOverlayOpen => AnyOverlayOpen;
 
     public void OpenCharacterSelect()
     {
@@ -1094,6 +1110,9 @@ public class GameManager : MonoBehaviour
         // already be correct. Backfills anything BestDistance already
         // qualifies for silently (no announcement - see UnlockManager).
         UnlockManager.Initialize(BestDistance);
+        // カード合成改修(2026-09-26) - 旧形式の所持カード/デッキ/キャラカードを
+        // 能力一式を持つ新形式へ一度だけ変換(以降は何もしない)。
+        CardDataMigration.RunIfNeeded();
         LoadDeck();
         LoadMile();
         LoadCharacterCards();
@@ -3788,6 +3807,9 @@ public class GameManager : MonoBehaviour
         // 参照)。以前はここで"NEW  Lv.1"と表示しており、「候補に出た＝
         // NEW」という誤った意味になっていた。
         string stackLabel = currentStack > 0 ? $"Lv.{currentStack} -> Lv.{currentStack + 1}" : "Lv.1";
+        // 合成カード: 取得すると主能力と全サブ能力が各強化量ぶん適用される(説明文に全能力)。
+        CardVariant variant = CardVariant.IsVariantKey(card.cardId) ? CardVariant.Parse(card.cardId) : null;
+        if (variant != null) stackLabel = $"合成Lv.{variant.level}  能力{variant.AbilityCount}種";
         return new RewardCardData
         {
             CardId = card.cardId,

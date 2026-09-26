@@ -21,7 +21,7 @@ using UnityEngine;
 // needing to redesign the persistence key.
 public static class CardInventory
 {
-    const string SaveKey = "OwnedCardsV1";
+    public const string SaveKey = "OwnedCardsV1";
 
     // Card Level Ver.1 - "カードLv = そのカードを何回取得した状態として
     // 扱うか" (Lv.N == N stacked applications of the card's own existing
@@ -31,7 +31,8 @@ public static class CardInventory
     // script) since Card Level is fundamentally inventory/data, not
     // presentation - GameManager and CardFusionUI both reference this same
     // constant so the cap can never drift between the two.
-    public const int MaxCardLevel = 5;
+    // カード合成改修(2026-09-26) - 合成Lvの上限を5→9へ(CardVariant.MaxLevel)。
+    public const int MaxCardLevel = CardVariant.MaxLevel;
 
     // Card Level Ver.1, item 7 - future cross-name fusion may want a single
     // owned card to carry more than one (CardId, EffectLevel) pair at once
@@ -51,10 +52,13 @@ public static class CardInventory
     }
 
     [Serializable]
-    class SaveWrapper
+    public class SaveWrapper
     {
         public List<Stack> stacks = new List<Stack>();
     }
+
+    // CardDataMigration等がPlayerPrefsを書き換えた後に、次のアクセスで読み直させる。
+    public static void ReloadFromPrefs() { stacks = null; }
 
     static List<Stack> stacks;
 
@@ -79,9 +83,49 @@ public static class CardInventory
 
     static void Save()
     {
+        WriteWithoutFlush();
+        PlayerPrefs.Save();
+    }
+
+    // 合成の確定処理(CardFusionLogic.Commit)は所持カードとMILEを両方書いてから
+    // PlayerPrefs.Save()を1回だけ呼ぶ(途中までしか保存されない状態を作らない)。
+    public static void WriteWithoutFlush()
+    {
+        EnsureLoaded();
         var wrapper = new SaveWrapper { stacks = stacks };
         PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(wrapper));
-        PlayerPrefs.Save();
+    }
+
+    // 合成用: 素材2枚を消費して完成品(addKey、nullなら無し)を1枚加える変更を
+    // メモリ上だけで行う。足りなければ何も変えずにfalse。保存は呼び出し側。
+    public static bool ApplyFusionInMemory(string mainKey, string materialKey, string addKey)
+    {
+        EnsureLoaded();
+        Stack a = FindByKey(mainKey);
+        Stack b = FindByKey(materialKey);
+        if (a == null || b == null) return false;
+        if (a == b ? a.count < 2 : (a.count < 1 || b.count < 1)) return false;
+        a.count--;
+        b.count--;
+        if (a.count <= 0) stacks.Remove(a);
+        if (b != a && b.count <= 0) stacks.Remove(b);
+        if (!string.IsNullOrEmpty(addKey))
+        {
+            CardVariant v = CardVariant.Parse(addKey);
+            int level = v != null ? v.level : 1;
+            Stack existing = FindByKey(addKey);
+            if (existing != null) existing.count++;
+            else stacks.Add(new Stack { cardId = addKey, level = level, count = 1 });
+        }
+        return true;
+    }
+
+    // キー(cardIdまたはv2キー)で引く - 1つのキーは必ず1つのLvにしか対応しない。
+    public static Stack FindByKey(string key)
+    {
+        EnsureLoaded();
+        foreach (Stack s in stacks) if (s.cardId == key && s.count > 0) return s;
+        return null;
     }
 
     public static Stack Find(string cardId, int level)
@@ -132,6 +176,14 @@ public static class CardInventory
     {
         if (string.IsNullOrEmpty(cardId) || count <= 0) return;
         EnsureLoaded();
+        // 素のカードIDをLv.2以上で追加する旧来の呼び方は、その性能のv2キーへ読み替える
+        // (素のIDは常にLv.1・強化量1を意味する)。
+        if (!CardVariant.IsVariantKey(cardId) && level > 1)
+        {
+            cardId = CardDataMigration.LegacyToKey(cardId, level);
+            CardVariant v = CardVariant.Parse(cardId);
+            if (v != null) level = v.level;
+        }
         // カードVisual最終調整依頼(2026-09-18), item1 - 「候補に出た=NEW」
         // ではなく「実際に取得した=NEW」にするための判定はここ一箇所に
         // 集約する。AddCardはLevel Up選択確定時/Gacha抽選時のどちらから

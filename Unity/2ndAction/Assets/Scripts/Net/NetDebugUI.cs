@@ -91,7 +91,9 @@ public class NetDebugUI : MonoBehaviour
 
         if (!gm.HasStarted)
         {
-            if (!PanelOpen && !BannerVisible)
+            // カード合成改修(2026-09-26) - 合成/デッキ編集/キャラ選択などの全画面
+            // オーバーレイ中は、その画面と無関係なLOCAL MULTIボタンを出さない。
+            if (!PanelOpen && !BannerVisible && !gm.IsOverlayOpen)
             {
                 string label = NetSession.IsActive ? $"MULTI {NetSession.ConnectedPlayerCount}/{NetSession.MaxPlayers}" : "LOCAL MULTI";
                 if (GUI.Button(new Rect(w - safeRight - 200f, safeTop + 96f, 188f, 48f), label, buttonStyle)) PanelOpen = true;

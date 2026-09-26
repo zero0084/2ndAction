@@ -213,7 +213,7 @@ public class LancerAutoTest : MonoBehaviour
         {
             if (pc.LanceMove == PlayerController.LanceMoveKind.Down) downMove = true;
             if (pc.IsDiveAttacking) dove = true;
-            if (pc.LanceHitbox != null && pc.LanceHitbox.enabled) hb = pc.LanceHitbox.bounds;
+            if (pc.LanceHitbox != null && pc.LanceHitbox.enabled) { Physics2D.SyncTransforms(); hb = pc.LanceHitbox.bounds; }
             if (anim != null && anim.VisualRenderer.sprite != null && anim.VisualRenderer.sprite.name.StartsWith("down")) downPose = true;
             yield return null; t += Time.unscaledDeltaTime;
         }

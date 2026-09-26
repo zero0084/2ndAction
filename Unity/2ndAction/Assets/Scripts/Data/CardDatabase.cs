@@ -34,16 +34,65 @@ public static class CardDatabase
     {
         cachedCards = null;
         compoundCache.Clear();
+        variantCache.Clear();
     }
 
-    public static CardDefinition FindById(string cardId)
+    // Resources上の実カード(アセット)だけを引く。合成で作ったカード(v2キー)は含まない。
+    public static CardDefinition FindBaseById(string cardId)
     {
         if (string.IsNullOrEmpty(cardId)) return null;
         foreach (CardDefinition card in AllCards)
         {
             if (card.cardId == cardId) return card;
         }
+        return null;
+    }
+
+    public static CardDefinition FindById(string cardId)
+    {
+        if (string.IsNullOrEmpty(cardId)) return null;
+        CardDefinition baseCard = FindBaseById(cardId);
+        if (baseCard != null) return baseCard;
+        if (CardVariant.IsVariantKey(cardId)) return FindOrBuildVariant(cardId);
         return FindOrBuildCompound(cardId);
+    }
+
+    // カード合成改修(2026-09-26) - 合成カード(CardVariantのv2キー)を、既存の
+    // CardDefinitionとして扱えるようにその場で組み立てる。effectsには各能力の
+    // 元カードのeffects一式を「強化量」回ぶん並べる - 既存のApplyCardEffectsが
+    // 1回呼ばれるだけで「各能力を強化量ぶん取得した」のと同じ結果になる
+    // (同じカードを何回か拾った時の既存の重ねがけ規則そのまま)。合成Lvは
+    // 効果には掛けない。
+    static readonly Dictionary<string, CardDefinition> variantCache = new Dictionary<string, CardDefinition>();
+
+    static CardDefinition FindOrBuildVariant(string key)
+    {
+        if (variantCache.TryGetValue(key, out CardDefinition cached) && cached != null) return cached;
+        CardVariant v = CardVariant.Parse(key);
+        if (v == null) return null;
+        CardDefinition main = FindBaseById(v.mainId);
+        if (main == null) return null;
+
+        var def = ScriptableObject.CreateInstance<CardDefinition>();
+        def.cardId = key;
+        def.cardName = main.cardName;
+        def.icon = main.icon;
+        def.category = main.category;
+        def.sortOrder = main.sortOrder;
+        def.recommendPriority = main.recommendPriority;
+        def.rarity = v.rarity;
+        def.element = main.element;
+        def.description = v.Describe();
+        def.effects = new List<CardEffect>();
+        foreach (var a in v.abilities)
+        {
+            CardDefinition src = FindBaseById(a.id);
+            if (src == null) continue;
+            for (int n = 0; n < a.stacks; n++)
+                foreach (CardEffect e in src.effects) def.effects.Add(new CardEffect { type = e.type, value = e.value });
+        }
+        variantCache[key] = def;
+        return def;
     }
 
     // Fusion Ver.1 restoration (2026-09-06), item "Fusionの仕様を本来の設
