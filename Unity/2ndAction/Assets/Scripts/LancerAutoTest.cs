@@ -55,6 +55,9 @@ public class LancerAutoTest : MonoBehaviour
         foreach (var s in FindObjectsByType<EnemyWallManager>(FindObjectsSortMode.None)) s.enabled = false;
         if (BossManager.Instance != null) BossManager.Instance.enabled = false;
         if (TerrainManager.Instance != null) TerrainManager.Instance.enemySpawnChance = 0f;
+        // 自然洞窟が一本道化(2026-09-27のEncounter改修)で穴を含むようになったため、確認中の落下復帰で技が中断され
+        // 結果がぶれる。テスト中にこれから生成する地形には穴を作らない(テストの環境だけの設定、ゲーム本体は変えない)。
+        if (TerrainManager.Instance != null) { TerrainManager.Instance.pitChanceBase = 0f; TerrainManager.Instance.pitChanceRampPer1000m = 0f; TerrainManager.Instance.pitChanceMax = 0f; }
         yield return new WaitForSeconds(0.3f);
         foreach (var e in FindObjectsByType<EnemyController>(FindObjectsSortMode.None)) Destroy(e.gameObject);
         yield return null;

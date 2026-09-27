@@ -459,6 +459,8 @@ public partial class PlayerController : MonoBehaviour
 
         // 竜騎士(2026-09-26) - isLancer==trueの間だけ4方向攻撃がPlayerController.Lancer.csへ分岐。
         ApplyLancerStats(def);
+        // 新4人(2026-09-27) - kit!=Standardの間だけ入力/上攻撃/空中の下/魔法使いの浮遊がPlayerController.Kit*.csへ分岐。
+        ApplyKitStats(def);
         charHasDeathFrames = def.deathFrames != null && def.deathFrames.Length > 0;
     }
 
@@ -877,6 +879,7 @@ public partial class PlayerController : MonoBehaviour
         Move(allowJump: !wasEscapeChargingLastFrame && !reactionBlocked);
         if (!wasEscapeChargingLastFrame && !reactionBlocked) HandleAttackInput();
         LancerSafetyUpdate(); // 竜騎士: 実行中の技が無いのに攻撃状態だけ残らないようにする(他キャラは何もしない)
+        KitUpdate(); // 新4人: タイマー/引き絞り表示/安全装置(既存5人は何もしない)
 
         UpdateEscapeInput();
         UpdateEscapeVisuals();
@@ -1044,6 +1047,7 @@ public partial class PlayerController : MonoBehaviour
         if (IsReacting) autoSpeed = 0f; // Hurt/Recovery中は自動前進を一時停止(重力/着地/ノックバックは通常どおり)
         // 竜騎士の急降下突き/突き刺し着地の間は前進をほぼ止める(ほぼ真下へ落ちる)。他キャラは常に1。
         if (isLancerCharacter) autoSpeed *= lanceMoveSlowFactor;
+        if (HasKit) autoSpeed *= kitMoveSlowFactor; // 新4人の技の最中(既存5人は対象外)
         float knockbackFrac = knockbackDuration > 0f ? knockbackTimer / knockbackDuration : 0f;
         float effectiveKnockback = knockbackVelocityX * knockbackFrac;
         float newX = transform.position.x + (autoSpeed + lungeVelocityX + effectiveKnockback) * dt;
@@ -1058,6 +1062,14 @@ public partial class PlayerController : MonoBehaviour
         float? skyHeight = TerrainManager.Instance != null ? TerrainManager.Instance.GetSkyHeightAt(newX) : null;
         float? prevSkyHeight = TerrainManager.Instance != null ? TerrainManager.Instance.GetSkyHeightAt(prevX) : null;
         float prevY = transform.position.y;
+
+        // 魔法使い(2026-09-27) - ジャンプ/重力/着地の代わりに浮遊(高度段階)。天井の上限・天井の針・
+        // 位置の確定は下の共通処理(FinishMove)をそのまま通す。
+        if (kit == CharacterKit.Mage)
+        {
+            MageFlightMove(dt, newX, prevY, groundHeight, skyHeight);
+            return;
+        }
 
         // Operation System Ver.2, item 2 - 旧タップ判定(touchJumpRequested)
         // を廃止し、上フリック(requestedFlick==Up)のみがジャンプを起動す
@@ -1127,6 +1139,10 @@ public partial class PlayerController : MonoBehaviour
             {
                 // 竜騎士の下攻撃はHandleAttackInputで処理(急降下はしない)。
             }
+            else if (HasKit)
+            {
+                // 新4人の下攻撃もHandleAttackInput(HandleKitInput)で処理。
+            }
             else if (!isDiveAttacking)
             {
                 DoDiveAttack();
@@ -1172,6 +1188,11 @@ public partial class PlayerController : MonoBehaviour
             else if (isLancerCharacter && lanceDiving)
             {
                 velocityY = LanceDiveVelocityY();
+            }
+            // 新4人(2026-09-27) - ダイブキック/急降下斬り/空中で矢を放つ一瞬の滞空など、技が縦速度を決める間。
+            else if (HasKit && kitVerticalVelocity.HasValue)
+            {
+                velocityY = kitVerticalVelocity.Value;
             }
             else
             {
@@ -1260,6 +1281,7 @@ public partial class PlayerController : MonoBehaviour
                 EndDiveAttack();
                 if (wasDiveAttacking) { DiveAttackLanded?.Invoke(); TriggerDiveImpact(); }
                 OnLancerLanded(); // 竜騎士: 急降下の着地/残った攻撃状態の安全な解除(他キャラは何もしない)
+                OnKitLanded(); // 新4人: ダイブキック/急降下斬りの着地など(既存5人は何もしない)
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
                 Landed?.Invoke();
                 // 不具合修正(2026-09-08) - 着地直前に上フリックした分の
@@ -1285,6 +1307,7 @@ public partial class PlayerController : MonoBehaviour
                 EndDiveAttack();
                 if (wasDiveAttacking) { DiveAttackLanded?.Invoke(); TriggerDiveImpact(); }
                 OnLancerLanded(); // 竜騎士: 急降下の着地/残った攻撃状態の安全な解除(他キャラは何もしない)
+                OnKitLanded(); // 新4人: ダイブキック/急降下斬りの着地など(既存5人は何もしない)
                 if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
                 Landed?.Invoke();
                 if (bufferedUpAttackTimer > 0f)
@@ -1295,8 +1318,16 @@ public partial class PlayerController : MonoBehaviour
             }
         }
 
+        FinishMove(newX, newY, dt, tilt: true);
+    }
+
+    // Move()の最後の共通処理(位置の確定・坂の傾き・天井の針・落下判定)。魔法使いの浮遊(MageFlightMove)も
+    // 同じここを通るので、天井の針は飛行中でも他キャラと全く同じ条件で当たる(2026-09-27に抽出、処理内容は無変更)。
+    void FinishMove(float newX, float newY, float dt, bool tilt)
+    {
         transform.position = new Vector3(newX, newY, 0f);
-        UpdateSlopeTilt(newX);
+        if (tilt) UpdateSlopeTilt(newX);
+        else transform.rotation = Quaternion.identity;
 
         // 自然洞窟(2026-09-21) - 天井の針。既存のTakeDamage(無敵時間+安全地点復帰)を
         // そのまま使うので、接触し続けても毎フレームのダメージや挟まりは起きない。
@@ -1306,7 +1337,8 @@ public partial class PlayerController : MonoBehaviour
             caveSpikeCooldown = 1.5f;
             CaveStage.SpikeHitCount++;
             Debug.Log($"[Cave] Spike hit x={newX:F1} feetY={newY:F1}");
-            TakeDamage();
+            kitHazardDamage = true; // 地形の針は忍者の瞬身の無敵/格闘家のカウンターで防げない
+            try { TakeDamage(); } finally { kitHazardDamage = false; }
         }
 
         // Bugfix 2026-09-06, item 2 - "下り坂走行中に突然GAME OVER". Root
@@ -1366,6 +1398,8 @@ public partial class PlayerController : MonoBehaviour
         // instead of ever landing back on solid ground.
         if (!isFall && (hitInvincibleTimer > 0f || IsReacting)) return;
         if (GameManager.Instance == null) return;
+        // 新4人(2026-09-27) - 忍者の瞬身のごく短い無敵/格闘家のカウンター成立(既存5人は常にfalse)。
+        if (!isFall && KitInterceptDamage(source)) return;
         // マルチプレイ: ダウン/脱落中は被弾しない。カード選択中の無敵はテスト用設定(既定OFF)の時だけ。
         if (NetMatch.Active && !NetMatch.IsLocalAlive) return;
         if (!isFall && NetMatch.ChoiceInvincible && NetMatch.Active && GameManager.Instance.IsLocalChoiceOpen) return;
@@ -1530,6 +1564,7 @@ public partial class PlayerController : MonoBehaviour
         if (downAttackLandHitbox != null) downAttackLandHitbox.enabled = false;
         EndDiveAttack();
         CancelLanceMoves();
+        CancelKitMoves();
     }
 
     // A brief backward push, decayed over its own duration rather than
@@ -1623,6 +1658,7 @@ public partial class PlayerController : MonoBehaviour
         transform.localScale = Vector3.one;
         EndDiveAttack();
         if (isLancerCharacter) CancelLanceMoves();
+        if (HasKit) OnKitRespawn(); // 新4人: 技の打ち切り+魔法使いの高度を最低段へ
 
         float x = transform.position.x;
         if (!recoverOnSky && TerrainManager.Instance != null)
@@ -1703,6 +1739,7 @@ public partial class PlayerController : MonoBehaviour
         if (attackHitbox != null) attackHitbox.enabled = false;
         if (upAttackHitbox != null) upAttackHitbox.enabled = false;
         EndDiveAttack();
+        if (HasKit) CancelKitMoves();
 
         IsFinishing = true;
         if (GameManager.Instance != null) GameManager.Instance.SetPresentationDamageLock(true);
@@ -1717,6 +1754,7 @@ public partial class PlayerController : MonoBehaviour
             t += Time.deltaTime;
             float speed = Mathf.Lerp(startSpeed, 0f, Mathf.Clamp01(t / finishDecelDuration));
             transform.position += Vector3.right * speed * Time.deltaTime;
+            KitFinishTick(Time.deltaTime); // 魔法使い: 高く飛んでいても浮遊の最低高度へ降りる(他キャラは何もしない)
             yield return null;
         }
 
@@ -1728,6 +1766,7 @@ public partial class PlayerController : MonoBehaviour
         {
             poseT += Time.deltaTime;
             FinishProgress = Mathf.Clamp01(poseT / hold);
+            KitFinishTick(Time.deltaTime);
             yield return null;
         }
 
@@ -1920,6 +1959,7 @@ public partial class PlayerController : MonoBehaviour
     void OnDeath()
     {
         CancelLanceMoves();
+        if (HasKit) CancelKitMoves();
         // 専用の死亡ポーズを持つキャラは消さずにその場でポーズを見せる(PlayerAnimator.State.Death)。
         if (sr != null && !charHasDeathFrames) sr.enabled = false;
         if (attackHitbox != null) attackHitbox.enabled = false;
@@ -1955,6 +1995,12 @@ public partial class PlayerController : MonoBehaviour
     void HandleAttackInput()
     {
         attackCooldownTimer -= Time.deltaTime;
+        // 新4人(2026-09-27) - 前/後/下(魔法使いは上も)を専用処理へ(既存5人は下の従来処理のまま)。
+        if (HasKit)
+        {
+            HandleKitInput();
+            return;
+        }
         // 竜騎士(2026-09-26) - 下攻撃は地上でも空中でも「前方下への突き」(Move()の
         // 空中↓フリック分岐=急降下/ホバーは竜騎士では何もしない)。
         if (isLancerCharacter && requestedFlick == FlickDirection.Down)
@@ -2122,6 +2168,7 @@ public partial class PlayerController : MonoBehaviour
             // Up Hitbox/Vacuumを一切使わない)。
             if (isRangedCharacter) DoRangedUpShot();
             else if (isLancerCharacter) StartCoroutine(DoLanceUpThrust());
+            else if (HasKit) OnKitJump(isAirborneUpAttack); // 新4人: 斜め上の矢/アッパー/跳躍斬り
             else StartCoroutine(DoUpAttack(isAirborneUpAttack));
         }
     }

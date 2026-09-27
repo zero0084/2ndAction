@@ -144,6 +144,12 @@ public static class CharacterDatabaseBuilder
         // アイコン画像を用意したら、このSpecへ画像パスを足すかInspectorで
         // iconを直接差し替えるだけで済む。
         public CharacterDefinition.BelongingItem[] belongings;
+
+        // 新4人(2026-09-27) - 専用キット(弓使い/魔法使い/格闘家/忍者)。kitPoseDirsは「ポーズ名 → フォルダ」。
+        // 全フォルダを下端中央ピボット+共通PPU(lancerPpu)で読む(竜騎士と同じ正規化済み素材)。
+        public CharacterKit kit;
+        public string[] kitPoseNames;
+        public string[] kitPoseDirs;
     }
 
     // 黒剣士=PlayerController/GameManagerの既存デフォルトそのもの(性能
@@ -617,7 +623,144 @@ public static class CharacterDatabaseBuilder
         lancer.finishExtremeFramesDir = "Assets/Art/LancerFinishExtreme_v1";
         lancer.finishExtremeFramesPpu = lp;
 
-        return new[] { swordsman, dualBlade, nobleLady, gunslinger, lancer };
+        // ===== 新4人(2026-09-27) ===== //
+        // 見た目は竜騎士と同じ作り方(ChatGPT生成、各シートの基準ポーズで同じ縮尺へ正規化、
+        // 顔=横中央・足元=下端、下端中央ピボット)。攻撃ポーズは Art/<Prefix>Poses_v1/<ポーズ名>/。
+        // 数値の方向性は仕様どおり(細かい値はInspectorのCharacterDefinition.archer/mage/fighter/ninjaで調整)。
+
+        // 6人目 弓使い: 足が遅い・近距離が危険 / 威力・射程・貫通・ノックバック。
+        Spec archer = DefaultBaseline;
+        archer.id = "archer";
+        archer.displayName = "RANGER";
+        archer.subtitle = "Draw, Aim, Pierce";
+        archer.role = "SNIPER";
+        archer.flavorText = "A ranger of the deep woods\nwith a longbow taller than himself.\nThe longer he draws, the harder it hits -\nbut up close, he has little to answer with.";
+        archer.lifeRating = 3; archer.powerRating = 4; archer.speedRating = 2; archer.comboRating = 1;
+        archer.sortOrder = 5;
+        archer.belongings = new[]
+        {
+            new CharacterDefinition.BelongingItem { label = "長弓", placeholderColor = new Color(0.35f, 0.3f, 0.25f), kind = CharacterDefinition.BelongingKind.Weapon },
+            new CharacterDefinition.BelongingItem { label = "矢筒", placeholderColor = new Color(0.5f, 0.38f, 0.25f), kind = CharacterDefinition.BelongingKind.Small },
+            new CharacterDefinition.BelongingItem { label = "森の外套", placeholderColor = new Color(0.18f, 0.32f, 0.22f), kind = CharacterDefinition.BelongingKind.Cloth },
+        };
+        archer.baseLives = 3; archer.baseMaxLives = 5;
+        archer.attackPower = 2; archer.attackComboCount = 1;
+        archer.knockbackPowerMultiplier = 1.2f;
+        archer.jumpForceMultiplier = 0.95f;
+        archer.groundMobilityMultiplier = 0.93f;
+        archer.kit = CharacterKit.Archer;
+        FillKitArt(ref archer, "Archer", 583f, new[] { "draw", "release", "upshot", "downshot", "lowshot" });
+
+        // 7人目 魔法使い: 浮遊して穴を越える・高度を変えて魔法 / LIFEが低く接触に弱い。
+        Spec mage = DefaultBaseline;
+        mage.id = "mage";
+        mage.displayName = "SORCERESS";
+        mage.subtitle = "Float Above, Strike Below";
+        mage.role = "FLIGHT MAGE";
+        mage.flavorText = "A sorceress who never touches the ground.\nShe rises and sinks at will,\nraining spells on whatever lies below -\nbut a single blow cuts deep.";
+        mage.lifeRating = 2; mage.powerRating = 3; mage.speedRating = 3; mage.comboRating = 2;
+        mage.sortOrder = 6;
+        mage.belongings = new[]
+        {
+            new CharacterDefinition.BelongingItem { label = "星晶の杖", placeholderColor = new Color(0.45f, 0.6f, 1f), kind = CharacterDefinition.BelongingKind.Weapon },
+            new CharacterDefinition.BelongingItem { label = "魔導書", placeholderColor = new Color(0.25f, 0.2f, 0.45f), kind = CharacterDefinition.BelongingKind.Small },
+        };
+        mage.baseLives = 2; mage.baseMaxLives = 4;
+        mage.attackPower = 2; mage.attackComboCount = 1;
+        mage.hurtKnockbackMultiplier = 1.4f;
+        mage.hurtLeanDegrees = 16f;
+        mage.kit = CharacterKit.Mage;
+        FillKitArt(ref mage, "Mage", 540f, new[] { "cast", "castUp", "castDown" });
+
+        // 8人目 格闘家: 最短射程 / 4段コンボ・強いHitStop・カウンター。
+        Spec fighter = DefaultBaseline;
+        fighter.id = "fighter";
+        fighter.displayName = "BRAWLER";
+        fighter.subtitle = "Fists That Answer Back";
+        fighter.role = "COUNTER";
+        fighter.flavorText = "A martial artist who fights\nwith nothing but iron gauntlets.\nHe must get close - and when you strike first,\nhe strikes back harder.";
+        fighter.lifeRating = 4; fighter.powerRating = 3; fighter.speedRating = 3; fighter.comboRating = 5;
+        fighter.sortOrder = 7;
+        fighter.belongings = new[]
+        {
+            new CharacterDefinition.BelongingItem { label = "鉄の籠手", placeholderColor = new Color(0.3f, 0.3f, 0.32f), kind = CharacterDefinition.BelongingKind.Weapon },
+            new CharacterDefinition.BelongingItem { label = "鉢巻", placeholderColor = new Color(0.7f, 0.15f, 0.15f), kind = CharacterDefinition.BelongingKind.Cloth },
+        };
+        fighter.baseLives = 4; fighter.baseMaxLives = 5;
+        fighter.attackPower = 2; fighter.attackComboCount = 4;
+        fighter.hurtKnockbackMultiplier = 0.8f;
+        fighter.kit = CharacterKit.Fighter;
+        FillKitArt(ref fighter, "Fighter", 583f, new[] { "jab", "straight", "kick", "heavy", "backstep", "counter", "uppercut", "divekick", "sweep" });
+
+        // 9人目 忍者: 位置を素早く変える(瞬身) / LIFEが低い・火力は中程度。
+        Spec ninja = DefaultBaseline;
+        ninja.id = "ninja";
+        ninja.displayName = "SHINOBI";
+        ninja.subtitle = "Vanish, Cut, Vanish";
+        ninja.role = "MOBILITY";
+        ninja.flavorText = "A shinobi who is never where you strike.\nShe blinks through enemies with a single cut\nand is gone before they fall -\nbut she cannot take many hits.";
+        ninja.lifeRating = 2; ninja.powerRating = 3; ninja.speedRating = 5; ninja.comboRating = 3;
+        ninja.sortOrder = 8;
+        ninja.belongings = new[]
+        {
+            new CharacterDefinition.BelongingItem { label = "小太刀", placeholderColor = new Color(0.55f, 0.58f, 0.62f), kind = CharacterDefinition.BelongingKind.Weapon },
+            new CharacterDefinition.BelongingItem { label = "手裏剣", placeholderColor = new Color(0.4f, 0.42f, 0.48f), kind = CharacterDefinition.BelongingKind.Small },
+            new CharacterDefinition.BelongingItem { label = "深紅の襟巻", placeholderColor = new Color(0.65f, 0.1f, 0.12f), kind = CharacterDefinition.BelongingKind.Cloth },
+        };
+        ninja.baseLives = 3; ninja.baseMaxLives = 4;
+        ninja.attackPower = 2; ninja.attackComboCount = 1;
+        ninja.groundMobilityMultiplier = 1.08f;
+        ninja.kit = CharacterKit.Ninja;
+        FillKitArt(ref ninja, "Ninja", 583f, new[] { "dashslash", "slashend", "throw", "updash", "downdash" });
+
+        return new[] { swordsman, dualBlade, nobleLady, gunslinger, lancer, archer, mage, fighter, ninja };
+    }
+
+    // 新4人の素材フォルダ(名前は Art/<prefix>Run_v1 等、ポーズは Art/<prefix>Poses_v1/<name>)。
+    // まだ無いフォルダは読み込み時に空として扱う(LoadAnimationFolderのIsValidFolderガード)。
+    static void FillKitArt(ref Spec s, string prefix, float ppu, string[] poses)
+    {
+        string a = "Assets/Art/";
+        s.portraitPath = $"{PortraitFolder}/{s.id}_card.png";
+        s.mainVisualPath = $"{PortraitFolder}/{s.id}_portrait.png";
+        s.lancerPpu = ppu;
+        s.bottomCenterPivot = true;
+        s.runFramesDir = a + prefix + "Run_v1"; s.runFramesPpu = ppu; s.runFpsOverride = 8f;
+        s.jumpStartFramesDir = a + prefix + "Jump_v1"; s.jumpStartFramesPpu = ppu;
+        s.jumpFramesDir = a + prefix + "Jump_v1"; s.jumpFramesPpu = ppu;
+        s.doubleJumpFramesDir = a + prefix + "Jump_v1"; s.doubleJumpFramesPpu = ppu;
+        s.landFramesDir = a + prefix + "Land_v1"; s.landFramesPpu = ppu;
+        // 攻撃中にポーズが無い瞬間の保険(黒剣士の攻撃絵が混ざらないように、自分の前攻撃ポーズを通常の攻撃絵にも使う)
+        s.attackFramesDir = a + prefix + "Poses_v1/" + poses[0]; s.attackFramesPpu = ppu;
+        s.downAttackFramesDir = a + prefix + "Jump_v1"; s.downAttackFramesPpu = ppu;
+        s.downAttackLandFramesDir = a + prefix + "Land_v1"; s.downAttackLandFramesPpu = ppu;
+        s.upShotFramesDir = a + prefix + "Jump_v1"; s.upShotFramesPpu = ppu;
+        s.hurtFramesDir = a + prefix + "Hurt_v1";
+        s.deathFramesDir = a + prefix + "Death_v1";
+        s.startFramesDir = a + prefix + "Start_v1"; s.startFramesPpu = ppu;
+        s.finishShortFramesDir = a + prefix + "FinishShort_v1"; s.finishShortFramesPpu = ppu;
+        s.finishMediumFramesDir = a + prefix + "FinishMedium_v1"; s.finishMediumFramesPpu = ppu;
+        s.finishLongFramesDir = a + prefix + "FinishLong_v1"; s.finishLongFramesPpu = ppu;
+        s.finishExtremeFramesDir = a + prefix + "FinishExtreme_v1"; s.finishExtremeFramesPpu = ppu;
+        s.kitPoseNames = poses;
+        s.kitPoseDirs = new string[poses.Length];
+        for (int i = 0; i < poses.Length; i++) s.kitPoseDirs[i] = a + prefix + "Poses_v1/" + poses[i];
+    }
+
+    // 新4人: キットの種類と攻撃ポーズ(純粋な素材参照)を常に最新へ同期する。性能値(archer/mage/...)は
+    // 手動調整を消さないよう、新規作成時の既定値のまま触らない。
+    static void ApplyKitArt(CharacterDefinition d, Spec spec)
+    {
+        if (spec.kit == CharacterKit.Standard) return;
+        d.kit = spec.kit;
+        var list = new System.Collections.Generic.List<KitPose>();
+        for (int i = 0; spec.kitPoseNames != null && i < spec.kitPoseNames.Length; i++)
+        {
+            Sprite[] frames = LoadAnimationFolder(spec.kitPoseDirs[i], spec.lancerPpu);
+            if (frames.Length > 0) list.Add(new KitPose { name = spec.kitPoseNames[i], frames = frames });
+        }
+        d.kitPoses = list.ToArray();
+        EditorUtility.SetDirty(d);
     }
 
     [MenuItem("Tools/OneMoreMile/Build Character Database")]
@@ -629,8 +772,11 @@ public static class CharacterDatabaseBuilder
             AssetDatabase.Refresh();
         }
 
-        foreach (Spec spec in Specs())
+        foreach (Spec specIn in Specs())
         {
+            Spec spec = specIn;
+            // 新4人: カード枠入りの画像がまだ無ければ、枠なしの立ち絵をカードにも使う(後から差し替え)。
+            if (!string.IsNullOrEmpty(spec.portraitPath) && !File.Exists(spec.portraitPath) && !string.IsNullOrEmpty(spec.mainVisualPath)) spec.portraitPath = spec.mainVisualPath;
             bottomCenterPivotMode = spec.bottomCenterPivot;
             string assetPath = $"{CharactersFolder}/{spec.id}.asset";
             CharacterDefinition existing = AssetDatabase.LoadAssetAtPath<CharacterDefinition>(assetPath);
@@ -723,6 +869,7 @@ public static class CharacterDatabaseBuilder
                     existing.upShotFrames = LoadAnimationFolder(spec.upShotFramesDir, spec.upShotFramesPpu);
                 }
                 ApplyLancerFrames(existing, spec);
+                ApplyKitArt(existing, spec);
                 // RUN開始準備/正常終了演出(2026-09-23) - bulletSpriteと同じ
                 // 理由(手動チューニング値ではない純粋な素材参照)で、既存
                 // アセットでも常に最新のフォルダ内容へ同期し直す。今は全て
@@ -813,6 +960,7 @@ public static class CharacterDatabaseBuilder
             if (spec.hurtKnockbackMultiplier > 0f) def.hurtKnockbackMultiplier = spec.hurtKnockbackMultiplier;
             if (spec.hurtLeanDegrees > 0f) def.hurtLeanDegrees = spec.hurtLeanDegrees;
             ApplyLancerFrames(def, spec);
+            ApplyKitArt(def, spec);
 
             AssetDatabase.CreateAsset(def, assetPath);
         }
@@ -865,6 +1013,7 @@ public static class CharacterDatabaseBuilder
     static Sprite[] LoadAnimationFolder(string dir, float pixelsPerUnit)
     {
         if (string.IsNullOrEmpty(dir)) return new Sprite[0];
+        if (!AssetDatabase.IsValidFolder(dir)) return new Sprite[0]; // 素材の用意がまだのフォルダ(新キャラ追加途中)
         if (bottomCenterPivotMode)
         {
             SceneBuilder.ConfigureSpriteFolderImportWithBottomCenterPivot(dir, pixelsPerUnit);
@@ -905,6 +1054,7 @@ public static class CharacterDatabaseBuilder
     static Sprite[] LoadRunAnimationFolder(string dir, float pixelsPerUnit)
     {
         if (string.IsNullOrEmpty(dir)) return new Sprite[0];
+        if (!AssetDatabase.IsValidFolder(dir)) return new Sprite[0];
         if (bottomCenterPivotMode) return LoadAnimationFolder(dir, pixelsPerUnit);
         SceneBuilder.ConfigureSpriteFolderImportWithSharedHeadPivot(dir, pixelsPerUnit);
         return SceneBuilder.LoadSpriteSequence(dir);

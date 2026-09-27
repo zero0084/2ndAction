@@ -191,6 +191,180 @@ MonoBehaviour:
   - -0.3
   - 0
   deathFrames: []
+  kit: 0
+  kitPoses: []
+  archer:
+    chargeMidTime: 0.55
+    chargeMaxTime: 1.2
+    forwardWindup: 0.12
+    forwardWindupMax: 0.2
+    forwardRecovery: 0.3
+    arrowSpeed: 20
+    arrowSpeedMax: 30
+    arrowLifetime: 1.2
+    chargeDamageScale:
+    - 1
+    - 2
+    - 3.2
+    chargeKnockbackScale:
+    - 1
+    - 1.7
+    - 2.6
+    chargeHitStop:
+    - 0
+    - 0.05
+    - 0.13
+    maxChargePierce: -1
+    chargeArrowScale:
+    - 1
+    - 1.2
+    - 1.6
+    backWindup: 0.05
+    backRecovery: 0.22
+    backDamageScale: 0.8
+    backKnockbackScale: 1.1
+    upAngle: 40
+    upArrowSpeed: 15
+    upDamageScale: 1.8
+    upKnockbackScale: 2.2
+    upHitStop: 0.05
+    downAngle: -38
+    downArrowSpeed: 22
+    downDamageScale: 2
+    downKnockbackScale: 1.8
+    downHitStop: 0.05
+    downHangTime: 0.1
+    downShotsPerAirtime: 2
+    lowShotHeight: 0.28
+    lowDamageScale: 1.2
+    lowKnockbackScale: 1.5
+    muzzle: {x: 0.45, y: 0.62}
+  mage:
+    hoverBase: 0.4
+    altitudeStep: 1.2
+    maxAltitudeLevel: 3
+    altitudeSmoothTime: 0.16
+    bobAmplitude: 0.05
+    bobFrequency: 1.6
+    boltSpeed: 13
+    boltLifetime: 1.1
+    boltCooldown: 0.36
+    boltCastTime: 0.1
+    boltDamageScale: 1
+    blastRadius: 0.85
+    blastDamageScale: 1
+    blastKnockbackScale: 1.2
+    backBoltSpeed: 11
+    backDamageScale: 0.7
+    upAngle: 55
+    upBoltSpeed: 14
+    upDamageScale: 1.2
+    upBlastRadius: 0.75
+    downAngle: -72
+    downBoltSpeed: 14
+    downDamageScale: 1.2
+    downBlastRadius: 1.15
+    downBlastDamageScale: 1.3
+  fighter:
+    comboWindup:
+    - 0.04
+    - 0.04
+    - 0.07
+    - 0.12
+    comboActive:
+    - 0.08
+    - 0.08
+    - 0.1
+    - 0.12
+    comboRecovery:
+    - 0.1
+    - 0.1
+    - 0.14
+    - 0.34
+    comboReach:
+    - 0.95
+    - 1
+    - 1.15
+    - 1.2
+    comboLunge:
+    - 0.18
+    - 0.2
+    - 0.3
+    - 0.5
+    comboDamageScale:
+    - 0.8
+    - 0.8
+    - 1.1
+    - 2.2
+    comboKnockbackScale:
+    - 0.35
+    - 0.35
+    - 0.8
+    - 2.6
+    comboHitStop:
+    - 0.04
+    - 0.04
+    - 0.06
+    - 0.15
+    comboGrace: 0.32
+    hitHeight: 0.62
+    hitThickness: 0.62
+    backStepDistance: 1.1
+    backStepTime: 0.16
+    counterWindow: 0.32
+    counterRadius: 1.35
+    counterDamageScale: 3
+    counterKnockbackScale: 3
+    counterHitStop: 0.18
+    counterInvincible: 0.3
+    rearStrikeDamageScale: 1
+    rearStrikeReach: 0.9
+    backRecovery: 0.2
+    stanceMoveFactor: 0.25
+    uppercutHop: 0.8
+    uppercutActive: 0.16
+    uppercutDamageScale: 1.4
+    uppercutHitStop: 0.07
+    diveKickSpeedY: 15
+    diveKickSpeedX: 5
+    diveKickDamageScale: 1.6
+    diveKickImpactRadius: 1
+    diveKickImpactDamageScale: 1.2
+    diveKickHitStop: 0.08
+    sweepReach: 1.25
+    sweepActive: 0.12
+    sweepRecovery: 0.22
+    sweepDamageScale: 1.1
+    sweepKnockbackScale: 1.6
+  ninja:
+    dashDistance: 3
+    dashTime: 0.13
+    dashRecovery: 0.16
+    dashCooldown: 0.42
+    dashInvincible: 0.16
+    invincibleInterval: 0.8
+    slashDamageScale: 1.1
+    slashKnockbackScale: 0.3
+    slashHitStop: 0.04
+    slashHeight: 0.6
+    slashThickness: 0.9
+    shurikenSpeed: 17
+    shurikenLifetime: 0.9
+    shurikenDamageScale: 0.7
+    shurikenCooldown: 0.3
+    backHop: 0.7
+    upDashSpeedY: 10.5
+    upDashDistanceX: 1.6
+    upDashTime: 0.18
+    upDamageScale: 1
+    downDashSpeedY: 17
+    downDashSpeedX: 9
+    downDashMaxTime: 0.5
+    downDamageScale: 1.3
+    landSlashRadius: 1.05
+    landSlashDamageScale: 1
+    slideDistance: 1.8
+    slideTime: 0.16
   belongings:
   - label: "\u4E8C\u4E01\u62F3\u9283"
     icon: {fileID: 0}

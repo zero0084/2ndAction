@@ -1,0 +1,394 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d76904403939c804f938790c00070d4d, type: 3}
+  m_Name: archer
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
+  characterId: archer
+  displayName: RANGER
+  subtitle: Draw, Aim, Pierce
+  role: SNIPER
+  flavorText: 'A ranger of the deep woods
+
+    with a longbow taller than himself.
+
+    The
+    longer he draws, the harder it hits -
+
+    but up close, he has little to answer
+    with.'
+  portrait: {fileID: 2800000, guid: d340941c437714a429e71866bbaf52f8, type: 3}
+  mainVisual: {fileID: 2800000, guid: 4f1e08627e999b44bbdb046014091036, type: 3}
+  lifeRating: 3
+  powerRating: 4
+  speedRating: 2
+  comboRating: 1
+  challengeFlag: 0
+  sortOrder: 5
+  baseLives: 3
+  baseMaxLives: 5
+  attackPower: 2
+  attackComboCount: 1
+  attackSpeedMultiplier: 1
+  attackRangeMultiplier: 1
+  knockbackPowerMultiplier: 1.2
+  jumpCount: 2
+  jumpForceMultiplier: 0.95
+  groundMobilityMultiplier: 0.93
+  airControlMultiplier: 1
+  canUseUpAttack: 1
+  canUseAirAttack: 1
+  canUseDownAttack: 1
+  runFrames:
+  - {fileID: 21300000, guid: 81ff7b6118b56a442b60267d91b31bfd, type: 3}
+  - {fileID: 21300000, guid: 50e3327d4ffbcdf44b2e17d424ab602a, type: 3}
+  - {fileID: 21300000, guid: 64a8f42ea1def134c95e98dce4e25102, type: 3}
+  - {fileID: 21300000, guid: 29f6c6050ceff364e8de45497bca9850, type: 3}
+  jumpStartFrames:
+  - {fileID: 21300000, guid: 921642053d007be44b7d884a6a97ac42, type: 3}
+  jumpFrames:
+  - {fileID: 21300000, guid: 921642053d007be44b7d884a6a97ac42, type: 3}
+  landFrames:
+  - {fileID: 21300000, guid: 3c9917eb5918c864081b6dfdc38a0063, type: 3}
+  attackFrames:
+  - {fileID: 21300000, guid: e997c23d1f95f8b4da196cf8740ad70b, type: 3}
+  doubleJumpFrames:
+  - {fileID: 21300000, guid: 921642053d007be44b7d884a6a97ac42, type: 3}
+  runFps: 8
+  attackFramesSmall: []
+  attackFramesLarge: []
+  downAttackFrames:
+  - {fileID: 21300000, guid: 921642053d007be44b7d884a6a97ac42, type: 3}
+  downAttackLandFrames:
+  - {fileID: 21300000, guid: 3c9917eb5918c864081b6dfdc38a0063, type: 3}
+  hurtDuration: 0
+  hurtInvincibleDuration: 0
+  recoveryDuration: 0
+  recoveryInvincibleDuration: 0
+  hurtKnockbackMultiplier: 1
+  hurtFrames:
+  - {fileID: 21300000, guid: 99c0d4f69eef35a409de9d94d186bf97, type: 3}
+  recoveryFrames: []
+  hurtLeanDegrees: 12
+  hurtStaggerDistance: 0.12
+  recoveryCrouchDepth: 0.14
+  startFrames:
+  - {fileID: 21300000, guid: b6365d87527586843adc7272a278c2fc, type: 3}
+  - {fileID: 21300000, guid: 2ced677817e69094e8f2857e41d2538d, type: 3}
+  - {fileID: 21300000, guid: 637d7609d1e3e4f4d8ea3d65677d805d, type: 3}
+  - {fileID: 21300000, guid: 3f8b289126cd37a4caf2d3f6ef5573a0, type: 3}
+  startFps: 0
+  startLeanDegrees: 8
+  finishShortFrames:
+  - {fileID: 21300000, guid: 32762a18326ec464db230e2af7388da9, type: 3}
+  - {fileID: 21300000, guid: 39e6276b05c9a7c4b85dbecbf0735c02, type: 3}
+  finishMediumFrames:
+  - {fileID: 21300000, guid: e186d537b2315234aa715661705c9071, type: 3}
+  - {fileID: 21300000, guid: cd6399e5c51e7174898a508057c6c11d, type: 3}
+  finishLongFrames:
+  - {fileID: 21300000, guid: 0b06c7fcfc945b1499bf41f84401337f, type: 3}
+  - {fileID: 21300000, guid: 8949bbd2938c95f4b9eab7449cb7e571, type: 3}
+  finishExtremeFrames:
+  - {fileID: 21300000, guid: 0006737cab76c864e968230dfb20377b, type: 3}
+  - {fileID: 21300000, guid: 2540539e4a31e424291e6dd3f8eddd3f, type: 3}
+  finishFps: 0
+  finishTierCrouchDepth:
+  - 0.03
+  - 0.08
+  - 0.16
+  - 0.3
+  isRanged: 0
+  bulletSprite: {fileID: 0}
+  bulletSpeed: 15
+  bulletLifetime: 1.6
+  hoverDuration: 0.22
+  hoverFallSpeed: 0.6
+  upShotFrames:
+  - {fileID: 21300000, guid: 921642053d007be44b7d884a6a97ac42, type: 3}
+  isLancer: 0
+  lanceWindup: 0.12
+  lanceThrustActive: 0.14
+  lanceRecovery: 0.24
+  lanceReach: 2.45
+  lanceReachStart: 0.45
+  lanceThickness: 0.42
+  lanceHeight: 0.68
+  lanceDashDistance: 0.9
+  lanceSpeedBonusPerSpeed: 0.2
+  lanceSpeedBonusMax: 0.6
+  lanceBackReach: 0.85
+  lanceBackDamageScale: 0.5
+  lanceBackKnockbackScale: 0.45
+  lanceUpReach: 1.9
+  lanceUpAngle: 50
+  lanceUpActive: 0.2
+  lanceDownReach: 1.7
+  lanceDownHeight: 0.22
+  lanceDownActive: 0.16
+  lanceBackFrames: []
+  lanceDownFrames: []
+  lanceComboWindup:
+  - 0.07
+  - 0.1
+  - 0.16
+  lanceComboActive:
+  - 0.11
+  - 0.13
+  - 0.18
+  lanceComboRecovery:
+  - 0.15
+  - 0.2
+  - 0.46
+  lanceComboReachScale:
+  - 0.9
+  - 1.05
+  - 1.3
+  lanceComboDashScale:
+  - 0.6
+  - 1.1
+  - 1.8
+  lanceComboDamageScale:
+  - 1
+  - 1.25
+  - 1.7
+  lanceComboKnockbackScale:
+  - 1
+  - 1.3
+  - 1.8
+  lanceComboHitStop:
+  - 0
+  - 0.02
+  - 0.11
+  lanceComboFxThickness:
+  - 0.8
+  - 1
+  - 1.6
+  lanceComboGrace: 0.45
+  lanceDiveWindup: 0.1
+  lanceDiveSpeed: 22
+  lanceDiveHorizontalScale: 0.1
+  lanceDiveMaxTime: 2.5
+  lanceDiveImpactRadius: 1.8
+  lanceDiveImpactHeight: 1.2
+  lanceDiveImpactDamageScale: 1.5
+  lanceDiveImpactKnockbackScale: 1.6
+  lanceDiveImpactHitStop: 0.1
+  lanceDiveImpactActive: 0.14
+  lanceDiveRecovery: 0.3
+  lanceDiveFrames: []
+  lanceDiveFrameOffsetY:
+  - -0.48
+  - -0.3
+  - 0
+  deathFrames:
+  - {fileID: 21300000, guid: 2477c081e1b379340a9003fe41f5f7e1, type: 3}
+  kit: 1
+  kitPoses:
+  - name: draw
+    frames:
+    - {fileID: 21300000, guid: e997c23d1f95f8b4da196cf8740ad70b, type: 3}
+  - name: release
+    frames:
+    - {fileID: 21300000, guid: 08f97d363ae4a024e834d29e44ea7686, type: 3}
+  - name: upshot
+    frames:
+    - {fileID: 21300000, guid: b4d279dbaddc78049ba31673ee9723e7, type: 3}
+  - name: downshot
+    frames:
+    - {fileID: 21300000, guid: fa40169f29d81f745a5a2676626617ac, type: 3}
+  - name: lowshot
+    frames:
+    - {fileID: 21300000, guid: aa6bdde85a231de4e84c466c27ab7a15, type: 3}
+  archer:
+    chargeMidTime: 0.55
+    chargeMaxTime: 1.2
+    forwardWindup: 0.12
+    forwardWindupMax: 0.2
+    forwardRecovery: 0.3
+    arrowSpeed: 20
+    arrowSpeedMax: 30
+    arrowLifetime: 1.2
+    chargeDamageScale:
+    - 1
+    - 2
+    - 3.2
+    chargeKnockbackScale:
+    - 1
+    - 1.7
+    - 2.6
+    chargeHitStop:
+    - 0
+    - 0.05
+    - 0.13
+    maxChargePierce: -1
+    chargeArrowScale:
+    - 1
+    - 1.2
+    - 1.6
+    backWindup: 0.05
+    backRecovery: 0.22
+    backDamageScale: 0.8
+    backKnockbackScale: 1.1
+    upAngle: 40
+    upArrowSpeed: 15
+    upDamageScale: 1.8
+    upKnockbackScale: 2.2
+    upHitStop: 0.05
+    downAngle: -38
+    downArrowSpeed: 22
+    downDamageScale: 2
+    downKnockbackScale: 1.8
+    downHitStop: 0.05
+    downHangTime: 0.1
+    downShotsPerAirtime: 2
+    lowShotHeight: 0.28
+    lowDamageScale: 1.2
+    lowKnockbackScale: 1.5
+    muzzle: {x: 0.45, y: 0.62}
+  mage:
+    hoverBase: 0.4
+    altitudeStep: 1.2
+    maxAltitudeLevel: 3
+    altitudeSmoothTime: 0.16
+    bobAmplitude: 0.05
+    bobFrequency: 1.6
+    boltSpeed: 13
+    boltLifetime: 1.1
+    boltCooldown: 0.36
+    boltCastTime: 0.1
+    boltDamageScale: 1
+    blastRadius: 0.85
+    blastDamageScale: 1
+    blastKnockbackScale: 1.2
+    backBoltSpeed: 11
+    backDamageScale: 0.7
+    upAngle: 55
+    upBoltSpeed: 14
+    upDamageScale: 1.2
+    upBlastRadius: 0.75
+    downAngle: -72
+    downBoltSpeed: 14
+    downDamageScale: 1.2
+    downBlastRadius: 1.15
+    downBlastDamageScale: 1.3
+  fighter:
+    comboWindup:
+    - 0.04
+    - 0.04
+    - 0.07
+    - 0.12
+    comboActive:
+    - 0.08
+    - 0.08
+    - 0.1
+    - 0.12
+    comboRecovery:
+    - 0.1
+    - 0.1
+    - 0.14
+    - 0.34
+    comboReach:
+    - 0.95
+    - 1
+    - 1.15
+    - 1.2
+    comboLunge:
+    - 0.18
+    - 0.2
+    - 0.3
+    - 0.5
+    comboDamageScale:
+    - 0.8
+    - 0.8
+    - 1.1
+    - 2.2
+    comboKnockbackScale:
+    - 0.35
+    - 0.35
+    - 0.8
+    - 2.6
+    comboHitStop:
+    - 0.04
+    - 0.04
+    - 0.06
+    - 0.15
+    comboGrace: 0.32
+    hitHeight: 0.62
+    hitThickness: 0.62
+    backStepDistance: 1.1
+    backStepTime: 0.16
+    counterWindow: 0.32
+    counterRadius: 1.35
+    counterDamageScale: 3
+    counterKnockbackScale: 3
+    counterHitStop: 0.18
+    counterInvincible: 0.3
+    rearStrikeDamageScale: 1
+    rearStrikeReach: 0.9
+    backRecovery: 0.2
+    stanceMoveFactor: 0.25
+    uppercutHop: 0.8
+    uppercutActive: 0.16
+    uppercutDamageScale: 1.4
+    uppercutHitStop: 0.07
+    diveKickSpeedY: 15
+    diveKickSpeedX: 5
+    diveKickDamageScale: 1.6
+    diveKickImpactRadius: 1
+    diveKickImpactDamageScale: 1.2
+    diveKickHitStop: 0.08
+    sweepReach: 1.25
+    sweepActive: 0.12
+    sweepRecovery: 0.22
+    sweepDamageScale: 1.1
+    sweepKnockbackScale: 1.6
+  ninja:
+    dashDistance: 3
+    dashTime: 0.13
+    dashRecovery: 0.16
+    dashCooldown: 0.42
+    dashInvincible: 0.16
+    invincibleInterval: 0.8
+    slashDamageScale: 1.1
+    slashKnockbackScale: 0.3
+    slashHitStop: 0.04
+    slashHeight: 0.6
+    slashThickness: 0.9
+    shurikenSpeed: 17
+    shurikenLifetime: 0.9
+    shurikenDamageScale: 0.7
+    shurikenCooldown: 0.3
+    backHop: 0.7
+    upDashSpeedY: 10.5
+    upDashDistanceX: 1.6
+    upDashTime: 0.18
+    upDamageScale: 1
+    downDashSpeedY: 17
+    downDashSpeedX: 9
+    downDashMaxTime: 0.5
+    downDamageScale: 1.3
+    landSlashRadius: 1.05
+    landSlashDamageScale: 1
+    slideDistance: 1.8
+    slideTime: 0.16
+  belongings:
+  - label: "\u9577\u5F13"
+    icon: {fileID: 0}
+    placeholderColor: {r: 0.35, g: 0.3, b: 0.25, a: 1}
+    kind: 1
+  - label: "\u77E2\u7B52"
+    icon: {fileID: 0}
+    placeholderColor: {r: 0.5, g: 0.38, b: 0.25, a: 1}
+    kind: 0
+  - label: "\u68EE\u306E\u5916\u5957"
+    icon: {fileID: 0}
+    placeholderColor: {r: 0.18, g: 0.32, b: 0.22, a: 1}
+    kind: 3

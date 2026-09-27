@@ -466,7 +466,7 @@ public class MajinController : MonoBehaviour
 
         if (other.CompareTag("PlayerAttack"))
         {
-            int damage = PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage;
+            int damage = PlayerAttackInfo.ScaleDamage(other, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage);
             TakeDamage(damage);
             return;
         }
@@ -659,7 +659,7 @@ public class MajinController : MonoBehaviour
         if (other == netLastHitCollider && netHitCooldown > Time.time) return;
         netLastHitCollider = other;
         netHitCooldown = Time.time + 0.18f;
-        int damage = PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage;
+        int damage = PlayerAttackInfo.ScaleDamage(other, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage);
         PlayerAttackKind kind = PlayerAttackKind.Normal;
         var info = other.GetComponent<PlayerAttackInfo>();
         if (info != null) kind = info.kind;

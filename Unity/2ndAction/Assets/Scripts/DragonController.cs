@@ -721,7 +721,7 @@ public class DragonController : MonoBehaviour
         {
             // Grows with the player's "Attack Power UP" level-up choice;
             // playerAttackDamage is only the fallback if that's unavailable.
-            int damage = PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage;
+            int damage = PlayerAttackInfo.ScaleDamage(other, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage);
             TakeDamage(damage);
             return;
         }
@@ -972,7 +972,7 @@ public class DragonController : MonoBehaviour
         if (other == netLastHitCollider && netHitCooldown > Time.time) return;
         netLastHitCollider = other;
         netHitCooldown = Time.time + 0.18f;
-        int damage = PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage;
+        int damage = PlayerAttackInfo.ScaleDamage(other, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage);
         PlayerAttackKind kind = PlayerAttackKind.Normal;
         var info = other.GetComponent<PlayerAttackInfo>();
         if (info != null) kind = info.kind;

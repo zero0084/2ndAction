@@ -296,6 +296,24 @@ public class CharacterDefinition : ScriptableObject
     // 死亡時の専用ポーズ(全キャラ共通の仕組み。空なら従来どおり消えて爆散)。
     public Sprite[] deathFrames;
 
+    // ===== 新4人(2026-09-27): 弓使い/魔法使い/格闘家/忍者 =====
+    // kit=Standard(既定)の既存5人は、以下を一切参照しない。
+    [Header("新4人 専用キット (2026-09-27)")]
+    public CharacterKit kit = CharacterKit.Standard;
+    public KitPose[] kitPoses;
+    public ArcherKitParams archer = new ArcherKitParams();
+    public MageKitParams mage = new MageKitParams();
+    public FighterKitParams fighter = new FighterKitParams();
+    public NinjaKitParams ninja = new NinjaKitParams();
+
+    public Sprite[] FindKitPose(string poseName)
+    {
+        if (kitPoses == null) return null;
+        foreach (var p in kitPoses)
+            if (p != null && p.name == poseName && p.frames != null && p.frames.Length > 0) return p.frames;
+        return null;
+    }
+
     // Home画面改善依頼③(2026-09-15) - 「選択中キャラクターの持ち物・装備の
     // 視覚表示」。新しい装備システムではなく、あくまでHome画面で「このキャ
     // ラクターらしさ」を見せるための表示専用データ。武器/防具/象徴的な

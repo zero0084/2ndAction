@@ -554,6 +554,7 @@ public class PlayerAnimator : MonoBehaviour
     // 竜騎士の攻撃中は技ごとの専用ポーズ(無ければ通常の攻撃絵)。
     Sprite[] ResolveAttackFrames(int attackStage)
     {
+        if (controller != null && controller.KitPoseFrames != null) return controller.KitPoseFrames;
         if (controller != null && controller.IsLancer)
         {
             if (controller.LanceMove == PlayerController.LanceMoveKind.Backward && HasFrames(lanceBackFrames)) return lanceBackFrames;
@@ -637,7 +638,8 @@ public class PlayerAnimator : MonoBehaviour
         if (downAttackLandTimer > 0f) downAttackLandTimer -= dt;
 
         bool attacking = controller != null && controller.IsAttacking && attackFrames != null && attackFrames.Length > 0;
-        bool grounded = controller == null || controller.IsGrounded;
+        // 魔法使い(2026-09-27)は常に浮遊ループ(走り絵の枠)を回す(高度を上げても落下絵で止まらない)。
+        bool grounded = controller == null || controller.IsGrounded || controller.Kit == CharacterKit.Mage;
         int attackStage = controller != null ? controller.CurrentAttackStage : 2;
         // Direction Attack System Ver.2, item 3 - checked below Landing (so
         // touching ground always overrides it the instant it happens, same
@@ -663,6 +665,8 @@ public class PlayerAnimator : MonoBehaviour
         else if (controller != null && controller.IsPreparingStart) newState = State.StartPrep;
         else if (controller != null && controller.IsHurt) newState = State.Hurt;
         else if (controller != null && controller.IsRecovering) newState = State.Recovery;
+        // 新4人(2026-09-27) - 技ごとのポーズ(弓を引く/魔法を唱える/4段コンボ/瞬身など)。既存5人は常にnull。
+        else if (controller != null && controller.KitPoseFrames != null) newState = State.Attack;
         else if (attacking) newState = State.Attack;
         // 着地専用Frame(downAttackLandTimer)は通常のLandingより優先 - 下降
         // 攻撃からの着地の瞬間は両タイマーが同時にセットされうるため、
@@ -764,6 +768,9 @@ public class PlayerAnimator : MonoBehaviour
             // 竜騎士の前/後/下攻撃は「構え→突き」を攻撃フェーズに合わせて表示(判定と絵を同期)。
             if (state == State.Attack && controller != null && controller.IsLancer && controller.LanceMove != PlayerController.LanceMoveKind.None)
                 frameIndex = Mathf.Min(controller.LanceFrameIndex, frames.Length - 1);
+            // 新4人: 技のフェーズ(構え/放つ等)に合わせたコマ。
+            if (state == State.Attack && controller != null && controller.KitPoseFrames != null)
+                frameIndex = Mathf.Clamp(controller.KitPoseFrame, 0, frames.Length - 1);
 
             SetSpriteSafe(frames[frameIndex]);
             ApplyLanceDiveOffset(frames);

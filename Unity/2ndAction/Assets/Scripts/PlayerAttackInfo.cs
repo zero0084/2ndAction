@@ -22,4 +22,21 @@ public enum PlayerAttackKind
 public class PlayerAttackInfo : MonoBehaviour
 {
     public PlayerAttackKind kind;
+
+    // 新4人(2026-09-27) - 攻撃(判定/弾)ごとの倍率。弓のチャージ矢や格闘家の4段目のように
+    // 「その判定だけ強い」攻撃のため、命中した瞬間のプレイヤーの状態ではなく判定自身に持たせる
+    // (飛んでいる矢は、撃った後にプレイヤーが別の技を出しても撃った時の威力のまま)。
+    // 既定値(1/1/0)のままなら従来と完全に同じ(既存5人の判定はすべて既定値)。
+    public float damageScale = 1f;
+    public float knockbackScale = 1f;
+    public float hitStop;
+
+    // 敵/ボス/障害物がダメージを読む箇所から呼ぶ。倍率1なら値をそのまま返す。
+    public static int ScaleDamage(Collider2D attack, int damage)
+    {
+        if (attack == null) return damage;
+        var info = attack.GetComponent<PlayerAttackInfo>();
+        if (info == null || Mathf.Approximately(info.damageScale, 1f)) return damage;
+        return Mathf.Max(1, Mathf.RoundToInt(damage * info.damageScale));
+    }
 }

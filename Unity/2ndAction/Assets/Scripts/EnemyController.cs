@@ -476,13 +476,16 @@ public class EnemyController : MonoBehaviour
             // The actual point the two colliders meet, not either object's
             // center - reads as "where the blade actually reached".
             Vector3 contactPoint = other.ClosestPoint(transform.position);
-            int damage = PlayerController.Instance != null ? PlayerController.Instance.EffectiveAttackPower : 1;
+            int damage = PlayerAttackInfo.ScaleDamage(other, PlayerController.Instance != null ? PlayerController.Instance.EffectiveAttackPower : 1);
             hp -= Mathf.Max(1, damage);
             bool killed = hp <= 0;
 
             PlayerAttackKind kind = PlayerAttackKind.Normal;
             var info = other.GetComponent<PlayerAttackInfo>();
             if (info != null) kind = info.kind;
+            // 新4人(2026-09-27): 判定ごとのノックバック/HitStop倍率(既存5人の判定は既定値=従来どおり)。
+            hitKnockbackScale = info != null ? info.knockbackScale : 1f;
+            hitExtraStop = info != null ? info.hitStop : 0f;
             netReactionAttacker = 0; // この端末のプレイヤーの攻撃
             NetCombat.AuthorityDamaged(NetId, 0, Mathf.Max(1, damage), hp, (byte)kind, contactPoint, killed);
 
@@ -598,10 +601,13 @@ public class EnemyController : MonoBehaviour
 
     // 竜騎士の3段目/急降下の着地など「強めのHitStop」を持つ攻撃(この端末のプレイヤーの攻撃だけ)。
     // 他キャラはAttackHitStopOverride=0なので従来のhitStopDurationのまま。
+    // 新4人(2026-09-27): 直前に命中した判定の倍率(PlayerAttackInfo.knockbackScale/hitStop)。
+    float hitKnockbackScale = 1f, hitExtraStop;
+
     float HitStopForPlayerAttack()
     {
         if (netReactionAttacker > 0 || PlayerController.Instance == null) return hitStopDuration;
-        return Mathf.Max(hitStopDuration, PlayerController.Instance.AttackHitStopOverride);
+        return Mathf.Max(hitStopDuration, PlayerController.Instance.AttackHitStopOverride, hitExtraStop);
     }
 
     float AwayDirFromPlayer()
@@ -630,6 +636,7 @@ public class EnemyController : MonoBehaviour
         // は弱いキャラでも常に保たれる(=一瞬で密着してしまうことはない)。
         float bonus = groundKnockbackSpeedBonus;
         if (PlayerController.Instance != null) bonus *= PlayerController.Instance.KnockbackPowerMultiplier;
+        bonus *= hitKnockbackScale;
         groundKnockbackVelocityX = PlayerForwardSpeed() + bonus;
         groundKnockbackTimer = groundKnockbackDuration;
         DisableMotionComponents();
@@ -1032,7 +1039,7 @@ public class EnemyController : MonoBehaviour
         netLocalHitCooldown = Time.time + 0.18f;
 
         Vector3 contactPoint = other.ClosestPoint(transform.position);
-        int damage = PlayerController.Instance != null ? PlayerController.Instance.EffectiveAttackPower : 1;
+        int damage = PlayerAttackInfo.ScaleDamage(other, PlayerController.Instance != null ? PlayerController.Instance.EffectiveAttackPower : 1);
         PlayerAttackKind kind = PlayerAttackKind.Normal;
         var info = other.GetComponent<PlayerAttackInfo>();
         if (info != null) kind = info.kind;
@@ -1058,6 +1065,7 @@ public class EnemyController : MonoBehaviour
         EnsureHp();
         hp -= Mathf.Max(1, damage);
         bool killed = hp <= 0;
+        hitKnockbackScale = 1f; hitExtraStop = 0f;
         netReactionAttacker = attacker;
         NetCombat.AuthorityDamaged(NetId, attacker, Mathf.Max(1, damage), hp, (byte)kind, contactPoint, killed);
         ProcessHit(kind, contactPoint, killed);
