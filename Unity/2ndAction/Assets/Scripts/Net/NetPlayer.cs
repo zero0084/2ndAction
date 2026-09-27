@@ -184,7 +184,23 @@ public class NetPlayer : NetworkBehaviour
         s.FinishTier = (byte)Mathf.Clamp(pc.FinishTierIndex, 0, 255);
         if (pc.IsGrounded) s.Flags |= NetPlayerSnapshot.FlagGrounded;
         if (sr.enabled) s.Flags |= NetPlayerSnapshot.FlagVisible;
+        GameManager gm = GameManager.Instance;
+        bool running = gm != null && gm.HasStarted && !gm.IsGameOver && !gm.CountdownActive && !pc.IsDeadPosing && !pc.IsFinishing;
+        if (running) s.Flags |= NetPlayerSnapshot.FlagRunning;
+        s.RunSpeed = running ? pc.CurrentAutoRunSpeed : 0f;
         return true;
+    }
+
+    // 自動スロー(2026-09-27): 相手の最新の走行状態(HOSTが最高速度を決めるのに使う)。
+    float remoteRunSpeed;
+    bool remoteRunning;
+    float lastSnapshotRealtime = -99f;
+    public float RemoteRunSpeed => remoteRunSpeed;
+
+    // 参加中かつ走行中として、直近1秒以内に報告してきたか(ダウン/離脱/切断した人の古い値を使わない)。
+    public bool IsRunningRemote(float nowRealtime)
+    {
+        return Phase.Value == PhaseInRun && remoteRunning && nowRealtime - lastSnapshotRealtime < 1f;
     }
 
     // 位置/姿勢は毎秒30回・非信頼(UDP)で送る - 古い値の再送を待つより次の値を使う方が高速時に有利。
@@ -193,6 +209,9 @@ public class NetPlayer : NetworkBehaviour
     {
         snapshotsReceived++;
         interpolator.Add(snapshot);
+        remoteRunSpeed = snapshot.RunSpeed;
+        remoteRunning = (snapshot.Flags & NetPlayerSnapshot.FlagRunning) != 0;
+        lastSnapshotRealtime = Time.realtimeSinceStartup;
     }
 
     // ===== 相手のプレイヤー(非Owner) =====

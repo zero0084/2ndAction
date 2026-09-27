@@ -22,19 +22,47 @@ using UnityEngine;
 // だけの単純な集合に一本化する。集合が空でない間だけTime.timeScale=0、
 // 空になった瞬間だけ1に戻す - 「古い処理の終了処理が、新しく増えた別の
 // 停止理由まで巻き込んで解除してしまう」ことが構造的に起こらない。
+//
+// 自動スローモーション(2026-09-27) - Time.timeScaleは次の優先順で1箇所(Apply)だけが決める:
+//   1. 完全停止の理由(カード選択/ボス報酬/ポーズメニュー/HitStop)が1つでもある → 0
+//   2. ボス登場演出のテンポランプ中 → 演出の値(ランプは開始時点の自動スロー倍率から始まる)
+//   3. それ以外 → 自動スロー倍率(AutoSlowMotionが走行速度から決める。OFF/通常速度では1)
+// 停止/演出の解除時は「無条件に1」ではなく、その時点の自動スロー倍率へ戻る。
 public static class TimeControl
 {
     static readonly HashSet<object> pauseOwners = new HashSet<object>();
 
-    // BossMilestonePresentationは1.0→中間値→0という「演出用の連続的な
-    // TimeScaleランプ」を独自に行う(このクラスが持つのは0/1の二値のみ)。
-    // そのランプが進行中の間はこのクラスからのTime.timeScale書き込みを
-    // 完全に止め、Presentation側の値をそのまま尊重する - 停止理由の集合
-    // 自体(診断表示用)は通常どおり追跡する。
+    // BossMilestonePresentationのテンポランプ(開始時の倍率→中間値→0)。演出中はpresentationScale
+    // を採用する(ただし完全停止の理由がある間は0が優先)。
     static bool presentationDriving;
+    static float presentationScale = 1f;
+    static object presentationOwner;
+
+    // 自動スロー倍率(0.75〜1)。AutoSlowMotionだけが書き込む。
+    static float autoScale = 1f;
+    public static float AutoScale => autoScale;
+    // ResetAllのたびに進む(AutoSlowMotionが自前の平滑化状態も捨てるための合図)。
+    public static int ResetGeneration { get; private set; }
 
     public static bool IsPaused => pauseOwners.Count > 0;
+    public static bool IsPresentationDriving => presentationDriving;
     public static int ActiveReasonCount => pauseOwners.Count;
+
+    // シーンの読み直し(リトライ/ホーム帰還)で呼ぶ: 自動スローだけを通常へ戻す(停止理由には触れない)。
+    public static void ResetAutoScale()
+    {
+        autoScale = 1f;
+        ResetGeneration++;
+        Apply();
+    }
+
+    public static void SetAutoScale(float scale)
+    {
+        scale = Mathf.Clamp(scale, 0.05f, 1f);
+        if (Mathf.Approximately(scale, autoScale)) return;
+        autoScale = scale;
+        Apply();
+    }
 
     public static void Pause(object owner)
     {
@@ -50,23 +78,36 @@ public static class TimeControl
         Apply();
     }
 
-    public static void BeginPresentationDrive(object owner)
+    // ボス登場演出のテンポランプを始める。ランプの開始値として、その時点の自動スロー倍率を返す。
+    public static float BeginPresentationDrive(object owner)
     {
         presentationDriving = true;
-        if (owner != null) pauseOwners.Add(owner);
+        presentationOwner = owner;
+        presentationScale = autoScale;
+        Apply();
+        return autoScale;
+    }
+
+    public static void SetPresentationScale(object owner, float scale)
+    {
+        if (!presentationDriving || owner != presentationOwner) return;
+        presentationScale = Mathf.Clamp01(scale);
+        Apply();
     }
 
     public static void EndPresentationDrive(object owner)
     {
+        if (!presentationDriving || (owner != null && owner != presentationOwner)) return;
         presentationDriving = false;
-        if (owner != null) pauseOwners.Remove(owner);
+        presentationOwner = null;
         Apply();
     }
 
     static void Apply()
     {
-        if (presentationDriving) return;
-        Time.timeScale = pauseOwners.Count > 0 ? 0f : 1f;
+        if (pauseOwners.Count > 0) Time.timeScale = 0f;
+        else if (presentationDriving) Time.timeScale = presentationScale;
+        else Time.timeScale = autoScale;
     }
 
     // リトライ/ホーム帰還/ゲームオーバーなど、「理由がどうあれ必ず通常状態
@@ -76,12 +117,15 @@ public static class TimeControl
     {
         pauseOwners.Clear();
         presentationDriving = false;
+        presentationOwner = null;
+        autoScale = 1f;
+        ResetGeneration++;
         Time.timeScale = 1f;
     }
 
     public static string DescribeActiveReasons()
     {
-        if (pauseOwners.Count == 0) return "(none)";
+        if (pauseOwners.Count == 0) return presentationDriving ? $"(presentation x{presentationScale:F2})" : "(none)";
         var sb = new StringBuilder();
         bool first = true;
         foreach (object o in pauseOwners)

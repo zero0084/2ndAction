@@ -189,8 +189,10 @@ public class BossMilestonePresentation : MonoBehaviour
             // DisableBossTimeScalePresentation is on (nothing above ever
             // moved it off 1 in that case either), kept unconditional for
             // clarity/symmetry with the other 3 touch-points below.
-            Time.timeScale = 1f;
-            if (GameManager.Instance != null) GameManager.Instance.LogBoss("TimeScale = 1");
+            // 自動スロー(2026-09-27): 「1へ戻す」ではなく演出の制御をやめて、その時点の
+            // 自動スロー倍率(停止理由があれば0)へ戻す。
+            TimeControl.EndPresentationDrive(this);
+            if (GameManager.Instance != null) GameManager.Instance.LogBoss($"TimeScale = {Time.timeScale:F2} (auto)");
             if (GameManager.Instance != null) GameManager.Instance.LogBoss("SpawnPresentationEnd");
 
             PlaySfx(bossAppearSe);
@@ -206,8 +208,8 @@ public class BossMilestonePresentation : MonoBehaviour
         finally
         {
             SpawnOnce(); // no-op if already spawned above - guarantees Boss Spawn is always reached even on an early exit
-            Time.timeScale = capturedTimeScale > 0f ? capturedTimeScale : 1f;
-            FreezeDiagnostics.LogEvent($"[BossPresentation] TimeScale ramp end restored={Time.timeScale:F2}");
+            TimeControl.EndPresentationDrive(this);
+            FreezeDiagnostics.LogEvent($"[BossPresentation] TimeScale ramp end restored={Time.timeScale:F2} (auto={TimeControl.AutoScale:F2})");
             if (GameManager.Instance != null) GameManager.Instance.SetPresentationDamageLock(false);
             if (AudioManager.Instance != null) AudioManager.Instance.UnduckBgm(bgmDuckFadeDuration);
         }
@@ -246,25 +248,31 @@ public class BossMilestonePresentation : MonoBehaviour
     // Play()側で完全に別処理(FadeDark/PlayWarning)のため無関係に再生され
     // 続ける。TimeScale操作自体がFreeze原因かどうかを切り分けるための、
     // 診断専用の分岐(本仕様として削除するものではない)。
+    // 自動スロー(2026-09-27) - Time.timeScaleへ直接書かず、TimeControlの「演出」層として
+    // 書き込む(完全停止の理由=HitStop等が重なった場合は停止が優先され、解除後は演出の値へ戻る)。
+    // ランプの開始値は1ではなく、開始時点の自動スロー倍率。
     IEnumerator TempoDown(float duration)
     {
+        if (BossDiagnostics.DisableBossTimeScalePresentation) yield break;
+        float start = TimeControl.BeginPresentationDrive(this);
+        float mid = Mathf.Min(tempoMidScale, start);
         float half = duration * 0.5f;
         float t = 0f;
         while (t < 1f)
         {
             t += Time.unscaledDeltaTime / Mathf.Max(0.001f, half);
-            if (!BossDiagnostics.DisableBossTimeScalePresentation) Time.timeScale = Mathf.Lerp(1f, tempoMidScale, Mathf.Clamp01(t));
+            TimeControl.SetPresentationScale(this, Mathf.Lerp(start, mid, Mathf.Clamp01(t)));
             yield return null;
         }
-        if (GameManager.Instance != null) GameManager.Instance.LogBoss($"TimeScale = {tempoMidScale:F1}");
+        if (GameManager.Instance != null) GameManager.Instance.LogBoss($"TimeScale = {mid:F1}");
         t = 0f;
         while (t < 1f)
         {
             t += Time.unscaledDeltaTime / Mathf.Max(0.001f, half);
-            if (!BossDiagnostics.DisableBossTimeScalePresentation) Time.timeScale = Mathf.Lerp(tempoMidScale, 0f, Mathf.Clamp01(t));
+            TimeControl.SetPresentationScale(this, Mathf.Lerp(mid, 0f, Mathf.Clamp01(t)));
             yield return null;
         }
-        if (!BossDiagnostics.DisableBossTimeScalePresentation) Time.timeScale = 0f;
+        TimeControl.SetPresentationScale(this, 0f);
         if (GameManager.Instance != null) GameManager.Instance.LogBoss("TimeScale = 0");
     }
 

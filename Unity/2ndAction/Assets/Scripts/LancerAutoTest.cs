@@ -69,6 +69,8 @@ public class LancerAutoTest : MonoBehaviour
         Check(n(def.hurtFrames) > 0 && n(def.deathFrames) > 0 && n(def.startFrames) == 4 && n(def.finishExtremeFrames) == 2, "reaction/start/finish art");
 
         StartCoroutine(AutoPickLevelUp());
+        // 距離EXPのレベルアップで攻撃速度アップ等のカードが自動で選ばれると、各技の時間が変わって計測がぶれるので止める
+        typeof(GameManager).GetField("expGainMultiplier", BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(gm, 0f);
         yield return TestForwardPierce(pc, anim);
         yield return TestBackward(pc, anim);
         yield return TestUp(pc);
@@ -315,10 +317,16 @@ public class LancerAutoTest : MonoBehaviour
     {
         yield return WaitIdle(pc);
         yield return WaitNoPitAhead(pc, 6f);
-        yield return Flick(pc, PlayerController.FlickDirection.Up);
-        // 上昇のピーク付近まで待つ
+        // 上昇のピーク付近まで待つ(洞窟の天井に当たって早く着地した場合は、空中にいる状態になるまでやり直す)
         float t = 0f;
-        while (t < 0.45f) { yield return null; t += Time.unscaledDeltaTime; }
+        for (int attempt = 0; attempt < 4; attempt++)
+        {
+            yield return Flick(pc, PlayerController.FlickDirection.Up);
+            t = 0f;
+            while (t < 0.3f) { yield return null; t += Time.unscaledDeltaTime; }
+            if (!pc.IsGrounded && pc.transform.position.y > 0.5f + (TerrainManager.Instance != null ? (TerrainManager.Instance.GetHeightAt(pc.transform.position.x) ?? 0f) : 0f)) break;
+            yield return WaitIdle(pc);
+        }
         float airY = pc.transform.position.y;
         // 着地点の周り(前後)に敵を置く
         var near = new[] { Spawn(pc, 0.9f, 0f), Spawn(pc, -0.6f, 0f), Spawn(pc, 1.6f, 0f) };

@@ -736,9 +736,12 @@ public class NetCombat : MonoBehaviour
                 float dx = pos.x - prev.x;
                 if (Mathf.Abs(dx) > 50f) dx = 0f; // FloatingOriginのシフト
                 float v = dx / (now - prev.t);
-                remotePlayers[p.PlayerNumber] = (pos.x, pos.y, Mathf.Lerp(prev.vx, v, 0.2f), now);
+                // 自動スロー(2026-09-27): 実時間で測った移動速度はスロー倍率ぶん遅く出るため、相手が報告して
+                // くる「スロー適用前の走行速度」を優先する(ノックバック等はゲーム内時間で進むので、こちらが正しい基準)。
+                float vx = p.IsRunningRemote(Time.realtimeSinceStartup) ? p.RemoteRunSpeed : Mathf.Lerp(prev.vx, v, 0.2f);
+                remotePlayers[p.PlayerNumber] = (pos.x, pos.y, vx, now);
             }
-            else remotePlayers[p.PlayerNumber] = (pos.x, pos.y, PlayerController.RunFrameSpeed, now);
+            else remotePlayers[p.PlayerNumber] = (pos.x, pos.y, p.IsRunningRemote(Time.realtimeSinceStartup) ? p.RemoteRunSpeed : PlayerController.RunFrameSpeed, now);
         }
     }
 

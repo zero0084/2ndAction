@@ -28,6 +28,8 @@ public class NetAutoTest : MonoBehaviour
     bool shiftTest;
     // Phase 2: 共有の敵を狙って攻撃するボット+戦闘ログ。-netAutoBossAt N でHOSTがN秒後にボスを出す。
     bool combat;
+    float slowOffAt = -1f;
+    bool slowToggled;
     bool combatMix; // 上攻撃(打ち上げ)/下攻撃(叩き落とし)も混ぜる
     int mixStep;
     float bossAt = -1f;
@@ -84,6 +86,7 @@ public class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoTrace") tracePath = next;
             else if (a == "-netAutoEnemyTrace") enemyTracePath = next;
             else if (a == "-netAutoCombat") combat = true;
+            else if (a == "-netAutoSlowOffAt") float.TryParse(next, out slowOffAt);
             else if (a == "-netAutoCombatMix") { combat = true; combatMix = true; }
             else if (a == "-netAutoBossAt") float.TryParse(next, out bossAt);
             else if (a == "-netAutoBossHp") int.TryParse(next, out bossHp);
@@ -195,6 +198,14 @@ public class NetAutoTest : MonoBehaviour
                 }
                 PeriodicLog(gm);
                 if (role == "HOST" && bossAt > 0f && !bossSpawned && runTime >= bossAt) SpawnTestBoss();
+                // 自動スロー(2026-09-27): HOSTがOFFにしたら全員に反映されるか / 参加側は切り替えられないか
+                if (slowOffAt > 0f && !slowToggled && runTime >= slowOffAt && AutoSlowMotion.Instance != null)
+                {
+                    slowToggled = true;
+                    bool before = AutoSlowMotion.Instance.autoSlowEnabled;
+                    AutoSlowMotion.Instance.SetEnabled(false);
+                    L($"slow toggle OFF requested by {role}: canToggle={AutoSlowMotion.Instance.CanToggle} before={before} after={AutoSlowMotion.Instance.autoSlowEnabled}");
+                }
                 if (runTime >= runSeconds) Finish("run time elapsed");
                 break;
             case Step.AfterLeave:
@@ -389,6 +400,10 @@ public class NetAutoTest : MonoBehaviour
         logTimer = 0f;
 
         double lx = pc != null ? pc.transform.position.x + FloatingOrigin.Offset : 0;
+        // 自動スロー(2026-09-27): 両端末の倍率が同じか、速い人の前進の優位が保たれているかの確認用
+        var slow = AutoSlowMotion.Instance;
+        if (slow != null)
+            L($"slow t={runTime:F1} ts={Time.timeScale:F3} auto={TimeControl.AutoScale:F3} target={slow.TargetScale:F3} vmax={slow.JudgedSpeed:F2} own={(pc != null ? pc.CurrentAutoRunSpeed : 0f):F2} n={slow.ContributingPlayers} follower={slow.IsNetworkFollower} enabled={slow.autoSlowEnabled} X={lx:F1}");
         string remoteStr = "none";
         if (a != null)
         {

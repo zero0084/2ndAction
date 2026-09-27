@@ -3996,6 +3996,28 @@ public class GameManager : MonoBehaviour
         Rect speedRect = new Rect(SafeLeft() + UiMargin + speedButtons.Length * (bw + gap), speedRowY, 150f, bh);
         UiBackdrop.Draw(speedRect, 0.55f);
         GUI.Label(new Rect(speedRect.x + 6f, speedRect.y, speedRect.width - 6f, speedRect.height), speedText, speedStyle);
+
+        // 自動スローモーション(2026-09-27 試験実装) - ON/OFFと現在の倍率の比較用。
+        // マルチの参加側はHOSTの設定に従う(ボタンは押せない)。OFFにしてもカード選択/ポーズ等の停止は解除しない。
+        AutoSlowMotion slow = AutoSlowMotion.Instance;
+        if (slow != null)
+        {
+            float slowRowY = speedRowY + bh + 6f;
+            Rect toggleRect = new Rect(SafeLeft() + UiMargin, slowRowY, bw * 1.6f, bh);
+            string toggleLabel = slow.CanToggle ? (slow.autoSlowEnabled ? "SLOW ON" : "SLOW OFF") : (slow.autoSlowEnabled ? "SLOW ON(HOST)" : "SLOW OFF(HOST)");
+            if (DrawStyledButton(toggleRect, toggleLabel, 11f, primary: slow.autoSlowEnabled) && slow.CanToggle)
+            {
+                slow.SetEnabled(!slow.autoSlowEnabled);
+            }
+            string slowText = $"auto x{slow.CurrentAutoScale:F2}  final x{Time.timeScale:F2}  vmax {SpeedKmh(slow.JudgedSpeed):F0}km/h"
+                + (slow.IsNetworkFollower ? "  (HOST値)" : NetCombat.Authority ? $"  ({slow.ContributingPlayers}人)" : "");
+            GUIStyle slowStyle = new GUIStyle(GUI.skin.label) { fontSize = 13, alignment = TextAnchor.MiddleLeft };
+            slowStyle.normal.textColor = slow.CurrentAutoScale < 0.999f ? new Color(0.55f, 0.9f, 1f) : new Color(0.6f, 1f, 0.7f);
+            Vector2 sz = slowStyle.CalcSize(new GUIContent(slowText));
+            Rect slowRect = new Rect(toggleRect.xMax + gap, slowRowY, sz.x + 14f, bh);
+            UiBackdrop.Draw(slowRect, 0.55f);
+            GUI.Label(new Rect(slowRect.x + 6f, slowRect.y, slowRect.width - 6f, slowRect.height), slowText, slowStyle);
+        }
     }
 
     static readonly float[] DebugSpeedSteps = { 0.25f, 0.5f, 0.75f, 1f, 1.25f, 1.5f, 2f, 2.5f, 3f, 4f, 5f, 6f, 8f };

@@ -153,7 +153,7 @@ public static class FreezeDiagnostics
         sb.AppendLine("--- FREEZE/WARP DIAGNOSTICS DUMP ---");
         sb.AppendLine(reason);
         sb.AppendLine();
-        sb.AppendLine($"Time.timeScale={Time.timeScale:F2}  TimeControl.ActiveReasons={TimeControl.DescribeActiveReasons()}  HitStop.ActiveCount={HitStop.ActiveCount}");
+        sb.AppendLine($"Time.timeScale={Time.timeScale:F2}  TimeControl.ActiveReasons={TimeControl.DescribeActiveReasons()}  HitStop.ActiveCount={HitStop.ActiveCount}  AutoSlow={TimeControl.AutoScale:F2}(enabled={(AutoSlowMotion.Instance != null && AutoSlowMotion.Instance.autoSlowEnabled)})");
         sb.AppendLine($"RewardCardSequence.DebugStep={RewardCardSequence.DebugStep}");
         sb.AppendLine();
         sb.AppendLine("Recent frames (oldest -> newest, up to 120):");

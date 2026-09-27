@@ -12,6 +12,7 @@ public struct NetPlayerSnapshot : INetworkSerializable
     public const byte FlagGrounded = 1 << 0;
     public const byte FlagVisible = 1 << 1;
     public const byte FlagTeleported = 1 << 2; // 落下復帰などの瞬間移動 - 受信側は補間せずに飛ばす
+    public const byte FlagRunning = 1 << 3;    // 走行中(ダウン/ゲームオーバー/帰還演出中でない) - 自動スローの判定対象
 
     public double Time;        // 送信側の実時間(秒)。受信側は差分だけを使うので端末間の時計合わせは不要
     public double X;           // 論理X
@@ -26,6 +27,8 @@ public struct NetPlayerSnapshot : INetworkSerializable
     public byte AttackStage;
     public byte FinishTier;
     public byte Flags;
+    // 自動スロー(2026-09-27): スロー適用前の継続的な走行速度(m/s)。HOSTが全員の最高速度で倍率を決める。
+    public float RunSpeed;
 
     public void NetworkSerialize<T>(BufferSerializer<T> s) where T : IReaderWriter
     {
@@ -47,6 +50,7 @@ public struct NetPlayerSnapshot : INetworkSerializable
         s.SerializeValue(ref AttackStage);
         s.SerializeValue(ref FinishTier);
         s.SerializeValue(ref Flags);
+        s.SerializeValue(ref RunSpeed);
     }
 
     public static uint PackColor(Color c)
