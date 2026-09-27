@@ -4,7 +4,9 @@ using UnityEngine;
 
 // カード合成改修(2026-09-26) - 合成のルールと確定処理(UIから独立、テスト可能)。
 //
-//  ・合成Lv = 2枚の合成Lvの合計(上限Lv.9、超えるなら合成不可・消費なし)
+//  ・合成Lv(2026-09-28改訂) = 同名/異名で両方成功 … 2枚の合計 / 異名で片側だけ成功 … 成功した側のLvだけ
+//    (失敗側のLv・能力・強化量は一切加算しない)。入力2枚の合計がLv.9を超える組み合わせは、片側成功の
+//    可能性があっても合成不可・消費なし(上限Lv.9)
 //  ・同名(主能力のカードIDが同じ)… 成功率100%、両方の能力一式を継承(同じ能力は強化量を合算)
 //  ・異名 … 抽選はカードごとの「能力一式」単位。メイン側50%・素材側25%(独立)
 //        両方成功: 両側の能力一式 / メインのみ: メイン側だけ / 素材のみ: 素材側だけ(主能力も素材側)
@@ -97,6 +99,16 @@ public static class CardFusionLogic
         return r;
     }
 
+    // 結果ごとの完成Lv(2026-09-28改訂)。両方継承=合計、片側だけ=成功した側のLvのみ、両方失敗=0(完成品なし)。
+    public static int ResultLevel(CardVariant a, CardVariant b, Kind kind) => kind switch
+    {
+        Kind.SameName => a.level + b.level,
+        Kind.CrossBoth => a.level + b.level,
+        Kind.CrossMainOnly => a.level,
+        Kind.CrossMaterialOnly => b.level,
+        _ => 0,
+    };
+
     public static int RefundFor(CardVariant a, CardVariant b) =>
         a.rarity * a.level * RefundCoefficient + b.rarity * b.level * RefundCoefficient;
 
@@ -104,7 +116,6 @@ public static class CardFusionLogic
     {
         CardVariant a = CardVariant.Parse(mainKey), b = CardVariant.Parse(materialKey);
         var r = new FusionResult { mainKey = mainKey, materialKey = materialKey, main = a, material = b };
-        int level = a.level + b.level;
         if (IsSameName(a, b))
         {
             r.kind = Kind.SameName;
@@ -143,7 +154,7 @@ public static class CardFusionLogic
             r.refundMile = RefundFor(a, b);
             return r;
         }
-        r.result.level = level;
+        r.result.level = ResultLevel(a, b, r.kind);
         r.resultKey = r.result.ToKey();
         return r;
     }
@@ -217,16 +228,19 @@ public static class CardFusionLogic
         else
         {
             sb.Append("<color=#9fd0ff><b>【異名合成】 結果は抽選で決まります</b></color>\n");
-            sb.Append($"成功時の合成Lv: Lv.{a.level} + Lv.{b.level} → <b>Lv.{level}</b>\n\n");
+            sb.Append("<b>完成カードの合成Lv(結果ごと)</b>\n");
+            sb.Append($"・両側成功: Lv.{a.level} + Lv.{b.level} → <b>Lv.{ResultLevel(a, b, Kind.CrossBoth)}</b>\n");
+            sb.Append($"・メインのみ成功: <b>Lv.{ResultLevel(a, b, Kind.CrossMainOnly)}</b>(メイン側のLvのみ)\n");
+            sb.Append($"・素材のみ成功: <b>Lv.{ResultLevel(a, b, Kind.CrossMaterialOnly)}</b>(素材側のLvのみ)\n");
+            sb.Append($"・両側失敗: 完成カードなし・<color=#ffd76a>{RefundFor(a, b)} MILE</color> を還元\n\n");
             sb.Append($"<b>メイン側 能力一式 継承率 {Mathf.RoundToInt(MainInheritChance * 100)}%</b>\n");
             foreach (var x in a.abilities) sb.Append($"・{CardVariant.AbilityName(x.id)} ×{x.stacks}  <size=18>({CardVariant.AbilityEffectText(x.id)} ×{x.stacks})</size>\n");
             sb.Append($"\n<b>素材側 能力一式 継承率 {Mathf.RoundToInt(MaterialInheritChance * 100)}%</b>\n");
             foreach (var x in b.abilities) sb.Append($"・{CardVariant.AbilityName(x.id)} ×{x.stacks}  <size=18>({CardVariant.AbilityEffectText(x.id)} ×{x.stacks})</size>\n");
             sb.Append("\n両方成功: 両側の能力をすべて継承(同じ能力は強化量を合算)\n");
-            sb.Append("片側だけ成功: 成功した側の能力だけを継承(失敗した側の能力は残りません)\n");
+            sb.Append("片側だけ成功: 成功した側の能力・強化量・Lvだけを継承(失敗した側は残りません)\n");
             sb.Append($"素材側だけ成功した場合は、素材側の主能力が完成カードの主能力になります\n");
-            sb.Append($"両方失敗: 完成カードなし・<color=#ffd76a>{RefundFor(a, b)} MILE</color> を還元\n");
-            sb.Append($"<size=18>(還元 = ★{a.rarity}×Lv.{a.level}×{RefundCoefficient} + ★{b.rarity}×Lv.{b.level}×{RefundCoefficient})</size>\n");
+            sb.Append($"<size=18>(両側失敗の還元 =★{a.rarity}×Lv.{a.level}×{RefundCoefficient} + ★{b.rarity}×Lv.{b.level}×{RefundCoefficient})</size>\n");
         }
         sb.Append("\n<color=#ff9a8a>実行すると、選んだ2枚は消費されます。</color>");
         return sb.ToString();

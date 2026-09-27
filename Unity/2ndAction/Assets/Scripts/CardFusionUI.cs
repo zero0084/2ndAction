@@ -625,7 +625,7 @@ public class CardFusionUI : MonoBehaviour
     {
         bool hasMain = !string.IsNullOrEmpty(mainKey), hasMat = !string.IsNullOrEmpty(materialKey);
         if (!hasMain && !hasMat)
-            return "左の一覧からカードを選んでください。\n\n選択中の枠(光っている枠)にカードが入ります。枠をタップすると選択先を切り替えられ、×で選択を外せます。\n\n・同じカード同士 … 成功率100%で合成Lvと全能力を合算\n・違うカード同士 … メイン側50%/素材側25%で能力一式を継承(抽選)\n・合成Lvの上限はLv.9";
+            return "左の一覧からカードを選んでください。\n\n選択中の枠(光っている枠)にカードが入ります。枠をタップすると選択先を切り替えられ、×で選択を外せます。\n\n・同じカード同士 … 成功率100%で合成Lvと全能力を合算\n・違うカード同士 … メイン側50%/素材側25%で能力一式を継承(抽選)。片側だけ成功した場合は、成功した側のLvと能力だけが残ります\n・合成Lvの上限はLv.9(2枚の合計がLv.9を超える組み合わせは合成できません)";
         var sb = new StringBuilder();
         if (hasMain) sb.Append(CardDetail(mainKey, "メイン")).Append('\n');
         if (hasMat) sb.Append(CardDetail(materialKey, "素材")).Append('\n');
@@ -1005,8 +1005,12 @@ public class CardFusionUI : MonoBehaviour
             if (r.kind == CardFusionLogic.Kind.SameName) sb.Append("<color=#ffd76a>同名強化(確定)</color> … 両方の能力をすべて継承\n\n");
             else
             {
-                sb.Append($"メイン側({CardDatabase.FindById(r.mainKey)?.cardName}): {(r.mainInherited ? "<color=#ffd76a>継承成功</color>" : "<color=#9aa3b8>継承失敗</color>")}\n");
-                sb.Append($"素材側({CardDatabase.FindById(r.materialKey)?.cardName}): {(r.materialInherited ? "<color=#ffd76a>継承成功</color>" : "<color=#9aa3b8>継承失敗</color>")}\n\n");
+                sb.Append($"メイン側({CardDatabase.FindById(r.mainKey)?.cardName} Lv.{r.main.level}): {(r.mainInherited ? "<color=#ffd76a>継承成功</color>" : "<color=#9aa3b8>継承失敗</color>")}\n");
+                sb.Append($"素材側({CardDatabase.FindById(r.materialKey)?.cardName} Lv.{r.material.level}): {(r.materialInherited ? "<color=#ffd76a>継承成功</color>" : "<color=#9aa3b8>継承失敗</color>")}\n");
+                // 完成Lvの内訳(2026-09-28改訂: 片側だけ成功なら成功側のLvのみ)
+                string lvRule = r.kind == CardFusionLogic.Kind.CrossBoth ? $"Lv.{r.main.level} + Lv.{r.material.level}"
+                    : r.kind == CardFusionLogic.Kind.CrossMainOnly ? "メイン側のLvのみ" : "素材側のLvのみ";
+                sb.Append($"<size=21>完成Lv.{v.level} = {lvRule}</size>\n\n");
             }
             sb.Append($"<b>主能力</b>\n{AbilityResultLine(v.Main, r.baseline)}\n");
             sb.Append($"\n<b>サブ能力 ({v.AbilityCount - 1}/{CardVariant.MaxAbilities - 1})</b>\n");

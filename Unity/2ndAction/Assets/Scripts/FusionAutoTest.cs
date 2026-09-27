@@ -214,8 +214,14 @@ public class FusionAutoTest : MonoBehaviour
     void TestCrossOutcomes()
     {
         L("== Cross outcomes ==");
-        string main = Key(A, 2, R(A), (A, 2), (C, 1));
-        string mat = Key(B, 1, R(B), (B, 1), (D, 2));
+        // 2026-09-28改訂: 片側だけ成功した時は成功側のLvだけ(メインLv.3+素材Lv.2 → 両方5/メインのみ3/素材のみ2)
+        string main = Key(A, 3, R(A), (A, 3), (C, 1));
+        string mat = Key(B, 2, R(B), (B, 2), (D, 2));
+        {
+            string pv = CardFusionLogic.Preview(main, mat);
+            Check(pv.Contains("両側成功: Lv.3 + Lv.2 → <b>Lv.5</b>") && pv.Contains("メインのみ成功: <b>Lv.3</b>") && pv.Contains("素材のみ成功: <b>Lv.2</b>") && pv.Contains($"{R(A) * 3 * 50 + R(B) * 2 * 50} MILE"),
+                "合成前の予告: 両側成功Lv.5/メインのみLv.3/素材のみLv.2と還元額を表示");
+        }
         foreach (CardFusionLogic.ForcedOutcome f in System.Enum.GetValues(typeof(CardFusionLogic.ForcedOutcome)))
         {
             ClearAll();
@@ -230,23 +236,35 @@ public class FusionAutoTest : MonoBehaviour
             switch (f)
             {
                 case CardFusionLogic.ForcedOutcome.BothSuccess:
-                    Check(saved != null && saved.mainId == A && saved.level == 3 && saved.StacksOf(A) == 2 && saved.StacksOf(C) == 1 && saved.StacksOf(B) == 1 && saved.StacksOf(D) == 2 && saved.AbilityCount == 4, "両方成功: 両側の能力一式・Lv.3");
+                    Check(saved != null && saved.mainId == A && saved.level == 5 && saved.StacksOf(A) == 3 && saved.StacksOf(C) == 1 && saved.StacksOf(B) == 2 && saved.StacksOf(D) == 2 && saved.AbilityCount == 4, "両方成功: 両側の能力一式・Lv.5");
                     Check(saved != null && saved.rarity == Mathf.Min(5, Mathf.Max(R(A), R(B)) + 1), "両方成功: レア度=高い方+1");
                     break;
                 case CardFusionLogic.ForcedOutcome.MainOnly:
-                    Check(saved != null && saved.mainId == A && saved.level == 3 && saved.AbilityCount == 2 && saved.StacksOf(B) == 0 && saved.StacksOf(D) == 0, "メインのみ: メイン側だけ(素材側の能力が混入しない)・Lv.3");
+                    Check(saved != null && saved.mainId == A && saved.level == 3 && saved.AbilityCount == 2 && saved.StacksOf(A) == 3 && saved.StacksOf(C) == 1 && saved.StacksOf(B) == 0 && saved.StacksOf(D) == 0, "メインのみ: メイン側の能力一式と強化量だけ(素材側が混入しない)・Lv.3(素材のLvを加算しない)");
+                    Check(r.result.level == 3, "メインのみ: リザルトの完成Lvも3(保存データと一致)");
                     break;
                 case CardFusionLogic.ForcedOutcome.MaterialOnly:
-                    Check(saved != null && saved.mainId == B && saved.level == 3 && saved.AbilityCount == 2 && saved.StacksOf(A) == 0 && saved.StacksOf(C) == 0 && saved.Main.id == B, "素材のみ: 素材側だけ・主能力も素材側・Lv.3");
+                    Check(saved != null && saved.mainId == B && saved.level == 2 && saved.AbilityCount == 2 && saved.StacksOf(B) == 2 && saved.StacksOf(D) == 2 && saved.StacksOf(A) == 0 && saved.StacksOf(C) == 0 && saved.Main.id == B, "素材のみ: 素材側の能力一式と強化量だけ・主能力も素材側・Lv.2(メインのLvを加算しない)");
+                    Check(r.result.level == 2, "素材のみ: リザルトの完成Lvも2(保存データと一致)");
                     Check(CardDatabase.FindById(r.resultKey).cardName == CardDatabase.FindBaseById(B).cardName, "素材のみ: 名前も素材側の主能力に合わせる");
                     break;
                 case CardFusionLogic.ForcedOutcome.BothFail:
                     Check(r.resultKey == null && CardInventory.Stacks.Count == 0, "両方失敗: 完成カードなし・2枚とも消費");
-                    Check(gm.TotalOwnedMile == mile0 + r.refundMile && r.refundMile == R(A) * 2 * 50 + R(B) * 1 * 50, $"両方失敗: MILE還元 {r.refundMile}(保存後も一致)");
+                    Check(gm.TotalOwnedMile == mile0 + r.refundMile && r.refundMile == R(A) * 3 * 50 + R(B) * 2 * 50, $"両方失敗: MILE還元 {r.refundMile}(保存後も一致)");
                     break;
             }
-            if (saved != null) Check(Count(r.resultKey) == 1 && Count(main) == 0 && Count(mat) == 0, $"{f}: 保存データでも完成品1枚・素材0枚");
+            // メインのみ成功の完成品はメインと同じ性能(同じキー)になるので、「所持の合計が完成品1枚だけ」で確認する
+            int total = 0; foreach (var st in CardInventory.Stacks) total += st.count;
+            if (saved != null) Check(Count(r.resultKey) == 1 && total == 1 && gm.TotalOwnedMile == mile0, $"{f}: 保存データでも2枚消費・完成品1枚だけが残る・MILE変化なし (所持{total}枚)");
         }
+
+        // 異名でも入力2枚の合計がLv.10以上なら、片側成功の可能性があっても合成不可(何も消費しない)
+        ClearAll();
+        string m5 = Key(A, 5, R(A), (A, 5)), s5 = Key(B, 5, R(B), (B, 5));
+        Give(m5, 1); Give(s5, 1);
+        int mileB = gm.TotalOwnedMile;
+        var blocked = CardFusionLogic.Execute(m5, s5, out string be);
+        Check(blocked == null && Count(m5) == 1 && Count(s5) == 1 && gm.TotalOwnedMile == mileB, "異名Lv.5+Lv.5(合計10)は片側成功でも合成不可・消費なし: " + be);
     }
 
     void TestRefund()
@@ -408,8 +426,9 @@ public class FusionAutoTest : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.3f);
         ui.DebugFuse();
         ui.DebugSkip();
-        t = 0f;
-        while (t < 5f && !ui.IsShowingResult) { t += Time.unscaledDeltaTime; yield return null; }
+        // batchmodeではフレームのdeltaTimeと実時間がずれるので、実時間で待つ(全失敗の経路と同じ)。
+        float wall1 = Time.realtimeSinceStartup;
+        while (Time.realtimeSinceStartup - wall1 < 12f && !ui.IsShowingResult) yield return null;
         var res = CardFusionLogic.LastResult;
         Check(ui.IsShowingResult && res != null && res.kind == CardFusionLogic.Kind.CrossBoth, "スキップしてもリザルトが確認できる");
         Check(Count(a2) == 0 && Count(C) == 0 && Count(res.resultKey) == 1, "連打しても1回分だけ消費・完成品1枚");
@@ -417,6 +436,33 @@ public class FusionAutoTest : MonoBehaviour
         ui.DebugContinue();
         yield return null;
         Check(ui.MainKey == res.resultKey && ui.MaterialKey == null, "続けて合成: 完成カードがメイン、素材枠は空");
+
+        // 2026-09-28改訂: 異名メインLv.3+素材Lv.2 → メインのみ成功はLv.3(画面の予告・リザルト・保存・続けて合成が一致)
+        string m3 = Key(A, 3, R(A), (A, 3), (C, 1)), s2 = Key(D, 2, R(D), (D, 2), (B, 1));
+        Give(m3, 1); Give(s2, 1);
+        ui.DebugSelect(m3, s2);
+        string detail = ui.DebugDetailText;
+        Check(detail.Contains("両側成功: Lv.3 + Lv.2 → <b>Lv.5</b>") && detail.Contains("メインのみ成功: <b>Lv.3</b>") && detail.Contains("素材のみ成功: <b>Lv.2</b>") && detail.Contains("MILE"),
+            "画面の予告: 両側成功Lv.5/メインのみLv.3/素材のみLv.2/全失敗の還元額");
+        CardFusionLogic.DebugForcedOutcome = CardFusionLogic.ForcedOutcome.MainOnly;
+        ui.DebugFuse(); ui.DebugFuse();
+        CardFusionLogic.DebugForcedOutcome = null;
+        yield return new WaitForSecondsRealtime(0.3f);
+        ui.DebugFuse();
+        ui.DebugSkip();
+        float wall2 = Time.realtimeSinceStartup;
+        while (Time.realtimeSinceStartup - wall2 < 12f && !ui.IsShowingResult) yield return null;
+        var mo = CardFusionLogic.LastResult;
+        CardVariant moSaved = mo != null && mo.resultKey != null ? CardVariant.Parse(mo.resultKey) : null;
+        Check(ui.IsShowingResult && mo != null && mo.kind == CardFusionLogic.Kind.CrossMainOnly && moSaved != null && moSaved.level == 3
+              && moSaved.StacksOf(D) == 0 && moSaved.StacksOf(B) == 0 && moSaved.StacksOf(A) == 3 && moSaved.StacksOf(C) == 1,
+            "画面から実行: メインのみ成功はLv.3・メイン側の能力と強化量だけ");
+        Check(ui.DebugResultText.Contains("合成Lv.<b>3</b>") && ui.DebugResultText.Contains("メイン側のLvのみ") && ui.DebugResultText.Contains("継承失敗"),
+            "リザルト: 完成Lv.3と内訳・継承成否が保存データと一致: " + ui.DebugResultText.Replace('\n', '|'));
+        Check(Count(s2) == 0 && Count(mo.resultKey) == 1, "連打・スキップしても2枚を1回だけ消費し、完成品は1枚");
+        ui.DebugContinue();
+        yield return null;
+        Check(ui.MainKey == mo.resultKey && CardVariant.Parse(ui.MainKey).level == 3, "続けて合成: 修正後のLv.3のカードがメインに入る");
 
         // 全失敗の画面
         ui.DebugSelect(A, B);
