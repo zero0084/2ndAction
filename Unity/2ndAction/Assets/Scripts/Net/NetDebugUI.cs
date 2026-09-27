@@ -121,19 +121,36 @@ public class NetDebugUI : MonoBehaviour
 
     void DrawPanel(float w, float h)
     {
-        float pw = Mathf.Min(620f, w - 32f), ph = Mathf.Min(560f, h - 32f);
+        float pw = Mathf.Min(620f, w - 32f), ph = Mathf.Min(680f, h - 32f);
         Rect panel = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f, pw, ph);
         GUI.Box(panel, "");
         GUI.Box(panel, "");
         GUILayout.BeginArea(new Rect(panel.x + 20f, panel.y + 16f, pw - 40f, ph - 32f));
 
-        GUILayout.Label("LOCAL MULTIPLAYER (開発版 Phase 1)", titleStyle);
+        GUILayout.Label("LOCAL MULTIPLAYER (開発版)", titleStyle);
         GUILayout.Label("同じWi-Fi、または片方のスマホのテザリングに2台を接続してください。", smallStyle);
         GUILayout.Space(6f);
 
         string ips = localIps.Count > 0 ? string.Join("  /  ", localIps) : "(取得できません - 端末のWi-Fi設定で確認してください)";
         GUILayout.Label("この端末のIP: " + ips, labelStyle);
         if (!string.IsNullOrEmpty(NetSession.Instance.StatusText)) GUILayout.Label("状態: " + NetSession.Instance.StatusText, labelStyle);
+        GUILayout.Space(6f);
+
+        // Phase 3: ゲームモード(HOSTが選んだものがセッション全体の正解。JOINは選べない)。
+        if (!NetSession.IsClientOnly)
+        {
+            MultiplayerGameMode mode = NetRunLauncher.SelectedMode;
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("MODE", labelStyle, GUILayout.Width(90f));
+            if (GUILayout.Toggle(mode == MultiplayerGameMode.Coop, "CO-OP", buttonStyle, GUILayout.Height(46f))) mode = MultiplayerGameMode.Coop;
+            if (GUILayout.Toggle(mode == MultiplayerGameMode.Versus, "VERSUS", buttonStyle, GUILayout.Height(46f))) mode = MultiplayerGameMode.Versus;
+            GUILayout.EndHorizontal();
+            if (mode != NetRunLauncher.SelectedMode) NetRunLauncher.SelectedMode = mode;
+            GUILayout.Label(mode == MultiplayerGameMode.Coop
+                ? "CO-OP: 倒れたらDOWN。倒れた地点まで来た仲間(HP2以上)がHPを1つ渡すと復活。全員DOWNで終了。"
+                : "VERSUS: 倒れたら脱落(復活なし)。最後の1人まで続き、到達距離で順位が決まる。", smallStyle);
+        }
+        else GUILayout.Label("MODE: HOSTが選択します(Run開始時に自動で揃います)", smallStyle);
         GUILayout.Space(8f);
 
         if (!NetSession.IsActive)
@@ -198,7 +215,7 @@ public class NetDebugUI : MonoBehaviour
         if (!NetSession.IsActive) text = "MULTI: 切断";
         else
         {
-            text = $"MULTI {NetSession.ConnectedPlayerCount}P";
+            text = $"MULTI {NetSession.ConnectedPlayerCount}P {(NetRunLauncher.ActiveMode == MultiplayerGameMode.Coop ? "CO-OP" : "VERSUS")}";
             foreach (NetPlayer p in NetPlayer.All)
             {
                 if (p.IsOwner) continue;

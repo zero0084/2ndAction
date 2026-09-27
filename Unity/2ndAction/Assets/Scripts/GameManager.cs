@@ -2626,6 +2626,13 @@ public class GameManager : MonoBehaviour
         return true;
     }
 
+    // Phase 3: HOSTがこの端末のプレイヤーのHPを直接決めた(復活の授受/DOWN)。
+    public void NetSetLocalLives(int n)
+    {
+        if (n > maxLives) maxLives = n;
+        Lives = Mathf.Max(0, n);
+    }
+
     float netLocalHpRequestUntil;
     public void NetNoteLocalHpRequest() { netLocalHpRequestUntil = Time.realtimeSinceStartup + 0.5f; }
 

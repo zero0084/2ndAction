@@ -140,7 +140,12 @@ public class EnemyTargetSelector : MonoBehaviour
     public void Evaluate(bool force)
     {
         var list = NetTargets.Candidates();
-        if (list.Count == 0) return;
+        if (list.Count == 0)
+        {
+            // 狙える相手がいない(全員DOWN/脱落など): 狙いを外す(AIの追跡先Transformはそのまま)。
+            if (TargetPlayer != 0) { TargetPlayer = 0; OnTargetChanged?.Invoke(default); }
+            return;
+        }
         bool currentValid = NetTargets.TryGet(TargetPlayer, out NetTargets.Candidate cur);
         NetTargets.Candidate pick;
         switch (strategy)

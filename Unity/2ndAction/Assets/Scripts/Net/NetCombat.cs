@@ -294,7 +294,7 @@ public class NetCombat : MonoBehaviour
             int before = ent.Target;
             ent.Target = c.Player;
             ApplyTarget(ent, c.T);
-            if (before != c.Player) Log("TARGET", $"{KindTag(ent.Kind)} id={ent.Id} type={ent.TypeKey} Target P{(before > 0 ? before.ToString() : "-")} -> P{c.Player} (switches={sel.SwitchCount})");
+            if (before != c.Player) Log("TARGET", $"{KindTag(ent.Kind)} id={ent.Id} type={ent.TypeKey} Target P{(before > 0 ? before.ToString() : "-")} -> {(c.Player > 0 ? "P" + c.Player : "none (no active player)")} (switches={sel.SwitchCount})");
         };
     }
 
@@ -825,15 +825,27 @@ public class NetCombat : MonoBehaviour
         return TryGetAttacker(0, out scenePos, out forwardSpeed);
     }
 
-    // 生きている全プレイヤー(自分+相手の分身)のシーン座標X範囲。
+    // 活動中(ALIVE)の全プレイヤー(自分+相手の分身)のシーン座標X範囲。敵の片付け/送信頻度の基準。
+    // Phase 3: DOWN/脱落/切断した人は基準にしない(後方で倒れた人のせいで敵がいつまでも残らないように)。
+    // 活動中が誰もいない時(全員DOWN直後など)は従来どおり全員を使う。
     public static bool AllPlayersRangeSceneX(out float minX, out float maxX)
+    {
+        if (RangeSceneX(true, out minX, out maxX)) return true;
+        return RangeSceneX(false, out minX, out maxX);
+    }
+
+    static bool RangeSceneX(bool aliveOnly, out float minX, out float maxX)
     {
         minX = float.MaxValue; maxX = float.MinValue;
         PlayerController pc = PlayerController.Instance;
-        if (pc != null) { minX = maxX = pc.transform.position.x; }
+        if (pc != null && (!aliveOnly || NetMatch.IsLocalAlive)) { minX = maxX = pc.transform.position.x; }
         if (Instance != null)
         {
-            foreach (var r in Instance.remotePlayers.Values) { minX = Mathf.Min(minX, r.x); maxX = Mathf.Max(maxX, r.x); }
+            foreach (var kv in Instance.remotePlayers)
+            {
+                if (aliveOnly && !NetMatch.IsPlayerActive(kv.Key)) continue;
+                minX = Mathf.Min(minX, kv.Value.x); maxX = Mathf.Max(maxX, kv.Value.x);
+            }
         }
         return minX <= maxX;
     }
@@ -844,21 +856,40 @@ public class NetCombat : MonoBehaviour
         return ok;
     }
 
-    // HOSTの地形生成/破棄・敵の諦め判定で使う基準X(マルチRunのHOSTだけ全プレイヤーを考慮)。
+    // HOSTの地形の破棄で使う基準X(マルチRunのHOSTだけ全プレイヤーを考慮)。
+    // Phase 3: CO-OPでDOWNした人の足場は、その地点で復活できるよう残す(脱落/切断した人は考慮しない)。
     public static float RearmostPlayerX(float localX)
     {
         if (!Authority || Instance == null) return localX;
-        float x = localX;
-        foreach (var r in Instance.remotePlayers.Values) x = Mathf.Min(x, r.x);
-        return x;
+        bool any = false;
+        float x = float.MaxValue;
+        if (KeepsTerrain(LocalPlayerNumber)) { x = localX; any = true; }
+        foreach (var kv in Instance.remotePlayers)
+            if (KeepsTerrain(kv.Key)) { x = Mathf.Min(x, kv.Value.x); any = true; }
+        return any ? x : localX;
     }
 
+    static bool KeepsTerrain(int pn)
+    {
+        var r = NetMatch.Get(pn);
+        return r == null || r.State == NetMatch.PState.Alive || r.State == NetMatch.PState.Down;
+    }
+
+    // HOSTの地形生成で使う基準X(自分と、活動中の相手の最前)。自分のカメラの先は常に生成しておく。
     public static float ForemostPlayerX(float localX)
     {
         if (!Authority || Instance == null) return localX;
         float x = localX;
-        foreach (var r in Instance.remotePlayers.Values) x = Mathf.Max(x, r.x);
+        foreach (var kv in Instance.remotePlayers)
+            if (NetMatch.IsPlayerActive(kv.Key)) x = Mathf.Max(x, kv.Value.x);
         return x;
+    }
+
+    // 敵の「追いつけないので諦める」判定の基準X(活動中のプレイヤーの最後尾)。
+    public static float RearmostAlivePlayerX(float fallbackX)
+    {
+        if (!Authority || Instance == null) return fallbackX;
+        return AllPlayersRangeSceneX(out float rear, out _) ? rear : fallbackX;
     }
 
     // ===================================================================== //

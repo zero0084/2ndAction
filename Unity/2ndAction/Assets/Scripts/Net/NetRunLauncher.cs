@@ -15,6 +15,11 @@ using UnityEngine.SceneManagement;
 //     カウントダウンは「GO!の時刻」に合わせて待つ(ShouldHoldCountdown) - 読み込み速度の差を吸収
 //
 // シングルプレイ(セッション無し)では一切何もしない。
+//
+// Phase 3(2026-09-27): HOSTが選んだゲームモード(CO-OP/VERSUS)もRun開始の通知に載せて配る。
+// 各端末はRun中そのモードだけを使う(JOIN側の設定は使わない = HOSTの選択がセッション全体の正解)。
+public enum MultiplayerGameMode : byte { Coop = 0, Versus = 1 }
+
 public class NetRunLauncher : MonoBehaviour
 {
     const string RunStartMessage = "OMM.RunStart";
@@ -30,6 +35,24 @@ public class NetRunLauncher : MonoBehaviour
     // 出発の通知は受け取ったがシーン読み込みがまだのRunのSeed(0=無し)。Phase 2の共有敵の
     // 出現通知がシーン読み込みより先に届いた場合に、捨てずに保持しておくのに使う。
     public static int PendingRunSeed => pending ? pendingSeed : 0;
+
+    // Phase 3: HOSTが次のRunに使うモード(HOST端末で選ぶ。保存される)と、現在のRunのモード(HOSTから届いた値)。
+    const string ModePrefKey = "net.mode";
+    public static MultiplayerGameMode SelectedMode
+    {
+        get => (MultiplayerGameMode)Mathf.Clamp(PlayerPrefs.GetInt(ModePrefKey, 0), 0, 1);
+        set { PlayerPrefs.SetInt(ModePrefKey, (int)value); PlayerPrefs.Save(); }
+    }
+    public static MultiplayerGameMode ActiveMode { get; private set; } = MultiplayerGameMode.Coop;
+    static MultiplayerGameMode pendingMode;
+
+    // HOSTの状態表が別のモードを示していたら、HOSTに合わせる(通常は起きない安全策)。
+    public static void ForceActiveMode(MultiplayerGameMode mode)
+    {
+        if (!IsMultiplayerRun || ActiveMode == mode) return;
+        NetSession.Log($"Game mode corrected to HOST's {mode} (was {ActiveMode})");
+        ActiveMode = mode;
+    }
 
     static bool pending;
     static string pendingStageId;
@@ -94,20 +117,22 @@ public class NetRunLauncher : MonoBehaviour
         NetworkManager nm = NetSession.Manager;
         int seed = Random.Range(1, int.MaxValue);
         double go = nm.ServerTime.Time + StartLeadSeconds;
+        MultiplayerGameMode mode = SelectedMode;
         using (var writer = new FastBufferWriter(128, Allocator.Temp))
         {
             var stage = new FixedString64Bytes(stageId ?? "");
             writer.WriteValueSafe(stage);
             writer.WriteValueSafe(seed);
             writer.WriteValueSafe(go);
+            writer.WriteValueSafe((byte)mode);
             foreach (ulong clientId in nm.ConnectedClientsIds)
             {
                 if (clientId == NetworkManager.ServerClientId) continue;
                 nm.CustomMessagingManager.SendNamedMessage(RunStartMessage, clientId, writer, NetworkDelivery.ReliableSequenced);
             }
         }
-        NetSession.Log($"Run start broadcast stage={stageId} seed={seed} goServerTime={go:F2}");
-        BeginRunReload(stageId, seed, go);
+        NetSession.Log($"Run start broadcast stage={stageId} seed={seed} goServerTime={go:F2} mode={mode}");
+        BeginRunReload(stageId, seed, go, mode);
         return true;
     }
 
@@ -116,15 +141,17 @@ public class NetRunLauncher : MonoBehaviour
         reader.ReadValueSafe(out FixedString64Bytes stage);
         reader.ReadValueSafe(out int seed);
         reader.ReadValueSafe(out double go);
-        NetSession.Log($"Run start received from clientId={senderClientId} stage={stage} seed={seed}");
-        BeginRunReload(stage.ToString(), seed, go);
+        reader.ReadValueSafe(out byte mode);
+        NetSession.Log($"Run start received from clientId={senderClientId} stage={stage} seed={seed} mode={(MultiplayerGameMode)mode}");
+        BeginRunReload(stage.ToString(), seed, go, (MultiplayerGameMode)mode);
     }
 
-    static void BeginRunReload(string stageId, int seed, double go)
+    static void BeginRunReload(string stageId, int seed, double go, MultiplayerGameMode mode)
     {
         pending = true;
         pendingStageId = stageId;
         pendingSeed = seed;
+        pendingMode = mode;
         goServerTime = go;
         TimeControl.ResetAll();
         int buildIndex = SceneManager.GetActiveScene().buildIndex;
@@ -143,9 +170,10 @@ public class NetRunLauncher : MonoBehaviour
             IsMultiplayerRun = true;
             ActiveRunSeed = pendingSeed;
             ActiveRunStageId = pendingStageId;
+            ActiveMode = pendingMode;
             WorldRng.BeginDeterministic(pendingSeed);
             holdElapsed = 0f;
-            NetSession.Log($"Multiplayer run scene ready stage={pendingStageId} seed={pendingSeed}");
+            NetSession.Log($"Multiplayer run scene ready stage={pendingStageId} seed={pendingSeed} mode={ActiveMode}");
             StartCoroutine(BeginRunNextFrame(pendingStageId));
         }
         else

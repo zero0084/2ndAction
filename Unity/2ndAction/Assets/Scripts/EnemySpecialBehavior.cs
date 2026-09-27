@@ -383,7 +383,7 @@ public class EnemySpecialBehavior : MonoBehaviour
         // forever off-screen (item 3).
         // マルチプレイPhase 2 - HOSTでは最後尾のプレイヤーを基準にする(後ろのプレイヤーの敵を消さない)。
         if ((kind == EnemyBehaviorKind.Chaser || kind == EnemyBehaviorKind.Rusher)
-            && NetCombat.RearmostPlayerX(player.position.x) - transform.position.x > giveUpDistanceBehindPlayer)
+            && NetCombat.RearmostAlivePlayerX(player.position.x) - transform.position.x > giveUpDistanceBehindPlayer)
         {
             gameObject.SetActive(false);
             return;

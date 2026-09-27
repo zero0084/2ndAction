@@ -834,6 +834,9 @@ public partial class PlayerController : MonoBehaviour
         // a leftover jump/attack gesture that fires the instant play resumes.
         if (Time.timeScale <= 0f) return;
 
+        // マルチプレイPhase 3: DOWN(CO-OP)/脱落(VERSUS)中は走行も入力も止める(その場に留まる)。
+        if (netDowned) { NetDownedTick(); return; }
+
         if (hitInvincibleTimer > 0f)
         {
             hitInvincibleTimer = Mathf.Max(0f, hitInvincibleTimer - Time.deltaTime);
@@ -1420,6 +1423,54 @@ public partial class PlayerController : MonoBehaviour
     }
 
     public void NetClaimRejected(int seq) { netClaimPendingUntil = 0f; }
+
+    // ===== マルチプレイPhase 3: DOWN(CO-OP) / 脱落(VERSUS) =====
+    bool netDowned, netEliminated;
+    Color netColorBeforeDown = Color.white;
+    public bool NetIsDowned => netDowned;
+
+    // HOSTがこのプレイヤーをDOWN/脱落と判定した。操作不可・走行停止・被弾しない(TakeDamage側で除外)。
+    public void NetEnterDown(bool eliminated)
+    {
+        if (netDowned) return;
+        netDowned = true;
+        netEliminated = eliminated;
+        CancelAttacksForReaction();
+        velocityY = 0f;
+        knockbackTimer = 0f;
+        lungeVelocityX = 0f;
+        moveSlowTimer = 0f;
+        netClaimPendingUntil = 0f;
+        // 空中/穴の上で倒れた時だけ、その地点の足場へ寄せる(前方へは進めない)。
+        if (!isGrounded) RespawnAtCurrentPosition(true);
+        // 倒れている間はHurtの姿勢のまま(入力/攻撃も既存のリアクション中と同じく受け付けない)。
+        Reaction = ReactionKind.Hurt;
+        reactionTotal = reactionTimer = 9999f;
+        hitInvincibleTimer = 0f;
+        if (sr != null) { netColorBeforeDown = sr.color; sr.enabled = true; }
+        FreezeDiagnostics.LogEvent($"[Net] {(eliminated ? "ELIMINATED" : "DOWN")} at x={transform.position.x:F2} dist={DistanceExact:F1}");
+    }
+
+    void NetDownedTick()
+    {
+        if (sr == null) return;
+        sr.enabled = true;
+        sr.color = netEliminated ? new Color(1f, 1f, 1f, 0.3f) : new Color(0.55f, 0.55f, 0.68f, 0.85f);
+    }
+
+    // CO-OPの復活: DOWNした地点のまま、既存の復帰(Recovery)リアクションとその無敵だけで再開する。
+    public void NetRevive()
+    {
+        if (!netDowned) return;
+        netDowned = false;
+        netEliminated = false;
+        Reaction = ReactionKind.None;
+        reactionTimer = 0f;
+        if (sr != null) { sr.color = netColorBeforeDown; sr.enabled = true; }
+        BeginReaction(ReactionKind.Recovery);
+        StartCoroutine(FlickerWhileInvincible());
+        FreezeDiagnostics.LogEvent($"[Net] REVIVED at x={transform.position.x:F2} dist={DistanceExact:F1}");
+    }
 
     void ApplyDamageReaction(bool isFall)
     {

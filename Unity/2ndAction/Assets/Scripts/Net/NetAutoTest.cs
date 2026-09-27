@@ -48,6 +48,23 @@ public class NetAutoTest : MonoBehaviour
     float choiceLogTimer;
     double choiceLastRemoteX, choiceLastEnemySum;
     int choiceLastAttackCount;
+    // Phase 3: モード / 指定時刻に自分を倒す / 自動で復活させる / 指定時刻にHPを設定 / 結果が出たら終了
+    string modeArg = "";
+    float killAt = -1f;
+    bool killFall;
+    bool autoRevive;
+    float hpAtTime = -1f; int hpAtValue;
+    bool hpAtDone;
+    int startHp = 0;
+    bool startHpDone;
+    bool killStarted, killDone;
+    readonly System.Collections.Generic.List<float> killTimes = new System.Collections.Generic.List<float>();
+    int killIndex;
+    float killTimer;
+    float reviveTimer = -1f;
+    float runOverSeen = -1f;
+    float p3LogTimer;
+    bool p3Hp => killAt >= 0f || hpAtTime >= 0f || startHp > 0;
 
     enum Step { Connect, WaitPlayers, WaitRun, Running, AfterLeave, Done }
     Step step = Step.Connect;
@@ -107,6 +124,12 @@ public class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoBossKind") bossKind = next;
             else if (a == "-netAutoChoiceAt") float.TryParse(next, out choiceAt);
             else if (a == "-netAutoChoiceHold") float.TryParse(next, out choiceHold);
+            else if (a == "-netAutoMode") modeArg = next.ToLowerInvariant();
+            else if (a == "-netAutoKillAt") { foreach (string k in next.Split(',')) if (float.TryParse(k, out float kt)) killTimes.Add(kt); if (killTimes.Count > 0) killAt = killTimes[0]; damageTest = true; }
+            else if (a == "-netAutoKillFall") killFall = true;
+            else if (a == "-netAutoRevive") autoRevive = true;
+            else if (a == "-netAutoHpAt") { var parts = next.Split(':'); if (parts.Length == 2) { float.TryParse(parts[0], out hpAtTime); int.TryParse(parts[1], out hpAtValue); } damageTest = true; }
+            else if (a == "-netAutoStartHp") { int.TryParse(next, out startHp); damageTest = true; }
         }
         if (!string.IsNullOrEmpty(tracePath))
         {
@@ -187,6 +210,11 @@ public class NetAutoTest : MonoBehaviour
                 if (NetSession.ConnectedPlayerCount >= 2 && stepTime > 2f)
                 {
                     L($"both players connected (players={NetSession.ConnectedPlayerCount})");
+                    if (role == "HOST" && modeArg != "")
+                    {
+                        NetRunLauncher.SelectedMode = modeArg == "versus" ? MultiplayerGameMode.Versus : MultiplayerGameMode.Coop;
+                        L($"mode selected by HOST: {NetRunLauncher.SelectedMode}");
+                    }
                     if (role == "HOST" && gm != null) gm.DepartFromStageSelect(stage);
                     Next(Step.WaitRun);
                 }
@@ -195,7 +223,7 @@ public class NetAutoTest : MonoBehaviour
             case Step.WaitRun:
                 if (gm != null && gm.HasStarted && NetRunLauncher.IsMultiplayerRun && !gm.CountdownActive)
                 {
-                    L($"run started seed={NetRunLauncher.ActiveRunSeed} stage={gm.ActiveRunStageId}");
+                    L($"run started seed={NetRunLauncher.ActiveRunSeed} stage={gm.ActiveRunStageId} mode={NetRunLauncher.ActiveMode}");
                     Next(Step.Running);
                 }
                 else if (stepTime > 30f) Finish("TIMEOUT waiting for run start");
@@ -215,6 +243,8 @@ public class NetAutoTest : MonoBehaviour
                 }
                 PeriodicLog(gm);
                 ChoiceTest(gm);
+                Phase3Test(gm);
+                if (step == Step.Done) break;
                 if (role == "HOST" && bossAt > 0f && !bossSpawned && runTime >= bossAt) SpawnTestBoss();
                 // 自動スロー(2026-09-27): HOSTがOFFにしたら全員に反映されるか / 参加側は切り替えられないか
                 if (slowOffAt > 0f && !slowToggled && runTime >= slowOffAt && AutoSlowMotion.Instance != null)
@@ -296,6 +326,93 @@ public class NetAutoTest : MonoBehaviour
         }
     }
 
+    // ===================================================================== //
+    // Phase 3: CO-OP / VERSUS の自動テスト操作
+    // ===================================================================== //
+    void Phase3Test(GameManager gm)
+    {
+        if (gm == null || NetMatch.Instance == null) return;
+        PlayerController pc = PlayerController.Instance;
+        if (pc == null) return;
+        var nmi = NetMatch.Instance;
+        int local = NetCombat.LocalPlayerNumber;
+        var me = NetMatch.Get(local);
+
+        // 開始時のHP(被弾で早く倒れすぎないように)
+        if (startHp > 0 && !startHpDone && runTime > 0.5f)
+        {
+            startHpDone = true;
+            SetOwnHp(gm, startHp);
+            L($"p3 start hp set to {startHp}");
+        }
+        // 指定時刻にHPを設定(Donor HP=1の確認など)
+        if (hpAtTime >= 0f && !hpAtDone && runTime >= hpAtTime)
+        {
+            hpAtDone = true;
+            SetOwnHp(gm, hpAtValue);
+            L($"p3 hp set to {hpAtValue} at t={runTime:F1}");
+        }
+        // 指定時刻に自分を倒す(HP1にしてから環境ダメージ/落下)
+        if (killAt >= 0f && !killDone && runTime >= killAt && (killStarted || (me != null && me.State == NetMatch.PState.Alive)))
+        {
+            if (!killStarted) { killStarted = true; SetOwnHp(gm, 1); killTimer = 0f; L($"p3 KILL start at t={runTime:F1} fall={killFall} dist={pc.DistanceExact:F1}"); }
+            killTimer += Time.unscaledDeltaTime;
+            bool hpIsOne = (NetCombat.Replica ? (me != null ? me.Hp : 99) : gm.Lives) <= 1;
+            if (hpIsOne && killTimer > 0.3f && me != null && me.State == NetMatch.PState.Alive)
+            {
+                pc.TakeDamage(isFall: killFall, source: "AutoTestKill");
+            }
+            if (me != null && me.State != NetMatch.PState.Alive)
+            {
+                killDone = true;
+                L($"p3 KILL done state={me.State} hp={me.Hp} downDist={me.DownDistance:F1} finalDist={me.FinalDistance:F1}");
+                // 次の指定時刻があれば、復活後にもう一度倒す(連続復活/全員DOWNの確認用)
+                if (++killIndex < killTimes.Count) { killAt = killTimes[killIndex]; killDone = false; killStarted = false; }
+            }
+        }
+        // 自動で復活させる(条件が揃ったら0.4秒後にREVIVE)
+        if (autoRevive && me != null && me.State == NetMatch.PState.Alive)
+        {
+            int target = 0;
+            foreach (var r in nmi.Records.Values)
+                if (r.Pn != local && NetMatch.CanRevive(r, me, out _)) { target = r.Pn; break; }
+            if (target > 0)
+            {
+                if (reviveTimer < 0f) reviveTimer = 0f;
+                reviveTimer += Time.unscaledDeltaTime;
+                if (reviveTimer >= 0.4f) { reviveTimer = -1f; L($"p3 REVIVE press (donor=P{local} hp={me.Hp} dist={me.Distance:F1}) -> P{target}"); NetMatch.RequestRevive(target); }
+            }
+            else reviveTimer = -1f;
+        }
+        // 1秒ごとの状態(モード/表/自分の距離・EXP・撃破)
+        p3LogTimer += Time.unscaledDeltaTime;
+        if (p3LogTimer >= 1f)
+        {
+            p3LogTimer = 0f;
+            string targets = "";
+            if (NetCombat.Instance != null)
+                foreach (var e in NetCombat.Instance.Entities.Values)
+                    if (e.Go != null && !e.Dead && e.Target > 0) targets += $"P{e.Target} ";
+            L($"p3 t={runTime:F1} mode={NetRunLauncher.ActiveMode} me=P{local} lives={gm.Lives} downed={pc.NetIsDowned} dist={pc.DistanceExact:F1} exp={gm.TotalExpEarned:F1} lv={gm.Level} kills={gm.EnemyKillCount} bossKills={gm.BossKillCount} gameOver={gm.IsGameOver} table=[{nmi.DebugDescribe().Trim()}] targets=[{targets.Trim()}] runOver={nmi.RunOver}");
+        }
+        if (nmi.RunOver && runOverSeen < 0f) { runOverSeen = runTime; L($"p3 RUN OVER seen at t={runTime:F1} gameOver={gm.IsGameOver}"); }
+        if (runOverSeen >= 0f && runTime - runOverSeen > 4f)
+        {
+            L($"p3 final gameOver={gm.IsGameOver} lives={gm.Lives} exp={gm.TotalExpEarned:F1} dist={pc.DistanceExact:F1} kills={gm.EnemyKillCount} bossKills={gm.BossKillCount}");
+            Finish("run over (mode rule)");
+        }
+    }
+
+    void SetOwnHp(GameManager gm, int hp)
+    {
+        if (NetCombat.Replica) NetMatch.RequestDebugSetHp(hp);
+        else
+        {
+            if (gm.MaxLives < hp) SetPrivateField(gm, "maxLives", hp);
+            SetPrivateProperty(gm, "Lives", hp);
+        }
+    }
+
     static void SnapshotWorld(out double remoteX, out double enemySum, out int attackCount)
     {
         remoteX = 0; enemySum = 0; attackCount = 0;
@@ -326,7 +443,7 @@ public class NetAutoTest : MonoBehaviour
             hpRefillTimer -= Time.unscaledDeltaTime;
             var me = NetMatch.Get(NetCombat.LocalPlayerNumber);
             int hp = NetCombat.Replica ? (me != null ? me.Hp : gm.Lives) : gm.Lives;
-            if (hp > 0 && hp < 4 && hpRefillTimer <= 0f)
+            if (!p3Hp && hp > 0 && hp < 4 && hpRefillTimer <= 0f)
             {
                 hpRefillTimer = 2f;
                 if (NetCombat.Replica) NetMatch.RequestDebugSetHp(30);
