@@ -1,0 +1,309 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7951a8749e4f55e488dd7112e0abc4b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EncounterFormationLibrary
+  formations:
+  - formationId: ground_line
+    displayName: Ground Line (Ant Line)
+    stageSpecific: 0
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 1
+      xOffset: 2.3
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 1
+      xOffset: 4.6
+      jitter: 0.3
+      minIntensity: 2
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 2
+      xOffset: 6.9
+      jitter: 0.3
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+    requiredWidth: 0
+    requiredHeight: 3
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.6
+    narrowAffinity: 1.6
+    wideAffinity: 0.9
+    straightAffinity: 1.1
+    spacingSpeedScale: 0.35
+  - formationId: ground_cluster
+    displayName: Ground Cluster (Ant Colony)
+    stageSpecific: 0
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 1
+      xOffset: 0
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 1
+      xOffset: 1.4
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 1
+      xOffset: 2.8
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 1
+      xOffset: 4.2
+      jitter: 0.2
+      minIntensity: 2
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 2
+      xOffset: 5.6
+      jitter: 0.2
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+    requiredWidth: 0
+    requiredHeight: 4.4
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 1
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.25
+    narrowAffinity: 0.5
+    wideAffinity: 1.6
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+  - formationId: staggered
+    displayName: Staggered
+    stageSpecific: 0
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.6
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 1
+      xOffset: 5.5
+      jitter: 0.6
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 1
+      xOffset: 11
+      jitter: 0.6
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 2
+      xOffset: 16.5
+      jitter: 0.6
+      minIntensity: 2
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 2
+      xOffset: 22
+      jitter: 0.6
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+    requiredWidth: 0
+    requiredHeight: 3
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 3
+    narrowAffinity: 1.4
+    wideAffinity: 1
+    straightAffinity: 1.3
+    spacingSpeedScale: 0.35
+  - formationId: ground_air
+    displayName: Ground + Air (Ground + Bat)
+    stageSpecific: 0
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 3
+      xOffset: 4.5
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 1
+      xOffset: 2.4
+      jitter: 0.3
+      minIntensity: 2
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 4
+      xOffset: 7.5
+      jitter: 0.3
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 2
+      xOffset: 6
+      jitter: 0.3
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+    requiredWidth: 0
+    requiredHeight: 5.6
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 1
+    requiresBurrowGround: 0
+    minGroundGap: 1.6
+    narrowAffinity: 0
+    wideAffinity: 1.7
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+  - formationId: air_swarm
+    displayName: Air Swarm (Bat Swarm)
+    stageSpecific: 0
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 3
+      xOffset: 0
+      jitter: 0.5
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 4
+      xOffset: 4
+      jitter: 0.5
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 3
+      xOffset: 8.5
+      jitter: 0.5
+      minIntensity: 2
+      preferEnemyIds: []
+      preferOnly: 0
+    requiredWidth: 0
+    requiredHeight: 6
+    requiresGround: 0
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 1
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    narrowAffinity: 0
+    wideAffinity: 1.8
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+  - formationId: gauntlet
+    displayName: Gauntlet
+    stageSpecific: 0
+    minIntensity: 2
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 1
+      xOffset: 1.8
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 0
+      xOffset: 12
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 3
+      xOffset: 14
+      jitter: 0.3
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 0
+      xOffset: 24
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 1
+      xOffset: 25.8
+      jitter: 0.3
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+    requiredWidth: 0
+    requiredHeight: 3.6
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.6
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 2.2
+    spacingSpeedScale: 0.35
+  - formationId: rest
+    displayName: Rest
+    stageSpecific: 0
+    minIntensity: 0
+    maxIntensity: 0
+    slots: []
+    requiredWidth: 0
+    requiredHeight: 3.2
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35

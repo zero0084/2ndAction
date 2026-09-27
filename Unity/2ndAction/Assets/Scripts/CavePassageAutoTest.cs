@@ -38,6 +38,10 @@ public class CavePassageAutoTest : MonoBehaviour
         var tm = TerrainManager.Instance;
         var cave = FindFirstObjectByType<CaveStage>();
         var fire = typeof(PlayerController).GetMethod("FireJump", BindingFlags.NonPublic | BindingFlags.Instance);
+        // 瞬間移動のたびに距離EXPでレベルアップの一時停止が入ると、計測ループ(ゲーム内時間で進む)が
+        // 止まり続けるため、このテスト中はEXPを止める(他の自動テストと同じ)。
+        var expField = typeof(GameManager).GetField("expGainMultiplier", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+        if (expField != null) expField.SetValue(gm, 0f);
         L($"cave active={cave.Active} stage={gm.ActiveRunStageId} minPassage={cave.MinPassageHeight:F2}");
 
         float worstOver = 0f; int neverLanded = 0; int samples = 0, gapViol = 0, obstViol = 0, upperSamples = 0, ceilViol = 0, underFloor = 0, stalls = 0, checkedObst = 0;
@@ -90,7 +94,14 @@ public class CavePassageAutoTest : MonoBehaviour
                 checkedObst++;
                 float gap = ce.Value - r.bounds.max.y;
                 minObstGap = Mathf.Min(minObstGap, gap);
-                if (gap < passClear - 0.05f) obstViol++;
+                if (gap < passClear - 0.05f)
+                {
+                    obstViol++;
+                    // 詳細: 障害物の幅全体で最も低い天井と、中心±1mの天井(配置時の判定範囲)を比べる
+                    float minCe = 99f;
+                    for (float sx = r.bounds.min.x; sx <= r.bounds.max.x + 0.001f; sx += 0.25f) { float? c2 = tm.GetEffectiveCeilingHeightAt(sx); if (c2.HasValue) minCe = Mathf.Min(minCe, c2.Value); }
+                    L($"  obstacle violation: {oc.name} x={FloatingOrigin.ToLogical(ox):F1} width={r.bounds.size.x:F2} top={r.bounds.max.y:F2} ceilAtCenter={ce.Value:F2} minCeilOverWidth={minCe:F2} ground={tm.GetHeightAt(ox)} slope={tm.GetSlopeAngleAt(ox):F1} gap={gap:F2}");
+                }
             }
         }
         L($"samples={samples} (upper-route samples={upperSamples}) minFloorToCeiling={minGap:F2} at x={worstGapX:F1}; minUpperRouteGap={minUpperGap:F2}; passage violations={gapViol} (need >= {need:F2})");

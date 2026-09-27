@@ -187,6 +187,9 @@ public class EnemySpecialBehavior : MonoBehaviour
     public float wormHitboxWidth = 1.6f;
     public float wormHitboxHeight = 1.4f;
     public float wormBuriedDepth = 1.3f; // 地中にいる間、地面からどれだけ沈めるか
+    // 予兆を始める距離の余裕(m)。予兆+せり出しの時間×走行速度 + この値。
+    public float wormLeadMargin = 1.5f;
+    bool wormApproachTriggered;
 
     [Header("Safety - Despawn (item 3)")]
     // Chaser/Rusher give up and self-despawn if they end up this far behind
@@ -1115,6 +1118,22 @@ public class EnemySpecialBehavior : MonoBehaviour
         switch (wormState)
         {
             case WormState.Underground:
+                // 共通Encounter System(2026-09-27) - 高速走行対策: 近づいてくるプレイヤーに対しては、
+                // 「予兆(土煙+亀裂)+せり出し」の時間ぶん手前から予兆を始める。以前は8m固定 + 地中待機の
+                // 抽選が明けた時だけ判定していたため、高速時は予兆を見る間もなく通過/目の前で出現していた。
+                // 走行速度そのものは変えず、予兆の開始距離だけを速度に合わせる(1回の接近につき1回)。
+                if (!wormApproachTriggered && player != null)
+                {
+                    float dxAhead = transform.position.x - player.position.x;
+                    float runSpeed = PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f;
+                    float lead = Mathf.Max(wormAttackRange, runSpeed * (wormTelegraphDuration + wormEmergeDuration) + wormLeadMargin);
+                    if (dxAhead > 0f && dxAhead <= lead)
+                    {
+                        wormApproachTriggered = true;
+                        StartWormTelegraph();
+                        break;
+                    }
+                }
                 if (wormTimer <= 0f)
                 {
                     if (player != null && Mathf.Abs(player.position.x - transform.position.x) <= wormAttackRange)
@@ -1184,6 +1203,10 @@ public class EnemySpecialBehavior : MonoBehaviour
         wormState = WormState.Telegraph;
         wormTimer = wormTelegraphDuration;
         wormDustCooldown = 0f;
+        // 共通Encounter System(2026-09-27) - 地面の「亀裂」: 出現地点に暗い影を広げ、高速でも出現位置が分かるようにする。
+        OneShotSpriteEffect.CreateTweened(OneShotSpriteEffect.SoftDotSprite(), new Vector3(transform.position.x, wormGroundY + 0.02f, 0f),
+            new Color(0.12f, 0.08f, 0.05f, 0.85f), duration: wormTelegraphDuration + wormEmergeDuration, startScale: 0.9f, endScale: 1.9f,
+            startAlpha: 0.85f, endAlpha: 0.3f, sortingOrder: RenderOrder.CombatFx - 1, holdFraction: 0.6f);
         float dx = player != null ? player.position.x - transform.position.x : wormFacingDir;
         wormFacingDir = Mathf.Abs(dx) > 0.01f ? Mathf.Sign(dx) : wormFacingDir;
     }

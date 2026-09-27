@@ -27,6 +27,9 @@ public class ObstacleSpawner : MonoBehaviour
 
     public float obstacleInterval = 18f;
     public float spawnAheadDistance = 28f;
+    // 共通Encounter System(2026-09-27) - 敵のEncounterの範囲(+この余白)には障害物を置かない
+    // (敵と障害物が重なって「必ず被弾する」組み合わせを作らない)。Encounterを使わないステージでは何もしない。
+    const float EncounterClear = 2.5f;
     // Stage01次段階調整(2026-09-16), item2/3 - 穴(Pit)の縁からこの距離
     // 以内には障害物を置かない(「穴の上」だけでなく「穴の直前/直後」も
     // 避ける)。TerrainManager.IsNearPit参照。pitReactionBuffer(2.5f、
@@ -79,12 +82,35 @@ public class ObstacleSpawner : MonoBehaviour
     // より低いものへ格下げし、それでも満たせなければ置かない(低い天井の下で通路を塞がない)。
     public float caveObstaclePassClearance = 3.0f;
 
+    // 置いた障害物の見た目の上端(描画範囲)。取れなければ指定の高さ。
+    static float RenderTop(GameObject obstacle, float fallbackTop)
+    {
+        float top = float.NegativeInfinity;
+        foreach (var r in obstacle.GetComponentsInChildren<Renderer>()) top = Mathf.Max(top, r.bounds.max.y);
+        return float.IsNegativeInfinity(top) ? fallbackTop : top;
+    }
+
+    // 同じフレームのうちに当たり判定も見た目も消す(Destroyはフレーム末まで残るため先に非表示にする)。
+    static void DestroyObstacleNow(GameObject obstacle)
+    {
+        obstacle.SetActive(false);
+        Destroy(obstacle);
+    }
+
+    // 洞窟が有効なら、worldXの前後(障害物の幅ぶん)まで天井が生成済みか。洞窟でなければ常にtrue。
+    bool CaveCeilingKnown(float worldX)
+    {
+        TerrainManager tm = TerrainManager.Instance;
+        if (tm == null || tm.cave == null || !tm.cave.Active) return true;
+        return tm.cave.GeneratedEndX >= worldX + 2.5f;
+    }
+
     // 位置worldX付近(障害物の幅ぶん)の通れる天井の最低の高さ。洞窟でなければnull。
     float? CaveEffectiveCeiling(float worldX)
     {
         if (TerrainManager.Instance == null) return null;
         float? best = null;
-        for (float dx = -1f; dx <= 1.001f; dx += 1f)
+        for (float dx = -2f; dx <= 2.001f; dx += 0.5f) // 大きい障害物(幅~4m)の端の低い天井/針も含める
         {
             float? c = TerrainManager.Instance.GetEffectiveCeilingHeightAt(worldX + dx);
             if (c.HasValue) best = best.HasValue ? Mathf.Min(best.Value, c.Value) : c.Value;
@@ -260,7 +286,7 @@ public class ObstacleSpawner : MonoBehaviour
         // 少しずつ前方へ探す - 既存のPit回避探索と同じ仕組みを拡張した。
         float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(worldX) : null;
         bool nearPit = TerrainManager.Instance != null && TerrainManager.Instance.IsNearPit(worldX, PitClear);
-        bool nearBranchEdge = TerrainManager.Instance != null && TerrainManager.Instance.IsNearBranchEdge(worldX, BranchEdgeClear);
+        bool nearBranchEdge = TerrainManager.Instance != null && TerrainManager.Instance.IsNearBranchEdge(worldX, BranchEdgeClear) || EncounterDirector.IsInEncounterSpan(worldX, EncounterClear);
         bool tooCloseToLast = (worldX - lastLowerObstacleX) < MinGapBetween;
         float searched = 0f;
         while ((!groundY.HasValue || nearPit || nearBranchEdge || tooCloseToLast) && searched < maxPitAvoidSearch)
@@ -269,10 +295,13 @@ public class ObstacleSpawner : MonoBehaviour
             searched += 0.5f;
             groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(worldX) : null;
             nearPit = TerrainManager.Instance != null && TerrainManager.Instance.IsNearPit(worldX, PitClear);
-            nearBranchEdge = TerrainManager.Instance != null && TerrainManager.Instance.IsNearBranchEdge(worldX, BranchEdgeClear);
+            nearBranchEdge = TerrainManager.Instance != null && TerrainManager.Instance.IsNearBranchEdge(worldX, BranchEdgeClear) || EncounterDirector.IsInEncounterSpan(worldX, EncounterClear);
             tooCloseToLast = (worldX - lastLowerObstacleX) < MinGapBetween;
         }
         if (!groundY.HasValue || nearPit || nearBranchEdge || tooCloseToLast) return;
+        // 洞窟: その場所の天井がまだ決まっていない(生成前)なら置かない(天井の高さを確かめられないまま
+        // 置くと、後から低い天井が来て通路を塞ぐ)。地形の未生成と同じ扱い(次のマイルストーンで再挑戦)。
+        if (!CaveCeilingKnown(worldX)) return;
 
         bool danger = TerrainManager.Instance != null && TerrainManager.Instance.IsInBranchRoute(worldX);
         // item3 - 穴のすぐ近くでは、既にnearPitチェックで確保した間合いに
@@ -318,7 +347,19 @@ public class ObstacleSpawner : MonoBehaviour
         // 基礎品質修整(2026-09-14) - 坂の上でも障害物が地面の傾きに沿って
         // 自然に見えるよう、その場所の地面角度を取得して渡す。
         float groundAngle = TerrainManager.Instance != null ? TerrainManager.Instance.GetSlopeAngleAt(worldX) : 0f;
-        GroundFactory.CreateObstacle(transform, squareSprite, spec.sprite, new Vector2(worldX, groundY.Value), spec.targetHeight, spec.color, spec.breakable, spec.hp, groundAngle);
+        GameObject obstacle = GroundFactory.CreateObstacle(transform, squareSprite, spec.sprite, new Vector2(worldX, groundY.Value), spec.targetHeight, spec.color, spec.breakable, spec.hp, groundAngle);
+        // 洞窟(2026-09-27): 障害物の絵はtargetHeightより少し高く描かれる(台座/余白)ため、実際に置いた見た目の
+        // 上端で天井(針先)までの間隔を確かめ直す。足りなければ一番低い障害物に替え、それでも足りなければ置かない。
+        if (capCeil.HasValue && obstacle != null && capCeil.Value - RenderTop(obstacle, groundY.Value + spec.targetHeight) < caveObstaclePassClearance)
+        {
+            DestroyObstacleNow(obstacle);
+            obstacle = null;
+            ObstacleSpec lowest = PickLowestSpec();
+            if (string.IsNullOrEmpty(lowest.name) || lowest.name == spec.name) return;
+            obstacle = GroundFactory.CreateObstacle(transform, squareSprite, lowest.sprite, new Vector2(worldX, groundY.Value), lowest.targetHeight, lowest.color, lowest.breakable, lowest.hp, groundAngle);
+            if (obstacle != null && capCeil.Value - RenderTop(obstacle, groundY.Value + lowest.targetHeight) < caveObstaclePassClearance) { DestroyObstacleNow(obstacle); return; }
+            spec = lowest;
+        }
 
         lastLowerObstacleX = worldX;
         lastLowerObstacleWasLarge = IsLarge(spec);

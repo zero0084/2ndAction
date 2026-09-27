@@ -313,6 +313,7 @@ public class TerrainManager : MonoBehaviour
     {
         if (!themeDefaultsCaptured) CaptureThemeDefaults();
         if (cave != null) cave.SetActive(false);
+        activeStageId = stageId ?? "";
         TerrainThemeSet? match = null;
         foreach (TerrainThemeSet t in stageThemes)
         {
@@ -324,8 +325,10 @@ public class TerrainManager : MonoBehaviour
             {
                 RestoreThemeDefaults();
                 themeDirty = false;
+                ApplyRouteLayout(stageId);
                 RebuildAllChunkVisuals();
             }
+            else ApplyRouteLayout(stageId);
             return;
         }
         themeDirty = true;
@@ -352,6 +355,7 @@ public class TerrainManager : MonoBehaviour
         if (theme.groundFillTint.a > 0f) groundFillTint = theme.groundFillTint;
         routeBranchEnabled = theme.enableRouteBranch;
         branchMarkerSprite = theme.branchMarkerSprite;
+        ApplyRouteLayout(stageId);
 
         // 洞窟は先に有効化する(地面の断面の深さ等を、再構築より前に切り替えるため)。
         if (cave != null && theme.enableCave) cave.SetActive(true);
@@ -444,7 +448,7 @@ public class TerrainManager : MonoBehaviour
         if (c.visual != null) Destroy(c.visual);
         c.visual = GroundFactory.CreateSlopeVisual(transform, squareSprite, groundSprite, platformArt,
             new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
-            c.needsLeftCap, needsRightCap: needsRightCap, leftBleed: rebuildLeftBleed, addWallCollider: routeBranchEnabled);
+            c.needsLeftCap, needsRightCap: needsRightCap, leftBleed: rebuildLeftBleed, addWallCollider: WallHazardsEnabled);
 
         // 荒野街道 地面埋め修整(2026-09-13深夜) - テーマ切り替え時も
         // 断面帯を作り直す(差し替え前のテーマの帯が残り続けたり、
@@ -641,6 +645,15 @@ public class TerrainManager : MonoBehaviour
     public float branchDangerPitMultiplier = 1.6f;
     public float branchDangerEnemyMultiplier = 1.15f;
     bool routeBranchEnabled;
+    // 共通Encounter System(2026-09-27) - 一本道ステージ(自然洞窟): 上下ルートも空中足場も作らない。
+    // ステージのStageEncounterProfile.routeLayoutで決まる(Profileの無いステージは従来どおり)。
+    bool singleRouteMode;
+    StageEncounterProfile layoutProfile;
+    string activeStageId = "";
+    public bool SingleRouteMode => singleRouteMode;
+    public string ActiveStageId => activeStageId;
+    // 穴の縁の壁ハザードは、分岐ステージ(従来)に加えて一本道ステージでも残す(洞窟の穴の縁は従来どおり危険)。
+    bool WallHazardsEnabled => routeBranchEnabled || singleRouteMode;
     Sprite branchMarkerSprite;
 
     enum ChunkType { Flat, UpSlope, DownSlope, Pit }
@@ -748,6 +761,15 @@ public class TerrainManager : MonoBehaviour
             if (branchRanges[i].mergeX < cutoff) branchRanges.RemoveAt(i);
     }
 
+    // 共通Encounter System(2026-09-27) - ステージのProfileが一本道なら、分岐/空中足場を止める。
+    void ApplyRouteLayout(string stageId)
+    {
+        StageEncounterProfile prof = StageEncounterProfile.Find(stageId);
+        singleRouteMode = prof != null && prof.routeLayout == StageRouteLayout.SingleRoute;
+        layoutProfile = singleRouteMode ? prof : null;
+        if (singleRouteMode) routeBranchEnabled = false;
+    }
+
     void Start()
     {
         nextStartX = 0f;
@@ -771,7 +793,7 @@ public class TerrainManager : MonoBehaviour
         {
             while (nextBranchX < generateAheadDistance) GenerateNextBranch();
         }
-        else
+        else if (!singleRouteMode)
         {
             while (nextSkyStartX < generateAheadDistance) GenerateNextSkyChunk();
         }
@@ -791,7 +813,7 @@ public class TerrainManager : MonoBehaviour
         {
             while (nextBranchX < player.position.x + generateAheadDistance) GenerateNextBranch();
         }
-        else
+        else if (!singleRouteMode)
         {
             while (nextSkyStartX < player.position.x + generateAheadDistance) GenerateNextSkyChunk();
         }
@@ -821,7 +843,7 @@ public class TerrainManager : MonoBehaviour
             {
                 if (nextBranchX <= nextStartX) { GenerateNextBranch(); continue; }
             }
-            else if (nextSkyStartX + skyPathSegmentLength <= nextStartX)
+            else if (!singleRouteMode && nextSkyStartX + skyPathSegmentLength <= nextStartX)
             {
                 GenerateNextSkyChunk();
                 continue;
@@ -1291,6 +1313,15 @@ public class TerrainManager : MonoBehaviour
             return ChunkType.Flat;
         }
 
+        // 共通Encounter System(2026-09-27) - 一本道ステージでは時々「長い直線」(平地の連続)を作る
+        // (連戦/休憩を置ける区間。穴や坂の連続で単調/窮屈にならないように)。
+        if (singleRouteMode && layoutProfile != null && WorldRng.Terrain.Value < layoutProfile.longStraightChance)
+        {
+            int n = Mathf.Max(1, WorldRng.Terrain.Range(layoutProfile.longStraightChunksMin, layoutProfile.longStraightChunksMax + 1));
+            RequestFlatRun(n - 1);
+            return ChunkType.Flat;
+        }
+
         // Gently bias slope choice back toward the baseline elevation so the
         // course doesn't drift far above/below the camera over a long run.
         float bias = Mathf.Clamp(-nextStartY / 10f, -0.15f, 0.15f);
@@ -1400,7 +1431,7 @@ public class TerrainManager : MonoBehaviour
             // (routeBranchEnabled常にfalse)には一切影響を与えない。
             chunk.visual = GroundFactory.CreateSlopeVisual(transform, squareSprite, groundSprite, platformArt,
                 new Vector2(startX, startY), new Vector2(endX, endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
-                needsLeftCap, needsRightCap: false, leftBleed: leftBleed, addWallCollider: routeBranchEnabled);
+                needsLeftCap, needsRightCap: false, leftBleed: leftBleed, addWallCollider: WallHazardsEnabled);
 
             // 基礎品質修整 続報(2026-09-14) - マスター報告「道の曲がりで
             // 穴が気になる」の実機動画を確認したところ、実際にプレイヤーが
@@ -1449,8 +1480,12 @@ public class TerrainManager : MonoBehaviour
             // window just stays plain/empty ground instead, so there's no
             // spawn backlog to "catch up on" once the zone ends.
             bool inSafeZone = GameManager.Instance != null && GameManager.Instance.IsInSafeZone;
-            bool safeForEnemy = !bossActive && !inSafeZone && type == ChunkType.Flat && lastType != ChunkType.Pit && FloatingOrigin.ToLogical(startX) >= noEnemyBeforeDistance;
-            if (WorldRng.IsDeterministic)
+            // 共通Encounter System(2026-09-27) - EncounterDirectorが担当するステージでは、従来の
+            // チャンクごとのFormation Spawn(と、その平地予約)を行わない(両端末で同じ判断になる)。
+            bool encounterOwned = EncounterDirector.HandlesStage(activeStageId);
+            bool safeForEnemy = !encounterOwned && !bossActive && !inSafeZone && type == ChunkType.Flat && lastType != ChunkType.Pit && FloatingOrigin.ToLogical(startX) >= noEnemyBeforeDistance;
+            if (encounterOwned) { }
+            else if (WorldRng.IsDeterministic)
             {
                 ReserveFormationDeterministic(chunk, type, startX, startY, endX, !bossActive && !inSafeZone);
             }
@@ -1654,6 +1689,40 @@ public class TerrainManager : MonoBehaviour
         chunk.enemies.Add(enemyGO);
     }
 
+    // ===== 共通Encounter System(2026-09-27) =====
+    // EncounterDirectorが決めた1体を、従来のFormation Spawnと同じ生成経路(CreateEnemy/攻撃絵/
+    // HP計算/マルチプレイ登録)で出す。位置・AI Tier・行動はDirectorが決める。HPはTierと無関係
+    // (DistanceTierManager.EnemyHpFor(hpMultiplier)のまま)。敵はその位置のチャンクに所属させ、
+    // チャンクの破棄/ボス開始時のClearAllEnemiesで従来どおり片付ける。
+    public GameObject SpawnEncounterEnemy(EnemyDefinition def, Vector2 pos, EnemyAiTier aiTier, EnemyBehaviorKind behaviorKind)
+    {
+        if (def == null) return null;
+        bool airborne = def.movementType == EnemyMovementType.Flying;
+        EnemyMovementType movementType = airborne ? EnemyMovementType.Flying : EnemyMovementType.Ground;
+        int maxHp = DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(def.hpMultiplier) : 1;
+        float y = pos.y + (airborne ? 0f : groundEnemyHeight);
+        GameObject enemyGO = GroundFactory.CreateEnemy(transform, def.sprite, new Vector2(pos.x, y), def.tint, enemyHitSparkSprite, enemyDeathCloudSprite,
+            movementType, enemyGroundShadowSprite, maxHp, behaviorKind, def.bigKnockbackOnHit, shooterProjectileSprite, def.enableVisualFacing,
+            def.defaultFacingRight, def.runFrames, def.mileReward, def.visualScaleMultiplier, aiTier, squareSprite);
+        if (enemyGO == null) return null;
+        var ec = enemyGO.GetComponent<EnemyController>();
+        if (ec != null) ec.movementType = movementType;
+        GroundFactory.ApplyAttackSprite(enemyGO, def);
+        if (!airborne) enemyGO.transform.rotation = Quaternion.identity;
+        AdoptEnemy(enemyGO, pos.x);
+        return enemyGO;
+    }
+
+    // 敵をX位置のチャンクに所属させる(チャンク破棄と一緒に片付けるため)。
+    public void AdoptEnemy(GameObject enemy, float x)
+    {
+        if (enemy == null || chunks.Count == 0) return;
+        for (int i = chunks.Count - 1; i >= 0; i--)
+        {
+            if (x >= chunks[i].startX || i == 0) { chunks[i].enemies.Add(enemy); return; }
+        }
+    }
+
     // Rebuilds the most recently added chunk's visual with a right cap it
     // didn't originally get (see the Pit branch in AddChunk above). Only
     // the visual is touched - startX/endX/startY/endY (and therefore
@@ -1668,7 +1737,7 @@ public class TerrainManager : MonoBehaviour
         Destroy(prev.visual);
         prev.visual = GroundFactory.CreateSlopeVisual(transform, squareSprite, groundSprite, platformArt,
             new Vector2(prev.startX, prev.startY), new Vector2(prev.endX, prev.endY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
-            prev.needsLeftCap, needsRightCap: true, addWallCollider: routeBranchEnabled);
+            prev.needsLeftCap, needsRightCap: true, addWallCollider: WallHazardsEnabled);
         // 断面も、右端(穴の縁)がスラブの丸いキャップより飛び出さないよう作り直す。
         RebuildFill(chunks.Count - 1, true);
     }

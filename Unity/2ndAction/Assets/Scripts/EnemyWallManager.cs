@@ -80,7 +80,10 @@ public class EnemyWallManager : MonoBehaviour
             // ends.
             bool inSafeZone = GameManager.Instance.IsInSafeZone;
 
-            if (!takenByBoss && !inSafeZone) SpawnWall(nextWallDistance);
+            // 共通Encounter System(2026-09-27) - EncounterDirectorが敵の出方(波/休憩)を管理するステージでは、
+            // 500mごとの敵の壁は出さない(ProfileのreplacesMilestoneWallsで切り替え)。
+            bool encounterOwned = EncounterDirector.HandlesMilestoneWalls(GameManager.Instance.ActiveRunStageId);
+            if (!takenByBoss && !inSafeZone && !encounterOwned) SpawnWall(nextWallDistance);
 
             nextWallDistance += EffectiveWallInterval();
         }

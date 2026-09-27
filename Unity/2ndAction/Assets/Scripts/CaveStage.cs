@@ -31,6 +31,10 @@ public partial class CaveStage : MonoBehaviour
     public float lowClearance = 4.4f;
     [Range(0f, 1f)] public float lowSectionChance = 0.22f;
     [Range(0f, 1f)] public float spikeSectionChance = 0.32f;
+    // 共通Encounter System(2026-09-27) - 一本道化に合わせて「天井の高い広い空洞」区間を追加(mode 3)。
+    // 空中の敵(コウモリ)を置ける/視界が開ける区間。低天井・針区間とは別に抽選する。
+    public float highClearance = 10.2f;
+    [Range(0f, 1f)] public float highSectionChance = 0.18f;
     public float sectionLengthMin = 32f;
     public float sectionLengthMax = 72f;
     // 低天井を置かない範囲(穴/上下ルート分岐からの距離)。
@@ -95,9 +99,11 @@ public partial class CaveStage : MonoBehaviour
     public Sprite torchSprite;
 
     public bool Active { get; private set; }
+    // 共通Encounter System(2026-09-27) - 天井を生成済みの右端(この先はまだ天井の高さが決まっていない)。
+    public float GeneratedEndX => nodes.Count > 0 ? nodeBaseX + (nodes.Count - 1) * nodeSpacing : float.NegativeInfinity;
     public static int SpikeHitCount; // debug counter (Editor auto test)
 
-    class Node { public float x, y; public int mode; } // mode: 0 normal, 1 spike, 2 low
+    class Node { public float x, y; public int mode; } // mode: 0 normal, 1 spike, 2 low, 3 high(広い空洞)
     struct Spike { public float x, topY, len, hw; }
     public struct Torch { public Vector2 lightPos; public float phase; }
 
@@ -295,7 +301,7 @@ public partial class CaveStage : MonoBehaviour
         if (x >= sectionEndX)
         {
             float r = testMode == 1 ? 0.5f : (testMode == 2 ? 0.05f : WorldRng.Cave.Value);
-            sectionMode = r < lowSectionChance ? 2 : (r < lowSectionChance + spikeSectionChance ? 1 : 0);
+            sectionMode = r < lowSectionChance ? 2 : (r < lowSectionChance + spikeSectionChance ? 1 : (r < lowSectionChance + spikeSectionChance + highSectionChance ? 3 : 0));
             sectionEndX = x + WorldRng.Cave.Range(sectionLengthMin, sectionLengthMax);
             // 通常区間が続きすぎないよう、直前が通常なら通常を選び直す確率は下げない(単純)。
         }
@@ -309,7 +315,7 @@ public partial class CaveStage : MonoBehaviour
         }
         // ボス遭遇区間: 低天井/針区間へ降格させず、常に通常天井にする。
         if (InBossClearZone(x)) mode = 0;
-        float clearance = mode == 2 ? lowClearance : (mode == 1 ? spikeSectionClearance : normalClearance);
+        float clearance = mode == 2 ? lowClearance : (mode == 1 ? spikeSectionClearance : (mode == 3 ? highClearance : normalClearance));
         if (WorldRng.IsDeterministic)
         {
             // マルチプレイ(2026-09-25) - ボス付近の降格など端末ごとに差が出うるmodeに関係なく
