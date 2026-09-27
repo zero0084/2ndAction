@@ -513,7 +513,13 @@ public class EnemyController : MonoBehaviour
             // する。
             if (IsReactingToHit) return;
             if (NetReplica && (dying || NetRemoteReacting)) return;
-            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "Enemy:" + name);
+            if (PlayerController.Instance != null)
+            {
+                // マルチプレイPhase 2.5: JOINのパペットとの接触は「この敵(NetId)との接触」としてHOSTへ申告する。
+                if (NetReplica) NetMatch.SetClaimContext(NetMatch.ClaimKind.EnemyContact, NetId);
+                try { PlayerController.Instance.TakeDamage(source: "Enemy:" + name); }
+                finally { NetMatch.ClearClaimContext(); }
+            }
         }
     }
 

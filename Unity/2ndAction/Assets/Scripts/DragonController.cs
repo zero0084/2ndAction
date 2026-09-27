@@ -446,7 +446,7 @@ public class DragonController : MonoBehaviour
     // regardless of how far the player has actually run.
     void AdvanceTrackedX()
     {
-        float baseSpeed = playerController != null ? playerController.CurrentAutoRunSpeed : 0f;
+        float baseSpeed = TargetBaseSpeed();
         trackedX += baseSpeed * Time.deltaTime;
 
         // Repeated attack lunges in the same direction (e.g. several
@@ -704,6 +704,19 @@ public class DragonController : MonoBehaviour
             return;
         }
 
+        // マルチプレイPhase 2.5: JOINのパペットは、HOSTの竜が突進中(状態をスナップショットで受信)の時だけ
+        // 体当たりとして被弾を申告する(HOSTが実在と無敵を確かめてHPを確定)。
+        if (NetPuppet)
+        {
+            if (other.CompareTag("Player") && netPose == (byte)State.Charging && PlayerController.Instance != null)
+            {
+                NetMatch.SetClaimContext(NetMatch.ClaimKind.EnemyContact, NetId);
+                try { PlayerController.Instance.TakeDamage(source: "Dragon:" + name); }
+                finally { NetMatch.ClearClaimContext(); }
+            }
+            return;
+        }
+
         if (other.CompareTag("PlayerAttack"))
         {
             // Grows with the player's "Attack Power UP" level-up choice;
@@ -917,6 +930,11 @@ public class DragonController : MonoBehaviour
     // ===================================================================== //
     [System.NonSerialized] public int NetId;
     [System.NonSerialized] public bool NetPuppet;
+
+    // マルチプレイPhase 2.5: HOSTのAIが狙う相手(全ての活動中プレイヤーから選ばれる)。並走の基準速度もその相手。
+    EnemyTargetSelector netTarget;
+    public void NetSetTarget(Transform t, EnemyTargetSelector selector) { if (t != null) player = t; netTarget = selector; }
+    float TargetBaseSpeed() => netTarget != null ? netTarget.TargetRunSpeed() : (playerController != null ? playerController.CurrentAutoRunSpeed : 0f);
     int netAttacker; // 0 = この端末のプレイヤー
     int netFramesSet = -1;
     Collider2D netLastHitCollider;
@@ -993,9 +1011,11 @@ public class DragonController : MonoBehaviour
     }
 
     bool netHpRevealed;
+    byte netPose;
     public void NetApplyVisual(NetCombat.State s)
     {
         if (state == State.Dead) return;
+        netPose = s.Pose;
         if (s.FramesSet != netFramesSet)
         {
             netFramesSet = s.FramesSet;

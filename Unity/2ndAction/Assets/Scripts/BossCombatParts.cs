@@ -145,6 +145,9 @@ public class BossHitbox : MonoBehaviour
 
     public bool IsActive => col != null && col.enabled;
 
+    // マルチプレイPhase 2.5: ボスの攻撃判定(持ち主のボスからの相対位置)をJOINにも出す。
+    void Start() { NetAttackSync.Register(gameObject, NetAttackSync.AType.BossHitbox, noDamage: !damagesPlayer); }
+
     public static BossHitbox Create(Transform parent, Sprite vfxSprite, Color vfxColor, string name, int sortingOrder)
     {
         GameObject go = new GameObject("Hitbox_" + name);
@@ -240,6 +243,9 @@ public class BossTelegraphMarker : MonoBehaviour
 {
     SpriteRenderer sr;
     Vector2 relCenter, size;
+    // マルチプレイPhase 2.5: 攻撃予兆もJOINに見せる(判定なし)。
+    void Start() { NetAttackSync.Register(gameObject, NetAttackSync.AType.Telegraph); }
+
     public static BossTelegraphMarker Create(Transform parent, int sortingOrder)
     {
         GameObject go = new GameObject("TelegraphMarker");
@@ -322,10 +328,13 @@ public class BossProjectile : MonoBehaviour
         return p;
     }
 
+    // マルチプレイPhase 2.5: HOSTで生まれた弾をJOINにも見せ、JOINのプレイヤーにも当たるようにする。
+    void Start() { NetAttackSync.Register(gameObject, NetAttackSync.AType.BossProjectile, velocity, destroyOnHit: true, slowFactor, slowDuration, noDamage: !damage); }
+
     void Update()
     {
         // 弾速の走行補正(2026-09-26) - PlayerController.RunFrameSpeed参照(ボスと同じく走行速度で流れる)。
-        transform.position += (Vector3)((velocity + new Vector2(PlayerController.RunFrameSpeed, 0f)) * Time.deltaTime);
+        transform.position += (Vector3)((velocity + new Vector2(NetTargets.FrameSpeedNear(transform.position), 0f)) * Time.deltaTime);
         if (hugGround && TerrainManager.Instance != null)
         {
             float? h = TerrainManager.Instance.GetHeightAt(transform.position.x);

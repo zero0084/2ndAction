@@ -12,6 +12,9 @@ using UnityEngine;
 // Player側に新しい受け口は一切必要ない。
 public class EnemyMeleeHitbox : MonoBehaviour
 {
+    // マルチプレイPhase 2.5: 敵の近接判定(持ち主の敵からの相対位置、有効/無効)をJOINにも出す。
+    void Awake() { NetAttackSync.Register(gameObject, NetAttackSync.AType.EnemyMelee); }
+
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player") && PlayerController.Instance != null)

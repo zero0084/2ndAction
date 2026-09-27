@@ -476,6 +476,7 @@ public class EnemySpecialBehavior : MonoBehaviour
             markerSr.sortingOrder = RenderOrder.CombatFx;
             flyingDiveMarkerTransform = flyingDiveMarkerGO.transform;
             flyingDiveMarkerGO.SetActive(false);
+            NetAttackSync.Register(flyingDiveMarkerGO, NetAttackSync.AType.Telegraph); // マルチプレイPhase 2.5: 予兆をJOINにも出す
         }
 
         flyingDiveTimer = Random.Range(flyingDiveIntervalMin, flyingDiveIntervalMax);
@@ -771,6 +772,7 @@ public class EnemySpecialBehavior : MonoBehaviour
             markerSr.sortingOrder = RenderOrder.CombatFx;
             meleeTelegraphMarkerTransform = meleeTelegraphMarkerGO.transform;
             meleeTelegraphMarkerGO.SetActive(false);
+            NetAttackSync.Register(meleeTelegraphMarkerGO, NetAttackSync.AType.Telegraph); // マルチプレイPhase 2.5: 予兆をJOINにも出す
         }
     }
 
@@ -943,6 +945,7 @@ public class EnemySpecialBehavior : MonoBehaviour
             markerSr.sortingOrder = RenderOrder.CombatFx;
             hopperTelegraphMarkerTransform = hopperTelegraphMarkerGO.transform;
             hopperTelegraphMarkerGO.SetActive(false);
+            NetAttackSync.Register(hopperTelegraphMarkerGO, NetAttackSync.AType.Telegraph); // マルチプレイPhase 2.5: 予兆をJOINにも出す
         }
     }
 

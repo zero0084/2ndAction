@@ -357,6 +357,10 @@ public class CeilingFallRock : MonoBehaviour
 
     Color tint = new Color(0.55f, 0.48f, 0.42f, 1f);
 
+    // マルチプレイPhase 2.5: 落ちてくる岩をJOINにも見せる(当たりはHOSTが着地時に確定)。
+    readonly int netKey = NetMatch.NewHostAttackKey();
+    void Start() { NetAttackSync.Register(gameObject, NetAttackSync.AType.FallRock, noDamage: true); }
+
     public static CeilingFallRock Create(float worldX, float ceilingY, float floorY, float fallDuration, float width, float height, Color? color = null)
     {
         GameObject go = new GameObject("CeilingFallRock");
@@ -400,6 +404,8 @@ public class CeilingFallRock : MonoBehaviour
         {
             PlayerController.Instance.TakeDamage(source: "CaveBossFallRock");
         }
+        // マルチプレイPhase 2.5: HOSTだけにある範囲攻撃なので、相手(JOIN)への当たりもHOSTが分身の位置で確定する。
+        NetMatch.HostDamageRemoteInRange(targetWorldX - width * 0.5f, targetWorldX + width * 0.5f, float.MinValue, float.MaxValue, "CaveBossFallRock", netKey);
         ExplosionEffect.Create(CaveBossFx.RockChunk(), landPos, tint, count: 10, duration: 0.6f, sizeScale: 0.6f, sortingOrder: RenderOrder.CombatFx);
         onLand?.Invoke(landPos);
         Destroy(gameObject);

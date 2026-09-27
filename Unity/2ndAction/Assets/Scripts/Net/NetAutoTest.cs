@@ -36,6 +36,18 @@ public class NetAutoTest : MonoBehaviour
     int bossHp = 20;
     bool bossSpawned;
     float combatAttackTimer;
+    // Phase 2.5: 被弾テスト(無敵を切り、HPが減りすぎたら補充して最後まで走る) / 攻撃しないボット /
+    // ボスの種類 / 強制レベルアップを一定時間選ばずに保持する(選択中も世界が進むかの確認)
+    bool damageTest;
+    bool passive;
+    string bossKind = "Wolf";
+    float choiceAt = -1f, choiceHold = 0f;
+    bool choiceForced;
+    float choiceHoldUntil = -1f;
+    float hpRefillTimer;
+    float choiceLogTimer;
+    double choiceLastRemoteX, choiceLastEnemySum;
+    int choiceLastAttackCount;
 
     enum Step { Connect, WaitPlayers, WaitRun, Running, AfterLeave, Done }
     Step step = Step.Connect;
@@ -90,6 +102,11 @@ public class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoCombatMix") { combat = true; combatMix = true; }
             else if (a == "-netAutoBossAt") float.TryParse(next, out bossAt);
             else if (a == "-netAutoBossHp") int.TryParse(next, out bossHp);
+            else if (a == "-netAutoDamage") damageTest = true;
+            else if (a == "-netAutoPassive") passive = true;
+            else if (a == "-netAutoBossKind") bossKind = next;
+            else if (a == "-netAutoChoiceAt") float.TryParse(next, out choiceAt);
+            else if (a == "-netAutoChoiceHold") float.TryParse(next, out choiceHold);
         }
         if (!string.IsNullOrEmpty(tracePath))
         {
@@ -197,6 +214,7 @@ public class NetAutoTest : MonoBehaviour
                     break;
                 }
                 PeriodicLog(gm);
+                ChoiceTest(gm);
                 if (role == "HOST" && bossAt > 0f && !bossSpawned && runTime >= bossAt) SpawnTestBoss();
                 // 自動スロー(2026-09-27): HOSTがOFFにしたら全員に反映されるか / 参加側は切り替えられないか
                 if (slowOffAt > 0f && !slowToggled && runTime >= slowOffAt && AutoSlowMotion.Instance != null)
@@ -230,6 +248,7 @@ public class NetAutoTest : MonoBehaviour
     void PickLevelUpCard(GameManager gm)
     {
         if (gm == null || !gm.IsRewardSequenceWaitingForSelection) { cardClickTimer = -1f; return; }
+        if (choiceHoldUntil > 0f && runTime < choiceHoldUntil) return; // 選択を保持中(世界が進み続けるかの確認)
         RewardCardSequence seq = FindFirstObjectByType<RewardCardSequence>();
         if (seq == null) return;
         if (cardClickTimer < 0f)
@@ -250,12 +269,76 @@ public class NetAutoTest : MonoBehaviour
 
     void Next(Step s) { step = s; stepTime = 0f; }
 
+    // Phase 2.5: 指定時刻にこの端末でレベルアップのカード選択を強制的に開き、一定時間選ばずに保持する。
+    // その間の自分/相手/敵/攻撃の進み具合と timeScale を記録する(「選択中も世界が止まらない」の確認)。
+    void ChoiceTest(GameManager gm)
+    {
+        if (gm == null || choiceAt < 0f) return;
+        if (!choiceForced && runTime >= choiceAt)
+        {
+            choiceForced = true;
+            choiceHoldUntil = runTime + choiceHold;
+            MethodInfo m = typeof(GameManager).GetMethod("TriggerLevelUpChoice", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (m != null) m.Invoke(gm, null);
+            L($"choice FORCED on {role} (me=P{NetCombat.LocalPlayerNumber}) hold={choiceHold:F1}s open={gm.IsLocalChoiceOpen} ts={Time.timeScale:F2}");
+            SnapshotWorld(out choiceLastRemoteX, out choiceLastEnemySum, out choiceLastAttackCount);
+            choiceLogTimer = 0f;
+        }
+        if (choiceForced && (gm.IsLocalChoiceOpen || runTime < choiceHoldUntil + 0.5f) && runTime < choiceHoldUntil + 1.5f)
+        {
+            choiceLogTimer += Time.unscaledDeltaTime;
+            if (choiceLogTimer < 0.5f) return;
+            choiceLogTimer = 0f;
+            SnapshotWorld(out double rx, out double es, out int ac);
+            PlayerController pc = PlayerController.Instance;
+            L($"choice-window t={runTime:F1} open={gm.IsLocalChoiceOpen} ts={Time.timeScale:F2} localX={(pc != null ? pc.transform.position.x + FloatingOrigin.Offset : 0):F1} remoteDX={rx - choiceLastRemoteX:F2} enemyMove={Math.Abs(es - choiceLastEnemySum):F2} newAttacks={ac - choiceLastAttackCount} table=[{(NetMatch.Instance != null ? NetMatch.Instance.DebugDescribe() : "")}]");
+            choiceLastRemoteX = rx; choiceLastEnemySum = es; choiceLastAttackCount = ac;
+        }
+    }
+
+    static void SnapshotWorld(out double remoteX, out double enemySum, out int attackCount)
+    {
+        remoteX = 0; enemySum = 0; attackCount = 0;
+        foreach (NetPlayer p in NetPlayer.All)
+            if (!p.IsOwner && p.Avatar != null) remoteX = p.Avatar.transform.position.x + FloatingOrigin.Offset;
+        if (NetCombat.Instance != null)
+            foreach (var e in NetCombat.Instance.Entities.Values)
+                if (e.Go != null && !e.Dead) enemySum += e.Go.transform.position.x + FloatingOrigin.Offset + e.Go.transform.position.y;
+        if (NetAttackSync.Instance != null)
+            attackCount = NetCombat.Authority ? NetAttackSync.Instance.StatRegistered : NetAttackSync.Instance.StatSpawnsReceived;
+    }
+
     // 自動テスト中はゲームオーバーにならないようにする(このプロセスのメモリ上だけ、保存はしない)。
+    bool slowInit;
     void KeepAlive(GameManager gm)
     {
         if (gm == null) return;
-        SetPrivateProperty(gm, "InvincibleMode", true);
-        if (gm.Lives < 50) SetPrivateProperty(gm, "Lives", 99);
+        // 以前のテスト(自動スローOFFの切り替え)の保存値が残っていても、既定(ON)の状態で測る。
+        if (!slowInit && role == "HOST" && slowOffAt < 0f && AutoSlowMotion.Instance != null)
+        {
+            slowInit = true;
+            if (!AutoSlowMotion.Instance.autoSlowEnabled) { AutoSlowMotion.Instance.SetEnabled(true); L("auto slow re-enabled (default ON) for this test"); }
+        }
+        if (damageTest)
+        {
+            // 被弾テスト: 無敵は切る。HPが減りすぎたら補充する(HOST=自分の値、JOIN=HOSTへの要求)。
+            SetPrivateProperty(gm, "InvincibleMode", false);
+            hpRefillTimer -= Time.unscaledDeltaTime;
+            var me = NetMatch.Get(NetCombat.LocalPlayerNumber);
+            int hp = NetCombat.Replica ? (me != null ? me.Hp : gm.Lives) : gm.Lives;
+            if (hp > 0 && hp < 4 && hpRefillTimer <= 0f)
+            {
+                hpRefillTimer = 2f;
+                if (NetCombat.Replica) NetMatch.RequestDebugSetHp(30);
+                else { SetPrivateProperty(gm, "maxLives", 30); SetPrivateField(gm, "maxLives", 30); SetPrivateProperty(gm, "Lives", 30); }
+                L($"hp refill requested (hp was {hp})");
+            }
+        }
+        else
+        {
+            SetPrivateProperty(gm, "InvincibleMode", true);
+            if (gm.Lives < 50) SetPrivateProperty(gm, "Lives", 99);
+        }
         if (shiftTest && FloatingOrigin.Instance != null && FloatingOrigin.Instance.shiftThreshold > 400f)
         {
             FloatingOrigin.Instance.shiftThreshold = role == "HOST" ? 300f : 380f; // 端末ごとにわざとずらす
@@ -272,6 +355,12 @@ public class NetAutoTest : MonoBehaviour
         }
     }
 
+    static void SetPrivateField(object target, string name, object value)
+    {
+        FieldInfo f = target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        if (f != null) f.SetValue(target, value);
+    }
+
     static void SetPrivateProperty(object target, string name, object value)
     {
         PropertyInfo p = target.GetType().GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
@@ -286,9 +375,10 @@ public class NetAutoTest : MonoBehaviour
         BossManager bm = BossManager.Instance;
         if (bm == null || bm.IsBossPhase) { L("test boss skipped (boss phase already running)"); return; }
         BossManager.NetTestBossHpOverride = bossHp;
-        bm.NetTestSpawnWild(WildBossKind.Wolf, 1);
+        WildBossKind kind = Enum.TryParse(bossKind, out WildBossKind k) ? k : WildBossKind.Wolf;
+        bm.NetTestSpawnWild(kind, 1);
         BossManager.NetTestBossHpOverride = 0;
-        L($"test boss spawned (Wolf hp={bossHp})");
+        L($"test boss spawned ({kind} hp={bossHp})");
 #endif
     }
 
@@ -339,7 +429,21 @@ public class NetAutoTest : MonoBehaviour
             pc.debugInjectFlick = PlayerController.FlickDirection.Up;
             return;
         }
+        if (passive)
+        {
+            // 被弾テスト: 攻撃はしない。壁/障害物で止まり続けないよう一定間隔でジャンプだけする。
+            botTimer += Time.unscaledDeltaTime;
+            if (botTimer >= 1.3f && pc.IsGrounded) { botTimer = 0f; pc.debugInjectFlick = PlayerController.FlickDirection.Up; }
+            return;
+        }
         if (CombatBot(pc)) return;
+        if (combat && damageTest)
+        {
+            // 被弾テストでは無敵が無いので、壁/障害物で止まり続けないよう定期的にジャンプだけ混ぜる。
+            botTimer += Time.unscaledDeltaTime;
+            if (botTimer >= 1.3f && pc.IsGrounded) { botTimer = 0f; pc.debugInjectFlick = PlayerController.FlickDirection.Up; }
+            return;
+        }
         if (combat) return; // 戦闘テストでは敵を狙う攻撃だけにする(ジャンプの乱入で当たり方がばらつかないように)
         botTimer += Time.unscaledDeltaTime;
         if (botTimer < 0.9f) return;
@@ -421,6 +525,15 @@ public class NetAutoTest : MonoBehaviour
         {
             var nc = NetCombat.Instance;
             L($"combat t={runTime:F1} me=P{NetCombat.LocalPlayerNumber} {nc.DebugSignature()} spawns={nc.StatSpawns} dmgEvents={nc.StatDamageEvents} deaths={nc.StatDeaths} reqSent={nc.StatHitRequestsSent} reqApplied={nc.StatHitRequestsApplied} reqIgnored={nc.StatHitRequestsIgnored} dup={nc.StatDuplicateHits} kills(local)={(gm != null ? gm.EnemyKillCount : 0)} bossKills(local)={(gm != null ? gm.BossKillCount : 0)}");
+        }
+        if (NetMatch.Instance != null && (damageTest || choiceAt >= 0f || passive))
+        {
+            var nm = NetMatch.Instance;
+            string targets = "";
+            if (NetCombat.Instance != null)
+                foreach (var e in NetCombat.Instance.Entities.Values)
+                    if (e.Go != null && !e.Dead && e.Target > 0) targets += $"{e.Id}:P{e.Target} ";
+            L($"p25 t={runTime:F1} me=P{NetCombat.LocalPlayerNumber} lives={(gm != null ? gm.Lives : -1)} table=[{nm.DebugDescribe().Trim()}] claims sent={nm.StatClaimsSent} acc={nm.StatClaimsAccepted} rej={nm.StatClaimsRejected} confirmed={nm.StatHitsConfirmed} hostRemote={nm.StatHostRemoteHits} ts={Time.timeScale:F2} choosing={(gm != null && gm.IsLocalChoiceOpen)} attacks=[{(NetAttackSync.Instance != null ? NetAttackSync.Instance.DebugSummary() : "")}] targets=[{targets.Trim()}]");
         }
         L($"t={runTime:F1} local X={lx:F2} Y={(pc != null ? pc.transform.position.y : 0f):F2} speed={(pc != null ? pc.CurrentAutoRunSpeed : 0f):F1} grounded={(pc != null && pc.IsGrounded)} dist={(gm != null ? gm.MaxDistance : 0f):F0} offset={FloatingOrigin.Offset:F0} | remote {remoteStr} | connected={NetSession.IsConnected}");
 

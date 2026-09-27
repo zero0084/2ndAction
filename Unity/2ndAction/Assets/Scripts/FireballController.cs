@@ -53,11 +53,15 @@ public class FireballController : MonoBehaviour
         pulseSeed = Random.Range(0f, 100f);
     }
 
+    // マルチプレイPhase 2.5: HOSTで生まれた弾をJOINにも見せ、JOINのプレイヤーにも当たるようにする。
+    void Start() { NetAttackSync.Register(gameObject, NetAttackSync.AType.Fireball, velocity, destroyOnHit: true); }
+
     void Update()
     {
         // 弾速の走行補正(2026-09-26) - PlayerController.RunFrameSpeed参照。発射前の保持中(魔人の火球の輪)
         // も含めて、走行と同じ速度で流れた上に自分の速度で飛ぶ。
-        float frame = PlayerController.RunFrameSpeed;
+        // マルチプレイPhase 2.5: マルチでは近くの活動中プレイヤーの走行速度で流れる(シングルは従来どおり)。
+        float frame = NetTargets.FrameSpeedNear(transform.position);
         if (!launched)
         {
             holdTimer += Time.deltaTime;

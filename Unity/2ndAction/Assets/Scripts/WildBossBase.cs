@@ -249,7 +249,7 @@ public abstract class WildBossBase : MonoBehaviour
         if (NetPuppet) { NetPuppetUpdate(); return; }
         if (dead) return;
         float dt = Time.deltaTime;
-        float baseSpeed = pc != null ? pc.CurrentAutoRunSpeed : 0f;
+        float baseSpeed = TargetBaseSpeed();
         worldX += (baseSpeed + relVelocity) * dt;
 
         float px = PlayerX;
@@ -431,7 +431,7 @@ public abstract class WildBossBase : MonoBehaviour
     void LocomotionFx(float dt)
     {
         if (locoStyle == LocoStyle.None || dead || pose == Pose.Landing) return;
-        float baseSpeed = pc != null ? pc.CurrentAutoRunSpeed : 0f;
+        float baseSpeed = TargetBaseSpeed();
         float speed = Mathf.Abs(baseSpeed + relVelocity);
         if (speed < 1f) return;
 
@@ -900,6 +900,11 @@ public abstract class WildBossBase : MonoBehaviour
     // ================= マルチプレイPhase 2(共有ボス) =================
     [System.NonSerialized] public int NetId;
     [System.NonSerialized] public bool NetPuppet;
+
+    // マルチプレイPhase 2.5: HOSTのAIが狙う相手(全ての活動中プレイヤーから選ばれる)。並走の基準速度もその相手。
+    EnemyTargetSelector netTarget;
+    public void NetSetTarget(Transform t, EnemyTargetSelector selector) { if (t != null) player = t; netTarget = selector; }
+    float TargetBaseSpeed() => netTarget != null ? netTarget.TargetRunSpeed() : (pc != null ? pc.CurrentAutoRunSpeed : 0f);
     int netAttacker; // 0 = この端末のプレイヤー / それ以外 = プレイヤー番号(HOSTでリモートの攻撃を処理中)
     int netVisualOrder = int.MinValue;
     Collider2D netLastHitCollider;
@@ -1081,9 +1086,13 @@ public class TrackedHazard : MonoBehaviour
         return TerrainManager.Instance.GetHeightAt(x) ?? 0f;
     }
 
+    // マルチプレイPhase 2.5: 予兆/範囲攻撃ゾーンをJOINにも出す(有効になった瞬間から判定あり)。
+    void Start() { NetAttackSync.Register(gameObject, NetAttackSync.AType.TrackedHazard, noDamage: !damages || activeDuration <= 0f); }
+
     void Update()
     {
-        float baseSpeed = PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f;
+        // マルチでは近くの活動中プレイヤーの走行速度で流れる(シングルは従来どおり自分の速度)。
+        float baseSpeed = NetTargets.IsMulti ? NetTargets.FrameSpeedNear(transform.position) : (PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f);
         Vector3 p = transform.position;
         p.x += baseSpeed * Time.deltaTime;
         p.y = GroundAt(p.x) + height * 0.5f;

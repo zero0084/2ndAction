@@ -29,6 +29,8 @@ public struct NetPlayerSnapshot : INetworkSerializable
     public byte Flags;
     // 自動スロー(2026-09-27): スロー適用前の継続的な走行速度(m/s)。HOSTが全員の最高速度で倍率を決める。
     public float RunSpeed;
+    // マルチプレイPhase 2.5/3: 走行開始位置からの距離(m)。ダウン/復活/最終距離の判定に使う。
+    public double Distance;
 
     public void NetworkSerialize<T>(BufferSerializer<T> s) where T : IReaderWriter
     {
@@ -51,6 +53,7 @@ public struct NetPlayerSnapshot : INetworkSerializable
         s.SerializeValue(ref FinishTier);
         s.SerializeValue(ref Flags);
         s.SerializeValue(ref RunSpeed);
+        s.SerializeValue(ref Distance);
     }
 
     public static uint PackColor(Color c)

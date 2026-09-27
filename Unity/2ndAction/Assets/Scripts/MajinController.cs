@@ -265,7 +265,7 @@ public class MajinController : MonoBehaviour
 
     void AdvanceTrackedX()
     {
-        float baseSpeed = playerController != null ? playerController.CurrentAutoRunSpeed : 0f;
+        float baseSpeed = TargetBaseSpeed();
         trackedX += baseSpeed * Time.deltaTime;
 
         if (player != null)
@@ -618,6 +618,11 @@ public class MajinController : MonoBehaviour
     // ===================================================================== //
     [System.NonSerialized] public int NetId;
     [System.NonSerialized] public bool NetPuppet;
+
+    // マルチプレイPhase 2.5: HOSTのAIが狙う相手(全ての活動中プレイヤーから選ばれる)。並走の基準速度もその相手。
+    EnemyTargetSelector netTarget;
+    public void NetSetTarget(Transform t, EnemyTargetSelector selector) { if (t != null) player = t; netTarget = selector; }
+    float TargetBaseSpeed() => netTarget != null ? netTarget.TargetRunSpeed() : (playerController != null ? playerController.CurrentAutoRunSpeed : 0f);
     int netAttacker; // 0 = この端末のプレイヤー
     int netFramesSet = -1;
     Collider2D netLastHitCollider;

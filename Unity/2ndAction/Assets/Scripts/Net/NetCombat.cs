@@ -88,6 +88,8 @@ public class NetCombat : MonoBehaviour
         public bool HasState;
         public bool Revealed;
         public float LocalHitCooldown;
+        public int Target;            // Phase 2.5: 狙っているプレイヤー番号(HOST=選択結果 / JOIN=受信値)
+        public EnemyTargetSelector Selector;
     }
 
     // 位置/姿勢の1サンプル(全種共通の器。使わない欄は0のまま)
@@ -104,6 +106,7 @@ public class NetCombat : MonoBehaviour
         public byte Pose; public sbyte Facing; public byte Windup, Attack;
         public uint BaseColor; public float ExtraX, ExtraY; public short Order; public byte FramesSet;
         public uint Flash;
+        public byte Target;           // Phase 2.5: このエンティティが狙っているプレイヤー番号(0=なし)
     }
     public const byte FlagReacting = 1, FlagHpBar = 2, FlagHurtbox = 4, FlagVisible = 8, FlagFlash = 16, FlagHitFlash = 32;
 
@@ -160,6 +163,7 @@ public class NetCombat : MonoBehaviour
         entities.Clear();
         processedHits.Clear();
         puppetRoot = null;
+        LastBossRewardRecipient = 0;
         currentSceneSeed = NetRunLauncher.IsMultiplayerRun ? NetRunLauncher.ActiveRunSeed : 0;
         KillLog.Clear();
         StatSpawns = StatDeaths = StatDamageEvents = StatHitRequestsSent = StatHitRequestsApplied = StatHitRequestsIgnored = StatDuplicateHits = 0;
@@ -228,6 +232,9 @@ public class NetCombat : MonoBehaviour
     // HOST: 登録・送信
     // ===================================================================== //
 
+    // Phase 2.5: 直近に倒されたボスの報酬を受け取るプレイヤー(ラストヒット本人。攻撃以外の死因なら最後にダメージを与えた人)。
+    public static int LastBossRewardRecipient { get; private set; }
+
     public static Entity Find(int id) => Instance != null && Instance.entities.TryGetValue(id, out Entity e) ? e : null;
 
     static List<Sprite> BuildEnemySpriteTable(GameObject go)
@@ -260,6 +267,52 @@ public class NetCombat : MonoBehaviour
         e.SpawnInfo = info;
         ec.NetId = e.Id;
         Instance.entities[e.Id] = e;
+        AttachTargetSelector(e);
+    }
+
+    // ===================================================================== //
+    // Phase 2.5: ターゲット選択(HOSTのAIが全ての活動中プレイヤーから狙う相手を選ぶ)
+    // ===================================================================== //
+
+    static void AttachTargetSelector(Entity e)
+    {
+        if (e.Go == null) return;
+        var sel = e.Go.GetComponent<EnemyTargetSelector>();
+        if (sel == null) sel = e.Go.AddComponent<EnemyTargetSelector>();
+        if (e.Kind == Kind.Boss)
+        {
+            // ボスは位置取りが大きく動くため、乗り換えを慎重に(近さの差4m以上、最低2秒は同じ相手)。
+            sel.switchMargin = 4f;
+            sel.minHoldTime = 2f;
+        }
+        e.Selector = sel;
+        int id = e.Id;
+        sel.OnTargetChanged = c =>
+        {
+            Entity ent = Find(id);
+            if (ent == null) return;
+            int before = ent.Target;
+            ent.Target = c.Player;
+            ApplyTarget(ent, c.T);
+            if (before != c.Player) Log("TARGET", $"{KindTag(ent.Kind)} id={ent.Id} type={ent.TypeKey} Target P{(before > 0 ? before.ToString() : "-")} -> P{c.Player} (switches={sel.SwitchCount})");
+        };
+    }
+
+    static void ApplyTarget(Entity e, Transform t)
+    {
+        if (t == null || e.Go == null) return;
+        if (e.Enemy != null)
+        {
+            var esb = e.Go.GetComponent<EnemySpecialBehavior>();
+            if (esb != null) esb.player = t;
+            foreach (var f in e.Go.GetComponentsInChildren<EnemyFacing>(true)) f.player = t;
+        }
+        if (e.Wild != null) e.Wild.NetSetTarget(t, e.Selector);
+        if (e.Dragon != null) e.Dragon.NetSetTarget(t, e.Selector);
+        if (e.Majin != null) e.Majin.NetSetTarget(t, e.Selector);
+        if (e.Reaper != null) e.Reaper.NetSetTarget(t);
+        if (e.Kind == Kind.Boss)
+            foreach (var f in e.Go.GetComponentsInChildren<EnemyFacing>(true)) f.player = t;
     }
 
     // GroundFactory.ApplyAttackSpriteから呼ばれる: 敵の種類(EnemyDefinition)を確定する。
@@ -307,6 +360,7 @@ public class NetCombat : MonoBehaviour
         AttachBossComponent(e, boss);
         e.TypeKey = boss.GetType().Name;
         Instance.entities[e.Id] = e;
+        AttachTargetSelector(e);
         return false;
     }
 
@@ -519,6 +573,7 @@ public class NetCombat : MonoBehaviour
             h = h * 31 + (int)s.Color + (int)s.BaseColor + (int)s.Flash;
             h = h * 31 + Mathf.RoundToInt(s.VisScaleX * 100f) + Mathf.RoundToInt(s.VisScaleY * 1000f) + Mathf.RoundToInt(s.VisRotZ * 10f) + Mathf.RoundToInt(s.VisPosY * 100f);
             h = h * 31 + Mathf.RoundToInt(s.ExtraX * 100f) + Mathf.RoundToInt(s.ExtraY * 1000f) + s.Order;
+            h = h * 31 + s.Target;
             return h;
         }
     }
@@ -559,6 +614,7 @@ public class NetCombat : MonoBehaviour
         else if (e.Wild != null) e.Wild.NetCaptureVisual(ref s);
         else if (e.Dragon != null) e.Dragon.NetCaptureVisual(ref s);
         else if (e.Majin != null) e.Majin.NetCaptureVisual(ref s);
+        s.Target = (byte)Mathf.Clamp(e.Target, 0, 255);
         return s;
     }
 
@@ -572,6 +628,7 @@ public class NetCombat : MonoBehaviour
         w.WriteValueSafe(s.Pose); w.WriteValueSafe(s.Facing); w.WriteValueSafe(s.Windup); w.WriteValueSafe(s.Attack);
         w.WriteValueSafe(s.BaseColor); w.WriteValueSafe(s.ExtraX); w.WriteValueSafe(s.ExtraY); w.WriteValueSafe(s.Order); w.WriteValueSafe(s.FramesSet);
         w.WriteValueSafe(s.Flash);
+        w.WriteValueSafe(s.Target);
     }
 
     static State ReadState(FastBufferReader r)
@@ -585,6 +642,7 @@ public class NetCombat : MonoBehaviour
         r.ReadValueSafe(out s.Pose); r.ReadValueSafe(out s.Facing); r.ReadValueSafe(out s.Windup); r.ReadValueSafe(out s.Attack);
         r.ReadValueSafe(out s.BaseColor); r.ReadValueSafe(out s.ExtraX); r.ReadValueSafe(out s.ExtraY); r.ReadValueSafe(out s.Order); r.ReadValueSafe(out s.FramesSet);
         r.ReadValueSafe(out s.Flash);
+        r.ReadValueSafe(out s.Target);
         return s;
     }
 
@@ -627,6 +685,9 @@ public class NetCombat : MonoBehaviour
         e.LastHitPlayer = lastHit;
         e.DeathCause = cause;
         StatDeaths++;
+        int rewardee = lastHit > 0 ? lastHit : e.LastDamagedBy;
+        if (e.Kind == Kind.Boss) LastBossRewardRecipient = rewardee;
+        NetMatch.HostRecordKill(rewardee, e.Kind == Kind.Boss);
         string line = $"{KindTag(e.Kind)} KILL id={e.Id} LastHit={P(lastHit)} LastDamagedBy={P(e.LastDamagedBy)}";
         KillLog.Add(line);
         Log(KindTag(e.Kind), $"Death id={e.Id} type={e.TypeKey} cause={(cause == 0 ? "hit" : cause == 1 ? "fall" : "other")}");
@@ -709,7 +770,7 @@ public class NetCombat : MonoBehaviour
         else if (e.Majin != null) e.Majin.NetApplyRemoteHit(attacker, damage);
     }
 
-    static int PlayerNumberOfClient(ulong clientId)
+    public static int PlayerNumberOfClient(ulong clientId)
     {
         foreach (NetPlayer p in NetPlayer.All) if (p.OwnerClientId == clientId) return p.PlayerNumber;
         return 2;
@@ -1095,6 +1156,7 @@ public class NetCombat : MonoBehaviour
         if (e.Enemy != null || e.Dragon != null || e.Majin != null || e.Reaper != null)
             t.localScale = new Vector3(s.ScaleX, s.ScaleY, 1f);
         if (!e.Revealed) { e.Revealed = true; e.HasState = true; }
+        if (e.Target != s.Target) { e.Target = s.Target; }
         if (e.Enemy != null)
         {
             if (e.Visual != null && e.Visual != t)
@@ -1178,7 +1240,7 @@ public class NetCombat : MonoBehaviour
             Vector3 sp = cam.WorldToScreenPoint(e.Go.transform.position + Vector3.up * (e.Kind == Kind.Boss ? 3.2f : 1.6f));
             if (sp.z < 0f || sp.x < -50 || sp.x > Screen.width + 50) continue;
             int hp = Authority ? CurrentHp(e) : e.Hp;
-            string text = $"<b>#{e.Id}</b> HP {hp}/{e.MaxHp}\nAuth:HOST  Dmg:{P(e.LastDamagedBy)}" + (e.Dead ? $"\n<color=#ff8080>DEAD LastHit:{P(e.LastHitPlayer)}</color>" : "");
+            string text = $"<b>#{e.Id}</b> HP {hp}/{e.MaxHp}  Target={P(e.Target)}\nAuth:HOST  Dmg:{P(e.LastDamagedBy)}" + (e.Dead ? $"\n<color=#ff8080>DEAD LastHit:{P(e.LastHitPlayer)}</color>" : "");
             var rect = new Rect(sp.x - 90f, Screen.height - sp.y - 48f, 180f, 48f);
             GUI.color = new Color(0f, 0f, 0f, 0.55f);
             GUI.DrawTexture(new Rect(rect.x + 20f, rect.y + 4f, rect.width - 40f, rect.height - 4f), Texture2D.whiteTexture);

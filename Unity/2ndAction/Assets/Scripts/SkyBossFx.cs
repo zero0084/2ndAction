@@ -384,9 +384,12 @@ public class SkyStrike : MonoBehaviour
         return h ?? fallback;
     }
 
+    // マルチプレイPhase 2.5: 落雷/柱などの地点攻撃をJOINにも出す。
+    void Start() { NetAttackSync.Register(gameObject, NetAttackSync.AType.SkyStrike); }
+
     void Update()
     {
-        float baseSpeed = PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f;
+        float baseSpeed = NetTargets.IsMulti ? NetTargets.FrameSpeedNear(transform.position) : (PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f);
         Vector3 p = transform.position;
         p.x += baseSpeed * Time.deltaTime;
         groundY = GroundAt(p.x, groundY);
@@ -558,9 +561,11 @@ public class SkyWarnBand : MonoBehaviour
         return PlayerController.Instance != null ? PlayerController.Instance.transform.position.y : 0f;
     }
 
+    void Start() { NetAttackSync.Register(gameObject, NetAttackSync.AType.WarnBand); }
+
     void Update()
     {
-        float baseSpeed = PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f;
+        float baseSpeed = NetTargets.IsMulti ? NetTargets.FrameSpeedNear(transform.position) : (PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f);
         Vector3 p = transform.position;
         p.x += baseSpeed * Time.deltaTime;
         p.y = RefGround(p.x) + (bottom + top) * 0.5f;

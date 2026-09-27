@@ -1047,6 +1047,9 @@ public class GameManager : MonoBehaviour
     public bool InvincibleMode { get; private set; }
     public bool DebugMode { get; private set; }
     public int Lives { get; private set; }
+    public int MaxLives => maxLives;
+    // マルチプレイPhase 2.5: この端末でカード選択(レベルアップ/ボス報酬)を開いているか。
+    public bool IsLocalChoiceOpen => levelUpPending;
     public int Level { get; private set; } = 1;
     public float Exp { get; private set; }
     public float ExpToNext { get; private set; }
@@ -1607,7 +1610,7 @@ public class GameManager : MonoBehaviour
 
 #if UNITY_EDITOR
     public void DebugSetInvincible(bool on) { InvincibleMode = on; Lives = 999; }
-    public void DebugSetLives(int n) { Lives = n; }
+    public void DebugSetLives(int n) { Lives = n; NetMatch.RequestDebugSetHp(n); }
 #endif
 
     void ToggleInvincible()
@@ -1787,7 +1790,9 @@ public class GameManager : MonoBehaviour
     // resolved.
     void GainExp(float amount)
     {
-        if (amount <= 0f || levelUpPending) return;
+        // マルチプレイPhase 2.5: マルチでは選択中も世界(=距離/撃破)が進むため、その間のEXPは捨てずに
+        // 貯め、レベルアップは選択が終わってから順に出す(pendingLevelUpCountの既存の後回し処理)。
+        if (amount <= 0f || (levelUpPending && !NetMatch.Active)) return;
 
         // "EXP UP" cards raise expGainMultiplier above 1 - applied once
         // here so it covers every EXP source (distance, kills, bosses)
@@ -2166,6 +2171,22 @@ public class GameManager : MonoBehaviour
     {
         LogBossRewardStage("RunBossRewardChoice entry");
         LogBoss("RewardStart");
+        // マルチプレイPhase 2.5: ボス報酬は最後のボスのラストヒットを取った本人(RewardRecipient)だけ。
+        // 本人がJOINなら、その端末へ選択を渡し、HOSTはボス戦の後始末(ボス戦終了/距離再開)だけ行う。
+        if (NetCombat.Authority)
+        {
+            int recipient = NetCombat.LastBossRewardRecipient;
+            NetCombat.Log("BOSS", $"Reward Recipient = P{recipient} (local=P{NetCombat.LocalPlayerNumber})");
+            if (recipient > 0 && recipient != NetCombat.LocalPlayerNumber)
+            {
+                NetMatch.SendBossRewardOffer(recipient);
+                if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
+                EndBossDistanceExclusion();
+                UnlockEscape();
+                LogBoss("RewardEnd (handed to remote recipient)");
+                return;
+            }
+        }
         var pool = new List<CardDefinition>();
         foreach (string id in deckCards)
         {
@@ -2218,7 +2239,8 @@ public class GameManager : MonoBehaviour
         pendingChoiceKind = PendingChoiceKind.BossReward;
         levelUpPending = true;
         FreezeDiagnostics.LogEvent("[Pause] BossReward choice start");
-        TimeControl.Pause(pendingChoiceTimeOwner);
+        // マルチプレイPhase 2.5: マルチでは世界全体を止めない(選んでいる本人の端末にUIが出るだけ)。
+        if (!NetMatch.Active) TimeControl.Pause(pendingChoiceTimeOwner);
 
         if (rewardCardSequence != null && pendingChoices.Length > 0)
         {
@@ -2246,6 +2268,7 @@ public class GameManager : MonoBehaviour
         // Leveling up always fully restores HP, regardless of whether a
         // card ends up being offered below.
         Lives = maxLives;
+        NetMatch.RequestSetMax(maxLives, true);
 
         // Draws from the player's edited deck rather than every card in the
         // database. The fallback to the full unlocked pool only covers the
@@ -2286,7 +2309,7 @@ public class GameManager : MonoBehaviour
         pendingChoiceKind = PendingChoiceKind.LevelUp;
         levelUpPending = true;
         FreezeDiagnostics.LogEvent("[Pause] LevelUp choice start");
-        TimeControl.Pause(pendingChoiceTimeOwner);
+        if (!NetMatch.Active) TimeControl.Pause(pendingChoiceTimeOwner);
 
         // Diagnostic: proves whether rewardCardSequence actually survived
         // into the build, unconditionally (not gated behind anything the
@@ -2367,6 +2390,7 @@ public class GameManager : MonoBehaviour
                     // out the heart cap entirely.
                     maxLives = Mathf.Max(1, Mathf.Min(maxLivesCap, maxLives + Mathf.RoundToInt(effect.value)));
                     Lives = maxLives;
+                    NetMatch.RequestSetMax(maxLives, true);
                     break;
                 case EffectType.AttackRange:
                     if (pc != null) pc.AddAttackRangeBonus(effect.value);
@@ -2552,8 +2576,12 @@ public class GameManager : MonoBehaviour
         FreezeDiagnostics.LogEvent($"[Damage] Hit reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2}) livesBefore={Lives} timeScale={Time.timeScale:F2}");
         Lives = Mathf.Max(0, Lives - 1);
         heartDamageFlashTimer = heartDamageFlashDuration;
+        // マルチプレイPhase 2.5: HOST自身のHPの変化もHOSTの表(全員へ配る正解)へ即反映する。
+        if (NetCombat.Authority) NetMatch.HostLocalHpChanged(reason);
         if (Lives <= 0)
         {
+            // マルチプレイPhase 3: CO-OP=ダウン / VERSUS=脱落 はRunを終えずにNetMatchが扱う。
+            if (NetMatch.HostLocalHpZero(reason)) return DamageResult.GameOver;
             // Bugfix 2026-09-06, item 2 - logged unconditionally (not just
             // under DebugMode) since a GAME OVER is rare enough that this
             // never spams, and this is the one moment the report explicitly
@@ -2583,6 +2611,49 @@ public class GameManager : MonoBehaviour
         // gated on !IsGameOver since a fatal hit already returned above.
         SaveInterruptState();
         return DamageResult.Hit;
+    }
+
+    // ===== マルチプレイPhase 2.5: JOINのHPはHOSTが決める =====
+
+    // JOIN: TryDamagePlayerと同じ事前チェック(終了済み/演出中ロック/無敵モード/シールド)だけを行う。
+    // trueなら「HPを減らす被弾」としてHOSTへ申告してよい(ここではHPを減らさない)。
+    public bool NetPrecheckDamage(bool bypassInvincibleMode, string reason)
+    {
+        if (IsGameOver) return false;
+        if (PresentationDamageLock) { FreezeDiagnostics.LogEvent($"[Damage] Ignored(PresentationDamageLock) reason={reason} (net claim)"); return false; }
+        if (!bypassInvincibleMode && InvincibleMode) return false;
+        if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} (net claim)"); return false; }
+        return true;
+    }
+
+    float netLocalHpRequestUntil;
+    public void NetNoteLocalHpRequest() { netLocalHpRequestUntil = Time.realtimeSinceStartup + 0.5f; }
+
+    // JOIN: HOSTが確定したHP/最大HPを反映する(表示のハートもこの値)。
+    public void NetApplyAuthoritativeLives(int hp, int max, bool fromHit = false)
+    {
+        if (IsGameOver) return;
+        // 回復/最大HPの要求を送った直後は、HOSTが処理するまでの古い表で巻き戻さない(被弾の確定は常に反映)。
+        if (!fromHit && Time.realtimeSinceStartup < netLocalHpRequestUntil && hp < Lives) return;
+        if (hp < Lives) heartDamageFlashTimer = heartDamageFlashDuration;
+        maxLives = Mathf.Max(1, max);
+        Lives = Mathf.Clamp(hp, 0, Mathf.Max(maxLives, hp));
+    }
+
+    // JOIN: HOSTの判定でこの端末のRunが終わった(Phase 2.5の既定=HP0)。
+    public void NetForceGameOver(string reason)
+    {
+        if (IsGameOver) return;
+        Debug.Log($"[GameOver] Reason={reason} (decided by HOST)");
+        Lives = 0;
+        FinishRun();
+    }
+
+    // JOIN: HOSTから「ボス報酬はあなた」と届いた。既存のボス報酬の流れ(演出待ち→3枚選択)で出す。
+    public void NetOfferBossReward()
+    {
+        if (IsGameOver || !HasStarted) return;
+        TriggerBossRewardChoice();
     }
 
     // Kills no longer restore HP directly on their own (see the HEART UP /
@@ -2622,6 +2693,7 @@ public class GameManager : MonoBehaviour
     void AddLife(int amount = 1)
     {
         Lives = Mathf.Min(maxLives, Lives + amount);
+        NetMatch.RequestHeal(amount);
     }
 
     public void Win()

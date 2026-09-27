@@ -865,6 +865,9 @@ public partial class PlayerController : MonoBehaviour
         if (debugInjectFlick.HasValue) { requestedFlick = debugInjectFlick; }
 #endif
         bool reactionBlocked = IsReacting;
+        // マルチプレイPhase 2.5: マルチではカード選択中も世界は止まらないが、選択中の入力を操作として
+        // 受け付けない点はシングル(一時停止中は入力を読まない)と同じにする。
+        if (NetMatch.Active && GameManager.Instance != null && GameManager.Instance.IsLocalChoiceOpen) reactionBlocked = true;
         if (reactionBlocked) { requestedFlick = null; bufferedUpAttackTimer = 0f; }
         Move(allowJump: !wasEscapeChargingLastFrame && !reactionBlocked);
         if (!wasEscapeChargingLastFrame && !reactionBlocked) HandleAttackInput();
@@ -1358,6 +1361,9 @@ public partial class PlayerController : MonoBehaviour
         // instead of ever landing back on solid ground.
         if (!isFall && (hitInvincibleTimer > 0f || IsReacting)) return;
         if (GameManager.Instance == null) return;
+        // マルチプレイ: ダウン/脱落中は被弾しない。カード選択中の無敵はテスト用設定(既定OFF)の時だけ。
+        if (NetMatch.Active && !NetMatch.IsLocalAlive) return;
+        if (!isFall && NetMatch.ChoiceInvincible && NetMatch.Active && GameManager.Instance.IsLocalChoiceOpen) return;
 
         // Bugfix 2026-09-06, item 2 - GameOverReason passthrough for the
         // debug log in GameManager.TryDamagePlayer (isFall is already the
@@ -1365,9 +1371,58 @@ public partial class PlayerController : MonoBehaviour
         // every other damage source - enemy/boss/fireball contact all call
         // TakeDamage() with isFall left at its false default).
         string reason = (isFall ? "DeathY" : "HPZero") + (string.IsNullOrEmpty(source) ? "" : ":" + source);
+
+        // マルチプレイPhase 2.5: JOINのHPはHOSTが決める。ここではHPを減らさずにHOSTへ被弾を申告し、
+        // 確定(NetConfirmHit)を受けてから既存と同じ被弾リアクションを行う(1Hit=1Damageの一本化)。
+        if (NetMatch.ClientRoutesHp)
+        {
+            NetRouteDamage(isFall, reason);
+            return;
+        }
+
         GameManager.DamageResult result = GameManager.Instance.TryDamagePlayer(bypassInvincibleMode: isFall, reason: reason);
         if (result != GameManager.DamageResult.Hit) return;
+        ApplyDamageReaction(isFall);
+    }
 
+    // ===== マルチプレイPhase 2.5: JOINの被弾申告 =====
+    float netClaimPendingUntil;
+
+    void NetRouteDamage(bool isFall, string reason)
+    {
+        if (!NetMatch.IsLocalAlive) return; // ダウン/脱落中は被弾しない
+        if (!GameManager.Instance.NetPrecheckDamage(isFall, reason)) return;
+        // 申告の返事を待つ間(通信の往復)に別の攻撃で重ねて申告しない(どのみちHOSTが無敵時間で弾く)。
+        if (!isFall && Time.realtimeSinceStartup < netClaimPendingUntil) return;
+        NetMatch.RouteLocalDamage(isFall, ExpectedHitInvulnerability(isFall), reason);
+        if (isFall)
+        {
+            // 落下はその場で復帰させないと落ち続けるため、リアクションは即座に行う(HPはHOSTの確定に従う)。
+            ApplyDamageReaction(true);
+        }
+        else netClaimPendingUntil = Time.realtimeSinceStartup + 0.6f;
+    }
+
+    // 被弾から次に被弾できるまでの秒数(リアクション+無敵)。HOSTがJOINの無敵時間を再現するのに使う。
+    float ExpectedHitInvulnerability(bool isFall)
+    {
+        float dur = !isFall ? (charHurtDuration > 0f ? charHurtDuration : hurtDuration) : (charRecoveryDuration > 0f ? charRecoveryDuration : recoveryDuration);
+        float inv = !isFall ? (charHurtInvincible > 0f ? charHurtInvincible : hurtInvincibleDuration) : (charRecoveryInvincible > 0f ? charRecoveryInvincible : recoveryInvincibleDuration);
+        return Mathf.Max(0.05f, dur) + inv;
+    }
+
+    // HOSTが被弾を確定した(JOIN)。落下は申告時に復帰済み。
+    public void NetConfirmHit(bool isFall, float slowFactor, float slowDuration)
+    {
+        netClaimPendingUntil = 0f;
+        if (isFall || hasDied || IsFinishing) return;
+        ApplyDamageReaction(false);
+    }
+
+    public void NetClaimRejected(int seq) { netClaimPendingUntil = 0f; }
+
+    void ApplyDamageReaction(bool isFall)
+    {
         RespawnAtCurrentPosition(isFall);
         // 被弾リアクション: 通常被弾=Hurt、落下復帰=Recovery。無敵時間はリアクション中から数え始め、
         // リアクションが終わってから点滅する(Hurt=被弾の瞬間、点滅=その後の無敵)。

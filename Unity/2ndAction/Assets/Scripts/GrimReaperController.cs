@@ -18,6 +18,8 @@ public class GrimReaperController : MonoBehaviour
     public float scytheActive = 0.28f;
 
     Transform player;
+    // マルチプレイPhase 2.5: HOSTのAIが狙う相手(全ての活動中プレイヤーから選ばれる)。
+    public void NetSetTarget(Transform t) { if (t != null) player = t; }
     Transform visual;
     BossRig rig;
     float gap;

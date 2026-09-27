@@ -476,6 +476,9 @@ public class CrystalGolemBoss : WildBossBase
         var col = go.AddComponent<BoxCollider2D>();
         col.isTrigger = true;
         col.size = new Vector2(1.2f, 1.6f);
+        // マルチプレイPhase 2.5: せり上がる結晶をJOINにも見せる(当たりはHOSTが分身の位置で確定)。
+        NetAttackSync.Register(go, NetAttackSync.AType.RisingCrystal, noDamage: true);
+        int crystalKey = NetMatch.NewHostAttackKey();
         var rb = go.AddComponent<Rigidbody2D>();
         rb.bodyType = RigidbodyType2D.Kinematic; rb.gravityScale = 0f;
 
@@ -489,6 +492,7 @@ public class CrystalGolemBoss : WildBossBase
             {
                 PlayerController.Instance.TakeDamage(source: "CrystalGolem:RisingCrystal");
             }
+            if (f > 0.5f) NetMatch.HostDamageRemoteInRange(x - 0.7f, x + 0.7f, float.MinValue, float.MaxValue, "CrystalGolem:RisingCrystal", crystalKey);
             yield return null;
         }
         yield return new WaitForSeconds(1.2f);

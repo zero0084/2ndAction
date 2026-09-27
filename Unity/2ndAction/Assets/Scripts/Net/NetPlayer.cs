@@ -188,6 +188,7 @@ public class NetPlayer : NetworkBehaviour
         bool running = gm != null && gm.HasStarted && !gm.IsGameOver && !gm.CountdownActive && !pc.IsDeadPosing && !pc.IsFinishing;
         if (running) s.Flags |= NetPlayerSnapshot.FlagRunning;
         s.RunSpeed = running ? pc.CurrentAutoRunSpeed : 0f;
+        s.Distance = pc.DistanceExact;
         return true;
     }
 
@@ -196,6 +197,8 @@ public class NetPlayer : NetworkBehaviour
     bool remoteRunning;
     float lastSnapshotRealtime = -99f;
     public float RemoteRunSpeed => remoteRunSpeed;
+    double remoteDistance;
+    public double RemoteDistance => remoteDistance;
 
     // 参加中かつ走行中として、直近1秒以内に報告してきたか(ダウン/離脱/切断した人の古い値を使わない)。
     public bool IsRunningRemote(float nowRealtime)
@@ -210,6 +213,7 @@ public class NetPlayer : NetworkBehaviour
         snapshotsReceived++;
         interpolator.Add(snapshot);
         remoteRunSpeed = snapshot.RunSpeed;
+        remoteDistance = snapshot.Distance;
         remoteRunning = (snapshot.Flags & NetPlayerSnapshot.FlagRunning) != 0;
         lastSnapshotRealtime = Time.realtimeSinceStartup;
     }
