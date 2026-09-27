@@ -871,6 +871,8 @@ public partial class PlayerController : MonoBehaviour
         // マルチプレイPhase 2.5: マルチではカード選択中も世界は止まらないが、選択中の入力を操作として
         // 受け付けない点はシングル(一時停止中は入力を読まない)と同じにする。
         if (NetMatch.Active && GameManager.Instance != null && GameManager.Instance.IsLocalChoiceOpen) reactionBlocked = true;
+        // 診断ログの詳細画面を開いている間は、スクロール操作がジャンプ/攻撃にならないよう入力を受け付けない。
+        if (DiagnosticsOverlay.DetailOpen) reactionBlocked = true;
         if (reactionBlocked) { requestedFlick = null; bufferedUpAttackTimer = 0f; }
         Move(allowJump: !wasEscapeChargingLastFrame && !reactionBlocked);
         if (!wasEscapeChargingLastFrame && !reactionBlocked) HandleAttackInput();
@@ -1609,6 +1611,7 @@ public partial class PlayerController : MonoBehaviour
     {
         bool recoverOnSky = !isFall && onSky && TerrainManager.Instance != null && TerrainManager.Instance.IsInBranchRoute(transform.position.x);
         Vector3 beforePos = transform.position;
+        FreezeDiagnostics.NoteIntendedMove(isFall ? "fall recovery (respawn)" : "hit respawn");
 
         velocityY = 0f;
         isGrounded = true;

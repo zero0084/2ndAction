@@ -629,7 +629,8 @@ public class EncounterDirector : MonoBehaviour
     // デバッグ表示(Debug Mode) + 指定Formationの強制
     // ===================================================================== //
 
-    GUIStyle style, btn;
+    GUIStyle style, btn, btnSmall;
+    static bool debugExpanded;
 
     void OnGUI()
     {
@@ -640,12 +641,22 @@ public class EncounterDirector : MonoBehaviour
             style = new GUIStyle(GUI.skin.label) { fontSize = 14, richText = true };
             style.normal.textColor = Color.white;
             btn = new GUIStyle(GUI.skin.button) { fontSize = 16, fontStyle = FontStyle.Bold };
+            btnSmall = new GUIStyle(GUI.skin.button) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
         }
         float s = Mathf.Max(1f, Mathf.Min(Screen.width, Screen.height) / 720f);
         Matrix4x4 prev = GUI.matrix;
         GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(s, s, 1f));
-        float w = Screen.width / s;
-        var r = new Rect(w - 440f, 150f, 430f, 250f);
+        float w = Screen.width / s, h = Screen.height / s;
+        // 2026-09-27 - プレイ画面(敵が来る右側)を遮らないよう、既定は右下(一時停止ボタンの上)に1行だけ。
+        // タップで詳細/FORCEを開く(上に向かって広がる)。
+        Rect safe = Screen.safeArea;
+        float right = w - (Screen.width - safe.xMax) / s - 8f, bottom = h - safe.yMin / s - 70f;
+        string line = Last != null ? $"ENC #{Last.index} {Last.intensity.ToString()[0]} {Last.formation} {(paused ? "PAUSED" : "")}" : $"ENC {(paused ? "PAUSED" : "-")}";
+        Rect lineRect = new Rect(right - 300f, bottom - 26f, 300f, 26f);
+        if (GUI.Button(lineRect, (debugExpanded ? "▼ " : "▲ ") + line, btnSmall)) debugExpanded = !debugExpanded;
+        if (!debugExpanded) { GUI.matrix = prev; return; }
+
+        var r = new Rect(right - 430f, lineRect.y - 6f - 250f - 46f, 430f, 250f);
         GUI.color = new Color(0f, 0f, 0f, 0.6f);
         GUI.DrawTexture(r, Texture2D.whiteTexture);
         GUI.color = Color.white;

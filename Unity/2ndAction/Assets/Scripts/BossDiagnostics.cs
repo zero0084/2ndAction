@@ -318,22 +318,20 @@ public static class BossDiagnostics
     // Application.persistentDataPath配下にもテキストファイルとして追記
     // 保存する(PC接続時にファイルとして取り出したい場合向け、必須ではない)。
     static string lastSnapshotText = "(まだSnapshotは記録されていません)";
-    static bool showSnapshotOverlay;
-    static Vector2 snapshotScrollPos;
+
+    // 2026-09-27 改修: 検知しても詳細画面は自動で開かない(ゲーム画面を遮らない)。記録を保持して
+    // 画面端に「ログ保存済み」を短く出し、ファイルへの追記は別スレッドで行う。詳細はDebug Modeの
+    // 「診断ログ」ボタン(DiagnosticsOverlay)から開く。
+    public static string LastSnapshotText => lastSnapshotText;
+    public static int SnapshotCount;
 
     static void RecordSnapshot(string text)
     {
         lastSnapshotText = text;
-        showSnapshotOverlay = true;
-        try
-        {
-            string path = Path.Combine(Application.persistentDataPath, "boss_freeze_log.txt");
-            File.AppendAllText(path, $"\n===== {DateTime.Now:yyyy-MM-dd HH:mm:ss} =====\n{text}\n");
-        }
-        catch (Exception e)
-        {
-            Debug.LogWarning("[BossDiagnostics] Failed to write boss_freeze_log.txt: " + e);
-        }
+        SnapshotCount++;
+        string stamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        DiagnosticsWriter.Enqueue("boss_freeze_log.txt", () => $"\n===== {stamp} =====\n{text}\n");
+        FreezeDiagnostics.ShowToast("ログ保存済み: BOSS");
     }
 
     // ===== 項目2/10 - Debug Snapshot ===== //
@@ -448,9 +446,9 @@ public static class BossDiagnostics
     // 他要素と同じ見た目)で不透明に近い背景を敷いた上、明示的に白文字の
     // GUIStyleを使う生GUI呼び出しに書き換え - スカイ背景の上でも常に
     // 読めることを優先し、GUILayoutの自動配置には頼らない。
-    public static void DrawDebugPanel()
+    // 2026-09-27 改修: 常時表示をやめ、DiagnosticsOverlayの「BOSS診断」ボタンで開いた時だけ描く。
+    public static void DrawDebugPanel(Rect panelRect)
     {
-        Rect panelRect = new Rect(10f, Screen.height - 230f, 360f, 220f);
         UiBackdrop.Draw(panelRect, 0.85f);
 
         GUIStyle titleStyle = new GUIStyle(GUI.skin.label);
@@ -487,50 +485,5 @@ public static class BossDiagnostics
             Debug.Log("[BOSS MANUAL SNAPSHOT]\n" + snapshot);
             RecordSnapshot(snapshot);
         }
-    }
-
-    // Bugfix 2026-09-08 - 画面に直接表示するSnapshotビューア。DrawDebugPanel
-    // と同じくDebugMode時のみGameManager.OnGUIから呼ばれる想定だが、こちら
-    // はshowSnapshotOverlayがtrueの間だけ実際に描画される(=フリーズ/例外
-    // 検知で自動的に開くか、手動Dumpボタンを押した直後のみ)。スクリーン
-    // ショットを撮ればそのままテキストとして残せるよう、大きめのフォント・
-    // 十分な行間・スクロール可能な領域で表示する。
-    public static void DrawSnapshotOverlayIfAny()
-    {
-        if (!showSnapshotOverlay) return;
-
-        Rect area = new Rect(Screen.width * 0.04f, Screen.height * 0.05f, Screen.width * 0.92f, Screen.height * 0.85f);
-        UiBackdrop.Draw(area, 0.95f);
-
-        GUIStyle headerStyle = new GUIStyle(GUI.skin.label)
-        {
-            fontSize = 15,
-            fontStyle = FontStyle.Bold,
-            normal = { textColor = new Color(1f, 0.92f, 0.6f) }
-        };
-        GUI.Label(new Rect(area.x + 10f, area.y + 6f, area.width - 120f, 26f), "Boss Freeze Snapshot (スクリーンショットして保存してください)", headerStyle);
-
-        GUIStyle closeStyle = new GUIStyle(GUI.skin.button) { fontSize = 14, normal = { textColor = Color.white } };
-        if (GUI.Button(new Rect(area.xMax - 100f, area.y + 4f, 90f, 30f), "閉じる", closeStyle))
-        {
-            showSnapshotOverlay = false;
-            return;
-        }
-
-        GUIStyle textStyle = new GUIStyle(GUI.skin.label)
-        {
-            fontSize = 13,
-            wordWrap = true,
-            alignment = TextAnchor.UpperLeft,
-            normal = { textColor = Color.white }
-        };
-
-        Rect viewRect = new Rect(area.x + 10f, area.y + 42f, area.width - 20f, area.height - 52f);
-        float innerWidth = viewRect.width - 24f; // scrollbar分を差し引いておく
-        float contentHeight = Mathf.Max(viewRect.height, textStyle.CalcHeight(new GUIContent(lastSnapshotText), innerWidth) + 20f);
-
-        snapshotScrollPos = GUI.BeginScrollView(viewRect, snapshotScrollPos, new Rect(0f, 0f, innerWidth, contentHeight));
-        GUI.Label(new Rect(0f, 0f, innerWidth, contentHeight), lastSnapshotText, textStyle);
-        GUI.EndScrollView();
     }
 }

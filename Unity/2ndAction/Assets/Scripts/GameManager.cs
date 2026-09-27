@@ -1154,6 +1154,12 @@ public class GameManager : MonoBehaviour
     void OnApplicationPause(bool pauseStatus)
     {
         if (pauseStatus) SaveInterruptState();
+        else FreezeDiagnostics.NoteAppResumed(); // 復帰直後の長いフレームは処理落ちではない
+    }
+
+    void OnApplicationFocus(bool hasFocus)
+    {
+        if (hasFocus) FreezeDiagnostics.NoteAppResumed();
     }
 
     void OnApplicationQuit()
@@ -2957,6 +2963,7 @@ public class GameManager : MonoBehaviour
         {
             Vector3 p = PlayerController.Instance.transform.position;
             p.x = data.checkpointDistance;
+            FreezeDiagnostics.NoteIntendedMove("CONTINUE (checkpoint)");
             PlayerController.Instance.transform.position = p;
         }
 
@@ -2983,25 +2990,9 @@ public class GameManager : MonoBehaviour
         // Bug #001 診断フェーズ (2026-09-08) - 意図的にAnyOverlayOpen等の
         // 分岐の外(=Level Up/Boss Reward/Pauseで隠れている最中でも見える
         // 位置)に置く。まさにFreeze中こそこのパネルを見たいため。
-        if (HasStarted && DebugMode) BossDiagnostics.DrawDebugPanel();
-        // Bugfix 2026-09-08 - マスターから「Snapshotファイルはどこにある
-        // か」との質問。logcat/adbを前提にせず、フリーズ/例外検知時に自動
-        // で画面上に直接テキスト表示する(手動Dumpボタンでも同様) - スク
-        // リーンショットを撮るだけで内容を保存・共有できる。
-        if (HasStarted && DebugMode) BossDiagnostics.DrawSnapshotOverlayIfAny();
-
-        // 高速走行中のフリーズ/ワープ調査(2026-09-22) - 記録自体は常時
-        // 行っているが、表示/手動ダンプはBossDiagnostics同様DebugMode時
-        // のみ。異常検知時は自動でオーバーレイが開く(FreezeDiagnostics.
-        // ReportAnomaly参照)。
-        if (HasStarted && DebugMode)
-        {
-            if (GUI.Button(new Rect(10f, Screen.height - 264f, 200f, 28f), "Dump Freeze/Warp Log"))
-            {
-                FreezeDiagnostics.ManualDump();
-            }
-            FreezeDiagnostics.DrawSnapshotOverlayIfAny();
-        }
+        // 診断表示(2026-09-27 改修) - Bug#001のBOSS診断パネル/Freeze・Warpログ/ボスSnapshotは、
+        // 常時表示・自動で開く方式をやめ、DiagnosticsOverlay(Debug Mode中のRunだけ)の小さな
+        // 「診断ログ」「BOSS診断」ボタンから開く。異常検知時は「ログ保存済み」を短く出すだけ。
 
         // Drawn first (before every other element) so everything else on
         // the top screen layers on top of it, and only while that screen
@@ -3066,7 +3057,8 @@ public class GameManager : MonoBehaviour
             DrawLevelAndExp();
             DrawHeartsPanel();
 
-            if (DebugMode) DrawDebugSpeedReadout();
+            // 開発ビルドではDEBUG TOOLSの中に表示する(リリースビルドのDebug Modeでは従来どおりここに出す)。
+            if (DebugMode && !Debug.isDebugBuild) DrawDebugSpeedReadout(SafeLeft() + UiMargin, GetSpeedPanelRect().yMax + HudPanelGap + 4f);
             if (DebugMode && Debug.isDebugBuild) DrawDistanceWarpDebugUI();
 
             DrawUnlockAnnouncement();
@@ -3959,7 +3951,8 @@ public class GameManager : MonoBehaviour
         };
     }
 
-    void DrawDebugSpeedReadout()
+    // 2026-09-27: 位置を受け取り、描いた下端のYを返す(DEBUG TOOLSを開いた時だけ出す)。
+    float DrawDebugSpeedReadout(float x, float y)
     {
         bool autoRun = PlayerController.Instance != null && PlayerController.Instance.autoRunEnabled;
         // 通常のSPEED表示と同じ換算(m/s×3.6=km/h)。括弧内は実測(dx/dt)のm/s。
@@ -3977,14 +3970,15 @@ public class GameManager : MonoBehaviour
         }
 
         GUIStyle style = new GUIStyle(GUI.skin.label);
-        style.fontSize = 14;
+        style.fontSize = 12;
         style.alignment = TextAnchor.UpperLeft;
         style.normal.textColor = Color.yellow;
 
         Vector2 size = style.CalcSize(new GUIContent(text));
-        Rect rect = new Rect(SafeLeft() + UiMargin, GetSpeedPanelRect().yMax + HudPanelGap + 22f, size.x + 10f, size.y + 6f);
+        Rect rect = new Rect(x, y, size.x + 10f, size.y + 6f);
         UiBackdrop.Draw(rect, 0.55f);
         GUI.Label(rect, text, style);
+        return rect.yMax;
     }
 
     // Distance Level Design Ver.1, item 10/11 - Development Build / Editor
@@ -3997,42 +3991,108 @@ public class GameManager : MonoBehaviour
     // deliberately NOT routed through ReportDistance/GainExp, which would
     // otherwise award a huge EXP lump sum and cascade into dozens of Level
     // Up screens for a single warp.
+    // デバッグ列の配置(2026-09-27 改修) - 以前は左上のBEST/DISTANCE/SPEEDのHUDに重なっていた。
+    // SPEEDパネルの下から始め、常に出すのは自動スローの確認に使う「SPD」「SLOW」の2行と
+    // 「DEBUG TOOLS」の開閉ボタンだけ。距離ワープ/MILE/CARD/状態表示は開いた時だけ出す
+    // (プレイ画面を広く見渡せるように)。
+    static bool debugToolsOpen;
+
     void DrawDistanceWarpDebugUI()
     {
+        float bw = 62f, bh = 26f, gap = 4f;
+        float x0 = SafeLeft() + UiMargin;
+        float y = GetSpeedPanelRect().yMax + HudPanelGap + 4f;
+
+        // ---- SPD(走行速度のデバッグ倍率)----
+        float scale = PlayerController.DebugSpeedScale;
+        (string label, System.Action action)[] speedButtons =
+        {
+            ("SPD -", () => PlayerController.DebugSpeedScale = StepDebugSpeed(scale, -1)),
+            ("SPD +", () => PlayerController.DebugSpeedScale = StepDebugSpeed(scale, +1)),
+            ("SPD x1", () => PlayerController.DebugSpeedScale = 1f),
+        };
+        for (int i = 0; i < speedButtons.Length; i++)
+        {
+            Rect r = new Rect(x0 + i * (bw + gap), y, bw, bh);
+            if (DrawStyledButton(r, speedButtons[i].label, 11f, primary: i == 2 && Mathf.Abs(scale - 1f) > 0.001f))
+            {
+                speedButtons[i].action();
+            }
+        }
+        float kmh = PlayerController.Instance != null ? SpeedKmh(PlayerController.Instance.CurrentAutoRunSpeed) : 0f;
+        string speedText = $"x{PlayerController.DebugSpeedScale:0.##} ({kmh:F0}km/h)";
+        GUIStyle speedStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
+        speedStyle.normal.textColor = Mathf.Abs(PlayerController.DebugSpeedScale - 1f) > 0.001f ? new Color(1f, 0.85f, 0.3f) : new Color(0.6f, 1f, 0.7f);
+        Rect speedRect = new Rect(x0 + speedButtons.Length * (bw + gap), y, speedStyle.CalcSize(new GUIContent(speedText)).x + 14f, bh);
+        UiBackdrop.Draw(speedRect, 0.55f);
+        GUI.Label(new Rect(speedRect.x + 6f, speedRect.y, speedRect.width - 6f, speedRect.height), speedText, speedStyle);
+        y += bh + gap;
+
+        // ---- SLOW(自動スローモーション)----
+        // マルチの参加側はHOSTの設定に従う(ボタンは押せない)。OFFにしてもカード選択/ポーズ等の停止は解除しない。
+        AutoSlowMotion slow = AutoSlowMotion.Instance;
+        if (slow != null)
+        {
+            Rect toggleRect = new Rect(x0, y, bw * 1.6f, bh);
+            string toggleLabel = slow.CanToggle ? (slow.autoSlowEnabled ? "SLOW ON" : "SLOW OFF") : (slow.autoSlowEnabled ? "SLOW ON(HOST)" : "SLOW OFF(HOST)");
+            if (DrawStyledButton(toggleRect, toggleLabel, 11f, primary: slow.autoSlowEnabled) && slow.CanToggle)
+            {
+                slow.SetEnabled(!slow.autoSlowEnabled);
+            }
+            // 自動スロー確認用の小さな表示: ON/OFF・判定に使う走行速度・自動スロー倍率・
+            // 最終の時間倍率(停止/ボス演出を含む実際のTime.timeScale。停止中はその理由も)。
+            string stopNote = TimeControl.ActiveReasonCount > 0 ? $" 停止:{TimeControl.DescribeActiveReasons()}" : (Mathf.Abs(Time.timeScale - slow.CurrentAutoScale) > 0.005f ? " 演出" : "");
+            string slowText = $"{(slow.autoSlowEnabled ? "ON" : "OFF")} 判定{SpeedKmh(slow.JudgedSpeed):F0}km/h 自動x{slow.CurrentAutoScale:F2} 最終x{Time.timeScale:F2}{stopNote}"
+                + (slow.IsNetworkFollower ? " (HOST値)" : NetCombat.Authority ? $" ({slow.ContributingPlayers}人)" : "");
+            GUIStyle slowStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
+            slowStyle.normal.textColor = slow.CurrentAutoScale < 0.999f ? new Color(0.55f, 0.9f, 1f) : new Color(0.6f, 1f, 0.7f);
+            Vector2 sz = slowStyle.CalcSize(new GUIContent(slowText));
+            Rect slowRect = new Rect(toggleRect.xMax + gap, y, sz.x + 14f, bh);
+            UiBackdrop.Draw(slowRect, 0.55f);
+            GUI.Label(new Rect(slowRect.x + 6f, slowRect.y, slowRect.width - 6f, slowRect.height), slowText, slowStyle);
+            y += bh + gap;
+        }
+
+        // ---- DEBUG TOOLS(開いた時だけ: 状態表示/距離ワープ/MILE/CARD)----
+        if (DrawStyledButton(new Rect(x0, y, bw * 1.9f, bh - 4f), debugToolsOpen ? "DEBUG TOOLS ▲" : "DEBUG TOOLS ▼", 10f, primary: debugToolsOpen))
+        {
+            debugToolsOpen = !debugToolsOpen;
+        }
+        y += bh;
+        if (!debugToolsOpen) return;
+
         string statusText = $"Distance: {Mathf.FloorToInt(MaxDistance)}"
-            + (DistanceTierManager.Instance != null ? $"\nEnemyHP: {DistanceTierManager.Instance.CurrentEnemyHp}   Tier: {(DistanceTierManager.Instance.CurrentTier != null ? DistanceTierManager.Instance.CurrentTier.tierName : "-")}" : "")
+            + (DistanceTierManager.Instance != null ? $"   EnemyHP: {DistanceTierManager.Instance.CurrentEnemyHp}   Tier: {(DistanceTierManager.Instance.CurrentTier != null ? DistanceTierManager.Instance.CurrentTier.tierName : "-")}" : "")
             + (WorldTimeCycle.Instance != null ? $"\nTime: {WorldTimeCycle.Instance.CurrentTimeName}" : "")
-            + (BossManager.Instance != null ? $"\nBossPhase: {(BossManager.Instance.IsBossPhase ? "ON" : "off")}   NextBoss: {Mathf.FloorToInt(BossManager.Instance.NextBossDistance)}" : "")
+            + (BossManager.Instance != null ? $"   BossPhase: {(BossManager.Instance.IsBossPhase ? "ON" : "off")}   NextBoss: {Mathf.FloorToInt(BossManager.Instance.NextBossDistance)}" : "")
             // Reward/Card Ownership/Gacha/Fusion System Ver.1, item 16.
             + $"\nMILE: {TotalOwnedMile}   OwnedCardStacks: {CardInventory.Stacks.Count}";
-
         GUIStyle statusStyle = new GUIStyle(GUI.skin.label);
-        statusStyle.fontSize = 14;
+        statusStyle.fontSize = 12;
         statusStyle.alignment = TextAnchor.UpperLeft;
         statusStyle.normal.textColor = new Color(0.6f, 1f, 0.7f);
         Vector2 statusSize = statusStyle.CalcSize(new GUIContent(statusText));
-        Rect statusRect = new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin + 100f, statusSize.x + 10f, statusSize.y + 6f);
+        Rect statusRect = new Rect(x0, y, statusSize.x + 10f, statusSize.y + 6f);
         UiBackdrop.Draw(statusRect, 0.55f);
         GUI.Label(statusRect, statusText, statusStyle);
+        y = statusRect.yMax + gap;
+        y = DrawDebugSpeedReadout(x0, y) + gap;
 
         float[] stops = DistanceTierManager.DebugWarpStops;
-        float bw = 62f, bh = 26f, gap = 4f;
         for (int i = 0; i < stops.Length; i++)
         {
-            Rect r = new Rect(SafeLeft() + UiMargin + i * (bw + gap), statusRect.yMax + 6f, bw, bh);
+            Rect r = new Rect(x0 + i * (bw + gap), y, bw, bh);
             string label = stops[i] >= 1000f ? $"{stops[i] / 1000f:0.#}K" : $"{stops[i]:0}";
             if (DrawStyledButton(r, label, 12f, primary: false))
             {
                 DebugWarpToDistance(stops[i]);
             }
         }
+        y += bh + gap;
 
         // Reward/Card Ownership/Gacha/Fusion System Ver.1, item 16 - Dev
         // Build-only debug tools for repeatedly testing MILE/Gacha/Fusion/
-        // Convert without needing to actually grind runs. Same
-        // DebugMode+Debug.isDebugBuild gate as the row above (this whole
-        // method is already only called under that condition).
-        float debugRowY = statusRect.yMax + 6f + bh + 6f;
+        // Convert without needing to actually grind runs.
         (string label, System.Action action)[] mileButtons =
         {
             ("MILE +500", () => AddMile(500)),
@@ -4043,62 +4103,13 @@ public class GameManager : MonoBehaviour
         };
         for (int i = 0; i < mileButtons.Length; i++)
         {
-            Rect r = new Rect(SafeLeft() + UiMargin + i * (bw + gap), debugRowY, bw, bh);
+            Rect r = new Rect(x0 + i * (bw + gap), y, bw, bh);
             if (DrawStyledButton(r, mileButtons[i].label, 10f, primary: false))
             {
                 mileButtons[i].action();
             }
         }
-
-        // 走行速度のデバッグ調整(2026-09-26) - SPD -/+で段階的に上げ下げ、x1で元に戻す。
-        // 距離による通常の加速に掛け合わせる倍率(PlayerController.DebugSpeedScale)。
-        float speedRowY = debugRowY + bh + 6f;
-        float scale = PlayerController.DebugSpeedScale;
-        (string label, System.Action action)[] speedButtons =
-        {
-            ("SPD -", () => PlayerController.DebugSpeedScale = StepDebugSpeed(scale, -1)),
-            ("SPD +", () => PlayerController.DebugSpeedScale = StepDebugSpeed(scale, +1)),
-            ("SPD x1", () => PlayerController.DebugSpeedScale = 1f),
-        };
-        for (int i = 0; i < speedButtons.Length; i++)
-        {
-            Rect r = new Rect(SafeLeft() + UiMargin + i * (bw + gap), speedRowY, bw, bh);
-            if (DrawStyledButton(r, speedButtons[i].label, 11f, primary: i == 2 && Mathf.Abs(scale - 1f) > 0.001f))
-            {
-                speedButtons[i].action();
-            }
-        }
-        float kmh = PlayerController.Instance != null ? SpeedKmh(PlayerController.Instance.CurrentAutoRunSpeed) : 0f;
-        string speedText = $"x{PlayerController.DebugSpeedScale:0.##}  ({kmh:F0} km/h)";
-        GUIStyle speedStyle = new GUIStyle(GUI.skin.label) { fontSize = 14, alignment = TextAnchor.MiddleLeft };
-        speedStyle.normal.textColor = Mathf.Abs(PlayerController.DebugSpeedScale - 1f) > 0.001f ? new Color(1f, 0.85f, 0.3f) : new Color(0.6f, 1f, 0.7f);
-        Rect speedRect = new Rect(SafeLeft() + UiMargin + speedButtons.Length * (bw + gap), speedRowY, 150f, bh);
-        UiBackdrop.Draw(speedRect, 0.55f);
-        GUI.Label(new Rect(speedRect.x + 6f, speedRect.y, speedRect.width - 6f, speedRect.height), speedText, speedStyle);
-
-        // 自動スローモーション(2026-09-27 試験実装) - ON/OFFと現在の倍率の比較用。
-        // マルチの参加側はHOSTの設定に従う(ボタンは押せない)。OFFにしてもカード選択/ポーズ等の停止は解除しない。
-        AutoSlowMotion slow = AutoSlowMotion.Instance;
-        if (slow != null)
-        {
-            float slowRowY = speedRowY + bh + 6f;
-            Rect toggleRect = new Rect(SafeLeft() + UiMargin, slowRowY, bw * 1.6f, bh);
-            string toggleLabel = slow.CanToggle ? (slow.autoSlowEnabled ? "SLOW ON" : "SLOW OFF") : (slow.autoSlowEnabled ? "SLOW ON(HOST)" : "SLOW OFF(HOST)");
-            if (DrawStyledButton(toggleRect, toggleLabel, 11f, primary: slow.autoSlowEnabled) && slow.CanToggle)
-            {
-                slow.SetEnabled(!slow.autoSlowEnabled);
-            }
-            string slowText = $"auto x{slow.CurrentAutoScale:F2}  final x{Time.timeScale:F2}  vmax {SpeedKmh(slow.JudgedSpeed):F0}km/h"
-                + (slow.IsNetworkFollower ? "  (HOST値)" : NetCombat.Authority ? $"  ({slow.ContributingPlayers}人)" : "");
-            GUIStyle slowStyle = new GUIStyle(GUI.skin.label) { fontSize = 13, alignment = TextAnchor.MiddleLeft };
-            slowStyle.normal.textColor = slow.CurrentAutoScale < 0.999f ? new Color(0.55f, 0.9f, 1f) : new Color(0.6f, 1f, 0.7f);
-            Vector2 sz = slowStyle.CalcSize(new GUIContent(slowText));
-            Rect slowRect = new Rect(toggleRect.xMax + gap, slowRowY, sz.x + 14f, bh);
-            UiBackdrop.Draw(slowRect, 0.55f);
-            GUI.Label(new Rect(slowRect.x + 6f, slowRect.y, slowRect.width - 6f, slowRect.height), slowText, slowStyle);
-        }
     }
-
     static readonly float[] DebugSpeedSteps = { 0.25f, 0.5f, 0.75f, 1f, 1.25f, 1.5f, 2f, 2.5f, 3f, 4f, 5f, 6f, 8f };
 
     static float StepDebugSpeed(float current, int dir)

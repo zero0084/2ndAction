@@ -17,12 +17,19 @@ using UnityEngine;
 //    低い出来事だけを文字列で記録する(呼び出し頻度が低いため許容)。
 //
 // 異常検知(毎フレームTick()内):
-// - ヒッチ: 生の実時間フレーム間隔(Time.unscaledDeltaTime、Unityの
-//   Time.deltaTimeと違いMaximumAllowedTimestepの影響を受けない)が閾値を
-//   超えた場合。
-// - 座標飛び: プレイヤーX座標が1フレームで閾値を超えて変化した場合。
-//   直前のフレームがTime.timeScale<=0だったかどうかで「停止中に座標が
-//   変わった」のか「再開した1フレームで飛んだ」のかを区別して記録する。
+// - ヒッチ: 生の実時間フレーム間隔(Time.unscaledDeltaTime)が閾値を超えた場合。
+// - 座標飛び: プレイヤーの「論理X」(FloatingOriginで戻した量を足した値)が1フレームで
+//   その時の速度から考えられる移動量を大きく超えて変化した場合。
+//
+// 表示と書き出しの方針(2026-09-27 改修):
+// - 異常を検知しても詳細画面は自動で開かない。ログを保存し、画面端に「ログ保存済み」を
+//   短く出すだけ(DiagnosticsOverlay)。詳細は専用ボタンを押した時だけ開く。
+// - 意図した座標変更(Run開始/リトライ/CONTINUE/距離ジャンプ/落下・被弾からの復帰/
+//   FloatingOriginのシフト)は異常ではなく通常のイベント([MOVE])として記録する。
+// - 開始カウントダウン中/シーン読み込み直後/アプリ復帰直後のヒッチは、読み込み等の想定内の
+//   ものとして通常イベントに記録する(それ以外の実際の処理落ちの検知は従来どおり)。
+// - 同じ種類の異常は短時間に何度も書き出さない。ファイルへの書き出しと本文の組み立ては
+//   別スレッドで行い、メインスレッド(ゲーム進行)を止めない。
 public static class FreezeDiagnostics
 {
     // ===== フレームスナップショット(zero-GC ring buffer) ===== //
@@ -35,10 +42,11 @@ public static class FreezeDiagnostics
         public float timeScale;
         public int pauseReasons; // TimeControl.ActiveReasonCount
         public int hitStopActive; // HitStop.ActiveCount
-        public float playerX, playerY;
+        public float playerX, playerY; // playerXは論理X(FloatingOriginのシフトを含まない)
         public float camX, camY;
         public float distance;
         public int lives;
+        public float runSpeed;
     }
 
     const int SampleCapacity = 600; // 60fps換算で約10秒分
@@ -58,30 +66,72 @@ public static class FreezeDiagnostics
         while (events.Count > EventCapacity) events.Dequeue();
     }
 
-    static string DumpEvents()
-    {
-        if (events.Count == 0) return "(no events recorded yet)";
-        var sb = new StringBuilder();
-        foreach (string line in events) sb.AppendLine(line);
-        return sb.ToString();
-    }
-
     // ===== 閾値(チューニング用) ===== //
     // 実時間で150ms以上フレームが止まった=体感で明確な「一瞬止まった」。
     public const float HitchThresholdSeconds = 0.15f;
-    // 1フレームでのプレイヤーX移動がこれを超えたら「座標飛び」候補として
-    // 記録する(通常走行の最高速度でも1フレーム(Maximum Allowed Timestep
-    // =0.333s)あたり数ユニット程度が上限になるよう別途クランプ済みなので、
-    // 意図した移動と紛れにくい値)。
+    // 1フレームでのプレイヤー論理X移動の下限しきい値。実際のしきい値はその時の走行速度×フレーム
+    // 時間(+突進/ノックバックの余裕)と比べて大きい方(高速+長いフレームの正常な移動を誤検知しない)。
     public const float PositionJumpThreshold = 3.0f;
-    // 同じ異常を毎フレーム書き出し続けないための連続抑制時間(実時間)。
-    const float DumpCooldownSeconds = 1.0f;
-    static float lastDumpRealtime = -100f;
+    // 同じ種類の異常を続けて書き出さない間隔(実時間)と、1分あたりの書き出し上限。
+    const float SameKindCooldownSeconds = 8f;
+    const int MaxDumpsPerMinute = 6;
+    // シーン読み込み/Run開始/アプリ復帰の直後は、読み込み由来の想定内のヒッチとして扱う時間。
+    const float StartupGraceSeconds = 1.5f;
+
+    // ===== 意図した座標変更 ===== //
+    static int intendedMoveFrame = -100;
+    static string intendedMoveReason = "";
+    static float graceUntilRealtime;
+    static bool hooksInstalled;
+    static bool wasStarted;
+
+    // 呼び出し側: 「これからプレイヤーを意図して動かす」(復帰/ワープ/CONTINUE等)。
+    // このフレームと次のフレームの座標飛びは異常ではなく通常のイベントとして記録する。
+    public static void NoteIntendedMove(string reason)
+    {
+        intendedMoveFrame = Time.frameCount;
+        intendedMoveReason = reason;
+    }
+
+    // シーン読み込み/アプリ復帰など、直後のヒッチを想定内として扱う区間を始める。
+    public static void BeginGrace(string reason)
+    {
+        graceUntilRealtime = Time.realtimeSinceStartup + StartupGraceSeconds;
+        havePrevSample = false; // 直前の座標とは比べない(シーンが入れ替わった/長時間止まっていた)
+        LogEvent($"[GRACE] {reason}");
+    }
+
+    static void InstallHooks()
+    {
+        if (hooksInstalled) return;
+        hooksInstalled = true;
+        FloatingOrigin.Warped += d => NoteIntendedMove($"distance warp +{d:F0}m (FloatingOrigin.LogicalWarp)");
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += (s, m) => BeginGrace("scene loaded (start/retry/home)");
+        DiagnosticsOverlay.Ensure();
+    }
+
+    // ===== 異常の記録(UI/自動テスト用) ===== //
+    public class Anomaly
+    {
+        public string kind;     // HITCH / POSITION JUMP
+        public string reason;
+        public string time;
+        public bool dumped;     // 詳細を書き出したか(同種の連続は数だけ数える)
+    }
+    public static readonly List<Anomaly> RecentAnomalies = new List<Anomaly>();
+    public static int AnomalyCount, SuppressedCount, IntendedMoveCount, GraceHitchCount, DumpCount;
+    static readonly Dictionary<string, float> lastDumpByKind = new Dictionary<string, float>();
+    static readonly Queue<float> dumpTimes = new Queue<float>();
+
+    // 「ログ保存済み」の通知(DiagnosticsOverlayが短時間だけ画面端に出す)。
+    public static float ToastUntilRealtime { get; private set; }
+    public static string ToastText { get; private set; } = "";
 
     // GameManager.Update()から毎フレーム呼ぶ(BossDiagnostics.
     // PollStateTransitions/UpdateFreezeWatchdogと同じ場所・同じ位置づけ)。
     public static void Tick()
     {
+        InstallHooks();
         PlayerController pc = PlayerController.Instance;
         GameManager gm = GameManager.Instance;
         Camera cam = Camera.main;
@@ -95,150 +145,184 @@ public static class FreezeDiagnostics
             timeScale = Time.timeScale,
             pauseReasons = TimeControl.ActiveReasonCount,
             hitStopActive = HitStop.ActiveCount,
-            playerX = pc != null ? pc.transform.position.x : 0f,
+            playerX = pc != null ? (float)(pc.transform.position.x + FloatingOrigin.Offset) : 0f,
             playerY = pc != null ? pc.transform.position.y : 0f,
             camX = cam != null ? cam.transform.position.x : 0f,
             camY = cam != null ? cam.transform.position.y : 0f,
             distance = gm != null ? gm.MaxDistance : 0f,
             lives = gm != null ? gm.Lives : -1,
+            runSpeed = pc != null ? pc.CurrentAutoRunSpeed : 0f,
         };
 
         samples[sampleHead] = s;
         sampleHead = (sampleHead + 1) % SampleCapacity;
         if (sampleCount < SampleCapacity) sampleCount++;
 
-        // ゲーム未開始/ゲームオーバー中はプレイヤーが動かないのが正常な
-        // ので、異常判定はHasStarted && !IsGameOverの間だけ行う。
+        // ゲーム未開始/ゲームオーバー中はプレイヤーが動かないのが正常なので、異常判定はRun中だけ。
         bool activeRun = gm != null && gm.HasStarted && !gm.IsGameOver;
+        if (activeRun && !wasStarted) BeginGrace("run started");
+        wasStarted = activeRun;
+        // 開始カウントダウン中は、配置/読み込み/演出のための移動・ヒッチが想定内。
+        bool expectedPhase = gm != null && gm.CountdownActive;
+        bool inGrace = Time.realtimeSinceStartup < graceUntilRealtime;
 
         if (havePrevSample && activeRun)
         {
             if (s.rawDt >= HitchThresholdSeconds)
             {
-                ReportAnomaly($"HITCH: 実フレーム間隔{s.rawDt * 1000f:F0}ms (閾値{HitchThresholdSeconds * 1000f:F0}ms)  timeScale={s.timeScale:F2}  pauseReasons={TimeControl.DescribeActiveReasons()}");
+                string msg = $"HITCH: 実フレーム間隔{s.rawDt * 1000f:F0}ms (閾値{HitchThresholdSeconds * 1000f:F0}ms)  timeScale={s.timeScale:F2}  pauseReasons={TimeControl.DescribeActiveReasons()}";
+                if (expectedPhase || inGrace) { GraceHitchCount++; LogEvent($"[HITCH-EXPECTED] {(expectedPhase ? "countdown" : "loading/resume")} {msg}"); }
+                else ReportAnomaly("HITCH", msg);
             }
 
             float dx = Mathf.Abs(s.playerX - prevSample.playerX);
-            if (dx >= PositionJumpThreshold)
+            // その時の速度で1フレームに進み得る量(突進/ノックバック/打ち上げの余裕込み)より大きいか。
+            float allowed = Mathf.Max(PositionJumpThreshold, (Mathf.Max(s.runSpeed, prevSample.runSpeed) * 1.3f + 8f) * Mathf.Max(s.scaledDt, 0.0001f));
+            if (dx >= allowed)
             {
-                bool prevPaused = prevSample.timeScale <= 0f;
-                bool nowPaused = s.timeScale <= 0f;
-                string when = !prevPaused && !nowPaused ? "通常再生中(一時停止とは無関係)"
-                    : prevPaused && !nowPaused ? "再開した瞬間の1フレームで発生(RESUME FRAME JUMP)"
-                    : "一時停止中に発生(CHANGED WHILE PAUSED - 想定外)";
-                ReportAnomaly($"POSITION JUMP: playerX {prevSample.playerX:F2} -> {s.playerX:F2} (Δ{dx:F2})  {when}  timeScale(prev->now)={prevSample.timeScale:F2}->{s.timeScale:F2}  pauseReasons={TimeControl.DescribeActiveReasons()}");
+                bool intended = Time.frameCount - intendedMoveFrame <= 2;
+                if (intended || expectedPhase || inGrace)
+                {
+                    IntendedMoveCount++;
+                    LogEvent($"[MOVE] {(intended ? intendedMoveReason : expectedPhase ? "countdown placement" : "start/load placement")}: X {prevSample.playerX:F2} -> {s.playerX:F2} (Δ{dx:F2})");
+                }
+                else
+                {
+                    bool prevPaused = prevSample.timeScale <= 0f;
+                    bool nowPaused = s.timeScale <= 0f;
+                    string when = !prevPaused && !nowPaused ? "通常再生中(一時停止とは無関係)"
+                        : prevPaused && !nowPaused ? "再開した瞬間の1フレームで発生(RESUME FRAME JUMP)"
+                        : "一時停止中に発生(CHANGED WHILE PAUSED - 想定外)";
+                    ReportAnomaly("POSITION JUMP", $"POSITION JUMP: logicalX {prevSample.playerX:F2} -> {s.playerX:F2} (Δ{dx:F2}, 許容{allowed:F2})  {when}  timeScale(prev->now)={prevSample.timeScale:F2}->{s.timeScale:F2}  pauseReasons={TimeControl.DescribeActiveReasons()}");
+                }
             }
         }
 
         prevSample = s;
         havePrevSample = true;
+        DiagnosticsWriter.Pump();
     }
 
-    static void ReportAnomaly(string reason)
+    // アプリがバックグラウンドから戻った(GameManager.OnApplicationPause/Focusから)。
+    public static void NoteAppResumed() => BeginGrace("app resumed");
+
+    static void ReportAnomaly(string kind, string reason)
     {
+        AnomalyCount++;
         LogEvent("[ANOMALY] " + reason);
-        if (Time.realtimeSinceStartup - lastDumpRealtime < DumpCooldownSeconds) return;
-        lastDumpRealtime = Time.realtimeSinceStartup;
+        var a = new Anomaly { kind = kind, reason = reason, time = DateTime.Now.ToString("HH:mm:ss") };
+        RecentAnomalies.Add(a);
+        if (RecentAnomalies.Count > 50) RecentAnomalies.RemoveAt(0);
 
-        string snapshot = BuildDump(reason);
-        Debug.LogWarning("[FreezeDiagnostics] " + reason + "\n" + snapshot);
-        RecordSnapshot(snapshot);
-    }
-
-    // 直近のフレームサンプル(新しい順)+イベントログをまとめてテキスト化
-    // する。BuildSnapshotと同じ「後から見返せる形」を優先。
-    static string BuildDump(string reason)
-    {
-        var sb = new StringBuilder();
-        sb.AppendLine("--- FREEZE/WARP DIAGNOSTICS DUMP ---");
-        sb.AppendLine(reason);
-        sb.AppendLine();
-        sb.AppendLine($"Time.timeScale={Time.timeScale:F2}  TimeControl.ActiveReasons={TimeControl.DescribeActiveReasons()}  HitStop.ActiveCount={HitStop.ActiveCount}  AutoSlow={TimeControl.AutoScale:F2}(enabled={(AutoSlowMotion.Instance != null && AutoSlowMotion.Instance.autoSlowEnabled)})");
-        sb.AppendLine($"RewardCardSequence.DebugStep={RewardCardSequence.DebugStep}");
-        sb.AppendLine();
-        sb.AppendLine("Recent frames (oldest -> newest, up to 120):");
-        sb.AppendLine("frame  realtime  rawDt(ms)  scaledDt(ms)  timeScale  pauseReasons  hitStop  playerX  playerY  camX  distance  lives");
-        int show = Mathf.Min(120, sampleCount);
-        int start = (sampleHead - show + SampleCapacity) % SampleCapacity;
-        for (int i = 0; i < show; i++)
+        float now = Time.realtimeSinceStartup;
+        while (dumpTimes.Count > 0 && now - dumpTimes.Peek() > 60f) dumpTimes.Dequeue();
+        bool sameKindRecent = lastDumpByKind.TryGetValue(kind, out float last) && now - last < SameKindCooldownSeconds;
+        if (sameKindRecent || dumpTimes.Count >= MaxDumpsPerMinute)
         {
-            FrameSample fs = samples[(start + i) % SampleCapacity];
-            sb.AppendLine($"{fs.frame}  {fs.realtime:F3}  {fs.rawDt * 1000f:F1}  {fs.scaledDt * 1000f:F1}  {fs.timeScale:F2}  {fs.pauseReasons}  {fs.hitStopActive}  {fs.playerX:F2}  {fs.playerY:F2}  {fs.camX:F2}  {fs.distance:F1}  {fs.lives}");
-        }
-        sb.AppendLine();
-        sb.AppendLine("Recent events:");
-        sb.Append(DumpEvents());
-        sb.AppendLine("--- END DUMP ---");
-        return sb.ToString();
-    }
-
-    // ===== 画面上に直接表示する(BossDiagnostics.RecordSnapshot/
-    // DrawSnapshotOverlayIfAnyと同じ考え方 - adb/logcatなしでスクリーン
-    // ショットだけで持ち帰れるように) ===== //
-    static string lastDumpText = "(まだ記録はありません)";
-    static bool showOverlay;
-    static Vector2 overlayScrollPos;
-
-    static void RecordSnapshot(string text)
-    {
-        lastDumpText = text;
-        showOverlay = true;
-        try
-        {
-            string path = Path.Combine(Application.persistentDataPath, "hitch_log.txt");
-            File.AppendAllText(path, $"\n===== {DateTime.Now:yyyy-MM-dd HH:mm:ss} =====\n{text}\n");
-        }
-        catch (Exception e)
-        {
-            Debug.LogWarning("[FreezeDiagnostics] Failed to write hitch_log.txt: " + e);
-        }
-    }
-
-    public static void DrawSnapshotOverlayIfAny()
-    {
-        if (!showOverlay) return;
-
-        Rect area = new Rect(Screen.width * 0.04f, Screen.height * 0.05f, Screen.width * 0.92f, Screen.height * 0.85f);
-        UiBackdrop.Draw(area, 0.95f);
-
-        GUIStyle headerStyle = new GUIStyle(GUI.skin.label)
-        {
-            fontSize = 15,
-            fontStyle = FontStyle.Bold,
-            normal = { textColor = new Color(1f, 0.75f, 0.4f) }
-        };
-        GUI.Label(new Rect(area.x + 10f, area.y + 6f, area.width - 120f, 26f), "Freeze/Warp Diagnostics Dump (スクリーンショットして保存してください)", headerStyle);
-
-        GUIStyle closeStyle = new GUIStyle(GUI.skin.button) { fontSize = 14, normal = { textColor = Color.white } };
-        if (GUI.Button(new Rect(area.xMax - 100f, area.y + 4f, 90f, 30f), "閉じる", closeStyle))
-        {
-            showOverlay = false;
+            SuppressedCount++; // 数だけ数える(詳細の書き出しと通知はしない)
             return;
         }
-
-        GUIStyle textStyle = new GUIStyle(GUI.skin.label)
-        {
-            fontSize = 12,
-            wordWrap = false,
-            alignment = TextAnchor.UpperLeft,
-            normal = { textColor = Color.white }
-        };
-
-        Rect viewRect = new Rect(area.x + 10f, area.y + 42f, area.width - 20f, area.height - 52f);
-        float innerWidth = Mathf.Max(viewRect.width - 24f, textStyle.CalcSize(new GUIContent("frame  realtime  rawDt(ms)  scaledDt(ms)  timeScale  pauseReasons  hitStop  playerX  playerY  camX  distance  lives")).x + 20f);
-        float contentHeight = Mathf.Max(viewRect.height, textStyle.CalcHeight(new GUIContent(lastDumpText), innerWidth) + 20f);
-
-        overlayScrollPos = GUI.BeginScrollView(viewRect, overlayScrollPos, new Rect(0f, 0f, innerWidth, contentHeight));
-        GUI.Label(new Rect(0f, 0f, innerWidth, contentHeight), lastDumpText, textStyle);
-        GUI.EndScrollView();
+        lastDumpByKind[kind] = now;
+        dumpTimes.Enqueue(now);
+        a.dumped = true;
+        DumpCount++;
+        QueueDump(reason, "hitch_log.txt");
+        // 本文はファイルへ。コンソールにはスタックトレース無しの1行だけ(大きな文字列の出力で処理落ちしない)。
+        Debug.LogFormat(LogType.Warning, LogOption.NoStacktrace, null, "[FreezeDiagnostics] {0} (logged to hitch_log.txt)", reason);
+        ShowToast($"ログ保存済み: {kind}");
     }
 
-    // DebugModeパネルからの手動ダンプ用(BossDiagnostics.DrawDebugPanelの
-    // 「Dump Snapshot Now」ボタンと同じ位置づけ)。
+    public static void ShowToast(string text)
+    {
+        ToastText = text;
+        ToastUntilRealtime = Time.realtimeSinceStartup + 2.2f;
+    }
+
+    // 直近のフレーム(コピー)とイベントを別スレッドで文章にして書き出す。
+    static void QueueDump(string reason, string fileName)
+    {
+        int show = Mathf.Min(120, sampleCount);
+        var copy = new FrameSample[show];
+        int start = (sampleHead - show + SampleCapacity) % SampleCapacity;
+        for (int i = 0; i < show; i++) copy[i] = samples[(start + i) % SampleCapacity];
+        string[] evs = events.ToArray();
+        string header = $"Time.timeScale={Time.timeScale:F2}  TimeControl.ActiveReasons={TimeControl.DescribeActiveReasons()}  HitStop.ActiveCount={HitStop.ActiveCount}  AutoSlow={TimeControl.AutoScale:F2}(enabled={(AutoSlowMotion.Instance != null && AutoSlowMotion.Instance.autoSlowEnabled)})\nRewardCardSequence.DebugStep={RewardCardSequence.DebugStep}";
+        string stamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        DiagnosticsWriter.Enqueue(fileName, () =>
+        {
+            var sb = new StringBuilder(16384);
+            sb.AppendLine("--- FREEZE/WARP DIAGNOSTICS DUMP ---");
+            sb.AppendLine(reason);
+            sb.AppendLine();
+            sb.AppendLine(header);
+            sb.AppendLine();
+            sb.AppendLine("Recent frames (oldest -> newest, up to 120):");
+            sb.AppendLine("frame  realtime  rawDt(ms)  scaledDt(ms)  timeScale  pauseReasons  hitStop  logicalX  playerY  camX  distance  lives  runSpeed");
+            foreach (var fs in copy)
+                sb.AppendLine($"{fs.frame}  {fs.realtime:F3}  {fs.rawDt * 1000f:F1}  {fs.scaledDt * 1000f:F1}  {fs.timeScale:F2}  {fs.pauseReasons}  {fs.hitStopActive}  {fs.playerX:F2}  {fs.playerY:F2}  {fs.camX:F2}  {fs.distance:F1}  {fs.lives}  {fs.runSpeed:F1}");
+            sb.AppendLine();
+            sb.AppendLine("Recent events:");
+            if (evs.Length == 0) sb.AppendLine("(no events recorded yet)");
+            foreach (string e in evs) sb.AppendLine(e);
+            sb.AppendLine("--- END DUMP ---");
+            string text = sb.ToString();
+            LastDumpText = text;
+            return $"\n===== {stamp} =====\n{text}\n";
+        });
+    }
+
+    // 最後に書き出した詳細(詳細画面で表示)。別スレッドから書き換わるのでvolatile。
+    static volatile string lastDumpText = "(まだ記録はありません)";
+    public static string LastDumpText { get => lastDumpText; private set => lastDumpText = value; }
+
+    // 詳細画面の「今すぐ記録」ボタン用(従来の手動ダンプ)。
     public static void ManualDump()
     {
-        string snapshot = BuildDump("MANUAL DUMP");
-        Debug.Log("[FreezeDiagnostics] Manual dump\n" + snapshot);
-        RecordSnapshot(snapshot);
+        QueueDump("MANUAL DUMP", "hitch_log.txt");
+        ShowToast("ログ保存済み: MANUAL");
+    }
+
+    // 詳細画面の上部に出す要約。
+    public static string Summary() =>
+        $"異常 {AnomalyCount}件(詳細保存 {DumpCount} / 同種の連続で省略 {SuppressedCount})  意図した移動 {IntendedMoveCount}件  開始/復帰直後のヒッチ {GraceHitchCount}件\n保存先: {Path.Combine(Application.persistentDataPath, "hitch_log.txt")}";
+}
+
+// ログファイルへの書き出しを別スレッドで順番に行う(メインスレッドはキューに積むだけ)。
+public static class DiagnosticsWriter
+{
+    static readonly object gate = new object();
+    static readonly Queue<(string path, Func<string> build)> queue = new Queue<(string, Func<string>)>();
+    static bool running;
+    static string dir;
+
+    public static int Pending { get { lock (gate) return queue.Count + (running ? 1 : 0); } }
+    public static int Written;
+
+    public static void Enqueue(string fileName, Func<string> buildText)
+    {
+        if (dir == null) dir = Application.persistentDataPath;
+        lock (gate)
+        {
+            if (queue.Count > 20) queue.Dequeue(); // 溜まりすぎたら古いものから捨てる
+            queue.Enqueue((Path.Combine(dir, fileName), buildText));
+        }
+    }
+
+    // メインスレッドから毎フレーム呼ぶ: 書き出し中でなければ次を別スレッドで始める。
+    public static void Pump()
+    {
+        (string path, Func<string> build) job;
+        lock (gate)
+        {
+            if (running || queue.Count == 0) return;
+            job = queue.Dequeue();
+            running = true;
+        }
+        System.Threading.ThreadPool.QueueUserWorkItem(_ =>
+        {
+            try { File.AppendAllText(job.path, job.build()); System.Threading.Interlocked.Increment(ref Written); }
+            catch (Exception) { /* 書けなくてもゲームには影響させない */ }
+            finally { lock (gate) running = false; }
+        });
     }
 }
