@@ -713,7 +713,74 @@ public static class CharacterDatabaseBuilder
         ninja.kit = CharacterKit.Ninja;
         FillKitArt(ref ninja, "Ninja", 583f, new[] { "dashslash", "slashend", "throw", "updash", "downdash" });
 
-        return new[] { swordsman, dualBlade, nobleLady, gunslinger, lancer, archer, mage, fighter, ninja };
+        // ===== 追加3人(2026-09-28) ===== //
+        // 10人目 巫女: 御札・式神・結界を「置いて」敵の進路を支配する / 瞬間火力が低く出が遅い。
+        Spec miko = DefaultBaseline;
+        miko.id = "miko";
+        miko.displayName = "SHRINE MAIDEN";
+        miko.subtitle = "Seal the Path Ahead";
+        miko.role = "SEALER";
+        miko.flavorText = "An exorcist of a mountain shrine.\nShe lays ofuda and barriers ahead,\nand the path itself turns against her foes -\nbut she is slow to strike first.";
+        miko.lifeRating = 3; miko.powerRating = 2; miko.speedRating = 3; miko.comboRating = 2;
+        miko.sortOrder = 9;
+        miko.belongings = new[]
+        {
+            new CharacterDefinition.BelongingItem { label = "御札", placeholderColor = new Color(0.95f, 0.92f, 0.8f), kind = CharacterDefinition.BelongingKind.Weapon },
+            new CharacterDefinition.BelongingItem { label = "神楽鈴", placeholderColor = new Color(0.9f, 0.75f, 0.3f), kind = CharacterDefinition.BelongingKind.Small },
+            new CharacterDefinition.BelongingItem { label = "緋袴", placeholderColor = new Color(0.75f, 0.12f, 0.15f), kind = CharacterDefinition.BelongingKind.Cloth },
+        };
+        miko.baseLives = 3; miko.baseMaxLives = 5;
+        miko.attackPower = 2; miko.attackComboCount = 1;
+        miko.hurtLeanDegrees = 14f;
+        miko.hurtKnockbackMultiplier = 1.2f;
+        miko.kit = CharacterKit.Miko;
+        FillKitArt(ref miko, "Miko", 583f, new[] { "throw", "shiki", "upfan", "place" });
+
+        // 11人目 吸血鬼: 攻撃でBloodを溜め、戦い続けるほど強くなる(Blood Rush)。
+        Spec vampire = DefaultBaseline;
+        vampire.id = "vampire";
+        vampire.displayName = "VAMPIRE";
+        vampire.subtitle = "The Longer, The Stronger";
+        vampire.role = "BLOOD";
+        vampire.flavorText = "A noble of the night who needs no blade.\nEvery wound he deals feeds his blood,\nand a long fight only makes him faster -\nbut he starts every battle hungry.";
+        vampire.lifeRating = 3; vampire.powerRating = 3; vampire.speedRating = 3; vampire.comboRating = 4;
+        vampire.sortOrder = 10;
+        vampire.belongings = new[]
+        {
+            new CharacterDefinition.BelongingItem { label = "血の爪", placeholderColor = new Color(0.6f, 0.05f, 0.1f), kind = CharacterDefinition.BelongingKind.Weapon },
+            new CharacterDefinition.BelongingItem { label = "黒の外套", placeholderColor = new Color(0.1f, 0.08f, 0.12f), kind = CharacterDefinition.BelongingKind.Cloth },
+        };
+        vampire.baseLives = 3; vampire.baseMaxLives = 5;
+        vampire.attackPower = 2; vampire.attackComboCount = 3;
+        vampire.hurtLeanDegrees = 10f;
+        vampire.kit = CharacterKit.Vampire;
+        FillKitArt(ref vampire, "Vampire", 583f, new[] { "claw1", "claw2", "bloodslash", "bats", "mist", "dive" });
+
+        // 12人目 竜人: 爪・尻尾・翼・炎 / 体が大きく攻撃が遅い代わりにLIFEとノックバックが強い。
+        Spec dragonkin = DefaultBaseline;
+        dragonkin.id = "dragonkin";
+        dragonkin.displayName = "DRAGONKIN";
+        dragonkin.subtitle = "Claw, Tail, Wing, Flame";
+        dragonkin.role = "BRUTE";
+        dragonkin.flavorText = "A warrior with the blood of dragons.\nShe needs no weapon - claws, tail and fire\nsweep everything aside.\nHer size makes her easy to hit, but hard to stop.";
+        dragonkin.lifeRating = 5; dragonkin.powerRating = 5; dragonkin.speedRating = 2; dragonkin.comboRating = 2;
+        dragonkin.sortOrder = 11;
+        dragonkin.belongings = new[]
+        {
+            new CharacterDefinition.BelongingItem { label = "竜の爪", placeholderColor = new Color(0.25f, 0.1f, 0.08f), kind = CharacterDefinition.BelongingKind.Weapon },
+            new CharacterDefinition.BelongingItem { label = "竜炎の鱗", placeholderColor = new Color(0.85f, 0.35f, 0.1f), kind = CharacterDefinition.BelongingKind.Cloth },
+        };
+        dragonkin.baseLives = 5; dragonkin.baseMaxLives = 6;
+        dragonkin.attackPower = 3; dragonkin.attackComboCount = 3;
+        dragonkin.knockbackPowerMultiplier = 1.3f;
+        dragonkin.groundMobilityMultiplier = 0.95f;
+        dragonkin.hurtKnockbackMultiplier = 0.5f;
+        dragonkin.hurtLeanDegrees = 6f;
+        dragonkin.kit = CharacterKit.Dragonkin;
+        FillKitArt(ref dragonkin, "Dragonkin", 510f, // 体が大きい(他の583より約14%大きく表示)
+             new[] { "claw1", "claw2", "claw3", "tail", "flap", "breath", "glide" });
+
+        return new[] { swordsman, dualBlade, nobleLady, gunslinger, lancer, archer, mage, fighter, ninja, miko, vampire, dragonkin };
     }
 
     // 新4人の素材フォルダ(名前は Art/<prefix>Run_v1 等、ポーズは Art/<prefix>Poses_v1/<name>)。
@@ -777,6 +844,10 @@ public static class CharacterDatabaseBuilder
             Spec spec = specIn;
             // 新4人: カード枠入りの画像がまだ無ければ、枠なしの立ち絵をカードにも使う(後から差し替え)。
             if (!string.IsNullOrEmpty(spec.portraitPath) && !File.Exists(spec.portraitPath) && !string.IsNullOrEmpty(spec.mainVisualPath)) spec.portraitPath = spec.mainVisualPath;
+            // Character Select中央の立ち絵統一(2026-09-28): 全員ぶん「枠なし全身・同じ縦横比・足元=下端」へ
+            // 正規化した <id>_main.png があればそれを使う(キャラごとに枠付き/枠なしがバラバラだった問題の解消)。
+            string unifiedMain = $"{PortraitFolder}/{spec.id}_main.png";
+            if (File.Exists(unifiedMain)) spec.mainVisualPath = unifiedMain;
             bottomCenterPivotMode = spec.bottomCenterPivot;
             string assetPath = $"{CharactersFolder}/{spec.id}.asset";
             CharacterDefinition existing = AssetDatabase.LoadAssetAtPath<CharacterDefinition>(assetPath);
@@ -984,6 +1055,9 @@ public static class CharacterDatabaseBuilder
             importer.mipmapEnabled = false;
             importer.alphaIsTransparency = true;
             importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            // Character Select中央の統一立ち絵(<id>_main.png、2026-09-28)は2のべき乗へ引き伸ばすと
+            // 縦横比が崩れる(700x1100→512x1024)ので、元の大きさのまま読む。
+            if (path.EndsWith("_main.png")) importer.npotScale = TextureImporterNPOTScale.None;
             importer.SaveAndReimport();
         }
         return AssetDatabase.LoadAssetAtPath<Texture2D>(path);

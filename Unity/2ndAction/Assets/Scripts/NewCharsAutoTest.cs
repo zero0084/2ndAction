@@ -90,7 +90,7 @@ public class NewCharsAutoTest : MonoBehaviour
 
         L($"[Select] selected={gm.SelectedCharacterId} activeRun={gm.ActiveRunCharacterId} kit={pc.Kit} lives={gm.Lives}/{gm.maxLives}");
         Check(gm.SelectedCharacterId == "archer" && pc.Kit == CharacterKit.Archer, "archer selected via NEW RUN");
-        Check(CharacterDatabase.AllCharacters.Count == 9, $"9 characters in database (got {CharacterDatabase.AllCharacters.Count})");
+        Check(CharacterDatabase.AllCharacters.Count == 12, $"12 characters in database (got {CharacterDatabase.AllCharacters.Count})");
 
         yield return TestArcher();
         yield return Switch("mage");

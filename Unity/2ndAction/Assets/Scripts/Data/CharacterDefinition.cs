@@ -305,6 +305,9 @@ public class CharacterDefinition : ScriptableObject
     public MageKitParams mage = new MageKitParams();
     public FighterKitParams fighter = new FighterKitParams();
     public NinjaKitParams ninja = new NinjaKitParams();
+    public MikoKitParams miko = new MikoKitParams();
+    public VampireKitParams vampire = new VampireKitParams();
+    public DragonkinKitParams dragonkin = new DragonkinKitParams();
 
     public Sprite[] FindKitPose(string poseName)
     {

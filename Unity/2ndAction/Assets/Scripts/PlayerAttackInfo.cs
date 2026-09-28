@@ -31,12 +31,23 @@ public class PlayerAttackInfo : MonoBehaviour
     public float knockbackScale = 1f;
     public float hitStop;
 
+    // 10〜12人目(2026-09-28) - 結界/燃える地面のような「細かく何度も当たる」判定用。trueなら命中しても
+    // 全体のHitStop(一瞬の停止)や敵の地上ノックバックを起こさない。既定false=従来どおり。
+    public bool suppressHitStop;
+    public bool suppressKnockback;
+    // 敵/ボスに命中した瞬間に呼ばれる(吸血鬼のBlood Gauge等)。障害物では呼ばない。既定null=何もしない。
+    public System.Action onHit;
+
     // 敵/ボス/障害物がダメージを読む箇所から呼ぶ。倍率1なら値をそのまま返す。
-    public static int ScaleDamage(Collider2D attack, int damage)
+    public static int ScaleDamage(Collider2D attack, int damage) => ScaleDamage(attack, damage, true);
+
+    public static int ScaleDamage(Collider2D attack, int damage, bool notifyHit)
     {
         if (attack == null) return damage;
         var info = attack.GetComponent<PlayerAttackInfo>();
-        if (info == null || Mathf.Approximately(info.damageScale, 1f)) return damage;
+        if (info == null) return damage;
+        if (notifyHit) info.onHit?.Invoke();
+        if (Mathf.Approximately(info.damageScale, 1f)) return damage;
         return Mathf.Max(1, Mathf.RoundToInt(damage * info.damageScale));
     }
 }

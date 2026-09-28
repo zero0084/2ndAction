@@ -486,6 +486,8 @@ public class EnemyController : MonoBehaviour
             // 新4人(2026-09-27): 判定ごとのノックバック/HitStop倍率(既存5人の判定は既定値=従来どおり)。
             hitKnockbackScale = info != null ? info.knockbackScale : 1f;
             hitExtraStop = info != null ? info.hitStop : 0f;
+            hitNoStop = info != null && info.suppressHitStop;
+            hitNoKnockback = info != null && info.suppressKnockback;
             netReactionAttacker = 0; // この端末のプレイヤーの攻撃
             NetCombat.AuthorityDamaged(NetId, 0, Mathf.Max(1, damage), hp, (byte)kind, contactPoint, killed);
 
@@ -592,7 +594,7 @@ public class EnemyController : MonoBehaviour
                     // →「まだ密着してしまう」との追加報告を受け、距離ベース
                     // (KnockbackRoutine)から速度ベース(ApplyGroundKnockback)
                     // へ全面変更。
-                    ApplyGroundKnockback();
+                    if (!hitNoKnockback) ApplyGroundKnockback();
                     if (PlayerController.Instance != null) PlayerController.Instance.NotifyGroundHitConnect();
                 }
                 break;
@@ -603,10 +605,12 @@ public class EnemyController : MonoBehaviour
     // 他キャラはAttackHitStopOverride=0なので従来のhitStopDurationのまま。
     // 新4人(2026-09-27): 直前に命中した判定の倍率(PlayerAttackInfo.knockbackScale/hitStop)。
     float hitKnockbackScale = 1f, hitExtraStop;
+    bool hitNoStop, hitNoKnockback; // 10〜12人目: 結界/燃える地面の細かい継続ダメージ(HitStop・ノックバックなし)
 
     float HitStopForPlayerAttack()
     {
         if (netReactionAttacker > 0 || PlayerController.Instance == null) return hitStopDuration;
+        if (hitNoStop) return 0f;
         return Mathf.Max(hitStopDuration, PlayerController.Instance.AttackHitStopOverride, hitExtraStop);
     }
 
@@ -1065,7 +1069,7 @@ public class EnemyController : MonoBehaviour
         EnsureHp();
         hp -= Mathf.Max(1, damage);
         bool killed = hp <= 0;
-        hitKnockbackScale = 1f; hitExtraStop = 0f;
+        hitKnockbackScale = 1f; hitExtraStop = 0f; hitNoStop = false; hitNoKnockback = false;
         netReactionAttacker = attacker;
         NetCombat.AuthorityDamaged(NetId, attacker, Mathf.Max(1, damage), hp, (byte)kind, contactPoint, killed);
         ProcessHit(kind, contactPoint, killed);

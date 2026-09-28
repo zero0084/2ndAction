@@ -24,6 +24,10 @@ public class KitProjectile : MonoBehaviour
     // ボス(EnemyController以外)に当たった時だけ自前でHitStop(雑魚はPlayerAttackInfo.hitStopで敵側が処理)。
     public float bossHitStop;
     public System.Action<KitProjectile, Vector3> onGround;
+    // 敵/ボスに当たった瞬間(巫女の御札の貼り付け等)。
+    public System.Action<KitProjectile, Collider2D> onHitEnemy;
+    // 上下にゆらゆら揺れる(式神の紙の鳥)。振幅と周波数。
+    public float wobbleAmp, wobbleFreq;
 
     public int HitCount { get; private set; }
     Transform visual;
@@ -37,6 +41,7 @@ public class KitProjectile : MonoBehaviour
         Vector2 v = velocity + (inheritRunSpeed ? new Vector2(PlayerController.RunFrameSpeed, 0f) : Vector2.zero);
         transform.position += (Vector3)(v * dt);
         if (visual != null && spin != 0f) visual.Rotate(0f, 0f, spin * dt);
+        if (wobbleAmp > 0f) transform.position += new Vector3(0f, Mathf.Cos(age * wobbleFreq * Mathf.PI * 2f) * wobbleAmp * wobbleFreq * Mathf.PI * 2f * dt, 0f);
         age += dt;
         if (stopAtGround && TerrainManager.Instance != null && velocity.y < 0f)
         {
@@ -59,6 +64,7 @@ public class KitProjectile : MonoBehaviour
         bool boss = !enemy && (other.GetComponentInParent<WildBossBase>() != null || other.GetComponentInParent<DragonController>() != null || other.GetComponentInParent<MajinController>() != null);
         if (!enemy && !boss) return;
         HitCount++;
+        onHitEnemy?.Invoke(this, other);
         if (boss && bossHitStop > 0f && PlayerController.Instance != null) PlayerController.Instance.StartCoroutine(HitStop.Freeze(bossHitStop));
         if (blast.radius > 0f) { Finish(other.ClosestPoint(transform.position), true); return; }
         if (pierce == 0) { Finish(transform.position, false); return; }

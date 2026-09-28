@@ -43,9 +43,13 @@ public partial class PlayerController
     void ApplyKitStats(CharacterDefinition def)
     {
         CancelKitMoves();
+        KitOnRunEnd(); // 前のキャラ/前のRunの結界・御札・燃える地面・Blood Gaugeを必ず片付ける
         kit = def.kit;
         kitDef = HasKit ? def : null;
         kitPoseCache.Clear();
+        // 体の当たり判定: 竜人だけ大きく、他のキャラは元の大きさ(既存キャラは常に1倍=変化なし)
+        ApplyBodyScale(kit == CharacterKit.Dragonkin ? def.dragonkin.bodyScale : 1f);
+        if (sr != null) sr.color = Color.white;
         if (!HasKit) return;
         if (def.kitPoses != null)
             foreach (var p in def.kitPoses)
@@ -107,6 +111,7 @@ public partial class PlayerController
         KitPoseFrame = 0;
         kitPoseTimer = 0f;
         if (HasKit) transform.localScale = Vector3.one;
+        if (kitHitInfo != null) { kitHitInfo.onHit = null; kitHitInfo.suppressHitStop = false; kitHitInfo.suppressKnockback = false; }
         fighterCounterTimer = 0f;
         kitDiveActive = false;
         kitDiveLanded = false;
@@ -121,6 +126,19 @@ public partial class PlayerController
         fighterGraceTimer = 0f;
         archerLastShotTime = Time.time; // 被弾で引き絞りはやり直し
         if (archerChargeGlow != null) archerChargeGlow.enabled = false;
+        // 10〜12人目: コンボ段/滑空は被弾でも必ず解除(重力の変更を残さない)
+        vampireComboStage = 0; vampireNextStage = 1; vampireGraceTimer = 0f;
+        DragonReset();
+        if (sr != null && kit == CharacterKit.Vampire) sr.color = Color.white;
+    }
+
+    // Run終了(正常終了/死亡)/キャラ切り替え: 置いた物とゲージを全て片付ける。
+    void KitOnRunEnd()
+    {
+        MikoCleanup();
+        DragonCleanup();
+        VampireReset(true);
+        if (bloodBarBg != null) { bloodBarBg.enabled = false; bloodBarFill.enabled = false; bloodAura.enabled = false; }
     }
 
     // 復帰(被弾/落下)で安全地点へ戻った直後。
@@ -129,6 +147,10 @@ public partial class PlayerController
         CancelKitMoves();
         archerDownShotsUsed = 0;
         MageReset();
+        // 巫女の結界/御札・竜人の燃える地面は復帰で消す。吸血鬼はRushを解除しゲージを30までに抑える。
+        MikoCleanup();
+        DragonCleanup();
+        VampireReset(false);
     }
 
     // ===================== ポーズ ===================== //
@@ -181,6 +203,8 @@ public partial class PlayerController
             lungeVelocityX = 0f;
         }
         if (kit == CharacterKit.Archer) ArcherUpdate();
+        else if (kit == CharacterKit.Vampire) VampireUpdate();
+        else if (kit == CharacterKit.Dragonkin) DragonUpdate();
     }
 
     // 着地の瞬間(Move()の着地処理から)。
@@ -222,6 +246,9 @@ public partial class PlayerController
             case CharacterKit.Mage: HandleMageInput(f); break;
             case CharacterKit.Fighter: HandleFighterInput(f); break;
             case CharacterKit.Ninja: HandleNinjaInput(f); break;
+            case CharacterKit.Miko: HandleMikoInput(f); break;
+            case CharacterKit.Vampire: HandleVampireInput(f); break;
+            case CharacterKit.Dragonkin: HandleDragonInput(f); break;
         }
     }
 
@@ -233,6 +260,9 @@ public partial class PlayerController
             case CharacterKit.Archer: ArcherUpShot(); break;
             case CharacterKit.Fighter: StartCoroutine(FighterUppercut(airborne)); break;
             case CharacterKit.Ninja: StartCoroutine(NinjaUpDash()); break;
+            case CharacterKit.Miko: MikoUpFan(); break;
+            case CharacterKit.Vampire: StartCoroutine(VampireMist()); break;
+            case CharacterKit.Dragonkin: StartCoroutine(DragonFlap(airborne)); break;
         }
     }
 

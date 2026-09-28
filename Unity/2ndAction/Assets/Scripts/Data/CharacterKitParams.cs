@@ -6,7 +6,8 @@ using UnityEngine;
 // PlayerController.Kit*.cs(キャラごとのpartial)へ分岐する。既存5人は
 // kit=Standard(既定値)のままなので、ここにある値は一切参照されない。
 // 調整値はすべてInspectorで変えられる(CharacterDefinitionの各パラメータ)。
-public enum CharacterKit { Standard, Archer, Mage, Fighter, Ninja }
+// 10〜12人目(2026-09-28)は末尾に追加(アセットには番号で保存されるため、既存の並びは変えない)。
+public enum CharacterKit { Standard, Archer, Mage, Fighter, Ninja, Miko, Vampire, Dragonkin }
 
 // 攻撃ごとのポーズ(名前で引く)。frames が空なら通常の攻撃絵/走り絵のまま。
 [Serializable]
@@ -184,4 +185,134 @@ public class NinjaKitParams
     public float landSlashDamageScale = 1f;
     public float slideDistance = 1.8f;
     public float slideTime = 0.16f;
+}
+
+// 10人目 巫女(SHRINE MAIDEN、役割 SEALER)。御札・式神・結界を置いて「敵が通る場所」を支配する。
+// 即効性は低いが、敵の進路を読めば強い(魔法使い=自分から撃ち込む、との違い)。
+[Serializable]
+public class MikoKitParams
+{
+    [Header("前: 御札(命中で貼り付き → 時間差で浄化爆発。貼られた敵に2枚目で即爆発)")]
+    public float ofudaSpeed = 11f;
+    public float ofudaLifetime = 1.1f;
+    public float ofudaWindup = 0.12f;
+    public float ofudaCooldown = 0.42f;
+    public float ofudaDamageScale = 0.6f;
+    [Tooltip("貼り付いてから浄化爆発までの秒数")] public float markDelay = 1.3f;
+    public float burstRadius = 0.95f;
+    public float burstDamageScale = 1.6f;
+    [Tooltip("貼られた敵へ2枚目を当てた時の即時爆発(大きめ)")] public float detonateRadius = 1.25f;
+    public float detonateDamageScale = 2.2f;
+    [Header("後: 式神(紙の鳥、最初に触れた敵へ)")]
+    public float shikiSpeed = 8f;
+    public float shikiLifetime = 1.5f;
+    public float shikiDamageScale = 1f;
+    public float shikiCooldown = 0.45f;
+    [Header("上: 御札を扇状に展開(空中の敵の迎撃)")]
+    public float[] upAngles = { 28f, 50f, 72f };
+    public float upSpeed = 12f;
+    public float upDamageScale = 0.5f;
+    [Header("下: 結界(同時に1つ、置き直すと古い方は消える)")]
+    public float barrierForward = 3.4f;     // 足元から前方へどれだけ先に置くか(中心)
+    public float barrierWidth = 4.2f;
+    public float barrierHeight = 1.9f;
+    public float barrierDuration = 2.6f;
+    public float barrierTick = 0.45f;
+    public float barrierTickDamageScale = 0.35f;
+    [Tooltip("結界内の敵の横移動をこの倍率まで遅くする")] public float barrierSlow = 0.3f;
+    public float barrierWindup = 0.22f;
+    public float barrierCooldown = 0.8f;
+}
+
+// 11人目 吸血鬼(VAMPIRE、役割 BLOOD)。攻撃を当てるとBlood Gaugeが溜まり、戦い続けるほど強くなる。
+[Serializable]
+public class VampireKitParams
+{
+    [Header("Blood Gauge (0〜100)")]
+    public float gainPerHit = 7f;
+    public float gainDiveHit = 35f;
+    [Tooltip("最後に当ててからこの秒数後にゲージが減り始める")] public float decayDelay = 2.5f;
+    public float decayPerSecond = 9f;
+    [Tooltip("この値以上で攻撃が少し強化")] public float tierThreshold = 50f;
+    public float tierDamageScale = 1.2f;
+    public float tierSpeedScale = 0.88f;     // 技の時間倍率(小さいほど速い)
+    [Header("Blood Rush (100で発動)")]
+    public float rushDuration = 5f;
+    public float rushSpeedScale = 0.7f;      // 技の時間倍率
+    public float rushMoveScale = 1.12f;      // 走行速度
+    public float rushDamageScale = 1.3f;
+    [Tooltip("Rush中の命中1回ごとの回復(ハート単位で貯め、1貯まったら1回復)")] public float rushHealPerHit = 0.06f;
+    public float gaugeAfterRush = 30f;
+    [Header("回復の上限(永久回復にしない)")]
+    [Tooltip("急降下吸血の命中でゲージがこれ以上あれば少し回復")] public float diveHealThreshold = 50f;
+    public float diveHeal = 0.34f;
+    [Tooltip("実際にハートが1つ回復した後、次に回復できるまでの秒数")] public float healCooldown = 12f;
+    [Header("前: 右爪 → 左爪 → 血の斬撃")]
+    public float[] comboWindup = { 0.05f, 0.05f, 0.1f };
+    public float[] comboActive = { 0.08f, 0.08f, 0.12f };
+    public float[] comboRecovery = { 0.1f, 0.1f, 0.26f };
+    public float[] comboReach = { 1.1f, 1.1f, 2.1f };
+    public float[] comboDamageScale = { 0.9f, 0.9f, 1.6f };
+    public float[] comboKnockbackScale = { 0.5f, 0.5f, 1.4f };
+    public float[] comboHitStop = { 0.03f, 0.03f, 0.07f };
+    public float comboGrace = 0.35f;
+    [Header("後: バックステップ+コウモリの群れ")]
+    public float backStep = 0.9f;
+    public float batSpeed = 10f;
+    public float batLifetime = 0.9f;
+    public float batDamageScale = 0.4f;
+    public int batCount = 3;
+    [Header("上: 霧/コウモリ化して斜め上へ移動")]
+    public float mistSpeedY = 9.5f;
+    public float mistDistanceX = 2.2f;
+    public float mistTime = 0.22f;
+    public float mistDamageScale = 0.8f;
+    [Header("下: 空中=急降下吸血 / 地上=低い血の薙ぎ")]
+    public float diveSpeedY = 16f;
+    public float diveSpeedX = 6f;
+    public float diveDamageScale = 1.4f;
+    public float lowReach = 1.3f;
+    public float lowDamageScale = 1f;
+}
+
+// 12人目 竜人(DRAGONKIN、役割 BRUTE)。武器なし、自分の爪・尾・翼・炎で戦う。
+[Serializable]
+public class DragonkinKitParams
+{
+    [Header("前: 爪3段(格闘家より遅く、1発が重い)")]
+    public float[] comboWindup = { 0.1f, 0.1f, 0.18f };
+    public float[] comboActive = { 0.1f, 0.1f, 0.14f };
+    public float[] comboRecovery = { 0.16f, 0.16f, 0.36f };
+    public float[] comboReach = { 1.3f, 1.3f, 1.6f };
+    public float[] comboLunge = { 0.2f, 0.2f, 0.4f };
+    public float[] comboDamageScale = { 1.3f, 1.3f, 2.3f };
+    public float[] comboKnockbackScale = { 1f, 1f, 2.8f };
+    public float[] comboHitStop = { 0.05f, 0.05f, 0.12f };
+    public float comboGrace = 0.35f;
+    [Header("後: 尾の薙ぎ払い(後方に広い)")]
+    public float tailWindup = 0.1f;
+    public float tailActive = 0.16f;
+    public float tailRecovery = 0.3f;
+    public float tailReach = 2.4f;
+    public float tailDamageScale = 1f;
+    [Header("上: 翼で強く羽ばたいて上昇+爪のアッパー")]
+    [Tooltip("jumpForceに対する倍率(通常のジャンプより高く上がる)")] public float flapJump = 1.18f;
+    public float flapActive = 0.18f;
+    public float flapDamageScale = 1.2f;
+    [Header("短い滑空(常時飛行ではない)")]
+    [Tooltip("ジャンプの頂点を過ぎて落ち始めたら、1回のジャンプにつき1回だけ落下を遅くする秒数")] public float glideTime = 0.45f;
+    public float glideFallSpeed = 1.3f;
+    [Header("下: 炎のブレス(地面に当たると燃える地面)")]
+    public float breathTime = 0.36f;
+    public int breathShots = 5;
+    public float breathSpeed = 12f;
+    public float breathAngleAir = -58f;
+    public float breathAngleGround = -14f;
+    public float breathDamageScale = 0.6f;
+    public float breathHoverFall = 0.8f;
+    public float burnWidth = 2.6f;
+    public float burnDuration = 1.5f;
+    public float burnTick = 0.3f;
+    public float burnTickDamageScale = 0.35f;
+    [Tooltip("体が大きい=当たり判定が大きい")] public float bodyScale = 1.15f;
 }

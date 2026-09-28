@@ -18,7 +18,8 @@ public static class CharacterDatabaseSelfTest
         // 2026-09-12時点のまま放置されており、拳銃士追加後もcount==3の
         // ハードコードのままFAILし続けていた - 発見のたび更新すること)。
         // 5人目の竜騎士追加(2026-09-26)で4→5。新4人(弓使い/魔法使い/格闘家/忍者、2026-09-27)で5→9。
-        bool countOk = all.Count == 9;
+        // 追加3人(巫女/吸血鬼/竜人、2026-09-28)で9→12。
+        bool countOk = all.Count == 12;
         bool orderOk = countOk
             && all[0].characterId == "swordsman"
             && all[1].characterId == "dual_blade"
@@ -28,7 +29,10 @@ public static class CharacterDatabaseSelfTest
             && all[5].characterId == "archer"
             && all[6].characterId == "mage"
             && all[7].characterId == "fighter"
-            && all[8].characterId == "ninja";
+            && all[8].characterId == "ninja"
+            && all[9].characterId == "miko"
+            && all[10].characterId == "vampire"
+            && all[11].characterId == "dragonkin";
 
         CharacterDefinition swordsman = CharacterDatabase.FindById("swordsman");
         bool findByIdOk = swordsman != null && swordsman.portrait != null && swordsman.mainVisual != null;

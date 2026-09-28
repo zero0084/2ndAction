@@ -83,7 +83,11 @@ public class NewCharsDemoCapture : MonoBehaviour
                 case CharacterKit.Mage: yield return Mage(); break;
                 case CharacterKit.Fighter: yield return Fighter(); break;
                 case CharacterKit.Ninja: yield return Ninja(); break;
+                case CharacterKit.Miko: yield return Miko(); break;
+                case CharacterKit.Vampire: yield return Vampire(); break;
+                case CharacterKit.Dragonkin: yield return Dragonkin(); break;
             }
+            if (pc.Kit == CharacterKit.Miko || pc.Kit == CharacterKit.Vampire || pc.Kit == CharacterKit.Dragonkin) yield return Hurt(gm);
         }
         yield return Wait(0.5f);
         capturing = false;
@@ -331,6 +335,116 @@ public class NewCharsDemoCapture : MonoBehaviour
         Clear();
     }
 
+    // ===== 追加3人(2026-09-28) ===== //
+    IEnumerator Miko()
+    {
+        yield return RunSection(4f);
+        // 前: 御札が貼り付き→時間差で浄化爆発。もう1体には2枚当てて即爆発
+        Mark("forward"); yield return Safe(8f);
+        enemyHp = 30;
+        Enemy(3.4f, 0);
+        yield return Flick(PlayerController.FlickDirection.Forward); yield return Wait(2.0f);
+        Clear(); yield return Safe(8f);
+        Enemy(3.4f, 0);
+        yield return Flick(PlayerController.FlickDirection.Forward); yield return Wait(0.5f);
+        yield return Flick(PlayerController.FlickDirection.Forward); yield return Wait(1.0f);
+        Clear();
+        Mark("back"); yield return Safe(6f);
+        Enemy(-2.6f, 0);
+        yield return Flick(PlayerController.FlickDirection.Backward); yield return Wait(1.1f);
+        Clear();
+        Mark("up"); yield return Safe(8f);
+        Enemy(2.8f, 2.4f); Enemy(3.6f, 3.0f);
+        yield return Flick(PlayerController.FlickDirection.Up); yield return Wait(1.3f);
+        Clear();
+        // 下: 結界。中へ走り込んでくる敵が遅くなり、少しずつ削られる
+        Mark("down"); yield return Safe(10f);
+        enemyHp = 40;
+        yield return Flick(PlayerController.FlickDirection.Down); yield return Wait(0.3f);
+        var z = KitZone.Find(KitZone.Kind.Barrier);
+        if (z != null) { Enemy(z.transform.position.x - pc.transform.position.x + 3.5f, 0, EnemyBehaviorKind.Chaser); Enemy(z.transform.position.x - pc.transform.position.x + 0.3f, 0); }
+        yield return Wait(2.6f);
+        Clear();
+    }
+
+    IEnumerator Vampire()
+    {
+        yield return RunSection(4f);
+        // 前: 3段コンボを続けてBlood Gaugeを溜め、Blood Rushまで
+        Mark("forward"); yield return Safe(8f);
+        enemyHp = 60;
+        Enemy(1.2f, 0);
+        for (int i = 0; i < 9; i++) { yield return Flick(PlayerController.FlickDirection.Forward); yield return Wait(0.14f); }
+        yield return Wait(0.6f);
+        Mark("rush");
+        float w = 0f;
+        while (!pc.BloodRush && w < 10f)
+        {
+            if (FindFirstObjectByType<EnemyController>() == null) Enemy(1.2f, 0);
+            yield return Flick(PlayerController.FlickDirection.Forward); yield return Wait(0.12f); w += 0.14f;
+        }
+        for (int i = 0; i < 12; i++) { if (FindFirstObjectByType<EnemyController>() == null) Enemy(1.2f, 0); yield return Flick(PlayerController.FlickDirection.Forward); yield return Wait(0.1f); }
+        yield return Wait(0.8f);
+        Clear();
+        Mark("back"); yield return Safe(6f);
+        enemyHp = 20;
+        Enemy(-2.6f, 0);
+        yield return Flick(PlayerController.FlickDirection.Backward); yield return Wait(1.0f);
+        Clear();
+        Mark("up"); yield return Safe(8f);
+        Enemy(1.4f, 1.2f);
+        yield return Flick(PlayerController.FlickDirection.Up); yield return Wait(1.3f);
+        Clear();
+        Mark("down"); yield return Safe(8f);
+        yield return Flick(PlayerController.FlickDirection.Up); yield return Wait(0.3f);
+        Enemy(2.2f, 0);
+        yield return Flick(PlayerController.FlickDirection.Down); yield return Wait(1.0f);
+        yield return Safe(6f);
+        Enemy(1.1f, 0);
+        yield return Flick(PlayerController.FlickDirection.Down); yield return Wait(0.9f);
+        Clear();
+    }
+
+    IEnumerator Dragonkin()
+    {
+        yield return RunSection(4f);
+        Mark("forward"); yield return Safe(8f);
+        enemyHp = 40;
+        Enemy(1.4f, 0); Enemy(2.2f, 0);
+        for (int i = 0; i < 6; i++) { yield return Flick(PlayerController.FlickDirection.Forward); yield return Wait(0.15f); }
+        yield return Wait(1.2f); Clear();
+        Mark("back"); yield return Safe(6f);
+        Enemy(-1.4f, 0); Enemy(-2.4f, 0);
+        yield return Flick(PlayerController.FlickDirection.Backward); yield return Wait(1.2f);
+        Clear();
+        // 上: 羽ばたき → 落ち際の短い滑空
+        Mark("up"); yield return Safe(10f);
+        Enemy(1.0f, 0);
+        yield return Flick(PlayerController.FlickDirection.Up); yield return Wait(2.0f);
+        Clear();
+        // 下: 空中ブレス → 燃える地面、地上ブレス
+        Mark("down"); yield return Safe(10f);
+        Enemy(3.0f, 0); Enemy(3.8f, 0);
+        yield return Flick(PlayerController.FlickDirection.Up); yield return Wait(0.35f);
+        yield return Flick(PlayerController.FlickDirection.Down); yield return Wait(1.8f);
+        Clear(); yield return Safe(8f);
+        Enemy(2.4f, 0);
+        yield return Flick(PlayerController.FlickDirection.Down); yield return Wait(1.6f);
+        Clear();
+    }
+
+    // 被弾(キャラ別のよろめき)
+    IEnumerator Hurt(GameManager gm)
+    {
+        Mark("hurt"); yield return Safe(6f);
+        // ライフ表示を変えないよう、無敵フラグだけを一瞬外す
+        var inv = typeof(GameManager).GetProperty("InvincibleMode", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)?.GetSetMethod(true);
+        inv?.Invoke(gm, new object[] { false });
+        pc.TakeDamage(source: "demo-hurt");
+        inv?.Invoke(gm, new object[] { true });
+        yield return Wait(1.6f);
+    }
+
     // ---------------- 共通 ----------------
 
     static IEnumerator Wait(float s) { yield return new WaitForSeconds(s); }
@@ -373,13 +487,13 @@ public class NewCharsDemoCapture : MonoBehaviour
     }
 
     int enemyHp = 3;
-    void Enemy(float dx, float dy)
+    void Enemy(float dx, float dy, EnemyBehaviorKind kind = EnemyBehaviorKind.None)
     {
         EnemyDefinition d = EnemyDatabase.FindById("goblin");
         float x = pc.transform.position.x + dx;
         float? gy = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(x) : null;
         float y = (gy ?? pc.transform.position.y) + dy;
-        GroundFactory.CreateEnemy(null, d.sprite, new Vector2(x, y), d.tint, maxHp: enemyHp, behaviorKind: EnemyBehaviorKind.None, visualScaleMultiplier: d.visualScaleMultiplier);
+        GroundFactory.CreateEnemy(null, d.sprite, new Vector2(x, y), d.tint, maxHp: enemyHp, behaviorKind: kind, visualScaleMultiplier: d.visualScaleMultiplier);
     }
 
     void Clear() { foreach (var e in FindObjectsByType<EnemyController>(FindObjectsSortMode.None)) Destroy(e.gameObject); }

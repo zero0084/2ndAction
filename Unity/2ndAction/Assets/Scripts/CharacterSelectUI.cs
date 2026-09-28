@@ -43,6 +43,10 @@ public class CharacterSelectUI : MonoBehaviour
     public float carouselViewportWidth;
     public float cardStride; // = カード幅+間隔
     public float cardWidth = 210f;
+    // 12人化(2026-09-28): その先にカードがある側だけ出す矢印(タップで1枚移動)と「何人目/全員」。
+    public RectTransform carouselArrowLeft;
+    public RectTransform carouselArrowRight;
+    public Text carouselPageText;
 
     public float dragTapThreshold = 14f;
     public float snapDuration = 0.22f;
@@ -249,6 +253,17 @@ public class CharacterSelectUI : MonoBehaviour
             Confirm();
             return;
         }
+        // 左右の矢印(カードより先に判定 - 矢印はカード列の端に重なって置いてある)
+        if (carouselArrowLeft != null && carouselArrowLeft.gameObject.activeSelf && RectTransformUtility.RectangleContainsScreenPoint(carouselArrowLeft, screenPos, null))
+        {
+            BeginSnap(Mathf.Max(0, selectedIndex - 1));
+            return;
+        }
+        if (carouselArrowRight != null && carouselArrowRight.gameObject.activeSelf && RectTransformUtility.RectangleContainsScreenPoint(carouselArrowRight, screenPos, null))
+        {
+            BeginSnap(Mathf.Min(CharacterDatabase.AllCharacters.Count - 1, selectedIndex + 1));
+            return;
+        }
         for (int i = 0; i < cardSlotRects.Length; i++)
         {
             if (cardSlotRects[i] != null && RectTransformUtility.RectangleContainsScreenPoint(cardSlotRects[i], screenPos, null))
@@ -341,6 +356,26 @@ public class CharacterSelectUI : MonoBehaviour
 
         UpdateCardVisuals();
         if (snapping) UpdateSnapAnimation();
+        UpdateCarouselHints();
+    }
+
+    // 左右にまだカードがある(=カード列がViewportの外へ続いている)側だけ矢印を出し、軽く明滅させる。
+    void UpdateCarouselHints()
+    {
+        int count = CharacterDatabase.AllCharacters.Count;
+        float x = carouselContent != null ? carouselContent.anchoredPosition.x : 0f;
+        float minX = carouselContent != null ? Mathf.Min(0f, -(carouselContent.rect.width - carouselViewportWidth)) : 0f;
+        float pulse = 0.65f + 0.35f * Mathf.Sin(Time.unscaledTime * 4f);
+        SetArrow(carouselArrowLeft, x < -1f, pulse);
+        SetArrow(carouselArrowRight, x > minX + 1f, pulse);
+        if (carouselPageText != null) carouselPageText.text = count > 0 ? $"{selectedIndex + 1} / {count}" : "";
+    }
+
+    static void SetArrow(RectTransform arrow, bool show, float pulse)
+    {
+        if (arrow == null) return;
+        if (arrow.gameObject.activeSelf != show) arrow.gameObject.SetActive(show);
+        if (show) arrow.localScale = Vector3.one * (0.94f + 0.06f * pulse);
     }
 
     // content.anchoredPosition.xが取り得る範囲([minX, 0])。カード列全体が

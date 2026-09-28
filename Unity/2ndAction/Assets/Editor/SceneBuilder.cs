@@ -1748,6 +1748,43 @@ public static class SceneBuilder
         ui.cardStride = cardWidth + cardSpacing;
         ui.cardWidth = cardWidth;
 
+        // 12人化(2026-09-28): Viewportはちょうど3枚ぶんで、選択カードが中央へスナップすると両隣が
+        // 見切れず「まだ左右にキャラがいる」ことが伝わらない。その先にカードがある側だけ矢印を出し
+        // (タップで1枚ずつ移動)、カード列の下に「何人目/全員」を出す。表示の切り替えはCharacterSelectUI。
+        for (int side = -1; side <= 1; side += 2)
+        {
+            GameObject arrowGO = new GameObject(side < 0 ? "CarouselArrowLeft" : "CarouselArrowRight");
+            arrowGO.transform.SetParent(rootGO.transform, false);
+            RectTransform arrowRect = arrowGO.AddComponent<RectTransform>();
+            arrowRect.anchorMin = arrowRect.anchorMax = new Vector2(0f, 0.5f);
+            arrowRect.pivot = new Vector2(0.5f, 0.5f);
+            arrowRect.sizeDelta = new Vector2(54f, 104f);
+            arrowRect.anchoredPosition = new Vector2(side < 0 ? 56f + 20f : 56f + carouselViewportWidth - 20f, 60f);
+            Image arrowBg = arrowGO.AddComponent<Image>();
+            arrowBg.sprite = RoundedPanelSprite();
+            arrowBg.type = Image.Type.Sliced;
+            arrowBg.color = new Color(0.05f, 0.06f, 0.1f, 0.78f);
+            arrowBg.raycastTarget = false;
+            GameObject arrowTextGO = new GameObject("Glyph");
+            arrowTextGO.transform.SetParent(arrowGO.transform, false);
+            RectTransform arrowTextRect = arrowTextGO.AddComponent<RectTransform>();
+            StretchFull(arrowTextRect);
+            Text arrowText = arrowTextGO.AddComponent<Text>();
+            ConfigureCardText(arrowText, 46, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+            arrowText.text = side < 0 ? "<" : ">";
+            if (side < 0) ui.carouselArrowLeft = arrowRect; else ui.carouselArrowRight = arrowRect;
+        }
+        GameObject pageGO = new GameObject("CarouselPage");
+        pageGO.transform.SetParent(rootGO.transform, false);
+        RectTransform pageRect = pageGO.AddComponent<RectTransform>();
+        pageRect.anchorMin = pageRect.anchorMax = new Vector2(0f, 0.5f);
+        pageRect.pivot = new Vector2(0.5f, 1f);
+        pageRect.sizeDelta = new Vector2(240f, 34f);
+        pageRect.anchoredPosition = new Vector2(56f + carouselViewportWidth * 0.5f, 60f - (cardHeight + 40f) * 0.5f - 4f);
+        Text pageText = pageGO.AddComponent<Text>();
+        ConfigureCardText(pageText, 24, FontStyle.Bold, new Color(0.85f, 0.9f, 1f));
+        ui.carouselPageText = pageText;
+
         // 中央: 選択中キャラクターの大きなビジュアル。
         GameObject mainVisualGO = new GameObject("MainVisual");
         mainVisualGO.transform.SetParent(rootGO.transform, false);

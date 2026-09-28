@@ -30,7 +30,7 @@ public class ObstacleController : MonoBehaviour
 
         if (breakable && other.CompareTag("PlayerAttack"))
         {
-            int damage = PlayerAttackInfo.ScaleDamage(other, PlayerController.Instance != null ? PlayerController.Instance.EffectiveAttackPower : 1);
+            int damage = PlayerAttackInfo.ScaleDamage(other, PlayerController.Instance != null ? PlayerController.Instance.EffectiveAttackPower : 1, false);
             hp -= Mathf.Max(1, damage);
             if (hp <= 0)
             {

@@ -2703,6 +2703,9 @@ public class GameManager : MonoBehaviour
         if (Random.value < lifestealChance) AddLife(Mathf.RoundToInt(lifestealAmount));
     }
 
+    // 10〜12人目(2026-09-28) - 吸血鬼の吸血回復用の公開入口(回復量と頻度の上限は吸血鬼側で管理)。
+    public void KitHeal(int amount) { if (amount > 0 && !IsGameOver) AddLife(amount); }
+
     void AddLife(int amount = 1)
     {
         Lives = Mathf.Min(maxLives, Lives + amount);

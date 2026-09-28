@@ -1047,7 +1047,7 @@ public partial class PlayerController : MonoBehaviour
         if (IsReacting) autoSpeed = 0f; // Hurt/Recovery中は自動前進を一時停止(重力/着地/ノックバックは通常どおり)
         // 竜騎士の急降下突き/突き刺し着地の間は前進をほぼ止める(ほぼ真下へ落ちる)。他キャラは常に1。
         if (isLancerCharacter) autoSpeed *= lanceMoveSlowFactor;
-        if (HasKit) autoSpeed *= kitMoveSlowFactor; // 新4人の技の最中(既存5人は対象外)
+        if (HasKit) autoSpeed *= kitMoveSlowFactor * VampireRunBoost; // 新キャラの技の最中/吸血鬼のBlood Rush(既存5人は対象外)
         float knockbackFrac = knockbackDuration > 0f ? knockbackTimer / knockbackDuration : 0f;
         float effectiveKnockback = knockbackVelocityX * knockbackFrac;
         float newX = transform.position.x + (autoSpeed + lungeVelocityX + effectiveKnockback) * dt;
@@ -1209,6 +1209,7 @@ public partial class PlayerController : MonoBehaviour
                     aerialAssistTotalUsed += used;
                 }
                 velocityY -= gravity * gravityScale * dt;
+                KitClampFall(); // 竜人の短い滑空中だけ落下速度を抑える(他キャラは何もしない)
             }
             newY = prevY + velocityY * dt;
 
@@ -1739,7 +1740,7 @@ public partial class PlayerController : MonoBehaviour
         if (attackHitbox != null) attackHitbox.enabled = false;
         if (upAttackHitbox != null) upAttackHitbox.enabled = false;
         EndDiveAttack();
-        if (HasKit) CancelKitMoves();
+        if (HasKit) { CancelKitMoves(); KitOnRunEnd(); }
 
         IsFinishing = true;
         if (GameManager.Instance != null) GameManager.Instance.SetPresentationDamageLock(true);
@@ -1959,7 +1960,7 @@ public partial class PlayerController : MonoBehaviour
     void OnDeath()
     {
         CancelLanceMoves();
-        if (HasKit) CancelKitMoves();
+        if (HasKit) { CancelKitMoves(); KitOnRunEnd(); }
         // 専用の死亡ポーズを持つキャラは消さずにその場でポーズを見せる(PlayerAnimator.State.Death)。
         if (sr != null && !charHasDeathFrames) sr.enabled = false;
         if (attackHitbox != null) attackHitbox.enabled = false;
