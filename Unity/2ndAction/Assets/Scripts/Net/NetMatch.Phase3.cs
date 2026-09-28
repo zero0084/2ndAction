@@ -220,6 +220,8 @@ public partial class NetMatch
         {
             if ((me.State == PState.Down || me.State == PState.Eliminated) && !pc.NetIsDowned)
             {
+                // 状態の優先順位(2026-09-28): Eliminated/Down > ChoosingCard - 表示中の選択を閉じてから倒れる。
+                gm.NetCloseAllChoices(me.State == PState.Eliminated ? "local player ELIMINATED" : "local player DOWN", me.State == PState.Eliminated);
                 pc.NetEnterDown(me.State == PState.Eliminated);
                 gm.NetSetLocalLives(0);
             }
@@ -243,6 +245,7 @@ public partial class NetMatch
     {
         runOver = true;
         runOverAt = Time.realtimeSinceStartup + 1.5f; // 最後の被弾の演出を少し見せてから結果へ
+        OnRunFinished("HOST: all players out");
         BuildResults();
         foreach (var r in results) Log($"RESULT #{r.Rank} P{r.Pn} {r.Distance:F1}m kills={r.Kills} bossLastHits={r.BossLastHits} state={r.State}");
         Log($"RUN OVER mode={Mode} players={results.Count}");
@@ -258,6 +261,15 @@ public partial class NetMatch
         });
         dirty = true;
         SendTable();
+    }
+
+    // RunState=Finished(2026-09-28): 結果を最優先にする - この端末の選択UI(レベルアップ/ボス報酬)を
+    // すぐ閉じ、キュー中の選択も捨てる(RESULTの後に何も出さない)。
+    void OnRunFinished(string reason)
+    {
+        NetRunLauncher.MarkFinished(reason);
+        GameManager gm = GameManager.Instance;
+        if (gm != null && gm.HasStarted) gm.NetCloseAllChoices("run finished: " + reason, true);
     }
 
     void BuildResults()
@@ -289,6 +301,7 @@ public partial class NetMatch
         }
         runOver = true;
         runOverAt = Time.realtimeSinceStartup + 1.5f;
+        OnRunFinished("RunOver from HOST");
         foreach (var row in results) Log($"RESULT #{row.Rank} P{row.Pn} {row.Distance:F1}m kills={row.Kills} bossLastHits={row.BossLastHits} state={row.State} (from HOST)");
         Log($"RUN OVER mode={Mode} (from HOST)");
     }

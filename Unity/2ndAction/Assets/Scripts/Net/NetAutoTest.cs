@@ -11,6 +11,10 @@ using UnityEngine;
 //   -netAutoSpeed 3                  走行速度の倍率(高速同期のテスト用)
 //   -netAutoRunSeconds 40            Run開始から終了までの秒数
 //   -netAutoLeaveAt 30               (JOIN側)Run開始からこの秒数で切断する(切断テスト)
+//   -netLoadDelay 3                  (NetRunLauncher)この端末のシーン読み込みをわざと遅らせる(開始同期テスト)
+//   -netAutoForceOutAt 9             この秒数で自分をHP0扱いにする(カード選択中でも。結果競合テスト)
+//   -netAutoQueueAt 8                レベルアップ選択を開き、さらにレベルアップ1つ+ボス報酬をキューに積む
+//   -netAutoLateChoiceAt 12          (脱落/Run終了後に)レベルアップ/ボス報酬を出そうとして、出ないことを確認する
 //
 // 自分のプレイヤーは簡易ボットが操作する(穴の手前でジャンプ、定期的に二段ジャンプ/攻撃)。
 // 毎秒[NETTEST]行を出し、終了時に[NETTEST] SUMMARYで例外数と同期品質の集計を出す。
@@ -65,6 +69,28 @@ public class NetAutoTest : MonoBehaviour
     float runOverSeen = -1f;
     float p3LogTimer;
     bool p3Hp => killAt >= 0f || hpAtTime >= 0f || startHp > 0;
+
+    // 2026-09-28: 開始同期 / カード選択中は本人だけ停止 / 結果の優先 の検証
+    float forceOutAt = -1f; bool forceOutDone;
+    float queueAt = -1f; bool queueDone;
+    float lateChoiceAt = -1f; bool lateChoiceDone; float lateChoiceCheckAt = -1f;
+    // 開始前(GO!まで)の確認
+    bool preGoInit; Vector2 preGoPos; float preGoMaxMove, preGoMaxDist, preGoEnemyTimer; int preGoMaxEnemies, preGoInputs;
+    NetRunState lastRunState = NetRunState.None;
+    string runStateTrail = "";
+    bool distStartLogged;
+    // 自分のカード選択の窓
+    bool chOpen, chReported, chResumed, chProbeDone;
+    float chOpenAt = -1f, chCloseAt = -1f, chRetargetAt = -1f, chSampleTimer, chProbeCheckAt = -1f;
+    double chX0, chRemote0, chEnemy0, chCloseX;
+    float chMaxMove, chDistGain, chDist0;
+    double chRemoteMove, chEnemyMove;
+    int chTargetedSamples, chHpLoss, chLastHp = -1, chProbeHpBefore, chProbeRejBefore;
+    string chProbe = "";
+    // 相手のカード選択(この端末から見て)
+    bool rcActive; double rcX0; float rcMaxMove, rcStart, rcSampleTimer; int rcTargeted, rcPn;
+    // 結果競合
+    float violationTime; int violationFrames; bool violationLogged;
 
     enum Step { Connect, WaitPlayers, WaitRun, Running, AfterLeave, Done }
     Step step = Step.Connect;
@@ -130,6 +156,9 @@ public class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoRevive") autoRevive = true;
             else if (a == "-netAutoHpAt") { var parts = next.Split(':'); if (parts.Length == 2) { float.TryParse(parts[0], out hpAtTime); int.TryParse(parts[1], out hpAtValue); } damageTest = true; }
             else if (a == "-netAutoStartHp") { int.TryParse(next, out startHp); damageTest = true; }
+            else if (a == "-netAutoForceOutAt") float.TryParse(next, out forceOutAt);
+            else if (a == "-netAutoQueueAt") float.TryParse(next, out queueAt);
+            else if (a == "-netAutoLateChoiceAt") float.TryParse(next, out lateChoiceAt);
         }
         if (!string.IsNullOrEmpty(tracePath))
         {
@@ -221,15 +250,24 @@ public class NetAutoTest : MonoBehaviour
                 else if (stepTime > 30f) Finish("TIMEOUT waiting for players");
                 break;
             case Step.WaitRun:
+                PreGoCheck(gm);
                 if (gm != null && gm.HasStarted && NetRunLauncher.IsMultiplayerRun && !gm.CountdownActive)
                 {
                     L($"run started seed={NetRunLauncher.ActiveRunSeed} stage={gm.ActiveRunStageId} mode={NetRunLauncher.ActiveMode}");
+                    PlayerController pc0 = PlayerController.Instance;
+                    Vector2 p0 = pc0 != null ? new Vector2((float)(pc0.transform.position.x + FloatingOrigin.Offset), pc0.transform.position.y) : Vector2.zero;
+                    L($"STARTSYNC role={role} me=P{NetCombat.LocalPlayerNumber} runningUtc={NetRunLauncher.LocalRunningUtc:HH:mm:ss.fff} serverAtRunning={NetRunLauncher.LocalRunningServerTime:F4} runStartNetworkTime={NetRunLauncher.RunStartNetworkTime:F4} states=[{runStateTrail.Trim()}] preGoMaxMove={preGoMaxMove:F3} preGoMaxDist={preGoMaxDist:F3} preGoMaxEnemies={preGoMaxEnemies} preGoInputsInjected={preGoInputs} posAtGo=({p0.x:F2},{p0.y:F2}) startPos=({preGoPos.x:F2},{preGoPos.y:F2})");
                     Next(Step.Running);
                 }
-                else if (stepTime > 30f) Finish("TIMEOUT waiting for run start");
+                else if (stepTime > 40f) Finish("TIMEOUT waiting for run start");
                 break;
             case Step.Running:
                 runTime += Time.unscaledDeltaTime;
+                if (!distStartLogged && PlayerController.Instance != null && PlayerController.Instance.DistanceExact > 0.01f)
+                {
+                    distStartLogged = true;
+                    L($"DISTSTART role={role} me=P{NetCombat.LocalPlayerNumber} runTime={runTime:F3} dist={PlayerController.Instance.DistanceExact:F3}");
+                }
                 KeepAlive(gm);
                 PickLevelUpCard(gm);
                 Bot();
@@ -243,6 +281,9 @@ public class NetAutoTest : MonoBehaviour
                 }
                 PeriodicLog(gm);
                 ChoiceTest(gm);
+                ChoiceMonitor(gm);
+                RemoteChoiceMonitor();
+                ResultConflictTest(gm);
                 Phase3Test(gm);
                 if (step == Step.Done) break;
                 if (role == "HOST" && bossAt > 0f && !bossSpawned && runTime >= bossAt) SpawnTestBoss();
@@ -298,6 +339,211 @@ public class NetAutoTest : MonoBehaviour
     }
 
     void Next(Step s) { step = s; stepTime = 0f; }
+
+    // ===================================================================== //
+    // 2026-09-28: 開始同期(GO!までは何も進まない)の確認
+    // ===================================================================== //
+    void PreGoCheck(GameManager gm)
+    {
+        NetRunState st = NetRunLauncher.RunState;
+        if (st != lastRunState)
+        {
+            double tg = NetRunLauncher.SecondsToGo;
+            runStateTrail += $"{st}@{stepTime:F2}s ";
+            L($"runstate -> {st} secondsToGo={(double.IsInfinity(tg) ? -1.0 : tg):F3}");
+            lastRunState = st;
+        }
+        PlayerController pc = PlayerController.Instance;
+        if (gm == null || pc == null || !gm.HasStarted || !NetRunLauncher.IsMultiplayerRun || !gm.CountdownActive) return;
+        Vector2 pos = new Vector2((float)(pc.transform.position.x + FloatingOrigin.Offset), pc.transform.position.y);
+        if (!preGoInit) { preGoInit = true; preGoPos = pos; }
+        preGoMaxMove = Mathf.Max(preGoMaxMove, (pos - preGoPos).magnitude);
+        preGoMaxDist = Mathf.Max(preGoMaxDist, Mathf.Max(gm.MaxDistance, (float)pc.DistanceExact));
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // GO!前のジャンプ/攻撃の入力は受け付けないこと(毎フレーム入力を入れ続けて、動かないことを見る)
+        // (GO!直前の0.15秒は入れない: 解放されたフレームで入力が1回だけ通ってしまい、開始位置の比較が乱れるため)
+        double toGo = NetRunLauncher.SecondsToGo;
+        if (toGo > 0.15) pc.debugInjectFlick = (preGoInputs++ % 2 == 0) ? PlayerController.FlickDirection.Up : PlayerController.FlickDirection.Forward;
+        else pc.debugInjectFlick = null;
+#endif
+        preGoEnemyTimer -= Time.unscaledDeltaTime;
+        if (preGoEnemyTimer <= 0f)
+        {
+            preGoEnemyTimer = 0.2f;
+            int n = FindObjectsByType<EnemyController>(FindObjectsSortMode.None).Length;
+            if (NetCombat.Instance != null) n = Mathf.Max(n, NetCombat.Instance.Entities.Count);
+            preGoMaxEnemies = Mathf.Max(preGoMaxEnemies, n);
+        }
+    }
+
+    // ===================================================================== //
+    // 2026-09-28: カード選択中は本人だけ停止(位置/距離/狙い/被弾)と、終了後の復帰
+    // ===================================================================== //
+    int LocalHp(GameManager gm)
+    {
+        var me = NetMatch.Get(NetCombat.LocalPlayerNumber);
+        return NetCombat.Replica ? (me != null ? me.Hp : gm.Lives) : gm.Lives;
+    }
+
+    static bool AnyEntityTargets(int pn)
+    {
+        if (NetCombat.Instance == null) return false;
+        foreach (var e in NetCombat.Instance.Entities.Values)
+            if (e.Go != null && !e.Dead && e.Target == pn) return true;
+        return false;
+    }
+
+    void ChoiceMonitor(GameManager gm)
+    {
+        PlayerController pc = PlayerController.Instance;
+        if (gm == null || pc == null) return;
+        int me = NetCombat.LocalPlayerNumber;
+        bool open = pc.NetIsChoosing;
+        double x = pc.transform.position.x + FloatingOrigin.Offset;
+        if (open && !chOpen)
+        {
+            chOpen = true; chReported = false; chResumed = false; chProbeDone = false;
+            chOpenAt = runTime; chCloseAt = -1f; chRetargetAt = -1f;
+            chX0 = x; chDist0 = (float)pc.DistanceExact; chMaxMove = 0f; chDistGain = 0f;
+            SnapshotWorld(out chRemote0, out chEnemy0, out _);
+            chTargetedSamples = 0; chHpLoss = 0; chLastHp = LocalHp(gm); chProbe = "";
+            L($"CHOICE OPEN me=P{me} x={x:F2} dist={pc.DistanceExact:F2} ts={Time.timeScale:F2}");
+        }
+        if (chOpen && open)
+        {
+            chMaxMove = Mathf.Max(chMaxMove, (float)Math.Abs(x - chX0));
+            chDistGain = (float)pc.DistanceExact - chDist0;
+            int hp = LocalHp(gm);
+            if (hp < chLastHp) chHpLoss += chLastHp - hp;
+            chLastHp = hp;
+            chSampleTimer -= Time.unscaledDeltaTime;
+            if (chSampleTimer <= 0f)
+            {
+                chSampleTimer = 0.1f;
+                // 選択開始から0.6秒(狙いの見直し間隔+通信の遅れ)を過ぎても自分を狙う敵がいたら失敗として数える
+                if (runTime - chOpenAt > 0.6f && AnyEntityTargets(me)) chTargetedSamples++;
+            }
+            // 被弾の確認: ローカルの被弾(無視されること)と、JOINは判定を通さない直接の申告(HOSTが拒否すること)
+            if (!chProbeDone && runTime - chOpenAt > Mathf.Max(1f, choiceHold * 0.4f))
+            {
+                chProbeDone = true;
+                chProbeHpBefore = LocalHp(gm);
+                chProbeRejBefore = NetMatch.Instance != null ? NetMatch.Instance.StatClaimsRejected : 0;
+                pc.TakeDamage(false, "AutoTestChoiceProbe");
+                if (NetCombat.Replica) NetMatch.RouteLocalDamage(false, 1f, "AutoTestChoiceClaim");
+                chProbeCheckAt = runTime + 0.6f;
+            }
+            if (chProbeCheckAt > 0f && runTime >= chProbeCheckAt)
+            {
+                chProbeCheckAt = -1f;
+                int rej = (NetMatch.Instance != null ? NetMatch.Instance.StatClaimsRejected : 0) - chProbeRejBefore;
+                chProbe = $"hp {chProbeHpBefore}->{LocalHp(gm)} claimRejected={rej}";
+                L($"CHOICE PROBE me=P{me} {chProbe}");
+            }
+        }
+        if (chOpen && !open)
+        {
+            chOpen = false;
+            chCloseAt = runTime;
+            chCloseX = x;
+            SnapshotWorld(out double rx, out double es, out _);
+            chRemoteMove = rx - chRemote0; chEnemyMove = Math.Abs(es - chEnemy0);
+            L($"CHOICE CLOSED me=P{me} after {chCloseAt - chOpenAt:F2}s x={x:F2} maxMove={chMaxMove:F3} distGain={chDistGain:F3} remoteMove={chRemoteMove:F2} enemyMove={chEnemyMove:F2} ts={Time.timeScale:F2}");
+        }
+        if (chCloseAt > 0f && !chReported)
+        {
+            if (!chResumed && x - chCloseX > 1.0) { chResumed = true; L($"CHOICE RESUMED me=P{me} {runTime - chCloseAt:F2}s after close (moved {x - chCloseX:F2})"); }
+            if (chRetargetAt < 0f && AnyEntityTargets(me)) chRetargetAt = runTime;
+            if (runTime - chCloseAt > 8f || (chResumed && chRetargetAt > 0f) || step == Step.Done)
+            {
+                chReported = true;
+                var rec = NetMatch.Get(me);
+                L($"CHOICECHK role={role} me=P{me} window={chCloseAt - chOpenAt:F2}s localMaxMove={chMaxMove:F3} localDistGain={chDistGain:F3} remoteMove={chRemoteMove:F2} enemyMove={chEnemyMove:F2} targetedWhileChoosing={chTargetedSamples} hpLossWhileChoosing={chHpLoss} probe=[{chProbe}] resumed={chResumed} retargetedAfter={(chRetargetAt > 0f ? (chRetargetAt - chCloseAt).ToString("F2") + "s" : "no")} tableChoosingNow={(rec != null && rec.Choosing)}");
+            }
+        }
+    }
+
+    // この端末から見た相手のカード選択: 相手の分身が止まっているか / 敵が相手を狙っていないか
+    void RemoteChoiceMonitor()
+    {
+        NetPlayer remote = null;
+        foreach (NetPlayer p in NetPlayer.All) if (p != null && !p.IsOwner) { remote = p; break; }
+        if (remote == null || remote.Avatar == null) return;
+        int pn = remote.PlayerNumber;
+        bool choosing = NetMatch.IsPlayerChoosing(pn);
+        double x = remote.Avatar.transform.position.x + FloatingOrigin.Offset;
+        if (choosing && !rcActive) { rcActive = true; rcPn = pn; rcX0 = x; rcStart = runTime; rcMaxMove = 0f; rcTargeted = 0; }
+        if (rcActive && choosing)
+        {
+            // 状態表が届いた時点の位置から測る(補間の遅れの分として0.3秒後から)
+            if (runTime - rcStart < 0.3f) rcX0 = x;
+            else rcMaxMove = Mathf.Max(rcMaxMove, (float)Math.Abs(x - rcX0));
+            rcSampleTimer -= Time.unscaledDeltaTime;
+            if (rcSampleTimer <= 0f) { rcSampleTimer = 0.1f; if (runTime - rcStart > 0.6f && AnyEntityTargets(pn)) rcTargeted++; }
+        }
+        if (rcActive && !choosing)
+        {
+            rcActive = false;
+            L($"REMOTECHOICE P{rcPn} seen by {role}: window={runTime - rcStart:F2}s remoteMaxMove={rcMaxMove:F3} targetedSamples={rcTargeted}");
+        }
+    }
+
+    // ===================================================================== //
+    // 2026-09-28: 結果の優先(脱落/Run終了でカード選択を閉じる・後から出さない)
+    // ===================================================================== //
+    void ResultConflictTest(GameManager gm)
+    {
+        if (gm == null || NetMatch.Instance == null) return;
+        var nmi = NetMatch.Instance;
+        int local = NetCombat.LocalPlayerNumber;
+        var me = NetMatch.Get(local);
+        PlayerController pc = PlayerController.Instance;
+        if (forceOutAt >= 0f && !forceOutDone && runTime >= forceOutAt)
+        {
+            forceOutDone = true;
+            L($"FORCE OUT requested me=P{local} choosing={(pc != null && pc.NetIsChoosing)} uiOpen={gm.IsLocalChoiceOpen} seqRunning={gm.IsRewardSequenceRunning}");
+            NetMatch.RequestDebugForceOut();
+        }
+        if (queueAt >= 0f && !queueDone && runTime >= queueAt)
+        {
+            queueDone = true;
+            choiceHoldUntil = runTime + 999f; // 選ばずに開いたままにする
+            MethodInfo m = typeof(GameManager).GetMethod("TriggerLevelUpChoice", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (m != null) { m.Invoke(gm, null); m.Invoke(gm, null); }
+            gm.NetOfferBossReward();
+            L($"QUEUE me=P{local} open={gm.IsLocalChoiceOpen} pendingLevelUps={gm.PendingLevelUpCount} bossRewardQueued={GetPrivateField(gm, "bossRewardDeferredPending")}");
+        }
+        if (lateChoiceAt >= 0f && !lateChoiceDone && runTime >= lateChoiceAt)
+        {
+            lateChoiceDone = true;
+            MethodInfo m = typeof(GameManager).GetMethod("TriggerLevelUpChoice", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (m != null) m.Invoke(gm, null);
+            gm.NetOfferBossReward();
+            lateChoiceCheckAt = runTime + 0.8f;
+            L($"LATECHOICE attempt me=P{local} state={(me != null ? me.State.ToString() : "?")} runOver={nmi.RunOver} gameOver={gm.IsGameOver}");
+        }
+        if (lateChoiceCheckAt > 0f && runTime >= lateChoiceCheckAt)
+        {
+            lateChoiceCheckAt = -1f;
+            L($"LATECHOICE result me=P{local} uiShown={gm.IsLocalChoiceOpen || gm.IsRewardSequenceRunning} pendingLevelUps={gm.PendingLevelUpCount} bossRewardQueued={GetPrivateField(gm, "bossRewardDeferredPending")}");
+        }
+        // 上位の状態(Run終了/脱落/DOWN)なのに選択UIが出ている時間を数える(1フレームの行き違いは除く)
+        bool blocked = gm.IsGameOver || nmi.RunOver || (me != null && me.State != NetMatch.PState.Alive);
+        bool ui = gm.IsLocalChoiceOpen || gm.IsRewardSequenceRunning;
+        if (blocked && ui)
+        {
+            violationFrames++;
+            if (violationFrames > 1) violationTime += Time.unscaledDeltaTime;
+            if (!violationLogged && violationFrames > 2) { violationLogged = true; L($"RESULT VIOLATION: choice UI open while blocked (state={(me != null ? me.State.ToString() : "?")} runOver={nmi.RunOver} gameOver={gm.IsGameOver})"); }
+        }
+        else violationFrames = 0;
+    }
+
+    static object GetPrivateField(object target, string name)
+    {
+        FieldInfo f = target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        return f != null ? f.GetValue(target) : null;
+    }
 
     // Phase 2.5: 指定時刻にこの端末でレベルアップのカード選択を強制的に開き、一定時間選ばずに保持する。
     // その間の自分/相手/敵/攻撃の進み具合と timeScale を記録する(「選択中も世界が止まらない」の確認)。
@@ -399,6 +645,7 @@ public class NetAutoTest : MonoBehaviour
         if (runOverSeen >= 0f && runTime - runOverSeen > 4f)
         {
             L($"p3 final gameOver={gm.IsGameOver} lives={gm.Lives} exp={gm.TotalExpEarned:F1} dist={pc.DistanceExact:F1} kills={gm.EnemyKillCount} bossKills={gm.BossKillCount}");
+            L($"RESULTCHK role={role} me=P{local} violationTime={violationTime:F3}s choicesClosed={gm.NetChoicesClosedCount} uiOpenNow={gm.IsLocalChoiceOpen || gm.IsRewardSequenceRunning} pendingLevelUps={gm.PendingLevelUpCount} bossRewardQueued={GetPrivateField(gm, "bossRewardDeferredPending")} runState={NetRunLauncher.RunState} state={(me != null ? me.State.ToString() : "?")} gameOver={gm.IsGameOver}");
             Finish("run over (mode rule)");
         }
     }

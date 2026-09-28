@@ -186,7 +186,7 @@ public class NetPlayer : NetworkBehaviour
         if (sr.enabled) s.Flags |= NetPlayerSnapshot.FlagVisible;
         GameManager gm = GameManager.Instance;
         // Phase 3: DOWN/脱落中は「走行中」ではない(自動スロー/ボスの並走などの基準から外れる)。
-        bool running = gm != null && gm.HasStarted && !gm.IsGameOver && !gm.CountdownActive && !pc.IsDeadPosing && !pc.IsFinishing && !pc.NetIsDowned;
+        bool running = gm != null && gm.HasStarted && !gm.IsGameOver && !gm.CountdownActive && !pc.IsDeadPosing && !pc.IsFinishing && !pc.NetIsDowned && !pc.NetIsChoosing; // カード選択中の本人も走行中ではない
         if (running) s.Flags |= NetPlayerSnapshot.FlagRunning;
         s.RunSpeed = running ? pc.CurrentAutoRunSpeed : 0f;
         s.Distance = pc.DistanceExact;

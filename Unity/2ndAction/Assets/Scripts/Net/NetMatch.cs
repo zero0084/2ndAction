@@ -30,7 +30,7 @@ public partial class NetMatch : MonoBehaviour
     const string MsgToHost = "OMM.MatchReq";     // JOIN→HOST(Reliable)
     const string MsgToClients = "OMM.MatchSync"; // HOST→JOIN(Reliable)
 
-    const byte ReqHello = 1, ReqClaim = 2, ReqHeal = 3, ReqSetMax = 4, ReqChoosing = 5, ReqDebugSetHp = 6, ReqRevive = 7;
+    const byte ReqHello = 1, ReqClaim = 2, ReqHeal = 3, ReqSetMax = 4, ReqChoosing = 5, ReqDebugSetHp = 6, ReqRevive = 7, ReqDebugForceOut = 8;
     const byte SyncTable = 1, SyncHitResult = 2, SyncBossReward = 3, SyncRunOver = 4, SyncRevived = 5;
 
     public enum ClaimKind : byte { Environment = 0, EnemyContact = 1, Attack = 2 }
@@ -57,7 +57,8 @@ public partial class NetMatch : MonoBehaviour
     public IReadOnlyDictionary<int, Rec> Records => recs;
 
     // ---- 設定(テスト用) ----
-    // カード選択中の被弾を無効にする救済(既定OFF=既存ルールのまま。新しい救済ルールは勝手に確定しない)。
+    // 旧テスト用フラグ(-netChoiceInvincible)。2026-09-28からカード選択中の本人は常に被弾しない
+    // (選択中はその場で一時停止するため)ので、現在は判定には使っていない。
     public static bool ChoiceInvincible;
 
     // ---- 役割 ----
@@ -72,6 +73,13 @@ public partial class NetMatch : MonoBehaviour
     }
 
     public static bool IsLocalAlive => IsPlayerActive(NetCombat.LocalPlayerNumber);
+
+    // カード選択中(その場で一時停止中)か。敵/ボスの狙いと被弾の対象から外すのに使う(2026-09-28)。
+    public static bool IsPlayerChoosing(int pn)
+    {
+        if (Instance == null || !Active) return false;
+        return Instance.recs.TryGetValue(pn, out Rec r) && r.Choosing && r.State == PState.Alive;
+    }
 
     public static Rec Get(int pn) => Instance != null && Instance.recs.TryGetValue(pn, out Rec r) ? r : null;
 
@@ -332,6 +340,12 @@ public partial class NetMatch : MonoBehaviour
                 if (rec.State == PState.Alive) { rec.Hp = Mathf.Clamp(hp, 1, 999); rec.MaxHp = Mathf.Max(rec.MaxHp, rec.Hp); dirty = true; Log($"P{pn} debug hp={rec.Hp}"); }
                 break;
             }
+            case ReqDebugForceOut:
+            {
+                if (!Debug.isDebugBuild) break; // テスト用(リリースビルドでは受け付けない)
+                HostDebugForceOut(rec);
+                break;
+            }
             case ReqRevive:
             {
                 r.ReadValueSafe(out byte downPn);
@@ -347,7 +361,7 @@ public partial class NetMatch : MonoBehaviour
         string reject = null;
         long key = ((long)kind << 32) | (uint)id;
         if (rec.State != PState.Alive) reject = $"not alive ({rec.State})";
-        else if (!isFall && ChoiceInvincible && rec.Choosing) reject = "choosing (ChoiceInvincible)";
+        else if (!isFall && rec.Choosing) reject = "choosing card (paused in place)";
         else if (!isFall && now < rec.InvulnUntil) reject = $"invulnerable {rec.InvulnUntil - now:F2}s";
         else if (kind != ClaimKind.Environment && rec.HitKeys.Contains(key)) reject = "same attack already hit";
         else if (kind == ClaimKind.EnemyContact)
@@ -409,6 +423,7 @@ public partial class NetMatch : MonoBehaviour
             if (p == null || p.IsOwner || p.Avatar == null) continue;
             Rec rec = Get(p.PlayerNumber);
             if (rec == null || rec.State != PState.Alive) continue;
+            if (rec.Choosing) continue; // カード選択中の人は被弾しない(2026-09-28)
             Vector3 pos = p.Avatar.transform.position;
             if (pos.x < sceneX0 || pos.x > sceneX1 || pos.y < sceneYMin || pos.y > sceneYMax) continue;
             float now = Time.realtimeSinceStartup;
@@ -537,6 +552,25 @@ public partial class NetMatch : MonoBehaviour
         if (!ClientRoutesHp) return;
         if (GameManager.Instance != null) GameManager.Instance.NetNoteLocalHpRequest();
         SendToHost(w => { w.WriteValueSafe(ReqSetMax); w.WriteValueSafe(max); w.WriteValueSafe(restoreFull); });
+    }
+
+    // 自動テスト用(開発ビルドのみ): 自分をその場でHP0扱いにする(カード選択中でも)。
+    // 「選択中に脱落/DOWN」「最後の1人が選択中に倒れる」の競合をテストで再現するための入口。
+    public static void RequestDebugForceOut()
+    {
+        if (Instance == null || !Active || !Debug.isDebugBuild) return;
+        if (NetCombat.Authority) Instance.HostDebugForceOut(Get(NetCombat.LocalPlayerNumber));
+        else SendToHost(w => w.WriteValueSafe(ReqDebugForceOut));
+    }
+
+    void HostDebugForceOut(Rec rec)
+    {
+        if (rec == null || rec.State != PState.Alive) return;
+        Log($"P{rec.Pn} debug FORCE OUT (choosing={rec.Choosing})");
+        rec.Hp = 0;
+        if (rec.Pn == NetCombat.LocalPlayerNumber && GameManager.Instance != null) GameManager.Instance.NetSetLocalLives(0);
+        OnPlayerHpZero(rec, "DebugForceOut");
+        dirty = true;
     }
 
     public static void RequestDebugSetHp(int hp)

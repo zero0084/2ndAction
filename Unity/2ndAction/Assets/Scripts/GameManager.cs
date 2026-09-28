@@ -1195,6 +1195,7 @@ public class GameManager : MonoBehaviour
         if (DebugMode) UpdateDebugSpeedTracking();
 
         UpdateUnlockAnnouncement();
+        EnforceNetChoicePriority();
         UpdateDeferredLevelUp();
         UpdateDeferredBossReward();
         UpdatePendingChoiceWatchdog();
@@ -1358,7 +1359,14 @@ public class GameManager : MonoBehaviour
     // 挙動を維持し、対象外とした(再開時に敵が近くに既に存在し得るため、
     // カウントダウン中に凍結しきれない可能性がある - スコープ外として
     // 意図的に見送り)。
-    public bool CountdownActive { get; private set; }
+    // マルチプレイ(2026-09-28): マルチRunではHOSTが決めたRunStateがRunningになった瞬間に解除する
+    // (NetRunLauncher.ReleasedForRun)。各端末のコルーチンの進み具合に左右されない。
+    bool countdownActive;
+    public bool CountdownActive
+    {
+        get => countdownActive && !NetRunLauncher.ReleasedForRun;
+        private set => countdownActive = value;
+    }
     public string CountdownLabel { get; private set; } = "";
 
     [Header("Stage01地形挙動修整(2026-09-17) - Run開始カウントダウン")]
@@ -1381,11 +1389,11 @@ public class GameManager : MonoBehaviour
     IEnumerator RunStartCountdownRoutine()
     {
         CountdownActive = true;
-        // マルチプレイ時のみ、全員のGO!が同じ瞬間になるよう開始時刻まで待つ(シングルでは即false)。
-        while (NetRunLauncher.ShouldHoldCountdown(countdownStepDuration * 3f))
+        // マルチプレイ(2026-09-28): 全員の準備完了→HOSTが決めた共通のGO!の時刻から表示を求める。
+        if (NetRunLauncher.IsMultiplayerRun)
         {
-            CountdownLabel = "READY";
-            yield return null;
+            yield return MultiplayerCountdownRoutine();
+            yield break;
         }
         CountdownLabel = "3";
         yield return new WaitForSecondsRealtime(countdownStepDuration);
@@ -1397,6 +1405,28 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(countdownGoDuration);
         CountdownLabel = "";
         CountdownActive = false;
+    }
+
+    // マルチRunのカウントダウン: 待ち時間を積み上げず、毎フレーム「GO!の時刻 - 今のサーバー時刻」から
+    // READY/3/2/1を決める。RunStateがRunningになった瞬間(NetRunLauncher)に操作/前進/距離/湧きが
+    // 全端末で同時に解放される(CountdownActiveの解除条件)。GO!の文字はその後の表示だけ。
+    IEnumerator MultiplayerCountdownRoutine()
+    {
+        while (NetRunLauncher.RunState < NetRunState.Running && NetRunLauncher.IsMultiplayerRun)
+        {
+            if (NetRunLauncher.RunState == NetRunState.Countdown)
+            {
+                double remain = NetRunLauncher.SecondsToGo;
+                int step = remain > countdownStepDuration * 3f ? 0 : Mathf.Clamp(Mathf.CeilToInt((float)(remain / countdownStepDuration)), 1, 3);
+                CountdownLabel = step == 0 ? "READY" : step.ToString();
+            }
+            else CountdownLabel = "READY"; // WaitingForPlayers: 全員の準備完了待ち
+            yield return null;
+        }
+        CountdownActive = false;
+        CountdownLabel = "GO!";
+        yield return new WaitForSecondsRealtime(countdownGoDuration);
+        CountdownLabel = "";
     }
 
     void DrawRunStartCountdown()
@@ -1863,6 +1893,7 @@ public class GameManager : MonoBehaviour
     bool TryStartNextPendingLevelUp()
     {
         if (pendingLevelUpCount <= 0) return false;
+        if (IsNetChoiceBlocked(out _)) return false; // マルチ: Run終了/脱落/DOWN中は開かない(UpdateDeferredLevelUpが扱う)
 
         bool bossPhaseActive = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
         if (IsBossPresentationActive() || levelUpPending || bossPhaseActive)
@@ -1907,6 +1938,18 @@ public class GameManager : MonoBehaviour
     void UpdateDeferredLevelUp()
     {
         if (pendingLevelUpCount <= 0) return;
+
+        // マルチ(2026-09-28): Run終了/脱落なら残りを捨てる。CO-OPのDOWN中は復活まで出さずに待つ。
+        if (IsNetChoiceBlocked(out bool dropQueued))
+        {
+            if (dropQueued)
+            {
+                Debug.Log($"[NET][CHOICE] {pendingLevelUpCount} queued Level Up(s) dropped - {NetChoiceBlockReason()}");
+                pendingLevelUpCount = 0;
+            }
+            levelUpDeferredTimer = -1f;
+            return;
+        }
 
         // Presentation Priority pass - Player Death/Game Clear outranks
         // Level Up: if the run already ended while this was waiting
@@ -2193,6 +2236,21 @@ public class GameManager : MonoBehaviour
                 return;
             }
         }
+        // マルチ(2026-09-28): この端末のプレイヤーがRun終了/脱落/DOWN中なら、ボス報酬の選択は出さない
+        // (Resultより後に出ない・脱落後に新しい選択を始めない)。ボス戦の後始末だけは通常どおり行う。
+        if (IsNetChoiceBlocked(out _))
+        {
+            Debug.Log($"[NET][CHOICE] Boss Reward not shown - {NetChoiceBlockReason()}");
+            if (!IsGameOver)
+            {
+                if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
+                EndBossDistanceExclusion();
+                UnlockEscape();
+            }
+            LogBoss("RewardEnd (blocked: run finished / eliminated / down)");
+            return;
+        }
+
         var pool = new List<CardDefinition>();
         foreach (string id in deckCards)
         {
@@ -2653,6 +2711,81 @@ public class GameManager : MonoBehaviour
         Lives = Mathf.Clamp(hp, 0, Mathf.Max(maxLives, hp));
     }
 
+    // ===== マルチ(2026-09-28): 状態の優先順位 =====
+    // Run Finished > Eliminated/Down > ChoosingCard > 通常走行。
+    // 上位の状態にある間は、この端末でカード選択(レベルアップ/ボス報酬)を開かない・開いていれば閉じる。
+    // dropQueued=true: キュー中の選択も捨てる(Run終了/脱落 = もう選べる機会が来ない)。
+    // CO-OPのDOWNだけは復活があり得るので、キューは残して復活後に出す(表示中のものは閉じる)。
+    bool IsNetChoiceBlocked(out bool dropQueued)
+    {
+        dropQueued = false;
+        if (!NetMatch.Active || !HasStarted) return false;
+        if (IsGameOver || NetRunLauncher.RunState == NetRunState.Finished || (NetMatch.Instance != null && NetMatch.Instance.RunOver))
+        {
+            dropQueued = true;
+            return true;
+        }
+        NetMatch.Rec me = NetMatch.Get(NetCombat.LocalPlayerNumber);
+        if (me != null && me.State != NetMatch.PState.Alive)
+        {
+            dropQueued = me.State != NetMatch.PState.Down;
+            return true;
+        }
+        return false;
+    }
+
+    string NetChoiceBlockReason()
+    {
+        if (IsGameOver || NetRunLauncher.RunState == NetRunState.Finished || (NetMatch.Instance != null && NetMatch.Instance.RunOver)) return "run finished";
+        NetMatch.Rec me = NetMatch.Get(NetCombat.LocalPlayerNumber);
+        return me != null ? $"local player {me.State}" : "blocked";
+    }
+
+    // 毎フレーム: 選択UIが開いている/開きかけているのに上位の状態になっていたら、すぐ閉じる。
+    void EnforceNetChoicePriority()
+    {
+        if (!NetMatch.Active) return;
+        bool uiUp = levelUpPending || (rewardCardSequence != null && rewardCardSequence.IsRunning);
+        if (!uiUp && !bossRewardDeferredPending) return;
+        if (!IsNetChoiceBlocked(out bool dropQueued)) return;
+        NetCloseAllChoices(NetChoiceBlockReason(), dropQueued);
+    }
+
+    public int NetChoicesClosedCount { get; private set; } // 自動テスト用
+
+    // 表示中/待機中の選択UIをすべて閉じる(カードは適用しない)。Run終了/脱落/DOWNの時に使う。
+    public void NetCloseAllChoices(string reason, bool dropQueued)
+    {
+        bool uiUp = levelUpPending || (rewardCardSequence != null && rewardCardSequence.IsRunning);
+        bool wasBossReward = levelUpPending && pendingChoiceKind == PendingChoiceKind.BossReward;
+        bool bossQueued = bossRewardDeferredPending;
+        if (rewardCardSequence != null && rewardCardSequence.IsRunning) rewardCardSequence.ForceReset();
+        levelUpPending = false;
+        pendingChoices = null;
+        lastLevelUpDiagnostic = "";
+        pendingChoiceStuckTimer = 0f;
+        TimeControl.Resume(pendingChoiceTimeOwner);
+        int dropped = 0;
+        if (dropQueued)
+        {
+            dropped = pendingLevelUpCount;
+            pendingLevelUpCount = 0;
+            levelUpDeferredTimer = -1f;
+        }
+        bossRewardDeferredPending = false;
+        bossRewardDeferredTimer = -1f;
+        bossRewardStuckTimer = 0f;
+        // ボス報酬を出さずに終えた場合も、ボス戦の後始末(距離/湧きの再開)は通常の決定時と同じに行う。
+        if ((wasBossReward || bossQueued) && !IsGameOver)
+        {
+            if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
+            EndBossDistanceExclusion();
+            UnlockEscape();
+        }
+        NetChoicesClosedCount++;
+        Debug.Log($"[NET][CHOICE] choice UI closed ({reason}) uiWasOpen={uiUp} bossReward={wasBossReward} bossQueued={bossQueued} droppedLevelUps={dropped} keptLevelUps={pendingLevelUpCount}");
+    }
+
     // JOIN: HOSTの判定でこの端末のRunが終わった(Phase 2.5の既定=HP0)。
     public void NetForceGameOver(string reason)
     {
@@ -2730,6 +2863,14 @@ public class GameManager : MonoBehaviour
         // guarantees the next run doesn't start frozen. TimeControl.ResetAll
         // clears every registered pause reason, not just this one, on purpose.
         TimeControl.ResetAll();
+        // マルチ(2026-09-28): Resultを最優先 - 表示中のカード選択UIを閉じ、キュー中の選択も捨てる
+        // (以前はフラグだけ下ろしてUIが画面に残り、VERSUS RESULTと重なることがあった)。
+        if (rewardCardSequence != null && rewardCardSequence.IsRunning) rewardCardSequence.ForceReset();
+        pendingLevelUpCount = 0;
+        levelUpDeferredTimer = -1f;
+        bossRewardDeferredPending = false;
+        bossRewardDeferredTimer = -1f;
+        NetRunLauncher.MarkFinished(IsWin ? "run finished (win)" : "run finished (game over)");
         levelUpPending = false;
         pendingChoices = null;
         lastLevelUpDiagnostic = ""; // Bugfix 2026-09-08 - see UpdatePendingChoiceWatchdog's matching comment

@@ -6,7 +6,7 @@ using UnityEngine;
 // ターゲット候補 = 現在「活動中」(Alive)のプレイヤー全員:
 //  - この端末のプレイヤー(PlayerController.Instance): Run中・死亡/ダウン/脱落していない
 //  - 相手のプレイヤー(HOSTから見たJOIN = RemotePlayerAvatar): Run中で、NetMatchの状態がAlive
-// ダウン/脱落/切断した人は候補から外れる。シングルプレイでは常に「この端末のプレイヤー」だけ。
+// ダウン/脱落/切断した人、カード選択中の人(その場で一時停止中)は候補から外れる。シングルプレイでは常に「この端末のプレイヤー」だけ。
 //
 // 選び方は Strategy で差し替えられる(既定は最も近い有効プレイヤー)。距離がほぼ同じなら
 // プレイヤー番号の小さい方(両端末で同じ結果)。HOSTだけがAIを動かすので、選んだ結果は
@@ -51,6 +51,7 @@ public static class NetTargets
                 if (a == null) continue;
                 int pn = p.PlayerNumber;
                 if (pn <= 0 || !NetMatch.IsPlayerActive(pn)) continue;
+                if (NetMatch.IsPlayerChoosing(pn)) continue; // カード選択中の相手は狙わない(2026-09-28)
                 if (!p.IsRunningRemote(now)) continue;
                 buffer.Add(new Candidate { Player = pn, T = a.transform, RunSpeed = p.RemoteRunSpeed, IsLocal = false });
             }
@@ -62,6 +63,7 @@ public static class NetTargets
     {
         if (!gm.HasStarted) return true; // Run開始前(タイトル等)は従来どおり
         if (gm.IsGameOver || pc.IsDeadPosing || pc.IsFinishing) return false;
+        if (pc.NetIsChoosing) return false; // カード選択中の本人は狙わない(2026-09-28)
         return true;
     }
 

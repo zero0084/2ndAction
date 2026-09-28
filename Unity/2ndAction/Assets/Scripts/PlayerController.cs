@@ -838,6 +838,9 @@ public partial class PlayerController : MonoBehaviour
 
         // マルチプレイPhase 3: DOWN(CO-OP)/脱落(VERSUS)中は走行も入力も止める(その場に留まる)。
         if (netDowned) { NetDownedTick(); return; }
+        // マルチ(2026-09-28): カード選択中は選んでいる本人だけその場で一時停止する(世界は止めない)。
+        if (NetIsChoosing) { NetChoosingTick(); return; }
+        if (netChoosingHeld) NetChoosingRelease();
 
         if (hitInvincibleTimer > 0f)
         {
@@ -870,9 +873,6 @@ public partial class PlayerController : MonoBehaviour
         if (debugInjectFlick.HasValue) { requestedFlick = debugInjectFlick; }
 #endif
         bool reactionBlocked = IsReacting;
-        // マルチプレイPhase 2.5: マルチではカード選択中も世界は止まらないが、選択中の入力を操作として
-        // 受け付けない点はシングル(一時停止中は入力を読まない)と同じにする。
-        if (NetMatch.Active && GameManager.Instance != null && GameManager.Instance.IsLocalChoiceOpen) reactionBlocked = true;
         // 診断ログの詳細画面を開いている間は、スクロール操作がジャンプ/攻撃にならないよう入力を受け付けない。
         if (DiagnosticsOverlay.DetailOpen) reactionBlocked = true;
         if (reactionBlocked) { requestedFlick = null; bufferedUpAttackTimer = 0f; }
@@ -1401,9 +1401,10 @@ public partial class PlayerController : MonoBehaviour
         if (GameManager.Instance == null) return;
         // 新4人(2026-09-27) - 忍者の瞬身のごく短い無敵/格闘家のカウンター成立(既存5人は常にfalse)。
         if (!isFall && KitInterceptDamage(source)) return;
-        // マルチプレイ: ダウン/脱落中は被弾しない。カード選択中の無敵はテスト用設定(既定OFF)の時だけ。
+        // マルチプレイ: ダウン/脱落中は被弾しない。
         if (NetMatch.Active && !NetMatch.IsLocalAlive) return;
-        if (!isFall && NetMatch.ChoiceInvincible && NetMatch.Active && GameManager.Instance.IsLocalChoiceOpen) return;
+        // マルチ(2026-09-28): カード選択中の本人は敵/ボスの攻撃を受けない(その場で一時停止中のため)。
+        if (!isFall && NetIsChoosing) return;
 
         // Bugfix 2026-09-06, item 2 - GameOverReason passthrough for the
         // debug log in GameManager.TryDamagePlayer (isFall is already the
@@ -1460,6 +1461,59 @@ public partial class PlayerController : MonoBehaviour
     }
 
     public void NetClaimRejected(int seq) { netClaimPendingUntil = 0f; }
+
+    // ===== マルチ(2026-09-28): カード選択中の本人だけ一時停止 =====
+    // 選択UIが開いている間(GameManager.IsLocalChoiceOpen)、この端末のプレイヤーだけを止める:
+    //  自動前進/移動/ジャンプ/攻撃の入力/距離の加算(=距離EXP)を行わない。位置・空中の速度はそのまま保持し、
+    //  重力も掛けない(穴の上で選択が始まっても落ちない)。ネットワーク上のプレイヤーは消さず、瞬間移動もしない。
+    //  選択が終わった次のフレームから、保持していた状態のまま通常の走行へ戻る(追加の無敵は付けない)。
+    // 敵/ボスの狙い(NetTargets)と被弾(TakeDamage/HOSTの判定)からは、選択中の間だけ外れる。
+    // シングルプレイは従来どおりTimeControlの一時停止で世界ごと止める(ここは通らない)。
+    bool netChoosingHeld;
+    public bool NetIsChoosing
+    {
+        get
+        {
+            if (!NetMatch.Active || netDowned || hasDied || IsFinishing) return false;
+            GameManager gm = GameManager.Instance;
+            return gm != null && gm.HasStarted && !gm.IsGameOver && gm.IsLocalChoiceOpen;
+        }
+    }
+
+    void NetChoosingTick()
+    {
+        if (!netChoosingHeld)
+        {
+            netChoosingHeld = true;
+            CancelAttacksForReaction(); // 出しかけの攻撃判定を残さない
+            FreezeDiagnostics.LogEvent($"[Net] CHOOSING CARD - hold at x={transform.position.x:F2} dist={DistanceExact:F1}");
+        }
+        requestedFlick = null;
+        bufferedUpAttackTimer = 0f;
+        touchActive = false; // 選択のタップをジャンプ/攻撃の操作として拾わない
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        debugInjectFlick = null;
+#endif
+        // 被弾後の無敵/リアクションの時間は選択中も通常どおり減らす(選択で無敵が延びない・
+        // 無敵点滅が選択の間じゅう続いて相手の画面で消えたり点いたりしない)。
+        float dt = Time.deltaTime;
+        if (hitInvincibleTimer > 0f) hitInvincibleTimer = Mathf.Max(0f, hitInvincibleTimer - dt);
+        if (knockbackTimer > 0f) knockbackTimer = Mathf.Max(0f, knockbackTimer - dt);
+        if (Reaction != ReactionKind.None)
+        {
+            reactionTimer -= dt;
+            if (reactionTimer <= 0f) { reactionTimer = 0f; Reaction = ReactionKind.None; }
+        }
+        if (sr != null && !sr.enabled && hitInvincibleTimer <= 0f && !hasDied) sr.enabled = true;
+    }
+
+    void NetChoosingRelease()
+    {
+        netChoosingHeld = false;
+        touchActive = false;
+        requestedFlick = null;
+        FreezeDiagnostics.LogEvent($"[Net] CHOICE DONE - resume at x={transform.position.x:F2} dist={DistanceExact:F1}");
+    }
 
     // ===== マルチプレイPhase 3: DOWN(CO-OP) / 脱落(VERSUS) =====
     bool netDowned, netEliminated;

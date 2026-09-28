@@ -164,7 +164,7 @@ public class AutoSlowMotion : MonoBehaviour
         float v = 0f;
         PlayerController pc = PlayerController.Instance;
         GameManager gm = GameManager.Instance;
-        if (pc != null && gm != null && !gm.IsGameOver && !pc.IsDeadPosing && !pc.IsFinishing)
+        if (pc != null && gm != null && !gm.IsGameOver && !pc.IsDeadPosing && !pc.IsFinishing && !pc.NetIsChoosing)
         {
             v = Mathf.Max(v, pc.CurrentAutoRunSpeed);
             count++;

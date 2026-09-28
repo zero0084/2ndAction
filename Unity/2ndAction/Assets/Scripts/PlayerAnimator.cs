@@ -662,7 +662,8 @@ public class PlayerAnimator : MonoBehaviour
         // 一番上でチェックする。
         if (controller != null && controller.IsDeadPosing && HasFrames(deathFrames)) newState = State.Death;
         else if (controller != null && controller.IsFinishing) newState = State.Finish;
-        else if (controller != null && controller.IsPreparingStart) newState = State.StartPrep;
+        // マルチ(2026-09-28): カード選択中の一時停止も、走りの絵ではなく開始準備の構えで立ち止まって見せる。
+        else if (controller != null && (controller.IsPreparingStart || controller.NetIsChoosing)) newState = State.StartPrep;
         else if (controller != null && controller.IsHurt) newState = State.Hurt;
         else if (controller != null && controller.IsRecovering) newState = State.Recovery;
         // 新4人(2026-09-27) - 技ごとのポーズ(弓を引く/魔法を唱える/4段コンボ/瞬身など)。既存5人は常にnull。
