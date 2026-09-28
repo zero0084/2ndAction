@@ -4172,29 +4172,29 @@ public class GameManager : MonoBehaviour
         GUI.Label(new Rect(speedRect.x + 6f, speedRect.y, speedRect.width - 6f, speedRect.height), speedText, speedStyle);
         y += bh + gap;
 
-        // ---- SLOW(自動スローモーション)----
-        // マルチの参加側はHOSTの設定に従う(ボタンは押せない)。OFFにしてもカード選択/ポーズ等の停止は解除しない。
-        AutoSlowMotion slow = AutoSlowMotion.Instance;
-        if (slow != null)
+        // ---- ASSIST(高速時の自動操作補助、2026-09-28)----
+        // ON/OFFは端末ごと(マルチでも自分のキャラにだけ効く)。小さな1〜2行: 状態・判定速度・直近の自動行動と理由・
+        // 行動できなかった主な理由。停止/カード選択/ポーズの時間制御には関与しない。
+        HighSpeedAssist assist = HighSpeedAssist.Instance;
+        if (assist != null)
         {
             Rect toggleRect = new Rect(x0, y, bw * 1.6f, bh);
-            string toggleLabel = slow.CanToggle ? (slow.autoSlowEnabled ? "SLOW ON" : "SLOW OFF") : (slow.autoSlowEnabled ? "SLOW ON(HOST)" : "SLOW OFF(HOST)");
-            if (DrawStyledButton(toggleRect, toggleLabel, 11f, primary: slow.autoSlowEnabled) && slow.CanToggle)
+            if (DrawStyledButton(toggleRect, assist.assistEnabled ? "ASSIST ON" : "ASSIST OFF", 11f, primary: assist.assistEnabled))
             {
-                slow.SetEnabled(!slow.autoSlowEnabled);
+                assist.SetEnabled(!assist.assistEnabled);
             }
-            // 自動スロー確認用の小さな表示: ON/OFF・判定に使う走行速度・自動スロー倍率・
-            // 最終の時間倍率(停止/ボス演出を含む実際のTime.timeScale。停止中はその理由も)。
-            string stopNote = TimeControl.ActiveReasonCount > 0 ? $" 停止:{TimeControl.DescribeActiveReasons()}" : (Mathf.Abs(Time.timeScale - slow.CurrentAutoScale) > 0.005f ? " 演出" : "");
-            string slowText = $"{(slow.autoSlowEnabled ? "ON" : "OFF")} 判定{SpeedKmh(slow.JudgedSpeed):F0}km/h 自動x{slow.CurrentAutoScale:F2} 最終x{Time.timeScale:F2}{stopNote}"
-                + (slow.IsNetworkFollower ? " (HOST値)" : NetCombat.Authority ? $" ({slow.ContributingPlayers}人)" : "");
-            GUIStyle slowStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
-            slowStyle.normal.textColor = slow.CurrentAutoScale < 0.999f ? new Color(0.55f, 0.9f, 1f) : new Color(0.6f, 1f, 0.7f);
-            Vector2 sz = slowStyle.CalcSize(new GUIContent(slowText));
-            Rect slowRect = new Rect(toggleRect.xMax + gap, y, sz.x + 14f, bh);
-            UiBackdrop.Draw(slowRect, 0.55f);
-            GUI.Label(new Rect(slowRect.x + 6f, slowRect.y, slowRect.width - 6f, slowRect.height), slowText, slowStyle);
-            y += bh + gap;
+            float now = Time.time;
+            string last = !string.IsNullOrEmpty(assist.LastAction) && now - assist.LastActionTime < 3f ? $" 直近:{assist.LastAction}({assist.LastActionReason})" : "";
+            string fail = !string.IsNullOrEmpty(assist.LastFailure) && now - assist.LastFailureTime < 4f ? $"\n不可:{assist.LastFailure}" : "";
+            string assistText = $"{assist.StatusText()} 判定{assist.JudgedKmh:F0}km/h(ON≧{assist.engageKmh:F0}/OFF<{assist.releaseKmh:F0}){last}{fail}";
+            GUIStyle assistStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
+            assistStyle.normal.textColor = assist.CurrentStatus == HighSpeedAssist.Status.Active ? new Color(0.55f, 0.9f, 1f)
+                : assist.CurrentStatus == HighSpeedAssist.Status.ManualPriority ? new Color(1f, 0.85f, 0.4f) : new Color(0.6f, 1f, 0.7f);
+            Vector2 sz = assistStyle.CalcSize(new GUIContent(assistText));
+            Rect assistRect = new Rect(toggleRect.xMax + gap, y, sz.x + 14f, Mathf.Max(bh, sz.y + 4f));
+            UiBackdrop.Draw(assistRect, 0.55f);
+            GUI.Label(new Rect(assistRect.x + 6f, assistRect.y, assistRect.width - 6f, assistRect.height), assistText, assistStyle);
+            y += Mathf.Max(bh, assistRect.height) + gap;
         }
 
         // ---- DEBUG TOOLS(開いた時だけ: 状態表示/距離ワープ/MILE/CARD)----

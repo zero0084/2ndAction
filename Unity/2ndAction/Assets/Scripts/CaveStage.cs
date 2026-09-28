@@ -78,6 +78,9 @@ public partial class CaveStage : MonoBehaviour
 
     [Header("Generation")]
     public float generateAhead = 44f;
+    // 高速時の自動操作補助(2026-09-28): 先読みに必要な距離。generateAhead(EncounterDirectorが書き換える)とは
+    // 別に持ち、大きい方まで天井/針を作る。
+    [System.NonSerialized] public float assistGenerateAhead;
     public float ceilingVisualDrop = 0.2f;
     public float bandHeight = 1.8f;
     public float fillHeight = 60f;
@@ -282,7 +285,7 @@ public partial class CaveStage : MonoBehaviour
         while (guard++ < 600)
         {
             float x = nodeBaseX + nodes.Count * nodeSpacing;
-            if (x > px + generateAhead) break;
+            if (x > px + Mathf.Max(generateAhead, assistGenerateAhead)) break;
             // 穴/分岐の判定に必要な範囲まで地形が生成済みになるまで待つ(未生成
             // 領域の地面高さは実際の地形と無関係なため)。
             if (x + margin > tm.GeneratedEndX) break;

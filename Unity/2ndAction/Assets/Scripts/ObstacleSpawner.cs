@@ -248,7 +248,7 @@ public class ObstacleSpawner : MonoBehaviour
             // (Danger)なら、次のマイルストーンまでの間隔を縮めてより頻繁に
             // 障害物を置く。分岐が無い区間では従来どおりobstacleIntervalの
             // まま。
-            float worldX = startX + milestoneDistance + spawnAheadDistance;
+            float worldX = startX + milestoneDistance + HighSpeedAssist.SpawnAhead(spawnAheadDistance); // 高速時の自動操作補助: 先読み範囲に置く
             bool danger = TerrainManager.Instance != null && TerrainManager.Instance.IsInBranchRoute(worldX);
             nextObstacleDistance += (danger ? obstacleInterval * dangerIntervalMultiplier : obstacleInterval) * GapScale;
         }
@@ -267,7 +267,7 @@ public class ObstacleSpawner : MonoBehaviour
 
     void SpawnObstacle(float milestoneDistance)
     {
-        float worldX = startX + milestoneDistance + spawnAheadDistance;
+        float worldX = startX + milestoneDistance + HighSpeedAssist.SpawnAhead(spawnAheadDistance); // 高速時の自動操作補助: 先読み範囲に置く
 
         // Stage01次段階調整(2026-09-16) - TerrainManager側の生成がまだ
         // worldXまで届いていない場合、GetHeightAtは「実際に後で生成される
@@ -396,7 +396,7 @@ public class ObstacleSpawner : MonoBehaviour
     // ゼロにして安全側に倒した)。
     void SpawnUpperObstacle(float milestoneDistance)
     {
-        float worldX = startX + milestoneDistance + spawnAheadDistance;
+        float worldX = startX + milestoneDistance + HighSpeedAssist.SpawnAhead(spawnAheadDistance); // 高速時の自動操作補助: 先読み範囲に置く
         if (TerrainManager.Instance == null || !TerrainManager.Instance.IsInBranchRoute(worldX)) return;
         if (!TerrainManager.Instance.IsGenerated(worldX)) return;
 

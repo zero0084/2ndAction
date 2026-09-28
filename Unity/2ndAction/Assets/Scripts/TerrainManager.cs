@@ -152,6 +152,10 @@ public class TerrainManager : MonoBehaviour
     // 一因になり得る)。各スポナーのspawnAheadDistance(28)に対して確実な
     // 余裕を持たせるため45へ引き上げた。IsGenerated(x)も参照。
     public float generateAheadDistance = 45f;
+    // 高速時の自動操作補助(2026-09-28): 先読みに必要な距離(走行速度×先読み秒数)。generateAheadDistance
+    // (EncounterDirectorが毎フレーム書き換える)とは別の値として持ち、生成範囲は大きい方を使う。
+    [System.NonSerialized] public float assistGenerateAhead;
+    float EffectiveGenerateAhead => Mathf.Max(generateAheadDistance, assistGenerateAhead);
     public float minEnemySpacing = 14f;
     public float pitChanceBase = 0.2f;
     public float enemySpawnChance = 0.5f;
@@ -531,6 +535,52 @@ public class TerrainManager : MonoBehaviour
     public bool IsGenerated(float x) => x <= nextStartX;
     public float GeneratedEndX => nextStartX;
 
+    // 高速時の自動操作補助(2026-09-28)用の軽量な問い合わせ。chunksはx昇順に並ぶので二分探索する
+    // (GetHeightAtは先頭からの線形探索で、先読みの細かい刻みで何百回も呼ぶには重い)。
+    // 戻り値: 生成済みの範囲ならtrue。isPit=穴(地面なし)、height=地面の高さ。
+    public bool TryGetGroundFast(float x, out float height, out bool isPit)
+    {
+        height = 0f; isPit = false;
+        int n = chunks.Count;
+        if (n == 0 || x > nextStartX) return false;
+        int lo = 0, hi = n - 1;
+        while (lo < hi)
+        {
+            int mid = (lo + hi) / 2;
+            if (chunks[mid].endX < x) lo = mid + 1; else hi = mid;
+        }
+        RuntimeChunk c = chunks[lo];
+        if (x < c.startX || x > c.endX) return false;
+        if (c.type == ChunkType.Pit) { isPit = true; return true; }
+        float span = c.endX - c.startX;
+        float t = span > 0.0001f ? (x - c.startX) / span : 0f;
+        height = Mathf.Lerp(c.startY, c.endY, t);
+        return true;
+    }
+
+    // 上ルートの足場の高さ(無ければnull)。skyChunksは生成順=x昇順なので末尾から、xより手前で
+    // 終わるものに達したら打ち切る(先読みで見るのは常にプレイヤーの前方なので数個しか見ない)。
+    public float? GetSkyHeightFast(float x)
+    {
+        for (int i = skyChunks.Count - 1; i >= 0; i--)
+        {
+            SkyChunk c = skyChunks[i];
+            if (c.endX < x) break;
+            if (x >= c.startX)
+            {
+                float span = c.endX - c.startX;
+                float t = span > 0.0001f ? (x - c.startX) / span : 0f;
+                return Mathf.Lerp(c.startY, c.endY, t);
+            }
+        }
+        return null;
+    }
+
+    // 天井(洞窟)の形がどこまで分かっているか。洞窟でなければ無限(天井なし)。
+    public float CeilingKnownUntil => cave != null && cave.Active ? cave.GeneratedEndX : float.PositiveInfinity;
+    public bool HasCave => cave != null && cave.Active;
+    public float CavePlayerHeadHeight => cave != null ? cave.playerHeadHeight : 1f;
+
     // 穴(Pit)を無視した「地面ライン」の高さ。洞窟の天井は穴の上でも連続した高さに
     // したいので、GetHeightAt(穴でnull)ではなくこちらを使う。未生成なら末尾の高さ。
     public float GetGroundLineAt(float x)
@@ -833,17 +883,18 @@ public class TerrainManager : MonoBehaviour
         if (player == null) return;
         if (WorldRng.IsDeterministic) { UpdateDeterministic(); return; }
 
-        while (nextStartX < player.position.x + generateAheadDistance)
+        float ahead = EffectiveGenerateAhead;
+        while (nextStartX < player.position.x + ahead)
         {
             GenerateNext();
         }
         if (routeBranchEnabled)
         {
-            while (nextBranchX < player.position.x + generateAheadDistance) GenerateNextBranch();
+            while (nextBranchX < player.position.x + ahead) GenerateNextBranch();
         }
         else if (!singleRouteMode)
         {
-            while (nextSkyStartX < player.position.x + generateAheadDistance) GenerateNextSkyChunk();
+            while (nextSkyStartX < player.position.x + ahead) GenerateNextSkyChunk();
         }
 
         // Old chunks are intentionally never destroyed: getting hit sends the
@@ -863,7 +914,7 @@ public class TerrainManager : MonoBehaviour
     {
         if (GameManager.Instance != null && !GameManager.Instance.HasStarted) return;
         // マルチプレイPhase 2 - HOSTは先頭のプレイヤーの前方まで生成する(共有の敵をその先に出すため)。
-        float target = NetCombat.ForemostPlayerX(player.position.x) + generateAheadDistance;
+        float target = NetCombat.ForemostPlayerX(player.position.x) + EffectiveGenerateAhead;
         int guard = 0;
         while (guard++ < 10000)
         {

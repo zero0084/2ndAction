@@ -91,7 +91,7 @@ public class EnemyWallManager : MonoBehaviour
 
     void SpawnWall(float milestoneDistance)
     {
-        float worldX = startX + milestoneDistance + spawnAheadDistance;
+        float worldX = startX + milestoneDistance + HighSpeedAssist.SpawnAhead(spawnAheadDistance); // 高速時の自動操作補助: 先読み範囲に置く
 
         // Stage01次段階調整(2026-09-16) - ObstacleSpawner.SpawnObstacleと
         // 同じ理由の安全策(TerrainManager.generateAheadDistanceのコメント

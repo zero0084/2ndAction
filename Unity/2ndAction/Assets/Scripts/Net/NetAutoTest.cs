@@ -32,8 +32,8 @@ public class NetAutoTest : MonoBehaviour
     bool shiftTest;
     // Phase 2: 共有の敵を狙って攻撃するボット+戦闘ログ。-netAutoBossAt N でHOSTがN秒後にボスを出す。
     bool combat;
-    float slowOffAt = -1f;
-    bool slowToggled;
+    // 2026-09-28: ボットを止めて自動操作補助だけで走らせる / 補助をOFFにする(比較用)
+    bool noBot, assistOff;
     bool combatMix; // 上攻撃(打ち上げ)/下攻撃(叩き落とし)も混ぜる
     int mixStep;
     float bossAt = -1f;
@@ -141,7 +141,8 @@ public class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoTrace") tracePath = next;
             else if (a == "-netAutoEnemyTrace") enemyTracePath = next;
             else if (a == "-netAutoCombat") combat = true;
-            else if (a == "-netAutoSlowOffAt") float.TryParse(next, out slowOffAt);
+            else if (a == "-netAutoNoBot") noBot = true;
+            else if (a == "-netAutoAssistOff") assistOff = true;
             else if (a == "-netAutoCombatMix") { combat = true; combatMix = true; }
             else if (a == "-netAutoBossAt") float.TryParse(next, out bossAt);
             else if (a == "-netAutoBossHp") int.TryParse(next, out bossHp);
@@ -287,14 +288,6 @@ public class NetAutoTest : MonoBehaviour
                 Phase3Test(gm);
                 if (step == Step.Done) break;
                 if (role == "HOST" && bossAt > 0f && !bossSpawned && runTime >= bossAt) SpawnTestBoss();
-                // 自動スロー(2026-09-27): HOSTがOFFにしたら全員に反映されるか / 参加側は切り替えられないか
-                if (slowOffAt > 0f && !slowToggled && runTime >= slowOffAt && AutoSlowMotion.Instance != null)
-                {
-                    slowToggled = true;
-                    bool before = AutoSlowMotion.Instance.autoSlowEnabled;
-                    AutoSlowMotion.Instance.SetEnabled(false);
-                    L($"slow toggle OFF requested by {role}: canToggle={AutoSlowMotion.Instance.CanToggle} before={before} after={AutoSlowMotion.Instance.autoSlowEnabled}");
-                }
                 if (runTime >= runSeconds) Finish("run time elapsed");
                 break;
             case Step.AfterLeave:
@@ -673,16 +666,9 @@ public class NetAutoTest : MonoBehaviour
     }
 
     // 自動テスト中はゲームオーバーにならないようにする(このプロセスのメモリ上だけ、保存はしない)。
-    bool slowInit;
     void KeepAlive(GameManager gm)
     {
         if (gm == null) return;
-        // 以前のテスト(自動スローOFFの切り替え)の保存値が残っていても、既定(ON)の状態で測る。
-        if (!slowInit && role == "HOST" && slowOffAt < 0f && AutoSlowMotion.Instance != null)
-        {
-            slowInit = true;
-            if (!AutoSlowMotion.Instance.autoSlowEnabled) { AutoSlowMotion.Instance.SetEnabled(true); L("auto slow re-enabled (default ON) for this test"); }
-        }
         if (damageTest)
         {
             // 被弾テスト: 無敵は切る。HPが減りすぎたら補充する(HOST=自分の値、JOIN=HOSTへの要求)。
@@ -784,8 +770,10 @@ public class NetAutoTest : MonoBehaviour
         PlayerController pc = PlayerController.Instance;
         TerrainManager tm = TerrainManager.Instance;
         if (pc == null || tm == null) return;
+        if (HighSpeedAssist.Instance != null && HighSpeedAssist.Instance.assistEnabled == assistOff) HighSpeedAssist.Instance.assistEnabled = !assistOff; // 保存はしない
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         pc.debugInjectFlick = null;
+        if (noBot) return; // 自動操作補助だけで走らせる
         float px = pc.transform.position.x;
         float lead = 1.1f * Mathf.Max(1f, pc.CurrentAutoRunSpeed / 5f);
         if (pc.IsGrounded && tm.IsNearPit(px + lead, 0.4f))
@@ -868,10 +856,10 @@ public class NetAutoTest : MonoBehaviour
         logTimer = 0f;
 
         double lx = pc != null ? pc.transform.position.x + FloatingOrigin.Offset : 0;
-        // 自動スロー(2026-09-27): 両端末の倍率が同じか、速い人の前進の優位が保たれているかの確認用
-        var slow = AutoSlowMotion.Instance;
-        if (slow != null)
-            L($"slow t={runTime:F1} ts={Time.timeScale:F3} auto={TimeControl.AutoScale:F3} target={slow.TargetScale:F3} vmax={slow.JudgedSpeed:F2} own={(pc != null ? pc.CurrentAutoRunSpeed : 0f):F2} n={slow.ContributingPlayers} follower={slow.IsNetworkFollower} enabled={slow.autoSlowEnabled} X={lx:F1}");
+        // 高速時の自動操作補助(2026-09-28): この端末のキャラだけの判定/行動と、時間倍率(常に1のはず)
+        var assist = HighSpeedAssist.Instance;
+        if (assist != null)
+            L($"assist t={runTime:F1} ts={Time.timeScale:F3} kmh={assist.JudgedKmh:F0} status={assist.CurrentStatus} jumps={assist.AutoJumps} dbl={assist.AutoDoubleJumps} atk={assist.AutoAttacks} noSafe={assist.NoSafeActionCount} manual={assist.ManualInputs} maxMs={assist.MaxDecideMs:F2} last=[{assist.LastAction}] fail=[{assist.LastFailure}] lives={(gm != null ? gm.Lives : -1)} X={lx:F1}");
         string remoteStr = "none";
         if (a != null)
         {

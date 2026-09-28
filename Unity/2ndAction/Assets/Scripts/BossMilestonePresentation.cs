@@ -209,7 +209,7 @@ public class BossMilestonePresentation : MonoBehaviour
         {
             SpawnOnce(); // no-op if already spawned above - guarantees Boss Spawn is always reached even on an early exit
             TimeControl.EndPresentationDrive(this);
-            FreezeDiagnostics.LogEvent($"[BossPresentation] TimeScale ramp end restored={Time.timeScale:F2} (auto={TimeControl.AutoScale:F2})");
+            FreezeDiagnostics.LogEvent($"[BossPresentation] TimeScale ramp end restored={Time.timeScale:F2}");
             if (GameManager.Instance != null) GameManager.Instance.SetPresentationDamageLock(false);
             if (AudioManager.Instance != null) AudioManager.Instance.UnduckBgm(bgmDuckFadeDuration);
         }

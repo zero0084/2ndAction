@@ -60,10 +60,14 @@ public static class FreezeDiagnostics
     const int EventCapacity = 200;
     static readonly Queue<string> events = new Queue<string>(EventCapacity + 4);
 
+    // 自動テストが出来事を数えるための受け口(通常は未設定)。
+    public static Action<string> EventTap;
+
     public static void LogEvent(string message)
     {
         events.Enqueue($"{DateTime.Now:HH:mm:ss.fff} {message}");
         while (events.Count > EventCapacity) events.Dequeue();
+        EventTap?.Invoke(message);
     }
 
     // ===== 閾値(チューニング用) ===== //
@@ -246,7 +250,7 @@ public static class FreezeDiagnostics
         int start = (sampleHead - show + SampleCapacity) % SampleCapacity;
         for (int i = 0; i < show; i++) copy[i] = samples[(start + i) % SampleCapacity];
         string[] evs = events.ToArray();
-        string header = $"Time.timeScale={Time.timeScale:F2}  TimeControl.ActiveReasons={TimeControl.DescribeActiveReasons()}  HitStop.ActiveCount={HitStop.ActiveCount}  AutoSlow={TimeControl.AutoScale:F2}(enabled={(AutoSlowMotion.Instance != null && AutoSlowMotion.Instance.autoSlowEnabled)})\nRewardCardSequence.DebugStep={RewardCardSequence.DebugStep}";
+        string header = $"Time.timeScale={Time.timeScale:F2}  TimeControl.ActiveReasons={TimeControl.DescribeActiveReasons()}  HitStop.ActiveCount={HitStop.ActiveCount}  Assist={(HighSpeedAssist.Instance != null ? $"{HighSpeedAssist.Instance.StatusText()} {HighSpeedAssist.Instance.JudgedKmh:F0}km/h last={HighSpeedAssist.Instance.LastAction} fail={HighSpeedAssist.Instance.LastFailure}" : "none")}\nRewardCardSequence.DebugStep={RewardCardSequence.DebugStep}";
         string stamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         DiagnosticsWriter.Enqueue(fileName, () =>
         {

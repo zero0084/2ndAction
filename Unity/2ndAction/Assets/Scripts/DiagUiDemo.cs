@@ -55,13 +55,8 @@ public class DiagUiDemo : MonoBehaviour
 
         // 高速にする(SPD+を数回押した状態)
         PlayerController.DebugSpeedScale = 3f;
-        if (AutoSlowMotion.Instance != null && !AutoSlowMotion.Instance.autoSlowEnabled) AutoSlowMotion.Instance.SetEnabled(true);
         yield return new WaitForSecondsRealtime(4f);
-        yield return Shot("03_highspeed_slow_on");
-        AutoSlowMotion.Instance.SetEnabled(false);
-        yield return new WaitForSecondsRealtime(2.5f);
-        yield return Shot("04_highspeed_slow_off");
-        AutoSlowMotion.Instance.SetEnabled(true);
+        yield return Shot("03_highspeed");
         yield return new WaitForSecondsRealtime(2.5f);
 
         // 比較用: ログ書き出しが無い時の同じ速度でのフレーム時間

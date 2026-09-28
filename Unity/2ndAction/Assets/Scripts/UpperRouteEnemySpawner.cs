@@ -58,7 +58,7 @@ public class UpperRouteEnemySpawner : MonoBehaviour
 
     void TrySpawn(float milestoneDistance)
     {
-        float worldX = startX + milestoneDistance + spawnAheadDistance;
+        float worldX = startX + milestoneDistance + HighSpeedAssist.SpawnAhead(spawnAheadDistance); // 高速時の自動操作補助: 先読み範囲に置く
         if (TerrainManager.Instance == null || !TerrainManager.Instance.IsInBranchRoute(worldX)) return;
 
         float? skyY = TerrainManager.Instance.GetSkyHeightAt(worldX);

@@ -872,6 +872,9 @@ public partial class PlayerController : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (debugInjectFlick.HasValue) { requestedFlick = debugInjectFlick; }
 #endif
+        // 高速時の自動操作補助(2026-09-28): 手動入力が無いフレームだけ、補助の判断を同じ入力経路へ入れる。
+        // (ここへ来るのは停止/カード選択/カウントダウン/死亡/ダウン/終了のどれでもない時だけ)
+        ApplyHighSpeedAssist();
         bool reactionBlocked = IsReacting;
         // 診断ログの詳細画面を開いている間は、スクロール操作がジャンプ/攻撃にならないよう入力を受け付けない。
         if (DiagnosticsOverlay.DetailOpen) reactionBlocked = true;
