@@ -16,6 +16,10 @@ public enum EnemyMovementType
 public class EnemyController : MonoBehaviour
 {
     public EnemyMovementType movementType = EnemyMovementType.Ground;
+    // 共通Encounter System(2026-09-28) - 荒野街道の上ルートに置かれた敵。立つ面を上ルートの面にする
+    // (ノックバック/打ち上げの着地で下ルートの地面へ落ちない)。上ルートの外へ出たら地面に戻る。
+    public bool onUpperRoute;
+    public float? SurfaceAt(float x) => TerrainManager.Instance == null ? (float?)null : TerrainManager.Instance.GetSurfaceAt(x, onUpperRoute);
 
     // Distance Level Design Ver.1 - "EnemyHP = 1 + floor(CurrentDistance /
     // 2000)" (see DistanceTierManager.CurrentEnemyHp) times the species'
@@ -336,7 +340,7 @@ public class EnemyController : MonoBehaviour
             // 実在する地面が見つかった時だけ着地させ、見つからない間は
             // そのまま重力に従って落下を続けさせ、デッドラインを超えた
             // 時点で通常のノックバック経由の落下死と同じ扱いで撃破する。
-            float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(transform.position.x) : (float?)null;
+            float? groundY = SurfaceAt(transform.position.x);
             if (groundY.HasValue && transform.position.y <= groundY.Value)
             {
                 LandFromLaunch(groundY.Value);
@@ -403,7 +407,7 @@ public class EnemyController : MonoBehaviour
     {
         if (movementType == EnemyMovementType.Flying) return;
 
-        float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(transform.position.x) : (float?)null;
+        float? groundY = SurfaceAt(transform.position.x);
 
         if (normalGrounded)
         {

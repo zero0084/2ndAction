@@ -561,6 +561,34 @@ public class TerrainManager : MonoBehaviour
         return x >= nextBranchX - margin && x <= plannedMerge + margin;
     }
 
+    // 共通Encounter System(2026-09-28、荒野街道への展開) - xより先で合流する最初の上下ルート分岐。
+    // 登録済みの分岐が無ければ、次に予定されている分岐(範囲は乱数に依存しない)を返す(generated=false)。
+    public bool RouteBranchEnabled => routeBranchEnabled;
+    public float BranchRampLength => branchRampLength;
+    public bool TryGetBranchAfter(float x, out float forkX, out float mergeX, out bool generated)
+    {
+        forkX = mergeX = 0f; generated = false;
+        if (!routeBranchEnabled) return false;
+        BranchRange best = null;
+        foreach (BranchRange r in branchRanges) if (r.mergeX > x && (best == null || r.forkX < best.forkX)) best = r;
+        if (best != null) { forkX = best.forkX; mergeX = best.mergeX; generated = true; return true; }
+        forkX = nextBranchX;
+        mergeX = nextBranchX + branchRampLength * 2f + branchLength;
+        return true;
+    }
+
+    // 敵が立つ面の高さ。上ルートに置かれた敵(upperRoute=true)は上ルートの面、それ以外は従来どおり地面。
+    // 上ルートの外(分岐の手前/合流の先)へ出た時は地面に戻る。
+    public float? GetSurfaceAt(float x, bool upperRoute)
+    {
+        if (upperRoute)
+        {
+            float? s = GetSkyHeightAt(x);
+            if (s.HasValue) return s;
+        }
+        return GetHeightAt(x);
+    }
+
     // 自然洞窟(2026-09-21) - 天井の高さ/針との接触。洞窟でなければ常にnull/false。
     public float? GetCeilingHeightAt(float x) => cave != null ? cave.GetCeilingHeightAt(x) : null;
     // プレイヤー足元Yがこれを超えると頭が天井にめり込む、という上限(洞窟でなければnull)。

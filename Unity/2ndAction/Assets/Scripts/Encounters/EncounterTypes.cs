@@ -31,6 +31,23 @@ public enum EncounterIntensity { Rest = 0, Easy = 1, Medium = 2, Hard = 3 }
 // ステージの通路構成(地形生成側が参照)。Defaultは従来どおり(テーマの設定に従う)。
 public enum StageRouteLayout { Default = 0, SingleRoute = 1 }
 
+// 上下ルート分岐のあるステージ(荒野街道)用(2026-09-28)。
+//  Main      = 分岐の外の一本道に置く通常のFormation
+//  RoutePair = 分岐区間で上ルート/下ルートそれぞれに別の内容(Formation+Intensity、Restも可)を置く組み合わせ
+public enum EncounterRouteMode { Main = 0, RoutePair = 1 }
+// 敵を置いたルート(デバッグ/テスト用の記録)。
+public enum EncounterRoute { Main = 0, Upper = 1, Lower = 2 }
+// Gap Guard用: Slotの位置を穴の縁から測る(BeforePit=穴の手前の縁から手前へxOffset、AfterPit=穴の向こう岸からxOffset先)。
+public enum EncounterPitAnchor { None = 0, BeforePit = 1, AfterPit = 2 }
+
+[Serializable]
+public class EncounterRouteSide
+{
+    [Tooltip("このルートに置くFormation(\"rest\"=何も置かない)")]
+    public string formationId = "rest";
+    public EncounterIntensity intensity = EncounterIntensity.Easy;
+}
+
 public static class EncounterSlots
 {
     public static bool IsGround(EncounterSlotKind k) => k == EncounterSlotKind.GroundFront || k == EncounterSlotKind.GroundMiddle || k == EncounterSlotKind.GroundRear;
@@ -63,6 +80,8 @@ public class EncounterSlot
     public string[] preferEnemyIds = new string[0];
     [Tooltip("trueなら優先IDの敵が居ない時はこのSlotを使わない")]
     public bool preferOnly;
+    [Tooltip("Gap Guard用: 位置を穴の縁から測る")]
+    public EncounterPitAnchor pitAnchor = EncounterPitAnchor.None;
 }
 
 [Serializable]
@@ -103,9 +122,29 @@ public class EncounterFormation
     [Tooltip("走行速度倍率1増えるごとに敵の間隔を何割広げるか")]
     public float spacingSpeedScale = 0.35f;
 
+    [Header("上下ルート(分岐区間の組み合わせ)")]
+    public EncounterRouteMode routeMode = EncounterRouteMode.Main;
+    public EncounterRouteSide upperSide = new EncounterRouteSide();
+    public EncounterRouteSide lowerSide = new EncounterRouteSide();
+    [Tooltip("上下を入れ替えてもよい(毎回「上=楽、下=きつい」に固定しない)")]
+    public bool allowMirror = true;
+
+    [Header("穴の前後(Gap Guard)")]
+    [Tooltip("基準点の先で穴を探し、穴の手前/向こう岸にSlotを置く")]
+    public bool requiresPit;
+    public float pitSearchStart = 8f;
+    public float pitSearchEnd = 34f;
+    [Tooltip("この幅より広い穴は使わない(m)")]
+    public float maxPitWidth = 6.5f;
+    [Tooltip("穴の手前の敵から穴の縁まで最低何m空けるか(敵を倒してから助走して跳べる)")]
+    public float pitMinBefore = 6f;
+    [Tooltip("穴の向こうの敵は、縁ぎりぎりで跳んだ時の着地点からさらに何m先に置くか(跳んだら必ずぶつかる、を防ぐ)")]
+    public float pitLandingMargin = 2.5f;
+
     public float Width()
     {
         if (requiredWidth > 0f) return requiredWidth;
+        if (requiresPit) return pitSearchEnd + maxPitWidth + 14f;
         float w = 0f;
         foreach (var s in slots) w = Mathf.Max(w, s.xOffset + Mathf.Abs(s.jitter));
         return w + 1f;

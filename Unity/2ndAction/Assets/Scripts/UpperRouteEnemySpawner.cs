@@ -44,6 +44,8 @@ public class UpperRouteEnemySpawner : MonoBehaviour
         if (player == null) return;
         if (BossManager.Instance != null && BossManager.Instance.IsBossPhase) return;
         if (GameManager.Instance.ActiveRunStageId != stageId) return;
+        // 共通Encounter System(2026-09-28) - 上ルートの敵もEncounterDirectorが置くステージでは何もしない。
+        if (EncounterDirector.HandlesUpperRoute(stageId)) return;
 
         while (GameManager.Instance.MaxDistance >= nextSpawnDistance)
         {

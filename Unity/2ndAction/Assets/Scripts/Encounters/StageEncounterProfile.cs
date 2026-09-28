@@ -3,7 +3,8 @@ using UnityEngine;
 
 // ステージごとのEncounter設定(Inspectorで調整できるData)。
 // Resources/Encounters/Profile_<stageId>.asset を置いたステージだけEncounterDirectorが担当する。
-// 置いていないステージ(現時点では荒野街道/天空回廊)は従来のSpawn(DistanceTierManager等)のまま。
+// 置いていないステージ(現時点では天空回廊)は従来のSpawn(DistanceTierManager等)のまま。
+// 荒野街道(2026-09-28)は上下ルートの組み合わせ(routeEncounters)を使う。
 // → 他ステージへ展開する時は、このProfileを作ってFormation/Bandを埋めるだけでよい。
 [CreateAssetMenu(menuName = "OneMoreMile/Stage Encounter Profile", fileName = "Profile_stage")]
 public class StageEncounterProfile : ScriptableObject
@@ -19,6 +20,22 @@ public class StageEncounterProfile : ScriptableObject
     public float longStraightChance = 0.12f;
     public int longStraightChunksMin = 3;
     public int longStraightChunksMax = 6;
+
+    [Header("上下ルート(分岐のあるステージ)")]
+    [Tooltip("分岐区間では上ルート/下ルートに別々の内容(RoutePair Formation)を置く。分岐の外は通常のFormation")]
+    public bool routeEncounters;
+    [Tooltip("分岐(fork)の手前、何mを通常Encounterから空けておくか(両ルートの中身を見て選ぶ区間)")]
+    public float routeLead = 8f;
+    [Tooltip("上ルートの坂の上り切り/下り始めから何m離して置くか")]
+    public float routeEdgeMargin = 1.5f;
+    [Tooltip("ルートの中身をどこまで手前に寄せるか(ルート開始から何m以内で置き場所を探す)。分岐の手前から見えるように")]
+    public float routeFrontLoad = 14f;
+    [Tooltip("合流(merge)の後、次の通常Encounterまでの間隔(m)")]
+    public Vector2 afterMergeGap = new Vector2(6f, 12f);
+    [Tooltip("片方のルートに予定のFormationが置けない時(下ルートの穴など)に代わりに使うFormation(穴をまたいでも置ける間隔の広いもの)")]
+    public string routeFallbackFormation = "staggered";
+    [Tooltip("分岐区間で「両ルートとも休憩」を選ぶWeightの倍率(ルート選択が荒野の中心なので控えめ)")]
+    public float branchRestScale = 0.4f;
 
     [Header("既存Spawnとの関係")]
     [Tooltip("地形チャンクごとの従来Formation Spawnを止め、このProfileで出す")]

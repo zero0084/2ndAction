@@ -403,7 +403,7 @@ public class ObstacleSpawner : MonoBehaviour
         // item3/6 - 上ルートでも、分岐(fork)直後・合流(merge)直前は
         // ジャンプで登り切る/降り切るための空間として空けておく。前の
         // 上ルート障害物からの最低間隔も、下ルートと同じ発想で確保する。
-        bool nearBranchEdge = TerrainManager.Instance.IsNearBranchEdge(worldX, BranchEdgeClear);
+        bool nearBranchEdge = TerrainManager.Instance.IsNearBranchEdge(worldX, BranchEdgeClear) || EncounterDirector.IsInUpperEncounterSpan(worldX, EncounterClear);
         bool tooCloseToLast = (worldX - lastUpperObstacleX) < MinGapBetween;
         float searched = 0f;
         float? skyY = TerrainManager.Instance.GetSkyHeightAt(worldX);
@@ -412,7 +412,7 @@ public class ObstacleSpawner : MonoBehaviour
             worldX += 0.5f;
             searched += 0.5f;
             skyY = TerrainManager.Instance.GetSkyHeightAt(worldX);
-            nearBranchEdge = TerrainManager.Instance.IsNearBranchEdge(worldX, BranchEdgeClear);
+            nearBranchEdge = TerrainManager.Instance.IsNearBranchEdge(worldX, BranchEdgeClear) || EncounterDirector.IsInUpperEncounterSpan(worldX, EncounterClear);
             tooCloseToLast = (worldX - lastUpperObstacleX) < MinGapBetween;
         }
         if (!skyY.HasValue || nearBranchEdge || tooCloseToLast) return;

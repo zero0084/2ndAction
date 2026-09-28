@@ -284,11 +284,20 @@ public class EnemySpecialBehavior : MonoBehaviour
     BoxCollider2D wormBodyCollider;
     float wormDustCooldown;
 
+    // 共通Encounter System(2026-09-28) - 立つ面(上ルートに置かれた敵は上ルートの面)。通常の敵は従来どおり地面。
+    EnemyController surfaceOwner;
+    float? Surface(float x)
+    {
+        if (surfaceOwner == null) surfaceOwner = GetComponent<EnemyController>();
+        if (TerrainManager.Instance == null) return null;
+        return TerrainManager.Instance.GetSurfaceAt(x, surfaceOwner != null && surfaceOwner.onUpperRoute);
+    }
+
     void Start()
     {
         FloatingOrigin.Shifted += OnOriginShifted;
         spawnX = transform.position.x;
-        float? spawnGroundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(spawnX) : null;
+        float? spawnGroundY = Surface(spawnX);
         groundYOffset = spawnGroundY.HasValue ? transform.position.y - spawnGroundY.Value : 0f;
         if (player == null && PlayerController.Instance != null) player = PlayerController.Instance.transform;
         shooterTimer = shooterCooldown * 0.5f; // stagger first shot instead of every Shooter firing in lockstep
@@ -432,7 +441,7 @@ public class EnemySpecialBehavior : MonoBehaviour
             x += Mathf.Sign(dx) * flyingApproachSpeed * Time.deltaTime;
         }
 
-        float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(x) : null;
+        float? groundY = Surface(x);
         float floor = (groundY ?? (flyingBaseY - flyingMinHeight)) + flyingMinHeight;
         float bob = Mathf.Sin((Time.time + flyingBobSeed) * flyingBobSpeed) * flyingBobAmplitude;
         float targetY = Mathf.Max(flyingBaseY, floor) + bob;
@@ -508,7 +517,7 @@ public class EnemySpecialBehavior : MonoBehaviour
                 if (flyingDiveTimer <= 0f)
                 {
                     if (flyingDiveMarkerGO != null) flyingDiveMarkerGO.SetActive(false);
-                    float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(transform.position.x) : null;
+                    float? groundY = Surface(transform.position.x);
                     float minY = (groundY ?? (transform.position.y - flyingDiveMinAltitude)) + flyingDiveMinAltitude;
                     flyingDiveTargetY = Mathf.Max(minY, player.position.y);
                     flyingDiveState = FlyingDiveState.Diving;
@@ -723,7 +732,7 @@ public class EnemySpecialBehavior : MonoBehaviour
     // frame rather than stepping into it.
     void SetGroundedX(float x)
     {
-        float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(x) : null;
+        float? groundY = Surface(x);
         if (!groundY.HasValue) return;
         transform.position = new Vector3(x, groundY.Value + groundYOffset, transform.position.z);
     }
@@ -734,7 +743,7 @@ public class EnemySpecialBehavior : MonoBehaviour
     // 同じ着地Yになる(「T2のHop後に正常に地面へ戻る」の保証)。
     void SetGroundedXWithExtraY(float x, float extraY)
     {
-        float? groundY = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(x) : null;
+        float? groundY = Surface(x);
         if (!groundY.HasValue) return;
         transform.position = new Vector3(x, groundY.Value + groundYOffset + extraY, transform.position.z);
     }
