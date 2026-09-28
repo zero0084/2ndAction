@@ -19,7 +19,21 @@ public class EnemyController : MonoBehaviour
     // 共通Encounter System(2026-09-28) - 荒野街道の上ルートに置かれた敵。立つ面を上ルートの面にする
     // (ノックバック/打ち上げの着地で下ルートの地面へ落ちない)。上ルートの外へ出たら地面に戻る。
     public bool onUpperRoute;
-    public float? SurfaceAt(float x) => TerrainManager.Instance == null ? (float?)null : TerrainManager.Instance.GetSurfaceAt(x, onUpperRoute);
+    // 天空回廊(2026-09-28): 浮島の上に置かれた敵。浮島の上に居る間は浮島の面に立ち、浮島の外へ出たら
+    // (吹き飛ばされた等)このフラグを外して普通に落下し、下の地面へ着地する(浮島の外で急に地面の高さへ移らない)。
+    public bool onIsland;
+    public float? SurfaceAt(float x)
+    {
+        if (TerrainManager.Instance == null) return null;
+        if (onIsland)
+        {
+            float? s = TerrainManager.Instance.GetSkyHeightAt(x);
+            if (s.HasValue) return s;
+            onIsland = false;
+            return null;
+        }
+        return TerrainManager.Instance.GetSurfaceAt(x, onUpperRoute);
+    }
 
     // Distance Level Design Ver.1 - "EnemyHP = 1 + floor(CurrentDistance /
     // 2000)" (see DistanceTierManager.CurrentEnemyHp) times the species'
@@ -546,6 +560,7 @@ public class EnemyController : MonoBehaviour
     // の組み合わせから、実際のリアクションを振り分ける中心メソッド。
     void ProcessHit(PlayerAttackKind kind, Vector3 contactPoint, bool killed)
     {
+        if (!killed) ShowHitPose();
         // item 8 - 下攻撃フィニッシュ。浮いている敵への下攻撃は、致死でも
         // 即座には死なせず、地面へ叩き落としてから結果を出す。
         if (kind == PlayerAttackKind.Down && isLaunched)
@@ -864,6 +879,39 @@ public class EnemyController : MonoBehaviour
     // 不具合修正(2026-09-12) - Awakeキャッシュをやめ、呼ばれるたびに
     // GetComponentする(このメソッド自体は打ち上げ開始/着地の2回程度しか
     // 呼ばれないため、毎回のGetComponentコストは無視できる)。
+    // ===== 天空回廊Enemy(2026-09-28): 被弾/撃破の絵と、打ち上げ/ノックバックの倍率 =====
+    // 絵が未設定(既存Enemy)なら何もしない。倍率は1=従来どおり。
+    [HideInInspector] public Sprite poseHit, poseDeath;
+    Sprite spriteBeforeHitPose;
+    public float HitPoseUntil { get; private set; } = -1f;
+    bool tuningApplied;
+
+    void ShowHitPose()
+    {
+        if (poseHit == null || sr == null) return;
+        if (spriteBeforeHitPose == null && sr.sprite != poseHit) spriteBeforeHitPose = sr.sprite;
+        sr.sprite = poseHit;
+        HitPoseUntil = Time.time + 0.3f;
+    }
+
+    public void ApplyDefinitionTuning(float launchScale, float knockbackScale)
+    {
+        if (tuningApplied) return;
+        tuningApplied = true;
+        if (!Mathf.Approximately(launchScale, 1f) && launchScale > 0f)
+        {
+            launchUpSpeed *= launchScale;
+            airLaunchUpSpeed *= launchScale;
+            launchForwardBurstSpeed *= Mathf.Lerp(1f, launchScale, 0.5f);
+        }
+        if (!Mathf.Approximately(knockbackScale, 1f) && knockbackScale > 0f)
+        {
+            hitKnockbackDistance *= knockbackScale;
+            groundKnockbackSpeedBonus *= knockbackScale;
+            juggleForwardBurstSpeed *= Mathf.Lerp(1f, knockbackScale, 0.5f);
+        }
+    }
+
     void DisableMotionComponents()
     {
         var animator = GetComponent<EnemyAnimator>();
@@ -877,6 +925,7 @@ public class EnemyController : MonoBehaviour
         // dying中(死亡演出突入後)は絶対に復帰させない - HitAndDie/
         // DieFadeRoutineが引き続きこのTransformを排他的に握っている。
         if (dying) return;
+        if (spriteBeforeHitPose != null && sr != null) { sr.sprite = spriteBeforeHitPose; spriteBeforeHitPose = null; }
         var animator = GetComponent<EnemyAnimator>();
         if (animator != null) animator.enabled = true;
         var special = GetComponent<EnemySpecialBehavior>();
@@ -890,6 +939,7 @@ public class EnemyController : MonoBehaviour
     // Burst/Fade)へ合流する)。
     IEnumerator HitAndDie(Vector3 contactPoint, bool viaSlam)
     {
+        if (poseDeath != null && sr != null) sr.sprite = poseDeath; // 天空回廊Enemy: 撃破の絵
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttackHit();
 
         if (viaSlam)

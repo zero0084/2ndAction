@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: ancient_sentinel
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: ancient_sentinel
+  displayName: ANCIENT SENTINEL
+  sprite: {fileID: 21300000, guid: f49f0f85489aa9649b271fc922518360, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 0
+  category: 4
+  behaviorKind: 14
+  hpMultiplier: 3.2
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 0
+  runFrames:
+  - {fileID: 21300000, guid: 1d5e21c8af85d4946926bb5a23540dcf, type: 3}
+  - {fileID: 21300000, guid: ea674dd9405a0e045941534cd79a502f, type: 3}
+  attackSprite: {fileID: 21300000, guid: 735a9d8dfe3f1d44f98e9151c34e86f5, type: 3}
+  mileReward: 5
+  visualScaleMultiplier: 1
+  aiTier: 1
+  stageIds:
+  - sky_corridor
+  poses:
+    telegraph: {fileID: 21300000, guid: 9f03717db8374d04da90e57607f8ba4b, type: 3}
+    attack: {fileID: 21300000, guid: 735a9d8dfe3f1d44f98e9151c34e86f5, type: 3}
+    recover: {fileID: 21300000, guid: ce78df220db8dca4aaed1568308762a2, type: 3}
+    hit: {fileID: 21300000, guid: a141731c1519904438500d3ebca657d4, type: 3}
+    death: {fileID: 21300000, guid: 5f20d4a2e8ecc624f98998810a7433c4, type: 3}
+    dormant: {fileID: 0}
+    wake: {fileID: 0}
+    charge: {fileID: 0}
+    dive: {fileID: 0}
+  idleHoverAmplitude: 0
+  bodyColliderScale: {x: 0.7, y: 0.9}
+  bodyColliderOffset: {x: 0, y: -0.050000012}
+  launchScale: 0.55
+  knockbackScale: 0.45

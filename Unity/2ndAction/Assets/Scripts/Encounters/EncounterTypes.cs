@@ -24,6 +24,9 @@ public enum EncounterSlotKind
     AirHigh = 4,
     Burrow = 5,
     Special = 6,
+    // 天空回廊(2026-09-28)。数値はアセットに保存されるので末尾に追加。
+    AirMiddle = 7,   // 低空と高空の間(ジャンプ〜二段ジャンプで届く)
+    Island = 8,      // 浮島の上(浮島が無ければ地面)。地上の敵だけ
 }
 
 public enum EncounterIntensity { Rest = 0, Easy = 1, Medium = 2, Hard = 3 }
@@ -51,7 +54,7 @@ public class EncounterRouteSide
 public static class EncounterSlots
 {
     public static bool IsGround(EncounterSlotKind k) => k == EncounterSlotKind.GroundFront || k == EncounterSlotKind.GroundMiddle || k == EncounterSlotKind.GroundRear;
-    public static bool IsAir(EncounterSlotKind k) => k == EncounterSlotKind.AirLow || k == EncounterSlotKind.AirHigh;
+    public static bool IsAir(EncounterSlotKind k) => k == EncounterSlotKind.AirLow || k == EncounterSlotKind.AirMiddle || k == EncounterSlotKind.AirHigh;
 
     // この敵をこのSlotに置けるか(地上の敵を空中Slotへ置かない / 空中Slotには飛行する敵だけ /
     // 地中Slotには潜る敵だけ)。Specialは地上扱い(将来ステージ固有の置き方を足す枠)。
@@ -82,6 +85,8 @@ public class EncounterSlot
     public bool preferOnly;
     [Tooltip("Gap Guard用: 位置を穴の縁から測る")]
     public EncounterPitAnchor pitAnchor = EncounterPitAnchor.None;
+    [Tooltip("trueならこのSlot(Formationの主役)を置けない場所ではFormation全体を置かない(別の場所/別のFormationを探す)")]
+    public bool required;
 }
 
 [Serializable]
@@ -112,6 +117,11 @@ public class EncounterFormation
     public bool requiresBurrowGround;
     [Tooltip("地上の敵どうしの最低間隔(m)。重なり防止")]
     public float minGroundGap = 1.2f;
+
+    [Header("危険度の高いFormationの連続防止(天空回廊 2026-09-28)")]
+    [Tooltip("同じグループ(例: danger)のFormationは、直近groupCooldown回のEncounterの中にあれば選ばない")]
+    public string dangerGroup = "";
+    public int groupCooldown = 0;
 
     [Header("地形との相性(Weight倍率)")]
     public float narrowAffinity = 1f;
@@ -176,6 +186,8 @@ public class EncounterFormationWeight
 public class EncounterTierWeights
 {
     public float t0 = 1f, t1, t2;
+    // 天空回廊(2026-09-28): T3〜T5。既定0(既存ステージは従来どおりT0〜T2だけ)。
+    public float t3, t4, t5;
 }
 
 [Serializable]

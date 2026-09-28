@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: harpy
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: harpy
+  displayName: HARPY
+  sprite: {fileID: 21300000, guid: ad04ffe7757dd77498725fec71c7dea6, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 1
+  category: 1
+  behaviorKind: 11
+  hpMultiplier: 1
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 0
+  runFrames:
+  - {fileID: 21300000, guid: add66bf57f04d0047bb5bb15ea2e5431, type: 3}
+  - {fileID: 21300000, guid: 37f20f7cd070b8844b88035f6292fada, type: 3}
+  attackSprite: {fileID: 21300000, guid: fd231cd889e228b41ae780ad1e78c4fe, type: 3}
+  mileReward: 2
+  visualScaleMultiplier: 1
+  aiTier: 2
+  stageIds:
+  - sky_corridor
+  poses:
+    telegraph: {fileID: 21300000, guid: 6b2738cb1de9dcd4c8869cf64091160c, type: 3}
+    attack: {fileID: 0}
+    recover: {fileID: 21300000, guid: 5c52564018ae74e449e38a4b98b9a2f5, type: 3}
+    hit: {fileID: 21300000, guid: 8e7bd458853115e448559c476fa5031f, type: 3}
+    death: {fileID: 21300000, guid: 5318534fafe496c44878e338e018203c, type: 3}
+    dormant: {fileID: 0}
+    wake: {fileID: 0}
+    charge: {fileID: 0}
+    dive: {fileID: 21300000, guid: fd231cd889e228b41ae780ad1e78c4fe, type: 3}
+  idleHoverAmplitude: 0
+  bodyColliderScale: {x: 0.45, y: 0.7}
+  bodyColliderOffset: {x: 0, y: 0}
+  launchScale: 1
+  knockbackScale: 1

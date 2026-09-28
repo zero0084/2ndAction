@@ -39,6 +39,8 @@ public class WastelandEncounterAutoTest : MonoBehaviour
     string phase = "";
     int lateEasy, lateRest, lateT0;
     readonly List<string> phaseEnemyIds = new List<string>();
+    // 帯の上限距離(これより先で出たEncounterは次の帯の内容なので、解放チェックに数えない)
+    float phaseMaxDist = float.PositiveInfinity;
     // 出した敵の位置(論理X/Y/ルート)。障害物との重なり確認に使う
     readonly List<(double x, float y, EncounterRoute route)> spawnedPositions = new List<(double, float, EncounterRoute)>();
     readonly HashSet<string> formationsSeen = new HashSet<string>();
@@ -180,6 +182,7 @@ public class WastelandEncounterAutoTest : MonoBehaviour
         var dir = EncounterDirector.Instance;
         var tm = TerrainManager.Instance;
         phase = name;
+        { int dash = name.IndexOf('-'); int sp = name.IndexOf(' '); string hi = dash > 0 ? name.Substring(dash + 1, (sp > dash ? sp : name.Length) - dash - 1) : ""; phaseMaxDist = float.TryParse(hi, out float v) ? v : float.PositiveInfinity; }
         phaseEnemyIds.Clear();
         spawnedPositions.Clear();
         PlayerController.DebugSpeedScale = speed;
@@ -291,7 +294,7 @@ public class WastelandEncounterAutoTest : MonoBehaviour
             var s = spawned[i];
             if (s.go == null) continue;
             var m = rec.members[i];
-            phaseEnemyIds.Add(s.def.enemyId);
+            if (rec.distance < phaseMaxDist) phaseEnemyIds.Add(s.def.enemyId);
             Vector3 p = s.go.transform.position;
             var ec = s.go.GetComponent<EnemyController>();
             if (ec != null && DistanceTierManager.Instance != null && ec.maxHp != DistanceTierManager.Instance.EnemyHpFor(s.def.hpMultiplier)) Bad($"HP changed by tier: {s.def.enemyId} {m.tier} hp={ec.maxHp}");

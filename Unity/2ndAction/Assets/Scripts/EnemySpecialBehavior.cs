@@ -23,7 +23,7 @@ using UnityEngine;
 // Normal category (behaviorKind None) never gets this component at all -
 // the original "spawns once, sits static on its chunk" goblin behavior is
 // completely unchanged.
-public class EnemySpecialBehavior : MonoBehaviour
+public partial class EnemySpecialBehavior : MonoBehaviour
 {
     public EnemyBehaviorKind kind = EnemyBehaviorKind.None;
     public Transform player;
@@ -290,7 +290,7 @@ public class EnemySpecialBehavior : MonoBehaviour
     {
         if (surfaceOwner == null) surfaceOwner = GetComponent<EnemyController>();
         if (TerrainManager.Instance == null) return null;
-        return TerrainManager.Instance.GetSurfaceAt(x, surfaceOwner != null && surfaceOwner.onUpperRoute);
+        return surfaceOwner != null ? surfaceOwner.SurfaceAt(x) : TerrainManager.Instance.GetSurfaceAt(x, false);
     }
 
     void Start()
@@ -308,6 +308,7 @@ public class EnemySpecialBehavior : MonoBehaviour
         if (kind == EnemyBehaviorKind.CaveHopper) InitCaveHopper();
         if (kind == EnemyBehaviorKind.BurrowWorm) InitBurrowWorm();
         if (kind == EnemyBehaviorKind.Flying && flyingDiveEnabled) InitFlyingDive();
+        if (IsSkyKind) InitSky(); // 天空回廊Enemy(EnemySpecialBehavior.Sky.cs)
     }
 
     // 敵AI行動Tier試験実装(2026-09-16) - Hit Reaction/Knockback/Launchに
@@ -320,7 +321,7 @@ public class EnemySpecialBehavior : MonoBehaviour
     // 前にOnEnableが走るUnityのライフサイクル順)は何もしない - 初期化は
     // Start()/InitStationaryMeleeが一度だけ担う。
     // Floating Origin: 一時的にDisableされる間も追従するようStart~OnDestroyで購読する。
-    void OnOriginShifted(float s) { spawnX -= s; }
+    void OnOriginShifted(float s) { spawnX -= s; skyDiveTo.x -= s; skyDiveFrom.x -= s; }
     void OnDestroy() { FloatingOrigin.Shifted -= OnOriginShifted; }
 
     void OnEnable()
@@ -363,6 +364,8 @@ public class EnemySpecialBehavior : MonoBehaviour
             transform.position = p;
         }
 
+        if (IsSkyKind) ResetSkyAfterInterrupt();
+
         if (kind == EnemyBehaviorKind.Flying && flyingDiveEnabled && flyingDiveHitboxGO != null)
         {
             flyingDiveState = FlyingDiveState.None;
@@ -384,6 +387,7 @@ public class EnemySpecialBehavior : MonoBehaviour
         if (wormHitboxGO != null) wormHitboxGO.SetActive(false);
         if (flyingDiveHitboxGO != null) flyingDiveHitboxGO.SetActive(false);
         if (flyingDiveMarkerGO != null) flyingDiveMarkerGO.SetActive(false);
+        SkyOnDisable();
     }
 
     void Update()
@@ -412,6 +416,7 @@ public class EnemySpecialBehavior : MonoBehaviour
             case EnemyBehaviorKind.StationaryMelee: UpdateStationaryMelee(); break;
             case EnemyBehaviorKind.CaveHopper: UpdateCaveHopper(); break;
             case EnemyBehaviorKind.BurrowWorm: UpdateBurrowWorm(); break;
+            default: if (IsSkyKind) UpdateSky(); break;
         }
     }
 
@@ -1273,7 +1278,7 @@ public class EnemySpecialBehavior : MonoBehaviour
                 case EnemyBehaviorKind.BurrowWorm:
                     return wormState == WormState.Emerge || wormState == WormState.Attack;
                 default:
-                    return false;
+                    return IsSkyKind && SkyInAttackPose;
             }
         }
     }

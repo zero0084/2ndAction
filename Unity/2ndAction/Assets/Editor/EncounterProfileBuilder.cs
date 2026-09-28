@@ -28,12 +28,23 @@ public static class EncounterProfileBuilder
         AssetDatabase.Refresh();
     }
 
+    // 天空回廊のProfileだけ初期値へ作り直す(他のステージ/汎用Formationには触れない)。
+    [MenuItem("Tools/2ndAction/Encounter/Rebuild Sky Corridor Profile (overwrite)")]
+    public static void BuildSkyForce()
+    {
+        if (!Directory.Exists(Dir)) Directory.CreateDirectory(Dir);
+        Save(Dir + "/Profile_sky_corridor.asset", BuildSkyCorridor(), true);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+    }
+
     static void BuildAll(bool overwrite)
     {
         if (!Directory.Exists(Dir)) Directory.CreateDirectory(Dir);
         Save(Dir + "/GenericFormations.asset", BuildLibrary(), overwrite);
         Save(Dir + "/Profile_natural_cave.asset", BuildNaturalCave(), overwrite);
         Save(Dir + "/Profile_wasteland_road.asset", BuildWasteland(), overwrite);
+        Save(Dir + "/Profile_sky_corridor.asset", BuildSkyCorridor(), overwrite);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         Debug.Log("EncounterProfileBuilder: done (overwrite=" + overwrite + ")");
@@ -59,6 +70,7 @@ public static class EncounterProfileBuilder
 
     const EncounterSlotKind GF = EncounterSlotKind.GroundFront, GM = EncounterSlotKind.GroundMiddle, GR = EncounterSlotKind.GroundRear;
     const EncounterSlotKind AL = EncounterSlotKind.AirLow, AH = EncounterSlotKind.AirHigh, BU = EncounterSlotKind.Burrow;
+    const EncounterSlotKind AM = EncounterSlotKind.AirMiddle, IS = EncounterSlotKind.Island;
     const EncounterIntensity E = EncounterIntensity.Easy, M = EncounterIntensity.Medium, H = EncounterIntensity.Hard;
 
     // ===================================================================== //
@@ -380,4 +392,169 @@ public static class EncounterProfileBuilder
         });
         return p;
     }
+
+    // ===================================================================== //
+    // 天空回廊(Stage00) - 2026-09-28
+    // 地上+空中(浮島/空中Slot)+Aerial Combo。浅い所は天空の生物(+Global Enemy)、進むほど守護者/神域の存在へ。
+    // 地形は従来どおり(地面+浮島、上下ルート分岐なし)。空中Slotは真下に浮島があれば浮島の上面から測る。
+    // ===================================================================== //
+    static readonly string[] Slime = { "sky_slime" };
+    static readonly string[] Hound = { "sky_hound" };
+    static readonly string[] HarpyIds = { "harpy", "flying_wyvern" };   // 空中Slot: ハーピー中心(序盤はGlobalのワイバーンも混ざる)
+    static readonly string[] Garg = { "gargoyle" };
+    static readonly string[] Knight = { "celestial_knight" };
+    static readonly string[] Sentinel = { "ancient_sentinel" };
+    static readonly string[] Storm = { "storm_spirit" };
+    static readonly string[] Hunter = { "sky_hunter" };
+    static readonly string[] SmallGround = { "sky_slime", "sky_hound", "goblin", "goblin_elite" };
+
+    static EncounterFormation SkyF(string id, string name, EncounterIntensity min, params EncounterSlot[] slots)
+    {
+        var f = new EncounterFormation { formationId = id, displayName = name, stageSpecific = true, minIntensity = min, requiredHeight = 0f, requiresGround = true, minGroundGap = 1.6f };
+        f.slots.AddRange(slots);
+        return f;
+    }
+
+    static StageEncounterProfile BuildSkyCorridor()
+    {
+        var p = ScriptableObject.CreateInstance<StageEncounterProfile>();
+        p.stageId = "sky_corridor";
+        p.routeLayout = StageRouteLayout.Default;   // 地面+浮島のまま
+        p.islandAware = true;
+        p.replacesChunkSpawns = true;
+        p.replacesMilestoneWalls = true;
+        p.spawnAheadDistance = 46f;
+        // 天空は空と速度感を楽しむ区間を多めに(敵で画面を埋めない)
+        p.gapAfterEasy = new Vector2(12f, 18f);
+        p.gapAfterMedium = new Vector2(15f, 22f);
+        p.gapAfterHard = new Vector2(20f, 28f);
+        p.restLength = new Vector2(36f, 60f);
+        p.maxEncountersWithoutRest = 3;
+        p.airLowHeight = new Vector2(1.6f, 2.2f);      // 地上の上攻撃/小ジャンプで届く
+        p.airMiddleHeight = new Vector2(2.6f, 3.2f);   // ジャンプで届く
+        p.airHighHeight = new Vector2(3.6f, 4.3f);     // 二段ジャンプで届く
+        p.bossPreBuffer = 90f;
+        p.bossPostRest = 36f;
+
+        var f = p.stageFormations;
+        // Sky Line: 基本の地上2〜4体(雲精霊中心、序盤はGlobal Enemyも入る)
+        f.Add(Sk(SkyF("sky_line", "Sky Line", E, S(GF, 0f, E, 0.3f, SmallGround), S(GM, 2.3f, E, 0.3f, SmallGround), S(GM, 4.6f, M, 0.3f, SmallGround), S(GR, 6.9f, H, 0.3f, SmallGround)), cont: true));
+        // Sky Pack: 天空獣2〜3体で地上を連続突破
+        f.Add(SkyF("sky_pack", "Sky Pack", E, S(GF, 0f, E, 0.4f, Hound, true), S(GM, 3.4f, E, 0.4f, Hound, true), S(GR, 6.8f, M, 0.4f, Hound, true)));
+        // Aerial Line: 飛ぶ敵を高さを少し変えて2〜3体(上攻撃/ジャンプ/空中攻撃を誘う)
+        f.Add(Air(SkyF("aerial_line", "Aerial Line", E, S(AL, 0f, E, 0.5f, HarpyIds), S(AM, 4.2f, E, 0.5f, HarpyIds), S(AL, 8.4f, M, 0.5f, HarpyIds))));
+        // Ground + Air: 地上(雲精霊/天空獣/Global)+空中(ハーピー)。地上→打ち上げ→ジャンプ→空中の流れ
+        f.Add(Air(Sk(SkyF("sky_ground_air", "Ground + Air", E, S(GF, 0f, E, 0.3f, SmallGround), S(AL, 3.6f, E, 0.4f, HarpyIds), S(GM, 2.4f, M, 0.3f, SmallGround), S(AM, 6.8f, H, 0.4f, HarpyIds)), cont: true)));
+        // Aerial Stair: 低→中→高の空中の敵(ジャンプ/二段ジャンプで連続攻撃できる任意のライン。地上は空けておく)
+        var stair = Air(SkyF("aerial_stair", "Aerial Stair", E, S(AL, 2f, E, 0.2f, HarpyIds), S(AM, 5.5f, E, 0.2f, HarpyIds), S(AH, 9f, E, 0.2f, HarpyIds), S(AH, 12.5f, H, 0.2f, HarpyIds)));
+        stair.requiresGround = false;
+        f.Add(stair);
+        // Launch Bridge: 地上の敵のすぐ上/少し前に飛ぶ敵(上攻撃で打ち上げ→一緒に巻き込んで空中コンボ)
+        f.Add(Air(Sk(SkyF("launch_bridge", "Launch Bridge", E, S(GF, 0f, E, 0.2f, Slime), S(AL, 1.8f, E, 0.2f, HarpyIds), S(GM, 3.8f, M, 0.2f, Slime), S(AM, 5.6f, M, 0.2f, HarpyIds), S(AH, 7.4f, H, 0.2f, HarpyIds)), cont: true)));
+        // Gargoyle Gate: 通路/浮島の石像(近づくと起動)。複数でも同時には攻撃しない(行動側で1体ずつ)
+        var gate = SkyF("gargoyle_gate", "Gargoyle Gate", E, S(IS, 3f, E, 0.5f, Garg, true), S(GF, 9f, M, 0.5f, Garg, true), S(IS, 15f, H, 0.5f, Garg, true), S(GR, 12f, M, 0.4f, Slime));
+        gate.minGroundGap = 3f; gate.spacingSpeedScale = 0.45f;
+        f.Add(gate);
+        // Guardian Wall: 古代守護兵1体+周りに少数(守護兵を並べてただの壁にしない)
+        var wall = Air(SkyF("guardian_wall", "Guardian Wall", M, S(GF, 0f, E, 0.3f, Slime), Req(S(GM, 5f, E, 0.3f, Sentinel, true)), S(AL, 8.5f, M, 0.4f, HarpyIds), S(GR, 11f, H, 0.4f, Slime)));
+        wall.minGroundGap = 2.4f; wall.dangerGroup = "danger"; wall.groupCooldown = 2;
+        f.Add(wall);
+        // Knight Patrol: 天空騎士1〜3体の守護者(深部の雰囲気)
+        var patrol = SkyF("knight_patrol", "Knight Patrol", E, S(GF, 0f, E, 0.4f, Knight, true), S(GM, 6.5f, M, 0.4f, Knight, true), S(AL, 9.5f, H, 0.4f, HarpyIds), S(GR, 13f, H, 0.4f, Knight, true));
+        patrol.minGroundGap = 3f; patrol.spacingSpeedScale = 0.45f;
+        f.Add(patrol);
+        // Storm Zone: 雷精霊1体(+地上の敵少数)。雷の予兆を見ながら地上の敵に対応
+        var storm = Air(SkyF("storm_zone", "Storm Zone", M, Req(S(AM, 7f, E, 0.3f, Storm, true)), S(GF, 2f, E, 0.3f, SmallGround), S(GR, 12f, M, 0.4f, SmallGround)));
+        storm.dangerGroup = "danger"; storm.groupCooldown = 2; storm.spacingSpeedScale = 0.5f;
+        f.Add(storm);
+        // Hunter Attack: 天空追跡者1体中心の特別なEncounter(強い時だけ。連続させない)
+        var hunt = Air(SkyF("hunter_attack", "Hunter Attack", H, Req(S(AH, 7f, E, 0.3f, Hunter, true)), S(GF, 1f, H, 0.3f, Slime)));
+        hunt.requiresGround = false; hunt.dangerGroup = "danger"; hunt.groupCooldown = 3;
+        f.Add(hunt);
+        // Aerial Wave: 飛ぶ敵が少しずつ連続して現れる(2〜3体→少し走る→1〜2体→少し走る→Ground+Air)
+        var wave = Air(SkyF("aerial_wave", "Aerial Wave", M, S(AL, 0f, E, 0.4f, HarpyIds), S(AM, 3.2f, E, 0.4f, HarpyIds),
+                                                            S(AL, 20f, E, 0.4f, HarpyIds), S(AH, 23f, M, 0.4f, HarpyIds),
+                                                            S(GF, 36f, M, 0.4f, SmallGround), S(AL, 38.5f, H, 0.4f, HarpyIds)));
+        wave.spacingSpeedScale = 0.5f; wave.straightAffinity = 1.2f;
+        f.Add(wave);
+        // Sky Gauntlet: 地上/空中のまとまりを短い間隔で連続(高速で敵群を突破)
+        var gauntlet = Air(SkyF("sky_gauntlet", "Sky Gauntlet", M, S(GF, 0f), S(GM, 1.8f), S(AL, 3.4f, E, 0.3f, HarpyIds),
+                                                                   S(GF, 13f), S(AM, 15f, E, 0.3f, HarpyIds),
+                                                                   S(GF, 26f, H), S(GM, 27.8f, H), S(AL, 29.5f, H, 0.3f, HarpyIds)));
+        gauntlet.straightAffinity = 1.5f;
+        f.Add(gauntlet);
+
+        // ---- 敵 ----
+        // Global Enemy(既存。全ステージ共通の一般Enemy)
+        EncounterEnemyEntry goblin(float w) => Enemy("goblin", w, EnemyAiTier.T0, EnemyAiTier.T2, true, GF, GM, GR);
+        EncounterEnemyEntry elite(float w) => Enemy("goblin_elite", w, EnemyAiTier.T0, EnemyAiTier.T2, true, GF, GM, GR);
+        EncounterEnemyEntry imp(float w) => Enemy("irregular_imp", w, EnemyAiTier.T0, EnemyAiTier.T0, false, GM, GR);
+        EncounterEnemyEntry shooter(float w) => Enemy("shooter_archer", w, EnemyAiTier.T0, EnemyAiTier.T0, false, GR);
+        EncounterEnemyEntry heavy(float w) => Enemy("heavy_ogre", w, EnemyAiTier.T0, EnemyAiTier.T0, false, GF, GM);
+        EncounterEnemyEntry wyvern(float w) => Enemy("flying_wyvern", w, EnemyAiTier.T0, EnemyAiTier.T0, false, AL, AM, AH);
+        // 天空回廊の固有Enemy
+        EncounterEnemyEntry slime(float w) => Enemy("sky_slime", w, EnemyAiTier.T0, EnemyAiTier.T0, false, GF, GM, GR, IS);
+        EncounterEnemyEntry hound(float w) => Enemy("sky_hound", w, EnemyAiTier.T1, EnemyAiTier.T2, false, GF, GM, GR);
+        EncounterEnemyEntry harpy(float w) => Enemy("harpy", w, EnemyAiTier.T1, EnemyAiTier.T3, false, AL, AM, AH);
+        EncounterEnemyEntry garg(float w) => Enemy("gargoyle", w, EnemyAiTier.T1, EnemyAiTier.T3, false, GF, GM, IS);
+        EncounterEnemyEntry knight(float w) => Enemy("celestial_knight", w, EnemyAiTier.T3, EnemyAiTier.T3, false, GF, GM, GR);
+        EncounterEnemyEntry sentinel(float w) => Enemy("ancient_sentinel", w, EnemyAiTier.T1, EnemyAiTier.T3, false, GF, GM);
+        EncounterEnemyEntry storm_(float w) => Enemy("storm_spirit", w, EnemyAiTier.T4, EnemyAiTier.T4, false, AM, AH);
+        EncounterEnemyEntry hunter(float w) => Enemy("sky_hunter", w, EnemyAiTier.T5, EnemyAiTier.T5, false, AH, AM);
+        EncounterTierWeights T(float t0, float t1, float t2, float t3 = 0f) => new EncounterTierWeights { t0 = t0, t1 = t1, t2 = t2, t3 = t3 };
+
+        // 【浅層】空に生物が住んでいる: Global + 雲精霊/天空獣(天空は1000mごとにボスが来るので、帯は約1km単位)
+        p.bands.Add(new EncounterDistanceBand
+        {
+            bandName = "0-1000 sky creatures", startDistance = 0f, endDistance = 1000f,
+            enemies = { goblin(1.4f), imp(0.45f), slime(1.3f), hound(0.8f) },
+            formations = { F("sky_line", 1.3f), F("sky_pack", 0.8f), F("staggered", 1.2f), F("ground_line", 0.6f) },
+            restWeight = 1.3f, easyWeight = 1.6f, mediumWeight = 0.7f, hardWeight = 0.1f,
+            easyTiers = T(1f, 0.5f, 0f), mediumTiers = T(0.6f, 0.7f, 0.2f), hardTiers = T(0.4f, 0.7f, 0.4f),
+        });
+        // 【少し進む】ハーピー/ガーゴイルが加わる
+        p.bands.Add(new EncounterDistanceBand
+        {
+            bandName = "1000-2500 +harpy/gargoyle", startDistance = 1000f, endDistance = 2500f,
+            enemies = { goblin(0.7f), elite(0.4f), imp(0.3f), shooter(0.3f), wyvern(0.25f), slime(1.1f), hound(1f), harpy(1f), garg(0.8f) },
+            formations = { F("sky_line", 1f), F("sky_pack", 1f), F("staggered", 0.7f), F("aerial_line", 1.1f), F("sky_ground_air", 1.1f), F("aerial_stair", 0.9f), F("gargoyle_gate", 1f) },
+            restWeight = 1.2f, easyWeight = 1.3f, mediumWeight = 1f, hardWeight = 0.35f,
+            easyTiers = T(1f, 0.8f, 0.2f), mediumTiers = T(0.5f, 0.8f, 0.5f, 0.1f), hardTiers = T(0.3f, 0.7f, 0.7f, 0.3f),
+        });
+        // 【中層】何かを守る存在が増えてきた: 天空騎士。Global Enemyを少し減らす
+        p.bands.Add(new EncounterDistanceBand
+        {
+            bandName = "2500-5000 +knight", startDistance = 2500f, endDistance = 5000f,
+            enemies = { goblin(0.45f), elite(0.35f), shooter(0.3f), heavy(0.25f), wyvern(0.2f), slime(1f), hound(1f), harpy(1f), garg(0.9f), knight(1f) },
+            formations = { F("sky_line", 0.8f), F("sky_pack", 0.8f), F("aerial_line", 0.8f), F("sky_ground_air", 1f), F("aerial_stair", 0.8f), F("gargoyle_gate", 0.9f),
+                           F("knight_patrol", 1.2f), F("launch_bridge", 1.1f), F("aerial_wave", 1f) },
+            restWeight = 1.1f, easyWeight = 1.1f, mediumWeight = 1.2f, hardWeight = 0.5f,
+            easyTiers = T(0.8f, 0.8f, 0.4f, 0.2f), mediumTiers = T(0.4f, 0.7f, 0.7f, 0.4f), hardTiers = T(0.2f, 0.5f, 0.8f, 0.7f),
+        });
+        // 【深層】古代の守護領域: 古代守護兵/雷精霊
+        p.bands.Add(new EncounterDistanceBand
+        {
+            bandName = "5000-10000 guardians", startDistance = 5000f, endDistance = 10000f,
+            enemies = { goblin(0.25f), elite(0.2f), heavy(0.2f), slime(0.9f), hound(0.9f), harpy(1f), garg(1f), knight(1.1f), sentinel(0.8f), storm_(0.7f) },
+            formations = { F("sky_line", 0.6f), F("sky_pack", 0.7f), F("aerial_line", 0.7f), F("sky_ground_air", 0.9f), F("aerial_stair", 0.7f), F("gargoyle_gate", 0.9f),
+                           F("knight_patrol", 1.1f), F("launch_bridge", 1f), F("aerial_wave", 0.9f), F("guardian_wall", 1f), F("storm_zone", 0.9f), F("sky_gauntlet", 1f) },
+            restWeight = 1f, easyWeight = 1f, mediumWeight = 1.2f, hardWeight = 0.6f,
+            easyTiers = T(0.6f, 0.8f, 0.5f, 0.3f), mediumTiers = T(0.3f, 0.6f, 0.8f, 0.6f), hardTiers = T(0.2f, 0.4f, 0.8f, 1f),
+        });
+        // 【さらに深部】普通の生物が入れない神域: 天空追跡者。Global Enemyはごく少数
+        p.bands.Add(new EncounterDistanceBand
+        {
+            bandName = "10000+ divine", startDistance = 10000f, endDistance = -1f,
+            enemies = { elite(0.1f), heavy(0.1f), slime(0.7f), hound(0.8f), harpy(1f), garg(1f), knight(1.2f), sentinel(0.9f), storm_(0.8f), hunter(0.6f) },
+            formations = { F("sky_line", 0.5f), F("sky_pack", 0.6f), F("aerial_line", 0.6f), F("sky_ground_air", 0.9f), F("aerial_stair", 0.8f), F("gargoyle_gate", 0.9f),
+                           F("knight_patrol", 1.2f), F("launch_bridge", 1f), F("aerial_wave", 1f), F("guardian_wall", 1f), F("storm_zone", 0.9f), F("sky_gauntlet", 1f), F("hunter_attack", 0.7f) },
+            restWeight = 1f, easyWeight = 0.9f, mediumWeight = 1.2f, hardWeight = 0.7f,
+            easyTiers = T(0.5f, 0.8f, 0.6f, 0.4f), mediumTiers = T(0.3f, 0.6f, 0.8f, 0.8f), hardTiers = T(0.15f, 0.4f, 0.8f, 1.2f),
+        });
+        return p;
+    }
+
+    static EncounterFormation Sk(EncounterFormation f, bool cont) { f.continuousGround = cont; return f; }
+    static EncounterSlot Req(EncounterSlot s) { s.required = true; return s; }
+    static EncounterFormation Air(EncounterFormation f) { f.requiresAir = true; return f; }
 }

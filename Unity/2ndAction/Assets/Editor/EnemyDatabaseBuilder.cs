@@ -261,6 +261,9 @@ public static class EnemyDatabaseBuilder
             AssetDatabase.CreateAsset(def, assetPath);
         }
 
+        // 天空回廊の固有Enemy 8種(2026-09-28)。素材の取り込みから行う(SkyEnemyDatabase参照)。
+        SkyEnemyDatabase.Build();
+
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         EnemyDatabase.Reset();

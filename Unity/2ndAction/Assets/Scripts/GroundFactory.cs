@@ -575,8 +575,35 @@ public static class GroundFactory
     public static void ApplyAttackSprite(GameObject enemyGO, EnemyDefinition def)
     {
         NetCombat.OnEnemyDefinitionKnown(enemyGO, def);
-        if (enemyGO == null || def == null || def.attackSprite == null) return;
+        if (enemyGO == null || def == null) return;
+        ApplySkyTraits(enemyGO, def);
+        if (def.attackSprite == null) return;
         var anim = enemyGO.GetComponent<EnemyAnimator>();
         if (anim != null) anim.attackSprite = def.attackSprite;
+    }
+
+    // 天空回廊Enemy(2026-09-28): 状態ごとの絵・待機中の浮遊・体の当たり判定(翼の先端まで含めない)・
+    // 打ち上げ/ノックバックの倍率。既定値(既存Enemy)なら何も変えない。HOST/JOIN(パペット)の両方で呼ばれる。
+    static void ApplySkyTraits(GameObject enemyGO, EnemyDefinition def)
+    {
+        var anim = enemyGO.GetComponent<EnemyAnimator>();
+        var ec = enemyGO.GetComponent<EnemyController>();
+        if (def.poses != null && def.poses.Any)
+        {
+            if (anim != null) anim.poses = def.poses;
+            if (ec != null) { ec.poseHit = def.poses.hit; ec.poseDeath = def.poses.death; }
+        }
+        if (anim != null && def.idleHoverAmplitude > 0f) anim.idleHoverAmplitude = def.idleHoverAmplitude;
+        if (ec != null) ec.ApplyDefinitionTuning(def.launchScale, def.knockbackScale);
+        if (def.bodyColliderScale != Vector2.one || def.bodyColliderOffset != Vector2.zero)
+        {
+            var col = enemyGO.GetComponent<BoxCollider2D>();
+            if (col != null)
+            {
+                Vector2 full = col.size;
+                col.size = new Vector2(full.x * def.bodyColliderScale.x, full.y * def.bodyColliderScale.y);
+                col.offset += new Vector2(full.x * def.bodyColliderOffset.x, full.y * def.bodyColliderOffset.y);
+            }
+        }
     }
 }

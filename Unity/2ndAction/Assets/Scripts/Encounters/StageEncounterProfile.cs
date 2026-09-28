@@ -85,6 +85,10 @@ public class StageEncounterProfile : ScriptableObject
     [Header("空中Slot")]
     public Vector2 airLowHeight = new Vector2(1.6f, 2.4f);
     public Vector2 airHighHeight = new Vector2(3.0f, 4.0f);
+    [Tooltip("中空Slot(AirMiddle)の高さ")]
+    public Vector2 airMiddleHeight = new Vector2(2.5f, 3.1f);
+    [Tooltip("浮島のあるステージ(天空回廊): 空中Slotは真下に浮島があれば浮島の上面から測り、Island Slotは浮島の上に置く")]
+    public bool islandAware;
     [Tooltip("天井から離す距離(m)")]
     public float airCeilingMargin = 0.9f;
 

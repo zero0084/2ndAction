@@ -322,6 +322,8 @@ public class SkyStrike : MonoBehaviour
     public float incomingHeight = 12f;
     Look look;
     Color color;
+    // 天空回廊Enemy(2026-09-28): trueならその場に固定(雷精霊の真下への落雷)。既定false=従来どおり走行速度で流れる。
+    public bool fixedInWorld;
     SpriteRenderer marker, column, strikeSr;
     BoxCollider2D col;
     bool fired, hitDone;
@@ -391,7 +393,7 @@ public class SkyStrike : MonoBehaviour
     {
         float baseSpeed = NetTargets.IsMulti ? NetTargets.FrameSpeedNear(transform.position) : (PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f);
         Vector3 p = transform.position;
-        p.x += baseSpeed * Time.deltaTime;
+        if (!fixedInWorld) p.x += baseSpeed * Time.deltaTime;
         groundY = GroundAt(p.x, groundY);
         p.y = groundY;
         transform.position = p;
@@ -535,6 +537,8 @@ public class SkyWarnBand : MonoBehaviour
 {
     float duration, t, bottom, top;
     SpriteRenderer sr;
+    // 天空回廊Enemy(2026-09-28): trueならその場に固定し、その地点の地面を基準にする(古代守護兵の叩きつけ範囲)。
+    public bool fixedInWorld;
 
     public static SkyWarnBand Create(float x0, float x1, float bottomAboveGround, float topAboveGround, float duration)
     {
@@ -567,8 +571,9 @@ public class SkyWarnBand : MonoBehaviour
     {
         float baseSpeed = NetTargets.IsMulti ? NetTargets.FrameSpeedNear(transform.position) : (PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f);
         Vector3 p = transform.position;
-        p.x += baseSpeed * Time.deltaTime;
-        p.y = RefGround(p.x) + (bottom + top) * 0.5f;
+        if (!fixedInWorld) p.x += baseSpeed * Time.deltaTime;
+        float? own = fixedInWorld && TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(p.x) : null;
+        p.y = (own ?? RefGround(p.x)) + (bottom + top) * 0.5f;
         transform.position = p;
         t += Time.deltaTime;
         float f = Mathf.Clamp01(t / Mathf.Max(0.01f, duration));

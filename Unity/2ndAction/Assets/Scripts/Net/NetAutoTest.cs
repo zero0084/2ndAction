@@ -160,6 +160,7 @@ public class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoForceOutAt") float.TryParse(next, out forceOutAt);
             else if (a == "-netAutoQueueAt") float.TryParse(next, out queueAt);
             else if (a == "-netAutoLateChoiceAt") float.TryParse(next, out lateChoiceAt);
+            else if (a == "-netAutoEncDist") float.TryParse(next, out encDist);
         }
         if (!string.IsNullOrEmpty(tracePath))
         {
@@ -224,9 +225,29 @@ public class NetAutoTest : MonoBehaviour
 
     static void L(string s) => Debug.Log($"[NETTEST] utc={DateTime.UtcNow:HH:mm:ss.fff} {s}");
 
+    // -netAutoEncDist N: Encounterの距離Bandを+Nmで選ぶ(深い帯の敵を早く出す)。敵の絵(状態ごとのポーズ)が
+    // 相手側でも出ているかを見るため、画面内の敵の絵の名前を集計してSUMMARYの前に出す。
+    float encDist;
+    readonly System.Collections.Generic.HashSet<string> enemySpritesSeen = new System.Collections.Generic.HashSet<string>();
+    float spriteScanTimer;
+    void ScanEnemySprites()
+    {
+        if (encDist > 0f) EncounterDirector.DebugDistanceOffset = encDist;
+        spriteScanTimer -= Time.unscaledDeltaTime;
+        if (spriteScanTimer > 0f) return;
+        spriteScanTimer = 0.1f;
+        foreach (var ec in FindObjectsByType<EnemyController>(FindObjectsSortMode.None))
+        {
+            var sr = ec.GetComponentInChildren<SpriteRenderer>();
+            if (sr != null && sr.sprite != null)
+                enemySpritesSeen.Add(sr.sprite.name);
+        }
+    }
+
     void Update()
     {
         stepTime += Time.unscaledDeltaTime;
+        ScanEnemySprites();
         GameManager gm = GameManager.Instance;
         switch (step)
         {
@@ -907,6 +928,7 @@ public class NetAutoTest : MonoBehaviour
         {
             foreach (string k in NetCombat.Instance.KillLog) L("KILL " + k);
         }
+        L($"ENEMY SPRITES ({enemySpritesSeen.Count}): {string.Join(" ", enemySpritesSeen)}");
         L($"SUMMARY reason={reason} role={role} exceptions={exceptions} errors={errors} remoteShownSeconds={remoteShownSeconds} maxStepErr={totalMaxStepErr:F3} maxStep={totalMaxStep:F3} backSteps={totalBackSteps}/{totalFrames} sigA={sigA} sigB={sigB}");
         Invoke(nameof(Quit), 1f);
     }

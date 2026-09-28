@@ -111,6 +111,7 @@ public class EncounterDirector : MonoBehaviour
         baseTerrainAhead = baseCaveAhead = -1f;
         intensityHistory.Clear();
         formationHistory.Clear();
+        encounterHistory.Clear();
         spans.Clear();
         lastBranchForkLogical = double.NegativeInfinity;
         Recent.Clear();
@@ -418,6 +419,7 @@ public class EncounterDirector : MonoBehaviour
             if (intensity < f.minIntensity || intensity > f.maxIntensity) continue;
             if (!Fits(f, probe, speed)) continue;
             if (!allowRepeatLast && f.formationId == lastFormation) continue;
+            if (InGroupCooldown(f)) continue;
             float w = fw.weight;
             // 地形との相性
             if (probe.Clearance < profile.narrowClearance) w *= f.narrowAffinity;
@@ -441,6 +443,19 @@ public class EncounterDirector : MonoBehaviour
     }
 
     float Spacing(EncounterFormation f, float speed) => 1f + f.spacingSpeedScale * (speed - 1f);
+
+    // 危険度の高いFormation(同じdangerGroup)が直近groupCooldown回のEncounterの中にあれば選ばない(強い戦闘を連続させない)。
+    readonly List<string> encounterHistory = new List<string>(); // Restを含む直近のEncounter
+    bool InGroupCooldown(EncounterFormation f)
+    {
+        if (string.IsNullOrEmpty(f.dangerGroup) || f.groupCooldown <= 0) return false;
+        for (int i = encounterHistory.Count - 1, k = 0; i >= 0 && k < f.groupCooldown; i--, k++)
+        {
+            EncounterFormation o = profile.FindFormation(encounterHistory[i]);
+            if (o != null && o.dangerGroup == f.dangerGroup) return true;
+        }
+        return false;
+    }
 
     bool Fits(EncounterFormation f, TerrainProbe p, float speed)
     {
@@ -526,13 +541,14 @@ public class EncounterDirector : MonoBehaviour
 
     EnemyAiTier PickTier(EncounterTierWeights w, EncounterEnemyEntry e)
     {
-        float t0 = Mathf.Max(0f, w.t0), t1 = Mathf.Max(0f, w.t1), t2 = Mathf.Max(0f, w.t2);
-        float sum = t0 + t1 + t2;
+        float[] tw = { Mathf.Max(0f, w.t0), Mathf.Max(0f, w.t1), Mathf.Max(0f, w.t2), Mathf.Max(0f, w.t3), Mathf.Max(0f, w.t4), Mathf.Max(0f, w.t5) };
+        float sum = 0f;
+        foreach (float x in tw) sum += x;
         EnemyAiTier t = EnemyAiTier.T0;
         if (sum > 0f)
         {
             float r = R01() * sum;
-            t = r < t0 ? EnemyAiTier.T0 : (r < t0 + t1 ? EnemyAiTier.T1 : EnemyAiTier.T2);
+            for (int i = 0; i < tw.Length; i++) { if (r < tw[i]) { t = (EnemyAiTier)i; break; } r -= tw[i]; t = (EnemyAiTier)i; }
         }
         if (t < e.minTier) t = e.minTier;
         if (t > e.maxTier) t = e.maxTier;
@@ -549,6 +565,7 @@ public class EncounterDirector : MonoBehaviour
         public EnemyBehaviorKind beh;
         public EncounterSlotKind slot;
         public EncounterRoute route;
+        public bool island;
     }
 
     // Formationの各Slotに置く敵と位置を決める(まだ出さない)。null = 穴が見つからない等で置けない。
@@ -565,9 +582,11 @@ public class EncounterDirector : MonoBehaviour
         else slots.Sort((a, b) => a.xOffset.CompareTo(b.xOffset));
         float lastGroundX = float.NegativeInfinity;
         var list = new List<Planned>();
+        int reqWanted = 0, reqPlaced = 0;
         foreach (var slot in slots)
         {
             if (slot.minIntensity > intensity) continue;
+            if (slot.required) reqWanted++;
             EnemyDefinition def = PickEnemy(band, slot, out EncounterEnemyEntry entry);
             if (def == null) continue;
             float x;
@@ -581,9 +600,14 @@ public class EncounterDirector : MonoBehaviour
             }
             if (x > probe.LimitX) continue;
             Vector2 pos;
+            bool onIsland = false;
             if (EncounterSlots.IsAir(slot.kind))
             {
                 if (!PlaceAir(tm, slot.kind, x, route, out pos)) continue;
+            }
+            else if (slot.kind == EncounterSlotKind.Island && profile.islandAware && route == EncounterRoute.Main && PlaceIsland(tm, x, probe.LimitX, out pos))
+            {
+                onIsland = true; // 浮島の上(地上の敵どうしの間隔は地面の列とは別に数える)
             }
             else if (slot.kind == EncounterSlotKind.Burrow)
             {
@@ -600,9 +624,37 @@ public class EncounterDirector : MonoBehaviour
             EnemyAiTier tier = PickTier(tiers, entry);
             EnemyBehaviorKind beh = def.behaviorKind;
             if (entry.tierDrivesMelee) beh = tier == EnemyAiTier.T0 ? EnemyBehaviorKind.None : EnemyBehaviorKind.StationaryMelee;
-            list.Add(new Planned { def = def, pos = pos, tier = tier, beh = beh, slot = slot.kind, route = route });
+            list.Add(new Planned { def = def, pos = pos, tier = tier, beh = beh, slot = slot.kind, route = route, island = onIsland });
+            if (slot.required) reqPlaced++;
         }
+        if (reqPlaced < reqWanted) return null; // 主役を置けない(例: 守護兵の居ないGuardian Wall)なら、この場所では置かない
+        if (profile.islandAware) KeepAirOrder(list);
         return list;
+    }
+
+    // 浮島のあるステージ: 空中の高さは真下の浮島から測るため、浮島の上の「低」が地面の上の「中」より高くなることがある。
+    // 同じまとまり(前後10m以内)では 低 < 中 < 高 の見た目の順番(階段/段違い)を崩さないよう、上の段を少し持ち上げる
+    // (下げると浮島にめり込む)。Aerial Waveのように離れた小集団どうしは比べない。
+    static void KeepAirOrder(List<Planned> list)
+    {
+        const float step = 0.5f, window = 10f;
+        int Rank(EncounterSlotKind k) => k == EncounterSlotKind.AirLow ? 0 : k == EncounterSlotKind.AirMiddle ? 1 : k == EncounterSlotKind.AirHigh ? 2 : -1;
+        for (int r = 1; r <= 2; r++)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (Rank(list[i].slot) != r) continue;
+                float below = float.NegativeInfinity;
+                for (int j = 0; j < list.Count; j++)
+                {
+                    int rj = Rank(list[j].slot);
+                    if (rj < 0 || rj >= r || Mathf.Abs(list[j].pos.x - list[i].pos.x) > window) continue;
+                    below = Mathf.Max(below, list[j].pos.y);
+                }
+                var pl = list[i];
+                if (pl.pos.y < below + step) { pl.pos = new Vector2(pl.pos.x, below + step); list[i] = pl; }
+            }
+        }
     }
 
     void SpawnPlanned(TerrainManager tm, List<Planned> list, Record rec, List<(GameObject go, EnemyDefinition def, EncounterSlotKind slot)> spawned, ref float minX, ref float maxX)
@@ -613,6 +665,7 @@ public class EncounterDirector : MonoBehaviour
             if (go == null) continue;
             // 上ルートの敵はノックバック/打ち上げの着地も上ルートの面で行う(下ルートへ落ちない)
             if (s.route == EncounterRoute.Upper) { var ec = go.GetComponent<EnemyController>(); if (ec != null) ec.onUpperRoute = true; }
+            if (s.island) { var ec = go.GetComponent<EnemyController>(); if (ec != null) ec.onIsland = true; }
             spawned.Add((go, s.def, s.slot));
             SpawnedEnemies++;
             minX = Mathf.Min(minX, s.pos.x);
@@ -676,11 +729,19 @@ public class EncounterDirector : MonoBehaviour
         {
             float? s = tm.GetSkyHeightAt(x);
             if (!s.HasValue) return false;
-            pos = new Vector2(x, s.Value + Range(kind == EncounterSlotKind.AirHigh ? profile.airHighHeight : profile.airLowHeight));
+            pos = new Vector2(x, s.Value + Range(AirHeight(kind)));
             return true;
         }
         float ground = tm.GetGroundLineAt(x);
-        Vector2 h = kind == EncounterSlotKind.AirHigh ? profile.airHighHeight : profile.airLowHeight;
+        Vector2 h = AirHeight(kind);
+        // 浮島のあるステージ: 真下(前後1m)に浮島があれば、浮島の上面から測る(浮島にめり込ませない)
+        if (profile.islandAware)
+        {
+            float? isl = tm.GetSkyHeightAt(x);
+            if (!isl.HasValue) isl = tm.GetSkyHeightAt(x - 1f);
+            if (!isl.HasValue) isl = tm.GetSkyHeightAt(x + 1f);
+            if (isl.HasValue && isl.Value > ground) ground = isl.Value;
+        }
         float y = ground + Range(h);
         float? ceil = tm.GetEffectiveCeilingHeightAt(x);
         if (ceil.HasValue)
@@ -691,6 +752,25 @@ public class EncounterDirector : MonoBehaviour
         }
         pos = new Vector2(x, y);
         return true;
+    }
+
+    Vector2 AirHeight(EncounterSlotKind kind) =>
+        kind == EncounterSlotKind.AirHigh ? profile.airHighHeight : kind == EncounterSlotKind.AirMiddle ? profile.airMiddleHeight : profile.airLowHeight;
+
+    // 浮島の上(前後にも面が続く所)。見つからなければfalse(呼び出し側で地面へ置く)。
+    bool PlaceIsland(TerrainManager tm, float x, float limitX, out Vector2 pos)
+    {
+        pos = default;
+        for (int k = 0; k < 16; k++)
+        {
+            float sx = x + k * 0.75f;
+            if (sx > limitX) return false;
+            float? s = tm.GetSkyHeightAt(sx);
+            if (!s.HasValue || !tm.GetSkyHeightAt(sx - 1f).HasValue || !tm.GetSkyHeightAt(sx + 1f).HasValue) continue;
+            pos = new Vector2(sx, s.Value);
+            return true;
+        }
+        return false;
     }
 
     bool PlaceBurrow(TerrainManager tm, float x, out Vector2 pos)
@@ -883,6 +963,8 @@ public class EncounterDirector : MonoBehaviour
             while (formationHistory.Count > Mathf.Max(1, profile.historySize)) formationHistory.RemoveAt(0);
         }
         IntensityCounts[(int)rec.intensity]++;
+        encounterHistory.Add(rec.formation);
+        if (encounterHistory.Count > 8) encounterHistory.RemoveAt(0);
         FormationCounts[rec.formation] = FormationCounts.TryGetValue(rec.formation, out int c) ? c + 1 : 1;
         Last = rec;
         Recent.Add(rec);
@@ -1018,7 +1100,7 @@ public class EncounterDirector : MonoBehaviour
         if (GUI.Button(lineRect, (debugExpanded ? "▼ " : "▲ ") + line, btnSmall)) debugExpanded = !debugExpanded;
         if (!debugExpanded) { GUI.matrix = prev; return; }
 
-        var r = new Rect(right - 460f, lineRect.y - 6f - 290f - 46f, 460f, 290f);
+        var r = new Rect(right - 460f, lineRect.y - 6f - 290f - 46f - 86f, 460f, 290f); // 下にFORCE行+敵1体のSPAWN行
         GUI.color = new Color(0f, 0f, 0f, 0.6f);
         GUI.DrawTexture(r, Texture2D.whiteTexture);
         GUI.color = Color.white;
@@ -1046,7 +1128,64 @@ public class EncounterDirector : MonoBehaviour
             if (GUI.Button(new Rect(r.x + 262f, by, 44f, 40f), ">", btn)) debugSelect = (debugSelect + 1) % ids.Count;
             if (GUI.Button(new Rect(r.x + 312f, by, 118f, 40f), "FORCE", btn)) ForceFormation(ids[debugSelect], 1);
         }
+
+        // 天空回廊(2026-09-28): 敵を1体だけ指定Tierで出す(各AI状態の確認用) + 敵の頭上にAI状態を表示
+        var enemyIds = AllEnemyIds();
+        if (enemyIds.Count > 0)
+        {
+            debugEnemy = Mathf.Clamp(debugEnemy, 0, enemyIds.Count - 1);
+            float ey = r.yMax + 52f;
+            if (GUI.Button(new Rect(r.x, ey, 44f, 40f), "<", btn)) debugEnemy = (debugEnemy + enemyIds.Count - 1) % enemyIds.Count;
+            GUI.Label(new Rect(r.x + 50f, ey + 8f, 160f, 30f), enemyIds[debugEnemy], style);
+            if (GUI.Button(new Rect(r.x + 212f, ey, 44f, 40f), ">", btn)) debugEnemy = (debugEnemy + 1) % enemyIds.Count;
+            if (GUI.Button(new Rect(r.x + 262f, ey, 48f, 40f), "T" + debugTier, btn)) debugTier = (debugTier + 1) % 6;
+            if (GUI.Button(new Rect(r.x + 312f, ey, 118f, 40f), "SPAWN", btn)) DebugSpawnEnemy(enemyIds[debugEnemy], (EnemyAiTier)debugTier);
+            if (GUI.Button(new Rect(r.x, ey + 46f, 150f, 30f), debugAiLabels ? "AI表示 ON" : "AI表示 OFF", btnSmall)) debugAiLabels = !debugAiLabels;
+        }
         GUI.matrix = prev;
+        if (debugAiLabels) DrawAiLabels();
+    }
+
+    int debugEnemy, debugTier = 1;
+    static bool debugAiLabels;
+
+    List<string> AllEnemyIds()
+    {
+        var ids = new List<string>();
+        if (profile == null) return ids;
+        foreach (var b in profile.bands) foreach (var e in b.enemies) if (e != null && !ids.Contains(e.enemyId)) ids.Add(e.enemyId);
+        return ids;
+    }
+
+    // 画面の右端より少し手前(見える所)に1体出す。地上の敵は地面、飛ぶ敵は低空。
+    public GameObject DebugSpawnEnemy(string enemyId, EnemyAiTier tier)
+    {
+        var tm = TerrainManager.Instance; var pc = PlayerController.Instance;
+        var def = EnemyDatabase.FindById(enemyId);
+        if (tm == null || pc == null || def == null) return null;
+        float x = pc.transform.position.x + Mathf.Max(8f, VisibleAhead(pc) - 2f);
+        Vector2 pos;
+        bool flying = def.movementType == EnemyMovementType.Flying;
+        if (flying) { if (!PlaceAir(tm, EncounterSlotKind.AirLow, x, EncounterRoute.Main, out pos)) return null; }
+        else if (!PlaceGround(tm, x, EncounterRoute.Main, float.PositiveInfinity, out pos)) return null;
+        var go = tm.SpawnEncounterEnemy(def, pos, tier, def.behaviorKind);
+        Debug.Log($"[ENCOUNTER] debug spawn {enemyId} {tier} at x={FloatingOrigin.ToLogical(pos.x):F1} y={pos.y:F1}");
+        return go;
+    }
+
+    GUIStyle aiLabelStyle;
+    void DrawAiLabels()
+    {
+        Camera cam = Camera.main;
+        if (cam == null) return;
+        if (aiLabelStyle == null) { aiLabelStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleCenter }; aiLabelStyle.normal.textColor = new Color(1f, 1f, 0.6f); }
+        foreach (var sb in FindObjectsByType<EnemySpecialBehavior>(FindObjectsSortMode.None))
+        {
+            if (!sb.isActiveAndEnabled) continue;
+            Vector3 sp = cam.WorldToScreenPoint(sb.transform.position + Vector3.up * 2.2f);
+            if (sp.z < 0f || sp.x < 0f || sp.x > Screen.width) continue;
+            GUI.Label(new Rect(sp.x - 90f, Screen.height - sp.y - 10f, 180f, 20f), sb.DebugState, aiLabelStyle);
+        }
     }
 
     List<string> AllFormationIds()

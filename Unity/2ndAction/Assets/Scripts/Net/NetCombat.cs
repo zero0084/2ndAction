@@ -247,6 +247,11 @@ public class NetCombat : MonoBehaviour
         {
             if (anim.attackSprite != null) list.Add(anim.attackSprite);
             if (anim.runFrames != null) foreach (var s in anim.runFrames) if (s != null && !list.Contains(s)) list.Add(s);
+            // 天空回廊Enemy(2026-09-28): 状態ごとの絵もJOINへ(HOST/JOINとも同じ順で並べる)
+            var p = anim.poses;
+            if (p != null)
+                foreach (var s in new[] { p.telegraph, p.attack, p.recover, p.hit, p.death, p.dormant, p.wake, p.charge, p.dive })
+                    if (s != null && !list.Contains(s)) list.Add(s);
         }
         return list;
     }
