@@ -1092,6 +1092,9 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        // RUN BUILD HUD(2026-09-29): ラン中の取得カード一覧。このRunのカード状態を表示するだけのView
+        // (GameManagerと同じObjectに付くので、シーン再読込=次Run/Homeで一緒に作り直される)。
+        if (GetComponent<RunBuildHud>() == null) gameObject.AddComponent<RunBuildHud>();
         // OrnateUi is a static helper (see its class comment) - this is the
         // one place its shared frame texture gets assigned, from the field
         // SceneBuilder already populated on this component.
@@ -4046,6 +4049,23 @@ public class GameManager : MonoBehaviour
     // ApplyUpgradeByCardId) - the same two sources RunCheckpoint's Build-
     // reconstruction replay already treats as the complete stack count for
     // a card this Run, just read back out instead of replayed.
+    // RUN BUILD HUD用の読み取り専用アクセサ(2026-09-29)。カードの状態/ロジック/保存は変えない。
+    // 並び順 = このRunで初めて持った順(Run開始時のCharacter Card → Level Up/Boss Rewardで取った順)。
+    public void CollectRunCardIds(List<string> into)
+    {
+        into.Clear();
+        for (int i = 0; i < CharacterCardSlotCount; i++)
+        {
+            string id = characterCardIds[i];
+            if (!string.IsNullOrEmpty(id) && !into.Contains(id) && CardDatabase.FindById(id) != null) into.Add(id);
+        }
+        foreach (CardDefinition c in upgradeHistory)
+            if (c != null && !into.Contains(c.cardId)) into.Add(c.cardId);
+    }
+
+    // 現在Lv = Level Up選択画面の「Lv.N -> Lv.N+1」と同じ数え方(Character CardのLv + このRunで取った回数)。
+    public int GetRunCardLevel(string cardId) => GetCurrentRunStack(cardId);
+
     int GetCurrentRunStack(string cardId)
     {
         int stack = 0;

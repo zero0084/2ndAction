@@ -929,6 +929,15 @@ public class NetAutoTest : MonoBehaviour
             foreach (string k in NetCombat.Instance.KillLog) L("KILL " + k);
         }
         L($"ENEMY SPRITES ({enemySpritesSeen.Count}): {string.Join(" ", enemySpritesSeen)}");
+        // RUN BUILD HUD: この端末の自分のカードだけ(自分で選んだ回数 = HUDのLvの合計)
+        var hud = RunBuildHud.Instance;
+        if (hud != null)
+        {
+            int lvSum = 0; var sb = new System.Text.StringBuilder();
+            foreach (var sl in hud.Slots) { lvSum += sl.level; sb.Append(sl.cardId).Append(':').Append(sl.level).Append(' '); }
+            int own = GameManager.Instance != null ? GameManager.Instance.UpgradeCount : -1;
+            L($"RUNBUILD role={role} slots={hud.Slots.Count} lvSum={lvSum} ownUpgrades={own} ownPicks={levelUps} match={(lvSum == own)} [{sb}]");
+        }
         L($"SUMMARY reason={reason} role={role} exceptions={exceptions} errors={errors} remoteShownSeconds={remoteShownSeconds} maxStepErr={totalMaxStepErr:F3} maxStep={totalMaxStep:F3} backSteps={totalBackSteps}/{totalFrames} sigA={sigA} sigB={sigB}");
         Invoke(nameof(Quit), 1f);
     }
