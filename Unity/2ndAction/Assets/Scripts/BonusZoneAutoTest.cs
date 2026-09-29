@@ -73,6 +73,7 @@ public class BonusZoneAutoTest : MonoBehaviour
         foreach (string id in new[] { "mile_rush", "mimic_bash", "exp_fever", "card_hunt", "treasure_parade", "jackpot" })
             yield return ForcedZone(id);
         yield return MimicCap();
+        yield return FairyKill();
         yield return ChoiceConflict();
 
         // ===== 3) Game Over: 仮取得MILEを失う =====
@@ -369,6 +370,35 @@ public class BonusZoneAutoTest : MonoBehaviour
         }
         zone.End();
         float w = 0f;
+        while (zone.State != BonusZone.Phase.Idle && w < 40f) { yield return null; w += Time.deltaTime; }
+    }
+
+    // Card Fairyを実際に撃破(敵の撃破処理 → BonusEnemy.OnKilled)→ 既存の3枚Card Choiceが必ず1回出る
+    IEnumerator FairyKill()
+    {
+        L("\n[card fairy kill -> card choice]");
+        zone.Force("card_hunt");
+        yield return new WaitForSeconds(0.3f);
+        var go = dir.DebugSpawnEnemy("card_fairy", EnemyAiTier.T0);
+        yield return null; yield return null;
+        var ec = go != null ? go.GetComponent<EnemyController>() : null;
+        Check(ec != null && go.activeInHierarchy && ec.bonus != null, "Card Fairy spawned (with its glow)");
+        int c0 = choicesSeen, cards0 = zone.BonusCards;
+        if (ec != null)
+        {
+            // 撃破の報酬処理(HitAndDie/落下死と同じ入口)
+            typeof(EnemyController).GetMethod("RegisterKillReward", NP).Invoke(ec, new object[] { false });
+            go.SetActive(false);
+        }
+        float w = 0f;
+        while (choicesSeen == c0 && w < 10f) { yield return null; w += Time.unscaledDeltaTime; }
+        Check(zone.BonusCards == cards0 + 1 && choicesSeen == c0 + 1, $"Card Fairy kill -> exactly one existing 3-card choice ({choicesSeen - c0} shown, CARD +{zone.BonusCards - cards0})");
+        w = 0f;
+        while ((gm.LevelUpPending || gm.IsRewardSequenceRunning) && w < 10f) { yield return null; w += Time.unscaledDeltaTime; }
+        yield return new WaitForSeconds(0.3f);
+        Check(Time.timeScale > 0.99f && !gm.LevelUpPending, "after the fairy's card choice: running resumes");
+        zone.End();
+        w = 0f;
         while (zone.State != BonusZone.Phase.Idle && w < 40f) { yield return null; w += Time.deltaTime; }
     }
 
