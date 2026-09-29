@@ -868,7 +868,7 @@ public class EnemyController : MonoBehaviour
     // を、致死ではなく生存した場合にも(小さめに)再現する。
     IEnumerator SlamImpactRoutine()
     {
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayAttackHit();
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayStrongHit(); // 叩きつけの着地 = 強Hit
 
         Sprite impactSprite = TerrainManager.Instance != null ? TerrainManager.Instance.enemyGroundImpactSprite : null;
         if (impactSprite != null)
@@ -948,7 +948,7 @@ public class EnemyController : MonoBehaviour
     IEnumerator HitAndDie(Vector3 contactPoint, bool viaSlam)
     {
         if (poseDeath != null && sr != null) sr.sprite = poseDeath; // 天空回廊Enemy: 撃破の絵
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayAttackHit();
+        if (AudioManager.Instance != null) { if (viaSlam) AudioManager.Instance.PlayStrongHit(); else AudioManager.Instance.PlayAttackHit(); }
 
         if (viaSlam)
         {

@@ -559,6 +559,7 @@ public abstract class WildBossBase : MonoBehaviour
     // 攻撃実行: Attack姿勢+Hitbox有効化。shake/hitStopは着弾の重さ演出。
     protected IEnumerator Strike(BossHitbox hb, float active, float shake = 0f, float hitStop = 0f)
     {
+        if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySe(SeId.BossAttack); // ボスの攻撃(共通)
         SetPose(Pose.Attack);
         attackProgress = 1f;
         StartCoroutine(FadeAttackProgress(Mathf.Max(0.15f, active + 0.1f)));
@@ -792,6 +793,7 @@ public abstract class WildBossBase : MonoBehaviour
     public void TakeDamage(int amount, Vector3 hitPos)
     {
         if (dead || NetPuppet) return;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit); // ボス被弾(共通、連打は間引き)
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
 

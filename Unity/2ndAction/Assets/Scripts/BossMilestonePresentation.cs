@@ -160,7 +160,7 @@ public class BossMilestonePresentation : MonoBehaviour
         // HitStop.Freeze.
         try
         {
-            PlaySfx(milestoneSe);
+            PlaySfx(AudioManager.Se(SeId.Milestone, milestoneSe));
 
             // ===== 1. Milestone Distance pop =====
             yield return MilestonePop(Mathf.Max(0.15f, totalDuration * milestonePopFraction));
@@ -176,7 +176,7 @@ public class BossMilestonePresentation : MonoBehaviour
             if (AudioManager.Instance != null) AudioManager.Instance.DuckBgm(bgmDuckLevel, bgmDuckFadeDuration);
 
             // ===== 4. Boss Warning =====
-            PlaySfx(bossWarningSe);
+            PlaySfx(AudioManager.Se(SeId.BossWarning, bossWarningSe));
             yield return PlayWarning(Mathf.Max(0.2f, totalDuration * warningFraction));
             LogPresentation("[BossPresentation] Warning shown");
 
@@ -195,7 +195,7 @@ public class BossMilestonePresentation : MonoBehaviour
             if (GameManager.Instance != null) GameManager.Instance.LogBoss($"TimeScale = {Time.timeScale:F2} (auto)");
             if (GameManager.Instance != null) GameManager.Instance.LogBoss("SpawnPresentationEnd");
 
-            PlaySfx(bossAppearSe);
+            PlaySfx(AudioManager.Se(SeId.BossAppear, bossAppearSe));
             SpawnOnce();
 
             // Hold the dark atmosphere a moment so the boss's own entrance/

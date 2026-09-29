@@ -26,26 +26,26 @@ public static class FusionSfx
     static float Sine(float hz, float t) => Mathf.Sin(2f * Mathf.PI * hz * t);
 
     // 魔法陣に光が集まる: 上昇していくうなり
-    public static AudioClip Charge() => charge != null ? charge : charge = Make("FusionCharge", 1.1f, (t, f) =>
+    public static AudioClip Charge() => AudioManager.LibraryClip(SeId.CardFusion) ?? (charge != null ? charge : charge = Make("FusionCharge", 1.1f, (t, f) =>
     {
         float hz = Mathf.Lerp(180f, 520f, f * f);
         float env = Mathf.SmoothStep(0f, 1f, f * 3f) * (1f - Mathf.SmoothStep(0.85f, 1f, f));
         return (Sine(hz, t) * 0.35f + Sine(hz * 1.5f, t) * 0.18f + Sine(hz * 2.01f, t) * 0.1f) * env * 0.6f;
-    });
+    }));
 
     // 継承成功: 明るいチャイム
-    public static AudioClip Success() => success != null ? success : success = Make("FusionSuccess", 0.6f, (t, f) =>
+    public static AudioClip Success() => AudioManager.LibraryClip(SeId.FusionSuccess) ?? (success != null ? success : success = Make("FusionSuccess", 0.6f, (t, f) =>
     {
         float env = Mathf.Exp(-t * 6f);
         return (Sine(1318.5f, t) * 0.4f + Sine(1975.5f, t) * 0.25f + Sine(2637f, t) * 0.12f) * env * 0.6f;
-    });
+    }));
 
     // 継承失敗: 低く鈍い音
-    public static AudioClip Fail() => fail != null ? fail : fail = Make("FusionFail", 0.5f, (t, f) =>
+    public static AudioClip Fail() => AudioManager.LibraryClip(SeId.FusionFail) ?? (fail != null ? fail : fail = Make("FusionFail", 0.5f, (t, f) =>
     {
         float hz = Mathf.Lerp(220f, 110f, f);
         return (Sine(hz, t) * 0.5f + Noise((int)(t * Rate)) * 0.05f) * Mathf.Exp(-t * 7f) * 0.7f;
-    });
+    }));
 
     // 完成カードの光のバースト
     public static AudioClip Burst() => burst != null ? burst : burst = MakeBurst("FusionBurst", 1f);

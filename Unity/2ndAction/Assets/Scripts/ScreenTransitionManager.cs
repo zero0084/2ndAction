@@ -165,7 +165,7 @@ public class ScreenTransitionManager : MonoBehaviour
     IEnumerator CloseRoutine()
     {
         showLine = true;
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(closeSfx);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(AudioManager.Se(SeId.ScreenClose, closeSfx));
         float t = 0f;
         while (t < 1f)
         {
@@ -185,7 +185,7 @@ public class ScreenTransitionManager : MonoBehaviour
     IEnumerator OpenRoutine()
     {
         showLine = true;
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(openSfx);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(AudioManager.Se(SeId.ScreenOpen, openSfx));
         float t = 0f;
         while (t < 1f)
         {

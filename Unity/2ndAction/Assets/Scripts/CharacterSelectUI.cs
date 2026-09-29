@@ -132,6 +132,8 @@ public class CharacterSelectUI : MonoBehaviour
         if (ScreenTransitionManager.Instance != null)
         {
             if (ScreenTransitionManager.Instance.IsTransitioning) return;
+            if (!suppressCloseSe) if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Cancel);
+            suppressCloseSe = false;
             ScreenTransitionManager.Instance.PlayTransition(() =>
             {
                 gameObject.SetActive(false);
@@ -163,6 +165,7 @@ public class CharacterSelectUI : MonoBehaviour
         }
     }
 
+    bool suppressCloseSe; // 決定で閉じる時はキャンセル音を鳴らさない
     void Confirm()
     {
         var all = CharacterDatabase.AllCharacters;
@@ -171,6 +174,8 @@ public class CharacterSelectUI : MonoBehaviour
         // SetSelectedCharacterのコメント参照) - 「選択キャラクター=次回
         // NEW RUNで使用するキャラクター」という仕様どおり。
         if (GameManager.Instance != null) GameManager.Instance.SetSelectedCharacter(all[selectedIndex].characterId);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
+        suppressCloseSe = true;
         Close();
     }
 
@@ -178,6 +183,7 @@ public class CharacterSelectUI : MonoBehaviour
     {
         if (index == selectedIndex) return;
         selectedIndex = index;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.CharacterSelect);
         RefreshDetail(instant: false);
     }
 

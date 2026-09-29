@@ -468,6 +468,7 @@ public partial class PlayerController : MonoBehaviour
     // 代わりにその場でポーズを見せる(PlayerAnimatorがState.Deathで再生)。
     bool charHasDeathFrames;
     public bool IsDeadPosing => hasDied && charHasDeathFrames;
+    public bool HasDied => hasDied; // BGM: 倒れている間は曲を戻さない(CO-OPの復活で戻す)
 
     // Grown by "AIR ATTACK UP" - only added on top of AttackPower while
     // airborne (see EffectiveAttackPower); grounded attacks are unaffected.
@@ -2248,7 +2249,7 @@ public partial class PlayerController : MonoBehaviour
     // の組み合わせで違和感なく繋がる形を優先した(マスターへの開示事項)。
     IEnumerator DoUpAttack(bool isAirborne)
     {
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(isAirborne ? 2 : 1);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.AttackUp); // 上攻撃/Launch(共通)
         // 攻撃エフェクト全面調整(2026-09-08) - 旧SetComboStage(巨大な紫剣
         // AttackSlashFx流用)から、剣の軌跡に沿った控えめな青白い三日月
         // VFX(PlaySingle、1枚絵をScale/Alphaで演出)へ切り替え。空中版は
@@ -2327,7 +2328,7 @@ public partial class PlayerController : MonoBehaviour
     void DoDiveAttack()
     {
         isDiveAttacking = true;
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(2);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.AttackDown); // 下攻撃/Slam(共通)
         // 攻撃エフェクト全面調整(2026-09-08) - 旧SetComboStage(巨大な紫剣、
         // 一度再生して消えるだけ)から、着地まで持続表示するShowSustained
         // (細い縦方向トレイル)へ切り替え。EndDiveAttack()側で必ず

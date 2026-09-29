@@ -1008,7 +1008,7 @@ public class GameManager : MonoBehaviour
         pendingGachaCard = drawn;
         gachaMachineShakeTimer = gachaMachineShakeDuration;
         deskHotspotFlashTimer = roomHotspotFlashDuration;
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(roomTapSe);
+        if (AudioManager.Instance != null) { AudioManager.Instance.PlaySe(SeId.Gacha); AudioManager.Instance.PlaySe(SeId.Coin); }
     }
 
     public bool HasStarted { get; private set; }
@@ -1177,6 +1177,7 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        UpdateCountdownSe();
         if (!HasStarted)
         {
             // Starting now happens only via the on-screen START button (see
@@ -1376,6 +1377,15 @@ public class GameManager : MonoBehaviour
         private set => countdownActive = value;
     }
     public string CountdownLabel { get; private set; } = "";
+    // カウントダウンの音(3/2/1=短い音、GO!=スタートの音)。表示の文字が変わった時だけ鳴らす(マルチも同じ)。
+    string countdownSeLabel = "";
+    void UpdateCountdownSe()
+    {
+        if (CountdownLabel == countdownSeLabel) return;
+        countdownSeLabel = CountdownLabel;
+        if (AudioManager.Instance == null || string.IsNullOrEmpty(CountdownLabel) || CountdownLabel == "READY") return;
+        AudioManager.Instance.PlaySe(CountdownLabel == "GO!" ? SeId.RunStart : SeId.CountdownTick);
+    }
 
     [Header("Stage01地形挙動修整(2026-09-17) - Run開始カウントダウン")]
     public float countdownStepDuration = 0.8f;
@@ -3269,6 +3279,7 @@ public class GameManager : MonoBehaviour
                 if (DrawStyledButton(GetPauseButtonRect(), "II", 22f, primary: showPauseMenu))
                 {
                     showPauseMenu = !showPauseMenu;
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(showPauseMenu ? SeId.Decide : SeId.Cancel);
                     if (showPauseMenu) TimeControl.Pause(pauseMenuTimeOwner);
                     else TimeControl.Resume(pauseMenuTimeOwner);
                 }
@@ -4462,6 +4473,13 @@ public class GameManager : MonoBehaviour
             {
                 AudioManager.Instance.CycleSfxVolume();
             }
+
+            // 音量の全体(MASTER)と環境音(ENV)は、BGM/SEの左隣の列(2026-09-29)
+            Rect bgmR = GetBgmButtonRect(), sfxR = GetSfxButtonRect();
+            if (DrawStyledButton(new Rect(bgmR.x - bgmR.width - 6f, bgmR.y, bgmR.width, bgmR.height), "ALL " + VolumeBar(AudioManager.Instance.MasterVolumeLevel), 15f, primary: false))
+                AudioManager.Instance.CycleMasterVolume();
+            if (DrawStyledButton(new Rect(sfxR.x - sfxR.width - 6f, sfxR.y, sfxR.width, sfxR.height), "ENV " + VolumeBar(AudioManager.Instance.EnvVolumeLevel), 15f, primary: false))
+                AudioManager.Instance.CycleEnvVolume();
         }
 
         string invincibleLabel = "INVINCIBLE: " + (InvincibleMode ? "ON" : "OFF");
@@ -4786,7 +4804,7 @@ public class GameManager : MonoBehaviour
         if (tapped)
         {
             flashTimer = roomHotspotFlashDuration;
-            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(roomTapSe);
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(AudioManager.Se(SeId.Door) ?? roomTapSe); // 扉(無ければ従来のタップ音)
         }
 
         if (flashTimer > 0f)
@@ -5190,8 +5208,18 @@ public class GameManager : MonoBehaviour
 
     void DrawPauseMenu()
     {
-        Rect panelRect = new Rect(Screen.width - SafeRight() - UiMargin - 240f, Screen.height - SafeBottom() - UiMargin - 52f - 152f, 240f, 140f);
+        // 音量(全体/BGM/SE/環境音)もラン中に変えられるよう、ポーズメニューの下段に2×2で置く(2026-09-29)
+        Rect panelRect = new Rect(Screen.width - SafeRight() - UiMargin - 240f, Screen.height - SafeBottom() - UiMargin - 52f - 152f - 92f, 240f, 232f);
         OrnateUi.DrawPanel(panelRect, 0.92f);
+        var am = AudioManager.Instance;
+        if (am != null)
+        {
+            float bw = (panelRect.width - 30f) / 2f, by = panelRect.y + 138f;
+            if (DrawStyledButton(new Rect(panelRect.x + 12f, by, bw, 38f), "ALL " + VolumeBar(am.MasterVolumeLevel), 13f, primary: false)) am.CycleMasterVolume();
+            if (DrawStyledButton(new Rect(panelRect.x + 18f + bw, by, bw, 38f), "BGM " + VolumeBar(am.BgmVolumeLevel), 13f, primary: false)) am.CycleBgmVolume();
+            if (DrawStyledButton(new Rect(panelRect.x + 12f, by + 44f, bw, 38f), "SE " + VolumeBar(am.SfxVolumeLevel), 13f, primary: false)) am.CycleSfxVolume();
+            if (DrawStyledButton(new Rect(panelRect.x + 18f + bw, by + 44f, bw, 38f), "ENV " + VolumeBar(am.EnvVolumeLevel), 13f, primary: false)) am.CycleEnvVolume();
+        }
 
         Rect resumeRect = new Rect(panelRect.x + 12f, panelRect.y + 12f, panelRect.width - 24f, 52f);
         if (DrawStyledButton(resumeRect, "RESUME", 18f, primary: true))

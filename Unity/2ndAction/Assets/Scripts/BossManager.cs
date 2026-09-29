@@ -291,7 +291,21 @@ public class BossManager : MonoBehaviour
     // exactly where Boss Reward processing actually finishes (SaveCheckpoint
     // time), NOT at the boss's own death - see CheckEncounterComplete's own
     // comment for why IsBossPhase itself no longer flips false there.
-    public void EndBossPhase() => IsBossPhase = false;
+    public void EndBossPhase() { IsBossPhase = false; BossMusicKey = null; BossDefeatedThisPhase = false; }
+
+    // ===== BGM用(2026-09-29): 今のボス戦の曲の系統と、撃破済みか =====
+    // 1000mごと=通常 / 5000mごと=強敵 / 10000mごと=特殊。キーは「ステージ/ボスの種類」(個別曲の上書きに使う)。
+    public BossBgmTier BossMusicTier { get; private set; }
+    public string BossMusicKey { get; private set; }        // 戦闘が始まるまではnull(警告演出の間は道中曲のまま)
+    public bool BossDefeatedThisPhase { get; private set; } // 撃破〜報酬選択の間(道中曲へ戻す)
+    public bool DeathSpawned => deathSpawned;              // 100,000mの死神(専用曲)
+    void SetBossMusic(int k, string kindName)
+    {
+        BossMusicTier = k % 10 == 0 ? BossBgmTier.Special : k % 5 == 0 ? BossBgmTier.Strong : BossBgmTier.Normal;
+        string stage = GameManager.Instance != null ? GameManager.Instance.ActiveRunStageId : "";
+        BossMusicKey = $"{stage}/{kindName}";
+        BossDefeatedThisPhase = false;
+    }
     public int BossesDefeated { get; private set; }
     public float NextBossDistance => CurrentTargetDistance();
     // Bugfix 2026-09-08 (Bug #001 診断フェーズ) - read-only surface for
@@ -429,6 +443,7 @@ public class BossManager : MonoBehaviour
     void StartBossPhase()
     {
         IsBossPhase = true; // idempotent - already set above when the presentation exists
+        SetBossMusic(1, "Legacy"); // 旧スケジュール用の既定(荒野/洞窟/天空の各ゲートはStartWildPhaseで種類ごとに上書き)
 
         if (useWildSchedule)
         {
@@ -543,8 +558,8 @@ public class BossManager : MonoBehaviour
         dragon.standoffDistance = standoffDistanceForThisDragon;
         dragon.finalHitSparkSprite = bossHitSparkSprite;
         dragon.bossDeathSmokeSprite = bossDeathSmokeSprite;
-        dragon.finalHitSe = bossFinalHitSe;
-        dragon.bossDefeatSe = bossDefeatSe;
+        dragon.finalHitSe = AudioManager.Se(SeId.BossFinalHit, bossFinalHitSe);
+        dragon.bossDefeatSe = AudioManager.Se(SeId.BossDefeat, bossDefeatSe);
         dragon.defeatBurstColor = dragonDefeatBurstColor; // 撃破パーティクル=赤
 
         // Bugfix 2026-09-05, item 6 - "Boss/EnemyがPlayer方向を向かない"
@@ -610,8 +625,8 @@ public class BossManager : MonoBehaviour
         dragon.mileReward = 200;
         dragon.finalHitSparkSprite = bossHitSparkSprite;
         dragon.bossDeathSmokeSprite = bossDeathSmokeSprite;
-        dragon.finalHitSe = bossFinalHitSe;
-        dragon.bossDefeatSe = bossDefeatSe;
+        dragon.finalHitSe = AudioManager.Se(SeId.BossFinalHit, bossFinalHitSe);
+        dragon.bossDefeatSe = AudioManager.Se(SeId.BossDefeat, bossDefeatSe);
         dragon.defeatBurstColor = mechanicalDragonDefeatBurstColor; // 撃破パーティクル=黄
 
         // Distance Level Design Ver.1.1 - facing fix. No separate Visual
@@ -677,8 +692,8 @@ public class BossManager : MonoBehaviour
         majin.standoffDistance = standoffDistanceForThisMajin;
         majin.finalHitSparkSprite = bossHitSparkSprite;
         majin.bossDeathSmokeSprite = bossDeathSmokeSprite;
-        majin.finalHitSe = bossFinalHitSe;
-        majin.bossDefeatSe = bossDefeatSe;
+        majin.finalHitSe = AudioManager.Se(SeId.BossFinalHit, bossFinalHitSe);
+        majin.bossDefeatSe = AudioManager.Se(SeId.BossDefeat, bossDefeatSe);
         majin.defeatBurstColor = majinDefeatBurstColor; // 撃破パーティクル=紫
 
         // Bugfix 2026-09-05, item 6 - same reasoning as SpawnDragon's
@@ -717,6 +732,7 @@ public class BossManager : MonoBehaviour
     {
         if (aliveDragonsThisEncounter <= 0 && aliveMajinsThisEncounter <= 0 && aliveWildThisEncounter <= 0)
         {
+            BossDefeatedThisPhase = true; // BGM: 撃破したら道中曲へ戻す
             // 自然洞窟ボス拡張(2026-09-22) - StartWildPhaseで設定したボス
             // 遭遇区間の戦闘可能スペース保証を、遭遇終了時に必ず解除する。
             if (TerrainManager.Instance != null && TerrainManager.Instance.cave != null)
@@ -813,6 +829,7 @@ public class BossManager : MonoBehaviour
         if (IsSkyStage)
         {
             if (!ResolveSkyGate(gateK, out SkyBossKind skyKind, out int skyCount)) { IsBossPhase = false; return; }
+            SetBossMusic(gateK, skyKind.ToString());
             StartSkyEncounter(skyKind, skyCount);
             if (GameManager.Instance != null)
             {
@@ -825,6 +842,7 @@ public class BossManager : MonoBehaviour
         if (IsCaveStage)
         {
             if (!ResolveCaveGate(gateK, out CaveBossKind caveKind, out int caveCount)) { IsBossPhase = false; return; }
+            SetBossMusic(gateK, caveKind.ToString());
             aliveWildThisEncounter = caveCount;
             // ボス遭遇区間だけ、最低限の戦闘可能スペース(通常天井相当・針なし)
             // を保証する。マップ全体の生成システムは変更しない(区間限定・
@@ -844,6 +862,7 @@ public class BossManager : MonoBehaviour
         }
 
         if (!ResolveGate(gateK, out WildBossKind gateKind, out int gateCount)) { IsBossPhase = false; return; }
+        SetBossMusic(gateK, gateKind.ToString());
         var e = new { kind = gateKind, count = gateCount };
 
         if (e.kind == WildBossKind.Dragon)
@@ -932,8 +951,8 @@ public class BossManager : MonoBehaviour
         boss.squareSprite = squareSprite;
         boss.hitSparkSprite = bossHitSparkSprite;
         boss.deathSmokeSprite = bossDeathSmokeSprite;
-        boss.finalHitSe = bossFinalHitSe;
-        boss.defeatSe = bossDefeatSe;
+        boss.finalHitSe = AudioManager.Se(SeId.BossFinalHit, bossFinalHitSe);
+        boss.defeatSe = AudioManager.Se(SeId.BossDefeat, bossDefeatSe);
         if (art != null)
         {
             boss.idleSprite = art.idle;
@@ -1021,8 +1040,8 @@ public class BossManager : MonoBehaviour
         boss.squareSprite = squareSprite;
         boss.hitSparkSprite = bossHitSparkSprite;
         boss.deathSmokeSprite = bossDeathSmokeSprite;
-        boss.finalHitSe = bossFinalHitSe;
-        boss.defeatSe = bossDefeatSe;
+        boss.finalHitSe = AudioManager.Se(SeId.BossFinalHit, bossFinalHitSe);
+        boss.defeatSe = AudioManager.Se(SeId.BossDefeat, bossDefeatSe);
         if (art != null)
         {
             boss.idleSprite = art.idle;
@@ -1193,8 +1212,8 @@ public class BossManager : MonoBehaviour
         boss.squareSprite = squareSprite;
         boss.hitSparkSprite = bossHitSparkSprite;
         boss.deathSmokeSprite = bossDeathSmokeSprite;
-        boss.finalHitSe = bossFinalHitSe;
-        boss.defeatSe = bossDefeatSe;
+        boss.finalHitSe = AudioManager.Se(SeId.BossFinalHit, bossFinalHitSe);
+        boss.defeatSe = AudioManager.Se(SeId.BossDefeat, bossDefeatSe);
         if (art != null)
         {
             boss.idleSprite = art.idle;
@@ -1244,8 +1263,8 @@ public class BossManager : MonoBehaviour
         dragon.mileReward = 450;
         dragon.finalHitSparkSprite = bossHitSparkSprite;
         dragon.bossDeathSmokeSprite = bossDeathSmokeSprite;
-        dragon.finalHitSe = bossFinalHitSe;
-        dragon.bossDefeatSe = bossDefeatSe;
+        dragon.finalHitSe = AudioManager.Se(SeId.BossFinalHit, bossFinalHitSe);
+        dragon.bossDefeatSe = AudioManager.Se(SeId.BossDefeat, bossDefeatSe);
         dragon.defeatBurstColor = dragonDefeatBurstColor;
 
         var facing = go.AddComponent<EnemyFacing>();

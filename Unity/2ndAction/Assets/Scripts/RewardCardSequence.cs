@@ -566,7 +566,7 @@ public class RewardCardSequence : MonoBehaviour
         if (isLevelUp)
         {
             if (GameManager.Instance != null) GameManager.Instance.FlashExpBar();
-            PlaySfx(levelUpSe);
+            PlaySfx(AudioManager.Se(SeId.LevelUp, levelUpSe));
         }
         if (levelUpText != null) levelUpText.text = announcementText;
 

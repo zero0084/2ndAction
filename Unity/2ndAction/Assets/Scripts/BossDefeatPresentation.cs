@@ -157,7 +157,7 @@ public class BossDefeatPresentation : MonoBehaviour
             yield return PulseGlow(atmosphereGlowDuration);
 
             // ===== Item 6 - "Xm CLEAR" =====
-            PlaySfx(milestoneClearSe);
+            PlaySfx(AudioManager.Se(SeId.MilestoneClear, milestoneClearSe));
             milestoneLabel = $"{Mathf.RoundToInt(milestoneDistance):N0}m CLEAR";
             yield return ShowMilestoneClear(milestoneClearDuration);
 

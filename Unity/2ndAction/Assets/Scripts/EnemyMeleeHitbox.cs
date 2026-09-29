@@ -15,6 +15,18 @@ public class EnemyMeleeHitbox : MonoBehaviour
     // マルチプレイPhase 2.5: 敵の近接判定(持ち主の敵からの相対位置、有効/無効)をJOINにも出す。
     void Awake() { NetAttackSync.Register(gameObject, NetAttackSync.AType.EnemyMelee); }
 
+    // 敵の攻撃が出た瞬間の音(共通)。大きい判定は大型敵の攻撃音。画面外の攻撃は鳴らさない。
+    void OnEnable()
+    {
+        var am = AudioManager.Instance; var cam = Camera.main;
+        if (am == null || cam == null) return;
+        float half = cam.orthographicSize * cam.aspect, x = transform.position.x, cx = cam.transform.position.x;
+        if (x < cx - half - 1f || x > cx + half + 1f) return;
+        var box = GetComponent<BoxCollider2D>();
+        bool big = box != null && box.size.x * Mathf.Abs(transform.lossyScale.x) * box.size.y * Mathf.Abs(transform.lossyScale.y) > 3.5f;
+        am.PlaySe(big ? SeId.BigEnemyAttack : SeId.EnemyAttack);
+    }
+
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player") && PlayerController.Instance != null)

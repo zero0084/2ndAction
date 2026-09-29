@@ -64,6 +64,8 @@ public class StageSelectUI : MonoBehaviour
         if (ScreenTransitionManager.Instance != null)
         {
             if (ScreenTransitionManager.Instance.IsTransitioning) return;
+            if (!suppressCloseSe) if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Cancel);
+            suppressCloseSe = false;
             ScreenTransitionManager.Instance.PlayTransition(() =>
             {
                 gameObject.SetActive(false);
@@ -101,12 +103,15 @@ public class StageSelectUI : MonoBehaviour
     // (GameManager.DepartFromStageSelectが、ステージ確定→この画面を閉じる
     // →Run開始を1回の画面遷移でまとめて行う - Close()は使わない、二重に
     // PlayTransitionを呼ぶとデッドロックするため)。
+    bool suppressCloseSe; // 決定で閉じる時はキャンセル音を鳴らさない
     void Confirm()
     {
         var all = StageDatabase.AllStages;
         if (selectedIndex < 0 || selectedIndex >= all.Count) return;
         StageDefinition def = all[selectedIndex];
         if (!def.unlocked) return; // 未開放ステージでは確定できない(安全側の二重ガード)
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
+        suppressCloseSe = true;
         if (GameManager.Instance != null) GameManager.Instance.DepartFromStageSelect(def.stageId);
     }
 
@@ -117,6 +122,7 @@ public class StageSelectUI : MonoBehaviour
         if (!all[index].unlocked) return; // ロックされたカードは選択自体できない(Acceptance Test 6)
         if (index == selectedIndex) return;
         selectedIndex = index;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.StageSelect);
         RefreshGlow();
     }
 

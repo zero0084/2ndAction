@@ -159,6 +159,7 @@ public class DeckEditUI : MonoBehaviour
 
     public void Open()
     {
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.DeckEdit);
         if (root != null) root.SetActive(true);
         ResetDetail();
         activeFilter = "ALL";
@@ -180,6 +181,7 @@ public class DeckEditUI : MonoBehaviour
 
     public void Close()
     {
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Cancel);
         // Presentation pass - DECK->TOP now goes through the shared wipe
         // (see ScreenTransitionManager); this screen's own CanvasGroup
         // cross-fade below is skipped in that case (root.SetActive(false)
@@ -545,6 +547,7 @@ public class DeckEditUI : MonoBehaviour
     {
         var gm = GameManager.Instance;
         if (gm == null || index < 0 || index >= displayedStacks.Count) return;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.CardSelect);
         CardInventory.Stack stack = displayedStacks[index];
         CardDefinition tapped = CardDatabase.FindById(stack.cardId);
         if (tapped == null) return;
@@ -588,6 +591,7 @@ public class DeckEditUI : MonoBehaviour
     {
         var gm = GameManager.Instance;
         if (gm == null) return;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.CardSelect);
         var deck = gm.DeckCards;
         if (index < 0 || index >= deck.Count) return;
         CardDefinition tapped = CardDatabase.FindById(deck[index]);
@@ -608,6 +612,7 @@ public class DeckEditUI : MonoBehaviour
     {
         var gm = GameManager.Instance;
         if (gm == null) return;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.CardSelect);
         string id = gm.CharacterCardIds[slot];
         if (!string.IsNullOrEmpty(id))
         {

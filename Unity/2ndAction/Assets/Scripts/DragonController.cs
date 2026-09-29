@@ -746,6 +746,7 @@ public class DragonController : MonoBehaviour
     public void TakeDamage(int amount)
     {
         if (state == State.Dead || NetPuppet) return;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit); // ボス被弾(共通、連打は間引き)
 
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);

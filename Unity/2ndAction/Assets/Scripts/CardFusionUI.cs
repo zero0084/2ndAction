@@ -687,6 +687,7 @@ public class CardFusionUI : MonoBehaviour
     void OnContinue()
     {
         if (phase != Phase.Result) return;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
         var r = shownResult;
         HideOverlay();
         phase = Phase.Select;
@@ -702,6 +703,7 @@ public class CardFusionUI : MonoBehaviour
     void OnBackToList()
     {
         if (phase != Phase.Result) return;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Cancel);
         HideOverlay();
         phase = Phase.Select;
         mainKey = materialKey = null; activeSlot = 0;
