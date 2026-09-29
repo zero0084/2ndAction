@@ -179,8 +179,8 @@ public class SkyBossAutoTest : MonoBehaviour
         // ---- 4) 100,000m 死神 ----
         bmType.GetMethod("SpawnDeath", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(bm, null);
         yield return new WaitForSeconds(1.0f);
-        var reaper = FindFirstObjectByType<GrimReaperController>();
-        L($"[Death] GrimReaper present={reaper != null}");
+        var reaper = FindFirstObjectByType<ReaperBase>();
+        L($"[Death] reaper present={reaper != null} type={(reaper != null ? reaper.GetType().Name : "-")}");
         Check(reaper != null, "death spawns on sky corridor");
 
         // ---- 5) 走行継続 ----

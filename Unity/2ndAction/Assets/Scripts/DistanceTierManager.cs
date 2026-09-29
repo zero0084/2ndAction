@@ -330,7 +330,7 @@ public class DistanceTierManager : MonoBehaviour
 
     // ===== Debug - item 10/11 (Development Build / Editor only; see
     // GameManager.DrawDistanceWarpDebugUI) =====
-    public static readonly float[] DebugWarpStops = { 1000f, 5000f, 10000f, 20000f, 40000f, 50000f, 70000f, 90000f, 99000f };
+    public static readonly float[] DebugWarpStops = { 1000f, 5000f, 10000f, 20000f, 40000f, 50000f, 70000f, 90000f, 99000f, 99800f }; // 99.8K: 死神三姉妹の確認用(2026-09-29)
 }
 
 public struct EnemySpawnRequest

@@ -66,7 +66,7 @@ public class NetCombat : MonoBehaviour
         public WildBossBase Wild;
         public DragonController Dragon;
         public MajinController Majin;
-        public GrimReaperController Reaper;
+        public ReaperBase Reaper;
         public Transform Visual;
         public SpriteRenderer Sr;
         public List<Sprite> SpriteTable;
@@ -376,7 +376,7 @@ public class NetCombat : MonoBehaviour
         e.Wild = boss as WildBossBase;
         e.Dragon = boss as DragonController;
         e.Majin = boss as MajinController;
-        e.Reaper = boss as GrimReaperController;
+        e.Reaper = boss as ReaperBase;
         if (e.Wild != null) { e.Wild.NetId = e.Id; e.MaxHp = e.Wild.maxHp; e.Hp = e.Wild.maxHp; e.MileReward = e.Wild.mileReward; }
         if (e.Dragon != null) { e.Dragon.NetId = e.Id; e.MaxHp = e.Dragon.maxHp; e.Hp = e.Dragon.maxHp; e.MileReward = e.Dragon.mileReward; }
         if (e.Majin != null) { e.Majin.NetId = e.Id; e.MaxHp = e.Majin.maxHp; e.Hp = e.Majin.maxHp; e.MileReward = e.Majin.mileReward; }

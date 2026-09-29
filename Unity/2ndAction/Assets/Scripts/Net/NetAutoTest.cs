@@ -324,6 +324,7 @@ public class NetAutoTest : MonoBehaviour
     void LateUpdate()
     {
         if (step == Step.Running || step == Step.AfterLeave) { MeasureRemote(); WriteTrace(); WriteEnemyTrace(); }
+        if (step == Step.Running) MeasureReaper();
     }
 
     // レベルアップ/ボス報酬のカード選択(ゲームが一時停止する)を、実プレイヤーと同じ
@@ -745,6 +746,7 @@ public class NetAutoTest : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         BossManager bm = BossManager.Instance;
         if (bm == null || bm.IsBossPhase) { L("test boss skipped (boss phase already running)"); return; }
+        if (bossKind == "Reaper") { bm.DebugSpawnReaper(); L("test reaper spawned (stage " + (GameManager.Instance != null ? GameManager.Instance.ActiveRunStageId : "?") + ")"); return; }
         BossManager.NetTestBossHpOverride = bossHp;
         WildBossKind kind = Enum.TryParse(bossKind, out WildBossKind k) ? k : WildBossKind.Wolf;
         bm.NetTestSpawnWild(kind, 1);
@@ -908,6 +910,7 @@ public class NetAutoTest : MonoBehaviour
                     if (e.Go != null && !e.Dead && e.Target > 0) targets += $"{e.Id}:P{e.Target} ";
             L($"p25 t={runTime:F1} me=P{NetCombat.LocalPlayerNumber} lives={(gm != null ? gm.Lives : -1)} table=[{nm.DebugDescribe().Trim()}] claims sent={nm.StatClaimsSent} acc={nm.StatClaimsAccepted} rej={nm.StatClaimsRejected} confirmed={nm.StatHitsConfirmed} hostRemote={nm.StatHostRemoteHits} ts={Time.timeScale:F2} choosing={(gm != null && gm.IsLocalChoiceOpen)} attacks=[{(NetAttackSync.Instance != null ? NetAttackSync.Instance.DebugSummary() : "")}] targets=[{targets.Trim()}]");
         }
+        if (ReaperBase.Active != null) { var rp = ReaperBase.Active; var lp = PlayerController.Instance; L($"reaper t={runTime:F1} me=P{NetCombat.LocalPlayerNumber} type={rp.GetType().Name} ai={rp.enabled} phase={rp.CurrentPhase} gapAI={rp.Gap:F1} dxLocal={(lp != null ? lp.transform.position.x - rp.transform.position.x : 0f):F1} strikes={rp.Strikes} reaperCount={FindObjectsByType<ReaperBase>(FindObjectsSortMode.None).Length} maxJump={reaperMaxJump:F2} lives={(GameManager.Instance != null ? GameManager.Instance.Lives : -1)}"); }
         L($"obst t={runTime:F1} me=P{NetCombat.LocalPlayerNumber} {ObstacleLine()}");
         L($"t={runTime:F1} local X={lx:F2} Y={(pc != null ? pc.transform.position.y : 0f):F2} speed={(pc != null ? pc.CurrentAutoRunSpeed : 0f):F1} grounded={(pc != null && pc.IsGrounded)} dist={(gm != null ? gm.MaxDistance : 0f):F0} offset={FloatingOrigin.Offset:F0} | remote {remoteStr} | connected={NetSession.IsConnected}");
 
@@ -945,6 +948,27 @@ public class NetAutoTest : MonoBehaviour
     }
 
     // 障害物の耐久力の同期(2026-09-29): 送受信の数、自分の前で他の人が壊した数、体当たりの被弾、破壊の演出の回数
+    // 死神の1フレームあたりの位置の飛び(論理座標、プレイヤーの移動を差し引かない単純な移動量から、走行速度の分を除いた値)
+    double reaperLastX = double.NaN; float reaperMaxJump; bool reaperWasVisible; int reaperJumpLogs;
+    void MeasureReaper()
+    {
+        var rp = ReaperBase.Active;
+        if (rp == null) { reaperLastX = double.NaN; return; }
+        double x = rp.transform.position.x + FloatingOrigin.Offset;
+        float dt = Mathf.Max(1e-4f, Time.deltaTime);
+        var ra = rp.GetComponent<ReaperAnimator>();
+        bool visible = ra != null && ra.Alpha > 0.5f; // 見えている間の飛びだけを数える(消えて現れ直す置き直しは除く)
+        if (!double.IsNaN(reaperLastX) && visible && reaperWasVisible)
+        {
+            float v = PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f;
+            float jump = Mathf.Abs((float)(x - reaperLastX) - v * dt);
+            if (jump > 3f && reaperJumpLogs++ < 6) L($"REAPERJUMP t={runTime:F2} dx={(float)(x - reaperLastX):F2} v={v:F1} dt={dt:F3} alpha={ra.Alpha:F2} offset={FloatingOrigin.Offset:F0} reappears={ra.Reappears} localX={(PlayerController.Instance != null ? PlayerController.Instance.transform.position.x + FloatingOrigin.Offset : 0):F1}");
+            if (jump > reaperMaxJump) reaperMaxJump = jump;
+        }
+        reaperLastX = x;
+        reaperWasVisible = visible;
+    }
+
     static string ObstacleLine()
     {
         int active = 0; foreach (var o in ObstacleController.All) if (o != null && !o.Broken) active++;

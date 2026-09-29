@@ -2804,6 +2804,16 @@ public class GameManager : MonoBehaviour
         Debug.Log($"[NET][CHOICE] choice UI closed ({reason}) uiWasOpen={uiUp} bossReward={wasBossReward} bossQueued={bossQueued} droppedLevelUps={dropped} keptLevelUps={pendingLevelUpCount}");
     }
 
+    // 死神三姉妹(2026-09-29): シングルプレイで死神に捕まった。残りライフに関わらず、この一撃でRunを終える
+    // (死亡演出/Result/CONTINUE無効化は既存のGameOverの流れのまま)。DEBUGの無敵中とシールドは従来どおり守る。
+    public void ReapPlayer(string reason)
+    {
+        if (IsGameOver || !HasStarted || InvincibleMode) return;
+        if (NetRunLauncher.IsMultiplayerRun) { if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: reason); return; }
+        Lives = Mathf.Min(Lives, 1);
+        TryDamagePlayer(false, reason);
+    }
+
     // JOIN: HOSTの判定でこの端末のRunが終わった(Phase 2.5の既定=HP0)。
     public void NetForceGameOver(string reason)
     {
@@ -4415,6 +4425,9 @@ public class GameManager : MonoBehaviour
         if (!Debug.isDebugBuild) return; // Release Build safety net - a stray call can never actually warp outside a dev build
         MaxDistance = targetDistance;
         MaxDistanceExact = targetDistance;
+        // 2026-09-29: ボスの関門もワープ先へ合わせる(以前は1,000mの関門が残っていて、ワープ直後に1,000mのボスが出て距離が戻された)。
+        // ワープ先ちょうどの関門(10,000m等)はこれから来る扱いのまま。
+        if (BossManager.Instance != null) BossManager.Instance.RestoreNextBossDistance(targetDistance - 1f);
         if (PlayerController.Instance != null)
         {
             // Floating Origin(2026-09-22) - プレイヤーを何万ユニットも実際に動かすと、地形チャンクを大量生成

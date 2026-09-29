@@ -652,13 +652,19 @@ public class BossManager : MonoBehaviour
     // reads as "something arrived from behind" without ever risking
     // overlapping the player or any terrain/enemy at the moment it spawns.
     // マルチプレイPhase 2 - 共有ボスの出現記録(HOST)/パペットの再構築(JOIN)用の入口。
+    // デバッグ/自動テスト用: 100,000m到達と同じ死神の開始(BGMの切り替えも同じフラグ)をその場で起こす。
+    public void DebugSpawnReaper() { if (deathSpawned) return; deathSpawned = true; SpawnDeath(); }
+
     void SpawnDeath() { NetCombat.BeginBossSpawn(NetCombat.BossMethod.Reaper); try { SpawnDeathImpl(); } finally { NetCombat.EndBossSpawn(); } }
 
     void SpawnDeathImpl()
     {
-        if (deathSprite == null || player == null) return;
-        Vector3 pos = player.position + new Vector3(-deathSpawnBehindPlayer, 1f, 0f);
-        GrimReaperController.Create(deathSprite, pos, dragonScale, deathDefaultFacingRight, player);
+        if (player == null) return;
+        // 死神三姉妹(2026-09-29): ステージの担当(荒野街道=長女/自然洞窟=次女/天空回廊=三女)を、画面左端の外から出す。
+        // マルチのJOINでは同じステージIDで同じ姉妹のパペットが作られる(NetCombat.BossMethod.Reaper)。
+        string stage = GameManager.Instance != null ? GameManager.Instance.ActiveRunStageId : "";
+        Vector3 pos = player.position + new Vector3(-deathSpawnBehindPlayer * 4f, 0f, 0f);
+        ReaperBase.Spawn(stage, player, deathSprite, pos);
         if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[Boss] Death Spawn");
     }
 
