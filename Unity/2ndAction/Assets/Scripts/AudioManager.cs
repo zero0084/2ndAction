@@ -113,6 +113,9 @@ public class AudioManager : MonoBehaviour
 
     public void PlayGameplayBgm() => SwitchBgm(gameplayBgm);
 
+    // BONUS ZONE(2026-09-29): 区画の間だけBGMを少し速く/高くする(1=通常)。
+    public void SetBgmPitch(float pitch) { if (bgmSource != null) bgmSource.pitch = pitch; }
+
     void SwitchBgm(AudioClip clip)
     {
         currentBgm = clip;

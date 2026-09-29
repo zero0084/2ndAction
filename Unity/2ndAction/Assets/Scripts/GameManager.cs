@@ -274,7 +274,10 @@ public class GameManager : MonoBehaviour
     public int RunDistanceMile { get; private set; }
     public int RunEnemyMile { get; private set; }
     public int RunBossMile { get; private set; }
-    public int RunMile => RunDistanceMile + RunEnemyMile + RunBossMile;
+    // BONUS ZONE(2026-09-29): ボーナス区画の報酬Enemy(宝運びゴブリン/ミミック)から得たMILE。
+    // 他の分類と同じく「Run中の仮取得」で、FINISH/脱出の時だけ持ち帰る(GAME OVERなら失う)。
+    public int RunBonusMile { get; private set; }
+    public int RunMile => RunDistanceMile + RunEnemyMile + RunBossMile + RunBonusMile;
 
     // ===== Run Continuation/Checkpoint Ver.1 ===== //
     // Item 12 - the furthest distance genuinely reached this Run's whole
@@ -1095,6 +1098,8 @@ public class GameManager : MonoBehaviour
         // RUN BUILD HUD(2026-09-29): ラン中の取得カード一覧。このRunのカード状態を表示するだけのView
         // (GameManagerと同じObjectに付くので、シーン再読込=次Run/Homeで一緒に作り直される)。
         if (GetComponent<RunBuildHud>() == null) gameObject.AddComponent<RunBuildHud>();
+        // BONUS ZONE(2026-09-29): 全ステージ共通のボーナス区画(このRunの間だけ、シーン再読込で作り直す)
+        if (GetComponent<BonusZone>() == null) gameObject.AddComponent<BonusZone>();
         // OrnateUi is a static helper (see its class comment) - this is the
         // one place its shared frame texture gets assigned, from the field
         // SceneBuilder already populated on this component.
@@ -2818,6 +2823,35 @@ public class GameManager : MonoBehaviour
         RunEnemyMile += Mathf.Max(0, Mathf.RoundToInt(mileReward * MileGainMultiplier));
     }
 
+    // ===== BONUS ZONE(2026-09-29)の報酬の入口 =====
+    // 報酬の計算はBonusZone/BonusEnemy、ここは既存のRun Progression(仮取得MILE/EXP/Card Choice)へ渡すだけ。
+    // マルチ対応時は「報酬を受け取るPlayerの端末」でこれらを呼ぶ(敵撃破の報酬と同じ経路にできる形)。
+    // 仮取得MILEへ加算(MILE獲得量アップ系カードの倍率込み)。実際に加算した量を返す。
+    public int AddRunBonusMile(int amount)
+    {
+        if (amount <= 0 || IsGameOver) return 0;
+        int add = Mathf.Max(0, Mathf.RoundToInt(amount * MileGainMultiplier));
+        RunBonusMile += add;
+        return add;
+    }
+
+    // 通常のEXP(撃破/距離と同じGainExp、EXP UPカードの倍率込み)。実際に入った量を返す(選択中で捨てられた時は0)。
+    public float GrantBonusExp(float amount)
+    {
+        if (amount <= 0f || IsGameOver) return 0f;
+        if (levelUpPending && !NetMatch.Active) return 0f;
+        float applied = amount * expGainMultiplier;
+        GainExp(amount);
+        return applied;
+    }
+
+    // 既存の3枚Card Choiceを1回追加する(Level Upと同じ順番待ち: 選択中/ボス演出中なら終わってから1件ずつ出す)。
+    public void GrantBonusCardChoice()
+    {
+        if (IsGameOver) return;
+        TriggerLevelUpChoice();
+    }
+
     public void RegisterBossDefeat(int mileReward = 50)
     {
         BossKillCount++;
@@ -2979,6 +3013,7 @@ public class GameManager : MonoBehaviour
         data.enemyKillCount = EnemyKillCount;
         data.bossKillCount = BossKillCount;
         data.runEnemyMile = RunEnemyMile;
+        data.runBonusMile = RunBonusMile;
         data.runBossMile = RunBossMile;
         data.escapeUnlocked = escapeUnlocked;
         data.upgradeHistoryCardIds = new List<string>();
@@ -3041,6 +3076,7 @@ public class GameManager : MonoBehaviour
         EnemyKillCount = data.enemyKillCount;
         BossKillCount = data.bossKillCount;
         RunEnemyMile = data.runEnemyMile;
+        RunBonusMile = data.runBonusMile;
         RunBossMile = data.runBossMile;
         escapeUnlocked = data.escapeUnlocked;
 
@@ -3702,6 +3738,7 @@ public class GameManager : MonoBehaviour
         Row("TIME", FormatTime(RunTime), IsNewBestTime);
         Row("ENEMIES DEFEATED", $"{EnemyKillCount}  +{RunEnemyMile} MILE", false);
         Row("BOSSES DEFEATED", $"{BossKillCount}  +{RunBossMile} MILE", false);
+        if (RunBonusMile > 0) Row("BONUS ZONE", $"+{RunBonusMile} MILE", false);
         Row("TOTAL EXP", Mathf.FloorToInt(TotalExpEarned).ToString(), false);
         Row("UPGRADES OBTAINED", UpgradeCount.ToString(), false);
         Row("TOTAL MILE", $"+{RunMile}  (WALLET {TotalOwnedMile})", false);

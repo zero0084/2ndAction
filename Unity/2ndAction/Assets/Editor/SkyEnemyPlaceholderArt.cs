@@ -53,7 +53,7 @@ public static class SkyEnemyPlaceholderArt
         c.pose = pose;
         c.pivot = new Vector2(spec.canvasW * 0.5f, 10f);
         Color body = spec.body, acc = spec.accent;
-        if (pose.gray) { float g = body.grayscale * 0.85f; body = new Color(g, g, g * 1.05f); acc = pose.dark ? new Color(0.25f, 0.25f, 0.28f) : new Color(g * 0.9f, g * 0.9f, g); }
+        if (pose.gray && spec.id != "mimic") { /* ミミックの休眠はふつうの宝箱の色のまま */ float g = body.grayscale * 0.85f; body = new Color(g, g, g * 1.05f); acc = pose.dark ? new Color(0.25f, 0.25f, 0.28f) : new Color(g * 0.9f, g * 0.9f, g); }
         switch (spec.id)
         {
             case "sky_slime": Slime(c, body, acc, pose); break;
@@ -64,6 +64,10 @@ public static class SkyEnemyPlaceholderArt
             case "ancient_sentinel": Sentinel(c, body, acc, pose); break;
             case "storm_spirit": Storm(c, body, acc, pose); break;
             case "sky_hunter": Hunter(c, body, acc, pose); break;
+            case "treasure_goblin": TreasureGoblin(c, body, acc, pose); break;
+            case "mimic": Mimic(c, body, acc, pose); break;
+            case "golden_slime": GoldenSlime(c, body, acc, pose); break;
+            case "card_fairy": CardFairy(c, body, acc, pose); break;
         }
         c.Finish(pose);
         File.WriteAllBytes(path, c.tex.EncodeToPNG());
@@ -186,6 +190,60 @@ public static class SkyEnemyPlaceholderArt
         if (true) { c.Ellipse(132, 194, 6, 4, 0, a); }
     }
 
+    // ---- BONUS ZONEの報酬Enemy(2026-09-29、仮素材)。素材は他と同じ左向きで描く ----
+    static void TreasureGoblin(Canvas c, Color b, Color a, Pose p)
+    {
+        float step = Mathf.Sin(p.phase * Mathf.PI * 2f) * 16f;
+        c.Line(135 + step, 70, 128 + step * 1.3f, 12, 13, b * 0.8f);
+        c.Line(160 - step, 70, 166 - step * 1.3f, 12, 13, b * 0.8f);
+        c.Ellipse(190, 150, 70, 66, 0, new Color(0.55f, 0.38f, 0.2f));      // 背中の大きな宝袋
+        c.Ellipse(190, 206, 26, 12, 0, new Color(0.45f, 0.3f, 0.15f));       // 袋の口
+        c.Ellipse(178, 222, 12, 10, 0, a); c.Ellipse(200, 226, 11, 9, 0, a); c.Ellipse(192, 236, 9, 8, 0, a); // こぼれる金貨
+        c.Ellipse(145, 110, 36, 42, 0, b);                                   // 胴
+        c.Ellipse(118, 160, 30, 28, 0, b);                                   // 頭
+        c.Tri(128, 176, 160, 196, 138, 164, b);                              // とがった耳
+        c.Line(125, 120, 170, 150, 9, b * 0.9f);                             // 袋をつかむ腕
+        Eyes(c, 104, 164, -1, 0, p, new Color(0.9f, 0.85f, 0.2f));
+    }
+
+    static void Mimic(Canvas c, Color b, Color a, Pose p)
+    {
+        bool closed = p.dark || p.gray;                                      // 休眠=ただの宝箱
+        float open = closed ? 0f : (p.raise > 0f ? 0.7f : 1f);
+        c.Rect(40, 12, 240, 110, b);                                          // 箱
+        c.Rect(40, 60, 240, 70, a); c.Rect(130, 12, 150, 110, a);            // 金具
+        float lid = 110 + open * 60;
+        c.Poly4(40, 110, 240, 110, 240 - open * 30, lid + 40, 40 - open * 10, lid + 30, b * 0.9f); // ふた
+        if (open > 0f)
+        {
+            c.Rect(50, 108, 230, 112 + open * 30, new Color(0.35f, 0.05f, 0.08f));   // 口の中
+            for (int i = 0; i < 7; i++) c.Tri(55 + i * 25, 112, 67 + i * 25, 112, 61 + i * 25, 130, Color.white);  // 歯
+            c.Ellipse(90, 150 + open * 30, 10, 12, 0, new Color(1f, 0.85f, 0.2f)); // 目
+            c.Ellipse(80, 118, 26, 10, -20, new Color(0.85f, 0.25f, 0.35f));       // 舌
+        }
+    }
+
+    static void GoldenSlime(Canvas c, Color b, Color a, Pose p)
+    {
+        float up = 20f + p.raise * 10f;
+        c.Ellipse(128, up + 58, 96, 62, 0, b);
+        c.Ellipse(128, up + 110, 52, 34, 0, b);
+        c.Ellipse(100, up + 100, 22, 16, -20, a);                            // つやの光
+        c.Ellipse(96, up + 70, 8, 11, 0, new Color(0.35f, 0.2f, 0.05f)); c.Ellipse(128, up + 70, 8, 11, 0, new Color(0.35f, 0.2f, 0.05f));
+        c.Ring(128, up + 150, 22, 4, a);                                     // 小さな光輪
+    }
+
+    static void CardFairy(Canvas c, Color b, Color a, Pose p)
+    {
+        Wings(c, 140, 140, 110, 0.4f + p.wing * 0.6f, a * 0.9f);
+        c.Ellipse(130, 120, 22, 38, 0, b);                                   // 体
+        c.Ellipse(124, 176, 24, 24, 0, b);                                   // 頭
+        c.Ellipse(132, 192, 28, 14, 0, new Color(1f, 0.9f, 0.4f));           // 髪
+        c.Rect(78, 90, 108, 132, Color.white); c.Rect(82, 94, 104, 128, new Color(0.6f, 0.4f, 0.95f)); // 抱えたカード
+        c.Ring(92, 111, 26, 4, new Color(1f, 0.95f, 0.6f));
+        Eyes(c, 114, 178, -1, 0, p, new Color(0.3f, 0.1f, 0.4f));
+    }
+
     static void Eyes(Canvas c, float x1, float y1, float x2, float y2, Pose p, Color normal)
     {
         Color e = p.glowEyes ? new Color(1f, 0.85f, 0.3f) : normal;
@@ -252,6 +310,9 @@ public static class SkyEnemyPlaceholderArt
 
         public void Rect(float x0, float y0, float x1, float y1, Color col) =>
             Poly(new[] { T(x0, y0), T(x1, y0), T(x1, y1), T(x0, y1) }, col);
+
+        public void Poly4(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy, Color col) =>
+            Poly(new[] { T(ax, ay), T(bx, by), T(cx, cy), T(dx, dy) }, col);
 
         public void Tri(float ax, float ay, float bx, float by, float cx, float cy, Color col) =>
             Poly(new[] { T(ax, ay), T(bx, by), T(cx, cy) }, col);

@@ -37,8 +37,16 @@ public enum EnemyBehaviorKind
     CelestialKnight,  // 能動戦闘(T3): 短距離だけ接近→予兆→斬撃→硬直。長距離は追わない
     AncientSentinel,  // Heavy/Wall: 遅い、長い予兆の広範囲叩きつけ→長い硬直(反撃の時間)
     StormSpirit,      // Area Control(T4): その場で帯電→地面の予兆→落雷→硬直。追跡しない
-    SkyHunter         // T5: 接近→予兆→高速突進→硬直→離脱→再接近(回数上限あり、永久追跡しない)
+    SkyHunter,        // T5: 接近→予兆→高速突進→硬直→離脱→再接近(回数上限あり、永久追跡しない)
+    // BONUS ZONEの報酬Enemy(2026-09-29)。処理は EnemySpecialBehavior.Bonus.cs。Playerを倒すことを目的にしない。
+    TreasureGoblin,   // 宝袋を背負って同じ方向へ逃げる(殴ると少しMILE、叩くと一瞬加速して逃げる)
+    Mimic,            // 宝箱に擬態→近づくと起きてPlayerの前に居続ける(殴った回数だけMILE、上限で逃走)
+    GoldenSlime,      // とても弱い、跳ねるだけ(倒すと大量EXP)
+    CardFairy         // 小さく逃げ回る(撃破で確定Card Choice)
 }
+
+// BONUS ZONEの報酬の種類(BonusEnemyが読む)。None=通常の敵。
+public enum BonusEnemyKind { None, TreasureGoblin, Mimic, GoldenSlime, CardFairy }
 
 // 天空回廊Enemy(2026-09-28)の状態ごとの絵。未設定の状態は従来どおり(走行コマ/静止絵)。
 [System.Serializable]
@@ -189,6 +197,9 @@ public class EnemyDefinition : ScriptableObject
     // がこの中に含まれる場合だけ抽選対象になる(EnemyDatabase.PickRandom*
     // 参照)。
     public string[] stageIds;
+
+    // BONUS ZONE(2026-09-29): 報酬Enemyの種類。None以外は通常の出現候補に入れない(stageIdsも"bonus_zone"のみ)。
+    public BonusEnemyKind bonusKind = BonusEnemyKind.None;
 
     // 天空回廊Enemy(2026-09-28) - 既存Enemyは既定値のまま(挙動無変更)。
     [Header("天空回廊Enemy(2026-09-28)")]

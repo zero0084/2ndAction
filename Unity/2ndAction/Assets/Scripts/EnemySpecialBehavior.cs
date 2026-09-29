@@ -309,6 +309,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         if (kind == EnemyBehaviorKind.BurrowWorm) InitBurrowWorm();
         if (kind == EnemyBehaviorKind.Flying && flyingDiveEnabled) InitFlyingDive();
         if (IsSkyKind) InitSky(); // 天空回廊Enemy(EnemySpecialBehavior.Sky.cs)
+        if (IsBonusKind) InitBonus(); // BONUS ZONEの報酬Enemy(EnemySpecialBehavior.Bonus.cs)
     }
 
     // 敵AI行動Tier試験実装(2026-09-16) - Hit Reaction/Knockback/Launchに
@@ -365,6 +366,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         }
 
         if (IsSkyKind) ResetSkyAfterInterrupt();
+        if (IsBonusKind) ResetBonusAfterInterrupt();
 
         if (kind == EnemyBehaviorKind.Flying && flyingDiveEnabled && flyingDiveHitboxGO != null)
         {
@@ -388,6 +390,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         if (flyingDiveHitboxGO != null) flyingDiveHitboxGO.SetActive(false);
         if (flyingDiveMarkerGO != null) flyingDiveMarkerGO.SetActive(false);
         SkyOnDisable();
+        BonusOnDisable();
     }
 
     void Update()
@@ -416,7 +419,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
             case EnemyBehaviorKind.StationaryMelee: UpdateStationaryMelee(); break;
             case EnemyBehaviorKind.CaveHopper: UpdateCaveHopper(); break;
             case EnemyBehaviorKind.BurrowWorm: UpdateBurrowWorm(); break;
-            default: if (IsSkyKind) UpdateSky(); break;
+            default: if (IsSkyKind) UpdateSky(); else if (IsBonusKind) UpdateBonus(); break;
         }
     }
 

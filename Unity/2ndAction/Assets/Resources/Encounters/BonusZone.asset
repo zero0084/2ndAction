@@ -1,0 +1,564 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5fe9eefbc904be46a89608b71d46451, type: 3}
+  m_Name: BonusZone
+  m_EditorClassIdentifier: Assembly-CSharp::BonusZoneProfile
+  chanceAfterBoss: 0.5
+  delayAfterBoss: 24
+  minDistanceToNextBoss: 420
+  allowInMultiplayer: 0
+  durationSeconds: 24
+  durationDistance: 320
+  introSeconds: 1.4
+  postRestDistance: 40
+  resultSeconds: 2.2
+  types:
+  - id: mile_rush
+    displayName: MILE RUSH
+    weight: 1
+    waves:
+    - bonus_goblin_1
+    - bonus_goblin_2
+    - bonus_goblin_1
+    - bonus_goblin_2
+    waveGap: {x: 7, y: 10}
+    mileMultiplier: 1
+    expMultiplier: 1
+    color: {r: 1, g: 0.84, b: 0.3, a: 1}
+  - id: mimic_bash
+    displayName: MIMIC BASH
+    weight: 0.8
+    waves:
+    - bonus_mimic_1
+    waveGap: {x: 40, y: 50}
+    mileMultiplier: 1
+    expMultiplier: 1
+    color: {r: 1, g: 0.7, b: 0.35, a: 1}
+  - id: exp_fever
+    displayName: EXP FEVER
+    weight: 1
+    waves:
+    - bonus_slime_3
+    - bonus_slime_4
+    waveGap: {x: 6, y: 9}
+    mileMultiplier: 1
+    expMultiplier: 1
+    color: {r: 0.6, g: 1, b: 0.55, a: 1}
+  - id: card_hunt
+    displayName: CARD HUNT
+    weight: 0.55
+    waves:
+    - bonus_slime_3
+    - bonus_fairy_hunt
+    - bonus_slime_3
+    - bonus_slime_4
+    waveGap: {x: 7, y: 10}
+    mileMultiplier: 1
+    expMultiplier: 0.7
+    color: {r: 1, g: 0.6, b: 1, a: 1}
+  - id: treasure_parade
+    displayName: TREASURE PARADE
+    weight: 0.9
+    waves:
+    - bonus_parade
+    - bonus_slime_3
+    - bonus_parade
+    - bonus_goblin_1
+    waveGap: {x: 8, y: 11}
+    mileMultiplier: 0.8
+    expMultiplier: 0.8
+    color: {r: 1, g: 0.9, b: 0.45, a: 1}
+  - id: jackpot
+    displayName: JACKPOT
+    weight: 0
+    waves:
+    - bonus_parade
+    - bonus_mimic_1
+    - bonus_fairy_hunt
+    - bonus_slime_4
+    - bonus_goblin_2
+    waveGap: {x: 9, y: 12}
+    mileMultiplier: 1.3
+    expMultiplier: 1.3
+    color: {r: 1, g: 0.95, b: 0.5, a: 1}
+  jackpotChance: 0.06
+  jackpotTypeId: jackpot
+  formations:
+  - formationId: bonus_goblin_1
+    displayName: Goblin x1
+    stageSpecific: 0
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - treasure_goblin
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.3
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: bonus_goblin_2
+    displayName: Goblin x2
+    stageSpecific: 0
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - treasure_goblin
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 4
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - treasure_goblin
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.3
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: bonus_mimic_1
+    displayName: Mimic
+    stageSpecific: 0
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 1
+      xOffset: 0
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds:
+      - mimic
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.3
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: bonus_slime_3
+    displayName: Golden Slime x3
+    stageSpecific: 0
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - golden_slime
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 1.8
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - golden_slime
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 3.6
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - golden_slime
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.3
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: bonus_slime_4
+    displayName: Golden Slime x4
+    stageSpecific: 0
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - golden_slime
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 1.6
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - golden_slime
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 3.2
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - golden_slime
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 4.8
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - golden_slime
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.3
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: bonus_fairy_hunt
+    displayName: Card Hunt
+    stageSpecific: 0
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - golden_slime
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 2
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - golden_slime
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 3
+      xOffset: 4
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds:
+      - card_fairy
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 5.5
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - golden_slime
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 1
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.3
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: bonus_parade
+    displayName: Parade
+    stageSpecific: 0
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - treasure_goblin
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 2.6
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - golden_slime
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 4.4
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - golden_slime
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.3
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  band:
+    bandName: BONUS
+    startDistance: 0
+    endDistance: -1
+    enemies:
+    - enemyId: treasure_goblin
+      weight: 1
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: mimic
+      weight: 1
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: golden_slime
+      weight: 1
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: card_fairy
+      weight: 1
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0300000007000000
+    formations: []
+    restWeight: 1
+    easyWeight: 1
+    mediumWeight: 1
+    hardWeight: 0.4
+    easyTiers:
+      t0: 1
+      t1: 0
+      t2: 0
+      t3: 0
+      t4: 0
+      t5: 0
+    mediumTiers:
+      t0: 1
+      t1: 0
+      t2: 0
+      t3: 0
+      t4: 0
+      t5: 0
+    hardTiers:
+      t0: 1
+      t1: 0
+      t2: 0
+      t3: 0
+      t4: 0
+      t5: 0
+  goblinHitMile: 2
+  goblinKillMile: 15
+  mimicHitMile: 2
+  mimicLaunchMultiplier: 1.5
+  mimicAerialMultiplier: 1.25
+  mimicSlamMultiplier: 2
+  mimicMaxMile: 80
+  mimicMaxRewardHits: 45
+  mimicKillMile: 10
+  mimicStaySeconds: 8
+  goldenSlimeExp: 45
+  fairyCardChoices: 1
+  maxFairiesPerZone: 2
+  fairyEscapeSeconds: 9

@@ -45,6 +45,7 @@ public static class EncounterProfileBuilder
         Save(Dir + "/Profile_natural_cave.asset", BuildNaturalCave(), overwrite);
         Save(Dir + "/Profile_wasteland_road.asset", BuildWasteland(), overwrite);
         Save(Dir + "/Profile_sky_corridor.asset", BuildSkyCorridor(), overwrite);
+        BonusZoneBuilder.Build(); // BONUS ZONE(全ステージ共通、既にあれば残す)
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         Debug.Log("EncounterProfileBuilder: done (overwrite=" + overwrite + ")");

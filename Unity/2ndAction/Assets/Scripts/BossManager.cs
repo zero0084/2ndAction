@@ -377,6 +377,8 @@ public class BossManager : MonoBehaviour
         }
 
         if (IsBossPhase) return;
+        // BONUS ZONE(2026-09-29): 区画の最中はボスを始めない(BonusZoneが次のボスの手前で自分から終わる)
+        if (BonusZone.Instance != null && BonusZone.Instance.BlocksBoss) return;
         if (player == null || dragonIdleFrames == null || dragonIdleFrames.Length == 0) return;
 
         float targetDistance = CurrentTargetDistance();

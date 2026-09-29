@@ -22,6 +22,11 @@ public class EnemyController : MonoBehaviour
     // 天空回廊(2026-09-28): 浮島の上に置かれた敵。浮島の上に居る間は浮島の面に立ち、浮島の外へ出たら
     // (吹き飛ばされた等)このフラグを外して普通に落下し、下の地面へ着地する(浮島の外で急に地面の高さへ移らない)。
     public bool onIsland;
+    // BONUS ZONE(2026-09-29): 報酬Enemy(GroundFactoryが付ける)。付いている敵は接触ダメージを与えず、
+    // この端末のPlayerの攻撃が当たるたび/倒した時にBonusEnemyへ知らせる(報酬の計算はBonusEnemy側)。
+    [System.NonSerialized] public BonusEnemy bonus;
+    // 行動側が自分で空中の移動をしている間(宝運びゴブリンの穴越えジャンプ等)は、足場の確認で落とさない。
+    [System.NonSerialized] public bool behaviourOwnsAir;
     public float? SurfaceAt(float x)
     {
         if (TerrainManager.Instance == null) return null;
@@ -420,6 +425,7 @@ public class EnemyController : MonoBehaviour
     void UpdateNormalGroundCheck()
     {
         if (movementType == EnemyMovementType.Flying) return;
+        if (behaviourOwnsAir) { normalGrounded = true; return; }
 
         float? groundY = SurfaceAt(transform.position.x);
 
@@ -508,6 +514,7 @@ public class EnemyController : MonoBehaviour
             hitNoKnockback = info != null && info.suppressKnockback;
             netReactionAttacker = 0; // この端末のプレイヤーの攻撃
             NetCombat.AuthorityDamaged(NetId, 0, Mathf.Max(1, damage), hp, (byte)kind, contactPoint, killed);
+            if (bonus != null) bonus.OnLocalHit(kind, isLaunched, killed, contactPoint);
 
             // エリアルコンボ改修(2026-09-11), item 4 - 「空中で攻撃が敵に
             // ヒットした瞬間、プレイヤーの落下速度を少しだけ弱める」。
@@ -535,6 +542,7 @@ public class EnemyController : MonoBehaviour
             // HitReaction/Knockback/Launched/Airborne/Slam中に限って無効化
             // する。
             if (IsReactingToHit) return;
+            if (bonus != null) return; // BONUS ZONEの報酬Enemyは体当たりでダメージを与えない
             if (NetReplica && (dying || NetRemoteReacting)) return;
             if (PlayerController.Instance != null)
             {
@@ -1068,6 +1076,7 @@ public class EnemyController : MonoBehaviour
     // 撃破報酬の付与(シングル/HOST自身がラストヒットなら従来どおりこの端末で付与)。
     void RegisterKillReward(bool fallDeath)
     {
+        if (bonus != null) bonus.OnKilled(fallDeath);
         if (NetCombat.RouteEnemyKillReward(NetId, fallDeath)) return;
         if (GameManager.Instance != null) GameManager.Instance.RegisterEnemyKill(mileReward);
     }

@@ -14,7 +14,7 @@ using UnityEngine;
 //  - T0〜T5はEnemyAiTier(HPとは別軸)。各種の基本Tierを安定させることを優先している。
 public partial class EnemySpecialBehavior
 {
-    bool IsSkyKind => kind >= EnemyBehaviorKind.SkyHound;
+    bool IsSkyKind => kind >= EnemyBehaviorKind.SkyHound && kind <= EnemyBehaviorKind.SkyHunter;
 
     [Header("天空回廊Enemy - 共通")]
     [Tooltip("予兆を始める距離の余裕(m)。予兆+発生の時間×走行速度 + この値")]
@@ -128,14 +128,14 @@ public partial class EnemySpecialBehavior
 
     // ガーゴイルは出現した最初のフレーム(Start前)から石像として扱う(一瞬でも起きた姿を見せない)。
     SkyState SkyStateNow => !skyInitialized && kind == EnemyBehaviorKind.Gargoyle ? SkyState.Dormant : skyState;
-    public string DebugState => IsSkyKind ? $"{kind}/{aiTier} {SkyStateNow}" : kind.ToString();
+    public string DebugState => IsSkyKind ? $"{kind}/{aiTier} {SkyStateNow}" : IsBonusKind ? $"{kind} {bonusState}" : kind.ToString();
 
     // EnemyAnimatorが出す絵(天空回廊Enemyの状態 → EnemyPose)。既存の種は常にNone(従来の攻撃ポーズのまま)。
     public EnemyPose CurrentPose
     {
         get
         {
-            if (!IsSkyKind) return EnemyPose.None;
+            if (!IsSkyKind) return IsBonusKind ? BonusPose : EnemyPose.None;
             switch (SkyStateNow)
             {
                 case SkyState.Dormant: return EnemyPose.Dormant;

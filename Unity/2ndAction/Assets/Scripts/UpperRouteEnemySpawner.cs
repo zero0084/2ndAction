@@ -43,6 +43,7 @@ public class UpperRouteEnemySpawner : MonoBehaviour
         if (GameManager.Instance.CountdownActive) return; // Stage01地形挙動修整(2026-09-17), item4
         if (player == null) return;
         if (BossManager.Instance != null && BossManager.Instance.IsBossPhase) return;
+        if (BonusZone.SuppressesNormalSpawns) return; // BONUS ZONE中は通常の敵/障害物を出さない
         if (GameManager.Instance.ActiveRunStageId != stageId) return;
         // 共通Encounter System(2026-09-28) - 上ルートの敵もEncounterDirectorが置くステージでは何もしない。
         if (EncounterDirector.HandlesUpperRoute(stageId)) return;

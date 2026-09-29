@@ -34,6 +34,38 @@ public static class SkyEnemyDatabase
         public int moveFrames;            // 移動コマ数(0=なし)
         public Color body, accent;
         public int canvasW = 256, canvasH = 256;
+        // BONUS ZONE(2026-09-29)の報酬Enemyも同じ取り込みを使う(素材の置き場所/出現ステージ/報酬の種類だけ違う)
+        public string artRoot = ArtRoot;
+        public string[] stageIds;
+        public BonusEnemyKind bonus = BonusEnemyKind.None;
+    }
+
+    const string BonusArtRoot = "Assets/Art/BonusEnemy";
+    static readonly string[] BonusOnly = { "bonus_zone" }; // 実在しないステージ = 通常の出現候補には入らない(BONUS ZONEだけが名指しで出す)
+
+    // BONUS ZONEの報酬Enemy 4種。Playerを倒すことを目的にしない(攻撃しない/体当たりしない)。
+    public static IEnumerable<SkySpec> BonusSpecs()
+    {
+        // 宝運びゴブリン: 大きな宝袋を背負って逃げる(殴るとMILE、倒すと追加MILE)
+        yield return new SkySpec { id = "treasure_goblin", name = "TREASURE GOBLIN", behavior = EnemyBehaviorKind.TreasureGoblin, movement = EnemyMovementType.Ground, category = EnemyCategory.Normal,
+            tier = EnemyAiTier.T0, targetHeight = 1.1f, hp = 3.5f, mile = 0, collider = new Vector2(0.7f, 0.85f), launch = 1f, knockback = 1f,
+            poses = new[] { "hit", "death" }, moveFrames = 2, body = new Color(0.45f, 0.7f, 0.35f), accent = new Color(1f, 0.82f, 0.25f), canvasW = 300,
+            artRoot = BonusArtRoot, stageIds = BonusOnly, bonus = BonusEnemyKind.TreasureGoblin };
+        // ミミック: 宝箱に擬態(休眠=閉じた宝箱)→起きて殴られるたびにMILEを出す
+        yield return new SkySpec { id = "mimic", name = "MIMIC", behavior = EnemyBehaviorKind.Mimic, movement = EnemyMovementType.Ground, category = EnemyCategory.Normal,
+            tier = EnemyAiTier.T0, targetHeight = 1.05f, hp = 9f, mile = 0, collider = new Vector2(0.8f, 0.85f), launch = 1f, knockback = 0.7f,
+            poses = new[] { "dormant", "wake", "hit", "death" }, moveFrames = 2, body = new Color(0.62f, 0.38f, 0.2f), accent = new Color(1f, 0.8f, 0.3f), canvasW = 280,
+            artRoot = BonusArtRoot, stageIds = BonusOnly, bonus = BonusEnemyKind.Mimic };
+        // 黄金スライム: とても弱い(1撃)、倒すと大量EXP
+        yield return new SkySpec { id = "golden_slime", name = "GOLDEN SLIME", behavior = EnemyBehaviorKind.GoldenSlime, movement = EnemyMovementType.Ground, category = EnemyCategory.Normal,
+            tier = EnemyAiTier.T0, targetHeight = 0.75f, hp = 0.2f, mile = 0, collider = new Vector2(0.85f, 0.8f), launch = 1.1f, knockback = 1f,
+            poses = new[] { "hit", "death" }, moveFrames = 0, body = new Color(1f, 0.8f, 0.2f), accent = new Color(1f, 0.97f, 0.7f),
+            artRoot = BonusArtRoot, stageIds = BonusOnly, bonus = BonusEnemyKind.GoldenSlime };
+        // カード妖精: 小さく逃げ回る(撃破で確定Card Choice)。飛行
+        yield return new SkySpec { id = "card_fairy", name = "CARD FAIRY", behavior = EnemyBehaviorKind.CardFairy, movement = EnemyMovementType.Flying, category = EnemyCategory.Flying,
+            tier = EnemyAiTier.T0, targetHeight = 0.8f, hp = 0.6f, mile = 0, collider = new Vector2(0.6f, 0.7f), launch = 1f, knockback = 1f, hover = 0.08f,
+            poses = new[] { "hit", "death" }, moveFrames = 2, body = new Color(1f, 0.72f, 0.9f), accent = new Color(0.7f, 0.95f, 1f),
+            artRoot = BonusArtRoot, stageIds = BonusOnly, bonus = BonusEnemyKind.CardFairy };
     }
 
     static readonly string[] Basic = { "telegraph", "attack", "recover", "hit", "death" };
@@ -88,9 +120,9 @@ public static class SkyEnemyDatabase
     public static void Build()
     {
         if (!Directory.Exists(EnemyDir)) Directory.CreateDirectory(EnemyDir);
-        foreach (var spec in Specs())
+        foreach (var spec in System.Linq.Enumerable.Concat(Specs(), BonusSpecs()))
         {
-            SkyEnemyPlaceholderArt.EnsureArt(spec, ArtRoot);
+            SkyEnemyPlaceholderArt.EnsureArt(spec, spec.artRoot);
             AssetDatabase.Refresh();
             var art = ImportArt(spec);
             UpsertDefinition(spec, art);
@@ -104,7 +136,7 @@ public static class SkyEnemyDatabase
 
     static Art ImportArt(SkySpec spec)
     {
-        string dir = $"{ArtRoot}/{spec.id}";
+        string dir = $"{spec.artRoot}/{spec.id}";
         string idlePath = $"{dir}/idle.png";
         int idleH = ContentBounds(idlePath).height;
         float ppu = Mathf.Max(1f, idleH / Mathf.Max(0.1f, spec.targetHeight));
@@ -200,7 +232,7 @@ public static class SkyEnemyDatabase
             def.mileReward = spec.mile;
             def.visualScaleMultiplier = 1f;
             def.aiTier = spec.tier;
-            def.stageIds = SkyOnly;
+            def.stageIds = spec.stageIds ?? SkyOnly;
             def.bodyColliderScale = spec.collider;
             // 地上の敵は足元を下端に保つ(縮めた分だけ下へずらす)。飛ぶ敵は中心のまま。
             def.bodyColliderOffset = spec.colliderOffset != Vector2.zero ? spec.colliderOffset
@@ -210,6 +242,7 @@ public static class SkyEnemyDatabase
             def.idleHoverAmplitude = spec.hover;
             AssetDatabase.CreateAsset(def, path);
         }
+        def.bonusKind = spec.bonus;
         // 素材の参照だけは毎回同期する(実イラストへの差し替えを反映)。
         def.sprite = art.idle;
         def.runFrames = art.move != null && art.move.Length > 0 ? art.move : null;

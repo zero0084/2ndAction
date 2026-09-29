@@ -222,6 +222,22 @@ public class EncounterDirector : MonoBehaviour
             pausedForBoss = false;
         }
 
+        // BONUS ZONE(2026-09-29): 区画の間は通常のEncounterを止め、Bonus用のFormationだけを流す。
+        // 終わった後(終了の表示〜安全距離)は何も置かず、戻る時に出現位置を画面外の前方から始め直す。
+        var bonus = BonusZone.Instance;
+        if (BonusZone.SuppressesNormalSpawns && bonus != null)
+        {
+            UpdateBonus(tm, pc, gm, bonus, playerLogical, ahead, visibleAhead, speed);
+            return;
+        }
+        if (bonusWasActive)
+        {
+            bonusWasActive = false;
+            if (nextAnchor < playerLogical + ahead) nextAnchor = playerLogical + ahead;
+            intensityHistory.Add(EncounterIntensity.Rest);
+            Debug.Log("[ENCOUNTER] resumed after BONUS ZONE");
+        }
+
         // 上下ルート分岐の中身は、分岐が出現範囲に入った時点で先に決めて出しておく(通常Encounterの進み具合を
         // 待つと決めるのが遅れ、中身がルートの奥へ押し出されて分岐の手前から見えなくなる)。
         if (profile.routeEncounters) PlanUpcomingBranch(tm, pc, gm, playerLogical, ahead, speed);
@@ -268,6 +284,77 @@ public class EncounterDirector : MonoBehaviour
             }
             PlanAt(tm, pc, runDistance, speed, mainLimit);
         }
+    }
+
+    // ===================================================================== //
+    // BONUS ZONE
+    // ===================================================================== //
+    bool bonusWasActive;
+    int bonusZoneSeen = -1;
+
+    void UpdateBonus(TerrainManager tm, PlayerController pc, GameManager gm, BonusZone bonus, double playerLogical, float ahead, float visibleAhead, float speed)
+    {
+        bonusWasActive = true;
+        // 区画の間に出現範囲へ入った上下ルートの分岐は「中身なし」で決めたことにする
+        // (戻った直後に近くの分岐の中身を慌てて置くと、目の前に通常の敵が現れるため)
+        if (profile.routeEncounters && tm.TryGetBranchAfter(pc.transform.position.x - 5f, out float bf, out float bm, out bool bg) && bg)
+        {
+            double forkLogical = FloatingOrigin.ToLogical(bf);
+            if (forkLogical > lastBranchForkLogical + 1.0 && bf - pc.transform.position.x <= ahead + profile.routeLead + 10f) lastBranchForkLogical = forkLogical;
+        }
+        if (!bonus.SpawningAllowed)
+        {
+            if (nextAnchor < playerLogical + ahead) nextAnchor = playerLogical + ahead;
+            return;
+        }
+        // 始まった直後: 最初のwaveは画面のすぐ外から(走りながらすぐ獲物が見える)
+        if (bonusZoneSeen != bonus.ZonesStarted) { bonusZoneSeen = bonus.ZonesStarted; nextAnchor = playerLogical + visibleAhead + 3.0; }
+        if (nextAnchor < playerLogical + visibleAhead + 2.0) nextAnchor = playerLogical + visibleAhead + 3.0;
+        // 報酬Enemyが多く残っている間は次のwaveを待つ(倒されずに溜まって画面を埋めない)
+        if (bonus.ActiveEnemyCount() >= Mathf.Max(1, bonus.Profile.maxActiveEnemies))
+        {
+            if (nextAnchor < playerLogical + ahead) nextAnchor = playerLogical + ahead;
+            return;
+        }
+        int guard = 0;
+        while (nextAnchor <= playerLogical + ahead && guard++ < 3)
+        {
+            float sceneAnchor = (float)(nextAnchor - FloatingOrigin.Offset);
+            if (!tm.IsGenerated(sceneAnchor + 30f) || (tm.cave != null && tm.cave.Active && tm.cave.GeneratedEndX < sceneAnchor + 30f)) break;
+            EncounterFormation f = bonus.NextFormation(out Vector2 gap);
+            if (f == null) { nextAnchor += 10f; continue; }
+            float runDistance = gm.MaxDistance + (float)(nextAnchor - playerLogical);
+            bool ok = false;
+            for (int shift = 0; shift < 8 && !ok; shift++)
+            {
+                sceneAnchor = (float)(nextAnchor - FloatingOrigin.Offset);
+                var probe = new TerrainProbe(tm, profile, sceneAnchor);
+                if (Fits(f, probe, speed) && SpawnBonus(tm, bonus.Profile.band, f, probe, runDistance, speed, gap)) ok = true;
+                else nextAnchor += 5f; // 穴/坂で置けない → 少し先で
+            }
+            if (!ok) nextAnchor += 6f;
+        }
+    }
+
+    // 通常のEncounterの履歴(強さの波/連続の制御)には入れない。確認用にRecent/OnEncounterSpawnedへは流す。
+    bool SpawnBonus(TerrainManager tm, EncounterDistanceBand band, EncounterFormation f, TerrainProbe probe, float runDistance, float speed, Vector2 gap)
+    {
+        var plan = PlanSlots(tm, band, f, EncounterIntensity.Hard, probe, speed, EncounterRoute.Main);
+        if (plan == null || plan.Count == 0) return false;
+        float anchor = probe.AnchorX;
+        var rec = new Record { index = ++encounterIndex, distance = runDistance, band = band.bandName, intensity = EncounterIntensity.Medium, formation = f.formationId, terrain = probe.Describe(profile) };
+        var spawnedGos = new List<(GameObject go, EnemyDefinition def, EncounterSlotKind slot)>();
+        float minX = anchor, endX = anchor;
+        SpawnPlanned(tm, plan, rec, spawnedGos, ref minX, ref endX);
+        rec.anchorLogical = FloatingOrigin.ToLogical(minX);
+        rec.endLogical = FloatingOrigin.ToLogical(endX);
+        Recent.Add(rec);
+        if (Recent.Count > 400) Recent.RemoveAt(0);
+        Last = rec;
+        Debug.Log($"[ENCOUNTER] BONUS #{rec.index} d={rec.distance:F0} formation={rec.formation} members={rec.members.Count}");
+        OnEncounterSpawned?.Invoke(rec, f, spawnedGos);
+        nextAnchor = rec.endLogical + Range(gap) * GapScale(speed);
+        return true;
     }
 
     void PlanUpcomingBranch(TerrainManager tm, PlayerController pc, GameManager gm, double playerLogical, float ahead, float speed)

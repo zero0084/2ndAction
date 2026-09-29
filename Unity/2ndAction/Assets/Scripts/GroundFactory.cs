@@ -594,6 +594,13 @@ public static class GroundFactory
             if (ec != null) { ec.poseHit = def.poses.hit; ec.poseDeath = def.poses.death; }
         }
         if (anim != null && def.idleHoverAmplitude > 0f) anim.idleHoverAmplitude = def.idleHoverAmplitude;
+        // BONUS ZONE(2026-09-29): 報酬Enemyの印(報酬の計算・逃走の指示はBonusEnemyが持つ)
+        if (def.bonusKind != BonusEnemyKind.None && ec != null)
+        {
+            var be = enemyGO.GetComponent<BonusEnemy>();
+            if (be == null) be = enemyGO.AddComponent<BonusEnemy>();
+            be.Init(def.bonusKind, ec);
+        }
         if (ec != null) ec.ApplyDefinitionTuning(def.launchScale, def.knockbackScale);
         if (def.bodyColliderScale != Vector2.one || def.bodyColliderOffset != Vector2.zero)
         {

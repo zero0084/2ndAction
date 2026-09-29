@@ -50,6 +50,7 @@ public static class RunCheckpoint
         public int bossKillCount;
         public int runEnemyMile;
         public int runBossMile;
+        public int runBonusMile; // BONUS ZONE(2026-09-29)の仮取得MILE(古いデータは0)
         // Bugfix 2026-09-06 - "ESCAPE解禁を1000m到達からBoss撃破後へ変更".
         // A one-way flag for this Run's lifetime (set true the moment the
         // first Boss Reward completes, never reset back to false within

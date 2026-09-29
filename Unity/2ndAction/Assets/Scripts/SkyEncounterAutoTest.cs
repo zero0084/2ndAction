@@ -36,6 +36,7 @@ public class SkyEncounterAutoTest : MonoBehaviour
     readonly List<GameObject> spawned = new List<GameObject>();
 
     static readonly string[] SkyIds = { "sky_slime", "sky_hound", "harpy", "gargoyle", "celestial_knight", "ancient_sentinel", "storm_spirit", "sky_hunter" };
+    static readonly string[] BonusIds = { "treasure_goblin", "mimic", "golden_slime", "card_fairy" }; // -skyShotsOnly でBONUS ZONEの報酬Enemyも撮る
     static readonly HashSet<string> GlobalIds = new HashSet<string> { "goblin", "goblin_elite", "irregular_imp", "shooter_archer", "heavy_ogre", "chaser_runner", "rusher_runner", "flying_wyvern" };
 
     IEnumerator Watchdog()
@@ -221,7 +222,7 @@ public class SkyEncounterAutoTest : MonoBehaviour
         string outDir = System.IO.Path.Combine(Application.dataPath, "../SkyEnemyShots"); System.IO.Directory.CreateDirectory(outDir);
         const int W = 360, H = 300;
         var rt = new RenderTexture(W, H, 24);
-        foreach (string id in SkyIds)
+        foreach (string id in SkyIds.Concat(BonusIds))
         {
             var def = EnemyDatabase.FindById(id);
             if (def == null) continue;
@@ -292,6 +293,7 @@ public class SkyEncounterAutoTest : MonoBehaviour
     {
         L("[Sky Hound]");
         var go = Spawn("sky_hound", EnemyAiTier.T1, 3.2f);
+        yield return new WaitForSeconds(0.25f); // 出現直後の接地(地面の高さへ落ち着く)を待ってから測る
         var seq = new List<(string, float)>();
         float x0 = go.transform.position.x, idleDrift = 0f, attackMove = 0f, lastX = x0, yDev = 0f; float y0 = go.transform.position.y;
         // 地面からの高さで見る(突進先の地面の高さが違っても「浮いた」と誤判定しない)

@@ -32,6 +32,7 @@ MonoBehaviour:
   aiTier: 2
   stageIds:
   - sky_corridor
+  bonusKind: 0
   poses:
     telegraph: {fileID: 21300000, guid: 6b2738cb1de9dcd4c8869cf64091160c, type: 3}
     attack: {fileID: 0}
