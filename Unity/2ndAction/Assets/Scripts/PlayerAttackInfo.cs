@@ -60,6 +60,28 @@ public class PlayerAttackInfo : MonoBehaviour
     // 敵/ボス/障害物がダメージを読む箇所から呼ぶ。倍率1なら値をそのまま返す。
     public static int ScaleDamage(Collider2D attack, int damage) => ScaleDamage(attack, damage, true);
 
+    // 敵/ボスが命中を受け付けた時(victim=受けた側)。命中の演出(AttackFlair)を出してからダメージを返す。
+    public static int ScaleDamage(Collider2D attack, Component victim, int damage)
+    {
+        if (attack != null && victim != null) NotifyFlair(attack, victim);
+        return ScaleDamage(attack, damage, true);
+    }
+
+    static void NotifyFlair(Collider2D attack, Component victim)
+    {
+        var info = attack.GetComponent<PlayerAttackInfo>();
+        if (info != null && info.suppressHitStop) return; // 結界/燃える地面のような細かい多段は派手にしない
+        Vector3 ac = attack.bounds.center;
+        var vc = victim.GetComponentInChildren<Collider2D>();
+        Vector3 pos = vc != null ? (Vector3)vc.bounds.ClosestPoint(ac) : victim.transform.position + Vector3.up * 0.8f;
+        pos = Vector3.Lerp(pos, vc != null ? vc.bounds.center : pos, 0.25f);
+        var pc = PlayerController.Instance;
+        float dirX = pc != null ? Mathf.Sign(pos.x - pc.transform.position.x + 0.001f) : 1f;
+        bool boss = victim is WildBossBase || victim is DragonController || victim is MajinController;
+        bool strong = boss || (info != null && (info.damageScale >= 1.4f || info.hitStop >= 0.06f || info.kind == PlayerAttackKind.Down || info.kind == PlayerAttackKind.DownImpact));
+        AttackFlair.Hit(pos, dirX, strong);
+    }
+
     public static int ScaleDamage(Collider2D attack, int damage, bool notifyHit)
     {
         if (attack == null) return damage;

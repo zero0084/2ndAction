@@ -108,7 +108,7 @@ public class FighterKitParams
     public float[] comboActive = { 0.08f, 0.08f, 0.1f, 0.12f };
     public float[] comboRecovery = { 0.1f, 0.1f, 0.14f, 0.34f };
     public float[] comboReach = { 0.95f, 1.0f, 1.15f, 1.2f };
-    public float[] comboLunge = { 0.18f, 0.2f, 0.3f, 0.5f };
+    public float[] comboLunge = { 0.35f, 0.4f, 0.5f, 0.8f }; // 2026-09-30: 0.18/0.2/0.3/0.5 → 前進が見える量へ(間合いの短い格闘家が敵を追い越さない範囲)
     public float[] comboDamageScale = { 0.8f, 0.8f, 1.1f, 2.2f };
     public float[] comboKnockbackScale = { 0.35f, 0.35f, 0.8f, 2.6f };
     public float[] comboHitStop = { 0.04f, 0.04f, 0.06f, 0.15f };
@@ -284,7 +284,7 @@ public class DragonkinKitParams
     public float[] comboActive = { 0.1f, 0.1f, 0.14f };
     public float[] comboRecovery = { 0.16f, 0.16f, 0.36f };
     public float[] comboReach = { 1.3f, 1.3f, 1.6f };
-    public float[] comboLunge = { 0.2f, 0.2f, 0.4f };
+    public float[] comboLunge = { 0.6f, 0.6f, 1.0f }; // 2026-09-30: 0.2/0.2/0.4 → 前進が見える量へ
     public float[] comboDamageScale = { 1.3f, 1.3f, 2.3f };
     public float[] comboKnockbackScale = { 1f, 1f, 2.8f };
     public float[] comboHitStop = { 0.05f, 0.05f, 0.12f };

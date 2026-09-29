@@ -93,7 +93,9 @@ public class CameraFollow : MonoBehaviour
         if (Time.timeScale <= 0f) return;
 
         Vector3 pos = transform.position;
-        pos.x = target.position.x + offsetX + highSpeedLookAhead * speedBlend;
+        // 攻撃の前進/後退の分だけカメラを遅らせる(画面上でキャラが踏み込む/下がるのが見える。2026-09-30)
+        float stepOffset = PlayerController.Instance != null && target == PlayerController.Instance.transform ? PlayerController.Instance.ScreenStepOffset : 0f;
+        pos.x = target.position.x + offsetX + highSpeedLookAhead * speedBlend - stepOffset;
         bool diving = PlayerController.Instance != null && PlayerController.Instance.IsDiveAttacking;
         float smoothedY = Mathf.SmoothDamp(pos.y, target.position.y, ref velocity.y, diving ? yDampingDiveAttack : yDamping);
         pos.y = smoothedY;

@@ -122,6 +122,7 @@ public partial class PlayerController
                 if (!KitAlive(gen, token)) yield break;
                 t += Time.deltaTime; yield return null;
             }
+            AttackStep(back ? -kitBackStep : kitForwardStep, back ? 0.16f : 0.12f); // 2026-09-30: 前攻撃で前進/後ろ攻撃で後退
             Vector3 pos = KitWorld(MageStaff);
             float dirX = back ? -1f : 1f;
             KitProjectile proj;

@@ -90,6 +90,7 @@ public partial class PlayerController
                 t += Time.deltaTime; yield return null;
             }
             SetKitPose("throw", 1);
+            AttackStep(kitForwardStep, 0.12f); // 2026-09-30: 前攻撃で前進
             MikoThrowOfuda(new Vector2(0.5f, 0.8f), 0f, p.ofudaSpeed, p.ofudaDamageScale, true);
             if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(1);
             t = 0f;
@@ -118,6 +119,7 @@ public partial class PlayerController
                 if (!KitAlive(gen, token)) yield break;
                 t += Time.deltaTime; yield return null;
             }
+            AttackStep(-kitBackStep, 0.16f); // 2026-09-30: 後ろ攻撃で後退
             var proj = KitProjectile.Create(KitArt.PaperBirdSprite(), KitWorld(new Vector2(0.4f, 0.85f)), new Vector2(-p.shikiSpeed, 0f), p.shikiLifetime,
                 new Vector2(-0.7f, 0.55f), new Vector2(0.5f, 0.35f), Color.white, PlayerAttackKind.Normal,
                 p.shikiDamageScale, 1f, 0.03f, new Color(1f, 1f, 1f, 0.35f), false);

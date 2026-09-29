@@ -132,6 +132,9 @@ public partial class PlayerController : MonoBehaviour
     // attacking again, instead of chaining forever.
     public int maxComboChain = 3;
     public float lungeDistance = 1.2f;
+    // 二丁拳銃士の前撃ち/後ろ撃ちの移動量(2026-09-30)
+    public float gunForwardStep = 0.9f;
+    public float gunBackStep = 1.3f;
     public float recoilDistance = 1.0f;
     // Attack range grows across the combo chain (small -> medium -> large),
     // matching the growth of the slash FX, so a bigger-looking swing also
@@ -678,6 +681,37 @@ public partial class PlayerController : MonoBehaviour
     double startX;
     bool hasDied;
     float lungeVelocityX;
+    // 攻撃の前進/後退を画面上でも見せる(2026-09-30)。カメラはプレイヤーのXにぴったり付いていくので、
+    // 踏み込み/後退(lungeVelocityX)の移動量を別に貯めておき、カメラ側でその分だけ遅らせる(CameraFollow)。
+    // 貯めた量は screenStepReturnTime 秒ほどで0へ戻る(=キャラが画面上で前へ出て/下がって、元の位置へ戻る)。
+    public float ScreenStepOffset { get; private set; }
+    public float screenStepReturnTime = 0.32f;
+    public float screenStepMax = 2.6f;
+    float prevLungeForFx;
+    void UpdateScreenStep(float dt)
+    {
+        ScreenStepOffset = Mathf.Clamp(ScreenStepOffset * Mathf.Exp(-dt / Mathf.Max(0.01f, screenStepReturnTime)) + lungeVelocityX * dt, -screenStepMax, screenStepMax);
+        // 踏み込み/後退が始まった瞬間: 残像+速度線(AttackFlair)
+        if (Mathf.Abs(lungeVelocityX) > 1.2f && Mathf.Abs(prevLungeForFx) <= 1.2f) AttackFlair.Step(this, Mathf.Sign(lungeVelocityX));
+        prevLungeForFx = lungeVelocityX;
+    }
+
+    // 攻撃に伴う短い前進(+)/後退(-)。技の途中で別の技/被弾に切り替わったら、そちらの設定を優先する。
+    int attackStepToken;
+    void AttackStep(float distance, float time) => StartCoroutine(AttackStepRoutine(distance, time));
+    System.Collections.IEnumerator AttackStepRoutine(float distance, float time)
+    {
+        int tok = ++attackStepToken, gen = attackGeneration;
+        float v = distance / Mathf.Max(0.01f, time);
+        lungeVelocityX = v;
+        float t = 0f;
+        while (t < time)
+        {
+            if (gen != attackGeneration || tok != attackStepToken || !Mathf.Approximately(lungeVelocityX, v)) yield break;
+            t += Time.deltaTime; yield return null;
+        }
+        if (tok == attackStepToken && Mathf.Approximately(lungeVelocityX, v)) lungeVelocityX = 0f;
+    }
     float hitInvincibleTimer;
     // Cave spike contact cooldown: guarantees one spike touch is one damage event even when TakeDamage is ignored (shield etc.).
     float caveSpikeCooldown;
@@ -1059,6 +1093,7 @@ public partial class PlayerController : MonoBehaviour
         float effectiveKnockback = knockbackVelocityX * knockbackFrac;
         float newX = transform.position.x + (autoSpeed + lungeVelocityX + effectiveKnockback) * dt;
         float prevX = transform.position.x;
+        UpdateScreenStep(dt);
 
         // Two independent, parallel surfaces the player can stand on - the
         // main ground path, and (optionally) an elevated sky-path platform
@@ -2160,6 +2195,12 @@ public partial class PlayerController : MonoBehaviour
         // window: no input gets buffered this swing, so the player falls
         // through to the normal cooldown gap before the next attack.
         bool allowChain = comboCount < maxComboChain;
+        // コンボの締め(最後の段): 大きな斬撃の光(AttackFlair)
+        if (!allowChain && comboCount >= 2)
+        {
+            float fx = transform.localScale.x < 0f ? -1f : 1f;
+            AttackFlair.Finisher(transform.position + new Vector3(fx * 1.3f, 0.9f, 0f), fx);
+        }
 
         // AttackSpeedMultiplier (from "ATTACK SPEED UP") shrinks the whole
         // swing uniformly, so the combo window still opens at the same
@@ -2454,7 +2495,9 @@ public partial class PlayerController : MonoBehaviour
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(comboCount);
 
         ApplyAttackDirection(dir);
-        lungeVelocityX = 0f; // 「銃を撃つたびに完全停止/踏み込みする仕様にはしない」- 自動前進のみ維持
+        lungeVelocityX = 0f;
+        // 2026-09-30: 前撃ちは半歩踏み込み、後ろ撃ちは跳び退きながら撃つ(以前は移動なし=前進/後退しないと見えていた)
+        AttackStep(dir == AttackDirection.Backward ? -gunBackStep : gunForwardStep, 0.14f);
 
         float facing = transform.localScale.x >= 0f ? 1f : -1f;
         FireRangedBullet(new Vector2(facing, 0f), rangedForwardMuzzleOffset);

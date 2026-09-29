@@ -777,7 +777,7 @@ public abstract class WildBossBase : MonoBehaviour
 
         if (other.CompareTag("PlayerAttack"))
         {
-            int dmg = PlayerAttackInfo.ScaleDamage(other, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamageFallback);
+            int dmg = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamageFallback);
             TakeDamage(dmg, other.bounds.center);
             return;
         }
@@ -947,7 +947,7 @@ public abstract class WildBossBase : MonoBehaviour
         if (other == netLastHitCollider && netHitCooldown > Time.time) return;
         netLastHitCollider = other;
         netHitCooldown = Time.time + 0.18f;
-        int dmg = PlayerAttackInfo.ScaleDamage(other, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamageFallback);
+        int dmg = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamageFallback);
         PlayerAttackKind kind = PlayerAttackKind.Normal;
         var info = other.GetComponent<PlayerAttackInfo>();
         if (info != null) kind = info.kind;

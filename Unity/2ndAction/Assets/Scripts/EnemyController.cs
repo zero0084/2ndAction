@@ -526,7 +526,7 @@ public class EnemyController : MonoBehaviour
             // The actual point the two colliders meet, not either object's
             // center - reads as "where the blade actually reached".
             Vector3 contactPoint = other.ClosestPoint(transform.position);
-            int damage = PlayerAttackInfo.ScaleDamage(other, PlayerController.Instance != null ? PlayerController.Instance.EffectiveAttackPower : 1);
+            int damage = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveAttackPower : 1);
             hp -= Mathf.Max(1, damage);
             bool killed = hp <= 0;
 
@@ -1132,7 +1132,7 @@ public class EnemyController : MonoBehaviour
         netLocalHitCooldown = Time.time + 0.18f;
 
         Vector3 contactPoint = other.ClosestPoint(transform.position);
-        int damage = PlayerAttackInfo.ScaleDamage(other, PlayerController.Instance != null ? PlayerController.Instance.EffectiveAttackPower : 1);
+        int damage = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveAttackPower : 1);
         PlayerAttackKind kind = PlayerAttackKind.Normal;
         var info = other.GetComponent<PlayerAttackInfo>();
         if (info != null) kind = info.kind;

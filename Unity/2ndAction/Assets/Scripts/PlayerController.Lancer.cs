@@ -334,6 +334,7 @@ public partial class PlayerController
             if (back)
             {
                 ArmLanceHitbox(0.3f, d.lanceBackReach * AttackRangeMultiplier, d.lanceHeight, d.lanceThickness, 180f);
+                lungeVelocityX = -kitBackStep / Mathf.Max(0.01f, active); // 2026-09-30: 後ろ攻撃で後退(以前は移動なし)
             }
             else
             {

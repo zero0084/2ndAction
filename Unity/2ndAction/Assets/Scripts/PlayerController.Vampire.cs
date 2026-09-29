@@ -197,7 +197,7 @@ public partial class PlayerController
             float reach = ArcherPick(p.comboReach, stage - 1, 1.1f) * AttackRangeMultiplier;
             ArmVampireBox(new Vector2(0.2f + reach * 0.5f, 0.65f), new Vector2(reach, stage >= 3 ? 0.9f : 0.75f), 0f, PlayerAttackKind.Normal,
                 ArcherPick(p.comboDamageScale, stage - 1, 1f), ArcherPick(p.comboKnockbackScale, stage - 1, 1f), ArcherPick(p.comboHitStop, stage - 1, 0.03f), p.gainPerHit);
-            lungeVelocityX = (stage >= 3 ? 0.35f : 0.15f) / Mathf.Max(0.01f, active);
+            lungeVelocityX = (stage >= 3 ? 1.0f : 0.6f) / Mathf.Max(0.01f, active); // 2026-09-30: 0.15/0.35 → 0.6/1.0(前進が見えるように)
             Color blood = BloodRush ? new Color(1f, 0.25f, 0.3f, 0.95f) : new Color(0.85f, 0.1f, 0.18f, 0.9f);
             if (stage >= 3)
             {

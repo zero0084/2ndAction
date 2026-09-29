@@ -186,6 +186,7 @@ public partial class PlayerController
                 t += Time.deltaTime; yield return null;
             }
             SetKitPose("tail", 1);
+            AttackStep(-kitBackStep, 0.16f); // 2026-09-30: 後ろ攻撃で後退
             float reach = p.tailReach * AttackRangeMultiplier;
             ArmKitBox(new Vector2(-0.1f - reach * 0.5f + 0.4f, 0.45f), new Vector2(reach + 0.8f, 1.0f), 0f, PlayerAttackKind.Up, p.tailDamageScale, 1f, 0.06f);
             OneShotSpriteEffect.CreateTweened(KitProjectile.Slash, KitWorld(new Vector2(-reach * 0.55f, 0.45f)), new Color(1f, 0.55f, 0.3f, 0.85f), duration: 0.2f, startScale: reach * 0.5f, endScale: reach * 0.8f, rotationDegrees: 180f, sortingOrder: RenderOrder.SlashFx, holdFraction: 0.25f);

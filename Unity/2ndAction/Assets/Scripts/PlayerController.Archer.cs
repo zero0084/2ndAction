@@ -73,6 +73,7 @@ public partial class PlayerController
                 t += Time.deltaTime; yield return null;
             }
             SetKitPose("release", 0);
+            AttackStep(kitForwardStep, 0.12f); // 2026-09-30: 前攻撃で前進
             FireArcherArrow(stage);
             t = 0f;
             while (t < recovery)
@@ -139,6 +140,7 @@ public partial class PlayerController
                 t += Time.deltaTime; yield return null;
             }
             SetKitPose("release", 0);
+            AttackStep(-kitBackStep, 0.16f); // 2026-09-30: 後ろ攻撃で後退
             Vector3 pos = KitWorld(p.muzzle);
             var proj = KitProjectile.Create(KitProjectile.Arrow, pos, new Vector2(-p.arrowSpeed, 0f), p.arrowLifetime * 0.8f,
                 new Vector2(0.85f, 0.85f), new Vector2(0.72f, 0.16f), Color.white, PlayerAttackKind.Normal,

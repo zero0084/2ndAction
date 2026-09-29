@@ -22,6 +22,9 @@ public partial class PlayerController
     bool kitOwnsAttack;
     // 技の最中の前進速度倍率/縦速度の上書き(ダイブキック・急降下・空中で矢を放つ一瞬の滞空など)。
     float kitMoveSlowFactor = 1f;
+    // 2026-09-30: 前攻撃/後ろ攻撃で移動の無かったキャラ(弓/魔法/巫女/竜人の尻尾/竜騎士の石突き)の前進・後退量
+    public float kitForwardStep = 0.9f;
+    public float kitBackStep = 1.3f;
     float? kitVerticalVelocity;
     // 忍者の瞬身/格闘家のカウンター直後のごく短い無敵(被弾処理の入口で弾く。点滅はしない)。
     float kitIFrameTimer;
