@@ -262,10 +262,57 @@ public class BossManager : MonoBehaviour
         return true;
     }
 
+    // ===== LAST CORRIDOR(ラストダンジョン候補、2026-09-29) =====
+    // 専用ボスは作らず、3ステージの既存ボスを交互に出す(再登場・高い段階のボスも出る)。
+    //   1,000m単位: ウルフ(荒野) / 巨大ムカデ(洞窟) / ドラゴン(天空)を順番に
+    //   5,000m単位: ゴブリンライダー / 巨大サソリ / 魔人を順番に
+    //   10,000m単位: 3ステージの大型ボスから選んだ9体(下の表)。100,000mは死神(正式なラスボス/エンディングは無し)
+    // 体数は各ステージの計算式(距離が進むほど増える)をそのまま使う。
+    public const string LastStageId = "last_corridor";
+    bool IsLastStage => GameManager.Instance != null && GameManager.Instance.ActiveRunStageId == LastStageId;
+    enum GateFamily { Wild, Cave, Sky }
+    struct LastBoss { public GateFamily family; public int kind; public LastBoss(GateFamily f, int k) { family = f; kind = k; } }
+    static readonly LastBoss[] LastTenKmBosses =
+    {
+        new LastBoss(GateFamily.Wild, (int)WildBossKind.Golem),
+        new LastBoss(GateFamily.Cave, (int)CaveBossKind.CrystalGolem),
+        new LastBoss(GateFamily.Sky, (int)SkyBossKind.Titan),
+        new LastBoss(GateFamily.Wild, (int)WildBossKind.Hydra),
+        new LastBoss(GateFamily.Cave, (int)CaveBossKind.Basilisk),
+        new LastBoss(GateFamily.Sky, (int)SkyBossKind.Phoenix),
+        new LastBoss(GateFamily.Wild, (int)WildBossKind.BlackKnight),
+        new LastBoss(GateFamily.Cave, (int)CaveBossKind.AncientDemon),
+        new LastBoss(GateFamily.Sky, (int)SkyBossKind.Guardian),
+    };
+
+    bool ResolveLastGate(int k, out GateFamily family, out int kind, out int count)
+    {
+        count = 1; kind = 0;
+        if (k % 10 == 0)
+        {
+            int idx = k / 10 - 1;
+            family = GateFamily.Wild;
+            if (idx < 0 || idx >= LastTenKmBosses.Length) return false; // 100,000m = 死神
+            family = LastTenKmBosses[idx].family; kind = LastTenKmBosses[idx].kind;
+            return true;
+        }
+        family = (GateFamily)((k % 5 == 0 ? k / 5 - 1 : k - 1) % 3);
+        switch (family)
+        {
+            case GateFamily.Cave: { bool ok = ResolveCaveGate(k, out var c, out count); kind = (int)c; return ok; }
+            case GateFamily.Sky: { bool ok = ResolveSkyGate(k, out var s, out count); kind = (int)s; return ok; }
+            default: { bool ok = ResolveGate(k, out var w, out count); kind = (int)w; return ok; }
+        }
+    }
+
     void SkipEmptyGates()
     {
         int guard = 0;
-        if (IsSkyStage)
+        if (IsLastStage)
+        {
+            while (guard++ < 20 && !ResolveLastGate(gateK, out _, out _, out _)) gateK++;
+        }
+        else if (IsSkyStage)
         {
             while (guard++ < 20 && !ResolveSkyGate(gateK, out _, out _)) gateK++;
         }
@@ -832,9 +879,36 @@ public class BossManager : MonoBehaviour
         aliveWildThisEncounter = 0;
         if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
 
+        if (IsLastStage)
+        {
+            if (!ResolveLastGate(gateK, out GateFamily fam, out int lastKind, out int lastCount)) { IsBossPhase = false; return; }
+            if (fam == GateFamily.Sky) StartSkyGate((SkyBossKind)lastKind, lastCount);
+            else if (fam == GateFamily.Cave) StartCaveGate((CaveBossKind)lastKind, lastCount);
+            else StartWildGate((WildBossKind)lastKind, lastCount);
+            return;
+        }
+
         if (IsSkyStage)
         {
             if (!ResolveSkyGate(gateK, out SkyBossKind skyKind, out int skyCount)) { IsBossPhase = false; return; }
+            StartSkyGate(skyKind, skyCount);
+            return;
+        }
+
+        if (IsCaveStage)
+        {
+            if (!ResolveCaveGate(gateK, out CaveBossKind caveKind, out int caveCount)) { IsBossPhase = false; return; }
+            StartCaveGate(caveKind, caveCount);
+            return;
+        }
+
+        if (!ResolveGate(gateK, out WildBossKind gateKind, out int gateCount)) { IsBossPhase = false; return; }
+        StartWildGate(gateKind, gateCount);
+    }
+
+    void StartSkyGate(SkyBossKind skyKind, int skyCount)
+    {
+        {
             SetBossMusic(gateK, skyKind.ToString());
             StartSkyEncounter(skyKind, skyCount);
             if (GameManager.Instance != null)
@@ -842,12 +916,12 @@ public class BossManager : MonoBehaviour
                 GameManager.Instance.LogBoss("CombatStart");
                 if (GameManager.Instance.DebugMode) Debug.Log($"[Boss] Sky spawn kind={skyKind} count={skyCount} at {WildTargetDistance()}m");
             }
-            return;
         }
+    }
 
-        if (IsCaveStage)
+    void StartCaveGate(CaveBossKind caveKind, int caveCount)
+    {
         {
-            if (!ResolveCaveGate(gateK, out CaveBossKind caveKind, out int caveCount)) { IsBossPhase = false; return; }
             SetBossMusic(gateK, caveKind.ToString());
             aliveWildThisEncounter = caveCount;
             // ボス遭遇区間だけ、最低限の戦闘可能スペース(通常天井相当・針なし)
@@ -864,10 +938,11 @@ public class BossManager : MonoBehaviour
                 GameManager.Instance.LogBoss("CombatStart");
                 if (GameManager.Instance.DebugMode) Debug.Log($"[Boss] Cave spawn kind={caveKind} count={caveCount} at {WildTargetDistance()}m");
             }
-            return;
         }
+    }
 
-        if (!ResolveGate(gateK, out WildBossKind gateKind, out int gateCount)) { IsBossPhase = false; return; }
+    void StartWildGate(WildBossKind gateKind, int gateCount)
+    {
         SetBossMusic(gateK, gateKind.ToString());
         var e = new { kind = gateKind, count = gateCount };
 

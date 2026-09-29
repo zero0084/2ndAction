@@ -436,6 +436,9 @@ public class ObstacleSpawner : MonoBehaviour
         lastUpperObstacleX = worldX;
     }
 
+    // ステージ固有の演出(LAST CORRIDORの落ちてくる構造物など)用: 障害物ができた直後に呼ぶ(HOST/ソロの配置、JOINの写しの両方)。
+    public static event System.Action<ObstacleController, string> Created;
+
     // 障害物の耐久力(2026-09-29): 置いた障害物に種類ごとの耐久力/素材を設定し、マルチならHOSTが全員へ共有する。
     void Register(GameObject obstacle, ObstacleSpec spec, float angle, bool upper)
     {
@@ -444,6 +447,7 @@ public class ObstacleSpawner : MonoBehaviour
         if (oc == null) return;
         oc.Setup(spec.name);
         NetObstacles.OnSpawned(oc, obstacleStageId, SpecIndex(spec.name), angle, upper);
+        Created?.Invoke(oc, obstacleStageId);
     }
 
     int SpecIndex(string n) { for (int i = 0; i < specs.Length; i++) if (specs[i].name == n) return i; return -1; }
@@ -463,6 +467,7 @@ public class ObstacleSpawner : MonoBehaviour
         if (go == null) return null;
         var oc = go.GetComponent<ObstacleController>();
         oc.Setup(spec.name);
+        Created?.Invoke(oc, obstacleStageId);
         return oc;
     }
 

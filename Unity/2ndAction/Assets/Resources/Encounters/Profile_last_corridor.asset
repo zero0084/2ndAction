@@ -1,0 +1,2110 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d858cd7b62ca7443b3b763cb5f732d9, type: 3}
+  m_Name: Profile_last_corridor
+  m_EditorClassIdentifier: Assembly-CSharp::StageEncounterProfile
+  stageId: last_corridor
+  enabled: 1
+  routeLayout: 0
+  longStraightChance: 0.12
+  longStraightChunksMin: 3
+  longStraightChunksMax: 6
+  routeEncounters: 0
+  routeLead: 8
+  routeEdgeMargin: 1.5
+  routeFrontLoad: 14
+  afterMergeGap: {x: 6, y: 12}
+  routeFallbackFormation: staggered
+  branchRestScale: 0.4
+  replacesChunkSpawns: 1
+  replacesMilestoneWalls: 1
+  stageFormations:
+  - formationId: guard_hopper
+    displayName: Guard + Hopper
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds:
+      - cave_ant
+      - soldier_ant
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 0
+      xOffset: 1.7
+      jitter: 0.2
+      minIntensity: 2
+      preferEnemyIds:
+      - cave_ant
+      - soldier_ant
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 6
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - cave_hopper
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 9
+      jitter: 0.4
+      minIntensity: 3
+      preferEnemyIds:
+      - cave_hopper
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 4.6
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.5
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 0.8
+    wideAffinity: 1.3
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: burrow_ambush
+    displayName: Burrow Ambush
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 5
+      xOffset: 2
+      jitter: 0.5
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 8
+      jitter: 0.4
+      minIntensity: 2
+      preferEnemyIds:
+      - cave_ant
+      - soldier_ant
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 5
+      xOffset: 14
+      jitter: 0.5
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 3.6
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 1
+    minGroundGap: 2
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1.2
+    straightAffinity: 1.6
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: frontline_rear
+    displayName: Frontline + Rear
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      - heavy_ogre
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 0
+      xOffset: 1.9
+      jitter: 0.2
+      minIntensity: 2
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 9.5
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - shooter_archer
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 13
+      jitter: 0.4
+      minIntensity: 3
+      preferEnemyIds:
+      - shooter_archer
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.6
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1.3
+    spacingSpeedScale: 0.45
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: goblin_horde
+    displayName: Goblin Horde
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 1
+      xOffset: 0
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 1.5
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 3
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 4.5
+      jitter: 0.2
+      minIntensity: 2
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 6
+      jitter: 0.2
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.3
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1.4
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: heavy_horde
+    displayName: Heavy + Horde
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 3
+    slots:
+    - kind: 1
+      xOffset: 0
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 2.6
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds:
+      - heavy_ogre
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 5.4
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 7.4
+      jitter: 0.2
+      minIntensity: 3
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.8
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1.2
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: gap_guard
+    displayName: Gap Guard
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 7
+      jitter: 0.6
+      minIntensity: 1
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      preferOnly: 1
+      pitAnchor: 1
+      required: 0
+    - kind: 1
+      xOffset: 8.5
+      jitter: 0.4
+      minIntensity: 3
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      preferOnly: 1
+      pitAnchor: 1
+      required: 0
+    - kind: 0
+      xOffset: 3
+      jitter: 0.6
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 2
+      required: 0
+    - kind: 2
+      xOffset: 6.5
+      jitter: 0.4
+      minIntensity: 3
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      preferOnly: 1
+      pitAnchor: 2
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 2
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.15
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 1
+    pitSearchStart: 9
+    pitSearchEnd: 32
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: sky_line
+    displayName: Sky Line
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds:
+      - sky_slime
+      - sky_hound
+      - goblin
+      - goblin_elite
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 2.3
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds:
+      - sky_slime
+      - sky_hound
+      - goblin
+      - goblin_elite
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 4.6
+      jitter: 0.3
+      minIntensity: 2
+      preferEnemyIds:
+      - sky_slime
+      - sky_hound
+      - goblin
+      - goblin_elite
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 6.9
+      jitter: 0.3
+      minIntensity: 3
+      preferEnemyIds:
+      - sky_slime
+      - sky_hound
+      - goblin
+      - goblin_elite
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.6
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: sky_pack
+    displayName: Sky Pack
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - sky_hound
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 3.4
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - sky_hound
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 6.8
+      jitter: 0.4
+      minIntensity: 2
+      preferEnemyIds:
+      - sky_hound
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.6
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: aerial_line
+    displayName: Aerial Line
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 3
+      xOffset: 0
+      jitter: 0.5
+      minIntensity: 1
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 7
+      xOffset: 4.2
+      jitter: 0.5
+      minIntensity: 1
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 3
+      xOffset: 8.4
+      jitter: 0.5
+      minIntensity: 2
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 1
+    requiresBurrowGround: 0
+    minGroundGap: 1.6
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: sky_ground_air
+    displayName: Ground + Air
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds:
+      - sky_slime
+      - sky_hound
+      - goblin
+      - goblin_elite
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 3
+      xOffset: 3.6
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 2.4
+      jitter: 0.3
+      minIntensity: 2
+      preferEnemyIds:
+      - sky_slime
+      - sky_hound
+      - goblin
+      - goblin_elite
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 7
+      xOffset: 6.8
+      jitter: 0.4
+      minIntensity: 3
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 1
+    requiresBurrowGround: 0
+    minGroundGap: 1.6
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: aerial_stair
+    displayName: Aerial Stair
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 3
+      xOffset: 2
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 7
+      xOffset: 5.5
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 4
+      xOffset: 9
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 4
+      xOffset: 12.5
+      jitter: 0.2
+      minIntensity: 3
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 0
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 1
+    requiresBurrowGround: 0
+    minGroundGap: 1.6
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: launch_bridge
+    displayName: Launch Bridge
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds:
+      - sky_slime
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 3
+      xOffset: 1.8
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 3.8
+      jitter: 0.2
+      minIntensity: 2
+      preferEnemyIds:
+      - sky_slime
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 7
+      xOffset: 5.6
+      jitter: 0.2
+      minIntensity: 2
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 4
+      xOffset: 7.4
+      jitter: 0.2
+      minIntensity: 3
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 1
+    requiresBurrowGround: 0
+    minGroundGap: 1.6
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: gargoyle_gate
+    displayName: Gargoyle Gate
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 8
+      xOffset: 3
+      jitter: 0.5
+      minIntensity: 1
+      preferEnemyIds:
+      - gargoyle
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 0
+      xOffset: 9
+      jitter: 0.5
+      minIntensity: 2
+      preferEnemyIds:
+      - gargoyle
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 8
+      xOffset: 15
+      jitter: 0.5
+      minIntensity: 3
+      preferEnemyIds:
+      - gargoyle
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 12
+      jitter: 0.4
+      minIntensity: 2
+      preferEnemyIds:
+      - sky_slime
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 3
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.45
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: guardian_wall
+    displayName: Guardian Wall
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds:
+      - sky_slime
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 5
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds:
+      - ancient_sentinel
+      preferOnly: 1
+      pitAnchor: 0
+      required: 1
+    - kind: 3
+      xOffset: 8.5
+      jitter: 0.4
+      minIntensity: 2
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 11
+      jitter: 0.4
+      minIntensity: 3
+      preferEnemyIds:
+      - sky_slime
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 1
+    requiresBurrowGround: 0
+    minGroundGap: 2.4
+    dangerGroup: danger
+    groupCooldown: 2
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: knight_patrol
+    displayName: Knight Patrol
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - celestial_knight
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 6.5
+      jitter: 0.4
+      minIntensity: 2
+      preferEnemyIds:
+      - celestial_knight
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    - kind: 3
+      xOffset: 9.5
+      jitter: 0.4
+      minIntensity: 3
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 13
+      jitter: 0.4
+      minIntensity: 3
+      preferEnemyIds:
+      - celestial_knight
+      preferOnly: 1
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 3
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.45
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: storm_zone
+    displayName: Storm Zone
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 3
+    slots:
+    - kind: 7
+      xOffset: 7
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds:
+      - storm_spirit
+      preferOnly: 1
+      pitAnchor: 0
+      required: 1
+    - kind: 0
+      xOffset: 2
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds:
+      - sky_slime
+      - sky_hound
+      - goblin
+      - goblin_elite
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 12
+      jitter: 0.4
+      minIntensity: 2
+      preferEnemyIds:
+      - sky_slime
+      - sky_hound
+      - goblin
+      - goblin_elite
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 1
+    requiresBurrowGround: 0
+    minGroundGap: 1.6
+    dangerGroup: danger
+    groupCooldown: 2
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.5
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: hunter_attack
+    displayName: Hunter Attack
+    stageSpecific: 1
+    minIntensity: 3
+    maxIntensity: 3
+    slots:
+    - kind: 4
+      xOffset: 7
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds:
+      - sky_hunter
+      preferOnly: 1
+      pitAnchor: 0
+      required: 1
+    - kind: 0
+      xOffset: 1
+      jitter: 0.3
+      minIntensity: 3
+      preferEnemyIds:
+      - sky_slime
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 0
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 1
+    requiresBurrowGround: 0
+    minGroundGap: 1.6
+    dangerGroup: danger
+    groupCooldown: 3
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: aerial_wave
+    displayName: Aerial Wave
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 3
+    slots:
+    - kind: 3
+      xOffset: 0
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 7
+      xOffset: 3.2
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 3
+      xOffset: 20
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 4
+      xOffset: 23
+      jitter: 0.4
+      minIntensity: 2
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 0
+      xOffset: 36
+      jitter: 0.4
+      minIntensity: 2
+      preferEnemyIds:
+      - sky_slime
+      - sky_hound
+      - goblin
+      - goblin_elite
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 3
+      xOffset: 38.5
+      jitter: 0.4
+      minIntensity: 3
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 1
+    requiresBurrowGround: 0
+    minGroundGap: 1.6
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1.2
+    spacingSpeedScale: 0.5
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: sky_gauntlet
+    displayName: Sky Gauntlet
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 1.8
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 3
+      xOffset: 3.4
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 0
+      xOffset: 13
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 7
+      xOffset: 15
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 0
+      xOffset: 26
+      jitter: 0.3
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 27.8
+      jitter: 0.3
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 3
+      xOffset: 29.5
+      jitter: 0.3
+      minIntensity: 3
+      preferEnemyIds:
+      - harpy
+      - flying_wyvern
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 1
+    requiresBurrowGround: 0
+    minGroundGap: 1.6
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1.5
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  bands:
+  - bandName: 0-10000 corridor guards
+    startDistance: 0
+    endDistance: 10000
+    enemies:
+    - enemyId: goblin
+      weight: 0.6
+      minTier: 1
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 000000000100000002000000
+    - enemyId: goblin_elite
+      weight: 0.9
+      minTier: 1
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 00000000010000000200000008000000
+    - enemyId: shooter_archer
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    - enemyId: heavy_ogre
+      weight: 0.5
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0000000001000000
+    - enemyId: soldier_ant
+      weight: 0.9
+      minTier: 1
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 0000000001000000
+    - enemyId: cave_hopper
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    - enemyId: cave_bat
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0300000004000000
+    - enemyId: sky_hound
+      weight: 0.8
+      minTier: 1
+      maxTier: 2
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: harpy
+      weight: 0.6
+      minTier: 2
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 030000000700000004000000
+    - enemyId: gargoyle
+      weight: 0.7
+      minTier: 2
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000008000000
+    - enemyId: celestial_knight
+      weight: 0.6
+      minTier: 3
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    formations:
+    - formationId: ground_line
+      weight: 0.8
+    - formationId: staggered
+      weight: 0.9
+    - formationId: goblin_horde
+      weight: 0.7
+    - formationId: frontline_rear
+      weight: 1
+    - formationId: heavy_horde
+      weight: 0.8
+    - formationId: gap_guard
+      weight: 0.9
+    - formationId: guard_hopper
+      weight: 0.9
+    - formationId: sky_pack
+      weight: 0.8
+    - formationId: sky_ground_air
+      weight: 0.9
+    - formationId: gargoyle_gate
+      weight: 1
+    - formationId: knight_patrol
+      weight: 0.8
+    - formationId: ground_air
+      weight: 0.8
+    restWeight: 1.1
+    easyWeight: 1.2
+    mediumWeight: 1.1
+    hardWeight: 0.4
+    easyTiers:
+      t0: 0.6
+      t1: 0.8
+      t2: 0.3
+      t3: 0
+      t4: 0
+      t5: 0
+    mediumTiers:
+      t0: 0.3
+      t1: 0.7
+      t2: 0.6
+      t3: 0.2
+      t4: 0
+      t5: 0
+    hardTiers:
+      t0: 0.2
+      t1: 0.5
+      t2: 0.8
+      t3: 0.5
+      t4: 0
+      t5: 0
+  - bandName: 10000-25000 +sentinel/worm
+    startDistance: 10000
+    endDistance: 25000
+    enemies:
+    - enemyId: goblin_elite
+      weight: 0.8
+      minTier: 1
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 00000000010000000200000008000000
+    - enemyId: shooter_archer
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    - enemyId: heavy_ogre
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0000000001000000
+    - enemyId: chaser_runner
+      weight: 0.5
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    - enemyId: soldier_ant
+      weight: 0.8
+      minTier: 1
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 0000000001000000
+    - enemyId: cave_hopper
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    - enemyId: cave_bat
+      weight: 0.7
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0300000004000000
+    - enemyId: burrow_worm
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 05000000
+    - enemyId: sky_hound
+      weight: 0.8
+      minTier: 1
+      maxTier: 2
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: harpy
+      weight: 0.8
+      minTier: 2
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 030000000700000004000000
+    - enemyId: gargoyle
+      weight: 0.8
+      minTier: 2
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000008000000
+    - enemyId: celestial_knight
+      weight: 0.9
+      minTier: 3
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: ancient_sentinel
+      weight: 0.7
+      minTier: 2
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 0000000001000000
+    formations:
+    - formationId: staggered
+      weight: 0.8
+    - formationId: frontline_rear
+      weight: 1
+    - formationId: heavy_horde
+      weight: 0.9
+    - formationId: gap_guard
+      weight: 1
+    - formationId: guard_hopper
+      weight: 0.8
+    - formationId: burrow_ambush
+      weight: 0.8
+    - formationId: sky_ground_air
+      weight: 0.9
+    - formationId: gargoyle_gate
+      weight: 0.9
+    - formationId: knight_patrol
+      weight: 1
+    - formationId: guardian_wall
+      weight: 0.9
+    - formationId: launch_bridge
+      weight: 0.8
+    - formationId: gauntlet
+      weight: 0.9
+    restWeight: 1
+    easyWeight: 1
+    mediumWeight: 1.2
+    hardWeight: 0.55
+    easyTiers:
+      t0: 0.5
+      t1: 0.8
+      t2: 0.5
+      t3: 0.2
+      t4: 0
+      t5: 0
+    mediumTiers:
+      t0: 0.3
+      t1: 0.6
+      t2: 0.8
+      t3: 0.5
+      t4: 0
+      t5: 0
+    hardTiers:
+      t0: 0.15
+      t1: 0.4
+      t2: 0.8
+      t3: 0.9
+      t4: 0
+      t5: 0
+  - bandName: 25000-55000 collapse
+    startDistance: 25000
+    endDistance: 55000
+    enemies:
+    - enemyId: goblin_elite
+      weight: 0.6
+      minTier: 1
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 00000000010000000200000008000000
+    - enemyId: heavy_ogre
+      weight: 0.5
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0000000001000000
+    - enemyId: rusher_runner
+      weight: 0.5
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    - enemyId: chaser_runner
+      weight: 0.4
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    - enemyId: soldier_ant
+      weight: 0.6
+      minTier: 1
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 0000000001000000
+    - enemyId: cave_bat
+      weight: 0.9
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0300000004000000
+    - enemyId: burrow_worm
+      weight: 0.5
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 05000000
+    - enemyId: flying_wyvern
+      weight: 0.7
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 030000000700000004000000
+    - enemyId: sky_hound
+      weight: 0.8
+      minTier: 1
+      maxTier: 2
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: harpy
+      weight: 1
+      minTier: 2
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 030000000700000004000000
+    - enemyId: gargoyle
+      weight: 0.9
+      minTier: 2
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000008000000
+    - enemyId: celestial_knight
+      weight: 1
+      minTier: 3
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: ancient_sentinel
+      weight: 0.8
+      minTier: 2
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 0000000001000000
+    - enemyId: storm_spirit
+      weight: 0.6
+      minTier: 4
+      maxTier: 4
+      tierDrivesMelee: 0
+      allowedSlots: 0700000004000000
+    formations:
+    - formationId: frontline_rear
+      weight: 0.9
+    - formationId: heavy_horde
+      weight: 0.8
+    - formationId: gap_guard
+      weight: 1.1
+    - formationId: burrow_ambush
+      weight: 0.7
+    - formationId: air_swarm
+      weight: 0.8
+    - formationId: aerial_line
+      weight: 1
+    - formationId: sky_ground_air
+      weight: 1
+    - formationId: aerial_stair
+      weight: 0.8
+    - formationId: gargoyle_gate
+      weight: 0.9
+    - formationId: knight_patrol
+      weight: 1
+    - formationId: guardian_wall
+      weight: 1
+    - formationId: storm_zone
+      weight: 0.8
+    - formationId: aerial_wave
+      weight: 0.9
+    - formationId: sky_gauntlet
+      weight: 0.9
+    restWeight: 1
+    easyWeight: 0.9
+    mediumWeight: 1.2
+    hardWeight: 0.65
+    easyTiers:
+      t0: 0.4
+      t1: 0.8
+      t2: 0.6
+      t3: 0.3
+      t4: 0
+      t5: 0
+    mediumTiers:
+      t0: 0.2
+      t1: 0.5
+      t2: 0.8
+      t3: 0.7
+      t4: 0
+      t5: 0
+    hardTiers:
+      t0: 0.1
+      t1: 0.3
+      t2: 0.8
+      t3: 1.1
+      t4: 0
+      t5: 0
+  - bandName: 55000-85000 abyss
+    startDistance: 55000
+    endDistance: 85000
+    enemies:
+    - enemyId: goblin_elite
+      weight: 0.5
+      minTier: 1
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 00000000010000000200000008000000
+    - enemyId: sky_slime
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 00000000010000000200000008000000
+    - enemyId: sky_hound
+      weight: 0.7
+      minTier: 1
+      maxTier: 2
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: gargoyle
+      weight: 1
+      minTier: 2
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000008000000
+    - enemyId: celestial_knight
+      weight: 1
+      minTier: 3
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: ancient_sentinel
+      weight: 0.8
+      minTier: 2
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 0000000001000000
+    - enemyId: cave_bat
+      weight: 0.8
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0300000004000000
+    - enemyId: flying_wyvern
+      weight: 0.8
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 030000000700000004000000
+    - enemyId: harpy
+      weight: 1.1
+      minTier: 2
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 030000000700000004000000
+    - enemyId: storm_spirit
+      weight: 0.8
+      minTier: 4
+      maxTier: 4
+      tierDrivesMelee: 0
+      allowedSlots: 0700000004000000
+    - enemyId: sky_hunter
+      weight: 0.5
+      minTier: 5
+      maxTier: 5
+      tierDrivesMelee: 0
+      allowedSlots: 0400000007000000
+    formations:
+    - formationId: sky_line
+      weight: 0.7
+    - formationId: aerial_line
+      weight: 1
+    - formationId: sky_ground_air
+      weight: 1
+    - formationId: aerial_stair
+      weight: 1
+    - formationId: launch_bridge
+      weight: 1
+    - formationId: gargoyle_gate
+      weight: 1
+    - formationId: knight_patrol
+      weight: 0.9
+    - formationId: guardian_wall
+      weight: 0.9
+    - formationId: storm_zone
+      weight: 0.9
+    - formationId: hunter_attack
+      weight: 0.6
+    - formationId: aerial_wave
+      weight: 1
+    - formationId: sky_gauntlet
+      weight: 1
+    - formationId: gap_guard
+      weight: 0.8
+    restWeight: 1
+    easyWeight: 0.9
+    mediumWeight: 1.2
+    hardWeight: 0.7
+    easyTiers:
+      t0: 0.3
+      t1: 0.7
+      t2: 0.7
+      t3: 0.4
+      t4: 0
+      t5: 0
+    mediumTiers:
+      t0: 0.2
+      t1: 0.5
+      t2: 0.8
+      t3: 0.9
+      t4: 0
+      t5: 0
+    hardTiers:
+      t0: 0.1
+      t1: 0.3
+      t2: 0.7
+      t3: 1.2
+      t4: 0
+      t5: 0
+  - bandName: 85000+ final road
+    startDistance: 85000
+    endDistance: -1
+    enemies:
+    - enemyId: goblin_elite
+      weight: 0.6
+      minTier: 1
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 00000000010000000200000008000000
+    - enemyId: heavy_ogre
+      weight: 0.5
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0000000001000000
+    - enemyId: rusher_runner
+      weight: 0.5
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    - enemyId: soldier_ant
+      weight: 0.6
+      minTier: 1
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 0000000001000000
+    - enemyId: cave_bat
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0300000004000000
+    - enemyId: burrow_worm
+      weight: 0.5
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 05000000
+    - enemyId: flying_wyvern
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 030000000700000004000000
+    - enemyId: sky_hound
+      weight: 0.7
+      minTier: 1
+      maxTier: 2
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: harpy
+      weight: 1
+      minTier: 2
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 030000000700000004000000
+    - enemyId: gargoyle
+      weight: 0.9
+      minTier: 2
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000008000000
+    - enemyId: celestial_knight
+      weight: 1.2
+      minTier: 3
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: ancient_sentinel
+      weight: 1
+      minTier: 2
+      maxTier: 3
+      tierDrivesMelee: 0
+      allowedSlots: 0000000001000000
+    - enemyId: storm_spirit
+      weight: 0.8
+      minTier: 4
+      maxTier: 4
+      tierDrivesMelee: 0
+      allowedSlots: 0700000004000000
+    - enemyId: sky_hunter
+      weight: 0.7
+      minTier: 5
+      maxTier: 5
+      tierDrivesMelee: 0
+      allowedSlots: 0400000007000000
+    formations:
+    - formationId: frontline_rear
+      weight: 0.9
+    - formationId: heavy_horde
+      weight: 0.8
+    - formationId: gap_guard
+      weight: 1
+    - formationId: burrow_ambush
+      weight: 0.6
+    - formationId: guard_hopper
+      weight: 0.6
+    - formationId: sky_ground_air
+      weight: 1
+    - formationId: aerial_stair
+      weight: 0.9
+    - formationId: knight_patrol
+      weight: 1.1
+    - formationId: guardian_wall
+      weight: 1
+    - formationId: storm_zone
+      weight: 0.9
+    - formationId: hunter_attack
+      weight: 0.7
+    - formationId: sky_gauntlet
+      weight: 1
+    - formationId: gauntlet
+      weight: 1
+    restWeight: 0.9
+    easyWeight: 0.8
+    mediumWeight: 1.2
+    hardWeight: 0.8
+    easyTiers:
+      t0: 0.3
+      t1: 0.6
+      t2: 0.7
+      t3: 0.5
+      t4: 0
+      t5: 0
+    mediumTiers:
+      t0: 0.15
+      t1: 0.4
+      t2: 0.8
+      t3: 1
+      t4: 0
+      t5: 0
+    hardTiers:
+      t0: 0.1
+      t1: 0.2
+      t2: 0.7
+      t3: 1.3
+      t4: 0
+      t5: 0
+  noEncounterBeforeDistance: 60
+  spawnAheadDistance: 46
+  offscreenMargin: 8
+  gapAfterEasy: {x: 11, y: 17}
+  gapAfterMedium: {x: 13, y: 20}
+  gapAfterHard: {x: 18, y: 26}
+  restLength: {x: 30, y: 48}
+  gapSpeedScale: 1
+  afterRestRestMultiplier: 0.15
+  afterHardHardMultiplier: 0.1
+  afterHardRestMultiplier: 2.5
+  afterEasyMediumMultiplier: 1.4
+  afterMediumHardMultiplier: 1.3
+  maxEncountersWithoutRest: 4
+  historySize: 3
+  repeatPenaltyLast: 0.05
+  repeatPenaltyOlder: 0.35
+  airLowHeight: {x: 1.7, y: 2.3}
+  airHighHeight: {x: 3.5, y: 4.2}
+  airMiddleHeight: {x: 2.6, y: 3.2}
+  islandAware: 1
+  airCeilingMargin: 0.9
+  narrowClearance: 5.5
+  wideClearance: 8.5
+  straightLength: 26
+  bossPreBuffer: 90
+  bossPostRest: 30

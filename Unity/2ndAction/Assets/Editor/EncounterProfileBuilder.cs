@@ -45,6 +45,7 @@ public static class EncounterProfileBuilder
         Save(Dir + "/Profile_natural_cave.asset", BuildNaturalCave(), overwrite);
         Save(Dir + "/Profile_wasteland_road.asset", BuildWasteland(), overwrite);
         Save(Dir + "/Profile_sky_corridor.asset", BuildSkyCorridor(), overwrite);
+        Save(Dir + "/Profile_last_corridor.asset", BuildLastCorridor(), overwrite);
         BonusZoneBuilder.Build(); // BONUS ZONE(全ステージ共通、既にあれば残す)
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
@@ -551,6 +552,127 @@ public static class EncounterProfileBuilder
                            F("knight_patrol", 1.2f), F("launch_bridge", 1f), F("aerial_wave", 1f), F("guardian_wall", 1f), F("storm_zone", 0.9f), F("sky_gauntlet", 1f), F("hunter_attack", 0.7f) },
             restWeight = 1f, easyWeight = 0.9f, mediumWeight = 1.2f, hardWeight = 0.7f,
             easyTiers = T(0.5f, 0.8f, 0.6f, 0.4f), mediumTiers = T(0.3f, 0.6f, 0.8f, 0.8f), hardTiers = T(0.15f, 0.4f, 0.8f, 1.2f),
+        });
+        return p;
+    }
+
+    // ===================================================================== //
+    // LAST CORRIDOR(ラストダンジョン候補、2026-09-29)
+    // 3ステージの敵が混ざる(専用の敵は無い)。浅い所から強い段階(T2〜T5)が出る。
+    // 各ステージ専用のFormation(上下ルートの組み合わせ以外)をそのまま持ち込み、段階ごとに比重を変える:
+    //   〜25km 回廊: 地上中心(騎士/守護兵/ゴブリン精鋭/兵隊アリ) / 25〜55km 崩壊: 空中が増える
+    //   55〜85km 奈落: 浮遊する欠片(浮島)と空中の敵が中心 / 85km〜 最後の道: 全部入り・強い段階
+    // ===================================================================== //
+    [MenuItem("Tools/2ndAction/Encounter/Rebuild Last Corridor Profile (overwrite)")]
+    public static void BuildLastForce()
+    {
+        if (!Directory.Exists(Dir)) Directory.CreateDirectory(Dir);
+        Save(Dir + "/Profile_last_corridor.asset", BuildLastCorridor(), true);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+    }
+
+    static StageEncounterProfile BuildLastCorridor()
+    {
+        var p = ScriptableObject.CreateInstance<StageEncounterProfile>();
+        p.stageId = "last_corridor";
+        p.routeLayout = StageRouteLayout.Default;   // 上下ルートの分岐は無し(テーマ側でOFF)。後半は浮遊する欠片(空中足場)が出る
+        p.islandAware = true;
+        p.replacesChunkSpawns = true;
+        p.replacesMilestoneWalls = true;
+        p.spawnAheadDistance = 46f;
+        p.gapAfterEasy = new Vector2(11f, 17f);
+        p.gapAfterMedium = new Vector2(13f, 20f);
+        p.gapAfterHard = new Vector2(18f, 26f);
+        p.restLength = new Vector2(30f, 48f);
+        p.maxEncountersWithoutRest = 4;
+        p.airLowHeight = new Vector2(1.7f, 2.3f);
+        p.airMiddleHeight = new Vector2(2.6f, 3.2f);
+        p.airHighHeight = new Vector2(3.5f, 4.2f);
+
+        // 3ステージの専用Formationを持ち込む(同じIDは最初の1つ)
+        var ids = new HashSet<string>();
+        foreach (var src in new[] { BuildNaturalCave(), BuildWasteland(), BuildSkyCorridor() })
+        {
+            foreach (var f in src.stageFormations)
+            {
+                if (f == null || f.routeMode != EncounterRouteMode.Main || !ids.Add(f.formationId)) continue;
+                p.stageFormations.Add(f);
+            }
+            Object.DestroyImmediate(src);
+        }
+
+        EncounterEnemyEntry goblin(float w) => Enemy("goblin", w, EnemyAiTier.T1, EnemyAiTier.T2, true, GF, GM, GR);
+        EncounterEnemyEntry elite(float w) => Enemy("goblin_elite", w, EnemyAiTier.T1, EnemyAiTier.T2, true, GF, GM, GR, IS);
+        EncounterEnemyEntry shooter(float w) => Enemy("shooter_archer", w, EnemyAiTier.T0, EnemyAiTier.T0, false, GR);
+        EncounterEnemyEntry heavy(float w) => Enemy("heavy_ogre", w, EnemyAiTier.T0, EnemyAiTier.T0, false, GF, GM);
+        EncounterEnemyEntry chaser(float w) => Enemy("chaser_runner", w, EnemyAiTier.T0, EnemyAiTier.T0, false, GR);
+        EncounterEnemyEntry rusher(float w) => Enemy("rusher_runner", w, EnemyAiTier.T0, EnemyAiTier.T0, false, GR);
+        EncounterEnemyEntry wyvern(float w) => Enemy("flying_wyvern", w, EnemyAiTier.T0, EnemyAiTier.T0, false, AL, AM, AH);
+        EncounterEnemyEntry soldier(float w) => Enemy("soldier_ant", w, EnemyAiTier.T1, EnemyAiTier.T2, true, GF, GM);
+        EncounterEnemyEntry hopper(float w) => Enemy("cave_hopper", w, EnemyAiTier.T0, EnemyAiTier.T0, false, GR);
+        EncounterEnemyEntry bat(float w) => Enemy("cave_bat", w, EnemyAiTier.T0, EnemyAiTier.T0, false, AL, AH);
+        EncounterEnemyEntry worm(float w) => Enemy("burrow_worm", w, EnemyAiTier.T0, EnemyAiTier.T0, false, BU);
+        EncounterEnemyEntry slime(float w) => Enemy("sky_slime", w, EnemyAiTier.T0, EnemyAiTier.T0, false, GF, GM, GR, IS);
+        EncounterEnemyEntry hound(float w) => Enemy("sky_hound", w, EnemyAiTier.T1, EnemyAiTier.T2, false, GF, GM, GR);
+        EncounterEnemyEntry harpy(float w) => Enemy("harpy", w, EnemyAiTier.T2, EnemyAiTier.T3, false, AL, AM, AH);
+        EncounterEnemyEntry garg(float w) => Enemy("gargoyle", w, EnemyAiTier.T2, EnemyAiTier.T3, false, GF, GM, IS);
+        EncounterEnemyEntry knight(float w) => Enemy("celestial_knight", w, EnemyAiTier.T3, EnemyAiTier.T3, false, GF, GM, GR);
+        EncounterEnemyEntry sentinel(float w) => Enemy("ancient_sentinel", w, EnemyAiTier.T2, EnemyAiTier.T3, false, GF, GM);
+        EncounterEnemyEntry storm_(float w) => Enemy("storm_spirit", w, EnemyAiTier.T4, EnemyAiTier.T4, false, AM, AH);
+        EncounterEnemyEntry hunter(float w) => Enemy("sky_hunter", w, EnemyAiTier.T5, EnemyAiTier.T5, false, AH, AM);
+        EncounterTierWeights T(float t0, float t1, float t2, float t3 = 0f) => new EncounterTierWeights { t0 = t0, t1 = t1, t2 = t2, t3 = t3 };
+
+        // 〜10km: 壊れていない回廊を守るもの(地上中心。浅い所から強め)
+        p.bands.Add(new EncounterDistanceBand
+        {
+            bandName = "0-10000 corridor guards", startDistance = 0f, endDistance = 10000f,
+            enemies = { goblin(0.6f), elite(0.9f), shooter(0.6f), heavy(0.5f), soldier(0.9f), hopper(0.6f), bat(0.6f), hound(0.8f), harpy(0.6f), garg(0.7f), knight(0.6f) },
+            formations = { F("ground_line", 0.8f), F("staggered", 0.9f), F("goblin_horde", 0.7f), F("frontline_rear", 1f), F("heavy_horde", 0.8f), F("gap_guard", 0.9f),
+                           F("guard_hopper", 0.9f), F("sky_pack", 0.8f), F("sky_ground_air", 0.9f), F("gargoyle_gate", 1f), F("knight_patrol", 0.8f), F("ground_air", 0.8f) },
+            restWeight = 1.1f, easyWeight = 1.2f, mediumWeight = 1.1f, hardWeight = 0.4f,
+            easyTiers = T(0.6f, 0.8f, 0.3f), mediumTiers = T(0.3f, 0.7f, 0.6f, 0.2f), hardTiers = T(0.2f, 0.5f, 0.8f, 0.5f),
+        });
+        // 10〜25km: +守護兵/ワーム/追いかける敵
+        p.bands.Add(new EncounterDistanceBand
+        {
+            bandName = "10000-25000 +sentinel/worm", startDistance = 10000f, endDistance = 25000f,
+            enemies = { elite(0.8f), shooter(0.6f), heavy(0.6f), chaser(0.5f), soldier(0.8f), hopper(0.6f), bat(0.7f), worm(0.6f), hound(0.8f), harpy(0.8f), garg(0.8f), knight(0.9f), sentinel(0.7f) },
+            formations = { F("staggered", 0.8f), F("frontline_rear", 1f), F("heavy_horde", 0.9f), F("gap_guard", 1f), F("guard_hopper", 0.8f), F("burrow_ambush", 0.8f),
+                           F("sky_ground_air", 0.9f), F("gargoyle_gate", 0.9f), F("knight_patrol", 1f), F("guardian_wall", 0.9f), F("launch_bridge", 0.8f), F("gauntlet", 0.9f) },
+            restWeight = 1f, easyWeight = 1f, mediumWeight = 1.2f, hardWeight = 0.55f,
+            easyTiers = T(0.5f, 0.8f, 0.5f, 0.2f), mediumTiers = T(0.3f, 0.6f, 0.8f, 0.5f), hardTiers = T(0.15f, 0.4f, 0.8f, 0.9f),
+        });
+        // 25〜55km 崩壊: 空中が増える(天井が抜けて空が開く)
+        p.bands.Add(new EncounterDistanceBand
+        {
+            bandName = "25000-55000 collapse", startDistance = 25000f, endDistance = 55000f,
+            enemies = { elite(0.6f), heavy(0.5f), rusher(0.5f), chaser(0.4f), soldier(0.6f), bat(0.9f), worm(0.5f), wyvern(0.7f), hound(0.8f), harpy(1f), garg(0.9f), knight(1f), sentinel(0.8f), storm_(0.6f) },
+            formations = { F("frontline_rear", 0.9f), F("heavy_horde", 0.8f), F("gap_guard", 1.1f), F("burrow_ambush", 0.7f), F("air_swarm", 0.8f), F("aerial_line", 1f),
+                           F("sky_ground_air", 1f), F("aerial_stair", 0.8f), F("gargoyle_gate", 0.9f), F("knight_patrol", 1f), F("guardian_wall", 1f), F("storm_zone", 0.8f),
+                           F("aerial_wave", 0.9f), F("sky_gauntlet", 0.9f) },
+            restWeight = 1f, easyWeight = 0.9f, mediumWeight = 1.2f, hardWeight = 0.65f,
+            easyTiers = T(0.4f, 0.8f, 0.6f, 0.3f), mediumTiers = T(0.2f, 0.5f, 0.8f, 0.7f), hardTiers = T(0.1f, 0.3f, 0.8f, 1.1f),
+        });
+        // 55〜85km 奈落: 浮遊する欠片の上の敵と空中の敵
+        p.bands.Add(new EncounterDistanceBand
+        {
+            bandName = "55000-85000 abyss", startDistance = 55000f, endDistance = 85000f,
+            enemies = { elite(0.5f), slime(0.6f), hound(0.7f), garg(1f), knight(1f), sentinel(0.8f), bat(0.8f), wyvern(0.8f), harpy(1.1f), storm_(0.8f), hunter(0.5f) },
+            formations = { F("sky_line", 0.7f), F("aerial_line", 1f), F("sky_ground_air", 1f), F("aerial_stair", 1f), F("launch_bridge", 1f), F("gargoyle_gate", 1f),
+                           F("knight_patrol", 0.9f), F("guardian_wall", 0.9f), F("storm_zone", 0.9f), F("hunter_attack", 0.6f), F("aerial_wave", 1f), F("sky_gauntlet", 1f), F("gap_guard", 0.8f) },
+            restWeight = 1f, easyWeight = 0.9f, mediumWeight = 1.2f, hardWeight = 0.7f,
+            easyTiers = T(0.3f, 0.7f, 0.7f, 0.4f), mediumTiers = T(0.2f, 0.5f, 0.8f, 0.9f), hardTiers = T(0.1f, 0.3f, 0.7f, 1.2f),
+        });
+        // 85km〜 最後の道: 全ステージの強い敵がそろう(それでもRest/Easyは残す)
+        p.bands.Add(new EncounterDistanceBand
+        {
+            bandName = "85000+ final road", startDistance = 85000f, endDistance = -1f,
+            enemies = { elite(0.6f), heavy(0.5f), rusher(0.5f), soldier(0.6f), bat(0.6f), worm(0.5f), wyvern(0.6f), hound(0.7f), harpy(1f), garg(0.9f), knight(1.2f), sentinel(1f), storm_(0.8f), hunter(0.7f) },
+            formations = { F("frontline_rear", 0.9f), F("heavy_horde", 0.8f), F("gap_guard", 1f), F("burrow_ambush", 0.6f), F("guard_hopper", 0.6f), F("sky_ground_air", 1f),
+                           F("aerial_stair", 0.9f), F("knight_patrol", 1.1f), F("guardian_wall", 1f), F("storm_zone", 0.9f), F("hunter_attack", 0.7f), F("sky_gauntlet", 1f), F("gauntlet", 1f) },
+            restWeight = 0.9f, easyWeight = 0.8f, mediumWeight = 1.2f, hardWeight = 0.8f,
+            easyTiers = T(0.3f, 0.6f, 0.7f, 0.5f), mediumTiers = T(0.15f, 0.4f, 0.8f, 1f), hardTiers = T(0.1f, 0.2f, 0.7f, 1.3f),
         });
         return p;
     }

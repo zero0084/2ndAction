@@ -25,7 +25,20 @@ public static class AudioLibraryBuilder
         ConfigureImports();
         Directory.CreateDirectory("Assets/Resources/Audio");
         var existing = AssetDatabase.LoadAssetAtPath<AudioLibrary>(AssetPath);
-        if (existing != null && !overwrite) { Debug.Log("AudioLibraryBuilder: keep " + AssetPath); return; }
+        if (existing != null && !overwrite)
+        {
+            // 既存のアセットは上書きしない。ただし後から増えたステージの道中BGM枠だけは足す(LAST CORRIDOR等)。
+            bool added = false;
+            foreach (var st in Create().stages)
+            {
+                if (existing.stages.Exists(x => x != null && x.stageId == st.stageId)) continue;
+                existing.stages.Add(st); added = true;
+                Debug.Log("AudioLibraryBuilder: added stage " + st.stageId);
+            }
+            if (added) { EditorUtility.SetDirty(existing); AssetDatabase.SaveAssets(); }
+            Debug.Log("AudioLibraryBuilder: keep " + AssetPath);
+            return;
+        }
         var lib = Create();
         if (existing != null) { EditorUtility.CopySerialized(lib, existing); EditorUtility.SetDirty(existing); Debug.Log("AudioLibraryBuilder: overwrote " + AssetPath); }
         else { AssetDatabase.CreateAsset(lib, AssetPath); Debug.Log("AudioLibraryBuilder: created " + AssetPath); }
@@ -79,6 +92,10 @@ public static class AudioLibraryBuilder
         lib.stages.Add(new StageAudio { stageId = "natural_cave", displayName = "Stage02 自然洞窟",
             early = Bgm("bgm_cave_early"), middle = Bgm("bgm_cave_middle"), late = Bgm("bgm_cave_late"),
             ambience = Ambience("amb_cave_air", 0.55f, new Vector2(4f, 9f), 0.45f, "amb_drip_0", "amb_drip_1", "amb_rock_far") });
+
+        lib.stages.Add(new StageAudio { stageId = "last_corridor", displayName = "LAST CORRIDOR(ラストダンジョン候補)",
+            early = Bgm("bgm_last_early"), middle = Bgm("bgm_last_middle"), late = Bgm("bgm_last_late"),
+            ambience = Ambience("amb_last_hall", 0.5f, new Vector2(6f, 12f), 0.4f, "amb_rock_far", "amb_wind_whistle") });
 
         // ---- HOME(既存の曲) ----
         lib.homeBgm = C(A + "TitleBgm.wav");

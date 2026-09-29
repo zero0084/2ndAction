@@ -57,6 +57,19 @@ MonoBehaviour:
       - {fileID: 8300000, guid: 50a1c2e8e906080479a7f60a1b8ce1d9, type: 3}
       interval: {x: 4, y: 9}
       oneShotVolume: 0.45
+  - stageId: last_corridor
+    displayName: "LAST CORRIDOR(\u30E9\u30B9\u30C8\u30C0\u30F3\u30B8\u30E7\u30F3\u5019\u88DC)"
+    early: {fileID: 8300000, guid: cefc017bf91995548b0b01337a2c58db, type: 3}
+    middle: {fileID: 8300000, guid: 102d74d59de82d84d83c135b128a02ab, type: 3}
+    late: {fileID: 8300000, guid: 0b5faa60ecbe1874ea49eec6fd64b762, type: 3}
+    ambience:
+      loop: {fileID: 8300000, guid: 070e432ac2abbeb4a833af1a5a0407d2, type: 3}
+      loopVolume: 0.5
+      oneShots:
+      - {fileID: 8300000, guid: 50a1c2e8e906080479a7f60a1b8ce1d9, type: 3}
+      - {fileID: 8300000, guid: ba211202fad76974b8774511ce767b31, type: 3}
+      interval: {x: 6, y: 12}
+      oneShotVolume: 0.4
   homeBgm: {fileID: 8300000, guid: 1c84ca993693ec941862d6c869011bcd, type: 3}
   homeAmbience:
     loop: {fileID: 8300000, guid: 3a9353f06d590664fb92d11a4b34ceaf, type: 3}

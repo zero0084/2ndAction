@@ -265,6 +265,8 @@ public class TerrainManager : MonoBehaviour
         // 自然洞窟(2026-09-21) - trueのステージだけ天井/針/たいまつ/暗さ(CaveStage)を
         // 有効化する。既存ステージはfalse(未指定)のまま無改造。
         public bool enableCave;
+        // LAST CORRIDOR(2026-09-29): 天井/針/たいまつの絵の差し替え(use=falseなら自然洞窟の絵のまま)。
+        public CaveStage.Style caveStyle;
     }
     public TerrainThemeSet[] stageThemes = new TerrainThemeSet[0];
     // SceneBuilderが既存のday backgroundのSpriteRendererをそのまま渡す
@@ -313,10 +315,20 @@ public class TerrainManager : MonoBehaviour
     // 見えないが、NEW RUN開始と同時に見えてしまう)の見た目もその場で
     // 描き直す。マッチしない(=未知のstageId、あるいは天空回廊のように
     // エントリ自体が無い)場合は何も変更しない - 安全側のデフォルト動作。
+    // ===== ステージ別の地形の差し替え口(LAST CORRIDOR、2026-09-29) =====
+    // ステージ固有の演出担当(LastCorridorDirector)がThemeAppliedで受け取って設定し、他のステージではnullに戻す。
+    //  pitWidthAt(論理X) … 穴の幅(null=pitWidth)。後半ほど広い崩落/橋の切れ目。
+    //  skyAllowedAt(論理X) … 空中足場(浮遊する回廊の欠片)を置いてよいか(null=常に可)。乱数は消費しない。
+    [System.NonSerialized] public System.Func<float, float> pitWidthAt;
+    [System.NonSerialized] public System.Func<float, bool> skyAllowedAt;
+    public static event System.Action<TerrainManager, string> ThemeApplied;
+    public bool HasCaveDarkness => cave != null && cave.DarknessActive;
+
     public void ApplyStageTheme(string stageId)
     {
         if (!themeDefaultsCaptured) CaptureThemeDefaults();
-        if (cave != null) cave.SetActive(false);
+        pitWidthAt = null; skyAllowedAt = null;
+        if (cave != null) { cave.SetActive(false); cave.sectionPicker = null; cave.ApplyStyle(null); }
         activeStageId = stageId ?? "";
         TerrainThemeSet? match = null;
         foreach (TerrainThemeSet t in stageThemes)
@@ -333,6 +345,7 @@ public class TerrainManager : MonoBehaviour
                 RebuildAllChunkVisuals();
             }
             else ApplyRouteLayout(stageId);
+            ThemeApplied?.Invoke(this, stageId);
             return;
         }
         themeDirty = true;
@@ -362,7 +375,8 @@ public class TerrainManager : MonoBehaviour
         ApplyRouteLayout(stageId);
 
         // 洞窟は先に有効化する(地面の断面の深さ等を、再構築より前に切り替えるため)。
-        if (cave != null && theme.enableCave) cave.SetActive(true);
+        if (cave != null && theme.enableCave) { cave.ApplyStyle(theme.caveStyle); cave.SetActive(true); }
+        ThemeApplied?.Invoke(this, stageId);
         RebuildAllChunkVisuals();
     }
 
@@ -1082,6 +1096,8 @@ public class TerrainManager : MonoBehaviour
 
     void GenerateNextSkyChunk()
     {
+        // ステージの段階によっては空中足場を置かない(その区間は乱数を使わずに進めるだけ)
+        if (skyAllowedAt != null && !skyAllowedAt(FloatingOrigin.ToLogical(nextSkyStartX))) { nextSkyStartX += skyPathSegmentLength; return; }
         float startX = nextSkyStartX;
         float endX = startX + skyPathSegmentLength;
         float groundYStart = GetHeightAt(startX) ?? nextStartY;
@@ -1352,7 +1368,7 @@ public class TerrainManager : MonoBehaviour
             ChunkType.Flat => flatLength,
             ChunkType.UpSlope => slopeLength,
             ChunkType.DownSlope => slopeLength,
-            ChunkType.Pit => pitWidth,
+            ChunkType.Pit => pitWidthAt != null ? pitWidthAt(FloatingOrigin.ToLogical(nextStartX)) : pitWidth,
             _ => flatLength
         };
         AddChunk(type, length);

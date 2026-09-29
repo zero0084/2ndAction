@@ -814,6 +814,7 @@ public static class SceneBuilder
         upperEnemySpawner.squareSprite = squareSprite;
         upperEnemySpawner.enemyPool = new List<EnemyDefinition>(EnemyDatabase.AllEnemies);
         BuildCaveSpawners(player.transform, squareSprite);
+        BuildLastCorridor(player.transform, squareSprite);
 
         EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene(), ScenePath);
 
@@ -4114,7 +4115,8 @@ public static class SceneBuilder
                 enableRouteBranch = true,
                 branchMarkerSprite = wastelandDecorSignpost,
             },
-            BuildCaveTheme()
+            BuildCaveTheme(),
+            BuildLastCorridorTheme()
         };
     }
 
@@ -4174,6 +4176,108 @@ public static class SceneBuilder
             enableCave = true,
         };
     }
+
+    // ---- LAST CORRIDOR(ラストダンジョン候補、2026-09-29) ----
+    // 床/天井/杭/障害物/背景の構造物はChatGPT生成→マゼンタ背景を透過→床と天井の帯は継ぎ目なしタイル化済み。
+    // 床: 岩部分(高さ281px)+上余白32pxを、高さ3.5ユニット(378px)のキャンバスに置いたもの(PPU 108)。
+    const float LcPpu = 108f;
+    const float LcSurfaceInset = 0.43f;   // 上余白0.3u + 上面の手前寄り0.13u
+    const float LcFillTopOffset = 1.7f;   // 歩行ラインから、床の下面(ギザギザの付け根)まで
+    const string LcArt = "Assets/Art/LastCorridor/";
+
+    static TerrainManager.TerrainThemeSet BuildLastCorridorTheme()
+    {
+        var art = new PlatformSpriteSet
+        {
+            left = LoadTiledSprite(LcArt + "Terrain/platform_left.png", LcPpu),
+            mid = LoadTiledSprite(LcArt + "Terrain/platform_mid.png", LcPpu),
+            right = LoadTiledSprite(LcArt + "Terrain/platform_right.png", LcPpu)
+        };
+        Sprite bg = ConfigureAndLoadSpriteWithCenterPivot(LcArt + "Background/bg_early.png", 1000f);
+        Sprite fill = LoadTiledSprite(LcArt + "Terrain/groundfill.png", 150f);
+        Texture2D band = LoadRepeatTexture(LcArt + "Terrain/ceiling_band.png");
+        var stakes = new List<Sprite>();
+        for (int i = 0; i < 8; i++)
+        {
+            string sp = LcArt + $"Terrain/stake_{i}.png";
+            if (!File.Exists(sp)) break;
+            stakes.Add(ConfigureAndLoadSpriteWithCenterPivot(sp, 200f));
+        }
+        return new TerrainManager.TerrainThemeSet
+        {
+            stageId = LastCorridorDirector.StageId,
+            platformArt = art,
+            platformSurfaceInset = LcSurfaceInset,
+            groundFillTopOffset = LcFillTopOffset,
+            groundSprite = null,
+            groundColor = Color.white,
+            backgroundSprite = bg,
+            backgroundTint = new Color(0.86f, 0.88f, 0.94f, 1f),
+            decorationSprites = new Sprite[0],
+            groundFillSprite = fill,
+            groundFillTint = new Color(0.9f, 0.9f, 0.95f, 1f),
+            enableRouteBranch = false,
+            branchMarkerSprite = null,
+            enableCave = true,
+            caveStyle = new CaveStage.Style
+            {
+                use = true,
+                ceilingBandTexture = band,
+                ceilingBandAspect = band != null ? (float)band.width / band.height : 5.6f,
+                bandHeight = 2.3f,
+                ceilingVisualDrop = 0.75f,
+                ceilingFillTexture = fill != null ? fill.texture : null,
+                fillTileWorld = 6.8f,
+                spikeSprites = stakes.ToArray(),
+                torchSprite = ConfigureAndLoadSpriteWithCenterPivot(LcArt + "Terrain/lamp_torch.png", 200f),
+                torchHeight = 3.0f,
+                useLighting = false,
+                brokenEdgeSprite = ConfigureAndLoadSpriteWithCenterPivot(LcArt + "Terrain/ceiling_edge.png", 200f),
+            },
+        };
+    }
+
+
+    static void BuildLastCorridor(Transform player, Sprite squareSprite)
+    {
+        // 障害物: 瓦礫の山 / 折れた柱の根元 / 封印の小扉(壊せる) / 封印の大扉 / 倒れた巨大柱
+        var obstacleGO = new GameObject("LastCorridorObstacleSpawner");
+        var spawner = obstacleGO.AddComponent<ObstacleSpawner>();
+        spawner.player = player;
+        spawner.squareSprite = squareSprite;
+        spawner.obstacleStageId = LastCorridorDirector.StageId;
+        Sprite rubble = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Obstacles/rubble.png", 160f);
+        Sprite stub = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Obstacles/pillar_stub.png", 200f);
+        Sprite doorS = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Obstacles/door_small.png", 250f);
+        Sprite doorL = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Obstacles/door_giant.png", 280f);
+        Sprite fallen = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Obstacles/fallen_pillar.png", 180f);
+        spawner.specs = new[]
+        {
+            new ObstacleSpawner.ObstacleSpec { name = "Rock", sprite = rubble, targetHeight = 0.95f, color = Color.white, breakable = false, hp = 1, weight = 30f },
+            new ObstacleSpawner.ObstacleSpec { name = "SmallTree", sprite = stub, targetHeight = 1.3f, color = Color.white, breakable = false, hp = 1, weight = 25f },
+            new ObstacleSpawner.ObstacleSpec { name = "BreakableTree", sprite = doorS, targetHeight = 1.5f, color = Color.white, breakable = true, hp = 2, weight = 20f },
+            new ObstacleSpawner.ObstacleSpec { name = "Wall", sprite = doorL, targetHeight = 2.2f, color = Color.white, breakable = false, hp = 1, weight = 15f },
+            new ObstacleSpawner.ObstacleSpec { name = "GiantRock", sprite = fallen, targetHeight = 2.2f, color = Color.white, breakable = false, hp = 1, weight = 10f },
+        };
+
+        // 景観の段階/背景の構造物/落ちてくる構造物の担当
+        var dirGO = new GameObject("LastCorridorDirector");
+        var dir = dirGO.AddComponent<LastCorridorDirector>();
+        dir.phaseBackgrounds = new[]
+        {
+            ConfigureAndLoadSpriteWithCenterPivot(LcArt + "Background/bg_early.png", 1000f),
+            LoadIfExists(LcArt + "Background/bg_mid.png"),
+            LoadIfExists(LcArt + "Background/bg_late.png"),
+            LoadIfExists(LcArt + "Background/bg_final.png"),
+        };
+        dir.pillar = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Decor/pillar.png", 100f);
+        dir.arch = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Decor/arch.png", 100f);
+        dir.statue = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Decor/statue.png", 100f);
+        dir.lamp = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Decor/lamp.png", 100f);
+        dir.brokenPillar = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Decor/broken_pillar.png", 100f);
+    }
+
+    static Sprite LoadIfExists(string path) => File.Exists(path) ? ConfigureAndLoadSpriteWithCenterPivot(path, 1000f) : null;
 
     static void BuildCaveStage(TerrainManager terrain, Camera cam, GameObject cloudLayerGO)
     {

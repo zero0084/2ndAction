@@ -73,6 +73,19 @@ public static class StageDatabaseBuilder
             // 指示「新しい画像をUnity側で生成する必要はありません」に対応)。
             thumbnailPath = "Assets/Art/Background/background.png",
         },
+        new Spec
+        {
+            // ラストダンジョン候補(2026-09-29、仮名)。最初から選べる(100万mの解放条件は付けない)。
+            // ルール(カード/速度/敵/ボス/帰還)は他マップと同じで、見た目と構成だけが違う。
+            id = "last_corridor",
+            displayName = "LAST CORRIDOR",
+            enemyText = "敵: 全ステージの敵が混在(強化)",
+            featureText = "特徴: 崩落する床・落ちてくる構造物・浮遊する回廊",
+            routeText = "ルート: 巨大な古代回廊 → 崩壊 → 奈落 → 最後の道",
+            unlocked = true,
+            sortOrder = 3,
+            thumbnailPath = "Assets/Art/LastCorridor/Background/LastCorridorThumbnail.png",
+        },
     };
 
     [MenuItem("Tools/OneMoreMile/Build Stage Database")]

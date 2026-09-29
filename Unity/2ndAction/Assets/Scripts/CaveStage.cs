@@ -101,12 +101,56 @@ public partial class CaveStage : MonoBehaviour
     public Sprite[] spikeSprites;
     public Sprite torchSprite;
 
+    // ===== ステージ別の見た目/区間の差し替え(LAST CORRIDOR、2026-09-29) =====
+    // 自然洞窟はStyle未指定(use=false)のまま=従来と全く同じ。
+    // LAST CORRIDORは天井を「古代回廊の天井」の絵に、針を「古代の杭」に、たいまつを「光る灯柱」に差し替え、
+    // 暗闇(CaveLighting)を使わない。区間の選び方(sectionPicker)も距離の段階ごとに変える(天井が抜けた区間=mode 4)。
+    [System.Serializable]
+    public class Style
+    {
+        public bool use;
+        public Texture2D ceilingBandTexture;
+        public float ceilingBandAspect = 1f;
+        public float bandHeight = 1.8f;
+        public float ceilingVisualDrop = 0.2f;
+        public Texture2D ceilingFillTexture;
+        public float fillTileWorld = 4.3f;
+        public Sprite[] spikeSprites;
+        public Sprite torchSprite;
+        public float torchHeight = 2.4f;
+        public bool useLighting = true;
+        public Sprite brokenEdgeSprite; // 天井が抜ける所の切れ端(無ければ針の絵で代用)
+    }
+    Style defaultStyle;
+    bool styleLighting = true;
+    Sprite brokenEdgeSprite;
+
+    public void ApplyStyle(Style st)
+    {
+        if (defaultStyle == null)
+            defaultStyle = new Style { use = true, ceilingBandTexture = ceilingBandTexture, ceilingBandAspect = ceilingBandAspect, bandHeight = bandHeight, ceilingVisualDrop = ceilingVisualDrop,
+                ceilingFillTexture = ceilingFillTexture, fillTileWorld = fillTileWorld, spikeSprites = spikeSprites, torchSprite = torchSprite,
+                torchHeight = torchHeight, useLighting = true, brokenEdgeSprite = null };
+        Style s = st != null && st.use ? st : defaultStyle;
+        ceilingBandTexture = s.ceilingBandTexture; ceilingBandAspect = s.ceilingBandAspect; bandHeight = s.bandHeight; ceilingVisualDrop = s.ceilingVisualDrop;
+        ceilingFillTexture = s.ceilingFillTexture; fillTileWorld = s.fillTileWorld;
+        spikeSprites = s.spikeSprites; torchSprite = s.torchSprite; torchHeight = s.torchHeight;
+        styleLighting = s.useLighting; brokenEdgeSprite = s.brokenEdgeSprite;
+    }
+
+    // 天井が抜けた区間(mode 4)の当たりの高さ(地面ラインから)。見た目の天井は描かない。
+    public float openClearance = 40f;
+    // 区間の選び方の差し替え(論理X, 0〜1の乱数 → mode)。nullなら従来の抽選。乱数の消費は従来と同じ1回。
+    [System.NonSerialized] public System.Func<float, float, int> sectionPicker;
+    // 暗闇の演出を使っているか(死神の描画順などが参照)。
+    public bool DarknessActive => Active && styleLighting && lighting != null;
+
     public bool Active { get; private set; }
     // 共通Encounter System(2026-09-27) - 天井を生成済みの右端(この先はまだ天井の高さが決まっていない)。
     public float GeneratedEndX => nodes.Count > 0 ? nodeBaseX + (nodes.Count - 1) * nodeSpacing : float.NegativeInfinity;
     public static int SpikeHitCount; // debug counter (Editor auto test)
 
-    class Node { public float x, y; public int mode; } // mode: 0 normal, 1 spike, 2 low, 3 high(広い空洞)
+    class Node { public float x, y; public int mode; } // mode: 0 normal, 1 spike, 2 low, 3 high(広い空洞), 4 open(天井が抜けている)
     struct Spike { public float x, topY, len, hw; }
     public struct Torch { public Vector2 lightPos; public float phase; }
 
@@ -223,7 +267,7 @@ public partial class CaveStage : MonoBehaviour
         }
         if (hideWhileActive != null)
             foreach (GameObject g in hideWhileActive) if (g != null) g.SetActive(!on);
-        if (lighting != null) lighting.SetActive(on);
+        if (lighting != null) lighting.SetActive(on && styleLighting);
         if (WorldTimeCycle.Instance != null) WorldTimeCycle.Instance.forceDayOnly = on;
         if (on)
         {
@@ -304,7 +348,8 @@ public partial class CaveStage : MonoBehaviour
         if (x >= sectionEndX)
         {
             float r = testMode == 1 ? 0.5f : (testMode == 2 ? 0.05f : WorldRng.Cave.Value);
-            sectionMode = r < lowSectionChance ? 2 : (r < lowSectionChance + spikeSectionChance ? 1 : (r < lowSectionChance + spikeSectionChance + highSectionChance ? 3 : 0));
+            if (sectionPicker != null && testMode == 0) sectionMode = sectionPicker(FloatingOrigin.ToLogical(x), r);
+            else sectionMode = r < lowSectionChance ? 2 : (r < lowSectionChance + spikeSectionChance ? 1 : (r < lowSectionChance + spikeSectionChance + highSectionChance ? 3 : 0));
             sectionEndX = x + WorldRng.Cave.Range(sectionLengthMin, sectionLengthMax);
             // 通常区間が続きすぎないよう、直前が通常なら通常を選び直す確率は下げない(単純)。
         }
@@ -317,8 +362,8 @@ public partial class CaveStage : MonoBehaviour
             if (tm.IsNearPit(x, lowCeilingPitMargin) || tm.IsBranchNear(x, lowCeilingBranchMargin)) mode = 0;
         }
         // ボス遭遇区間: 低天井/針区間へ降格させず、常に通常天井にする。
-        if (InBossClearZone(x)) mode = 0;
-        float clearance = mode == 2 ? lowClearance : (mode == 1 ? spikeSectionClearance : (mode == 3 ? highClearance : normalClearance));
+        if (InBossClearZone(x) && mode != 4) mode = 0; // 天井が抜けた区間はそのまま(戦う空間は十分ある)
+        float clearance = mode == 2 ? lowClearance : (mode == 1 ? spikeSectionClearance : (mode == 3 ? highClearance : mode == 4 ? openClearance : normalClearance));
         if (WorldRng.IsDeterministic)
         {
             // マルチプレイ(2026-09-25) - ボス付近の降格など端末ごとに差が出うるmodeに関係なく
@@ -477,15 +522,44 @@ public partial class CaveStage : MonoBehaviour
             fillUV[k * 2] = new Vector2(fu, fillBottom / fillTileWorld);
             fillUV[k * 2 + 1] = new Vector2(fu, fillTop / fillTileWorld);
         }
-        var tris = new int[(n - 1) * 6];
+        // 天井が抜けた区間(mode 4)に掛かる所は描かない。抜ける境目には切れ端を置く。
+        var triList = new List<int>((n - 1) * 6);
         for (int k = 0; k < n - 1; k++)
         {
+            bool openA = nodes[i0 + k].mode == 4, openB = nodes[i0 + k + 1].mode == 4;
+            if (openA || openB)
+            {
+                if (openA != openB) PlaceBrokenEdge(openA ? nodes[i0 + k + 1] : nodes[i0 + k], openA);
+                continue;
+            }
             int a = k * 2;
-            tris[k * 6 + 0] = a; tris[k * 6 + 1] = a + 1; tris[k * 6 + 2] = a + 2;
-            tris[k * 6 + 3] = a + 2; tris[k * 6 + 4] = a + 1; tris[k * 6 + 5] = a + 3;
+            triList.Add(a); triList.Add(a + 1); triList.Add(a + 2);
+            triList.Add(a + 2); triList.Add(a + 1); triList.Add(a + 3);
         }
+        if (triList.Count == 0) return;
+        int[] tris = triList.ToArray();
         MakeMeshObject("CeilingFill", fillV, fillUV, tris, fillMat, -3);
         MakeMeshObject("CeilingBand", bandV, bandUV, tris, bandMat, -2);
+    }
+
+    // 天井が途切れる所の切れ端(崩れた天井の端)。solidは天井が残っている側のノード、openOnLeft=抜けているのが左側。
+    void PlaceBrokenEdge(Node solid, bool openOnLeft)
+    {
+        Sprite sp = brokenEdgeSprite;
+        if (sp == null && spikeSprites != null && spikeSprites.Length > 0) sp = spikeSprites[0];
+        if (sp == null) return;
+        var go = new GameObject("CeilingBrokenEdge");
+        go.transform.SetParent(transform);
+        var sr = go.AddComponent<SpriteRenderer>();
+        sr.sprite = sp;
+        sr.sortingOrder = -2;
+        Vector2 size = sp.bounds.size;
+        float h = bandHeight * 1.6f;
+        float sc = h / Mathf.Max(0.01f, size.y);
+        go.transform.localScale = new Vector3(openOnLeft ? -sc : sc, sc, 1f);
+        float bottom = solid.y - ceilingVisualDrop;
+        go.transform.position = new Vector3(solid.x + (openOnLeft ? -0.25f : 0.25f), bottom + h * 0.5f - 0.35f, 0f);
+        spawned.Add(go);
     }
 
     void MakeMeshObject(string name, Vector3[] v, Vector2[] uv, int[] tris, Material mat, int order)

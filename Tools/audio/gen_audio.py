@@ -382,5 +382,14 @@ def gen_all():
     se('home_gacha', mix(rattle, np.concatenate([np.zeros(len(rattle)), tone([1047, 1568], note=0.06, decay=0.3, vol=0.4)])))
     se('home_coin', tone([1976, 2637], note=0.05, decay=0.25, vol=0.5))
 
+def gen_last_corridor():
+    # LAST CORRIDOR(ラストダンジョン候補、2026-09-29): 荘厳で冷たい古代回廊 → 崩壊の緊迫 → 奈落の上の最後の道
+    song('bgm_last_early', 108, 50, 'harmonic', [0, 5, 3, 4], drums='soft', arp='8th', pad_bright=700, bass_pat='half', lead_kind='sin', bells=True, arp_oct=24)
+    song('bgm_last_middle', 128, 50, 'phrygian', [0, 1, 6, 4], drums='heavy', arp='16th', pad_bright=900, bass_pat='pulse', lead_kind='tri')
+    song('bgm_last_late', 144, 50, 'harmonic', [0, 5, 1, 4], drums='drive', arp='16th', pad_bright=1300, bass_pat='drive', lead_kind='saw', bells=True)
+    loop_noise('amb_last_hall', 24, 260, lfo=0.04, depth=0.45, rumble=0.18, hiss=0.02)
+
 if __name__ == '__main__':
-    gen_all()
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == 'last': gen_last_corridor()
+    else: gen_all()

@@ -24,7 +24,7 @@ public class ReaperAppearFx : MonoBehaviour
         var fx = go.AddComponent<ReaperAppearFx>();
         fx.shade = go.AddComponent<SpriteRenderer>();
         fx.shade.sprite = GradientSprite();
-        bool cave = TerrainManager.Instance != null && TerrainManager.Instance.HasCave;
+        bool cave = TerrainManager.Instance != null && TerrainManager.Instance.HasCaveDarkness;
         fx.baseOrder = cave ? 104 : RenderOrder.Boss + 19; // 洞窟は暗闇(描画順100)の手前に
         fx.shade.sortingOrder = fx.baseOrder + 1;
         fx.shade.color = new Color(0.08f, 0.02f, 0.12f, 0f);

@@ -55,7 +55,7 @@ public class ReaperAnimator : MonoBehaviour
 
         // 洞窟: 画面全体を覆う暗闇(CaveLighting、描画順100)の手前に描き、暗闇の中に姿が浮かび上がるようにする
         // (少し暗めの色+淡い紫の光をまとう)。洞窟以外は従来の描画順のまま。
-        if (TerrainManager.Instance != null && TerrainManager.Instance.HasCave)
+        if (TerrainManager.Instance != null && TerrainManager.Instance.HasCaveDarkness)
         {
             baseTint = new Color(0.82f, 0.8f, 0.92f, 1f);
             sr.sortingOrder = 103;

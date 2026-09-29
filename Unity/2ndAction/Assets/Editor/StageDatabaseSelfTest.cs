@@ -15,11 +15,12 @@ public static class StageDatabaseSelfTest
         StageDatabase.Reset();
         var all = StageDatabase.AllStages;
 
-        bool countOk = all.Count == 3;
+        bool countOk = all.Count == 4;
         bool orderOk = countOk
             && all[0].stageId == "wasteland_road"
             && all[1].stageId == "natural_cave"
-            && all[2].stageId == "sky_corridor";
+            && all[2].stageId == "sky_corridor"
+            && all[3].stageId == "last_corridor" && all[3].unlocked;
 
         StageDefinition wasteland = StageDatabase.FindById("wasteland_road");
         bool wastelandUnlockedOk = wasteland != null && wasteland.unlocked;
@@ -47,7 +48,7 @@ public static class StageDatabaseSelfTest
 
         if (!pass)
         {
-            Debug.LogError("[StageDatabaseSelfTest] FAIL - StageDatabase did not load the expected 3 stages in " +
+            Debug.LogError("[StageDatabaseSelfTest] FAIL - StageDatabase did not load the expected 4 stages in " +
                             "the expected order with the expected unlocked flags, or RunCheckpoint.Data.stageId " +
                             "did not round-trip through JsonUtility correctly.");
         }

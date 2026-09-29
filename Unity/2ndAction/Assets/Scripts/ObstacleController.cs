@@ -46,6 +46,8 @@ public class ObstacleController : MonoBehaviour
     public float BrokenAt { get; private set; } = -1f;
     public bool ContactDamaged { get; private set; }
     public SpriteRenderer Visual => visual;
+    // LAST CORRIDOR(2026-09-29): 落ちてくる構造物の演出で、絵だけを上に持ち上げておく量(当たり判定は最初から着地位置)。
+    [System.NonSerialized] public float visualLift;
 
     // 同じ振りでの二重ヒット防止(攻撃判定ごとに最後に当たったSwingId)
     readonly Collider2D[] hitCols = new Collider2D[8];
@@ -191,9 +193,13 @@ public class ObstacleController : MonoBehaviour
             if (Time.time < shakeUntil)
             {
                 float k = (shakeUntil - Time.time) / Mathf.Max(0.01f, ObstacleBalance.Get().hitShakeTime);
-                visual.transform.localPosition = visualBase + new Vector3(Mathf.Sin(Time.time * 90f) * shakeAmount * k, Mathf.Cos(Time.time * 70f) * shakeAmount * 0.4f * k, 0f);
+                visual.transform.localPosition = visualBase + new Vector3(Mathf.Sin(Time.time * 90f) * shakeAmount * k, Mathf.Cos(Time.time * 70f + visualLift) * shakeAmount * 0.4f * k + visualLift, 0f);
             }
-            else if (visual.transform.localPosition != visualBase && !Broken) visual.transform.localPosition = visualBase;
+            else
+            {
+                Vector3 want = visualBase + new Vector3(0f, visualLift, 0f);
+                if (visual.transform.localPosition != want && !Broken) visual.transform.localPosition = want;
+            }
         }
         if (!pendingContact) return;
         pendingContact = false;
