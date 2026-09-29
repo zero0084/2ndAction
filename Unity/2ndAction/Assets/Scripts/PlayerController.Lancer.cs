@@ -265,6 +265,7 @@ public partial class PlayerController
         lanceHitbox.size = Vector2.one;
         lanceHitbox.offset = Vector2.zero;
         lanceHitbox.enabled = true;
+        { var li = lanceHitbox.GetComponent<PlayerAttackInfo>(); if (li != null) li.Rearm(); }
         if (fxDuration > 0f) ShowLanceThrustFx(origin, dir, deg, lanceArtTipDistance, startX + length, fxDuration, fxThickness, fxTint);
     }
 

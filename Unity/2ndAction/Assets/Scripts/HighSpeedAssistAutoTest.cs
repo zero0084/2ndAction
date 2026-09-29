@@ -18,7 +18,26 @@ public class HighSpeedAssistAutoTest : MonoBehaviour
     {
         if (EditorPrefs.GetInt("HighSpeedAssistTest", 0) != 1) return;
         EditorPrefs.SetInt("HighSpeedAssistTest", 0);
+        // 前後比較(2026-09-29): 固定シードで地形/障害物の種類/敵の編成を決定的にする(TerrainManager.Startの初期生成より前)。
+        compareMode = Arg("-hsaCompare", "");
+        if (compareMode != "")
+        {
+            int seed = int.Parse(Arg("-hsaSeed", "20260929"));
+            WorldRng.BeginDeterministic(seed);
+            if (compareMode == "before") ApplyLegacy();
+        }
         new GameObject("HighSpeedAssistTest").AddComponent<HighSpeedAssistAutoTest>();
+    }
+
+    static string compareMode = "";
+    // 改修前の規則を再現(比較専用): 壊せる木だけ耐久2・他は壊れない/弾は障害物を素通り/攻撃の掃引なし/
+    // 補助の発動200・解除180/障害物の破壊判断なし/着地直前の二段ジャンプ判断なし。
+    static void ApplyLegacy()
+    {
+        ObstacleController.LegacyRules = true;
+        PlayerAttackSweeper.Enabled = false;
+        var a = HighSpeedAssist.Instance;
+        if (a != null) { a.engageKmh = 200f; a.releaseKmh = 180f; a.breakObstacles = false; a.earlyDoubleJump = false; a.requirePassObstacle = false; a.jumpClearance = 0f; }
     }
 
     readonly StringBuilder log = new StringBuilder();
@@ -33,7 +52,7 @@ public class HighSpeedAssistAutoTest : MonoBehaviour
     float segTime;
 
     // 集計
-    int dmgFall, dmgObstacle, dmgEnemy, dmgOther, respawns;
+    int dmgFall, dmgObstacle, dmgEnemy, dmgOther, dmgSpike, dmgWall, respawns;
     readonly List<string> noSafeSamples = new List<string>();
     readonly List<string> obstacleSamples = new List<string>();
     int slowFrames, framesTotal;
@@ -65,6 +84,14 @@ public class HighSpeedAssistAutoTest : MonoBehaviour
                 if (obstacleSamples.Count < 10 && assist != null && pc != null)
                     obstacleSamples.Add($"t={Time.time:F1} kmh={assist.JudgedKmh:F0} grounded={pc.IsGrounded} y={pc.transform.position.y:F2} vy={pc.AssistVelocityY:F1} jumpsUsed={pc.AssistJumpsUsed} reacting={pc.IsReacting} last={assist.LastAction}@{Time.time - assist.LastActionTime:F2}s plan=[{assist.PlanText}] fail=[{assist.LastFailure}@{Time.time - assist.LastFailureTime:F2}s] status={assist.CurrentStatus} {r}");
             }
+            // 2026-09-29: 分類の修正(以前は地形の壁が「敵」、天井の針が「その他」に入っていた)
+            else if (r.Contains("CeilingSpike"))
+            {
+                dmgSpike++;
+                if (obstacleSamples.Count < 16 && assist != null && pc != null)
+                    obstacleSamples.Add($"SPIKE t={Time.time:F1} kmh={assist.JudgedKmh:F0} x={pc.transform.position.x:F1} y={pc.transform.position.y:F2} vy={pc.AssistVelocityY:F1} jumpsUsed={pc.AssistJumpsUsed} last={assist.LastAction}@{Time.time - assist.LastActionTime:F2}s why=[{assist.LastActionReason}] plan=[{assist.PlanText}] status={assist.CurrentStatus}");
+            }
+            else if (r.Contains("TerrainWall")) dmgWall++;
             else if (r.Contains("Enemy") || r.Contains("Boss") || r.Contains("Fire") || r.Contains("Wolf") || r.Contains(":")) dmgEnemy++;
             else dmgOther++;
         }
@@ -93,14 +120,24 @@ public class HighSpeedAssistAutoTest : MonoBehaviour
         if (BossManager.Instance != null) BossManager.Instance.enabled = false; // ボス演出の時間倍率を計測から外す
         typeof(GameManager).GetField("expGainMultiplier", BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(gm, 0f);
         L($"stage={stage} character={character} engage={assist.engageKmh} release={assist.releaseKmh} lookAhead={assist.lookAheadSeconds}s step={assist.simStepMeters}m suppress(atk/jump)={assist.manualAttackSuppress}/{assist.manualJumpSuppress}s");
+        if (compareMode == "before") ApplyLegacy();
         StartCoroutine(SpeedController());
         StartCoroutine(FrameMonitor());
+
+        if (compareMode != "")
+        {
+            yield return CompareRun();
+            FinishCompare(anyException, handler);
+            yield break;
+        }
 
         // ---- 1) 通常速度: 補助は待機のまま ----
         yield return Segment("natural", 0f, true, 10f);
         Check(lastSeg.actions == 0 && assist.CurrentStatus == HighSpeedAssist.Status.WaitingSpeed, $"natural speed ({lastSeg.kmh:F0}km/h): assist waits, no auto actions (actions={lastSeg.actions} status={assist.CurrentStatus})");
 
-        // ---- 2) 200km/h付近 / さらに高速: 補助ON/OFFの比較 ----
+        // ---- 2) 発動直後(105km/h)/200km/h付近/さらに高速: 補助ON/OFFの比較 ----
+        yield return Segment("105kmh ON", 105f, true, 20f); var on105 = lastSeg;
+        yield return Segment("105kmh OFF", 105f, false, 20f); var off105 = lastSeg;
         var on205 = default(Seg); var off205 = default(Seg);
         yield return Segment("205kmh ON", 205f, true, 25f); on205 = lastSeg;
         yield return Segment("205kmh OFF", 205f, false, 25f); off205 = lastSeg;
@@ -108,21 +145,25 @@ public class HighSpeedAssistAutoTest : MonoBehaviour
         yield return Segment("300kmh OFF", 300f, false, 25f); var off300 = lastSeg;
         yield return Segment("420kmh ON", 420f, true, 20f); var on420 = lastSeg;
         yield return Segment("420kmh OFF", 420f, false, 20f); var off420 = lastSeg;
-        Check(on205.actions > 0 && on300.actions > 0, "assist acts at 205/300km/h");
+        Check(on105.actions > 0 && on205.actions > 0 && on300.actions > 0, "assist acts at 105/205/300km/h");
+        Check(on105.fall + on105.obstacle <= off105.fall + off105.obstacle, $"105km/h terrain damage ON({on105.fall + on105.obstacle}) <= OFF({off105.fall + off105.obstacle})");
         Check(on420.fall + on420.obstacle < off420.fall + off420.obstacle || off420.fall + off420.obstacle == 0, $"420km/h terrain damage ON({on420.fall + on420.obstacle}) < OFF({off420.fall + off420.obstacle})");
         Check(on205.fall + on205.obstacle < off205.fall + off205.obstacle || off205.fall + off205.obstacle == 0, $"205km/h terrain damage ON({on205.fall + on205.obstacle}) < OFF({off205.fall + off205.obstacle})");
         Check(on300.fall + on300.obstacle < off300.fall + off300.obstacle || off300.fall + off300.obstacle == 0, $"300km/h terrain damage ON({on300.fall + on300.obstacle}) < OFF({off300.fall + off300.obstacle})");
         Check(on205.kills >= off205.kills, $"205km/h kills ON({on205.kills}) >= OFF({off205.kills})");
 
-        // ---- 3) ヒステリシス ----
+        // ---- 3) ヒステリシス(発動engage/解除release: 既定100/90)----
         assist.SetEnabled(true);
-        speedCurve = t => 200f + 14f * Mathf.Sin(t * Mathf.PI * 0.5f); // 186〜214: 一度発動したら解除されない
+        float en = assist.engageKmh, rel = assist.releaseKmh;
+        float midA = (en + rel) * 0.5f + (en - rel) * 0.9f, ampA = (en - rel) * 1.3f;  // 一度発動したら、解除ラインより下へは行かない
+        speedCurve = t => midA + ampA * Mathf.Sin(t * Mathf.PI * 0.5f);
         engageToggles = 0; lastEngaged = assist.Engaged;
-        yield return Segment("hysteresis 186-214", -1f, true, 12f);
+        yield return Segment($"hysteresis {midA - ampA:F0}-{midA + ampA:F0}", -1f, true, 12f);
         int togglesA = engageToggles;
-        speedCurve = t => 185f + 10f * Mathf.Sin(t * Mathf.PI * 0.5f); // 175〜195: 解除後は再発動しない
+        float midB = (en + rel) * 0.5f - (en - rel) * 0.4f, ampB = (en - rel) * 0.8f;  // 解除後は、発動ラインまでは上がらない
+        speedCurve = t => midB + ampB * Mathf.Sin(t * Mathf.PI * 0.5f);
         engageToggles = 0;
-        yield return Segment("hysteresis 175-195", -1f, true, 12f);
+        yield return Segment($"hysteresis {midB - ampB:F0}-{midB + ampB:F0}", -1f, true, 12f);
         int togglesB = engageToggles;
         Check(togglesA <= 1 && togglesB <= 1, $"no ON/OFF chatter near the threshold (toggles {togglesA}/{togglesB}, expect <=1 each)");
         speedCurve = null;
@@ -180,9 +221,71 @@ public class HighSpeedAssistAutoTest : MonoBehaviour
         if (Application.isBatchMode) EditorApplication.Exit(failures == 0 && !anyException ? 0 : 1); else EditorApplication.isPlaying = false;
     }
 
+    // ===================================================================== //
+    // 前後比較(2026-09-29): 固定シード・同じ速度・同じ攻撃力で、同じ距離を走る。
+    // before=改修前の規則を再現(ApplyLegacy)、after=現在。地形・障害物の種類(地点ごと)・敵の編成は同じシードで同じになる。
+    // 被弾は 落下/障害物/天井の針/地形の壁/敵/その他 に分けて数える。
+    // ===================================================================== //
+    float cmpKmh;
+    IEnumerator CompareRun()
+    {
+        var inv = System.Globalization.CultureInfo.InvariantCulture;
+        cmpKmh = float.Parse(Arg("-hsaKmh", "205"), inv);
+        float meters = float.Parse(Arg("-hsaMeters", "3000"), inv);
+        assist.SetEnabled(true);
+        targetKmh = cmpKmh;
+        L($"[COMPARE {compareMode}] seed={WorldRng.Seed} deterministic={WorldRng.IsDeterministic} kmh={cmpKmh} meters={meters} legacyRules={ObstacleController.LegacyRules} sweep={PlayerAttackSweeper.Enabled} engage={assist.engageKmh}/{assist.releaseKmh} breakObstacles={assist.breakObstacles} earlyDoubleJump={assist.earlyDoubleJump} attackPower={pc.AttackPower}");
+        var firstSeen = new Dictionary<ObstacleController, double>();
+        var layout = new List<string>();
+        var kindSeen = new Dictionary<string, int>(); var kindBroken = new Dictionary<string, int>(); var kindHit = new Dictionary<string, int>();
+        var tracked = new List<ObstacleController>();
+        float t0 = Time.time, limit = meters / (cmpKmh / 3.6f) * 2.5f + 40f;
+        while (gm.MaxDistance < meters && Time.time - t0 < limit)
+        {
+            foreach (var o in ObstacleController.All)
+            {
+                if (o == null || firstSeen.ContainsKey(o)) continue;
+                double lx = o.transform.position.x + FloatingOrigin.Offset;
+                firstSeen[o] = lx;
+                tracked.Add(o);
+                layout.Add($"{o.kind}@{lx:F0}");
+            }
+            yield return null;
+        }
+        foreach (var o in tracked)
+        {
+            if (o == null) continue;
+            if (firstSeen[o] > gm.MaxDistance) continue; // まだ来ていない
+            string k = string.IsNullOrEmpty(o.kind) ? "?" : o.kind;
+            kindSeen[k] = (kindSeen.TryGetValue(k, out int a) ? a : 0) + 1;
+            if (o.BrokenAt >= 0f) kindBroken[k] = (kindBroken.TryGetValue(k, out int b) ? b : 0) + 1;
+            if (o.ContactDamaged) kindHit[k] = (kindHit.TryGetValue(k, out int c) ? c : 0) + 1;
+        }
+        var sb = new StringBuilder();
+        foreach (var kv in kindSeen) sb.Append($" {kv.Key}:{kv.Value}(broken {(kindBroken.TryGetValue(kv.Key, out int b2) ? b2 : 0)}/hit {(kindHit.TryGetValue(kv.Key, out int h2) ? h2 : 0)})");
+        L($"[COMPARE {compareMode}] reached {gm.MaxDistance:F0}m in {Time.time - t0:F1}s");
+        L($"  damage: fall={dmgFall} obstacle={dmgObstacle} ceilingSpike={dmgSpike} terrainWall={dmgWall} enemy={dmgEnemy} other={dmgOther} | total={dmgFall + dmgObstacle + dmgSpike + dmgWall + dmgEnemy + dmgOther}");
+        L($"  obstacles:{sb}");
+        L($"  assist: jumps={assist.AutoJumps} double={assist.AutoDoubleJumps} attacks={assist.AutoAttacks} noSafe={assist.NoSafeActionCount} obstacleDecisions break={assist.ObstacleBreakPlans} jump={assist.ObstacleJumpPlans} none={assist.ObstacleNoPlan} abandoned={assist.BreakAbandoned} collectMax={assist.CollectMaxCount}");
+        L($"  sweeper: sweeps={PlayerAttackSweeper.SweepsRun} sweptTargets={PlayerAttackSweeper.SweptTargets} enemySwept={EnemyController.SweptHits} | kills={gm.EnemyKillCount}");
+        L($"  layout({layout.Count}) hash={string.Join(",", layout).GetHashCode():X8} first: {string.Join(" ", layout.GetRange(0, Mathf.Min(20, layout.Count)))}");
+        if (noSafeSamples.Count > 0) L("  [NoSafe samples] " + string.Join(" | ", noSafeSamples));
+        foreach (string o in obstacleSamples) L("  [Obstacle hit] " + o);
+    }
+
+    void FinishCompare(bool anyException, Application.LogCallback handler)
+    {
+        ObstacleController.LegacyRules = false; PlayerAttackSweeper.Enabled = true; WorldRng.EndDeterministic();
+        L(anyException ? "EXCEPTIONS LOGGED" : "NO EXCEPTIONS LOGGED");
+        FreezeDiagnostics.EventTap -= OnTap;
+        Application.logMessageReceived -= handler;
+        System.IO.File.WriteAllText(System.IO.Path.Combine(Application.dataPath, $"../HighSpeedAssistCompare_{compareMode}_{stage}_{character}_{cmpKmh:F0}.txt"), log.ToString());
+        if (Application.isBatchMode) EditorApplication.Exit(anyException ? 1 : 0); else EditorApplication.isPlaying = false;
+    }
+
     int TotalActions() => assist.AutoJumps + assist.AutoDoubleJumps + assist.AutoAttacks;
 
-    struct Seg { public int actions, jumps, dbl, attacks, fall, obstacle, enemy, other, spikes, kills, noSafe; public float kmh, meters; }
+    struct Seg { public int actions, jumps, dbl, attacks, fall, obstacle, enemy, other, spikes, wall, kills, noSafe, broken; public float kmh, meters; }
     Seg lastSeg;
 
     IEnumerator Segment(string name, float kmh, bool on, float seconds)
@@ -192,7 +295,7 @@ public class HighSpeedAssistAutoTest : MonoBehaviour
         // 速度が安定するまで少し走る(集計に含めない)
         yield return new WaitForSeconds(1.0f);
         int j0 = assist.AutoJumps, d0 = assist.AutoDoubleJumps, a0 = assist.AutoAttacks, n0 = assist.NoSafeActionCount;
-        int f0 = dmgFall, o0 = dmgObstacle, e0 = dmgEnemy, x0 = dmgOther, s0 = CaveStage.SpikeHitCount, k0 = gm.EnemyKillCount;
+        int f0 = dmgFall, o0 = dmgObstacle, e0 = dmgEnemy, x0 = dmgOther, s0 = dmgSpike, w0 = dmgWall, k0 = gm.EnemyKillCount, b0 = ObstacleController.TotalBroken;
         double dist0 = pc.DistanceExact;
         float kmhSum = 0f; int kmhN = 0;
         segTime = 0f;
@@ -205,12 +308,12 @@ public class HighSpeedAssistAutoTest : MonoBehaviour
         var s = new Seg
         {
             jumps = assist.AutoJumps - j0, dbl = assist.AutoDoubleJumps - d0, attacks = assist.AutoAttacks - a0, noSafe = assist.NoSafeActionCount - n0,
-            fall = dmgFall - f0, obstacle = dmgObstacle - o0, enemy = dmgEnemy - e0, other = dmgOther - x0, spikes = CaveStage.SpikeHitCount - s0,
+            fall = dmgFall - f0, obstacle = dmgObstacle - o0, enemy = dmgEnemy - e0, other = dmgOther - x0, spikes = dmgSpike - s0, wall = dmgWall - w0, broken = ObstacleController.TotalBroken - b0,
             kills = gm.EnemyKillCount - k0, kmh = kmhSum / Mathf.Max(1, kmhN), meters = (float)(pc.DistanceExact - dist0),
         };
         s.actions = s.jumps + s.dbl + s.attacks;
         lastSeg = s;
-        L($"[{name}] avg {s.kmh:F0}km/h {s.meters:F0}m in {seconds:F0}s | auto jump={s.jumps} double={s.dbl} attack={s.attacks} noSafe={s.noSafe} | damage fall={s.fall} obstacle={s.obstacle} enemy={s.enemy} other={s.other} (spikes={s.spikes}) | kills={s.kills} | maxDecide={assist.MaxDecideMs:F2}ms slow={assist.SlowDecides}");
+        L($"[{name}] avg {s.kmh:F0}km/h {s.meters:F0}m in {seconds:F0}s | auto jump={s.jumps} double={s.dbl} attack={s.attacks} noSafe={s.noSafe} | damage fall={s.fall} obstacle={s.obstacle} ceilingSpike={s.spikes} terrainWall={s.wall} enemy={s.enemy} other={s.other} | obstaclesBroken={s.broken} kills={s.kills} | maxDecide={assist.MaxDecideMs:F2}ms slow={assist.SlowDecides}");
     }
 
     // 目標速度を保つ。実際のプレイで高速になるのは速度カード(runSpeedを掛け算)なので、DEBUGの速度倍率ではなく

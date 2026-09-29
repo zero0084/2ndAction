@@ -20,7 +20,22 @@ public partial class PlayerController
     public int AssistMaxJumps => maxJumps;
     public bool AssistOnSky => onSky;
     public float AssistFailY => failY;
-    public float AssistGroundOffset => groundOffset;
+    // 魔法使いは地面から浮いている(最低高度+段数)。軌道予測の「地面を走る高さ」に含める(2026-09-29)。
+    public float AssistGroundOffset => kit == CharacterKit.Mage && kitDef != null ? groundOffset + kitDef.mage.hoverBase + mageLevel * kitDef.mage.altitudeStep : groundOffset;
+    // 前攻撃の弾が出る高さ(足元から)。弾は水平に飛ぶので、障害物の高さと合うかの判定に使う。
+    public float AssistForwardMuzzleY
+    {
+        get
+        {
+            switch (kit)
+            {
+                case CharacterKit.Archer: return kitDef.archer.muzzle.y;
+                case CharacterKit.Mage: return MageStaff.y;
+                case CharacterKit.Miko: return 0.8f;
+            }
+            return isRangedCharacter ? rangedMuzzleOffset.y : 0.5f;
+        }
+    }
     public bool AssistIsMageFlight => kit == CharacterKit.Mage;
     public bool AssistIsDiveOrHover => isDiveAttacking || isHoverShooting || (isLancerCharacter && lanceDiving) || kitVerticalVelocity.HasValue;
     public bool AssistEscapeCharging => IsEscapeCharging;
@@ -43,7 +58,7 @@ public partial class PlayerController
     {
         get
         {
-            float v = autoRunEnabled ? runSpeed * EffectiveSpeedMultiplier() : 0f;
+            float v = autoRunEnabled ? runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale : 0f;
             if (moveSlowTimer > 0f) v *= moveSlowFactor;
             if (groundHitConnectSlowdownTimer > 0f) v *= 1f - groundHitConnectSlowdownFactor;
             if (IsReacting) v = 0f;
@@ -101,6 +116,43 @@ public partial class PlayerController
             return 1.6f;
         }
     }
+
+    // 障害物の破壊の見積もり(2026-09-29): 飛び道具の弾速(走行速度の上乗せ前)と、攻撃力。
+    public float AssistForwardProjectileSpeed
+    {
+        get
+        {
+            switch (kit)
+            {
+                case CharacterKit.Archer: return kitDef.archer.arrowSpeed;
+                case CharacterKit.Mage: return kitDef.mage.boltSpeed;
+                case CharacterKit.Miko: return kitDef.miko.ofudaSpeed;
+            }
+            return isRangedCharacter ? rangedBulletSpeed : 0f;
+        }
+    }
+    public int AssistAttackPower => EffectiveAttackPower;
+    // 前攻撃1回(1段目)の威力倍率(キャラ別の既存値を読むだけ)
+    public float AssistForwardDamageScale
+    {
+        get
+        {
+            switch (kit)
+            {
+                case CharacterKit.Mage: return kitDef.mage.boltDamageScale;
+                case CharacterKit.Fighter: return ArcherPick(kitDef.fighter.comboDamageScale, 0, 1f);
+                case CharacterKit.Vampire: return ArcherPick(kitDef.vampire.comboDamageScale, 0, 1f);
+                case CharacterKit.Dragonkin: return ArcherPick(kitDef.dragonkin.comboDamageScale, 0, 1f);
+                case CharacterKit.Ninja: return kitDef.ninja.slashDamageScale;
+                case CharacterKit.Miko: return kitDef.miko.ofudaDamageScale;
+            }
+            return 1f;
+        }
+    }
+    // 前攻撃で体ごと前へ跳び込む距離(忍者の瞬身)。壊し切れない障害物へ跳び込まないために使う。
+    public float AssistForwardLunge => kit == CharacterKit.Ninja ? kitDef.ninja.dashDistance : 0f;
+    // 次の前攻撃を始められるまでの秒数(攻撃中は-1=不明)
+    public float AssistAttackReadyIn => isAttacking ? -1f : Mathf.Max(0f, attackCooldownTimer);
 
     // 今この瞬間に前攻撃を新しく始められるか(連打・予約にならないよう、実行中/硬直中は出さない)。
     public bool AssistCanStartForwardAttack => !isAttacking && attackCooldownTimer <= 0f && !IsReacting;

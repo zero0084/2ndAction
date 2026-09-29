@@ -57,9 +57,25 @@ public class KitProjectile : MonoBehaviour
         if (age > lifetime) Finish(transform.position, blastOnExpire);
     }
 
+    // PlayerAttackSweeper(フレームの間に通り過ぎた相手)から。物理の接触と同じ処理。戻り値: 弾が消えた。
+    public bool SweptHit(Collider2D target) { if (!done) OnTriggerEnter2D(target); return done; }
+    public bool Done => done;
+
     void OnTriggerEnter2D(Collider2D other)
     {
         if (done) return;
+        // 障害物(2026-09-29): 壊せる。壊れずに残ったら弾はそこで止まる(壁の向こうの敵には当たらない)。
+        var obs = other.GetComponentInParent<ObstacleController>();
+        if (obs != null)
+        {
+            if (ObstacleController.LegacyRules) return; // 前後比較テスト: 改修前は弾が障害物を素通りした
+            var myCol = GetComponent<Collider2D>();
+            obs.ReceiveAttack(myCol);
+            if (!obs.Broken || blast.radius > 0f) { Finish(other.ClosestPoint(transform.position), blast.radius > 0f); return; }
+            if (pierce == 0) { Finish(transform.position, false); return; }
+            if (pierce > 0) pierce--;
+            return;
+        }
         bool enemy = other.GetComponentInParent<EnemyController>() != null;
         bool boss = !enemy && (other.GetComponentInParent<WildBossBase>() != null || other.GetComponentInParent<DragonController>() != null || other.GetComponentInParent<MajinController>() != null);
         if (!enemy && !boss) return;

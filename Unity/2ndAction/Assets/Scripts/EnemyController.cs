@@ -486,12 +486,38 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    // 障害物の耐久力/高速時のすり抜け対策(2026-09-29): 同じ攻撃判定の1回の振り(PlayerAttackInfo.SwingId)では1回だけ当たる。
+    // 物理の接触(OnTriggerEnter2D)と、移動途中の接触を拾うPlayerAttackSweeperの両方から呼ばれても二重に減らない。
+    readonly Collider2D[] swingCols = new Collider2D[8];
+    readonly int[] swingIds = new int[8];
+    int swingNext;
+    public static int SweptHits;
+    bool AlreadyHitBySwing(Collider2D attack)
+    {
+        var info = attack.GetComponent<PlayerAttackInfo>();
+        if (info == null) return false;
+        for (int i = 0; i < swingCols.Length; i++) if (swingCols[i] == attack && swingIds[i] == info.SwingId) return true;
+        swingCols[swingNext] = attack; swingIds[swingNext] = info.SwingId; swingNext = (swingNext + 1) % swingCols.Length;
+        return false;
+    }
+
+    // PlayerAttackSweeperから(フレームの間に通り過ぎた攻撃判定)
+    public void ReceiveSweptAttack(Collider2D attack)
+    {
+        if (dying || attack == null || !isActiveAndEnabled) return;
+        var info = attack.GetComponent<PlayerAttackInfo>();
+        if (info != null) for (int i = 0; i < swingCols.Length; i++) if (swingCols[i] == attack && swingIds[i] == info.SwingId) return;
+        SweptHits++;
+        OnTriggerEnter2D(attack);
+    }
+
     void OnTriggerEnter2D(Collider2D other)
     {
         if (dying) return;
 
         if (other.CompareTag("PlayerAttack"))
         {
+            if (AlreadyHitBySwing(other)) return;
             // マルチプレイPhase 2 - JOIN側のパペットはHPを持たない: ダメージ要求をHOSTへ送り、
             // 手応え(ヒットスパーク/SE/ヒットストップ/コンボ)だけをこの端末で出す。
             if (NetReplica) { NetReplicaHit(other); return; }

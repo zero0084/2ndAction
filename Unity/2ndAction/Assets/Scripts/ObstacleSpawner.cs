@@ -235,8 +235,12 @@ public class ObstacleSpawner : MonoBehaviour
         if (BossManager.Instance != null && BossManager.Instance.IsBossPhase) return;
         if (BonusZone.SuppressesNormalSpawns) return; // BONUS ZONE中は通常の敵/障害物を出さない
         if (GameManager.Instance.ActiveRunStageId != obstacleStageId) return;
+        if (NetObstacles.SuppressLocalSpawn) return; // マルチのJOIN: 障害物はHOSTが置いて共有する(NetObstacles)
+        // マルチのHOST: 先頭のプレイヤー(JOINが前にいることもある)を基準に置く(地形の先行生成と同じ。JOINの目の前に突然出さない)
+        float md = GameManager.Instance.MaxDistance;
+        if (NetObstacles.Authority) md += Mathf.Max(0f, NetCombat.ForemostPlayerX(player.position.x) - player.position.x);
 
-        while (GameManager.Instance.MaxDistance >= nextObstacleDistance)
+        while (md >= nextObstacleDistance)
         {
             // Run Continuation/Checkpoint Ver.1, item 14と同じ配慮 -
             // CONTINUE直後の安全地帯では新規障害物を置かない(EnemyWallManager
@@ -257,7 +261,7 @@ public class ObstacleSpawner : MonoBehaviour
         // ルート構造再調整(2026-09-13) - 上ルート(Easy)専用の軽い障害物。
         // 分岐が存在しない区間ではSpawnUpperObstacle内で即スキップされる
         // (=何も置かれない)ので、このループ自体は常時回っていて問題ない。
-        while (GameManager.Instance.MaxDistance >= nextUpperObstacleDistance)
+        while (md >= nextUpperObstacleDistance)
         {
             bool inSafeZone = GameManager.Instance.IsInSafeZone;
             if (!inSafeZone) SpawnUpperObstacle(nextUpperObstacleDistance);
@@ -268,6 +272,7 @@ public class ObstacleSpawner : MonoBehaviour
 
     void SpawnObstacle(float milestoneDistance)
     {
+        WorldRng.Obstacle.ReseedAt(Mathf.RoundToInt(milestoneDistance * 4f)); // 固定シード時: 同じ地点には同じ種類
         float worldX = startX + milestoneDistance + HighSpeedAssist.SpawnAhead(spawnAheadDistance); // 高速時の自動操作補助: 先読み範囲に置く
 
         // Stage01次段階調整(2026-09-16) - TerrainManager側の生成がまだ
@@ -362,6 +367,7 @@ public class ObstacleSpawner : MonoBehaviour
             spec = lowest;
         }
 
+        Register(obstacle, spec, groundAngle, false);
         lastLowerObstacleX = worldX;
         lastLowerObstacleWasLarge = IsLarge(spec);
     }
@@ -379,7 +385,7 @@ public class ObstacleSpawner : MonoBehaviour
         }
         if (total <= 0f) return default;
 
-        float roll = Random.value * total;
+        float roll = WorldRng.Obstacle.Value * total;
         float acc = 0f;
         foreach (ObstacleSpec s in specs)
         {
@@ -397,6 +403,7 @@ public class ObstacleSpawner : MonoBehaviour
     // ゼロにして安全側に倒した)。
     void SpawnUpperObstacle(float milestoneDistance)
     {
+        WorldRng.Obstacle.ReseedAt(Mathf.RoundToInt(milestoneDistance * 4f) ^ 0x40000000);
         float worldX = startX + milestoneDistance + HighSpeedAssist.SpawnAhead(spawnAheadDistance); // 高速時の自動操作補助: 先読み範囲に置く
         if (TerrainManager.Instance == null || !TerrainManager.Instance.IsInBranchRoute(worldX)) return;
         if (!TerrainManager.Instance.IsGenerated(worldX)) return;
@@ -424,8 +431,39 @@ public class ObstacleSpawner : MonoBehaviour
         float? upCeil = CaveEffectiveCeiling(worldX);
         if (upCeil.HasValue && upCeil.Value - (skyY.Value + spec.targetHeight) < caveObstaclePassClearance) return;
 
-        GroundFactory.CreateObstacle(transform, squareSprite, spec.sprite, new Vector2(worldX, skyY.Value), spec.targetHeight, spec.color, spec.breakable, spec.hp);
+        GameObject upperObstacle = GroundFactory.CreateObstacle(transform, squareSprite, spec.sprite, new Vector2(worldX, skyY.Value), spec.targetHeight, spec.color, spec.breakable, spec.hp);
+        Register(upperObstacle, spec, 0f, true);
         lastUpperObstacleX = worldX;
+    }
+
+    // 障害物の耐久力(2026-09-29): 置いた障害物に種類ごとの耐久力/素材を設定し、マルチならHOSTが全員へ共有する。
+    void Register(GameObject obstacle, ObstacleSpec spec, float angle, bool upper)
+    {
+        if (obstacle == null) return;
+        var oc = obstacle.GetComponent<ObstacleController>();
+        if (oc == null) return;
+        oc.Setup(spec.name);
+        NetObstacles.OnSpawned(oc, obstacleStageId, SpecIndex(spec.name), angle, upper);
+    }
+
+    int SpecIndex(string n) { for (int i = 0; i < specs.Length; i++) if (specs[i].name == n) return i; return -1; }
+
+    public static ObstacleSpawner FindForStage(string stageId)
+    {
+        foreach (var s in FindObjectsByType<ObstacleSpawner>(FindObjectsSortMode.None)) if (s.obstacleStageId == stageId) return s;
+        return null;
+    }
+
+    // マルチのJOIN: HOSTから届いた障害物を同じ見た目/判定で作る(位置/角度はHOSTの確定値)。
+    public ObstacleController CreateReplica(int specIndex, Vector2 pos, float angle, bool upper)
+    {
+        if (specIndex < 0 || specIndex >= specs.Length) return null;
+        var spec = specs[specIndex];
+        var go = GroundFactory.CreateObstacle(transform, squareSprite, spec.sprite, pos, spec.targetHeight, spec.color, spec.breakable, spec.hp, angle);
+        if (go == null) return null;
+        var oc = go.GetComponent<ObstacleController>();
+        oc.Setup(spec.name);
+        return oc;
     }
 
     ObstacleSpec PickEasySpec()
@@ -438,7 +476,7 @@ public class ObstacleSpawner : MonoBehaviour
         }
         if (total <= 0f) return default;
 
-        float roll = Random.value * total;
+        float roll = WorldRng.Obstacle.Value * total;
         float acc = 0f;
         foreach (ObstacleSpec s in specs)
         {
@@ -458,7 +496,7 @@ public class ObstacleSpawner : MonoBehaviour
         foreach (ObstacleSpec s in specs) total += EffectiveWeight(s, dangerBoost);
         if (total <= 0f) return default;
 
-        float roll = Random.value * total;
+        float roll = WorldRng.Obstacle.Value * total;
         float acc = 0f;
         foreach (ObstacleSpec s in specs)
         {

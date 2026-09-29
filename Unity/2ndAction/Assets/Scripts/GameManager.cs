@@ -4240,6 +4240,29 @@ public class GameManager : MonoBehaviour
         GUI.Label(new Rect(speedRect.x + 6f, speedRect.y, speedRect.width - 6f, speedRect.height), speedText, speedStyle);
         y += bh + gap;
 
+        // ---- RUN(速度だけのデバッグ倍率、2026-09-29)----
+        // SPD+は「距離の伸び/配置の間隔」も一緒に変わる(SpeedRatioに含まれる)。RUNは走る速さだけを変え、
+        // 敵/障害物の配置間隔・出現頻度・経験値は通常速度のまま(補助の発動/解除や、同じ配置での比較の確認用)。
+        float runOnly = PlayerController.DebugRunOnlyScale;
+        (string label, System.Action action)[] runButtons =
+        {
+            ("RUN -", () => PlayerController.DebugRunOnlyScale = StepDebugSpeed(runOnly, -1)),
+            ("RUN +", () => PlayerController.DebugRunOnlyScale = StepDebugSpeed(runOnly, +1)),
+            ("RUN x1", () => PlayerController.DebugRunOnlyScale = 1f),
+        };
+        for (int i = 0; i < runButtons.Length; i++)
+        {
+            Rect r = new Rect(x0 + i * (bw + gap), y, bw, bh);
+            if (DrawStyledButton(r, runButtons[i].label, 11f, primary: i == 2 && Mathf.Abs(runOnly - 1f) > 0.001f)) runButtons[i].action();
+        }
+        string runText = $"速度のみ x{PlayerController.DebugRunOnlyScale:0.##}(配置間隔は変えない)";
+        Rect runRect = new Rect(x0 + runButtons.Length * (bw + gap), y, speedStyle.CalcSize(new GUIContent(runText)).x + 14f, bh);
+        UiBackdrop.Draw(runRect, 0.55f);
+        GUIStyle runStyle = new GUIStyle(speedStyle);
+        runStyle.normal.textColor = Mathf.Abs(PlayerController.DebugRunOnlyScale - 1f) > 0.001f ? new Color(1f, 0.85f, 0.3f) : new Color(0.6f, 1f, 0.7f);
+        GUI.Label(new Rect(runRect.x + 6f, runRect.y, runRect.width - 6f, runRect.height), runText, runStyle);
+        y += bh + gap;
+
         // ---- ASSIST(高速時の自動操作補助、2026-09-28)----
         // ON/OFFは端末ごと(マルチでも自分のキャラにだけ効く)。小さな1〜2行: 状態・判定速度・直近の自動行動と理由・
         // 行動できなかった主な理由。停止/カード選択/ポーズの時間制御には関与しない。
@@ -4254,6 +4277,7 @@ public class GameManager : MonoBehaviour
             float now = Time.time;
             string last = !string.IsNullOrEmpty(assist.LastAction) && now - assist.LastActionTime < 3f ? $" 直近:{assist.LastAction}({assist.LastActionReason})" : "";
             string fail = !string.IsNullOrEmpty(assist.LastFailure) && now - assist.LastFailureTime < 4f ? $"\n不可:{assist.LastFailure}" : "";
+            if (!string.IsNullOrEmpty(assist.LastBreakWhy)) fail += $"\n障害物:{assist.LastBreakWhy} 壊す{assist.ObstacleBreakPlans}/跳ぶ{assist.ObstacleJumpPlans}/無理{assist.ObstacleNoPlan}";
             string assistText = $"{assist.StatusText()} 判定{assist.JudgedKmh:F0}km/h(ON≧{assist.engageKmh:F0}/OFF<{assist.releaseKmh:F0}){last}{fail}";
             GUIStyle assistStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
             assistStyle.normal.textColor = assist.CurrentStatus == HighSpeedAssist.Status.Active ? new Color(0.55f, 0.9f, 1f)

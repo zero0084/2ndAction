@@ -38,6 +38,25 @@ public class PlayerAttackInfo : MonoBehaviour
     // 敵/ボスに命中した瞬間に呼ばれる(吸血鬼のBlood Gauge等)。障害物では呼ばない。既定null=何もしない。
     public System.Action onHit;
 
+    // 障害物の耐久力/高速時のすり抜け対策(2026-09-29)。
+    // SwingId: この判定の「1回の振り(発射)」の番号。同じ振りでは敵/障害物へ1回しか当たらない(判定の重複で二重に減らない)。
+    // 判定が有効になるたび(PlayerAttackSweeperが有効化の瞬間を検出)、または技の開始時(ArmKitBox等)に新しい番号になる。
+    // 飛び道具は1発ごとに別のGameObjectなので、生成時の番号のまま。
+    static int swingCounter;
+    public int SwingId { get; private set; }
+    public void NewSwing() { SwingId = ++swingCounter; }
+    // 判定を別の位置/大きさで出し直した(前の位置からの掃引はしない)
+    public void Rearm() { NewSwing(); wasEnabled = false; }
+    public static void RearmOf(Component c) { if (c == null) return; var i = c.GetComponent<PlayerAttackInfo>(); if (i != null) i.Rearm(); }
+    public static readonly System.Collections.Generic.List<PlayerAttackInfo> Active = new System.Collections.Generic.List<PlayerAttackInfo>();
+    [System.NonSerialized] public Collider2D col;
+    [System.NonSerialized] public bool wasEnabled;
+    [System.NonSerialized] public Bounds prevBounds;
+
+    void Awake() { col = GetComponent<Collider2D>(); NewSwing(); }
+    void OnEnable() { if (!Active.Contains(this)) Active.Add(this); wasEnabled = false; }
+    void OnDisable() { Active.Remove(this); wasEnabled = false; }
+
     // 敵/ボス/障害物がダメージを読む箇所から呼ぶ。倍率1なら値をそのまま返す。
     public static int ScaleDamage(Collider2D attack, int damage) => ScaleDamage(attack, damage, true);
 

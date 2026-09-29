@@ -287,6 +287,7 @@ public partial class PlayerController
         kitHitInfo.knockbackScale = knockbackScale;
         kitHitInfo.hitStop = hitStop;
         kitHitbox.enabled = true;
+        kitHitInfo.Rearm();
     }
 
     void DisarmKitBox(int token)

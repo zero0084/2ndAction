@@ -34,8 +34,29 @@ public class HighSpeedAssist : MonoBehaviour
 
     [Header("発動条件(km/h)")]
     public bool assistEnabled = true;
-    public float engageKmh = 200f;
-    public float releaseKmh = 180f;
+    // 2026-09-29: 200/180 → 100/90(マスター指定)。ここ(またはInspector)で調整できる。
+    public float engageKmh = 100f;
+    public float releaseKmh = 90f;
+
+    [Header("障害物の破壊(2026-09-29)")]
+    [Tooltip("接触までに壊し切る見込みがあれば、跳ばずに前攻撃で壊して通る")]
+    public bool breakObstacles = true;
+    [Tooltip("最後の一撃が当たる時刻と接触の時刻の間に最低限ほしい余裕(秒)")]
+    public float breakMarginSeconds = 0.01f;
+    [Tooltip("攻撃の間隔(秒)の初期値。実際に出した自動攻撃の間隔から学習して更新する")]
+    public float defaultAttackCycle = 0.42f;
+    [Tooltip("弾速が不明な時の仮の値(m/s)")]
+    public float defaultProjectileSpeed = 16f;
+    [Tooltip("飛び道具で壊す時の余裕(秒)")]
+    public float projectileMarginSeconds = 0.12f;
+    [Tooltip("飛び道具で障害物を狙い始める距離 = 走行速度 × この秒数(通常の狙い始め距離より遠い時だけ)")]
+    public float obstacleAimSeconds = 0.7f;
+    [Tooltip("着地の直後に越えられない障害物がある時、着地を待たずに二段ジャンプで越える(2026-09-29)")]
+    public bool earlyDoubleJump = true;
+    [Tooltip("障害物を越えるジャンプは、その障害物の先まで進めて初めて安全とみなす(2026-09-29)")]
+    public bool requirePassObstacle = true;
+    [Tooltip("跳ぶ計画で障害物の上・手前に見る余裕(m)")]
+    public float jumpClearance = 0.25f;
 
     [Header("先読み")]
     [Tooltip("先読みする時間(秒)。距離 = 走行速度 × この秒数(下限/上限あり)")]
@@ -77,6 +98,12 @@ public class HighSpeedAssist : MonoBehaviour
     public float LastFailureTime { get; private set; } = -99f;
     public string PlanText { get; private set; } = "";
     public int AutoJumps, AutoDoubleJumps, AutoAttacks, NoSafeActionCount, ManualInputs, ResumeResets;
+    // 障害物ごとの判断(同じ障害物は1回だけ数える): 壊して通る/跳ぶ/どちらも無理
+    public int ObstacleBreakPlans, ObstacleJumpPlans, ObstacleNoPlan, BreakAbandoned;
+    public string LastBreakWhy { get; private set; } = "";
+    public float LearnedAttackCycle { get; private set; }
+    float lastAutoAttackTime = -99f; bool waitingReady;
+    ObstacleController committedBreak, lastAttackOc; int hitsAtLastAttack;
     public float LastDecideMs { get; private set; }
     public float MaxDecideMs;               // 起動直後(JITの初回コンパイル)を除いた最大
     public int DecideCount, SlowDecides;    // SlowDecides = 2ms以上かかった回数
@@ -127,6 +154,10 @@ public class HighSpeedAssist : MonoBehaviour
         manualAttackUntil = manualJumpUntil = -99f;
         lastFailureHazardX = float.NaN;
         AutoJumps = AutoDoubleJumps = AutoAttacks = NoSafeActionCount = ManualInputs = ResumeResets = 0;
+        ObstacleBreakPlans = ObstacleJumpPlans = ObstacleNoPlan = BreakAbandoned = 0;
+        LastBreakWhy = ""; LearnedAttackCycle = 0f; lastAutoAttackTime = -99f; waitingReady = false;
+        committedBreak = null; lastAttackOc = null;
+        decisions.Clear();
         MaxDecideMs = 0f; DecideCount = SlowDecides = BudgetCutoffs = 0; TotalDecideMs = 0.0;
         CurrentStatus = Status.WaitingSpeed;
     }
@@ -204,6 +235,7 @@ public class HighSpeedAssist : MonoBehaviour
             ResumeResets++;
             lastFailureHazardX = float.NaN;
             cachedTakeoffTime = -1f; cachedHazardX = float.NaN;
+            committedBreak = null;
         }
         if (!assistEnabled) { CurrentStatus = Status.Off; return null; }
         if (!Engaged) { CurrentStatus = Status.WaitingSpeed; return null; }
@@ -234,10 +266,108 @@ public class HighSpeedAssist : MonoBehaviour
     }
 
     // ---- 予測に使う世界の断面(このフレームだけ有効) ----
-    struct Box { public float minX, maxX, minY, maxY; public bool breakable; }
+    struct Box { public float minX, maxX, minY, maxY; public bool breakable; public bool quickBreak; public ObstacleController oc; }
+    ObstacleController ignoreOc;   // 予測で「壊れる」前提にする障害物
+    float simMustPassX = float.NaN; // 行動ありの予測で「ここを越えたら安全」とする位置(障害物の後端+体の半幅)
+    string breakFailText = "", failurePrefix = "";
+    readonly Dictionary<ObstacleController, int> decisions = new Dictionary<ObstacleController, int>(); // 1:壊す 2:跳ぶ 3:どちらも無理
+
+    public int DecisionFor(ObstacleController oc) => oc != null && decisions.TryGetValue(oc, out int k) ? k : 0;
+
+    // 障害物ごとの最終判断を記録(同じ障害物は最後の判断で数える)
+    void Decision(ObstacleController oc, int kind)
+    {
+        if (oc == null) return;
+        decisions.TryGetValue(oc, out int prev);
+        if (prev == kind) return;
+        decisions[oc] = kind;
+        if (prev == 1) ObstacleBreakPlans--; else if (prev == 2) ObstacleJumpPlans--; else if (prev == 3) ObstacleNoPlan--;
+        if (kind == 1) ObstacleBreakPlans++; else if (kind == 2) ObstacleJumpPlans++; else ObstacleNoPlan++;
+        if (decisions.Count > 512) decisions.Clear();
+    }
+
+    // 2026-09-29: 空中で「危険は着地の後」の時、着地してからの地上ジャンプでは間に合わない(着地の直後に大岩/壁がある)か。
+    // 間に合わないなら、着地を待たずに今の二段ジャンプで越える計画へ回す(従来は着地まで待ち、跳べずに当たることがあった)。
+    bool LandingTooLate(SimState start, SimResult run, float horizonT)
+    {
+        if (!earlyDoubleJump) return false;
+        if (start.jumpsLeft <= 0) return false;                                   // 二段ジャンプが無いなら待つしかない
+        if (run.hazardTime - run.firstLandTime > 0.45f) return false;            // 着地後に十分な時間がある
+        float keepPass = simMustPassX;
+        simMustPassX = run.hazard == Hazard.Obstacle && requirePassObstacle ? run.obMaxX + halfW : float.NaN;
+        try
+        {
+            float[] after = { 0.02f, 0.07f, 0.12f };
+            foreach (float d in after)
+            {
+                if (run.firstLandTime + d >= run.hazardTime) break;
+                if (Simulate(start, run.firstLandTime + d, -1f, horizonT, false).safe) return false;
+            }
+            return true;
+        }
+        finally { simMustPassX = keepPass; }
+    }
+
+    // 接触までに壊し切れるか。耐久力(JOINの予測込み)・攻撃力×前攻撃の倍率・発生・攻撃の間隔・弾の到達時間・接触までの時間から。
+    bool EvaluateBreak(PlayerController pc, Vector3 p, SimResult run, out string text)
+    {
+        var oc = run.obOc;
+        int hp = oc.PredictedHp >= 0 ? Mathf.Min(oc.PredictedHp, oc.Hp) : oc.Hp;
+        int dmg = Mathf.Max(1, Mathf.RoundToInt(pc.AssistAttackPower * pc.AssistForwardDamageScale));
+        int hits = Mathf.Max(1, Mathf.CeilToInt(hp / (float)dmg));
+        float startup = pc.AssistForwardStartup + inputLatency;
+        float reach = pc.AssistForwardReach;
+        bool proj = pc.AssistForwardIsProjectile;
+        if (proj) reach = Mathf.Max(reach, vx * obstacleAimSeconds); // 障害物は速度に応じて早めに撃ち始める(弾が接触までに届くように)
+        float cycle = LearnedAttackCycle > 0f ? LearnedAttackCycle : defaultAttackCycle;
+        float sinceAtk = Time.time - lastAutoAttackTime;
+        float ready = pc.AssistAttackReadyIn;
+        if (ready < 0f) ready = Mathf.Clamp(cycle - sinceAtk, 0f, cycle);
+        ready = Mathf.Max(ready, manualAttackUntil - Time.time);
+        float dc = run.obMinX - p.x;
+        float contact = run.hazardTime;
+        float vp = pc.AssistForwardProjectileSpeed; if (vp <= 0f) vp = defaultProjectileSpeed;
+        float inReach = (dc - reach) / vx; // 障害物の手前が間合い(飛び道具は狙い始める距離)に入る時刻
+        // fire秒後に出した攻撃が当たる時刻。近接: 判定が出ていれば、障害物が間合いに入った瞬間に当たる(すり抜け対策の掃引あり)。
+        // 飛び道具: 撃った位置からの残りの距離を「弾速+走行速度」で詰める。
+        float HitAt(float fire)
+        {
+            if (!proj) return Mathf.Max(fire + startup, inReach);
+            float gap = Mathf.Max(0f, dc - vx * Mathf.Max(0f, fire + startup));
+            return Mathf.Max(0f, fire + startup) + gap / (vp + vx);
+        }
+        // この障害物へ出した直前の自動攻撃がまだ当たっていない(発生中/弾が飛んでいる)なら、それを1回目に数える
+        bool pending = lastAttackOc == oc && oc.HitsTaken == hitsAtLastAttack && sinceAtk < startup + (proj ? 1.0f : 0.35f);
+        float fireT = pending ? -sinceAtk : Mathf.Max(ready, proj ? inReach : inReach - startup);
+        // 飛び道具: 弾は撃った高さのまま水平に飛ぶ。撃つ地点の(予測)高さ+発射口の高さが障害物の高さの範囲に入る
+        // 最初の発射時刻を、接触までの間で探す(丘の上から撃つと低い障害物の上を越えてしまうため、下りてから撃つ)。
+        bool heightOk = true; float yFire = 0f;
+        if (proj && !pending)
+        {
+            heightOk = false;
+            for (float t = Mathf.Max(0f, fireT); t < contact; t += 0.03f)
+            {
+                yFire = PathYAt(p.x + vx * t, p.y) + pc.AssistForwardMuzzleY;
+                if (yFire >= run.obMinY + 0.1f && yFire <= run.obMaxY - 0.15f) { fireT = t; heightOk = true; break; } // 絵の形(幹が細い等)の分だけ内側
+            }
+        }
+        float lastHit = HitAt(fireT);
+        for (int i = 1; i < hits; i++)
+        {
+            fireT = Mathf.Max(fireT + cycle, 0f);
+            lastHit = Mathf.Max(lastHit, HitAt(fireT));
+        }
+        text = $"耐久{hp}÷{dmg}={hits}回 最終{lastHit:F2}s/接触{contact:F2}s{(pending ? "(攻撃中)" : "")}";
+        if (pc.AssistForwardLunge > 0f && hits > 1) { text += "(瞬身は1回で壊せる時だけ)"; return false; }
+        if (!heightOk) { text += $"(弾の高さ{yFire:F1}が合わない)"; return false; }
+        // 飛び道具は弾の到達時間の見積もりに誤差があるので余裕を大きめに(ぎりぎりなら跳ぶ方を選ぶ)
+        float margin = pending ? 0f : proj ? Mathf.Max(breakMarginSeconds, projectileMarginSeconds) : breakMarginSeconds;
+        return lastHit + margin <= contact; // 出した攻撃が当たる途中なら余裕は見ない(直前で断念して跳ぶと、かえって当たる)
+    }
     readonly List<Box> obstacles = new List<Box>(16);
     readonly List<Box> enemies = new List<Box>(16);
-    readonly Collider2D[] overlap = new Collider2D[96];
+    readonly Collider2D[] overlap = new Collider2D[512]; // 2026-09-29: 96だと地形などで溢れ、障害物を見落とすことがあった
+    public int CollectOverflows, CollectMaxCount;
     readonly Dictionary<Collider2D, int> tagCache = new Dictionary<Collider2D, int>(); // 0:無関係 1:障害物 2:敵 3:壊せる障害物
 
     float halfW, bodyH, jumpForce, gravity, failY, headH, vx, aerialRemain, aerialScale;
@@ -266,47 +396,99 @@ public class HighSpeedAssist : MonoBehaviour
         bool jumpAllowed = Time.time >= manualJumpUntil && !pc.AssistIsMageFlight;
         float frameDt = Mathf.Max(Time.deltaTime, 1f / 240f);
 
-        if (run.hazard != Hazard.None && run.hazard != Hazard.Unknown)
+        // 自動攻撃の間隔を学習(出してから次に出せるようになるまで)
+        if (waitingReady && pc.AssistCanStartForwardAttack)
         {
+            waitingReady = false;
+            float c = Time.time - lastAutoAttackTime;
+            if (c > 0.05f && c < 2f) LearnedAttackCycle = LearnedAttackCycle <= 0f ? c : Mathf.Lerp(LearnedAttackCycle, c, 0.3f);
+        }
+
+        // ---- 障害物: 接触までに壊し切れる見込みがあれば、跳ばずに前攻撃で壊して通る ----
+        bool breaking = false;
+        breakFailText = "";
+        if (run.hazard != Hazard.Obstacle) LastBreakWhy = "";
+        if (run.hazard == Hazard.Obstacle && run.obOc != null && breakObstacles && Time.time >= manualAttackUntil)
+        {
+            string txt;
+            breaking = EvaluateBreak(pc, p, run, out txt);
+            LastBreakWhy = txt;
+            if (breaking)
+            {
+                committedBreak = run.obOc;
+                cachedTakeoffTime = -1f; cachedHazardX = float.NaN;
+                Decision(run.obOc, 1);
+                PlanText = "壊して通る: " + txt;
+            }
+            else
+            {
+                if (committedBreak == run.obOc) { BreakAbandoned++; committedBreak = null; FreezeDiagnostics.LogEvent($"[Assist] 破壊を断念 {txt}"); }
+                breakFailText = "壊し切れない(" + txt + ")";
+            }
+        }
+
+        if (!breaking && run.hazard != Hazard.None && run.hazard != Hazard.Unknown)
+        {
+            bool obstacleHazard = run.hazard == Hazard.Obstacle && run.obOc != null;
             if (!jumpAllowed)
             {
                 PlanText = pc.AssistIsMageFlight ? $"{HazardName(run.hazard)}まで{run.hazardTime:F2}s(浮遊キャラはジャンプ補助なし)" : $"{HazardName(run.hazard)}まで{run.hazardTime:F2}s(手動ジャンプ優先)";
+                if (obstacleHazard && pc.AssistIsMageFlight)
+                {
+                    Decision(run.obOc, 3);
+                    if (run.hazardTime < 0.25f) ReportFailure(run, breakFailText + "/浮遊キャラはジャンプ補助なし");
+                }
             }
-            else if (!start.grounded && run.firstLandTime >= 0f && run.hazardTime > run.firstLandTime + landingRunwaySeconds)
+            else if (!start.grounded && run.firstLandTime >= 0f && run.hazardTime > run.firstLandTime + landingRunwaySeconds
+                && !LandingTooLate(start, run, horizonT))
             {
                 // 空中だが、危険は着地の後: 着地してから地上のジャンプで避ける(二段ジャンプは使わずに残す)
                 PlanText = $"{HazardName(run.hazard)}まで{run.hazardTime:F2}s(着地後に判断)";
             }
             else if (start.grounded || start.jumpsLeft > 0)
             {
+                failurePrefix = obstacleHazard ? breakFailText + "/跳べない: " : "";
+                simMustPassX = obstacleHazard && requirePassObstacle ? run.obMaxX + halfW : float.NaN;
                 var jump = PlanJump(start, run, horizonT, frameDt);
+                simMustPassX = float.NaN;
+                failurePrefix = "";
+                if (obstacleHazard)
+                {
+                    if (jump.HasValue || cachedTakeoffTime > 0f) Decision(run.obOc, 2);
+                    else if (run.leaveTime <= frameDt * 1.5f) Decision(run.obOc, 3);
+                }
                 if (jump.HasValue) return jump;
             }
             else
             {
                 PlanText = $"{HazardName(run.hazard)}まで{run.hazardTime:F2}s(ジャンプ回数なし)";
-                ReportFailure(run, "空中でジャンプ回数を使い切っている");
+                if (obstacleHazard) Decision(run.obOc, 3);
+                ReportFailure(run, (obstacleHazard ? breakFailText + "/" : "") + "空中でジャンプ回数を使い切っている");
             }
         }
-        else PlanText = run.hazard == Hazard.Unknown ? $"先読み{horizonM:F0}m 安全(先は未生成)" : $"先読み{horizonM:F0}m 安全";
+        else if (!breaking) PlanText = run.hazard == Hazard.Unknown ? $"先読み{horizonM:F0}m 安全(先は未生成)" : $"先読み{horizonM:F0}m 安全";
 
         // ---- 攻撃(地形の回避を優先し、ジャンプしないフレームだけ) ----
         // 越えられない「壊せる障害物」が迫っていて、跳ぶ計画も無い時は、敵と同じように前攻撃で壊す。
-        breakTarget = run.hazard == Hazard.Obstacle && run.breakable && cachedTakeoffTime < 0f
-            ? new Box { minX = run.obMinX, maxX = run.obMaxX, minY = run.obMinY, maxY = run.obMaxY, breakable = true } : (Box?)null;
+        // 2026-09-29: 壊して通ると決めた障害物だけを狙う(跳び越える予定の障害物は叩かない)。
+        breakTarget = breaking
+            ? new Box { minX = run.obMinX, maxX = run.obMaxX, minY = run.obMinY, maxY = run.obMaxY, breakable = true, oc = run.obOc } : (Box?)null;
         if (Time.time >= manualAttackUntil && pc.AssistCanStartForwardAttack)
         {
             if (TryPickAttack(pc, p, run, out string why))
             {
                 // 空中で攻撃が当たると滞空補助(落下速度のリセット+弱い重力)で軌道が伸びる。その軌道でも
                 // 安全に着地できる時だけ空中攻撃を出す(着地点が障害物/穴へずれるのを防ぐ)。
+                // 壊しに行く障害物は「壊れる」前提で予測から外す(当たらない前提ではなく、壊し切れる見込みの判定は済み)。
                 if (!start.grounded)
                 {
                     var hitState = start;
                     hitState.vy = Mathf.Max(start.vy, pc.AssistAerialFallResetSpeed);
                     float keepRemain = aerialRemain;
                     aerialRemain = Mathf.Max(aerialRemain, pc.AssistAerialWindow);
+                    ignoreOc = breaking ? run.obOc : null;
                     SimResult withHit = Simulate(hitState, -1f, -1f, horizonT, false);
+                    ignoreOc = null;
                     aerialRemain = keepRemain;
                     bool hazardBeforeLanding = withHit.hazard != Hazard.None && withHit.hazard != Hazard.Unknown
                         && (withHit.firstLandTime < 0f || withHit.hazardTime <= withHit.firstLandTime + landingRunwaySeconds);
@@ -317,6 +499,8 @@ public class HighSpeedAssist : MonoBehaviour
                     }
                 }
                 AutoAttacks++;
+                lastAutoAttackTime = Time.time; waitingReady = true;
+                lastAttackOc = breaking ? run.obOc : null; hitsAtLastAttack = lastAttackOc != null ? lastAttackOc.HitsTaken : 0;
                 Act("前攻撃", why);
                 return PlayerController.FlickDirection.Forward;
             }
@@ -447,8 +631,7 @@ public class HighSpeedAssist : MonoBehaviour
         bool projectile = pc.AssistForwardIsProjectile;
         float bestDist = float.MaxValue; bool found = false;
         targets.Clear(); targets.AddRange(enemies);
-        // 進路上の「壊せる障害物」も前攻撃の対象(越えられない/着地後に出会う場合に壊して通る)
-        foreach (Box o in obstacles) if (o.breakable) targets.Add(o);
+        // 壊して通ると決めた障害物も前攻撃の対象(EvaluateBreakで接触までに壊し切れると見込んだ物だけ)
         if (breakTarget.HasValue) targets.Add(breakTarget.Value);
         foreach (Box e in targets)
         {
@@ -460,9 +643,15 @@ public class HighSpeedAssist : MonoBehaviour
             float ex = Mathf.Clamp(e.minX, p.x, p.x + reach + vx * startup);
             float py = PathYAt(ex, p.y);
             if (e.maxY < py - attackBandBelow || e.minY > py + bodyH + attackBandAbove) continue;
+            // 障害物を弾で狙う時は、今撃った弾の高さが障害物に届くか(坂/浮遊で上下を素通りしない)
+            if (projectile && e.oc != null)
+            {
+                float yNow = p.y + pc.AssistForwardMuzzleY;
+                if (yNow < e.minY + 0.1f || yNow > e.maxY - 0.15f) continue;
+            }
             float atActive = dc - vx * startup;                            // 判定が出る瞬間の距離
             bool inRange;
-            if (projectile) inRange = dc <= reach && atActive > -0.5f;
+            if (projectile) inRange = dc <= (e.oc != null ? Mathf.Max(reach, vx * obstacleAimSeconds) : reach) && atActive > -0.5f;
             else inRange = atActive <= reach + attackReachMargin && (e.maxX - (p.x + vx * startup)) > -0.3f;
             if (!inRange) continue;
             if (dc < bestDist) { bestDist = dc; found = true; why = $"{(e.breakable ? "壊せる障害物" : "敵")}まで{Mathf.Max(0f, dc):F1}m(発生{startup:F2}s/間合い{reach:F1}m)"; }
@@ -489,6 +678,8 @@ public class HighSpeedAssist : MonoBehaviour
         Vector2 center = new Vector2(p.x + horizonM * 0.5f, p.y + 2f);
         Vector2 size = new Vector2(horizonM + 4f, 16f);
         int n = Physics2D.OverlapBox(center, size, 0f, filter, overlap);
+        if (n > CollectMaxCount) CollectMaxCount = n;
+        if (n >= overlap.Length) CollectOverflows++;
         for (int i = 0; i < n; i++)
         {
             Collider2D c = overlap[i];
@@ -497,6 +688,17 @@ public class HighSpeedAssist : MonoBehaviour
             if (kind == 0) continue;
             Bounds b = c.bounds;
             var box = new Box { minX = b.min.x, maxX = b.max.x, minY = b.min.y, maxY = b.max.y, breakable = kind == 3 };
+            if (kind != 2)
+            {
+                box.oc = c.GetComponentInParent<ObstacleController>();
+                if (box.oc != null && (box.oc.Broken || !box.oc.isActiveAndEnabled)) continue;
+                if (box.oc != null && PlayerController.Instance != null)
+                {
+                    var pcq = PlayerController.Instance;
+                    int dmg = Mathf.Max(1, Mathf.RoundToInt(pcq.AssistAttackPower * pcq.AssistForwardDamageScale));
+                    box.quickBreak = box.breakable && box.oc.Hp <= dmg && pcq.AssistForwardLunge <= 0f;
+                }
+            }
             if (kind == 2) enemies.Add(box); else obstacles.Add(box);
         }
     }
@@ -533,6 +735,7 @@ public class HighSpeedAssist : MonoBehaviour
         public float leaveTime;      // (行動なし)危険に関わる最後の足場を離れる時刻(踏み切り候補の上限)
         public float firstLandTime;  // 空中から始めた時、最初に着地する時刻(着地しなければ-1)
         public bool breakable;       // 危険が「壊せる障害物」
+        public ObstacleController obOc;
         public float obMinX, obMaxX, obMinY, obMaxY;
         public string reason;
     }
@@ -636,13 +839,17 @@ public class HighSpeedAssist : MonoBehaviour
             {
                 Box b = obstacles[k];
                 // 跳んだ後、着地して地上で出会う「壊せる障害物」は前攻撃で壊す前提にする(攻撃の対象選びが拾う)
-                if (b.breakable && planned && landedAfter && grounded) continue;
-                if (nx + halfW > b.minX + 0.05f && nx - halfW < b.maxX - 0.05f && ny + bodyH > b.minY + 0.05f && ny < b.maxY - 0.05f)
+                if (b.oc != null && b.oc == ignoreOc) continue;
+                if (b.quickBreak && planned && landedAfter && grounded) continue; // 着地後の1撃で壊れる物だけ(大岩/壁は数えない)
+                // 跳ぶ計画の予測では障害物の上と手前に余裕を見る(入力の1フレームの遅れ等で角をかすめて当たらないように)
+                float top = planned ? b.maxY + jumpClearance : b.maxY - 0.05f;
+                float front = planned ? b.minX - jumpClearance : b.minX + 0.05f;
+                if (nx + halfW > front && nx - halfW < b.maxX - 0.05f && ny + bodyH > b.minY + 0.05f && ny < top)
                 {
                     res.reason = b.breakable ? "壊せる障害物に当たる" : "障害物に当たる";
                     res.hazardCenterTime = t + ((b.minX + b.maxX) * 0.5f - nx) / vx;
                     var f = Fail(res, Hazard.Obstacle, nx, t);
-                    f.breakable = b.breakable; f.obMinX = b.minX; f.obMaxX = b.maxX; f.obMinY = b.minY; f.obMaxY = b.maxY;
+                    f.breakable = b.breakable; f.obOc = b.oc; f.obMinX = b.minX; f.obMaxX = b.maxX; f.obMinY = b.minY; f.obMaxY = b.maxY;
                     f.hazardCenterTime = Mathf.Max(t, (((b.minX + b.maxX) * 0.5f) - s.x) / vx);
                     f.leaveTime = grounded ? t : lastGroundT;
                     return f;
@@ -653,7 +860,8 @@ public class HighSpeedAssist : MonoBehaviour
             if (runway >= 0f)
             {
                 runway -= dt;
-                if (runway <= 0f) { res.safe = true; return res; }
+                // 2026-09-29: 障害物を越える計画は、その障害物の先まで進めて初めて安全(手前に着地して直後に当たる跳び方を選ばない)
+                if (runway <= 0f && (float.IsNaN(simMustPassX) || x > simMustPassX)) { res.safe = true; return res; }
             }
         }
         if (planned) { res.safe = false; res.reason = "着地が先読み範囲外"; res.hazard = Hazard.Unknown; return res; }
@@ -726,7 +934,7 @@ public class HighSpeedAssist : MonoBehaviour
         if (!float.IsNaN(lastFailureHazardX) && Mathf.Abs(lastFailureHazardX - run.hazardX) < 1f) return;
         lastFailureHazardX = run.hazardX;
         NoSafeActionCount++;
-        LastFailure = $"{HazardName(run.hazard)}: {(string.IsNullOrEmpty(why) ? "安全な行動なし" : why)}";
+        LastFailure = $"{HazardName(run.hazard)}: {failurePrefix}{(string.IsNullOrEmpty(why) ? "安全な行動なし" : why)}";
         LastFailureTime = Time.time;
         FreezeDiagnostics.LogEvent($"[Assist] NO SAFE ACTION {LastFailure} v={JudgedKmh:F0}km/h hazardX={run.hazardX:F1}");
     }

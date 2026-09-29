@@ -26,9 +26,22 @@ public class PlayerBullet : MonoBehaviour
         if (age > lifetime) Destroy(gameObject);
     }
 
+    // PlayerAttackSweeper(フレームの間に通り過ぎた相手)から。戻り値: 弾が消えた。
+    public bool SweptHit(Collider2D target) { if (!hasHit) OnTriggerEnter2D(target); return hasHit; }
+
     void OnTriggerEnter2D(Collider2D other)
     {
         if (hasHit) return;
+        // 障害物(2026-09-29): 当たった障害物へダメージを与えて弾は消える(壊れても壊れなくても。壁の向こうへは抜けない)。
+        var obs = other.GetComponentInParent<ObstacleController>();
+        if (obs != null)
+        {
+            if (ObstacleController.LegacyRules) return; // 前後比較テスト: 改修前は弾が障害物を素通りした
+            obs.ReceiveAttack(GetComponent<Collider2D>());
+            hasHit = true;
+            Destroy(gameObject);
+            return;
+        }
         // ダメージ自体は相手側の既存OnTriggerEnter2D(タグ"PlayerAttack"を
         // 読む)へ任せ、弾はここで消える(貫通させない - "細い射線=点で攻撃
         // する"という武器特性どおり、1発で複数の敵を巻き込まない)。

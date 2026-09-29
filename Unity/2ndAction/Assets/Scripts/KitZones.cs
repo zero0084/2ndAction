@@ -130,6 +130,7 @@ public class KitZone : MonoBehaviour
         {
             tickTimer = tick;
             col.enabled = true;
+            { var zi = GetComponent<PlayerAttackInfo>(); if (zi != null) zi.Rearm(); }
             hitWindow = Mathf.Max(0.05f, Time.fixedDeltaTime * 2.5f);
             TicksDone++;
         }

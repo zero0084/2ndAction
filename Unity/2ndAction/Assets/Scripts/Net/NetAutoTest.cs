@@ -908,6 +908,7 @@ public class NetAutoTest : MonoBehaviour
                     if (e.Go != null && !e.Dead && e.Target > 0) targets += $"{e.Id}:P{e.Target} ";
             L($"p25 t={runTime:F1} me=P{NetCombat.LocalPlayerNumber} lives={(gm != null ? gm.Lives : -1)} table=[{nm.DebugDescribe().Trim()}] claims sent={nm.StatClaimsSent} acc={nm.StatClaimsAccepted} rej={nm.StatClaimsRejected} confirmed={nm.StatHitsConfirmed} hostRemote={nm.StatHostRemoteHits} ts={Time.timeScale:F2} choosing={(gm != null && gm.IsLocalChoiceOpen)} attacks=[{(NetAttackSync.Instance != null ? NetAttackSync.Instance.DebugSummary() : "")}] targets=[{targets.Trim()}]");
         }
+        L($"obst t={runTime:F1} me=P{NetCombat.LocalPlayerNumber} {ObstacleLine()}");
         L($"t={runTime:F1} local X={lx:F2} Y={(pc != null ? pc.transform.position.y : 0f):F2} speed={(pc != null ? pc.CurrentAutoRunSpeed : 0f):F1} grounded={(pc != null && pc.IsGrounded)} dist={(gm != null ? gm.MaxDistance : 0f):F0} offset={FloatingOrigin.Offset:F0} | remote {remoteStr} | connected={NetSession.IsConnected}");
 
         TerrainManager tm = TerrainManager.Instance;
@@ -938,8 +939,16 @@ public class NetAutoTest : MonoBehaviour
             int own = GameManager.Instance != null ? GameManager.Instance.UpgradeCount : -1;
             L($"RUNBUILD role={role} slots={hud.Slots.Count} lvSum={lvSum} ownUpgrades={own} ownPicks={levelUps} match={(lvSum == own)} [{sb}]");
         }
+        L($"OBSTACLES role={role} {ObstacleLine()}");
         L($"SUMMARY reason={reason} role={role} exceptions={exceptions} errors={errors} remoteShownSeconds={remoteShownSeconds} maxStepErr={totalMaxStepErr:F3} maxStep={totalMaxStep:F3} backSteps={totalBackSteps}/{totalFrames} sigA={sigA} sigB={sigB}");
         Invoke(nameof(Quit), 1f);
+    }
+
+    // 障害物の耐久力の同期(2026-09-29): 送受信の数、自分の前で他の人が壊した数、体当たりの被弾、破壊の演出の回数
+    static string ObstacleLine()
+    {
+        int active = 0; foreach (var o in ObstacleController.All) if (o != null && !o.Broken) active++;
+        return $"active={active} broken={ObstacleController.TotalBroken} fx={ObstacleFx.BreakFxCount} hits={ObstacleController.TotalHits} contactDamage={ObstacleController.TotalContactDamage} remoteBrokenAhead={ObstacleController.RemoteBrokenAhead} spawnSent={NetObstacles.StatSpawnsSent} spawnRecv={NetObstacles.StatSpawnsRecv} dmgSent={NetObstacles.StatDamageSent} breakSent={NetObstacles.StatBreakSent} breakRecv={NetObstacles.StatBreakRecv} reqSent={NetObstacles.StatHitReqSent} reqApplied={NetObstacles.StatHitReqApplied} reqIgnored={NetObstacles.StatHitReqIgnored} dup={NetObstacles.StatDupHits} reviveBlocked={NetObstacles.StatReviveBlocked}";
     }
 
     void Quit()

@@ -577,7 +577,7 @@ public partial class PlayerController : MonoBehaviour
     // The player's base auto-scroll speed this frame, NOT including attack
     // lunge/recoil. Used by the boss to keep pace with ordinary running
     // without also cancelling out the player's attack-driven movement.
-    public float CurrentAutoRunSpeed => autoRunEnabled ? runSpeed * EffectiveSpeedMultiplier() : 0f;
+    public float CurrentAutoRunSpeed => autoRunEnabled ? runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale : 0f;
 
     // 弾速の走行補正(2026-09-26) - 弾/飛び道具はすべて「プレイヤーの基本走行速度で一緒に流れる
     // 座標系」の中を、それぞれの設計速度で飛ぶ(=画面上の見た目の速さが走行速度に左右されない)。
@@ -1006,6 +1006,9 @@ public partial class PlayerController : MonoBehaviour
     // DrawDistanceWarpDebugUI)。DEBUGをOFFにすると1へ戻る。移動速度だけに掛け、攻撃力の
     // 速度ボーナス(MomentumBonus)は距離由来のGetSpeedMultiplierのまま変えない。
     public static float DebugSpeedScale = 1f;
+    // 確認用(2026-09-29): 走る速さだけを変える倍率。DebugSpeedScaleと違いSpeedRatioには入れないので、
+    // 障害物/敵の間隔・カメラ等は変わらない(=同じ配置のまま速度だけ上げて自動補助/破壊を確かめる)。
+    public static float DebugRunOnlyScale = 1f;
     float EffectiveSpeedMultiplier() => GetSpeedMultiplier() * DebugSpeedScale;
 
     float GetSpeedMultiplier()
@@ -1027,7 +1030,7 @@ public partial class PlayerController : MonoBehaviour
         float dt = Time.deltaTime;
         if (bufferedUpAttackTimer > 0f) bufferedUpAttackTimer -= dt;
         if (upShotVisualTimer > 0f) upShotVisualTimer -= dt;
-        float autoSpeed = autoRunEnabled ? runSpeed * EffectiveSpeedMultiplier() : 0f;
+        float autoSpeed = autoRunEnabled ? runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale : 0f;
         // 荒野街道ボス追加(2026-09-20) - 巨大蜘蛛の糸による短時間の移動妨害。
         // CurrentAutoRunSpeed(ボス側の追従基準)には含めない - ボスは通常速度で
         // 走り続けるので、糸を受けたプレイヤーは相対的に後ろへ取り残される。
@@ -1343,7 +1346,7 @@ public partial class PlayerController : MonoBehaviour
             CaveStage.SpikeHitCount++;
             Debug.Log($"[Cave] Spike hit x={newX:F1} feetY={newY:F1}");
             kitHazardDamage = true; // 地形の針は忍者の瞬身の無敵/格闘家のカウンターで防げない
-            try { TakeDamage(); } finally { kitHazardDamage = false; }
+            try { TakeDamage(source: "CeilingSpike"); } finally { kitHazardDamage = false; }
         }
 
         // Bugfix 2026-09-06, item 2 - "下り坂走行中に突然GAME OVER". Root
@@ -2122,7 +2125,7 @@ public partial class PlayerController : MonoBehaviour
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(comboCount);
 
         ApplyAttackDirection(dir);
-        if (attackHitbox != null) attackHitbox.enabled = true;
+        if (attackHitbox != null) { attackHitbox.enabled = true; var ai = attackHitbox.GetComponent<PlayerAttackInfo>(); if (ai != null) ai.Rearm(); }
         ApplyComboStageToHitbox(comboCount);
         // 品質改善 Bug #002(2026-09-09), item 8/9/11/12 - 通常攻撃も旧
         // 「巨大な紫剣」(framesベースのSetComboStage)から、上/空中/下降
@@ -2283,7 +2286,7 @@ public partial class PlayerController : MonoBehaviour
         {
             upAttackHitbox.transform.localScale = upHitboxBaseScale * AttackRangeMultiplier;
             upAttackHitbox.transform.localPosition = upHitboxBaseLocalPos * AttackRangeMultiplier;
-            upAttackHitbox.enabled = true;
+            upAttackHitbox.enabled = true; PlayerAttackInfo.RearmOf(upAttackHitbox);
         }
 
         // 実機フィードバック(2026-09-12第5弾) - Pickup/Vacuum。剣を振り上げ
@@ -2292,7 +2295,7 @@ public partial class PlayerController : MonoBehaviour
         // 他のHitboxと同じ慣習でupAttackActiveTimeの間だけenabled=true(実際
         // の判定はPhysics2D.OverlapBoxAllで一度きり行うため機能上は必須では
         // ないが、DebugMode時のColliderDebugView表示に必要)。
-        if (upAttackVacuumHitbox != null) upAttackVacuumHitbox.enabled = true;
+        if (upAttackVacuumHitbox != null) upAttackVacuumHitbox.enabled = true; PlayerAttackInfo.RearmOf(upAttackVacuumHitbox);
         TriggerUpAttackVacuum();
 
         yield return new WaitForSeconds(upAttackActiveTime);
@@ -2349,7 +2352,7 @@ public partial class PlayerController : MonoBehaviour
         {
             downAttackHitbox.transform.localScale = downHitboxBaseScale * AttackRangeMultiplier;
             downAttackHitbox.transform.localPosition = downHitboxBaseLocalPos * AttackRangeMultiplier;
-            downAttackHitbox.enabled = true;
+            downAttackHitbox.enabled = true; PlayerAttackInfo.RearmOf(downAttackHitbox);
         }
     }
 
@@ -2381,7 +2384,7 @@ public partial class PlayerController : MonoBehaviour
     {
         if (downAttackLandHitbox != null)
         {
-            downAttackLandHitbox.enabled = true;
+            downAttackLandHitbox.enabled = true; PlayerAttackInfo.RearmOf(downAttackLandHitbox);
             StartCoroutine(DisableDiveImpactHitboxAfterDelay());
         }
         if (downAttackLandSlashVisual != null)

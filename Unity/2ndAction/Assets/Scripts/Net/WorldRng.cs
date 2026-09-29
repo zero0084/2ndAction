@@ -19,6 +19,9 @@ public static class WorldRng
     public static readonly Stream Formation = new Stream(0x4D5E6F70u);
     public static readonly Stream Cave = new Stream(0x5E6F7081u);
     public static readonly Stream CaveDetail = new Stream(0x6F708192u);
+    // 障害物の種類の抽選(2026-09-29)。配置のマイルストーンごとにReseedAtするので、プレイヤーの行動で他の乱数の消費が
+    // 変わっても同じ地点には同じ種類が出る(固定シードでの前後比較、マルチのHOST)。
+    public static readonly Stream Obstacle = new Stream(0x708192A3u);
 
     public static void BeginDeterministic(int seed)
     {
@@ -30,6 +33,7 @@ public static class WorldRng
         Formation.Reset(seed);
         Cave.Reset(seed);
         CaveDetail.Reset(seed);
+        Obstacle.Reset(seed);
     }
 
     public static void EndDeterministic()
