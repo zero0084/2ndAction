@@ -781,6 +781,7 @@ public class TerrainManager : MonoBehaviour
         // り`skyChunks`には触れていなかった)。visualを保持することで
         // RebuildAllChunkVisualsからSky Pathも作り直せるようにした。
         public GameObject visual;
+        public GameObject underFill; // 上ルートの下の埋め(分岐区間のみ。一緒に破棄する)
     }
 
     // ルート構造再調整(2026-09-13) - 1つの分岐(フォーク)から合流(マージ)
@@ -846,6 +847,7 @@ public class TerrainManager : MonoBehaviour
             if (skyChunks[i].endX < cutoff)
             {
                 if (skyChunks[i].visual != null) Destroy(skyChunks[i].visual);
+                DestroyUnderFill(skyChunks[i].underFill);
                 skyChunks.RemoveAt(i);
             }
         }
@@ -1205,7 +1207,7 @@ public class TerrainManager : MonoBehaviour
             new Vector2(x, y), new Vector2(rampUpEndX, rampUpEndY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
             needsLeftCap: true, needsRightCap: false, addWallCollider: false);
         skyChunks.Add(new SkyChunk { startX = x, endX = rampUpEndX, startY = y, endY = rampUpEndY, visual = rampUpVisual });
-        CreateBranchUndersideFill(new Vector2(x, y), new Vector2(rampUpEndX, rampUpEndY));
+        skyChunks[skyChunks.Count - 1].underFill = CreateBranchUndersideFill(new Vector2(x, y), new Vector2(rampUpEndX, rampUpEndY));
         // Stage01仕上げ調整(2026-09-13深夜) - マスター指摘「浮遊足場感が
         // 残る」への軽い緩和策として、分岐区間だけ既定(0.35)より密に
         // 装飾を撒き、道自体の存在感/賑やかさを上げる(崖面のような専用
@@ -1238,7 +1240,7 @@ public class TerrainManager : MonoBehaviour
                 new Vector2(x, y), new Vector2(segEndX, segEndY), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
                 needsLeftCap: false, needsRightCap: false, leftBleed: segBleed);
             skyChunks.Add(new SkyChunk { startX = x, endX = segEndX, startY = y, endY = segEndY, visual = segVisual });
-            CreateBranchUndersideFill(new Vector2(x, y), new Vector2(segEndX, segEndY), SkyJoinBleed(prevAng, segAng, groundFillTopOffset - groundFillOverlap + 4f));
+            skyChunks[skyChunks.Count - 1].underFill = CreateBranchUndersideFill(new Vector2(x, y), new Vector2(segEndX, segEndY), SkyJoinBleed(prevAng, segAng, groundFillTopOffset - groundFillOverlap + 4f));
             prevAng = segAng;
             if (decorationSprites != null && decorationSprites.Length > 0)
                 DecorationScatter.ScatterAlongChunk(segVisual.transform, decorationSprites, new Vector2(x, y), new Vector2(segEndX, segEndY), spawnChance: 0.55f);
@@ -1255,7 +1257,7 @@ public class TerrainManager : MonoBehaviour
             new Vector2(x, y), new Vector2(mergeX, groundYAtMerge), groundThickness, platformVisualHeight, platformSurfaceInset, groundColor,
             needsLeftCap: false, needsRightCap: true, leftBleed: downBleed, addWallCollider: false);
         skyChunks.Add(new SkyChunk { startX = x, endX = mergeX, startY = y, endY = groundYAtMerge, visual = rampDownVisual });
-        CreateBranchUndersideFill(new Vector2(x, y), new Vector2(mergeX, groundYAtMerge), SkyJoinBleed(prevAng, downAng, groundFillTopOffset - groundFillOverlap + 4f));
+        skyChunks[skyChunks.Count - 1].underFill = CreateBranchUndersideFill(new Vector2(x, y), new Vector2(mergeX, groundYAtMerge), SkyJoinBleed(prevAng, downAng, groundFillTopOffset - groundFillOverlap + 4f));
         // Stage01仕上げ調整(2026-09-13深夜) - ランプダウンにはこれまで
         // 装飾が撒かれていなかった(ランプアップ/並走区間のみ)。合流地点
         // にも同じ賑やかさを持たせ、「戻ってきた」感を統一する。
@@ -1294,23 +1296,88 @@ public class TerrainManager : MonoBehaviour
     }
     static float SegAngleDeg(Vector2 a, Vector2 b) => Mathf.Atan2(b.y - a.y, b.x - a.x) * Mathf.Rad2Deg;
 
-    void CreateBranchUndersideFill(Vector2 a, Vector2 b, float leftBleed = 0f)
+    // 2026-09-30: 以前は「坂に沿って回転した長方形(深さ=両端の隙間の平均)」だったため、ランプ(隙間0→約3m)の
+    // 上り切った側や、上下の傾きが違う並走区間で、長方形の下端と下ルートの地面の間に空が三角形に見えていた。
+    // 0.5mごとの縦の帯でメッシュを作り、上端は上ルートの床(スラブ)の裏へ少し潜らせ、下端は各地点の下ルートの
+    // 地面の高さ(穴の上は穴を無視した地面ライン)の少し下まで伸ばす=どこでも上ルートと下ルートの間を隙間なく埋める。
+    // 模様は論理X/Yで貼るので、隣の区間やFloating Originの前後でもつながる。leftBleedは縦の帯同士が同じXで接するため不要(互換のため残す)。
+    public float branchFillColumnStep = 0.5f;
+    // 上端: 上ルートのスラブの見えている厚みのこの割合だけ裏へ潜らせる(スラブ下端のギザギザ/半透明の所から埋めの端が見えない深さ)
+    public float branchFillTopTuckRatio = 0.6f;
+    // 下端: 下ルートの地面のスラブの見えている下端(=下ルートの地面の断面の上端)まで。坂の継ぎ目の楔形の隙間もこれで埋まる
+    public float branchFillBottomExtra = 0.05f;
+    static readonly System.Collections.Generic.Dictionary<Texture, Material> branchFillMats = new System.Collections.Generic.Dictionary<Texture, Material>();
+
+    GameObject CreateBranchUndersideFill(Vector2 a, Vector2 b, float leftBleed = 0f)
     {
-        if (groundFillSprite == null) return;
+        if (groundFillSprite == null) return null;
+        float len = b.x - a.x;
+        if (len <= 0.01f) return null;
+        float ang = Mathf.Atan2(b.y - a.y, len);
+        // スラブの見えている下端(床の面からの垂直距離)。スラブは坂に沿って回転しているので、垂直方向には1/cos倍。
+        float slabBottom = (groundFillTopOffset - groundFillOverlap) / Mathf.Max(0.2f, Mathf.Cos(ang));
+        int n = Mathf.Max(1, Mathf.CeilToInt(len / Mathf.Max(0.1f, branchFillColumnStep)));
+        var verts = new Vector3[(n + 1) * 2];
+        var uvs = new Vector2[verts.Length];
+        var cols = new Color[verts.Length];
+        Vector2 tile = groundFillSprite.bounds.size;
+        tile.x = Mathf.Max(0.1f, tile.x); tile.y = Mathf.Max(0.1f, tile.y);
+        double baseU = System.Math.Floor((a.x + FloatingOrigin.Offset) / tile.x);
+        Color tint = groundFillTint.a > 0f ? groundFillTint : Color.white;
+        for (int i = 0; i <= n; i++)
+        {
+            float x = a.x + len * i / n;
+            float surf = Mathf.Lerp(a.y, b.y, (float)i / n);
+            float top = surf - slabBottom * (1f - branchFillTopTuckRatio);
+            float? g = GetHeightAt(x);
+            float ground = g ?? GetGroundLineAt(x);
+            float bottom = Mathf.Min(top, ground - (groundFillTopOffset - groundFillOverlap) - branchFillBottomExtra);
+            verts[i * 2] = new Vector3(x, bottom, 0f);
+            verts[i * 2 + 1] = new Vector3(x, top, 0f);
+            float u = (float)((x + FloatingOrigin.Offset) / tile.x - baseU);
+            uvs[i * 2] = new Vector2(u, bottom / tile.y);
+            uvs[i * 2 + 1] = new Vector2(u, top / tile.y);
+            cols[i * 2] = tint; cols[i * 2 + 1] = tint;
+        }
+        var tris = new int[n * 6];
+        for (int i = 0; i < n; i++)
+        {
+            int k = i * 2;
+            tris[i * 6] = k; tris[i * 6 + 1] = k + 1; tris[i * 6 + 2] = k + 2;
+            tris[i * 6 + 3] = k + 2; tris[i * 6 + 4] = k + 1; tris[i * 6 + 5] = k + 3;
+        }
+        var go = new GameObject("BranchUndersideFill");
+        go.transform.SetParent(transform, true);
+        go.transform.position = Vector3.zero; // 頂点はワールド座標(親の位置に関係なく)。Floating Originはこのオブジェクトごと戻す
+        go.transform.rotation = Quaternion.identity;
+        go.tag = "Ground";
+        var mesh = new Mesh { name = "BranchUndersideFill" };
+        mesh.vertices = verts; mesh.uv = uvs; mesh.colors = cols; mesh.triangles = tris;
+        mesh.RecalculateBounds();
+        go.AddComponent<MeshFilter>().sharedMesh = mesh;
+        var mr = go.AddComponent<MeshRenderer>();
+        Texture tex = groundFillSprite.texture;
+        if (!branchFillMats.TryGetValue(tex, out Material mat) || mat == null)
+        {
+            var tmp = new GameObject("tmpMat");
+            var tsr = tmp.AddComponent<SpriteRenderer>();
+            mat = new Material(tsr.sharedMaterial) { mainTexture = tex, name = "BranchFill_" + tex.name };
+            Destroy(tmp);
+            branchFillMats[tex] = mat;
+        }
+        mr.sharedMaterial = mat;
+        mr.sortingOrder = RenderOrder.GroundFill;
+        mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        mr.receiveShadows = false;
+        return go;
+    }
 
-        float groundYAtA = GetHeightAt(a.x) ?? (a.y - branchHeightAboveGround);
-        float groundYAtB = GetHeightAt(b.x) ?? (b.y - branchHeightAboveGround);
-        float gapA = a.y - groundYAtA;
-        float gapB = b.y - groundYAtB;
-        float avgGap = (gapA + gapB) * 0.5f;
-
-        // スラブ自身の可視部分(groundFillTopOffset-overlap)より下だけを
-        // Fillが担当するため、その分を差し引く。わずかな安全マージン
-        // (0.2f)を足し、隙間ぴったりでヘアラインの隙間が残らないようにする。
-        float fillDepth = Mathf.Max(0.5f, avgGap - (groundFillTopOffset - groundFillOverlap) + 0.2f);
-
-        GroundFactory.CreateGroundFillVisual(transform, groundFillSprite, a, b,
-            groundFillTopOffset, fillDepth, groundFillOverlap, RenderOrder.GroundFill, leftBleed, groundFillTint);
+    static void DestroyUnderFill(GameObject go)
+    {
+        if (go == null) return;
+        var mf = go.GetComponent<MeshFilter>();
+        if (mf != null && mf.sharedMesh != null) Destroy(mf.sharedMesh);
+        Destroy(go);
     }
 
     void PlaceBranchMarker(float x, float y)

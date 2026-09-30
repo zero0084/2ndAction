@@ -31,6 +31,7 @@ public class QaSweep : MonoBehaviour
             if (a[i] == "-qaRanged") { mode = "ranged"; dir = a[i + 1]; }
             if (a[i] == "-qaFalls") { mode = "falls"; dir = a[i + 1]; }
             if (a[i] == "-qaBossShots") { mode = "bossshots"; dir = a[i + 1]; }
+            if (a[i] == "-qaBranch") { mode = "branch"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -75,6 +76,7 @@ public class QaSweep : MonoBehaviour
         else if (mode == "ranged") yield return RangedMode();
         else if (mode == "falls") yield return FallsMode();
         else if (mode == "bossshots") yield return BossShotsMode();
+        else if (mode == "branch") yield return BranchMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);
@@ -358,6 +360,42 @@ public class QaSweep : MonoBehaviour
             PlayerController.DebugSpeedScale = 1f;
             yield return EndRun();
         }
+    }
+
+    // 上下ルートの分岐: 分岐の手前/上り切り/並走/合流を撮影(下の埋めと下ルートの間に空が見えないか)
+    IEnumerator BranchMode()
+    {
+        yield return BeginRun("swordsman", "wasteland_road");
+        typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
+        if (BossManager.Instance != null) BossManager.Instance.enabled = false;
+        if (EncounterDirector.Instance != null) EncounterDirector.Instance.enabled = false;
+        foreach (var sp in FindObjectsByType<ObstacleSpawner>(FindObjectsSortMode.None)) sp.enabled = false;
+        var tm = TerrainManager.Instance;
+        int shots = 0;
+        foreach (float at in new[] { 150f, 20000f, 60000f })
+        {
+            if (at > 200f) { gm.DebugWarpToDistance(at); yield return new WaitForSeconds(6f); }
+            for (int k = 0; k < 2; k++)
+            {
+                float fork = 0f, merge = 0f; bool gen = false; float w = 0f;
+                while (!tm.TryGetBranchAfter(pc.transform.position.x + 25f, out fork, out merge, out gen) && w < 30f) { yield return null; w += Time.deltaTime; }
+                if (w >= 30f) { L("no branch found"); break; }
+                float rampTop = fork + tm.BranchRampLength;
+                var marks = new[] { ("fork", fork + 4f), ("ramptop", rampTop + 6f), ("mid", (fork + merge) * 0.5f + 5f), ("merge", merge + 2f) };
+                foreach (var (name, mx) in marks)
+                {
+                    // カメラはプレイヤーの少し先を映すので、見たい地点が画面中央付近に来た時に撮る
+                    while (pc.transform.position.x + 6f < mx) { SetKmh(40f); yield return null; }
+                    Shot($"branch_{(int)(at / 1000)}k_{k}_{name}");
+                    shots++;
+                    yield return null;
+                }
+                L($"branch at {FloatingOrigin.ToLogical(fork):F0}m-{FloatingOrigin.ToLogical(merge):F0}m shot");
+            }
+        }
+        PlayerController.DebugSpeedScale = 1f;
+        int fills = 0; foreach (var t in tm.GetComponentsInChildren<MeshFilter>()) if (t.name == "BranchUndersideFill") fills++;
+        L($"shots={shots} live underside fills={fills}");
     }
 
     // ボス戦の見え方: 関門の手前から走ってボス戦に入り、数秒おきに撮影+プレイヤー/地面/天井/ボスの位置を記録
