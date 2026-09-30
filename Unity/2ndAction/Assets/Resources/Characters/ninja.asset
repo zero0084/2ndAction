@@ -80,6 +80,15 @@ MonoBehaviour:
   hurtLeanDegrees: 12
   hurtStaggerDistance: 0.12
   recoveryCrouchDepth: 0.14
+  attackHitboxForwardScale: 1.1
+  attackHitboxVerticalScale: 1
+  attackHitboxCrossScale: 1.15
+  attackHitboxNearPad: 0
+  contactGraceDuration: 0.15
+  highSpeedHitAssistEnabled: 1
+  highSpeedHitAssistStartKmh: 100
+  highSpeedHitAssistSeconds: 0.1
+  highSpeedHitAssistMax: 0.9
   startFrames:
   - {fileID: 21300000, guid: bcaa6c3f954ed664a9c244f51ef0ac3f, type: 3}
   - {fileID: 21300000, guid: b249596be218ce546861c192e9e5314c, type: 3}

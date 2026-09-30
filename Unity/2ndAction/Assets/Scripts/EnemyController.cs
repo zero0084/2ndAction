@@ -572,12 +572,40 @@ public class EnemyController : MonoBehaviour
             if (NetReplica && (dying || NetRemoteReacting)) return;
             if (PlayerController.Instance != null)
             {
-                // マルチプレイPhase 2.5: JOINのパペットとの接触は「この敵(NetId)との接触」としてHOSTへ申告する。
-                if (NetReplica) NetMatch.SetClaimContext(NetMatch.ClaimKind.EnemyContact, NetId);
-                try { PlayerController.Instance.TakeDamage(source: "Enemy:" + name); }
-                finally { NetMatch.ClearClaimContext(); }
+                // 高速時の相打ち対策(2026-09-30): その場では決めず、フレームの最後に「この敵へ攻撃が命中して
+                // いないか(Contact Grace)」を見てから決める(ContactDamageResolver)。前後比較テストで猶予を
+                // 切った時だけ従来どおりその場で被弾する。
+                if (PlayerController.ContactGraceEnabled) ContactDamageResolver.Queue(this, other);
+                else ApplyContactDamage();
             }
         }
+    }
+
+    // 体との接触ダメージを与えてよい状態か(OnTriggerEnter2Dの時点と同じ条件を、決める瞬間にもう一度見る)。
+    public bool CanDealContactDamage => isActiveAndEnabled && !dying && !IsReactingToHit && bonus == null && !(NetReplica && NetRemoteReacting);
+
+    public void ApplyContactDamage()
+    {
+        if (PlayerController.Instance == null) return;
+        // マルチプレイPhase 2.5: JOINのパペットとの接触は「この敵(NetId)との接触」としてHOSTへ申告する。
+        if (NetReplica) NetMatch.SetClaimContext(NetMatch.ClaimKind.EnemyContact, NetId);
+        try { PlayerController.Instance.TakeDamage(source: "Enemy:" + name); }
+        finally { NetMatch.ClearClaimContext(); }
+    }
+
+    Collider2D[] bodyCols;
+    // プレイヤーの体がまだこの敵の体に重なっているか(猶予が切れた時の判定用)。
+    public bool OverlapsBody(Collider2D player)
+    {
+        if (player == null || !player.enabled) return false;
+        if (bodyCols == null) bodyCols = GetComponentsInChildren<Collider2D>(true);
+        foreach (var c in bodyCols)
+        {
+            if (c == null || !c.enabled || !c.gameObject.activeInHierarchy) continue;
+            if (c.GetComponentInParent<EnemyController>() != this || c.GetComponent<EnemyMeleeHitbox>() != null) continue; // 敵自身の攻撃判定は体ではない
+            if (Physics2D.Distance(c, player).isOverlapped) return true;
+        }
+        return false;
     }
 
     // 実機フィードバック(2026-09-12第5弾) - 「Playerの攻撃が正常に命中して

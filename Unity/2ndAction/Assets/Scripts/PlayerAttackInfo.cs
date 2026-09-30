@@ -37,6 +37,9 @@ public class PlayerAttackInfo : MonoBehaviour
     public bool suppressKnockback;
     // 敵/ボスに命中した瞬間に呼ばれる(吸血鬼のBlood Gauge等)。障害物では呼ばない。既定null=何もしない。
     public System.Action onHit;
+    // 2026-09-30: trueなら MeleeReach(キャラ別の判定調整/高速補正)を掛けない(吸血鬼の血のSlashのように「今の間合いのまま」にしたい技)。
+    // 技の判定を出すたびに ArmKitBox が false へ戻す。
+    [System.NonSerialized] public bool fixedReach;
 
     // 障害物の耐久力/高速時のすり抜け対策(2026-09-29)。
     // SwingId: この判定の「1回の振り(発射)」の番号。同じ振りでは敵/障害物へ1回しか当たらない(判定の重複で二重に減らない)。
@@ -64,6 +67,10 @@ public class PlayerAttackInfo : MonoBehaviour
     public static int ScaleDamage(Collider2D attack, Component victim, int damage)
     {
         if (attack != null && victim != null) NotifyFlair(attack, victim);
+        // 高速時の相打ち対策(2026-09-30): 命中した相手との体の接触ダメージだけを短時間受けない(PlayerController.ContactGrace.cs)。
+        // この端末のPlayerAttack判定はすべてこの端末のプレイヤーのもの(他のプレイヤーの攻撃は判定を持たない見た目だけ)。
+        if (attack != null && victim != null && PlayerController.Instance != null)
+            PlayerController.Instance.NotifyAttackLanded(victim, attack.GetComponent<PlayerAttackInfo>());
         return ScaleDamage(attack, damage, true);
     }
 

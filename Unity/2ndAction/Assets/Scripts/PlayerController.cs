@@ -521,6 +521,8 @@ public partial class PlayerController : MonoBehaviour
         ApplyLancerStats(def);
         // 新4人(2026-09-27) - kit!=Standardの間だけ入力/上攻撃/空中の下/魔法使いの浮遊がPlayerController.Kit*.csへ分岐。
         ApplyKitStats(def);
+        // 攻撃判定の調整と高速時の相打ち対策(2026-09-30) - 判定を作るApplyLancerStats/ApplyKitStatsの後で。
+        ApplyHitAssist(def);
         charHasDeathFrames = def.deathFrames != null && def.deathFrames.Length > 0;
     }
 
@@ -1528,6 +1530,7 @@ public partial class PlayerController : MonoBehaviour
 
         GameManager.DamageResult result = GameManager.Instance.TryDamagePlayer(bypassInvincibleMode: isFall, reason: reason);
         if (result != GameManager.DamageResult.Hit) return;
+        RecordDamageTaken(source);
         ApplyDamageReaction(isFall);
     }
 

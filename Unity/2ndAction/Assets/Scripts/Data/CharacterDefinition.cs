@@ -177,6 +177,25 @@ public class CharacterDefinition : ScriptableObject
     public float hurtStaggerDistance = 0.12f; // 後方へよろける距離(ワールド単位)
     public float recoveryCrouchDepth = 0.14f; // 復帰時に沈み込む割合
 
+    // ===== 攻撃判定の調整と高速時の相打ち対策(2026-09-30) ===== //
+    // 近接判定(剣/槍/格闘家・忍者・吸血鬼・竜人の技の判定)を、判定が出た瞬間に MeleeReach が形だけ整える
+    // (ダメージ・技の中身は変えない)。弾/矢/魔法/御札/結界などの飛び道具・範囲には掛からない。
+    //  ・横の攻撃は体から遠い側を forwardScale 倍、上/下の攻撃は verticalScale 倍に伸ばす(体に近い側の端はそのまま)。
+    //  ・crossScale は攻撃方向と直角の太さ、nearPad は体に近い側の端を体の方へ伸ばす長さ(m、体の中心より後ろへは伸ばさない)。
+    //  ・高速補正: 前へ走る向きの横攻撃だけ、(走る速さ − 開始速度) × 秒数 ぶん前へ伸ばす(上限 highSpeedHitAssistMax m)。
+    //  ・contactGraceDuration: 攻撃がその敵に命中してからこの秒数だけ、その敵の「体との接触ダメージ」だけを受けない
+    //    (敵の攻撃判定/弾/ボスの攻撃/針/落石/穴などは対象外。空振りでは発生しない)。
+    [Header("Hit判定/接触猶予/高速補正 (2026-09-30)")]
+    public float attackHitboxForwardScale = 1.2f;
+    public float attackHitboxVerticalScale = 1f;
+    public float attackHitboxCrossScale = 1f;
+    public float attackHitboxNearPad = 0f;
+    public float contactGraceDuration = 0.15f;
+    public bool highSpeedHitAssistEnabled = true;
+    public float highSpeedHitAssistStartKmh = 100f;
+    public float highSpeedHitAssistSeconds = 0.1f;
+    public float highSpeedHitAssistMax = 1.0f;
+
     // ===== RUN開始準備/正常終了演出(2026-09-23) ===== //
     // 開始カウントダウン中の準備ポーズ(StartFrames)と、正常終了時の距離
     // Tier別リアクション(FinishXxxFrames、0-999m/1000-9999m/10000-49999m/

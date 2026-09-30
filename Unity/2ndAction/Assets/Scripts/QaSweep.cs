@@ -16,7 +16,7 @@ using UnityEngine;
 //                    ワープせずに0→100,000mを実際に走り、道中のボスを実際の攻撃で倒し(倒せなければ記録)、
 //                    100,000mの死神に捕まってゲームオーバーになるまで。
 // 結果は <dir>/qa_<mode>.txt
-public class QaSweep : MonoBehaviour
+public partial class QaSweep : MonoBehaviour
 {
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Boot()
@@ -33,6 +33,7 @@ public class QaSweep : MonoBehaviour
             if (a[i] == "-qaBossShots") { mode = "bossshots"; dir = a[i + 1]; }
             if (a[i] == "-qaBranch") { mode = "branch"; dir = a[i + 1]; }
             if (a[i] == "-qaSpeedTime") { mode = "speedtime"; dir = a[i + 1]; }
+            if (a[i] == "-qaTrade") { mode = "trade"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -79,6 +80,7 @@ public class QaSweep : MonoBehaviour
         else if (mode == "bossshots") yield return BossShotsMode();
         else if (mode == "branch") yield return BranchMode();
         else if (mode == "speedtime") yield return SpeedTimeMode();
+        else if (mode == "trade") yield return TradeMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

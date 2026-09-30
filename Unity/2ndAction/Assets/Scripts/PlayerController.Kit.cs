@@ -292,6 +292,7 @@ public partial class PlayerController
         kitHitInfo.damageScale = damageScale;
         kitHitInfo.knockbackScale = knockbackScale;
         kitHitInfo.hitStop = hitStop;
+        kitHitInfo.fixedReach = false;
         kitHitbox.enabled = true;
         kitHitInfo.Rearm();
     }

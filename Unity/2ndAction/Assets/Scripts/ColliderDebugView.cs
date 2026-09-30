@@ -19,6 +19,7 @@ public class ColliderDebugView : MonoBehaviour
 
     Collider2D col;
     LineRenderer lr;
+    Vector2 drawnSize, drawnOffset;
 
     void Awake()
     {
@@ -44,6 +45,7 @@ public class ColliderDebugView : MonoBehaviour
         {
             Vector2 c = box.offset;
             Vector2 h = box.size * 0.5f;
+            drawnSize = box.size; drawnOffset = box.offset;
             lr.loop = true;
             lr.positionCount = 4;
             lr.SetPosition(0, new Vector3(c.x - h.x, c.y - h.y, 0f));
@@ -88,5 +90,7 @@ public class ColliderDebugView : MonoBehaviour
     {
         bool on = GameManager.Instance != null && GameManager.Instance.DebugMode && col.enabled;
         if (lr.enabled != on) lr.enabled = on;
+        // 2026-09-30: 判定の形を実行中に変える部品(MeleeReach)があるので、表示中は変わった時に描き直す。
+        if (on && col is BoxCollider2D b && (b.size != drawnSize || b.offset != drawnOffset)) UpdateShape();
     }
 }

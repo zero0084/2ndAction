@@ -816,6 +816,30 @@ public static class CharacterDatabaseBuilder
 
     // 新4人: キットの種類と攻撃ポーズ(純粋な素材参照)を常に最新へ同期する。性能値(archer/mage/...)は
     // 手動調整を消さないよう、新規作成時の既定値のまま触らない。
+    // 攻撃判定の調整と高速時の相打ち対策(2026-09-30)。新しく作る時だけの初期値(既存アセットはInspectorの値が正)。
+    // 前/上下/太さの倍率, 体の方へ伸ばす長さ, 接触猶予, 高速補正(有効/開始km/h/秒/上限m)
+    static void ApplyHitAssistPreset(CharacterDefinition d, string id)
+    {
+        void Set(float fwd, float vert, float cross, float near, bool assist, float sec, float max)
+        {
+            d.attackHitboxForwardScale = fwd; d.attackHitboxVerticalScale = vert; d.attackHitboxCrossScale = cross; d.attackHitboxNearPad = near;
+            d.contactGraceDuration = 0.15f;
+            d.highSpeedHitAssistEnabled = assist; d.highSpeedHitAssistStartKmh = 100f; d.highSpeedHitAssistSeconds = sec; d.highSpeedHitAssistMax = max;
+        }
+        switch (id)
+        {
+            case "swordsman": Set(1.22f, 1.15f, 1f, 0f, true, 0.1f, 1.2f); break;       // 大剣: 前も上下も広め
+            case "dual_blade": Set(1.15f, 1f, 1f, 0f, true, 0.1f, 0.9f); break;       // 黒剣士より短め、上下は広げない
+            case "noble_lady": Set(1.15f, 1f, 1f, 0f, true, 0.08f, 0.7f); break;      // 弱さは維持(間合い倍率0.75のまま)
+            case "dragon_lancer": Set(1.08f, 1f, 1f, 0f, true, 0.1f, 1.2f); break;    // 長く細い突き: 太さは変えない
+            case "fighter": Set(1f, 1f, 1f, 0.35f, true, 0.08f, 0.5f); break;         // 最短の間合いは維持、体の直前だけ厚く
+            case "ninja": Set(1.1f, 1f, 1.15f, 0f, true, 0.1f, 0.9f); break;          // 瞬身の通過ラインを少し太く
+            case "vampire": Set(1.2f, 1f, 1f, 0f, true, 0.1f, 0.9f); break;           // 爪だけ(血のSlashは技の側で除外)
+            case "dragonkin": Set(1.2f, 1.1f, 1.05f, 0f, true, 0.1f, 1.0f); break;    // 爪/尾: 広め(体全体までは広げない)
+            default: Set(1f, 1f, 1f, 0f, false, 0.1f, 0f); break;                     // 拳銃士/弓/魔法/巫女: 飛び道具・範囲はそのまま
+        }
+    }
+
     static void ApplyKitArt(CharacterDefinition d, Spec spec)
     {
         if (spec.kit == CharacterKit.Standard) return;
@@ -1032,6 +1056,7 @@ public static class CharacterDatabaseBuilder
             if (spec.hurtLeanDegrees > 0f) def.hurtLeanDegrees = spec.hurtLeanDegrees;
             ApplyLancerFrames(def, spec);
             ApplyKitArt(def, spec);
+            ApplyHitAssistPreset(def, spec.id);
 
             AssetDatabase.CreateAsset(def, assetPath);
         }
