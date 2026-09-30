@@ -84,7 +84,8 @@ public partial class PlayerController
             float s = AttackSpeedMultiplier;
             attackCooldownTimer = p.ofudaCooldown * s;
             float t = 0f;
-            while (t < p.ofudaWindup * s)
+            float windup = p.ofudaWindup * s * KitWindupScale;
+            while (t < windup)
             {
                 if (!KitAlive(gen, token)) yield break;
                 t += Time.deltaTime; yield return null;
@@ -114,7 +115,7 @@ public partial class PlayerController
             float s = AttackSpeedMultiplier;
             attackCooldownTimer = p.shikiCooldown * s;
             float t = 0f;
-            while (t < 0.1f * s)
+            while (t < 0.1f * s * KitWindupScale)
             {
                 if (!KitAlive(gen, token)) yield break;
                 t += Time.deltaTime; yield return null;

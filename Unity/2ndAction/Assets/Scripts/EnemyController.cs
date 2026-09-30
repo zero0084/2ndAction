@@ -1097,6 +1097,7 @@ public class EnemyController : MonoBehaviour
     Collider2D netLastHitCollider;
 
     public int NetHp => NetReplica ? netDisplayHp : (hp < 0 ? Mathf.Max(1, maxHp) : Mathf.Max(0, hp));
+    public bool IsDying => dying; // QA(2026-09-30): 撃破されたか
     public bool NetIsReacting => IsReactingToHit;
 
     // 撃破報酬の付与(シングル/HOST自身がラストヒットなら従来どおりこの端末で付与)。

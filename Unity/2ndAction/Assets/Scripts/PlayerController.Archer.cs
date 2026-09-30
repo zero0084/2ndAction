@@ -63,7 +63,7 @@ public partial class PlayerController
         {
             int stage = ArcherChargeStage;
             float s = AttackSpeedMultiplier;
-            float windup = (stage >= 2 ? p.forwardWindupMax : p.forwardWindup) * s;
+            float windup = (stage >= 2 ? p.forwardWindupMax : p.forwardWindup) * s * KitWindupScale;
             float recovery = p.forwardRecovery * s;
             attackCooldownTimer = windup + recovery;
             float t = 0f;
@@ -134,7 +134,8 @@ public partial class PlayerController
             float s = AttackSpeedMultiplier;
             attackCooldownTimer = (p.backWindup + p.backRecovery) * s;
             float t = 0f;
-            while (t < p.backWindup * s)
+            float backWindup = p.backWindup * s * KitWindupScale;
+            while (t < backWindup)
             {
                 if (!KitAlive(gen, token)) yield break;
                 t += Time.deltaTime; yield return null;

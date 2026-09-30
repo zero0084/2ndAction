@@ -152,7 +152,9 @@ public class AttackFlair : MonoBehaviour
         {
             for (int i = 0; i < 3; i++)
             {
-                int idx = Glow(Spawn(vr.sprite, vr.transform.position, Vector3.zero, 0.22f, 1f, 1f, 1f, 1f, acc, 0.6f - i * 0.15f, RenderOrder.Player - 1, i * 0.04f));
+                // 動く向きの後ろへ少しずつずらして置く(キャラ本体に重なって白く潰れないように)
+                Vector3 gp = vr.transform.position + new Vector3(-sign * (0.3f + i * 0.28f), 0f, 0f);
+                int idx = Glow(Spawn(vr.sprite, gp, Vector3.zero, 0.22f, 1f, 1f, 1f, 1f, acc, 0.5f - i * 0.12f, RenderOrder.Player - 1, i * 0.04f));
                 if (idx < 0) break;
                 pool[idx].keepSize = true;
                 pool[idx].t.rotation = vr.transform.rotation;

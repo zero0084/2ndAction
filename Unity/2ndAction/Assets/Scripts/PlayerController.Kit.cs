@@ -24,6 +24,9 @@ public partial class PlayerController
     float kitMoveSlowFactor = 1f;
     // 2026-09-30: 前攻撃/後ろ攻撃で移動の無かったキャラ(弓/魔法/巫女/竜人の尻尾/竜騎士の石突き)の前進・後退量
     public float kitForwardStep = 0.9f;
+    // 高速時の構え/詠唱の短縮(2026-09-30): 走る速さが基本の1.5倍を超えたら、その分だけ構え/詠唱を短くする(下限は元の20%)。
+    // 以前は高速で走ると弓の引き絞り/魔法の詠唱の間に目の前の敵を追い越してしまい、飛び道具が当たらなかった。
+    float KitWindupScale => Mathf.Clamp(1f / Mathf.Max(1f, CurrentAutoRunSpeed / Mathf.Max(0.1f, baseRunSpeed * 1.5f)), 0.2f, 1f);
     public float kitBackStep = 1.3f;
     float? kitVerticalVelocity;
     // 忍者の瞬身/格闘家のカウンター直後のごく短い無敵(被弾処理の入口で弾く。点滅はしない)。

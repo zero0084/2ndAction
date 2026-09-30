@@ -44,7 +44,9 @@ public partial class PlayerController
         mageBobT += dt;
         float bob = Mathf.Sin(mageBobT * Mathf.PI * 2f * p.bobFrequency) * p.bobAmplitude;
         float target = baseY + p.hoverBase + mageLevel * p.altitudeStep + bob;
-        float newY = Mathf.SmoothDamp(prevY, target, ref mageVelY, Mathf.Max(0.01f, p.altitudeSmoothTime), Mathf.Infinity, Mathf.Max(0.0001f, dt));
+        // 高速時は地形の変化に早く追従する(走る速さに比例して滑らかさを短く。基本速度付近は従来どおり)
+        float smooth = p.altitudeSmoothTime * Mathf.Clamp(1f / Mathf.Max(1f, CurrentAutoRunSpeed / Mathf.Max(0.1f, baseRunSpeed * 1.5f)), 0.25f, 1f);
+        float newY = Mathf.SmoothDamp(prevY, target, ref mageVelY, Mathf.Max(0.01f, smooth), Mathf.Infinity, Mathf.Max(0.0001f, dt));
         // 上り坂で地面に潜らない(足元は常に地面より上)。
         if (surf.HasValue && newY < surf.Value + groundOffset) { newY = surf.Value + groundOffset; if (mageVelY < 0f) mageVelY = 0f; }
 
@@ -117,13 +119,16 @@ public partial class PlayerController
             float s = AttackSpeedMultiplier;
             attackCooldownTimer = p.boltCooldown * s;
             float t = 0f;
-            while (t < p.boltCastTime * s)
+            float cast = p.boltCastTime * s * KitWindupScale;
+            while (t < cast)
             {
                 if (!KitAlive(gen, token)) yield break;
                 t += Time.deltaTime; yield return null;
             }
             AttackStep(back ? -kitBackStep : kitForwardStep, back ? 0.16f : 0.12f); // 2026-09-30: 前攻撃で前進/後ろ攻撃で後退
             Vector3 pos = KitWorld(MageStaff);
+            // 最低高度では地上の敵に必ず届く高さから撃つ(高速の下り坂などで浮き上がりが遅れていても、弾だけは下げる)
+            if (mageLevel == 0 && mageSurfaceKnown) pos.y = Mathf.Min(pos.y, mageSurface + groundOffset + kitDef.mage.hoverBase + 0.55f);
             float dirX = back ? -1f : 1f;
             KitProjectile proj;
             if (!back)

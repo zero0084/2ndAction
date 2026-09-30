@@ -276,10 +276,12 @@ public class BossManager : MonoBehaviour
     {
         new LastBoss(GateFamily.Wild, (int)WildBossKind.Golem),
         new LastBoss(GateFamily.Cave, (int)CaveBossKind.CrystalGolem),
-        new LastBoss(GateFamily.Sky, (int)SkyBossKind.Titan),
+        // 30km(崩壊。床の下が深い断面)は飛ぶフェニックス、60km(奈落。床が細い橋)は下からせり上がるタイタン
+        // (タイタンは床の後ろから現れる演出なので、断面の深い区間では体のほとんどが断面に隠れて見えなかった: 2026-09-30)
+        new LastBoss(GateFamily.Sky, (int)SkyBossKind.Phoenix),
         new LastBoss(GateFamily.Wild, (int)WildBossKind.Hydra),
         new LastBoss(GateFamily.Cave, (int)CaveBossKind.Basilisk),
-        new LastBoss(GateFamily.Sky, (int)SkyBossKind.Phoenix),
+        new LastBoss(GateFamily.Sky, (int)SkyBossKind.Titan),
         new LastBoss(GateFamily.Wild, (int)WildBossKind.BlackKnight),
         new LastBoss(GateFamily.Cave, (int)CaveBossKind.AncientDemon),
         new LastBoss(GateFamily.Sky, (int)SkyBossKind.Guardian),
