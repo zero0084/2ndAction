@@ -1028,6 +1028,10 @@ public partial class PlayerController : MonoBehaviour
             pointerDown = Input.GetMouseButton(0);
         }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // CARD BALANCE TEST(開発ビルドのみ)のパネル上で始まったタッチは操作にしない
+        if (pointerJustDown && CardBalanceTest.BlocksPointer(pointerPos)) { touchActive = false; return; }
+#endif
         if (pointerJustDown)
         {
             touchStartPos = pointerPos;

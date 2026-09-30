@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour
+public partial class GameManager : MonoBehaviour
 {
     public enum DamageResult { Ignored, Hit, GameOver }
 
@@ -4323,6 +4323,19 @@ public class GameManager : MonoBehaviour
             GUI.Label(new Rect(assistRect.x + 6f, assistRect.y, assistRect.width - 6f, assistRect.height), assistText, assistStyle);
             y += Mathf.Max(bh, assistRect.height) + gap;
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // ---- CARD TEST(カード能力調整用のテストパネル、2026-10-01)----
+        CardBalanceTest cardTest = CardBalanceTest.Instance;
+        if (cardTest != null)
+        {
+            if (DrawStyledButton(new Rect(x0, y, bw * 1.9f, bh - 4f), cardTest.IsOpen ? "CARD TEST ▲" : (cardTest.AnyActive ? "CARD TEST ●" : "CARD TEST ▼"), 10f, primary: cardTest.IsOpen || cardTest.AnyActive))
+            {
+                cardTest.Toggle();
+            }
+            y += bh;
+        }
+#endif
 
         // ---- DEBUG TOOLS(開いた時だけ: 状態表示/距離ワープ/MILE/CARD)----
         if (DrawStyledButton(new Rect(x0, y, bw * 1.9f, bh - 4f), debugToolsOpen ? "DEBUG TOOLS ▲" : "DEBUG TOOLS ▼", 10f, primary: debugToolsOpen))
