@@ -59,6 +59,7 @@ public class EncounterAutoTest : MonoBehaviour
         Check(tm.SingleRouteMode, "natural_cave terrain is single-route");
         EncounterDirector.OnEncounterSpawned = Validate;
 
+        StartCoroutine(SpeedHold());
         // ---- 2) 距離Band ----
         var bands = new (string name, float target, float seconds, string[] allowed)[]
         {
@@ -73,15 +74,15 @@ public class EncounterAutoTest : MonoBehaviour
             yield return RunPhase(b.name, b.target, b.seconds, 1.4f, b.allowed);
         }
         // 高速(約14m/s)で後半Bandを走り、出現位置/間隔/地形条件が崩れないか
-        SetRunSpeed(pc, 14f);
-        yield return RunPhase("5000+ high speed", 6000f, 45f, PlayerController.DebugSpeedScale, bands[4].allowed);
+        SetRunSpeed(pc, 100f / GameManager.KmhPerMps); // 2026-09-30: 新しい自然加速の上限(100km/h)で
+        yield return RunPhase("5000+ high speed", 6000f, 45f, -1f, bands[4].allowed);
         L($"   (high speed phase ran at {pc.CurrentAutoRunSpeed:F1} m/s)");
 
         // ---- 1) 地形(走った範囲の集計) ----
         TerrainSummary(tm);
 
         // ---- 3) 指定Formationの強制(通常の速度で) ----
-        PlayerController.DebugSpeedScale = 1.4f;
+        HoldLegacy(1.4f);
         EncounterDirector.DebugDistanceOffset = 5400f - gm.MaxDistance;
         var ids = new[] { "ground_line", "ground_cluster", "staggered", "guard_hopper", "ground_air", "air_swarm", "burrow_ambush", "gauntlet", "rest" };
         foreach (string id in ids)
@@ -108,6 +109,7 @@ public class EncounterAutoTest : MonoBehaviour
 
         EncounterDirector.OnEncounterSpawned = null;
         EncounterDirector.DebugDistanceOffset = 0f;
+        holdLegacy = holdMps = -1f;
         PlayerController.DebugSpeedScale = 1f;
         L("");
         L($"TOTAL encounters checked={checkedEncounters} ground ok/bad={groundOk}/{groundBad} air ok/bad={airOk}/{airBad} burrow ok/bad={burrowOk}/{burrowBad} overlap={overlapBad} onScreenSpawn={offscreenBad} clearance={clearanceBad} span={spanBad}");
@@ -122,8 +124,28 @@ public class EncounterAutoTest : MonoBehaviour
         if (Application.isBatchMode) EditorApplication.Exit(failures == 0 && !anyException ? 0 : 1); else EditorApplication.isPlaying = false;
     }
 
-    static void SetRunSpeed(PlayerController pc, float target)
+    // 2026-09-30: 自然加速の上限が36→100km/hになったため、「DebugSpeedScale=倍率」の指定だと物理的な距離が伸びるにつれて
+    // 速度がどんどん上がってしまう(旧: 1.4倍≒50km/h → 新: 140km/h)。速度は毎フレーム合わせる:
+    //  holdLegacy>0 … 旧仕様の自然加速(倍率2で頭打ち)×holdLegacy(各Bandの確認は従来と同じ速さ)
+    //  holdMps>0    … その速さ(m/s)に固定(高速フェーズは新しい自然上限100km/h)
+    float holdLegacy = -1f, holdMps = -1f;
+    IEnumerator SpeedHold()
     {
+        while (true)
+        {
+            yield return null;
+            var p = PlayerController.Instance; var g = GameManager.Instance;
+            if (p == null || g == null || (holdLegacy <= 0f && holdMps <= 0f)) continue;
+            float legacyNat = Mathf.Min(1f + Mathf.Max(0f, g.MaxDistance - 100f) / 100f * 0.05f, 2f);
+            float target = holdMps > 0f ? holdMps : holdLegacy * p.runSpeed * legacyNat;
+            float cur = p.CurrentAutoRunSpeed / Mathf.Max(0.01f, PlayerController.DebugSpeedScale);
+            if (cur > 0.01f) PlayerController.DebugSpeedScale = target / cur;
+        }
+    }
+    void HoldLegacy(float m) { holdLegacy = m; holdMps = -1f; PlayerController.DebugSpeedScale = m; }
+    void SetRunSpeed(PlayerController pc, float target)
+    {
+        holdMps = target; holdLegacy = -1f;
         float baseSpeed = pc.CurrentAutoRunSpeed / Mathf.Max(0.01f, PlayerController.DebugSpeedScale);
         PlayerController.DebugSpeedScale = target / Mathf.Max(0.1f, baseSpeed);
     }
@@ -134,7 +156,7 @@ public class EncounterAutoTest : MonoBehaviour
         var dir = EncounterDirector.Instance;
         phase = name;
         phaseEnemyIds.Clear();
-        PlayerController.DebugSpeedScale = speed;
+        if (speed > 0f) HoldLegacy(speed);
         EncounterDirector.DebugDistanceOffset = targetDistance - gm.MaxDistance;
         int start = dir.Recent.Count;
         float t = 0f;
@@ -287,7 +309,7 @@ public class EncounterAutoTest : MonoBehaviour
         L($"[Worm high speed] runSpeed={speed:F1}m/s telegraph starts (m ahead of player): {string.Join(", ", leads.Select(x => x.ToString("F1")))} (need >= ~{need:F1} to see the whole telegraph)");
         Check(leads.Count > 0, "worm telegraph observed at high speed");
         Check(leads.Count == 0 || leads.Where(x => x > 0f).DefaultIfEmpty(99f).Min() >= need * 0.85f, "worm telegraph starts early enough at high speed");
-        PlayerController.DebugSpeedScale = 1.4f;
+        HoldLegacy(1.4f);
         EncounterDirector.ForcedFormation = null;
     }
 

@@ -138,6 +138,11 @@ public class HighSpeedAssistAutoTest : MonoBehaviour
         // ---- 2) 発動直後(105km/h)/200km/h付近/さらに高速: 補助ON/OFFの比較 ----
         yield return Segment("105kmh ON", 105f, true, 20f); var on105 = lastSeg;
         yield return Segment("105kmh OFF", 105f, false, 20f); var off105 = lastSeg;
+        // 2026-09-30: 100〜fullAssistKmh は段階的に強くなる(弱い間は「間に合う最後の踏み切り」寄り)
+        yield return Segment("120kmh ON", 120f, true, 20f); var on120 = lastSeg;
+        yield return Segment("120kmh OFF", 120f, false, 20f); var off120 = lastSeg;
+        Check(on105.strength < on120.strength && on120.strength < 1f, $"assist strength ramps 100->{assist.fullAssistKmh:F0}km/h (105: {on105.strength:F2}, 120: {on120.strength:F2})");
+        Check(on120.fall + on120.obstacle <= off120.fall + off120.obstacle, $"120km/h terrain damage ON({on120.fall + on120.obstacle}) <= OFF({off120.fall + off120.obstacle})");
         var on205 = default(Seg); var off205 = default(Seg);
         yield return Segment("205kmh ON", 205f, true, 25f); on205 = lastSeg;
         yield return Segment("205kmh OFF", 205f, false, 25f); off205 = lastSeg;
@@ -285,7 +290,7 @@ public class HighSpeedAssistAutoTest : MonoBehaviour
 
     int TotalActions() => assist.AutoJumps + assist.AutoDoubleJumps + assist.AutoAttacks;
 
-    struct Seg { public int actions, jumps, dbl, attacks, fall, obstacle, enemy, other, spikes, wall, kills, noSafe, broken; public float kmh, meters; }
+    struct Seg { public int actions, jumps, dbl, attacks, fall, obstacle, enemy, other, spikes, wall, kills, noSafe, broken; public float kmh, meters, strength; }
     Seg lastSeg;
 
     IEnumerator Segment(string name, float kmh, bool on, float seconds)
@@ -297,23 +302,23 @@ public class HighSpeedAssistAutoTest : MonoBehaviour
         int j0 = assist.AutoJumps, d0 = assist.AutoDoubleJumps, a0 = assist.AutoAttacks, n0 = assist.NoSafeActionCount;
         int f0 = dmgFall, o0 = dmgObstacle, e0 = dmgEnemy, x0 = dmgOther, s0 = dmgSpike, w0 = dmgWall, k0 = gm.EnemyKillCount, b0 = ObstacleController.TotalBroken;
         double dist0 = pc.DistanceExact;
-        float kmhSum = 0f; int kmhN = 0;
+        float kmhSum = 0f, strSum = 0f; int kmhN = 0;
         segTime = 0f;
         while (segTime < seconds)
         {
             yield return null;
             segTime += Time.deltaTime;
-            kmhSum += GameManager.SpeedKmh(pc.CurrentAutoRunSpeed); kmhN++;
+            kmhSum += GameManager.SpeedKmh(pc.CurrentAutoRunSpeed); strSum += assist.Strength; kmhN++;
         }
         var s = new Seg
         {
             jumps = assist.AutoJumps - j0, dbl = assist.AutoDoubleJumps - d0, attacks = assist.AutoAttacks - a0, noSafe = assist.NoSafeActionCount - n0,
             fall = dmgFall - f0, obstacle = dmgObstacle - o0, enemy = dmgEnemy - e0, other = dmgOther - x0, spikes = dmgSpike - s0, wall = dmgWall - w0, broken = ObstacleController.TotalBroken - b0,
-            kills = gm.EnemyKillCount - k0, kmh = kmhSum / Mathf.Max(1, kmhN), meters = (float)(pc.DistanceExact - dist0),
+            kills = gm.EnemyKillCount - k0, kmh = kmhSum / Mathf.Max(1, kmhN), strength = strSum / Mathf.Max(1, kmhN), meters = (float)(pc.DistanceExact - dist0),
         };
         s.actions = s.jumps + s.dbl + s.attacks;
         lastSeg = s;
-        L($"[{name}] avg {s.kmh:F0}km/h {s.meters:F0}m in {seconds:F0}s | auto jump={s.jumps} double={s.dbl} attack={s.attacks} noSafe={s.noSafe} | damage fall={s.fall} obstacle={s.obstacle} ceilingSpike={s.spikes} terrainWall={s.wall} enemy={s.enemy} other={s.other} | obstaclesBroken={s.broken} kills={s.kills} | maxDecide={assist.MaxDecideMs:F2}ms slow={assist.SlowDecides}");
+        L($"[{name}] avg {s.kmh:F0}km/h strength {s.strength:F2} {s.meters:F0}m in {seconds:F0}s | auto jump={s.jumps} double={s.dbl} attack={s.attacks} noSafe={s.noSafe} | damage fall={s.fall} obstacle={s.obstacle} ceilingSpike={s.spikes} terrainWall={s.wall} enemy={s.enemy} other={s.other} | obstaclesBroken={s.broken} kills={s.kills} | maxDecide={assist.MaxDecideMs:F2}ms slow={assist.SlowDecides}");
     }
 
     // 目標速度を保つ。実際のプレイで高速になるのは速度カード(runSpeedを掛け算)なので、DEBUGの速度倍率ではなく

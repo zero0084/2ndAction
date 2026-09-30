@@ -86,9 +86,13 @@ public static class TimeControl
     static void Apply()
     {
         if (pauseOwners.Count > 0) Time.timeScale = 0f;
-        else if (presentationDriving) Time.timeScale = presentationScale;
-        else Time.timeScale = 1f;
+        else if (presentationDriving) Time.timeScale = presentationScale * DebugTimeScale;
+        else Time.timeScale = DebugTimeScale;
     }
+
+    // 確認用(2026-09-30): 早送りの倍率(走行時間の計測など)。通常は1。
+    public static float DebugTimeScale = 1f;
+    public static void SetDebugTimeScale(float s) { DebugTimeScale = Mathf.Max(0.01f, s); Apply(); }
 
     // リトライ/ホーム帰還/ゲームオーバーなど、「理由がどうあれ必ず通常状態
     // へ戻す」既存の安全ネットから呼ぶ。停止理由の集合ごと空にするので、

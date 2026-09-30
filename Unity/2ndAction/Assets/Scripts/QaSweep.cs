@@ -32,6 +32,7 @@ public class QaSweep : MonoBehaviour
             if (a[i] == "-qaFalls") { mode = "falls"; dir = a[i + 1]; }
             if (a[i] == "-qaBossShots") { mode = "bossshots"; dir = a[i + 1]; }
             if (a[i] == "-qaBranch") { mode = "branch"; dir = a[i + 1]; }
+            if (a[i] == "-qaSpeedTime") { mode = "speedtime"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -77,6 +78,7 @@ public class QaSweep : MonoBehaviour
         else if (mode == "falls") yield return FallsMode();
         else if (mode == "bossshots") yield return BossShotsMode();
         else if (mode == "branch") yield return BranchMode();
+        else if (mode == "speedtime") yield return SpeedTimeMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);
@@ -360,6 +362,54 @@ public class QaSweep : MonoBehaviour
             PlayerController.DebugSpeedScale = 1f;
             yield return EndRun();
         }
+    }
+
+    // 10万mまでの単純走行の時間(敵/ボス/障害物/穴なし)。-qaCardFactor 1.2 等で「SPEED UPで最高速が1.2倍」の場合。
+    // -qaTimeScale で早送り(計測はゲーム内の秒)。同じ速度の式を積分した理論値も出す。
+    IEnumerator SpeedTimeMode()
+    {
+        var inv = System.Globalization.CultureInfo.InvariantCulture;
+        float factor = float.Parse(Arg("-qaCardFactor", "1"), inv);
+        float ts = float.Parse(Arg("-qaTimeScale", "6"), inv);
+        string ch = Arg("-qaChar", "swordsman");
+        yield return BeginRun(ch, "wasteland_road");
+        typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
+        if (BossManager.Instance != null) BossManager.Instance.enabled = false;
+        if (EncounterDirector.Instance != null) EncounterDirector.Instance.enabled = false;
+        foreach (var sp in FindObjectsByType<ObstacleSpawner>(FindObjectsSortMode.None)) sp.enabled = false;
+        foreach (var sp in FindObjectsByType<EnemyWallManager>(FindObjectsSortMode.None)) sp.enabled = false;
+        var tm = TerrainManager.Instance;
+        tm.pitChanceBase = 0f; tm.pitChanceMax = 0f; tm.enemySpawnChance = 0f;
+        typeof(GameManager).GetField("expGainMultiplier", NP)?.SetValue(gm, 0f);
+        pc.runSpeed *= factor; // SPEED UPで全体が factor 倍(最高速 = 100 × factor km/h)
+        // 理論値(同じ式を1mずつ積分)
+        double theory = 0.0; float v0 = pc.runSpeed;
+        for (int m = 0; m < 100000; m++) theory += 1.0 / (v0 * pc.NaturalMultiplierAt(m + 0.5f));
+        L($"[speed] char={ch} base={GameManager.SpeedKmh(v0 / factor):F1}km/h factor={factor} top={GameManager.SpeedKmh(v0 * pc.NaturalCapMultiplier):F1}km/h ramp={pc.speedRampMode} +{pc.speedUpPer100m * 100f:F0}%/100m capAt={pc.NaturalCapDistance:F0}m theory100k={theory / 60.0:F1}min");
+        TimeControl.SetDebugTimeScale(ts);
+        float t0 = Time.time; float r0 = Time.realtimeSinceStartup;
+        float next = 1000f; int respawns = 0, lives = gm.Lives;
+        System.Action<string> tap = m => { if (m.StartsWith("[Damage]")) L($"[speed]   {m} at {gm.MaxDistance:F0}m {GameManager.SpeedKmh(pc.CurrentAutoRunSpeed):F0}km/h upper={pc.transform.position.y:F1} assist={(HighSpeedAssist.Instance != null ? HighSpeedAssist.Instance.LastAction + "/" + HighSpeedAssist.Instance.CurrentStatus : "-")}"); };
+        FreezeDiagnostics.EventTap += tap;
+        var marks = new[] { 1000f, 2000f, 3000f, 3600f, 5000f, 10000f, 25000f, 50000f, 75000f, 100000f };
+        int mi = 0;
+        while (gm.MaxDistance < 100000f && !gm.IsGameOver)
+        {
+            if (Time.timeScale > 0.01f && Mathf.Abs(Time.timeScale - ts) > 0.01f && !gm.IsRewardSequenceWaitingForSelection) TimeControl.SetDebugTimeScale(ts);
+            if (gm.Lives < lives) respawns++;
+            lives = gm.Lives;
+            while (mi < marks.Length && gm.MaxDistance >= marks[mi])
+            {
+                L($"[speed]   {marks[mi],7:F0}m at {(Time.time - t0) / 60f,6:F2}min  speed {GameManager.SpeedKmh(pc.CurrentAutoRunSpeed):F1}km/h");
+                mi++;
+            }
+            if (Time.realtimeSinceStartup - r0 > 3000f) { Check(false, "speed run timeout"); break; }
+            yield return null;
+        }
+        FreezeDiagnostics.EventTap -= tap;
+        TimeControl.SetDebugTimeScale(1f);
+        float game = Time.time - t0;
+        L($"[speed] RESULT factor={factor} top={GameManager.SpeedKmh(v0 * pc.NaturalCapMultiplier):F0}km/h: 100,000m in {game / 60f:F1}min (theory {theory / 60.0:F1}min) respawns={respawns} real={Time.realtimeSinceStartup - r0:F0}s");
     }
 
     // 上下ルートの分岐: 分岐の手前/上り切り/並走/合流を撮影(下の埋めと下ルートの間に空が見えないか)
@@ -745,13 +795,31 @@ public class QaSweep : MonoBehaviour
         string st = Arg("-qaStage", "last_corridor"), ch = Arg("-qaChar", "gunslinger");
         float kmh = float.Parse(Arg("-qaKmh", "260"), System.Globalization.CultureInfo.InvariantCulture);
         int powerAdd = int.Parse(Arg("-qaPower", "12"));
-        L($"full run: stage={st} char={ch} target speed={kmh}km/h attack power +{powerAdd}");
+        // 2026-09-30: -qaKmh 0 = 自然加速のまま(カードの効果も含めて実際のRunどおり)。-qaTimeScale で早送り。
+        bool natural = kmh <= 0f;
+        float stopAt = float.Parse(Arg("-qaStopAt", "0"), System.Globalization.CultureInfo.InvariantCulture); // 調査用: この距離で止める
+        float ts = float.Parse(Arg("-qaTimeScale", "1"), System.Globalization.CultureInfo.InvariantCulture);
+        L($"full run: stage={st} char={ch} target speed={(natural ? "natural" : kmh + "km/h")} attack power +{powerAdd} timeScale={ts}");
         yield return BeginRun(ch, st);
         typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
         if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(true);
         pc.AddAttackPower(powerAdd);
         var bm = BossManager.Instance;
-        float t0 = Time.realtimeSinceStartup;
+        float t0 = Time.realtimeSinceStartup, g0 = Time.time; bool reported100k = false; float maxKmh = 0f;
+        if (ts != 1f) TimeControl.SetDebugTimeScale(ts);
+        // 被弾の理由を数える(ボス戦中/道中で分ける)
+        var dmgWhy = new Dictionary<string, int>();
+        bool inBossForTap = false;
+        System.Action<string> dmgTap = m =>
+        {
+            if (!m.StartsWith("[Damage] Hit reason=")) return;
+            string r = m.Substring("[Damage] Hit reason=".Length); int sp = r.IndexOf(' '); if (sp > 0) r = r.Substring(0, sp);
+            string key = (inBossForTap ? "boss:" : "road:") + r;
+            dmgWhy[key] = dmgWhy.TryGetValue(key, out int c) ? c + 1 : 1;
+        };
+        FreezeDiagnostics.EventTap += dmgTap;
+        // ボットは穴を跳ばないので、自然速度(100km/h未満)では補助を全速度で最大にして「上手なプレイヤー」の代わりにする
+        if (natural && HighSpeedAssist.Instance != null) { var hsa = HighSpeedAssist.Instance; hsa.engageKmh = 1f; hsa.releaseKmh = 0.5f; hsa.fullAssistKmh = 2f; }
         float lastLog = -1f, lastFlick = 0f;
         float lastProgressX = FloatingOrigin.ToLogical(pc.transform.position.x), lastProgressT = Time.time;
         int stuck = 0, bossFights = 0, bossKills = 0, bossForced = 0, respawns = 0;
@@ -763,7 +831,13 @@ public class QaSweep : MonoBehaviour
         {
             float d = gm.MaxDistance;
             // 速さ(ボス戦中も同じ)
-            if (!inBoss && d < 99900f) SetKmh(kmh);
+            if (!inBoss && d < 99900f) { if (natural) PlayerController.DebugSpeedScale = 1f; else SetKmh(kmh); }
+            if (ts != 1f && Time.timeScale > 0.01f && Mathf.Abs(TimeControl.DebugTimeScale - ts) > 0.01f && d < 99500f) TimeControl.SetDebugTimeScale(ts);
+            if (d >= 99500f && TimeControl.DebugTimeScale != 1f) TimeControl.SetDebugTimeScale(1f); // 死神の場面は等倍で
+            if (stopAt > 0f && d >= stopAt) { L($"stop at {d:F0}m (game {(Time.time - g0) / 60f:F1}min): damage by reason: " + string.Join(", ", dmgWhy.OrderByDescending(kv => kv.Value).Select(kv => $"{kv.Key}={kv.Value}"))); break; }
+            maxKmh = Mathf.Max(maxKmh, GameManager.SpeedKmh(pc.CurrentAutoRunSpeed));
+            inBossForTap = inBoss || bm.IsBossPhase;
+            if (!reported100k && d >= 100000f) { reported100k = true; L($"reached 100,000m at game time {(Time.time - g0) / 60f:F1}min (max speed {maxKmh:F0}km/h, cards picked {cardPicks})"); }
             // 99,500mで無敵を切る(死神に捕まるため)
             if (d >= 99500f && gm.InvincibleMode) { typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false); L($"{d:F0}m: invincible off (for the reaper)"); }
             if (d >= 99900f) { stopKeepAlive = true; PlayerController.DebugSpeedScale = Mathf.Min(PlayerController.DebugSpeedScale, 1f); }
@@ -847,7 +921,8 @@ public class QaSweep : MonoBehaviour
             if (d - lastLog >= 5000f)
             {
                 lastLog = d;
-                L($"{d,7:F0}m  real {Time.realtimeSinceStartup - t0,6:F0}s  speed {GameManager.SpeedKmh(pc.CurrentAutoRunSpeed):F0}km/h  lv? cards={cardPicks} bosses {bossKills}/{bossFights} stuck={stuck} hits(lives lost)={respawns} fps~{1f / Mathf.Max(0.0001f, Time.smoothDeltaTime):F0}");
+                if (dmgWhy.Count > 0) L("   damage by reason: " + string.Join(", ", dmgWhy.OrderByDescending(kv => kv.Value).Select(kv => $"{kv.Key}={kv.Value}")));
+                L($"{d,7:F0}m  game {(Time.time - g0) / 60f,5:F1}min  real {Time.realtimeSinceStartup - t0,6:F0}s  speed {GameManager.SpeedKmh(pc.CurrentAutoRunSpeed):F0}km/h  lv? cards={cardPicks} bosses {bossKills}/{bossFights} stuck={stuck} hits(lives lost)={respawns} fps~{1f / Mathf.Max(0.0001f, Time.smoothDeltaTime):F0}");
                 if (((int)(d / 5000f)) % 2 == 0) StartCoroutine(ShotLater($"run_{(int)(d / 1000)}k", 0f));
             }
             if (Time.realtimeSinceStartup - t0 > 5400f) { Check(false, "full run did not finish in 90 minutes"); break; }

@@ -1706,8 +1706,7 @@ public class TerrainManager : MonoBehaviour
 
         PlayerController pc = PlayerController.Instance;
         float speedRatio = 1f;
-        if (pc != null && logicalX > pc.speedUpStartDistance)
-            speedRatio = Mathf.Min(1f + (logicalX - pc.speedUpStartDistance) / 100f * pc.speedUpPer100m, pc.maxSpeedMultiplier);
+        if (pc != null) speedRatio = pc.NaturalMultiplierAt(logicalX); // 自然加速の倍率(全端末で同じ。カードは含めない)
         bool spacingOk = startX - lastEnemyX > minEnemySpacing * Mathf.Max(1f, speedRatio);
 
         if (!DistanceTierManager.Instance.TryStartFormationWorld(spacingOk, GetEnemyChance(), logicalX, out List<EnemySpawnRequest> requests, out float maxXOffsetNeeded))

@@ -80,9 +80,40 @@ public partial class PlayerController : MonoBehaviour
     public bool autoRunEnabled = true;
 
     [Header("Speed Ramp")]
+    // 速度仕様の変更(2026-09-30): 「距離による自然加速」の上限を km/h で持つ(旧: 倍率2=36km/h)。
+    //  自然加速上限 = naturalSpeedCapKmh(100km/h)… 距離だけで到達できる上限。
+    //  SPEED UPカード/キャラ固有の速さ等は、この上に掛け算で上乗せされる(=最終速度は100km/hで止まらない)。
+    //  最終的な安全上限 = absoluteMaxKmh(異常値の防止用。ゲームバランスの上限ではない)。
+    // 倍率は「共通の基本速度(baseRunSpeed=18km/h)」に対する値なので、全キャラ・マルチの全端末で同じ(地形/敵の間隔の決定に使う)。
     public float speedUpStartDistance = 100f;
     public float speedUpPer100m = 0.05f;
+    public enum SpeedRampMode { Linear, Compound }
+    [Tooltip("Compound = 100mごとに+5%を複利で(約3.6kmで100km/h)。Linear = 旧方式(100mごとに基本速度の+5%。約9.2kmで100km/h)")]
+    public SpeedRampMode speedRampMode = SpeedRampMode.Compound;
+    [Tooltip("距離による自然加速の上限(km/h)。カード等の上乗せはこの上")]
+    public float naturalSpeedCapKmh = 100f;
+    [Tooltip("最終的な速度の安全上限(km/h)。ゲームバランスの上限ではない")]
+    public float absoluteMaxKmh = 900f;
+    [Tooltip("(旧)自然加速の上限倍率。2026-09-30以降は naturalSpeedCapKmh を使う(互換のため残す)")]
     public float maxSpeedMultiplier = 2f;
+
+    // 共通の基本速度(km/hの基準)。Awakeで設定される前でも18km/hとして扱う。
+    float CommonBaseRunSpeed => baseRunSpeed > 0.01f ? baseRunSpeed : 5f;
+    // 自然加速の上限倍率(100km/h ÷ 18km/h ≒ 5.56)
+    public float NaturalCapMultiplier => Mathf.Max(1.01f, naturalSpeedCapKmh / GameManager.KmhPerMps / CommonBaseRunSpeed);
+    // 走行距離(論理)での自然加速の倍率。地形/敵の間隔の決定(TerrainManager)もこれを使う。
+    public float NaturalMultiplierAt(float distance)
+    {
+        if (distance <= speedUpStartDistance) return 1f;
+        float steps = (distance - speedUpStartDistance) / 100f;
+        float m = speedRampMode == SpeedRampMode.Compound ? Mathf.Pow(1f + speedUpPer100m, steps) : 1f + steps * speedUpPer100m;
+        return Mathf.Min(m, NaturalCapMultiplier);
+    }
+    // 自然加速の上限に届く距離(m)
+    public float NaturalCapDistance => speedRampMode == SpeedRampMode.Compound
+        ? speedUpStartDistance + 100f * Mathf.Log(NaturalCapMultiplier) / Mathf.Log(1f + Mathf.Max(0.0001f, speedUpPer100m))
+        : speedUpStartDistance + 100f * (NaturalCapMultiplier - 1f) / Mathf.Max(0.0001f, speedUpPer100m);
+    float CapSpeed(float v) => Mathf.Min(v, absoluteMaxKmh / GameManager.KmhPerMps);
 
     // エリアルコンボ改修(2026-09-11), item 4 - 「空中で攻撃が敵にヒットし
     // た瞬間、プレイヤーの落下速度を少しだけ弱める」。EnemyController.
@@ -580,7 +611,7 @@ public partial class PlayerController : MonoBehaviour
     // The player's base auto-scroll speed this frame, NOT including attack
     // lunge/recoil. Used by the boss to keep pace with ordinary running
     // without also cancelling out the player's attack-driven movement.
-    public float CurrentAutoRunSpeed => autoRunEnabled ? runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale : 0f;
+    public float CurrentAutoRunSpeed => autoRunEnabled ? CapSpeed(runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale) : 0f;
 
     // 弾速の走行補正(2026-09-26) - 弾/飛び道具はすべて「プレイヤーの基本走行速度で一緒に流れる
     // 座標系」の中を、それぞれの設計速度で飛ぶ(=画面上の見た目の速さが走行速度に左右されない)。
@@ -591,7 +622,7 @@ public partial class PlayerController : MonoBehaviour
     // 高速走行の視認性補正(2026-09-22) - 基礎速度に対する現在のAuto Run速度の倍率(1.0〜maxSpeedMultiplier)。
     // 表示/カメラ補正/配置間隔が参照するだけで、実際の移動速度計算には一切影響しない。
     public float SpeedRatio => autoRunEnabled ? EffectiveSpeedMultiplier() : 1f;
-    public float MaxSpeedRatio => Mathf.Max(1.01f, maxSpeedMultiplier);
+    public float MaxSpeedRatio => NaturalCapMultiplier; // 見た目(カメラのズーム/速度の演出)が最大になる倍率 = 自然加速の上限
     // 走行開始位置からの論理距離(Floating Originで座標を戻しても連続)。
     public float DistanceFromStart => (float)(transform.position.x - startX);
     // cm単位の表示/保存用(floatだと100,000m超でcm精度が保てないため、startXをdoubleで持つ)。
@@ -794,6 +825,10 @@ public partial class PlayerController : MonoBehaviour
     {
         Instance = this;
         baseRunSpeed = runSpeed;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // 確認用(2026-09-30): 起動引数 -legacySpeedRamp で旧仕様(直線+5%/100m、上限36km/h)に戻して前後を比べる。
+        if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-legacySpeedRamp") >= 0) { speedRampMode = SpeedRampMode.Linear; naturalSpeedCapKmh = 36f; }
+#endif
         baseJumpForce = jumpForce;
         baseGravity = gravity;
         rb = GetComponent<Rigidbody2D>();
@@ -1048,10 +1083,7 @@ public partial class PlayerController : MonoBehaviour
     float GetSpeedMultiplier()
     {
         float distance = (float)(transform.position.x - startX);
-        if (distance <= speedUpStartDistance) return 1f;
-
-        float multiplier = 1f + (distance - speedUpStartDistance) / 100f * speedUpPer100m;
-        return Mathf.Min(multiplier, maxSpeedMultiplier);
+        return NaturalMultiplierAt(distance);
     }
 
     // Item 2 - allowJump=false while escape-charging (or just released one
@@ -1064,7 +1096,7 @@ public partial class PlayerController : MonoBehaviour
         float dt = Time.deltaTime;
         if (bufferedUpAttackTimer > 0f) bufferedUpAttackTimer -= dt;
         if (upShotVisualTimer > 0f) upShotVisualTimer -= dt;
-        float autoSpeed = autoRunEnabled ? runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale : 0f;
+        float autoSpeed = autoRunEnabled ? CapSpeed(runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale) : 0f;
         // 荒野街道ボス追加(2026-09-20) - 巨大蜘蛛の糸による短時間の移動妨害。
         // CurrentAutoRunSpeed(ボス側の追従基準)には含めない - ボスは通常速度で
         // 走り続けるので、糸を受けたプレイヤーは相対的に後ろへ取り残される。

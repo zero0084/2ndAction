@@ -37,6 +37,12 @@ public class HighSpeedAssist : MonoBehaviour
     // 2026-09-29: 200/180 → 100/90(マスター指定)。ここ(またはInspector)で調整できる。
     public float engageKmh = 100f;
     public float releaseKmh = 90f;
+    // 2026-09-30: 自然加速の上限が100km/hになり、通常のRunは大半を100km/hで走る。100km/hちょうどで全面的に補助すると
+    // 自分で操作する余地が無くなるので、engage〜fullAssistKmh の間は段階的に強める:
+    //  弱い = 「間に合う最後の踏み切り」だけ(自分で跳ばなかった時の救済)、強い = 従来どおり頂点が危険の真上に来る踏み切り。
+    [Tooltip("補助が最大になる速度(km/h)。engageKmh〜この間は段階的に強くなる")]
+    public float fullAssistKmh = 130f;
+    public float Strength => Engaged ? Mathf.Clamp01(Mathf.InverseLerp(engageKmh, Mathf.Max(engageKmh + 1f, fullAssistKmh), JudgedKmh)) : 0f;
 
     [Header("障害物の破壊(2026-09-29)")]
     [Tooltip("接触までに壊し切る見込みがあれば、跳ばずに前攻撃で壊して通る")]
@@ -569,21 +575,30 @@ public class HighSpeedAssist : MonoBehaviour
         }
 
         // 地上: 踏み切り時刻の候補を順に試し、頂点が危険の中心の上に来る時刻に最も近い安全な候補を選ぶ。
+        // 補助が弱い速度帯では「間に合う最後の踏み切り」寄りにする(下で安全な候補の最も遅い時刻との間を強さで補間)。
         float ideal = Mathf.Max(0f, run.hazardCenterTime - tApex);
+        float strength = Strength;
         int count = Mathf.Clamp(Mathf.CeilToInt(run.leaveTime / Mathf.Max(frameDt, 0.02f)) + 1, 1, maxTakeoffCandidates);
         float dtau = count > 1 ? run.leaveTime / (count - 1) : 0f;
         float best = -1f, bestScore = float.MaxValue; bool bestDouble = false; string why = "";
+        safeTaus.Clear();
         for (int i = 0; i < count; i++)
         {
             if (OverBudget) { BudgetCutoffs++; break; }
             float tau = i * dtau;
             SimResult r = Simulate(start, tau, -1f, horizonT, false);
-            if (r.safe)
+            if (r.safe) safeTaus.Add(tau);
+            else why = r.reason;
+        }
+        if (safeTaus.Count > 0)
+        {
+            float latest = safeTaus[safeTaus.Count - 1];
+            float target = Mathf.Lerp(latest, ideal, strength);
+            foreach (float tau in safeTaus)
             {
-                float score = Mathf.Abs(tau - ideal);
+                float score = Mathf.Abs(tau - target);
                 if (score < bestScore) { bestScore = score; best = tau; bestDouble = false; }
             }
-            else why = r.reason;
         }
         if (best < 0f)
         {
@@ -619,6 +634,8 @@ public class HighSpeedAssist : MonoBehaviour
         PlanText = $"{HazardName(run.hazard)}まで{run.hazardTime:F2}s 踏み切り{best:F2}s後{(bestDouble ? "(二段)" : "")}";
         return null;
     }
+
+    readonly List<float> safeTaus = new List<float>(32);
 
     // ---- 攻撃の対象選び ----
     Box? breakTarget;

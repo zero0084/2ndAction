@@ -65,6 +65,11 @@ public class StageEncounterProfile : ScriptableObject
     public Vector2 restLength = new Vector2(26f, 42f);
     [Tooltip("走行速度倍率に対して間隔/休憩をどれだけ伸ばすか(1=速度に比例)")]
     public float gapSpeedScale = 1f;
+    // 2026-09-30: 自然加速の上限が100km/h(倍率約5.6)になり、Formationの中の間隔まで速度に合わせて広げると
+    // 上下ルートの分岐区間(長さは固定)に収まらなくなった。中の間隔だけはこの倍率で頭打ちにする
+    // (Encounterどうしの間隔/休憩は上のgapSpeedScaleのまま速度に比例)。それ以上の速さは高速操作補助が受け持つ。
+    [Tooltip("Formationの中の敵どうしの間隔を広げる時に使う速度倍率の上限")]
+    public float maxSpacingSpeed = 2.8f;
 
     [Header("Intensityの波")]
     public float afterRestRestMultiplier = 0.15f;

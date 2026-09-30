@@ -112,7 +112,7 @@ public class NetAutoTest : MonoBehaviour
     // 全体の集計
     float totalMaxStepErr, totalMaxStep;
     int totalBackSteps, totalFrames, remoteShownSeconds;
-    string sigA = "", sigB = "";
+    string sigA = "", sigB = "", sigC = ""; // sigC(2026-09-30): 自然加速の上限(約3.6km)を超えた区間
 
     // -netAutoTrace path: 毎フレームの自分/相手の論理位置をCSVに書く(2プロセスのUTC時刻で突き合わせ、
     // 「相手に表示された位置」と「本人の実際の位置」の誤差をフレーム単位で求めるため)。
@@ -921,6 +921,7 @@ public class NetAutoTest : MonoBehaviour
             float genEnd = FloatingOrigin.ToLogical(tm.GeneratedEndX);
             if (sigA == "" && genEnd > 420f) { sigA = tm.DebugTerrainSignature(100f, 400f); L($"terrain signature [100,400] = {sigA}"); }
             if (sigB == "" && genEnd > 1520f) { sigB = tm.DebugTerrainSignature(1200f, 1500f); L($"terrain signature [1200,1500] = {sigB}"); }
+            if (sigC == "" && genEnd > 5320f) { sigC = tm.DebugTerrainSignature(5000f, 5300f); L($"terrain signature [5000,5300] = {sigC}"); }
         }
     }
 
@@ -943,7 +944,7 @@ public class NetAutoTest : MonoBehaviour
             L($"RUNBUILD role={role} slots={hud.Slots.Count} lvSum={lvSum} ownUpgrades={own} ownPicks={levelUps} match={(lvSum == own)} [{sb}]");
         }
         L($"OBSTACLES role={role} {ObstacleLine()}");
-        L($"SUMMARY reason={reason} role={role} exceptions={exceptions} errors={errors} remoteShownSeconds={remoteShownSeconds} maxStepErr={totalMaxStepErr:F3} maxStep={totalMaxStep:F3} backSteps={totalBackSteps}/{totalFrames} sigA={sigA} sigB={sigB}");
+        L($"SUMMARY reason={reason} role={role} exceptions={exceptions} errors={errors} remoteShownSeconds={remoteShownSeconds} maxStepErr={totalMaxStepErr:F3} maxStep={totalMaxStep:F3} backSteps={totalBackSteps}/{totalFrames} sigA={sigA} sigB={sigB} sigC={sigC}");
         Invoke(nameof(Quit), 1f);
     }
 

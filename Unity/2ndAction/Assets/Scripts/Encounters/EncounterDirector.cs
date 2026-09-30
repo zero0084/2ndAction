@@ -529,7 +529,7 @@ public class EncounterDirector : MonoBehaviour
         return cands[cands.Count - 1].f;
     }
 
-    float Spacing(EncounterFormation f, float speed) => 1f + f.spacingSpeedScale * (speed - 1f);
+    float Spacing(EncounterFormation f, float speed) => 1f + f.spacingSpeedScale * (Mathf.Min(speed, Mathf.Max(1f, profile.maxSpacingSpeed)) - 1f);
 
     // 危険度の高いFormation(同じdangerGroup)が直近groupCooldown回のEncounterの中にあれば選ばない(強い戦闘を連続させない)。
     readonly List<string> encounterHistory = new List<string>(); // Restを含む直近のEncounter

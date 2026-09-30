@@ -1601,15 +1601,16 @@ public class GameManager : MonoBehaviour
     float speedUpShownAt = -100f;
     float speedUpShownKmh;
     const float SpeedUpNoticeSeconds = 1.6f;
+    [Tooltip("速度の通知を出す間隔(km/h)")] public float speedNoticeStepKmh = 20f;
 
     void DrawSpeedHud()
     {
         var pc = PlayerController.Instance;
         if (pc == null) return;
-        float ratio = pc.SpeedRatio; // 通知の段を判定するためだけに使う(表示は km/h)
+        float ratio = pc.SpeedRatio; // 色の判定だけに使う(表示は km/h)
         float kmh = SpeedKmh(pc.CurrentAutoRunSpeed);
-        // 0.25刻みの段を超えた瞬間に短い通知(初回描画では鳴らさない)。
-        int step = Mathf.FloorToInt(ratio * 4f + 0.0001f);
+        // 2026-09-30: 自然加速の上限が100km/hになったので、倍率0.25刻み(約18回)→ speedNoticeStepKmh ごとの通知に。初回描画では鳴らさない。
+        int step = Mathf.FloorToInt(kmh / Mathf.Max(1f, speedNoticeStepKmh) + 0.0001f);
         if (Event.current.type == EventType.Repaint)
         {
             if (speedHudStep >= 0 && step > speedHudStep)

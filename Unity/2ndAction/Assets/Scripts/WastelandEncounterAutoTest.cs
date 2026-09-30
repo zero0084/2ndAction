@@ -93,6 +93,7 @@ public class WastelandEncounterAutoTest : MonoBehaviour
             ("3000-5000", 3200f, 55f, new[] { "goblin", "goblin_elite", "irregular_imp", "flying_wyvern", "shooter_archer", "heavy_ogre", "chaser_runner" }),
             ("5000+", 5400f, 60f, new[] { "goblin", "goblin_elite", "irregular_imp", "flying_wyvern", "shooter_archer", "heavy_ogre", "chaser_runner", "rusher_runner" }),
         };
+        StartCoroutine(SpeedHold());
         // -wencQuick <formationId>: 距離Bandの走行を省いて、指定Formationの強制だけを確かめる(調査用)
         string quick = null;
         var args = System.Environment.GetCommandLineArgs();
@@ -105,11 +106,11 @@ public class WastelandEncounterAutoTest : MonoBehaviour
             EncounterDirector.DebugDistanceOffset = 1700f - gm.MaxDistance;
             foreach (string gid in new[] { "gap_guard", "route_line_vs_gap" }) yield return ForceOne(dir, gid);
             foreach (var b in bands) yield return RunPhase(b.name, b.target, b.seconds, 1.4f, b.allowed);
-            SetRunSpeed(pc, 14f);
-            yield return RunPhase("5000+ high speed", 6000f, 50f, PlayerController.DebugSpeedScale, bands[4].allowed);
+            SetRunSpeed(pc, 100f / GameManager.KmhPerMps); // 2026-09-30: 新しい自然加速の上限(100km/h)で
+            yield return RunPhase("5000+ high speed", 6000f, 50f, -1f, bands[4].allowed);
             L($"   (high speed phase ran at {pc.CurrentAutoRunSpeed:F1} m/s)");
         }
-        PlayerController.DebugSpeedScale = 1.4f;
+        HoldLegacy(1.4f);
 
         // ---- 指定Formationの強制 ----
         EncounterDirector.DebugDistanceOffset = (quick != null ? quickBand : 5400f) - gm.MaxDistance;
@@ -157,6 +158,7 @@ public class WastelandEncounterAutoTest : MonoBehaviour
         yield return null;
         EncounterDirector.OnEncounterSpawned = null;
         EncounterDirector.DebugDistanceOffset = 0f;
+        holdLegacy = holdMps = -1f;
         PlayerController.DebugSpeedScale = 1f;
         L("");
         L($"TOTAL encounters checked={checkedEncounters} (branch={branchEncounters}) ground ok={groundOk} upper ok={upperOk} air ok={airOk} placementBad={placeBad} overlap={overlapBad} onScreenSpawn={offscreenBad} sameOnBothRoutes={routeSameBad} notVisibleBeforeFork={visibleBad} gapGuard checked={gapChecked} bad={gapBad}");
@@ -170,8 +172,28 @@ public class WastelandEncounterAutoTest : MonoBehaviour
         Finish();
     }
 
-    static void SetRunSpeed(PlayerController pc, float target)
+    // 2026-09-30: 自然加速の上限が36→100km/hになったため、「DebugSpeedScale=倍率」の指定だと物理的な距離が伸びるにつれて
+    // 速度がどんどん上がってしまう(旧: 1.4倍≒50km/h → 新: 140km/h)。速度は毎フレーム合わせる:
+    //  holdLegacy>0 … 旧仕様の自然加速(倍率2で頭打ち)×holdLegacy(各Bandの確認は従来と同じ速さ)
+    //  holdMps>0    … その速さ(m/s)に固定(高速フェーズは新しい自然上限100km/h)
+    float holdLegacy = -1f, holdMps = -1f;
+    IEnumerator SpeedHold()
     {
+        while (true)
+        {
+            yield return null;
+            var p = PlayerController.Instance; var g = GameManager.Instance;
+            if (p == null || g == null || (holdLegacy <= 0f && holdMps <= 0f)) continue;
+            float legacyNat = Mathf.Min(1f + Mathf.Max(0f, g.MaxDistance - 100f) / 100f * 0.05f, 2f);
+            float target = holdMps > 0f ? holdMps : holdLegacy * p.runSpeed * legacyNat;
+            float cur = p.CurrentAutoRunSpeed / Mathf.Max(0.01f, PlayerController.DebugSpeedScale);
+            if (cur > 0.01f) PlayerController.DebugSpeedScale = target / cur;
+        }
+    }
+    void HoldLegacy(float m) { holdLegacy = m; holdMps = -1f; PlayerController.DebugSpeedScale = m; }
+    void SetRunSpeed(PlayerController pc, float target)
+    {
+        holdMps = target; holdLegacy = -1f;
         float baseSpeed = pc.CurrentAutoRunSpeed / Mathf.Max(0.01f, PlayerController.DebugSpeedScale);
         PlayerController.DebugSpeedScale = target / Mathf.Max(0.1f, baseSpeed);
     }
@@ -185,7 +207,7 @@ public class WastelandEncounterAutoTest : MonoBehaviour
         { int dash = name.IndexOf('-'); int sp = name.IndexOf(' '); string hi = dash > 0 ? name.Substring(dash + 1, (sp > dash ? sp : name.Length) - dash - 1) : ""; phaseMaxDist = float.TryParse(hi, out float v) ? v : float.PositiveInfinity; }
         phaseEnemyIds.Clear();
         spawnedPositions.Clear();
-        PlayerController.DebugSpeedScale = speed;
+        if (speed > 0f) HoldLegacy(speed);
         EncounterDirector.DebugDistanceOffset = targetDistance - gm.MaxDistance;
         int start = dir.Recent.Count;
         var forks = new HashSet<int>();
@@ -360,7 +382,7 @@ public class WastelandEncounterAutoTest : MonoBehaviour
         }
         if (f.requiresPit) CheckGap(rec, spawned);
         // 分岐区間の片側にGap Guardを置いた時(下ルート)は、そのルートの敵だけで確かめる
-        if (branch && rec.lower.StartsWith("gap_guard"))
+        if (branch && rec.lower.StartsWith("gap_guard") && !rec.lower.Contains("did not fit")) // 収まらずRestになった分岐は対象外
             CheckGap(rec, spawned.Where((sp, i) => rec.members[i].route == EncounterRoute.Lower).ToList());
     }
 
