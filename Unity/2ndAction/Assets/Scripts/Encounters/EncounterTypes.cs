@@ -41,7 +41,8 @@ public enum EncounterRouteMode { Main = 0, RoutePair = 1 }
 // 敵を置いたルート(デバッグ/テスト用の記録)。
 public enum EncounterRoute { Main = 0, Upper = 1, Lower = 2 }
 // Gap Guard用: Slotの位置を穴の縁から測る(BeforePit=穴の手前の縁から手前へxOffset、AfterPit=穴の向こう岸からxOffset先)。
-public enum EncounterPitAnchor { None = 0, BeforePit = 1, AfterPit = 2 }
+// OverPit(2026-09-30, ラストダンジョン): 穴の真ん中の上空から測る(跳んでいる最中に飛ぶ敵と出会う)。空中Slot用。
+public enum EncounterPitAnchor { None = 0, BeforePit = 1, AfterPit = 2, OverPit = 3 }
 
 [Serializable]
 public class EncounterRouteSide
@@ -150,6 +151,9 @@ public class EncounterFormation
     public float pitMinBefore = 6f;
     [Tooltip("穴の向こうの敵は、縁ぎりぎりで跳んだ時の着地点からさらに何m先に置くか(跳んだら必ずぶつかる、を防ぐ)")]
     public float pitLandingMargin = 2.5f;
+    [Tooltip("ラストダンジョン(2026-09-30): 向こう岸の敵を「縁で跳んだ着地点」ではなく、穴の向こうの縁の近く(着地点付近)に置く。"
+           + "高速では着地点が20m以上先になり、穴の多い区間では置けなくなるため。遅く跳んだ時に着地を狙われる配置")]
+    public bool nearEdgeLanding;
 
     public float Width()
     {

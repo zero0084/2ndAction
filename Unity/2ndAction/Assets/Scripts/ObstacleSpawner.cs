@@ -242,6 +242,7 @@ public class ObstacleSpawner : MonoBehaviour
 
         while (md >= nextObstacleDistance)
         {
+            if (SuppressAt != null && SuppressAt(nextObstacleDistance)) { nextObstacleDistance += obstacleInterval * GapScale; continue; }
             // Run Continuation/Checkpoint Ver.1, item 14と同じ配慮 -
             // CONTINUE直後の安全地帯では新規障害物を置かない(EnemyWallManager
             // のinSafeZoneガードと同じ理由)。
@@ -253,9 +254,10 @@ public class ObstacleSpawner : MonoBehaviour
             // (Danger)なら、次のマイルストーンまでの間隔を縮めてより頻繁に
             // 障害物を置く。分岐が無い区間では従来どおりobstacleIntervalの
             // まま。
-            float worldX = startX + milestoneDistance + HighSpeedAssist.SpawnAhead(spawnAheadDistance); // 高速時の自動操作補助: 先読み範囲に置く
+            float worldX = startX + milestoneDistance + HighSpeedAssist.SpawnAhead(spawnAheadDistance) + ExtraAhead(); // 高速時の自動操作補助: 先読み範囲に置く(+ステージ固有の延長)
             bool danger = TerrainManager.Instance != null && TerrainManager.Instance.IsInBranchRoute(worldX);
-            nextObstacleDistance += (danger ? obstacleInterval * dangerIntervalMultiplier : obstacleInterval) * GapScale;
+            float intervalScale = IntervalScaleAt != null ? Mathf.Max(0.25f, IntervalScaleAt(milestoneDistance)) : 1f;
+            nextObstacleDistance += (danger ? obstacleInterval * dangerIntervalMultiplier : obstacleInterval) * GapScale * intervalScale;
         }
 
         // ルート構造再調整(2026-09-13) - 上ルート(Easy)専用の軽い障害物。
@@ -272,8 +274,9 @@ public class ObstacleSpawner : MonoBehaviour
 
     void SpawnObstacle(float milestoneDistance)
     {
+        weightDistance = milestoneDistance;
         WorldRng.Obstacle.ReseedAt(Mathf.RoundToInt(milestoneDistance * 4f)); // 固定シード時: 同じ地点には同じ種類
-        float worldX = startX + milestoneDistance + HighSpeedAssist.SpawnAhead(spawnAheadDistance); // 高速時の自動操作補助: 先読み範囲に置く
+        float worldX = startX + milestoneDistance + HighSpeedAssist.SpawnAhead(spawnAheadDistance) + ExtraAhead(); // 高速時の自動操作補助: 先読み範囲に置く(+ステージ固有の延長)
 
         // Stage01次段階調整(2026-09-16) - TerrainManager側の生成がまだ
         // worldXまで届いていない場合、GetHeightAtは「実際に後で生成される
@@ -439,6 +442,40 @@ public class ObstacleSpawner : MonoBehaviour
     // ステージ固有の演出(LAST CORRIDORの落ちてくる構造物など)用: 障害物ができた直後に呼ぶ(HOST/ソロの配置、JOINの写しの両方)。
     public static event System.Action<ObstacleController, string> Created;
 
+    // ===== ラストダンジョン(2026-09-30)の差し込み口(走行距離(m)で決まる) =====
+    //  SuppressAt(距離)          … trueの間は置かない(静寂区間/エンドロール)
+    //  IntervalScaleAt(距離)     … 配置間隔の倍率(<1=密、>1=疎。難易度の波)
+    //  WeightScaleAt(距離, 種類) … 種類ごとの出やすさの倍率(激しい区間は壊せる扉を多く、ボスラッシュは大型なし等)
+    public static System.Func<float, bool> SuppressAt;
+    public static System.Func<float, float> IntervalScaleAt;
+    public static System.Func<float, string, float> WeightScaleAt;
+    //  ExtraAheadAt(距離) … 置く位置をさらに先へ延ばす量(m)。ラストダンジョンの落ちてくる構造物を、落ちる所から見せるため
+    public static System.Func<float, float> ExtraAheadAt;
+    float ExtraAhead() => ExtraAheadAt != null && GameManager.Instance != null ? Mathf.Max(0f, ExtraAheadAt(GameManager.Instance.MaxDistance)) : 0f;
+    float weightDistance; // 今選んでいる障害物の距離(WeightScaleAt用)
+
+    // 指定の位置に指定の種類の障害物を置く(ラストダンジョンの「着地の直後の破壊壁」など、演出側が位置を決める物)。
+    // 穴の上/縁の近く/未生成の地形には置かない。マルチはHOSTだけが置き、通常の障害物と同じく全員へ共有される。
+    public ObstacleController SpawnSpecificAt(float worldX, string kind)
+    {
+        if (NetObstacles.SuppressLocalSpawn) return null;
+        var tm = TerrainManager.Instance;
+        if (tm == null || !tm.IsGenerated(worldX + 2f)) return null;
+        int idx = SpecIndex(kind);
+        if (idx < 0) return null;
+        float? g = tm.GetHeightAt(worldX);
+        if (!g.HasValue || tm.IsNearPit(worldX, 1.6f)) return null;
+        float angle = tm.GetSlopeAngleAt(worldX);
+        var spec = specs[idx];
+        float? capCeil = CaveEffectiveCeiling(worldX);
+        if (capCeil.HasValue && capCeil.Value - (g.Value + spec.targetHeight) < caveObstaclePassClearance) return null;
+        GameObject go = GroundFactory.CreateObstacle(transform, squareSprite, spec.sprite, new Vector2(worldX, g.Value), spec.targetHeight, spec.color, spec.breakable, spec.hp, angle);
+        if (go == null) return null;
+        Register(go, spec, angle, false);
+        if (worldX > lastLowerObstacleX) { lastLowerObstacleX = worldX; lastLowerObstacleWasLarge = IsLarge(spec); }
+        return go.GetComponent<ObstacleController>();
+    }
+
     // 障害物の耐久力(2026-09-29): 置いた障害物に種類ごとの耐久力/素材を設定し、マルチならHOSTが全員へ共有する。
     void Register(GameObject obstacle, ObstacleSpec spec, float angle, bool upper)
     {
@@ -515,6 +552,7 @@ public class ObstacleSpawner : MonoBehaviour
     {
         float w = Mathf.Max(0f, s.weight);
         if (dangerBoost && (s.name == "Wall" || s.name == "GiantRock" || s.name == "BreakableTree")) w *= dangerHeavyWeightMultiplier;
+        if (WeightScaleAt != null) w *= Mathf.Max(0f, WeightScaleAt(weightDistance, s.name));
         return w;
     }
 }

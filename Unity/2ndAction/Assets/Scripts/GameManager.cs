@@ -306,7 +306,30 @@ public class GameManager : MonoBehaviour
     // Run (GAME OVER/FINISH) always gets a fresh GameManager instance where
     // this defaults to false again.
     bool escapeUnlocked;
-    public bool EscapeAvailable => HasStarted && !IsGameOver && escapeUnlocked;
+    public bool EscapeAvailable => HasStarted && !IsGameOver && escapeUnlocked && !EscapeBlocked;
+    // ラストダンジョンのエンディング(2026-09-30)。どれもシーンの読み直しで既定へ戻る(LastDungeonFlowが開始時に戻す)。
+    //  EscapeBlocked … 長押しの帰還を出さない(静寂区間〜ONE MORE MILE?。BEYONDでは再び使える)
+    //  BlockExpGain  … 経験値もレベルアップも止める(三姉妹を倒した後のエンドロール/選択エリアで選択画面を出さない)
+    public static bool EscapeBlocked;
+    public static bool BlockExpGain;
+    // 「NO」を選んで自分の意思で止まった: 正常終了(MILE確定/BEST更新/CONTINUE消去)をしてResultを出さずにホームへ戻る。
+    public bool QuietFinish { get; private set; }
+    public void FinishByChoice()
+    {
+        if (IsGameOver || !HasStarted) return;
+        QuietFinish = true;
+        IsWin = true;
+        FinishRun();
+        Debug.Log($"[LastDungeon] finished by choice (NO) at {MaxDistance:F0}m - no result screen, back to HOME");
+        RetryWithTransition();
+    }
+    // 三姉妹を倒した瞬間: 後回しになっていたレベルアップ/ボス報酬の選択を捨てる(エンドロールの途中で選択画面を出さない)。
+    public void DropPendingChoicesForFinale()
+    {
+        pendingLevelUpCount = 0;
+        levelUpDeferredTimer = -1f;
+        bossRewardDeferredPending = false;
+    }
 
     // Item 3 - one-shot "ESCAPE AVAILABLE" banner the first time
     // EscapeAvailable flips true this Run (see Update()/DrawEscapeUI).
@@ -1195,7 +1218,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        bool retryAllowed = IsGameOver && Time.time - gameOverTime >= retryDelayAfterGameOver;
+        bool retryAllowed = IsGameOver && !QuietFinish && Time.time - gameOverTime >= retryDelayAfterGameOver;
         if (retryAllowed && (Input.GetKeyDown(KeyCode.R) || WasTappedOrClicked()))
         {
             RetryWithTransition();
@@ -1848,6 +1871,7 @@ public class GameManager : MonoBehaviour
         // マルチプレイPhase 2.5: マルチでは選択中も世界(=距離/撃破)が進むため、その間のEXPは捨てずに
         // 貯め、レベルアップは選択が終わってから順に出す(pendingLevelUpCountの既存の後回し処理)。
         if (amount <= 0f || (levelUpPending && !NetMatch.Active)) return;
+        if (BlockExpGain) return;
 
         // "EXP UP" cards raise expGainMultiplier above 1 - applied once
         // here so it covers every EXP source (distance, kills, bosses)
@@ -3691,7 +3715,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        DrawResults();
+        if (!QuietFinish) DrawResults();
         DrawStartTransitionOverlay();
     }
 

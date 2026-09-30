@@ -114,11 +114,14 @@ public class BonusZone : MonoBehaviour
     // 自動テスト(batchmode)では自然発生させない(既存のテストの前提=ボス後に通常の敵/障害物が続く、を変えない)。
     // BONUS ZONEのテストだけがtrueにする。実機/Editorでの通常プレイは常に自然発生する。
     public static bool AllowNaturalInBatch;
+    // ラストダンジョン(2026-09-30): この距離では自然発生させない
+    public static System.Func<float, bool> BlockedAt;
 
     bool CanStartNaturally(GameManager gm)
     {
         if (Application.isBatchMode && !AllowNaturalInBatch) return false;
         if (NetMatch.Active && !Profile.allowInMultiplayer) return false;
+        if (BlockedAt != null && BlockedAt(gm.MaxDistance)) return false; // ラストダンジョンの終盤(ボスラッシュ〜エンディング)
         var bm = BossManager.Instance;
         if (bm != null && bm.NextBossDistance > 0f && bm.NextBossDistance - gm.MaxDistance < Profile.minDistanceToNextBoss) return false;
         var pc = PlayerController.Instance;

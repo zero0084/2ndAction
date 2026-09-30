@@ -313,8 +313,18 @@ public abstract class WildBossBase : MonoBehaviour
         poseTime = 0f;
     }
 
+    // ラストダンジョン(2026-09-30): 移動/待機/浮遊の姿勢で、1枚絵の代わりに一定のfpsで回すコマ(死神三姉妹の歩き/浮遊/スキップ)。
+    protected Sprite[] loopFrames;
+    protected float loopFps = 5f;
+    protected float loopTimeOffset;
+    // 撃破(撃破演出の最後)で、通常のボス戦の終了処理(BossManager.OnWildBossDefeated)の代わりに呼ぶ。
+    // MILE/EXP(GameManager.RegisterBossDefeat)は通常どおり。死神三姉妹の最終戦で使う。
+    [System.NonSerialized] public System.Action<WildBossBase> DefeatOverride;
+
     Sprite PickSprite()
     {
+        if (loopFrames != null && loopFrames.Length > 0 && (pose == Pose.Move || pose == Pose.Idle || pose == Pose.Fly))
+            return loopFrames[Mathf.FloorToInt((Time.time + loopTimeOffset) * loopFps) % loopFrames.Length];
         switch (pose)
         {
             case Pose.Move:
@@ -842,6 +852,7 @@ public abstract class WildBossBase : MonoBehaviour
         defeatRegistered = true;
         if (NetPuppet) return; // JOINのパペット: 撃破報酬/ボス戦終了はHOSTとラストヒットの本人が処理する
         if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
+        if (DefeatOverride != null) { DefeatOverride(this); return; }
         if (BossManager.Instance != null) BossManager.Instance.OnWildBossDefeated();
     }
 

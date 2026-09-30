@@ -69,6 +69,19 @@ public class EncounterDirector : MonoBehaviour
     public static bool DebugGapLog; // テスト用: Gap Guardが置けない理由をログに出す
     // テスト用: Encounterを出した直後に呼ぶ(Formation/生成した敵/Slot)。
     public static System.Action<Record, EncounterFormation, List<(GameObject go, EnemyDefinition def, EncounterSlotKind slot)>> OnEncounterSpawned;
+    // ステージ固有の演出が使う通知(複数登録できる。テスト用のOnEncounterSpawnedとは別)。
+    public static event System.Action<Record, EncounterFormation, List<(GameObject go, EnemyDefinition def, EncounterSlotKind slot)>> Spawned;
+
+    // ===== ラストダンジョン(2026-09-30)の差し込み口。すべて走行距離(m)で決まる(マルチでもHOSTの判断が全員に共有される) =====
+    //  SuppressAt(距離) … trueの間は何も置かない(ボスラッシュ/静寂/エンドロール)
+    //  PaceAt(距離)     … Encounterどうしの間隔と休憩の長さの倍率(1=既定、<1=詰める=激しい区間、>1=落ち着く区間)
+    //  SurgeAt(距離)    … 0..1。Intensity(Rest/Easy/Medium/Hard)の比重を激しい方へ寄せる(難易度の波)
+    public static System.Func<float, bool> SuppressAt;
+    public static System.Func<float, float> PaceAt;
+    public static System.Func<float, float> SurgeAt;
+    float planDistance; // 今決めているEncounterの走行距離(SurgeAt用)
+    float Pace(float d) => PaceAt != null ? Mathf.Max(0.2f, PaceAt(d)) : 1f;
+    public static int SuppressedFrames; // テスト用
 
     // 統計(自動テスト/デバッグ)
     public readonly List<Record> Recent = new List<Record>();
@@ -203,6 +216,12 @@ public class EncounterDirector : MonoBehaviour
         PruneSpans(playerLogical);
         ExtendGeneration(tm, ahead);
 
+        if (SuppressAt != null && SuppressAt(gm.MaxDistance))
+        {
+            SuppressedFrames++;
+            if (nextAnchor < playerLogical + ahead) nextAnchor = playerLogical + ahead;
+            return;
+        }
         bool bossPhase = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
         bool pauseNow = bossPhase || gm.IsInSafeZone || gm.CountdownActive || pc.IsFinishing;
         if (pauseNow)
@@ -423,6 +442,7 @@ public class EncounterDirector : MonoBehaviour
 
     void PlanAt(TerrainManager tm, PlayerController pc, float runDistance, float speed, float mainLimit = float.PositiveInfinity)
     {
+        planDistance = runDistance;
         EncounterDistanceBand band = profile.BandFor(runDistance);
         CurrentBand = band;
         if (band == null) { DoRest(runDistance, null, speed, "no band"); return; }
@@ -467,10 +487,20 @@ public class EncounterDirector : MonoBehaviour
         EncounterIntensity last = n > 0 ? intensityHistory[n - 1] : EncounterIntensity.Rest;
         EncounterIntensity prev = n > 1 ? intensityHistory[n - 2] : EncounterIntensity.Easy;
         if (n == 0) { w[0] = 0f; w[3] = 0f; } // 最初はEasy/Mediumから
+        // ラストダンジョン: 難易度の波(激しい区間ほどHard寄り・休憩が減る、落ち着く区間は休憩/Easy寄り)
+        float surge = SurgeAt != null ? Mathf.Clamp01(SurgeAt(planDistance)) : -1f;
+        if (surge >= 0f)
+        {
+            w[0] *= Mathf.Lerp(1.8f, 0.3f, surge);
+            w[1] *= Mathf.Lerp(1.3f, 0.55f, surge);
+            w[2] *= Mathf.Lerp(0.8f, 1.35f, surge);
+            w[3] *= Mathf.Lerp(0.3f, 2.0f, surge);
+        }
         // 休憩を挟まない戦闘が続きすぎたら必ず休憩(呼吸)を入れる。
         int sinceRest = 0;
         for (int i = n - 1; i >= 0 && intensityHistory[i] != EncounterIntensity.Rest; i--) sinceRest++;
-        if (n > 0 && sinceRest >= Mathf.Max(1, profile.maxEncountersWithoutRest)) return EncounterIntensity.Rest;
+        int maxNoRest = Mathf.Max(1, profile.maxEncountersWithoutRest) + (surge >= 0.75f ? 2 : 0);
+        if (n > 0 && sinceRest >= maxNoRest) return EncounterIntensity.Rest;
         switch (last)
         {
             case EncounterIntensity.Rest: w[0] *= profile.afterRestRestMultiplier; break;
@@ -568,7 +598,7 @@ public class EncounterDirector : MonoBehaviour
         // 調査範囲の穴を手前から順に見て、前後の条件を満たす最初の穴を使う
         while (p.FindPit(from, to, out pitStart, out pitEnd))
         {
-            float afterFar = Mathf.Max(pitEnd + MaxPitOffset(f, EncounterPitAnchor.AfterPit) * sp, pitStart + JumpReach() + f.pitLandingMargin) + 1.5f;
+            float afterFar = Mathf.Max(pitEnd + MaxPitOffset(f, EncounterPitAnchor.AfterPit) * sp, f.nearEdgeLanding ? pitEnd + f.pitLandingMargin : pitStart + JumpReach() + f.pitLandingMargin) + 1.5f;
             bool ok = pitEnd - pitStart <= f.maxPitWidth
                 && !p.HasPitBetween(pitStart - before, pitStart - 0.6f)   // 手前の敵と助走の区間に別の穴が無い
                 && p.CoversX(afterFar) && afterFar <= p.LimitX
@@ -598,7 +628,7 @@ public class EncounterDirector : MonoBehaviour
 
     // Gap GuardのSlotを実際の並び順(穴の手前の遠い方→近い方→穴の向こう)に並べる。
     static float PitOrder(EncounterSlot s) =>
-        s.pitAnchor == EncounterPitAnchor.BeforePit ? -s.xOffset : s.pitAnchor == EncounterPitAnchor.AfterPit ? 1000f + s.xOffset : s.xOffset;
+        s.pitAnchor == EncounterPitAnchor.BeforePit ? -s.xOffset : s.pitAnchor == EncounterPitAnchor.AfterPit ? 1000f + s.xOffset : s.pitAnchor == EncounterPitAnchor.OverPit ? 500f + s.xOffset : s.xOffset;
 
     // ---- 敵の選択 ----
 
@@ -663,7 +693,7 @@ public class EncounterDirector : MonoBehaviour
         var tiers = band.TiersFor(intensity);
         float pitStart = 0f, pitEnd = 0f;
         if (f.requiresPit && !FindGap(f, probe, speed, out pitStart, out pitEnd)) return null;
-        float afterMin = pitStart + JumpReach() + f.pitLandingMargin;
+        float afterMin = f.nearEdgeLanding ? pitEnd + f.pitLandingMargin : pitStart + JumpReach() + f.pitLandingMargin;
         var slots = new List<EncounterSlot>(f.slots);
         if (f.requiresPit) slots.Sort((a, b) => PitOrder(a).CompareTo(PitOrder(b)));
         else slots.Sort((a, b) => a.xOffset.CompareTo(b.xOffset));
@@ -683,6 +713,8 @@ public class EncounterDirector : MonoBehaviour
                 case EncounterPitAnchor.BeforePit: x = pitStart - Mathf.Max(f.pitMinBefore, slot.xOffset) * spacing - Range(0f, Mathf.Abs(slot.jitter)); break;
                 // 穴の向こう: 縁ぎりぎりで跳んでも着地点より先(跳んだら必ずぶつかる、にならない)
                 case EncounterPitAnchor.AfterPit: x = Mathf.Max(pitEnd + slot.xOffset * spacing, afterMin) + Range(0f, Mathf.Abs(slot.jitter)); break;
+                // 穴の真ん中の上空(ラストダンジョンの複合: 跳んだ先の空中に飛ぶ敵)
+                case EncounterPitAnchor.OverPit: x = (pitStart + pitEnd) * 0.5f + slot.xOffset + Range(-Mathf.Abs(slot.jitter), Mathf.Abs(slot.jitter)); break;
                 default: x = anchor + slot.xOffset * spacing + Range(-slot.jitter, slot.jitter); break;
             }
             if (x > probe.LimitX) continue;
@@ -775,7 +807,8 @@ public class EncounterDirector : MonoBehaviour
         spans.Add((new Vector2((float)rec.anchorLogical - 2f, (float)rec.endLogical + 2f), EncounterRoute.Main));
         Commit(rec);
         OnEncounterSpawned?.Invoke(rec, f, spawnedGos);
-        nextAnchor = rec.endLogical + Range(GapRange(intensity)) * GapScale(speed);
+        Spawned?.Invoke(rec, f, spawnedGos);
+        nextAnchor = rec.endLogical + Range(GapRange(intensity)) * GapScale(speed) * Pace(runDistance);
         return true;
     }
 
@@ -1032,7 +1065,7 @@ public class EncounterDirector : MonoBehaviour
     void DoRest(float runDistance, EncounterDistanceBand band, float speed, string reason, bool short_ = false)
     {
         var rec = new Record { index = ++encounterIndex, distance = runDistance, band = band != null ? band.bandName : "-", intensity = EncounterIntensity.Rest, formation = "rest", reason = reason };
-        float len = short_ ? 10f : Range(profile.restLength) * GapScale(speed);
+        float len = short_ ? 10f : Range(profile.restLength) * GapScale(speed) * Pace(runDistance);
         rec.anchorLogical = nextAnchor;
         rec.endLogical = nextAnchor + len;
         if (!short_) Commit(rec);

@@ -41,6 +41,134 @@ public class LastCorridorDirector : MonoBehaviour
     public Vector4 p1Sections = new Vector4(0f, 0.12f, 0.26f, 0.08f);
     public Vector4 p2Sections = new Vector4(0.9f, 0f, 0.1f, 0f);
 
+    // ===================================================================== //
+    // ラストダンジョン化(2026-09-30): 「既存ルールのまま、最も難しいステージ」
+    //   0〜90,000m  最高難度の通常区間。距離で決まる「難易度の波」(激しい→少し落ち着く→再び激しい)で、
+    //               敵の密度/Hardの比重、障害物(壊せる扉が増える)、穴(確率/非常に大きな穴/狭い足場の連続)、
+    //               天井(杭/低い天井=上下からの圧迫)、落ちてくる構造物をまとめて上下させる。
+    //               複合: 穴の上に飛ぶ敵→着地点に地上の敵→直後に壊せる扉(ld_pit_ambush)など(Encounter側のFormation)。
+    //   90,000〜99,000m ボスラッシュ(通常の敵なし。BossManager.RushTable) / 99,000〜100,000m 静寂(何も出さない)
+    //   100,000m 三姉妹戦 → エンドロール → ONE MORE MILE?(LastDungeonFlow)
+    // すべて論理X(走行距離)だけで決まるので、マルチでも全端末で同じ地形になる。
+    // hardMode=false(または起動引数 -lcLegacyDifficulty)で従来のLAST CORRIDORに戻る(比較用)。
+    // ===================================================================== //
+    [Header("ラストダンジョン化: 難易度の波")]
+    public bool hardMode = true;
+    [Tooltip("波の1周期(m): 落ち着く→盛り上がる→激しい→収まる")] public float waveCycle = 3000f;
+    [Tooltip("波が始まる距離(m)。それまでは準備運動")] public float waveStart = 600f;
+    [Tooltip("ここから通常の敵を止める(ボスラッシュ)")] public float rushFrom = 90000f;
+    [Tooltip("ここから何も出さない(静寂区間)")] public float silenceFrom = 99000f;
+    [Tooltip("穴の確率(落ち着く区間, 激しい区間)。従来は5km以降ずっと0.55")] public Vector2 pitChanceRange = new Vector2(0.28f, 0.68f);
+    [Tooltip("激しい区間で、穴が『非常に大きな穴』になる割合")] public float hugePitChance = 0.25f;
+    [Tooltip("非常に大きな穴の幅の上限(m)")] public float hugePitMaxWidth = 9f;
+    [Tooltip("非常に大きな穴の幅 = 一番遅いキャラの1段ジャンプで届く距離 × この割合(高速でも理不尽にしない)")] public float hugePitReachFraction = 0.45f;
+    [Tooltip("1段ジャンプの滞空時間(秒)。2×jumpForce/gravity(9/20)。キャラによらない共通値(マルチで地形を一致させるため)")] public float jumpAirTime = 0.9f;
+    [Tooltip("激しい区間で、穴の直後の平地を狭い足場にする割合と長さ(m)")] public float narrowFootingChance = 0.3f;
+    public float narrowFootingLength = 4.8f;
+    [Tooltip("障害物の配置間隔の倍率(落ち着く区間, 激しい区間)")] public Vector2 obstacleIntervalRange = new Vector2(1.3f, 0.5f);
+    [Tooltip("敵のEncounterの間隔/休憩の倍率(落ち着く区間, 激しい区間)")] public Vector2 encounterPaceRange = new Vector2(1.3f, 0.42f);
+    [Tooltip("落ちてくる構造物の確率の倍率(落ち着く区間, 激しい区間)")] public Vector2 fallChanceScale = new Vector2(1.0f, 2.3f);
+    [Tooltip("激しい区間の複合: 穴の上の敵/着地点の敵の後ろに置く壊せる扉までの距離(m)")] public float ambushGateDistance = 3.4f;
+    public static int AmbushGatesPlaced;
+    [Tooltip("落ちてくる構造物: 着地からプレイヤーが届くまでに残す秒数(ラストダンジョン)。従来は1.1")] public float fallLeadTimeHard = 0.8f;
+
+    // 0..1: その距離の激しさ。落ち着く区間≒0.1、激しい区間≒1。深いほど全体が少し強い。
+    public float SurgeAt(float lx)
+    {
+        if (!hardMode || lx >= rushFrom) return 0f;
+        if (lx < waveStart) return 0.12f;
+        float u = (lx - waveStart) / Mathf.Max(500f, waveCycle);
+        int n = Mathf.FloorToInt(u);
+        float p = u - n;
+        float jit = (Hash(n * 7919 + 13) % 1000u) / 1000f; // 周期ごとに少し形を変える(毎回同じリズムにしない)
+        float calmEnd = 0.14f + 0.08f * jit, buildEnd = 0.40f + 0.06f * jit, surgeEnd = 0.80f - 0.06f * jit;
+        float s;
+        if (p < calmEnd) s = 0.08f;
+        else if (p < buildEnd) s = Mathf.SmoothStep(0.15f, 0.75f, (p - calmEnd) / (buildEnd - calmEnd));
+        else if (p < surgeEnd) s = 1f;
+        else s = Mathf.Lerp(1f, 0.1f, (p - surgeEnd) / (1f - surgeEnd));
+        float depth = Mathf.Lerp(0.7f, 1f, Mathf.Clamp01(lx / 85000f));
+        return Mathf.Clamp01(s * depth);
+    }
+    public string WaveLabel(float lx) { float s = SurgeAt(lx); return s >= 0.75f ? "surge" : s >= 0.35f ? "build" : "calm"; }
+    static float Hash01(float v, int salt) => (Hash(Mathf.RoundToInt(v) ^ salt) % 10000u) / 10000f;
+
+    float PitWidthAtHard(float lx)
+    {
+        float w = Pick(pitWidths, PhaseAt(lx));
+        if (!hardMode || lx >= rushFrom) return w;
+        float s = SurgeAt(lx);
+        if (s > 0.6f && Hash01(lx * 4f, 0x3a91) < hugePitChance)
+        {
+            var pc = PlayerController.Instance;
+            float mult = pc != null ? pc.NaturalMultiplierAt(lx) : 1f;
+            float slowest = 5f * mult * 0.93f; // 一番遅いキャラ(移動性能0.93)の巡航速度
+            w = Mathf.Clamp(slowest * jumpAirTime * hugePitReachFraction, w, hugePitMaxWidth);
+        }
+        return w;
+    }
+
+    float PitChanceHard(float lx, float def)
+    {
+        if (!hardMode) return def;
+        if (lx >= silenceFrom - 200f) return 0f;      // 静寂区間(とその手前)は穴なし
+        if (lx >= rushFrom) return 0.12f;             // ボスラッシュ: 走る区間は控えめ
+        if (lx < 300f) return Mathf.Min(def, 0.1f);
+        return Mathf.Lerp(pitChanceRange.x, pitChanceRange.y, SurgeAt(lx));
+    }
+
+    float FlatLengthHard(float lx)
+    {
+        if (!hardMode || lx >= rushFrom) return 0f;
+        return SurgeAt(lx) > 0.7f && Hash01(lx * 4f, 0x51c3) < narrowFootingChance ? narrowFootingLength : 0f;
+    }
+
+    // ---- 障害物/敵(走行距離基準) ----
+    float ObstacleIntervalHard(float d)
+    {
+        if (!hardMode) return 1f;
+        if (d >= rushFrom) return 1.7f;
+        return Mathf.Lerp(obstacleIntervalRange.x, obstacleIntervalRange.y, SurgeAt(d));
+    }
+    float ObstacleWeightHard(float d, string kind)
+    {
+        if (!hardMode) return 1f;
+        float s = SurgeAt(d);
+        if (d >= rushFrom) return kind == "Wall" || kind == "GiantRock" ? 0f : 1f; // ボスラッシュの合間は大型なし
+        switch (kind)
+        {
+            case "BreakableTree": return 1f + 1.3f * s; // 封印の小扉(壊せる)
+            case "Wall": return 1f + 0.7f * s;          // 大扉
+            case "GiantRock": return 0.8f + 0.4f * s;
+            default: return 1f;
+        }
+    }
+
+    void OnEncounterSpawned(EncounterDirector.Record rec, EncounterFormation f, List<(GameObject go, EnemyDefinition def, EncounterSlotKind slot)> spawned)
+    {
+        if (!active || !hardMode || f == null || rec == null) return;
+        if (f.formationId != "ld_pit_ambush" && f.formationId != "ld_gate_rush") return;
+        // 着地点/最後の地上の敵のすぐ後ろに壊せる扉(「穴→空中の敵→着地点の敵→直後に破壊壁」)
+        float lastGround = float.NegativeInfinity;
+        foreach (var s in spawned)
+            if (s.go != null && EncounterSlots.IsGround(s.slot)) lastGround = Mathf.Max(lastGround, s.go.transform.position.x);
+        if (float.IsNegativeInfinity(lastGround)) return;
+        var spawner = ObstacleSpawner.FindForStage(StageId);
+        if (spawner == null) return;
+        for (int k = 0; k < 12; k++)
+        {
+            if (spawner.SpawnSpecificAt(lastGround + ambushGateDistance + k * 0.7f, "BreakableTree") != null) { AmbushGatesPlaced++; break; }
+        }
+    }
+
+    // ---- エンディング(LastDungeonFlow)用: 背景/構造物/床の断面の上書き ----
+    [System.NonSerialized] public bool bgOverride;
+    [System.NonSerialized] public Sprite bgOverrideFrom, bgOverrideTo;
+    [System.NonSerialized] public float bgOverrideBlend;
+    [System.NonSerialized] public Color bgOverrideTint = Color.white;
+    [System.NonSerialized] public float propsEndLX = float.PositiveInfinity;
+    [System.NonSerialized] public float fillDepthOverride = float.NaN;
+
     [Header("Art (SceneBuilderが設定)")]
     public Sprite[] phaseBackgrounds = new Sprite[4];
     public Sprite pillar, arch, statue, lamp, brokenPillar;
@@ -63,6 +191,7 @@ public class LastCorridorDirector : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        if (GetComponent<LastDungeonFlow>() == null) gameObject.AddComponent<LastDungeonFlow>(); // ラストダンジョンの一連の流れ(2026-09-30)
         TerrainManager.ThemeApplied += OnThemeApplied;
         ObstacleSpawner.Created += OnObstacleCreated;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -74,11 +203,21 @@ public class LastCorridorDirector : MonoBehaviour
                 phase1From *= k; phase2From *= k; phase3From *= k; skyIslandsFrom *= k; backgroundBlendMeters *= k;
                 Debug.Log($"[LastCorridor] phase scale {k}: {phase1From}/{phase2From}/{phase3From}");
             }
+        if (System.Array.IndexOf(args, "-lcLegacyDifficulty") >= 0) { hardMode = false; Debug.Log("[LastCorridor] legacy difficulty (hardMode=false)"); }
 #endif
+    }
+
+    void ClearHooks()
+    {
+        ObstacleSpawner.IntervalScaleAt = null; ObstacleSpawner.WeightScaleAt = null; ObstacleSpawner.SuppressAt = null; ObstacleSpawner.ExtraAheadAt = null;
+        EncounterDirector.PaceAt = null; EncounterDirector.SurgeAt = null; EncounterDirector.SuppressAt = null;
+        BonusZone.BlockedAt = null;
+        EncounterDirector.Spawned -= OnEncounterSpawned;
     }
 
     void OnDestroy()
     {
+        ClearHooks();
         TerrainManager.ThemeApplied -= OnThemeApplied;
         ObstacleSpawner.Created -= OnObstacleCreated;
         if (Instance == this) Instance = null;
@@ -106,9 +245,30 @@ public class LastCorridorDirector : MonoBehaviour
         if (!on) { if (active) Deactivate(); return; }
         tm = t;
         active = true;
-        tm.pitWidthAt = lx => Pick(pitWidths, PhaseAt(lx));
-        tm.skyAllowedAt = lx => lx >= skyIslandsFrom;
+        tm.pitWidthAt = PitWidthAtHard;
+        tm.skyAllowedAt = lx => lx >= skyIslandsFrom && (!hardMode || lx < silenceFrom - 300f);
+        tm.pitChanceAt = PitChanceHard;
+        tm.flatLengthAt = FlatLengthHard;
+        tm.forceFlatAt = lx => hardMode && lx >= silenceFrom - 150f; // 静寂区間から先は坂も穴もない一本道
         if (tm.cave != null) tm.cave.sectionPicker = PickSection;
+        if (hardMode)
+        {
+            ObstacleSpawner.IntervalScaleAt = ObstacleIntervalHard;
+            ObstacleSpawner.WeightScaleAt = ObstacleWeightHard;
+            ObstacleSpawner.SuppressAt = d => d >= silenceFrom - 60f;
+            ObstacleSpawner.ExtraAheadAt = d =>
+            {
+                var pc = PlayerController.Instance;
+                float v = pc != null ? pc.CurrentAutoRunSpeed : 0f;
+                return d < silenceFrom ? Mathf.Clamp(v * 1.4f - 12f, 0f, 60f) : 0f; // 100km/hで約+27m
+            };
+            EncounterDirector.PaceAt = d => Mathf.Lerp(encounterPaceRange.x, encounterPaceRange.y, SurgeAt(d));
+            EncounterDirector.SurgeAt = SurgeAt;
+            EncounterDirector.SuppressAt = d => (BossManager.RushEnabled && d >= rushFrom - 60f) || d >= silenceFrom - 60f;
+            BonusZone.BlockedAt = d => d >= rushFrom - 2500f;
+            EncounterDirector.Spawned -= OnEncounterSpawned;
+            EncounterDirector.Spawned += OnEncounterSpawned;
+        }
         baseBg = tm.backgroundRenderer;
         if (baseBg != null) savedBgSprite = baseBg.sprite;
         EnsureOverlay();
@@ -120,6 +280,7 @@ public class LastCorridorDirector : MonoBehaviour
     void Deactivate()
     {
         active = false;
+        ClearHooks();
         ClearProps();
         if (overlayBg != null) overlayBg.enabled = false;
         PhaseNow = -1;
@@ -147,10 +308,22 @@ public class LastCorridorDirector : MonoBehaviour
     {
         int p = PhaseAt(lx);
         Vector4 s;
+        if (hardMode && lx >= rushFrom - 300f) return 4; // ボスラッシュ〜静寂〜エンディング: 天井なし(大型ボス/空の見える道)
         if (p == 0) s = p0Sections;
         else if (p == 1) { s = p1Sections; s.x = Mathf.Lerp(p1OpenRange.x, p1OpenRange.y, PhaseProgress(lx)); }
         else if (p == 2) s = p2Sections;
-        else return 4;
+        else if (!hardMode) return 4;
+        else s = new Vector4(0.75f, 0f, 0.1f, 0f);
+        if (hardMode)
+        {
+            float g = SurgeAt(lx);
+            float press = Mathf.Lerp(0.5f, 1.8f, g);  // 杭/低い天井(圧迫)
+            s.x *= Mathf.Lerp(1.3f, 0.55f, g);        // 抜けている区間は激しい所ほど減る
+            s.y *= press; s.z *= press;
+            if (p >= 2) { s.y += 0.12f * g; s.z += 0.08f * g; } // 奈落/最後の道でも、激しい区間は上下から圧迫する
+            float sum = s.x + s.y + s.z + s.w;
+            if (sum > 0.97f) s *= 0.97f / sum;
+        }
         if (r < s.x) return 4; r -= s.x;
         if (r < s.y) return 2; r -= s.y;
         if (r < s.z) return 1; r -= s.z;
@@ -174,12 +347,17 @@ public class LastCorridorDirector : MonoBehaviour
         float lx = FloatingOrigin.ToLogical(oc.transform.position.x);
         int p = PhaseAt(lx);
         float roll = (Hash(Mathf.RoundToInt(lx * 4f)) % 1000u) / 1000f;
-        if (roll >= Pick(fallChances, p)) return;
+        float fc = Pick(fallChances, p);
+        if (hardMode) fc = lx >= rushFrom ? fc * 0.4f : Mathf.Min(0.85f, fc * Mathf.Lerp(fallChanceScale.x, fallChanceScale.y, SurgeAt(lx)));
+        if (roll >= fc) return;
         bool gate = oc.kind == "Wall" || oc.kind == "BreakableTree"; // 封印の扉は上から降りてきて道を閉じる
         float ground = oc.transform.position.y;
         float? ceil = tm != null ? tm.GetCeilingHeightAt(oc.transform.position.x) : null;
         float h = ceil.HasValue && ceil.Value - ground < 20f ? Mathf.Clamp(ceil.Value - ground - 1.2f, 4f, 9f) : 10f;
-        FallingDebris.Attach(oc, gate ? FallingDebris.Kind.Gate : FallingDebris.Kind.Fall, h);
+        var fd = FallingDebris.Attach(oc, gate ? FallingDebris.Kind.Gate : FallingDebris.Kind.Fall, h);
+        // ラストダンジョン化: 100km/h前後では画面に見えている先が約1秒ぶんしかないため、着地〜到達の余裕を0.8秒に
+        // (通常の障害物が見えてから届くまでと同程度。高速補助は最初から当たり判定を見ている)
+        if (hardMode) fd.leadTime = fallLeadTimeHard;
         if (gate) GateAttached++; else FallingAttached++;
     }
 
@@ -203,6 +381,7 @@ public class LastCorridorDirector : MonoBehaviour
         float genLX = FloatingOrigin.ToLogical(tm.GeneratedEndX);
         float wantDepth = Pick(groundFillDepths, PhaseAt(genLX));
         if (tm.cave != null && tm.cave.Active && PhaseAt(genLX) <= 1) wantDepth = Mathf.Max(wantDepth, tm.cave.terrainFillDepth);
+        if (!float.IsNaN(fillDepthOverride)) wantDepth = fillDepthOverride;
         tm.groundFillDepth = wantDepth;
 
         PlaceProps();
@@ -212,6 +391,18 @@ public class LastCorridorDirector : MonoBehaviour
     void UpdateBackground(float d, int p)
     {
         if (baseBg == null) return;
+        if (bgOverride)
+        {
+            if (bgOverrideFrom != null && baseBg.sprite != bgOverrideFrom) baseBg.sprite = bgOverrideFrom;
+            baseBg.color = bgOverrideTint;
+            if (overlayBg != null)
+            {
+                bool show = bgOverrideTo != null && bgOverrideBlend > 0.001f;
+                overlayBg.enabled = show;
+                if (show) { if (overlayBg.sprite != bgOverrideTo) overlayBg.sprite = bgOverrideTo; overlayBg.color = new Color(bgOverrideTint.r, bgOverrideTint.g, bgOverrideTint.b, bgOverrideBlend); }
+            }
+            return;
+        }
         Sprite cur = BgFor(p);
         Sprite next = p < 3 ? BgFor(p + 1) : null;
         float boundary = p == 0 ? phase1From : p == 1 ? phase2From : phase3From;
@@ -245,6 +436,7 @@ public class LastCorridorDirector : MonoBehaviour
         while (nextPropLX < endLX && guard++ < 40)
         {
             float lx = nextPropLX;
+            if (lx >= propsEndLX) { nextPropLX = endLX + 1f; break; } // エンドロールでは構造物を置かない(文字が主役)
             uint h = Hash(Mathf.RoundToInt(lx * 8f) ^ 0x5a17);
             float r0 = (h & 0xffff) / 65535f, r1 = (h >> 16) / 65535f;
             int p = PhaseAt(lx);

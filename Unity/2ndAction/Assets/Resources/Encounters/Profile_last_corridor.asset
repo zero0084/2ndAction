@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8d858cd7b62ca7443b3b763cb5f732d9, type: 3}
-  m_Name: Profile_last_corridor
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StageEncounterProfile
   stageId: last_corridor
   enabled: 1
@@ -100,6 +100,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: burrow_ambush
     displayName: Burrow Ambush
     stageSpecific: 1
@@ -160,6 +161,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: frontline_rear
     displayName: Frontline + Rear
     stageSpecific: 1
@@ -233,6 +235,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: goblin_horde
     displayName: Goblin Horde
     stageSpecific: 1
@@ -307,6 +310,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: heavy_horde
     displayName: Heavy + Horde
     stageSpecific: 1
@@ -380,6 +384,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: gap_guard
     displayName: Gap Guard
     stageSpecific: 1
@@ -452,6 +457,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: sky_line
     displayName: Sky Line
     stageSpecific: 1
@@ -534,6 +540,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: sky_pack
     displayName: Sky Pack
     stageSpecific: 1
@@ -595,6 +602,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: aerial_line
     displayName: Aerial Line
     stageSpecific: 1
@@ -659,6 +667,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: sky_ground_air
     displayName: Ground + Air
     stageSpecific: 1
@@ -737,6 +746,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: aerial_stair
     displayName: Aerial Stair
     stageSpecific: 1
@@ -811,6 +821,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: launch_bridge
     displayName: Launch Bridge
     stageSpecific: 1
@@ -893,6 +904,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: gargoyle_gate
     displayName: Gargoyle Gate
     stageSpecific: 1
@@ -963,6 +975,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: guardian_wall
     displayName: Guardian Wall
     stageSpecific: 1
@@ -1034,6 +1047,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: knight_patrol
     displayName: Knight Patrol
     stageSpecific: 1
@@ -1105,6 +1119,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: storm_zone
     displayName: Storm Zone
     stageSpecific: 1
@@ -1172,6 +1187,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: hunter_attack
     displayName: Hunter Attack
     stageSpecific: 1
@@ -1224,6 +1240,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: aerial_wave
     displayName: Aerial Wave
     stageSpecific: 1
@@ -1320,6 +1337,7 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   - formationId: sky_gauntlet
     displayName: Sky Gauntlet
     stageSpecific: 1
@@ -1424,6 +1442,331 @@ MonoBehaviour:
     maxPitWidth: 6.5
     pitMinBefore: 6
     pitLandingMargin: 2.5
+    nearEdgeLanding: 0
+  - formationId: ld_pit_ambush
+    displayName: 'LD: Pit Ambush (pit + air + landing + gate)'
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 3
+    slots:
+    - kind: 3
+      xOffset: 0
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 3
+      required: 1
+    - kind: 0
+      xOffset: 1.5
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 2
+      required: 1
+    - kind: 1
+      xOffset: 3.4
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 2
+      required: 0
+    - kind: 7
+      xOffset: 5.2
+      jitter: 0.4
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 2
+      required: 0
+    requiredWidth: 26
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 1
+    requiresBurrowGround: 0
+    minGroundGap: 1.5
+    dangerGroup: ld_combo
+    groupCooldown: 1
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.15
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 1
+    pitSearchStart: 4
+    pitSearchEnd: 22
+    maxPitWidth: 9.5
+    pitMinBefore: 3
+    pitLandingMargin: 0.8
+    nearEdgeLanding: 1
+  - formationId: ld_crossfire
+    displayName: 'LD: Crossfire (ground + air)'
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 3
+      xOffset: 1.8
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 2.8
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 7
+      xOffset: 4.2
+      jitter: 0.3
+      minIntensity: 2
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 5.4
+      jitter: 0.3
+      minIntensity: 2
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 4
+      xOffset: 6.6
+      jitter: 0.3
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 7.8
+      jitter: 0.3
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 3
+      xOffset: 9.2
+      jitter: 0.3
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 5.2
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 1
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 0.3
+    wideAffinity: 1.8
+    straightAffinity: 1.2
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+    nearEdgeLanding: 0
+  - formationId: ld_press
+    displayName: 'LD: Press (narrow passage)'
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 1.6
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 3.2
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 4.8
+      jitter: 0.2
+      minIntensity: 2
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 6.4
+      jitter: 0.2
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 8
+      jitter: 0.2
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.3
+    dangerGroup: 
+    groupCooldown: 0
+    narrowAffinity: 2.6
+    wideAffinity: 0.4
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+    nearEdgeLanding: 0
+  - formationId: ld_gate_rush
+    displayName: 'LD: Gate Rush (horde + gate)'
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 1.5
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 1
+      xOffset: 3
+      jitter: 0.2
+      minIntensity: 2
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 2
+      xOffset: 4.5
+      jitter: 0.2
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    - kind: 3
+      xOffset: 9.5
+      jitter: 0.3
+      minIntensity: 2
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+      required: 0
+    requiredWidth: 0
+    requiredHeight: 4.4
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 1
+    requiresBurrowGround: 0
+    minGroundGap: 1.3
+    dangerGroup: ld_combo
+    groupCooldown: 1
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1.6
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+    nearEdgeLanding: 0
   bands:
   - bandName: 0-10000 corridor guards
     startDistance: 0
@@ -1520,10 +1863,18 @@ MonoBehaviour:
       weight: 0.8
     - formationId: ground_air
       weight: 0.8
-    restWeight: 1.1
-    easyWeight: 1.2
-    mediumWeight: 1.1
-    hardWeight: 0.4
+    - formationId: ld_pit_ambush
+      weight: 0.9
+    - formationId: ld_crossfire
+      weight: 0.8
+    - formationId: ld_press
+      weight: 0.9
+    - formationId: ld_gate_rush
+      weight: 0.8
+    restWeight: 1
+    easyWeight: 1.1
+    mediumWeight: 1.2
+    hardWeight: 0.6
     easyTiers:
       t0: 0.6
       t1: 0.8
@@ -1652,10 +2003,18 @@ MonoBehaviour:
       weight: 0.8
     - formationId: gauntlet
       weight: 0.9
-    restWeight: 1
-    easyWeight: 1
-    mediumWeight: 1.2
-    hardWeight: 0.55
+    - formationId: ld_pit_ambush
+      weight: 1.1
+    - formationId: ld_crossfire
+      weight: 1
+    - formationId: ld_press
+      weight: 1
+    - formationId: ld_gate_rush
+      weight: 1
+    restWeight: 0.95
+    easyWeight: 0.95
+    mediumWeight: 1.25
+    hardWeight: 0.75
     easyTiers:
       t0: 0.5
       t1: 0.8
@@ -1794,10 +2153,18 @@ MonoBehaviour:
       weight: 0.9
     - formationId: sky_gauntlet
       weight: 0.9
-    restWeight: 1
-    easyWeight: 0.9
-    mediumWeight: 1.2
-    hardWeight: 0.65
+    - formationId: ld_pit_ambush
+      weight: 1.2
+    - formationId: ld_crossfire
+      weight: 1.2
+    - formationId: ld_press
+      weight: 0.9
+    - formationId: ld_gate_rush
+      weight: 1
+    restWeight: 0.95
+    easyWeight: 0.85
+    mediumWeight: 1.25
+    hardWeight: 0.85
     easyTiers:
       t0: 0.4
       t1: 0.8
@@ -1916,10 +2283,16 @@ MonoBehaviour:
       weight: 1
     - formationId: gap_guard
       weight: 0.8
-    restWeight: 1
-    easyWeight: 0.9
-    mediumWeight: 1.2
-    hardWeight: 0.7
+    - formationId: ld_pit_ambush
+      weight: 1.3
+    - formationId: ld_crossfire
+      weight: 1.3
+    - formationId: ld_gate_rush
+      weight: 0.9
+    restWeight: 0.9
+    easyWeight: 0.8
+    mediumWeight: 1.25
+    hardWeight: 0.95
     easyTiers:
       t0: 0.3
       t1: 0.7
@@ -2056,10 +2429,18 @@ MonoBehaviour:
       weight: 1
     - formationId: gauntlet
       weight: 1
-    restWeight: 0.9
-    easyWeight: 0.8
-    mediumWeight: 1.2
-    hardWeight: 0.8
+    - formationId: ld_pit_ambush
+      weight: 1.3
+    - formationId: ld_crossfire
+      weight: 1.3
+    - formationId: ld_press
+      weight: 1
+    - formationId: ld_gate_rush
+      weight: 1.1
+    restWeight: 0.85
+    easyWeight: 0.75
+    mediumWeight: 1.25
+    hardWeight: 1.05
     easyTiers:
       t0: 0.3
       t1: 0.6
@@ -2084,17 +2465,18 @@ MonoBehaviour:
   noEncounterBeforeDistance: 60
   spawnAheadDistance: 46
   offscreenMargin: 8
-  gapAfterEasy: {x: 11, y: 17}
-  gapAfterMedium: {x: 13, y: 20}
-  gapAfterHard: {x: 18, y: 26}
-  restLength: {x: 30, y: 48}
+  gapAfterEasy: {x: 8, y: 13}
+  gapAfterMedium: {x: 10, y: 15}
+  gapAfterHard: {x: 13, y: 19}
+  restLength: {x: 26, y: 40}
   gapSpeedScale: 1
+  maxSpacingSpeed: 2.8
   afterRestRestMultiplier: 0.15
   afterHardHardMultiplier: 0.1
   afterHardRestMultiplier: 2.5
   afterEasyMediumMultiplier: 1.4
   afterMediumHardMultiplier: 1.3
-  maxEncountersWithoutRest: 4
+  maxEncountersWithoutRest: 5
   historySize: 3
   repeatPenaltyLast: 0.05
   repeatPenaltyOlder: 0.35

@@ -11,7 +11,7 @@ using UnityEngine;
 public class FallingDebris : MonoBehaviour
 {
     public enum Kind { Fall, Gate }
-    public static int Started, Landed, Skipped;
+    public static int Started, Landed, Skipped, Lowered;
     bool checkedOnce;
     // 診断: 着地した瞬間、プレイヤーが届くまでに残っていた秒数の最小値(理不尽な当たり方をしていないかの確認)
     public static float MinLeadSeconds = float.PositiveInfinity;
@@ -77,9 +77,18 @@ public class FallingDebris : MonoBehaviour
             float travel = kind == Kind.Gate ? startLift / gateSpeed : Mathf.Sqrt(2f * startLift / gravity);
             if (dx <= speed * (travel + leadTime) + 2f)
             {
-                // 置かれた時点で既に近すぎる(超高速で先読み範囲がぎりぎり等): 落とさず普通の障害物として置く
-                // (見えてから反応できる時間を削らない)
-                if (!checkedOnce && dx < speed * (travel * 0.5f + leadTime)) { Skipped++; Finish(false); return; }
+                // 置かれた時点で既に近すぎる(高速で先読み範囲がぎりぎり等)。2026-09-30: 以前は落とさず普通の障害物に
+                // していたが、100km/h前後ではほぼ全部がこれになり落下物が見られなかった。見えてから反応できる時間
+                // (leadTime)は削らずに、残りの時間で落ち切る低い位置から落とす。それでも低すぎる時だけ普通の障害物。
+                if (!checkedOnce && dx < speed * (travel + leadTime) + 2f)
+                {
+                    float avail = (dx - 2f) / speed - leadTime; // 落ちるのに使える秒数
+                    float lower = kind == Kind.Gate ? gateSpeed * avail : 0.5f * gravity * avail * avail;
+                    if (avail < 0.2f || lower < 1.4f) { Skipped++; Finish(false); return; }
+                    startLift = lift = Mathf.Min(startLift, lower);
+                    oc.visualLift = lift;
+                    Lowered++;
+                }
                 falling = true; Started++;
             }
             checkedOnce = true;

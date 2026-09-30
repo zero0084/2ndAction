@@ -283,6 +283,8 @@ public class TerrainManager : MonoBehaviour
     PlatformSpriteSet defPlatformArt;
     float defSurfaceInset, defFillTopOffset;
     Sprite defGroundSprite, defBackgroundSprite, defGroundFillSprite, defBranchMarker;
+    // テーマ表を持たないステージ(天空回廊)の背景 = シーンの既定の背景(ラストダンジョンのエンドロールで使う)
+    public Sprite DefaultBackgroundSprite { get { if (!themeDefaultsCaptured) CaptureThemeDefaults(); return defBackgroundSprite; } }
     Color defGroundColor, defBackgroundColor, defFillTint;
     Sprite[] defDecorations;
     bool defRouteBranch;
@@ -321,13 +323,20 @@ public class TerrainManager : MonoBehaviour
     //  skyAllowedAt(論理X) … 空中足場(浮遊する回廊の欠片)を置いてよいか(null=常に可)。乱数は消費しない。
     [System.NonSerialized] public System.Func<float, float> pitWidthAt;
     [System.NonSerialized] public System.Func<float, bool> skyAllowedAt;
+    // ラストダンジョン(2026-09-30)。いずれも論理X基準(マルチでも全端末で同じ地形になる)。
+    //  pitChanceAt(論理X, 既定の確率) … 穴の確率(難易度の波: 激しい区間は高く、落ち着く区間は低く。0=穴なし)
+    //  flatLengthAt(論理X) … 穴の直後の平地の長さ(0以下=既定)。短い=連続ジャンプの狭い足場
+    //  forceFlatAt(論理X) … trueなら坂も穴も作らない(静寂区間/エンドロール)
+    [System.NonSerialized] public System.Func<float, float, float> pitChanceAt;
+    [System.NonSerialized] public System.Func<float, float> flatLengthAt;
+    [System.NonSerialized] public System.Func<float, bool> forceFlatAt;
     public static event System.Action<TerrainManager, string> ThemeApplied;
     public bool HasCaveDarkness => cave != null && cave.DarknessActive;
 
     public void ApplyStageTheme(string stageId)
     {
         if (!themeDefaultsCaptured) CaptureThemeDefaults();
-        pitWidthAt = null; skyAllowedAt = null;
+        pitWidthAt = null; skyAllowedAt = null; pitChanceAt = null; flatLengthAt = null; forceFlatAt = null;
         if (cave != null) { cave.SetActive(false); cave.sectionPicker = null; cave.ApplyStyle(null); }
         activeStageId = stageId ?? "";
         TerrainThemeSet? match = null;
@@ -1052,7 +1061,11 @@ public class TerrainManager : MonoBehaviour
     // Elevated platform floating above the ground at x, if any - checked
     // alongside GetHeightAt (never instead of it) so the player can land on
     // whichever surface is actually beneath them.
-    public float? GetSkyHeightAt(float x)
+    public float? GetSkyHeightAt(float x) => GetSkyHeightAt(x, float.NaN);
+
+    // feetY: 問い合わせた者の足元の高さ(NaN=指定なし)。エンドロールの文字など、地形以外の乗れる面
+    // (WorldPlatforms)も上ルートの面と同じ扱いで返す(足元より上の面は返さない=頭上の文字に吸い上げられない)。
+    public float? GetSkyHeightAt(float x, float feetY)
     {
         for (int i = 0; i < skyChunks.Count; i++)
         {
@@ -1064,7 +1077,7 @@ public class TerrainManager : MonoBehaviour
                 return Mathf.Lerp(c.startY, c.endY, t);
             }
         }
-        return null;
+        return WorldPlatforms.Any ? WorldPlatforms.TopAt(x, feetY) : null;
     }
 
     // ルート構造再調整(2026-09-13) - xが現在生成済みのいずれかの分岐区間
@@ -1438,6 +1451,12 @@ public class TerrainManager : MonoBehaviour
             ChunkType.Pit => pitWidthAt != null ? pitWidthAt(FloatingOrigin.ToLogical(nextStartX)) : pitWidth,
             _ => flatLength
         };
+        // ラストダンジョン: 穴の直後の平地の長さ(連続ジャンプの狭い足場)
+        if (type == ChunkType.Flat && lastType == ChunkType.Pit && flatLengthAt != null)
+        {
+            float fl = flatLengthAt(FloatingOrigin.ToLogical(nextStartX));
+            if (fl > 0.5f) length = fl;
+        }
         AddChunk(type, length);
     }
 
@@ -1457,6 +1476,7 @@ public class TerrainManager : MonoBehaviour
 
     ChunkType PickNextType()
     {
+        if (forceFlatAt != null && forceFlatAt(FloatingOrigin.ToLogical(nextStartX))) return ChunkType.Flat;
         if (forcedFlatChunksRemaining > 0)
         {
             forcedFlatChunksRemaining--;
@@ -1918,6 +1938,7 @@ public class TerrainManager : MonoBehaviour
         // 分岐区間の内側なら、下ルート(Danger)の危険度を上げる。上限は
         // 既存のpitChanceMaxのまま(理不尽な値までは上げない)。
         if (IsInBranchRoute(nextStartX)) chance = Mathf.Min(chance * branchDangerPitMultiplier, pitChanceMax);
+        if (pitChanceAt != null) chance = Mathf.Clamp01(pitChanceAt(FloatingOrigin.ToLogical(nextStartX), chance));
         return chance;
     }
 

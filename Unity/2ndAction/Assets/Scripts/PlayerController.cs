@@ -113,7 +113,33 @@ public partial class PlayerController : MonoBehaviour
     public float NaturalCapDistance => speedRampMode == SpeedRampMode.Compound
         ? speedUpStartDistance + 100f * Mathf.Log(NaturalCapMultiplier) / Mathf.Log(1f + Mathf.Max(0.0001f, speedUpPer100m))
         : speedUpStartDistance + 100f * (NaturalCapMultiplier - 1f) / Mathf.Max(0.0001f, speedUpPer100m);
-    float CapSpeed(float v) => Mathf.Min(v, absoluteMaxKmh / GameManager.KmhPerMps);
+    float CapSpeed(float v) => Mathf.Min(Mathf.Min(v, absoluteMaxKmh / GameManager.KmhPerMps), ScriptedSpeedCapMps);
+
+    // ラストダンジョンのエンディング(2026-09-30): 演出が決める走る速さの上限(m/s)。エンドロールでは余韻が感じられる
+    // 速さまで落とし、NOを選んだ時は少し走ってから0へ下げる。通常のランでは常に無限大(=何も変わらない)。
+    public static float ScriptedSpeedCapMps = float.PositiveInfinity;
+    // 自動前進を止めて立っている間(ONE MORE MILE?の選択エリア)。見た目を走りではなく構え(開始の準備ポーズ)にする。
+    public bool IsStandingIdle { get; set; }
+    // 自分の意思で止まった(NOを選んだ)時の最後のポーズ: 正常終了と同じ距離Tierの終了ポーズを、Resultへは進まずに見せる。
+    public void PlayVoluntaryStopPose(float duration)
+    {
+        StartCoroutine(VoluntaryStopPose(duration));
+    }
+    IEnumerator VoluntaryStopPose(float duration)
+    {
+        IsStandingIdle = false;
+        IsFinishing = true;
+        FinishTierIndex = ResolveFinishTier(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f);
+        FinishProgress = 0f;
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            FinishProgress = Mathf.Clamp01(t / Mathf.Max(0.01f, duration));
+            yield return null;
+        }
+        FinishProgress = 1f;
+    }
 
     // エリアルコンボ改修(2026-09-11), item 4 - 「空中で攻撃が敵にヒットし
     // た瞬間、プレイヤーの落下速度を少しだけ弱める」。EnemyController.
@@ -621,7 +647,9 @@ public partial class PlayerController : MonoBehaviour
     public static float RunFrameSpeed => Instance != null ? Instance.CurrentAutoRunSpeed : 0f;
     // 高速走行の視認性補正(2026-09-22) - 基礎速度に対する現在のAuto Run速度の倍率(1.0〜maxSpeedMultiplier)。
     // 表示/カメラ補正/配置間隔が参照するだけで、実際の移動速度計算には一切影響しない。
-    public float SpeedRatio => autoRunEnabled ? EffectiveSpeedMultiplier() : 1f;
+    // ラストダンジョンのエンディング(2026-09-30): 演出で速さを抑えている間(エンドロール/選択エリア)は、
+    // カメラの引き/速度の演出もその速さに合わせる(100km/h用に引いたままだと巨大文字が小さく見える)。
+    public float SpeedRatio => autoRunEnabled ? Mathf.Min(EffectiveSpeedMultiplier(), ScriptedSpeedCapMps / Mathf.Max(0.01f, baseRunSpeed > 0.01f ? baseRunSpeed : 5f)) : 1f;
     public float MaxSpeedRatio => NaturalCapMultiplier; // 見た目(カメラのズーム/速度の演出)が最大になる倍率 = 自然加速の上限
     // 走行開始位置からの論理距離(Floating Originで座標を戻しても連続)。
     public float DistanceFromStart => (float)(transform.position.x - startX);
@@ -824,6 +852,7 @@ public partial class PlayerController : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        ScriptedSpeedCapMps = float.PositiveInfinity; // シーンの読み直し(Retry/ホームへ戻る)で必ず解除
         baseRunSpeed = runSpeed;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // 確認用(2026-09-30): 起動引数 -legacySpeedRamp で旧仕様(直線+5%/100m、上限36km/h)に戻して前後を比べる。
@@ -1125,6 +1154,8 @@ public partial class PlayerController : MonoBehaviour
         float effectiveKnockback = knockbackVelocityX * knockbackFrac;
         float newX = transform.position.x + (autoSpeed + lungeVelocityX + effectiveKnockback) * dt;
         float prevX = transform.position.x;
+        // ラストダンジョンのエンディング: 通り抜けられない物(THANK YOU FOR PLAYINGの石板、YES/NOの石)の手前で止まる
+        if (WorldPlatforms.Any) newX = WorldPlatforms.ClampMove(prevX, newX, transform.position.y - groundOffset, transform.position.y - groundOffset + 1.5f, 0.35f);
         UpdateScreenStep(dt);
 
         // Two independent, parallel surfaces the player can stand on - the
@@ -1133,9 +1164,9 @@ public partial class PlayerController : MonoBehaviour
         // player depends on which they last landed on (onSky).
         float? groundHeight = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(newX) : null;
         float? prevGroundHeight = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(prevX) : null;
-        float? skyHeight = TerrainManager.Instance != null ? TerrainManager.Instance.GetSkyHeightAt(newX) : null;
-        float? prevSkyHeight = TerrainManager.Instance != null ? TerrainManager.Instance.GetSkyHeightAt(prevX) : null;
         float prevY = transform.position.y;
+        float? skyHeight = TerrainManager.Instance != null ? TerrainManager.Instance.GetSkyHeightAt(newX, prevY - groundOffset) : null;
+        float? prevSkyHeight = TerrainManager.Instance != null ? TerrainManager.Instance.GetSkyHeightAt(prevX, prevY - groundOffset) : null;
 
         // 魔法使い(2026-09-27) - ジャンプ/重力/着地の代わりに浮遊(高度段階)。天井の上限・天井の針・
         // 位置の確定は下の共通処理(FinishMove)をそのまま通す。

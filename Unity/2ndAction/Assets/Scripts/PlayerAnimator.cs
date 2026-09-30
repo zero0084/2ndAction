@@ -679,6 +679,8 @@ public class PlayerAnimator : MonoBehaviour
         else if (!grounded && doubleJumpTimer > 0f) newState = State.DoubleJump;
         else if (!grounded && jumpStartTimer > 0f) newState = State.JumpStart;
         else if (!grounded) newState = State.Jump;
+        // ラストダンジョンのエンディング(2026-09-30): 自動前進を止めて立っている間は、走りではなく構えのポーズ
+        else if (controller != null && controller.IsStandingIdle) newState = State.StartPrep;
         else newState = State.Run;
 
         if (newState != state)

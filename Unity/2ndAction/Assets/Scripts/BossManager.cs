@@ -269,6 +269,119 @@ public class BossManager : MonoBehaviour
     //   10,000m単位: 3ステージの大型ボスから選んだ9体(下の表)。100,000mは死神(正式なラスボス/エンディングは無し)
     // 体数は各ステージの計算式(距離が進むほど増える)をそのまま使う。
     public const string LastStageId = "last_corridor";
+
+    // ===== ラストダンジョン(2026-09-30): ボスラッシュ(90,000〜99,000m)と100,000mの三姉妹戦 =====
+    // RushEnabled(LastDungeonFlowがシングルプレイのラストダンジョンだけtrueにする)の間、k=90〜98の関門は
+    // 下の表のボスラッシュになり、k=99以降の通常の関門は作らない(99,000〜100,000mは静寂区間)。
+    // 1つの関門に複数の家族(荒野/洞窟/天空)のボスを混ぜ、「同時」「時間差で追加」「前のボスの撃破直後に次が登場」を使う。
+    // 各関門の撃破後は通常どおりのボス報酬(カード選択)→少し走って次の関門。
+    public static bool RushEnabled;
+    public static bool SuppressGates;
+    public static System.Action FinaleAt100k;
+    public const int RushFirstK = 90, RushLastK = 98;
+    public enum RushEntry { Now, Delayed, Chain }
+    public struct RushBoss
+    {
+        public int family; public int kind; public RushEntry entry; public float delay;
+        public RushBoss(int f, int k, RushEntry e = RushEntry.Now, float d = 0f) { family = f; kind = k; entry = e; delay = d; }
+    }
+    static RushBoss W(WildBossKind k, RushEntry e = RushEntry.Now, float d = 0f) => new RushBoss(0, (int)k, e, d);
+    static RushBoss C(CaveBossKind k, RushEntry e = RushEntry.Now, float d = 0f) => new RushBoss(1, (int)k, e, d);
+    static RushBoss S(SkyBossKind k, RushEntry e = RushEntry.Now, float d = 0f) => new RushBoss(2, (int)k, e, d);
+    // 90k〜98k。前半は1体ずつ(各ステージの代表)、後半ほど複数/時間差/連続。画面が破綻しないよう同時に出るのは最大2体。
+    public static readonly RushBoss[][] RushTable =
+    {
+        new[] { W(WildBossKind.Serpent), C(CaveBossKind.Mole, RushEntry.Chain) },                                  // 90k 荒野→洞窟の連続
+        new[] { S(SkyBossKind.Behemoth) },                                                                           // 91k 天空
+        new[] { W(WildBossKind.Cyclops), C(CaveBossKind.Troll, RushEntry.Delayed, 7f) },                             // 92k 巨人2体(時間差)
+        new[] { C(CaveBossKind.CrystalGolem), S(SkyBossKind.SkyGolem, RushEntry.Chain) },                           // 93k ゴーレムの連続
+        new[] { S(SkyBossKind.Fenrir), W(WildBossKind.Griffin) },                                                    // 94k 2体同時
+        new[] { W(WildBossKind.Hydra), C(CaveBossKind.Drake, RushEntry.Chain) },                                     // 95k
+        new[] { S(SkyBossKind.SkySerpent), W(WildBossKind.Demon, RushEntry.Delayed, 6f) },                           // 96k 時間差
+        new[] { C(CaveBossKind.AncientDemon), S(SkyBossKind.Guardian) },                                             // 97k 2体同時
+        new[] { W(WildBossKind.BlackKnight), S(SkyBossKind.Phoenix, RushEntry.Chain), C(CaveBossKind.Basilisk, RushEntry.Chain) }, // 98k 最後の3連戦
+    };
+    public int RushGateK { get; private set; }         // 今のボスラッシュの関門(0=ボスラッシュではない)
+    public int RushSpawnedThisGate { get; private set; }
+    public int RushMaxSimultaneous { get; private set; }
+    readonly System.Collections.Generic.Queue<RushBoss> rushChain = new System.Collections.Generic.Queue<RushBoss>();
+    int rushPending;       // これから出る(時間差/連続)ボスの数(aliveWildに含めて、途中で戦闘が終わらないようにする)
+    int rushSlot;
+    public static string RushGateLabel(int k)
+    {
+        if (k < RushFirstK || k > RushLastK) return "";
+        var sb = new System.Text.StringBuilder();
+        foreach (var b in RushTable[k - RushFirstK])
+        {
+            if (sb.Length > 0) sb.Append(b.entry == RushEntry.Now ? " + " : b.entry == RushEntry.Delayed ? $" +({b.delay:F0}s) " : " -> ");
+            sb.Append(b.family == 0 ? ((WildBossKind)b.kind).ToString() : b.family == 1 ? ((CaveBossKind)b.kind).ToString() : ((SkyBossKind)b.kind).ToString());
+        }
+        return sb.ToString();
+    }
+
+    void StartRushGate(int k)
+    {
+        var list = RushTable[k - RushFirstK];
+        RushGateK = k;
+        RushSpawnedThisGate = 0;
+        RushMaxSimultaneous = 0;
+        rushChain.Clear();
+        rushPending = 0;
+        rushSlot = 0;
+        aliveWildThisEncounter = list.Length; // 全員(後から出る分も含む)を倒すまで関門は終わらない
+        // ボス曲は全関門「特殊」(10,000m級)の系統
+        BossMusicTier = BossBgmTier.Special;
+        string stage = GameManager.Instance != null ? GameManager.Instance.ActiveRunStageId : "";
+        BossMusicKey = $"{stage}/Rush{k}";
+        BossDefeatedThisPhase = false;
+        foreach (var b in list)
+        {
+            if (b.entry == RushEntry.Now) SpawnRushBoss(b);
+            else if (b.entry == RushEntry.Delayed) { rushPending++; StartCoroutine(RushDelayed(b, k)); }
+            else { rushPending++; rushChain.Enqueue(b); }
+        }
+        if (GameManager.Instance != null) GameManager.Instance.LogBoss("CombatStart");
+        Debug.Log($"[Boss][Rush] gate {k * 1000}m: {RushGateLabel(k)}");
+    }
+
+    System.Collections.IEnumerator RushDelayed(RushBoss b, int k)
+    {
+        float t = 0f;
+        while (t < b.delay) { if (RushGateK != k || !IsBossPhase) yield break; t += Time.deltaTime; yield return null; }
+        if (RushGateK != k || !IsBossPhase) yield break;
+        rushPending--;
+        SpawnRushBoss(b);
+    }
+
+    void SpawnRushBoss(RushBoss b)
+    {
+        int slot = rushSlot++ % 2; // 同時に並ぶのは最大2体分の間合い
+        if (b.family == 1) SpawnCaveBoss((CaveBossKind)b.kind, slot);
+        else if (b.family == 2) SpawnSkyBoss((SkyBossKind)b.kind, slot);
+        else SpawnWild((WildBossKind)b.kind, slot);
+        RushSpawnedThisGate++;
+        int alive = 0;
+        foreach (var w in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None)) if (w != null && !w.IsDead && w.gameObject.activeInHierarchy) alive++;
+        RushMaxSimultaneous = Mathf.Max(RushMaxSimultaneous, alive);
+        Debug.Log($"[Boss][Rush] spawn {(b.family == 0 ? ((WildBossKind)b.kind).ToString() : b.family == 1 ? ((CaveBossKind)b.kind).ToString() : ((SkyBossKind)b.kind).ToString())} ({b.entry}) alive={alive}");
+    }
+
+    // 台本のボス戦(100,000mの三姉妹): 通常の関門と同じく距離を止め、雑魚/障害物を止め、ボス曲にする。
+    public void BeginScriptedBossPhase(BossBgmTier tier, string musicKey)
+    {
+        IsBossPhase = true;
+        BossMusicTier = tier;
+        BossMusicKey = musicKey;
+        BossDefeatedThisPhase = false;
+        if (GameManager.Instance != null) { GameManager.Instance.ClampMaxDistanceTo(GameManager.Instance.MaxDistance); GameManager.Instance.BeginBossDistanceExclusion(); }
+        if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
+    }
+    public void MarkScriptedBossDefeated() { BossDefeatedThisPhase = true; }
+    public void EndScriptedBossPhase()
+    {
+        EndBossPhase();
+        if (GameManager.Instance != null) GameManager.Instance.EndBossDistanceExclusion();
+    }
     bool IsLastStage => GameManager.Instance != null && GameManager.Instance.ActiveRunStageId == LastStageId;
     enum GateFamily { Wild, Cave, Sky }
     struct LastBoss { public GateFamily family; public int kind; public LastBoss(GateFamily f, int k) { family = f; kind = k; } }
@@ -290,6 +403,11 @@ public class BossManager : MonoBehaviour
     bool ResolveLastGate(int k, out GateFamily family, out int kind, out int count)
     {
         count = 1; kind = 0;
+        if (RushEnabled && k >= RushFirstK)
+        {
+            family = GateFamily.Wild;
+            return k <= RushLastK; // 90〜98k=ボスラッシュ(StartRushGateが出す)、99k以降=関門なし(静寂区間→三姉妹)
+        }
         if (k % 10 == 0)
         {
             int idx = k / 10 - 1;
@@ -436,10 +554,13 @@ public class BossManager : MonoBehaviour
         {
             deathSpawned = true;
             if (GameManager.Instance.DebugMode) Debug.Log($"[Distance] {Mathf.RoundToInt(deathSpawnDistance)} reached");
-            SpawnDeath();
+            // ラストダンジョン(2026-09-30): 追跡の死神ではなく、三姉妹との正式な戦闘(LastDungeonFlow)
+            if (FinaleAt100k != null) FinaleAt100k();
+            else SpawnDeath();
         }
 
         if (IsBossPhase) return;
+        if (SuppressGates) return; // ラストダンジョンの静寂区間〜エンディング: 通常のボスの関門を作らない
         // BONUS ZONE(2026-09-29): 区画の最中はボスを始めない(BonusZoneが次のボスの手前で自分から終わる)
         if (BonusZone.Instance != null && BonusZone.Instance.BlocksBoss) return;
         if (player == null || dragonIdleFrames == null || dragonIdleFrames.Length == 0) return;
@@ -883,6 +1004,7 @@ public class BossManager : MonoBehaviour
 
         if (IsLastStage)
         {
+            if (RushEnabled && gateK >= RushFirstK && gateK <= RushLastK) { StartRushGate(gateK); return; }
             if (!ResolveLastGate(gateK, out GateFamily fam, out int lastKind, out int lastCount)) { IsBossPhase = false; return; }
             if (fam == GateFamily.Sky) StartSkyGate((SkyBossKind)lastKind, lastCount);
             else if (fam == GateFamily.Cave) StartCaveGate((CaveBossKind)lastKind, lastCount);
@@ -1403,6 +1525,14 @@ public class BossManager : MonoBehaviour
     {
         BossesDefeated++;
         aliveWildThisEncounter--;
+        // ボスラッシュ: 「前のボスの撃破直後に次が登場」。今いるボスが全員倒れたら、連続の次のボスを出す。
+        if (RushGateK > 0 && rushChain.Count > 0 && aliveWildThisEncounter - rushPending <= 0)
+        {
+            rushPending--;
+            SpawnRushBoss(rushChain.Dequeue());
+            return;
+        }
+        if (RushGateK > 0 && aliveWildThisEncounter <= 0) RushGateK = 0;
         CheckEncounterComplete();
     }
 

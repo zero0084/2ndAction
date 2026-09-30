@@ -581,11 +581,12 @@ public static class EncounterProfileBuilder
         p.replacesChunkSpawns = true;
         p.replacesMilestoneWalls = true;
         p.spawnAheadDistance = 46f;
-        p.gapAfterEasy = new Vector2(11f, 17f);
-        p.gapAfterMedium = new Vector2(13f, 20f);
-        p.gapAfterHard = new Vector2(18f, 26f);
-        p.restLength = new Vector2(30f, 48f);
-        p.maxEncountersWithoutRest = 4;
+        // ラストダンジョン化(2026-09-30): 間隔を詰める(さらに難易度の波でLastCorridorDirectorが0.55〜1.7倍に伸縮)
+        p.gapAfterEasy = new Vector2(8f, 13f);
+        p.gapAfterMedium = new Vector2(10f, 15f);
+        p.gapAfterHard = new Vector2(13f, 19f);
+        p.restLength = new Vector2(26f, 40f);
+        p.maxEncountersWithoutRest = 5;
         p.airLowHeight = new Vector2(1.7f, 2.3f);
         p.airMiddleHeight = new Vector2(2.6f, 3.2f);
         p.airHighHeight = new Vector2(3.5f, 4.2f);
@@ -601,6 +602,44 @@ public static class EncounterProfileBuilder
             }
             Object.DestroyImmediate(src);
         }
+
+        // ---- ラストダンジョン化(2026-09-30): 今まで単独で経験してきた要素の複合 ----
+        // Pit Ambush: 穴の手前の敵 → 穴の真ん中の上空に飛ぶ敵 → 着地点の地上の敵 → (その後ろに壊せる扉: LastCorridorDirectorが置く)
+        p.stageFormations.Add(new EncounterFormation
+        {
+            formationId = "ld_pit_ambush", displayName = "LD: Pit Ambush (pit + air + landing + gate)", stageSpecific = true, minIntensity = M,
+            slots = { new EncounterSlot { kind = AL, xOffset = 0f, jitter = 0.4f, pitAnchor = EncounterPitAnchor.OverPit, required = true },
+                      new EncounterSlot { kind = GF, xOffset = 1.5f, jitter = 0.4f, pitAnchor = EncounterPitAnchor.AfterPit, required = true },
+                      new EncounterSlot { kind = GM, xOffset = 3.4f, jitter = 0.3f, pitAnchor = EncounterPitAnchor.AfterPit },
+                      new EncounterSlot { kind = AM, xOffset = 5.2f, jitter = 0.4f, pitAnchor = EncounterPitAnchor.AfterPit, minIntensity = H } },
+            requiresPit = true, pitSearchStart = 4f, pitSearchEnd = 22f, maxPitWidth = 9.5f, pitMinBefore = 3f, pitLandingMargin = 0.8f, nearEdgeLanding = true, requiredWidth = 26f,
+            requiresAir = true, requiredHeight = 0f, requiresGround = true, minGroundGap = 1.5f, spacingSpeedScale = 0.15f,
+            dangerGroup = "ld_combo", groupCooldown = 1,
+        });
+        // Crossfire: 地上と空中(低/中/高)の同時出現を密に(上攻撃/ジャンプ攻撃/前攻撃を連続で要求する)
+        p.stageFormations.Add(Air(new EncounterFormation
+        {
+            formationId = "ld_crossfire", displayName = "LD: Crossfire (ground + air)", stageSpecific = true,
+            slots = { S(GF, 0f), S(AL, 1.8f, E, 0.3f), S(GM, 2.8f), S(AM, 4.2f, M, 0.3f), S(GM, 5.4f, M), S(AH, 6.6f, H, 0.3f), S(GR, 7.8f, H), S(AL, 9.2f, H, 0.3f) },
+            requiredHeight = 5.2f, requiresGround = true, continuousGround = true, minGroundGap = 1.2f,
+            narrowAffinity = 0.3f, wideAffinity = 1.8f, straightAffinity = 1.2f,
+        }));
+        // Press: 低い天井/杭の下の狭い通路に地上の敵を詰める(上下から圧迫される中での戦闘)
+        p.stageFormations.Add(new EncounterFormation
+        {
+            formationId = "ld_press", displayName = "LD: Press (narrow passage)", stageSpecific = true,
+            slots = { S(GF, 0f, E, 0.2f), S(GM, 1.6f, E, 0.2f), S(GM, 3.2f, E, 0.2f), S(GM, 4.8f, M, 0.2f), S(GR, 6.4f, H, 0.2f), S(GR, 8.0f, H, 0.2f) },
+            requiredHeight = 0f, requiresGround = true, continuousGround = true, minGroundGap = 1.3f,
+            narrowAffinity = 2.6f, wideAffinity = 0.4f, straightAffinity = 1f,
+        });
+        // Gate Rush: 地上の敵の群れ → 直後に壊せる扉(LastCorridorDirectorが置く) → 飛ぶ敵
+        p.stageFormations.Add(Air(new EncounterFormation
+        {
+            formationId = "ld_gate_rush", displayName = "LD: Gate Rush (horde + gate)", stageSpecific = true, minIntensity = M,
+            slots = { S(GF, 0f, E, 0.2f), S(GM, 1.5f, E, 0.2f), S(GM, 3.0f, M, 0.2f), S(GR, 4.5f, H, 0.2f), S(AL, 9.5f, M, 0.3f) },
+            requiredHeight = 4.4f, requiresGround = true, continuousGround = true, minGroundGap = 1.3f,
+            straightAffinity = 1.6f, dangerGroup = "ld_combo", groupCooldown = 1,
+        }));
 
         EncounterEnemyEntry goblin(float w) => Enemy("goblin", w, EnemyAiTier.T1, EnemyAiTier.T2, true, GF, GM, GR);
         EncounterEnemyEntry elite(float w) => Enemy("goblin_elite", w, EnemyAiTier.T1, EnemyAiTier.T2, true, GF, GM, GR, IS);
@@ -629,8 +668,9 @@ public static class EncounterProfileBuilder
             bandName = "0-10000 corridor guards", startDistance = 0f, endDistance = 10000f,
             enemies = { goblin(0.6f), elite(0.9f), shooter(0.6f), heavy(0.5f), soldier(0.9f), hopper(0.6f), bat(0.6f), hound(0.8f), harpy(0.6f), garg(0.7f), knight(0.6f) },
             formations = { F("ground_line", 0.8f), F("staggered", 0.9f), F("goblin_horde", 0.7f), F("frontline_rear", 1f), F("heavy_horde", 0.8f), F("gap_guard", 0.9f),
-                           F("guard_hopper", 0.9f), F("sky_pack", 0.8f), F("sky_ground_air", 0.9f), F("gargoyle_gate", 1f), F("knight_patrol", 0.8f), F("ground_air", 0.8f) },
-            restWeight = 1.1f, easyWeight = 1.2f, mediumWeight = 1.1f, hardWeight = 0.4f,
+                           F("guard_hopper", 0.9f), F("sky_pack", 0.8f), F("sky_ground_air", 0.9f), F("gargoyle_gate", 1f), F("knight_patrol", 0.8f), F("ground_air", 0.8f),
+                           F("ld_pit_ambush", 0.9f), F("ld_crossfire", 0.8f), F("ld_press", 0.9f), F("ld_gate_rush", 0.8f) },
+            restWeight = 1f, easyWeight = 1.1f, mediumWeight = 1.2f, hardWeight = 0.6f,
             easyTiers = T(0.6f, 0.8f, 0.3f), mediumTiers = T(0.3f, 0.7f, 0.6f, 0.2f), hardTiers = T(0.2f, 0.5f, 0.8f, 0.5f),
         });
         // 10〜25km: +守護兵/ワーム/追いかける敵
@@ -639,8 +679,9 @@ public static class EncounterProfileBuilder
             bandName = "10000-25000 +sentinel/worm", startDistance = 10000f, endDistance = 25000f,
             enemies = { elite(0.8f), shooter(0.6f), heavy(0.6f), chaser(0.5f), soldier(0.8f), hopper(0.6f), bat(0.7f), worm(0.6f), hound(0.8f), harpy(0.8f), garg(0.8f), knight(0.9f), sentinel(0.7f) },
             formations = { F("staggered", 0.8f), F("frontline_rear", 1f), F("heavy_horde", 0.9f), F("gap_guard", 1f), F("guard_hopper", 0.8f), F("burrow_ambush", 0.8f),
-                           F("sky_ground_air", 0.9f), F("gargoyle_gate", 0.9f), F("knight_patrol", 1f), F("guardian_wall", 0.9f), F("launch_bridge", 0.8f), F("gauntlet", 0.9f) },
-            restWeight = 1f, easyWeight = 1f, mediumWeight = 1.2f, hardWeight = 0.55f,
+                           F("sky_ground_air", 0.9f), F("gargoyle_gate", 0.9f), F("knight_patrol", 1f), F("guardian_wall", 0.9f), F("launch_bridge", 0.8f), F("gauntlet", 0.9f),
+                           F("ld_pit_ambush", 1.1f), F("ld_crossfire", 1f), F("ld_press", 1f), F("ld_gate_rush", 1f) },
+            restWeight = 0.95f, easyWeight = 0.95f, mediumWeight = 1.25f, hardWeight = 0.75f,
             easyTiers = T(0.5f, 0.8f, 0.5f, 0.2f), mediumTiers = T(0.3f, 0.6f, 0.8f, 0.5f), hardTiers = T(0.15f, 0.4f, 0.8f, 0.9f),
         });
         // 25〜55km 崩壊: 空中が増える(天井が抜けて空が開く)
@@ -650,8 +691,8 @@ public static class EncounterProfileBuilder
             enemies = { elite(0.6f), heavy(0.5f), rusher(0.5f), chaser(0.4f), soldier(0.6f), bat(0.9f), worm(0.5f), wyvern(0.7f), hound(0.8f), harpy(1f), garg(0.9f), knight(1f), sentinel(0.8f), storm_(0.6f) },
             formations = { F("frontline_rear", 0.9f), F("heavy_horde", 0.8f), F("gap_guard", 1.1f), F("burrow_ambush", 0.7f), F("air_swarm", 0.8f), F("aerial_line", 1f),
                            F("sky_ground_air", 1f), F("aerial_stair", 0.8f), F("gargoyle_gate", 0.9f), F("knight_patrol", 1f), F("guardian_wall", 1f), F("storm_zone", 0.8f),
-                           F("aerial_wave", 0.9f), F("sky_gauntlet", 0.9f) },
-            restWeight = 1f, easyWeight = 0.9f, mediumWeight = 1.2f, hardWeight = 0.65f,
+                           F("aerial_wave", 0.9f), F("sky_gauntlet", 0.9f), F("ld_pit_ambush", 1.2f), F("ld_crossfire", 1.2f), F("ld_press", 0.9f), F("ld_gate_rush", 1f) },
+            restWeight = 0.95f, easyWeight = 0.85f, mediumWeight = 1.25f, hardWeight = 0.85f,
             easyTiers = T(0.4f, 0.8f, 0.6f, 0.3f), mediumTiers = T(0.2f, 0.5f, 0.8f, 0.7f), hardTiers = T(0.1f, 0.3f, 0.8f, 1.1f),
         });
         // 55〜85km 奈落: 浮遊する欠片の上の敵と空中の敵
@@ -660,8 +701,9 @@ public static class EncounterProfileBuilder
             bandName = "55000-85000 abyss", startDistance = 55000f, endDistance = 85000f,
             enemies = { elite(0.5f), slime(0.6f), hound(0.7f), garg(1f), knight(1f), sentinel(0.8f), bat(0.8f), wyvern(0.8f), harpy(1.1f), storm_(0.8f), hunter(0.5f) },
             formations = { F("sky_line", 0.7f), F("aerial_line", 1f), F("sky_ground_air", 1f), F("aerial_stair", 1f), F("launch_bridge", 1f), F("gargoyle_gate", 1f),
-                           F("knight_patrol", 0.9f), F("guardian_wall", 0.9f), F("storm_zone", 0.9f), F("hunter_attack", 0.6f), F("aerial_wave", 1f), F("sky_gauntlet", 1f), F("gap_guard", 0.8f) },
-            restWeight = 1f, easyWeight = 0.9f, mediumWeight = 1.2f, hardWeight = 0.7f,
+                           F("knight_patrol", 0.9f), F("guardian_wall", 0.9f), F("storm_zone", 0.9f), F("hunter_attack", 0.6f), F("aerial_wave", 1f), F("sky_gauntlet", 1f), F("gap_guard", 0.8f),
+                           F("ld_pit_ambush", 1.3f), F("ld_crossfire", 1.3f), F("ld_gate_rush", 0.9f) },
+            restWeight = 0.9f, easyWeight = 0.8f, mediumWeight = 1.25f, hardWeight = 0.95f,
             easyTiers = T(0.3f, 0.7f, 0.7f, 0.4f), mediumTiers = T(0.2f, 0.5f, 0.8f, 0.9f), hardTiers = T(0.1f, 0.3f, 0.7f, 1.2f),
         });
         // 85km〜 最後の道: 全ステージの強い敵がそろう(それでもRest/Easyは残す)
@@ -670,8 +712,9 @@ public static class EncounterProfileBuilder
             bandName = "85000+ final road", startDistance = 85000f, endDistance = -1f,
             enemies = { elite(0.6f), heavy(0.5f), rusher(0.5f), soldier(0.6f), bat(0.6f), worm(0.5f), wyvern(0.6f), hound(0.7f), harpy(1f), garg(0.9f), knight(1.2f), sentinel(1f), storm_(0.8f), hunter(0.7f) },
             formations = { F("frontline_rear", 0.9f), F("heavy_horde", 0.8f), F("gap_guard", 1f), F("burrow_ambush", 0.6f), F("guard_hopper", 0.6f), F("sky_ground_air", 1f),
-                           F("aerial_stair", 0.9f), F("knight_patrol", 1.1f), F("guardian_wall", 1f), F("storm_zone", 0.9f), F("hunter_attack", 0.7f), F("sky_gauntlet", 1f), F("gauntlet", 1f) },
-            restWeight = 0.9f, easyWeight = 0.8f, mediumWeight = 1.2f, hardWeight = 0.8f,
+                           F("aerial_stair", 0.9f), F("knight_patrol", 1.1f), F("guardian_wall", 1f), F("storm_zone", 0.9f), F("hunter_attack", 0.7f), F("sky_gauntlet", 1f), F("gauntlet", 1f),
+                           F("ld_pit_ambush", 1.3f), F("ld_crossfire", 1.3f), F("ld_press", 1f), F("ld_gate_rush", 1.1f) },
+            restWeight = 0.85f, easyWeight = 0.75f, mediumWeight = 1.25f, hardWeight = 1.05f,
             easyTiers = T(0.3f, 0.6f, 0.7f, 0.5f), mediumTiers = T(0.15f, 0.4f, 0.8f, 1f), hardTiers = T(0.1f, 0.2f, 0.7f, 1.3f),
         });
         return p;

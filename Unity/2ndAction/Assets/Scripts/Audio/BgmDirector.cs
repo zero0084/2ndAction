@@ -20,6 +20,16 @@ public class BgmDirector : MonoBehaviour
 
     public void Refresh() { nextCheck = 0f; }
 
+    // ラストダンジョンのエンディング(2026-09-30): 演出が曲を直接決める間の上書き(ボス戦/死神/ステージ曲より優先)。
+    //  OverrideActive=true かつ OverrideClip=null … 曲を止めて環境音だけ(静寂区間)
+    //  OverrideAmbience … 環境音の差し替え(null=ステージの環境音のまま)
+    public static bool OverrideActive;
+    public static AudioClip OverrideClip;
+    public static AmbienceSet OverrideAmbience;
+    public static string OverrideReason = "";
+    public static float OverrideFadeSeconds = 3.5f;
+    public static void ClearOverride() { OverrideActive = false; OverrideClip = null; OverrideAmbience = null; OverrideReason = ""; OverrideFadeSeconds = 3.5f; }
+
     void Update()
     {
         if (am == null || Time.unscaledTime < nextCheck) return;
@@ -44,7 +54,7 @@ public class BgmDirector : MonoBehaviour
             if (!jinglePlayed)
             {
                 jinglePlayed = true;
-                var j = lib == null ? null : gm.IsWin ? lib.resultJingle : lib.gameOverJingle;
+                var j = lib == null || gm.QuietFinish ? null : gm.IsWin ? lib.resultJingle : lib.gameOverJingle; // NOで止まった時は静かなまま
                 if (j != null) am.PlayJingle(j); else am.StopBgm(0.8f);
                 Reason = gm.IsWin ? "result" : "gameover";
             }
@@ -52,6 +62,14 @@ public class BgmDirector : MonoBehaviour
             return;
         }
         jinglePlayed = false;
+        if (OverrideActive)
+        {
+            am.SetAmbience(OverrideAmbience ?? (stageAudio != null ? stageAudio.ambience : null));
+            Reason = "override:" + OverrideReason;
+            if (OverrideClip == null) { if (am.CurrentBgm != null) am.StopBgm(OverrideFadeSeconds); }
+            else am.PlayBgm(OverrideClip, OverrideFadeSeconds);
+            return;
+        }
         am.SetAmbience(stageAudio != null ? stageAudio.ambience : null);
 
         var pc = PlayerController.Instance;
