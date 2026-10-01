@@ -122,6 +122,34 @@ public class NetAutoTest : MonoBehaviour
     string enemyTracePath;
     System.IO.StreamWriter enemyTrace;
 
+    // 距離で進む背景(2026-10-01): -netAutoSceneryWarp 4:25000 … 4秒目に自分だけ25,000mへワープ(背景は自分の距離で決まるか)
+    //  -netAutoSpectateAt 9 … 9秒目から3秒、カメラで相手を追う(観戦: 背景が相手の距離になるか)。毎秒 SCN 行を出す。
+    float scnWarpAt = -1f, scnWarpTo, scnSpectateAt = -1f, scnNextLog;
+    bool scnWarped, scnSpectating, scnSpectateDone;
+    Transform scnSavedTarget;
+    void SceneryTest(GameManager gm)
+    {
+        if (gm == null) return;
+        if (scnWarpAt >= 0f && !scnWarped && runTime >= scnWarpAt) { scnWarped = true; gm.DebugWarpToDistance(scnWarpTo); L($"SCN warp to {scnWarpTo}"); }
+        var cf = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (scnSpectateAt >= 0f && cf != null)
+        {
+            if (!scnSpectating && !scnSpectateDone && runTime >= scnSpectateAt)
+            {
+                foreach (var np in NetPlayer.All)
+                    if (np != null && !np.IsOwner && np.Avatar != null) { scnSavedTarget = cf.target; cf.target = np.Avatar.transform; scnSpectating = true; L($"SCN spectate P{np.OwnerClientId} remoteDist={np.RemoteDistance:F0}"); break; }
+            }
+            else if (scnSpectating && runTime >= scnSpectateAt + 3f) { cf.target = scnSavedTarget; scnSpectating = false; scnSpectateDone = true; L("SCN spectate end"); }
+        }
+        if ((scnWarpAt >= 0f || scnSpectateAt >= 0f) && runTime >= scnNextLog)
+        {
+            scnNextLog = runTime + 1f;
+            float remote = -1f;
+            foreach (var np in NetPlayer.All) if (np != null && !np.IsOwner) remote = (float)np.RemoteDistance;
+            L($"SCN t={runTime:F0} role={role} myDist={gm.MaxDistance:F0} remoteDist={remote:F0} view={(scnSpectating ? "REMOTE" : "LOCAL")} bgDist={SceneryCycle.DistanceNow():F0} seg={SceneryCycle.CurrentSegment} name={SceneryCycle.CurrentName} active={SceneryCycle.Active}");
+        }
+    }
+
     public static bool ShouldRun => Array.Exists(Environment.GetCommandLineArgs(), a => a.StartsWith("-netAuto"));
 
     void Awake()
@@ -161,6 +189,8 @@ public class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoQueueAt") float.TryParse(next, out queueAt);
             else if (a == "-netAutoLateChoiceAt") float.TryParse(next, out lateChoiceAt);
             else if (a == "-netAutoEncDist") float.TryParse(next, out encDist);
+            else if (a == "-netAutoSceneryWarp") { var parts = next.Split(':'); if (parts.Length == 2) { float.TryParse(parts[0], out scnWarpAt); float.TryParse(parts[1], out scnWarpTo); } }
+            else if (a == "-netAutoSpectateAt") float.TryParse(next, out scnSpectateAt);
         }
         if (!string.IsNullOrEmpty(tracePath))
         {
@@ -302,6 +332,7 @@ public class NetAutoTest : MonoBehaviour
                     break;
                 }
                 PeriodicLog(gm);
+                SceneryTest(gm);
                 ChoiceTest(gm);
                 ChoiceMonitor(gm);
                 RemoteChoiceMonitor();

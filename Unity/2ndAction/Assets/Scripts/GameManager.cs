@@ -4361,6 +4361,9 @@ public partial class GameManager : MonoBehaviour
             }
         }
         y += bh + gap;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        y = DrawSceneryDebugRow(x0, y, bw, bh, gap);
+#endif
 
         // Reward/Card Ownership/Gacha/Fusion System Ver.1, item 16 - Dev
         // Build-only debug tools for repeatedly testing MILE/Gacha/Fusion/
@@ -4418,6 +4421,50 @@ public partial class GameManager : MonoBehaviour
         }
         Debug.Log(sb.ToString());
     }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 距離で進む背景(SceneryCycle)の確認用(2026-10-01)。プレビューは背景だけを切り替える(ゲームの距離は変えない)。
+    //  背景◀/▶ … 景色×時間帯を1区間ずつ / 移行 … 次の区間への移り変わりの途中(25→50→75%) / 通常 … プレビュー解除
+    //  境目へ … 次の移り変わりが始まる300m手前へ実際に距離ワープ
+    int sceneryPreviewSeg = -1;
+    float sceneryPreviewBlend;
+    float DrawSceneryDebugRow(float x0, float y, float bw, float bh, float gap)
+    {
+        if (!SceneryCycle.Active) return y;
+        int n = SceneryCycle.SegmentCount;
+        string label = $"背景: {SceneryCycle.CurrentName}" + (SceneryCycle.DebugPreviewDistance.HasValue ? " [プレビュー]" : "")
+            + $"  読込{SceneryCycle.LoadedCount}枚 {SceneryCycle.LoadedTextureBytes / 1024f / 1024f:F1}MB";
+        GUIStyle st = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
+        st.normal.textColor = new Color(0.75f, 0.9f, 1f);
+        Vector2 sz = st.CalcSize(new GUIContent(label));
+        Rect lr = new Rect(x0, y, sz.x + 10f, sz.y + 4f);
+        UiBackdrop.Draw(lr, 0.55f);
+        GUI.Label(lr, label, st);
+        y = lr.yMax + gap;
+        string[] names = { "背景◀", "背景▶", "移行", "通常", "境目へ" };
+        for (int i = 0; i < names.Length; i++)
+        {
+            Rect r = new Rect(x0 + i * (bw + gap), y, bw, bh);
+            if (!DrawStyledButton(r, names[i], 11f, primary: false)) continue;
+            if (i <= 1)
+            {
+                if (sceneryPreviewSeg < 0) sceneryPreviewSeg = Mathf.Max(0, SceneryCycle.CurrentSegment);
+                else sceneryPreviewSeg = (sceneryPreviewSeg + (i == 0 ? -1 : 1) + n) % n;
+                sceneryPreviewBlend = 0f;
+                SceneryCycle.DebugPreviewDistance = SceneryCycle.DistanceForSegment(sceneryPreviewSeg);
+            }
+            else if (i == 2)
+            {
+                if (sceneryPreviewSeg < 0) sceneryPreviewSeg = Mathf.Max(0, SceneryCycle.CurrentSegment);
+                sceneryPreviewBlend = sceneryPreviewBlend >= 0.74f ? 0.25f : sceneryPreviewBlend + 0.25f;
+                SceneryCycle.DebugPreviewDistance = SceneryCycle.DistanceForSegment(sceneryPreviewSeg, sceneryPreviewBlend);
+            }
+            else if (i == 3) { sceneryPreviewSeg = -1; SceneryCycle.DebugPreviewDistance = null; }
+            else { SceneryCycle.DebugPreviewDistance = null; sceneryPreviewSeg = -1; DebugWarpToDistance(Mathf.Max(0f, SceneryCycle.NextBlendStart(MaxDistance) - 300f)); }
+        }
+        return y + bh + gap;
+    }
+#endif
 
     public void DebugWarpToDistance(float targetDistance)
     {

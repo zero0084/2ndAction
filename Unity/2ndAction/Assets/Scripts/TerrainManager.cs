@@ -331,10 +331,13 @@ public class TerrainManager : MonoBehaviour
     [System.NonSerialized] public System.Func<float, float> flatLengthAt;
     [System.NonSerialized] public System.Func<float, bool> forceFlatAt;
     public static event System.Action<TerrainManager, string> ThemeApplied;
+    // テーマを差し替える直前(2026-10-01): 距離で背景を変える SceneryCycle が、自分の差し替えた背景を元へ戻す
+    public static event System.Action<TerrainManager> ThemeApplying;
     public bool HasCaveDarkness => cave != null && cave.DarknessActive;
 
     public void ApplyStageTheme(string stageId)
     {
+        ThemeApplying?.Invoke(this);
         if (!themeDefaultsCaptured) CaptureThemeDefaults();
         pitWidthAt = null; skyAllowedAt = null; pitChanceAt = null; flatLengthAt = null; forceFlatAt = null;
         if (cave != null) { cave.SetActive(false); cave.sectionPicker = null; cave.ApplyStyle(null); }

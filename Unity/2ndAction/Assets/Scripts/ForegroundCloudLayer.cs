@@ -148,7 +148,8 @@ public class ForegroundCloudLayer : MonoBehaviour
                 continue;
             }
 
-            Color col = c.sr.color; col.a = c.baseAlpha * alphaScale; c.sr.color = col;
+            Color tint = SceneryCycle.CloudTint; // 夕焼け/夜/夜明けの空に合わせた雲の色(担当外のステージは白)
+            c.sr.color = new Color(tint.r, tint.g, tint.b, c.baseAlpha * alphaScale);
             c.t.position = new Vector3(camX + c.rel, camY + c.yOffsetFromCam, 0f);
         }
     }

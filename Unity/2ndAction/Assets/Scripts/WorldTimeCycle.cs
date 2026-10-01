@@ -72,6 +72,16 @@ public class WorldTimeCycle : MonoBehaviour
 
     void Apply(float d)
     {
+        // 距離で景色/昼夜を進めるステージ(SceneryCycle、2026-10-01 荒野街道)では、こちらの夜の層は使わない
+        // (二重に暗くならないよう止め、夜らしさ/時間帯の名前は SceneryCycle の値をそのまま出す)。
+        if (SceneryCycle.Active)
+        {
+            NightAmount = SceneryCycle.NightAmount;
+            if (nightLayer != null && nightLayer.enabled) nightLayer.enabled = false;
+            CurrentTimeName = SceneryCycle.CurrentName;
+            return;
+        }
+        if (nightLayer != null && !nightLayer.enabled) nightLayer.enabled = true;
         if (forceDayOnly)
         {
             NightAmount = 0f;
