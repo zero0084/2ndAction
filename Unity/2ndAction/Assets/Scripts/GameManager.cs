@@ -1088,6 +1088,19 @@ public partial class GameManager : MonoBehaviour
 
     ScreenOrientation preferredOrientation;
     float gameOverTime;
+    // ===== 死亡の流れ(2026-10-01、死神接触の後に止まる件) =====
+    // 結果画面の「Tap to Retry」までの待ちは実時間で数える(何かが時間を止めていても結果画面から先へ進める)。
+    float gameOverRealtime;
+    public float SecondsSinceGameOver => !IsGameOver ? 0f : QaLegacyDeathBehaviour ? Time.time - gameOverTime : Time.realtimeSinceStartup - gameOverRealtime;
+    public bool RetryAllowedNow => IsGameOver && !QuietFinish && SecondsSinceGameOver >= retryDelayAfterGameOver;
+    public string DeathReason { get; private set; } = "";
+    public int FinishRunCalls { get; private set; }        // 自動テスト用: 1回だけのはず
+    public int DamageAfterDeathIgnored { get; private set; } // 死亡後に来て無視したダメージ/即死の要求
+    public bool ResultShown { get; private set; }
+    float gameOverPausedTimer;
+    public static int GameOverUnpauseCount;
+    // 確認用(-qaReaperDeath): 修正前の死亡の流れ(Time.timeで待つ/死神を止めない/時間停止の見張り無し/FinishRunの二重呼び出しを通す)。通常は常にfalse
+    public static bool QaLegacyDeathBehaviour;
     float runStartTime;
 
     bool levelUpPending;
@@ -1222,7 +1235,8 @@ public partial class GameManager : MonoBehaviour
             return;
         }
 
-        bool retryAllowed = IsGameOver && !QuietFinish && Time.time - gameOverTime >= retryDelayAfterGameOver;
+        UpdateGameOverGuard();
+        bool retryAllowed = RetryAllowedNow;
         if (retryAllowed && (Input.GetKeyDown(KeyCode.R) || WasTappedOrClicked()))
         {
             RetryWithTransition();
@@ -2804,7 +2818,7 @@ public partial class GameManager : MonoBehaviour
     public DamageResult TryDamagePlayer(bool bypassInvincibleMode = false, string reason = "Other", int amount = 1)
     {
         Vector3 dmgPos = PlayerController.Instance != null ? PlayerController.Instance.transform.position : Vector3.zero;
-        if (IsGameOver) return DamageResult.Ignored;
+        if (IsGameOver) { DamageAfterDeathIgnored++; return DamageResult.Ignored; } // 死亡済み: 以後のダメージ/死亡要求は無視
         if (PresentationDamageLock) { FreezeDiagnostics.LogEvent($"[Damage] Ignored(PresentationDamageLock) reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); return DamageResult.Ignored; }
         if (!bypassInvincibleMode && InvincibleMode) return DamageResult.Ignored;
         if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); return DamageResult.Ignored; }
@@ -2842,6 +2856,8 @@ public partial class GameManager : MonoBehaviour
             // clearing the checkpoint here already happens before the
             // death Presentation with no extra ordering needed.
             if (!NetRunLauncher.IsMultiplayerRun) RunCheckpoint.Clear(); // マルチプレイRunの死亡でシングルのCONTINUEを消さない
+            DeathReason = reason;
+            DeathLog($"Player death confirmed reason={reason}");
             FinishRun();
             return DamageResult.GameOver;
         }
@@ -2965,7 +2981,9 @@ public partial class GameManager : MonoBehaviour
     // (死亡演出/Result/CONTINUE無効化は既存のGameOverの流れのまま)。DEBUGの無敵中とシールドは従来どおり守る。
     public void ReapPlayer(string reason)
     {
-        if (IsGameOver || !HasStarted || InvincibleMode) return;
+        if (IsGameOver) { DamageAfterDeathIgnored++; DeathLog($"ReapPlayer ignored (already dead) reason={reason}"); return; }
+        if (!HasStarted || InvincibleMode) return;
+        DeathLog($"ReapPlayer reason={reason} livesBefore={Lives} timeScale={Time.timeScale:F2} reasons={TimeControl.DescribeActiveReasons()} choice={levelUpPending} bossPhase={(BossManager.Instance != null && BossManager.Instance.IsBossPhase)}");
         if (NetRunLauncher.IsMultiplayerRun) { if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: reason); return; }
         Lives = Mathf.Min(Lives, 1);
         TryDamagePlayer(false, reason);
@@ -3068,7 +3086,14 @@ public partial class GameManager : MonoBehaviour
 
     void FinishRun()
     {
+        FinishRunCalls++;
+        if (IsGameOver) { DeathLog($"FinishRun called again (#{FinishRunCalls}){(QaLegacyDeathBehaviour ? " (legacy: runs again)" : " - ignored")}"); if (!QaLegacyDeathBehaviour) return; }
         IsGameOver = true;
+        gameOverRealtime = Time.realtimeSinceStartup;
+        gameOverPausedTimer = 0f;
+        DeathLog($"FinishRun win={IsWin} reason={DeathReason} timeScaleBefore={Time.timeScale:F2} reasons={TimeControl.DescribeActiveReasons()} hitStop={HitStop.ActiveCount} choice={levelUpPending} seq={IsRewardSequenceRunning}");
+        // 死神(三姉妹)は追跡/攻撃/接触判定をここで止める(死因が何であっても)
+        if (!QaLegacyDeathBehaviour) ReaperBase.StopAllForRunEnd();
         ProgressStats.Flush(true); // 死亡/正常終了: 累計走行距離を保存(2026-10-01)
         gameOverTime = Time.time;
         // Safety net: Time.timeScale is a global engine setting that would
@@ -3139,10 +3164,34 @@ public partial class GameManager : MonoBehaviour
         // FINISH/Win() path).
         // マルチプレイRunの終了で、シングルの中断データ(CONTINUE)を消さない。
         if (!NetRunLauncher.IsMultiplayerRun) RunCheckpoint.Clear();
+        DeathLog($"FinishRun done timeScale={Time.timeScale:F2}");
+    }
+
+    // [Death] の記録(FreezeDiagnosticsの記録にも残す)
+    public void DeathLog(string msg)
+    {
+        string m = "[Death] " + msg;
+        Debug.Log(m);
+        FreezeDiagnostics.LogEvent(m);
+    }
+
+    // 死亡後に何かが時間を止めたまま(Time.timeScale=0)になっていたら戻す。結果画面/Retryは実時間で動くが、
+    // 背景の演出やBGMの切り替え等は通常の時間で動くので、止まったままにしない。
+    void UpdateGameOverGuard()
+    {
+        if (!IsGameOver || QaLegacyDeathBehaviour) return;
+        if (Time.timeScale > 0f) { gameOverPausedTimer = 0f; return; }
+        gameOverPausedTimer += Time.unscaledDeltaTime;
+        if (gameOverPausedTimer < 0.5f) return;
+        gameOverPausedTimer = 0f;
+        GameOverUnpauseCount++;
+        DeathLog($"time was still stopped after the run ended (reasons={TimeControl.DescribeActiveReasons()} hitStop={HitStop.ActiveCount}) -> TimeControl.ResetAll");
+        TimeControl.ResetAll();
     }
 
     public void Retry()
     {
+        DeathLog($"Retry -> reload scene (gameOver={IsGameOver})");
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
@@ -3921,7 +3970,8 @@ public partial class GameManager : MonoBehaviour
             y += 56f;
         }
 
-        bool retryAllowed = Time.time - gameOverTime >= retryDelayAfterGameOver;
+        bool retryAllowed = SecondsSinceGameOver >= retryDelayAfterGameOver;
+        if (!ResultShown && Event.current.type == EventType.Repaint) { ResultShown = true; DeathLog($"Result shown (reason={DeathReason}, timeScale={Time.timeScale:F2})"); }
         if (retryAllowed)
         {
             GUIStyle retryStyle = new GUIStyle(GUI.skin.label);

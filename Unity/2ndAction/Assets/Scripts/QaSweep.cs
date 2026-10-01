@@ -40,6 +40,8 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaUiShots") { mode = "uishots"; dir = a[i + 1]; }
             if (a[i] == "-qaUiCheck") { mode = "uicheck"; dir = a[i + 1]; }
             if (a[i] == "-qaHudShots") { mode = "hudshots"; dir = a[i + 1]; }
+            if (a[i] == "-qaReaperDeath") { mode = "reaperdeath"; dir = a[i + 1]; }
+            if (a[i] == "-qaVisShots") { mode = "visshots"; dir = a[i + 1]; }
             if (a[i] == "-qaScenery") { mode = "scenery"; dir = a[i + 1]; }
             if (a[i] == "-qaSceneryVideo") { mode = "sceneryvideo"; dir = a[i + 1]; }
             if (a[i] == "-qaSceneryStages") { mode = "scenerystages"; dir = a[i + 1]; }
@@ -102,6 +104,8 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "uishots") yield return UiShotsMode();
         else if (mode == "uicheck") yield return UiCheckMode();
         else if (mode == "hudshots") yield return HudShotsMode();
+        else if (mode == "reaperdeath") yield return ReaperDeathMode();
+        else if (mode == "visshots") yield return VisShotsMode();
         else if (mode == "scenery") yield return SceneryMode();
         else if (mode == "sceneryvideo") yield return SceneryVideoMode();
         else if (mode == "scenerystages") yield return SceneryStagesMode();
@@ -973,6 +977,22 @@ public partial class QaSweep : MonoBehaviour
         Check(bossKills >= 99, $"all 99 regular boss gates fought and defeated ({bossKills})");
         yield return new WaitForSecondsRealtime(1.5f);
         Shot("gameover");
+        // 2026-10-01: 死神に捕まった後、RESULT → ホームまで止まらずに進むか
+        float wr = 0f;
+        while (!gm.RetryAllowedNow && wr < 10f) { yield return null; wr += Time.unscaledDeltaTime; }
+        L($"after death: reason={gm.DeathReason} result={gm.ResultShown} retryAllowed={gm.RetryAllowedNow} timeScale={Time.timeScale:F2} finishRunCalls={gm.FinishRunCalls} reasons={TimeControl.DescribeActiveReasons()} transitioning={(ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning)}");
+        Shot("result");
+        Check(gm.ResultShown && gm.RetryAllowedNow && Time.timeScale > 0f, "RESULT shown and Tap to Retry available after the reaper");
+        var oldGm = gm;
+        typeof(GameManager).GetMethod("RetryWithTransition", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(gm, null);
+        wr = 0f;
+        while ((GameManager.Instance == null || GameManager.Instance == oldGm) && wr < 10f) { yield return null; wr += Time.unscaledDeltaTime; }
+        bool home = GameManager.Instance != null && GameManager.Instance != oldGm && !GameManager.Instance.HasStarted;
+        L($"home={home} after {wr:F1}s");
+        Check(home, "back to HOME after the reaper's result");
+        gm = GameManager.Instance;
+        yield return new WaitForSecondsRealtime(2f);
+        Shot("home_after_reaper");
     }
 
     IEnumerator ShotLater(string name, float delay)

@@ -128,6 +128,26 @@ public abstract class ReaperBase : MonoBehaviour
     void OnEnable() { FloatingOrigin.Warped += OnWarped; }
     void OnDisable() { FloatingOrigin.Warped -= OnWarped; }
     void OnDestroy() { if (Active == this) Active = null; }
+
+    // Runが終わった(死亡/正常終了/帰還): 追跡・大鎌の予告と判定・攻撃のCoroutineを止める(2026-10-01)。
+    // 死亡後に大鎌が当たり続けて死亡処理をもう一度起こす、を無くす。見た目はその場に残す。
+    public bool RunEnded { get; private set; }
+    public static void StopAllForRunEnd()
+    {
+        foreach (var r in FindObjectsByType<ReaperBase>(FindObjectsSortMode.None)) r.StopForRunEnd();
+    }
+    void StopForRunEnd()
+    {
+        if (RunEnded) return;
+        RunEnded = true;
+        StopAllCoroutines();
+        striking = false;
+        if (scytheMark != null) scytheMark.Hide();
+        if (anim != null) anim.SetStrikeWindup(false);
+        if (scythe != null) { scythe.damagesPlayer = false; scythe.gameObject.SetActive(false); }
+        foreach (var c in GetComponentsInChildren<Collider2D>()) c.enabled = false;
+        FreezeDiagnostics.LogEvent($"[Reaper] {(data != null ? data.sister.ToString() : name)} stopped (run ended) phase={CurrentPhase} strikes={Strikes}");
+    }
     void OnWarped(float d) { reaperX += d; lastPlayerX += d; }
 
     // ===================================================================== //
@@ -135,7 +155,7 @@ public abstract class ReaperBase : MonoBehaviour
     // ===================================================================== //
     void Update()
     {
-        if (player == null || data == null) return;
+        if (player == null || data == null || RunEnded) return;
         var gm = GameManager.Instance;
         if (gm != null && (!gm.HasStarted || gm.IsGameOver)) return;
         float dt = Time.deltaTime;
@@ -268,6 +288,7 @@ public abstract class ReaperBase : MonoBehaviour
         scytheMark.Hide();
         anim.SetStrikeWindup(false);
         Strikes++;
+        if (RunEnded || GameManager.Instance == null || GameManager.Instance.IsGameOver) { striking = false; yield break; }
         bool reached = Gap <= ch.captureGap + 0.6f;
         FreezeDiagnostics.LogEvent($"[Reaper] {data.sister} strike gap={Gap:F2} reached={reached}");
         if (reached && !DebugNoReap && !NetRunLauncher.IsMultiplayerRun && ch.captureLethalSolo && player == (PlayerController.Instance != null ? PlayerController.Instance.transform : null))

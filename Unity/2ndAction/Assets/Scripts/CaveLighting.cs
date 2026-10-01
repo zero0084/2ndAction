@@ -37,6 +37,9 @@ public class CaveLighting : MonoBehaviour
     Transform quad;
     readonly Vector4[] torchBuf = new Vector4[8];
     static readonly int PlayerId = Shader.PropertyToID("_Player");
+    static readonly int PlayerSpotId = Shader.PropertyToID("_PlayerSpot");
+    public float playerSpotRadius = 3.2f;
+    [Range(0f, 1f)] public float playerSpotIntensity = 0.62f;
     static readonly int TorchCountId = Shader.PropertyToID("_TorchCount");
     static readonly int TorchId = Shader.PropertyToID("_Torch");
     float smoothedForward;
@@ -88,6 +91,9 @@ public class CaveLighting : MonoBehaviour
         float rx = (lightBackReach + smoothedForward) * 0.5f;
         float cx = pp.x + (smoothedForward - lightBackReach) * 0.5f;
         material.SetVector(PlayerId, new Vector4(cx, pp.y + 1.5f, rx, lightVerticalRadius));
+        // 2026-10-01: 明かりは前方寄りなので、Player自身が明かりの後ろの端で暗くなる。体のまわりだけ最低限の明るさを足す
+        // (暖色は足さない=キャラが光って見えない)。暗さの雰囲気は変えない。
+        material.SetVector(PlayerSpotId, new Vector4(pp.x, pp.y + 1.0f, playerSpotRadius, playerSpotIntensity));
         material.SetFloat("_PlayerSoft", lightSoftness);
         material.SetFloat("_Dark", maxDarkness);
         material.SetColor("_DarkColor", darkColor);

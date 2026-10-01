@@ -11,6 +11,7 @@ Shader "OneMoreMile/CaveDarkness"
         _Player ("Player Light (x,y,rx,ry)", Vector) = (0,0,8,6)
         _PlayerSoft ("Player Softness (inner ratio)", Range(0,0.95)) = 0.25
         _PlayerBoost ("Player Intensity", Range(0,1)) = 1
+        _PlayerSpot ("Player Spot (x,y,radius,intensity)", Vector) = (0,0,1,0)
         _TorchCount ("Torch Count", Float) = 0
         _TorchColor ("Torch Color", Color) = (1.0, 0.55, 0.2, 1)
         _TorchWarm ("Torch Warm Add", Range(0,1)) = 0.35
@@ -31,6 +32,7 @@ Shader "OneMoreMile/CaveDarkness"
         fixed4 _TorchColor;
         float _TorchWarm;
         float4 _Torch[8]; // x,y,radius,intensity
+        float4 _PlayerSpot; // 2026-10-01: Playerの体のまわりだけの小さな明かり(暖色は足さない)
 
         struct v2f { float4 pos : SV_POSITION; float2 wpos : TEXCOORD0; };
 
@@ -60,6 +62,7 @@ Shader "OneMoreMile/CaveDarkness"
                 float2 t = (p - _Torch[i].xy) / max(0.001, _Torch[i].z);
                 lit = max(lit, Falloff(length(t), 0.0) * _Torch[i].w);
             }
+            lit = max(lit, Falloff(length((p - _PlayerSpot.xy) / max(0.001, _PlayerSpot.z)), 0.35) * _PlayerSpot.w);
             return saturate(lit);
         }
         ENDCG
