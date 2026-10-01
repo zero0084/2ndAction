@@ -494,7 +494,7 @@ public class BonusZone : MonoBehaviour
         float a = State == Phase.Intro ? 0.55f : State == Phase.Active ? 0.16f + 0.06f * Mathf.Sin(t * 3f) : 0.1f;
         a = Mathf.Max(a, introFlash * 0.7f) + cardFlash * 0.4f;
         Color c = cardFlash > 0.01f ? Color.Lerp(ThemeColor(t), new Color(1f, 0.6f, 1f), cardFlash) : ThemeColor(t);
-        c.a = a;
+        c.a = a * Mathf.Lerp(0.25f, 1f, GameSettings.GlowIntensity); // 設定「発光演出」(区画中であることは弱めても分かる)
         Color prev = GUI.color; GUI.color = c;
         float w = Screen.width * (IsJackpot ? 0.12f : 0.08f);
         GUI.DrawTexture(new Rect(0f, 0f, w, Screen.height), EdgeTex());
@@ -547,7 +547,7 @@ public class BonusZone : MonoBehaviour
         if (IsJackpot && phaseTime < 0.45f)
         {
             // JACKPOT: 開始の瞬間に画面全体が金色に光る(0.45秒で消える。走行は止めない)
-            Color fc = new Color(1f, 0.85f, 0.35f, 0.45f * (1f - phaseTime / 0.45f));
+            Color fc = new Color(1f, 0.85f, 0.35f, 0.45f * (1f - phaseTime / 0.45f) * GameSettings.GlowIntensity);
             Color keepColor = GUI.color; GUI.color = fc;
             GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), White());
             GUI.color = keepColor;

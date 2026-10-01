@@ -143,7 +143,7 @@ public class AudioAutoTest : MonoBehaviour
         am.SetBgmVolumeLevel(2); am.SetSfxVolumeLevel(4); am.SetEnvVolumeLevel(4);
         yield return new WaitForSecondsRealtime(0.3f);
         Check(am.CurrentBgmVolume > 0f && am.SfxOutputVolume > 0f && am.EnvOutputVolume > 0f, "back on: output returns (volume is independent per channel)");
-        Check(PlayerPrefs.GetInt("BgmVolumeLevel") == 2 && PlayerPrefs.HasKey("MasterVolumeLevel") && PlayerPrefs.HasKey("EnvVolumeLevel"), "volume levels are saved in PlayerPrefs");
+        Check(Mathf.Abs(PlayerPrefs.GetFloat("BgmVolume") - 0.5f) < 0.01f && PlayerPrefs.HasKey("MasterVolume") && PlayerPrefs.HasKey("EnvVolume"), "volume levels are saved in PlayerPrefs");
         am.SetBgmVolumeLevel(4);
 
         // ---- GAME OVER ----

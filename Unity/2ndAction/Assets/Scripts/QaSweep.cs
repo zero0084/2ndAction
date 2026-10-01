@@ -37,6 +37,8 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaCardTest") { mode = "cardtest"; dir = a[i + 1]; }
             if (a[i] == "-qaEncRuns") { mode = "encruns"; dir = a[i + 1]; }
             if (a[i] == "-qaBonusShots") { mode = "bonusshots"; dir = a[i + 1]; }
+            if (a[i] == "-qaUiShots") { mode = "uishots"; dir = a[i + 1]; }
+            if (a[i] == "-qaUiCheck") { mode = "uicheck"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -87,6 +89,8 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "cardtest") yield return CardTestMode();
         else if (mode == "encruns") yield return EncRunsMode();
         else if (mode == "bonusshots") yield return BonusShotsMode();
+        else if (mode == "uishots") yield return UiShotsMode();
+        else if (mode == "uicheck") yield return UiCheckMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

@@ -70,7 +70,7 @@ public class StageSelectUI : MonoBehaviour
             {
                 gameObject.SetActive(false);
                 if (GameManager.Instance != null) GameManager.Instance.CloseStageSelect();
-            });
+            }, ScreenTransitionManager.Style.Fade);
             return;
         }
 
@@ -165,6 +165,7 @@ public class StageSelectUI : MonoBehaviour
         // 覆い隠されていく最中に選択カードが裏で切り替わってしまう
         // (見た目上は問題にならないが、他画面との一貫性のため統一)。
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
+        if (UiInputGate.Blocked) return; // 設定/DEBUGパネルが手前に開いている(閉じた時の指が離れるまでも)
         if (!TouchInputUtil.TryGetTapPosition(out Vector2 screenPos)) return;
         HandleTap(screenPos);
     }

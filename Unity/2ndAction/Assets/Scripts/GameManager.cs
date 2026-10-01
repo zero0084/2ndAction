@@ -1131,8 +1131,9 @@ public partial class GameManager : MonoBehaviour
         if (!PlayerPrefs.HasKey(LegacyBestBackupKey) && PlayerPrefs.HasKey(BestDistanceKey))
             PlayerPrefs.SetFloat(LegacyBestBackupKey, BestDistance); // 元データを保持(マップへの割り当ては行わない)
         BestTime = PlayerPrefs.GetFloat(BestTimeKey, 0f);
-        InvincibleMode = PlayerPrefs.GetInt(InvincibleKey, 0) != 0;
-        DebugMode = PlayerPrefs.GetInt(DebugModeKey, 0) != 0;
+        // 2026-10-01: 開発版だけの機能。リリース版では保存値が残っていても有効にしない(表示も起動経路も無い)。
+        InvincibleMode = Debug.isDebugBuild && PlayerPrefs.GetInt(InvincibleKey, 0) != 0;
+        DebugMode = Debug.isDebugBuild && PlayerPrefs.GetInt(DebugModeKey, 0) != 0;
         Lives = startingLives;
         ExpToNext = expBaseForLevel2;
 
@@ -1200,6 +1201,7 @@ public partial class GameManager : MonoBehaviour
 
     void Update()
     {
+        HandleBackButton();
         UpdateCountdownSe();
         if (!HasStarted)
         {
@@ -1436,6 +1438,7 @@ public partial class GameManager : MonoBehaviour
             yield return MultiplayerCountdownRoutine();
             yield break;
         }
+        while (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) yield return null;
         CountdownLabel = "3";
         yield return new WaitForSecondsRealtime(countdownStepDuration);
         CountdownLabel = "2";
@@ -1507,7 +1510,7 @@ public partial class GameManager : MonoBehaviour
             {
                 ApplyGameStart();
                 startTransitioning = false;
-            });
+            }, ScreenTransitionManager.Style.DoorLight);
             return;
         }
         StartCoroutine(StartGameTransition());
@@ -1540,7 +1543,7 @@ public partial class GameManager : MonoBehaviour
             if (stageSelectUI != null) stageSelectUI.gameObject.SetActive(false);
             ApplyGameStart();
             startTransitioning = false;
-        });
+        }, ScreenTransitionManager.Style.DoorLight);
     }
 
     IEnumerator StartGameTransition()
@@ -1671,20 +1674,29 @@ public partial class GameManager : MonoBehaviour
         return new Rect(Screen.width - SafeRight() - UiMargin - width, SafeTop() + UiMargin, width, HudPanelHeight);
     }
 
-    // The settings/debug column used to start at the same top-right corner
-    // the HP panel now occupies - pushed below it instead, same width.
-    float DebugColumnTop() => GetHeartsPanelRect().yMax + HudPanelGap;
     Rect GetGearButtonRect() => new Rect(SafeLeft() + UiMargin, Screen.height - SafeBottom() - UiMargin - 52f, 52f, 52f);
-    Rect GetOrientationButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop(), 140f, 40f);
-    Rect GetBgmButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop() + 46f, 140f, 40f);
-    Rect GetSfxButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop() + 92f, 140f, 40f);
-    Rect GetInvincibleButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop() + 138f, 140f, 40f);
-    Rect GetDebugButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop() + 184f, 140f, 40f);
-    // Game Feel Visibility Pass - reachable from the title screen (before
-    // START) so the boost is active for the whole run that follows, since
-    // this column itself isn't shown during actual gameplay.
-    Rect GetGameFeelFxButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop() + 230f, 140f, 40f);
-    Rect GetResetHighScoreButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop() + 276f, 140f, 40f);
+    // ホーム右上(2026-10-01): 所持MILE → その下に「設定」「マルチ」を横並び(互いに重ならない、セーフエリアの内側)。
+    // ボタンの高さは画面の高さに比例(スマホでも押しやすい大きさ、最小/最大あり)。
+    float HomeButtonHeight => Mathf.Clamp(Screen.height * 0.075f, 46f, 100f);
+    Rect GetHomeMileRect() => new Rect(Screen.width - SafeRight() - UiMargin - 190f, SafeTop() + UiMargin, 190f, 72f);
+    Rect GetHomeMultiButtonRect()
+    {
+        float h = HomeButtonHeight, w = h * 1.9f;
+        return new Rect(Screen.width - SafeRight() - UiMargin - w, GetHomeMileRect().yMax + 10f, w, h);
+    }
+    Rect GetHomeSettingsButtonRect()
+    {
+        Rect m = GetHomeMultiButtonRect();
+        return new Rect(m.x - m.width - 10f, m.y, m.width, m.height);
+    }
+    // 開発版のDEBUG: 部屋の操作対象(扉/ベッド/本/肖像画/ガチャ)と重ならない、扉と本の間の床の上(画面下)。
+    Rect GetHomeDebugButtonRect()
+    {
+        float h = Mathf.Clamp(Screen.height * 0.06f, 40f, 80f), w = h * 2.6f;
+        return new Rect(Screen.width * 0.6f - w * 0.5f, Screen.height - SafeBottom() - UiMargin - h, w, h);
+    }
+    public bool PreferPortrait => preferredOrientation == ScreenOrientation.Portrait;
+    public void SetPreferredOrientation(bool portrait) { if (PreferPortrait != portrait) ToggleOrientation(); }
 
 #if UNITY_EDITOR
     public void DebugSetInvincible(bool on) { InvincibleMode = on; Lives = 999; }
@@ -1733,15 +1745,9 @@ public partial class GameManager : MonoBehaviour
         else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began) screenPos = Input.GetTouch(0).position;
         else return false;
 
+        if (UiInputGate.Blocked) return false; // 設定パネルが開いている/閉じた時の指
         Vector2 guiPos = new Vector2(screenPos.x, Screen.height - screenPos.y);
         if (GetGearButtonRect().Contains(guiPos)) return false;
-        if (GetOrientationButtonRect().Contains(guiPos)) return false;
-        if (GetBgmButtonRect().Contains(guiPos)) return false;
-        if (GetSfxButtonRect().Contains(guiPos)) return false;
-        if (GetInvincibleButtonRect().Contains(guiPos)) return false;
-        if (GetDebugButtonRect().Contains(guiPos)) return false;
-        if (GetGameFeelFxButtonRect().Contains(guiPos)) return false;
-        if (!HasStarted && GetResetHighScoreButtonRect().Contains(guiPos)) return false;
         return true;
     }
 
@@ -3099,7 +3105,7 @@ public partial class GameManager : MonoBehaviour
             {
                 BeginContinuedRun();
                 startTransitioning = false;
-            });
+            }, ScreenTransitionManager.Style.DoorLight, lastDoorRect.width > 1f ? lastDoorRect : (Rect?)null);
             return;
         }
         BeginContinuedRun();
@@ -3207,7 +3213,7 @@ public partial class GameManager : MonoBehaviour
     {
         if (ScreenTransitionManager.Instance != null)
         {
-            ScreenTransitionManager.Instance.PlayCloseThenReload(Retry);
+            ScreenTransitionManager.Instance.PlayCloseThenReload(Retry, ScreenTransitionManager.Style.Fade);
             return;
         }
         Retry();
@@ -3367,7 +3373,7 @@ public partial class GameManager : MonoBehaviour
             // DEBUG's own, which must stay reachable somehow or it could
             // never be turned back on) exactly as available as before,
             // just one tap further away.
-            if (HasStarted || Event.current.type != EventType.Repaint) DrawSettingsChrome();
+            if (HasStarted || Event.current.type != EventType.Repaint) DrawHomeChrome();
         }
 
         if (!HasStarted && !AnyOverlayOpen)
@@ -3453,7 +3459,7 @@ public partial class GameManager : MonoBehaviour
                 // the Gacha Result popup is up, so a tap can't be consumed
                 // out from under that popup's own OK button (see
                 // DrawRoomHotspot's own comment).
-                bool roomInteractable = !gachaResultOpen && !showNewRunConfirm && !NetDebugUI.BlocksHomeInput;
+                bool roomInteractable = !gachaResultOpen && !showNewRunConfirm && !NetDebugUI.BlocksHomeInput && !UiInputGate.Blocked;
 
                 // Door (center) - Run Continuation/Checkpoint Ver.1, item
                 // 13 - CONTINUE (if an Active Run exists) or a fresh Run,
@@ -3478,6 +3484,7 @@ public partial class GameManager : MonoBehaviour
                 // 専用の見た目で表現する(扉が画面の視覚的な主役であるため)。
                 if (DrawDoorHotspot(doorRect, ref doorHotspotFlashTimer, roomInteractable, roomFadeAlpha) && roomFadeAlpha > 0.99f)
                 {
+                    lastDoorRect = doorRect;
                     OnDoorTapped();
                 }
 
@@ -3668,21 +3675,11 @@ public partial class GameManager : MonoBehaviour
             Rect titleBestRect = new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, DistancePanelWidth(true), 72f);
             DrawStatPanel(titleBestRect, "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor, ornate: true);
 
-            Rect titleMileRect = new Rect(Screen.width - SafeRight() - UiMargin - 190f, SafeTop() + UiMargin, 190f, 72f);
-            DrawStatPanel(titleMileRect, "MILE", TotalOwnedMile.ToString(), HudGoldColor, ornate: true);
+            DrawStatPanel(GetHomeMileRect(), "MILE", TotalOwnedMile.ToString(), HudGoldColor, ornate: true);
 
-            // ギア/設定列/DEBUGなどのボタンは、背景・分離画像・演出・粒子より手前に描く。
-            if (Event.current.type == EventType.Repaint) DrawSettingsChrome();
-
-            // Also tucked behind the gear icon (see DrawSettingsColumn) -
-            // only actually drawn/reachable while that panel is open, not
-            // part of the always-on title screen.
-            if (showSettingsPanel && DrawStyledButton(GetResetHighScoreButtonRect(), "RESET SCORE", 15f, primary: false))
-            {
-                ResetHighScores();
-            }
-
-            if (DebugMode && Debug.isDebugBuild) DrawGachaDebugUI(titleBestRect);
+            // 設定/マルチ/DEBUGのボタンは、背景・分離画像・演出・粒子より手前に描く(入力は上で先に判定済み)。
+            // スコアリセットやBESTの設定(ガチャの確認)などの開発用操作は、開発版のDEBUGパネルへ移した。
+            if (Event.current.type == EventType.Repaint) DrawHomeChrome();
 
             DrawGachaResultPopup();
             DrawInsufficientMileToast();
@@ -3824,15 +3821,6 @@ public partial class GameManager : MonoBehaviour
         GUI.color = prev;
     }
 
-    // Renders a volume level (0..AudioManager.MaxVolumeLevel) as a simple
-    // filled/empty block bar, e.g. level 2 of 4 -> "[##--]".
-    static string VolumeBar(int level)
-    {
-        var sb = new System.Text.StringBuilder("[");
-        for (int i = 0; i < AudioManager.MaxVolumeLevel; i++) sb.Append(i < level ? '#' : '-');
-        sb.Append(']');
-        return sb.ToString();
-    }
 
     static string FormatTime(float seconds)
     {
@@ -4406,33 +4394,6 @@ public partial class GameManager : MonoBehaviour
         return DebugSpeedSteps[Mathf.Clamp(nearest + dir, 0, DebugSpeedSteps.Length - 1)];
     }
 
-    // Card Expansion/Gacha Evolution Ver.1, item 18 - Dev Build/Editor-only
-    // debug tools for immediately observing Gacha Stage/Pool/Next Evolution/
-    // Visual changes without grinding an actual run to each BEST-distance
-    // threshold. `anchor` is the Home Room's titleBestRect, so this sits
-    // directly under the BEST panel rather than floating unrelated.
-    void DrawGachaDebugUI(Rect anchor)
-    {
-        float[] stops = { 0f, 5000f, 20000f, 50000f, 100000f };
-        float bw = 74f, bh = 26f, gap = 4f;
-        float y = anchor.yMax + 6f;
-        for (int i = 0; i < stops.Length; i++)
-        {
-            Rect r = new Rect(anchor.x + i * (bw + gap), y, bw, bh);
-            string label = stops[i] >= 1000f ? $"BEST {stops[i] / 1000f:0.#}K" : $"BEST {stops[i]:0}";
-            if (DrawStyledButton(r, label, 10f, primary: false))
-            {
-                DebugSetBestDistance(stops[i]);
-            }
-        }
-
-        Rect logRect = new Rect(anchor.x, y + bh + gap, bw * stops.Length + gap * (stops.Length - 1), bh);
-        if (DrawStyledButton(logRect, "LOG GACHA POOL", 12f, primary: false))
-        {
-            DebugLogGachaPool();
-        }
-    }
-
     // Directly sets/persists BestDistance (same PlayerPrefs key a real new
     // best writes to) rather than routing through ReportDistance/GainExp -
     // a pure debug shortcut, not a simulated run, so it doesn't touch MaxDistance,
@@ -4502,83 +4463,32 @@ public partial class GameManager : MonoBehaviour
         UiBackdrop.Draw(bg);
     }
 
-    // Toggled by the small gear icon (see the (!HasStarted || IsGameOver)
-    // block in OnGUI) instead of this whole column always being visible.
-    bool showSettingsPanel;
-
-    // Orientation/BGM/SE/INVINCIBLE/DEBUG/RESET SCORE - restyled to the
-    // shared navy+gold button (secondary variant, same as DECK on the
-    // title screen) instead of Unity's raw gray button chrome. Left fully
-    // reachable (behind the gear icon) rather than hidden outside
-    // development builds - INVINCIBLE/DEBUG/RESET SCORE are how this
-    // project's own testing has been done all along, and hiding DEBUG's
-    // own toggle would mean no way to ever turn it back on.
-    // ギアボタンと(開いていれば)設定/DEBUG列。ホームの手前描画用に切り出した。
-    void DrawSettingsChrome()
+    // ホーム/リザルトの設定系ボタン(2026-10-01)。以前の「⚙で開く設定/DEBUG列」(音量の段階ボタン・向き・無敵・DEBUG・
+    // GAMEFEEL・スコアリセット)は、プレイヤー向けは設定画面(SettingsPanel)、開発用はDEBUGパネル(開発版のみ)へ分けた。
+    //  ・ホーム: 右上の所持MILEの下に「設定」「マルチ」。開発版は床の上に「DEBUG」。
+    //  ・リザルト: 左下の⚙で設定画面。
+    // ホームでは入力判定を部屋のホットスポットより先に、見た目はRepaintで手前に描く(呼び出し元のコメント参照)。
+    void DrawHomeChrome()
     {
-        if (DrawStyledButton(GetGearButtonRect(), "⚙", 26f, primary: showSettingsPanel))
+        if (HasStarted)
         {
-            showSettingsPanel = !showSettingsPanel;
+            if (DrawStyledButton(GetGearButtonRect(), "", 26f, primary: false)) SettingsPanel.OpenStatic();
+            UiKit.DrawGear(GetGearButtonRect(), 0.62f, new Color(1f, 0.9f, 0.6f));
+            return;
         }
-
-        if (showSettingsPanel) DrawSettingsColumn();
-    }
-
-    void DrawSettingsColumn()
-    {
-        string orientationLabel = preferredOrientation == ScreenOrientation.Portrait ? "⇄ Portrait" : "⇄ Landscape";
-        if (DrawStyledButton(GetOrientationButtonRect(), orientationLabel, 15f, primary: false))
+        if (NetDebugUI.PanelOpen) return; // マルチのパネル(手前)を開いている間は出さない
+        float fs = Mathf.Round(HomeButtonHeight * 0.32f);
+        Rect setRect = GetHomeSettingsButtonRect();
+        if (DrawStyledButton(setRect, "    設定", fs, primary: false, ornate: true)) SettingsPanel.OpenStatic();
+        UiKit.DrawGear(new Rect(setRect.x + setRect.width * 0.08f, setRect.y + setRect.height * 0.2f, setRect.height * 0.6f, setRect.height * 0.6f), 1f, new Color(1f, 0.88f, 0.55f));
+        if (DrawStyledButton(GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel, fs, primary: NetSession.IsActive, ornate: true)) NetDebugUI.OpenPanel();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (Debug.isDebugBuild)
         {
-            ToggleOrientation();
+            Rect dr = GetHomeDebugButtonRect();
+            if (DrawStyledButton(dr, "DEBUG", Mathf.Round(dr.height * 0.38f), primary: DebugMode)) DebugPanel.OpenStatic();
         }
-
-        if (AudioManager.Instance != null)
-        {
-            // Each tap cycles to the next of 5 volume steps (wrapping
-            // back to mute after max) - shown as a filled/empty block
-            // bar rather than a plain ON/OFF toggle.
-            string bgmLabel = "BGM " + VolumeBar(AudioManager.Instance.BgmVolumeLevel);
-            if (DrawStyledButton(GetBgmButtonRect(), bgmLabel, 15f, primary: false))
-            {
-                AudioManager.Instance.CycleBgmVolume();
-            }
-
-            string sfxLabel = "SE " + VolumeBar(AudioManager.Instance.SfxVolumeLevel);
-            if (DrawStyledButton(GetSfxButtonRect(), sfxLabel, 15f, primary: false))
-            {
-                AudioManager.Instance.CycleSfxVolume();
-            }
-
-            // 音量の全体(MASTER)と環境音(ENV)は、BGM/SEの左隣の列(2026-09-29)
-            Rect bgmR = GetBgmButtonRect(), sfxR = GetSfxButtonRect();
-            if (DrawStyledButton(new Rect(bgmR.x - bgmR.width - 6f, bgmR.y, bgmR.width, bgmR.height), "ALL " + VolumeBar(AudioManager.Instance.MasterVolumeLevel), 15f, primary: false))
-                AudioManager.Instance.CycleMasterVolume();
-            if (DrawStyledButton(new Rect(sfxR.x - sfxR.width - 6f, sfxR.y, sfxR.width, sfxR.height), "ENV " + VolumeBar(AudioManager.Instance.EnvVolumeLevel), 15f, primary: false))
-                AudioManager.Instance.CycleEnvVolume();
-        }
-
-        string invincibleLabel = "INVINCIBLE: " + (InvincibleMode ? "ON" : "OFF");
-        if (DrawStyledButton(GetInvincibleButtonRect(), invincibleLabel, 13f, primary: false))
-        {
-            ToggleInvincible();
-        }
-
-        string debugLabel = "DEBUG: " + (DebugMode ? "ON" : "OFF");
-        if (DrawStyledButton(GetDebugButtonRect(), debugLabel, 15f, primary: false))
-        {
-            ToggleDebugMode();
-        }
-
-        // Game Feel Visibility Pass - see GameFeelDebug's class comment.
-        // Not persisted to PlayerPrefs on purpose - always starts OFF, so a
-        // shipped build can never accidentally leave it on. Toggle before
-        // START so it's active for the run that follows (this column isn't
-        // shown during actual gameplay).
-        string gameFeelFxLabel = "GAMEFEEL FX: " + (GameFeelDebug.VisibilityBoost ? "ON" : "OFF");
-        if (DrawStyledButton(GetGameFeelFxButtonRect(), gameFeelFxLabel, 13f, primary: GameFeelDebug.VisibilityBoost))
-        {
-            GameFeelDebug.VisibilityBoost = !GameFeelDebug.VisibilityBoost;
-        }
+#endif
     }
 
     // Visual Style Ver.1 button: a UiBackdrop box (navy fill + thin gold
@@ -5223,8 +5133,58 @@ public partial class GameManager : MonoBehaviour
     // 「出発時だけの専用画面」というStage Select方針に伴い、行き先を
     // 選んでから出発する流れへ変更した - 実際のRun開始はStage Select側の
     // 出発ボタン、DepartFromStageSelect参照)。
+    // Androidの戻る操作(2026-10-01)。1回押すと一番手前のものだけを閉じる(設定を閉じるのと背後の画面を戻すのが同時に起きない)。
+    // 遷移中は何もしない(連打で二重に開閉しない)。ホームではアプリを終了させない。
+    void HandleBackButton()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape)) DoBack();
+    }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public void HandleBackButtonForTest() => DoBack(); // 自動テスト用(キー入力の代わり)
+#endif
+
+    void DoBack()
+    {
+        if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (DebugPanel.Instance != null && DebugPanel.Instance.Back()) return;
+#endif
+        if (SettingsPanel.IsVisible) { SettingsPanel.CloseStatic(); return; }
+        if (NetDebugUI.PanelOpen) { NetDebugUI.ClosePanel(); return; }
+        if (!HasStarted)
+        {
+            if (gachaResultOpen) { gachaResultOpen = false; return; }
+            if (showNewRunConfirm) { showNewRunConfirm = false; return; }
+            if (deckEditOpen && deckEditUI != null) { deckEditUI.HandleBack(); return; }
+            if (cardFusionOpen && cardFusionUI != null) { cardFusionUI.HandleBack(); return; }
+            if (characterSelectOpen && characterSelectUI != null) { characterSelectUI.Close(); return; }
+            if (stageSelectOpen && stageSelectUI != null) { stageSelectUI.Close(); return; }
+            return;
+        }
+        if (IsGameOver) return;
+        if (showReturnHomeConfirm) { showReturnHomeConfirm = false; return; }
+        if (showPauseMenu)
+        {
+            showPauseMenu = false;
+            TimeControl.Resume(pauseMenuTimeOwner);
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Cancel);
+            return;
+        }
+        // ポーズボタン(II)と同じ条件でポーズを開く
+        if (!levelUpPending && !IsBossPresentationActive() && !AnyOverlayOpen)
+        {
+            showPauseMenu = true;
+            TimeControl.Pause(pauseMenuTimeOwner);
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
+        }
+    }
+
+    Rect lastDoorRect;
+
     void OnDoorTapped()
     {
+        GetIdleFx().Reset(); // 扉の待機の開閉アニメーションと出発の光を重ねない
         // マルチプレイ接続中はCONTINUE(シングルの中断データ)ではなく、Stage Selectから全員で出発する。
         if (RunCheckpoint.HasActiveRun && !NetSession.IsActive)
         {
@@ -5283,18 +5243,12 @@ public partial class GameManager : MonoBehaviour
 
     void DrawPauseMenu()
     {
-        // 音量(全体/BGM/SE/環境音)もラン中に変えられるよう、ポーズメニューの下段に2×2で置く(2026-09-29)
-        Rect panelRect = new Rect(Screen.width - SafeRight() - UiMargin - 240f, Screen.height - SafeBottom() - UiMargin - 52f - 152f - 92f, 240f, 232f);
+        // 音/表示/操作の設定は共通の設定画面へ(2026-10-01、以前は音量の段階ボタンが2×2で並んでいた)
+        Rect panelRect = new Rect(Screen.width - SafeRight() - UiMargin - 240f, Screen.height - SafeBottom() - UiMargin - 52f - 152f - 58f, 240f, 198f);
         OrnateUi.DrawPanel(panelRect, 0.92f);
-        var am = AudioManager.Instance;
-        if (am != null)
-        {
-            float bw = (panelRect.width - 30f) / 2f, by = panelRect.y + 138f;
-            if (DrawStyledButton(new Rect(panelRect.x + 12f, by, bw, 38f), "ALL " + VolumeBar(am.MasterVolumeLevel), 13f, primary: false)) am.CycleMasterVolume();
-            if (DrawStyledButton(new Rect(panelRect.x + 18f + bw, by, bw, 38f), "BGM " + VolumeBar(am.BgmVolumeLevel), 13f, primary: false)) am.CycleBgmVolume();
-            if (DrawStyledButton(new Rect(panelRect.x + 12f, by + 44f, bw, 38f), "SE " + VolumeBar(am.SfxVolumeLevel), 13f, primary: false)) am.CycleSfxVolume();
-            if (DrawStyledButton(new Rect(panelRect.x + 18f + bw, by + 44f, bw, 38f), "ENV " + VolumeBar(am.EnvVolumeLevel), 13f, primary: false)) am.CycleEnvVolume();
-        }
+        Rect settingsRect = new Rect(panelRect.x + 12f, panelRect.y + 136f, panelRect.width - 24f, 50f);
+        if (DrawStyledButton(settingsRect, "    設定", 17f, primary: false)) SettingsPanel.OpenStatic();
+        UiKit.DrawGear(new Rect(settingsRect.x + 52f, settingsRect.y + 11f, 28f, 28f), 1f, new Color(1f, 0.88f, 0.55f));
 
         Rect resumeRect = new Rect(panelRect.x + 12f, panelRect.y + 12f, panelRect.width - 24f, 52f);
         if (DrawStyledButton(resumeRect, "RESUME", 18f, primary: true))

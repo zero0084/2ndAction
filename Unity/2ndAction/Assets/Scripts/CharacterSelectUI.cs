@@ -138,7 +138,7 @@ public class CharacterSelectUI : MonoBehaviour
             {
                 gameObject.SetActive(false);
                 if (GameManager.Instance != null) GameManager.Instance.CloseCharacterSelect();
-            });
+            }, ScreenTransitionManager.Style.Fade);
             return;
         }
 
@@ -301,6 +301,7 @@ public class CharacterSelectUI : MonoBehaviour
         // はずの選択が遷移中に別のキャラクターへ静かに上書きされる不具合
         // があった。
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
+        if (UiInputGate.Blocked) return; // 設定/DEBUGパネルが手前に開いている(閉じた時の指が離れるまでも)
 
         bool down = Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
         bool up = Input.GetMouseButtonUp(0) || (Input.touchCount > 0 && (Input.GetTouch(0).phase == TouchPhase.Ended || Input.GetTouch(0).phase == TouchPhase.Canceled));

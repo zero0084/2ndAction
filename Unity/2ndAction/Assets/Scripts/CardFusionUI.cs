@@ -104,6 +104,13 @@ public class CardFusionUI : MonoBehaviour
         }
     }
 
+    // Androidの戻る(2026-10-01): 結果表示中は一覧へ戻る、演出中は何もしない、選択中は画面を閉じる
+    public void HandleBack()
+    {
+        if (phase == Phase.Result) { OnBackToList(); return; }
+        Close();
+    }
+
     public void Close()
     {
         if (phase == Phase.Presenting) return;
@@ -115,7 +122,7 @@ public class CardFusionUI : MonoBehaviour
                 if (root != null) root.SetActive(false);
                 if (rootGroup != null) rootGroup.alpha = 1f;
                 if (GameManager.Instance != null) GameManager.Instance.CloseCardFusion();
-            });
+            }, ScreenTransitionManager.Style.Fade);
             return;
         }
         if (root != null) root.SetActive(false);
@@ -246,7 +253,7 @@ public class CardFusionUI : MonoBehaviour
         var title = AddText(NewRect("Title", header, new Vector2(0.3f, 0), new Vector2(0.7f, 1), Vector2.zero, Vector2.zero), 44, Gold, TextAnchor.MiddleCenter, true);
         title.text = "カード合成";
         var milePanel = Panel("MilePanel", header, new Vector2(1, 0.5f), new Vector2(1, 0.5f), Vector2.zero, Vector2.zero, 2.4f);
-        milePanel.pivot = new Vector2(1, 0.5f); milePanel.sizeDelta = new Vector2(330, 66); milePanel.anchoredPosition = new Vector2(-26, 0);
+        milePanel.pivot = new Vector2(1, 0.5f); milePanel.sizeDelta = new Vector2(330, 66); milePanel.anchoredPosition = new Vector2(-146, 0); // 右端は共通の設定ボタン(SettingsPanel.MenuGearRect)の場所
         mileText = AddText(NewRect("Mile", milePanel, Vector2.zero, Vector2.one, new Vector2(14, 0), new Vector2(-14, 0)), 28, Gold, TextAnchor.MiddleCenter, true);
 
         // ===== 左: 所持カード一覧 ===== //
@@ -1069,6 +1076,7 @@ public class CardFusionUI : MonoBehaviour
         if (root == null || !root.activeInHierarchy) return;
         if (particles.Count > 0) UpdateParticles();
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
+        if (UiInputGate.Blocked) return; // 設定/DEBUGパネルが手前に開いている(閉じた時の指が離れるまでも)
 
         bool down = Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
         bool up = Input.GetMouseButtonUp(0) || (Input.touchCount > 0 && (Input.GetTouch(0).phase == TouchPhase.Ended || Input.GetTouch(0).phase == TouchPhase.Canceled));

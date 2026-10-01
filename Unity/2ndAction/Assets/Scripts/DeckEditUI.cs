@@ -179,6 +179,13 @@ public class DeckEditUI : MonoBehaviour
         }
     }
 
+    // Androidの戻る(2026-10-01): 確認ダイアログが出ていればそれを閉じる、無ければ画面を閉じる
+    public void HandleBack()
+    {
+        if (confirmDialog != null && confirmDialog.IsOpen) { confirmDialog.Cancel(); return; }
+        Close();
+    }
+
     public void Close()
     {
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Cancel);
@@ -196,7 +203,7 @@ public class DeckEditUI : MonoBehaviour
                 if (root != null) root.SetActive(false);
                 if (rootGroup != null) rootGroup.alpha = 1f; // reset so a future Open() (skipped under full cover) starts fresh
                 if (GameManager.Instance != null) GameManager.Instance.CloseDeckEdit();
-            });
+            }, ScreenTransitionManager.Style.Fade);
             return;
         }
 
@@ -805,6 +812,7 @@ public class DeckEditUI : MonoBehaviour
         // ignores every tap/drag on this screen while a transition (in or
         // out) is mid-flight.
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
+        if (UiInputGate.Blocked) return; // 設定/DEBUGパネルが手前に開いている(閉じた時の指が離れるまでも)
 
         bool down = Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
         bool up = Input.GetMouseButtonUp(0) || (Input.touchCount > 0 && (Input.GetTouch(0).phase == TouchPhase.Ended || Input.GetTouch(0).phase == TouchPhase.Canceled));

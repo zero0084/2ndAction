@@ -223,6 +223,7 @@ public class AttackFlair : MonoBehaviour
     int Glow(int idx)
     {
         if (idx >= 0 && glowMat != null) pool[idx].sr.sharedMaterial = glowMat;
+        if (idx >= 0) pool[idx].a0 *= GameSettings.GlowIntensity; // 設定「発光演出」の強さ(2026-10-01)
         return idx;
     }
 

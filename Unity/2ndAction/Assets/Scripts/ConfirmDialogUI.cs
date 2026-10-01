@@ -33,6 +33,15 @@ public class ConfirmDialogUI : MonoBehaviour
         if (root != null) root.SetActive(true);
     }
 
+    // Androidの戻る: 「いいえ」と同じ
+    public void Cancel()
+    {
+        if (!IsOpen) return;
+        System.Action callback = onCancel;
+        Hide();
+        callback?.Invoke();
+    }
+
     void Hide()
     {
         if (root != null) root.SetActive(false);

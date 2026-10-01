@@ -59,7 +59,7 @@ public class HighSpeedFx : MonoBehaviour
         // (a) 足元〜胴の高さの細い線(Playerの少し前後にも出て、風を切る感じ)
         float x = c.x + Random.Range(-halfW * 0.9f, halfW * 1.0f);
         float y = pp.y + Random.Range(-0.15f, 1.5f);
-        Color col = lineColor; col.a = lineAlpha * Mathf.Lerp(0.45f, 1f, hi);
+        Color col = lineColor; col.a = lineAlpha * Mathf.Lerp(0.45f, 1f, hi) * GameSettings.GlowIntensity; // 設定「発光演出」
         SpeedLine.Spawn(new Vector3(x, y, 0f), Random.Range(1.4f, 3.2f), col, 0.28f, RenderOrder.EnvironmentFx, 0.035f);
 
         // (b) 画面の上下端の淡い流線(視野の端で速さを感じさせる。中央には出さない)
@@ -68,7 +68,7 @@ public class HighSpeedFx : MonoBehaviour
             float sign = Random.value < 0.5f ? 1f : -1f;
             float ey = c.y + sign * halfH * Random.Range(0.72f, 0.95f);
             float ex = c.x + Random.Range(-halfW, halfW);
-            Color ecol = lineColor; ecol.a = edgeAlpha * Mathf.Lerp(0.45f, 1f, hi);
+            Color ecol = lineColor; ecol.a = edgeAlpha * Mathf.Lerp(0.45f, 1f, hi) * GameSettings.GlowIntensity;
             SpeedLine.Spawn(new Vector3(ex, ey, 0f), Random.Range(3f, 6.5f), ecol, 0.34f, RenderOrder.EnvironmentFx, 0.03f);
         }
     }

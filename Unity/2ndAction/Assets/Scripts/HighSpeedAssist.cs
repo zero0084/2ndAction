@@ -142,6 +142,7 @@ public class HighSpeedAssist : MonoBehaviour
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         assistEnabled = PlayerPrefs.GetInt(PrefKey, 1) != 0;
+        ApplyEngageKmh(PlayerPrefs.GetFloat(EngagePrefKey, DefaultEngageKmh));
         UnityEngine.SceneManagement.SceneManager.sceneLoaded += (s, m) => ResetRunState();
     }
 
@@ -150,6 +151,24 @@ public class HighSpeedAssist : MonoBehaviour
         assistEnabled = on;
         PlayerPrefs.SetInt(PrefKey, on ? 1 : 0);
         PlayerPrefs.Save();
+    }
+
+    // 設定画面(2026-10-01): 補助が始まる速度。解除/最大補助の速度は従来どおり開始速度からの差(-10 / +30km/h)で決まる
+    // (補助のルール自体は変えない。既定100km/hなら従来の 100 / 90 / 130 と同じ)。
+    const string EngagePrefKey = "HighSpeedAssistEngageKmh";
+    public const float DefaultEngageKmh = 100f, MinEngageKmh = 60f, MaxEngageKmh = 160f;
+    public float EngageSettingKmh => engageKmh;
+    public void SetEngageKmh(float kmh, bool save = true)
+    {
+        ApplyEngageKmh(kmh);
+        PlayerPrefs.SetFloat(EngagePrefKey, engageKmh);
+        if (save) PlayerPrefs.Save();
+    }
+    void ApplyEngageKmh(float kmh)
+    {
+        engageKmh = Mathf.Clamp(Mathf.Round(kmh / 5f) * 5f, MinEngageKmh, MaxEngageKmh);
+        releaseKmh = engageKmh - 10f;
+        fullAssistKmh = engageKmh + 30f;
     }
 
     public void ResetRunState()

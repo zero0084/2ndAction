@@ -54,6 +54,7 @@ public class CameraFollow : MonoBehaviour
 
     public void Shake(float magnitude, float duration)
     {
+        if (!GameSettings.ScreenShake) return; // 設定「画面揺れ: OFF」(2026-10-01)
         shakeMagnitude = magnitude;
         shakeDuration = Mathf.Max(0.001f, duration);
         shakeTimer = shakeDuration;

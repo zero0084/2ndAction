@@ -16,6 +16,10 @@ public class NetDebugUI : MonoBehaviour
     static NetDebugUI instance;
     public static bool PanelOpen { get; private set; }
     public static bool BlocksHomeInput => PanelOpen || (instance != null && instance.BannerVisible);
+    // 2026-10-01: ホームの「マルチ」ボタンはGameManagerが右上(所持MILEの下、設定の隣)に描き、ここを開く。
+    public static string HomeButtonLabel => NetSession.IsActive ? $"マルチ {NetSession.ConnectedPlayerCount}/{NetSession.MaxPlayers}" : "マルチ";
+    public static void OpenPanel() { if (!(instance != null && instance.BannerVisible)) PanelOpen = true; }
+    public static void ClosePanel() { PanelOpen = false; }
 
     string hostIpInput = "";
     string portInput = "";
@@ -93,11 +97,7 @@ public class NetDebugUI : MonoBehaviour
         {
             // カード合成改修(2026-09-26) - 合成/デッキ編集/キャラ選択などの全画面
             // オーバーレイ中は、その画面と無関係なLOCAL MULTIボタンを出さない。
-            if (!PanelOpen && !BannerVisible && !gm.IsOverlayOpen)
-            {
-                string label = NetSession.IsActive ? $"MULTI {NetSession.ConnectedPlayerCount}/{NetSession.MaxPlayers}" : "LOCAL MULTI";
-                if (GUI.Button(new Rect(w - safeRight - 200f, safeTop + 96f, 188f, 48f), label, buttonStyle)) PanelOpen = true;
-            }
+            // 開くボタンはGameManagerのホーム右上(OpenPanel)。ここではパネルだけ描く。
             if (PanelOpen) DrawPanel(w, h);
         }
         else if (NetSession.IsActive || NetRunLauncher.IsMultiplayerRun)

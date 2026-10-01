@@ -9,7 +9,8 @@ using UnityEngine;
 // ・ジングル(RESULT/GAME OVER): ループしない専用のAudioSource(BGMの音量設定に従う)。
 // ・SE: SeIdで指定(複数素材ならランダム、ピッチ/音量を少し揺らす、同じSEの連打間隔)。攻撃音は武器タイプ別。
 // ・環境音: ステージ/HOMEごとのループ + ときどき鳴る単発(BGMとは別の音量)。
-// ・音量: Master/BGM/SE/環境音の4つ(0〜4段階、PlayerPrefsに保存)。0なら完全に無音。
+// ・音量: Master/BGM/SE/環境音の4つ(0〜1の連続値、PlayerPrefsに保存。2026-10-01に0〜4段階から移行)。0なら完全に無音。
+//   全体ミュートは音量とは別のフラグ(解除するとミュート前の音量に戻る)。
 // ・オンライン: 同期しない(各端末でローカルに鳴らす)。
 // 以前からある呼び出し(PlayJump/PlayAttack/PlayAttackHit/PlaySfx等)はそのまま使える。
 public class AudioManager : MonoBehaviour
@@ -46,13 +47,26 @@ public class AudioManager : MonoBehaviour
 
     public AudioLibrary Library { get; private set; }
 
-    public int MasterVolumeLevel { get; private set; }
-    public int BgmVolumeLevel { get; private set; }
-    public int SfxVolumeLevel { get; private set; }
-    public int EnvVolumeLevel { get; private set; }
-    public bool BgmEnabled => BgmVolumeLevel > 0 && MasterVolumeLevel > 0;
-    public bool SfxEnabled => SfxVolumeLevel > 0 && MasterVolumeLevel > 0;
-    float Master => MasterVolumeLevel / (float)MaxVolumeLevel;
+    // 設定画面(2026-10-01): スライダーで細かく変えられるよう0〜1の連続値で持つ(保存もこの値だけ)。
+    // 旧い0〜4段階の値(…VolumeLevelキー)は、新しいキーが無い時に一度だけ読み替える。
+    const string MasterVolumeKey = "MasterVolume";
+    const string BgmVolumeKey = "BgmVolume";
+    const string SfxVolumeKey = "SfxVolume";
+    const string EnvVolumeKey = "EnvVolume";
+    const string MutedKey = "AudioMuted";
+    public float MasterVolume { get; private set; } = 1f;
+    public float BgmVolume { get; private set; } = 1f;
+    public float SfxVolume { get; private set; } = 1f;
+    public float EnvVolume { get; private set; } = 1f;
+    public bool Muted { get; private set; }
+    // 旧API(0〜4段階)。テスト/旧UIの互換用に連続値から計算する。
+    public int MasterVolumeLevel => Mathf.RoundToInt(MasterVolume * MaxVolumeLevel);
+    public int BgmVolumeLevel => Mathf.RoundToInt(BgmVolume * MaxVolumeLevel);
+    public int SfxVolumeLevel => Mathf.RoundToInt(SfxVolume * MaxVolumeLevel);
+    public int EnvVolumeLevel => Mathf.RoundToInt(EnvVolume * MaxVolumeLevel);
+    public bool BgmEnabled => !Muted && BgmVolume > 0.001f && MasterVolume > 0.001f;
+    public bool SfxEnabled => !Muted && SfxVolume > 0.001f && MasterVolume > 0.001f;
+    float Master => Muted ? 0f : MasterVolume;
 
     AudioSource[] bgm = new AudioSource[2];
     float[] bgmWeight = new float[2];
@@ -68,10 +82,11 @@ public class AudioManager : MonoBehaviour
     {
         Instance = this;
         Library = AudioLibrary.Load();
-        MasterVolumeLevel = Mathf.Clamp(PlayerPrefs.GetInt(MasterVolumeLevelKey, DefaultVolumeLevel), 0, MaxVolumeLevel);
-        BgmVolumeLevel = Mathf.Clamp(PlayerPrefs.GetInt(BgmVolumeLevelKey, DefaultVolumeLevel), 0, MaxVolumeLevel);
-        SfxVolumeLevel = Mathf.Clamp(PlayerPrefs.GetInt(SfxVolumeLevelKey, DefaultVolumeLevel), 0, MaxVolumeLevel);
-        EnvVolumeLevel = Mathf.Clamp(PlayerPrefs.GetInt(EnvVolumeLevelKey, DefaultVolumeLevel), 0, MaxVolumeLevel);
+        MasterVolume = LoadVolume(MasterVolumeKey, MasterVolumeLevelKey);
+        BgmVolume = LoadVolume(BgmVolumeKey, BgmVolumeLevelKey);
+        SfxVolume = LoadVolume(SfxVolumeKey, SfxVolumeLevelKey);
+        EnvVolume = LoadVolume(EnvVolumeKey, EnvVolumeLevelKey);
+        Muted = PlayerPrefs.GetInt(MutedKey, 0) != 0;
 
         // 素材が無い場合の最後の予備(手続き生成)
         if (titleBgm == null) titleBgm = AudioFactory.CreateTitleBgm();
@@ -183,11 +198,11 @@ public class AudioManager : MonoBehaviour
 
     void ApplyVolumes()
     {
-        float bgmBase = BaseBgmVolume * Master * BgmVolumeLevel / MaxVolumeLevel;
+        float bgmBase = BaseBgmVolume * Master * BgmVolume;
         for (int i = 0; i < 2; i++) if (bgm[i] != null) bgm[i].volume = bgmBase * bgmWeight[i] * duck * fadeOutMul;
         if (jingleSource != null) jingleSource.volume = bgmBase;
-        if (sfxSource != null) sfxSource.volume = BaseSfxVolume * Master * SfxVolumeLevel / MaxVolumeLevel;
-        float envBase = BaseEnvVolume * Master * EnvVolumeLevel / MaxVolumeLevel;
+        if (sfxSource != null) sfxSource.volume = BaseSfxVolume * Master * SfxVolume;
+        float envBase = BaseEnvVolume * Master * EnvVolume;
         if (envLoop != null) envLoop.volume = envBase * (ambience != null ? ambience.loopVolume : 0f) * envWeight;
         if (envShot != null) envShot.volume = envBase;
         envWeight = Mathf.MoveTowards(envWeight, ambience != null && ambience.loop != null ? 1f : 0f, Time.unscaledDeltaTime / 1.2f);
@@ -355,13 +370,25 @@ public class AudioManager : MonoBehaviour
     }
 
     // ===================================================================== //
-    // 音量(0〜4段階、PlayerPrefsに保存)
+    // 音量(0〜1の連続値、PlayerPrefsに保存。旧0〜4段階のAPIも残す)
     // ===================================================================== //
-    void SaveLevel(string key, int v) { PlayerPrefs.SetInt(key, v); PlayerPrefs.Save(); ApplyVolumes(); }
-    public void SetMasterVolumeLevel(int level) { MasterVolumeLevel = Mathf.Clamp(level, 0, MaxVolumeLevel); SaveLevel(MasterVolumeLevelKey, MasterVolumeLevel); }
-    public void SetBgmVolumeLevel(int level) { BgmVolumeLevel = Mathf.Clamp(level, 0, MaxVolumeLevel); SaveLevel(BgmVolumeLevelKey, BgmVolumeLevel); }
-    public void SetSfxVolumeLevel(int level) { SfxVolumeLevel = Mathf.Clamp(level, 0, MaxVolumeLevel); SaveLevel(SfxVolumeLevelKey, SfxVolumeLevel); }
-    public void SetEnvVolumeLevel(int level) { EnvVolumeLevel = Mathf.Clamp(level, 0, MaxVolumeLevel); SaveLevel(EnvVolumeLevelKey, EnvVolumeLevel); }
+    static float LoadVolume(string key, string legacyLevelKey)
+    {
+        if (PlayerPrefs.HasKey(key)) return Mathf.Clamp01(PlayerPrefs.GetFloat(key, 1f));
+        return Mathf.Clamp(PlayerPrefs.GetInt(legacyLevelKey, DefaultVolumeLevel), 0, MaxVolumeLevel) / (float)MaxVolumeLevel; // 旧い段階の値を一度だけ読み替え
+    }
+    // save=false: スライダーを動かしている間(PlayerPrefsの書き込みは呼び出し側がまとめて行う)
+    void Store(string key, float v, bool save) { PlayerPrefs.SetFloat(key, v); if (save) PlayerPrefs.Save(); ApplyVolumes(); }
+    public void SetMasterVolume(float v, bool save = true) { MasterVolume = Mathf.Clamp01(v); Store(MasterVolumeKey, MasterVolume, save); }
+    public void SetBgmVolume(float v, bool save = true) { BgmVolume = Mathf.Clamp01(v); Store(BgmVolumeKey, BgmVolume, save); }
+    public void SetSfxVolume(float v, bool save = true) { SfxVolume = Mathf.Clamp01(v); Store(SfxVolumeKey, SfxVolume, save); }
+    public void SetEnvVolume(float v, bool save = true) { EnvVolume = Mathf.Clamp01(v); Store(EnvVolumeKey, EnvVolume, save); }
+    // 全体ミュート(音量の値はそのまま=解除すると元の音量に戻る)
+    public void SetMuted(bool on) { Muted = on; PlayerPrefs.SetInt(MutedKey, on ? 1 : 0); PlayerPrefs.Save(); ApplyVolumes(); }
+    public void SetMasterVolumeLevel(int level) => SetMasterVolume(Mathf.Clamp(level, 0, MaxVolumeLevel) / (float)MaxVolumeLevel);
+    public void SetBgmVolumeLevel(int level) => SetBgmVolume(Mathf.Clamp(level, 0, MaxVolumeLevel) / (float)MaxVolumeLevel);
+    public void SetSfxVolumeLevel(int level) => SetSfxVolume(Mathf.Clamp(level, 0, MaxVolumeLevel) / (float)MaxVolumeLevel);
+    public void SetEnvVolumeLevel(int level) => SetEnvVolume(Mathf.Clamp(level, 0, MaxVolumeLevel) / (float)MaxVolumeLevel);
     public void CycleMasterVolume() => SetMasterVolumeLevel((MasterVolumeLevel + 1) % (MaxVolumeLevel + 1));
     public void CycleBgmVolume() => SetBgmVolumeLevel((BgmVolumeLevel + 1) % (MaxVolumeLevel + 1));
     public void CycleSfxVolume() => SetSfxVolumeLevel((SfxVolumeLevel + 1) % (MaxVolumeLevel + 1));

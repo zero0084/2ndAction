@@ -45,7 +45,7 @@ public class ViewModeToggle : MonoBehaviour
         if (portraitRig != null) portraitRig.SetActive(PortraitActive);
     }
 
-    void Toggle()
+    public void Toggle()
     {
         PortraitActive = !PortraitActive;
         ApplyCameras();
@@ -62,6 +62,8 @@ public class ViewModeToggle : MonoBehaviour
     {
         if (GameManager.Instance == null || !GameManager.Instance.DebugMode) return;
         if (GameManager.Instance.IsGameOver) return;
+        // 2026-10-01: ホームではDEBUGパネルの中から切り替える(部屋の操作対象/本の上に重ねない)。開発版のみ。
+        if (!GameManager.Instance.HasStarted || !Debug.isDebugBuild) return;
 
         Rect r = new Rect(Screen.width - 170f, Screen.height - 50f, 160f, 40f);
         if (GUI.Button(r, PortraitActive ? "VIEW: Portrait" : "VIEW: Landscape"))
