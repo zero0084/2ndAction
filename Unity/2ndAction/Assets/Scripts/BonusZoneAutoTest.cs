@@ -28,6 +28,7 @@ public class BonusZoneAutoTest : MonoBehaviour
     int failures; bool anyException;
     void L(string s) { log.AppendLine(s); Debug.Log("[BonusTest] " + s); }
     void Check(bool ok, string what) { if (!ok) { failures++; L("  FAIL: " + what); } else L("  ok: " + what); }
+    void Warn(string what) { L("  WARN: " + what); }
     static readonly BindingFlags NP = BindingFlags.NonPublic | BindingFlags.Instance;
 
     GameManager gm; PlayerController pc; TerrainManager tm; EncounterDirector dir; BonusZone zone;
@@ -90,6 +91,11 @@ public class BonusZoneAutoTest : MonoBehaviour
         // ===== 4) 洞窟: FINISHで持ち帰る =====
         yield return BeginRun("natural_cave");
         if (BossManager.Instance != null) BossManager.Instance.enabled = false;
+        // PERFECTの判定(穴に落ちてGame Overにならないよう、この間は穴を出さない)
+        float pit0 = TerrainManager.Instance.pitChanceBase, pit1 = TerrainManager.Instance.pitChanceMax;
+        TerrainManager.Instance.pitChanceBase = 0f; TerrainManager.Instance.pitChanceMax = 0f;
+        yield return PerfectRules();
+        TerrainManager.Instance.pitChanceBase = pit0; TerrainManager.Instance.pitChanceMax = pit1;
         yield return ForcedZone("treasure_parade", "cave");
         owned = gm.TotalOwnedMile; runMile = gm.RunMile; bonusMile = gm.RunBonusMile;
         gm.Win();
@@ -126,6 +132,8 @@ public class BonusZoneAutoTest : MonoBehaviour
         }
         pc = PlayerController.Instance; tm = TerrainManager.Instance; dir = EncounterDirector.Instance; zone = BonusZone.Instance;
         gm.DebugSetInvincible(true);
+        // 穴への落下(無敵でもGame Over)でテストが途中で崩れないよう、このテストの間は穴を出さない
+        tm.pitChanceBase = 0f; tm.pitChanceMax = 0f;
         Check(gm.HasStarted && zone != null && dir != null, $"run started on {stage} (BonusZone present)");
         yield return new WaitForSeconds(0.5f);
     }
@@ -243,7 +251,7 @@ public class BonusZoneAutoTest : MonoBehaviour
     {
         botOn = true;
         int rec0 = dir.Recent.Count;
-        int mile0 = gm.RunBonusMile; float exp0 = gm.TotalExpEarned; int choices0 = choicesSeen;
+        int mile0 = gm.RunBonusMile; float exp0 = gm.TotalExpEarned; int choices0 = choicesSeen; int level0 = gm.Level; float etn0 = gm.ExpToNext;
         bool sawIntro = zone.State == BonusZone.Phase.Intro;
         int maxActive = 0, normalAhead = 0; float dtSum = 0f; int frames = 0;
         var kinds = new HashSet<BonusEnemyKind>();
@@ -298,6 +306,9 @@ public class BonusZoneAutoTest : MonoBehaviour
         Check(bonusRecs > 0 && normalRecs == 0 && normalAhead == 0, $"{tag}/{id}: only bonus waves during the zone (normal encounters {normalRecs}, normal enemies waiting ahead {normalAhead})");
         Check(zone.State == BonusZone.Phase.Idle && zone.ActiveEnemyCount() == 0, $"{tag}/{id}: zone ended, no bonus enemies left behind");
         Check(mileGot == zone.BonusMile, $"{tag}/{id}: BONUS RESULT MILE matches the run's provisional MILE (+{zone.BonusMile} / +{mileGot})");
+        L($"  breakdown: enemy MILE +{zone.BonusMile - zone.ClearMile - zone.PerfectMile} / CLEAR +{zone.ClearMile} MILE +{zone.ClearExp:F0} EXP / PERFECT {(zone.PerfectAchieved ? $"YES +{zone.PerfectMile} MILE +{zone.PerfectExp:F0} EXP" : "no")} [{zone.PerfectDetail}] / levels gained {gm.Level - level0} (ExpToNext was {etn0:F0})");
+        Check(zone.Current == null || zone.Current.clearMile <= 0 || zone.ClearMile > 0, $"{tag}/{id}: BONUS CLEAR reward granted (+{zone.ClearMile} MILE +{zone.ClearExp:F0} EXP)");
+        Check(zone.PerfectAchieved || zone.PerfectMile == 0, $"{tag}/{id}: no PERFECT reward without PERFECT");
         Check(maxActive <= BonusZoneProfile.Load().maxActiveEnemies + 4, $"{tag}/{id}: bonus enemies come in small waves (max {maxActive} active at once)");
         bool mileType = id == "mile_rush" || id == "mimic_bash" || id == "treasure_parade" || id == "jackpot";
         bool expType = id == "exp_fever" || id == "card_hunt" || id == "treasure_parade" || id == "jackpot";
@@ -336,6 +347,78 @@ public class BonusZoneAutoTest : MonoBehaviour
         foreach (var ec in FindObjectsByType<EnemyController>(FindObjectsSortMode.None))
             if (ec != null && ec.bonus == null && ec.gameObject.activeInHierarchy && ec.transform.position.x > px + 2f) n++;
         return n;
+    }
+
+    // PERFECT の判定: 何もしなければ不成立、条件を満たせば成立。PERFECTでCard Choiceは増えない。
+    IEnumerator PerfectRules()
+    {
+        L("\n[perfect rules]");
+        // 1) 何も倒さずに終わる → PERFECTなし
+        zone.Force("mile_rush");
+        yield return new WaitForSeconds(4f);
+        zone.End();
+        Check(!zone.PerfectAchieved && zone.PerfectMile == 0 && zone.ClearMile > 0, $"mile_rush without kills: CLEAR only (clear +{zone.ClearMile}, perfect={zone.PerfectAchieved} [{zone.PerfectDetail}])");
+        yield return WaitIdle();
+
+        // 2) 画面に現れたTreasure Goblinをすべて倒す → PERFECT(Card Choiceは増えない)
+        int cards0 = zone.BonusCards; int choices0 = choicesSeen; int level0 = gm.Level;
+        zone.Force("mile_rush");
+        float t = 0f;
+        int killed = 0;
+        while (t < 9f)
+        {
+            foreach (var e in zone.Enemies)
+                if (e != null && e.isActiveAndEnabled && e.Seen && !e.Killed && e.kind == BonusEnemyKind.TreasureGoblin && KillBonusEnemy(e)) killed++;
+            yield return null; t += Time.deltaTime;
+        }
+        foreach (var e in zone.Enemies)
+            if (e != null && e.kind == BonusEnemyKind.TreasureGoblin && !e.Killed)
+                L($"   goblin not killed: active={e.isActiveAndEnabled} seen={e.Seen} age={(e.Seen ? Time.time - e.FirstSeenTime : -1f):F2}s hp={typeof(EnemyController).GetField("hp", NP).GetValue(e.GetComponent<EnemyController>())} dying={e.GetComponent<EnemyController>().IsDying} dx={e.transform.position.x - pc.transform.position.x:F1}");
+        zone.End();
+        L($"  killed {killed} goblins (zone counted {zone.KilledCount(BonusEnemyKind.TreasureGoblin)}, seen {zone.SeenCount(BonusEnemyKind.TreasureGoblin)}): perfect={zone.PerfectAchieved} [{zone.PerfectDetail}] +{zone.PerfectMile} MILE; card choices shown {choicesSeen - choices0} (levels gained {gm.Level - level0})");
+        Check(zone.PerfectAchieved && zone.PerfectMile > 0, "mile_rush: all Treasure Goblins on screen killed -> PERFECT BONUS");
+        Check(zone.BonusCards == 0, "PERFECT does not add a Card Choice (only level-ups / fairies do)");
+        yield return WaitIdle();
+        Check(choicesSeen - choices0 == gm.Level - level0, $"card choices after the perfect zone = level-ups only ({choicesSeen - choices0} choices, {gm.Level - level0} level-ups)");
+
+        // 3) Mimic: 120 MILE 以上引き出す → PERFECT
+        zone.Force("mimic_bash");
+        yield return new WaitForSeconds(0.3f);
+        var go = dir.DebugSpawnEnemy("mimic", EnemyAiTier.T0);
+        yield return null; yield return null;
+        var be = go != null ? go.GetComponent<BonusEnemy>() : null;
+        if (be != null)
+        {
+            for (int i = 0; i < 40 && !be.Capped; i++) be.OnLocalHit(i % 3 == 0 ? PlayerAttackKind.Up : PlayerAttackKind.Normal, false, false, go.transform.position);
+            string progCapped = zone.PerfectProgress(out bool metCapped);
+            L($"  mimic capped at {zone.MimicMile} MILE: progress [{progCapped}] met={metCapped} (needs {zone.Current.perfectMimicMile} MILE in total, or a kill)");
+            Check(!metCapped || zone.MimicMile >= zone.Current.perfectMimicMile, "one Mimic drained to its cap alone is not PERFECT when the zone target is higher");
+            KillBonusEnemy(be);
+            yield return null; yield return null;
+            zone.End();
+            L($"  mimic killed: perfect={zone.PerfectAchieved} [{zone.PerfectDetail}]");
+            Check(zone.PerfectAchieved, "mimic_bash: the Mimic beaten (or the MILE target drawn) -> PERFECT BONUS");
+        }
+        else Warn("mimic debug spawn failed");
+        yield return WaitIdle();
+    }
+
+    bool KillBonusEnemy(BonusEnemy e)
+    {
+        var ec = e.GetComponent<EnemyController>();
+        var atk = pc.attackHitbox;
+        if (ec == null || atk == null) return false;
+        typeof(EnemyController).GetField("hp", NP).SetValue(ec, 1);
+        PlayerAttackInfo.RearmOf(atk);
+        ec.ReceiveSweptAttack(atk);
+        return e.Killed;
+    }
+
+    IEnumerator WaitIdle()
+    {
+        float w = 0f;
+        while ((zone.State != BonusZone.Phase.Idle || gm.LevelUpPending || gm.PendingLevelUpCount > 0) && w < 40f) { yield return null; w += Time.unscaledDeltaTime; }
+        yield return new WaitForSeconds(0.3f);
     }
 
     // ミミックの報酬上限(無限に稼げない)と、攻撃の種類ごとの報酬

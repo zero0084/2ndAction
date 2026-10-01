@@ -20,7 +20,7 @@ MonoBehaviour:
   durationDistance: 320
   introSeconds: 1.4
   postRestDistance: 40
-  resultSeconds: 2.2
+  resultSeconds: 3
   types:
   - id: mile_rush
     displayName: MILE RUSH
@@ -33,6 +33,18 @@ MonoBehaviour:
     waveGap: {x: 7, y: 10}
     mileMultiplier: 1
     expMultiplier: 1
+    clearMile: 100
+    clearExp: 0
+    clearExpPerLevel: 0.1
+    perfectMile: 150
+    perfectExp: 0
+    perfectExpPerLevel: 0
+    perfectKinds:
+    - 1
+    perfectKillRatio: 1.0
+    perfectMinKills: 0
+    perfectMimicMile: 0
+    perfectLabel: "Treasure Goblin \u5168\u6483\u7834"
     color: {r: 1, g: 0.84, b: 0.3, a: 1}
   - id: mimic_bash
     displayName: MIMIC BASH
@@ -42,6 +54,17 @@ MonoBehaviour:
     waveGap: {x: 40, y: 50}
     mileMultiplier: 1
     expMultiplier: 1
+    clearMile: 90
+    clearExp: 0
+    clearExpPerLevel: 0.1
+    perfectMile: 120
+    perfectExp: 0
+    perfectExpPerLevel: 0
+    perfectKinds: []
+    perfectKillRatio: 1.0
+    perfectMinKills: 0
+    perfectMimicMile: 200
+    perfectLabel: "Mimic\u304B\u3089\u5408\u8A08200 MILE\u4EE5\u4E0A or \u6483\u7834"
     color: {r: 1, g: 0.7, b: 0.35, a: 1}
   - id: exp_fever
     displayName: EXP FEVER
@@ -52,6 +75,18 @@ MonoBehaviour:
     waveGap: {x: 6, y: 9}
     mileMultiplier: 1
     expMultiplier: 1
+    clearMile: 30
+    clearExp: 0
+    clearExpPerLevel: 0.4
+    perfectMile: 40
+    perfectExp: 0
+    perfectExpPerLevel: 0.25
+    perfectKinds:
+    - 3
+    perfectKillRatio: 0.8
+    perfectMinKills: 0
+    perfectMimicMile: 0
+    perfectLabel: "Golden Slime 8\u5272\u6483\u7834"
     color: {r: 0.6, g: 1, b: 0.55, a: 1}
   - id: card_hunt
     displayName: CARD HUNT
@@ -64,6 +99,18 @@ MonoBehaviour:
     waveGap: {x: 7, y: 10}
     mileMultiplier: 1
     expMultiplier: 0.7
+    clearMile: 60
+    clearExp: 0
+    clearExpPerLevel: 0.25
+    perfectMile: 80
+    perfectExp: 0
+    perfectExpPerLevel: 0.15
+    perfectKinds:
+    - 4
+    perfectKillRatio: 0.0
+    perfectMinKills: 1
+    perfectMimicMile: 0
+    perfectLabel: "Card Fairy \u6483\u7834"
     color: {r: 1, g: 0.6, b: 1, a: 1}
   - id: treasure_parade
     displayName: TREASURE PARADE
@@ -76,6 +123,19 @@ MonoBehaviour:
     waveGap: {x: 8, y: 11}
     mileMultiplier: 0.8
     expMultiplier: 0.8
+    clearMile: 80
+    clearExp: 0
+    clearExpPerLevel: 0.3
+    perfectMile: 120
+    perfectExp: 0
+    perfectExpPerLevel: 0.2
+    perfectKinds:
+    - 1
+    - 3
+    perfectKillRatio: 0.7
+    perfectMinKills: 0
+    perfectMimicMile: 0
+    perfectLabel: "Goblin / Slime 7\u5272\u56DE\u53CE"
     color: {r: 1, g: 0.9, b: 0.45, a: 1}
   - id: jackpot
     displayName: JACKPOT
@@ -87,8 +147,21 @@ MonoBehaviour:
     - bonus_slime_4
     - bonus_goblin_2
     waveGap: {x: 9, y: 12}
-    mileMultiplier: 1.3
-    expMultiplier: 1.3
+    mileMultiplier: 2
+    expMultiplier: 2
+    clearMile: 120
+    clearExp: 0
+    clearExpPerLevel: 0.4
+    perfectMile: 160
+    perfectExp: 0
+    perfectExpPerLevel: 0.3
+    perfectKinds:
+    - 1
+    - 3
+    perfectKillRatio: 0.6
+    perfectMinKills: 0
+    perfectMimicMile: 0
+    perfectLabel: "Goblin / Slime 6\u5272\u56DE\u53CE"
     color: {r: 1, g: 0.95, b: 0.5, a: 1}
   jackpotChance: 0.06
   jackpotTypeId: jackpot
@@ -548,17 +621,20 @@ MonoBehaviour:
       t3: 0
       t4: 0
       t5: 0
-  goblinHitMile: 2
-  goblinKillMile: 15
-  mimicHitMile: 2
+  goblinHitMile: 5
+  goblinKillMile: 45
+  mimicHitMile: 6
   mimicLaunchMultiplier: 1.5
   mimicAerialMultiplier: 1.25
   mimicSlamMultiplier: 2
-  mimicMaxMile: 80
+  mimicMaxMile: 150
   mimicMaxRewardHits: 45
-  mimicKillMile: 10
+  mimicKillMile: 30
   mimicStaySeconds: 8
-  goldenSlimeExp: 45
+  goldenSlimeExp: 15
+  goldenSlimeExpPerLevel: 0.06
+  perfectGraceSeconds: 1.5
+  jackpotIntroSeconds: 2.2
   fairyCardChoices: 1
   maxFairiesPerZone: 2
   fairyEscapeSeconds: 9

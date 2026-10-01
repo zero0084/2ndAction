@@ -14,6 +14,13 @@ public class BonusEnemy : MonoBehaviour
     public bool Capped { get; private set; }    // ミミックの報酬上限に届いた
     public float SpawnTime { get; private set; }
     public float LastHitTime { get; private set; } = -100f;
+    // PERFECT判定(2026-10-01): 画面に現れた時刻(<0=まだ)/倒された
+    public float FirstSeenTime { get; private set; } = -1f;
+    public bool Seen => FirstSeenTime >= 0f;
+    public bool Killed { get; private set; }
+    // 倒されて死亡演出の最中(撃破の報酬はこの後で出る)。PERFECTの判定では撃破として数える
+    public bool Dying => !Killed && ec != null && ec.IsDying;
+    int comboHits; // 続けて報酬が出たHit数(連続取得SEの高さ)
 
     public void Init(BonusEnemyKind k, EnemyController controller)
     {
@@ -28,11 +35,25 @@ public class BonusEnemy : MonoBehaviour
 
     public void Leave() { Leaving = true; }
 
+    void Update()
+    {
+        if (Seen) return;
+        var cam = Camera.main;
+        if (cam == null) return;
+        Vector3 v = cam.WorldToViewportPoint(transform.position);
+        if (v.z > 0f && v.x > 0.02f && v.x < 0.98f && v.y > -0.05f && v.y < 1.05f)
+        {
+            FirstSeenTime = Time.time;
+            if (BonusZone.Instance != null) BonusZone.Instance.NotifySeen(this);
+        }
+    }
+
     BonusZoneProfile P => BonusZone.Instance != null ? BonusZone.Instance.Profile : null;
 
     // この端末のPlayerの攻撃が当たった(倒した一撃も含む)
     public void OnLocalHit(PlayerAttackKind attack, bool wasLaunched, bool killed, Vector3 point)
     {
+        if (Time.time - LastHitTime > 0.6f) comboHits = 0;
         Hits++;
         LastHitTime = Time.time;
         var zone = BonusZone.Instance; var p = P;
@@ -63,9 +84,11 @@ public class BonusEnemy : MonoBehaviour
 
     void Give(BonusZone zone, int baseAmount, Vector3 point)
     {
-        int got = zone.RewardMile(baseAmount, point, this);
+        comboHits++;
+        int got = zone.RewardMile(baseAmount, point, this, false, comboHits);
         MileGiven += Mathf.Max(0, baseAmount);
         if (got <= 0) return;
+        if (kind == BonusEnemyKind.Mimic) zone.AddMimicMile(got);
     }
 
     // 倒した(落下死も含む)。報酬は倒した本人の端末で出す(マルチは未対応: 自然発生させない)
@@ -74,14 +97,25 @@ public class BonusEnemy : MonoBehaviour
         var zone = BonusZone.Instance; var p = P;
         if (zone == null || p == null) return;
         Vector3 pos = transform.position + Vector3.up * 0.8f;
+        if (Killed) return;
+        Killed = true;
+        zone.NotifyKilled(this);
         switch (kind)
         {
-            case BonusEnemyKind.TreasureGoblin: if (!Leaving) zone.RewardMile(p.goblinKillMile, pos, this, true); break;
-            case BonusEnemyKind.Mimic: if (!Leaving) zone.RewardMile(p.mimicKillMile, pos, this, true); break;
-            case BonusEnemyKind.GoldenSlime: zone.RewardExp(p.goldenSlimeExp, pos, this); break;
+            case BonusEnemyKind.TreasureGoblin: if (!Leaving) { zone.RewardMile(p.goblinKillMile, pos, this, true); zone.KillBurst(pos, new Color(1f, 0.85f, 0.25f), true); } break;
+            case BonusEnemyKind.Mimic: if (!Leaving) { zone.RewardMile(p.mimicKillMile, pos, this, true); zone.KillBurst(pos, new Color(1f, 0.85f, 0.25f), true); } break;
+            case BonusEnemyKind.GoldenSlime:
+                {
+                    var gm = GameManager.Instance;
+                    float exp = p.goldenSlimeExp + p.goldenSlimeExpPerLevel * (gm != null ? gm.ExpToNext : 0f);
+                    zone.RewardExp(exp, pos, this, true);
+                    zone.KillBurst(pos, new Color(0.5f, 1f, 0.55f), false);
+                }
+                break;
             case BonusEnemyKind.CardFairy: zone.RewardCard(pos, this); break;
         }
     }
 
     void OnDestroy() { if (BonusZone.Instance != null) BonusZone.Instance.UnregisterEnemy(this); }
+    void OnDisable() { if (!Killed && BonusZone.Instance != null) BonusZone.Instance.NotifyGone(this); }
 }

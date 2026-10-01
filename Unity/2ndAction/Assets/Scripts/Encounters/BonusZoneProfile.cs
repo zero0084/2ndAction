@@ -54,7 +54,14 @@ public class BonusZoneProfile : ScriptableObject
     public int mimicKillMile = 10;
     [Tooltip("起きてから逃げ出すまでの秒数")] public float mimicStaySeconds = 8f;
     [Header("報酬: Golden Slime")]
-    public float goldenSlimeExp = 45f;
+    [Tooltip("撃破1体の基本EXP")] public float goldenSlimeExp = 45f;
+    [Tooltip("撃破1体ごとに、今のLvで次のLvまでに必要なEXPのこの割合を足す(どのLvでもEXP FEVERで約1回Level Upを狙える量にするため)")]
+    public float goldenSlimeExpPerLevel = 0f;
+    [Header("CLEAR / PERFECT(2026-10-01)")]
+    [Tooltip("PERFECTの判定で、終了のこの秒数前より後に画面へ入った報酬Enemyは数えない(倒す時間が無いため)")]
+    public float perfectGraceSeconds = 1.5f;
+    [Tooltip("JACKPOTの開始表示の長さ(通常はintroSeconds)")]
+    public float jackpotIntroSeconds = 2.2f;
     [Header("報酬: Card Fairy")]
     [Tooltip("撃破で出る確定Card Choiceの回数")] public int fairyCardChoices = 1;
     [Tooltip("これ以上は1回のBONUS ZONEで出さない")] public int maxFairiesPerZone = 2;
@@ -88,7 +95,22 @@ public class BonusEncounterType
     [Tooltip("通常の抽選の重み(JACKPOTは別枠)")] public float weight = 1f;
     [Tooltip("流すFormation(順番に、最後まで行ったら最初から)")] public List<string> waves = new List<string>();
     [Tooltip("Wave間の距離(m)")] public Vector2 waveGap = new Vector2(8f, 12f);
-    [Tooltip("このBonus中のMILE報酬の倍率(組み合わせFormationの効率調整)")] public float mileMultiplier = 1f;
-    [Tooltip("このBonus中のEXP報酬の倍率")] public float expMultiplier = 1f;
+    [Tooltip("このBonus中のMILE報酬の倍率(敵/CLEAR/PERFECTすべて。JACKPOTの報酬倍率もここ)")] public float mileMultiplier = 1f;
+    [Tooltip("このBonus中のEXP報酬の倍率(敵/CLEAR/PERFECTすべて)")] public float expMultiplier = 1f;
+
+    [Header("BONUS CLEAR(最後まで走り切った報酬。敵の報酬とは別)")]
+    public int clearMile = 0;
+    public float clearExp = 0f;
+    [Tooltip("今のLvで次のLvまでに必要なEXPのこの割合を追加(0.5=半レベル分)")] public float clearExpPerLevel = 0f;
+
+    [Header("PERFECT BONUS(条件を満たした時だけ。Card Choiceは出さない)")]
+    public int perfectMile = 0;
+    public float perfectExp = 0f;
+    public float perfectExpPerLevel = 0f;
+    [Tooltip("撃破で数える報酬Enemyの種類(空なら撃破の条件なし)")] public List<BonusEnemyKind> perfectKinds = new List<BonusEnemyKind>();
+    [Tooltip("画面に現れた対象のうち、倒した割合がこれ以上(1=全撃破)")] [Range(0f, 1f)] public float perfectKillRatio = 1f;
+    [Tooltip("最低この数は倒す")] public int perfectMinKills = 0;
+    [Tooltip(">0なら: Mimicから引き出したMILEがこれ以上、またはMimicを撃破")] public int perfectMimicMile = 0;
+    [Tooltip("条件の短い説明(BONUS中の進行表示/結果に出す)")] public string perfectLabel = "";
     [Tooltip("開始の表示色")] public Color color = new Color(1f, 0.84f, 0.3f);
 }
