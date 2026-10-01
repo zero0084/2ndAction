@@ -403,3 +403,70 @@ public partial class QaSweep
     }
 }
 #endif
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+// ボス戦の攻撃の前進/後退(2026-10-01)。 -qaLunge <dir> [-qaChars swordsman,...]
+public partial class QaSweep
+{
+    IEnumerator LungeMode()
+    {
+        Application.targetFrameRate = 60;
+        HookBossLogs();
+        string chars = Arg("-qaChars", "swordsman,dual_blade,dragon_lancer,fighter,ninja,vampire");
+        foreach (string ch in chars.Split(','))
+        {
+            yield return BeginRun(ch, "wasteland_road");
+            typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
+            TerrainManager.Instance.pitChanceBase = 0f; TerrainManager.Instance.pitChanceMax = 0f;
+            yield return new WaitForSeconds(1.5f);
+            float f0 = 0f, b0 = 0f, r;
+            yield return MeasureLunge(PlayerController.FlickDirection.Forward, (v, k) => { f0 = v; r = k; });
+            yield return MeasureLunge(PlayerController.FlickDirection.Backward, (v, k) => { b0 = v; r = k; });
+            WarpTo(940f);
+            yield return WaitBossSpawn();
+            var boss = WildAlive().FirstOrDefault();
+            float gap = boss != null ? boss.transform.position.x - boss.HalfWidth - pc.transform.position.x : 0f;
+            // ボスが前方に離れている時(正面まで5以上)に前攻撃
+            float wq = 0f;
+            while (boss != null && boss.transform.position.x - boss.HalfWidth - pc.transform.position.x < 5.5f && wq < 6f) { wq += Time.deltaTime; yield return null; }
+            gap = boss != null ? boss.transform.position.x - boss.HalfWidth - pc.transform.position.x : 0f;
+            float f1 = 0f, b1 = 0f, kf = 1f, kb = 1f;
+            yield return MeasureLunge(PlayerController.FlickDirection.Forward, (v, k) => { f1 = v; kf = k; });
+            yield return new WaitForSeconds(0.6f);
+            yield return MeasureLunge(PlayerController.FlickDirection.Backward, (v, k) => { b1 = v; kb = k; });
+            L($"[lunge] {ch}: no boss fwd {f0:F2} back {b0:F2} | boss (front {gap:F1} ahead) fwd {f1:F2} back {b1:F2} | same attack scaled: fwd x{kf:F2} back x{kb:F2}");
+            float want = Mathf.Lerp(BossBattleTuning.I.lungeForwardNear, BossBattleTuning.I.lungeForwardFar, Mathf.InverseLerp(BossBattleTuning.I.lungeNearDistance, BossBattleTuning.I.lungeFarDistance, gap));
+            float kNow = BossBattle.LungeScale(1f, pc.transform.position.x);
+            if (Mathf.Abs(f1) > 0.05f) Check(kf >= BossBattleTuning.I.lungeForwardNear * 0.95f, $"{ch}: forward attack step in a boss fight is x{kf:F2} (boss {gap:F1} ahead, x{want:F2} at the start)");
+            if (Mathf.Abs(b1) > 0.05f) Check(kb > 1.5f, $"{ch}: backward attack step in a boss fight is x{kb:F2}");
+            Check(Mathf.Abs(f0) < 0.05f || Mathf.Abs(f1) > 0.05f, $"{ch}: forward attack moved in the boss fight");
+            KillAllBosses();
+            yield return WaitPhaseEnd();
+            yield return EndRun();
+        }
+    }
+
+    // 攻撃1回ぶんの「走行以外の移動量」(攻撃の前進/後退)を積算する
+    IEnumerator MeasureLunge(PlayerController.FlickDirection dir, System.Action<float, float> result)
+    {
+        var fLunge = typeof(PlayerController).GetField("lungeVelocityX", NP);
+        var fReq = typeof(PlayerController).GetField("requestedFlick", NP);
+        while (pc.IsAttacking) yield return null;
+        yield return new WaitForSeconds(0.35f);
+        pc.debugInjectFlick = dir;
+        float sum = 0f, raw = 0f, t = 0f;
+        while (t < 0.7f)
+        {
+            yield return null;
+            if (t > 0.04f) pc.debugInjectFlick = null; // 2フレームだけ押す
+            float dt = Time.deltaTime;
+            float lv = (float)fLunge.GetValue(pc);
+            if (Arg("-qaLungeTrace", "") != "") L($"  [trace] {dir} t={t:F2} lunge={lv:F2} scale={pc.LungeScaleNow:F2} attacking={pc.IsAttacking} ts={Time.timeScale:F2} grounded={pc.IsGrounded}");
+            sum += lv * pc.LungeScaleNow * dt;
+            raw += lv * dt;
+            t += dt;
+        }
+        result(sum, Mathf.Abs(raw) > 0.001f ? sum / raw : 1f);
+    }
+}
+#endif

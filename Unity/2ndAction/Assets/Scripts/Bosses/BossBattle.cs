@@ -29,6 +29,38 @@ public static class BossBattle
         LastUltimateEnd = Time.time;
     }
 
+    // ===== ボス戦の攻撃の前進/後退(2026-10-01) =====
+    // 戦っているボスがいる間だけ、攻撃に伴う移動(lungeVelocityX)を倍率で大きくする。
+    // 前進: ボスの正面までの距離が far 以上で forwardFar 倍、near 以下で forwardNear 倍(その間は補間)。後退: back 倍。
+    public static float LungeScale(float lungeVelocity, float playerX)
+    {
+        var tn = BossBattleTuning.I;
+        if (lungeVelocity < 0f) return AnyBossFighting ? tn.lungeBackScale : 1f;
+        float d = NearestBossFrontAhead(playerX);
+        if (d == float.MaxValue) return 1f;
+        if (d < -1f) return 1f; // ボスがすでに後ろ: 伸ばさない
+        float k = Mathf.InverseLerp(tn.lungeNearDistance, tn.lungeFarDistance, d);
+        return Mathf.Lerp(tn.lungeForwardNear, tn.lungeForwardFar, k);
+    }
+
+    // プレイヤーから見た、前方で一番近いボスの体の手前側までの距離(いなければMaxValue)。後ろのボスは負。
+    static float NearestBossFrontAhead(float playerX)
+    {
+        float best = float.MaxValue;
+        Living.RemoveWhere(b => b == null);
+        foreach (var b in Living)
+        {
+            float x, half;
+            if (b is WildBossBase w) { if (w.IsDead || !w.isActiveAndEnabled) continue; x = w.transform.position.x; half = w.HalfWidth; }
+            else if (b is DragonController dc) { if (dc.IsDead) continue; x = dc.transform.position.x; half = 1f; }
+            else continue;
+            float front = x - half - playerX;
+            if (Mathf.Abs(x - playerX) > 40f) continue;
+            if (Mathf.Abs(front) < Mathf.Abs(best)) best = front;
+        }
+        return best;
+    }
+
     public static float ZakoAttackScale => UltimateActive ? Mathf.Clamp01(BossBattleTuning.I.zakoAttackScaleDuringUltimate) : 1f;
     public static bool SuppressObstacles => UltimateActive && BossBattleTuning.I.suppressObstaclesDuringUltimate;
 

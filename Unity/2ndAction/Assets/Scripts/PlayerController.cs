@@ -749,9 +749,11 @@ public partial class PlayerController : MonoBehaviour
     public float screenStepReturnTime = 0.32f;
     public float screenStepMax = 2.6f;
     float prevLungeForFx;
+    float lungeScaleNow = 1f;
+    public float LungeScaleNow => lungeScaleNow;
     void UpdateScreenStep(float dt)
     {
-        ScreenStepOffset = Mathf.Clamp(ScreenStepOffset * Mathf.Exp(-dt / Mathf.Max(0.01f, screenStepReturnTime)) + lungeVelocityX * dt, -screenStepMax, screenStepMax);
+        ScreenStepOffset = Mathf.Clamp(ScreenStepOffset * Mathf.Exp(-dt / Mathf.Max(0.01f, screenStepReturnTime)) + lungeVelocityX * lungeScaleNow * dt, -screenStepMax, screenStepMax);
         // 踏み込み/後退が始まった瞬間: 残像+速度線(AttackFlair)
         if (Mathf.Abs(lungeVelocityX) > 1.2f && Mathf.Abs(prevLungeForFx) <= 1.2f) AttackFlair.Step(this, Mathf.Sign(lungeVelocityX));
         prevLungeForFx = lungeVelocityX;
@@ -1158,7 +1160,9 @@ public partial class PlayerController : MonoBehaviour
         if (HasKit) autoSpeed *= kitMoveSlowFactor * VampireRunBoost; // 新キャラの技の最中/吸血鬼のBlood Rush(既存5人は対象外)
         float knockbackFrac = knockbackDuration > 0f ? knockbackTimer / knockbackDuration : 0f;
         float effectiveKnockback = knockbackVelocityX * knockbackFrac;
-        float newX = transform.position.x + (autoSpeed + lungeVelocityX + effectiveKnockback) * dt;
+        // ボス戦(2026-10-01): 攻撃の前進/後退を大きくする(ボスが離れているほど前進を伸ばす。近いと伸ばしすぎない)
+        lungeScaleNow = Mathf.Approximately(lungeVelocityX, 0f) ? 1f : BossBattle.LungeScale(lungeVelocityX, transform.position.x);
+        float newX = transform.position.x + (autoSpeed + lungeVelocityX * lungeScaleNow + effectiveKnockback) * dt;
         float prevX = transform.position.x;
         // ラストダンジョンのエンディング: 通り抜けられない物(THANK YOU FOR PLAYINGの石板、YES/NOの石)の手前で止まる
         if (WorldPlatforms.Any) newX = WorldPlatforms.ClampMove(prevX, newX, transform.position.y - groundOffset, transform.position.y - groundOffset + 1.5f, 0.35f);

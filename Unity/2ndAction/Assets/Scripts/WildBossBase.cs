@@ -883,6 +883,7 @@ public abstract class WildBossBase : MonoBehaviour
     public int UltimatesUsed { get; private set; }
     public int SpecialsUsed { get; private set; }
     public bool IsEntering => entering;
+    public float HalfWidth => halfWidth;
     protected bool supportsInterrupt;
     protected bool freeGap;               // 間合いの制限を外す(追い越し/画面の反対側からの突進)
     float lastFreeGapTime = -99f;

@@ -35,6 +35,16 @@ public class BossBattleTuning : ScriptableObject
     [Tooltip("必殺技の被弾(ハートの数)。満タンから1発で倒れることはない")]
     public int ultimateDamage = 2;
 
+    [Header("ボス戦の攻撃の前進/後退(戦っているボスがいる間だけ)")]
+    [Tooltip("ボスの正面まで lungeFarDistance 以上離れている時の前進の倍率")]
+    public float lungeForwardFar = 2.6f;
+    [Tooltip("ボスの正面まで lungeNearDistance 以下の時の前進の倍率(近い時は伸ばしすぎない)")]
+    public float lungeForwardNear = 1.4f;
+    public float lungeFarDistance = 5f;
+    public float lungeNearDistance = 1.0f;
+    [Tooltip("後退の倍率")]
+    public float lungeBackScale = 1.6f;
+
     [Header("崩し(Stagger)の溜まり方: 攻撃の種類ごと")]
     public float staggerNormal = 1f;
     public float staggerUp = 3.2f;       // 上攻撃(打ち上げ)
