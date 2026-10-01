@@ -39,6 +39,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaBonusShots") { mode = "bonusshots"; dir = a[i + 1]; }
             if (a[i] == "-qaUiShots") { mode = "uishots"; dir = a[i + 1]; }
             if (a[i] == "-qaUiCheck") { mode = "uicheck"; dir = a[i + 1]; }
+            if (a[i] == "-qaHudShots") { mode = "hudshots"; dir = a[i + 1]; }
             if (a[i] == "-qaScenery") { mode = "scenery"; dir = a[i + 1]; }
             if (a[i] == "-qaSceneryVideo") { mode = "sceneryvideo"; dir = a[i + 1]; }
             if (a[i] == "-qaSceneryStages") { mode = "scenerystages"; dir = a[i + 1]; }
@@ -47,6 +48,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaLunge") { mode = "lunge"; dir = a[i + 1]; }
             if (a[i] == "-qaSave") { mode = "save"; dir = a[i + 1]; }
             if (a[i] == "-qaSaveShots") { mode = "saveshots"; dir = a[i + 1]; }
+            if (a[i] == "-qaStall") { mode = "stall"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -99,6 +101,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "bonusshots") yield return BonusShotsMode();
         else if (mode == "uishots") yield return UiShotsMode();
         else if (mode == "uicheck") yield return UiCheckMode();
+        else if (mode == "hudshots") yield return HudShotsMode();
         else if (mode == "scenery") yield return SceneryMode();
         else if (mode == "sceneryvideo") yield return SceneryVideoMode();
         else if (mode == "scenerystages") yield return SceneryStagesMode();
@@ -107,6 +110,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "lunge") yield return LungeMode();
         else if (mode == "save") yield return SaveMode();
         else if (mode == "saveshots") yield return SaveShotsMode();
+        else if (mode == "stall") yield return StallMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);
@@ -175,14 +179,18 @@ public partial class QaSweep : MonoBehaviour
         while (true)
         {
             var g = GameManager.Instance;
-            if (g != null && g.IsRewardSequenceWaitingForSelection)
+            if (g != null && !autoPickHold && g.IsRewardSequenceWaitingForSelection)
             {
                 var seq = FindFirstObjectByType<RewardCardSequence>();
                 if (seq != null)
                 {
-                    seq.OnCardClicked(0);
-                    yield return new WaitForSecondsRealtime(0.25f);
-                    seq.OnCardClicked(0);
+                    // -qaStall: 選ぶカードと間をばらつかせる(別のカードを先に触ってから選ぶ等)
+                    int idx = mode == "stall" ? Random.Range(0, 3) : 0;
+                    if (mode == "stall") yield return new WaitForSecondsRealtime(Random.Range(0.05f, 1.8f));
+                    if (mode == "stall" && Random.value < 0.3f) { seq.OnCardClicked((idx + 1) % 3); yield return new WaitForSecondsRealtime(Random.Range(0.05f, 0.6f)); }
+                    seq.OnCardClicked(idx);
+                    yield return new WaitForSecondsRealtime(mode == "stall" ? Random.Range(0.02f, 0.5f) : 0.25f);
+                    seq.OnCardClicked(idx);
                     cardPicks++;
                     yield return new WaitForSecondsRealtime(0.25f);
                     continue;

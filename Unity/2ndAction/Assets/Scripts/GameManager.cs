@@ -1235,6 +1235,7 @@ public partial class GameManager : MonoBehaviour
         UpdateDeferredLevelUp();
         UpdateDeferredBossReward();
         UpdatePendingChoiceWatchdog();
+        UpdateStallGuards();
 
         if (heartDamageFlashTimer > 0f) heartDamageFlashTimer -= Time.deltaTime;
         // Level Up Presentation pass - unscaledDeltaTime (not deltaTime)
@@ -1670,10 +1671,11 @@ public partial class GameManager : MonoBehaviour
     }
 
     Rect GetLevelExpPanelRect() => new Rect(Screen.width / 2f - 190f, SafeTop() + UiMargin, 380f, HudPanelHeight);
+    // 2026-10-01: 幅は固定(最大HPが増えても枠を広げない)。中身は DrawHeartsPanel が枠に収まるように描く。
+    const float HeartsPanelWidth = 220f;
     Rect GetHeartsPanelRect()
     {
-        float width = Mathf.Clamp(70f + maxLives * 34f, 220f, 420f);
-        return new Rect(Screen.width - SafeRight() - UiMargin - width, SafeTop() + UiMargin, width, HudPanelHeight);
+        return new Rect(Screen.width - SafeRight() - UiMargin - HeartsPanelWidth, SafeTop() + UiMargin, HeartsPanelWidth, HudPanelHeight);
     }
 
     Rect GetGearButtonRect() => new Rect(SafeLeft() + UiMargin, Screen.height - SafeBottom() - UiMargin - 52f, 52f, 52f);
@@ -1961,7 +1963,7 @@ public partial class GameManager : MonoBehaviour
         if (IsNetChoiceBlocked(out _)) return false; // マルチ: Run終了/脱落/DOWN中は開かない(UpdateDeferredLevelUpが扱う)
 
         bool bossPhaseActive = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
-        if (IsBossPresentationActive() || levelUpPending || bossPhaseActive)
+        if (IsBossPresentationActive() || levelUpPending || bossPhaseActive || ChoiceUiBusy)
         {
             if (bossPhaseActive) LogBoss($"LevelUpDeferred(BossPhase, pending={pendingLevelUpCount})");
             Debug.Log($"[PresentationPriority] Level Up deferred (pending={pendingLevelUpCount}, bossPhaseActive={bossPhaseActive}) - Boss Presentation/Boss Reward/Boss Phase active");
@@ -2031,7 +2033,7 @@ public partial class GameManager : MonoBehaviour
         }
 
         bool bossPhaseActive = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
-        if (IsBossPresentationActive() || levelUpPending || bossPhaseActive)
+        if (IsBossPresentationActive() || levelUpPending || bossPhaseActive || ChoiceUiBusy)
         {
             levelUpDeferredTimer = -1f; // reset the buffer - only starts counting once every one of these actually clears
             return;
@@ -2107,7 +2109,7 @@ public partial class GameManager : MonoBehaviour
     public void TriggerBossRewardChoice()
     {
         LogBossRewardStage("BossRewardStart (TriggerBossRewardChoice entry)");
-        if (IsBossPresentationActive() || levelUpPending)
+        if (IsBossPresentationActive() || levelUpPending || ChoiceUiBusy)
         {
             bossRewardDeferredPending = true;
             LogBossRewardStage("BossRewardStart -> deferred (Presentation/LevelUp active)");
@@ -2182,7 +2184,7 @@ public partial class GameManager : MonoBehaviour
             return;
         }
 
-        if (IsBossPresentationActive() || levelUpPending)
+        if (IsBossPresentationActive() || levelUpPending || ChoiceUiBusy)
         {
             bossRewardDeferredTimer = -1f;
             bossRewardStuckTimer += Time.unscaledDeltaTime;
@@ -2228,6 +2230,111 @@ public partial class GameManager : MonoBehaviour
     // have left them.
     float pendingChoiceStuckTimer;
     const float PendingChoiceStuckTimeoutSeconds = 30f;
+
+    // ===== 停止の安全ネット(2026-10-01「たまにカード選出後に止まる」) =====
+    // 30秒のwatchdogより手前で、「止まっている理由が実際にはもう無い」状態を約1秒で見つけて戻す。
+    // 戻した時は必ず [StallGuard] としてログ(FreezeDiagnostics)に残す = 起きた種類が後から分かる。
+    //  A: 選択待ち(levelUpPending)なのに選択画面が動いていない → 同じ3枚をもう一度出す(2回まで)。出せなければ選択無しで解決
+    //  B: 選択待ち/ポーズメニューの停止理由だけが残っている → 理由を外す
+    //  C: ボス登場演出のスロー(演出の層)だけが残っている → 演出の層を終える
+    const float StallGuardSeconds = 1.0f;
+    const float PresentationDriveMaxSeconds = 12f;
+    float stallOrphanChoiceTimer, stallOrphanPauseTimer, stallOrphanPresentationTimer;
+    int stallChoiceReoffers;
+    public static int StallGuardRecoveries;
+    // 確認用(-qaStall): 修正前の動き(閉じる演出中の次の選択を黙って捨てる / 安全ネット無し)に戻す。通常は常にfalse
+    public static bool QaLegacyStallBehaviour;
+    bool ChoiceUiBusy => !QaLegacyStallBehaviour && IsRewardSequenceRunning;
+    public static string LastStallGuard = "";
+
+    void StallGuardReport(string what)
+    {
+        StallGuardRecoveries++;
+        LastStallGuard = what;
+        string msg = $"[StallGuard] {what} (d={MaxDistance:F0}m, reasons={TimeControl.DescribeActiveReasons()}, seqStep={RewardCardSequence.DebugStep})";
+        Debug.LogWarning(msg);
+        FreezeDiagnostics.LogEvent(msg);
+        if (Debug.isDebugBuild) FreezeDiagnostics.ShowToast("停止を自動回復: " + what);
+    }
+
+    void UpdateStallGuards()
+    {
+        if (BossDiagnostics.DisableSafetyTimers || !HasStarted || QaLegacyStallBehaviour) return;
+        float dt = Time.unscaledDeltaTime;
+
+        // A
+        bool seqUp = rewardCardSequence != null && rewardCardSequence.IsRunning;
+        if (!levelUpPending) stallChoiceReoffers = 0;
+        if (levelUpPending && !seqUp && !IsGameOver)
+        {
+            stallOrphanChoiceTimer += dt;
+            if (stallOrphanChoiceTimer >= StallGuardSeconds)
+            {
+                stallOrphanChoiceTimer = 0f;
+                RecoverOrphanChoice();
+            }
+        }
+        else stallOrphanChoiceTimer = 0f;
+
+        // B
+        bool orphanChoicePause = TimeControl.IsPausedBy(pendingChoiceTimeOwner) && !levelUpPending;
+        bool orphanMenuPause = TimeControl.IsPausedBy(pauseMenuTimeOwner) && !showPauseMenu;
+        if (orphanChoicePause || orphanMenuPause)
+        {
+            stallOrphanPauseTimer += dt;
+            if (stallOrphanPauseTimer >= StallGuardSeconds)
+            {
+                stallOrphanPauseTimer = 0f;
+                if (orphanChoicePause) TimeControl.Resume(pendingChoiceTimeOwner);
+                if (orphanMenuPause) TimeControl.Resume(pauseMenuTimeOwner);
+                StallGuardReport(orphanChoicePause ? "選択待ちの停止理由だけが残っていた" : "ポーズメニューの停止理由だけが残っていた");
+            }
+        }
+        else stallOrphanPauseTimer = 0f;
+
+        // C
+        bool presRunning = BossMilestonePresentation.Instance != null && BossMilestonePresentation.Instance.IsRunning;
+        bool presOrphan = TimeControl.IsPresentationDriving && (!presRunning || TimeControl.PresentationDriveSeconds > PresentationDriveMaxSeconds);
+        if (presOrphan)
+        {
+            stallOrphanPresentationTimer += dt;
+            if (stallOrphanPresentationTimer >= StallGuardSeconds)
+            {
+                stallOrphanPresentationTimer = 0f;
+                TimeControl.EndPresentationDrive(null);
+                StallGuardReport(presRunning ? "ボス登場演出のスローが長すぎた" : "ボス登場演出のスローだけが残っていた");
+            }
+        }
+        else stallOrphanPresentationTimer = 0f;
+    }
+
+    void RecoverOrphanChoice()
+    {
+        bool boss = pendingChoiceKind == PendingChoiceKind.BossReward;
+        if (stallChoiceReoffers < 2 && rewardCardSequence != null && pendingChoices != null && pendingChoices.Length > 0)
+        {
+            stallChoiceReoffers++;
+            var cards = new RewardCardData[pendingChoices.Length];
+            for (int i = 0; i < pendingChoices.Length; i++) cards[i] = MakeChoiceCardData(pendingChoices[i]);
+            if (!NetMatch.Active) TimeControl.Pause(pendingChoiceTimeOwner);
+            bool ok = rewardCardSequence.StartSequence(cards, ApplyUpgradeByCardId, boss ? "BOSS REWARD" : "LEVEL UP");
+            StallGuardReport($"選択待ちなのに選択画面が無かった → もう一度出した({pendingChoiceKind}, {stallChoiceReoffers}回目, ok={ok})");
+            if (ok) return;
+        }
+        // 出せない: 30秒watchdogと同じ「選択無しで解決」を今すぐ行う
+        StallGuardReport($"選択待ちなのに選択画面が出せない → 選択無しで解決({pendingChoiceKind})");
+        pendingChoiceStuckTimer = PendingChoiceStuckTimeoutSeconds;
+        UpdatePendingChoiceWatchdog();
+    }
+
+    // StartSequenceが断る = 選択待ちでないのに選択画面が開いたまま(食い違い)。古い画面を畳んで今回の選択を出す
+    void StartChoiceSequence(RewardCardData[] cards, string text)
+    {
+        if (rewardCardSequence.StartSequence(cards, ApplyUpgradeByCardId, text)) return;
+        rewardCardSequence.ForceReset();
+        rewardCardSequence.StartSequence(cards, ApplyUpgradeByCardId, text);
+        StallGuardReport($"選択画面が食い違って開いていた → 畳んで{text}を出し直した");
+    }
 
     void UpdatePendingChoiceWatchdog()
     {
@@ -2379,7 +2486,7 @@ public partial class GameManager : MonoBehaviour
                 cards[i] = MakeChoiceCardData(pendingChoices[i]);
             }
             LogBossRewardStage("RewardCardSequence Start (about to call StartSequence)");
-            rewardCardSequence.StartSequence(cards, ApplyUpgradeByCardId, "BOSS REWARD");
+            StartChoiceSequence(cards, "BOSS REWARD");
             LogBossRewardStage("RewardCardSequence Start (StartSequence call returned)");
         }
         else
@@ -2458,7 +2565,7 @@ public partial class GameManager : MonoBehaviour
             {
                 cards[i] = MakeChoiceCardData(pendingChoices[i]);
             }
-            rewardCardSequence.StartSequence(cards, ApplyUpgradeByCardId);
+            StartChoiceSequence(cards, "LEVEL UP");
         }
         else
         {
@@ -4018,13 +4125,30 @@ public partial class GameManager : MonoBehaviour
         heartStyle.alignment = TextAnchor.UpperLeft;
         heartStyle.normal.textColor = Color.Lerp(new Color(1f, 0.25f, 0.35f), Color.white, flash);
 
+        // 2026-10-01: 枠の幅は固定。
+        //  ・HPが10以上 … 「♥ ×12」
+        //  ・最大HPが10以下 … 今のHPを♥、減った分を♡(従来どおり。入りきらない時は文字を少し小さく)
+        //  ・最大HPが11以上でHPが9以下 … ♥だけ(♡まで並べると枠からはみ出すので出さない)
         var hearts = new System.Text.StringBuilder();
-        for (int i = 0; i < maxLives; i++)
+        if (Lives >= 10)
         {
-            hearts.Append(i < Lives ? "♥" : "♡");
-            if (i < maxLives - 1) hearts.Append(' ');
+            hearts.Append("♥ ×").Append(Lives);
         }
-        GUI.Label(new Rect(rect.x + 12f, rect.y + 20f, rect.width - 16f, rect.height - 22f), hearts.ToString(), heartStyle);
+        else
+        {
+            int slots = maxLives <= 10 ? maxLives : Lives;
+            for (int i = 0; i < slots; i++)
+            {
+                hearts.Append(i < Lives ? "♥" : "♡");
+                if (i < slots - 1) hearts.Append(' ');
+            }
+        }
+        Rect hr = new Rect(rect.x + 12f, rect.y + 20f, rect.width - 16f, rect.height - 22f);
+        // 念のため: 文字が枠より広ければ文字を小さくする(はみ出さない)
+        var hc = new GUIContent(hearts.ToString());
+        float wNeed = heartStyle.CalcSize(hc).x;
+        if (wNeed > hr.width) heartStyle.fontSize = Mathf.Max(12, Mathf.FloorToInt(heartStyle.fontSize * hr.width / wNeed));
+        GUI.Label(hr, hc, heartStyle);
     }
 
     // Groups the run's upgrade history by type and draws each as its icon
@@ -4157,6 +4281,19 @@ public partial class GameManager : MonoBehaviour
 
     // 現在Lv = Level Up選択画面の「Lv.N -> Lv.N+1」と同じ数え方(Character CardのLv + このRunで取った回数)。
     public int GetRunCardLevel(string cardId) => GetCurrentRunStack(cardId);
+
+    // RUN BUILD HUD(2026-10-01): キャラに最初から付いているカードか / このランのLevel Up等で取った回数
+    public bool IsRunCharacterCard(string cardId)
+    {
+        for (int i = 0; i < CharacterCardSlotCount; i++) if (characterCardIds[i] == cardId) return true;
+        return false;
+    }
+    public int GetRunPickCount(string cardId)
+    {
+        int n = 0;
+        foreach (CardDefinition c in upgradeHistory) if (c != null && c.cardId == cardId) n++;
+        return n;
+    }
 
     int GetCurrentRunStack(string cardId)
     {

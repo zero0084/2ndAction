@@ -243,15 +243,39 @@ public class RewardCardSequence : MonoBehaviour
     public void ForceReset()
     {
         StopAllCoroutines();
+        appliedThisRun = false;
         running = false;
         waitingForSelection = false;
         selectedIndex = -1;
         gameObject.SetActive(false);
     }
 
-    public void StartSequence(RewardCardData[] cardData, System.Action<string> onApply, string announcementText = "LEVEL UP")
+    // 「カード選出後に止まる」の修正(2026-10-01): 選んだカードの適用(onApply)の後も、閉じる演出(約0.34秒)の間は
+    // running のままだった。その間に次のLevel Up/Boss Rewardが来ると、ここで黙って無視され、GameManager側は
+    // 「選択待ち・時間停止」のまま画面が出ず、30秒のwatchdogまで止まっていた。
+    // 今は: 閉じる演出中なら打ち切って次を出す / 本当に選択中なら false を返す(呼び出し側が順番待ちへ戻す)。
+    bool appliedThisRun;
+    public bool IsClosingAfterApply => running && appliedThisRun;
+
+    public bool StartSequence(RewardCardData[] cardData, System.Action<string> onApply, string announcementText = "LEVEL UP")
     {
-        if (running) return; // a level-up choice is already pending; ignore a re-trigger
+        if (running)
+        {
+            if (GameManager.QaLegacyStallBehaviour) return true; // 修正前の動き(黙って無視)の再現用
+            if (!appliedThisRun)
+            {
+                Debug.LogWarning("[RewardCardSequence] StartSequence while a choice is still open - rejected (caller re-queues it)");
+                FreezeDiagnostics.LogEvent("[StallGuard] StartSequence rejected: a choice is still open");
+                return false;
+            }
+            // 閉じる演出の途中: 打ち切る(StopAllCoroutinesでは finally が走らないので、ここで同じ後始末をする)
+            FreezeDiagnostics.LogEvent("[StallGuard] StartSequence during closing fade - cut the fade and open the next choice");
+            StopAllCoroutines();
+            running = false;
+            waitingForSelection = false;
+            selectedIndex = -1;
+            currentCardData = null;
+        }
 
         // A coroutine cannot be started on an inactive GameObject - Unity
         // just fails to schedule it (logging an error, not throwing), so
@@ -262,7 +286,9 @@ public class RewardCardSequence : MonoBehaviour
         // coroutine itself. (Item 13's exact warning - kept unchanged from
         // before this pass.)
         gameObject.SetActive(true);
+        appliedThisRun = false;
         StartCoroutine(RunSequence(cardData, onApply, announcementText));
+        return true;
     }
 
     IEnumerator RunSequence(RewardCardData[] cardData, System.Action<string> onApply, string announcementText)
@@ -536,6 +562,7 @@ public class RewardCardSequence : MonoBehaviour
 
         LogStep("Apply Upgrade");
         onApply(winnerData.CardId);
+        appliedThisRun = true; // ここから先は閉じる演出だけ(次の選択が来たら打ち切ってよい)
         LogPresentation("[LevelUpPresentation] Gameplay resumed");
         LogStep("Apply Upgrade Complete");
 

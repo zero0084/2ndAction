@@ -27,6 +27,8 @@ public class RunBuildHud : MonoBehaviour
         public float addedAt = -100f;    // 新規追加の演出の開始(unscaled time)
         public float levelUpAt = -100f;  // Lv数字の演出の開始
         public SlotFlags flags;          // 将来のCombo/Evolution状態(今回は常にNone)
+        public bool character;           // 2026-10-01: キャラに最初から付いているカード(上の段に金の枠で別に並べる)
+        public int picked;               // このランで取った回数(キャラ固有カードを重ねて取った時に「+N」で見せる)
     }
 
     [Header("Layout")]
@@ -87,10 +89,11 @@ public class RunBuildHud : MonoBehaviour
             {
                 var s = slots[i];
                 if (lv != s.level) { if (lv > s.level && synced) s.levelUpAt = now; s.level = lv; }
+                s.picked = gm.GetRunPickCount(ids[i]);
                 continue;
             }
             var card = CardDatabase.FindById(ids[i]);
-            slots.Add(new Slot { cardId = ids[i], card = card, level = lv, addedAt = synced ? now : -100f });
+            slots.Add(new Slot { cardId = ids[i], card = card, level = lv, addedAt = synced ? now : -100f, character = gm.IsRunCharacterCard(ids[i]), picked = gm.GetRunPickCount(ids[i]) });
         }
         synced = true; // Run開始時点(Character Card)/Continueの復元分は演出なしで並べる
     }
@@ -142,6 +145,11 @@ public class RunBuildHud : MonoBehaviour
     static readonly Color SlotShadow = new Color(0f, 0f, 0f, 0.35f);
     static readonly Color SlotEdge = new Color(0.62f, 0.72f, 0.9f, 0.55f);    // 薄い青灰の縁(派手な金枠は使わない)
     static readonly Color GlowColor = new Color(0.55f, 0.85f, 1f);
+    // キャラ固有カード(2026-10-01): 金の縁+やや温かい地の色+左上の★。デッキから取ったカードは従来の青灰の縁。
+    static readonly Color CharEdge = new Color(1f, 0.8f, 0.3f, 0.95f);
+    static readonly Color CharFill = new Color(0.16f, 0.1f, 0.04f, 0.8f);
+    static readonly Color CharLabel = new Color(1f, 0.85f, 0.45f);
+    static readonly Color DeckLabel = new Color(0.72f, 0.82f, 1f);
     static readonly Color LevelUpColor = new Color(1f, 0.86f, 0.35f);
 
     // 表示するか / 3択中の縮小表示か(Home・Result・他の画面を開いている間・カード0枚は出さない)
@@ -156,7 +164,49 @@ public class RunBuildHud : MonoBehaviour
 
     // 配置(画面座標、IMGUIと同じ左上原点)。Slotの位置はindexだけで決まる(Lvが上がっても動かない)。
     // avoid: 3択中に避ける範囲(カード/説明パネル)。横はその右側の空きに収まる列数へ、縦はその上端までに収める。
-    public void ComputeLayout(int n, bool compact, List<Rect> into, out Rect grid, out float size, List<Rect> avoid = null)
+    // キャラ固有(先頭 nChar 個)とデッキ(残り)を別の段に分ける版。キャラ固有の段→少し空けて→デッキの段。
+    public float LastGroupGap { get; private set; }
+    const float GroupGapFraction = 0.42f;
+    public int LastCharCount { get; private set; }
+    public void ComputeLayoutGrouped(int nChar, int nDeck, bool compact, List<Rect> into, out Rect grid, out float size, List<Rect> avoid = null)
+    {
+        // まず全体を1つの並びとして計算し(大きさ/1行の個数/避ける範囲)、デッキの段を下へずらす
+        int n = nChar + nDeck;
+        ComputeLayout(n, compact, into, out grid, out size, avoid, nChar);
+        LastCharCount = nChar;
+        if (nChar == 0 || nDeck == 0) { LastGroupGap = 0f; return; }
+        float s = size, gap = s * gapFraction;
+        float right = grid.xMax;
+        int perRow = Mathf.Max(1, Mathf.RoundToInt((grid.width + gap) / (s + gap)));
+        perRow = Mathf.Max(perRow, Mathf.Min(nChar, maxColumns));
+        int charRows = Mathf.CeilToInt(nChar / (float)perRow);
+        float groupGap = Mathf.Max(8f, s * GroupGapFraction); // 段の間(それぞれの背景の板の間が少し空く)
+        LastGroupGap = groupGap;
+        into.Clear();
+        for (int i = 0; i < nChar; i++)
+        {
+            int col = i % perRow, row = i / perRow;
+            into.Add(new Rect(right - (col + 1) * s - col * gap, grid.y + row * (s + gap), s, s));
+        }
+        float deckTop = grid.y + charRows * (s + gap) - gap + groupGap;
+        for (int i = 0; i < nDeck; i++)
+        {
+            int col = i % perRow, row = i / perRow;
+            into.Add(new Rect(right - (col + 1) * s - col * gap, deckTop + row * (s + gap), s, s));
+        }
+        float bottom = 0f; foreach (var r in into) bottom = Mathf.Max(bottom, r.yMax);
+        float left = right; foreach (var r in into) left = Mathf.Min(left, r.xMin);
+        grid = new Rect(left, grid.y, right - left, bottom - grid.y);
+    }
+
+    // 今の表示と同じ配置(キャラ固有/デッキの段分け込み)。テスト/確認用
+    public void ComputeCurrentLayout(bool compact, List<Rect> into, out Rect grid, out float size, List<Rect> avoid = null)
+    {
+        int nChar = 0; while (nChar < slots.Count && slots[nChar].character) nChar++;
+        ComputeLayoutGrouped(nChar, slots.Count - nChar, compact, into, out grid, out size, avoid);
+    }
+
+    public void ComputeLayout(int n, bool compact, List<Rect> into, out Rect grid, out float size, List<Rect> avoid = null, int groupChar = 0)
     {
         into.Clear();
         Rect safe = Screen.safeArea;
@@ -184,10 +234,13 @@ public class RunBuildHud : MonoBehaviour
             foreach (var r in avoid) if (r.xMax > right - perRow * s * (1f + gapFraction) && r.yMin > top) bottom = Mathf.Min(bottom, r.yMin - 8f);
         }
         int cols = Mathf.Min(perRow, n);
-        int rows = Mathf.CeilToInt(n / (float)perRow);
+        // キャラ固有/デッキを分ける時(groupChar>0): それぞれ別の行から始まり、間に段の隙間が入る分も高さに数える
+        bool grouped = groupChar > 0 && groupChar < n;
+        int rows = grouped ? Mathf.CeilToInt(groupChar / (float)perRow) + Mathf.CeilToInt((n - groupChar) / (float)perRow) : Mathf.CeilToInt(n / (float)perRow);
+        float extra = grouped ? GroupGapFraction : 0f;
         float gap = s * gapFraction;
         float maxH = bottom - top;
-        if (rows > 0 && rows * (s + gap) - gap > maxH) { s = Mathf.Max(20f, (maxH + gap) / rows - gap); gap = s * gapFraction; } // 行が多すぎる時だけ小さくする
+        if (rows > 0 && rows * (s + gap) - gap + extra * s > maxH) { s = Mathf.Max(20f, maxH / (rows * (1f + gapFraction) - gapFraction + extra)); gap = s * gapFraction; } // 行が多すぎる時だけ小さくする
         s = Mathf.Round(s);
         size = s;
         grid = new Rect(right - cols * s - Mathf.Max(0, cols - 1) * gap, top, cols * s + Mathf.Max(0, cols - 1) * gap, rows * s + Mathf.Max(0, rows - 1) * gap);
@@ -230,14 +283,60 @@ public class RunBuildHud : MonoBehaviour
         IsCompact = compact;
         if (!IsVisible) return;
         EnsureStyles();
-        ComputeLayout(slots.Count, compact, slotRects, out Rect grid, out float size, compact ? ChoiceAvoidRects() : null);
+        // キャラ固有カードを先頭に、デッキから取ったカードを後ろに(GameManager.CollectRunCardIdsの並び)
+        int nChar = 0; while (nChar < slots.Count && slots[nChar].character) nChar++;
+        ComputeLayoutGrouped(nChar, slots.Count - nChar, compact, slotRects, out Rect grid, out float size, compact ? ChoiceAvoidRects() : null);
         LastGridRect = grid; LastSlotSize = size;
 
         Color prevColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, compact ? choiceAlpha : 1f);
         float now = Time.unscaledTime;
+        DrawGroupLabels(nChar, size, compact);
         for (int i = 0; i < slots.Count; i++) DrawSlot(slots[i], slotRects[i], now);
         GUI.color = prevColor;
+    }
+
+    static GUIStyle groupStyle;
+    // 2026-10-01: 段ごとに背景の板を敷いて分ける(キャラ固有=金の縁 / デッキ=青の縁)。見出しは板の左端の中。
+    // 3択中(compact)は、見出しが3択のカード/説明パネルに掛かる時だけ見出しを出さず、板だけで分ける。
+    void DrawGroupLabels(int nChar, float size, bool compact)
+    {
+        if (groupStyle == null) groupStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, clipping = TextClipping.Overflow, wordWrap = false };
+        groupStyle.fontSize = Mathf.Max(11, Mathf.RoundToInt(size * 0.3f));
+        float pad = Mathf.Max(3f, size * 0.1f);
+        float lw = Mathf.Max(groupStyle.fontSize * 3.4f, size * 1.1f);
+        if (compact)
+        {
+            float left = LastGridRect.xMin - pad - lw;
+            var labelArea = Rect.MinMaxRect(left, LastGridRect.yMin - pad, LastGridRect.xMin, LastGridRect.yMax + pad);
+            foreach (var a in ChoiceAvoidRects()) if (a.Overlaps(labelArea)) { lw = 0f; break; }
+        }
+        if (nChar > 0) Group(0, nChar, "キャラ", CharLabel, CharPanelEdge, CharPanelFill, pad, lw);
+        if (nChar < slotRects.Count) Group(nChar, slotRects.Count, "デッキ", DeckLabel, DeckPanelEdge, DeckPanelFill, pad, lw);
+    }
+
+    static readonly Color CharPanelEdge = new Color(1f, 0.78f, 0.3f, 0.9f);
+    static readonly Color CharPanelFill = new Color(0.22f, 0.14f, 0.04f, 0.62f);
+    static readonly Color DeckPanelEdge = new Color(0.55f, 0.7f, 1f, 0.55f);
+    static readonly Color DeckPanelFill = new Color(0.03f, 0.06f, 0.16f, 0.5f);
+
+    void Group(int from, int to, string text, Color labelColor, Color edge, Color fill, float pad, float lw)
+    {
+        Rect u = slotRects[from];
+        for (int i = from + 1; i < to; i++) { Rect r = slotRects[i]; u = Rect.MinMaxRect(Mathf.Min(u.xMin, r.xMin), Mathf.Min(u.yMin, r.yMin), Mathf.Max(u.xMax, r.xMax), Mathf.Max(u.yMax, r.yMax)); }
+        Rect panel = Rect.MinMaxRect(u.xMin - pad - lw, u.yMin - pad, u.xMax + pad, u.yMax + pad);
+        Round(panel, edge);
+        Round(new Rect(panel.x + 1.5f, panel.y + 1.5f, panel.width - 3f, panel.height - 3f), fill);
+        if (lw <= 0f) return;
+        // 見出しはその段の1行目の高さに合わせる
+        Rect first = slotRects[from];
+        var r2 = new Rect(panel.x + 2f, first.y, lw - 2f, first.height);
+        Color keep = groupStyle.normal.textColor;
+        groupStyle.normal.textColor = new Color(0f, 0f, 0f, 0.85f);
+        GUI.Label(new Rect(r2.x + 1.5f, r2.y + 1.5f, r2.width, r2.height), text, groupStyle);
+        groupStyle.normal.textColor = labelColor;
+        GUI.Label(r2, text, groupStyle);
+        groupStyle.normal.textColor = keep;
     }
 
     void DrawSlot(Slot slot, Rect r, float now)
@@ -254,9 +353,9 @@ public class RunBuildHud : MonoBehaviour
             Round(Scale(body, 1.18f), g);
         }
         Round(new Rect(body.x + 1.5f, body.y + 2f, body.width, body.height), SlotShadow);
-        Round(body, SlotEdge);
-        float e = Mathf.Max(1f, body.width * 0.035f);
-        Round(new Rect(body.x + e, body.y + e, body.width - 2f * e, body.height - 2f * e), SlotFill);
+        Round(body, slot.character ? CharEdge : SlotEdge);
+        float e = Mathf.Max(1f, body.width * (slot.character ? 0.06f : 0.035f));
+        Round(new Rect(body.x + e, body.y + e, body.width - 2f * e, body.height - 2f * e), slot.character ? CharFill : SlotFill);
 
         // メインアイコン(カードUIと同じ絵)。縦長の絵は透明な上下の余白ぶん少し拡大してSlot内に切り抜く。
         Texture2D icon = slot.card != null ? slot.card.icon : null;
@@ -273,6 +372,30 @@ public class RunBuildHud : MonoBehaviour
         }
 
         DrawSlotOverlay(slot, body);
+
+        // キャラ固有: 左上に★。このランで重ねて取った分は左下に「+N」
+        if (slot.character)
+        {
+            numStyle.fontSize = Mathf.Max(10, Mathf.RoundToInt(body.height * 0.3f));
+            var star = new GUIContent("★");
+            var ss = numStyle.CalcSize(star);
+            var sr = new Rect(body.x + body.width * 0.04f, body.y - ss.y * 0.12f, ss.x, ss.y);
+            numStyle.normal.textColor = new Color(0f, 0f, 0f, 0.85f);
+            GUI.Label(new Rect(sr.x + 1f, sr.y + 1f, sr.width, sr.height), star, numStyle);
+            numStyle.normal.textColor = CharEdge;
+            GUI.Label(sr, star, numStyle);
+            if (slot.picked > 0)
+            {
+                numStyle.fontSize = Mathf.Max(10, Mathf.RoundToInt(body.height * 0.27f));
+                var pc = new GUIContent("+" + slot.picked);
+                var ps = numStyle.CalcSize(pc);
+                var pr = new Rect(body.x + body.width * 0.05f, body.yMax - ps.y, ps.x, ps.y);
+                numStyle.normal.textColor = new Color(0f, 0f, 0f, 0.85f);
+                GUI.Label(new Rect(pr.x + 1f, pr.y + 1f, pr.width, pr.height), pc, numStyle);
+                numStyle.normal.textColor = DeckLabel;
+                GUI.Label(pr, pc, numStyle);
+            }
+        }
 
         // 右下の数字 = 現在Lv(RUN BUILDの統一ルール)。Lv上昇時だけ数字が大きくなって戻る。
         float tl = (now - slot.levelUpAt) / Mathf.Max(0.05f, levelPopSeconds);

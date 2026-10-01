@@ -84,6 +84,12 @@ public class RunBuildHudAutoTest : MonoBehaviour
         while ((GameManager.Instance == null || GameManager.Instance.HasStarted) && w < 10f) { yield return null; w += Time.unscaledDeltaTime; }
         gm = GameManager.Instance;
         gm.SetSelectedCharacter("swordsman");
+        // 2026-10-01: キャラ固有カードを1枚付けて始める(キャラ固有とデッキの段分けを確かめる)
+        if (gm.CharacterCardIds.All(string.IsNullOrEmpty))
+        {
+            var cc = CardDatabase.UnlockedCards.FirstOrDefault();
+            if (cc != null) { CardInventory.AddCard(cc.cardId, 1, 1); bool eq = gm.EquipCharacterCard(0, cc.cardId, 1); L($"  equipped character card {cc.cardId}: {eq}"); }
+        }
         gm.SetSelectedStage(stage);
         // 画面切り替えの演出中はStartGameが何もしないので、始まるまで呼び直す
         w = 0f; float retry = 0f;
@@ -155,7 +161,7 @@ public class RunBuildHudAutoTest : MonoBehaviour
         Check(sa != null && Time.unscaledTime - sa.addedAt < 0.5f, "new card plays the add feedback");
         Check(hud.ShouldShow(out bool c0) && !c0, "HUD is shown during normal running");
         int idxA = hud.Slots.ToList().IndexOf(sa);
-        hud.ComputeLayout(hud.Slots.Count, false, rects, out _, out _);
+        hud.ComputeCurrentLayout(false, rects, out _, out _);
         Rect rA = rects[idxA];
 
         // 3/4. 同じカードを再取得 → Slotは増えずLvだけ上がる
@@ -174,7 +180,7 @@ public class RunBuildHudAutoTest : MonoBehaviour
         var order1 = hud.Slots.Select(s => s.cardId).ToList();
         Check(order1.Take(order0.Count).SequenceEqual(order0), "acquisition order never changes (earlier slots keep their place after more cards and level ups)");
         Check(SlotsMatchState(out info), $"11 cards, levels match: {info}");
-        hud.ComputeLayout(hud.Slots.Count, false, rects, out Rect grid, out float size);
+        hud.ComputeCurrentLayout(false, rects, out Rect grid, out float size);
         L($"  grid {grid} slot {size}px, rows {Mathf.CeilToInt(hud.Slots.Count / 5f)}");
         Check(rects[idxA] == rA, "a slot's position does not move when more cards are added");
         int maxInRow = rects.GroupBy(r => Mathf.RoundToInt(r.y)).Max(g => g.Count());
@@ -185,21 +191,27 @@ public class RunBuildHudAutoTest : MonoBehaviour
         Rect hearts = HeartsRect();
         foreach (var r in rects) if (r.Overlaps(hearts)) overlapTop = true;
         Check(!overlapTop, $"does not overlap the HP panel {hearts}");
+        // 2026-10-01: キャラ固有カードは金の枠で上の段に、デッキから取ったカードはその下の段に分けて並ぶ
+        int nCharSlots = hud.Slots.Count(x => x.character);
+        bool charFirst = hud.Slots.Take(nCharSlots).All(x => x.character) && hud.Slots.Skip(nCharSlots).All(x => !x.character);
+        bool charAbove = nCharSlots == 0 || nCharSlots == hud.Slots.Count || rects.Take(nCharSlots).Max(r => r.yMax) < rects.Skip(nCharSlots).Min(r => r.yMin);
+        Check(charFirst && charAbove, $"character cards ({nCharSlots}) are drawn as a separate row above the deck cards ({hud.Slots.Count - nCharSlots})");
+        Check(hud.Slots.Where(x => x.character).All(x => gm.IsRunCharacterCard(x.cardId)) && hud.Slots.Where(x => !x.character).All(x => !gm.IsRunCharacterCard(x.cardId)), "character / deck marks match the run's character cards");
         bool overlapPause = false; Rect pause = PauseRect();
         foreach (var r in rects) if (r.Overlaps(pause)) overlapPause = true;
         Check(!overlapPause, "does not overlap the pause button");
         for (int k = 0; k < 4; k++) { string id = Pool().Where(p => hud.Slots.All(s => s.cardId != p)).First(); Acquire(id); yield return null; }
-        hud.ComputeLayout(hud.Slots.Count, false, rects, out grid, out size);
+        hud.ComputeCurrentLayout(false, rects, out grid, out size);
         Check(grid.xMin > Screen.width * 0.6f && grid.yMax < Screen.height * 0.56f, $"15 cards still fit the corner area (grid {grid}, slot {size}px)");
         yield return new WaitForSecondsRealtime(0.6f);
         yield return Shot("wasteland_15cards");
 
         // 9. 高速走行でも位置は同じ(Screen Space)
-        hud.ComputeLayout(hud.Slots.Count, false, rects, out Rect g1, out _);
+        hud.ComputeCurrentLayout(false, rects, out Rect g1, out _);
         float spd = PlayerController.DebugSpeedScale;
         PlayerController.DebugSpeedScale = 6f;
         yield return new WaitForSeconds(1.5f);
-        hud.ComputeLayout(hud.Slots.Count, false, rects, out Rect g2, out _);
+        hud.ComputeCurrentLayout(false, rects, out Rect g2, out _);
         Check(g1 == g2 && hud.ShouldShow(out _), $"high speed ({PlayerController.Instance.CurrentAutoRunSpeed * 3.6f:F0} km/h): HUD rect unchanged");
         yield return Shot("wasteland_fast");
         PlayerController.DebugSpeedScale = spd;
@@ -247,7 +259,7 @@ public class RunBuildHudAutoTest : MonoBehaviour
         Check(shown && compact, "during the choice the current build stays visible (compact)");
         var rects = new List<Rect>();
         var avoid = new List<Rect>(hud.ChoiceAvoidRects());
-        hud.ComputeLayout(hud.Slots.Count, true, rects, out Rect grid, out float cs, avoid);
+        hud.ComputeCurrentLayout(true, rects, out Rect grid, out float cs, avoid);
         // 3択カード/説明パネル(uGUI、Screen Space Overlay)の画面上の範囲と重ならない
         bool overlap = false; var sb = new StringBuilder();
         foreach (var sr in avoid) { sb.Append($"{sr} "); foreach (var r in rects) if (sr.Overlaps(r)) overlap = true; }

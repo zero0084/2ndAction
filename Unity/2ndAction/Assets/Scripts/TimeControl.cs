@@ -41,6 +41,10 @@ public static class TimeControl
 
 
     public static bool IsPaused => pauseOwners.Count > 0;
+    public static bool IsPausedBy(object owner) => owner != null && pauseOwners.Contains(owner);
+    // 演出の層が続いている実時間(取り残しの検出用、2026-10-01)
+    static float presentationSinceRealtime;
+    public static float PresentationDriveSeconds => presentationDriving ? Time.realtimeSinceStartup - presentationSinceRealtime : 0f;
     public static bool IsPresentationDriving => presentationDriving;
     public static int ActiveReasonCount => pauseOwners.Count;
 
@@ -64,6 +68,7 @@ public static class TimeControl
         presentationDriving = true;
         presentationOwner = owner;
         presentationScale = 1f;
+        presentationSinceRealtime = Time.realtimeSinceStartup;
         Apply();
         return 1f;
     }
