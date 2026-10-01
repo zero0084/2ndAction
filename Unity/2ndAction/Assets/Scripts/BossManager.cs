@@ -458,7 +458,122 @@ public class BossManager : MonoBehaviour
     // exactly where Boss Reward processing actually finishes (SaveCheckpoint
     // time), NOT at the boss's own death - see CheckEncounterComplete's own
     // comment for why IsBossPhase itself no longer flips false there.
-    public void EndBossPhase() { IsBossPhase = false; BossMusicKey = null; BossDefeatedThisPhase = false; }
+    public void EndBossPhase()
+    {
+        IsBossPhase = false; BossMusicKey = null; BossDefeatedThisPhase = false;
+        if (RunResumed) Debug.Log($"[BossRun] BossPhaseEnd after resumed run (d={(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f):F0})");
+        RunResumed = false; encounterResumable = false;
+        if (pendingChosen) { nextGateNotBefore = Time.time + Mathf.Max(0f, BossBattleTuning.I.pendingSafeDelay); pendingChosen = false; }
+    }
+
+    // ===================================================================== //
+    // ボス戦の強化(2026-10-01): 時間内に倒せなければラン再開 / ボスが残る間は次のボスを保留
+    // ===================================================================== //
+    // IsBossPhase … ボスの遭遇が続いている(=次の距離のボスを始めない)。ラン再開後もボスが残る限りtrue。
+    // HoldsRun    … ランを止めている(距離が進まない/雑魚/障害物を出さない)。ラン再開でfalseになる。
+    // SpawnsHeld  … 雑魚の出現を止めている(ラン再開から zakoResumeDelay 秒は止めたまま)。
+    public bool RunResumed { get; private set; }
+    public bool HoldsRun => IsBossPhase && !RunResumed;
+    public bool SpawnsHeld => IsBossPhase && (!RunResumed || Time.time - resumedAt < BossBattleTuning.I.zakoResumeDelay);
+    public float EncounterSeconds => encounterTimer;
+    public float ResumeSecondsTotal => resumeSeconds;
+    public float ResumeSecondsLeft => Mathf.Max(0f, resumeSeconds - encounterTimer);
+    public bool ResumeCountdownVisible => encounterResumable && IsBossPhase && !RunResumed && !BossDefeatedThisPhase && AliveBossCount > 0 && encounterTimer > 0f && ResumeSecondsLeft <= 5f;
+    public int ResumeCount { get; private set; }
+    public int PendingSkippedCount { get; private set; }
+    public string LastGateDecision { get; private set; } = "";
+    public int CurrentGateIndex => currentGateK;
+    public int NextGateIndex => gateK;
+    bool encounterResumable, pendingChosen;
+    float encounterTimer, resumeSeconds, resumedAt, nextGateNotBefore;
+    int catchUpFloorK;
+    string encounterKey = "";
+
+    bool StageUsesBattle => GameManager.Instance != null && System.Array.IndexOf(BossBattleTuning.I.resumeStages, GameManager.Instance.ActiveRunStageId) >= 0;
+
+    void BeginEncounterClock(string key)
+    {
+        encounterKey = key;
+        encounterResumable = StageUsesBattle && RushGateK == 0;
+        RunResumed = false;
+        encounterTimer = -2.2f; // 登場の演出のぶん(ボスへ集中できる時間は「倒すまでの秒数」に含めない)
+        var tn = BossBattleTuning.I;
+        var e = tn.For(key);
+        int k = currentGateK;
+        resumeSeconds = e.resumeSecondsOverride > 0f ? e.resumeSecondsOverride : k % 10 == 0 ? tn.resumeSpecial : k % 5 == 0 ? tn.resumeStrong : tn.resumeNormal;
+        Debug.Log($"[BossRun] EncounterStart key={key} gate={k * gateIntervalMeters:F0}m resumeAfter={(encounterResumable ? resumeSeconds.ToString("F0") + "s" : "off")}");
+    }
+
+    void TickResume()
+    {
+        if (!IsBossPhase || !encounterResumable || RunResumed || BossDefeatedThisPhase) return;
+        if (AliveBossCount <= 0) return;
+        // 撃破の演出中(倒れている最中)は数えない: 倒した直後にラン再開にならないように
+        if (!BossBattle.AnyBossFighting && AliveMajinCount <= 0) return;
+        encounterTimer += Time.deltaTime;
+        if (encounterTimer >= resumeSeconds) ResumeRun();
+    }
+
+    public void ResumeRun()
+    {
+        if (RunResumed || !IsBossPhase) return;
+        RunResumed = true;
+        resumedAt = Time.time;
+        ResumeCount++;
+        if (GameManager.Instance != null) GameManager.Instance.ResumeBossDistance();
+        Debug.Log($"[BossRun] RunResumed key={encounterKey} after {encounterTimer:F1}s alive={AliveBossCount} d={(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f):F0}");
+        BossBattleHud.Banner("ラン再開! ボスはまだ追ってくる", new Color(1f, 0.55f, 0.35f), BossBattleTuning.I.resumeBannerSeconds);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+    }
+
+    // 遭遇の終わり(撃破)に次の関門を決める。ラン再開中に通過した関門は「1つだけ保留して後で出す」(またはすべて飛ばす)。
+    // 同じ関門を二重に出さない/保留を積み上げない: 保留を選んだら、その時点までに通過した関門はすべて済み扱い(catchUpFloorK)。
+    void ChooseNextGate()
+    {
+        int baseNext = currentGateK + 1;
+        float d = GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f;
+        int passedMax = Mathf.FloorToInt((d + 0.5f) / Mathf.Max(1f, gateIntervalMeters));
+        int from = Mathf.Max(baseNext, catchUpFloorK);
+        if (passedMax >= from)
+        {
+            int best = -1, bestTier = -1;
+            for (int k = from; k <= passedMax; k++)
+            {
+                if (!GateExists(k)) continue;
+                int tier = k % 10 == 0 ? 2 : k % 5 == 0 ? 1 : 0;
+                if (tier >= bestTier) { bestTier = tier; best = k; }
+            }
+            catchUpFloorK = passedMax + 1;
+            if (best > 0 && BossBattleTuning.I.pendingMode == BossPendingMode.PendingOne)
+            {
+                PendingSkippedCount += Mathf.Max(0, passedMax - from); // 選ばれなかった関門
+                gateK = best;
+                pendingChosen = true;
+                LastGateDecision = $"pending {best * gateIntervalMeters:F0}m (passed {from * gateIntervalMeters:F0}-{passedMax * gateIntervalMeters:F0}m while the boss was alive)";
+            }
+            else
+            {
+                PendingSkippedCount += passedMax - from + 1;
+                gateK = passedMax + 1;
+                LastGateDecision = $"skipped {from * gateIntervalMeters:F0}-{passedMax * gateIntervalMeters:F0}m";
+            }
+        }
+        else
+        {
+            gateK = Mathf.Max(baseNext, catchUpFloorK);
+            LastGateDecision = $"next {gateK * gateIntervalMeters:F0}m";
+        }
+        SkipEmptyGates();
+        Debug.Log($"[BossRun] NextGate {LastGateDecision} -> gate {gateK * gateIntervalMeters:F0}m (d={d:F0})");
+    }
+
+    bool GateExists(int k)
+    {
+        if (IsLastStage) return ResolveLastGate(k, out _, out _, out _);
+        if (IsSkyStage) return ResolveSkyGate(k, out _, out _);
+        if (IsCaveStage) return ResolveCaveGate(k, out _, out _);
+        return ResolveGate(k, out _, out _);
+    }
 
     // ===== BGM用(2026-09-29): 今のボス戦の曲の系統と、撃破済みか =====
     // 1000mごと=通常 / 5000mごと=強敵 / 10000mごと=特殊。キーは「ステージ/ボスの種類」(個別曲の上書きに使う)。
@@ -559,7 +674,9 @@ public class BossManager : MonoBehaviour
             else SpawnDeath();
         }
 
+        TickResume();
         if (IsBossPhase) return;
+        if (Time.time < nextGateNotBefore) return; // 保留していたボスは、前のボスの報酬の後に少し空けてから
         if (SuppressGates) return; // ラストダンジョンの静寂区間〜エンディング: 通常のボスの関門を作らない
         // BONUS ZONE(2026-09-29): 区画の最中はボスを始めない(BonusZoneが次のボスの手前で自分から終わる)
         if (BonusZone.Instance != null && BonusZone.Instance.BlocksBoss) return;
@@ -584,7 +701,9 @@ public class BossManager : MonoBehaviour
             // fight.
             if (GameManager.Instance != null)
             {
-                GameManager.Instance.ClampMaxDistanceTo(targetDistance);
+                // ボス戦の強化(2026-10-01): 保留していた関門(すでに通り過ぎている)では距離を関門まで戻さない
+                if (GameManager.Instance.MaxDistance - targetDistance < 30f) GameManager.Instance.ClampMaxDistanceTo(targetDistance);
+                else Debug.Log($"[BossRun] PendingGateStart {targetDistance:F0}m at d={GameManager.Instance.MaxDistance:F0}");
                 // Bugfix 2026-09-06, item "Boss中Distanceの根本修正" - marks
                 // the exact moment raw Player movement stops counting
                 // toward Distance (see GameManager.BeginBossDistanceExclusion's
@@ -942,7 +1061,7 @@ public class BossManager : MonoBehaviour
             // the exact point Boss Reward processing itself completes
             // (SaveCheckpoint time - see ApplyUpgradeByCardId/
             // RunBossRewardChoice).
-            if (useWildSchedule) { gateK++; SkipEmptyGates(); }
+            if (useWildSchedule) ChooseNextGate();
             else nextBossDistance += EffectiveRepeatInterval();
 
             // Presentation only - fires once the encounter's LAST boss has
@@ -984,6 +1103,7 @@ public class BossManager : MonoBehaviour
     public void RestoreNextBossDistance(float checkpointDistance)
     {
         IsBossPhase = false;
+        RunResumed = false; encounterResumable = false; pendingChosen = false; catchUpFloorK = 0; nextGateNotBefore = 0f; // ボス戦の強化: 再開/ワープで保留を持ち越さない
         nextBossDistance = checkpointDistance + EffectiveRepeatInterval();
 
         // 荒野街道スケジュール: チェックポイント距離より先の最初のエントリへ。
@@ -992,6 +1112,10 @@ public class BossManager : MonoBehaviour
     }
 
     // ===== 荒野街道ボス(WildBossBase系) / 自然洞窟ボス =====
+    // ボス戦の強化(2026-10-01)を使うステージ(まず荒野街道)。洞窟/天空はBossBattleTuningのentriesとresumeStagesで広げる。
+    public static string[] BattleTunedStages = { "wasteland_road" };
+    bool BattleTunedStage => GameManager.Instance != null && System.Array.IndexOf(BattleTunedStages, GameManager.Instance.ActiveRunStageId) >= 0;
+
     void StartWildPhase()
     {
         SkipEmptyGates();
@@ -1034,6 +1158,7 @@ public class BossManager : MonoBehaviour
     {
         {
             SetBossMusic(gateK, skyKind.ToString());
+            BeginEncounterClock(skyKind.ToString());
             StartSkyEncounter(skyKind, skyCount);
             if (GameManager.Instance != null)
             {
@@ -1047,6 +1172,7 @@ public class BossManager : MonoBehaviour
     {
         {
             SetBossMusic(gateK, caveKind.ToString());
+            BeginEncounterClock(caveKind.ToString());
             aliveWildThisEncounter = caveCount;
             // ボス遭遇区間だけ、最低限の戦闘可能スペース(通常天井相当・針なし)
             // を保証する。マップ全体の生成システムは変更しない(区間限定・
@@ -1068,6 +1194,7 @@ public class BossManager : MonoBehaviour
     void StartWildGate(WildBossKind gateKind, int gateCount)
     {
         SetBossMusic(gateK, gateKind.ToString());
+        BeginEncounterClock(gateKind.ToString());
         var e = new { kind = gateKind, count = gateCount };
 
         if (e.kind == WildBossKind.Dragon)
@@ -1148,6 +1275,7 @@ public class BossManager : MonoBehaviour
         boss.bossName = kind.ToString();
         float hpScale = (kind == WildBossKind.Wolf || kind == WildBossKind.GoblinRider) ? Mathf.Min(3f, 1f + currentGateK * smallBossHpPerKm) : 1f;
         boss.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(spec.hp * hpScale));
+        if (BattleTunedStage) boss.ApplyTuning(kind.ToString()); // ボス戦の強化(2026-10-01): 段階/必殺技/崩し
         boss.slotIndex = index;
         boss.mileReward = spec.mile;
         boss.bodyHeight = spec.height;
@@ -1466,6 +1594,7 @@ public class BossManager : MonoBehaviour
         dragon.chargeAttackEnabled = true;
         dragon.landingAttackEnabled = true;
         dragon.mileReward = 450;
+        if (BattleTunedStage) dragon.EnableWastelandBattle(BossBattleTuning.I.For("Dragon"));
         dragon.finalHitSparkSprite = bossHitSparkSprite;
         dragon.bossDeathSmokeSprite = bossDeathSmokeSprite;
         dragon.finalHitSe = AudioManager.Se(SeId.BossFinalHit, bossFinalHitSe);
@@ -1490,6 +1619,7 @@ public class BossManager : MonoBehaviour
         aliveDragonsThisEncounter = 0; aliveMajinsThisEncounter = 0; aliveWildThisEncounter = 0;
         if (kind == WildBossKind.Dragon) { aliveDragonsThisEncounter = 1; SpawnWastelandDragon(dragonStandoffDistance); }
         else { aliveWildThisEncounter = count; for (int i = 0; i < count; i++) SpawnWild(kind, i); }
+        BeginEncounterClock(kind.ToString());
         Debug.Log("[Boss] DebugForceSpawn " + kind);
     }
 
@@ -1559,6 +1689,7 @@ public class BossManager : MonoBehaviour
         currentGateK = gateK;
         aliveWildThisEncounter = count;
         for (int i = 0; i < count; i++) SpawnWild(kind, i);
+        BeginEncounterClock(kind.ToString()); // ボス戦の強化: マルチの自動テストでもラン再開を確かめる
     }
 #endif
 

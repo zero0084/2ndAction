@@ -132,6 +132,7 @@ public static class BossFx
 public class BossHitbox : MonoBehaviour
 {
     public bool damagesPlayer = true;
+    public int damageAmount = 1; // ボス戦の強化(2026-10-01): 必殺技の判定は2
     public System.Action<PlayerController> onHitPlayer; // 追加効果(スロー等)
 
     BoxCollider2D col;
@@ -233,7 +234,7 @@ public class BossHitbox : MonoBehaviour
         if (!other.CompareTag("Player") || PlayerController.Instance == null) return;
         if (hitThisActivation) return; // 1回の攻撃判定でダメージは最大1回
         hitThisActivation = true;
-        PlayerController.Instance.TakeDamage(source: "BossCombatPart:" + name);
+        PlayerController.Instance.TakeDamage(source: "BossCombatPart:" + name, amount: damageAmount);
         onHitPlayer?.Invoke(PlayerController.Instance);
     }
 }
@@ -298,6 +299,11 @@ public class BossProjectile : MonoBehaviour
     public float slowFactor = 1f;   // <1でヒット時にプレイヤーを減速
     public float slowDuration;
     public bool damage = true;
+    public int damageAmount = 1; // ボス戦の強化(2026-10-01)
+    public bool passThrough;     // 当たっても消えない(岩柱/大玉など)
+    public float bounceHeight;   // >0: 地面を跳ねながら進む(落石)。hugGround時のみ
+    public float bouncePeriod = 0.6f;
+    public float spin;           // 見た目の回転(度/秒)
     float age;
 
     // 弾速の走行補正(2026-09-26) - 各ボスの弾速は「世界に固定された弾」前提で調整されていたため、走行速度で
@@ -341,10 +347,11 @@ public class BossProjectile : MonoBehaviour
             if (h.HasValue)
             {
                 Vector3 p = transform.position;
-                p.y = h.Value + groundOffset;
+                p.y = h.Value + groundOffset + (bounceHeight > 0f ? bounceHeight * Mathf.Abs(Mathf.Sin(age * Mathf.PI / Mathf.Max(0.1f, bouncePeriod))) : 0f);
                 transform.position = p;
             }
         }
+        if (spin != 0f) transform.Rotate(0f, 0f, spin * Time.deltaTime);
         age += Time.deltaTime;
         if (age > lifetime) Destroy(gameObject);
     }
@@ -352,8 +359,8 @@ public class BossProjectile : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player") || PlayerController.Instance == null) return;
-        if (damage) PlayerController.Instance.TakeDamage(source: "BossProjectile:" + name);
+        if (damage) PlayerController.Instance.TakeDamage(source: "BossProjectile:" + name, amount: damageAmount);
         if (slowFactor < 1f) PlayerController.Instance.ApplyMoveSlow(slowFactor, slowDuration);
-        Destroy(gameObject);
+        if (!passThrough) Destroy(gameObject);
     }
 }

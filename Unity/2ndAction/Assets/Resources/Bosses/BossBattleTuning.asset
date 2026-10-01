@@ -1,0 +1,173 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: faf80dbb2c9944f4386c353cb9465900, type: 3}
+  m_Name: BossBattleTuning
+  m_EditorClassIdentifier: Assembly-CSharp::BossBattleTuning
+  resumeNormal: 18
+  resumeStrong: 22
+  resumeSpecial: 30
+  resumeStages:
+  - wasteland_road
+  zakoResumeDelay: 1.5
+  resumeBannerSeconds: 2.4
+  pendingMode: 0
+  pendingSafeDelay: 3
+  zakoAttackScaleDuringUltimate: 0.35
+  suppressObstaclesDuringUltimate: 1
+  ultimateDamage: 2
+  staggerNormal: 1
+  staggerUp: 3.2
+  staggerDown: 2.4
+  staggerDownImpact: 4.5
+  staggerAirBonus: 1.5
+  staggerReflect: 10
+  staggerRecoveryDelay: 2
+  breakDamageScale: 1.35
+  entries:
+  - key: Wolf
+    hpScale: 1
+    phaseThresholds:
+    - 0.55
+    specialCooldown: 6.5
+    ultimateCooldown: 0
+    firstUltimateDelay: 2
+    staggerMax: 14
+    staggerRecoveryPerSec: 2
+    breakDuration: 2.4
+    resumeSecondsOverride: 0
+    normalDamage: 1
+  - key: GoblinRider
+    hpScale: 1
+    phaseThresholds:
+    - 0.55
+    specialCooldown: 7
+    ultimateCooldown: 0
+    firstUltimateDelay: 2
+    staggerMax: 18
+    staggerRecoveryPerSec: 2
+    breakDuration: 2.6
+    resumeSecondsOverride: 0
+    normalDamage: 1
+  - key: Serpent
+    hpScale: 1
+    phaseThresholds:
+    - 0.7
+    - 0.35
+    specialCooldown: 7
+    ultimateCooldown: 15
+    firstUltimateDelay: 2
+    staggerMax: 22
+    staggerRecoveryPerSec: 2.5
+    breakDuration: 3
+    resumeSecondsOverride: 0
+    normalDamage: 1
+  - key: Cyclops
+    hpScale: 1
+    phaseThresholds:
+    - 0.7
+    - 0.35
+    specialCooldown: 7
+    ultimateCooldown: 16
+    firstUltimateDelay: 2
+    staggerMax: 30
+    staggerRecoveryPerSec: 3
+    breakDuration: 3
+    resumeSecondsOverride: 0
+    normalDamage: 1
+  - key: Spider
+    hpScale: 1
+    phaseThresholds:
+    - 0.6
+    specialCooldown: 6
+    ultimateCooldown: 15
+    firstUltimateDelay: 2
+    staggerMax: 24
+    staggerRecoveryPerSec: 2.5
+    breakDuration: 2.8
+    resumeSecondsOverride: 0
+    normalDamage: 1
+  - key: Golem
+    hpScale: 1
+    phaseThresholds:
+    - 0.7
+    - 0.3
+    specialCooldown: 8
+    ultimateCooldown: 16
+    firstUltimateDelay: 2
+    staggerMax: 38
+    staggerRecoveryPerSec: 3.5
+    breakDuration: 3.2
+    resumeSecondsOverride: 0
+    normalDamage: 1
+  - key: Griffin
+    hpScale: 1
+    phaseThresholds:
+    - 0.7
+    - 0.35
+    specialCooldown: 7
+    ultimateCooldown: 16
+    firstUltimateDelay: 2
+    staggerMax: 28
+    staggerRecoveryPerSec: 3
+    breakDuration: 3
+    resumeSecondsOverride: 0
+    normalDamage: 1
+  - key: Hydra
+    hpScale: 1
+    phaseThresholds:
+    - 0.7
+    - 0.35
+    specialCooldown: 7
+    ultimateCooldown: 15
+    firstUltimateDelay: 2
+    staggerMax: 36
+    staggerRecoveryPerSec: 3.5
+    breakDuration: 3
+    resumeSecondsOverride: 0
+    normalDamage: 1
+  - key: Demon
+    hpScale: 1
+    phaseThresholds:
+    - 0.6
+    specialCooldown: 7
+    ultimateCooldown: 16
+    firstUltimateDelay: 2
+    staggerMax: 32
+    staggerRecoveryPerSec: 3
+    breakDuration: 3
+    resumeSecondsOverride: 0
+    normalDamage: 1
+  - key: Dragon
+    hpScale: 1
+    phaseThresholds:
+    - 0.6
+    specialCooldown: 7
+    ultimateCooldown: 15
+    firstUltimateDelay: 2
+    staggerMax: 26
+    staggerRecoveryPerSec: 3
+    breakDuration: 3.2
+    resumeSecondsOverride: 0
+    normalDamage: 1
+  - key: BlackKnight
+    hpScale: 1
+    phaseThresholds:
+    - 0.7
+    - 0.35
+    specialCooldown: 7.5
+    ultimateCooldown: 16
+    firstUltimateDelay: 2
+    staggerMax: 40
+    staggerRecoveryPerSec: 4
+    breakDuration: 2.8
+    resumeSecondsOverride: 0
+    normalDamage: 1

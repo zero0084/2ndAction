@@ -1658,7 +1658,7 @@ public class TerrainManager : MonoBehaviour
                 DecorationScatter.ScatterAlongChunk(chunk.visual.transform, decorationSprites, new Vector2(startX, startY), new Vector2(endX, endY));
             }
 
-            bool bossActive = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
+            bool bossActive = BossManager.Instance != null && BossManager.Instance.SpawnsHeld;
             // Run Continuation/Checkpoint Ver.1, item 14 - no new Formation
             // spawns for a short distance right after a CONTINUE (see
             // GameManager.IsInSafeZone) - each chunk generated during that

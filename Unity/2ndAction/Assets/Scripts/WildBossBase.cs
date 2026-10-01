@@ -139,6 +139,7 @@ public abstract class WildBossBase : MonoBehaviour
         hpBar = DragonHealthBar.Create(squareSprite, transform, Mathf.Clamp(bodyHeight * 0.9f, 2.6f, 5f), 0.24f);
         hpBar.offset = new Vector3(0f, bodyHeight + 0.6f, 0f);
         hpBar.SetHidden();
+        SetupBattleUi();
 
         Camera cam = Camera.main;
         float rightEdge = cam != null ? cam.transform.position.x + cam.orthographicSize * cam.aspect : PlayerX + 12f;
@@ -146,6 +147,8 @@ public abstract class WildBossBase : MonoBehaviour
         lastGroundY = TerrainGround(worldX);
 
         OnInit();
+        // ボス戦の強化(2026-10-01): 通常攻撃の被弾(ハートの数)を種類ごとに変えられる(必殺技の判定は各ボスが2に設定済み)
+        if (tune != null && tune.normalDamage > 1) foreach (var hb in hitboxes) if (hb != null && hb.damageAmount == 1) hb.damageAmount = tune.normalDamage;
         ApplyTransform();
         // マルチプレイPhase 2 - HOSTでは共有ボスとして登録。JOINでパペットとして作っている時はAIを始めない。
         if (NetCombat.OnBossInit(this)) return;
@@ -226,6 +229,8 @@ public abstract class WildBossBase : MonoBehaviour
 
         // 複数体のときは体ごとに最初の攻撃を遅らせる(同時攻撃で回避不能にならないように)。
         if (slotIndex > 0) yield return Wait(slotIndex * initialDelayPerSlot);
+        battleStartedAt = Time.time;
+        phaseUnlockedAt = Time.time;
         yield return AI();
     }
 
@@ -254,11 +259,15 @@ public abstract class WildBossBase : MonoBehaviour
 
         float px = PlayerX;
         float gap = worldX - px;
-        if (!entering)
+        if (freeGap) lastFreeGapTime = Time.time;
+        if (!entering && !freeGap)
         {
-            if (gap > maxGap) worldX = px + maxGap;
-            else if (gap < minGap) worldX = px + minGap;
+            // ボス戦の強化(2026-10-01): 追い越し/画面の外からの突進の直後だけ、瞬間移動させずに素早く戻す(それ以外は従来どおり即座に範囲内へ)
+            bool soft = Time.time - lastFreeGapTime < 1.5f;
+            if (gap > maxGap) worldX = soft && gap > maxGap + 3f ? Mathf.MoveTowards(worldX, px + maxGap, 22f * dt) : px + maxGap;
+            else if (gap < minGap) worldX = soft && gap < minGap - 3f ? Mathf.MoveTowards(worldX, px + minGap, 22f * dt) : px + minGap;
         }
+        BattleTick(dt);
 
         if (!facingLocked && player != null)
         {
@@ -788,6 +797,9 @@ public abstract class WildBossBase : MonoBehaviour
         if (other.CompareTag("PlayerAttack"))
         {
             int dmg = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamageFallback);
+            var info = other.GetComponent<PlayerAttackInfo>();
+            bool air = PlayerController.Instance != null && !PlayerController.Instance.IsGrounded;
+            pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air);
             TakeDamage(dmg, other.bounds.center);
             return;
         }
@@ -795,7 +807,9 @@ public abstract class WildBossBase : MonoBehaviour
         FireballController fb = other.GetComponent<FireballController>();
         if (fb != null && fb.reflected)
         {
-            TakeDamage(2, other.bounds.center);
+            bool giant = fb.transform.localScale.x > 1.4f;
+            pendingStagger = BossBattleTuning.I.staggerReflect * (giant ? 1.6f : 1f);
+            TakeDamage(giant ? 6 : 2, other.bounds.center);
             Destroy(fb.gameObject);
         }
     }
@@ -804,6 +818,10 @@ public abstract class WildBossBase : MonoBehaviour
     {
         if (dead || NetPuppet) return;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit); // ボス被弾(共通、連打は間引き)
+        // ボス戦の強化(2026-10-01): BREAK中/必殺技の後の隙は大きく入る
+        float dmgScale = (Broken ? BossBattleTuning.I.breakDamageScale : 1f) * vulnerableScale;
+        if (dmgScale > 1.001f) amount = Mathf.CeilToInt(amount * dmgScale);
+        float stg = pendingStagger; pendingStagger = 0f;
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
 
@@ -830,10 +848,15 @@ public abstract class WildBossBase : MonoBehaviour
             StopAllCoroutines();
             DisableAllHitboxes();
             relVelocity = 0f;
+            if (UltimateRunning) { UltimateRunning = false; BossBattle.EndUltimate(this); }
+            if (hpBar != null) hpBar.SetSub(0f, false);
+            Debug.Log($"[BossBattle] {bossName} defeated phase={Phase} breaks={BreakCount} ultimates={UltimatesUsed} t={Time.time - battleStartedAt:F1}s");
             StartCoroutine(FinalHitAndDie());
             return;
         }
 
+        CheckPhase();
+        if (stg > 0f && !dead) AddStagger(stg);
         hitTimer = 0.16f;
         Shake(0.06f, 0.1f);
         Sprite spark = hitSparkSprite != null ? hitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
@@ -842,6 +865,394 @@ public abstract class WildBossBase : MonoBehaviour
 
         if (windingUp && interruptible) interrupted = true;
         OnDamaged(amount);
+    }
+
+    // ================= ボス戦の強化(2026-10-01): 段階 / 崩し(BREAK) / 必殺技 =================
+    // 調整値は BossBattleTuning(種類ごと)。tuningKeyはBossManagerが生成時に入れる(無い=段階/崩しなし=従来どおり)。
+    // 割り込み(段階移行の咆哮/BREAK)は、状態の戻し方を保証したボス(supportsInterrupt)だけ: 行動のコルーチンを止めて
+    // 攻撃判定/予告を消し、透明化/潜行/高度などを ResetCombatState で戻してから、咆哮/BREAKの後に行動をやり直す。
+    // 対応していないボスは、段階の演出(光/揺れ/表示)だけ出して行動は止めない(崩しは種類ごとの調整値が無ければ溜まらない)。
+    [System.NonSerialized] public string tuningKey;
+    protected BossBattleTuning.Entry tune;
+    public int Phase { get; private set; } = 1;
+    public int PhaseCount => (tune != null && tune.phaseThresholds != null ? tune.phaseThresholds.Length : 0) + 1;
+    public bool Broken { get; private set; }
+    public int BreakCount { get; private set; }
+    public float StaggerFraction => tune != null && tune.staggerMax > 0f ? Mathf.Clamp01(stagger / tune.staggerMax) : 0f;
+    public bool UltimateRunning { get; private set; }
+    public int UltimatesUsed { get; private set; }
+    public int SpecialsUsed { get; private set; }
+    public bool IsEntering => entering;
+    protected bool supportsInterrupt;
+    protected bool freeGap;               // 間合いの制限を外す(追い越し/画面の反対側からの突進)
+    float lastFreeGapTime = -99f;
+    protected float restAltitude;         // 浮いているボスの普段の高さ(BREAKで地面へ落ちた後に戻る)
+    protected float staggerDefense = 1f;  // 崩しの溜まりやすさ(必殺技の後の隙で上がる)
+    protected float vulnerableScale = 1f; // 受けるダメージ倍率(ゴーレムのコア露出など)
+    protected float battleStartedAt = -1f, phaseUnlockedAt, lastSpecialTime = -99f, lastUltimateTime = -99f;
+    float stagger, lastStaggerTime, pendingStagger;
+    bool phaseRoaring;
+
+    public void ApplyTuning(string key)
+    {
+        tuningKey = key;
+        tune = BossBattleTuning.I.For(key);
+        if (tune.hpScale > 0f && Mathf.Abs(tune.hpScale - 1f) > 0.001f) maxHp = Mathf.Max(1, Mathf.RoundToInt(maxHp * tune.hpScale));
+    }
+
+    // Init(HPバーができた直後): 崩しゲージ/段階の目盛り
+    void SetupBattleUi()
+    {
+        if (hpBar == null || tune == null) return;
+        if (tune.staggerMax > 0f) hpBar.EnableSub(squareSprite, 0.08f);
+        if (tune.phaseThresholds != null && tune.phaseThresholds.Length > 0) hpBar.SetPhaseTicks(squareSprite, tune.phaseThresholds);
+    }
+
+    void BattleTick(float dt)
+    {
+        OnBattleTick(dt);
+        if (tune == null) return;
+        if (!Broken && stagger > 0f && Time.time - lastStaggerTime > BossBattleTuning.I.staggerRecoveryDelay)
+            stagger = Mathf.Max(0f, stagger - tune.staggerRecoveryPerSec * dt);
+        if (hpBar != null && tune.staggerMax > 0f) hpBar.SetSub(StaggerFraction, Broken);
+    }
+
+    void CheckPhase()
+    {
+        if (tune == null || tune.phaseThresholds == null || tune.phaseThresholds.Length == 0) return;
+        float f = (float)Hp / Mathf.Max(1, maxHp);
+        int p = 1;
+        foreach (float th in tune.phaseThresholds) if (f <= th) p++;
+        if (p <= Phase) return;
+        Phase = p;
+        phaseUnlockedAt = Time.time;
+        Debug.Log($"[BossBattle] {bossName} PHASE {Phase} (hp {Hp}/{maxHp}) t={Time.time - battleStartedAt:F1}s");
+        if (hpBar != null) hpBar.Flash(0.8f);
+        if (supportsInterrupt && !entering && !Broken) InterruptAI(PhaseRoar());
+        else PhaseFx();
+    }
+
+    void PhaseFx()
+    {
+        Shake(0.22f, 0.4f);
+        Vector3 c = CenterWorld;
+        Color col = Phase >= PhaseCount ? new Color(1f, 0.35f, 0.25f, 0.95f) : new Color(1f, 0.8f, 0.35f, 0.95f);
+        OneShotSpriteEffect.CreateTweened(BossFx.Ring(), c, col, 0.5f, bodyHeight * 0.4f, bodyHeight * 2.4f, 0.9f, 0f, default, 0f, RenderOrder.CombatFx, 0.1f);
+        OneShotSpriteEffect.CreateTweened(BossFx.Ring(), c, new Color(1f, 1f, 1f, 0.8f), 0.35f, bodyHeight * 0.3f, bodyHeight * 1.6f, 0.8f, 0f, default, 0f, RenderOrder.CombatFx, 0.05f);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+        BossBattleHud.Banner(Phase >= PhaseCount ? "最終段階!" : "激昂!", col, 1.2f);
+    }
+
+    // 段階移行: 咆哮(短い無敵+発光+揺れ)。新しい攻撃はPhaseを見て各ボスのAIが解禁する。
+    IEnumerator PhaseRoar()
+    {
+        phaseRoaring = true;
+        invulnerable = true;
+        if (Mathf.Abs(yOffset - restAltitude) > 0.05f) yield return SetAltitude(restAltitude, 0.2f);
+        SetPose(Pose.Windup);
+        PhaseFx();
+        float t = 0f;
+        Color glow = Phase >= PhaseCount ? new Color(1f, 0.4f, 0.3f) : new Color(1f, 0.85f, 0.45f);
+        while (t < 1.0f)
+        {
+            t += Time.deltaTime;
+            windupProgress = Mathf.Clamp01(t / 0.6f);
+            SetBodyTint(Color.Lerp(Color.white, glow, Mathf.PingPong(t * 6f, 1f)));
+            if (Random.value < 0.25f) ImpactDust(new Vector3(worldX + Random.Range(-halfWidth, halfWidth), GroundY, 0f), 3, 0.8f);
+            yield return null;
+        }
+        windupProgress = 0f;
+        SetBodyTint(Color.white);
+        invulnerable = false;
+        phaseRoaring = false;
+        SetPose(Pose.Idle);
+        if (tune != null) lastSpecialTime = Time.time - tune.specialCooldown + 0.6f; // 新しい攻撃をすぐ見せる
+    }
+
+    void AddStagger(float v)
+    {
+        if (tune == null || tune.staggerMax <= 0f || Broken || phaseRoaring || entering) return;
+        stagger += v * staggerDefense;
+        lastStaggerTime = Time.time;
+        if (stagger < tune.staggerMax) return;
+        stagger = tune.staggerMax;
+        Broken = true;
+        BreakCount++;
+        Debug.Log($"[BossBattle] {bossName} BREAK #{BreakCount} t={Time.time - battleStartedAt:F1}s");
+        BossBattleHud.Banner("BREAK!", new Color(1f, 0.85f, 0.3f), 1.0f);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossFinalHit);
+        RunHitStop(0.08f);
+        if (supportsInterrupt) InterruptAI(BreakRoutine());
+        else StartCoroutine(BreakTimer());
+    }
+
+    IEnumerator BreakTimer()
+    {
+        yield return Wait(tune.breakDuration);
+        Broken = false; stagger = 0f;
+    }
+
+    // BREAK: 地面へ落ちて数秒無防備(攻撃しない、ダメージ増し)
+    IEnumerator BreakRoutine()
+    {
+        SetPose(Pose.Landing);
+        Shake(0.18f, 0.25f);
+        ImpactDust(new Vector3(worldX, GroundY, 0f), 12, 1.2f);
+        if (yOffset > 0.05f) StartCoroutine(SetAltitude(0f, 0.3f));
+        float t = 0f, starT = 0f;
+        float dur = tune.breakDuration;
+        while (t < dur && !dead)
+        {
+            t += Time.deltaTime;
+            starT -= Time.deltaTime;
+            relVelocity = -facing * 1.2f * Mathf.Clamp01(1f - t / 0.5f); // 少しよろけて下がる
+            SetBodyTint(Color.Lerp(new Color(0.7f, 0.8f, 1f), Color.white, Mathf.PingPong(t * 2.5f, 0.6f)));
+            if (starT <= 0f)
+            {
+                starT = 0.22f;
+                Vector3 hp = transform.position + new Vector3(Random.Range(-halfWidth * 0.5f, halfWidth * 0.5f), bodyHeight * Random.Range(0.75f, 1.05f), 0f);
+                OneShotSpriteEffect.CreateTweened(OneShotSpriteEffect.SoftDotSprite(), hp, new Color(1f, 0.95f, 0.45f, 1f), 0.4f, 0.25f, 0.05f, 1f, 0f, default, 0f, RenderOrder.CombatFx, 0.2f);
+            }
+            if (pose == Pose.Landing && poseTime > 0.45f) SetPose(Pose.Idle);
+            yield return null;
+        }
+        relVelocity = 0f;
+        SetBodyTint(Color.white);
+        Broken = false;
+        stagger = 0f;
+        staggerDefense = 1f;
+        if (restAltitude > 0.01f) yield return SetAltitude(restAltitude, 0.4f);
+        SetPose(Pose.Idle);
+    }
+
+    // 行動の割り込み: 実行中の攻撃をすべて止め、状態を戻し、thenの後に行動(AI)をやり直す。
+    protected void InterruptAI(IEnumerator then)
+    {
+        if (dead || NetPuppet) return;
+        StopAllCoroutines();
+        if (hpBar != null && !entering) hpBar.ForceShown(); // 表示の演出の途中で止めても、HPバーは出たままにする
+        ResetCombatState();
+        StartCoroutine(InterruptThen(then));
+    }
+
+    IEnumerator InterruptThen(IEnumerator then)
+    {
+        yield return then;
+        if (!dead) yield return AI();
+    }
+
+    protected void ResetCombatState()
+    {
+        DisableAllHitboxes();
+        windingUp = false; windupProgress = 0f; interrupted = false;
+        facingLocked = false; attackProgress = 0f; relVelocity = 0f;
+        invulnerable = false; freeGap = false;
+        SetHurtboxEnabled(true);
+        SetAlpha(1f);
+        SetBodyTint(Color.white);
+        extraScale = Vector2.one;
+        if (yOffset < 0f) yOffset = 0f;
+        if (UltimateRunning) { UltimateRunning = false; BossBattle.EndUltimate(this); }
+        vulnerableScale = 1f;
+        staggerDefense = 1f;
+        OnInterrupted();
+    }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public void DebugAddStagger(float v) => AddStagger(v);
+    public float DebugStagger => stagger;
+#endif
+    // 各ボスが攻撃中に出した自分の物(溜めの玉など)を片付ける
+    protected virtual void OnInterrupted() { }
+    // 毎フレーム(行動のコルーチンとは別。割り込みで止まらない見た目の更新用)
+    protected virtual void OnBattleTick(float dt) { }
+
+    // ---- 特殊攻撃/必殺技の順番 ----
+    protected bool SpecialReady(int minPhase) => tune != null && Phase >= minPhase && Time.time - lastSpecialTime >= tune.specialCooldown;
+    protected void MarkSpecial() { lastSpecialTime = Time.time; SpecialsUsed++; }
+    protected bool UltimateReady(int minPhase) => tune != null && tune.ultimateCooldown > 0f && Phase >= minPhase
+        && Time.time - lastUltimateTime >= tune.ultimateCooldown && Time.time - phaseUnlockedAt >= tune.firstUltimateDelay && !BossBattle.UltimateActive;
+
+    // 必殺技の開始(他のボスが必殺技中なら始めない)。名前を大きく出し、溜めの間から雑魚の攻撃を遅らせる。
+    protected bool BeginUltimate(string title, Color color)
+    {
+        if (!BossBattle.TryBeginUltimate(this)) return false;
+        UltimateRunning = true;
+        UltimatesUsed++;
+        lastUltimateTime = Time.time;
+        Debug.Log($"[BossBattle] {bossName} ULTIMATE '{title}' #{UltimatesUsed} t={Time.time - battleStartedAt:F1}s");
+        BossBattleHud.Banner(title, color, 1.6f);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+        Shake(0.12f, 0.35f);
+        return true;
+    }
+
+    protected void EndUltimate()
+    {
+        if (!UltimateRunning) return;
+        UltimateRunning = false;
+        lastUltimateTime = Time.time;
+        BossBattle.EndUltimate(this);
+    }
+
+    // 必殺技/大技の後の大きな隙: その場で崩れて動かない。崩しが溜まりやすく、ダメージも少し増える。
+    protected IEnumerator Exhausted(float seconds, float staggerMul = 2f, float dmgMul = 1.2f)
+    {
+        EndUltimate();
+        EndAttack();
+        freeGap = false;
+        SetPose(Pose.Landing);
+        staggerDefense = staggerMul;
+        vulnerableScale = dmgMul;
+        float t = 0f, starT = 0f;
+        while (t < seconds && !dead)
+        {
+            t += Time.deltaTime;
+            starT -= Time.deltaTime;
+            // 隙はプレイヤーが叩ける位置で見せる(間合いが空いていたら、滑りながら手前まで寄ってくる)
+            float fd = FrontDist;
+            relVelocity = fd > 1.2f ? facing * Mathf.Min(8f, fd * 2.5f) : 0f;
+            if (restAltitude <= 0.01f && yOffset > 0.02f) yOffset = Mathf.MoveTowards(yOffset, 0f, 6f * Time.deltaTime);
+            SetBodyTint(Color.Lerp(Color.white, new Color(0.75f, 0.85f, 1f), 0.5f + 0.5f * Mathf.Sin(t * 5f)));
+            if (starT <= 0f)
+            {
+                starT = 0.35f;
+                Vector3 hp = transform.position + new Vector3(Random.Range(-halfWidth * 0.4f, halfWidth * 0.4f), bodyHeight * Random.Range(0.8f, 1.05f), 0f);
+                OneShotSpriteEffect.CreateTweened(OneShotSpriteEffect.SoftDotSprite(), hp, new Color(0.8f, 0.9f, 1f, 0.9f), 0.45f, 0.2f, 0.05f, 1f, 0f, default, 0f, RenderOrder.CombatFx, 0.2f);
+            }
+            if (pose == Pose.Landing && poseTime > 0.4f) SetPose(Pose.Idle);
+            yield return null;
+        }
+        SetBodyTint(Color.white);
+        staggerDefense = 1f;
+        vulnerableScale = 1f;
+        SetPose(Pose.Idle);
+    }
+
+    // 必殺技の部品(重い一撃=ultimateDamage)
+    protected int UltimateDamage => Mathf.Max(1, BossBattleTuning.I.ultimateDamage);
+
+    protected BossProjectile Projectile(Sprite sprite, Color color, Vector3 pos, Vector2 size, Vector2 velocity, float life, bool heavy)
+    {
+        var p = BossProjectile.Create(sprite, color, pos, size, velocity, life, RenderOrder.Boss + 1);
+        if (heavy) p.damageAmount = UltimateDamage;
+        return p;
+    }
+
+    protected TrackedHazard Hazard(float worldXPos, float width, float height, float warn, float active, Color activeColor, bool heavy)
+    {
+        var h = TrackedHazard.Create(worldXPos, width, height, warn, active, activeColor);
+        if (heavy) h.damageAmount = UltimateDamage;
+        return h;
+    }
+
+    // 予告だけの地面の帯(画面上の位置に固定して走行と一緒に流れる)。dur秒で消える
+    protected void WarnZone(float worldXPos, float width, float height, float dur)
+    {
+        TrackedHazard.Create(worldXPos, width, height, dur, 0f, Color.clear);
+    }
+
+    // 走行と一緒に流れる予告帯(プレイヤーからrelX、高さ yLow〜yHigh)。tint: 低い攻撃=赤 / 高い攻撃=紫 など、避け方の違いを色で示す
+    protected void LaneWarn(float relX, float width, float yLow, float yHigh, float dur, Color tint)
+    {
+        var h = TrackedHazard.CreateLifted(PlayerX + relX, width, Mathf.Max(0.2f, yHigh - yLow), yLow, dur, 0f, Color.clear);
+        h.warnTint = tint;
+    }
+
+    // 進路を横切る帯状の攻撃(前方 startRelX から、走行の座標系で speed で迫る)。yLow〜yHigh の高さ、長さ length。
+    // 当たっても消えない(体の一部/衝撃波)。heavy=必殺技のダメージ。
+    protected BossProjectile LaneWave(Sprite sprite, Color c, float yLow, float yHigh, float length, float startRelX, float speed, bool heavy)
+    {
+        float h = Mathf.Max(0.3f, yHigh - yLow);
+        float x = PlayerX + startRelX;
+        float g = TerrainManager.Instance != null ? (TerrainManager.Instance.GetHeightAt(x) ?? GroundY) : GroundY;
+        var p = Projectile(sprite, c, new Vector3(x, g + yLow + h * 0.5f, 0f), new Vector2(length, h), new Vector2(-Mathf.Sign(startRelX) * speed, 0f), 6f, heavy);
+        p.passThrough = true;
+        p.hugGround = true;
+        p.groundOffset = yLow + h * 0.5f;
+        return p;
+    }
+
+    public static readonly Color LowLaneColor =new Color(1f, 0.25f, 0.12f, 1f);   // 地面すれすれ = 跳ぶ
+    public static readonly Color HighLaneColor = new Color(0.75f, 0.3f, 1f, 1f);   // 高い = 地面にいる/下攻撃で降りる
+    public static readonly Color TallLaneColor = new Color(1f, 0.75f, 0.1f, 1f);   // 背が高い/長い = 二段ジャンプ
+
+    // 画面の外(前方/後方)にあたる間合い
+    protected float OffscreenAheadGap()
+    {
+        Camera cam = Camera.main;
+        if (cam == null) return 26f;
+        return cam.transform.position.x + cam.orthographicSize * cam.aspect - PlayerX + halfWidth + 2f;
+    }
+    protected float OffscreenBehindGap()
+    {
+        Camera cam = Camera.main;
+        if (cam == null) return -18f;
+        return cam.transform.position.x - cam.orthographicSize * cam.aspect - PlayerX - halfWidth - 2f;
+    }
+
+    // 画面を横切る突進/滑空(相対速度を使う攻撃)。fromGap→toGapを高さlaneで。hbは通過中ずっと有効。
+    // fromGapへは瞬間移動するので、呼ぶ時は画面の外にいること。
+    protected IEnumerator Swoop(float fromGap, float toGap, float speed, float lane, BossHitbox hb)
+    {
+        freeGap = true;
+        worldX = PlayerX + fromGap;
+        float dir = Mathf.Sign(toGap - fromGap);
+        facing = dir; facingLocked = true;
+        yOffset = lane;
+        SetPose(Pose.Attack); attackProgress = 1f;
+        float dur = Mathf.Abs(toGap - fromGap) / Mathf.Max(1f, speed);
+        if (hb != null) StartCoroutine(hb.Strike(facing, dur));
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossAttack);
+        float t = 0f;
+        while (t < dur && !dead)
+        {
+            t += Time.deltaTime;
+            relVelocity = dir * speed;
+            yield return null;
+        }
+        relVelocity = 0f;
+        if (hb != null) hb.Deactivate();
+        attackProgress = 0f;
+    }
+
+    // 画面の外まで素早く出る(次のSwoopの準備)。ahead=前方へ/false=後方へ
+    protected IEnumerator ExitScreen(bool ahead, float speed, float lane, float timeout = 2.5f)
+    {
+        freeGap = true;
+        facingLocked = true;
+        facing = ahead ? 1f : -1f;
+        SetPose(lane > 0.5f ? Pose.Fly : Pose.Move);
+        float t = 0f;
+        float target = ahead ? OffscreenAheadGap() : OffscreenBehindGap();
+        while (t < timeout && !dead && (ahead ? Gap < target : Gap > target))
+        {
+            t += Time.deltaTime;
+            relVelocity = facing * speed;
+            yOffset = Mathf.MoveTowards(yOffset, lane, 8f * Time.deltaTime);
+            yield return null;
+        }
+        relVelocity = 0f;
+    }
+
+    // 画面の外から戻ってくる(Swoopの後など)。普段の間合いへ
+    protected IEnumerator ReturnToBattle(float gap, float speed)
+    {
+        freeGap = true;
+        if (Gap < OffscreenBehindGap() + 1f || Gap > OffscreenAheadGap() - 1f) { worldX = PlayerX + OffscreenAheadGap(); yOffset = restAltitude; }
+        facingLocked = false;
+        SetPose(Pose.Move);
+        float t = 0f;
+        while (t < 3f && !dead && Mathf.Abs(Gap - gap) > 0.4f)
+        {
+            t += Time.deltaTime;
+            relVelocity = Mathf.Sign(gap - Gap) * speed;
+            yOffset = Mathf.MoveTowards(yOffset, restAltitude, 6f * Time.deltaTime);
+            yield return null;
+        }
+        relVelocity = 0f;
+        freeGap = false;
+        SetPose(Pose.Idle);
     }
 
     // ================= 撃破演出(既存Dragonと同じ流れ) =================
@@ -928,6 +1339,7 @@ public abstract class WildBossBase : MonoBehaviour
     {
         if (dead || invulnerable || NetPuppet) return;
         netAttacker = attacker;
+        pendingStagger = BossBattleTuning.I.staggerNormal;
         try { TakeDamage(damage, hitPos); }
         finally { netAttacker = 0; }
     }
@@ -1033,8 +1445,8 @@ public abstract class WildBossBase : MonoBehaviour
         if (hurtCol != null) hurtCol.enabled = (s.Flags & NetCombat.FlagHurtbox) != 0;
     }
 
-    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; }
-    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; }
+    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; BossBattle.Living.Add(this); }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; BossBattle.Living.Remove(this); }
     void OnOriginShifted(float s) { worldX -= s; }
 
     void OnDestroy()
@@ -1059,11 +1471,14 @@ public class BossHurtbox : MonoBehaviour
 public class TrackedHazard : MonoBehaviour
 {
     float warnDuration, activeDuration, height, timer;
+    public float yLift; // ボス戦の強化(2026-10-01): 地面から浮かせた帯(空中の攻撃の予告/判定)
+    public Color warnTint; // a>0: 予告の色(高い攻撃=紫など)
     BoxCollider2D col;
     SpriteRenderer sr;
     Color activeColor;
     bool activated;
     public bool damages = true;
+    public int damageAmount = 1; // ボス戦の強化(2026-10-01): 必殺技は2
     public System.Action onActivate;
 
     public static TrackedHazard Create(float worldX, float width, float heightSize, float warn, float active, Color activeColor)
@@ -1093,6 +1508,15 @@ public class TrackedHazard : MonoBehaviour
         return go.GetComponent<TrackedHazard>();
     }
 
+    // 地面からliftだけ浮いた帯(高い位置の攻撃の予告など)。色は予告の赤とは別にwarnTintで変えられる。
+    public static TrackedHazard CreateLifted(float worldX, float width, float heightSize, float lift, float warn, float active, Color activeColor)
+    {
+        var hz = Create(worldX, width, heightSize, warn, active, activeColor);
+        hz.yLift = lift;
+        Vector3 p = hz.transform.position; p.y += lift; hz.transform.position = p;
+        return hz;
+    }
+
     static float GroundAt(float x)
     {
         if (TerrainManager.Instance == null) return 0f;
@@ -1108,7 +1532,7 @@ public class TrackedHazard : MonoBehaviour
         float baseSpeed = NetTargets.IsMulti ? NetTargets.FrameSpeedNear(transform.position) : (PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f);
         Vector3 p = transform.position;
         p.x += baseSpeed * Time.deltaTime;
-        p.y = GroundAt(p.x) + height * 0.5f;
+        p.y = GroundAt(p.x) + yLift + height * 0.5f;
         transform.position = p;
 
         timer += Time.deltaTime;
@@ -1116,7 +1540,8 @@ public class TrackedHazard : MonoBehaviour
         {
             float f = timer / Mathf.Max(0.01f, warnDuration);
             float blink = 0.5f + 0.5f * Mathf.Sin(Time.time * Mathf.Lerp(8f, 26f, f));
-            sr.color = new Color(1f, Mathf.Lerp(0.5f, 0.1f, f), 0.08f, Mathf.Lerp(0.10f, 0.42f, f) * Mathf.Lerp(0.7f, 1f, blink));
+            float wa = Mathf.Lerp(0.10f, 0.42f, f) * Mathf.Lerp(0.7f, 1f, blink);
+            sr.color = warnTint.a > 0f ? new Color(warnTint.r, warnTint.g, warnTint.b, wa * 1.15f) : new Color(1f, Mathf.Lerp(0.5f, 0.1f, f), 0.08f, wa);
             return;
         }
 
@@ -1138,7 +1563,7 @@ public class TrackedHazard : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         if (!damages || !activated) return;
-        if (other.CompareTag("Player") && PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "WildBoss:" + name);
+        if (other.CompareTag("Player") && PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "WildBoss:" + name, amount: damageAmount);
     }
 }
 

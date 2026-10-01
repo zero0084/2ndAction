@@ -632,7 +632,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
 
         if (absDx > shooterRange) return;
 
-        shooterTimer -= Time.deltaTime;
+        shooterTimer -= Time.deltaTime * BossBattle.ZakoAttackScale; // ボスの必殺技中は撃つ間隔を空ける(2026-10-01)
         if (shooterTimer <= 0f)
         {
             shooterTimer = shooterCooldown;
@@ -807,7 +807,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
 
     void UpdateMeleeAttackCycle()
     {
-        meleeAttackTimer -= Time.deltaTime;
+        meleeAttackTimer -= Time.deltaTime * (meleeAttackState == MeleeAttackState.Idle ? BossBattle.ZakoAttackScale : 1f); // ボスの必殺技中は次の攻撃までを空ける
         switch (meleeAttackState)
         {
             case MeleeAttackState.Idle:
@@ -977,7 +977,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
 
     void UpdateHopperAttackCycle()
     {
-        hopperAttackTimer -= Time.deltaTime;
+        hopperAttackTimer -= Time.deltaTime * (hopperAttackState == HopperAttackState.Idle ? BossBattle.ZakoAttackScale : 1f);
         switch (hopperAttackState)
         {
             case HopperAttackState.Idle:

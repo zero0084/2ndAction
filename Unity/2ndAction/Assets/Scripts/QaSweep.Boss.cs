@@ -1,0 +1,405 @@
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+// ボス戦の強化(2026-10-01)の確認。
+//  -qaBoss <dir>        … A〜I(即撃破/再開直前/再開後/1,000m/5,000m/10,000m通過/複数体/高速/低速)と距離・二重開始の監視
+//  -qaBossKinds <dir>   … 荒野街道の各ボス: 段階/特殊攻撃/必殺技/BREAK/隙を出して撮影(-qaBossOnly Wolf,Serpent... で絞る)
+public partial class QaSweep
+{
+    int bossLogResumed, bossLogNewRunReset, bossLogUltimates, bossLogBreaks, bossLogPending;
+    bool bossLogHooked;
+    float distWatchLast = -1f;
+    bool distWatchAllowDrop;
+    int distDrops;
+
+    void HookBossLogs()
+    {
+        if (bossLogHooked) return;
+        bossLogHooked = true;
+        Application.logMessageReceived += (c, tr, type) =>
+        {
+            if (c.StartsWith("[BossRun] RunResumed")) bossLogResumed++;
+            else if (c.StartsWith("[Encounter] NewRunReset")) bossLogNewRunReset++;
+            else if (c.Contains("ULTIMATE '")) bossLogUltimates++;
+            else if (c.Contains(" BREAK #")) bossLogBreaks++;
+            else if (c.StartsWith("[BossRun] NextGate pending")) bossLogPending++;
+        };
+        StartCoroutine(DistanceWatch());
+    }
+
+    IEnumerator DistanceWatch()
+    {
+        while (true)
+        {
+            var g = GameManager.Instance;
+            if (g != null && g.HasStarted)
+            {
+                float d = g.MaxDistance;
+                if (distWatchLast >= 0f && d < distWatchLast - 0.5f && !distWatchAllowDrop) { distDrops++; L($"[WARN-DIST] distance went back {distWatchLast:F1} -> {d:F1}"); }
+                distWatchLast = d;
+            }
+            else distWatchLast = -1f;
+            yield return null;
+        }
+    }
+
+    void WarpTo(float d)
+    {
+        distWatchAllowDrop = true;
+        gm.DebugWarpToDistance(d);
+        distWatchLast = -1f;
+        distWatchAllowDrop = false;
+    }
+
+    BossManager Bm => BossManager.Instance;
+    List<WildBossBase> WildAlive() => FindObjectsByType<WildBossBase>(FindObjectsSortMode.None).Where(b => b != null && !b.IsDead && b.isActiveAndEnabled).ToList();
+    List<DragonController> DragonsAlive() => FindObjectsByType<DragonController>(FindObjectsSortMode.None).Where(b => b != null && !b.IsDead).ToList();
+
+    IEnumerator WaitBossSpawn(float timeout = 25f)
+    {
+        float w = 0f;
+        while (Bm.AliveBossCount <= 0 && w < timeout) { yield return null; w += Time.unscaledDeltaTime; }
+        // 登場の演出が終わるまで
+        w = 0f;
+        while (WildAlive().Any(b => b.IsEntering) && w < 8f) { yield return null; w += Time.unscaledDeltaTime; }
+    }
+
+    void KillAllBosses()
+    {
+        foreach (var b in WildAlive()) b.TakeDamage(99999, b.CenterWorld);
+        foreach (var d in DragonsAlive()) d.TakeDamage(99999);
+    }
+
+    IEnumerator WaitPhaseEnd(float timeout = 30f)
+    {
+        float w = 0f;
+        while (Bm.IsBossPhase && w < timeout) { yield return null; w += Time.unscaledDeltaTime; }
+    }
+
+    IEnumerator BossMode()
+    {
+        Application.targetFrameRate = 60;
+        HookBossLogs();
+        yield return BeginRun("swordsman", "wasteland_road");
+        typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
+        var tn = BossBattleTuning.I;
+        L($"[tuning] resume normal/strong/special = {tn.resumeNormal}/{tn.resumeStrong}/{tn.resumeSpecial}s pending={tn.pendingMode} safe={tn.pendingSafeDelay}s entries={tn.entries.Count}");
+
+        // ---- 重い一撃(ハート2)の確認: 満タンからは倒れない
+        {
+            typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false);
+            stopKeepAlive = true;
+            yield return null;
+            var livesProp = typeof(GameManager).GetProperty("Lives");
+            livesProp.GetSetMethod(true).Invoke(gm, new object[] { gm.MaxLives });
+            var r = gm.TryDamagePlayer(false, "qa-heavy", 2);
+            Check(gm.Lives == gm.MaxLives - 2 && r == GameManager.DamageResult.Hit, $"heavy hit takes 2 hearts ({gm.Lives}/{gm.MaxLives})");
+            livesProp.GetSetMethod(true).Invoke(gm, new object[] { 2 });
+            int full = gm.MaxLives;
+            gm.maxLives = 2;
+            r = gm.TryDamagePlayer(false, "qa-heavy-full", 2);
+            Check(gm.Lives == 1 && r == GameManager.DamageResult.Hit, $"heavy hit never kills from full hearts (lives {gm.Lives})");
+            gm.maxLives = full;
+            livesProp.GetSetMethod(true).Invoke(gm, new object[] { 99 });
+            typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
+            stopKeepAlive = false;
+            StartCoroutine(KeepAlive());
+        }
+
+        // ---- A: 即撃破(ラン再開なし、次は2,000m)
+        WarpTo(940f);
+        yield return WaitBossSpawn();
+        Check(Bm.AliveBossCount > 0 && Bm.IsBossPhase, "A: 1,000m boss spawned");
+        float dA = gm.MaxDistance;
+        KillAllBosses();
+        yield return WaitPhaseEnd();
+        Check(!Bm.IsBossPhase && Bm.ResumeCount == 0, $"A: boss phase ended without a run resume (resumes {Bm.ResumeCount})");
+        Check(Mathf.Abs(Bm.NextBossDistance - 2000f) < 1f, $"A: next gate 2000 (got {Bm.NextBossDistance})");
+        yield return new WaitForSeconds(1.5f);
+        Check(gm.MaxDistance > dA + 5f, $"A: distance moves again after the reward ({dA:F0} -> {gm.MaxDistance:F0})");
+
+        // ---- B: ラン再開の直前に撃破
+        WarpTo(1940f);
+        yield return WaitBossSpawn();
+        float w = 0f;
+        while (Bm.EncounterSeconds < Bm.ResumeSecondsTotal - 0.8f && w < 40f) { yield return null; w += Time.deltaTime; }
+        Check(!Bm.RunResumed, $"B: not resumed yet at {Bm.EncounterSeconds:F1}/{Bm.ResumeSecondsTotal:F0}s");
+        Shot("B_countdown_before_resume");
+        float dB = gm.MaxDistance;
+        KillAllBosses();
+        yield return WaitPhaseEnd();
+        Check(Bm.ResumeCount == 0 && bossLogResumed == 0, $"B: killed just before resume -> no resume (resumes {bossLogResumed})");
+        Check(Mathf.Abs(dB - 2000f) < 2f, $"B: distance stayed at the gate during the fight ({dB:F1})");
+
+        // ---- C: ラン再開の後に撃破(距離/雑魚/障害物が戻る、ボスは戦闘継続、撃破後に二重開始しない)
+        WarpTo(2940f);
+        yield return WaitBossSpawn();
+        w = 0f;
+        while (!Bm.RunResumed && w < 40f) { yield return null; w += Time.deltaTime; }
+        Check(Bm.RunResumed, $"C: run resumed after {Bm.EncounterSeconds:F1}s (limit {Bm.ResumeSecondsTotal:F0}s)");
+        float dC0 = gm.MaxDistance;
+        yield return new WaitForSeconds(0.3f);
+        Shot("C_run_resumed_banner");
+        yield return new WaitForSeconds(5f);
+        int zako = FindObjectsByType<EnemyController>(FindObjectsSortMode.None).Count(e => e != null && e.isActiveAndEnabled && e.GetComponent<BonusEnemy>() == null);
+        Check(gm.MaxDistance > dC0 + 30f, $"C: distance counts again after resume ({dC0:F0} -> {gm.MaxDistance:F0})");
+        Check(Bm.AliveBossCount > 0 && WildAlive().Count > 0, "C: boss still alive and fighting after resume");
+        Check(zako > 0, $"C: normal enemies spawn again after resume ({zako} alive)");
+        var bC = WildAlive().FirstOrDefault();
+        if (bC != null) L($"[C] boss gap after 5s of resumed run: {bC.transform.position.x - pc.transform.position.x:F1}");
+        Shot("C_resumed_with_boss_and_enemies");
+        float speedBefore = pc.CurrentAutoRunSpeed;
+        float startSpeed = pc.runSpeed;
+        int resetsBefore = bossLogNewRunReset;
+        int resumesBefore = bossLogResumed;
+        KillAllBosses();
+        yield return WaitPhaseEnd();
+        yield return new WaitForSeconds(3f);
+        Check(bossLogNewRunReset == resetsBefore, "C: killing the boss after resume does not restart the run");
+        Check(bossLogResumed == resumesBefore, "C: no second 'run resume' after the kill");
+        Check(pc.CurrentAutoRunSpeed >= speedBefore * 0.97f && pc.CurrentAutoRunSpeed > startSpeed * 1.05f, $"C: run speed not reset ({speedBefore:F1} -> {pc.CurrentAutoRunSpeed:F1}, start {startSpeed:F1})");
+        Check(Bm.NextBossDistance > gm.MaxDistance - 1f || Bm.NextBossDistance <= 4000f, $"C: next gate {Bm.NextBossDistance} (d={gm.MaxDistance:F0})");
+
+        // ---- D: 倒さず次の1,000mを通過 → 重ならない → 撃破後に1つだけ保留から出る
+        yield return GateCarryCase("D", 5940f, 6000f, 7150f, 7000f);
+        // ---- E: 倒さず5,000mを通過(4,000mのオオカミが残る) → 保留は5,000m(ライダー)
+        yield return GateCarryCase("E", 3940f, 4000f, 6150f, 5000f);
+        // ---- F: 倒さず10,000mを通過 → 保留は10,000m(大蛇)、11,000mは飛ばす
+        yield return GateCarryCase("F", 8940f, 9000f, 11150f, 10000f);
+
+        // ---- G: 複数体(13,000mはオオカミ2体): 同時に必殺技(突進)を始めない
+        WarpTo(12940f);
+        yield return WaitBossSpawn();
+        var wolves = WildAlive();
+        L($"[G] bosses at 13,000m: {wolves.Count} ({string.Join(",", wolves.Select(b => b.bossName))})");
+        Check(wolves.Count >= 2, "G: two wolves at 13,000m");
+        foreach (var b in wolves) b.TakeDamage(Mathf.Max(1, b.Hp - Mathf.FloorToInt(b.maxHp * 0.45f)), b.CenterWorld);
+        int overlap = 0; float gT = 0f; int ultSeen = 0;
+        while (gT < 22f && Bm.AliveBossCount > 0)
+        {
+            var alive = WildAlive();
+            int running = alive.Count(b => b.UltimateRunning);
+            if (running > 1) overlap++;
+            ultSeen = alive.Sum(b => b.UltimatesUsed);
+            if (running == 1 && gT > 3f && gT < 3.1f) Shot("G_one_wolf_charging");
+            gT += Time.deltaTime;
+            yield return null;
+        }
+        Check(overlap == 0, $"G: never two ultimates at once (overlap frames {overlap})");
+        Check(ultSeen >= 2, $"G: both wolves used the overtake charge in turn ({ultSeen})");
+        KillAllBosses();
+        yield return WaitPhaseEnd();
+
+        // ---- H/I: 高速/低速(必殺技が成立する・ボスが画面に残る)
+        yield return SpeedCase("H", 300f);
+        yield return SpeedCase("I", 30f);
+
+        L($"[summary] resumes={bossLogResumed} pendingChosen={bossLogPending} ultimates={bossLogUltimates} breaks={bossLogBreaks} distanceDrops={distDrops} newRunResets={bossLogNewRunReset}");
+        Check(distDrops == 0, "distance never went backwards (outside of debug warps)");
+        yield return EndRun();
+    }
+
+    // 1つ目のボスを倒さずに passTo まで走り、途中の関門が重ならないこと/撃破後に保留(wantPending)が1つだけ出ることを確かめる
+    IEnumerator GateCarryCase(string tag, float warp, float gate, float passTo, float wantPending)
+    {
+        WarpTo(warp);
+        yield return WaitBossSpawn();
+        Check(Bm.AliveBossCount > 0, $"{tag}: boss at {gate:F0}m spawned");
+        int firstCount = Bm.AliveBossCount;
+        string firstName = string.Join(",", WildAlive().Select(b => b.bossName).Concat(DragonsAlive().Select(_ => "Dragon")));
+        float w = 0f;
+        while (!Bm.RunResumed && w < 45f) { yield return null; w += Time.deltaTime; }
+        Check(Bm.RunResumed, $"{tag}: run resumed");
+        SetKmh(260f);
+        int maxAlive = 0; w = 0f;
+        while (gm.MaxDistance < passTo && w < 90f)
+        {
+            maxAlive = Mathf.Max(maxAlive, Bm.AliveBossCount);
+            yield return null; w += Time.deltaTime;
+        }
+        PlayerController.DebugSpeedScale = 1f;
+        Check(gm.MaxDistance >= passTo, $"{tag}: ran to {gm.MaxDistance:F0}m with the boss alive");
+        Check(maxAlive <= firstCount, $"{tag}: no extra boss spawned while passing gates (max alive {maxAlive}, first {firstCount})");
+        Check(WildAlive().Count + DragonsAlive().Count == firstCount, $"{tag}: still only the first boss ({firstName})");
+        Shot($"{tag}_boss_kept_past_gates");
+        float dKill = gm.MaxDistance;
+        KillAllBosses();
+        yield return WaitPhaseEnd();
+        L($"[{tag}] decision: {Bm.LastGateDecision}");
+        Check(Mathf.Abs(Bm.NextBossDistance - wantPending) < 1f, $"{tag}: pending gate is {wantPending:F0} (got {Bm.NextBossDistance:F0})");
+        // 保留ボスは安全時間の後に出る(距離は関門まで戻さない)
+        float before = gm.MaxDistance;
+        w = 0f;
+        while (Bm.AliveBossCount <= 0 && w < 20f) { yield return null; w += Time.unscaledDeltaTime; }
+        Check(Bm.AliveBossCount > 0, $"{tag}: pending boss appeared after the safe delay ({w:F1}s)");
+        Check(gm.MaxDistance >= before - 0.5f, $"{tag}: distance not pulled back to the pending gate ({before:F0} -> {gm.MaxDistance:F0})");
+        yield return WaitBossSpawn();
+        L($"[{tag}] pending boss: {string.Join(",", WildAlive().Select(b => b.bossName).Concat(DragonsAlive().Select(_ => "Dragon")))}");
+        KillAllBosses();
+        yield return WaitPhaseEnd();
+        float next = Bm.NextBossDistance;
+        Check(next > gm.MaxDistance, $"{tag}: after the pending boss, the next gate is ahead ({next:F0} > {gm.MaxDistance:F0}) - no backlog");
+        L($"[{tag}] after pending: next gate {next:F0}, d={gm.MaxDistance:F0}, killed first at {dKill:F0}");
+    }
+
+    IEnumerator SpeedCase(string tag, float kmh)
+    {
+        WarpTo(19940f); // 20,000m サイクロプス
+        yield return WaitBossSpawn();
+        SetKmh(kmh);
+        var b = WildAlive().FirstOrDefault();
+        if (b == null) { Check(false, $"{tag}: cyclops spawned"); yield break; }
+        b.TakeDamage(Mathf.Max(1, b.Hp - Mathf.FloorToInt(b.maxHp * 0.6f)), b.CenterWorld);
+        float w = 0f; float maxAbsGap = 0f; bool shot = false; int farRun = 0, farRunMax = 0, spikes = 0;
+        int ult0 = b.UltimatesUsed;
+        while (w < 26f && !b.IsDead)
+        {
+            float gap = b.transform.position.x - pc.transform.position.x;
+            if (!b.UltimateRunning)
+            {
+                maxAbsGap = Mathf.Max(maxAbsGap, Mathf.Abs(gap));
+                // 落下からの復帰(プレイヤーの瞬間移動)の1フレームだけ離れて見えるのは除く: 続けて離れているフレーム数で見る
+                if (Mathf.Abs(gap) > 30f) { farRun++; if (farRun == 1) spikes++; } else farRun = 0;
+                farRunMax = Mathf.Max(farRunMax, farRun);
+            }
+            if (b.UltimateRunning && !shot && w > 1f) { shot = true; StartCoroutine(DelayedShot($"{tag}_{kmh:0}kmh_ultimate", 2.2f)); }
+            w += Time.deltaTime;
+            yield return null;
+        }
+        Check(b.UltimatesUsed > ult0, $"{tag}: ultimate happens at {kmh:0}km/h ({b.UltimatesUsed - ult0})");
+        Check(farRunMax <= 3, $"{tag}: boss stays near the player at {kmh:0}km/h (longest far streak {farRunMax} frames, one-frame spikes {spikes}, max |gap| {maxAbsGap:F1})");
+        PlayerController.DebugSpeedScale = 1f;
+        KillAllBosses();
+        yield return WaitPhaseEnd();
+    }
+
+    readonly HashSet<string> recordedVideo = new HashSet<string>();
+    // 必殺技の始まりから seconds 秒を30fpsで毎フレーム書き出す(動画用)
+    IEnumerator RecordUltimate(string name, float seconds)
+    {
+        string vdir = System.IO.Path.Combine(outDir, "video_" + name);
+        System.IO.Directory.CreateDirectory(vdir);
+        Time.captureFramerate = 30;
+        int frames = Mathf.RoundToInt(seconds * 30f);
+        for (int f = 0; f < frames; f++)
+        {
+            yield return new WaitForEndOfFrame();
+            ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(vdir, $"f{f:00000}.png"));
+        }
+        Time.captureFramerate = 0;
+        L($"[video] {name}: {frames} frames");
+    }
+
+    IEnumerator DelayedShot(string name, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Shot(name);
+    }
+
+    // 各ボス: 段階→特殊攻撃→必殺技→隙、BREAK を出して撮る
+    IEnumerator BossKindsMode()
+    {
+        Application.targetFrameRate = 60;
+        HookBossLogs();
+        yield return BeginRun("swordsman", "wasteland_road");
+        typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
+        (string name, float gate)[] list =
+        {
+            ("Wolf", 1000f), ("GoblinRider", 5000f), ("Serpent", 10000f), ("Cyclops", 20000f), ("Spider", 30000f), ("Golem", 40000f),
+            ("Griffin", 50000f), ("Hydra", 60000f), ("Demon", 70000f), ("Dragon", 80000f), ("BlackKnight", 90000f),
+        };
+        string only = Arg("-qaBossOnly", "");
+        foreach (var e in list)
+        {
+            if (only != "" && !only.Split(',').Contains(e.name)) continue;
+            yield return OneBossKind(e.name, e.gate);
+        }
+        L($"[summary] ultimates={bossLogUltimates} breaks={bossLogBreaks} resumes={bossLogResumed}");
+        yield return EndRun();
+    }
+
+    IEnumerator OneBossKind(string name, float gate)
+    {
+        WarpTo(gate - 60f);
+        yield return WaitBossSpawn();
+        var tune = BossBattleTuning.I.For(name);
+        bool isDragon = name == "Dragon";
+        var wb = WildAlive().FirstOrDefault();
+        var dc = DragonsAlive().FirstOrDefault();
+        if (wb == null && dc == null)
+        {
+            Check(false, $"{name}: spawned at {gate:F0}");
+            L($"[diag] d={gm.MaxDistance:F1} timeScale={Time.timeScale:F2} bossPhase={Bm.IsBossPhase} next={Bm.NextBossDistance:F0} started={gm.HasStarted} over={gm.IsGameOver} speed={pc.CurrentAutoRunSpeed:F1} x={pc.transform.position.x:F1} levelUp={gm.LevelUpPending} rewardWait={gm.IsRewardSequenceWaitingForSelection} bonus={(BonusZone.Instance != null ? BonusZone.Instance.State.ToString() : "-")} blocks={(BonusZone.Instance != null && BonusZone.Instance.BlocksBoss)} countdown={gm.CountdownActive} finishing={pc.IsFinishing}");
+            Shot($"{name}_spawn_fail");
+            yield break;
+        }
+        yield return new WaitForSeconds(1.5f);
+        Shot($"{name}_p1");
+        // 段階: 境目のすぐ下まで削る
+        int phases = (tune.phaseThresholds != null ? tune.phaseThresholds.Length : 0) + 1;
+        int lastPhaseShot = 1;
+        int specials0 = wb != null ? wb.SpecialsUsed : 0;
+        for (int p = 0; p < phases - 1; p++)
+        {
+            float th = tune.phaseThresholds[p] - 0.04f;
+            if (wb != null) { int target = Mathf.FloorToInt(wb.maxHp * th); if (wb.Hp > target) wb.TakeDamage(wb.Hp - target, wb.CenterWorld); }
+            else { int target = Mathf.FloorToInt(dc.maxHp * th); if (dc.Hp > target) dc.TakeDamage(dc.Hp - target); }
+            yield return new WaitForSeconds(0.45f);
+            Shot($"{name}_phase{p + 2}_roar");
+            int phNow = wb != null ? wb.Phase : dc.Phase;
+            Check(phNow == p + 2, $"{name}: reached phase {p + 2} (now {phNow})");
+            lastPhaseShot = p + 2;
+            // この段階で新しい攻撃が出るまで待つ(最大18秒)
+            float w = 0f; bool shotSpecial = false;
+            while (w < 18f)
+            {
+                bool ult = wb != null ? wb.UltimateRunning : (dc != null && BossBattle.UltimateActive);
+                if (ult && !shotSpecial)
+                {
+                    shotSpecial = true;
+                    if (Arg("-qaBossVideo", "") != "" && !recordedVideo.Contains(name)) { recordedVideo.Add(name); yield return RecordUltimate(name, 8f); }
+                    else { StartCoroutine(DelayedShot($"{name}_phase{p + 2}_ultimate_a", 0.9f)); StartCoroutine(DelayedShot($"{name}_phase{p + 2}_ultimate_b", 2.0f)); }
+                }
+                if (wb != null && wb.SpecialsUsed > specials0 && !shotSpecial) { shotSpecial = true; StartCoroutine(DelayedShot($"{name}_phase{p + 2}_special", 0.8f)); }
+                if (shotSpecial && w > 4f) break;
+                w += Time.deltaTime;
+                yield return null;
+            }
+            yield return new WaitForSeconds(2.5f);
+        }
+        // 必殺技(あるボスは最後の段階で)を待つ
+        int ults = wb != null ? wb.UltimatesUsed : dc.UltimatesUsed;
+        if (tune.ultimateCooldown > 0f)
+        {
+            float w = 0f;
+            while (w < 26f && (wb != null ? wb.UltimatesUsed : dc.UltimatesUsed) == 0) { w += Time.deltaTime; yield return null; }
+            ults = wb != null ? wb.UltimatesUsed : dc.UltimatesUsed;
+            Check(ults > 0, $"{name}: used its ultimate");
+            // 隙(Exhausted)を撮る
+            w = 0f;
+            while (w < 12f && (wb != null ? wb.UltimateRunning : BossBattle.UltimateActive)) { w += Time.deltaTime; yield return null; }
+            yield return new WaitForSeconds(0.6f);
+            Shot($"{name}_after_ultimate_opening");
+        }
+        int specials = wb != null ? wb.SpecialsUsed : 0;
+        // BREAK
+        if (tune.staggerMax > 0f)
+        {
+            int br0 = wb != null ? wb.BreakCount : dc.BreakCount;
+            if (wb != null) wb.DebugAddStagger(tune.staggerMax * 1.2f); else dc.DebugAddStagger(tune.staggerMax * 1.2f);
+            yield return new WaitForSeconds(0.5f);
+            Shot($"{name}_break");
+            int br = wb != null ? wb.BreakCount : dc.BreakCount;
+            Check(br > br0, $"{name}: BREAK triggered by stagger");
+            yield return new WaitForSeconds(tune.breakDuration + 0.5f);
+            Check(wb == null || !wb.Broken, $"{name}: recovers from BREAK");
+        }
+        L($"[kind] {name}: phases={(wb != null ? wb.Phase : dc.Phase)}/{phases} specials={specials} ultimates={ults} breaks={(wb != null ? wb.BreakCount : dc.BreakCount)} hp={(wb != null ? wb.Hp : dc.Hp)}/{(wb != null ? wb.maxHp : dc.maxHp)} resumed={Bm.RunResumed}");
+        KillAllBosses();
+        yield return WaitPhaseEnd(40f);
+    }
+}
+#endif

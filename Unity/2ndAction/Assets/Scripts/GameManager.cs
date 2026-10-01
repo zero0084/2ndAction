@@ -1791,6 +1791,18 @@ public partial class GameManager : MonoBehaviour
     {
         bossPhaseEntryRawDistance = lastRawDistanceSeen;
         bossPhaseEntryRawDistanceExact = lastRawDistanceSeenExact;
+        bossExclusionFolded = false;
+    }
+
+    // ボス戦の強化(2026-10-01): ボスが残ったままラン再開 - ここまでの戦闘中の移動を除外して、ここから距離を再び数える。
+    // 遭遇の終わり(報酬の後)のEndBossDistanceExclusionでは二重に除外しない。
+    bool bossExclusionFolded;
+    public void ResumeBossDistance()
+    {
+        if (bossExclusionFolded) return;
+        distanceExclusionOffset += (lastRawDistanceSeen - bossPhaseEntryRawDistance);
+        distanceExclusionOffsetExact += (lastRawDistanceSeenExact - bossPhaseEntryRawDistanceExact);
+        bossExclusionFolded = true;
     }
 
     // Called once, right where GameManager already calls BossManager.
@@ -1798,6 +1810,7 @@ public partial class GameManager : MonoBehaviour
     // raw movement into the permanent exclusion offset.
     public void EndBossDistanceExclusion()
     {
+        if (bossExclusionFolded) { bossExclusionFolded = false; return; } // ラン再開で除外済み
         distanceExclusionOffset += (lastRawDistanceSeen - bossPhaseEntryRawDistance);
         distanceExclusionOffsetExact += (lastRawDistanceSeenExact - bossPhaseEntryRawDistanceExact);
     }
@@ -1825,7 +1838,7 @@ public partial class GameManager : MonoBehaviour
         // Background Scroll/Enemy Battle/Player操作 are all completely
         // untouched by this, since none of them read GameManager.
         // MaxDistance at all. This early-return is the ENTIRE gate.
-        if (BossManager.Instance != null && BossManager.Instance.IsBossPhase) return;
+        if (BossManager.Instance != null && BossManager.Instance.HoldsRun) return; // ラン再開後はボスが残っていても距離が進む
 
         double distanceExact = rawDistanceExact - distanceExclusionOffsetExact;
         if (distanceExact > MaxDistanceExact) MaxDistanceExact = distanceExact;
@@ -2678,7 +2691,7 @@ public partial class GameManager : MonoBehaviour
     // Bugfix 2026-09-06, item 2 - `reason` is Debug-log only (Debug.Log
     // below, no behavior branches on it) so the actual GAME OVER cause can
     // be confirmed on a real device rather than inferred from review alone.
-    public DamageResult TryDamagePlayer(bool bypassInvincibleMode = false, string reason = "Other")
+    public DamageResult TryDamagePlayer(bool bypassInvincibleMode = false, string reason = "Other", int amount = 1)
     {
         Vector3 dmgPos = PlayerController.Instance != null ? PlayerController.Instance.transform.position : Vector3.zero;
         if (IsGameOver) return DamageResult.Ignored;
@@ -2686,8 +2699,11 @@ public partial class GameManager : MonoBehaviour
         if (!bypassInvincibleMode && InvincibleMode) return DamageResult.Ignored;
         if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); return DamageResult.Ignored; }
 
-        FreezeDiagnostics.LogEvent($"[Damage] Hit reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2}) livesBefore={Lives} timeScale={Time.timeScale:F2}");
-        Lives = Mathf.Max(0, Lives - 1);
+        // ボス戦の強化(2026-10-01): 重い一撃は複数ハート。ただしハートが満タンの時に1発で倒れることはない。
+        int dmg = Mathf.Max(1, amount);
+        if (dmg > 1 && Lives >= maxLives && dmg >= Lives) dmg = Mathf.Max(1, Lives - 1);
+        FreezeDiagnostics.LogEvent($"[Damage] Hit reason={reason} amount={dmg} pos=({dmgPos.x:F2},{dmgPos.y:F2}) livesBefore={Lives} timeScale={Time.timeScale:F2}");
+        Lives = Mathf.Max(0, Lives - dmg);
         heartDamageFlashTimer = heartDamageFlashDuration;
         // マルチプレイPhase 2.5: HOST自身のHPの変化もHOSTの表(全員へ配る正解)へ即反映する。
         if (NetCombat.Authority) NetMatch.HostLocalHpChanged(reason);
@@ -4480,7 +4496,8 @@ public partial class GameManager : MonoBehaviour
             // してしまううえ座標精度も落ちる。論理距離だけを加算してその場で「N mに来た」ことにする
             // (地形/配置/ボスは論理距離で判断するので、その後は通常どおり進む)。
             float current = PlayerController.Instance.DistanceFromStart;
-            FloatingOrigin.LogicalWarp(targetDistance - current);
+            // 2026-10-01: ボス戦で除外した移動ぶんも足す(以前は除外ぶんの距離だけワープ後に距離が止まっていた)
+            FloatingOrigin.LogicalWarp(targetDistance + distanceExclusionOffset - current);
         }
         Debug.Log($"[Debug] Warped to {targetDistance}m");
     }

@@ -42,6 +42,8 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaScenery") { mode = "scenery"; dir = a[i + 1]; }
             if (a[i] == "-qaSceneryVideo") { mode = "sceneryvideo"; dir = a[i + 1]; }
             if (a[i] == "-qaSceneryStages") { mode = "scenerystages"; dir = a[i + 1]; }
+            if (a[i] == "-qaBoss") { mode = "boss"; dir = a[i + 1]; }
+            if (a[i] == "-qaBossKinds") { mode = "bosskinds"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -97,6 +99,8 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "scenery") yield return SceneryMode();
         else if (mode == "sceneryvideo") yield return SceneryVideoMode();
         else if (mode == "scenerystages") yield return SceneryStagesMode();
+        else if (mode == "boss") yield return BossMode();
+        else if (mode == "bosskinds") yield return BossKindsMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

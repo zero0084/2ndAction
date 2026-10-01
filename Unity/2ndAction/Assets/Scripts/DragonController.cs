@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider2D))]
 public class DragonController : MonoBehaviour
 {
-    enum State { Entering, Idle, Telegraphing, Charging, Firing, Landing, Dead }
+    enum State { Entering, Idle, Telegraphing, Charging, Firing, Landing, Dead, Stunned }
 
     [Header("Animation")]
     public Sprite[] idleFrames;
@@ -196,8 +196,8 @@ public class DragonController : MonoBehaviour
     float trackedX;
 
     // Floating Origin: 座標を戻した分、追従基準X/待機位置も戻す。
-    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; }
-    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; }
+    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; BossBattle.Living.Add(this); }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; BossBattle.Living.Remove(this); }
     void OnOriginShifted(float s) { trackedX -= s; homePos.x -= s; }
 
     public void Init(Transform playerTransform)
@@ -227,6 +227,11 @@ public class DragonController : MonoBehaviour
         // Boss Milestone Presentation pass - "Boss HP BarはDragon出現前か
         // ら表示しない" (see ArrivalPresentation for the reveal).
         hpBar.SetHidden();
+        if (battle != null)
+        {
+            if (battle.staggerMax > 0f) hpBar.EnableSub(squareSprite, 0.08f);
+            hpBar.SetPhaseTicks(squareSprite, battle.phaseThresholds);
+        }
 
         state = State.Entering;
         // マルチプレイPhase 2 - HOSTでは共有ボスとして登録。JOINでパペットとして作っている時はAIを始めない。
@@ -311,6 +316,7 @@ public class DragonController : MonoBehaviour
 
         AnimateSprite();
         AdvanceTrackedX();
+        BattleTick();
 
         if (state == State.Idle || state == State.Telegraphing || state == State.Firing)
         {
@@ -327,6 +333,13 @@ public class DragonController : MonoBehaviour
                 return;
             }
             BossStaggerGate.NextDragonTime = Time.time + BossStaggerGate.DragonInterval;
+            // ボス戦の強化(2026-10-01): 第2段階の必殺技「煉獄の巨大火球」
+            if (battle != null && phase >= 2 && battle.ultimateCooldown > 0f && Time.time - lastUltimateTime >= battle.ultimateCooldown
+                && Time.time - phaseAt >= battle.firstUltimateDelay && BossBattle.TryBeginUltimate(this))
+            {
+                StartCoroutine(GiantFireball());
+                return;
+            }
             if (landingAttackEnabled && Random.value < landingAttackChance)
             {
                 StartCoroutine(LandingAttack());
@@ -722,6 +735,9 @@ public class DragonController : MonoBehaviour
             // Grows with the player's "Attack Power UP" level-up choice;
             // playerAttackDamage is only the fallback if that's unavailable.
             int damage = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage);
+            var info = other.GetComponent<PlayerAttackInfo>();
+            bool air = PlayerController.Instance != null && !PlayerController.Instance.IsGrounded;
+            pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air);
             TakeDamage(damage);
             return;
         }
@@ -738,7 +754,11 @@ public class DragonController : MonoBehaviour
         FireballController fb = other.GetComponent<FireballController>();
         if (fb != null && fb.reflected)
         {
-            TakeDamage(fireballDamage);
+            // 跳ね返した巨大火球: 大ダメージ+大きく崩れる(迎撃という選択肢)
+            bool giant = fb.transform.localScale.x > 1.4f;
+            pendingStagger = BossBattleTuning.I.staggerReflect * (giant ? 2.2f : 1f);
+            if (giant) { Debug.Log("[BossBattle] Dragon hit by its own giant fireball (reflected)"); BossBattleHud.Banner("跳ね返した!", new Color(0.5f, 0.85f, 1f), 1.0f); }
+            TakeDamage(giant ? fireballDamage * 4 : fireballDamage);
             Destroy(fb.gameObject);
         }
     }
@@ -747,6 +767,8 @@ public class DragonController : MonoBehaviour
     {
         if (state == State.Dead || NetPuppet) return;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit); // ボス被弾(共通、連打は間引き)
+        if (state == State.Stunned) amount = Mathf.CeilToInt(amount * BossBattleTuning.I.breakDamageScale);
+        float stg = pendingStagger; pendingStagger = 0f;
 
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
@@ -761,9 +783,13 @@ public class DragonController : MonoBehaviour
             // for its short death presentation instead of vanishing this
             // same frame.
             state = State.Dead;
+            BossBattle.EndUltimate(this);
+            if (hpBar != null) hpBar.SetSub(0f, false);
             StartCoroutine(FinalHitAndDie());
             return;
         }
+        CheckBattlePhase();
+        if (stg > 0f) AddStagger(stg);
 
         // Game Feel pass, section 19 - a very small camera shake, boss hits
         // only (regular EnemyController kills deliberately never do this -
@@ -771,6 +797,177 @@ public class DragonController : MonoBehaviour
         var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
         if (camFollow != null) camFollow.Shake(0.08f, 0.1f);
         StartCoroutine(HitFlash());
+    }
+
+    // ===================================================================== //
+    // ボス戦の強化(2026-10-01): 荒野街道のドラゴン(80,000m)だけ。第2段階/必殺技「煉獄の巨大火球」/崩し
+    //  必殺技: 上空へ → 巨大な火球を溜める → プレイヤーへゆっくり撃つ。跳んでかわす or 攻撃で跳ね返す(当たると大ダメージ+大きく崩れる)。
+    //  崩し(BREAK): 地面へ墜ちて数秒無防備。
+    // ===================================================================== //
+    BossBattleTuning.Entry battle;
+    int phase = 1;
+    float phaseAt, lastUltimateTime = -99f, stagger, lastStaggerTime, pendingStagger;
+    public int Phase => phase;
+    public int BreakCount { get; private set; }
+    public int UltimatesUsed { get; private set; }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public void DebugAddStagger(float v) => AddStagger(v);
+#endif
+    public bool Broken => state == State.Stunned;
+    SpriteRenderer chargeOrb;
+
+    public void EnableWastelandBattle(BossBattleTuning.Entry entry)
+    {
+        battle = entry;
+        if (battle != null && battle.hpScale > 0f && Mathf.Abs(battle.hpScale - 1f) > 0.001f) maxHp = Mathf.Max(1, Mathf.RoundToInt(maxHp * battle.hpScale));
+    }
+
+    void BattleTick()
+    {
+        if (battle == null) return;
+        if (state != State.Stunned && stagger > 0f && Time.time - lastStaggerTime > BossBattleTuning.I.staggerRecoveryDelay)
+            stagger = Mathf.Max(0f, stagger - battle.staggerRecoveryPerSec * Time.deltaTime);
+        if (hpBar != null && battle.staggerMax > 0f) hpBar.SetSub(battle.staggerMax > 0f ? stagger / battle.staggerMax : 0f, state == State.Stunned);
+        if (state == State.Stunned) StunFollow();
+    }
+
+    void CheckBattlePhase()
+    {
+        if (battle == null || battle.phaseThresholds == null || phase > battle.phaseThresholds.Length) return;
+        float f = (float)Hp / Mathf.Max(1, maxHp);
+        int p = 1;
+        foreach (float th in battle.phaseThresholds) if (f <= th) p++;
+        if (p <= phase) return;
+        phase = p;
+        phaseAt = Time.time;
+        attackIntervalMin *= 0.7f; attackIntervalMax *= 0.7f;
+        landingAttackChance = Mathf.Min(0.5f, landingAttackChance + 0.1f);
+        Debug.Log($"[BossBattle] Dragon PHASE {phase} (hp {Hp}/{maxHp})");
+        if (hpBar != null) hpBar.Flash(0.8f);
+        var cf = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (cf != null) cf.Shake(0.22f, 0.4f);
+        OneShotSpriteEffect.CreateTweened(BossFx.Ring(), transform.position, new Color(1f, 0.4f, 0.2f, 0.95f), 0.5f, 1f, 6f, 0.9f, 0f, default, 0f, RenderOrder.CombatFx, 0.1f);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+        BossBattleHud.Banner("最終段階!", new Color(1f, 0.4f, 0.25f), 1.2f);
+    }
+
+    void AddStagger(float v)
+    {
+        if (battle == null || battle.staggerMax <= 0f || state == State.Stunned || state == State.Entering) return;
+        stagger += v;
+        lastStaggerTime = Time.time;
+        if (stagger < battle.staggerMax) return;
+        stagger = battle.staggerMax;
+        BreakCount++;
+        Debug.Log($"[BossBattle] Dragon BREAK #{BreakCount}");
+        BossBattleHud.Banner("BREAK!", new Color(1f, 0.85f, 0.3f), 1.0f);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossFinalHit);
+        StopAllCoroutines();
+        if (flashOverlay != null) flashOverlay.enabled = false;
+        if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
+        if (chargeOrb != null) chargeOrb.enabled = false;
+        BossBattle.EndUltimate(this);
+        state = State.Stunned;
+        SetFrames(idleFrames);
+        StartCoroutine(StunRoutine());
+    }
+
+    float stunY;
+    void StunFollow()
+    {
+        Vector3 home = ComputeHomePosition();
+        float x = home.x;
+        float gy = GroundYAt(x) + hoverHeight * 0.45f;
+        stunY = Mathf.MoveTowards(transform.position.y, gy, 9f * Time.deltaTime);
+        transform.position = new Vector3(Mathf.MoveTowards(transform.position.x, Mathf.Min(x, player != null ? player.position.x + 4f : x), 14f * Time.deltaTime), stunY, 0f);
+    }
+
+    IEnumerator StunRoutine()
+    {
+        var cf = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (cf != null) cf.Shake(0.18f, 0.25f);
+        float t = 0f, star = 0f;
+        float dur = battle != null ? battle.breakDuration : 3f;
+        while (t < dur)
+        {
+            t += Time.deltaTime; star -= Time.deltaTime;
+            if (star <= 0f)
+            {
+                star = 0.25f;
+                OneShotSpriteEffect.CreateTweened(OneShotSpriteEffect.SoftDotSprite(), transform.position + new Vector3(Random.Range(-1f, 1f), Random.Range(0.6f, 1.4f), 0f), new Color(1f, 0.95f, 0.45f, 1f), 0.4f, 0.25f, 0.05f, 1f, 0f, default, 0f, RenderOrder.CombatFx, 0.2f);
+            }
+            yield return null;
+        }
+        stagger = 0f;
+        state = State.Landing; // 戻りの間は通常の追従をしない(体当たり判定の無い状態)
+        yield return ReturnToHome(0.6f);
+        state = State.Idle;
+        ScheduleNextAttack();
+    }
+
+    IEnumerator GiantFireball()
+    {
+        state = State.Telegraphing;
+        UltimatesUsed++;
+        lastUltimateTime = Time.time;
+        Debug.Log($"[BossBattle] Dragon ULTIMATE '煉獄の巨大火球' #{UltimatesUsed}");
+        BossBattleHud.Banner("煉獄の巨大火球", new Color(1f, 0.45f, 0.15f), 1.6f);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+        // 上空へ
+        float t = 0f;
+        while (t < 0.6f)
+        {
+            t += Time.deltaTime;
+            Vector3 target = ComputeHomePosition() + new Vector3(1.5f, 1.0f, 0f);
+            transform.position = Vector3.Lerp(transform.position, target, Mathf.Clamp01(t / 0.6f));
+            yield return null;
+        }
+        // 巨大な火球を溜める
+        if (chargeOrb == null)
+        {
+            var go = new GameObject("GiantCharge");
+            go.transform.SetParent(transform, false);
+            chargeOrb = go.AddComponent<SpriteRenderer>();
+            chargeOrb.sprite = FireballController.FireballArt() != null ? FireballController.FireballArt() : BossFx.Orb();
+            chargeOrb.sortingOrder = sr.sortingOrder + 2;
+        }
+        chargeOrb.enabled = true;
+        SetFrames(fireFrames);
+        t = 0f;
+        Vector3 mouth = Vector3.Scale((Vector3)fireballSpawnOffset, transform.lossyScale);
+        while (t < 1.5f)
+        {
+            t += Time.deltaTime;
+            transform.position = ComputeHomePosition() + new Vector3(1.5f, 1.0f, 0f);
+            float k = Mathf.Clamp01(t / 1.5f);
+            chargeOrb.transform.position = transform.position + mouth + new Vector3(-0.6f, 0f, 0f);
+            float s = Mathf.Lerp(0.3f, 2.4f, k) * (1f + 0.08f * Mathf.Sin(t * 30f));
+            chargeOrb.transform.localScale = new Vector3(s / Mathf.Max(0.01f, transform.lossyScale.x), s / Mathf.Max(0.01f, transform.lossyScale.y), 1f);
+            chargeOrb.color = Color.Lerp(new Color(1f, 0.7f, 0.2f), new Color(1f, 0.3f, 0.1f), Mathf.PingPong(t * 4f, 1f));
+            if (flashOverlay != null) flashOverlay.enabled = Mathf.PingPong(t * 6f, 1f) > 0.5f;
+            yield return null;
+        }
+        if (flashOverlay != null) flashOverlay.enabled = false;
+        Vector3 from = chargeOrb.transform.position;
+        chargeOrb.enabled = false;
+        // 発射: ゆっくり迫る巨大火球(かわす or 跳ね返す)
+        Vector3 aim = player != null ? player.position + new Vector3(0f, 0.6f, 0f) : from + Vector3.left;
+        Vector2 dir = ((Vector2)(aim - from)).normalized;
+        GameObject fbGo = FireballController.Create(squareSprite, from, dir * 6.5f);
+        var fbc = fbGo.GetComponent<FireballController>();
+        fbc.ScaleUp(3f);
+        fbc.damageAmount = 2;
+        fbc.lifetime = 7f;
+        var camF = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (camF != null) camF.Shake(0.15f, 0.3f);
+        state = State.Firing;
+        yield return new WaitForSeconds(2.2f);
+        BossBattle.EndUltimate(this);
+        state = State.Landing;
+        yield return ReturnToHome(0.6f);
+        state = State.Idle;
+        SetFrames(idleFrames);
+        ScheduleNextAttack();
     }
 
     // Brief red flash to signal "that hit landed" while the boss is still

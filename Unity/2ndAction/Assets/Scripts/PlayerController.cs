@@ -1499,7 +1499,8 @@ public partial class PlayerController : MonoBehaviour
     // パラメータ - 呼び出し元(敵/ボス/障害物/地形など)を識別するための
     // 短い文字列。省略可能(既存呼び出し全て無変更のままコンパイル通る)で、
     // 挙動には一切影響しない。GameManager.TryDamagePlayerのreasonへ渡す。
-    public void TakeDamage(bool isFall = false, string source = null)
+    // amount(2026-10-01): ボスの必殺技などの重い一撃(ハートの数)。既定1。満タンから1発で倒れることはない(GameManager側)。
+    public void TakeDamage(bool isFall = false, string source = null, int amount = 1)
     {
         // GameManager.PresentationDamageLockでも防いでいるが、Finish演出中
         // (RUN正常終了)はPlayerController側でも二重に無敵化しておく。
@@ -1532,7 +1533,7 @@ public partial class PlayerController : MonoBehaviour
             return;
         }
 
-        GameManager.DamageResult result = GameManager.Instance.TryDamagePlayer(bypassInvincibleMode: isFall, reason: reason);
+        GameManager.DamageResult result = GameManager.Instance.TryDamagePlayer(bypassInvincibleMode: isFall, reason: reason, amount: amount);
         if (result != GameManager.DamageResult.Hit) return;
         RecordDamageTaken(source);
         ApplyDamageReaction(isFall);

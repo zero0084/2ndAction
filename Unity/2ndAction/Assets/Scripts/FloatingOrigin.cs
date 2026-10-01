@@ -74,7 +74,7 @@ public class FloatingOrigin : MonoBehaviour
         if (pc.IsAscending) return;
         float px = pc.transform.position.x;
         if (px < shiftThreshold) return;
-        bool boss = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
+        bool boss = BossManager.Instance != null && BossManager.Instance.HoldsRun;
         if (boss && px < forceShiftThresholdInBoss) return;
 
         float step = Mathf.Max(64f, shiftStep);

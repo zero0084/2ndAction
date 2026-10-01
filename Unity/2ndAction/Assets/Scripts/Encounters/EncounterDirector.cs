@@ -255,7 +255,7 @@ public class EncounterDirector : MonoBehaviour
             if (nextAnchor < playerLogical + ahead) nextAnchor = playerLogical + ahead;
             return;
         }
-        bool bossPhase = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
+        bool bossPhase = BossManager.Instance != null && BossManager.Instance.SpawnsHeld; // ボス戦の強化: ラン再開後は雑魚を戻す
         bool pauseNow = bossPhase || gm.IsInSafeZone || gm.CountdownActive || pc.IsFinishing;
         if (pauseNow)
         {
@@ -268,7 +268,9 @@ public class EncounterDirector : MonoBehaviour
         if (paused)
         {
             paused = false;
-            double resume = playerLogical + ahead + (pausedForBoss ? profile.bossPostRest * GapScale(speed) : 0f);
+            // ボス戦の強化(2026-10-01): ボスが残ったままのラン再開では「ボスの後の休み」を入れない(雑魚の出現の戻りはBossBattleTuning.zakoResumeDelay)
+            bool bossStillAlive = BossManager.Instance != null && BossManager.Instance.RunResumed;
+            double resume = playerLogical + ahead + (pausedForBoss && !bossStillAlive ? profile.bossPostRest * GapScale(speed) : 0f);
             if (nextAnchor < resume) nextAnchor = resume;
             if (pausedForBoss) { intensityHistory.Add(EncounterIntensity.Rest); Debug.Log($"[ENCOUNTER] resumed after boss: rest {profile.bossPostRest:F0}m before the next encounter"); }
             pausedForBoss = false;

@@ -15,6 +15,7 @@ public class FireballController : MonoBehaviour
 {
     public Vector2 velocity;
     public bool reflected;
+    public int damageAmount = 1; // ボス戦の強化(2026-10-01): ドラゴンの巨大火球は2
     public float lifetime = 6f;
     public float reflectSpeedMultiplier = 2f;
     // If >0, the fireball sits still (already at `velocity`'s eventual
@@ -134,7 +135,7 @@ public class FireballController : MonoBehaviour
 
         if (!reflected && other.CompareTag("Player"))
         {
-            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "Fireball:" + name);
+            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "Fireball:" + name, amount: damageAmount);
             Destroy(gameObject);
         }
         // Hitting the dragon/majin (once reflected) is handled by their own
@@ -175,6 +176,13 @@ public class FireballController : MonoBehaviour
     {
         if (!fireballLoaded) { fireballLoaded = true; fireballArt = Resources.Load<Sprite>("Effects/fireball"); }
         return fireballArt;
+    }
+
+    // ボス戦の強化(2026-10-01): 見た目と当たり判定をk倍にする(ドラゴンの巨大火球)
+    public void ScaleUp(float k)
+    {
+        baseScale *= k;
+        transform.localScale = baseScale;
     }
 
     // 回転/脈動しない飛翔体(矢など)として見せる。scaleは見た目の大きさ、angleは進行方向。

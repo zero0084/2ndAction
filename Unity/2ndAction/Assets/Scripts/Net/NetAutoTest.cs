@@ -150,6 +150,20 @@ public class NetAutoTest : MonoBehaviour
         }
     }
 
+    // ボス戦の強化(2026-10-01): ボス戦中の状態を毎秒(ラン再開/ボス数/雑魚数/距離)。-netAutoBossAt と一緒に使う
+    float bossLogNext;
+    void BossRunLog(GameManager gm)
+    {
+        if (bossAt <= 0f || gm == null || runTime < bossLogNext) return;
+        bossLogNext = runTime + 1f;
+        var bm = BossManager.Instance;
+        int zako = 0;
+        foreach (var e in FindObjectsByType<EnemyController>(FindObjectsSortMode.None)) if (e != null && e.isActiveAndEnabled) zako++;
+        int bosses = 0;
+        foreach (var b in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None)) if (b != null && !b.IsDead && b.isActiveAndEnabled) bosses++;
+        L($"BOSSRUN t={runTime:F0} role={role} bossPhase={(bm != null && bm.IsBossPhase)} resumed={(bm != null && bm.RunResumed)} holds={(bm != null && bm.HoldsRun)} bosses={bosses} zako={zako} dist={gm.MaxDistance:F0} enc={(bm != null ? bm.EncounterSeconds : 0f):F1}");
+    }
+
     public static bool ShouldRun => Array.Exists(Environment.GetCommandLineArgs(), a => a.StartsWith("-netAuto"));
 
     void Awake()
@@ -333,6 +347,7 @@ public class NetAutoTest : MonoBehaviour
                 }
                 PeriodicLog(gm);
                 SceneryTest(gm);
+                BossRunLog(gm);
                 ChoiceTest(gm);
                 ChoiceMonitor(gm);
                 RemoteChoiceMonitor();
