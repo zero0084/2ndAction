@@ -7,12 +7,14 @@ using UnityEngine;
 //  ・BESTの距離を設定(ガチャの段階の確認) / ガチャ候補のログ / MILE追加
 //  ・スコアリセット(確認あり)
 // プレイヤー向けの音/表示/操作は通常の設定画面(SettingsPanel)へ移した。
-public class DebugPanel : MonoBehaviour
+public partial class DebugPanel : MonoBehaviour
 {
     public static DebugPanel Instance { get; private set; }
     bool open;
     float t;
     bool confirmReset;
+    int page;            // 0=一般 / 1=セーブ・進行(2026-10-01)
+    int confirmSave;     // 0=なし / 1=進行だけ初期化 / 2=完全初期化
 
     public static bool IsOpen => Instance != null && Instance.open;
 
@@ -33,7 +35,7 @@ public class DebugPanel : MonoBehaviour
     {
         if (on && ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (open && !on) UiInputGate.LatchUntilRelease();
-        open = on; t = 0f; confirmReset = false;
+        open = on; t = 0f; confirmReset = false; confirmSave = 0; if (on) page = 0;
         UiInputGate.DebugPanelOpen = on;
     }
 
@@ -41,7 +43,10 @@ public class DebugPanel : MonoBehaviour
     public bool Back()
     {
         if (!open) return false;
-        if (confirmReset) confirmReset = false; else SetOpen(false);
+        if (confirmReset) confirmReset = false;
+        else if (confirmSave != 0) confirmSave = 0;
+        else if (page != 0) page = 0;
+        else SetOpen(false);
         return true;
     }
 
@@ -68,6 +73,16 @@ public class DebugPanel : MonoBehaviour
         OrnateUi.DrawPanel(p, 0.95f);
         GUI.Label(new Rect(p.x + 24f, p.y + 12f, 300f, 40f), "DEBUG(開発版のみ)", UiKit.Label(24f, TextAnchor.MiddleLeft, true, new Color(1f, 0.55f, 0.45f)));
         if (UiKit.Button(new Rect(p.xMax - 66f, p.y + 12f, 48f, 42f), "×", 24f, false, false)) SetOpen(false);
+        if (UiKit.Button(new Rect(p.xMax - 200f, p.y + 12f, 126f, 42f), page == 0 ? "セーブ…" : "← 一般", 17f, page == 1, false)) { page = page == 0 ? 1 : 0; confirmSave = 0; confirmReset = false; }
+        if (page == 1)
+        {
+            DrawSavePage(p);
+            GUI.color = keepColor;
+            GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
+            if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();
+            GUI.matrix = keep;
+            return;
+        }
 
         float x = p.x + 24f, y = p.y + 64f, bw = (p.width - 48f - 12f) / 2f, bh = 46f;
         if (UiKit.Button(new Rect(x, y, bw, bh), $"無敵: {(gm.InvincibleMode ? "ON" : "OFF")}", 18f, gm.InvincibleMode, false)) gm.DebugToggleInvincible();
@@ -107,6 +122,71 @@ public class DebugPanel : MonoBehaviour
         GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
         if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();
         GUI.matrix = keep;
+    }
+}
+
+// DebugPanel: セーブ/進行のページ(2026-10-01)
+public partial class DebugPanel
+{
+    void DrawSavePage(Rect p)
+    {
+        float x = p.x + 24f, y = p.y + 62f, full = p.width - 48f, bh = 44f;
+        var boot = SaveSystem.LastBoot;
+        string info = $"セーブ形式 v{PlayerPrefs.GetInt(SaveKeys.SchemaVersion, 0)} / リリース世代 {PlayerPrefs.GetInt(SaveKeys.ReleaseGeneration, 0)}(このビルド {SaveSystem.BuildReleaseGeneration})"
+            + (boot != null ? $" / 起動時: {boot.kind}" : "");
+        GUI.Label(new Rect(x, y, full, 22f), info, UiKit.Label(14f, TextAnchor.MiddleLeft, false, new Color(0.8f, 0.85f, 0.95f)));
+        y += 26f;
+
+        // 累計走行距離
+        GUI.Label(new Rect(x, y, full, 24f), $"累計走行距離 {ProgressStats.LifetimeDistance:N0} m", UiKit.Label(16f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));
+        y += 26f;
+        double[] stops = { 0, 999999, 1000000 };
+        string[] names = { "0", "999,999", "1,000,000" };
+        float sw = (full - 16f) / 3f;
+        for (int i = 0; i < 3; i++)
+            if (UiKit.Button(new Rect(x + i * (sw + 8f), y, sw, 40f), names[i], 16f, false, false)) ProgressStats.DevSetLifetime(stops[i]);
+        y += 48f;
+
+        // 三姉妹の遭遇
+        string[] jp = { "長女", "次女", "三女" };
+        for (int i = 0; i < 3; i++)
+        {
+            var sister = ProgressStats.Sisters[i];
+            bool met = ProgressStats.HasMet(sister);
+            if (UiKit.Button(new Rect(x + i * (sw + 8f), y, sw, 40f), $"{jp[i]}: {(met ? "遭遇済" : "未遭遇")}", 15f, met, false)) ProgressStats.DevSetMet(sister, !met);
+        }
+        y += 48f;
+
+        // ラスダン
+        float bw = (full - 8f) / 2f;
+        bool unlocked = ProgressStats.FinalDungeonUnlocked;
+        if (UiKit.Button(new Rect(x, y, bw, bh), $"ラスダン解放: {(unlocked ? "ON" : "OFF")}", 16f, unlocked, false)) ProgressStats.DevSetFinalDungeonUnlocked(!unlocked);
+        bool always = ProgressStats.DevAlwaysOpen;
+        if (UiKit.Button(new Rect(x + bw + 8f, y, bw, bh), $"ラスダン常に選択: {(always ? "ON" : "OFF")}", 15f, always, false)) ProgressStats.DevAlwaysOpen = !always;
+        y += bh + 4f;
+        GUI.Label(new Rect(x, y, full, 20f), "解放の条件: 累計1,000,000m + 三姉妹全員と遭遇(一度解放したら戻らない)。「常に選択」は開発版だけ", UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(0.75f, 0.75f, 0.8f)));
+        y += 26f;
+
+        // 初期化(確認あり)
+        if (confirmSave == 0)
+        {
+            if (UiKit.Button(new Rect(x, y, bw, bh), "進行だけ初期化…", 16f, false, false)) confirmSave = 1;
+            if (UiKit.Button(new Rect(x + bw + 8f, y, bw, bh), "完全初期化…", 16f, false, false)) confirmSave = 2;
+        }
+        else
+        {
+            string msg = confirmSave == 1 ? "キャラ/カード/MILE/BEST/累計距離/遭遇/解放を消します(設定は残る)。よろしいですか?" : "設定も含めて全部消します(新規インストールと同じ)。よろしいですか?";
+            GUI.Label(new Rect(x, y - 4f, full, 22f), msg, UiKit.Label(13f, TextAnchor.MiddleLeft, true, new Color(1f, 0.6f, 0.5f)));
+            if (UiKit.Button(new Rect(x, y + 18f, bw, 40f), "初期化する", 17f, true, false))
+            {
+                if (confirmSave == 1) SaveSystem.DevResetProgress(); else SaveSystem.DevResetAll();
+                confirmSave = 0;
+                SetOpen(false);
+                // シーン上の読み込み済みの値(GameManager等)を読み直す
+                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+            }
+            if (UiKit.Button(new Rect(x + bw + 8f, y + 18f, bw, 40f), "やめる", 17f, false, false)) confirmSave = 0;
+        }
     }
 }
 

@@ -29,6 +29,15 @@ public static class StageDatabase
         cached = null;
     }
 
+    // 今選べるか(2026-10-01): アセットの unlocked に加え、ラスダン(LAST CORRIDOR)は進行の解放フラグを見る
+    // (開発版は Dev.FinalDungeonAlwaysOpen で常に選べる。ProgressStats.FinalDungeonAvailable)。
+    public static bool IsAvailable(StageDefinition def)
+    {
+        if (def == null || !def.unlocked) return false;
+        if (def.stageId == BossManager.LastStageId) return ProgressStats.FinalDungeonAvailable;
+        return true;
+    }
+
     public static StageDefinition FindById(string stageId)
     {
         if (string.IsNullOrEmpty(stageId)) return null;

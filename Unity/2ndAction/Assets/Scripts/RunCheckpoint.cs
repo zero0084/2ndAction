@@ -101,4 +101,7 @@ public static class RunCheckpoint
     }
 
     public static bool HasActiveRun => Load().active;
+
+    // セーブの起動時処理/初期化の後に読み直させる(2026-10-01)
+    public static void Reload() { cached = null; }
 }

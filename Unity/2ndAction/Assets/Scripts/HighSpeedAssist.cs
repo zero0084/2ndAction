@@ -141,9 +141,15 @@ public class HighSpeedAssist : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        ReloadPrefs();
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += (s, m) => ResetRunState();
+    }
+
+    // セーブの初期化の後にも読み直す(2026-10-01)
+    public void ReloadPrefs()
+    {
         assistEnabled = PlayerPrefs.GetInt(PrefKey, 1) != 0;
         ApplyEngageKmh(PlayerPrefs.GetFloat(EngagePrefKey, DefaultEngageKmh));
-        UnityEngine.SceneManagement.SceneManager.sceneLoaded += (s, m) => ResetRunState();
     }
 
     public void SetEnabled(bool on)

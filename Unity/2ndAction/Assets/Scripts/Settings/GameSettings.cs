@@ -21,6 +21,8 @@ public static class GameSettings
         glow = Mathf.Clamp01(PlayerPrefs.GetFloat(GlowKey, 1f));
     }
 
+    public static void Reload() { loaded = false; } // セーブの初期化の後に読み直す(2026-10-01)
+
     public static bool ScreenShake { get { Load(); return shake; } }
     public static float GlowIntensity { get { Load(); return glow; } }
 

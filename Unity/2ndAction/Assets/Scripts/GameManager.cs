@@ -81,11 +81,11 @@ public partial class GameManager : MonoBehaviour
             // grants a matching Lv.1 owned copy for each card it seeds the
             // deck with - otherwise a brand new player's own starting deck
             // would immediately violate that invariant.
-            foreach (CardDefinition card in CardDatabase.UnlockedCards)
+            // 初期状態の定義は DefaultSave にまとめてある(2026-10-01)
+            foreach (string id in DefaultSave.StartingDeck(DeckCapacity))
             {
-                if (deckCards.Count >= DeckCapacity) break;
-                deckCards.Add(card.cardId);
-                CardInventory.AddCard(card.cardId, 1, 1);
+                deckCards.Add(id);
+                CardInventory.AddCard(id, 1, 1);
             }
         }
     }
@@ -453,7 +453,7 @@ public partial class GameManager : MonoBehaviour
             return;
         }
         var all = CharacterDatabase.AllCharacters;
-        SelectedCharacterId = all.Count > 0 ? all[0].characterId : null;
+        SelectedCharacterId = DefaultSave.StartingCharacterId(); // 初期状態の定義は DefaultSave(2026-10-01)
     }
 
     // Character Select画面のSELECTからのみ呼ばれる。「選択キャラクター=
@@ -480,7 +480,7 @@ public partial class GameManager : MonoBehaviour
     {
         string saved = PlayerPrefs.GetString(SelectedStageKey, "");
         StageDefinition savedDef = StageDatabase.FindById(saved);
-        if (!string.IsNullOrEmpty(saved) && savedDef != null && savedDef.unlocked)
+        if (!string.IsNullOrEmpty(saved) && savedDef != null && StageDatabase.IsAvailable(savedDef))
         {
             SelectedStageId = saved;
             return;
@@ -491,7 +491,7 @@ public partial class GameManager : MonoBehaviour
         // と同じ考え方)。
         foreach (StageDefinition def in StageDatabase.AllStages)
         {
-            if (def.unlocked) { SelectedStageId = def.stageId; return; }
+            if (StageDatabase.IsAvailable(def)) { SelectedStageId = def.stageId; return; }
         }
         SelectedStageId = null;
     }
@@ -502,7 +502,7 @@ public partial class GameManager : MonoBehaviour
     public void SetSelectedStage(string stageId)
     {
         StageDefinition def = StageDatabase.FindById(stageId);
-        if (def == null || !def.unlocked) return;
+        if (def == null || !StageDatabase.IsAvailable(def)) return;
         SelectedStageId = stageId;
         PlayerPrefs.SetString(SelectedStageKey, stageId);
         PlayerPrefs.Save();
@@ -1185,6 +1185,7 @@ public partial class GameManager : MonoBehaviour
     // the run has already ended.
     void OnApplicationPause(bool pauseStatus)
     {
+        if (pauseStatus) ProgressStats.Flush(true); // 累計走行距離/遭遇を失わない(2026-10-01)
         if (pauseStatus) SaveInterruptState();
         else FreezeDiagnostics.NoteAppResumed(); // 復帰直後の長いフレームは処理落ちではない
     }
@@ -1196,6 +1197,7 @@ public partial class GameManager : MonoBehaviour
 
     void OnApplicationQuit()
     {
+        ProgressStats.Flush(true);
         SaveInterruptState();
     }
 
@@ -1532,7 +1534,7 @@ public partial class GameManager : MonoBehaviour
         // 開始する(NetRunLauncher)。セッションが無ければ何もせずfalseが返り、従来どおり。
         if (NetRunLauncher.InterceptDepart(stageId)) return;
         StageDefinition def = StageDatabase.FindById(stageId);
-        if (def == null || !def.unlocked) return;
+        if (def == null || !StageDatabase.IsAvailable(def)) return;
         if (ScreenTransitionManager.Instance == null || ScreenTransitionManager.Instance.IsTransitioning) return;
 
         SetSelectedStage(stageId);
@@ -1846,6 +1848,7 @@ public partial class GameManager : MonoBehaviour
         if (distance > MaxDistance)
         {
             float delta = distance - MaxDistance;
+            ProgressStats.AddRunDistance(delta); // 累計走行距離(2026-10-01、100mごとに保存)
             MaxDistance = distance;
             GainExp(delta * expPerMeter);
             UnlockManager.CheckUnlocks(MaxDistance);
@@ -2959,6 +2962,7 @@ public partial class GameManager : MonoBehaviour
     void FinishRun()
     {
         IsGameOver = true;
+        ProgressStats.Flush(true); // 死亡/正常終了: 累計走行距離を保存(2026-10-01)
         gameOverTime = Time.time;
         // Safety net: Time.timeScale is a global engine setting that would
         // otherwise persist across a scene reload (Retry) - if the run
@@ -3097,6 +3101,7 @@ public partial class GameManager : MonoBehaviour
     {
         if (!HasStarted || IsGameOver) return;
         TimeControl.ResetAll(); // defensive - same reasoning as FinishRun's own reset, in case this is ever reached while still paused
+        ProgressStats.Flush(true); // 途中帰還: 累計走行距離を保存(2026-10-01)
         SaveInterruptState();
         RetryWithTransition();
     }

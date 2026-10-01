@@ -46,6 +46,9 @@ public class StageSelectUI : MonoBehaviour
         {
             if (all[i].stageId == current) { selectedIndex = i; break; }
         }
+        RefreshLocks(all);
+        if (selectedIndex < all.Count && !StageDatabase.IsAvailable(all[selectedIndex]))
+            for (int i = 0; i < all.Count; i++) if (StageDatabase.IsAvailable(all[i])) { selectedIndex = i; break; }
         RefreshGlow();
 
         if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
@@ -109,7 +112,7 @@ public class StageSelectUI : MonoBehaviour
         var all = StageDatabase.AllStages;
         if (selectedIndex < 0 || selectedIndex >= all.Count) return;
         StageDefinition def = all[selectedIndex];
-        if (!def.unlocked) return; // 未開放ステージでは確定できない(安全側の二重ガード)
+        if (!StageDatabase.IsAvailable(def)) return; // 未開放ステージでは確定できない(安全側の二重ガード)
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
         suppressCloseSe = true;
         if (GameManager.Instance != null) GameManager.Instance.DepartFromStageSelect(def.stageId);
@@ -119,12 +122,40 @@ public class StageSelectUI : MonoBehaviour
     {
         var all = StageDatabase.AllStages;
         if (index < 0 || index >= all.Count) return;
-        if (!all[index].unlocked) return; // ロックされたカードは選択自体できない(Acceptance Test 6)
+        if (!StageDatabase.IsAvailable(all[index])) return; // ロックされたカードは選択自体できない(Acceptance Test 6)
         if (index == selectedIndex) return;
         selectedIndex = index;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.StageSelect);
         RefreshGlow();
     }
+
+    // 解放状態は実行中に変わる(ラスダンの解放、2026-10-01)ので、開くたびに LOCKED の表示を合わせる
+    void RefreshLocks(System.Collections.Generic.IReadOnlyList<StageDefinition> all)
+    {
+        for (int i = 0; i < all.Count && i < cardSlotRects.Length; i++)
+        {
+            bool open = StageDatabase.IsAvailable(all[i]);
+            if (i < cardUnlocked.Length) cardUnlocked[i] = open;
+            var slot = cardSlotRects[i];
+            if (slot == null) continue;
+            var lockLabel = slot.Find("LockLabel");
+            if (lockLabel != null)
+            {
+                lockLabel.gameObject.SetActive(!open);
+                var t = lockLabel.GetComponent<Text>();
+                if (t != null && !open && all[i].stageId == BossManager.LastStageId)
+                {
+                    t.fontSize = 22;
+                    t.text = $"LOCKED\n累計 {ProgressStats.LifetimeDistance:N0} / {ProgressStats.UnlockDistance:N0}m\n死神三姉妹 {MetCount()}/3";
+                }
+            }
+            var cg = slot.GetComponent<CanvasGroup>();
+            if (cg == null && !open) cg = slot.gameObject.AddComponent<CanvasGroup>();
+            if (cg != null) cg.alpha = open ? 1f : 0.55f;
+        }
+    }
+
+    static int MetCount() { int n = 0; foreach (var s in ProgressStats.Sisters) if (ProgressStats.HasMet(s)) n++; return n; }
 
     void RefreshGlow()
     {

@@ -88,6 +88,8 @@ public abstract class ReaperBase : MonoBehaviour
         r.player = player != null ? player : (PlayerController.Instance != null ? PlayerController.Instance.transform : null);
         r.Build(fallbackSprite);
         Active = r;
+        // 進行(2026-10-01): 死神三姉妹と「遭遇」した記録(倒したかどうかは問わない。この後死んでも残る)
+        ProgressStats.MarkReaperMet(name == "ReaperSecond" ? ReaperSister.Second : name == "ReaperYoungest" ? ReaperSister.Youngest : ReaperSister.Eldest);
         // マルチ: HOSTでは共有ボスとして登録(JOINのパペットはNetCombat側でこのAIを止める)。
         NetCombat.OnBossInit(r);
         return r;

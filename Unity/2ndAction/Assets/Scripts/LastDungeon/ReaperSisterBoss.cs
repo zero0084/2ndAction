@@ -29,6 +29,7 @@ public class ReaperSisterBoss : WildBossBase
     {
         string name = sister == ReaperSister.Eldest ? "ReaperEldest" : sister == ReaperSister.Second ? "ReaperSecond" : "ReaperYoungest";
         var data = Resources.Load<ReaperSisterData>("Reapers/" + sister + "Data"); // EldestData / SecondData / YoungestData
+        ProgressStats.MarkReaperMet(sister); // 進行(2026-10-01): 遭遇の記録
         var go = new GameObject("FinalBoss_" + name);
         go.tag = "Boss";
         var b = go.AddComponent<ReaperSisterBoss>();
