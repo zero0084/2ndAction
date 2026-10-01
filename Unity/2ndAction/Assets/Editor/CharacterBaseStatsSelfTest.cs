@@ -40,7 +40,7 @@ public static class CharacterBaseStatsSelfTest
         // (倍率1.0、既存のAttackPower=2/maxComboChain=3/maxJumps=2)である
         // こと自体を先に検証する - CharacterDatabaseBuilder.DefaultBaseline
         // が将来誤って変更された場合に検知できる。
-        bool swordsmanSpecOk = swordsman.attackPower == 2 && swordsman.attackComboCount == 3
+        bool swordsmanSpecOk = swordsman.attackPower == 20 && swordsman.attackComboCount == 3
             && Mathf.Approximately(swordsman.attackSpeedMultiplier, 1f)
             && Mathf.Approximately(swordsman.attackRangeMultiplier, 1f)
             && Mathf.Approximately(swordsman.knockbackPowerMultiplier, 1f)
@@ -54,7 +54,7 @@ public static class CharacterBaseStatsSelfTest
         // お嬢様騎士 - 「CHALLENGE HERO/特別枠/専用バッジは不要」という
         // 今回の新しい明示指示(前回パスのchallengeFlag=trueを覆す)。
         bool nobleLadyBadgeOk = !nobleLady.challengeFlag;
-        bool nobleLadyStatsOk = nobleLady.baseLives == 3 && nobleLady.baseMaxLives == 3
+        bool nobleLadyStatsOk = nobleLady.baseLives == 30 && nobleLady.baseMaxLives == 30
             && nobleLady.attackPower < swordsman.attackPower
             && nobleLady.attackComboCount == 1
             && nobleLady.jumpCount == 1

@@ -21,9 +21,9 @@ MonoBehaviour:
   recommendPriority: 5
   effects:
   - type: 1
-    value: 6
+    value: 60
   - type: 4
-    value: -3
+    value: -30
   rarity: 5
   unlockDistance: 100000
   gachaStage: 5

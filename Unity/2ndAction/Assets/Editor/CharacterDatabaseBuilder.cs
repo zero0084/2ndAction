@@ -156,8 +156,8 @@ public static class CharacterDatabaseBuilder
     // 保護のため、全倍率=1.0)。これをコピーしてキャラごとに差分だけ書く。
     static Spec DefaultBaseline => new Spec
     {
-        baseLives = 3, baseMaxLives = 5,
-        attackPower = 2, attackComboCount = 3,
+        baseLives = 30, baseMaxLives = 50,
+        attackPower = 20, attackComboCount = 3,
         attackSpeedMultiplier = 1f, attackRangeMultiplier = 1f, knockbackPowerMultiplier = 1f,
         jumpCount = 2,
         jumpForceMultiplier = 1f, groundMobilityMultiplier = 1f, airControlMultiplier = 1f,
@@ -236,9 +236,9 @@ public static class CharacterDatabaseBuilder
         // 3人目のプレイアブル主人公(2026-09-13) - マスター初期案どおりの
         // 実プレイ反映値。「地上コンボ型 - 一発は軽いが手数・速度・機動力
         // で黒剣士を上回り、大きな吹き飛ばしはしない」という差別化方針。
-        dualBlade.baseLives = 5;
-        dualBlade.baseMaxLives = 5;
-        dualBlade.attackPower = 1; // 黒剣士の2より低い(一発の重さより手数で削るキャラ)
+        dualBlade.baseLives = 50;
+        dualBlade.baseMaxLives = 50;
+        dualBlade.attackPower = 10; // 黒剣士の2より低い(一発の重さより手数で削るキャラ)
         dualBlade.attackComboCount = 5; // 黒剣士の3より多い、5段の高速連撃
         dualBlade.attackSpeedMultiplier = 0.75f; // 小さいほど速い(既存のAddAttackSpeedBonusと同じ方向) - 高速連撃
         dualBlade.attackRangeMultiplier = 0.85f; // 黒剣士よりやや短め(コンパクトな双剣の間合い)
@@ -348,9 +348,9 @@ public static class CharacterDatabaseBuilder
         };
 
         // ここから実プレイに反映される値(マスター初期案どおり)。
-        nobleLady.baseLives = 3;
-        nobleLady.baseMaxLives = 3;
-        nobleLady.attackPower = 1; // 黒剣士の2より低い、POWER最低
+        nobleLady.baseLives = 30;
+        nobleLady.baseMaxLives = 30;
+        nobleLady.attackPower = 10; // 黒剣士の2より低い、POWER最低
         nobleLady.attackComboCount = 1; // 1段止まり、Attack2/3へ接続しない
         nobleLady.attackSpeedMultiplier = 1.35f; // 大きいほど遅い(既存のAddAttackSpeedBonusと同じ方向)
         nobleLady.attackRangeMultiplier = 0.75f; // リーチ最低
@@ -454,9 +454,9 @@ public static class CharacterDatabaseBuilder
         // 実プレイ反映値 - 「まずは4方向射撃の操作感確認を優先」との指示
         // どおり、極端な調整はせず既存キャラと同程度のレンジに収める
         // (Cooldown/AttackSpeed等はAttackSpeedMultiplier経由で後から調整可能)。
-        gunslinger.baseLives = 3;
-        gunslinger.baseMaxLives = 5;
-        gunslinger.attackPower = 2;
+        gunslinger.baseLives = 30;
+        gunslinger.baseMaxLives = 50;
+        gunslinger.attackPower = 20;
         gunslinger.attackComboCount = 3;
         gunslinger.attackSpeedMultiplier = 1f;
         gunslinger.attackRangeMultiplier = 1f; // 弾自体の射程はbulletLifetime*bulletSpeedで決まる(Hitbox系のこの値はマズルフラッシュVFXにのみ使う)
@@ -566,9 +566,9 @@ public static class CharacterDatabaseBuilder
         // 性能の方向性(細かな数値は実機確認後に調整): 一撃が重い/前方リーチが
         // 非常に長い(判定は細長い帯、CharacterDefinition.lanceXxx)/ノックバック
         // 強/攻撃速度遅め/コンボ少/懐と背後が弱い。
-        lancer.baseLives = 4;
-        lancer.baseMaxLives = 5;
-        lancer.attackPower = 4;
+        lancer.baseLives = 40;
+        lancer.baseMaxLives = 50;
+        lancer.attackPower = 40;
         lancer.attackComboCount = 2;
         lancer.attackSpeedMultiplier = 1.35f; // 大きいほど遅い
         lancer.attackRangeMultiplier = 1f;    // ランスの長さ自体はlanceReachで決まる(この値はカードのRange Upで伸びる倍率)
@@ -643,8 +643,8 @@ public static class CharacterDatabaseBuilder
             new CharacterDefinition.BelongingItem { label = "矢筒", placeholderColor = new Color(0.5f, 0.38f, 0.25f), kind = CharacterDefinition.BelongingKind.Small },
             new CharacterDefinition.BelongingItem { label = "森の外套", placeholderColor = new Color(0.18f, 0.32f, 0.22f), kind = CharacterDefinition.BelongingKind.Cloth },
         };
-        archer.baseLives = 3; archer.baseMaxLives = 5;
-        archer.attackPower = 2; archer.attackComboCount = 1;
+        archer.baseLives = 30; archer.baseMaxLives = 50;
+        archer.attackPower = 20; archer.attackComboCount = 1;
         archer.knockbackPowerMultiplier = 1.2f;
         archer.jumpForceMultiplier = 0.95f;
         archer.groundMobilityMultiplier = 0.93f;
@@ -665,8 +665,8 @@ public static class CharacterDatabaseBuilder
             new CharacterDefinition.BelongingItem { label = "星晶の杖", placeholderColor = new Color(0.45f, 0.6f, 1f), kind = CharacterDefinition.BelongingKind.Weapon },
             new CharacterDefinition.BelongingItem { label = "魔導書", placeholderColor = new Color(0.25f, 0.2f, 0.45f), kind = CharacterDefinition.BelongingKind.Small },
         };
-        mage.baseLives = 2; mage.baseMaxLives = 4;
-        mage.attackPower = 2; mage.attackComboCount = 1;
+        mage.baseLives = 20; mage.baseMaxLives = 40;
+        mage.attackPower = 20; mage.attackComboCount = 1;
         mage.hurtKnockbackMultiplier = 1.4f;
         mage.hurtLeanDegrees = 16f;
         mage.kit = CharacterKit.Mage;
@@ -686,8 +686,8 @@ public static class CharacterDatabaseBuilder
             new CharacterDefinition.BelongingItem { label = "鉄の籠手", placeholderColor = new Color(0.3f, 0.3f, 0.32f), kind = CharacterDefinition.BelongingKind.Weapon },
             new CharacterDefinition.BelongingItem { label = "鉢巻", placeholderColor = new Color(0.7f, 0.15f, 0.15f), kind = CharacterDefinition.BelongingKind.Cloth },
         };
-        fighter.baseLives = 4; fighter.baseMaxLives = 5;
-        fighter.attackPower = 2; fighter.attackComboCount = 4;
+        fighter.baseLives = 40; fighter.baseMaxLives = 50;
+        fighter.attackPower = 20; fighter.attackComboCount = 4;
         fighter.hurtKnockbackMultiplier = 0.8f;
         fighter.kit = CharacterKit.Fighter;
         FillKitArt(ref fighter, "Fighter", 583f, new[] { "jab", "straight", "kick", "heavy", "backstep", "counter", "uppercut", "divekick", "sweep" });
@@ -707,8 +707,8 @@ public static class CharacterDatabaseBuilder
             new CharacterDefinition.BelongingItem { label = "手裏剣", placeholderColor = new Color(0.4f, 0.42f, 0.48f), kind = CharacterDefinition.BelongingKind.Small },
             new CharacterDefinition.BelongingItem { label = "深紅の襟巻", placeholderColor = new Color(0.65f, 0.1f, 0.12f), kind = CharacterDefinition.BelongingKind.Cloth },
         };
-        ninja.baseLives = 3; ninja.baseMaxLives = 4;
-        ninja.attackPower = 2; ninja.attackComboCount = 1;
+        ninja.baseLives = 30; ninja.baseMaxLives = 40;
+        ninja.attackPower = 20; ninja.attackComboCount = 1;
         ninja.groundMobilityMultiplier = 1.08f;
         ninja.kit = CharacterKit.Ninja;
         FillKitArt(ref ninja, "Ninja", 583f, new[] { "dashslash", "slashend", "throw", "updash", "downdash" });
@@ -729,8 +729,8 @@ public static class CharacterDatabaseBuilder
             new CharacterDefinition.BelongingItem { label = "神楽鈴", placeholderColor = new Color(0.9f, 0.75f, 0.3f), kind = CharacterDefinition.BelongingKind.Small },
             new CharacterDefinition.BelongingItem { label = "緋袴", placeholderColor = new Color(0.75f, 0.12f, 0.15f), kind = CharacterDefinition.BelongingKind.Cloth },
         };
-        miko.baseLives = 3; miko.baseMaxLives = 5;
-        miko.attackPower = 2; miko.attackComboCount = 1;
+        miko.baseLives = 30; miko.baseMaxLives = 50;
+        miko.attackPower = 20; miko.attackComboCount = 1;
         miko.hurtLeanDegrees = 14f;
         miko.hurtKnockbackMultiplier = 1.2f;
         miko.kit = CharacterKit.Miko;
@@ -750,8 +750,8 @@ public static class CharacterDatabaseBuilder
             new CharacterDefinition.BelongingItem { label = "血の爪", placeholderColor = new Color(0.6f, 0.05f, 0.1f), kind = CharacterDefinition.BelongingKind.Weapon },
             new CharacterDefinition.BelongingItem { label = "黒の外套", placeholderColor = new Color(0.1f, 0.08f, 0.12f), kind = CharacterDefinition.BelongingKind.Cloth },
         };
-        vampire.baseLives = 3; vampire.baseMaxLives = 5;
-        vampire.attackPower = 2; vampire.attackComboCount = 3;
+        vampire.baseLives = 30; vampire.baseMaxLives = 50;
+        vampire.attackPower = 20; vampire.attackComboCount = 3;
         vampire.hurtLeanDegrees = 10f;
         vampire.kit = CharacterKit.Vampire;
         FillKitArt(ref vampire, "Vampire", 583f, new[] { "claw1", "claw2", "bloodslash", "bats", "mist", "dive" });
@@ -770,8 +770,8 @@ public static class CharacterDatabaseBuilder
             new CharacterDefinition.BelongingItem { label = "竜の爪", placeholderColor = new Color(0.25f, 0.1f, 0.08f), kind = CharacterDefinition.BelongingKind.Weapon },
             new CharacterDefinition.BelongingItem { label = "竜炎の鱗", placeholderColor = new Color(0.85f, 0.35f, 0.1f), kind = CharacterDefinition.BelongingKind.Cloth },
         };
-        dragonkin.baseLives = 5; dragonkin.baseMaxLives = 6;
-        dragonkin.attackPower = 3; dragonkin.attackComboCount = 3;
+        dragonkin.baseLives = 50; dragonkin.baseMaxLives = 60;
+        dragonkin.attackPower = 30; dragonkin.attackComboCount = 3;
         dragonkin.knockbackPowerMultiplier = 1.3f;
         dragonkin.groundMobilityMultiplier = 0.95f;
         dragonkin.hurtKnockbackMultiplier = 0.5f;

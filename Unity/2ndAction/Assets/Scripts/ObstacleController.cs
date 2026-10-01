@@ -72,7 +72,7 @@ public class ObstacleController : MonoBehaviour
         if (LegacyRules)
         {
             breakable = kindName == "BreakableTree";
-            maxHp = hp = breakable ? 2 : 1;
+            maxHp = hp = (breakable ? 2 : 1) * CombatScale.K;
             material = breakable ? ObstacleMaterial.Wood : ObstacleMaterial.Rock;
             vanishOnContact = !breakable;
             configured = true;

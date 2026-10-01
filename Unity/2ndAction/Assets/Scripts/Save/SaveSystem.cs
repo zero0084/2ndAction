@@ -18,7 +18,7 @@ using UnityEngine;
 public static class SaveSystem
 {
     // 保存形式を変えたら上げて、Migrate に1段ぶんの変換を足す
-    public const int CurrentSchemaVersion = 1;
+    public const int CurrentSchemaVersion = 2; // 2: 戦闘数値10倍化(2026-10-02)
     // 製品版(正式リリース)のビルドでだけ 1 にする。0=開発版。
     public const int BuildReleaseGeneration = 0;
 
@@ -140,6 +140,7 @@ public static class SaveSystem
         switch (from)
         {
             case 0: return Migrate0To1();
+            case 1: return Migrate1To2();
             default:
                 return TestStep != null ? TestStep(from) : false;
         }
@@ -162,6 +163,30 @@ public static class SaveSystem
         if (!PlayerPrefs.HasKey(SaveKeys.LifetimeDistance)) PlayerPrefs.SetString(SaveKeys.LifetimeDistance, "0");
         foreach (var s in ProgressStats.Sisters) if (!PlayerPrefs.HasKey(SaveKeys.ReaperMetPrefix + s)) PlayerPrefs.SetInt(SaveKeys.ReaperMetPrefix + s, 0);
         if (!PlayerPrefs.HasKey(SaveKeys.FinalDungeonUnlocked)) PlayerPrefs.SetInt(SaveKeys.FinalDungeonUnlocked, 0);
+        return true;
+    }
+
+    // 1→2: 戦闘数値の10倍化(2026-10-02)。保存している値のうち、HPの単位が変わる物だけ読み替える。
+    //  ・中断中のラン(CONTINUE)の lives / maxLives(ハートの数 → HP、×10)。攻撃力は保存していない(カードを再適用して作り直す)
+    //  ・開発版のカード調整パネルの攻撃力/最大HPの候補値(CardTest.attack/hp.<0..2>、×10)
+    // カードの所持/デッキ/MILE/BEST等は単位が変わらないので触らない。
+    static bool Migrate1To2()
+    {
+        string json = PlayerPrefs.GetString(RunCheckpoint.Key, "");
+        if (!string.IsNullOrEmpty(json))
+        {
+            var d = JsonUtility.FromJson<RunCheckpoint.Data>(json);
+            if (d == null) return false;
+            if (d.lives > 0) d.lives *= CombatScale.K;
+            if (d.maxLives > 0) d.maxLives *= CombatScale.K;
+            PlayerPrefs.SetString(RunCheckpoint.Key, JsonUtility.ToJson(d));
+        }
+        foreach (string k in new[] { "attack", "hp" })
+            for (int i = 0; i < 3; i++)
+            {
+                string key = $"CardTest.{k}.{i}";
+                if (PlayerPrefs.HasKey(key)) PlayerPrefs.SetFloat(key, PlayerPrefs.GetFloat(key) * CombatScale.K);
+            }
         return true;
     }
 

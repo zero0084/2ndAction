@@ -21,7 +21,7 @@ MonoBehaviour:
   recommendPriority: 5
   effects:
   - type: 15
-    value: 2
+    value: 20
   - type: 6
     value: 0.1
   rarity: 4

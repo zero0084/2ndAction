@@ -132,7 +132,7 @@ public static class BossFx
 public class BossHitbox : MonoBehaviour
 {
     public bool damagesPlayer = true;
-    public int damageAmount = 1; // ボス戦の強化(2026-10-01): 必殺技の判定は2
+    public int damageAmount = CombatScale.PlayerHit; // ボス戦の強化(2026-10-01): 必殺技の判定は強い一撃(PlayerHeavyHit)
     public System.Action<PlayerController> onHitPlayer; // 追加効果(スロー等)
 
     BoxCollider2D col;
@@ -299,7 +299,7 @@ public class BossProjectile : MonoBehaviour
     public float slowFactor = 1f;   // <1でヒット時にプレイヤーを減速
     public float slowDuration;
     public bool damage = true;
-    public int damageAmount = 1; // ボス戦の強化(2026-10-01)
+    public int damageAmount = CombatScale.PlayerHit; // ボス戦の強化(2026-10-01)
     public bool passThrough;     // 当たっても消えない(岩柱/大玉など)
     public float bounceHeight;   // >0: 地面を跳ねながら進む(落石)。hugGround時のみ
     public float bouncePeriod = 0.6f;

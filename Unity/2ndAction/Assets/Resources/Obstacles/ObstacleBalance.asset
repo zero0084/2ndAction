@@ -15,23 +15,23 @@ MonoBehaviour:
   entries:
   - kind: SmallTree
     material: 0
-    durability: 1
+    durability: 10
     vanishOnContact: 1
   - kind: BreakableTree
     material: 0
-    durability: 2
+    durability: 20
     vanishOnContact: 0
   - kind: Rock
     material: 1
-    durability: 4
+    durability: 40
     vanishOnContact: 1
   - kind: Wall
     material: 2
-    durability: 7
+    durability: 70
     vanishOnContact: 1
   - kind: GiantRock
     material: 2
-    durability: 10
+    durability: 100
     vanishOnContact: 1
   maxDebris: 72
   debrisLife: 0.75

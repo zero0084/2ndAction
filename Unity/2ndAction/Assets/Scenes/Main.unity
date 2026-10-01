@@ -331605,7 +331605,7 @@ MonoBehaviour:
   bossDefeatSe: {fileID: 0}
   mechanicalDragonSprite: {fileID: 21300000, guid: a10aab167f3a45e49ad9e34ac9ac12b2, type: 3}
   mechanicalDragonUnlockDistance: 20000
-  mechanicalDragonMaxHp: 30
+  mechanicalDragonMaxHp: 300
   mechanicalDragonDefaultFacingRight: 1
   deathDefaultFacingRight: 0
   deathSprite: {fileID: 21300000, guid: e90b68a8d8ed3f540b940d28a1b7045b, type: 3}
@@ -331617,7 +331617,7 @@ MonoBehaviour:
   dragonStandoffDistance: 8
   dragonSpacing: 4
   dragonScatterJitter: 2
-  dragonMaxHp: 20
+  dragonMaxHp: 200
   majinScale: 2.7
   majinStandoffDistance: 16
   majinSpacing: 6
@@ -567795,9 +567795,9 @@ MonoBehaviour:
   escapeAvailableBannerDuration: 2.2
   safeZoneLength: 15
   retryDelayAfterGameOver: 3
-  startingLives: 3
-  maxLives: 5
-  maxLivesCap: 10
+  startingLives: 30
+  maxLives: 50
+  maxLivesCap: 100
   expPerMeter: 1
   enemyKillExp: 15
   bossKillExp: 100

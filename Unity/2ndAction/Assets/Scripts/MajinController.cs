@@ -16,9 +16,9 @@ public class MajinController : MonoBehaviour
     public float animFps = 10f;
 
     [Header("Health / Damage")]
-    public int maxHp = 120;
-    public int playerAttackDamage = 2;
-    public int fireballDamage = 2;
+    public int maxHp = 1200;
+    public int playerAttackDamage = 20; // 10倍スケール
+    public int fireballDamage = 20; // 10倍スケール
     // Reward/MILE System Ver.1 - "ボスMILE: Demon/魔人 100".
     public int mileReward = 100;
 

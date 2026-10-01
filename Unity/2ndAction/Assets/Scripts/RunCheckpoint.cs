@@ -16,6 +16,7 @@ using UnityEngine;
 public static class RunCheckpoint
 {
     const string SaveKey = "ActiveRunCheckpointV1";
+    public const string Key = SaveKey;
 
     [Serializable]
     public class Data

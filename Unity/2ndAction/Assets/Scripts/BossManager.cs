@@ -57,7 +57,7 @@ public class BossManager : MonoBehaviour
     // sprite hasn't been imported yet.
     public Sprite mechanicalDragonSprite;
     public float mechanicalDragonUnlockDistance = 20000f;
-    public int mechanicalDragonMaxHp = 30;
+    public int mechanicalDragonMaxHp = 300;
     // Distance Level Design Ver.1.1 - best-guess default; flip in the
     // Inspector if it still faces the wrong way once seen in Game View.
     public bool mechanicalDragonDefaultFacingRight = true;
@@ -89,7 +89,7 @@ public class BossManager : MonoBehaviour
     public float dragonStandoffDistance = 8f;
     public float dragonSpacing = 4f;
     public float dragonScatterJitter = 2f;
-    public int dragonMaxHp = 20;
+    public int dragonMaxHp = 200;
 
     // Majin sits further back than the dragons by default (dragonStandoffDistance
     // is its own zero point) so a mixed encounter reads as two distinct
@@ -1226,17 +1226,17 @@ public class BossManager : MonoBehaviour
     {
         switch (kind)
         {
-            case WildBossKind.Wolf: return new WildSpec(24, 30, 2.8f, 9f, new Color(0.7f, 0.7f, 0.8f));
-            case WildBossKind.GoblinRider: return new WildSpec(40, 60, 3.6f, 9f, new Color(0.5f, 0.8f, 0.3f));
-            case WildBossKind.Serpent: return new WildSpec(55, 90, 3.2f, 9f, new Color(0.4f, 0.9f, 0.4f));
-            case WildBossKind.Cyclops: return new WildSpec(80, 120, 6.0f, 10f, new Color(0.9f, 0.6f, 0.3f));
-            case WildBossKind.Spider: return new WildSpec(100, 150, 2.8f, 9f, new Color(0.7f, 0.4f, 0.8f));
-            case WildBossKind.Golem: return new WildSpec(130, 200, 5.5f, 10f, new Color(0.8f, 0.7f, 0.5f));
-            case WildBossKind.Griffin: return new WildSpec(150, 260, 3.4f, 9f, new Color(1f, 0.9f, 0.5f));
-            case WildBossKind.Hydra: return new WildSpec(180, 320, 5.0f, 10f, new Color(0.3f, 1f, 0.6f));
-            case WildBossKind.Demon: return new WildSpec(200, 400, 4.5f, 9f, new Color(0.8f, 0.3f, 1f));
-            case WildBossKind.BlackKnight: return new WildSpec(280, 500, 3.2f, 9f, new Color(0.5f, 0.6f, 1f));
-            default: return new WildSpec(30, 50, 3f, 9f, Color.white);
+            case WildBossKind.Wolf: return new WildSpec(240, 30, 2.8f, 9f, new Color(0.7f, 0.7f, 0.8f));
+            case WildBossKind.GoblinRider: return new WildSpec(400, 60, 3.6f, 9f, new Color(0.5f, 0.8f, 0.3f));
+            case WildBossKind.Serpent: return new WildSpec(550, 90, 3.2f, 9f, new Color(0.4f, 0.9f, 0.4f));
+            case WildBossKind.Cyclops: return new WildSpec(800, 120, 6.0f, 10f, new Color(0.9f, 0.6f, 0.3f));
+            case WildBossKind.Spider: return new WildSpec(1000, 150, 2.8f, 9f, new Color(0.7f, 0.4f, 0.8f));
+            case WildBossKind.Golem: return new WildSpec(1300, 200, 5.5f, 10f, new Color(0.8f, 0.7f, 0.5f));
+            case WildBossKind.Griffin: return new WildSpec(1500, 260, 3.4f, 9f, new Color(1f, 0.9f, 0.5f));
+            case WildBossKind.Hydra: return new WildSpec(1800, 320, 5.0f, 10f, new Color(0.3f, 1f, 0.6f));
+            case WildBossKind.Demon: return new WildSpec(2000, 400, 4.5f, 9f, new Color(0.8f, 0.3f, 1f));
+            case WildBossKind.BlackKnight: return new WildSpec(2800, 500, 3.2f, 9f, new Color(0.5f, 0.6f, 1f));
+            default: return new WildSpec(300, 50, 3f, 9f, Color.white);
         }
     }
 
@@ -1310,18 +1310,18 @@ public class BossManager : MonoBehaviour
     {
         switch (kind)
         {
-            case CaveBossKind.Centipede: return new CaveSpec(26, 32, 2.6f, 9f, new Color(0.7f, 0.75f, 0.5f));
-            case CaveBossKind.Scorpion: return new CaveSpec(42, 62, 3.2f, 9f, new Color(0.6f, 0.9f, 0.5f));
-            case CaveBossKind.Mole: return new CaveSpec(55, 95, 3.0f, 9f, new Color(0.6f, 0.45f, 0.3f));
-            case CaveBossKind.Troll: return new CaveSpec(85, 125, 5.8f, 10f, new Color(0.85f, 0.6f, 0.3f));
-            case CaveBossKind.Worm: return new CaveSpec(110, 160, 4.2f, 10f, new Color(0.45f, 0.85f, 0.5f));
-            case CaveBossKind.CrystalGolem: return new CaveSpec(140, 210, 5.6f, 10f, new Color(0.55f, 0.85f, 1f));
-            case CaveBossKind.Bat: return new CaveSpec(160, 270, 3.0f, 9f, new Color(0.7f, 0.6f, 0.9f));
-            case CaveBossKind.ScorpionKing: return new CaveSpec(190, 330, 4.6f, 10f, new Color(0.9f, 0.5f, 0.55f));
-            case CaveBossKind.Basilisk: return new CaveSpec(210, 410, 3.4f, 9f, new Color(0.6f, 0.9f, 0.35f));
-            case CaveBossKind.Drake: return new CaveSpec(260, 470, 4.4f, 9f, new Color(1f, 0.55f, 0.25f));
-            case CaveBossKind.AncientDemon: return new CaveSpec(290, 520, 3.6f, 9f, new Color(0.75f, 0.25f, 1f));
-            default: return new CaveSpec(30, 50, 3f, 9f, Color.white);
+            case CaveBossKind.Centipede: return new CaveSpec(260, 32, 2.6f, 9f, new Color(0.7f, 0.75f, 0.5f));
+            case CaveBossKind.Scorpion: return new CaveSpec(420, 62, 3.2f, 9f, new Color(0.6f, 0.9f, 0.5f));
+            case CaveBossKind.Mole: return new CaveSpec(550, 95, 3.0f, 9f, new Color(0.6f, 0.45f, 0.3f));
+            case CaveBossKind.Troll: return new CaveSpec(850, 125, 5.8f, 10f, new Color(0.85f, 0.6f, 0.3f));
+            case CaveBossKind.Worm: return new CaveSpec(1100, 160, 4.2f, 10f, new Color(0.45f, 0.85f, 0.5f));
+            case CaveBossKind.CrystalGolem: return new CaveSpec(1400, 210, 5.6f, 10f, new Color(0.55f, 0.85f, 1f));
+            case CaveBossKind.Bat: return new CaveSpec(1600, 270, 3.0f, 9f, new Color(0.7f, 0.6f, 0.9f));
+            case CaveBossKind.ScorpionKing: return new CaveSpec(1900, 330, 4.6f, 10f, new Color(0.9f, 0.5f, 0.55f));
+            case CaveBossKind.Basilisk: return new CaveSpec(2100, 410, 3.4f, 9f, new Color(0.6f, 0.9f, 0.35f));
+            case CaveBossKind.Drake: return new CaveSpec(2600, 470, 4.4f, 9f, new Color(1f, 0.55f, 0.25f));
+            case CaveBossKind.AncientDemon: return new CaveSpec(2900, 520, 3.6f, 9f, new Color(0.75f, 0.25f, 1f));
+            default: return new CaveSpec(300, 50, 3f, 9f, Color.white);
         }
     }
 
@@ -1491,16 +1491,16 @@ public class BossManager : MonoBehaviour
     {
         switch (kind)
         {
-            case SkyBossKind.Behemoth: return new SkySpec(70, 110, 4.8f, 9f, new Color(0.55f, 0.8f, 1f));
-            case SkyBossKind.Titan: return new SkySpec(110, 160, 14f, 9f, new Color(0.8f, 0.85f, 0.95f));
-            case SkyBossKind.Jellyfish: return new SkySpec(130, 200, 4.4f, 8f, new Color(0.6f, 0.95f, 1f));
-            case SkyBossKind.Leviathan: return new SkySpec(160, 250, 4.6f, 7f, new Color(0.7f, 0.85f, 1f));
-            case SkyBossKind.Fenrir: return new SkySpec(180, 310, 3.8f, 7f, new Color(0.6f, 0.85f, 1f));
-            case SkyBossKind.SkyGolem: return new SkySpec(210, 370, 6.2f, 9f, new Color(0.85f, 0.8f, 0.7f));
-            case SkyBossKind.Phoenix: return new SkySpec(220, 430, 4.4f, 8f, new Color(1f, 0.55f, 0.2f));
-            case SkyBossKind.SkySerpent: return new SkySpec(250, 490, 3.4f, 8f, new Color(0.75f, 0.85f, 1f));
-            case SkyBossKind.Guardian: return new SkySpec(320, 580, 3.6f, 7f, new Color(1f, 0.92f, 0.65f));
-            default: return new SkySpec(60, 80, 3f, 9f, Color.white);
+            case SkyBossKind.Behemoth: return new SkySpec(700, 110, 4.8f, 9f, new Color(0.55f, 0.8f, 1f));
+            case SkyBossKind.Titan: return new SkySpec(1100, 160, 14f, 9f, new Color(0.8f, 0.85f, 0.95f));
+            case SkyBossKind.Jellyfish: return new SkySpec(1300, 200, 4.4f, 8f, new Color(0.6f, 0.95f, 1f));
+            case SkyBossKind.Leviathan: return new SkySpec(1600, 250, 4.6f, 7f, new Color(0.7f, 0.85f, 1f));
+            case SkyBossKind.Fenrir: return new SkySpec(1800, 310, 3.8f, 7f, new Color(0.6f, 0.85f, 1f));
+            case SkyBossKind.SkyGolem: return new SkySpec(2100, 370, 6.2f, 9f, new Color(0.85f, 0.8f, 0.7f));
+            case SkyBossKind.Phoenix: return new SkySpec(2200, 430, 4.4f, 8f, new Color(1f, 0.55f, 0.2f));
+            case SkyBossKind.SkySerpent: return new SkySpec(2500, 490, 3.4f, 8f, new Color(0.75f, 0.85f, 1f));
+            case SkyBossKind.Guardian: return new SkySpec(3200, 580, 3.6f, 7f, new Color(1f, 0.92f, 0.65f));
+            default: return new SkySpec(600, 80, 3f, 9f, Color.white);
         }
     }
 
@@ -1589,7 +1589,7 @@ public class BossManager : MonoBehaviour
         dragon.chargeFrames = dragonChargeFrames;
         dragon.fireFrames = dragonFireFrames;
         dragon.squareSprite = squareSprite;
-        dragon.maxHp = EffectiveBossMaxHp(250);
+        dragon.maxHp = EffectiveBossMaxHp(2500);
         dragon.standoffDistance = standoff;
         dragon.chargeAttackEnabled = true;
         dragon.landingAttackEnabled = true;
@@ -1675,6 +1675,8 @@ public class BossManager : MonoBehaviour
         if (NetTestBossHpOverride > 0) return NetTestBossHpOverride;
 #endif
         float multiplier = GameManager.Instance != null ? GameManager.Instance.BossHpMultiplier : 1f;
+        // 2026-10-02: ボスHPの再設計案(開発版DEBUGで15/20/25発を選んだ時だけ。既定/製品版は1)
+        multiplier *= BossHpPlan.Multiplier(BossHpPlan.CurrentDistance);
         return Mathf.Max(1, Mathf.RoundToInt(baseHp * Mathf.Max(0.01f, multiplier)));
     }
 

@@ -152,7 +152,7 @@ public partial class NetMatch
         if (donor.State != PState.Alive) { why = $"donor P{donor.Pn} is {donor.State}"; return false; }
         double gap = down.DownDistance - donor.Distance;
         string nums = $"DownDistance={down.DownDistance:F1}m donorDistance={donor.Distance:F1}m donorHp={donor.Hp}";
-        if (donor.Hp < 2) { why = $"donor HP {donor.Hp} < 2 (cannot give the last HP) {nums}"; return false; }
+        if (donor.Hp <= CombatScale.PlayerHit) { why = $"donor HP {donor.Hp} <= {CombatScale.PlayerHit} (cannot give the last heart) {nums}"; return false; }
         if (gap > 0) { why = $"donor is {gap:F1}m behind the down point {nums}"; return false; }
         why = nums;
         return true;
@@ -185,17 +185,17 @@ public partial class NetMatch
         GameManager gm = GameManager.Instance;
         int local = NetCombat.LocalPlayerNumber;
         int donorBefore = donor.Hp;
-        donor.Hp -= 1;
-        down.Hp = 1;
+        donor.Hp -= CombatScale.PlayerHit; // ハート1つ分を渡す(10倍スケール)
+        down.Hp = CombatScale.PlayerHit;
         down.State = PState.Alive;
         down.InvulnUntil = Time.realtimeSinceStartup + 1.5f;
         if (gm != null)
         {
             if (donor.Pn == local) gm.NetSetLocalLives(donor.Hp);
-            if (down.Pn == local) gm.NetSetLocalLives(1);
+            if (down.Pn == local) gm.NetSetLocalLives(CombatScale.PlayerHit);
         }
         ReviveCount++;
-        Log($"REVIVE EXECUTED down=P{down.Pn} donor=P{donor.Pn}: donor hp {donorBefore} -> {donor.Hp}, down hp 0 -> 1, at DownDistance={down.DownDistance:F1}m (donorDistance={donor.Distance:F1}m)");
+        Log($"REVIVE EXECUTED down=P{down.Pn} donor=P{donor.Pn}: donor hp {donorBefore} -> {donor.Hp}, down hp 0 -> {down.Hp}, at DownDistance={down.DownDistance:F1}m (donorDistance={donor.Distance:F1}m)");
         SendToClients(w => { w.WriteValueSafe(SyncRevived); w.WriteValueSafe((byte)down.Pn); w.WriteValueSafe((byte)donor.Pn); });
         dirty = true;
         SendTable();
@@ -362,7 +362,7 @@ public partial class NetMatch
                     double gap = r.DownDistance - me.Distance;
                     sb.Append(gap > 0 ? $"\nDISTANCE TO ALLY: {gap:F0}m" : $"\nALLY IS {-gap:F0}m BEHIND YOU");
                     if (CanRevive(r, me, out string why)) { reviveTarget = r.Pn; reviveText = $"REVIVE AVAILABLE  Donor HP = {me.Hp}"; }
-                    else if (me.Hp < 2) sb.Append($"\nREVIVE: NOT POSSIBLE (Donor HP = {me.Hp}, need 2+)");
+                    else if (me.Hp <= CombatScale.PlayerHit) sb.Append($"\nREVIVE: NOT POSSIBLE (Donor HP = {me.Hp}, need {CombatScale.PlayerHit + 1}+)");
                 }
             }
         }

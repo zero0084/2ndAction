@@ -19,7 +19,7 @@ using UnityEngine;
 //  ・DEBUGがOFF/リリースビルドでは何も表示せず何もしない(DEBUGをOFFにした瞬間にテストの層を外す)。
 //  ・新しいラン(シーンの読み直し/Run開始)を検出したら、テストの値はすべて捨てる(次のランへ持ち越さない)。
 //  ・A/B/Cの候補値だけはPlayerPrefsに保存される(値の編集結果。ゲームの性能には関係しない)。
-public class CardBalanceTest : MonoBehaviour
+public partial class CardBalanceTest : MonoBehaviour
 {
     public static CardBalanceTest Instance { get; private set; }
 
@@ -33,7 +33,7 @@ public class CardBalanceTest : MonoBehaviour
     }
 
     public enum Kind { Mul, Add, Set }
-    public enum Tab { Control, Status, CardChar }
+    public enum Tab { Control, Status, CardChar, Boss }
 
     public class Param
     {
@@ -79,8 +79,9 @@ public class CardBalanceTest : MonoBehaviour
         P(ref pJumps, "jumps", "ジャンプ回数", Kind.Add, new[] { 1f, 2f, 3f }, 1f, -3f, 9f, Tab.Control);
         P(ref pAtkTime, "atktime", "攻撃時間", Kind.Mul, new[] { 0.9f, 0.8f, 0.7f }, 0.05f, 0.1f, 4f, Tab.Control);
         P(ref pRange, "range", "攻撃範囲", Kind.Mul, new[] { 1.2f, 1.4f, 1.6f }, 0.1f, 0.3f, 6f, Tab.Control);
-        P(ref pAttack, "attack", "攻撃力", Kind.Add, new[] { 1f, 3f, 5f }, 1f, -20f, 60f, Tab.Control);
-        P(ref pHp, "hp", "最大HP", Kind.Add, new[] { 1f, 2f, 4f }, 1f, -30f, 30f, Tab.Status);
+        // 2026-10-02: 攻撃力/HPは10倍スケール(+1 = 旧+0.1)
+        P(ref pAttack, "attack", "攻撃力", Kind.Add, new[] { 10f, 30f, 50f }, 5f, -200f, 20000f, Tab.Control);
+        P(ref pHp, "hp", "最大HP", Kind.Add, new[] { 10f, 20f, 40f }, 5f, -300f, 300f, Tab.Status);
         P(ref pShield, "shield", "Shield", Kind.Set, new[] { 1f, 2f, 3f }, 1f, 0f, 20f, Tab.Status);
         P(ref pExp, "exp", "EXP倍率", Kind.Mul, new[] { 1.2f, 1.5f, 2f }, 0.1f, 0f, 8f, Tab.Status);
         P(ref pMile, "mile", "MILE倍率", Kind.Mul, new[] { 1.2f, 1.5f, 2f }, 0.1f, 0f, 8f, Tab.Status);
@@ -128,6 +129,7 @@ public class CardBalanceTest : MonoBehaviour
 
     void Update()
     {
+        if (testBoss != null) TrackTestBoss(); // ボス試験(2026-10-02)
         var gm = GameManager.Instance;
         var pc = PlayerController.Instance;
         // 新しいラン(シーン読み直し/Run開始/別のプレイヤー)を検出: テストの値は持ち越さない
@@ -465,7 +467,7 @@ public class CardBalanceTest : MonoBehaviour
         }
 
         float rowH = 30f, gap = 3f;
-        int rows = tab == Tab.CardChar ? 7 : Params.Count(p => p.tab == tab) + 4;
+        int rows = tab == Tab.CardChar ? 7 : tab == Tab.Boss ? BossTabRows : Params.Count(p => p.tab == tab) + 4;
         float h = rows * (rowH + gap) + 12f;
         panelRect = new Rect(sw - W - 10f, atTop ? 96f : Mathf.Max(96f, sh - h - 88f), W, h);
         UiBackdrop.Draw(panelRect, 0.82f);
@@ -483,12 +485,13 @@ public class CardBalanceTest : MonoBehaviour
         y += rowH + gap;
 
         // タブ
-        string[] tabs = { "操作系", "ステータス", "カードLv / キャラ" };
-        for (int i = 0; i < 3; i++) if (B(new Rect(x + i * 150f, y, 146f, rowH - 4f), tabs[i], (int)tab == i)) tab = (Tab)i;
-        if (tab != Tab.CardChar) GUI.Label(new Rect(x + 460f, y, W - 470f, rowH), "右の表示: 基準 ×カード ×テスト → 実効(+−は加算)", sSmall);
+        string[] tabs = { "操作系", "ステータス", "カードLv / キャラ", "ボス試験" };
+        for (int i = 0; i < 4; i++) if (B(new Rect(x + i * 150f, y, 146f, rowH - 4f), tabs[i], (int)tab == i)) tab = (Tab)i;
+        if (tab != Tab.CardChar && tab != Tab.Boss) GUI.Label(new Rect(x + 606f, y, W - 616f, rowH), "右: 基準×カード×テスト→実効", sSmall);
         y += rowH + gap;
 
         if (tab == Tab.CardChar) DrawCardChar(x, ref y, rowH, gap);
+        else if (tab == Tab.Boss) DrawBossTest(x, ref y, rowH, gap);
         else
         {
             foreach (var p in Params)

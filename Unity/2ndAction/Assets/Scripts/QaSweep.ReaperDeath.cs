@@ -44,7 +44,7 @@ public partial class QaSweep
         autoPickHold = false; // 選択は自動で選ぶ(card の時も自動選択の直後=閉じる演出中に一撃が来る)
         typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false);
         var livesSet = typeof(GameManager).GetProperty("Lives").GetSetMethod(true);
-        livesSet.Invoke(gm, new object[] { 3 });
+        livesSet.Invoke(gm, new object[] { 30 });
         var bm = BossManager.Instance;
         PlayerController.DebugSpeedScale = cond == "fast" ? 3.2f : 1f;
         float t0 = Time.realtimeSinceStartup;
@@ -73,7 +73,7 @@ public partial class QaSweep
         {
             yield return null;
             w += Time.unscaledDeltaTime;
-            if (gm.Lives < 3 && !applied) livesSet.Invoke(gm, new object[] { 3 });
+            if (gm.Lives < 30 && !applied) livesSet.Invoke(gm, new object[] { 30 });
             r = ReaperBase.Active;
             if (r == null) continue;
             if (!applied && r.CurrentPhase == ReaperBase.Phase.Captured)
@@ -83,7 +83,7 @@ public partial class QaSweep
                 L($"[reaperDeath] {tag}: captured after {w:F1}s gap={r.Gap:F2} speed={GameManager.SpeedKmh(pc.CurrentAutoRunSpeed):F0}km/h boss={(bm != null && bm.IsBossPhase)} -> apply '{cond}'");
                 if (cond == "jump") { pc.debugInjectFlick = PlayerController.FlickDirection.Up; yield return null; yield return null; pc.debugInjectFlick = null; }
                 else if (cond == "attack") { pc.debugInjectFlick = PlayerController.FlickDirection.Forward; yield return null; yield return null; pc.debugInjectFlick = null; }
-                else if (cond == "hurt") { livesSet.Invoke(gm, new object[] { 3 }); pc.TakeDamage(false, "qa-hurt"); }
+                else if (cond == "hurt") { livesSet.Invoke(gm, new object[] { 30 }); pc.TakeDamage(false, "qa-hurt"); }
                 else if (cond == "card")
                 {
                     gm.GrantBonusCardChoice();

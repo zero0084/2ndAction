@@ -1842,7 +1842,7 @@ public class TerrainManager : MonoBehaviour
         EnemyMovementType movementType = airborne ? EnemyMovementType.Flying : EnemyMovementType.Ground;
         float heightOffset = airborne ? 0f : groundEnemyHeight;
 
-        int maxHp = DistanceTierManager.Instance != null && enemyDef != null ? DistanceTierManager.Instance.EnemyHpFor(enemyDef.hpMultiplier) : 1;
+        int maxHp = DistanceTierManager.Instance != null && enemyDef != null ? DistanceTierManager.Instance.EnemyHpFor(enemyDef.hpMultiplier) : CombatScale.K;
         EnemyBehaviorKind behaviorKind = enemyDef != null ? enemyDef.behaviorKind : EnemyBehaviorKind.None;
         bool bigKnockback = enemyDef != null && enemyDef.bigKnockbackOnHit;
         bool enableVisualFacing = enemyDef != null && enemyDef.enableVisualFacing;
@@ -1883,7 +1883,7 @@ public class TerrainManager : MonoBehaviour
         if (def == null) return null;
         bool airborne = def.movementType == EnemyMovementType.Flying;
         EnemyMovementType movementType = airborne ? EnemyMovementType.Flying : EnemyMovementType.Ground;
-        int maxHp = DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(def.hpMultiplier) : 1;
+        int maxHp = DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(def.hpMultiplier) : CombatScale.K;
         float y = pos.y + (airborne ? 0f : groundEnemyHeight);
         GameObject enemyGO = GroundFactory.CreateEnemy(transform, def.sprite, new Vector2(pos.x, y), def.tint, enemyHitSparkSprite, enemyDeathCloudSprite,
             movementType, enemyGroundShadowSprite, maxHp, behaviorKind, def.bigKnockbackOnHit, shooterProjectileSprite, def.enableVisualFacing,

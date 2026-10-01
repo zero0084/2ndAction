@@ -23,7 +23,7 @@ MonoBehaviour:
   pendingSafeDelay: 3
   zakoAttackScaleDuringUltimate: 0.35
   suppressObstaclesDuringUltimate: 1
-  ultimateDamage: 2
+  ultimateDamage: 20
   staggerNormal: 1
   staggerUp: 3.2
   staggerDown: 2.4
@@ -44,7 +44,7 @@ MonoBehaviour:
     staggerRecoveryPerSec: 2
     breakDuration: 2.4
     resumeSecondsOverride: 0
-    normalDamage: 1
+    normalDamage: 10
   - key: GoblinRider
     hpScale: 1
     phaseThresholds:
@@ -56,7 +56,7 @@ MonoBehaviour:
     staggerRecoveryPerSec: 2
     breakDuration: 2.6
     resumeSecondsOverride: 0
-    normalDamage: 1
+    normalDamage: 10
   - key: Serpent
     hpScale: 1
     phaseThresholds:
@@ -69,7 +69,7 @@ MonoBehaviour:
     staggerRecoveryPerSec: 2.5
     breakDuration: 3
     resumeSecondsOverride: 0
-    normalDamage: 1
+    normalDamage: 10
   - key: Cyclops
     hpScale: 1
     phaseThresholds:
@@ -82,7 +82,7 @@ MonoBehaviour:
     staggerRecoveryPerSec: 3
     breakDuration: 3
     resumeSecondsOverride: 0
-    normalDamage: 1
+    normalDamage: 10
   - key: Spider
     hpScale: 1
     phaseThresholds:
@@ -94,7 +94,7 @@ MonoBehaviour:
     staggerRecoveryPerSec: 2.5
     breakDuration: 2.8
     resumeSecondsOverride: 0
-    normalDamage: 1
+    normalDamage: 10
   - key: Golem
     hpScale: 1
     phaseThresholds:
@@ -107,7 +107,7 @@ MonoBehaviour:
     staggerRecoveryPerSec: 3.5
     breakDuration: 3.2
     resumeSecondsOverride: 0
-    normalDamage: 1
+    normalDamage: 10
   - key: Griffin
     hpScale: 1
     phaseThresholds:
@@ -120,7 +120,7 @@ MonoBehaviour:
     staggerRecoveryPerSec: 3
     breakDuration: 3
     resumeSecondsOverride: 0
-    normalDamage: 1
+    normalDamage: 10
   - key: Hydra
     hpScale: 1
     phaseThresholds:
@@ -133,7 +133,7 @@ MonoBehaviour:
     staggerRecoveryPerSec: 3.5
     breakDuration: 3
     resumeSecondsOverride: 0
-    normalDamage: 1
+    normalDamage: 10
   - key: Demon
     hpScale: 1
     phaseThresholds:
@@ -145,7 +145,7 @@ MonoBehaviour:
     staggerRecoveryPerSec: 3
     breakDuration: 3
     resumeSecondsOverride: 0
-    normalDamage: 1
+    normalDamage: 10
   - key: Dragon
     hpScale: 1
     phaseThresholds:
@@ -157,7 +157,7 @@ MonoBehaviour:
     staggerRecoveryPerSec: 3
     breakDuration: 3.2
     resumeSecondsOverride: 0
-    normalDamage: 1
+    normalDamage: 10
   - key: BlackKnight
     hpScale: 1
     phaseThresholds:
@@ -170,4 +170,4 @@ MonoBehaviour:
     staggerRecoveryPerSec: 4
     breakDuration: 2.8
     resumeSecondsOverride: 0
-    normalDamage: 1
+    normalDamage: 10

@@ -67,7 +67,7 @@ public partial class QaSweep
         var livesSetter = typeof(GameManager).GetProperty("Lives").GetSetMethod(true);
         var maxField = typeof(GameManager).GetField("maxLives");
         Rect heartsRef = R("GetHeartsPanelRect");
-        int[][] cases = { new[] { 3, 3 }, new[] { 5, 2 }, new[] { 9, 9 }, new[] { 10, 7 }, new[] { 10, 10 }, new[] { 15, 15 }, new[] { 99, 99 } };
+        int[][] cases = { new[] { 30, 30 }, new[] { 50, 20 }, new[] { 50, 45 }, new[] { 90, 90 }, new[] { 100, 70 }, new[] { 100, 100 }, new[] { 150, 150 }, new[] { 150, 95 }, new[] { 990, 990 } };
         foreach (var c in cases)
         {
             maxField.SetValue(gm, c[0]);

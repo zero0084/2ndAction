@@ -461,7 +461,7 @@ public class CyclopsBoss : WildBossBase
 
         Vector2 m = new Vector2(r + 1.4f, 1.6f), sm = new Vector2(4.2f, 3.2f);
         megaSlam = NewHitbox("MegaSlam", m, sm, BossFx.Block(), new Color(1f, 0.6f, 0.25f, 0.7f));
-        megaSlam.damageAmount = 2;
+        megaSlam.damageAmount = CombatScale.PlayerHeavyHit;
         megaMark = NewMarker(m, sm);
     }
 
@@ -593,9 +593,9 @@ public class SpiderBoss : WildBossBase
 
         land = NewHitbox("Land", new Vector2(0f, 0.7f), new Vector2(3.2f, 1.4f), BossFx.Ring(), new Color(0.9f, 0.9f, 1f, 0.85f));
         skitter = NewHitbox("Skitter", new Vector2(0f, 0.6f), new Vector2(Mathf.Max(2.4f, halfWidth * 1.6f), 1.15f), BossFx.Slash(), new Color(0.85f, 0.85f, 1f, 0.85f));
-        skitter.damageAmount = 2;
+        skitter.damageAmount = CombatScale.PlayerHeavyHit;
         overleap = NewHitbox("Overleap", new Vector2(0f, 0.9f), new Vector2(Mathf.Max(2.4f, halfWidth * 1.6f), 1.7f), BossFx.Slash(), new Color(0.8f, 0.7f, 1f, 0.85f));
-        overleap.damageAmount = 2;
+        overleap.damageAmount = CombatScale.PlayerHeavyHit;
     }
 
     IEnumerator DeathDance()
@@ -940,9 +940,9 @@ public class GriffinBoss : WildBossBase
 
         dive = NewHitbox("Dive", new Vector2(0f, bodyHeight * 0.4f), new Vector2(2.8f, 2.4f), BossFx.Ring(), new Color(1f, 0.9f, 0.6f, 0.9f));
         swoopLow = NewHitbox("SwoopLow", new Vector2(0f, 0.65f), new Vector2(Mathf.Max(2.4f, halfWidth * 1.6f), 1.15f), BossFx.Slash(), new Color(1f, 0.95f, 0.7f, 0.8f));
-        swoopLow.damageAmount = 2;
+        swoopLow.damageAmount = CombatScale.PlayerHeavyHit;
         swoopHigh = NewHitbox("SwoopHigh", new Vector2(0f, 0.9f), new Vector2(Mathf.Max(2.4f, halfWidth * 1.6f), 1.7f), BossFx.Slash(), new Color(0.9f, 0.8f, 1f, 0.8f));
-        swoopHigh.damageAmount = 2;
+        swoopHigh.damageAmount = CombatScale.PlayerHeavyHit;
     }
 
     protected override IEnumerator AI()
@@ -1113,9 +1113,9 @@ public class HydraBoss : WildBossBase
             marks[i] = NewMarker(c, s);
         }
         ultLow = NewHitbox("UltLow", new Vector2(r + 4f, 0.6f), new Vector2(8f, 1.2f), BossFx.Fang(), new Color(0.85f, 1f, 0.7f, 0.95f));
-        ultLow.damageAmount = 2;
+        ultLow.damageAmount = CombatScale.PlayerHeavyHit;
         ultHigh = NewHitbox("UltHigh", new Vector2(r + 4f, 3.4f), new Vector2(8f, 2.1f), BossFx.Fang(), new Color(0.9f, 0.75f, 1f, 0.95f));
-        ultHigh.damageAmount = 2;
+        ultHigh.damageAmount = CombatScale.PlayerHeavyHit;
     }
 
     protected override IEnumerator AI()
@@ -1325,7 +1325,7 @@ public class DemonBoss : WildBossBase
         GameObject fb = FireballController.Create(BossFx.Orb(), from, dir * 6f);
         var fbc = fb.GetComponent<FireballController>();
         fbc.ScaleUp(2.6f);
-        fbc.damageAmount = 2;
+        fbc.damageAmount = CombatScale.PlayerHeavyHit;
         fb.GetComponent<SpriteRenderer>().color = new Color(0.65f, 0.2f, 1f);
         PlayAttackPose(0.4f);
         Shake(0.12f, 0.25f);
@@ -1398,9 +1398,9 @@ public class BlackKnightBoss : WildBossBase
         slamHb = NewHitbox("Slam", new Vector2(r * 0.5f, 0.5f), new Vector2(5.5f, 1.0f), BossFx.Ring(), new Color(0.6f, 0.7f, 1f, 0.9f));
         slamMark = NewMarker(new Vector2(r * 0.5f, 0.5f), new Vector2(5.5f, 1.0f));
         rushLow = NewHitbox("RushLow", new Vector2(0f, 0.6f), new Vector2(2.6f, 1.15f), BossFx.Slash(), new Color(0.55f, 0.7f, 1f, 0.9f));
-        rushLow.damageAmount = 2;
+        rushLow.damageAmount = CombatScale.PlayerHeavyHit;
         rushHigh = NewHitbox("RushHigh", new Vector2(0f, 3.3f), new Vector2(2.8f, 2.0f), BossFx.Slash(), new Color(0.75f, 0.55f, 1f, 0.9f));
-        rushHigh.damageAmount = 2;
+        rushHigh.damageAmount = CombatScale.PlayerHeavyHit;
     }
 
     protected override IEnumerator AI()

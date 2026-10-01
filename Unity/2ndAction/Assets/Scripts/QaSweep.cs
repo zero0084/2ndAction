@@ -42,6 +42,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaHudShots") { mode = "hudshots"; dir = a[i + 1]; }
             if (a[i] == "-qaReaperDeath") { mode = "reaperdeath"; dir = a[i + 1]; }
             if (a[i] == "-qaVisShots") { mode = "visshots"; dir = a[i + 1]; }
+            if (a[i] == "-qaScale") { mode = "scale"; dir = a[i + 1]; }
             if (a[i] == "-qaScenery") { mode = "scenery"; dir = a[i + 1]; }
             if (a[i] == "-qaSceneryVideo") { mode = "sceneryvideo"; dir = a[i + 1]; }
             if (a[i] == "-qaSceneryStages") { mode = "scenerystages"; dir = a[i + 1]; }
@@ -106,6 +107,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "hudshots") yield return HudShotsMode();
         else if (mode == "reaperdeath") yield return ReaperDeathMode();
         else if (mode == "visshots") yield return VisShotsMode();
+        else if (mode == "scale") yield return ScaleMode();
         else if (mode == "scenery") yield return SceneryMode();
         else if (mode == "sceneryvideo") yield return SceneryVideoMode();
         else if (mode == "scenerystages") yield return SceneryStagesMode();
@@ -172,7 +174,7 @@ public partial class QaSweep : MonoBehaviour
         var setter = lives.GetSetMethod(true);
         while (!stopKeepAlive)
         {
-            if (gm != null && gm.Lives < 50 && !gm.IsGameOver) setter.Invoke(gm, new object[] { 99 });
+            if (gm != null && gm.Lives < 500 && !gm.IsGameOver) setter.Invoke(gm, new object[] { 990 });
             yield return null;
         }
     }
@@ -497,7 +499,7 @@ public partial class QaSweep : MonoBehaviour
         yield return BeginRun(ch, st);
         typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
         if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(true);
-        pc.AddAttackPower(12);
+        pc.AddAttackPower(120); // 10倍スケール(旧12)
         var bm = BossManager.Instance;
         var tm = TerrainManager.Instance;
         var cam = Camera.main;
@@ -834,7 +836,7 @@ public partial class QaSweep : MonoBehaviour
     {
         string st = Arg("-qaStage", "last_corridor"), ch = Arg("-qaChar", "gunslinger");
         float kmh = float.Parse(Arg("-qaKmh", "260"), System.Globalization.CultureInfo.InvariantCulture);
-        int powerAdd = int.Parse(Arg("-qaPower", "12"));
+        int powerAdd = int.Parse(Arg("-qaPower", "120")); // 10倍スケール(旧12)
         // 2026-09-30: -qaKmh 0 = 自然加速のまま(カードの効果も含めて実際のRunどおり)。-qaTimeScale で早送り。
         bool natural = kmh <= 0f;
         float stopAt = float.Parse(Arg("-qaStopAt", "0"), System.Globalization.CultureInfo.InvariantCulture); // 調査用: この距離で止める

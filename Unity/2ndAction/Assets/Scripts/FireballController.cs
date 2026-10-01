@@ -15,7 +15,7 @@ public class FireballController : MonoBehaviour
 {
     public Vector2 velocity;
     public bool reflected;
-    public int damageAmount = 1; // ボス戦の強化(2026-10-01): ドラゴンの巨大火球は2
+    public int damageAmount = CombatScale.PlayerHit; // ボス戦の強化(2026-10-01): ドラゴンの巨大火球は強い一撃
     public float lifetime = 6f;
     public float reflectSpeedMultiplier = 2f;
     // If >0, the fireball sits still (already at `velocity`'s eventual

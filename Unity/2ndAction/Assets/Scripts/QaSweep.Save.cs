@@ -81,23 +81,30 @@ public partial class QaSweep
             PlayerPrefs.SetInt("BgmVolumeLevel", 2);    // 旧い0〜4段階
             PlayerPrefs.SetInt("SfxVolumeLevel", 1);
             PlayerPrefs.SetInt(SaveKeys.SchemaVersion, 0);
+            // 2026-10-02: 1->2(戦闘数値10倍化)も続けて通る。旧スケールの中断中ラン(ハート3/5)と調整パネルの候補値
+            PlayerPrefs.SetString(RunCheckpoint.Key, "{\"active\":true,\"characterId\":\"swordsman\",\"lives\":3,\"maxLives\":5,\"level\":4}");
+            PlayerPrefs.SetFloat("CardTest.attack.1", 3f);
             r = SaveSystem.Boot(0);
-            Check(r.schemaBefore == 0 && r.schemaAfter == 1 && !r.migrationFailed, $"C: migrated 0->1 ({r.report})");
+            Check(r.schemaBefore == 0 && r.schemaAfter == SaveSystem.CurrentSchemaVersion && !r.migrationFailed, $"C: migrated 0->{SaveSystem.CurrentSchemaVersion} ({r.report})");
+            var cp = JsonUtility.FromJson<RunCheckpoint.Data>(PlayerPrefs.GetString(RunCheckpoint.Key, "{}"));
+            Check(cp.lives == 30 && cp.maxLives == 50 && cp.level == 4 && cp.characterId == "swordsman", $"C: 1->2 converts a suspended run's hearts to the x10 HP (lives {cp.lives}/{cp.maxLives}, level {cp.level})");
+            Check(Mathf.Abs(PlayerPrefs.GetFloat("CardTest.attack.1", 0f) - 30f) < 0.001f, "C: 1->2 converts the card-test attack presets x10");
+            PlayerPrefs.DeleteKey(RunCheckpoint.Key); PlayerPrefs.DeleteKey("CardTest.attack.1");
             Check(Mathf.Abs(PlayerPrefs.GetFloat("BgmVolume", -1f) - 0.5f) < 0.001f && Mathf.Abs(PlayerPrefs.GetFloat("SfxVolume", -1f) - 0.25f) < 0.001f, "C: old volume levels converted (2/4 -> 0.5, 1/4 -> 0.25)");
             Check(!PlayerPrefs.HasKey("BgmVolumeLevel") && !PlayerPrefs.HasKey("SfxVolumeLevel"), "C: old duplicate volume keys removed");
             Check(PlayerPrefs.GetInt("TotalOwnedMile", 0) == 12345 && PlayerPrefs.GetString("OwnedCardsV1", "").Contains("\"level\":5") && PlayerPrefs.GetString("BestDistance_v2_wasteland_road", "") == "45678.5", "C: progress kept through the migration");
-            // 将来の多段の移行(1→2→3)
-            SaveSystem.TestSchemaTarget = 3;
-            SaveSystem.TestStep = from => { if (from == 1) PlayerPrefs.SetInt("TotalOwnedMile", PlayerPrefs.GetInt("TotalOwnedMile", 0) + 1); if (from == 2) PlayerPrefs.SetString("DeckCardIds", PlayerPrefs.GetString("DeckCardIds", "") + ",x"); return true; };
+            // 将来の多段の移行(2→3→4)
+            SaveSystem.TestSchemaTarget = 4;
+            SaveSystem.TestStep = from => { if (from == 2) PlayerPrefs.SetInt("TotalOwnedMile", PlayerPrefs.GetInt("TotalOwnedMile", 0) + 1); if (from == 3) PlayerPrefs.SetString("DeckCardIds", PlayerPrefs.GetString("DeckCardIds", "") + ",x"); return true; };
             r = SaveSystem.Boot(0);
-            Check(r.schemaAfter == 3 && PlayerPrefs.GetInt("TotalOwnedMile", 0) == 12346 && PlayerPrefs.GetString("DeckCardIds", "").EndsWith(",x"), $"C: chained migration 1->2->3 applied step by step ({r.report})");
+            Check(r.schemaAfter == 4 && PlayerPrefs.GetInt("TotalOwnedMile", 0) == 12346 && PlayerPrefs.GetString("DeckCardIds", "").EndsWith(",x"), $"C: chained migration 2->3->4 applied step by step ({r.report})");
             // 移行の失敗 → 移行前へ戻して旧い形式のまま起動
-            PlayerPrefs.SetInt(SaveKeys.SchemaVersion, 1);
+            PlayerPrefs.SetInt(SaveKeys.SchemaVersion, 2);
             var beforeFail = SaveSystem.Capture();
-            SaveSystem.TestStep = from => { if (from == 1) { PlayerPrefs.SetInt("TotalOwnedMile", 1); return true; } return false; };
+            SaveSystem.TestStep = from => { if (from == 2) { PlayerPrefs.SetInt("TotalOwnedMile", 1); return true; } return false; };
             r = SaveSystem.Boot(0);
             bool sameF = SameValues(beforeFail, SaveSystem.Capture(), out string diffF);
-            Check(r.migrationFailed && r.schemaAfter == 1 && sameF, $"C: a failed migration restores the pre-migration data and keeps the old format {diffF}");
+            Check(r.migrationFailed && r.schemaAfter == 2 && sameF, $"C: a failed migration restores the pre-migration data and keeps the old format {diffF}");
             SaveSystem.TestSchemaTarget = 0; SaveSystem.TestStep = null;
 
             // ---- D: 将来の製品版(releaseGeneration 0→1)

@@ -33,9 +33,9 @@ MonoBehaviour:
   comboRating: 4
   challengeFlag: 0
   sortOrder: 10
-  baseLives: 3
-  baseMaxLives: 5
-  attackPower: 2
+  baseLives: 30
+  baseMaxLives: 50
+  attackPower: 20
   attackComboCount: 3
   attackSpeedMultiplier: 1
   attackRangeMultiplier: 1

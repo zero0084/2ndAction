@@ -33,7 +33,7 @@ public class BossBattleTuning : ScriptableObject
     [Tooltip("必殺技の溜め〜実行中は新しい障害物を置かない")]
     public bool suppressObstaclesDuringUltimate = true;
     [Tooltip("必殺技の被弾(ハートの数)。満タンから1発で倒れることはない")]
-    public int ultimateDamage = 2;
+    public int ultimateDamage = 20; // 2026-10-02: 10倍スケール(ハート2つ)
 
     [Header("ボス戦の攻撃の前進/後退(戦っているボスがいる間だけ)")]
     [Tooltip("ボスの正面まで lungeFarDistance 以上離れている時の前進の倍率")]
@@ -73,7 +73,7 @@ public class BossBattleTuning : ScriptableObject
         [Tooltip("ラン再開の秒数(0以下=距離の種類ごとの既定)")]
         public float resumeSecondsOverride = 0f;
         [Tooltip("ボスの攻撃の被弾倍率(1=ハート1つ。必殺技は ultimateDamage)")]
-        public int normalDamage = 1;
+        public int normalDamage = 10; // 2026-10-02: 10倍スケール(ハート1つ)
     }
     public List<Entry> entries = new List<Entry>();
 

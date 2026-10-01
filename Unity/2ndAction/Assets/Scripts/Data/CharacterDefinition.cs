@@ -60,12 +60,12 @@ public class CharacterDefinition : ScriptableObject
     [Header("Base Stats (Gameplay - not display-only)")]
     // GameManager.startingLives/maxLivesの代わりにRun開始時に適用される、
     // このキャラクターの初期HP/最大HP。
-    public int baseLives = 3;
-    public int baseMaxLives = 5;
+    public int baseLives = 30;     // 2026-10-02: 10倍スケール(ハート1つ=10)
+    public int baseMaxLives = 50;
 
     // PlayerController.AttackPower(通常は0からAddAttackPowerで積み上げる
     // カードのベース値そのもの)の初期値。
-    public int attackPower = 2;
+    public int attackPower = 20;
     // PlayerController.maxComboChain - 1にすると「Attack2/Attack3へ一切
     // 接続しない、常に1段止まりの単発攻撃」になる(お嬢様騎士の要件)。
     public int attackComboCount = 3;

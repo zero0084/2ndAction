@@ -170,7 +170,7 @@ public class NetObstacles : MonoBehaviour
             return;
         }
         StatHitReqApplied++;
-        o.ApplyDamage(Mathf.Clamp(damage, 1, 999), o.transform.position + Vector3.up * 0.5f, attacker);
+        o.ApplyDamage(Mathf.Clamp(damage, 1, 999999), o.transform.position + Vector3.up * 0.5f, attacker);
     }
 
     // ===================================================================== //

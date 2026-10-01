@@ -23,7 +23,7 @@ MonoBehaviour:
   - type: 10
     value: 0.3
   - type: 11
-    value: 2
+    value: 20
   rarity: 5
   unlockDistance: 50000
   gachaStage: 4

@@ -18,8 +18,8 @@ public class ReaperFinaleBattle : MonoBehaviour
     public System.Action Finished;
     public static ReaperFinaleBattle Instance { get; private set; }
 
-    [Tooltip("前半(1人ずつ)のHP")] public int soloHp = 280;
-    [Tooltip("後半(三人同時)の1人あたりのHP")] public int groupHp = 200;
+    [Tooltip("前半(1人ずつ)のHP")] public int soloHp = 2800;   // 2026-10-02: 10倍スケール
+    [Tooltip("後半(三人同時)の1人あたりのHP")] public int groupHp = 2000;
     static readonly ReaperSister[] Order = { ReaperSister.Eldest, ReaperSister.Second, ReaperSister.Youngest };
 
     Transform player;
@@ -40,6 +40,7 @@ public class ReaperFinaleBattle : MonoBehaviour
     int Hp(int baseHp)
     {
         float m = GameManager.Instance != null ? GameManager.Instance.BossHpMultiplier : 1f;
+        m *= BossHpPlan.Multiplier(BossHpPlan.CurrentDistance); // 2026-10-02: 再設計案(開発版のみ)
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (DebugHpOverride > 0) return DebugHpOverride;
 #endif

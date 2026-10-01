@@ -73,6 +73,7 @@ public static class SaveKeys
         // ---- 開発版のみ ----
         new Entry("InvincibleMode", SaveCategory.Dev, SaveType.Int, "無敵(開発版のみ)"),
         new Entry("DebugMode", SaveCategory.Dev, SaveType.Int, "DEBUGモード(開発版のみ)"),
+        new Entry(BossHpPlan.PrefKey, SaveCategory.Dev, SaveType.Int, "ボスHPの再設計案 0=現行/15/20/25発(開発版のみ)"),
         new Entry(DevFinalDungeonAlwaysOpen, SaveCategory.Dev, SaveType.Int, "ラスダンを常に選べる(開発版のみ)"),
     };
 

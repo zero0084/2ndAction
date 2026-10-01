@@ -662,9 +662,9 @@ public class NetAutoTest : MonoBehaviour
         // 指定時刻に自分を倒す(HP1にしてから環境ダメージ/落下)
         if (killAt >= 0f && !killDone && runTime >= killAt && (killStarted || (me != null && me.State == NetMatch.PState.Alive)))
         {
-            if (!killStarted) { killStarted = true; SetOwnHp(gm, 1); killTimer = 0f; L($"p3 KILL start at t={runTime:F1} fall={killFall} dist={pc.DistanceExact:F1}"); }
+            if (!killStarted) { killStarted = true; SetOwnHp(gm, CombatScale.PlayerHit); killTimer = 0f; L($"p3 KILL start at t={runTime:F1} fall={killFall} dist={pc.DistanceExact:F1}"); }
             killTimer += Time.unscaledDeltaTime;
-            bool hpIsOne = (NetCombat.Replica ? (me != null ? me.Hp : 99) : gm.Lives) <= 1;
+            bool hpIsOne = (NetCombat.Replica ? (me != null ? me.Hp : 990) : gm.Lives) <= CombatScale.PlayerHit;
             if (hpIsOne && killTimer > 0.3f && me != null && me.State == NetMatch.PState.Alive)
             {
                 pc.TakeDamage(isFall: killFall, source: "AutoTestKill");
@@ -744,18 +744,18 @@ public class NetAutoTest : MonoBehaviour
             hpRefillTimer -= Time.unscaledDeltaTime;
             var me = NetMatch.Get(NetCombat.LocalPlayerNumber);
             int hp = NetCombat.Replica ? (me != null ? me.Hp : gm.Lives) : gm.Lives;
-            if (!p3Hp && hp > 0 && hp < 4 && hpRefillTimer <= 0f)
+            if (!p3Hp && hp > 0 && hp < 4 * CombatScale.HpPerHeart && hpRefillTimer <= 0f)
             {
                 hpRefillTimer = 2f;
-                if (NetCombat.Replica) NetMatch.RequestDebugSetHp(30);
-                else { SetPrivateProperty(gm, "maxLives", 30); SetPrivateField(gm, "maxLives", 30); SetPrivateProperty(gm, "Lives", 30); }
+                if (NetCombat.Replica) NetMatch.RequestDebugSetHp(300);
+                else { SetPrivateProperty(gm, "maxLives", 300); SetPrivateField(gm, "maxLives", 300); SetPrivateProperty(gm, "Lives", 300); }
                 L($"hp refill requested (hp was {hp})");
             }
         }
         else
         {
             SetPrivateProperty(gm, "InvincibleMode", true);
-            if (gm.Lives < 50) SetPrivateProperty(gm, "Lives", 99);
+            if (gm.Lives < 500) SetPrivateProperty(gm, "Lives", 990);
         }
         if (shiftTest && FloatingOrigin.Instance != null && FloatingOrigin.Instance.shiftThreshold > 400f)
         {

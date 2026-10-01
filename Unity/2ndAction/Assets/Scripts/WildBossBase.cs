@@ -24,7 +24,7 @@ public abstract class WildBossBase : MonoBehaviour
 
     [Header("Identity")]
     public string bossName = "Boss";
-    public int maxHp = 30;
+    public int maxHp = 300;
     public int mileReward = 50;
     public float bodyHeight = 3f;
     public float hurtWidthRatio = 0.9f;   // スプライト幅に対する被弾判定の幅
@@ -74,10 +74,14 @@ public abstract class WildBossBase : MonoBehaviour
 
     [Header("Behaviour")]
     public bool interruptible = false; // 予備動作中の被弾で攻撃キャンセル
-    public int playerAttackDamageFallback = 2;
+    public int playerAttackDamageFallback = 20; // 10倍スケール
 
     public int Hp { get; private set; }
     public bool IsDead => dead;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // CARD BALANCE TEST のボス試験(2026-10-02): 狙ったHPちょうどにする
+    public void DebugSetHp(int hp) { Hp = Mathf.Clamp(hp, 0, Mathf.Max(1, maxHp)); }
+#endif
     public int Alive => dead ? 0 : 1;
 
     // ---- runtime ----
@@ -148,7 +152,7 @@ public abstract class WildBossBase : MonoBehaviour
 
         OnInit();
         // ボス戦の強化(2026-10-01): 通常攻撃の被弾(ハートの数)を種類ごとに変えられる(必殺技の判定は各ボスが2に設定済み)
-        if (tune != null && tune.normalDamage > 1) foreach (var hb in hitboxes) if (hb != null && hb.damageAmount == 1) hb.damageAmount = tune.normalDamage;
+        if (tune != null && tune.normalDamage > CombatScale.PlayerHit) foreach (var hb in hitboxes) if (hb != null && hb.damageAmount == CombatScale.PlayerHit) hb.damageAmount = tune.normalDamage;
         ApplyTransform();
         // マルチプレイPhase 2 - HOSTでは共有ボスとして登録。JOINでパペットとして作っている時はAIを始めない。
         if (NetCombat.OnBossInit(this)) return;
@@ -809,7 +813,7 @@ public abstract class WildBossBase : MonoBehaviour
         {
             bool giant = fb.transform.localScale.x > 1.4f;
             pendingStagger = BossBattleTuning.I.staggerReflect * (giant ? 1.6f : 1f);
-            TakeDamage(giant ? 6 : 2, other.bounds.center);
+            TakeDamage(giant ? 6 * CombatScale.K : 2 * CombatScale.K, other.bounds.center); // 跳ね返した火球(10倍スケール)
             Destroy(fb.gameObject);
         }
     }
@@ -1131,7 +1135,7 @@ public abstract class WildBossBase : MonoBehaviour
     }
 
     // 必殺技の部品(重い一撃=ultimateDamage)
-    protected int UltimateDamage => Mathf.Max(1, BossBattleTuning.I.ultimateDamage);
+    protected int UltimateDamage => Mathf.Max(1, BossBattleTuning.I.ultimateDamage); // 2026-10-02: 20(旧2)
 
     protected BossProjectile Projectile(Sprite sprite, Color color, Vector3 pos, Vector2 size, Vector2 velocity, float life, bool heavy)
     {
@@ -1479,7 +1483,7 @@ public class TrackedHazard : MonoBehaviour
     Color activeColor;
     bool activated;
     public bool damages = true;
-    public int damageAmount = 1; // ボス戦の強化(2026-10-01): 必殺技は2
+    public int damageAmount = CombatScale.PlayerHit; // ボス戦の強化(2026-10-01): 必殺技は強い一撃
     public System.Action onActivate;
 
     public static TrackedHazard Create(float worldX, float width, float heightSize, float warn, float active, Color activeColor)

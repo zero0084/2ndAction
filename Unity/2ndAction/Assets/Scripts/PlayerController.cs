@@ -426,7 +426,7 @@ public partial class PlayerController : MonoBehaviour
     // Grown by the "ATTACK UP" card (see GameManager) - read by
     // DragonController/MajinController at hit time instead of a fixed
     // damage value.
-    public int AttackPower { get; private set; } = 2;
+    public int AttackPower { get; private set; } = 20; // 2026-10-02: 10倍スケール(CombatScale)
     public void AddAttackPower(int amount) => AttackPower += amount;
 
     // Grown by "ATTACK RANGE UP" - multiplies both the hitbox scale-up and
@@ -602,13 +602,41 @@ public partial class PlayerController : MonoBehaviour
             power += Mathf.RoundToInt(MomentumBonus * Mathf.Max(0f, GetSpeedMultiplier() - 1f));
             // 竜騎士(2026-09-26) - 後ろ攻撃(石突き)だけ威力を下げる。他キャラは常に1倍。
             if (isLancerCharacter && lanceDamageScale != 1f) power = Mathf.Max(1, Mathf.RoundToInt(power * lanceDamageScale));
-            return power;
+            // 2026-10-02: 0以下にしない(空中攻撃-のカード等で負になると、ボスは1以上の下限が無いため逆に回復していた)
+            return Mathf.Max(1, power);
         }
     }
 
     // "Boss Killer" - Dragon/Majin/Mechanical Dragon damage calculations
     // use this instead of EffectiveAttackPower.
-    public int EffectiveBossAttackPower => EffectiveAttackPower + BossDamageBonus;
+    public int EffectiveBossAttackPower => Mathf.Max(1, EffectiveAttackPower + BossDamageBonus);
+
+    // 2026-10-02: ボスへの「基本の1発」の見積り(地上・初撃/締めなし・今のHPと速度・ボス特効・技の倍率1)。
+    // CARD BALANCE TEST のボス試験(15/20/25発のHP)の基準。BossHitComboAverage は連撃1周の平均(初撃/締めを含む)。
+    public int BossHitEstimate
+    {
+        get
+        {
+            int power = AttackPower + GroundAttackPowerBonus;
+            GameManager gm = GameManager.Instance;
+            if (gm != null && gm.maxLives > 0)
+            {
+                if (gm.Lives >= gm.maxLives) power += FullHpAttackBonus;
+                else power += Mathf.RoundToInt(LowHpAttackBonus * (1f - (float)gm.Lives / gm.maxLives));
+            }
+            power += Mathf.RoundToInt(MomentumBonus * Mathf.Max(0f, GetSpeedMultiplier() - 1f));
+            return Mathf.Max(1, power + BossDamageBonus);
+        }
+    }
+    public int BossHitComboAverage
+    {
+        get
+        {
+            int chain = Mathf.Max(1, maxComboChain);
+            if (chain == 1) return BossHitEstimate + FirstHitBonus + ComboFinalStageBonus;
+            return Mathf.RoundToInt(BossHitEstimate + (FirstHitBonus + ComboFinalStageBonus) / (float)chain);
+        }
+    }
 
     // Grown by "SHIELD" - each charge absorbs exactly one hit (see
     // GameManager.TryDamagePlayer) before any life is lost.
@@ -1504,7 +1532,7 @@ public partial class PlayerController : MonoBehaviour
     // 短い文字列。省略可能(既存呼び出し全て無変更のままコンパイル通る)で、
     // 挙動には一切影響しない。GameManager.TryDamagePlayerのreasonへ渡す。
     // amount(2026-10-01): ボスの必殺技などの重い一撃(ハートの数)。既定1。満タンから1発で倒れることはない(GameManager側)。
-    public void TakeDamage(bool isFall = false, string source = null, int amount = 1)
+    public void TakeDamage(bool isFall = false, string source = null, int amount = CombatScale.PlayerHit)
     {
         // GameManager.PresentationDamageLockでも防いでいるが、Finish演出中
         // (RUN正常終了)はPlayerController側でも二重に無敵化しておく。

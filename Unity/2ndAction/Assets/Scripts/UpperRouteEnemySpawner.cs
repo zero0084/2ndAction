@@ -69,7 +69,7 @@ public class UpperRouteEnemySpawner : MonoBehaviour
         if (enemyDef == null) return;
 
         Sprite eSprite = enemyDef.sprite != null ? enemyDef.sprite : squareSprite;
-        int maxHp = DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(enemyDef.hpMultiplier) : 1;
+        int maxHp = DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(enemyDef.hpMultiplier) : CombatScale.K;
         bool isFlying = enemyDef.movementType == EnemyMovementType.Flying;
         EnemyMovementType movementType = isFlying ? EnemyMovementType.Flying : EnemyMovementType.Ground;
         // Flying種は上ルートの上空に少し余裕を持たせた高さへ、地上種は

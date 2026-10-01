@@ -68,7 +68,7 @@ public partial class PlayerController
             bloodHealAcc -= 1f;
             bloodNextHealTime = Time.time + p.healCooldown;
             VampireHealsGiven++;
-            GameManager.Instance.KitHeal(1);
+            GameManager.Instance.KitHeal(CombatScale.PlayerHit); // ハート1つ分(10倍スケール)
             OneShotSpriteEffect.CreateTweened(KitProjectile.Orb, transform.position + new Vector3(0f, 1.0f, 0f), new Color(1f, 0.3f, 0.35f, 0.9f), duration: 0.4f, startScale: 0.2f, endScale: 0.8f, sortingOrder: RenderOrder.SlashFx);
         }
     }

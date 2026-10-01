@@ -114,7 +114,7 @@ public class LastDungeonQa : MonoBehaviour
         var setter = typeof(GameManager).GetProperty("Lives").GetSetMethod(true);
         while (keepAlive)
         {
-            if (gm != null && gm.Lives < 50 && !gm.IsGameOver) setter.Invoke(gm, new object[] { 99 });
+            if (gm != null && gm.Lives < 500 && !gm.IsGameOver) setter.Invoke(gm, new object[] { 990 });
             yield return null;
         }
     }

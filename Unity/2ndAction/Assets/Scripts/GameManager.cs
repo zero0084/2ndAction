@@ -614,9 +614,10 @@ public partial class GameManager : MonoBehaviour
     public float retryDelayAfterGameOver = 3f;
 
     [Header("Lives")]
-    public int startingLives = 3;
-    public int maxLives = 5;
-    public int maxLivesCap = 10;
+    // 2026-10-02: HPは10倍のスケール(ハート1つ=10)。CombatScale参照
+    public int startingLives = 30;
+    public int maxLives = 50;
+    public int maxLivesCap = 100;
 
     [Header("Leveling")]
     // EXP trickles in from distance covered, plus lump sums from kills -
@@ -2438,12 +2439,15 @@ public partial class GameManager : MonoBehaviour
         }
 
         var pool = new List<CardDefinition>();
+        int maxedInDeck = 0;
         foreach (string id in deckCards)
         {
             CardDefinition card = CardDatabase.FindById(id);
-            if (card != null) pool.Add(card);
+            if (card == null) continue;
+            if (CanStillPick(card)) pool.Add(card); else maxedInDeck++;
         }
-        if (pool.Count == 0 && deckCards.Count > 0) pool.AddRange(CardDatabase.UnlockedCards);
+        if (pool.Count == 0 && deckCards.Count > 0 && maxedInDeck == 0) foreach (var u in CardDatabase.UnlockedCards) if (CanStillPick(u)) pool.Add(u);
+        if (pool.Count == 0 && maxedInDeck > 0) Debug.Log($"[Card] every deck card is at Lv{MaxRunCardLevel} - no card choice this time");
 
         if (pool.Count == 0)
         {
@@ -2529,12 +2533,15 @@ public partial class GameManager : MonoBehaviour
         // must NOT fall back to the full pool, or clearing the deck would
         // silently keep offering cards anyway.
         var pool = new List<CardDefinition>();
+        int maxedInDeck = 0;
         foreach (string id in deckCards)
         {
             CardDefinition card = CardDatabase.FindById(id);
-            if (card != null) pool.Add(card);
+            if (card == null) continue;
+            if (CanStillPick(card)) pool.Add(card); else maxedInDeck++;
         }
-        if (pool.Count == 0 && deckCards.Count > 0) pool.AddRange(CardDatabase.UnlockedCards);
+        if (pool.Count == 0 && deckCards.Count > 0 && maxedInDeck == 0) foreach (var u in CardDatabase.UnlockedCards) if (CanStillPick(u)) pool.Add(u);
+        if (pool.Count == 0 && maxedInDeck > 0) Debug.Log($"[Card] every deck card is at Lv{MaxRunCardLevel} - no card choice this time");
 
         if (pool.Count == 0)
         {
@@ -2728,6 +2735,13 @@ public partial class GameManager : MonoBehaviour
         try
         {
             CardDefinition card = CardDatabase.FindById(cardId);
+            if (card != null && !CanStillPick(card))
+            {
+                // Lv9に届いているカード(通常は候補に出ない): 効果は重ねない
+                MaxedCardSkips++;
+                Debug.Log($"[Card] {cardId} is already Lv{GetCurrentRunStack(cardId)} (max {MaxRunCardLevel}) - effect not stacked");
+                card = null;
+            }
             if (card != null)
             {
                 // "そのRun中だけ有効な強化...Owned CardとしてHome Roomへ追加し
@@ -2815,7 +2829,7 @@ public partial class GameManager : MonoBehaviour
     // Bugfix 2026-09-06, item 2 - `reason` is Debug-log only (Debug.Log
     // below, no behavior branches on it) so the actual GAME OVER cause can
     // be confirmed on a real device rather than inferred from review alone.
-    public DamageResult TryDamagePlayer(bool bypassInvincibleMode = false, string reason = "Other", int amount = 1)
+    public DamageResult TryDamagePlayer(bool bypassInvincibleMode = false, string reason = "Other", int amount = CombatScale.PlayerHit)
     {
         Vector3 dmgPos = PlayerController.Instance != null ? PlayerController.Instance.transform.position : Vector3.zero;
         if (IsGameOver) { DamageAfterDeathIgnored++; return DamageResult.Ignored; } // 死亡済み: 以後のダメージ/死亡要求は無視
@@ -2825,7 +2839,8 @@ public partial class GameManager : MonoBehaviour
 
         // ボス戦の強化(2026-10-01): 重い一撃は複数ハート。ただしハートが満タンの時に1発で倒れることはない。
         int dmg = Mathf.Max(1, amount);
-        if (dmg > 1 && Lives >= maxLives && dmg >= Lives) dmg = Mathf.Max(1, Lives - 1);
+        // 満タンからの強い一撃(ハート2つ分以上)だけでは倒れない(旧: ハート1つ残す。新: 通常の一撃ぶん=ハート1つ残す)
+        if (dmg > CombatScale.PlayerHit && Lives >= maxLives && dmg >= Lives) dmg = Mathf.Max(CombatScale.PlayerHit, Lives - CombatScale.PlayerHit);
         FreezeDiagnostics.LogEvent($"[Damage] Hit reason={reason} amount={dmg} pos=({dmgPos.x:F2},{dmgPos.y:F2}) livesBefore={Lives} timeScale={Time.timeScale:F2}");
         Lives = Mathf.Max(0, Lives - dmg);
         heartDamageFlashTimer = heartDamageFlashDuration;
@@ -2985,7 +3000,7 @@ public partial class GameManager : MonoBehaviour
         if (!HasStarted || InvincibleMode) return;
         DeathLog($"ReapPlayer reason={reason} livesBefore={Lives} timeScale={Time.timeScale:F2} reasons={TimeControl.DescribeActiveReasons()} choice={levelUpPending} bossPhase={(BossManager.Instance != null && BossManager.Instance.IsBossPhase)}");
         if (NetRunLauncher.IsMultiplayerRun) { if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: reason); return; }
-        Lives = Mathf.Min(Lives, 1);
+        Lives = Mathf.Min(Lives, CombatScale.PlayerHit);
         TryDamagePlayer(false, reason);
     }
 
@@ -4166,6 +4181,10 @@ public partial class GameManager : MonoBehaviour
         labelStyle.alignment = TextAnchor.UpperLeft;
         labelStyle.normal.textColor = HudLabelColor;
         GUI.Label(new Rect(rect.x + 12f, rect.y + 4f, rect.width - 16f, 18f), "HP", labelStyle);
+        // 2026-10-02: HPは10倍スケール。数値(今/最大)を見出しの右に出す
+        GUIStyle numStyle = new GUIStyle(labelStyle) { alignment = TextAnchor.UpperRight };
+        numStyle.normal.textColor = new Color(1f, 0.85f, 0.88f, 0.95f);
+        GUI.Label(new Rect(rect.x + 12f, rect.y + 4f, rect.width - 22f, 18f), $"{Lives} / {maxLives}", numStyle);
 
         float flash = heartDamageFlashDuration > 0f ? Mathf.Clamp01(heartDamageFlashTimer / heartDamageFlashDuration) : 0f;
         float pulse = 1f - flash * 0.08f;
@@ -4175,30 +4194,48 @@ public partial class GameManager : MonoBehaviour
         heartStyle.alignment = TextAnchor.UpperLeft;
         heartStyle.normal.textColor = Color.Lerp(new Color(1f, 0.25f, 0.35f), Color.white, flash);
 
-        // 2026-10-01: 枠の幅は固定。
-        //  ・HPが10以上 … 「♥ ×12」
-        //  ・最大HPが10以下 … 今のHPを♥、減った分を♡(従来どおり。入りきらない時は文字を少し小さく)
-        //  ・最大HPが11以上でHPが9以下 … ♥だけ(♡まで並べると枠からはみ出すので出さない)
-        var hearts = new System.Text.StringBuilder();
-        if (Lives >= 10)
+        // 枠の幅は固定(2026-10-01)。ハート1つ = HP 10(CombatScale.HpPerHeart)。
+        //  ・HPがハート10個分以上 … 「♥ ×12」(ハートの数。端数は小数1桁)
+        //  ・最大HPがハート10個分以下 … 今のHPを♥、減った分を♡。端数は♥を途中まで塗る
+        //  ・最大HPが10個分を超えて、今のHPが10個分未満 … ♥だけ(♡まで並べるとはみ出すので出さない)
+        int per = Mathf.Max(1, CombatScale.HpPerHeart);
+        float heartsNow = Lives / (float)per;
+        int slotsMax = Mathf.CeilToInt(maxLives / (float)per - 0.001f);
+        Rect hr = new Rect(rect.x + 12f, rect.y + 20f, rect.width - 16f, rect.height - 22f);
+        if (Lives >= 10 * per)
         {
-            hearts.Append("♥ ×").Append(Lives);
+            var hc = new GUIContent("♥ ×" + (Lives % per == 0 ? (Lives / per).ToString() : heartsNow.ToString("0.0")));
+            GUI.Label(hr, hc, heartStyle);
+            return;
         }
-        else
+        int slots = slotsMax <= 10 ? slotsMax : Mathf.CeilToInt(heartsNow - 0.001f);
+        if (slots <= 0) return;
+        // 1つ分の幅(♥と空白)。入りきらない時は文字を小さくする(はみ出さない)
+        float gap = heartStyle.fontSize * 0.25f;
+        float glyphW = heartStyle.CalcSize(new GUIContent("♥")).x;
+        float need = slots * glyphW + (slots - 1) * gap;
+        if (need > hr.width)
         {
-            int slots = maxLives <= 10 ? maxLives : Lives;
-            for (int i = 0; i < slots; i++)
+            heartStyle.fontSize = Mathf.Max(10, Mathf.FloorToInt(heartStyle.fontSize * hr.width / need));
+            gap = heartStyle.fontSize * 0.25f;
+            glyphW = heartStyle.CalcSize(new GUIContent("♥")).x;
+        }
+        float glyphH = heartStyle.CalcSize(new GUIContent("♥")).y;
+        heartStyle.clipping = TextClipping.Overflow; // ♡は♥より幅が広い字形があるので、四角の外へはみ出しても切らない
+        for (int i = 0; i < slots; i++)
+        {
+            Rect g = new Rect(hr.x + i * (glyphW + gap), hr.y, glyphW, glyphH);
+            float fill = Mathf.Clamp01(heartsNow - i);
+            if (fill >= 0.999f) { GUI.Label(g, "♥", heartStyle); continue; }
+            GUI.Label(new Rect(g.x, g.y, g.width * 1.6f, g.height), "♡", heartStyle);
+            if (fill > 0.001f)
             {
-                hearts.Append(i < Lives ? "♥" : "♡");
-                if (i < slots - 1) hearts.Append(' ');
+                // 端数: ♥を左から途中まで塗る
+                GUI.BeginGroup(new Rect(g.x, g.y, g.width * fill, g.height));
+                GUI.Label(new Rect(0f, 0f, g.width, g.height), "♥", heartStyle);
+                GUI.EndGroup();
             }
         }
-        Rect hr = new Rect(rect.x + 12f, rect.y + 20f, rect.width - 16f, rect.height - 22f);
-        // 念のため: 文字が枠より広ければ文字を小さくする(はみ出さない)
-        var hc = new GUIContent(hearts.ToString());
-        float wNeed = heartStyle.CalcSize(hc).x;
-        if (wNeed > hr.width) heartStyle.fontSize = Mathf.Max(12, Mathf.FloorToInt(heartStyle.fontSize * hr.width / wNeed));
-        GUI.Label(hr, hc, heartStyle);
     }
 
     // Groups the run's upgrade history by type and draws each as its icon
@@ -4290,7 +4327,8 @@ public partial class GameManager : MonoBehaviour
         // 取得した時だけがNEW - CardInventory.AddCard/MakeOwnedCardData
         // 参照)。以前はここで"NEW  Lv.1"と表示しており、「候補に出た＝
         // NEW」という誤った意味になっていた。
-        string stackLabel = currentStack > 0 ? $"Lv.{currentStack} -> Lv.{currentStack + 1}" : "Lv.1";
+        int nextStack = currentStack + PickLevelOf(card);
+        string stackLabel = (currentStack > 0 ? $"Lv.{currentStack} -> Lv.{nextStack}" : $"Lv.{nextStack}") + (nextStack >= MaxRunCardLevel ? " MAX" : "");
         // 合成カード: 取得すると主能力と全サブ能力が各強化量ぶん適用される(説明文に全能力)。
         CardVariant variant = CardVariant.IsVariantKey(card.cardId) ? CardVariant.Parse(card.cardId) : null;
         if (variant != null) stackLabel = $"合成Lv.{variant.level}  能力{variant.AbilityCount}種";
@@ -4345,7 +4383,22 @@ public partial class GameManager : MonoBehaviour
         return n;
     }
 
-    int GetCurrentRunStack(string cardId)
+    // ===== カードLvの上限(2026-10-02) =====
+    // Run中のカードLv = キャラカード枠のLv + 取得したLv。通常カードは1回の取得で+1、合成カードは1回で合成Lvぶん
+    // (合成Lv.3なら1回で+3。中身も能力×強化量で約3回分なので、どのカードもLv9=約9回分が上限になる)。
+    // Lv9に届いたカードは候補に出さず、届いた後に何かの経路で選ばれても効果を重ねない。
+    // 将来の最終強化(Final Evolution)はLv9の「次」に別の仕組みとして出す予定(恒久的なLv10にはしない)。
+    public const int MaxRunCardLevel = CardVariant.MaxLevel; // 9
+    public static int PickLevelOf(CardDefinition c)
+    {
+        if (c == null || !CardVariant.IsVariantKey(c.cardId)) return 1;
+        CardVariant v = CardVariant.Parse(c.cardId);
+        return v != null ? Mathf.Clamp(v.level, 1, MaxRunCardLevel) : 1;
+    }
+    public bool CanStillPick(CardDefinition c) => c != null && GetCurrentRunStack(c.cardId) + PickLevelOf(c) <= MaxRunCardLevel;
+    public int MaxedCardSkips { get; private set; } // Lv9のカードが選ばれて効果を重ねなかった回数(確認用)
+
+    public int GetCurrentRunStack(string cardId)
     {
         int stack = 0;
         for (int i = 0; i < CharacterCardSlotCount; i++)
@@ -4354,7 +4407,7 @@ public partial class GameManager : MonoBehaviour
         }
         foreach (CardDefinition c in upgradeHistory)
         {
-            if (c.cardId == cardId) stack++;
+            if (c.cardId == cardId) stack += PickLevelOf(c);
         }
         return stack;
     }

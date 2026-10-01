@@ -368,7 +368,7 @@ public class LastCorridorTour : MonoBehaviour
         while (!stopKeepAlive)
         {
             if (gm.Lives < prevLives) hits += prevLives - gm.Lives;
-            if (gm.Lives < 50) setter.Invoke(gm, new object[] { 99 });
+            if (gm.Lives < 500) setter.Invoke(gm, new object[] { 990 });
             prevLives = gm.Lives;
             yield return null;
         }

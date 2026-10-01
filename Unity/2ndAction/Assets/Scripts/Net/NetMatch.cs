@@ -180,7 +180,7 @@ public partial class NetMatch : MonoBehaviour
     {
         if (!recs.TryGetValue(pn, out Rec r))
         {
-            r = new Rec { Pn = pn, ClientId = clientId, Hp = 3, MaxHp = 3 };
+            r = new Rec { Pn = pn, ClientId = clientId, Hp = 3 * CombatScale.HpPerHeart, MaxHp = 3 * CombatScale.HpPerHeart };
             recs[pn] = r;
         }
         r.ClientId = clientId;
@@ -390,7 +390,7 @@ public partial class NetMatch : MonoBehaviour
     {
         float now = Time.realtimeSinceStartup;
         int before = rec.Hp;
-        rec.Hp = Mathf.Max(0, rec.Hp - 1);
+        rec.Hp = Mathf.Max(0, rec.Hp - CombatScale.PlayerHit); // JOINの被弾は常にハート1つ分(10倍スケール)
         rec.HitsTaken++;
         rec.InvulnUntil = now + Mathf.Clamp(invuln, 0.2f, 4f);
         Log($"Damage P{rec.Pn} src={source} fall={isFall} hp {before} -> {rec.Hp} (authority=HOST){(rec.Choosing ? " [while choosing card]" : "")}");

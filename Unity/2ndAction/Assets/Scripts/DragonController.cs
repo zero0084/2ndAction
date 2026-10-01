@@ -14,9 +14,9 @@ public class DragonController : MonoBehaviour
     public float animFps = 8f;
 
     [Header("Health / Damage")]
-    public int maxHp = 20;
-    public int playerAttackDamage = 2;
-    public int fireballDamage = 2;
+    public int maxHp = 200;
+    public int playerAttackDamage = 20; // 10倍スケール
+    public int fireballDamage = 20; // 跳ね返した火球がドラゴンに与える量(10倍スケール)
 
     [Header("Behaviour Timing")]
     // Distance Level Design Ver.1 - Mechanical Dragon's placeholder: "出現
@@ -956,7 +956,7 @@ public class DragonController : MonoBehaviour
         GameObject fbGo = FireballController.Create(squareSprite, from, dir * 6.5f);
         var fbc = fbGo.GetComponent<FireballController>();
         fbc.ScaleUp(3f);
-        fbc.damageAmount = 2;
+        fbc.damageAmount = CombatScale.PlayerHeavyHit;
         fbc.lifetime = 7f;
         var camF = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
         if (camF != null) camF.Shake(0.15f, 0.3f);
