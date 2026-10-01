@@ -91,6 +91,7 @@ public class EncounterDirector : MonoBehaviour
     public Record Last { get; private set; }
     public StageEncounterProfile Profile => profile;
     public EncounterDistanceBand CurrentBand { get; private set; }
+    public int EncounterIndex => encounterIndex; // 決めたEncounterの数(休憩=restも含む)
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Bootstrap()
@@ -105,7 +106,10 @@ public class EncounterDirector : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-        UnityEngine.SceneManagement.SceneManager.sceneLoaded += (s, m) => ResetState(null);
+        // シーンの読み直し(GAME OVER→Retry/HOME)では前のランの状態を捨てる。profileStage も空にする
+        // (2026-10-01修正: 以前は profile だけを空にして profileStage を残していたため、同じステージで次のランを始めると
+        //  「ステージは変わっていない」と判断されて Profile が読み直されず、そのラン中ずっと敵が出なかった)。
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += (s, m) => { profileStage = null; ResetState(null); boundGm = null; boundStarted = false; };
         string[] args = System.Environment.GetCommandLineArgs();
         for (int i = 0; i + 1 < args.Length; i++)
         {
@@ -121,6 +125,9 @@ public class EncounterDirector : MonoBehaviour
         profile = p;
         nextAnchor = -1;
         paused = pausedForBoss = false;
+        bonusWasActive = false;
+        bonusZoneSeen = -1;
+        logBoss = logBonus = logGameOver = false;
         baseTerrainAhead = baseCaveAhead = -1f;
         intensityHistory.Clear();
         formationHistory.Clear();
@@ -143,6 +150,19 @@ public class EncounterDirector : MonoBehaviour
     // ===================================================================== //
 
     // このステージの敵出現をDirectorが担当するか(TerrainManager/EnemyWallManagerが従来Spawnを止める判断に使う)。
+    // 状態の確認用(ログ/自動テスト)。
+    public string StateLine()
+    {
+        var gm = GameManager.Instance;
+        var bm = BossManager.Instance;
+        var bz = BonusZone.Instance;
+        double pl = PlayerController.Instance != null ? FloatingOrigin.ToLogical(PlayerController.Instance.transform.position.x) : 0;
+        return $"Stage={(gm != null ? gm.ActiveRunStageId : "-")} ProfileStage={profileStage ?? "-"} Profile={(profile != null ? "OK" : "NULL")} Enabled={enabled}"
+            + $" Paused={paused}(boss={pausedForBoss}) BonusWasActive={bonusWasActive} BossActive={(bm != null && bm.IsBossPhase)} BonusActive={BonusZone.SuppressesNormalSpawns}({(bz != null ? bz.State.ToString() : "-")})"
+            + $" Suppressed={(SuppressAt != null && gm != null && SuppressAt(gm.MaxDistance))} HookSuppress={(SuppressAt != null)} NextSpawn={(nextAnchor < 0 ? "unset" : (nextAnchor - pl).ToString("F0") + "m ahead")}"
+            + $" Band={(CurrentBand != null ? CurrentBand.bandName : "-")} Encounters={encounterIndex} Spawned={SpawnedEnemies}";
+    }
+
     public static bool HandlesStage(string stageId)
     {
         var p = StageEncounterProfile.Find(stageId);
@@ -196,15 +216,28 @@ public class EncounterDirector : MonoBehaviour
         PlayerController pc = PlayerController.Instance;
         TerrainManager tm = TerrainManager.Instance;
         if (gm == null || pc == null || tm == null) return;
-        if (!gm.HasStarted || gm.IsGameOver) return;
+        // 新しいランの開始(Run開始/CONTINUE/マルチの開始のどれでも HasStarted が false→true になる)を検出して、
+        // 前のランがどう終わったか(通常/ボス戦中/BONUS中の死亡、FINISH、HOME)に関係なく必ず初期状態から始める。
+        if (gm != boundGm) { boundGm = gm; boundStarted = false; }
+        if (!gm.HasStarted) { boundStarted = false; return; }
+        if (!boundStarted) { boundStarted = true; ResetForNewRun(gm); }
+        if (gm.IsGameOver)
+        {
+            if (!logGameOver) { logGameOver = true; Debug.Log($"[Encounter] GameOver BossActive={logBoss} BonusActive={logBonus} Suppressed={paused || logBonus} | {StateLine()}"); }
+            return;
+        }
 
         string stage = gm.ActiveRunStageId;
-        if (stage != profileStage)
+        // 安全策: ランの途中でステージが変わった/Profileが外れている(あるはずなのに無い)場合は読み直す
+        // (敵を無理に出すのではなく、状態の食い違いを直すだけ)。
+        if (stage != profileStage || (profile == null && StageEncounterProfile.Find(stage) != null))
         {
+            if (stage == profileStage) Debug.LogWarning($"[Encounter] Profile was missing for {stage} during a run - reloaded");
             profileStage = stage;
             ResetState(StageEncounterProfile.Find(stage));
             if (profile != null) Debug.Log($"[ENCOUNTER] Director active for stage={stage} bands={profile.bands.Count} stageFormations={profile.stageFormations.Count}");
         }
+        LogTransitions(gm);
         if (profile == null || !profile.replacesChunkSpawns) return;
         if (NetCombat.SuppressLocalEnemySpawn) return; // JOIN: 敵はHOSTが出す
         if (tm.enemySpawnChance <= 0f) return;          // 敵の出現そのものを止めている(自動テスト等の既存の切り替え)
@@ -303,6 +336,33 @@ public class EncounterDirector : MonoBehaviour
             }
             PlanAt(tm, pc, runDistance, speed, mainLimit);
         }
+    }
+
+    // ===================================================================== //
+    // ランの開始/状態遷移のログ
+    // ===================================================================== //
+    GameManager boundGm;
+    bool boundStarted;
+    bool logBoss, logBonus, logGameOver;
+
+    // 新しいランの初期化。前のランの状態(Profile/出現位置/一時停止/ボス・BONUSの記録/履歴/乱数)をすべて作り直す。
+    // ラン単位の値はすべて ResetState にまとめてある(ここではステージのProfileを取り直してから呼ぶだけ)。
+    void ResetForNewRun(GameManager gm)
+    {
+        var bm = BossManager.Instance;
+        Debug.Log($"[Encounter] NewRunReset (previous: BossActive={logBoss} BonusActive={logBonus} Paused={paused} Profile={(profile != null ? "OK" : "NULL")} ProfileStage={profileStage ?? "-"})");
+        profileStage = gm.ActiveRunStageId;
+        ResetState(StageEncounterProfile.Find(profileStage));
+        Debug.Log($"[Encounter] Initialize Stage={profileStage} Enabled={enabled && (profile != null && profile.replacesChunkSpawns)} Suppressed=False BossActive={(bm != null && bm.IsBossPhase)} BonusActive={BonusZone.SuppressesNormalSpawns} Profile={(profile != null ? "OK" : "none(this stage uses the legacy spawns)")} NextSpawn=unset(set on the first frame of running)");
+    }
+
+    void LogTransitions(GameManager gm)
+    {
+        var bm = BossManager.Instance;
+        bool boss = bm != null && bm.IsBossPhase;
+        if (boss != logBoss) { logBoss = boss; Debug.Log($"[Encounter] {(boss ? "BossStart" : "BossEnd")} d={gm.MaxDistance:F0} Suppressed={boss}"); }
+        bool bonus = BonusZone.SuppressesNormalSpawns;
+        if (bonus != logBonus) { logBonus = bonus; Debug.Log($"[Encounter] {(bonus ? "BonusStart" : "BonusEnd")} d={gm.MaxDistance:F0} Suppressed={bonus}"); }
     }
 
     // ===================================================================== //
