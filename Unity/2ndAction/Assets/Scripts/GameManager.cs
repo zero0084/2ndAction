@@ -87,11 +87,15 @@ public partial class GameManager : MonoBehaviour
                 deckCards.Add(id);
                 CardInventory.AddCard(id, 1, 1);
             }
+            // 2026-10-02 不具合修正: 初期デッキを保存しないままだと、シーンを読み直す(ホームへ戻る)たびにここを通って
+            // 初期カードをもう1枚ずつ渡していた(新規インストール/進行の初期化の後、デッキを編集するまで)。1回だけにする。
+            SaveDeck();
         }
     }
 
     void SaveDeck()
     {
+        if (DebugRun.BlocksSave("DeckCardIds")) return;
         PlayerPrefs.SetString(DeckKey, string.Join(",", deckCards));
         PlayerPrefs.Save();
     }
@@ -252,6 +256,7 @@ public partial class GameManager : MonoBehaviour
 
     void SaveMile()
     {
+        if (DebugRun.BlocksSave("TotalOwnedMile")) return;
         PlayerPrefs.SetInt(TotalMileKey, TotalOwnedMile);
         PlayerPrefs.Save();
     }
@@ -262,6 +267,7 @@ public partial class GameManager : MonoBehaviour
     {
         if (amount == 0) return;
         TotalOwnedMile = Mathf.Max(0, TotalOwnedMile + amount);
+        if (DebugRun.BlocksSave("TotalOwnedMile")) return;
         PlayerPrefs.SetInt(TotalMileKey, TotalOwnedMile);
     }
 
@@ -343,6 +349,26 @@ public partial class GameManager : MonoBehaviour
         pendingLevelUpCount = 0;
         levelUpDeferredTimer = -1f;
         bossRewardDeferredPending = false;
+    }
+
+    // 状態遷移ログ用(2026-10-02): フリーズ/二重遷移の調査で「最後にどの状態だったか」を1行で
+    public string DebugStateLine()
+    {
+        var bm = BossManager.Instance; var pc = PlayerController.Instance;
+        return $"started={HasStarted} over={IsGameOver} win={IsWin} ts={Time.timeScale:F2} pause=[{TimeControl.DescribeActiveReasons()}] levelUp={levelUpPending} choiceSeq={IsRewardSequenceRunning}"
+            + $" boss={(bm != null && bm.IsBossPhase)}/{(bm != null && bm.HoldsRun)} lives={Lives}/{maxLives} d={MaxDistance:F0}"
+            + (pc != null ? $" autoRun={pc.autoRunEnabled} v={pc.CurrentAutoRunSpeed:F1} idle={pc.IsStandingIdle} finishing={pc.IsFinishing}" : " pc=none")
+            + $" escapeBlocked={EscapeBlocked} expBlocked={BlockExpGain}";
+    }
+
+    // 変化した時だけログに出す用(数値の細かい変化を含めない)
+    public string DebugStateLineCoarse()
+    {
+        var bm = BossManager.Instance; var pc = PlayerController.Instance;
+        string ts = Time.timeScale <= 0.001f ? "0" : Time.timeScale >= 0.999f ? "1" : "slow";
+        return $"started={HasStarted} over={IsGameOver} win={IsWin} ts={ts} levelUp={levelUpPending} choiceSeq={IsRewardSequenceRunning} boss={(bm != null && bm.IsBossPhase)}/{(bm != null && bm.HoldsRun)}"
+            + (pc != null ? $" autoRun={pc.autoRunEnabled} idle={pc.IsStandingIdle} finishing={pc.IsFinishing}" : "")
+            + $" escapeBlocked={EscapeBlocked} expBlocked={BlockExpGain}";
     }
 
     // Item 3 - one-shot "ESCAPE AVAILABLE" banner the first time
@@ -526,6 +552,7 @@ public partial class GameManager : MonoBehaviour
         StageDefinition def = StageDatabase.FindById(stageId);
         if (def == null || !StageDatabase.IsAvailable(def)) return;
         SelectedStageId = stageId;
+        if (DebugRun.BlocksSave("SelectedStageId")) return;
         PlayerPrefs.SetString(SelectedStageKey, stageId);
         PlayerPrefs.Save();
     }
@@ -1161,6 +1188,7 @@ public partial class GameManager : MonoBehaviour
     void SetStageBest(string stageId, double value)
     {
         if (string.IsNullOrEmpty(stageId)) return;
+        if (DebugRun.BlocksSave("StageBest " + stageId)) return; // 記録対象外のラン: キャッシュも変えない(HUDのBESTも元のまま)
         stageBestCache[stageId] = value;
         PlayerPrefs.SetString(StageBestKeyPrefix + stageId, value.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
     }
@@ -3239,13 +3267,14 @@ public partial class GameManager : MonoBehaviour
         IsNewBestDistance = MaxDistanceExact > GetStageBest(bestStageId);
         if (IsNewBestDistance) SetStageBest(bestStageId, MaxDistanceExact);
         // 全体の最高距離(解放/ガチャ進行用)は従来どおり。
-        if (MaxDistance > BestDistance)
+        bool record = !DebugRun.BlocksSave("BestDistance/BestTime"); // 記録対象外のラン(デバッグワープ)は全体のBEST/時間も更新しない
+        if (record && MaxDistance > BestDistance)
         {
             BestDistance = MaxDistance;
             PlayerPrefs.SetFloat(BestDistanceKey, BestDistance);
         }
 
-        IsNewBestTime = RunTime > BestTime;
+        IsNewBestTime = record && RunTime > BestTime;
         if (IsNewBestTime)
         {
             BestTime = RunTime;

@@ -324,6 +324,7 @@ public partial class BossManager : MonoBehaviour
         var list = RushTable[k - RushFirstK];
         RushGateK = k;
         RushSpawnedThisGate = 0;
+        Debug.Log($"[BossRush] Gate {k * 1000}m Start: {RushGateLabel(k)}");
         RushMaxSimultaneous = 0;
         rushChain.Clear();
         rushPending = 0;
@@ -364,6 +365,7 @@ public partial class BossManager : MonoBehaviour
         foreach (var w in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None)) if (w != null && !w.IsDead && w.gameObject.activeInHierarchy) alive++;
         RushMaxSimultaneous = Mathf.Max(RushMaxSimultaneous, alive);
         Debug.Log($"[Boss][Rush] spawn {(b.family == 0 ? ((WildBossKind)b.kind).ToString() : b.family == 1 ? ((CaveBossKind)b.kind).ToString() : ((SkyBossKind)b.kind).ToString())} ({b.entry}) alive={alive}");
+        Debug.Log($"[BossRush] Boss {RushSpawnedThisGate} Spawn (gate {RushGateK * 1000}m, alive {alive})");
     }
 
     // 台本のボス戦(100,000mの三姉妹): 通常の関門と同じく距離を止め、雑魚/障害物を止め、ボス曲にする。
@@ -976,6 +978,7 @@ public partial class BossManager : MonoBehaviour
     // マルチプレイPhase 2 - 共有ボスの出現記録(HOST)/パペットの再構築(JOIN)用の入口。
     // デバッグ/自動テスト用: 100,000m到達と同じ死神の開始(BGMの切り替えも同じフラグ)をその場で起こす。
     public void DebugSpawnReaper() { if (deathSpawned) return; deathSpawned = true; SpawnDeath(); }
+    public void DebugMarkDeathSpawned() { deathSpawned = true; } // 開発版のエンドロール/ONE MORE MILE?から始める時: 100,000mの三姉妹戦/死神を出さない
 
     void SpawnDeath() { NetCombat.BeginBossSpawn(NetCombat.BossMethod.Reaper); try { SpawnDeathImpl(); } finally { NetCombat.EndBossSpawn(); } }
 
@@ -1696,6 +1699,7 @@ public partial class BossManager : MonoBehaviour
     {
         BossesDefeated++;
         aliveWildThisEncounter--;
+        if (RushGateK > 0) Debug.Log($"[BossRush] Boss Defeated (gate {RushGateK * 1000}m, remaining {aliveWildThisEncounter}, queued {rushChain.Count})");
         // ボスラッシュ: 「前のボスの撃破直後に次が登場」。今いるボスが全員倒れたら、連続の次のボスを出す。
         if (RushGateK > 0 && rushChain.Count > 0 && aliveWildThisEncounter - rushPending <= 0)
         {

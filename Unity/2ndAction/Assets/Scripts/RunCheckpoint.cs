@@ -89,6 +89,7 @@ public static class RunCheckpoint
 
     public static void Save(Data data)
     {
+        if (DebugRun.BlocksSave("RunCheckpoint.Save")) return; // 記録対象外のラン: プレイヤーの中断中のラン(CONTINUE)を上書きしない
         cached = data;
         PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(data));
         PlayerPrefs.Save();
@@ -100,6 +101,7 @@ public static class RunCheckpoint
     // its last checkpoint.
     public static void Clear()
     {
+        if (DebugRun.BlocksSave("RunCheckpoint.Clear")) return; // 記録対象外のラン: 中断中のランを消さない
         cached = new Data { active = false };
         PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(cached));
         PlayerPrefs.Save();

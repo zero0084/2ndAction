@@ -310,6 +310,9 @@ public class EncounterDirector : MonoBehaviour
             float sceneAnchor = (float)(nextAnchor - FloatingOrigin.Offset);
             if (!tm.IsGenerated(sceneAnchor + 30f) || (tm.cave != null && tm.cave.Active && tm.cave.GeneratedEndX < sceneAnchor + 30f)) break;
             float runDistance = RunDistanceAt(nextAnchor);
+            // 2026-10-02: 止める区間(ボスラッシュ/静寂)は「出す位置の距離」でも判定する(以前はプレイヤーの距離だけで、
+            // 89,9xxmで決めた出現位置が90,000mの先=ボスラッシュの中へ雑魚を置いていた)
+            if (SuppressAt != null && SuppressAt(runDistance - DebugDistanceOffset)) { SuppressedFrames++; nextAnchor += 20f; continue; }
             // 二重生成の防止(3.1): 同じ出現位置(1m単位)は1回しか決めない。最前の人が入れ替わっても基準点は前へしか進まないが、念のためHOSTで一意に管理する。
             long key = (long)System.Math.Round(nextAnchor);
             if (plannedAnchors.Contains(key)) { DuplicateAnchorsBlocked++; nextAnchor = key + 1.0; continue; }

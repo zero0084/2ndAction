@@ -32,6 +32,7 @@ public static class ProgressStats
     public static void AddRunDistance(double meters)
     {
         if (meters <= 0.0 || double.IsNaN(meters) || double.IsInfinity(meters)) return;
+        if (DebugRun.IsActive) return; // 記録対象外のラン(ワープした距離も含めて累計へ足さない)
         Load();
         lifetime += meters;
         dirty = true;
@@ -41,6 +42,7 @@ public static class ProgressStats
     // 書き込む(save=true で PlayerPrefs.Save まで)。ラン終了/帰還/一時停止/終了から呼ぶ。
     public static void Flush(bool save)
     {
+        if (DebugRun.BlocksSave("ProgressStats.Flush")) return;
         Load();
         if (dirty)
         {
@@ -59,6 +61,7 @@ public static class ProgressStats
     public static void MarkReaperMet(ReaperSister s)
     {
         if (HasMet(s)) return;
+        if (DebugRun.BlocksSave("ReaperMet_" + s)) return;
         PlayerPrefs.SetInt(SaveKeys.ReaperMetPrefix + s, 1);
         Debug.Log($"[Progress] met reaper sister: {s}");
         Flush(false);
@@ -70,6 +73,7 @@ public static class ProgressStats
     // 解放の判定(一度解放したら戻さない)。true=今回解放した
     public static bool EvaluateFinalDungeon(bool save)
     {
+        if (DebugRun.BlocksSave("FinalDungeonUnlocked")) return false;
         if (FinalDungeonUnlocked) return false;
         Load();
         if (lifetime < UnlockDistance || !MetAllSisters) return false;

@@ -92,6 +92,7 @@ public static class CardInventory
     public static void WriteWithoutFlush()
     {
         EnsureLoaded();
+        if (DebugRun.BlocksSave("OwnedCards")) return;
         var wrapper = new SaveWrapper { stacks = stacks };
         PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(wrapper));
     }
@@ -221,6 +222,7 @@ public static class CardInventory
 
     static void SaveNewUnconfirmed()
     {
+        if (DebugRun.BlocksSave("NewUnconfirmedCards")) return;
         PlayerPrefs.SetString(NewUnconfirmedSaveKey, string.Join(",", newUnconfirmed));
         PlayerPrefs.Save();
     }

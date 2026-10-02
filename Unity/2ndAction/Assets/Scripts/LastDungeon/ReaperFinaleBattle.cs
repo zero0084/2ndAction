@@ -72,6 +72,7 @@ public class ReaperFinaleBattle : MonoBehaviour
             SoloIndex = i;
             Current = Stage.Solo;
             Say(NameOf(Order[i]));
+            Debug.Log($"[ReaperBoss] Solo {i + 1}/3 {Order[i]} Start");
             soloDone = false;
             var b = ReaperSisterBoss.Create(Order[i], player, 0, Hp(soloHp), 8f);
             b.retreatOnLethal = true;
@@ -87,6 +88,7 @@ public class ReaperFinaleBattle : MonoBehaviour
         // ---- 後半: 三人同時 ----
         Current = Stage.Group;
         Say("三姉妹");
+        Debug.Log("[ReaperBoss] Group (3 sisters) Start");
         yield return new WaitForSeconds(1.0f);
         GroupDefeated = 0;
         for (int i = 0; i < Order.Length; i++)
@@ -101,6 +103,7 @@ public class ReaperFinaleBattle : MonoBehaviour
 
         // ---- 勝利: RESULTへは行かない ----
         Current = Stage.Victory;
+        Debug.Log("[ReaperBoss] Defeated (all three)");
         if (bm != null) bm.MarkScriptedBossDefeated();
         if (GameManager.Instance != null) GameManager.Instance.DropPendingChoicesForFinale();
         GameManager.BlockExpGain = true;

@@ -13,7 +13,7 @@ public partial class DebugPanel : MonoBehaviour
     bool open;
     float t;
     bool confirmReset;
-    int page;            // 0=一般 / 1=セーブ・進行(2026-10-01)
+    int page;            // 0=一般 / 1=セーブ・進行(2026-10-01) / 2=ラスダン終盤(2026-10-02)
     int confirmSave;     // 0=なし / 1=進行だけ初期化 / 2=完全初期化
 
     public static bool IsOpen => Instance != null && Instance.open;
@@ -29,6 +29,8 @@ public partial class DebugPanel : MonoBehaviour
     }
 
     public static void OpenStatic() { if (Instance != null) Instance.SetOpen(true); }
+    // ラン中の「DEBUG RUN」表示の ≡ から: ラスダン終盤のページを直接開く
+    public static void OpenEndgameStatic() { if (Instance == null) return; Instance.SetOpen(true); if (Instance.open) Instance.page = 2; }
     public static void CloseStatic() { if (Instance != null) Instance.SetOpen(false); }
 
     public void SetOpen(bool on)
@@ -73,10 +75,11 @@ public partial class DebugPanel : MonoBehaviour
         OrnateUi.DrawPanel(p, 0.95f);
         GUI.Label(new Rect(p.x + 24f, p.y + 12f, 300f, 40f), "DEBUG(開発版のみ)", UiKit.Label(24f, TextAnchor.MiddleLeft, true, new Color(1f, 0.55f, 0.45f)));
         if (UiKit.Button(new Rect(p.xMax - 66f, p.y + 12f, 48f, 42f), "×", 24f, false, false)) SetOpen(false);
-        if (UiKit.Button(new Rect(p.xMax - 200f, p.y + 12f, 126f, 42f), page == 0 ? "セーブ…" : "← 一般", 17f, page == 1, false)) { page = page == 0 ? 1 : 0; confirmSave = 0; confirmReset = false; }
-        if (page == 1)
+        if (UiKit.Button(new Rect(p.xMax - 200f, p.y + 12f, 126f, 42f), page == 0 ? "セーブ…" : "← 一般", 17f, page != 0, false)) { page = page == 0 ? 1 : 0; confirmSave = 0; confirmReset = false; }
+        if (page == 0 && UiKit.Button(new Rect(p.xMax - 352f, p.y + 12f, 146f, 42f), "ラスダン終盤…", 16f, false, false)) { page = 2; confirmSave = 0; confirmReset = false; }
+        if (page != 0)
         {
-            DrawSavePage(p);
+            if (page == 1) DrawSavePage(p); else DrawEndgamePage(p);
             GUI.color = keepColor;
             GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
             if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();
@@ -212,6 +215,60 @@ public partial class DebugPanel
             }
             if (UiKit.Button(new Rect(x + bw + 8f, y + 18f, bw, 40f), "やめる", 17f, false, false)) confirmSave = 0;
         }
+    }
+}
+
+// DebugPanel: ラスダン終盤/エンディングのワープ(2026-10-02)。押すたびにシーンを読み直して、記録されない DEBUG RUN として始める。
+public partial class DebugPanel
+{
+    void DrawEndgamePage(Rect p)
+    {
+        float x = p.x + 24f, y = p.y + 60f, full = p.width - 48f;
+        var gm = GameManager.Instance;
+        GUI.Label(new Rect(x, y, full, 36f), "押すたびにラスダンを新しく始めて、その地点へ移動します(DEBUG RUN)。BEST / MILE / カード / 累計距離 / 三姉妹の遭遇 / ラスダン解放 / CONTINUE は変わりません",
+            UiKit.Label(12f, TextAnchor.UpperLeft, false, new Color(0.85f, 0.85f, 0.9f)));
+        y += 38f;
+        // テスト用の性能
+        float tw = (full - 16f) / 3f;
+        var profs = new[] { EndgameDebug.Profile.Normal, EndgameDebug.Profile.Sturdy, EndgameDebug.Profile.SturdyStrong };
+        for (int i = 0; i < 3; i++)
+        {
+            bool on = EndgameDebug.SelectedProfile == profs[i];
+            if (UiKit.Button(new Rect(x + i * (tw + 8f), y, tw, 36f), EndgameDebug.ProfileLabel(profs[i]), 14f, on, false)) EndgameDebug.SelectedProfile = profs[i];
+        }
+        y += 42f;
+        var points = new[]
+        {
+            (EndgameDebug.Point.LastDungeon0, "開始地点"), (EndgameDebug.Point.LastDungeon90, "ボスラッシュの直前"),
+            (EndgameDebug.Point.LastDungeon99, "静寂区間の直前"), (EndgameDebug.Point.ReaperSisters, "三姉妹戦の直前"),
+            (EndgameDebug.Point.EndingCredits, "三姉妹撃破後から"), (EndgameDebug.Point.OneMoreMile, "YES / NO から"),
+            (EndgameDebug.Point.EndingFlow, "99km→三姉妹→エンドロール→YES/NO"),
+        };
+        float bw = (full - 8f) / 2f, bh = 42f;
+        bool busy = EndgameDebug.Instance != null && EndgameDebug.Instance.Launching;
+        for (int i = 0; i < points.Length; i++)
+        {
+            var r = new Rect(x + (i % 2) * (bw + 8f), y + (i / 2) * (bh + 6f), bw, bh);
+            string label = EndgameDebug.Label(points[i].Item1) + "\n" + points[i].Item2;
+            if (UiKit.Button(r, label, 13f, false, false) && !busy) EndgameDebug.Launch(points[i].Item1, EndgameDebug.SelectedProfile);
+        }
+        // NEXT BOSS(ボスラッシュ中)
+        {
+            var r = new Rect(x + bw + 8f, y + 3 * (bh + 6f), bw, bh);
+            bool inRush = gm != null && gm.HasStarted && !gm.IsGameOver && LastDungeonFlow.Instance != null && LastDungeonFlow.Instance.Current == LastDungeonFlow.State.Rush;
+            if (UiKit.Button(r, "NEXT BOSS\nボスラッシュ中: 今のボスを倒して次へ", 13f, false, false))
+            {
+                if (inRush) { EndgameDebug.NextBoss(); SetOpen(false); }
+                else if (EndgameDebug.Instance != null) EndgameDebug.Instance.SetStatus("NEXT BOSS はボスラッシュ中だけ使えます");
+            }
+        }
+        y += 4 * (bh + 6f) + 4f;
+        string st = EndgameDebug.Instance != null ? EndgameDebug.Instance.Status : "";
+        string run = DebugRun.IsActive ? $"DEBUG RUN 中: {DebugRun.What}(保存を止めた回数 {DebugRun.BlockedWrites})" : "通常の状態(DEBUG RUN ではありません)";
+        string last = DebugRun.LastRestoredKeys < 0 ? "" : DebugRun.LastRestoredKeys == 0 ? " / 前回の DEBUG RUN: 進行の変化なし" : $" / 前回の DEBUG RUN: {DebugRun.LastRestoredKeys}項目を元へ戻した";
+        GUI.Label(new Rect(x, y, full, 20f), run + last, UiKit.Label(12f, TextAnchor.MiddleLeft, true, DebugRun.IsActive ? new Color(1f, 0.7f, 0.4f) : new Color(0.7f, 0.9f, 0.7f)));
+        y += 20f;
+        if (!string.IsNullOrEmpty(st)) GUI.Label(new Rect(x, y, full, 20f), st, UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(1f, 0.85f, 0.5f)));
     }
 }
 

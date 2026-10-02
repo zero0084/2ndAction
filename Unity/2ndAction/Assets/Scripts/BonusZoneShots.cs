@@ -78,7 +78,9 @@ public class BonusZoneShots : MonoBehaviour
             if (p.IsGrounded && t.IsNearPit(x + 1.1f * Mathf.Max(1f, p.CurrentAutoRunSpeed / 5f), 0.4f)) f = PlayerController.FlickDirection.Up;
             else if (!p.IsGrounded && !t.GetHeightAt(x).HasValue) f = PlayerController.FlickDirection.Up;
             else if (z.Enemies.Any(e => e != null && e.isActiveAndEnabled && e.transform.position.x - x > -0.4f && e.transform.position.x - x < 2.6f)) f = PlayerController.FlickDirection.Forward;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (f.HasValue) { p.debugInjectFlick = f.Value; yield return null; p.debugInjectFlick = null; yield return new WaitForSeconds(0.12f); continue; }
+#endif
             yield return null;
         }
     }

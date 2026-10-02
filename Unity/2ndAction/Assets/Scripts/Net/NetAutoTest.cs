@@ -104,7 +104,9 @@ public partial class NetAutoTest : MonoBehaviour
     {
         var bm = BossManager.Instance;
         if (bm == null) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (!rematchUnlocked && runTime > 1f && !NetCombat.Replica) { rematchUnlocked = true; bm.DebugUnlockAll(); L($"rematch: HOST unlocked all ({bm.DefeatedPool.Count})"); }
+#endif
         rematchLogTimer -= Time.unscaledDeltaTime;
         if (rematchLogTimer > 0f) return;
         rematchLogTimer = 1f;

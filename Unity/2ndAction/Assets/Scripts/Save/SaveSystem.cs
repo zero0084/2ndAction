@@ -39,6 +39,9 @@ public static class SaveSystem
     static void AutoBoot()
     {
         if (booted) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        DebugRun.RecoverAfterCrash(); // 前回のデバッグラン(記録対象外)が終わらずに落ちていたら、進行を控えへ戻す
+#endif
         try { Boot(BuildReleaseGeneration); }
         catch (Exception e) { Debug.LogError("[Save] boot failed (the game continues with the data as it is): " + e); }
     }
@@ -320,6 +323,41 @@ public static class SaveSystem
             case SaveType.Float: if (float.TryParse(it.v, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float f)) PlayerPrefs.SetFloat(it.k, f); break;
             default: PlayerPrefs.SetString(it.k, it.v ?? ""); break;
         }
+    }
+
+    // 1つの分類(進行など)だけを控える / 戻す(DebugRun)。戻す時は控えと違うキーだけ書き換え、その数を返す。
+    public static List<Item> CaptureCategory(SaveCategory cat)
+    {
+        var list = new List<Item>();
+        var seen = new HashSet<string>();
+        foreach (var e in SaveKeys.Expanded())
+        {
+            if (e.cat != cat || !seen.Add(e.key) || !PlayerPrefs.HasKey(e.key)) continue;
+            list.Add(Read(e.key, e.type));
+        }
+        return list;
+    }
+
+    public static int RestoreCategory(List<Item> snap, SaveCategory cat, out string note)
+    {
+        var want = new Dictionary<string, Item>();
+        foreach (var it in snap) want[it.k] = it;
+        var changed = new List<string>();
+        var seen = new HashSet<string>();
+        foreach (var e in SaveKeys.Expanded())
+        {
+            if (e.cat != cat || !seen.Add(e.key)) continue;
+            bool has = PlayerPrefs.HasKey(e.key);
+            if (want.TryGetValue(e.key, out Item it))
+            {
+                if (!has || Read(e.key, e.type).v != it.v) { Apply(it); changed.Add(e.key); }
+            }
+            else if (has) { PlayerPrefs.DeleteKey(e.key); changed.Add(e.key + "(deleted)"); }
+        }
+        note = string.Join(", ", changed);
+        if (changed.Count > 0) PlayerPrefs.Save();
+        ReloadCaches();
+        return changed.Count;
     }
 
     // 登録済みの全キーをスナップショットの状態にする(スナップショットに無いキーは消す)

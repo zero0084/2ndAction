@@ -13,7 +13,7 @@ using UnityEngine;
 //             → RESULTへ行かないか → エンドロール(文字に乗る/攻撃/石板) → ONE MORE MILE?(YES/NOを交互に攻撃→YES) → 走り続けるか
 //  stop    … 99,950mから: 三姉妹(HPを小さく) → エンドロール → NOを壊す → 減速 → 停止 → ホームへ戻るか(正常終了/ゲームオーバーでない)
 // ボット: 攻撃力+12、高速補助を全速度で有効(穴を跳ぶ上手なプレイヤーの代わり)、近いボスへフリック攻撃。ライフは減ったら戻す(被弾は数える)。
-public class LastDungeonQa : MonoBehaviour
+public partial class LastDungeonQa : MonoBehaviour
 {
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Boot()
@@ -69,6 +69,7 @@ public class LastDungeonQa : MonoBehaviour
         StartCoroutine(AutoPickCards());
         if (mode == "density") yield return DensityMode();
         else if (mode == "stop") yield return StopMode();
+        else if (mode == "warps") yield return WarpsMode();
         else yield return FlowMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

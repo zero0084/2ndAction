@@ -85,9 +85,26 @@ public class LastDungeonFlow : MonoBehaviour
     void SetState(State s)
     {
         if (Current == s) return;
+        State from = Current;
         Current = s;
         stateSince = Time.time;
-        Debug.Log($"[LastDungeon] state -> {s} at {(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f):F0}m");
+        var gm = GameManager.Instance;
+        Debug.Log($"[LastDungeon] state -> {s} at {(gm != null ? gm.MaxDistance : 0f):F0}m");
+        // 状態遷移ログ(2026-10-02): フリーズ/二重遷移の時に、最後にどこまで来たかを追えるように(GameManager側の状態も一緒に)
+        string tag = s switch
+        {
+            State.Run => "[FinalDungeon] Enter",
+            State.Rush => "[BossRush] Start",
+            State.Silence => "[SilentSection] Start",
+            State.Finale => "[ReaperBoss] Start",
+            State.Credits => "[Ending] Credits Start",
+            State.Choice => "[Ending] Credits Finished -> [EndingChoice] Start",
+            State.Beyond => "[EndingChoice] YES Selected",
+            State.Stopping => "[EndingChoice] NO Selected",
+            State.Done => "[Ending] Finished (Home)",
+            _ => "[FinalDungeon] " + s,
+        };
+        Debug.Log($"{tag} ({from} -> {s}) d={(gm != null ? gm.MaxDistance : 0f):F0}{(Debug.isDebugBuild && gm != null ? " | GM " + gm.DebugStateLine() : "")}");
     }
 
     void Update()
@@ -180,7 +197,7 @@ public class LastDungeonFlow : MonoBehaviour
     // BossManager: 100,000mに着いた(追跡の死神の代わりに三姉妹戦)
     void OnReach100k()
     {
-        if (Current == State.Finale) return;
+        if (Current >= State.Finale) return; // 三姉妹戦/エンドロール以降に二重に始めない(デバッグでエンドロールから始めた時も)
         SetState(State.Finale);
         BgmDirector.ClearOverride(); // ボス戦の曲(死神の曲)はBossManagerの台本のボス戦が決める
         calloutText = "100,000 m"; calloutAt = Time.time;
@@ -363,6 +380,48 @@ public class LastDungeonFlow : MonoBehaviour
     }
 
     void Banner(string t) { bannerText = t; bannerAt = Time.time; }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // ===================================================================== //
+    // 開発版: 三姉妹撃破の直後と同じ状態から始める(EndgameDebug)。静寂区間(99,000m〜、穴/障害物/敵なし)にいる時に呼ぶこと。
+    // ===================================================================== //
+    void DebugPostVictoryState()
+    {
+        BossManager.SuppressGates = true;      // 静寂区間と同じ: これ以上ボスの関門を作らない
+        GameManager.EscapeBlocked = true;
+        GameManager.BlockExpGain = true;       // 三姉妹の勝利と同じ: レベルアップ等を出さない
+        if (GameManager.Instance != null) GameManager.Instance.DropPendingChoicesForFinale();
+        if (BossManager.Instance != null) BossManager.Instance.DebugMarkDeathSpawned(); // 100,000mで三姉妹戦を始めない
+    }
+
+    public void DebugBeginCredits()
+    {
+        if (!Enabled || Current >= State.Credits) return;
+        Debug.Log("[Ending] DEBUG: start from the credits (sisters treated as defeated)");
+        DebugPostVictoryState();
+        BeginCredits();
+    }
+
+    public void DebugBeginChoice()
+    {
+        if (!Enabled || Current >= State.Choice) return;
+        Debug.Log("[EndingChoice] DEBUG: start from ONE MORE MILE? (sisters and credits treated as done)");
+        DebugPostVictoryState();
+        StartCoroutine(DebugChoiceRoutine());
+    }
+
+    IEnumerator DebugChoiceRoutine()
+    {
+        var pc = PlayerController.Instance;
+        yield return EaseSpeedCap(float.PositiveInfinity, creditsSpeed, 1.2f);
+        BgmDirector.OverrideActive = true;
+        BgmDirector.OverrideClip = null;
+        BgmDirector.OverrideFadeSeconds = 1f;
+        BgmDirector.OverrideAmbience = null;
+        BgmDirector.OverrideReason = "choice";
+        BeginChoice(pc);
+    }
+#endif
 
     // ===================================================================== //
     // 画面の文字(静寂の距離表示/三姉妹の名前/BEYOND/暗転)
