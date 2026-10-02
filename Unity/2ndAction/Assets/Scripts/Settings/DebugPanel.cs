@@ -128,6 +128,7 @@ public partial class DebugPanel : MonoBehaviour
 // DebugPanel: セーブ/進行のページ(2026-10-01)
 public partial class DebugPanel
 {
+    string cardNote = "";
     void DrawSavePage(Rect p)
     {
         float x = p.x + 24f, y = p.y + 62f, full = p.width - 48f, bh = 44f;
@@ -166,6 +167,30 @@ public partial class DebugPanel
         y += bh + 4f;
         GUI.Label(new Rect(x, y, full, 20f), "解放の条件: 累計1,000,000m + 三姉妹全員と遭遇(一度解放したら戻らない)。「常に選択」は開発版だけ", UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(0.75f, 0.75f, 0.8f)));
         y += 26f;
+
+        // カード全開放(2026-10-02)
+        float tw = (full - 16f) / 3f;
+        bool open = GachaStage.DevAllCardsOpen;
+        if (UiKit.Button(new Rect(x, y, tw, bh), $"全カード開放: {(open ? "ON" : "OFF")}", 15f, open, false))
+        {
+            GachaStage.DevAllCardsOpen = !open;
+            if (!open) { int n = CardInventory.DebugOwnEveryMissing(); cardNote = $"全{CardDatabase.AllCards.Count}枚を解放、未所持{n}枚をLv1で追加"; }
+            else cardNote = "全カード開放OFF(所持したカードはそのまま)";
+        }
+        if (UiKit.Button(new Rect(x + tw + 8f, y, tw, bh), "全カード Lv9×3枚", 15f, false, false))
+        {
+            int n = CardInventory.DebugOwnEveryAtLevel(9, 3);
+            cardNote = $"全カードをLv9で3枚ずつ所持({n}種を追加)";
+        }
+        if (UiKit.Button(new Rect(x + (tw + 8f) * 2f, y, tw, bh), "全カード Lv1×1枚", 15f, false, false))
+        {
+            int n = CardInventory.DebugOwnEveryMissing();
+            cardNote = $"未所持{n}枚をLv1で追加";
+        }
+        y += bh + 2f;
+        GUI.Label(new Rect(x, y, full, 18f), string.IsNullOrEmpty(cardNote) ? "全カード開放=距離/ガチャ段階に関係なく全カードを解放済みにして、未所持のカードを1枚ずつ渡す(開発版のみ)" : cardNote,
+            UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(1f, 0.85f, 0.5f)));
+        y += 22f;
 
         // 初期化(確認あり)
         if (confirmSave == 0)

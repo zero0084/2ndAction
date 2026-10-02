@@ -274,4 +274,35 @@ public static class CardInventory
             AddCard(card.cardId, 1, 1);
         }
     }
+
+    // 開発版の全カード開放(2026-10-02): まだ1枚も持っていないカードだけ Lv.1 を1枚(押すたびに増やさない)
+    public static int DebugOwnEveryMissing()
+    {
+        int n = 0;
+        foreach (CardDefinition card in CardDatabase.AllCards)
+            if (!CardVariant.IsVariantKey(card.cardId) && GetTotalCount(card.cardId) <= 0) { AddCard(card.cardId, 1, 1); n++; }
+        return n;
+    }
+
+    // Lv2以上の素のカードは「Lv分の強化量を持つ合成カード」のキー(v2|id|Lv|…)で持つので、そのキーで数える
+    public static int DebugCountAtLevel(string cardId, int level)
+    {
+        if (level <= 1) return GetCount(cardId, 1);
+        string key = CardDataMigration.LegacyToKey(cardId, level);
+        CardVariant v = CardVariant.Parse(key);
+        return GetCount(key, v != null ? v.level : level);
+    }
+
+    // 開発版: 全カードを Lv.9 で count 枚ずつ(キャラカード枠・デッキの確認用)。足りない分だけ足す
+    public static int DebugOwnEveryAtLevel(int level, int count)
+    {
+        int n = 0;
+        foreach (CardDefinition card in CardDatabase.AllCards)
+        {
+            if (CardVariant.IsVariantKey(card.cardId)) continue;
+            int have = DebugCountAtLevel(card.cardId, level);
+            if (have < count) { AddCard(card.cardId, level, count - have); n++; }
+        }
+        return n;
+    }
 }
