@@ -113,6 +113,7 @@ public class NetAttackSync : MonoBehaviour
     }
 
     readonly Dictionary<int, Tracked> tracked = new Dictionary<int, Tracked>();
+    public int TrackedCount => tracked.Count; // 同期中の飛び道具/攻撃(負荷の目安)
     readonly Dictionary<GameObject, int> byGoInstance = new Dictionary<GameObject, int>();
     readonly Dictionary<int, float> recentlyRemoved = new Dictionary<int, float>();
     public IReadOnlyDictionary<int, Tracked> Tracks => tracked;
@@ -343,9 +344,9 @@ public class NetAttackSync : MonoBehaviour
         bool active = NetSession.IsActive && nm != null && nm.CustomMessagingManager != null;
         if (active && (!handlersRegistered || registeredManager != nm))
         {
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgReliable, OnReliable);
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgState, OnState);
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgRequest, OnRequest);
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgReliable, NetStats.Counted(MsgReliable, OnReliable));
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgState, NetStats.Counted(MsgState, OnState));
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgRequest, NetStats.Counted(MsgRequest, OnRequest));
             handlersRegistered = true;
             registeredManager = nm;
         }
@@ -458,7 +459,7 @@ public class NetAttackSync : MonoBehaviour
         foreach (ulong clientId in nm.ConnectedClientsIds)
         {
             if (clientId == NetworkManager.ServerClientId) continue;
-            nm.CustomMessagingManager.SendNamedMessage(msg, clientId, w, delivery);
+            NetStats.SendNamed(nm.CustomMessagingManager, msg, clientId, w, delivery);
         }
     }
 
@@ -483,11 +484,21 @@ public class NetAttackSync : MonoBehaviour
             t.SentHash = h; t.SentTime = unow;
             sendList.Add(s); sendIds.Add(t.Id);
         }
-        const int perPacket = 8;
-        for (int start = 0; start < sendList.Count; start += perPacket)
+        // 2026-10-02: 1件の大きさは見た目の数で変わる。件数固定(8件)だと1300Bを超えて書けない/MTUを超えることがあったので、
+        // 大きさを積み上げて1200Bまでで区切る(最大8件)。
+        const int perPacket = 8, budget = 1200, header = 4 + 8 + 1;
+        int startIdx = 0;
+        while (startIdx < sendList.Count)
         {
-            int n = Mathf.Min(perPacket, sendList.Count - start);
-            using (var w = new FastBufferWriter(1300, Allocator.Temp))
+            int start = startIdx, n = 0, size = header;
+            while (start + n < sendList.Count && n < perPacket)
+            {
+                int est = 48 + 52 * Mathf.Max(0, tracked[sendIds[start + n]].NVis); // 多めの見積もり(書き込み枠は伸びるので溢れない)
+                if (n > 0 && size + est > budget) break;
+                size += est; n++;
+            }
+            startIdx += n;
+            using (var w = new FastBufferWriter(1300, Allocator.Temp, 16384)) // 見積もりを超えても伸びる(例外で落ちない)
             {
                 w.WriteValueSafe(NetRunLauncher.ActiveRunSeed);
                 w.WriteValueSafe(now);
@@ -826,7 +837,7 @@ public class NetAttackSync : MonoBehaviour
                 w.WriteValueSafe(NetRunLauncher.ActiveRunSeed);
                 w.WriteValueSafe(ReqConsume);
                 w.WriteValueSafe(id);
-                NetSession.Manager.CustomMessagingManager.SendNamedMessage(MsgRequest, NetworkManager.ServerClientId, w, NetworkDelivery.ReliableSequenced);
+                NetStats.SendNamed(NetSession.Manager.CustomMessagingManager, MsgRequest, NetworkManager.ServerClientId, w, NetworkDelivery.ReliableSequenced);
             }
         }
         if (t.SlowFactor < 1f) pc.ApplyMoveSlow(t.SlowFactor, t.SlowDuration);

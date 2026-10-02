@@ -242,7 +242,12 @@ public class EncounterDirector : MonoBehaviour
         if (NetCombat.SuppressLocalEnemySpawn) return; // JOIN: 敵はHOSTが出す
         if (tm.enemySpawnChance <= 0f) return;          // 敵の出現そのものを止めている(自動テスト等の既存の切り替え)
 
-        double playerLogical = FloatingOrigin.ToLogical(pc.transform.position.x);
+        // 2026-10-02(マルチ最大8人の予定): HOSTは自分ではなく活動中のプレイヤーの最前を基準にする(ソロ/JOINは自分)。
+        // 距離の帯(runDistance)も同じだけずらす。HOSTがDOWN/脱落して止まっても、走っている人の前に敵が出続ける。
+        float hostX = pc.transform.position.x;
+        float anchorX = NetCombat.ForemostPlayerX(hostX);
+        float foremostOffset = anchorX - hostX;
+        double playerLogical = FloatingOrigin.ToLogical(anchorX);
         float speed = SpeedScale(pc);
         float visibleAhead = VisibleAhead(pc);
         float ahead = Mathf.Max(profile.spawnAheadDistance * Mathf.Lerp(1f, speed, 0.5f), visibleAhead + profile.offscreenMargin);
@@ -305,7 +310,7 @@ public class EncounterDirector : MonoBehaviour
         {
             float sceneAnchor = (float)(nextAnchor - FloatingOrigin.Offset);
             if (!tm.IsGenerated(sceneAnchor + 30f) || (tm.cave != null && tm.cave.Active && tm.cave.GeneratedEndX < sceneAnchor + 30f)) break;
-            float runDistance = gm.MaxDistance + (float)(nextAnchor - playerLogical) + DebugDistanceOffset;
+            float runDistance = gm.MaxDistance + foremostOffset + (float)(nextAnchor - playerLogical) + DebugDistanceOffset;
             if (runDistance < profile.noEncounterBeforeDistance)
             {
                 nextAnchor += profile.noEncounterBeforeDistance - runDistance + 1f;
@@ -404,7 +409,7 @@ public class EncounterDirector : MonoBehaviour
             if (!tm.IsGenerated(sceneAnchor + 30f) || (tm.cave != null && tm.cave.Active && tm.cave.GeneratedEndX < sceneAnchor + 30f)) break;
             EncounterFormation f = bonus.NextFormation(out Vector2 gap);
             if (f == null) { nextAnchor += 10f; continue; }
-            float runDistance = gm.MaxDistance + (float)(nextAnchor - playerLogical);
+            float runDistance = gm.MaxDistance + (float)(nextAnchor - FloatingOrigin.ToLogical(pc.transform.position.x)); // 基準が最前のプレイヤーでも距離の帯はHOST基準のMaxDistanceから
             bool ok = false;
             for (int shift = 0; shift < 8 && !ok; shift++)
             {

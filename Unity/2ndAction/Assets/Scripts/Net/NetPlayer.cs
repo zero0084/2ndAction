@@ -134,7 +134,13 @@ public class NetPlayer : NetworkBehaviour
         if (sendTimer < interval) return;
         sendTimer = Mathf.Min(sendTimer - interval, interval);
 
-        if (TrySampleLocalPlayer(out NetPlayerSnapshot snap)) SnapshotRpc(snap);
+        if (TrySampleLocalPlayer(out NetPlayerSnapshot snap))
+        {
+            SnapshotRpc(snap);
+            // 計測: HOSTは他の全員へ、JOINはHOSTへ1回(HOSTが残りへ中継する分は受信側で数える)
+            if (IsServer) { int n = NetSession.Manager != null ? NetSession.Manager.ConnectedClientsIds.Count - 1 : 0; for (int i = 0; i < n; i++) NetStats.Sent("snapshot", SnapshotBytes); }
+            else NetStats.Sent("snapshot", SnapshotBytes);
+        }
     }
 
     bool TrySampleLocalPlayer(out NetPlayerSnapshot s)
@@ -207,11 +213,15 @@ public class NetPlayer : NetworkBehaviour
         return Phase.Value == PhaseInRun && remoteRunning && nowRealtime - lastSnapshotRealtime < 1f;
     }
 
+    const int SnapshotBytes = 77 + 24; // 中身77B + RPCの見出し(概算)。計測用
     // 位置/姿勢は毎秒30回・非信頼(UDP)で送る - 古い値の再送を待つより次の値を使う方が高速時に有利。
     [Rpc(SendTo.NotOwner, Delivery = RpcDelivery.Unreliable)]
     void SnapshotRpc(NetPlayerSnapshot snapshot)
     {
         snapshotsReceived++;
+        NetStats.Received("snapshot", SnapshotBytes);
+        // HOSTはJOINのスナップショットを残りのJOINへ中継する(人数Nで (N-1)×(N-2) 件/回。8人で一番重くなる所)
+        if (IsServer && NetSession.Manager != null) { int relay = NetSession.Manager.ConnectedClientsIds.Count - 2; for (int i = 0; i < relay; i++) NetStats.Sent("snapshotRelay", SnapshotBytes); }
         interpolator.Add(snapshot);
         remoteRunSpeed = snapshot.RunSpeed;
         remoteDistance = snapshot.Distance;

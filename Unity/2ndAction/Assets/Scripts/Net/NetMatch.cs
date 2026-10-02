@@ -163,9 +163,12 @@ public partial class NetMatch : MonoBehaviour
         }
         else if (NetCombat.Replica)
         {
-            if (helloSeed != NetRunLauncher.ActiveRunSeed && NetPlayer.Local != null)
+            helloRetry -= Time.unscaledDeltaTime;
+            bool acked = Get(local) != null && Get(local).Known;
+            if (NetPlayer.Local != null && (helloSeed != NetRunLauncher.ActiveRunSeed || (!acked && helloRetry <= 0f)))
             {
                 helloSeed = NetRunLauncher.ActiveRunSeed;
+                helloRetry = 1.5f;
                 SendToHost(w => { w.WriteValueSafe(ReqHello); w.WriteValueSafe(gm.Lives); w.WriteValueSafe(gm.MaxLives); });
                 Log($"P{local} hello hp={gm.Lives}/{gm.MaxLives}");
             }
@@ -175,6 +178,8 @@ public partial class NetMatch : MonoBehaviour
             UpdatePhase3Client(gm, pc);
         }
     }
+
+    float helloRetry;
 
     Rec GetOrCreate(int pn, ulong clientId)
     {
@@ -208,8 +213,8 @@ public partial class NetMatch : MonoBehaviour
         bool active = NetSession.IsActive && nm != null && nm.CustomMessagingManager != null;
         if (active && (!handlersRegistered || registeredManager != nm))
         {
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgToHost, OnToHost);
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgToClients, OnToClient);
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgToHost, NetStats.Counted(MsgToHost, OnToHost));
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgToClients, NetStats.Counted(MsgToClients, OnToClient));
             handlersRegistered = true;
             registeredManager = nm;
         }
@@ -228,7 +233,7 @@ public partial class NetMatch : MonoBehaviour
         {
             w.WriteValueSafe(NetRunLauncher.ActiveRunSeed);
             write(w);
-            nm.CustomMessagingManager.SendNamedMessage(MsgToHost, NetworkManager.ServerClientId, w, NetworkDelivery.ReliableSequenced);
+            NetStats.SendNamed(nm.CustomMessagingManager, MsgToHost, NetworkManager.ServerClientId, w, NetworkDelivery.ReliableSequenced);
         }
     }
 
@@ -244,7 +249,7 @@ public partial class NetMatch : MonoBehaviour
             {
                 if (clientId == NetworkManager.ServerClientId) continue;
                 if (onlyClient != ulong.MaxValue && clientId != onlyClient) continue;
-                nm.CustomMessagingManager.SendNamedMessage(MsgToClients, clientId, w, NetworkDelivery.ReliableSequenced);
+                NetStats.SendNamed(nm.CustomMessagingManager, MsgToClients, clientId, w, NetworkDelivery.ReliableSequenced);
             }
         }
     }
@@ -289,6 +294,7 @@ public partial class NetMatch : MonoBehaviour
         if (seed != NetRunLauncher.ActiveRunSeed) return;
         r.ReadValueSafe(out byte op);
         int pn = NetCombat.PlayerNumberOfClient(sender);
+        if (pn <= 0) { Log($"message op={op} from unknown client {sender} ignored (player not spawned yet)"); return; } // helloは届くまで送り直される
         Rec rec = GetOrCreate(pn, sender);
         switch (op)
         {

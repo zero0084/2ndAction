@@ -20,8 +20,26 @@ using UnityEngine;
 // 一度もマルチプレイを使わなければNetcodeは一切動かない。
 public class NetSession : MonoBehaviour
 {
-    // Phase 1は2人固定。将来2〜4人にする場合はここを増やすだけでよい(スロット割り当て/承認は人数非依存)。
-    public const int MaxPlayers = 2;
+    // 2026-10-02: 正式なマルチは最大8人の予定(PlannedMaxPlayers)。今は2人で開発/確認するので既定は2。
+    // スロット割り当て/承認/Ready/結果/復活は人数非依存。開発版だけ起動引数 -netMaxPlayers N(2〜8)で4人/8人の試験ができる。
+    public const int DefaultMaxPlayers = 2;
+    public const int PlannedMaxPlayers = 8;
+    static int maxPlayersOverride = -1;
+    public static int MaxPlayers
+    {
+        get
+        {
+            if (maxPlayersOverride < 0)
+            {
+                maxPlayersOverride = 0;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                var a = System.Environment.GetCommandLineArgs();
+                for (int i = 0; i < a.Length - 1; i++) if (a[i] == "-netMaxPlayers" && int.TryParse(a[i + 1], out int n)) maxPlayersOverride = Mathf.Clamp(n, 2, PlannedMaxPlayers);
+#endif
+            }
+            return maxPlayersOverride > 0 ? maxPlayersOverride : DefaultMaxPlayers;
+        }
+    }
     public const ushort DefaultPort = 7777;
     // 通信仕様のバージョン。互換性の無い変更をしたら上げること(承認時に一致を確認する)。
     public const string ProtocolVersion = "OMM-NET-1";
@@ -188,6 +206,14 @@ public class NetSession : MonoBehaviour
             Log($"Rejected clientId={request.ClientNetworkId}: version '{payload}' != '{ProtocolVersion}'");
             return;
         }
+        // 途中参加は不可(Run開始の名簿に入っていない人は、Readyを送れず/走れない)。マルチのRunのシーンにいる間は断る(2026-10-02)
+        if (!isHostSelf && (NetRunLauncher.IsMultiplayerRun || NetRunLauncher.RunState != NetRunState.None))
+        {
+            response.Approved = false;
+            response.Reason = "RUN IN PROGRESS";
+            Log($"Rejected clientId={request.ClientNetworkId}: a run is in progress ({NetRunLauncher.RunState})");
+            return;
+        }
         if (!isHostSelf && Manager.ConnectedClientsIds.Count >= MaxPlayers)
         {
             response.Approved = false;
@@ -219,9 +245,15 @@ public class NetSession : MonoBehaviour
     {
         if (Manager.IsServer && clientId != NetworkManager.ServerClientId)
         {
-            Log($"Client disconnected clientId={clientId}");
-            StatusText = $"HOST: {Mathf.Max(1, Manager.ConnectedClientsIds.Count - 1)}/{MaxPlayers}人 接続中";
-            RaiseConnectionLost("MULTIPLAYER CONNECTION LOST\n相手プレイヤーが切断しました");
+            int pn = NetCombat.PlayerNumberOfClient(clientId);
+            if (pn <= 0 && NetMatch.Instance != null) foreach (var kv in NetMatch.Instance.Records) if (kv.Value.ClientId == clientId) pn = kv.Key; // 退出時は NetPlayer が先に消えていることがある
+            int others = 0;
+            foreach (ulong id in Manager.ConnectedClientsIds) if (id != NetworkManager.ServerClientId && id != clientId) others++;
+            Log($"Client disconnected clientId={clientId} (P{pn}) remaining others={others}");
+            StatusText = $"HOST: {1 + others}/{MaxPlayers}人 接続中";
+            // 2026-10-02(最大8人の予定): まだ他の参加者がいる時は通知だけ。全員いなくなった時は従来どおりの画面
+            if (others > 0) NetDebugUI.Toast($"P{(pn > 0 ? pn.ToString() : "?")} が切断しました(残り{1 + others}人)");
+            else RaiseConnectionLost("MULTIPLAYER CONNECTION LOST\n" + (pn > 0 ? $"P{pn}" : "相手プレイヤー") + "が切断しました");
             return;
         }
         if (!Manager.IsServer)

@@ -50,6 +50,7 @@ public class RemotePlayerAvatar : MonoBehaviour
         avatar.visual = visualGO.transform;
         avatar.sr = sr;
         avatar.owner = owner;
+        avatar.depthZ = 0.01f * Mathf.Clamp(owner.PlayerNumber, 1, 16); // 相手同士が重なった時の前後(番号の小さい人が手前、毎フレーム入れ替わらない)
         // PlayerAnimatorはAwakeで子のSpriteRendererを探すため、Visualを作った後に追加する。
         avatar.anim = root.AddComponent<PlayerAnimator>();
         avatar.anim.InitPuppet(template, def);
@@ -58,7 +59,7 @@ public class RemotePlayerAvatar : MonoBehaviour
 
     public void Apply(NetPlayerSnapshot d, double logicalX, float y, float visPosX, float visPosY, float visRotZ, float visScaleX, float visScaleY, float rootRotZ)
     {
-        transform.position = new Vector3((float)(logicalX - FloatingOrigin.Offset), y, 0f);
+        transform.position = new Vector3((float)(logicalX - FloatingOrigin.Offset), y, depthZ);
         transform.rotation = Quaternion.Euler(0f, 0f, rootRotZ);
         transform.localScale = new Vector3(d.RootScaleX < 0f ? -1f : 1f, 1f, 1f);
         visual.localPosition = new Vector3(visPosX, visPosY, visual.localPosition.z);
@@ -68,6 +69,8 @@ public class RemotePlayerAvatar : MonoBehaviour
         sr.enabled = (d.Flags & NetPlayerSnapshot.FlagVisible) != 0;
         anim.SetPuppetPose((PlayerAnimator.State)d.State, d.Frame, d.AttackStage, d.FinishTier);
     }
+
+    float depthZ;
 
     public void SetHidden()
     {

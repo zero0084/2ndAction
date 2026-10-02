@@ -183,11 +183,12 @@ public class NetCombat : MonoBehaviour
     {
         NetworkManager nm = NetSession.Manager;
         bool active = NetSession.IsActive && nm != null && nm.CustomMessagingManager != null;
+        if (active) NetStats.Frame(); // 送受信量/フレーム時間の1秒ごとの集計(人数を増やした時の比較用)
         if (active && (!handlersRegistered || registeredManager != nm))
         {
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgReliable, OnReliable);
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgState, OnState);
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgHit, OnHitRequest);
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgReliable, NetStats.Counted(MsgReliable, OnReliable));
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgState, NetStats.Counted(MsgState, OnState));
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgHit, NetStats.Counted(MsgHit, OnHitRequest));
             handlersRegistered = true;
             registeredManager = nm;
         }
@@ -512,7 +513,7 @@ public class NetCombat : MonoBehaviour
         foreach (ulong clientId in nm.ConnectedClientsIds)
         {
             if (clientId == NetworkManager.ServerClientId) continue;
-            nm.CustomMessagingManager.SendNamedMessage(MsgReliable, clientId, w, NetworkDelivery.ReliableSequenced);
+            NetStats.SendNamed(nm.CustomMessagingManager, MsgReliable, clientId, w, NetworkDelivery.ReliableSequenced);
         }
     }
 
@@ -559,7 +560,7 @@ public class NetCombat : MonoBehaviour
                 foreach (ulong clientId in nm.ConnectedClientsIds)
                 {
                     if (clientId == NetworkManager.ServerClientId) continue;
-                    nm.CustomMessagingManager.SendNamedMessage(MsgState, clientId, w, NetworkDelivery.UnreliableSequenced);
+                    NetStats.SendNamed(nm.CustomMessagingManager, MsgState, clientId, w, NetworkDelivery.UnreliableSequenced);
                 }
             }
         }
@@ -749,6 +750,7 @@ public class NetCombat : MonoBehaviour
         if (seen.Count > 4096) seen.Clear();
 
         int attacker = PlayerNumberOfClient(senderClientId);
+        if (attacker <= 0) { StatHitRequestsIgnored++; Log("HIT", $"request id={id} from unknown client {senderClientId} ignored"); return; }
         if (seed != NetRunLauncher.ActiveRunSeed || !entities.TryGetValue(id, out Entity e) || e.Go == null)
         {
             StatHitRequestsIgnored++;
@@ -777,8 +779,8 @@ public class NetCombat : MonoBehaviour
 
     public static int PlayerNumberOfClient(ulong clientId)
     {
-        foreach (NetPlayer p in NetPlayer.All) if (p.OwnerClientId == clientId) return p.PlayerNumber;
-        return 2;
+        foreach (NetPlayer p in NetPlayer.All) if (p.OwnerClientId == clientId && p.PlayerNumber > 0) return p.PlayerNumber;
+        return 0; // 2026-10-02: 不明(以前は2を返していたため、3人目以降の知らない接続がP2扱いになり得た)
     }
 
     // ===================================================================== //
@@ -1242,7 +1244,7 @@ public class NetCombat : MonoBehaviour
             w.WriteValueSafe(netId); w.WriteValueSafe(seq); w.WriteValueSafe(damage); w.WriteValueSafe(kind);
             w.WriteValueSafe(contactScene.x + FloatingOrigin.Offset); w.WriteValueSafe(contactScene.y);
             w.WriteValueSafe(v.x); w.WriteValueSafe(v.y); w.WriteValueSafe(vdur);
-            nm.CustomMessagingManager.SendNamedMessage(MsgHit, NetworkManager.ServerClientId, w, NetworkDelivery.ReliableSequenced);
+            NetStats.SendNamed(nm.CustomMessagingManager, MsgHit, NetworkManager.ServerClientId, w, NetworkDelivery.ReliableSequenced);
         }
         if (op == HitDamage)
         {
@@ -1283,15 +1285,25 @@ public class NetCombat : MonoBehaviour
             GUI.color = Color.white;
             GUI.Label(rect, text, labelStyle);
         }
-        var panel = new Rect(10f, Screen.height - 170f, 380f, 150f);
+        var panel = new Rect(10f, Screen.height - 230f, 520f, 210f);
         GUI.color = new Color(0f, 0f, 0f, 0.6f);
         GUI.DrawTexture(panel, Texture2D.whiteTexture);
         GUI.color = Color.white;
         var sb = new System.Text.StringBuilder();
         sb.Append($"NET COMBAT [{role}] me=P{LocalPlayerNumber} shared={entities.Count}\n");
         sb.Append($"spawn={StatSpawns} dmgEv={StatDamageEvents} death={StatDeaths} req sent={StatHitRequestsSent} applied={StatHitRequestsApplied} ignored={StatHitRequestsIgnored} dup={StatDuplicateHits}\n");
+        sb.Append(LoadSummary()).Append('\n');
         for (int i = Mathf.Max(0, KillLog.Count - 5); i < KillLog.Count; i++) sb.Append(KillLog[i]).Append('\n');
         GUI.Label(new Rect(panel.x + 8f, panel.y + 4f, panel.width - 16f, panel.height - 8f), sb.ToString());
+    }
+
+    // 負荷の目安(2026-10-02、最大8人の予定): 送受信量・フレーム時間・同期している敵/ボス/飛び道具の数。開発用パネルと自動テストのログ。
+    public int SharedEnemyCount { get { int n = 0; foreach (var e in entities.Values) if (e.Kind == Kind.Enemy && !e.Dead) n++; return n; } }
+    public int SharedBossCount { get { int n = 0; foreach (var e in entities.Values) if (e.Kind == Kind.Boss && !e.Dead) n++; return n; } }
+    public static string LoadSummary()
+    {
+        var nc = Instance; var ats = NetAttackSync.Instance;
+        return $"{NetStats.Summary()}\nsync enemies={(nc != null ? nc.SharedEnemyCount : 0)} bosses={(nc != null ? nc.SharedBossCount : 0)} projectiles/attacks={(ats != null ? ats.TrackedCount : 0)} remotes={(nc != null ? nc.remotePlayers.Count : 0)}";
     }
 
     // 自動テスト用: 生存中の共有エンティティの要約(両端末で比較する)。

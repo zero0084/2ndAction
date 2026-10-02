@@ -133,7 +133,7 @@ public partial class NetMatch
                 long key = ((long)down.Pn << 16) | (uint)donor.Pn;
                 bool was = reviveAvailLogged.TryGetValue(key, out bool w) && w;
                 if (ok != was) { reviveAvailLogged[key] = ok; Log($"REVIVE {(ok ? "AVAILABLE" : "unavailable")} down=P{down.Pn} donor=P{donor.Pn} {why}"); }
-                else if (periodic) Log($"revive check down=P{down.Pn} donor=P{donor.Pn} -> {(ok ? "YES" : "NO")} {why}");
+                else if (periodic && recs.Count <= 2) Log($"revive check down=P{down.Pn} donor=P{donor.Pn} -> {(ok ? "YES" : "NO")} {why}"); // 3人以上は変化した時だけ
             }
         }
     }
@@ -349,11 +349,11 @@ public partial class NetMatch
         var sb = new StringBuilder();
         sb.Append(Mode == MultiplayerGameMode.Coop ? "<color=#8fe3ff>CO-OP</color>" : "<color=#ffb070>VERSUS</color>");
         if (me != null) sb.Append($"  P{local} HP {me.Hp}/{me.MaxHp}  {me.State}");
-        int reviveTarget = 0; string reviveText = null;
+        var reviveTargets = new System.Collections.Generic.List<int>(); string reviveText = null; int lines = 1;
         foreach (var r in recs.Values)
         {
             if (r.Pn == local) continue;
-            sb.Append($"\nP{r.Pn}: {r.State} HP {r.Hp}  {(r.State == PState.Down ? r.DownDistance : r.State == PState.Eliminated ? r.FinalDistance : r.Distance):F0}m");
+            sb.Append($"\nP{r.Pn}: {r.State} HP {r.Hp}  {(r.State == PState.Down ? r.DownDistance : r.State == PState.Eliminated ? r.FinalDistance : r.Distance):F0}m"); lines++;
             if (Mode == MultiplayerGameMode.Coop && r.State == PState.Down)
             {
                 sb.Append("\n<color=#ff8080>ALLY DOWN</color>");
@@ -361,26 +361,29 @@ public partial class NetMatch
                 {
                     double gap = r.DownDistance - me.Distance;
                     sb.Append(gap > 0 ? $"\nDISTANCE TO ALLY: {gap:F0}m" : $"\nALLY IS {-gap:F0}m BEHIND YOU");
-                    if (CanRevive(r, me, out string why)) { reviveTarget = r.Pn; reviveText = $"REVIVE AVAILABLE  Donor HP = {me.Hp}"; }
+                    lines += 2;
+                    if (CanRevive(r, me, out string why)) { reviveTargets.Add(r.Pn); reviveText = $"REVIVE AVAILABLE  Donor HP = {me.Hp}"; }
                     else if (me.Hp <= CombatScale.PlayerHit) sb.Append($"\nREVIVE: NOT POSSIBLE (Donor HP = {me.Hp}, need {CombatScale.PlayerHit + 1}+)");
                 }
             }
         }
         if (me != null && me.State == PState.Down)
-            sb.Append($"\n<color=#ff8080>YOU ARE DOWN at {me.DownDistance:F0}m</color> - waiting for an ally with HP 2+ to reach this point");
+            sb.Append($"\n<color=#ff8080>YOU ARE DOWN at {me.DownDistance:F0}m</color> - waiting for an ally with HP {CombatScale.PlayerHit + 1}+ to reach this point");
         if (me != null && me.State == PState.Eliminated)
             sb.Append($"\n<color=#ff8080>ELIMINATED</color>  FinalDistance = {me.FinalDistance:F0}m");
         if (reviveText != null) sb.Append($"\n<color=#80ff80>{reviveText}</color>");
         GUI.color = new Color(0f, 0f, 0f, 0.5f);
         float py = h * 0.30f;
-        GUI.DrawTexture(new Rect(10f, py, 440f, 170f), Texture2D.whiteTexture);
+        lines += 3;
+        float boxH = Mathf.Max(170f, 8f + lines * 24f);
+        GUI.DrawTexture(new Rect(10f, py, 440f, boxH), Texture2D.whiteTexture);
         GUI.color = Color.white;
-        GUI.Label(new Rect(18f, py + 4f, 430f, 170f), sb.ToString(), hudStyle);
+        GUI.Label(new Rect(18f, py + 4f, 430f, boxH), sb.ToString(), hudStyle);
 
-        if (reviveTarget > 0 && !runOver)
-        {
-            if (GUI.Button(new Rect(18f, py + 178f, 240f, 60f), $"REVIVE P{reviveTarget}", hudButton)) RequestRevive(reviveTarget);
-        }
+        // 復活: 倒れていて自分が助けられる人ごとにボタン(最大8人の予定。誰を助けるかを選べる)
+        if (!runOver)
+            for (int i = 0; i < reviveTargets.Count; i++)
+                if (GUI.Button(new Rect(18f + (i % 3) * 250f, py + boxH + 8f + (i / 3) * 66f, 240f, 60f), $"REVIVE P{reviveTargets[i]}", hudButton)) RequestRevive(reviveTargets[i]);
 
         if (runOver && results.Count > 0)
         {

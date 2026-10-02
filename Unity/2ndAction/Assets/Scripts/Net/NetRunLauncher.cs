@@ -140,11 +140,11 @@ public class NetRunLauncher : MonoBehaviour
         bool active = NetSession.IsActive && nm.CustomMessagingManager != null;
         if (active && (!handlerRegistered || registeredManager != nm))
         {
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(RunStartMessage, OnRunStartMessage);
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(RunReadyMessage, OnRunReadyMessage);
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(RunGoMessage, OnRunGoMessage);
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(ClockPingMessage, OnClockPing);
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(ClockPongMessage, OnClockPong);
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(RunStartMessage, NetStats.Counted(RunStartMessage, OnRunStartMessage));
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(RunReadyMessage, NetStats.Counted(RunReadyMessage, OnRunReadyMessage));
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(RunGoMessage, NetStats.Counted(RunGoMessage, OnRunGoMessage));
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(ClockPingMessage, NetStats.Counted(ClockPingMessage, OnClockPing));
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(ClockPongMessage, NetStats.Counted(ClockPongMessage, OnClockPong));
             handlerRegistered = true;
             clockSamples = 0; clockRing = 0; clockBestRtt = double.MaxValue; clockOffset = 0.0;
             registeredManager = nm;
@@ -172,7 +172,7 @@ public class NetRunLauncher : MonoBehaviour
         using (var writer = new FastBufferWriter(16, Allocator.Temp))
         {
             writer.WriteValueSafe(Time.realtimeSinceStartupAsDouble);
-            nm.CustomMessagingManager.SendNamedMessage(ClockPingMessage, NetworkManager.ServerClientId, writer, NetworkDelivery.Unreliable);
+            NetStats.SendNamed(nm.CustomMessagingManager, ClockPingMessage, NetworkManager.ServerClientId, writer, NetworkDelivery.Unreliable);
         }
     }
 
@@ -185,7 +185,7 @@ public class NetRunLauncher : MonoBehaviour
         {
             writer.WriteValueSafe(t0);
             writer.WriteValueSafe(Time.realtimeSinceStartupAsDouble);
-            nm.CustomMessagingManager.SendNamedMessage(ClockPongMessage, senderClientId, writer, NetworkDelivery.Unreliable);
+            NetStats.SendNamed(nm.CustomMessagingManager, ClockPongMessage, senderClientId, writer, NetworkDelivery.Unreliable);
         }
     }
 
@@ -276,7 +276,7 @@ public class NetRunLauncher : MonoBehaviour
         {
             writer.WriteValueSafe(CurrentSeed);
             writer.WriteValueSafe(goServerTime);
-            nm.CustomMessagingManager.SendNamedMessage(RunGoMessage, clientId, writer, NetworkDelivery.ReliableSequenced);
+            NetStats.SendNamed(nm.CustomMessagingManager, RunGoMessage, clientId, writer, NetworkDelivery.ReliableSequenced);
         }
     }
 
@@ -285,7 +285,7 @@ public class NetRunLauncher : MonoBehaviour
         using (var writer = new FastBufferWriter(16, Allocator.Temp))
         {
             writer.WriteValueSafe(CurrentSeed);
-            nm.CustomMessagingManager.SendNamedMessage(RunReadyMessage, NetworkManager.ServerClientId, writer, NetworkDelivery.ReliableSequenced);
+            NetStats.SendNamed(nm.CustomMessagingManager, RunReadyMessage, NetworkManager.ServerClientId, writer, NetworkDelivery.ReliableSequenced);
         }
     }
 
@@ -358,7 +358,7 @@ public class NetRunLauncher : MonoBehaviour
         {
             if (!p.IsOwner && p.Phase.Value == NetPlayer.PhaseInRun)
             {
-                NetDebugUI.Toast("相手プレイヤーがまだ走っています");
+                NetDebugUI.Toast("まだ走っているプレイヤーがいます");
                 return true;
             }
         }
@@ -378,7 +378,7 @@ public class NetRunLauncher : MonoBehaviour
             foreach (ulong clientId in nm.ConnectedClientsIds)
             {
                 if (clientId == NetworkManager.ServerClientId) continue;
-                nm.CustomMessagingManager.SendNamedMessage(RunStartMessage, clientId, writer, NetworkDelivery.ReliableSequenced);
+                NetStats.SendNamed(nm.CustomMessagingManager, RunStartMessage, clientId, writer, NetworkDelivery.ReliableSequenced);
             }
         }
         NetSession.Log($"Run start broadcast stage={stageId} seed={seed} mode={mode} (start time is decided after all players are ready)");

@@ -73,8 +73,8 @@ public class NetObstacles : MonoBehaviour
         bool active = NetSession.IsActive && nm != null && nm.CustomMessagingManager != null;
         if (active && (!handlersRegistered || registeredManager != nm))
         {
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgReliable, OnReliable);
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgHit, OnHitRequest);
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgReliable, NetStats.Counted(MsgReliable, OnReliable));
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(MsgHit, NetStats.Counted(MsgHit, OnHitRequest));
             handlersRegistered = true;
             registeredManager = nm;
         }
@@ -148,7 +148,7 @@ public class NetObstacles : MonoBehaviour
         foreach (ulong clientId in nm.ConnectedClientsIds)
         {
             if (clientId == NetworkManager.ServerClientId) continue;
-            nm.CustomMessagingManager.SendNamedMessage(MsgReliable, clientId, w, NetworkDelivery.ReliableSequenced);
+            NetStats.SendNamed(nm.CustomMessagingManager, MsgReliable, clientId, w, NetworkDelivery.ReliableSequenced);
         }
     }
 
@@ -163,6 +163,7 @@ public class NetObstacles : MonoBehaviour
         if (!seen.Add(hitSeq)) { StatDupHits++; return; }
         if (seen.Count > 4096) seen.Clear();
         int attacker = NetCombat.PlayerNumberOfClient(sender);
+        if (attacker <= 0) { StatHitReqIgnored++; Log($"hit request id={id} from unknown client {sender} ignored"); return; }
         if (seed != NetRunLauncher.ActiveRunSeed || !byId.TryGetValue(id, out var o) || o == null || o.Broken)
         {
             StatHitReqIgnored++;
@@ -187,7 +188,7 @@ public class NetObstacles : MonoBehaviour
             w.WriteValueSafe(o.NetId);
             w.WriteValueSafe(++Instance.localHitSeq);
             w.WriteValueSafe(damage);
-            nm.CustomMessagingManager.SendNamedMessage(MsgHit, NetworkManager.ServerClientId, w, NetworkDelivery.ReliableSequenced);
+            NetStats.SendNamed(nm.CustomMessagingManager, MsgHit, NetworkManager.ServerClientId, w, NetworkDelivery.ReliableSequenced);
         }
         StatHitReqSent++;
     }

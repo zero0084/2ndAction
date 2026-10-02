@@ -128,7 +128,7 @@ public class NetDebugUI : MonoBehaviour
         GUILayout.BeginArea(new Rect(panel.x + 20f, panel.y + 16f, pw - 40f, ph - 32f));
 
         GUILayout.Label("LOCAL MULTIPLAYER (開発版)", titleStyle);
-        GUILayout.Label("同じWi-Fi、または片方のスマホのテザリングに2台を接続してください。", smallStyle);
+        GUILayout.Label($"同じWi-Fi、またはスマホのテザリングに接続してください(最大{NetSession.MaxPlayers}人)。", smallStyle);
         GUILayout.Space(6f);
 
         string ips = localIps.Count > 0 ? string.Join("  /  ", localIps) : "(取得できません - 端末のWi-Fi設定で確認してください)";
@@ -222,7 +222,10 @@ public class NetDebugUI : MonoBehaviour
                 text += $"  P{p.PlayerNumber}:{(p.Phase.Value == NetPlayer.PhaseInRun ? $"走行中 遅延{p.PlaybackLag * 1000f:F0}ms" : p.Phase.Value == NetPlayer.PhaseRunEnded ? "終了" : "Home")}";
             }
         }
-        Rect r = new Rect(w * 0.5f - 240f, safeTop + 64f, 480f, 30f);
+        // 人数が増えても切れないよう、相手ごとに改行して高さを伸ばす(2026-10-02)
+        text = text.Replace("  P", "\nP");
+        int nLines = text.Split('\n').Length;
+        Rect r = new Rect(w * 0.5f - 240f, safeTop + 64f, 480f, 26f * nLines + 4f);
         GUI.Label(r, text, tagStyle);
     }
 

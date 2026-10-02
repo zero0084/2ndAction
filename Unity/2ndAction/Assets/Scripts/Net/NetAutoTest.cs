@@ -43,6 +43,7 @@ public class NetAutoTest : MonoBehaviour
     // Phase 2.5: 被弾テスト(無敵を切り、HPが減りすぎたら補充して最後まで走る) / 攻撃しないボット /
     // ボスの種類 / 強制レベルアップを一定時間選ばずに保持する(選択中も世界が進むかの確認)
     bool damageTest;
+    int expectPlayers = 2; // -netAutoPlayers N(4人/8人の試験)
     bool rematchTest; float rematchLogTimer; bool rematchUnlocked; // ボスの再戦(2026-10-02): HOST/JOINで同じボスか
     bool passive;
     string bossKind = "Wolf";
@@ -206,6 +207,7 @@ public class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoBossAt") float.TryParse(next, out bossAt);
             else if (a == "-netAutoBossHp") int.TryParse(next, out bossHp);
             else if (a == "-netAutoDamage") damageTest = true;
+            else if (a == "-netAutoPlayers") int.TryParse(next, out expectPlayers);
             else if (a == "-netAutoRematch") rematchTest = true;
             else if (a == "-netAutoPassive") passive = true;
             else if (a == "-netAutoBossKind") bossKind = next;
@@ -320,9 +322,9 @@ public class NetAutoTest : MonoBehaviour
                 Next(Step.WaitPlayers);
                 break;
             case Step.WaitPlayers:
-                if (NetSession.ConnectedPlayerCount >= 2 && stepTime > 2f)
+                if (NetSession.ConnectedPlayerCount >= expectPlayers && stepTime > 2f)
                 {
-                    L($"both players connected (players={NetSession.ConnectedPlayerCount})");
+                    L($"all {expectPlayers} players connected (players={NetSession.ConnectedPlayerCount})");
                     if (role == "HOST" && modeArg != "")
                     {
                         NetRunLauncher.SelectedMode = modeArg == "versus" ? MultiplayerGameMode.Versus : MultiplayerGameMode.Coop;
@@ -961,6 +963,15 @@ public class NetAutoTest : MonoBehaviour
         totalFrames += secFrames;
         secMaxStepErr = secMaxStep = 0f; secBackSteps = secFrames = 0;
 
+        // 全員分(3人以上の試験用。2人の時は上の行と同じ相手1人なので出さない)
+        if (NetPlayer.All.Count > 2)
+        {
+            var sbr = new System.Text.StringBuilder();
+            foreach (NetPlayer p in NetPlayer.All)
+                if (p != null && !p.IsOwner) sbr.Append($" P{p.PlayerNumber}:shown={(p.Avatar != null && p.Avatar.IsShown)} lagMs={p.PlaybackLag * 1000f:F0} snaps={p.SnapshotsReceived} dist={p.RemoteDistance:F0}");
+            L($"remotes t={runTime:F1} n={NetPlayer.All.Count - 1}{sbr}");
+        }
+        L($"load t={runTime:F1} " + NetCombat.LoadSummary().Replace("\n", " | ") + NetStats.KindSummary().Replace("\n", " |"));
         if (combat && NetCombat.Instance != null)
         {
             var nc = NetCombat.Instance;
