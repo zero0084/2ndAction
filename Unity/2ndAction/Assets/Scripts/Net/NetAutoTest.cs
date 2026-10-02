@@ -19,7 +19,7 @@ using UnityEngine;
 // 自分のプレイヤーは簡易ボットが操作する(穴の手前でジャンプ、定期的に二段ジャンプ/攻撃)。
 // 毎秒[NETTEST]行を出し、終了時に[NETTEST] SUMMARYで例外数と同期品質の集計を出す。
 [DefaultExecutionOrder(1200)] // NetPlayer(1100)が分身を置いた後に測る
-public class NetAutoTest : MonoBehaviour
+public partial class NetAutoTest : MonoBehaviour
 {
     string role = "";
     string joinIp = "127.0.0.1";
@@ -191,7 +191,8 @@ public class NetAutoTest : MonoBehaviour
         {
             string a = args[i];
             string next = i + 1 < args.Length ? args[i + 1] : "";
-            if (a == "-netAutoHost") role = "HOST";
+            if (ParseWorldArg(a, next)) { }
+            else if (a == "-netAutoHost") role = "HOST";
             else if (a == "-netAutoJoin") { role = "JOIN"; joinIp = next; }
             else if (a == "-netAutoStage") stage = next;
             else if (a == "-netAutoSpeed") float.TryParse(next, out speedMul);
@@ -369,6 +370,7 @@ public class NetAutoTest : MonoBehaviour
                 PeriodicLog(gm);
                 SceneryTest(gm);
                 BossRunLog(gm);
+                WorldTick(gm);
                 ChoiceTest(gm);
                 ChoiceMonitor(gm);
                 RemoteChoiceMonitor();
@@ -636,7 +638,7 @@ public class NetAutoTest : MonoBehaviour
         {
             choiceForced = true;
             choiceHoldUntil = runTime + choiceHold;
-            MethodInfo m = typeof(GameManager).GetMethod("TriggerLevelUpChoice", BindingFlags.Instance | BindingFlags.NonPublic);
+            MethodInfo m = typeof(GameManager).GetMethod(choiceForceOpen ? "RunLevelUpChoice" : "TriggerLevelUpChoice", BindingFlags.Instance | BindingFlags.NonPublic);
             if (m != null) m.Invoke(gm, null);
             L($"choice FORCED on {role} (me=P{NetCombat.LocalPlayerNumber}) hold={choiceHold:F1}s open={gm.IsLocalChoiceOpen} ts={Time.timeScale:F2}");
             SnapshotWorld(out choiceLastRemoteX, out choiceLastEnemySum, out choiceLastAttackCount);
@@ -1020,6 +1022,7 @@ public class NetAutoTest : MonoBehaviour
             L($"RUNBUILD role={role} slots={hud.Slots.Count} lvSum={lvSum} ownUpgrades={own} ownPicks={levelUps} match={(lvSum == own)} [{sb}]");
         }
         L($"OBSTACLES role={role} {ObstacleLine()}");
+        L(WorldSummary());
         L($"SUMMARY reason={reason} role={role} exceptions={exceptions} errors={errors} remoteShownSeconds={remoteShownSeconds} maxStepErr={totalMaxStepErr:F3} maxStep={totalMaxStep:F3} backSteps={totalBackSteps}/{totalFrames} sigA={sigA} sigB={sigB} sigC={sigC}");
         Invoke(nameof(Quit), 1f);
     }

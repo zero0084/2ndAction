@@ -360,6 +360,8 @@ public partial class GameManager : MonoBehaviour
     public float safeZoneLength = 15f;
     float safeZoneEndDistance = -1f;
     public bool IsInSafeZone => safeZoneEndDistance > 0f && MaxDistance < safeZoneEndDistance;
+    // マルチ Phase 3.1: 任意の距離(最前のプレイヤーの距離など)が開始直後の安全区間か
+    public bool IsDistanceInSafeZone(float distance) => safeZoneEndDistance > 0f && distance < safeZoneEndDistance;
 
     // Item 6/7 - Boss Reward reuses the exact same pending-choice machinery
     // as a normal Level Up (pendingChoices/levelUpPending/RewardCardSequence)

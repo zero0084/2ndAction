@@ -244,6 +244,8 @@ public partial class EnemySpecialBehavior
     // 画面に見えているか(予兆は見える所でだけ始める=画面外から突然攻撃しない)。
     bool SkyOnScreen(float margin = 0.6f)
     {
+        // マルチ Phase 3.1: HOSTは「参加中の誰かの画面に映っている」で判断(HOSTの画面だけだと、先へ行った人の前の敵が動かない)
+        if (NetCombat.Authority) return WorldRange.VisibleToAnyone(transform.position.x, margin);
         Camera cam = Camera.main;
         if (cam == null) return true;
         float half = cam.orthographicSize * cam.aspect;

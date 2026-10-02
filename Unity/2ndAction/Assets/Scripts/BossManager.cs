@@ -684,7 +684,8 @@ public partial class BossManager : MonoBehaviour
         if (player == null || dragonIdleFrames == null || dragonIdleFrames.Length == 0) return;
 
         float targetDistance = CurrentTargetDistance();
-        if (GameManager.Instance.MaxDistance >= targetDistance)
+        float gateDistance = GateDistance();
+        if (gateDistance >= targetDistance)
         {
             // Reserved immediately (not inside StartBossPhase any more) so
             // this Update() guard (top of the method) stops re-triggering
@@ -703,8 +704,10 @@ public partial class BossManager : MonoBehaviour
             if (GameManager.Instance != null)
             {
                 // ボス戦の強化(2026-10-01): 保留していた関門(すでに通り過ぎている)では距離を関門まで戻さない
-                if (GameManager.Instance.MaxDistance - targetDistance < 30f) GameManager.Instance.ClampMaxDistanceTo(targetDistance);
-                else Debug.Log($"[BossRun] PendingGateStart {targetDistance:F0}m at d={GameManager.Instance.MaxDistance:F0}");
+                float md = GameManager.Instance.MaxDistance;
+                if (md >= targetDistance - 0.5f && md - targetDistance < 30f) GameManager.Instance.ClampMaxDistanceTo(targetDistance);
+                else if (md < targetDistance) Debug.Log($"[BossRun] Gate {targetDistance:F0}m reached by the front player P{WorldRange.WorldFrontPlayer} (front={gateDistance:F0}m, HOST={md:F0}m) - HOST distance not moved");
+                else Debug.Log($"[BossRun] PendingGateStart {targetDistance:F0}m at d={md:F0}");
                 // Bugfix 2026-09-06, item "Boss中Distanceの根本修正" - marks
                 // the exact moment raw Player movement stops counting
                 // toward Distance (see GameManager.BeginBossDistanceExclusion's
@@ -730,6 +733,35 @@ public partial class BossManager : MonoBehaviour
         }
     }
 
+    // ===== マルチ Phase 3.1: ボスの関門と登場位置は「走っている全員の最前」(WorldFront)基準 =====
+    // HOSTがカード選択/DOWN/後方でも、最前の人が関門に着けばボスが始まる(出すのは今まで通りHOST)。
+    // シングル/JOINは今まで通り自分の距離。
+    float GateDistance()
+    {
+        GameManager gm = GameManager.Instance;
+        if (gm == null) return 0f;
+        if (!NetCombat.Authority || !WorldRange.HasAlive) return gm.MaxDistance;
+        return Mathf.Max(gm.MaxDistance, WorldRange.WorldFrontDistance);
+    }
+
+    // ボスの登場位置の基準: マルチのHOSTは最前で走っている人(カード選択中でない)、それ以外は自分
+    Transform SpawnRef()
+    {
+        if (!NetCombat.Authority || !WorldRange.HasAlive) return player;
+        var f = WorldRange.FrontRunning();
+        return f.T != null ? f.T : player;
+    }
+
+    // ボス戦の開始で雑魚を片付ける: シングルは全部(従来どおり)。マルチは「ボスが出る辺り」(最前の人の画面の少し後ろから先)だけ。
+    // 後ろの人がこれから戦うはずの雑魚まで消さない。
+    void ClearEnemiesForBoss()
+    {
+        TerrainManager tm = TerrainManager.Instance;
+        if (tm == null) return;
+        if (NetCombat.Authority && WorldRange.ActiveCount > 1) tm.ClearEnemiesFrom(SpawnRef().position.x - 30f);
+        else tm.ClearAllEnemies();
+    }
+
     void StartBossPhase()
     {
         IsBossPhase = true; // idempotent - already set above when the presentation exists
@@ -752,7 +784,7 @@ public partial class BossManager : MonoBehaviour
         // base auto-run speed every frame so it holds a constant distance
         // while running, and only an attack lunge/recoil actually changes
         // the gap.
-        if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
+        ClearEnemiesForBoss();
 
         float[] dragonDistances = BuildScatteredDistances(dragonCount, dragonStandoffDistance, dragonSpacing, dragonScatterJitter);
         for (int i = 0; i < dragonCount; i++)
@@ -870,7 +902,7 @@ public partial class BossManager : MonoBehaviour
         dragonFacing.player = player;
 
         configure?.Invoke(dragon);
-        dragon.Init(player);
+        dragon.Init(SpawnRef());
     }
 
     // Distance Level Design Ver.1 - visually distinct (Mechanical Dragon's
@@ -932,7 +964,7 @@ public partial class BossManager : MonoBehaviour
         facing.alwaysFacePlayer = true;
         facing.player = player;
 
-        dragon.Init(player);
+        dragon.Init(SpawnRef());
         if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[Boss] MechanicalDragon Spawn");
     }
 
@@ -1004,7 +1036,7 @@ public partial class BossManager : MonoBehaviour
         majinFacing.player = player;
 
         configure?.Invoke(majin);
-        majin.Init(player);
+        majin.Init(SpawnRef());
     }
 
     // Only ends the boss phase once every dragon AND every majin spawned
@@ -1126,7 +1158,7 @@ public partial class BossManager : MonoBehaviour
         aliveDragonsThisEncounter = 0;
         aliveMajinsThisEncounter = 0;
         aliveWildThisEncounter = 0;
-        if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
+        ClearEnemiesForBoss();
 
         if (IsLastStage)
         {
@@ -1185,7 +1217,7 @@ public partial class BossManager : MonoBehaviour
             // このコンポーネントの寿命(CheckEncounterComplete)で必ず解除)。
             if (TerrainManager.Instance != null && TerrainManager.Instance.cave != null && player != null)
             {
-                TerrainManager.Instance.cave.SetBossClearZone(player.position.x, 40f);
+                TerrainManager.Instance.cave.SetBossClearZone(SpawnRef().position.x, 40f);
             }
             for (int i = 0; i < caveCount; i++) SpawnCaveBoss(caveKind, i);
 
@@ -1303,7 +1335,7 @@ public partial class BossManager : MonoBehaviour
         // 素材が無い場合でも戦えるよう、単色ブロックで代用(見た目は仮)
         if (boss.idleSprite == null) boss.idleSprite = squareSprite;
 
-        boss.Init(player);
+        boss.Init(SpawnRef());
     }
 
     // ===== 自然洞窟ボス: 種別ごとの既定値/生成(SpecFor/FindArt/SpawnWildと同じ形) =====
@@ -1396,7 +1428,7 @@ public partial class BossManager : MonoBehaviour
         if (boss.idleSprite == null) boss.idleSprite = CaveBodySilhouette(kind);
         if (boss.windupSprite == null) boss.windupSprite = boss.idleSprite;
 
-        boss.Init(player);
+        boss.Init(SpawnRef());
     }
 
     static Sprite CaveBodySilhouette(CaveBossKind kind)
@@ -1567,7 +1599,7 @@ public partial class BossManager : MonoBehaviour
         if (boss.idleSprite == null) boss.idleSprite = SkyBossFx.Placeholder(kind);
         if (boss.windupSprite == null) boss.windupSprite = boss.idleSprite;
 
-        boss.Init(player);
+        boss.Init(SpawnRef());
     }
 
     // 80,000m ドラゴン: 既存DragonControllerに突進と着地攻撃を有効化して流用。
@@ -1616,7 +1648,7 @@ public partial class BossManager : MonoBehaviour
         facing.alwaysFacePlayer = true;
         facing.player = player;
 
-        dragon.Init(player);
+        dragon.Init(SpawnRef());
     }
 
 #if UNITY_EDITOR

@@ -242,30 +242,29 @@ public class EncounterDirector : MonoBehaviour
         if (NetCombat.SuppressLocalEnemySpawn) return; // JOIN: 敵はHOSTが出す
         if (tm.enemySpawnChance <= 0f) return;          // 敵の出現そのものを止めている(自動テスト等の既存の切り替え)
 
-        // 2026-10-02(マルチ最大8人の予定): HOSTは自分ではなく活動中のプレイヤーの最前を基準にする(ソロ/JOINは自分)。
-        // 距離の帯(runDistance)も同じだけずらす。HOSTがDOWN/脱落して止まっても、走っている人の前に敵が出続ける。
-        float hostX = pc.transform.position.x;
-        float anchorX = NetCombat.ForemostPlayerX(hostX);
-        float foremostOffset = anchorX - hostX;
-        double playerLogical = FloatingOrigin.ToLogical(anchorX);
-        float speed = SpeedScale(pc);
-        float visibleAhead = VisibleAhead(pc);
+        // マルチ Phase 3.1(最大8人の予定): 出現の基準は HOST ではなく WorldFront(ALIVEで走っている全員の最前)。
+        // HOSTがカード選択で止まっている/DOWN/後方でも、最前の人の前に敵が出続ける。出すのは今まで通りHOSTだけ。
+        // シングル/JOINは自分(JOINはここまで来ない)。距離の帯は「HOSTの距離の物差し」(RunDistanceAt)で数える。
+        UpdateReference(pc, gm);
+        double playerLogical = refLogical;
+        float speed = refSpeed;
+        float visibleAhead = refVisibleAhead;
         float ahead = Mathf.Max(profile.spawnAheadDistance * Mathf.Lerp(1f, speed, 0.5f), visibleAhead + profile.offscreenMargin);
-        PruneSpans(playerLogical);
+        PruneSpans(FloatingOrigin.ToLogical(WorldRange.WorldBackSceneX)); // 最後尾の人がまだ通っていない区間の記録は残す
         ExtendGeneration(tm, ahead);
 
-        if (SuppressAt != null && SuppressAt(gm.MaxDistance))
+        if (SuppressAt != null && SuppressAt(RefDistance))
         {
             SuppressedFrames++;
             if (nextAnchor < playerLogical + ahead) nextAnchor = playerLogical + ahead;
             return;
         }
         bool bossPhase = BossManager.Instance != null && BossManager.Instance.SpawnsHeld; // ボス戦の強化: ラン再開後は雑魚を戻す
-        bool pauseNow = bossPhase || gm.IsInSafeZone || gm.CountdownActive || pc.IsFinishing;
+        bool pauseNow = bossPhase || gm.IsDistanceInSafeZone(RefDistance) || gm.CountdownActive || (refIsLocal && pc.IsFinishing);
         if (pauseNow)
         {
             // 止めている間に出現位置がプレイヤーに追い越されないよう、前方へ送り続ける。
-            if (!paused) { paused = true; pausedForBoss = bossPhase; Debug.Log($"[ENCOUNTER] paused ({(bossPhase ? "boss phase" : gm.IsInSafeZone ? "safe zone" : "countdown/finish")})"); }
+            if (!paused) { paused = true; pausedForBoss = bossPhase; Debug.Log($"[ENCOUNTER] paused ({(bossPhase ? "boss phase" : gm.IsDistanceInSafeZone(RefDistance) ? "safe zone" : "countdown/finish")})"); }
             if (bossPhase) pausedForBoss = true;
             if (nextAnchor < playerLogical + ahead) nextAnchor = playerLogical + ahead;
             return;
@@ -310,7 +309,10 @@ public class EncounterDirector : MonoBehaviour
         {
             float sceneAnchor = (float)(nextAnchor - FloatingOrigin.Offset);
             if (!tm.IsGenerated(sceneAnchor + 30f) || (tm.cave != null && tm.cave.Active && tm.cave.GeneratedEndX < sceneAnchor + 30f)) break;
-            float runDistance = gm.MaxDistance + foremostOffset + (float)(nextAnchor - playerLogical) + DebugDistanceOffset;
+            float runDistance = RunDistanceAt(nextAnchor);
+            // 二重生成の防止(3.1): 同じ出現位置(1m単位)は1回しか決めない。最前の人が入れ替わっても基準点は前へしか進まないが、念のためHOSTで一意に管理する。
+            long key = (long)System.Math.Round(nextAnchor);
+            if (plannedAnchors.Contains(key)) { DuplicateAnchorsBlocked++; nextAnchor = key + 1.0; continue; }
             if (runDistance < profile.noEncounterBeforeDistance)
             {
                 nextAnchor += profile.noEncounterBeforeDistance - runDistance + 1f;
@@ -333,7 +335,7 @@ public class EncounterDirector : MonoBehaviour
                     if (forkLogical > lastBranchForkLogical + 1.0)
                     {
                         lastBranchForkLogical = forkLogical;
-                        float forkDistance = gm.MaxDistance + (float)(forkLogical - playerLogical) + DebugDistanceOffset;
+                        float forkDistance = RunDistanceAt(forkLogical);
                         if (DebugDistanceOffset != 0f || !BossNear(forkDistance)) PlanBranch(tm, pc, fork, merge, forkDistance, speed);
                     }
                     nextAnchor = FloatingOrigin.ToLogical(merge) + Range(profile.afterMergeGap) * GapScale(speed);
@@ -341,8 +343,64 @@ public class EncounterDirector : MonoBehaviour
                 }
                 mainLimit = fork - profile.routeLead;
             }
+            plannedAnchors.Add(key);
+            NoteSpawnLead(nextAnchor - refRealLogical);
             PlanAt(tm, pc, runDistance, speed, mainLimit);
         }
+    }
+
+    // ===================================================================== //
+    // 出現の基準(マルチ Phase 3.1)
+    // ===================================================================== //
+    double refLogical, refRealLogical, hostLogical;
+    public static bool DebugLegacyHostAnchor;   // 自動テストの比較用: 3.1以前と同じ「HOST自身の位置」を基準にする(-netAutoLegacyAnchor)
+    float refX, refSpeed = 1f, refVisibleAhead = 20f;
+    bool refIsLocal = true;
+    public int RefPlayer { get; private set; }
+    float RefDistance => RunDistanceAt(refRealLogical) - DebugDistanceOffset;
+    readonly HashSet<long> plannedAnchors = new HashSet<long>();
+    public int DuplicateAnchorsBlocked { get; private set; }
+    public float MinSpawnLead { get; private set; } = float.MaxValue;   // 出現を決めた時の「最前の人からの距離」の最小(m)
+    public float LastSpawnLead { get; private set; }
+    public readonly int[] SpawnsByFront = new int[9];                    // 出現を決めた時の最前の人(P0=シングル〜P8)
+
+    // HOSTの距離の物差しで、論理X位置の距離
+    float RunDistanceAt(double logical) => GameManager.Instance.MaxDistance + (float)(logical - hostLogical) + DebugDistanceOffset;
+
+    void UpdateReference(PlayerController pc, GameManager gm)
+    {
+        float hostX = pc.transform.position.x;
+        hostLogical = FloatingOrigin.ToLogical(hostX);
+        WorldRange.PlayerPoint f = NetCombat.Authority ? WorldRange.Front : default;
+        refIsLocal = !NetCombat.Authority || f.IsLocal || f.T == null || DebugLegacyHostAnchor;
+        if (refIsLocal)
+        {
+            refX = hostX;
+            refSpeed = SpeedScale(pc);
+            refVisibleAhead = VisibleAhead(pc);
+            refRealLogical = refLogical = hostLogical;
+            RefPlayer = NetCombat.Authority ? NetCombat.LocalPlayerNumber : 0;
+            return;
+        }
+        // 相手が最前: 分身の位置は通信と補間のぶん少し遅れて見えるので、その分(約0.3秒)だけ先を基準にする。
+        // 速さは相手の走行速度から(高速の相手の前ほど遠くに出す)。画面の見える範囲は、相手のカメラが
+        // 速度で前へずれていても足りるよう、画面の幅いっぱいを上限として見込む。
+        refX = f.SceneX;
+        refRealLogical = FloatingOrigin.ToLogical(f.SceneX);
+        refLogical = refRealLogical + f.RunSpeed * 0.3f;
+        float unit = Mathf.Max(0.5f, pc.runSpeed);
+        refSpeed = Mathf.Max(1f, Mathf.Max(f.RunSpeed / unit, Mathf.Min(SpeedScale(pc), 1f)));
+        Camera cam = Camera.main;
+        float fullWidth = cam != null ? cam.orthographicSize * cam.aspect * 2f : 32f;
+        refVisibleAhead = Mathf.Max(VisibleAhead(pc), fullWidth - 2f);
+        RefPlayer = f.Pn;
+    }
+
+    void NoteSpawnLead(double lead)
+    {
+        LastSpawnLead = (float)lead;
+        if (LastSpawnLead < MinSpawnLead) MinSpawnLead = LastSpawnLead;
+        SpawnsByFront[Mathf.Clamp(RefPlayer, 0, SpawnsByFront.Length - 1)]++;
     }
 
     // ===================================================================== //
@@ -356,6 +414,8 @@ public class EncounterDirector : MonoBehaviour
     // ラン単位の値はすべて ResetState にまとめてある(ここではステージのProfileを取り直してから呼ぶだけ)。
     void ResetForNewRun(GameManager gm)
     {
+        plannedAnchors.Clear(); DuplicateAnchorsBlocked = 0; MinSpawnLead = float.MaxValue; LastSpawnLead = 0f;
+        System.Array.Clear(SpawnsByFront, 0, SpawnsByFront.Length);
         var bm = BossManager.Instance;
         Debug.Log($"[Encounter] NewRunReset (previous: BossActive={logBoss} BonusActive={logBonus} Paused={paused} Profile={(profile != null ? "OK" : "NULL")} ProfileStage={profileStage ?? "-"})");
         profileStage = gm.ActiveRunStageId;
@@ -383,10 +443,10 @@ public class EncounterDirector : MonoBehaviour
         bonusWasActive = true;
         // 区画の間に出現範囲へ入った上下ルートの分岐は「中身なし」で決めたことにする
         // (戻った直後に近くの分岐の中身を慌てて置くと、目の前に通常の敵が現れるため)
-        if (profile.routeEncounters && tm.TryGetBranchAfter(pc.transform.position.x - 5f, out float bf, out float bm, out bool bg) && bg)
+        if (profile.routeEncounters && tm.TryGetBranchAfter(refX - 5f, out float bf, out float bm, out bool bg) && bg)
         {
             double forkLogical = FloatingOrigin.ToLogical(bf);
-            if (forkLogical > lastBranchForkLogical + 1.0 && bf - pc.transform.position.x <= ahead + profile.routeLead + 10f) lastBranchForkLogical = forkLogical;
+            if (forkLogical > lastBranchForkLogical + 1.0 && bf - refX <= ahead + profile.routeLead + 10f) lastBranchForkLogical = forkLogical;
         }
         if (!bonus.SpawningAllowed)
         {
@@ -409,7 +469,7 @@ public class EncounterDirector : MonoBehaviour
             if (!tm.IsGenerated(sceneAnchor + 30f) || (tm.cave != null && tm.cave.Active && tm.cave.GeneratedEndX < sceneAnchor + 30f)) break;
             EncounterFormation f = bonus.NextFormation(out Vector2 gap);
             if (f == null) { nextAnchor += 10f; continue; }
-            float runDistance = gm.MaxDistance + (float)(nextAnchor - FloatingOrigin.ToLogical(pc.transform.position.x)); // 基準が最前のプレイヤーでも距離の帯はHOST基準のMaxDistanceから
+            float runDistance = RunDistanceAt(nextAnchor) - DebugDistanceOffset; // 基準が最前のプレイヤーでも距離の帯はHOSTの物差しで
             bool ok = false;
             for (int shift = 0; shift < 8 && !ok; shift++)
             {
@@ -445,13 +505,13 @@ public class EncounterDirector : MonoBehaviour
 
     void PlanUpcomingBranch(TerrainManager tm, PlayerController pc, GameManager gm, double playerLogical, float ahead, float speed)
     {
-        float px = pc.transform.position.x;
+        float px = refX;
         if (!tm.TryGetBranchAfter(px, out float fork, out float merge, out bool generated) || !generated) return;
         double forkLogical = FloatingOrigin.ToLogical(fork);
         if (forkLogical <= lastBranchForkLogical + 1.0) return;              // もう決めた
         if (fork - px > ahead + profile.routeLead + 10f) return;             // まだ遠い
         if (!tm.IsGenerated(merge + 2f)) return;
-        float forkDistance = gm.MaxDistance + (float)(forkLogical - playerLogical) + DebugDistanceOffset;
+        float forkDistance = RunDistanceAt(forkLogical);
         lastBranchForkLogical = forkLogical;
         if (forkDistance < profile.noEncounterBeforeDistance) return;
         if (DebugDistanceOffset == 0f && BossNear(forkDistance)) return;
@@ -993,7 +1053,7 @@ public class EncounterDirector : MonoBehaviour
         // 上下とも同じX範囲(坂を上り切った所から)に置き、ルートの頭に寄せる → 分岐の手前から両方の中身を見比べられる。
         float regionStart = fork + ramp + profile.routeEdgeMargin;
         float regionEnd = merge - ramp - profile.routeEdgeMargin;
-        regionStart = Mathf.Max(regionStart, pc.transform.position.x + VisibleAhead(pc) + 1f); // 目の前には出さない
+        regionStart = Mathf.Max(regionStart, refX + refVisibleAhead + 1f); // 目の前には出さない(最前の人の画面にも)
         var rec = new Record { index = ++encounterIndex, distance = runDistance, band = band != null ? band.bandName : "-",
             terrain = $"branch fork={FloatingOrigin.ToLogical(fork):F0} merge={FloatingOrigin.ToLogical(merge):F0}" };
         rec.anchorLogical = FloatingOrigin.ToLogical(regionStart);

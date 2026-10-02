@@ -993,6 +993,20 @@ public class TerrainManager : MonoBehaviour
 
     // Clears any currently-alive regular enemies (used when the boss fight
     // starts, so the arena isn't cluttered with leftover ground enemies).
+    // マルチ Phase 3.1: minXより前(右)の雑魚だけ片付ける(ボス戦の開始。後ろの人の雑魚は残す)
+    public void ClearEnemiesFrom(float minX)
+    {
+        foreach (RuntimeChunk c in chunks)
+        {
+            for (int i = c.enemies.Count - 1; i >= 0; i--)
+            {
+                GameObject e = c.enemies[i];
+                if (e == null) { c.enemies.RemoveAt(i); continue; }
+                if (e.transform.position.x >= minX) { Destroy(e); c.enemies.RemoveAt(i); }
+            }
+        }
+    }
+
     public void ClearAllEnemies()
     {
         foreach (RuntimeChunk c in chunks)

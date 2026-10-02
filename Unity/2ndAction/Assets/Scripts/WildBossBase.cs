@@ -147,6 +147,7 @@ public abstract class WildBossBase : MonoBehaviour
 
         Camera cam = Camera.main;
         float rightEdge = cam != null ? cam.transform.position.x + cam.orthographicSize * cam.aspect : PlayerX + 12f;
+        if (cam != null && pc != null && player != pc.transform) rightEdge = PlayerX + (rightEdge - pc.transform.position.x); // マルチ: 最前の相手の画面の右端
         worldX = Mathf.Max(PlayerX + startGap, rightEdge) + 3f;
         lastGroundY = TerrainGround(worldX);
 
@@ -259,6 +260,16 @@ public abstract class WildBossBase : MonoBehaviour
         if (dead) return;
         float dt = Time.deltaTime;
         float baseSpeed = TargetBaseSpeed();
+        float runSpeed = baseSpeed;
+        // マルチ Phase 3.1: 後ろの人が離れていたら並走を少し遅くし、追い越されたら後ろの人へ狙いを替える(BossLeash)
+        BossLeash.Result leash = default;
+        bool leashOn = BossLeash.Enabled && !entering;
+        if (leashOn)
+        {
+            leash = BossLeash.Evaluate(worldX, player, netTarget != null ? netTarget.TargetPlayer : 0, ref leashTime);
+            if (netTarget != null) netTarget.SetPreferred(leash.PreferTarget);
+            if (leash.Active) baseSpeed *= leash.SpeedFactor;
+        }
         worldX += (baseSpeed + relVelocity) * dt;
 
         float px = PlayerX;
@@ -266,10 +277,20 @@ public abstract class WildBossBase : MonoBehaviour
         if (freeGap) lastFreeGapTime = Time.time;
         if (!entering && !freeGap)
         {
-            // ボス戦の強化(2026-10-01): 追い越し/画面の外からの突進の直後だけ、瞬間移動させずに素早く戻す(それ以外は従来どおり即座に範囲内へ)
-            bool soft = Time.time - lastFreeGapTime < 1.5f;
-            if (gap > maxGap) worldX = soft && gap > maxGap + 3f ? Mathf.MoveTowards(worldX, px + maxGap, 22f * dt) : px + maxGap;
-            else if (gap < minGap) worldX = soft && gap < minGap - 3f ? Mathf.MoveTowards(worldX, px + minGap, 22f * dt) : px + minGap;
+            float lo = leashOn && leash.AllowBehindTarget ? float.MinValue : minGap;
+            float excess = gap > maxGap ? gap - maxGap : gap < lo ? lo - gap : 0f;
+            if (leashOn && excess > 6f)
+            {
+                // 狙いの相手が替わった/大きく離れた: 瞬間移動せず、速度で間合いへ戻る(誰にも見えていない時だけ位置を直す)
+                worldX = BossLeash.Approach(worldX, px, minGap, maxGap, runSpeed, dt, leash.AllowBehindTarget, OffscreenAheadGap());
+            }
+            else
+            {
+                // ボス戦の強化(2026-10-01): 追い越し/画面の外からの突進の直後だけ、瞬間移動させずに素早く戻す(それ以外は従来どおり即座に範囲内へ)
+                bool soft = Time.time - lastFreeGapTime < 1.5f;
+                if (gap > maxGap) worldX = soft && gap > maxGap + 3f ? Mathf.MoveTowards(worldX, px + maxGap, 22f * dt) : px + maxGap;
+                else if (gap < lo) worldX = soft && gap < lo - 3f ? Mathf.MoveTowards(worldX, px + lo, 22f * dt) : px + lo;
+            }
         }
         BattleTick(dt);
 
@@ -1207,17 +1228,20 @@ public abstract class WildBossBase : MonoBehaviour
     public static readonly Color TallLaneColor = new Color(1f, 0.75f, 0.1f, 1f);   // 背が高い/長い = 二段ジャンプ
 
     // 画面の外(前方/後方)にあたる間合い
+    // マルチ Phase 3.1: 「狙っている人の画面」の外。この端末のカメラとプレイヤーの差(全員同じ構図)を、狙いの相手に当てはめる。
+    // 以前はこの端末(HOST)のカメラの端そのものだったため、遠くの相手を狙うボスがHOSTの画面の端へ飛んでいた。自分が狙いなら従来と同じ値。
+    float CamCenterOffset(Camera cam) => pc != null ? cam.transform.position.x - pc.transform.position.x : cam.transform.position.x - PlayerX;
     protected float OffscreenAheadGap()
     {
         Camera cam = Camera.main;
         if (cam == null) return 26f;
-        return cam.transform.position.x + cam.orthographicSize * cam.aspect - PlayerX + halfWidth + 2f;
+        return CamCenterOffset(cam) + cam.orthographicSize * cam.aspect + halfWidth + 2f;
     }
     protected float OffscreenBehindGap()
     {
         Camera cam = Camera.main;
         if (cam == null) return -18f;
-        return cam.transform.position.x - cam.orthographicSize * cam.aspect - PlayerX - halfWidth - 2f;
+        return CamCenterOffset(cam) - cam.orthographicSize * cam.aspect - halfWidth - 2f;
     }
 
     // 画面を横切る突進/滑空(相対速度を使う攻撃)。fromGap→toGapを高さlaneで。hbは通過中ずっと有効。
@@ -1356,8 +1380,9 @@ public abstract class WildBossBase : MonoBehaviour
 
     // マルチプレイPhase 2.5: HOSTのAIが狙う相手(全ての活動中プレイヤーから選ばれる)。並走の基準速度もその相手。
     EnemyTargetSelector netTarget;
+    float leashTime; // マルチ Phase 3.1: 置き去り防止の減速が続いている秒数(BossLeash)
     public void NetSetTarget(Transform t, EnemyTargetSelector selector) { if (t != null) player = t; netTarget = selector; }
-    float TargetBaseSpeed() => netTarget != null ? netTarget.TargetRunSpeed() : (pc != null ? pc.CurrentAutoRunSpeed : 0f);
+    protected float TargetBaseSpeed() => netTarget != null ? netTarget.TargetRunSpeed() : (pc != null ? pc.CurrentAutoRunSpeed : 0f);
     int netAttacker; // 0 = この端末のプレイヤー / それ以外 = プレイヤー番号(HOSTでリモートの攻撃を処理中)
     int netVisualOrder = int.MinValue;
     Collider2D netLastHitCollider;

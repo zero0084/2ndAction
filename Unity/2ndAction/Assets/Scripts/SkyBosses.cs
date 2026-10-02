@@ -122,6 +122,7 @@ public abstract class SkyBossBase : WildBossBase
             {
                 from = cam.ViewportToWorldPoint(new Vector3(startViewport.x, startViewport.y, 10f));
                 from.z = 0f;
+                if (pc != null) from.x += PlayerX - pc.transform.position.x; // マルチ: 狙いの相手の画面から(自分が狙いなら0)
                 haveFrom = true;
             }
             else if (!haveFrom) from = to + new Vector3(10f, 5f, 0f);
@@ -477,7 +478,7 @@ public class SkyTitanBoss : SkyBossBase
             t += Time.deltaTime;
             float f = Mathf.Clamp01(t / flight);
             Vector3 to = new Vector3(strike.WorldX, strike.GroundY + 0.5f, 0f);
-            float baseSpeed = pc != null ? pc.CurrentAutoRunSpeed : 0f;
+            float baseSpeed = TargetBaseSpeed();
             from.x += baseSpeed * Time.deltaTime;
             Vector3 p = Vector3.Lerp(from, to, f * f);
             Vector3 dir = (to - from).normalized;
@@ -1214,7 +1215,7 @@ public class SkyGolemBoss : SkyBossBase
         while (t < fallAt && s != null)
         {
             t += Time.deltaTime;
-            float baseSpeed = pc != null ? pc.CurrentAutoRunSpeed : 0f;
+            float baseSpeed = TargetBaseSpeed();
             from.x += baseSpeed * Time.deltaTime;
             Vector3 hover = new Vector3(s.WorldX, s.GroundY + 4.5f + Mathf.Sin(Time.time * 6f) * 0.1f, 0f);
             float k = Mathf.Clamp01(t / 0.55f);
@@ -1711,6 +1712,7 @@ public class CelestialGuardianBoss : SkyBossBase
         if (cam != null)
         {
             Vector3 top = cam.ViewportToWorldPoint(new Vector3(0.78f, 1.1f, 10f));
+            if (pc != null) top.x += PlayerX - pc.transform.position.x; // マルチ: 狙いの相手の画面に
             var go = new GameObject("HeavenLight");
             var sr = go.AddComponent<SpriteRenderer>();
             sr.sprite = SkyBossFx.Beam();

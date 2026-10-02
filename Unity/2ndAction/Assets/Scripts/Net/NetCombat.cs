@@ -290,6 +290,7 @@ public class NetCombat : MonoBehaviour
             // ボスは位置取りが大きく動くため、乗り換えを慎重に(近さの差4m以上、最低2秒は同じ相手)。
             sel.switchMargin = 4f;
             sel.minHoldTime = 2f;
+            sel.waitRange = 40f; // Phase 3.1: カード選択中の人を、近くに他の人がいなければ待つ
         }
         e.Selector = sel;
         int id = e.Id;
@@ -796,7 +797,7 @@ public class NetCombat : MonoBehaviour
         {
             if (p == null || p.IsOwner) continue;
             RemotePlayerAvatar a = p.Avatar;
-            if (a == null || !a.IsShown) { remotePlayers.Remove(p.PlayerNumber); continue; }
+            if (a == null || !a.HasRecentPosition) { remotePlayers.Remove(p.PlayerNumber); continue; } // 点滅で絵が消えていても位置は有効(3.1)
             Vector3 pos = a.transform.position;
             float now = Time.unscaledTime;
             if (remotePlayers.TryGetValue(p.PlayerNumber, out var prev) && now > prev.t)
@@ -841,18 +842,13 @@ public class NetCombat : MonoBehaviour
         return RangeSceneX(false, out minX, out maxX);
     }
 
+    // Phase 3.1: 人数に依存しない一覧(WorldRange)から求める。aliveOnly=false は参加中(ALIVE+DOWN)。
     static bool RangeSceneX(bool aliveOnly, out float minX, out float maxX)
     {
         minX = float.MaxValue; maxX = float.MinValue;
-        PlayerController pc = PlayerController.Instance;
-        if (pc != null && (!aliveOnly || NetMatch.IsLocalAlive)) { minX = maxX = pc.transform.position.x; }
-        if (Instance != null)
+        foreach (var q in aliveOnly ? WorldRange.GetAlivePlayers() : WorldRange.GetActivePlayers())
         {
-            foreach (var kv in Instance.remotePlayers)
-            {
-                if (aliveOnly && !NetMatch.IsPlayerActive(kv.Key)) continue;
-                minX = Mathf.Min(minX, kv.Value.x); maxX = Mathf.Max(maxX, kv.Value.x);
-            }
+            minX = Mathf.Min(minX, q.SceneX); maxX = Mathf.Max(maxX, q.SceneX);
         }
         return minX <= maxX;
     }
@@ -871,8 +867,8 @@ public class NetCombat : MonoBehaviour
         bool any = false;
         float x = float.MaxValue;
         if (KeepsTerrain(LocalPlayerNumber)) { x = localX; any = true; }
-        foreach (var kv in Instance.remotePlayers)
-            if (KeepsTerrain(kv.Key)) { x = Mathf.Min(x, kv.Value.x); any = true; }
+        foreach (var q in WorldRange.GetActivePlayers()) // ALIVE + DOWN(脱落/退出は含まない)
+            if (!q.IsLocal) { x = Mathf.Min(x, q.SceneX); any = true; }
         return any ? x : localX;
     }
 
@@ -887,8 +883,7 @@ public class NetCombat : MonoBehaviour
     {
         if (!Authority || Instance == null) return localX;
         float x = localX;
-        foreach (var kv in Instance.remotePlayers)
-            if (NetMatch.IsPlayerActive(kv.Key)) x = Mathf.Max(x, kv.Value.x);
+        foreach (var q in WorldRange.GetAlivePlayers()) x = Mathf.Max(x, q.SceneX);
         return x;
     }
 
@@ -1285,7 +1280,7 @@ public class NetCombat : MonoBehaviour
             GUI.color = Color.white;
             GUI.Label(rect, text, labelStyle);
         }
-        var panel = new Rect(10f, Screen.height - 230f, 520f, 210f);
+        var panel = new Rect(10f, Screen.height - 330f, 560f, 310f);
         GUI.color = new Color(0f, 0f, 0f, 0.6f);
         GUI.DrawTexture(panel, Texture2D.whiteTexture);
         GUI.color = Color.white;
@@ -1302,8 +1297,7 @@ public class NetCombat : MonoBehaviour
     public int SharedBossCount { get { int n = 0; foreach (var e in entities.Values) if (e.Kind == Kind.Boss && !e.Dead) n++; return n; } }
     public static string LoadSummary()
     {
-        var nc = Instance; var ats = NetAttackSync.Instance;
-        return $"{NetStats.Summary()}\nsync enemies={(nc != null ? nc.SharedEnemyCount : 0)} bosses={(nc != null ? nc.SharedBossCount : 0)} projectiles/attacks={(ats != null ? ats.TrackedCount : 0)} remotes={(nc != null ? nc.remotePlayers.Count : 0)}";
+        return NetStats.LoadLine().Replace(" | ", "\n") + $"\nworld {WorldRange.Describe()}";
     }
 
     // 自動テスト用: 生存中の共有エンティティの要約(両端末で比較する)。

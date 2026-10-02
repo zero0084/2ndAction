@@ -204,6 +204,7 @@ public class DragonController : MonoBehaviour
     {
         player = playerTransform;
         playerController = player != null ? player.GetComponent<PlayerController>() : null;
+        if (playerController == null) playerController = PlayerController.Instance; // マルチ: 相手の分身の前に出した時(速度は狙いの相手から取る)
         sr = GetComponent<SpriteRenderer>();
         SetFrames(idleFrames);
 
@@ -459,23 +460,31 @@ public class DragonController : MonoBehaviour
     // regardless of how far the player has actually run.
     void AdvanceTrackedX()
     {
-        float baseSpeed = TargetBaseSpeed();
+        float runSpeed = TargetBaseSpeed();
+        float baseSpeed = runSpeed;
+        // マルチ Phase 3.1: 置き去り防止(BossLeash)。シングル/JOINでは何もしない
+        bool leashOn = BossLeash.Enabled;
+        BossLeash.Result leash = default;
+        if (leashOn)
+        {
+            leash = BossLeash.Evaluate(transform.position.x, player, netTarget != null ? netTarget.TargetPlayer : 0, ref leashTime);
+            if (netTarget != null) netTarget.SetPreferred(leash.PreferTarget);
+            if (leash.Active) baseSpeed *= leash.SpeedFactor;
+        }
         trackedX += baseSpeed * Time.deltaTime;
 
-        // Repeated attack lunges in the same direction (e.g. several
-        // backward/recoil hits in a row) would otherwise let the gap
-        // between the dragon's home spot and the player grow without
-        // bound in either direction, eventually pushing it off-screen for
-        // good. Clamp every frame, symmetrically, against the player's
-        // CURRENT actual position - not a one-way "only ever shrink the
-        // ceiling" clamp, which would itself get permanently stuck low
-        // after even a single backward attack and never recover (that was
-        // the bug: it ratcheted trackedX down and never let it back up).
+        // Repeated attack lunges in the same direction can push the home spot
+        // off-screen; clamp every frame, symmetrically, against the player's
+        // CURRENT actual position.
         if (player != null)
         {
             float minTrackedX = player.position.x - maxBehindPlayer - standoffDistance;
             float maxTrackedX = player.position.x + maxAheadOfPlayer - standoffDistance;
-            trackedX = Mathf.Clamp(trackedX, minTrackedX, maxTrackedX);
+            if (leashOn && leash.AllowBehindTarget) minTrackedX = float.MinValue;
+            float clamped = Mathf.Clamp(trackedX, minTrackedX, maxTrackedX);
+            if (leashOn && Mathf.Abs(clamped - trackedX) > 6f)
+                trackedX = BossLeash.Approach(trackedX, player.position.x - standoffDistance, -maxBehindPlayer, maxAheadOfPlayer, runSpeed, Time.deltaTime, leash.AllowBehindTarget, maxAheadOfPlayer + 20f);
+            else trackedX = clamped;
         }
     }
 
@@ -1131,6 +1140,7 @@ public class DragonController : MonoBehaviour
 
     // マルチプレイPhase 2.5: HOSTのAIが狙う相手(全ての活動中プレイヤーから選ばれる)。並走の基準速度もその相手。
     EnemyTargetSelector netTarget;
+    float leashTime; // マルチ Phase 3.1: 置き去り防止の減速が続いている秒数(BossLeash)
     public void NetSetTarget(Transform t, EnemyTargetSelector selector) { if (t != null) player = t; netTarget = selector; }
     float TargetBaseSpeed() => netTarget != null ? netTarget.TargetRunSpeed() : (playerController != null ? playerController.CurrentAutoRunSpeed : 0f);
     int netAttacker; // 0 = この端末のプレイヤー

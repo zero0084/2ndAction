@@ -128,6 +128,32 @@ public class EnemyTargetSelector : MonoBehaviour
 
     public void NotifyAttackedBy(int player) { if (player > 0) lastAttacker = player; }
 
+    // マルチ Phase 3.1: ボスの置き去り防止(BossLeash)が「この人を狙う」と決めた相手。0=通常の選び方。
+    public int Preferred { get; private set; }
+    float preferredRelease;
+    public void SetPreferred(int player)
+    {
+        if (player > 0)
+        {
+            preferredRelease = 1f; // 一瞬条件が外れても(候補の出入りなど)すぐには離さない
+            if (player == Preferred) return;
+            Preferred = player;
+            if (player != TargetPlayer) Evaluate(true);
+            return;
+        }
+        if (Preferred == 0) return;
+        preferredRelease -= Time.deltaTime;
+        if (preferredRelease <= 0f) Preferred = 0;
+    }
+
+    // マルチ Phase 3.1(ボス用): 狙っていた人がカード選択で止まった時、他の人が全員 waitRange より遠ければ、
+    // その人を待つ(止まって待つ。選択中の人は狙い/被弾の対象外なので攻撃は当たらない)。遠くの人へ乗り換えて
+    // 画面外の位置補正で行ったり来たりしないため。maxWait 秒を過ぎたら乗り換える。0=待たない(雑魚)。
+    public float waitRange;
+    public float maxWait = 12f;
+    public bool WaitingForChooser { get; private set; }
+    float waitTimer;
+
     void Start() { Evaluate(true); }
 
     void Update()
@@ -149,6 +175,19 @@ public class EnemyTargetSelector : MonoBehaviour
             return;
         }
         bool currentValid = NetTargets.TryGet(TargetPlayer, out NetTargets.Candidate cur);
+        if (!currentValid && waitRange > 0f && TargetPlayer > 0 && NetMatch.IsPlayerChoosing(TargetPlayer) && waitTimer < maxWait)
+        {
+            bool someoneNear = false;
+            foreach (var c in list) if (c.T != null && Mathf.Abs(c.T.position.x - transform.position.x) <= waitRange) { someoneNear = true; break; }
+            if (!someoneNear)
+            {
+                if (!WaitingForChooser) { WaitingForChooser = true; WaitCount++; }
+                waitTimer += reevaluateInterval;
+                return; // 待つ(狙いはそのまま)
+            }
+        }
+        if (currentValid || !NetMatch.IsPlayerChoosing(TargetPlayer)) waitTimer = 0f;
+        WaitingForChooser = false;
         NetTargets.Candidate pick;
         switch (strategy)
         {
@@ -169,6 +208,7 @@ public class EnemyTargetSelector : MonoBehaviour
                 NetTargets.Nearest(transform.position, out pick);
                 break;
         }
+        if (Preferred > 0 && NetTargets.TryGet(Preferred, out NetTargets.Candidate pref)) { pick = pref; force = true; }
         if (pick.T == null) return;
 
         if (currentValid && pick.Player != TargetPlayer && !force)
@@ -189,8 +229,10 @@ public class EnemyTargetSelector : MonoBehaviour
     }
 
     // 現在の相手の走行速度(ボスの並走に使う)。相手が候補に居なければ最も近い候補、それも無ければ0。
+    public static int WaitCount; // 統計(自動テスト用)
     public float TargetRunSpeed()
     {
+        if (WaitingForChooser) return 0f; // 選択中の人の所で止まって待つ
         if (NetTargets.TryGet(TargetPlayer, out NetTargets.Candidate c)) return c.RunSpeed;
         return NetTargets.Nearest(transform.position, out c) ? c.RunSpeed : 0f;
     }

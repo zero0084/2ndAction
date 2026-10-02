@@ -16,6 +16,9 @@ public class RemotePlayerAvatar : MonoBehaviour
     public NetPlayer Owner => owner;
     public Vector3 HeadWorldPosition => sr != null && sr.sprite != null ? new Vector3(sr.bounds.center.x, sr.bounds.max.y, 0f) : transform.position + Vector3.up * 2f;
     public bool IsShown => sr != null && sr.enabled;
+    // 位置が届いているか(点滅などで絵が消えていても、位置は有効)。WorldRange/NetCombatの範囲計算に使う
+    public bool HasRecentPosition => lastApplyTime > 0f && Time.unscaledTime - lastApplyTime < 2f;
+    float lastApplyTime = -1f;
 
     public static RemotePlayerAvatar Create(PlayerAnimator template, CharacterDefinition def, NetPlayer owner)
     {
@@ -60,6 +63,7 @@ public class RemotePlayerAvatar : MonoBehaviour
     public void Apply(NetPlayerSnapshot d, double logicalX, float y, float visPosX, float visPosY, float visRotZ, float visScaleX, float visScaleY, float rootRotZ)
     {
         transform.position = new Vector3((float)(logicalX - FloatingOrigin.Offset), y, depthZ);
+        lastApplyTime = Time.unscaledTime;
         transform.rotation = Quaternion.Euler(0f, 0f, rootRotZ);
         transform.localScale = new Vector3(d.RootScaleX < 0f ? -1f : 1f, 1f, 1f);
         visual.localPosition = new Vector3(visPosX, visPosY, visual.localPosition.z);
