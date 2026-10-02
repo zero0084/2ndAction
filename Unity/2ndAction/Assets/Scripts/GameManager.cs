@@ -1277,6 +1277,7 @@ public partial class GameManager : MonoBehaviour
         DebugMode = Debug.isDebugBuild && PlayerPrefs.GetInt(DebugModeKey, 0) != 0;
         Lives = startingLives;
         ExpToNext = expBaseForLevel2;
+        ClearResumeGate(); // 前のシーンの再開待ちの停止理由/慣らしを残さない(2026-10-03)
 
         preferredOrientation = (ScreenOrientation)PlayerPrefs.GetInt(OrientationKey, (int)ScreenOrientation.LandscapeLeft);
         Screen.orientation = preferredOrientation;
@@ -1328,12 +1329,14 @@ public partial class GameManager : MonoBehaviour
     {
         if (pauseStatus) ProgressStats.Flush(true); // 累計走行距離/遭遇を失わない(2026-10-01)
         if (pauseStatus) SaveInterruptState();
+        if (pauseStatus) OnResumeGateAppInterrupted("app paused"); // 再開のカウントダウン中なら準備画面へ戻す(2026-10-03)
         else FreezeDiagnostics.NoteAppResumed(); // 復帰直後の長いフレームは処理落ちではない
     }
 
     void OnApplicationFocus(bool hasFocus)
     {
         if (hasFocus) FreezeDiagnostics.NoteAppResumed();
+        else OnResumeGateAppInterrupted("focus lost");
     }
 
     void OnApplicationQuit()
@@ -1346,6 +1349,8 @@ public partial class GameManager : MonoBehaviour
     {
         HandleBackButton();
         UpdateCountdownSe();
+        UpdateResumeGate(); // 中断セーブからの再開の準備時間(2026-10-03)
+        UpdateResumeCountdownSe();
         if (!HasStarted)
         {
             // Starting now happens only via the on-screen START button (see
@@ -3402,6 +3407,9 @@ public partial class GameManager : MonoBehaviour
     {
         if (!HasStarted || IsGameOver) return;
         TimeControl.ResetAll(); // defensive - same reasoning as FinishRun's own reset, in case this is ever reached while still paused
+        // 2026-10-03: ホームへの暗転(実時間)の間もゲームは止めておく。以前は ResetAll で動き出し、暗転中に
+        // 被弾/前進して、保存したHPや距離が確認画面の時点とずれることがあった。次のシーンの Awake で解除する。
+        if (!NetRunLauncher.IsMultiplayerRun) TimeControl.Pause(returnHomeTimeOwner); // マルチは従来どおり(ほかの端末の世界は止められない)
         ProgressStats.Flush(true); // 途中帰還: 累計走行距離を保存(2026-10-01)
         SaveInterruptState();
         RetryWithTransition();
@@ -3526,6 +3534,9 @@ public partial class GameManager : MonoBehaviour
         }
 
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
+
+        // 2026-10-03: すぐには走り出さず、停止した画面で「準備ができたら再開」を待つ(GameManager.ResumeGate.cs)
+        BeginResumeGate();
     }
 
     // Presentation pass - RESULT->TOP goes through the shared wipe's Close
@@ -3622,6 +3633,7 @@ public partial class GameManager : MonoBehaviour
             DrawUnlockAnnouncement();
             DrawEscapeAvailableBanner();
             if (CountdownActive) DrawRunStartCountdown();
+            DrawResumeGate(); // 中断セーブからの再開: ボタン/3-2-1/GO!(2026-10-03)
 
             // Item 9 - small Pause/Menu button, hidden while a Level Up/
             // Boss Reward card choice is already showing its own pause

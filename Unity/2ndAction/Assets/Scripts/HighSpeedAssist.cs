@@ -216,7 +216,7 @@ public class HighSpeedAssist : MonoBehaviour
             if (!assistEnabled) CurrentStatus = Status.Off;
             else if (!Engaged) CurrentStatus = Status.WaitingSpeed;
             else if (Time.timeScale <= 0f) { CurrentStatus = Status.Blocked; BlockedReason = "停止中"; }
-            else if (gm.CountdownActive) { CurrentStatus = Status.Blocked; BlockedReason = "カウントダウン"; }
+            else if (gm.CountdownActive || gm.ResumeGateActive) { CurrentStatus = Status.Blocked; BlockedReason = "カウントダウン"; }
             else if (pc.NetIsChoosing) { CurrentStatus = Status.Blocked; BlockedReason = "カード選択中"; }
             else if (pc.NetIsDowned) { CurrentStatus = Status.Blocked; BlockedReason = "ダウン中"; }
         }

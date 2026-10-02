@@ -167,7 +167,7 @@ public static class FreezeDiagnostics
         if (activeRun && !wasStarted) BeginGrace("run started");
         wasStarted = activeRun;
         // 開始カウントダウン中は、配置/読み込み/演出のための移動・ヒッチが想定内。
-        bool expectedPhase = gm != null && gm.CountdownActive;
+        bool expectedPhase = gm != null && (gm.CountdownActive || gm.ResumeGateActive);
         bool inGrace = Time.realtimeSinceStartup < graceUntilRealtime;
 
         if (havePrevSample && activeRun)

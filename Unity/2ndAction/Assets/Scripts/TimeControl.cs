@@ -26,7 +26,8 @@ using UnityEngine;
 // Time.timeScaleは次の優先順で1箇所(Apply)だけが決める:
 //   1. 完全停止の理由(カード選択/ボス報酬/ポーズメニュー/HitStop)が1つでもある → 0
 //   2. ボス登場演出のテンポランプ中 → 演出の値
-//   3. それ以外 → 1
+//   3. 中断セーブからの再開直後の慣らし中(既定OFF、2026-10-03) → 慣らしの値
+//   4. それ以外 → 1
 // (2026-09-27に入れた「高速時の自動スロー」の層は、2026-09-28に高速時の自動操作補助(HighSpeedAssist)へ
 //  置き換えて撤去した。時間の流れは速度では変えない。)
 public static class TimeControl
@@ -88,10 +89,33 @@ public static class TimeControl
         Apply();
     }
 
+    // 中断セーブからの再開直後の慣らし(2026-10-03、既定OFF): GameManager が開始値→1へ数秒で戻す。
+    // 優先順は 停止 > ボス登場演出 > 慣らし > 通常。速度に応じて自動で掛かるものではない(再開の直後だけ)。
+    static bool resumeEaseDriving;
+    static float resumeEaseScale = 1f;
+    public static bool IsResumeEasing => resumeEaseDriving;
+    public static float ResumeEaseScale => resumeEaseDriving ? resumeEaseScale : 1f;
+
+    public static void SetResumeEase(float scale)
+    {
+        resumeEaseDriving = true;
+        resumeEaseScale = Mathf.Clamp(scale, 0.05f, 1f);
+        Apply();
+    }
+
+    public static void EndResumeEase()
+    {
+        if (!resumeEaseDriving) return;
+        resumeEaseDriving = false;
+        resumeEaseScale = 1f;
+        Apply();
+    }
+
     static void Apply()
     {
         if (pauseOwners.Count > 0) Time.timeScale = 0f;
         else if (presentationDriving) Time.timeScale = presentationScale * DebugTimeScale;
+        else if (resumeEaseDriving) Time.timeScale = resumeEaseScale * DebugTimeScale;
         else Time.timeScale = DebugTimeScale;
     }
 
@@ -107,12 +131,14 @@ public static class TimeControl
         pauseOwners.Clear();
         presentationDriving = false;
         presentationOwner = null;
+        resumeEaseDriving = false;
+        resumeEaseScale = 1f;
         Time.timeScale = 1f;
     }
 
     public static string DescribeActiveReasons()
     {
-        if (pauseOwners.Count == 0) return presentationDriving ? $"(presentation x{presentationScale:F2})" : "(none)";
+        if (pauseOwners.Count == 0) return presentationDriving ? $"(presentation x{presentationScale:F2})" : resumeEaseDriving ? $"(resume ease x{resumeEaseScale:F2})" : "(none)";
         var sb = new StringBuilder();
         bool first = true;
         foreach (object o in pauseOwners)

@@ -936,7 +936,9 @@ public partial class PlayerController : MonoBehaviour
         // (GameManager.CountdownActive)は、HasStartedが既にtrueでも
         // HasStarted=false相当として扱い、移動/入力/距離加算(この早期
         // returnより先には進めない)を止める。
-        bool countdownActive = GameManager.Instance != null && GameManager.Instance.CountdownActive;
+        // 中断セーブからの再開の準備時間(2026-10-03、GameManager.ResumeGate)も同じ扱い。タッチの開始を見ないので、
+        // 待機中のタッチや再開ボタンのタップが GO の後に攻撃/ジャンプにならない(下の !wasStarted でも捨てる)。
+        bool countdownActive = GameManager.Instance != null && (GameManager.Instance.CountdownActive || GameManager.Instance.ResumeGateActive);
         if (!hasStarted || countdownActive)
         {
             wasStarted = false;

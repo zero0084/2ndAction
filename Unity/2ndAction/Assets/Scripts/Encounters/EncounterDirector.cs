@@ -260,7 +260,7 @@ public class EncounterDirector : MonoBehaviour
             return;
         }
         bool bossPhase = BossManager.Instance != null && BossManager.Instance.SpawnsHeld; // ボス戦の強化: ラン再開後は雑魚を戻す
-        bool pauseNow = bossPhase || gm.IsDistanceInSafeZone(RefDistance) || gm.CountdownActive || (refIsLocal && pc.IsFinishing);
+        bool pauseNow = bossPhase || gm.IsDistanceInSafeZone(RefDistance) || gm.CountdownActive || gm.ResumeGateActive || (refIsLocal && pc.IsFinishing);
         if (pauseNow)
         {
             // 止めている間に出現位置がプレイヤーに追い越されないよう、前方へ送り続ける。

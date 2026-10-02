@@ -230,7 +230,7 @@ public class ObstacleSpawner : MonoBehaviour
     void Update()
     {
         if (GameManager.Instance == null || !GameManager.Instance.HasStarted || GameManager.Instance.IsGameOver) return;
-        if (GameManager.Instance.CountdownActive) return; // Stage01地形挙動修整(2026-09-17), item4
+        if (GameManager.Instance.CountdownActive || GameManager.Instance.ResumeGateActive) return; // Stage01地形挙動修整(2026-09-17), item4
         if (player == null) return;
         if (BossManager.Instance != null && BossManager.Instance.SpawnsHeld) return;
         if (BossBattle.SuppressObstacles) return; // ボスの必殺技の最中は新しい障害物を置かない(詰みを作らない)

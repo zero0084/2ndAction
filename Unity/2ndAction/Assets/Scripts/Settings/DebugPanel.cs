@@ -68,7 +68,7 @@ public partial class DebugPanel : MonoBehaviour
         float w = Screen.width / s, h = Screen.height / s;
         float k = Mathf.SmoothStep(0f, 1f, t / 0.15f);
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.05f, 0.02f, 0.02f, 0.5f * k));
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(470f, h - 24f);
+        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 516f : 470f, h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f + (1f - k) * 12f, pw, ph);
         Color keepColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, k);
@@ -97,6 +97,16 @@ public partial class DebugPanel : MonoBehaviour
         y += bh + 6f;
         GUI.Label(new Rect(x, y, p.width - 48f, 24f), "GAMEFEEL検証=演出を誇張して確認する開発用(プレイヤー向けの強さは設定の「発光演出」)", UiKit.Label(13f, TextAnchor.UpperLeft, false, new Color(0.8f, 0.8f, 0.85f)));
         y += 28f;
+
+        // 中断セーブからの再開直後の慣らし(2026-10-03、既定OFF)
+        bool ease = gm.ResumeEaseSetting;
+        if (UiKit.Button(new Rect(x, y, bw, 40f), $"再開の慣らし: {(ease ? "ON" : "OFF")}", 17f, ease, false))
+        {
+            PlayerPrefs.SetInt(GameManager.ResumeEaseDevKey, ease ? 0 : 1);
+            PlayerPrefs.Save();
+        }
+        GUI.Label(new Rect(x + bw + 12f, y, bw, 40f), $"CONTINUEのGO後 x{gm.resumeEaseStartScale:0.##}→1 を{gm.resumeEaseDuration:0.#}秒", UiKit.Label(13f, TextAnchor.MiddleLeft, false, new Color(0.8f, 0.8f, 0.85f)));
+        y += 46f;
 
         GUI.Label(new Rect(x, y, 300f, 26f), "BESTを設定(ガチャの段階の確認)", UiKit.Label(16f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));
         y += 28f;
