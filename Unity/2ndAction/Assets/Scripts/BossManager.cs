@@ -1654,7 +1654,15 @@ public partial class BossManager : MonoBehaviour
         dragon.Init(SpawnRef());
     }
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 自動テスト用(開発版のみ, 2026-10-02 カードバランス調査): family 0=荒野(Dragon=荒野ドラゴン) 1=洞窟 2=天空
+    public void DebugSpawnBossForTest(int family, int kind)
+    {
+        if (family == 1) DebugForceSpawnCave((CaveBossKind)kind);
+        else if (family == 2) DebugForceSpawnSky((SkyBossKind)kind);
+        else DebugForceSpawn((WildBossKind)kind);
+    }
+
     void DebugForceSpawn(WildBossKind kind, int count = 1)
     {
         IsBossPhase = true;

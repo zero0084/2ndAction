@@ -55,6 +55,8 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaSave") { mode = "save"; dir = a[i + 1]; }
             if (a[i] == "-qaSaveShots") { mode = "saveshots"; dir = a[i + 1]; }
             if (a[i] == "-qaStall") { mode = "stall"; dir = a[i + 1]; }
+            if (a[i] == "-qaCardSurvey") { mode = "cardsurvey"; dir = a[i + 1]; }
+            if (a[i] == "-qaBossKill") { mode = "bosskill"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -123,6 +125,8 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "save") yield return SaveMode();
         else if (mode == "saveshots") yield return SaveShotsMode();
         else if (mode == "stall") yield return StallMode();
+        else if (mode == "cardsurvey") yield return CardSurveyMode();
+        else if (mode == "bosskill") yield return BossKillMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);
