@@ -67,11 +67,12 @@ public partial class QaSweep
         while (WildAlive().Any(b => b.IsEntering) && w < 8f) { yield return null; w += Time.unscaledDeltaTime; }
     }
 
+    // 残りHPぶんを1発で入れる(-qaBossはボスHPを大きく固定するので、99999では倒れない)
     void KillAllBosses()
     {
-        foreach (var b in WildAlive()) b.TakeDamage(99999, b.CenterWorld);
-        foreach (var d in DragonsAlive()) d.TakeDamage(99999);
-        foreach (var m in FindObjectsByType<MajinController>(FindObjectsSortMode.None)) if (!m.IsDead) m.TakeDamage(99999); // 天空の魔人(2026-10-02)
+        foreach (var b in WildAlive()) b.TakeDamage(Mathf.Max(99999, b.Hp), b.CenterWorld);
+        foreach (var d in DragonsAlive()) d.TakeDamage(Mathf.Max(99999, d.Hp));
+        foreach (var m in FindObjectsByType<MajinController>(FindObjectsSortMode.None)) if (!m.IsDead) m.TakeDamage(Mathf.Max(99999, m.Hp)); // 天空の魔人(2026-10-02)
     }
 
     IEnumerator WaitPhaseEnd(float timeout = 30f)
@@ -84,6 +85,12 @@ public partial class QaSweep
     {
         Application.targetFrameRate = 60;
         HookBossLogs();
+        // 2026-10-02: 結果を毎回同じにする。以前は自動補助の攻撃+ランダムに出るカードの取得でプレイヤーの火力がばらつき、
+        // 強い回はボスが「ラン再開」の前に倒れて C〜H が連鎖して落ちていた(0〜18件)。ボスの倒れ方は試験側が決める:
+        // ボスHPを大きく固定し(開発用のNetTestBossHpOverride。BossHpPlan/再戦の強化/カードの倍率より優先)、倒す時は KillAllBosses。
+        // 段階/必殺技はHPの割合で決まるので、割合で削る G/H はそのまま成り立つ。
+        Random.InitState(QaBossSeed);
+        BossManager.NetTestBossHpOverride = QaBossHp;
         yield return BeginRun("swordsman", "wasteland_road");
         typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
         var tn = BossBattleTuning.I;
@@ -191,7 +198,11 @@ public partial class QaSweep
             yield return null;
         }
         Check(overlap == 0, $"G: never two ultimates at once (overlap frames {overlap})");
-        Check(ultSeen >= 2, $"G: both wolves used the overtake charge in turn ({ultSeen})");
+        Check(ultSeen >= 2, $"G: two overtake charges one after another ({ultSeen})");
+        // 2026-10-02: 合計だけでは「同じ1体が2回」でも通るので、1体ずつの回数も残す(順番が回らないのは仕様の判断待ち: 警告どまり)
+        string perWolf = string.Join(",", wolves.Select(b => b.UltimatesUsed));
+        L($"[G] ultimates per wolf: {perWolf} in {gT:F1}s");
+        if (wolves.Count >= 2 && wolves.Any(b => b.UltimatesUsed == 0)) Warn($"G: one wolf never got a turn for the overtake charge (per wolf {perWolf})");
         KillAllBosses();
         yield return WaitPhaseEnd();
 
@@ -201,8 +212,12 @@ public partial class QaSweep
 
         L($"[summary] resumes={bossLogResumed} pendingChosen={bossLogPending} ultimates={bossLogUltimates} breaks={bossLogBreaks} distanceDrops={distDrops} newRunResets={bossLogNewRunReset}");
         Check(distDrops == 0, "distance never went backwards (outside of debug warps)");
+        BossManager.NetTestBossHpOverride = 0;
         yield return EndRun();
     }
+
+    const int QaBossSeed = 20261002;
+    const int QaBossHp = 50000000; // 自動補助の攻撃では試験の時間内に削り切れない量
 
     // 1つ目のボスを倒さずに passTo まで走り、途中の関門が重ならないこと/撃破後に保留(wantPending)が1つだけ出ることを確かめる
     IEnumerator GateCarryCase(string tag, float warp, float gate, float passTo, float wantPending)
