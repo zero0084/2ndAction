@@ -127,8 +127,7 @@ public partial class GameManager : MonoBehaviour
     {
         int count = 0;
         for (int d = 0; d < deckCards.Count; d++) if (deckCards[d] == cardId) count++;
-        for (int i = 0; i < CharacterCardSlotCount; i++) if (characterCardIds[i] == cardId) count++;
-        return count;
+        return count + MaxCharacterSlotUses(cardId, -1);
     }
 
     // Replaces the whole deck in one shot (DeckEditUI's "おすすめ編成" and
@@ -145,8 +144,7 @@ public partial class GameManager : MonoBehaviour
         {
             if (string.IsNullOrEmpty(id) || deckCards.Count >= DeckCapacity) continue;
             int owned = CardInventory.GetTotalCount(id);
-            int charCardUses = 0;
-            for (int i = 0; i < CharacterCardSlotCount; i++) if (characterCardIds[i] == id) charCardUses++;
+            int charCardUses = MaxCharacterSlotUses(id, -1);
             perCardCount.TryGetValue(id, out int already);
             if (already + charCardUses >= owned) continue; // no more copies of this card left to spend
             perCardCount[id] = already + 1;
@@ -200,14 +198,30 @@ public partial class GameManager : MonoBehaviour
 
     // Character Card slots reference an exact (cardId, level) pair, so this
     // one is a direct count (no allocation needed, unlike Deck above).
-    public int GetCharacterCardLockedCountForStack(string cardId, int level)
+    // キャラカード枠が使っている枚数(どのキャラの枠で使っていても、合成/デッキからは使えない)。
+    // キャラ同士は同時に出ないので、キャラごとの使用数の最大(同じ1枚を何人のキャラにも付けられる)。
+    public int GetCharacterCardLockedCountForStack(string cardId, int level) => MaxCharacterSlotUses(cardId, level);
+
+    // 今編集/使用しているキャラ(CharacterCardOwnerId)の枠だけの使用数
+    public int GetOwnerCharacterCardCountForStack(string cardId, int level)
     {
-        int locked = 0;
-        for (int i = 0; i < CharacterCardSlotCount; i++)
+        int n = 0;
+        for (int i = 0; i < CharacterCardSlotCount; i++) if (characterCardIds[i] == cardId && characterCardLevels[i] == level) n++;
+        return n;
+    }
+
+    // level<0 = Lvを問わない
+    int MaxCharacterSlotUses(string cardId, int level)
+    {
+        int best = 0;
+        foreach (var kv in AllCharacterSlots())
         {
-            if (characterCardIds[i] == cardId && characterCardLevels[i] == level) locked++;
+            int n = 0;
+            for (int i = 0; i < CharacterCardSlotCount; i++)
+                if (kv.Value.ids[i] == cardId && (level < 0 || kv.Value.levels[i] == level)) n++;
+            best = Mathf.Max(best, n);
         }
-        return locked;
+        return best;
     }
 
     // How many copies of this exact (cardId, level) stack are free to
@@ -385,8 +399,13 @@ public partial class GameManager : MonoBehaviour
     // card is exactly the kind of thing worth dedicating a Character Card
     // slot to.
     public const int CharacterCardSlotCount = 3;
+    // 2026-10-02: キャラカード枠はキャラごと(PlayerPrefs "CharacterCardSlots.<characterId>")。
+    // characterCardIds/Levels は「今編集/使用しているキャラ」(CharacterCardOwnerId)の3枠。Run開始時はRunのキャラへ切り替える。
+    public const string CharacterCardSlotsPrefix = "CharacterCardSlots.";
     readonly string[] characterCardIds = new string[CharacterCardSlotCount];
     readonly int[] characterCardLevels = new int[CharacterCardSlotCount];
+    public string CharacterCardOwnerId { get; private set; }
+    readonly Dictionary<string, (string[] ids, int[] levels)> slotCache = new Dictionary<string, (string[] ids, int[] levels)>();
     public IReadOnlyList<string> CharacterCardIds => characterCardIds;
     public int GetCharacterCardLevel(int slot) => (slot >= 0 && slot < CharacterCardSlotCount) ? Mathf.Max(1, characterCardLevels[slot]) : 1;
 
@@ -465,6 +484,7 @@ public partial class GameManager : MonoBehaviour
     {
         if (string.IsNullOrEmpty(characterId) || CharacterDatabase.FindById(characterId) == null) return;
         SelectedCharacterId = characterId;
+        SetCharacterCardOwner(characterId); // キャラカード枠もそのキャラの物へ(2026-10-02)
         PlayerPrefs.SetString(SelectedCharacterKey, characterId);
         PlayerPrefs.Save();
     }
@@ -510,33 +530,85 @@ public partial class GameManager : MonoBehaviour
 
     void LoadCharacterCards()
     {
-        string saved = PlayerPrefs.GetString(CharacterCardSlotsKey, "");
-        string[] entries = saved.Split(',');
+        MigrateSharedCharacterCards();
+        slotCache.Clear();
+        CharacterCardOwnerId = null;
+        SetCharacterCardOwner(!string.IsNullOrEmpty(SelectedCharacterId) ? SelectedCharacterId : (CharacterDatabase.AllCharacters.Count > 0 ? CharacterDatabase.AllCharacters[0].characterId : "swordsman"));
+    }
+
+    // 旧: 全キャラ共通の3枠(CharacterCardSlots) → 今選んでいるキャラの枠へ移す(他のキャラは空から)。1回だけ
+    void MigrateSharedCharacterCards()
+    {
+        if (!PlayerPrefs.HasKey(CharacterCardSlotsKey)) return;
+        string shared = PlayerPrefs.GetString(CharacterCardSlotsKey, "");
+        string owner = !string.IsNullOrEmpty(SelectedCharacterId) ? SelectedCharacterId : "swordsman";
+        if (!string.IsNullOrEmpty(shared.Replace(",", "")) && !PlayerPrefs.HasKey(CharacterCardSlotsPrefix + owner))
+            PlayerPrefs.SetString(CharacterCardSlotsPrefix + owner, shared);
+        PlayerPrefs.DeleteKey(CharacterCardSlotsKey);
+        PlayerPrefs.Save();
+        Debug.Log($"[CharacterCards] shared slots moved to {owner}: '{shared}'");
+    }
+
+    (string[] ids, int[] levels) ReadSlots(string characterId)
+    {
+        var ids = new string[CharacterCardSlotCount];
+        var levels = new int[CharacterCardSlotCount];
+        string[] entries = PlayerPrefs.GetString(CharacterCardSlotsPrefix + characterId, "").Split(',');
         for (int i = 0; i < CharacterCardSlotCount; i++)
         {
-            characterCardIds[i] = null;
-            characterCardLevels[i] = 1;
+            levels[i] = 1;
             if (i >= entries.Length || string.IsNullOrEmpty(entries[i])) continue;
-            // Each entry is "cardId:level" - see SaveCharacterCards.
             string[] parts = entries[i].Split(':');
             string id = parts[0];
             if (string.IsNullOrEmpty(id) || CardDatabase.FindById(id) == null) continue;
             int level = 1;
             if (parts.Length > 1) int.TryParse(parts[1], out level);
-            characterCardIds[i] = id;
-            characterCardLevels[i] = Mathf.Max(1, level);
+            ids[i] = id;
+            levels[i] = Mathf.Max(1, level);
         }
+        return (ids, levels);
+    }
+
+    // 全キャラの枠(今のキャラは編集中の値)
+    IEnumerable<KeyValuePair<string, (string[] ids, int[] levels)>> AllCharacterSlots()
+    {
+        foreach (var def in CharacterDatabase.AllCharacters)
+        {
+            if (def == null) continue;
+            string id = def.characterId;
+            if (id == CharacterCardOwnerId) { yield return new KeyValuePair<string, (string[] ids, int[] levels)>(id, (characterCardIds, characterCardLevels)); continue; }
+            if (!slotCache.TryGetValue(id, out var s)) { s = ReadSlots(id); slotCache[id] = s; }
+            yield return new KeyValuePair<string, (string[] ids, int[] levels)>(id, s);
+        }
+    }
+
+    // 編集/使用するキャラの枠へ切り替える
+    public void SetCharacterCardOwner(string characterId)
+    {
+        if (string.IsNullOrEmpty(characterId) || characterId == CharacterCardOwnerId) return;
+        var s = ReadSlots(characterId);
+        for (int i = 0; i < CharacterCardSlotCount; i++) { characterCardIds[i] = s.ids[i]; characterCardLevels[i] = s.levels[i]; }
+        CharacterCardOwnerId = characterId;
+    }
+
+    // 別のキャラの枠を見るだけ(切り替えない)。キャラ選択の表示用
+    public (string[] ids, int[] levels) GetCharacterCardsOf(string characterId)
+    {
+        if (characterId == CharacterCardOwnerId) return ((string[])characterCardIds.Clone(), (int[])characterCardLevels.Clone());
+        return ReadSlots(characterId);
     }
 
     void SaveCharacterCards()
     {
+        if (string.IsNullOrEmpty(CharacterCardOwnerId)) return;
         string[] entries = new string[CharacterCardSlotCount];
         for (int i = 0; i < CharacterCardSlotCount; i++)
         {
             entries[i] = string.IsNullOrEmpty(characterCardIds[i]) ? "" : $"{characterCardIds[i]}:{characterCardLevels[i]}";
         }
-        PlayerPrefs.SetString(CharacterCardSlotsKey, string.Join(",", entries));
+        PlayerPrefs.SetString(CharacterCardSlotsPrefix + CharacterCardOwnerId, string.Join(",", entries));
         PlayerPrefs.Save();
+        slotCache.Remove(CharacterCardOwnerId);
     }
 
     // Only allowed to equip a card the player actually owns at least one
@@ -558,7 +630,8 @@ public partial class GameManager : MonoBehaviour
         // other stack must have at least 1 copy free after Deck/other
         // Character Card slots' own locks (see GetAvailableCountForStack).
         bool sameAsCurrent = characterCardIds[slot] == cardId && characterCardLevels[slot] == level;
-        if (!sameAsCurrent && GetAvailableCountForStack(cardId, level) <= 0) return false;
+        int freeForOwner = CardInventory.GetCount(cardId, level) - GetDeckLockedCountForStack(cardId, level) - GetOwnerCharacterCardCountForStack(cardId, level);
+        if (!sameAsCurrent && freeForOwner <= 0) return false;
         characterCardIds[slot] = cardId;
         characterCardLevels[slot] = Mathf.Max(1, level);
         SaveCharacterCards();
@@ -574,10 +647,7 @@ public partial class GameManager : MonoBehaviour
     public bool IsCardInUse(string cardId)
     {
         if (string.IsNullOrEmpty(cardId)) return false;
-        for (int i = 0; i < CharacterCardSlotCount; i++)
-        {
-            if (characterCardIds[i] == cardId) return true;
-        }
+        if (MaxCharacterSlotUses(cardId, -1) > 0) return true;
         return deckCards.Contains(cardId);
     }
 
@@ -807,6 +877,33 @@ public partial class GameManager : MonoBehaviour
     public void CloseDeckEdit()
     {
         deckEditOpen = false;
+        // 編集で他のキャラの枠を見ていた: 選んでいるキャラの枠へ戻す
+        if (!string.IsNullOrEmpty(SelectedCharacterId)) SetCharacterCardOwner(SelectedCharacterId);
+        // キャラ選択の「カード設定」から来た: キャラ選択へ戻る(画面を覆っている間に呼ばれる)
+        if (returnToCharacterSelect && characterSelectUI != null)
+        {
+            returnToCharacterSelect = false;
+            characterSelectOpen = true;
+            characterSelectUI.OpenAt(returnCharacterId);
+        }
+    }
+
+    bool returnToCharacterSelect; string returnCharacterId;
+    // キャラ選択 →(画面切り替え)→ デッキ編集のキャラカード枠(そのキャラ)。閉じるとキャラ選択へ戻る
+    public void OpenCharacterCardsFromSelect(string characterId)
+    {
+        if (deckEditUI == null || characterSelectUI == null) return;
+        if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
+        System.Action go = () =>
+        {
+            characterSelectUI.HideImmediate();
+            characterSelectOpen = false;
+            returnToCharacterSelect = true; returnCharacterId = characterId;
+            deckEditOpen = true;
+            deckEditUI.OpenForCharacter(characterId);
+        };
+        if (ScreenTransitionManager.Instance != null) ScreenTransitionManager.Instance.PlayTransition(() => go());
+        else go();
     }
 
     // Home Room UI reconstruction pass - renamed from the old combined
@@ -1164,8 +1261,8 @@ public partial class GameManager : MonoBehaviour
         CardDataMigration.RunIfNeeded();
         LoadDeck();
         LoadMile();
-        LoadCharacterCards();
         LoadSelectedCharacter();
+        LoadCharacterCards(); // キャラごとの枠(2026-10-02): 選択中のキャラが決まってから
         LoadSelectedStage();
 
         // Bug #001 診断フェーズ (2026-09-08) - Application.logMessageReceived
@@ -1391,6 +1488,7 @@ public partial class GameManager : MonoBehaviour
         activeRunStageId = stageIdOverride ?? SelectedStageId;
         if (TerrainManager.Instance != null) TerrainManager.Instance.ApplyStageTheme(activeRunStageId);
         ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
+        SetCharacterCardOwner(activeRunCharacterId); // そのキャラのキャラカード枠(2026-10-02)
         ApplyCharacterCardEffects();
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
         StartCoroutine(RunStartCountdownRoutine());
@@ -3333,6 +3431,7 @@ public partial class GameManager : MonoBehaviour
         // フォールバックする。
         activeRunCharacterId = !string.IsNullOrEmpty(data.characterId) ? data.characterId : SelectedCharacterId;
         ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
+        SetCharacterCardOwner(activeRunCharacterId); // そのキャラのキャラカード枠(2026-10-02)
 
         // ステージ選択導線追加(2026-09-12) - 上と全く同じ理由。data.stageId
         // が空(旧いActive Run)の場合のみSelectedStageIdへフォールバック。

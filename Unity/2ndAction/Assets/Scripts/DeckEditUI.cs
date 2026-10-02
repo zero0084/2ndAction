@@ -157,6 +157,74 @@ public class DeckEditUI : MonoBehaviour
         }
     }
 
+    // キャラ選択の「カード設定」から: そのキャラのキャラカード枠を開く(2026-10-02)
+    public void OpenForCharacter(string characterId)
+    {
+        if (GameManager.Instance != null) GameManager.Instance.SetCharacterCardOwner(characterId);
+        Open();
+    }
+
+    // ===== キャラごとのキャラカード枠(2026-10-02): 見出しを「◀ ○○のキャラカード ▶」にして、ここでキャラを切り替える =====
+    Text charHeader;
+    RectTransform charPrevRect, charNextRect;
+    void EnsureCharHeader()
+    {
+        if (charHeader != null || root == null) return;
+        Transform t = root.transform.Find("CharacterCardsHeader");
+        if (t == null) return;
+        charHeader = t.GetComponent<Text>();
+        var hr = (RectTransform)t;
+        hr.sizeDelta = new Vector2(Mathf.Max(hr.sizeDelta.x, 300f), 34f);
+        if (charHeader != null) { charHeader.resizeTextForBestFit = true; charHeader.resizeTextMinSize = 12; charHeader.resizeTextMaxSize = 20; }
+        charPrevRect = MakeCharArrow(hr, "CharCardsPrev", "◀", -1);
+        charNextRect = MakeCharArrow(hr, "CharCardsNext", "▶", +1);
+    }
+    RectTransform MakeCharArrow(RectTransform header, string name, string label, int dir)
+    {
+        var go = new GameObject(name);
+        go.transform.SetParent(header.parent, false);
+        var r = go.AddComponent<RectTransform>();
+        r.anchorMin = r.anchorMax = header.anchorMin;
+        r.pivot = new Vector2(0.5f, 1f);
+        r.sizeDelta = new Vector2(58f, 40f);
+        r.anchoredPosition = header.anchoredPosition + new Vector2(dir * (header.sizeDelta.x * 0.5f + 34f), 4f);
+        var bg = go.AddComponent<Image>();
+        bg.color = new Color(0.08f, 0.09f, 0.16f, 0.75f);
+        bg.raycastTarget = false;
+        var lgo = new GameObject("Label");
+        lgo.transform.SetParent(go.transform, false);
+        var lr = lgo.AddComponent<RectTransform>();
+        lr.anchorMin = Vector2.zero; lr.anchorMax = Vector2.one; lr.offsetMin = lr.offsetMax = Vector2.zero;
+        var txt = lgo.AddComponent<Text>();
+        txt.font = charHeader != null ? charHeader.font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        txt.fontSize = 24; txt.fontStyle = FontStyle.Bold; txt.alignment = TextAnchor.MiddleCenter;
+        txt.color = new Color(1f, 0.85f, 0.4f); txt.text = label; txt.raycastTarget = false;
+        return r;
+    }
+    void CycleCharacterCardOwner(int dir)
+    {
+        var gm = GameManager.Instance; var all = CharacterDatabase.AllCharacters;
+        if (gm == null || all.Count == 0) return;
+        int i = 0;
+        for (int k = 0; k < all.Count; k++) if (all[k].characterId == gm.CharacterCardOwnerId) i = k;
+        i = (i + dir + all.Count) % all.Count;
+        gm.SetCharacterCardOwner(all[i].characterId);
+        pendingEquipSlot = -1;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
+        Refresh();
+    }
+    void RefreshCharHeader()
+    {
+        EnsureCharHeader();
+        var gm = GameManager.Instance;
+        if (charHeader == null || gm == null) return;
+        var def = CharacterDatabase.FindById(gm.CharacterCardOwnerId);
+        charHeader.text = $"{(def != null ? def.displayName : "?")} のキャラカード";
+    }
+    // 自動テスト用
+    public string CharHeaderText => charHeader != null ? charHeader.text : "";
+    public void DebugCycleCharacter(int dir) => CycleCharacterCardOwner(dir);
+
     public void Open()
     {
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.DeckEdit);
@@ -320,6 +388,7 @@ public class DeckEditUI : MonoBehaviour
         }
 
         // Item 7 - Character Card slots.
+        RefreshCharHeader();
         for (int i = 0; i < characterSlotCards.Length && i < GameManager.CharacterCardSlotCount; i++)
         {
             string id = gm.CharacterCardIds[i];
@@ -470,11 +539,13 @@ public class DeckEditUI : MonoBehaviour
         var gm = GameManager.Instance;
         if (level >= 1 && gm != null)
         {
-            bool equipped = gm.GetCharacterCardLockedCountForStack(card.cardId, level) > 0;
+            bool equipped = gm.GetOwnerCharacterCardCountForStack(card.cardId, level) > 0;
+            bool otherChar = !equipped && gm.GetCharacterCardLockedCountForStack(card.cardId, level) > 0;
             bool inDeck = gm.GetDeckLockedCountForStack(card.cardId, level) > 0;
             if (equipped && inDeck) statusLine = "\n\n[EQUIPPED / IN DECK]";
             else if (equipped) statusLine = "\n\n[EQUIPPED]";
             else if (inDeck) statusLine = "\n\n[IN DECK]";
+            if (otherChar) statusLine += "\n[他のキャラのキャラカード]";
         }
         if (detailText != null) detailText.text = (detailPreviewCard != null ? DetailDescription(card) : card.description) + statusLine;
 
@@ -913,6 +984,9 @@ public class DeckEditUI : MonoBehaviour
             OnConvertTapped();
             return;
         }
+
+        if (charPrevRect != null && RectTransformUtility.RectangleContainsScreenPoint(charPrevRect, screenPos, null)) { CycleCharacterCardOwner(-1); return; }
+        if (charNextRect != null && RectTransformUtility.RectangleContainsScreenPoint(charNextRect, screenPos, null)) { CycleCharacterCardOwner(+1); return; }
 
         for (int i = 0; i < characterSlotCards.Length; i++)
         {

@@ -40,7 +40,7 @@ public static class SaveKeys
         new Entry("NewUnconfirmedCardsV1", SaveCategory.Progress, SaveType.String, "NEW表示の未確認カード(カンマ区切り)"),
         new Entry("CardDataFormat", SaveCategory.Progress, SaveType.Int, "カードデータの旧形式→能力一式形式の変換済み印"),
         new Entry("DeckCardIds", SaveCategory.Progress, SaveType.String, "デッキ(カンマ区切り、最大10)"),
-        new Entry("CharacterCardSlots", SaveCategory.Progress, SaveType.String, "キャラ専用カード枠(キャラ=カード)"),
+        new Entry("CharacterCardSlots", SaveCategory.Progress, SaveType.String, "(旧)全キャラ共通のキャラカード枠。2026-10-02以降は起動時に選択中のキャラの枠へ移して消す"),
         new Entry("TotalOwnedMile", SaveCategory.Progress, SaveType.Int, "所持MILE(通貨)"),
         new Entry("BestDistance", SaveCategory.Progress, SaveType.Float, "全体の最高距離(ガチャの段階/解放の判定)"),
         new Entry("BestTime", SaveCategory.Progress, SaveType.Float, "最高記録の時間"),
@@ -91,11 +91,21 @@ public static class SaveKeys
         foreach (var id in ids) yield return StageBestPrefix + id;
     }
 
+    // 可変のキー: キャラごとのキャラカード枠(CharacterCardSlots.<characterId>、2026-10-02)
+    static readonly string[] KnownCharacterIds = { "swordsman", "dual_blade", "noble_lady", "gunslinger", "dragon_lancer", "archer", "mage", "fighter", "ninja", "miko", "vampire", "dragonkin" };
+    public static IEnumerable<string> CharacterCardKeys()
+    {
+        var ids = new HashSet<string>(KnownCharacterIds);
+        try { foreach (var c in CharacterDatabase.AllCharacters) if (c != null && !string.IsNullOrEmpty(c.characterId)) ids.Add(c.characterId); } catch { }
+        foreach (var id in ids) yield return GameManager.CharacterCardSlotsPrefix + id;
+    }
+
     // 開発版のカード調整パネル(CardTest.<key>.<0..2>)はキー数が多く、開発版専用なのでバックアップ/移行の対象外(完全初期化では残る)。
 
     public static IEnumerable<Entry> Expanded()
     {
         foreach (var e in All) yield return e;
         foreach (var k in StageBestKeys()) yield return new Entry(k, SaveCategory.Progress, SaveType.String, "マップ別BEST(double文字列)");
+        foreach (var k in CharacterCardKeys()) yield return new Entry(k, SaveCategory.Progress, SaveType.String, "キャラごとのキャラカード枠(id:Lv,id:Lv,id:Lv)");
     }
 }

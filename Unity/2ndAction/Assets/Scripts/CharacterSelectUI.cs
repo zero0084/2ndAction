@@ -90,12 +90,90 @@ public class CharacterSelectUI : MonoBehaviour
     Coroutine fadeCoroutine;
     Coroutine visualCrossFadeCoroutine;
 
+    // デッキ編集のキャラカード枠から戻ってきた時: そのキャラを表示したまま開く(選択は確定しない)
+    public void OpenAt(string characterId)
+    {
+        openAtId = characterId;
+        Open();
+        if (rootGroup != null) { if (fadeCoroutine != null) StopCoroutine(fadeCoroutine); rootGroup.alpha = 1f; }
+    }
+    string openAtId;
+
+    // 画面切り替えで覆っている間に、演出なしで閉じる(デッキ編集へ行く時)
+    public void HideImmediate()
+    {
+        if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
+        gameObject.SetActive(false);
+    }
+
+    // ===== キャラごとのキャラカード(2026-10-02): 情報パネルの下にそのキャラの3枠と「カード設定」 =====
+    Text charCardsText;
+    RectTransform charCardsButton;
+    void EnsureCharCardRow()
+    {
+        if (charCardsText != null || flavorText == null) return;
+        var info = flavorText.rectTransform.parent as RectTransform;
+        if (info == null) return;
+        var go = new GameObject("CharacterCardsRow");
+        go.transform.SetParent(info, false);
+        var r = go.AddComponent<RectTransform>();
+        r.anchorMin = new Vector2(0f, 1f); r.anchorMax = new Vector2(1f, 1f); r.pivot = new Vector2(0.5f, 1f);
+        r.sizeDelta = new Vector2(-80f - 190f, 96f);
+        r.anchoredPosition = new Vector2(-95f, -652f);
+        charCardsText = go.AddComponent<Text>();
+        charCardsText.font = flavorText.font;
+        charCardsText.fontSize = 18;
+        charCardsText.supportRichText = true;
+        charCardsText.alignment = TextAnchor.UpperLeft;
+        charCardsText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        charCardsText.verticalOverflow = VerticalWrapMode.Truncate;
+        charCardsText.resizeTextForBestFit = true; charCardsText.resizeTextMinSize = 12; charCardsText.resizeTextMaxSize = 18;
+        charCardsText.color = new Color(0.92f, 0.93f, 0.97f);
+        charCardsText.raycastTarget = false;
+
+        var bgo = new GameObject("CharacterCardsButton");
+        bgo.transform.SetParent(info, false);
+        charCardsButton = bgo.AddComponent<RectTransform>();
+        charCardsButton.anchorMin = charCardsButton.anchorMax = new Vector2(1f, 1f);
+        charCardsButton.pivot = new Vector2(1f, 1f);
+        charCardsButton.sizeDelta = new Vector2(176f, 60f);
+        charCardsButton.anchoredPosition = new Vector2(-36f, -660f);
+        var bg = bgo.AddComponent<Image>();
+        if (roleBadgeBg != null) { bg.sprite = roleBadgeBg.sprite; bg.type = roleBadgeBg.type; }
+        bg.color = new Color(0.55f, 0.4f, 0.12f, 0.95f);
+        bg.raycastTarget = false;
+        var lgo = new GameObject("Label");
+        lgo.transform.SetParent(bgo.transform, false);
+        var lr = lgo.AddComponent<RectTransform>();
+        lr.anchorMin = Vector2.zero; lr.anchorMax = Vector2.one; lr.offsetMin = lr.offsetMax = Vector2.zero;
+        var lt = lgo.AddComponent<Text>();
+        lt.font = flavorText.font; lt.fontSize = 20; lt.fontStyle = FontStyle.Bold; lt.alignment = TextAnchor.MiddleCenter;
+        lt.color = new Color(1f, 0.93f, 0.7f); lt.text = "カード設定 ▶"; lt.raycastTarget = false;
+    }
+
+    void RefreshCharCards(CharacterDefinition def)
+    {
+        EnsureCharCardRow();
+        var gm = GameManager.Instance;
+        if (charCardsText == null || gm == null || def == null) return;
+        var slots = gm.GetCharacterCardsOf(def.characterId);
+        var sb = new System.Text.StringBuilder("<color=#FFD866><b>キャラカード</b></color>\n");
+        for (int i = 0; i < slots.ids.Length; i++)
+        {
+            CardDefinition c = string.IsNullOrEmpty(slots.ids[i]) ? null : CardDatabase.FindById(slots.ids[i]);
+            string name = c == null ? "<color=#8890A0>(空き)</color>" : (CardVariant.IsVariantKey(slots.ids[i]) ? c.cardName : $"{c.cardName} Lv{Mathf.Max(1, slots.levels[i])}");
+            sb.Append(i == 0 ? "" : " / ").Append(name);
+        }
+        charCardsText.text = sb.ToString();
+    }
+
     public void Open()
     {
         gameObject.SetActive(true);
 
         var all = CharacterDatabase.AllCharacters;
-        string current = GameManager.Instance != null ? GameManager.Instance.SelectedCharacterId : null;
+        string current = !string.IsNullOrEmpty(openAtId) ? openAtId : GameManager.Instance != null ? GameManager.Instance.SelectedCharacterId : null;
+        openAtId = null;
         selectedIndex = 0;
         for (int i = 0; i < all.Count; i++)
         {
@@ -198,6 +276,7 @@ public class CharacterSelectUI : MonoBehaviour
         // バイナリSetActiveは廃止した。
 
         if (titleText != null) titleText.text = def.displayName;
+        RefreshCharCards(def);
         if (subtitleText != null) subtitleText.text = def.subtitle;
         if (flavorText != null) flavorText.text = def.flavorText;
         if (roleBadgeText != null) roleBadgeText.text = def.role;
@@ -257,6 +336,16 @@ public class CharacterSelectUI : MonoBehaviour
         if (selectButtonRect != null && RectTransformUtility.RectangleContainsScreenPoint(selectButtonRect, screenPos, null))
         {
             Confirm();
+            return;
+        }
+        if (charCardsButton != null && RectTransformUtility.RectangleContainsScreenPoint(charCardsButton, screenPos, null))
+        {
+            var all = CharacterDatabase.AllCharacters;
+            if (selectedIndex >= 0 && selectedIndex < all.Count && GameManager.Instance != null)
+            {
+                if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
+                GameManager.Instance.OpenCharacterCardsFromSelect(all[selectedIndex].characterId);
+            }
             return;
         }
         // 左右の矢印(カードより先に判定 - 矢印はカード列の端に重なって置いてある)
