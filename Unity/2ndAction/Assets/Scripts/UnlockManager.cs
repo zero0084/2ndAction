@@ -100,6 +100,7 @@ public static class UnlockManager
 
     static void Save()
     {
+        if (DebugRun.BlocksSave("UnlockedIds")) return;
         var ids = new List<string>(unlockedIds);
         PlayerPrefs.SetString(UnlockedIdsKey, string.Join(",", ids));
         PlayerPrefs.Save();

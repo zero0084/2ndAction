@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: no_turning_back
   cardName: NO TURNING BACK
-  icon: {fileID: 2800000, guid: 61b299e9866bc8947a83d0fbcbd09c66, type: 3}
+  icon: {fileID: 2800000, guid: d4482e8dd8695bd4c8ecca5a90df5ae0, type: 3}
   description: "\u79FB\u52D5\u901F\u5EA6\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B\u304C\u3001\u6575\u306E\u51FA\u73FE\u983B\u5EA6\u3082\u4E0A\u304C\u308B"
   category: 6
   sortOrder: 165

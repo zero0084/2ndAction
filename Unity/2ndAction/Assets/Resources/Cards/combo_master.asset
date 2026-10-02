@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: combo_master
   cardName: COMBO MASTER
-  icon: {fileID: 2800000, guid: 2cba9f4e56982624d827791e0485d10c, type: 3}
+  icon: {fileID: 2800000, guid: 6f82d33c71078734cbd82f9d71d59798, type: 3}
   description: "\u30B3\u30F3\u30DC\u6700\u7D42\u6BB5\u306E\u5A01\u529B\u304C\u5927\u5E45\u306B\u4E0A\u304C\u308B"
   category: 1
   sortOrder: 147
   recommendPriority: 5
   effects:
   - type: 14
-    value: 5
+    value: 50
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

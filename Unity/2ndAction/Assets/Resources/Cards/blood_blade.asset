@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: blood_blade
   cardName: BLOOD BLADE
-  icon: {fileID: 2800000, guid: 64096a1acab162649ac147bf1330a58f, type: 3}
+  icon: {fileID: 2800000, guid: cabfeef80a5f45649be77d4839c7cc10, type: 3}
   description: "HP\u6E80\u30BF\u30F3\u6642\u3001\u653B\u6483\u529B\u304C\u4E0A\u304C\u308B"
   category: 4
   sortOrder: 143
   recommendPriority: 5
   effects:
   - type: 17
-    value: 3
+    value: 30
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

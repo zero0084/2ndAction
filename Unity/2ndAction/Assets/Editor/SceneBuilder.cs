@@ -89,6 +89,33 @@ public static class SceneBuilder
         // painted scene, drawn fully static (no scroll/parallax) exactly
         // like its predecessor.
         gameManager.topBackground = LoadIconTexture("Assets/Art/UI/TopBackgroundHomeRoom.png");
+        // 環境アニメーション構造修正依頼(2026-09-18) - カーテンを背景から
+        // 完全に分離。TopBackgroundHomeRoom.png自体は元のカーテンを消して
+        // 窓/壁を描き足した版へ差し替え済み、カーテン本体はこの
+        // HomeCurtainStandalone.png(元画像からカーテン部分だけをAI背景
+        // 除去で切り出した透過素材、色・質感は元と完全一致)を別レイヤー
+        // として上に重ねて揺らす(GameManager.DrawCurtainSway参照)。
+        gameManager.homeCurtain = LoadIconTexture("Assets/Art/UI/HomeCurtainStandalone.png");
+        // LoadIconTextureはNPOT(非2のべき乗)画像を既定のToNearestで2の
+        // べき乗サイズへ引き伸ばしてしまう(460x1536→512x2048、幅と高さで
+        // 別々の倍率がかかるため縦横比が歪む)。topBackground側はこの歪みを
+        // bgRoomRectのcover-scale計算も同じ.width/.heightを参照すること
+        // で結果的に吸収できていた(既存の広範な挙動のため今回は変更せず
+        // 維持)が、homeCurtainは実寸の縦横比をDrawCurtainSway側で直接
+        // 参照して配置に使うため、歪みがそのまま見た目の破綻に繋がる。
+        // npotScale=Noneで元の460x1536のまま保持する。
+        ConfigureNoNpotScale("Assets/Art/UI/HomeCurtainStandalone.png");
+
+        // Home待機演出(2026-09-21) - 背景から分離した扉の葉/開口部の奥の光/ベッド上の
+        // カード。topBackgroundはこれらを除去・補完済みの版に差し替え済み。
+        gameManager.homeDoorLeaf = LoadHomeIdleTexture("door_leaf");
+        gameManager.homeDoorBackdrop = LoadHomeIdleTexture("door_backdrop");
+        gameManager.homeIdleCards = new[]
+        {
+            LoadHomeIdleTexture("card_A"), LoadHomeIdleTexture("card_B"), LoadHomeIdleTexture("card_C"),
+            LoadHomeIdleTexture("card_D"), LoadHomeIdleTexture("card_E"), LoadHomeIdleTexture("card_G"),
+            LoadHomeIdleTexture("card_H"),
+        };
         // Imported ONCE as a Sprite (ForegroundCloudLayer needs that for
         // in-game SpriteRenderer use - see Build() below) - gameManager's
         // own Texture2D field is then just a cheap AssetDatabase lookup of
@@ -128,6 +155,12 @@ public static class SceneBuilder
         // procedural 1x1 textures via OnGUI, same as UiBackdrop.
         GameObject transitionGO = new GameObject("ScreenTransitionManager");
         transitionGO.AddComponent<ScreenTransitionManager>();
+
+        // エリアルコンボ改修(2026-09-11), item 7 - 「3 HIT/4 HIT...のような
+        // 簡単なコンボ表示」。既存HUDと同じOnGUIの単純なテキスト表示
+        // (ComboCounterUI.cs参照)、専用のuGUI Canvasは不要。
+        GameObject comboCounterGO = new GameObject("ComboCounterUI");
+        comboCounterGO.AddComponent<ComboCounterUI>();
 
         // Audio (AudioManager generates its own placeholder tones at runtime,
         // since procedural AudioClips can't be saved into the scene file).
@@ -173,12 +206,40 @@ public static class SceneBuilder
         gameManager.rewardCardSequence = BuildRewardCardCanvas();
         gameManager.deckEditUI = BuildDeckEditCanvas();
         gameManager.cardFusionUI = BuildCardFusionCanvas();
+        // キャラクター選択画面(2026-09-12) - CharacterDatabaseBuilder.Build
+        // をここで呼ぶ(EnemyDatabaseBuilder.Buildと同じ扱い) - 4人目・5人目
+        // を追加する際もCharacterDefinitionアセットを1つ足すだけで、この
+        // SceneBuilder.Buildを再実行すれば自動的にCharacter Select画面へ
+        // 反映される(BuildCharacterSelectCanvas側がCharacterDatabase.
+        // AllCharactersの件数ぶん動的にカードスロットを生成するため)。
+        // 二丁拳銃士追加(2026-09-23) - 専用素材がまだ無い間の手続き的プレー
+        // スホルダー画像生成(CaveEnemyArtGenerator/CaveBossFxと同じ「既存
+        // ファイルはスキップ」方式)。CharacterDatabaseBuilder.Buildが読み
+        // 込む前に必ず用意しておく必要があるため、ここで先に呼ぶ。
+        GunslingerArtGenerator.Generate();
+        CharacterDatabaseBuilder.Build();
+        gameManager.characterSelectUI = BuildCharacterSelectCanvas();
+        StageDatabaseBuilder.Build();
+        gameManager.stageSelectUI = BuildStageSelectCanvas();
         // Home Room UI reconstruction pass, item 4 - the Gacha machine is
         // now a prop drawn directly onto the TOP room (see GameManager.
         // OnGUI's title-screen block), not a Sprite inside a Canvas -
         // plain Texture2D import (LoadIconTexture, same as topBackground/
         // titleLogo) since GUI.DrawTexture takes a Texture2D, not a Sprite.
         gameManager.gachaMachineTexture = LoadIconTexture("Assets/Art/UI/GachaMachine.png");
+        // Home画面 / Stage Select改善依頼(2026-09-16), item2 - Character
+        // 肖像画を「壁に飾られた額縁」に見せるためのフレーム。ChatGPTで
+        // 生成した、中央が完全透明(実アルファ)のPNG。
+        gameManager.portraitFrameTexture = LoadIconTexture("Assets/Art/UI/PortraitFrame.png");
+        // Home画面改善依頼⑨(2026-09-17) - 素材未生成の間はLoadIconTextureが
+        // nullを返すだけで安全(GameManager側もnull許容)。生成でき次第この
+        // パスにPNGを置くだけで反映される。
+        gameManager.portraitAgingOverlayTexture = LoadIconTexture("Assets/Art/UI/PortraitAgingOverlay.png");
+        // Home環境アニメーション強化+肖像画背景追加依頼(2026-09-17) -
+        // キャラのportraitテクスチャは透明背景の切り抜きのため、額縁の中に
+        // 「貼った」感が出てしまっていた。全キャラ共通の1枚(暗い油彩風の
+        // 抽象背景)をportrait本体の下に敷き、1枚の絵として見せる。
+        gameManager.portraitBackdropTexture = LoadIconTexture("Assets/Art/UI/PortraitBackdrop.png");
         // Ver.1 finishing pass, item 8 - reuses the already-imported Card
         // Select SE (see ConfigureSfxImport("...CardSelectSe.wav") above)
         // for the room hotspots' tap feedback.
@@ -192,6 +253,51 @@ public static class SceneBuilder
         player.transform.position = new Vector3(1f, 0f, 0f);
 
         follow.target = player.transform;
+
+        // Vertical Mode Prototype (2026-09-08) - the second, Portrait-mode
+        // camera (see PortraitCameraRig's own comment for the full "斜め上
+        // 視点" reasoning). Tagged MainCamera same as the Landscape camera
+        // above - Camera.main resolves to whichever tagged camera is
+        // currently ENABLED, so every existing Camera.main call site
+        // elsewhere in the project (CameraFollow.Shake, the Escape charge
+        // gauge, etc.) automatically follows whichever mode is active with
+        // zero changes needed there. Disabled by default (and its
+        // AudioListener with it) - the Landscape build's behavior is
+        // unchanged until ViewModeToggle actually switches modes.
+        GameObject portraitCamGO = new GameObject("Portrait Camera");
+        portraitCamGO.tag = "MainCamera";
+        Camera portraitCam = portraitCamGO.AddComponent<Camera>();
+        portraitCam.orthographic = false;
+        portraitCam.fieldOfView = 62f;
+        portraitCam.nearClipPlane = 1f;
+        portraitCam.farClipPlane = 100f;
+        portraitCam.clearFlags = CameraClearFlags.SolidColor;
+        portraitCam.backgroundColor = cam.backgroundColor;
+        portraitCam.enabled = false;
+        var portraitListener = portraitCamGO.AddComponent<AudioListener>();
+        portraitListener.enabled = false;
+        PortraitCameraRig portraitRig = portraitCamGO.AddComponent<PortraitCameraRig>();
+        portraitRig.target = player.transform;
+        portraitRig.cam = portraitCam;
+
+        // Billboard (see its own comment) on the Player's Visual child only
+        // - Root carries the Collider2D/Rigidbody2D and must never be
+        // rotated in 3D. No-ops entirely while portraitCam is disabled, so
+        // this has zero effect on the Landscape build.
+        Transform playerVisual = player.transform.Find("Visual");
+        if (playerVisual != null)
+        {
+            var playerBillboard = playerVisual.gameObject.AddComponent<Billboard>();
+            playerBillboard.targetCamera = portraitCam;
+        }
+
+        // One-key (V) Landscape/Portrait switch for Editor comparison - see
+        // ViewModeToggle's own comment. Lives on the same GameObject as the
+        // Landscape camera purely so it's easy to find in the Hierarchy;
+        // has no functional dependency on that placement.
+        var viewModeToggle = camGO.AddComponent<ViewModeToggle>();
+        viewModeToggle.landscapeCam = cam;
+        viewModeToggle.portraitRig = portraitRig;
 
         // Terrain (infinite chunk-based course generator)
         GameObject terrainGO = new GameObject("TerrainManager");
@@ -244,6 +350,13 @@ public static class SceneBuilder
         // reproduces that same in-game size).
         terrain.enemySprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/enemy_v1.png", 1053f);
         terrain.player = player.transform;
+        // ステージ別ビジュアル差し替え(2026-09-13) - 天空回廊(既存の見た目
+        // そのまま)はstageThemesに何も追加しない。荒野街道の専用アートが
+        // 用意でき次第、ここへTerrainThemeSetを1件追加するだけで済む。
+        terrain.backgroundRenderer = dayBackgroundSr;
+        terrain.stageThemes = BuildTerrainThemes();
+        // 自然洞窟(2026-09-21) - 天井/針/たいまつ/暗さ。洞窟ステージ選択時だけ有効化される。
+        BuildCaveStage(terrain, cam, cloudLayerGO);
         // Game Feel refinement pass - OneMoreMile_GameFeel pack, individual
         // PNGs (see AGENTS/PR notes) - imported at a consistent ~1-world-
         // unit BASE size each (PPU == the source file's own pixel width),
@@ -255,6 +368,10 @@ public static class SceneBuilder
         terrain.enemyHitSparkSprite = LoadTiledSprite("Assets/Art/Effects/HitSpark.png", 1536f);
         terrain.enemyDeathCloudSprite = LoadTiledSprite("Assets/Art/Effects/EnemyDeathSmoke.png", 1536f);
         terrain.enemyGroundShadowSprite = LoadTiledSprite("Assets/Art/Effects/GroundShadow.png", 1672f);
+        // エリアルコンボ改修(2026-09-11), item 8 - プレイヤー自身の下攻撃
+        // 着地(CreatePlayer内のdownAttackLandSlashVisual)と全く同じ素材/
+        // Pivotを共有(「既存素材が使用できる場合はそれを利用」)。
+        terrain.enemyGroundImpactSprite = LoadTiledSpriteWithPivot("Assets/Art/Effects/ImpactBurstBlue.png", 545f, new Vector2(0.5f, 0.05f));
 
         // Game Feel refinement pass, section 13 - bottom-content-pivoted
         // (same approach as every foot-pivoted character sprite - see
@@ -293,6 +410,12 @@ public static class SceneBuilder
         // EnemyDatabaseBuilder below self-loads each of these by path once
         // this import config is applied - the returned Sprite references
         // aren't otherwise needed here.
+        // Stage01完成版要求仕様書「鳥」対応(2026-09-13) - 元のFlyingEnemy.png
+        // (ドラゴン風で強敵に見えすぎる)は温存しつつ(将来天空回廊が本実装
+        // される際に強敵系の飛行敵として再利用できるよう削除しない)、
+        // 現状で実際にゲーム中に出現する唯一の飛行種(flying_wyvern、
+        // wasteland_road専用)にはこちらの新しい鷹アートを使う。
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/WastelandBird.png", 1117.6f);
         ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/FlyingEnemy.png", 730f);
         ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/IrregularEnemy.png", 1140f);
         ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/ShooterEnemy.png", 850f);
@@ -321,13 +444,97 @@ public static class SceneBuilder
         // they're moving, and the SAME visualScaleMultiplier below has to
         // look right on BOTH the portrait (idle/stagger states) and these
         // run frames (moving), the two needed to share one natural PPU
-        // baseline. 374 was solved for exactly that: at PPU 374, the 5
-        // frames' average content height (~349.8px) reproduces
-        // RunnerEnemy.png's own natural world height (~0.935 units) as
-        // closely as a single shared PPU can - one visualScaleMultiplier
-        // now sizes both states consistently instead of the run animation
-        // silently rendering at roughly half scale.
-        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/RunnerRun", 374f);
+        // baseline. This pass's own follow-up bug (see below) is exactly
+        // the residual (~103-132%) unevenness a single shared PPU couldn't
+        // fully remove.
+        //
+        // 敵Runnerアニメーションのズレ修正(2026-09-15) - マスター報告
+        // 「Runnerのアニメーションのズレ」の根本原因が上記コメントにまさに
+        // 記録されていた「374という1つの共有PPUでは平均値しか合わせられず、
+        // 実測103〜132%の個体差(コマごとの伸び縮み)が残る」という既知の
+        // 限界そのものだった。ConfigureSpriteFolderImportWithFootPivotUniform
+        // Size(新設、SceneBuilder.cs内の同関数のコメント参照)へ切り替え、
+        // 共有PPUではなく「コマ個別のPPU」をそのコマ自身のアルファコンテン
+        // ツ高さから逆算する方式にした。targetWorldHeight=RunnerEnemy.png
+        // 自身の実測ワールド高さ(954px÷PPU1020=0.9353)を渡すことで、5コマ
+        // 全てがポートレートと寸分違わず同じワールド高さで描画されるように
+        // なり、伸び縮み(ズレ)が原理的に解消される。
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/RunnerRun", 954f / 1020f);
+
+        // 敵アニメーション追加(2026-09-15) - マスター報告「各敵キャラの
+        // アニメーションを追加してほしい」への対応、第1弾(Goblin)。ChatGPT
+        // にenemy_v1.pngを参照画像として渡し、同じキャラクター・同じ画風の
+        // 左向き走行5コマを生成(黒背景、しきい値透過処理済み)。Runnerの
+        // ズレ修正で新設したConfigureSpriteFolderImportWithFootPivotUniform
+        // Sizeをそのまま使い、targetWorldHeight=enemy_v1.png自身の実測ワー
+        // ルド高さ(1308px÷PPU1053=1.2422)を渡すことで、最初から伸び縮み
+        // (Runnerで発見したのと同じ種類のズレ)が起きない状態で導入する。
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/GoblinRun", 1308f / 1053f);
+
+        // 敵アニメーション追加(2026-09-15) - 第2弾(Shooter)。ShooterEnemy.png
+        // 自身の実測ワールド高さ(1009px÷PPU850=1.1871)をtargetWorldHeightに
+        // 渡す。
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/ShooterRun", 1009f / 850f);
+
+        // 敵アニメーション追加(2026-09-15) - 第3弾(Heavy)。HeavyEnemy.png
+        // 自身の実測ワールド高さ(996px÷PPU570=1.7474)をtargetWorldHeightに
+        // 渡す。
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/HeavyRun", 996f / 570f);
+
+        // 敵アニメーション追加(2026-09-15) - 第4弾(Irregular)。IrregularEnemy.
+        // png自身の実測ワールド高さ(956px÷PPU1140=0.8386)をtargetWorld
+        // Heightに渡す。
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/IrregularRun", 956f / 1140f);
+
+        // 敵アニメーション追加(2026-09-15) - 第5弾(Flying/Bird)、最後の1種。
+        // 他4種と違い「走行」ではなく「羽ばたき」5コマ(WastelandBird.pngを
+        // 参照画像にChatGPTで生成、黒背景・しきい値透過処理済み)。ここだけ
+        // 足元Pivot系の関数を使わない - 翼を広げたコマと畳んだコマとでは
+        // シルエットの縦幅が本来大きく異なる(実測297-425px、約43%差)ため、
+        // Runner/Goblin等と同じ「コマ個別PPUで揃える」処理をすると本来の
+        // 翼の広がりごと胴体まで拡大縮小されてしまい逆効果。さらに「最下点
+        // 基準Pivot」も、翼を下げたコマでは翼先が最下点になってしまい
+        // 胴体が上下にジャンプして見える(実測、コンテンツ中心が308〜505px
+        // まで変動)。Flying種はGetHeightAt基準の接地もそもそも無く
+        // (EnemyAnimator.Update、isFlyingの独自bobのみ)、必要なのは「胴体の
+        // 位置がコマ間で一定であること」だけなので、既存のConfigureSprite
+        // FolderImport(Pivot指定なし=Unity既定のCenter Pivot、PPUは全コマ
+        // 共有のWastelandBird.png自身の値)をそのまま使う - 生成時に「胸位置
+        // をコマ間で揃える」よう指示済みなので、固定Center Pivotで胴体が
+        // ブレずに揃う。
+        ConfigureSpriteFolderImport("Assets/Art/WastelandBirdFlap", 1117.6f);
+
+        // 自然洞窟雑魚敵追加(2026-09-22) - CaveEnemyArtGenerator(Tools/
+        // OneMoreMile/Generate Cave Enemy Art)が生成する手続き的な仮素材
+        // (実イラスト未着手のプレースホルダー、輪郭のみ)。キャンバス自体
+        // がFull Rectでそのままsprite.bounds(=Collider/Visualの基準)になる
+        // (足元Pivot系関数のコメント参照)ため、PPU=キャンバス高さ÷目標
+        // ワールド高さで直接その種の目標サイズになるよう合わせてある -
+        // EnemyDatabaseBuilder側のvisualScaleMultiplierは全種1fのまま
+        // (Collider/Visualのズレを生まないため)。将来ChatGPT等で本物の
+        // イラストに差し替える場合は、同名ファイルの中身を入れ替えた上で
+        // ここのPPUを実測値に合わせて再調整すること。
+        // 本番素材差し替え(2026-09-23、ChatGPT生成) - 実測コンテンツ高さ
+        // 461px÷372≒1.24u(元の手続き的プレースホルダーと同じ「Playerの
+        // 約105%」を維持する形で再算出、Run側はUniformSize方式のため
+        // 解像度非依存で変更不要)。
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/CaveAnt.png", 372f);
+        // 本番素材差し替え(2026-09-23) - 実測504px÷363≒1.39u(同じ「Playerの約118%」を維持)。
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/SoldierAnt.png", 363f);
+        // 本番素材差し替え(2026-09-23) - 実測497px÷401≒1.24u(同じ「Playerの約105%」を維持)。
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/CaveHopper.png", 401f);
+        // 本番素材差し替え(2026-09-23) - 実測475px÷365≒1.30u(同じ「Playerの約110%」を維持)。
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/CaveBat.png", 365f);
+        // 本番素材差し替え(2026-09-23) - 実測794px÷481≒1.65u(同じ「Playerの約140%」を維持)。
+        ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/BurrowWorm.png", 481f);
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/CaveAntRun", 140f / 113f);
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/SoldierAntRun", 160f / 115f);
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/CaveHopperRun", 190f / 153f);
+        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/BurrowWormRun", 170f / 103f);
+        // Cave Batは羽ばたきで縦幅がコマごとに変わる(WastelandBirdFlapと
+        // 同じ理由) - 足元Pivot/コマ別均一サイズではなく、中心Pivot+共有PPU
+        // のConfigureSpriteFolderImportを使う。
+        ConfigureSpriteFolderImport("Assets/Art/CaveBatRun", 365f); // 本番素材差し替え(2026-09-23) - ポートレートと同じPPU(羽ばたきコマ間の体サイズ一貫性のため)
 
         // Distance-unlock system - enemy species database, built now that
         // the goblin sprite's import (foot pivot/PPU) is configured, since
@@ -341,11 +548,32 @@ public static class SceneBuilder
         EnemyDatabaseBuilder.Build(terrain.enemySprite);
         terrain.enemyPool = new List<EnemyDefinition>(EnemyDatabase.AllEnemies);
 
+        // 敵AI行動Tier試験実装(2026-09-16) - T0/T1/T2比較用の3体
+        // (goblin_t0/t1/t2)は通常のenemyPoolには含めない別Resourcesフォル
+        // ダに作られる(EnemyDatabaseBuilder.BuildTierTestEnemies自身の
+        // コメント参照)。TerrainManager.debugTierTestEnemiesへ直接割り当て、
+        // GameManager.DebugModeがONの間だけ走行開始直後にT0→T1→T2の順で
+        // 強制スポーンされる。
+        terrain.debugTierTestEnemies = EnemyDatabaseBuilder.BuildTierTestEnemies(terrain.enemySprite);
+
         // Distance Level Design Ver.1 - Shooter Enemy's projectile visual;
-        // "簡易Sprite/既存VFX流用で構いません" from the brief, so this just
-        // reuses the already-imported Hit Spark art rather than needing a
-        // dedicated arrow/bolt asset.
-        terrain.shooterProjectileSprite = terrain.enemyHitSparkSprite;
+        // "簡易Sprite/既存VFX流用で構いません" from the brief, so this
+        // originally just reused the already-imported Hit Spark art rather
+        // than needing a dedicated arrow/bolt asset.
+        //
+        // 敵の攻撃VFX修正(2026-09-15) - マスター報告「敵の攻撃時の炎などの
+        // アニメーションがうまく反映されていない」を調査。HitSpark.png は
+        // 静止した被弾の閃光(放射状にギザギザ/羽根状に広がる形状)用の絵で、
+        // FireballController の常時回転+脈動スケール(DragonController/
+        // MajinController の火球と全く同じ手続き的アニメーション、詳細は
+        // FireballController.cs参照)と組み合わせると、飛翔する一塊の弾に
+        // 見えるべきところが回転する放射状の閃光になってしまい、明らかに
+        // 「炎の塊」としては破綻して見えていた。ボス(ドラゴン/魔人)の火球は
+        // 同じFireballControllerでsquareSprite(単色四角、色は暖色に着色)を
+        // 使っており、こちらは正しく「回転+脈動+燃えかすの尾」で炎の塊らし
+        // く見えている(既に実績のある組み合わせ) - Shooter敵もこれに合わ
+        // せ、専用の炎/矢アートが用意できるまでの間はsquareSpriteへ統一する。
+        terrain.shooterProjectileSprite = squareSprite;
 
         // Boss (watches distance, spawns dragon/majin encounters starting
         // at 1000m)
@@ -380,6 +608,91 @@ public static class SceneBuilder
         // "PPU chosen for a base world height, dragonScale multiplies on
         // top" convention as the real Dragon/Majin art.
         boss.mechanicalDragonSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Boss/MechanicalDragon.png", 1152f / 3.2f);
+
+        // 荒野街道ボス追加(2026-09-20) - 新ボス10種の姿勢別スプライト。画像は
+        // Assets/Art/WildBoss/<name>_<pose>.png(ChatGPT生成、マゼンタ背景を
+        // キー抜き+個別に切り出し済み)。無い姿勢はnull(ボス側でIdle代用)。
+        // 表示サイズはWildBossBase.bodyHeightからの逆算なのでPPUは任意。
+        boss.wildArt = new[]
+        {
+            LoadWildArt(WildBossKind.Wolf, "wolf"),
+            LoadWildArt(WildBossKind.GoblinRider, "rider"),
+            LoadWildArt(WildBossKind.Serpent, "serpent"),
+            LoadWildArt(WildBossKind.Cyclops, "cyclops"),
+            LoadWildArt(WildBossKind.Spider, "spider"),
+            LoadWildArt(WildBossKind.Golem, "golem"),
+            LoadWildArt(WildBossKind.Griffin, "griffin"),
+            LoadWildArt(WildBossKind.Hydra, "hydra"),
+            LoadWildArt(WildBossKind.Demon, "demon"),
+            LoadWildArt(WildBossKind.BlackKnight, "knight"),
+        };
+
+        // 自然洞窟ボス本番素材化(2026-09-23) - wildArtと全く同じ考え方。画像は
+        // Assets/Art/CaveBoss/<name>_<pose>.png(ChatGPT生成)。無いkind/姿勢は
+        // 従来どおりnull(BossManager.SpecForCave側でCaveBodySilhouetteの
+        // 手続き的プレースホルダーへフォールバック)。
+        boss.caveArt = new[]
+        {
+            LoadCaveArt(CaveBossKind.Centipede, "centipede"),
+            LoadCaveArt(CaveBossKind.Scorpion, "scorpion"),
+            LoadCaveArt(CaveBossKind.Mole, "mole"),
+            LoadCaveArt(CaveBossKind.Troll, "troll"),
+            LoadCaveArt(CaveBossKind.Worm, "wormboss"),
+            LoadCaveArt(CaveBossKind.CrystalGolem, "crystalgolem"),
+            LoadCaveArt(CaveBossKind.Bat, "batboss"),
+            LoadCaveArt(CaveBossKind.ScorpionKing, "scorpionking"),
+            LoadCaveArt(CaveBossKind.Basilisk, "basilisk"),
+            LoadCaveArt(CaveBossKind.Drake, "drake"),
+            LoadCaveArt(CaveBossKind.AncientDemon, "ancientdemon"),
+        };
+
+        // 攻撃エフェクト本番素材化(2026-09-23) - BossFx/CaveBossFxは
+        // Resources.Load("Effects/<name>")で実行時に自前取得するため、ここでは
+        // 「アセットのインポート設定をSprite化する」ことだけが目的(戻り値は
+        // 使わない)。PPU=512は素材生成側のsquarepad2.ps1が常に512x512正方形へ
+        // 出力する前提と一致させ、Make()時代と同じ「等倍で1x1unit」契約を保つ。
+        // 天空回廊ボス追加(2026-09-25) - caveArtと同じ考え方。画像はAssets/Art/SkyBoss/<name>_<pose>.png
+        // (ChatGPT生成、bossart.ps1で切り出し)。無いkind/姿勢はnull(SkyBossFx.Placeholderへフォールバック)。
+        // ドラゴン/魔人は既存のDragonIdle/MajinIdle等をそのまま使うのでここには含めない。
+        boss.skyArt = new[]
+        {
+            LoadSkyArt(SkyBossKind.Behemoth, "behemoth"),
+            LoadSkyArt(SkyBossKind.Titan, "titan"),
+            LoadSkyArt(SkyBossKind.Jellyfish, "jellyfish"),
+            LoadSkyArt(SkyBossKind.Leviathan, "leviathan"),
+            LoadSkyArt(SkyBossKind.Fenrir, "fenrir"),
+            LoadSkyArt(SkyBossKind.SkyGolem, "skygolem"),
+            LoadSkyArt(SkyBossKind.Phoenix, "phoenix"),
+            LoadSkyArt(SkyBossKind.SkySerpent, "skyserpent"),
+            LoadSkyArt(SkyBossKind.Guardian, "guardian"),
+        };
+        ConfigureEffectSpriteIfPresent("skybolt");
+        ConfigureEffectSpriteIfPresent("titanfist");
+        ConfigureEffectSpriteIfPresent("flamefeather");
+        ConfigureEffectSpriteIfPresent("cloudpuff");
+        ConfigureEffectSpriteIfPresent("thunderspear");
+        // 攻撃エフェクト本番素材化(2026-09-26) - 雑魚敵の警告マーク/弓兵の矢/ドラゴン・魔人の火球。
+        ConfigureEffectSpriteIfPresent("warning");
+        ConfigureEffectSpriteIfPresent("arrow");
+        ConfigureEffectSpriteIfPresent("fireball");
+        ConfigureEffectSpriteIfPresent("muzzleflash"); // 二丁拳銃士の前方射撃(2026-09-26)
+        ConfigureEffectSpriteIfPresent("lancethrust"); // 竜騎士の突きの衝撃波(2026-09-26)
+
+        ConfigureEffectSpriteIfPresent("fang");
+        ConfigureEffectSpriteIfPresent("slash");
+        ConfigureEffectSpriteIfPresent("ring");
+        ConfigureEffectSpriteIfPresent("orb");
+        ConfigureEffectSpriteIfPresent("rockchunk");
+        ConfigureEffectSpriteIfPresent("crystalshard");
+        ConfigureEffectSpriteIfPresent("burst");
+
+        // 100,000m 死神(従来仕様=追跡はせず出現のみ、を維持したまま素材を設定)
+        Sprite reaperSprite = LoadWildSprite("reaper", "idle", 1.4f);
+        if (reaperSprite != null)
+        {
+            boss.deathSprite = reaperSprite;
+            boss.deathDefaultFacingRight = false; // 素材は左向き
+        }
 
         // Distance Level Design Ver.1 - Death/Grim Reaper (item 8).
         // INTENTIONALLY NOT WIRED - the provided file (Death.jpg) has the
@@ -439,7 +752,7 @@ public static class SceneBuilder
         GameObject timeGO = new GameObject("WorldTimeCycle");
         WorldTimeCycle timeCycle = timeGO.AddComponent<WorldTimeCycle>();
         timeCycle.dayLayer = dayBackgroundSr;
-        Sprite nightSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Background/NightFloatingIsland.png", 941f);
+        Sprite nightSprite = ConfigureAndLoadSpriteWithCenterPivot("Assets/Art/Background/NightFloatingIsland.png", 941f);
         if (nightSprite != null)
         {
             GameObject nightGO = new GameObject("NightBackground");
@@ -459,6 +772,49 @@ public static class SceneBuilder
         wallManager.squareSprite = squareSprite;
         wallManager.enemySprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Enemy/enemy_v1.png");
         wallManager.enemyPool = new List<EnemyDefinition>(EnemyDatabase.AllEnemies);
+
+        // Stage01 荒野街道 最小実装(2026-09-13) - 石/小木/壁/壊せる木/
+        // 巨大石を一定間隔で配置する。EnemyWallManagerと同じ「player直下に
+        // 生成しplayer.position.xを起点に前方の距離だけ管理する」配置。
+        GameObject obstacleGO = new GameObject("ObstacleSpawner");
+        ObstacleSpawner obstacleSpawner = obstacleGO.AddComponent<ObstacleSpawner>();
+        obstacleSpawner.player = player.transform;
+        obstacleSpawner.squareSprite = squareSprite;
+
+        // Stage01 荒野街道 完成版素材(2026-09-13) - 「プレースホルダー/
+        // 単色四角は残さないでください」への対応。5種類それぞれ専用に
+        // ChatGPTで生成・content-awareクロップ済みの実スプライトを
+        // ConfigureAndLoadSpriteWithFootPivotで(足元pivotで)読み込み、
+        // ObstacleSpawnerのデフォルトspecs(色付き四角フォールバック)を
+        // 実アート版で上書きする。PPUはtargetHeight(ゴブリン実効高さ
+        // ~1.41 world unitsを基準にした完成版要求仕様書の相対サイズ:
+        // 石70%/小木90%/壁150%/壊せる木100%/巨大石200%+)から
+        // 各画像の実クロップ高さ(px)を割って算出した。
+        Sprite obstacleRockSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Obstacles_v1/obstacle_rock.png", 138f);
+        Sprite obstacleSmallTreeSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Obstacles_v1/obstacle_smalltree.png", 196.8f);
+        Sprite obstacleBreakableTreeSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Obstacles_v1/obstacle_breakabletree.png", 235f);
+        Sprite obstacleWallSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Obstacles_v1/obstacle_wall.png", 186.7f);
+        Sprite obstacleGiantRockSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Obstacles_v1/obstacle_giantrock.png", 181.4f);
+
+        obstacleSpawner.specs = new[]
+        {
+            new ObstacleSpawner.ObstacleSpec { name = "Rock", sprite = obstacleRockSprite, targetHeight = 1.0f, color = Color.white, breakable = false, hp = 1, weight = 30f },
+            new ObstacleSpawner.ObstacleSpec { name = "SmallTree", sprite = obstacleSmallTreeSprite, targetHeight = 1.25f, color = Color.white, breakable = false, hp = 1, weight = 25f },
+            new ObstacleSpawner.ObstacleSpec { name = "BreakableTree", sprite = obstacleBreakableTreeSprite, targetHeight = 1.4f, color = Color.white, breakable = true, hp = 2, weight = 20f },
+            new ObstacleSpawner.ObstacleSpec { name = "Wall", sprite = obstacleWallSprite, targetHeight = 2.1f, color = Color.white, breakable = false, hp = 1, weight = 15f },
+            new ObstacleSpawner.ObstacleSpec { name = "GiantRock", sprite = obstacleGiantRockSprite, targetHeight = 2.8f, color = Color.white, breakable = false, hp = 1, weight = 10f },
+        };
+
+        // ルート構造再調整(2026-09-13) - 上ルート(Easy)専用の軽い敵配置。
+        // EnemyWallManagerと同じ敵プール(EnemyDatabase.AllEnemies=ゴブリン
+        // /鳥)をそのまま再利用する - 新種族や新しいFormationは追加しない。
+        GameObject upperEnemyGO = new GameObject("UpperRouteEnemySpawner");
+        UpperRouteEnemySpawner upperEnemySpawner = upperEnemyGO.AddComponent<UpperRouteEnemySpawner>();
+        upperEnemySpawner.player = player.transform;
+        upperEnemySpawner.squareSprite = squareSprite;
+        upperEnemySpawner.enemyPool = new List<EnemyDefinition>(EnemyDatabase.AllEnemies);
+        BuildCaveSpawners(player.transform, squareSprite);
+        BuildLastCorridor(player.transform, squareSprite);
 
         EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene(), ScenePath);
 
@@ -502,6 +858,9 @@ public static class SceneBuilder
 
         Sprite cardBackSprite = LoadTiledSprite("Assets/Art/UI/CardBack.png", 100f);
         Sprite cardFrameSprite = LoadTiledSprite("Assets/Art/UI/CardFrame.png", 100f);
+        // Card UI改修(2026-09-08) - 新共通素材(カード下地/タイトル帯)。
+        Sprite cardBaseSprite = LoadTiledSprite("Assets/Art/UI/CardFrames/CardBase.png", 100f);
+        Sprite cardTitleBandSprite = LoadTiledSprite("Assets/Art/UI/CardFrames/CardTitlePlate.png", 100f);
         Sprite glowSprite = CreateRadialGlowSprite();
 
         GameObject rootGO = new GameObject("RewardCardRoot");
@@ -570,9 +929,8 @@ public static class SceneBuilder
         deckRect.anchoredPosition = new Vector2(0f, -420f);
         sequence.deckRoot = deckRect;
 
-        const float cardWidth = 260f;
-        float cardAspect = cardFrameSprite != null ? cardFrameSprite.rect.height / cardFrameSprite.rect.width : 1010f / 612f;
-        float cardHeight = cardWidth * cardAspect;
+        const float cardWidth = 260f; // Card UI改修 - spec's "報酬選択: 260x390"
+        float cardHeight = cardWidth * CardAspect;
 
         var deckImages = new Image[3];
         for (int i = 0; i < 3; i++)
@@ -604,9 +962,115 @@ public static class SceneBuilder
         var cardComponents = new RewardCardUI[3];
         for (int i = 0; i < 3; i++)
         {
-            cardComponents[i] = CreateRewardCard(rootGO.transform, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, sequence.OnCardClicked);
+            // カード選択UI再設計(2026-09-12第3弾) - 「引いた3枚のカードその
+            // ものを最後まで選択UIとして使う」との明示的な依頼により、この
+            // カード自身をタップ可能にする(旧: onClick=null、横長行UIへの
+            // 切り替え後にだけタップ可能にしていた)。
+            cardComponents[i] = CreateRewardCard(rootGO.transform, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, sequence.OnCardClicked, cardBaseSprite, cardTitleBandSprite);
         }
         sequence.cards = cardComponents;
+
+        // カード選択UI再設計(2026-09-12第3弾) - マスター指示「前回の横長
+        // 3段リスト形式は今回は使用せず、カード3枚＋共通の詳細説明エリア
+        // という構成で」。旧ChoicePanel(横長3行UIとその見出し)は完全に
+        // 廃止し、代わりにカードの下に1つだけの「詳細説明エリア」を置く -
+        // タップされたカードのTitle/Lv/効果説明をここに書き換える方式
+        // (RewardCardSequence.UpdateDetailPanel参照)、カードごとに別々の
+        // パネルは出さない。
+        GameObject detailPanelGO = new GameObject("DetailPanel");
+        detailPanelGO.transform.SetParent(rootGO.transform, false);
+        RectTransform detailPanelRect = detailPanelGO.AddComponent<RectTransform>();
+        detailPanelRect.anchorMin = detailPanelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        detailPanelRect.pivot = new Vector2(0.5f, 0.5f);
+        const float detailPanelWidth = 1200f;
+        const float detailPanelHeight = 220f;
+        detailPanelRect.sizeDelta = new Vector2(detailPanelWidth, detailPanelHeight);
+        // カードは(-340/0/340, 40)、半分の高さ195なので下端はy=-155 -
+        // その少し下に余白を空けて配置する。
+        detailPanelRect.anchoredPosition = new Vector2(0f, -300f);
+        CanvasGroup detailPanelGroup = detailPanelGO.AddComponent<CanvasGroup>();
+        detailPanelGroup.alpha = 0f;
+        detailPanelGO.SetActive(false);
+        sequence.detailPanelGroup = detailPanelGroup;
+
+        Sprite panelSprite = RoundedPanelSprite();
+        const float detailBorderPx = 5f;
+        GameObject detailEdgeGO = new GameObject("Edge");
+        detailEdgeGO.transform.SetParent(detailPanelGO.transform, false);
+        StretchFull(detailEdgeGO.AddComponent<RectTransform>());
+        Image detailEdgeImage = detailEdgeGO.AddComponent<Image>();
+        detailEdgeImage.sprite = panelSprite;
+        detailEdgeImage.type = Image.Type.Sliced;
+        detailEdgeImage.color = new Color(0.83f, 0.68f, 0.32f, 1f);
+        detailEdgeImage.raycastTarget = false;
+
+        GameObject detailBgGO = new GameObject("Background");
+        detailBgGO.transform.SetParent(detailPanelGO.transform, false);
+        RectTransform detailBgRect = detailBgGO.AddComponent<RectTransform>();
+        detailBgRect.anchorMin = Vector2.zero;
+        detailBgRect.anchorMax = Vector2.one;
+        detailBgRect.offsetMin = new Vector2(detailBorderPx, detailBorderPx);
+        detailBgRect.offsetMax = new Vector2(-detailBorderPx, -detailBorderPx);
+        Image detailBgImage = detailBgGO.AddComponent<Image>();
+        detailBgImage.sprite = panelSprite;
+        detailBgImage.type = Image.Type.Sliced;
+        detailBgImage.color = new Color(0.06f, 0.08f, 0.17f, 0.92f);
+        detailBgImage.raycastTarget = false;
+
+        GameObject detailTitleGO = new GameObject("Title");
+        detailTitleGO.transform.SetParent(detailPanelGO.transform, false);
+        RectTransform detailTitleRect = detailTitleGO.AddComponent<RectTransform>();
+        detailTitleRect.anchorMin = new Vector2(0f, 1f);
+        detailTitleRect.anchorMax = new Vector2(1f, 1f);
+        detailTitleRect.pivot = new Vector2(0.5f, 1f);
+        detailTitleRect.sizeDelta = new Vector2(-64f, 56f);
+        detailTitleRect.anchoredPosition = new Vector2(0f, -18f);
+        Text detailTitleText = detailTitleGO.AddComponent<Text>();
+        ConfigureCardText(detailTitleText, 40, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        detailTitleText.resizeTextForBestFit = true;
+        detailTitleText.resizeTextMinSize = 16;
+        detailTitleText.resizeTextMaxSize = 40;
+        sequence.detailTitleText = detailTitleText;
+
+        GameObject detailLevelGO = new GameObject("LevelLine");
+        detailLevelGO.transform.SetParent(detailPanelGO.transform, false);
+        RectTransform detailLevelRect = detailLevelGO.AddComponent<RectTransform>();
+        detailLevelRect.anchorMin = new Vector2(1f, 1f);
+        detailLevelRect.anchorMax = new Vector2(1f, 1f);
+        detailLevelRect.pivot = new Vector2(1f, 1f);
+        detailLevelRect.sizeDelta = new Vector2(280f, 40f);
+        detailLevelRect.anchoredPosition = new Vector2(-32f, -20f);
+        Text detailLevelText = detailLevelGO.AddComponent<Text>();
+        ConfigureCardText(detailLevelText, 24, FontStyle.Bold, new Color(1f, 0.92f, 0.7f));
+        detailLevelText.alignment = TextAnchor.MiddleRight;
+        sequence.detailLevelText = detailLevelText;
+
+        GameObject detailDescGO = new GameObject("Description");
+        detailDescGO.transform.SetParent(detailPanelGO.transform, false);
+        RectTransform detailDescRect = detailDescGO.AddComponent<RectTransform>();
+        detailDescRect.anchorMin = new Vector2(0f, 0f);
+        detailDescRect.anchorMax = new Vector2(1f, 1f);
+        detailDescRect.offsetMin = new Vector2(32f, 44f);
+        detailDescRect.offsetMax = new Vector2(-32f, -66f);
+        Text detailDescriptionText = detailDescGO.AddComponent<Text>();
+        ConfigureCardText(detailDescriptionText, 26, FontStyle.Normal, new Color(0.9f, 0.92f, 0.97f));
+        detailDescriptionText.alignment = TextAnchor.UpperLeft;
+        detailDescriptionText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        detailDescriptionText.verticalOverflow = VerticalWrapMode.Overflow;
+        sequence.detailDescriptionText = detailDescriptionText;
+
+        GameObject detailHintGO = new GameObject("Hint");
+        detailHintGO.transform.SetParent(detailPanelGO.transform, false);
+        RectTransform detailHintRect = detailHintGO.AddComponent<RectTransform>();
+        detailHintRect.anchorMin = new Vector2(0f, 0f);
+        detailHintRect.anchorMax = new Vector2(1f, 0f);
+        detailHintRect.pivot = new Vector2(0.5f, 0f);
+        detailHintRect.sizeDelta = new Vector2(-64f, 34f);
+        detailHintRect.anchoredPosition = new Vector2(0f, 14f);
+        Text detailHintText = detailHintGO.AddComponent<Text>();
+        ConfigureCardText(detailHintText, 20, FontStyle.Italic, new Color(0.65f, 0.9f, 1f));
+        detailHintText.alignment = TextAnchor.LowerRight;
+        sequence.detailHintText = detailHintText;
 
         // Glow burst behind whichever card gets confirmed.
         GameObject glowGO = new GameObject("Glow");
@@ -672,6 +1136,8 @@ public static class SceneBuilder
 
         Sprite cardBackSprite = LoadTiledSprite("Assets/Art/UI/CardBack.png", 100f);
         Sprite cardFrameSprite = LoadTiledSprite("Assets/Art/UI/CardFrame.png", 100f);
+        Sprite cardBaseSprite = LoadTiledSprite("Assets/Art/UI/CardFrames/CardBase.png", 100f);
+        Sprite cardTitleBandSprite = LoadTiledSprite("Assets/Art/UI/CardFrames/CardTitlePlate.png", 100f);
 
         GameObject rootGO = new GameObject("DeckEditRoot");
         rootGO.transform.SetParent(canvasGO.transform, false);
@@ -693,18 +1159,16 @@ public static class SceneBuilder
         Image bgImage = bgGO.AddComponent<Image>();
         bgImage.color = new Color(0.05f, 0.06f, 0.12f, 0.96f);
 
-        // 4 columns fits comfortably within the narrower side panels the
-        // new 3-column COLLECTION / detail / DECK layout below leaves them
-        // (see the reference mockup) - ScrollRect dragging used to depend
-        // on the same EventSystem pipeline DeckEditUI's taps bypass, so a
-        // low column count used to matter for keeping everything reachable
-        // without scrolling; now that DeckEditUI drives the scroll
-        // manually itself (see its Update), that's no longer load-bearing,
-        // just still a reasonable density.
-        const float cardWidth = 130f;
-        float cardAspect = cardFrameSprite != null ? cardFrameSprite.rect.height / cardFrameSprite.rect.width : 1010f / 612f;
-        float cardHeight = cardWidth * cardAspect;
-        const int columns = 4;
+        // Card UI改修(2026-09-08) - spec's統一基準サイズ「コレクション一
+        // 覧/デッキ一覧: 180x270」に合わせてcardWidthを130->180へ(2:3固定
+        // - CardAspect参照)。180幅では4列だとGridLayoutGroupの列間隔込み
+        // で収まらない(4*180+3*22=786 > innerWidth 610)ため3列へ減らした
+        // - スクロールは既にDeckEditUI自身が手動ドライブしているため
+        // (Update参照)、列数を減らしても画面に収まらない項目はスクロー
+        // ルで見える。
+        const float cardWidth = 180f;
+        float cardHeight = cardWidth * CardAspect;
+        const int columns = 3;
 
         // Three columns side by side - COLLECTION (left) -> selected-card
         // detail (center) -> DECK (right) - matching the reference mockup's
@@ -743,11 +1207,13 @@ public static class SceneBuilder
         // not one slot per CardDefinition - a fixed pool sized generously
         // (16 cards x up to MaxCardLevel(5)) rather than CardDatabase.
         // AllCards.Count, same convention CardFusionUI's owned list uses.
-        const int ownedPoolSize = 48;
+        // カード合成改修(2026-09-26) - 合成で性能違いのカードが増える(1性能=1枠)うえ、
+        // カード自体も84種あり48枠では足りず後ろが表示されなかったため160枠へ。
+        const int ownedPoolSize = 160;
         var ownedCards = new RewardCardUI[ownedPoolSize];
         for (int i = 0; i < ownedPoolSize; i++)
         {
-            ownedCards[i] = CreateRewardCard(ownedPanelContent, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, null);
+            ownedCards[i] = CreateRewardCard(ownedPanelContent, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
         }
         deckEdit.ownedCards = ownedCards;
 
@@ -757,7 +1223,7 @@ public static class SceneBuilder
         var deckSlotCards = new RewardCardUI[GameManager.DeckCapacity];
         for (int i = 0; i < GameManager.DeckCapacity; i++)
         {
-            deckSlotCards[i] = CreateRewardCard(deckPanelContent, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, null);
+            deckSlotCards[i] = CreateRewardCard(deckPanelContent, i, cardWidth, cardHeight, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
         }
         deckEdit.deckSlotCards = deckSlotCards;
 
@@ -787,30 +1253,25 @@ public static class SceneBuilder
         detailPanelRect.sizeDelta = new Vector2(detailPanelWidth, DeckPanelHeight);
         detailPanelRect.anchoredPosition = new Vector2(0f, -100f);
 
-        // Same top/bottom content margin every other panel uses
-        // (DeckPanelContentPad/DeckPanelContentBottom - see BuildDeckPanel)
-        // so this panel's own ornate border never overlaps the icon/text
-        // either. Top-to-bottom info flow: card preview -> name/category ->
-        // effect description, per the reference layout.
-        const float iconSize = 200f;
-        const float nameHeight = 40f;
-        const float categoryHeight = 26f;
+        // カードUI最終デザイン改修(2026-09-26) - 中央パネルをカード詳細として使う:
+        // 上から 大きめのカードプレビュー(一覧と同じ部品) → Card Name → Category / Lv →
+        // 区切り線 → 主な効果(Main Value) → 効果説明 → (CONVERTボタン)。
+        // 未選択時は中央に案内文だけ(DetailPlaceholder)。
         const float sideMargin = DeckPanelContentPad;
+        const float previewWidth = 196f;
+        float previewHeight = previewWidth * CardAspect;
+        const float nameHeight = 40f;
+        const float categoryHeight = 28f;
+        const float valueHeight = 62f;
 
-        GameObject detailIconGO = new GameObject("DetailIcon");
-        detailIconGO.transform.SetParent(detailPanelRect, false);
-        RectTransform detailIconRect = detailIconGO.AddComponent<RectTransform>();
-        detailIconRect.anchorMin = detailIconRect.anchorMax = new Vector2(0.5f, 1f);
-        detailIconRect.pivot = new Vector2(0.5f, 1f);
-        detailIconRect.sizeDelta = new Vector2(iconSize, iconSize);
-        detailIconRect.anchoredPosition = new Vector2(0f, DeckPanelHeaderY);
-        Image detailIcon = detailIconGO.AddComponent<Image>();
-        detailIcon.preserveAspect = true;
-        detailIcon.raycastTarget = false;
-        detailIcon.enabled = false; // hidden until a card is actually selected
-        deckEdit.detailIcon = detailIcon;
+        RewardCardUI detailPreview = CreateRewardCard(detailPanelRect, 2000, previewWidth, previewHeight, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
+        detailPreview.rect.anchorMin = detailPreview.rect.anchorMax = new Vector2(0.5f, 1f);
+        detailPreview.rect.pivot = new Vector2(0.5f, 1f);
+        detailPreview.rect.anchoredPosition = new Vector2(0f, DeckPanelHeaderY + 12f);
+        detailPreview.gameObject.SetActive(false); // カードを選ぶまで非表示
+        deckEdit.detailPreviewCard = detailPreview;
 
-        float nameY = DeckPanelHeaderY - iconSize - 20f;
+        float nameY = DeckPanelHeaderY + 12f - previewHeight - 14f;
         GameObject detailNameGO = new GameObject("DetailName");
         detailNameGO.transform.SetParent(detailPanelRect, false);
         RectTransform detailNameRect = detailNameGO.AddComponent<RectTransform>();
@@ -819,10 +1280,14 @@ public static class SceneBuilder
         detailNameRect.sizeDelta = new Vector2(detailPanelWidth - sideMargin * 2f, nameHeight);
         detailNameRect.anchoredPosition = new Vector2(0f, nameY);
         Text detailName = detailNameGO.AddComponent<Text>();
-        ConfigureCardText(detailName, 26, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        ConfigureCardText(detailName, 28, FontStyle.Bold, new Color(1f, 0.88f, 0.55f));
+        detailName.resizeTextForBestFit = true;
+        detailName.resizeTextMinSize = 16;
+        detailName.resizeTextMaxSize = 28;
+        AddCardTextOutline(detailName, 300f);
         deckEdit.detailName = detailName;
 
-        float categoryY = nameY - nameHeight - 4f;
+        float categoryY = nameY - nameHeight;
         GameObject detailCategoryGO = new GameObject("DetailCategory");
         detailCategoryGO.transform.SetParent(detailPanelRect, false);
         RectTransform detailCategoryRect = detailCategoryGO.AddComponent<RectTransform>();
@@ -831,19 +1296,50 @@ public static class SceneBuilder
         detailCategoryRect.sizeDelta = new Vector2(detailPanelWidth - sideMargin * 2f, categoryHeight);
         detailCategoryRect.anchoredPosition = new Vector2(0f, categoryY);
         Text detailCategory = detailCategoryGO.AddComponent<Text>();
-        ConfigureCardText(detailCategory, 16, FontStyle.Normal, new Color(0.85f, 0.85f, 0.92f, 0.85f));
+        ConfigureCardText(detailCategory, 18, FontStyle.Bold, new Color(0.78f, 0.84f, 0.95f, 0.95f));
+        detailCategory.resizeTextForBestFit = true;
+        detailCategory.resizeTextMinSize = 12;
+        detailCategory.resizeTextMaxSize = 18;
         deckEdit.detailCategory = detailCategory;
 
-        // Fills the remaining space down to the panel's own safe bottom
-        // margin (DeckPanelContentBottom) instead of a fixed height, so it
-        // never runs under the panel's bottom border regardless of how
-        // tall the icon/name/category block above ends up. Home Room UI
-        // reconstruction pass, item 9 - reserves a CONVERT button's height
-        // at the very bottom of that space (convertReserve), only ever
-        // shown/active for a COLLECTION-originated selection (see
-        // DeckEditUI.RefreshConvertButton).
+        // 区切り線(金の細線+中央の小さな菱形 - カードのName Plateと同じモチーフ)
+        float dividerY = categoryY - categoryHeight - 8f;
+        GameObject dividerGO = new GameObject("DetailDivider");
+        dividerGO.transform.SetParent(detailPanelRect, false);
+        RectTransform dividerRect = dividerGO.AddComponent<RectTransform>();
+        dividerRect.anchorMin = dividerRect.anchorMax = new Vector2(0.5f, 1f);
+        dividerRect.pivot = new Vector2(0.5f, 0.5f);
+        dividerRect.sizeDelta = new Vector2(detailPanelWidth - sideMargin * 2f - 40f, 12f);
+        dividerRect.anchoredPosition = new Vector2(0f, dividerY);
+        Image dividerLine = CardFaceImage(dividerGO.transform, "Line", new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), new Color(0.74f, 0.60f, 0.32f, 0.8f));
+        dividerLine.rectTransform.sizeDelta = new Vector2(0f, 1.5f);
+        var dividerDiamonds = new List<Image>();
+        Image dividerGem = CardFaceImage(dividerGO.transform, "Gem", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Color(0.74f, 0.60f, 0.32f, 1f));
+        dividerGem.rectTransform.sizeDelta = new Vector2(12f, 12f);
+        dividerDiamonds.Add(dividerGem);
+        detailPreview.diamondImages = AppendImages(detailPreview.diamondImages, dividerDiamonds);
+        dividerGO.SetActive(false);
+        deckEdit.detailDivider = dividerGO;
+
+        float valueY = dividerY - 10f;
+        GameObject detailValueGO = new GameObject("DetailValue");
+        detailValueGO.transform.SetParent(detailPanelRect, false);
+        RectTransform detailValueRect = detailValueGO.AddComponent<RectTransform>();
+        detailValueRect.anchorMin = detailValueRect.anchorMax = new Vector2(0.5f, 1f);
+        detailValueRect.pivot = new Vector2(0.5f, 1f);
+        detailValueRect.sizeDelta = new Vector2(detailPanelWidth - sideMargin * 2f, valueHeight);
+        detailValueRect.anchoredPosition = new Vector2(0f, valueY);
+        Text detailValue = detailValueGO.AddComponent<Text>();
+        ConfigureCardText(detailValue, 19, FontStyle.Bold, new Color(0.86f, 0.95f, 1f));
+        detailValue.supportRichText = true;
+        detailValue.resizeTextForBestFit = true;
+        detailValue.resizeTextMinSize = 12;
+        detailValue.resizeTextMaxSize = 19;
+        deckEdit.detailValue = detailValue;
+
+        // 効果説明 - パネル下端の安全マージン(DeckPanelContentBottom)とCONVERTボタンの分を残して埋める
         const float convertReserve = 66f;
-        float descY = categoryY - categoryHeight - 20f;
+        float descY = valueY - valueHeight - 6f;
         float descHeight = descY - DeckPanelContentBottom - convertReserve;
         GameObject detailDescGO = new GameObject("DetailDescription");
         detailDescGO.transform.SetParent(detailPanelRect, false);
@@ -856,12 +1352,22 @@ public static class SceneBuilder
         detailDescRect.sizeDelta = new Vector2(0f, descHeight);
         detailDescRect.anchoredPosition = new Vector2(0f, descY);
         Text detailDesc = detailDescGO.AddComponent<Text>();
-        ConfigureCardText(detailDesc, 20, FontStyle.Normal, Color.white);
+        ConfigureCardText(detailDesc, 19, FontStyle.Normal, new Color(0.93f, 0.94f, 0.98f));
         detailDesc.alignment = TextAnchor.UpperCenter;
+        detailDesc.resizeTextForBestFit = true;
+        detailDesc.resizeTextMinSize = 12;
+        detailDesc.resizeTextMaxSize = 19;
         deckEdit.detailText = detailDesc;
         deckEdit.detailPlaceholder = "カードをタップして\n詳細を確認";
-        detailDesc.text = deckEdit.detailPlaceholder;
 
+        GameObject placeholderGO = new GameObject("DetailPlaceholder");
+        placeholderGO.transform.SetParent(detailPanelRect, false);
+        RectTransform placeholderRect = placeholderGO.AddComponent<RectTransform>();
+        StretchFull(placeholderRect);
+        Text placeholder = placeholderGO.AddComponent<Text>();
+        ConfigureCardText(placeholder, 22, FontStyle.Normal, new Color(0.8f, 0.84f, 0.95f, 0.85f));
+        placeholder.text = deckEdit.detailPlaceholder;
+        deckEdit.detailPlaceholderLabel = placeholder;
         // Item 9 - CONVERT button, right at the panel's own bottom margin.
         // Starts inactive (RefreshConvertButton toggles it) - no card is
         // selected yet on a fresh Open().
@@ -912,19 +1418,32 @@ public static class SceneBuilder
         // Item 7 - Character Card slots (max 3), a small row tucked above
         // the DECK panel (clear of the back button, top-left) since the
         // three main panels already claim y=-100 downward.
-        const float charSlotSize = 84f;
+        //
+        // Card UI改修(2026-09-08), item 9-1 - 「CHARACTER CARDSの小さい装
+        // 備枠が見切れやすい」の根本原因: 旧charSlotSize(84)はCreateReward
+        // Cardへ幅・高さ両方に渡されており、実質「正方形」の枠にfitさせて
+        // いた。frameImageはpreserveAspect=trueで実際は2:3の縦長フレーム
+        // 画像を正方形の枠内にletterboxする形になり、上下(またはleft/
+        // right)に大きな余白ができてカード自体が実際より小さく・窮屈に見
+        // える(「見切れて」いるように感じる)原因になっていた。spec通り
+        // 2:3固定(CardAspect)の縦長スロットに修正 - 幅は72(旧84よりやや
+        // 狭いが、高さが108に伸びる分、正方形時とほぼ同じ「面積」感)。
+        const float charSlotWidth = 72f;
+        float charSlotHeight = charSlotWidth * CardAspect;
         const float charSlotGap = 14f;
-        float charRowWidth = GameManager.CharacterCardSlotCount * charSlotSize + (GameManager.CharacterCardSlotCount - 1) * charSlotGap;
-        float charStartX = sideCenterX - charRowWidth / 2f + charSlotSize / 2f;
-        const float charSlotY = -58f;
+        float charRowWidth = GameManager.CharacterCardSlotCount * charSlotWidth + (GameManager.CharacterCardSlotCount - 1) * charSlotGap;
+        float charStartX = sideCenterX - charRowWidth / 2f + charSlotWidth / 2f;
+        // カードUI最終デザイン改修(2026-09-26) - 旧-58ではスロット下端(-166)がDECKパネルの見出し
+        // (-145〜)に重なっていたため、見出しに掛からない高さへ上げた。
+        const float charSlotY = -34f;
 
         GameObject charHeaderGO = new GameObject("CharacterCardsHeader");
         charHeaderGO.transform.SetParent(rootGO.transform, false);
         RectTransform charHeaderRect = charHeaderGO.AddComponent<RectTransform>();
         charHeaderRect.anchorMin = charHeaderRect.anchorMax = new Vector2(0.5f, 1f);
         charHeaderRect.pivot = new Vector2(0.5f, 1f);
-        charHeaderRect.sizeDelta = new Vector2(400f, 26f);
-        charHeaderRect.anchoredPosition = new Vector2(sideCenterX, -8f);
+        charHeaderRect.sizeDelta = new Vector2(400f, 24f);
+        charHeaderRect.anchoredPosition = new Vector2(sideCenterX, -6f);
         Text charHeaderText = charHeaderGO.AddComponent<Text>();
         ConfigureCardText(charHeaderText, 16, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
         charHeaderText.text = "CHARACTER CARDS";
@@ -932,10 +1451,10 @@ public static class SceneBuilder
         var characterSlots = new RewardCardUI[GameManager.CharacterCardSlotCount];
         for (int i = 0; i < GameManager.CharacterCardSlotCount; i++)
         {
-            RewardCardUI slot = CreateRewardCard(rootGO.transform, 1000 + i, charSlotSize, charSlotSize, cardBackSprite, cardFrameSprite, null);
+            RewardCardUI slot = CreateRewardCard(rootGO.transform, 1000 + i, charSlotWidth, charSlotHeight, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
             slot.rect.anchorMin = slot.rect.anchorMax = new Vector2(0.5f, 1f);
             slot.rect.pivot = new Vector2(0.5f, 1f);
-            slot.rect.anchoredPosition = new Vector2(charStartX + i * (charSlotSize + charSlotGap), charSlotY);
+            slot.rect.anchoredPosition = new Vector2(charStartX + i * (charSlotWidth + charSlotGap), charSlotY);
             characterSlots[i] = slot;
         }
         deckEdit.characterSlotCards = characterSlots;
@@ -974,6 +1493,10 @@ public static class SceneBuilder
     // deliberately does NOT reuse BuildDeckPanel's own Y-position constants
     // (DeckPanelHeaderY etc.), since those are tightly coupled to
     // DeckEditUI's specific two-side-panel layout.
+    // カード合成画面(2026-09-26 全面改修) - キャンバス/ルートと、画面が実行時に組み立てる
+    // ための部品(カードのひな形・飾り枠・魔法陣の画像・フォント)だけをここで用意する。
+    // レイアウト(左60%の所持カード一覧/右40%の操作・詳細/演出/リザルト)は画面比率に
+    // 合わせてCardFusionUI.EnsureBuiltが組み立てる。
     static CardFusionUI BuildCardFusionCanvas()
     {
         GameObject canvasGO = new GameObject("CardFusionCanvas");
@@ -997,12 +1520,12 @@ public static class SceneBuilder
 
         Sprite cardBackSprite = LoadTiledSprite("Assets/Art/UI/CardBack.png", 100f);
         Sprite cardFrameSprite = LoadTiledSprite("Assets/Art/UI/CardFrame.png", 100f);
-        // Reuses the existing Double Jump Ring effect sprite (Game Feel
-        // pass) as a stand-in "magic circle" - see CardFusionUI.
-        // magicCircleImage's own comment for why (no dedicated magic-
-        // circle art was cut from the reference storyboards).
-        Sprite magicCircleSprite = LoadTiledSprite("Assets/Art/Effects/DoubleJumpRing.png", 1672f);
-        float gridCardAspect = cardFrameSprite != null ? cardFrameSprite.rect.height / cardFrameSprite.rect.width : 1010f / 612f;
+        Sprite cardBaseSprite = LoadTiledSprite("Assets/Art/UI/CardFrames/CardBase.png", 100f);
+        Sprite cardTitleBandSprite = LoadTiledSprite("Assets/Art/UI/CardFrames/CardTitlePlate.png", 100f);
+        const string magicCirclePath = "Assets/Art/Effects/FusionMagicCircle.png";
+        Sprite magicCircleSprite = File.Exists(magicCirclePath)
+            ? LoadTiledSprite(magicCirclePath, 100f)
+            : LoadTiledSprite("Assets/Art/Effects/DoubleJumpRing.png", 1672f);
 
         GameObject rootGO = new GameObject("CardFusionRoot");
         rootGO.transform.SetParent(canvasGO.transform, false);
@@ -1012,197 +1535,627 @@ public static class SceneBuilder
         CardFusionUI menu = rootGO.AddComponent<CardFusionUI>();
         menu.root = rootGO;
         menu.rootGroup = rootGO.AddComponent<CanvasGroup>();
+        menu.panelFrameSprite = LoadOrnateFrameSprite();
+        menu.magicCircleSprite = magicCircleSprite;
+        menu.uiFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
-        GameObject bgGO = new GameObject("Backdrop");
+        // 共通カード表示部品(RewardCardUI)の最新版をひな形として1枚だけ作る(180x270=2:3)。
+        const float cardWidth = 180f;
+        RewardCardUI template = CreateRewardCard(rootGO.transform, 1, cardWidth, cardWidth * CardAspect, cardBackSprite, cardFrameSprite, null, cardBaseSprite, cardTitleBandSprite);
+        template.gameObject.name = "CardTemplate";
+        template.gameObject.SetActive(false);
+        menu.cardTemplate = template;
+
+        rootGO.SetActive(false);
+        return menu;
+    }
+
+    // キャラクター選択画面(2026-09-12) - Home画面左上の新規ホットスポット
+    // (GameManager.DrawCharacterHotspot)から開く全画面uGUI。DeckEditUI/
+    // CardFusionUIと同じ「Button.onClick/EventSystemに頼らず自前でタップ
+    // 位置を照合する」方式(CharacterSelectUI.HandleTap参照)。左のカード
+    // 一覧はCharacterDatabase.AllCharactersの件数ぶんここで動的に生成する
+    // ため、4人目・5人目を追加した後も本メソッド自体は変更不要。
+    static CharacterSelectUI BuildCharacterSelectCanvas()
+    {
+        GameObject canvasGO = new GameObject("CharacterSelectCanvas");
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 90; // DeckEdit/CardFusionと同じ帯 - 同時に開くことはない(GameManager.AnyOverlayOpen)
+
+        CanvasScaler scaler = canvasGO.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        scaler.matchWidthOrHeight = 0.5f;
+
+        canvasGO.AddComponent<GraphicRaycaster>();
+        if (Object.FindFirstObjectByType<EventSystem>() == null)
+        {
+            GameObject esGO = new GameObject("EventSystem");
+            esGO.AddComponent<EventSystem>();
+            esGO.AddComponent<StandaloneInputModule>();
+        }
+
+        GameObject rootGO = new GameObject("CharacterSelectRoot");
+        rootGO.transform.SetParent(canvasGO.transform, false);
+        RectTransform rootRect = rootGO.AddComponent<RectTransform>();
+        StretchFull(rootRect);
+        CanvasGroup rootGroup = rootGO.AddComponent<CanvasGroup>();
+
+        CharacterSelectUI ui = rootGO.AddComponent<CharacterSelectUI>();
+        ui.root = rootRect;
+        ui.rootGroup = rootGroup;
+
+        // 背景 - DeckEditUI/CardFusionUIの"Backdrop"と同じ単色塗り(濃紺)に
+        // 統一した。当初はHome部屋背景(TopBackgroundHomeRoom.png)を暗め
+        // に転用する案も検討したが、その画像は既にGameManager.topBackground
+        // (LoadIconTexture、Texture2D/Default設定)としてHome画面のOnGUI
+        // 描画に使われており、ここで別の設定(LoadTiledSprite、Sprite/
+        // Repeat設定)で読み込み直すと同じアセットのインポート設定を
+        // 上書きしてしまい、Home画面側の見た目に意図しない影響が出る恐れ
+        // があった(「既存Home全体のレイアウトを大改造しない」という明示
+        //的な制約に抵触するリスク) - 新規アートを増やさずに済み、かつ
+        // 既存の他画面と統一感もあるこの単色塗りを採用した。
+        GameObject bgGO = new GameObject("Background");
         bgGO.transform.SetParent(rootGO.transform, false);
         RectTransform bgRect = bgGO.AddComponent<RectTransform>();
         StretchFull(bgRect);
         Image bgImage = bgGO.AddComponent<Image>();
-        bgImage.color = new Color(0.05f, 0.06f, 0.12f, 0.96f);
+        bgImage.color = new Color(0.04f, 0.05f, 0.1f, 0.97f);
+        bgImage.raycastTarget = false;
 
-        // ===== MAIN / SUB slots (item 10) ===== //
-        const float slotSize = 220f;
-        const float slotGap = 140f; // leaves room for the magic circle between them
-        const float slotY = -160f;
-        RewardCardUI mainSlot = CreateRewardCard(rootGO.transform, 1, slotSize, slotSize, cardBackSprite, cardFrameSprite, null);
-        mainSlot.rect.anchorMin = mainSlot.rect.anchorMax = new Vector2(0.5f, 1f);
-        mainSlot.rect.pivot = new Vector2(0.5f, 1f);
-        mainSlot.rect.anchoredPosition = new Vector2(-(slotSize + slotGap) / 2f, slotY);
-        menu.mainSlotCard = mainSlot;
+        // ヘッダー
+        GameObject headerGO = new GameObject("HeaderTitle");
+        headerGO.transform.SetParent(rootGO.transform, false);
+        RectTransform headerRect = headerGO.AddComponent<RectTransform>();
+        headerRect.anchorMin = headerRect.anchorMax = new Vector2(0f, 1f);
+        headerRect.pivot = new Vector2(0f, 1f);
+        headerRect.sizeDelta = new Vector2(760f, 64f);
+        headerRect.anchoredPosition = new Vector2(56f, -36f);
+        Text headerText = headerGO.AddComponent<Text>();
+        ConfigureCardText(headerText, 44, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        headerText.alignment = TextAnchor.MiddleLeft;
+        headerText.text = "CHARACTER SELECT";
 
-        RewardCardUI subSlot = CreateRewardCard(rootGO.transform, 2, slotSize, slotSize, cardBackSprite, cardFrameSprite, null);
-        subSlot.rect.anchorMin = subSlot.rect.anchorMax = new Vector2(0.5f, 1f);
-        subSlot.rect.pivot = new Vector2(0.5f, 1f);
-        subSlot.rect.anchoredPosition = new Vector2((slotSize + slotGap) / 2f, slotY);
-        menu.subSlotCard = subSlot;
-
-        GameObject mainLabelGO = new GameObject("MainLabel");
-        mainLabelGO.transform.SetParent(rootGO.transform, false);
-        RectTransform mainLabelRect = mainLabelGO.AddComponent<RectTransform>();
-        mainLabelRect.anchorMin = mainLabelRect.anchorMax = new Vector2(0.5f, 1f);
-        mainLabelRect.pivot = new Vector2(0.5f, 1f);
-        mainLabelRect.sizeDelta = new Vector2(slotSize, 30f);
-        mainLabelRect.anchoredPosition = new Vector2(-(slotSize + slotGap) / 2f, slotY - slotSize - 8f);
-        Text mainLabel = mainLabelGO.AddComponent<Text>();
-        ConfigureCardText(mainLabel, 18, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
-        mainLabel.text = "MAIN CARD";
-
-        GameObject subLabelGO = new GameObject("SubLabel");
-        subLabelGO.transform.SetParent(rootGO.transform, false);
-        RectTransform subLabelRect = subLabelGO.AddComponent<RectTransform>();
-        subLabelRect.anchorMin = subLabelRect.anchorMax = new Vector2(0.5f, 1f);
-        subLabelRect.pivot = new Vector2(0.5f, 1f);
-        subLabelRect.sizeDelta = new Vector2(slotSize, 30f);
-        subLabelRect.anchoredPosition = new Vector2((slotSize + slotGap) / 2f, slotY - slotSize - 8f);
-        Text subLabel = subLabelGO.AddComponent<Text>();
-        ConfigureCardText(subLabel, 18, FontStyle.Bold, new Color(0.85f, 0.85f, 0.92f, 0.85f));
-        subLabel.text = "SUB / MATERIAL CARD";
-
-        // ===== Magic circle - centered between MAIN and SUB ===== //
-        GameObject circleGO = new GameObject("MagicCircle");
-        circleGO.transform.SetParent(rootGO.transform, false);
-        RectTransform circleRect = circleGO.AddComponent<RectTransform>();
-        circleRect.anchorMin = circleRect.anchorMax = new Vector2(0.5f, 1f);
-        circleRect.pivot = new Vector2(0.5f, 1f);
-        circleRect.sizeDelta = new Vector2(180f, 180f);
-        circleRect.anchoredPosition = new Vector2(0f, slotY - slotSize / 2f + 90f);
-        Image circleImage = circleGO.AddComponent<Image>();
-        circleImage.sprite = magicCircleSprite;
-        circleImage.preserveAspect = true;
-        circleImage.raycastTarget = false;
-        circleGO.SetActive(false);
-        menu.magicCircleImage = circleImage;
-
-        // ===== FUSE button ===== //
-        RectTransform fuseRect = CreateOrnatePanel(rootGO.transform, "FuseButton", borderScale: 2f);
-        fuseRect.anchorMin = fuseRect.anchorMax = new Vector2(0.5f, 1f);
-        fuseRect.pivot = new Vector2(0.5f, 1f);
-        fuseRect.sizeDelta = new Vector2(320f, 64f);
-        fuseRect.anchoredPosition = new Vector2(0f, slotY - slotSize - 60f);
-        menu.fuseButtonRect = fuseRect;
-        GameObject fuseLabelGO = new GameObject("Label");
-        fuseLabelGO.transform.SetParent(fuseRect, false);
-        StretchFull(fuseLabelGO.AddComponent<RectTransform>());
-        Text fuseLabel = fuseLabelGO.AddComponent<Text>();
-        ConfigureCardText(fuseLabel, 22, FontStyle.Bold, Color.white);
-        fuseLabel.text = "SELECT MAIN / SUB";
-        menu.fuseButtonLabel = fuseLabel;
-
-        // ===== Status text ===== //
-        float statusY = slotY - slotSize - 140f;
-        GameObject statusGO = new GameObject("StatusText");
-        statusGO.transform.SetParent(rootGO.transform, false);
-        RectTransform statusRect = statusGO.AddComponent<RectTransform>();
-        statusRect.anchorMin = statusRect.anchorMax = new Vector2(0.5f, 1f);
-        statusRect.pivot = new Vector2(0.5f, 1f);
-        statusRect.sizeDelta = new Vector2(1700f, 34f);
-        statusRect.anchoredPosition = new Vector2(0f, statusY);
-        Text statusText = statusGO.AddComponent<Text>();
-        ConfigureCardText(statusText, 18, FontStyle.Normal, new Color(0.9f, 0.92f, 1f, 0.85f));
-        menu.statusText = statusText;
-
-        // ===== Owned cards list (item 11 - shows EVERY owned stack, never
-        // hides a locked one) ===== //
-        const float gridPanelWidth = 1750f;
-        float gridTopY = statusY - 46f;
-        const float gridBottomMargin = 40f;
-        const int gridColumns = 7;
-        const float gridCardWidth = 150f;
-        float gridCardHeight = gridCardWidth * gridCardAspect;
-
-        RectTransform gridPanelRect = CreateOrnatePanel(rootGO.transform, "OwnedCardsPanel");
-        float gridPanelHeight = 1080f + gridTopY - gridBottomMargin; // from gridTopY down to gridBottomMargin above the bottom edge
-        gridPanelRect.anchorMin = gridPanelRect.anchorMax = new Vector2(0.5f, 1f);
-        gridPanelRect.pivot = new Vector2(0.5f, 1f);
-        gridPanelRect.sizeDelta = new Vector2(gridPanelWidth, gridPanelHeight);
-        gridPanelRect.anchoredPosition = new Vector2(0f, gridTopY);
-
-        const float gridPad = 45f;
-        GameObject countGO = new GameObject("OwnedCountText");
-        countGO.transform.SetParent(rootGO.transform, false);
-        RectTransform countRect = countGO.AddComponent<RectTransform>();
-        countRect.anchorMin = countRect.anchorMax = new Vector2(0.5f, 1f);
-        countRect.pivot = new Vector2(0.5f, 1f);
-        countRect.sizeDelta = new Vector2(600f, 34f);
-        countRect.anchoredPosition = new Vector2(0f, gridTopY - gridPad);
-        Text ownedCountText = countGO.AddComponent<Text>();
-        ConfigureCardText(ownedCountText, 20, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
-        menu.ownedCountText = ownedCountText;
-
-        GameObject scrollGO = new GameObject("OwnedScroll");
-        scrollGO.transform.SetParent(rootGO.transform, false);
-        RectTransform scrollRect = scrollGO.AddComponent<RectTransform>();
-        scrollRect.anchorMin = scrollRect.anchorMax = new Vector2(0.5f, 1f);
-        scrollRect.pivot = new Vector2(0.5f, 1f);
-        scrollRect.sizeDelta = new Vector2(gridPanelWidth - gridPad * 2f, gridPanelHeight - gridPad - 40f - gridPad);
-        scrollRect.anchoredPosition = new Vector2(0f, gridTopY - gridPad - 40f);
-        ScrollRect scroll = scrollGO.AddComponent<ScrollRect>();
-        scroll.horizontal = false;
-        scroll.vertical = true;
-        scroll.movementType = ScrollRect.MovementType.Clamped;
-        scrollGO.AddComponent<RectMask2D>();
-
-        GameObject contentGO = new GameObject("Content");
-        contentGO.transform.SetParent(scrollGO.transform, false);
-        RectTransform contentRect = contentGO.AddComponent<RectTransform>();
-        contentRect.anchorMin = new Vector2(0f, 1f);
-        contentRect.anchorMax = new Vector2(1f, 1f);
-        contentRect.pivot = new Vector2(0.5f, 1f);
-        contentRect.sizeDelta = Vector2.zero;
-        scroll.content = contentRect;
-        scroll.viewport = scrollRect;
-
-        GridLayoutGroup grid = contentGO.AddComponent<GridLayoutGroup>();
-        grid.cellSize = new Vector2(gridCardWidth, gridCardHeight);
-        grid.spacing = new Vector2(18f, 18f);
-        grid.childAlignment = TextAnchor.UpperCenter;
-        grid.startAxis = GridLayoutGroup.Axis.Horizontal;
-        grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        grid.constraintCount = gridColumns;
-        ContentSizeFitter fitter = contentGO.AddComponent<ContentSizeFitter>();
-        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        scroll.verticalNormalizedPosition = 1f;
-        menu.ownedScrollRect = scroll;
-
-        // Pre-built pool of owned-card slots - see CardFusionUI.Refresh for
-        // how many can actually be shown at once (deactivates the rest).
-        // 48 comfortably covers every (cardId, level) combination realistic
-        // for this Ver.1's 16 cards x MaxCardLevel(5) without being wasteful.
-        const int ownedPoolSize = 48;
-        var ownedCards = new RewardCardUI[ownedPoolSize];
-        for (int i = 0; i < ownedPoolSize; i++)
-        {
-            ownedCards[i] = CreateRewardCard(contentGO.transform, 2000 + i, gridCardWidth, gridCardHeight, cardBackSprite, cardFrameSprite, null);
-        }
-        menu.ownedCards = ownedCards;
-
-        // ===== Reveal card (Fusion success) - centered, large, hidden by
-        // default, built after everything else so it renders on top ===== //
-        RewardCardUI revealCard = CreateRewardCard(rootGO.transform, 9000, 300f, 300f * gridCardAspect, cardBackSprite, cardFrameSprite, null);
-        revealCard.rect.anchorMin = revealCard.rect.anchorMax = new Vector2(0.5f, 0.5f);
-        revealCard.rect.pivot = new Vector2(0.5f, 0.5f);
-        revealCard.rect.anchoredPosition = Vector2.zero;
-        revealCard.gameObject.SetActive(false);
-        menu.revealCard = revealCard;
-
-        // ===== Back button ===== //
+        // BACK(左下)
         RectTransform backRect = CreateOrnatePanel(rootGO.transform, "BackButton", borderScale: 2f);
-        backRect.anchorMin = backRect.anchorMax = new Vector2(0f, 1f);
-        backRect.pivot = new Vector2(0f, 1f);
-        backRect.sizeDelta = new Vector2(180f, 70f);
-        backRect.anchoredPosition = new Vector2(30f, -30f);
-        GameObject backGO = backRect.gameObject;
-        backGO.AddComponent<Button>().targetGraphic = backGO.GetComponent<Image>();
-        menu.backButtonRect = backRect;
+        backRect.anchorMin = backRect.anchorMax = new Vector2(0f, 0f);
+        backRect.pivot = new Vector2(0f, 0f);
+        backRect.sizeDelta = new Vector2(220f, 76f);
+        backRect.anchoredPosition = new Vector2(56f, 40f);
         GameObject backLabelGO = new GameObject("Label");
-        backLabelGO.transform.SetParent(backGO.transform, false);
+        backLabelGO.transform.SetParent(backRect, false);
         StretchFull(backLabelGO.AddComponent<RectTransform>());
         Text backLabel = backLabelGO.AddComponent<Text>();
-        ConfigureCardText(backLabel, 26, FontStyle.Bold, Color.white);
-        backLabel.text = "戻る";
+        ConfigureCardText(backLabel, 28, FontStyle.Bold, new Color(0.9f, 0.92f, 0.97f));
+        backLabel.text = "« BACK";
+        ui.backButtonRect = backRect;
+
+        // SELECT(右下)
+        RectTransform selectRect = CreateOrnatePanel(rootGO.transform, "SelectButton", borderScale: 2f);
+        selectRect.anchorMin = selectRect.anchorMax = new Vector2(1f, 0f);
+        selectRect.pivot = new Vector2(1f, 0f);
+        selectRect.sizeDelta = new Vector2(280f, 76f);
+        selectRect.anchoredPosition = new Vector2(-56f, 40f);
+        GameObject selectLabelGO = new GameObject("Label");
+        selectLabelGO.transform.SetParent(selectRect, false);
+        StretchFull(selectLabelGO.AddComponent<RectTransform>());
+        Text selectLabel = selectLabelGO.AddComponent<Text>();
+        ConfigureCardText(selectLabel, 30, FontStyle.Bold, new Color(1f, 0.9f, 0.5f));
+        selectLabel.text = "SELECT";
+        ui.selectButtonRect = selectRect;
+
+        // 左: キャラクター一覧 - CharacterDatabase.AllCharactersの件数ぶん
+        // 動的に生成(将来キャラクターが増えてもここは変更不要)。
+        // カルーセル化(2026-09-24) - 旧実装は4人目二丁拳銃士追加時に発覚
+        // した「カードを均等に縮めて詰め込む」場当たり対応(3人ぶんの幅
+        // 734pxへカード幅ごと圧縮)のままで、5人目以降を見据えていない
+        // とマスターから指摘された。カード幅/間隔を固定のまま、DeckEditUI
+        // (Assets/Scripts/DeckEditUI.cs)と同じ「ScrollRect+RectMask2Dを
+        // 状態コンテナとして使い、実際のドラッグ処理はCharacterSelectUI側
+        // で自前に行う」既存パターンを横方向へ流用する。旧実装が占めていた
+        // 領域(x=56、幅734px、MainVisual開始位置x=740の手前)をそのまま
+        // Viewportの外形として再利用するため、他のレイアウトへの影響なし。
+        var allCharacters = CharacterDatabase.AllCharacters;
+        const float cardWidth = 210f;
+        const float cardHeight = cardWidth * 1.85f; // 参考画像のカード比率に近い縦長
+        const float cardSpacing = 24f;
+        const float carouselViewportWidth = 3f * cardWidth + 2f * cardSpacing; // = 734px、旧実装と同じ安全な幅
+        int characterCount = Mathf.Max(1, allCharacters.Count);
+        float contentWidth = characterCount * cardWidth + (characterCount - 1) * cardSpacing;
+
+        GameObject carouselGO = new GameObject("CharacterCarousel");
+        carouselGO.transform.SetParent(rootGO.transform, false);
+        RectTransform carouselRect = carouselGO.AddComponent<RectTransform>();
+        carouselRect.anchorMin = carouselRect.anchorMax = new Vector2(0f, 0.5f);
+        carouselRect.pivot = new Vector2(0f, 0.5f);
+        carouselRect.sizeDelta = new Vector2(carouselViewportWidth, cardHeight + 40f); // 選択中カードの拡大ぶんの余白を縦に確保
+        carouselRect.anchoredPosition = new Vector2(56f, 60f);
+        ScrollRect carouselScroll = carouselGO.AddComponent<ScrollRect>();
+        carouselScroll.horizontal = true;
+        carouselScroll.vertical = false;
+        carouselScroll.movementType = ScrollRect.MovementType.Clamped;
+        carouselGO.AddComponent<RectMask2D>();
+
+        GameObject carouselContentGO = new GameObject("Content");
+        carouselContentGO.transform.SetParent(carouselGO.transform, false);
+        RectTransform carouselContentRect = carouselContentGO.AddComponent<RectTransform>();
+        carouselContentRect.anchorMin = new Vector2(0f, 0.5f);
+        carouselContentRect.anchorMax = new Vector2(0f, 0.5f);
+        carouselContentRect.pivot = new Vector2(0f, 0.5f);
+        carouselContentRect.sizeDelta = new Vector2(contentWidth, cardHeight + 40f);
+        carouselContentRect.anchoredPosition = Vector2.zero;
+        carouselScroll.content = carouselContentRect;
+        carouselScroll.viewport = carouselRect;
+
+        var cardSlotRects = new RectTransform[allCharacters.Count];
+        var cardGlowImages = new Image[allCharacters.Count];
+
+        for (int i = 0; i < allCharacters.Count; i++)
+        {
+            CharacterDefinition def = allCharacters[i];
+
+            GameObject slotGO = new GameObject("CharacterSlot_" + def.characterId);
+            slotGO.transform.SetParent(carouselContentGO.transform, false);
+            RectTransform slotRect = slotGO.AddComponent<RectTransform>();
+            slotRect.anchorMin = slotRect.anchorMax = new Vector2(0f, 0.5f);
+            slotRect.pivot = new Vector2(0f, 0.5f);
+            slotRect.sizeDelta = new Vector2(cardWidth, cardHeight);
+            slotRect.anchoredPosition = new Vector2(i * (cardWidth + cardSpacing), 0f);
+
+            // 選択中の縁の発光 - 金枠+シアン寄りの淡い外周(マスター指示の
+            // 「金枠・シアン発光・Selection marker」)。ポートレート画像
+            // より一回り大きい丸角パネルとして背後に重ねる。カルーセル化に
+            // 伴い、中心からの距離に応じてCharacterSelectUIが毎フレーム
+            // アルファ値を連続的に更新する方式へ変更(常時SetActive(true)、
+            // 以前のバイナリSetActiveは廃止)。
+            GameObject glowGO = new GameObject("SelectionGlow");
+            glowGO.transform.SetParent(slotGO.transform, false);
+            RectTransform glowRect = glowGO.AddComponent<RectTransform>();
+            glowRect.anchorMin = Vector2.zero;
+            glowRect.anchorMax = Vector2.one;
+            glowRect.offsetMin = new Vector2(-10f, -10f);
+            glowRect.offsetMax = new Vector2(10f, 10f);
+            Image glowImage = glowGO.AddComponent<Image>();
+            glowImage.sprite = RoundedPanelSprite();
+            glowImage.type = Image.Type.Sliced;
+            glowImage.color = new Color(1f, 0.85f, 0.4f, 0f);
+            glowImage.raycastTarget = false;
+
+            GameObject portraitGO = new GameObject("Portrait");
+            portraitGO.transform.SetParent(slotGO.transform, false);
+            RectTransform portraitRect = portraitGO.AddComponent<RectTransform>();
+            StretchFull(portraitRect);
+            Image portraitImage = portraitGO.AddComponent<Image>();
+            portraitImage.sprite = ToUiSprite(def.portrait);
+            portraitImage.preserveAspect = true;
+
+            // 見た目のButton(タップ判定自体はCharacterSelectUI.HandleTapが
+            // 自前で行う、DeckEditUI等と同じ方針) - targetGraphicがあると
+            // ポインタの状態変化を素直に受け付けられる。
+            Button slotButton = slotGO.AddComponent<Button>();
+            slotButton.targetGraphic = portraitImage;
+            slotButton.transition = Selectable.Transition.None;
+
+            cardSlotRects[i] = slotRect;
+            cardGlowImages[i] = glowImage;
+        }
+        ui.cardSlotRects = cardSlotRects;
+        ui.cardGlowImages = cardGlowImages;
+        ui.carouselScroll = carouselScroll;
+        ui.carouselContent = carouselContentRect;
+        ui.carouselViewportWidth = carouselViewportWidth;
+        ui.cardStride = cardWidth + cardSpacing;
+        ui.cardWidth = cardWidth;
+
+        // 12人化(2026-09-28): Viewportはちょうど3枚ぶんで、選択カードが中央へスナップすると両隣が
+        // 見切れず「まだ左右にキャラがいる」ことが伝わらない。その先にカードがある側だけ矢印を出し
+        // (タップで1枚ずつ移動)、カード列の下に「何人目/全員」を出す。表示の切り替えはCharacterSelectUI。
+        for (int side = -1; side <= 1; side += 2)
+        {
+            GameObject arrowGO = new GameObject(side < 0 ? "CarouselArrowLeft" : "CarouselArrowRight");
+            arrowGO.transform.SetParent(rootGO.transform, false);
+            RectTransform arrowRect = arrowGO.AddComponent<RectTransform>();
+            arrowRect.anchorMin = arrowRect.anchorMax = new Vector2(0f, 0.5f);
+            arrowRect.pivot = new Vector2(0.5f, 0.5f);
+            arrowRect.sizeDelta = new Vector2(54f, 104f);
+            arrowRect.anchoredPosition = new Vector2(side < 0 ? 56f + 20f : 56f + carouselViewportWidth - 20f, 60f);
+            Image arrowBg = arrowGO.AddComponent<Image>();
+            arrowBg.sprite = RoundedPanelSprite();
+            arrowBg.type = Image.Type.Sliced;
+            arrowBg.color = new Color(0.05f, 0.06f, 0.1f, 0.78f);
+            arrowBg.raycastTarget = false;
+            GameObject arrowTextGO = new GameObject("Glyph");
+            arrowTextGO.transform.SetParent(arrowGO.transform, false);
+            RectTransform arrowTextRect = arrowTextGO.AddComponent<RectTransform>();
+            StretchFull(arrowTextRect);
+            Text arrowText = arrowTextGO.AddComponent<Text>();
+            ConfigureCardText(arrowText, 46, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+            arrowText.text = side < 0 ? "<" : ">";
+            if (side < 0) ui.carouselArrowLeft = arrowRect; else ui.carouselArrowRight = arrowRect;
+        }
+        GameObject pageGO = new GameObject("CarouselPage");
+        pageGO.transform.SetParent(rootGO.transform, false);
+        RectTransform pageRect = pageGO.AddComponent<RectTransform>();
+        pageRect.anchorMin = pageRect.anchorMax = new Vector2(0f, 0.5f);
+        pageRect.pivot = new Vector2(0.5f, 1f);
+        pageRect.sizeDelta = new Vector2(240f, 34f);
+        pageRect.anchoredPosition = new Vector2(56f + carouselViewportWidth * 0.5f, 60f - (cardHeight + 40f) * 0.5f - 4f);
+        Text pageText = pageGO.AddComponent<Text>();
+        ConfigureCardText(pageText, 24, FontStyle.Bold, new Color(0.85f, 0.9f, 1f));
+        ui.carouselPageText = pageText;
+
+        // 中央: 選択中キャラクターの大きなビジュアル。
+        GameObject mainVisualGO = new GameObject("MainVisual");
+        mainVisualGO.transform.SetParent(rootGO.transform, false);
+        RectTransform mainVisualRect = mainVisualGO.AddComponent<RectTransform>();
+        mainVisualRect.anchorMin = mainVisualRect.anchorMax = new Vector2(0.5f, 0.46f);
+        mainVisualRect.pivot = new Vector2(0.5f, 0.5f);
+        mainVisualRect.sizeDelta = new Vector2(560f, 880f);
+        mainVisualRect.anchoredPosition = new Vector2(60f, 0f);
+        CanvasGroup mainVisualGroup = mainVisualGO.AddComponent<CanvasGroup>();
+        Image mainVisualImage = mainVisualGO.AddComponent<Image>();
+        mainVisualImage.preserveAspect = true;
+        mainVisualImage.raycastTarget = false;
+        ui.mainVisualImage = mainVisualImage;
+        ui.mainVisualGroup = mainVisualGroup;
+
+        // 右: 情報パネル(役割/説明/星評価)。
+        RectTransform infoRect = CreateOrnatePanel(rootGO.transform, "InfoPanel");
+        infoRect.anchorMin = infoRect.anchorMax = new Vector2(1f, 0.5f);
+        infoRect.pivot = new Vector2(1f, 0.5f);
+        infoRect.sizeDelta = new Vector2(560f, 780f);
+        infoRect.anchoredPosition = new Vector2(-64f, 30f);
+
+        GameObject infoTitleGO = new GameObject("Title");
+        infoTitleGO.transform.SetParent(infoRect, false);
+        RectTransform infoTitleRect = infoTitleGO.AddComponent<RectTransform>();
+        infoTitleRect.anchorMin = new Vector2(0f, 1f);
+        infoTitleRect.anchorMax = new Vector2(1f, 1f);
+        infoTitleRect.pivot = new Vector2(0.5f, 1f);
+        infoTitleRect.sizeDelta = new Vector2(-80f, 52f);
+        infoTitleRect.anchoredPosition = new Vector2(0f, -46f);
+        Text infoTitleText = infoTitleGO.AddComponent<Text>();
+        ConfigureCardText(infoTitleText, 38, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        ui.titleText = infoTitleText;
+
+        GameObject subtitleGO = new GameObject("Subtitle");
+        subtitleGO.transform.SetParent(infoRect, false);
+        RectTransform subtitleRect = subtitleGO.AddComponent<RectTransform>();
+        subtitleRect.anchorMin = new Vector2(0f, 1f);
+        subtitleRect.anchorMax = new Vector2(1f, 1f);
+        subtitleRect.pivot = new Vector2(0.5f, 1f);
+        subtitleRect.sizeDelta = new Vector2(-80f, 32f);
+        subtitleRect.anchoredPosition = new Vector2(0f, -96f);
+        Text subtitleText = subtitleGO.AddComponent<Text>();
+        ConfigureCardText(subtitleText, 20, FontStyle.Italic, new Color(0.75f, 0.9f, 1f));
+        ui.subtitleText = subtitleText;
+
+        // Role Badge - 「見た目は強そうだが最弱」等の特殊枠は赤系(マスター
+        // 指示どおり)、通常は紺系。RefreshDetailが色/文言を書き換える。
+        GameObject roleBadgeGO = new GameObject("RoleBadge");
+        roleBadgeGO.transform.SetParent(infoRect, false);
+        RectTransform roleBadgeRect = roleBadgeGO.AddComponent<RectTransform>();
+        roleBadgeRect.anchorMin = new Vector2(0.5f, 1f);
+        roleBadgeRect.anchorMax = new Vector2(0.5f, 1f);
+        roleBadgeRect.pivot = new Vector2(0.5f, 1f);
+        roleBadgeRect.sizeDelta = new Vector2(320f, 46f);
+        roleBadgeRect.anchoredPosition = new Vector2(0f, -140f);
+        Image roleBadgeBg = roleBadgeGO.AddComponent<Image>();
+        roleBadgeBg.sprite = RoundedPanelSprite();
+        roleBadgeBg.type = Image.Type.Sliced;
+        GameObject roleBadgeLabelGO = new GameObject("Label");
+        roleBadgeLabelGO.transform.SetParent(roleBadgeGO.transform, false);
+        StretchFull(roleBadgeLabelGO.AddComponent<RectTransform>());
+        Text roleBadgeText = roleBadgeLabelGO.AddComponent<Text>();
+        ConfigureCardText(roleBadgeText, 22, FontStyle.Bold, new Color(1f, 0.92f, 0.7f));
+        ui.roleBadgeText = roleBadgeText;
+        ui.roleBadgeBg = roleBadgeBg;
+
+        // 「CHALLENGE HERO」の小さな追加バッジ(役割バッジと重ねて強調 -
+        // マスター指示の「見た目は強そうだが実は最弱、であることが分かる
+        // ように」)。
+        GameObject challengeBadgeGO = new GameObject("ChallengeBadge");
+        challengeBadgeGO.transform.SetParent(infoRect, false);
+        RectTransform challengeBadgeRect = challengeBadgeGO.AddComponent<RectTransform>();
+        challengeBadgeRect.anchorMin = new Vector2(0.5f, 1f);
+        challengeBadgeRect.anchorMax = new Vector2(0.5f, 1f);
+        challengeBadgeRect.pivot = new Vector2(0.5f, 1f);
+        challengeBadgeRect.sizeDelta = new Vector2(320f, 24f);
+        challengeBadgeRect.anchoredPosition = new Vector2(0f, -188f);
+        Text challengeBadgeText = challengeBadgeGO.AddComponent<Text>();
+        ConfigureCardText(challengeBadgeText, 15, FontStyle.Italic, new Color(1f, 0.55f, 0.5f));
+        challengeBadgeText.text = "Strong in appearance. Weak in truth.";
+        challengeBadgeGO.SetActive(false);
+        ui.challengeBadge = challengeBadgeGO;
+
+        // 説明文。
+        GameObject flavorGO = new GameObject("FlavorText");
+        flavorGO.transform.SetParent(infoRect, false);
+        RectTransform flavorRect = flavorGO.AddComponent<RectTransform>();
+        flavorRect.anchorMin = new Vector2(0f, 1f);
+        flavorRect.anchorMax = new Vector2(1f, 1f);
+        flavorRect.pivot = new Vector2(0.5f, 1f);
+        flavorRect.sizeDelta = new Vector2(-80f, 170f);
+        flavorRect.anchoredPosition = new Vector2(0f, -230f);
+        Text flavorText = flavorGO.AddComponent<Text>();
+        ConfigureCardText(flavorText, 22, FontStyle.Normal, new Color(0.92f, 0.93f, 0.97f));
+        flavorText.alignment = TextAnchor.UpperLeft;
+        ui.flavorText = flavorText;
+
+        // 星評価4行(LIFE/POWER/SPEED/COMBO) - 内部戦闘値ではなく表示専用
+        // (マスター指示どおり、CharacterDefinitionの説明コメント参照)。
+        string[] statLabels = { "LIFE", "POWER", "SPEED", "COMBO" };
+        Text[] statTexts = new Text[statLabels.Length];
+        float statStartY = -420f;
+        float statRowHeight = 56f;
+        for (int s = 0; s < statLabels.Length; s++)
+        {
+            GameObject rowGO = new GameObject("Stat_" + statLabels[s]);
+            rowGO.transform.SetParent(infoRect, false);
+            RectTransform rowRect = rowGO.AddComponent<RectTransform>();
+            rowRect.anchorMin = new Vector2(0f, 1f);
+            rowRect.anchorMax = new Vector2(1f, 1f);
+            rowRect.pivot = new Vector2(0.5f, 1f);
+            rowRect.sizeDelta = new Vector2(-80f, statRowHeight);
+            rowRect.anchoredPosition = new Vector2(0f, statStartY - s * statRowHeight);
+
+            GameObject labelGO = new GameObject("Label");
+            labelGO.transform.SetParent(rowGO.transform, false);
+            RectTransform labelRect = labelGO.AddComponent<RectTransform>();
+            labelRect.anchorMin = new Vector2(0f, 0f);
+            labelRect.anchorMax = new Vector2(0.4f, 1f);
+            labelRect.offsetMin = Vector2.zero;
+            labelRect.offsetMax = Vector2.zero;
+            Text labelText = labelGO.AddComponent<Text>();
+            ConfigureCardText(labelText, 22, FontStyle.Bold, new Color(0.85f, 0.88f, 0.95f));
+            labelText.alignment = TextAnchor.MiddleLeft;
+            labelText.text = statLabels[s];
+
+            GameObject starsGO = new GameObject("Stars");
+            starsGO.transform.SetParent(rowGO.transform, false);
+            RectTransform starsRect = starsGO.AddComponent<RectTransform>();
+            starsRect.anchorMin = new Vector2(0.4f, 0f);
+            starsRect.anchorMax = new Vector2(1f, 1f);
+            starsRect.offsetMin = Vector2.zero;
+            starsRect.offsetMax = Vector2.zero;
+            Text starsText = starsGO.AddComponent<Text>();
+            ConfigureCardText(starsText, 26, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+            starsText.alignment = TextAnchor.MiddleRight;
+            statTexts[s] = starsText;
+        }
+        ui.lifeStarsText = statTexts[0];
+        ui.powerStarsText = statTexts[1];
+        ui.speedStarsText = statTexts[2];
+        ui.comboStarsText = statTexts[3];
 
         rootGO.SetActive(false);
-        return menu;
+        return ui;
+    }
+
+    // ステージ選択導線追加(2026-09-12) - CharacterSelectと違い中央の大きな
+    // メインビジュアル/右側の詳細情報パネルは持たない、マスター指示
+    // 「ヴァンサバ系のように、サムネ・名前・特徴だけの簡易表示」どおりの
+    // より単純な構成 - 各カード自体に名前・特徴テキストを直接焼き込む。
+    static StageSelectUI BuildStageSelectCanvas()
+    {
+        GameObject canvasGO = new GameObject("StageSelectCanvas");
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 90; // DeckEdit/CardFusion/CharacterSelectと同じ帯 - 同時に開くことはない(GameManager.AnyOverlayOpen)
+
+        CanvasScaler scaler = canvasGO.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        scaler.matchWidthOrHeight = 0.5f;
+
+        canvasGO.AddComponent<GraphicRaycaster>();
+        if (Object.FindFirstObjectByType<EventSystem>() == null)
+        {
+            GameObject esGO = new GameObject("EventSystem");
+            esGO.AddComponent<EventSystem>();
+            esGO.AddComponent<StandaloneInputModule>();
+        }
+
+        GameObject rootGO = new GameObject("StageSelectRoot");
+        rootGO.transform.SetParent(canvasGO.transform, false);
+        RectTransform rootRect = rootGO.AddComponent<RectTransform>();
+        StretchFull(rootRect);
+        CanvasGroup rootGroup = rootGO.AddComponent<CanvasGroup>();
+
+        StageSelectUI ui = rootGO.AddComponent<StageSelectUI>();
+        ui.root = rootRect;
+        ui.rootGroup = rootGroup;
+
+        // 背景 - CharacterSelect/DeckEdit/CardFusionと同じ単色塗り(濃紺)。
+        // 既存アセットの使い回しによるインポート設定汚染リスク(過去に
+        // BuildCharacterSelectCanvasで自己発見・修正済みの副作用)を避ける
+        // ため、ここでも新規/共有アセットは一切読み込まない。
+        GameObject bgGO = new GameObject("Background");
+        bgGO.transform.SetParent(rootGO.transform, false);
+        RectTransform bgRect = bgGO.AddComponent<RectTransform>();
+        StretchFull(bgRect);
+        Image bgImage = bgGO.AddComponent<Image>();
+        bgImage.color = new Color(0.04f, 0.05f, 0.1f, 0.97f);
+        bgImage.raycastTarget = false;
+
+        GameObject headerGO = new GameObject("HeaderTitle");
+        headerGO.transform.SetParent(rootGO.transform, false);
+        RectTransform headerRect = headerGO.AddComponent<RectTransform>();
+        headerRect.anchorMin = headerRect.anchorMax = new Vector2(0.5f, 1f);
+        headerRect.pivot = new Vector2(0.5f, 1f);
+        headerRect.sizeDelta = new Vector2(760f, 64f);
+        headerRect.anchoredPosition = new Vector2(0f, -36f);
+        Text headerText = headerGO.AddComponent<Text>();
+        ConfigureCardText(headerText, 44, FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
+        headerText.alignment = TextAnchor.MiddleCenter;
+        headerText.text = "STAGE SELECT";
+
+        // BACK(左下) - 選択を確定せずHomeへ戻る(StageSelectUI.Close参照)。
+        RectTransform backRect = CreateOrnatePanel(rootGO.transform, "BackButton", borderScale: 2f);
+        backRect.anchorMin = backRect.anchorMax = new Vector2(0f, 0f);
+        backRect.pivot = new Vector2(0f, 0f);
+        backRect.sizeDelta = new Vector2(220f, 76f);
+        backRect.anchoredPosition = new Vector2(56f, 40f);
+        GameObject backLabelGO = new GameObject("Label");
+        backLabelGO.transform.SetParent(backRect, false);
+        StretchFull(backLabelGO.AddComponent<RectTransform>());
+        Text backLabel = backLabelGO.AddComponent<Text>();
+        ConfigureCardText(backLabel, 28, FontStyle.Bold, new Color(0.9f, 0.92f, 0.97f));
+        backLabel.text = "« BACK";
+        ui.backButtonRect = backRect;
+
+        // 出発(中央下) - 参考画像どおり中央配置。選択を確定してHomeへ戻る
+        // だけで、Run開始そのものはHome側の既存Doorホットスポット
+        // (OnDoorTapped)が行う(StageSelectUI.Confirmのコメント参照)。
+        RectTransform departRect = CreateOrnatePanel(rootGO.transform, "DepartButton", borderScale: 2f);
+        departRect.anchorMin = departRect.anchorMax = new Vector2(0.5f, 0f);
+        departRect.pivot = new Vector2(0.5f, 0f);
+        departRect.sizeDelta = new Vector2(280f, 76f);
+        departRect.anchoredPosition = new Vector2(0f, 40f);
+        GameObject departLabelGO = new GameObject("Label");
+        departLabelGO.transform.SetParent(departRect, false);
+        StretchFull(departLabelGO.AddComponent<RectTransform>());
+        Text departLabel = departLabelGO.AddComponent<Text>();
+        ConfigureCardText(departLabel, 30, FontStyle.Bold, new Color(1f, 0.9f, 0.5f));
+        departLabel.text = "出発";
+        ui.departButtonRect = departRect;
+
+        // ステージカード一覧 - StageDatabase.AllStagesの件数ぶん動的に生成
+        // (将来ステージが増えてもここは変更不要)。
+        var allStages = StageDatabase.AllStages;
+        const float cardWidth = 380f;
+        const float cardHeight = 560f;
+        const float cardSpacing = 40f;
+        float totalWidth = allStages.Count * cardWidth + Mathf.Max(0, allStages.Count - 1) * cardSpacing;
+        float startX = -totalWidth / 2f;
+
+        var cardSlotRects = new RectTransform[allStages.Count];
+        var cardGlowImages = new Image[allStages.Count];
+        var cardUnlocked = new bool[allStages.Count];
+
+        for (int i = 0; i < allStages.Count; i++)
+        {
+            StageDefinition def = allStages[i];
+
+            RectTransform cardRect = CreateOrnatePanel(rootGO.transform, "StageCard_" + def.stageId);
+            cardRect.anchorMin = cardRect.anchorMax = new Vector2(0.5f, 0.5f);
+            cardRect.pivot = new Vector2(0.5f, 0.5f);
+            cardRect.sizeDelta = new Vector2(cardWidth, cardHeight);
+            cardRect.anchoredPosition = new Vector2(startX + cardWidth / 2f + i * (cardWidth + cardSpacing), 20f);
+
+            // 選択中の縁の発光 - CharacterSelectUIのSelectionGlowと同じ
+            // 「一回り大きい丸角パネルを背後に重ね、選択中だけ表示する」
+            // 方式。CreateOrnatePanelは既にFill/Frameの2子を持つため、
+            // SetSiblingIndex(0)でその手前(=描画上は最背面)へ回し、Fill/
+            // Frameの外周からわずかにはみ出すリングとして見せる。
+            GameObject glowGO = new GameObject("SelectionGlow");
+            glowGO.transform.SetParent(cardRect, false);
+            RectTransform glowRect = glowGO.AddComponent<RectTransform>();
+            glowRect.anchorMin = Vector2.zero;
+            glowRect.anchorMax = Vector2.one;
+            glowRect.offsetMin = new Vector2(-12f, -12f);
+            glowRect.offsetMax = new Vector2(12f, 12f);
+            Image glowImage = glowGO.AddComponent<Image>();
+            glowImage.sprite = RoundedPanelSprite();
+            glowImage.type = Image.Type.Sliced;
+            glowImage.color = new Color(1f, 0.85f, 0.4f, 0.95f);
+            glowImage.raycastTarget = false;
+            glowGO.transform.SetSiblingIndex(0);
+            glowGO.SetActive(false);
+
+            // サムネ領域 - 専用画像が無い間は単色パネルへフォールバック
+            // (StageDefinition.thumbnailのコメント、マスター指示「難しけれ
+            // ばステージ名のみでも可」に対応)。
+            GameObject thumbGO = new GameObject("Thumbnail");
+            thumbGO.transform.SetParent(cardRect, false);
+            RectTransform thumbRect = thumbGO.AddComponent<RectTransform>();
+            thumbRect.anchorMin = new Vector2(0f, 1f);
+            thumbRect.anchorMax = new Vector2(1f, 1f);
+            thumbRect.pivot = new Vector2(0.5f, 1f);
+            thumbRect.sizeDelta = new Vector2(-40f, 220f);
+            thumbRect.anchoredPosition = new Vector2(0f, -30f);
+            Image thumbImage = thumbGO.AddComponent<Image>();
+            if (def.thumbnail != null)
+            {
+                thumbImage.sprite = ToUiSprite(def.thumbnail);
+                thumbImage.preserveAspect = true;
+            }
+            else
+            {
+                thumbImage.sprite = RoundedPanelSprite();
+                thumbImage.type = Image.Type.Sliced;
+                thumbImage.color = def.unlocked ? new Color(0.16f, 0.22f, 0.35f, 1f) : new Color(0.12f, 0.12f, 0.14f, 1f);
+            }
+            thumbImage.raycastTarget = false;
+
+            GameObject nameGO = new GameObject("Name");
+            nameGO.transform.SetParent(cardRect, false);
+            RectTransform nameRect = nameGO.AddComponent<RectTransform>();
+            nameRect.anchorMin = new Vector2(0f, 1f);
+            nameRect.anchorMax = new Vector2(1f, 1f);
+            nameRect.pivot = new Vector2(0.5f, 1f);
+            nameRect.sizeDelta = new Vector2(-40f, 48f);
+            nameRect.anchoredPosition = new Vector2(0f, -266f);
+            Text nameText = nameGO.AddComponent<Text>();
+            ConfigureCardText(nameText, 30, FontStyle.Bold, def.unlocked ? new Color(1f, 0.9f, 0.6f) : new Color(0.55f, 0.55f, 0.58f));
+            nameText.alignment = TextAnchor.MiddleCenter;
+            nameText.text = def.displayName;
+
+            // 特徴テキスト3行(敵/障害物/ルート) - マスター指示「サムネ・
+            // 名前・特徴だけの簡易表示」どおり最小限、長文説明は入れない。
+            GameObject featGO = new GameObject("FeatureText");
+            featGO.transform.SetParent(cardRect, false);
+            RectTransform featRect = featGO.AddComponent<RectTransform>();
+            featRect.anchorMin = new Vector2(0f, 1f);
+            featRect.anchorMax = new Vector2(1f, 1f);
+            featRect.pivot = new Vector2(0.5f, 1f);
+            featRect.sizeDelta = new Vector2(-40f, 190f);
+            featRect.anchoredPosition = new Vector2(0f, -320f);
+            Text featText = featGO.AddComponent<Text>();
+            ConfigureCardText(featText, 18, FontStyle.Normal, def.unlocked ? new Color(0.88f, 0.9f, 0.95f) : new Color(0.5f, 0.5f, 0.53f));
+            featText.alignment = TextAnchor.UpperLeft;
+            featText.text = $"{def.enemyText}\n{def.featureText}\n{def.routeText}";
+
+            // Lockアイコン代替 - 専用アート未用意のためテキスト表示(マス
+            // ター指示「Lock icon」の簡易代用、未開放が伝われば機能面は
+            // 十分)。
+            GameObject lockGO = new GameObject("LockLabel");
+            lockGO.transform.SetParent(cardRect, false);
+            RectTransform lockRect = lockGO.AddComponent<RectTransform>();
+            lockRect.anchorMin = new Vector2(0f, 1f);
+            lockRect.anchorMax = new Vector2(1f, 1f);
+            lockRect.pivot = new Vector2(0.5f, 1f);
+            lockRect.sizeDelta = new Vector2(-40f, 100f);
+            lockRect.anchoredPosition = new Vector2(0f, -110f);
+            Text lockText = lockGO.AddComponent<Text>();
+            ConfigureCardText(lockText, 40, FontStyle.Bold, new Color(0.8f, 0.8f, 0.82f, 0.9f));
+            lockText.alignment = TextAnchor.MiddleCenter;
+            lockText.text = "LOCKED";
+            lockGO.SetActive(!def.unlocked);
+
+            cardSlotRects[i] = cardRect;
+            cardGlowImages[i] = glowImage;
+            cardUnlocked[i] = def.unlocked;
+        }
+        ui.cardSlotRects = cardSlotRects;
+        ui.cardGlowImages = cardGlowImages;
+        ui.cardUnlocked = cardUnlocked;
+
+        rootGO.SetActive(false);
+        return ui;
+    }
+
+    // CharacterDefinition.portrait/mainVisualはTexture2D(RewardCardData.
+    // Iconと同じ「表示側でSprite.Createする」方式 - CharacterDefinitionの
+    // 説明コメント参照)なので、Editor側でuGUI Imageへ割り当てる際も同じ
+    // 変換をここで行う。
+    static Sprite ToUiSprite(Texture2D tex)
+    {
+        if (tex == null) return null;
+        return Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f));
     }
 
     // "LABEL n / m" count readout sitting under one Deck Edit panel -
@@ -1533,12 +2486,15 @@ public static class SceneBuilder
         return dialog;
     }
 
-    // One reward card: back image, frame image, icon, title, description,
-    // and a Button covering the whole card for tap-to-select - the same
-    // structure every time, only the content (set later via SetContent)
-    // differs, standing in for a shared Prefab in a project where every
-    // object is built by code.
-    static RewardCardUI CreateRewardCard(Transform parent, int index, float width, float height, Sprite backSprite, Sprite frameSprite, System.Action<int> onClick)
+    // One reward card: back image, base art, icon, frame, title band, title,
+    // level, count, (description/rarity - detail mode only), and a Button
+    // covering the whole card for tap-to-select - the same structure every
+    // time, only the content (set later via SetContent) differs, standing
+    // in for a shared Prefab in a project where every object is built by
+    // code. Card UI改修(2026-09-08) - overloaded to also accept the 2 new
+    // common art pieces (baseSprite/titleBandSprite); every existing call
+    // site is updated to pass them (see each BuildXxxCanvas method).
+    static RewardCardUI CreateRewardCard(Transform parent, int index, float width, float height, Sprite backSprite, Sprite frameSprite, System.Action<int> onClick, Sprite baseSprite = null, Sprite titleBandSprite = null)
     {
         GameObject cardGO = new GameObject("RewardCard" + index);
         cardGO.transform.SetParent(parent, false);
@@ -1553,6 +2509,11 @@ public static class SceneBuilder
         card.rect = rect;
         card.canvasGroup = group;
 
+        // カードUI最終デザイン改修(2026-09-26) - 選択中(いま見ているカード)だけに出す、カード背後の
+        // 淡いエメラルド〜金のGlow。一番最初の子 = 最背面。
+        Image selectGlow = CardFaceImage(cardGO.transform, "SelectGlow", new Vector2(-0.2f, -0.14f), new Vector2(1.2f, 1.14f), new Color(0.62f, 0.95f, 0.82f, 0.8f));
+        card.selectGlow = selectGlow;
+        selectGlow.gameObject.SetActive(false);
         GameObject backGO = new GameObject("Back");
         backGO.transform.SetParent(cardGO.transform, false);
         StretchFull(backGO.AddComponent<RectTransform>());
@@ -1561,125 +2522,188 @@ public static class SceneBuilder
         backImage.raycastTarget = false;
         card.backImage = backImage;
 
+        // Card UI改修(2026-09-08) - 新レイアウトの土台となる「カード下地」
+        // (深い青の共通背景アート、全Rarity共通) - Backのすぐ上、Frameより
+        // 下に配置。表向き時は常時表示、裏向き(Back)時は非表示。
+        GameObject baseGO = new GameObject("Base");
+        baseGO.transform.SetParent(cardGO.transform, false);
+        StretchFull(baseGO.AddComponent<RectTransform>());
+        Image baseImageComp = baseGO.AddComponent<Image>();
+        baseImageComp.sprite = baseSprite;
+        baseImageComp.raycastTarget = false;
+        card.baseImage = baseImageComp;
+
+        // カードUI最終デザイン改修(2026-09-26) - カード1枚を「フレーム/イラスト/Category/
+        // Level/Card Name」まで含めた1つの完成したUIとして組む。レイアウトはカード全面を
+        // 覆うフレーム(CardRarityFrames.GetSlicedFrame、全レア度で同じ位置に揃う)を基準に:
+        //   左上 = Category Emblem / 右上 = Level Emblem(左右対称、フレームの角に食い込む)
+        //   中央 = イラスト / 下部約15.5% = Card Name専用のName Plate
+        // 角丸板・菱形・Glowのスプライトは実行時にCardFaceArtが作る(Editorで作ったSpriteは
+        // シーンに保存されないため) - ここでは形/色/サイズだけを決め、RewardCardUI.EnsureArtで割り当てる。
+        Color navy = new Color(0.035f, 0.045f, 0.10f, 0.97f);
+        Color antiqueGold = new Color(0.74f, 0.60f, 0.32f, 1f);
+        Color emerald = new Color(0.30f, 0.88f, 0.78f, 1f);
+        var roundedImages = new List<Image>();
+        var diamondImages = new List<Image>();
+        var circleImages = new List<Image>();
+
+        // イラストの下地(フレームの内側を埋める暗いパネル、フレームの下に描く)
+        Color cardPanelColor = new Color(0.04f, 0.05f, 0.12f, 1f);
+        Image iconBackdropImage = CardFaceImage(cardGO.transform, "IconBackdrop", new Vector2(0.085f, 0.235f), new Vector2(0.915f, 0.93f), new Color(cardPanelColor.r, cardPanelColor.g, cardPanelColor.b, 0.5f));
+        card.iconBackdrop = iconBackdropImage;
+
+        // イラスト本体 - Name Plate上端とエンブレム下端の間の中央に置く(既存アイコン画像はそのまま)
+        Image iconImage = CardFaceImage(cardGO.transform, "Icon", new Vector2(0.08f, 0.255f), new Vector2(0.92f, 0.855f), Color.white);
+        iconImage.preserveAspect = true;
+        card.iconImage = iconImage;
+
+        // ---- Name Plate(フレームより先に描く = フレームの内縁/下の宝石がプレートの上に重なり、
+        // 枠に組み込まれた板に見える) ----
+        GameObject plateGO = new GameObject("NamePlate");
+        plateGO.transform.SetParent(cardGO.transform, false);
+        RectTransform plateRect = plateGO.AddComponent<RectTransform>();
+        plateRect.anchorMin = new Vector2(0.09f, 0.08f);
+        plateRect.anchorMax = new Vector2(0.91f, 0.235f);
+        plateRect.offsetMin = plateRect.offsetMax = Vector2.zero;
+        float rim = Mathf.Max(1.5f, width * 0.009f);
+        float plateRadius = width * 0.035f;
+        Image plateRim = CardFaceImage(plateGO.transform, "Rim", Vector2.zero, Vector2.one, antiqueGold);
+        MakeRounded(plateRim, plateRadius, roundedImages);
+        Image plateFill = CardFaceImage(plateGO.transform, "Fill", Vector2.zero, Vector2.one, navy);
+        plateFill.rectTransform.offsetMin = new Vector2(rim, rim);
+        plateFill.rectTransform.offsetMax = new Vector2(-rim, -rim);
+        MakeRounded(plateFill, plateRadius - rim, roundedImages);
+        // 上半分にほんのり明るい帯 - 平板にならないよう奥行きを付ける
+        Image plateSheen = CardFaceImage(plateGO.transform, "Sheen", new Vector2(0f, 0.5f), Vector2.one, new Color(0.16f, 0.22f, 0.40f, 0.35f));
+        plateSheen.rectTransform.offsetMin = new Vector2(rim * 2f, 0f);
+        plateSheen.rectTransform.offsetMax = new Vector2(-rim * 2f, -rim * 2f);
+        MakeRounded(plateSheen, plateRadius - rim * 2f, roundedImages);
+        // 内側の細いエメラルドの線(選択時に明るくなる)
+        Image plateAccent = CardFaceImage(plateGO.transform, "Accent", new Vector2(0.08f, 1f), new Vector2(0.92f, 1f), new Color(emerald.r, emerald.g, emerald.b, 0.35f));
+        plateAccent.rectTransform.pivot = new Vector2(0.5f, 1f);
+        plateAccent.rectTransform.sizeDelta = new Vector2(0f, Mathf.Max(1f, width * 0.006f));
+        plateAccent.rectTransform.anchoredPosition = new Vector2(0f, -rim * 2.2f);
+        // 上辺中央の小さな金の菱形(フレームの宝石と同じモチーフで、板と枠をつなぐ)
+        Image plateGem = CardFaceImage(plateGO.transform, "Gem", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), antiqueGold);
+        plateGem.rectTransform.sizeDelta = new Vector2(width * 0.075f, width * 0.075f);
+        diamondImages.Add(plateGem);
+        card.namePlate = plateGO;
+        card.namePlateRim = plateRim;
+        card.namePlateAccent = plateAccent;
+
+        // Card UI改修(2026-09-08) - Frameはイラスト/プレートの"上"に描く。カードUI最終デザイン
+        // 改修(2026-09-26) - レア度フレームはRewardCardUIがSliced(カード全面)に切り替える。
         GameObject frameGO = new GameObject("Frame");
         frameGO.transform.SetParent(cardGO.transform, false);
         StretchFull(frameGO.AddComponent<RectTransform>());
         Image frameImage = frameGO.AddComponent<Image>();
         frameImage.sprite = frameSprite;
         frameImage.raycastTarget = false;
-        // Card UI / Rarity Frame pass, item 8 - the 5 Rarity frame images
-        // are NOT all the same aspect ratio (and this card's own
-        // RectTransform size must never change per-Rarity), so the frame
-        // Image fits within the card bounds instead of stretching to fill
-        // it - keeps every Rarity's art undistorted regardless of which
-        // differently-proportioned frame Sprite ends up swapped in here at
-        // SetContent() time.
-        frameImage.preserveAspect = true;
+        frameImage.preserveAspect = true; // 既定(フォールバックの古いCardFrame.png/空きスロット)用
         card.frameImage = frameImage;
         card.defaultFrameSprite = frameSprite;
 
-        // Plain dark panels between the frame and the icon/text - the frame
-        // art's own interior is too see-through on its own (the game world
-        // behind the card was showing through enough to hurt legibility),
-        // so these sit just behind the icon/text specifically without
-        // touching the frame's decorative border, which stays fully
-        // opaque as-is.
-        Color cardPanelColor = new Color(0.04f, 0.05f, 0.12f, 1f);
-        // Bugfix 2026-09-06 (Card frame見切れ修正) - re-derived Safe Area
-        // from scratch: the Rarity/Level pass's first layout packed
-        // everything too tightly against the frame's own corner ornaments
-        // (worst at small card sizes - Character Card/Fusion slots as small
-        // as 84px wide) and gave the EquippedBadge a fixed-width slot too
-        // narrow for its own "EQUIPPED" text ("EQUIPP" got clipped). New
-        // margins: top row (Rarity/Level) pulled in further from both the
-        // top edge and the sides; Icon shrunk slightly; EquippedBadge now
-        // spans almost the full card width as its own row (not a
-        // corner-overlay) so its text always has room; Title/Description
-        // both use Best Fit (see ConfigureCardText's own comment) so they
-        // shrink to actually fit their box instead of clipping.
-        GameObject iconBackdropGO = new GameObject("IconBackdrop");
-        iconBackdropGO.transform.SetParent(cardGO.transform, false);
-        RectTransform iconBackdropRect = iconBackdropGO.AddComponent<RectTransform>();
-        iconBackdropRect.anchorMin = new Vector2(0.16f, 0.44f);
-        iconBackdropRect.anchorMax = new Vector2(0.84f, 0.87f);
-        iconBackdropRect.offsetMin = Vector2.zero;
-        iconBackdropRect.offsetMax = Vector2.zero;
-        Image iconBackdropImage = iconBackdropGO.AddComponent<Image>();
-        iconBackdropImage.color = new Color(cardPanelColor.r, cardPanelColor.g, cardPanelColor.b, 0.85f);
-        iconBackdropImage.raycastTarget = false;
-        card.iconBackdrop = iconBackdropImage;
+        // Card Name - Name Plate内で中央揃え。サイズの自動縮小→それでも入らない時だけ2行、
+        // はRewardCardUI.FitTitleが行う(Legacy TextのBest Fitは1行に縮める前に2行へ折り返すため)。
+        GameObject titleGO = new GameObject("Title");
+        titleGO.transform.SetParent(cardGO.transform, false);
+        RectTransform titleRect = titleGO.AddComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0.125f, 0.093f);
+        titleRect.anchorMax = new Vector2(0.875f, 0.222f);
+        titleRect.offsetMin = Vector2.zero;
+        titleRect.offsetMax = Vector2.zero;
+        Text titleText = titleGO.AddComponent<Text>();
+        ConfigureCardText(titleText, CardNameFontSizeFor(width), FontStyle.Bold, new Color(1f, 0.9f, 0.64f));
+        AddCardTextOutline(titleText, width);
+        card.titleText = titleText;
+        card.titleMaxFontSize = CardNameFontSizeFor(width);
 
-        GameObject textBackdropGO = new GameObject("TextBackdrop");
-        textBackdropGO.transform.SetParent(cardGO.transform, false);
-        RectTransform textBackdropRect = textBackdropGO.AddComponent<RectTransform>();
-        textBackdropRect.anchorMin = new Vector2(0.07f, 0.03f);
-        textBackdropRect.anchorMax = new Vector2(0.93f, 0.34f);
-        textBackdropRect.offsetMin = Vector2.zero;
-        textBackdropRect.offsetMax = Vector2.zero;
-        Image textBackdropImage = textBackdropGO.AddComponent<Image>();
-        textBackdropImage.color = new Color(cardPanelColor.r, cardPanelColor.g, cardPanelColor.b, 0.93f);
-        textBackdropImage.raycastTarget = false;
-        card.textBackdrop = textBackdropImage;
+        // 所持枚数「×N」 - プレート上辺の左寄りに乗る小さなチップ(Collection/合成一覧で2枚以上の時だけ)
+        GameObject countGO = new GameObject("CountChip");
+        countGO.transform.SetParent(cardGO.transform, false);
+        RectTransform countRect = countGO.AddComponent<RectTransform>();
+        countRect.anchorMin = countRect.anchorMax = new Vector2(0.2f, 0.262f);
+        countRect.sizeDelta = new Vector2(width * 0.22f, width * 0.105f);
+        Image countRim = CardFaceImage(countGO.transform, "Rim", Vector2.zero, Vector2.one, antiqueGold);
+        MakeRounded(countRim, width * 0.05f, roundedImages);
+        Image countFill = CardFaceImage(countGO.transform, "Fill", Vector2.zero, Vector2.one, navy);
+        countFill.rectTransform.offsetMin = new Vector2(rim, rim);
+        countFill.rectTransform.offsetMax = new Vector2(-rim, -rim);
+        MakeRounded(countFill, width * 0.05f - rim, roundedImages);
+        GameObject countLabelGO = new GameObject("Label");
+        countLabelGO.transform.SetParent(countGO.transform, false);
+        StretchFull(countLabelGO.AddComponent<RectTransform>());
+        Text countTextComp = countLabelGO.AddComponent<Text>();
+        ConfigureCardText(countTextComp, Mathf.Max(8, Mathf.RoundToInt(width * 0.075f)), FontStyle.Bold, new Color(0.8f, 0.92f, 1f));
+        countTextComp.resizeTextForBestFit = true;
+        countTextComp.resizeTextMinSize = 6;
+        countTextComp.resizeTextMaxSize = Mathf.Max(8, Mathf.RoundToInt(width * 0.075f));
+        card.countText = countTextComp;
+        card.countChip = countGO;
 
-        GameObject iconGO = new GameObject("Icon");
-        iconGO.transform.SetParent(cardGO.transform, false);
-        RectTransform iconRect = iconGO.AddComponent<RectTransform>();
-        iconRect.anchorMin = new Vector2(0.20f, 0.46f);
-        iconRect.anchorMax = new Vector2(0.80f, 0.85f);
-        iconRect.offsetMin = Vector2.zero;
-        iconRect.offsetMax = Vector2.zero;
-        Image iconImage = iconGO.AddComponent<Image>();
-        iconImage.preserveAspect = true;
-        iconImage.raycastTarget = false;
-        card.iconImage = iconImage;
+        // デッキに入っている印 - プレート上辺の右寄りに乗る小さな丸チップ(金縁+紺+エメラルドのチェック)。
+        // 「選択中(いま見ているカード)」の発光とは別の、静かな状態表示。
+        GameObject deckMarkGO = new GameObject("InDeckMark");
+        deckMarkGO.transform.SetParent(cardGO.transform, false);
+        RectTransform deckMarkRect = deckMarkGO.AddComponent<RectTransform>();
+        deckMarkRect.anchorMin = deckMarkRect.anchorMax = new Vector2(0.84f, 0.262f);
+        deckMarkRect.sizeDelta = new Vector2(width * 0.14f, width * 0.14f);
+        Image deckMarkRim = CardFaceImage(deckMarkGO.transform, "Rim", Vector2.zero, Vector2.one, antiqueGold);
+        circleImages.Add(deckMarkRim);
+        Image deckMarkFill = CardFaceImage(deckMarkGO.transform, "Fill", Vector2.zero, Vector2.one, navy);
+        deckMarkFill.rectTransform.offsetMin = new Vector2(rim, rim);
+        deckMarkFill.rectTransform.offsetMax = new Vector2(-rim, -rim);
+        circleImages.Add(deckMarkFill);
+        // チェックマーク(短い棒と長い棒)
+        float checkT = Mathf.Max(1.5f, width * 0.016f);
+        Image checkShort = CardFaceImage(deckMarkGO.transform, "CheckA", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), emerald);
+        checkShort.rectTransform.sizeDelta = new Vector2(width * 0.045f, checkT);
+        checkShort.rectTransform.anchoredPosition = new Vector2(-width * 0.022f, -width * 0.004f);
+        checkShort.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -45f);
+        Image checkLong = CardFaceImage(deckMarkGO.transform, "CheckB", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), emerald);
+        checkLong.rectTransform.sizeDelta = new Vector2(width * 0.075f, checkT);
+        checkLong.rectTransform.anchoredPosition = new Vector2(width * 0.012f, width * 0.006f);
+        checkLong.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 50f);
+        card.inDeckMark = deckMarkGO;
+        deckMarkGO.SetActive(false);
 
-        // Item 5 - a full-width strip between Icon and Title (not a corner
-        // overlay any more - too narrow for "EQUIPPED" to ever fit cleanly
-        // at small card sizes, which is exactly what clipped before).
+        // EQUIPPED/NEWの二役リボン(カードVisual最終調整依頼(2026-09-18), item1) - 左右エンブレムの間、
+        // フレーム上辺の宝石の下。紺の角丸プレート+金縁で、Name Plateと同じ部品感に揃える。
         GameObject equippedGO = new GameObject("EquippedBadge");
         equippedGO.transform.SetParent(cardGO.transform, false);
         RectTransform equippedRect = equippedGO.AddComponent<RectTransform>();
-        equippedRect.anchorMin = new Vector2(0.12f, 0.365f);
-        equippedRect.anchorMax = new Vector2(0.88f, 0.435f);
+        equippedRect.anchorMin = new Vector2(0.3f, 0.8f);
+        equippedRect.anchorMax = new Vector2(0.7f, 0.866f);
         equippedRect.offsetMin = Vector2.zero;
         equippedRect.offsetMax = Vector2.zero;
-        Image equippedBg = equippedGO.AddComponent<Image>();
-        equippedBg.color = new Color(0.55f, 0.42f, 0.14f, 0.95f);
-        equippedBg.raycastTarget = false;
+        Image equippedBg = CardFaceImage(equippedGO.transform, "Rim", Vector2.zero, Vector2.one, antiqueGold);
+        MakeRounded(equippedBg, width * 0.03f, roundedImages);
+        Image equippedFill = CardFaceImage(equippedGO.transform, "Fill", Vector2.zero, Vector2.one, navy);
+        equippedFill.rectTransform.offsetMin = new Vector2(rim * 0.8f, rim * 0.8f);
+        equippedFill.rectTransform.offsetMax = new Vector2(-rim * 0.8f, -rim * 0.8f);
+        MakeRounded(equippedFill, width * 0.03f - rim * 0.8f, roundedImages);
         GameObject equippedLabelGO = new GameObject("Label");
         equippedLabelGO.transform.SetParent(equippedGO.transform, false);
         StretchFull(equippedLabelGO.AddComponent<RectTransform>());
         Text equippedLabel = equippedLabelGO.AddComponent<Text>();
-        ConfigureCardText(equippedLabel, Mathf.Max(8, DescFontSizeFor(width) - 2), FontStyle.Bold, new Color(1f, 0.93f, 0.75f));
-        // Best Fit - a full-width strip is still only ~30px tall on an
-        // 84px Character Card slot, so the text must be free to shrink
-        // below its nominal size rather than clip ("EQUIPP" before this).
+        ConfigureCardText(equippedLabel, Mathf.Max(8, Mathf.RoundToInt(width * 0.07f)), FontStyle.Bold, new Color(1f, 0.9f, 0.62f));
+        // Best Fit - Character Card枠(幅72)でも文字が切れないよう縮められるようにしておく
         equippedLabel.resizeTextForBestFit = true;
-        equippedLabel.resizeTextMinSize = 6;
-        equippedLabel.resizeTextMaxSize = Mathf.Max(8, DescFontSizeFor(width) - 2);
+        equippedLabel.resizeTextMinSize = 5;
+        equippedLabel.resizeTextMaxSize = Mathf.Max(8, Mathf.RoundToInt(width * 0.07f));
         equippedLabel.text = "EQUIPPED";
         card.equippedBadge = equippedGO;
+        card.equippedBadgeLabel = equippedLabel;
         equippedGO.SetActive(false);
 
-        GameObject titleGO = new GameObject("Title");
-        titleGO.transform.SetParent(cardGO.transform, false);
-        RectTransform titleRect = titleGO.AddComponent<RectTransform>();
-        titleRect.anchorMin = new Vector2(0.06f, 0.22f);
-        titleRect.anchorMax = new Vector2(0.94f, 0.34f);
-        titleRect.offsetMin = Vector2.zero;
-        titleRect.offsetMax = Vector2.zero;
-        Text titleText = titleGO.AddComponent<Text>();
-        ConfigureCardText(titleText, TitleFontSizeFor(width), FontStyle.Bold, new Color(1f, 0.85f, 0.4f));
-        titleText.resizeTextForBestFit = true;
-        titleText.resizeTextMinSize = 8;
-        titleText.resizeTextMaxSize = TitleFontSizeFor(width);
-        card.titleText = titleText;
-
+        // showDetails時のみ(合成画面の旧仕様など)の効果文 - イラスト下寄りへのオーバーレイ
+        Image textBackdropImage = CardFaceImage(cardGO.transform, "TextBackdrop", new Vector2(0.1f, 0.25f), new Vector2(0.9f, 0.42f), new Color(cardPanelColor.r, cardPanelColor.g, cardPanelColor.b, 0.85f));
+        card.textBackdrop = textBackdropImage;
         GameObject descGO = new GameObject("Description");
         descGO.transform.SetParent(cardGO.transform, false);
         RectTransform descRect = descGO.AddComponent<RectTransform>();
-        descRect.anchorMin = new Vector2(0.09f, 0.035f);
-        descRect.anchorMax = new Vector2(0.91f, 0.205f);
+        descRect.anchorMin = new Vector2(0.12f, 0.26f);
+        descRect.anchorMax = new Vector2(0.88f, 0.41f);
         descRect.offsetMin = Vector2.zero;
         descRect.offsetMax = Vector2.zero;
         Text descText = descGO.AddComponent<Text>();
@@ -1689,19 +2713,28 @@ public static class SceneBuilder
         descText.resizeTextMaxSize = DescFontSizeFor(width);
         card.descriptionText = descText;
 
-        // Card UI / Rarity Frame pass, item 2 - Rarity (top-left) and Level
-        // (top-right) are their own small rows, separate from Title so
-        // Title stays the single most prominent element per the brief.
-        // Pulled further in from the top/side edges (0.90/0.965 -> 0.87/
-        // 0.955, x-inset 0.08 -> 0.09) than the first pass, which sat close
-        // enough to the frame's own corner ornaments (visible in the ★
-        // reference art) to visually collide with them, especially at
-        // higher Rarity where those ornaments are busier.
+        // Level Up/Boss Reward選択カードの短い主要効果(例 "+12%") - Name Plateのすぐ上
+        GameObject valueLineGO = new GameObject("ValueLine");
+        valueLineGO.transform.SetParent(cardGO.transform, false);
+        RectTransform valueLineRect = valueLineGO.AddComponent<RectTransform>();
+        valueLineRect.anchorMin = new Vector2(0.1f, 0.245f);
+        valueLineRect.anchorMax = new Vector2(0.9f, 0.33f);
+        valueLineRect.offsetMin = Vector2.zero;
+        valueLineRect.offsetMax = Vector2.zero;
+        Text valueLineText = valueLineGO.AddComponent<Text>();
+        ConfigureCardText(valueLineText, Mathf.Max(10, DescFontSizeFor(width) + 2), FontStyle.Bold, new Color(0.65f, 0.9f, 1f));
+        AddCardTextOutline(valueLineText, width);
+        valueLineText.resizeTextForBestFit = true;
+        valueLineText.resizeTextMinSize = 8;
+        valueLineText.resizeTextMaxSize = Mathf.Max(10, DescFontSizeFor(width) + 2);
+        card.valueLineText = valueLineText;
+
+        // Rarity(★、showDetails時のみ) - 左エンブレムの下
         GameObject rarityGO = new GameObject("Rarity");
         rarityGO.transform.SetParent(cardGO.transform, false);
         RectTransform rarityRect = rarityGO.AddComponent<RectTransform>();
-        rarityRect.anchorMin = new Vector2(0.11f, 0.865f);
-        rarityRect.anchorMax = new Vector2(0.46f, 0.94f);
+        rarityRect.anchorMin = new Vector2(0.08f, 0.73f);
+        rarityRect.anchorMax = new Vector2(0.42f, 0.79f);
         rarityRect.offsetMin = Vector2.zero;
         rarityRect.offsetMax = Vector2.zero;
         Text rarityText = rarityGO.AddComponent<Text>();
@@ -1712,21 +2745,52 @@ public static class SceneBuilder
         rarityText.resizeTextMaxSize = Mathf.Max(9, DescFontSizeFor(width));
         card.rarityText = rarityText;
 
-        GameObject levelGO = new GameObject("Level");
-        levelGO.transform.SetParent(cardGO.transform, false);
-        RectTransform levelRect = levelGO.AddComponent<RectTransform>();
-        levelRect.anchorMin = new Vector2(0.52f, 0.865f);
-        levelRect.anchorMax = new Vector2(0.89f, 0.94f);
-        levelRect.offsetMin = Vector2.zero;
-        levelRect.offsetMax = Vector2.zero;
-        Text levelText = levelGO.AddComponent<Text>();
-        ConfigureCardText(levelText, Mathf.Max(8, DescFontSizeFor(width) - 1), FontStyle.Bold, Color.white);
-        levelText.alignment = TextAnchor.MiddleRight;
+        // ---- 左上 Category / 右上 Level のエンブレム ----
+        // 大きさ/高さ/フレームへの食い込み量を左右で完全に揃える(中心はカード角から幅の12.5%)。
+        // 旧: 幅19%の正方形を45°回転した平らな金の菱形 → 新: 約79%の大きさで、影+金縁+紺+
+        // エメラルドの細線+紺の多層菱形(フレームの宝石座と同じ作り)。★2〜★5のフレームが
+        // 左上に持っている空の宝石座にちょうど重なる位置。
+        float emblemBox = width * 0.25f;
+        float emblemInset = width * 0.13f;
+        float emblemCenterY = 1f - emblemInset / (width * CardAspect);
+        GameObject categoryGO = BuildCardEmblem(cardGO.transform, "CategoryBadge", new Vector2(emblemInset / width, emblemCenterY), emblemBox, antiqueGold, navy, emerald, diamondImages, out Image categoryRim, out Image categoryAccent);
+        card.categoryBadge = categoryGO;
+        card.categoryEmblemRim = categoryRim;
+        card.categoryEmblemAccent = categoryAccent;
+        GameObject categoryIconGO = new GameObject("Icon");
+        categoryIconGO.transform.SetParent(categoryGO.transform, false);
+        RectTransform categoryIconRect = categoryIconGO.AddComponent<RectTransform>();
+        categoryIconRect.anchorMin = categoryIconRect.anchorMax = new Vector2(0.5f, 0.5f);
+        categoryIconRect.sizeDelta = new Vector2(width * 0.135f, width * 0.135f);
+        Image categoryIconImage = categoryIconGO.AddComponent<Image>();
+        categoryIconImage.raycastTarget = false;
+        categoryIconImage.preserveAspect = true;
+        card.categoryIconImage = categoryIconImage;
+
+        GameObject levelGO = BuildCardEmblem(cardGO.transform, "LevelBadge", new Vector2(1f - emblemInset / width, emblemCenterY), emblemBox, antiqueGold, navy, emerald, diamondImages, out Image levelRim, out Image levelAccent);
+        // カード裏面Lvバッジ修正(2026-09-17) - エンブレム一式(枠含む)をこの親GOごと表裏で切り替える
+        card.levelBadge = levelGO;
+        card.levelEmblemRim = levelRim;
+        card.levelEmblemAccent = levelAccent;
+        GameObject levelLabelGO = new GameObject("Label");
+        levelLabelGO.transform.SetParent(levelGO.transform, false);
+        RectTransform levelLabelRect = levelLabelGO.AddComponent<RectTransform>();
+        levelLabelRect.anchorMin = levelLabelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        levelLabelRect.sizeDelta = new Vector2(width * 0.16f, width * 0.14f);
+        Text levelText = levelLabelGO.AddComponent<Text>();
+        int levelFont = Mathf.Max(9, Mathf.RoundToInt(width * 0.12f));
+        ConfigureCardText(levelText, levelFont, FontStyle.Bold, new Color(1f, 0.92f, 0.68f));
+        AddCardTextOutline(levelText, width);
+        levelText.alignment = TextAnchor.MiddleCenter;
+        levelText.horizontalOverflow = HorizontalWrapMode.Overflow;
         levelText.resizeTextForBestFit = true;
-        levelText.resizeTextMinSize = 6;
-        levelText.resizeTextMaxSize = Mathf.Max(8, DescFontSizeFor(width) - 1);
+        levelText.resizeTextMinSize = 5;
+        levelText.resizeTextMaxSize = levelFont;
         card.levelText = levelText;
 
+        card.roundedImages = roundedImages.ToArray();
+        card.diamondImages = diamondImages.ToArray();
+        card.circleImages = circleImages.ToArray();
         // Invisible full-card button purely for tap-to-select - its own
         // Image target graphic is the frame (already drawn above), not a
         // separate visible box.
@@ -1744,6 +2808,44 @@ public static class SceneBuilder
         return card;
     }
 
+    // カード選択UI再設計(2026-09-12第3弾) - 「前回の横長3段リスト形式は
+    // 今回は使用せず」との明示的な指示によりCreateLevelUpChoiceRow(横長
+    // 1行ぶんの選択肢)は廃止し、DetailPanel(BuildRewardCardCanvas内、
+    // RoundedPanelSpriteを共有)へ置き換えた。LevelUpChoiceRowUI.cs自体も
+    // 削除済み(他に参照箇所なし)。
+
+    // DetailPanel(BuildRewardCardCanvas)が使う、丸角パネル用の1枚の
+    // 9-sliceスプライト(白塗り、実際の色はImage.colorで着色 - Edge/
+    // Backgroundの2枚で共有する)。CreateRadialGlowSprite等と同じ「手続き
+    // 的にテクスチャを生成する」パターンを踏襲、新規アート不要。
+    static Sprite roundedPanelSpriteCache;
+    static Sprite RoundedPanelSprite()
+    {
+        if (roundedPanelSpriteCache != null) return roundedPanelSpriteCache;
+
+        const int size = 128;
+        const int radius = 22;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        var pixels = new Color[size * size];
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                bool inside = true;
+                if (x < radius && y < radius) inside = Vector2.Distance(new Vector2(x, y), new Vector2(radius, radius)) <= radius;
+                else if (x >= size - radius && y < radius) inside = Vector2.Distance(new Vector2(x, y), new Vector2(size - radius, radius)) <= radius;
+                else if (x < radius && y >= size - radius) inside = Vector2.Distance(new Vector2(x, y), new Vector2(radius, size - radius)) <= radius;
+                else if (x >= size - radius && y >= size - radius) inside = Vector2.Distance(new Vector2(x, y), new Vector2(size - radius, size - radius)) <= radius;
+                pixels[y * size + x] = inside ? Color.white : new Color(1f, 1f, 1f, 0f);
+            }
+        }
+        tex.SetPixels(pixels);
+        tex.Apply();
+
+        roundedPanelSpriteCache = Sprite.Create(tex, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, new Vector4(radius, radius, radius, radius));
+        return roundedPanelSpriteCache;
+    }
+
     // Title/description font sizes scale with card width instead of being
     // fixed - they were hardcoded to the reward-card sequence's 260-wide
     // cards' sizes (30/22) regardless of actual card width, so the Deck
@@ -1755,7 +2857,85 @@ public static class SceneBuilder
     const float ReferenceCardWidth = 260f;
 
     static int TitleFontSizeFor(float width) => Mathf.Max(10, Mathf.RoundToInt(width * (30f / ReferenceCardWidth)));
+    // カードUI最終デザイン改修(2026-09-26) - Name Plate内のCard Name(1行時の最大サイズ)。
+    static int CardNameFontSizeFor(float width) => Mathf.Max(8, Mathf.RoundToInt(width * 0.105f));
+
+    // カード表面の部品用: 親の割合(anchor)で置く、クリック判定なしのImage。
+    static Image CardFaceImage(Transform parent, string name, Vector2 anchorMin, Vector2 anchorMax, Color color)
+    {
+        GameObject go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        RectTransform r = go.AddComponent<RectTransform>();
+        r.anchorMin = anchorMin;
+        r.anchorMax = anchorMax;
+        r.offsetMin = r.offsetMax = Vector2.zero;
+        Image img = go.AddComponent<Image>();
+        img.color = color;
+        img.raycastTarget = false;
+        return img;
+    }
+
+    static Image[] AppendImages(Image[] a, List<Image> b)
+    {
+        var list = new List<Image>(a ?? new Image[0]);
+        list.AddRange(b);
+        return list.ToArray();
+    }
+
+    // CardFaceArt.RoundedRect(実行時に割り当て)を、角の半径radiusUnitsで描く9-sliceにする。
+    static void MakeRounded(Image img, float radiusUnits, List<Image> list)
+    {
+        img.type = Image.Type.Sliced;
+        img.pixelsPerUnitMultiplier = CardFaceArt.RoundedRadiusPx / Mathf.Max(0.5f, radiusUnits);
+        list.Add(img);
+    }
+
+    // 暗い縁取り(Dark Outline) - 濃紺の上でも金文字が読めるように。発光はさせない。
+    static void AddCardTextOutline(Text text, float cardWidth)
+    {
+        var outline = text.gameObject.AddComponent<Outline>();
+        outline.effectColor = new Color(0.01f, 0.01f, 0.03f, 0.85f);
+        float d = Mathf.Max(0.8f, cardWidth * 0.006f);
+        outline.effectDistance = new Vector2(d, -d);
+    }
+
+    // 左上Category/右上Levelの共通エンブレム: 影→金縁→紺→エメラルドの細線→紺の多層菱形。
+    // center = カード内の割合位置、box = 菱形の対角線長(カード単位)。
+    static GameObject BuildCardEmblem(Transform parent, string name, Vector2 center, float box, Color gold, Color navy, Color emerald, List<Image> diamonds, out Image rim, out Image accent)
+    {
+        GameObject go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        RectTransform r = go.AddComponent<RectTransform>();
+        r.anchorMin = r.anchorMax = center;
+        r.sizeDelta = new Vector2(box, box);
+
+        Image Layer(string n, float scale, Color c, Vector2 offset)
+        {
+            Image img = CardFaceImage(go.transform, n, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), c);
+            img.rectTransform.sizeDelta = new Vector2(box * scale, box * scale);
+            img.rectTransform.anchoredPosition = offset;
+            diamonds.Add(img);
+            return img;
+        }
+
+        Layer("Shadow", 1.02f, new Color(0f, 0f, 0.02f, 0.55f), new Vector2(0f, -box * 0.05f));
+        rim = Layer("Rim", 0.95f, gold, Vector2.zero);
+        Layer("Fill", 0.82f, navy, Vector2.zero);
+        accent = Layer("Accent", 0.7f, new Color(emerald.r, emerald.g, emerald.b, 0.45f), Vector2.zero);
+        Layer("Inner", 0.64f, new Color(0.05f, 0.07f, 0.15f, 1f), Vector2.zero);
+        return go;
+    }
     static int DescFontSizeFor(float width) => Mathf.Max(9, Mathf.RoundToInt(width * (22f / ReferenceCardWidth)));
+
+    // Card UI改修(2026-09-08) - 「全カードの基準サイズを統一(512x768、縦
+    // 長2:3)」。従来はカードのRectTransform自体の縦横比がcardFrameSprite
+    // (Rarity 1のフォールバック用に読み込んでいた古いCardFrame.png)の
+    // 実ピクセル比にそのまま連動していた(cardHeight = cardWidth *
+    // (frameSprite.rect.height / width))ため、フォールバック画像を差し替
+    // えるたびにカード全体の比率が意図せず変わりうる脆い設計だった。今回
+    // 全画面で512x768=2:3に統一するにあたり、Spriteの実ピクセル比からは
+    // 完全に切り離した固定定数に変更。
+    const float CardAspect = 1.5f; // 768 / 512
 
     static void ConfigureCardText(Text text, int fontSize, FontStyle style, Color color)
     {
@@ -1953,17 +3133,36 @@ public static class SceneBuilder
     // Sprites lazily at runtime via Resources.Load (see its own comment) -
     // this method's only remaining job is configuring each PNG's import
     // settings once (Editor-only work that genuinely does need to run
-    // here), which is why the 4 usable frames (★2-★5; ★1's supplied source
-    // has no real alpha channel - see CardRarityFrames' own comment, so
-    // it's deliberately skipped here) live under Assets/Resources/
+    // here), which is why the 5 frames (★1-★5) live under Assets/Resources/
     // CardFrames/ - Resources.Load can only ever find assets physically
     // inside a folder literally named "Resources".
+    //
+    // Card UI改修(2026-09-08) - ★1は新しく供給された素材(元は
+    // Assets/Art/UI/CardFrames/CardFrameRarity1_raw.pngとして置かれていた
+    // が、本当にアルファチャンネルを持たない(Format24bppRgb)ことをPowerShell/
+    // System.Drawingで確認済みだった)を、今回マスターから新規に供給された
+    // ☆1.png(PowerShell/System.Drawingでコーナー/中央A=0・枠部分A≈253を
+    // 実際に確認済み、正しい透過を持つ)に差し替え、Resources/CardFrames/
+    // CardFrameRarity1.pngとして配置 - これで長年空いていた★1の穴が埋まり、
+    // CardRarityFrames.GetFrame(1, ...)がようやく実際のRarity 1専用フレー
+    // ムを返せるようになった。
     static void LoadCardRarityFrames()
     {
+        ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity1.png");
         ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity2.png");
         ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity3.png");
         ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity4.png");
         ConfigureCardFrameImport("Assets/Resources/CardFrames/CardFrameRarity5.png");
+        // カードVisual最終調整依頼(2026-09-18), item2/3 - Category Icon
+        // (CardCategoryIcons参照)。未生成のカテゴリはConfigureCardFrame
+        // Import内のFile.Existsガードで安全にスキップされる。
+        ConfigureCardFrameImport("Assets/Resources/CardCategoryIcons/Icon_Movement.png");
+        ConfigureCardFrameImport("Assets/Resources/CardCategoryIcons/Icon_Attack.png");
+        ConfigureCardFrameImport("Assets/Resources/CardCategoryIcons/Icon_Defense.png");
+        ConfigureCardFrameImport("Assets/Resources/CardCategoryIcons/Icon_Growth.png");
+        ConfigureCardFrameImport("Assets/Resources/CardCategoryIcons/Icon_Heal.png");
+        ConfigureCardFrameImport("Assets/Resources/CardCategoryIcons/Icon_Special.png");
+        ConfigureCardFrameImport("Assets/Resources/CardCategoryIcons/Icon_Risk.png");
     }
 
     // Item 7 - plain single-sprite UI import (Sprite (2D and UI), alpha
@@ -2015,6 +3214,47 @@ public static class SceneBuilder
             // channel" (as opposed to None/FromGrayScale).
             importer.alphaSource = TextureImporterAlphaSource.FromInput;
             importer.wrapMode = TextureWrapMode.Repeat;
+            // Stage01基礎品質修整(2026-09-14) - このヘルパーで読み込む全ての
+            // スプライトはSpriteRenderer.drawMode=Tiledで使われる(地面の
+            // 断面埋め/プラットフォーム中央タイル/天空回廊の道等)。デフォルト
+            // のMesh Type(Tight、アルファ形状に沿った凹凸メッシュ)のままだと
+            // Unity自身が実機コンソールで警告する「Sprite Tiling might not
+            // appear correctly because the Sprite used is not generated with
+            // Full Rect」の状態になり、タイル境界で隙間ができる - マスター
+            // 報告「地面断面同士の縦の隙間」の実機再現で確認した実際の原因。
+            ApplySpriteMeshTypeFullRect(importer);
+            importer.SaveAndReimport();
+        }
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
+
+    static void ApplySpriteMeshTypeFullRect(TextureImporter importer)
+    {
+        TextureImporterSettings settings = new TextureImporterSettings();
+        importer.ReadTextureSettings(settings);
+        settings.spriteMeshType = SpriteMeshType.FullRect;
+        importer.SetTextureSettings(settings);
+    }
+
+    // 不具合修正(2026-09-10) - LoadTiledSpriteの派生版。既存のVFX単発画像
+    // (SlashArcBlue等)は全てCenter Pivot前提で、位置はコード側のtransform
+    // 調整で合わせていたが、地面衝撃VFX(ImpactBurstBlue)は「爆発の根本=
+    // 地面接地点」を基準にしたいため、Custom Pivotを直接指定できるように
+    // した(ApplyCustomPivotを既存のPlayerアニメーション用と共通で再利用)。
+    static Sprite LoadTiledSpriteWithPivot(string path, float pixelsPerUnit, Vector2 pivot)
+    {
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.wrapMode = TextureWrapMode.Repeat;
+            ApplyCustomPivot(importer, pivot);
+            ApplySpriteMeshTypeFullRect(importer);
             importer.SaveAndReimport();
         }
         return AssetDatabase.LoadAssetAtPath<Sprite>(path);
@@ -2042,6 +3282,36 @@ public static class SceneBuilder
             importer.SaveAndReimport();
         }
         return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+    }
+
+    // 環境アニメーション構造修正依頼(2026-09-18) - LoadIconTexture済みの
+    // アセットに対し、NPOTスケール(既定ToNearest、幅・高さを別々の倍率で
+    // 2のべき乗へ引き伸ばし、縦横比が歪む)だけを後から無効化する。
+    // 呼び出し元がその素材の実寸の縦横比を直接コードで参照して配置に
+    // 使う場合(homeCurtain等)にのみ使う - 既存のtopBackground等は
+    // 変更しない(bgRoomRect計算が現状の挙動に依存しているため)。
+    static Texture2D LoadHomeIdleTexture(string name)
+    {
+        string path = "Assets/Art/UI/HomeIdle/" + name + ".png";
+        Texture2D tex = LoadIconTexture(path);
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.npotScale = TextureImporterNPOTScale.None;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.SaveAndReimport();
+            tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        }
+        return tex;
+    }
+
+    static void ConfigureNoNpotScale(string path)
+    {
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer == null) return;
+        importer.npotScale = TextureImporterNPOTScale.None;
+        importer.SaveAndReimport();
     }
 
     // Full-length music tracks import as huge uncompressed WAVs by default -
@@ -2258,7 +3528,16 @@ public static class SceneBuilder
         // platforms depending on which animation is playing.
         ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerRun_v1", 186f);
         ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerJump_v1", 167f);
-        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttack_v1", 237f);
+        // 品質改善 Bug #002(2026-09-09), item 3/6 - 「Player Attack Animation
+        // 中にCharacter Sizeが変わる」の再調査。実測(頭頂〜足先のアルファ
+        // 境界、bottom-up alpha scan)したところ、この3コマの高さは268/301/
+        // 312pxとコマごとにばらつきがあり(振りの姿勢差、自然な範囲)、旧
+        // PPU(237)はそのどれとも噛み合わない値だった(frame0が基準の
+        // +32%という大きな乖離)。基準フレームを1枚選ぶのではなく、3コマ
+        // の最大/最小の中間(290px)を基準に据えることで、最大でも約±8%の
+        // 乖離に収める(1枚に厳密に合わせると他のコマがより大きくズレる
+        // ため、3コマ全体でのバランスを優先)。
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttack_v1", 257f);
         // AttackSmall (combo stage 1) was originally calibrated (250) against
         // a mid-swing frame, but this clip's very FIRST frame - the one the
         // player actually sees the instant a stage-1 attack starts, right
@@ -2270,19 +3549,95 @@ public static class SceneBuilder
         // baseline (234/1.13); later frames in the swing grow larger as the
         // sword extends, same as the other attack folders already do.
         ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttackSmall_v1", 207f);
-        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttackLarge_v1", 180f);
-        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerJumpStart_v1", 149f);
-        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerDoubleJump_v1", 227f);
+        // 品質改善 Bug #002、item 3/6 - PlayerAttack_v1と同じ理由・同じ方式
+        // (3コマ204/227/230pxの中間217pxを基準)。旧180だと全コマが基準
+        // より26-28%大きく描画されていた。
+        ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerAttackLarge_v1", 192f);
+        // 不具合修正(2026-09-10) - 「地上着地時のキャラサイズが一時的に
+        // 大きくなる」。品質改善Bug #002では land_00/land_01(241px/205px)
+        // の中間223pxを基準(197)にしていたが、これは「Landステート開始直
+        // 後にプレイヤーが最初に見るフレーム」であるland_00自身がRun/Jump
+        // より約8%大きく描画される結果になっており、まさにこの実機報告の
+        // 症状そのものだった。他の攻撃アニメ群と同じ「State開始直後に最初
+        // に見えるフレームを基準にする」原則どおり、land_00(241px)を基準
+        // に戻す(land_01は着地から走行へ戻る一瞬の中間コマで、about -15%
+        // 小さく見えるトレードオフはあるが、「大きくなる」よりは目立ちに
+        // くいと判断)。
         ConfigureSpriteFolderImportWithFootPivot("Assets/Art/PlayerLand_v1", 213f);
+
+        // 上下攻撃アニメーション差し替え(2026-09-08) - マスターから供給
+        // された専用手描きアニメーション3種(地上上攻撃5枚/空中上攻撃5枚/
+        // 下降攻撃3枚)に差し替え。旧実装(既存のJumpStart/AttackSmall/
+        // DoubleJump素材を「たまたま流用」していたもの、および
+        // PlayerJump_v1/jump_01.pngを回転加工しただけの下降攻撃3枚)を全て
+        // 置き換える - PlayerAnimator/PlayerController側のState機械(Jump
+        // Start/DoubleJump/DownAttack)自体は無改造のまま(ブリーフの「既存
+        // のGround判定が利用できる場合は新しい判定システムを作らない」指示
+        // どおり - 地上上攻撃はJumpStarted、空中上攻撃はDoubleJumpedという
+        // 既存イベントがそのまま「Grounded/Airborne」の判別を兼ねている)。
+        //
+        // Pivot: 供給されたシートは剣の振り幅に応じて各コマの実効横幅が
+        // 変わり、キャラクター本体が水平方向に中央固定されていない(既存
+        // のConfigureSpriteFolderImportWithFootPivotが前提とするX=0.5固定
+        // が使えない) - マスターの依頼書自身が名指しで警告していた「画像
+        // サイズ基準で中央揃えするとガクガクする」症状を避けるため、地上
+        // 版は自動足元検出(X,Y両方)、空中版と下降攻撃は目視で選んだ胴体/
+        // 剣先基準点を個別に指定している(下記ConfigureSpriteFolderImport
+        // WithFootPivotXY/WithManualPivots参照)。
+        //
+        // PPU: 各フォルダのPPUは、そのState開始直後にプレイヤーが最初に
+        // 見るフレーム(=直前のState、Run/Jumpと同じ高さで違和感なく繋がる
+        // べきフレーム)のアルファ内容の高さを1.13ワールド単位の基準に
+        // 合わせて算出(既存のPlayerAttackSmall_v1が「Stage1開始直後に見
+        // える最初のフレーム」を基準にPPUを再調整した、という前例と同じ
+        // 考え方)。剣が伸びきる中盤コマではその分やや大きく見える(=既存
+        // の攻撃アニメ群も同様に許容している、振りの勢いによる自然な変化)。
+        ConfigureSpriteFolderImportWithFootPivotXY("Assets/Art/PlayerUpAttackGround_v1", 249f);
+        Vector2[] upAttackAirPivots =
+        {
+            new Vector2(0.564f, 0.351f), // upattackair_00 - 振りかぶり開始
+            new Vector2(0.530f, 0.406f),
+            new Vector2(0.426f, 0.523f), // upattackair_02 - 頭上へ最大に振り抜いた瞬間
+            new Vector2(0.449f, 0.406f),
+            new Vector2(0.576f, 0.351f), // upattackair_04 - 空中姿勢へ復帰
+        };
+        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerUpAttackAir_v1", 321f, upAttackAirPivots);
+
+        // 下降攻撃アート差し替え(2026-09-09) - マスターから直接供給された
+        // 2枚(急降下ダイブ姿勢/着地衝撃姿勢)へ総入れ替え。振りかぶりコマ
+        // は供給されなかったため、PlayerDownAttack_v1の2枚(downattack_00/
+        // 01)には同じダイブ姿勢を複製配置 - 元々downattack_01(ダイブ)は
+        // 急降下中ずっと保持され続けるコマなので、開始直後から同じ絵が
+        // 続くだけで見た目上の不整合はない。Pivotは頭部・胴体のアルファ
+        // 加重重心を実測(centroid.ps1)、PPUは頭頂〜足先の本体のみ(剣・
+        // マント除く)を目視実測して算出(既存踏襲)。
+        Vector2[] downAttackPivots =
+        {
+            new Vector2(0.568f, 0.582f), // downattack_00/01 - 胴体重心実測(共通、供給素材が1枚のため複製)
+            new Vector2(0.568f, 0.582f),
+        };
+        // downattack_00の本体のみの高さ(剣・マント除く、足先(頭上)〜頭頂
+        // (体下端))を実測 約738px -> 738/1.13 ≈ 653
+        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttack_v1", 653f, downAttackPivots);
+        Vector2[] downAttackLandPivots = { new Vector2(0.546f, 0.172f) }; // downattackland_00 - 剣先が地面に刺さる衝撃点を目視で指定
+        // 不具合修正(2026-09-10) - 「下攻撃の着地時の画像がまだ少し大きい」。
+        // 前回の実測(385px)は頭頂位置を少し低く見誤っており、髪の生え際
+        // 込みで再計測すると頭頂〜足先(衝撃エフェクト・岩の破片除く)は
+        // 約400px -> 400/1.13 ≈ 354 だった(前回のPPU341だと約4%大きく
+        // 描画されていた)。
+        ConfigureSpriteFolderImportWithManualPivots("Assets/Art/PlayerDownAttackLand_v1", 354f, downAttackLandPivots);
 
         Sprite[] runFrames = LoadSpriteSequence("Assets/Art/PlayerRun_v1");
         Sprite[] jumpFrames = LoadSpriteSequence("Assets/Art/PlayerJump_v1");
         Sprite[] attackFrames = LoadSpriteSequence("Assets/Art/PlayerAttack_v1");
         Sprite[] attackFramesSmall = LoadSpriteSequence("Assets/Art/PlayerAttackSmall_v1");
         Sprite[] attackFramesLarge = LoadSpriteSequence("Assets/Art/PlayerAttackLarge_v1");
-        Sprite[] jumpStartFrames = LoadSpriteSequence("Assets/Art/PlayerJumpStart_v1");
-        Sprite[] doubleJumpFrames = LoadSpriteSequence("Assets/Art/PlayerDoubleJump_v1");
+        Sprite[] upAttackGroundFrames = LoadSpriteSequence("Assets/Art/PlayerUpAttackGround_v1");
+        Sprite[] upAttackAirFrames = LoadSpriteSequence("Assets/Art/PlayerUpAttackAir_v1");
         Sprite[] landFrames = LoadSpriteSequence("Assets/Art/PlayerLand_v1");
+        Sprite[] downAttackFrames = LoadSpriteSequence("Assets/Art/PlayerDownAttack_v1");
+        Sprite[] downAttackLandFrames = LoadSpriteSequence("Assets/Art/PlayerDownAttackLand_v1");
+
         if (runFrames.Length > 0)
         {
             var animator = go.AddComponent<PlayerAnimator>();
@@ -2291,9 +3646,22 @@ public static class SceneBuilder
             animator.attackFrames = attackFrames;
             animator.attackFramesSmall = attackFramesSmall;
             animator.attackFramesLarge = attackFramesLarge;
-            animator.jumpStartFrames = jumpStartFrames;
-            animator.doubleJumpFrames = doubleJumpFrames;
+            // 上下攻撃アニメーション差し替え(2026-09-08) - jumpStartFrames/
+            // doubleJumpFramesという既存フィールド名自体は変更していない
+            // (タップジャンプ廃止以降、ジャンプは常に上攻撃を伴うため、
+            // 「JumpStart State = 地上上攻撃」「DoubleJump State = 空中上
+            // 攻撃」という対応そのものは既に成立している - フィールドの
+            // 中身だけを専用アートへ差し替えた)。
+            animator.jumpStartFrames = upAttackGroundFrames;
+            animator.doubleJumpFrames = upAttackAirFrames;
             animator.landFrames = landFrames;
+            animator.downAttackFrames = downAttackFrames;
+            animator.downAttackLandFrames = downAttackLandFrames;
+            // 5枚を、Hitbox有効時間(upAttackActiveTime=0.28s、PlayerController
+            // 参照)とほぼ同じ長さで再生しきるfps - 見た目の振りとHitboxの
+            // タイミングが大きくズレないようにする。
+            animator.jumpStartFps = 18f;
+            animator.doubleJumpFps = 18f;
             sr.sprite = runFrames[0];
         }
 
@@ -2326,26 +3694,230 @@ public static class SceneBuilder
         hitbox.transform.localPosition = new Vector3(1.0f, 0.5f, 0f);
         hitbox.transform.localScale = new Vector3(1.4f, 1.8f, 1f);
         hitbox.tag = "PlayerAttack";
+        // エリアルコンボ改修(2026-09-11) - EnemyControllerが「どの攻撃に
+        // 当たったか」を判定できるよう、各Hitboxへ種別タグを付与
+        // (PlayerAttackInfo.cs参照)。
+        hitbox.AddComponent<PlayerAttackInfo>().kind = PlayerAttackKind.Normal;
 
         var hitboxCol = hitbox.AddComponent<BoxCollider2D>();
         hitboxCol.isTrigger = true;
         var hitboxDebug = hitbox.AddComponent<ColliderDebugView>();
         hitboxDebug.color = new Color(1f, 0.9f, 0.1f);
 
+        // 攻撃エフェクト全面調整(2026-09-08)/品質改善 Bug #002(2026-09-09)
+        // - 「巨大な紫剣エフェクト」(AttackSlashFx流用)から、剣の軌跡に
+        // 沿った控えめな青白いVFXへ差し替え。新素材は既に「三日月が右上
+        // へ向けて自然に振り上がる」形状で供給されているため、旧構成が
+        // 必要としていた80°回転(汎用の斜め剣画像を無理やり上向きに見せる
+        // ための回転)はもう不要 - 回転0のまま、位置とScaleだけをInspector
+        // から調整する運用にした(上/空中/下降攻撃と共通、ここで一度だけ
+        // ロードして使い回す)。
+        // 不具合修正(2026-09-09、下降攻撃アート差し替えと同時) - 通常攻撃
+        // と同じ原因(素材が小さすぎる+位置がHitboxとズレている)が上/下降
+        // 攻撃にも残っていたため、ChatGPTで新規に太く大きい専用VFXを生成
+        // (SlashUpBlue.png=斬り上げ用クレセント、DiveTrailBlue.png=急降下
+        // トレイル本体を差し替え)。PPUはそれぞれの対応Hitbox実寸に揃うよ
+        // う算出(SlashUpBlue: 1478px÷1.8u≒821、DiveTrailBlue: 1651px÷
+        // 2.2u≒751 - トレイルはHitbox本体よりやや大きめの2.2uを基準にし
+        // ている、急降下中ずっと表示され続ける演出上の効果のため)。
+        Sprite diveTrailVfx = LoadTiledSprite("Assets/Art/Effects/DiveTrailBlue.png", 751f);
+        Sprite slashUpVfx = LoadTiledSprite("Assets/Art/Effects/SlashUpBlue.png", 821f);
+
+        // 派手なアニメーション化(2026-09-10) - マスターの「通常攻撃と上攻撃
+        // のエフェクトをもっと派手なアニメーションにしたい」という指示で、
+        // ChatGPTで「細い先行線→太いピーク+バースト→二次衝撃波→残像→
+        // 消えかけ」の5コマシートを新規生成し、5枚を等幅スライス+共通キャン
+        // バス中央寄せで書き出したもの(scratchpad/attackframes/split_center_
+        // frames.ps1)。従来のPlaySingle(1枚絵をScale/Alphaで手続き的に演
+        // 出)ではなく、AttackSlashVisual.PlayFramesでframes配列を実コマ送り
+        // 再生する。PPUは旧1枚絵VFX(SlashArcBlue=500想定897px÷1.8u、
+        // SlashUpBlue=821想定1478px÷1.8u)のクレセント実寸(約435px)が
+        // ほぼ同じ世界サイズになるよう算出(435px÷約1.78u≒245前後)。
+        ConfigureSpriteFolderImport("Assets/Art/Effects/SlashArcBlueFrames", 250f);
+        ConfigureSpriteFolderImport("Assets/Art/Effects/SlashUpBlueFrames", 245f);
+        Sprite[] slashArcFrames = LoadSpriteSequence("Assets/Art/Effects/SlashArcBlueFrames");
+        Sprite[] slashUpFrames = LoadSpriteSequence("Assets/Art/Effects/SlashUpBlueFrames");
+
+        // 不具合修正(2026-09-09) - 「攻撃エフェクトが表示されていない」。
+        // マスター提供の実機動画+新設のAttackVfxCapture(Editor専用デバッグ
+        // ツール、Tools/2ndAction/Capture Attack VFX)による直接検証で判明
+        // した実際の原因は「描画されていない」のではなく「描画はされて
+        // いるが小さすぎる上にキャラクター/剣から離れた位置に浮いて見え、
+        // 実機の明るい空背景に溶け込んでほぼ視認できない」だった。通常
+        // 攻撃向けにChatGPTで新規生成した、太くはっきりした専用VFX
+        // (SlashArcBlue.png、旧SlashCrescentBlueより大幅に大きく明るい)
+        // へ差し替える(上/空中/下降攻撃は旧クレセントのまま、今回は通常
+        // 攻撃のみに影響を絞る)。PPUはHitbox本体のサイズ(hitboxBaseScale
+        // ≒1.4x1.8)とほぼ揃うように算出(897px÷1.8u≒500)。
+        Sprite slashArcVfx = LoadTiledSprite("Assets/Art/Effects/SlashArcBlue.png", 500f);
+
         // Slash FX (separate from the invisible hitbox) - a short one-shot
-        // sword-swing animation (extracted from reference art) showing the
-        // attack's reach, sized per combo stage.
+        // sword-swing effect showing the attack's reach, sized per combo
+        // stage. 不具合修正(2026-09-09) - 「攻撃範囲がちゃんと見えるよう
+        // に」。位置をAttackHitboxの基準位置(hitboxBaseLocalPos)と完全に
+        // 一致させ(以前は(0.3,0.5)という別の固定値で、Hitboxの実際の位置
+        // (1.0,0.5)とズレていた)、PlayerController.DoAttack側でも同じ
+        // hitboxBaseLocalPosを使って毎回位置を合わせ直すことで、Hitboxと
+        // VFXが常に同じ場所に表示されるようにする。
         GameObject slashGO = new GameObject("AttackSlash");
         slashGO.transform.SetParent(go.transform);
-        // Same +0.5 restoration as AttackHitbox above, so the visible
-        // slash swoosh still lines up with the sword/hitbox instead of
-        // trailing down at foot height.
-        slashGO.transform.localPosition = new Vector3(0.3f, 0.5f, 0f);
+        slashGO.transform.localPosition = hitbox.transform.localPosition;
+        // 派手なアニメーション化(2026-09-10) - 新しい5コマシートは素材自体が
+        // 「左下→右上」の斜めクレセントとして描かれているため、旧1枚絵向け
+        // の-35°補正は不要(かけると逆に傾く)。回転0のまま位置/Scaleだけ
+        // 合わせる。
+        slashGO.transform.localRotation = Quaternion.identity;
         var slashVisual = slashGO.AddComponent<AttackSlashVisual>();
-        slashVisual.frames = LoadSpriteSequence("Assets/Art/AttackSlashFx");
+        slashVisual.singleSprite = slashArcVfx;   // PlaySingleフォールバック用に残す
+        slashVisual.frames = slashArcFrames;      // PlayFrames(実コマ送り)で使う主役
+        slashVisual.fps = 17f;                    // 5コマ÷17fps≒0.29秒(旧singleDuration相当)
+        slashVisual.singleDuration = 0.28f;
+        slashVisual.opacity = 0.92f;
 
         pc.attackHitbox = hitboxCol;
         pc.attackSlashVisual = slashVisual;
+
+        // Operation System Ver.2 (2026-09-06), item 2 - "上フリック=ジャンプ
+        // 攻撃"用の独立したHitbox+Slash FX。既存のAttackHitbox/AttackSlash
+        // とは別オブジェクト(Forward/Backwardの3段コンボ系統には一切触れ
+        // ないよう分離、詳細はPlayerController.DoUpAttackのコメント参照)。
+        // 不具合修正(2026-09-10) - 「空中上攻撃時、攻撃範囲がプレイヤーキ
+        // ャラから離れたところから開始している」。デバッグ表示(Collider
+        // DebugView)で確認したところ、旧位置(Y=1.7、高さ1.4→Y範囲
+        // [1.0,2.4])はキャラクター本体の高さ(約1.13)と一切重ならず、頭上
+        // にぽっかり浮いた判定になっていた - 通常攻撃のHitbox(Y=0.5、高さ
+        // 1.8→Y範囲[-0.4,1.4]、キャラクター全身を包含)と同じ考え方に揃え、
+        // Y=0.9・高さ2.0(Y範囲[-0.1,1.9])へ変更 - 下端がキャラクター本体
+        // (足元付近)と重なりつつ、上端は従来同様頭上高くまで届く。
+        //
+        // 実機フィードバック(2026-09-12第5弾) - 「主人公の前方～斜め前上
+        // 方向への攻撃判定が狭く、上攻撃を出しても敵に届かず相打ちになる」。
+        // X方向の半径を0.8→1.2、中心を0.3→0.5前方へ移動(X範囲[-0.7,1.7]、
+        // 旧[-0.5,1.1]) - 「真上だけの縦長判定」ではなく前方～斜め前上まで
+        // まとめてカバーする扇形に近い範囲を狙う(VFXの見た目から極端に
+        // はみ出さない程度の拡張に留めた)。Y方向は変更なし。
+        GameObject upHitbox = new GameObject("UpAttackHitbox");
+        upHitbox.transform.SetParent(go.transform);
+        upHitbox.transform.localPosition = new Vector3(0.5f, 0.9f, 0f);
+        upHitbox.transform.localScale = new Vector3(2.4f, 2.0f, 1f);
+        upHitbox.tag = "PlayerAttack";
+        upHitbox.AddComponent<PlayerAttackInfo>().kind = PlayerAttackKind.Up;
+
+        var upHitboxCol = upHitbox.AddComponent<BoxCollider2D>();
+        upHitboxCol.isTrigger = true;
+        var upHitboxDebug = upHitbox.AddComponent<ColliderDebugView>();
+        upHitboxDebug.color = new Color(0.6f, 0.9f, 1f);
+
+        // 不具合修正(2026-09-09) - 通常攻撃と同じ理由で、位置をUpAttack
+        // Hitboxの基準位置と完全に一致させる(以前は(0.35,1.5)という別の
+        // 固定値で、Hitboxの実際の位置(0.3,1.7)とズレていた)。
+        GameObject upSlashGO = new GameObject("UpAttackSlash");
+        upSlashGO.transform.SetParent(go.transform);
+        upSlashGO.transform.localPosition = upHitbox.transform.localPosition;
+        var upSlashVisual = upSlashGO.AddComponent<AttackSlashVisual>();
+        upSlashVisual.singleSprite = slashUpVfx;   // PlaySingleフォールバック用に残す
+        upSlashVisual.frames = slashUpFrames;      // PlayFrames(実コマ送り)で使う主役
+        upSlashVisual.fps = 17f;                   // 5コマ÷17fps≒0.29秒
+        // Item「重要：エフェクトサイズ」- 「巨大なエフェクトを画面いっぱ
+        // いに表示する必要はない」「キャラクターの剣の軌跡＋少し外側」程
+        // 度。singleDuration/opacityもここでInspector調整可能。
+        upSlashVisual.singleDuration = 0.28f;
+        upSlashVisual.opacity = 0.92f;
+        pc.upAttackHitbox = upHitboxCol;
+        pc.upAttackSlashVisual = upSlashVisual;
+
+        // 実機フィードバック(2026-09-12第5弾) - 「上攻撃で主人公の真上
+        // 付近のEnemyも拾い直せるように」。ダメージ判定(UpAttackHitbox)
+        // とは別の、Pickup/Vacuum専用のマーカー範囲。"PlayerAttack"タグは
+        // 付けない(EnemyController.OnTriggerEnter2Dの通常ダメージ判定には
+        // 一切関与させない、あくまでPlayerController.TriggerUpAttackVacuum
+        // がPhysics2D.OverlapBoxAllで.boundsだけを読み取る手動判定用) -
+        // 主人公の真上を中心に、少し前後までカバーする範囲(item 9「吸い
+        // 込み範囲は広げすぎない、剣の斬り上げに巻き込まれても違和感のない
+        // 範囲に限定」に沿って、まずは控えめなサイズから)。
+        GameObject vacuumGO = new GameObject("UpAttackVacuumArea");
+        vacuumGO.transform.SetParent(go.transform);
+        vacuumGO.transform.localPosition = new Vector3(0.2f, 2.1f, 0f);
+        vacuumGO.transform.localScale = new Vector3(2.2f, 2.2f, 1f);
+        var vacuumCol = vacuumGO.AddComponent<BoxCollider2D>();
+        vacuumCol.isTrigger = true;
+        vacuumCol.enabled = false; // DoUpAttack中のみ一時的に有効化(他のHitboxと同じ慣習、デバッグ表示用)
+        var vacuumDebug = vacuumGO.AddComponent<ColliderDebugView>();
+        vacuumDebug.color = new Color(0.9f, 0.6f, 1f);
+        pc.upAttackVacuumHitbox = vacuumCol;
+
+        // 方向攻撃システム Ver.2(2026-09-07)、項目3 - "空中で↓フリック=
+        // 下降攻撃"用の独立したHitbox+Slash FX。UpAttackHitbox/UpAttackSlash
+        // と全く同じ構造(別オブジェクト、Forward/Backwardコンボには一切
+        // 触れない)。プレイヤーの真下〜やや前方下をカバーする位置・サイ
+        // ズにして、下降中の敵を攻撃できるようにする(「剣先だけではなく
+        // 真下付近にも多少余裕のある判定」との指示どおり、UpAttackHitbox
+        // と同程度の余裕を持たせたサイズ)。
+        GameObject downHitbox = new GameObject("DownAttackHitbox");
+        downHitbox.transform.SetParent(go.transform);
+        downHitbox.transform.localPosition = new Vector3(0.15f, -0.4f, 0f);
+        downHitbox.transform.localScale = new Vector3(1.5f, 1.3f, 1f);
+        downHitbox.tag = "PlayerAttack";
+        downHitbox.AddComponent<PlayerAttackInfo>().kind = PlayerAttackKind.Down;
+
+        var downHitboxCol = downHitbox.AddComponent<BoxCollider2D>();
+        downHitboxCol.isTrigger = true;
+        var downHitboxDebug = downHitbox.AddComponent<ColliderDebugView>();
+        downHitboxDebug.color = new Color(1f, 0.5f, 0.2f);
+
+        // 攻撃エフェクト全面調整(2026-09-08)/不具合修正(2026-09-09) - 縦
+        // 方向の太いトレイルVFX。DownAttackHitboxの基準位置から
+        // PlayerController.downSlashUpwardOffset分だけ上にずらした位置に
+        // 配置し(トレイルが衝撃点付近から上へ伸びているように見せる)、
+        // ShowSustained/HideSustainedで急降下中ずっと表示し続ける(着地の
+        // 瞬間にHideSustained - PlayerController.EndDiveAttack参照)。新
+        // 素材は既に縦向きなので回転は不要。
+        GameObject downSlashGO = new GameObject("DownAttackSlash");
+        downSlashGO.transform.SetParent(go.transform);
+        downSlashGO.transform.localPosition = downHitbox.transform.localPosition + new Vector3(0f, pc.downSlashUpwardOffset, 0f);
+        var downSlashVisual = downSlashGO.AddComponent<AttackSlashVisual>();
+        downSlashVisual.singleSprite = diveTrailVfx;
+        downSlashVisual.opacity = 0.85f;
+
+        pc.downAttackHitbox = downHitboxCol;
+        pc.downAttackSlashVisual = downSlashVisual;
+
+        // 不具合修正(2026-09-10) - 「下攻撃の着地時に衝撃はエフェクトを
+        // 追加し、それにも攻撃判定が入るように」。DownAttackHitbox(ダイブ
+        // 中のみ有効)とは別の独立したHitbox+VFX - 着地の瞬間だけ短時間
+        // (PlayerController.diveImpactHitboxDuration)有効になり、地面沿い
+        // に左右へ広い判定(ダイブ本体より横に広く、縦は低い)で周囲の敵を
+        // まとめて巻き込む。VFXはChatGPTで新規生成した地面衝撃バースト
+        // (ImpactBurstBlue.png、他のエネルギーエフェクトと同じ配色で統一)
+        // - Pivotを爆発の根本(接地点)に指定し、地面にめり込まず自然に接地
+        // して見えるようにする(横長1634x795px、PPUはHitbox幅3.0uに揃うよ
+        // う算出: 1634px÷3.0u≒545)。
+        Sprite impactBurstVfx = LoadTiledSpriteWithPivot("Assets/Art/Effects/ImpactBurstBlue.png", 545f, new Vector2(0.5f, 0.05f));
+
+        GameObject downLandHitbox = new GameObject("DownAttackLandHitbox");
+        downLandHitbox.transform.SetParent(go.transform);
+        downLandHitbox.transform.localPosition = new Vector3(0f, 0.1f, 0f);
+        downLandHitbox.transform.localScale = new Vector3(3.0f, 1.0f, 1f);
+        downLandHitbox.tag = "PlayerAttack";
+        downLandHitbox.AddComponent<PlayerAttackInfo>().kind = PlayerAttackKind.DownImpact;
+
+        var downLandHitboxCol = downLandHitbox.AddComponent<BoxCollider2D>();
+        downLandHitboxCol.isTrigger = true;
+        downLandHitboxCol.enabled = false;
+        var downLandHitboxDebug = downLandHitbox.AddComponent<ColliderDebugView>();
+        downLandHitboxDebug.color = new Color(1f, 0.85f, 0.2f);
+
+        GameObject downLandSlashGO = new GameObject("DownAttackLandSlash");
+        downLandSlashGO.transform.SetParent(go.transform);
+        downLandSlashGO.transform.localPosition = new Vector3(0f, 0f, 0f);
+        var downLandSlashVisual = downLandSlashGO.AddComponent<AttackSlashVisual>();
+        downLandSlashVisual.singleSprite = impactBurstVfx;
+        downLandSlashVisual.singleDuration = 0.3f;
+        downLandSlashVisual.singleStartScaleFraction = 0.5f;
+        downLandSlashVisual.opacity = 0.9f;
+
+        pc.downAttackLandHitbox = downLandHitboxCol;
+        pc.downAttackLandSlashVisual = downLandSlashVisual;
 
         return go;
     }
@@ -2402,7 +3974,10 @@ public static class SceneBuilder
     // point (feet when grounded, whatever's lowest mid-swing/mid-air
     // otherwise) is what tracks transform.position, which is exactly what
     // a 2D character sprite's anchor should represent.
-    static void ConfigureSpriteFolderImportWithFootPivot(string dir, float pixelsPerUnit)
+    // internal(privateではない) - プレイアブル主人公アニメーション差し替え
+    // (2026-09-13)でCharacterDatabaseBuilder.csからも同じ足元Pivot自動検出
+    // ロジックを再利用するため。
+    internal static void ConfigureSpriteFolderImportWithFootPivot(string dir, float pixelsPerUnit)
     {
         if (!Directory.Exists(dir)) return;
         foreach (string f in Directory.GetFiles(dir, "*.png"))
@@ -2441,16 +4016,355 @@ public static class SceneBuilder
     // endDistance (100,000m) is also what DistanceTierManager.CurrentTier
     // falls back to indefinitely past that point, so nothing needs a tier
     // past it.
+    // ステージ別ビジュアル差し替え(2026-09-13) - 荒野街道専用の地上アート
+    // (草地/土、ChatGPT生成→黒背景をしきい値透過処理→均等3分割)。天空回廊
+    // はエントリを追加しない=既存の岩+雲の浮遊足場アートのまま、という
+    // 設計(TerrainManager.ApplyStageThemeのコメント参照)。
+    static TerrainManager.TerrainThemeSet[] BuildTerrainThemes()
+    {
+        // 既存のplatform_left/mid/right.pngと同じ考え方 - ソース画像の実
+        // ピクセル高さをterrain.platformVisualHeight(3.5)へ割り当てる
+        // PPUを算出し、既存の岩+雲テーマと物理的な見た目の高さを揃える。
+        const float WastelandSourcePixelHeight = 724f;
+        float wastelandPpu = WastelandSourcePixelHeight / 3.5f;
+        var wastelandPlatformArt = new PlatformSpriteSet
+        {
+            left = LoadTiledSprite("Assets/Art/VisualStyleV1/Ground/platform_wasteland_left.png", wastelandPpu),
+            mid = LoadTiledSprite("Assets/Art/VisualStyleV1/Ground/platform_wasteland_mid.png", wastelandPpu),
+            right = LoadTiledSprite("Assets/Art/VisualStyleV1/Ground/platform_wasteland_right.png", wastelandPpu)
+        };
+        // BackgroundFollowerは常に画面を覆うようスケールし直す(cover方式)
+        // ため、PPUの実際の値はアスペクト比にしか影響しない - 他の背景と
+        // 同じ簡便な値でよい。
+        Sprite wastelandBackground = ConfigureAndLoadSpriteWithCenterPivot("Assets/Art/Background/WastelandBackground.png", 1000f);
+
+        // Stage01基礎見た目修整依頼(2026-09-13深夜) - マスター報告「下ルー
+        // トの下側に見えている空白部分を、地面で埋める」への対応。既存の
+        // platform_wasteland_mid.pngの岩下面バンドは光源が上部に偏ってお
+        // り縦タイリングすると縞模様の継ぎ目が出るため流用せず、ChatGPTで
+        // 均一光源・縦シームレス前提の新規岩/土断面テクスチャを生成した。
+        // 同じwastelandPpuを使うことで、既存の岩下面バンドと粒感のスケー
+        // ルを揃えている。
+        Sprite wastelandGroundFill = LoadTiledSprite("Assets/Art/VisualStyleV1/Ground/groundfill_wasteland.png", wastelandPpu);
+
+        // Stage01完成版要求仕様書「街道らしさ」対応(2026-09-13) - 天空回廊
+        // 用の花/岩/廃墟看板(既存decorationSprites、DecorRuinsSign.png等
+        // PPU 1536-3413=世界高さ約0.53-0.67)とは別に、道標/柵/木箱・樽/
+        // 壊れた荷車の4種を用意し、荒野街道選択時だけDecorationScatterへ
+        // 渡す(TerrainManager.TerrainThemeSet.decorationSprites参照)。
+        // PPUは各画像の実クロップ高さ(px)から目標world heightへ逆算 -
+        // 既存の廃墟看板より一回り大きめ(0.55〜0.85)にして、単なる草花
+        // クラッターより「街道の生活感」がひと目でわかる存在感を出した。
+        Sprite wastelandDecorSignpost = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Decoration/Wasteland_v1/decor_signpost.png", 524.7f);
+        Sprite wastelandDecorFence = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Decoration/Wasteland_v1/decor_fence.png", 516.4f);
+        Sprite wastelandDecorCrateBarrel = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Decoration/Wasteland_v1/decor_cratebarrel.png", 525f);
+        Sprite wastelandDecorCart = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Decoration/Wasteland_v1/decor_cart.png", 550f);
+
+        return new[]
+        {
+            new TerrainManager.TerrainThemeSet
+            {
+                stageId = "wasteland_road",
+                platformArt = wastelandPlatformArt,
+                // 接地ズレ修整(2026-09-15) - マスター報告「Player/Enemy/
+                // Obstacleが地面から浮いて見える」の根本原因。platform_mid.png
+                // (天空回廊)用に測定したplatformSurfaceInset(190/768)を
+                // 荒野街道でも使い続けていたのが原因 - platform_wasteland_
+                // mid.pngはキャンバス内の透明マージン比率が全く違う。
+                // PowerShellでplatform_wasteland_mid.png(724x724)をアルファ
+                // チャンネル走査し、天空回廊の測定基準(「完全に不透明になる
+                // 最初の行」=platform_mid.pngでは190/768)と同じ基準を適用
+                // した結果、荒野街道では行239で完全に不透明になる
+                // (それ以前は岩肌のギザギザで徐々に不透明度が上がる遷移帯)。
+                // TerrainManager.ApplyStageThemeがこの値をplatformArtと
+                // セットで差し替える。
+                platformSurfaceInset = 239f / WastelandSourcePixelHeight * 3.5f,
+                // 路面/地中断面の接続見た目修整(2026-09-15) - platform_wasteland_mid.pngの
+                // アルファチャンネルを行単位で走査すると、岩の不透明部分は上端(行239)
+                // から始まり、下端は行555(不透明度98.1%)~行582(0%)にかけて
+                // ギザギザに透明フェードしていく(岩の裂け目の縁取り表現)。
+                // GroundFillの上端をキャンバス矩形の下端(旧実装)ではなく、
+                // この岩の不透明部分がほぼ途切れる行558(不透明度約87%、安全
+                // マージンを見て50%地点(行567)より早め)に合わせることで、
+                // スラブとFillの間に空色の隙間が生じないようにする。
+                groundFillTopOffset = (558f - 239f) / WastelandSourcePixelHeight * 3.5f,
+                groundSprite = null, // platformArtが有効な間は未使用(フォールバック専用)
+                groundColor = Color.white, // platformArt使用中は各ピースがColor.white固定で描画されるため実質未参照
+                backgroundSprite = wastelandBackground,
+                // 基礎品質修整(2026-09-14) - マスター報告「背景の情報量が
+                // 強く、Player/Enemy/Objectが埋もれる」への対応。新規アート
+                // 生成やシェーダーでのBlur/彩度調整はせず、既存背景への
+                // 乗算ティントのみで明度・コントラストを控えめに落とす
+                // (約15-20%減、若干寒色寄り) - 「消す」のではなく前景を
+                // 相対的に目立たせるための最小限の調整。
+                backgroundTint = new Color(0.8f, 0.82f, 0.85f, 1f),
+                decorationSprites = new[] { wastelandDecorSignpost, wastelandDecorFence, wastelandDecorCrateBarrel, wastelandDecorCart },
+                groundFillSprite = wastelandGroundFill,
+                // Stage01次段階調整(2026-09-16), item5 - マスター報告「下側を
+                // 地面で埋めたことで、画面下部の岩断面が大きく占有し窮屈に
+                // 見える」への対応。groundFillDepth(見せる高さ)はワイドな
+                // 画面比率でのカメラ可視範囲をぎりぎりカバーする実測値なので
+                // そのまま維持し、代わりにこの帯へ乗算するティントで濃さ/
+                // コントラストだけを約25-30%控えめにする(「再び空色の帯を
+                // 出さない」ため高さ側には触れない、という制約に対応)。
+                groundFillTint = new Color(0.72f, 0.7f, 0.68f, 1f),
+                // ルート構造再調整(2026-09-13) - マスター提供の参考画像を
+                // 仕様図として、上ルート/下ルートが分岐→並走→合流する
+                // Route Branchシステムを荒野街道だけで有効化する。天空回廊
+                // はこのフラグ自体を持たない(既定false)ので無改造のまま。
+                enableRouteBranch = true,
+                branchMarkerSprite = wastelandDecorSignpost,
+            },
+            BuildCaveTheme(),
+            BuildLastCorridorTheme()
+        };
+    }
+
+    // ---- 自然洞窟(2026-09-21) ----
+    // 床アート(platform_cave_*)はChatGPT生成→マゼンタ背景を透過処理→継ぎ目なしタイル化済み。
+    // 画像の岩部分(高さ571px)を2.4ユニット、上下の余白込みキャンバス(833px)を
+    // 既存のplatformVisualHeight(3.5)に合わせるPPU=237.9167で読み込む。
+    const float CavePpu = 237.9167f;
+    // 歩行ライン: キャンバス上端の余白0.3u + 岩の上面(見下ろした路面)の手前寄り0.22u。
+    const float CaveSurfaceInset = 0.52f;
+    // 岩の下端(ギザギザの平均的な位置)までの、歩行ラインからの深さ。
+    const float CaveFillTopOffset = 1.82f;
+
+    static Texture2D LoadRepeatTexture(string path)
+    {
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Default;
+            importer.npotScale = TextureImporterNPOTScale.None;
+            importer.wrapMode = TextureWrapMode.Repeat;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.mipmapEnabled = false;
+            importer.alphaIsTransparency = true;
+            importer.maxTextureSize = 4096;
+            importer.SaveAndReimport();
+        }
+        return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+    }
+
+    static TerrainManager.TerrainThemeSet BuildCaveTheme()
+    {
+        var art = new PlatformSpriteSet
+        {
+            left = LoadTiledSprite("Assets/Art/Cave/platform_cave_left.png", CavePpu),
+            mid = LoadTiledSprite("Assets/Art/Cave/platform_cave_mid.png", CavePpu),
+            right = LoadTiledSprite("Assets/Art/Cave/platform_cave_right.png", CavePpu)
+        };
+        Sprite bg = ConfigureAndLoadSpriteWithCenterPivot("Assets/Art/Background/CaveBackground.png", 1000f);
+        Sprite fill = LoadTiledSprite("Assets/Art/Cave/groundfill_cave.png", CavePpu);
+        return new TerrainManager.TerrainThemeSet
+        {
+            stageId = "natural_cave",
+            platformArt = art,
+            platformSurfaceInset = CaveSurfaceInset,
+            groundFillTopOffset = CaveFillTopOffset,
+            groundSprite = null,
+            groundColor = Color.white,
+            backgroundSprite = bg,
+            backgroundTint = new Color(1f, 1f, 1f, 1f),
+            decorationSprites = new Sprite[0],
+            groundFillSprite = fill,
+            groundFillTint = new Color(0.85f, 0.85f, 0.88f, 1f),
+            enableRouteBranch = true,
+            branchMarkerSprite = null,
+            enableCave = true,
+        };
+    }
+
+    // ---- LAST CORRIDOR(ラストダンジョン候補、2026-09-29) ----
+    // 床/天井/杭/障害物/背景の構造物はChatGPT生成→マゼンタ背景を透過→床と天井の帯は継ぎ目なしタイル化済み。
+    // 床: 岩部分(高さ281px)+上余白32pxを、高さ3.5ユニット(378px)のキャンバスに置いたもの(PPU 108)。
+    const float LcPpu = 108f;
+    const float LcSurfaceInset = 0.43f;   // 上余白0.3u + 上面の手前寄り0.13u
+    const float LcFillTopOffset = 1.7f;   // 歩行ラインから、床の下面(ギザギザの付け根)まで
+    const string LcArt = "Assets/Art/LastCorridor/";
+
+    static TerrainManager.TerrainThemeSet BuildLastCorridorTheme()
+    {
+        var art = new PlatformSpriteSet
+        {
+            left = LoadTiledSprite(LcArt + "Terrain/platform_left.png", LcPpu),
+            mid = LoadTiledSprite(LcArt + "Terrain/platform_mid.png", LcPpu),
+            right = LoadTiledSprite(LcArt + "Terrain/platform_right.png", LcPpu)
+        };
+        Sprite bg = ConfigureAndLoadSpriteWithCenterPivot(LcArt + "Background/bg_early.png", 1000f);
+        Sprite fill = LoadTiledSprite(LcArt + "Terrain/groundfill.png", 150f);
+        Texture2D band = LoadRepeatTexture(LcArt + "Terrain/ceiling_band.png");
+        var stakes = new List<Sprite>();
+        for (int i = 0; i < 8; i++)
+        {
+            string sp = LcArt + $"Terrain/stake_{i}.png";
+            if (!File.Exists(sp)) break;
+            stakes.Add(ConfigureAndLoadSpriteWithCenterPivot(sp, 200f));
+        }
+        return new TerrainManager.TerrainThemeSet
+        {
+            stageId = LastCorridorDirector.StageId,
+            platformArt = art,
+            platformSurfaceInset = LcSurfaceInset,
+            groundFillTopOffset = LcFillTopOffset,
+            groundSprite = null,
+            groundColor = Color.white,
+            backgroundSprite = bg,
+            backgroundTint = new Color(0.86f, 0.88f, 0.94f, 1f),
+            decorationSprites = new Sprite[0],
+            groundFillSprite = fill,
+            groundFillTint = new Color(0.9f, 0.9f, 0.95f, 1f),
+            enableRouteBranch = false,
+            branchMarkerSprite = null,
+            enableCave = true,
+            caveStyle = new CaveStage.Style
+            {
+                use = true,
+                ceilingBandTexture = band,
+                ceilingBandAspect = band != null ? (float)band.width / band.height : 5.6f,
+                bandHeight = 2.3f,
+                ceilingVisualDrop = 0.75f,
+                ceilingFillTexture = fill != null ? fill.texture : null,
+                fillTileWorld = 6.8f,
+                spikeSprites = stakes.ToArray(),
+                torchSprite = ConfigureAndLoadSpriteWithCenterPivot(LcArt + "Terrain/lamp_torch.png", 200f),
+                torchHeight = 3.0f,
+                useLighting = false,
+                brokenEdgeSprite = ConfigureAndLoadSpriteWithCenterPivot(LcArt + "Terrain/ceiling_edge.png", 200f),
+            },
+        };
+    }
+
+
+    static void BuildLastCorridor(Transform player, Sprite squareSprite)
+    {
+        // 障害物: 瓦礫の山 / 折れた柱の根元 / 封印の小扉(壊せる) / 封印の大扉 / 倒れた巨大柱
+        var obstacleGO = new GameObject("LastCorridorObstacleSpawner");
+        var spawner = obstacleGO.AddComponent<ObstacleSpawner>();
+        spawner.player = player;
+        spawner.squareSprite = squareSprite;
+        spawner.obstacleStageId = LastCorridorDirector.StageId;
+        Sprite rubble = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Obstacles/rubble.png", 160f);
+        Sprite stub = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Obstacles/pillar_stub.png", 200f);
+        Sprite doorS = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Obstacles/door_small.png", 250f);
+        Sprite doorL = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Obstacles/door_giant.png", 280f);
+        Sprite fallen = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Obstacles/fallen_pillar.png", 180f);
+        spawner.specs = new[]
+        {
+            new ObstacleSpawner.ObstacleSpec { name = "Rock", sprite = rubble, targetHeight = 0.95f, color = Color.white, breakable = false, hp = 1, weight = 30f },
+            new ObstacleSpawner.ObstacleSpec { name = "SmallTree", sprite = stub, targetHeight = 1.3f, color = Color.white, breakable = false, hp = 1, weight = 25f },
+            new ObstacleSpawner.ObstacleSpec { name = "BreakableTree", sprite = doorS, targetHeight = 1.5f, color = Color.white, breakable = true, hp = 2, weight = 20f },
+            new ObstacleSpawner.ObstacleSpec { name = "Wall", sprite = doorL, targetHeight = 2.2f, color = Color.white, breakable = false, hp = 1, weight = 15f },
+            new ObstacleSpawner.ObstacleSpec { name = "GiantRock", sprite = fallen, targetHeight = 2.2f, color = Color.white, breakable = false, hp = 1, weight = 10f },
+        };
+
+        // 景観の段階/背景の構造物/落ちてくる構造物の担当
+        var dirGO = new GameObject("LastCorridorDirector");
+        var dir = dirGO.AddComponent<LastCorridorDirector>();
+        dir.phaseBackgrounds = new[]
+        {
+            ConfigureAndLoadSpriteWithCenterPivot(LcArt + "Background/bg_early.png", 1000f),
+            LoadIfExists(LcArt + "Background/bg_mid.png"),
+            LoadIfExists(LcArt + "Background/bg_late.png"),
+            LoadIfExists(LcArt + "Background/bg_final.png"),
+        };
+        dir.pillar = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Decor/pillar.png", 100f);
+        dir.arch = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Decor/arch.png", 100f);
+        dir.statue = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Decor/statue.png", 100f);
+        dir.lamp = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Decor/lamp.png", 100f);
+        dir.brokenPillar = ConfigureAndLoadSpriteWithFootPivot(LcArt + "Decor/broken_pillar.png", 100f);
+    }
+
+    static Sprite LoadIfExists(string path) => File.Exists(path) ? ConfigureAndLoadSpriteWithCenterPivot(path, 1000f) : null;
+
+    static void BuildCaveStage(TerrainManager terrain, Camera cam, GameObject cloudLayerGO)
+    {
+        if (!AssetDatabase.IsValidFolder("Assets/Materials")) AssetDatabase.CreateFolder("Assets", "Materials");
+        const string matPath = "Assets/Materials/CaveDarkness.mat";
+        Material mat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
+        Shader shader = Shader.Find("OneMoreMile/CaveDarkness");
+        if (mat == null)
+        {
+            mat = new Material(shader);
+            AssetDatabase.CreateAsset(mat, matPath);
+        }
+        else if (mat.shader != shader)
+        {
+            mat.shader = shader;
+        }
+        EditorUtility.SetDirty(mat);
+
+        var stageGO = new GameObject("CaveStage");
+        var stage = stageGO.AddComponent<CaveStage>();
+        Texture2D band = LoadRepeatTexture("Assets/Art/Cave/ceiling_band.png");
+        stage.ceilingBandTexture = band;
+        stage.ceilingBandAspect = band != null ? (float)band.width / band.height : 4.8f;
+        Sprite caveFillSprite = LoadTiledSprite("Assets/Art/Cave/groundfill_cave.png", CavePpu);
+        stage.ceilingFillTexture = caveFillSprite != null ? caveFillSprite.texture : null;
+        stage.spikeSprites = new[]
+        {
+            ConfigureAndLoadSpriteWithCenterPivot("Assets/Art/Cave/spike_0.png", 200f),
+            ConfigureAndLoadSpriteWithCenterPivot("Assets/Art/Cave/spike_1.png", 200f),
+            ConfigureAndLoadSpriteWithCenterPivot("Assets/Art/Cave/spike_2.png", 200f),
+        };
+        stage.torchSprite = ConfigureAndLoadSpriteWithCenterPivot("Assets/Art/Cave/torch.png", 200f);
+        stage.hideWhileActive = new[] { cloudLayerGO };
+
+        var lightGO = new GameObject("CaveLighting");
+        var lighting = lightGO.AddComponent<CaveLighting>();
+        lighting.material = mat;
+        lighting.cam = cam;
+        lighting.stage = stage;
+        stage.lighting = lighting;
+        terrain.cave = stage;
+    }
+
+    // 洞窟専用の障害物/上ルート敵スポナー。荒野街道用とは別コンポーネントで、
+    // ステージIDが自然洞窟の間だけ動く(既存のスポナーは洞窟中は何もしない)。
+    static void BuildCaveSpawners(Transform player, Sprite squareSprite)
+    {
+        var obstacleGO = new GameObject("CaveObstacleSpawner");
+        var spawner = obstacleGO.AddComponent<ObstacleSpawner>();
+        spawner.player = player;
+        spawner.squareSprite = squareSprite;
+        spawner.obstacleStageId = "natural_cave";
+        Sprite rock = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Cave/obstacle_rock.png", 167f);
+        Sprite breakable = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Cave/obstacle_breakable.png", 153f);
+        Sprite wall = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Cave/obstacle_wall.png", 224f);
+        spawner.specs = new[]
+        {
+            new ObstacleSpawner.ObstacleSpec { name = "Rock", sprite = rock, targetHeight = 1.0f, color = Color.white, breakable = false, hp = 1, weight = 30f },
+            new ObstacleSpawner.ObstacleSpec { name = "SmallTree", sprite = rock, targetHeight = 1.3f, color = Color.white, breakable = false, hp = 1, weight = 25f },
+            new ObstacleSpawner.ObstacleSpec { name = "BreakableTree", sprite = breakable, targetHeight = 1.4f, color = Color.white, breakable = true, hp = 2, weight = 20f },
+            new ObstacleSpawner.ObstacleSpec { name = "Wall", sprite = wall, targetHeight = 2.0f, color = Color.white, breakable = false, hp = 1, weight = 15f },
+            new ObstacleSpawner.ObstacleSpec { name = "GiantRock", sprite = rock, targetHeight = 2.5f, color = Color.white, breakable = false, hp = 1, weight = 10f },
+        };
+
+        var upperGO = new GameObject("CaveUpperRouteEnemySpawner");
+        var upper = upperGO.AddComponent<UpperRouteEnemySpawner>();
+        upper.player = player;
+        upper.squareSprite = squareSprite;
+        upper.enemyPool = new List<EnemyDefinition>(EnemyDatabase.AllEnemies);
+        upper.stageId = "natural_cave";
+    }
+
     static DistanceTier[] BuildDistanceTiers()
     {
-        var normal = new[] { EnemyCategory.Normal };
+        // Stage01 荒野街道 最小実装(2026-09-13) - マスター指示「敵はゴブリン
+        // /鳥のみ」に対応するため、0-1000mのTutorial帯にもFlying(=鳥の
+        // 代役、EnemyDatabaseBuilder.Specs参照)を追加した。Irregular等は
+        // 引き続き1000m以降まで解禁しない(1stステージは敵種を増やしすぎ
+        // ない、という明示指示どおり)。
+        var tutorial = new[] { EnemyCategory.Normal, EnemyCategory.Flying };
         var tier1Types = new[] { EnemyCategory.Normal, EnemyCategory.Flying, EnemyCategory.Irregular };
         var tier2Types = new[] { EnemyCategory.Normal, EnemyCategory.Flying, EnemyCategory.Irregular, EnemyCategory.Shooter, EnemyCategory.Heavy, EnemyCategory.Chaser };
         var tier3Types = new[] { EnemyCategory.Normal, EnemyCategory.Flying, EnemyCategory.Irregular, EnemyCategory.Shooter, EnemyCategory.Heavy, EnemyCategory.Chaser, EnemyCategory.Rusher };
 
         return new[]
         {
-            new DistanceTier { tierName = "0-1000m Tutorial", startDistance = 0f, endDistance = 1000f, availableEnemyTypes = normal },
+            new DistanceTier { tierName = "0-1000m Tutorial", startDistance = 0f, endDistance = 1000f, availableEnemyTypes = tutorial },
             new DistanceTier { tierName = "1000-5000m", startDistance = 1000f, endDistance = 5000f, availableEnemyTypes = tier1Types },
             new DistanceTier { tierName = "5000-10000m", startDistance = 5000f, endDistance = 10000f, availableEnemyTypes = tier2Types },
             new DistanceTier { tierName = "10000-20000m", startDistance = 10000f, endDistance = 20000f, availableEnemyTypes = tier3Types },
@@ -2527,12 +4441,19 @@ public static class SceneBuilder
 
         // Ground + Air - "別Y座標に明確に配置、空中Enemyが地面へ埋まらない"
         // - 2 ground (y=0) + 2 air (y=1.8, well above flyingMinHeight).
+        // Stage01 荒野街道 最小実装(2026-09-13) - minDistanceを5000f→0fへ
+        // 変更し、0m(荒野街道)から利用可能にした。EnemyRole.Anyは意図的に
+        // Flyingを含まない(DistanceTierManager.ResolveRole既定分岐 -
+        // GroundLikeCategoriesにFlyingが無い)ため、「ゴブリンと鳥をたまに
+        // 混ぜる」を実現する唯一の既存手段がこのGroundAir(Normal+Flyingを
+        // 明示的な別ロールとして両方持つ)formationだった - 新規Formation
+        // コードを足さず、既存の仕組みをそのまま早期解禁するだけで済んだ。
         var groundAir = new FormationData
         {
             formationId = "ground_air",
             formationType = EnemyFormationType.GroundAir,
             weight = 1.3f,
-            minDistance = 5000f,
+            minDistance = 0f,
             maxDistance = 999999f,
             spawnPoints = new[] { P(0f, 0f, EnemyRole.Normal), P(3f, 0f, EnemyRole.Normal), P(1.5f, 1.8f, EnemyRole.Flying), P(4.5f, 1.8f, EnemyRole.Flying) }
         };
@@ -2599,6 +4520,86 @@ public static class SceneBuilder
         return new[] { single, smallGroup, horizontalLine, verticalLine, cluster, diagonalUp, groundAir, frontlineShooter, heavyNormal, rush };
     }
 
+    static BossManager.WildBossArt LoadWildArt(WildBossKind kind, string name)
+    {
+        return new BossManager.WildBossArt
+        {
+            kind = kind,
+            idle = LoadWildSprite(name, "idle", 0f),
+            windup = LoadWildSprite(name, "windup", 0f),
+            move = LoadWildSprite(name, "move", 0f),
+            attack = LoadWildSprite(name, "attack", 0f),
+        };
+    }
+
+    // worldHeight<=0ならPPU=100固定(ボス側が高さから逆算してスケールする)。
+    static Sprite LoadWildSprite(string name, string pose, float worldHeight)
+    {
+        string path = "Assets/Art/WildBoss/" + name + "_" + pose + ".png";
+        if (!File.Exists(path)) return null;
+        float ppu = 100f;
+        if (worldHeight > 0f)
+        {
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+            var imp = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (imp != null)
+            {
+                imp.GetSourceTextureWidthAndHeight(out int w, out int h);
+                ppu = h / worldHeight;
+            }
+        }
+        return ConfigureAndLoadSpriteWithFootPivot(path, ppu);
+    }
+
+    // 自然洞窟ボス本番素材化(2026-09-23) - LoadWildArt/LoadWildSpriteと全く
+    // 同じ考え方(WildBossBase.bodyHeightからの逆算でPPUは任意=idle/windup
+    // だけあれば良い、moveは省略可)。画像はAssets/Art/CaveBoss/<name>_
+    // <pose>.png(ChatGPT生成、既存のbossart.ps1で連結成分抽出済み)。
+    static BossManager.CaveBossArt LoadCaveArt(CaveBossKind kind, string name)
+    {
+        return new BossManager.CaveBossArt
+        {
+            kind = kind,
+            idle = LoadCaveSprite(name, "idle"),
+            windup = LoadCaveSprite(name, "windup"),
+            move = LoadCaveSprite(name, "move"),
+            attack = LoadCaveSprite(name, "attack"),
+        };
+    }
+
+    static Sprite LoadCaveSprite(string name, string pose)
+    {
+        string path = "Assets/Art/CaveBoss/" + name + "_" + pose + ".png";
+        if (!File.Exists(path)) return null;
+        return ConfigureAndLoadSpriteWithFootPivot(path, 100f);
+    }
+
+    static BossManager.SkyBossArt LoadSkyArt(SkyBossKind kind, string name)
+    {
+        return new BossManager.SkyBossArt
+        {
+            kind = kind,
+            idle = LoadSkySprite(name, "idle"),
+            windup = LoadSkySprite(name, "windup"),
+            move = LoadSkySprite(name, "move"),
+            attack = LoadSkySprite(name, "attack"),
+        };
+    }
+
+    static Sprite LoadSkySprite(string name, string pose)
+    {
+        string path = "Assets/Art/SkyBoss/" + name + "_" + pose + ".png";
+        if (!File.Exists(path)) return null;
+        return ConfigureAndLoadSpriteWithFootPivot(path, 100f);
+    }
+
+    static void ConfigureEffectSpriteIfPresent(string name)
+    {
+        string path = "Assets/Resources/Effects/" + name + ".png";
+        if (!File.Exists(path)) return;
+        ConfigureAndLoadSpriteWithCenterPivot(path, 512f);
+    }
+
     static Sprite ConfigureAndLoadSpriteWithFootPivot(string path, float pixelsPerUnit)
     {
         AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
@@ -2618,6 +4619,55 @@ public static class SceneBuilder
             importer.alphaSource = TextureImporterAlphaSource.FromInput;
             importer.filterMode = FilterMode.Bilinear;
             ApplyCustomPivot(importer, ComputeLowestContentPivotY(path));
+            // 基礎品質修整 続報(2026-09-14) - マスター報告「オブジェクトが
+            // 地面から浮いて見える」の実機動画確認で発見: 障害物(特に
+            // 双剣士の攻撃と違い矩形でない、木の柵のような穴の多い複雑な
+            // シルエット)が接地点の少し上に浮いて描画されていた。原因は
+            // 既定のMesh Type=Tightにある - Unityのポリゴン簡略化
+            // (Tessellation)が、ピボット計算(ComputeLowestContentPivotY、
+            // 生のアルファ値を直接スキャン)が捉えた最下端の細い突起(柵の
+            // 脚等)をメッシュ生成時に削ってしまうことがあり、その場合
+            // 「ピボットの位置」と「実際に描画されるメッシュの最下端」が
+            // 一致しなくなる - ピボット基準では正しく接地しているのに、
+            // 見た目のメッシュはそこまで届かず浮いて見える。Full Rectに
+            // 切り替えると単純な矩形+テクスチャのアルファそのものを描画
+            // するため、簡略化による誤差が原理的に発生しない。
+            ApplySpriteMeshTypeFullRect(importer);
+            importer.SaveAndReimport();
+        }
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
+
+    // 基礎品質修整 続報(2026-09-14) - マスター報告「背景画像が画面の上半分
+    // にしか見えない」の実機動画確認で発見: WastelandBackground.png/
+    // NightFloatingIsland.pngが、地上オブジェクト用のConfigureAndLoad
+    // SpriteWithFootPivot(接地点=画像下端付近にピボットを置く)で読み込ま
+    // れていた。BackgroundFollowerは「スプライトの中心をカメラ位置に合わ
+    // せ、cover方式で拡大縮小する」設計のため、ピボットが下端寄りだと
+    // 背景全体がカメラより大きく上へずれてしまい、画面下半分が覆われずに
+    // 背景の外側(透明/クリアカラー)が見えてしまっていた - 元から無改造
+    // だった既定の"background.png"(AssetDatabase.LoadAssetAtPathで素の
+    // まま読み込み=Unity既定のCenter pivotのまま)には無かった問題。
+    // 背景用に、ピボットをCenterのまま維持する専用ローダーを用意した。
+    // 二丁拳銃士追加(2026-09-23) - CharacterDatabaseBuilderが弾スプライト
+    // (回転して進行方向を向くProjectile、Foot Pivotではなく中央Pivotが
+    // 必要)を読み込むためinternalへ昇格(既存のConfigureSpriteFolderImport
+    // WithFootPivotXY等と同じ理由・同じ昇格パターン)。既存の呼び出し元
+    // (BackgroundFollower用)の挙動には一切影響しない。
+    internal static Sprite ConfigureAndLoadSpriteWithCenterPivot(string path, float pixelsPerUnit)
+    {
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            ApplyCustomPivot(importer, new Vector2(0.5f, 0.5f));
+            ApplySpriteMeshTypeFullRect(importer);
             importer.SaveAndReimport();
         }
         return AssetDatabase.LoadAssetAtPath<Sprite>(path);
@@ -2627,10 +4677,22 @@ public static class SceneBuilder
     // go through TextureImporterSettings.
     static void ApplyCustomPivot(TextureImporter importer, float pivotY)
     {
+        ApplyCustomPivot(importer, new Vector2(0.5f, pivotY));
+    }
+
+    // 上下攻撃アニメーション差し替え(2026-09-08) - X も明示指定できる版。
+    // 既存のApplyCustomPivot(pivotYのみ)はX=0.5固定 - 供給元シートが
+    // "キャラクターが各コマで水平方向に完全に中央揃えされている"前提に依
+    // 存しており、その前提が崩れる(このパスの上/下攻撃シートは剣の振り
+    // 幅に応じて各コマの実効幅が変わり、キャラクター本体の水平位置が0.5
+    // からズレる)と再生中に本体がガクガク横移動して見える - マスターの
+    // 依頼書自身が名指しで警告していた症状そのもの。
+    static void ApplyCustomPivot(TextureImporter importer, Vector2 pivot)
+    {
         TextureImporterSettings settings = new TextureImporterSettings();
         importer.ReadTextureSettings(settings);
         settings.spriteAlignment = (int)SpriteAlignment.Custom;
-        settings.spritePivot = new Vector2(0.5f, pivotY);
+        settings.spritePivot = pivot;
         importer.SetTextureSettings(settings);
     }
 
@@ -2660,7 +4722,467 @@ public static class SceneBuilder
         return lowestY < 0 ? 0.5f : Mathf.Clamp01((float)lowestY / h);
     }
 
-    static Sprite[] LoadSpriteSequence(string dir)
+    // 上下攻撃アニメーション差し替え(2026-09-08) - 足元PivotのX,Y両方版。
+    // 「最下段の非透明行」だけでなく、その最下段付近(下から高さの4%、
+    // 最低6px)の非透明ピクセルのX平均も求め、その帯における実際の足の
+    // 水平位置をXピボットに使う - ComputeLowestContentPivotYと違い、剣の
+    // 振り幅でシート内キャラクターの水平占有位置が変わる新素材向け。
+    static Vector2 ComputeLowestContentPivotXY(string filePath)
+    {
+        byte[] bytes = File.ReadAllBytes(filePath);
+        Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        tex.LoadImage(bytes);
+
+        int w = tex.width, h = tex.height;
+        Color32[] pixels = tex.GetPixels32();
+        int lowestY = -1;
+        for (int y = 0; y < h && lowestY < 0; y++)
+        {
+            int rowStart = y * w;
+            for (int x = 0; x < w; x++)
+            {
+                if (pixels[rowStart + x].a > 15) { lowestY = y; break; }
+            }
+        }
+        if (lowestY < 0) { Object.DestroyImmediate(tex); return new Vector2(0.5f, 0.5f); }
+
+        // Bugfix (this pass) - GetPixels32 is bottom-up (y=0 at the bottom
+        // edge), so lowestY (found scanning UPWARD from y=0) is already the
+        // bottom-most content row - the band must extend from there toward
+        // LARGER y (up into the body) to sample "the bottom N rows of actual
+        // content", not smaller y (which runs off the bottom edge into the
+        // empty margin below the foot and picked up only a stray sliver of
+        // whichever single pixel column happened to sit exactly at lowestY -
+        // the original version of this method had this backwards, producing
+        // wildly-off pivotX values caught by cross-checking against an
+        // independent top-down reference scan before shipping).
+        int bandHeight = Mathf.Max(6, Mathf.RoundToInt(h * 0.04f));
+        int yEnd = Mathf.Min(h - 1, lowestY + bandHeight - 1);
+        double sumX = 0.0;
+        int count = 0;
+        for (int y = lowestY; y <= yEnd; y++)
+        {
+            int rowStart = y * w;
+            for (int x = 0; x < w; x++)
+            {
+                if (pixels[rowStart + x].a > 15) { sumX += x; count++; }
+            }
+        }
+        Object.DestroyImmediate(tex);
+
+        float pivotX = count > 0 ? Mathf.Clamp01((float)(sumX / count) / w) : 0.5f;
+        float pivotY = Mathf.Clamp01((float)lowestY / h);
+        return new Vector2(pivotX, pivotY);
+    }
+
+    // 上下攻撃アニメーション差し替え(2026-09-08) - 足元(接地/自動計算)で
+    // はなく、胴体・剣先など「目視で選んだ基準点」を各ファイルへ個別に割
+    // り当てる版。Directory.GetFiles+Sortの並び(LoadSpriteSequenceが読む
+    // 並びと同じ)にpivots配列を対応させる - 空中上攻撃(胴体基準)や下降
+    // 攻撃の3コマ(胴体/接地点基準)のように、自動検出可能な「最下段」基準
+    // が意味を持たないケース向け。
+    static void ConfigureSpriteFolderImportWithManualPivots(string dir, float pixelsPerUnit, Vector2[] pivots)
+    {
+        if (!Directory.Exists(dir)) return;
+        string[] files = Directory.GetFiles(dir, "*.png");
+        System.Array.Sort(files);
+        for (int i = 0; i < files.Length; i++)
+        {
+            string assetPath = files[i].Replace('\\', '/');
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null) continue;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            Vector2 pivot = i < pivots.Length ? pivots[i] : new Vector2(0.5f, 0.5f);
+            ApplyCustomPivot(importer, pivot);
+            importer.SaveAndReimport();
+        }
+    }
+
+    // 上下攻撃アニメーション差し替え(2026-09-08) - ConfigureSpriteFolder
+    // ImportWithFootPivotのX,Y自動版(ComputeLowestContentPivotXY使用)。
+    // 地上上攻撃(足が地面に接地したまま振るモーション)のように、自動の
+    // 足元検出がそのまま正しい基準になる場合に使う。
+    // internal(privateではない) - プレイアブル主人公アニメーション差し替え
+    // (2026-09-13)でCharacterDatabaseBuilder.csからも再利用するため。
+    // 竜騎士(2026-09-26) - 巨大ランスの穂先が頭より上に来るポーズが多く、頭基準/足元重心の
+    // 自動ピボットが穂先や槍の石突きに引っ張られてしまう。素材側で「顔の位置=画像の横中央、
+    // 足元(最下行)=画像の下端」になるよう余白を付けて書き出してあるので、ピボットは
+    // 下端中央に固定する。
+    internal static void ConfigureSpriteFolderImportWithBottomCenterPivot(string dir, float pixelsPerUnit)
+    {
+        if (!Directory.Exists(dir)) return;
+        foreach (string f in Directory.GetFiles(dir, "*.png"))
+        {
+            string assetPath = f.Replace('\\', '/');
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null) continue;
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            ApplyCustomPivot(importer, new Vector2(0.5f, 0f));
+            importer.SaveAndReimport();
+        }
+    }
+
+    internal static void ConfigureSpriteFolderImportWithFootPivotXY(string dir, float pixelsPerUnit)
+    {
+        if (!Directory.Exists(dir)) return;
+        foreach (string f in Directory.GetFiles(dir, "*.png"))
+        {
+            string assetPath = f.Replace('\\', '/');
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null) continue;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            ApplyCustomPivot(importer, ComputeLowestContentPivotXY(f));
+            importer.SaveAndReimport();
+        }
+    }
+
+    // 敵Runnerアニメーションのズレ修正(2026-09-15) - マスター報告「Runner
+    // のアニメーションのズレ」の原因調査。RunnerRunの5コマは横長のスプライ
+    // トシートから個別に切り出されたもので、実際のアルファコンテンツの縦
+    // 幅がコマごとに298〜382px(約28%の差)とバラバラだった。従来の
+    // ConfigureSpriteFolderImportWithFootPivot/XYはフォルダ全体で単一の
+    // pixelsPerUnitを共有するため(EnemyDatabaseBuilder.chaser_runnerの
+    // コメントに記録済みの既知の限界、実測103〜132%の個体差)、足元の接地
+    // 位置こそ揃っていても、コマが切り替わるたびにキャラクター全体の背丈
+    // (頭の高さ)が伸び縮みして見えていた - これが「アニメーションのズレ」
+    // の正体。
+    // 対処: フォルダ共有ではなく「コマ個別」のpixelsPerUnitを、そのコマ
+    // 自身のアルファコンテンツ実測高さから逆算する(targetWorldHeightは
+    // 全コマ共通の出力先ワールド高さ)。これにより全コマが常に同じワール
+    // ド高さで描画されるようになり、伸び縮みが原理的に無くなる。足元
+    // Pivot(X,Y自動検出)は既存のConfigureSpriteFolderImportWithFootPivotXY
+    // と同じロジックをそのまま使うため、接地感には影響しない。
+    internal static void ConfigureSpriteFolderImportWithFootPivotUniformSize(string dir, float targetWorldHeight)
+    {
+        if (!Directory.Exists(dir)) return;
+        foreach (string f in Directory.GetFiles(dir, "*.png"))
+        {
+            string assetPath = f.Replace('\\', '/');
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null) continue;
+
+            int contentHeightPx = MeasureContentHeightPixels(f);
+            float ppu = targetWorldHeight > 0.001f && contentHeightPx > 0 ? contentHeightPx / targetWorldHeight : 1000f;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = ppu;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            ApplyCustomPivot(importer, ComputeLowestContentPivotXY(f));
+            importer.SaveAndReimport();
+        }
+    }
+
+    // ConfigureSpriteFolderImportWithFootPivotUniformSize専用ヘルパー -
+    // 非透明ピクセルが存在する最上段〜最下段の行数(=そのコマ自身の実際の
+    // キャラクター高さ、px)を返す。ComputeLowestContentPivotY/XYと同じ
+    // アルファ走査方式だが、最下段だけでなく最上段も求める点が異なる。
+    static int MeasureContentHeightPixels(string filePath)
+    {
+        byte[] bytes = File.ReadAllBytes(filePath);
+        Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        tex.LoadImage(bytes);
+
+        int w = tex.width, h = tex.height;
+        Color32[] pixels = tex.GetPixels32();
+        int lowestY = -1, highestY = -1;
+        for (int y = 0; y < h; y++)
+        {
+            int rowStart = y * w;
+            bool rowHasContent = false;
+            for (int x = 0; x < w; x++)
+            {
+                if (pixels[rowStart + x].a > 15) { rowHasContent = true; break; }
+            }
+            if (rowHasContent)
+            {
+                if (lowestY < 0) lowestY = y;
+                highestY = y;
+            }
+        }
+        Object.DestroyImmediate(tex);
+
+        return lowestY < 0 ? h : (highestY - lowestY + 1);
+    }
+
+    // お嬢様騎士Run表示基準統一(2026-09-13) - 通常Run中にキャラ全体が
+    // フレームごとに上下へガクガク跳ねて見える不具合の修正。原因:
+    // ConfigureSpriteFolderImportWithFootPivotXY(上記)はフレームごとに
+    // 「そのフレーム自身の最下段コンテンツ行」を個別にpivotY化していた -
+    // NobleLadyRun_v1の各フレームはfind_best_cuts.ps1で横方向のみ切り出し
+    // たもの(全フレーム高さ724pxが共通=同じ座標系を共有)なので、脚が
+    // 地面に着いているコマと、歩幅の合間で脚が浮いているコマとで「その
+    // コマ自身の最下点」の絵の中での高さが本来かなり異なる。それを毎回
+    // そのコマ自身の最下点に合わせて接地させてしまうと、脚が浮いている
+    // コマだけキャラ全体が不自然に持ち上がって見える(=今回の症状)。
+    // 正しくは「実際に足が最も深く地面へ接地しているコマ」1つを基準に、
+    // 全コマ共通の接地ラインを1本だけ使うこと - 脚が浮いているコマは、
+    // その分だけ足が地面から離れて描かれて当然良い(それが本来の走行の
+    // 弾みそのもの)。Xは従来どおりコマごとの最下段付近の重心を使う(歩幅
+    // による自然な左右のブレは今回問題視されていない)。
+    // 対象はお嬢様騎士Runのみ - ConfigureSpriteFolderImportWithFootPivotXY
+    // 自体(PlayerUpAttackGround_v1等の既存利用箇所)には一切触れないため、
+    // 黒剣士や他のState(Jump/Land/Attack)の表示には影響しない。
+    internal static void ConfigureSpriteFolderImportWithSharedGroundPivot(string dir, float pixelsPerUnit)
+    {
+        if (!Directory.Exists(dir)) return;
+        string[] files = Directory.GetFiles(dir, "*.png");
+        System.Array.Sort(files);
+        if (files.Length == 0) return;
+
+        // お嬢様騎士Runモーション読みやすさ改善(2026-09-13) - 4コマ目の
+        // 追加生成で、フレームごとにソース画像の解像度が異なる(ChatGPTの
+        // 別セッションで生成した新規コマを、既存コマと同じキャラクター
+        // 表示サイズになるよう別途リサイズしてから追加した)ケースが
+        // 出てきたため、「下から何割」という比率(=キャンバス高さが全コマ
+        // 共通という前提)ではなく、「下から何ピクセル」という絶対値を
+        // 共有してからフレームごとの高さで割ってpivotYへ変換するよう修正。
+        // キャンバス高さが全コマ共通だった場合(従来のケース)は数学的に
+        // 同じ結果になる。
+        int sharedGroundPixels = int.MaxValue;
+        var heightByFile = new System.Collections.Generic.Dictionary<string, int>();
+        foreach (string f in files)
+        {
+            int lowestY = LowestContentRowPixels(f, out int height);
+            heightByFile[f] = height;
+            if (lowestY >= 0 && lowestY < sharedGroundPixels) sharedGroundPixels = lowestY;
+        }
+        if (sharedGroundPixels == int.MaxValue) sharedGroundPixels = 0;
+
+        foreach (string f in files)
+        {
+            string assetPath = f.Replace('\\', '/');
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null) continue;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            float pivotX = ComputeLowestContentPivotXY(f).x;
+            int height = heightByFile[f];
+            float pivotY = height > 0 ? Mathf.Clamp01((float)sharedGroundPixels / height) : 0.5f;
+            ApplyCustomPivot(importer, new Vector2(pivotX, pivotY));
+            importer.SaveAndReimport();
+        }
+    }
+
+    // ConfigureSpriteFolderImportWithSharedGroundPivot専用のヘルパー -
+    // ComputeLowestContentPivotXYと同じアルファ走査だが、Xは使わず「下から
+    // 何ピクセルの位置に最初の非透明ピクセルがあるか」(と画像の高さ)を返す。
+    static int LowestContentRowPixels(string filePath, out int height)
+    {
+        byte[] bytes = File.ReadAllBytes(filePath);
+        Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        tex.LoadImage(bytes);
+
+        int w = tex.width, h = tex.height;
+        height = h;
+        Color32[] pixels = tex.GetPixels32();
+        int lowestY = -1;
+        for (int y = 0; y < h && lowestY < 0; y++)
+        {
+            int rowStart = y * w;
+            for (int x = 0; x < w; x++)
+            {
+                if (pixels[rowStart + x].a > 15) { lowestY = y; break; }
+            }
+        }
+        Object.DestroyImmediate(tex);
+
+        return lowestY;
+    }
+
+    // 双剣士/お嬢様騎士Run頭基準ピボット化(2026-09-13深夜) - マスター
+    // 指摘「画像がブレる理由がわかってきた、頭を中心にアニメーションする
+    // ことは可能か」に対応。
+    //
+    // 原理: 足元基準(ConfigureSpriteFolderImportWithSharedGroundPivot)は
+    // 「実際に足が最も深く接地しているコマ」を基準に全コマ共通の接地
+    // ラインを1本使うことで、脚が浮いているコマでもキャラ全体が不自然に
+    // 持ち上がらないようにしていた。これは「足の接地位置さえ揃えれば
+    // 良い」という前提では正しいが、AI生成素材のようにコマごとの頭身
+    // バランスが微妙に揺れる場合、足元を固定した結果として頭部側にその
+    // 揺れがそのまま「ブレ」として現れる(視線は自然と顔・頭を追うため、
+    // この部分のブレが最も目につきやすい)。
+    //
+    // 重要な注意(単純な上下反転では済まない理由) - Root(PlayerControllerの
+    // 乗る本体)は常にスプライトの"足元"(pivotYが0に近い値)に来る設計
+    // (CreatePlayerのコメント「Root sitting at the sprite's FOOT」参照)。
+    // Jump/Attack等の他StateはすべてこのFoot Pivot前提のまま(このメソッド
+    // はRunのみに使う想定)なので、もしpivotYを単純に「頭頂基準」(1に近い
+    // 値)にしてしまうと、Rootの位置は変わらないままスプライトの表示だけ
+    // 「頭がRoot位置(=地面の高さ)に来る」形になり、キャラが地面に頭まで
+    // 埋まって見える大穴になる上、Run⇔Jump/Attackの状態切り替えの瞬間に
+    // キャラの表示位置が体1つぶんガクッと飛ぶ(ここは絶対に避けたい)。
+    //
+    // 正しい実装: pivotYの値そのものは他Stateと同じ「0に近い、足元寄り」
+    // の範囲に保ったまま、その足元基準点を「実際のそのコマの最下段ピクセル」
+    // ではなく「頭の位置から逆算した仮想の接地ライン」に置き換える。
+    // 具体的には、①ConfigureSpriteFolderImportWithSharedGroundPivotと
+    // 同じ基準コマ(足が最も深く接地しているコマ)の「頭頂〜接地点の
+    // ピクセル距離」を基準身長(standingSpanPixels)として求め、②各コマの
+    // 頭頂位置からstandingSpanPixelsぶん下がった位置を「このコマの仮想
+    // 接地ピクセル」として使う。これにより見た目の位置レンジは従来の
+    // 足元基準と同じ(pivotYはごく小さい値のまま)でありながら、実際に
+    // 揃うのは頭の高さになる - 揺れ(ブレ)が足元側(=通常の走行の弾みと
+    // して自然に見える)へ移る。
+    internal static void ConfigureSpriteFolderImportWithSharedHeadPivot(string dir, float pixelsPerUnit)
+    {
+        if (!Directory.Exists(dir)) return;
+        string[] files = Directory.GetFiles(dir, "*.png");
+        System.Array.Sort(files);
+        if (files.Length == 0) return;
+
+        int referenceLowestY = int.MaxValue;
+        string referenceFile = null;
+        var lowestYByFile = new System.Collections.Generic.Dictionary<string, int>();
+        var highestYByFile = new System.Collections.Generic.Dictionary<string, int>();
+        var heightByFile = new System.Collections.Generic.Dictionary<string, int>();
+        foreach (string f in files)
+        {
+            int lowestY = LowestContentRowPixels(f, out int height);
+            int highestY = HighestContentRowPixels(f);
+            lowestYByFile[f] = lowestY;
+            highestYByFile[f] = highestY;
+            heightByFile[f] = height;
+            if (lowestY >= 0 && lowestY < referenceLowestY) { referenceLowestY = lowestY; referenceFile = f; }
+        }
+        // 基準コマ(足が最も深く接地しているコマ)自身の頭頂〜接地点の
+        // ピクセル距離を「基準身長」とする - 全コマ共通のPPU/スケールで
+        // 生成済みのフォルダである前提のため、この絶対ピクセル値がそのまま
+        // 他のコマにも通用する。
+        int standingSpanPixels = 0;
+        if (referenceFile != null) standingSpanPixels = Mathf.Max(0, highestYByFile[referenceFile] - lowestYByFile[referenceFile]);
+
+        foreach (string f in files)
+        {
+            string assetPath = f.Replace('\\', '/');
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null) continue;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            // Run頭基準ピボット改善(2026-09-13深夜、続き) - マスター報告
+            // 「まだ頭が前後に動いている」への対応。前回パスではYのみ頭
+            // 基準化し、X(左右)は従来どおり足元付近の重心のままにしていた
+            // が、走行ポーズは左右の脚が大きく開くため、足元basisの重心は
+            // コマごとに大きく左右へブレる(=キャラ全体が前後(画面左右)に
+            // 揺れて見える、まさに今回の報告内容)。頭部(上端付近の帯)は
+            // 脚ほど開かないため、Xも頭基準の重心に切り替える。
+            float pivotX = ComputeHighestContentPivotX(f);
+            int height = heightByFile[f];
+            // このコマの頭頂位置から基準身長ぶん下げた「仮想接地ピクセル」
+            // をpivotYへ変換する(ConfigureSpriteFolderImportWithShared
+            // GroundPivotと同じ「絶対ピクセル÷このコマの高さ」の式)。
+            int virtualGroundPixels = highestYByFile[f] - standingSpanPixels;
+            float pivotY = height > 0 ? Mathf.Clamp01((float)virtualGroundPixels / height) : 0.5f;
+            ApplyCustomPivot(importer, new Vector2(pivotX, pivotY));
+            importer.SaveAndReimport();
+        }
+    }
+
+    // ConfigureSpriteFolderImportWithSharedHeadPivot専用のヘルパー -
+    // ComputeLowestContentPivotXYのX計算部分の上下反転版。「上端付近の帯
+    // (頭部)の非透明ピクセルの重心X」を返す。ComputeLowestContentPivotXY
+    // と同じ「見つけた端の行からband幅ぶん内側(=下)へ向かってサンプル
+    // する」考え方を上下反転して適用。
+    static float ComputeHighestContentPivotX(string filePath)
+    {
+        byte[] bytes = File.ReadAllBytes(filePath);
+        Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        tex.LoadImage(bytes);
+
+        int w = tex.width, h = tex.height;
+        Color32[] pixels = tex.GetPixels32();
+        int highestY = -1;
+        for (int y = h - 1; y >= 0 && highestY < 0; y--)
+        {
+            int rowStart = y * w;
+            for (int x = 0; x < w; x++)
+            {
+                if (pixels[rowStart + x].a > 15) { highestY = y; break; }
+            }
+        }
+        if (highestY < 0) { Object.DestroyImmediate(tex); return 0.5f; }
+
+        int bandHeight = Mathf.Max(6, Mathf.RoundToInt(h * 0.04f));
+        int yStart = Mathf.Max(0, highestY - bandHeight + 1);
+        double sumX = 0.0;
+        int count = 0;
+        for (int y = yStart; y <= highestY; y++)
+        {
+            int rowStart = y * w;
+            for (int x = 0; x < w; x++)
+            {
+                if (pixels[rowStart + x].a > 15) { sumX += x; count++; }
+            }
+        }
+        Object.DestroyImmediate(tex);
+
+        return count > 0 ? Mathf.Clamp01((float)(sumX / count) / w) : 0.5f;
+    }
+
+    // ConfigureSpriteFolderImportWithSharedHeadPivot専用のヘルパー -
+    // LowestContentRowPixelsの上下反転版。「下から何ピクセルの位置に
+    // 最後の(=最も上にある)非透明ピクセル行(頭頂/髪やマントの最高点)が
+    // あるか」を返す(heightはLowestContentRowPixels側で取得済みのため
+    // ここでは返さない)。
+    static int HighestContentRowPixels(string filePath)
+    {
+        byte[] bytes = File.ReadAllBytes(filePath);
+        Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        tex.LoadImage(bytes);
+
+        int w = tex.width, h = tex.height;
+        Color32[] pixels = tex.GetPixels32();
+        int highestY = -1;
+        for (int y = h - 1; y >= 0 && highestY < 0; y--)
+        {
+            int rowStart = y * w;
+            for (int x = 0; x < w; x++)
+            {
+                if (pixels[rowStart + x].a > 15) { highestY = y; break; }
+            }
+        }
+        Object.DestroyImmediate(tex);
+
+        return highestY;
+    }
+
+    // internal - 上のConfigureSpriteFolderImportWithFootPivotと同じ理由。
+    internal static Sprite[] LoadSpriteSequence(string dir)
     {
         if (!Directory.Exists(dir)) return new Sprite[0];
 

@@ -1,0 +1,1044 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d858cd7b62ca7443b3b763cb5f732d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StageEncounterProfile
+  stageId: wasteland_road
+  enabled: 1
+  routeLayout: 0
+  longStraightChance: 0.12
+  longStraightChunksMin: 3
+  longStraightChunksMax: 6
+  routeEncounters: 1
+  routeLead: 8
+  routeEdgeMargin: 1.5
+  routeFrontLoad: 14
+  afterMergeGap: {x: 6, y: 12}
+  routeFallbackFormation: staggered
+  branchRestScale: 0.4
+  replacesChunkSpawns: 1
+  replacesMilestoneWalls: 1
+  stageFormations:
+  - formationId: frontline_rear
+    displayName: Frontline + Rear
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      - heavy_ogre
+      preferOnly: 1
+      pitAnchor: 0
+    - kind: 0
+      xOffset: 1.9
+      jitter: 0.2
+      minIntensity: 2
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      preferOnly: 1
+      pitAnchor: 0
+    - kind: 2
+      xOffset: 9.5
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - shooter_archer
+      preferOnly: 1
+      pitAnchor: 0
+    - kind: 2
+      xOffset: 13
+      jitter: 0.4
+      minIntensity: 3
+      preferEnemyIds:
+      - shooter_archer
+      preferOnly: 1
+      pitAnchor: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.6
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1.3
+    spacingSpeedScale: 0.45
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: goblin_horde
+    displayName: Goblin Horde
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 1
+      xOffset: 0
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+    - kind: 1
+      xOffset: 1.5
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+    - kind: 1
+      xOffset: 3
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+    - kind: 1
+      xOffset: 4.5
+      jitter: 0.2
+      minIntensity: 2
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+    - kind: 2
+      xOffset: 6
+      jitter: 0.2
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.3
+    narrowAffinity: 1
+    wideAffinity: 1.4
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: heavy_horde
+    displayName: Heavy + Horde
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 3
+    slots:
+    - kind: 1
+      xOffset: 0
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      preferOnly: 1
+      pitAnchor: 0
+    - kind: 1
+      xOffset: 2.6
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds:
+      - heavy_ogre
+      preferOnly: 1
+      pitAnchor: 0
+    - kind: 1
+      xOffset: 5.4
+      jitter: 0.2
+      minIntensity: 1
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      preferOnly: 1
+      pitAnchor: 0
+    - kind: 2
+      xOffset: 7.4
+      jitter: 0.2
+      minIntensity: 3
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      preferOnly: 1
+      pitAnchor: 0
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.8
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1.2
+    spacingSpeedScale: 0.35
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: gap_guard
+    displayName: Gap Guard
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 7
+      jitter: 0.6
+      minIntensity: 1
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      preferOnly: 1
+      pitAnchor: 1
+    - kind: 1
+      xOffset: 8.5
+      jitter: 0.4
+      minIntensity: 3
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      preferOnly: 1
+      pitAnchor: 1
+    - kind: 0
+      xOffset: 3
+      jitter: 0.6
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+      pitAnchor: 2
+    - kind: 2
+      xOffset: 6.5
+      jitter: 0.4
+      minIntensity: 3
+      preferEnemyIds:
+      - goblin
+      - goblin_elite
+      preferOnly: 1
+      pitAnchor: 2
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 2
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.15
+    routeMode: 0
+    upperSide:
+      formationId: rest
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 1
+    pitSearchStart: 9
+    pitSearchEnd: 32
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: route_line_vs_stagger
+    displayName: 'Route: Line / Staggered'
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 1
+    slots: []
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 0
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 1
+    upperSide:
+      formationId: ground_line
+      intensity: 1
+    lowerSide:
+      formationId: staggered
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: route_easy_vs_rest
+    displayName: 'Route: Easy / Rest'
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 1
+    slots: []
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 0
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 1
+    upperSide:
+      formationId: ground_line
+      intensity: 1
+    lowerSide:
+      formationId: rest
+      intensity: 0
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: route_horde_vs_few
+    displayName: 'Route: Horde / Few'
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 2
+    slots: []
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 0
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 1
+    upperSide:
+      formationId: goblin_horde
+      intensity: 2
+    lowerSide:
+      formationId: ground_line
+      intensity: 1
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: route_air_vs_horde
+    displayName: 'Route: Flying / Ground Horde'
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 2
+    slots: []
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 0
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 1
+    upperSide:
+      formationId: air_swarm
+      intensity: 2
+    lowerSide:
+      formationId: goblin_horde
+      intensity: 2
+    allowMirror: 0
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: route_rest_vs_medium
+    displayName: 'Route: Rest / Medium'
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 2
+    slots: []
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 0
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 1
+    upperSide:
+      formationId: rest
+      intensity: 0
+    lowerSide:
+      formationId: frontline_rear
+      intensity: 2
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: route_few_vs_heavy
+    displayName: 'Route: Few / Heavy + Horde'
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 2
+    slots: []
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 0
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 1
+    upperSide:
+      formationId: staggered
+      intensity: 1
+    lowerSide:
+      formationId: heavy_horde
+      intensity: 2
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: route_upper_fight
+    displayName: 'Route: Upper Encounter'
+    stageSpecific: 1
+    minIntensity: 3
+    maxIntensity: 3
+    slots: []
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 0
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 1
+    upperSide:
+      formationId: heavy_horde
+      intensity: 3
+    lowerSide:
+      formationId: staggered
+      intensity: 1
+    allowMirror: 0
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: route_lower_fight
+    displayName: 'Route: Lower Encounter'
+    stageSpecific: 1
+    minIntensity: 3
+    maxIntensity: 3
+    slots: []
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 0
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 1
+    upperSide:
+      formationId: ground_air
+      intensity: 1
+    lowerSide:
+      formationId: frontline_rear
+      intensity: 3
+    allowMirror: 0
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: route_line_vs_gap
+    displayName: 'Route: Line / Gap Guard'
+    stageSpecific: 1
+    minIntensity: 2
+    maxIntensity: 2
+    slots: []
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 0
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 1
+    upperSide:
+      formationId: ground_line
+      intensity: 1
+    lowerSide:
+      formationId: gap_guard
+      intensity: 2
+    allowMirror: 0
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  - formationId: route_twin_threat
+    displayName: 'Route: Horde / Heavy (both hard)'
+    stageSpecific: 1
+    minIntensity: 3
+    maxIntensity: 3
+    slots: []
+    requiredWidth: 0
+    requiredHeight: 0
+    requiresGround: 0
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.2
+    narrowAffinity: 1
+    wideAffinity: 1
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+    routeMode: 1
+    upperSide:
+      formationId: goblin_horde
+      intensity: 3
+    lowerSide:
+      formationId: heavy_horde
+      intensity: 3
+    allowMirror: 1
+    requiresPit: 0
+    pitSearchStart: 8
+    pitSearchEnd: 34
+    maxPitWidth: 6.5
+    pitMinBefore: 6
+    pitLandingMargin: 2.5
+  bands:
+  - bandName: 0-500 goblins
+    startDistance: 0
+    endDistance: 500
+    enemies:
+    - enemyId: goblin
+      weight: 1
+      minTier: 0
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 000000000100000002000000
+    formations:
+    - formationId: ground_line
+      weight: 1.2
+    - formationId: goblin_horde
+      weight: 1
+    - formationId: staggered
+      weight: 1
+    - formationId: route_line_vs_stagger
+      weight: 1
+    - formationId: route_easy_vs_rest
+      weight: 1
+    restWeight: 1
+    easyWeight: 1.6
+    mediumWeight: 0.7
+    hardWeight: 0.1
+    easyTiers:
+      t0: 1
+      t1: 0
+      t2: 0
+    mediumTiers:
+      t0: 1
+      t1: 0
+      t2: 0
+    hardTiers:
+      t0: 1
+      t1: 0
+      t2: 0
+  - bandName: 500-1500 +elite/imp/wyvern
+    startDistance: 500
+    endDistance: 1500
+    enemies:
+    - enemyId: goblin
+      weight: 1
+      minTier: 0
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 000000000100000002000000
+    - enemyId: goblin_elite
+      weight: 0.6
+      minTier: 0
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 000000000100000002000000
+    - enemyId: irregular_imp
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0100000002000000
+    - enemyId: flying_wyvern
+      weight: 0.8
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0300000004000000
+    formations:
+    - formationId: ground_line
+      weight: 1
+    - formationId: goblin_horde
+      weight: 0.9
+    - formationId: staggered
+      weight: 1
+    - formationId: ground_air
+      weight: 1.1
+    - formationId: air_swarm
+      weight: 0.5
+    - formationId: route_line_vs_stagger
+      weight: 0.8
+    - formationId: route_easy_vs_rest
+      weight: 0.7
+    - formationId: route_horde_vs_few
+      weight: 1
+    - formationId: route_air_vs_horde
+      weight: 1
+    - formationId: route_rest_vs_medium
+      weight: 0.8
+    restWeight: 1
+    easyWeight: 1.2
+    mediumWeight: 1.1
+    hardWeight: 0.35
+    easyTiers:
+      t0: 1
+      t1: 0.25
+      t2: 0
+    mediumTiers:
+      t0: 0.6
+      t1: 0.4
+      t2: 0.1
+    hardTiers:
+      t0: 0.4
+      t1: 0.5
+      t2: 0.3
+  - bandName: 1500-3000 +shooter/heavy
+    startDistance: 1500
+    endDistance: 3000
+    enemies:
+    - enemyId: goblin
+      weight: 1
+      minTier: 0
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 000000000100000002000000
+    - enemyId: goblin_elite
+      weight: 0.8
+      minTier: 0
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 000000000100000002000000
+    - enemyId: irregular_imp
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0100000002000000
+    - enemyId: flying_wyvern
+      weight: 0.8
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0300000004000000
+    - enemyId: shooter_archer
+      weight: 0.8
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    - enemyId: heavy_ogre
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0000000001000000
+    formations:
+    - formationId: ground_line
+      weight: 0.9
+    - formationId: goblin_horde
+      weight: 0.8
+    - formationId: staggered
+      weight: 0.9
+    - formationId: ground_air
+      weight: 1
+    - formationId: air_swarm
+      weight: 0.4
+    - formationId: frontline_rear
+      weight: 1.2
+    - formationId: heavy_horde
+      weight: 1.1
+    - formationId: gap_guard
+      weight: 1
+    - formationId: route_line_vs_stagger
+      weight: 0.5
+    - formationId: route_easy_vs_rest
+      weight: 0.5
+    - formationId: route_horde_vs_few
+      weight: 0.9
+    - formationId: route_air_vs_horde
+      weight: 0.9
+    - formationId: route_rest_vs_medium
+      weight: 0.9
+    - formationId: route_few_vs_heavy
+      weight: 1
+    - formationId: route_line_vs_gap
+      weight: 0.8
+    - formationId: route_upper_fight
+      weight: 0.8
+    - formationId: route_lower_fight
+      weight: 0.8
+    restWeight: 1
+    easyWeight: 1.1
+    mediumWeight: 1.2
+    hardWeight: 0.5
+    easyTiers:
+      t0: 1
+      t1: 0.3
+      t2: 0
+    mediumTiers:
+      t0: 0.5
+      t1: 0.4
+      t2: 0.15
+    hardTiers:
+      t0: 0.35
+      t1: 0.5
+      t2: 0.35
+  - bandName: 3000-5000 +chaser/gauntlet
+    startDistance: 3000
+    endDistance: 5000
+    enemies:
+    - enemyId: goblin
+      weight: 1
+      minTier: 0
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 000000000100000002000000
+    - enemyId: goblin_elite
+      weight: 0.9
+      minTier: 0
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 000000000100000002000000
+    - enemyId: irregular_imp
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0100000002000000
+    - enemyId: flying_wyvern
+      weight: 0.8
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0300000004000000
+    - enemyId: shooter_archer
+      weight: 0.8
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    - enemyId: heavy_ogre
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0000000001000000
+    - enemyId: chaser_runner
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    formations:
+    - formationId: ground_line
+      weight: 0.8
+    - formationId: goblin_horde
+      weight: 0.8
+    - formationId: staggered
+      weight: 0.8
+    - formationId: ground_air
+      weight: 0.9
+    - formationId: air_swarm
+      weight: 0.4
+    - formationId: frontline_rear
+      weight: 1
+    - formationId: heavy_horde
+      weight: 1
+    - formationId: gap_guard
+      weight: 1
+    - formationId: gauntlet
+      weight: 1
+    - formationId: route_line_vs_stagger
+      weight: 0.4
+    - formationId: route_easy_vs_rest
+      weight: 0.4
+    - formationId: route_horde_vs_few
+      weight: 0.8
+    - formationId: route_air_vs_horde
+      weight: 0.8
+    - formationId: route_rest_vs_medium
+      weight: 0.8
+    - formationId: route_few_vs_heavy
+      weight: 0.9
+    - formationId: route_line_vs_gap
+      weight: 0.8
+    - formationId: route_upper_fight
+      weight: 0.8
+    - formationId: route_lower_fight
+      weight: 0.8
+    - formationId: route_twin_threat
+      weight: 0.3
+    restWeight: 1
+    easyWeight: 1
+    mediumWeight: 1.2
+    hardWeight: 0.55
+    easyTiers:
+      t0: 1
+      t1: 0.3
+      t2: 0.05
+    mediumTiers:
+      t0: 0.5
+      t1: 0.4
+      t2: 0.2
+    hardTiers:
+      t0: 0.3
+      t1: 0.5
+      t2: 0.4
+  - bandName: 5000+ mixed
+    startDistance: 5000
+    endDistance: -1
+    enemies:
+    - enemyId: goblin
+      weight: 1
+      minTier: 0
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 000000000100000002000000
+    - enemyId: goblin_elite
+      weight: 1
+      minTier: 0
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 000000000100000002000000
+    - enemyId: irregular_imp
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0100000002000000
+    - enemyId: flying_wyvern
+      weight: 0.8
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0300000004000000
+    - enemyId: shooter_archer
+      weight: 0.8
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    - enemyId: heavy_ogre
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0000000001000000
+    - enemyId: chaser_runner
+      weight: 0.6
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    - enemyId: rusher_runner
+      weight: 0.5
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    formations:
+    - formationId: ground_line
+      weight: 0.8
+    - formationId: goblin_horde
+      weight: 0.8
+    - formationId: staggered
+      weight: 0.8
+    - formationId: ground_air
+      weight: 0.9
+    - formationId: air_swarm
+      weight: 0.4
+    - formationId: frontline_rear
+      weight: 1
+    - formationId: heavy_horde
+      weight: 0.9
+    - formationId: gap_guard
+      weight: 0.9
+    - formationId: gauntlet
+      weight: 1
+    - formationId: route_line_vs_stagger
+      weight: 0.4
+    - formationId: route_easy_vs_rest
+      weight: 0.4
+    - formationId: route_horde_vs_few
+      weight: 0.8
+    - formationId: route_air_vs_horde
+      weight: 0.8
+    - formationId: route_rest_vs_medium
+      weight: 0.8
+    - formationId: route_few_vs_heavy
+      weight: 0.9
+    - formationId: route_line_vs_gap
+      weight: 0.8
+    - formationId: route_upper_fight
+      weight: 0.8
+    - formationId: route_lower_fight
+      weight: 0.8
+    - formationId: route_twin_threat
+      weight: 0.4
+    restWeight: 0.9
+    easyWeight: 1
+    mediumWeight: 1.1
+    hardWeight: 0.6
+    easyTiers:
+      t0: 1
+      t1: 0.35
+      t2: 0.1
+    mediumTiers:
+      t0: 0.45
+      t1: 0.45
+      t2: 0.25
+    hardTiers:
+      t0: 0.3
+      t1: 0.5
+      t2: 0.45
+  noEncounterBeforeDistance: 60
+  spawnAheadDistance: 46
+  offscreenMargin: 8
+  gapAfterEasy: {x: 12, y: 18}
+  gapAfterMedium: {x: 14, y: 20}
+  gapAfterHard: {x: 18, y: 26}
+  restLength: {x: 30, y: 48}
+  gapSpeedScale: 1
+  afterRestRestMultiplier: 0.15
+  afterHardHardMultiplier: 0.1
+  afterHardRestMultiplier: 2.5
+  afterEasyMediumMultiplier: 1.4
+  afterMediumHardMultiplier: 1.3
+  maxEncountersWithoutRest: 4
+  historySize: 3
+  repeatPenaltyLast: 0.05
+  repeatPenaltyOlder: 0.35
+  airLowHeight: {x: 1.8, y: 2.6}
+  airHighHeight: {x: 3.2, y: 4.2}
+  airCeilingMargin: 0.9
+  narrowClearance: 5.5
+  wideClearance: 8.5
+  straightLength: 26
+  bossPreBuffer: 90
+  bossPostRest: 30

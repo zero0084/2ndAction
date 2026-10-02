@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: more_enemies
   cardName: MORE ENEMIES
-  icon: {fileID: 2800000, guid: 6673ebc608f5f6548a7a25f525fffcc3, type: 3}
+  icon: {fileID: 2800000, guid: ad68c9be5ca1b774690cf902cf709a6f, type: 3}
   description: "\u6575\u306E\u51FA\u73FE\u983B\u5EA6\u304C\u4E0A\u304C\u308B\u3002\u5012\u3059\u307B\u3069\u7D4C\u9A13\u5024/MILE\u3082\u5897\u3048\u308B"
   category: 6
   sortOrder: 100

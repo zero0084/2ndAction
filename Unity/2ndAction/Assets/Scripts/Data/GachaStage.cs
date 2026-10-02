@@ -1,3 +1,4 @@
+using UnityEngine;
 // Card Expansion/Gacha Evolution Ver.1 - BEST-Distance-driven Gacha growth
 // (item 10/11). Stage thresholds are centralized here so GameManager
 // (stage computation), the Home Room Gacha display, and the draw-pool
@@ -38,6 +39,27 @@ public static class GachaStage
     // it ("旧Cardを排出Poolから削除しないでください").
     public static bool IsCardEligible(CardDefinition card, float bestDistance, int currentStage)
     {
+        if (DevAllCardsOpen) return true; // 開発版: 全カード開放(2026-10-02)
         return bestDistance >= card.unlockDistance && currentStage >= card.gachaStage;
+    }
+
+    // 開発版だけ: 距離/ガチャ段階に関係なく全カードを「解放済み」にする(ガチャの候補・解放済みカードの一覧)。製品版では常にfalse
+    public const string DevAllCardsOpenKey = "Dev.AllCardsOpen";
+    public static bool DevAllCardsOpen
+    {
+        get
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            return Debug.isDebugBuild && PlayerPrefs.GetInt(DevAllCardsOpenKey, 0) == 1;
+#else
+            return false;
+#endif
+        }
+        set
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            PlayerPrefs.SetInt(DevAllCardsOpenKey, value ? 1 : 0); PlayerPrefs.Save();
+#endif
+        }
     }
 }

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: fast_enemies
   cardName: FAST ENEMIES
-  icon: {fileID: 2800000, guid: 64223687d3755ea44ac3d12d33412119, type: 3}
+  icon: {fileID: 2800000, guid: bbf224ed15e078449acd4b86c893de78, type: 3}
   description: "\u6575\u306E\u884C\u52D5\u304C\u6D3B\u767A\u306B\u306A\u308B\u4EE3\u308F\u308A\u306B\u3001\u7D4C\u9A13\u5024/MILE\u304C\u5897\u52A0\u3059\u308B"
   category: 6
   sortOrder: 109

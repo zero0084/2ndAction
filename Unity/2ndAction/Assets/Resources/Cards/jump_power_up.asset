@@ -14,10 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: jump_power_up
   cardName: JUMP POWER UP
-  icon: {fileID: 2800000, guid: c6d62efbbad117844a3d4e36bf0351c6, type: 3}
+  icon: {fileID: 2800000, guid: c4fc6cd6be7dd3346afbd6ee067a1042, type: 3}
   description: "\u30B8\u30E3\u30F3\u30D7\u529B\u304C\u4E0A\u6607\u3059\u308B"
   category: 0
   sortOrder: 4
+  recommendPriority: 5
   effects:
   - type: 2
     value: 0.15
+  rarity: 1
+  unlockDistance: 0
+  gachaStage: 1
+  element: 0

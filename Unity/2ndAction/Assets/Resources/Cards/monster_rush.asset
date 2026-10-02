@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: monster_rush
   cardName: MONSTER RUSH
-  icon: {fileID: 2800000, guid: 67b656ab7dada664bac963b2cef98a31, type: 3}
+  icon: {fileID: 2800000, guid: 84bc6c1a037c4c74a8a908257070e3a2, type: 3}
   description: "\u6575\u306E\u51FA\u73FE\u983B\u5EA6\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B\u4EE3\u308F\u308A\u306B\u3001\u7D4C\u9A13\u5024\u304C\u5897\u52A0\u3059\u308B"
   category: 6
   sortOrder: 125

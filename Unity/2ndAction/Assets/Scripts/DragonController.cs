@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider2D))]
 public class DragonController : MonoBehaviour
 {
-    enum State { Entering, Idle, Telegraphing, Charging, Firing, Dead }
+    enum State { Entering, Idle, Telegraphing, Charging, Firing, Landing, Dead, Stunned }
 
     [Header("Animation")]
     public Sprite[] idleFrames;
@@ -14,9 +14,9 @@ public class DragonController : MonoBehaviour
     public float animFps = 8f;
 
     [Header("Health / Damage")]
-    public int maxHp = 20;
-    public int playerAttackDamage = 2;
-    public int fireballDamage = 2;
+    public int maxHp = 200;
+    public int playerAttackDamage = 20; // 10倍スケール
+    public int fireballDamage = 20; // 跳ね返した火球がドラゴンに与える量(10倍スケール)
 
     [Header("Behaviour Timing")]
     // Distance Level Design Ver.1 - Mechanical Dragon's placeholder: "出現
@@ -40,6 +40,16 @@ public class DragonController : MonoBehaviour
     // dragon only ever fires. Flip this back on to bring it back.
     public bool chargeAttackEnabled = false;
 
+    // 荒野街道ボス追加(2026-09-20) - 80,000mのドラゴン用。天空回廊の既存
+    // ドラゴン(炎/突進)の挙動はそのまま、「飛行→着地→噛みつき→再上昇」を
+    // 追加攻撃として足す。既存ドラゴンはlandingAttackEnabled=falseのまま無影響。
+    [Header("Landing Attack (荒野街道ドラゴン)")]
+    public bool landingAttackEnabled = false;
+    public float landingAttackChance = 0.3f;
+    public float landingWarnDuration = 1.3f;
+    public float landedStandoffDistance = 3.5f;
+    public float landedDuration = 3.2f;
+
     [Header("Attack Telegraph")]
     public float telegraphDuration = 3f;
     public float telegraphBlinkInterval = 0.3f;
@@ -59,7 +69,9 @@ public class DragonController : MonoBehaviour
     [Header("Fire Attack")]
     public float fireWindupDuration = 0.5f;
     public float fireRecoverDuration = 0.6f;
-    public float fireballSpeed = 6f;
+    // 弾速の走行補正(2026-09-26) - 弾は走行速度で流れる座標系の中を飛ぶようになったため(PlayerController.
+    // RunFrameSpeed)、正面から迫る見た目の速さが従来(=走行速度ぶん上乗せ)より遅くならないよう底上げ。
+    public float fireballSpeed = 9f;
     public Vector2 fireballSpawnOffset = new Vector2(-1.2f, 0.1f);
     public float fireballInterval = 0.25f;
 
@@ -142,6 +154,11 @@ public class DragonController : MonoBehaviour
     public Sprite bossDeathSmokeSprite;
     public float bossDeathSmokeScale = 1f;
     public AudioClip bossDefeatSe;
+    // ボス撃破時の飛散パーティクル(2026-09-10) - 雑魚敵と同じ
+    // ExplosionEffect.CreateForDefeatをボスの実寸で。色はBossManagerが
+    // スポーン時に設定する(通常ドラゴン=赤、機械龍=黄)。
+    public bool defeatBurstEnabled = true;
+    public Color defeatBurstColor = new Color(1f, 0.3f, 0.18f, 1f);
 
     [Header("Boss Defeat Presentation - HP Bar")]
     public float hpBarEmptyHoldDuration = 0.15f;
@@ -178,10 +195,16 @@ public class DragonController : MonoBehaviour
     // attack lunge actually changes the distance by that same amount.
     float trackedX;
 
+    // Floating Origin: 座標を戻した分、追従基準X/待機位置も戻す。
+    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; BossBattle.Living.Add(this); }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; BossBattle.Living.Remove(this); }
+    void OnOriginShifted(float s) { trackedX -= s; homePos.x -= s; }
+
     public void Init(Transform playerTransform)
     {
         player = playerTransform;
         playerController = player != null ? player.GetComponent<PlayerController>() : null;
+        if (playerController == null) playerController = PlayerController.Instance; // マルチ: 相手の分身の前に出した時(速度は狙いの相手から取る)
         sr = GetComponent<SpriteRenderer>();
         SetFrames(idleFrames);
 
@@ -205,8 +228,15 @@ public class DragonController : MonoBehaviour
         // Boss Milestone Presentation pass - "Boss HP BarはDragon出現前か
         // ら表示しない" (see ArrivalPresentation for the reveal).
         hpBar.SetHidden();
+        if (battle != null)
+        {
+            if (battle.staggerMax > 0f) hpBar.EnableSub(squareSprite, 0.08f);
+            hpBar.SetPhaseTicks(squareSprite, battle.phaseThresholds);
+        }
 
         state = State.Entering;
+        // マルチプレイPhase 2 - HOSTでは共有ボスとして登録。JOINでパペットとして作っている時はAIを始めない。
+        if (NetCombat.OnBossInit(this)) return;
         StartCoroutine(EnterThenSchedule());
     }
 
@@ -282,10 +312,12 @@ public class DragonController : MonoBehaviour
 
     void Update()
     {
+        if (NetPuppet) { if (state != State.Dead) AnimateSprite(); return; }
         if (state == State.Dead) return;
 
         AnimateSprite();
         AdvanceTrackedX();
+        BattleTick();
 
         if (state == State.Idle || state == State.Telegraphing || state == State.Firing)
         {
@@ -294,9 +326,133 @@ public class DragonController : MonoBehaviour
 
         if (attacksEnabled && state == State.Idle && Time.time >= nextAttackTime)
         {
+            // 天空回廊ボス追加(2026-09-25) - 複数体(最大4体)が同時に予備動作を始めて
+            // 回避不能にならないよう、ドラゴン同士で攻撃開始をずらす(1体のみなら従来どおり)。
+            if (Time.time < BossStaggerGate.NextDragonTime)
+            {
+                nextAttackTime = BossStaggerGate.NextDragonTime + Random.Range(0.1f, 0.5f);
+                return;
+            }
+            BossStaggerGate.NextDragonTime = Time.time + BossStaggerGate.DragonInterval;
+            // ボス戦の強化(2026-10-01): 第2段階の必殺技「煉獄の巨大火球」
+            if (battle != null && phase >= 2 && battle.ultimateCooldown > 0f && Time.time - lastUltimateTime >= battle.ultimateCooldown
+                && Time.time - phaseAt >= battle.firstUltimateDelay && BossBattle.TryBeginUltimate(this))
+            {
+                StartCoroutine(GiantFireball());
+                return;
+            }
+            if (landingAttackEnabled && Random.value < landingAttackChance)
+            {
+                StartCoroutine(LandingAttack());
+                return;
+            }
             bool isCharge = chargeAttackEnabled && Random.value < 0.5f;
             StartCoroutine(TelegraphAndAttack(isCharge));
         }
+    }
+
+    // ===== 着地攻撃(荒野街道ドラゴン): 予告 → 降下 → 着地衝撃 → 噛みつき → 隙 → 再上昇 =====
+    BossHitbox landHitbox, biteHitbox;
+
+    void EnsureLandingHitboxes()
+    {
+        if (landHitbox != null) return;
+        float sc = Mathf.Max(0.01f, Mathf.Abs(transform.localScale.x));
+        float halfW = sr.sprite != null ? sr.sprite.bounds.extents.x : 1f;   // ローカル単位
+        float halfH = sr.sprite != null ? sr.sprite.bounds.extents.y : 1f;
+
+        // ローカル座標(親スケール込み)で指定 - 判定サイズ=見えるVFXサイズ
+        landHitbox = BossHitbox.Create(transform, BossFx.Ring(), new Color(1f, 0.7f, 0.3f, 0.9f), "Land", RenderOrder.Boss + 1);
+        landHitbox.Configure(new Vector2(0f, -halfH * 0.4f), new Vector2(halfW * 2.0f, halfH * 0.9f));
+
+        // 顔は素材の向き通り左(-x)。親スケールのx反転に自動で追従する。
+        biteHitbox = BossHitbox.Create(transform, BossFx.Fang(), new Color(1f, 1f, 1f, 0.95f), "Bite", RenderOrder.Boss + 1);
+        biteHitbox.Configure(new Vector2(-(halfW + 0.9f / sc), -halfH * 0.1f), new Vector2(2.6f / sc, 2.0f / sc));
+    }
+
+    IEnumerator BlinkFlash(float duration)
+    {
+        float t = 0f;
+        bool flash = false;
+        while (t < duration && state != State.Dead)
+        {
+            flash = !flash;
+            if (flashOverlay != null) flashOverlay.enabled = flash;
+            yield return new WaitForSeconds(0.12f);
+            t += 0.12f;
+        }
+        if (flashOverlay != null) flashOverlay.enabled = false;
+    }
+
+    IEnumerator LandingAttack()
+    {
+        EnsureLandingHitboxes();
+        float sc = Mathf.Abs(transform.lossyScale.x);
+        float halfHWorld = sr.sprite != null ? sr.sprite.bounds.extents.y * transform.lossyScale.y : 1.5f;
+        float origStandoff = standoffDistance;
+
+        state = State.Telegraphing; // ホバー追従を続けたまま予告
+        float landX = trackedX + landedStandoffDistance;
+        TrackedHazard.Create(landX, halfHWorld * 2.4f, halfHWorld * 1.2f, landingWarnDuration, 0f, Color.clear);
+        yield return BlinkFlash(landingWarnDuration);
+        if (state == State.Dead) yield break;
+
+        // 降下(間合いを詰めながら地面へ)
+        state = State.Landing;
+        Vector3 start = transform.position;
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / 0.8f;
+            float e = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t));
+            standoffDistance = Mathf.Lerp(origStandoff, landedStandoffDistance, e);
+            float x = trackedX + standoffDistance;
+            float y = Mathf.Lerp(start.y, GroundYAt(x) + halfHWorld * 0.95f, e);
+            transform.position = new Vector3(x, y, 0f);
+            yield return null;
+            if (state == State.Dead) yield break;
+        }
+
+        // 着地衝撃
+        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (camFollow != null) camFollow.Shake(0.2f, 0.25f);
+        OneShotSpriteEffect.CreateScatterBurst(OneShotSpriteEffect.SoftDotSprite(), transform.position + Vector3.down * halfHWorld * 0.8f, new Color(0.75f, 0.65f, 0.5f, 0.8f), 12, 0.5f, 0.7f, 1.3f, 3.5f, 2.4f, RenderOrder.CombatFx);
+        yield return landHitbox.Strike(1f, 0.35f);
+        if (state == State.Dead) yield break;
+
+        // 着地状態: 地面に張り付いて追従(プレイヤーが殴れる隙)。途中で噛みつき。
+        float grounded = 0f;
+        bool biteDone = false;
+        while (grounded < landedDuration)
+        {
+            grounded += Time.deltaTime;
+            float x = trackedX + standoffDistance;
+            transform.position = new Vector3(x, GroundYAt(x) + halfHWorld * 0.95f, 0f);
+
+            if (!biteDone && grounded > 0.8f)
+            {
+                biteDone = true;
+                float frontDir = -Mathf.Sign(transform.lossyScale.x);
+                float halfWWorld = sr.sprite.bounds.extents.x * sc;
+                TrackedHazard.Create(transform.position.x + frontDir * (halfWWorld + 0.9f), 2.6f, 2.0f, 0.8f, 0f, Color.clear);
+                yield return BlinkFlash(0.8f);
+                if (state == State.Dead) yield break;
+                yield return biteHitbox.Strike(1f, 0.3f);
+                if (state == State.Dead) yield break;
+                grounded += 1.1f;
+                continue;
+            }
+            yield return null;
+            if (state == State.Dead) yield break;
+        }
+
+        // 再上昇
+        standoffDistance = origStandoff;
+        state = State.Landing;
+        yield return ReturnToHome(0.9f);
+        if (state == State.Dead) yield break;
+        state = State.Idle;
+        ScheduleNextAttack();
     }
 
     // Advances at the player's current BASE auto-run speed only (never their
@@ -304,23 +460,31 @@ public class DragonController : MonoBehaviour
     // regardless of how far the player has actually run.
     void AdvanceTrackedX()
     {
-        float baseSpeed = playerController != null ? playerController.CurrentAutoRunSpeed : 0f;
+        float runSpeed = TargetBaseSpeed();
+        float baseSpeed = runSpeed;
+        // マルチ Phase 3.1: 置き去り防止(BossLeash)。シングル/JOINでは何もしない
+        bool leashOn = BossLeash.Enabled;
+        BossLeash.Result leash = default;
+        if (leashOn)
+        {
+            leash = BossLeash.Evaluate(transform.position.x, player, netTarget != null ? netTarget.TargetPlayer : 0, ref leashTime);
+            if (netTarget != null) netTarget.SetPreferred(leash.PreferTarget);
+            if (leash.Active) baseSpeed *= leash.SpeedFactor;
+        }
         trackedX += baseSpeed * Time.deltaTime;
 
-        // Repeated attack lunges in the same direction (e.g. several
-        // backward/recoil hits in a row) would otherwise let the gap
-        // between the dragon's home spot and the player grow without
-        // bound in either direction, eventually pushing it off-screen for
-        // good. Clamp every frame, symmetrically, against the player's
-        // CURRENT actual position - not a one-way "only ever shrink the
-        // ceiling" clamp, which would itself get permanently stuck low
-        // after even a single backward attack and never recover (that was
-        // the bug: it ratcheted trackedX down and never let it back up).
+        // Repeated attack lunges in the same direction can push the home spot
+        // off-screen; clamp every frame, symmetrically, against the player's
+        // CURRENT actual position.
         if (player != null)
         {
             float minTrackedX = player.position.x - maxBehindPlayer - standoffDistance;
             float maxTrackedX = player.position.x + maxAheadOfPlayer - standoffDistance;
-            trackedX = Mathf.Clamp(trackedX, minTrackedX, maxTrackedX);
+            if (leashOn && leash.AllowBehindTarget) minTrackedX = float.MinValue;
+            float clamped = Mathf.Clamp(trackedX, minTrackedX, maxTrackedX);
+            if (leashOn && Mathf.Abs(clamped - trackedX) > 6f)
+                trackedX = BossLeash.Approach(trackedX, player.position.x - standoffDistance, -maxBehindPlayer, maxAheadOfPlayer, runSpeed, Time.deltaTime, leash.AllowBehindTarget, maxAheadOfPlayer + 20f);
+            else trackedX = clamped;
         }
     }
 
@@ -556,11 +720,33 @@ public class DragonController : MonoBehaviour
     {
         if (state == State.Dead) return;
 
+        if (other.CompareTag("PlayerAttack") && NetPuppet)
+        {
+            NetPuppetHit(other);
+            return;
+        }
+
+        // マルチプレイPhase 2.5: JOINのパペットは、HOSTの竜が突進中(状態をスナップショットで受信)の時だけ
+        // 体当たりとして被弾を申告する(HOSTが実在と無敵を確かめてHPを確定)。
+        if (NetPuppet)
+        {
+            if (other.CompareTag("Player") && netPose == (byte)State.Charging && PlayerController.Instance != null)
+            {
+                NetMatch.SetClaimContext(NetMatch.ClaimKind.EnemyContact, NetId);
+                try { PlayerController.Instance.TakeDamage(source: "Dragon:" + name, amount: BossManager.ScaleDamage(CombatScale.PlayerHit)); }
+                finally { NetMatch.ClearClaimContext(); }
+            }
+            return;
+        }
+
         if (other.CompareTag("PlayerAttack"))
         {
             // Grows with the player's "Attack Power UP" level-up choice;
             // playerAttackDamage is only the fallback if that's unavailable.
-            int damage = PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage;
+            int damage = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage);
+            var info = other.GetComponent<PlayerAttackInfo>();
+            bool air = PlayerController.Instance != null && !PlayerController.Instance.IsGrounded;
+            pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air);
             TakeDamage(damage);
             return;
         }
@@ -570,24 +756,32 @@ public class DragonController : MonoBehaviour
         // near it, or being near it while it breathes fire, is safe.
         if (other.CompareTag("Player") && state == State.Charging)
         {
-            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage();
+            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "Dragon:" + name, amount: BossManager.ScaleDamage(CombatScale.PlayerHit));
             return;
         }
 
         FireballController fb = other.GetComponent<FireballController>();
         if (fb != null && fb.reflected)
         {
-            TakeDamage(fireballDamage);
+            // 跳ね返した巨大火球: 大ダメージ+大きく崩れる(迎撃という選択肢)
+            bool giant = fb.transform.localScale.x > 1.4f;
+            pendingStagger = BossBattleTuning.I.staggerReflect * (giant ? 2.2f : 1f);
+            if (giant) { Debug.Log("[BossBattle] Dragon hit by its own giant fireball (reflected)"); BossBattleHud.Banner("跳ね返した!", new Color(0.5f, 0.85f, 1f), 1.0f); }
+            TakeDamage(giant ? fireballDamage * 4 : fireballDamage);
             Destroy(fb.gameObject);
         }
     }
 
     public void TakeDamage(int amount)
     {
-        if (state == State.Dead) return;
+        if (state == State.Dead || NetPuppet) return;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit); // ボス被弾(共通、連打は間引き)
+        if (state == State.Stunned) amount = Mathf.CeilToInt(amount * BossBattleTuning.I.breakDamageScale);
+        float stg = pendingStagger; pendingStagger = 0f;
 
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
+        NetCombat.AuthorityDamaged(NetId, netAttacker, amount, Hp, 0, transform.position, Hp <= 0);
 
         if (Hp <= 0)
         {
@@ -598,9 +792,13 @@ public class DragonController : MonoBehaviour
             // for its short death presentation instead of vanishing this
             // same frame.
             state = State.Dead;
+            BossBattle.EndUltimate(this);
+            if (hpBar != null) hpBar.SetSub(0f, false);
             StartCoroutine(FinalHitAndDie());
             return;
         }
+        CheckBattlePhase();
+        if (stg > 0f) AddStagger(stg);
 
         // Game Feel pass, section 19 - a very small camera shake, boss hits
         // only (regular EnemyController kills deliberately never do this -
@@ -608,6 +806,177 @@ public class DragonController : MonoBehaviour
         var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
         if (camFollow != null) camFollow.Shake(0.08f, 0.1f);
         StartCoroutine(HitFlash());
+    }
+
+    // ===================================================================== //
+    // ボス戦の強化(2026-10-01): 荒野街道のドラゴン(80,000m)だけ。第2段階/必殺技「煉獄の巨大火球」/崩し
+    //  必殺技: 上空へ → 巨大な火球を溜める → プレイヤーへゆっくり撃つ。跳んでかわす or 攻撃で跳ね返す(当たると大ダメージ+大きく崩れる)。
+    //  崩し(BREAK): 地面へ墜ちて数秒無防備。
+    // ===================================================================== //
+    BossBattleTuning.Entry battle;
+    int phase = 1;
+    float phaseAt, lastUltimateTime = -99f, stagger, lastStaggerTime, pendingStagger;
+    public int Phase => phase;
+    public int BreakCount { get; private set; }
+    public int UltimatesUsed { get; private set; }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public void DebugAddStagger(float v) => AddStagger(v);
+#endif
+    public bool Broken => state == State.Stunned;
+    SpriteRenderer chargeOrb;
+
+    public void EnableWastelandBattle(BossBattleTuning.Entry entry)
+    {
+        battle = entry;
+        if (battle != null && battle.hpScale > 0f && Mathf.Abs(battle.hpScale - 1f) > 0.001f) maxHp = Mathf.Max(1, Mathf.RoundToInt(maxHp * battle.hpScale));
+    }
+
+    void BattleTick()
+    {
+        if (battle == null) return;
+        if (state != State.Stunned && stagger > 0f && Time.time - lastStaggerTime > BossBattleTuning.I.staggerRecoveryDelay)
+            stagger = Mathf.Max(0f, stagger - battle.staggerRecoveryPerSec * Time.deltaTime);
+        if (hpBar != null && battle.staggerMax > 0f) hpBar.SetSub(battle.staggerMax > 0f ? stagger / battle.staggerMax : 0f, state == State.Stunned);
+        if (state == State.Stunned) StunFollow();
+    }
+
+    void CheckBattlePhase()
+    {
+        if (battle == null || battle.phaseThresholds == null || phase > battle.phaseThresholds.Length) return;
+        float f = (float)Hp / Mathf.Max(1, maxHp);
+        int p = 1;
+        foreach (float th in battle.phaseThresholds) if (f <= th) p++;
+        if (p <= phase) return;
+        phase = p;
+        phaseAt = Time.time;
+        attackIntervalMin *= 0.7f; attackIntervalMax *= 0.7f;
+        landingAttackChance = Mathf.Min(0.5f, landingAttackChance + 0.1f);
+        Debug.Log($"[BossBattle] Dragon PHASE {phase} (hp {Hp}/{maxHp})");
+        if (hpBar != null) hpBar.Flash(0.8f);
+        var cf = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (cf != null) cf.Shake(0.22f, 0.4f);
+        OneShotSpriteEffect.CreateTweened(BossFx.Ring(), transform.position, new Color(1f, 0.4f, 0.2f, 0.95f), 0.5f, 1f, 6f, 0.9f, 0f, default, 0f, RenderOrder.CombatFx, 0.1f);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+        BossBattleHud.Banner("最終段階!", new Color(1f, 0.4f, 0.25f), 1.2f);
+    }
+
+    void AddStagger(float v)
+    {
+        if (battle == null || battle.staggerMax <= 0f || state == State.Stunned || state == State.Entering) return;
+        stagger += v;
+        lastStaggerTime = Time.time;
+        if (stagger < battle.staggerMax) return;
+        stagger = battle.staggerMax;
+        BreakCount++;
+        Debug.Log($"[BossBattle] Dragon BREAK #{BreakCount}");
+        BossBattleHud.Banner("BREAK!", new Color(1f, 0.85f, 0.3f), 1.0f);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossFinalHit);
+        StopAllCoroutines();
+        if (flashOverlay != null) flashOverlay.enabled = false;
+        if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
+        if (chargeOrb != null) chargeOrb.enabled = false;
+        BossBattle.EndUltimate(this);
+        state = State.Stunned;
+        SetFrames(idleFrames);
+        StartCoroutine(StunRoutine());
+    }
+
+    float stunY;
+    void StunFollow()
+    {
+        Vector3 home = ComputeHomePosition();
+        float x = home.x;
+        float gy = GroundYAt(x) + hoverHeight * 0.45f;
+        stunY = Mathf.MoveTowards(transform.position.y, gy, 9f * Time.deltaTime);
+        transform.position = new Vector3(Mathf.MoveTowards(transform.position.x, Mathf.Min(x, player != null ? player.position.x + 4f : x), 14f * Time.deltaTime), stunY, 0f);
+    }
+
+    IEnumerator StunRoutine()
+    {
+        var cf = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (cf != null) cf.Shake(0.18f, 0.25f);
+        float t = 0f, star = 0f;
+        float dur = battle != null ? battle.breakDuration : 3f;
+        while (t < dur)
+        {
+            t += Time.deltaTime; star -= Time.deltaTime;
+            if (star <= 0f)
+            {
+                star = 0.25f;
+                OneShotSpriteEffect.CreateTweened(OneShotSpriteEffect.SoftDotSprite(), transform.position + new Vector3(Random.Range(-1f, 1f), Random.Range(0.6f, 1.4f), 0f), new Color(1f, 0.95f, 0.45f, 1f), 0.4f, 0.25f, 0.05f, 1f, 0f, default, 0f, RenderOrder.CombatFx, 0.2f);
+            }
+            yield return null;
+        }
+        stagger = 0f;
+        state = State.Landing; // 戻りの間は通常の追従をしない(体当たり判定の無い状態)
+        yield return ReturnToHome(0.6f);
+        state = State.Idle;
+        ScheduleNextAttack();
+    }
+
+    IEnumerator GiantFireball()
+    {
+        state = State.Telegraphing;
+        UltimatesUsed++;
+        lastUltimateTime = Time.time;
+        Debug.Log($"[BossBattle] Dragon ULTIMATE '煉獄の巨大火球' #{UltimatesUsed}");
+        BossBattleHud.Banner("煉獄の巨大火球", new Color(1f, 0.45f, 0.15f), 1.6f);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+        // 上空へ
+        float t = 0f;
+        while (t < 0.6f)
+        {
+            t += Time.deltaTime;
+            Vector3 target = ComputeHomePosition() + new Vector3(1.5f, 1.0f, 0f);
+            transform.position = Vector3.Lerp(transform.position, target, Mathf.Clamp01(t / 0.6f));
+            yield return null;
+        }
+        // 巨大な火球を溜める
+        if (chargeOrb == null)
+        {
+            var go = new GameObject("GiantCharge");
+            go.transform.SetParent(transform, false);
+            chargeOrb = go.AddComponent<SpriteRenderer>();
+            chargeOrb.sprite = FireballController.FireballArt() != null ? FireballController.FireballArt() : BossFx.Orb();
+            chargeOrb.sortingOrder = sr.sortingOrder + 2;
+        }
+        chargeOrb.enabled = true;
+        SetFrames(fireFrames);
+        t = 0f;
+        Vector3 mouth = Vector3.Scale((Vector3)fireballSpawnOffset, transform.lossyScale);
+        while (t < 1.5f)
+        {
+            t += Time.deltaTime;
+            transform.position = ComputeHomePosition() + new Vector3(1.5f, 1.0f, 0f);
+            float k = Mathf.Clamp01(t / 1.5f);
+            chargeOrb.transform.position = transform.position + mouth + new Vector3(-0.6f, 0f, 0f);
+            float s = Mathf.Lerp(0.3f, 2.4f, k) * (1f + 0.08f * Mathf.Sin(t * 30f));
+            chargeOrb.transform.localScale = new Vector3(s / Mathf.Max(0.01f, transform.lossyScale.x), s / Mathf.Max(0.01f, transform.lossyScale.y), 1f);
+            chargeOrb.color = Color.Lerp(new Color(1f, 0.7f, 0.2f), new Color(1f, 0.3f, 0.1f), Mathf.PingPong(t * 4f, 1f));
+            if (flashOverlay != null) flashOverlay.enabled = Mathf.PingPong(t * 6f, 1f) > 0.5f;
+            yield return null;
+        }
+        if (flashOverlay != null) flashOverlay.enabled = false;
+        Vector3 from = chargeOrb.transform.position;
+        chargeOrb.enabled = false;
+        // 発射: ゆっくり迫る巨大火球(かわす or 跳ね返す)
+        Vector3 aim = player != null ? player.position + new Vector3(0f, 0.6f, 0f) : from + Vector3.left;
+        Vector2 dir = ((Vector2)(aim - from)).normalized;
+        GameObject fbGo = FireballController.Create(squareSprite, from, dir * 6.5f);
+        var fbc = fbGo.GetComponent<FireballController>();
+        fbc.ScaleUp(3f);
+        fbc.damageAmount = CombatScale.PlayerHeavyHit;
+        fbc.lifetime = 7f;
+        var camF = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (camF != null) camF.Shake(0.15f, 0.3f);
+        state = State.Firing;
+        yield return new WaitForSeconds(2.2f);
+        BossBattle.EndUltimate(this);
+        state = State.Landing;
+        yield return ReturnToHome(0.6f);
+        state = State.Idle;
+        SetFrames(idleFrames);
+        ScheduleNextAttack();
     }
 
     // Brief red flash to signal "that hit landed" while the boss is still
@@ -630,86 +999,261 @@ public class DragonController : MonoBehaviour
     // (attack scheduling, telegraph blink, idle bob via Update) is already
     // inert - StopAllCoroutines is no longer called here, since this
     // coroutine itself needs to keep running.
-    IEnumerator FinalHitAndDie()
+    // Bugfix 2026-09-07 (Bug #001, root cause) - this coroutine used to have
+    // NO exception/early-exit protection at all around the two calls at its
+    // very end (RegisterBossDefeat/OnDragonDefeated) - if ANYTHING threw
+    // partway through (or this GameObject got disabled/destroyed - e.g. a
+    // scene transition, GAME OVER racing the same frame), those two calls
+    // would simply never run. Since BossManager.CheckEncounterComplete
+    // (called from OnDragonDefeated) is the ONLY thing that ever calls
+    // GameManager.TriggerBossRewardChoice - which is in turn the ONLY thing
+    // that starts the bossRewardStuckTimer/pendingChoiceStuckTimer safety
+    // nets - a failure here meant NONE of the existing timeouts would ever
+    // even begin counting. IsBossPhase (and therefore Distance/Enemy Spawn)
+    // would then stay frozen forever with no recovery path whatsoever, the
+    // single most severe gap found while investigating Bug #001. Wrapped in
+    // try/finally (RegisterDefeatOnce guards against calling it twice - once
+    // normally at the end of try, once as the fail-safe in finally) so the
+    // reward pipeline is now GUARANTEED to be reached exactly once no matter
+    // what happens above it. Also switched every WaitForSeconds/Time.deltaTime
+    // in this coroutine to WaitForSecondsRealtime/Time.unscaledDeltaTime -
+    // this sequence starts the instant the boss's HP hits 0, independent of
+    // any OTHER system that might be holding Time.timeScale at 0 at that
+    // exact moment (e.g. the Pause Menu, or a concurrent HitStop) - it must
+    // never be at the mercy of an unrelated pause to even START the reward
+    // pipeline.
+    bool bossDefeatRegistered;
+    void RegisterDefeatOnce()
     {
-        if (flashOverlay != null) flashOverlay.enabled = false;
-        if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
-
-        // ===== Item 1 - Final Hit: a slightly longer Hit Stop, a boosted
-        // Hit Spark, and a stronger Camera Shake than a normal hit. Only
-        // the camera and a separate one-shot VFX object are touched - this
-        // GameObject's own Collider/Rigidbody are untouched here. =====
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(finalHitSe);
-        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
-        if (camFollow != null) camFollow.Shake(finalHitShakeStrength, finalHitShakeDuration);
-        Sprite spark = finalHitSparkSprite != null ? finalHitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
-        OneShotSpriteEffect.CreateTweened(spark, transform.position, Color.white, duration: 0.18f, startScale: finalHitSparkScale * 0.7f, endScale: finalHitSparkScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.2f);
-
-        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Boss defeated");
-
-        yield return HitStop.Freeze(finalHitStopDuration);
-
-        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Final hit presentation");
-
-        // ===== Item 2 - Death Presentation: flash (white->blue/cyan) ->
-        // scale punch+fade (1.0->1.05->0.9, Alpha->0) -> a Death Smoke
-        // accent, sized up from a regular enemy's own (Boss用は少し大き
-        // く). Collider scaling along with this is safe now - state is
-        // already Dead, so it can neither deal nor take any further
-        // damage regardless of its current size. =====
-        if (flashOverlay != null)
-        {
-            flashOverlay.sprite = sr.sprite;
-            flashOverlay.color = bossDeathFlashColor;
-            flashOverlay.enabled = true;
-        }
-        yield return new WaitForSeconds(bossDeathFlashDuration);
-        if (flashOverlay != null) flashOverlay.enabled = false;
-
-        Vector3 baseScale = transform.localScale;
-        Color startColor = sr.color;
-        float punchDuration = bossDeathDuration * 0.3f;
-        float settleDuration = Mathf.Max(0.05f, bossDeathDuration - punchDuration);
-
-        float t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime / Mathf.Max(0.001f, punchDuration);
-            transform.localScale = baseScale * Mathf.Lerp(1f, bossDeathPunchScale, Mathf.Clamp01(t));
-            yield return null;
-        }
-
-        t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime / Mathf.Max(0.001f, settleDuration);
-            float f = Mathf.Clamp01(t);
-            transform.localScale = baseScale * Mathf.Lerp(bossDeathPunchScale, bossDeathFinalScale, f);
-            Color c = startColor; c.a = Mathf.Lerp(startColor.a, 0f, f);
-            sr.color = c;
-            yield return null;
-        }
-
-        if (bossDeathSmokeSprite != null)
-        {
-            OneShotSpriteEffect.CreateTweened(bossDeathSmokeSprite, transform.position, Color.white, duration: 0.4f, startScale: bossDeathSmokeScale * 0.7f, endScale: bossDeathSmokeScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.3f);
-        }
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(bossDefeatSe);
-
-        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Death presentation");
-
-        // ===== Item 3 - Boss HP Bar: sit at empty a moment (already 0 from
-        // TakeDamage's SetFraction above) before fading out. =====
-        if (hpBar != null)
-        {
-            yield return new WaitForSeconds(hpBarEmptyHoldDuration);
-            yield return hpBar.FadeOutRoutine(bossHpBarFadeDuration);
-            Destroy(hpBar.gameObject);
-        }
-
-        gameObject.SetActive(false);
-
-        if (GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
+        if (bossDefeatRegistered) return;
+        bossDefeatRegistered = true;
+        if (NetPuppet) return; // JOINのパペット: 撃破報酬/ボス戦終了はHOSTとラストヒットの本人が処理する
+        if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
         if (BossManager.Instance != null) BossManager.Instance.OnDragonDefeated();
     }
+
+    IEnumerator FinalHitAndDie()
+    {
+        try
+        {
+            if (landHitbox != null) landHitbox.Deactivate();
+            if (biteHitbox != null) biteHitbox.Deactivate();
+            if (flashOverlay != null) flashOverlay.enabled = false;
+            if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
+
+            // ===== Item 1 - Final Hit: a slightly longer Hit Stop, a boosted
+            // Hit Spark, and a stronger Camera Shake than a normal hit. Only
+            // the camera and a separate one-shot VFX object are touched - this
+            // GameObject's own Collider/Rigidbody are untouched here. =====
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(finalHitSe);
+            var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+            if (camFollow != null) camFollow.Shake(finalHitShakeStrength, finalHitShakeDuration);
+            Sprite spark = finalHitSparkSprite != null ? finalHitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
+            OneShotSpriteEffect.CreateTweened(spark, transform.position, Color.white, duration: 0.18f, startScale: finalHitSparkScale * 0.7f, endScale: finalHitSparkScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.2f);
+
+            if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Boss defeated");
+
+            yield return HitStop.Freeze(finalHitStopDuration);
+
+            if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Final hit presentation");
+
+            // ===== Item 2 - Death Presentation: flash (white->blue/cyan) ->
+            // scale punch+fade (1.0->1.05->0.9, Alpha->0) -> a Death Smoke
+            // accent, sized up from a regular enemy's own (Boss用は少し大き
+            // く). Collider scaling along with this is safe now - state is
+            // already Dead, so it can neither deal nor take any further
+            // damage regardless of its current size. =====
+            if (flashOverlay != null)
+            {
+                flashOverlay.sprite = sr.sprite;
+                flashOverlay.color = bossDeathFlashColor;
+                flashOverlay.enabled = true;
+            }
+            yield return new WaitForSecondsRealtime(bossDeathFlashDuration);
+            if (flashOverlay != null) flashOverlay.enabled = false;
+
+            Vector3 baseScale = transform.localScale;
+            Color startColor = sr.color;
+            float punchDuration = bossDeathDuration * 0.3f;
+            float settleDuration = Mathf.Max(0.05f, bossDeathDuration - punchDuration);
+
+            float t = 0f;
+            while (t < 1f)
+            {
+                t += Time.unscaledDeltaTime / Mathf.Max(0.001f, punchDuration);
+                transform.localScale = baseScale * Mathf.Lerp(1f, bossDeathPunchScale, Mathf.Clamp01(t));
+                yield return null;
+            }
+
+            t = 0f;
+            while (t < 1f)
+            {
+                t += Time.unscaledDeltaTime / Mathf.Max(0.001f, settleDuration);
+                float f = Mathf.Clamp01(t);
+                transform.localScale = baseScale * Mathf.Lerp(bossDeathPunchScale, bossDeathFinalScale, f);
+                Color c = startColor; c.a = Mathf.Lerp(startColor.a, 0f, f);
+                sr.color = c;
+                yield return null;
+            }
+
+            if (bossDeathSmokeSprite != null)
+            {
+                OneShotSpriteEffect.CreateTweened(bossDeathSmokeSprite, transform.position, Color.white, duration: 0.4f, startScale: bossDeathSmokeScale * 0.7f, endScale: bossDeathSmokeScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.3f);
+            }
+
+            // ボス撃破時の飛散パーティクル(2026-09-10) - ボスのワールド高さ
+            // (sr.boundsはlossyScale込み)で数/粒サイズ/速度をスケール。色は
+            // defeatBurstColor(BossManagerが通常=赤/機械龍=黄で設定)。
+            if (defeatBurstEnabled)
+            {
+                float subjectHeight = sr != null ? sr.bounds.size.y : 6f;
+                ExplosionEffect.CreateForDefeat(transform.position, defeatBurstColor, subjectHeight, sortingOrder: RenderOrder.CombatFx);
+            }
+
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(bossDefeatSe);
+
+            if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Death presentation");
+
+            // ===== Item 3 - Boss HP Bar: sit at empty a moment (already 0 from
+            // TakeDamage's SetFraction above) before fading out. =====
+            if (hpBar != null)
+            {
+                yield return new WaitForSecondsRealtime(hpBarEmptyHoldDuration);
+                yield return hpBar.FadeOutRoutine(bossHpBarFadeDuration);
+                Destroy(hpBar.gameObject);
+            }
+
+            gameObject.SetActive(false);
+            RegisterDefeatOnce();
+        }
+        finally
+        {
+            RegisterDefeatOnce(); // no-op if already done above - guarantees the Boss Reward pipeline is always reached even on an early exit/exception
+        }
+    }
+
+    // ===================================================================== //
+    // マルチプレイPhase 2(共有ボス)
+    // ===================================================================== //
+    [System.NonSerialized] public int NetId;
+    [System.NonSerialized] public bool NetPuppet;
+
+    // マルチプレイPhase 2.5: HOSTのAIが狙う相手(全ての活動中プレイヤーから選ばれる)。並走の基準速度もその相手。
+    EnemyTargetSelector netTarget;
+    float leashTime; // マルチ Phase 3.1: 置き去り防止の減速が続いている秒数(BossLeash)
+    public void NetSetTarget(Transform t, EnemyTargetSelector selector) { if (t != null) player = t; netTarget = selector; }
+    float TargetBaseSpeed() => netTarget != null ? netTarget.TargetRunSpeed() : (playerController != null ? playerController.CurrentAutoRunSpeed : 0f);
+    int netAttacker; // 0 = この端末のプレイヤー
+    int netFramesSet = -1;
+    Collider2D netLastHitCollider;
+    float netHitCooldown;
+
+    byte CurrentFramesSet()
+    {
+        if (currentFrames == idleFrames) return 0;
+        if (currentFrames == chargeFrames) return 1;
+        if (currentFrames == fireFrames) return 2;
+        return 0;
+    }
+
+    // HOST: JOINのプレイヤーの攻撃を、この端末の攻撃と同じ被弾処理へ流す。
+    public void NetApplyRemoteHit(int attacker, int damage)
+    {
+        if (state == State.Dead || NetPuppet) return;
+        netAttacker = attacker;
+        try { TakeDamage(damage); }
+        finally { netAttacker = 0; }
+    }
+
+    public void NetMakePuppet(int id, int hp, int maxHpValue)
+    {
+        NetId = id;
+        NetPuppet = true;
+        maxHp = Mathf.Max(1, maxHpValue);
+        Hp = hp;
+        StopAllCoroutines();
+        if (hpBar != null) { hpBar.SetFraction((float)Hp / maxHp); hpBar.SetHidden(); }
+    }
+
+    void NetPuppetHit(Collider2D other)
+    {
+        if (other == netLastHitCollider && netHitCooldown > Time.time) return;
+        netLastHitCollider = other;
+        netHitCooldown = Time.time + 0.18f;
+        int damage = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage);
+        PlayerAttackKind kind = PlayerAttackKind.Normal;
+        var info = other.GetComponent<PlayerAttackInfo>();
+        if (info != null) kind = info.kind;
+        NetCombat.RequestHit(NetId, damage, kind, transform.position);
+        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        if (camFollow != null) camFollow.Shake(0.08f, 0.1f);
+        StartCoroutine(HitFlash());
+    }
+
+    public void NetSetHp(int hp, bool showHitFx)
+    {
+        if (state == State.Dead) return;
+        Hp = Mathf.Max(0, hp);
+        if (hpBar != null) hpBar.SetFraction((float)Hp / Mathf.Max(1, maxHp));
+        if (showHitFx && isActiveAndEnabled) StartCoroutine(HitFlash());
+    }
+
+    public void NetPuppetDie()
+    {
+        if (state == State.Dead) return;
+        Hp = 0;
+        if (hpBar != null) hpBar.SetFraction(0f);
+        StopAllCoroutines();
+        state = State.Dead;
+        StartCoroutine(FinalHitAndDie());
+    }
+
+    public void NetCaptureVisual(ref NetCombat.State s)
+    {
+        s.FramesSet = CurrentFramesSet();
+        s.Pose = (byte)state;
+        if (state != State.Entering) s.Flags |= NetCombat.FlagHpBar;
+        if (sr != null) s.Color = NetPlayerSnapshot.PackColor(sr.color);
+        if (flashOverlay != null && flashOverlay.enabled) { s.Flags |= NetCombat.FlagFlash; s.Flash = NetPlayerSnapshot.PackColor(flashOverlay.color); }
+        if (hitFlashOverlay != null && hitFlashOverlay.enabled) s.Flags |= NetCombat.FlagHitFlash;
+    }
+
+    bool netHpRevealed;
+    byte netPose;
+    public void NetApplyVisual(NetCombat.State s)
+    {
+        if (state == State.Dead) return;
+        netPose = s.Pose;
+        if (s.FramesSet != netFramesSet)
+        {
+            netFramesSet = s.FramesSet;
+            switch (s.FramesSet)
+            {
+            case 0: SetFrames(idleFrames); break;
+            case 1: SetFrames(chargeFrames); break;
+            case 2: SetFrames(fireFrames); break;
+            }
+        }
+        if (sr != null) sr.color = NetPlayerSnapshot.UnpackColor(s.Color);
+        if (flashOverlay != null)
+        {
+            bool on = (s.Flags & NetCombat.FlagFlash) != 0;
+            flashOverlay.enabled = on;
+            if (on) { flashOverlay.color = NetPlayerSnapshot.UnpackColor(s.Flash); flashOverlay.sprite = sr.sprite; }
+        }
+        if (!netHpRevealed && (s.Flags & NetCombat.FlagHpBar) != 0)
+        {
+            netHpRevealed = true;
+            if (hpBar != null) StartCoroutine(hpBar.RevealRoutine(0.25f));
+        }
+    }
+}
+
+// 天空回廊ボス追加(2026-09-25) - ドラゴン/魔人が複数体いる時に攻撃開始をずらす共有ゲート。
+public static class BossStaggerGate
+{
+    public static float NextDragonTime;
+    public static float DragonInterval = 1.3f;
+    public static float NextMajinTime;
+    public static float MajinInterval = 1.8f;
 }

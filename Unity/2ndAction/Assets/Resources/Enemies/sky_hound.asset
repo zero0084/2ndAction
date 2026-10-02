@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: sky_hound
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: sky_hound
+  displayName: SKY HOUND
+  sprite: {fileID: 21300000, guid: 327a97e6e6e2eb44daecc0f3e8fe83a4, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 0
+  category: 0
+  behaviorKind: 10
+  hpMultiplier: 1
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 0
+  runFrames:
+  - {fileID: 21300000, guid: bad2ae6c3df70744386b4d6e7e197c59, type: 3}
+  - {fileID: 21300000, guid: a539d49e958787041897d4c45e40d1c4, type: 3}
+  attackSprite: {fileID: 21300000, guid: 512bc2159f574be4096f541730e5e5c7, type: 3}
+  mileReward: 2
+  visualScaleMultiplier: 1
+  aiTier: 1
+  stageIds:
+  - sky_corridor
+  bonusKind: 0
+  poses:
+    telegraph: {fileID: 21300000, guid: 873c319e5e3f5944b97e42d358928f01, type: 3}
+    attack: {fileID: 21300000, guid: 512bc2159f574be4096f541730e5e5c7, type: 3}
+    recover: {fileID: 21300000, guid: 0305257f9a841e548824405741b8e2b6, type: 3}
+    hit: {fileID: 21300000, guid: b829071527e915e45b56709b6d4ffdef, type: 3}
+    death: {fileID: 21300000, guid: 2d97b0d559db17147be1a44f3e25c5c1, type: 3}
+    dormant: {fileID: 0}
+    wake: {fileID: 0}
+    charge: {fileID: 0}
+    dive: {fileID: 0}
+  idleHoverAmplitude: 0
+  bodyColliderScale: {x: 0.8, y: 0.85}
+  bodyColliderOffset: {x: 0, y: -0.07499999}
+  launchScale: 1
+  knockbackScale: 1

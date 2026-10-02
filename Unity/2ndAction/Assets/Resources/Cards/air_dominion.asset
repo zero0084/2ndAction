@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: air_dominion
   cardName: AIR DOMINION
-  icon: {fileID: 2800000, guid: 66ebce2f18b085b468bd3bf4c1bab147, type: 3}
+  icon: {fileID: 2800000, guid: 151d9b6a071af9c499e4b7a4e8e3ca6b, type: 3}
   description: "\u7A7A\u4E2D\u653B\u6483\u529B\u304C\u4E0A\u304C\u308A\u3001\u5730\u4E0A\u653B\u6483\u529B\u3082\u5C11\u3057\u4E0A\u304C\u308B"
   category: 1
   sortOrder: 146
   recommendPriority: 5
   effects:
   - type: 7
-    value: 3
+    value: 30
   - type: 13
-    value: 1
+    value: 10
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

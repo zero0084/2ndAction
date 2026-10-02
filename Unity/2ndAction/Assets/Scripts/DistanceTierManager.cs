@@ -100,8 +100,19 @@ public class DistanceTierManager : MonoBehaviour
 {
     public static DistanceTierManager Instance { get; private set; }
 
-    [Header("Enemy HP Scaling - unchanged this pass")]
+    [Header("Enemy HP Scaling")]
     public float hpIncreaseDistance = 2000f;
+    // エリアルコンボ改修(2026-09-11) - 「ゴブリンを一撃で倒れないように、
+    // 通常攻撃2〜3発程度で倒れるように」。PlayerController.AttackPower
+    // の既定値(2)に対し、CurrentEnemyHp = 1+baseHpBonus (距離0時点) が
+    // ちょうど「通常攻撃→上方向攻撃(打ち上げ)→下方向攻撃(叩き落とし)」
+    // の3発で倒せる値になるよう、旧2(不具合修正2026-09-09の値)から4へ
+    // 引き上げた(HP=5、2ダメージ×3発=6≧5)。将来の強敵は
+    // EnemyDefinition.hpMultiplierを上げるだけ(既存の仕組みのまま)で
+    // 4〜6発相当にできる - ここは変更不要。数値はあくまで暫定値なので、
+    // 実際にプレイして「硬すぎる/柔らかすぎる」と感じたらここか
+    // PlayerController.AttackPowerをInspector/コードで調整すること。
+    public int baseHpBonus = 4;
 
     [Header("Tiers - Enemy Category availability only (item 3, Ver.1)")]
     public DistanceTier[] tiers = new DistanceTier[0];
@@ -132,7 +143,8 @@ public class DistanceTierManager : MonoBehaviour
 
     float CurrentDistance => GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f;
 
-    public int CurrentEnemyHp => Mathf.Max(1, 1 + Mathf.FloorToInt(CurrentDistance / Mathf.Max(1f, hpIncreaseDistance)));
+    // 2026-10-02: 10倍スケール(攻撃力と同じ比率)
+    public int CurrentEnemyHp => Mathf.Max(1, (1 + baseHpBonus + Mathf.FloorToInt(CurrentDistance / Mathf.Max(1f, hpIncreaseDistance))) * CombatScale.K);
 
     public DistanceTier CurrentTier
     {
@@ -194,6 +206,51 @@ public class DistanceTierManager : MonoBehaviour
         if (!spacingOk || Random.value >= chance) return false;
 
         FormationData chosen = PickWeightedFormation();
+        return BuildFormationRequests(chosen, out requests, out halfWidthNeeded);
+    }
+
+    // マルチプレイ対応Phase 1(2026-09-25) - TerrainManager.ReserveFormationDeterministic用。
+    // 出現判定と編成の選択を「チャンクの論理距離」と地形専用の決定的乱数(WorldRng.Formation)
+    // だけで行い、全端末で同じ結果(=同じ平地予約)にする。乱数は出現しない場合も含めて毎回
+    // 同じ回数だけ消費し、端末間で乱数列がずれないようにしている。編成の中身(どの敵種に
+    // するか)は地形に影響しないため、従来どおり端末ごとのUnityEngine.Randomのまま。
+    public bool TryStartFormationWorld(bool spacingOk, float chance, float distance, out List<EnemySpawnRequest> requests, out float halfWidthNeeded)
+    {
+        requests = null;
+        halfWidthNeeded = 0f;
+        float spawnRoll = WorldRng.Formation.Value;
+        float pickRoll = WorldRng.Formation.Value;
+        if (!spacingOk || spawnRoll >= chance) return false;
+        return BuildFormationRequests(PickWeightedFormationAt(distance, pickRoll), out requests, out halfWidthNeeded);
+    }
+
+    FormationData PickWeightedFormationAt(float d, float roll01)
+    {
+        float total = 0f;
+        for (int i = 0; i < formations.Length; i++)
+        {
+            FormationData f = formations[i];
+            if (f == null || d < f.minDistance || d >= f.maxDistance) continue;
+            total += Mathf.Max(0f, f.weight);
+        }
+        if (total <= 0f) return null;
+
+        float roll = roll01 * total;
+        float acc = 0f;
+        for (int i = 0; i < formations.Length; i++)
+        {
+            FormationData f = formations[i];
+            if (f == null || d < f.minDistance || d >= f.maxDistance) continue;
+            acc += Mathf.Max(0f, f.weight);
+            if (roll <= acc) return f;
+        }
+        return null;
+    }
+
+    bool BuildFormationRequests(FormationData chosen, out List<EnemySpawnRequest> requests, out float halfWidthNeeded)
+    {
+        requests = null;
+        halfWidthNeeded = 0f;
         if (chosen == null || chosen.spawnPoints == null || chosen.spawnPoints.Length == 0) return false;
 
         if (debugLogEnabled) Debug.Log($"[Formation] Spawn {chosen.formationType} ({chosen.formationId})");
@@ -274,7 +331,7 @@ public class DistanceTierManager : MonoBehaviour
 
     // ===== Debug - item 10/11 (Development Build / Editor only; see
     // GameManager.DrawDistanceWarpDebugUI) =====
-    public static readonly float[] DebugWarpStops = { 1000f, 5000f, 10000f, 20000f, 40000f, 50000f, 70000f, 90000f, 99000f };
+    public static readonly float[] DebugWarpStops = { 1000f, 5000f, 10000f, 20000f, 40000f, 50000f, 70000f, 90000f, 99000f, 99800f }; // 99.8K: 死神三姉妹の確認用(2026-09-29)
 }
 
 public struct EnemySpawnRequest

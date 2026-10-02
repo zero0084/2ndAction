@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: cave_hopper
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: cave_hopper
+  displayName: CAVE HOPPER
+  sprite: {fileID: 21300000, guid: dc13b851a3c288845a903fa88695fb27, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 0
+  category: 2
+  behaviorKind: 8
+  hpMultiplier: 1
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 1
+  runFrames:
+  - {fileID: 21300000, guid: 4d6b6f432ec8aaf4d97a03f308d01a81, type: 3}
+  - {fileID: 21300000, guid: 2cb430d5e79b8db4e9e1fac671d6c3ff, type: 3}
+  attackSprite: {fileID: 21300000, guid: ad73e314f6ba7594ea1e05823d9e185a, type: 3}
+  mileReward: 2
+  visualScaleMultiplier: 1
+  aiTier: 0
+  stageIds:
+  - natural_cave

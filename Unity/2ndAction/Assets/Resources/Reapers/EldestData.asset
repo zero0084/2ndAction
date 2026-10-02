@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89345b78267b38e4aa5b1bdfc26e6b43, type: 3}
+  m_Name: EldestData
+  m_EditorClassIdentifier: Assembly-CSharp::ReaperSisterData
+  sister: 0
+  displayName: "\u8352\u91CE\u8857\u9053\u306E\u9577\u5973"
+  stageId: wasteland_road
+  idle: {fileID: 21300000, guid: 96f6d6ae6d608944ea29d0b085212e4a, type: 3}
+  moveFrames:
+  - {fileID: 21300000, guid: 08c28bb16d969f244a870925b9b082d1, type: 3}
+  - {fileID: 21300000, guid: 006ee1efdb2ade140b8388045da37b02, type: 3}
+  - {fileID: 21300000, guid: 29bfaecf65afaf247a6796b6f878d3cb, type: 3}
+  - {fileID: 21300000, guid: a59eb9d940a6d1b4bbe967e810e7fa1e, type: 3}
+  attackPrepareFrames: []
+  attackFrames: []
+  hitFrames: []
+  deathFrames: []
+  heightWorld: 2.8
+  placeholderTint: {r: 1, g: 0.82, b: 0.9, a: 1}
+  motion: 0
+  moveFps: 5
+  walkBob: 0.05
+  walkSwayDeg: 1
+  floatHeight: 0.35
+  bobAmount: 0.12
+  bobFrequency: 0.55
+  skipRate: 2.2
+  skipHeight: 0.28
+  skipFloatEvery: 4
+  skipFloatHeightMul: 2.4
+  fadeInTime: 1.6
+  chase:
+    appearDelay: 1.6
+    appearOffscreenMargin: 3
+    appearApproachSpeed: 2.4
+    targetScreenFraction: 0.6
+    closeSpeed: 0.4
+    closeSpeedGrowthPerMinute: 0.6
+    accelFollowTime: 1.5
+    decelFollowTime: 0.25
+    escapeScreenFraction: 0.9
+    reacquireDelay: 2.5
+    reacquireRampTime: 1.5
+    reacquireStrength: 0.75
+    maxCatchupSpeed: 70
+    hardLeashDistance: 250
+    stunCloseSpeed: 4
+    captureGap: 1.3
+    captureWindup: 0.45
+    captureRetry: 1
+    captureLethalSolo: 1

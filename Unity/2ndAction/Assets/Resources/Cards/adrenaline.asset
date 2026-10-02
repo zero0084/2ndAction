@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: adrenaline
   cardName: ADRENALINE
-  icon: {fileID: 2800000, guid: 658a0d1f1a4f1e943805e38115373cff, type: 3}
+  icon: {fileID: 2800000, guid: 728374e5cb6bec0498b78ee7a53621f0, type: 3}
   description: "HP\u304C\u6E1B\u3063\u3066\u3044\u308B\u307B\u3069\u653B\u6483\u529B\u3068\u30C6\u30F3\u30DD\u304C\u4E0A\u304C\u308B"
   category: 6
   sortOrder: 123
   recommendPriority: 5
   effects:
   - type: 16
-    value: 3
+    value: 30
   - type: 6
     value: 0.1
   rarity: 3

@@ -21,7 +21,7 @@ using UnityEngine;
 // needing to redesign the persistence key.
 public static class CardInventory
 {
-    const string SaveKey = "OwnedCardsV1";
+    public const string SaveKey = "OwnedCardsV1";
 
     // Card Level Ver.1 - "カードLv = そのカードを何回取得した状態として
     // 扱うか" (Lv.N == N stacked applications of the card's own existing
@@ -31,7 +31,8 @@ public static class CardInventory
     // script) since Card Level is fundamentally inventory/data, not
     // presentation - GameManager and CardFusionUI both reference this same
     // constant so the cap can never drift between the two.
-    public const int MaxCardLevel = 5;
+    // カード合成改修(2026-09-26) - 合成Lvの上限を5→9へ(CardVariant.MaxLevel)。
+    public const int MaxCardLevel = CardVariant.MaxLevel;
 
     // Card Level Ver.1, item 7 - future cross-name fusion may want a single
     // owned card to carry more than one (CardId, EffectLevel) pair at once
@@ -51,10 +52,13 @@ public static class CardInventory
     }
 
     [Serializable]
-    class SaveWrapper
+    public class SaveWrapper
     {
         public List<Stack> stacks = new List<Stack>();
     }
+
+    // CardDataMigration等がPlayerPrefsを書き換えた後に、次のアクセスで読み直させる。
+    public static void ReloadFromPrefs() { stacks = null; }
 
     static List<Stack> stacks;
 
@@ -79,9 +83,50 @@ public static class CardInventory
 
     static void Save()
     {
+        WriteWithoutFlush();
+        PlayerPrefs.Save();
+    }
+
+    // 合成の確定処理(CardFusionLogic.Commit)は所持カードとMILEを両方書いてから
+    // PlayerPrefs.Save()を1回だけ呼ぶ(途中までしか保存されない状態を作らない)。
+    public static void WriteWithoutFlush()
+    {
+        EnsureLoaded();
+        if (DebugRun.BlocksSave("OwnedCards")) return;
         var wrapper = new SaveWrapper { stacks = stacks };
         PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(wrapper));
-        PlayerPrefs.Save();
+    }
+
+    // 合成用: 素材2枚を消費して完成品(addKey、nullなら無し)を1枚加える変更を
+    // メモリ上だけで行う。足りなければ何も変えずにfalse。保存は呼び出し側。
+    public static bool ApplyFusionInMemory(string mainKey, string materialKey, string addKey)
+    {
+        EnsureLoaded();
+        Stack a = FindByKey(mainKey);
+        Stack b = FindByKey(materialKey);
+        if (a == null || b == null) return false;
+        if (a == b ? a.count < 2 : (a.count < 1 || b.count < 1)) return false;
+        a.count--;
+        b.count--;
+        if (a.count <= 0) stacks.Remove(a);
+        if (b != a && b.count <= 0) stacks.Remove(b);
+        if (!string.IsNullOrEmpty(addKey))
+        {
+            CardVariant v = CardVariant.Parse(addKey);
+            int level = v != null ? v.level : 1;
+            Stack existing = FindByKey(addKey);
+            if (existing != null) existing.count++;
+            else stacks.Add(new Stack { cardId = addKey, level = level, count = 1 });
+        }
+        return true;
+    }
+
+    // キー(cardIdまたはv2キー)で引く - 1つのキーは必ず1つのLvにしか対応しない。
+    public static Stack FindByKey(string key)
+    {
+        EnsureLoaded();
+        foreach (Stack s in stacks) if (s.cardId == key && s.count > 0) return s;
+        return null;
     }
 
     public static Stack Find(string cardId, int level)
@@ -132,10 +177,74 @@ public static class CardInventory
     {
         if (string.IsNullOrEmpty(cardId) || count <= 0) return;
         EnsureLoaded();
+        // 素のカードIDをLv.2以上で追加する旧来の呼び方は、その性能のv2キーへ読み替える
+        // (素のIDは常にLv.1・強化量1を意味する)。
+        if (!CardVariant.IsVariantKey(cardId) && level > 1)
+        {
+            cardId = CardDataMigration.LegacyToKey(cardId, level);
+            CardVariant v = CardVariant.Parse(cardId);
+            if (v != null) level = v.level;
+        }
+        // カードVisual最終調整依頼(2026-09-18), item1 - 「候補に出た=NEW」
+        // ではなく「実際に取得した=NEW」にするための判定はここ一箇所に
+        // 集約する。AddCardはLevel Up選択確定時/Gacha抽選時のどちらから
+        // 呼ばれても必ずここを通る唯一の入口なので、呼び出し側ごとに
+        // 個別判定させる必要がない。「このカードを1枚でも既に所持して
+        // いたか」を加算前に見て、初めてなら新規取得済み(未確認)として
+        // マークする。
+        bool wasOwnedBefore = GetTotalCount(cardId) > 0;
         Stack existing = Find(cardId, level);
         if (existing != null) existing.count += count;
         else stacks.Add(new Stack { cardId = cardId, level = level, count = count });
+        if (!wasOwnedBefore) MarkNewUnconfirmed(cardId);
         Save();
+    }
+
+    // カードVisual最終調整依頼(2026-09-18), item1 - 「実際に新規取得した
+    // が、まだプレイヤーが確認していないカード」の集合。AddCard内で自動的
+    // に追加され、Collection等でそのカードを実際に見た(タップした)時点で
+    // ClearNewを呼んで解除する想定。CardInventory本体(所持数)とは別の
+    // 軽量な状態なので、別のPlayerPrefsキーに分けて保存する。
+    const string NewUnconfirmedSaveKey = "NewUnconfirmedCardsV1";
+    static HashSet<string> newUnconfirmed;
+
+    static void EnsureNewUnconfirmedLoaded()
+    {
+        if (newUnconfirmed != null) return;
+        newUnconfirmed = new HashSet<string>();
+        string raw = PlayerPrefs.GetString(NewUnconfirmedSaveKey, "");
+        if (string.IsNullOrEmpty(raw)) return;
+        foreach (string id in raw.Split(','))
+        {
+            if (!string.IsNullOrEmpty(id)) newUnconfirmed.Add(id);
+        }
+    }
+
+    static void SaveNewUnconfirmed()
+    {
+        if (DebugRun.BlocksSave("NewUnconfirmedCards")) return;
+        PlayerPrefs.SetString(NewUnconfirmedSaveKey, string.Join(",", newUnconfirmed));
+        PlayerPrefs.Save();
+    }
+
+    static void MarkNewUnconfirmed(string cardId)
+    {
+        EnsureNewUnconfirmedLoaded();
+        if (newUnconfirmed.Add(cardId)) SaveNewUnconfirmed();
+    }
+
+    public static bool IsNewUnconfirmed(string cardId)
+    {
+        EnsureNewUnconfirmedLoaded();
+        return !string.IsNullOrEmpty(cardId) && newUnconfirmed.Contains(cardId);
+    }
+
+    // プレイヤーがCollection等でこのカードを実際に確認した時に呼ぶ -
+    // NEW状態を解除する。
+    public static void ClearNewUnconfirmed(string cardId)
+    {
+        EnsureNewUnconfirmedLoaded();
+        if (newUnconfirmed.Remove(cardId)) SaveNewUnconfirmed();
     }
 
     // Consumes `count` copies at exactly (cardId, level) - fails (no
@@ -166,5 +275,36 @@ public static class CardInventory
         {
             AddCard(card.cardId, 1, 1);
         }
+    }
+
+    // 開発版の全カード開放(2026-10-02): まだ1枚も持っていないカードだけ Lv.1 を1枚(押すたびに増やさない)
+    public static int DebugOwnEveryMissing()
+    {
+        int n = 0;
+        foreach (CardDefinition card in CardDatabase.AllCards)
+            if (!CardVariant.IsVariantKey(card.cardId) && GetTotalCount(card.cardId) <= 0) { AddCard(card.cardId, 1, 1); n++; }
+        return n;
+    }
+
+    // Lv2以上の素のカードは「Lv分の強化量を持つ合成カード」のキー(v2|id|Lv|…)で持つので、そのキーで数える
+    public static int DebugCountAtLevel(string cardId, int level)
+    {
+        if (level <= 1) return GetCount(cardId, 1);
+        string key = CardDataMigration.LegacyToKey(cardId, level);
+        CardVariant v = CardVariant.Parse(key);
+        return GetCount(key, v != null ? v.level : level);
+    }
+
+    // 開発版: 全カードを Lv.9 で count 枚ずつ(キャラカード枠・デッキの確認用)。足りない分だけ足す
+    public static int DebugOwnEveryAtLevel(int level, int count)
+    {
+        int n = 0;
+        foreach (CardDefinition card in CardDatabase.AllCards)
+        {
+            if (CardVariant.IsVariantKey(card.cardId)) continue;
+            int have = DebugCountAtLevel(card.cardId, level);
+            if (have < count) { AddCard(card.cardId, level, count - have); n++; }
+        }
+        return n;
     }
 }

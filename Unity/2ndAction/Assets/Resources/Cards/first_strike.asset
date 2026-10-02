@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: first_strike
   cardName: FIRST STRIKE
-  icon: {fileID: 2800000, guid: d24eac87086f62242ab9c19ff3e9781b, type: 3}
+  icon: {fileID: 2800000, guid: cde83378e78d7aa4baae4c4d17174697, type: 3}
   description: "\u30B3\u30F3\u30DC\u306E1\u6BB5\u76EE\u306E\u5A01\u529B\u304C\u4E0A\u304C\u308B"
   category: 1
   sortOrder: 102
   recommendPriority: 5
   effects:
   - type: 15
-    value: 2
+    value: 20
   rarity: 2
   unlockDistance: 0
   gachaStage: 1

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: burrow_worm
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: burrow_worm
+  displayName: BURROW WORM
+  sprite: {fileID: 21300000, guid: 224d1d361ae9d7a48b094fc07a1cd6a3, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 0
+  category: 4
+  behaviorKind: 9
+  hpMultiplier: 1.6
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 1
+  runFrames:
+  - {fileID: 21300000, guid: 59a17b37e3ac42f45896c901696983eb, type: 3}
+  - {fileID: 21300000, guid: 38ed8b4692b69b440a84c901cdd68dce, type: 3}
+  attackSprite: {fileID: 21300000, guid: a70b89fa8e7fd674c905ac600fc8f3dd, type: 3}
+  mileReward: 3
+  visualScaleMultiplier: 1
+  aiTier: 0
+  stageIds:
+  - natural_cave

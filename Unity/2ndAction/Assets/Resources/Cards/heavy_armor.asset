@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: heavy_armor
   cardName: HEAVY ARMOR
-  icon: {fileID: 2800000, guid: 9553dd85d134c9241bd104ee98272e5f, type: 3}
+  icon: {fileID: 2800000, guid: e75e8200a366a624bbad178317e1bb83, type: 3}
   description: "\u6700\u5927HP\u304C\u5927\u5E45\u5897\u52A0\u3059\u308B\u304C\u3001\u30B8\u30E3\u30F3\u30D7\u529B\u304C\u4F4E\u4E0B\u3059\u308B"
   category: 6
   sortOrder: 14
   recommendPriority: 1
   effects:
   - type: 4
-    value: 3
+    value: 30
   - type: 2
     value: -0.15
   rarity: 3

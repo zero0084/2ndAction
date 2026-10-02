@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: jump_count_up
   cardName: JUMP COUNT UP
-  icon: {fileID: 2800000, guid: 6384fb442e5d3364ea336d1b3302236f, type: 3}
+  icon: {fileID: 2800000, guid: c8ac1bb70b04fac4facb8f9cc8a69114, type: 3}
   description: "\u7A7A\u4E2D\u30B8\u30E3\u30F3\u30D7\u56DE\u6570\u304C\u5897\u3048\u308B"
   category: 0
   sortOrder: 5

@@ -1,0 +1,555 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d76904403939c804f938790c00070d4d, type: 3}
+  m_Name: fighter
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
+  characterId: fighter
+  displayName: BRAWLER
+  subtitle: Fists That Answer Back
+  role: COUNTER
+  flavorText: 'A martial artist who fights
+
+    with nothing but iron gauntlets.
+
+    He
+    must get close - and when you strike first,
+
+    he strikes back harder.'
+  portrait: {fileID: 2800000, guid: 6892ecc28e2104741a135e89028aa2bc, type: 3}
+  mainVisual: {fileID: 2800000, guid: 602930f385dca5f4ebb18085074f7c41, type: 3}
+  lifeRating: 4
+  powerRating: 3
+  speedRating: 3
+  comboRating: 5
+  challengeFlag: 0
+  sortOrder: 7
+  baseLives: 40
+  baseMaxLives: 50
+  attackPower: 20
+  attackComboCount: 4
+  attackSpeedMultiplier: 1
+  attackRangeMultiplier: 1
+  knockbackPowerMultiplier: 1
+  jumpCount: 2
+  jumpForceMultiplier: 1
+  groundMobilityMultiplier: 1
+  airControlMultiplier: 1
+  canUseUpAttack: 1
+  canUseAirAttack: 1
+  canUseDownAttack: 1
+  runFrames:
+  - {fileID: 21300000, guid: 0ea8b329f96f17b42b94863f9ae62dc8, type: 3}
+  - {fileID: 21300000, guid: bc248076714372e4c86a1e2361ce00b8, type: 3}
+  - {fileID: 21300000, guid: 3bdee71d86556b84a870ee438512cdc2, type: 3}
+  - {fileID: 21300000, guid: c2f0c1931a6007648bec4271512f4193, type: 3}
+  jumpStartFrames:
+  - {fileID: 21300000, guid: cee7dd9d6e40ad34a834b0f3d129d72e, type: 3}
+  jumpFrames:
+  - {fileID: 21300000, guid: cee7dd9d6e40ad34a834b0f3d129d72e, type: 3}
+  landFrames:
+  - {fileID: 21300000, guid: 5032d8143a3454646b156f8846ded5a4, type: 3}
+  attackFrames:
+  - {fileID: 21300000, guid: f37f1d2d46a25524089d5c7e327bb4ac, type: 3}
+  doubleJumpFrames:
+  - {fileID: 21300000, guid: cee7dd9d6e40ad34a834b0f3d129d72e, type: 3}
+  runFps: 8
+  attackFramesSmall: []
+  attackFramesLarge: []
+  downAttackFrames:
+  - {fileID: 21300000, guid: cee7dd9d6e40ad34a834b0f3d129d72e, type: 3}
+  downAttackLandFrames:
+  - {fileID: 21300000, guid: 5032d8143a3454646b156f8846ded5a4, type: 3}
+  hurtDuration: 0
+  hurtInvincibleDuration: 0
+  recoveryDuration: 0
+  recoveryInvincibleDuration: 0
+  hurtKnockbackMultiplier: 0.8
+  hurtFrames:
+  - {fileID: 21300000, guid: b5b270f1e0a3d2348b1ec1cc468e9254, type: 3}
+  recoveryFrames: []
+  hurtLeanDegrees: 12
+  hurtStaggerDistance: 0.12
+  recoveryCrouchDepth: 0.14
+  attackHitboxForwardScale: 1
+  attackHitboxVerticalScale: 1
+  attackHitboxCrossScale: 1
+  attackHitboxNearPad: 0.35
+  contactGraceDuration: 0.15
+  highSpeedHitAssistEnabled: 1
+  highSpeedHitAssistStartKmh: 100
+  highSpeedHitAssistSeconds: 0.08
+  highSpeedHitAssistMax: 0.5
+  startFrames:
+  - {fileID: 21300000, guid: 01a180ba71f011949b9bcdcb282fcd81, type: 3}
+  - {fileID: 21300000, guid: df349542caac8ed4a8e3a5a805212bfb, type: 3}
+  - {fileID: 21300000, guid: 6be4acaa57b1d3c479465981c3660a3d, type: 3}
+  - {fileID: 21300000, guid: 036a5a9b12707424dbe0f877f04f1a14, type: 3}
+  startFps: 0
+  startLeanDegrees: 8
+  finishShortFrames:
+  - {fileID: 21300000, guid: 4f5785b1c60265f42863b5d6b213b9c6, type: 3}
+  - {fileID: 21300000, guid: d924a824cb01f014e9e7f89229460432, type: 3}
+  finishMediumFrames:
+  - {fileID: 21300000, guid: b26678273e4106f4989fe35978e5956a, type: 3}
+  - {fileID: 21300000, guid: 504155726106ae14da3981601a8a4e9f, type: 3}
+  finishLongFrames:
+  - {fileID: 21300000, guid: b236de73118b8504db0da36cefd2fdf6, type: 3}
+  - {fileID: 21300000, guid: 58b6beffeaf45a945a5278cae9f1bfd1, type: 3}
+  finishExtremeFrames:
+  - {fileID: 21300000, guid: 6084ead4fbea833409b5c0dc67aa7228, type: 3}
+  - {fileID: 21300000, guid: d99fd5e9c91fc804a8cec2804ce1c73c, type: 3}
+  finishFps: 0
+  finishTierCrouchDepth:
+  - 0.03
+  - 0.08
+  - 0.16
+  - 0.3
+  isRanged: 0
+  bulletSprite: {fileID: 0}
+  bulletSpeed: 15
+  bulletLifetime: 1.6
+  hoverDuration: 0.22
+  hoverFallSpeed: 0.6
+  upShotFrames: []
+  isLancer: 0
+  lanceWindup: 0.12
+  lanceThrustActive: 0.14
+  lanceRecovery: 0.24
+  lanceReach: 2.45
+  lanceReachStart: 0.45
+  lanceThickness: 0.42
+  lanceHeight: 0.68
+  lanceDashDistance: 0.9
+  lanceSpeedBonusPerSpeed: 0.2
+  lanceSpeedBonusMax: 0.6
+  lanceBackReach: 0.85
+  lanceBackDamageScale: 0.5
+  lanceBackKnockbackScale: 0.45
+  lanceUpReach: 1.9
+  lanceUpAngle: 50
+  lanceUpActive: 0.2
+  lanceDownReach: 1.7
+  lanceDownHeight: 0.22
+  lanceDownActive: 0.16
+  lanceBackFrames: []
+  lanceDownFrames: []
+  lanceComboWindup:
+  - 0.07
+  - 0.1
+  - 0.16
+  lanceComboActive:
+  - 0.11
+  - 0.13
+  - 0.18
+  lanceComboRecovery:
+  - 0.15
+  - 0.2
+  - 0.46
+  lanceComboReachScale:
+  - 0.9
+  - 1.05
+  - 1.3
+  lanceComboDashScale:
+  - 0.6
+  - 1.1
+  - 1.8
+  lanceComboDamageScale:
+  - 1
+  - 1.25
+  - 1.7
+  lanceComboKnockbackScale:
+  - 1
+  - 1.3
+  - 1.8
+  lanceComboHitStop:
+  - 0
+  - 0.02
+  - 0.11
+  lanceComboFxThickness:
+  - 0.8
+  - 1
+  - 1.6
+  lanceComboGrace: 0.45
+  lanceDiveWindup: 0.1
+  lanceDiveSpeed: 22
+  lanceDiveHorizontalScale: 0.1
+  lanceDiveMaxTime: 2.5
+  lanceDiveImpactRadius: 1.8
+  lanceDiveImpactHeight: 1.2
+  lanceDiveImpactDamageScale: 1.5
+  lanceDiveImpactKnockbackScale: 1.6
+  lanceDiveImpactHitStop: 0.1
+  lanceDiveImpactActive: 0.14
+  lanceDiveRecovery: 0.3
+  lanceDiveFrames: []
+  lanceDiveFrameOffsetY:
+  - -0.48
+  - -0.3
+  - 0
+  deathFrames:
+  - {fileID: 21300000, guid: bee13a3731cd2b9428f5fd41c7289d22, type: 3}
+  kit: 3
+  kitPoses:
+  - name: jab
+    frames:
+    - {fileID: 21300000, guid: f37f1d2d46a25524089d5c7e327bb4ac, type: 3}
+  - name: straight
+    frames:
+    - {fileID: 21300000, guid: 57c512515e698de4f9ccd3436a7a3207, type: 3}
+  - name: kick
+    frames:
+    - {fileID: 21300000, guid: 956409b1c4c16e94693f70fe01ee250c, type: 3}
+  - name: heavy
+    frames:
+    - {fileID: 21300000, guid: b45c5a09b6e547b46bc7504c5af7587d, type: 3}
+  - name: backstep
+    frames:
+    - {fileID: 21300000, guid: f18fedfb937708543887bb60ca0b5966, type: 3}
+  - name: counter
+    frames:
+    - {fileID: 21300000, guid: 7df9736d194fbe146887a846ba07ae09, type: 3}
+  - name: uppercut
+    frames:
+    - {fileID: 21300000, guid: bd6b234b54d6b5c4b9129103b57d6258, type: 3}
+  - name: divekick
+    frames:
+    - {fileID: 21300000, guid: fb0c12bbc8eb18e47b83ae6ecebe9eb1, type: 3}
+  - name: sweep
+    frames:
+    - {fileID: 21300000, guid: 18be454f2a6644a4791f0309fee51fc1, type: 3}
+  archer:
+    chargeMidTime: 0.55
+    chargeMaxTime: 1.2
+    forwardWindup: 0.12
+    forwardWindupMax: 0.2
+    forwardRecovery: 0.3
+    arrowSpeed: 20
+    arrowSpeedMax: 30
+    arrowLifetime: 1.2
+    chargeDamageScale:
+    - 1
+    - 2
+    - 3.2
+    chargeKnockbackScale:
+    - 1
+    - 1.7
+    - 2.6
+    chargeHitStop:
+    - 0
+    - 0.05
+    - 0.13
+    maxChargePierce: -1
+    chargeArrowScale:
+    - 1
+    - 1.2
+    - 1.6
+    backWindup: 0.05
+    backRecovery: 0.22
+    backDamageScale: 0.8
+    backKnockbackScale: 1.1
+    upAngle: 40
+    upArrowSpeed: 15
+    upDamageScale: 1.8
+    upKnockbackScale: 2.2
+    upHitStop: 0.05
+    downAngle: -38
+    downArrowSpeed: 22
+    downDamageScale: 2
+    downKnockbackScale: 1.8
+    downHitStop: 0.05
+    downHangTime: 0.1
+    downShotsPerAirtime: 2
+    lowShotHeight: 0.28
+    lowDamageScale: 1.2
+    lowKnockbackScale: 1.5
+    muzzle: {x: 0.45, y: 0.62}
+  mage:
+    hoverBase: 0.4
+    altitudeStep: 1.2
+    maxAltitudeLevel: 3
+    altitudeSmoothTime: 0.16
+    bobAmplitude: 0.05
+    bobFrequency: 1.6
+    boltSpeed: 13
+    boltLifetime: 1.1
+    boltCooldown: 0.36
+    boltCastTime: 0.1
+    boltDamageScale: 1
+    blastRadius: 0.85
+    blastDamageScale: 1
+    blastKnockbackScale: 1.2
+    backBoltSpeed: 11
+    backDamageScale: 0.7
+    upAngle: 55
+    upBoltSpeed: 14
+    upDamageScale: 1.2
+    upBlastRadius: 0.75
+    downAngle: -72
+    downBoltSpeed: 14
+    downDamageScale: 1.2
+    downBlastRadius: 1.15
+    downBlastDamageScale: 1.3
+  fighter:
+    comboWindup:
+    - 0.04
+    - 0.04
+    - 0.07
+    - 0.12
+    comboActive:
+    - 0.08
+    - 0.08
+    - 0.1
+    - 0.12
+    comboRecovery:
+    - 0.1
+    - 0.1
+    - 0.14
+    - 0.34
+    comboReach:
+    - 0.95
+    - 1
+    - 1.15
+    - 1.2
+    comboLunge:
+    - 0.35
+    - 0.4
+    - 0.5
+    - 0.8
+    comboDamageScale:
+    - 0.8
+    - 0.8
+    - 1.1
+    - 2.2
+    comboKnockbackScale:
+    - 0.35
+    - 0.35
+    - 0.8
+    - 2.6
+    comboHitStop:
+    - 0.04
+    - 0.04
+    - 0.06
+    - 0.15
+    comboGrace: 0.32
+    hitHeight: 0.62
+    hitThickness: 0.62
+    backStepDistance: 1.1
+    backStepTime: 0.16
+    counterWindow: 0.32
+    counterRadius: 1.35
+    counterDamageScale: 3
+    counterKnockbackScale: 3
+    counterHitStop: 0.18
+    counterInvincible: 0.3
+    rearStrikeDamageScale: 1
+    rearStrikeReach: 0.9
+    backRecovery: 0.2
+    stanceMoveFactor: 0.25
+    uppercutHop: 0.9
+    uppercutActive: 0.16
+    uppercutDamageScale: 1.4
+    uppercutHitStop: 0.07
+    diveKickSpeedY: 15
+    diveKickSpeedX: 5
+    diveKickDamageScale: 1.6
+    diveKickImpactRadius: 1
+    diveKickImpactDamageScale: 1.2
+    diveKickHitStop: 0.08
+    sweepReach: 1.25
+    sweepActive: 0.12
+    sweepRecovery: 0.22
+    sweepDamageScale: 1.1
+    sweepKnockbackScale: 1.6
+  ninja:
+    dashDistance: 3
+    dashTime: 0.13
+    dashRecovery: 0.16
+    dashCooldown: 0.42
+    dashInvincible: 0.16
+    invincibleInterval: 0.8
+    slashDamageScale: 1.1
+    slashKnockbackScale: 0.3
+    slashHitStop: 0.04
+    slashHeight: 0.6
+    slashThickness: 0.9
+    shurikenSpeed: 17
+    shurikenLifetime: 0.9
+    shurikenDamageScale: 0.7
+    shurikenCooldown: 0.3
+    backHop: 0.7
+    upDashSpeedY: 10.5
+    upDashDistanceX: 1.6
+    upDashTime: 0.18
+    upDamageScale: 1
+    downDashSpeedY: 17
+    downDashSpeedX: 9
+    downDashMaxTime: 0.5
+    downDamageScale: 1.3
+    landSlashRadius: 1.05
+    landSlashDamageScale: 1
+    slideDistance: 1.8
+    slideTime: 0.16
+  miko:
+    ofudaSpeed: 11
+    ofudaLifetime: 1.1
+    ofudaWindup: 0.12
+    ofudaCooldown: 0.42
+    ofudaDamageScale: 0.6
+    markDelay: 1.3
+    burstRadius: 0.95
+    burstDamageScale: 1.6
+    detonateRadius: 1.25
+    detonateDamageScale: 2.2
+    shikiSpeed: 8
+    shikiLifetime: 1.5
+    shikiDamageScale: 1
+    shikiCooldown: 0.45
+    upAngles:
+    - 28
+    - 50
+    - 72
+    upSpeed: 12
+    upDamageScale: 0.5
+    barrierForward: 3.4
+    barrierWidth: 4.2
+    barrierHeight: 1.9
+    barrierDuration: 2.6
+    barrierTick: 0.45
+    barrierTickDamageScale: 0.35
+    barrierSlow: 0.3
+    barrierWindup: 0.22
+    barrierCooldown: 0.8
+  vampire:
+    gainPerHit: 7
+    gainDiveHit: 35
+    decayDelay: 2.5
+    decayPerSecond: 9
+    tierThreshold: 50
+    tierDamageScale: 1.2
+    tierSpeedScale: 0.88
+    rushDuration: 5
+    rushSpeedScale: 0.7
+    rushMoveScale: 1.12
+    rushDamageScale: 1.3
+    rushHealPerHit: 0.06
+    gaugeAfterRush: 30
+    diveHealThreshold: 50
+    diveHeal: 0.34
+    healCooldown: 12
+    comboWindup:
+    - 0.05
+    - 0.05
+    - 0.1
+    comboActive:
+    - 0.08
+    - 0.08
+    - 0.12
+    comboRecovery:
+    - 0.1
+    - 0.1
+    - 0.26
+    comboReach:
+    - 1.1
+    - 1.1
+    - 2.1
+    comboDamageScale:
+    - 0.9
+    - 0.9
+    - 1.6
+    comboKnockbackScale:
+    - 0.5
+    - 0.5
+    - 1.4
+    comboHitStop:
+    - 0.03
+    - 0.03
+    - 0.07
+    comboGrace: 0.35
+    backStep: 0.9
+    batSpeed: 10
+    batLifetime: 0.9
+    batDamageScale: 0.4
+    batCount: 3
+    mistSpeedY: 9.5
+    mistDistanceX: 2.2
+    mistTime: 0.22
+    mistDamageScale: 0.8
+    diveSpeedY: 16
+    diveSpeedX: 6
+    diveDamageScale: 1.4
+    lowReach: 1.3
+    lowDamageScale: 1
+  dragonkin:
+    comboWindup:
+    - 0.1
+    - 0.1
+    - 0.18
+    comboActive:
+    - 0.1
+    - 0.1
+    - 0.14
+    comboRecovery:
+    - 0.16
+    - 0.16
+    - 0.36
+    comboReach:
+    - 1.3
+    - 1.3
+    - 1.6
+    comboLunge:
+    - 0.2
+    - 0.2
+    - 0.4
+    comboDamageScale:
+    - 1.3
+    - 1.3
+    - 2.3
+    comboKnockbackScale:
+    - 1
+    - 1
+    - 2.8
+    comboHitStop:
+    - 0.05
+    - 0.05
+    - 0.12
+    comboGrace: 0.35
+    tailWindup: 0.1
+    tailActive: 0.16
+    tailRecovery: 0.3
+    tailReach: 2.4
+    tailDamageScale: 1
+    flapJump: 1.3
+    flapActive: 0.18
+    flapDamageScale: 1.2
+    glideTime: 0.45
+    glideFallSpeed: 1.3
+    breathTime: 0.36
+    breathShots: 5
+    breathSpeed: 12
+    breathAngleAir: -58
+    breathAngleGround: -14
+    breathDamageScale: 0.6
+    breathHoverFall: 0.8
+    burnWidth: 2.6
+    burnDuration: 1.5
+    burnTick: 0.3
+    burnTickDamageScale: 0.35
+    bodyScale: 1.15
+  belongings:
+  - label: "\u9244\u306E\u7C60\u624B"
+    icon: {fileID: 0}
+    placeholderColor: {r: 0.3, g: 0.3, b: 0.32, a: 1}
+    kind: 1
+  - label: "\u9262\u5DFB"
+    icon: {fileID: 0}
+    placeholderColor: {r: 0.7, g: 0.15, b: 0.15, a: 1}
+    kind: 3

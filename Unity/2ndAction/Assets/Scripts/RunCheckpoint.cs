@@ -16,11 +16,26 @@ using UnityEngine;
 public static class RunCheckpoint
 {
     const string SaveKey = "ActiveRunCheckpointV1";
+    public const string Key = SaveKey;
 
     [Serializable]
     public class Data
     {
         public bool active;
+        // ボスの再戦プール(2026-10-02)。bossPoolVersion=0 はこの仕組みより前の保存
+        public int bossPoolVersion;
+        public List<string> defeatedBosses = new List<string>();
+        public List<string> recentBosses = new List<string>();
+        // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - このRunが
+        // どのキャラクターで開始されたか。GameManager.SelectedCharacterId
+        // (Homeでいつでも変えられる「次回NEW RUNの既定値」)とは別物 -
+        // 一度Runが始まったら、その後Character Selectで選択を変えても
+        // このRun自体のキャラクターは変わらない(BeginContinuedRunは必ず
+        // この値を使う、SelectedCharacterIdは使わない)。
+        public string characterId;
+        // ステージ選択導線追加(2026-09-12) - characterIdと全く同じ理由・
+        // 役割。このRunが実際に出発したステージ。
+        public string stageId;
         // Where Gameplay actually resumes (the last Boss Reward's
         // completion point) - item 10/12's "距離だけCheckpointへ戻る".
         public float checkpointDistance;
@@ -40,6 +55,7 @@ public static class RunCheckpoint
         public int bossKillCount;
         public int runEnemyMile;
         public int runBossMile;
+        public int runBonusMile; // BONUS ZONE(2026-09-29)の仮取得MILE(古いデータは0)
         // Bugfix 2026-09-06 - "ESCAPE解禁を1000m到達からBoss撃破後へ変更".
         // A one-way flag for this Run's lifetime (set true the moment the
         // first Boss Reward completes, never reset back to false within
@@ -73,6 +89,7 @@ public static class RunCheckpoint
 
     public static void Save(Data data)
     {
+        if (DebugRun.BlocksSave("RunCheckpoint.Save")) return; // 記録対象外のラン: プレイヤーの中断中のラン(CONTINUE)を上書きしない
         cached = data;
         PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(data));
         PlayerPrefs.Save();
@@ -84,10 +101,14 @@ public static class RunCheckpoint
     // its last checkpoint.
     public static void Clear()
     {
+        if (DebugRun.BlocksSave("RunCheckpoint.Clear")) return; // 記録対象外のラン: 中断中のランを消さない
         cached = new Data { active = false };
         PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(cached));
         PlayerPrefs.Save();
     }
 
     public static bool HasActiveRun => Load().active;
+
+    // セーブの起動時処理/初期化の後に読み直させる(2026-10-01)
+    public static void Reload() { cached = null; }
 }

@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: ground_fighter
   cardName: GROUND FIGHTER
-  icon: {fileID: 2800000, guid: c6a056fd444785848ae62a659fe33cef, type: 3}
+  icon: {fileID: 2800000, guid: bf8b2a5467e06ca458939470c36a36bf, type: 3}
   description: "\u5730\u4E0A\u306B\u3044\u308B\u9593\u3001\u653B\u6483\u529B\u304C\u4E0A\u6607\u3059\u308B"
   category: 1
   sortOrder: 107
   recommendPriority: 5
   effects:
   - type: 13
-    value: 2
+    value: 20
   rarity: 2
   unlockDistance: 0
   gachaStage: 1

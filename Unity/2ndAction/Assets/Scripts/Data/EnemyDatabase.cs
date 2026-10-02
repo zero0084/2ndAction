@@ -27,6 +27,15 @@ public static class EnemyDatabase
         cached = null;
     }
 
+    // マルチプレイPhase 2 - 生成時のスプライトから種類IDを推定する(同じ見た目の種は区別できないが、
+    // 呼び出し元がApplyAttackSpriteで正しい種類を後から確定させる)。
+    public static string FindBySprite(Sprite sprite)
+    {
+        if (sprite == null) return "";
+        foreach (EnemyDefinition d in AllEnemies) if (d != null && d.sprite == sprite) return d.enemyId;
+        return "";
+    }
+
     public static EnemyDefinition FindById(string enemyId)
     {
         if (string.IsNullOrEmpty(enemyId)) return null;
@@ -38,6 +47,19 @@ public static class EnemyDatabase
     }
 
     static readonly List<EnemyDefinition> candidatesBuffer = new List<EnemyDefinition>();
+
+    // 自然洞窟雑魚敵追加(2026-09-22) - EnemyDefinition.stageIdsが空/nullなら
+    // 従来どおり常に利用可(既存8種は全てこの分岐)。1つ以上指定されている
+    // 場合は、現在のActiveRunStageIdがその中に含まれる時だけ利用可。
+    // GameManager.Instanceがまだ無い場面(タイトル等)では安全側(空なら通す)。
+    static bool StageAllows(EnemyDefinition def)
+    {
+        if (def.stageIds == null || def.stageIds.Length == 0) return true;
+        string stageId = GameManager.Instance != null ? GameManager.Instance.ActiveRunStageId : null;
+        if (string.IsNullOrEmpty(stageId)) return false;
+        foreach (string s in def.stageIds) if (s == stageId) return true;
+        return false;
+    }
 
     // Picks one random definition from `pool` that's currently unlocked -
     // `pool` is a caller-supplied list (typically a scene reference set
@@ -55,7 +77,7 @@ public static class EnemyDatabase
         candidatesBuffer.Clear();
         foreach (EnemyDefinition def in pool)
         {
-            if (def != null && UnlockManager.IsTargetUnlocked(UnlockType.Enemy, def.enemyId))
+            if (def != null && StageAllows(def) && UnlockManager.IsTargetUnlocked(UnlockType.Enemy, def.enemyId))
             {
                 candidatesBuffer.Add(def);
             }
@@ -79,7 +101,7 @@ public static class EnemyDatabase
         candidatesBuffer.Clear();
         foreach (EnemyDefinition def in pool)
         {
-            if (def != null && def.category == category && UnlockManager.IsTargetUnlocked(UnlockType.Enemy, def.enemyId))
+            if (def != null && def.category == category && StageAllows(def) && UnlockManager.IsTargetUnlocked(UnlockType.Enemy, def.enemyId))
             {
                 candidatesBuffer.Add(def);
             }

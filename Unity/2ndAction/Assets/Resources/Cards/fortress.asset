@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: fortress
   cardName: FORTRESS
-  icon: {fileID: 2800000, guid: 81a1ba18443af0246b4d0da011d98e99, type: 3}
+  icon: {fileID: 2800000, guid: 836b7ef7d0d736541b2be3ad8ca28ecc, type: 3}
   description: "\u6700\u5927HP\u304C\u5927\u5E45\u306B\u4E0A\u304C\u308B\u304C\u3001\u79FB\u52D5\u901F\u5EA6\u304C\u4E0B\u304C\u308B"
   category: 6
   sortOrder: 140
   recommendPriority: 5
   effects:
   - type: 4
-    value: 4
+    value: 40
   - type: 0
     value: -0.15
   rarity: 4

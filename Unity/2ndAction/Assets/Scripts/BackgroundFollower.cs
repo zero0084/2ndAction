@@ -3,6 +3,7 @@ using UnityEngine;
 // Keeps a background sprite centered on the camera and uniformly scaled to
 // always cover the full view (like CSS background-size:cover), regardless of
 // orientation or the dynamic zoom CameraFollow applies.
+[DefaultExecutionOrder(100)] // CameraFollowのLateUpdateより後(1フレーム遅れのブレ防止)
 [RequireComponent(typeof(SpriteRenderer))]
 public class BackgroundFollower : MonoBehaviour
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour
+public partial class GameManager : MonoBehaviour
 {
     public enum DamageResult { Ignored, Hit, GameOver }
 
@@ -19,6 +19,17 @@ public class GameManager : MonoBehaviour
     const string DeckKey = "DeckCardIds";
     const string TotalMileKey = "TotalOwnedMile";
     const string CharacterCardSlotsKey = "CharacterCardSlots";
+    // キャラクター選択画面(2026-09-12) - 「選択キャラクター=次回NEW RUNで
+    // 使用するキャラクター」の永続化キー。CharacterCardSlotsKeyと同じ
+    // 「単純なPlayerPrefs文字列1つ」パターン(SetSelectedCharacterの
+    // コメント参照)。Active Run/Checkpoint(RunCheckpoint.cs)側にはこの
+    // 概念自体が存在しない - Continueは常にそのRunが始まった時点の状態を
+    // そのまま復元するだけで、ここを勝手に読み書きすることはない。
+    const string SelectedCharacterKey = "SelectedCharacterId";
+    // ステージ選択導線追加(2026-09-12) - 「選択ステージ=次回NEW RUNで
+    // 出発するステージ」の永続化キー。SelectedCharacterKeyと全く同じ
+    // パターン。
+    const string SelectedStageKey = "SelectedStageId";
 
     // The deck the player has built out of their (currently: always-owned -
     // there's no unlock/collection system yet) cards - TriggerLevelUpChoice
@@ -47,7 +58,10 @@ public class GameManager : MonoBehaviour
                 // CardDatabase.FindById filters out any id that no longer
                 // exists (e.g. a card removed from the database after this
                 // deck was saved), so a stale save can't wedge the deck.
-                if (!string.IsNullOrEmpty(id) && CardDatabase.FindById(id) != null && !deckCards.Contains(id))
+                // カード合成改修(2026-09-26)で見つけた不具合の修正: 同じカードを複数枚
+                // デッキへ入れられる仕様(AddToDeck/SetDeck)なのに、読み込み時だけ
+                // 重複を捨てていたため、再起動で2枚目以降が消えていた。容量だけで制限する。
+                if (!string.IsNullOrEmpty(id) && CardDatabase.FindById(id) != null && deckCards.Count < DeckCapacity)
                 {
                     deckCards.Add(id);
                 }
@@ -67,17 +81,21 @@ public class GameManager : MonoBehaviour
             // grants a matching Lv.1 owned copy for each card it seeds the
             // deck with - otherwise a brand new player's own starting deck
             // would immediately violate that invariant.
-            foreach (CardDefinition card in CardDatabase.UnlockedCards)
+            // 初期状態の定義は DefaultSave にまとめてある(2026-10-01)
+            foreach (string id in DefaultSave.StartingDeck(DeckCapacity))
             {
-                if (deckCards.Count >= DeckCapacity) break;
-                deckCards.Add(card.cardId);
-                CardInventory.AddCard(card.cardId, 1, 1);
+                deckCards.Add(id);
+                CardInventory.AddCard(id, 1, 1);
             }
+            // 2026-10-02 不具合修正: 初期デッキを保存しないままだと、シーンを読み直す(ホームへ戻る)たびにここを通って
+            // 初期カードをもう1枚ずつ渡していた(新規インストール/進行の初期化の後、デッキを編集するまで)。1回だけにする。
+            SaveDeck();
         }
     }
 
     void SaveDeck()
     {
+        if (DebugRun.BlocksSave("DeckCardIds")) return;
         PlayerPrefs.SetString(DeckKey, string.Join(",", deckCards));
         PlayerPrefs.Save();
     }
@@ -113,8 +131,7 @@ public class GameManager : MonoBehaviour
     {
         int count = 0;
         for (int d = 0; d < deckCards.Count; d++) if (deckCards[d] == cardId) count++;
-        for (int i = 0; i < CharacterCardSlotCount; i++) if (characterCardIds[i] == cardId) count++;
-        return count;
+        return count + MaxCharacterSlotUses(cardId, -1);
     }
 
     // Replaces the whole deck in one shot (DeckEditUI's "おすすめ編成" and
@@ -131,8 +148,7 @@ public class GameManager : MonoBehaviour
         {
             if (string.IsNullOrEmpty(id) || deckCards.Count >= DeckCapacity) continue;
             int owned = CardInventory.GetTotalCount(id);
-            int charCardUses = 0;
-            for (int i = 0; i < CharacterCardSlotCount; i++) if (characterCardIds[i] == id) charCardUses++;
+            int charCardUses = MaxCharacterSlotUses(id, -1);
             perCardCount.TryGetValue(id, out int already);
             if (already + charCardUses >= owned) continue; // no more copies of this card left to spend
             perCardCount[id] = already + 1;
@@ -186,14 +202,30 @@ public class GameManager : MonoBehaviour
 
     // Character Card slots reference an exact (cardId, level) pair, so this
     // one is a direct count (no allocation needed, unlike Deck above).
-    public int GetCharacterCardLockedCountForStack(string cardId, int level)
+    // キャラカード枠が使っている枚数(どのキャラの枠で使っていても、合成/デッキからは使えない)。
+    // キャラ同士は同時に出ないので、キャラごとの使用数の最大(同じ1枚を何人のキャラにも付けられる)。
+    public int GetCharacterCardLockedCountForStack(string cardId, int level) => MaxCharacterSlotUses(cardId, level);
+
+    // 今編集/使用しているキャラ(CharacterCardOwnerId)の枠だけの使用数
+    public int GetOwnerCharacterCardCountForStack(string cardId, int level)
     {
-        int locked = 0;
-        for (int i = 0; i < CharacterCardSlotCount; i++)
+        int n = 0;
+        for (int i = 0; i < CharacterCardSlotCount; i++) if (characterCardIds[i] == cardId && characterCardLevels[i] == level) n++;
+        return n;
+    }
+
+    // level<0 = Lvを問わない
+    int MaxCharacterSlotUses(string cardId, int level)
+    {
+        int best = 0;
+        foreach (var kv in AllCharacterSlots())
         {
-            if (characterCardIds[i] == cardId && characterCardLevels[i] == level) locked++;
+            int n = 0;
+            for (int i = 0; i < CharacterCardSlotCount; i++)
+                if (kv.Value.ids[i] == cardId && (level < 0 || kv.Value.levels[i] == level)) n++;
+            best = Mathf.Max(best, n);
         }
-        return locked;
+        return best;
     }
 
     // How many copies of this exact (cardId, level) stack are free to
@@ -224,8 +256,19 @@ public class GameManager : MonoBehaviour
 
     void SaveMile()
     {
+        if (DebugRun.BlocksSave("TotalOwnedMile")) return;
         PlayerPrefs.SetInt(TotalMileKey, TotalOwnedMile);
         PlayerPrefs.Save();
+    }
+
+    // カード合成の確定処理用 - 値だけ変えてPlayerPrefsへ書き、Save()は呼び出し側が
+    // 所持カードと一緒に1回だけ行う(CardFusionLogic.Execute)。
+    public void AddMileWithoutFlush(int amount)
+    {
+        if (amount == 0) return;
+        TotalOwnedMile = Mathf.Max(0, TotalOwnedMile + amount);
+        if (DebugRun.BlocksSave("TotalOwnedMile")) return;
+        PlayerPrefs.SetInt(TotalMileKey, TotalOwnedMile);
     }
 
     public void AddMile(int amount)
@@ -251,7 +294,10 @@ public class GameManager : MonoBehaviour
     public int RunDistanceMile { get; private set; }
     public int RunEnemyMile { get; private set; }
     public int RunBossMile { get; private set; }
-    public int RunMile => RunDistanceMile + RunEnemyMile + RunBossMile;
+    // BONUS ZONE(2026-09-29): ボーナス区画の報酬Enemy(宝運びゴブリン/ミミック)から得たMILE。
+    // 他の分類と同じく「Run中の仮取得」で、FINISH/脱出の時だけ持ち帰る(GAME OVERなら失う)。
+    public int RunBonusMile { get; private set; }
+    public int RunMile => RunDistanceMile + RunEnemyMile + RunBossMile + RunBonusMile;
 
     // ===== Run Continuation/Checkpoint Ver.1 ===== //
     // Item 12 - the furthest distance genuinely reached this Run's whole
@@ -280,7 +326,50 @@ public class GameManager : MonoBehaviour
     // Run (GAME OVER/FINISH) always gets a fresh GameManager instance where
     // this defaults to false again.
     bool escapeUnlocked;
-    public bool EscapeAvailable => HasStarted && !IsGameOver && escapeUnlocked;
+    public bool EscapeAvailable => HasStarted && !IsGameOver && escapeUnlocked && !EscapeBlocked;
+    // ラストダンジョンのエンディング(2026-09-30)。どれもシーンの読み直しで既定へ戻る(LastDungeonFlowが開始時に戻す)。
+    //  EscapeBlocked … 長押しの帰還を出さない(静寂区間〜ONE MORE MILE?。BEYONDでは再び使える)
+    //  BlockExpGain  … 経験値もレベルアップも止める(三姉妹を倒した後のエンドロール/選択エリアで選択画面を出さない)
+    public static bool EscapeBlocked;
+    public static bool BlockExpGain;
+    // 「NO」を選んで自分の意思で止まった: 正常終了(MILE確定/BEST更新/CONTINUE消去)をしてResultを出さずにホームへ戻る。
+    public bool QuietFinish { get; private set; }
+    public void FinishByChoice()
+    {
+        if (IsGameOver || !HasStarted) return;
+        QuietFinish = true;
+        IsWin = true;
+        FinishRun();
+        Debug.Log($"[LastDungeon] finished by choice (NO) at {MaxDistance:F0}m - no result screen, back to HOME");
+        RetryWithTransition();
+    }
+    // 三姉妹を倒した瞬間: 後回しになっていたレベルアップ/ボス報酬の選択を捨てる(エンドロールの途中で選択画面を出さない)。
+    public void DropPendingChoicesForFinale()
+    {
+        pendingLevelUpCount = 0;
+        levelUpDeferredTimer = -1f;
+        bossRewardDeferredPending = false;
+    }
+
+    // 状態遷移ログ用(2026-10-02): フリーズ/二重遷移の調査で「最後にどの状態だったか」を1行で
+    public string DebugStateLine()
+    {
+        var bm = BossManager.Instance; var pc = PlayerController.Instance;
+        return $"started={HasStarted} over={IsGameOver} win={IsWin} ts={Time.timeScale:F2} pause=[{TimeControl.DescribeActiveReasons()}] levelUp={levelUpPending} choiceSeq={IsRewardSequenceRunning}"
+            + $" boss={(bm != null && bm.IsBossPhase)}/{(bm != null && bm.HoldsRun)} lives={Lives}/{maxLives} d={MaxDistance:F0}"
+            + (pc != null ? $" autoRun={pc.autoRunEnabled} v={pc.CurrentAutoRunSpeed:F1} idle={pc.IsStandingIdle} finishing={pc.IsFinishing}" : " pc=none")
+            + $" escapeBlocked={EscapeBlocked} expBlocked={BlockExpGain}";
+    }
+
+    // 変化した時だけログに出す用(数値の細かい変化を含めない)
+    public string DebugStateLineCoarse()
+    {
+        var bm = BossManager.Instance; var pc = PlayerController.Instance;
+        string ts = Time.timeScale <= 0.001f ? "0" : Time.timeScale >= 0.999f ? "1" : "slow";
+        return $"started={HasStarted} over={IsGameOver} win={IsWin} ts={ts} levelUp={levelUpPending} choiceSeq={IsRewardSequenceRunning} boss={(bm != null && bm.IsBossPhase)}/{(bm != null && bm.HoldsRun)}"
+            + (pc != null ? $" autoRun={pc.autoRunEnabled} idle={pc.IsStandingIdle} finishing={pc.IsFinishing}" : "")
+            + $" escapeBlocked={EscapeBlocked} expBlocked={BlockExpGain}";
+    }
 
     // Item 3 - one-shot "ESCAPE AVAILABLE" banner the first time
     // EscapeAvailable flips true this Run (see Update()/DrawEscapeUI).
@@ -297,6 +386,8 @@ public class GameManager : MonoBehaviour
     public float safeZoneLength = 15f;
     float safeZoneEndDistance = -1f;
     public bool IsInSafeZone => safeZoneEndDistance > 0f && MaxDistance < safeZoneEndDistance;
+    // マルチ Phase 3.1: 任意の距離(最前のプレイヤーの距離など)が開始直後の安全区間か
+    public bool IsDistanceInSafeZone(float distance) => safeZoneEndDistance > 0f && distance < safeZoneEndDistance;
 
     // Item 6/7 - Boss Reward reuses the exact same pending-choice machinery
     // as a normal Level Up (pendingChoices/levelUpPending/RewardCardSequence)
@@ -306,7 +397,11 @@ public class GameManager : MonoBehaviour
     // ApplyUpgradeByCardId knows whether to also SaveCheckpoint() (Boss
     // Reward only - a normal mid-run Level Up is not a checkpoint moment)
     // and RewardCardSequence knows which announcement text to show.
-    enum PendingChoiceKind { LevelUp, BossReward }
+    // Bugfix 2026-09-08 (Bug #001 診断フェーズ) - widened from private to
+    // public purely so BossDiagnostics (a separate class) can read/report
+    // this in its Freeze Snapshot without GameManager needing to expose a
+    // duplicate string-typed accessor - no other behavior change.
+    public enum PendingChoiceKind { LevelUp, BossReward }
     PendingChoiceKind pendingChoiceKind = PendingChoiceKind.LevelUp;
 
     // Presentation Priority pass, extended - same deferred-until-Boss-
@@ -332,40 +427,217 @@ public class GameManager : MonoBehaviour
     // card is exactly the kind of thing worth dedicating a Character Card
     // slot to.
     public const int CharacterCardSlotCount = 3;
+    // 2026-10-02: キャラカード枠はキャラごと(PlayerPrefs "CharacterCardSlots.<characterId>")。
+    // characterCardIds/Levels は「今編集/使用しているキャラ」(CharacterCardOwnerId)の3枠。Run開始時はRunのキャラへ切り替える。
+    public const string CharacterCardSlotsPrefix = "CharacterCardSlots.";
     readonly string[] characterCardIds = new string[CharacterCardSlotCount];
     readonly int[] characterCardLevels = new int[CharacterCardSlotCount];
+    public string CharacterCardOwnerId { get; private set; }
+    readonly Dictionary<string, (string[] ids, int[] levels)> slotCache = new Dictionary<string, (string[] ids, int[] levels)>();
     public IReadOnlyList<string> CharacterCardIds => characterCardIds;
     public int GetCharacterCardLevel(int slot) => (slot >= 0 && slot < CharacterCardSlotCount) ? Mathf.Max(1, characterCardLevels[slot]) : 1;
 
+    // ===== キャラクター選択(2026-09-12) ===== //
+    // 「どの主人公を使うか」の永続化 - Homeでいつでも変更できる「次回
+    // NEW RUNの既定値」。プレイアブル主人公追加(2026-09-12、お嬢様騎士)
+    // 以降は実際の戦闘性能にも反映されるが、あくまで"次回"の既定値であり、
+    // 既にActiveなRun自身のキャラクター(RunCheckpoint.Data.characterId/
+    // activeRunCharacterId)には一切影響しない。
+    public string SelectedCharacterId { get; private set; }
+
+    // Run開始時(StartGame)にSelectedCharacterIdのスナップショットとして
+    // 記録し、以後そのRunがずっと使い続けるキャラクターID。Continueでは
+    // RunCheckpoint.Data.characterId(保存済みのRunが実際に使っていた値)
+    // から復元する - SelectedCharacterIdをそのまま使わないのは、Continue
+    // より前にHomeでCharacter Selectの選択を変えてしまった場合にRunの
+    // キャラクターが差し替わってしまうのを防ぐため(マスターの明示要件)。
+    string activeRunCharacterId;
+
+    // ステージ選択導線追加(2026-09-12) - activeRunCharacterIdと全く同じ
+    // 理由・同じ役割。Run開始時にSelectedStageIdをスナップショットし、
+    // Continueでは必ずRunCheckpoint.Data.stageId(保存済みのRunが実際に
+    // 出発したステージ)から復元する - Homeで選択ステージを変えても既に
+    // Activeなrunには影響しない。
+    string activeRunStageId;
+    // ObstacleSpawner等、「今このRunがどのステージなのか」をゲームプレイ
+    // ロジック側から参照する必要がある場所向けの読み取り専用アクセサ。
+    public string ActiveRunStageId => activeRunStageId;
+
+    // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - Run開始時
+    // (StartGame/BeginContinuedRunの両方、ApplyCharacterCardEffectsより
+    // 前)に一度だけ呼ばれ、選択中/保存済みキャラクターのベース性能を
+    // maxLives/Lives、およびPlayerController側の各種性能へ適用する。
+    // defがnull(未知のcharacterId等の異常系)の場合は何もせず、Awake()で
+    // 既に設定済みの既定値のまま進む(安全側 - 黒剣士相当のまま)。
+    void ApplyCharacterBaseStats(CharacterDefinition def)
+    {
+        if (def == null) return;
+        maxLives = def.baseMaxLives;
+        Lives = def.baseLives;
+        if (PlayerController.Instance != null)
+        {
+            PlayerController.Instance.ApplyCharacterBaseStats(def);
+            // キャラクター専用アニメーション差し替え(2026-09-13) - 見た目
+            // (Sprite)側はPlayerAnimatorが別コンポーネントとして持つため、
+            // ここでもう一段委譲する。
+            PlayerAnimator animator = PlayerController.Instance.GetComponent<PlayerAnimator>();
+            if (animator != null) animator.ApplyCharacterAnimationSet(def);
+        }
+    }
+
+    void LoadSelectedCharacter()
+    {
+        string saved = PlayerPrefs.GetString(SelectedCharacterKey, "");
+        // 未保存(初回起動)、または保存値がデータベースに存在しない(アセ
+        // ットが削除された等)場合は、CharacterDatabaseの先頭(=黒剣士、
+        // CharacterDatabaseBuilder.Specsのswordsman、sortOrder=0)へ安全に
+        // フォールバックする。現在の黒剣士の戦闘性能・スプライトはこの値
+        // に一切影響を受けないため、フォールバックしても実際のプレイには
+        // 何の影響もない。
+        if (!string.IsNullOrEmpty(saved) && CharacterDatabase.FindById(saved) != null)
+        {
+            SelectedCharacterId = saved;
+            return;
+        }
+        var all = CharacterDatabase.AllCharacters;
+        SelectedCharacterId = DefaultSave.StartingCharacterId(); // 初期状態の定義は DefaultSave(2026-10-01)
+    }
+
+    // Character Select画面のSELECTからのみ呼ばれる。「選択キャラクター=
+    // 次回NEW RUNで使用するキャラクター」という仕様どおり、Active Run/
+    // Checkpoint(RunCheckpoint.cs)には一切触れない - RunCheckpointはそもそ
+    // も「どのキャラクターで走っているか」という概念自体を持たないため、
+    // Continue中のRunがこの変更で差し替わることは構造的に起こり得ない。
+    public void SetSelectedCharacter(string characterId)
+    {
+        if (string.IsNullOrEmpty(characterId) || CharacterDatabase.FindById(characterId) == null) return;
+        SelectedCharacterId = characterId;
+        SetCharacterCardOwner(characterId); // キャラカード枠もそのキャラの物へ(2026-10-02)
+        PlayerPrefs.SetString(SelectedCharacterKey, characterId);
+        PlayerPrefs.Save();
+    }
+
+    // ===== ステージ選択(2026-09-12) ===== //
+    // 「どのステージへ出発するか」の永続化 - Homeでいつでも変更できる
+    // 「次回NEW RUNの既定値」。SelectedCharacterIdと全く同じ設計、CONTINUE
+    // には一切影響しない(RunCheckpoint.Data.stageIdがそのRun自身の値を
+    // 別途保持する - activeRunStageIdのコメント参照)。
+    public string SelectedStageId { get; private set; }
+
+    void LoadSelectedStage()
+    {
+        string saved = PlayerPrefs.GetString(SelectedStageKey, "");
+        StageDefinition savedDef = StageDatabase.FindById(saved);
+        if (!string.IsNullOrEmpty(saved) && savedDef != null && StageDatabase.IsAvailable(savedDef))
+        {
+            SelectedStageId = saved;
+            return;
+        }
+        // 未保存、保存値が存在しない、または保存値が(その後ロックされた
+        // 等で)未開放の場合は、開放済みの先頭ステージへ安全にフォール
+        // バックする(sortOrder順、CharacterDatabase.LoadSelectedCharacter
+        // と同じ考え方)。
+        foreach (StageDefinition def in StageDatabase.AllStages)
+        {
+            if (StageDatabase.IsAvailable(def)) { SelectedStageId = def.stageId; return; }
+        }
+        SelectedStageId = null;
+    }
+
+    // Stage Select画面のDepartFromStageSelectからのみ呼ばれる。「選択
+    // ステージ=次回NEW RUNで出発するステージ」という仕様どおり、Active
+    // Run/Checkpoint(RunCheckpoint.cs)には一切触れない。
+    public void SetSelectedStage(string stageId)
+    {
+        StageDefinition def = StageDatabase.FindById(stageId);
+        if (def == null || !StageDatabase.IsAvailable(def)) return;
+        SelectedStageId = stageId;
+        if (DebugRun.BlocksSave("SelectedStageId")) return;
+        PlayerPrefs.SetString(SelectedStageKey, stageId);
+        PlayerPrefs.Save();
+    }
+
     void LoadCharacterCards()
     {
-        string saved = PlayerPrefs.GetString(CharacterCardSlotsKey, "");
-        string[] entries = saved.Split(',');
+        MigrateSharedCharacterCards();
+        slotCache.Clear();
+        CharacterCardOwnerId = null;
+        SetCharacterCardOwner(!string.IsNullOrEmpty(SelectedCharacterId) ? SelectedCharacterId : (CharacterDatabase.AllCharacters.Count > 0 ? CharacterDatabase.AllCharacters[0].characterId : "swordsman"));
+    }
+
+    // 旧: 全キャラ共通の3枠(CharacterCardSlots) → 今選んでいるキャラの枠へ移す(他のキャラは空から)。1回だけ
+    void MigrateSharedCharacterCards()
+    {
+        if (!PlayerPrefs.HasKey(CharacterCardSlotsKey)) return;
+        string shared = PlayerPrefs.GetString(CharacterCardSlotsKey, "");
+        string owner = !string.IsNullOrEmpty(SelectedCharacterId) ? SelectedCharacterId : "swordsman";
+        if (!string.IsNullOrEmpty(shared.Replace(",", "")) && !PlayerPrefs.HasKey(CharacterCardSlotsPrefix + owner))
+            PlayerPrefs.SetString(CharacterCardSlotsPrefix + owner, shared);
+        PlayerPrefs.DeleteKey(CharacterCardSlotsKey);
+        PlayerPrefs.Save();
+        Debug.Log($"[CharacterCards] shared slots moved to {owner}: '{shared}'");
+    }
+
+    (string[] ids, int[] levels) ReadSlots(string characterId)
+    {
+        var ids = new string[CharacterCardSlotCount];
+        var levels = new int[CharacterCardSlotCount];
+        string[] entries = PlayerPrefs.GetString(CharacterCardSlotsPrefix + characterId, "").Split(',');
         for (int i = 0; i < CharacterCardSlotCount; i++)
         {
-            characterCardIds[i] = null;
-            characterCardLevels[i] = 1;
+            levels[i] = 1;
             if (i >= entries.Length || string.IsNullOrEmpty(entries[i])) continue;
-            // Each entry is "cardId:level" - see SaveCharacterCards.
             string[] parts = entries[i].Split(':');
             string id = parts[0];
             if (string.IsNullOrEmpty(id) || CardDatabase.FindById(id) == null) continue;
             int level = 1;
             if (parts.Length > 1) int.TryParse(parts[1], out level);
-            characterCardIds[i] = id;
-            characterCardLevels[i] = Mathf.Max(1, level);
+            ids[i] = id;
+            levels[i] = Mathf.Max(1, level);
         }
+        return (ids, levels);
+    }
+
+    // 全キャラの枠(今のキャラは編集中の値)
+    IEnumerable<KeyValuePair<string, (string[] ids, int[] levels)>> AllCharacterSlots()
+    {
+        foreach (var def in CharacterDatabase.AllCharacters)
+        {
+            if (def == null) continue;
+            string id = def.characterId;
+            if (id == CharacterCardOwnerId) { yield return new KeyValuePair<string, (string[] ids, int[] levels)>(id, (characterCardIds, characterCardLevels)); continue; }
+            if (!slotCache.TryGetValue(id, out var s)) { s = ReadSlots(id); slotCache[id] = s; }
+            yield return new KeyValuePair<string, (string[] ids, int[] levels)>(id, s);
+        }
+    }
+
+    // 編集/使用するキャラの枠へ切り替える
+    public void SetCharacterCardOwner(string characterId)
+    {
+        if (string.IsNullOrEmpty(characterId) || characterId == CharacterCardOwnerId) return;
+        var s = ReadSlots(characterId);
+        for (int i = 0; i < CharacterCardSlotCount; i++) { characterCardIds[i] = s.ids[i]; characterCardLevels[i] = s.levels[i]; }
+        CharacterCardOwnerId = characterId;
+    }
+
+    // 別のキャラの枠を見るだけ(切り替えない)。キャラ選択の表示用
+    public (string[] ids, int[] levels) GetCharacterCardsOf(string characterId)
+    {
+        if (characterId == CharacterCardOwnerId) return ((string[])characterCardIds.Clone(), (int[])characterCardLevels.Clone());
+        return ReadSlots(characterId);
     }
 
     void SaveCharacterCards()
     {
+        if (string.IsNullOrEmpty(CharacterCardOwnerId)) return;
         string[] entries = new string[CharacterCardSlotCount];
         for (int i = 0; i < CharacterCardSlotCount; i++)
         {
             entries[i] = string.IsNullOrEmpty(characterCardIds[i]) ? "" : $"{characterCardIds[i]}:{characterCardLevels[i]}";
         }
-        PlayerPrefs.SetString(CharacterCardSlotsKey, string.Join(",", entries));
+        PlayerPrefs.SetString(CharacterCardSlotsPrefix + CharacterCardOwnerId, string.Join(",", entries));
         PlayerPrefs.Save();
+        slotCache.Remove(CharacterCardOwnerId);
     }
 
     // Only allowed to equip a card the player actually owns at least one
@@ -387,7 +659,8 @@ public class GameManager : MonoBehaviour
         // other stack must have at least 1 copy free after Deck/other
         // Character Card slots' own locks (see GetAvailableCountForStack).
         bool sameAsCurrent = characterCardIds[slot] == cardId && characterCardLevels[slot] == level;
-        if (!sameAsCurrent && GetAvailableCountForStack(cardId, level) <= 0) return false;
+        int freeForOwner = CardInventory.GetCount(cardId, level) - GetDeckLockedCountForStack(cardId, level) - GetOwnerCharacterCardCountForStack(cardId, level);
+        if (!sameAsCurrent && freeForOwner <= 0) return false;
         characterCardIds[slot] = cardId;
         characterCardLevels[slot] = Mathf.Max(1, level);
         SaveCharacterCards();
@@ -403,10 +676,7 @@ public class GameManager : MonoBehaviour
     public bool IsCardInUse(string cardId)
     {
         if (string.IsNullOrEmpty(cardId)) return false;
-        for (int i = 0; i < CharacterCardSlotCount; i++)
-        {
-            if (characterCardIds[i] == cardId) return true;
-        }
+        if (MaxCharacterSlotUses(cardId, -1) > 0) return true;
         return deckCards.Contains(cardId);
     }
 
@@ -425,7 +695,10 @@ public class GameManager : MonoBehaviour
             if (string.IsNullOrEmpty(id)) continue;
             CardDefinition card = CardDatabase.FindById(id);
             if (card == null) continue;
-            int stacks = Mathf.Max(1, characterCardLevels[i]);
+            // カード合成改修(2026-09-26) - 合成カード(v2キー)は能力ごとの強化量が
+            // 定義(effects)に既に含まれているので1回だけ適用する(合成Lvを掛けると
+            // 二重適用になる)。素のカードIDは常にLv.1=1回。
+            int stacks = CardVariant.IsVariantKey(id) ? 1 : Mathf.Max(1, characterCardLevels[i]);
             ApplyCardEffectsStacked(card, stacks);
             // Bugfix 2026-09-05, item 4 - "Card Lv表示だけ増えて実Effectが
             // 1回しか適用されていないケースがないか". Code review found the
@@ -440,9 +713,10 @@ public class GameManager : MonoBehaviour
     public float retryDelayAfterGameOver = 3f;
 
     [Header("Lives")]
-    public int startingLives = 3;
-    public int maxLives = 5;
-    public int maxLivesCap = 10;
+    // 2026-10-02: HPは10倍のスケール(ハート1つ=10)。CombatScale参照
+    public int startingLives = 30;
+    public int maxLives = 50;
+    public int maxLivesCap = 100;
 
     [Header("Leveling")]
     // EXP trickles in from distance covered, plus lump sums from kills -
@@ -477,6 +751,9 @@ public class GameManager : MonoBehaviour
     public Texture2D titleLogo;
     public Texture2D topBackground;
     public Texture2D topCloud;
+    // 環境アニメーション構造修正依頼(2026-09-18) - カーテン単体の透過素材
+    // (DrawCurtainSway参照)。topBackground自体は既にカーテンを消した版。
+    public Texture2D homeCurtain;
     // Decorative navy+gold+blue-accent frame (Assets/Art/UI/OrnateFrame.png)
     // for START/DECK/BEST - see OrnateUi, assigned to its static field in
     // Awake().
@@ -503,6 +780,13 @@ public class GameManager : MonoBehaviour
     // the actual painted room objects regardless of device aspect ratio.
     Rect bgRoomRect;
 
+    // Home画面改善依頼⑦(2026-09-16), item 8 - doorRect(下のOnGUI内で
+    // FracRect(bgRoomRect, 0.40f, 0.14f, 0.565f, 0.65f)として定義)のx0/x1
+    // の中点をそのまま定数化したもの。ロゴ・NEXT STAGEの中心をこの値へ
+    // 揃えることで「扉の中心を基準に縦軸を揃える」を実現する。doorRectの
+    // フラクションを変える場合は、この値も必ず一緒に更新すること。
+    const float DoorCenterFrac = (0.40f + 0.565f) / 2f;
+
     // "少し光る" tap feedback - each hotspot gets its own brief flash timer,
     // same decay pattern as startPressFlashTimer above (ticks down in
     // Update(), unscaled).
@@ -511,10 +795,49 @@ public class GameManager : MonoBehaviour
     float bedHotspotFlashTimer;
     float bookHotspotFlashTimer;
     float deskHotspotFlashTimer;
+    // キャラクター選択画面(2026-09-12) - Home左上の新規ホットスポット用。
+    float characterHotspotFlashTimer;
 
     // Desk "CARD GACHA" machine prop, drawn directly onto the room scene
     // (not its own screen/canvas) - see SceneBuilder for the import.
     public Texture2D gachaMachineTexture;
+    // Home画面 / Stage Select改善依頼(2026-09-16), item2 - Characterの肖像画
+    // (壁に飾られた額縁)用のフレーム画像(ChatGPT生成、透明中央窓+木/金の
+    // 縁)。DrawCharacterHotspot参照 - フレーム自身のアスペクト比を保った
+    // まま表示し、その内側の透明窓(実測、フレーム自身の幅80.2%×高さ
+    // 79.5%・x=9.85%~90.06%/y=13.02%~92.51%)へ選択中キャラのポートレート
+    // を重ねる。
+    public Texture2D portraitFrameTexture;
+    // Home画面改善依頼⑨(2026-09-17), item1 - 「壁に長く飾られた装飾画」に
+    // 寄せるための紙/キャンバス質感の経年風オーバーレイ(ChatGPT生成予定、
+    // 未生成の間はnullのまま安全にスキップ - DrawCharacterHotspot参照)。
+    public Texture2D portraitAgingOverlayTexture;
+    // Home環境アニメーション強化+肖像画背景追加依頼(2026-09-17) -
+    // キャラportraitテクスチャ自身が透明背景の切り抜きなので、額縁の窓
+    // いっぱいにこの共通背景(暗い油彩風、ChatGPT生成)を先に敷いてから
+    // portraitを重ねる - 「切り抜きを貼った」感を減らし、額縁の中で1枚の
+    // 絵として成立させる。全キャラ共通(キャラごとに用意しない)。
+    public Texture2D portraitBackdropTexture;
+
+    // Home待機演出(2026-09-21) - HomeIdleFx.cs参照。扉の葉/開口部の奥の光/
+    // ベッド上のカード(A,B,C,D,E,G,H)は背景から分離した独立の透過素材。
+    // 背景(topBackground)側は、これらを除去して補完済みの版。
+    public Texture2D homeDoorLeaf;
+    public Texture2D homeDoorBackdrop;
+    public Texture2D[] homeIdleCards;
+    // 待ち時間/揺れ幅/動作時間/発光量/コイン出現率/粒子数などの調整値。
+    public HomeIdleSettings homeIdle = new HomeIdleSettings();
+    HomeIdleFx idleFx;
+
+    HomeIdleFx GetIdleFx()
+    {
+        if (idleFx == null) idleFx = new HomeIdleFx(homeIdle);
+        idleFx.S = homeIdle;
+        idleFx.doorLeaf = homeDoorLeaf;
+        idleFx.doorBackdrop = homeDoorBackdrop;
+        idleFx.cards = homeIdleCards;
+        return idleFx;
+    }
     // Ver.1 finishing pass, item 8 - "短いSE" tap feedback for the room's
     // hotspots (door/bed/book/desk). Reuses the existing Card Select SE
     // (already imported for RewardCardSequence) rather than adding new
@@ -583,6 +906,33 @@ public class GameManager : MonoBehaviour
     public void CloseDeckEdit()
     {
         deckEditOpen = false;
+        // 編集で他のキャラの枠を見ていた: 選んでいるキャラの枠へ戻す
+        if (!string.IsNullOrEmpty(SelectedCharacterId)) SetCharacterCardOwner(SelectedCharacterId);
+        // キャラ選択の「カード設定」から来た: キャラ選択へ戻る(画面を覆っている間に呼ばれる)
+        if (returnToCharacterSelect && characterSelectUI != null)
+        {
+            returnToCharacterSelect = false;
+            characterSelectOpen = true;
+            characterSelectUI.OpenAt(returnCharacterId);
+        }
+    }
+
+    bool returnToCharacterSelect; string returnCharacterId;
+    // キャラ選択 →(画面切り替え)→ デッキ編集のキャラカード枠(そのキャラ)。閉じるとキャラ選択へ戻る
+    public void OpenCharacterCardsFromSelect(string characterId)
+    {
+        if (deckEditUI == null || characterSelectUI == null) return;
+        if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
+        System.Action go = () =>
+        {
+            characterSelectUI.HideImmediate();
+            characterSelectOpen = false;
+            returnToCharacterSelect = true; returnCharacterId = characterId;
+            deckEditOpen = true;
+            deckEditUI.OpenForCharacter(characterId);
+        };
+        if (ScreenTransitionManager.Instance != null) ScreenTransitionManager.Instance.PlayTransition(() => go());
+        else go();
     }
 
     // Home Room UI reconstruction pass - renamed from the old combined
@@ -596,11 +946,67 @@ public class GameManager : MonoBehaviour
     public CardFusionUI cardFusionUI;
     bool cardFusionOpen;
 
+    // キャラクター選択画面(2026-09-12) - DeckEdit/CardFusionと全く同じ
+    // 「ScreenTransitionManagerのGold Slash Wipeが完全に覆ってから開く」
+    // 開閉パターン(OpenDeckEdit/OpenCardFusionのコメント参照)。
+    public CharacterSelectUI characterSelectUI;
+    bool characterSelectOpen;
+
+    // ステージ選択導線追加(2026-09-12) - CharacterSelectと全く同じ
+    // 開閉パターン。
+    public StageSelectUI stageSelectUI;
+    bool stageSelectOpen;
+
     // Every OnGUI guard that used to check "!deckEditOpen" alone now also
     // needs to hide while the Card Fusion overlay is open - folded into
     // one helper so those call sites don't need two separate negated
     // conditions each.
-    bool AnyOverlayOpen => deckEditOpen || cardFusionOpen;
+    bool AnyOverlayOpen => deckEditOpen || cardFusionOpen || characterSelectOpen || stageSelectOpen;
+    public bool IsOverlayOpen => AnyOverlayOpen;
+
+    public void OpenCharacterSelect()
+    {
+        if (characterSelectUI == null) return;
+        if (ScreenTransitionManager.Instance != null)
+        {
+            if (ScreenTransitionManager.Instance.IsTransitioning) return;
+            ScreenTransitionManager.Instance.PlayTransition(() =>
+            {
+                characterSelectOpen = true;
+                characterSelectUI.Open();
+            });
+            return;
+        }
+        characterSelectOpen = true;
+        characterSelectUI.Open();
+    }
+
+    public void CloseCharacterSelect()
+    {
+        characterSelectOpen = false;
+    }
+
+    public void OpenStageSelect()
+    {
+        if (stageSelectUI == null) return;
+        if (ScreenTransitionManager.Instance != null)
+        {
+            if (ScreenTransitionManager.Instance.IsTransitioning) return;
+            ScreenTransitionManager.Instance.PlayTransition(() =>
+            {
+                stageSelectOpen = true;
+                stageSelectUI.Open();
+            });
+            return;
+        }
+        stageSelectOpen = true;
+        stageSelectUI.Open();
+    }
+
+    public void CloseStageSelect()
+    {
+        stageSelectOpen = false;
+    }
 
     public void OpenCardFusion()
     {
@@ -636,6 +1042,12 @@ public class GameManager : MonoBehaviour
         if (bedHotspotFlashTimer > 0f) bedHotspotFlashTimer -= Time.unscaledDeltaTime;
         if (bookHotspotFlashTimer > 0f) bookHotspotFlashTimer -= Time.unscaledDeltaTime;
         if (deskHotspotFlashTimer > 0f) deskHotspotFlashTimer -= Time.unscaledDeltaTime;
+        // 不具合修正(2026-09-12、ステージ選択導線追加のついでに発見) -
+        // characterHotspotFlashTimerがこの減衰リストに元々含まれておらず、
+        // Characterホットスポットをタップした後、金色のタップフラッシュが
+        // 消えずに表示され続けたままになる不具合があった(前回パスの
+        // 見落とし)。
+        if (characterHotspotFlashTimer > 0f) characterHotspotFlashTimer -= Time.unscaledDeltaTime;
         if (gachaInsufficientMessageTimer > 0f) gachaInsufficientMessageTimer -= Time.unscaledDeltaTime;
 
         if (gachaMachineShakeTimer > 0f)
@@ -746,7 +1158,7 @@ public class GameManager : MonoBehaviour
         pendingGachaCard = drawn;
         gachaMachineShakeTimer = gachaMachineShakeDuration;
         deskHotspotFlashTimer = roomHotspotFlashDuration;
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(roomTapSe);
+        if (AudioManager.Instance != null) { AudioManager.Instance.PlaySe(SeId.Gacha); AudioManager.Instance.PlaySe(SeId.Coin); }
     }
 
     public bool HasStarted { get; private set; }
@@ -754,11 +1166,44 @@ public class GameManager : MonoBehaviour
     public bool IsWin { get; private set; }
     public float MaxDistance { get; private set; }
     public float BestDistance { get; private set; }
+
+    // ===== マップ別BEST(2026-09-22) =====
+    // 保存キーは表示名ではなく安定したステージIDで分ける("BestDistance_v2_<stageId>")。値は倍精度をinvariantな文字列で保存。
+    // 旧・共通のBestDistance(float)は「どのマップの記録か」を示す情報が無いので、どのマップにも割り当てず、
+    // 解放/ガチャ進行の全体最高距離としてのみ従来どおり使う。旧値は初回起動時に別キーへ退避して保持する。
+    const string StageBestKeyPrefix = "BestDistance_v2_";
+    const string LegacyBestBackupKey = "BestDistance_legacyBackup";
+    readonly System.Collections.Generic.Dictionary<string, double> stageBestCache = new System.Collections.Generic.Dictionary<string, double>();
+
+    public double GetStageBest(string stageId)
+    {
+        if (string.IsNullOrEmpty(stageId)) return 0.0;
+        if (stageBestCache.TryGetValue(stageId, out double v)) return v;
+        string s = PlayerPrefs.GetString(StageBestKeyPrefix + stageId, "");
+        double.TryParse(s, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out v);
+        stageBestCache[stageId] = v;
+        return v;
+    }
+
+    void SetStageBest(string stageId, double value)
+    {
+        if (string.IsNullOrEmpty(stageId)) return;
+        if (DebugRun.BlocksSave("StageBest " + stageId)) return; // 記録対象外のラン: キャッシュも変えない(HUDのBESTも元のまま)
+        stageBestCache[stageId] = value;
+        PlayerPrefs.SetString(StageBestKeyPrefix + stageId, value.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+    }
+
+    // HUD/タイトルに出すBEST対象のステージ: ラン中はそのランのステージ、タイトルでは次に出発する選択中ステージ。
+    string BestDisplayStageId => HasStarted && !string.IsNullOrEmpty(activeRunStageId) ? activeRunStageId : SelectedStageId;
+    double BestDisplayValue => GetStageBest(BestDisplayStageId);
     public float BestTime { get; private set; }
     public float RunTime { get; private set; }
     public bool InvincibleMode { get; private set; }
     public bool DebugMode { get; private set; }
     public int Lives { get; private set; }
+    public int MaxLives => maxLives;
+    // マルチプレイPhase 2.5: この端末でカード選択(レベルアップ/ボス報酬)を開いているか。
+    public bool IsLocalChoiceOpen => levelUpPending;
     public int Level { get; private set; } = 1;
     public float Exp { get; private set; }
     public float ExpToNext { get; private set; }
@@ -771,10 +1216,29 @@ public class GameManager : MonoBehaviour
 
     ScreenOrientation preferredOrientation;
     float gameOverTime;
+    // ===== 死亡の流れ(2026-10-01、死神接触の後に止まる件) =====
+    // 結果画面の「Tap to Retry」までの待ちは実時間で数える(何かが時間を止めていても結果画面から先へ進める)。
+    float gameOverRealtime;
+    public float SecondsSinceGameOver => !IsGameOver ? 0f : QaLegacyDeathBehaviour ? Time.time - gameOverTime : Time.realtimeSinceStartup - gameOverRealtime;
+    public bool RetryAllowedNow => IsGameOver && !QuietFinish && SecondsSinceGameOver >= retryDelayAfterGameOver;
+    public string DeathReason { get; private set; } = "";
+    public int FinishRunCalls { get; private set; }        // 自動テスト用: 1回だけのはず
+    public int DamageAfterDeathIgnored { get; private set; } // 死亡後に来て無視したダメージ/即死の要求
+    public bool ResultShown { get; private set; }
+    float gameOverPausedTimer;
+    public static int GameOverUnpauseCount;
+    // 確認用(-qaReaperDeath): 修正前の死亡の流れ(Time.timeで待つ/死神を止めない/時間停止の見張り無し/FinishRunの二重呼び出しを通す)。通常は常にfalse
+    public static bool QaLegacyDeathBehaviour;
     float runStartTime;
 
     bool levelUpPending;
     CardDefinition[] pendingChoices;
+    // 高速走行中のフリーズ/ワープ調査(2026-09-22) - Time.timeScaleへの
+    // 直接書き込みをTimeControl(理由付き参照カウント)へ一本化する際の
+    // owner。Level Up/Boss Reward選択は同じlevelUpPendingフラグで排他制御
+    // されている(同時に両方Pendingにはならない)ため、共通の1つでよい。
+    static readonly object pendingChoiceTimeOwner = new object();
+    static readonly object pauseMenuTimeOwner = new object();
     // Diagnostic only - see TriggerLevelUpChoice.
     string lastLevelUpDiagnostic = "";
     // Every card picked this run, in order - drives the "obtained so far"
@@ -795,16 +1259,25 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        // RUN BUILD HUD(2026-09-29): ラン中の取得カード一覧。このRunのカード状態を表示するだけのView
+        // (GameManagerと同じObjectに付くので、シーン再読込=次Run/Homeで一緒に作り直される)。
+        if (GetComponent<RunBuildHud>() == null) gameObject.AddComponent<RunBuildHud>();
+        // BONUS ZONE(2026-09-29): 全ステージ共通のボーナス区画(このRunの間だけ、シーン再読込で作り直す)
+        if (GetComponent<BonusZone>() == null) gameObject.AddComponent<BonusZone>();
         // OrnateUi is a static helper (see its class comment) - this is the
         // one place its shared frame texture gets assigned, from the field
         // SceneBuilder already populated on this component.
         OrnateUi.FrameTexture = ornateFrame;
         BestDistance = PlayerPrefs.GetFloat(BestDistanceKey, 0f);
+        if (!PlayerPrefs.HasKey(LegacyBestBackupKey) && PlayerPrefs.HasKey(BestDistanceKey))
+            PlayerPrefs.SetFloat(LegacyBestBackupKey, BestDistance); // 元データを保持(マップへの割り当ては行わない)
         BestTime = PlayerPrefs.GetFloat(BestTimeKey, 0f);
-        InvincibleMode = PlayerPrefs.GetInt(InvincibleKey, 0) != 0;
-        DebugMode = PlayerPrefs.GetInt(DebugModeKey, 0) != 0;
+        // 2026-10-01: 開発版だけの機能。リリース版では保存値が残っていても有効にしない(表示も起動経路も無い)。
+        InvincibleMode = Debug.isDebugBuild && PlayerPrefs.GetInt(InvincibleKey, 0) != 0;
+        DebugMode = Debug.isDebugBuild && PlayerPrefs.GetInt(DebugModeKey, 0) != 0;
         Lives = startingLives;
         ExpToNext = expBaseForLevel2;
+        ClearResumeGate(); // 前のシーンの再開待ちの停止理由/慣らしを残さない(2026-10-03)
 
         preferredOrientation = (ScreenOrientation)PlayerPrefs.GetInt(OrientationKey, (int)ScreenOrientation.LandscapeLeft);
         Screen.orientation = preferredOrientation;
@@ -814,9 +1287,34 @@ public class GameManager : MonoBehaviour
         // already be correct. Backfills anything BestDistance already
         // qualifies for silently (no announcement - see UnlockManager).
         UnlockManager.Initialize(BestDistance);
+        // カード合成改修(2026-09-26) - 旧形式の所持カード/デッキ/キャラカードを
+        // 能力一式を持つ新形式へ一度だけ変換(以降は何もしない)。
+        CardDataMigration.RunIfNeeded();
         LoadDeck();
         LoadMile();
-        LoadCharacterCards();
+        LoadSelectedCharacter();
+        LoadCharacterCards(); // キャラごとの枠(2026-10-02): 選択中のキャラが決まってから
+        LoadSelectedStage();
+
+        // Bug #001 診断フェーズ (2026-09-08) - Application.logMessageReceived
+        // フックは一度だけ登録すれば十分(static event、二重登録防止は
+        // EnsureHooked自身が行う)。
+        BossDiagnostics.EnsureHooked();
+
+        // 高速走行中のフリーズ/ワープ調査(2026-09-22) - Unityの既定値
+        // (Maximum Allowed Timestep=0.333秒、ProjectSettings/TimeManager.
+        // asset)のままだと、GC/アセット読み込み等で実時間0.3秒級のヒッチが
+        // 起きた際、その1フレームのTime.deltaTimeがそのまま0.333秒に
+        // クランプされて渡ってしまう。高速走行中(基礎速度の倍率が上がって
+        // いる状態)はこの1フレームだけでプレイヤーが数十ユニット分まとめて
+        // 進んでしまい、「画面が一瞬止まって、再開時に位置が飛んだように
+        // 見える」不具合の主要因の1つになっていた(ヒッチ自体をゼロには
+        // できないが、1フレームが表せる移動量の上限を下げることで見た目の
+        // 飛びを大幅に軽減できる)。これはスローモーション演出の追加では
+        // なく、既存の実効速度計算(PlayerController.Move等、Time.deltaTime
+        // ベース)に対する上限のクランプのみ - 通常フレーム(1/60秒前後)の
+        // 挙動には一切影響しない。
+        Time.maximumDeltaTime = 0.1f;
     }
 
     // Item 11 - "強制終了による逃げ対策": mobile OSes suspend/kill a
@@ -829,16 +1327,30 @@ public class GameManager : MonoBehaviour
     // the run has already ended.
     void OnApplicationPause(bool pauseStatus)
     {
+        if (pauseStatus) ProgressStats.Flush(true); // 累計走行距離/遭遇を失わない(2026-10-01)
         if (pauseStatus) SaveInterruptState();
+        if (pauseStatus) OnResumeGateAppInterrupted("app paused"); // 再開のカウントダウン中なら準備画面へ戻す(2026-10-03)
+        else FreezeDiagnostics.NoteAppResumed(); // 復帰直後の長いフレームは処理落ちではない
+    }
+
+    void OnApplicationFocus(bool hasFocus)
+    {
+        if (hasFocus) FreezeDiagnostics.NoteAppResumed();
+        else OnResumeGateAppInterrupted("focus lost");
     }
 
     void OnApplicationQuit()
     {
+        ProgressStats.Flush(true);
         SaveInterruptState();
     }
 
     void Update()
     {
+        HandleBackButton();
+        UpdateCountdownSe();
+        UpdateResumeGate(); // 中断セーブからの再開の準備時間(2026-10-03)
+        UpdateResumeCountdownSe();
         if (!HasStarted)
         {
             // Starting now happens only via the on-screen START button (see
@@ -856,7 +1368,8 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        bool retryAllowed = IsGameOver && Time.time - gameOverTime >= retryDelayAfterGameOver;
+        UpdateGameOverGuard();
+        bool retryAllowed = RetryAllowedNow;
         if (retryAllowed && (Input.GetKeyDown(KeyCode.R) || WasTappedOrClicked()))
         {
             RetryWithTransition();
@@ -865,9 +1378,11 @@ public class GameManager : MonoBehaviour
         if (DebugMode) UpdateDebugSpeedTracking();
 
         UpdateUnlockAnnouncement();
+        EnforceNetChoicePriority();
         UpdateDeferredLevelUp();
         UpdateDeferredBossReward();
         UpdatePendingChoiceWatchdog();
+        UpdateStallGuards();
 
         if (heartDamageFlashTimer > 0f) heartDamageFlashTimer -= Time.deltaTime;
         // Level Up Presentation pass - unscaledDeltaTime (not deltaTime)
@@ -879,6 +1394,17 @@ public class GameManager : MonoBehaviour
 
         // Item 3 - one-shot "ESCAPE AVAILABLE" banner countdown.
         if (escapeAvailableBannerTimer > 0f) escapeAvailableBannerTimer -= Time.unscaledDeltaTime;
+
+        // Bug #001 診断フェーズ (2026-09-08) - 毎フレーム末尾で呼ぶ(この
+        // フレーム中に他の処理が行った状態変化を全て反映した「最終状態」
+        // を見るため)。両方とも監視/記録のみで、Gameplayには一切影響しない。
+        BossDiagnostics.PollStateTransitions();
+        BossDiagnostics.UpdateFreezeWatchdog();
+        // 高速走行中のフリーズ/ワープ調査(2026-09-22) - Boss Phase専用の
+        // 上2つとは別に、通常時(Level Up/被弾/HitStop絡み)も含めて毎フレーム
+        // 記録する。DebugModeの有無に関わらず常時軽量に記録し、異常時だけ
+        // 詳細を書き出す(FreezeDiagnostics自身のコメント参照)。
+        FreezeDiagnostics.Tick();
     }
 
     // Distance-unlock system - shows a brief "NEW UNLOCK" toast the first
@@ -985,9 +1511,143 @@ public class GameManager : MonoBehaviour
     bool startTransitioning;
     float startTransitionOverlayAlpha;
 
+    // Run開始の瞬間に確定させる値・副作用をまとめたもの。StartGame()と
+    // DepartFromStageSelect()の両方から、それぞれの画面遷移が完全に画面を
+    // 覆った瞬間(onFullyCovered/フェード最深部)に一度だけ呼ばれる - 2箇所
+    // に全く同じ処理を書いていた重複を解消した共通ヘルパー。
+    void ApplyGameStart(string stageIdOverride = null)
+    {
+        HasStarted = true;
+        runStartTime = Time.time;
+        activeRunCharacterId = SelectedCharacterId;
+        activeRunStageId = stageIdOverride ?? SelectedStageId;
+        if (TerrainManager.Instance != null) TerrainManager.Instance.ApplyStageTheme(activeRunStageId);
+        ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
+        SetCharacterCardOwner(activeRunCharacterId); // そのキャラのキャラカード枠(2026-10-02)
+        ApplyCharacterCardEffects();
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
+        StartCoroutine(RunStartCountdownRoutine());
+    }
+
+    // Stage01地形挙動修整(2026-09-17), item4 - 全ステージ共通のRun開始
+    // カウントダウン。HasStarted自体は(Home画面⇔ゲーム画面のOnGUI分岐や
+    // HUD表示を従来どおり保つため)このApplyGameStart呼び出し時点で即座に
+    // trueへ切り替える - ゲーム画面/HUDはすぐ表示される。プレイヤー操作/
+    // 敵の湧き/距離加算だけを、別途のCountdownActiveで止める
+    // (PlayerController.Update、ObstacleSpawner、EnemyWallManager、
+    // UpperRouteEnemySpawnerの各早期returnに追記)。BossManagerは意図的に
+    // 変更しない - Run開始直後(距離0)でBoss開始条件を満たすことはないため
+    // 無関係であり、誤ってBoss開始処理にもカウントダウンを適用してしまう
+    // リスクを避けるため既存の!HasStartedガードのみで済ませる。
+    // 「New Run」経由(StartGame/DepartFromStageSelect)のみが対象 -
+    // Continue(BeginContinuedRun)は中断データの続きから即再開する既存
+    // 挙動を維持し、対象外とした(再開時に敵が近くに既に存在し得るため、
+    // カウントダウン中に凍結しきれない可能性がある - スコープ外として
+    // 意図的に見送り)。
+    // マルチプレイ(2026-09-28): マルチRunではHOSTが決めたRunStateがRunningになった瞬間に解除する
+    // (NetRunLauncher.ReleasedForRun)。各端末のコルーチンの進み具合に左右されない。
+    bool countdownActive;
+    public bool CountdownActive
+    {
+        get => countdownActive && !NetRunLauncher.ReleasedForRun;
+        private set => countdownActive = value;
+    }
+    public string CountdownLabel { get; private set; } = "";
+    // カウントダウンの音(3/2/1=短い音、GO!=スタートの音)。表示の文字が変わった時だけ鳴らす(マルチも同じ)。
+    string countdownSeLabel = "";
+    void UpdateCountdownSe()
+    {
+        if (CountdownLabel == countdownSeLabel) return;
+        countdownSeLabel = CountdownLabel;
+        if (AudioManager.Instance == null || string.IsNullOrEmpty(CountdownLabel) || CountdownLabel == "READY") return;
+        AudioManager.Instance.PlaySe(CountdownLabel == "GO!" ? SeId.RunStart : SeId.CountdownTick);
+    }
+
+    [Header("Stage01地形挙動修整(2026-09-17) - Run開始カウントダウン")]
+    public float countdownStepDuration = 0.8f;
+    public float countdownGoDuration = 0.6f;
+
+    // マルチプレイ対応Phase 1(2026-09-25) - NetRunLauncherがシーンを読み込み直した直後に
+    // 呼ぶRun開始口。ステージはHOSTが選んだものを直接使う(この端末で未解放でも同じ
+    // ステージを走れるよう、SetSelectedStageの解放チェックを通さない)。
+    public void BeginMultiplayerRun(string stageId)
+    {
+        if (HasStarted) return;
+        stageSelectOpen = false;
+        if (stageSelectUI != null) stageSelectUI.gameObject.SetActive(false);
+        ApplyGameStart(StageDatabase.FindById(stageId) != null ? stageId : null);
+    }
+
+    public string ActiveRunCharacterId => activeRunCharacterId;
+
+    IEnumerator RunStartCountdownRoutine()
+    {
+        CountdownActive = true;
+        // マルチプレイ(2026-09-28): 全員の準備完了→HOSTが決めた共通のGO!の時刻から表示を求める。
+        if (NetRunLauncher.IsMultiplayerRun)
+        {
+            yield return MultiplayerCountdownRoutine();
+            yield break;
+        }
+        while (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) yield return null;
+        CountdownLabel = "3";
+        yield return new WaitForSecondsRealtime(countdownStepDuration);
+        CountdownLabel = "2";
+        yield return new WaitForSecondsRealtime(countdownStepDuration);
+        CountdownLabel = "1";
+        yield return new WaitForSecondsRealtime(countdownStepDuration);
+        CountdownLabel = "GO!";
+        yield return new WaitForSecondsRealtime(countdownGoDuration);
+        CountdownLabel = "";
+        CountdownActive = false;
+    }
+
+    // マルチRunのカウントダウン: 待ち時間を積み上げず、毎フレーム「GO!の時刻 - 今のサーバー時刻」から
+    // READY/3/2/1を決める。RunStateがRunningになった瞬間(NetRunLauncher)に操作/前進/距離/湧きが
+    // 全端末で同時に解放される(CountdownActiveの解除条件)。GO!の文字はその後の表示だけ。
+    IEnumerator MultiplayerCountdownRoutine()
+    {
+        while (NetRunLauncher.RunState < NetRunState.Running && NetRunLauncher.IsMultiplayerRun)
+        {
+            if (NetRunLauncher.RunState == NetRunState.Countdown)
+            {
+                double remain = NetRunLauncher.SecondsToGo;
+                int step = remain > countdownStepDuration * 3f ? 0 : Mathf.Clamp(Mathf.CeilToInt((float)(remain / countdownStepDuration)), 1, 3);
+                CountdownLabel = step == 0 ? "READY" : step.ToString();
+            }
+            else CountdownLabel = "READY"; // WaitingForPlayers: 全員の準備完了待ち
+            yield return null;
+        }
+        CountdownActive = false;
+        CountdownLabel = "GO!";
+        yield return new WaitForSecondsRealtime(countdownGoDuration);
+        CountdownLabel = "";
+    }
+
+    void DrawRunStartCountdown()
+    {
+        if (string.IsNullOrEmpty(CountdownLabel)) return;
+
+        bool isGo = CountdownLabel == "GO!";
+        GUIStyle style = new GUIStyle(GUI.skin.label);
+        style.fontSize = isGo ? 96 : 120;
+        style.fontStyle = FontStyle.Bold;
+        style.alignment = TextAnchor.MiddleCenter;
+        style.normal.textColor = isGo ? new Color(0.65f, 0.9f, 1f) : new Color(0.95f, 0.83f, 0.45f);
+
+        Rect rect = new Rect(0f, Screen.height * 0.5f - 90f, Screen.width, 180f);
+
+        GUIStyle shadowStyle = new GUIStyle(style);
+        shadowStyle.normal.textColor = new Color(0.04f, 0.06f, 0.14f, 0.85f);
+        Rect shadowRect = new Rect(rect.x + 4f, rect.y + 4f, rect.width, rect.height);
+        GUI.Label(shadowRect, CountdownLabel, shadowStyle);
+        GUI.Label(rect, CountdownLabel, style);
+    }
+
     void StartGame()
     {
         if (startTransitioning || HasStarted) return;
+        if (NetRunLauncher.InterceptDepart(SelectedStageId)) return; // DepartFromStageSelectと同じ(マルチプレイ時のみ)
         // Presentation pass - TOP->GAME now goes through the shared wipe
         // (see ScreenTransitionManager) instead of this file's own plain
         // navy fade below; HasStarted only flips once the screen is 100%
@@ -999,15 +1659,42 @@ public class GameManager : MonoBehaviour
             startTransitioning = true;
             ScreenTransitionManager.Instance.PlayTransition(() =>
             {
-                HasStarted = true;
-                runStartTime = Time.time;
-                ApplyCharacterCardEffects();
-                if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
+                ApplyGameStart();
                 startTransitioning = false;
-            });
+            }, ScreenTransitionManager.Style.DoorLight);
             return;
         }
         StartCoroutine(StartGameTransition());
+    }
+
+    // Home画面 / Stage Select改善依頼(2026-09-16), item5/9/10 - Stage
+    // Selectの「出発」ボタン専用の入口。従来はStage Select側でステージを
+    // 確定してHomeへ戻り、改めて扉をタップしてRunを開始する二段階だった
+    // (「Stage Selectは出発時だけの専用画面」という今回の方針とは、Home
+    // へ一度戻る一手間がある点で噛み合わない)。ステージ確定→Stage Select
+    // を閉じる→Run開始を、ScreenTransitionManagerの1回の被覆(onFullyCovered)
+    // の中でまとめて行うことで、二重にPlayTransitionを呼ぶことによる
+    // デッドロック(内側のStartGame()がIsTransitioning==trueで即return
+    // してしまい、画面が覆われたまま何も始まらない不具合)を避けている。
+    public void DepartFromStageSelect(string stageId)
+    {
+        if (startTransitioning || HasStarted) return;
+        // マルチプレイ対応Phase 1(2026-09-25) - セッション接続中はHOSTの出発で全員同時に
+        // 開始する(NetRunLauncher)。セッションが無ければ何もせずfalseが返り、従来どおり。
+        if (NetRunLauncher.InterceptDepart(stageId)) return;
+        StageDefinition def = StageDatabase.FindById(stageId);
+        if (def == null || !StageDatabase.IsAvailable(def)) return;
+        if (ScreenTransitionManager.Instance == null || ScreenTransitionManager.Instance.IsTransitioning) return;
+
+        SetSelectedStage(stageId);
+        startTransitioning = true;
+        ScreenTransitionManager.Instance.PlayTransition(() =>
+        {
+            stageSelectOpen = false;
+            if (stageSelectUI != null) stageSelectUI.gameObject.SetActive(false);
+            ApplyGameStart();
+            startTransitioning = false;
+        }, ScreenTransitionManager.Style.DoorLight);
     }
 
     IEnumerator StartGameTransition()
@@ -1022,10 +1709,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        HasStarted = true;
-        runStartTime = Time.time;
-        ApplyCharacterCardEffects();
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
+        ApplyGameStart();
 
         t = 0f;
         while (t < 1f)
@@ -1042,6 +1726,9 @@ public class GameManager : MonoBehaviour
     // used by the TOP-screen "RESET HIGH SCORE" button.
     void ResetHighScores()
     {
+        foreach (string k in new System.Collections.Generic.List<string>(stageBestCache.Keys)) PlayerPrefs.DeleteKey(StageBestKeyPrefix + k);
+        stageBestCache.Clear();
+        if (StageDatabase.AllStages != null) foreach (var st in StageDatabase.AllStages) PlayerPrefs.DeleteKey(StageBestKeyPrefix + st.stageId);
         BestDistance = 0f;
         BestTime = 0f;
         PlayerPrefs.DeleteKey(BestDistanceKey);
@@ -1082,29 +1769,91 @@ public class GameManager : MonoBehaviour
     static readonly Color HudValueColor = Color.white;
     static readonly Color HudGoldColor = new Color(1f, 0.85f, 0.35f);
 
-    Rect GetBestPanelRect() => new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, 168f, HudPanelHeight);
-    Rect GetDistancePanelRect() => new Rect(SafeLeft() + UiMargin, GetBestPanelRect().yMax + HudPanelGap, 168f, HudPanelHeight);
-    Rect GetLevelExpPanelRect() => new Rect(Screen.width / 2f - 190f, SafeTop() + UiMargin, 380f, HudPanelHeight);
-    Rect GetHeartsPanelRect()
+    Rect GetBestPanelRect() => new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, DistancePanelWidth(false), HudPanelHeight);
+    Rect GetDistancePanelRect() => new Rect(SafeLeft() + UiMargin, GetBestPanelRect().yMax + HudPanelGap, DistancePanelWidth(false), HudPanelHeight);
+    // 高速走行の視認性補正(2026-09-22) - 現在のAuto Run速度を基礎速度に対する倍率で常時表示する小さなHUD。
+    // 既存の速度値(PlayerController.SpeedRatio)を参照して表示するだけで、移動速度の計算には影響しない。
+    Rect GetSpeedPanelRect() => new Rect(SafeLeft() + UiMargin, GetDistancePanelRect().yMax + HudPanelGap, DistancePanelWidth(false), 30f);
+    int speedHudStep = -1;
+    float speedUpShownAt = -100f;
+    float speedUpShownKmh;
+    const float SpeedUpNoticeSeconds = 1.6f;
+    [Tooltip("速度の通知を出す間隔(km/h)")] public float speedNoticeStepKmh = 20f;
+
+    void DrawSpeedHud()
     {
-        float width = Mathf.Clamp(70f + maxLives * 34f, 220f, 420f);
-        return new Rect(Screen.width - SafeRight() - UiMargin - width, SafeTop() + UiMargin, width, HudPanelHeight);
+        var pc = PlayerController.Instance;
+        if (pc == null) return;
+        float ratio = pc.SpeedRatio; // 色の判定だけに使う(表示は km/h)
+        float kmh = SpeedKmh(pc.CurrentAutoRunSpeed);
+        // 2026-09-30: 自然加速の上限が100km/hになったので、倍率0.25刻み(約18回)→ speedNoticeStepKmh ごとの通知に。初回描画では鳴らさない。
+        int step = Mathf.FloorToInt(kmh / Mathf.Max(1f, speedNoticeStepKmh) + 0.0001f);
+        if (Event.current.type == EventType.Repaint)
+        {
+            if (speedHudStep >= 0 && step > speedHudStep)
+            {
+                speedUpShownAt = Time.unscaledTime;
+                speedUpShownKmh = kmh;
+            }
+            speedHudStep = step;
+        }
+
+        Rect r = GetSpeedPanelRect();
+        UiBackdrop.Draw(r, 0.6f);
+        var labelStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
+        labelStyle.normal.textColor = HudLabelColor;
+        GUI.Label(new Rect(r.x + 12f, r.y, 70f, r.height), "SPEED", labelStyle);
+        var valueStyle = new GUIStyle(GUI.skin.label) { fontSize = 17, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleRight };
+        valueStyle.normal.textColor = ratio >= 1.01f ? HudGoldColor : HudValueColor;
+        GUI.Label(new Rect(r.x + 60f, r.y, r.width - 72f, r.height), kmh.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " km/h", valueStyle);
+
+        float since = Time.unscaledTime - speedUpShownAt;
+        if (since >= 0f && since < SpeedUpNoticeSeconds)
+        {
+            float a = since < 0.2f ? since / 0.2f : Mathf.Clamp01((SpeedUpNoticeSeconds - since) / 0.5f);
+            var nStyle = new GUIStyle(GUI.skin.label) { fontSize = 15, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft };
+            Color c = HudGoldColor; c.a = a;
+            nStyle.normal.textColor = c;
+            GUI.Label(new Rect(r.x + 4f, r.yMax + 2f, 220f, 22f), "SPEED UP! " + speedUpShownKmh.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " km/h", nStyle);
+        }
     }
 
-    // The settings/debug column used to start at the same top-right corner
-    // the HP panel now occupies - pushed below it instead, same width.
-    float DebugColumnTop() => GetHeartsPanelRect().yMax + HudPanelGap;
+    Rect GetLevelExpPanelRect() => new Rect(Screen.width / 2f - 190f, SafeTop() + UiMargin, 380f, HudPanelHeight);
+    // 2026-10-01: 幅は固定(最大HPが増えても枠を広げない)。中身は DrawHeartsPanel が枠に収まるように描く。
+    const float HeartsPanelWidth = 220f;
+    Rect GetHeartsPanelRect()
+    {
+        return new Rect(Screen.width - SafeRight() - UiMargin - HeartsPanelWidth, SafeTop() + UiMargin, HeartsPanelWidth, HudPanelHeight);
+    }
+
     Rect GetGearButtonRect() => new Rect(SafeLeft() + UiMargin, Screen.height - SafeBottom() - UiMargin - 52f, 52f, 52f);
-    Rect GetOrientationButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop(), 140f, 40f);
-    Rect GetBgmButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop() + 46f, 140f, 40f);
-    Rect GetSfxButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop() + 92f, 140f, 40f);
-    Rect GetInvincibleButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop() + 138f, 140f, 40f);
-    Rect GetDebugButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop() + 184f, 140f, 40f);
-    // Game Feel Visibility Pass - reachable from the title screen (before
-    // START) so the boost is active for the whole run that follows, since
-    // this column itself isn't shown during actual gameplay.
-    Rect GetGameFeelFxButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop() + 230f, 140f, 40f);
-    Rect GetResetHighScoreButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 140f, DebugColumnTop() + 276f, 140f, 40f);
+    // ホーム右上(2026-10-01): 所持MILE → その下に「設定」「マルチ」を横並び(互いに重ならない、セーフエリアの内側)。
+    // ボタンの高さは画面の高さに比例(スマホでも押しやすい大きさ、最小/最大あり)。
+    float HomeButtonHeight => Mathf.Clamp(Screen.height * 0.075f, 46f, 100f);
+    Rect GetHomeMileRect() => new Rect(Screen.width - SafeRight() - UiMargin - 190f, SafeTop() + UiMargin, 190f, 72f);
+    Rect GetHomeMultiButtonRect()
+    {
+        float h = HomeButtonHeight, w = h * 1.9f;
+        return new Rect(Screen.width - SafeRight() - UiMargin - w, GetHomeMileRect().yMax + 10f, w, h);
+    }
+    Rect GetHomeSettingsButtonRect()
+    {
+        Rect m = GetHomeMultiButtonRect();
+        return new Rect(m.x - m.width - 10f, m.y, m.width, m.height);
+    }
+    // 開発版のDEBUG: 部屋の操作対象(扉/ベッド/本/肖像画/ガチャ)と重ならない、扉と本の間の床の上(画面下)。
+    Rect GetHomeDebugButtonRect()
+    {
+        float h = Mathf.Clamp(Screen.height * 0.06f, 40f, 80f), w = h * 2.6f;
+        return new Rect(Screen.width * 0.6f - w * 0.5f, Screen.height - SafeBottom() - UiMargin - h, w, h);
+    }
+    public bool PreferPortrait => preferredOrientation == ScreenOrientation.Portrait;
+    public void SetPreferredOrientation(bool portrait) { if (PreferPortrait != portrait) ToggleOrientation(); }
+
+#if UNITY_EDITOR
+    public void DebugSetInvincible(bool on) { InvincibleMode = on; Lives = 999; }
+    public void DebugSetLives(int n) { Lives = n; NetMatch.RequestDebugSetHp(n); }
+#endif
 
     void ToggleInvincible()
     {
@@ -1116,6 +1865,8 @@ public class GameManager : MonoBehaviour
     void ToggleDebugMode()
     {
         DebugMode = !DebugMode;
+        // DEBUGをOFFにしたら、見えないまま速度倍率が残らないよう必ず等倍へ戻す。
+        if (!DebugMode) PlayerController.DebugSpeedScale = 1f;
         PlayerPrefs.SetInt(DebugModeKey, DebugMode ? 1 : 0);
         PlayerPrefs.Save();
     }
@@ -1146,34 +1897,108 @@ public class GameManager : MonoBehaviour
         else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began) screenPos = Input.GetTouch(0).position;
         else return false;
 
+        if (UiInputGate.Blocked) return false; // 設定パネルが開いている/閉じた時の指
         Vector2 guiPos = new Vector2(screenPos.x, Screen.height - screenPos.y);
         if (GetGearButtonRect().Contains(guiPos)) return false;
-        if (GetOrientationButtonRect().Contains(guiPos)) return false;
-        if (GetBgmButtonRect().Contains(guiPos)) return false;
-        if (GetSfxButtonRect().Contains(guiPos)) return false;
-        if (GetInvincibleButtonRect().Contains(guiPos)) return false;
-        if (GetDebugButtonRect().Contains(guiPos)) return false;
-        if (GetGameFeelFxButtonRect().Contains(guiPos)) return false;
-        if (!HasStarted && GetResetHighScoreButtonRect().Contains(guiPos)) return false;
         return true;
     }
 
-    public void ReportDistance(float distance)
+    // Bugfix 2026-09-06, item "Boss中Distanceの根本修正". The old design
+    // only ever froze MaxDistance's own VALUE while IsBossPhase was true -
+    // the raw incoming `distance` (Player.transform.x - startX) kept
+    // climbing normally underneath that freeze the whole time (correctly -
+    // Player/World must keep moving during a Boss fight), but nothing ever
+    // compensated for that climb once the freeze lifted. The very next
+    // ReportDistance call after Boss Reward completed would see a `distance`
+    // value far ahead of the still-frozen MaxDistance, and the existing
+    // "distance > MaxDistance" branch would treat that WHOLE Boss-fight
+    // movement as legitimate new progress in one lump sum (a single large
+    // GainExp/HighestReachedDistance/MILE jump instead of "resume exactly
+    // from the checkpoint"). Fixed by tracking exactly how much raw
+    // distance accumulated between Boss Gate lock and Boss Reward
+    // completion (`distanceExclusionOffset`, updated by
+    // BeginBossDistanceExclusion/EndBossDistanceExclusion below) and
+    // permanently subtracting that from every future raw distance before
+    // it ever reaches the comparison against MaxDistance - so Distance
+    // truly resumes from the checkpoint with no catch-up jump, while the
+    // Player's own on-screen position/movement during the fight is
+    // completely unaffected (this offset only ever touches the Distance
+    // bookkeeping, never transform.position itself).
+    float distanceExclusionOffset;
+    float lastRawDistanceSeen;
+    float bossPhaseEntryRawDistance;
+    // cm単位表示用の倍精度の並行トラッキング(2026-09-22)。MaxDistance(float)は距離条件/ボス/報酬にそのまま使い、
+    // こちらは表示と記録(BEST)専用。float(100,000m超で刻み0.008m以上)ではcm精度が保てないため。
+    double distanceExclusionOffsetExact;
+    double lastRawDistanceSeenExact;
+    double bossPhaseEntryRawDistanceExact;
+    public double MaxDistanceExact { get; private set; }
+
+    // Called once, right when BossManager locks the Gate (immediately
+    // after ClampMaxDistanceTo) - captures "what raw distance corresponds
+    // to the moment Distance froze", the reference point EndBossDistance
+    // Exclusion needs to compute how far the Player travelled during the
+    // fight.
+    public void BeginBossDistanceExclusion()
     {
+        bossPhaseEntryRawDistance = lastRawDistanceSeen;
+        bossPhaseEntryRawDistanceExact = lastRawDistanceSeenExact;
+        bossExclusionFolded = false;
+    }
+
+    // ボス戦の強化(2026-10-01): ボスが残ったままラン再開 - ここまでの戦闘中の移動を除外して、ここから距離を再び数える。
+    // 遭遇の終わり(報酬の後)のEndBossDistanceExclusionでは二重に除外しない。
+    bool bossExclusionFolded;
+    public void ResumeBossDistance()
+    {
+        if (bossExclusionFolded) return;
+        distanceExclusionOffset += (lastRawDistanceSeen - bossPhaseEntryRawDistance);
+        distanceExclusionOffsetExact += (lastRawDistanceSeenExact - bossPhaseEntryRawDistanceExact);
+        bossExclusionFolded = true;
+    }
+
+    // Called once, right where GameManager already calls BossManager.
+    // EndBossPhase() (Boss Reward completion) - folds the whole fight's
+    // raw movement into the permanent exclusion offset.
+    public void EndBossDistanceExclusion()
+    {
+        if (bossExclusionFolded) { bossExclusionFolded = false; return; } // ラン再開で除外済み
+        distanceExclusionOffset += (lastRawDistanceSeen - bossPhaseEntryRawDistance);
+        distanceExclusionOffsetExact += (lastRawDistanceSeenExact - bossPhaseEntryRawDistanceExact);
+    }
+
+    public void ReportDistance(float rawDistance) { ReportDistance(rawDistance, rawDistance); }
+
+    public void ReportDistance(float rawDistance, double rawDistanceExact)
+    {
+        lastRawDistanceSeenExact = rawDistanceExact;
+        // lastRawDistanceSeen updates unconditionally, every call, even
+        // while IsBossPhase is freezing everything below this line - it's
+        // what lets BeginBossDistanceExclusion/EndBossDistanceExclusion
+        // above measure the fight's own raw movement independently of
+        // whichever MonoBehaviour's Update() happens to run first this
+        // frame.
+        lastRawDistanceSeen = rawDistance;
+        float distance = rawDistance - distanceExclusionOffset;
+
         // Distance Level Design Ver.1.1, item 1 - Boss Gate: while a Boss
         // checkpoint is active (BossManager.IsBossPhase - reused directly
         // as the gate flag rather than a second, easy-to-desync bool),
         // Distance itself stops advancing entirely, even though the
-        // player's own transform.position.x (what `distance` is computed
+        // player's own transform.position.x (what `rawDistance` is computed
         // from) keeps climbing normally - Player/Auto Run/Ground Scroll/
         // Background Scroll/Enemy Battle/Player操作 are all completely
         // untouched by this, since none of them read GameManager.
         // MaxDistance at all. This early-return is the ENTIRE gate.
-        if (BossManager.Instance != null && BossManager.Instance.IsBossPhase) return;
+        if (BossManager.Instance != null && BossManager.Instance.HoldsRun) return; // ラン再開後はボスが残っていても距離が進む
+
+        double distanceExact = rawDistanceExact - distanceExclusionOffsetExact;
+        if (distanceExact > MaxDistanceExact) MaxDistanceExact = distanceExact;
 
         if (distance > MaxDistance)
         {
             float delta = distance - MaxDistance;
+            ProgressStats.AddRunDistance(delta); // 累計走行距離(2026-10-01、100mごとに保存)
             MaxDistance = distance;
             GainExp(delta * expPerMeter);
             UnlockManager.CheckUnlocks(MaxDistance);
@@ -1204,6 +2029,7 @@ public class GameManager : MonoBehaviour
     public void ClampMaxDistanceTo(float value)
     {
         MaxDistance = value;
+        MaxDistanceExact = value;
     }
 
     // Accumulates EXP and rolls over into as many level-ups as it covers
@@ -1214,7 +2040,10 @@ public class GameManager : MonoBehaviour
     // resolved.
     void GainExp(float amount)
     {
-        if (amount <= 0f || levelUpPending) return;
+        // マルチプレイPhase 2.5: マルチでは選択中も世界(=距離/撃破)が進むため、その間のEXPは捨てずに
+        // 貯め、レベルアップは選択が終わってから順に出す(pendingLevelUpCountの既存の後回し処理)。
+        if (amount <= 0f || (levelUpPending && !NetMatch.Active)) return;
+        if (BlockExpGain) return;
 
         // "EXP UP" cards raise expGainMultiplier above 1 - applied once
         // here so it covers every EXP source (distance, kills, bosses)
@@ -1241,18 +2070,57 @@ public class GameManager : MonoBehaviour
     // Otherwise this is exactly the original TriggerLevelUpChoice, just
     // renamed to RunLevelUpChoice so the deferral wrapper below could reuse
     // its name at the call site (GainExp) without changing that caller.
+    // Bugfix 2026-09-08 (Bug #001 - root cause confirmed via diagnostic
+    // Freeze Snapshot) - "Boss Phase中はLevel Up Card Choiceを開始しない"。
+    // 以前はBoss Presentation実行中/既存choice実行中のみdeferしており、
+    // BossManager.IsBossPhase自体は見ていなかった - そのためBoss撃破時の
+    // EXP付与(RegisterBossDefeat -> GainExp、Boss自身のFinalHitAndDie死亡
+    // コルーチン内の、BossManager.OnDragonDefeated()/CheckEncounterComplete()
+    // より前の行で呼ばれる)がLevel Up閾値を跨ぐと、**他のBossがまだ生存/
+    // 戦闘中の複数Boss Encounterであっても**Level Up Card Choiceがその場
+    // で即座に開始されてしまい、Boss Presentation/Combat/Defeat/Rewardの
+    // Stateと衝突していた - 実際に「rewardCardSequence OK, starting
+    // sequence...」表示中にBossがまだ生存しているFreeze Snapshotスクリー
+    // ンショットで確認された、Bug #001の確定した根本原因の1つ。
+    //
+    // 同時に見つかったもう1つのバグも修正: levelUpDeferredPendingが単純な
+    // boolだったため、GainExpのwhileループが1回のEXP付与で複数Levelを
+    // 跨いだ場合(大きなEXPジャンプ、または複数Boss撃破分が積み重なった
+    // 場合)、2回目以降のTriggerLevelUpChoice()呼び出しは同じboolを
+    // 再度trueにするだけで、**1つ分のLevel Up Choiceしか実際には開始
+    // されず、残りは静かに消失していた**。pendingLevelUpCountをカウンタ
+    // 化し、呼ばれた回数だけ確実にインクリメント、実際に1つ開始した時だ
+    // けデクリメントする形にしたので、N回同時にLevel Upしても必ずN回分の
+    // Card Choiceが順番に(1つ解決してから次を開始)処理される。
+    int pendingLevelUpCount;
+
     void TriggerLevelUpChoice()
     {
-        // Run Continuation/Checkpoint Ver.1 - also defers while a Boss
-        // Reward choice is showing (shared levelUpPending flag), so the
-        // two card-choice screens can never overlap.
-        if (IsBossPresentationActive() || levelUpPending)
+        pendingLevelUpCount++;
+        TryStartNextPendingLevelUp();
+    }
+
+    // Boss Phase(Spawn Presentation/Combat/Defeat Presentation/Reward -
+    // BossManager.IsBossPhaseがtrueである全期間)が、既存の2つのBoss
+    // Presentationと同じ優先順位でLevel Upより優先される。呼ぶたびに
+    // pendingLevelUpCountが1つ消化できたかどうかを返す - UpdateDeferredLevelUp
+    // からも同じロジックをそのまま再利用する。
+    bool TryStartNextPendingLevelUp()
+    {
+        if (pendingLevelUpCount <= 0) return false;
+        if (IsNetChoiceBlocked(out _)) return false; // マルチ: Run終了/脱落/DOWN中は開かない(UpdateDeferredLevelUpが扱う)
+
+        bool bossPhaseActive = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
+        if (IsBossPresentationActive() || levelUpPending || bossPhaseActive || ChoiceUiBusy)
         {
-            levelUpDeferredPending = true;
-            Debug.Log("[PresentationPriority] Level Up deferred - Boss Presentation/Boss Reward active");
-            return;
+            if (bossPhaseActive) LogBoss($"LevelUpDeferred(BossPhase, pending={pendingLevelUpCount})");
+            Debug.Log($"[PresentationPriority] Level Up deferred (pending={pendingLevelUpCount}, bossPhaseActive={bossPhaseActive}) - Boss Presentation/Boss Reward/Boss Phase active");
+            return false;
         }
+
+        pendingLevelUpCount--;
         RunLevelUpChoice();
+        return true;
     }
 
     // Presentation Priority pass - Boss Spawn/Defeat outranks Level Up.
@@ -1271,39 +2139,51 @@ public class GameManager : MonoBehaviour
 
     // Presentation Priority pass - fields backing the deferral above.
     // levelUpDeferredTimer counts down in real time (unscaled) once the
-    // Boss Presentation actually finishes, so "Boss Presentation終了 ->
-    // Gameplayを正常状態へ戻す -> 0.3〜0.5秒待つ -> Pending Level Upがあれば
-    // 開始" holds even though gameplay itself has already resumed at normal
-    // Time.timeScale by that point.
-    bool levelUpDeferredPending;
+    // Boss Presentation/Boss Phase actually finishes, so "Boss Presentation
+    // 終了 -> Gameplayを正常状態へ戻す -> 0.3〜0.5秒待つ -> Pending Level Up
+    // があれば開始" holds even though gameplay itself has already resumed
+    // at normal Time.timeScale by that point.
     float levelUpDeferredTimer = -1f;
     public float levelUpDeferredResumeDelay = 0.4f;
 
     // Presentation Priority pass - called every frame from Update()
     // (mid-run only, same as heartDamageFlashTimer/DebugMode above). Not
-    // reached at all while levelUpDeferredPending is false, so this is a
-    // no-op the overwhelming majority of the time.
+    // reached at all while pendingLevelUpCount is 0, so this is a no-op
+    // the overwhelming majority of the time.
     void UpdateDeferredLevelUp()
     {
-        if (!levelUpDeferredPending) return;
+        if (pendingLevelUpCount <= 0) return;
+
+        // マルチ(2026-09-28): Run終了/脱落なら残りを捨てる。CO-OPのDOWN中は復活まで出さずに待つ。
+        if (IsNetChoiceBlocked(out bool dropQueued))
+        {
+            if (dropQueued)
+            {
+                Debug.Log($"[NET][CHOICE] {pendingLevelUpCount} queued Level Up(s) dropped - {NetChoiceBlockReason()}");
+                pendingLevelUpCount = 0;
+            }
+            levelUpDeferredTimer = -1f;
+            return;
+        }
 
         // Presentation Priority pass - Player Death/Game Clear outranks
         // Level Up: if the run already ended while this was waiting
         // (e.g. the player died mid-boss-fight, after the Boss Presentation
-        // itself finished but before this buffer ran out), drop the
-        // deferred level-up outright instead of popping the card UI open
-        // on top of an already-finished run.
+        // itself finished but before this buffer ran out), drop every
+        // remaining deferred level-up outright instead of popping the card
+        // UI open on top of an already-finished run.
         if (IsGameOver)
         {
-            levelUpDeferredPending = false;
+            Debug.Log($"[PresentationPriority] {pendingLevelUpCount} deferred Level Up(s) cancelled - run already ended");
+            pendingLevelUpCount = 0;
             levelUpDeferredTimer = -1f;
-            Debug.Log("[PresentationPriority] Deferred Level Up cancelled - run already ended");
             return;
         }
 
-        if (IsBossPresentationActive() || levelUpPending)
+        bool bossPhaseActive = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
+        if (IsBossPresentationActive() || levelUpPending || bossPhaseActive || ChoiceUiBusy)
         {
-            levelUpDeferredTimer = -1f; // reset the buffer - only starts counting once the Boss Presentation/Boss Reward actually finishes
+            levelUpDeferredTimer = -1f; // reset the buffer - only starts counting once every one of these actually clears
             return;
         }
 
@@ -1311,10 +2191,9 @@ public class GameManager : MonoBehaviour
         levelUpDeferredTimer -= Time.unscaledDeltaTime;
         if (levelUpDeferredTimer <= 0f)
         {
-            levelUpDeferredPending = false;
             levelUpDeferredTimer = -1f;
-            Debug.Log("[PresentationPriority] Deferred Level Up starting now");
-            RunLevelUpChoice();
+            Debug.Log($"[PresentationPriority] Deferred Level Up starting now (pending before this={pendingLevelUpCount})");
+            TryStartNextPendingLevelUp();
         }
     }
 
@@ -1322,14 +2201,104 @@ public class GameManager : MonoBehaviour
     // by BossManager once a Boss encounter (all its bosses) is fully
     // cleared. Same Presentation-priority deferral as Level Up (waits for
     // the Boss Defeat Presentation banner to finish, then a short buffer).
+    // Bugfix 2026-09-06 - "Boss撃破後にゲームが停止する", item 2 (根本原因
+    // まで追跡するための状態ログ). Logs the exact set of flags the report
+    // asked to track, at every named stage of the Boss Reward pipeline.
+    // DebugMode-gated (existing project convention for diagnostic logs) -
+    // enable Debug Mode before reproducing to capture the full trail via
+    // logcat/Console. Deliberately reads every value fresh each call rather
+    // than caching, since the whole point is to see it change (or fail to
+    // change) across stages.
+    public void LogBossRewardStage(string stage)
+    {
+        if (!DebugMode) return;
+        bool? sequenceRunning = rewardCardSequence != null ? rewardCardSequence.IsRunning : (bool?)null;
+        bool? sequenceWaiting = rewardCardSequence != null ? rewardCardSequence.IsWaitingForSelection : (bool?)null;
+        Debug.Log($"[BossRewardTrace] {stage}: timeScale={Time.timeScale:F2}  IsBossPhase={(BossManager.Instance != null ? BossManager.Instance.IsBossPhase : (bool?)null)}  levelUpPending={levelUpPending}  pendingChoiceKind={pendingChoiceKind}  bossRewardDeferredPending={bossRewardDeferredPending}  RewardSequence.IsRunning={sequenceRunning}  RewardSequence.IsWaitingForSelection={sequenceWaiting}  HasStarted={HasStarted}  IsGameOver={IsGameOver}  MaxDistance={MaxDistance:F1}");
+    }
+
+    // Bugfix 2026-09-07 (Bug #001 - "Boss中/Boss撃破後にGameplayが停止する")
+    // - the exact [BOSS] tag/field set the bug report itself asked for,
+    // covering the WHOLE encounter flow end-to-end (PhaseStart -> ... ->
+    // GameplayResume) verbatim against the report's own flow diagram. Kept
+    // deliberately separate from LogBossRewardStage/[BossRewardTrace] above
+    // (that one already covers the Boss Reward sub-pipeline in finer detail
+    // with its own field set) rather than merging the two - both are
+    // DebugMode-gated and harmless to leave in permanently.
+    public void LogBoss(string tag)
+    {
+        // Bugfix 2026-09-08 (Bug #001 診断フェーズ) - fed into BossDiagnostics'
+        // Ring Buffer unconditionally (NOT gated on DebugMode) - the whole
+        // point of this diagnostic phase is catching an elusive freeze that
+        // might happen during an ordinary play session where DebugMode was
+        // never turned on, so the buffer that a freeze snapshot dumps must
+        // already have real history in it regardless. Only the console
+        // Debug.Log below (existing behavior) stays DebugMode-gated, so a
+        // normal build's logcat isn't spammed by default.
+        BossDiagnostics.LogEvent(tag);
+        if (!DebugMode) return;
+        Debug.Log($"[BOSS] {tag}  timeScale={Time.timeScale:F2}  IsBossPhase={(BossManager.Instance != null ? BossManager.Instance.IsBossPhase : (bool?)null)}  HasStarted={HasStarted}  levelUpPending={levelUpPending}  pendingChoice={pendingChoiceKind}  InputEnabled={Time.timeScale > 0f}  MaxDistance={MaxDistance:F1}");
+    }
+
+    // Bugfix 2026-09-08 (Bug #001 診断フェーズ) - narrow, read-only surface
+    // purely for BossDiagnostics (a separate class - see its own comment for
+    // why this lives outside GameManager) to read otherwise-private state
+    // for its Freeze Snapshot/state-transition polling. None of these add
+    // new behavior, they just expose what already exists.
+    public bool LevelUpPending => levelUpPending;
+    public bool LevelUpDeferredPending => pendingLevelUpCount > 0;
+    public int PendingLevelUpCount => pendingLevelUpCount;
+    public bool BossRewardDeferredPending => bossRewardDeferredPending;
+    public PendingChoiceKind CurrentPendingChoiceKind => pendingChoiceKind;
+    public bool IsRewardSequenceRunning => rewardCardSequence != null && rewardCardSequence.IsRunning;
+    public bool IsRewardSequenceWaitingForSelection => rewardCardSequence != null && rewardCardSequence.IsWaitingForSelection;
+    public bool IsBossPresentationActivePublic => IsBossPresentationActive();
+
     public void TriggerBossRewardChoice()
     {
-        if (IsBossPresentationActive() || levelUpPending)
+        LogBossRewardStage("BossRewardStart (TriggerBossRewardChoice entry)");
+        if (IsBossPresentationActive() || levelUpPending || ChoiceUiBusy)
         {
             bossRewardDeferredPending = true;
+            LogBossRewardStage("BossRewardStart -> deferred (Presentation/LevelUp active)");
+            return;
+        }
+        // Bug #001 診断フェーズ (2026-09-08), 項目8 - "DisableBossRewardSequence"
+        // 比較Toggle。ONの間はカード選択UI自体を丸ごとスキップし、Boss撃破
+        // →Checkpoint→EndBossPhase→Gameplay Resumeだけを即座に行う -
+        // RewardCardSequence側がFreeze原因候補かどうかを切り分けるための
+        // 診断専用の分岐(本仕様として削除するものではない)。
+        if (BossDiagnostics.DisableBossRewardSequence)
+        {
+            SkipBossRewardChoice();
             return;
         }
         RunBossRewardChoice();
+    }
+
+    // Bug #001 診断フェーズ - RunBossRewardChoiceの空プール分岐と全く同じ
+    // 「カードは出さないが、Boss Reward処理としては正常完了」の後始末を、
+    // DisableBossRewardSequence診断Toggle専用にもう一度呼べる形にしたもの。
+    void SkipBossRewardChoice()
+    {
+        LogBossRewardStage("RunBossRewardChoice: DisableBossRewardSequence -> skip straight to SaveCheckpoint");
+        LogBoss("RewardStart (skipped by DisableBossRewardSequence)");
+        try
+        {
+            SaveCheckpoint();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("[BossReward] SaveCheckpoint threw (DisableBossRewardSequence path) - continuing the resume regardless: " + e);
+        }
+        LogBoss("CheckpointSaved");
+        if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
+        EndBossDistanceExclusion();
+        LogBoss("EndBossPhase");
+        UnlockEscape();
+        LogBossRewardStage("GameplayResume/InputResume/DistanceResume (DisableBossRewardSequence path)");
+        LogBoss("GameplayResume");
+        LogBoss("RewardEnd");
     }
 
     float bossRewardDeferredResumeDelay = 0.4f;
@@ -1363,11 +2332,15 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (IsBossPresentationActive() || levelUpPending)
+        if (IsBossPresentationActive() || levelUpPending || ChoiceUiBusy)
         {
             bossRewardDeferredTimer = -1f;
             bossRewardStuckTimer += Time.unscaledDeltaTime;
-            if (bossRewardStuckTimer >= BossRewardStuckTimeoutSeconds)
+            // Bug #001 診断フェーズ, 項目11 - DisableSafetyTimersが立って
+            // いる間は、この安全弁自体は「詰まった」まま維持する(強制解決
+            // しない) - 原因がタイムアウトで隠れてしまうのを防ぐための
+            // 診断専用ガード。
+            if (!BossDiagnostics.DisableSafetyTimers && bossRewardStuckTimer >= BossRewardStuckTimeoutSeconds)
             {
                 Debug.LogWarning("[BossReward] Deferred wait exceeded " + BossRewardStuckTimeoutSeconds + "s (a Presentation's IsRunning is stuck true) - forcing Boss Reward through anyway.");
                 bossRewardDeferredPending = false;
@@ -1406,6 +2379,111 @@ public class GameManager : MonoBehaviour
     float pendingChoiceStuckTimer;
     const float PendingChoiceStuckTimeoutSeconds = 30f;
 
+    // ===== 停止の安全ネット(2026-10-01「たまにカード選出後に止まる」) =====
+    // 30秒のwatchdogより手前で、「止まっている理由が実際にはもう無い」状態を約1秒で見つけて戻す。
+    // 戻した時は必ず [StallGuard] としてログ(FreezeDiagnostics)に残す = 起きた種類が後から分かる。
+    //  A: 選択待ち(levelUpPending)なのに選択画面が動いていない → 同じ3枚をもう一度出す(2回まで)。出せなければ選択無しで解決
+    //  B: 選択待ち/ポーズメニューの停止理由だけが残っている → 理由を外す
+    //  C: ボス登場演出のスロー(演出の層)だけが残っている → 演出の層を終える
+    const float StallGuardSeconds = 1.0f;
+    const float PresentationDriveMaxSeconds = 12f;
+    float stallOrphanChoiceTimer, stallOrphanPauseTimer, stallOrphanPresentationTimer;
+    int stallChoiceReoffers;
+    public static int StallGuardRecoveries;
+    // 確認用(-qaStall): 修正前の動き(閉じる演出中の次の選択を黙って捨てる / 安全ネット無し)に戻す。通常は常にfalse
+    public static bool QaLegacyStallBehaviour;
+    bool ChoiceUiBusy => !QaLegacyStallBehaviour && IsRewardSequenceRunning;
+    public static string LastStallGuard = "";
+
+    void StallGuardReport(string what)
+    {
+        StallGuardRecoveries++;
+        LastStallGuard = what;
+        string msg = $"[StallGuard] {what} (d={MaxDistance:F0}m, reasons={TimeControl.DescribeActiveReasons()}, seqStep={RewardCardSequence.DebugStep})";
+        Debug.LogWarning(msg);
+        FreezeDiagnostics.LogEvent(msg);
+        if (Debug.isDebugBuild) FreezeDiagnostics.ShowToast("停止を自動回復: " + what);
+    }
+
+    void UpdateStallGuards()
+    {
+        if (BossDiagnostics.DisableSafetyTimers || !HasStarted || QaLegacyStallBehaviour) return;
+        float dt = Time.unscaledDeltaTime;
+
+        // A
+        bool seqUp = rewardCardSequence != null && rewardCardSequence.IsRunning;
+        if (!levelUpPending) stallChoiceReoffers = 0;
+        if (levelUpPending && !seqUp && !IsGameOver)
+        {
+            stallOrphanChoiceTimer += dt;
+            if (stallOrphanChoiceTimer >= StallGuardSeconds)
+            {
+                stallOrphanChoiceTimer = 0f;
+                RecoverOrphanChoice();
+            }
+        }
+        else stallOrphanChoiceTimer = 0f;
+
+        // B
+        bool orphanChoicePause = TimeControl.IsPausedBy(pendingChoiceTimeOwner) && !levelUpPending;
+        bool orphanMenuPause = TimeControl.IsPausedBy(pauseMenuTimeOwner) && !showPauseMenu;
+        if (orphanChoicePause || orphanMenuPause)
+        {
+            stallOrphanPauseTimer += dt;
+            if (stallOrphanPauseTimer >= StallGuardSeconds)
+            {
+                stallOrphanPauseTimer = 0f;
+                if (orphanChoicePause) TimeControl.Resume(pendingChoiceTimeOwner);
+                if (orphanMenuPause) TimeControl.Resume(pauseMenuTimeOwner);
+                StallGuardReport(orphanChoicePause ? "選択待ちの停止理由だけが残っていた" : "ポーズメニューの停止理由だけが残っていた");
+            }
+        }
+        else stallOrphanPauseTimer = 0f;
+
+        // C
+        bool presRunning = BossMilestonePresentation.Instance != null && BossMilestonePresentation.Instance.IsRunning;
+        bool presOrphan = TimeControl.IsPresentationDriving && (!presRunning || TimeControl.PresentationDriveSeconds > PresentationDriveMaxSeconds);
+        if (presOrphan)
+        {
+            stallOrphanPresentationTimer += dt;
+            if (stallOrphanPresentationTimer >= StallGuardSeconds)
+            {
+                stallOrphanPresentationTimer = 0f;
+                TimeControl.EndPresentationDrive(null);
+                StallGuardReport(presRunning ? "ボス登場演出のスローが長すぎた" : "ボス登場演出のスローだけが残っていた");
+            }
+        }
+        else stallOrphanPresentationTimer = 0f;
+    }
+
+    void RecoverOrphanChoice()
+    {
+        bool boss = pendingChoiceKind == PendingChoiceKind.BossReward;
+        if (stallChoiceReoffers < 2 && rewardCardSequence != null && pendingChoices != null && pendingChoices.Length > 0)
+        {
+            stallChoiceReoffers++;
+            var cards = new RewardCardData[pendingChoices.Length];
+            for (int i = 0; i < pendingChoices.Length; i++) cards[i] = MakeChoiceCardData(pendingChoices[i]);
+            if (!NetMatch.Active) TimeControl.Pause(pendingChoiceTimeOwner);
+            bool ok = rewardCardSequence.StartSequence(cards, ApplyUpgradeByCardId, boss ? "BOSS REWARD" : "LEVEL UP");
+            StallGuardReport($"選択待ちなのに選択画面が無かった → もう一度出した({pendingChoiceKind}, {stallChoiceReoffers}回目, ok={ok})");
+            if (ok) return;
+        }
+        // 出せない: 30秒watchdogと同じ「選択無しで解決」を今すぐ行う
+        StallGuardReport($"選択待ちなのに選択画面が出せない → 選択無しで解決({pendingChoiceKind})");
+        pendingChoiceStuckTimer = PendingChoiceStuckTimeoutSeconds;
+        UpdatePendingChoiceWatchdog();
+    }
+
+    // StartSequenceが断る = 選択待ちでないのに選択画面が開いたまま(食い違い)。古い画面を畳んで今回の選択を出す
+    void StartChoiceSequence(RewardCardData[] cards, string text)
+    {
+        if (rewardCardSequence.StartSequence(cards, ApplyUpgradeByCardId, text)) return;
+        rewardCardSequence.ForceReset();
+        rewardCardSequence.StartSequence(cards, ApplyUpgradeByCardId, text);
+        StallGuardReport($"選択画面が食い違って開いていた → 畳んで{text}を出し直した");
+    }
+
     void UpdatePendingChoiceWatchdog()
     {
         if (!levelUpPending)
@@ -1415,6 +2493,9 @@ public class GameManager : MonoBehaviour
         }
 
         pendingChoiceStuckTimer += Time.unscaledDeltaTime;
+        // Bug #001 診断フェーズ, 項目11 - DisableSafetyTimers中はこの最終
+        // 安全弁も発動させず、詰まった状態をそのまま保持する。
+        if (BossDiagnostics.DisableSafetyTimers) return;
         if (pendingChoiceStuckTimer < PendingChoiceStuckTimeoutSeconds) return;
 
         Debug.LogWarning($"[BossReward] Pending choice ({pendingChoiceKind}) stuck for {PendingChoiceStuckTimeoutSeconds}s - forcing recovery so gameplay/distance/spawning don't stay frozen.");
@@ -1423,13 +2504,27 @@ public class GameManager : MonoBehaviour
         if (rewardCardSequence != null) rewardCardSequence.ForceReset();
         levelUpPending = false;
         pendingChoices = null;
-        Time.timeScale = 1f;
+        FreezeDiagnostics.LogEvent("[Pause] Watchdog force-resolved stuck choice -> TimeControl.Resume(pendingChoice)");
+        TimeControl.Resume(pendingChoiceTimeOwner);
         pendingChoiceStuckTimer = 0f;
+        // Bugfix 2026-09-08 - lastLevelUpDiagnostic (Debug Mode's
+        // "rewardCardSequence OK, starting sequence..." on-screen text) used
+        // to never get cleared anywhere - it's a plain string field set once
+        // in RunLevelUpChoice and never reset, so it stayed on screen for
+        // the rest of the run even after that particular Level Up fully
+        // resolved. Master mistook a stale one (left over from an earlier,
+        // already-resolved Level Up much earlier in the run) for evidence
+        // about a LATER, unrelated freeze in a Freeze Snapshot screenshot -
+        // clearing it here (and at every other place a pending choice
+        // resolves, see ApplyUpgradeByCardId/FinishRun) so it only ever
+        // reflects a genuinely still-in-flight sequence.
+        lastLevelUpDiagnostic = "";
 
         if (wasBossReward)
         {
             SaveCheckpoint();
             if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
+            EndBossDistanceExclusion();
             UnlockEscape();
         }
     }
@@ -1443,24 +2538,78 @@ public class GameManager : MonoBehaviour
     // "Boss Reward処理まで正常に終了した時点" still holds either way.
     void RunBossRewardChoice()
     {
+        LogBossRewardStage("RunBossRewardChoice entry");
+        LogBoss("RewardStart");
+        // マルチプレイPhase 2.5: ボス報酬は最後のボスのラストヒットを取った本人(RewardRecipient)だけ。
+        // 本人がJOINなら、その端末へ選択を渡し、HOSTはボス戦の後始末(ボス戦終了/距離再開)だけ行う。
+        if (NetCombat.Authority)
+        {
+            int recipient = NetCombat.LastBossRewardRecipient;
+            NetCombat.Log("BOSS", $"Reward Recipient = P{recipient} (local=P{NetCombat.LocalPlayerNumber})");
+            if (recipient > 0 && recipient != NetCombat.LocalPlayerNumber)
+            {
+                NetMatch.SendBossRewardOffer(recipient);
+                if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
+                EndBossDistanceExclusion();
+                UnlockEscape();
+                LogBoss("RewardEnd (handed to remote recipient)");
+                return;
+            }
+        }
+        // マルチ(2026-09-28): この端末のプレイヤーがRun終了/脱落/DOWN中なら、ボス報酬の選択は出さない
+        // (Resultより後に出ない・脱落後に新しい選択を始めない)。ボス戦の後始末だけは通常どおり行う。
+        if (IsNetChoiceBlocked(out _))
+        {
+            Debug.Log($"[NET][CHOICE] Boss Reward not shown - {NetChoiceBlockReason()}");
+            if (!IsGameOver)
+            {
+                if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
+                EndBossDistanceExclusion();
+                UnlockEscape();
+            }
+            LogBoss("RewardEnd (blocked: run finished / eliminated / down)");
+            return;
+        }
+
         var pool = new List<CardDefinition>();
+        int maxedInDeck = 0;
         foreach (string id in deckCards)
         {
             CardDefinition card = CardDatabase.FindById(id);
-            if (card != null) pool.Add(card);
+            if (card == null) continue;
+            if (CanStillPick(card)) pool.Add(card); else maxedInDeck++;
         }
-        if (pool.Count == 0 && deckCards.Count > 0) pool.AddRange(CardDatabase.UnlockedCards);
+        if (pool.Count == 0 && deckCards.Count > 0 && maxedInDeck == 0) foreach (var u in CardDatabase.UnlockedCards) if (CanStillPick(u)) pool.Add(u);
+        if (pool.Count == 0 && maxedInDeck > 0) Debug.Log($"[Card] every deck card is at Lv{MaxRunCardLevel} - no card choice this time");
 
         if (pool.Count == 0)
         {
-            SaveCheckpoint();
+            LogBossRewardStage("RunBossRewardChoice: pool empty -> SaveCheckpoint");
+            // Bugfix 2026-09-07 (Bug #001, report item 4) - same
+            // SaveCheckpoint-failure-must-not-block-resume guard as
+            // ApplyUpgradeByCardId's matching try/catch.
+            try
+            {
+                SaveCheckpoint();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("[BossReward] SaveCheckpoint threw (empty-pool path) - continuing the resume regardless: " + e);
+            }
+            LogBoss("CheckpointSaved");
             // Bugfix 2026-09-06, item "Boss戦中Distance停止" - this is a
             // Boss Reward that resolved with nothing to actually offer (an
             // empty/corrupted deck), but it's still "Boss Reward処理まで
             // 正常に終了した" - the Distance freeze must lift here too, not
             // just on the normal 3-card path below.
             if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
+            EndBossDistanceExclusion();
+            LogBossRewardStage("RunBossRewardChoice: pool empty -> EndBossPhase done");
+            LogBoss("EndBossPhase");
             UnlockEscape();
+            LogBossRewardStage("GameplayResume/InputResume/DistanceResume (empty-pool path)");
+            LogBoss("GameplayResume");
+            LogBoss("RewardEnd");
             return;
         }
 
@@ -1476,7 +2625,9 @@ public class GameManager : MonoBehaviour
 
         pendingChoiceKind = PendingChoiceKind.BossReward;
         levelUpPending = true;
-        Time.timeScale = 0f;
+        FreezeDiagnostics.LogEvent("[Pause] BossReward choice start");
+        // マルチプレイPhase 2.5: マルチでは世界全体を止めない(選んでいる本人の端末にUIが出るだけ)。
+        if (!NetMatch.Active) TimeControl.Pause(pendingChoiceTimeOwner);
 
         if (rewardCardSequence != null && pendingChoices.Length > 0)
         {
@@ -1485,7 +2636,9 @@ public class GameManager : MonoBehaviour
             {
                 cards[i] = MakeChoiceCardData(pendingChoices[i]);
             }
-            rewardCardSequence.StartSequence(cards, ApplyUpgradeByCardId, "BOSS REWARD");
+            LogBossRewardStage("RewardCardSequence Start (about to call StartSequence)");
+            StartChoiceSequence(cards, "BOSS REWARD");
+            LogBossRewardStage("RewardCardSequence Start (StartSequence call returned)");
         }
         else
         {
@@ -1502,6 +2655,7 @@ public class GameManager : MonoBehaviour
         // Leveling up always fully restores HP, regardless of whether a
         // card ends up being offered below.
         Lives = maxLives;
+        NetMatch.RequestSetMax(maxLives, true);
 
         // Draws from the player's edited deck rather than every card in the
         // database. The fallback to the full unlocked pool only covers the
@@ -1512,12 +2666,15 @@ public class GameManager : MonoBehaviour
         // must NOT fall back to the full pool, or clearing the deck would
         // silently keep offering cards anyway.
         var pool = new List<CardDefinition>();
+        int maxedInDeck = 0;
         foreach (string id in deckCards)
         {
             CardDefinition card = CardDatabase.FindById(id);
-            if (card != null) pool.Add(card);
+            if (card == null) continue;
+            if (CanStillPick(card)) pool.Add(card); else maxedInDeck++;
         }
-        if (pool.Count == 0 && deckCards.Count > 0) pool.AddRange(CardDatabase.UnlockedCards);
+        if (pool.Count == 0 && deckCards.Count > 0 && maxedInDeck == 0) foreach (var u in CardDatabase.UnlockedCards) if (CanStillPick(u)) pool.Add(u);
+        if (pool.Count == 0 && maxedInDeck > 0) Debug.Log($"[Card] every deck card is at Lv{MaxRunCardLevel} - no card choice this time");
 
         if (pool.Count == 0)
         {
@@ -1541,7 +2698,8 @@ public class GameManager : MonoBehaviour
 
         pendingChoiceKind = PendingChoiceKind.LevelUp;
         levelUpPending = true;
-        Time.timeScale = 0f;
+        FreezeDiagnostics.LogEvent("[Pause] LevelUp choice start");
+        if (!NetMatch.Active) TimeControl.Pause(pendingChoiceTimeOwner);
 
         // Diagnostic: proves whether rewardCardSequence actually survived
         // into the build, unconditionally (not gated behind anything the
@@ -1561,7 +2719,7 @@ public class GameManager : MonoBehaviour
             {
                 cards[i] = MakeChoiceCardData(pendingChoices[i]);
             }
-            rewardCardSequence.StartSequence(cards, ApplyUpgradeByCardId);
+            StartChoiceSequence(cards, "LEVEL UP");
         }
         else
         {
@@ -1622,6 +2780,7 @@ public class GameManager : MonoBehaviour
                     // out the heart cap entirely.
                     maxLives = Mathf.Max(1, Mathf.Min(maxLivesCap, maxLives + Mathf.RoundToInt(effect.value)));
                     Lives = maxLives;
+                    NetMatch.RequestSetMax(maxLives, true);
                     break;
                 case EffectType.AttackRange:
                     if (pc != null) pc.AddAttackRangeBonus(effect.value);
@@ -1686,43 +2845,92 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Bugfix 2026-09-07 (Bug #001, root cause) - this method's resume-
+    // critical lines (levelUpPending=false/Time.timeScale=1f and, for a
+    // Boss Reward, Checkpoint/EndBossPhase/EndBossDistanceExclusion/
+    // UnlockEscape) used to run unconditionally AFTER ApplyCardEffects(card)
+    // in plain sequence - if ApplyCardEffects ever threw (a malformed
+    // CardEffect, an unexpected value, etc.), NONE of the resume logic below
+    // it would run at all, leaving Time.timeScale/levelUpPending/IsBossPhase
+    // stuck exactly like the report describes (recoverable only via the 30s
+    // pendingChoiceStuckTimer watchdog). Now wrapped in try/finally so the
+    // resume itself is unconditional. SaveCheckpoint() specifically is ALSO
+    // now wrapped in its own try/catch (report's own explicit instruction -
+    // "SaveCheckpoint()成功をResume条件にしすぎないよう注意...Save処理が失
+    // 敗してもGameplay Stateが永久停止しない設計に") so a save failure can
+    // never block EndBossPhase/EndBossDistanceExclusion/UnlockEscape either.
     void ApplyUpgradeByCardId(string cardId)
     {
-        CardDefinition card = CardDatabase.FindById(cardId);
-        if (card != null)
-        {
-            // "そのRun中だけ有効な強化...Owned CardとしてHome Roomへ追加し
-            // ないでください" - a Boss Reward pick goes through this EXACT
-            // same path as a normal Level Up pick (ApplyCardEffects +
-            // upgradeHistory only), which already never touches
-            // CardInventory - so that requirement holds for free just by
-            // reusing this method verbatim.
-            ApplyCardEffects(card);
-            upgradeHistory.Add(card);
-            // Bugfix 2026-09-05, item 4 - see ApplyCharacterCardEffects's
-            // matching log; GetCurrentRunStack already includes the Add
-            // above (upgradeHistory was just appended to).
-            if (DebugMode) Debug.Log($"[CardStack] Run pick: {card.cardName} -> runStackNow={GetCurrentRunStack(card.cardId)} (kind={pendingChoiceKind})");
-        }
-
-        // Item 7 - a Boss Reward choice resolving (even to nothing, if
-        // card==null) is exactly "Boss Reward処理まで正常に終了した時点" -
-        // the Checkpoint updates here, AFTER the pick, not before.
+        LogBossRewardStage($"Reward Selected (cardId={cardId})");
         bool wasBossReward = pendingChoiceKind == PendingChoiceKind.BossReward;
+        if (wasBossReward) LogBoss("RewardCardSelected");
 
-        levelUpPending = false;
-        pendingChoices = null;
-        Time.timeScale = 1f;
-
-        if (wasBossReward)
+        try
         {
-            SaveCheckpoint();
-            // Bugfix 2026-09-06, item "Boss戦中Distance停止" - Distance (and
-            // Enemy Wall spawn/TerrainManager safe-terrain suppression) only
-            // resumes here, at actual Boss Reward completion - not at the
-            // boss's own death (see CheckEncounterComplete's own comment).
-            if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
-            UnlockEscape();
+            CardDefinition card = CardDatabase.FindById(cardId);
+            if (card != null && !CanStillPick(card))
+            {
+                // Lv9に届いているカード(通常は候補に出ない): 効果は重ねない
+                MaxedCardSkips++;
+                Debug.Log($"[Card] {cardId} is already Lv{GetCurrentRunStack(cardId)} (max {MaxRunCardLevel}) - effect not stacked");
+                card = null;
+            }
+            if (card != null)
+            {
+                // "そのRun中だけ有効な強化...Owned CardとしてHome Roomへ追加し
+                // ないでください" - a Boss Reward pick goes through this EXACT
+                // same path as a normal Level Up pick (ApplyCardEffects +
+                // upgradeHistory only), which already never touches
+                // CardInventory - so that requirement holds for free just by
+                // reusing this method verbatim.
+                ApplyCardEffects(card);
+                upgradeHistory.Add(card);
+                // Bugfix 2026-09-05, item 4 - see ApplyCharacterCardEffects's
+                // matching log; GetCurrentRunStack already includes the Add
+                // above (upgradeHistory was just appended to).
+                if (DebugMode) Debug.Log($"[CardStack] Run pick: {card.cardName} -> runStackNow={GetCurrentRunStack(card.cardId)} (kind={pendingChoiceKind})");
+            }
+        }
+        finally
+        {
+            // Item 7 - a Boss Reward choice resolving (even to nothing, if
+            // card==null, or if ApplyCardEffects above threw) is exactly
+            // "Boss Reward処理まで正常に終了した時点" - the Checkpoint updates
+            // here, AFTER the pick, not before.
+            levelUpPending = false;
+            pendingChoices = null;
+            FreezeDiagnostics.LogEvent("[Pause] Choice resolved -> TimeControl.Resume(pendingChoice)");
+            TimeControl.Resume(pendingChoiceTimeOwner);
+            // Bugfix 2026-09-08 - see UpdatePendingChoiceWatchdog's matching
+            // comment for why this needs clearing on every resolution path,
+            // not just left to persist until the next Level Up overwrites it.
+            lastLevelUpDiagnostic = "";
+            LogBossRewardStage("GameplayResume/InputResume (Time.timeScale=1f, levelUpPending=false)");
+            if (wasBossReward) LogBoss("GameplayResume");
+
+            if (wasBossReward)
+            {
+                try
+                {
+                    SaveCheckpoint();
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError("[BossReward] SaveCheckpoint threw - continuing the resume regardless (report item 4): " + e);
+                }
+                LogBossRewardStage("SaveCheckpoint done");
+                LogBoss("CheckpointSaved");
+                // Bugfix 2026-09-06, item "Boss戦中Distance停止" - Distance (and
+                // Enemy Wall spawn/TerrainManager safe-terrain suppression) only
+                // resumes here, at actual Boss Reward completion - not at the
+                // boss's own death (see CheckEncounterComplete's own comment).
+                if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
+                EndBossDistanceExclusion();
+                LogBossRewardStage("EndBossPhase done -> DistanceResume");
+                LogBoss("EndBossPhase");
+                UnlockEscape();
+                LogBoss("RewardEnd");
+            }
         }
     }
 
@@ -1754,17 +2962,27 @@ public class GameManager : MonoBehaviour
     // Bugfix 2026-09-06, item 2 - `reason` is Debug-log only (Debug.Log
     // below, no behavior branches on it) so the actual GAME OVER cause can
     // be confirmed on a real device rather than inferred from review alone.
-    public DamageResult TryDamagePlayer(bool bypassInvincibleMode = false, string reason = "Other")
+    public DamageResult TryDamagePlayer(bool bypassInvincibleMode = false, string reason = "Other", int amount = CombatScale.PlayerHit)
     {
-        if (IsGameOver) return DamageResult.Ignored;
-        if (PresentationDamageLock) return DamageResult.Ignored;
+        Vector3 dmgPos = PlayerController.Instance != null ? PlayerController.Instance.transform.position : Vector3.zero;
+        if (IsGameOver) { DamageAfterDeathIgnored++; return DamageResult.Ignored; } // 死亡済み: 以後のダメージ/死亡要求は無視
+        if (PresentationDamageLock) { FreezeDiagnostics.LogEvent($"[Damage] Ignored(PresentationDamageLock) reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); return DamageResult.Ignored; }
         if (!bypassInvincibleMode && InvincibleMode) return DamageResult.Ignored;
-        if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) return DamageResult.Ignored;
+        if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); return DamageResult.Ignored; }
 
-        Lives = Mathf.Max(0, Lives - 1);
+        // ボス戦の強化(2026-10-01): 重い一撃は複数ハート。ただしハートが満タンの時に1発で倒れることはない。
+        int dmg = Mathf.Max(1, amount);
+        // 満タンからの強い一撃(ハート2つ分以上)だけでは倒れない(旧: ハート1つ残す。新: 通常の一撃ぶん=ハート1つ残す)
+        if (dmg > CombatScale.PlayerHit && Lives >= maxLives && dmg >= Lives) dmg = Mathf.Max(CombatScale.PlayerHit, Lives - CombatScale.PlayerHit);
+        FreezeDiagnostics.LogEvent($"[Damage] Hit reason={reason} amount={dmg} pos=({dmgPos.x:F2},{dmgPos.y:F2}) livesBefore={Lives} timeScale={Time.timeScale:F2}");
+        Lives = Mathf.Max(0, Lives - dmg);
         heartDamageFlashTimer = heartDamageFlashDuration;
+        // マルチプレイPhase 2.5: HOST自身のHPの変化もHOSTの表(全員へ配る正解)へ即反映する。
+        if (NetCombat.Authority) NetMatch.HostLocalHpChanged(reason);
         if (Lives <= 0)
         {
+            // マルチプレイPhase 3: CO-OP=ダウン / VERSUS=脱落 はRunを終えずにNetMatchが扱う。
+            if (NetMatch.HostLocalHpZero(reason)) return DamageResult.GameOver;
             // Bugfix 2026-09-06, item 2 - logged unconditionally (not just
             // under DebugMode) since a GAME OVER is rare enough that this
             // never spams, and this is the one moment the report explicitly
@@ -1785,7 +3003,9 @@ public class GameManager : MonoBehaviour
             // OWN next Update(), i.e. strictly after this call returns, so
             // clearing the checkpoint here already happens before the
             // death Presentation with no extra ordering needed.
-            RunCheckpoint.Clear();
+            if (!NetRunLauncher.IsMultiplayerRun) RunCheckpoint.Clear(); // マルチプレイRunの死亡でシングルのCONTINUEを消さない
+            DeathReason = reason;
+            DeathLog($"Player death confirmed reason={reason}");
             FinishRun();
             return DamageResult.GameOver;
         }
@@ -1794,6 +3014,143 @@ public class GameManager : MonoBehaviour
         // gated on !IsGameOver since a fatal hit already returned above.
         SaveInterruptState();
         return DamageResult.Hit;
+    }
+
+    // ===== マルチプレイPhase 2.5: JOINのHPはHOSTが決める =====
+
+    // JOIN: TryDamagePlayerと同じ事前チェック(終了済み/演出中ロック/無敵モード/シールド)だけを行う。
+    // trueなら「HPを減らす被弾」としてHOSTへ申告してよい(ここではHPを減らさない)。
+    public bool NetPrecheckDamage(bool bypassInvincibleMode, string reason)
+    {
+        if (IsGameOver) return false;
+        if (PresentationDamageLock) { FreezeDiagnostics.LogEvent($"[Damage] Ignored(PresentationDamageLock) reason={reason} (net claim)"); return false; }
+        if (!bypassInvincibleMode && InvincibleMode) return false;
+        if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} (net claim)"); return false; }
+        return true;
+    }
+
+    // Phase 3: HOSTがこの端末のプレイヤーのHPを直接決めた(復活の授受/DOWN)。
+    public void NetSetLocalLives(int n)
+    {
+        if (n > maxLives) maxLives = n;
+        Lives = Mathf.Max(0, n);
+    }
+
+    float netLocalHpRequestUntil;
+    public void NetNoteLocalHpRequest() { netLocalHpRequestUntil = Time.realtimeSinceStartup + 0.5f; }
+
+    // JOIN: HOSTが確定したHP/最大HPを反映する(表示のハートもこの値)。
+    public void NetApplyAuthoritativeLives(int hp, int max, bool fromHit = false)
+    {
+        if (IsGameOver) return;
+        // 回復/最大HPの要求を送った直後は、HOSTが処理するまでの古い表で巻き戻さない(被弾の確定は常に反映)。
+        if (!fromHit && Time.realtimeSinceStartup < netLocalHpRequestUntil && hp < Lives) return;
+        if (hp < Lives) heartDamageFlashTimer = heartDamageFlashDuration;
+        maxLives = Mathf.Max(1, max);
+        Lives = Mathf.Clamp(hp, 0, Mathf.Max(maxLives, hp));
+    }
+
+    // ===== マルチ(2026-09-28): 状態の優先順位 =====
+    // Run Finished > Eliminated/Down > ChoosingCard > 通常走行。
+    // 上位の状態にある間は、この端末でカード選択(レベルアップ/ボス報酬)を開かない・開いていれば閉じる。
+    // dropQueued=true: キュー中の選択も捨てる(Run終了/脱落 = もう選べる機会が来ない)。
+    // CO-OPのDOWNだけは復活があり得るので、キューは残して復活後に出す(表示中のものは閉じる)。
+    bool IsNetChoiceBlocked(out bool dropQueued)
+    {
+        dropQueued = false;
+        if (!NetMatch.Active || !HasStarted) return false;
+        if (IsGameOver || NetRunLauncher.RunState == NetRunState.Finished || (NetMatch.Instance != null && NetMatch.Instance.RunOver))
+        {
+            dropQueued = true;
+            return true;
+        }
+        NetMatch.Rec me = NetMatch.Get(NetCombat.LocalPlayerNumber);
+        if (me != null && me.State != NetMatch.PState.Alive)
+        {
+            dropQueued = me.State != NetMatch.PState.Down;
+            return true;
+        }
+        return false;
+    }
+
+    string NetChoiceBlockReason()
+    {
+        if (IsGameOver || NetRunLauncher.RunState == NetRunState.Finished || (NetMatch.Instance != null && NetMatch.Instance.RunOver)) return "run finished";
+        NetMatch.Rec me = NetMatch.Get(NetCombat.LocalPlayerNumber);
+        return me != null ? $"local player {me.State}" : "blocked";
+    }
+
+    // 毎フレーム: 選択UIが開いている/開きかけているのに上位の状態になっていたら、すぐ閉じる。
+    void EnforceNetChoicePriority()
+    {
+        if (!NetMatch.Active) return;
+        bool uiUp = levelUpPending || (rewardCardSequence != null && rewardCardSequence.IsRunning);
+        if (!uiUp && !bossRewardDeferredPending) return;
+        if (!IsNetChoiceBlocked(out bool dropQueued)) return;
+        NetCloseAllChoices(NetChoiceBlockReason(), dropQueued);
+    }
+
+    public int NetChoicesClosedCount { get; private set; } // 自動テスト用
+
+    // 表示中/待機中の選択UIをすべて閉じる(カードは適用しない)。Run終了/脱落/DOWNの時に使う。
+    public void NetCloseAllChoices(string reason, bool dropQueued)
+    {
+        bool uiUp = levelUpPending || (rewardCardSequence != null && rewardCardSequence.IsRunning);
+        bool wasBossReward = levelUpPending && pendingChoiceKind == PendingChoiceKind.BossReward;
+        bool bossQueued = bossRewardDeferredPending;
+        if (rewardCardSequence != null && rewardCardSequence.IsRunning) rewardCardSequence.ForceReset();
+        levelUpPending = false;
+        pendingChoices = null;
+        lastLevelUpDiagnostic = "";
+        pendingChoiceStuckTimer = 0f;
+        TimeControl.Resume(pendingChoiceTimeOwner);
+        int dropped = 0;
+        if (dropQueued)
+        {
+            dropped = pendingLevelUpCount;
+            pendingLevelUpCount = 0;
+            levelUpDeferredTimer = -1f;
+        }
+        bossRewardDeferredPending = false;
+        bossRewardDeferredTimer = -1f;
+        bossRewardStuckTimer = 0f;
+        // ボス報酬を出さずに終えた場合も、ボス戦の後始末(距離/湧きの再開)は通常の決定時と同じに行う。
+        if ((wasBossReward || bossQueued) && !IsGameOver)
+        {
+            if (BossManager.Instance != null) BossManager.Instance.EndBossPhase();
+            EndBossDistanceExclusion();
+            UnlockEscape();
+        }
+        NetChoicesClosedCount++;
+        Debug.Log($"[NET][CHOICE] choice UI closed ({reason}) uiWasOpen={uiUp} bossReward={wasBossReward} bossQueued={bossQueued} droppedLevelUps={dropped} keptLevelUps={pendingLevelUpCount}");
+    }
+
+    // 死神三姉妹(2026-09-29): シングルプレイで死神に捕まった。残りライフに関わらず、この一撃でRunを終える
+    // (死亡演出/Result/CONTINUE無効化は既存のGameOverの流れのまま)。DEBUGの無敵中とシールドは従来どおり守る。
+    public void ReapPlayer(string reason)
+    {
+        if (IsGameOver) { DamageAfterDeathIgnored++; DeathLog($"ReapPlayer ignored (already dead) reason={reason}"); return; }
+        if (!HasStarted || InvincibleMode) return;
+        DeathLog($"ReapPlayer reason={reason} livesBefore={Lives} timeScale={Time.timeScale:F2} reasons={TimeControl.DescribeActiveReasons()} choice={levelUpPending} bossPhase={(BossManager.Instance != null && BossManager.Instance.IsBossPhase)}");
+        if (NetRunLauncher.IsMultiplayerRun) { if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: reason); return; }
+        Lives = Mathf.Min(Lives, CombatScale.PlayerHit);
+        TryDamagePlayer(false, reason);
+    }
+
+    // JOIN: HOSTの判定でこの端末のRunが終わった(Phase 2.5の既定=HP0)。
+    public void NetForceGameOver(string reason)
+    {
+        if (IsGameOver) return;
+        Debug.Log($"[GameOver] Reason={reason} (decided by HOST)");
+        Lives = 0;
+        FinishRun();
+    }
+
+    // JOIN: HOSTから「ボス報酬はあなた」と届いた。既存のボス報酬の流れ(演出待ち→3枚選択)で出す。
+    public void NetOfferBossReward()
+    {
+        if (IsGameOver || !HasStarted) return;
+        TriggerBossRewardChoice();
     }
 
     // Kills no longer restore HP directly on their own (see the HEART UP /
@@ -1807,6 +3164,35 @@ public class GameManager : MonoBehaviour
         // Card Expansion/Gacha Evolution Ver.1 - Tough/Fast/Elite Enemies,
         // Treasure Hunter, Mob Killer, Executioner, Hell Mode, etc.
         RunEnemyMile += Mathf.Max(0, Mathf.RoundToInt(mileReward * MileGainMultiplier));
+    }
+
+    // ===== BONUS ZONE(2026-09-29)の報酬の入口 =====
+    // 報酬の計算はBonusZone/BonusEnemy、ここは既存のRun Progression(仮取得MILE/EXP/Card Choice)へ渡すだけ。
+    // マルチ対応時は「報酬を受け取るPlayerの端末」でこれらを呼ぶ(敵撃破の報酬と同じ経路にできる形)。
+    // 仮取得MILEへ加算(MILE獲得量アップ系カードの倍率込み)。実際に加算した量を返す。
+    public int AddRunBonusMile(int amount)
+    {
+        if (amount <= 0 || IsGameOver) return 0;
+        int add = Mathf.Max(0, Mathf.RoundToInt(amount * MileGainMultiplier));
+        RunBonusMile += add;
+        return add;
+    }
+
+    // 通常のEXP(撃破/距離と同じGainExp、EXP UPカードの倍率込み)。実際に入った量を返す(選択中で捨てられた時は0)。
+    public float GrantBonusExp(float amount)
+    {
+        if (amount <= 0f || IsGameOver) return 0f;
+        if (levelUpPending && !NetMatch.Active) return 0f;
+        float applied = amount * expGainMultiplier;
+        GainExp(amount);
+        return applied;
+    }
+
+    // 既存の3枚Card Choiceを1回追加する(Level Upと同じ順番待ち: 選択中/ボス演出中なら終わってから1件ずつ出す)。
+    public void GrantBonusCardChoice()
+    {
+        if (IsGameOver) return;
+        TriggerLevelUpChoice();
     }
 
     public void RegisterBossDefeat(int mileReward = 50)
@@ -1830,9 +3216,13 @@ public class GameManager : MonoBehaviour
         if (Random.value < lifestealChance) AddLife(Mathf.RoundToInt(lifestealAmount));
     }
 
+    // 10〜12人目(2026-09-28) - 吸血鬼の吸血回復用の公開入口(回復量と頻度の上限は吸血鬼側で管理)。
+    public void KitHeal(int amount) { if (amount > 0 && !IsGameOver) AddLife(amount); }
+
     void AddLife(int amount = 1)
     {
         Lives = Mathf.Min(maxLives, Lives + amount);
+        NetMatch.RequestHeal(amount);
     }
 
     public void Win()
@@ -1844,28 +3234,52 @@ public class GameManager : MonoBehaviour
 
     void FinishRun()
     {
+        FinishRunCalls++;
+        if (IsGameOver) { DeathLog($"FinishRun called again (#{FinishRunCalls}){(QaLegacyDeathBehaviour ? " (legacy: runs again)" : " - ignored")}"); if (!QaLegacyDeathBehaviour) return; }
         IsGameOver = true;
+        gameOverRealtime = Time.realtimeSinceStartup;
+        gameOverPausedTimer = 0f;
+        DeathLog($"FinishRun win={IsWin} reason={DeathReason} timeScaleBefore={Time.timeScale:F2} reasons={TimeControl.DescribeActiveReasons()} hitStop={HitStop.ActiveCount} choice={levelUpPending} seq={IsRewardSequenceRunning}");
+        // 死神(三姉妹)は追跡/攻撃/接触判定をここで止める(死因が何であっても)
+        if (!QaLegacyDeathBehaviour) ReaperBase.StopAllForRunEnd();
+        ProgressStats.Flush(true); // 死亡/正常終了: 累計走行距離を保存(2026-10-01)
         gameOverTime = Time.time;
         // Safety net: Time.timeScale is a global engine setting that would
         // otherwise persist across a scene reload (Retry) - if the run
-        // somehow ended while a level-up pause was still active, this
-        // guarantees the next run doesn't start frozen.
-        Time.timeScale = 1f;
+        // somehow ended while a level-up pause (or any other TimeControl
+        // reason, including a leaked HitStop) was still active, this
+        // guarantees the next run doesn't start frozen. TimeControl.ResetAll
+        // clears every registered pause reason, not just this one, on purpose.
+        TimeControl.ResetAll();
+        // マルチ(2026-09-28): Resultを最優先 - 表示中のカード選択UIを閉じ、キュー中の選択も捨てる
+        // (以前はフラグだけ下ろしてUIが画面に残り、VERSUS RESULTと重なることがあった)。
+        if (rewardCardSequence != null && rewardCardSequence.IsRunning) rewardCardSequence.ForceReset();
+        pendingLevelUpCount = 0;
+        levelUpDeferredTimer = -1f;
+        bossRewardDeferredPending = false;
+        bossRewardDeferredTimer = -1f;
+        NetRunLauncher.MarkFinished(IsWin ? "run finished (win)" : "run finished (game over)");
         levelUpPending = false;
         pendingChoices = null;
+        lastLevelUpDiagnostic = ""; // Bugfix 2026-09-08 - see UpdatePendingChoiceWatchdog's matching comment
         // Time.time itself doesn't advance while paused for a level-up
         // choice (Time.timeScale = 0), so this naturally excludes any time
         // spent on those pauses from the recorded run time.
         RunTime = Time.time - runStartTime;
 
-        IsNewBestDistance = MaxDistance > BestDistance;
-        if (IsNewBestDistance)
+        // マップ別BEST: そのランのステージIDの記録だけを更新する(帰還/ゲームオーバーの確定タイミングは従来どおりここ)。
+        string bestStageId = activeRunStageId;
+        IsNewBestDistance = MaxDistanceExact > GetStageBest(bestStageId);
+        if (IsNewBestDistance) SetStageBest(bestStageId, MaxDistanceExact);
+        // 全体の最高距離(解放/ガチャ進行用)は従来どおり。
+        bool record = !DebugRun.BlocksSave("BestDistance/BestTime"); // 記録対象外のラン(デバッグワープ)は全体のBEST/時間も更新しない
+        if (record && MaxDistance > BestDistance)
         {
             BestDistance = MaxDistance;
             PlayerPrefs.SetFloat(BestDistanceKey, BestDistance);
         }
 
-        IsNewBestTime = RunTime > BestTime;
+        IsNewBestTime = record && RunTime > BestTime;
         if (IsNewBestTime)
         {
             BestTime = RunTime;
@@ -1897,11 +3311,36 @@ public class GameManager : MonoBehaviour
         // condition (idempotent with the earlier RunCheckpoint.Clear() call
         // in TryDamagePlayer's GAME OVER branch, and the only call for the
         // FINISH/Win() path).
-        RunCheckpoint.Clear();
+        // マルチプレイRunの終了で、シングルの中断データ(CONTINUE)を消さない。
+        if (!NetRunLauncher.IsMultiplayerRun) RunCheckpoint.Clear();
+        DeathLog($"FinishRun done timeScale={Time.timeScale:F2}");
+    }
+
+    // [Death] の記録(FreezeDiagnosticsの記録にも残す)
+    public void DeathLog(string msg)
+    {
+        string m = "[Death] " + msg;
+        Debug.Log(m);
+        FreezeDiagnostics.LogEvent(m);
+    }
+
+    // 死亡後に何かが時間を止めたまま(Time.timeScale=0)になっていたら戻す。結果画面/Retryは実時間で動くが、
+    // 背景の演出やBGMの切り替え等は通常の時間で動くので、止まったままにしない。
+    void UpdateGameOverGuard()
+    {
+        if (!IsGameOver || QaLegacyDeathBehaviour) return;
+        if (Time.timeScale > 0f) { gameOverPausedTimer = 0f; return; }
+        gameOverPausedTimer += Time.unscaledDeltaTime;
+        if (gameOverPausedTimer < 0.5f) return;
+        gameOverPausedTimer = 0f;
+        GameOverUnpauseCount++;
+        DeathLog($"time was still stopped after the run ended (reasons={TimeControl.DescribeActiveReasons()} hitStop={HitStop.ActiveCount}) -> TimeControl.ResetAll");
+        TimeControl.ResetAll();
     }
 
     public void Retry()
     {
+        DeathLog($"Retry -> reload scene (gameOver={IsGameOver})");
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
@@ -1915,6 +3354,8 @@ public class GameManager : MonoBehaviour
     void SaveInterruptState()
     {
         if (!HasStarted || IsGameOver) return;
+        // マルチプレイRunはシングル用の中断データ(CONTINUE)を上書きしない。
+        if (NetRunLauncher.IsMultiplayerRun) return;
         RunCheckpoint.Data data = RunCheckpoint.Load();
         data.active = true;
         FillCheckpointSnapshot(data);
@@ -1927,6 +3368,7 @@ public class GameManager : MonoBehaviour
     void SaveCheckpoint()
     {
         if (!HasStarted || IsGameOver) return;
+        if (NetRunLauncher.IsMultiplayerRun) return; // SaveInterruptStateと同じ理由
         RunCheckpoint.Data data = RunCheckpoint.Load();
         data.active = true;
         data.checkpointDistance = MaxDistance;
@@ -1936,6 +3378,8 @@ public class GameManager : MonoBehaviour
 
     void FillCheckpointSnapshot(RunCheckpoint.Data data)
     {
+        data.characterId = activeRunCharacterId;
+        data.stageId = activeRunStageId;
         data.highestReachedDistance = HighestReachedDistance;
         data.lives = Lives;
         data.maxLives = maxLives;
@@ -1945,8 +3389,10 @@ public class GameManager : MonoBehaviour
         data.enemyKillCount = EnemyKillCount;
         data.bossKillCount = BossKillCount;
         data.runEnemyMile = RunEnemyMile;
+        data.runBonusMile = RunBonusMile;
         data.runBossMile = RunBossMile;
         data.escapeUnlocked = escapeUnlocked;
+        if (BossManager.Instance != null) BossManager.Instance.ExportPool(data); // ボスの再戦プール(2026-10-02)
         data.upgradeHistoryCardIds = new List<string>();
         foreach (CardDefinition card in upgradeHistory) data.upgradeHistoryCardIds.Add(card.cardId);
     }
@@ -1960,7 +3406,11 @@ public class GameManager : MonoBehaviour
     public void ReturnToHome()
     {
         if (!HasStarted || IsGameOver) return;
-        Time.timeScale = 1f; // defensive - same reasoning as FinishRun's own reset, in case this is ever reached while still paused
+        TimeControl.ResetAll(); // defensive - same reasoning as FinishRun's own reset, in case this is ever reached while still paused
+        // 2026-10-03: ホームへの暗転(実時間)の間もゲームは止めておく。以前は ResetAll で動き出し、暗転中に
+        // 被弾/前進して、保存したHPや距離が確認画面の時点とずれることがあった。次のシーンの Awake で解除する。
+        if (!NetRunLauncher.IsMultiplayerRun) TimeControl.Pause(returnHomeTimeOwner); // マルチは従来どおり(ほかの端末の世界は止められない)
+        ProgressStats.Flush(true); // 途中帰還: 累計走行距離を保存(2026-10-01)
         SaveInterruptState();
         RetryWithTransition();
     }
@@ -1985,7 +3435,7 @@ public class GameManager : MonoBehaviour
             {
                 BeginContinuedRun();
                 startTransitioning = false;
-            });
+            }, ScreenTransitionManager.Style.DoorLight, lastDoorRect.width > 1f ? lastDoorRect : (Rect?)null);
             return;
         }
         BeginContinuedRun();
@@ -1999,6 +3449,7 @@ public class GameManager : MonoBehaviour
         runStartTime = Time.time;
 
         MaxDistance = data.checkpointDistance;
+        MaxDistanceExact = data.checkpointDistance;
         HighestReachedDistance = Mathf.Max(data.highestReachedDistance, data.checkpointDistance);
         Level = Mathf.Max(1, data.level);
         Exp = data.exp;
@@ -2006,8 +3457,30 @@ public class GameManager : MonoBehaviour
         EnemyKillCount = data.enemyKillCount;
         BossKillCount = data.bossKillCount;
         RunEnemyMile = data.runEnemyMile;
+        RunBonusMile = data.runBonusMile;
         RunBossMile = data.runBossMile;
         escapeUnlocked = data.escapeUnlocked;
+
+        // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - このRunが実際
+        // に開始された時のキャラクター(data.characterId)を使う。Homeで
+        // Character Selectの選択(SelectedCharacterId)がその後変わって
+        // いても、このRun自体のキャラクターは変わらない(マスターの明示
+        // 要件)。data.characterIdが空(=この仕組みが入る前に保存された
+        // 旧いActive Run)の場合のみ、後方互換としてSelectedCharacterIdへ
+        // フォールバックする。
+        activeRunCharacterId = !string.IsNullOrEmpty(data.characterId) ? data.characterId : SelectedCharacterId;
+        ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
+        SetCharacterCardOwner(activeRunCharacterId); // そのキャラのキャラカード枠(2026-10-02)
+
+        // ステージ選択導線追加(2026-09-12) - 上と全く同じ理由。data.stageId
+        // が空(旧いActive Run)の場合のみSelectedStageIdへフォールバック。
+        activeRunStageId = !string.IsNullOrEmpty(data.stageId) ? data.stageId : SelectedStageId;
+        // ステージ別ビジュアル差し替え(2026-09-13) - 必ずこの下のPlayer
+        // ワープ(p.x = data.checkpointDistance)より前に呼ぶこと - ワープ
+        // した瞬間にTerrainManager.Update()がx=0からcheckpointDistanceまで
+        // 一気にチャンクを生成し直す(既存のDebug Warp機構と同じ)ため、
+        // その生成が始まる前にテーマを確定させておく必要がある。
+        if (TerrainManager.Instance != null) TerrainManager.Instance.ApplyStageTheme(activeRunStageId);
 
         // Item 8 - "Run中カード効果/各カードStack/Character Card由来の効
         // 果/Run中の現在能力" are reconstructed by REPLAYING the exact same
@@ -2034,6 +3507,7 @@ public class GameManager : MonoBehaviour
 
         // Item 7 - resumes exactly where the Boss schedule was at.
         if (BossManager.Instance != null) BossManager.Instance.RestoreNextBossDistance(data.checkpointDistance);
+        if (BossManager.Instance != null) BossManager.Instance.ImportPool(data, data.checkpointDistance); // ボスの再戦プール(2026-10-02)
 
         // Item 14 - short safe zone right after resuming (no new Enemy/
         // Formation/Wall spawns until past this - see IsInSafeZone).
@@ -2055,10 +3529,14 @@ public class GameManager : MonoBehaviour
         {
             Vector3 p = PlayerController.Instance.transform.position;
             p.x = data.checkpointDistance;
+            FreezeDiagnostics.NoteIntendedMove("CONTINUE (checkpoint)");
             PlayerController.Instance.transform.position = p;
         }
 
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
+
+        // 2026-10-03: すぐには走り出さず、停止した画面で「準備ができたら再開」を待つ(GameManager.ResumeGate.cs)
+        BeginResumeGate();
     }
 
     // Presentation pass - RESULT->TOP goes through the shared wipe's Close
@@ -2070,7 +3548,7 @@ public class GameManager : MonoBehaviour
     {
         if (ScreenTransitionManager.Instance != null)
         {
-            ScreenTransitionManager.Instance.PlayCloseThenReload(Retry);
+            ScreenTransitionManager.Instance.PlayCloseThenReload(Retry, ScreenTransitionManager.Style.Fade);
             return;
         }
         Retry();
@@ -2078,6 +3556,13 @@ public class GameManager : MonoBehaviour
 
     void OnGUI()
     {
+        // Bug #001 診断フェーズ (2026-09-08) - 意図的にAnyOverlayOpen等の
+        // 分岐の外(=Level Up/Boss Reward/Pauseで隠れている最中でも見える
+        // 位置)に置く。まさにFreeze中こそこのパネルを見たいため。
+        // 診断表示(2026-09-27 改修) - Bug#001のBOSS診断パネル/Freeze・Warpログ/ボスSnapshotは、
+        // 常時表示・自動で開く方式をやめ、DiagnosticsOverlay(Debug Mode中のRunだけ)の小さな
+        // 「診断ログ」「BOSS診断」ボタンから開く。異常検知時は「ログ保存済み」を短く出すだけ。
+
         // Drawn first (before every other element) so everything else on
         // the top screen layers on top of it, and only while that screen
         // is showing - it must never bleed into gameplay. A single static
@@ -2096,6 +3581,10 @@ public class GameManager : MonoBehaviour
         // "cover" crop/letterbox math. The old drifting-cloud layer is
         // gone - an enclosed room has no sky to drift clouds across (see
         // SceneBuilder's own comment on topCloud).
+        // Home待機演出: Home非表示(ラン中/サブ画面)の間は毎回Resetして、途中の
+        // 姿勢・コイン・粒子を残さない(戻った時に多重起動もしない)。
+        GetIdleFx().SetVisible(!HasStarted && !AnyOverlayOpen && topBackground != null);
+
         if (!HasStarted && !AnyOverlayOpen && topBackground != null)
         {
             float coverScale = Mathf.Max((float)Screen.width / topBackground.width, (float)Screen.height / topBackground.height);
@@ -2130,27 +3619,46 @@ public class GameManager : MonoBehaviour
             // HudPanelHeight/top offset - see the Get*PanelRect getters -
             // so this reads as one aligned strip instead of separately
             // placed boxes.
-            DrawStatPanel(GetBestPanelRect(), "BEST", FormatDistance(BestDistance), HudGoldColor);
-            DrawStatPanel(GetDistancePanelRect(), "DISTANCE", FormatDistance(MaxDistance), HudValueColor, flashIntensity: DistanceFlashIntensity);
+            DrawStatPanel(GetBestPanelRect(), "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor);
+            DrawStatPanel(GetDistancePanelRect(), "DISTANCE", FormatDistanceExact(MaxDistanceExact), HudValueColor, flashIntensity: DistanceFlashIntensity);
+            DrawSpeedHud();
 
             DrawLevelAndExp();
             DrawHeartsPanel();
 
-            if (DebugMode) DrawDebugSpeedReadout();
+            // 開発ビルドではDEBUG TOOLSの中に表示する(リリースビルドのDebug Modeでは従来どおりここに出す)。
+            if (DebugMode && !Debug.isDebugBuild) DrawDebugSpeedReadout(SafeLeft() + UiMargin, GetSpeedPanelRect().yMax + HudPanelGap + 4f);
             if (DebugMode && Debug.isDebugBuild) DrawDistanceWarpDebugUI();
 
             DrawUnlockAnnouncement();
             DrawEscapeAvailableBanner();
+            if (CountdownActive) DrawRunStartCountdown();
+            DrawResumeGate(); // 中断セーブからの再開: ボタン/3-2-1/GO!(2026-10-03)
 
             // Item 9 - small Pause/Menu button, hidden while a Level Up/
             // Boss Reward card choice is already showing its own pause
             // overlay (avoids stacking two independent pause states).
-            if (!IsGameOver && !levelUpPending)
+            // Bugfix 2026-09-07 (Bug #001, contributing factor) - this used
+            // to be gated ONLY on levelUpPending, not on
+            // IsBossPresentationActive() - meaning during Boss Spawn/Defeat
+            // Presentation (BEFORE levelUpPending ever flips true for the
+            // Boss Reward choice), this button was still fully visible and
+            // tappable, and since OnGUI runs regardless of Time.timeScale, a
+            // tap here could set Time.timeScale directly while
+            // BossMilestonePresentation's own TempoDown/PlayWarning coroutine
+            // was independently animating that SAME value - the two writers
+            // could race, and closing Pause mid-Presentation would forcibly
+            // resume gameplay out from under whichever Presentation was still
+            // expecting to hold it paused. Excluded now too, same as
+            // levelUpPending.
+            if (!IsGameOver && !levelUpPending && !IsBossPresentationActive())
             {
                 if (DrawStyledButton(GetPauseButtonRect(), "II", 22f, primary: showPauseMenu))
                 {
                     showPauseMenu = !showPauseMenu;
-                    Time.timeScale = showPauseMenu ? 0f : 1f;
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(showPauseMenu ? SeId.Decide : SeId.Cancel);
+                    if (showPauseMenu) TimeControl.Pause(pauseMenuTimeOwner);
+                    else TimeControl.Resume(pauseMenuTimeOwner);
                 }
                 if (showPauseMenu) DrawPauseMenu();
             }
@@ -2189,6 +3697,9 @@ public class GameManager : MonoBehaviour
             GUI.Label(stepRect, stepText, stepStyle);
         }
 
+        // ホーム(!HasStarted)では、ギア/設定/DEBUG列を「入力判定は従来どおり最初(ここ)」で行い、
+        // 見た目の描画はRepaint時に部屋の演出・ホットスポットより手前(後ろの方)で行う。
+        // (IMGUIは呼び出し順=描画順のため、ここで描くと演出画像に隠れていた。)
         if ((!HasStarted || IsGameOver) && !AnyOverlayOpen)
         {
             // A small gear icon (bottom-left, per the reference mockup)
@@ -2198,12 +3709,7 @@ public class GameManager : MonoBehaviour
             // DEBUG's own, which must stay reachable somehow or it could
             // never be turned back on) exactly as available as before,
             // just one tap further away.
-            if (DrawStyledButton(GetGearButtonRect(), "⚙", 26f, primary: showSettingsPanel))
-            {
-                showSettingsPanel = !showSettingsPanel;
-            }
-
-            if (showSettingsPanel) DrawSettingsColumn();
+            if (HasStarted || Event.current.type != EventType.Repaint) DrawHomeChrome();
         }
 
         if (!HasStarted && !AnyOverlayOpen)
@@ -2215,6 +3721,22 @@ public class GameManager : MonoBehaviour
             float logoFadeAlpha = Mathf.Clamp01(titleIntroTimer / 0.5f);
             float roomFadeAlpha = Mathf.Clamp01((titleIntroTimer - 0.25f) / 0.5f);
 
+            // Home待機演出(2026-09-21) - 背景側の演出(静止カーテン/扉/カード/本の光/
+            // 光の粒子)はロゴより奥・各ホットスポットの絵より奥に描く。粒子はロゴ
+            // と肖像画の領域では薄くする(視認性優先)。
+            {
+                var quiet = new System.Collections.Generic.List<Rect>();
+                if (titleLogo != null && bgRoomRect.width > 0f)
+                {
+                    float lcx = bgRoomRect.x + bgRoomRect.width * DoorCenterFrac;
+                    float lw = Mathf.Min(Screen.width * 0.46f, titleLogo.width);
+                    float lh = lw * (titleLogo.height / (float)titleLogo.width);
+                    quiet.Add(new Rect(lcx - lw / 2f, Screen.height * 0.015f, lw, lh));
+                }
+                if (bgRoomRect.width > 0f) quiet.Add(FracRect(bgRoomRect, 0.02f, 0.14f, 0.17f, 0.38f));
+                DrawHomeAmbientAnimations(roomFadeAlpha, quiet.ToArray());
+            }
+
             if (titleLogo != null)
             {
                 // Home Room UI reconstruction pass - new "ONE MORE MILE /
@@ -2224,9 +3746,17 @@ public class GameManager : MonoBehaviour
                 // Ver.1 finishing pass, item 8 - "少し縮小・上寄せ" (was
                 // hiding too much of the door/room below it): 0.6 -> 0.46
                 // width fraction, top margin 0.03 -> 0.015 of screen height.
+                // Home画面改善依頼⑦(2026-09-16), item 8 - ロゴ・扉・NEXT
+                // STAGEの中心をできるだけ同じ縦軸に揃える。基準は扉の中心
+                // (DoorCenterFrac、doorRectのx0/x1の中点をそのまま定数化した
+                // もの)。以前はScreen.width/2(=bgRoomRectの中心、フラクション
+                // 0.5)を使っていたが、扉自体が背景アート上でフラクション
+                // 0.4825の位置に描かれているため、画面の見た目の中心からは
+                // 常にわずかに左へズレていた。
+                float logoCenterX = bgRoomRect.width > 0f ? bgRoomRect.x + bgRoomRect.width * DoorCenterFrac : Screen.width / 2f;
                 float logoWidth = Mathf.Min(Screen.width * 0.46f, titleLogo.width);
                 float logoHeight = logoWidth * (titleLogo.height / (float)titleLogo.width);
-                Rect logoRect = new Rect(Screen.width / 2f - logoWidth / 2f, Screen.height * 0.015f, logoWidth, logoHeight);
+                Rect logoRect = new Rect(logoCenterX - logoWidth / 2f, Screen.height * 0.015f, logoWidth, logoHeight);
                 Color prevLogo = GUI.color;
                 GUI.color = new Color(1f, 1f, 1f, logoFadeAlpha);
                 GUI.DrawTexture(logoRect, titleLogo, ScaleMode.ScaleToFit);
@@ -2254,6 +3784,9 @@ public class GameManager : MonoBehaviour
             // ratio. Exact fractions are a first pass against the supplied
             // reference art - nudge them here if they drift from the
             // visible objects once seen on a real device.
+            // Home画面改善依頼⑪(2026-09-17), item3-5 - 装備表示を撤去した
+            // ぶんの「寂しさ」を、控えめな環境アニメーションで補う。
+
             if (bgRoomRect.width > 0f)
             {
                 Color prevRoom = GUI.color;
@@ -2262,14 +3795,32 @@ public class GameManager : MonoBehaviour
                 // the Gacha Result popup is up, so a tap can't be consumed
                 // out from under that popup's own OK button (see
                 // DrawRoomHotspot's own comment).
-                bool roomInteractable = !gachaResultOpen && !showNewRunConfirm;
+                bool roomInteractable = !gachaResultOpen && !showNewRunConfirm && !NetDebugUI.BlocksHomeInput && !UiInputGate.Blocked;
 
                 // Door (center) - Run Continuation/Checkpoint Ver.1, item
                 // 13 - CONTINUE (if an Active Run exists) or a fresh Run,
                 // same as the old START button.
                 Rect doorRect = FracRect(bgRoomRect, 0.40f, 0.14f, 0.565f, 0.65f);
-                if (DrawRoomHotspot(doorRect, ref doorHotspotFlashTimer, roomInteractable) && roomFadeAlpha > 0.99f)
+                // Home画面改善依頼②(2026-09-15), item 4 - 扉は背景の絵に
+                // 完全に溶け込んでおり、タップ可能だと伝わる手がかりが
+                // 従来皆無だった(タップ時のフラッシュのみ)。中央の扉は
+                // 画面の主役でもあるため、他より少し目立つ枠線にした。
+                // Home画面改善依頼⑤(2026-09-16), item 4 - 常時の矩形の縁が
+                // 「判定枠」に見え貼り付け感の一因になっていたため撤去し、
+                // 扉の形に沿って重ねる柔らかい明滅(DrawAmbientGlow)へ置き
+                // 換えた。扉は引き続き画面の主役(item 7)なので、他の
+                // hotspotより上限の明るさをわずかに高くしてある。
+                // Home環境アニメーション強化依頼(2026-09-17), item5 -
+                // 「扉下部/隙間にごく薄い暖色光のゆらぎ」がまだ弱く見えた
+                // ため上限を0.11→0.16へ引き上げた(周期はそのまま)。
+                // Home画面改善依頼⑦(2026-09-16), item 9 - 扉だけは共通の
+                // DrawRoomHotspot(全面が白くフラッシュするだけの汎用反応)
+                // ではなく専用のDrawDoorHotspotを使い、「取っ手が少し明るく
+                // なる」「縁が一瞬金色に光る」「軽いScale/Glow反応」を扉
+                // 専用の見た目で表現する(扉が画面の視覚的な主役であるため)。
+                if (DrawDoorHotspot(doorRect, ref doorHotspotFlashTimer, roomInteractable, roomFadeAlpha) && roomFadeAlpha > 0.99f)
                 {
+                    lastDoorRect = doorRect;
                     OnDoorTapped();
                 }
 
@@ -2295,6 +3846,55 @@ public class GameManager : MonoBehaviour
                     }
                 }
 
+                // キャラクター選択画面(2026-09-12) - 参考画像の「マント+
+                // 剣が置かれている装備スペース」に相当する導線。既存の
+                // 室内アートにはこれに対応する物が描かれていないため(他の
+                // 4つと違い完全に透明なDrawRoomHotspotだけでは押せることが
+                // 伝わらない)、マスター指示どおりここだけ簡単なパネル+
+                // アイコン+ラベル+淡い発光を明示的に描画する。Bedの真上、
+                // Doorとは重ならない領域。
+                // Home画面レイアウト調整(2026-09-14) - マスター報告
+                // 「パネルが大きい割にカードの右側に大きな空白がある」への
+                // 対応。根本原因はパネルの縦横比(幅0.28:高さ0.30≒横長)が
+                // 縦長のポートレート画像と噛み合っておらず、DrawCharacter
+                // Hotspot内でiconHがavailableHに合わせて縮められた結果
+                // iconWがavailableW未満になり、余白が生まれていたこと。
+                // 幅を約半分(0.30→0.16)に絞ってポートレート自身の縦横比へ
+                // 近づけ、「大きな空箱にカード1枚」に見えないようにした。
+                // また、y0を0.05→0.10へ下げ、左上のBEST表示(SafeTop()+
+                // UiMargin基準の固定72px矩形)と実際に重なっていた既存の
+                // 不具合(「CHARACTER」ラベルの頭が隠れていた)も合わせて
+                // 解消した。
+                // Home画面改善依頼②(2026-09-15), item 2 - 「BEST表示と
+                // CHARACTERパネルの間に少し余白を」に対応し、y0を0.10→
+                // 0.14へさらに下げてBESTパネルとの間隔を広げた。パネルを
+                // 必要以上に大きくしないよう高さは0.27→0.24へわずかに
+                // 縮めた(内部の余白はDrawCharacterHotspot側で確保)。
+                Rect characterRect = FracRect(bgRoomRect, 0.02f, 0.14f, 0.17f, 0.38f);
+                // ブラッシュアップ点検(2026-09-18)で発覚した不具合の修正:
+                // 背景画像(1536x1024、縦横比1.5)よりも横長な画面(最近の
+                // スマホの横画面によくある20:9等)では、cover-scaleのcropで
+                // bgRoomRect.yが負値になり、上記フラクション計算の結果
+                // characterRectが左上の固定BEST表示パネル(titleBestRect、
+                // 高さ72px)と重なってしまっていた。フラクション自体は
+                // そのままに、最終的なyだけBESTパネルの下端を下回らないよう
+                // 安全側にクランプする(通常のアスペクト比では発火しない)。
+                float minCharacterTop = SafeTop() + UiMargin + 72f + 16f;
+                if (characterRect.y < minCharacterTop) characterRect.y = minCharacterTop;
+                DrawCharacterHotspot(characterRect, roomInteractable, roomFadeAlpha);
+
+                // Home画面改善依頼⑪(2026-09-17), item1 - キャラ連動の装備/
+                // 持ち物表示(旧DrawCharacterBelongings)はHomeから撤去した。
+                // 工数に対して見た目の改善が薄いという判断による方針転換
+                // (Character Select自体やCharacterDefinition.belongingsの
+                // データ自体は無改造 - 将来また使う可能性を潰さない)。
+
+                // Home画面 / Stage Select改善依頼(2026-09-16), item4/5 -
+                // マスター指示「Homeにはマップを常設しない」に対応し、
+                // NEXT STAGEホットスポット(旧DrawStageHotspot)自体を撤去
+                // した。行き先の選択は出発時(扉タップ→Stage Select)専用の
+                // 画面へ完全に分離している - OnDoorTapped参照。
+
                 // Bed/scattered cards (bottom-left) - Card Edit (Owned/
                 // Character Cards/Deck/Convert).
                 Rect bedRect = FracRect(bgRoomRect, 0.0f, 0.52f, 0.32f, 1.0f);
@@ -2315,38 +3915,41 @@ public class GameManager : MonoBehaviour
                 // executes the Gacha inline (item 4) - no dedicated screen.
                 if (gachaMachineTexture != null)
                 {
-                    float machineWidth = bgRoomRect.width * 0.15f;
+                    // Home画面改善依頼②(2026-09-15) - マスター報告「椅子の
+                    // 前で宙に浮いている」への対応。前回(0.83/0.38)はまだ
+                    // 机の奥行きより低く、椅子の背もたれ付近まで機体の下端
+                    // が届いていたと判断し、Y位置を0.38→0.26(机の天板の
+                    // 高さ)へさらに引き上げ、幅も0.12→0.10へ縮小して周囲の
+                    // 家具(本・カップ・コンパス)との遠近感を合わせた。
+                    float machineWidth = bgRoomRect.width * 0.10f;
                     float machineAspect = gachaMachineTexture.height / (float)gachaMachineTexture.width;
                     float machineHeight = machineWidth * machineAspect;
                     float shakeOffset = gachaMachineShakeTimer > 0f
                         ? Mathf.Sin(gachaMachineShakeTimer * 55f) * 4f * (gachaMachineShakeTimer / gachaMachineShakeDuration)
                         : 0f;
-                    // Bugfix 2026-09-06 (再調整) - the previous 0.87/0.47
-                    // anchor still read as floating in front of the chair
-                    // rather than resting on the desk once seen on a real
-                    // device (aspect-ratio letterboxing shifts how a fixed
-                    // fraction of the source image actually lands on screen
-                    // in ways a single Editor-side composite check against
-                    // the raw 1536x1024 art can't fully catch). Nudged
-                    // further right/down (0.85/0.50) toward the desk's
-                    // open surface, and paired with an explicit contact
-                    // shadow below (see shadowRect) so it reads as "resting
-                    // on something" regardless of the exact pixel alignment.
                     Rect machineRect = new Rect(
-                        bgRoomRect.x + bgRoomRect.width * 0.85f - machineWidth / 2f + shakeOffset,
-                        bgRoomRect.y + bgRoomRect.height * 0.50f,
+                        bgRoomRect.x + bgRoomRect.width * 0.83f - machineWidth / 2f + shakeOffset,
+                        bgRoomRect.y + bgRoomRect.height * 0.26f,
                         machineWidth, machineHeight);
 
-                    // Contact shadow - a soft, squashed dark ellipse-ish
-                    // patch right at the machine's own base, giving it a
-                    // grounded feel independent of exactly how its Rect
-                    // lines up with the painted desk beneath it.
+                    // Home画面改善依頼⑤(2026-09-16), item 3 - 「独立した
+                    // スタンプのように見えないように」。単一の均一な影
+                    // 矩形は縁がくっきりして見え、それ自体が「貼った影
+                    // 画像」に見えてしまっていた。外側ほど薄い2枚重ねに
+                    // し、縁が滲んだ柔らかい接地影に近づけた(新規テクス
+                    // チャなしで済む、このファイル内の他の影と同じ単色
+                    // 矩形近似の延長)。
                     Color prevShadow = GUI.color;
-                    float shadowWidth = machineWidth * 0.75f;
-                    float shadowHeight = machineHeight * 0.12f;
-                    Rect shadowRect = new Rect(machineRect.x + (machineWidth - shadowWidth) / 2f, machineRect.yMax - shadowHeight * 0.5f, shadowWidth, shadowHeight);
-                    GUI.color = new Color(0f, 0f, 0f, 0.35f * roomFadeAlpha);
-                    GUI.DrawTexture(shadowRect, Texture2D.whiteTexture);
+                    float shadowWidthOuter = machineWidth * 0.95f;
+                    float shadowHeightOuter = machineHeight * 0.16f;
+                    Rect shadowRectOuter = new Rect(machineRect.x + (machineWidth - shadowWidthOuter) / 2f, machineRect.yMax - shadowHeightOuter * 0.55f, shadowWidthOuter, shadowHeightOuter);
+                    GUI.color = new Color(0f, 0f, 0f, 0.22f * roomFadeAlpha);
+                    GUI.DrawTexture(shadowRectOuter, Texture2D.whiteTexture);
+                    float shadowWidthInner = machineWidth * 0.68f;
+                    float shadowHeightInner = machineHeight * 0.10f;
+                    Rect shadowRectInner = new Rect(machineRect.x + (machineWidth - shadowWidthInner) / 2f, machineRect.yMax - shadowHeightInner * 0.55f, shadowWidthInner, shadowHeightInner);
+                    GUI.color = new Color(0f, 0f, 0f, 0.32f * roomFadeAlpha);
+                    GUI.DrawTexture(shadowRectInner, Texture2D.whiteTexture);
                     GUI.color = prevShadow;
 
                     Color prevMachine = GUI.color;
@@ -2357,10 +3960,32 @@ public class GameManager : MonoBehaviour
                     // per-case color with Color.white once it exists, no
                     // other code changes needed).
                     Color stageTint = GachaMachineStageTint(CurrentGachaStage);
-                    Color baseColor = new Color(stageTint.r, stageTint.g, stageTint.b, roomFadeAlpha);
+                    // Home画面改善依頼②(2026-09-15) - マスター報告「背景
+                    // 光源に対して明るさ・コントラストが浮きすぎる」への
+                    // 対応。室内の暖色ランプ光に馴染むよう、タップ時の発光
+                    // (glow)が無い通常時はわずかに(12%)減光する - 各ステージ
+                    // 色の相対的な違いはそのまま保ちつつ、部屋の照度に近づけた。
+                    Color dimmedTint = stageTint * 0.88f;
+                    Color baseColor = new Color(dimmedTint.r, dimmedTint.g, dimmedTint.b, roomFadeAlpha);
                     GUI.color = Color.Lerp(baseColor, new Color(1f, 0.92f, 0.6f, roomFadeAlpha), Mathf.Clamp01(glow));
+                    // Home待機演出(2026-09-21) - 機械本体だけが接地点(下端中央)を軸にぐらぐら
+                    // 揺れて収まる。影と、下のGUI.Button(machineRect)のタップ判定は回転しない。
+                    HomeIdleFx idleGacha = GetIdleFx();
+                    Matrix4x4 gachaPrevMatrix = GUI.matrix;
+                    float gachaAngle = idleGacha.GachaAngle();
+                    if (Mathf.Abs(gachaAngle) > 0.0001f) GUIUtility.RotateAroundPivot(gachaAngle, new Vector2(machineRect.center.x, machineRect.yMax));
                     GUI.DrawTexture(machineRect, gachaMachineTexture, ScaleMode.ScaleToFit);
+                    GUI.matrix = gachaPrevMatrix;
                     GUI.color = prevMachine;
+                    // 揺れに合わせたコイン(装飾のみ。所持金・報酬処理とは無関係)。
+                    idleGacha.UpdateCoins(machineRect);
+                    idleGacha.DrawCoins(roomFadeAlpha);
+
+                    // Home画面改善依頼⑤(2026-09-16), item 3/4 - 常時の金の
+                    // 縁取りを撤去。Gacha機はタップ/振動時に`glow`で暖色
+                    // ハイライトへ寄る反応が既にあり、それ自体が「ホバー/
+                    // タップ時の軽い発光で示す」という要望を満たしている
+                    // ため、常時枠を重ねて貼り付け感を足す必要がなかった。
 
                     if (roomInteractable && GUI.Button(machineRect, GUIContent.none, GUIStyle.none) && roomFadeAlpha > 0.99f)
                     {
@@ -2383,21 +4008,14 @@ public class GameManager : MonoBehaviour
             // BEST (top-left) and MILE (top-right) - the room's only
             // persistent chrome besides the gear icon, both tucked into
             // corners so they never sit over the door/bed/book/desk.
-            Rect titleBestRect = new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, 190f, 72f);
-            DrawStatPanel(titleBestRect, "BEST", FormatDistance(BestDistance), HudGoldColor, ornate: true);
+            Rect titleBestRect = new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, DistancePanelWidth(true), 72f);
+            DrawStatPanel(titleBestRect, "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor, ornate: true);
 
-            Rect titleMileRect = new Rect(Screen.width - SafeRight() - UiMargin - 190f, SafeTop() + UiMargin, 190f, 72f);
-            DrawStatPanel(titleMileRect, "MILE", TotalOwnedMile.ToString(), HudGoldColor, ornate: true);
+            DrawStatPanel(GetHomeMileRect(), "MILE", TotalOwnedMile.ToString(), HudGoldColor, ornate: true);
 
-            // Also tucked behind the gear icon (see DrawSettingsColumn) -
-            // only actually drawn/reachable while that panel is open, not
-            // part of the always-on title screen.
-            if (showSettingsPanel && DrawStyledButton(GetResetHighScoreButtonRect(), "RESET SCORE", 15f, primary: false))
-            {
-                ResetHighScores();
-            }
-
-            if (DebugMode && Debug.isDebugBuild) DrawGachaDebugUI(titleBestRect);
+            // 設定/マルチ/DEBUGのボタンは、背景・分離画像・演出・粒子より手前に描く(入力は上で先に判定済み)。
+            // スコアリセットやBESTの設定(ガチャの確認)などの開発用操作は、開発版のDEBUGパネルへ移した。
+            if (Event.current.type == EventType.Repaint) DrawHomeChrome();
 
             DrawGachaResultPopup();
             DrawInsufficientMileToast();
@@ -2430,7 +4048,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        DrawResults();
+        if (!QuietFinish) DrawResults();
         DrawStartTransitionOverlay();
     }
 
@@ -2499,6 +4117,7 @@ public class GameManager : MonoBehaviour
         Row("TIME", FormatTime(RunTime), IsNewBestTime);
         Row("ENEMIES DEFEATED", $"{EnemyKillCount}  +{RunEnemyMile} MILE", false);
         Row("BOSSES DEFEATED", $"{BossKillCount}  +{RunBossMile} MILE", false);
+        if (RunBonusMile > 0) Row("BONUS ZONE", $"+{RunBonusMile} MILE", false);
         Row("TOTAL EXP", Mathf.FloorToInt(TotalExpEarned).ToString(), false);
         Row("UPGRADES OBTAINED", UpgradeCount.ToString(), false);
         Row("TOTAL MILE", $"+{RunMile}  (WALLET {TotalOwnedMile})", false);
@@ -2510,7 +4129,8 @@ public class GameManager : MonoBehaviour
             y += 56f;
         }
 
-        bool retryAllowed = Time.time - gameOverTime >= retryDelayAfterGameOver;
+        bool retryAllowed = SecondsSinceGameOver >= retryDelayAfterGameOver;
+        if (!ResultShown && Event.current.type == EventType.Repaint) { ResultShown = true; DeathLog($"Result shown (reason={DeathReason}, timeScale={Time.timeScale:F2})"); }
         if (retryAllowed)
         {
             GUIStyle retryStyle = new GUIStyle(GUI.skin.label);
@@ -2538,15 +4158,6 @@ public class GameManager : MonoBehaviour
         GUI.color = prev;
     }
 
-    // Renders a volume level (0..AudioManager.MaxVolumeLevel) as a simple
-    // filled/empty block bar, e.g. level 2 of 4 -> "[##--]".
-    static string VolumeBar(int level)
-    {
-        var sb = new System.Text.StringBuilder("[");
-        for (int i = 0; i < AudioManager.MaxVolumeLevel; i++) sb.Append(i < level ? '#' : '-');
-        sb.Append(']');
-        return sb.ToString();
-    }
 
     static string FormatTime(float seconds)
     {
@@ -2561,6 +4172,36 @@ public class GameManager : MonoBehaviour
         int m = Mathf.FloorToInt(meters);
         return $"{m:N0}<size={HudValueFontSize - 6}>m</size>";
     }
+
+    // cm単位(小数2桁)のHUD表記: "1,234.56 m"。桁区切りはコンマ、小数点はドット(CultureInfo固定)。
+    // 四捨五入ではなく切り捨て(まだ届いていないcmを先取りしない)。単位は少し小さく。
+    static string FormatDistanceExact(double meters)
+    {
+        double v = System.Math.Floor(System.Math.Max(0.0, meters) * 100.0 + 1e-6) / 100.0;
+        return v.ToString("N2", System.Globalization.CultureInfo.InvariantCulture) + $"<size={HudValueFontSize - 6}> m</size>";
+    }
+
+    // HUD左上パネルの幅: 最長想定("9,999,999.99 m")を実測した固定幅。数値が変わっても枠/文字位置が揺れない。
+    float distancePanelWidthCache;
+    float distancePanelWidthScreen = -1f;
+    float DistancePanelWidth(bool ornate)
+    {
+        if (distancePanelWidthScreen != Screen.width)
+        {
+            var st = new GUIStyle(GUI.skin.label) { fontSize = HudValueFontSize, fontStyle = FontStyle.Bold, richText = true };
+            float w = st.CalcSize(new GUIContent(FormatDistanceExact(9999999.99))).x;
+            // 中央のLv/EXPパネル(画面中央-190から)に重ならない上限。狭い画面(縦画面の小さい解像度)では文字側を縮小して収める(DrawStatPanel)。
+            float roomForLeftPanels = Screen.width * 0.5f - 190f - 14f - UiMargin;
+            distancePanelWidthCache = Mathf.Max(168f, Mathf.Min(w + 26f, roomForLeftPanels));
+            distancePanelWidthScreen = Screen.width;
+        }
+        return distancePanelWidthCache + (ornate ? 30f : 0f);
+    }
+
+    // 速度表示(km/h): ゲーム内メートル(=距離表示と同じ単位)/秒 × 3.6。走行速度(基本のAuto Run速度、カード効果・速度上昇込み)を参照し、
+    // カメラ/背景のスクロール速度や攻撃の踏み込み・ノックバック・ジャンプ/落下・復帰時の位置補正は含めない。
+    public const float KmhPerMps = 3.6f;
+    public static float SpeedKmh(float metersPerSecond) => metersPerSecond * KmhPerMps;
 
     // Shared "small info panel" for BEST/DISTANCE: a small dim label on
     // top, a bigger bold value below, both left-aligned inside one navy+
@@ -2592,6 +4233,12 @@ public class GameManager : MonoBehaviour
         valueStyle.fontStyle = FontStyle.Bold;
         valueStyle.alignment = TextAnchor.UpperLeft;
         valueStyle.richText = true;
+        // 枠に収まらないほど長い値/狭い画面では、文字サイズを縮めて欠けを防ぐ(桁が増えても枠は動かさない)。
+        {
+            float availW = rect.width - pad * 2f;
+            Vector2 vs = valueStyle.CalcSize(new GUIContent(valueText));
+            if (vs.x > availW && vs.x > 1f) valueStyle.fontSize = Mathf.Max(11, Mathf.FloorToInt(valueStyle.fontSize * availW / vs.x));
+        }
         valueStyle.normal.textColor = flashIntensity > 0f ? Color.Lerp(valueColor, new Color(1f, 0.85f, 0.4f), flashIntensity) : valueColor;
         GUI.Label(new Rect(rect.x + pad, rect.y + topPad + 16f, rect.width - pad * 2f, rect.height - topPad - 18f), valueText, valueStyle);
     }
@@ -2678,6 +4325,10 @@ public class GameManager : MonoBehaviour
         labelStyle.alignment = TextAnchor.UpperLeft;
         labelStyle.normal.textColor = HudLabelColor;
         GUI.Label(new Rect(rect.x + 12f, rect.y + 4f, rect.width - 16f, 18f), "HP", labelStyle);
+        // 2026-10-02: HPは10倍スケール。数値(今/最大)を見出しの右に出す
+        GUIStyle numStyle = new GUIStyle(labelStyle) { alignment = TextAnchor.UpperRight };
+        numStyle.normal.textColor = new Color(1f, 0.85f, 0.88f, 0.95f);
+        GUI.Label(new Rect(rect.x + 12f, rect.y + 4f, rect.width - 22f, 18f), $"{Lives} / {maxLives}", numStyle);
 
         float flash = heartDamageFlashDuration > 0f ? Mathf.Clamp01(heartDamageFlashTimer / heartDamageFlashDuration) : 0f;
         float pulse = 1f - flash * 0.08f;
@@ -2687,13 +4338,48 @@ public class GameManager : MonoBehaviour
         heartStyle.alignment = TextAnchor.UpperLeft;
         heartStyle.normal.textColor = Color.Lerp(new Color(1f, 0.25f, 0.35f), Color.white, flash);
 
-        var hearts = new System.Text.StringBuilder();
-        for (int i = 0; i < maxLives; i++)
+        // 枠の幅は固定(2026-10-01)。ハート1つ = HP 10(CombatScale.HpPerHeart)。
+        //  ・HPがハート10個分以上 … 「♥ ×12」(ハートの数。端数は小数1桁)
+        //  ・最大HPがハート10個分以下 … 今のHPを♥、減った分を♡。端数は♥を途中まで塗る
+        //  ・最大HPが10個分を超えて、今のHPが10個分未満 … ♥だけ(♡まで並べるとはみ出すので出さない)
+        int per = Mathf.Max(1, CombatScale.HpPerHeart);
+        float heartsNow = Lives / (float)per;
+        int slotsMax = Mathf.CeilToInt(maxLives / (float)per - 0.001f);
+        Rect hr = new Rect(rect.x + 12f, rect.y + 20f, rect.width - 16f, rect.height - 22f);
+        if (Lives >= 10 * per)
         {
-            hearts.Append(i < Lives ? "♥" : "♡");
-            if (i < maxLives - 1) hearts.Append(' ');
+            var hc = new GUIContent("♥ ×" + (Lives % per == 0 ? (Lives / per).ToString() : heartsNow.ToString("0.0")));
+            GUI.Label(hr, hc, heartStyle);
+            return;
         }
-        GUI.Label(new Rect(rect.x + 12f, rect.y + 20f, rect.width - 16f, rect.height - 22f), hearts.ToString(), heartStyle);
+        int slots = slotsMax <= 10 ? slotsMax : Mathf.CeilToInt(heartsNow - 0.001f);
+        if (slots <= 0) return;
+        // 1つ分の幅(♥と空白)。入りきらない時は文字を小さくする(はみ出さない)
+        float gap = heartStyle.fontSize * 0.25f;
+        float glyphW = heartStyle.CalcSize(new GUIContent("♥")).x;
+        float need = slots * glyphW + (slots - 1) * gap;
+        if (need > hr.width)
+        {
+            heartStyle.fontSize = Mathf.Max(10, Mathf.FloorToInt(heartStyle.fontSize * hr.width / need));
+            gap = heartStyle.fontSize * 0.25f;
+            glyphW = heartStyle.CalcSize(new GUIContent("♥")).x;
+        }
+        float glyphH = heartStyle.CalcSize(new GUIContent("♥")).y;
+        heartStyle.clipping = TextClipping.Overflow; // ♡は♥より幅が広い字形があるので、四角の外へはみ出しても切らない
+        for (int i = 0; i < slots; i++)
+        {
+            Rect g = new Rect(hr.x + i * (glyphW + gap), hr.y, glyphW, glyphH);
+            float fill = Mathf.Clamp01(heartsNow - i);
+            if (fill >= 0.999f) { GUI.Label(g, "♥", heartStyle); continue; }
+            GUI.Label(new Rect(g.x, g.y, g.width * 1.6f, g.height), "♡", heartStyle);
+            if (fill > 0.001f)
+            {
+                // 端数: ♥を左から途中まで塗る
+                GUI.BeginGroup(new Rect(g.x, g.y, g.width * fill, g.height));
+                GUI.Label(new Rect(0f, 0f, g.width, g.height), "♥", heartStyle);
+                GUI.EndGroup();
+            }
+        }
     }
 
     // Groups the run's upgrade history by type and draws each as its icon
@@ -2765,7 +4451,8 @@ public class GameManager : MonoBehaviour
             Title = card.cardName,
             Description = card.description,
             Rarity = card.rarity,
-            LevelLine = highest > 0 ? $"Lv.{highest}" : ""
+            LevelLine = highest > 0 ? $"Lv.{highest}" : "",
+            Category = card.category
         };
     }
 
@@ -2779,7 +4466,16 @@ public class GameManager : MonoBehaviour
     RewardCardData MakeChoiceCardData(CardDefinition card)
     {
         int currentStack = GetCurrentRunStack(card.cardId);
-        string stackLabel = currentStack > 0 ? $"Lv.{currentStack} -> Lv.{currentStack + 1}" : "NEW  Lv.1";
+        // カードVisual最終調整依頼(2026-09-18), item1 - 候補として表示
+        // されているだけの段階では「NEW」を出さない(実際に選んで初めて
+        // 取得した時だけがNEW - CardInventory.AddCard/MakeOwnedCardData
+        // 参照)。以前はここで"NEW  Lv.1"と表示しており、「候補に出た＝
+        // NEW」という誤った意味になっていた。
+        int nextStack = currentStack + PickLevelOf(card);
+        string stackLabel = (currentStack > 0 ? $"Lv.{currentStack} -> Lv.{nextStack}" : $"Lv.{nextStack}") + (nextStack >= MaxRunCardLevel ? " MAX" : "");
+        // 合成カード: 取得すると主能力と全サブ能力が各強化量ぶん適用される(説明文に全能力)。
+        CardVariant variant = CardVariant.IsVariantKey(card.cardId) ? CardVariant.Parse(card.cardId) : null;
+        if (variant != null) stackLabel = $"合成Lv.{variant.level}  能力{variant.AbilityCount}種";
         return new RewardCardData
         {
             CardId = card.cardId,
@@ -2787,7 +4483,11 @@ public class GameManager : MonoBehaviour
             Title = card.cardName,
             Description = card.description,
             Rarity = card.rarity,
-            LevelLine = stackLabel
+            LevelLine = stackLabel,
+            Category = card.category,
+            // レベルアップ選択UI改修(2026-09-11) - 横長3択UI右端の「主要な
+            // 強化数値」。CardEffectFormat参照。
+            ValueLine = CardEffectFormat.FormatPrimaryValue(card)
         };
     }
 
@@ -2797,7 +4497,52 @@ public class GameManager : MonoBehaviour
     // ApplyUpgradeByCardId) - the same two sources RunCheckpoint's Build-
     // reconstruction replay already treats as the complete stack count for
     // a card this Run, just read back out instead of replayed.
-    int GetCurrentRunStack(string cardId)
+    // RUN BUILD HUD用の読み取り専用アクセサ(2026-09-29)。カードの状態/ロジック/保存は変えない。
+    // 並び順 = このRunで初めて持った順(Run開始時のCharacter Card → Level Up/Boss Rewardで取った順)。
+    public void CollectRunCardIds(List<string> into)
+    {
+        into.Clear();
+        for (int i = 0; i < CharacterCardSlotCount; i++)
+        {
+            string id = characterCardIds[i];
+            if (!string.IsNullOrEmpty(id) && !into.Contains(id) && CardDatabase.FindById(id) != null) into.Add(id);
+        }
+        foreach (CardDefinition c in upgradeHistory)
+            if (c != null && !into.Contains(c.cardId)) into.Add(c.cardId);
+    }
+
+    // 現在Lv = Level Up選択画面の「Lv.N -> Lv.N+1」と同じ数え方(Character CardのLv + このRunで取った回数)。
+    public int GetRunCardLevel(string cardId) => GetCurrentRunStack(cardId);
+
+    // RUN BUILD HUD(2026-10-01): キャラに最初から付いているカードか / このランのLevel Up等で取った回数
+    public bool IsRunCharacterCard(string cardId)
+    {
+        for (int i = 0; i < CharacterCardSlotCount; i++) if (characterCardIds[i] == cardId) return true;
+        return false;
+    }
+    public int GetRunPickCount(string cardId)
+    {
+        int n = 0;
+        foreach (CardDefinition c in upgradeHistory) if (c != null && c.cardId == cardId) n++;
+        return n;
+    }
+
+    // ===== カードLvの上限(2026-10-02) =====
+    // Run中のカードLv = キャラカード枠のLv + 取得したLv。通常カードは1回の取得で+1、合成カードは1回で合成Lvぶん
+    // (合成Lv.3なら1回で+3。中身も能力×強化量で約3回分なので、どのカードもLv9=約9回分が上限になる)。
+    // Lv9に届いたカードは候補に出さず、届いた後に何かの経路で選ばれても効果を重ねない。
+    // 将来の最終強化(Final Evolution)はLv9の「次」に別の仕組みとして出す予定(恒久的なLv10にはしない)。
+    public const int MaxRunCardLevel = CardVariant.MaxLevel; // 9
+    public static int PickLevelOf(CardDefinition c)
+    {
+        if (c == null || !CardVariant.IsVariantKey(c.cardId)) return 1;
+        CardVariant v = CardVariant.Parse(c.cardId);
+        return v != null ? Mathf.Clamp(v.level, 1, MaxRunCardLevel) : 1;
+    }
+    public bool CanStillPick(CardDefinition c) => c != null && GetCurrentRunStack(c.cardId) + PickLevelOf(c) <= MaxRunCardLevel;
+    public int MaxedCardSkips { get; private set; } // Lv9のカードが選ばれて効果を重ねなかった回数(確認用)
+
+    public int GetCurrentRunStack(string cardId)
     {
         int stack = 0;
         for (int i = 0; i < CharacterCardSlotCount; i++)
@@ -2806,7 +4551,7 @@ public class GameManager : MonoBehaviour
         }
         foreach (CardDefinition c in upgradeHistory)
         {
-            if (c.cardId == cardId) stack++;
+            if (c.cardId == cardId) stack += PickLevelOf(c);
         }
         return stack;
     }
@@ -2822,11 +4567,10 @@ public class GameManager : MonoBehaviour
     public RewardCardData MakeOwnedCardData(CardDefinition card, int level, int count, bool equipped = false)
     {
         string levelLabel = level >= CardInventory.MaxCardLevel ? $"Lv.{level} MAX" : $"Lv.{level}";
-        // Card UI / Rarity Frame pass - the owned count now shows via
-        // LevelLine's "xN" suffix (Collection mode) instead of also being
-        // repeated inside Description, which is back to plain flavor text
-        // only (item 11 - "2-3行程度").
-        string levelLine = equipped ? levelLabel : $"{levelLabel} x{count}";
+        // Card UI改修(2026-09-08) - 所持枚数はもうLevelLine文字列へ埋め込
+        // まず、RewardCardData.Count(タイトル帯右端固定表示)へ分離した。
+        // equipped(Character Card装備中)はスロットに1枚しか入らない概念
+        // なのでCountは常に0(非表示)のまま。
         return new RewardCardData
         {
             CardId = card.cardId,
@@ -2834,15 +4578,26 @@ public class GameManager : MonoBehaviour
             Title = card.cardName,
             Description = card.description,
             Rarity = card.rarity,
-            LevelLine = levelLine,
-            ShowEquippedBadge = equipped
+            LevelLine = levelLabel,
+            Count = equipped ? 0 : count,
+            ShowEquippedBadge = equipped,
+            Category = card.category,
+            // カードVisual最終調整依頼(2026-09-18), item1 - Collection/
+            // Character Cardスロットで「実際に新規取得済みだが未確認」の
+            // カードにだけNEWを出す。EQUIPPED状態の方が情報として優先度が
+            // 高いため、RewardCardUI側でEQUIPPEDと同時にはならないよう
+            // 一本化して扱う(両方trueでもEQUIPPED表示が勝つ)。
+            ShowNewBadge = !equipped && CardInventory.IsNewUnconfirmed(card.cardId)
         };
     }
 
-    void DrawDebugSpeedReadout()
+    // 2026-09-27: 位置を受け取り、描いた下端のYを返す(DEBUG TOOLSを開いた時だけ出す)。
+    float DrawDebugSpeedReadout(float x, float y)
     {
         bool autoRun = PlayerController.Instance != null && PlayerController.Instance.autoRunEnabled;
-        string text = $"P-speed {measuredPlayerSpeed:F2}   AutoRun {(autoRun ? "ON" : "OFF")}";
+        // 通常のSPEED表示と同じ換算(m/s×3.6=km/h)。括弧内は実測(dx/dt)のm/s。
+        float shownKmh = PlayerController.Instance != null ? SpeedKmh(PlayerController.Instance.CurrentAutoRunSpeed) : 0f;
+        string text = $"P-speed {shownKmh:F1} km/h (measured {measuredPlayerSpeed:F2} m/s)   AutoRun {(autoRun ? "ON" : "OFF")}";
 
         if (debugDragon != null && PlayerController.Instance != null)
         {
@@ -2855,14 +4610,15 @@ public class GameManager : MonoBehaviour
         }
 
         GUIStyle style = new GUIStyle(GUI.skin.label);
-        style.fontSize = 14;
+        style.fontSize = 12;
         style.alignment = TextAnchor.UpperLeft;
         style.normal.textColor = Color.yellow;
 
         Vector2 size = style.CalcSize(new GUIContent(text));
-        Rect rect = new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin + 36f, size.x + 10f, size.y + 6f);
+        Rect rect = new Rect(x, y, size.x + 10f, size.y + 6f);
         UiBackdrop.Draw(rect, 0.55f);
         GUI.Label(rect, text, style);
+        return rect.yMax;
     }
 
     // Distance Level Design Ver.1, item 10/11 - Development Build / Editor
@@ -2875,42 +4631,148 @@ public class GameManager : MonoBehaviour
     // deliberately NOT routed through ReportDistance/GainExp, which would
     // otherwise award a huge EXP lump sum and cascade into dozens of Level
     // Up screens for a single warp.
+    // デバッグ列の配置(2026-09-27 改修) - 以前は左上のBEST/DISTANCE/SPEEDのHUDに重なっていた。
+    // SPEEDパネルの下から始め、常に出すのは自動スローの確認に使う「SPD」「SLOW」の2行と
+    // 「DEBUG TOOLS」の開閉ボタンだけ。距離ワープ/MILE/CARD/状態表示は開いた時だけ出す
+    // (プレイ画面を広く見渡せるように)。
+    static bool debugToolsOpen;
+
     void DrawDistanceWarpDebugUI()
     {
+        float bw = 62f, bh = 26f, gap = 4f;
+        float x0 = SafeLeft() + UiMargin;
+        float y = GetSpeedPanelRect().yMax + HudPanelGap + 4f;
+
+        // ---- SPD(走行速度のデバッグ倍率)----
+        float scale = PlayerController.DebugSpeedScale;
+        (string label, System.Action action)[] speedButtons =
+        {
+            ("SPD -", () => PlayerController.DebugSpeedScale = StepDebugSpeed(scale, -1)),
+            ("SPD +", () => PlayerController.DebugSpeedScale = StepDebugSpeed(scale, +1)),
+            ("SPD x1", () => PlayerController.DebugSpeedScale = 1f),
+        };
+        for (int i = 0; i < speedButtons.Length; i++)
+        {
+            Rect r = new Rect(x0 + i * (bw + gap), y, bw, bh);
+            if (DrawStyledButton(r, speedButtons[i].label, 11f, primary: i == 2 && Mathf.Abs(scale - 1f) > 0.001f))
+            {
+                speedButtons[i].action();
+            }
+        }
+        float kmh = PlayerController.Instance != null ? SpeedKmh(PlayerController.Instance.CurrentAutoRunSpeed) : 0f;
+        string speedText = $"x{PlayerController.DebugSpeedScale:0.##} ({kmh:F0}km/h)";
+        GUIStyle speedStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
+        speedStyle.normal.textColor = Mathf.Abs(PlayerController.DebugSpeedScale - 1f) > 0.001f ? new Color(1f, 0.85f, 0.3f) : new Color(0.6f, 1f, 0.7f);
+        Rect speedRect = new Rect(x0 + speedButtons.Length * (bw + gap), y, speedStyle.CalcSize(new GUIContent(speedText)).x + 14f, bh);
+        UiBackdrop.Draw(speedRect, 0.55f);
+        GUI.Label(new Rect(speedRect.x + 6f, speedRect.y, speedRect.width - 6f, speedRect.height), speedText, speedStyle);
+        y += bh + gap;
+
+        // ---- RUN(速度だけのデバッグ倍率、2026-09-29)----
+        // SPD+は「距離の伸び/配置の間隔」も一緒に変わる(SpeedRatioに含まれる)。RUNは走る速さだけを変え、
+        // 敵/障害物の配置間隔・出現頻度・経験値は通常速度のまま(補助の発動/解除や、同じ配置での比較の確認用)。
+        float runOnly = PlayerController.DebugRunOnlyScale;
+        (string label, System.Action action)[] runButtons =
+        {
+            ("RUN -", () => PlayerController.DebugRunOnlyScale = StepDebugSpeed(runOnly, -1)),
+            ("RUN +", () => PlayerController.DebugRunOnlyScale = StepDebugSpeed(runOnly, +1)),
+            ("RUN x1", () => PlayerController.DebugRunOnlyScale = 1f),
+        };
+        for (int i = 0; i < runButtons.Length; i++)
+        {
+            Rect r = new Rect(x0 + i * (bw + gap), y, bw, bh);
+            if (DrawStyledButton(r, runButtons[i].label, 11f, primary: i == 2 && Mathf.Abs(runOnly - 1f) > 0.001f)) runButtons[i].action();
+        }
+        string runText = $"速度のみ x{PlayerController.DebugRunOnlyScale:0.##}(配置間隔は変えない)";
+        Rect runRect = new Rect(x0 + runButtons.Length * (bw + gap), y, speedStyle.CalcSize(new GUIContent(runText)).x + 14f, bh);
+        UiBackdrop.Draw(runRect, 0.55f);
+        GUIStyle runStyle = new GUIStyle(speedStyle);
+        runStyle.normal.textColor = Mathf.Abs(PlayerController.DebugRunOnlyScale - 1f) > 0.001f ? new Color(1f, 0.85f, 0.3f) : new Color(0.6f, 1f, 0.7f);
+        GUI.Label(new Rect(runRect.x + 6f, runRect.y, runRect.width - 6f, runRect.height), runText, runStyle);
+        y += bh + gap;
+
+        // ---- ASSIST(高速時の自動操作補助、2026-09-28)----
+        // ON/OFFは端末ごと(マルチでも自分のキャラにだけ効く)。小さな1〜2行: 状態・判定速度・直近の自動行動と理由・
+        // 行動できなかった主な理由。停止/カード選択/ポーズの時間制御には関与しない。
+        HighSpeedAssist assist = HighSpeedAssist.Instance;
+        if (assist != null)
+        {
+            Rect toggleRect = new Rect(x0, y, bw * 1.6f, bh);
+            if (DrawStyledButton(toggleRect, assist.assistEnabled ? "ASSIST ON" : "ASSIST OFF", 11f, primary: assist.assistEnabled))
+            {
+                assist.SetEnabled(!assist.assistEnabled);
+            }
+            float now = Time.time;
+            string last = !string.IsNullOrEmpty(assist.LastAction) && now - assist.LastActionTime < 3f ? $" 直近:{assist.LastAction}({assist.LastActionReason})" : "";
+            string fail = !string.IsNullOrEmpty(assist.LastFailure) && now - assist.LastFailureTime < 4f ? $"\n不可:{assist.LastFailure}" : "";
+            if (!string.IsNullOrEmpty(assist.LastBreakWhy)) fail += $"\n障害物:{assist.LastBreakWhy} 壊す{assist.ObstacleBreakPlans}/跳ぶ{assist.ObstacleJumpPlans}/無理{assist.ObstacleNoPlan}";
+            string assistText = $"{assist.StatusText()} 判定{assist.JudgedKmh:F0}km/h(ON≧{assist.engageKmh:F0}/OFF<{assist.releaseKmh:F0}){last}{fail}";
+            GUIStyle assistStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
+            assistStyle.normal.textColor = assist.CurrentStatus == HighSpeedAssist.Status.Active ? new Color(0.55f, 0.9f, 1f)
+                : assist.CurrentStatus == HighSpeedAssist.Status.ManualPriority ? new Color(1f, 0.85f, 0.4f) : new Color(0.6f, 1f, 0.7f);
+            Vector2 sz = assistStyle.CalcSize(new GUIContent(assistText));
+            Rect assistRect = new Rect(toggleRect.xMax + gap, y, sz.x + 14f, Mathf.Max(bh, sz.y + 4f));
+            UiBackdrop.Draw(assistRect, 0.55f);
+            GUI.Label(new Rect(assistRect.x + 6f, assistRect.y, assistRect.width - 6f, assistRect.height), assistText, assistStyle);
+            y += Mathf.Max(bh, assistRect.height) + gap;
+        }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // ---- CARD TEST(カード能力調整用のテストパネル、2026-10-01)----
+        CardBalanceTest cardTest = CardBalanceTest.Instance;
+        if (cardTest != null)
+        {
+            if (DrawStyledButton(new Rect(x0, y, bw * 1.9f, bh - 4f), cardTest.IsOpen ? "CARD TEST ▲" : (cardTest.AnyActive ? "CARD TEST ●" : "CARD TEST ▼"), 10f, primary: cardTest.IsOpen || cardTest.AnyActive))
+            {
+                cardTest.Toggle();
+            }
+            y += bh;
+        }
+#endif
+
+        // ---- DEBUG TOOLS(開いた時だけ: 状態表示/距離ワープ/MILE/CARD)----
+        if (DrawStyledButton(new Rect(x0, y, bw * 1.9f, bh - 4f), debugToolsOpen ? "DEBUG TOOLS ▲" : "DEBUG TOOLS ▼", 10f, primary: debugToolsOpen))
+        {
+            debugToolsOpen = !debugToolsOpen;
+        }
+        y += bh;
+        if (!debugToolsOpen) return;
+
         string statusText = $"Distance: {Mathf.FloorToInt(MaxDistance)}"
-            + (DistanceTierManager.Instance != null ? $"\nEnemyHP: {DistanceTierManager.Instance.CurrentEnemyHp}   Tier: {(DistanceTierManager.Instance.CurrentTier != null ? DistanceTierManager.Instance.CurrentTier.tierName : "-")}" : "")
+            + (DistanceTierManager.Instance != null ? $"   EnemyHP: {DistanceTierManager.Instance.CurrentEnemyHp}   Tier: {(DistanceTierManager.Instance.CurrentTier != null ? DistanceTierManager.Instance.CurrentTier.tierName : "-")}" : "")
             + (WorldTimeCycle.Instance != null ? $"\nTime: {WorldTimeCycle.Instance.CurrentTimeName}" : "")
-            + (BossManager.Instance != null ? $"\nBossPhase: {(BossManager.Instance.IsBossPhase ? "ON" : "off")}   NextBoss: {Mathf.FloorToInt(BossManager.Instance.NextBossDistance)}" : "")
+            + (BossManager.Instance != null ? $"   BossPhase: {(BossManager.Instance.IsBossPhase ? "ON" : "off")}   NextBoss: {Mathf.FloorToInt(BossManager.Instance.NextBossDistance)}" : "")
             // Reward/Card Ownership/Gacha/Fusion System Ver.1, item 16.
             + $"\nMILE: {TotalOwnedMile}   OwnedCardStacks: {CardInventory.Stacks.Count}";
-
         GUIStyle statusStyle = new GUIStyle(GUI.skin.label);
-        statusStyle.fontSize = 14;
+        statusStyle.fontSize = 12;
         statusStyle.alignment = TextAnchor.UpperLeft;
         statusStyle.normal.textColor = new Color(0.6f, 1f, 0.7f);
         Vector2 statusSize = statusStyle.CalcSize(new GUIContent(statusText));
-        Rect statusRect = new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin + 100f, statusSize.x + 10f, statusSize.y + 6f);
+        Rect statusRect = new Rect(x0, y, statusSize.x + 10f, statusSize.y + 6f);
         UiBackdrop.Draw(statusRect, 0.55f);
         GUI.Label(statusRect, statusText, statusStyle);
+        y = statusRect.yMax + gap;
+        y = DrawDebugSpeedReadout(x0, y) + gap;
 
         float[] stops = DistanceTierManager.DebugWarpStops;
-        float bw = 62f, bh = 26f, gap = 4f;
         for (int i = 0; i < stops.Length; i++)
         {
-            Rect r = new Rect(SafeLeft() + UiMargin + i * (bw + gap), statusRect.yMax + 6f, bw, bh);
+            Rect r = new Rect(x0 + i * (bw + gap), y, bw, bh);
             string label = stops[i] >= 1000f ? $"{stops[i] / 1000f:0.#}K" : $"{stops[i]:0}";
             if (DrawStyledButton(r, label, 12f, primary: false))
             {
                 DebugWarpToDistance(stops[i]);
             }
         }
+        y += bh + gap;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        y = DrawSceneryDebugRow(x0, y, bw, bh, gap);
+#endif
 
         // Reward/Card Ownership/Gacha/Fusion System Ver.1, item 16 - Dev
         // Build-only debug tools for repeatedly testing MILE/Gacha/Fusion/
-        // Convert without needing to actually grind runs. Same
-        // DebugMode+Debug.isDebugBuild gate as the row above (this whole
-        // method is already only called under that condition).
-        float debugRowY = statusRect.yMax + 6f + bh + 6f;
+        // Convert without needing to actually grind runs.
         (string label, System.Action action)[] mileButtons =
         {
             ("MILE +500", () => AddMile(500)),
@@ -2921,39 +4783,23 @@ public class GameManager : MonoBehaviour
         };
         for (int i = 0; i < mileButtons.Length; i++)
         {
-            Rect r = new Rect(SafeLeft() + UiMargin + i * (bw + gap), debugRowY, bw, bh);
+            Rect r = new Rect(x0 + i * (bw + gap), y, bw, bh);
             if (DrawStyledButton(r, mileButtons[i].label, 10f, primary: false))
             {
                 mileButtons[i].action();
             }
         }
     }
+    static readonly float[] DebugSpeedSteps = { 0.25f, 0.5f, 0.75f, 1f, 1.25f, 1.5f, 2f, 2.5f, 3f, 4f, 5f, 6f, 8f };
 
-    // Card Expansion/Gacha Evolution Ver.1, item 18 - Dev Build/Editor-only
-    // debug tools for immediately observing Gacha Stage/Pool/Next Evolution/
-    // Visual changes without grinding an actual run to each BEST-distance
-    // threshold. `anchor` is the Home Room's titleBestRect, so this sits
-    // directly under the BEST panel rather than floating unrelated.
-    void DrawGachaDebugUI(Rect anchor)
+    static float StepDebugSpeed(float current, int dir)
     {
-        float[] stops = { 0f, 5000f, 20000f, 50000f, 100000f };
-        float bw = 74f, bh = 26f, gap = 4f;
-        float y = anchor.yMax + 6f;
-        for (int i = 0; i < stops.Length; i++)
+        int nearest = 0;
+        for (int i = 1; i < DebugSpeedSteps.Length; i++)
         {
-            Rect r = new Rect(anchor.x + i * (bw + gap), y, bw, bh);
-            string label = stops[i] >= 1000f ? $"BEST {stops[i] / 1000f:0.#}K" : $"BEST {stops[i]:0}";
-            if (DrawStyledButton(r, label, 10f, primary: false))
-            {
-                DebugSetBestDistance(stops[i]);
-            }
+            if (Mathf.Abs(DebugSpeedSteps[i] - current) < Mathf.Abs(DebugSpeedSteps[nearest] - current)) nearest = i;
         }
-
-        Rect logRect = new Rect(anchor.x, y + bh + gap, bw * stops.Length + gap * (stops.Length - 1), bh);
-        if (DrawStyledButton(logRect, "LOG GACHA POOL", 12f, primary: false))
-        {
-            DebugLogGachaPool();
-        }
+        return DebugSpeedSteps[Mathf.Clamp(nearest + dir, 0, DebugSpeedSteps.Length - 1)];
     }
 
     // Directly sets/persists BestDistance (same PlayerPrefs key a real new
@@ -2981,15 +4827,66 @@ public class GameManager : MonoBehaviour
         Debug.Log(sb.ToString());
     }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 距離で進む背景(SceneryCycle)の確認用(2026-10-01)。プレビューは背景だけを切り替える(ゲームの距離は変えない)。
+    //  背景◀/▶ … 景色×時間帯を1区間ずつ / 移行 … 次の区間への移り変わりの途中(25→50→75%) / 通常 … プレビュー解除
+    //  境目へ … 次の移り変わりが始まる300m手前へ実際に距離ワープ
+    int sceneryPreviewSeg = -1;
+    float sceneryPreviewBlend;
+    float DrawSceneryDebugRow(float x0, float y, float bw, float bh, float gap)
+    {
+        if (!SceneryCycle.Active) return y;
+        int n = SceneryCycle.SegmentCount;
+        string label = $"背景: {SceneryCycle.CurrentName}" + (SceneryCycle.DebugPreviewDistance.HasValue ? " [プレビュー]" : "")
+            + $"  読込{SceneryCycle.LoadedCount}枚 {SceneryCycle.LoadedTextureBytes / 1024f / 1024f:F1}MB";
+        GUIStyle st = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
+        st.normal.textColor = new Color(0.75f, 0.9f, 1f);
+        Vector2 sz = st.CalcSize(new GUIContent(label));
+        Rect lr = new Rect(x0, y, sz.x + 10f, sz.y + 4f);
+        UiBackdrop.Draw(lr, 0.55f);
+        GUI.Label(lr, label, st);
+        y = lr.yMax + gap;
+        string[] names = { "背景◀", "背景▶", "移行", "通常", "境目へ" };
+        for (int i = 0; i < names.Length; i++)
+        {
+            Rect r = new Rect(x0 + i * (bw + gap), y, bw, bh);
+            if (!DrawStyledButton(r, names[i], 11f, primary: false)) continue;
+            if (i <= 1)
+            {
+                if (sceneryPreviewSeg < 0) sceneryPreviewSeg = Mathf.Max(0, SceneryCycle.CurrentSegment);
+                else sceneryPreviewSeg = (sceneryPreviewSeg + (i == 0 ? -1 : 1) + n) % n;
+                sceneryPreviewBlend = 0f;
+                SceneryCycle.DebugPreviewDistance = SceneryCycle.DistanceForSegment(sceneryPreviewSeg);
+            }
+            else if (i == 2)
+            {
+                if (sceneryPreviewSeg < 0) sceneryPreviewSeg = Mathf.Max(0, SceneryCycle.CurrentSegment);
+                sceneryPreviewBlend = sceneryPreviewBlend >= 0.74f ? 0.25f : sceneryPreviewBlend + 0.25f;
+                SceneryCycle.DebugPreviewDistance = SceneryCycle.DistanceForSegment(sceneryPreviewSeg, sceneryPreviewBlend);
+            }
+            else if (i == 3) { sceneryPreviewSeg = -1; SceneryCycle.DebugPreviewDistance = null; }
+            else { SceneryCycle.DebugPreviewDistance = null; sceneryPreviewSeg = -1; DebugWarpToDistance(Mathf.Max(0f, SceneryCycle.NextBlendStart(MaxDistance) - 300f)); }
+        }
+        return y + bh + gap;
+    }
+#endif
+
     public void DebugWarpToDistance(float targetDistance)
     {
         if (!Debug.isDebugBuild) return; // Release Build safety net - a stray call can never actually warp outside a dev build
         MaxDistance = targetDistance;
+        MaxDistanceExact = targetDistance;
+        // 2026-09-29: ボスの関門もワープ先へ合わせる(以前は1,000mの関門が残っていて、ワープ直後に1,000mのボスが出て距離が戻された)。
+        // ワープ先ちょうどの関門(10,000m等)はこれから来る扱いのまま。
+        if (BossManager.Instance != null) BossManager.Instance.RestoreNextBossDistance(targetDistance - 1f);
         if (PlayerController.Instance != null)
         {
-            Vector3 p = PlayerController.Instance.transform.position;
-            p.x = targetDistance;
-            PlayerController.Instance.transform.position = p;
+            // Floating Origin(2026-09-22) - プレイヤーを何万ユニットも実際に動かすと、地形チャンクを大量生成
+            // してしまううえ座標精度も落ちる。論理距離だけを加算してその場で「N mに来た」ことにする
+            // (地形/配置/ボスは論理距離で判断するので、その後は通常どおり進む)。
+            float current = PlayerController.Instance.DistanceFromStart;
+            // 2026-10-01: ボス戦で除外した移動ぶんも足す(以前は除外ぶんの距離だけワープ後に距離が止まっていた)
+            FloatingOrigin.LogicalWarp(targetDistance + distanceExclusionOffset - current);
         }
         Debug.Log($"[Debug] Warped to {targetDistance}m");
     }
@@ -3019,65 +4916,32 @@ public class GameManager : MonoBehaviour
         UiBackdrop.Draw(bg);
     }
 
-    // Toggled by the small gear icon (see the (!HasStarted || IsGameOver)
-    // block in OnGUI) instead of this whole column always being visible.
-    bool showSettingsPanel;
-
-    // Orientation/BGM/SE/INVINCIBLE/DEBUG/RESET SCORE - restyled to the
-    // shared navy+gold button (secondary variant, same as DECK on the
-    // title screen) instead of Unity's raw gray button chrome. Left fully
-    // reachable (behind the gear icon) rather than hidden outside
-    // development builds - INVINCIBLE/DEBUG/RESET SCORE are how this
-    // project's own testing has been done all along, and hiding DEBUG's
-    // own toggle would mean no way to ever turn it back on.
-    void DrawSettingsColumn()
+    // ホーム/リザルトの設定系ボタン(2026-10-01)。以前の「⚙で開く設定/DEBUG列」(音量の段階ボタン・向き・無敵・DEBUG・
+    // GAMEFEEL・スコアリセット)は、プレイヤー向けは設定画面(SettingsPanel)、開発用はDEBUGパネル(開発版のみ)へ分けた。
+    //  ・ホーム: 右上の所持MILEの下に「設定」「マルチ」。開発版は床の上に「DEBUG」。
+    //  ・リザルト: 左下の⚙で設定画面。
+    // ホームでは入力判定を部屋のホットスポットより先に、見た目はRepaintで手前に描く(呼び出し元のコメント参照)。
+    void DrawHomeChrome()
     {
-        string orientationLabel = preferredOrientation == ScreenOrientation.Portrait ? "⇄ Portrait" : "⇄ Landscape";
-        if (DrawStyledButton(GetOrientationButtonRect(), orientationLabel, 15f, primary: false))
+        if (HasStarted)
         {
-            ToggleOrientation();
+            if (DrawStyledButton(GetGearButtonRect(), "", 26f, primary: false)) SettingsPanel.OpenStatic();
+            UiKit.DrawGear(GetGearButtonRect(), 0.62f, new Color(1f, 0.9f, 0.6f));
+            return;
         }
-
-        if (AudioManager.Instance != null)
+        if (NetDebugUI.PanelOpen) return; // マルチのパネル(手前)を開いている間は出さない
+        float fs = Mathf.Round(HomeButtonHeight * 0.32f);
+        Rect setRect = GetHomeSettingsButtonRect();
+        if (DrawStyledButton(setRect, "    設定", fs, primary: false, ornate: true)) SettingsPanel.OpenStatic();
+        UiKit.DrawGear(new Rect(setRect.x + setRect.width * 0.08f, setRect.y + setRect.height * 0.2f, setRect.height * 0.6f, setRect.height * 0.6f), 1f, new Color(1f, 0.88f, 0.55f));
+        if (DrawStyledButton(GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel, fs, primary: NetSession.IsActive, ornate: true)) NetDebugUI.OpenPanel();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (Debug.isDebugBuild)
         {
-            // Each tap cycles to the next of 5 volume steps (wrapping
-            // back to mute after max) - shown as a filled/empty block
-            // bar rather than a plain ON/OFF toggle.
-            string bgmLabel = "BGM " + VolumeBar(AudioManager.Instance.BgmVolumeLevel);
-            if (DrawStyledButton(GetBgmButtonRect(), bgmLabel, 15f, primary: false))
-            {
-                AudioManager.Instance.CycleBgmVolume();
-            }
-
-            string sfxLabel = "SE " + VolumeBar(AudioManager.Instance.SfxVolumeLevel);
-            if (DrawStyledButton(GetSfxButtonRect(), sfxLabel, 15f, primary: false))
-            {
-                AudioManager.Instance.CycleSfxVolume();
-            }
+            Rect dr = GetHomeDebugButtonRect();
+            if (DrawStyledButton(dr, "DEBUG", Mathf.Round(dr.height * 0.38f), primary: DebugMode)) DebugPanel.OpenStatic();
         }
-
-        string invincibleLabel = "INVINCIBLE: " + (InvincibleMode ? "ON" : "OFF");
-        if (DrawStyledButton(GetInvincibleButtonRect(), invincibleLabel, 13f, primary: false))
-        {
-            ToggleInvincible();
-        }
-
-        string debugLabel = "DEBUG: " + (DebugMode ? "ON" : "OFF");
-        if (DrawStyledButton(GetDebugButtonRect(), debugLabel, 15f, primary: false))
-        {
-            ToggleDebugMode();
-        }
-
-        // Game Feel Visibility Pass - see GameFeelDebug's class comment.
-        // Not persisted to PlayerPrefs on purpose - always starts OFF, so a
-        // shipped build can never accidentally leave it on. Toggle before
-        // START so it's active for the run that follows (this column isn't
-        // shown during actual gameplay).
-        string gameFeelFxLabel = "GAMEFEEL FX: " + (GameFeelDebug.VisibilityBoost ? "ON" : "OFF");
-        if (DrawStyledButton(GetGameFeelFxButtonRect(), gameFeelFxLabel, 13f, primary: GameFeelDebug.VisibilityBoost))
-        {
-            GameFeelDebug.VisibilityBoost = !GameFeelDebug.VisibilityBoost;
-        }
+#endif
     }
 
     // Visual Style Ver.1 button: a UiBackdrop box (navy fill + thin gold
@@ -3137,6 +5001,233 @@ public class GameManager : MonoBehaviour
             bounds.height * (y1 - y0));
     }
 
+    // Home画面改善依頼④(2026-09-15) - 「地図から出たような旅先表示」演出用。
+    // outerの中に、指定アスペクト比(例: 地図フレーム画像自身の縦横比)を
+    // 保ったまま最大サイズで収まる中央寄せのRectを返す(GUI.DrawTextureの
+    // ScaleToFitと同じ考え方を、後段でその領域の内側にさらに写真を重ね
+    // 描きしたい場合など、実際のRect自体が必要なケース向けに関数化した)。
+    static Rect FitRectPreserveAspect(Rect outer, float aspect)
+    {
+        float outerAspect = outer.width / Mathf.Max(1f, outer.height);
+        float w, h;
+        if (outerAspect > aspect)
+        {
+            h = outer.height;
+            w = h * aspect;
+        }
+        else
+        {
+            w = outer.width;
+            h = w / aspect;
+        }
+        return new Rect(outer.x + (outer.width - w) / 2f, outer.y + (outer.height - h) / 2f, w, h);
+    }
+
+    // Home画面改善依頼②(2026-09-15), item 4 - 「タップ可能箇所の分かり
+    // やすさ」への対応。Character/NEXT STAGEは既にOrnateUi.DrawPanel+常時
+    // ゆるい金色パルスでタップ可能だと伝わっていたが、Door(背景に完全に
+    // 溶け込んだ透明ホットスポット)とGacha機(タップ後のフラッシュのみ)
+    // には常時の手がかりが一切無かった。マスター指示「常時派手に光らせ
+    // たり大きなボタンを追加する必要はない」「薄いシアンまたは金の縁取
+    // り」どおり、細い金色の枠線を控えめな不透明度で常時描画する軽量な
+    // 共通ヘルパー。点滅させず一定の明るさに留める(「常時点滅する演出
+    // は不要」)。
+    static void DrawTapAffordanceBorder(Rect rect, float roomFadeAlpha, float thickness = 2f)
+    {
+        Color prev = GUI.color;
+        GUI.color = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, 0.45f * roomFadeAlpha);
+        GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, thickness), Texture2D.whiteTexture);
+        GUI.DrawTexture(new Rect(rect.x, rect.yMax - thickness, rect.width, thickness), Texture2D.whiteTexture);
+        GUI.DrawTexture(new Rect(rect.x, rect.y, thickness, rect.height), Texture2D.whiteTexture);
+        GUI.DrawTexture(new Rect(rect.xMax - thickness, rect.y, thickness, rect.height), Texture2D.whiteTexture);
+        GUI.color = prev;
+    }
+
+    // Home画面改善依頼⑤(2026-09-16) - 「常時表示の枠線や判定枠っぽい見た目
+    // は貼り付け感の原因になる」への対応。DrawTapAffordanceBorderの矩形の
+    // 縁取り(いかにも「ここがボタンです」という見た目)をやめ、形状全体へ
+    // 重ねるごく薄い明滅に置き換えた - 縁が無いぶん「UIのボタン」ではなく
+    // 「そこにある物がわずかに息づいている」ように見える。Door/Gacha機/
+    // NEXT STAGE地図など、各hotspotの見た目そのもの(扉の絵・機械の実写・
+    // 地図の装飾フレーム)がすでに存在を主張しているため、常時の強い枠は
+    // もう不要という判断。
+    static void DrawAmbientGlow(Rect rect, float roomFadeAlpha, float minAlpha = 0.03f, float maxAlpha = 0.09f, float speed = 1.6f)
+    {
+        float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * speed);
+        Color prev = GUI.color;
+        GUI.color = new Color(1f, 0.9f, 0.6f, Mathf.Lerp(minAlpha, maxAlpha, pulse) * roomFadeAlpha);
+        GUI.DrawTexture(rect, Texture2D.whiteTexture);
+        GUI.color = prev;
+    }
+
+    // Home画面改善依頼⑪(2026-09-17), item4-5 - 「動くイラスト背景」の
+    // ような控えめな環境アニメーション一式。共通ルール(派手にしない/
+    // 周期を長く/振れ幅を小さく/同時に主張させすぎない)を守るため、
+    // どの要素もTime.unscaledTimeベースの緩やかなSin波のみで変化させる。
+    // 新規アセットは増やさない方針(既存のTexture2D.whiteTexture、または
+    // 下のSoftGlowTex - 手続き的に1回だけ生成してキャッシュする柔らかい
+    // 円形グラデーション、CreateRadialGlowSprite<Editor/SceneBuilder.cs>
+    // と同じ発想をランタイム側で再実装したもの)だけで組んでいる。
+    static Texture2D softGlowTexCache;
+    static Texture2D SoftGlowTex()
+    {
+        if (softGlowTexCache != null) return softGlowTexCache;
+        const int size = 64;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        var pixels = new Color[size * size];
+        Vector2 center = new Vector2(size / 2f, size / 2f);
+        float maxDist = size / 2f;
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float dist = Vector2.Distance(new Vector2(x, y), center) / maxDist;
+                float alpha = Mathf.Clamp01(1f - dist);
+                alpha *= alpha;
+                pixels[y * size + x] = new Color(1f, 1f, 1f, alpha);
+            }
+        }
+        tex.SetPixels(pixels);
+        tex.Apply();
+        softGlowTexCache = tex;
+        return softGlowTexCache;
+    }
+
+    // Home待機演出(2026-09-21)へ置き換え: 背景装飾(カーテンの揺れ/窓の光
+    // 明滅/ランタンの揺らぎ/旧埃)のアニメは停止した(カーテンは静止表示のまま)。
+    // 代わりに操作対象5か所の待機演出と光の粒子をHomeIdleFxで描く。
+    void DrawHomeAmbientAnimations(float roomFadeAlpha, Rect[] quietZones)
+    {
+        if (bgRoomRect.width <= 0f || roomFadeAlpha <= 0.001f) return;
+        HomeIdleFx fx = GetIdleFx();
+        fx.Tick();
+#if UNITY_EDITOR
+        // 確認用(Editor専用): Home表示中に数字キー1..5で 扉/ガチャ/肖像画/カード/本 を即再生。
+        if (Event.current != null && Event.current.type == EventType.KeyDown && Event.current.keyCode >= KeyCode.Alpha1 && Event.current.keyCode <= KeyCode.Alpha5)
+            fx.DebugStart((int)Event.current.keyCode - (int)KeyCode.Alpha1);
+        if (Event.current != null && Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Alpha6)
+            homeIdle.playbackSpeed = homeIdle.playbackSpeed < 0.5f ? 1f : 0.15f;
+#endif
+
+        DrawCurtainSway(roomFadeAlpha, 0f);   // 静止表示(揺れなし)
+        fx.DrawDoor(bgRoomRect, roomFadeAlpha);
+        fx.DrawCards(bgRoomRect, roomFadeAlpha);
+        fx.DrawBookGlow(bgRoomRect, roomFadeAlpha);
+        fx.DrawMotes(bgRoomRect, roomFadeAlpha, quietZones);
+    }
+
+    // A. カーテンの揺れ - 環境アニメーション構造修正依頼(2026-09-18):
+    // 旧実装は背景テクスチャ自身をカーテンの範囲だけ切り出してもう一度
+    // 重ね描きする方式だったが、背景に元々描かれた静止カーテンの上に
+    // 動くカーテンが重なり「二重に見える」不自然さがあった。今回、
+    // topBackground自体をカーテンを取り除いた版へ差し替え、カーテンは
+    // 完全に独立した透過素材(homeCurtain、元画像からAI背景除去で切り出し
+    // た同一アセットなので色/質感のズレが無い)を別レイヤーとして重ね、
+    // その素材だけを上端(レール)を軸に回転させる、背景と分離した構造へ
+    // 変更した。
+    void DrawCurtainSway(float roomFadeAlpha, float t)
+    {
+        if (homeCurtain == null) return;
+        // bgRoomRectはcover-scaleの都合で画面の外側へはみ出すことがある
+        // (背景素材とScreenのアスペクト比の組み合わせ次第で、上下方向・
+        // 左右方向のどちらにもはみ出し得る - 実機で2048x1024として読み
+        // 込まれるNPOTスケール後の実寸で確認済み)。bgRoomRectの右端の
+        // フラクションをそのまま基準にすると、はみ出し方向によっては
+        // カーテンが画面外へ出て見切れてしまうため、実際に画面に見えて
+        // いる範囲(bgRoomRectとScreenの共通部分)を基準にする。
+        float visibleLeft = Mathf.Max(bgRoomRect.x, 0f);
+        float visibleTop = Mathf.Max(bgRoomRect.y, 0f);
+        float visibleRight = Mathf.Min(bgRoomRect.xMax, Screen.width);
+        float visibleBottom = Mathf.Min(bgRoomRect.yMax, Screen.height);
+        float visibleWidth = visibleRight - visibleLeft;
+        float visibleHeight = visibleBottom - visibleTop;
+        if (visibleWidth <= 0f || visibleHeight <= 0f) return;
+
+        // 素材の実寸(縦横比)をそのまま使い、歪めずに配置する。
+        float destHeight = visibleHeight * 0.55f;
+        float destWidth = destHeight * (homeCurtain.width / (float)homeCurtain.height);
+        Rect curtainRect = new Rect(
+            visibleRight - visibleWidth * 0.005f - destWidth,
+            visibleTop,
+            destWidth,
+            destHeight);
+        if (curtainRect.width <= 0f || curtainRect.height <= 0f) return;
+
+        // Home環境アニメーション強化依頼(2026-09-17) - 「目で分かる程度に
+        // 揺れていることが分かるように」との指摘で振れ幅を約1.4°→3.8°へ
+        // 拡大(周期はほぼ据え置き、速すぎる/激しい揺れにはしない)。
+        float swayAngle = 0f; // 2026-09-21 揺れは停止(静止表示)。tは互換のため残す
+
+        Matrix4x4 prevMatrix = GUI.matrix;
+        Vector2 pivot = new Vector2(curtainRect.x + curtainRect.width * 0.5f, curtainRect.y);
+        GUIUtility.RotateAroundPivot(swayAngle, pivot);
+        Color prevColor = GUI.color;
+        GUI.color = new Color(1f, 1f, 1f, roomFadeAlpha);
+        GUI.DrawTexture(curtainRect, homeCurtain, ScaleMode.StretchToFill);
+        GUI.color = prevColor;
+        GUI.matrix = prevMatrix;
+    }
+
+    // C. 埃/光の粒。位置・速度・周期をindexから決定論的に散らし(乱数を
+    // 毎フレーム引かない)、下端から上端へゆっくり上昇しながらループする。
+    // 上昇の前半/後半でSin(π×phase)によりフェードイン/アウトするため、
+    // ループの継ぎ目が瞬間的に消える/現れることはない。
+    static void DrawDustMotes(Rect area, float roomFadeAlpha, float t)
+    {
+        if (area.width <= 0f || area.height <= 0f) return;
+        Texture2D glow = SoftGlowTex();
+        // Home環境アニメーション強化依頼(2026-09-17) - 「埃/光粒を少し
+        // 増やして空気が流れている感を出す」に対応し6→11粒へ増量。
+        const int moteCount = 11;
+        for (int i = 0; i < moteCount; i++)
+        {
+            float seed = i * 12.9898f;
+            float frac01 = seed - Mathf.Floor(seed);
+            float cycle = 16f + (i % 4) * 4f; // 16〜28秒かけて1往復
+            float phase = Mathf.Repeat(t + seed * 3f, cycle) / cycle; // 0..1
+            float driftX = Mathf.Sin(t * 0.12f + seed) * area.width * 0.05f;
+            float baseX = area.x + area.width * Mathf.Repeat(0.1f + frac01 * 0.8f, 1f) + driftX;
+            float y = area.yMax - phase * area.height;
+            float fade = Mathf.Sin(phase * Mathf.PI);
+            float size = Mathf.Lerp(3f, 6f, frac01);
+            Rect moteRect = new Rect(baseX - size * 0.5f, y - size * 0.5f, size, size);
+            Color prev = GUI.color;
+            GUI.color = new Color(1f, 0.96f, 0.85f, 0.4f * fade * roomFadeAlpha);
+            GUI.DrawTexture(moteRect, glow);
+            GUI.color = prev;
+        }
+    }
+
+    // E. ロゴのハイライト - 数秒に一度だけ、金属光沢のような細い帯を
+    // ロゴの上を左から右へ流す。GUI.BeginGroupでロゴ自身のrectにクリップ
+    // するため、帯が外へはみ出したりロゴ以外を明るくしたりしない。
+    static void DrawHomeLogoHighlight(Rect logoRect, float logoFadeAlpha)
+    {
+        if (logoFadeAlpha <= 0.001f || logoRect.width <= 0f || logoRect.height <= 0f) return;
+        // Home環境アニメーション強化依頼(2026-09-17) - 「5〜8秒に1回程度」
+        // に合わせ周期を6→7秒へ、帯自体もやや明るく太くした。
+        const float cycle = 7f;
+        const float sweepWindow = 0.18f; // 周期のうちこの割合の間だけ帯が発生する
+        float phase = Mathf.Repeat(Time.unscaledTime, cycle) / cycle;
+        if (phase > sweepWindow) return;
+
+        float sweepT = phase / sweepWindow;
+        float travel = Mathf.Lerp(-logoRect.width * 0.3f, logoRect.width * 1.3f, sweepT);
+        float streakAlpha = Mathf.Sin(sweepT * Mathf.PI) * 0.32f * logoFadeAlpha;
+        if (streakAlpha <= 0.001f) return;
+
+        GUI.BeginGroup(logoRect);
+        Matrix4x4 prevMatrix = GUI.matrix;
+        Vector2 pivotLocal = new Vector2(travel, logoRect.height * 0.5f);
+        GUIUtility.RotateAroundPivot(20f, pivotLocal);
+        Color prevColor = GUI.color;
+        GUI.color = new Color(1f, 0.97f, 0.85f, streakAlpha);
+        GUI.DrawTexture(new Rect(travel - logoRect.height * 0.19f, -logoRect.height, logoRect.height * 0.38f, logoRect.height * 3f), Texture2D.whiteTexture);
+        GUI.color = prevColor;
+        GUI.matrix = prevMatrix;
+        GUI.EndGroup();
+    }
+
     // A completely invisible tap target (no backdrop, no label - "大きな
     // メニューボタンとして見えないように") with a brief "少し光る" flash on
     // tap (item 3). flashTimer is one of the per-hotspot fields in Update's
@@ -3151,7 +5242,7 @@ public class GameManager : MonoBehaviour
         if (tapped)
         {
             flashTimer = roomHotspotFlashDuration;
-            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(roomTapSe);
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(AudioManager.Se(SeId.Door) ?? roomTapSe); // 扉(無ければ従来のタップ音)
         }
 
         if (flashTimer > 0f)
@@ -3165,6 +5256,182 @@ public class GameManager : MonoBehaviour
         return tapped;
     }
 
+    // Home画面改善依頼⑦(2026-09-16), item 9 - 扉専用のタップ反応。ドア
+    // 自体は背景アートに焼き込まれた1枚絵のため、取っ手だけ/縁だけを
+    // 独立して光らせたり本当に拡大したりすることはできない。代わりに、
+    // ①中心付近(取っ手のおおよその位置)を暖色でほんのり明るくする、
+    // ②矩形の縁だけを金色でなぞる、③その縁をタップ直後だけrectよりひと
+    // まわり大きく描いて一瞬膨らんだように見せる、の3つを組み合わせて
+    // 「常時強く発光/点滅はしない、タップ時だけ軽く反応する」を近似する。
+    bool DrawDoorHotspot(Rect rect, ref float flashTimer, bool interactable, float roomFadeAlpha)
+    {
+        bool tapped = interactable && GUI.Button(rect, GUIContent.none, GUIStyle.none);
+        if (tapped)
+        {
+            flashTimer = roomHotspotFlashDuration;
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(roomTapSe);
+        }
+
+        if (flashTimer > 0f)
+        {
+            float f = flashTimer / roomHotspotFlashDuration;
+            // 取っ手付近(扉のやや右寄り下側)をほんのり明るく。
+            float handleSize = Mathf.Min(rect.width, rect.height) * 0.22f;
+            Rect handleRect = new Rect(rect.x + rect.width * 0.62f - handleSize / 2f, rect.y + rect.height * 0.55f - handleSize / 2f, handleSize, handleSize);
+            Color prevHandle = GUI.color;
+            GUI.color = new Color(1f, 0.9f, 0.55f, f * 0.5f * roomFadeAlpha);
+            GUI.DrawTexture(handleRect, Texture2D.whiteTexture);
+            GUI.color = prevHandle;
+
+            // 縁を金色でなぞり、タップ直後ほど少し外側へ膨らませる(軽い
+            // Scale反応の近似)。
+            float bulge = f * rect.width * 0.02f;
+            Rect edgeRect = new Rect(rect.x - bulge, rect.y - bulge, rect.width + bulge * 2f, rect.height + bulge * 2f);
+            float thickness = 2f + f * 2f;
+            Color prevEdge = GUI.color;
+            GUI.color = new Color(1f, 0.85f, 0.35f, f * 0.8f * roomFadeAlpha);
+            GUI.DrawTexture(new Rect(edgeRect.x, edgeRect.y, edgeRect.width, thickness), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(edgeRect.x, edgeRect.yMax - thickness, edgeRect.width, thickness), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(edgeRect.x, edgeRect.y, thickness, edgeRect.height), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(edgeRect.xMax - thickness, edgeRect.y, thickness, edgeRect.height), Texture2D.whiteTexture);
+            GUI.color = prevEdge;
+        }
+        return tapped;
+    }
+
+    // Home画面 / Stage Select改善依頼(2026-09-16), item2 - Characterカード
+    // UI(半透明パネル+見出し+アイコン)をHomeから撤去し、「壁に飾られた
+    // 額縁付きの肖像画」として見せる。portraitFrameTexture(ChatGPT生成、
+    // 中央が実アルファ透明)を自身のアスペクト比のまま中央寄せし、その
+    // 内側の透明窓へ選択中キャラクターのportraitを重ねる - Home画面改善
+    // 依頼④のNEXT STAGE地図フレーム+写真と全く同じ「フレームを描いた後
+    // その無地/透明領域だけに絵を重ねる」合成パターン。常時の判定枠・
+    // パルスするパネル地色は廃止し、フレーム全体へのごく薄い息づき
+    // (DrawAmbientGlow)だけに絞った - 「タップ可能」は伝えつつ、主役は
+    // あくまで肖像画自身であることを優先している。
+    void DrawCharacterHotspot(Rect rect, bool roomInteractable, float roomFadeAlpha)
+    {
+        Rect frameRect = portraitFrameTexture != null
+            ? FitRectPreserveAspect(rect, (float)portraitFrameTexture.width / Mathf.Max(1, portraitFrameTexture.height))
+            : rect;
+
+        // Home待機演出(2026-09-21) - 肖像画は額縁上中央の吊り位置を軸に、影・背景・
+        // キャラ・質感・額縁をすべて同じ回転で一体に揺らす(キャラ切替後も同じ)。
+        // タップ判定(下のGUI.Button(rect))と名前ラベルは回転させない。
+        Matrix4x4 idlePrevMatrix = GUI.matrix;
+        float idleAngle = GetIdleFx().PortraitAngle();
+        if (Mathf.Abs(idleAngle) > 0.0001f) GUIUtility.RotateAroundPivot(idleAngle, new Vector2(frameRect.center.x, frameRect.y + frameRect.height * 0.035f));
+
+        // 壁に掛かっている説得力のための、ごく薄い設置影(単色近似)。
+        Color prevShadow = GUI.color;
+        Rect shadowRect = new Rect(frameRect.x + frameRect.width * 0.035f, frameRect.y + frameRect.height * 0.03f, frameRect.width, frameRect.height);
+        GUI.color = new Color(0f, 0f, 0f, 0.22f * roomFadeAlpha);
+        GUI.DrawTexture(shadowRect, Texture2D.whiteTexture);
+        GUI.color = prevShadow;
+
+        CharacterDefinition selectedDef = CharacterDatabase.FindById(SelectedCharacterId);
+        Texture2D portrait = selectedDef != null ? selectedDef.portrait : null;
+        if (portrait != null)
+        {
+            // フレーム画像自身の内側の透明窓(実測、幅80.2%×高さ79.5%、
+            // x=9.85%〜90.06%/y=13.02%〜92.51%)へポートレートを重ねる。
+            // フレーム未設定時はrect全体を窓として扱う(Acceptance Test -
+            // 画像未設定でも壊れない)。
+            Rect windowRect = portraitFrameTexture != null
+                ? new Rect(frameRect.x + frameRect.width * 0.0985f, frameRect.y + frameRect.height * 0.1302f, frameRect.width * 0.802f, frameRect.height * 0.795f)
+                : frameRect;
+            Rect portraitRect = FitRectPreserveAspect(windowRect, (float)portrait.width / Mathf.Max(1, portrait.height));
+            Color prevIcon = GUI.color;
+
+            // 肖像画背景追加依頼(2026-09-17) - portrait自身は透明背景の
+            // 切り抜きなので、先に窓いっぱい(portraitRectではなくwindow
+            // Rect全体 - キャラの周囲に隙間なく)へ共通の油彩風背景を敷く。
+            // 「キャラの切り抜き」ではなく「額縁の中の1枚の絵」に見せる
+            // ための下地 - portraitBackdropTextureが未生成の間はnullを
+            // 許容し安全にスキップする。
+            if (portraitBackdropTexture != null)
+            {
+                GUI.color = new Color(0.9f, 0.86f, 0.8f, roomFadeAlpha);
+                GUI.DrawTexture(windowRect, portraitBackdropTexture, ScaleMode.StretchToFill);
+            }
+
+            // Home画面改善依頼⑨(2026-09-17), item1 - 「きれいな画像を額に
+            // 貼った感」を減らし「壁に長く飾られた装飾画」に寄せるための
+            // 2段構成。(a)わずかに拡大して低alphaで下敷きにした同じ
+            // ポートレートがソフトフォーカス/ハレーションのように輪郭を
+            // にじませる(IMGUIには本物のガウスぼかしが無いための代替)。
+            // (b)本体は彩度/コントラストを落とす暖色寄りの乗算Tintで描く。
+            // portraitAgingOverlayTexture(紙/キャンバス質感、ChatGPT生成
+            // 予定)が用意でき次第(c)としてさらに重ねる - 現状はnullなので
+            // 安全にスキップされる。
+            Rect softRect = new Rect(
+                portraitRect.x - portraitRect.width * 0.015f,
+                portraitRect.y - portraitRect.height * 0.015f,
+                portraitRect.width * 1.03f,
+                portraitRect.height * 1.03f);
+            GUI.color = new Color(0.82f, 0.78f, 0.7f, roomFadeAlpha * 0.35f);
+            GUI.DrawTexture(softRect, portrait, ScaleMode.ScaleToFit);
+
+            GUI.color = new Color(0.86f, 0.82f, 0.74f, roomFadeAlpha);
+            GUI.DrawTexture(portraitRect, portrait, ScaleMode.ScaleToFit);
+
+            if (portraitAgingOverlayTexture != null)
+            {
+                GUI.color = new Color(1f, 1f, 1f, roomFadeAlpha * 0.4f);
+                GUI.DrawTexture(portraitRect, portraitAgingOverlayTexture, ScaleMode.ScaleToFit);
+            }
+
+            GUI.color = prevIcon;
+        }
+
+        if (portraitFrameTexture != null)
+        {
+            Color prevFrame = GUI.color;
+            GUI.color = new Color(1f, 1f, 1f, roomFadeAlpha);
+            GUI.DrawTexture(frameRect, portraitFrameTexture, ScaleMode.ScaleToFit);
+            GUI.color = prevFrame;
+        }
+
+        // 常時のごく控えめな息づき - 扉(DrawAmbientGlow既定値)よりさらに
+        // 控えめな上限にして、視覚優先順位「ドア>肖像画」を保つ。
+
+        GUI.matrix = idlePrevMatrix; // ここから先(名前/タップ判定)は回転させない
+
+        // 主役はあくまで肖像画自身なので、名前はフレーム下にごく小さく
+        // 添えるだけに留める(常時の大きな「CHARACTER」見出しは撤去)。
+        GUIStyle nameStyle = new GUIStyle(GUI.skin.label);
+        nameStyle.fontSize = 13;
+        nameStyle.fontStyle = FontStyle.Bold;
+        nameStyle.alignment = TextAnchor.UpperCenter;
+        nameStyle.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, roomFadeAlpha * 0.85f);
+        string nameLabel = selectedDef != null ? selectedDef.displayName : "";
+        GUI.Label(new Rect(rect.x, frameRect.yMax + 2f, rect.width, 20f), nameLabel, nameStyle);
+
+        bool tapped = roomInteractable && GUI.Button(rect, GUIContent.none, GUIStyle.none);
+        if (tapped)
+        {
+            characterHotspotFlashTimer = roomHotspotFlashDuration;
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(roomTapSe);
+        }
+
+        if (characterHotspotFlashTimer > 0f)
+        {
+            float f = characterHotspotFlashTimer / roomHotspotFlashDuration;
+            Color prevFlash = GUI.color;
+            GUI.color = new Color(1f, 0.95f, 0.75f, f * 0.35f * roomFadeAlpha);
+            GUI.DrawTexture(frameRect, Texture2D.whiteTexture);
+            GUI.color = prevFlash;
+        }
+
+        if (tapped && roomFadeAlpha > 0.99f)
+        {
+            OpenCharacterSelect();
+        }
+    }
+
+    // Home画面 / Stage Select改善依頼(2026-09-16), item4 - NEXT STAGE
+    // ホットスポット(旧DrawStageHotspot)はHomeから撤去した。行き先選択は
+    // 出発専用のStage Select画面(StageSelectUI)へ完全に分離している。
     // Gacha Result popup (item 4) - "NEW CARD / SPEED UP / Lv.1 / OWNED x3
     // / OK", closing straight back to the room (no forced navigation to
     // Card Edit). A fresh Gacha draw is always Lv.1, so this doesn't need
@@ -3212,15 +5479,21 @@ public class GameManager : MonoBehaviour
         headlineStyle.fontStyle = FontStyle.Bold;
         headlineStyle.alignment = TextAnchor.MiddleCenter;
         headlineStyle.normal.textColor = new Color(1f, 0.85f, 0.4f);
-        GUI.Label(new Rect(panelRect.x, panelRect.y + 24f, panelRect.width, 34f), "NEW CARD", headlineStyle);
+        // Card UI改修(2026-09-08), item 6-5 - 「NEW/DUPLICATEを別ラベルで
+        // 表示」。Gacha抽選は常にLv.1を1枚付与するため(下の"Lv.1  GAINED
+        // +1"参照)、抽選後の合計所持数(gachaResultOwnedCount)が1ならその
+        // 1枚が今回初めて得たもの=NEW、2以上なら既に持っていた=DUPLICATE
+        // と判定できる(抽選ロジック自体には手を入れず、表示側だけで導出)。
+        bool isNewCard = gachaResultOwnedCount <= 1;
+        headlineStyle.normal.textColor = isNewCard ? new Color(1f, 0.85f, 0.4f) : new Color(0.7f, 0.85f, 1f);
+        GUI.Label(new Rect(panelRect.x, panelRect.y + 24f, panelRect.width, 34f), isNewCard ? "NEW CARD" : "DUPLICATE", headlineStyle);
 
         // Card UI / Rarity Frame pass, item 15 - "GachaでCardを引いた際も、
         // RevealしたCardのRarityに応じて同じFrameを使用". Drawn as a border
         // just around the icon (rather than replacing the popup's own
-        // OrnateUi dialog chrome) - Rarity 1 has no frame Sprite yet (see
-        // CardRarityFrames' own comment on the ★1 source image's missing
-        // alpha), so this simply draws nothing extra for ★1, unchanged
-        // from before this pass.
+        // OrnateUi dialog chrome). Rarity 1 now also has a real frame Sprite
+        // (Card UI改修2026-09-08 - CardFrameRarity1.png), so every Rarity
+        // draws its own frame here now.
         float iconSize = highRarity ? 110f + 14f * revealT : 110f;
         Rect iconDrawRect = new Rect(panelRect.x + panelRect.width / 2f - iconSize / 2f, panelRect.y + 70f - (iconSize - 110f) / 2f, iconSize, iconSize);
         Sprite rarityFrameSprite = CardRarityFrames.GetFrame(gachaResultCard.rarity, null);
@@ -3307,18 +5580,72 @@ public class GameManager : MonoBehaviour
         GUI.Label(rect, text, style);
     }
 
-    // Item 13 - the door's tap action, split between CONTINUE (an Active
-    // Run already exists) and a fresh Run.
+    // Home画面 / Stage Select改善依頼(2026-09-16), item5/6/10 - 扉の
+    // タップ動作。Active Runがあればそのまま再開(Continue)、無ければ
+    // Stage Selectへ直接遷移する(以前はここで即Runを開始していたが、
+    // 「出発時だけの専用画面」というStage Select方針に伴い、行き先を
+    // 選んでから出発する流れへ変更した - 実際のRun開始はStage Select側の
+    // 出発ボタン、DepartFromStageSelect参照)。
+    // Androidの戻る操作(2026-10-01)。1回押すと一番手前のものだけを閉じる(設定を閉じるのと背後の画面を戻すのが同時に起きない)。
+    // 遷移中は何もしない(連打で二重に開閉しない)。ホームではアプリを終了させない。
+    void HandleBackButton()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape)) DoBack();
+    }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public void HandleBackButtonForTest() => DoBack(); // 自動テスト用(キー入力の代わり)
+#endif
+
+    void DoBack()
+    {
+        if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (DebugPanel.Instance != null && DebugPanel.Instance.Back()) return;
+#endif
+        if (SettingsPanel.IsVisible) { SettingsPanel.CloseStatic(); return; }
+        if (NetDebugUI.PanelOpen) { NetDebugUI.ClosePanel(); return; }
+        if (!HasStarted)
+        {
+            if (gachaResultOpen) { gachaResultOpen = false; return; }
+            if (showNewRunConfirm) { showNewRunConfirm = false; return; }
+            if (deckEditOpen && deckEditUI != null) { deckEditUI.HandleBack(); return; }
+            if (cardFusionOpen && cardFusionUI != null) { cardFusionUI.HandleBack(); return; }
+            if (characterSelectOpen && characterSelectUI != null) { characterSelectUI.Close(); return; }
+            if (stageSelectOpen && stageSelectUI != null) { stageSelectUI.Close(); return; }
+            return;
+        }
+        if (IsGameOver) return;
+        if (showReturnHomeConfirm) { showReturnHomeConfirm = false; return; }
+        if (showPauseMenu)
+        {
+            showPauseMenu = false;
+            TimeControl.Resume(pauseMenuTimeOwner);
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Cancel);
+            return;
+        }
+        // ポーズボタン(II)と同じ条件でポーズを開く
+        if (!levelUpPending && !IsBossPresentationActive() && !AnyOverlayOpen)
+        {
+            showPauseMenu = true;
+            TimeControl.Pause(pauseMenuTimeOwner);
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
+        }
+    }
+
+    Rect lastDoorRect;
+
     void OnDoorTapped()
     {
-        if (RunCheckpoint.HasActiveRun)
+        GetIdleFx().Reset(); // 扉の待機の開閉アニメーションと出発の光を重ねない
+        // マルチプレイ接続中はCONTINUE(シングルの中断データ)ではなく、Stage Selectから全員で出発する。
+        if (RunCheckpoint.HasActiveRun && !NetSession.IsActive)
         {
             ContinueActiveRun();
         }
         else
         {
-            StartGame();
-            startPressFlashTimer = startPressFlashDuration;
+            OpenStageSelect();
         }
     }
 
@@ -3353,8 +5680,9 @@ public class GameManager : MonoBehaviour
         {
             showNewRunConfirm = false;
             RunCheckpoint.Clear();
-            StartGame();
-            startPressFlashTimer = startPressFlashDuration;
+            // item5/6 - 破棄後はStage Selectへ遷移し、そこで行き先を
+            // 選んでから出発する(DepartFromStageSelect参照)。
+            OpenStageSelect();
         }
         if (DrawStyledButton(noRect, "キャンセル", 16f, primary: false))
         {
@@ -3368,14 +5696,18 @@ public class GameManager : MonoBehaviour
 
     void DrawPauseMenu()
     {
-        Rect panelRect = new Rect(Screen.width - SafeRight() - UiMargin - 240f, Screen.height - SafeBottom() - UiMargin - 52f - 152f, 240f, 140f);
+        // 音/表示/操作の設定は共通の設定画面へ(2026-10-01、以前は音量の段階ボタンが2×2で並んでいた)
+        Rect panelRect = new Rect(Screen.width - SafeRight() - UiMargin - 240f, Screen.height - SafeBottom() - UiMargin - 52f - 152f - 58f, 240f, 198f);
         OrnateUi.DrawPanel(panelRect, 0.92f);
+        Rect settingsRect = new Rect(panelRect.x + 12f, panelRect.y + 136f, panelRect.width - 24f, 50f);
+        if (DrawStyledButton(settingsRect, "    設定", 17f, primary: false)) SettingsPanel.OpenStatic();
+        UiKit.DrawGear(new Rect(settingsRect.x + 52f, settingsRect.y + 11f, 28f, 28f), 1f, new Color(1f, 0.88f, 0.55f));
 
         Rect resumeRect = new Rect(panelRect.x + 12f, panelRect.y + 12f, panelRect.width - 24f, 52f);
         if (DrawStyledButton(resumeRect, "RESUME", 18f, primary: true))
         {
             showPauseMenu = false;
-            Time.timeScale = 1f;
+            TimeControl.Resume(pauseMenuTimeOwner);
         }
 
         Rect returnRect = new Rect(panelRect.x + 12f, panelRect.y + 74f, panelRect.width - 24f, 52f);
@@ -3416,7 +5748,7 @@ public class GameManager : MonoBehaviour
         {
             showReturnHomeConfirm = false;
             showPauseMenu = false;
-            Time.timeScale = 1f;
+            TimeControl.Resume(pauseMenuTimeOwner);
             ReturnToHome();
         }
         if (DrawStyledButton(noRect, "キャンセル", 16f, primary: false))

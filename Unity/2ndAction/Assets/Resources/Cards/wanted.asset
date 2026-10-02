@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: wanted
   cardName: WANTED
-  icon: {fileID: 2800000, guid: fdbcd0cbe1bbb1f4d8a37d1012494426, type: 3}
+  icon: {fileID: 2800000, guid: 8966f161c52168a45a2250c6bff671aa, type: 3}
   description: "\u8FFD\u8DE1\u8005\u30FB\u6025\u8972\u8005\u304C\u51FA\u3084\u3059\u304F\u306A\u308B\u4EE3\u308F\u308A\u306B\u3001\u6575\u6483\u7834MILE\u304C\u5897\u52A0\u3059\u308B"
   category: 6
   sortOrder: 160

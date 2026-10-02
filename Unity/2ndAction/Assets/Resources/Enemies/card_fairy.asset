@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9882d995ce2d7c4c867295dd12431d3, type: 3}
+  m_Name: card_fairy
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyDefinition
+  enemyId: card_fairy
+  displayName: CARD FAIRY
+  sprite: {fileID: 21300000, guid: 325f3848a668182449870d00f55f1d90, type: 3}
+  tint: {r: 1, g: 1, b: 1, a: 1}
+  movementType: 1
+  category: 1
+  behaviorKind: 20
+  hpMultiplier: 0.6
+  bigKnockbackOnHit: 0
+  enableVisualFacing: 1
+  defaultFacingRight: 0
+  runFrames:
+  - {fileID: 21300000, guid: 80ae9272a2b1168408f8bd9c9fa22aa5, type: 3}
+  - {fileID: 21300000, guid: 701a868f40568af4ca9258c1ee0e3d2c, type: 3}
+  attackSprite: {fileID: 0}
+  mileReward: 0
+  visualScaleMultiplier: 1
+  aiTier: 0
+  stageIds:
+  - bonus_zone
+  bonusKind: 4
+  poses:
+    telegraph: {fileID: 0}
+    attack: {fileID: 0}
+    recover: {fileID: 0}
+    hit: {fileID: 21300000, guid: f924bfb6f7058884cbbd2e3e33012450, type: 3}
+    death: {fileID: 21300000, guid: bf7a1840bda791641a3d29494e3a8eee, type: 3}
+    dormant: {fileID: 0}
+    wake: {fileID: 0}
+    charge: {fileID: 0}
+    dive: {fileID: 0}
+  idleHoverAmplitude: 0.08
+  bodyColliderScale: {x: 0.6, y: 0.7}
+  bodyColliderOffset: {x: 0, y: 0}
+  launchScale: 1
+  knockbackScale: 1

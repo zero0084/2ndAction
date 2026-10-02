@@ -22,6 +22,12 @@ public static class BuildAndroid
         PlayerSettings.Android.bundleVersionCode += 1;
         Debug.Log("BuildAndroid: stamping version " + stamp + " code " + PlayerSettings.Android.bundleVersionCode);
 
+        // マルチプレイ対応Phase 1(2026-09-25) - LAN内のUDP通信(Unity Transport)に必要な
+        // INTERNET権限を常に付ける(「Auto」だとWebRequest等を使わない限り付与されない)。
+        // インターネット接続そのものは不要 - 同一Wi-Fi/テザリング内の直接通信でも権限は要る。
+        PlayerSettings.Android.forceInternetPermission = true;
+        NetPrefabBuilder.Build();
+
         // Distance Level Design Ver.1 - BuildOptions.Development so
         // Debug.isDebugBuild is true on-device, which is what gates the new
         // Distance Warp debug UI (GameManager.DrawDistanceWarpDebugUI) -

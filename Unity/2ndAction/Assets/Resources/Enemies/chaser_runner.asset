@@ -22,7 +22,7 @@ MonoBehaviour:
   hpMultiplier: 1
   bigKnockbackOnHit: 0
   enableVisualFacing: 1
-  defaultFacingRight: 0
+  defaultFacingRight: 1
   runFrames:
   - {fileID: 21300000, guid: f0600406d632e224e8e717b523960715, type: 3}
   - {fileID: 21300000, guid: fc6c50f00dd88ae48b577773a2746aff, type: 3}

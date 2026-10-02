@@ -1,0 +1,94 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f67e79753b98d064ebd8af18980af58d, type: 3}
+  m_Name: wasteland_road_scenery
+  m_EditorClassIdentifier: Assembly-CSharp::SceneryProfile
+  stageId: wasteland_road
+  sceneries:
+  - id: A
+    label: "\u8352\u91CE\u3068\u57CE\u306E\u5DDD\u8FBA"
+    timeResources:
+    - 
+    - Scenery/Wasteland/scn_A_evening
+    - Scenery/Wasteland/scn_A_night
+    - Scenery/Wasteland/scn_A_dawn
+  - id: B
+    label: "\u5DDD\u6CBF\u3044\u306E\u4E18\u9675"
+    timeResources:
+    - Scenery/Wasteland/scn_B_day
+    - Scenery/Wasteland/scn_B_evening
+    - Scenery/Wasteland/scn_B_night
+    - Scenery/Wasteland/scn_B_dawn
+  - id: C
+    label: "\u5CA9\u5C71\u306E\u5CE0"
+    timeResources:
+    - Scenery/Wasteland/scn_C_day
+    - Scenery/Wasteland/scn_C_evening
+    - Scenery/Wasteland/scn_C_night
+    - Scenery/Wasteland/scn_C_dawn
+  segments:
+  - scenery: 0
+    time: 0
+    length: 10000
+  - scenery: 0
+    time: 1
+    length: 10000
+  - scenery: 0
+    time: 2
+    length: 10000
+  - scenery: 0
+    time: 3
+    length: 10000
+  - scenery: 1
+    time: 0
+    length: 10000
+  - scenery: 1
+    time: 1
+    length: 10000
+  - scenery: 1
+    time: 2
+    length: 10000
+  - scenery: 1
+    time: 3
+    length: 10000
+  - scenery: 2
+    time: 0
+    length: 10000
+  - scenery: 2
+    time: 1
+    length: 10000
+  - scenery: 2
+    time: 2
+    length: 10000
+  - scenery: 2
+    time: 3
+    length: 10000
+  loopFromSegment: 0
+  blendMeters: 1000
+  mistPeakAlpha: 0.6
+  mistColor: {r: 1, g: 0.96, b: 0.9, a: 1}
+  prefetchMeters: 2500
+  timeTint:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0.84, g: 0.83, b: 0.84, a: 1}
+  - {r: 0.95, g: 0.95, b: 1, a: 1}
+  - {r: 0.86, g: 0.86, b: 0.9, a: 1}
+  cloudTint:
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 1, g: 0.8, b: 0.7, a: 1}
+  - {r: 0.5, g: 0.58, b: 0.82, a: 1}
+  - {r: 0.98, g: 0.86, b: 0.88, a: 1}
+  nightAmount:
+  - 0
+  - 0.3
+  - 1
+  - 0.45

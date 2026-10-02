@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: heavy_impact
   cardName: HEAVY IMPACT
-  icon: {fileID: 2800000, guid: 17dc48c2b8c46404e8de35d2cb3dd19c, type: 3}
+  icon: {fileID: 2800000, guid: e6a95b976b0ee124ab9fdda71387fa46, type: 3}
   description: "\u5730\u4E0A\u653B\u6483\u529B\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B"
   category: 1
   sortOrder: 145
   recommendPriority: 5
   effects:
   - type: 13
-    value: 4
+    value: 40
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

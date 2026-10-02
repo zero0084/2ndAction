@@ -1,0 +1,406 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d858cd7b62ca7443b3b763cb5f732d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StageEncounterProfile
+  stageId: natural_cave
+  enabled: 1
+  routeLayout: 1
+  longStraightChance: 0.12
+  longStraightChunksMin: 3
+  longStraightChunksMax: 6
+  replacesChunkSpawns: 1
+  replacesMilestoneWalls: 1
+  stageFormations:
+  - formationId: guard_hopper
+    displayName: Guard + Hopper
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 0
+      xOffset: 0
+      jitter: 0.3
+      minIntensity: 1
+      preferEnemyIds:
+      - cave_ant
+      - soldier_ant
+      preferOnly: 1
+    - kind: 0
+      xOffset: 1.7
+      jitter: 0.2
+      minIntensity: 2
+      preferEnemyIds:
+      - cave_ant
+      - soldier_ant
+      preferOnly: 1
+    - kind: 2
+      xOffset: 6
+      jitter: 0.4
+      minIntensity: 1
+      preferEnemyIds:
+      - cave_hopper
+      preferOnly: 1
+    - kind: 2
+      xOffset: 9
+      jitter: 0.4
+      minIntensity: 3
+      preferEnemyIds:
+      - cave_hopper
+      preferOnly: 1
+    requiredWidth: 0
+    requiredHeight: 4.6
+    requiresGround: 1
+    continuousGround: 1
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 0
+    minGroundGap: 1.5
+    narrowAffinity: 0.8
+    wideAffinity: 1.3
+    straightAffinity: 1
+    spacingSpeedScale: 0.35
+  - formationId: burrow_ambush
+    displayName: Burrow Ambush
+    stageSpecific: 1
+    minIntensity: 1
+    maxIntensity: 3
+    slots:
+    - kind: 5
+      xOffset: 2
+      jitter: 0.5
+      minIntensity: 1
+      preferEnemyIds: []
+      preferOnly: 0
+    - kind: 1
+      xOffset: 8
+      jitter: 0.4
+      minIntensity: 2
+      preferEnemyIds:
+      - cave_ant
+      - soldier_ant
+      preferOnly: 1
+    - kind: 5
+      xOffset: 14
+      jitter: 0.5
+      minIntensity: 3
+      preferEnemyIds: []
+      preferOnly: 0
+    requiredWidth: 0
+    requiredHeight: 3.6
+    requiresGround: 1
+    continuousGround: 0
+    requiresFlat: 0
+    requiresAir: 0
+    requiresBurrowGround: 1
+    minGroundGap: 2
+    narrowAffinity: 1
+    wideAffinity: 1.2
+    straightAffinity: 1.6
+    spacingSpeedScale: 0.35
+  bands:
+  - bandName: 0-500 ants
+    startDistance: 0
+    endDistance: 500
+    enemies:
+    - enemyId: cave_ant
+      weight: 1
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    formations:
+    - formationId: ground_line
+      weight: 1.2
+    - formationId: ground_cluster
+      weight: 1
+    - formationId: staggered
+      weight: 1
+    restWeight: 1
+    easyWeight: 1.6
+    mediumWeight: 0.8
+    hardWeight: 0.15
+    easyTiers:
+      t0: 1
+      t1: 0
+      t2: 0
+    mediumTiers:
+      t0: 1
+      t1: 0
+      t2: 0
+    hardTiers:
+      t0: 1
+      t1: 0
+      t2: 0
+  - bandName: 500-1500 +soldier/hopper
+    startDistance: 500
+    endDistance: 1500
+    enemies:
+    - enemyId: cave_ant
+      weight: 1
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: soldier_ant
+      weight: 0.7
+      minTier: 0
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 0000000001000000
+    - enemyId: cave_hopper
+      weight: 0.8
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    formations:
+    - formationId: ground_line
+      weight: 1
+    - formationId: ground_cluster
+      weight: 0.9
+    - formationId: staggered
+      weight: 1.1
+    - formationId: guard_hopper
+      weight: 1.2
+    restWeight: 1
+    easyWeight: 1.2
+    mediumWeight: 1.1
+    hardWeight: 0.4
+    easyTiers:
+      t0: 1
+      t1: 0.25
+      t2: 0
+    mediumTiers:
+      t0: 0.6
+      t1: 0.4
+      t2: 0.1
+    hardTiers:
+      t0: 0.4
+      t1: 0.5
+      t2: 0.3
+  - bandName: 1500-3000 +bat
+    startDistance: 1500
+    endDistance: 3000
+    enemies:
+    - enemyId: cave_ant
+      weight: 1
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: soldier_ant
+      weight: 0.8
+      minTier: 0
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 0000000001000000
+    - enemyId: cave_hopper
+      weight: 0.8
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    - enemyId: cave_bat
+      weight: 1
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0300000004000000
+    formations:
+    - formationId: ground_line
+      weight: 0.9
+    - formationId: ground_cluster
+      weight: 0.8
+    - formationId: staggered
+      weight: 0.9
+    - formationId: guard_hopper
+      weight: 1
+    - formationId: ground_air
+      weight: 1.2
+    - formationId: air_swarm
+      weight: 0.8
+    restWeight: 1
+    easyWeight: 1.1
+    mediumWeight: 1.2
+    hardWeight: 0.5
+    easyTiers:
+      t0: 1
+      t1: 0.3
+      t2: 0
+    mediumTiers:
+      t0: 0.5
+      t1: 0.4
+      t2: 0.15
+    hardTiers:
+      t0: 0.35
+      t1: 0.5
+      t2: 0.35
+  - bandName: 3000-5000 +worm
+    startDistance: 3000
+    endDistance: 5000
+    enemies:
+    - enemyId: cave_ant
+      weight: 1
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: soldier_ant
+      weight: 0.9
+      minTier: 0
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 0000000001000000
+    - enemyId: cave_hopper
+      weight: 0.8
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    - enemyId: cave_bat
+      weight: 0.9
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0300000004000000
+    - enemyId: burrow_worm
+      weight: 0.8
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 05000000
+    formations:
+    - formationId: ground_line
+      weight: 0.8
+    - formationId: ground_cluster
+      weight: 0.8
+    - formationId: staggered
+      weight: 0.9
+    - formationId: guard_hopper
+      weight: 0.9
+    - formationId: ground_air
+      weight: 1
+    - formationId: air_swarm
+      weight: 0.7
+    - formationId: burrow_ambush
+      weight: 1.1
+    - formationId: gauntlet
+      weight: 0.8
+    restWeight: 1
+    easyWeight: 1
+    mediumWeight: 1.2
+    hardWeight: 0.55
+    easyTiers:
+      t0: 1
+      t1: 0.3
+      t2: 0.05
+    mediumTiers:
+      t0: 0.5
+      t1: 0.4
+      t2: 0.2
+    hardTiers:
+      t0: 0.3
+      t1: 0.5
+      t2: 0.4
+  - bandName: 5000+ mixed
+    startDistance: 5000
+    endDistance: -1
+    enemies:
+    - enemyId: cave_ant
+      weight: 1
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 000000000100000002000000
+    - enemyId: soldier_ant
+      weight: 1
+      minTier: 0
+      maxTier: 2
+      tierDrivesMelee: 1
+      allowedSlots: 0000000001000000
+    - enemyId: cave_hopper
+      weight: 0.8
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 02000000
+    - enemyId: cave_bat
+      weight: 1
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 0300000004000000
+    - enemyId: burrow_worm
+      weight: 0.8
+      minTier: 0
+      maxTier: 0
+      tierDrivesMelee: 0
+      allowedSlots: 05000000
+    formations:
+    - formationId: ground_line
+      weight: 0.8
+    - formationId: ground_cluster
+      weight: 0.9
+    - formationId: staggered
+      weight: 0.9
+    - formationId: guard_hopper
+      weight: 0.9
+    - formationId: ground_air
+      weight: 1
+    - formationId: air_swarm
+      weight: 0.8
+    - formationId: burrow_ambush
+      weight: 0.9
+    - formationId: gauntlet
+      weight: 0.9
+    restWeight: 0.9
+    easyWeight: 1
+    mediumWeight: 1.1
+    hardWeight: 0.6
+    easyTiers:
+      t0: 1
+      t1: 0.35
+      t2: 0.1
+    mediumTiers:
+      t0: 0.45
+      t1: 0.45
+      t2: 0.25
+    hardTiers:
+      t0: 0.3
+      t1: 0.5
+      t2: 0.45
+  noEncounterBeforeDistance: 60
+  spawnAheadDistance: 46
+  offscreenMargin: 8
+  gapAfterEasy: {x: 10, y: 16}
+  gapAfterMedium: {x: 12, y: 18}
+  gapAfterHard: {x: 16, y: 24}
+  restLength: {x: 26, y: 42}
+  gapSpeedScale: 1
+  afterRestRestMultiplier: 0.15
+  afterHardHardMultiplier: 0.1
+  afterHardRestMultiplier: 2.5
+  afterEasyMediumMultiplier: 1.4
+  afterMediumHardMultiplier: 1.3
+  maxEncountersWithoutRest: 4
+  historySize: 3
+  repeatPenaltyLast: 0.05
+  repeatPenaltyOlder: 0.35
+  airLowHeight: {x: 1.6, y: 2.4}
+  airHighHeight: {x: 3, y: 4}
+  airCeilingMargin: 0.9
+  narrowClearance: 5.5
+  wideClearance: 8.5
+  straightLength: 26
+  bossPreBuffer: 90
+  bossPostRest: 30

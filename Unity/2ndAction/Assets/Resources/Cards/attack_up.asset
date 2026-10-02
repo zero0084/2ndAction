@@ -14,10 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: attack_up
   cardName: ATTACK UP
-  icon: {fileID: 2800000, guid: d93e27a2436d6b5439c6a72e7216c096, type: 3}
+  icon: {fileID: 2800000, guid: 65577e3189e00674e8366c4372cbd88e, type: 3}
   description: "\u653B\u6483\u529B\u304C\u4E0A\u6607\u3059\u308B"
   category: 1
   sortOrder: 3
+  recommendPriority: 5
   effects:
   - type: 1
-    value: 1
+    value: 10
+  rarity: 1
+  unlockDistance: 0
+  gachaStage: 1
+  element: 0

@@ -123,40 +123,64 @@ public class BossDefeatPresentation : MonoBehaviour
         StartCoroutine(RunPresentation(milestoneDistance, isFirstBossDefeat));
     }
 
+    // Bugfix 2026-09-07 (Bug #001, root cause) - this coroutine used to have
+    // NO exception/early-exit protection at all: IsRunning was only ever set
+    // back to false at the very bottom, after every yield above it had
+    // already completed successfully. If ANYTHING threw partway through (or
+    // this GameObject/its dependencies got disabled mid-sequence), IsRunning
+    // would stay stuck true FOREVER - and since IsRunning feeds directly
+    // into GameManager.IsBossPresentationActive(), which
+    // TriggerBossRewardChoice checks before ever showing the Boss Reward
+    // card choice, a stuck-true IsRunning here would (a) defer THIS
+    // encounter's own Boss Reward indefinitely (recoverable only via the
+    // 12s bossRewardStuckTimer safety net) AND (b) - since Instance/IsRunning
+    // is a single persistent flag, not reset per-encounter - permanently
+    // poison every SUBSEQUENT boss encounter's Boss Reward too, each one
+    // stalling behind that same 12s timeout forever after. Wrapped in
+    // try/finally (BossMilestonePresentation, its sibling class, already had
+    // this exact protection - this was the one Presentation class that had
+    // been missed).
     IEnumerator RunPresentation(float milestoneDistance, bool isFirstBossDefeat)
     {
         IsRunning = true;
-
-        LogDefeat($"[BossDefeat] Milestone cleared: {Mathf.RoundToInt(milestoneDistance)}m");
-
-        // ===== Item 5 - Screen Atmosphere: clear any residual Boss
-        // Milestone dark overlay (almost always already 0 by this point -
-        // that presentation finishes long before a boss fight ends - but
-        // "念のため"), then one brief Gold/Blue glow pulse. =====
-        if (BossMilestonePresentation.Instance != null) BossMilestonePresentation.Instance.ForceClearAtmosphere();
-        if (AudioManager.Instance != null) AudioManager.Instance.DuckBgm(bgmDuckVolume, bgmDuckFadeDuration);
-        yield return PulseGlow(atmosphereGlowDuration);
-
-        // ===== Item 6 - "Xm CLEAR" =====
-        PlaySfx(milestoneClearSe);
-        milestoneLabel = $"{Mathf.RoundToInt(milestoneDistance):N0}m CLEAR";
-        yield return ShowMilestoneClear(milestoneClearDuration);
-
-        if (isFirstBossDefeat)
+        if (GameManager.Instance != null) GameManager.Instance.LogBoss("DefeatPresentationStart");
+        try
         {
-            // ===== Item 7 - GAME CLEAR (first boss defeat only) =====
-            yield return ShowGameClear(gameClearDuration);
-            LogDefeat("[BossDefeat] First game clear achieved");
+            LogDefeat($"[BossDefeat] Milestone cleared: {Mathf.RoundToInt(milestoneDistance)}m");
 
-            // ===== Item 8 - "this run can keep going" =====
-            yield return ShowKeepRunning(keepRunningDuration);
+            // ===== Item 5 - Screen Atmosphere: clear any residual Boss
+            // Milestone dark overlay (almost always already 0 by this point -
+            // that presentation finishes long before a boss fight ends - but
+            // "念のため"), then one brief Gold/Blue glow pulse. =====
+            if (BossMilestonePresentation.Instance != null) BossMilestonePresentation.Instance.ForceClearAtmosphere();
+            if (AudioManager.Instance != null) AudioManager.Instance.DuckBgm(bgmDuckVolume, bgmDuckFadeDuration);
+            yield return PulseGlow(atmosphereGlowDuration);
+
+            // ===== Item 6 - "Xm CLEAR" =====
+            PlaySfx(AudioManager.Se(SeId.MilestoneClear, milestoneClearSe));
+            milestoneLabel = $"{Mathf.RoundToInt(milestoneDistance):N0}m CLEAR";
+            yield return ShowMilestoneClear(milestoneClearDuration);
+
+            if (isFirstBossDefeat)
+            {
+                // ===== Item 7 - GAME CLEAR (first boss defeat only) =====
+                yield return ShowGameClear(gameClearDuration);
+                LogDefeat("[BossDefeat] First game clear achieved");
+
+                // ===== Item 8 - "this run can keep going" =====
+                yield return ShowKeepRunning(keepRunningDuration);
+            }
+
+            if (AudioManager.Instance != null) AudioManager.Instance.UnduckBgm(bgmRecoverDuration);
+
+            LogDefeat("[BossDefeat] Presentation finished");
+            LogDefeat("[BossDefeat] Gameplay resumed");
         }
-
-        if (AudioManager.Instance != null) AudioManager.Instance.UnduckBgm(bgmRecoverDuration);
-
-        IsRunning = false;
-        LogDefeat("[BossDefeat] Presentation finished");
-        LogDefeat("[BossDefeat] Gameplay resumed");
+        finally
+        {
+            IsRunning = false;
+            if (GameManager.Instance != null) GameManager.Instance.LogBoss("DefeatPresentationEnd");
+        }
     }
 
     IEnumerator PulseGlow(float duration)

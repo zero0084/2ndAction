@@ -46,6 +46,8 @@ public class WorldTimeCycle : MonoBehaviour
     public bool debugLogEnabled = true;
 
     public string CurrentTimeName { get; private set; } = "Day";
+    // 高速走行の視認性補正 - 夜の度合い(0=昼〜1=夜)。雲など背景演出が夜に動きを抑えるために参照する。
+    public float NightAmount { get; private set; }
     string loggedTimeName = "";
 
     void Awake()
@@ -64,9 +66,35 @@ public class WorldTimeCycle : MonoBehaviour
         Apply(d);
     }
 
+    // 自然洞窟(2026-09-21) - 洞窟では昼夜の切り替え(空の背景の入れ替え)を行わない。
+    // 洞窟側(CaveStage)が背景と明るさを持つので、夜レイヤーは常に透明のままにする。
+    public bool forceDayOnly;
+
     void Apply(float d)
     {
+        // 距離で景色/昼夜を進めるステージ(SceneryCycle、2026-10-01 荒野街道)では、こちらの夜の層は使わない
+        // (二重に暗くならないよう止め、夜らしさ/時間帯の名前は SceneryCycle の値をそのまま出す)。
+        if (SceneryCycle.Active)
+        {
+            NightAmount = SceneryCycle.NightAmount;
+            if (nightLayer != null && nightLayer.enabled) nightLayer.enabled = false;
+            CurrentTimeName = SceneryCycle.CurrentName;
+            return;
+        }
+        if (nightLayer != null && !nightLayer.enabled) nightLayer.enabled = true;
+        if (forceDayOnly)
+        {
+            NightAmount = 0f;
+            if (nightLayer != null)
+            {
+                Color nc = nightLayer.color;
+                nc.a = 0f;
+                nightLayer.color = nc;
+            }
+            return;
+        }
         float nightAmount = ComputeNightAmount(d);
+        NightAmount = nightAmount;
 
         if (nightLayer != null)
         {

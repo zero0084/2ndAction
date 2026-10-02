@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: counter
   cardName: COUNTER
-  icon: {fileID: 2800000, guid: b3d8b30c372cd5c43b040492caf1cda2, type: 3}
+  icon: {fileID: 2800000, guid: 1d43ac30902c154409b0830394e7e38b, type: 3}
   description: "\u88AB\u5F3E\u30921\u56DE\u9632\u304E\u3001\u653B\u6483\u529B\u3082\u308F\u305A\u304B\u306B\u4E0A\u304C\u308B"
   category: 2
   sortOrder: 114
@@ -23,7 +23,7 @@ MonoBehaviour:
   - type: 8
     value: 1
   - type: 1
-    value: 1
+    value: 10
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

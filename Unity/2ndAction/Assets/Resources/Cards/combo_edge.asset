@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: combo_edge
   cardName: COMBO EDGE
-  icon: {fileID: 2800000, guid: 3652a65c9624b2d4c8da01d7b3f08f63, type: 3}
+  icon: {fileID: 2800000, guid: bccf9ee8a8e98ca4fb4942d27fe30140, type: 3}
   description: "\u30B3\u30F3\u30DC\u6700\u7D42\u6BB5\u306E\u5A01\u529B\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B"
   category: 1
   sortOrder: 110
   recommendPriority: 5
   effects:
   - type: 14
-    value: 3
+    value: 30
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

@@ -16,9 +16,9 @@ public class MajinController : MonoBehaviour
     public float animFps = 10f;
 
     [Header("Health / Damage")]
-    public int maxHp = 120;
-    public int playerAttackDamage = 2;
-    public int fireballDamage = 2;
+    public int maxHp = 1200;
+    public int playerAttackDamage = 20; // 10倍スケール
+    public int fireballDamage = 20; // 10倍スケール
     // Reward/MILE System Ver.1 - "ボスMILE: Demon/魔人 100".
     public int mileReward = 100;
 
@@ -30,10 +30,14 @@ public class MajinController : MonoBehaviour
     public float telegraphDuration = 3f;
     public float telegraphBlinkInterval = 0.3f;
 
+    public Color recoveryTint = new Color(0.72f, 0.66f, 0.8f, 1f);
+
     [Header("Fire Attack")]
     public float fireWindupDuration = 0.5f;
     public float fireRecoverDuration = 0.6f;
-    public float fireballSpeed = 6f;
+    // 弾速の走行補正(2026-09-26) - 弾は走行速度で流れる座標系の中を飛ぶようになったため(PlayerController.
+    // RunFrameSpeed)、正面から迫る見た目の速さが従来(=走行速度ぶん上乗せ)より遅くならないよう底上げ。
+    public float fireballSpeed = 9f;
     public Vector2 fireballSpawnOffset = new Vector2(-1.4f, 0.2f);
     public float fireballInterval = 0.2f;
 
@@ -100,6 +104,10 @@ public class MajinController : MonoBehaviour
     public Sprite bossDeathSmokeSprite;
     public float bossDeathSmokeScale = 1.2f;
     public AudioClip bossDefeatSe;
+    // ボス撃破時の飛散パーティクル(2026-09-10) - 魔人は紫。数/サイズ/速度は
+    // ExplosionEffect.CreateForDefeatが実寸から算出。
+    public bool defeatBurstEnabled = true;
+    public Color defeatBurstColor = new Color(0.7f, 0.35f, 1f, 1f);
 
     [Header("Boss Defeat Presentation - HP Bar")]
     public float hpBarEmptyHoldDuration = 0.15f;
@@ -132,10 +140,16 @@ public class MajinController : MonoBehaviour
 
     float trackedX;
 
+    // Floating Origin: 座標を戻した分、追従基準X/待機位置も戻す。
+    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; }
+    void OnOriginShifted(float s) { trackedX -= s; homePos.x -= s; }
+
     public void Init(Transform playerTransform)
     {
         player = playerTransform;
         playerController = player != null ? player.GetComponent<PlayerController>() : null;
+        if (playerController == null) playerController = PlayerController.Instance; // マルチ: 相手の分身の前に出した時(速度は狙いの相手から取る)
         sr = GetComponent<SpriteRenderer>();
         SetFrames(idleFrames);
 
@@ -159,6 +173,8 @@ public class MajinController : MonoBehaviour
         hpBar.SetHidden();
 
         state = State.Entering;
+        // マルチプレイPhase 2 - HOSTでは共有ボスとして登録。JOINでパペットとして作っている時はAIを始めない。
+        if (NetCombat.OnBossInit(this)) return;
         StartCoroutine(EnterThenSchedule());
     }
 
@@ -224,6 +240,7 @@ public class MajinController : MonoBehaviour
 
     void Update()
     {
+        if (NetPuppet) { if (state != State.Dead) AnimateSprite(); return; }
         if (state == State.Dead) return;
 
         AnimateSprite();
@@ -236,20 +253,44 @@ public class MajinController : MonoBehaviour
 
         if (state == State.Idle && Time.time >= nextAttackTime)
         {
+            // 天空回廊ボス追加(2026-09-25) - 複数体の魔人が同時に火球を撃たないようずらす。
+            if (Time.time < BossStaggerGate.NextMajinTime)
+            {
+                nextAttackTime = BossStaggerGate.NextMajinTime + Random.Range(0.1f, 0.6f);
+                return;
+            }
+            BossStaggerGate.NextMajinTime = Time.time + BossStaggerGate.MajinInterval;
             StartCoroutine(TelegraphAndAttack());
         }
     }
 
     void AdvanceTrackedX()
     {
-        float baseSpeed = playerController != null ? playerController.CurrentAutoRunSpeed : 0f;
+        float runSpeed = TargetBaseSpeed();
+        float baseSpeed = runSpeed;
+        // マルチ Phase 3.1: 置き去り防止(BossLeash)。シングル/JOINでは何もしない
+        bool leashOn = BossLeash.Enabled;
+        BossLeash.Result leash = default;
+        if (leashOn)
+        {
+            leash = BossLeash.Evaluate(transform.position.x, player, netTarget != null ? netTarget.TargetPlayer : 0, ref leashTime);
+            if (netTarget != null) netTarget.SetPreferred(leash.PreferTarget);
+            if (leash.Active) baseSpeed *= leash.SpeedFactor;
+        }
         trackedX += baseSpeed * Time.deltaTime;
 
+        // Repeated attack lunges in the same direction can push the home spot
+        // off-screen; clamp every frame, symmetrically, against the player's
+        // CURRENT actual position.
         if (player != null)
         {
             float minTrackedX = player.position.x - maxBehindPlayer - standoffDistance;
             float maxTrackedX = player.position.x + maxAheadOfPlayer - standoffDistance;
-            trackedX = Mathf.Clamp(trackedX, minTrackedX, maxTrackedX);
+            if (leashOn && leash.AllowBehindTarget) minTrackedX = float.MinValue;
+            float clamped = Mathf.Clamp(trackedX, minTrackedX, maxTrackedX);
+            if (leashOn && Mathf.Abs(clamped - trackedX) > 6f)
+                trackedX = BossLeash.Approach(trackedX, player.position.x - standoffDistance, -maxBehindPlayer, maxAheadOfPlayer, runSpeed, Time.deltaTime, leash.AllowBehindTarget, maxAheadOfPlayer + 20f);
+            else trackedX = clamped;
         }
     }
 
@@ -368,7 +409,12 @@ public class MajinController : MonoBehaviour
                 break;
         }
 
+        // 天空回廊ボス追加(2026-09-25) - Recovery(攻撃後の隙)を視覚的に区別する:
+        // 待機コマへ戻し、少し暗く沈んだ色で「今は撃ってこない」ことを見せる。
+        SetFrames(idleFrames);
+        if (sr != null && state == State.Firing) sr.color = recoveryTint;
         yield return new WaitForSeconds(fireRecoverDuration);
+        if (sr != null && state == State.Firing) sr.color = Color.white;
 
         state = State.Idle;
         SetFrames(idleFrames);
@@ -430,9 +476,15 @@ public class MajinController : MonoBehaviour
     {
         if (state == State.Dead) return;
 
+        if (other.CompareTag("PlayerAttack") && NetPuppet)
+        {
+            NetPuppetHit(other);
+            return;
+        }
+
         if (other.CompareTag("PlayerAttack"))
         {
-            int damage = PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage;
+            int damage = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage);
             TakeDamage(damage);
             return;
         }
@@ -447,10 +499,12 @@ public class MajinController : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        if (state == State.Dead) return;
+        if (state == State.Dead || NetPuppet) return;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit); // ボス被弾(共通、連打は間引き)
 
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
+        NetCombat.AuthorityDamaged(NetId, netAttacker, amount, Hp, 0, transform.position, Hp <= 0);
 
         if (Hp <= 0)
         {
@@ -476,74 +530,217 @@ public class MajinController : MonoBehaviour
 
     // Boss Defeat Presentation pass - see DragonController.FinalHitAndDie's
     // matching comment.
+    // Bugfix 2026-09-07 (Bug #001, root cause) - see DragonController.
+    // FinalHitAndDie's matching comment for the full reasoning (identical
+    // gap existed here too - no exception/early-exit protection around the
+    // reward-pipeline calls at the end, and scaled WaitForSeconds/
+    // Time.deltaTime that an unrelated external pause could stall
+    // indefinitely before the reward pipeline even starts).
+    bool bossDefeatRegistered;
+    void RegisterDefeatOnce()
+    {
+        if (bossDefeatRegistered) return;
+        bossDefeatRegistered = true;
+        if (NetPuppet) return; // JOINのパペット: 撃破報酬/ボス戦終了はHOSTとラストヒットの本人が処理する
+        if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
+        if (BossManager.Instance != null) BossManager.Instance.OnMajinDefeated();
+    }
+
     IEnumerator FinalHitAndDie()
     {
-        if (flashOverlay != null) flashOverlay.enabled = false;
-        if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
+        try
+        {
+            if (flashOverlay != null) flashOverlay.enabled = false;
+            if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
 
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(finalHitSe);
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(finalHitSe);
+            var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+            if (camFollow != null) camFollow.Shake(finalHitShakeStrength, finalHitShakeDuration);
+            Sprite spark = finalHitSparkSprite != null ? finalHitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
+            OneShotSpriteEffect.CreateTweened(spark, transform.position, Color.white, duration: 0.18f, startScale: finalHitSparkScale * 0.7f, endScale: finalHitSparkScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.2f);
+
+            if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Boss defeated");
+
+            yield return HitStop.Freeze(finalHitStopDuration);
+
+            if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Final hit presentation");
+
+            if (flashOverlay != null)
+            {
+                flashOverlay.sprite = sr.sprite;
+                flashOverlay.color = bossDeathFlashColor;
+                flashOverlay.enabled = true;
+            }
+            yield return new WaitForSecondsRealtime(bossDeathFlashDuration);
+            if (flashOverlay != null) flashOverlay.enabled = false;
+
+            Vector3 baseScale = transform.localScale;
+            Color startColor = sr.color;
+            float punchDuration = bossDeathDuration * 0.3f;
+            float settleDuration = Mathf.Max(0.05f, bossDeathDuration - punchDuration);
+
+            float t = 0f;
+            while (t < 1f)
+            {
+                t += Time.unscaledDeltaTime / Mathf.Max(0.001f, punchDuration);
+                transform.localScale = baseScale * Mathf.Lerp(1f, bossDeathPunchScale, Mathf.Clamp01(t));
+                yield return null;
+            }
+
+            t = 0f;
+            while (t < 1f)
+            {
+                t += Time.unscaledDeltaTime / Mathf.Max(0.001f, settleDuration);
+                float f = Mathf.Clamp01(t);
+                transform.localScale = baseScale * Mathf.Lerp(bossDeathPunchScale, bossDeathFinalScale, f);
+                Color c = startColor; c.a = Mathf.Lerp(startColor.a, 0f, f);
+                sr.color = c;
+                yield return null;
+            }
+
+            if (bossDeathSmokeSprite != null)
+            {
+                OneShotSpriteEffect.CreateTweened(bossDeathSmokeSprite, transform.position, Color.white, duration: 0.4f, startScale: bossDeathSmokeScale * 0.7f, endScale: bossDeathSmokeScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.3f);
+            }
+
+            // ボス撃破時の飛散パーティクル(2026-09-10) - 魔人は紫
+            // (defeatBurstColor)。数/粒サイズ/速度は魔人のワールド高さで
+            // スケール。
+            if (defeatBurstEnabled)
+            {
+                float subjectHeight = sr != null ? sr.bounds.size.y : 6f;
+                ExplosionEffect.CreateForDefeat(transform.position, defeatBurstColor, subjectHeight, sortingOrder: RenderOrder.CombatFx);
+            }
+
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(bossDefeatSe);
+
+            if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Death presentation");
+
+            if (hpBar != null)
+            {
+                yield return new WaitForSecondsRealtime(hpBarEmptyHoldDuration);
+                yield return hpBar.FadeOutRoutine(bossHpBarFadeDuration);
+                Destroy(hpBar.gameObject);
+            }
+
+            gameObject.SetActive(false);
+            RegisterDefeatOnce();
+        }
+        finally
+        {
+            RegisterDefeatOnce(); // no-op if already done above - guarantees the Boss Reward pipeline is always reached even on an early exit/exception
+        }
+    }
+
+    // ===================================================================== //
+    // マルチプレイPhase 2(共有ボス)
+    // ===================================================================== //
+    [System.NonSerialized] public int NetId;
+    [System.NonSerialized] public bool NetPuppet;
+
+    // マルチプレイPhase 2.5: HOSTのAIが狙う相手(全ての活動中プレイヤーから選ばれる)。並走の基準速度もその相手。
+    EnemyTargetSelector netTarget;
+    float leashTime; // マルチ Phase 3.1: 置き去り防止の減速が続いている秒数(BossLeash)
+    public void NetSetTarget(Transform t, EnemyTargetSelector selector) { if (t != null) player = t; netTarget = selector; }
+    float TargetBaseSpeed() => netTarget != null ? netTarget.TargetRunSpeed() : (playerController != null ? playerController.CurrentAutoRunSpeed : 0f);
+    int netAttacker; // 0 = この端末のプレイヤー
+    int netFramesSet = -1;
+    Collider2D netLastHitCollider;
+    float netHitCooldown;
+
+    byte CurrentFramesSet()
+    {
+        if (currentFrames == idleFrames) return 0;
+        if (currentFrames == attackFrames) return 1;
+        return 0;
+    }
+
+    // HOST: JOINのプレイヤーの攻撃を、この端末の攻撃と同じ被弾処理へ流す。
+    public void NetApplyRemoteHit(int attacker, int damage)
+    {
+        if (state == State.Dead || NetPuppet) return;
+        netAttacker = attacker;
+        try { TakeDamage(damage); }
+        finally { netAttacker = 0; }
+    }
+
+    public void NetMakePuppet(int id, int hp, int maxHpValue)
+    {
+        NetId = id;
+        NetPuppet = true;
+        maxHp = Mathf.Max(1, maxHpValue);
+        Hp = hp;
+        StopAllCoroutines();
+        if (hpBar != null) { hpBar.SetFraction((float)Hp / maxHp); hpBar.SetHidden(); }
+    }
+
+    void NetPuppetHit(Collider2D other)
+    {
+        if (other == netLastHitCollider && netHitCooldown > Time.time) return;
+        netLastHitCollider = other;
+        netHitCooldown = Time.time + 0.18f;
+        int damage = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage);
+        PlayerAttackKind kind = PlayerAttackKind.Normal;
+        var info = other.GetComponent<PlayerAttackInfo>();
+        if (info != null) kind = info.kind;
+        NetCombat.RequestHit(NetId, damage, kind, transform.position);
         var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
-        if (camFollow != null) camFollow.Shake(finalHitShakeStrength, finalHitShakeDuration);
-        Sprite spark = finalHitSparkSprite != null ? finalHitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
-        OneShotSpriteEffect.CreateTweened(spark, transform.position, Color.white, duration: 0.18f, startScale: finalHitSparkScale * 0.7f, endScale: finalHitSparkScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.2f);
+        if (camFollow != null) camFollow.Shake(0.08f, 0.1f);
+        StartCoroutine(HitFlash());
+    }
 
-        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Boss defeated");
+    public void NetSetHp(int hp, bool showHitFx)
+    {
+        if (state == State.Dead) return;
+        Hp = Mathf.Max(0, hp);
+        if (hpBar != null) hpBar.SetFraction((float)Hp / Mathf.Max(1, maxHp));
+        if (showHitFx && isActiveAndEnabled) StartCoroutine(HitFlash());
+    }
 
-        yield return HitStop.Freeze(finalHitStopDuration);
+    public void NetPuppetDie()
+    {
+        if (state == State.Dead) return;
+        Hp = 0;
+        if (hpBar != null) hpBar.SetFraction(0f);
+        StopAllCoroutines();
+        state = State.Dead;
+        StartCoroutine(FinalHitAndDie());
+    }
 
-        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Final hit presentation");
+    public void NetCaptureVisual(ref NetCombat.State s)
+    {
+        s.FramesSet = CurrentFramesSet();
+        s.Pose = (byte)state;
+        if (state != State.Entering) s.Flags |= NetCombat.FlagHpBar;
+        if (sr != null) s.Color = NetPlayerSnapshot.PackColor(sr.color);
+        if (flashOverlay != null && flashOverlay.enabled) { s.Flags |= NetCombat.FlagFlash; s.Flash = NetPlayerSnapshot.PackColor(flashOverlay.color); }
+        if (hitFlashOverlay != null && hitFlashOverlay.enabled) s.Flags |= NetCombat.FlagHitFlash;
+    }
 
+    bool netHpRevealed;
+    public void NetApplyVisual(NetCombat.State s)
+    {
+        if (state == State.Dead) return;
+        if (s.FramesSet != netFramesSet)
+        {
+            netFramesSet = s.FramesSet;
+            switch (s.FramesSet)
+            {
+            case 0: SetFrames(idleFrames); break;
+            case 1: SetFrames(attackFrames); break;
+            }
+        }
+        if (sr != null) sr.color = NetPlayerSnapshot.UnpackColor(s.Color);
         if (flashOverlay != null)
         {
-            flashOverlay.sprite = sr.sprite;
-            flashOverlay.color = bossDeathFlashColor;
-            flashOverlay.enabled = true;
+            bool on = (s.Flags & NetCombat.FlagFlash) != 0;
+            flashOverlay.enabled = on;
+            if (on) { flashOverlay.color = NetPlayerSnapshot.UnpackColor(s.Flash); flashOverlay.sprite = sr.sprite; }
         }
-        yield return new WaitForSeconds(bossDeathFlashDuration);
-        if (flashOverlay != null) flashOverlay.enabled = false;
-
-        Vector3 baseScale = transform.localScale;
-        Color startColor = sr.color;
-        float punchDuration = bossDeathDuration * 0.3f;
-        float settleDuration = Mathf.Max(0.05f, bossDeathDuration - punchDuration);
-
-        float t = 0f;
-        while (t < 1f)
+        if (!netHpRevealed && (s.Flags & NetCombat.FlagHpBar) != 0)
         {
-            t += Time.deltaTime / Mathf.Max(0.001f, punchDuration);
-            transform.localScale = baseScale * Mathf.Lerp(1f, bossDeathPunchScale, Mathf.Clamp01(t));
-            yield return null;
+            netHpRevealed = true;
+            if (hpBar != null) StartCoroutine(hpBar.RevealRoutine(0.25f));
         }
-
-        t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime / Mathf.Max(0.001f, settleDuration);
-            float f = Mathf.Clamp01(t);
-            transform.localScale = baseScale * Mathf.Lerp(bossDeathPunchScale, bossDeathFinalScale, f);
-            Color c = startColor; c.a = Mathf.Lerp(startColor.a, 0f, f);
-            sr.color = c;
-            yield return null;
-        }
-
-        if (bossDeathSmokeSprite != null)
-        {
-            OneShotSpriteEffect.CreateTweened(bossDeathSmokeSprite, transform.position, Color.white, duration: 0.4f, startScale: bossDeathSmokeScale * 0.7f, endScale: bossDeathSmokeScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.3f);
-        }
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(bossDefeatSe);
-
-        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Death presentation");
-
-        if (hpBar != null)
-        {
-            yield return new WaitForSeconds(hpBarEmptyHoldDuration);
-            yield return hpBar.FadeOutRoutine(bossHpBarFadeDuration);
-            Destroy(hpBar.gameObject);
-        }
-
-        gameObject.SetActive(false);
-
-        if (GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
-        if (BossManager.Instance != null) BossManager.Instance.OnMajinDefeated();
     }
 }

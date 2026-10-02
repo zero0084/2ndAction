@@ -1,0 +1,182 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9f7e4d85fefd354b8936e598c0e06fd, type: 3}
+  m_Name: BossRematchTuning
+  m_EditorClassIdentifier: Assembly-CSharp::BossRematchTuning
+  recentExclude: 2
+  distanceHp: 1
+  tiers:
+  - label: 通常再戦
+    fromMeters: 0
+    hpMul: 1
+    damageMul: 1
+    staggerMul: 1
+    cooldownMul: 1
+    phaseShift: 0
+    extraPhase: 0
+  - label: 強化再戦
+    fromMeters: 30000
+    hpMul: 1.1
+    damageMul: 1.2
+    staggerMul: 1.15
+    cooldownMul: 0.85
+    phaseShift: 0.05
+    extraPhase: 0
+  - label: 上位強化再戦
+    fromMeters: 50000
+    hpMul: 1.2
+    damageMul: 1.5
+    staggerMul: 1.3
+    cooldownMul: 0.75
+    phaseShift: 0.1
+    extraPhase: 1
+  - label: 最終強化再戦
+    fromMeters: 80000
+    hpMul: 1.3
+    damageMul: 2
+    staggerMul: 1.5
+    cooldownMul: 0.6
+    phaseShift: 0.15
+    extraPhase: 1
+  weights:
+  - key: Wild/Wolf
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Wild/GoblinRider
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Wild/Serpent
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Wild/Cyclops
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Wild/Spider
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Wild/Golem
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Wild/Griffin
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Wild/Hydra
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Wild/Demon
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Wild/Dragon
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Wild/BlackKnight
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Cave/Centipede
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Cave/Scorpion
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Cave/Mole
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Cave/Troll
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Cave/Worm
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Cave/CrystalGolem
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Cave/Bat
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Cave/ScorpionKing
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Cave/Basilisk
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Cave/Drake
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Cave/AncientDemon
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Sky/Dragon
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Sky/Majin
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Sky/Behemoth
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Sky/Titan
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Sky/Jellyfish
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Sky/Leviathan
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Sky/Fenrir
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Sky/SkyGolem
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Sky/Phoenix
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Sky/SkySerpent
+    weight: 1
+    weight1k: 1
+    weight5k: 1
+  - key: Sky/Guardian
+    weight: 1
+    weight1k: 1
+    weight5k: 1

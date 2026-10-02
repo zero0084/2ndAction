@@ -140,11 +140,19 @@ public class BossMilestonePresentation : MonoBehaviour
 
         LogPresentation($"[BossPresentation] Milestone reached: {Mathf.RoundToInt(milestoneDistance)}m");
         LogPresentation("[BossPresentation] Started");
+        if (GameManager.Instance != null) GameManager.Instance.LogBoss("SpawnPresentationStart");
 
         if (GameManager.Instance != null) GameManager.Instance.SetPresentationDamageLock(true);
 
         float totalDuration = isFirstEncounter ? firstBossPresentationDuration : repeatBossPresentationDuration;
         float capturedTimeScale = Time.timeScale;
+        // 高速走行中のフリーズ/ワープ調査(2026-09-22) - このクラスは
+        // Time.timeScaleへ直接連続的な値(1.0→中間値→0)を書き込む独自の
+        // 演出用ランプであり、TimeControl(0/1の二値のみ)には一本化して
+        // いない。既存のIsBossPresentationActive()によりLevel Up/Boss
+        // Reward/Pause Menuの開始はこの演出中は既に抑制されているため
+        // 実害は確認していないが、記録だけは残す(挙動は変更しない)。
+        FreezeDiagnostics.LogEvent($"[BossPresentation] TimeScale ramp begin captured={capturedTimeScale:F2}");
 
         // Fail-safe (item 17): wrapped so ANY early exit still restores
         // timeScale/damage-lock and still spawns the boss rather than
@@ -152,7 +160,7 @@ public class BossMilestonePresentation : MonoBehaviour
         // HitStop.Freeze.
         try
         {
-            PlaySfx(milestoneSe);
+            PlaySfx(AudioManager.Se(SeId.Milestone, milestoneSe));
 
             // ===== 1. Milestone Distance pop =====
             yield return MilestonePop(Mathf.Max(0.15f, totalDuration * milestonePopFraction));
@@ -168,7 +176,7 @@ public class BossMilestonePresentation : MonoBehaviour
             if (AudioManager.Instance != null) AudioManager.Instance.DuckBgm(bgmDuckLevel, bgmDuckFadeDuration);
 
             // ===== 4. Boss Warning =====
-            PlaySfx(bossWarningSe);
+            PlaySfx(AudioManager.Se(SeId.BossWarning, bossWarningSe));
             yield return PlayWarning(Mathf.Max(0.2f, totalDuration * warningFraction));
             LogPresentation("[BossPresentation] Warning shown");
 
@@ -177,9 +185,17 @@ public class BossMilestonePresentation : MonoBehaviour
             // MajinController.ReturnToHome, which runs on scaled
             // Time.deltaTime) plays out at normal speed instead of
             // crawling through whatever's left of the slowdown.
-            Time.timeScale = 1f;
+            // Bug #001 診断フェーズ - already a no-op while
+            // DisableBossTimeScalePresentation is on (nothing above ever
+            // moved it off 1 in that case either), kept unconditional for
+            // clarity/symmetry with the other 3 touch-points below.
+            // 自動スロー(2026-09-27): 「1へ戻す」ではなく演出の制御をやめて、その時点の
+            // 自動スロー倍率(停止理由があれば0)へ戻す。
+            TimeControl.EndPresentationDrive(this);
+            if (GameManager.Instance != null) GameManager.Instance.LogBoss($"TimeScale = {Time.timeScale:F2} (auto)");
+            if (GameManager.Instance != null) GameManager.Instance.LogBoss("SpawnPresentationEnd");
 
-            PlaySfx(bossAppearSe);
+            PlaySfx(AudioManager.Se(SeId.BossAppear, bossAppearSe));
             SpawnOnce();
 
             // Hold the dark atmosphere a moment so the boss's own entrance/
@@ -192,7 +208,8 @@ public class BossMilestonePresentation : MonoBehaviour
         finally
         {
             SpawnOnce(); // no-op if already spawned above - guarantees Boss Spawn is always reached even on an early exit
-            Time.timeScale = capturedTimeScale > 0f ? capturedTimeScale : 1f;
+            TimeControl.EndPresentationDrive(this);
+            FreezeDiagnostics.LogEvent($"[BossPresentation] TimeScale ramp end restored={Time.timeScale:F2}");
             if (GameManager.Instance != null) GameManager.Instance.SetPresentationDamageLock(false);
             if (AudioManager.Instance != null) AudioManager.Instance.UnduckBgm(bgmDuckFadeDuration);
         }
@@ -225,24 +242,38 @@ public class BossMilestonePresentation : MonoBehaviour
     // in this project that already treats timeScale==0 as "paused" (Level
     // Up, HitStop). Timed with unscaledDeltaTime throughout so the ramp's
     // own pacing isn't affected by the very timeScale it's changing.
+    // Bug #001 診断フェーズ (2026-09-08), 項目7 - "DisableBossTimeScalePresentation"
+    // 比較Toggle。ONの間はこのメソッドがTime.timeScaleへ一切書き込まない
+    // (常に1のまま) - Warning UI/暗転/BGM Duckといった他の演出ビートは
+    // Play()側で完全に別処理(FadeDark/PlayWarning)のため無関係に再生され
+    // 続ける。TimeScale操作自体がFreeze原因かどうかを切り分けるための、
+    // 診断専用の分岐(本仕様として削除するものではない)。
+    // 自動スロー(2026-09-27) - Time.timeScaleへ直接書かず、TimeControlの「演出」層として
+    // 書き込む(完全停止の理由=HitStop等が重なった場合は停止が優先され、解除後は演出の値へ戻る)。
+    // ランプの開始値は1ではなく、開始時点の自動スロー倍率。
     IEnumerator TempoDown(float duration)
     {
+        if (BossDiagnostics.DisableBossTimeScalePresentation) yield break;
+        float start = TimeControl.BeginPresentationDrive(this);
+        float mid = Mathf.Min(tempoMidScale, start);
         float half = duration * 0.5f;
         float t = 0f;
         while (t < 1f)
         {
             t += Time.unscaledDeltaTime / Mathf.Max(0.001f, half);
-            Time.timeScale = Mathf.Lerp(1f, tempoMidScale, Mathf.Clamp01(t));
+            TimeControl.SetPresentationScale(this, Mathf.Lerp(start, mid, Mathf.Clamp01(t)));
             yield return null;
         }
+        if (GameManager.Instance != null) GameManager.Instance.LogBoss($"TimeScale = {mid:F1}");
         t = 0f;
         while (t < 1f)
         {
             t += Time.unscaledDeltaTime / Mathf.Max(0.001f, half);
-            Time.timeScale = Mathf.Lerp(tempoMidScale, 0f, Mathf.Clamp01(t));
+            TimeControl.SetPresentationScale(this, Mathf.Lerp(mid, 0f, Mathf.Clamp01(t)));
             yield return null;
         }
-        Time.timeScale = 0f;
+        TimeControl.SetPresentationScale(this, 0f);
+        if (GameManager.Instance != null) GameManager.Instance.LogBoss("TimeScale = 0");
     }
 
     IEnumerator FadeDark(float target, float duration)

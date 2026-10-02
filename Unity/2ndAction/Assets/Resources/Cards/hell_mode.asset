@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: hell_mode
   cardName: HELL MODE
-  icon: {fileID: 2800000, guid: ab1be4d0e591e914aa00b517b7ba1abd, type: 3}
+  icon: {fileID: 2800000, guid: a3b832a5c21079e4e81f131a44884811, type: 3}
   description: "\u6575\u304C\u5927\u5E45\u306B\u5F37\u5316\u3055\u308C\u308B\u4EE3\u308F\u308A\u306B\u3001\u7D4C\u9A13\u5024/MILE\u304C\u5927\u5E45\u306B\u5897\u52A0\u3059\u308B"
   category: 6
   sortOrder: 158

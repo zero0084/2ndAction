@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90bd569c83b38b44b966d35df66ad327, type: 3}
+  m_Name: StaffCredits
+  m_EditorClassIdentifier: Assembly-CSharp::StaffCreditsData
+  entries:
+  - role: 
+    names:
+    - ONE MORE MILE
+    layout: 0
+    nameHeight: 1.5
+    breakable: 0
+    gapAfter: 34
+  - role: PROGRAMMING
+    names:
+    - IRENE
+    layout: 1
+    nameHeight: 1.45
+    breakable: 0
+    gapAfter: 30
+  - role: GAME DESIGN
+    names:
+    - ESTELLE
+    layout: 2
+    nameHeight: 1.3
+    breakable: 0
+    gapAfter: 30
+  - role: ART / DESIGN
+    names:
+    - ALICIA
+    layout: 3
+    nameHeight: 1.2
+    breakable: 0
+    gapAfter: 32
+  - role: SPECIAL THANKS
+    names:
+    - YOU
+    layout: 1
+    nameHeight: 1.5
+    breakable: 1
+    gapAfter: 30
+  wallText: THANK YOU FOR PLAYING
+  wallHp: 6
+  endText: END
+  question: ONE MORE MILE?
+  yesText: YES
+  noText: NO
+  choiceHp: 8

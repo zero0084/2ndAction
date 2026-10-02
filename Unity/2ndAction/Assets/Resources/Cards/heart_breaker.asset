@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: heart_breaker
   cardName: HEART BREAKER
-  icon: {fileID: 2800000, guid: 7335b45f31fd4ae4193f567d1b674911, type: 3}
+  icon: {fileID: 2800000, guid: 3bdeac9a8cfe73c4e9c65d550ea0db00, type: 3}
   description: "\u6700\u5927HP\u3092\u72A0\u7272\u306B\u3001\u653B\u6483\u529B\u3092\u5927\u304D\u304F\u9AD8\u3081\u308B"
   category: 6
   sortOrder: 151
   recommendPriority: 5
   effects:
   - type: 4
-    value: -2
+    value: -20
   - type: 1
-    value: 4
+    value: 40
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

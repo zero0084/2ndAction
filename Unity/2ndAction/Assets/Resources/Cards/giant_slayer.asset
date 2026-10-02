@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: giant_slayer
   cardName: GIANT SLAYER
-  icon: {fileID: 2800000, guid: a6e4efe0bb3339b4682918026f94b587, type: 3}
+  icon: {fileID: 2800000, guid: aa6e88b762618f44b92daaecd4bdc1b2, type: 3}
   description: "\u653B\u6483\u529B\u304C\u5927\u5E45\u306B\u4E0A\u304C\u308B\u304C\u3001\u653B\u6483\u30C6\u30F3\u30DD\u304C\u4E0B\u304C\u308B"
   category: 6
   sortOrder: 136
   recommendPriority: 5
   effects:
   - type: 1
-    value: 5
+    value: 50
   - type: 6
     value: -0.15
   rarity: 4

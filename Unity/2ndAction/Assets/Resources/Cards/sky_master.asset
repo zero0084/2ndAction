@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: sky_master
   cardName: SKY MASTER
-  icon: {fileID: 2800000, guid: ee3089ac1ba56e24babd86c4823fd1ea, type: 3}
+  icon: {fileID: 2800000, guid: 409d62f741270e246b21f0c8ef1566f6, type: 3}
   description: "\u7A7A\u4E2D\u653B\u6483\u529B\u3068\u30B8\u30E3\u30F3\u30D7\u529B\u304C\u3068\u3082\u306B\u4E0A\u304C\u308B"
   category: 1
   sortOrder: 139
   recommendPriority: 5
   effects:
   - type: 7
-    value: 4
+    value: 40
   - type: 2
     value: 0.1
   rarity: 4
