@@ -3258,6 +3258,7 @@ public partial class GameManager : MonoBehaviour
         data.runBonusMile = RunBonusMile;
         data.runBossMile = RunBossMile;
         data.escapeUnlocked = escapeUnlocked;
+        if (BossManager.Instance != null) BossManager.Instance.ExportPool(data); // ボスの再戦プール(2026-10-02)
         data.upgradeHistoryCardIds = new List<string>();
         foreach (CardDefinition card in upgradeHistory) data.upgradeHistoryCardIds.Add(card.cardId);
     }
@@ -3368,6 +3369,7 @@ public partial class GameManager : MonoBehaviour
 
         // Item 7 - resumes exactly where the Boss schedule was at.
         if (BossManager.Instance != null) BossManager.Instance.RestoreNextBossDistance(data.checkpointDistance);
+        if (BossManager.Instance != null) BossManager.Instance.ImportPool(data, data.checkpointDistance); // ボスの再戦プール(2026-10-02)
 
         // Item 14 - short safe zone right after resuming (no new Enemy/
         // Formation/Wall spawns until past this - see IsInSafeZone).

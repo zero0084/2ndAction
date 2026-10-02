@@ -135,7 +135,7 @@ public class FireballController : MonoBehaviour
 
         if (!reflected && other.CompareTag("Player"))
         {
-            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "Fireball:" + name, amount: damageAmount);
+            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "Fireball:" + name, amount: BossManager.ScaleDamage(damageAmount));
             Destroy(gameObject);
         }
         // Hitting the dragon/majin (once reflected) is handled by their own

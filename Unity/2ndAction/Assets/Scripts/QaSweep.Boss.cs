@@ -71,6 +71,7 @@ public partial class QaSweep
     {
         foreach (var b in WildAlive()) b.TakeDamage(99999, b.CenterWorld);
         foreach (var d in DragonsAlive()) d.TakeDamage(99999);
+        foreach (var m in FindObjectsByType<MajinController>(FindObjectsSortMode.None)) if (!m.IsDead) m.TakeDamage(99999); // 天空の魔人(2026-10-02)
     }
 
     IEnumerator WaitPhaseEnd(float timeout = 30f)
@@ -171,6 +172,7 @@ public partial class QaSweep
         yield return GateCarryCase("F", 8940f, 9000f, 11150f, 10000f);
 
         // ---- G: 複数体(13,000mはオオカミ2体): 同時に必殺技(突進)を始めない
+        Bm.DebugPoolReset(); // 2026-10-02: 再戦の抽選にせず、本来のオオカミの群れを出す
         WarpTo(12940f);
         yield return WaitBossSpawn();
         var wolves = WildAlive();

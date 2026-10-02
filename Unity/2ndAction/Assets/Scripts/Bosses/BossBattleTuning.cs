@@ -74,6 +74,13 @@ public class BossBattleTuning : ScriptableObject
         public float resumeSecondsOverride = 0f;
         [Tooltip("ボスの攻撃の被弾倍率(1=ハート1つ。必殺技は ultimateDamage)")]
         public int normalDamage = 10; // 2026-10-02: 10倍スケール(ハート1つ)
+
+        public Entry Clone()
+        {
+            var e = (Entry)MemberwiseClone();
+            e.phaseThresholds = phaseThresholds != null ? (float[])phaseThresholds.Clone() : new float[0];
+            return e;
+        }
     }
     public List<Entry> entries = new List<Entry>();
 

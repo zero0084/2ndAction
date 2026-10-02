@@ -20,7 +20,7 @@ using UnityEngine;
 //
 // i.e. majinCount = checkpointIndex / majinCycleLength (integer division),
 // dragonCount = checkpointIndex % majinCycleLength.
-public class BossManager : MonoBehaviour
+public partial class BossManager : MonoBehaviour
 {
     public static BossManager Instance { get; private set; }
 
@@ -461,6 +461,7 @@ public class BossManager : MonoBehaviour
     public void EndBossPhase()
     {
         IsBossPhase = false; BossMusicKey = null; BossDefeatedThisPhase = false;
+        ResetRematchEncounter();
         if (RunResumed) Debug.Log($"[BossRun] BossPhaseEnd after resumed run (d={(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f):F0})");
         RunResumed = false; encounterResumable = false;
         if (pendingChosen) { nextGateNotBefore = Time.time + Mathf.Max(0f, BossBattleTuning.I.pendingSafeDelay); pendingChosen = false; }
@@ -1028,6 +1029,7 @@ public class BossManager : MonoBehaviour
         if (aliveDragonsThisEncounter <= 0 && aliveMajinsThisEncounter <= 0 && aliveWildThisEncounter <= 0)
         {
             BossDefeatedThisPhase = true; // BGM: 撃破したら道中曲へ戻す
+            RegisterEncounterDefeated(); // 再戦プールへ(2026-10-02)
             // 自然洞窟ボス拡張(2026-09-22) - StartWildPhaseで設定したボス
             // 遭遇区間の戦闘可能スペース保証を、遭遇終了時に必ず解除する。
             if (TerrainManager.Instance != null && TerrainManager.Instance.cave != null)
@@ -1128,6 +1130,7 @@ public class BossManager : MonoBehaviour
 
         if (IsLastStage)
         {
+            ResetRematchEncounter(); CurrentEncounterKey = "";
             if (RushEnabled && gateK >= RushFirstK && gateK <= RushLastK) { StartRushGate(gateK); return; }
             if (!ResolveLastGate(gateK, out GateFamily fam, out int lastKind, out int lastCount)) { IsBossPhase = false; return; }
             if (fam == GateFamily.Sky) StartSkyGate((SkyBossKind)lastKind, lastCount);
@@ -1139,6 +1142,7 @@ public class BossManager : MonoBehaviour
         if (IsSkyStage)
         {
             if (!ResolveSkyGate(gateK, out SkyBossKind skyKind, out int skyCount)) { IsBossPhase = false; return; }
+            int sk = (int)skyKind; DecideEncounter(GateFamily.Sky, ref sk, ref skyCount); skyKind = (SkyBossKind)sk; // 再戦の抽選(2026-10-02)
             StartSkyGate(skyKind, skyCount);
             return;
         }
@@ -1146,11 +1150,13 @@ public class BossManager : MonoBehaviour
         if (IsCaveStage)
         {
             if (!ResolveCaveGate(gateK, out CaveBossKind caveKind, out int caveCount)) { IsBossPhase = false; return; }
+            int ck = (int)caveKind; DecideEncounter(GateFamily.Cave, ref ck, ref caveCount); caveKind = (CaveBossKind)ck; // 再戦の抽選(2026-10-02)
             StartCaveGate(caveKind, caveCount);
             return;
         }
 
         if (!ResolveGate(gateK, out WildBossKind gateKind, out int gateCount)) { IsBossPhase = false; return; }
+        int wk = (int)gateKind; DecideEncounter(GateFamily.Wild, ref wk, ref gateCount); gateKind = (WildBossKind)wk; // 再戦の抽選(2026-10-02)
         StartWildGate(gateKind, gateCount);
     }
 
@@ -1273,9 +1279,10 @@ public class BossManager : MonoBehaviour
         }
 
         boss.bossName = kind.ToString();
-        float hpScale = (kind == WildBossKind.Wolf || kind == WildBossKind.GoblinRider) ? Mathf.Min(3f, 1f + currentGateK * smallBossHpPerKm) : 1f;
+        float hpScale = RematchHpScaleOr((kind == WildBossKind.Wolf || kind == WildBossKind.GoblinRider) ? Mathf.Min(3f, 1f + currentGateK * smallBossHpPerKm) : 1f);
         boss.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(spec.hp * hpScale));
         if (BattleTunedStage) boss.ApplyTuning(kind.ToString()); // ボス戦の強化(2026-10-01): 段階/必殺技/崩し
+        ApplyRematchTo(boss); // 再戦の強化(2026-10-02)
         boss.slotIndex = index;
         boss.mileReward = spec.mile;
         boss.bodyHeight = spec.height;
@@ -1363,8 +1370,9 @@ public class BossManager : MonoBehaviour
         // 頭が画面右向きに描かれているのに、WildBossBaseの既定(artFacesLeft=true=左向き素材)の
         // ままだったため、常にプレイヤーと逆を向いて表示されていた。
         boss.artFacesLeft = false;
-        float hpScale = (kind == CaveBossKind.Centipede || kind == CaveBossKind.Scorpion) ? Mathf.Min(3f, 1f + currentGateK * smallBossHpPerKm) : 1f;
+        float hpScale = RematchHpScaleOr((kind == CaveBossKind.Centipede || kind == CaveBossKind.Scorpion) ? Mathf.Min(3f, 1f + currentGateK * smallBossHpPerKm) : 1f);
         boss.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(spec.hp * hpScale));
+        ApplyRematchTo(boss); // 再戦の強化(2026-10-02)
         boss.slotIndex = index;
         boss.mileReward = spec.mile;
         boss.bodyHeight = spec.height;
@@ -1464,7 +1472,7 @@ public class BossManager : MonoBehaviour
             dragon.chargeAttackEnabled = true;
             dragon.landingAttackEnabled = currentGateK * gateIntervalMeters >= skyDragonLandingFromMeters;
             dragon.landingAttackChance = 0.2f;
-            dragon.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(dragonMaxHp * SkySmallBossHpScale()));
+            dragon.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(dragonMaxHp * RematchHpScaleOr(SkySmallBossHpScale())));
         });
     }
 
@@ -1476,7 +1484,7 @@ public class BossManager : MonoBehaviour
         SpawnMajin(standoff, majin =>
         {
             majin.gameObject.name = "SkyMajin";
-            majin.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(dragonMaxHp * majinHpMultiplier * SkySmallBossHpScale()));
+            majin.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(dragonMaxHp * majinHpMultiplier * RematchHpScaleOr(SkySmallBossHpScale())));
         });
     }
 
@@ -1536,7 +1544,8 @@ public class BossManager : MonoBehaviour
         }
 
         boss.bossName = kind.ToString();
-        boss.maxHp = EffectiveBossMaxHp(spec.hp);
+        boss.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(spec.hp * RematchHpScaleOr(1f)));
+        ApplyRematchTo(boss); // 再戦の強化(2026-10-02)
         boss.slotIndex = index;
         boss.mileReward = spec.mile;
         boss.bodyHeight = spec.height;
@@ -1589,7 +1598,7 @@ public class BossManager : MonoBehaviour
         dragon.chargeFrames = dragonChargeFrames;
         dragon.fireFrames = dragonFireFrames;
         dragon.squareSprite = squareSprite;
-        dragon.maxHp = EffectiveBossMaxHp(2500);
+        dragon.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(2500 * RematchHpScaleOr(1f)));
         dragon.standoffDistance = standoff;
         dragon.chargeAttackEnabled = true;
         dragon.landingAttackEnabled = true;

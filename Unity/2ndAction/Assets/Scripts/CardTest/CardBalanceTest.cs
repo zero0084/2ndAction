@@ -33,7 +33,7 @@ public partial class CardBalanceTest : MonoBehaviour
     }
 
     public enum Kind { Mul, Add, Set }
-    public enum Tab { Control, Status, CardChar, Boss }
+    public enum Tab { Control, Status, CardChar, Boss, Rematch }
 
     public class Param
     {
@@ -467,7 +467,7 @@ public partial class CardBalanceTest : MonoBehaviour
         }
 
         float rowH = 30f, gap = 3f;
-        int rows = tab == Tab.CardChar ? 7 : tab == Tab.Boss ? BossTabRows : Params.Count(p => p.tab == tab) + 4;
+        int rows = tab == Tab.CardChar ? 7 : tab == Tab.Boss ? BossTabRows : tab == Tab.Rematch ? RematchTabRows : Params.Count(p => p.tab == tab) + 4;
         float h = rows * (rowH + gap) + 12f;
         panelRect = new Rect(sw - W - 10f, atTop ? 96f : Mathf.Max(96f, sh - h - 88f), W, h);
         UiBackdrop.Draw(panelRect, 0.82f);
@@ -485,13 +485,13 @@ public partial class CardBalanceTest : MonoBehaviour
         y += rowH + gap;
 
         // タブ
-        string[] tabs = { "操作系", "ステータス", "カードLv / キャラ", "ボス試験" };
-        for (int i = 0; i < 4; i++) if (B(new Rect(x + i * 150f, y, 146f, rowH - 4f), tabs[i], (int)tab == i)) tab = (Tab)i;
-        if (tab != Tab.CardChar && tab != Tab.Boss) GUI.Label(new Rect(x + 606f, y, W - 616f, rowH), "右: 基準×カード×テスト→実効", sSmall);
+        string[] tabs = { "操作系", "ステータス", "カードLv / キャラ", "ボス試験", "ボス再戦" };
+        for (int i = 0; i < 5; i++) if (B(new Rect(x + i * 164f, y, 160f, rowH - 4f), tabs[i], (int)tab == i)) tab = (Tab)i;
         y += rowH + gap;
 
         if (tab == Tab.CardChar) DrawCardChar(x, ref y, rowH, gap);
         else if (tab == Tab.Boss) DrawBossTest(x, ref y, rowH, gap);
+        else if (tab == Tab.Rematch) DrawRematch(x, ref y, rowH, gap);
         else
         {
             foreach (var p in Params)

@@ -234,7 +234,7 @@ public class BossHitbox : MonoBehaviour
         if (!other.CompareTag("Player") || PlayerController.Instance == null) return;
         if (hitThisActivation) return; // 1回の攻撃判定でダメージは最大1回
         hitThisActivation = true;
-        PlayerController.Instance.TakeDamage(source: "BossCombatPart:" + name, amount: damageAmount);
+        PlayerController.Instance.TakeDamage(source: "BossCombatPart:" + name, amount: BossManager.ScaleDamage(damageAmount));
         onHitPlayer?.Invoke(PlayerController.Instance);
     }
 }
@@ -359,7 +359,7 @@ public class BossProjectile : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player") || PlayerController.Instance == null) return;
-        if (damage) PlayerController.Instance.TakeDamage(source: "BossProjectile:" + name, amount: damageAmount);
+        if (damage) PlayerController.Instance.TakeDamage(source: "BossProjectile:" + name, amount: BossManager.ScaleDamage(damageAmount));
         if (slowFactor < 1f) PlayerController.Instance.ApplyMoveSlow(slowFactor, slowDuration);
         if (!passThrough) Destroy(gameObject);
     }

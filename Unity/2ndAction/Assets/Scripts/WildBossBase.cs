@@ -898,6 +898,30 @@ public abstract class WildBossBase : MonoBehaviour
     float stagger, lastStaggerTime, pendingStagger;
     bool phaseRoaring;
 
+    // 再戦の強化(2026-10-02): この個体だけの調整値の写しを作って、崩し/間隔/段階を変える(共有の調整値は変えない)
+    public int RematchTierApplied { get; private set; } = -1;
+    public void ApplyRematch(BossRematchTuning.Tier t)
+    {
+        if (t == null || tune == null) return;
+        var c = tune.Clone();
+        c.staggerMax *= Mathf.Max(0.1f, t.staggerMul);
+        c.specialCooldown *= Mathf.Max(0.1f, t.cooldownMul);
+        if (c.ultimateCooldown > 0f) c.ultimateCooldown *= Mathf.Max(0.1f, t.cooldownMul);
+        c.firstUltimateDelay *= Mathf.Max(0.1f, t.cooldownMul);
+        var th = new System.Collections.Generic.List<float>(c.phaseThresholds ?? new float[0]);
+        if (t.extraPhase)
+        {
+            float last = th.Count > 0 ? th[th.Count - 1] : 1f;
+            if (th.Count < 3) th.Add(Mathf.Clamp(last * 0.5f, 0.12f, 0.9f));
+        }
+        for (int i = 0; i < th.Count; i++) th[i] = Mathf.Clamp(th[i] + t.phaseShift, 0.05f, 0.95f);
+        th.Sort((a, b) => b.CompareTo(a));
+        c.phaseThresholds = th.ToArray();
+        tune = c;
+        RematchTierApplied = BossRematchTuning.I.tiers.IndexOf(t);
+        Debug.Log($"[BossPool] {bossName} rematch tier={t.label} stagger={c.staggerMax:F0} special={c.specialCooldown:F1}s ult={c.ultimateCooldown:F1}s phases=[{string.Join(",", c.phaseThresholds)}]");
+    }
+
     public void ApplyTuning(string key)
     {
         tuningKey = key;
@@ -1568,7 +1592,7 @@ public class TrackedHazard : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         if (!damages || !activated) return;
-        if (other.CompareTag("Player") && PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "WildBoss:" + name, amount: damageAmount);
+        if (other.CompareTag("Player") && PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "WildBoss:" + name, amount: BossManager.ScaleDamage(damageAmount));
     }
 }
 

@@ -491,7 +491,7 @@ public class SkyStrike : MonoBehaviour
         if (hitDone || !col.enabled) return;
         if (!other.CompareTag("Player") || PlayerController.Instance == null) return;
         hitDone = true;
-        PlayerController.Instance.TakeDamage(source: "SkyStrike:" + look);
+        PlayerController.Instance.TakeDamage(source: "SkyStrike:" + look, amount: BossManager.ScaleDamage(CombatScale.PlayerHit));
     }
 }
 

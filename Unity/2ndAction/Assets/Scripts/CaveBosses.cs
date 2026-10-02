@@ -490,7 +490,7 @@ public class CrystalGolemBoss : WildBossBase
             go.transform.position = new Vector3(x, floorY + Mathf.Lerp(0f, 0.8f, f), 0f);
             if (PlayerController.Instance != null && f > 0.5f && Mathf.Abs(PlayerController.Instance.transform.position.x - x) < 0.7f)
             {
-                PlayerController.Instance.TakeDamage(source: "CrystalGolem:RisingCrystal");
+                PlayerController.Instance.TakeDamage(source: "CrystalGolem:RisingCrystal", amount: BossManager.ScaleDamage(CombatScale.PlayerHit));
             }
             if (f > 0.5f) NetMatch.HostDamageRemoteInRange(x - 0.7f, x + 0.7f, float.MinValue, float.MaxValue, "CrystalGolem:RisingCrystal", crystalKey);
             yield return null;

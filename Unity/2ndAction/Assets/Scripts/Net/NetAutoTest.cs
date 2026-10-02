@@ -43,6 +43,7 @@ public class NetAutoTest : MonoBehaviour
     // Phase 2.5: 被弾テスト(無敵を切り、HPが減りすぎたら補充して最後まで走る) / 攻撃しないボット /
     // ボスの種類 / 強制レベルアップを一定時間選ばずに保持する(選択中も世界が進むかの確認)
     bool damageTest;
+    bool rematchTest; float rematchLogTimer; bool rematchUnlocked; // ボスの再戦(2026-10-02): HOST/JOINで同じボスか
     bool passive;
     string bossKind = "Wolf";
     float choiceAt = -1f, choiceHold = 0f;
@@ -96,6 +97,22 @@ public class NetAutoTest : MonoBehaviour
     Step step = Step.Connect;
     float stepTime;
     float runTime;
+
+    // ボスの再戦: HOSTは撃破済みプールを全部にして(=1,000mから抽選)、両方の端末で見えているボスの種類を毎秒記録する
+    void RematchTick()
+    {
+        var bm = BossManager.Instance;
+        if (bm == null) return;
+        if (!rematchUnlocked && runTime > 1f && !NetCombat.Replica) { rematchUnlocked = true; bm.DebugUnlockAll(); L($"rematch: HOST unlocked all ({bm.DefeatedPool.Count})"); }
+        rematchLogTimer -= Time.unscaledDeltaTime;
+        if (rematchLogTimer > 0f) return;
+        rematchLogTimer = 1f;
+        var names = new System.Collections.Generic.List<string>();
+        foreach (var b in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None)) if (!b.IsDead) names.Add(b.bossName);
+        foreach (var d in FindObjectsByType<DragonController>(FindObjectsSortMode.None)) if (!d.IsDead) names.Add("Dragon");
+        foreach (var m in FindObjectsByType<MajinController>(FindObjectsSortMode.None)) if (!m.IsDead) names.Add("Majin");
+        if (names.Count > 0) L($"BOSSSEEN t={runTime:F0} role={role} names={string.Join("+", names)} decision={(NetCombat.Replica ? "-" : bm.LastRematchDecision)}");
+    }
     bool speedApplied;
     bool left;
 
@@ -189,6 +206,7 @@ public class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoBossAt") float.TryParse(next, out bossAt);
             else if (a == "-netAutoBossHp") int.TryParse(next, out bossHp);
             else if (a == "-netAutoDamage") damageTest = true;
+            else if (a == "-netAutoRematch") rematchTest = true;
             else if (a == "-netAutoPassive") passive = true;
             else if (a == "-netAutoBossKind") bossKind = next;
             else if (a == "-netAutoChoiceAt") float.TryParse(next, out choiceAt);
@@ -337,6 +355,7 @@ public class NetAutoTest : MonoBehaviour
                 KeepAlive(gm);
                 PickLevelUpCard(gm);
                 Bot();
+                if (rematchTest) RematchTick();
                 if (!left && leaveAt > 0f && runTime >= leaveAt)
                 {
                     left = true;

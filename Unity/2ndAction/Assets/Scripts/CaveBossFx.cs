@@ -402,7 +402,7 @@ public class CeilingFallRock : MonoBehaviour
         Vector3 landPos = new Vector3(targetWorldX, floorY, 0f);
         if (PlayerController.Instance != null && Mathf.Abs(PlayerController.Instance.transform.position.x - targetWorldX) <= width * 0.5f)
         {
-            PlayerController.Instance.TakeDamage(source: "CaveBossFallRock");
+            PlayerController.Instance.TakeDamage(source: "CaveBossFallRock", amount: BossManager.ScaleDamage(CombatScale.PlayerHit));
         }
         // マルチプレイPhase 2.5: HOSTだけにある範囲攻撃なので、相手(JOIN)への当たりもHOSTが分身の位置で確定する。
         NetMatch.HostDamageRemoteInRange(targetWorldX - width * 0.5f, targetWorldX + width * 0.5f, float.MinValue, float.MaxValue, "CaveBossFallRock", netKey);

@@ -724,7 +724,7 @@ public class DragonController : MonoBehaviour
             if (other.CompareTag("Player") && netPose == (byte)State.Charging && PlayerController.Instance != null)
             {
                 NetMatch.SetClaimContext(NetMatch.ClaimKind.EnemyContact, NetId);
-                try { PlayerController.Instance.TakeDamage(source: "Dragon:" + name); }
+                try { PlayerController.Instance.TakeDamage(source: "Dragon:" + name, amount: BossManager.ScaleDamage(CombatScale.PlayerHit)); }
                 finally { NetMatch.ClearClaimContext(); }
             }
             return;
@@ -747,7 +747,7 @@ public class DragonController : MonoBehaviour
         // near it, or being near it while it breathes fire, is safe.
         if (other.CompareTag("Player") && state == State.Charging)
         {
-            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "Dragon:" + name);
+            if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "Dragon:" + name, amount: BossManager.ScaleDamage(CombatScale.PlayerHit));
             return;
         }
 

@@ -22,6 +22,10 @@ public static class RunCheckpoint
     public class Data
     {
         public bool active;
+        // ボスの再戦プール(2026-10-02)。bossPoolVersion=0 はこの仕組みより前の保存
+        public int bossPoolVersion;
+        public List<string> defeatedBosses = new List<string>();
+        public List<string> recentBosses = new List<string>();
         // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - このRunが
         // どのキャラクターで開始されたか。GameManager.SelectedCharacterId
         // (Homeでいつでも変えられる「次回NEW RUNの既定値」)とは別物 -

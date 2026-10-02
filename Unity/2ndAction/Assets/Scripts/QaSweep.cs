@@ -43,6 +43,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaReaperDeath") { mode = "reaperdeath"; dir = a[i + 1]; }
             if (a[i] == "-qaVisShots") { mode = "visshots"; dir = a[i + 1]; }
             if (a[i] == "-qaScale") { mode = "scale"; dir = a[i + 1]; }
+            if (a[i] == "-qaRematch") { mode = "rematch"; dir = a[i + 1]; }
             if (a[i] == "-qaScenery") { mode = "scenery"; dir = a[i + 1]; }
             if (a[i] == "-qaSceneryVideo") { mode = "sceneryvideo"; dir = a[i + 1]; }
             if (a[i] == "-qaSceneryStages") { mode = "scenerystages"; dir = a[i + 1]; }
@@ -108,6 +109,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "reaperdeath") yield return ReaperDeathMode();
         else if (mode == "visshots") yield return VisShotsMode();
         else if (mode == "scale") yield return ScaleMode();
+        else if (mode == "rematch") yield return RematchMode();
         else if (mode == "scenery") yield return SceneryMode();
         else if (mode == "sceneryvideo") yield return SceneryVideoMode();
         else if (mode == "scenerystages") yield return SceneryStagesMode();

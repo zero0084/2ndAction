@@ -46,6 +46,8 @@ public static class BossHpPlan
         return Mathf.Lerp(t[a], t[b], i - a);
     }
     public static float RefDamageAt(float distance) => Lerp(RefDamage, distance / 1000f);
+    // 10km節目ボスの現行HP(平均)の距離による曲線。ボスの再戦(BossManager.Rematch)がHPを距離に合わせるのにも使う
+    public static float MilestoneHpAt(float distance) => Lerp(MilestoneNow, distance / 1000f);
     // その距離の10km節目ボスに狙うHP
     public static float TargetMilestoneHp(float distance, int hits) => RefDamageAt(distance) * hits;
     // 全ボスのHPに掛ける倍率(現行=1)
