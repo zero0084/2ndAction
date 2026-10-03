@@ -17,10 +17,16 @@ public class ElementStatus : MonoBehaviour
     float bleedDps, bleedLeft, bleedHeal, healCarry;
     float chillSlow, chillLeft, freezeLeft;
     int chillStacks;
+    // v3: 炎上の重ねがけ(時間を延ばし、1回ごとに+10%、最大+50%)/ 雷の一瞬の停止 / ABSOLUTE ZERO でのボスの減速
+    float burnBoost, shockLeft;
+    int absoluteZero;
     float tick;
     SpriteRenderer marker;
 
     public bool Burning => burnLeft > 0f;
+    // v3: 燃えたまま倒れたか(撃破の処理は倒れる演出の後なので、その時には炎上が消えている。INFERNO が使う)
+    public bool DiedBurning { get; private set; }
+    public bool BurningOrDiedBurning => burnLeft > 0f || DiedBurning;
     public bool Bleeding => bleedLeft > 0f;
     public bool Chilled => chillLeft > 0f;
     public bool Frozen => freezeLeft > 0f;
@@ -43,7 +49,7 @@ public class ElementStatus : MonoBehaviour
         get
         {
             if (isBoss) return AiTimeScale;
-            if (freezeLeft > 0f) return 0f;
+            if (freezeLeft > 0f || shockLeft > 0f) return 0f;
             if (chillLeft > 0f) return 1f - chillSlow;
             return 1f;
         }
@@ -54,7 +60,7 @@ public class ElementStatus : MonoBehaviour
     {
         get
         {
-            if (freezeLeft > 0f) return BossFreezeScale;
+            if (freezeLeft > 0f) return Mathf.Max(0.3f, BossFreezeScale - 0.02f * absoluteZero);
             if (chillLeft > 0f) return 1f - chillSlow * BossChillFactor;
             return 1f;
         }
@@ -69,9 +75,12 @@ public class ElementStatus : MonoBehaviour
 
     public void AddBurn(float dps, float duration)
     {
+        if (burnLeft > 0f) burnBoost = Mathf.Min(0.5f, burnBoost + 0.1f); else burnBoost = 0f;
         burnDps = Mathf.Max(burnLeft > 0f ? burnDps : 0f, dps);
         burnLeft = Mathf.Max(burnLeft, duration);
     }
+
+    public void AddShock(float seconds) { shockLeft = Mathf.Max(shockLeft, seconds); }
 
     public void AddBleed(float dps, float duration, float healFraction)
     {
@@ -81,8 +90,9 @@ public class ElementStatus : MonoBehaviour
     }
 
     // 返り値: このChillで凍結したか
-    public bool AddChill(float slow, float duration, int freezeStacks, float freezeDuration)
+    public bool AddChill(float slow, float duration, int freezeStacks, float freezeDuration, int absoluteZeroLevel = 0)
     {
+        absoluteZero = Mathf.Max(absoluteZero, absoluteZeroLevel);
         chillSlow = Mathf.Max(chillLeft > 0f ? chillSlow : 0f, slow);
         chillLeft = Mathf.Max(chillLeft, duration);
         if (freezeLeft > 0f || freezeStacks <= 0) return false;
@@ -95,10 +105,11 @@ public class ElementStatus : MonoBehaviour
 
     void Update()
     {
-        if (target == null || !ElementSystem.IsAlive(target)) { Clear(); return; }
+        if (target == null || !ElementSystem.IsAlive(target)) { if (burnLeft > 0f) DiedBurning = true; Clear(); return; }
         float dt = Time.deltaTime;
         if (chillLeft > 0f) { chillLeft -= dt; if (chillLeft <= 0f) { chillLeft = 0f; chillSlow = 0f; chillStacks = 0; } }
         if (freezeLeft > 0f) freezeLeft = Mathf.Max(0f, freezeLeft - dt);
+        if (shockLeft > 0f) shockLeft = Mathf.Max(0f, shockLeft - dt);
         if (burnLeft > 0f || bleedLeft > 0f)
         {
             tick += dt;
@@ -106,7 +117,7 @@ public class ElementStatus : MonoBehaviour
             {
                 tick -= TickInterval;
                 float dmg = 0f;
-                if (burnLeft > 0f) dmg += burnDps * TickInterval;
+                if (burnLeft > 0f) dmg += burnDps * (1f + burnBoost) * TickInterval;
                 float bleed = bleedLeft > 0f ? bleedDps * TickInterval : 0f;
                 dmg += bleed;
                 if (dmg > 0f)
@@ -120,7 +131,7 @@ public class ElementStatus : MonoBehaviour
                         if (heal > 0) { healCarry -= heal; ElementSystem.HealFromBleed(heal); }
                     }
                 }
-                if (target == null || !ElementSystem.IsAlive(target)) { Clear(); return; }
+                if (target == null || !ElementSystem.IsAlive(target)) { if (burnLeft > 0f) DiedBurning = true; Clear(); return; }
             }
             burnLeft = Mathf.Max(0f, burnLeft - dt);
             bleedLeft = Mathf.Max(0f, bleedLeft - dt);
@@ -131,7 +142,8 @@ public class ElementStatus : MonoBehaviour
 
     void Clear()
     {
-        burnLeft = bleedLeft = chillLeft = freezeLeft = 0f;
+        burnLeft = bleedLeft = chillLeft = freezeLeft = shockLeft = 0f;
+        burnBoost = 0f;
         chillStacks = 0;
         if (marker != null) marker.enabled = false;
     }

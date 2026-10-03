@@ -15,15 +15,17 @@ MonoBehaviour:
   cardId: no_turning_back
   cardName: NO TURNING BACK
   icon: {fileID: 2800000, guid: d4482e8dd8695bd4c8ecca5a90df5ae0, type: 3}
-  description: "\u79FB\u52D5\u901F\u5EA6\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B\u304C\u3001\u6575\u306E\u51FA\u73FE\u983B\u5EA6\u3082\u4E0A\u304C\u308B"
+  description: "\u79FB\u52D5\u901F\u5EA6\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+5%)\u304C\u3001\u6575\u306E\u51FA\u73FE\u304C\u5897\u3048\u308B(+10%/Lv)"
   category: 6
   sortOrder: 165
-  recommendPriority: 5
+  recommendPriority: 2
   effects:
-  - type: 0
-    value: 0.25
+  - type: 45
+    value: 0.05
+    scaling: 0
   - type: 12
-    value: 0.3
+    value: 0.1
+    scaling: 0
   rarity: 5
   unlockDistance: 100000
   gachaStage: 5

@@ -11,11 +11,12 @@ public partial class CardBalanceTest
 {
     static readonly (string name, (EffectType t, float v)[] vals)[] ElementTestSets =
     {
-        ("炎", new[] { (EffectType.BurnChance, 0.5f), (EffectType.BurnPower, 0.3f) }),
-        ("氷", new[] { (EffectType.ChillChance, 0.6f), (EffectType.ChillSlow, 0.5f), (EffectType.FreezeStacks, 3f) }),
-        ("雷", new[] { (EffectType.LightningChance, 0.4f), (EffectType.LightningPower, 0.5f), (EffectType.LightningChains, 3f) }),
-        ("風", new[] { (EffectType.WindBladeChance, 0.4f), (EffectType.WindBladePower, 0.6f), (EffectType.WindPierce, 2f) }),
-        ("血", new[] { (EffectType.BleedChance, 0.5f), (EffectType.BleedPower, 0.25f), (EffectType.BleedLifesteal, 0.3f), (EffectType.BloodLowHpBonus, 1f) }),
+        // v3: 属性は専用の基礎ダメージ(炎/血=1秒あたり、雷/風=1回)
+        ("炎", new[] { (EffectType.BurnChance, 0.5f), (EffectType.BurnPower, 10f) }),
+        ("氷", new[] { (EffectType.ChillChance, 0.6f), (EffectType.ChillSlow, 0.5f), (EffectType.FreezeThresholdReduce, 2f) }),
+        ("雷", new[] { (EffectType.LightningChance, 0.4f), (EffectType.LightningPower, 20f), (EffectType.LightningChains, 3f) }),
+        ("風", new[] { (EffectType.WindBladeChance, 0.4f), (EffectType.WindBladePower, 15f), (EffectType.WindPierce, 2f) }),
+        ("血", new[] { (EffectType.BleedChance, 0.5f), (EffectType.BleedPower, 8f), (EffectType.BleedLifesteal, 0.3f), (EffectType.BloodLowHpBonus, 1f) }),
     };
 
     static bool ElementTestOn(GameManager gm, int i)
@@ -40,8 +41,8 @@ public partial class CardBalanceTest
         float kmh = pc.CurrentRunKmh;
         Line(x, ref y, rowH, gap, $"実速度 {kmh:0.0}km/h(runSpeed {pc.runSpeed:0.00} × 距離の倍率 {pc.NaturalMultiplierAt(pc.DistanceFromStart):0.00})  正規化 50→150km/h = {pc.SpeedFactor01(50f, 150f):0.00}  "
             + $"MOMENTUMの速度項: 今の式(距離) {pc.MomentumSpeedTermByDistance:0.00} / 実速度にした場合 {pc.MomentumSpeedTermByCurrentSpeed:0.00}");
-        Line(x, ref y, rowH, gap, $"攻撃時間 ×{pc.AttackSpeedMultiplier:0.00}(テンポ×{1f / Mathf.Max(0.01f, pc.AttackSpeedMultiplier):0.0})  攻撃範囲 ×{pc.AttackRangeMultiplier:0.00}  "
-            + $"EXP ×{gm.CardTestExpGainMultiplier:0.00}  MILE ×{gm.MileGainMultiplier:0.00}(ボス ×{gm.BossMileGainMultiplier:0.00})  吸収 {gm.CardTestLifestealChance * 100f:0}%/{gm.CardTestLifestealAmount:0}");
+        Line(x, ref y, rowH, gap, $"速度カード ×{pc.CardSpeedFactor:0.00}(生 {gm.Card.Get(EffectType.SpeedPct) * 100f:0}%)  MOMENTUM ×{PlayerController.MomentumFactor(kmh):0.00}  "
+            + $"EXP ×{gm.CardTestExpGainMultiplier:0.00}(距離 +{gm.Card.Get(EffectType.DistanceExpPct) * 100f:0}% 撃破 +{gm.Card.Get(EffectType.KillExpPct) * 100f:0}%)  MILE ×{gm.MileGainMultiplier:0.00}(ボス ×{gm.BossMileGainMultiplier:0.00} 宝 +{gm.Card.Get(EffectType.TreasureMilePct) * 100f:0}%)");
         var dir = EncounterDirector.Instance;
         Line(x, ref y, rowH, gap, $"敵出現率 ×{gm.EnemySpawnRateMultiplier:0.00} → Encounterの頻度 ×{(dir != null ? dir.SpawnFrequency : 1f):0.00}(上限 ×{(dir != null ? dir.spawnRateMaxFrequency : 2f):0.0})  "
             + $"能力Lv上限 {GameManager.MaxRunCardLevel}(上限で効かなかった分 {gm.CardCapDiscardedStacks})");

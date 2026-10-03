@@ -15,15 +15,20 @@ MonoBehaviour:
   cardId: heart_breaker
   cardName: HEART BREAKER
   icon: {fileID: 2800000, guid: 3bdeac9a8cfe73c4e9c65d550ea0db00, type: 3}
-  description: "\u6700\u5927HP\u3092\u72A0\u7272\u306B\u3001\u653B\u6483\u529B\u3092\u5927\u304D\u304F\u9AD8\u3081\u308B"
+  description: "\u653B\u6483\u529B\u304C\u4E0A\u304C\u308A(1Lv\u3054\u3068\u306B+4%)\u3001\u5C01\u5370\u3057\u305F\u30CF\u30FC\u30C81\u3064\u3054\u3068\u306B\u3055\u3089\u306B\u653B\u6483+0.6%/Lv\u3002\u6700\u5927HP\u306E\u30CF\u30FC\u30C8\u30923Lv\u3054\u3068\u306B1\u3064\u5C01\u5370\u3059\u308B"
   category: 6
   sortOrder: 151
-  recommendPriority: 5
+  recommendPriority: 1
   effects:
-  - type: 4
-    value: -20
-  - type: 1
-    value: 40
+  - type: 46
+    value: 0.04
+    scaling: 0
+  - type: 67
+    value: 0.006
+    scaling: 0
+  - type: 52
+    value: 1
+    scaling: 2
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

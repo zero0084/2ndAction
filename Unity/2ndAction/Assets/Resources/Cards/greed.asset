@@ -15,15 +15,17 @@ MonoBehaviour:
   cardId: greed
   cardName: GREED
   icon: {fileID: 2800000, guid: a3ef72bf399db36448d317c6f49dd463, type: 3}
-  description: "\u79FB\u52D5\u901F\u5EA6\u304C\u4E0A\u6607\u3059\u308B\u304C\u3001\u6575\u306E\u51FA\u73FE\u983B\u5EA6\u304C\u4E0A\u304C\u308B"
+  description: "\u79FB\u52D5\u901F\u5EA6\u304C\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+4%)\u304C\u3001\u6575\u306E\u51FA\u73FE\u304C\u5897\u3048\u308B(+8%/Lv)"
   category: 6
   sortOrder: 15
-  recommendPriority: 1
+  recommendPriority: 2
   effects:
-  - type: 0
-    value: 0.2
+  - type: 45
+    value: 0.04
+    scaling: 0
   - type: 12
-    value: 0.3
+    value: 0.08
+    scaling: 0
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

@@ -15,13 +15,20 @@ MonoBehaviour:
   cardId: horde
   cardName: HORDE
   icon: {fileID: 2800000, guid: 28fffd58759e156488ef6d24c22b20f4, type: 3}
-  description: "\u6575\u306E\u51FA\u73FE\u983B\u5EA6\u304C\u4E0A\u304C\u308B"
+  description: "\u6575\u306E\u51FA\u73FE\u304C\u5927\u304D\u304F\u5897\u3048\u308B(1Lv\u3054\u3068\u306B+15%)\u4EE3\u308F\u308A\u306B\u3001MILE(+5%/Lv)\u3068\u6483\u7834\u306E\u7D4C\u9A13\u5024(+5%/Lv)\u304C\u5897\u3048\u308B"
   category: 6
   sortOrder: 127
-  recommendPriority: 5
+  recommendPriority: 2
   effects:
   - type: 12
-    value: 0.3
+    value: 0.15
+    scaling: 0
+  - type: 22
+    value: 0.05
+    scaling: 0
+  - type: 107
+    value: 0.05
+    scaling: 0
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

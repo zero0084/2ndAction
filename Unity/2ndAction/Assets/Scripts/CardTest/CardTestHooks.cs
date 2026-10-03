@@ -40,6 +40,10 @@ public partial class GameManager
     // カードが変える値(プレイヤー以外)を初期値へ
     public void CardTestClearCardState()
     {
+        // カードバランス v3: カードLv/封印/復活を外して計算し直す(最大HPの層は呼ぶ側が基準値へ戻す)
+        var def = CharacterDatabase.FindById(ActiveRunCharacterId);
+        ResetCardStatsForRun(def);
+        RecomputeCardStats();
         expGainMultiplier = 1f;
         lifestealChance = 0f;
         lifestealAmount = 0f;

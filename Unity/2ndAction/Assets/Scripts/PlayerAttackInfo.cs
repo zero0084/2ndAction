@@ -42,6 +42,8 @@ public class PlayerAttackInfo : MonoBehaviour
     [System.NonSerialized] public bool fixedReach;
     // 属性(2026-10-03): 属性の効果が出した攻撃(風刃)。これ自身からは風刃を出さない(連鎖で増え続けない)
     [System.NonSerialized] public bool elementProc;
+    // カードバランス v3: 風刃(TORNADO の起点)
+    [System.NonSerialized] public bool windBlade;
     // First / Combo / Finisher (2026-10-03, PlayerController.AttackSeq.cs): tag and press id given when the attack was made
     [System.NonSerialized] public AttackSeqTag seqTag;
     [System.NonSerialized] public int seqMoveId;
@@ -100,13 +102,29 @@ public class PlayerAttackInfo : MonoBehaviour
         // この端末のPlayerAttack判定はすべてこの端末のプレイヤーのもの(他のプレイヤーの攻撃は判定を持たない見た目だけ)。
         if (attack != null && victim != null && PlayerController.Instance != null)
             PlayerController.Instance.NotifyAttackLanded(victim, attack.GetComponent<PlayerAttackInfo>());
-        // First / Finisher bonus: from the tag the attack got when it was made (once per press per enemy), before the move's damage scale
-        var seqInfo = attack != null ? attack.GetComponent<PlayerAttackInfo>() : null;
-        if (seqInfo != null && seqInfo.seqTag != AttackSeqTag.None && victim != null && PlayerController.Instance != null)
-            damage += PlayerController.Instance.ConsumeSeqBonus(seqInfo.seqTag, seqInfo.seqMoveId, victim);
+        // カードバランス v3(2026-10-03): 相手/技による条件(初撃/連撃中/締め・ボス・空中の敵・下攻撃)を、今の状態の条件と
+        // 同じ枠へ足してから一度だけ曲線を通す(damage は今の状態の条件まで入った EffectiveAttackPower)。技の倍率の前。
+        // 初撃/締めは作った時の印で決め、1押し・1体につき1回だけ。カードの効果で出た攻撃(elementProc)には付けない。
+        var info = attack != null ? attack.GetComponent<PlayerAttackInfo>() : null;
+        var pc = PlayerController.Instance;
+        if (info != null && victim != null && pc != null && !info.elementProc)
+        {
+            pc.SeqBonusFlatPending = 0;
+            float seq = info.seqTag != AttackSeqTag.None ? pc.ConsumeSeqPct(info.seqTag, info.seqMoveId, victim) : 0f;
+            int flat = pc.SeqBonusFlatPending; // 旧形式の固定値(v3 のカードでは0)
+            pc.SeqBonusFlatPending = 0;
+            float cs = pc.CardStateCondition();
+            float ct = seq + pc.CardTargetCondition(info, victim);
+            if (ct != 0f) damage = Mathf.Max(1, Mathf.RoundToInt(damage * CardRules.CondMultiplier(cs + ct) / CardRules.CondMultiplier(cs)));
+            damage += flat;
+        }
         int result = ScaleDamage(attack, damage, true);
         // 属性(2026-10-03): 敵/ボスへの命中はすべてここを通る。カードで得た属性の効果(炎上/冷気/落雷/風刃/出血)を判定する
-        if (victim != null) ElementSystem.OnPlayerHit(victim, attack != null ? attack.GetComponent<PlayerAttackInfo>() : null, result);
+        if (victim != null)
+        {
+            ElementSystem.OnPlayerHit(victim, info, result);
+            CardProcs.OnPlayerHit(victim, info, attack, result); // v3: DOUBLE ATTACK / 衝撃波 / 貫通 など
+        }
         return result;
     }
 

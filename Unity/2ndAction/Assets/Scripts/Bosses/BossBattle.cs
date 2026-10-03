@@ -43,6 +43,7 @@ public static class BossBattle
         return Mathf.Lerp(tn.lungeForwardNear, tn.lungeForwardFar, k);
     }
 
+    public static float NearestBossFrontAheadPublic(float playerX) => NearestBossFrontAhead(playerX); // HUNTER(カード v3)
     // プレイヤーから見た、前方で一番近いボスの体の手前側までの距離(いなければMaxValue)。後ろのボスは負。
     static float NearestBossFrontAhead(float playerX)
     {

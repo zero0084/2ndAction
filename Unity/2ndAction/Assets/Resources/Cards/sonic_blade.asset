@@ -15,15 +15,14 @@ MonoBehaviour:
   cardId: sonic_blade
   cardName: SONIC BLADE
   icon: {fileID: 2800000, guid: eca9bd4263a82e84e9459afccc21783b, type: 3}
-  description: "\u30B3\u30F3\u30DC1\u6BB5\u76EE\u306E\u5A01\u529B\u3068\u30C6\u30F3\u30DD\u304C\u4E0A\u304C\u308B"
+  description: "\u4E3B\u653B\u6483\u306E\u305F\u3073\u306B\u524D\u65B9\u3078\u65AC\u6483\u304C\u98DB\u3076\u3002\u901F\u304F\u8D70\u3063\u3066\u3044\u308B\u307B\u3069\u9060\u304F\u30FB\u5927\u304D\u304F\u30FB\u5F37\u304F\u306A\u308B"
   category: 1
   sortOrder: 135
   recommendPriority: 5
   effects:
-  - type: 15
-    value: 20
-  - type: 6
-    value: 0.1
+  - type: 74
+    value: 1
+    scaling: 0
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

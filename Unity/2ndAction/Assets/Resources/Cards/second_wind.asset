@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: second_wind
   cardName: SECOND WIND
   icon: {fileID: 2800000, guid: a27f5972194982f4aa14d027623b994e, type: 3}
-  description: "\u6483\u7834\u6642\u306E\u56DE\u5FA9\u91CF\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B"
+  description: "HP\u304C30%\u4EE5\u4E0B\u306B\u843D\u3061\u305F\u6642\u3001HP\u3092\u5C11\u3057\u56DE\u5FA9(\u30CF\u30FC\u30C81\u301C3)\u3002\u4E00\u5EA6\u51FA\u308B\u3068\u8DDD\u96E2\u306E\u30AF\u30FC\u30EB\u30C0\u30A6\u30F3(10,000m\u3001Lv\u3067\u77ED\u304F)"
   category: 4
   sortOrder: 130
   recommendPriority: 5
   effects:
-  - type: 11
-    value: 20
+  - type: 81
+    value: 1
+    scaling: 0
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

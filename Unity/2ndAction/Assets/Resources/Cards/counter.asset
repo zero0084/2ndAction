@@ -15,15 +15,17 @@ MonoBehaviour:
   cardId: counter
   cardName: COUNTER
   icon: {fileID: 2800000, guid: 1d43ac30902c154409b0830394e7e38b, type: 3}
-  description: "\u88AB\u5F3E\u30921\u56DE\u9632\u304E\u3001\u653B\u6483\u529B\u3082\u308F\u305A\u304B\u306B\u4E0A\u304C\u308B"
+  description: "Shield\u3067\u9632\u3044\u3060\u6642\u3001\u307E\u308F\u308A\u3078\u53CD\u6483\u306E\u885D\u6483(Lv\u3067\u5A01\u529B\u304C\u4E0A\u304C\u308B)\u3002Shield\u3092\u6301\u3063\u3066\u3044\u306A\u304F\u3066\u30821\u3064\u6301\u3066\u308B"
   category: 2
   sortOrder: 114
   recommendPriority: 5
   effects:
-  - type: 8
+  - type: 78
     value: 1
-  - type: 1
-    value: 10
+    scaling: 0
+  - type: 77
+    value: 1
+    scaling: 1
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

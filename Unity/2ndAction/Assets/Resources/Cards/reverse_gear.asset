@@ -15,15 +15,17 @@ MonoBehaviour:
   cardId: reverse_gear
   cardName: REVERSE GEAR
   icon: {fileID: 2800000, guid: f0dd158362bfc9f4a918dfe75a586edd, type: 3}
-  description: "\u79FB\u52D5\u901F\u5EA6\u3092\u72A0\u7272\u306B\u3001\u653B\u6483\u529B\u3092\u5927\u304D\u304F\u9AD8\u3081\u308B"
+  description: "\u653B\u6483\u529B\u304C\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+8%)\u304C\u3001\u79FB\u52D5\u901F\u5EA6\u304C\u4E0B\u304C\u308B(1Lv\u3054\u3068\u306B-3%)"
   category: 6
   sortOrder: 150
-  recommendPriority: 5
+  recommendPriority: 2
   effects:
-  - type: 0
-    value: -0.15
-  - type: 1
-    value: 30
+  - type: 46
+    value: 0.08
+    scaling: 0
+  - type: 45
+    value: -0.03
+    scaling: 0
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

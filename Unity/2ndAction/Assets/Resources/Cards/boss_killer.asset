@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: boss_killer
   cardName: BOSS KILLER
   icon: {fileID: 2800000, guid: ccbf2e30d7894ac459d053a010a9b0e0, type: 3}
-  description: "Boss\u76F8\u624B\u3078\u306E\u653B\u6483\u529B\u304C\u4E0A\u304C\u308B"
+  description: "\u30DC\u30B9\u3078\u306E\u653B\u6483\u529B\u304C\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+8%)"
   category: 1
   sortOrder: 122
   recommendPriority: 5
   effects:
-  - type: 19
-    value: 30
+  - type: 58
+    value: 0.08
+    scaling: 0
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

@@ -61,6 +61,8 @@ public partial class GameManager
 
     // このランで適用済みの能力の回数(0〜9)
     public int GetAbilityRunStack(string abilityId) => abilityId != null && runAbilityStacks.TryGetValue(abilityId, out int n) ? n : 0;
+    // PHOENIX の消費(2026-10-03): その能力をこのランで取っていない状態へ戻す(候補に再び出る。取り直しは Lv1 から)
+    void ResetAbilityRunStack(string abilityId) { if (abilityId != null) runAbilityStacks.Remove(abilityId); }
 
     // カード1枚を times 回分、能力ごとの上限を守って適用する。適用した回数の合計を返す。
     int ApplyRunCardCapped(CardDefinition card, int times, string source)

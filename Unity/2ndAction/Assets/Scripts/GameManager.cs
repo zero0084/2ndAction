@@ -474,6 +474,7 @@ public partial class GameManager : MonoBehaviour
         if (def == null) return;
         maxLives = def.baseMaxLives;
         Lives = def.baseLives;
+        ResetCardStatsForRun(def); // カードバランス v3(2026-10-03): このランのカードLv/封印/復活などを初期化
         if (PlayerController.Instance != null)
         {
             PlayerController.Instance.ApplyCharacterBaseStats(def);
@@ -660,7 +661,17 @@ public partial class GameManager : MonoBehaviour
         // Character Card slots' own locks (see GetAvailableCountForStack).
         bool sameAsCurrent = characterCardIds[slot] == cardId && characterCardLevels[slot] == level;
         int freeForOwner = CardInventory.GetCount(cardId, level) - GetDeckLockedCountForStack(cardId, level) - GetOwnerCharacterCardCountForStack(cardId, level);
-        if (!sameAsCurrent && freeForOwner <= 0) return false;
+        LastEquipMessage = "";
+        if (!sameAsCurrent && freeForOwner <= 0) { LastEquipMessage = "このカードは他で使われています"; return false; }
+        // カードバランス v3(2026-10-03): 同じ能力はキャラカード+ラン中の取得の合計で Lv9 まで。
+        // 1つの能力だけのカードは、他の枠と合わせて Lv9 を超えるなら装備しない(2枚目が丸ごと効かない状態を作らない)。
+        // 合成カード(能力が複数)は装備できる(効く能力だけ効く)。超える能力は伝える。
+        int over = CharacterCardOverflow(slot, cardId, level, out string overName, out bool single);
+        if (!sameAsCurrent && over > 0)
+        {
+            if (single) { LastEquipMessage = $"{overName} は他のキャラカードと合わせて Lv{MaxRunCardLevel} を超えるので装備できません(超える分は効きません)"; return false; }
+            LastEquipMessage = $"注意: {overName} は他のキャラカードと合わせて Lv{MaxRunCardLevel} を超えます(超える {over} Lv 分は効きません)";
+        }
         characterCardIds[slot] = cardId;
         characterCardLevels[slot] = Mathf.Max(1, level);
         SaveCharacterCards();
@@ -1353,6 +1364,7 @@ public partial class GameManager : MonoBehaviour
         UpdateCountdownSe();
         UpdateResumeGate(); // 中断セーブからの再開の準備時間(2026-10-03)
         UpdateResumeCountdownSe();
+        if (HasStarted && !IsGameOver) { UpdateCardRunState(); ChallengeSystem.Tick(); } // カードバランス v3(LAST CHANCE の再発動 / WANTED)
         if (!HasStarted)
         {
             // Starting now happens only via the on-screen START button (see
@@ -2002,7 +2014,7 @@ public partial class GameManager : MonoBehaviour
             float delta = distance - MaxDistance;
             ProgressStats.AddRunDistance(delta); // 累計走行距離(2026-10-01、100mごとに保存)
             MaxDistance = distance;
-            GainExp(delta * expPerMeter);
+            GainExp(delta * expPerMeter * Mathf.Max(0f, 1f + Card.Get(EffectType.DistanceExpPct))); // PATHFINDER(v3): 距離のEXP
             UnlockManager.CheckUnlocks(MaxDistance);
 
             // Item 12 - tracked unconditionally (not just past
@@ -2749,6 +2761,9 @@ public partial class GameManager : MonoBehaviour
     // stacking behavior rather than redesign it.
     public void ApplyCardEffectsStacked(CardDefinition card, int stacks)
     {
+        if (card == null || stacks <= 0) return;
+        // カードバランス v3(2026-10-03): 元のカードは Lv を足して計算し直すだけ(1回ずつ足し込まない)
+        if (CardDatabase.FindBaseById(card.cardId) == card) { AddCardLevel(card, stacks); return; }
         for (int i = 0; i < stacks; i++) ApplyCardEffects(card);
     }
 
@@ -2757,6 +2772,22 @@ public partial class GameManager : MonoBehaviour
     // Adding a new card that only reuses these EffectTypes needs no changes
     // here at all; only a genuinely new EffectType does.
     void ApplyCardEffects(CardDefinition card)
+    {
+        if (card == null) return;
+        // カードバランス v3(2026-10-03): 値は「このランのカードLv」から計算する(Cards/GameManager.CardStats.cs)。
+        // 元のカード → Lv+1。合成/旧形式の複合カード → 能力に分解して、それぞれの元のカードの Lv を足す。
+        if (CardDatabase.FindBaseById(card.cardId) == card) { AddCardLevel(card, 1); return; }
+        var abilities = AbilitiesOf(card.cardId);
+        if (abilities.Count > 0)
+        {
+            foreach (var a in abilities) { var src = CardDatabase.FindBaseById(a.id); if (src != null) AddCardLevel(src, a.stacks); }
+            return;
+        }
+        ApplyLegacyCardEffects(card);
+    }
+
+    // 分解できない形式(想定外)だけの古い処理: 1回ずつ足し込む
+    void ApplyLegacyCardEffects(CardDefinition card)
     {
         PlayerController pc = PlayerController.Instance;
         foreach (CardEffect effect in card.effects)
@@ -2977,10 +3008,14 @@ public partial class GameManager : MonoBehaviour
         if (IsGameOver) { DamageAfterDeathIgnored++; return DamageResult.Ignored; } // 死亡済み: 以後のダメージ/死亡要求は無視
         if (PresentationDamageLock) { FreezeDiagnostics.LogEvent($"[Damage] Ignored(PresentationDamageLock) reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); return DamageResult.Ignored; }
         if (!bypassInvincibleMode && InvincibleMode) return DamageResult.Ignored;
-        if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); return DamageResult.Ignored; }
+        // カードバランス v3: LAST CHANCE / PHOENIX / PERFECT GUARD の短い無敵(落下はそのまま通す)
+        if (CardInvincibleActive && reason != "Fall") { FreezeDiagnostics.LogEvent($"[Damage] Ignored(CardInvincible) reason={reason}"); return DamageResult.Ignored; }
+        if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); OnShieldBlocked(); return DamageResult.Ignored; }
 
         // ボス戦の強化(2026-10-01): 重い一撃は複数ハート。ただしハートが満タンの時に1発で倒れることはない。
         int dmg = Mathf.Max(1, amount);
+        // HEAVY ARMOR(v3): 強い一撃(ハート2つ以上)をハート1つ軽くする
+        if (dmg > CombatScale.PlayerHit && Card.Get(EffectType.HeavyArmorLevel) > 0f) { dmg = Mathf.Max(CombatScale.PlayerHit, dmg - CombatScale.HpPerHeart); HeavyArmorSaves++; }
         // 満タンからの強い一撃(ハート2つ分以上)だけでは倒れない(旧: ハート1つ残す。新: 通常の一撃ぶん=ハート1つ残す)
         if (dmg > CombatScale.PlayerHit && Lives >= maxLives && dmg >= Lives) dmg = Mathf.Max(CombatScale.PlayerHit, Lives - CombatScale.PlayerHit);
         FreezeDiagnostics.LogEvent($"[Damage] Hit reason={reason} amount={dmg} pos=({dmgPos.x:F2},{dmgPos.y:F2}) livesBefore={Lives} timeScale={Time.timeScale:F2}");
@@ -2988,6 +3023,13 @@ public partial class GameManager : MonoBehaviour
         heartDamageFlashTimer = heartDamageFlashDuration;
         // マルチプレイPhase 2.5: HOST自身のHPの変化もHOSTの表(全員へ配る正解)へ即反映する。
         if (NetCombat.Authority) NetMatch.HostLocalHpChanged(reason);
+        if (Lives <= 0 && TryPhoenix(reason))
+        {
+            // PHOENIX(v3): 倒れる被弾を取り消して復活(落下なら通常の被弾と同じく足場へ戻る)
+            if (NetCombat.Authority) NetMatch.HostLocalHpChanged(reason);
+            SaveInterruptState();
+            return DamageResult.Hit;
+        }
         if (Lives <= 0)
         {
             // マルチプレイPhase 3: CO-OP=ダウン / VERSUS=脱落 はRunを終えずにNetMatchが扱う。
@@ -3018,6 +3060,7 @@ public partial class GameManager : MonoBehaviour
             FinishRun();
             return DamageResult.GameOver;
         }
+        AfterPlayerDamaged(); // LAST CHANCE / SECOND WIND(v3)
         // Item 11 - HP is the single most important piece of "強制終了に
         // よる逃げ対策" state; saved the instant it actually changes; not
         // gated on !IsGameOver since a fatal hit already returned above.
@@ -3034,7 +3077,8 @@ public partial class GameManager : MonoBehaviour
         if (IsGameOver) return false;
         if (PresentationDamageLock) { FreezeDiagnostics.LogEvent($"[Damage] Ignored(PresentationDamageLock) reason={reason} (net claim)"); return false; }
         if (!bypassInvincibleMode && InvincibleMode) return false;
-        if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} (net claim)"); return false; }
+        if (CardInvincibleActive && reason != "Fall") return false;
+        if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} (net claim)"); OnShieldBlocked(); return false; }
         return true;
     }
 
@@ -3165,10 +3209,10 @@ public partial class GameManager : MonoBehaviour
     // Kills no longer restore HP directly on their own (see the HEART UP /
     // VAMPIRE cards instead) - they grant EXP toward the next level-up, and
     // (with VAMPIRE) a chance to proc a small heal.
-    public void RegisterEnemyKill(int mileReward = 1)
+    public void RegisterEnemyKill(int mileReward = 1, float expMul = 1f)
     {
         EnemyKillCount++;
-        GainExp(enemyKillExp);
+        GainExp(enemyKillExp * KillExpScale * Mathf.Max(0f, expMul)); // v3: 精鋭は EXP×2
         TryLifesteal();
         // Card Expansion/Gacha Evolution Ver.1 - Tough/Fast/Elite Enemies,
         // Treasure Hunter, Mob Killer, Executioner, Hell Mode, etc.
@@ -3182,7 +3226,8 @@ public partial class GameManager : MonoBehaviour
     public int AddRunBonusMile(int amount)
     {
         if (amount <= 0 || IsGameOver) return 0;
-        int add = Mathf.Max(0, Mathf.RoundToInt(amount * MileGainMultiplier));
+        // カード v3: TREASURE HUNTER は宝・報酬(BONUS ZONE の宝運びゴブリン/黄金スライム/ミミック/CLEAR/PERFECT、WANTED の賞金)を増やす
+        int add = Mathf.Max(0, Mathf.RoundToInt(amount * MileGainMultiplier * Mathf.Max(0f, 1f + Card.Get(EffectType.TreasureMilePct))));
         RunBonusMile += add;
         return add;
     }
@@ -3192,6 +3237,7 @@ public partial class GameManager : MonoBehaviour
     {
         if (amount <= 0f || IsGameOver) return 0f;
         if (levelUpPending && !NetMatch.Active) return 0f;
+        amount *= KillExpScale;
         float applied = amount * expGainMultiplier;
         GainExp(amount);
         return applied;
@@ -3207,7 +3253,7 @@ public partial class GameManager : MonoBehaviour
     public void RegisterBossDefeat(int mileReward = 50)
     {
         BossKillCount++;
-        GainExp(bossKillExp);
+        GainExp(bossKillExp * KillExpScale);
         TryLifesteal();
         // Card Expansion/Gacha Evolution Ver.1 - Boss Challenge/Rush, One
         // More Mile, Pandemonium, etc.
@@ -3219,10 +3265,17 @@ public partial class GameManager : MonoBehaviour
         SaveInterruptState();
     }
 
-    void TryLifesteal()
+    void TryLifesteal() => TryLifesteal(1f);
+
+    // v3: 吸収の確率(VAMPIRE/PREDATOR、HP25%以下の BLOOD RUSH)で、ハート1つ(+OVERHEAL)を回復
+    public static int LifestealProcs;
+    public void TryLifesteal(float chanceScale)
     {
-        if (lifestealChance <= 0f || lifestealAmount <= 0f) return;
-        if (Random.value < lifestealChance) AddLife(Mathf.RoundToInt(lifestealAmount));
+        float chance = lifestealChance;
+        if (maxLives > 0 && Lives <= maxLives * 0.25f) chance += Card.Get(EffectType.LowHp25LifestealChance);
+        chance = Mathf.Min(CardRules.LifestealChanceCap, chance) * chanceScale;
+        if (chance <= 0f) return;
+        if (Random.value < chance) { LifestealProcs++; CardHeal(HealHearts(CardRules.BaseHealHearts) * CombatScale.HpPerHeart); }
     }
 
     // 10〜12人目(2026-09-28) - 吸血鬼の吸血回復用の公開入口(回復量と頻度の上限は吸血鬼側で管理)。
@@ -3313,7 +3366,7 @@ public partial class GameManager : MonoBehaviour
         // Item 1/16 - FINISH (via Win()) awards the FULL RunMile; GAME OVER
         // (this method also runs for that path) LOSES it entirely instead -
         // "そのRunで獲得した未確定MILEは全て失います".
-        RunDistanceMile = Mathf.FloorToInt(Mathf.Max(MaxDistance, HighestReachedDistance) / 100f);
+        RunDistanceMile = Mathf.FloorToInt(Mathf.Max(MaxDistance, HighestReachedDistance) / 100f * Mathf.Max(0f, 1f + Card.Get(EffectType.DistanceMilePct)));
         if (IsWin) AddMile(RunMile);
 
         // Item 15/16 - Active Run/Checkpoint is invalidated on EITHER end
@@ -3404,6 +3457,7 @@ public partial class GameManager : MonoBehaviour
         if (BossManager.Instance != null) BossManager.Instance.ExportPool(data); // ボスの再戦プール(2026-10-02)
         data.upgradeHistoryCardIds = new List<string>();
         foreach (CardDefinition card in upgradeHistory) data.upgradeHistoryCardIds.Add(card.cardId);
+        ExportCardRunState(data); // カードバランス v3
     }
 
     // Item 9 - "RETURN TO HOME" - NOT a FINISH: Run MILE stays unconfirmed,
@@ -3511,7 +3565,9 @@ public partial class GameManager : MonoBehaviour
         // full - deliberately AFTER the replay above, which otherwise
         // leaves Lives at the reconstructed maxLives (each MaxHp card's own
         // "heals to new cap" side effect).
-        maxLives = data.maxLives > 0 ? data.maxLives : maxLives;
+        RestoreCardRunState(data); // カードバランス v3: PHOENIX の消費 / SECOND WIND のクールダウン / LAST CHANCE
+        // v3: 最大HPは取得のやり直しで決まる(成長 − 封印)。保存した最大HPは、カードが1枚も無い古い保存の互換のためにだけ使う
+        if (data.maxLives > 0 && cardOrder.Count == 0) maxLives = data.maxLives;
         Lives = Mathf.Clamp(data.lives, 1, maxLives);
 
         // Item 7 - resumes exactly where the Boss schedule was at.
@@ -4330,7 +4386,10 @@ public partial class GameManager : MonoBehaviour
         // 2026-10-02: HPは10倍スケール。数値(今/最大)を見出しの右に出す
         GUIStyle numStyle = new GUIStyle(labelStyle) { alignment = TextAnchor.UpperRight };
         numStyle.normal.textColor = new Color(1f, 0.85f, 0.88f, 0.95f);
-        GUI.Label(new Rect(rect.x + 12f, rect.y + 4f, rect.width - 22f, 18f), $"{Lives} / {maxLives}", numStyle);
+        // カードバランス v3: 封印したハート(HP犠牲)と Shield の数も出す
+        var pcHud = PlayerController.Instance;
+        string extra = (SealedHearts > 0 ? $"  封印{SealedHearts}" : "") + (pcHud != null && (pcHud.ShieldCapacity > 0 || pcHud.ShieldCharges > 0) ? $"  盾{pcHud.ShieldCharges}" : "");
+        GUI.Label(new Rect(rect.x + 12f, rect.y + 4f, rect.width - 22f, 18f), $"{Lives} / {maxLives}{extra}", numStyle);
 
         float flash = heartDamageFlashDuration > 0f ? Mathf.Clamp01(heartDamageFlashTimer / heartDamageFlashDuration) : 0f;
         float pulse = 1f - flash * 0.08f;
@@ -4368,6 +4427,18 @@ public partial class GameManager : MonoBehaviour
         }
         float glyphH = heartStyle.CalcSize(new GUIContent("♥")).y;
         heartStyle.clipping = TextClipping.Overflow; // ♡は♥より幅が広い字形があるので、四角の外へはみ出しても切らない
+        // v3: 封印したハートは、並びの右に暗い色で(入りきる時だけ)
+        if (SealedHearts > 0 && slotsMax <= 10)
+        {
+            var sealStyle = new GUIStyle(heartStyle);
+            sealStyle.normal.textColor = new Color(0.35f, 0.3f, 0.4f, 0.9f);
+            for (int k = 0; k < SealedHearts; k++)
+            {
+                float gx = hr.x + (slots + k) * (glyphW + gap);
+                if (gx + glyphW > hr.xMax + 2f) break;
+                GUI.Label(new Rect(gx, hr.y, glyphW * 1.6f, glyphH), "♥", sealStyle);
+            }
+        }
         for (int i = 0; i < slots; i++)
         {
             Rect g = new Rect(hr.x + i * (glyphW + gap), hr.y, glyphW, glyphH);
@@ -4544,7 +4615,7 @@ public partial class GameManager : MonoBehaviour
         return v != null ? Mathf.Clamp(v.level, 1, MaxRunCardLevel) : 1;
     }
     // 2026-10-03: 主能力のLvがまだ9未満なら候補に出せる(合成カードは能力ごとに空きの分だけ効く。GameManager.CardCap.cs)
-    public bool CanStillPick(CardDefinition c) => c != null && GetCurrentRunStack(c.cardId) < MaxRunCardLevel;
+    public bool CanStillPick(CardDefinition c) => c != null && GetCurrentRunStack(c.cardId) < MaxRunCardLevel && SacrificeAllowsNextLevel(c.cardId);
     public int MaxedCardSkips { get; private set; } // Lv9のカードが選ばれて効果を重ねなかった回数(確認用)
 
     // カードのラン中Lv = そのカードの主能力を、このランで(キャラカード枠/取得/合成のどの表記からでも)何回分適用したか。

@@ -15,13 +15,24 @@ MonoBehaviour:
   cardId: thunder_strike
   cardName: THUNDER STRIKE
   icon: {fileID: 2800000, guid: 734a0d0d6191b9b4a9993858bc19898c, type: 3}
-  description: "\u653B\u6483\u306B\u96F7\u5C5E\u6027\u3092\u4ED8\u4E0E\u3057\u3001\u5A01\u529B\u304C\u4E0A\u304C\u308B\uFF08\u5C5E\u6027\u52B9\u679C\u306F\u4ECA\u5F8C\u62E1\u5F35\u4E88\u5B9A\uFF09"
+  description: "\u96F7\u306E\u5165\u53E3\u3002\u547D\u4E2D\u3067\u843D\u96F7\u304C\u8D77\u304D\u308B(\u78BA\u7387
+    5%+2%/Lv\u3001\u5A01\u529B 7.5+1.5/Lv\u3002\u540C\u3058\u6575\u3078\u306F0.4\u79D2\u306B1\u56DE\u307E\u3067)"
   category: 1
   sortOrder: 132
   recommendPriority: 5
   effects:
-  - type: 1
-    value: 20
+  - type: 32
+    value: 0.02
+    scaling: 0
+  - type: 32
+    value: 0.03
+    scaling: 1
+  - type: 33
+    value: 1.5
+    scaling: 0
+  - type: 33
+    value: 6
+    scaling: 1
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

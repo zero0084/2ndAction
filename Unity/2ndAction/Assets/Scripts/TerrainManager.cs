@@ -1984,6 +1984,7 @@ public class TerrainManager : MonoBehaviour
         if (enemyGO == null) return null;
         var ec = enemyGO.GetComponent<EnemyController>();
         if (ec != null) ec.movementType = movementType;
+        ChallengeSystem.OnEncounterEnemySpawned(ec); // カード v3: ELITE ENEMIES
         GroundFactory.ApplyAttackSprite(enemyGO, def);
         if (!airborne) enemyGO.transform.rotation = Quaternion.identity;
         AdoptEnemy(enemyGO, pos.x);

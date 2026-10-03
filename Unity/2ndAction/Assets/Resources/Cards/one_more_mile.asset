@@ -15,17 +15,20 @@ MonoBehaviour:
   cardId: one_more_mile
   cardName: ONE MORE MILE
   icon: {fileID: 2800000, guid: f9698f17026d58344aa8bb4e69518c59, type: 3}
-  description: "MILE\u7372\u5F97\u91CF\u3068\u7D4C\u9A13\u5024\u7372\u5F97\u91CF\u304C\u307E\u3068\u3081\u3066\u5927\u304D\u304F\u4E0A\u304C\u308B"
+  description: "MILE(1Lv\u3054\u3068\u306B+50%)\u30FB\u30DC\u30B9MILE(+50%)\u30FB\u7D4C\u9A13\u5024(+20%)\u304C\u5897\u3048\u308B"
   category: 5
   sortOrder: 163
   recommendPriority: 5
   effects:
   - type: 22
     value: 0.5
+    scaling: 0
   - type: 23
     value: 0.5
+    scaling: 0
   - type: 9
     value: 0.2
+    scaling: 0
   rarity: 5
   unlockDistance: 100000
   gachaStage: 5

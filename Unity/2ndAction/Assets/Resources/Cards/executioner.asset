@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: executioner
   cardName: EXECUTIONER
   icon: {fileID: 2800000, guid: 8461a75df636e264b9ad63541776deb2, type: 3}
-  description: "\u6575\u6483\u7834\u3067\u5F97\u3089\u308C\u308BMILE\u304C\u5897\u52A0\u3059\u308B"
+  description: "\u6575\u6483\u7834\u3067\u5F97\u3089\u308C\u308BMILE\u304C\u5897\u3048\u308B(1Lv\u3054\u3068\u306B+15%)"
   category: 6
   sortOrder: 103
   recommendPriority: 5
   effects:
   - type: 22
     value: 0.15
+    scaling: 0
   rarity: 2
   unlockDistance: 0
   gachaStage: 1

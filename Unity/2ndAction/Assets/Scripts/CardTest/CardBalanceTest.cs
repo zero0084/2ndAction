@@ -176,7 +176,7 @@ public partial class CardBalanceTest : MonoBehaviour
         if (p == pJump) return pc.jumpForce;
         if (p == pJumps) return pc.maxJumps;
         if (p == pAttack) return pc.AttackPower;
-        if (p == pAtkTime) return pc.AttackSpeedMultiplier;
+        if (p == pAtkTime) return pc.AttackSpeedStored; // v3: HP/OVERDRIVE で変わる分は含めない
         if (p == pRange) return pc.AttackRangeMultiplier;
         if (p == pHp) return gm.maxLives;
         if (p == pShield) return pc.ShieldCharges;
@@ -312,46 +312,15 @@ public partial class CardBalanceTest : MonoBehaviour
         lastAction = $"RESET: {def.displayName} の基準値へ(カード/テストの補正なし)";
     }
 
-    // 実際のカードをLv(=重ねた枚数)で掛けた時の値を、テストの値として入れる(先にRESETして基準から)
+    // 実際のカードを Lv で掛ける(先に RESET して基準から)。v3: ゲームのカード適用処理そのまま(テストの層には入れない)
     public void ApplyCardLevel(CardDefinition card, int lv)
     {
         var def = CurrentDef();
-        if (card == null || def == null) return;
+        var gm = GameManager.Instance;
+        if (card == null || def == null || gm == null) return;
         ResetToBase();
-        var unsupported = new List<string>();
-        float speed = 1f, jump = 1f, atkTime = 1f, exp = 1f, mile = 1f;
-        float rangeAdd = 0f; int jumps = 0, attack = 0, hp = 0, shield = 0;
-        bool uSpeed = false, uJump = false, uJumps = false, uAttack = false, uAtk = false, uRange = false, uHp = false, uShield = false, uExp = false, uMile = false;
-        foreach (var e in card.effects)
-        {
-            float v = e.value;
-            switch (e.type)
-            {
-                case EffectType.MoveSpeed: speed *= Mathf.Pow(1f + v, lv); uSpeed = true; break;
-                case EffectType.JumpPower: jump *= Mathf.Pow(1f + v, lv); uJump = true; break;
-                case EffectType.JumpCount: jumps += Mathf.RoundToInt(v) * lv; uJumps = true; break;
-                case EffectType.AttackPower: attack += Mathf.RoundToInt(v) * lv; uAttack = true; break;
-                case EffectType.MaxHp: hp += Mathf.RoundToInt(v) * lv; uHp = true; break;
-                case EffectType.AttackRange: rangeAdd += v * lv; uRange = true; break;
-                case EffectType.AttackSpeed: atkTime *= Mathf.Pow(1f - v, lv); uAtk = true; break;
-                case EffectType.Shield: shield += Mathf.RoundToInt(v) * lv; uShield = true; break;
-                case EffectType.ExpGain: exp += v * lv; uExp = true; break;
-                case EffectType.MileGainMultiplier: mile += v * lv; uMile = true; break;
-                default: unsupported.Add($"{e.type} {(v >= 0 ? "+" : "")}{v * lv:0.##}"); break;
-            }
-        }
-        // カードの実装と同じ上限/下限: 範囲は足し算(下限0.1)、攻撃時間は合計で下限0.25
-        if (uSpeed) SetValue("speed", speed);
-        if (uJump) SetValue("jump", jump);
-        if (uJumps) SetValue("jumps", jumps);
-        if (uAttack) SetValue("attack", attack);
-        if (uAtk) SetValue("atktime", Mathf.Max(0.25f, def.attackSpeedMultiplier * atkTime) / def.attackSpeedMultiplier);
-        if (uRange) SetValue("range", Mathf.Max(0.1f, def.attackRangeMultiplier + rangeAdd) / def.attackRangeMultiplier);
-        if (uHp) SetValue("hp", hp);
-        if (uShield) SetValue("shield", shield);
-        if (uExp) SetValue("exp", exp);
-        if (uMile) SetValue("mile", mile);
-        cardNote = $"{card.cardName} Lv{lv}" + (unsupported.Count > 0 ? $"  このパネル対象外の効果: {string.Join(", ", unsupported)}" : "");
+        gm.ApplyCardEffectsStacked(card, lv);
+        cardNote = $"{card.cardName} Lv{lv}(カードの処理そのまま。値は「ビルド」タブで見られる)";
         lastAction = $"カード {card.cardName} Lv{lv} を基準値に適用";
     }
 
@@ -561,7 +530,7 @@ public partial class CardBalanceTest : MonoBehaviour
                 cx += 64f;
             }
             y += rowH + gap;
-            GUI.Label(new Rect(x, y, W - 16f, rowH), "1回分: " + string.Join(", ", c.effects.Select(e => $"{e.type} {(e.value >= 0 ? "+" : "")}{e.value:0.##}")), sSmall);
+            GUI.Label(new Rect(x, y, W - 16f, rowH), c.description, sSmall);
             y += rowH + gap;
             GUI.Label(new Rect(x, y, W - 16f, rowH), string.IsNullOrEmpty(cardNote) ? "Lvを押すと RESET してから、そのカードをLv枚重ねた値を「操作系/ステータス」へ入れる" : "適用中: " + cardNote, sSmall);
             y += rowH + gap;

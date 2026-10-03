@@ -396,12 +396,15 @@ public partial class EnemySpecialBehavior : MonoBehaviour
     // 属性(2026-10-03): 氷を受けた敵は行動(移動/予備動作/攻撃の間隔)の時間がゆっくり進む。Freeze中は0=止まる。
     // この敵の行動はすべてこの時間で進む(WaitForSecondsは使っていない)ので、止まっている間は新しい攻撃も始まらない。
     ElementStatus elementStatus;
-    float EDt => Time.deltaTime * (elementStatus != null ? elementStatus.TimeScale : 1f);
+    // カード v3: FAST ENEMIES / HELL MODE / PANDEMONIUM で雑魚の行動が速くなる。精鋭はさらに少し速い
+    float EDt => Time.deltaTime * (elementStatus != null ? elementStatus.TimeScale : 1f) * ChallengeSystem.EnemyActionScale * (enemyCtl != null && enemyCtl.IsElite ? ChallengeSystem.EliteActionMul : 1f);
+    EnemyController enemyCtl;
 
     void Update()
     {
         if (player == null) return;
         if (elementStatus == null) elementStatus = GetComponent<ElementStatus>();
+        if (enemyCtl == null) enemyCtl = GetComponent<EnemyController>();
 
         // Safety - a Chaser/Rusher that somehow ended up hopelessly behind
         // the auto-scrolling player is despawned rather than left running

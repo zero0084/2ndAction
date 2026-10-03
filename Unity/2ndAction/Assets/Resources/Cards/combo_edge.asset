@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: combo_edge
   cardName: COMBO EDGE
   icon: {fileID: 2800000, guid: bccf9ee8a8e98ca4fb4942d27fe30140, type: 3}
-  description: "\u30B3\u30F3\u30DC\u6700\u7D42\u6BB5\u306E\u5A01\u529B\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B"
+  description: "\u9023\u7D9A\u30D2\u30C3\u30C8(HIT\u6570)\u304C\u7D9A\u304F\u307B\u3069\u653B\u6483\u529B\u304C\u4E0A\u304C\u308B(1\u30D2\u30C3\u30C8\u3054\u3068\u306B+0.4%/Lv\u300110\u30D2\u30C3\u30C8\u307E\u3067)"
   category: 1
   sortOrder: 110
   recommendPriority: 5
   effects:
-  - type: 14
-    value: 30
+  - type: 68
+    value: 0.004
+    scaling: 0
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

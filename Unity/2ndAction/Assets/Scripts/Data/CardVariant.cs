@@ -216,7 +216,56 @@ public sealed class CardVariant
             case EffectType.BleedDuration: return "出血の時間";
             case EffectType.BleedLifesteal: return "出血の吸収";
             case EffectType.BloodLowHpBonus: return "瀕死時の出血強化";
-            default: return type.ToString();
+            // カードバランス v3(2026-10-03)
+            case EffectType.SpeedPct: return "移動速度";
+            case EffectType.AttackPct: return "攻撃力";
+            case EffectType.JumpPct: return "ジャンプ力";
+            case EffectType.AttackSpeedPct: return "攻撃速度";
+            case EffectType.MainAttackSpeedPct: return "主攻撃の攻撃速度";
+            case EffectType.RangePct: return "実効攻撃範囲";
+            case EffectType.MaxHpHearts: return "最大HP(ハート)";
+            case EffectType.SacrificeHearts: return "封印するハート";
+            case EffectType.AirPct: return "空中攻撃";
+            case EffectType.GroundPct: return "地上攻撃";
+            case EffectType.FirstPct: return "初撃";
+            case EffectType.ComboPct: return "連撃中";
+            case EffectType.FinisherPct: return "締め";
+            case EffectType.BossPct: return "ボスへの攻撃";
+            case EffectType.MobPct: return "雑魚への攻撃";
+            case EffectType.AntiAirPct: return "空中の敵への攻撃";
+            case EffectType.DownPct: return "下攻撃/叩きつけ";
+            case EffectType.FullHpPct: return "満HPの攻撃";
+            case EffectType.LowHp50Pct: return "HP50%以下の攻撃";
+            case EffectType.LowHp25Pct: return "HP25%以下の攻撃";
+            case EffectType.LowHpAttackSpeedPct: return "低HPの攻撃速度";
+            case EffectType.LowHp25LifestealChance: return "HP25%以下の吸収確率";
+            case EffectType.SealedHeartPct: return "封印1つごとの攻撃";
+            case EffectType.ComboEdgePct: return "1ヒットごとの攻撃";
+            case EffectType.AirDominionPct: return "空中で当てた回数ごとの攻撃";
+            case EffectType.MomentumPct: return "150km/hでの攻撃";
+            case EffectType.OverdrivePct: return "OVERDRIVE中の攻撃";
+            case EffectType.OverdriveAttackSpeedPct: return "OVERDRIVE中の攻撃速度";
+            case EffectType.ShieldCapacity: return "Shieldの最大数";
+            case EffectType.ShieldRecharge: return "Shieldの回復(秒短縮)";
+            case EffectType.HealBonusHearts: return "回復量(ハート)";
+            case EffectType.DoubleAttackChance: return "追加攻撃の確率";
+            case EffectType.HurtInvincibleSeconds: return "被弾後の無敵(秒)";
+            case EffectType.HurtKnockbackReduce: return "のけぞりの軽減";
+            case EffectType.EnemyActionPct: return "敵の行動の速さ";
+            case EffectType.EliteChance: return "精鋭の確率";
+            case EffectType.TreasureMilePct: return "宝・報酬のMILE";
+            case EffectType.DistanceMilePct: return "距離のMILE";
+            case EffectType.DistanceExpPct: return "距離のEXP";
+            case EffectType.KillExpPct: return "撃破のEXP";
+            case EffectType.BurnPowerPct: return "炎上の威力";
+            case EffectType.FreezeThresholdReduce: return "凍結までの回数";
+            case EffectType.LightningDamagePct: return "雷の威力";
+            case EffectType.LightningShock: return "落雷の停止(秒)";
+            case EffectType.LightningSplash: return "落雷の範囲(m)";
+            case EffectType.WindSpeedPct: return "風刃の速さ";
+            default:
+                if (CardEffectFormat.IsBehaviorLevel(type)) return "効果Lv";
+                return type.ToString();
         }
     }
 }

@@ -15,15 +15,17 @@ MonoBehaviour:
   cardId: monster_rush
   cardName: MONSTER RUSH
   icon: {fileID: 2800000, guid: 84bc6c1a037c4c74a8a908257070e3a2, type: 3}
-  description: "\u6575\u306E\u51FA\u73FE\u983B\u5EA6\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B\u4EE3\u308F\u308A\u306B\u3001\u7D4C\u9A13\u5024\u304C\u5897\u52A0\u3059\u308B"
+  description: "\u6575\u306E\u51FA\u73FE\u304C\u5897\u3048\u308B(1Lv\u3054\u3068\u306B+10%)\u4EE3\u308F\u308A\u306B\u3001\u7D4C\u9A13\u5024\u304C\u5897\u3048\u308B(+15%/Lv)"
   category: 6
   sortOrder: 125
-  recommendPriority: 5
+  recommendPriority: 2
   effects:
   - type: 12
-    value: 0.25
+    value: 0.1
+    scaling: 0
   - type: 9
     value: 0.15
+    scaling: 0
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

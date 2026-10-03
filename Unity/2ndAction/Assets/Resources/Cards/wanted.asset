@@ -15,13 +15,17 @@ MonoBehaviour:
   cardId: wanted
   cardName: WANTED
   icon: {fileID: 2800000, guid: 8966f161c52168a45a2250c6bff671aa, type: 3}
-  description: "\u8FFD\u8DE1\u8005\u30FB\u6025\u8972\u8005\u304C\u51FA\u3084\u3059\u304F\u306A\u308B\u4EE3\u308F\u308A\u306B\u3001\u6575\u6483\u7834MILE\u304C\u5897\u52A0\u3059\u308B"
+  description: "\u4E00\u5B9A\u8DDD\u96E2\u3054\u3068\u306B\u8CDE\u91D1\u9996\u304C\u73FE\u308C\u308B(Lv\u3067\u5F37\u304F\u30FB\u983B\u7E41\u306B)\u3002\u5012\u305B\u3070\u8CDE\u91D1\u3001\u901A\u308A\u904E\u304E\u308C\u3070\u9003\u3052\u5207\u308A\u3002MILE\u304C\u5897\u3048\u308B(+35%/Lv)"
   category: 6
   sortOrder: 160
-  recommendPriority: 5
+  recommendPriority: 2
   effects:
   - type: 22
     value: 0.35
+    scaling: 0
+  - type: 103
+    value: 1
+    scaling: 0
   rarity: 4
   unlockDistance: 50000
   gachaStage: 4

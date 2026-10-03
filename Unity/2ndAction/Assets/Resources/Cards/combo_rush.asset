@@ -15,15 +15,17 @@ MonoBehaviour:
   cardId: combo_rush
   cardName: COMBO RUSH
   icon: {fileID: 2800000, guid: 835d27c525c7de545b60b34776b041af, type: 3}
-  description: "\u653B\u6483\u306E\u30C6\u30F3\u30DD\u304C\u4E0A\u304C\u308A\u3001\u30B3\u30F3\u30DC\u6700\u7D42\u6BB5\u306E\u5A01\u529B\u3082\u4E0A\u304C\u308B"
+  description: "\u9023\u6483\u306E\u9014\u4E2D\u306E\u653B\u6483\u304C\u5F37\u304F\u306A\u308A(1Lv\u3054\u3068\u306B+6%)\u3001\u4E3B\u653B\u6483\u306E\u653B\u6483\u901F\u5EA6\u3082\u5C11\u3057\u4E0A\u304C\u308B(+2%/Lv)"
   category: 1
   sortOrder: 170
   recommendPriority: 5
   effects:
-  - type: 6
-    value: 0.15
-  - type: 14
-    value: 20
+  - type: 56
+    value: 0.06
+    scaling: 0
+  - type: 49
+    value: 0.02
+    scaling: 0
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

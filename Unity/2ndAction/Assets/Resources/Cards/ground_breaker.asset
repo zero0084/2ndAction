@@ -15,13 +15,17 @@ MonoBehaviour:
   cardId: ground_breaker
   cardName: GROUND BREAKER
   icon: {fileID: 2800000, guid: 8d825c773e933ae4c94cb2e05dfff640, type: 3}
-  description: "\u5730\u4E0A\u3067\u306E\u653B\u6483\u529B\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B"
+  description: "\u53E9\u304D\u3064\u3051\u306E\u7740\u5730\u3068\u5730\u4E0A\u306E\u7DE0\u3081\u3067\u3001\u5730\u9762\u3092\u8D70\u308B\u885D\u6483\u6CE2\u304C\u51FA\u308B(Lv\u3067\u5A01\u529B\u3068\u9577\u3055\u304C\u4E0A\u304C\u308B)\u3002\u5730\u4E0A\u653B\u6483\u3082\u5C11\u3057\u4E0A\u304C\u308B(+2%/Lv)"
   category: 1
   sortOrder: 168
   recommendPriority: 5
   effects:
-  - type: 13
-    value: 40
+  - type: 93
+    value: 1
+    scaling: 0
+  - type: 54
+    value: 0.02
+    scaling: 0
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

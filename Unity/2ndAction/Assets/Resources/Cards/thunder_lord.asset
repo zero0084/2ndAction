@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: thunder_lord
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: thunder_lord
+  cardName: THUNDER LORD
+  icon: {fileID: 2800000, guid: d3ca6e0da5936044b9bbc9f25556d216, type: 3}
+  description: "\u96F7\u306E\u4E0A\u4F4D\u3002\u5A01\u529B(1Lv\u3054\u3068\u306B+4%)\u30FB\u9023\u9396(3Lv\u3054\u3068\u306B+1\u4F53)\u30FB\u843D\u96F7\u306E\u307E\u308F\u308A\u3078\u306E\u7BC4\u56F2\u304C\u5F37\u304F\u306A\u308B"
+  category: 1
+  sortOrder: 180
+  recommendPriority: 5
+  effects:
+  - type: 112
+    value: 0.04
+    scaling: 0
+  - type: 34
+    value: 1
+    scaling: 2
+  - type: 114
+    value: 0.08
+    scaling: 0
+  - type: 114
+    value: 0.8
+    scaling: 1
+  - type: 32
+    value: 0.005
+    scaling: 0
+  - type: 32
+    value: 0.03
+    scaling: 1
+  - type: 33
+    value: 2
+    scaling: 1
+  rarity: 4
+  unlockDistance: 20000
+  gachaStage: 3
+  element: 1

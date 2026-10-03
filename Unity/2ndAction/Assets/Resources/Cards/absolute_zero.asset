@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c509ae012e7314ca0850f4420bc2d8, type: 3}
+  m_Name: absolute_zero
+  m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
+  cardId: absolute_zero
+  cardName: ABSOLUTE ZERO
+  icon: {fileID: 2800000, guid: b6a0b1c77698f0b489adabc83507dcb8, type: 3}
+  description: "\u51CD\u7D50\u3057\u305F\u96D1\u9B5A\u304C\u7815\u3051\u3066\u30C0\u30E1\u30FC\u30B8\u3001\u51B7\u3048\u305F/\u51CD\u3063\u305F\u6575\u3078\u306E\u653B\u6483\u304C\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+3%)\u3002\u30DC\u30B9\u306F\u51CD\u7D50\u306E\u4EE3\u308F\u308A\u306E\u6E1B\u901F\u304C\u5F37\u304F\u306A\u308B"
+  category: 1
+  sortOrder: 178
+  recommendPriority: 5
+  effects:
+  - type: 111
+    value: 1
+    scaling: 0
+  - type: 31
+    value: 0.05
+    scaling: 0
+  - type: 27
+    value: 0.05
+    scaling: 1
+  - type: 28
+    value: 0.2
+    scaling: 1
+  rarity: 4
+  unlockDistance: 20000
+  gachaStage: 3
+  element: 3

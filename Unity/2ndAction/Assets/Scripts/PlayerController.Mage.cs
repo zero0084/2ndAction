@@ -46,6 +46,7 @@ public partial class PlayerController
         float target = baseY + p.hoverBase + mageLevel * p.altitudeStep + bob;
         // 高速時は地形の変化に早く追従する(走る速さに比例して滑らかさを短く。基本速度付近は従来どおり)
         float smooth = p.altitudeSmoothTime * Mathf.Clamp(1f / Mathf.Max(1f, CurrentAutoRunSpeed / Mathf.Max(0.1f, baseRunSpeed * 1.5f)), 0.25f, 1f);
+        smooth /= MageAltitudeSpeedScale; // カードバランス v3: JUMP POWER 系 = 高度の上下が速くなる
         float newY = Mathf.SmoothDamp(prevY, target, ref mageVelY, Mathf.Max(0.01f, smooth), Mathf.Infinity, Mathf.Max(0.0001f, dt));
         // 上り坂で地面に潜らない(足元は常に地面より上)。
         if (surf.HasValue && newY < surf.Value + groundOffset) { newY = surf.Value + groundOffset; if (mageVelY < 0f) mageVelY = 0f; }
@@ -84,7 +85,7 @@ public partial class PlayerController
         switch (f)
         {
             case FlickDirection.Up:
-                if (mageLevel < p.maxAltitudeLevel) { mageLevel++; MageAltitudeChanges++; }
+                if (mageLevel < p.maxAltitudeLevel + MageExtraAltitudeLevels) { mageLevel++; MageAltitudeChanges++; } // v3: JUMP COUNT UP = 上がれる段+
                 if (canUseUpAttack && attackCooldownTimer <= 0f && !isAttacking) MageCastUp();
                 break;
             case FlickDirection.Down:

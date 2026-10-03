@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: speed_up
   cardName: SPEED UP
   icon: {fileID: 2800000, guid: bd6b5761172117e408875f0a44ae0b21, type: 3}
-  description: "\u79FB\u52D5\u901F\u5EA6\u304C\u4E0A\u6607\u3059\u308B"
+  description: "\u79FB\u52D5\u901F\u5EA6\u304C\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+3%)"
   category: 0
   sortOrder: 1
   recommendPriority: 5
   effects:
-  - type: 0
-    value: 0.12
+  - type: 45
+    value: 0.03
+    scaling: 0
   rarity: 1
   unlockDistance: 0
   gachaStage: 1

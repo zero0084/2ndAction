@@ -30,6 +30,7 @@ public class KitProjectile : MonoBehaviour
     public float wobbleAmp, wobbleFreq;
 
     public int HitCount { get; private set; }
+    public static int PierceThrough; // 確認用: 敵を貫いた回数(カード v3)
     Transform visual;
     float age;
     bool done;
@@ -38,6 +39,8 @@ public class KitProjectile : MonoBehaviour
     void Start()
     {
         int add = GameManager.Instance != null ? GameManager.Instance.Elements.WindPierce : 0;
+        // カード v3: PIERCING BLADE(飛び道具は貫通の回数。同じ弾が同じ相手へ2回当たることはない: 敵側の SwingId / ボスの AlreadyHit)
+        if (GameManager.Instance != null && !(GetComponent<PlayerAttackInfo>() is PlayerAttackInfo pi && pi.elementProc)) add += Mathf.CeilToInt(GameManager.Instance.Card.Get(EffectType.PierceLevel) / 3f - 0.001f); // 3Lvごとに+1
         if (add > 0 && pierce >= 0) pierce += add;
     }
 
@@ -94,7 +97,7 @@ public class KitProjectile : MonoBehaviour
         if (boss && bossHitStop > 0f && PlayerController.Instance != null) PlayerController.Instance.StartCoroutine(HitStop.Freeze(bossHitStop));
         if (blast.radius > 0f) { Finish(other.ClosestPoint(transform.position), true); return; }
         if (pierce == 0) { Finish(transform.position, false); return; }
-        if (pierce > 0) pierce--;
+        if (pierce > 0) { pierce--; PierceThrough++; }
     }
 
     void Finish(Vector3 at, bool explode)

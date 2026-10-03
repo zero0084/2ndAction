@@ -652,6 +652,8 @@ public class DeckEditUI : MonoBehaviour
                 // the detail panel already updated above.
             }
             Refresh();
+            // カードバランス v3: 能力の Lv9 上限で装備しなかった/超える分が効かない時は、理由を詳細に出す
+            if (!string.IsNullOrEmpty(gm.LastEquipMessage) && detailText != null) detailText.text += "\n\n" + gm.LastEquipMessage;
             return;
         }
 

@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: hunter
   cardName: HUNTER
   icon: {fileID: 2800000, guid: ead850b2c9a5bc24686dcb476986aba8, type: 3}
-  description: "\u30DC\u30B9\u3078\u306E\u653B\u6483\u529B\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B"
+  description: "\u30DC\u30B9\u6226\u3067\u52D5\u304D\u3084\u3059\u304F\u306A\u308B\u3002\u653B\u6483\u306E\u524D\u9032/\u5F8C\u9000\u304C\u4F38\u3073(1Lv\u3054\u3068\u306B+4%)\u3001\u9060\u3044\u30DC\u30B9\u3078\u8FD1\u3065\u304F\u901F\u3055\u3082\u4E0A\u304C\u308B(+3%/Lv)"
   category: 1
   sortOrder: 174
   recommendPriority: 5
   effects:
-  - type: 19
-    value: 40
+  - type: 95
+    value: 1
+    scaling: 0
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

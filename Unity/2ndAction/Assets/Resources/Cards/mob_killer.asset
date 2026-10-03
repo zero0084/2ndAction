@@ -15,15 +15,17 @@ MonoBehaviour:
   cardId: mob_killer
   cardName: MOB KILLER
   icon: {fileID: 2800000, guid: fe97bb9a181010644b53dc7659296478, type: 3}
-  description: "\u653B\u6483\u529B\u304C\u4E0A\u304C\u308A\u3001\u6575\u6483\u7834MILE\u3082\u5C11\u3057\u5897\u52A0\u3059\u308B"
+  description: "\u30DC\u30B9\u4EE5\u5916\u306E\u6575\u3078\u306E\u653B\u6483(1Lv\u3054\u3068\u306B+5%)\u3068\u3001\u6575\u6483\u7834\u306EMILE(1Lv\u3054\u3068\u306B+10%)\u304C\u4E0A\u304C\u308B"
   category: 1
   sortOrder: 106
   recommendPriority: 5
   effects:
-  - type: 1
-    value: 10
+  - type: 59
+    value: 0.05
+    scaling: 0
   - type: 22
     value: 0.1
+    scaling: 0
   rarity: 2
   unlockDistance: 0
   gachaStage: 1

@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: double_attack
   cardName: DOUBLE ATTACK
   icon: {fileID: 2800000, guid: 25d51f5e339426644a324115c16f6f48, type: 3}
-  description: "\u653B\u6483\u306E\u30C6\u30F3\u30DD\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B"
+  description: "\u653B\u6483\u3057\u305F\u3068\u304D\u3001\u78BA\u7387(1Lv\u3054\u3068\u306B+3%)\u3067\u8FFD\u52A0\u306E1\u6483\u304C\u51FA\u308B\u3002\u8FFD\u52A0\u306E1\u6483\u304B\u3089\u306F\u51FA\u306A\u3044"
   category: 1
   sortOrder: 134
   recommendPriority: 5
   effects:
-  - type: 6
-    value: 0.25
+  - type: 87
+    value: 0.03
+    scaling: 0
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: rapid_edge
   cardName: RAPID EDGE
   icon: {fileID: 2800000, guid: b81e653ad2548ce43aedb0fbdbcf244b, type: 3}
-  description: "\u653B\u6483\u30C6\u30F3\u30DD\u304C\u4E0A\u304C\u308B"
+  description: "\u4E3B\u653B\u6483(\u524D/\u5F8C)\u306E\u653B\u6483\u901F\u5EA6\u304C\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+5%)\u3002\u4E0A/\u4E0B/\u53E9\u304D\u3064\u3051/\u5927\u6280\u306B\u306F\u639B\u304B\u3089\u306A\u3044"
   category: 1
   sortOrder: 137
   recommendPriority: 5
   effects:
-  - type: 6
-    value: 0.2
+  - type: 49
+    value: 0.05
+    scaling: 0
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

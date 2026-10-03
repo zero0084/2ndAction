@@ -71,28 +71,28 @@ public partial class QaSweep
         yield return BeginRun("swordsman", "wasteland_road");
         TimeControl.Pause(this);
         var atkCard = CardDatabase.FindBaseById("attack_up");
-        float per = atkCard.effects.First(e => e.type == EffectType.AttackPower).value;
+        float per = atkCard.effects.First(e => e.type == EffectType.AttackPct).value; // v3: 攻撃力は割合(1Lvごとに+5%)
         var spdCard = CardDatabase.FindBaseById("speed_up");
 
         // A1: 3枠に ATTACK UP x9 の合成(レア度だけ違う3つのキー)。以前は27回分 → 9回分で止まる
         ResetRunCardsForTest();
-        int atk0 = pc.AttackPower;
+        float atk0 = pc.CardAttackFactor;
         SetSlots(("v2|attack_up|9|1|attack_up*9", 9), ("v2|attack_up|9|2|attack_up*9", 9), ("v2|attack_up|9|3|attack_up*9", 9));
-        int a1 = pc.AttackPower;
-        Check(Mathf.Abs(a1 - (atk0 + per * 9)) < 0.5f, $"A1: three fused ATTACK UP x9 in the character slots give Lv9 only ({atk0} -> {a1}, expected +{per * 9})");
+        float a1 = pc.CardAttackFactor;
+        Check(Mathf.Abs(a1 - (atk0 + per * 9)) < 0.001f, $"A1: three fused ATTACK UP x9 in the character slots give Lv9 only ({atk0} -> {a1}, expected +{per * 9})");
         Check(gm.GetCurrentRunStack("attack_up") == 9 && !gm.CanStillPick(atkCard), $"A1: ATTACK UP is Lv{gm.GetCurrentRunStack("attack_up")} and no longer offered");
         int disc1 = gm.CardCapDiscardedStacks;
         Check(disc1 == 18, $"A1: 18 stacks were not applied ({disc1})");
         // 取得してもこれ以上は効かない(素のID/合成のどちらでも)
         Pick("attack_up"); Pick("v2|attack_up|5|4|attack_up*5");
-        Check(pc.AttackPower == a1, $"A1: picking more ATTACK UP (plain / fused) changes nothing ({pc.AttackPower})");
+        Check(Mathf.Approximately(pc.CardAttackFactor, a1), $"A1: picking more ATTACK UP (plain / fused) changes nothing ({pc.CardAttackFactor:F3})");
 
         // A2: 素のLv9 + 能力の混ざった合成。上限に届いた能力だけ止まり、ほかの能力は効く
         ResetRunCardsForTest();
         float spd0 = pc.runSpeed;
         SetSlots(("attack_up", 9), ("v2|attack_up|9|3|attack_up*5/speed_up*4", 9));
-        Check(Mathf.Abs(pc.AttackPower - (atk0 + per * 9)) < 0.5f, $"A2: plain Lv9 + fused (attack x5, speed x4): attack stays at Lv9 ({pc.AttackPower})");
-        Check(gm.GetAbilityRunStack("speed_up") == 4 && pc.runSpeed > spd0 * 1.3f, $"A2: the other ability in the fused card still applies (speed Lv{gm.GetAbilityRunStack("speed_up")}, runSpeed {spd0:0.00}->{pc.runSpeed:0.00})");
+        Check(Mathf.Abs(pc.CardAttackFactor - (atk0 + per * 9)) < 0.001f, $"A2: plain Lv9 + fused (attack x5, speed x4): attack stays at Lv9 ({pc.CardAttackFactor:F3})");
+        Check(gm.GetAbilityRunStack("speed_up") == 4 && pc.runSpeed > spd0 * 1.1f, $"A2: the other ability in the fused card still applies (speed Lv{gm.GetAbilityRunStack("speed_up")}, runSpeed {spd0:0.00}->{pc.runSpeed:0.00})");
         // SPEED UP は残り5まで取れる → 6回目からは効かない
         int picked = 0; float sBefore = pc.runSpeed;
         while (gm.CanStillPick(spdCard) && picked < 20) { Pick("speed_up"); picked++; }
@@ -103,7 +103,7 @@ public partial class QaSweep
         // A3: 同じ素のIDを2枠(Lv9+Lv9)。合計で9
         ResetRunCardsForTest();
         SetSlots(("attack_up", 9), ("attack_up", 9));
-        Check(Mathf.Abs(pc.AttackPower - (atk0 + per * 9)) < 0.5f && gm.GetCurrentRunStack("attack_up") == 9, $"A3: the same card in two slots (Lv9+Lv9) gives Lv9 ({pc.AttackPower})");
+        Check(Mathf.Abs(pc.CardAttackFactor - (atk0 + per * 9)) < 0.001f && gm.GetCurrentRunStack("attack_up") == 9, $"A3: the same card in two slots (Lv9+Lv9) gives Lv9 ({pc.CardAttackFactor:F3})");
 
         // A4: 旧形式の複合ID("a+b")も能力に分解して数える
         var ab = GameManager.AbilitiesOf("attack_up+speed_up");
@@ -152,11 +152,11 @@ public partial class QaSweep
         gm.ApplyCardEffectsStacked(c20, 1);
         Check(Mathf.Abs(pc.CurrentRunKmh - 150f) < 0.6f, $"B: then +20% = {pc.CurrentRunKmh:0.0} km/h");
         Check(Mathf.Abs(f125 - 0.75f) < 0.01f && Mathf.Abs(pc.SpeedFactor01(50f, 150f) - 1f) < 0.001f, $"B: normalized factor 50..150 km/h: 125 -> {f125:0.00}, 150 -> {pc.SpeedFactor01(50f, 150f):0.00}");
-        // MOMENTUM の値は変えていない(既定は従来の距離の式)
+        // v3: MOMENTUM は実際の速さ(100km/h 以下は0、150km/h で最大)
         var mom = CardDatabase.FindBaseById("momentum");
         gm.ApplyCardEffectsStacked(mom, 1);
-        int expect = Mathf.RoundToInt(pc.MomentumBonus * Mathf.Max(0f, pc.NaturalMultiplierAt(pc.DistanceFromStart) - 1f));
-        Check(!PlayerController.MomentumUsesCurrentSpeed && Mathf.RoundToInt(pc.MomentumBonus * pc.MomentumSpeedTerm) == expect, $"B: MOMENTUM still uses the old distance formula (+{expect}, unchanged); by current speed it would be +{Mathf.RoundToInt(pc.MomentumBonus * pc.MomentumSpeedTermByCurrentSpeed)}");
+        float mf = PlayerController.MomentumFactor(pc.CurrentRunKmh);
+        Check(Mathf.Abs(mf - 1f) < 0.02f && PlayerController.MomentumFactor(100f) == 0f, $"B: MOMENTUM uses the current speed (150 km/h -> factor {mf:0.00}, 100 km/h -> 0)");
         ResetRunCardsForTest();
         TimeControl.Resume(this);
         yield return EndRun();

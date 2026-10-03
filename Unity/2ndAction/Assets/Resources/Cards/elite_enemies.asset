@@ -15,15 +15,17 @@ MonoBehaviour:
   cardId: elite_enemies
   cardName: ELITE ENEMIES
   icon: {fileID: 2800000, guid: 72c25eb9fe5a5004b9bdbe5a65425eb0, type: 3}
-  description: "\u96D1\u9B5A\u6575\u306EHP\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B\u4EE3\u308F\u308A\u306B\u3001\u7D4C\u9A13\u5024/MILE\u304C\u5927\u304D\u304F\u5897\u52A0\u3059\u308B"
+  description: "\u96D1\u9B5A\u306E\u4E00\u90E8\u304C\u7CBE\u92ED\u306B\u306A\u308B(1Lv\u3054\u3068\u306B+4%\u3002HP\xD72.5\u30FB\u5C11\u3057\u901F\u3044\u3001\u5012\u3059\u3068MILE\xD73/\u7D4C\u9A13\u5024\xD72)\u3002MILE\u3082\u5897\u3048\u308B(+30%/Lv)"
   category: 6
   sortOrder: 126
-  recommendPriority: 5
+  recommendPriority: 2
   effects:
-  - type: 20
-    value: 0.5
+  - type: 101
+    value: 0.04
+    scaling: 0
   - type: 22
     value: 0.3
+    scaling: 0
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

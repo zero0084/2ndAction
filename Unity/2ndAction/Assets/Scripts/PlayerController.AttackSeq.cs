@@ -20,7 +20,7 @@ public enum AttackSeqTag : byte { None, First, Combo, Finisher }
 public partial class PlayerController
 {
     public const int SingleAttackSequenceLength = 3;
-    public const float SingleAttackSequenceReset = 1.2f;
+    // 窓の秒数は CardRules.SingleAttackSequenceReset(調整可、既定1.2秒)。攻撃の速さに合わせて伸び縮みする(SequenceResetWindow)
 
     AttackSeqTag currentSeqTag;
     int singleSeqCount;
@@ -37,12 +37,28 @@ public partial class PlayerController
     {
         currentSeqTag = tag;
         currentSeqMoveId = tag != AttackSeqTag.None ? ++seqMoveCounter : 0;
-        if (tag != AttackSeqTag.None) SeqTagged++;
+        if (tag != AttackSeqTag.None) { SeqTagged++; OnMainAttackPress(tag); } // カードバランス v3: 主攻撃の1押し
     }
 
     // One bonus per press per enemy: a volley (several ofuda/shuriken) or a box that touches the same enemy twice
     // does not stack the First/Finisher bonus on that enemy.
     readonly System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<Component>> seqBonusGiven = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.HashSet<Component>>();
+    // v3: 初撃/連撃中/締めの条件(割合)。1押し・1体につき1回だけ
+    public float ConsumeSeqPct(AttackSeqTag tag, int moveId, Component victim)
+    {
+        if (tag == AttackSeqTag.None || moveId == 0 || victim == null) return 0f;
+        if (!seqBonusGiven.TryGetValue(moveId, out var set))
+        {
+            if (seqBonusGiven.Count > 32) seqBonusGiven.Clear();
+            set = new System.Collections.Generic.HashSet<Component>();
+            seqBonusGiven[moveId] = set;
+        }
+        if (!set.Add(victim)) return 0f;
+        SeqBonusFlatPending = SeqBonus(tag); // 旧形式の固定値(v3 のカードでは0)
+        return SeqPct(tag);
+    }
+    public int SeqBonusFlatPending { get; set; }
+
     public int ConsumeSeqBonus(AttackSeqTag tag, int moveId, Component victim)
     {
         if (tag == AttackSeqTag.None || moveId == 0 || victim == null) return 0;
@@ -66,7 +82,7 @@ public partial class PlayerController
 
     AttackSeqTag NextSingleTag()
     {
-        if (Time.time - singleSeqLast > SingleAttackSequenceReset || singleSeqCount >= SingleAttackSequenceLength) singleSeqCount = 0;
+        if (Time.time - singleSeqLast > SequenceResetWindow || singleSeqCount >= SingleAttackSequenceLength) singleSeqCount = 0;
         singleSeqCount++;
         singleSeqLast = Time.time;
         if (singleSeqCount == 1) return AttackSeqTag.First;

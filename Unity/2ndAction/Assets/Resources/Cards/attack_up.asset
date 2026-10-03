@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: attack_up
   cardName: ATTACK UP
   icon: {fileID: 2800000, guid: 65577e3189e00674e8366c4372cbd88e, type: 3}
-  description: "\u653B\u6483\u529B\u304C\u4E0A\u6607\u3059\u308B"
+  description: "\u653B\u6483\u529B\u304C\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+5%)"
   category: 1
   sortOrder: 3
   recommendPriority: 5
   effects:
-  - type: 1
-    value: 10
+  - type: 46
+    value: 0.05
+    scaling: 0
   rarity: 1
   unlockDistance: 0
   gachaStage: 1

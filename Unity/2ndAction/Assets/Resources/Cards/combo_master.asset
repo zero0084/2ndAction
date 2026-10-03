@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: combo_master
   cardName: COMBO MASTER
   icon: {fileID: 2800000, guid: 6f82d33c71078734cbd82f9d71d59798, type: 3}
-  description: "\u30B3\u30F3\u30DC\u6700\u7D42\u6BB5\u306E\u5A01\u529B\u304C\u5927\u5E45\u306B\u4E0A\u304C\u308B"
+  description: "\u7DE0\u3081\u306E\u4E00\u6483\u3067\u3001\u524D\u65B9\u3078\u7279\u6B8A\u306A\u885D\u6483\u304C\u51FA\u308B(Lv\u3067\u5A01\u529B\u3068\u7BC4\u56F2\u304C\u4E0A\u304C\u308B)"
   category: 1
   sortOrder: 147
   recommendPriority: 5
   effects:
-  - type: 14
-    value: 50
+  - type: 94
+    value: 1
+    scaling: 0
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

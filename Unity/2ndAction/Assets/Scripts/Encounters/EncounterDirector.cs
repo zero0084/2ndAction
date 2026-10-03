@@ -947,6 +947,7 @@ public class EncounterDirector : MonoBehaviour
 
     bool Spawn(TerrainManager tm, PlayerController pc, EncounterDistanceBand band, EncounterFormation f, EncounterIntensity intensity, TerrainProbe probe, float runDistance, float speed)
     {
+        if (ChallengeSystem.SpawnHeldByCap()) return false; // カード v3: 生きている雑魚が多すぎる時は後回し(Android の負荷)
         var plan = PlanSlots(tm, band, f, intensity, probe, speed, EncounterRoute.Main);
         if (plan == null || plan.Count == 0) return false;
         float anchor = probe.AnchorX;
@@ -1421,6 +1422,7 @@ public class EncounterDirector : MonoBehaviour
     int debugEnemy, debugTier = 1;
     static bool debugAiLabels;
 
+    public List<string> StageEnemyIds() => AllEnemyIds(); // カード v3: WANTED の賞金首(このステージの Encounter に出る敵)
     List<string> AllEnemyIds()
     {
         var ids = new List<string>();

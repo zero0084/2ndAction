@@ -15,15 +15,14 @@ MonoBehaviour:
   cardId: chain_explosion
   cardName: CHAIN EXPLOSION
   icon: {fileID: 2800000, guid: 445d1b5ad0378d544b1c5528a3c23908, type: 3}
-  description: "\u653B\u6483\u306E\u9593\u5408\u3044\u304C\u5E83\u304C\u308A\u3001\u30B3\u30F3\u30DC\u6700\u7D42\u6BB5\u306E\u5A01\u529B\u3082\u4E0A\u304C\u308B"
+  description: "\u6575\u3092\u5012\u3059\u3068\u7206\u767A\u3059\u308B\u3002\u7206\u767A\u3067\u5012\u308C\u305F\u6575\u304B\u3089\u3082\u7206\u767A\u304C\u7D9A\u304F(3\u56DE\u307E\u3067\u3001\u540C\u3058\u9023\u9396\u3067\u540C\u3058\u6575\u3078\u306F1\u56DE)"
   category: 1
   sortOrder: 131
   recommendPriority: 5
   effects:
-  - type: 5
-    value: 0.3
-  - type: 14
-    value: 20
+  - type: 90
+    value: 1
+    scaling: 0
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

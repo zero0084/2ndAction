@@ -70,6 +70,11 @@ public static class RunCheckpoint
         // without needing to separately serialize every individual derived
         // PlayerController field.
         public List<string> upgradeHistoryCardIds = new List<string>();
+        // カードバランス v3(2026-10-03): 取得のやり直しだけでは戻せない状態(古いデータは既定値=未使用)
+        public int phoenixConsumed;
+        public int phoenixResetHistoryIndex = -1;
+        public float secondWindReadyDistance;
+        public bool lastChanceSpent;
     }
 
     static Data cached;

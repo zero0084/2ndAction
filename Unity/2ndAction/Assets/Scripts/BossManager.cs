@@ -1178,7 +1178,7 @@ public partial class BossManager : MonoBehaviour
         {
             if (!ResolveSkyGate(gateK, out SkyBossKind skyKind, out int skyCount)) { IsBossPhase = false; return; }
             int sk = (int)skyKind; DecideEncounter(GateFamily.Sky, ref sk, ref skyCount); skyKind = (SkyBossKind)sk; // 再戦の抽選(2026-10-02)
-            StartSkyGate(skyKind, skyCount);
+            StartSkyGate(skyKind, skyCount + BossRushExtra());
             return;
         }
 
@@ -1186,13 +1186,27 @@ public partial class BossManager : MonoBehaviour
         {
             if (!ResolveCaveGate(gateK, out CaveBossKind caveKind, out int caveCount)) { IsBossPhase = false; return; }
             int ck = (int)caveKind; DecideEncounter(GateFamily.Cave, ref ck, ref caveCount); caveKind = (CaveBossKind)ck; // 再戦の抽選(2026-10-02)
-            StartCaveGate(caveKind, caveCount);
+            StartCaveGate(caveKind, caveCount + BossRushExtra());
             return;
         }
 
         if (!ResolveGate(gateK, out WildBossKind gateKind, out int gateCount)) { IsBossPhase = false; return; }
         int wk = (int)gateKind; DecideEncounter(GateFamily.Wild, ref wk, ref gateCount); gateKind = (WildBossKind)wk; // 再戦の抽選(2026-10-02)
-        StartWildGate(gateKind, gateCount);
+        StartWildGate(gateKind, gateCount + BossRushExtra());
+    }
+
+    // カードバランス v3(2026-10-03): BOSS RUSH - 関門ごとに確率(8%/Lv)でボスがもう1体加わる(追加の Boss Encounter)。
+    // 10km の専用ボスとボスラッシュ(ラストダンジョン)の関門には足さない。HOST/シングルが決める(敵の出現と同じ)。
+    public static int BossRushExtras;
+    int BossRushExtra()
+    {
+        var gm = GameManager.Instance;
+        if (gm == null || gateK % 10 == 0 || RushGateK != 0) return 0;
+        float ch = Mathf.Clamp01(0.08f * gm.Card.Get(EffectType.BossRushLevel));
+        if (ch <= 0f || Random.value >= ch) return 0;
+        BossRushExtras++;
+        BossBattleHud.Banner("BOSS RUSH! もう1体", new Color(1f, 0.5f, 0.35f), 1.4f);
+        return 1;
     }
 
     void StartSkyGate(SkyBossKind skyKind, int skyCount)

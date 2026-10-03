@@ -440,7 +440,7 @@ public partial class PlayerController : MonoBehaviour
     //   melee:       AttackRangeMultiplier grows the attack boxes (unchanged, as before)
     //   projectiles: RangeBonusFactor (= the card part only: current / the character's own base) multiplies the
     //                projectile's lifetime = travel distance, never its size. Off until the card values are decided.
-    public static bool RangeAffectsProjectiles = false;
+    public static bool RangeAffectsProjectiles = true; // カードバランス v3(2026-10-03): ATTACK RANGE UP / LONG BLADE を飛び道具の射程にも
     float baseAttackRangeMultiplier = 1f;
     public float RangeBonusFactor => AttackRangeMultiplier / Mathf.Max(0.1f, baseAttackRangeMultiplier);
     public static float ProjectileTravelFactor => RangeAffectsProjectiles && Instance != null ? Mathf.Max(0.1f, Instance.RangeBonusFactor) : 1f;
@@ -450,8 +450,11 @@ public partial class PlayerController : MonoBehaviour
     // tempo speeds up without changing the relative timing of the combo
     // window inside it. Stacks multiplicatively (diminishing returns) and
     // is floored so it can never reach zero/negative duration.
-    public float AttackSpeedMultiplier { get; private set; } = 1f;
-    public void AddAttackSpeedBonus(float fractionFaster) => AttackSpeedMultiplier = Mathf.Max(0.25f, AttackSpeedMultiplier * (1f - fractionFaster));
+    // カードバランス v3(2026-10-03): キャラ×カード(固定の分)は attackSpeedStored、HP/OVERDRIVE で変わる分は読む時に掛ける
+    float attackSpeedStored = 1f;
+    public float AttackSpeedMultiplier { get => attackSpeedStored * CardDynamicDurationFactor; private set => attackSpeedStored = value; }
+    public float AttackSpeedStored => attackSpeedStored;
+    public void AddAttackSpeedBonus(float fractionFaster) => attackSpeedStored = Mathf.Max(0.25f, attackSpeedStored * (1f - fractionFaster));
 
     // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - Enemy側の
     // groundKnockbackSpeedBonus(EnemyController.ApplyGroundKnockback)へ
@@ -497,6 +500,9 @@ public partial class PlayerController : MonoBehaviour
     public void ApplyCharacterBaseStats(CharacterDefinition def)
     {
         if (def == null) return;
+        ResetCardFactors(); // カードバランス v3: キャラの基本値を入れ直すので、カードの反映は1から
+        baseJumpCount = Mathf.Max(1, def.jumpCount);
+        charBaseAttackSpeed = Mathf.Max(0.05f, def.attackSpeedMultiplier);
         AttackPower = def.attackPower;
         AttackRangeMultiplier = def.attackRangeMultiplier;
         baseAttackRangeMultiplier = Mathf.Max(0.1f, def.attackRangeMultiplier);
@@ -591,8 +597,9 @@ public partial class PlayerController : MonoBehaviour
     {
         get
         {
+            // カードバランス v3(2026-10-03): 基礎 × (1 + 無条件 A) × (1 + 今の状態の条件 C)。相手/技の条件は命中時(PlayerAttackInfo.ScaleDamage)
+            // 下の旧形式の固定値ボーナス(空中/地上/満HP/瀕死/加速)は v3 のカードでは0(古いアセット/開発用の互換)
             int power = AttackPower + (!isGrounded ? AirAttackPowerBonus : GroundAttackPowerBonus);
-            // First / Finisher bonuses: added per attack from its tag (PlayerController.AttackSeq.cs / PlayerAttackInfo.ScaleDamage)
 
             GameManager gm = GameManager.Instance;
             if (gm != null && gm.maxLives > 0)
@@ -609,6 +616,7 @@ public partial class PlayerController : MonoBehaviour
             }
 
             power += Mathf.RoundToInt(MomentumBonus * MomentumSpeedTerm);
+            power = Mathf.RoundToInt(power * CardAttackFactor * CardRules.CondMultiplier(CardStateCondition()));
             // 竜騎士(2026-09-26) - 後ろ攻撃(石突き)だけ威力を下げる。他キャラは常に1倍。
             if (isLancerCharacter && lanceDamageScale != 1f) power = Mathf.Max(1, Mathf.RoundToInt(power * lanceDamageScale));
             // 2026-10-02: 0以下にしない(空中攻撃-のカード等で負になると、ボスは1以上の下限が無いため逆に回復していた)
@@ -618,6 +626,7 @@ public partial class PlayerController : MonoBehaviour
 
     // "Boss Killer" - Dragon/Majin/Mechanical Dragon damage calculations
     // use this instead of EffectiveAttackPower.
+    // v3: ボス特効(BOSS KILLER)は命中時の条件(PlayerAttackInfo.ScaleDamage)。旧形式の固定値だけここで足す
     public int EffectiveBossAttackPower => Mathf.Max(1, EffectiveAttackPower + BossDamageBonus);
 
     // 2026-10-02: ボスへの「基本の1発」の見積り(地上・初撃/締めなし・今のHPと速度・ボス特効・技の倍率1)。
@@ -634,8 +643,20 @@ public partial class PlayerController : MonoBehaviour
                 else power += Mathf.RoundToInt(LowHpAttackBonus * (1f - (float)gm.Lives / gm.maxLives));
             }
             power += Mathf.RoundToInt(MomentumBonus * MomentumSpeedTerm);
-            return Mathf.Max(1, power + BossDamageBonus);
+            power += BossDamageBonus;
+            // v3: 地上・今の状態 + ボス特効
+            float cs = CardGroundStateCondition();
+            return Mathf.Max(1, Mathf.RoundToInt(power * CardAttackFactor * CardRules.CondMultiplier(cs + CT(EffectType.BossPct))));
         }
+    }
+    // 見積り用: 地上として数えた今の状態の条件
+    float CardGroundStateCondition()
+    {
+        bool g = isGrounded;
+        isGrounded = true;
+        float c = CardStateCondition();
+        isGrounded = g;
+        return c;
     }
     public int BossHitComboAverage
     {
@@ -643,7 +664,12 @@ public partial class PlayerController : MonoBehaviour
         {
             // AttackSeq: one First and one Finisher per sequence (single-attack characters: a 3-attack sequence)
             int chain = maxComboChain > 1 ? maxComboChain : SingleAttackSequenceLength;
-            return Mathf.RoundToInt(BossHitEstimate + (FirstHitBonus + ComboFinalStageBonus) / (float)chain);
+            // v3: 初撃/連撃中/締めは条件の枠(1シーケンスに初撃1・締め1、残りは連撃中)
+            float cs = CardGroundStateCondition() + CT(EffectType.BossPct);
+            float baseMul = CardRules.CondMultiplier(cs);
+            float avg = (CardRules.CondMultiplier(cs + CT(EffectType.FirstPct)) + CardRules.CondMultiplier(cs + CT(EffectType.FinisherPct))
+                + Mathf.Max(0, chain - 2) * CardRules.CondMultiplier(cs + CT(EffectType.ComboPct))) / Mathf.Max(2, chain);
+            return Mathf.RoundToInt(BossHitEstimate * avg / Mathf.Max(0.01f, baseMul) + (FirstHitBonus + ComboFinalStageBonus) / (float)chain);
         }
     }
 
@@ -1023,6 +1049,7 @@ public partial class PlayerController : MonoBehaviour
         {
             hitInvincibleTimer = Mathf.Max(0f, hitInvincibleTimer - Time.deltaTime);
         }
+        CardTick(Time.deltaTime); // カードバランス v3(Shield の回復 / OVERDRIVE など)
         // 表示の安全装置(2026-09-26、竜騎士Sprite消失対策) - 絵を意図的に消すのは被弾後の無敵点滅
         // (hitInvincibleTimer中)と死亡時だけ。それ以外でSpriteRendererが無効のまま残っていたら
         // (点滅の途中で処理が打ち切られた等)必ず表示へ戻す。
@@ -1235,7 +1262,8 @@ public partial class PlayerController : MonoBehaviour
         float knockbackFrac = knockbackDuration > 0f ? knockbackTimer / knockbackDuration : 0f;
         float effectiveKnockback = knockbackVelocityX * knockbackFrac;
         // ボス戦(2026-10-01): 攻撃の前進/後退を大きくする(ボスが離れているほど前進を伸ばす。近いと伸ばしすぎない)
-        lungeScaleNow = Mathf.Approximately(lungeVelocityX, 0f) ? 1f : BossBattle.LungeScale(lungeVelocityX, transform.position.x);
+        lungeScaleNow = Mathf.Approximately(lungeVelocityX, 0f) ? 1f : BossBattle.LungeScale(lungeVelocityX, transform.position.x) * CardHunterLungeScale;
+        autoSpeed *= CardAutoSpeedScale * CardHunterApproachScale(transform.position.x); // v3: BRAKE ATTACK / HUNTER
         float newX = transform.position.x + (autoSpeed + lungeVelocityX * lungeScaleNow + effectiveKnockback) * dt;
         float prevX = transform.position.x;
         // 2026-10-03: 踏み込みは、当てた敵の体の手前で止める(長い踏み込みのお嬢様騎士などが、当てた後もそのまま体へ入り込み
@@ -1796,13 +1824,14 @@ public partial class PlayerController : MonoBehaviour
             : (charRecoveryInvincible > 0f ? charRecoveryInvincible : recoveryInvincibleDuration);
         reactionTotal = Mathf.Max(0.05f, dur);
         reactionTimer = reactionTotal;
+        if (kind == ReactionKind.Hurt) inv += CardHurtInvincibleBonus; // v3: CLOSE CALL
         // 無敵はリアクション中から効かせる(Hurt終了直後に接触中の敵から二重に被弾しない)。
         hitInvincibleTimer = Mathf.Max(hitInvincibleTimer, reactionTotal + inv);
         velocityY = 0f;
         lungeVelocityX = 0f;
         moveSlowTimer = 0f;
         if (kind == ReactionKind.Hurt && damageKnockbackEnabled)
-            ApplyKnockback(-hurtKnockbackSpeed * charHurtKnockbackMultiplier, reactionTotal);
+            ApplyKnockback(-hurtKnockbackSpeed * charHurtKnockbackMultiplier * CardHurtKnockbackScale, reactionTotal); // v3: FORTRESS
         else
             knockbackTimer = 0f; // Recoveryは復帰位置でその場停止(押し戻さない)
     }
@@ -2405,7 +2434,10 @@ public partial class PlayerController : MonoBehaviour
         // フレームのMove()内で「Move()のisHoverShooting分岐がvelocityYを
         // 再度落下速度へ上書きしてジャンプが無かったことになる」事故を防ぐ。
         if (isHoverShooting) { isHoverShooting = false; hoverGeneration++; }
-        velocityY = jumpForce;
+        // v3: JUMP COUNT UP で増えた空中ジャンプは、続けるほど少し弱く(穴に落ちている時は弱めない)
+        float jumpScale = CardJumpImpulseScale(jumpsUsed + 1);
+        if (jumpScale < 0.999f) JumpDecayed++;
+        velocityY = jumpForce * jumpScale;
         isGrounded = false;
         jumpsUsed++;
         if (jumpsUsed == 1)

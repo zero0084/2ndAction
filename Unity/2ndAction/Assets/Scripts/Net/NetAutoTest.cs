@@ -62,6 +62,7 @@ public partial class NetAutoTest : MonoBehaviour
     float hpAtTime = -1f; int hpAtValue;
     bool hpAtDone;
     int startHp = 0;
+    string cardsArg; bool cardsDone; // カードバランス v3
     bool startHpDone;
     bool killStarted, killDone;
     readonly System.Collections.Generic.List<float> killTimes = new System.Collections.Generic.List<float>();
@@ -222,6 +223,7 @@ public partial class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoRevive") autoRevive = true;
             else if (a == "-netAutoHpAt") { var parts = next.Split(':'); if (parts.Length == 2) { float.TryParse(parts[0], out hpAtTime); int.TryParse(parts[1], out hpAtValue); } damageTest = true; }
             else if (a == "-netAutoStartHp") { int.TryParse(next, out startHp); damageTest = true; }
+            else if (a == "-netAutoCards") cardsArg = next;
             else if (a == "-netAutoForceOutAt") float.TryParse(next, out forceOutAt);
             else if (a == "-netAutoQueueAt") float.TryParse(next, out queueAt);
             else if (a == "-netAutoLateChoiceAt") float.TryParse(next, out lateChoiceAt);
@@ -670,6 +672,18 @@ public partial class NetAutoTest : MonoBehaviour
         int local = NetCombat.LocalPlayerNumber;
         var me = NetMatch.Get(local);
 
+        // カードバランス v3: 開始時にカードを持たせる(-netAutoCards id:lv,id:lv)
+        if (!string.IsNullOrEmpty(cardsArg) && !cardsDone && runTime > 0.3f)
+        {
+            cardsDone = true;
+            foreach (var e in cardsArg.Split(','))
+            {
+                var kv = e.Split(':');
+                var c = CardDatabase.FindBaseById(kv[0]);
+                if (c != null) gm.ApplyCardEffectsStacked(c, kv.Length > 1 && int.TryParse(kv[1], out int lv) ? lv : 9);
+            }
+            L($"v3 cards applied: {cardsArg} (atk x{pc.CardAttackFactor:F2} kmhCap {GameManager.SpeedKmh(pc.runSpeed * pc.MaxSpeedRatio):F0} maxHp {gm.maxLives} sealed {gm.SealedHearts})");
+        }
         // 開始時のHP(被弾で早く倒れすぎないように)
         if (startHp > 0 && !startHpDone && runTime > 0.5f)
         {

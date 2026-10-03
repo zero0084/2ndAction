@@ -15,15 +15,17 @@ MonoBehaviour:
   cardId: long_haul
   cardName: LONG HAUL
   icon: {fileID: 2800000, guid: 559f048692312a2488da3ec10f174924, type: 3}
-  description: "\u7D4C\u9A13\u5024\u7372\u5F97\u91CF\u3068\u6700\u5927HP\u304C\u3068\u3082\u306B\u4E0A\u304C\u308B"
+  description: "\u7D4C\u9A13\u5024(1Lv\u3054\u3068\u306B+15%)\u3068\u6700\u5927HP(3Lv\u3054\u3068\u306B\u30CF\u30FC\u30C8+1)\u304C\u5897\u3048\u308B"
   category: 3
   sortOrder: 121
   recommendPriority: 5
   effects:
   - type: 9
     value: 0.15
-  - type: 4
-    value: 10
+    scaling: 0
+  - type: 51
+    value: 1
+    scaling: 2
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

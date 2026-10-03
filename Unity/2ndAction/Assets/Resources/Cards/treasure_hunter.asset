@@ -15,13 +15,21 @@ MonoBehaviour:
   cardId: treasure_hunter
   cardName: TREASURE HUNTER
   icon: {fileID: 2800000, guid: b614b8c75a8af7041a864a61301bcb9e, type: 3}
-  description: "\u6575\u6483\u7834\u3067\u5F97\u3089\u308C\u308BMILE\u304C\u5897\u52A0\u3059\u308B"
+  description: "\u5B9D\u30FB\u5831\u916C(BONUS ZONE \u306E\u5B9D\u904B\u3073\u30B4\u30D6\u30EA\u30F3/\u9EC4\u91D1\u30B9\u30E9\u30A4\u30E0/\u30DF\u30DF\u30C3\u30AF/CLEAR/PERFECT\u3001WANTED
+    \u306E\u8CDE\u91D1)\u306EMILE\u304C\u5897\u3048\u308B(1Lv\u3054\u3068\u306B+30%)\u3002\u30DC\u30B9\u3068\u8DDD\u96E2\u306EMILE\u3082\u5C11\u3057\u5897\u3048\u308B"
   category: 3
   sortOrder: 104
   recommendPriority: 5
   effects:
-  - type: 22
-    value: 0.2
+  - type: 104
+    value: 0.3
+    scaling: 0
+  - type: 23
+    value: 0.1
+    scaling: 0
+  - type: 105
+    value: 0.05
+    scaling: 0
   rarity: 2
   unlockDistance: 0
   gachaStage: 1

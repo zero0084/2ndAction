@@ -88,6 +88,7 @@ public partial class PlayerController
     public void NotifyAttackLanded(Component target, PlayerAttackInfo attack)
     {
         if (target != null && target is EnemyController) { lungeHitTarget = target; lungeHitTime = Time.time; }
+        OnCardAttackLanded(target, attack); // カードバランス v3(AIR DOMINION / SKY MASTER)
         if (target == null || contactGraceDuration <= 0f) return;
         if (attack != null && attack.suppressHitStop) return; // 結界/燃える地面のような細かい多段では付けない(置いておくだけで守られ続けないように)
         contactGraceUntil[GraceKey(target)] = Time.time + contactGraceDuration;
