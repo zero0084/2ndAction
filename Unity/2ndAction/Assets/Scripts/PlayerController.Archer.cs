@@ -59,6 +59,7 @@ public partial class PlayerController
         var p = kitDef.archer;
         int gen = attackGeneration;
         int token = BeginKitMove("draw", true);
+        SetSeqTag(NextSingleTag()); // main attack (single): First/Combo/Finisher by the 3-shot sequence (AttackSeq)
         try
         {
             int stage = ArcherChargeStage;
@@ -128,6 +129,7 @@ public partial class PlayerController
         var p = kitDef.archer;
         int gen = attackGeneration;
         int token = BeginKitMove("draw", true);
+        SetSeqTag(NextSingleTag()); // main attack (single): First/Combo/Finisher by the 3-shot sequence (AttackSeq)
         try
         {
             transform.localScale = new Vector3(-1f, 1f, 1f); // 振り向いて後ろへ

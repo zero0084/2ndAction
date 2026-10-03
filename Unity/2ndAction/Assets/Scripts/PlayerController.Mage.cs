@@ -113,6 +113,7 @@ public partial class PlayerController
         var p = kitDef.mage;
         int gen = attackGeneration;
         int token = BeginKitMove("cast", true);
+        SetSeqTag(NextSingleTag()); // main attack (single): the bolt carries the tag, the blast does not (AttackSeq)
         try
         {
             if (back) transform.localScale = new Vector3(-1f, 1f, 1f);
@@ -164,6 +165,7 @@ public partial class PlayerController
     // 上: 斜め上の雷撃(isAttackingを持たない一瞬のポーズ)。
     void MageCastUp()
     {
+        SetSeqTag(AttackSeqTag.None); // AttackSeq
         var p = kitDef.mage;
         attackCooldownTimer = p.boltCooldown * AttackSpeedMultiplier;
         float rad = p.upAngle * Mathf.Deg2Rad;
@@ -181,6 +183,7 @@ public partial class PlayerController
     // 下: 真下へ落ちる魔法(地面か敵で爆発)。
     void MageCastDown()
     {
+        SetSeqTag(AttackSeqTag.None); // AttackSeq
         var p = kitDef.mage;
         attackCooldownTimer = p.boltCooldown * AttackSpeedMultiplier;
         float rad = p.downAngle * Mathf.Deg2Rad;

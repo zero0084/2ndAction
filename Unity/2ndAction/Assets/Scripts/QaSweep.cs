@@ -59,6 +59,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaBossKill") { mode = "bosskill"; dir = a[i + 1]; }
             if (a[i] == "-qaResume") { mode = "resume"; dir = a[i + 1]; }
             if (a[i] == "-qaCardFix") { mode = "cardfix"; dir = a[i + 1]; }
+            if (a[i] == "-qaHitAudit") { mode = "hitaudit"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -131,6 +132,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "bosskill") yield return BossKillMode();
         else if (mode == "resume") yield return ResumeMode();
         else if (mode == "cardfix") yield return CardFixMode();
+        else if (mode == "hitaudit") yield return HitAuditMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

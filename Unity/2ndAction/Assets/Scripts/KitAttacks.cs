@@ -152,12 +152,15 @@ public class KitProjectile : MonoBehaviour
 
         var info = go.AddComponent<PlayerAttackInfo>();
         info.kind = kind;
+        // AttackSeq: a projectile keeps the tag of the move that fired it (blasts/zones stay untagged)
+        if (PlayerController.Instance != null) { info.seqTag = PlayerController.Instance.CurrentSeqTag; info.seqMoveId = PlayerController.Instance.CurrentSeqMoveId; }
         info.damageScale = damageScale;
         info.knockbackScale = knockbackScale;
         info.hitStop = hitStop;
 
         var p = go.AddComponent<KitProjectile>();
         p.velocity = velocity;
+        lifetime *= PlayerController.ProjectileTravelFactor; // Effective Attack Range: travel distance, not size (off by default)
         p.lifetime = lifetime;
         p.visual = vis.transform;
         return p;

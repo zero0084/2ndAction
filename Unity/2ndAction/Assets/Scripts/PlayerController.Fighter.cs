@@ -63,6 +63,7 @@ public partial class PlayerController
         {
             FighterComboStage = stage;
             comboCount = stage;
+            SetSeqTag(ChainTag(stage, maxComboChain)); // AttackSeq
             float s = AttackSpeedMultiplier;
             float windup = ArcherPick(p.comboWindup, stage - 1, 0.05f) * s;
             float active = ArcherPick(p.comboActive, stage - 1, 0.08f) * s;

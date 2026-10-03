@@ -112,6 +112,7 @@ public partial class PlayerController
         {
             dragonComboStage = stage;
             comboCount = stage;
+            SetSeqTag(ChainTag(stage, maxComboChain)); // AttackSeq
             float s = AttackSpeedMultiplier;
             float windup = ArcherPick(p.comboWindup, stage - 1, 0.1f) * s;
             float active = ArcherPick(p.comboActive, stage - 1, 0.1f) * s;

@@ -436,6 +436,15 @@ public partial class PlayerController : MonoBehaviour
     public float AttackRangeMultiplier { get; private set; } = 1f;
     public void AddAttackRangeBonus(float delta) => AttackRangeMultiplier = Mathf.Max(0.1f, AttackRangeMultiplier + delta);
 
+    // Effective Attack Range (2026-10-03, preparation for ATTACK RANGE UP; card values unchanged).
+    //   melee:       AttackRangeMultiplier grows the attack boxes (unchanged, as before)
+    //   projectiles: RangeBonusFactor (= the card part only: current / the character's own base) multiplies the
+    //                projectile's lifetime = travel distance, never its size. Off until the card values are decided.
+    public static bool RangeAffectsProjectiles = false;
+    float baseAttackRangeMultiplier = 1f;
+    public float RangeBonusFactor => AttackRangeMultiplier / Mathf.Max(0.1f, baseAttackRangeMultiplier);
+    public static float ProjectileTravelFactor => RangeAffectsProjectiles && Instance != null ? Mathf.Max(0.1f, Instance.RangeBonusFactor) : 1f;
+
     // Grown by "ATTACK SPEED UP" - shrinks both attackActiveTime and
     // attackCooldown by the same factor (see DoAttack), so the whole combo
     // tempo speeds up without changing the relative timing of the combo
@@ -490,6 +499,7 @@ public partial class PlayerController : MonoBehaviour
         if (def == null) return;
         AttackPower = def.attackPower;
         AttackRangeMultiplier = def.attackRangeMultiplier;
+        baseAttackRangeMultiplier = Mathf.Max(0.1f, def.attackRangeMultiplier);
         AttackSpeedMultiplier = def.attackSpeedMultiplier;
         KnockbackPowerMultiplier = def.knockbackPowerMultiplier;
         maxComboChain = Mathf.Max(1, def.attackComboCount);
@@ -582,8 +592,7 @@ public partial class PlayerController : MonoBehaviour
         get
         {
             int power = AttackPower + (!isGrounded ? AirAttackPowerBonus : GroundAttackPowerBonus);
-            if (comboCount == 1) power += FirstHitBonus;
-            if (comboCount >= maxComboChain) power += ComboFinalStageBonus;
+            // First / Finisher bonuses: added per attack from its tag (PlayerController.AttackSeq.cs / PlayerAttackInfo.ScaleDamage)
 
             GameManager gm = GameManager.Instance;
             if (gm != null && gm.maxLives > 0)
@@ -632,8 +641,8 @@ public partial class PlayerController : MonoBehaviour
     {
         get
         {
-            int chain = Mathf.Max(1, maxComboChain);
-            if (chain == 1) return BossHitEstimate + FirstHitBonus + ComboFinalStageBonus;
+            // AttackSeq: one First and one Finisher per sequence (single-attack characters: a 3-attack sequence)
+            int chain = maxComboChain > 1 ? maxComboChain : SingleAttackSequenceLength;
             return Mathf.RoundToInt(BossHitEstimate + (FirstHitBonus + ComboFinalStageBonus) / (float)chain);
         }
     }
@@ -1229,6 +1238,19 @@ public partial class PlayerController : MonoBehaviour
         lungeScaleNow = Mathf.Approximately(lungeVelocityX, 0f) ? 1f : BossBattle.LungeScale(lungeVelocityX, transform.position.x);
         float newX = transform.position.x + (autoSpeed + lungeVelocityX * lungeScaleNow + effectiveKnockback) * dt;
         float prevX = transform.position.x;
+        // 2026-10-03: 踏み込みは、当てた敵の体の手前で止める(長い踏み込みのお嬢様騎士などが、当てた後もそのまま体へ入り込み
+        // 接触ダメージを受けていた)。止めるのは踏み込みの分だけで、自動前進/ノックバックはそのまま。
+        if (lungeVelocityX != 0f)
+        {
+            float lungeDir = Mathf.Sign(lungeVelocityX);
+            float? stop = LungeStopX(lungeDir);
+            if (stop.HasValue)
+            {
+                float withoutLunge = prevX + (autoSpeed + effectiveKnockback) * dt;
+                if (lungeDir > 0f && newX > stop.Value) { float c = Mathf.Max(withoutLunge, stop.Value); if (c < newX) { newX = c; LungeStops++; } }
+                else if (lungeDir < 0f && newX < stop.Value) { float c = Mathf.Min(withoutLunge, stop.Value); if (c > newX) { newX = c; LungeStops++; } }
+            }
+        }
         // ラストダンジョンのエンディング: 通り抜けられない物(THANK YOU FOR PLAYINGの石板、YES/NOの石)の手前で止まる
         if (WorldPlatforms.Any) newX = WorldPlatforms.ClampMove(prevX, newX, transform.position.y - groundOffset, transform.position.y - groundOffset + 1.5f, 0.35f);
         UpdateScreenStep(dt);
@@ -2296,11 +2318,12 @@ public partial class PlayerController : MonoBehaviour
         comboWindowOpen = false;
         comboBuffered = false;
         comboCount++;
+        SetSeqTag(ChainTag(comboCount, maxComboChain)); // First / Combo / Finisher (AttackSeq)
         attackCooldownTimer = attackCooldown * AttackSpeedMultiplier;
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(comboCount);
 
         ApplyAttackDirection(dir);
-        if (attackHitbox != null) { attackHitbox.enabled = true; var ai = attackHitbox.GetComponent<PlayerAttackInfo>(); if (ai != null) ai.Rearm(); }
+        if (attackHitbox != null) { attackHitbox.enabled = true; var ai = attackHitbox.GetComponent<PlayerAttackInfo>(); if (ai != null) ai.Rearm(); TagHitbox(attackHitbox); }
         ApplyComboStageToHitbox(comboCount);
         // 品質改善 Bug #002(2026-09-09), item 8/9/11/12 - 通常攻撃も旧
         // 「巨大な紫剣」(framesベースのSetComboStage)から、上/空中/下降
@@ -2361,6 +2384,7 @@ public partial class PlayerController : MonoBehaviour
 
         isAttacking = false;
         comboWindowOpen = false;
+        SetSeqTag(AttackSeqTag.None); // AttackSeq: the chained attack (if any) sets its own
 
         if (comboBuffered)
         {
@@ -2433,6 +2457,7 @@ public partial class PlayerController : MonoBehaviour
     // の組み合わせで違和感なく繋がる形を優先した(マスターへの開示事項)。
     IEnumerator DoUpAttack(bool isAirborne)
     {
+        SetSeqTag(AttackSeqTag.None); // not a main attack (AttackSeq)
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.AttackUp); // 上攻撃/Launch(共通)
         // 攻撃エフェクト全面調整(2026-09-08) - 旧SetComboStage(巨大な紫剣
         // AttackSlashFx流用)から、剣の軌跡に沿った控えめな青白い三日月
@@ -2511,6 +2536,7 @@ public partial class PlayerController : MonoBehaviour
     // OVER/ESCAPE成功のいずれからも呼ばれ、後始末を一箇所に集約している。
     void DoDiveAttack()
     {
+        SetSeqTag(AttackSeqTag.None); // not a main attack (AttackSeq)
         isDiveAttacking = true;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.AttackDown); // 下攻撃/Slam(共通)
         // 攻撃エフェクト全面調整(2026-09-08) - 旧SetComboStage(巨大な紫剣、
@@ -2631,6 +2657,7 @@ public partial class PlayerController : MonoBehaviour
         comboWindowOpen = false;
         comboBuffered = false;
         comboCount++;
+        SetSeqTag(ChainTag(comboCount, maxComboChain)); // First / Combo / Finisher (AttackSeq): bullets copy it
         attackCooldownTimer = attackCooldown * AttackSpeedMultiplier;
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(comboCount);
 
@@ -2664,6 +2691,7 @@ public partial class PlayerController : MonoBehaviour
 
         isAttacking = false;
         comboWindowOpen = false;
+        SetSeqTag(AttackSeqTag.None); // AttackSeq: the chained attack (if any) sets its own
 
         if (comboBuffered)
         {

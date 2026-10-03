@@ -121,11 +121,14 @@ public class PlayerBullet : MonoBehaviour
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.gravityScale = 0f;
 
-        go.AddComponent<PlayerAttackInfo>().kind = PlayerAttackKind.Normal;
+        var info = go.AddComponent<PlayerAttackInfo>();
+        info.kind = PlayerAttackKind.Normal;
+        // AttackSeq: the bullet keeps the tag of the shot that fired it
+        if (PlayerController.Instance != null) { info.seqTag = PlayerController.Instance.CurrentSeqTag; info.seqMoveId = PlayerController.Instance.CurrentSeqMoveId; }
 
         PlayerBullet b = go.AddComponent<PlayerBullet>();
         b.velocity = velocity;
-        b.lifetime = lifetime;
+        b.lifetime = lifetime * PlayerController.ProjectileTravelFactor; // Effective Attack Range (off by default)
         return go;
     }
 }

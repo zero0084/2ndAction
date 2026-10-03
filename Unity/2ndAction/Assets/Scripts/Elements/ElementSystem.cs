@@ -188,6 +188,6 @@ public static class ElementSystem
         proj.name = "ElementWindBlade";
         proj.pierce = 2; // 風の貫通の追加(WindPierce)は KitProjectile.Start で足される
         var info = proj.GetComponent<PlayerAttackInfo>();
-        if (info != null) info.elementProc = true;
+        if (info != null) { info.elementProc = true; info.seqTag = AttackSeqTag.None; info.seqMoveId = 0; }
     }
 }

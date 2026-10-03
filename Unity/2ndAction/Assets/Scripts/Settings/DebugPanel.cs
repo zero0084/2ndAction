@@ -105,7 +105,8 @@ public partial class DebugPanel : MonoBehaviour
             PlayerPrefs.SetInt(GameManager.ResumeEaseDevKey, ease ? 0 : 1);
             PlayerPrefs.Save();
         }
-        GUI.Label(new Rect(x + bw + 12f, y, bw, 40f), $"CONTINUEのGO後 x{gm.resumeEaseStartScale:0.##}→1 を{gm.resumeEaseDuration:0.#}秒", UiKit.Label(13f, TextAnchor.MiddleLeft, false, new Color(0.8f, 0.8f, 0.85f)));
+        // 攻撃判定の可視化(2026-10-03): 赤=攻撃 / 緑=被弾 / 黄=敵の体 / 紫=敵の攻撃 / 水色=ボスの被弾範囲
+        if (UiKit.Button(new Rect(x + bw + 12f, y, bw, 40f), $"判定表示: {(HitboxOverlay.Enabled ? "ON" : "OFF")}", 17f, HitboxOverlay.Enabled, false)) HitboxOverlay.Enabled = !HitboxOverlay.Enabled;
         y += 46f;
 
         GUI.Label(new Rect(x, y, 300f, 26f), "BESTを設定(ガチャの段階の確認)", UiKit.Label(16f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));

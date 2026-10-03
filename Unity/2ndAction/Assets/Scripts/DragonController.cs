@@ -720,6 +720,7 @@ public class DragonController : MonoBehaviour
     {
         if (state == State.Dead) return;
 
+        if (other.CompareTag("PlayerAttack") && PlayerAttackInfo.AlreadyHit(other, this)) return; // one hit per attack instance (2026-10-03)
         if (other.CompareTag("PlayerAttack") && NetPuppet)
         {
             NetPuppetHit(other);

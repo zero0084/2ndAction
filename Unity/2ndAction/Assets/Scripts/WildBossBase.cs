@@ -815,6 +815,7 @@ public abstract class WildBossBase : MonoBehaviour
     public void OnHurtboxTrigger(Collider2D other)
     {
         if (dead || invulnerable) return;
+        if (other.CompareTag("PlayerAttack") && PlayerAttackInfo.AlreadyHit(other, this)) return; // one hit per attack instance (2026-10-03)
 
         if (other.CompareTag("PlayerAttack") && NetPuppet)
         {

@@ -42,6 +42,9 @@ public class PlayerAttackInfo : MonoBehaviour
     [System.NonSerialized] public bool fixedReach;
     // 属性(2026-10-03): 属性の効果が出した攻撃(風刃)。これ自身からは風刃を出さない(連鎖で増え続けない)
     [System.NonSerialized] public bool elementProc;
+    // First / Combo / Finisher (2026-10-03, PlayerController.AttackSeq.cs): tag and press id given when the attack was made
+    [System.NonSerialized] public AttackSeqTag seqTag;
+    [System.NonSerialized] public int seqMoveId;
 
     // 障害物の耐久力/高速時のすり抜け対策(2026-09-29)。
     // SwingId: この判定の「1回の振り(発射)」の番号。同じ振りでは敵/障害物へ1回しか当たらない(判定の重複で二重に減らない)。
@@ -62,6 +65,30 @@ public class PlayerAttackInfo : MonoBehaviour
     void OnEnable() { if (!Active.Contains(this)) Active.Add(this); wasEnabled = false; }
     void OnDisable() { Active.Remove(this); wasEnabled = false; }
 
+    // Hit target history (2026-10-03): the same attack instance (SwingId: one swing / one projectile / one blast / one zone tick)
+    // damages the same boss only once. Normal enemies already had this (EnemyController.AlreadyHitBySwing); bosses / the dragon /
+    // the Majin did not, so a projectile that re-entered (or was also reported by the high speed sweep) could hit twice.
+    // A blast is a separate attack instance, so "projectile + explosion" two-stage moves still hit twice on purpose.
+    static readonly System.Collections.Generic.Dictionary<(Component, int), float> recentHits = new System.Collections.Generic.Dictionary<(Component, int), float>();
+    public static int DuplicateHitsBlocked;
+    public static bool AlreadyHit(Collider2D attack, Component victim)
+    {
+        if (attack == null || victim == null) return false;
+        var info = attack.GetComponent<PlayerAttackInfo>();
+        if (info == null) return false;
+        var key = (victim, info.SwingId);
+        float now = Time.time;
+        if (recentHits.TryGetValue(key, out float t) && now - t < 2f) { DuplicateHitsBlocked++; return true; }
+        if (recentHits.Count > 256)
+        {
+            var old = new System.Collections.Generic.List<(Component, int)>();
+            foreach (var kv in recentHits) if (now - kv.Value > 2f || kv.Key.Item1 == null) old.Add(kv.Key);
+            foreach (var k in old) recentHits.Remove(k);
+        }
+        recentHits[key] = now;
+        return false;
+    }
+
     // 敵/ボス/障害物がダメージを読む箇所から呼ぶ。倍率1なら値をそのまま返す。
     public static int ScaleDamage(Collider2D attack, int damage) => ScaleDamage(attack, damage, true);
 
@@ -73,6 +100,10 @@ public class PlayerAttackInfo : MonoBehaviour
         // この端末のPlayerAttack判定はすべてこの端末のプレイヤーのもの(他のプレイヤーの攻撃は判定を持たない見た目だけ)。
         if (attack != null && victim != null && PlayerController.Instance != null)
             PlayerController.Instance.NotifyAttackLanded(victim, attack.GetComponent<PlayerAttackInfo>());
+        // First / Finisher bonus: from the tag the attack got when it was made (once per press per enemy), before the move's damage scale
+        var seqInfo = attack != null ? attack.GetComponent<PlayerAttackInfo>() : null;
+        if (seqInfo != null && seqInfo.seqTag != AttackSeqTag.None && victim != null && PlayerController.Instance != null)
+            damage += PlayerController.Instance.ConsumeSeqBonus(seqInfo.seqTag, seqInfo.seqMoveId, victim);
         int result = ScaleDamage(attack, damage, true);
         // 属性(2026-10-03): 敵/ボスへの命中はすべてここを通る。カードで得た属性の効果(炎上/冷気/落雷/風刃/出血)を判定する
         if (victim != null) ElementSystem.OnPlayerHit(victim, attack != null ? attack.GetComponent<PlayerAttackInfo>() : null, result);

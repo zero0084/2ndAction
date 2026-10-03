@@ -97,6 +97,7 @@ public partial class PlayerController
     int BeginLanceMove(LanceMoveKind kind, bool ownsAttack)
     {
         ResetLanceState();
+        SetSeqTag(AttackSeqTag.None); // AttackSeq: thrusts set their stage tag right after
         int token = ++lanceGeneration;
         LanceMove = kind;
         LanceFrameIndex = 0;
@@ -265,7 +266,7 @@ public partial class PlayerController
         lanceHitbox.size = Vector2.one;
         lanceHitbox.offset = Vector2.zero;
         lanceHitbox.enabled = true;
-        { var li = lanceHitbox.GetComponent<PlayerAttackInfo>(); if (li != null) li.Rearm(); }
+        { var li = lanceHitbox.GetComponent<PlayerAttackInfo>(); if (li != null) li.Rearm(); TagHitbox(lanceHitbox); }
         if (fxDuration > 0f) ShowLanceThrustFx(origin, dir, deg, lanceArtTipDistance, startX + length, fxDuration, fxThickness, fxTint);
     }
 
@@ -308,6 +309,7 @@ public partial class PlayerController
         try
         {
             comboCount = Mathf.Max(1, stage);
+            if (!back) SetSeqTag(ChainTag(stage, 3)); // 3 thrusts (the data's attackComboCount 2 was why stages 2 and 3 were both finishers); butt strike = None
             LanceComboStage = stage;
             transform.localScale = Vector3.one; // 後ろ攻撃でも向きは変えない(背中側を石突きで突く)
             float speedFactor = back ? 1f : LanceSpeedFactor();
@@ -410,7 +412,11 @@ public partial class PlayerController
         {
             if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(2);
             upShotVisualTimer = Mathf.Max(upShotVisualTimer, d.lanceUpActive + 0.12f);
-            ArmLanceHitbox(0.35f, d.lanceUpReach * AttackRangeMultiplier, d.lanceHeight + 0.15f, d.lanceThickness, d.lanceUpAngle, d.lanceUpActive);
+            // 2026-10-03(攻撃判定の監査): 以前は肩の高さ+0.15から斜め50°に出て、上フリックのジャンプと一緒に上がるため、
+            // 目の前の地上の敵に一度も当たらず、打ち上げ(Launch)もできなかった(竜騎士だけ「上攻撃→空中追撃→叩きつけ」が不成立)。
+            // 槍の付け根を低く・太くして目の前の敵を拾い、上攻撃として打ち上げる。
+            if (lanceAttackInfo != null) lanceAttackInfo.kind = PlayerAttackKind.Up;
+            ArmLanceHitbox(0.2f, d.lanceUpReach * AttackRangeMultiplier, d.lanceHeight - 0.2f, d.lanceThickness * 1.3f, d.lanceUpAngle, d.lanceUpActive);
             float t = 0f;
             while (t < d.lanceUpActive)
             {

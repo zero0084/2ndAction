@@ -80,6 +80,7 @@ public partial class PlayerController
     int BeginKitMove(string pose, bool ownsAttack)
     {
         ResetKitState();
+        SetSeqTag(AttackSeqTag.None); // every kit move starts untagged; main attacks set their tag right after (AttackSeq)
         int token = ++kitGeneration;
         kitOwnsAttack = ownsAttack;
         if (ownsAttack)
@@ -290,6 +291,7 @@ public partial class PlayerController
         kitHitbox.size = Vector2.one;
         kitHitbox.offset = Vector2.zero;
         kitHitInfo.kind = kind;
+        kitHitInfo.seqTag = currentSeqTag; kitHitInfo.seqMoveId = currentSeqMoveId; // AttackSeq
         kitHitInfo.damageScale = damageScale;
         kitHitInfo.knockbackScale = knockbackScale;
         kitHitInfo.hitStop = hitStop;

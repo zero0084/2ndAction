@@ -182,6 +182,7 @@ public partial class PlayerController
         {
             vampireComboStage = stage;
             comboCount = stage;
+            SetSeqTag(ChainTag(stage, maxComboChain)); // AttackSeq
             float s = AttackSpeedMultiplier * BloodTime;
             float windup = ArcherPick(p.comboWindup, stage - 1, 0.05f) * s;
             float active = ArcherPick(p.comboActive, stage - 1, 0.08f) * s;
@@ -294,7 +295,9 @@ public partial class PlayerController
         {
             kitPoseTimer = p.mistTime + 0.12f;
             lungeVelocityX = p.mistDistanceX / Mathf.Max(0.01f, p.mistTime);
-            ArmVampireBox(new Vector2(0.3f, 0.75f), new Vector2(1.2f, 1.3f), 30f, PlayerAttackKind.Normal, p.mistDamageScale, 0.8f, 0.03f, p.gainPerHit);
+            // the mist dashes forward ~2.7 m: the box must lead the body (it carried the vampire into enemies it had not hit yet)
+            ArmVampireBox(new Vector2(0.65f, 0.5f), new Vector2(1.7f, 1.6f), 15f, PlayerAttackKind.Up, // lower/flatter: covers where the body goes (the body hit enemies the box had passed over)
+                p.mistDamageScale, 0.8f, 0.03f, p.gainPerHit); // hit audit 2026-10-03: the rising mist launches (was Normal)
             if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(2);
             float t = 0f, img = 0f;
             while (t < p.mistTime)
@@ -339,7 +342,9 @@ public partial class PlayerController
             kitVerticalVelocity = -p.diveSpeedY;
             lungeVelocityX = p.diveSpeedX;
             float gaugeBefore = BloodGauge;
-            ArmKitBox(new Vector2(0.35f, 0.35f), new Vector2(0.9f, 0.9f), -35f, PlayerAttackKind.Down, p.diveDamageScale * BloodPower, 1.2f, 0.06f);
+            // hit audit 2026-10-03: the dive box was 0.9 x 0.9 right at the body, so it only hit when the vampire was already on top of the enemy
+            // (contact damage in 10 of 15 tries). Larger, reaching ahead and below, like the other characters' dives.
+            ArmKitBox(new Vector2(0.6f, 0.2f), new Vector2(1.5f, 1.3f), -35f, PlayerAttackKind.Down, p.diveDamageScale * BloodPower, 1.2f, 0.06f);
             if (kitHitInfo != null) kitHitInfo.onHit = () =>
             {
                 if (vampireDiveHit) return; // 1回の急降下で吸血は1回

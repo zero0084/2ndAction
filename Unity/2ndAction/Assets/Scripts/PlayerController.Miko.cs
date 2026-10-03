@@ -79,6 +79,7 @@ public partial class PlayerController
         var p = kitDef.miko;
         int gen = attackGeneration;
         int token = BeginKitMove("throw", true);
+        SetSeqTag(NextSingleTag()); // main attack (single sequence, AttackSeq)
         try
         {
             float s = AttackSpeedMultiplier;
@@ -109,6 +110,7 @@ public partial class PlayerController
         var p = kitDef.miko;
         int gen = attackGeneration;
         int token = BeginKitMove("shiki", true);
+        SetSeqTag(NextSingleTag()); // main attack (single sequence, AttackSeq)
         try
         {
             transform.localScale = new Vector3(-1f, 1f, 1f); // 振り向いて後ろへ放つ

@@ -49,6 +49,7 @@ public partial class CardBalanceTest
         float bx = x + 92f;
         foreach (int lv in new[] { 1, 5, 9 }) { if (B(new Rect(bx, y, 56f, rowH), $"Lv{lv}", buildLv == lv)) buildLv = lv; bx += 60f; }
         if (B(new Rect(bx + 8f, y, 120f, rowH), "カードなし")) { ResetToBase(); buildNote = "カードなし(キャラの基準値)"; }
+        if (B(new Rect(bx + 136f, y, 150f, rowH), HitboxOverlay.Enabled ? "判定表示 ON" : "判定表示 OFF", HitboxOverlay.Enabled)) HitboxOverlay.Enabled = !HitboxOverlay.Enabled; // 赤=攻撃 緑=被弾 黄=敵 紫=敵の攻撃
         y += rowH + gap;
         bx = x;
         foreach (var p in BuildPresets) { if (B(new Rect(bx, y, 200f, rowH), p.name)) ApplyBuild(p.name, p.cards); bx += 204f; }
