@@ -723,6 +723,23 @@ public partial class PlayerController : MonoBehaviour
     // or an elevated sky-path platform (see TerrainManager.GetSkyHeightAt).
     bool onSky;
     int jumpsUsed;
+
+    // 中断セーブからの再開(2026-10-03): 地形を確定した直後に、再開地点の地面(下ルート)の上へ立たせる。
+    // 準備画面〜カウントダウンの間は Move が動かないので、ここで決めた位置/接地のまま GO を迎える。
+    public bool PlaceOnGroundForResume()
+    {
+        var tm = TerrainManager.Instance;
+        if (tm == null) return false;
+        float? gy = tm.GetHeightAt(transform.position.x);
+        if (!gy.HasValue) return false;
+        onSky = false;
+        isGrounded = true;
+        velocityY = 0f;
+        jumpsUsed = 0;
+        FreezeDiagnostics.NoteIntendedMove("CONTINUE (ground)");
+        transform.position = new Vector3(transform.position.x, gy.Value + groundOffset, transform.position.z);
+        return true;
+    }
     bool isAttacking;
     // 方向攻撃システム Ver.2、項目3 - trueの間、Move()の落下速度がgravity
     // 積分の代わりにdiveAttackSpeedへ上書きされ、downAttackHitboxが有効に

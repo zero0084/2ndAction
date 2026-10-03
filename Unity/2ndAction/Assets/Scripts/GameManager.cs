@@ -3512,18 +3512,6 @@ public partial class GameManager : MonoBehaviour
         // Item 14 - short safe zone right after resuming (no new Enemy/
         // Formation/Wall spawns until past this - see IsInSafeZone).
         safeZoneEndDistance = data.checkpointDistance + safeZoneLength;
-        // Item 14 - best-effort pit avoidance right at the checkpoint
-        // (Formation/Wall spawning is reliably suppressed via IsInSafeZone
-        // above; a Pit is decided by TerrainManager's own chunk-type roll,
-        // independent of that, so this asks it to force flat ground for
-        // the safe zone's length too). Shares the same large-distance-jump
-        // mechanism as the existing Debug Warp feature (teleporting
-        // PlayerController below), so a brief one-frame terrain-catch-up
-        // is a known, pre-existing characteristic, not new to this pass.
-        if (TerrainManager.Instance != null)
-        {
-            TerrainManager.Instance.RequestFlatRun(Mathf.CeilToInt(safeZoneLength / Mathf.Max(1f, TerrainManager.Instance.flatLength)) + 1);
-        }
 
         if (PlayerController.Instance != null)
         {
@@ -3532,6 +3520,11 @@ public partial class GameManager : MonoBehaviour
             FreezeDiagnostics.NoteIntendedMove("CONTINUE (checkpoint)");
             PlayerController.Instance.transform.position = p;
         }
+
+        // Item 14 - 再開地点の足場。2026-10-03: 以前の RequestFlatRun(チャンク数の予約)は、ワープ前の0m付近の
+        // 生成で使い切られて再開地点に届いていなかった。保存速度で約2秒ぶんの区間を位置で平地にし、
+        // 準備画面より前に地形を生成して、キャラをその地面へ立たせる(GameManager.ResumeGate.cs)。
+        SetupResumeFooting(data.checkpointDistance);
 
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
 
