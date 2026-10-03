@@ -2014,7 +2014,7 @@ public partial class GameManager : MonoBehaviour
             float delta = distance - MaxDistance;
             ProgressStats.AddRunDistance(delta); // 累計走行距離(2026-10-01、100mごとに保存)
             MaxDistance = distance;
-            GainExp(delta * expPerMeter * Mathf.Max(0f, 1f + Card.Get(EffectType.DistanceExpPct))); // PATHFINDER(v3): 距離のEXP
+            GainExp(delta * expPerMeter * ExpMultDistance); // カードの EXP(1つの枠 + 曲線、GameManager.CardStats)
             UnlockManager.CheckUnlocks(MaxDistance);
 
             // Item 12 - tracked unconditionally (not just past

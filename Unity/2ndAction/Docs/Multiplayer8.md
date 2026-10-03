@@ -218,3 +218,29 @@ Authority は今まで通り HOST(全員の位置を HOST が把握 → HOST が
 | VERSUS: P1 脱落 → P2 だけ走る | 最前は翌秒に P2 へ切り替わった。結果は距離順 |
 | シングル(QaSweep `-qaBoss` / `-qaBranch`) | 合格 |
 | シングル(`-qaEncRuns`) | 「ボス撃破後に通常の敵が戻る」が時々不合格。3.1 以前のビルド(commit 10a6cfa)でも同じく不合格。ボス直後に BONUS ZONE が始まり、数える16秒の間は通常の敵が止まるため(既存の試験のタイミングの問題) |
+
+# TODO: マルチ完成工程での必須の修正
+
+## JOIN Player にもカード Build の実戦効果を正しく適用する(2026-10-04、カードバランス v3 で判明)
+
+**今の状態**
+JOIN のプレイヤーでは、次のカードの効果が働かない。
+- 属性(炎上 / 冷気・凍結 / 落雷・連鎖 / 風刃・竜巻 / 出血)
+- 追加攻撃(DOUBLE ATTACK / SHOCKWAVE / PIERCING BLADE の近接 / AERIAL BLADE / COMBO MASTER / GROUND BREAKER / SONIC BLADE / CHAIN EXPLOSION / INFERNO / COUNTER・FLAME COUNTER の反撃)
+- PHOENIX / SECOND WIND / LAST CHANCE
+
+**原因**
+- 敵 / ボスの HP を決めるのは HOST だけ(`NetCombat.Authority`)。
+  - 属性と追加攻撃は、HP を持つ端末でだけ判定している(`ElementSystem.Authoritative`、`CardProcs.OnPlayerHit`)。
+  - JOIN から HOST へ届くのは命中のダメージの値だけ。
+- JOIN の HP も HOST が決めている(被弾申告)。
+  - 倒れる被弾の取り消し(PHOENIX)と低HPの回復(SECOND WIND)/ 無敵(LAST CHANCE)は、HOST の判定の中に入っていない。
+
+**JOIN でも効いているもの**
+攻撃力 / 条件 / 速度 / 攻撃速度 / 範囲 / ジャンプ / Shield(被弾の申告の前に自分の端末で消費)。
+
+**直す方向(案)**
+- JOIN の命中の申告に、そのプレイヤーの属性の値と追加攻撃の Lv を載せる(または HOST が各プレイヤーのカードの合計を持つ)。
+  - HOST が、そのプレイヤーの分として属性/追加攻撃を判定する。
+- JOIN の被弾を HOST が確定する時に、そのプレイヤーの PHOENIX / SECOND WIND / LAST CHANCE の状態を見て処理する。
+- カードバランス v3 の調整と、ネットワーク同期の大きな変更は同時に行わない方針のため、今回は未対応。

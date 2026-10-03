@@ -42,7 +42,7 @@ public partial class CardBalanceTest
         Line(x, ref y, rowH, gap, $"実速度 {kmh:0.0}km/h(runSpeed {pc.runSpeed:0.00} × 距離の倍率 {pc.NaturalMultiplierAt(pc.DistanceFromStart):0.00})  正規化 50→150km/h = {pc.SpeedFactor01(50f, 150f):0.00}  "
             + $"MOMENTUMの速度項: 今の式(距離) {pc.MomentumSpeedTermByDistance:0.00} / 実速度にした場合 {pc.MomentumSpeedTermByCurrentSpeed:0.00}");
         Line(x, ref y, rowH, gap, $"速度カード ×{pc.CardSpeedFactor:0.00}(生 {gm.Card.Get(EffectType.SpeedPct) * 100f:0}%)  MOMENTUM ×{PlayerController.MomentumFactor(kmh):0.00}  "
-            + $"EXP ×{gm.CardTestExpGainMultiplier:0.00}(距離 +{gm.Card.Get(EffectType.DistanceExpPct) * 100f:0}% 撃破 +{gm.Card.Get(EffectType.KillExpPct) * 100f:0}%)  MILE ×{gm.MileGainMultiplier:0.00}(ボス ×{gm.BossMileGainMultiplier:0.00} 宝 +{gm.Card.Get(EffectType.TreasureMilePct) * 100f:0}%)");
+            + $"EXP 距離×{gm.ExpMultDistance:0.00}(枠 +{gm.ExpBucketDistance * 100f:0}%) 撃破×{gm.ExpMultKill:0.00}(枠 +{gm.ExpBucketKill * 100f:0}%) テスト層×{gm.CardTestExpGainMultiplier:0.00}  MILE ×{gm.MileGainMultiplier:0.00}(ボス ×{gm.BossMileGainMultiplier:0.00} 宝 +{gm.Card.Get(EffectType.TreasureMilePct) * 100f:0}%)");
         var dir = EncounterDirector.Instance;
         Line(x, ref y, rowH, gap, $"敵出現率 ×{gm.EnemySpawnRateMultiplier:0.00} → Encounterの頻度 ×{(dir != null ? dir.SpawnFrequency : 1f):0.00}(上限 ×{(dir != null ? dir.spawnRateMaxFrequency : 2f):0.0})  "
             + $"能力Lv上限 {GameManager.MaxRunCardLevel}(上限で効かなかった分 {gm.CardCapDiscardedStacks})");

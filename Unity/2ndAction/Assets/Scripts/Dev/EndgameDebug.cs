@@ -23,6 +23,71 @@ public class EndgameDebug : MonoBehaviour
     static Point? pending;
     static Profile pendingProfile;
 
+    // 長距離の確認(2026-10-04): 選んだステージを新しく始めて、10/30/50/70/100km 付近へ。代表的なカード構成を付けられる。
+    // ラスダン終盤と同じく DEBUG RUN(BEST / MILE / 累計距離 / 解放 / CONTINUE を保存しない)。雑魚の硬さを実機で見る用
+    public enum LongBuild { None, Mix, Attack, Fire, Lightning }
+    public static readonly float[] LongDistances = { 10000f, 30000f, 50000f, 70000f, 99000f };
+    public static LongBuild SelectedLongBuild = LongBuild.None;
+    public static string SelectedLongStage = "wasteland_road";
+    static (string stage, float d, LongBuild build)? pendingLong;
+    string currentLabel = "";
+    public bool IsLongCheck { get; private set; }
+    public static string LongBuildLabel(LongBuild b) => b switch
+    {
+        LongBuild.Mix => "一般 Lv9", LongBuild.Attack => "Attack特化 Lv9", LongBuild.Fire => "炎特化 Lv9", LongBuild.Lightning => "雷特化 Lv9", _ => "カードなし",
+    };
+    static string LongBuildPreset(LongBuild b) => b switch
+    {
+        LongBuild.Mix => "mix", LongBuild.Attack => "attack", LongBuild.Fire => "fire", LongBuild.Lightning => "lightning", _ => null,
+    };
+    public static string LongDistanceLabel(float d) => d >= 99000f ? "100km付近" : $"{d / 1000f:0}km";
+
+    public static void LaunchLong(string stage, float d, LongBuild build, Profile prof)
+    {
+        if (Instance == null) return;
+        if (Instance.Launching) { Debug.Log("[EndgameDebug] launch ignored (already launching)"); return; }
+        pending = null;
+        pendingLong = (stage, d, build); pendingProfile = prof;
+        Instance.Launches++;
+        Debug.Log($"[EndgameDebug] LAUNCH long-distance {stage} {d:F0}m build={build} profile={prof} - reloading the scene for a clean start");
+        Instance.StopAllCoroutines();
+        Instance.keepAlive = false;
+        DebugPanel.CloseStatic();
+        SafeReset("launch");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    IEnumerator RunLaunchLong(string stage, float d, LongBuild build, Profile prof)
+    {
+        Launching = true;
+        IsLongCheck = true;
+        currentLabel = $"{LongDistanceLabel(d)} {stage} / {LongBuildLabel(build)}";
+        Status = $"{currentLabel} を準備中…";
+        float w = 0f;
+        while ((GameManager.Instance == null || GameManager.Instance.HasStarted) && w < 10f) { yield return null; w += Time.unscaledDeltaTime; }
+        var gm = GameManager.Instance;
+        if (gm == null) { Fail("GameManager がありません"); yield break; }
+        yield return null;
+        w = 0f;
+        while (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning && w < 6f) { yield return null; w += Time.unscaledDeltaTime; }
+        DebugRun.Begin("長距離 " + currentLabel + " / " + ProfileLabel(prof));
+        CurrentProfile = prof;
+        LaunchedRealtime = Time.realtimeSinceStartup;
+        gm.DebugStartRunOnStage(stage);
+        w = 0f;
+        while (!(gm.HasStarted && !gm.CountdownActive) && w < 25f) { yield return null; w += Time.unscaledDeltaTime; }
+        if (!gm.HasStarted) { Fail("ランを開始できませんでした"); yield break; }
+        ApplyProfile(prof);
+        string preset = LongBuildPreset(build);
+        if (preset != null)
+            foreach (var id in CardBuildPresets.Find(preset)) { var c = CardDatabase.FindBaseById(id); if (c != null) gm.ApplyCardEffectsStacked(c, 9); }
+        // 関門(1kmごと)の直後へ。100km はステージの節目(三姉妹など)の手前の 99km
+        Warp(gm, d + 150f);
+        Debug.Log($"[EndgameDebug] long-distance check: {currentLabel} at {d + 150f:F0}m | atk x{(PlayerController.Instance != null ? PlayerController.Instance.CardAttackFactor : 1f):F2} enemyHp(x1) {(DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(1f) : 0)}");
+        Status = $"{currentLabel}({ProfileLabel(prof)})開始";
+        Launching = false;
+    }
+
     public Point CurrentPoint { get; private set; }
     public Profile CurrentProfile { get; private set; }
     public bool Launching { get; private set; }
@@ -96,13 +161,19 @@ public class EndgameDebug : MonoBehaviour
             {
                 Debug.LogWarning($"[EndgameDebug] {n} progress keys had changed during the Debug Run and were restored: {DebugRun.LastRestoreNote}");
                 // 読み込み済みの値(GameManager等)も戻すため、もう一度だけ読み直す(次の起動予約があればそちらで読み直される)
-                if (!pending.HasValue) { SceneManager.LoadScene(s.buildIndex); return; }
+                if (!pending.HasValue && !pendingLong.HasValue) { SceneManager.LoadScene(s.buildIndex); return; }
             }
         }
         // 状態を戻すのは DEBUG RUN の前後だけ(普通のシーンの読み直しでは何も変えない: 他の開発用の設定/自動テストの速度などを残す)
-        if (endedDebugRun || pending.HasValue) SafeReset(endedDebugRun ? "debug run ended" : "scene loaded for a launch");
+        if (endedDebugRun || pending.HasValue || pendingLong.HasValue) SafeReset(endedDebugRun ? "debug run ended" : "scene loaded for a launch");
         Instance.keepAlive = false;
-        if (pending.HasValue)
+        if (pendingLong.HasValue)
+        {
+            var lp = pendingLong.Value; var lprof = pendingProfile;
+            pendingLong = null;
+            Instance.StartCoroutine(Instance.RunLaunchLong(lp.stage, lp.d, lp.build, lprof));
+        }
+        else if (pending.HasValue)
         {
             var p = pending.Value; var prof = pendingProfile;
             pending = null;
@@ -146,6 +217,8 @@ public class EndgameDebug : MonoBehaviour
 
         DebugRun.Begin(Label(p) + " / " + ProfileLabel(prof));
         CurrentPoint = p; CurrentProfile = prof;
+        currentLabel = Label(p);
+        IsLongCheck = false;
         LaunchedRealtime = Time.realtimeSinceStartup;
         gm.DebugStartRunOnStage(LastCorridorDirector.StageId);
         w = 0f;
@@ -268,7 +341,7 @@ public class EndgameDebug : MonoBehaviour
         if (tag == null) tag = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleLeft, fontStyle = FontStyle.Bold };
         tag.fontSize = Mathf.RoundToInt(13f * s);
         var flow = LastDungeonFlow.Instance;
-        string text = $"DEBUG RUN · NO SAVE / NO RECORD · {Label(CurrentPoint)}{(flow != null && flow.Enabled ? " · " + flow.Current : "")}";
+        string text = $"DEBUG RUN · NO SAVE / NO RECORD · {currentLabel}{(flow != null && flow.Enabled ? " · " + flow.Current : "")}";
         float h = 26f * s, bw = 64f * s, tw = tag.CalcSize(new GUIContent(text)).x + 16f * s;
         var r = new Rect(8f * s, Screen.height - h - 8f * s, tw, h);
         var keep = GUI.color;
@@ -277,7 +350,7 @@ public class EndgameDebug : MonoBehaviour
         GUI.color = keep;
         tag.normal.textColor = new Color(1f, 0.85f, 0.4f);
         GUI.Label(new Rect(r.x + 8f * s, r.y, r.width, r.height), text, tag);
-        if (GUI.Button(new Rect(r.xMax, r.y + 2f * s, bw, h - 4f * s), "≡ DEBUG")) DebugPanel.OpenEndgameStatic();
+        if (GUI.Button(new Rect(r.xMax, r.y + 2f * s, bw, h - 4f * s), "≡ DEBUG")) { if (IsLongCheck) DebugPanel.OpenLongStatic(); else DebugPanel.OpenEndgameStatic(); }
     }
 }
 

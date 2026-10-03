@@ -31,6 +31,7 @@ public partial class DebugPanel : MonoBehaviour
     public static void OpenStatic() { if (Instance != null) Instance.SetOpen(true); }
     // ラン中の「DEBUG RUN」表示の ≡ から: ラスダン終盤のページを直接開く
     public static void OpenEndgameStatic() { if (Instance == null) return; Instance.SetOpen(true); if (Instance.open) Instance.page = 2; }
+    public static void OpenLongStatic() { if (Instance == null) return; Instance.SetOpen(true); if (Instance.open) Instance.page = 3; }
     public static void CloseStatic() { if (Instance != null) Instance.SetOpen(false); }
 
     public void SetOpen(bool on)
@@ -68,7 +69,7 @@ public partial class DebugPanel : MonoBehaviour
         float w = Screen.width / s, h = Screen.height / s;
         float k = Mathf.SmoothStep(0f, 1f, t / 0.15f);
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.05f, 0.02f, 0.02f, 0.5f * k));
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 516f : 470f, h - 24f);
+        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 562f : 470f, h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f + (1f - k) * 12f, pw, ph);
         Color keepColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, k);
@@ -79,7 +80,7 @@ public partial class DebugPanel : MonoBehaviour
         if (page == 0 && UiKit.Button(new Rect(p.xMax - 352f, p.y + 12f, 146f, 42f), "ラスダン終盤…", 16f, false, false)) { page = 2; confirmSave = 0; confirmReset = false; }
         if (page != 0)
         {
-            if (page == 1) DrawSavePage(p); else DrawEndgamePage(p);
+            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else DrawEndgamePage(p);
             GUI.color = keepColor;
             GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
             if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();
@@ -107,6 +108,9 @@ public partial class DebugPanel : MonoBehaviour
         }
         // 攻撃判定の可視化(2026-10-03): 赤=攻撃 / 緑=被弾 / 黄=敵の体 / 紫=敵の攻撃 / 水色=ボスの被弾範囲
         if (UiKit.Button(new Rect(x + bw + 12f, y, bw, 40f), $"判定表示: {(HitboxOverlay.Enabled ? "ON" : "OFF")}", 17f, HitboxOverlay.Enabled, false)) HitboxOverlay.Enabled = !HitboxOverlay.Enabled;
+        y += 46f;
+        // 長距離の確認(2026-10-04): 10〜100km の雑魚の硬さを実機で見る(DEBUG RUN)
+        if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "長距離の確認(10〜100km、DEBUG RUN)…", 17f, false, false)) { page = 3; confirmSave = 0; confirmReset = false; }
         y += 46f;
 
         GUI.Label(new Rect(x, y, 300f, 26f), "BESTを設定(ガチャの段階の確認)", UiKit.Label(16f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));
@@ -278,6 +282,54 @@ public partial class DebugPanel
         string run = DebugRun.IsActive ? $"DEBUG RUN 中: {DebugRun.What}(保存を止めた回数 {DebugRun.BlockedWrites})" : "通常の状態(DEBUG RUN ではありません)";
         string last = DebugRun.LastRestoredKeys < 0 ? "" : DebugRun.LastRestoredKeys == 0 ? " / 前回の DEBUG RUN: 進行の変化なし" : $" / 前回の DEBUG RUN: {DebugRun.LastRestoredKeys}項目を元へ戻した";
         GUI.Label(new Rect(x, y, full, 20f), run + last, UiKit.Label(12f, TextAnchor.MiddleLeft, true, DebugRun.IsActive ? new Color(1f, 0.7f, 0.4f) : new Color(0.7f, 0.9f, 0.7f)));
+        y += 20f;
+        if (!string.IsNullOrEmpty(st)) GUI.Label(new Rect(x, y, full, 20f), st, UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(1f, 0.85f, 0.5f)));
+    }
+}
+
+// DebugPanel: 長距離の確認のページ(2026-10-04)
+public partial class DebugPanel
+{
+    void DrawLongPage(Rect p)
+    {
+        float x = p.x + 24f, y = p.y + 60f, full = p.width - 48f;
+        GUI.Label(new Rect(x, y, full, 36f), "押すたびにステージを新しく始めて、その距離の関門の直後へ移動します(DEBUG RUN)。BEST / MILE / カード / 累計距離 / 解放 / CONTINUE は変わりません",
+            UiKit.Label(12f, TextAnchor.UpperLeft, false, new Color(0.85f, 0.85f, 0.9f)));
+        y += 38f;
+        var stages = new[] { ("wasteland_road", "荒野街道"), ("natural_cave", "自然洞窟"), ("sky_corridor", "天空回廊") };
+        float sw = (full - 16f) / 3f;
+        for (int i = 0; i < stages.Length; i++)
+            if (UiKit.Button(new Rect(x + i * (sw + 8f), y, sw, 34f), stages[i].Item2, 14f, EndgameDebug.SelectedLongStage == stages[i].Item1, false)) EndgameDebug.SelectedLongStage = stages[i].Item1;
+        y += 40f;
+        var builds = new[] { EndgameDebug.LongBuild.None, EndgameDebug.LongBuild.Mix, EndgameDebug.LongBuild.Attack, EndgameDebug.LongBuild.Fire, EndgameDebug.LongBuild.Lightning };
+        float bw5 = (full - 32f) / 5f;
+        for (int i = 0; i < builds.Length; i++)
+            if (UiKit.Button(new Rect(x + i * (bw5 + 8f), y, bw5, 34f), EndgameDebug.LongBuildLabel(builds[i]), 12f, EndgameDebug.SelectedLongBuild == builds[i], false)) EndgameDebug.SelectedLongBuild = builds[i];
+        y += 40f;
+        var profs = new[] { EndgameDebug.Profile.Normal, EndgameDebug.Profile.Sturdy };
+        float pw2 = (full - 8f) / 2f;
+        for (int i = 0; i < profs.Length; i++)
+            if (UiKit.Button(new Rect(x + i * (pw2 + 8f), y, pw2, 34f), EndgameDebug.ProfileLabel(profs[i]), 14f, EndgameDebug.SelectedProfile == profs[i], false)) EndgameDebug.SelectedProfile = profs[i];
+        y += 44f;
+        bool busy = EndgameDebug.Instance != null && EndgameDebug.Instance.Launching;
+        var ds = EndgameDebug.LongDistances;
+        float dw = (full - 8f * (ds.Length - 1)) / ds.Length;
+        var dtm = DistanceTierManager.Instance;
+        for (int i = 0; i < ds.Length; i++)
+        {
+            int baseBonus = dtm != null ? dtm.baseHpBonus : 4;
+            float step = dtm != null ? Mathf.Max(1f, dtm.hpIncreaseDistance) : 2000f;
+            int hp = (1 + baseBonus + Mathf.FloorToInt((ds[i] + 150f) / step)) * CombatScale.K;
+            if (UiKit.Button(new Rect(x + i * (dw + 8f), y, dw, 56f), $"{EndgameDebug.LongDistanceLabel(ds[i])}\n雑魚HP約{hp}", 14f, false, false) && !busy)
+                EndgameDebug.LaunchLong(EndgameDebug.SelectedLongStage, ds[i], EndgameDebug.SelectedLongBuild, EndgameDebug.SelectedProfile == EndgameDebug.Profile.Normal ? EndgameDebug.Profile.Normal : EndgameDebug.Profile.Sturdy);
+        }
+        y += 64f;
+        GUI.Label(new Rect(x, y, full, 36f), "カードは Lv9 で付ける(CARD BALANCE TEST と同じ構成)。雑魚HPは「HP倍率1の雑魚」の目安。カードの能力値は DEBUGモード ON → ラン中の CARD TEST の「ビルド」タブで見られる",
+            UiKit.Label(12f, TextAnchor.UpperLeft, false, new Color(0.8f, 0.8f, 0.85f)));
+        y += 38f;
+        string st = EndgameDebug.Instance != null ? EndgameDebug.Instance.Status : "";
+        string run = DebugRun.IsActive ? $"DEBUG RUN 中: {DebugRun.What}(保存を止めた回数 {DebugRun.BlockedWrites})" : "通常の状態(DEBUG RUN ではありません)";
+        GUI.Label(new Rect(x, y, full, 20f), run, UiKit.Label(12f, TextAnchor.MiddleLeft, true, DebugRun.IsActive ? new Color(1f, 0.7f, 0.4f) : new Color(0.7f, 0.9f, 0.7f)));
         y += 20f;
         if (!string.IsNullOrEmpty(st)) GUI.Label(new Rect(x, y, full, 20f), st, UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(1f, 0.85f, 0.5f)));
     }

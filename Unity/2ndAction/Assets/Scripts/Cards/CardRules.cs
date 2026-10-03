@@ -20,7 +20,11 @@ public static class CardRules
     public static float RangeKnee1 = 0.30f, RangeKnee2 = 0.90f, RangeSlope2 = 0.5f, RangeSlope3 = 0.25f;
     public static float JumpKnee1 = 0.30f, JumpKnee2 = 0.90f, JumpSlope2 = 0.5f, JumpSlope3 = 0.25f;
     public static float JumpFloor = -0.40f;
-    public static float CondMultiplierFloor = 0.4f;   // 条件がマイナスの時(SKYBOUND の地上など)の下限(×0.4)
+    public static float CondMultiplierFloor = 0.4f;
+    // EXP(2026-10-04): EXP の強化はすべて1つの枠に足してから一度だけこの曲線を通す。
+    // EXP UP Lv9 単体(+180%)まではそのまま、それを超えた分(複数の EXP カードを重ねた時)から伸びが鈍る。下限は ×0.25(EXP CONVERTER)
+    public static float ExpKnee1 = 1.8f, ExpKnee2 = 4.5f, ExpSlope2 = 0.5f, ExpSlope3 = 0.2f;
+    public static float ExpMultiplierFloor = 0.25f;   // 条件がマイナスの時(SKYBOUND の地上など)の下限(×0.4)
 
     // ---- HP(ハート)。10倍スケール: ハート1つ = CombatScale.HpPerHeart
     public static int MaxHeartsCap = 20;              // 最大HPの上限(ハート20)
@@ -99,6 +103,10 @@ public static class CardRules
     public static float SoftAttackSpeed(float s) => Mathf.Max(AttackSpeedFloor, Soft(s, AttackSpeedKnee1, AttackSpeedKnee2, AttackSpeedSlope2, AttackSpeedSlope3));
     public static float SoftRange(float s) => Mathf.Max(-0.5f, Soft(s, RangeKnee1, RangeKnee2, RangeSlope2, RangeSlope3));
     public static float SoftJump(float s) => Mathf.Max(JumpFloor, Soft(s, JumpKnee1, JumpKnee2, JumpSlope2, JumpSlope3));
+
+    public static float SoftExp(float x) => Soft(x, ExpKnee1, ExpKnee2, ExpSlope2, ExpSlope3);
+    // EXP の倍率(1 + 枠の合計を曲線に通したもの、下限 ×0.25)。合計だけで決まるので取得順で変わらない
+    public static float ExpMultiplier(float bucket) => Mathf.Max(ExpMultiplierFloor, 1f + SoftExp(bucket));
 
     // 条件の倍率(1 + C)。マイナスは下限あり
     public static float CondMultiplier(float c) => Mathf.Max(CondMultiplierFloor, 1f + SoftCondition(c));

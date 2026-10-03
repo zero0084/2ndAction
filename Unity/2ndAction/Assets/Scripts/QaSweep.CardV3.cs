@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 
-// カードバランス v3(2026-10-03)の自動テスト。 -qaCardV3 <dir> [-qaV3Only TDHPSBECRX] [-qaV3Chars a,b] [-qaV3Secs 12]
+// カードバランス v3(2026-10-03)の自動テスト。 -qaCardV3 <dir> [-qaV3Only TDHPSBELCRX] [-qaV3Chars a,b] [-qaV3Secs 12]
 //  T: 99枚 × Lv1/5/9 の実測(黒剣士。カードの処理そのままで掛けた後の値)→ cardv3_levels.tsv
 //  D: 死にカード監査(99枚 × 12キャラ、Lv1 で何かが変わるか / そのキャラで意味があるか)→ cardv3_dead.tsv
 //  H: HP犠牲 / HEART UP の取得順(どちらの順でも罠にならない・下限に届いた後に利点だけ伸びない・払えない時は候補に出ない)
@@ -14,6 +14,7 @@ using UnityEngine;
 //  S: 速度 100/125/150/175km/h の MOMENTUM / OVERDRIVE / SONIC BLADE と、速度カードの最終km/h → cardv3_speed.tsv
 //  B: DPS(硬いダミー)と ボス戦(カードなし/一般/Attack特化/Boss特化)→ cardv3_dps.tsv / cardv3_boss.tsv
 //  E: EXP / MILE の進み方(100,000m までの計算。式はゲームの値、撃破の数は仮定)→ cardv3_exp.tsv
+//  L: 長距離の雑魚の硬さ(0〜100km の HP / 必要な発数 / 実際の TTK)→ cardv3_ttk.tsv。-qaV3TtkChars / -qaV3TtkEnemies / -qaV3TtkCap
 //  C: Challenge 大量 + 追加攻撃 全部 を同時に取って走る(敵の数/フレーム時間/GC/例外/無限連鎖)→ cardv3_perf.tsv
 //  R: CONTINUE(PHOENIX の消費・封印・Shield を含むランを中断→再開して同じ状態か)
 //  X: 12キャラ × 主要カードの互換(攻撃/範囲/攻撃速度/ジャンプ/コンボ/単発の流れの窓)
@@ -37,6 +38,8 @@ public partial class QaSweep
         if (only.Contains('S')) yield return V3Speed();
         if (only.Contains('B')) yield return V3Dps();
         if (only.Contains('E')) yield return V3Exp();
+        if (only.Contains('L')) yield return V3Ttk();
+        if (only.Contains('W')) yield return V3LongDebug();
         if (only.Contains('C')) yield return V3Perf();
         if (only.Contains('R')) yield return V3Continue();
         GameManager.BlockExpGain = false;
@@ -113,7 +116,7 @@ public partial class QaSweep
             ["tempo"] = 1f / Mathf.Max(0.01f, pc.AttackSpeedMultiplier), ["mainTempo"] = 1f / Mathf.Max(0.01f, pc.MainAttackSpeedMultiplier),
             ["range"] = pc.CardRangeFactor, ["projRange"] = PlayerController.ProjectileTravelFactor,
             ["hearts"] = gm.maxLives / (float)CombatScale.HpPerHeart, ["sealed"] = gm.SealedHearts, ["shield"] = pc.ShieldCapacity, ["shieldRe"] = pc.ShieldRechargeSeconds,
-            ["exp"] = gm.CardTestExpGainMultiplier, ["expDist"] = T.Get(EffectType.DistanceExpPct), ["expKill"] = T.Get(EffectType.KillExpPct),
+            ["exp"] = gm.ExpMultDistance, ["expKillMul"] = gm.ExpMultKill, ["expDist"] = T.Get(EffectType.DistanceExpPct), ["expKill"] = T.Get(EffectType.KillExpPct),
             ["mile"] = gm.MileGainMultiplier, ["bossMile"] = gm.BossMileGainMultiplier, ["treasure"] = T.Get(EffectType.TreasureMilePct), ["distMile"] = T.Get(EffectType.DistanceMilePct),
             ["spawn"] = gm.EnemySpawnRateMultiplier, ["enemyHp"] = gm.EnemyHpMultiplier, ["bossHp"] = gm.BossHpMultiplier, ["action"] = ChallengeSystem.EnemyActionScale, ["elite"] = ChallengeSystem.EliteChance,
             ["steal"] = T.Get(EffectType.LifestealChance), ["steal25"] = T.Get(EffectType.LowHp25LifestealChance), ["heal"] = gm.HealHearts(1), ["dbl"] = T.Get(EffectType.DoubleAttackChance),
@@ -184,7 +187,7 @@ public partial class QaSweep
         V3Reset(); V3Apply("shield", 1); int s1 = pc.ShieldCapacity; V3Reset(); V3Apply("shield", 4); int s4 = pc.ShieldCapacity; V3Reset(); V3Apply("shield", 9); int s9 = pc.ShieldCapacity;
         Check(s1 == 1 && s4 == 2 && s9 == 3, $"SHIELD Lv1-3=1 / Lv4-6=2 / Lv7-9=3 ({s1},{s4},{s9})");
         V3Reset(); V3Apply("exp_converter", 9); V3Apply("exp_converter", 9);
-        Check(gm.CardTestExpGainMultiplier >= 0.25f - 1e-4f, $"EXP CONVERTER never makes EXP <= 0 (x{gm.CardTestExpGainMultiplier:F2} with Lv18)");
+        Check(gm.ExpMultDistance >= 0.25f - 1e-4f && gm.ExpMultKill >= 0.25f - 1e-4f && !float.IsNaN(gm.ExpMultDistance), $"EXP CONVERTER never makes EXP <= 0 (x{gm.ExpMultDistance:F2} with Lv18)");
         // 速度の極端
         V3Reset(); foreach (var id in new[] { "speed_up", "greed", "no_turning_back", "close_call", "ultimate", "overdrive" }) V3Apply(id, 9);
         float sMax = KmhAtNaturalCap;
@@ -473,6 +476,7 @@ public partial class QaSweep
 
     IEnumerator V3Defense(string ch, StringBuilder sb)
     {
+        V3FlatStretch(); // 道中の敵(Encounter)/障害物/ボスの関門で、確かめたい被弾以外のダメージを受けないように
         stopKeepAlive = true;
         int per = CombatScale.HpPerHeart;
         typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false);
@@ -502,6 +506,8 @@ public partial class QaSweep
         foreach (var e in FindObjectsByType<EnemyController>(FindObjectsSortMode.None)) Destroy(e.gameObject);
         yield return null;
         SetPrivate(pc, "hitInvincibleTimer", 0f);
+        SetPrivate(pc, "mageLevel", 0); // 魔法使い: 前のテストの上攻撃で上がった高度のまま洞窟の天井の針に触れないように
+        yield return new WaitForSeconds(0.5f);
         {
             V3Reset();
             CardRules.ShieldRechargeBaseSeconds = 2f; CardRules.ShieldRechargeMinSeconds = 0.5f;
@@ -509,7 +515,7 @@ public partial class QaSweep
             hit();
             int afterHit = pc.ShieldCharges;
             yield return new WaitForSeconds(2.2f);
-            L($"[P:{ch}] SHIELD Lv1: after block {afterHit}, after recharge {pc.ShieldCharges}");
+            L($"[P:{ch}] SHIELD Lv1: after block {afterHit}, after recharge {pc.ShieldCharges} (cap {pc.ShieldCapacity}, recharge {pc.ShieldRechargeSeconds:F1}s, lives {gm.Lives}, y {pc.transform.position.y:F1}, last damage '{pc.LastDamageSource}' {Time.time - pc.LastDamageTime:F1}s ago)");
             Check(afterHit == 0 && pc.ShieldCharges == 1, $"{ch}: SHIELD recharges over time");
             CardRules.ShieldRechargeBaseSeconds = 24f; CardRules.ShieldRechargeMinSeconds = 8f;
         }
@@ -783,59 +789,192 @@ public partial class QaSweep
     }
 
     // ===================================================================== E
+    // EXP(2026-10-04): 1つの枠 + 曲線。100,000m までの到達Lvを、今の式(ゲームの値)と変更前の式(掛け合わせ、曲線なし)で比べる。
+    // 撃破の数は仮定(-qaV3KillsPerKm、既定 20体/km)。取得は決めた順のカードを Lv9 まで(それ以外は EXP に関係ないカード)。
+    static readonly int[] V3ExpMarks = { 10000, 30000, 50000, 70000, 100000 };
+
     IEnumerator V3Exp()
     {
         L("== E: EXP / MILE(100,000mまで。式はゲームの値、撃破の数は仮定) ==");
         yield return V3Begin("swordsman");
         float killsPerKm = float.Parse(Arg("-qaV3KillsPerKm", "20"), IC);
-        var sb = new StringBuilder("config\t1km\t5km\t10km\t25km\t50km\t100km\tmile10km\tmile50km\tmile100km\n");
-        var configs = new (string name, string[] order)[]
+        // EXP を持つカード(最新の99枚から抽出)
+        var expCards = CardDatabase.AllCards.Where(c => c.effects.Any(e => e.type == EffectType.ExpGain || e.type == EffectType.DistanceExpPct || e.type == EffectType.KillExpPct)).ToList();
+        L($"[E] EXP cards ({expCards.Count}): " + string.Join(", ", expCards.Select(c => $"{c.cardName}[{string.Join("+", c.effects.Where(e => e.type == EffectType.ExpGain || e.type == EffectType.DistanceExpPct || e.type == EffectType.KillExpPct).Select(e => $"{e.type}{e.value * 100f:+0;-0}%"))}]")));
+        string[] full = { "exp_up", "level_break", "the_long_road", "experience_burst", "pathfinder", "long_haul", "one_more_mile" };
+        var configs = new (string name, string[] order, int cap)[]
         {
-            ("EXPなし", new string[0]),
-            ("EXP UP Lv9", new[] { "exp_up" }),
-            ("EXP特化", new[] { "exp_up", "level_break", "the_long_road", "experience_burst", "pathfinder", "long_haul", "one_more_mile" }),
-            ("MILE特化", new[] { "executioner", "treasure_hunter", "one_more_mile", "mob_killer", "elite_enemies", "wanted", "exp_converter" }),
-            ("Challenge大量", CardBuildPresets.Find("challenge")),
+            ("EXPなし", new string[0], 9),
+            ("EXP UP Lv1", new[] { "exp_up" }, 1),
+            ("EXP UP Lv5", new[] { "exp_up" }, 5),
+            ("EXP UP Lv9", new[] { "exp_up" }, 9),
+            ("EXP 2枚(UP+LEVEL BREAK)", new[] { "exp_up", "level_break" }, 9),
+            ("EXP 3枚(+THE LONG ROAD)", new[] { "exp_up", "level_break", "the_long_road" }, 9),
+            ("EXP 全特化(7枚)", full, 9),
+            ("MILE特化", new[] { "executioner", "treasure_hunter", "one_more_mile", "mob_killer", "elite_enemies", "wanted", "exp_converter" }, 9),
+            ("Challenge大量", CardBuildPresets.Find("challenge"), 9),
         };
+        var sb = new StringBuilder("config\tformula\t10km\t30km\t50km\t70km\t100km\tmultAt100km\tmile10km\tmile50km\tmile100km\n");
+        var newAt = new Dictionary<string, int[]>();
         foreach (var cfg in configs)
         {
-            V3Reset();
-            int level = 1; float exp = 0f, toNext = gm.expBaseForLevel2;
-            var cardLv = new Dictionary<string, int>();
-            float mileEnemy = 0f, mileBoss = 0f;
-            var marks = new Dictionary<int, int>();
-            var miles = new Dictionary<int, float>();
-            for (int m = 100; m <= 100000; m += 100)
+            foreach (bool oldFormula in new[] { false, true })
             {
-                float mult = gm.CardTestExpGainMultiplier;
-                float dExp = 100f * gm.expPerMeter * Mathf.Max(0f, 1f + gm.Card.Get(EffectType.DistanceExpPct));
-                float kExp = killsPerKm * 0.1f * gm.enemyKillExp * Mathf.Max(0f, 1f + gm.Card.Get(EffectType.KillExpPct));
-                float bExp = m % 1000 == 0 ? gm.bossKillExp * Mathf.Max(0f, 1f + gm.Card.Get(EffectType.KillExpPct)) : 0f;
-                exp += (dExp + kExp + bExp) * mult;
-                mileEnemy += killsPerKm * 0.1f * gm.MileGainMultiplier;
-                if (m % 1000 == 0) mileBoss += 50f * gm.BossMileGainMultiplier;
-                while (exp >= toNext)
+                V3Reset();
+                int level = 1; float exp = 0f, toNext = gm.expBaseForLevel2;
+                var cardLv = new Dictionary<string, int>();
+                float mileEnemy = 0f, mileBoss = 0f;
+                var marks = new List<int>(); var miles = new List<float>();
+                float multEnd = 1f;
+                for (int m = 100; m <= 100000; m += 100)
                 {
-                    exp -= toNext; level++;
-                    toNext = gm.expBaseForLevel2 + gm.expGrowthPerLevel * (level - 1);
-                    // 取得: 決めた順のカードを Lv9 まで、それ以外は効果の無い(EXP/MILE に関係ない)カード
-                    foreach (var id in cfg.order)
+                    float g = gm.Card.Get(EffectType.ExpGain), d = gm.Card.Get(EffectType.DistanceExpPct), k = gm.Card.Get(EffectType.KillExpPct);
+                    float md = oldFormula ? Mathf.Max(0.25f, 1f + g) * (1f + d) : gm.ExpMultDistance;
+                    float mk = oldFormula ? Mathf.Max(0.25f, 1f + g) * (1f + k) : gm.ExpMultKill;
+                    multEnd = md;
+                    exp += 100f * gm.expPerMeter * md + killsPerKm * 0.1f * gm.enemyKillExp * mk + (m % 1000 == 0 ? gm.bossKillExp * mk : 0f);
+                    mileEnemy += killsPerKm * 0.1f * gm.MileGainMultiplier;
+                    if (m % 1000 == 0) mileBoss += 50f * gm.BossMileGainMultiplier;
+                    while (exp >= toNext)
                     {
-                        cardLv.TryGetValue(id, out int lvNow);
-                        if (lvNow >= 9) continue;
-                        cardLv[id] = lvNow + 1;
-                        V3Apply(id, 1);
-                        break;
+                        exp -= toNext; level++;
+                        toNext = gm.expBaseForLevel2 + gm.expGrowthPerLevel * (level - 1);
+                        foreach (var id in cfg.order)
+                        {
+                            cardLv.TryGetValue(id, out int lvNow);
+                            if (lvNow >= cfg.cap) continue;
+                            cardLv[id] = lvNow + 1;
+                            V3Apply(id, 1);
+                            break;
+                        }
                     }
+                    if (System.Array.IndexOf(V3ExpMarks, m) >= 0) { marks.Add(level); miles.Add(m / 100f * Mathf.Max(0f, 1f + gm.Card.Get(EffectType.DistanceMilePct)) + mileEnemy + mileBoss); }
                 }
-                if (m == 1000 || m == 5000 || m == 10000 || m == 25000 || m == 50000 || m == 100000) marks[m] = level;
-                if (m == 10000 || m == 50000 || m == 100000) miles[m] = m / 100f * Mathf.Max(0f, 1f + gm.Card.Get(EffectType.DistanceMilePct)) + mileEnemy + mileBoss;
+                string f = oldFormula ? "変更前" : "今";
+                sb.AppendLine($"{cfg.name}\t{f}\t{string.Join("\t", marks)}\t{multEnd:F2}\t{miles[0]:F0}\t{miles[2]:F0}\t{miles[4]:F0}");
+                L($"[E] {cfg.name,-24} {f,-3} Lv at 10/30/50/70/100km: {string.Join("/", marks)}  distance EXP x{multEnd:F2} at 100km  MILE 10/50/100km: {miles[0]:F0}/{miles[2]:F0}/{miles[4]:F0}");
+                if (!oldFormula) newAt[cfg.name] = marks.ToArray();
             }
-            sb.AppendLine($"{cfg.name}\t{marks[1000]}\t{marks[5000]}\t{marks[10000]}\t{marks[25000]}\t{marks[50000]}\t{marks[100000]}\t{miles[10000]:F0}\t{miles[50000]:F0}\t{miles[100000]:F0}");
-            L($"[E] {cfg.name,-12} Lv at 1/5/10/25/50/100km: {marks[1000]}/{marks[5000]}/{marks[10000]}/{marks[25000]}/{marks[50000]}/{marks[100000]}  MILE(距離+撃破+ボス) 10/50/100km: {miles[10000]:F0}/{miles[50000]:F0}/{miles[100000]:F0}");
         }
         V3Write("cardv3_exp.tsv", sb);
+        int[] none = newAt["EXPなし"], up9 = newAt["EXP UP Lv9"], all = newAt["EXP 全特化(7枚)"];
+        Check(up9[4] >= 100 && up9[4] <= 116, $"EXP UP Lv9 alone stays about the same (100km Lv{up9[4]}, target 100-115)");
+        Check(all[0] < 60, $"EXP full build no longer finishes the deck by 10km (10km Lv{all[0]}, was 111)");
+        Check(all[4] >= 140 && all[4] <= 210 && all[4] > up9[4] + 20, $"EXP full build is still clearly faster (100km Lv{all[4]} vs EXP UP Lv9 {up9[4]} vs none {none[4]})");
+        // 取得順を入れ替えても、最終の EXP 倍率は同じ
+        var orders = new[] { new[] { "exp_up", "level_break", "long_haul", "exp_converter", "pathfinder", "experience_burst" }, new[] { "experience_burst", "long_haul", "pathfinder", "exp_up", "exp_converter", "level_break" } };
+        var res = new List<(float, float)>();
+        foreach (var o in orders) { V3Reset(); foreach (var id in o) V3Pick.Invoke(gm, new object[] { id }); foreach (var id in o) for (int i = 0; i < 4; i++) V3Pick.Invoke(gm, new object[] { id }); res.Add((gm.ExpMultDistance, gm.ExpMultKill)); }
+        L($"[E] order A: distance x{res[0].Item1:F4} kill x{res[0].Item2:F4} / order B: distance x{res[1].Item1:F4} kill x{res[1].Item2:F4}");
+        Check(Mathf.Approximately(res[0].Item1, res[1].Item1) && Mathf.Approximately(res[0].Item2, res[1].Item2), "EXP multiplier does not depend on the order cards were taken");
+        // EXP CONVERTER と組み合わせても 0以下 / NaN にならない
+        V3Reset(); V3Apply("exp_converter", 9); V3Apply("exp_converter", 9); V3Apply("pathfinder", 1);
+        Check(gm.ExpMultDistance >= 0.25f && gm.ExpMultKill >= 0.25f && !float.IsNaN(gm.ExpMultDistance) && !float.IsNaN(gm.ExpMultKill), $"EXP CONVERTER + others: floor x0.25 kept (x{gm.ExpMultDistance:F2} / x{gm.ExpMultKill:F2})");
         yield return V3End();
+    }
+
+    // ===================================================================== W
+    // Android 用の長距離の確認(DEBUGパネル → 長距離の確認): DEBUG RUN で 30km へ、Attack特化を付けて。保存を汚さないこと
+    IEnumerator V3LongDebug()
+    {
+        L("== W: 長距離の確認(DEBUG RUN) ==");
+        float w = 0f;
+        while ((GameManager.Instance == null || GameManager.Instance.HasStarted) && w < 10f) { yield return null; w += Time.unscaledDeltaTime; }
+        gm = GameManager.Instance;
+        float best0 = gm.BestDistance;
+        EndgameDebug.LaunchLong("wasteland_road", 30000f, EndgameDebug.LongBuild.Attack, EndgameDebug.Profile.Sturdy);
+        yield return new WaitForSecondsRealtime(1f);
+        w = 0f;
+        while ((EndgameDebug.Instance.Launching || GameManager.Instance == null || !GameManager.Instance.HasStarted) && w < 40f) { yield return null; w += Time.unscaledDeltaTime; }
+        gm = GameManager.Instance; pc = PlayerController.Instance;
+        yield return new WaitForSeconds(2f);
+        int hp1 = DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(1f) : 0;
+        L($"[W] launched: debugRun={DebugRun.IsActive} '{DebugRun.What}' d={gm.MaxDistance:F0} atk x{pc.CardAttackFactor:F2} enemyHp(x1)={hp1} status='{EndgameDebug.Instance.Status}'");
+        Check(DebugRun.IsActive && gm.MaxDistance >= 30000f && gm.MaxDistance < 31000f, "long-distance check starts a DEBUG RUN at 30km");
+        Check(pc.CardAttackFactor > 2f && hp1 >= 200, "the chosen build is applied and the enemies have the 30km HP");
+        yield return new WaitForSeconds(8f);
+        int enemies = FindObjectsByType<EnemyController>(FindObjectsSortMode.None).Length;
+        L($"[W] after 8s: d={gm.MaxDistance:F0} enemies={enemies} blockedSaves={DebugRun.BlockedWrites}");
+        var old = gm;
+        gm.Retry();
+        w = 0f;
+        while ((GameManager.Instance == null || GameManager.Instance == old) && w < 15f) { yield return null; w += Time.unscaledDeltaTime; }
+        yield return new WaitForSecondsRealtime(1.5f);
+        gm = GameManager.Instance;
+        L($"[W] back home: debugRun={DebugRun.IsActive} restoredKeys={DebugRun.LastRestoredKeys} best {best0:F0} -> {gm.BestDistance:F0}");
+        Check(!DebugRun.IsActive && DebugRun.LastRestoredKeys == 0 && Mathf.Approximately(best0, gm.BestDistance), "the DEBUG RUN ended without changing BEST / progress");
+    }
+
+    // ===================================================================== L
+    // 長距離の雑魚の硬さ(2026-10-04、雑魚HPは変えていない): 距離ごとの HP、地上の1発で必要な数、実際に殴って倒すまでの時間(TTK)。
+    // TTK は硬いまま同じ位置に並べた3体(AI なし)を殴り続け、3体とも倒れるまでの秒数 ÷ 3。攻撃速度/追加の1撃/属性(継続/範囲)も入る。
+    IEnumerator V3Ttk()
+    {
+        L("== L: 長距離の雑魚の硬さ(HP / 必要な発数 / TTK) ==");
+        float[] dists = { 0f, 10000f, 30000f, 50000f, 70000f, 100000f };
+        string[] enemyIds = Arg("-qaV3TtkEnemies", "goblin,heavy_ogre").Split(',');
+        var builds = new (string name, string preset, int lv)[] { ("カードなし", null, 0), ("一般 Lv9", "mix", 9), ("Attack特化 Lv9", "attack", 9), ("炎特化 Lv9", "fire", 9), ("雷特化 Lv9", "lightning", 9), ("極端Risk Lv9", "extreme", 9) };
+        float cap = float.Parse(Arg("-qaV3TtkCap", "20"), IC);
+        var sb = new StringBuilder("char\tenemy\tdistance\thp\tbuild\thit\thitsNeeded\tttkPerEnemy\tkilled\n");
+        foreach (string ch in Arg("-qaV3TtkChars", "swordsman").Split(','))
+        {
+            yield return V3Begin(ch, "wasteland_road");
+            V3FlatStretch();
+            var dtm = DistanceTierManager.Instance;
+            foreach (var b in builds)
+            {
+                V3Reset();
+                if (b.preset != null) foreach (var id in CardBuildPresets.Find(b.preset)) V3Apply(id, b.lv);
+                foreach (string eid in enemyIds)
+                {
+                    var def = EnemyDatabase.FindById(eid);
+                    if (def == null) { Warn($"unknown enemy {eid}"); continue; }
+                    foreach (float d in dists)
+                    {
+                        int hp = Mathf.Max(1, Mathf.RoundToInt((1 + dtm.baseHpBonus + Mathf.FloorToInt(d / Mathf.Max(1f, dtm.hpIncreaseDistance))) * CombatScale.K * def.hpMultiplier));
+                        foreach (var e in FindObjectsByType<EnemyController>(FindObjectsSortMode.None)) Destroy(e.gameObject);
+                        yield return null;
+                        V3LivesSet.Invoke(gm, new object[] { gm.maxLives });
+                        int hit = pc.EffectiveAttackPower;
+                        int need = Mathf.CeilToInt(hp / (float)Mathf.Max(1, hit));
+                        var targets = new List<EnemyController>();
+                        var slots = new List<float>();
+                        for (int i = 0; i < 3; i++)
+                        {
+                            var en = HaSpawn(1.4f + i * 1.0f, eid);
+                            if (en == null) continue;
+                            en.maxHp = hp; HaEnemyHp.SetValue(en, hp);
+                            targets.Add(en); slots.Add(en.transform.position.x - pc.transform.position.x);
+                        }
+                        pc.autoRunEnabled = false;
+                        float t0 = Time.time, lastFlick = 0f;
+                        while (Time.time - t0 < cap && targets.Any(t => t != null && !t.IsDying))
+                        {
+                            yield return null;
+                            if (gm.Lives < gm.maxLives) V3LivesSet.Invoke(gm, new object[] { gm.maxLives });
+                            SetPrivate(pc, "hitInvincibleTimer", 0f);
+                            if (Time.time - lastFlick > 0.12f) { lastFlick = Time.time; StartCoroutine(Flick(PlayerController.FlickDirection.Forward)); }
+                            for (int i = 0; i < targets.Count; i++)
+                            {
+                                var t = targets[i];
+                                if (t == null || t.IsDying || (bool)HaEnemyLaunched.GetValue(t)) continue;
+                                float want = pc.transform.position.x + slots[i];
+                                var tmz = TerrainManager.Instance;
+                                if (Mathf.Abs(t.transform.position.x - want) > 0.5f && tmz != null && tmz.GetHeightAt(want).HasValue) t.transform.position = new Vector3(want, t.transform.position.y, t.transform.position.z);
+                            }
+                        }
+                        pc.autoRunEnabled = true;
+                        int killed = targets.Count(t => t == null || t.IsDying);
+                        float secs = Time.time - t0;
+                        float per = killed > 0 ? secs / killed : float.PositiveInfinity;
+                        sb.AppendLine($"{ch}\t{eid}\t{d / 1000f:0}km\t{hp}\t{b.name}\t{hit}\t{need}\t{(killed > 0 ? per.ToString("F2", IC) : ">" + cap.ToString("F0", IC))}\t{killed}/{targets.Count}");
+                        L($"[L:{ch}] {eid,-10} {d / 1000f,3:0}km HP{hp,5} {b.name,-14} 1発{hit,4} 必要{need,3}発  TTK {(killed > 0 ? per.ToString("F2") + "s" : ">" + cap + "s")} ({killed}/{targets.Count})");
+                        V3Write("cardv3_ttk.tsv", sb);
+                    }
+                }
+            }
+            yield return V3End();
+        }
     }
 
     // ===================================================================== C

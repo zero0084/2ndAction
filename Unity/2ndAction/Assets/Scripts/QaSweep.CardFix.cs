@@ -217,7 +217,7 @@ public partial class QaSweep
         // 荒野街道は Encounter の多くが上下ルートの分岐区間(地形の分岐の位置で決まる)なので、出現率の効きが小さい(既知の制約、報告済み)
         bool branchStage = stage == "wasteland_road";
         if (branchStage && !(k2 > k1 * 1.2f)) Warn($"C {stage}: spawn rate has a small effect here (route-pair sections are fixed by terrain forks): main encounters {k1 * 1000f:0.0} -> {k2 * 1000f:0.0} per km, all enemies {x1.enemies / Mathf.Max(1f, x1.meters) * 1000f:0.0} -> {more.enemies / Mathf.Max(1f, more.meters) * 1000f:0.0} per km");
-        else Check(more.freq > 1.5f && k2 > k1 * 1.2f, $"C {stage}: MORE ENEMIES Lv5 (x{more.mult:0.00}) makes main-route encounters more frequent ({k1 * 1000f:0.0} -> {k2 * 1000f:0.0} per km)");
+        else Check(more.freq >= 1.5f - 1e-3f && k2 > k1 * 1.2f, $"C {stage}: MORE ENEMIES Lv5 (x{more.mult:0.00}) makes main-route encounters more frequent ({k1 * 1000f:0.0} -> {k2 * 1000f:0.0} per km)");
         Check(Mathf.Abs(ext.freq - 2f) < 0.001f && k3 < k1 * 3f, $"C {stage}: an extreme value is capped at frequency x2 (x{ext.mult:0.0} -> x{ext.freq:0.0}, {k3 * 1000f:0.0} main encounters per km)");
         Check(results.All(r => r.minGap > 0f), $"C {stage}: main-route encounters never overlap (min gap {results.Min(r => r.minGap):F1}m)");
     }

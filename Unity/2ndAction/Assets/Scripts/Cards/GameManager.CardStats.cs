@@ -210,7 +210,8 @@ public partial class GameManager
         }
 
         // 5) 倍率(EXP / MILE は CARD TEST の層を壊さないように比で)
-        expGainMultiplier = ApplyRatio(expGainMultiplier, ref cardExpApplied, Mathf.Max(0.25f, 1f + Card.Get(EffectType.ExpGain)));
+        // EXP(2026-10-04): カードの EXP は ExpMultDistance / ExpMultKill(1つの枠 + 曲線)で掛ける。expGainMultiplier は CARD TEST の層だけ
+        expGainMultiplier = ApplyRatio(expGainMultiplier, ref cardExpApplied, 1f);
         MileGainMultiplier = ApplyRatio(MileGainMultiplier, ref cardMileApplied, Mathf.Max(0f, 1f + Card.Get(EffectType.MileGainMultiplier)));
         BossMileGainMultiplier = ApplyRatio(BossMileGainMultiplier, ref cardBossMileApplied, Mathf.Max(0f, 1f + Card.Get(EffectType.BossMileGainMultiplier)));
         EnemySpawnRateMultiplier = Mathf.Max(0.1f, 1f + Card.Get(EffectType.EnemySpawnRate));
@@ -394,8 +395,15 @@ public partial class GameManager
 
 public partial class GameManager
 {
-    // EXPERIENCE BURST(v3): 撃破/ボス/BONUS の EXP
-    float KillExpScale => Mathf.Max(0f, 1f + Card.Get(EffectType.KillExpPct));
+    // EXP(2026-10-04): カードの EXP の強化は1つの枠に足してから、一度だけ曲線(CardRules.ExpMultiplier)を通す。
+    //   距離の EXP  = 全体(EXP UP / LEVEL BREAK / LONG HAUL / THE LONG ROAD / ONE MORE MILE / MONSTER RUSH / EXP CONVERTER)+ 距離(PATHFINDER)
+    //   撃破の EXP  = 全体 + 撃破/ボス/BONUS(EXPERIENCE BURST / TOUGH ENEMIES / FAST ENEMIES / HORDE)
+    //   以前は「全体」と「距離/撃破」を掛け合わせていた(2枚目以降が掛け算で伸びた)。今は足し算 → 曲線で、取得順でも変わらない
+    public float ExpBucketDistance => Card.Get(EffectType.ExpGain) + Card.Get(EffectType.DistanceExpPct);
+    public float ExpBucketKill => Card.Get(EffectType.ExpGain) + Card.Get(EffectType.KillExpPct);
+    public float ExpMultDistance => CardRules.ExpMultiplier(ExpBucketDistance);
+    public float ExpMultKill => CardRules.ExpMultiplier(ExpBucketKill);
+    float KillExpScale => ExpMultKill;
 }
 
 public partial class GameManager
