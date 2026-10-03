@@ -699,7 +699,8 @@ public partial class GameManager : MonoBehaviour
             // 定義(effects)に既に含まれているので1回だけ適用する(合成Lvを掛けると
             // 二重適用になる)。素のカードIDは常にLv.1=1回。
             int stacks = CardVariant.IsVariantKey(id) ? 1 : Mathf.Max(1, characterCardLevels[i]);
-            ApplyCardEffectsStacked(card, stacks);
+            // 2026-10-03: 能力ごとのLv9上限を守って適用(GameManager.CardCap.cs)。枠の順に、空きのある分だけ効く
+            ApplyRunCardCapped(card, stacks, $"CharacterCard slot {i}");
             // Bugfix 2026-09-05, item 4 - "Card Lv表示だけ増えて実Effectが
             // 1回しか適用されていないケースがないか". Code review found the
             // stacking path itself (ApplyCardEffectsStacked -> N calls to
@@ -1278,6 +1279,7 @@ public partial class GameManager : MonoBehaviour
         Lives = startingLives;
         ExpToNext = expBaseForLevel2;
         ClearResumeGate(); // 前のシーンの再開待ちの停止理由/慣らしを残さない(2026-10-03)
+        ElementSystem.ResetCounters(); // 属性の発動回数(確認用)はランごと
 
         preferredOrientation = (ScreenOrientation)PlayerPrefs.GetInt(OrientationKey, (int)ScreenOrientation.LandscapeLeft);
         Screen.orientation = preferredOrientation;
@@ -2841,9 +2843,16 @@ public partial class GameManager : MonoBehaviour
                 case EffectType.BossMileGainMultiplier:
                     BossMileGainMultiplier += effect.value;
                     break;
+                default:
+                    // 属性(2026-10-03): 炎/氷/雷/風/血の値はラン中の ElementStats へ(ElementSystem が命中時に使う)
+                    Elements.Add(effect.type, effect.value);
+                    break;
             }
         }
     }
+
+    // 属性(2026-10-03): このランでカードから得た属性の値(シーンの読み直し=新しいランで0に戻る。保存しない)
+    public readonly ElementStats Elements = new ElementStats();
 
     // Bugfix 2026-09-07 (Bug #001, root cause) - this method's resume-
     // critical lines (levelUpPending=false/Time.timeScale=1f and, for a
@@ -2883,7 +2892,7 @@ public partial class GameManager : MonoBehaviour
                 // upgradeHistory only), which already never touches
                 // CardInventory - so that requirement holds for free just by
                 // reusing this method verbatim.
-                ApplyCardEffects(card);
+                ApplyRunCardCapped(card, 1, "Run pick"); // 2026-10-03: 能力ごとのLv9上限
                 upgradeHistory.Add(card);
                 // Bugfix 2026-09-05, item 4 - see ApplyCharacterCardEffects's
                 // matching log; GetCurrentRunStack already includes the Add
@@ -3494,7 +3503,7 @@ public partial class GameManager : MonoBehaviour
         {
             CardDefinition card = CardDatabase.FindById(cardId);
             if (card == null) continue; // a card removed from the database since this save - skip rather than crash
-            ApplyCardEffects(card);
+            ApplyRunCardCapped(card, 1, "CONTINUE replay"); // 2026-10-03: 取得時と同じ上限(古い保存で9を超えていた分は効かない)
             upgradeHistory.Add(card);
         }
 
@@ -4464,7 +4473,9 @@ public partial class GameManager : MonoBehaviour
         // 取得した時だけがNEW - CardInventory.AddCard/MakeOwnedCardData
         // 参照)。以前はここで"NEW  Lv.1"と表示しており、「候補に出た＝
         // NEW」という誤った意味になっていた。
-        int nextStack = currentStack + PickLevelOf(card);
+        int mainStacks = 1;
+        foreach (var a in AbilitiesOf(card.cardId)) { mainStacks = a.stacks; break; }
+        int nextStack = Mathf.Min(MaxRunCardLevel, currentStack + mainStacks); // 2026-10-03: 主能力のLv(9で止まる)
         string stackLabel = (currentStack > 0 ? $"Lv.{currentStack} -> Lv.{nextStack}" : $"Lv.{nextStack}") + (nextStack >= MaxRunCardLevel ? " MAX" : "");
         // 合成カード: 取得すると主能力と全サブ能力が各強化量ぶん適用される(説明文に全能力)。
         CardVariant variant = CardVariant.IsVariantKey(card.cardId) ? CardVariant.Parse(card.cardId) : null;
@@ -4532,22 +4543,13 @@ public partial class GameManager : MonoBehaviour
         CardVariant v = CardVariant.Parse(c.cardId);
         return v != null ? Mathf.Clamp(v.level, 1, MaxRunCardLevel) : 1;
     }
-    public bool CanStillPick(CardDefinition c) => c != null && GetCurrentRunStack(c.cardId) + PickLevelOf(c) <= MaxRunCardLevel;
+    // 2026-10-03: 主能力のLvがまだ9未満なら候補に出せる(合成カードは能力ごとに空きの分だけ効く。GameManager.CardCap.cs)
+    public bool CanStillPick(CardDefinition c) => c != null && GetCurrentRunStack(c.cardId) < MaxRunCardLevel;
     public int MaxedCardSkips { get; private set; } // Lv9のカードが選ばれて効果を重ねなかった回数(確認用)
 
-    public int GetCurrentRunStack(string cardId)
-    {
-        int stack = 0;
-        for (int i = 0; i < CharacterCardSlotCount; i++)
-        {
-            if (characterCardIds[i] == cardId) stack += characterCardLevels[i];
-        }
-        foreach (CardDefinition c in upgradeHistory)
-        {
-            if (c.cardId == cardId) stack += PickLevelOf(c);
-        }
-        return stack;
-    }
+    // カードのラン中Lv = そのカードの主能力を、このランで(キャラカード枠/取得/合成のどの表記からでも)何回分適用したか。
+    // 以前はカードIDの文字列ごとに数えていて、同じ能力を別表記で重ねると9を超えられた。
+    public int GetCurrentRunStack(string cardId) => GetAbilityRunStack(MainAbilityOf(cardId));
 
     // Reward/Card Ownership/Gacha/Fusion System Ver.1 - same card data, for
     // the Card Edit screen's owned-cards grid, Character Card slots, and

@@ -393,9 +393,15 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         BonusOnDisable();
     }
 
+    // 属性(2026-10-03): 氷を受けた敵は行動(移動/予備動作/攻撃の間隔)の時間がゆっくり進む。Freeze中は0=止まる。
+    // この敵の行動はすべてこの時間で進む(WaitForSecondsは使っていない)ので、止まっている間は新しい攻撃も始まらない。
+    ElementStatus elementStatus;
+    float EDt => Time.deltaTime * (elementStatus != null ? elementStatus.TimeScale : 1f);
+
     void Update()
     {
         if (player == null) return;
+        if (elementStatus == null) elementStatus = GetComponent<ElementStatus>();
 
         // Safety - a Chaser/Rusher that somehow ended up hopelessly behind
         // the auto-scrolling player is despawned rather than left running
@@ -446,7 +452,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         float x = transform.position.x;
         if (Mathf.Abs(dx) > flyingStopDistance)
         {
-            x += Mathf.Sign(dx) * flyingApproachSpeed * Time.deltaTime;
+            x += Mathf.Sign(dx) * flyingApproachSpeed * EDt;
         }
 
         float? groundY = Surface(x);
@@ -466,7 +472,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
 
         if (flyingDiveEnabled)
         {
-            flyingDiveTimer -= Time.deltaTime;
+            flyingDiveTimer -= EDt;
             if (flyingDiveTimer <= 0f && Mathf.Abs(dx) <= flyingDiveRange)
             {
                 StartFlyingDiveTelegraph();
@@ -514,7 +520,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         switch (flyingDiveState)
         {
             case FlyingDiveState.Telegraph:
-                flyingDiveTimer -= Time.deltaTime;
+                flyingDiveTimer -= EDt;
                 if (flyingDiveMarkerTransform != null)
                 {
                     float total = Mathf.Max(0.05f, flyingDiveTelegraphDuration);
@@ -535,7 +541,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
             case FlyingDiveState.Diving:
             {
                 Vector3 p = transform.position;
-                p.y = Mathf.MoveTowards(p.y, flyingDiveTargetY, flyingDiveSpeed * Time.deltaTime);
+                p.y = Mathf.MoveTowards(p.y, flyingDiveTargetY, flyingDiveSpeed * EDt);
                 transform.position = p;
                 if (Mathf.Abs(p.y - flyingDiveTargetY) < 0.05f)
                 {
@@ -547,7 +553,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
             }
 
             case FlyingDiveState.Holding:
-                flyingDiveTimer -= Time.deltaTime;
+                flyingDiveTimer -= EDt;
                 if (flyingDiveTimer <= 0f)
                 {
                     if (flyingDiveHitboxGO != null) flyingDiveHitboxGO.SetActive(false);
@@ -558,7 +564,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
             case FlyingDiveState.Returning:
             {
                 Vector3 p = transform.position;
-                p.y = Mathf.MoveTowards(p.y, flyingBaseY, flyingDiveRecoverSpeed * Time.deltaTime);
+                p.y = Mathf.MoveTowards(p.y, flyingBaseY, flyingDiveRecoverSpeed * EDt);
                 transform.position = p;
                 if (Mathf.Abs(p.y - flyingBaseY) < 0.1f)
                 {
@@ -581,16 +587,16 @@ public partial class EnemySpecialBehavior : MonoBehaviour
 
     void UpdateIrregular()
     {
-        actionTimer -= Time.deltaTime;
+        actionTimer -= EDt;
 
         if (irregularState == IrregularState.Move)
         {
-            float nextX = transform.position.x + irregularMoveDir * irregularMoveSpeed * Time.deltaTime;
+            float nextX = transform.position.x + irregularMoveDir * irregularMoveSpeed * EDt;
             // Leashed to spawnX so it reads as "wandering near here", not
             // drifting away indefinitely - reverses direction at the leash
             // edge instead of just stopping dead.
             if (Mathf.Abs(nextX - spawnX) > irregularLeashRange) irregularMoveDir = -irregularMoveDir;
-            SetGroundedX(transform.position.x + irregularMoveDir * irregularMoveSpeed * Time.deltaTime);
+            SetGroundedX(transform.position.x + irregularMoveDir * irregularMoveSpeed * EDt);
         }
 
         if (actionTimer <= 0f) PickIrregularAction();
@@ -603,7 +609,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         float t = 0f;
         while (t < 1f)
         {
-            t += Time.deltaTime / Mathf.Max(0.05f, irregularHopDuration);
+            t += EDt / Mathf.Max(0.05f, irregularHopDuration);
             float arc = Mathf.Sin(Mathf.Clamp01(t) * Mathf.PI);
             Vector3 p = transform.position;
             p.y = baseY + arc * irregularHopHeight;
@@ -627,12 +633,12 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         if (absDx < shooterRetreatDistance)
         {
             float away = -Mathf.Sign(dx);
-            SetGroundedX(transform.position.x + away * shooterRetreatSpeed * Time.deltaTime);
+            SetGroundedX(transform.position.x + away * shooterRetreatSpeed * EDt);
         }
 
         if (absDx > shooterRange) return;
 
-        shooterTimer -= Time.deltaTime * BossBattle.ZakoAttackScale; // ボスの必殺技中は撃つ間隔を空ける(2026-10-01)
+        shooterTimer -= EDt * BossBattle.ZakoAttackScale; // ボスの必殺技中は撃つ間隔を空ける(2026-10-01)
         if (shooterTimer <= 0f)
         {
             shooterTimer = shooterCooldown;
@@ -666,7 +672,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         float absDx = Mathf.Abs(dx);
         if (absDx > heavyDetectionRange || absDx <= heavyStopDistance) return;
         float dir = Mathf.Sign(dx);
-        SetGroundedX(transform.position.x + dir * heavyApproachSpeed * Time.deltaTime);
+        SetGroundedX(transform.position.x + dir * heavyApproachSpeed * EDt);
     }
 
     // "Playerを継続的に追跡...若干遅い、または条件によって追いつける程度"
@@ -678,7 +684,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         float absDx = Mathf.Abs(dx);
         if (absDx > chaseDetectionRange || absDx <= chaseStopDistance) return;
         float dir = Mathf.Sign(dx);
-        SetGroundedX(transform.position.x + dir * chaseSpeed * Time.deltaTime);
+        SetGroundedX(transform.position.x + dir * chaseSpeed * EDt);
     }
 
     // "Player検知 -> 短い予備動作 -> 高速突進 -> 少し停止 -> 再突進" (item
@@ -700,7 +706,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
                 }
                 else if (absDx > chaseStopDistance)
                 {
-                    SetGroundedX(transform.position.x + Mathf.Sign(dx) * rusherIdleSpeed * Time.deltaTime);
+                    SetGroundedX(transform.position.x + Mathf.Sign(dx) * rusherIdleSpeed * EDt);
                 }
                 break;
 
@@ -708,7 +714,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
                 // Deliberately motionless during the telegraph - a visible
                 // "about to move" beat (EnemyAnimator's own idle sway still
                 // plays on the Visual child, untouched) before the burst.
-                rusherStateTimer -= Time.deltaTime;
+                rusherStateTimer -= EDt;
                 if (rusherStateTimer <= 0f)
                 {
                     rusherState = RusherState.Dash;
@@ -717,8 +723,8 @@ public partial class EnemySpecialBehavior : MonoBehaviour
                 break;
 
             case RusherState.Dash:
-                SetGroundedX(transform.position.x + rusherDashDir * rusherDashSpeed * Time.deltaTime);
-                rusherStateTimer -= Time.deltaTime;
+                SetGroundedX(transform.position.x + rusherDashDir * rusherDashSpeed * EDt);
+                rusherStateTimer -= EDt;
                 if (rusherStateTimer <= 0f)
                 {
                     rusherState = RusherState.Recover;
@@ -727,7 +733,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
                 break;
 
             case RusherState.Recover:
-                rusherStateTimer -= Time.deltaTime;
+                rusherStateTimer -= EDt;
                 if (rusherStateTimer <= 0f) rusherState = RusherState.Idle;
                 break;
         }
@@ -807,7 +813,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
 
     void UpdateMeleeAttackCycle()
     {
-        meleeAttackTimer -= Time.deltaTime * (meleeAttackState == MeleeAttackState.Idle ? BossBattle.ZakoAttackScale : 1f); // ボスの必殺技中は次の攻撃までを空ける
+        meleeAttackTimer -= EDt * (meleeAttackState == MeleeAttackState.Idle ? BossBattle.ZakoAttackScale : 1f); // ボスの必殺技中は次の攻撃までを空ける
         switch (meleeAttackState)
         {
             case MeleeAttackState.Idle:
@@ -881,11 +887,11 @@ public partial class EnemySpecialBehavior : MonoBehaviour
 
     void UpdateMeleeMovement()
     {
-        meleeMoveTimer -= Time.deltaTime;
+        meleeMoveTimer -= EDt;
 
         if (meleeMoveState == MeleeMoveState.Hop)
         {
-            meleeHopElapsed += Time.deltaTime;
+            meleeHopElapsed += EDt;
             float t = Mathf.Clamp01(meleeHopElapsed / Mathf.Max(0.05f, meleeHopDuration));
             float arc = Mathf.Sin(t * Mathf.PI) * meleeHopHeight;
             SetGroundedXWithExtraY(transform.position.x, arc);
@@ -898,11 +904,11 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         }
         else if (meleeMoveState == MeleeMoveState.MoveSmall)
         {
-            float nextX = transform.position.x + meleeMoveDirSign * meleeMoveSpeed * Time.deltaTime;
+            float nextX = transform.position.x + meleeMoveDirSign * meleeMoveSpeed * EDt;
             // spawnXからmeleeMoveLeashRangeを超えたら向きを反転する
             // (Irregularのleash-and-reverseと同じ考え方)。
             if (Mathf.Abs(nextX - spawnX) > meleeMoveLeashRange) meleeMoveDirSign = -meleeMoveDirSign;
-            SetGroundedX(transform.position.x + meleeMoveDirSign * meleeMoveSpeed * Time.deltaTime);
+            SetGroundedX(transform.position.x + meleeMoveDirSign * meleeMoveSpeed * EDt);
         }
 
         if (meleeMoveTimer <= 0f) PickMeleeMoveAction();
@@ -977,7 +983,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
 
     void UpdateHopperAttackCycle()
     {
-        hopperAttackTimer -= Time.deltaTime * (hopperAttackState == HopperAttackState.Idle ? BossBattle.ZakoAttackScale : 1f);
+        hopperAttackTimer -= EDt * (hopperAttackState == HopperAttackState.Idle ? BossBattle.ZakoAttackScale : 1f);
         switch (hopperAttackState)
         {
             case HopperAttackState.Idle:
@@ -1045,11 +1051,11 @@ public partial class EnemySpecialBehavior : MonoBehaviour
 
     void UpdateHopperMovement()
     {
-        hopperActionTimer -= Time.deltaTime;
+        hopperActionTimer -= EDt;
 
         if (hopperMoveState == HopperMoveState.Hop)
         {
-            hopperHopElapsed += Time.deltaTime;
+            hopperHopElapsed += EDt;
             float t = Mathf.Clamp01(hopperHopElapsed / Mathf.Max(0.05f, hopperHopDuration));
             float x = Mathf.Lerp(hopperHopStartX, hopperHopTargetX, t);
             float arc = Mathf.Sin(t * Mathf.PI) * hopperHopHeight;
@@ -1058,9 +1064,9 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         }
         else if (hopperMoveState == HopperMoveState.Move)
         {
-            float nextX = transform.position.x + hopperMoveDirSign * hopperMoveSpeed * Time.deltaTime;
+            float nextX = transform.position.x + hopperMoveDirSign * hopperMoveSpeed * EDt;
             if (Mathf.Abs(nextX - spawnX) > hopperLeashRange) hopperMoveDirSign = -hopperMoveDirSign;
-            SetGroundedX(transform.position.x + hopperMoveDirSign * hopperMoveSpeed * Time.deltaTime);
+            SetGroundedX(transform.position.x + hopperMoveDirSign * hopperMoveSpeed * EDt);
         }
 
         if (hopperActionTimer <= 0f) PickHopperMoveAction();
@@ -1131,7 +1137,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
 
     void UpdateBurrowWorm()
     {
-        wormTimer -= Time.deltaTime;
+        wormTimer -= EDt;
         switch (wormState)
         {
             case WormState.Underground:
@@ -1166,7 +1172,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
                 break;
 
             case WormState.Telegraph:
-                wormDustCooldown -= Time.deltaTime;
+                wormDustCooldown -= EDt;
                 if (wormDustCooldown <= 0f)
                 {
                     wormDustCooldown = 0.15f;

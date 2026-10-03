@@ -84,5 +84,35 @@ public enum EffectType
     MileGainMultiplier,
     // Multiplicative delta (additive to a 1.0 baseline) on MILE earned per
     // Boss kill - see GameManager.RegisterBossDefeat.
-    BossMileGainMultiplier
+    BossMileGainMultiplier,
+
+    // ===== 属性(2026-10-03、ElementSystem / ElementStats 参照) =====
+    // カードの取得でだけ付く。キャラ/敵の属性・弱点・相性は持たない。値はすべて加算で重なる。
+    // 既存カードの数値はまだ入れていない(0=効果なし)。アセットには番号で保存されるので、必ず末尾に足すこと。
+    // 炎: 命中時に確率で Burn(継続ダメージ)。Power = その命中のダメージに対する1秒あたりの割合
+    BurnChance,
+    BurnPower,
+    BurnDuration,       // 秒(0なら ElementStats.DefaultBurnDuration)
+    // 氷: 命中時に確率で Chill(行動が遅くなる)。蓄積で Freeze(雑魚は止まる/ボスは強めの減速に変換)
+    ChillChance,
+    ChillSlow,          // 0〜0.9(行動の遅さの割合)
+    ChillDuration,      // 秒(0なら既定)
+    FreezeStacks,       // この回数Chillが重なったらFreeze(0=Freezeなし)
+    FreezeDuration,     // 秒(0なら既定)
+    // 雷: 命中時に確率で落雷。近くの別の敵へ連鎖(Chain)
+    LightningChance,
+    LightningPower,     // その命中のダメージに対する割合(1体あたり)
+    LightningChains,    // 連鎖する別の敵の数
+    LightningRange,     // 連鎖の届く距離の追加(m)
+    // 風: 命中時に確率で風刃(前方へ飛ぶ貫通の刃)。飛び道具の貫通の追加
+    WindBladeChance,
+    WindBladePower,     // 攻撃力に対する割合
+    WindPierce,         // 飛び道具(と風刃)が貫通できる敵の数の追加
+    WindRange,          // 風刃の飛ぶ距離の追加(m)
+    // 血: 命中時に確率で Bleed(継続ダメージ)、Bleedのダメージの一部を回復、低HPほど強い
+    BleedChance,
+    BleedPower,
+    BleedDuration,      // 秒(0なら既定)
+    BleedLifesteal,     // Bleedのダメージに対する回復の割合
+    BloodLowHpBonus     // 失ったHPの割合 × この値 だけ Bleed が強くなる
 }

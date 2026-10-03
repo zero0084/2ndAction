@@ -48,7 +48,13 @@ public partial class GameManager
         BossHpMultiplier = 1f;
         MileGainMultiplier = 1f;
         BossMileGainMultiplier = 1f;
+        Elements.ClearForTest(); // 属性(2026-10-03)もカード由来の値を外す(テストの上乗せも)
     }
+
+    // CARD TEST の表示用
+    public float CardTestExpGainMultiplier => expGainMultiplier;
+    public float CardTestLifestealChance => lifestealChance;
+    public float CardTestLifestealAmount => lifestealAmount;
 
     // ラン中にキャラクターを差し替える(テスト専用)。Run開始時と同じキャラの基本性能・見た目を適用し、
     // カードの効果は外れる。選択キャラ(次のNEW RUNのキャラ/保存値)は変えない。

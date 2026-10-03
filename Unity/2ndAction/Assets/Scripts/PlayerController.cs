@@ -599,7 +599,7 @@ public partial class PlayerController : MonoBehaviour
                 }
             }
 
-            power += Mathf.RoundToInt(MomentumBonus * Mathf.Max(0f, GetSpeedMultiplier() - 1f));
+            power += Mathf.RoundToInt(MomentumBonus * MomentumSpeedTerm);
             // 竜騎士(2026-09-26) - 後ろ攻撃(石突き)だけ威力を下げる。他キャラは常に1倍。
             if (isLancerCharacter && lanceDamageScale != 1f) power = Mathf.Max(1, Mathf.RoundToInt(power * lanceDamageScale));
             // 2026-10-02: 0以下にしない(空中攻撃-のカード等で負になると、ボスは1以上の下限が無いため逆に回復していた)
@@ -624,7 +624,7 @@ public partial class PlayerController : MonoBehaviour
                 if (gm.Lives >= gm.maxLives) power += FullHpAttackBonus;
                 else power += Mathf.RoundToInt(LowHpAttackBonus * (1f - (float)gm.Lives / gm.maxLives));
             }
-            power += Mathf.RoundToInt(MomentumBonus * Mathf.Max(0f, GetSpeedMultiplier() - 1f));
+            power += Mathf.RoundToInt(MomentumBonus * MomentumSpeedTerm);
             return Mathf.Max(1, power + BossDamageBonus);
         }
     }
@@ -681,6 +681,24 @@ public partial class PlayerController : MonoBehaviour
     // カメラの引き/速度の演出もその速さに合わせる(100km/h用に引いたままだと巨大文字が小さく見える)。
     public float SpeedRatio => autoRunEnabled ? Mathf.Min(EffectiveSpeedMultiplier(), ScriptedSpeedCapMps / Mathf.Max(0.01f, baseRunSpeed > 0.01f ? baseRunSpeed : 5f)) : 1f;
     public float MaxSpeedRatio => NaturalCapMultiplier; // 見た目(カメラのズーム/速度の演出)が最大になる倍率 = 自然加速の上限
+
+    // ===== 実際の現在速度(2026-10-03) =====
+    // HUD の km/h と同じ値。自動前進の速さ(CurrentAutoRunSpeed: 距離による自然加速 × キャラの走る速さ × 速度カード、
+    // 安全上限900km/h)。踏み込み/ノックバック/被弾で止まった一瞬などの「一時的な動き」は含めない(攻撃のたびに揺れないように)。
+    public float CurrentRunKmh => GameManager.SpeedKmh(CurrentAutoRunSpeed);
+    // 速さの正規化(0〜1): fromKmh 以下=0、toKmh 以上=1、その間は直線。例) SpeedFactor01(50, 150)
+    public float SpeedFactor01(float fromKmh, float toKmh) => SpeedFactor01At(CurrentRunKmh, fromKmh, toKmh);
+    public static float SpeedFactor01At(float kmh, float fromKmh, float toKmh) =>
+        toKmh <= fromKmh ? (kmh >= toKmh ? 1f : 0f) : Mathf.Clamp01((kmh - fromKmh) / (toKmh - fromKmh));
+
+    // MOMENTUM / OVERDRIVE の速度の項(攻撃 += MomentumBonus × この値)。
+    // 以前から GetSpeedMultiplier()(走行距離だけで決まる自然加速、3.6km以降は常に×5.556)を使っていたため、
+    // 実際の速さ(速度カード/キャラ)とは無関係に距離で増えていた。最終的な増加量はまだ決めないので、既定は従来の式のまま。
+    // MomentumUsesCurrentSpeed=true で「実際の現在速度 ÷ 基準18km/h − 1」に切り替わる(次の数値調整で式ごと決める)。
+    public static bool MomentumUsesCurrentSpeed = false;
+    public float MomentumSpeedTermByDistance => Mathf.Max(0f, GetSpeedMultiplier() - 1f);
+    public float MomentumSpeedTermByCurrentSpeed => Mathf.Max(0f, CurrentAutoRunSpeed / CommonBaseRunSpeed - 1f);
+    public float MomentumSpeedTerm => MomentumUsesCurrentSpeed ? MomentumSpeedTermByCurrentSpeed : MomentumSpeedTermByDistance;
     // 走行開始位置からの論理距離(Floating Originで座標を戻しても連続)。
     public float DistanceFromStart => (float)(transform.position.x - startX);
     // cm単位の表示/保存用(floatだと100,000m超でcm精度が保てないため、startXをdoubleで持つ)。

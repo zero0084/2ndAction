@@ -45,7 +45,10 @@ public class PlayerBullet : MonoBehaviour
         // ダメージ自体は相手側の既存OnTriggerEnter2D(タグ"PlayerAttack"を
         // 読む)へ任せ、弾はここで消える(貫通させない - "細い射線=点で攻撃
         // する"という武器特性どおり、1発で複数の敵を巻き込まない)。
+        // 2026-10-03: 荒野/洞窟/天空のボスの被弾範囲は子の BossHurtbox にある(WildBossBase 本体には無い)ため、
+        // 以前は見つけられずに弾がボスを貫通していた(ダメージは1回、弾は後ろの敵にも当たり得た)。
         if (other.GetComponent<EnemyController>() != null ||
+            other.GetComponent<BossHurtbox>() != null ||
             other.GetComponent<WildBossBase>() != null ||
             other.GetComponent<DragonController>() != null ||
             other.GetComponent<MajinController>() != null)

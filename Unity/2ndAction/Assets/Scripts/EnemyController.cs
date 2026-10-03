@@ -1150,6 +1150,28 @@ public class EnemyController : MonoBehaviour
         if (facing != null) facing.enabled = false;
     }
 
+    // 属性(2026-10-03): 炎上/出血の継続ダメージ・連鎖の落雷。HPを減らすだけで、のけぞり/ノックバック/ヒットストップは
+    // 起こさない(倒れた時は通常の撃破と同じ処理=経験値/MILE/BONUS ZONEの数え方も同じ)。HOST/シングルの敵だけ。
+    public bool ApplyElementDamage(int damage, Vector3 at)
+    {
+        if (dying || NetReplica || !isActiveAndEnabled) return false;
+        EnsureHp();
+        int dmg = Mathf.Max(1, damage);
+        hp -= dmg;
+        bool killed = hp <= 0;
+        netReactionAttacker = 0;
+        NetCombat.AuthorityDamaged(NetId, 0, dmg, hp, (byte)PlayerAttackKind.Normal, at, killed);
+        if (bonus != null) bonus.OnLocalHit(PlayerAttackKind.Normal, isLaunched, killed, at);
+        if (killed)
+        {
+            hitNoKnockback = true;
+            hitNoStop = true;
+            ProcessHit(PlayerAttackKind.Normal, at, true);
+        }
+        return true;
+    }
+    public bool IsDyingOrReplica => dying || NetReplica;
+
     // JOIN: 自分の攻撃がパペットに当たった。
     void NetReplicaHit(Collider2D other)
     {

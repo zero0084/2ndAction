@@ -40,6 +40,8 @@ public class PlayerAttackInfo : MonoBehaviour
     // 2026-09-30: trueなら MeleeReach(キャラ別の判定調整/高速補正)を掛けない(吸血鬼の血のSlashのように「今の間合いのまま」にしたい技)。
     // 技の判定を出すたびに ArmKitBox が false へ戻す。
     [System.NonSerialized] public bool fixedReach;
+    // 属性(2026-10-03): 属性の効果が出した攻撃(風刃)。これ自身からは風刃を出さない(連鎖で増え続けない)
+    [System.NonSerialized] public bool elementProc;
 
     // 障害物の耐久力/高速時のすり抜け対策(2026-09-29)。
     // SwingId: この判定の「1回の振り(発射)」の番号。同じ振りでは敵/障害物へ1回しか当たらない(判定の重複で二重に減らない)。
@@ -71,7 +73,10 @@ public class PlayerAttackInfo : MonoBehaviour
         // この端末のPlayerAttack判定はすべてこの端末のプレイヤーのもの(他のプレイヤーの攻撃は判定を持たない見た目だけ)。
         if (attack != null && victim != null && PlayerController.Instance != null)
             PlayerController.Instance.NotifyAttackLanded(victim, attack.GetComponent<PlayerAttackInfo>());
-        return ScaleDamage(attack, damage, true);
+        int result = ScaleDamage(attack, damage, true);
+        // 属性(2026-10-03): 敵/ボスへの命中はすべてここを通る。カードで得た属性の効果(炎上/冷気/落雷/風刃/出血)を判定する
+        if (victim != null) ElementSystem.OnPlayerHit(victim, attack != null ? attack.GetComponent<PlayerAttackInfo>() : null, result);
+        return result;
     }
 
     static void NotifyFlair(Collider2D attack, Component victim)

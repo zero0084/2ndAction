@@ -34,6 +34,13 @@ public class KitProjectile : MonoBehaviour
     float age;
     bool done;
 
+    // 属性(2026-10-03): 風の「貫通の追加」。作った側が pierce を決めた後(次のフレーム)に足す。pierce<0(無制限)はそのまま
+    void Start()
+    {
+        int add = GameManager.Instance != null ? GameManager.Instance.Elements.WindPierce : 0;
+        if (add > 0 && pierce >= 0) pierce += add;
+    }
+
     void Update()
     {
         if (done) return;
@@ -76,6 +83,9 @@ public class KitProjectile : MonoBehaviour
             if (pierce > 0) pierce--;
             return;
         }
+        // 2026-10-03: ボス/敵の「攻撃判定」(BossHitbox/EnemyMeleeHitbox)は持ち主の子なので、以前はそれに触れただけで
+        // 「ボス/敵に当たった」扱いになり、ダメージを与えずに弾が消えていた(矢/手裏剣/札など)。攻撃判定は素通りする。
+        if (other.GetComponent<BossHitbox>() != null || other.GetComponent<EnemyMeleeHitbox>() != null) return;
         bool enemy = other.GetComponentInParent<EnemyController>() != null;
         bool boss = !enemy && (other.GetComponentInParent<WildBossBase>() != null || other.GetComponentInParent<DragonController>() != null || other.GetComponentInParent<MajinController>() != null);
         if (!enemy && !boss) return;

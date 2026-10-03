@@ -10,7 +10,7 @@ using UnityEngine;
 //  ・新しいラン(シーンの読み直し)で全部消える(通常のランへ持ち越さない)。
 public partial class CardBalanceTest
 {
-    const int BuildTabRows = 12;
+    const int BuildTabRows = 18;
     int buildLv = 9;
     string buildNote = "";
 
@@ -82,7 +82,7 @@ public partial class CardBalanceTest
         int hitBoss = Mathf.Max(1, ground + momB + full + boss);
         int hitBig = Mathf.Max(1, ground + momB + full + boss + Mathf.Max(pc.FirstHitBonus, pc.ComboFinalStageBonus));
         Line(x, ref y, rowH, gap, $"1発(技の倍率×1): ボス・地上・満HP・今の速度 {hitBoss:N0} / +初撃か締めの大きい方 {hitBig:N0} / BREAK×1.35 {Mathf.RoundToInt(hitBig * 1.35f):N0}   今の1発(実際の状態) {pc.EffectiveBossAttackPower:N0}");
-        Line(x, ref y, rowH, gap, $"速さ {GameManager.SpeedKmh(pc.CurrentAutoRunSpeed):0}km/h(runSpeed {pc.runSpeed:0.00} × 距離の倍率 {pc.NaturalMultiplierAt(pc.DistanceFromStart):0.00})  攻撃時間 ×{pc.AttackSpeedMultiplier:0.00}(テンポ×{1f / Mathf.Max(0.01f, pc.AttackSpeedMultiplier):0.0})  攻撃範囲 ×{pc.AttackRangeMultiplier:0.00}");
+        DrawBuildSpeedAndExtras(x, ref y, rowH, gap, pc, gm);
         Line(x, ref y, rowH, gap, $"ジャンプ力 {pc.jumpForce:0.0}(高さ約×{Mathf.Pow(pc.jumpForce / Mathf.Max(0.01f, pc.CardTestBaseJumpForce), 2f):0.0})  ジャンプ回数 {pc.maxJumps}  HP {gm.Lives}/{gm.maxLives}(上限{gm.maxLivesCap})  Shield {pc.ShieldCharges}  ボスHP×{gm.BossHpMultiplier:0.0}");
         Line(x, ref y, rowH, gap, "理論DPS = 1発 × 技の倍率 × 1秒の攻撃回数(標準の剣は 1発/0.4秒×攻撃時間)。実測は QaSweep -qaBossKill -qaBkHp 999999");
     }

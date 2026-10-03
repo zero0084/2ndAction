@@ -8,7 +8,21 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider2D))]
 public class MajinController : MonoBehaviour
 {
-    enum State { Entering, Idle, Telegraphing, Firing, Dead }
+    enum State { Entering, Idle, Telegraphing, Firing, Dead, Exposed }
+
+    // 近接キャラの反撃の時間(2026-10-03)。以前は常にプレイヤーの約10〜18m前を漂い、近接キャラは跳ね返した火球でしか
+    // 攻撃できなかった(カードなしで撃破まで10〜33分の見込み)。exposeEveryAttacks 回の攻撃ごとに、攻撃の後で
+    // 体の手前の端がプレイヤーの exposeReach m先に来る所・地面近くまで降りてきて exposeHoldTime 秒とどまる(暗い色=今は撃ってこない)。HPは変えていない。
+    [Header("近接の反撃の時間(2026-10-03)")]
+    public int exposeEveryAttacks = 2;
+    public float exposeReach = 0.8f; // 体の手前の端までの距離(間合いの短いお嬢様騎士でも届く)
+    public float exposeClearance = 0.25f;
+    public float exposeDescendTime = 0.7f;
+    public float exposeHoldTime = 2.8f;
+    public float exposeReturnTime = 0.8f;
+    int attacksSinceExpose;
+    public int ExposeCount { get; private set; } // 確認用
+    public bool IsExposed => state == State.Exposed;
 
     [Header("Animation")]
     public Sprite[] idleFrames;
@@ -415,10 +429,54 @@ public class MajinController : MonoBehaviour
         if (sr != null && state == State.Firing) sr.color = recoveryTint;
         yield return new WaitForSeconds(fireRecoverDuration);
         if (sr != null && state == State.Firing) sr.color = Color.white;
+        if (state != State.Firing) yield break; // 撃破された
+
+        attacksSinceExpose++;
+        if (exposeEveryAttacks > 0 && attacksSinceExpose >= exposeEveryAttacks && player != null)
+        {
+            attacksSinceExpose = 0;
+            yield return DescendExposed();
+            if (state == State.Dead) yield break;
+        }
 
         state = State.Idle;
         SetFrames(idleFrames);
         ScheduleNextAttack();
+    }
+
+    Vector3 ExposedPosition()
+    {
+        var box = GetComponent<BoxCollider2D>();
+        float halfW = box != null ? box.bounds.extents.x : 1.2f;
+        float x = player.position.x + exposeReach + halfW;
+        float halfHeight = Mathf.Max(0.3f, hoverHeight - groundClearance);
+        return new Vector3(x, GroundYAt(x) + exposeClearance + halfHeight, 0f);
+    }
+
+    IEnumerator DescendExposed()
+    {
+        state = State.Exposed;
+        ExposeCount++;
+        SetFrames(idleFrames);
+        if (sr != null) sr.color = recoveryTint;
+        Vector3 start = transform.position;
+        float t = 0f;
+        while (t < 1f && state == State.Exposed && player != null)
+        {
+            t += Time.deltaTime / Mathf.Max(0.05f, exposeDescendTime);
+            transform.position = Vector3.Lerp(start, ExposedPosition(), Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t)));
+            yield return null;
+        }
+        float h = 0f;
+        while (h < exposeHoldTime && state == State.Exposed && player != null)
+        {
+            transform.position = ExposedPosition();
+            h += Time.deltaTime;
+            yield return null;
+        }
+        if (state != State.Exposed) yield break;
+        if (sr != null) sr.color = Color.white;
+        yield return ReturnToHome(exposeReturnTime);
     }
 
     IEnumerator FireLine(int count)

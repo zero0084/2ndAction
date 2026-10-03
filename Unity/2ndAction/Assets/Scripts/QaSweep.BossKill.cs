@@ -57,8 +57,14 @@ public partial class QaSweep
                         TimeControl.SetDebugTimeScale(1f); BossManager.NetTestBossHpOverride = 0;
                         yield return EndRun(); continue;
                     }
+                    // 比較用(2026-10-03): -qaBkLegacyBoss 1 で、タイタン/魔人の「近接の反撃の時間」を止めた以前の動きにする
+                    if (Arg("-qaBkLegacyBoss", "0") == "1")
+                    {
+                        foreach (var titan in FindObjectsByType<SkyTitanBoss>(FindObjectsSortMode.None)) titan.kneelEveryAttacks = 0;
+                        foreach (var m in FindObjectsByType<MajinController>(FindObjectsSortMode.None)) m.exposeEveryAttacks = 0;
+                    }
                     // 登場の演出の間も含めて計る(ゲーム内時間)
-                    string names = string.Join("+", BossNames().GroupBy(n => n).Select(g => g.Count() > 1 ? $"{g.Key}x{g.Count()}" : g.Key));
+                    string names =string.Join("+", BossNames().GroupBy(n => n).Select(g => g.Count() > 1 ? $"{g.Key}x{g.Count()}" : g.Key));
                     int count = Bm.AliveBossCount;
                     int hp0 = TotalBossHp(), lastHp = hp0, hits = 0, dmgMin = int.MaxValue, dmgMax = 0, totalDmg = 0, maxPhase = 1, breaks = 0;
                     float t = 0f, lastFlick = -9f; bool wasBroken = false;
@@ -126,14 +132,23 @@ public partial class QaSweep
         return s;
     }
 
-    // 近いボスへ: 上にいれば上、後ろなら後ろ、それ以外は前へ攻撃
+    // 近いボスへ: 上にいれば上、後ろなら後ろ、それ以外は前へ攻撃。
+    // 2026-10-03: 狙う点はボスの中心ではなく「被弾範囲のプレイヤーに一番近い点」(人が狙う所。タイタンのように中心が高いボスで
+    // 以前は上攻撃ばかりになっていた)
     void BotFlickAtBoss()
     {
         Vector3? best = null; float bd = float.MaxValue;
         Vector3 p = pc.transform.position;
-        foreach (var b in WildAlive()) { float d = (b.CenterWorld - p).sqrMagnitude; if (d < bd) { bd = d; best = b.CenterWorld; } }
-        foreach (var d in DragonsAlive()) { float dd = (d.transform.position - p).sqrMagnitude; if (dd < bd) { bd = dd; best = d.transform.position; } }
-        foreach (var m in FindObjectsByType<MajinController>(FindObjectsSortMode.None)) if (!m.IsDead) { float dd = (m.transform.position - p).sqrMagnitude; if (dd < bd) { bd = dd; best = m.transform.position; } }
+        Vector3 chest = p + Vector3.up * 0.9f;
+        Vector3 Near(Collider2D c, Vector3 fallback) => c != null && c.enabled ? (Vector3)c.bounds.ClosestPoint(chest) : fallback;
+        foreach (var b in WildAlive())
+        {
+            var hb = b.GetComponentInChildren<BossHurtbox>();
+            Vector3 t = Near(hb != null ? hb.GetComponent<Collider2D>() : null, b.CenterWorld);
+            float d = (t - p).sqrMagnitude; if (d < bd) { bd = d; best = t; }
+        }
+        foreach (var d in DragonsAlive()) { Vector3 t = Near(d.GetComponent<Collider2D>(), d.transform.position); float dd = (t - p).sqrMagnitude; if (dd < bd) { bd = dd; best = t; } }
+        foreach (var m in FindObjectsByType<MajinController>(FindObjectsSortMode.None)) if (!m.IsDead) { Vector3 t = Near(m.GetComponent<Collider2D>(), m.transform.position); float dd = (t - p).sqrMagnitude; if (dd < bd) { bd = dd; best = t; } }
         if (!best.HasValue) return;
         float dx = best.Value.x - p.x, dy = best.Value.y - p.y;
         var f = dy > 2.2f ? PlayerController.FlickDirection.Up : dx < -0.5f ? PlayerController.FlickDirection.Backward : PlayerController.FlickDirection.Forward;

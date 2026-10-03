@@ -339,7 +339,8 @@ public class SkyTitanBoss : SkyBossBase
         mouthGlow = MakeGlow("MouthGlow", new Color(0.85f, 0.95f, 1f, 0.8f));
         handGlow = MakeGlow("HandGlow", new Color(0.6f, 0.85f, 1f, 0.95f));
         // 被弾範囲: 回廊の高さから届く胸〜肩(ジャンプで届く範囲)
-        ConfigureHurtbox(new Vector2(0f, -RiseY + 2.8f), new Vector2(Mathf.Max(3f, halfWidth * 0.9f), 4.4f));
+        hurtWidth = Mathf.Max(3f, halfWidth * 0.9f);
+        ConfigureHurtbox(new Vector2(0f, -RiseY + 2.8f), new Vector2(hurtWidth, 4.4f));
         SetAlpha(0f);
         StartCoroutine(Ambient());
     }
@@ -373,15 +374,65 @@ public class SkyTitanBoss : SkyBossBase
         }
     }
 
+    // 近接キャラの反撃の時間(2026-10-03)。以前は常にプレイヤーの5〜14m前に立ち、被弾範囲(胸〜肩)の手前の端も
+    // 数m先までしか来ないため、近接キャラ(お嬢様騎士/格闘/忍者/竜人)は300秒で1発も当てられなかった。
+    // kneelEveryAttacks 回の攻撃ごとに、身をかがめて回廊のすぐ前まで寄り、拳を振り下ろした後
+    // kneelHoldSeconds 秒そのまま低い姿勢でとどまる(被弾範囲の手前の端がプレイヤーの kneelReachGap m先)。HPは変えていない。
+    public int kneelEveryAttacks = 2;
+    public float kneelReachGap = 0.8f;
+    public float kneelLower = 1.0f;
+    public float kneelHoldSeconds = 3.2f;
+    int attacksSinceKneel;
+    float hurtWidth;
+    public int KneelCount { get; private set; } // 確認用
+    public bool IsKneeling { get; private set; }
+
     protected override IEnumerator AI()
     {
         while (true)
         {
+            if (kneelEveryAttacks > 0 && attacksSinceKneel >= kneelEveryAttacks)
+            {
+                attacksSinceKneel = 0;
+                yield return KneelAndSlam();
+                continue;
+            }
             int pick = BossAiUtil.PickNoRepeat(3, ref last);
             if (pick == 0) yield return FistSlam();
             else if (pick == 1) yield return Gust();
             else yield return ThunderSpear();
+            attacksSinceKneel++;
         }
+    }
+
+    IEnumerator KneelAndSlam()
+    {
+        KneelCount++;
+        float closeGap = kneelReachGap + Mathf.Max(3f, hurtWidth) * 0.5f;
+        float keepMin = minGap;
+        minGap = Mathf.Min(minGap, closeGap - 0.5f);
+        IsKneeling = true;
+        try
+        {
+            // 身をかがめながら回廊のすぐ前へ
+            StartCoroutine(SetAltitude(RiseY - kneelLower, 0.9f));
+            yield return MoveToGap(closeGap, 9f, 1.6f);
+            // 目の前の回廊へ拳を振り下ろす(予告あり)
+            float x = PlayerX + Random.Range(0.4f, 1.6f);
+            SkyStrike.Create(x, 2.6f, 2.2f, 1.6f, 0.3f, new Color(0.88f, 0.84f, 0.8f, 1f), SkyStrike.Look.Fist);
+            yield return Telegraph(0.9f);
+            PlayAttackPose(0.9f);
+            yield return Wait(0.8f);
+            // 拳を回廊に突いたまま、低い姿勢で隙を見せる(近接キャラの反撃の時間)
+            yield return Recover(kneelHoldSeconds);
+        }
+        finally
+        {
+            IsKneeling = false;
+            minGap = keepMin;
+        }
+        StartCoroutine(SetAltitude(RiseY, 0.9f));
+        yield return MoveToGap(startGap, 6f, 2f);
     }
 
     IEnumerator FistSlam()

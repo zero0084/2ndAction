@@ -515,10 +515,13 @@ public abstract class WildBossBase : MonoBehaviour
     }
 
     // ================= AI用ヘルパー =================
+    // 属性(2026-10-03): 氷(Chill/Freeze)を受けたボスは、待ち/予備動作の時間だけ少し長くなる(止まらない・並走の速さは同じ)
+    protected float AiDt => Time.deltaTime * ElementStatus.AiTimeScaleOf(gameObject);
+
     protected IEnumerator Wait(float seconds)
     {
         float t = 0f;
-        while (t < seconds && !dead) { t += Time.deltaTime; yield return null; }
+        while (t < seconds && !dead) { t += AiDt; yield return null; }
     }
 
     // 顔からプレイヤーまでの距離がstopDist以下になるまで接近(relVelocityで間合いを詰める)
@@ -589,7 +592,7 @@ public abstract class WildBossBase : MonoBehaviour
         float t = 0f;
         while (t < duration && !dead)
         {
-            t += Time.deltaTime;
+            t += AiDt;
             windupProgress = Mathf.Clamp01(t / Mathf.Max(0.01f, duration));
             foreach (var z in zones) if (z != null) z.SetProgress(windupProgress);
             if (interrupted) break;
@@ -839,10 +842,20 @@ public abstract class WildBossBase : MonoBehaviour
         }
     }
 
+    // 属性(2026-10-03): 炎上/出血の継続ダメージ・連鎖の落雷。HP/段階/撃破は通常と同じ。被弾の音/揺れ/ヒットストップ/
+    // コンボ数/予備動作の中断は起こさない(1秒に何度も入るため)。
+    bool quietHit;
+    public void TakeElementDamage(int amount, Vector3 hitPos)
+    {
+        quietHit = true;
+        try { TakeDamage(amount, hitPos); }
+        finally { quietHit = false; }
+    }
+
     public void TakeDamage(int amount, Vector3 hitPos)
     {
         if (dead || NetPuppet) return;
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit); // ボス被弾(共通、連打は間引き)
+        if (!quietHit && AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit); // ボス被弾(共通、連打は間引き)
         // ボス戦の強化(2026-10-01): BREAK中/必殺技の後の隙は大きく入る
         float dmgScale = (Broken ? BossBattleTuning.I.breakDamageScale : 1f) * vulnerableScale;
         if (dmgScale > 1.001f) amount = Mathf.CeilToInt(amount * dmgScale);
@@ -851,7 +864,7 @@ public abstract class WildBossBase : MonoBehaviour
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
 
         // マルチプレイPhase 2 - 相手プレイヤーの攻撃では、この端末のプレイヤーの空中補助/コンボは進めない。
-        if (netAttacker <= 0)
+        if (netAttacker <= 0 && !quietHit)
         {
             if (PlayerController.Instance != null) PlayerController.Instance.NotifyAerialHit();
             if (ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
@@ -883,6 +896,7 @@ public abstract class WildBossBase : MonoBehaviour
         CheckPhase();
         if (stg > 0f && !dead) AddStagger(stg);
         hitTimer = 0.16f;
+        if (quietHit) { OnDamaged(amount); return; }
         Shake(0.06f, 0.1f);
         Sprite spark = hitSparkSprite != null ? hitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
         OneShotSpriteEffect.CreateTweened(spark, hitPos, Color.white, 0.14f, 0.35f, 0.6f, 1f, 0f, default, 0f, RenderOrder.CombatFx, 0.2f);

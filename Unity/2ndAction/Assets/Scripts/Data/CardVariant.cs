@@ -195,6 +195,27 @@ public sealed class CardVariant
             case EffectType.BossHpMultiplier: return "ボスHP";
             case EffectType.MileGainMultiplier: return "獲得MILE";
             case EffectType.BossMileGainMultiplier: return "ボス獲得MILE";
+            case EffectType.BurnChance: return "炎上(Burn)確率";
+            case EffectType.BurnPower: return "炎上の威力";
+            case EffectType.BurnDuration: return "炎上の時間";
+            case EffectType.ChillChance: return "冷気(Chill)確率";
+            case EffectType.ChillSlow: return "冷気の鈍化";
+            case EffectType.ChillDuration: return "冷気の時間";
+            case EffectType.FreezeStacks: return "凍結までの蓄積";
+            case EffectType.FreezeDuration: return "凍結の時間";
+            case EffectType.LightningChance: return "落雷確率";
+            case EffectType.LightningPower: return "落雷の威力";
+            case EffectType.LightningChains: return "連鎖数";
+            case EffectType.LightningRange: return "連鎖の距離";
+            case EffectType.WindBladeChance: return "風刃確率";
+            case EffectType.WindBladePower: return "風刃の威力";
+            case EffectType.WindPierce: return "貫通数";
+            case EffectType.WindRange: return "風刃の射程";
+            case EffectType.BleedChance: return "出血(Bleed)確率";
+            case EffectType.BleedPower: return "出血の威力";
+            case EffectType.BleedDuration: return "出血の時間";
+            case EffectType.BleedLifesteal: return "出血の吸収";
+            case EffectType.BloodLowHpBonus: return "瀕死時の出血強化";
             default: return type.ToString();
         }
     }

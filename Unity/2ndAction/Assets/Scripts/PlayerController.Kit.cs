@@ -275,6 +275,7 @@ public partial class PlayerController
     // ===================== 近接判定 ===================== //
 
     float KitFacing => transform.localScale.x < 0f ? -1f : 1f;
+    public float FacingSign => KitFacing; // 属性(風刃)の向き(2026-10-03)
 
     // ローカル座標(右向き基準、後ろ向きの技はルートの反転で自動的に左右反転)の中心・大きさ・角度で判定を出す。
     // いったん無効化してから有効化し直すので、前の段で重なっていた敵にも改めて当たる。
