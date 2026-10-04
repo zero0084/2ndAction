@@ -10,16 +10,19 @@ using UnityEngine.SceneManagement;
 public partial class EndgameDebug
 {
     public static CaveBossKind SelectedCaveBoss = CaveBossKind.Centipede;
+    public static SkyBossKind SelectedSkyBoss = SkyBossKind.Dragon;   // 天空ボス強化(2026-10-05)
+    public static int SelectedBossFamily;                             // 0=自然洞窟 / 1=天空回廊
     public static int SelectedCaveTier = -1; // -1=初登場 / 0〜=再戦の段階
     public static string SelectedCaveChar = "swordsman";
     static (CaveBossKind kind, int tier, string ch)? pendingCave;
+    static (SkyBossKind kind, int tier, string ch)? pendingSky;
     public bool IsCaveBossTest { get; private set; }
 
     public static void LaunchCaveBoss(CaveBossKind kind, int tier, string ch)
     {
         if (Instance == null) return;
         if (Instance.Launching) { Debug.Log("[EndgameDebug] launch ignored (already launching)"); return; }
-        pending = null; pendingLong = null; pendingUlt = null;
+        pending = null; pendingLong = null; pendingUlt = null; pendingSky = null;
         pendingCave = (kind, tier, ch);
         Instance.Launches++;
         Debug.Log($"[EndgameDebug] LAUNCH CAVE BOSS TEST {kind} tier={tier} {ch} - reloading the scene for a clean start");
@@ -30,8 +33,30 @@ public partial class EndgameDebug
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    public static void LaunchSkyBoss(SkyBossKind kind, int tier, string ch)
+    {
+        if (Instance == null) return;
+        if (Instance.Launching) { Debug.Log("[EndgameDebug] launch ignored (already launching)"); return; }
+        pending = null; pendingLong = null; pendingUlt = null; pendingCave = null;
+        pendingSky = (kind, tier, ch);
+        Instance.Launches++;
+        Debug.Log($"[EndgameDebug] LAUNCH SKY BOSS TEST {kind} tier={tier} {ch} - reloading the scene for a clean start");
+        Instance.StopAllCoroutines();
+        Instance.keepAlive = false;
+        DebugPanel.CloseStatic();
+        SafeReset("launch");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
     static bool TakePendingCave()
     {
+        if (pendingSky.HasValue)
+        {
+            var sk = pendingSky.Value;
+            pendingSky = null;
+            Instance.StartCoroutine(Instance.RunLaunchCaveBoss(CaveBossKind.Centipede, sk.tier, sk.ch, sk.kind));
+            return true;
+        }
         if (!pendingCave.HasValue) return false;
         var c = pendingCave.Value;
         pendingCave = null;
@@ -46,11 +71,11 @@ public partial class EndgameDebug
         return tier < t.Count ? t[tier].label : "?";
     }
 
-    IEnumerator RunLaunchCaveBoss(CaveBossKind kind, int tier, string ch)
+    IEnumerator RunLaunchCaveBoss(CaveBossKind kind, int tier, string ch, SkyBossKind? sky = null)
     {
         Launching = true;
         IsLongCheck = false; IsUltimateTest = false; IsCaveBossTest = true;
-        currentLabel = $"洞窟ボス試験 {kind} {CaveTierLabel(tier)}";
+        currentLabel = sky.HasValue ? $"天空ボス試験 {sky.Value} {CaveTierLabel(tier)}" : $"洞窟ボス試験 {kind} {CaveTierLabel(tier)}";
         Status = $"{currentLabel} を準備中…";
         float w = 0f;
         while ((GameManager.Instance == null || GameManager.Instance.HasStarted) && w < 10f) { yield return null; w += Time.unscaledDeltaTime; }
@@ -63,7 +88,7 @@ public partial class EndgameDebug
         CurrentProfile = Profile.Sturdy;
         LaunchedRealtime = Time.realtimeSinceStartup;
         gm.SetSelectedCharacter(ch);
-        gm.DebugStartRunOnStage(CaveBossSafety.Stage);
+        gm.DebugStartRunOnStage(sky.HasValue ? CaveBossSafety.SkyStage : CaveBossSafety.Stage);
         w = 0f;
         while (!(gm.HasStarted && !gm.CountdownActive) && w < 25f) { yield return null; w += Time.unscaledDeltaTime; }
         if (!gm.HasStarted) { Fail("ランを開始できませんでした"); yield break; }
@@ -72,15 +97,17 @@ public partial class EndgameDebug
         yield return new WaitForSeconds(1.0f);
         var bm = BossManager.Instance;
         if (bm == null) { Fail("BossManager がありません"); yield break; }
-        bm.DebugCaveEncounter(kind, tier);
+        if (sky.HasValue) bm.DebugSkyEncounter(sky.Value, tier); else bm.DebugCaveEncounter(kind, tier);
         Status = $"{currentLabel} 開始(DEBUG → 洞窟ボス試験 で段階/必殺技/BREAK/ラン再開)";
         Launching = false;
     }
 
     // ---- 戦闘中の強制操作(DEBUGパネルから) ----
-    public static WildBossBase FirstLivingBoss()
+    public static IBossBattleDebug FirstLivingBoss()
     {
         foreach (var b in Object.FindObjectsByType<WildBossBase>(FindObjectsSortMode.None)) if (b != null && !b.IsDead && b.isActiveAndEnabled && !b.NetPuppet) return b;
+        foreach (var d in Object.FindObjectsByType<DragonController>(FindObjectsSortMode.None)) if (d != null && d.DebugAlive && !d.NetPuppet) return d;
+        foreach (var m in Object.FindObjectsByType<MajinController>(FindObjectsSortMode.None)) if (m != null && m.DebugAlive && !m.NetPuppet) return m;
         return null;
     }
 }

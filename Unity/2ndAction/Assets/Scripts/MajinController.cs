@@ -6,9 +6,9 @@ using UnityEngine;
 // standoff spot instead of holding a fixed line (see ComputeHomePosition).
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(BoxCollider2D))]
-public class MajinController : MonoBehaviour
+public partial class MajinController : MonoBehaviour
 {
-    enum State { Entering, Idle, Telegraphing, Firing, Dead, Exposed }
+    enum State { Entering, Idle, Telegraphing, Firing, Dead, Exposed, Special } // Special: 天空ボス強化(2026-10-05)の瞬間移動/必殺技(追従の代わりに自分で位置を決める)
 
     // 近接キャラの反撃の時間(2026-10-03)。以前は常にプレイヤーの約10〜18m前を漂い、近接キャラは跳ね返した火球でしか
     // 攻撃できなかった(カードなしで撃破まで10〜33分の見込み)。exposeEveryAttacks 回の攻撃ごとに、攻撃の後で
@@ -259,6 +259,7 @@ public class MajinController : MonoBehaviour
 
         AnimateSprite();
         AdvanceTrackedX();
+        BattleTick(); // 天空ボス強化: 崩しの回復/ゲージ
 
         if (state == State.Idle || state == State.Telegraphing || state == State.Firing)
         {
@@ -274,6 +275,7 @@ public class MajinController : MonoBehaviour
                 return;
             }
             BossStaggerGate.NextMajinTime = Time.time + BossStaggerGate.MajinInterval;
+            if (BattleTryStart()) return; // 天空ボス強化: 必殺技/第2段階の技
             StartCoroutine(TelegraphAndAttack());
         }
     }
@@ -544,6 +546,9 @@ public class MajinController : MonoBehaviour
         if (other.CompareTag("PlayerAttack"))
         {
             int damage = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage);
+            var info = other.GetComponent<PlayerAttackInfo>();
+            bool air = PlayerController.Instance != null && !PlayerController.Instance.IsGrounded;
+            pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air); // 天空ボス強化: 崩し
             TakeDamage(damage);
             return;
         }
@@ -551,6 +556,7 @@ public class MajinController : MonoBehaviour
         FireballController fb = other.GetComponent<FireballController>();
         if (fb != null && fb.reflected)
         {
+            pendingStagger = BossBattleTuning.I.staggerReflect;
             TakeDamage(fireballDamage);
             Destroy(fb.gameObject);
         }
@@ -560,6 +566,7 @@ public class MajinController : MonoBehaviour
     {
         if (state == State.Dead || NetPuppet) return;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit); // ボス被弾(共通、連打は間引き)
+        amount = ScaleIncoming(amount); // 天空ボス強化: BREAK/硬直中は大きく入る
 
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
@@ -568,9 +575,12 @@ public class MajinController : MonoBehaviour
         if (Hp <= 0)
         {
             state = State.Dead;
+            if (UltimateRunning) { UltimateRunning = false; BossBattle.EndUltimate(this); }
+            if (hpBar != null) hpBar.SetSub(0f, false);
             StartCoroutine(FinalHitAndDie());
             return;
         }
+        BattleOnDamaged();
 
         // Game Feel pass, section 19 - see DragonController.TakeDamage's
         // matching comment.

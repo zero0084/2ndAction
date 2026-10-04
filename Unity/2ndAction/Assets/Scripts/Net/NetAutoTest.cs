@@ -841,6 +841,15 @@ public partial class NetAutoTest : MonoBehaviour
         if (bossKind == "Reaper") { bm.DebugSpawnReaper(); L("test reaper spawned (stage " + (GameManager.Instance != null ? GameManager.Instance.ActiveRunStageId : "?") + ")"); return; }
         BossManager.NetTestBossHpOverride = bossHp;
         // 自然洞窟ボス強化(2026-10-04): 洞窟ボスは関門と同じ流れで出し、段階2→必殺技を強制する(地形の攻撃/天井/地中の同期を見る)
+        // 天空ボス強化(2026-10-05): -netAutoBossKind sky:Behemoth のように sky: を付けると天空回廊のボス
+        if (bossKind.StartsWith("sky:") && Enum.TryParse(bossKind.Substring(4), out SkyBossKind sk))
+        {
+            bm.DebugSkyEncounter(sk, -1);
+            BossManager.NetTestBossHpOverride = 0;
+            StartCoroutine(DriveCaveBoss());
+            L($"test sky boss spawned ({sk} hp={bossHp})");
+            return;
+        }
         if (Enum.TryParse(bossKind, out CaveBossKind ck))
         {
             bm.DebugCaveEncounter(ck, -1);
@@ -862,13 +871,12 @@ public partial class NetAutoTest : MonoBehaviour
         yield return new WaitForSeconds(6f);
         for (int i = 0; i < 3; i++)
         {
-            WildBossBase b = null;
-            foreach (var w in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None)) if (w != null && !w.IsDead && !w.NetPuppet) b = w;
+            IBossBattleDebug b = EndgameDebug.FirstLivingBoss();
             if (b == null) yield break;
             if (b.Phase < 2) b.DebugSetPhase(2);
             yield return new WaitForSeconds(1f);
             bool ok = b.DebugForceUltimate();
-            L($"cave boss ultimate forced #{i + 1} ({b.bossName} ok={ok} phase={b.Phase})");
+            L($"boss ultimate forced #{i + 1} ({b.DebugName} ok={ok} phase={b.Phase})");
             yield return new WaitForSeconds(18f);
         }
     }

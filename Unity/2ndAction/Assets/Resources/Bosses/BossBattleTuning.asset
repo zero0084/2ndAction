@@ -18,6 +18,7 @@ MonoBehaviour:
   resumeStages:
   - wasteland_road
   - natural_cave
+  - sky_corridor
   zakoResumeDelay: 1.5
   resumeBannerSeconds: 2.4
   pendingMode: 0
@@ -33,6 +34,9 @@ MonoBehaviour:
   staggerReflect: 10
   staggerRecoveryDelay: 2
   breakDamageScale: 1.35
+  phoenixRebirthOnFirst: 1
+  phoenixRebirthRematchChance: 0.15
+  phoenixRebirthHp: 0.4
   entries:
   - key: Wolf
     hpScale: 1
@@ -308,6 +312,146 @@ MonoBehaviour:
     ultimateCooldown: 16
     firstUltimateDelay: 2
     staggerMax: 40
+    staggerRecoveryPerSec: 4
+    breakDuration: 3
+    resumeSecondsOverride: 0
+    normalDamage: 10
+  - key: SkyDragon
+    hpScale: 1
+    phaseThresholds:
+    - 0.55
+    specialCooldown: 7
+    ultimateCooldown: 15
+    firstUltimateDelay: 1.5
+    staggerMax: 18
+    staggerRecoveryPerSec: 2
+    breakDuration: 2.8
+    resumeSecondsOverride: 0
+    normalDamage: 10
+  - key: Majin
+    hpScale: 1
+    phaseThresholds:
+    - 0.55
+    specialCooldown: 7
+    ultimateCooldown: 16
+    firstUltimateDelay: 2
+    staggerMax: 22
+    staggerRecoveryPerSec: 2
+    breakDuration: 2.8
+    resumeSecondsOverride: 0
+    normalDamage: 10
+  - key: Behemoth
+    hpScale: 1
+    phaseThresholds:
+    - 0.65
+    - 0.3
+    specialCooldown: 7
+    ultimateCooldown: 17
+    firstUltimateDelay: 2
+    staggerMax: 28
+    staggerRecoveryPerSec: 2.5
+    breakDuration: 3
+    resumeSecondsOverride: 0
+    normalDamage: 10
+  - key: Titan
+    hpScale: 1
+    phaseThresholds:
+    - 0.7
+    - 0.35
+    specialCooldown: 8
+    ultimateCooldown: 18
+    firstUltimateDelay: 2
+    staggerMax: 36
+    staggerRecoveryPerSec: 3
+    breakDuration: 3.2
+    resumeSecondsOverride: 0
+    normalDamage: 10
+  - key: Jellyfish
+    hpScale: 1
+    phaseThresholds:
+    - 0.7
+    - 0.35
+    specialCooldown: 7.5
+    ultimateCooldown: 17
+    firstUltimateDelay: 2
+    staggerMax: 32
+    staggerRecoveryPerSec: 3
+    breakDuration: 3
+    resumeSecondsOverride: 0
+    normalDamage: 10
+  - key: Leviathan
+    hpScale: 1
+    phaseThresholds:
+    - 0.7
+    - 0.35
+    specialCooldown: 8
+    ultimateCooldown: 18
+    firstUltimateDelay: 2
+    staggerMax: 36
+    staggerRecoveryPerSec: 3.5
+    breakDuration: 3.2
+    resumeSecondsOverride: 0
+    normalDamage: 10
+  - key: Fenrir
+    hpScale: 1
+    phaseThresholds:
+    - 0.7
+    - 0.35
+    specialCooldown: 7
+    ultimateCooldown: 17
+    firstUltimateDelay: 2
+    staggerMax: 34
+    staggerRecoveryPerSec: 3.5
+    breakDuration: 3
+    resumeSecondsOverride: 0
+    normalDamage: 10
+  - key: SkyGolem
+    hpScale: 1
+    phaseThresholds:
+    - 0.7
+    - 0.3
+    specialCooldown: 8
+    ultimateCooldown: 18
+    firstUltimateDelay: 2
+    staggerMax: 40
+    staggerRecoveryPerSec: 3.5
+    breakDuration: 3.2
+    resumeSecondsOverride: 0
+    normalDamage: 10
+  - key: Phoenix
+    hpScale: 1
+    phaseThresholds:
+    - 0.65
+    specialCooldown: 7
+    ultimateCooldown: 17
+    firstUltimateDelay: 2
+    staggerMax: 34
+    staggerRecoveryPerSec: 3.5
+    breakDuration: 3
+    resumeSecondsOverride: 0
+    normalDamage: 10
+  - key: SkySerpent
+    hpScale: 1
+    phaseThresholds:
+    - 0.7
+    - 0.35
+    specialCooldown: 7.5
+    ultimateCooldown: 18
+    firstUltimateDelay: 2
+    staggerMax: 38
+    staggerRecoveryPerSec: 3.5
+    breakDuration: 3.2
+    resumeSecondsOverride: 0
+    normalDamage: 10
+  - key: Guardian
+    hpScale: 1
+    phaseThresholds:
+    - 0.7
+    - 0.35
+    specialCooldown: 7
+    ultimateCooldown: 17
+    firstUltimateDelay: 2
+    staggerMax: 44
     staggerRecoveryPerSec: 4
     breakDuration: 3
     resumeSecondsOverride: 0

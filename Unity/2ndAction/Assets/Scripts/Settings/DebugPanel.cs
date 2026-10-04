@@ -123,7 +123,7 @@ public partial class DebugPanel : MonoBehaviour
         if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "闘技場(キャラ/カード/敵の試験、DEBUG RUN)", 16f, true, false)) { SetOpen(false); EndgameDebug.LaunchArena("debug panel"); }
         y += 46f;
         // 自然洞窟ボス強化の確認(2026-10-04、DEBUG RUN): 出現/段階/必殺技/BREAK/ラン再開の強制
-        if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "洞窟ボス試験…(出現/段階/必殺技/BREAK/ラン再開)", 16f, false, false)) { page = 6; confirmSave = 0; confirmReset = false; }
+        if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "洞窟/天空ボス試験…(出現/段階/必殺技/BREAK/ラン再開)", 16f, false, false)) { page = 6; confirmSave = 0; confirmReset = false; }
         y += 46f;
         // FINAL EVOLUTION の確認(2026-10-04、DEBUG RUN)
         if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "FINAL EVOLUTION TEST…", 16f, false, false)) { page = 7; confirmSave = 0; confirmReset = false; }
@@ -517,28 +517,41 @@ public partial class DebugPanel
     {
         float x = p.x + 24f, y = p.y + 64f, full = p.width - 48f;
         var lab = UiKit.Label(13f, TextAnchor.UpperLeft, false, new Color(0.85f, 0.85f, 0.9f));
-        GUI.Label(new Rect(x, y, full, 36f), "押すとシーンを読み直し、自然洞窟の DEBUG RUN(保存しない)で選んだボスを関門と同じ流れで出します。出した後は下の操作で段階/必殺技/BREAK/ラン再開を強制できます", lab);
-        y += 40f;
-        var kinds = (CaveBossKind[])System.Enum.GetValues(typeof(CaveBossKind));
+        GUI.Label(new Rect(x, y, full, 36f), "押すとシーンを読み直し、DEBUG RUN(保存しない)で選んだボスを関門と同じ流れで出します。出した後は下の操作で段階/必殺技/BREAK/ラン再開を強制できます", lab);
+        y += 36f;
+        float fw = (full - 6f) / 2f;
+        if (UiKit.Button(new Rect(x, y, fw, 30f), "自然洞窟", 13f, EndgameDebug.SelectedBossFamily == 0, false)) EndgameDebug.SelectedBossFamily = 0;
+        if (UiKit.Button(new Rect(x + fw + 6f, y, fw, 30f), "天空回廊", 13f, EndgameDebug.SelectedBossFamily == 1, false)) EndgameDebug.SelectedBossFamily = 1;
+        y += 34f;
+        bool skyFam = EndgameDebug.SelectedBossFamily == 1;
+        var kindNames = skyFam ? System.Enum.GetNames(typeof(SkyBossKind)) : System.Enum.GetNames(typeof(CaveBossKind));
         float cw = (full - 3f * 6f) / 4f;
-        for (int i = 0; i < kinds.Length; i++)
+        for (int i = 0; i < kindNames.Length; i++)
         {
             int col = i % 4, row = i / 4;
-            if (UiKit.Button(new Rect(x + col * (cw + 6f), y + row * 38f, cw, 34f), kinds[i].ToString(), 12f, EndgameDebug.SelectedCaveBoss == kinds[i], false)) EndgameDebug.SelectedCaveBoss = kinds[i];
+            bool on = skyFam ? (int)EndgameDebug.SelectedSkyBoss == i : (int)EndgameDebug.SelectedCaveBoss == i;
+            if (UiKit.Button(new Rect(x + col * (cw + 6f), y + row * 36f, cw, 32f), kindNames[i], 12f, on, false))
+            {
+                if (skyFam) EndgameDebug.SelectedSkyBoss = (SkyBossKind)i; else EndgameDebug.SelectedCaveBoss = (CaveBossKind)i;
+            }
         }
-        y += 3 * 38f + 4f;
+        y += 3 * 36f + 4f;
         int nt = BossRematchTuning.I.tiers.Count;
         float tw = (full - nt * 6f) / (nt + 1);
         for (int i = -1; i < nt; i++)
             if (UiKit.Button(new Rect(x + (i + 1) * (tw + 6f), y, tw, 34f), EndgameDebug.CaveTierLabel(i), 12f, EndgameDebug.SelectedCaveTier == i, false)) EndgameDebug.SelectedCaveTier = i;
         y += 40f;
         bool busy = EndgameDebug.Instance != null && EndgameDebug.Instance.Launching;
-        if (UiKit.Button(new Rect(x, y, full, 44f), $"出す: {EndgameDebug.SelectedCaveBoss}({EndgameDebug.CaveTierLabel(EndgameDebug.SelectedCaveTier)})", 16f, true, false) && !busy)
-            EndgameDebug.LaunchCaveBoss(EndgameDebug.SelectedCaveBoss, EndgameDebug.SelectedCaveTier, EndgameDebug.SelectedCaveChar);
+        string selName = skyFam ? EndgameDebug.SelectedSkyBoss.ToString() : EndgameDebug.SelectedCaveBoss.ToString();
+        if (UiKit.Button(new Rect(x, y, full, 44f), $"出す: {selName}({EndgameDebug.CaveTierLabel(EndgameDebug.SelectedCaveTier)})", 16f, true, false) && !busy)
+        {
+            if (skyFam) EndgameDebug.LaunchSkyBoss(EndgameDebug.SelectedSkyBoss, EndgameDebug.SelectedCaveTier, EndgameDebug.SelectedCaveChar);
+            else EndgameDebug.LaunchCaveBoss(EndgameDebug.SelectedCaveBoss, EndgameDebug.SelectedCaveTier, EndgameDebug.SelectedCaveChar);
+        }
         y += 52f;
         var b = EndgameDebug.FirstLivingBoss();
         var bm = BossManager.Instance;
-        string st = b == null ? "戦闘中のボスはいません" : $"{b.bossName}  HP {b.Hp:N0}/{b.maxHp:N0}  段階 {b.Phase}/{b.PhaseCount}  崩し {b.StaggerFraction * 100f:F0}%{(b.Broken ? " BREAK" : "")}  必殺技 {b.UltimatesUsed}回{(b.UltimateRunning ? "(発動中)" : "")}  {(bm != null && bm.RunResumed ? "ラン再開済み" : bm != null ? $"再開まで {bm.ResumeSecondsLeft:F0}秒" : "")}";
+        string st = b == null ? "戦闘中のボスはいません" : $"{b.DebugName}  段階 {b.Phase}/{b.PhaseCount}  崩し {b.StaggerFraction * 100f:F0}%{(b.Broken ? " BREAK" : "")}  必殺技 {b.UltimatesUsed}回{(b.UltimateRunning ? "(発動中)" : "")}  {(bm != null && bm.RunResumed ? "ラン再開済み" : bm != null ? $"再開まで {bm.ResumeSecondsLeft:F0}秒" : "")}";
         GUI.Label(new Rect(x, y, full, 20f), st, lab);
         y += 24f;
         float bw = (full - 2f * 6f) / 3f;

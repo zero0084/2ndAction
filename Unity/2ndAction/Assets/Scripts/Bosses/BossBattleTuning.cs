@@ -16,7 +16,7 @@ public class BossBattleTuning : ScriptableObject
     public float resumeStrong = 22f;   // 5,000m系
     public float resumeSpecial = 30f;  // 10,000m専用
     [Tooltip("ラン再開を使うステージ(ラストダンジョンは独自の流れなので含めない)")]
-    public string[] resumeStages = { "wasteland_road", "natural_cave" }; // 天空は "sky_corridor" を足す(自然洞窟は2026-10-04から)
+    public string[] resumeStages = { "wasteland_road", "natural_cave", "sky_corridor" }; // 自然洞窟は2026-10-04、天空回廊は2026-10-05から
     [Tooltip("再開してから雑魚の出現を戻すまでの秒数")]
     public float zakoResumeDelay = 1.5f;
     [Tooltip("ラン再開を知らせる表示の秒数")]
@@ -56,6 +56,14 @@ public class BossBattleTuning : ScriptableObject
     public float staggerRecoveryDelay = 2f;
     [Tooltip("BREAK中に受けるダメージの倍率")]
     public float breakDamageScale = 1.35f;
+
+    [Header("天空回廊: フェニックスの復活(2026-10-05)")]
+    [Tooltip("初登場の戦闘では、倒されると一度だけ炎から復活する")]
+    public bool phoenixRebirthOnFirst = true;
+    [Tooltip("再戦では復活する確率(冗長にしない)")]
+    [Range(0f, 1f)] public float phoenixRebirthRematchChance = 0.15f;
+    [Tooltip("復活した時のHPの割合(0.3〜0.5)")]
+    [Range(0.3f, 0.5f)] public float phoenixRebirthHp = 0.4f;
 
     [System.Serializable]
     public class Entry
@@ -156,6 +164,18 @@ public class BossBattleTuning : ScriptableObject
             new Entry { key = "Basilisk",     phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 7f,   ultimateCooldown = 16f, staggerMax = 34f, staggerRecoveryPerSec = 3.5f, breakDuration = 3f },
             new Entry { key = "Drake",        phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 7.5f, ultimateCooldown = 17f, staggerMax = 38f, staggerRecoveryPerSec = 3.5f, breakDuration = 3.2f },
             new Entry { key = "AncientDemon", phaseThresholds = new[] { 0.6f, 0.25f }, specialCooldown = 7f,   ultimateCooldown = 16f, staggerMax = 40f, staggerRecoveryPerSec = 4f,  breakDuration = 3f },
+            // 天空回廊(2026-10-05): 全種類に第2段階の技と必殺技。天界の守護者だけ第3段階(最終形態)。ドラゴン/魔人は専用コントローラー
+            new Entry { key = "SkyDragon",  phaseThresholds = new[] { 0.55f },       specialCooldown = 7f,   ultimateCooldown = 15f, firstUltimateDelay = 1.5f, staggerMax = 18f, staggerRecoveryPerSec = 2f, breakDuration = 2.8f },
+            new Entry { key = "Majin",      phaseThresholds = new[] { 0.55f },       specialCooldown = 7f,   ultimateCooldown = 16f, staggerMax = 22f, staggerRecoveryPerSec = 2f,  breakDuration = 2.8f },
+            new Entry { key = "Behemoth",   phaseThresholds = new[] { 0.65f, 0.3f }, specialCooldown = 7f,   ultimateCooldown = 17f, staggerMax = 28f, staggerRecoveryPerSec = 2.5f, breakDuration = 3f },
+            new Entry { key = "Titan",      phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 8f,   ultimateCooldown = 18f, staggerMax = 36f, staggerRecoveryPerSec = 3f,  breakDuration = 3.2f },
+            new Entry { key = "Jellyfish",  phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 7.5f, ultimateCooldown = 17f, staggerMax = 32f, staggerRecoveryPerSec = 3f,  breakDuration = 3f },
+            new Entry { key = "Leviathan",  phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 8f,   ultimateCooldown = 18f, staggerMax = 36f, staggerRecoveryPerSec = 3.5f, breakDuration = 3.2f },
+            new Entry { key = "Fenrir",     phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 7f,   ultimateCooldown = 17f, staggerMax = 34f, staggerRecoveryPerSec = 3.5f, breakDuration = 3f },
+            new Entry { key = "SkyGolem",   phaseThresholds = new[] { 0.7f, 0.3f },  specialCooldown = 8f,   ultimateCooldown = 18f, staggerMax = 40f, staggerRecoveryPerSec = 3.5f, breakDuration = 3.2f },
+            new Entry { key = "Phoenix",    phaseThresholds = new[] { 0.65f },       specialCooldown = 7f,   ultimateCooldown = 17f, staggerMax = 34f, staggerRecoveryPerSec = 3.5f, breakDuration = 3f },
+            new Entry { key = "SkySerpent", phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 7.5f, ultimateCooldown = 18f, staggerMax = 38f, staggerRecoveryPerSec = 3.5f, breakDuration = 3.2f },
+            new Entry { key = "Guardian",   phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 7f,   ultimateCooldown = 17f, staggerMax = 44f, staggerRecoveryPerSec = 4f,  breakDuration = 3f },
         };
     }
 }

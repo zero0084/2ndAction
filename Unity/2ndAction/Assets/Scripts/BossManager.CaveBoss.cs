@@ -20,7 +20,11 @@ public partial class BossManager
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     // 洞窟ボスを関門と同じ流れで出す。tier: -1=初登場 / 0〜=再戦の段階(BossRematchTuning.tiers)
-    public void DebugCaveEncounter(CaveBossKind kind, int tier, int count = 1)
+    public void DebugCaveEncounter(CaveBossKind kind, int tier, int count = 1) => DebugBossEncounter(GateFamily.Cave, (int)kind, tier, count);
+    // 天空ボス強化(2026-10-05): 天空回廊のボスも同じ流れで
+    public void DebugSkyEncounter(SkyBossKind kind, int tier, int count = 1) => DebugBossEncounter(GateFamily.Sky, (int)kind, tier, count);
+
+    void DebugBossEncounter(GateFamily fam, int kindValue, int tier, int count)
     {
         foreach (var o in GameObject.FindGameObjectsWithTag("Boss")) Destroy(o);
         aliveDragonsThisEncounter = 0; aliveMajinsThisEncounter = 0; aliveWildThisEncounter = 0;
@@ -29,24 +33,27 @@ public partial class BossManager
         ClearEnemiesForBoss();
         currentGateK = Mathf.Max(0, gateK - 1); // 撃破後に次の関門を飛ばさない
         ResetRematchEncounter();
-        CurrentEncounterKey = Key(GateFamily.Cave, (int)kind);
+        CurrentEncounterKey = Key(fam, kindValue);
         var tn = BossRematchTuning.I;
         if (tier >= 0 && tier < tn.tiers.Count)
         {
             currentTier = tn.tiers[tier];
             float d = Mathf.Max(currentTier.fromMeters, GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f);
-            float distMul = tn.distanceHp ? Mathf.Max(1f, BossHpPlan.MilestoneHpAt(d) / Mathf.Max(1f, BossHpPlan.MilestoneHpAt(FirstDistanceOf(GateFamily.Cave, (int)kind)))) : 1f;
+            float distMul = tn.distanceHp ? Mathf.Max(1f, BossHpPlan.MilestoneHpAt(d) / Mathf.Max(1f, BossHpPlan.MilestoneHpAt(FirstDistanceOf(fam, kindValue)))) : 1f;
             CurrentRematchHpMul = distMul * Mathf.Max(0.1f, currentTier.hpMul);
             CurrentRematchTier = currentTier.label;
             DamageMul = Mathf.Max(0.1f, currentTier.damageMul);
             CurrentEncounterIsRematch = true;
         }
-        StartCaveGate(kind, count);
+        string name;
+        if (fam == GateFamily.Sky) { var sk = (SkyBossKind)kindValue; name = sk == SkyBossKind.Dragon ? "SkyDragon" : sk.ToString(); StartSkyGate(sk, count); }
+        else { var ck = (CaveBossKind)kindValue; name = ck.ToString(); StartCaveGate(ck, count); }
         // ラン再開までの秒数は本来の関門の種類で(1,000m系/5,000m系/10,000m専用)
-        var e = BossBattleTuning.I.For(kind.ToString());
+        var e = BossBattleTuning.I.For(name);
         var bt = BossBattleTuning.I;
-        resumeSeconds = e.resumeSecondsOverride > 0f ? e.resumeSecondsOverride : kind == CaveBossKind.Centipede ? bt.resumeNormal : kind == CaveBossKind.Scorpion ? bt.resumeStrong : bt.resumeSpecial;
-        Debug.Log($"[Boss] DebugCaveEncounter {kind} x{count} tier={(tier >= 0 ? CurrentRematchTier : "初登場")} resume={resumeSeconds:F0}s");
+        float first = FirstDistanceOf(fam, kindValue);
+        resumeSeconds = e.resumeSecondsOverride > 0f ? e.resumeSecondsOverride : first <= 1000f ? bt.resumeNormal : first <= 5000f ? bt.resumeStrong : bt.resumeSpecial;
+        Debug.Log($"[Boss] DebugBossEncounter {fam}/{name} x{count} tier={(tier >= 0 ? CurrentRematchTier : "初登場")} resume={resumeSeconds:F0}s");
     }
 
     public void DebugForceResume() { if (IsBossPhase && AliveBossCount > 0) { encounterResumable = true; ResumeRun(); } }

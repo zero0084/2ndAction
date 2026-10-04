@@ -327,6 +327,7 @@ public class SkyStrike : MonoBehaviour
     SpriteRenderer marker, column, strikeSr;
     BoxCollider2D col;
     bool fired, hitDone;
+    public bool Fired => fired; // 確認用
     public System.Action<Vector3> onFire;
 
     public float WorldX => transform.position.x;

@@ -1151,7 +1151,7 @@ public partial class BossManager : MonoBehaviour
 
     // ===== 荒野街道ボス(WildBossBase系) / 自然洞窟ボス =====
     // ボス戦の強化(2026-10-01)を使うステージ(まず荒野街道)。洞窟/天空はBossBattleTuningのentriesとresumeStagesで広げる。
-    public static string[] BattleTunedStages = { "wasteland_road", "natural_cave" }; // 自然洞窟は2026-10-04から
+    public static string[] BattleTunedStages = { "wasteland_road", "natural_cave", "sky_corridor" }; // 自然洞窟は2026-10-04、天空回廊は2026-10-05から
     bool BattleTunedStage => GameManager.Instance != null && System.Array.IndexOf(BattleTunedStages, GameManager.Instance.ActiveRunStageId) >= 0;
 
     void StartWildPhase()
@@ -1524,6 +1524,15 @@ public partial class BossManager : MonoBehaviour
             dragon.landingAttackEnabled = currentGateK * gateIntervalMeters >= skyDragonLandingFromMeters;
             dragon.landingAttackChance = 0.2f;
             dragon.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(dragonMaxHp * RematchHpScaleOr(SkySmallBossHpScale())));
+            if (BattleTunedStage)
+            {
+                // 天空ボス強化(2026-10-05): 第1段階=低空の噛みつきも使う / 必殺技 DRAGON FIRE CHARGE / 後の低空の隙 / 再戦の段階
+                dragon.skyMode = true;
+                dragon.landingAttackEnabled = true;
+                dragon.landingAttackChance = Mathf.Max(dragon.landingAttackChance, 0.25f);
+                dragon.EnableWastelandBattle(BossBattleTuning.I.For("SkyDragon"));
+                if (CurrentEncounterIsRematch && currentTier != null) dragon.ApplyRematchTier(currentTier, BossRematchTuning.I.tiers.IndexOf(currentTier));
+            }
         });
     }
 
@@ -1536,6 +1545,7 @@ public partial class BossManager : MonoBehaviour
         {
             majin.gameObject.name = "SkyMajin";
             majin.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(dragonMaxHp * majinHpMultiplier * RematchHpScaleOr(SkySmallBossHpScale())));
+            if (BattleTunedStage) majin.EnableSkyBattle(BossBattleTuning.I.For("Majin"), CurrentEncounterIsRematch ? currentTier : null, currentTier != null ? BossRematchTuning.I.tiers.IndexOf(currentTier) : -1); // 天空ボス強化(2026-10-05)
         });
     }
 
@@ -1596,6 +1606,7 @@ public partial class BossManager : MonoBehaviour
 
         boss.bossName = kind.ToString();
         boss.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(spec.hp * RematchHpScaleOr(1f)));
+        if (BattleTunedStage) boss.ApplyTuning(kind.ToString()); // 天空ボス強化(2026-10-05): 荒野/洞窟と同じ段階/必殺技/崩し
         ApplyRematchTo(boss); // 再戦の強化(2026-10-02)
         boss.slotIndex = index;
         boss.mileReward = spec.mile;

@@ -163,11 +163,11 @@ public partial class EndgameDebug : MonoBehaviour
             {
                 Debug.LogWarning($"[EndgameDebug] {n} progress keys had changed during the Debug Run and were restored: {DebugRun.LastRestoreNote}");
                 // 読み込み済みの値(GameManager等)も戻すため、もう一度だけ読み直す(次の起動予約があればそちらで読み直される)
-                if (!pending.HasValue && !pendingLong.HasValue && !pendingUlt.HasValue && !pendingArena && !pendingCave.HasValue && !pendingFe.HasValue) { SceneManager.LoadScene(s.buildIndex); return; }
+                if (!pending.HasValue && !pendingLong.HasValue && !pendingUlt.HasValue && !pendingArena && !pendingCave.HasValue && !pendingSky.HasValue && !pendingFe.HasValue) { SceneManager.LoadScene(s.buildIndex); return; }
             }
         }
         // 状態を戻すのは DEBUG RUN の前後だけ(普通のシーンの読み直しでは何も変えない: 他の開発用の設定/自動テストの速度などを残す)
-        if (endedDebugRun || pending.HasValue || pendingLong.HasValue || pendingUlt.HasValue || pendingArena || pendingCave.HasValue || pendingFe.HasValue) SafeReset(endedDebugRun ? "debug run ended" : "scene loaded for a launch");
+        if (endedDebugRun || pending.HasValue || pendingLong.HasValue || pendingUlt.HasValue || pendingArena || pendingCave.HasValue || pendingSky.HasValue || pendingFe.HasValue) SafeReset(endedDebugRun ? "debug run ended" : "scene loaded for a launch");
         Instance.keepAlive = false;
         Instance.IsArena = false;
         Instance.IsCaveBossTest = false;

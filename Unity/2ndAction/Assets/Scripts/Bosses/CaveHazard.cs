@@ -13,7 +13,7 @@ using UnityEngine;
 //  ・Tell    … 当たり判定の無い予告(地面の盛り上がり/影/天井のひび/魔法陣)。ボスの位置に付いて動ける
 // Android向け: 使い終わったら使い回す(シングル)。マルチのHOSTでは毎回壊す(NetAttackSyncの消滅通知を確実に送るため)。
 public enum CaveHazardKind : byte { Floor, Ceiling, Band, FallRock, Pool, Pillar, Wave, Tell }
-public enum CaveLook : byte { Rock, Crystal, Poison, Magic, Dirt, Flesh, Gaze, Fire, Bone }
+public enum CaveLook : byte { Rock, Crystal, Poison, Magic, Dirt, Flesh, Gaze, Fire, Bone, Lightning, Holy, Water, Wind }
 public enum CaveTellStyle : byte { Bulge, Shadow, Crack, Circle }
 
 public class CaveHazard : MonoBehaviour
@@ -77,6 +77,10 @@ public class CaveHazard : MonoBehaviour
             case CaveLook.Gaze: return new Color(0.9f, 1f, 0.4f, 0.85f);
             case CaveLook.Fire: return new Color(1f, 0.52f, 0.2f, 0.95f);
             case CaveLook.Bone: return new Color(0.92f, 0.88f, 0.78f, 1f);
+            case CaveLook.Lightning: return new Color(0.62f, 0.88f, 1f, 0.95f);   // 天空回廊(2026-10-05)
+            case CaveLook.Holy: return new Color(1f, 0.93f, 0.68f, 0.95f);
+            case CaveLook.Water: return new Color(0.72f, 0.88f, 1f, 0.9f);
+            case CaveLook.Wind: return new Color(0.92f, 0.97f, 1f, 0.75f);
             default: return new Color(0.58f, 0.5f, 0.44f, 1f);
         }
     }
@@ -92,6 +96,10 @@ public class CaveHazard : MonoBehaviour
             case CaveLook.Fire: return BossFx.Orb();
             case CaveLook.Flesh: return BossFx.Orb();
             case CaveLook.Bone: return BossFx.Fang();
+            case CaveLook.Lightning: return k == CaveHazardKind.Wave ? BossFx.Ring() : SkyBossFx.Bolt();
+            case CaveLook.Holy: return k == CaveHazardKind.Wave ? BossFx.Slash() : SkyBossFx.Beam();
+            case CaveLook.Water: return BossFx.Orb();
+            case CaveLook.Wind: return SkyBossFx.CloudPuff();
             default: return CaveBossFx.RockChunk();
         }
     }

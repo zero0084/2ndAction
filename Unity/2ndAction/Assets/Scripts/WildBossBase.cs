@@ -18,7 +18,7 @@ public enum WildBossKind { Wolf, GoblinRider, Serpent, Cyclops, Spider, Golem, G
 // に合わせてボスも進み続け(=間合い一定)、relVelocityぶんだけ間合いが変化
 // する。プレイヤーの攻撃ロンジ等でプレイヤー側が動いた分は、そのまま間合い
 // の変化になる。
-public abstract class WildBossBase : MonoBehaviour
+public abstract class WildBossBase : MonoBehaviour, IBossBattleDebug
 {
     public enum Pose { Idle, Move, Windup, Attack, Fly, Landing }
 
@@ -1133,7 +1133,10 @@ public abstract class WildBossBase : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public void DebugAddStagger(float v) => AddStagger(v);
     public float DebugStagger => stagger;
-    // 自然洞窟ボス強化(2026-10-04): 開発用の強制操作(段階/必殺技/BREAK)。荒野街道のボスにも使える
+#endif
+    // 自然洞窟ボス強化(2026-10-04): 開発用の強制操作(段階/必殺技/BREAK)。荒野街道のボスにも使える(IBossBattleDebug。ゲーム中は呼ばれない)
+    public string DebugName => bossName;
+    public bool DebugAlive => !dead && isActiveAndEnabled;
     public void DebugSetPhase(int p)
     {
         if (tune == null || dead) return;
@@ -1157,7 +1160,6 @@ public abstract class WildBossBase : MonoBehaviour
         return true;
     }
     public void DebugForceBreak() { if (tune != null && tune.staggerMax > 0f) AddStagger(tune.staggerMax * 1.5f / Mathf.Max(0.1f, staggerDefense)); }
-#endif
     // 各ボスが攻撃中に出した自分の物(溜めの玉など)を片付ける
     protected virtual void OnInterrupted() { }
     // 毎フレーム(行動のコルーチンとは別。割り込みで止まらない見た目の更新用)

@@ -3,7 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(BoxCollider2D))]
-public class DragonController : MonoBehaviour
+public class DragonController : MonoBehaviour, IBossBattleDebug
 {
     enum State { Entering, Idle, Telegraphing, Charging, Firing, Landing, Dead, Stunned }
 
@@ -826,6 +826,26 @@ public class DragonController : MonoBehaviour
     public bool Broken => state == State.Stunned;
     SpriteRenderer chargeOrb;
 
+    // 天空ボス強化(2026-10-05): 1,000m の天空ドラゴン。必殺技の名前/後の低空の隙/再戦の段階
+    [System.NonSerialized] public bool skyMode;
+    float staggerMul = 1f;
+    public int RematchTier { get; private set; } = -1;
+    public void ApplyRematchTier(BossRematchTuning.Tier tier, int tierIndex)
+    {
+        if (battle == null || tier == null) return;
+        battle = battle.Clone();
+        battle.staggerMax *= Mathf.Max(0.1f, tier.staggerMul);
+        if (battle.ultimateCooldown > 0f) battle.ultimateCooldown *= Mathf.Max(0.1f, tier.cooldownMul);
+        attackIntervalMin *= Mathf.Max(0.5f, tier.cooldownMul); attackIntervalMax *= Mathf.Max(0.5f, tier.cooldownMul);
+        if (tier.extraPhase && battle.phaseThresholds != null && battle.phaseThresholds.Length < 3)
+        {
+            var th = new System.Collections.Generic.List<float>(battle.phaseThresholds);
+            th.Add(Mathf.Clamp((th.Count > 0 ? th[th.Count - 1] : 1f) * 0.5f, 0.12f, 0.9f));
+            battle.phaseThresholds = th.ToArray();
+        }
+        RematchTier = tierIndex;
+    }
+
     public void EnableWastelandBattle(BossBattleTuning.Entry entry)
     {
         battle = entry;
@@ -864,7 +884,7 @@ public class DragonController : MonoBehaviour
     void AddStagger(float v)
     {
         if (battle == null || battle.staggerMax <= 0f || state == State.Stunned || state == State.Entering) return;
-        stagger += v;
+        stagger += v * staggerMul;
         lastStaggerTime = Time.time;
         if (stagger < battle.staggerMax) return;
         stagger = battle.staggerMax;
@@ -877,6 +897,7 @@ public class DragonController : MonoBehaviour
         if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
         if (chargeOrb != null) chargeOrb.enabled = false;
         BossBattle.EndUltimate(this);
+        ultimateRunningFlag = false;
         state = State.Stunned;
         SetFrames(idleFrames);
         StartCoroutine(StunRoutine());
@@ -920,8 +941,10 @@ public class DragonController : MonoBehaviour
         state = State.Telegraphing;
         UltimatesUsed++;
         lastUltimateTime = Time.time;
-        Debug.Log($"[BossBattle] Dragon ULTIMATE '煉獄の巨大火球' #{UltimatesUsed}");
-        BossBattleHud.Banner("煉獄の巨大火球", new Color(1f, 0.45f, 0.15f), 1.6f);
+        string ultName = skyMode ? "DRAGON FIRE CHARGE" : "煉獄の巨大火球";
+        Debug.Log($"[BossBattle] Dragon ULTIMATE '{ultName}' #{UltimatesUsed}");
+        BossBattleHud.Banner(ultName, new Color(1f, 0.45f, 0.15f), 1.6f);
+        ultimateRunningFlag = true;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
         // 上空へ
         float t = 0f;
@@ -973,12 +996,73 @@ public class DragonController : MonoBehaviour
         state = State.Firing;
         yield return new WaitForSeconds(2.2f);
         BossBattle.EndUltimate(this);
+        ultimateRunningFlag = false;
+        if (skyMode) yield return LowRecovery(2.8f); // 天空: 低空へ降りる(反撃のチャンス)
         state = State.Landing;
         yield return ReturnToHome(0.6f);
         state = State.Idle;
         SetFrames(idleFrames);
         ScheduleNextAttack();
     }
+
+    // 天空ボス強化(2026-10-05): DRAGON FIRE CHARGE の後、低空へ降りてくる(崩れやすい/攻撃が届く)
+    bool ultimateRunningFlag;
+    IEnumerator LowRecovery(float seconds)
+    {
+        state = State.Landing;
+        Vector3 start = transform.position;
+        float halfHWorld = sr.sprite != null ? sr.sprite.bounds.extents.y * transform.lossyScale.y : 1.5f;
+        float t = 0f;
+        Debug.Log("[CaveBoss] Dragon RECOVERY 'DRAGON FIRE CHARGE'");
+        BossBattleHud.Banner("ドラゴンが低空へ! 反撃のチャンス!", new Color(0.6f, 1f, 0.6f), 1.2f);
+        staggerMul = 2f;
+        while (t < seconds && state != State.Dead)
+        {
+            t += Time.deltaTime;
+            float x = (player != null ? player.position.x : transform.position.x) + landedStandoffDistance;
+            Vector3 target = new Vector3(x, GroundYAt(x) + halfHWorld * 0.95f, 0f);
+            transform.position = Vector3.Lerp(start, target, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 0.5f)));
+            if (t > 0.5f) start = target;
+            if (sr != null) sr.color = Color.Lerp(Color.white, new Color(0.75f, 0.85f, 1f), 0.5f + 0.5f * Mathf.Sin(t * 5f));
+            yield return null;
+        }
+        staggerMul = 1f;
+        if (sr != null) sr.color = Color.white;
+    }
+
+    public string DebugName => "Dragon";
+    public bool DebugAlive => state != State.Dead && isActiveAndEnabled;
+    public int PhaseCount => (battle != null && battle.phaseThresholds != null ? battle.phaseThresholds.Length : 0) + 1;
+    public bool UltimateRunning => ultimateRunningFlag;
+    public float StaggerFraction => battle != null && battle.staggerMax > 0f ? Mathf.Clamp01(stagger / battle.staggerMax) : 0f;
+    public void DebugSetPhase(int p)
+    {
+        if (battle == null || state == State.Dead) return;
+        p = Mathf.Clamp(p, 1, PhaseCount);
+        float frac = p == 1 ? 1f : battle.phaseThresholds[p - 2] - 0.03f;
+        Hp = Mathf.Clamp(Mathf.FloorToInt(maxHp * frac), 1, maxHp);
+        if (hpBar != null) hpBar.SetFraction((float)Hp / Mathf.Max(1, maxHp));
+        if (p < phase) phase = p; else CheckBattlePhase();
+    }
+    public bool DebugForceUltimate()
+    {
+        if (battle == null || state == State.Dead || battle.ultimateCooldown <= 0f) return false;
+        if (phase < 2) DebugSetPhase(2);
+        if (state == State.Stunned || state == State.Entering) return false;
+        StopAllCoroutines();
+        if (flashOverlay != null) flashOverlay.enabled = false;
+        if (chargeOrb != null) chargeOrb.enabled = false;
+        if (ultimateRunningFlag) { ultimateRunningFlag = false; BossBattle.EndUltimate(this); }
+        staggerMul = 1f;
+        if (sr != null) sr.color = Color.white;
+        lastUltimateTime = -99f; phaseAt = Time.time - 99f;
+        BossBattle.LastUltimateEnd = -99f;
+        BossStaggerGate.NextDragonTime = 0f;
+        state = State.Idle;
+        nextAttackTime = Time.time;
+        return true;
+    }
+    public void DebugForceBreak() { if (battle != null && battle.staggerMax > 0f) AddStagger(battle.staggerMax * 1.5f / Mathf.Max(0.1f, staggerMul)); }
 
     // Brief red flash to signal "that hit landed" while the boss is still
     // alive - a separate overlay from the (white) attack telegraph so the

@@ -20,13 +20,16 @@ public static class CaveBossSafety
     public static int Delayed, PitSkips;   // 統計(自動テスト用)
 
     public static bool CaveStageActive => GameManager.Instance != null && GameManager.Instance.ActiveRunStageId == Stage;
+    // 天空回廊(2026-10-05)も同じ調停を使う(落下死のある足場。必殺技の間だけ新しい穴を作らない)
+    public const string SkyStage = "sky_corridor";
+    public static bool SkyStageActive => GameManager.Instance != null && GameManager.Instance.ActiveRunStageId == SkyStage;
     static bool Multi => NetRunLauncher.IsMultiplayerRun;
 
     // 洞窟ボスと戦っている間(ラン再開後も含む)と必殺技の間は、新しい穴/坂を作らない(シングル)。
     // 天井の攻撃(地面にいる)と穴(跳ぶ)が重なる詰みを地形の側でも作らない。
-    public static bool ForceFlatTerrain => !Multi && CaveStageActive && (BossBattle.UltimateActive || CaveBossFighting);
+    public static bool ForceFlatTerrain => !Multi && ((CaveStageActive && (BossBattle.UltimateActive || CaveBossFighting)) || (SkyStageActive && BossBattle.UltimateActive));
     static bool CaveBossFighting => BossManager.Instance != null && BossManager.Instance.IsBossPhase && BossManager.Instance.AliveWildCount > 0;
-    public static bool HoldZako => CaveStageActive && BossBattle.UltimateActive && !NetCombat.Replica;
+    public static bool HoldZako => (CaveStageActive || SkyStageActive) && BossBattle.UltimateActive && !NetCombat.Replica;
 
     // プレイヤーの列を覆う攻撃の有効時間を予約する。戻り値=発動を遅らせる秒数(0なら予定どおり)。
     // activeIn: 今から何秒後に有効になるか / activeDur: 有効な長さ
