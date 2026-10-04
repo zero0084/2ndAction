@@ -120,6 +120,7 @@ public partial class BossManager
         CurrentEncounterKey = key;
         recentFought.Remove(key);
         recentFought.Insert(0, key);
+        ProgressStats.MarkBossSeen(key); // 会ったボス(ラスダンの抽選で製品版が優先する)
         while (recentFought.Count > 6) recentFought.RemoveAt(recentFought.Count - 1);
         Debug.Log($"[BossPool] {LastRematchDecision} pool=[{string.Join(", ", defeatedPool)}]");
     }
@@ -173,6 +174,7 @@ public partial class BossManager
     // 再戦の強化をボスへ(段階/必殺技の間隔/崩し。荒野街道のように戦闘の調整値を持つボスだけ)
     void ApplyRematchTo(WildBossBase boss)
     {
+        TrackSpawned(boss); // 遭遇へ登録 + ラスダンの攻撃間隔/移動速度(2026-10-05)
         if (boss == null || !CurrentEncounterIsRematch || currentTier == null) return;
         boss.ApplyRematch(currentTier);
     }

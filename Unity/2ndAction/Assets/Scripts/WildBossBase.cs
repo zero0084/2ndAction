@@ -273,7 +273,7 @@ public abstract class WildBossBase : MonoBehaviour, IBossBattleDebug
             if (netTarget != null) netTarget.SetPreferred(leash.PreferTarget);
             if (leash.Active) baseSpeed *= leash.SpeedFactor;
         }
-        worldX += (baseSpeed + relVelocity) * dt;
+        worldX += (baseSpeed + relVelocity * MoveScale) * dt; // MoveScale: ラスダンの移動速度(接近/間合い/突進)
 
         float px = PlayerX;
         float gap = worldX - px;
@@ -526,7 +526,25 @@ public abstract class WildBossBase : MonoBehaviour, IBossBattleDebug
     protected IEnumerator Wait(float seconds)
     {
         float t = 0f;
+        seconds *= AiWaitScale; // ラスダンの攻撃の間隔(予告=Telegraph の時間は変えない)
         while (t < seconds && !dead) { t += AiDt; yield return null; }
+    }
+
+    // ラストダンジョンの倍率(2026-10-05, LastDungeonBossTuning): 攻撃の頻度(特殊攻撃/必殺技の間隔を割る)・攻撃の間隔(待ち時間)・移動速度
+    public float AiWaitScale { get; private set; } = 1f;
+    public float MoveScale { get; private set; } = 1f;
+    public void ApplyPace(float frequencyMul, float intervalMul, float moveMul)
+    {
+        AiWaitScale = Mathf.Clamp(intervalMul, 0.5f, 1.5f);
+        MoveScale = Mathf.Clamp(moveMul, 0.5f, 1.5f);
+        if (tune != null && frequencyMul > 0.01f && Mathf.Abs(frequencyMul - 1f) > 0.001f)
+        {
+            var c = tune.Clone();
+            c.specialCooldown /= frequencyMul;
+            if (c.ultimateCooldown > 0f) c.ultimateCooldown /= frequencyMul;
+            c.firstUltimateDelay /= frequencyMul;
+            tune = c;
+        }
     }
 
     // 顔からプレイヤーまでの距離がstopDist以下になるまで接近(relVelocityで間合いを詰める)
@@ -1043,6 +1061,7 @@ public abstract class WildBossBase : MonoBehaviour, IBossBattleDebug
 
     void AddStagger(float v)
     {
+        if (BossBattle.DebugNoStagger) return;
         if (tune == null || tune.staggerMax <= 0f || Broken || phaseRoaring || entering) return;
         stagger += v * staggerDefense;
         lastStaggerTime = Time.time;
@@ -1159,7 +1178,7 @@ public abstract class WildBossBase : MonoBehaviour, IBossBattleDebug
         BossBattle.LastUltimateEnd = -99f; // 必殺技の連続の間隔(2.5秒)を待たない(割り込みで今の必殺技を終わらせた後に戻す)
         return true;
     }
-    public void DebugForceBreak() { if (tune != null && tune.staggerMax > 0f) AddStagger(tune.staggerMax * 1.5f / Mathf.Max(0.1f, staggerDefense)); }
+    public void DebugForceBreak() { if (tune != null && tune.staggerMax > 0f) { bool keep = BossBattle.DebugNoStagger; BossBattle.DebugNoStagger = false; AddStagger(tune.staggerMax * 1.5f / Mathf.Max(0.1f, staggerDefense)); BossBattle.DebugNoStagger = keep; } }
     // 各ボスが攻撃中に出した自分の物(溜めの玉など)を片付ける
     protected virtual void OnInterrupted() { }
     // 毎フレーム(行動のコルーチンとは別。割り込みで止まらない見た目の更新用)
@@ -1365,7 +1384,7 @@ public abstract class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (NetPuppet) return; // JOINのパペット: 撃破報酬/ボス戦終了はHOSTとラストヒットの本人が処理する
         if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
         if (DefeatOverride != null) { DefeatOverride(this); return; }
-        if (BossManager.Instance != null) BossManager.Instance.OnWildBossDefeated();
+        if (BossManager.Instance != null) BossManager.Instance.OnWildBossDefeated(this);
     }
 
     IEnumerator FinalHitAndDie()

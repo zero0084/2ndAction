@@ -47,7 +47,7 @@ public class LastCorridorDirector : MonoBehaviour
     //               敵の密度/Hardの比重、障害物(壊せる扉が増える)、穴(確率/非常に大きな穴/狭い足場の連続)、
     //               天井(杭/低い天井=上下からの圧迫)、落ちてくる構造物をまとめて上下させる。
     //               複合: 穴の上に飛ぶ敵→着地点に地上の敵→直後に壊せる扉(ld_pit_ambush)など(Encounter側のFormation)。
-    //   90,000〜99,000m ボスラッシュ(通常の敵なし。BossManager.RushTable) / 99,000〜100,000m 静寂(何も出さない)
+    //   90,000〜99,000m ボスラッシュ(通常の敵なし。LastDungeonBossTuning.rushGates / BossManager.LastDungeon.cs) / 99,000〜100,000m 静寂(何も出さない)
     //   100,000m 三姉妹戦 → エンドロール → ONE MORE MILE?(LastDungeonFlow)
     // すべて論理X(走行距離)だけで決まるので、マルチでも全端末で同じ地形になる。
     // hardMode=false(または起動引数 -lcLegacyDifficulty)で従来のLAST CORRIDORに戻る(比較用)。

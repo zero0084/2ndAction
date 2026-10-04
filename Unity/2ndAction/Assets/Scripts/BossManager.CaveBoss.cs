@@ -11,7 +11,7 @@ public partial class BossManager
 
     void CaveBossTick()
     {
-        if (!IsCaveStage || NetRunLauncher.IsMultiplayerRun || !IsBossPhase || AliveWildCount <= 0 || player == null) return;
+        if (!(IsCaveStage || (IsLastStage && encounterHasCave)) || NetRunLauncher.IsMultiplayerRun || !IsBossPhase || AliveWildCount <= 0 || player == null) return;
         if (Time.time < caveZoneNextUpdate) return;
         caveZoneNextUpdate = Time.time + 0.25f;
         var tm = TerrainManager.Instance;
@@ -33,6 +33,7 @@ public partial class BossManager
         ClearEnemiesForBoss();
         currentGateK = Mathf.Max(0, gateK - 1); // 撃破後に次の関門を飛ばさない
         ResetRematchEncounter();
+        BeginEncounter(gateK, false);
         CurrentEncounterKey = Key(fam, kindValue);
         var tn = BossRematchTuning.I;
         if (tier >= 0 && tier < tn.tiers.Count)

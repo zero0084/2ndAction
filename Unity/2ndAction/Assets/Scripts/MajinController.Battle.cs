@@ -111,6 +111,7 @@ public partial class MajinController : IBossBattleDebug
 
     void AddStagger(float v)
     {
+        if (BossBattle.DebugNoStagger) return;
         if (battle == null || battle.staggerMax <= 0f || Broken || state == State.Entering || state == State.Dead) return;
         stagger += v * staggerMul;
         lastStaggerTime = Time.time;
@@ -154,7 +155,7 @@ public partial class MajinController : IBossBattleDebug
     static int MagicDmg(bool heavy) => heavy ? Mathf.Max(1, BossBattleTuning.I.ultimateDamage) : CombatScale.PlayerHit;
 
     // 第2段階: 短い瞬間移動(出現地点に魔法陣の予兆)→ 魔法陣の攻撃(下から → 上から)
-    public float clawEvery = 7f;
+    public float clawEvery = 5.5f;
     float lastClawTime = -4f;
     public int ClawCount { get; private set; }
 
@@ -302,5 +303,5 @@ public partial class MajinController : IBossBattleDebug
         nextAttackTime = Time.time;
         return true;
     }
-    public void DebugForceBreak() { if (battle != null && battle.staggerMax > 0f) AddStagger(battle.staggerMax * 1.5f); }
+    public void DebugForceBreak() { if (battle != null && battle.staggerMax > 0f) { bool keep = BossBattle.DebugNoStagger; BossBattle.DebugNoStagger = false; AddStagger(battle.staggerMax * 1.5f); BossBattle.DebugNoStagger = keep; } }
 }

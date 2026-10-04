@@ -318,13 +318,14 @@ public partial class EndgameDebug : MonoBehaviour
     {
         var gm = GameManager.Instance; var bm = BossManager.Instance;
         if (gm == null || bm == null || !gm.HasStarted || gm.IsGameOver || gm.ActiveRunStageId != LastCorridorDirector.StageId) { Status = "NEXT BOSS: ラスダンのラン中だけ使えます"; yield break; }
-        int killed = 0;
-        foreach (var wb in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None))
-            if (wb != null && !wb.IsDead && wb.gameObject.activeInHierarchy && !(wb is ReaperSisterBoss)) { wb.TakeDamage(99999999, wb.CenterWorld); killed++; }
-        Debug.Log($"[BossRush] DEBUG next boss: defeated {killed} boss(es) at {gm.MaxDistance:F0}m (gate {bm.RushGateK * 1000}m)");
+        // 今の遭遇のボスを全員(まだ出ていない増援も)片付ける。フェニックスの復活などで残った分はもう一度(2026-10-05)
+        int killed = bm.DebugFinishEncounter();
         float w = 0f;
-        while (w < 2f) { yield return null; w += Time.unscaledDeltaTime; }
-        if (bm.IsBossPhase && bm.AliveBossCount > 0) { Status = "NEXT BOSS: 同じ関門の次のボスが登場"; yield break; }
+        while (w < 0.6f) { yield return null; w += Time.unscaledDeltaTime; }
+        if (bm.IsBossPhase && !bm.BossDefeatedThisPhase) killed += bm.DebugFinishEncounter();
+        Debug.Log($"[BossRush] DEBUG next boss: cleared {killed} boss(es) of the encounter at {gm.MaxDistance:F0}m (gate {bm.RushGateK * 1000}m)");
+        w = 0f;
+        while (w < 1.4f) { yield return null; w += Time.unscaledDeltaTime; }
         // 関門が終わるまで(報酬のカード選択はプレイヤーが選ぶ)
         w = 0f;
         while ((bm.IsBossPhase || gm.IsRewardSequenceRunning) && w < 40f) { yield return null; w += Time.unscaledDeltaTime; }

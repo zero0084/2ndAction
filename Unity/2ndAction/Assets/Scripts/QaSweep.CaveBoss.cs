@@ -306,6 +306,9 @@ public partial class QaSweep
         if (b == null) { Check(false, $"{tag}: troll spawned"); yield break; }
         b.DebugSetPhase(2);
         yield return new WaitForSeconds(0.5f);
+        // 自動操作補助がボスへ攻撃すると、踏み込みでプレイヤーが前後に動いて「ずれた」ように見える(踏み込みで避けるのは正しい)ので、ここでは切る
+        var hsa = HighSpeedAssist.Instance; bool hsaWas = hsa != null && hsa.assistEnabled;
+        if (hsa != null) hsa.assistEnabled = false;
         b.DebugForceUltimate();
         float w = 0f, maxDrift = 0f; int farFrames = 0, samples = 0;
         var startRel = new Dictionary<int, float>(); // 使い回しで同じ物が別の場所に出るので、出るたびの番号で
@@ -322,6 +325,7 @@ public partial class QaSweep
             if (Mathf.Abs(b.transform.position.x - px) > 30f && !b.UltimateRunning) farFrames++;
             w += Time.deltaTime; yield return null;
         }
+        if (hsa != null) hsa.assistEnabled = hsaWas;
         Check(b.UltimatesUsed > 0, $"{tag}: the ultimate happens at {kmh:0}km/h");
         Check(samples > 0 && maxDrift < 1.0f, $"{tag}: floor/ceiling attacks stay where they were telegraphed at {kmh:0}km/h (max drift {maxDrift:F2}m, {samples} samples)");
         Check(farFrames <= 3, $"{tag}: boss stays near the player ({farFrames} far frames)");

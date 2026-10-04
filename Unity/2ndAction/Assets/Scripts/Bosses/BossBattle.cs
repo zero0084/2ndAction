@@ -9,6 +9,7 @@ public static class BossBattle
     static Object ultimateOwner;
     static float ultimateSince;
     public static float LastUltimateEnd = -99f;
+    public static bool DebugNoStagger; // 確認用(自動テスト): 攻撃で崩しを溜めない(必殺技の観察が BREAK で切れないように)。強制の BREAK は効く
 
     public static bool UltimateActive => ultimateOwner != null && Time.time - ultimateSince < 15f;
 

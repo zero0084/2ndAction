@@ -6,6 +6,7 @@ using UnityEngine;
 public class DragonController : MonoBehaviour, IBossBattleDebug
 {
     enum State { Entering, Idle, Telegraphing, Charging, Firing, Landing, Dead, Stunned }
+    public int AttacksStarted { get; private set; } // 確認用(攻撃を始めた回数)
 
     [Header("Animation")]
     public Sprite[] idleFrames;
@@ -386,6 +387,7 @@ public class DragonController : MonoBehaviour, IBossBattleDebug
 
     IEnumerator LandingAttack()
     {
+        AttacksStarted++;
         EnsureLandingHitboxes();
         float sc = Mathf.Abs(transform.lossyScale.x);
         float halfHWorld = sr.sprite != null ? sr.sprite.bounds.extents.y * transform.lossyScale.y : 1.5f;
@@ -553,6 +555,7 @@ public class DragonController : MonoBehaviour, IBossBattleDebug
 
     IEnumerator TelegraphAndAttack(bool isCharge)
     {
+        AttacksStarted++;
         state = State.Telegraphing;
 
         float t = 0f;
@@ -883,6 +886,7 @@ public class DragonController : MonoBehaviour, IBossBattleDebug
 
     void AddStagger(float v)
     {
+        if (BossBattle.DebugNoStagger) return;
         if (battle == null || battle.staggerMax <= 0f || state == State.Stunned || state == State.Entering) return;
         stagger += v * staggerMul;
         lastStaggerTime = Time.time;
@@ -1062,7 +1066,7 @@ public class DragonController : MonoBehaviour, IBossBattleDebug
         nextAttackTime = Time.time;
         return true;
     }
-    public void DebugForceBreak() { if (battle != null && battle.staggerMax > 0f) AddStagger(battle.staggerMax * 1.5f / Mathf.Max(0.1f, staggerMul)); }
+    public void DebugForceBreak() { if (battle != null && battle.staggerMax > 0f) { bool keep = BossBattle.DebugNoStagger; BossBattle.DebugNoStagger = false; AddStagger(battle.staggerMax * 1.5f / Mathf.Max(0.1f, staggerMul)); BossBattle.DebugNoStagger = keep; } }
 
     // Brief red flash to signal "that hit landed" while the boss is still
     // alive - a separate overlay from the (white) attack telegraph so the

@@ -24,7 +24,34 @@ public static class ProgressStats
         lastFlushed = lifetime;
     }
 
-    public static void Reload() { loaded = false; dirty = false; }
+    public static void Reload() { loaded = false; dirty = false; seenBosses = null; }
+
+    // ---- 会ったボス(2026-10-05): ラスダンの節目のボスは、製品版ではこの中から選ぶ(LastDungeonBossTuning.releasePreferSeen) ----
+    static System.Collections.Generic.HashSet<string> seenBosses;
+    static System.Collections.Generic.HashSet<string> Seen
+    {
+        get
+        {
+            if (seenBosses == null)
+            {
+                seenBosses = new System.Collections.Generic.HashSet<string>();
+                foreach (var k in PlayerPrefs.GetString(SaveKeys.BossSeen, "").Split(',')) if (!string.IsNullOrEmpty(k)) seenBosses.Add(k);
+            }
+            return seenBosses;
+        }
+    }
+    public static bool HasSeenBoss(string key) => !string.IsNullOrEmpty(key) && Seen.Contains(key);
+    public static int SeenBossCount => Seen.Count;
+    // 戦闘が始まった時に呼ぶ(何度呼んでもよい。初めての時だけ保存)
+    public static void MarkBossSeen(string key)
+    {
+        if (string.IsNullOrEmpty(key) || Seen.Contains(key)) return;
+        if (DebugRun.BlocksSave("BossSeen_" + key)) return;
+        Seen.Add(key);
+        PlayerPrefs.SetString(SaveKeys.BossSeen, string.Join(",", Seen));
+        PlayerPrefs.Save();
+        Debug.Log($"[Progress] boss seen: {key} ({Seen.Count})");
+    }
 
     public static double LifetimeDistance { get { Load(); return lifetime; } }
 

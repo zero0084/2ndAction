@@ -39,10 +39,27 @@ public partial class QaSweep
 
     readonly HashSet<Object> strikeOver = new HashSet<Object>();
     readonly HashSet<Object> fbOver = new HashSet<Object>();
+    // 判断の数え方: 攻撃の横幅がプレイヤーの位置を覆った(高さは問わない = 跳んで避けた攻撃も1回の判断として数える)
+    readonly HashSet<int> hzCovered = new HashSet<int>();
+    readonly HashSet<Object> hbCovering = new HashSet<Object>();
     void TrackSkyThreats(IBossBattleDebug b)
     {
         if (b is WildBossBase w) TrackBossHitboxes(w);
         float px = pc.transform.position.x;
+        foreach (var h in CaveHazard.Live)
+        {
+            if (h == null || !h.IsActive || !h.Damaging || hzCovered.Contains(h.Serial)) continue;
+            var c = h.GetComponent<Collider2D>();
+            if (c != null && c.bounds.min.x - 0.3f <= px && c.bounds.max.x + 0.3f >= px) { hzCovered.Add(h.Serial); caveOver.Add(new OverRec { t = Time.time, ceil = h.CeilingType, src = "cover:" + h.Kind }); }
+        }
+        if (b is MonoBehaviour mb)
+            foreach (var hb in mb.GetComponentsInChildren<BossHitbox>())
+            {
+                var c = hb.GetComponent<Collider2D>();
+                bool cov = hb.IsActive && hb.damagesPlayer && c != null && c.bounds.min.x - 0.3f <= px && c.bounds.max.x + 0.3f >= px;
+                if (cov && hbCovering.Add(hb)) caveOver.Add(new OverRec { t = Time.time, ceil = false, src = "cover:" + hb.name });
+                else if (!cov) hbCovering.Remove(hb);
+            }
         foreach (var s in FindObjectsByType<SkyStrike>(FindObjectsSortMode.None))
         {
             var c = s.GetComponent<Collider2D>();
@@ -119,29 +136,33 @@ public partial class QaSweep
         var bm = Bm;
         float w0 = 0f;
         while ((bm.IsBossPhase || gm.IsRewardSequenceWaitingForSelection) && w0 < 20f) { yield return null; w0 += Time.unscaledDeltaTime; }
-        // 自動操作補助の攻撃で崩し(BREAK)が溜まると、通常攻撃/必殺技の観察が途中で切れるので、ボスごとの確認の間は切る
-        var hsaAll = HighSpeedAssist.Instance; bool hsaAllWas = hsaAll != null && hsaAll.assistEnabled;
-        if (hsaAll != null) hsaAll.assistEnabled = false;
+        // 自動操作補助(実際のプレイに近い動き: 跳ぶ/近づいて攻撃する)はそのまま。攻撃で崩し(BREAK)が溜まると
+        // 通常攻撃/必殺技の観察が途中で切れるので、ボスごとの確認の間は崩しを溜めない(強制の BREAK は効く)
+        BossBattle.DebugNoStagger = true;
         bm.DebugSkyEncounter(k, -1);
         yield return WaitSkySpawn();
         var b = SkyBossAlive();
         Check(b != null, $"{n} A: spawned");
-        if (b == null) { if (hsaAll != null) hsaAll.assistEnabled = hsaAllWas; yield break; }
+        if (b == null) { BossBattle.DebugNoStagger = false; yield break; }
         Check(b.PhaseCount >= 2, $"{n} A: battle tuning applied (phases {b.PhaseCount})");
         Shot($"sky_{n}_A_spawn");
 
         // B: 通常攻撃 + H: 攻撃の届く高さ
         int hz0 = CaveHazard.Spawned + CaveHazard.Reused;
         var strikes0 = new HashSet<Object>(FindObjectsByType<SkyStrike>(FindObjectsSortMode.None));
+        int dragonAtk0 = b is DragonController dc0 ? dc0.AttacksStarted : 0;
+        float unreach = 0f, longestUnreach = 0f;
         bool sawThreat = false; int frames = 0, reach = 0, untarget = 0; float w = 0f, sumDy = 0f, sumDx = 0f;
-        while (w < 12f && b.DebugAlive)
+        while (w < 16f && b.DebugAlive)
         {
             if (FindObjectsByType<SkyStrike>(FindObjectsSortMode.None).Any(x => !strikes0.Contains(x)) || FindObjectsByType<BossProjectile>(FindObjectsSortMode.None).Length > 0 || FindObjectsByType<FireballController>(FindObjectsSortMode.None).Length > 0) sawThreat = true;
             if (b is WildBossBase wb && wb.GetComponentsInChildren<BossHitbox>().Any(h => h.IsActive)) sawThreat = true;
+            if (b is DragonController dc && dc.AttacksStarted > dragonAtk0) sawThreat = true;
             if (HurtBounds(b, out Bounds bb, out bool tg))
             {
                 frames++; if (!tg) untarget++; sumDy += bb.min.y - pc.transform.position.y; sumDx += bb.center.x - pc.transform.position.x;
-                if (tg && bb.min.y <= pc.transform.position.y + 4.2f && Mathf.Abs(bb.center.x - pc.transform.position.x) <= 13f) reach++;
+                bool inReach = tg && bb.min.y <= pc.transform.position.y + 4.2f && Mathf.Abs(bb.center.x - pc.transform.position.x) <= 13f;
+                if (inReach) { reach++; unreach = 0f; } else { unreach += Time.deltaTime; longestUnreach = Mathf.Max(longestUnreach, unreach); }
             }
             w += Time.deltaTime; yield return null;
         }
@@ -149,7 +170,8 @@ public partial class QaSweep
         float reachFrac = frames > 0 ? reach / (float)frames : 0f;
         L($"[{n}] reach: frames={frames} untargetable={untarget} avg bottom-above-player={(frames > 0 ? sumDy / frames : 0f):F1}m avg dx={(frames > 0 ? sumDx / frames : 0f):F1}m");
         Check(sawThreat || hzB > 0, $"{n} B: phase-1 attacks happen (terrain {hzB}, threat seen {sawThreat})");
-        Check(reachFrac >= 0.2f, $"H {n}: the boss is within attack reach often enough ({reachFrac * 100f:F0}% of 12s)");
+        // 「攻撃の届かない所に居続けない」: 届く時間がある(5%以上)+届かない時間が続くのは10秒まで(潜る/上空へ行くボスも必ず戻ってくる)
+        Check(reachFrac >= 0.05f && longestUnreach <= 10f, $"H {n}: the boss comes back within attack reach ({reachFrac * 100f:F0}% of 16s, longest out of reach {longestUnreach:F1}s)");
 
         // C: 段階 → 第2段階の技
         b.DebugSetPhase(2);
@@ -163,15 +185,13 @@ public partial class QaSweep
         // D/E/F: 必殺技
         ult0 = b.UltimatesUsed;
         int viol0 = CaveHazard.Violations, rec0 = caveRecoveries.Count, br0u = b.BreakCount;
-        var hsa = HighSpeedAssist.Instance; bool hsaWas = hsa != null && hsa.assistEnabled;
-        if (hsa != null) hsa.assistEnabled = false; // 自動操作補助の攻撃で必殺技が BREAK で切れると、判断の回数を数えられない
         b.DebugForceUltimate();
         bool retried = false;
         w = 0f;
         while (w < 8f && !b.UltimateRunning && b.UltimatesUsed == ult0) { if (!retried && w > 3f) { retried = true; b.DebugForceUltimate(); } w += Time.deltaTime; yield return null; }
         Check(b.UltimateRunning || b.UltimatesUsed > ult0, $"{n} D: ultimate starts");
         float uStart = Time.time;
-        caveOver.Clear(); strikeOver.Clear(); fbOver.Clear(); hbOver.Clear();
+        caveOver.Clear(); strikeOver.Clear(); fbOver.Clear(); hbOver.Clear(); hzCovered.Clear(); hbCovering.Clear();
         bool shotA = false, shotB = false;
         w = 0f;
         while (w < 28f && (b.UltimateRunning || w < 0.3f) && b.DebugAlive)
@@ -182,7 +202,6 @@ public partial class QaSweep
             w += Time.deltaTime; yield return null;
         }
         float uLen = Time.time - uStart;
-        if (hsa != null) hsa.assistEnabled = hsaWas;
         var overs = caveOver.Where(o => o.t >= uStart - 0.1f).OrderBy(o => o.t).ToList();
         int decisions = 0; float last = -9f;
         foreach (var o in overs) { if (o.t - last > 0.35f) decisions++; last = o.t; }
@@ -213,7 +232,7 @@ public partial class QaSweep
         bm.DebugForceResume();
         yield return new WaitForSeconds(3f);
         Check(bm.RunResumed && gm.MaxDistance > d0 + 10f && b.DebugAlive, $"{n} I: run resumed, distance counts, the boss keeps fighting ({d0:F0} -> {gm.MaxDistance:F0})");
-        if (hsaAll != null) hsaAll.assistEnabled = hsaAllWas;
+        BossBattle.DebugNoStagger = false;
         L($"[kind] {n}: phase={b.Phase}/{b.PhaseCount} ultimates={b.UltimatesUsed} breaks={b.BreakCount} resumed={bm.RunResumed} reach={reachFrac * 100f:F0}%");
         KillSkyBosses();
         yield return new WaitForSeconds(0.5f);
@@ -287,15 +306,14 @@ public partial class QaSweep
         yield return new WaitForSeconds(2.5f);
         float w = 0f; while (w < 18f && b.UltimateRunning) { w += Time.deltaTime; yield return null; }
         yield return new WaitForSeconds(1f);
-        var hsa = HighSpeedAssist.Instance; bool hsaWas = hsa != null && hsa.assistEnabled;
-        if (hsa != null) hsa.assistEnabled = false;
+        BossBattle.DebugNoStagger = true;
         b.DebugForceUltimate();
         w = 0f; while (w < 5f && !b.UltimateRunning) { w += Time.deltaTime; yield return null; }
-        int c0 = caveOver.Count; float t0 = Time.time; strikeOver.Clear(); hbOver.Clear();
+        int c0 = caveOver.Count; float t0 = Time.time; strikeOver.Clear(); hbOver.Clear(); hzCovered.Clear(); hbCovering.Clear();
         w = 0f; while (w < 28f && b.UltimateRunning) { TrackSkyThreats(b); w += Time.deltaTime; yield return null; }
         int decisions = 0; float last = -9f;
         foreach (var o in caveOver.Skip(c0).OrderBy(o => o.t)) { if (o.t - last > 0.35f) decisions++; last = o.t; }
-        if (hsa != null) hsa.assistEnabled = hsaWas;
+        BossBattle.DebugNoStagger = false;
         L($"[L] upgraded THUNDER APOCALYPSE: {Time.time - t0:F1}s decisions={decisions}");
         Check(decisions >= 5, $"L: the upgraded ultimate has extra beats ({decisions} decisions)");
         KillSkyBosses();
@@ -353,7 +371,7 @@ public partial class QaSweep
         L($"[{tag}] strikes={startRel.Count} drift vs run frame {maxRunDrift:F2}m / vs player {maxDrift:F2}m / vs camera {maxCamDrift:F2}m, player slower than auto-run {slowShare * 100f:F0}% of frames | worst: {worst}");
         Check(b.UltimatesUsed > 0, $"{tag}: the ultimate happens at {kmh:0}km/h");
         Check(samples == 0 || maxRunDrift < 0.5f, $"{tag}: strike telegraphs move with the auto-run (screen) at {kmh:0}km/h (drift {maxRunDrift:F2}m)");
-        if (slowShare < 0.05f) Check(samples == 0 || maxDrift < 1.2f, $"{tag}: strike telegraphs stay where they were shown relative to a running player at {kmh:0}km/h (max drift {maxDrift:F2}m)");
+        if (slowShare < 0.05f) Check(samples == 0 || maxDrift < 2.0f, $"{tag}: strike telegraphs stay where they were shown relative to a running player (knockback ≤2m) at {kmh:0}km/h (max drift {maxDrift:F2}m)");
         else L($"[{tag}] the player was blocked/slowed for {slowShare * 100f:F0}% of the frames (no attacks/jumps in this check) - relative drift not judged");
         PlayerController.DebugSpeedScale = 1f;
         KillSkyBosses();

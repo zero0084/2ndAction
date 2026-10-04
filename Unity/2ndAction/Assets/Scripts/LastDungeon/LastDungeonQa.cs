@@ -70,6 +70,7 @@ public partial class LastDungeonQa : MonoBehaviour
         if (mode == "density") yield return DensityMode();
         else if (mode == "stop") yield return StopMode();
         else if (mode == "warps") yield return WarpsMode();
+        else if (mode == "bosses") yield return BossesMode();
         else yield return FlowMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);
@@ -315,7 +316,7 @@ public partial class LastDungeonQa : MonoBehaviour
         int enemiesAt99 = -1, debris99 = -1;
         float guard = 0f;
         bool shotMulti = false;
-        while (gm.MaxDistance < 100000f && guard < 1500f && !gm.IsGameOver)
+        while (gm.MaxDistance < 100000f && guard < 2700f && !gm.IsGameOver) // ボスラッシュは 1 関門 2〜5 体(2026-10-05)
         {
             float d = gm.MaxDistance;
             if (d >= 90000f && enemies90 < 0) { enemies90 = dir.SpawnedEnemies; L($"  reached 90,000m: normal encounters stop (spawned so far {enemies90})"); }
