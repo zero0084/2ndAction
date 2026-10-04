@@ -169,7 +169,7 @@ public class RewardCardUI : MonoBehaviour
         textBackdrop.enabled = isFront && showDetails;
         descriptionText.enabled = isFront && showDetails;
         if (rarityText != null) rarityText.enabled = isFront && showDetails;
-        bool showLevel = isFront && !string.IsNullOrEmpty(data.LevelLine);
+        bool showLevel = isFront && !string.IsNullOrEmpty(data.LevelLine) && !data.FinalEvolution; // FINAL EVOLUTION は Lv を出さない(表記は上の帯)
         if (levelText != null) levelText.enabled = showLevel;
         if (levelBadge != null) levelBadge.SetActive(showLevel);
         // item2/3/6 - Category Iconはlevelと同じ扱い(表面のみ)。スプライト
@@ -273,8 +273,9 @@ public class RewardCardUI : MonoBehaviour
 
     void ApplyMasteryVisual(bool front)
     {
-        bool show = front && data.ShowMastery;
-        bool awake = front && data.Awakened;
+        bool show = front && data.ShowMastery && !data.FinalEvolution;
+        bool fe = front && data.FinalEvolution;
+        bool awake = front && (data.Awakened || fe);
         if (!show && !awake && masteryRow == null) return;
         EnsureMasteryArt();
         if (masteryRow == null) return;
@@ -282,6 +283,8 @@ public class RewardCardUI : MonoBehaviour
         if (show) masteryText.text = CardMastery.StarsRich(data.MasteryStars); // 埋まった★は金、残りは暗い★
         awakenRoot.SetActive(awake);
         awakenLabelRoot.SetActive(awake);
+        if (awakenLabel != null) awakenLabel.text = fe ? (data.Awakened ? "FINAL EVOLUTION ★" : "FINAL EVOLUTION") : "AWAKENED";
+        if (awakenGlow != null) { var gc = fe ? new Color(1f, 0.6f, 0.15f, 0.9f) : new Color(AwakenGold.r, AwakenGold.g, AwakenGold.b, 0.85f); awakenGlow.color = gc; }
     }
 
     // AWAKENED の光の呼吸と、カードのまわりを回る小さな粒

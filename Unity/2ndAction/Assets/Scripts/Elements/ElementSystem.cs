@@ -84,10 +84,14 @@ public static class ElementSystem
         if (victim == null || !IsAlive(victim)) return;
 
         // 炎: 継続ダメージ(基礎/秒)。重ねると時間を延ばし少しずつ強く
-        if (e.BurnChance > 0f && e.BurnPower > 0f && Roll() < e.BurnChance)
+        // FINAL EVOLUTION(FLAME BLADE): 確率と強さを足し、炎上させた相手の周りへ小さく延焼(延焼からは延焼しない)
+        float burnChance = e.BurnChance > 0f ? Mathf.Min(1f, e.BurnChance + FinalEvolution.BurnChanceAdd) : 0f;
+        if (burnChance > 0f && e.BurnPower > 0f && Roll() < burnChance)
         {
-            ElementStatus.For(victim).AddBurn(e.BurnDps, e.BurnDuration);
+            float bdps = e.BurnDps * FinalEvolution.BurnDpsMul;
+            ElementStatus.For(victim).AddBurn(bdps, e.BurnDuration);
             BurnProcs++;
+            FinalEvolution.OnBurnApplied(victim, bdps, e.BurnDuration);
         }
         // 氷: 行動を遅く、重なると凍結(ボスは強めの減速)
         if (e.ChillChance > 0f && e.ChillSlow > 0f && Roll() < e.ChillChance)
@@ -111,10 +115,12 @@ public static class ElementSystem
             BleedProcs++;
         }
         // 雷: 落雷(当たった相手)+ 近くの別の敵へ連鎖 + 周りへの範囲
-        if (e.LightningChance > 0f && e.LightningPower > 0f && Roll() < e.LightningChance && LightningReady(victim))
+        // FINAL EVOLUTION(THUNDER STRIKE): 落雷しやすく連鎖+1。1体へ0.4秒に1回の制限と、落雷から落雷を出さない決まりはそのまま
+        float lChance = e.LightningChance > 0f ? Mathf.Min(1f, e.LightningChance + FinalEvolution.LightningChanceAdd) : 0f;
+        if (lChance > 0f && e.LightningPower > 0f && Roll() < lChance && LightningReady(victim))
         {
             LightningProcs++;
-            Chain(victim, Mathf.Max(1, Mathf.RoundToInt(e.LightningDamage * HitWeight)), e.LightningChains, e.LightningRange, e.LightningSplash, e.LightningShock);
+            Chain(victim, Mathf.Max(1, Mathf.RoundToInt(e.LightningDamage * HitWeight)), e.LightningChains + FinalEvolution.LightningChainsAdd, e.LightningRange, e.LightningSplash, e.LightningShock);
         }
         // 風: 前方へ飛ぶ貫通の風刃(風刃自身からは出さない。短い間隔をあける)
         if ((info == null || !info.elementProc) && e.WindBladeChance > 0f && e.WindBladePower > 0f && Time.time - lastWindBlade > 0.25f && Roll() < e.WindBladeChance)

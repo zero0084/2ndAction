@@ -11,6 +11,7 @@ using UnityEngine.SceneManagement;
 public class SonicMoveFx : MonoBehaviour
 {
     public static SonicMoveFx Instance { get; private set; }
+    public static float ForcedIntensity; // FINAL EVOLUTION(SPEED UP): 残像を強く(0=通常)
     [Header("速さ(km/h)")]
     public float startKmh = 60f;     // ここから出始める
     public float fullKmh = 130f;     // ここで最大
@@ -85,7 +86,7 @@ public class SonicMoveFx : MonoBehaviour
         bool run = pc != null && gm != null && gm.HasStarted && !gm.IsGameOver && Time.timeScale > 0f && !pc.IsFinishing;
         if (pc != boundPc) { boundPc = pc; playerSr = null; if (pc != null) { var an = pc.GetComponent<PlayerAnimator>(); playerSr = an != null ? an.VisualRenderer : pc.GetComponentInChildren<SpriteRenderer>(); } }
         Kmh = pc != null ? GameManager.SpeedKmh(pc.CurrentAutoRunSpeed) : 0f;
-        float k = run ? Mathf.Clamp01((Kmh - startKmh) / Mathf.Max(1f, fullKmh - startKmh)) : 0f;
+        float k = run ? Mathf.Max(ForcedIntensity, Mathf.Clamp01((Kmh - startKmh) / Mathf.Max(1f, fullKmh - startKmh))) : 0f;
         float glow = GameSettings.GlowIntensity;
         Intensity = Mathf.MoveTowards(Intensity, k, dt * 2.5f); // 急に出たり消えたりしない
         if (Intensity <= 0.01f || glow <= 0.01f || playerSr == null)

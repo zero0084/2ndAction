@@ -265,3 +265,18 @@ JOIN のプレイヤーでは、次のカードの効果が働かない。
 - 発動は HOST が決める: JOIN は要求だけ送る。HOST が開始の時刻を全員へ配る(RunState と同じ時計)。
 - 前進は「全員で一緒に進む」か「前進なし(または WorldRange の前端まで)」にする。地形の安全区間は、決まったチャンクの番号で全端末が同じように予約する。
 - ダメージは HOST の権威で当てる(`NetCombat.AuthorityDamaged`)。
+
+## FINAL EVOLUTION(2026-10-04 第1段階): マルチでは未対応(候補に出さない)
+
+`FinalEvolutionTuning.disableInMultiplayer = true`(既定)で、マルチのランでは LEVEL UP の候補に FINAL EVOLUTION を出さない。
+資格/READY の判定(ローカルの距離と能力Lv)は走るが、発動しないので効果は一切乗らない(既存のマルチの同期には触れていない)。
+
+対応に必要なこと:
+- 状態の持ち主: 各プレイヤーの FINAL EVOLUTION はその本人の端末が決める(カード選択と同じ)。HOSTの表(NetMatch)へ「誰が何を ACTIVE にしたか・残り」を送り、他の端末はオーラ等の見た目だけ再生する。
+- 効果の同期:
+  - ATTACK UP / ATTACK RANGE UP: 本人の攻撃力・射程だけなので、JOIN の命中は HOST へ届くダメージ値に乗る(今の申告方式で足りる)。斬撃波(KitProjectile)は HOST にしか当たり判定が無い → JOIN 側で出した斬撃波の命中を申告する経路が要る。
+  - SPEED UP: 接敵の自動小攻撃は HOST だけが静かなダメージを入れる(JOIN は今スキップ)→ JOIN の分は HOST へ申告が要る。接触/障害物の保護は被弾申告の前で弾けば足りる。
+  - VAMPIRE / PHOENIX / GREED: HP は HOST 権威(NetMatch)なので、Blood Shield・緊急復活・被ダメージ倍率は HOST の被弾確定の処理へ同じ判定を入れる必要がある(今は本人の TryDamagePlayer だけ)。
+  - FLAME / THUNDER: 属性は HOST だけで判定(既存の課題と同じ)。JOIN の命中には乗らない。
+  - EXP / MILE: 本人の端末の取得計算なので、そのまま使える見込み。
+- CONTINUE はマルチでは使わないので不要。

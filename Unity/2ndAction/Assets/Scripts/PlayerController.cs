@@ -616,7 +616,7 @@ public partial class PlayerController : MonoBehaviour
             }
 
             power += Mathf.RoundToInt(MomentumBonus * MomentumSpeedTerm);
-            power = Mathf.RoundToInt(power * CardAttackFactor * UltimateArt.BuffAttackMul * CardRules.CondMultiplier(CardStateCondition())); // #100 ULTIMATE の BUFF
+            power = Mathf.RoundToInt(power * CardAttackFactor * UltimateArt.BuffAttackMul * FinalEvolution.AttackMul * CardRules.CondMultiplier(CardStateCondition())); // #100 ULTIMATE の BUFF / FINAL EVOLUTION(ATTACK UP)の最終倍率
             // 竜騎士(2026-09-26) - 後ろ攻撃(石突き)だけ威力を下げる。他キャラは常に1倍。
             if (isLancerCharacter && lanceDamageScale != 1f) power = Mathf.Max(1, Mathf.RoundToInt(power * lanceDamageScale));
             // 2026-10-02: 0以下にしない(空中攻撃-のカード等で負になると、ボスは1以上の下限が無いため逆に回復していた)
@@ -1231,7 +1231,11 @@ public partial class PlayerController : MonoBehaviour
     // 確認用(2026-09-29): 走る速さだけを変える倍率。DebugSpeedScaleと違いSpeedRatioには入れないので、
     // 障害物/敵の間隔・カメラ等は変わらない(=同じ配置のまま速度だけ上げて自動補助/破壊を確かめる)。
     public static float DebugRunOnlyScale = 1f;
-    float EffectiveSpeedMultiplier() => GetSpeedMultiplier() * DebugSpeedScale;
+    float EffectiveSpeedMultiplier()
+    {
+        float m = GetSpeedMultiplier() * DebugSpeedScale;
+        return m * FinalEvolution.SpeedFactor(runSpeed * m); // FINAL EVOLUTION(SPEED UP): 操作できる速さまで
+    }
 
     float GetSpeedMultiplier()
     {
@@ -1650,6 +1654,7 @@ public partial class PlayerController : MonoBehaviour
         if (GameManager.Instance == null) return;
         // 新4人(2026-09-27) - 忍者の瞬身のごく短い無敵/格闘家のカウンター成立(既存5人は常にfalse)。
         if (!isFall && KitInterceptDamage(source)) return;
+        if (!isFall && FinalEvolution.InterceptDamage(source, ref amount)) return; // FINAL EVOLUTION(SPEED/VAMPIRE/GREED)
         // マルチプレイ: ダウン/脱落中は被弾しない。
         if (NetMatch.Active && !NetMatch.IsLocalAlive) return;
         // マルチ(2026-09-28): カード選択中の本人は敵/ボスの攻撃を受けない(その場で一時停止中のため)。

@@ -61,4 +61,6 @@ public struct RewardCardData
     public bool ShowMastery;
     public int MasteryStars;
     public bool Awakened;
+    // FINAL EVOLUTION(2026-10-04): LEVEL UP の候補の FINAL EVOLUTION(金の光+表記。通常の Lv 表示はしない)
+    public bool FinalEvolution;
 }

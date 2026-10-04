@@ -77,6 +77,8 @@ public static class RunCheckpoint
         public bool lastChanceSpent;
         // #100 ULTIMATE(2026-10-04): Gauge(%)。古いデータは0
         public float ultimateGauge;
+        // FINAL EVOLUTION(2026-10-04): 資格/READY/ACTIVE/USED/残り。古いデータは空(状態なし)
+        public List<FinalEvolution.SaveState> finalEvolution = new List<FinalEvolution.SaveState>();
     }
 
     static Data cached;

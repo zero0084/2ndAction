@@ -416,8 +416,63 @@ public class RunBuildHud : MonoBehaviour
         GUI.Label(nr, content, numStyle);
     }
 
-    // 将来のCombo/Evolutionのマーカー・枠の状態はここに描く(今回は何も描かない)。
-    void DrawSlotOverlay(Slot slot, Rect body) { }
+    // FINAL EVOLUTION(2026-10-04): READY=金の枠が脈動+★ / ACTIVE=明るい枠+残り(秒/m) / USED=小さな紋章(暗くはしない)。
+    // 同じ能力のカードが複数並んでいる時(キャラカード+合成カード等)は最初の1枚にだけ描く。
+    static readonly Color FeGold = new Color(1f, 0.82f, 0.25f);
+    static readonly Color FeActive = new Color(1f, 0.55f, 0.18f);
+    static Texture2D feLine;
+    void DrawSlotOverlay(Slot slot, Rect body)
+    {
+        string ab = GameManager.MainAbilityOf(slot.cardId);
+        var st = FinalEvolution.StageOf(ab);
+        if (st == FinalEvolution.Stage.None || st == FinalEvolution.Stage.Eligible) return;
+        for (int i = 0; i < slots.Count; i++) { if (slots[i] == slot) break; if (GameManager.MainAbilityOf(slots[i].cardId) == ab) return; }
+        float t = Time.unscaledTime;
+        bool awake = FinalEvolution.IsAwakenedFor(ab);
+        float th = Mathf.Max(2f, body.width * 0.06f);
+        if (st == FinalEvolution.Stage.Ready || st == FinalEvolution.Stage.Active)
+        {
+            bool act = st == FinalEvolution.Stage.Active;
+            float pulse = 0.5f + 0.5f * Mathf.Sin(t * (act ? 9f : 4.5f));
+            Color c = act ? FeActive : FeGold;
+            if (awake) c = Color.Lerp(c, new Color(1f, 0.95f, 0.6f), 0.35f); // AWAKENED: 少し豪華(白金寄り)
+            Rect g = Scale(body, 1.06f + 0.05f * pulse);
+            c.a = (act ? 0.85f : 0.6f) + 0.15f * pulse;
+            if (feLine == null) { feLine = new Texture2D(1, 1) { hideFlags = HideFlags.HideAndDontSave }; feLine.SetPixel(0, 0, Color.white); feLine.Apply(); }
+            Color keep = GUI.color;
+            GUI.color = new Color(c.r, c.g, c.b, c.a * keep.a);
+            GUI.DrawTexture(new Rect(g.x, g.y, g.width, th), feLine); GUI.DrawTexture(new Rect(g.x, g.yMax - th, g.width, th), feLine);
+            GUI.DrawTexture(new Rect(g.x, g.y, th, g.height), feLine); GUI.DrawTexture(new Rect(g.xMax - th, g.y, th, g.height), feLine);
+            GUI.color = keep;
+        }
+        string mark = st == FinalEvolution.Stage.Active ? "" : st == FinalEvolution.Stage.Ready ? (awake ? "✦" : "★") : "◆";
+        if (mark != "")
+        {
+            numStyle.fontSize = Mathf.Max(10, Mathf.RoundToInt(body.height * 0.3f));
+            var mc = new GUIContent(mark);
+            var ms = numStyle.CalcSize(mc);
+            var mr = new Rect(body.xMax - ms.x * 0.9f, body.y - ms.y * 0.15f, ms.x, ms.y);
+            numStyle.normal.textColor = new Color(0f, 0f, 0f, 0.85f);
+            GUI.Label(new Rect(mr.x + 1f, mr.y + 1f, mr.width, mr.height), mc, numStyle);
+            numStyle.normal.textColor = st == FinalEvolution.Stage.Used ? new Color(1f, 0.78f, 0.35f, 0.9f) : FeGold;
+            GUI.Label(mr, mc, numStyle);
+        }
+        if (st == FinalEvolution.Stage.Active)
+        {
+            float rem = FinalEvolution.Remaining(ab);
+            var e = FinalEvolutionTuning.I.For(ab);
+            string txt = e != null && e.kind == FinalEvolutionTuning.Kind.Distance ? (rem >= 1000f ? $"{rem / 1000f:0.0}km" : $"{rem:0}m") : $"{Mathf.CeilToInt(rem)}s";
+            numStyle.fontSize = Mathf.Max(9, Mathf.RoundToInt(body.height * 0.26f));
+            var tc = new GUIContent(txt);
+            var ts = numStyle.CalcSize(tc);
+            var tr = new Rect(Mathf.Min(body.center.x - ts.x * 0.5f, Screen.width - ts.x - 4f), body.y - ts.y * 0.9f, ts.x, ts.y);
+            Round(new Rect(tr.x - 3f, tr.y + ts.y * 0.1f, tr.width + 6f, ts.y * 0.9f), new Color(0f, 0f, 0f, 0.6f));
+            numStyle.normal.textColor = new Color(0f, 0f, 0f, 0.9f);
+            GUI.Label(new Rect(tr.x + 1f, tr.y + 1f, tr.width, tr.height), tc, numStyle);
+            numStyle.normal.textColor = FeActive;
+            GUI.Label(tr, tc, numStyle);
+        }
+    }
 
     static float EaseOut(float t) { t = Mathf.Clamp01(t); return 1f - (1f - t) * (1f - t); }
     static Rect Scale(Rect r, float k) { float w = r.width * k, h = r.height * k; return new Rect(r.center.x - w * 0.5f, r.center.y - h * 0.5f, w, h); }

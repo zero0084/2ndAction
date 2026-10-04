@@ -317,4 +317,6 @@ public partial class PlayerController
     public float CardJumpFactor => cardJumpFactor;
     public float CardDurationFactor => cardDurationFactor;
     public float CardRangeFactor => cardRangeFactor;
+    // FINAL EVOLUTION(ATTACK RANGE UP): 射程へ一時的な倍率(前の倍率との比で。終われば戻す)
+    public void ApplyFinalEvolutionRange(float ratio) { AttackRangeMultiplier = Mathf.Max(0.1f, AttackRangeMultiplier * ratio); }
 }

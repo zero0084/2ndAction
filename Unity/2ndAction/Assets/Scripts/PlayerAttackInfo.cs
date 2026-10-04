@@ -124,6 +124,7 @@ public class PlayerAttackInfo : MonoBehaviour
         {
             ElementSystem.OnPlayerHit(victim, info, result);
             CardProcs.OnPlayerHit(victim, info, attack, result); // v3: DOUBLE ATTACK / 衝撃波 / 貫通 など
+            FinalEvolution.OnPlayerHit(victim, info); // FINAL EVOLUTION(ATTACK RANGE UP): 斬撃波
         }
         return result;
     }

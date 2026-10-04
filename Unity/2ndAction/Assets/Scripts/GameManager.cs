@@ -2694,8 +2694,10 @@ public partial class GameManager : MonoBehaviour
         }
         if (pool.Count == 0 && deckCards.Count > 0 && maxedInDeck == 0) foreach (var u in CardDatabase.UnlockedCards) if (CanStillPick(u)) pool.Add(u);
         if (pool.Count == 0 && maxedInDeck > 0) Debug.Log($"[Card] every deck card is at Lv{MaxRunCardLevel} - no card choice this time");
+        // FINAL EVOLUTION(2026-10-04): READY の能力があれば、3択のうち最大1枠を FINAL EVOLUTION の候補に(通常の LEVEL UP だけ)
+        string feCandidate = FinalEvolution.PickCandidate();
 
-        if (pool.Count == 0)
+        if (pool.Count == 0 && feCandidate == null)
         {
             // No cards available to draw from at all - level up "quietly"
             // instead of opening the card choice screen. Critically must
@@ -2711,9 +2713,14 @@ public partial class GameManager : MonoBehaviour
             (pool[i], pool[j]) = (pool[j], pool[i]);
         }
 
-        int pickCount = Mathf.Min(3, pool.Count);
-        pendingChoices = new CardDefinition[pickCount];
+        int pickCount = Mathf.Min(feCandidate != null ? 2 : 3, pool.Count);
+        pendingChoices = new CardDefinition[pickCount + (feCandidate != null ? 1 : 0)];
         for (int i = 0; i < pickCount; i++) pendingChoices[i] = pool[i];
+        if (feCandidate != null)
+        {
+            pendingChoices[pickCount] = FinalEvolution.ChoiceCard(feCandidate);
+            Debug.Log($"[FinalEvo] offered {feCandidate} in LEVEL UP (with {pickCount} normal card(s))");
+        }
 
         pendingChoiceKind = PendingChoiceKind.LevelUp;
         levelUpPending = true;
@@ -2912,7 +2919,9 @@ public partial class GameManager : MonoBehaviour
 
         try
         {
-            CardDefinition card = CardDatabase.FindById(cardId);
+            CardDefinition card = FinalEvolution.IsChoiceId(cardId) ? null : CardDatabase.FindById(cardId);
+            // FINAL EVOLUTION の候補: カードの Lv/取得の履歴は変えない(一時的な限界突破だけ)
+            if (FinalEvolution.IsChoiceId(cardId)) FinalEvolution.Activate(FinalEvolution.AbilityOfChoice(cardId));
             if (card != null && !CanStillPick(card))
             {
                 // Lv9に届いているカード(通常は候補に出ない): 効果は重ねない
@@ -3032,6 +3041,16 @@ public partial class GameManager : MonoBehaviour
         heartDamageFlashTimer = heartDamageFlashDuration;
         // マルチプレイPhase 2.5: HOST自身のHPの変化もHOSTの表(全員へ配る正解)へ即反映する。
         if (NetCombat.Authority) NetMatch.HostLocalHpChanged(reason);
+        if (Lives <= 0 && FinalEvolution.TryEmergencyRevive(this))
+        {
+            // FINAL EVOLUTION(PHOENIX): 専用の緊急復活(通常の PHOENIX Charge は使わない/増やさない)
+            Lives = Mathf.Clamp(Mathf.CeilToInt(maxLives * FinalEvolution.EmergencyReviveHpFraction), 1, maxLives);
+            NetMatch.RequestSetMax(maxLives, false);
+            GrantCardInvincible(CardRules.PhoenixInvincibleSeconds);
+            if (NetCombat.Authority) NetMatch.HostLocalHpChanged(reason);
+            SaveInterruptState();
+            return DamageResult.Hit;
+        }
         if (Lives <= 0 && TryPhoenix(reason))
         {
             // PHOENIX(v3): 倒れる被弾を取り消して復活(落下なら通常の被弾と同じく足場へ戻る)
@@ -3228,7 +3247,7 @@ public partial class GameManager : MonoBehaviour
         TryLifesteal();
         // Card Expansion/Gacha Evolution Ver.1 - Tough/Fast/Elite Enemies,
         // Treasure Hunter, Mob Killer, Executioner, Hell Mode, etc.
-        RunEnemyMile += Mathf.Max(0, Mathf.RoundToInt(mileReward * MileGainMultiplier));
+        RunEnemyMile += Mathf.Max(0, Mathf.RoundToInt(mileReward * MileGainMultiplier * FinalEvolution.MileMul)); // FINAL EVOLUTION(GREED)
     }
 
     // ===== BONUS ZONE(2026-09-29)の報酬の入口 =====
@@ -3239,7 +3258,7 @@ public partial class GameManager : MonoBehaviour
     {
         if (amount <= 0 || IsGameOver) return 0;
         // カード v3: TREASURE HUNTER は宝・報酬(BONUS ZONE の宝運びゴブリン/黄金スライム/ミミック/CLEAR/PERFECT、WANTED の賞金)を増やす
-        int add = Mathf.Max(0, Mathf.RoundToInt(amount * MileGainMultiplier * Mathf.Max(0f, 1f + Card.Get(EffectType.TreasureMilePct))));
+        int add = Mathf.Max(0, Mathf.RoundToInt(amount * MileGainMultiplier * FinalEvolution.MileMul * Mathf.Max(0f, 1f + Card.Get(EffectType.TreasureMilePct))));
         RunBonusMile += add;
         return add;
     }
@@ -3270,7 +3289,7 @@ public partial class GameManager : MonoBehaviour
         TryLifesteal();
         // Card Expansion/Gacha Evolution Ver.1 - Boss Challenge/Rush, One
         // More Mile, Pandemonium, etc.
-        RunBossMile += Mathf.Max(0, Mathf.RoundToInt(mileReward * BossMileGainMultiplier));
+        RunBossMile += Mathf.Max(0, Mathf.RoundToInt(mileReward * BossMileGainMultiplier * FinalEvolution.MileMul));
         // Item 11 - a Boss kill is rare and meaningful enough to save
         // immediately (unlike every ordinary enemy kill, which would be
         // too frequent to write to disk each time - the periodic 100m save
@@ -3287,6 +3306,7 @@ public partial class GameManager : MonoBehaviour
         float chance = lifestealChance;
         if (maxLives > 0 && Lives <= maxLives * 0.25f) chance += Card.Get(EffectType.LowHp25LifestealChance);
         chance = Mathf.Min(CardRules.LifestealChanceCap, chance) * chanceScale;
+        if (chance > 0f) chance = Mathf.Min(1f, chance + FinalEvolution.LifestealChanceAdd * chanceScale); // FINAL EVOLUTION(VAMPIRE)
         if (chance <= 0f) return;
         if (Random.value < chance) { LifestealProcs++; CardHeal(HealHearts(CardRules.BaseHealHearts) * CombatScale.HpPerHeart); }
     }
@@ -3472,6 +3492,7 @@ public partial class GameManager : MonoBehaviour
         foreach (CardDefinition card in upgradeHistory) data.upgradeHistoryCardIds.Add(card.cardId);
         ExportCardRunState(data); // カードバランス v3
         if (UltimateArt.Instance != null) data.ultimateGauge = UltimateArt.Instance.ExportGauge(); // #100 ULTIMATE
+        data.finalEvolution = FinalEvolution.Export(); // FINAL EVOLUTION
     }
 
     // Item 9 - "RETURN TO HOME" - NOT a FINISH: Run MILE stays unconfirmed,
@@ -3581,6 +3602,7 @@ public partial class GameManager : MonoBehaviour
         // "heals to new cap" side effect).
         RestoreCardRunState(data); // カードバランス v3: PHOENIX の消費 / SECOND WIND のクールダウン / LAST CHANCE
         if (UltimateArt.Instance != null) UltimateArt.Instance.ImportGauge(data.ultimateGauge); // #100 ULTIMATE の Gauge
+        FinalEvolution.Import(data.finalEvolution); // FINAL EVOLUTION(古いデータは状態なし)
         // v3: 最大HPは取得のやり直しで決まる(成長 − 封印)。保存した最大HPは、カードが1枚も無い古い保存の互換のためにだけ使う
         if (data.maxLives > 0 && cardOrder.Count == 0) maxLives = data.maxLives;
         Lives = Mathf.Clamp(data.lives, 1, maxLives);
@@ -4558,6 +4580,7 @@ public partial class GameManager : MonoBehaviour
     // number wouldn't mean anything.
     RewardCardData MakeChoiceCardData(CardDefinition card)
     {
+        if (card != null && FinalEvolution.IsChoiceId(card.cardId)) return FinalEvolution.ChoiceCardData(FinalEvolution.AbilityOfChoice(card.cardId));
         int currentStack = GetCurrentRunStack(card.cardId);
         // カードVisual最終調整依頼(2026-09-18), item1 - 候補として表示
         // されているだけの段階では「NEW」を出さない(実際に選んで初めて

@@ -283,7 +283,7 @@ public partial class QaSweep
         int lvAfter = gm.GetAbilityRunStack(id);
         L($"[J] AWAKENED={CardMastery.IsAwakened(id)} run ability Lv at start {lvStart}, after picking Lv9 + Lv1 again {lvAfter}; FE eligible={CardProgression.FinalEvolutionEligible(id)} maxAtStart={CardProgression.MaxAtRunStart(id)} awakenedBonus={CardProgression.FinalEvolutionAwakenedBonus(id)}");
         Check(eq && lvStart == 9 && lvAfter == 9, "J: an AWAKENED Lv9 character card is Lv9 in the run and never goes past the Lv9 cap (Mastery is not an ability stack)");
-        Check(CardProgression.MaxAtRunStart(id) && !CardProgression.FinalEvolutionEligible(id) && CardProgression.FinalEvolutionAwakenedBonus(id), "J: Final Evolution hook: Lv9 from the start does not count as reached in the run; AWAKENED bonus is readable");
+        Check(CardProgression.MaxAtRunStart(id) && CardProgression.FinalEvolutionEligible(id) && CardProgression.FinalEvolutionAwakenedBonus(id), "J: Final Evolution hook: Lv9 from the start (character card) is eligible too (2026-10-04 FINAL EVOLUTION); AWAKENED bonus is readable");
         yield return EndRun();
         gm = GameManager.Instance;
         gm.EquipCharacterCard(0, "", 0);

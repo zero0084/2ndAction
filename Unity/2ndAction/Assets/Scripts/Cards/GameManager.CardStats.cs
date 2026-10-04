@@ -32,6 +32,7 @@ public partial class GameManager
         runAbilityStacks.Clear(); // Lv9上限の数え(このランの能力ごとの回数)も新しいランとして
         runStartAbilityStacks.Clear();
         if (UltimateArt.Instance != null) UltimateArt.Instance.ResetRun(); // #100 ULTIMATE: Gauge / BUFF / 発動中の状態
+        if (FinalEvolution.Instance != null) FinalEvolution.Instance.ResetRun(); // FINAL EVOLUTION(ランの中だけの状態)
         SealedHearts = 0;
         baseMaxLivesForRun = def != null ? def.baseMaxLives : maxLives;
         maxLivesCap = CardRules.MaxHeartsCap * CombatScale.HpPerHeart;
@@ -287,6 +288,7 @@ public partial class GameManager
         {
             if (PlayerController.Instance.AddOverhealShield()) OverhealShields++;
         }
+        if (before + amount > maxLives) FinalEvolution.OnOverheal(); // FINAL EVOLUTION(VAMPIRE): 溢れた分は Blood Shield(上限あり)
     }
 
     // Shield で防いだ(TryDamagePlayer / NetPrecheckDamage)
@@ -401,8 +403,8 @@ public partial class GameManager
     //   距離の EXP  = 全体(EXP UP / LEVEL BREAK / LONG HAUL / THE LONG ROAD / ONE MORE MILE / MONSTER RUSH / EXP CONVERTER)+ 距離(PATHFINDER)
     //   撃破の EXP  = 全体 + 撃破/ボス/BONUS(EXPERIENCE BURST / TOUGH ENEMIES / FAST ENEMIES / HORDE)
     //   以前は「全体」と「距離/撃破」を掛け合わせていた(2枚目以降が掛け算で伸びた)。今は足し算 → 曲線で、取得順でも変わらない
-    public float ExpBucketDistance => Card.Get(EffectType.ExpGain) + Card.Get(EffectType.DistanceExpPct);
-    public float ExpBucketKill => Card.Get(EffectType.ExpGain) + Card.Get(EffectType.KillExpPct);
+    public float ExpBucketDistance => Card.Get(EffectType.ExpGain) + Card.Get(EffectType.DistanceExpPct) + FinalEvolution.ExpBucketBonus; // FINAL EVOLUTION(EXP UP)も同じ枠 → 曲線
+    public float ExpBucketKill => Card.Get(EffectType.ExpGain) + Card.Get(EffectType.KillExpPct) + FinalEvolution.ExpBucketBonus;
     public float ExpMultDistance => CardRules.ExpMultiplier(ExpBucketDistance);
     public float ExpMultKill => CardRules.ExpMultiplier(ExpBucketKill);
     float KillExpScale => ExpMultKill;

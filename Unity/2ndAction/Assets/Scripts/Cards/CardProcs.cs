@@ -38,6 +38,8 @@ public static class CardProcs
         if (Time.time - windowStart >= 0.5f) { windowStart = Time.time; windowProcs = 0; windowFx = 0; }
     }
     static bool TakeProc() { RollWindow(); if (windowProcs >= CardRules.ProcBudgetPerHalfSecond) { ProcBudgetDrops++; return false; } windowProcs++; return true; }
+    public static bool TakeProcBudget() => TakeProc(); // FINAL EVOLUTION の追加攻撃も同じ枠を使う
+    public static bool TakeFxBudget() => TakeFx();
     static bool TakeFx() { RollWindow(); if (windowFx >= CardRules.FxBudgetPerHalfSecond) { FxBudgetDrops++; return false; } windowFx++; return true; }
 
     // ---- ICD

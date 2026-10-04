@@ -71,7 +71,7 @@ public partial class DebugPanel : MonoBehaviour
         float w = Screen.width / s, h = Screen.height / s;
         float k = Mathf.SmoothStep(0f, 1f, t / 0.15f);
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.05f, 0.02f, 0.02f, 0.5f * k));
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 654f : page == 4 || page == 5 || page == 6 ? 562f : 470f, h - 24f);
+        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 700f : page == 4 || page == 5 || page == 6 || page == 7 ? 600f : 470f, h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f + (1f - k) * 12f, pw, ph);
         Color keepColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, k);
@@ -82,7 +82,7 @@ public partial class DebugPanel : MonoBehaviour
         if (page == 0 && UiKit.Button(new Rect(p.xMax - 352f, p.y + 12f, 146f, 42f), "ラスダン終盤…", 16f, false, false)) { page = 2; confirmSave = 0; confirmReset = false; }
         if (page != 0)
         {
-            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else DrawEndgamePage(p);
+            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else if (page == 7) DrawFinalEvoPage(p); else DrawEndgamePage(p);
             GUI.color = keepColor;
             GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
             if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();
@@ -124,6 +124,9 @@ public partial class DebugPanel : MonoBehaviour
         y += 46f;
         // 自然洞窟ボス強化の確認(2026-10-04、DEBUG RUN): 出現/段階/必殺技/BREAK/ラン再開の強制
         if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "洞窟ボス試験…(出現/段階/必殺技/BREAK/ラン再開)", 16f, false, false)) { page = 6; confirmSave = 0; confirmReset = false; }
+        y += 46f;
+        // FINAL EVOLUTION の確認(2026-10-04、DEBUG RUN)
+        if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "FINAL EVOLUTION TEST…", 16f, false, false)) { page = 7; confirmSave = 0; confirmReset = false; }
         y += 46f;
 
         GUI.Label(new Rect(x, y, 300f, 26f), "BESTを設定(ガチャの段階の確認)", UiKit.Label(16f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));
@@ -547,6 +550,72 @@ public partial class DebugPanel
         if (UiKit.Button(new Rect(x + 2f * (bw + 6f), y, bw, 38f), "ラン再開", 14f, false, false) && bm != null) bm.DebugForceResume();
         y += 44f;
         GUI.Label(new Rect(x, y, full, 36f), $"地形の攻撃: 生成{CaveHazard.Spawned} 使い回し{CaveHazard.Reused} 表示中{CaveHazard.LiveCount}  床と天井の重なり{CaveHazard.Violations}件  遅らせた{CaveBossSafety.Delayed}  穴で中止{CaveBossSafety.PitSkips}", lab);
+    }
+}
+#endif
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+// DebugPanel: FINAL EVOLUTION TEST(2026-10-04)
+public partial class DebugPanel
+{
+    void DrawFinalEvoPage(Rect p)
+    {
+        float x = p.x + 24f, y = p.y + 64f, full = p.width - 48f;
+        var lab = UiKit.Label(12f, TextAnchor.UpperLeft, false, new Color(0.85f, 0.85f, 0.9f));
+        GUI.Label(new Rect(x, y, full, 30f), "シーンを読み直して DEBUG RUN(保存/記録しない)で開始。カードを Lv9 / READY にしてから走ります。「LEVEL UP」で3択を開けます", lab);
+        y += 32f;
+        var chars = EndgameDebug.UltCharacters;
+        float cw = (full - 5f * 6f) / 6f;
+        for (int i = 0; i < chars.Length; i++)
+        {
+            int col = i % 6, row = i / 6;
+            if (UiKit.Button(new Rect(x + col * (cw + 6f), y + row * 34f, cw, 30f), EndgameDebug.UltCharLabel(chars[i]), 11f, EndgameDebug.SelectedFeChar == chars[i], false)) EndgameDebug.SelectedFeChar = chars[i];
+        }
+        y += 2 * 34f + 4f;
+        string[] stages = { "wasteland_road", "natural_cave", "sky_corridor" };
+        float sw = (full - 2f * 6f) / 3f;
+        for (int i = 0; i < 3; i++) if (UiKit.Button(new Rect(x + i * (sw + 6f), y, sw, 30f), EndgameDebug.StageLabel(stages[i]), 12f, EndgameDebug.SelectedFeStage == stages[i], false)) EndgameDebug.SelectedFeStage = stages[i];
+        y += 36f;
+        var cards = EndgameDebug.FeCards;
+        float kw = (full - 4f * 6f) / 5f;
+        for (int i = 0; i < cards.Length; i++)
+        {
+            int col = i % 5, row = i / 5;
+            var c = CardDatabase.FindBaseById(cards[i]);
+            if (UiKit.Button(new Rect(x + col * (kw + 6f), y + row * 34f, kw, 30f), c != null ? c.cardName : cards[i], 10f, EndgameDebug.SelectedFeCard == cards[i], false)) EndgameDebug.SelectedFeCard = cards[i];
+        }
+        y += 2 * 34f + 4f;
+        float tw = (full - 3f * 6f) / 4f;
+        if (UiKit.Button(new Rect(x, y, tw, 30f), $"AWAKENED {(EndgameDebug.FeAwakened ? "ON" : "OFF")}", 11f, EndgameDebug.FeAwakened, false)) EndgameDebug.FeAwakened = !EndgameDebug.FeAwakened;
+        if (UiKit.Button(new Rect(x + (tw + 6f), y, tw, 30f), $"Lv9開始 {(EndgameDebug.FeLv9 ? "ON" : "OFF")}", 11f, EndgameDebug.FeLv9, false)) EndgameDebug.FeLv9 = !EndgameDebug.FeLv9;
+        if (UiKit.Button(new Rect(x + 2f * (tw + 6f), y, tw, 30f), $"READY開始 {(EndgameDebug.FeReady ? "ON" : "OFF")}", 11f, EndgameDebug.FeReady, false)) EndgameDebug.FeReady = !EndgameDebug.FeReady;
+        if (UiKit.Button(new Rect(x + 3f * (tw + 6f), y, tw, 30f), $"ボス {(EndgameDebug.FeBoss ? "あり" : "なし")}", 11f, EndgameDebug.FeBoss, false)) EndgameDebug.FeBoss = !EndgameDebug.FeBoss;
+        y += 36f;
+        bool busy = EndgameDebug.Instance != null && EndgameDebug.Instance.Launching;
+        if (UiKit.Button(new Rect(x, y, full, 40f), "開始(DEBUG RUN)", 16f, true, false) && !busy)
+            EndgameDebug.LaunchFinalEvo(EndgameDebug.SelectedFeChar, EndgameDebug.SelectedFeStage, EndgameDebug.SelectedFeCard, EndgameDebug.FeAwakened, EndgameDebug.FeLv9, EndgameDebug.FeReady, EndgameDebug.FeBoss);
+        y += 46f;
+        var gm = GameManager.Instance;
+        string id = EndgameDebug.SelectedFeCard;
+        float bw = (full - 2f * 6f) / 3f;
+        if (UiKit.Button(new Rect(x, y, bw, 34f), "LEVEL UP(3択)", 13f, false, false) && gm != null && gm.HasStarted) { SetOpen(false); gm.DebugTriggerLevelUp(); }
+        if (UiKit.Button(new Rect(x + bw + 6f, y, bw, 34f), "今すぐ READY", 13f, false, false) && gm != null && gm.HasStarted) { gm.FinalEvoTestPrepare(id); FinalEvolution.DebugMakeReady(id); }
+        if (UiKit.Button(new Rect(x + 2f * (bw + 6f), y, bw, 34f), "今すぐ終了", 13f, false, false)) FinalEvolution.DebugEnd(id);
+        y += 40f;
+        if (gm != null && gm.HasStarted)
+        {
+            var sb = new System.Text.StringBuilder();
+            foreach (var c in EndgameDebug.FeCards)
+            {
+                var st = FinalEvolution.StageOf(c);
+                if (st == FinalEvolution.Stage.None && gm.GetAbilityRunStack(c) == 0) continue;
+                sb.Append($"{c} Lv{gm.GetAbilityRunStack(c)} {st}");
+                if (st == FinalEvolution.Stage.Eligible) sb.Append($"(READY まで {Mathf.Max(0f, FinalEvolutionTuning.I.readyMeters - (gm.MaxDistance - FinalEvolution.EligibleAt(c))):0}m)");
+                if (st == FinalEvolution.Stage.Active) sb.Append($"(残り {FinalEvolution.Remaining(c):0.#})");
+                sb.Append("   ");
+            }
+            GUI.Label(new Rect(x, y, full, 60f), sb.Length > 0 ? sb.ToString() : "状態なし", lab);
+        }
     }
 }
 #endif

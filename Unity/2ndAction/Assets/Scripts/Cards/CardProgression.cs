@@ -34,8 +34,9 @@ public static class CardProgression
     }
     public static bool MaxAtRunStart(string cardId) => RunStartLevel(cardId) >= CardVariant.MaxLevel;
 
-    // Final Evolution の資格(暫定): ランの中で Lv9 に届いた(開始時に既に Lv9 だった分は除く)
-    public static bool FinalEvolutionEligible(string cardId) => ReachedMaxInRun(cardId) && !MaxAtRunStart(cardId);
+    // FINAL EVOLUTION の資格(2026-10-04 確定): そのランで能力Lvが実際に9(キャラカードで開始時から9でも資格あり)。
+    // 実際に進化できる(READY)のは資格を得てから一定距離の後(FinalEvolution)
+    public static bool FinalEvolutionEligible(string cardId) => ReachedMaxInRun(cardId);
     // AWAKENED 済みなら Final Evolution に追加の特典を付けられる(必須ではない)
     public static bool FinalEvolutionAwakenedBonus(string cardId) => IsAwakened(cardId);
 }
