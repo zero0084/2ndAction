@@ -153,6 +153,8 @@ public partial class EndgameDebug : MonoBehaviour
     static void OnSceneLoaded(Scene s, LoadSceneMode m)
     {
         if (Instance == null) return;
+        // 開発用の闘技場: 闘技場の起動以外でシーンを読み直したら(退出/保存を戻すための読み直し)、必ず試験の設定を戻す
+        if (!pendingArena) ArenaController.ResetAll();
         bool endedDebugRun = DebugRun.IsActive;
         if (DebugRun.IsActive)
         {
@@ -161,13 +163,19 @@ public partial class EndgameDebug : MonoBehaviour
             {
                 Debug.LogWarning($"[EndgameDebug] {n} progress keys had changed during the Debug Run and were restored: {DebugRun.LastRestoreNote}");
                 // 読み込み済みの値(GameManager等)も戻すため、もう一度だけ読み直す(次の起動予約があればそちらで読み直される)
-                if (!pending.HasValue && !pendingLong.HasValue && !pendingUlt.HasValue) { SceneManager.LoadScene(s.buildIndex); return; }
+                if (!pending.HasValue && !pendingLong.HasValue && !pendingUlt.HasValue && !pendingArena) { SceneManager.LoadScene(s.buildIndex); return; }
             }
         }
         // 状態を戻すのは DEBUG RUN の前後だけ(普通のシーンの読み直しでは何も変えない: 他の開発用の設定/自動テストの速度などを残す)
-        if (endedDebugRun || pending.HasValue || pendingLong.HasValue || pendingUlt.HasValue) SafeReset(endedDebugRun ? "debug run ended" : "scene loaded for a launch");
+        if (endedDebugRun || pending.HasValue || pendingLong.HasValue || pendingUlt.HasValue || pendingArena) SafeReset(endedDebugRun ? "debug run ended" : "scene loaded for a launch");
         Instance.keepAlive = false;
-        if (pendingUlt.HasValue)
+        Instance.IsArena = false;
+        if (pendingArena)
+        {
+            pendingArena = false;
+            Instance.StartCoroutine(Instance.RunLaunchArena());
+        }
+        else if (pendingUlt.HasValue)
         {
             var up = pendingUlt.Value;
             pendingUlt = null;
@@ -198,6 +206,7 @@ public partial class EndgameDebug : MonoBehaviour
         PlayerController.ScriptedSpeedCapMps = float.PositiveInfinity;
         CameraFollow.ScriptedOffsetX = 0f;
         if (UltimateArt.Instance != null) UltimateArt.Instance.ForceEnd("debug reset");
+        ArenaController.ResetAll(); // 開発用の闘技場: 試験の設定(速度/無敵/操作アシスト/止めた仕組み)を戻す
         CameraFollow.UltimateZoom = 1f; CameraFollow.UltimateLookAhead = 0f;
         BgmDirector.ClearOverride();
         GameManager.EscapeBlocked = false;
@@ -343,7 +352,7 @@ public partial class EndgameDebug : MonoBehaviour
     GUIStyle tag;
     void OnGUI()
     {
-        if (!DebugRun.IsActive || DebugPanel.IsOpen) return;
+        if (!DebugRun.IsActive || DebugPanel.IsOpen || (ArenaController.Instance != null && ArenaController.Instance.PanelOpen)) return; // 闘技場の設定を開いている間は出さない(ボタンに重なる)
         GUI.depth = -2050;
         float s = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f);
         if (tag == null) tag = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleLeft, fontStyle = FontStyle.Bold };
@@ -358,6 +367,7 @@ public partial class EndgameDebug : MonoBehaviour
         GUI.color = keep;
         tag.normal.textColor = new Color(1f, 0.85f, 0.4f);
         GUI.Label(new Rect(r.x + 8f * s, r.y, r.width, r.height), text, tag);
+        if (IsArena) return; // 闘技場は自分の表示を持つ
         if (GUI.Button(new Rect(r.xMax, r.y + 2f * s, bw, h - 4f * s), "≡ DEBUG")) { if (IsUltimateTest) DebugPanel.OpenUltimateStatic(); else if (IsLongCheck) DebugPanel.OpenLongStatic(); else DebugPanel.OpenEndgameStatic(); }
     }
 }

@@ -71,7 +71,7 @@ public partial class DebugPanel : MonoBehaviour
         float w = Screen.width / s, h = Screen.height / s;
         float k = Mathf.SmoothStep(0f, 1f, t / 0.15f);
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.05f, 0.02f, 0.02f, 0.5f * k));
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 || page == 4 || page == 5 ? 562f : 470f, h - 24f);
+        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 608f : page == 4 || page == 5 ? 562f : 470f, h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f + (1f - k) * 12f, pw, ph);
         Color keepColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, k);
@@ -118,6 +118,9 @@ public partial class DebugPanel : MonoBehaviour
         if (UiKit.Button(new Rect(x + tw3 + 8f, y, tw3, 40f), "ULTIMATE TEST…", 15f, false, false)) { page = 4; confirmSave = 0; confirmReset = false; }
         // カード長期育成の確認(2026-10-04、保存しない)
         if (UiKit.Button(new Rect(x + 2f * (tw3 + 8f), y, tw3, 40f), "MASTERY TEST…", 15f, false, false)) { page = 5; confirmSave = 0; confirmReset = false; }
+        y += 46f;
+        // 開発用の闘技場(2026-10-04): キャラ/カード/敵を好きな条件で戦わせ、同じ条件ですぐ再戦・計測(DEBUG RUN)
+        if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "闘技場(キャラ/カード/敵の試験、DEBUG RUN)", 16f, true, false)) { SetOpen(false); EndgameDebug.LaunchArena("debug panel"); }
         y += 46f;
 
         GUI.Label(new Rect(x, y, 300f, 26f), "BESTを設定(ガチャの段階の確認)", UiKit.Label(16f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));

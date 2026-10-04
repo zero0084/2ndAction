@@ -63,6 +63,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaCardV3") { mode = "cardv3"; dir = a[i + 1]; }
             if (a[i] == "-qaUltimate") { mode = "ultimate"; dir = a[i + 1]; }
             if (a[i] == "-qaMastery") { mode = "mastery"; dir = a[i + 1]; }
+            if (a[i] == "-qaArena") { mode = "arena"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -139,6 +140,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "cardv3") yield return CardV3Mode();
         else if (mode == "ultimate") yield return UltimateMode();
         else if (mode == "mastery") yield return MasteryMode();
+        else if (mode == "arena") yield return ArenaMode_();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

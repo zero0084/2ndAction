@@ -1994,6 +1994,8 @@ public partial class GameManager : MonoBehaviour
         // whichever MonoBehaviour's Update() happens to run first this
         // frame.
         lastRawDistanceSeen = rawDistance;
+        // 開発用の闘技場(2026-10-04): 距離は「距離条件」のまま止める(敵の強さにだけ使う。距離のイベント/EXP/解放/保存を起こさない)
+        if (ArenaMode.Active) return;
         float distance = rawDistance - distanceExclusionOffset;
 
         // Distance Level Design Ver.1.1, item 1 - Boss Gate: while a Boss
@@ -2272,6 +2274,8 @@ public partial class GameManager : MonoBehaviour
     public void TriggerBossRewardChoice()
     {
         LogBossRewardStage("BossRewardStart (TriggerBossRewardChoice entry)");
+        // 開発用の闘技場: ボスの報酬のカード選択は出さない(遭遇を終えるだけ)
+        if (ArenaMode.Active) { if (BossManager.Instance != null) BossManager.Instance.EndBossPhase(); return; }
         if (IsBossPresentationActive() || levelUpPending || ChoiceUiBusy || UltimateArt.DefersChoices)
         {
             bossRewardDeferredPending = true;
@@ -3008,6 +3012,8 @@ public partial class GameManager : MonoBehaviour
         Vector3 dmgPos = PlayerController.Instance != null ? PlayerController.Instance.transform.position : Vector3.zero;
         if (IsGameOver) { DamageAfterDeathIgnored++; return DamageResult.Ignored; } // 死亡済み: 以後のダメージ/死亡要求は無視
         if (PresentationDamageLock) { FreezeDiagnostics.LogEvent($"[Damage] Ignored(PresentationDamageLock) reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); return DamageResult.Ignored; }
+        // 開発用の闘技場: 本来受けるはずだったダメージを記録。闘技場の無敵(通常の無敵の設定とは別、保存しない)なら受けない
+        if (ArenaMode.Active) { ArenaMode.OnPlayerWouldTakeDamage(amount, reason); if (ArenaMode.Invincible) return DamageResult.Ignored; }
         if (!bypassInvincibleMode && InvincibleMode) return DamageResult.Ignored;
         // カードバランス v3: LAST CHANCE / PHOENIX / PERFECT GUARD の短い無敵(落下はそのまま通す)
         if (CardInvincibleActive && reason != "Fall") { FreezeDiagnostics.LogEvent($"[Damage] Ignored(CardInvincible) reason={reason}"); return DamageResult.Ignored; }
@@ -3020,7 +3026,9 @@ public partial class GameManager : MonoBehaviour
         // 満タンからの強い一撃(ハート2つ分以上)だけでは倒れない(旧: ハート1つ残す。新: 通常の一撃ぶん=ハート1つ残す)
         if (dmg > CombatScale.PlayerHit && Lives >= maxLives && dmg >= Lives) dmg = Mathf.Max(CombatScale.PlayerHit, Lives - CombatScale.PlayerHit);
         FreezeDiagnostics.LogEvent($"[Damage] Hit reason={reason} amount={dmg} pos=({dmgPos.x:F2},{dmgPos.y:F2}) livesBefore={Lives} timeScale={Time.timeScale:F2}");
+        int livesBeforeHit = Lives;
         Lives = Mathf.Max(0, Lives - dmg);
+        if (ArenaMode.Active) ArenaMode.OnPlayerHpLost(livesBeforeHit - Lives);
         heartDamageFlashTimer = heartDamageFlashDuration;
         // マルチプレイPhase 2.5: HOST自身のHPの変化もHOSTの表(全員へ配る正解)へ即反映する。
         if (NetCombat.Authority) NetMatch.HostLocalHpChanged(reason);
@@ -3031,6 +3039,8 @@ public partial class GameManager : MonoBehaviour
             SaveInterruptState();
             return DamageResult.Hit;
         }
+        // 開発用の闘技場: 倒れてもランを終えない(試験を終えて結果を出し、すぐ再戦できる)
+        if (Lives <= 0 && ArenaMode.Active) { ArenaMode.OnPlayerDefeated(reason); Lives = maxLives; return DamageResult.Hit; }
         if (Lives <= 0)
         {
             // マルチプレイPhase 3: CO-OP=ダウン / VERSUS=脱落 はRunを終えずにNetMatchが扱う。

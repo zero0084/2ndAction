@@ -497,7 +497,7 @@ public partial class BossManager : MonoBehaviour
     void BeginEncounterClock(string key)
     {
         encounterKey = key;
-        encounterResumable = StageUsesBattle && RushGateK == 0;
+        encounterResumable = StageUsesBattle && RushGateK == 0 && !ArenaMode.Active; // 開発用の闘技場では「時間でラン再開」をしない
         RunResumed = false;
         encounterTimer = -2.2f; // 登場の演出のぶん(ボスへ集中できる時間は「倒すまでの秒数」に含めない)
         var tn = BossBattleTuning.I;
@@ -668,7 +668,7 @@ public partial class BossManager : MonoBehaviour
         // regular boss encounter happens to be in progress right at
         // 100,000m, and must never block or get blocked by it. Does NOT
         // end/pause the run - "100,000m到達でRunを強制終了しない".
-        if (!deathSpawned && GameManager.Instance.MaxDistance >= deathSpawnDistance)
+        if (!deathSpawned && !ArenaMode.Active && GameManager.Instance.MaxDistance >= deathSpawnDistance) // 開発用の闘技場では死神/三姉妹を出さない
         {
             deathSpawned = true;
             if (GameManager.Instance.DebugMode) Debug.Log($"[Distance] {Mathf.RoundToInt(deathSpawnDistance)} reached");

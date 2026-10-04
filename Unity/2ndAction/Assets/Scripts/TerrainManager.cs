@@ -1532,6 +1532,22 @@ public class TerrainManager : MonoBehaviour
 
     public void ClearResumeFlatZone() { resumeFlatStartLogical = float.PositiveInfinity; resumeFlatEndLogical = float.NegativeInfinity; }
 
+    // 開発用の闘技場(2026-10-04): これから作る地面はすべて平地(穴/坂/分岐/空中足場/飾り/チャンクの敵なし)。
+    // 既に作った地面は変えない(闘技場はプレイヤーをその先の新しい地面へ移してから始める)。シーンの読み直しで元に戻る
+    public void ConfigureArena()
+    {
+        forceFlatAt = _ => true;
+        skyAllowedAt = _ => false;
+        pitChanceAt = (_, __) => 0f;
+        routeBranchEnabled = false;
+        singleRouteMode = true;
+        enemySpawnChance = 0f;
+        decorationSprites = new Sprite[0];
+        if (cave != null) cave.enabled = false;
+    }
+    // 闘技場: 地面の先端(これから作る位置、world X)
+    public float NextGenerateX => nextStartX;
+
     // 通常の Update と同じ生成を、worldX まで今すぐ行う(準備画面の前に地形を確定させる)
     public void GenerateNow(float worldX)
     {

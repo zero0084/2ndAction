@@ -590,7 +590,9 @@ public class EnemyController : MonoBehaviour
     }
 
     // 体との接触ダメージを与えてよい状態か(OnTriggerEnter2Dの時点と同じ条件を、決める瞬間にもう一度見る)。
-    public bool CanDealContactDamage => isActiveAndEnabled && !dying && !IsReactingToHit && bonus == null && !(NetReplica && NetRemoteReacting);
+    public bool CanDealContactDamage => isActiveAndEnabled && !dying && !IsReactingToHit && bonus == null && !ArenaDummy && !(NetReplica && NetRemoteReacting);
+    // 開発用の闘技場の動かない標的(接触ダメージ/攻撃なし)
+    [System.NonSerialized] public bool ArenaDummy;
 
     public void ApplyContactDamage()
     {

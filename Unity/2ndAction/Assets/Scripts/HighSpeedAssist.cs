@@ -152,6 +152,22 @@ public class HighSpeedAssist : MonoBehaviour
         ApplyEngageKmh(PlayerPrefs.GetFloat(EngagePrefKey, DefaultEngageKmh));
     }
 
+    // 開発用の闘技場(2026-10-04): 試験の中だけの設定(保存しない)。退出(シーンの読み直し)で ArenaRestore → 保存されている設定へ戻る
+    //  mode 0=OFF / 1=高速時のみ(engageKmh 以上) / 2=常時(0km/h から)
+    bool arenaSaved; bool savedBreak, savedEarlyDj;
+    public void ArenaApply(int mode, float engage, bool breakObs, bool earlyDj)
+    {
+        if (!arenaSaved) { arenaSaved = true; savedBreak = breakObstacles; savedEarlyDj = earlyDoubleJump; }
+        assistEnabled = mode != 0;
+        if (mode == 2) { engageKmh = 0f; releaseKmh = -1f; fullAssistKmh = 1f; } else ApplyEngageKmh(engage);
+        breakObstacles = breakObs; earlyDoubleJump = earlyDj;
+    }
+    public void ArenaRestore()
+    {
+        if (arenaSaved) { breakObstacles = savedBreak; earlyDoubleJump = savedEarlyDj; arenaSaved = false; }
+        ReloadPrefs();
+    }
+
     public void SetEnabled(bool on)
     {
         assistEnabled = on;

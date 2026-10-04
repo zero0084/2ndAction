@@ -663,6 +663,7 @@ public class NetCombat : MonoBehaviour
     // 既存の被弾処理がHPを減らした直後に呼ばれる(敵/ボス共通)。
     public static void AuthorityDamaged(int netId, int attacker, int damage, int hpAfter, byte attackKind, Vector3 contactScene, bool killed)
     {
+        ArenaMode.OnEnemyDamaged(damage, killed); // 開発用の闘技場の計測(敵/ボスのダメージは全てここを通る)
         if (!Authority || Instance == null || netId == 0) return;
         if (!Instance.entities.TryGetValue(netId, out Entity e)) return;
         if (e.Dead) return; // 死亡後は何も上書きしない(ロック)

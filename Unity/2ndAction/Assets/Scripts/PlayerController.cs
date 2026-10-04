@@ -702,7 +702,8 @@ public partial class PlayerController : MonoBehaviour
     // The player's base auto-scroll speed this frame, NOT including attack
     // lunge/recoil. Used by the boss to keep pace with ordinary running
     // without also cancelling out the player's attack-driven movement.
-    public float CurrentAutoRunSpeed => autoRunEnabled ? CapSpeed(runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale) : 0f;
+    // 開発用の闘技場(2026-10-04): 速度の指定があればそれ(停止 / 基準速度×カード・キャラの補正 / 実効速度固定)。通常は従来どおり
+    public float CurrentAutoRunSpeed => ArenaAutoSpeed() ?? (autoRunEnabled ? CapSpeed(runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale) : 0f);
 
     // 弾速の走行補正(2026-09-26) - 弾/飛び道具はすべて「プレイヤーの基本走行速度で一緒に流れる
     // 座標系」の中を、それぞれの設計速度で飛ぶ(=画面上の見た目の速さが走行速度に左右されない)。
@@ -714,7 +715,7 @@ public partial class PlayerController : MonoBehaviour
     // 表示/カメラ補正/配置間隔が参照するだけで、実際の移動速度計算には一切影響しない。
     // ラストダンジョンのエンディング(2026-09-30): 演出で速さを抑えている間(エンドロール/選択エリア)は、
     // カメラの引き/速度の演出もその速さに合わせる(100km/h用に引いたままだと巨大文字が小さく見える)。
-    public float SpeedRatio => autoRunEnabled ? Mathf.Min(EffectiveSpeedMultiplier(), ScriptedSpeedCapMps / Mathf.Max(0.01f, baseRunSpeed > 0.01f ? baseRunSpeed : 5f)) : 1f;
+    public float SpeedRatio => ArenaMode.Active ? CurrentAutoRunSpeed / Mathf.Max(0.01f, baseRunSpeed > 0.01f ? baseRunSpeed : 5f) : autoRunEnabled ? Mathf.Min(EffectiveSpeedMultiplier(), ScriptedSpeedCapMps / Mathf.Max(0.01f, baseRunSpeed > 0.01f ? baseRunSpeed : 5f)) : 1f;
     public float MaxSpeedRatio => NaturalCapMultiplier; // 見た目(カメラのズーム/速度の演出)が最大になる倍率 = 自然加速の上限
 
     // ===== 実際の現在速度(2026-10-03) =====
@@ -1147,6 +1148,8 @@ public partial class PlayerController : MonoBehaviour
 #endif
         // #100 ULTIMATE のボタン(左下)で始まったタッチは操作にしない
         if (pointerJustDown && UltimateArt.BlocksPointer(pointerPos)) { touchActive = false; return; }
+        // 開発用の闘技場のボタンで始まったタッチも操作にしない
+        if (pointerJustDown && ArenaMode.BlocksPointer(pointerPos)) { touchActive = false; return; }
         if (pointerJustDown)
         {
             touchStartPos = pointerPos;
@@ -1246,7 +1249,7 @@ public partial class PlayerController : MonoBehaviour
         float dt = Time.deltaTime;
         if (bufferedUpAttackTimer > 0f) bufferedUpAttackTimer -= dt;
         if (upShotVisualTimer > 0f) upShotVisualTimer -= dt;
-        float autoSpeed = autoRunEnabled ? CapSpeed(runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale) : 0f;
+        float autoSpeed = CurrentAutoRunSpeed; // 通常は autoRunEnabled ? CapSpeed(runSpeed × 自然加速 × DEBUG倍率) : 0(闘技場は ArenaAutoSpeed)
         // 荒野街道ボス追加(2026-09-20) - 巨大蜘蛛の糸による短時間の移動妨害。
         // CurrentAutoRunSpeed(ボス側の追従基準)には含めない - ボスは通常速度で
         // 走り続けるので、糸を受けたプレイヤーは相対的に後ろへ取り残される。
@@ -1275,7 +1278,7 @@ public partial class PlayerController : MonoBehaviour
         float effectiveKnockback = knockbackVelocityX * knockbackFrac;
         // ボス戦(2026-10-01): 攻撃の前進/後退を大きくする(ボスが離れているほど前進を伸ばす。近いと伸ばしすぎない)
         lungeScaleNow = Mathf.Approximately(lungeVelocityX, 0f) ? 1f : BossBattle.LungeScale(lungeVelocityX, transform.position.x) * CardHunterLungeScale;
-        autoSpeed *= CardAutoSpeedScale * CardHunterApproachScale(transform.position.x) * UltimateArt.BuffRunSpeedMul; // v3: BRAKE ATTACK / HUNTER / #100 ULTIMATE の BUFF(勢い)
+        if (!ArenaMode.FixedSpeed) autoSpeed *= CardAutoSpeedScale * CardHunterApproachScale(transform.position.x) * UltimateArt.BuffRunSpeedMul; // 闘技場の「実効速度固定」では補正を掛けない // v3: BRAKE ATTACK / HUNTER / #100 ULTIMATE の BUFF(勢い)
         float newX = transform.position.x + (autoSpeed + lungeVelocityX * lungeScaleNow + effectiveKnockback) * dt;
         float prevX = transform.position.x;
         // 2026-10-03: 踏み込みは、当てた敵の体の手前で止める(長い踏み込みのお嬢様騎士などが、当てた後もそのまま体へ入り込み
