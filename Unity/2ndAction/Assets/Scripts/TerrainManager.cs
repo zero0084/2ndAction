@@ -1589,6 +1589,7 @@ public class TerrainManager : MonoBehaviour
     {
         if (forceFlatAt != null && forceFlatAt(FloatingOrigin.ToLogical(nextStartX))) return ChunkType.Flat;
         if (NextChunkTouchesResumeZone()) return ChunkType.Flat; // 中断再開の安全区間(2026-10-03)
+        if (CaveBossSafety.ForceFlatTerrain) return ChunkType.Flat; // 自然洞窟ボスの必殺技中は新しい穴/坂を作らない(シングルのみ)
         if (forcedFlatChunksRemaining > 0)
         {
             forcedFlatChunksRemaining--;

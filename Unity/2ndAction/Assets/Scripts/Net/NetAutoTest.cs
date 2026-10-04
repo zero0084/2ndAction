@@ -840,12 +840,39 @@ public partial class NetAutoTest : MonoBehaviour
         if (bm == null || bm.IsBossPhase) { L("test boss skipped (boss phase already running)"); return; }
         if (bossKind == "Reaper") { bm.DebugSpawnReaper(); L("test reaper spawned (stage " + (GameManager.Instance != null ? GameManager.Instance.ActiveRunStageId : "?") + ")"); return; }
         BossManager.NetTestBossHpOverride = bossHp;
+        // 自然洞窟ボス強化(2026-10-04): 洞窟ボスは関門と同じ流れで出し、段階2→必殺技を強制する(地形の攻撃/天井/地中の同期を見る)
+        if (Enum.TryParse(bossKind, out CaveBossKind ck))
+        {
+            bm.DebugCaveEncounter(ck, -1);
+            BossManager.NetTestBossHpOverride = 0;
+            StartCoroutine(DriveCaveBoss());
+            L($"test cave boss spawned ({ck} hp={bossHp})");
+            return;
+        }
         WildBossKind kind = Enum.TryParse(bossKind, out WildBossKind k) ? k : WildBossKind.Wolf;
         bm.NetTestSpawnWild(kind, 1);
         BossManager.NetTestBossHpOverride = 0;
         L($"test boss spawned ({kind} hp={bossHp})");
 #endif
     }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    System.Collections.IEnumerator DriveCaveBoss()
+    {
+        yield return new WaitForSeconds(6f);
+        for (int i = 0; i < 3; i++)
+        {
+            WildBossBase b = null;
+            foreach (var w in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None)) if (w != null && !w.IsDead && !w.NetPuppet) b = w;
+            if (b == null) yield break;
+            if (b.Phase < 2) b.DebugSetPhase(2);
+            yield return new WaitForSeconds(1f);
+            bool ok = b.DebugForceUltimate();
+            L($"cave boss ultimate forced #{i + 1} ({b.bossName} ok={ok} phase={b.Phase})");
+            yield return new WaitForSeconds(18f);
+        }
+    }
+#endif
 
     // 共有の敵/ボスが攻撃の届く距離にいれば前攻撃する(両プレイヤーがほぼ同時に同じ敵を叩く状況を作る)。
     bool CombatBot(PlayerController pc)

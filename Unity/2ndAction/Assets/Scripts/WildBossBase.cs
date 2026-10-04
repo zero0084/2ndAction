@@ -1130,6 +1130,30 @@ public abstract class WildBossBase : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public void DebugAddStagger(float v) => AddStagger(v);
     public float DebugStagger => stagger;
+    // 自然洞窟ボス強化(2026-10-04): 開発用の強制操作(段階/必殺技/BREAK)。荒野街道のボスにも使える
+    public void DebugSetPhase(int p)
+    {
+        if (tune == null || dead) return;
+        p = Mathf.Clamp(p, 1, PhaseCount);
+        float frac = p == 1 ? 1f : tune.phaseThresholds[p - 2] - 0.03f;
+        Hp = Mathf.Clamp(Mathf.FloorToInt(maxHp * frac), 1, maxHp);
+        if (hpBar != null) hpBar.SetFraction((float)Hp / Mathf.Max(1, maxHp));
+        if (p < Phase) { Phase = p; Debug.Log($"[BossBattle] {bossName} DEBUG phase back to {p}"); }
+        else CheckPhase();
+    }
+    public bool DebugForceUltimate()
+    {
+        if (tune == null || dead || tune.ultimateCooldown <= 0f) return false;
+        if (Phase < 2) DebugSetPhase(2);
+        lastUltimateTime = -99f;
+        phaseUnlockedAt = Time.time - 99f;
+        // BREAKの途中で割り込むとBREAKの終わりの処理が走らないので、ここで戻す
+        if (Broken) { Broken = false; stagger = 0f; staggerDefense = 1f; }
+        if (supportsInterrupt && !entering) InterruptAI(Wait(0.05f));
+        BossBattle.LastUltimateEnd = -99f; // 必殺技の連続の間隔(2.5秒)を待たない(割り込みで今の必殺技を終わらせた後に戻す)
+        return true;
+    }
+    public void DebugForceBreak() { if (tune != null && tune.staggerMax > 0f) AddStagger(tune.staggerMax * 1.5f / Mathf.Max(0.1f, staggerDefense)); }
 #endif
     // 各ボスが攻撃中に出した自分の物(溜めの玉など)を片付ける
     protected virtual void OnInterrupted() { }

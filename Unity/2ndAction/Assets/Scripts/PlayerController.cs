@@ -1880,6 +1880,7 @@ public partial class PlayerController : MonoBehaviour
     float moveSlowFactor = 1f;
     float moveSlowTimer;
     public bool IsMoveSlowed => moveSlowTimer > 0f;
+    public float MoveSlowFactor => moveSlowTimer > 0f ? moveSlowFactor : 1f; // 自然洞窟ボス強化(2026-10-04): 地形の攻撃を減速中も同じ位置に保つため
 
     // 一時的な走行速度低下(ダメージなし・操作不能にはならない)。既に
     // 減速中なら弱い方で上書きせず、長い方の残り時間/強い方の係数を採用。

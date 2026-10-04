@@ -71,7 +71,7 @@ public partial class DebugPanel : MonoBehaviour
         float w = Screen.width / s, h = Screen.height / s;
         float k = Mathf.SmoothStep(0f, 1f, t / 0.15f);
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.05f, 0.02f, 0.02f, 0.5f * k));
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 608f : page == 4 || page == 5 ? 562f : 470f, h - 24f);
+        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 654f : page == 4 || page == 5 || page == 6 ? 562f : 470f, h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f + (1f - k) * 12f, pw, ph);
         Color keepColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, k);
@@ -82,7 +82,7 @@ public partial class DebugPanel : MonoBehaviour
         if (page == 0 && UiKit.Button(new Rect(p.xMax - 352f, p.y + 12f, 146f, 42f), "ラスダン終盤…", 16f, false, false)) { page = 2; confirmSave = 0; confirmReset = false; }
         if (page != 0)
         {
-            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else DrawEndgamePage(p);
+            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else DrawEndgamePage(p);
             GUI.color = keepColor;
             GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
             if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();
@@ -121,6 +121,9 @@ public partial class DebugPanel : MonoBehaviour
         y += 46f;
         // 開発用の闘技場(2026-10-04): キャラ/カード/敵を好きな条件で戦わせ、同じ条件ですぐ再戦・計測(DEBUG RUN)
         if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "闘技場(キャラ/カード/敵の試験、DEBUG RUN)", 16f, true, false)) { SetOpen(false); EndgameDebug.LaunchArena("debug panel"); }
+        y += 46f;
+        // 自然洞窟ボス強化の確認(2026-10-04、DEBUG RUN): 出現/段階/必殺技/BREAK/ラン再開の強制
+        if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "洞窟ボス試験…(出現/段階/必殺技/BREAK/ラン再開)", 16f, false, false)) { page = 6; confirmSave = 0; confirmReset = false; }
         y += 46f;
 
         GUI.Label(new Rect(x, y, 300f, 26f), "BESTを設定(ガチャの段階の確認)", UiKit.Label(16f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));
@@ -500,5 +503,50 @@ public partial class GameManager
     public void DebugToggleDebugMode() => ToggleDebugMode();
     public void DebugResetHighScores() => ResetHighScores();
     public void DebugLogGachaPoolPublic() => DebugLogGachaPool();
+}
+#endif
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+// DebugPanel: 洞窟ボス試験のページ(自然洞窟ボス強化、2026-10-04)
+public partial class DebugPanel
+{
+    void DrawCaveBossPage(Rect p)
+    {
+        float x = p.x + 24f, y = p.y + 64f, full = p.width - 48f;
+        var lab = UiKit.Label(13f, TextAnchor.UpperLeft, false, new Color(0.85f, 0.85f, 0.9f));
+        GUI.Label(new Rect(x, y, full, 36f), "押すとシーンを読み直し、自然洞窟の DEBUG RUN(保存しない)で選んだボスを関門と同じ流れで出します。出した後は下の操作で段階/必殺技/BREAK/ラン再開を強制できます", lab);
+        y += 40f;
+        var kinds = (CaveBossKind[])System.Enum.GetValues(typeof(CaveBossKind));
+        float cw = (full - 3f * 6f) / 4f;
+        for (int i = 0; i < kinds.Length; i++)
+        {
+            int col = i % 4, row = i / 4;
+            if (UiKit.Button(new Rect(x + col * (cw + 6f), y + row * 38f, cw, 34f), kinds[i].ToString(), 12f, EndgameDebug.SelectedCaveBoss == kinds[i], false)) EndgameDebug.SelectedCaveBoss = kinds[i];
+        }
+        y += 3 * 38f + 4f;
+        int nt = BossRematchTuning.I.tiers.Count;
+        float tw = (full - nt * 6f) / (nt + 1);
+        for (int i = -1; i < nt; i++)
+            if (UiKit.Button(new Rect(x + (i + 1) * (tw + 6f), y, tw, 34f), EndgameDebug.CaveTierLabel(i), 12f, EndgameDebug.SelectedCaveTier == i, false)) EndgameDebug.SelectedCaveTier = i;
+        y += 40f;
+        bool busy = EndgameDebug.Instance != null && EndgameDebug.Instance.Launching;
+        if (UiKit.Button(new Rect(x, y, full, 44f), $"出す: {EndgameDebug.SelectedCaveBoss}({EndgameDebug.CaveTierLabel(EndgameDebug.SelectedCaveTier)})", 16f, true, false) && !busy)
+            EndgameDebug.LaunchCaveBoss(EndgameDebug.SelectedCaveBoss, EndgameDebug.SelectedCaveTier, EndgameDebug.SelectedCaveChar);
+        y += 52f;
+        var b = EndgameDebug.FirstLivingBoss();
+        var bm = BossManager.Instance;
+        string st = b == null ? "戦闘中のボスはいません" : $"{b.bossName}  HP {b.Hp:N0}/{b.maxHp:N0}  段階 {b.Phase}/{b.PhaseCount}  崩し {b.StaggerFraction * 100f:F0}%{(b.Broken ? " BREAK" : "")}  必殺技 {b.UltimatesUsed}回{(b.UltimateRunning ? "(発動中)" : "")}  {(bm != null && bm.RunResumed ? "ラン再開済み" : bm != null ? $"再開まで {bm.ResumeSecondsLeft:F0}秒" : "")}";
+        GUI.Label(new Rect(x, y, full, 20f), st, lab);
+        y += 24f;
+        float bw = (full - 2f * 6f) / 3f;
+        for (int ph = 1; ph <= 3; ph++)
+            if (UiKit.Button(new Rect(x + (ph - 1) * (bw + 6f), y, bw, 38f), $"段階{ph}へ", 14f, b != null && b.Phase == ph, false) && b != null) b.DebugSetPhase(ph);
+        y += 44f;
+        if (UiKit.Button(new Rect(x, y, bw, 38f), "必殺技", 14f, false, false) && b != null) b.DebugForceUltimate();
+        if (UiKit.Button(new Rect(x + bw + 6f, y, bw, 38f), "BREAK", 14f, false, false) && b != null) b.DebugForceBreak();
+        if (UiKit.Button(new Rect(x + 2f * (bw + 6f), y, bw, 38f), "ラン再開", 14f, false, false) && bm != null) bm.DebugForceResume();
+        y += 44f;
+        GUI.Label(new Rect(x, y, full, 36f), $"地形の攻撃: 生成{CaveHazard.Spawned} 使い回し{CaveHazard.Reused} 表示中{CaveHazard.LiveCount}  床と天井の重なり{CaveHazard.Violations}件  遅らせた{CaveBossSafety.Delayed}  穴で中止{CaveBossSafety.PitSkips}", lab);
+    }
 }
 #endif

@@ -281,7 +281,7 @@ public class EncounterDirector : MonoBehaviour
             if (nextAnchor < playerLogical + ahead) nextAnchor = playerLogical + ahead;
             return;
         }
-        bool bossPhase = BossManager.Instance != null && BossManager.Instance.SpawnsHeld; // ボス戦の強化: ラン再開後は雑魚を戻す
+        bool bossPhase = (BossManager.Instance != null && BossManager.Instance.SpawnsHeld) || CaveBossSafety.HoldZako; // ボス戦の強化: ラン再開後は雑魚を戻す / 自然洞窟ボスの必殺技中は出さない
         bool pauseNow = bossPhase || gm.IsDistanceInSafeZone(RefDistance) || gm.CountdownActive || gm.ResumeGateActive || (refIsLocal && pc.IsFinishing);
         if (pauseNow)
         {

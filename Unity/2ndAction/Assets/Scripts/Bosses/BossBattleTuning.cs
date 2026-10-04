@@ -16,7 +16,7 @@ public class BossBattleTuning : ScriptableObject
     public float resumeStrong = 22f;   // 5,000m系
     public float resumeSpecial = 30f;  // 10,000m専用
     [Tooltip("ラン再開を使うステージ(ラストダンジョンは独自の流れなので含めない)")]
-    public string[] resumeStages = { "wasteland_road" }; // 洞窟/天空は "natural_cave"/"sky_corridor" を足す
+    public string[] resumeStages = { "wasteland_road", "natural_cave" }; // 天空は "sky_corridor" を足す(自然洞窟は2026-10-04から)
     [Tooltip("再開してから雑魚の出現を戻すまでの秒数")]
     public float zakoResumeDelay = 1.5f;
     [Tooltip("ラン再開を知らせる表示の秒数")]
@@ -96,8 +96,21 @@ public class BossBattleTuning : ScriptableObject
                 loaded = true;
                 cached = Resources.Load<BossBattleTuning>("Bosses/BossBattleTuning");
                 if (cached == null) { cached = CreateInstance<BossBattleTuning>(); cached.entries = DefaultEntries(); cached.hideFlags = HideFlags.DontSave; }
+                else cached.MergeDefaults();
             }
             return cached;
+        }
+    }
+
+    // 調整値のファイルに無い種類(後から足した種類)は、コードの既定値で補う(ファイルの値は変えない)
+    void MergeDefaults()
+    {
+        if (entries == null) entries = new List<Entry>();
+        foreach (var d in DefaultEntries())
+        {
+            bool found = false;
+            foreach (var e in entries) if (e != null && e.key == d.key) { found = true; break; }
+            if (!found) entries.Add(d);
         }
     }
 
@@ -115,7 +128,7 @@ public class BossBattleTuning : ScriptableObject
         return airborne && kind != PlayerAttackKind.DownImpact ? v * staggerAirBonus : v;
     }
 
-    // 荒野街道を先行(2026-10-01)。自然洞窟/天空回廊の種類は、ここへ足せば同じ仕組みが動く(未登録=段階/崩しなし=従来どおり)。
+    // 荒野街道を先行(2026-10-01)、自然洞窟(2026-10-04)。天空回廊の種類も、ここへ足せば同じ仕組みが動く(未登録=段階/崩しなし=従来どおり)。
     public static List<Entry> DefaultEntries()
     {
         return new List<Entry>
@@ -131,6 +144,18 @@ public class BossBattleTuning : ScriptableObject
             new Entry { key = "Demon",       phaseThresholds = new[] { 0.6f },         specialCooldown = 7f,   ultimateCooldown = 16f,  staggerMax = 32f, staggerRecoveryPerSec = 3f,  breakDuration = 3f },
             new Entry { key = "Dragon",      phaseThresholds = new[] { 0.6f },         specialCooldown = 7f,   ultimateCooldown = 15f, staggerMax = 26f, staggerRecoveryPerSec = 3f,  breakDuration = 3.2f },
             new Entry { key = "BlackKnight", phaseThresholds = new[] { 0.7f, 0.35f },  specialCooldown = 7.5f, ultimateCooldown = 16f, staggerMax = 40f, staggerRecoveryPerSec = 4f,  breakDuration = 2.8f },
+            // 自然洞窟(2026-10-04): 全種類に第2段階の技と必殺技。古代地底悪魔だけ第3段階(暴走)
+            new Entry { key = "Centipede",    phaseThresholds = new[] { 0.55f },       specialCooldown = 6.5f, ultimateCooldown = 15f, firstUltimateDelay = 1.5f, staggerMax = 16f, staggerRecoveryPerSec = 2f,  breakDuration = 2.6f },
+            new Entry { key = "Scorpion",     phaseThresholds = new[] { 0.55f },       specialCooldown = 7f,   ultimateCooldown = 16f, staggerMax = 20f, staggerRecoveryPerSec = 2f,  breakDuration = 2.8f },
+            new Entry { key = "Mole",         phaseThresholds = new[] { 0.65f, 0.3f }, specialCooldown = 7f,   ultimateCooldown = 16f, staggerMax = 24f, staggerRecoveryPerSec = 2.5f, breakDuration = 3f },
+            new Entry { key = "Troll",        phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 7.5f, ultimateCooldown = 17f, staggerMax = 32f, staggerRecoveryPerSec = 3f,  breakDuration = 3f },
+            new Entry { key = "Worm",         phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 7f,   ultimateCooldown = 17f, staggerMax = 30f, staggerRecoveryPerSec = 3f,  breakDuration = 3f },
+            new Entry { key = "CrystalGolem", phaseThresholds = new[] { 0.7f, 0.3f },  specialCooldown = 8f,   ultimateCooldown = 17f, staggerMax = 38f, staggerRecoveryPerSec = 3.5f, breakDuration = 3.2f },
+            new Entry { key = "Bat",          phaseThresholds = new[] { 0.6f },        specialCooldown = 6.5f, ultimateCooldown = 16f, staggerMax = 26f, staggerRecoveryPerSec = 3f,  breakDuration = 2.8f },
+            new Entry { key = "ScorpionKing", phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 7f,   ultimateCooldown = 16f, staggerMax = 36f, staggerRecoveryPerSec = 3.5f, breakDuration = 3f },
+            new Entry { key = "Basilisk",     phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 7f,   ultimateCooldown = 16f, staggerMax = 34f, staggerRecoveryPerSec = 3.5f, breakDuration = 3f },
+            new Entry { key = "Drake",        phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 7.5f, ultimateCooldown = 17f, staggerMax = 38f, staggerRecoveryPerSec = 3.5f, breakDuration = 3.2f },
+            new Entry { key = "AncientDemon", phaseThresholds = new[] { 0.6f, 0.25f }, specialCooldown = 7f,   ultimateCooldown = 16f, staggerMax = 40f, staggerRecoveryPerSec = 4f,  breakDuration = 3f },
         };
     }
 }

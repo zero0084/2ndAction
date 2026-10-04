@@ -108,6 +108,7 @@ public class BossBattleHud : MonoBehaviour
 
     public static void Banner(string text, Color color, float seconds)
     {
+        if (NetCombat.Authority) NetCombat.BroadcastBanner(text, color, seconds); // 自然洞窟ボス強化(2026-10-04): 段階/必殺技/BREAK/隙の表示をJOINにも
         if (Instance == null) return;
         Instance.bannerText = text;
         Instance.bannerColor = color;

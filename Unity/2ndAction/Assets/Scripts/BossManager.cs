@@ -677,6 +677,7 @@ public partial class BossManager : MonoBehaviour
             else SpawnDeath();
         }
 
+        CaveBossTick(); // 自然洞窟ボス強化(2026-10-04): ボス区間をプレイヤーに追従
         TickResume();
         if (IsBossPhase) return;
         if (Time.time < nextGateNotBefore) return; // 保留していたボスは、前のボスの報酬の後に少し空けてから
@@ -1150,7 +1151,7 @@ public partial class BossManager : MonoBehaviour
 
     // ===== 荒野街道ボス(WildBossBase系) / 自然洞窟ボス =====
     // ボス戦の強化(2026-10-01)を使うステージ(まず荒野街道)。洞窟/天空はBossBattleTuningのentriesとresumeStagesで広げる。
-    public static string[] BattleTunedStages = { "wasteland_road" };
+    public static string[] BattleTunedStages = { "wasteland_road", "natural_cave" }; // 自然洞窟は2026-10-04から
     bool BattleTunedStage => GameManager.Instance != null && System.Array.IndexOf(BattleTunedStages, GameManager.Instance.ActiveRunStageId) >= 0;
 
     void StartWildPhase()
@@ -1421,6 +1422,7 @@ public partial class BossManager : MonoBehaviour
         boss.artFacesLeft = false;
         float hpScale = RematchHpScaleOr((kind == CaveBossKind.Centipede || kind == CaveBossKind.Scorpion) ? Mathf.Min(3f, 1f + currentGateK * smallBossHpPerKm) : 1f);
         boss.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(spec.hp * hpScale));
+        if (BattleTunedStage) boss.ApplyTuning(kind.ToString()); // 自然洞窟ボス強化(2026-10-04): 荒野街道と同じ段階/必殺技/崩し
         ApplyRematchTo(boss); // 再戦の強化(2026-10-02)
         boss.slotIndex = index;
         boss.mileReward = spec.mile;

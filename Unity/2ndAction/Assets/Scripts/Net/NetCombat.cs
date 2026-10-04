@@ -29,7 +29,7 @@ public class NetCombat : MonoBehaviour
     const string MsgState = "OMM.CombatState";    // HOST→JOIN: 位置/姿勢(非信頼)
     const string MsgHit = "OMM.CombatHit";        // JOIN→HOST: ダメージ要求
 
-    const byte OpEnemySpawn = 1, OpBossSpawn = 2, OpDamage = 3, OpDeath = 4, OpDespawn = 5, OpReject = 6;
+    const byte OpEnemySpawn = 1, OpBossSpawn = 2, OpDamage = 3, OpDeath = 4, OpDespawn = 5, OpReject = 6, OpBanner = 7;
     const byte HitDamage = 1, HitVacuum = 2;
 
     public const float StateSendRate = 20f;
@@ -949,6 +949,29 @@ public class NetCombat : MonoBehaviour
             case OpDamage: HandleDamage(r); break;
             case OpDeath: HandleDeath(r); break;
             case OpDespawn: HandleDespawn(r); break;
+            case OpBanner:
+            {
+                r.ReadValueSafe(out FixedString128Bytes text); r.ReadValueSafe(out uint col); r.ReadValueSafe(out float secs);
+                BossBattleHud.Banner(text.ToString(), NetPlayerSnapshot.UnpackColor(col), secs);
+                break;
+            }
+        }
+    }
+
+    // 自然洞窟ボス強化(2026-10-04): ボスの大きな表示(段階/必殺技の名前/BREAK/隙)をJOINにも出す(HOSTのBossBattleHud.Bannerから)
+    public static void BroadcastBanner(string text, Color color, float seconds)
+    {
+        if (!Authority || Instance == null || NetSession.Manager == null || NetSession.Manager.CustomMessagingManager == null) return;
+        string t = text ?? "";
+        while (System.Text.Encoding.UTF8.GetByteCount(t) > 120) t = t.Substring(0, t.Length - 1);
+        using (var w = new FastBufferWriter(160, Allocator.Temp))
+        {
+            w.WriteValueSafe(NetRunLauncher.ActiveRunSeed);
+            w.WriteValueSafe(OpBanner);
+            w.WriteValueSafe(new FixedString128Bytes(t));
+            w.WriteValueSafe(NetPlayerSnapshot.PackColor(color));
+            w.WriteValueSafe(seconds);
+            SendReliableToClients(w);
         }
     }
 
