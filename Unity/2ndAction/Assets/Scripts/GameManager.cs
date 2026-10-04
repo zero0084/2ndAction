@@ -720,6 +720,7 @@ public partial class GameManager : MonoBehaviour
             // be confirmed for real on-device rather than by review alone.
             if (DebugMode) Debug.Log($"[CardStack] CharacterCard slot {i}: {card.cardName} equippedLv={stacks} -> ApplyCardEffects called {stacks}x at Run start (runStackSoFar={GetCurrentRunStack(card.cardId)})");
         }
+        SnapshotRunStartAbilities(); // カード長期育成(2026-10-04): ランの開始時点の能力Lv(Final Evolution の資格の判定用)
     }
 
     public float retryDelayAfterGameOver = 3f;
@@ -4521,6 +4522,7 @@ public partial class GameManager : MonoBehaviour
     public RewardCardData MakeCardData(CardDefinition card)
     {
         int highest = CardInventory.GetHighestLevel(card.cardId);
+        bool max = highest >= CardInventory.MaxCardLevel;
         return new RewardCardData
         {
             CardId = card.cardId,
@@ -4529,7 +4531,11 @@ public partial class GameManager : MonoBehaviour
             Description = card.description,
             Rarity = card.rarity,
             LevelLine = highest > 0 ? $"Lv.{highest}" : "",
-            Category = card.category
+            Category = card.category,
+            // カード長期育成(2026-10-04): Lv9 MAX のカードには★、AWAKENED は専用の光
+            ShowMastery = max,
+            MasteryStars = max ? CardMastery.MasteryLevel(card.cardId) : 0,
+            Awakened = max && CardMastery.IsAwakened(card.cardId)
         };
     }
 
@@ -4657,7 +4663,11 @@ public partial class GameManager : MonoBehaviour
             // カードにだけNEWを出す。EQUIPPED状態の方が情報として優先度が
             // 高いため、RewardCardUI側でEQUIPPEDと同時にはならないよう
             // 一本化して扱う(両方trueでもEQUIPPED表示が勝つ)。
-            ShowNewBadge = !equipped && CardInventory.IsNewUnconfirmed(card.cardId)
+            ShowNewBadge = !equipped && CardInventory.IsNewUnconfirmed(card.cardId),
+            // カード長期育成(2026-10-04): Lv9 MAX の束には Mastery の★、AWAKENED は専用の光/表記(通常の性能は変わらない)
+            ShowMastery = level >= CardInventory.MaxCardLevel,
+            MasteryStars = level >= CardInventory.MaxCardLevel ? CardMastery.MasteryLevel(card.cardId) : 0,
+            Awakened = level >= CardInventory.MaxCardLevel && CardMastery.IsAwakened(card.cardId)
         };
     }
 
@@ -5604,7 +5614,10 @@ public partial class GameManager : MonoBehaviour
         // Item 6 - "今回取得枚数" (always +1 for a single Gacha draw) and
         // "取得後所持数" (total owned across all levels) shown as two
         // distinct lines rather than one ambiguous "OWNED xN".
-        GUI.Label(new Rect(panelRect.x, panelRect.y + 252f, panelRect.width, 28f), "Lv.1  GAINED +1", subStyle);
+        // カード長期育成(2026-10-04): Lv9 MAX のカードを引いてもハズレではない。カードはそのまま所持に入り(勝手に消費しない)、
+        // 合成で Lv9 MAX のカードの素材にすると Mastery が進む
+        string masteryHint = CardMastery.IsAwakened(gachaResultCard.cardId) ? "   (AWAKENED済み・保管)" : CardMastery.IsMaxReached(gachaResultCard.cardId) ? "   → 合成で MASTERY +1" : "";
+        GUI.Label(new Rect(panelRect.x, panelRect.y + 252f, panelRect.width, 28f), "Lv.1  GAINED +1" + masteryHint, subStyle);
         GUI.Label(new Rect(panelRect.x, panelRect.y + 280f, panelRect.width, 28f), $"OWNED (TOTAL) x{gachaResultOwnedCount}", subStyle);
 
         // Bugfix 2026-09-05, item 5 - Gacha Stage/Next Evolution info moved

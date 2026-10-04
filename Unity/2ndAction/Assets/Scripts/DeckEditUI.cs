@@ -422,7 +422,11 @@ public class DeckEditUI : MonoBehaviour
         }
         if (collectionCountText != null)
         {
-            collectionCountText.text = $"COLLECTION ({displayedStacks.Count})";
+            // カード長期育成(2026-10-04): 育てた証(MAX / AWAKENED の総数。カードの総数は CardDatabase から)
+            int total = CardMastery.TotalCards;
+            collectionCountText.horizontalOverflow = HorizontalWrapMode.Overflow;
+            collectionCountText.supportRichText = true;
+            collectionCountText.text = $"COLLECTION ({displayedStacks.Count})  <size=17><color=#ffe6a0>MAX {CardMastery.MaxCount}/{total}  AWAKENED {CardMastery.AwakenedCount}/{total}</color></size>";
         }
 
         RefreshConvertButton();
@@ -521,7 +525,7 @@ public class DeckEditUI : MonoBehaviour
             if (detailName != null) detailName.text = card.cardName;
             string countLabel = level >= 1 && count > 1 ? $"   所持 x{count}" : "";
             if (detailCategory != null) detailCategory.text = $"{card.category.ToString().ToUpperInvariant()}  /  {levelLabel}   {card.RarityStars}{countLabel}";
-            if (detailValue != null) detailValue.text = BuildDetailValueText(card);
+            if (detailValue != null) detailValue.text = MasteryDetailLine(card) + BuildDetailValueText(card);
         }
         else
         {
@@ -552,6 +556,16 @@ public class DeckEditUI : MonoBehaviour
         detailCardId = card.cardId;
         detailLevel = level;
         RefreshConvertButton();
+    }
+
+    // カード長期育成(2026-10-04): このカード(主能力)をどこまで育てたか。詳細の画面だけで進みの数字まで出す
+    static string MasteryDetailLine(CardDefinition card)
+    {
+        string id = CardMastery.BaseIdOf(card.cardId);
+        if (!CardMastery.IsMaxReached(id)) return "";
+        if (CardMastery.IsAwakened(id))
+            return $"<color=#ffe08a><b>Lv.9 MAX  {CardMastery.StarsFor(5)}  AWAKENED</b></color>{(CardMastery.Overflow(id) > 0 ? $"  <size=16>(★5後の保管 {CardMastery.Overflow(id)})</size>" : "")}\n";
+        return $"<color=#ffd76a><b>Lv.9 MAX  {CardMastery.Stars(id)}</b></color>  Mastery {CardMastery.MasteryProgress(id)} / {CardMastery.NeedForNext(id)}\n";
     }
 
     // 主な効果(Main Value)。合成カードは主能力(MAIN)と引き継いだ能力(SUB)を強化量つきで、

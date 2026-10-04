@@ -580,7 +580,8 @@ public class CardFusionUI : MonoBehaviour
             int selected = (mainKey == s.cardId ? 1 : 0) + (materialKey == s.cardId ? 1 : 0);
             CardVariant v = CardVariant.Parse(s.cardId);
             int abilities = v != null ? v.AbilityCount : 1;
-            c.info.text = $"所持{s.count}  使用可<color=#{(available - selected > 0 ? "ffe08a" : "ff8f86")}>{Mathf.Max(0, available - selected)}</color>" + (abilities > 1 ? $"  能力{abilities}" : "");
+            c.info.text = $"所持{s.count}  使用可<color=#{(available - selected > 0 ? "ffe08a" : "ff8f86")}>{Mathf.Max(0, available - selected)}</color>" + (abilities > 1 ? $"  能力{abilities}" : "")
+                + (v != null && v.level >= CardVariant.MaxLevel ? (CardMastery.IsAwakened(v.mainId) ? "  <color=#ffe08a>AWAKENED</color>" : $"  <color=#ffd76a>★{CardMastery.MasteryLevel(v.mainId)}</color>") : "");
             bool isMain = mainKey == s.cardId, isMat = materialKey == s.cardId;
             c.card.SetSelected(isMain || isMat);
             c.tag.text = isMain && isMat ? "メイン+素材" : isMain ? "メイン" : isMat ? "素材" : (available <= 0 ? "使用中" : "");
@@ -632,7 +633,7 @@ public class CardFusionUI : MonoBehaviour
     {
         bool hasMain = !string.IsNullOrEmpty(mainKey), hasMat = !string.IsNullOrEmpty(materialKey);
         if (!hasMain && !hasMat)
-            return "左の一覧からカードを選んでください。\n\n選択中の枠(光っている枠)にカードが入ります。枠をタップすると選択先を切り替えられ、×で選択を外せます。\n\n・同じカード同士 … 成功率100%で合成Lvと全能力を合算\n・違うカード同士 … メイン側50%/素材側25%で能力一式を継承(抽選)。片側だけ成功した場合は、成功した側のLvと能力だけが残ります\n・合成Lvの上限はLv.9(2枚の合計がLv.9を超える組み合わせは合成できません)";
+            return "左の一覧からカードを選んでください。\n\n選択中の枠(光っている枠)にカードが入ります。枠をタップすると選択先を切り替えられ、×で選択を外せます。\n\n・同じカード同士 … 成功率100%で合成Lvと全能力を合算\n・違うカード同士 … メイン側50%/素材側25%で能力一式を継承(抽選)。片側だけ成功した場合は、成功した側のLvと能力だけが残ります\n・合成Lvの上限はLv.9。同じカードで Lv.9 を超える分は捨てずに Mastery へ(違うカードで合計が Lv.9 を超える組み合わせは合成できません)\n・Lv.9 MAX のカードに同じカードを合成すると Mastery が進みます(★5 で AWAKENED)";
         var sb = new StringBuilder();
         if (hasMain) sb.Append(CardDetail(mainKey, "メイン")).Append('\n');
         if (hasMat) sb.Append(CardDetail(materialKey, "素材")).Append('\n');
@@ -644,7 +645,15 @@ public class CardFusionUI : MonoBehaviour
         else
         {
             CardVariant v = CardVariant.Parse(hasMain ? mainKey : materialKey);
-            if (v != null && v.level >= CardVariant.MaxLevel) sb.Append("<color=#ff8f86>このカードは合成Lv.9(上限)のため、これ以上合成できません。</color>\n");
+            if (v != null && v.level >= CardVariant.MaxLevel && hasMain)
+            {
+                // Lv9 MAX は「合成できない」ではなく MASTERY へ
+                string id = v.mainId;
+                sb.Append("<color=#ffd76a><b>MASTERY</b></color>  Lv.9 MAX\n");
+                sb.Append($"<color=#ffd76a>{CardMastery.Stars(id)}</color>  {(CardMastery.IsAwakened(id) ? "<color=#ffe08a><b>AWAKENED</b></color>" : CardMastery.MasteryProgress(id) + " / " + CardMastery.NeedForNext(id))}\n");
+                if (CardMastery.IsAwakened(id)) sb.Append("<size=19>★5(AWAKENED)に到達しています。★5 の後に余ったカードの使い道は今後追加します(今は合成で消費しません)。</size>\n");
+                else sb.Append($"同じカード({CardVariant.AbilityName(id)})を素材に選ぶと、素材のLvぶん Mastery が進みます(Lv.1 = +1)。\n");
+            }
             else sb.Append(hasMain ? "次に素材カードを選んでください。" : "次にメインカードを選んでください。");
         }
         return sb.ToString();
@@ -663,6 +672,10 @@ public class CardFusionUI : MonoBehaviour
         if (current == key) { SetSlot(activeSlot, null); SetStatus("", false); Refresh(); return; }
         string other = activeSlot == 0 ? materialKey : mainKey;
         string reason = CardFusionLogic.LockReason(key, other == key ? 2 : 1);
+        // カード長期育成: Lv9 MAX のメインは合成で消費しない(使用中でも選べる)。Mastery の組み合わせの可否は BlockReason が見る
+        string pMain = activeSlot == 0 ? key : mainKey, pMat = activeSlot == 0 ? materialKey : key;
+        CardVariant pm = CardVariant.Parse(pMain), pt = string.IsNullOrEmpty(pMat) ? null : CardVariant.Parse(pMat);
+        if (pm != null && pm.level >= CardVariant.MaxLevel && (activeSlot == 0 || (pt != null && CardFusionLogic.IsMasteryFusion(pm, pt))) && CardInventory.FindByKey(key) != null) reason = null;
         if (reason != null)
         {
             CardDefinition def = CardDatabase.FindById(key);
@@ -698,10 +711,17 @@ public class CardFusionUI : MonoBehaviour
         var r = shownResult;
         HideOverlay();
         phase = Phase.Select;
-        if (r != null && r.IsSuccess && CardInventory.FindByKey(r.resultKey) != null && CardFusionLogic.LockReason(r.resultKey) == null)
+        bool maxResult = r != null && r.IsSuccess && r.result != null && r.result.level >= CardVariant.MaxLevel;
+        if (r != null && r.IsSuccess && CardInventory.FindByKey(r.resultKey) != null && (maxResult || CardFusionLogic.LockReason(r.resultKey) == null))
         {
+            // Lv9 MAX のメインはデッキ/キャラカードで使用中でもそのまま(Mastery の合成ではメインを消費しない)
             mainKey = r.resultKey; materialKey = null; activeSlot = 1;
-            SetStatus(r.result.level >= CardVariant.MaxLevel ? "完成カードは合成Lv.9(上限)のため、これ以上合成できません" : "完成カードをメインにセットしました。素材カードを選んでください", r.result.level >= CardVariant.MaxLevel);
+            if (maxResult)
+            {
+                string id = r.result.mainId;
+                SetStatus(CardMastery.IsAwakened(id) ? "このカードは AWAKENED(★5)です" : $"Lv.9 MAX  Mastery {CardMastery.Stars(id)}  {CardMastery.MasteryProgress(id)} / {CardMastery.NeedForNext(id)}", false);
+            }
+            else SetStatus("完成カードをメインにセットしました。素材カードを選んでください", false);
         }
         else { mainKey = materialKey = null; activeSlot = 0; SetStatus("", false); }
         Refresh(restoreScroll: true);
@@ -771,7 +791,8 @@ public class CardFusionUI : MonoBehaviour
         shownResult = r;
         skipRequested = false;
         ResetFx();
-        bool same = r.kind == CardFusionLogic.Kind.SameName;
+        bool mastery = r.kind == CardFusionLogic.Kind.Mastery;
+        bool same = r.kind == CardFusionLogic.Kind.SameName || mastery;
         bool both = r.kind == CardFusionLogic.Kind.CrossBoth;
         Color accent = same ? new Color(1f, 0.85f, 0.45f) : both ? new Color(0.55f, 1f, 0.95f) : r.IsSuccess ? new Color(1f, 0.85f, 0.45f) : new Color(1f, 0.75f, 0.3f);
 
@@ -806,7 +827,8 @@ public class CardFusionUI : MonoBehaviour
         // ---- 継承抽選の結果(両側それぞれ) ----
         if (same)
         {
-            fxMainLabel.text = fxMaterialLabel.text = "確定強化";
+            fxMainLabel.text = mastery ? "Lv.9 MAX" : "確定強化";
+            fxMaterialLabel.text = mastery ? $"MASTERY +{r.masteryGain}" : "確定強化";
             fxMainLabel.color = fxMaterialLabel.color = Gold;
             FusionSfx.Play(FusionSfx.Success());
             yield return Wait(0.35f);
@@ -864,7 +886,8 @@ public class CardFusionUI : MonoBehaviour
                 circle.color = new Color(accent.r, accent.g, accent.b, 0.85f * (1f - f));
                 circle2.color = new Color(1f, 1f, 1f, 0.6f * (1f - f));
             });
-            fxCaption.text = same ? "同名強化 完了！" : both ? "大成功！ 両側の能力を継承" : r.kind == CardFusionLogic.Kind.CrossMainOnly ? "メイン側の能力を継承" : "素材側の能力を継承";
+            fxCaption.text = mastery ? (r.mastery.awakenedNow ? "AWAKENED！" : $"MASTERY {CardMastery.StarsFor(r.mastery.levelAfter)}")
+                : same ? (r.masteryGain > 0 ? "Lv.9 MAX 到達！" : "同名強化 完了！") : both ? "大成功！ 両側の能力を継承" : r.kind == CardFusionLogic.Kind.CrossMainOnly ? "メイン側の能力を継承" : "素材側の能力を継承";
             fxCaption.color = both ? new Color(0.7f, 1f, 0.95f) : Gold;
             yield return Wait(0.45f);
         }
@@ -1003,13 +1026,36 @@ public class CardFusionUI : MonoBehaviour
         var sb = new StringBuilder();
         if (r.IsSuccess)
         {
-            resultTitle.text = r.kind == CardFusionLogic.Kind.SameName ? "同名強化 完了！" : r.kind == CardFusionLogic.Kind.CrossBoth ? "合成大成功！" : "合成成功！";
+            resultTitle.text = r.kind == CardFusionLogic.Kind.Mastery ? (r.mastery.awakenedNow ? "AWAKENED！" : "MASTERY UP！")
+                : r.kind == CardFusionLogic.Kind.SameName ? (r.masteryGain > 0 ? "Lv.9 MAX 到達！" : "同名強化 完了！") : r.kind == CardFusionLogic.Kind.CrossBoth ? "合成大成功！" : "合成成功！";
             resultTitle.color = r.kind == CardFusionLogic.Kind.CrossBoth ? new Color(0.7f, 1f, 0.95f) : Gold;
             PrepareCard(resultCard);
             resultCard.ShowFrontImmediate(MakeData(CardDatabase.FindById(r.resultKey), r.resultKey), showDetails: false);
             CardVariant v = r.result;
             CardDefinition def = CardDatabase.FindById(r.resultKey);
             sb.Append($"<b><size=34>{def?.cardName}</size></b>\n");
+            if (r.masteryGain > 0)
+            {
+                var g = r.mastery;
+                sb.Append($"<color=#ffd76a><b>Mastery +{g.amount}</b></color>  {CardMastery.StarsFor(g.levelBefore)} → <color=#ffd76a><b>{CardMastery.StarsFor(g.levelAfter)}</b></color>");
+                sb.Append(g.levelAfter >= CardMastery.MaxStars ? "  <color=#ffe08a><b>AWAKENED</b></color>\n" : $"  {g.progressAfter} / {MasteryTuning.Need(g.levelAfter)}\n");
+                if (g.StarsGained > 1) sb.Append($"<size=21>★{g.StarsGained}つ分進みました(余りは次の★へ繰り越し)</size>\n");
+                if (g.overflowAdded > 0) sb.Append($"<size=21>★5 の後に余った {g.overflowAdded} は保管しました(今後の使い道に使えます)</size>\n");
+                if (g.awakenedNow) sb.Append("<size=21>このカードは AWAKENED になりました(永久の記録。通常の性能は変わりません)</size>\n");
+                sb.Append('\n');
+            }
+            if (r.kind == CardFusionLogic.Kind.Mastery)
+            {
+                sb.Append("メインカード(Lv.9 MAX)はそのまま残り、素材カードを1枚消費しました。\n\n");
+                sb.Append("<size=21>Mastery は通常の性能(攻撃/速度/EXP など)を上げません。</size>\n");
+                resultBody.text = sb.ToString();
+                resultBody.alignment = TextAnchor.UpperLeft;
+                resultScroll.viewport.anchorMin = new Vector2(0.4f, 0);
+                Canvas.ForceUpdateCanvases();
+                resultScroll.verticalNormalizedPosition = 1f;
+                StartCoroutine(FadeResultIn());
+                return;
+            }
             sb.Append($"合成Lv.<b>{v.level}</b>{(v.level >= CardVariant.MaxLevel ? " <color=#ff8f86>(上限・これ以上合成できません)</color>" : "")}    レア度 <color=#ffd76a>{new string('★', v.rarity)}</color>\n\n");
             if (r.kind == CardFusionLogic.Kind.SameName) sb.Append("<color=#ffd76a>同名強化(確定)</color> … 両方の能力をすべて継承\n\n");
             else

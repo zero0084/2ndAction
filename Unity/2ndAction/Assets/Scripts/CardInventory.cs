@@ -121,6 +121,20 @@ public static class CardInventory
         return true;
     }
 
+    // カード長期育成(2026-10-04): Lv9 MAX のメインへの Mastery 合成。素材を1枚だけ消費する(メインは残す)。
+    // メインと素材が同じ束なら2枚以上必要。足りなければ何も変えずに false。保存は呼び出し側。
+    public static bool ConsumeForMasteryInMemory(string mainKey, string materialKey)
+    {
+        EnsureLoaded();
+        Stack a = FindByKey(mainKey);
+        Stack b = FindByKey(materialKey);
+        if (a == null || b == null) return false;
+        if (a == b ? a.count < 2 : b.count < 1) return false;
+        b.count--;
+        if (b.count <= 0) stacks.Remove(b);
+        return true;
+    }
+
     // キー(cardIdまたはv2キー)で引く - 1つのキーは必ず1つのLvにしか対応しない。
     public static Stack FindByKey(string key)
     {

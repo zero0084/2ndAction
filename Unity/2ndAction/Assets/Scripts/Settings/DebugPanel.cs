@@ -39,6 +39,7 @@ public partial class DebugPanel : MonoBehaviour
     {
         if (on && ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (open && !on) UiInputGate.LatchUntilRelease();
+        if (!on) EndMasteryTest("panel closed"); // MASTERY TEST は閉じたら必ず元へ戻す
         open = on; t = 0f; confirmReset = false; confirmSave = 0; if (on) page = 0;
         UiInputGate.DebugPanelOpen = on;
     }
@@ -70,7 +71,7 @@ public partial class DebugPanel : MonoBehaviour
         float w = Screen.width / s, h = Screen.height / s;
         float k = Mathf.SmoothStep(0f, 1f, t / 0.15f);
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.05f, 0.02f, 0.02f, 0.5f * k));
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 || page == 4 ? 562f : 470f, h - 24f);
+        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 || page == 4 || page == 5 ? 562f : 470f, h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f + (1f - k) * 12f, pw, ph);
         Color keepColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, k);
@@ -81,7 +82,7 @@ public partial class DebugPanel : MonoBehaviour
         if (page == 0 && UiKit.Button(new Rect(p.xMax - 352f, p.y + 12f, 146f, 42f), "ラスダン終盤…", 16f, false, false)) { page = 2; confirmSave = 0; confirmReset = false; }
         if (page != 0)
         {
-            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else DrawEndgamePage(p);
+            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else DrawEndgamePage(p);
             GUI.color = keepColor;
             GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
             if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();
@@ -111,9 +112,12 @@ public partial class DebugPanel : MonoBehaviour
         if (UiKit.Button(new Rect(x + bw + 12f, y, bw, 40f), $"判定表示: {(HitboxOverlay.Enabled ? "ON" : "OFF")}", 17f, HitboxOverlay.Enabled, false)) HitboxOverlay.Enabled = !HitboxOverlay.Enabled;
         y += 46f;
         // 長距離の確認(2026-10-04): 10〜100km の雑魚の硬さを実機で見る(DEBUG RUN)
-        if (UiKit.Button(new Rect(x, y, bw, 40f), "長距離の確認(DEBUG RUN)…", 16f, false, false)) { page = 3; confirmSave = 0; confirmReset = false; }
+        float tw3 = (p.width - 48f - 16f) / 3f;
+        if (UiKit.Button(new Rect(x, y, tw3, 40f), "長距離の確認…", 15f, false, false)) { page = 3; confirmSave = 0; confirmReset = false; }
         // #100 ULTIMATE の確認(2026-10-04、DEBUG RUN)
-        if (UiKit.Button(new Rect(x + bw + 12f, y, bw, 40f), "ULTIMATE TEST…", 16f, false, false)) { page = 4; confirmSave = 0; confirmReset = false; }
+        if (UiKit.Button(new Rect(x + tw3 + 8f, y, tw3, 40f), "ULTIMATE TEST…", 15f, false, false)) { page = 4; confirmSave = 0; confirmReset = false; }
+        // カード長期育成の確認(2026-10-04、保存しない)
+        if (UiKit.Button(new Rect(x + 2f * (tw3 + 8f), y, tw3, 40f), "MASTERY TEST…", 15f, false, false)) { page = 5; confirmSave = 0; confirmReset = false; }
         y += 46f;
 
         GUI.Label(new Rect(x, y, 300f, 26f), "BESTを設定(ガチャの段階の確認)", UiKit.Label(16f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));
@@ -394,6 +398,95 @@ public partial class DebugPanel
         }
         string st = EndgameDebug.Instance != null ? EndgameDebug.Instance.Status : "";
         if (!string.IsNullOrEmpty(st)) GUI.Label(new Rect(x, y, full, 18f), st, UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(1f, 0.85f, 0.5f)));
+    }
+}
+
+// DebugPanel: MASTERY TEST のページ(カード長期育成、2026-10-04)。テストの間は DEBUG RUN(保存を止める)。
+// 終わる(または DEBUG パネルを閉じる)と、始める前の所持カード/Mastery へ戻す。実際のセーブは汚さない。
+public partial class DebugPanel
+{
+    static int masteryCardIndex;
+    static string masteryNote = "";
+
+    void DrawMasteryPage(Rect p)
+    {
+        float x = p.x + 24f, y = p.y + 60f, full = p.width - 48f;
+        bool on = MasteryTestRunning;
+        GUI.Label(new Rect(x, y, full, 36f), "所持Lv(1〜9)とは別の Mastery ★1〜5 / AWAKENED を短時間で確かめます。テストの間は保存しません(DEBUG RUN)。終わると元の所持カードと Mastery へ戻ります",
+            UiKit.Label(12f, TextAnchor.UpperLeft, false, new Color(0.85f, 0.85f, 0.9f)));
+        y += 38f;
+        float hw = (full - 8f) / 2f;
+        if (UiKit.Button(new Rect(x, y, hw, 40f), on ? "テスト中(保存しない)" : "テストを始める", 15f, on, false) && !on) StartMasteryTest();
+        if (UiKit.Button(new Rect(x + hw + 8f, y, hw, 40f), "テストを終える(元に戻す)", 15f, false, false) && on) EndMasteryTest("button");
+        y += 48f;
+        var cards = new System.Collections.Generic.List<CardDefinition>();
+        foreach (var c in CardDatabase.AllCards) if (c != null && !CardVariant.IsVariantKey(c.cardId)) cards.Add(c);
+        if (cards.Count == 0) return;
+        masteryCardIndex = (masteryCardIndex % cards.Count + cards.Count) % cards.Count;
+        var card = cards[masteryCardIndex];
+        if (UiKit.Button(new Rect(x, y, 60f, 36f), "◀", 18f, false, false)) masteryCardIndex--;
+        GUI.Label(new Rect(x + 66f, y, full - 132f, 36f), $"{card.cardName}  ({card.cardId})", UiKit.Label(16f, TextAnchor.MiddleCenter, true, new Color(1f, 0.88f, 0.55f)));
+        if (UiKit.Button(new Rect(x + full - 60f, y, 60f, 36f), "▶", 18f, false, false)) masteryCardIndex++;
+        y += 44f;
+        string id = card.cardId;
+        string k8 = CardDataMigration.LegacyToKey(id, 8), k9 = CardDataMigration.LegacyToKey(id, 9), k5 = CardDataMigration.LegacyToKey(id, 5);
+        float tw = (full - 16f) / 3f;
+        GUI.enabled = on;
+        if (UiKit.Button(new Rect(x, y, tw, 38f), "Lv8×1 + Lv1×3 を付与", 13f, false, false)) { CardInventory.AddCard(k8, 8, 1); CardInventory.AddCard(id, 1, 3); masteryNote = "Lv8 を1枚、Lv1 を3枚 付与"; }
+        if (UiKit.Button(new Rect(x + tw + 8f, y, tw, 38f), "合成 Lv8 + Lv1 → Lv9", 13f, false, false)) masteryNote = MasteryFuse(k8, id);
+        if (UiKit.Button(new Rect(x + 2f * (tw + 8f), y, tw, 38f), "合成 Lv9 + Lv1(+1)", 13f, false, false)) masteryNote = MasteryFuse(k9, id);
+        y += 44f;
+        if (UiKit.Button(new Rect(x, y, tw, 38f), "Lv5×2 → 合成(余り繰越)", 13f, false, false)) { CardInventory.AddCard(k5, 5, 2); masteryNote = MasteryFuse(k5, k5); }
+        if (UiKit.Button(new Rect(x + tw + 8f, y, tw, 38f), "Lv9 + Lv9(+9)", 13f, false, false)) { CardInventory.AddCard(k9, 9, 2); masteryNote = MasteryFuse(k9, k9); }
+        if (UiKit.Button(new Rect(x + 2f * (tw + 8f), y, tw, 38f), "★を0へ", 13f, false, false)) { CardMastery.DebugResetCard(id); masteryNote = "★を0へ戻しました(Lv9 到達の記録は所持から作り直し)"; }
+        y += 44f;
+        float qw = (full - 24f) / 4f;
+        int[] adds = { 1, 3, 5, 15 };
+        for (int i = 0; i < adds.Length; i++)
+            if (UiKit.Button(new Rect(x + i * (qw + 8f), y, qw, 38f), $"Mastery +{adds[i]}", 13f, false, false))
+            {
+                var g = CardMastery.AddProgress(id, adds[i], "debug");
+                masteryNote = $"+{adds[i]}: ★{g.levelBefore} {g.progressBefore} → ★{g.levelAfter} {g.progressAfter}{(g.awakenedNow ? "  AWAKENED!" : "")}{(g.overflowAdded > 0 ? $"  保管+{g.overflowAdded}" : "")}";
+            }
+        y += 44f;
+        if (UiKit.Button(new Rect(x, y, hw, 38f), "Save → Load の一致を確認", 13f, false, false))
+            masteryNote = CardMastery.RoundTripEquals(out string det) ? $"一致({det})" : $"不一致: {det}";
+        GUI.enabled = true;
+        y += 46f;
+        var lab = UiKit.Label(13f, TextAnchor.MiddleLeft, false, new Color(1f, 0.9f, 0.65f));
+        var sb = new System.Text.StringBuilder();
+        foreach (var s in CardInventory.Stacks) if (s.count > 0 && CardMastery.BaseIdOf(s.cardId) == id) sb.Append($"Lv{s.level}×{s.count}  ");
+        GUI.Label(new Rect(x, y, full, 20f), "所持: " + (sb.Length > 0 ? sb.ToString() : "なし"), lab); y += 20f;
+        GUI.Label(new Rect(x, y, full, 20f), $"Lv9 MAX: {(CardMastery.IsMaxReached(id) ? "到達" : "未到達")}   Mastery ★{CardMastery.MasteryLevel(id)}  {CardMastery.MasteryProgress(id)} / {CardMastery.NeedForNext(id)}   {(CardMastery.IsAwakened(id) ? "AWAKENED" : "")}   ★5後の保管 {CardMastery.Overflow(id)}", lab); y += 20f;
+        GUI.Label(new Rect(x, y, full, 20f), $"全体: MAX {CardMastery.MaxCount} / {CardMastery.TotalCards}   AWAKENED {CardMastery.AwakenedCount} / {CardMastery.TotalCards}   必要量 {string.Join("/", MasteryTuning.I.need)}(合計 {MasteryTuning.TotalToAwaken})", lab); y += 20f;
+        if (!string.IsNullOrEmpty(masteryNote)) GUI.Label(new Rect(x, y, full, 20f), masteryNote, UiKit.Label(13f, TextAnchor.MiddleLeft, true, new Color(0.7f, 1f, 0.8f)));
+    }
+
+    static string MasteryFuse(string main, string material)
+    {
+        var r = CardFusionLogic.Execute(main, material, out string err);
+        if (r == null) return "合成できません: " + err;
+        return r.kind == CardFusionLogic.Kind.Mastery || r.masteryGain > 0
+            ? $"{r.kind}: Lv{r.result.level}  Mastery +{r.masteryGain} → ★{r.mastery.levelAfter} {r.mastery.progressAfter}{(r.mastery.awakenedNow ? " AWAKENED!" : "")}"
+            : $"{r.kind}: Lv{r.result?.level}";
+    }
+
+    public static bool MasteryTestRunning { get; private set; }
+    public static void StartMasteryTest()
+    {
+        if (MasteryTestRunning || DebugRun.IsActive) { masteryNote = DebugRun.IsActive ? "他の DEBUG RUN 中は使えません" : masteryNote; return; }
+        DebugRun.Begin("MASTERY TEST");
+        MasteryTestRunning = true;
+        masteryNote = "テスト開始(保存しない)";
+    }
+    public static void EndMasteryTest(string why)
+    {
+        if (!MasteryTestRunning) return;
+        MasteryTestRunning = false;
+        int n = DebugRun.End("mastery test " + why);
+        CardInventory.ReloadFromPrefs();
+        CardMastery.ReloadFromPrefs();
+        masteryNote = $"テスト終了: 元に戻しました(戻したキー {n})";
     }
 }
 

@@ -15,6 +15,14 @@ using UnityEngine;
 public partial class GameManager
 {
     readonly Dictionary<string, int> runAbilityStacks = new Dictionary<string, int>();
+    // カード長期育成(2026-10-04): キャラカードを付けた直後(ランの開始時点)の能力Lv。CardProgression が見る
+    readonly Dictionary<string, int> runStartAbilityStacks = new Dictionary<string, int>();
+    public int RunStartAbilityLevel(string abilityId) => abilityId != null && runStartAbilityStacks.TryGetValue(abilityId, out int n) ? n : 0;
+    void SnapshotRunStartAbilities()
+    {
+        runStartAbilityStacks.Clear();
+        foreach (var kv in runAbilityStacks) runStartAbilityStacks[kv.Key] = kv.Value;
+    }
     // 上限で適用しなかった回数(確認用)
     public int CardCapDiscardedStacks { get; private set; }
 

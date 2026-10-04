@@ -18,7 +18,7 @@ using UnityEngine;
 public static class SaveSystem
 {
     // 保存形式を変えたら上げて、Migrate に1段ぶんの変換を足す
-    public const int CurrentSchemaVersion = 2; // 2: 戦闘数値10倍化(2026-10-02)
+    public const int CurrentSchemaVersion = 3; // 2: 戦闘数値10倍化(2026-10-02) / 3: カード長期育成 Mastery(2026-10-04)
     // 製品版(正式リリース)のビルドでだけ 1 にする。0=開発版。
     public const int BuildReleaseGeneration = 0;
 
@@ -144,9 +144,20 @@ public static class SaveSystem
         {
             case 0: return Migrate0To1();
             case 1: return Migrate1To2();
+            case 2: return Migrate2To3();
             default:
                 return TestStep != null ? TestStep(from) : false;
         }
+    }
+
+    // 2→3: カード長期育成(Mastery / AWAKENED、2026-10-04)。所持カードの Lv は一切変えない。
+    //  ・新しいキー CardMasteryV1 を作る。今所持している Lv9 のカードは「Lv9 到達済み」として記録し、Mastery は全カード ★0 から
+    //  ・過去に Lv9 の後で消費/変換したカードの枚数は保存されていないので、推測で Mastery を付けない
+    static bool Migrate2To3()
+    {
+        int n = CardMastery.MigrateMarkMaxFromInventoryJson();
+        Debug.Log($"[Save] 2->3 mastery: recorded {n} card(s) already at Lv9 MAX (mastery starts at ★0)");
+        return true;
     }
 
     // 0→1: この仕組みの導入。進行の値は変えない。
@@ -202,6 +213,7 @@ public static class SaveSystem
 
         // JSON: 所持カード
         ValidateJson<CardInventory.SaveWrapper>("OwnedCardsV1", w => w != null && w.stacks != null, repairs, lastGood);
+        ValidateJson<CardMastery.SaveWrapper>(CardMastery.SaveKey, w => w != null && w.cards != null, repairs, lastGood);
         SanitizeCards(repairs);
         // JSON: 中断中のラン
         ValidateJson<RunCheckpoint.Data>("ActiveRunCheckpointV1", d => d != null, repairs, lastGood);

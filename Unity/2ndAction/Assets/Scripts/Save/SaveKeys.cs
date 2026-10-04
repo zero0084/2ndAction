@@ -38,6 +38,7 @@ public static class SaveKeys
         // ---- 進行 ----
         new Entry("OwnedCardsV1", SaveCategory.Progress, SaveType.String, "所持カード(JSON: cardId(能力一式のv2|キー)/Lv/枚数)"),
         new Entry("NewUnconfirmedCardsV1", SaveCategory.Progress, SaveType.String, "NEW表示の未確認カード(カンマ区切り)"),
+        new Entry("CardMasteryV1", SaveCategory.Progress, SaveType.String, "カード長期育成(JSON: カードID/★0〜5/進み/★5後の保管/AWAKENED/Lv9到達の記録)。所持Lvとは別(2026-10-04)"),
         new Entry("CardDataFormat", SaveCategory.Progress, SaveType.Int, "カードデータの旧形式→能力一式形式の変換済み印"),
         new Entry("DeckCardIds", SaveCategory.Progress, SaveType.String, "デッキ(カンマ区切り、最大10)"),
         new Entry("CharacterCardSlots", SaveCategory.Progress, SaveType.String, "(旧)全キャラ共通のキャラカード枠。2026-10-02以降は起動時に選択中のキャラの枠へ移して消す"),
