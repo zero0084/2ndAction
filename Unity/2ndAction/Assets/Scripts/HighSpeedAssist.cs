@@ -28,7 +28,7 @@ using UnityEngine;
 // に対して1回だけ行われる(同じキャラに複数端末から自動入力されることはない)。入力は通常のフリックと同じ経路を
 // 通るので、攻撃/被弾/撃破報酬の同期は既存の仕組みのまま。他のプレイヤーの速度・時間・地形には影響しない。
 [DefaultExecutionOrder(-800)]
-public class HighSpeedAssist : MonoBehaviour
+public partial class HighSpeedAssist : MonoBehaviour
 {
     public static HighSpeedAssist Instance { get; private set; }
 
@@ -205,6 +205,7 @@ public class HighSpeedAssist : MonoBehaviour
         LastBreakWhy = ""; LearnedAttackCycle = 0f; lastAutoAttackTime = -99f; waitingReady = false;
         committedBreak = null; lastAttackOc = null;
         decisions.Clear();
+        BossDodgeJumps = BossDoubleJumps = BossStayLow = BossAttacks = BossDownAttacks = 0; BossPlan = "";
         MaxDecideMs = 0f; DecideCount = SlowDecides = BudgetCutoffs = 0; TotalDecideMs = 0.0;
         CurrentStatus = Status.WaitingSpeed;
     }
@@ -285,7 +286,8 @@ public class HighSpeedAssist : MonoBehaviour
             committedBreak = null;
         }
         if (!assistEnabled) { CurrentStatus = Status.Off; return null; }
-        if (!Engaged) { CurrentStatus = Status.WaitingSpeed; return null; }
+        bool bossMode = BossFightNear(pc); // ボス戦(2026-10-04): ボスと戦っている間は速さに関係なく働く
+        if (!Engaged && !bossMode) { CurrentStatus = Status.WaitingSpeed; return null; }
         if (pc.IsReacting) { CurrentStatus = Status.Blocked; BlockedReason = "被弾リアクション中"; return null; }
         if (pc.AssistEscapeCharging) { CurrentStatus = Status.Blocked; BlockedReason = "脱出チャージ中"; return null; }
         if (Time.deltaTime <= 0f) { CurrentStatus = Status.Blocked; BlockedReason = "停止中"; return null; }
@@ -295,7 +297,17 @@ public class HighSpeedAssist : MonoBehaviour
         var sw = System.Diagnostics.Stopwatch.StartNew();
         PlayerController.FlickDirection? result = null;
         stepsUsed = 0;
-        try { result = DecideInner(pc, tm); }
+        try
+        {
+            if (bossMode)
+            {
+                // 回避/攻撃(ボス)を先に。何もしない時は地形の補助(穴/障害物)。天井から何か来る間は跳ばない
+                var b = DecideBoss(pc, Time.deltaTime, out bool stayLow);
+                if (b.HasValue) result = b;
+                else { var r = DecideInner(pc, tm); result = stayLow && r == PlayerController.FlickDirection.Up ? null : r; }
+            }
+            else result = DecideInner(pc, tm);
+        }
         finally
         {
             LastDecideMs = (float)sw.Elapsed.TotalMilliseconds;

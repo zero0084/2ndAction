@@ -124,6 +124,9 @@ public abstract class WildBossBase : MonoBehaviour
     protected float FrontDist => (PlayerX - (worldX + facing * FrontReach)) * facing;
     protected float GroundY => TerrainGround(worldX);
     public Vector3 CenterWorld => transform.position + new Vector3(0f, bodyHeight * 0.5f, 0f);
+    // 自動操作補助(ボス戦、2026-10-04): 今攻撃が通るか(無敵/地中/天井/登場中は通らない)と、被弾範囲
+    public bool AssistTargetable => !dead && !invulnerable && !entering && hurtCol != null && hurtCol.enabled;
+    public Bounds AssistBounds => hurtCol != null ? hurtCol.bounds : new Bounds(CenterWorld, new Vector3(1f, bodyHeight, 1f));
 
     protected abstract IEnumerator AI();
     // Init末尾(スプライト/寸法確定後)に呼ばれる。Hitbox/Marker生成用。

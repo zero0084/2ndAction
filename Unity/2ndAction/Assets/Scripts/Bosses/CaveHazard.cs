@@ -53,6 +53,12 @@ public class CaveHazard : MonoBehaviour
     static int serialNext;
     public int Serial { get; private set; }
     public float Width => width;
+    // 自動操作補助(ボス戦)が読む値
+    public float TopY => yHigh;
+    public float Drift => kind == CaveHazardKind.FallRock ? (landed ? followOffset : 0f) : drift;
+    public bool Landed => landed;
+    public float WarnLeft => warn - timer;
+    public float ActiveLeft => Mathf.Max(0f, warn + active - Mathf.Max(timer, warn));
     public string Source => src;
     // 「天井から」(地面にいれば当たらない)か
     public bool CeilingType => kind == CaveHazardKind.Ceiling || (kind == CaveHazardKind.Band && yLow >= 1.9f);
