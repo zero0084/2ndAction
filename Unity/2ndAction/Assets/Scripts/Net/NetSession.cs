@@ -20,9 +20,9 @@ using UnityEngine;
 // 一度もマルチプレイを使わなければNetcodeは一切動かない。
 public class NetSession : MonoBehaviour
 {
-    // 2026-10-02: 正式なマルチは最大8人の予定(PlannedMaxPlayers)。今は2人で開発/確認するので既定は2。
-    // スロット割り当て/承認/Ready/結果/復活は人数非依存。開発版だけ起動引数 -netMaxPlayers N(2〜8)で4人/8人の試験ができる。
-    public const int DefaultMaxPlayers = 2;
+    // 2026-10-02: 正式なマルチは最大8人の予定(PlannedMaxPlayers)。
+    // 2026-10-05(LAN の自動発見): 部屋は最大8人(WAITING FOR PLAYERS 1/8)。開発版だけ起動引数 -netMaxPlayers N(2〜8)で人数を絞れる。
+    public const int DefaultMaxPlayers = PlannedMaxPlayers;
     public const int PlannedMaxPlayers = 8;
     static int maxPlayersOverride = -1;
     public static int MaxPlayers
@@ -42,7 +42,7 @@ public class NetSession : MonoBehaviour
     }
     public const ushort DefaultPort = 7777;
     // 通信仕様のバージョン。互換性の無い変更をしたら上げること(承認時に一致を確認する)。
-    public const string ProtocolVersion = "OMM-NET-1";
+    public static readonly string ProtocolVersion = "OMM-NET-" + LanDiscovery.AdvertisedProtocol; // LAN の部屋の知らせと同じ版(2026-10-05。開発ビルドの -lanProtocol で版違いを試せる)
     const string PlayerPrefabResourcePath = "Net/NetPlayer";
 
     public static NetSession Instance { get; private set; }
@@ -55,6 +55,11 @@ public class NetSession : MonoBehaviour
     public static int ConnectedPlayerCount => IsActive ? NetPlayer.All.Count : 0;
 
     public string StatusText { get; private set; } = "";
+    // LAN の部屋へ JOIN した時の結果(2026-10-05): 接続できなかった/断られた理由(VERSION MISMATCH / ROOM FULL / RUN IN PROGRESS / 接続できない)
+    public static string LastJoinFailure { get; private set; } = "";
+    public static bool JoinPending { get; private set; }
+    public static ConnectionType Connection { get; private set; } = ConnectionType.Local;
+    public static void ClearJoinFailure() => LastJoinFailure = "";
     public string LastHostAddress { get; private set; } = "";
     public ushort LastPort { get; private set; } = DefaultPort;
 
@@ -75,6 +80,7 @@ public class NetSession : MonoBehaviour
         go.AddComponent<NetSession>();
         go.AddComponent<NetDebugUI>();
         go.AddComponent<NetRunLauncher>();
+        go.AddComponent<LanDiscovery>(); // LAN の部屋の自動発見(2026-10-05、ゲームの同期とは別)
         if (NetAutoTest.ShouldRun) go.AddComponent<NetAutoTest>();
     }
 
@@ -115,8 +121,8 @@ public class NetSession : MonoBehaviour
         };
         nm.ConnectionApprovalCallback = ApproveConnection;
         nm.OnServerStarted += () => { Log($"Host started (port {LastPort}, max players {MaxPlayers})"); StatusText = "HOST: 参加待ち"; };
-        nm.OnServerStopped += _ => Log("Host stopped");
-        nm.OnClientStopped += _ => Log("Client stopped");
+        nm.OnServerStopped += _ => { Log("Host stopped"); LanDiscovery.StopAdvertising("host stopped"); };
+        nm.OnClientStopped += _ => { Log("Client stopped"); if (JoinPending) { JoinPending = false; if (string.IsNullOrEmpty(LastJoinFailure)) LastJoinFailure = "CONNECTION FAILED"; Debug.Log($"[LAN] Join failed {LastHostAddress}:{LastPort} ({LastJoinFailure})"); } };
         nm.OnClientConnectedCallback += OnClientConnected;
         nm.OnClientDisconnectCallback += OnClientDisconnected;
         nm.OnTransportFailure += OnTransportFailure;
@@ -175,11 +181,14 @@ public class NetSession : MonoBehaviour
         Application.runInBackground = true;
         Log($"Client connecting to {hostAddress}:{port}");
         StatusText = $"接続中… {hostAddress}:{port}";
+        LastJoinFailure = ""; JoinPending = true;
         bool ok = nm.StartClient();
         if (!ok)
         {
             Log("Client start failed");
             StatusText = "JOINを開始できませんでした";
+            JoinPending = false; LastJoinFailure = "CONNECTION FAILED";
+            Debug.Log($"[LAN] Join failed {hostAddress}:{port} (client start failed)");
         }
         return ok;
     }
@@ -189,6 +198,8 @@ public class NetSession : MonoBehaviour
     {
         if (Manager == null || !(Manager.IsServer || Manager.IsClient)) return;
         Log(Manager.IsHost ? "Host stopping (local leave)" : "Client leaving");
+        LanDiscovery.StopAdvertising("leave");
+        JoinPending = false;
         Manager.Shutdown();
         StatusText = "";
     }
@@ -238,6 +249,9 @@ public class NetSession : MonoBehaviour
         {
             Log($"Client connected (local clientId={clientId})");
             StatusText = $"JOIN: 接続完了 {LastHostAddress}";
+            if (JoinPending) Debug.Log($"[LAN] Join succeeded {LastHostAddress}:{LastPort}");
+            JoinPending = false; LastJoinFailure = "";
+            LanDiscovery.StopDiscovery("joined");
         }
     }
 
@@ -263,6 +277,14 @@ public class NetSession : MonoBehaviour
             Log($"Connection lost (clientId={clientId}{(string.IsNullOrEmpty(reason) ? "" : ", reason=" + reason)})");
             StatusText = "";
             string msg = string.IsNullOrEmpty(reason) ? "HOSTとの接続が切れました" : "接続が拒否されました: " + reason;
+            if (JoinPending)
+            {
+                // LAN の部屋の一覧から JOIN して接続できなかった → 一覧の画面で「CONNECTION FAILED」(全画面の切断表示は出さない)
+                JoinPending = false;
+                LastJoinFailure = reason == "VERSION MISMATCH" || reason == "ROOM FULL" || reason == "RUN IN PROGRESS" ? reason : "CONNECTION FAILED"; // 通信の生の理由(接続の試行切れ等)は表示しない
+                Debug.Log($"[LAN] Join failed {LastHostAddress}:{LastPort} ({LastJoinFailure})");
+                return;
+            }
             RaiseConnectionLost("MULTIPLAYER CONNECTION LOST\n" + (wasConnected ? msg : "HOSTへ接続できませんでした"));
         }
     }

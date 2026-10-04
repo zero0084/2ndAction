@@ -322,7 +322,25 @@ public partial class NetAutoTest : MonoBehaviour
         {
             case Step.Connect:
                 if (stepTime < 2f) return;
-                if (role == "HOST") NetSession.Instance.StartHost(NetSession.DefaultPort);
+                if (role == "HOST")
+                {
+                    if (modeArg != "") NetRunLauncher.SelectedMode = modeArg == "versus" ? MultiplayerGameMode.Versus : MultiplayerGameMode.Coop;
+                    if (NetSession.Instance.StartHost(NetSession.DefaultPort)) LanDiscovery.StartAdvertising(); // LAN の部屋の自動発見(2026-10-05)
+                }
+                else if (joinIp == "lan")
+                {
+                    // LAN の自動発見: IP を使わず、見つかった部屋の一覧から JOIN(UI の JOIN と同じ経路)
+                    if (!LanDiscovery.Discovering) { LanDiscovery.StartDiscovery(); L("LAN discovery started"); }
+                    var room = LanDiscovery.Rooms.Find(r => r.Joinable);
+                    if (room == null)
+                    {
+                        if (stepTime > 25f) Finish("TIMEOUT LAN discovery (no joinable room)");
+                        return;
+                    }
+                    L($"LAN room found after {Time.unscaledTime - LanDiscovery.DiscoveryStartedAt:F2}s: {room.roomName} {room.mode} {room.players}/{room.maxPlayers} {room.address}:{room.port}");
+                    Debug.Log($"[LAN] Join requested {room.roomId} '{room.roomName}' {room.address}:{room.port}");
+                    NetSession.Instance.StartClient(room.address, room.port);
+                }
                 else NetSession.Instance.StartClient(joinIp, NetSession.DefaultPort);
                 Next(Step.WaitPlayers);
                 break;

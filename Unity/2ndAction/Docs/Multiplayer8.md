@@ -280,3 +280,7 @@ JOIN のプレイヤーでは、次のカードの効果が働かない。
   - FLAME / THUNDER: 属性は HOST だけで判定(既存の課題と同じ)。JOIN の命中には乗らない。
   - EXP / MILE: 本人の端末の取得計算なので、そのまま使える見込み。
 - CONTINUE はマルチでは使わないので不要。
+
+## LAN の自動発見(2026-10-05)で既定の最大人数を 8 に
+- `NetSession.DefaultMaxPlayers = PlannedMaxPlayers`(8)。部屋の知らせ/待機室は「n/8」。開発ビルドは `-netMaxPlayers N` で絞れる。
+- 上の「2人の距離が数 km 離れると同期数が増える」課題は残っている(8 人の実機負荷は未確認)。詳細は Docs/LanDiscovery_2026-10-05.md。

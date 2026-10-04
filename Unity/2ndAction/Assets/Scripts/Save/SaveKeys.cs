@@ -72,6 +72,7 @@ public static class SaveKeys
         new Entry("net.lastHostIp", SaveCategory.Settings, SaveType.String, "マルチ: 最後に接続したHOSTのIP"),
         new Entry("net.lastPort", SaveCategory.Settings, SaveType.Int, "マルチ: 最後のポート"),
         new Entry("net.mode", SaveCategory.Settings, SaveType.Int, "マルチ: CO-OP/VERSUS"),
+        new Entry("net.roomName", SaveCategory.Settings, SaveType.String, "マルチ: LAN の部屋の名前(空なら「端末名's Room」、2026-10-05)"),
 
         // ---- 開発版のみ ----
         new Entry("InvincibleMode", SaveCategory.Dev, SaveType.Int, "無敵(開発版のみ)"),
