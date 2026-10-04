@@ -61,6 +61,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaCardFix") { mode = "cardfix"; dir = a[i + 1]; }
             if (a[i] == "-qaHitAudit") { mode = "hitaudit"; dir = a[i + 1]; }
             if (a[i] == "-qaCardV3") { mode = "cardv3"; dir = a[i + 1]; }
+            if (a[i] == "-qaUltimate") { mode = "ultimate"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -135,6 +136,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "cardfix") yield return CardFixMode();
         else if (mode == "hitaudit") yield return HitAuditMode();
         else if (mode == "cardv3") yield return CardV3Mode();
+        else if (mode == "ultimate") yield return UltimateMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

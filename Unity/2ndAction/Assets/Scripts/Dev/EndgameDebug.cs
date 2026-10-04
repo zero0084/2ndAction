@@ -13,7 +13,7 @@ using UnityEngine.SceneManagement;
 // ワープしたランは Debug Run(DebugRun.IsActive)= 正式記録の対象外。BEST/MILE/カード/解放/累計距離/三姉妹の遭遇/ラスダン解放/
 // 中断中のラン(CONTINUE)を保存しない(保存の入口で止める + 開始時の控えへ戻す。詳しくは DebugRun)。
 // Debug Run はホームへ戻る(シーンの読み直し)か、アプリの終了で終わる。
-public class EndgameDebug : MonoBehaviour
+public partial class EndgameDebug : MonoBehaviour
 {
     public enum Point { LastDungeon0, LastDungeon90, LastDungeon99, ReaperSisters, EndingCredits, OneMoreMile, EndingFlow }
     public enum Profile { Normal, Sturdy, SturdyStrong }
@@ -60,7 +60,7 @@ public class EndgameDebug : MonoBehaviour
     IEnumerator RunLaunchLong(string stage, float d, LongBuild build, Profile prof)
     {
         Launching = true;
-        IsLongCheck = true;
+        IsLongCheck = true; IsUltimateTest = false;
         currentLabel = $"{LongDistanceLabel(d)} {stage} / {LongBuildLabel(build)}";
         Status = $"{currentLabel} を準備中…";
         float w = 0f;
@@ -161,13 +161,19 @@ public class EndgameDebug : MonoBehaviour
             {
                 Debug.LogWarning($"[EndgameDebug] {n} progress keys had changed during the Debug Run and were restored: {DebugRun.LastRestoreNote}");
                 // 読み込み済みの値(GameManager等)も戻すため、もう一度だけ読み直す(次の起動予約があればそちらで読み直される)
-                if (!pending.HasValue && !pendingLong.HasValue) { SceneManager.LoadScene(s.buildIndex); return; }
+                if (!pending.HasValue && !pendingLong.HasValue && !pendingUlt.HasValue) { SceneManager.LoadScene(s.buildIndex); return; }
             }
         }
         // 状態を戻すのは DEBUG RUN の前後だけ(普通のシーンの読み直しでは何も変えない: 他の開発用の設定/自動テストの速度などを残す)
-        if (endedDebugRun || pending.HasValue || pendingLong.HasValue) SafeReset(endedDebugRun ? "debug run ended" : "scene loaded for a launch");
+        if (endedDebugRun || pending.HasValue || pendingLong.HasValue || pendingUlt.HasValue) SafeReset(endedDebugRun ? "debug run ended" : "scene loaded for a launch");
         Instance.keepAlive = false;
-        if (pendingLong.HasValue)
+        if (pendingUlt.HasValue)
+        {
+            var up = pendingUlt.Value;
+            pendingUlt = null;
+            Instance.StartCoroutine(Instance.RunLaunchUltimate(up.ch, up.lv, up.stage, up.boss));
+        }
+        else if (pendingLong.HasValue)
         {
             var lp = pendingLong.Value; var lprof = pendingProfile;
             pendingLong = null;
@@ -191,6 +197,8 @@ public class EndgameDebug : MonoBehaviour
         PlayerController.DebugRunOnlyScale = 1f;
         PlayerController.ScriptedSpeedCapMps = float.PositiveInfinity;
         CameraFollow.ScriptedOffsetX = 0f;
+        if (UltimateArt.Instance != null) UltimateArt.Instance.ForceEnd("debug reset");
+        CameraFollow.UltimateZoom = 1f; CameraFollow.UltimateLookAhead = 0f;
         BgmDirector.ClearOverride();
         GameManager.EscapeBlocked = false;
         GameManager.BlockExpGain = false;
@@ -218,7 +226,7 @@ public class EndgameDebug : MonoBehaviour
         DebugRun.Begin(Label(p) + " / " + ProfileLabel(prof));
         CurrentPoint = p; CurrentProfile = prof;
         currentLabel = Label(p);
-        IsLongCheck = false;
+        IsLongCheck = false; IsUltimateTest = false;
         LaunchedRealtime = Time.realtimeSinceStartup;
         gm.DebugStartRunOnStage(LastCorridorDirector.StageId);
         w = 0f;
@@ -350,7 +358,7 @@ public class EndgameDebug : MonoBehaviour
         GUI.color = keep;
         tag.normal.textColor = new Color(1f, 0.85f, 0.4f);
         GUI.Label(new Rect(r.x + 8f * s, r.y, r.width, r.height), text, tag);
-        if (GUI.Button(new Rect(r.xMax, r.y + 2f * s, bw, h - 4f * s), "≡ DEBUG")) { if (IsLongCheck) DebugPanel.OpenLongStatic(); else DebugPanel.OpenEndgameStatic(); }
+        if (GUI.Button(new Rect(r.xMax, r.y + 2f * s, bw, h - 4f * s), "≡ DEBUG")) { if (IsUltimateTest) DebugPanel.OpenUltimateStatic(); else if (IsLongCheck) DebugPanel.OpenLongStatic(); else DebugPanel.OpenEndgameStatic(); }
     }
 }
 

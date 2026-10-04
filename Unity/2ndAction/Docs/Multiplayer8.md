@@ -244,3 +244,24 @@ JOIN のプレイヤーでは、次のカードの効果が働かない。
   - HOST が、そのプレイヤーの分として属性/追加攻撃を判定する。
 - JOIN の被弾を HOST が確定する時に、そのプレイヤーの PHOENIX / SECOND WIND / LAST CHANCE の状態を見て処理する。
 - カードバランス v3 の調整と、ネットワーク同期の大きな変更は同時に行わない方針のため、今回は未対応。
+
+## #100 ULTIMATE をマルチで使えるようにする(2026-10-04、ULTIMATE の実装で未対応として記録)
+
+**今の状態**
+マルチ(`NetMatch.Active`)では ULTIMATE を使えない。
+- レベルアップの候補に出ない(`UltimateArt.Offerable`)。
+- キャラカード枠などで持っていても、ボタンは「MULTI×」で発動しない(`UltimateArt.CanActivate` が「マルチ未対応」)。Gauge も溜まらない。
+
+**使えるようにする時に必要なこと(原因)**
+- 前進(100〜200m)は「着地点の足場を平らにする」(`TerrainManager.SetResumeFlatZone`)を使う。
+  - マルチの地形は全端末で同じ順に生成する(`UpdateDeterministic`)。1人だけ足場を変えると地形が食い違う。
+- 敵 / ボスの HP は HOST だけが決める。
+  - JOIN の ULTIMATE のダメージは HOST へ申告して HOST が当てる必要がある(属性/追加攻撃の TODO と同じ経路)。
+- 出現 / 関門 / ボスの間合いは、先頭のプレイヤー(`WorldRange` / `BossLeash`)が基準。
+  - 1人が 200m 先へ出ると、他の人が取り残され、関門や雑魚の出方も変わる。
+- 着地後の安全区間(`GameManager.UltimateSetSafeUntil`)は端末ごと。
+
+**直す方向(案)**
+- 発動は HOST が決める: JOIN は要求だけ送る。HOST が開始の時刻を全員へ配る(RunState と同じ時計)。
+- 前進は「全員で一緒に進む」か「前進なし(または WorldRange の前端まで)」にする。地形の安全区間は、決まったチャンクの番号で全端末が同じように予約する。
+- ダメージは HOST の権威で当てる(`NetCombat.AuthorityDamaged`)。

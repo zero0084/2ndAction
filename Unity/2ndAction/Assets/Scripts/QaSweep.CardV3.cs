@@ -145,10 +145,14 @@ public partial class QaSweep
     {
         L("== T: 99枚 × Lv1/5/9(黒剣士、カードの処理そのまま) ==");
         yield return V3Begin("swordsman");
-        var cards = CardDatabase.AllCards.OrderBy(c => c.sortOrder).ToList();
+        // #100 ULTIMATE(2026-10-04、別ID character_ultimate)は数値カードではないのでこの表から外す(UltimateArt / QaSweep.Ultimate で確かめる)
+        var cards = CardDatabase.AllCards.Where(c => c.cardId != UltimateArt.CardId).OrderBy(c => c.sortOrder).ToList();
         Check(cards.Count == 99, $"normal cards = 99 ({cards.Count})");
+        Check(CardDatabase.AllCards.Count == 100, $"all cards = 100 incl. #100 ULTIMATE ({CardDatabase.AllCards.Count})");
         Check(CardDatabase.FindBaseById("ultimate") != null && CardDatabase.FindBaseById("ultimate").cardName == "ALMIGHTY", "old #79 ULTIMATE is shown as ALMIGHTY (cardId kept)");
-        Check(cards.All(c => c.cardName != "ULTIMATE"), "no card is named ULTIMATE (reserved for #100)");
+        Check(cards.All(c => c.cardName != "ULTIMATE"), "no other card is named ULTIMATE (the name belongs to #100)");
+        var c100 = CardDatabase.FindBaseById(UltimateArt.CardId);
+        Check(c100 != null && c100.cardName == "ULTIMATE" && c100.category == CardCategory.Special, "#100 ULTIMATE uses the new cardId character_ultimate, SPECIAL");
         V3Reset();
         var baseSnap = V3Snap();
         var sb = new StringBuilder("no\tid\tname\tLv1\tLv5\tLv9\n");
@@ -222,7 +226,7 @@ public partial class QaSweep
             yield return V3Begin(def.characterId);
             V3Reset();
             var b = V3Snap();
-            foreach (var c in CardDatabase.AllCards.OrderBy(x => x.sortOrder))
+            foreach (var c in CardDatabase.AllCards.Where(x => x.cardId != UltimateArt.CardId).OrderBy(x => x.sortOrder))
             {
                 V3Reset();
                 V3Apply(c.cardId, 1);

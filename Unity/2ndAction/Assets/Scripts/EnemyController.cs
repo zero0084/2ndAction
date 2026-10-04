@@ -1180,6 +1180,7 @@ public class EnemyController : MonoBehaviour
         return true;
     }
     public bool IsDyingOrReplica => dying || NetReplica;
+    public int CurrentHpForUltimate { get { EnsureHp(); return hp; } } // #100 ULTIMATE(撃破の数え)
 
     // JOIN: 自分の攻撃がパペットに当たった。
     void NetReplicaHit(Collider2D other)

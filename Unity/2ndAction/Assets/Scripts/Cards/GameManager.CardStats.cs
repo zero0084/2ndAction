@@ -30,6 +30,7 @@ public partial class GameManager
     {
         cardOrder.Clear(); cardLevels.Clear(); sacrificePaid.Clear(); Card.Clear();
         runAbilityStacks.Clear(); // Lv9上限の数え(このランの能力ごとの回数)も新しいランとして
+        if (UltimateArt.Instance != null) UltimateArt.Instance.ResetRun(); // #100 ULTIMATE: Gauge / BUFF / 発動中の状態
         SealedHearts = 0;
         baseMaxLivesForRun = def != null ? def.baseMaxLives : maxLives;
         maxLivesCap = CardRules.MaxHeartsCap * CombatScale.HpPerHeart;

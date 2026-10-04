@@ -75,6 +75,8 @@ public static class RunCheckpoint
         public int phoenixResetHistoryIndex = -1;
         public float secondWindReadyDistance;
         public bool lastChanceSpent;
+        // #100 ULTIMATE(2026-10-04): Gauge(%)。古いデータは0
+        public float ultimateGauge;
     }
 
     static Data cached;

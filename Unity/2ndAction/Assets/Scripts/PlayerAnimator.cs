@@ -554,6 +554,7 @@ public class PlayerAnimator : MonoBehaviour
     // 竜騎士の攻撃中は技ごとの専用ポーズ(無ければ通常の攻撃絵)。
     Sprite[] ResolveAttackFrames(int attackStage)
     {
+        if (controller != null && controller.UltimatePoseFrames != null) return controller.UltimatePoseFrames;
         if (controller != null && controller.KitPoseFrames != null) return controller.KitPoseFrames;
         if (controller != null && controller.IsLancer)
         {
@@ -664,6 +665,8 @@ public class PlayerAnimator : MonoBehaviour
         else if (controller != null && controller.IsFinishing) newState = State.Finish;
         // マルチ(2026-09-28): カード選択中の一時停止も、走りの絵ではなく開始準備の構えで立ち止まって見せる。
         else if (controller != null && (controller.IsPreparingStart || controller.NetIsChoosing)) newState = State.StartPrep;
+        // #100 ULTIMATE(2026-10-04): 必殺技の構え/締めのポーズ(キャラの攻撃の絵)。発動中は被弾しない
+        else if (controller != null && controller.UltimatePoseFrames != null) newState = State.Attack;
         else if (controller != null && controller.IsHurt) newState = State.Hurt;
         else if (controller != null && controller.IsRecovering) newState = State.Recovery;
         // 新4人(2026-09-27) - 技ごとのポーズ(弓を引く/魔法を唱える/4段コンボ/瞬身など)。既存5人は常にnull。

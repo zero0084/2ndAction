@@ -1054,6 +1054,12 @@ public static class CardDatabaseBuilder
         yield return new Spec { id = "tornado", name = "TORNADO", sortOrder = so++, category = CardCategory.Attack, description = "風刃が当たった所に小さな竜巻が起きる",
             glyph = IconGlyph.Ring, glyphColor = new Color(0.5f, 0.95f, 0.75f), effects = new[] { (EffectType.TornadoLevel, 1f) },
             rarity = 4, unlockDistance = 20000f, gachaStage = 3, element = ElementType.Wind };
+
+        // --- #100 ULTIMATE(2026-10-04): キャラ固有の必殺技。#79(cardId "ultimate" = 表示名 ALMIGHTY)とは別の新しい cardId。
+        //     アイコンは仮(手続き生成の星)。効果の値/説明は Editor/CardBalanceV3.cs が入れる --- //
+        yield return new Spec { id = "character_ultimate", name = "ULTIMATE", sortOrder = so++, category = CardCategory.Special, description = "キャラ固有の必殺技",
+            glyph = IconGlyph.WingSword, glyphColor = new Color(1f, 0.82f, 0.25f), effects = new[] { (EffectType.UltimateLevel, 1f) },
+            rarity = 5, unlockDistance = 20000f, gachaStage = 3 };
     }
 
     // アイコン素材追加(2026-09-11) - existingIconPathで指定された実アート

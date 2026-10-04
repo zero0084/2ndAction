@@ -275,7 +275,9 @@ public abstract class WildBossBase : MonoBehaviour
         float px = PlayerX;
         float gap = worldX - px;
         if (freeGap) lastFreeGapTime = Time.time;
-        if (!entering && !freeGap)
+        // #100 ULTIMATE: ボス戦でプレイヤーがボスを通り抜けて戻る間は、間合いの即時補正をしない(終わった後は素早く戻す)
+        if (UltimateArt.ArenaFreeGap) lastFreeGapTime = Time.time;
+        if (!entering && !freeGap && !UltimateArt.ArenaFreeGap)
         {
             float lo = leashOn && leash.AllowBehindTarget ? float.MinValue : minGap;
             float excess = gap > maxGap ? gap - maxGap : gap < lo ? lo - gap : 0f;
@@ -861,8 +863,10 @@ public abstract class WildBossBase : MonoBehaviour
         float dmgScale = (Broken ? BossBattleTuning.I.breakDamageScale : 1f) * vulnerableScale;
         if (dmgScale > 1.001f) amount = Mathf.CeilToInt(amount * dmgScale);
         float stg = pendingStagger; pendingStagger = 0f;
+        int hpBeforeHit = Hp;
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
+        if (netAttacker <= 0) UltimateArt.OnBossDamaged(hpBeforeHit - Hp, maxHp); // #100 ULTIMATE の Gauge(発動中は溜まらない)
 
         // マルチプレイPhase 2 - 相手プレイヤーの攻撃では、この端末のプレイヤーの空中補助/コンボは進めない。
         if (netAttacker <= 0 && !quietHit)

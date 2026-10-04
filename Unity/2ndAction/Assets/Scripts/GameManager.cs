@@ -2125,7 +2125,7 @@ public partial class GameManager : MonoBehaviour
         if (IsNetChoiceBlocked(out _)) return false; // マルチ: Run終了/脱落/DOWN中は開かない(UpdateDeferredLevelUpが扱う)
 
         bool bossPhaseActive = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
-        if (IsBossPresentationActive() || levelUpPending || bossPhaseActive || ChoiceUiBusy)
+        if (IsBossPresentationActive() || levelUpPending || bossPhaseActive || ChoiceUiBusy || UltimateArt.DefersChoices)
         {
             if (bossPhaseActive) LogBoss($"LevelUpDeferred(BossPhase, pending={pendingLevelUpCount})");
             Debug.Log($"[PresentationPriority] Level Up deferred (pending={pendingLevelUpCount}, bossPhaseActive={bossPhaseActive}) - Boss Presentation/Boss Reward/Boss Phase active");
@@ -2195,7 +2195,7 @@ public partial class GameManager : MonoBehaviour
         }
 
         bool bossPhaseActive = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
-        if (IsBossPresentationActive() || levelUpPending || bossPhaseActive || ChoiceUiBusy)
+        if (IsBossPresentationActive() || levelUpPending || bossPhaseActive || ChoiceUiBusy || UltimateArt.DefersChoices)
         {
             levelUpDeferredTimer = -1f; // reset the buffer - only starts counting once every one of these actually clears
             return;
@@ -2271,7 +2271,7 @@ public partial class GameManager : MonoBehaviour
     public void TriggerBossRewardChoice()
     {
         LogBossRewardStage("BossRewardStart (TriggerBossRewardChoice entry)");
-        if (IsBossPresentationActive() || levelUpPending || ChoiceUiBusy)
+        if (IsBossPresentationActive() || levelUpPending || ChoiceUiBusy || UltimateArt.DefersChoices)
         {
             bossRewardDeferredPending = true;
             LogBossRewardStage("BossRewardStart -> deferred (Presentation/LevelUp active)");
@@ -2346,7 +2346,7 @@ public partial class GameManager : MonoBehaviour
             return;
         }
 
-        if (IsBossPresentationActive() || levelUpPending || ChoiceUiBusy)
+        if (IsBossPresentationActive() || levelUpPending || ChoiceUiBusy || UltimateArt.DefersChoices)
         {
             bossRewardDeferredTimer = -1f;
             bossRewardStuckTimer += Time.unscaledDeltaTime;
@@ -3213,6 +3213,7 @@ public partial class GameManager : MonoBehaviour
     {
         EnemyKillCount++;
         GainExp(enemyKillExp * KillExpScale * Mathf.Max(0f, expMul)); // v3: 精鋭は EXP×2
+        UltimateArt.OnEnemyKilled(expMul > 1.5f); // #100 ULTIMATE の Gauge(発動中は溜まらない)
         TryLifesteal();
         // Card Expansion/Gacha Evolution Ver.1 - Tough/Fast/Elite Enemies,
         // Treasure Hunter, Mob Killer, Executioner, Hell Mode, etc.
@@ -3254,6 +3255,7 @@ public partial class GameManager : MonoBehaviour
     {
         BossKillCount++;
         GainExp(bossKillExp * KillExpScale);
+        UltimateArt.OnBossKilled(); // #100 ULTIMATE の Gauge
         TryLifesteal();
         // Card Expansion/Gacha Evolution Ver.1 - Boss Challenge/Rush, One
         // More Mile, Pandemonium, etc.
@@ -3458,6 +3460,7 @@ public partial class GameManager : MonoBehaviour
         data.upgradeHistoryCardIds = new List<string>();
         foreach (CardDefinition card in upgradeHistory) data.upgradeHistoryCardIds.Add(card.cardId);
         ExportCardRunState(data); // カードバランス v3
+        if (UltimateArt.Instance != null) data.ultimateGauge = UltimateArt.Instance.ExportGauge(); // #100 ULTIMATE
     }
 
     // Item 9 - "RETURN TO HOME" - NOT a FINISH: Run MILE stays unconfirmed,
@@ -3566,6 +3569,7 @@ public partial class GameManager : MonoBehaviour
         // leaves Lives at the reconstructed maxLives (each MaxHp card's own
         // "heals to new cap" side effect).
         RestoreCardRunState(data); // カードバランス v3: PHOENIX の消費 / SECOND WIND のクールダウン / LAST CHANCE
+        if (UltimateArt.Instance != null) UltimateArt.Instance.ImportGauge(data.ultimateGauge); // #100 ULTIMATE の Gauge
         // v3: 最大HPは取得のやり直しで決まる(成長 − 封印)。保存した最大HPは、カードが1枚も無い古い保存の互換のためにだけ使う
         if (data.maxLives > 0 && cardOrder.Count == 0) maxLives = data.maxLives;
         Lives = Mathf.Clamp(data.lives, 1, maxLives);
@@ -4615,7 +4619,7 @@ public partial class GameManager : MonoBehaviour
         return v != null ? Mathf.Clamp(v.level, 1, MaxRunCardLevel) : 1;
     }
     // 2026-10-03: 主能力のLvがまだ9未満なら候補に出せる(合成カードは能力ごとに空きの分だけ効く。GameManager.CardCap.cs)
-    public bool CanStillPick(CardDefinition c) => c != null && GetCurrentRunStack(c.cardId) < MaxRunCardLevel && SacrificeAllowsNextLevel(c.cardId);
+    public bool CanStillPick(CardDefinition c) => c != null && GetCurrentRunStack(c.cardId) < MaxRunCardLevel && SacrificeAllowsNextLevel(c.cardId) && UltimateArt.Offerable(c);
     public int MaxedCardSkips { get; private set; } // Lv9のカードが選ばれて効果を重ねなかった回数(確認用)
 
     // カードのラン中Lv = そのカードの主能力を、このランで(キャラカード枠/取得/合成のどの表記からでも)何回分適用したか。

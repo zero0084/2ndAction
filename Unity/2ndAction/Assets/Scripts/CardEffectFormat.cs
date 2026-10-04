@@ -54,7 +54,7 @@ public static class CardEffectFormat
             case EffectType.ChainExplosionLevel: case EffectType.AerialBladeLevel: case EffectType.SkyMasterLevel: case EffectType.GroundBreakerLevel:
             case EffectType.ComboMasterLevel: case EffectType.HunterLevel: case EffectType.BrakeLevel: case EffectType.HeavyArmorLevel:
             case EffectType.BossRushLevel: case EffectType.WantedLevel: case EffectType.InfernoLevel: case EffectType.AbsoluteZeroLevel:
-            case EffectType.TornadoLevel: case EffectType.BloodBladeLevel: case EffectType.ShieldGuard:
+            case EffectType.TornadoLevel: case EffectType.BloodBladeLevel: case EffectType.ShieldGuard: case EffectType.UltimateLevel:
                 return true;
         }
         return false;

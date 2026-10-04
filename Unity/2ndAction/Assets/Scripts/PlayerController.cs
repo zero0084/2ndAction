@@ -452,7 +452,7 @@ public partial class PlayerController : MonoBehaviour
     // is floored so it can never reach zero/negative duration.
     // カードバランス v3(2026-10-03): キャラ×カード(固定の分)は attackSpeedStored、HP/OVERDRIVE で変わる分は読む時に掛ける
     float attackSpeedStored = 1f;
-    public float AttackSpeedMultiplier { get => attackSpeedStored * CardDynamicDurationFactor; private set => attackSpeedStored = value; }
+    public float AttackSpeedMultiplier { get => attackSpeedStored * CardDynamicDurationFactor * UltimateArt.BuffDurationFactor; private set => attackSpeedStored = value; } // #100 ULTIMATE の BUFF
     public float AttackSpeedStored => attackSpeedStored;
     public void AddAttackSpeedBonus(float fractionFaster) => attackSpeedStored = Mathf.Max(0.25f, attackSpeedStored * (1f - fractionFaster));
 
@@ -616,7 +616,7 @@ public partial class PlayerController : MonoBehaviour
             }
 
             power += Mathf.RoundToInt(MomentumBonus * MomentumSpeedTerm);
-            power = Mathf.RoundToInt(power * CardAttackFactor * CardRules.CondMultiplier(CardStateCondition()));
+            power = Mathf.RoundToInt(power * CardAttackFactor * UltimateArt.BuffAttackMul * CardRules.CondMultiplier(CardStateCondition())); // #100 ULTIMATE の BUFF
             // 竜騎士(2026-09-26) - 後ろ攻撃(石突き)だけ威力を下げる。他キャラは常に1倍。
             if (isLancerCharacter && lanceDamageScale != 1f) power = Mathf.Max(1, Mathf.RoundToInt(power * lanceDamageScale));
             // 2026-10-02: 0以下にしない(空中攻撃-のカード等で負になると、ボスは1以上の下限が無いため逆に回復していた)
@@ -1071,6 +1071,15 @@ public partial class PlayerController : MonoBehaviour
         // for why the ordering matters.
         wasEscapeChargingLastFrame = IsEscapeCharging;
 
+        // #100 ULTIMATE(2026-10-04): 必殺技の間は入力/通常の移動の代わりに、地面に沿って高速で走る(距離の報告は下の共通処理)
+        bool ultimateDriving = UltimateArt.Driving;
+        if (ultimateDriving)
+        {
+            requestedFlick = null; touchActive = false; bufferedUpAttackTimer = 0f; escapeHoldTimer = 0f;
+            UltimateMoveTick(Time.deltaTime);
+        }
+        else
+        {
         UpdatePointerInput();
         // Hurt/Recovery中は新規の攻撃/ジャンプ入力を受け付けない(入力は捨てる=終了後に暴発しない)。
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -1085,10 +1094,11 @@ public partial class PlayerController : MonoBehaviour
         if (reactionBlocked) { requestedFlick = null; bufferedUpAttackTimer = 0f; }
         Move(allowJump: !wasEscapeChargingLastFrame && !reactionBlocked);
         if (!wasEscapeChargingLastFrame && !reactionBlocked) HandleAttackInput();
+        }
         LancerSafetyUpdate(); // 竜騎士: 実行中の技が無いのに攻撃状態だけ残らないようにする(他キャラは何もしない)
         KitUpdate(); // 新4人: タイマー/引き絞り表示/安全装置(既存5人は何もしない)
 
-        UpdateEscapeInput();
+        if (!ultimateDriving) UpdateEscapeInput();
         UpdateEscapeVisuals();
 
         if (GameManager.Instance != null)
@@ -1135,6 +1145,8 @@ public partial class PlayerController : MonoBehaviour
         // CARD BALANCE TEST(開発ビルドのみ)のパネル上で始まったタッチは操作にしない
         if (pointerJustDown && CardBalanceTest.BlocksPointer(pointerPos)) { touchActive = false; return; }
 #endif
+        // #100 ULTIMATE のボタン(左下)で始まったタッチは操作にしない
+        if (pointerJustDown && UltimateArt.BlocksPointer(pointerPos)) { touchActive = false; return; }
         if (pointerJustDown)
         {
             touchStartPos = pointerPos;
@@ -1263,7 +1275,7 @@ public partial class PlayerController : MonoBehaviour
         float effectiveKnockback = knockbackVelocityX * knockbackFrac;
         // ボス戦(2026-10-01): 攻撃の前進/後退を大きくする(ボスが離れているほど前進を伸ばす。近いと伸ばしすぎない)
         lungeScaleNow = Mathf.Approximately(lungeVelocityX, 0f) ? 1f : BossBattle.LungeScale(lungeVelocityX, transform.position.x) * CardHunterLungeScale;
-        autoSpeed *= CardAutoSpeedScale * CardHunterApproachScale(transform.position.x); // v3: BRAKE ATTACK / HUNTER
+        autoSpeed *= CardAutoSpeedScale * CardHunterApproachScale(transform.position.x) * UltimateArt.BuffRunSpeedMul; // v3: BRAKE ATTACK / HUNTER / #100 ULTIMATE の BUFF(勢い)
         float newX = transform.position.x + (autoSpeed + lungeVelocityX * lungeScaleNow + effectiveKnockback) * dt;
         float prevX = transform.position.x;
         // 2026-10-03: 踏み込みは、当てた敵の体の手前で止める(長い踏み込みのお嬢様騎士などが、当てた後もそのまま体へ入り込み
@@ -1624,6 +1636,9 @@ public partial class PlayerController : MonoBehaviour
         // GameManager.PresentationDamageLockでも防いでいるが、Finish演出中
         // (RUN正常終了)はPlayerController側でも二重に無敵化しておく。
         if (hasDied || IsFinishing) return;
+        // #100 ULTIMATE: 発動中(+終わってから少し)は接触/敵の攻撃を受けない。発動中の落下は地面へ戻すだけ(終わった後の無敵は残さない)
+        if (!isFall && UltimateArt.ProtectsFromHit) return;
+        if (isFall && UltimateArt.ProtectsFromFall) { UltimateRescueToGround(); return; }
         // A fall past failY must always respawn the player, even mid-flicker
         // from a previous hit - otherwise falling while still hit-invincible
         // silently no-ops every frame and the player free-falls forever
@@ -1867,6 +1882,7 @@ public partial class PlayerController : MonoBehaviour
     // 減速中なら弱い方で上書きせず、長い方の残り時間/強い方の係数を採用。
     public void ApplyMoveSlow(float factor, float duration)
     {
+        if (UltimateArt.ProtectsFromHit) return; // #100 ULTIMATE の間は止められない
         factor = Mathf.Clamp(factor, 0.2f, 1f);
         moveSlowFactor = moveSlowTimer > 0f ? Mathf.Min(moveSlowFactor, factor) : factor;
         moveSlowTimer = Mathf.Max(moveSlowTimer, duration);
@@ -1874,6 +1890,7 @@ public partial class PlayerController : MonoBehaviour
 
     public void ApplyKnockback(float velocityX, float duration)
     {
+        if (UltimateArt.ProtectsFromHit) return; // #100 ULTIMATE の間は押し戻されない
         knockbackVelocityX = velocityX;
         knockbackDuration = Mathf.Max(0.001f, duration);
         knockbackTimer = knockbackDuration;

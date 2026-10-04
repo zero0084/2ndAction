@@ -2,15 +2,16 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-// カードバランス v3(2026-10-03)の全99枚のデータ(効果・説明・属性)。この表が数値の正本。
+// カードバランス v3(2026-10-03)の全99枚 + #100 ULTIMATE(2026-10-04)のデータ(効果・説明・属性)。この表が数値の正本。
 //  Tools/OneMoreMile/Apply Card Balance v3(または -executeMethod CardBalanceV3.Apply)で Resources/Cards の各アセットへ書き込む。
 //  先に CardDatabaseBuilder.Build を呼んで、#92〜#99 の新しいアセットを作る(既存のアセットの ID/アイコン/レア度/解放距離は変えない)。
 //  cardId は保存データ(所持/デッキ/キャラカード/中断データ)に入っているので変えない。旧 #79 ULTIMATE は表示名だけ ALMIGHTY
-//  (cardId "ultimate" のまま)。将来の #100 ULTIMATE は別の cardId(例 "ultimate_art")で作ること。
+//  (cardId "ultimate" のまま)。#100 ULTIMATE(2026-10-04)は別の cardId "character_ultimate"(キャラ固有の必殺技。処理は Scripts/Ultimate)。
 //  値の意味: E(種類, 値, 出し方)。出し方 = PerLevel(1Lvごと)/ Once(持っていれば)/ Every3(3Lvごと)/ Every2 / Phoenix / After3。
 public static class CardBalanceV3
 {
     public const int Version = 3;
+    const string UltimateCardId = "character_ultimate"; // #100(UltimateArt.CardId と同じ)
 
     struct E
     {
@@ -182,6 +183,10 @@ public static class CardBalanceV3
             new E(EffectType.WindSpeedPct, 0.05f), new E(EffectType.WindRange, 0.4f), new E(EffectType.WindPierce, 1f, E3), new E(EffectType.WindBladeChance, 0.02f), new E(EffectType.WindBladeChance, 0.04f, Once), new E(EffectType.WindBladePower, 6f, Once));
         yield return Card("tornado", "風刃が当たった所に小さな竜巻が起き、まわりの敵を巻き込む(Lvで威力と範囲が上がる)。少しだけ自分でも風刃を出す", ElementType.Wind,
             new E(EffectType.TornadoLevel, 1f), new E(EffectType.WindBladeChance, 0.04f, Once), new E(EffectType.WindBladePower, 6f, Once));
+
+        // ---- #100 ULTIMATE(2026-10-04): 新しい cardId。数値は UltimateTuning(Lv1/5/9 の前進・威力・BUFF・Gauge の溜まりやすさ)
+        yield return Named(Card(UltimateCardId, "Gaugeが100%で発動(左下のボタン)。キャラ固有の必殺技で画面内の敵を攻撃しながら大きく前進し(Lv1 約100m → Lv9 約200m)、しばらく強化が続く(Lv1 5秒 → Lv9 12秒)。Gaugeは距離・撃破・ボスへのダメージで溜まる",
+            new E(EffectType.UltimateLevel, 1f)), "ULTIMATE");
     }
 
     public static int CardCount { get { int n = 0; foreach (var _ in Table()) n++; return n; } }

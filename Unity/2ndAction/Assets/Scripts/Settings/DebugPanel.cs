@@ -32,6 +32,7 @@ public partial class DebugPanel : MonoBehaviour
     // ラン中の「DEBUG RUN」表示の ≡ から: ラスダン終盤のページを直接開く
     public static void OpenEndgameStatic() { if (Instance == null) return; Instance.SetOpen(true); if (Instance.open) Instance.page = 2; }
     public static void OpenLongStatic() { if (Instance == null) return; Instance.SetOpen(true); if (Instance.open) Instance.page = 3; }
+    public static void OpenUltimateStatic() { if (Instance == null) return; Instance.SetOpen(true); if (Instance.open) Instance.page = 4; }
     public static void CloseStatic() { if (Instance != null) Instance.SetOpen(false); }
 
     public void SetOpen(bool on)
@@ -69,7 +70,7 @@ public partial class DebugPanel : MonoBehaviour
         float w = Screen.width / s, h = Screen.height / s;
         float k = Mathf.SmoothStep(0f, 1f, t / 0.15f);
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.05f, 0.02f, 0.02f, 0.5f * k));
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 562f : 470f, h - 24f);
+        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 || page == 4 ? 562f : 470f, h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f + (1f - k) * 12f, pw, ph);
         Color keepColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, k);
@@ -80,7 +81,7 @@ public partial class DebugPanel : MonoBehaviour
         if (page == 0 && UiKit.Button(new Rect(p.xMax - 352f, p.y + 12f, 146f, 42f), "ラスダン終盤…", 16f, false, false)) { page = 2; confirmSave = 0; confirmReset = false; }
         if (page != 0)
         {
-            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else DrawEndgamePage(p);
+            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else DrawEndgamePage(p);
             GUI.color = keepColor;
             GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
             if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();
@@ -110,7 +111,9 @@ public partial class DebugPanel : MonoBehaviour
         if (UiKit.Button(new Rect(x + bw + 12f, y, bw, 40f), $"判定表示: {(HitboxOverlay.Enabled ? "ON" : "OFF")}", 17f, HitboxOverlay.Enabled, false)) HitboxOverlay.Enabled = !HitboxOverlay.Enabled;
         y += 46f;
         // 長距離の確認(2026-10-04): 10〜100km の雑魚の硬さを実機で見る(DEBUG RUN)
-        if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "長距離の確認(10〜100km、DEBUG RUN)…", 17f, false, false)) { page = 3; confirmSave = 0; confirmReset = false; }
+        if (UiKit.Button(new Rect(x, y, bw, 40f), "長距離の確認(DEBUG RUN)…", 16f, false, false)) { page = 3; confirmSave = 0; confirmReset = false; }
+        // #100 ULTIMATE の確認(2026-10-04、DEBUG RUN)
+        if (UiKit.Button(new Rect(x + bw + 12f, y, bw, 40f), "ULTIMATE TEST…", 16f, false, false)) { page = 4; confirmSave = 0; confirmReset = false; }
         y += 46f;
 
         GUI.Label(new Rect(x, y, 300f, 26f), "BESTを設定(ガチャの段階の確認)", UiKit.Label(16f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));
@@ -332,6 +335,65 @@ public partial class DebugPanel
         GUI.Label(new Rect(x, y, full, 20f), run, UiKit.Label(12f, TextAnchor.MiddleLeft, true, DebugRun.IsActive ? new Color(1f, 0.7f, 0.4f) : new Color(0.7f, 0.9f, 0.7f)));
         y += 20f;
         if (!string.IsNullOrEmpty(st)) GUI.Label(new Rect(x, y, full, 20f), st, UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(1f, 0.85f, 0.5f)));
+    }
+}
+
+// DebugPanel: ULTIMATE TEST のページ(#100 ULTIMATE、2026-10-04)
+public partial class DebugPanel
+{
+    void DrawUltimatePage(Rect p)
+    {
+        float x = p.x + 24f, y = p.y + 60f, full = p.width - 48f;
+        GUI.Label(new Rect(x, y, full, 36f), "押すたびにシーンを読み直して、ULTIMATE だけを付けたランを始めます(Gauge 100%、DEBUG RUN = BEST / MILE / 解放 / CONTINUE / コレクションは変わりません)",
+            UiKit.Label(12f, TextAnchor.UpperLeft, false, new Color(0.85f, 0.85f, 0.9f)));
+        y += 38f;
+        var chars = EndgameDebug.UltCharacters;
+        float cw = (full - 3f * 6f) / 4f;
+        for (int i = 0; i < chars.Length; i++)
+        {
+            int col = i % 4, row = i / 4;
+            if (UiKit.Button(new Rect(x + col * (cw + 6f), y + row * 38f, cw, 34f), EndgameDebug.UltCharLabel(chars[i]), 12f, EndgameDebug.SelectedUltChar == chars[i], false)) EndgameDebug.SelectedUltChar = chars[i];
+        }
+        y += 3 * 38f + 4f;
+        int[] lvs = { 1, 5, 9 };
+        var stages = new[] { "wasteland_road", "natural_cave", "sky_corridor" };
+        float sw = (full - 5f * 6f) / 6f;
+        for (int i = 0; i < 3; i++)
+            if (UiKit.Button(new Rect(x + i * (sw + 6f), y, sw, 34f), $"Lv{lvs[i]}", 14f, EndgameDebug.SelectedUltLevel == lvs[i], false)) EndgameDebug.SelectedUltLevel = lvs[i];
+        for (int i = 0; i < 3; i++)
+            if (UiKit.Button(new Rect(x + (3 + i) * (sw + 6f), y, sw, 34f), EndgameDebug.StageLabel(stages[i]), 12f, EndgameDebug.SelectedUltStage == stages[i], false)) EndgameDebug.SelectedUltStage = stages[i];
+        y += 42f;
+        bool busy = EndgameDebug.Instance != null && EndgameDebug.Instance.Launching;
+        float hw = (full - 8f) / 2f;
+        if (UiKit.Button(new Rect(x, y, hw, 44f), "通常の道で開始", 16f, false, false) && !busy) EndgameDebug.LaunchUltimate(EndgameDebug.SelectedUltChar, EndgameDebug.SelectedUltLevel, EndgameDebug.SelectedUltStage, false);
+        if (UiKit.Button(new Rect(x + hw + 8f, y, hw, 44f), "ボス戦で開始", 16f, false, false) && !busy) EndgameDebug.LaunchUltimate(EndgameDebug.SelectedUltChar, EndgameDebug.SelectedUltLevel, EndgameDebug.SelectedUltStage, true);
+        y += 52f;
+        var gm = GameManager.Instance; var ua = UltimateArt.Instance;
+        bool running = gm != null && gm.HasStarted && !gm.IsGameOver && ua != null;
+        float tw = (full - 16f) / 3f;
+        if (UiKit.Button(new Rect(x, y, tw, 40f), "Gauge 100%", 15f, false, false) && running) ua.DebugSetGauge(100f);
+        if (UiKit.Button(new Rect(x + tw + 8f, y, tw, 40f), "発動", 15f, running && ua.Ready, false) && running) { SetOpen(false); ua.TryActivate("debug panel"); }
+        if (UiKit.Button(new Rect(x + 2f * (tw + 8f), y, tw, 40f), "BUFFを終える", 15f, false, false) && running) ua.DebugEndBuff();
+        y += 48f;
+        var lab = UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(1f, 0.88f, 0.6f));
+        if (running)
+        {
+            ua.CanActivate(out string why);
+            GUI.Label(new Rect(x, y, full, 18f), $"ULTIMATE Lv{UltimateArt.Level}  Gauge {ua.Gauge:F0}%  {(ua.Active ? "発動中 " + ua.Phase : ua.BuffActive ? $"BUFF 残り {ua.BuffRemaining:F1}s(攻撃 x{UltimateArt.BuffAttackMul:F2} / 速さ x{UltimateArt.BuffRunSpeedMul:F2})" : "")}  {(string.IsNullOrEmpty(why) ? "発動できます" : why)}", lab);
+            y += 18f;
+            GUI.Label(new Rect(x, y, full, 18f), $"Gauge の内訳: 距離 {ua.GaugeFromDistance:F0} / 撃破 {ua.GaugeFromKills:F0} / ボス {ua.GaugeFromBoss:F0}  雑魚の合計ダメージ {UltimateArt.MobDamageTotal(Mathf.Max(1, UltimateArt.Level))}(HP倍率1の雑魚 {(DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(1f) : 0)})", lab);
+            y += 18f;
+        }
+        var r = ua != null ? ua.Last : null;
+        if (r != null)
+        {
+            GUI.Label(new Rect(x, y, full, 18f), $"前回: {r.character} Lv{r.level} {(r.arena ? "ボス戦(アリーナ)" : $"前進 {r.d1 - r.d0:F0}m(予定 {r.plannedAdvance:F0}{(string.IsNullOrEmpty(r.limitReason) ? "" : " / " + r.limitReason)})")} {r.seconds:F1}秒", lab);
+            y += 18f;
+            GUI.Label(new Rect(x, y, full, 18f), $"命中 {r.mobsHit}体 撃破 {r.mobsKilled} ダメージ回数 {r.damageEvents} ボス {r.bossDamage}({r.bossFractionMax * 100f:F0}%) BUFF {r.buffSeconds:F0}秒{(r.aborted ? " 途中で終了: " + r.abortReason : "")}", lab);
+            y += 18f;
+        }
+        string st = EndgameDebug.Instance != null ? EndgameDebug.Instance.Status : "";
+        if (!string.IsNullOrEmpty(st)) GUI.Label(new Rect(x, y, full, 18f), st, UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(1f, 0.85f, 0.5f)));
     }
 }
 

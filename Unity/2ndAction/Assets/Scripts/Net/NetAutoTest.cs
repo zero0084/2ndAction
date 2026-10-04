@@ -683,6 +683,13 @@ public partial class NetAutoTest : MonoBehaviour
                 if (c != null) gm.ApplyCardEffectsStacked(c, kv.Length > 1 && int.TryParse(kv[1], out int lv) ? lv : 9);
             }
             L($"v3 cards applied: {cardsArg} (atk x{pc.CardAttackFactor:F2} kmhCap {GameManager.SpeedKmh(pc.runSpeed * pc.MaxSpeedRatio):F0} maxHp {gm.maxLives} sealed {gm.SealedHearts})");
+            // #100 ULTIMATE(2026-10-04): マルチでは使えない(候補に出ない/発動しない)ことの確認
+            if (UltimateArt.HasCard && UltimateArt.Instance != null)
+            {
+                UltimateArt.Instance.DebugSetGauge(100f);
+                bool act = UltimateArt.Instance.TryActivate("netauto");
+                L($"ULTIMATE in multiplayer: Lv{UltimateArt.Level} offerable={UltimateArt.Offerable(CardDatabase.FindBaseById(UltimateArt.CardId))} activated={act} reason='{UltimateArt.Instance.LastBlockReason}' gauge={UltimateArt.Instance.Gauge:F0}");
+            }
         }
         // 開始時のHP(被弾で早く倒れすぎないように)
         if (startHp > 0 && !startHpDone && runTime > 0.5f)
