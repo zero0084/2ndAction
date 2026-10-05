@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 
 // FINAL EVOLUTION(2026-10-04 第1段階)の確認。 -qaFinalEvo <dir>
+// 2026-10-05 第2段階: 終われば READY へ戻る(USED なし)。再使用/全カードは QaSweep.FinalEvo2.cs(-qaFe2)
 public partial class QaSweep
 {
     void FePicks(string id, int n) { for (int i = 0; i < n; i++) V3Pick.Invoke(gm, new object[] { id }); }
@@ -114,13 +115,13 @@ public partial class QaSweep
         // ---- G: 時間型の終了 → 通常の Lv9 へ
         FinalEvolution.DebugSetRemaining(atk, 0.2f);
         yield return new WaitForSeconds(0.6f);
-        Check(FinalEvolution.StageOf(atk) == FinalEvolution.Stage.Used && Mathf.Approximately(FinalEvolution.AttackMul, 1f) && gm.GetAbilityRunStack(atk) == 9, $"G: time-type ends -> USED, back to Lv9 MAX (mul x{FinalEvolution.AttackMul:F2})");
+        Check(FinalEvolution.StageOf(atk) == FinalEvolution.Stage.Ready && Mathf.Approximately(FinalEvolution.AttackMul, 1f) && gm.GetAbilityRunStack(atk) == 9, $"G: time-type ends -> READY again, back to Lv9 MAX (mul x{FinalEvolution.AttackMul:F2})");
         Check(Mathf.Abs(pc.EffectiveAttackPower - powBefore) <= Mathf.Max(2, powBefore / 20), $"G: attack back to normal ({pc.EffectiveAttackPower} vs {powBefore})");
-        Shot("fe_G_hud_used");
-        // ---- I: 同じ能力は1ランに1回
-        FinalEvolution.DebugSetEligibleAt(atk, gm.MaxDistance - T.readyMeters * 2f);
-        yield return null; yield return null;
-        Check(FinalEvolution.StageOf(atk) == FinalEvolution.Stage.Used, $"I: the same ability cannot become READY again this run ({FinalEvolution.StageOf(atk)})");
+        Shot("fe_G_hud_ready_again");
+        // ---- I(第2段階): 同じ能力はもう一度選べる(再チャージなし)
+        V3Pick.Invoke(gm, new object[] { FinalEvolution.ChoicePrefix + atk });
+        Check(FinalEvolution.StageOf(atk) == FinalEvolution.Stage.Active && FinalEvolution.Uses(atk) == 2, $"I: the same ability can evolve again this run ({FinalEvolution.StageOf(atk)}, activations {FinalEvolution.Uses(atk)})");
+        FinalEvolution.DebugEnd(atk);
 
         // ---- J / H / P: 別の能力(EXP UP、距離型)は同じランで進化できる。EXP は曲線の前の枠に足すだけ
         string exp = "exp_up";
@@ -140,7 +141,7 @@ public partial class QaSweep
         Check(rem1 < rem0 && Mathf.Abs((rem0 - rem1) - (gm.MaxDistance - dE)) < 5f, $"H: distance-type counts down by distance ({rem0:F0} -> {rem1:F0}m while running {gm.MaxDistance - dE:F0}m)");
         FinalEvolution.DebugSetRemaining(exp, 3f);
         yield return new WaitForSeconds(1.0f);
-        Check(FinalEvolution.StageOf(exp) == FinalEvolution.Stage.Used && Mathf.Abs(gm.ExpBucketDistance - bucket0) < 0.001f, $"H: distance-type ends -> back to Lv9 (bucket {gm.ExpBucketDistance:F2})");
+        Check(FinalEvolution.StageOf(exp) == FinalEvolution.Stage.Ready && Mathf.Abs(gm.ExpBucketDistance - bucket0) < 0.001f, $"H: distance-type ends -> back to Lv9, READY again (bucket {gm.ExpBucketDistance:F2})");
 
         // ---- L: AWAKENED は通常の性能を変えない / 持続が少し伸びる
         string spd = "speed_up";
@@ -259,7 +260,7 @@ public partial class QaSweep
         FinalEvolution.DebugEnd(fl); FinalEvolution.DebugEnd(th);
 
         // ---- R: CONTINUE(RunCheckpoint の保存/読み込みで同じ状態)
-        FinalEvolution.DebugMakeReady(atk); // USED のものは READY にならない(R では保存の往復だけを見る)
+        FinalEvolution.DebugMakeReady(atk);
         var data = new RunCheckpoint.Data();
         data.finalEvolution = FinalEvolution.Export();
         string json = JsonUtility.ToJson(data);

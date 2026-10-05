@@ -1,15 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// FINAL EVOLUTION(2026-10-04 第1段階: 共通の仕組み + 代表9枚の試作)。
+// FINAL EVOLUTION(2026-10-04 第1段階: 共通の仕組み + 代表9枚の試作 / 2026-10-05 第2段階: 再使用 + 全カード)。
 // 「Lv10」ではなく、Lv9 MAX の能力が一時的に限界突破する仕組み。カードの保存Lv/Mastery/AWAKENED は一切変えない。
 //   資格   … そのランで能力Lvが実際に9(キャラカードで開始時から9でも資格あり)。能力(元のカードの cardId)ごとに数える。
 //            合成カード/キャラカード/ラン中の取得は能力ごとに合算済み(GameManager.CardCap.cs)なので、二重に発動しない。
-//   READY  … 資格を得た地点から FinalEvolutionTuning.readyMeters(既定5,000m)走る。HUD のカードの枠が金色に脈動する。
+//   READY  … 資格を得た地点から FinalEvolutionTuning.readyMeters(既定5,000m)走る(初回だけ)。HUD のカードの枠が金色に脈動する。
+//            READY = 「この能力が FINAL EVOLUTION の抽選に参加できる」(残りの回数ではない)。
 //   候補   … 次の通常 LEVEL UP の3択のうち最大1枠(残りは通常の候補)。断っても READY のまま(次の LEVEL UP でまた出られる)。
 //            ボス報酬/BONUS ZONE/ULTIMATE には混ぜない。複数 READY なら、候補に出た回数が少ないものから(同数はランダム)。
 //   ACTIVE … 選ぶと短い演出(カードの光/画面の縁の光/短いヒットストップ/オーラ)→ すぐ再開。時間型(秒)/距離型(m)。
-//   USED   … 終われば通常の Lv9 MAX。同じ能力はこのランでは usesPerRun 回まで(第1試作は1回)。別の能力は別に進化できる。
+//   終了   … 通常の Lv9 MAX に戻り、すぐ READY へ戻る(再チャージ/Gauge/距離の待ちなし。第2段階で USED を廃止)。
+//            同じ能力が ACTIVE の間だけ、その能力は候補に出ない(同じ FINAL EVOLUTION は重ならない)。別の能力同士は同時に ACTIVE になれる。
+//            usesPerRun(既定0=制限なし)は将来の特殊カード用。uses = 発動の回数(制限には使わない)。
+//   効果   … FinalEvolutionTuning の各カード = 増幅(そのカード自身の効果×amplify)+追加(EffectType)+代表9枚の専用の処理。
+//            増幅/追加は GameManager.RecomputeCardStats が毎回作り直す値に乗るだけ(終われば作り直して何も残らない)。
 // 効果は既存の計算の「外側」に一時的に掛ける(Card Balance V3 の通常値・EXP の減衰の曲線・ULTIMATE には触らない)。
 // ランの中だけの状態(Game Over / ホームへ戻る / 新しいランで消える)。CONTINUE は RunCheckpoint.Data.finalEvolution で戻す。
 public class FinalEvolution : MonoBehaviour
@@ -29,6 +34,7 @@ public class FinalEvolution : MonoBehaviour
         public int uses;
         public float remaining;        // ACTIVE の残り(秒 / m)
         public int offers;             // LEVEL UP の候補に出た回数(複数 READY の公平さ)
+        public bool spent;             // この ACTIVE の間の1回きりの効果を使った(PHOENIX の緊急復活。CONTINUE で戻らない。古い保存は false)
     }
 
     readonly Dictionary<string, SaveState> states = new Dictionary<string, SaveState>();
@@ -73,7 +79,7 @@ public class FinalEvolution : MonoBehaviour
         if (Instance == null || abilityId == null || !Instance.states.TryGetValue(abilityId, out var s)) return Stage.None;
         if (s.active) return Stage.Active;
         if (s.ready) return Stage.Ready;
-        if (s.uses >= Mathf.Max(1, T.usesPerRun)) return Stage.Used;
+        if (T.usesPerRun > 0 && s.uses >= T.usesPerRun) return Stage.Used; // 通常は制限なし(将来の特殊カード用)
         return s.eligible ? Stage.Eligible : Stage.None;
     }
     public static bool IsActive(string abilityId) => StageOf(abilityId) == Stage.Active;
@@ -113,7 +119,7 @@ public class FinalEvolution : MonoBehaviour
         float dd = lastDistance >= 0f ? Mathf.Max(0f, d - lastDistance) : 0f;
         if (dd > 400f) dd = 0f; // ワープ(開発用)の飛び
         lastDistance = d;
-        int limit = Mathf.Max(1, T.usesPerRun);
+        int limit = T.usesPerRun; // 0 = 制限なし
         foreach (var e in T.entries)
         {
             if (e == null || string.IsNullOrEmpty(e.abilityId)) continue;
@@ -124,7 +130,7 @@ public class FinalEvolution : MonoBehaviour
                 if (s.remaining <= 0f) End(e.abilityId);
                 continue;
             }
-            if (s.uses >= limit || s.ready) continue;
+            if ((limit > 0 && s.uses >= limit) || s.ready) continue;
             if (!s.eligible)
             {
                 if (gm.GetAbilityRunStack(e.abilityId) >= GameManager.MaxRunCardLevel)
@@ -156,6 +162,10 @@ public class FinalEvolution : MonoBehaviour
     public static string PickCandidate()
     {
         if (Instance == null || !OffersAllowed) return null;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // FINAL EVOLUTION TEST: 選んだ能力を候補にする(DEBUG RUN の中だけ。READY で ACTIVE でない時だけ)
+        if (DebugForceCandidate != null && DebugRun.IsActive && Instance.states.TryGetValue(DebugForceCandidate, out var fs) && fs.ready && !fs.active && T.For(fs.id) != null) { fs.offers++; return fs.id; }
+#endif
         var list = new List<SaveState>();
         int best = int.MaxValue;
         foreach (var s in Instance.states.Values)
@@ -224,9 +234,10 @@ public class FinalEvolution : MonoBehaviour
         if (e == null || s.active || !s.ready) { Debug.LogWarning($"[FinalEvo] activate refused {abilityId} (ready={s.ready} active={s.active})"); return false; }
         bool awake = IsAwakenedFor(abilityId);
         float mul = awake ? 1f + T.awakenedDurationBonus : 1f;
-        s.ready = false; s.active = true; s.uses++;
+        s.ready = false; s.active = true; s.uses++; s.spent = false;
         s.remaining = (e.kind == FinalEvolutionTuning.Kind.Time ? e.durationSeconds : e.durationMeters) * mul;
         Instance.ApplyEffects(abilityId);
+        RecomputeStats(); // 増幅/追加を能力値へ
         Activations++;
         Instance.activatedAtUnscaled = Time.unscaledTime;
         Instance.lastActivated = abilityId;
@@ -243,16 +254,61 @@ public class FinalEvolution : MonoBehaviour
     {
         var s = St(abilityId);
         if (!s.active) return;
-        s.active = false; s.remaining = 0f;
+        s.active = false; s.remaining = 0f; s.spent = false;
+        // 第2段階: すぐ READY へ戻る(再チャージなし)。将来の特殊カードで回数を決めた時だけ、使い切ったら戻らない
+        s.ready = T.usesPerRun <= 0 || s.uses < T.usesPerRun;
         RemoveEffects(abilityId);
+        RecomputeStats(); // 増幅/追加を外して作り直す(何も残らない)
         Ends++;
         endedAtUnscaled = Time.unscaledTime;
         lastEnded = abilityId;
-        Debug.Log($"[FinalEvo] END {abilityId} -> back to Lv9 MAX (uses {s.uses})");
+        Debug.Log($"[FinalEvo] END {abilityId} -> back to Lv9 MAX, {(s.ready ? "READY again" : "no more uses")} (activations {s.uses})");
         var pc = PlayerController.Instance;
         if (pc != null && IsAwakenedFor(abilityId))
             OneShotSpriteEffect.CreateTweened(OneShotSpriteEffect.SoftDotSprite(), pc.transform.position + Vector3.up * 0.9f, new Color(1f, 0.9f, 0.5f, 0.9f), 0.45f, 0.6f, 3.4f, -1f, 0f); // AWAKENED: 終わりの光
     }
+
+    static void RecomputeStats()
+    {
+        var gm = GameManager.Instance;
+        if (gm != null && gm.HasStarted) gm.RecomputeCardStats();
+    }
+
+    // ---- 増幅 / 追加(GameManager.RecomputeCardStats から) ----
+    // そのカード自身の効果の倍率(ACTIVE の間だけ。1 = 増幅しない)
+    public static float Amplify(string abilityId)
+    {
+        if (Instance == null || abilityId == null || !Instance.states.TryGetValue(abilityId, out var s) || !s.active) return 1f;
+        var e = T.For(abilityId);
+        return e != null && e.amplify > 0f ? e.amplify : 1f;
+    }
+    // ACTIVE の能力の「追加」の合計(種類ごと)
+    public static float BonusOf(EffectType t)
+    {
+        if (Instance == null) return 0f;
+        float sum = 0f;
+        foreach (var s in Instance.states.Values)
+        {
+            if (!s.active) continue;
+            var e = T.For(s.id);
+            if (e == null || e.bonuses == null) continue;
+            foreach (var b in e.bonuses) if (b != null && b.type == t) sum += b.value;
+        }
+        return sum;
+    }
+    // 最大HP(ハート)以外の追加を能力値の合計へ
+    public static void AddBonuses(CardTotals totals)
+    {
+        if (Instance == null || totals == null) return;
+        foreach (var s in Instance.states.Values)
+        {
+            if (!s.active) continue;
+            var e = T.For(s.id);
+            if (e == null || e.bonuses == null) continue;
+            foreach (var b in e.bonuses) if (b != null && b.type != EffectType.MaxHpHearts && b.type != EffectType.SacrificeHearts) totals.Add(b.type, b.value);
+        }
+    }
+    public static int ActiveCount { get { if (Instance == null) return 0; int n = 0; foreach (var s in Instance.states.Values) if (s.active) n++; return n; } }
 
     void ApplyEffects(string id)
     {
@@ -273,6 +329,7 @@ public class FinalEvolution : MonoBehaviour
             case "speed_up": CameraFollow.FinalEvolutionZoom = 1f; SonicMoveFx.ForcedIntensity = 0f; autoHitOn.Clear(); break;
             case "phoenix": phoenixToken = false; break;             // 使わなかった専用の復活は消える
             case "vampire": bloodShield = 0; break;                  // 余った Blood Shield は残さない(通常の Shield にもしない)
+            case "flame_blade": spreadOn.Clear(); break;             // 延焼の間隔の記録も残さない(再使用で溜まらない)
         }
     }
 
@@ -348,6 +405,7 @@ public class FinalEvolution : MonoBehaviour
     {
         if (!PhoenixTokenReady || gm == null) return false;
         Instance.phoenixToken = false;
+        Instance.St("phoenix").spent = true;
         EmergencyRevives++;
         Debug.Log("[FinalEvo] PHOENIX emergency revive (normal PHOENIX charge untouched)");
         BossBattleHud.Banner("FINAL EVOLUTION: REBIRTH", new Color(1f, 0.6f, 0.2f), 1.4f);
@@ -498,7 +556,7 @@ public class FinalEvolution : MonoBehaviour
         if (Instance == null) return list;
         foreach (var s in Instance.states.Values)
             if (s.eligible || s.uses > 0 || s.ready || s.active)
-                list.Add(new SaveState { id = s.id, eligible = s.eligible, eligibleAt = s.eligibleAt, ready = s.ready, active = s.active, uses = s.uses, remaining = s.remaining, offers = s.offers });
+                list.Add(new SaveState { id = s.id, eligible = s.eligible, eligibleAt = s.eligibleAt, ready = s.ready, active = s.active, uses = s.uses, remaining = s.remaining, offers = s.offers, spent = s.spent });
         return list;
     }
 
@@ -510,17 +568,27 @@ public class FinalEvolution : MonoBehaviour
         foreach (var s in list)
         {
             if (s == null || string.IsNullOrEmpty(s.id)) continue;
-            Instance.states[s.id] = new SaveState { id = s.id, eligible = s.eligible, eligibleAt = s.eligibleAt, ready = s.ready, active = s.active, uses = s.uses, remaining = s.remaining, offers = s.offers };
-            if (s.active) Instance.ApplyEffects(s.id);
+            // 第1段階の保存(USED = 使い終わって READY でない)は、再使用の仕様では READY に戻す(資格と初回の距離は済んでいる)
+            bool readyNow = s.ready || (!s.active && s.eligible && s.uses > 0 && (T.usesPerRun <= 0 || s.uses < T.usesPerRun));
+            Instance.states[s.id] = new SaveState { id = s.id, eligible = s.eligible, eligibleAt = s.eligibleAt, ready = readyNow && !s.active, active = s.active, uses = s.uses, remaining = s.remaining, offers = s.offers, spent = s.active && s.spent };
+            if (s.active)
+            {
+                Instance.ApplyEffects(s.id); // ResetRun の後なので二重にはならない
+                if (s.id == "phoenix" && s.spent) Instance.phoenixToken = false; // 使った緊急復活は CONTINUE で戻らない
+            }
         }
+        RecomputeStats(); // ACTIVE の増幅/追加を能力値へ(CONTINUE のカードの取り直しの後)
         Debug.Log($"[FinalEvo] restored {list.Count} state(s) for CONTINUE");
     }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     // FINAL EVOLUTION TEST / 自動テスト用
+    public static string DebugForceCandidate; // FINAL EVOLUTION TEST: この能力を候補にする(null = 通常の公平な抽選)
     public static void DebugSetEligibleAt(string id, float d) { if (Instance != null) { var s = Instance.St(id); s.eligible = true; s.eligibleAt = d; } }
     public static void DebugMakeReady(string id) { if (Instance == null) return; var s = Instance.St(id); if (!s.eligible && GameManager.Instance != null) { s.eligible = true; s.eligibleAt = GameManager.Instance.MaxDistance - T.readyMeters; } s.ready = true; }
     public static void DebugEnd(string id) { if (Instance != null) Instance.End(id); }
+    public static int DebugListenerCount => Activated == null ? 0 : Activated.GetInvocationList().Length;
+    public static int DebugTrackedTargets => Instance == null ? 0 : Instance.autoHitOn.Count + Instance.spreadOn.Count;
     public static void DebugSetRemaining(string id, float r) { if (Instance != null) Instance.St(id).remaining = r; }
 #endif
 }

@@ -137,10 +137,11 @@ public partial class GameManager
             if (c == null || lv <= 0) continue;
             foreach (var e in c.effects)
             {
-                if (e.type == EffectType.MaxHpHearts) growthHearts += CardRules.Scale(e.scaling, e.value, lv);
+                if (e.type == EffectType.MaxHpHearts) growthHearts += CardRules.Scale(e.scaling, e.value, lv) * FinalEvolution.Amplify(c.cardId); // FINAL EVOLUTION の増幅(ACTIVE の間だけ)
                 else if (e.type == EffectType.MaxHp && e.value > 0f) growthHearts += e.value / per * lv; // 旧形式
             }
         }
+        growthHearts += FinalEvolution.BonusOf(EffectType.MaxHpHearts); // FINAL EVOLUTION の追加(ACTIVE の間だけ)
         int cap = CardRules.MaxHeartsCap * per;
         maxLivesCap = cap;
         CardMaxLivesBeforeSeal = Mathf.Clamp(baseMaxLivesForRun + Mathf.RoundToInt(growthHearts * per), CardRules.MinHearts * per, cap);
@@ -191,13 +192,16 @@ public partial class GameManager
                 sealedNow += paid;
                 effLv = EffectiveLevel(c, lv, paid);
             }
+            // FINAL EVOLUTION(2026-10-05): ACTIVE の能力は、そのカード自身の効果(マイナスの効果も)を ×amplify。枠/曲線/上限はこの先でそのまま通る
+            float amp = FinalEvolution.Amplify(c.cardId);
             foreach (var e in c.effects)
             {
                 if (e.type == EffectType.SacrificeHearts) continue;
-                float amount = CardRules.Scale(e.scaling, e.value, effLv);
+                float amount = CardRules.Scale(e.scaling, e.value, effLv) * amp;
                 AddLegacyOrV3(e.type, amount, per);
             }
         }
+        FinalEvolution.AddBonuses(Card); // FINAL EVOLUTION の追加(ACTIVE の間だけ)
         SealedHearts = sealedNow;
 
         // 4) 最大HP(CARD TEST の層を壊さないように差分で)

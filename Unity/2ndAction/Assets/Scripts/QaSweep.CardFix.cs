@@ -197,11 +197,14 @@ public partial class QaSweep
             GameManager.BlockExpGain = false;
             // route pairs (upper/lower at a terrain fork) are placed by the terrain, not by spacing, and their two routes overlap in X:
             // count/check only the main-route encounters (the part spawn rate controls)
-            var recs = dir.Recent.Skip(idx0).Where(r => string.IsNullOrEmpty(r.upper) && string.IsNullOrEmpty(r.lower) && (r.terrain == null || !r.terrain.Contains("branch"))).ToList();
+            var recs = dir.Recent.Skip(idx0).Where(r => r.band != "BONUS" && string.IsNullOrEmpty(r.upper) && string.IsNullOrEmpty(r.lower) && (r.terrain == null || !r.terrain.Contains("branch"))).ToList();
             int enc = recs.Count(r => r.intensity != EncounterIntensity.Rest), rest = recs.Count(r => r.intensity == EncounterIntensity.Rest);
             float minGap = float.MaxValue;
+            // BONUS ZONE の wave(band "BONUS")は上の recs から外した: 出現率ではなく区画のルールで置き、始まった時に前の通常の敵を片付けてから置く。
+            // 片付けた通常の敵の記録は Recent に残るため、数え/間隔に入れると「重なり」や頻度のぶれに見える(2026-10-05。BONUS のテストで見る)
             var fights = recs.Where(r => r.intensity != EncounterIntensity.Rest).OrderBy(r => r.anchorLogical).ToList();
             for (int i = 1; i < fights.Count; i++) minGap = Mathf.Min(minGap, (float)(fights[i].anchorLogical - fights[i - 1].endLogical));
+            for (int i = 1; i < fights.Count; i++) if (fights[i].anchorLogical - fights[i - 1].endLogical <= 0) { var f0 = fights[i - 1]; var f1 = fights[i]; L($"[cardfix] overlap {name} seed{seed}: #{f0.index} {f0.formation}/{f0.terrain}/{f0.intensity} d{f0.distance:F0} [{f0.anchorLogical:F1}..{f0.endLogical:F1}] {f0.reason} | #{f1.index} {f1.formation}/{f1.terrain}/{f1.intensity} d{f1.distance:F0} [{f1.anchorLogical:F1}..{f1.endLogical:F1}] {f1.reason}"); }
             int k = results.FindIndex(r => r.name == name);
             if (k < 0) results.Add((name, gm.EnemySpawnRateMultiplier, dir.SpawnFrequency, enc, rest, dir.SpawnedEnemies - sp0, gm.MaxDistance - d0, minGap));
             else { var o = results[k]; results[k] = (name, o.mult, o.freq, o.enc + enc, o.rest + rest, o.enemies + dir.SpawnedEnemies - sp0, o.meters + gm.MaxDistance - d0, Mathf.Min(o.minGap, minGap)); }

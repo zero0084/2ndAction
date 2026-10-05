@@ -593,14 +593,23 @@ public partial class DebugPanel
         for (int i = 0; i < 3; i++) if (UiKit.Button(new Rect(x + i * (sw + 6f), y, sw, 30f), EndgameDebug.StageLabel(stages[i]), 12f, EndgameDebug.SelectedFeStage == stages[i], false)) EndgameDebug.SelectedFeStage = stages[i];
         y += 36f;
         var cards = EndgameDebug.FeCards;
-        float kw = (full - 4f * 6f) / 5f;
-        for (int i = 0; i < cards.Length; i++)
+        // 全対象カード(2026-10-05): 10枚ずつのページ
+        int pages = Mathf.Max(1, (cards.Length + 9) / 10);
+        EndgameDebug.FeCardPage = Mathf.Clamp(EndgameDebug.FeCardPage, 0, pages - 1);
+        float kw = (full - 4f * 6f - 2f * 40f) / 5f;
+        if (UiKit.Button(new Rect(x, y, 36f, 64f), "◀", 14f, false, false)) EndgameDebug.FeCardPage = (EndgameDebug.FeCardPage + pages - 1) % pages;
+        if (UiKit.Button(new Rect(x + full - 36f, y, 36f, 64f), "▶", 14f, false, false)) EndgameDebug.FeCardPage = (EndgameDebug.FeCardPage + 1) % pages;
+        for (int k = 0; k < 10; k++)
         {
-            int col = i % 5, row = i / 5;
+            int i = EndgameDebug.FeCardPage * 10 + k;
+            if (i >= cards.Length) break;
+            int col = k % 5, row = k / 5;
             var c = CardDatabase.FindBaseById(cards[i]);
-            if (UiKit.Button(new Rect(x + col * (kw + 6f), y + row * 34f, kw, 30f), c != null ? c.cardName : cards[i], 10f, EndgameDebug.SelectedFeCard == cards[i], false)) EndgameDebug.SelectedFeCard = cards[i];
+            if (UiKit.Button(new Rect(x + 40f + col * (kw + 6f), y + row * 34f, kw, 30f), c != null ? c.cardName : cards[i], 9f, EndgameDebug.SelectedFeCard == cards[i], false)) EndgameDebug.SelectedFeCard = cards[i];
         }
         y += 2 * 34f + 4f;
+        GUI.Label(new Rect(x, y - 4f, full, 16f), $"{EndgameDebug.FeCardPage + 1}/{pages} ページ  全{cards.Length}枚", UiKit.Label(10f, TextAnchor.MiddleCenter, false, new Color(0.8f, 0.8f, 0.9f)));
+        y += 12f;
         float tw = (full - 3f * 6f) / 4f;
         if (UiKit.Button(new Rect(x, y, tw, 30f), $"AWAKENED {(EndgameDebug.FeAwakened ? "ON" : "OFF")}", 11f, EndgameDebug.FeAwakened, false)) EndgameDebug.FeAwakened = !EndgameDebug.FeAwakened;
         if (UiKit.Button(new Rect(x + (tw + 6f), y, tw, 30f), $"Lv9開始 {(EndgameDebug.FeLv9 ? "ON" : "OFF")}", 11f, EndgameDebug.FeLv9, false)) EndgameDebug.FeLv9 = !EndgameDebug.FeLv9;
@@ -613,11 +622,16 @@ public partial class DebugPanel
         y += 46f;
         var gm = GameManager.Instance;
         string id = EndgameDebug.SelectedFeCard;
-        float bw = (full - 2f * 6f) / 3f;
-        if (UiKit.Button(new Rect(x, y, bw, 34f), "LEVEL UP(3択)", 13f, false, false) && gm != null && gm.HasStarted) { SetOpen(false); gm.DebugTriggerLevelUp(); }
-        if (UiKit.Button(new Rect(x + bw + 6f, y, bw, 34f), "今すぐ READY", 13f, false, false) && gm != null && gm.HasStarted) { gm.FinalEvoTestPrepare(id); FinalEvolution.DebugMakeReady(id); }
-        if (UiKit.Button(new Rect(x + 2f * (bw + 6f), y, bw, 34f), "今すぐ終了", 13f, false, false)) FinalEvolution.DebugEnd(id);
+        float bw = (full - 3f * 6f) / 4f;
+        FinalEvolution.DebugForceCandidate = EndgameDebug.FeForceCandidate ? id : null;
+        if (UiKit.Button(new Rect(x, y, bw, 34f), "LEVEL UP(3択)", 12f, false, false) && gm != null && gm.HasStarted) { SetOpen(false); gm.DebugTriggerLevelUp(); }
+        if (UiKit.Button(new Rect(x + bw + 6f, y, bw, 34f), "今すぐ READY", 12f, false, false) && gm != null && gm.HasStarted) { gm.FinalEvoTestPrepare(id); FinalEvolution.DebugMakeReady(id); }
+        if (UiKit.Button(new Rect(x + 2f * (bw + 6f), y, bw, 34f), "今すぐ終了", 12f, false, false)) FinalEvolution.DebugEnd(id);
+        // 再使用の確認: ACTIVE を即終了 → READY → すぐ LEVEL UP(同じ FE を候補に固定していれば同じ FE を選び直せる)
+        if (UiKit.Button(new Rect(x + 3f * (bw + 6f), y, bw, 34f), "終了→LEVEL UP", 12f, true, false) && gm != null && gm.HasStarted) { FinalEvolution.DebugEnd(id); SetOpen(false); gm.DebugTriggerLevelUp(); }
         y += 40f;
+        if (UiKit.Button(new Rect(x, y, full, 26f), EndgameDebug.FeForceCandidate ? "選んだカードの FE を候補に固定: ON(READY の時)" : "選んだカードの FE を候補に固定: OFF(通常の公平な抽選)", 11f, EndgameDebug.FeForceCandidate, false)) EndgameDebug.FeForceCandidate = !EndgameDebug.FeForceCandidate;
+        y += 30f;
         if (gm != null && gm.HasStarted)
         {
             var sb = new System.Text.StringBuilder();
@@ -628,6 +642,7 @@ public partial class DebugPanel
                 sb.Append($"{c} Lv{gm.GetAbilityRunStack(c)} {st}");
                 if (st == FinalEvolution.Stage.Eligible) sb.Append($"(READY まで {Mathf.Max(0f, FinalEvolutionTuning.I.readyMeters - (gm.MaxDistance - FinalEvolution.EligibleAt(c))):0}m)");
                 if (st == FinalEvolution.Stage.Active) sb.Append($"(残り {FinalEvolution.Remaining(c):0.#})");
+                if (FinalEvolution.Uses(c) > 0) sb.Append($" 発動{FinalEvolution.Uses(c)}回");
                 sb.Append("   ");
             }
             GUI.Label(new Rect(x, y, full, 60f), sb.Length > 0 ? sb.ToString() : "状態なし", lab);

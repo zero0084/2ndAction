@@ -281,6 +281,16 @@ JOIN のプレイヤーでは、次のカードの効果が働かない。
   - EXP / MILE: 本人の端末の取得計算なので、そのまま使える見込み。
 - CONTINUE はマルチでは使わないので不要。
 
+### FINAL EVOLUTION 第2段階(2026-10-05: 再使用 + 全99枚)でも、マルチは未対応のまま(候補に出さない)
+- 第2段階で増えたもの: 終われば READY へ戻る(何度でも)/ 99枚それぞれの「増幅(そのカード自身の効果×amplify)+追加(EffectType)」/ 同じ FE は重ならないが別の FE は同時に ACTIVE。
+- 増幅/追加は `GameManager.RecomputeCardStats` の中で本人のカードの合計に乗るだけなので、本人の攻撃・移動・EXP/MILE の計算はマルチでもそのまま動く見込み。
+- マルチで要る追加の同期(第1段階の項目に加えて):
+  - 敵側に効くカード(MORE ENEMIES / TOUGH ENEMIES / HELL MODE / HORDE / PANDEMONIUM / BOSS CHALLENGE / BOSS RUSH / WANTED / ELITE ENEMIES 等の増幅): 敵の出現/HP/精鋭は HOST の EncounterDirector が決めるので、誰かの FE が ACTIVE の間の倍率を HOST へ送り、HOST が全員分をどう合わせるか(最大値/合計/本人の周りだけ)を決める必要がある(通常の Challenge カードのマルチでの扱いと合わせて確認する)。
+  - 最大HPの増幅(HEART UP / FORTRESS / HEAVY ARMOR 等): HP は HOST 権威(NetMatch)なので、ACTIVE の開始/終了で `NetMatch.RequestSetMax` が飛ぶ(既存の経路)。終了時に最大HPが下がる時の現在HPの切り詰めを HOST 側でも同じにすること。
+  - Shield / 被弾後の無敵 / のけぞり軽減の追加: 被弾の確定が HOST なので、HOST の被弾処理で本人の ACTIVE 状態を参照できるようにする(状態の表を NetMatch へ)。
+  - 再使用: 状態(資格/READY/ACTIVE/残り/発動回数)は本人の端末で完結させ、HOST へは「ACTIVE の開始/終了」だけを知らせる(見た目のオーラと上の HOST 側の判定のため)。
+  - 候補の公平さ(候補に出た回数)は本人の端末だけで足りる。
+
 ## LAN の自動発見(2026-10-05)で既定の最大人数を 8 に
 - `NetSession.DefaultMaxPlayers = PlannedMaxPlayers`(8)。部屋の知らせ/待機室は「n/8」。開発ビルドは `-netMaxPlayers N` で絞れる。
 - 上の「2人の距離が数 km 離れると同期数が増える」課題は残っている(8 人の実機負荷は未確認)。詳細は Docs/LanDiscovery_2026-10-05.md。

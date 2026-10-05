@@ -67,6 +67,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaCaveBoss") { mode = "caveboss"; dir = a[i + 1]; }
             if (a[i] == "-qaBossAssist") { mode = "bossassist"; dir = a[i + 1]; }
             if (a[i] == "-qaFinalEvo") { mode = "finalevo"; dir = a[i + 1]; }
+            if (a[i] == "-qaFe2") { mode = "fe2"; dir = a[i + 1]; }
             if (a[i] == "-qaSkyBoss") { mode = "skyboss"; dir = a[i + 1]; }
             if (a[i] == "-qaSprint") { mode = "sprint"; dir = a[i + 1]; }
             if (a[i] == "-qaCharSelect") { mode = "charselect"; dir = a[i + 1]; }
@@ -92,6 +93,7 @@ public partial class QaSweep : MonoBehaviour
     int failures, warnings;
     bool anyException;
     readonly List<string> exceptions = new List<string>();
+    int excCount; // 例外の総数(一覧は30件まで)
     GameManager gm;
     PlayerController pc;
     int shotNo;
@@ -105,7 +107,7 @@ public partial class QaSweep : MonoBehaviour
         System.IO.Directory.CreateDirectory(outDir);
         Application.logMessageReceived += (c, tr, type) =>
         {
-            if (type == LogType.Exception) { anyException = true; if (exceptions.Count < 30) exceptions.Add(c + " | " + tr.Split('\n')[0]); }
+            if (type == LogType.Exception) { anyException = true; excCount++; if (exceptions.Count < 30) exceptions.Add(c + " | " + tr.Split('\n')[0]); }
         };
         yield return new WaitForSecondsRealtime(2f);
         StartCoroutine(AutoPickCards());
@@ -150,6 +152,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "caveboss") yield return CaveBossMode();
         else if (mode == "bossassist") yield return BossAssistMode();
         else if (mode == "finalevo") yield return FinalEvoMode();
+        else if (mode == "fe2") yield return Fe2Mode();
         else if (mode == "skyboss") yield return SkyBossMode();
         else if (mode == "sprint") yield return SprintMode();
         else if (mode == "charselect") yield return CharSelectMode();

@@ -5,8 +5,8 @@ using UnityEngine.SceneManagement;
 
 // FINAL EVOLUTION TEST(2026-10-04)。DEBUGパネル → 「FINAL EVOLUTION TEST…」。開発版だけ。
 // 押すたびにシーンを読み直し、DEBUG RUN(保存/記録しない)で選んだキャラ・ステージを始め、選んだカードを
-// Lv9(開始時)にし、必要なら READY にしてから走り出す。READY → LEVEL UP の候補 → 選択 → ACTIVE → 終了 → USED を
-// すぐ確かめられる(同じページの「LEVEL UP」で3択を開ける)。
+// Lv9(開始時)にし、必要なら READY にしてから走り出す。READY → LEVEL UP の候補 → 選択 → ACTIVE → 終了 → READY → 再び選択 を
+// すぐ確かめられる(同じページの「LEVEL UP」で3択を開ける / 「終了→LEVEL UP」で再使用の確認)。2026-10-05: 全対象カード。
 public partial class EndgameDebug
 {
     public static string SelectedFeChar = "swordsman";
@@ -16,7 +16,10 @@ public partial class EndgameDebug
     static (string ch, string stage, string card, bool awake, bool lv9, bool ready, bool boss)? pendingFe;
     public bool IsFinalEvoTest { get; private set; }
 
-    public static readonly string[] FeCards = { "attack_up", "speed_up", "attack_range_up", "vampire", "phoenix", "flame_blade", "thunder_strike", "exp_up", "greed" };
+    // 対象カード(FinalEvolutionTuning のデータから。#100 ULTIMATE は含まない)
+    public static string[] FeCards { get { var l = new System.Collections.Generic.List<string>(); foreach (var e in FinalEvolutionTuning.I.entries) if (e != null && !string.IsNullOrEmpty(e.abilityId)) l.Add(e.abilityId); return l.ToArray(); } }
+    public static int FeCardPage;
+    public static bool FeForceCandidate = true; // 選んだカードの FE を候補に固定(再使用の確認)
 
     public static void LaunchFinalEvo(string ch, string stage, string card, bool awake, bool lv9, bool ready, bool boss)
     {
@@ -91,6 +94,14 @@ public partial class GameManager
         if (c == null) return;
         int have = GetAbilityRunStack(abilityId);
         if (have < MaxRunCardLevel) ApplyRunCardCapped(c, MaxRunCardLevel - have, "FinalEvoTest");
+        // 封印(SacrificeHearts)のカードは最大HPが足りないと Lv9 まで取れない(通常の規則)→ HEART UP で余裕を作って取り直す
+        if (GetAbilityRunStack(abilityId) < MaxRunCardLevel && c.effects != null && c.effects.Exists(e => e.type == EffectType.SacrificeHearts))
+        {
+            var hu = CardDatabase.FindBaseById("heart_up");
+            if (hu != null) ApplyRunCardCapped(hu, MaxRunCardLevel - GetAbilityRunStack("heart_up"), "FinalEvoTest(hearts)");
+            have = GetAbilityRunStack(abilityId);
+            if (have < MaxRunCardLevel) ApplyRunCardCapped(c, MaxRunCardLevel - have, "FinalEvoTest");
+        }
         Debug.Log($"[FinalEvo] test prepared: {abilityId} Lv{GetAbilityRunStack(abilityId)}");
     }
     // 開発用: 通常の LEVEL UP の3択を今すぐ開く(EXP は変えない)
