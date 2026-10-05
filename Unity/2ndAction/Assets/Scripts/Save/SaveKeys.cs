@@ -27,7 +27,9 @@ public static class SaveKeys
     public const string LifetimeDistance = "LifetimeDistance";          // ゲーム全体の累計走行距離(m、double文字列)
     public const string ReaperMetPrefix = "ReaperMet_";                // + Eldest / Second / Youngest (int 0/1)
     public const string FinalDungeonUnlocked = "FinalDungeonUnlocked"; // int 0/1(一度1になったら戻さない)
-    public const string BossSeen = "BossSeenV1";                       // 会ったボス(カンマ区切りの "Wild/Wolf" 等)。ラスダンの抽選で製品版が優先する(2026-10-05)
+    public const string BossSeen = "BossSeenV1";
+    public const string SprintGates = "SprintGatesV1";                 // 疾走出発の解放: マップごとに実際に倒した 10,000m 刻みの門番(2026-10-05)
+    public const string DevSprintUnlockAll = "Dev.SprintUnlockAll";    // 開発版だけ: 疾走出発の行き先を全部選べる                       // 会ったボス(カンマ区切りの "Wild/Wolf" 等)。ラスダンの抽選で製品版が優先する(2026-10-05)
     public const string DevFinalDungeonAlwaysOpen = "Dev.FinalDungeonAlwaysOpen"; // 開発版だけ: ラスダンを常に選べる(既定1)
 
     // 既存のキー(保存しているクラスの定数と同じ文字列)
@@ -57,6 +59,8 @@ public static class SaveKeys
         new Entry(ReaperMetPrefix + "Youngest", SaveCategory.Progress, SaveType.Int, "死神三姉妹 三女と遭遇"),
         new Entry(FinalDungeonUnlocked, SaveCategory.Progress, SaveType.Int, "ラスダン(LAST CORRIDOR)解放"),
         new Entry(BossSeen, SaveCategory.Progress, SaveType.String, "会ったボス(カンマ区切り。ラスダンの節目のボスの抽選に使う)"),
+        new Entry(SprintGates, SaveCategory.Progress, SaveType.String, "疾走出発の解放: マップごとに実際に倒した10,000m刻みの門番"),
+        new Entry(DevSprintUnlockAll, SaveCategory.Dev, SaveType.Int, "開発版: 疾走出発の行き先を全部選べる"),
 
         // ---- 設定 ----
         new Entry("MasterVolume", SaveCategory.Settings, SaveType.Float, "全体音量 0〜1"),

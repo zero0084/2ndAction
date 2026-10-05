@@ -32,6 +32,8 @@ public class StageSelectUI : MonoBehaviour
     public float rootFadeDuration = 0.15f;
 
     int selectedIndex;
+    // 疾走出発(2026-10-05): 今選んでいるステージ(行き先パネルが読む)
+    public string SelectedStageIdInUi { get { var all = StageDatabase.AllStages; return selectedIndex >= 0 && selectedIndex < all.Count ? all[selectedIndex].stageId : null; } }
 
     Coroutine fadeCoroutine;
 

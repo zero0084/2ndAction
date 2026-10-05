@@ -68,6 +68,8 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaBossAssist") { mode = "bossassist"; dir = a[i + 1]; }
             if (a[i] == "-qaFinalEvo") { mode = "finalevo"; dir = a[i + 1]; }
             if (a[i] == "-qaSkyBoss") { mode = "skyboss"; dir = a[i + 1]; }
+            if (a[i] == "-qaSprint") { mode = "sprint"; dir = a[i + 1]; }
+            if (a[i] == "-qaCharSelect") { mode = "charselect"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -149,6 +151,8 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "bossassist") yield return BossAssistMode();
         else if (mode == "finalevo") yield return FinalEvoMode();
         else if (mode == "skyboss") yield return SkyBossMode();
+        else if (mode == "sprint") yield return SprintMode();
+        else if (mode == "charselect") yield return CharSelectMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

@@ -128,6 +128,9 @@ public partial class DebugPanel : MonoBehaviour
         // FINAL EVOLUTION の確認(2026-10-04、DEBUG RUN)
         if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "FINAL EVOLUTION TEST…", 16f, false, false)) { page = 7; confirmSave = 0; confirmReset = false; }
         y += 46f;
+        // 疾走出発(2026-10-05 試作): 門番の撃破記録が無くても全部の行き先を選べる(ステージ選択の「疾走出発…」)
+        if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), SprintRecords.DevUnlockAll ? "疾走出発の行き先: 全解放 ON(押すと記録どおりに戻す)" : "疾走出発の行き先: 記録どおり(押すと全解放)", 16f, SprintRecords.DevUnlockAll, false)) SprintRecords.DevUnlockAll = !SprintRecords.DevUnlockAll;
+        y += 46f;
 
         GUI.Label(new Rect(x, y, 300f, 26f), "BESTを設定(ガチャの段階の確認)", UiKit.Label(16f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));
         y += 28f;

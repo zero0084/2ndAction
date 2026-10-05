@@ -24,7 +24,7 @@ public static class ProgressStats
         lastFlushed = lifetime;
     }
 
-    public static void Reload() { loaded = false; dirty = false; seenBosses = null; }
+    public static void Reload() { loaded = false; dirty = false; seenBosses = null; SprintRecords.Reload(); }
 
     // ---- 会ったボス(2026-10-05): ラスダンの節目のボスは、製品版ではこの中から選ぶ(LastDungeonBossTuning.releasePreferSeen) ----
     static System.Collections.Generic.HashSet<string> seenBosses;

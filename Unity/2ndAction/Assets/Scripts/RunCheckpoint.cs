@@ -79,6 +79,8 @@ public static class RunCheckpoint
         public float ultimateGauge;
         // FINAL EVOLUTION(2026-10-04): 資格/READY/ACTIVE/USED/残り。古いデータは空(状態なし)
         public List<FinalEvolution.SaveState> finalEvolution = new List<FinalEvolution.SaveState>();
+        // 疾走出発(2026-10-05): 飛ばした距離(持ち帰りの MILE の距離ぶんから除く)。古いデータは0
+        public float sprintSkippedMeters;
     }
 
     static Data cached;

@@ -956,6 +956,9 @@ public partial class BossManager : MonoBehaviour
         if (aliveDragonsThisEncounter <= 0 && aliveMajinsThisEncounter <= 0 && aliveWildThisEncounter <= 0)
         {
             BossDefeatedThisPhase = true; // BGM: 撃破したら道中曲へ戻す
+            // 疾走出発の解放(2026-10-05): ソロの通常ランで 10,000m 刻みの門番を実際に倒した記録(闘技場/DEBUG RUN/マルチは除く)
+            if (useWildSchedule && currentGateK > 0 && currentGateK % 10 == 0 && !ArenaMode.Active && !NetRunLauncher.IsMultiplayerRun && GameManager.Instance != null)
+                SprintRecords.MarkGateCleared(GameManager.Instance.ActiveRunStageId, currentGateK);
             RegisterEncounterDefeated(); // 再戦プールへ(2026-10-02)
             // 自然洞窟ボス拡張(2026-09-22) - StartWildPhaseで設定したボス
             // 遭遇区間の戦闘可能スペース保証を、遭遇終了時に必ず解除する。

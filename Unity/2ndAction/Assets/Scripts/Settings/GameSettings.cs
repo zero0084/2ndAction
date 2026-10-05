@@ -53,7 +53,8 @@ public static class UiInputGate
 {
     public static bool DebugPanelOpen;
     static bool latch;
-    public static bool ModalOpen => SettingsPanel.IsVisible || DebugPanelOpen;
+    public static bool SprintPanelOpen; // 疾走出発の行き先パネル(2026-10-05)
+    public static bool ModalOpen => SettingsPanel.IsVisible || DebugPanelOpen || SprintPanelOpen;
 
     // パネルを閉じた: 今押している指が離れるまで背後へ通さない
     public static void LatchUntilRelease() { latch = true; }

@@ -1541,7 +1541,7 @@ public partial class GameManager : MonoBehaviour
         SetCharacterCardOwner(activeRunCharacterId); // そのキャラのキャラカード枠(2026-10-02)
         ApplyCharacterCardEffects();
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
-        StartCoroutine(RunStartCountdownRoutine());
+        if (!TryStartSprintInsteadOfCountdown()) StartCoroutine(RunStartCountdownRoutine()); // 疾走出発(2026-10-05)は演出の後に到着地点から
     }
 
     // Stage01地形挙動修整(2026-09-17), item4 - 全ステージ共通のRun開始
@@ -3399,7 +3399,7 @@ public partial class GameManager : MonoBehaviour
         // Item 1/16 - FINISH (via Win()) awards the FULL RunMile; GAME OVER
         // (this method also runs for that path) LOSES it entirely instead -
         // "そのRunで獲得した未確定MILEは全て失います".
-        RunDistanceMile = Mathf.FloorToInt(Mathf.Max(MaxDistance, HighestReachedDistance) / 100f * Mathf.Max(0f, 1f + Card.Get(EffectType.DistanceMilePct)));
+        RunDistanceMile = Mathf.FloorToInt(MileDistanceForRun / 100f * Mathf.Max(0f, 1f + Card.Get(EffectType.DistanceMilePct))); // 疾走で飛ばした距離は除く(2026-10-05)
         if (IsWin) AddMile(RunMile);
 
         // Item 15/16 - Active Run/Checkpoint is invalidated on EITHER end
@@ -3493,6 +3493,7 @@ public partial class GameManager : MonoBehaviour
         ExportCardRunState(data); // カードバランス v3
         if (UltimateArt.Instance != null) data.ultimateGauge = UltimateArt.Instance.ExportGauge(); // #100 ULTIMATE
         data.finalEvolution = FinalEvolution.Export(); // FINAL EVOLUTION
+        data.sprintSkippedMeters = SprintSkippedMeters; // 疾走出発(2026-10-05)
     }
 
     // Item 9 - "RETURN TO HOME" - NOT a FINISH: Run MILE stays unconfirmed,
@@ -3603,6 +3604,7 @@ public partial class GameManager : MonoBehaviour
         RestoreCardRunState(data); // カードバランス v3: PHOENIX の消費 / SECOND WIND のクールダウン / LAST CHANCE
         if (UltimateArt.Instance != null) UltimateArt.Instance.ImportGauge(data.ultimateGauge); // #100 ULTIMATE の Gauge
         FinalEvolution.Import(data.finalEvolution); // FINAL EVOLUTION(古いデータは状態なし)
+        SprintSkippedMeters = data.sprintSkippedMeters; // 疾走出発で飛ばした距離(MILE から除く。古いデータは0)
         // v3: 最大HPは取得のやり直しで決まる(成長 − 封印)。保存した最大HPは、カードが1枚も無い古い保存の互換のためにだけ使う
         if (data.maxLives > 0 && cardOrder.Count == 0) maxLives = data.maxLives;
         Lives = Mathf.Clamp(data.lives, 1, maxLives);
@@ -3715,7 +3717,7 @@ public partial class GameManager : MonoBehaviour
             // so this reads as one aligned strip instead of separately
             // placed boxes.
             DrawStatPanel(GetBestPanelRect(), "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor);
-            DrawStatPanel(GetDistancePanelRect(), "DISTANCE", FormatDistanceExact(MaxDistanceExact), HudValueColor, flashIntensity: DistanceFlashIntensity);
+            DrawStatPanel(GetDistancePanelRect(), "DISTANCE", FormatDistanceExact(SprintActive && SprintRunner.Instance != null ? SprintRunner.Instance.DistanceNow : MaxDistanceExact), HudValueColor, flashIntensity: DistanceFlashIntensity); // 疾走中(リングの3択)は疾走の距離
             DrawSpeedHud();
 
             DrawLevelAndExp();
