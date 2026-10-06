@@ -576,6 +576,8 @@ public partial class BossManager : MonoBehaviour
         // BONUS ZONE(2026-09-29): 区画の最中はボスを始めない(BonusZoneが次のボスの手前で自分から終わる)
         if (BonusZone.Instance != null && BonusZone.Instance.BlocksBoss) return;
         if (player == null || dragonIdleFrames == null || dragonIdleFrames.Length == 0) return;
+        // ラスダン 90〜98km(2026-10-06): 走りながらのボスラッシュは距離を止めない(関門の演出/距離の固定を通らずに始める)
+        if (TryStartContinuousRush()) return;
 
         float targetDistance = CurrentTargetDistance();
         float gateDistance = GateDistance();

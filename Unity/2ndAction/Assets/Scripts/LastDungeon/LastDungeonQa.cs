@@ -71,6 +71,7 @@ public partial class LastDungeonQa : MonoBehaviour
         else if (mode == "stop") yield return StopMode();
         else if (mode == "warps") yield return WarpsMode();
         else if (mode == "bosses") yield return BossesMode();
+        else if (mode == "runrush") yield return RunRushMode();
         else yield return FlowMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);
@@ -308,7 +309,7 @@ public partial class LastDungeonQa : MonoBehaviour
         int enemies90 = -1, obstacles99 = 0;
         System.Action<ObstacleController, string> onObs = (o, s) => { if (gm.MaxDistance >= 99000f) obstacles99++; };
         ObstacleSpawner.Created += onObs;
-        int gatesSeen = 0, lastRushK = 0, maxSimul = 0;
+        int gatesSeen = 0, lastRushK = 0, maxSimul = 0, runRushSpawned = 0;
         float gateStart = 0f;
         var gateLog = new List<string>();
         float silenceStartT = -1f;
@@ -325,6 +326,7 @@ public partial class LastDungeonQa : MonoBehaviour
                 BotAttackBoss();
                 if (bm.RushGateK > 0 && bm.RushGateK != lastRushK) { lastRushK = bm.RushGateK; gatesSeen++; gateStart = Time.time; L($"  rush gate {lastRushK * 1000}m: {BossManager.RushGateLabel(lastRushK)}"); fpsSum = 0f; fpsN = 0; fpsMin = 999f; }
                 int ab = ActiveBosses(); maxSimul = Mathf.Max(maxSimul, ab);
+                if (bm.CurrentBossEncounter != null && bm.CurrentBossEncounter.continuous) runRushSpawned = Mathf.Max(runRushSpawned, bm.CurrentBossEncounter.spawned);
                 if (ab >= 2 && !shotMulti) { shotMulti = true; StartCoroutine(ShotLater("rush_two_bosses", 1.2f)); }
             }
             else if (lastRushK > 0 && gateStart > 0f)
@@ -362,8 +364,10 @@ public partial class LastDungeonQa : MonoBehaviour
         ObstacleSpawner.Created -= onObs;
         L($"  rush: gates={gatesSeen} max bosses at once={maxSimul}");
         foreach (var g in gateLog) L("   " + g);
-        if (expectRush) Check(gatesSeen == 9, $"boss rush has 9 gates (90k-98k) ({gatesSeen})");
-        if (expectRush) Check(maxSimul >= 2 && maxSimul <= 3, $"some rush gates have 2 bosses together, never a flood (max {maxSimul})");
+        // 2026-10-06: 走りながらのボスラッシュ(既定)は 90〜99km で1つの遭遇・9体。旧方式は関門9つ
+        if (expectRush && BossManager.ContinuousRush) Check(gatesSeen == 1 && runRushSpawned == 9, $"run rush: one continuous encounter, 9 bosses (encounters {gatesSeen}, bosses {runRushSpawned})");
+        else if (expectRush) Check(gatesSeen == 9, $"boss rush has 9 gates (90k-98k) ({gatesSeen})");
+        if (expectRush) Check(maxSimul >= (BossManager.ContinuousRush ? 1 : 2) && maxSimul <= 3, $"bosses together in the rush, never a flood (max {maxSimul})");
         if (expectRush) Check(enemies90 >= 0 && enemiesAt99 >= 0 && enemiesAt99 == enemies90, $"no normal enemies during the boss rush (90k: {enemies90}, 99k: {enemiesAt99})");
         Check(dir.SpawnedEnemies == enemiesAt99 || enemiesAt99 < 0, $"no enemies in the silence (99k-100k): +{dir.SpawnedEnemies - enemiesAt99}");
         Check(obstacles99 == 0, $"no obstacles in the silence ({obstacles99})");

@@ -71,7 +71,7 @@ public partial class DebugPanel : MonoBehaviour
         float w = Screen.width / s, h = Screen.height / s;
         float k = Mathf.SmoothStep(0f, 1f, t / 0.15f);
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.05f, 0.02f, 0.02f, 0.5f * k));
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 700f : page == 4 || page == 5 || page == 6 || page == 7 ? 600f : 470f, h - 24f);
+        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 700f : page == 4 || page == 5 || page == 6 || page == 7 || page == 8 ? 600f : 470f, h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f + (1f - k) * 12f, pw, ph);
         Color keepColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, k);
@@ -82,7 +82,7 @@ public partial class DebugPanel : MonoBehaviour
         if (page == 0 && UiKit.Button(new Rect(p.xMax - 352f, p.y + 12f, 146f, 42f), "ラスダン終盤…", 16f, false, false)) { page = 2; confirmSave = 0; confirmReset = false; }
         if (page != 0)
         {
-            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else if (page == 7) DrawFinalEvoPage(p); else DrawEndgamePage(p);
+            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else if (page == 7) DrawFinalEvoPage(p); else if (page == 8) DrawComboPage(p); else DrawEndgamePage(p);
             GUI.color = keepColor;
             GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
             if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();
@@ -126,7 +126,9 @@ public partial class DebugPanel : MonoBehaviour
         if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "洞窟/天空ボス試験…(出現/段階/必殺技/BREAK/ラン再開)", 16f, false, false)) { page = 6; confirmSave = 0; confirmReset = false; }
         y += 46f;
         // FINAL EVOLUTION の確認(2026-10-04、DEBUG RUN)
-        if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "FINAL EVOLUTION TEST…", 16f, false, false)) { page = 7; confirmSave = 0; confirmReset = false; }
+        float tw2 = (p.width - 48f - 8f) / 2f;
+        if (UiKit.Button(new Rect(x, y, tw2, 40f), "FINAL EVOLUTION TEST…", 16f, false, false)) { page = 7; confirmSave = 0; confirmReset = false; }
+        if (UiKit.Button(new Rect(x + tw2 + 8f, y, tw2, 40f), "COMBO TEST…", 16f, false, false)) { page = 8; confirmSave = 0; confirmReset = false; }
         y += 46f;
         // 疾走出発(2026-10-05 試作): 門番の撃破記録が無くても全部の行き先を選べる(ステージ選択の「疾走出発…」)
         if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), SprintRecords.DevUnlockAll ? "疾走出発の行き先: 全解放 ON(押すと記録どおりに戻す)" : "疾走出発の行き先: 記録どおり(押すと全解放)", 16f, SprintRecords.DevUnlockAll, false)) SprintRecords.DevUnlockAll = !SprintRecords.DevUnlockAll;

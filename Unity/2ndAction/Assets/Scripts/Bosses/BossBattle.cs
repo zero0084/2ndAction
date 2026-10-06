@@ -107,6 +107,11 @@ public class BossBattleHud : MonoBehaviour
 
     void Awake() { Instance = this; }
 
+    // 2026-10-06: 表示の文字をフォントへ先に焼き込む(バナーはポップで文字の大きさが毎フレーム変わり、初めての大きさ/文字ごとに
+    // 焼き込みが走って数十msの処理落ちになる)。次の OnGUI で、バナーの使う大きさ(30〜38)の分をまとめて済ませる。
+    static readonly System.Collections.Generic.List<string> warmQueue = new System.Collections.Generic.List<string>();
+    public static void WarmBannerGlyphs(string text) { if (!string.IsNullOrEmpty(text)) warmQueue.Add(text); }
+
     public static void Banner(string text, Color color, float seconds)
     {
         if (NetCombat.Authority) NetCombat.BroadcastBanner(text, color, seconds); // 自然洞窟ボス強化(2026-10-04): 段階/必殺技/BREAK/隙の表示をJOINにも
@@ -119,6 +124,13 @@ public class BossBattleHud : MonoBehaviour
 
     void OnGUI()
     {
+        if (warmQueue.Count > 0 && Event.current.type == EventType.Layout && big != null)
+        {
+            string all = string.Concat(warmQueue);
+            warmQueue.Clear();
+            Font f = big.font != null ? big.font : GUI.skin.font;
+            if (f != null) for (int sz = 28; sz <= 40; sz++) f.RequestCharactersInTexture(all, sz, big.fontStyle);
+        }
         var gm = GameManager.Instance;
         if (gm == null || !gm.HasStarted || gm.IsGameOver) return;
         float s = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f);

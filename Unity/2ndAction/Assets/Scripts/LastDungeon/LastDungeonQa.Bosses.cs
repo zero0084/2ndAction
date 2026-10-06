@@ -20,6 +20,7 @@ public partial class LastDungeonQa
         yield return BeginRun(ch);
         var bm = BossManager.Instance;
         var ld = LastDungeonBossTuning.I;
+        ld.continuousRush = false; // 2026-10-06: このモードは旧方式(関門ごとに止める)の確認。走りながらの方式は -ldQaMode runrush
         typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
 
         // ---- A: プール
@@ -192,6 +193,7 @@ public partial class LastDungeonQa
         Check(gatesAfter == 0 && flow != null && flow.Current == LastDungeonFlow.State.Silence, "H: no gate after 98km, the silence starts at 99km");
 
         typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false);
+        ld.continuousRush = true;
     }
 
     // 画面に映っている(カメラの範囲+1m)通常の敵の数

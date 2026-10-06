@@ -293,7 +293,71 @@ public class RunBuildHud : MonoBehaviour
         float now = Time.unscaledTime;
         DrawGroupLabels(nChar, size, compact);
         for (int i = 0; i < slots.Count; i++) DrawSlot(slots[i], slotRects[i], now);
+        if (!compact) DrawCombos(grid, size);
         GUI.color = prevColor;
+    }
+
+    // ===== COMBO(2026-10-06): カード一覧の下に小さなアイコンの列(仮のアイコン = 色の丸+2文字)。タップで内容 =====
+    // FINAL EVOLUTION の金の枠/★とは重ねない(カード側は左下の小さな点だけ)。
+    public readonly List<Rect> ComboRects = new List<Rect>();
+    string comboDetailId; float comboDetailUntil;
+    static GUIStyle comboIconStyle, comboDetailStyle, comboTitleStyle;
+    void DrawCombos(Rect grid, float slotSize)
+    {
+        ComboRects.Clear();
+        var cs = ComboSystem.Instance;
+        if (cs == null || cs.ActiveCombos.Count == 0 || !ComboSystem.Enabled) return;
+        float s = Mathf.Round(slotSize * 0.62f), gap = Mathf.Max(3f, s * 0.14f);
+        float right = grid.xMax, y = grid.yMax + Mathf.Max(6f, slotSize * 0.2f);
+        if (comboIconStyle == null)
+        {
+            comboIconStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold, clipping = TextClipping.Overflow };
+            comboDetailStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.UpperLeft, wordWrap = true };
+            comboTitleStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.UpperLeft, fontStyle = FontStyle.Bold };
+        }
+        comboIconStyle.fontSize = Mathf.Max(9, Mathf.RoundToInt(s * 0.36f));
+        var list = cs.ActiveCombos;
+        int perRow = Mathf.Max(1, Mathf.FloorToInt((grid.width + gap) / (s + gap)));
+        for (int i = 0; i < list.Count; i++)
+        {
+            var a = list[i];
+            int col = i % perRow, row = i / perRow;
+            var r = new Rect(right - (col + 1) * s - col * gap, y + row * (s + gap), s, s);
+            ComboRects.Add(r);
+            float pulse = a.enhanced ? 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 8f) : 0f;
+            if (a.enhanced) Round(Scale(r, 1.18f + 0.06f * pulse), new Color(1f, 0.6f, 0.2f, 0.5f + 0.3f * pulse)); // ENHANCED(最終進化中)
+            Round(r, new Color(0f, 0f, 0f, 0.55f));
+            Color c = a.def.color; c.a = 0.95f;
+            Round(Scale(r, 0.86f), c);
+            comboIconStyle.normal.textColor = Color.black;
+            GUI.Label(new Rect(r.x + 1f, r.y + 1f, r.width, r.height), a.def.iconText, comboIconStyle);
+            comboIconStyle.normal.textColor = Color.white;
+            GUI.Label(r, a.def.iconText, comboIconStyle);
+            if (a.awakened) { comboIconStyle.normal.textColor = new Color(1f, 0.85f, 0.35f); GUI.Label(new Rect(r.xMax - s * 0.38f, r.y - s * 0.22f, s * 0.4f, s * 0.4f), "★", comboIconStyle); }
+            var ev = Event.current;
+            if (ev.type == EventType.MouseDown && Scale(r, 1.2f).Contains(ev.mousePosition))
+            {
+                comboDetailId = comboDetailId == a.def.id && Time.unscaledTime < comboDetailUntil ? null : a.def.id;
+                comboDetailUntil = Time.unscaledTime + 5f;
+                ev.Use();
+            }
+        }
+        // 内容(タップした COMBO の名前/構成カード/効果。5秒で閉じる)
+        if (comboDetailId == null || Time.unscaledTime > comboDetailUntil) return;
+        var d = cs.Get(comboDetailId);
+        if (d == null) { comboDetailId = null; return; }
+        float w = Mathf.Min(Screen.width * 0.42f, 520f), fs = Mathf.Clamp(Screen.height * 0.024f, 13f, 22f);
+        comboDetailStyle.fontSize = Mathf.RoundToInt(fs); comboTitleStyle.fontSize = Mathf.RoundToInt(fs * 1.25f);
+        string parts = string.Join(" + ", d.def.abilities.ConvertAll(id => { var cd = CardDatabase.FindBaseById(id); return (cd != null ? cd.cardName : id) + $" Lv{(GameManager.Instance != null ? GameManager.Instance.GetAbilityRunStack(id) : 0)}"; }));
+        string body = $"{parts}\n{d.def.description}{(d.enhanced ? "\n[ENHANCED] " + d.def.enhancedDescription : "")}\n強さ Lv{d.level:0.0}{(d.def.risk ? "  (リスクはそのまま)" : "")}";
+        float h = comboDetailStyle.CalcHeight(new GUIContent(body), w - 24f) + fs * 2.2f;
+        var panel = new Rect(right - w, y + (Mathf.CeilToInt(list.Count / (float)perRow)) * (s + gap) + 4f, w, h);
+        if (panel.yMax > Screen.height - 8f) panel.y = Screen.height - 8f - h;
+        Round(panel, new Color(0.04f, 0.06f, 0.12f, 0.92f));
+        comboTitleStyle.normal.textColor = d.def.color;
+        GUI.Label(new Rect(panel.x + 12f, panel.y + 6f, w - 24f, fs * 1.6f), "COMBO  " + d.def.displayName, comboTitleStyle);
+        comboDetailStyle.normal.textColor = new Color(0.9f, 0.92f, 1f);
+        GUI.Label(new Rect(panel.x + 12f, panel.y + fs * 1.8f, w - 24f, h), body, comboDetailStyle);
     }
 
     static GUIStyle groupStyle;
@@ -424,6 +488,13 @@ public class RunBuildHud : MonoBehaviour
     void DrawSlotOverlay(Slot slot, Rect body)
     {
         string ab = GameManager.MainAbilityOf(slot.cardId);
+        // COMBO に使われているカード: 左下の小さな点(FINAL EVOLUTION の金の枠/右上の★とは重ならない位置)
+        if (ComboSystem.UsedInCombo(ab) && !IsCompact)
+        {
+            float dsz = Mathf.Max(6f, body.width * 0.2f);
+            Round(new Rect(body.x - dsz * 0.15f, body.yMax - dsz * 0.85f, dsz, dsz), new Color(0f, 0f, 0f, 0.7f));
+            Round(new Rect(body.x - dsz * 0.15f + dsz * 0.18f, body.yMax - dsz * 0.85f + dsz * 0.18f, dsz * 0.64f, dsz * 0.64f), new Color(0.55f, 1f, 0.75f, 0.95f));
+        }
         var st = FinalEvolution.StageOf(ab);
         if (st == FinalEvolution.Stage.None || st == FinalEvolution.Stage.Eligible) return;
         for (int i = 0; i < slots.Count; i++) { if (slots[i] == slot) break; if (GameManager.MainAbilityOf(slots[i].cardId) == ab) return; }

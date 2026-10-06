@@ -33,6 +33,7 @@ public partial class GameManager
         runStartAbilityStacks.Clear();
         if (UltimateArt.Instance != null) UltimateArt.Instance.ResetRun(); // #100 ULTIMATE: Gauge / BUFF / 発動中の状態
         if (FinalEvolution.Instance != null) FinalEvolution.Instance.ResetRun(); // FINAL EVOLUTION(ランの中だけの状態)
+        if (ComboSystem.Instance != null) ComboSystem.Instance.ResetRun();       // COMBO(ランの中だけの状態)
         SealedHearts = 0;
         baseMaxLivesForRun = def != null ? def.baseMaxLives : maxLives;
         maxLivesCap = CardRules.MaxHeartsCap * CombatScale.HpPerHeart;
@@ -228,6 +229,7 @@ public partial class GameManager
         lifestealAmount = lifestealChance > 0f ? HealHearts(CardRules.BaseHealHearts) * per : 0f;
 
         if (PlayerController.Instance != null) PlayerController.Instance.ApplyCardTotals(Card);
+        ComboSystem.Recompute(); // COMBO の成立(能力Lv/最終進化の ACTIVE から)
     }
 
     static float ApplyRatio(float current, ref float applied, float target)
@@ -293,6 +295,7 @@ public partial class GameManager
             if (PlayerController.Instance.AddOverhealShield()) OverhealShields++;
         }
         if (before + amount > maxLives) FinalEvolution.OnOverheal(); // FINAL EVOLUTION(VAMPIRE): 溢れた分は Blood Shield(上限あり)
+        if (before + amount > maxLives) CardProcs.ComboOnOverheal(); // COMBO(BLOOD AEGIS): 溢れた分は Blood Aegis(上限あり)
     }
 
     // Shield で防いだ(TryDamagePlayer / NetPrecheckDamage)

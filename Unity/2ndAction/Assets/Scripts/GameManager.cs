@@ -1384,10 +1384,18 @@ public partial class GameManager : MonoBehaviour
         }
 
         UpdateGameOverGuard();
-        bool retryAllowed = RetryAllowedNow;
-        if (retryAllowed && (Input.GetKeyDown(KeyCode.R) || WasTappedOrClicked()))
+        // 2026-10-06: Result(FAILED/CLEAR)の入力は Gameplay 側の状態(パネルを閉じた指のラッチ/ボス/Encounter/補助)に左右されない
+        // 専用の判定(ResultTapThisFrame)。受け付けなかった時は理由を残す(実機で「Tap to Retry が効かない」を追えるように)。
+        if (IsGameOver && ResultTapThisFrame(out string tapBlock))
         {
-            RetryWithTransition();
+            if (!string.IsNullOrEmpty(tapBlock)) { ResultTapsIgnored++; LastResultTapBlock = tapBlock; DeathLog($"Result tap ignored: {tapBlock}"); }
+            else if (!RetryAllowedNow) { ResultTapsIgnored++; LastResultTapBlock = QuietFinish ? "quiet finish" : $"too early ({SecondsSinceGameOver:F1}s)"; }
+            else
+            {
+                ResultTapsAccepted++;
+                DeathLog($"Result tap detected -> Retry requested (taps ignored before: {ResultTapsIgnored}{(ResultTapsIgnored > 0 ? ", last: " + LastResultTapBlock : "")})");
+                RetryWithTransition();
+            }
         }
 
         if (DebugMode) UpdateDebugSpeedTracking();
@@ -1899,6 +1907,33 @@ public partial class GameManager : MonoBehaviour
 
     // Any tap/click starts the game or retries, EXCEPT one landing on a
     // settings button (those handle themselves via OnGUI).
+    // ===== Result の入力(2026-10-06): GameOver/クリア後は Gameplay の入力より優先 =====
+    public int ResultTapsAccepted { get; private set; }
+    public int ResultTapsIgnored { get; private set; }
+    public string LastResultTapBlock { get; private set; } = "";
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public static bool DebugResultTapPending; // 自動テスト: 実際のタップと同じ判定を1回通す
+#endif
+    // 新しい指の押し下げ(どの指でも)/クリック/R キー。受け付けない時は why に理由(空 = 受け付ける)。
+    // ・設定パネル/パネルを閉じた指のラッチ(UiInputGate)は見ない: 結果画面は新しいタップだけを見る(ラッチが実機で外れないと進めなくなる)。
+    // ・画面の切り替え(遷移)中だけは待つ(二重の読み直しを防ぐ)。遷移が詰まった時は ScreenTransitionManager の見張りが外す。
+    bool ResultTapThisFrame(out string why)
+    {
+        why = "";
+        bool down = Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.R);
+        for (int i = 0; !down && i < Input.touchCount; i++) if (Input.GetTouch(i).phase == TouchPhase.Began) down = true;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (DebugResultTapPending) { DebugResultTapPending = false; down = true; }
+#endif
+        if (!down) return false;
+        if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) why = "screen transition";
+        else if (SettingsPanel.IsVisible) why = "settings panel open";
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        else if (UiInputGate.DebugPanelOpen) why = "debug panel open";
+#endif
+        return true;
+    }
+
     bool WasTappedOrClicked()
     {
         // Input Lock - see ScreenTransitionManager's own class comment;
@@ -3337,6 +3372,7 @@ public partial class GameManager : MonoBehaviour
         DeathLog($"FinishRun win={IsWin} reason={DeathReason} timeScaleBefore={Time.timeScale:F2} reasons={TimeControl.DescribeActiveReasons()} hitStop={HitStop.ActiveCount} choice={levelUpPending} seq={IsRewardSequenceRunning}");
         // 死神(三姉妹)は追跡/攻撃/接触判定をここで止める(死因が何であっても)
         if (!QaLegacyDeathBehaviour) ReaperBase.StopAllForRunEnd();
+        if (!QaLegacyDeathBehaviour) GameOverCleanup(); // 2026-10-06: ボス/Encounter/補助/入力の片付け(撃破の処理は通さない)
         ProgressStats.Flush(true); // 死亡/正常終了: 累計走行距離を保存(2026-10-01)
         gameOverTime = Time.time;
         // Safety net: Time.timeScale is a global engine setting that would
@@ -3411,6 +3447,26 @@ public partial class GameManager : MonoBehaviour
         DeathLog($"FinishRun done timeScale={Time.timeScale:F2}");
     }
 
+    // GameOver/クリアの確定の時の片付け(2026-10-06)。何度呼ばれても同じ(冪等)。Boss撃破/報酬/保存の処理は通さない。
+    // GAMEPLAY → PLAYER DEAD → GAME OVER CLEANUP → RESULT: ここを通った後は Gameplay 側の状態に関係なく Result の入力が通る。
+    public int GameOverCleanups { get; private set; }
+    bool gameOverCleaned;
+    void GameOverCleanup()
+    {
+        if (gameOverCleaned) return;
+        gameOverCleaned = true;
+        GameOverCleanups++;
+        DeathLog("GameOver cleanup start");
+        try { if (BossManager.Instance != null) BossManager.Instance.StopForRunEnd(); } catch (System.Exception ex) { Debug.LogException(ex); }
+        DeathLog("GameOver cleanup: bosses/encounter stopped");
+        try { if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.StopForRunEnd(); } catch (System.Exception ex) { Debug.LogException(ex); }
+        DeathLog("GameOver cleanup: assist stopped");
+        // 結果画面は新しいタップだけを見る(閉じたパネルの指のラッチは持ち越さない)
+        UiInputGate.ClearLatch();
+        showPauseMenu = false; showReturnHomeConfirm = false;
+        DeathLog("GameOver cleanup done -> Result");
+    }
+
     // [Death] の記録(FreezeDiagnosticsの記録にも残す)
     public void DeathLog(string msg)
     {
@@ -3435,7 +3491,7 @@ public partial class GameManager : MonoBehaviour
 
     public void Retry()
     {
-        DeathLog($"Retry -> reload scene (gameOver={IsGameOver})");
+        DeathLog($"Retry -> Scene/Run reset start (reload scene, gameOver={IsGameOver})");
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
@@ -3493,6 +3549,7 @@ public partial class GameManager : MonoBehaviour
         ExportCardRunState(data); // カードバランス v3
         if (UltimateArt.Instance != null) data.ultimateGauge = UltimateArt.Instance.ExportGauge(); // #100 ULTIMATE
         data.finalEvolution = FinalEvolution.Export(); // FINAL EVOLUTION
+        data.combo = ComboSystem.Export();             // COMBO(一時的な数え/通知済み)
         data.sprintSkippedMeters = SprintSkippedMeters; // 疾走出発(2026-10-05)
     }
 
@@ -3604,6 +3661,7 @@ public partial class GameManager : MonoBehaviour
         RestoreCardRunState(data); // カードバランス v3: PHOENIX の消費 / SECOND WIND のクールダウン / LAST CHANCE
         if (UltimateArt.Instance != null) UltimateArt.Instance.ImportGauge(data.ultimateGauge); // #100 ULTIMATE の Gauge
         FinalEvolution.Import(data.finalEvolution); // FINAL EVOLUTION(古いデータは状態なし)
+        ComboSystem.Import(data.combo);             // COMBO(古いデータは数えなし。成立はカードから計算し直す)
         SprintSkippedMeters = data.sprintSkippedMeters; // 疾走出発で飛ばした距離(MILE から除く。古いデータは0)
         // v3: 最大HPは取得のやり直しで決まる(成長 − 封印)。保存した最大HPは、カードが1枚も無い古い保存の互換のためにだけ使う
         if (data.maxLives > 0 && cardOrder.Count == 0) maxLives = data.maxLives;

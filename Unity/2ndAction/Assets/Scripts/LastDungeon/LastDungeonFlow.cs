@@ -163,6 +163,8 @@ public class LastDungeonFlow : MonoBehaviour
         foreach (var sp in Resources.LoadAll<Sprite>("LastDungeon/Glyphs")) preloaded.Add(sp);
         var slab = Resources.Load<Sprite>("LastDungeon/Fx/slab");
         if (slab != null) preloaded.Add(slab);
+        // 走りながらのボスラッシュの表示の文字(ボス名は英大文字)を先に焼き込む(2026-10-06: 初めての表示の処理落ち)
+        BossBattleHud.WarmBannerGlyphs("BOSS RUSH  走りながら戦え! WARNING が迫る! 残ったボスを倒せ! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
     }
 
     // ===================================================================== //

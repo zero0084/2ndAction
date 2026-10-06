@@ -26,6 +26,7 @@ public class ElementStatus : MonoBehaviour
     public bool Burning => burnLeft > 0f;
     // v3: 燃えたまま倒れたか(撃破の処理は倒れる演出の後なので、その時には炎上が消えている。INFERNO が使う)
     public bool DiedBurning { get; private set; }
+    public bool ComboBurned; // COMBO の炎上を受けた(この敵からは WILDFIRE を出さない: 無限に燃え移らない)
     public bool BurningOrDiedBurning => burnLeft > 0f || DiedBurning;
     public bool Bleeding => bleedLeft > 0f;
     public bool Chilled => chillLeft > 0f;

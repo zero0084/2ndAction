@@ -211,6 +211,13 @@ public partial class HighSpeedAssist : MonoBehaviour
     }
 
     // 補助が判断しないフレーム(停止/選択/カウントダウン等)でも速度の判定と生成範囲だけは更新する。
+    // GameOver/クリアの確定(GameManager.GameOverCleanup)から: 補助の判断と表示の状態を止める
+    public void StopForRunEnd()
+    {
+        Engaged = false; JudgedKmh = 0f;
+        SetGenerateAhead(0f);
+    }
+
     void Update()
     {
         PlayerController pc = PlayerController.Instance;
@@ -218,7 +225,7 @@ public partial class HighSpeedAssist : MonoBehaviour
         if (pc == null || gm == null || !gm.HasStarted || gm.IsGameOver)
         {
             SetGenerateAhead(0f);
-            if (gm == null || !gm.HasStarted) { Engaged = false; JudgedKmh = 0f; }
+            if (gm == null || !gm.HasStarted || gm.IsGameOver) { Engaged = false; JudgedKmh = 0f; }
             return;
         }
         float v = pc.CurrentAutoRunSpeed;

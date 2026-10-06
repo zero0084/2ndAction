@@ -125,7 +125,7 @@ public partial class EndgameDebug : MonoBehaviour
     public static float WarpDistance(Point p) => p switch
     {
         Point.LastDungeon90 => 89900f,   // ボスラッシュ(90,000m)の直前
-        Point.LastDungeon99 => 98950f,   // 最後の関門の後、静寂区間(99,000m)の直前
+        Point.LastDungeon99 => BossManager.ContinuousRush ? 98600f : 98950f, // 静寂区間(99,000m)の直前。走りながらのボスラッシュは 97/98km のボスが残った状態から(99kmの足止め→全滅→静寂)
         Point.EndingFlow => 98950f,      // 静寂 → 三姉妹 → エンドロール → ONE MORE MILE? の通し
         Point.ReaperSisters => 99950f,   // 100,000m(三姉妹戦)の直前
         Point.EndingCredits => 98900f,   // 静寂区間へ入ってから、三姉妹撃破後と同じ状態でエンドロールを始める
@@ -163,17 +163,19 @@ public partial class EndgameDebug : MonoBehaviour
             {
                 Debug.LogWarning($"[EndgameDebug] {n} progress keys had changed during the Debug Run and were restored: {DebugRun.LastRestoreNote}");
                 // 読み込み済みの値(GameManager等)も戻すため、もう一度だけ読み直す(次の起動予約があればそちらで読み直される)
-                if (!pending.HasValue && !pendingLong.HasValue && !pendingUlt.HasValue && !pendingArena && !pendingCave.HasValue && !pendingSky.HasValue && !pendingFe.HasValue) { SceneManager.LoadScene(s.buildIndex); return; }
+                if (!pending.HasValue && !pendingLong.HasValue && !pendingUlt.HasValue && !pendingArena && !pendingCave.HasValue && !pendingSky.HasValue && !pendingFe.HasValue && !pendingCombo.HasValue) { SceneManager.LoadScene(s.buildIndex); return; }
             }
         }
         // 状態を戻すのは DEBUG RUN の前後だけ(普通のシーンの読み直しでは何も変えない: 他の開発用の設定/自動テストの速度などを残す)
-        if (endedDebugRun || pending.HasValue || pendingLong.HasValue || pendingUlt.HasValue || pendingArena || pendingCave.HasValue || pendingSky.HasValue || pendingFe.HasValue) SafeReset(endedDebugRun ? "debug run ended" : "scene loaded for a launch");
+        if (endedDebugRun || pending.HasValue || pendingLong.HasValue || pendingUlt.HasValue || pendingArena || pendingCave.HasValue || pendingSky.HasValue || pendingFe.HasValue || pendingCombo.HasValue) SafeReset(endedDebugRun ? "debug run ended" : "scene loaded for a launch");
         Instance.keepAlive = false;
         Instance.IsArena = false;
         Instance.IsCaveBossTest = false;
         Instance.IsFinalEvoTest = false;
+        Instance.IsComboTest = false;
         if (TakePendingCave()) { }
         else if (TakePendingFe()) { }
+        else if (TakePendingCombo()) { }
         else if (pendingArena)
         {
             pendingArena = false;
@@ -203,6 +205,7 @@ public partial class EndgameDebug : MonoBehaviour
     static void SafeReset(string why)
     {
         FinalEvolution.DebugForceAwakened = false; // FINAL EVOLUTION TEST の AWAKENED の扱いを戻す
+        ComboSystem.DebugForceAwakened = false;    // COMBO TEST の AWAKENED の扱いを戻す
         TimeControl.ResetAll();
         Time.timeScale = 1f;
         AudioListener.pause = false;
@@ -251,6 +254,13 @@ public partial class EndgameDebug : MonoBehaviour
         float d = WarpDistance(p);
         if (d > 0f) Warp(gm, d);
         Debug.Log($"[FinalDungeon] Enter {d:F0} (DEBUG RUN: {Label(p)}, {ProfileLabel(prof)}) | GM {gm.DebugStateLine()}");
+        if (p == Point.LastDungeon99 && BossManager.ContinuousRush && BossManager.Instance != null)
+        {
+            // ラスダンの流れ(LastDungeonFlow)が RushEnabled を立てるまで待ってから、97km から始めた状態にする
+            w = 0f;
+            while (!BossManager.RushEnabled && w < 5f) { yield return null; w += Time.deltaTime; }
+            BossManager.Instance.DebugStartRushLate(97);
+        }
 
         if (p == Point.EndingCredits || p == Point.OneMoreMile)
         {
@@ -318,6 +328,14 @@ public partial class EndgameDebug : MonoBehaviour
     {
         var gm = GameManager.Instance; var bm = BossManager.Instance;
         if (gm == null || bm == null || !gm.HasStarted || gm.IsGameOver || gm.ActiveRunStageId != LastCorridorDirector.StageId) { Status = "NEXT BOSS: ラスダンのラン中だけ使えます"; yield break; }
+        // 走りながらのボスラッシュ(2026-10-06): 出ているボスを倒して次の増援へ(待機中が出る/無ければ次の節目を今すぐ予約)。ワープしない
+        if (bm.CurrentBossEncounter != null && bm.CurrentBossEncounter.continuous)
+        {
+            string r = bm.DebugRushAdvance();
+            Status = "NEXT BOSS: " + r;
+            Debug.Log("[BossRush] DEBUG NEXT BOSS (run rush): " + r);
+            yield break;
+        }
         // 今の遭遇のボスを全員(まだ出ていない増援も)片付ける。フェニックスの復活などで残った分はもう一度(2026-10-05)
         int killed = bm.DebugFinishEncounter();
         float w = 0f;
@@ -331,6 +349,7 @@ public partial class EndgameDebug : MonoBehaviour
         while ((bm.IsBossPhase || gm.IsRewardSequenceRunning) && w < 40f) { yield return null; w += Time.unscaledDeltaTime; }
         int next = Mathf.Max(BossManager.RushFirstK, Mathf.FloorToInt(gm.MaxDistance / 1000f) + 1);
         if (next > BossManager.RushLastK) { Status = "NEXT BOSS: ボスラッシュの最後の関門(98km)は終わっています"; yield break; }
+        if (BossManager.ContinuousRush && next > BossManager.RushFirstK) { Status = "NEXT BOSS: 走りながらのボスラッシュは 90km からの1つの遭遇です(90km の手前へ)"; next = BossManager.RushFirstK; }
         Warp(gm, next * 1000f - 40f);
         Status = $"NEXT BOSS: {next * 1000}m の関門の手前へ({BossManager.RushGateLabel(next)})";
     }

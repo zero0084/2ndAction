@@ -55,6 +55,18 @@ public class LastDungeonBossTuning : ScriptableObject
     [Tooltip("同時に居てよい数(タグごと)")]
     public int maxLarge = 2, maxAir = 2, maxAreaAttack = 1, maxProjectile = 2, maxChaser = 2;
 
+    [Header("走りながらのボスラッシュ(2026-10-06)")]
+    [Tooltip("true = 90〜99km は距離を止めずに走り続け、1,000mごとにボスを1体ずつ追加(98kmが最後)。99kmで残っていれば足止め。false = 旧方式(関門ごとに止めて倒す)")]
+    public bool continuousRush = true;
+    [Tooltip("走りながらのボスラッシュのボス1体のHP(距離に合わせたHP×hpMulに掛ける)。1,000mに1体なので旧方式(関門に2〜5体)の rushHpMulPerBoss より重め")]
+    public float runRushHpMulPerBoss = 0.6f;
+    [Tooltip("新しいボスの予告(画面の警告+SE)から出現までの秒数(ゲームは止めない)")]
+    public float telegraphSeconds = 1.2f;
+    [Tooltip("ボスの出現と出現の間を最低これだけ空ける(秒)。同じフレームに何体も作らない(処理落ちを分ける)")]
+    public float minSpawnSpacingSeconds = 2.0f;
+    [Tooltip("走りながらのボスラッシュの区間の穴の確率(旧方式は 0.12)")]
+    public float runRushPitChance = 0.06f;
+
     public enum Trigger { Start, Time, HpBelow, OnKill }
     [System.Serializable]
     public class Slot

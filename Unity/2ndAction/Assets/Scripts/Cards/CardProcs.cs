@@ -13,7 +13,7 @@ using UnityEngine;
 //  ・ダメージの基準はキャラによらない: CardRules.ProcReferenceDamage(20) × (1 + 無条件の攻撃の枠の半分)。
 //  ・性能の安全: 0.5秒あたりの論理ヒットと見た目の数に上限(超えた分は見た目を出さずにダメージだけ、さらに超えたら出さない)。
 //    連鎖爆発は世代の上限と「同じ連鎖で同じ相手へは1回」、竜巻/衝撃波は種類ごとの間隔(ICD)。
-public static class CardProcs
+public static partial class CardProcs
 {
     public static int DoubleAttacks, Shockwaves, PierceHits, AerialSlashes, ComboMasterHits, GroundBreakers, SonicSlashes,
         ChainExplosions, Infernos, Tornados, Counters, FlameCounters, ProcBudgetDrops, FxBudgetDrops;
@@ -75,6 +75,7 @@ public static class CardProcs
         if (NetRunLauncher.IsMultiplayerRun && NetSession.IsActive && !NetCombat.Authority) return; // HP を持つ端末だけ
         victim = Normalize(victim);
         if (victim == null || !ElementSystem.IsAlive(victim)) return;
+        ComboOnHit(victim, info, attack, damage); // COMBO(2026-10-06): 発生源を見て、COMBO 由来からは出さない
 
         // 竜巻(風刃が当たった所)
         if (info.windBlade && Lv(EffectType.TornadoLevel) > 0 && Ready("tornado", 0.8f)) SpawnTornado(CenterOf(victim), Lv(EffectType.TornadoLevel));
@@ -175,6 +176,7 @@ public static class CardProcs
         Vector3 at = CenterOf(e);
         var st = e.GetComponent<ElementStatus>();
         bool burning = st != null && st.BurningOrDiedBurning;
+        ComboOnKill(e, st); // COMBO(WILDFIRE)
         int ce = Lv(EffectType.ChainExplosionLevel);
         if (ce > 0) gm.StartCoroutine(ChainExplosion(at, ce, 0, new HashSet<Component> { e }));
         int inf = Lv(EffectType.InfernoLevel);
@@ -279,6 +281,7 @@ public static class CardProcs
             }
             FlameCounters++;
         }
+        ComboOnShieldBlock(pc); // COMBO(AEGIS COUNTER): 最後の Shield が割れた時
     }
 
     // ===================================================================== SONIC BLADE(主攻撃の1押し)

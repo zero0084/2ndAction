@@ -101,6 +101,7 @@ public static class ElementSystem
             {
                 FreezeProcs++;
                 if (e.AbsoluteZero > 0) AbsoluteZeroShatter(victim, e.AbsoluteZero);
+                CardProcs.ComboOnFreeze(victim, info); // COMBO(FROZEN PRISON)
             }
             ChillProcs++;
         }
@@ -120,7 +121,9 @@ public static class ElementSystem
         if (lChance > 0f && e.LightningPower > 0f && Roll() < lChance && LightningReady(victim))
         {
             LightningProcs++;
-            Chain(victim, Mathf.Max(1, Mathf.RoundToInt(e.LightningDamage * HitWeight)), e.LightningChains + FinalEvolution.LightningChainsAdd, e.LightningRange, e.LightningSplash, e.LightningShock);
+            int ldmg = Mathf.Max(1, Mathf.RoundToInt(e.LightningDamage * HitWeight));
+            var last = Chain(victim, ldmg, e.LightningChains + FinalEvolution.LightningChainsAdd, e.LightningRange, e.LightningSplash, e.LightningShock);
+            CardProcs.ComboOnLightning(victim, last, ldmg, info); // COMBO(THUNDER CHAIN / STORM LORD)
         }
         // 風: 前方へ飛ぶ貫通の風刃(風刃自身からは出さない。短い間隔をあける)
         if ((info == null || !info.elementProc) && e.WindBladeChance > 0f && e.WindBladePower > 0f && Time.time - lastWindBlade > 0.25f && Roll() < e.WindBladeChance)
@@ -195,12 +198,14 @@ public static class ElementSystem
         }
     }
 
-    static void Chain(Component first, int dmg, int chains, float range, float splash = 0f, float shock = 0f)
+    // 戻り値: 連鎖の最後に当たった相手(連鎖しなければ最初の相手)
+    static Component Chain(Component first, int dmg, int chains, float range, float splash = 0f, float shock = 0f)
     {
         Vector3 from = CenterOf(first);
         Bolt(from + Vector3.up * 3.5f, from);
         Strike(first, dmg, splash, shock);
-        if (chains <= 0) return;
+        Component last = first;
+        if (chains <= 0) return last;
         chainBuf.Clear();
         foreach (var en in Object.FindObjectsByType<EnemyController>(FindObjectsSortMode.None))
             if (en != first && IsAlive(en)) chainBuf.Add(en);
@@ -223,7 +228,17 @@ public static class ElementSystem
             dmg = Mathf.Max(1, Mathf.RoundToInt(dmg * 0.75f)); // 連鎖するほど少し弱く
             Strike(next, dmg, splash, shock);
             cur = to;
+            last = next;
         }
+        return last;
+    }
+
+    // COMBO(THUNDER CHAIN): from から to へ1本(連鎖/範囲なし。COMBO の側で同じ敵の間隔を見る)
+    public static void ComboStrike(Vector3 from, Component to, int dmg)
+    {
+        if (to == null || !IsAlive(to)) return;
+        Bolt(from, CenterOf(to));
+        Strike(to, dmg, 0f, 0f);
     }
 
     // 稲妻の見た目(短い線。最終演出ではない)
@@ -261,7 +276,7 @@ public static class ElementSystem
             new Vector2(0.9f, 0.18f), new Vector2(0.9f, 0.5f), new Color(0.75f, 1f, 0.85f, 0.85f), PlayerAttackKind.Normal,
             scale, 0.3f, 0f, new Color(0.7f, 1f, 0.85f, 0.5f));
         proj.name = "ElementWindBlade";
-        proj.pierce = 2; // 風の貫通の追加(WindPierce)は KitProjectile.Start で足される
+        proj.pierce = 2 + CardProcs.ComboWindPierceBonus; // 風の貫通の追加(WindPierce)は KitProjectile.Start で足される / COMBO(GALE EDGE)の+1
         var info = proj.GetComponent<PlayerAttackInfo>();
         if (info != null) { info.elementProc = true; info.windBlade = true; info.seqTag = AttackSeqTag.None; info.seqMoveId = 0; }
     }

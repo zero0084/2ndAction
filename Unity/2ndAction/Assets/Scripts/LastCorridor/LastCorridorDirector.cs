@@ -112,7 +112,7 @@ public class LastCorridorDirector : MonoBehaviour
     {
         if (!hardMode) return def;
         if (lx >= silenceFrom - 200f) return 0f;      // 静寂区間(とその手前)は穴なし
-        if (lx >= rushFrom) return 0.12f;             // ボスラッシュ: 走る区間は控えめ
+        if (lx >= rushFrom) return LastDungeonBossTuning.I.continuousRush ? LastDungeonBossTuning.I.runRushPitChance : 0.12f; // ボスラッシュ: 走りながら戦うので穴はさらに少なく(2026-10-06)
         if (lx < 300f) return Mathf.Min(def, 0.1f);
         return Mathf.Lerp(pitChanceRange.x, pitChanceRange.y, SurgeAt(lx));
     }

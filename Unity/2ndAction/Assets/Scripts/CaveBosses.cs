@@ -478,6 +478,7 @@ public class TrollBoss : CaveBossBase
 // ===================================================================== //
 public class WormBoss : CaveBossBase
 {
+    bool surfaceOwed; // 特殊攻撃/必殺技の後、地上へ出る攻撃をまだしていない
     BossHitbox bite;
     BossTelegraphMarker biteMark;
 
@@ -501,8 +502,11 @@ public class WormBoss : CaveBossBase
         while (true)
         {
             if (!buried) yield return Burrow(0.35f);
-            if (UltimateReady(2)) { yield return EarthBreaker(); continue; }
-            if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return CrossBody(); continue; }
+            // 2026-10-06: 特殊攻撃/必殺技(どちらも地中から/画面の先から)の後は、必ず1回は地上へ出る攻撃(噛みつき/飛び出し)を挟む。
+            // 強い再戦の段階やラスダンの攻撃の頻度で特殊攻撃の間隔が短いと、ずっと地中(無敵)のままで倒せなかった。
+            if (!surfaceOwed && UltimateReady(2)) { yield return EarthBreaker(); surfaceOwed = true; continue; }
+            if (!surfaceOwed && SpecialReady(SpecialPhase)) { MarkSpecial(); yield return CrossBody(); surfaceOwed = true; continue; }
+            surfaceOwed = false;
             int pick = BossAiUtil.PickNoRepeat(3, ref lastPick);
             if (pick == 0)
             {

@@ -1655,6 +1655,7 @@ public partial class PlayerController : MonoBehaviour
         // 新4人(2026-09-27) - 忍者の瞬身のごく短い無敵/格闘家のカウンター成立(既存5人は常にfalse)。
         if (!isFall && KitInterceptDamage(source)) return;
         if (!isFall && FinalEvolution.InterceptDamage(source, ref amount)) return; // FINAL EVOLUTION(SPEED/VAMPIRE/GREED)
+        if (!isFall && CardProcs.ComboInterceptDamage(source)) return;              // COMBO(BLOOD AEGIS): 1回防ぐ
         // マルチプレイ: ダウン/脱落中は被弾しない。
         if (NetMatch.Active && !NetMatch.IsLocalAlive) return;
         // マルチ(2026-09-28): カード選択中の本人は敵/ボスの攻撃を受けない(その場で一時停止中のため)。

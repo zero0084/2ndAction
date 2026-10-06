@@ -291,6 +291,15 @@ JOIN のプレイヤーでは、次のカードの効果が働かない。
   - 再使用: 状態(資格/READY/ACTIVE/残り/発動回数)は本人の端末で完結させ、HOST へは「ACTIVE の開始/終了」だけを知らせる(見た目のオーラと上の HOST 側の判定のため)。
   - 候補の公平さ(候補に出た回数)は本人の端末だけで足りる。
 
+## COMBO 第1段階(2026-10-06): マルチでは効果なし
+`ComboSystem.Enabled = !NetRunLauncher.IsMultiplayerRun`。マルチのランでは成立の計算も効果も出さない(HOST だけダメージが出る等の半端な状態にしない)。
+対応に必要なこと:
+- 成立は各プレイヤーの能力から本人の端末で計算できる(カードはプレイヤーごと)。HOST へ「成立中の COMBO の一覧」と FE による ENHANCED を送る(HUD/演出用)。
+- 効果の判定は HOST 権威の敵へ当たるので、JOIN の命中から起きる COMBO(BLAZING EDGE/SHATTER/SONIC MOMENTUM/AIR ASSAULT/FINISHING BLOW/DEATH WISH/風)は、JOIN が「どの COMBO が誰に起きたか」を申告し HOST が DealQuiet する経路が要る(今の攻撃の申告と同じ形)。
+- 属性の事件(凍結/落雷/炎上の撃破)は HOST だけで判定している(既存の課題と同じ)ので、その COMBO は HOST の側でプレイヤーごとの COMBO を見て出す必要がある。
+- BLOOD AEGIS/AEGIS COUNTER は HP が HOST 権威なので、HOST の被弾確定の処理で本人の COMBO の数え(盾の数)を参照する。
+- 同じ敵へのクールダウン/proc の予算はプレイヤーごとに持つか、HOST でまとめるかを決める。
+
 ## LAN の自動発見(2026-10-05)で既定の最大人数を 8 に
 - `NetSession.DefaultMaxPlayers = PlannedMaxPlayers`(8)。部屋の知らせ/待機室は「n/8」。開発ビルドは `-netMaxPlayers N` で絞れる。
 - 上の「2人の距離が数 km 離れると同期数が増える」課題は残っている(8 人の実機負荷は未確認)。詳細は Docs/LanDiscovery_2026-10-05.md。
