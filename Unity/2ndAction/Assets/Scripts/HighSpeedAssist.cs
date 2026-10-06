@@ -180,6 +180,9 @@ public partial class HighSpeedAssist : MonoBehaviour
     const string EngagePrefKey = "HighSpeedAssistEngageKmh";
     public const float DefaultEngageKmh = 100f, MinEngageKmh = 60f, MaxEngageKmh = 160f;
     public float EngageSettingKmh => engageKmh;
+    // 保存されている通常の設定(闘技場の中で一時的に変えていても、通常の設定の値)
+    public bool AssistEnabledSetting => PlayerPrefs.GetInt(PrefKey, 1) != 0;
+    public float EngageKmhSetting => Mathf.Clamp(PlayerPrefs.GetFloat(EngagePrefKey, DefaultEngageKmh), MinEngageKmh, MaxEngageKmh);
     public void SetEngageKmh(float kmh, bool save = true)
     {
         ApplyEngageKmh(kmh);

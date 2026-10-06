@@ -1,4 +1,3 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -32,5 +31,11 @@ public partial class GameManager
     }
 
     public void ArenaRefillLives() { Lives = maxLives; }
+
+    // 闘技場のランを始める(選択中のステージは保存しない。解放の状態にも関係なく)
+    public void ArenaStartRun(string stageId)
+    {
+        SelectedStageId = stageId;
+        StartGame();
+    }
 }
-#endif

@@ -20,8 +20,11 @@ public static class ArenaMode
     public static ArenaResult Previous;
     public static bool BattleRunning;        // 計測中(敵を出した〜全滅/手動終了/倒れた)
 
-    public static void Begin() { Active = true; Invincible = Config.invincible; }
-    public static void End() { Active = false; Invincible = false; BattleRunning = false; }
+    // 起動の読み直しの前から(ランの開始で CONTINUE 等を書かないように)進行の書き込みを止める
+    public static bool PendingStart { get; private set; }
+    public static void BeginPending() { PendingStart = true; }
+    public static void Begin() { Active = true; PendingStart = false; Invincible = Config.invincible; }
+    public static void End() { Active = false; PendingStart = false; Invincible = false; BattleRunning = false; }
 
     // ---- 計測の入口(通常のコードから) ----
     public static void OnEnemyDamaged(int damage, bool killed)
@@ -70,10 +73,44 @@ public class ArenaConfig
     public List<ArenaEnemyEntry> enemies = new List<ArenaEnemyEntry> { new ArenaEnemyEntry { kind = ArenaEnemyKind.Dummy, count = 1, ahead = 5f } };
     public bool seedFixed = true;
     public int seed = 12345;
-    public int assistMode = 1;           // 0 = OFF / 1 = 高速時のみ / 2 = 常時
+    public int assistMode = 1;           // 0 = OFF / 1 = ON(通常の設定と同じ: 判定速度以上で働く) / 2 = 常時(開発版だけ)
     public float assistEngageKmh = 100f;
     public bool assistBreakObstacles = true, assistEarlyDoubleJump = true;
     public bool invincible = false;
+    public bool devAllEnemies;           // 開発版だけ: 未遭遇の敵/ボスも選べる
+
+    // 初めての時: 今選んでいるキャラ・カードなし・動かない標的・0km/h・無敵OFF・操作アシストは通常の設定と同じ
+    public static bool IsBoss(ArenaEnemyEntry e) => e != null && (e.kind == ArenaEnemyKind.WildBoss || e.kind == ArenaEnemyKind.CaveBoss || e.kind == ArenaEnemyKind.SkyBoss);
+
+    public static ArenaConfig Fresh()
+    {
+        var c = new ArenaConfig { speedMode = 0, kmh = 0f, invincible = false };
+        var gm = GameManager.Instance;
+        if (gm != null && !string.IsNullOrEmpty(gm.SelectedCharacterId)) c.character = gm.SelectedCharacterId;
+        var a = HighSpeedAssist.Instance;
+        if (a != null) { c.assistMode = a.AssistEnabledSetting ? 1 : 0; c.assistEngageKmh = a.EngageKmhSetting; }
+        return c;
+    }
+
+    // 読み込んだ構成を正す(消えたキャラ/カード/敵、範囲外の値、通常版で選べない物)
+    public ArenaConfig Sanitized()
+    {
+        if (CharacterDatabase.FindById(character) == null) character = GameManager.Instance != null ? GameManager.Instance.SelectedCharacterId : "swordsman";
+        if (build == null) build = new List<ArenaBuildEntry>();
+        build.RemoveAll(b => b == null || string.IsNullOrEmpty(b.key) || CardDatabase.FindById(b.key) == null);
+        foreach (var b in build) b.times = Mathf.Clamp(b.times, 1, GameManager.MaxRunCardLevel);
+        if (enemies == null) enemies = new List<ArenaEnemyEntry>();
+        if (!Debug.isDebugBuild) devAllEnemies = false;
+        enemies.RemoveAll(e => e == null || (e.kind == ArenaEnemyKind.Enemy && EnemyDatabase.FindById(e.enemyId) == null) || !ArenaCatalog.EntryKnown(e, devAllEnemies)); // 保存した構成からも未遭遇の相手は外す
+        int bosses = 0; enemies.RemoveAll(e => IsBoss(e) && ++bosses > 1); // ボスは1種類まで
+        if (enemies.Count == 0) enemies.Add(new ArenaEnemyEntry { kind = ArenaEnemyKind.Dummy, count = 1, ahead = 5f });
+        speedMode = Mathf.Clamp(speedMode, 0, 2);
+        kmh = Mathf.Clamp(kmh, 0f, 300f);
+        distance = Mathf.Clamp(distance, 0f, 99000f);
+        if (!Debug.isDebugBuild) { if (assistMode == 2) assistMode = 1; devAllEnemies = false; }
+        assistEngageKmh = Mathf.Clamp(assistEngageKmh, HighSpeedAssist.MinEngageKmh, HighSpeedAssist.MaxEngageKmh);
+        return this;
+    }
 }
 
 [System.Serializable]
@@ -104,5 +141,7 @@ public class ArenaResult
     public int taken, wouldTake, wouldHits;
     public float time, clearTime = -1f;
     public bool defeated, ended; public string defeatReason = "";
+    public bool clearedByHand;  // 「敵を全削除」で消した(撃破の時間には数えない。計測はそのまま続く)
     public string label = "";
+    public string build = "";
 }

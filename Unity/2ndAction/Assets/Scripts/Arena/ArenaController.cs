@@ -1,15 +1,15 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-// 開発用の闘技場の本体(2026-10-04、開発版のみ)。EndgameDebug.RunLaunchArena がランの開始後に作る。
-//  ・Setup: 通常の出現/障害物/関門/BONUS/雲を止め、地面を平地だけにして、プレイヤーを新しい平地へ置き、見た目(ArenaStage)を作る。
-//           距離条件 → キャラの基準値 + 試験のビルド(通常の取得の処理)→ 速度/操作アシスト/無敵 → 乱数のシード → 敵を出す → 計測を始める
-//  ・戦闘中: 小さな計測の表示と左のボタン列(設定/再戦/結果/全回復/無敵/全削除/退出)だけ。設定を開くと試験を止める(時間/計測が進まない)
-//  ・再戦/適用して再戦: シーンを読み直して同じ設定で作り直す(敵/弾/設置攻撃/演出/状態/クールダウンが残らない)。直前の結果は残して比べる
-//  ・退出: ホームへ(シーンの読み直しで DEBUG RUN が終わり、保存は開始前へ戻る。ResetAll で試験の設定を戻す)
+// 闘技場(2026-10-06 正式版。ホームから入れる「キャラやカードを自由に試せる練習場」)の本体。ArenaLauncher がランの開始後に作る。
+//  ・Setup: 通常の出現/障害物/関門/BONUS/雲を止め、地面を平地にして、プレイヤーを平地へ置き、見た目(ArenaStage)を作る。
+//           距離条件 → キャラの基準値 + 試用のビルド(通常の取得の処理)→ 速度/操作アシスト/無敵 → 敵を出す → 計測
+//  ・準備画面(タブ): キャラ → カード → 相手 → 詳細 → 結果。開くと戦闘/計測は止まる(TimeControl)。「開始」/「同条件で再戦」は
+//    シーンを読み直して同じ設定で作り直す(敵/弾/設置攻撃/演出/状態/クールダウンが残らない)。直前の結果は残して比べる。
+//  ・戦闘中は小さな表示(与ダメージ/被ダメージ/時間)と左のボタン(設定/再戦/全削除/ホーム)だけ。倒れても GameOver にしない。
+//  ・未所持のキャラ/カードは「試用」(所持/解放は変えない)。未遭遇のボスは名前を伏せて選べない。開発版だけの項目は「開発版」の欄へ分ける。
 public class ArenaController : MonoBehaviour
 {
     public static ArenaController Instance { get; private set; }
@@ -22,7 +22,9 @@ public class ArenaController : MonoBehaviour
     string buildNote = "", status = "";
     bool panelOpen;
     int tab;
-    float bannerT;
+    float bannerT, clearPanelAt = -1f;
+    string setupJson = ""; // 作った時の設定(変更があれば「開始」で作り直す)
+    bool ready;            // Setup が終わるまでは計測/勝敗の判定をしない
 
     void Awake() { Instance = this; }
     void OnDestroy()
@@ -33,7 +35,7 @@ public class ArenaController : MonoBehaviour
         ArenaMode.Defeated -= OnDefeated;
     }
 
-    // シーンの読み直し/退出の時(EndgameDebug.SafeReset): 試験の設定を全部戻す
+    // 闘技場から出た/シーンの読み直し: 試験の設定を全部戻す(通常のランへ持ち出さない)
     public static void ResetAll()
     {
         ArenaMode.End();
@@ -44,11 +46,10 @@ public class ArenaController : MonoBehaviour
     }
 
     // ===================================================================== 準備
-    public IEnumerator Setup()
+    public IEnumerator Setup(bool openSetup = false)
     {
         var gm = GameManager.Instance; var pc = PlayerController.Instance; var tm = TerrainManager.Instance; var cfg = ArenaMode.Config;
         ArenaMode.Defeated += OnDefeated;
-        // 通常のランの仕組みを止める(闘技場ではランダムな敵/障害物/関門/BONUS を出さない)
         if (EncounterDirector.Instance != null) EncounterDirector.Instance.enabled = false;
         foreach (var o in FindObjectsByType<ObstacleSpawner>(FindObjectsSortMode.None)) o.enabled = false;
         foreach (var o in FindObjectsByType<EnemyWallManager>(FindObjectsSortMode.None)) o.enabled = false;
@@ -56,7 +57,6 @@ public class ArenaController : MonoBehaviour
         if (BonusZone.Instance != null) BonusZone.Instance.enabled = false;
         ClearEnemiesNow();
         foreach (var o in FindObjectsByType<ObstacleController>(FindObjectsSortMode.None)) if (o != null) Destroy(o.gameObject);
-        // 地面: これから作る所はすべて平地。プレイヤーをその先へ置く
         tm.ConfigureArena();
         float x = tm.NextGenerateX + 30f;
         tm.GenerateNow(x + 160f);
@@ -64,7 +64,6 @@ public class ArenaController : MonoBehaviour
         yield return null;
         groundY = tm.GetHeightAt(pc.transform.position.x) ?? (pc.transform.position.y - pc.groundOffset);
         ArenaStage.Create(groundY);
-        // 距離条件 → ビルド(キャラの基準値から毎回作り直す)
         gm.ArenaSetDistance(cfg.distance);
         buildNote = gm.ArenaApplyBuild(cfg.build);
         pc.IsStandingIdle = cfg.speedMode == 0 || cfg.kmh <= 0.01f;
@@ -73,10 +72,13 @@ public class ArenaController : MonoBehaviour
         if (cfg.seedFixed) Random.InitState(cfg.seed);
         yield return null;
         SpawnAll();
-        ArenaMode.Current = new ArenaResult { label = Label(), spawned = spawned.Count + bossesSpawned };
+        ArenaMode.Current = new ArenaResult { label = Label(), spawned = spawned.Count + bossesSpawned, build = BuildSummary() };
         ArenaMode.BattleRunning = true;
-        status = $"開始: {Label()}";
-        Debug.Log($"[Arena] READY {Label()} build=[{buildNote}] ground={groundY:F2} enemies={spawned.Count}+bosses {bossesSpawned} hp={gm.Lives}/{gm.maxLives} atk={pc.EffectiveAttackPower} speed={pc.CurrentAutoRunSpeed * GameManager.KmhPerMps:F1}km/h");
+        ready = true;
+        setupJson = JsonUtility.ToJson(cfg);
+        status = "";
+        if (openSetup) { tab = 0; SetPanel(true); }
+        Debug.Log($"[Arena] READY {Label()} build=[{buildNote}] ground={groundY:F2} enemies={spawned.Count}+bosses {bossesSpawned} hp={gm.Lives}/{gm.maxLives} atk={pc.EffectiveAttackPower} speed={pc.CurrentAutoRunSpeed * GameManager.KmhPerMps:F1}km/h setup={openSetup}");
     }
 
     static string Label()
@@ -84,7 +86,14 @@ public class ArenaController : MonoBehaviour
         var c = ArenaMode.Config;
         var def = CharacterDatabase.FindById(c.character);
         string sp = c.speedMode == 0 || c.kmh <= 0.01f ? "0km/h" : $"{c.kmh:0}km/h{(c.speedMode == 2 ? "固定" : "")}";
-        return $"{(def != null ? def.displayName : c.character)} / カード{c.build.Count} / {sp} / {c.distance:0}m";
+        return $"{(def != null ? def.displayName : c.character)} / カード{c.build.Count}枚 / {sp} / {c.distance / 1000f:0.#}km地点相当";
+    }
+
+    static string BuildSummary()
+    {
+        var c = ArenaMode.Config;
+        if (c.build.Count == 0) return "カードなし";
+        return string.Join("、", c.build.Select(b => { var d = CardDatabase.FindById(b.key); return (d != null ? d.cardName : b.key) + (b.owned ? "(所持のコピー)" : $" Lv{b.times}"); }));
     }
 
     void ApplyAssist()
@@ -97,25 +106,18 @@ public class ArenaController : MonoBehaviour
     void SpawnAll()
     {
         spawned.Clear(); dummies.Clear(); bossesSpawned = 0;
-        var cfg = ArenaMode.Config;
-        foreach (var e in cfg.enemies)
+        // ボスを先に出す(ボスの出現は周りの雑魚を片付けるので、雑魚は後から)。ボスは1種類まで(同時に複数の系統の関門は持てない)
+        var boss = ArenaMode.Config.enemies.FirstOrDefault(ArenaConfig.IsBoss);
+        if (boss != null && BossManager.Instance != null)
         {
-            if (e == null) continue;
-            switch (e.kind)
-            {
-                case ArenaEnemyKind.Enemy:
-                case ArenaEnemyKind.Dummy:
-                    for (int i = 0; i < Mathf.Clamp(e.count, 1, 20); i++) SpawnEnemy(e, e.ahead + i * e.spacing);
-                    break;
-                default:
-                    if (BossManager.Instance != null)
-                    {
-                        int family = e.kind == ArenaEnemyKind.CaveBoss ? 2 : e.kind == ArenaEnemyKind.SkyBoss ? 3 : 1;
-                        BossManager.Instance.ArenaSpawnBoss(family, e.bossKind, e.count);
-                        bossesSpawned += Mathf.Clamp(e.count, 1, 4);
-                    }
-                    break;
-            }
+            int family = boss.kind == ArenaEnemyKind.CaveBoss ? 2 : boss.kind == ArenaEnemyKind.SkyBoss ? 3 : 1;
+            BossManager.Instance.ArenaSpawnBoss(family, boss.bossKind, boss.count);
+            bossesSpawned += Mathf.Clamp(boss.count, 1, 4);
+        }
+        foreach (var e in ArenaMode.Config.enemies)
+        {
+            if (e == null || ArenaConfig.IsBoss(e)) continue;
+            for (int i = 0; i < Mathf.Clamp(e.count, 1, 20); i++) SpawnEnemy(e, e.ahead + i * e.spacing);
         }
     }
 
@@ -142,12 +144,28 @@ public class ArenaController : MonoBehaviour
         else spawned.Add(en);
     }
 
+    // 敵を全部消す: 本体 + 敵/ボス由来の飛び道具/設置攻撃/予告/落石/予約された攻撃(ボスの体ごと消すので、ボスのコルーチンも止まる)
+    public static int LastClearedObjects;
     void ClearEnemiesNow()
     {
-        foreach (var e in FindObjectsByType<EnemyController>(FindObjectsSortMode.None)) if (e != null) Destroy(e.gameObject);
+        int n = 0;
+        foreach (var e in FindObjectsByType<EnemyController>(FindObjectsSortMode.None)) if (e != null) { Destroy(e.gameObject); n++; }
         if (TerrainManager.Instance != null) TerrainManager.Instance.ClearAllEnemies();
         if (BossManager.Instance != null) BossManager.Instance.ArenaClearBosses();
+        n += DestroyAll<BossProjectile>() + DestroyAll<BossHitbox>() + DestroyAll<BossTelegraphMarker>() + DestroyAll<FireballController>()
+           + DestroyAll<CeilingFallRock>() + DestroyAll<FallingDebris>() + DestroyAll<SkyStrike>() + DestroyAll<SkyWarnBand>() + DestroyAll<SkyFlyby>() + DestroyAll<SkyDrift>();
+        n += CaveHazard.LiveCount;
+        CaveHazard.ClearAll();
+        var pc = PlayerController.Instance;
+        if (pc != null) pc.ArenaClearHurtState(); // プレイヤーの被弾の状態(のけぞり/硬直)も戻す
         spawned.Clear(); dummies.Clear(); bossesSpawned = 0;
+        LastClearedObjects = n;
+    }
+    static int DestroyAll<T>() where T : Component
+    {
+        int n = 0;
+        foreach (var c in FindObjectsByType<T>(FindObjectsSortMode.None)) if (c != null) { Destroy(c.gameObject); n++; }
+        return n;
     }
 
     int AliveEnemies => spawned.Count(e => e != null && !e.IsDying) + (BossManager.Instance != null ? BossManager.Instance.AliveBossCount : 0);
@@ -155,24 +173,24 @@ public class ArenaController : MonoBehaviour
     // ===================================================================== 毎フレーム
     void Update()
     {
-        if (!ArenaMode.Active) return;
+        if (!ArenaMode.Active || !ready) return;
         var r = ArenaMode.Current;
         if (ArenaMode.BattleRunning && !panelOpen)
         {
-            r.time += Time.deltaTime; // 止めている間(設定を開く/停止メニュー)は進まない
-            if (r.spawned > 0 && r.clearTime < 0f && AliveEnemies == 0 && r.time > 0.5f)
+            r.time += Time.deltaTime; // 止めている間(準備画面/停止メニュー)は進まない
+            if (r.spawned > 0 && !r.clearedByHand && r.clearTime < 0f && AliveEnemies == 0 && r.time > 0.5f)
             {
-                r.clearTime = r.time; r.ended = true; ArenaMode.BattleRunning = false; bannerT = 4f;
-                status = $"全滅 {r.clearTime:F2}秒";
+                r.clearTime = r.time; r.ended = true; ArenaMode.BattleRunning = false; bannerT = 3f;
+                clearPanelAt = Time.unscaledTime + 1.6f; // 少し見せてから結果
                 Debug.Log($"[Arena] CLEAR in {r.clearTime:F2}s dealt={r.dealt} hits={r.hits} taken={r.taken} would={r.wouldTake}");
             }
         }
         if (bannerT > 0f) bannerT -= Time.unscaledDeltaTime;
+        if (clearPanelAt > 0f && Time.unscaledTime >= clearPanelAt) { clearPanelAt = -1f; tab = 4; SetPanel(true); }
     }
 
     void LateUpdate()
     {
-        // 動かない標的: 走っている時はプレイヤーとの間合いを保つ(止まっている時はその場)
         var pc = PlayerController.Instance;
         if (pc == null || dummies.Count == 0 || pc.CurrentAutoRunSpeed <= 0.01f) return;
         foreach (var (en, off) in dummies)
@@ -183,9 +201,9 @@ public class ArenaController : MonoBehaviour
     {
         var r = ArenaMode.Current;
         r.ended = true; ArenaMode.BattleRunning = false;
-        status = $"倒れました({r.time:F1}秒)。「同条件で再戦」ですぐやり直せます";
+        status = "倒れました。「同条件で再戦」ですぐやり直せます";
         Debug.Log($"[Arena] DEFEATED at {r.time:F2}s ({r.defeatReason})");
-        SetPanel(true); tab = 4;
+        tab = 4; SetPanel(true);
     }
 
     // ===================================================================== 操作
@@ -194,25 +212,18 @@ public class ArenaController : MonoBehaviour
         var r = ArenaMode.Current;
         if (r != null && (r.time > 0.1f || r.dealt > 0)) ArenaMode.Previous = r;
         SetPanel(false);
-        EndgameDebug.LaunchArena(why);
+        ArenaLauncher.Launch(why, false);
     }
-    public void EndTrial()
+    // 「開始」: 準備画面で何か変えていれば作り直す。変えていなければそのまま始める
+    public void StartOrRematch()
     {
-        var r = ArenaMode.Current;
-        r.ended = true; ArenaMode.BattleRunning = false;
-        status = "試験を終えました(結果)";
-        SetPanel(true); tab = 4;
+        if (JsonUtility.ToJson(ArenaMode.Config) != setupJson || ArenaMode.Current.ended) Rematch("start");
+        else SetPanel(false);
     }
-    public void RefillHp() { if (GameManager.Instance != null) GameManager.Instance.ArenaRefillLives(); status = "HP全回復"; }
-    public void ToggleInvincible() { ArenaMode.Config.invincible = ArenaMode.Invincible = !ArenaMode.Invincible; status = $"無敵 {(ArenaMode.Invincible ? "ON" : "OFF")}"; }
-    public void ClearEnemies() { ClearEnemiesNow(); status = "敵を全削除"; }
-    public void ExitHome()
-    {
-        SetPanel(false);
-        var gm = GameManager.Instance;
-        status = "ホームへ";
-        if (gm != null) gm.ReturnToHome();
-    }
+    public void RefillHp() { if (GameManager.Instance != null) GameManager.Instance.ArenaRefillLives(); status = "HPを全回復しました"; }
+    public void ToggleInvincible() { ArenaMode.Config.invincible = ArenaMode.Invincible = !ArenaMode.Invincible; setupJson = JsonUtility.ToJson(ArenaMode.Config); }
+    public void ClearEnemies() { ClearEnemiesNow(); if (ArenaMode.Current != null) ArenaMode.Current.clearedByHand = true; status = "敵と敵の攻撃を全部消しました(撃破の時間には数えません)"; }
+    public void ExitHome() { SetPanel(false); ArenaLauncher.Exit(); }
     public void SetPanel(bool on)
     {
         if (panelOpen == on) return;
@@ -221,14 +232,15 @@ public class ArenaController : MonoBehaviour
         else { TimeControl.Resume(pauseOwner); UiInputGate.LatchUntilRelease(); }
     }
     public bool PanelOpen => panelOpen;
+    public int Tab { get => tab; set => tab = Mathf.Clamp(value, 0, Tabs.Length - 1); }
 
-    // ===================================================================== 表示
-    static float S => Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f);
-    Vector2 listScroll, buildScroll, ownedScroll, enemyScroll, enemyListScroll;
+    // ===================================================================== 表示(IMGUI、短辺720を基準に拡大。スマホ横画面で押しやすい大きさ)
+    static float S => Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.75f, 2.6f);
+    Vector2 listScroll, buildScroll, enemyScroll, enemyListScroll, charScroll;
     string search = "";
     int cardFilter, enemyCat;
-    string enemyPickId = "goblin"; int enemyPickBoss; int pickCount = 1; float pickAhead = 8f, pickSpacing = 2.5f; int pickTier = 1;
-    string kmhText = "", distText = "", seedText = "";
+    string enemyPickId = ""; int enemyPickBoss = -1; int pickCount = 1; int pickTier = 1;
+    static readonly Color Gold = new Color(1f, 0.85f, 0.5f), Soft = new Color(0.85f, 0.88f, 0.95f), Dim = new Color(0.65f, 0.68f, 0.78f), Trial = new Color(0.55f, 0.9f, 1f);
 
     void OnGUI()
     {
@@ -239,345 +251,392 @@ public class ArenaController : MonoBehaviour
         GUI.matrix = Matrix4x4.Scale(new Vector3(s, s, 1f));
         float W = Screen.width / s, H = Screen.height / s;
         ArenaMode.BlockRects.Clear();
-        if (panelOpen) DrawPanel(W, H);
+        if (panelOpen) DrawPanel(W, H, s);
         else DrawHud(W, H, s);
         GUI.matrix = keep;
+    }
+
+    Rect SafeRect(float W, float H, float s)
+    {
+        var sa = Screen.safeArea;
+        float l = sa.x / s, t = (Screen.height - sa.yMax) / s, r = (Screen.width - sa.xMax) / s, b = sa.y / s;
+        return new Rect(l + 10f, t + 10f, W - l - r - 20f, H - t - b - 20f);
     }
 
     void DrawHud(float W, float H, float s)
     {
         var r = ArenaMode.Current;
-        // 計測(上の中央、Lv/EXP の下)
-        float top = (Screen.height - (Screen.safeArea.y + Screen.safeArea.height) + 28f + 54f + 10f) / s;
-        string line = $"闘技場  与 {r.dealt:N0}  命中 {r.hits}  被 {r.taken}(本来 {r.wouldTake})  撃破 {r.kills}/{r.spawned}  {r.time:F1}s" + (r.clearTime >= 0f ? $"  全滅 {r.clearTime:F2}s" : "") + (r.defeated ? "  倒れた" : "") + (ArenaMode.Invincible ? "  [無敵]" : "");
-        var st = UiKit.Label(14f, TextAnchor.MiddleCenter, true, new Color(1f, 0.92f, 0.7f));
+        var safe = SafeRect(W, H, s);
+        // 小さな計測(上の中央): 与ダメージ / 被ダメージ / 時間
+        string line = $"与ダメージ {r.dealt:N0}    被ダメージ {r.taken}    {r.time:F1}秒" + (ArenaMode.Invincible ? "    無敵" : "");
+        var st = UiKit.Label(16f, TextAnchor.MiddleCenter, true, new Color(1f, 0.94f, 0.75f));
         var size = st.CalcSize(new GUIContent(line));
-        var lr = new Rect(W * 0.5f - size.x * 0.5f - 10f, top, size.x + 20f, 26f);
-        UiKit.Fill(lr, new Color(0.05f, 0.03f, 0.08f, 0.72f));
+        float top = safe.y + 92f;
+        var lr = new Rect(W * 0.5f - size.x * 0.5f - 12f, top, size.x + 24f, 30f);
+        UiKit.Fill(lr, new Color(0.05f, 0.03f, 0.08f, 0.66f));
         GUI.Label(lr, line, st);
-        // 左のボタン列
-        string[] labels = { "≡ 設定", "同条件で再戦", r.ended ? "結果" : "試験を終える", "HP全回復", ArenaMode.Invincible ? "無敵 ON" : "無敵 OFF", "敵を全削除", "ホームへ退出" };
-        float bw = 128f, bh = 44f, gap = 6f, x0 = Screen.safeArea.x / s + 10f, y0 = Mathf.Max(top + 34f, H * 0.3f);
+        // 左のボタン(大きめ)
+        string[] labels = { "≡ 設定", "同条件で再戦", "敵を全削除", "ホームへ" };
+        float bw = 150f, bh = 52f, gap = 8f, x0 = safe.x, y0 = Mathf.Max(top + 40f, H * 0.32f);
         for (int i = 0; i < labels.Length; i++)
         {
             var br = new Rect(x0, y0 + i * (bh + gap), bw, bh);
             ArenaMode.BlockRects.Add(new Rect(br.x * s, br.y * s, br.width * s, br.height * s));
-            if (UiKit.Button(br, labels[i], 14f, i == 1 || (i == 4 && ArenaMode.Invincible), false))
+            if (UiKit.Button(br, labels[i], 17f, i == 1, false))
             {
                 switch (i)
                 {
-                    case 0: SetPanel(true); break;
+                    case 0: tab = 0; SetPanel(true); break;
                     case 1: Rematch("hud"); break;
-                    case 2: if (r.ended) { SetPanel(true); tab = 4; } else EndTrial(); break;
-                    case 3: RefillHp(); break;
-                    case 4: ToggleInvincible(); break;
-                    case 5: ClearEnemies(); break;
-                    case 6: ExitHome(); break;
+                    case 2: ClearEnemies(); break;
+                    case 3: ExitHome(); break;
                 }
             }
         }
         if (bannerT > 0f && r.clearTime >= 0f)
         {
-            var bs = UiKit.Label(30f, TextAnchor.MiddleCenter, true, new Color(1f, 0.9f, 0.4f));
-            GUI.Label(new Rect(0f, H * 0.36f, W, 50f), $"全滅  {r.clearTime:F2}秒", bs);
+            var bs = UiKit.Label(34f, TextAnchor.MiddleCenter, true, new Color(1f, 0.9f, 0.4f));
+            GUI.Label(new Rect(0f, H * 0.36f, W, 54f), $"全滅  {r.clearTime:F2}秒", bs);
         }
-        if (!string.IsNullOrEmpty(status)) GUI.Label(new Rect(x0, y0 + labels.Length * (bh + gap), 420f, 22f), status, UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.9f, 1f)));
+        if (!string.IsNullOrEmpty(status)) GUI.Label(new Rect(x0, y0 + labels.Length * (bh + gap), 460f, 26f), status, UiKit.Label(14f, TextAnchor.MiddleLeft, false, Soft));
     }
 
-    static readonly string[] Tabs = { "キャラ", "カード", "敵", "速度/操作", "計測" };
+    static readonly string[] Tabs = { "キャラ", "カード", "相手", "詳細", "結果" };
 
-    void DrawPanel(float W, float H)
+    void DrawPanel(float W, float H, float s)
     {
-        var p = new Rect(12f, 12f, W - 24f, H - 24f);
-        UiKit.Fill(new Rect(0, 0, W, H), new Color(0f, 0f, 0f, 0.45f));
+        var safe = SafeRect(W, H, s);
+        UiKit.Fill(new Rect(0, 0, W, H), new Color(0f, 0f, 0f, 0.5f));
+        var p = safe;
         OrnateUi.DrawPanel(p, 0.96f);
-        GUI.Label(new Rect(p.x + 16f, p.y + 8f, 260f, 34f), "闘技場(試験中は停止)", UiKit.Label(20f, TextAnchor.MiddleLeft, true, new Color(1f, 0.75f, 0.45f)));
-        float tw = 118f;
+        GUI.Label(new Rect(p.x + 18f, p.y + 8f, 240f, 34f), "闘技場", UiKit.Label(24f, TextAnchor.MiddleLeft, true, new Color(1f, 0.75f, 0.45f)));
+        GUI.Label(new Rect(p.x + 18f, p.y + 40f, 260f, 20f), "キャラやカードを自由に試せる練習場", UiKit.Label(12f, TextAnchor.MiddleLeft, false, Dim));
+        float tabX = p.x + 280f, tw = Mathf.Min(120f, (p.width - 280f - 330f) / Tabs.Length - 6f);
         for (int i = 0; i < Tabs.Length; i++)
-            if (UiKit.Button(new Rect(p.x + 290f + i * (tw + 6f), p.y + 8f, tw, 34f), Tabs[i], 15f, tab == i, false)) tab = i;
-        var c = new Rect(p.x + 16f, p.y + 50f, p.width - 32f, p.height - 112f);
+            if (UiKit.Button(new Rect(tabX + i * (tw + 6f), p.y + 12f, tw, 44f), Tabs[i], 17f, tab == i, false)) tab = i;
+        // 右上: 開始 / ホーム(どのタブでも同じ場所)
+        var cur = ArenaMode.Current;
+        bool changed = JsonUtility.ToJson(ArenaMode.Config) != setupJson;
+        string startLabel = cur.ended ? "同条件で再戦" : changed ? "この設定で開始" : "開始";
+        if (UiKit.Button(new Rect(p.xMax - 330f, p.y + 10f, 200f, 50f), startLabel, 19f, true, false)) StartOrRematch();
+        if (UiKit.Button(new Rect(p.xMax - 122f, p.y + 10f, 110f, 50f), "ホームへ", 17f, false, false)) ExitHome();
+        var c = new Rect(p.x + 18f, p.y + 70f, p.width - 36f, p.height - 84f);
         switch (tab)
         {
             case 0: DrawCharTab(c); break;
             case 1: DrawCardTab(c); break;
             case 2: DrawEnemyTab(c); break;
-            case 3: DrawSpeedTab(c); break;
+            case 3: DrawDetailTab(c); break;
             default: DrawResultTab(c); break;
         }
-        float by = p.yMax - 54f, bw = (p.width - 32f - 24f) / 4f;
-        if (UiKit.Button(new Rect(p.x + 16f, by, bw, 44f), "適用して再戦", 17f, true, false)) Rematch("apply");
-        if (UiKit.Button(new Rect(p.x + 16f + (bw + 8f), by, bw, 44f), "閉じて再開", 17f, false, false)) SetPanel(false);
-        var r = ArenaMode.Current;
-        if (UiKit.Button(new Rect(p.x + 16f + 2f * (bw + 8f), by, bw, 44f), r.ended ? "(試験は終了済み)" : "試験を終える(結果)", 15f, false, false, !r.ended)) EndTrial();
-        if (UiKit.Button(new Rect(p.x + 16f + 3f * (bw + 8f), by, bw, 44f), "ホームへ退出", 17f, false, false)) ExitHome();
-        GUI.Label(new Rect(p.x + 16f, by - 22f, p.width - 32f, 20f), "変更は「適用して再戦」で反映(シーンを読み直して同じ条件で作り直す)。無敵/HP/操作アシストはすぐ反映。保存データは変わりません(DEBUG RUN)", UiKit.Label(11f, TextAnchor.MiddleLeft, false, new Color(0.8f, 0.8f, 0.88f)));
     }
 
-    // ---- キャラ
+    // ---- キャラ(画像/名前/特徴。未所持は「試用」)
     void DrawCharTab(Rect c)
     {
         var cfg = ArenaMode.Config;
-        GUI.Label(new Rect(c.x, c.y, c.width, 22f), "全プレイアブルキャラ(未所持/未解放でも選べる)。固有の能力/攻撃は通常どおり", UiKit.Label(13f, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.85f, 0.9f)));
         var chars = CharacterDatabase.AllCharacters;
-        float bw = (c.width - 18f) / 4f;
+        float gw = c.width * 0.56f;
+        int cols = 4; float cw = (gw - 20f - (cols - 1) * 8f) / cols, ch = 112f;
+        var listR = new Rect(c.x, c.y, gw, c.height);
+        charScroll = BeginList(listR, charScroll, Mathf.CeilToInt(chars.Count / (float)cols) * (ch + 8f));
         for (int i = 0; i < chars.Count; i++)
         {
             var d = chars[i];
-            var br = new Rect(c.x + (i % 4) * (bw + 6f), c.y + 28f + (i / 4) * 50f, bw, 44f);
-            if (UiKit.Button(br, d.displayName, 15f, cfg.character == d.characterId, false)) cfg.character = d.characterId;
+            var r = new Rect((i % cols) * (cw + 8f), (i / cols) * (ch + 8f), cw, ch);
+            bool sel = cfg.character == d.characterId;
+            UiKit.Fill(r, sel ? new Color(0.35f, 0.24f, 0.08f, 0.95f) : new Color(0.08f, 0.09f, 0.16f, 0.9f));
+            if (d.portrait != null) GUI.DrawTexture(new Rect(r.x + 4f, r.y + 4f, r.width - 8f, r.height - 30f), d.portrait, ScaleMode.ScaleToFit);
+            GUI.Label(new Rect(r.x, r.yMax - 26f, r.width, 24f), d.displayName, UiKit.Label(14f, TextAnchor.MiddleCenter, true, sel ? Gold : Color.white));
+            if (!CharacterOwned(d)) GUI.Label(new Rect(r.x + 4f, r.y + 2f, r.width - 8f, 18f), "試用", UiKit.Label(12f, TextAnchor.UpperRight, true, Trial));
+            if (GUI.Button(r, GUIContent.none, GUIStyle.none)) cfg.character = d.characterId;
         }
-        float y = c.y + 28f + Mathf.CeilToInt(chars.Count / 4f) * 50f + 10f;
-        DrawStats(new Rect(c.x, y, c.width, c.yMax - y));
+        EndList();
+        var sd = CharacterDatabase.FindById(cfg.character);
+        float rx = c.x + gw + 16f, rw = c.width - gw - 16f;
+        if (sd == null) return;
+        if (sd.mainVisual != null || sd.portrait != null) GUI.DrawTexture(new Rect(rx, c.y, rw, c.height * 0.5f), sd.mainVisual != null ? sd.mainVisual : sd.portrait, ScaleMode.ScaleToFit);
+        float y = c.y + c.height * 0.5f + 6f;
+        GUI.Label(new Rect(rx, y, rw, 32f), sd.displayName + (CharacterOwned(sd) ? "" : "  (試用)"), UiKit.Label(22f, TextAnchor.MiddleLeft, true, Gold));
+        y += 32f;
+        if (!string.IsNullOrEmpty(sd.subtitle)) { GUI.Label(new Rect(rx, y, rw, 22f), sd.subtitle, UiKit.Label(14f, TextAnchor.MiddleLeft, false, Soft)); y += 22f; }
+        if (!string.IsNullOrEmpty(sd.role)) { GUI.Label(new Rect(rx, y, rw, 22f), sd.role, UiKit.Label(13f, TextAnchor.MiddleLeft, true, Trial)); y += 24f; }
+        var desc = UiKit.Label(14f, TextAnchor.UpperLeft, false, Soft); desc.wordWrap = true;
+        GUI.Label(new Rect(rx, y, rw, c.yMax - y), sd.flavorText ?? "", desc);
     }
+    static bool CharacterOwned(CharacterDefinition d) => d != null; // キャラは全員プレイアブル(所持/解放の概念が無い)。将来キャラの解放が入ったらここで「試用」
 
-    void DrawStats(Rect r)
-    {
-        var gm = GameManager.Instance; var pc = PlayerController.Instance;
-        if (gm == null || pc == null) return;
-        var cfg = ArenaMode.Config;
-        var lab = UiKit.Label(13f, TextAnchor.UpperLeft, false, new Color(1f, 0.92f, 0.72f));
-        float baseKmh = cfg.speedMode == 0 ? 0f : cfg.kmh;
-        string text =
-            $"今の試験: {CharacterDatabase.FindById(gm.ActiveRunCharacterId)?.displayName}  HP {gm.Lives}/{gm.maxLives}(封印 {gm.SealedHearts})  攻撃 {pc.EffectiveAttackPower}(カード ×{pc.CardAttackFactor:F2})  攻撃速度 ×{1f / Mathf.Max(0.01f, pc.AttackSpeedMultiplier):F2}  範囲 ×{pc.CardRangeFactor:F2}  Shield {pc.ShieldCapacity}\n" +
-            $"速度: 基準 {baseKmh:0} km/h  → 実効 {pc.CurrentAutoRunSpeed * GameManager.KmhPerMps:0.0} km/h  (キャラ×カードの補正 ×{pc.ArenaSpeedFactor:F2}{(cfg.speedMode == 2 ? "、固定なので移動には入れない" : "")})  ジャンプ力 {pc.jumpForce:F1}  回数 {pc.maxJumps}\n" +
-            $"距離条件 {gm.MaxDistance:0}m(雑魚の基本HP {(DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(1f) : 0)})  ビルド: {buildNote}";
-        GUI.Label(r, text, lab);
-    }
-
-    // ---- カード
+    // ---- カード(画像/名前/効果/試用Lv。検索と絞り込み。デッキ/キャラカードのコピー)
     static readonly string[] CardFilters = { "すべて", "移動", "攻撃", "防御", "成長", "回復", "特殊", "リスク" };
     void DrawCardTab(Rect c)
     {
         var cfg = ArenaMode.Config;
-        float lw = c.width * 0.5f - 8f;
-        // 検索 + 分類
-        GUI.Label(new Rect(c.x, c.y, 60f, 30f), "検索", UiKit.Label(14f));
-        search = GUI.TextField(new Rect(c.x + 50f, c.y, lw - 50f, 30f), search ?? "");
+        float lw = c.width * 0.54f;
+        GUI.Label(new Rect(c.x, c.y, 50f, 34f), "検索", UiKit.Label(15f));
+        search = GUI.TextField(new Rect(c.x + 50f, c.y + 2f, lw - 50f, 32f), search ?? "");
         float fw = (lw - 7f * 4f) / 8f;
         for (int i = 0; i < CardFilters.Length; i++)
-            if (UiKit.Button(new Rect(c.x + i * (fw + 4f), c.y + 36f, fw, 30f), CardFilters[i], 11f, cardFilter == i, false)) cardFilter = i;
+            if (UiKit.Button(new Rect(c.x + i * (fw + 4f), c.y + 40f, fw, 34f), CardFilters[i], 13f, cardFilter == i, false)) cardFilter = i;
+        string q = (search ?? "").Trim().ToLowerInvariant();
         var cards = CardDatabase.AllCards.Where(d => d != null && !CardVariant.IsVariantKey(d.cardId)
             && (cardFilter == 0 || (int)d.category == cardFilter - 1)
-            && (string.IsNullOrEmpty(search) || d.cardName.ToLowerInvariant().Contains(search.ToLowerInvariant()) || d.cardId.Contains(search.ToLowerInvariant()))).OrderBy(d => d.sortOrder).ToList();
-        var listR = new Rect(c.x, c.y + 72f, lw, c.height * 0.55f - 72f);
-        float rowH = 38f;
+            && (q.Length == 0 || d.cardName.ToLowerInvariant().Contains(q) || (d.description ?? "").ToLowerInvariant().Contains(q))).OrderBy(d => d.sortOrder).ToList();
+        var listR = new Rect(c.x, c.y + 80f, lw, c.height - 80f - 46f);
+        float rowH = 58f;
         listScroll = BeginList(listR, listScroll, cards.Count * rowH);
         for (int i = 0; i < cards.Count; i++)
         {
             var d = cards[i];
             var rr = new Rect(0, i * rowH, lw - 20f, rowH - 4f);
-            UiKit.Fill(rr, new Color(0.08f, 0.09f, 0.16f, 0.8f));
-            GUI.Label(new Rect(rr.x + 8f, rr.y, rr.width - 90f, rr.height), $"{d.cardName}  <size=11>{d.RarityStars}</size>", UiKit.Label(13f));
-            if (UiKit.Button(new Rect(rr.xMax - 80f, rr.y + 2f, 76f, rr.height - 4f), "+ 追加", 13f, false, false)) AddCard(d.cardId, false);
+            UiKit.Fill(rr, new Color(0.08f, 0.09f, 0.16f, 0.85f));
+            if (d.icon != null) GUI.DrawTexture(new Rect(rr.x + 4f, rr.y + 4f, rr.height - 8f, rr.height - 8f), d.icon, ScaleMode.ScaleToFit);
+            float tx = rr.x + rr.height + 4f;
+            bool owned = CardInventory.GetTotalCount(d.cardId) > 0;
+            GUI.Label(new Rect(tx, rr.y + 2f, rr.width - tx - 90f, 22f), d.cardName + (owned ? "" : "  <color=#8ce6ff>試用</color>"), UiKit.Label(15f, TextAnchor.MiddleLeft, true));
+            var dl = UiKit.Label(11f, TextAnchor.UpperLeft, false, Dim); dl.wordWrap = true; dl.clipping = TextClipping.Clip;
+            GUI.Label(new Rect(tx, rr.y + 24f, rr.width - tx - 90f, rr.height - 26f), d.description ?? "", dl);
+            if (UiKit.Button(new Rect(rr.xMax - 82f, rr.y + 8f, 78f, rr.height - 16f), "+ 追加", 15f, false, false)) AddCard(d.cardId, false, 1);
         }
         EndList();
-        // 所持カードのコピー(合成カードの能力一式を試す)
-        var ownR = new Rect(c.x, listR.yMax + 26f, lw, c.yMax - listR.yMax - 26f);
-        GUI.Label(new Rect(c.x, listR.yMax + 4f, lw, 20f), "所持カードからコピー(合成Lv/能力一式はそのまま。1回の取得で全能力)", UiKit.Label(12f, TextAnchor.MiddleLeft, true, new Color(0.8f, 0.9f, 1f)));
-        var owned = CardInventory.Stacks.Where(st => st.count > 0 && (st.level > 1 || CardVariant.IsVariantKey(st.cardId))).ToList();
-        ownedScroll = BeginList(ownR, ownedScroll, owned.Count * rowH);
-        for (int i = 0; i < owned.Count; i++)
-        {
-            var st = owned[i];
-            var v = CardVariant.Parse(st.cardId); var d = CardDatabase.FindById(st.cardId);
-            var rr = new Rect(0, i * rowH, lw - 20f, rowH - 4f);
-            UiKit.Fill(rr, new Color(0.06f, 0.1f, 0.14f, 0.8f));
-            GUI.Label(new Rect(rr.x + 8f, rr.y, rr.width - 90f, rr.height), $"{d?.cardName}  合成Lv{st.level}  能力{(v != null ? v.AbilityCount : 1)}種", UiKit.Label(12f));
-            if (UiKit.Button(new Rect(rr.xMax - 80f, rr.y + 2f, 76f, rr.height - 4f), "コピー", 13f, false, false)) AddCard(st.cardId, true);
-        }
-        EndList();
-        // ビルド
-        float rx = c.x + lw + 16f, rw = c.width - lw - 16f;
-        GUI.Label(new Rect(rx, c.y, rw - 100f, 30f), $"試験のビルド({cfg.build.Count})  ラン中の取得Lv(能力ごとに最大9)", UiKit.Label(14f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));
-        if (UiKit.Button(new Rect(rx + rw - 96f, c.y, 96f, 30f), "全解除", 13f, false, false)) cfg.build.Clear();
-        var bR = new Rect(rx, c.y + 36f, rw, c.height * 0.6f - 36f);
-        buildScroll = BeginList(bR, buildScroll, cfg.build.Count * rowH);
+        float cby = listR.yMax + 6f, cbw = (lw - 8f) / 2f;
+        if (UiKit.Button(new Rect(c.x, cby, cbw, 38f), "今のデッキをコピー", 14f, false, false)) CopyDeck();
+        if (UiKit.Button(new Rect(c.x + cbw + 8f, cby, cbw, 38f), "キャラカードをコピー", 14f, false, false)) CopyCharacterCards();
+        float rx = c.x + lw + 14f, rw = c.width - lw - 14f;
+        GUI.Label(new Rect(rx, c.y, rw - 100f, 32f), $"試用のビルド({cfg.build.Count}枚)", UiKit.Label(17f, TextAnchor.MiddleLeft, true, Gold));
+        if (UiKit.Button(new Rect(rx + rw - 96f, c.y, 96f, 32f), "全部外す", 14f, false, false)) cfg.build.Clear();
+        GUI.Label(new Rect(rx, c.y + 32f, rw, 20f), "Lv = このランで取った回数(能力ごとに最大9)。所持・デッキは変わりません", UiKit.Label(11f, TextAnchor.MiddleLeft, false, Dim));
+        var bR = new Rect(rx, c.y + 56f, rw, c.height - 56f);
+        float bRow = 48f;
+        buildScroll = BeginList(bR, buildScroll, Mathf.Max(1, cfg.build.Count) * bRow);
+        if (cfg.build.Count == 0) GUI.Label(new Rect(8f, 8f, rw - 30f, 60f), "左の一覧の「+ 追加」でカードを入れます。カードなしでも試せます", UiKit.Label(13f, TextAnchor.UpperLeft, false, Dim));
         for (int i = 0; i < cfg.build.Count; i++)
         {
             var e = cfg.build[i];
             var d = CardDatabase.FindById(e.key); var v = CardVariant.Parse(e.key);
-            var rr = new Rect(0, i * rowH, rw - 20f, rowH - 4f);
-            UiKit.Fill(rr, new Color(0.12f, 0.09f, 0.05f, 0.85f));
+            var rr = new Rect(0, i * bRow, rw - 20f, bRow - 4f);
+            UiKit.Fill(rr, new Color(0.14f, 0.1f, 0.05f, 0.9f));
+            if (d != null && d.icon != null) GUI.DrawTexture(new Rect(rr.x + 3f, rr.y + 3f, rr.height - 6f, rr.height - 6f), d.icon, ScaleMode.ScaleToFit);
             string name = d != null ? d.cardName : e.key;
-            string lv = e.owned ? $"所持コピー 合成Lv{(v != null ? v.level : 1)} 能力{(v != null ? v.AbilityCount : 1)}種 ×{e.times}回" : $"取得Lv {e.times}";
-            GUI.Label(new Rect(rr.x + 8f, rr.y, rr.width - 150f, rr.height), $"{name}  <size=11>{lv}</size>", UiKit.Label(13f));
-            if (UiKit.Button(new Rect(rr.xMax - 144f, rr.y + 2f, 44f, rr.height - 4f), "-", 15f, false, false)) { e.times--; if (e.times <= 0) { cfg.build.RemoveAt(i); break; } }
-            if (UiKit.Button(new Rect(rr.xMax - 96f, rr.y + 2f, 44f, rr.height - 4f), "+", 15f, false, false)) e.times = Mathf.Min(GameManager.MaxRunCardLevel, e.times + 1);
-            if (UiKit.Button(new Rect(rr.xMax - 48f, rr.y + 2f, 44f, rr.height - 4f), "×", 15f, false, false)) { cfg.build.RemoveAt(i); break; }
+            string lv = e.owned ? $"所持のコピー(合成Lv{(v != null ? v.level : 1)}・能力{(v != null ? v.AbilityCount : 1)}種)" : $"Lv {e.times}";
+            GUI.Label(new Rect(rr.x + rr.height + 2f, rr.y, rr.width - rr.height - 150f, rr.height), $"{name}\n<size=11>{lv}</size>", UiKit.Label(13f));
+            if (!e.owned)
+            {
+                if (UiKit.Button(new Rect(rr.xMax - 144f, rr.y + 4f, 44f, rr.height - 8f), "-", 18f, false, false)) { e.times--; if (e.times <= 0) { cfg.build.RemoveAt(i); break; } }
+                if (UiKit.Button(new Rect(rr.xMax - 96f, rr.y + 4f, 44f, rr.height - 8f), "+", 18f, false, false)) e.times = Mathf.Min(GameManager.MaxRunCardLevel, e.times + 1);
+            }
+            if (UiKit.Button(new Rect(rr.xMax - 48f, rr.y + 4f, 44f, rr.height - 8f), "×", 18f, false, false)) { cfg.build.RemoveAt(i); break; }
         }
         EndList();
-        DrawStats(new Rect(rx, bR.yMax + 6f, rw, c.yMax - bR.yMax - 6f));
     }
 
-    void AddCard(string key, bool owned)
+    void AddCard(string key, bool owned, int lv)
     {
         var cfg = ArenaMode.Config;
-        var e = cfg.build.FirstOrDefault(x => x.key == key);
-        if (e != null) e.times = Mathf.Min(GameManager.MaxRunCardLevel, e.times + 1);
-        else cfg.build.Add(new ArenaBuildEntry { key = key, times = 1, owned = owned });
+        var e = cfg.build.FirstOrDefault(x => x.key == key && x.owned == owned);
+        if (e != null) e.times = Mathf.Min(GameManager.MaxRunCardLevel, e.times + (owned ? 0 : 1));
+        else cfg.build.Add(new ArenaBuildEntry { key = key, times = Mathf.Clamp(lv, 1, GameManager.MaxRunCardLevel), owned = owned });
+    }
+    // デッキのカード: 1回目の取得の状態(合成カードは能力一式の所持のコピー)
+    void CopyDeck()
+    {
+        var gm = GameManager.Instance; if (gm == null) return;
+        int n = 0;
+        foreach (var id in gm.DeckCards) if (!string.IsNullOrEmpty(id) && CardDatabase.FindById(id) != null) { AddCard(id, CardVariant.IsVariantKey(id), 1); n++; }
+        status = $"デッキの{n}枚を試用のビルドへコピーしました(デッキは変わりません)";
+    }
+    // キャラカード: 開始時の Lv のまま
+    void CopyCharacterCards()
+    {
+        var gm = GameManager.Instance; if (gm == null) return;
+        int n = 0;
+        for (int i = 0; i < GameManager.CharacterCardSlotCount; i++)
+        {
+            string id = gm.CharacterCardIds[i];
+            if (string.IsNullOrEmpty(id) || CardDatabase.FindById(id) == null) continue;
+            AddCard(id, CardVariant.IsVariantKey(id), gm.GetCharacterCardLevel(i)); n++;
+        }
+        status = $"キャラカードの{n}枚をコピーしました(開始時のLv)";
     }
 
-    // ---- 敵
-    static readonly string[] EnemyCats = { "雑魚", "荒野ボス", "洞窟ボス", "天空ボス", "動かない標的" };
+    // ---- 相手(練習標的/遭遇済みの雑魚/遭遇済みのボス。数/強さ/○km地点相当)
+    static readonly string[] EnemyCats = { "練習標的", "雑魚", "荒野のボス", "洞窟のボス", "天空のボス" };
     void DrawEnemyTab(Rect c)
     {
         var cfg = ArenaMode.Config;
         float lw = c.width * 0.5f - 8f;
         float cw = (lw - 16f) / 5f;
         for (int i = 0; i < EnemyCats.Length; i++)
-            if (UiKit.Button(new Rect(c.x + i * (cw + 4f), c.y, cw, 32f), EnemyCats[i], 12f, enemyCat == i, false)) enemyCat = i;
-        var names = new List<(string label, string id, int kind)>();
-        if (enemyCat == 0) foreach (var d in EnemyDatabase.AllEnemies.OrderBy(d => d.enemyId)) names.Add((string.IsNullOrEmpty(d.displayName) ? d.enemyId : d.displayName, d.enemyId, 0));
-        else if (enemyCat == 1) foreach (var n in System.Enum.GetNames(typeof(WildBossKind))) names.Add((n, n, (int)System.Enum.Parse(typeof(WildBossKind), n)));
-        else if (enemyCat == 2) foreach (var n in System.Enum.GetNames(typeof(CaveBossKind))) names.Add((n, n, (int)System.Enum.Parse(typeof(CaveBossKind), n)));
-        else if (enemyCat == 3) foreach (var n in System.Enum.GetNames(typeof(SkyBossKind))) names.Add((n, n, (int)System.Enum.Parse(typeof(SkyBossKind), n)));
-        float rowH = 36f;
-        var listR = new Rect(c.x, c.y + 38f, lw, c.height - 38f - 132f);
-        enemyListScroll = BeginList(listR, enemyListScroll, Mathf.Max(1, names.Count) * rowH);
-        if (enemyCat == 4) GUI.Label(new Rect(8f, 0f, lw - 20f, 60f), "攻撃の確認用。動かず攻撃もしない(接触ダメージなし・HP 99,999,999)。走っている時はプレイヤーとの間合いを保つ", UiKit.Label(12f, TextAnchor.UpperLeft));
-        for (int i = 0; i < names.Count; i++)
+            if (UiKit.Button(new Rect(c.x + i * (cw + 4f), c.y, cw, 40f), EnemyCats[i], 14f, enemyCat == i, false)) enemyCat = i;
+        float rowH = 46f;
+        var listR = new Rect(c.x, c.y + 46f, lw, c.height - 46f - 124f);
+        var items = ArenaCatalog.Items(enemyCat, cfg.devAllEnemies);
+        enemyListScroll = BeginList(listR, enemyListScroll, Mathf.Max(2, items.Count) * rowH);
+        if (enemyCat == 0) GUI.Label(new Rect(8f, 4f, lw - 30f, 80f), "動かない標的: 攻撃もしない(当たってもダメージなし)・倒れない。攻撃の確認に。走っている時はプレイヤーとの間合いを保ちます", UiKit.Label(14f, TextAnchor.UpperLeft, false, Soft));
+        for (int i = 0; i < items.Count; i++)
         {
-            var n = names[i];
-            bool sel = enemyCat == 0 ? enemyPickId == n.id : enemyPickBoss == n.kind;
-            if (UiKit.Button(new Rect(0, i * rowH, lw - 20f, rowH - 4f), n.label, 13f, sel, false)) { if (enemyCat == 0) enemyPickId = n.id; else enemyPickBoss = n.kind; }
+            var it = items[i];
+            var r = new Rect(0, i * rowH, lw - 20f, rowH - 4f);
+            bool sel = enemyCat == 1 ? enemyPickId == it.id : enemyPickBoss == it.kind;
+            UiKit.Fill(r, sel ? new Color(0.35f, 0.18f, 0.08f, 0.95f) : new Color(0.1f, 0.07f, 0.09f, 0.9f));
+            if (it.sprite != null && it.known) DrawSprite(new Rect(r.x + 4f, r.y + 2f, r.height - 4f, r.height - 4f), it.sprite);
+            GUI.Label(new Rect(r.x + r.height + 6f, r.y, r.width - r.height - 10f, r.height), it.label, UiKit.Label(15f, TextAnchor.MiddleLeft, it.known, it.known ? Color.white : Dim));
+            if (it.known && GUI.Button(r, GUIContent.none, GUIStyle.none)) { if (enemyCat == 1) enemyPickId = it.id; else enemyPickBoss = it.kind; }
         }
         EndList();
-        // 数 / 前方 / 間隔 / Tier
         float y = listR.yMax + 6f;
-        y = Stepper(c.x, y, lw, "数", pickCount.ToString(), () => pickCount = Mathf.Max(1, pickCount - 1), () => pickCount = Mathf.Min(enemyCat >= 1 && enemyCat <= 3 ? 4 : 20, pickCount + 1));
-        if (enemyCat == 0 || enemyCat == 4)
+        bool bossCat = enemyCat >= 2;
+        y = Stepper(c.x, y, lw, "数", pickCount.ToString(), () => pickCount = Mathf.Max(1, pickCount - 1), () => pickCount = Mathf.Min(bossCat ? 4 : enemyCat == 0 ? 6 : 12, pickCount + 1));
+        if (enemyCat == 1) y = Stepper(c.x, y, lw, "動きの強さ", "段階 " + (pickTier + 1), () => pickTier = Mathf.Max(0, pickTier - 1), () => pickTier = Mathf.Min(4, pickTier + 1));
+        if (bossCat) { var nt = UiKit.Label(11f, TextAnchor.UpperLeft, false, Dim); nt.wordWrap = true; GUI.Label(new Rect(c.x, y, lw * 0.55f - 8f, 60f), enemyCat == 2 ? "ボスは自分の登場の動きで前から現れます" : "洞窟/天空のボスの地形を使う技(穴/天井/落石/空の帯など)は、平らな闘技場では本編と出方が違います", nt); }
+        bool canAdd = enemyCat == 0 || (enemyCat == 1 && !string.IsNullOrEmpty(enemyPickId)) || (bossCat && enemyPickBoss >= 0 && ArenaCatalog.Items(enemyCat, cfg.devAllEnemies).Any(i => i.kind == enemyPickBoss && i.known));
+        if (bossCat) GUI.Label(new Rect(c.x, c.yMax - 70f, lw * 0.55f - 8f, 20f), "ボスは1種類まで(雑魚と一緒に出せます)", UiKit.Label(11f, TextAnchor.UpperLeft, false, Dim));
+        if (UiKit.Button(new Rect(c.x + lw * 0.55f, c.yMax - 46f, lw * 0.45f, 44f), "相手に加える", 16f, true, false, canAdd) && canAdd)
         {
-            y = Stepper(c.x, y, lw, "前方(m)", pickAhead.ToString("0.#"), () => pickAhead = Mathf.Max(1.5f, pickAhead - 1f), () => pickAhead = Mathf.Min(60f, pickAhead + 1f));
-            y = Stepper(c.x, y, lw, "間隔(m)", pickSpacing.ToString("0.#"), () => pickSpacing = Mathf.Max(0.5f, pickSpacing - 0.5f), () => pickSpacing = Mathf.Min(20f, pickSpacing + 0.5f));
-        }
-        else GUI.Label(new Rect(c.x, y, lw, 40f), "ボスの位置はボス自身の登場(前方から走り込み/間合い)で決まる", UiKit.Label(11f, TextAnchor.UpperLeft));
-        if (enemyCat == 0)
-        {
-            float tw = (lw - 60f - 16f) / 5f;
-            GUI.Label(new Rect(c.x + lw * 0.5f + 8f, listR.yMax + 6f, 50f, 30f), "Tier", UiKit.Label(13f));
-            for (int t = 0; t < 5; t++) if (UiKit.Button(new Rect(c.x + lw * 0.5f + 50f + t * 34f, listR.yMax + 6f, 30f, 30f), "T" + t, 11f, pickTier == t, false)) pickTier = t;
-        }
-        if (UiKit.Button(new Rect(c.x + lw * 0.5f + 8f, c.yMax - 40f, lw * 0.5f - 8f, 38f), "構成に追加", 15f, true, false))
-        {
-            var e = new ArenaEnemyEntry { kind = (ArenaEnemyKind)Mathf.Clamp(enemyCat, 0, 4), enemyId = enemyPickId, bossKind = enemyPickBoss, count = pickCount, ahead = pickAhead, spacing = pickSpacing, tier = pickTier };
-            if (enemyCat == 4) e.kind = ArenaEnemyKind.Dummy;
+            var e = new ArenaEnemyEntry { count = pickCount, tier = pickTier, ahead = 6f, spacing = 2.5f };
+            if (enemyCat == 0) e.kind = ArenaEnemyKind.Dummy;
+            else if (enemyCat == 1) { e.kind = ArenaEnemyKind.Enemy; e.enemyId = enemyPickId; }
+            else
+            {
+                e.kind = enemyCat == 2 ? ArenaEnemyKind.WildBoss : enemyCat == 3 ? ArenaEnemyKind.CaveBoss : ArenaEnemyKind.SkyBoss; e.bossKind = enemyPickBoss;
+                if (cfg.enemies.RemoveAll(ArenaConfig.IsBoss) > 0) status = "ボスは1種類まで(前のボスと入れ替えました)";
+            }
             cfg.enemies.Add(e);
         }
-        // 今の構成 + 距離条件
         float rx = c.x + lw + 16f, rw = c.width - lw - 16f;
-        GUI.Label(new Rect(rx, c.y, rw - 100f, 30f), $"敵の構成({cfg.enemies.Count})", UiKit.Label(14f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));
-        if (UiKit.Button(new Rect(rx + rw - 96f, c.y, 96f, 30f), "構成を空に", 12f, false, false)) cfg.enemies.Clear();
-        var eR = new Rect(rx, c.y + 36f, rw, c.height - 36f - 120f);
-        enemyScroll = BeginList(eR, enemyScroll, cfg.enemies.Count * rowH);
+        GUI.Label(new Rect(rx, c.y, rw - 110f, 34f), $"今の相手({cfg.enemies.Count})", UiKit.Label(17f, TextAnchor.MiddleLeft, true, Gold));
+        if (UiKit.Button(new Rect(rx + rw - 104f, c.y, 104f, 34f), "全部外す", 14f, false, false)) cfg.enemies.Clear();
+        var eR = new Rect(rx, c.y + 40f, rw, c.height - 40f - 112f);
+        enemyScroll = BeginList(eR, enemyScroll, Mathf.Max(1, cfg.enemies.Count) * rowH);
+        if (cfg.enemies.Count == 0) GUI.Label(new Rect(8f, 6f, rw - 30f, 50f), "相手がいません(このまま始めると敵なしで動きだけ試せます)", UiKit.Label(13f, TextAnchor.UpperLeft, false, Dim));
         for (int i = 0; i < cfg.enemies.Count; i++)
         {
             var e = cfg.enemies[i];
-            string nm = e.kind == ArenaEnemyKind.Enemy ? e.enemyId + $" T{e.tier}" : e.kind == ArenaEnemyKind.Dummy ? "動かない標的" : e.kind == ArenaEnemyKind.WildBoss ? ((WildBossKind)e.bossKind).ToString() : e.kind == ArenaEnemyKind.CaveBoss ? ((CaveBossKind)e.bossKind).ToString() : ((SkyBossKind)e.bossKind).ToString();
             var rr = new Rect(0, i * rowH, rw - 20f, rowH - 4f);
-            UiKit.Fill(rr, new Color(0.12f, 0.06f, 0.06f, 0.85f));
-            string pos = e.kind == ArenaEnemyKind.Enemy || e.kind == ArenaEnemyKind.Dummy ? $" 前方{e.ahead:0.#}m 間隔{e.spacing:0.#}m" : " (ボス)";
-            GUI.Label(new Rect(8f, rr.y, rr.width - 60f, rr.height), $"{nm} ×{e.count}{pos}", UiKit.Label(13f));
-            if (UiKit.Button(new Rect(rr.xMax - 48f, rr.y + 2f, 44f, rr.height - 4f), "×", 15f, false, false)) { cfg.enemies.RemoveAt(i); break; }
+            UiKit.Fill(rr, new Color(0.14f, 0.06f, 0.06f, 0.9f));
+            GUI.Label(new Rect(8f, rr.y, rr.width - 60f, rr.height), $"{ArenaCatalog.NameOf(e)}  ×{e.count}{(e.kind == ArenaEnemyKind.Enemy ? $"  段階{e.tier + 1}" : "")}", UiKit.Label(15f));
+            if (UiKit.Button(new Rect(rr.xMax - 48f, rr.y + 4f, 44f, rr.height - 8f), "×", 18f, false, false)) { cfg.enemies.RemoveAt(i); break; }
         }
         EndList();
         float dy = eR.yMax + 8f;
-        GUI.Label(new Rect(rx, dy, rw, 22f), $"距離条件(敵の強さ。距離のイベントは起きない): {cfg.distance:0} m", UiKit.Label(13f, TextAnchor.MiddleLeft, true));
-        float[] dp = { 0f, 1000f, 5000f, 10000f, 30000f, 50000f, 99000f };
+        GUI.Label(new Rect(rx, dy, rw, 24f), $"敵の強さ: {cfg.distance / 1000f:0.#}km地点相当(HP/攻撃が本編のその距離と同じ)", UiKit.Label(14f, TextAnchor.MiddleLeft, true, Soft));
+        float[] dp = { 1000f, 5000f, 10000f, 30000f, 50000f, 70000f, 90000f };
         float dw = (rw - 6f * 4f) / 7f;
-        for (int i = 0; i < dp.Length; i++) if (UiKit.Button(new Rect(rx + i * (dw + 4f), dy + 26f, dw, 32f), dp[i] >= 1000f ? $"{dp[i] / 1000f:0}km" : "0", 12f, Mathf.Approximately(cfg.distance, dp[i]), false)) cfg.distance = dp[i];
-        distText = GUI.TextField(new Rect(rx, dy + 64f, rw * 0.5f, 30f), string.IsNullOrEmpty(distText) ? cfg.distance.ToString("0") : distText);
-        if (UiKit.Button(new Rect(rx + rw * 0.5f + 8f, dy + 64f, rw * 0.5f - 8f, 30f), "数値で指定", 12f, false, false) && float.TryParse(distText, out float dv)) { cfg.distance = Mathf.Clamp(dv, 0f, 99999f); distText = ""; }
+        for (int i = 0; i < dp.Length; i++) if (UiKit.Button(new Rect(rx + i * (dw + 4f), dy + 30f, dw, 42f), $"{dp[i] / 1000f:0}km", 14f, Mathf.Approximately(cfg.distance, dp[i]), false)) cfg.distance = dp[i];
+    }
+
+    static void DrawSprite(Rect r, Sprite sp)
+    {
+        if (sp == null || sp.texture == null) return;
+        var tr = sp.textureRect; var tex = sp.texture;
+        var uv = new Rect(tr.x / tex.width, tr.y / tex.height, tr.width / tex.width, tr.height / tex.height);
+        float aspect = tr.width / Mathf.Max(1f, tr.height);
+        var fit = aspect > r.width / r.height ? new Rect(r.x, r.center.y - r.width / aspect * 0.5f, r.width, r.width / aspect) : new Rect(r.center.x - r.height * aspect * 0.5f, r.y, r.height * aspect, r.height);
+        GUI.DrawTextureWithTexCoords(fit, tex, uv);
     }
 
     float Stepper(float x, float y, float w, string label, string value, System.Action minus, System.Action plus)
     {
-        float half = w * 0.5f - 8f;
-        GUI.Label(new Rect(x, y, 80f, 30f), label, UiKit.Label(13f));
-        if (UiKit.Button(new Rect(x + 80f, y, 40f, 30f), "-", 15f, false, false)) minus();
-        GUI.Label(new Rect(x + 122f, y, half - 166f, 30f), value, UiKit.Label(14f, TextAnchor.MiddleCenter, true));
-        if (UiKit.Button(new Rect(x + half - 42f, y, 40f, 30f), "+", 15f, false, false)) plus();
-        return y + 34f;
+        GUI.Label(new Rect(x, y, 110f, 38f), label, UiKit.Label(15f));
+        if (UiKit.Button(new Rect(x + 110f, y, 48f, 38f), "-", 20f, false, false)) minus();
+        GUI.Label(new Rect(x + 162f, y, 110f, 38f), value, UiKit.Label(16f, TextAnchor.MiddleCenter, true));
+        if (UiKit.Button(new Rect(x + 276f, y, 48f, 38f), "+", 20f, false, false)) plus();
+        return y + 42f;
     }
 
-    // ---- 速度 / 操作
-    void DrawSpeedTab(Rect c)
+    // ---- 詳細(速度/無敵/操作アシスト/未対応の効果。開発版の項目は分ける)
+    void DrawDetailTab(Rect c)
     {
         var cfg = ArenaMode.Config; var pc = PlayerController.Instance;
         float x = c.x, y = c.y, w = c.width;
-        GUI.Label(new Rect(x, y, w, 22f), "速度(自然加速は止める。0km/h は自動前進だけを止め、時間/攻撃/ジャンプ/重力/敵は通常どおり)", UiKit.Label(13f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));
-        y += 26f;
-        string[] modes = { "停止", "基準速度(カード/キャラの補正あり)", "実効速度固定(補正は移動に入れない)" };
+        var head = UiKit.Label(16f, TextAnchor.MiddleLeft, true, Gold);
+        var note = UiKit.Label(12f, TextAnchor.UpperLeft, false, Dim); note.wordWrap = true;
+        GUI.Label(new Rect(x, y, w, 26f), "速度", head); y += 28f;
+        string[] modes = { "止まる(0km/h)", "走る(基準速度+補正)", "走る(速度を固定)" };
         float mw = (w - 16f) / 3f;
-        for (int i = 0; i < 3; i++) if (UiKit.Button(new Rect(x + i * (mw + 8f), y, mw, 36f), modes[i], 13f, cfg.speedMode == i, false)) cfg.speedMode = i;
-        y += 42f;
-        float[] presets = { 0f, 30f, 60f, 100f, 150f, 200f, 300f };
-        float pw = (w - 6f * 6f) / 7f;
-        for (int i = 0; i < presets.Length; i++) if (UiKit.Button(new Rect(x + i * (pw + 6f), y, pw, 36f), $"{presets[i]:0}km/h", 13f, Mathf.Approximately(cfg.kmh, presets[i]), false)) { cfg.kmh = presets[i]; if (presets[i] > 0f && cfg.speedMode == 0) cfg.speedMode = 1; }
-        y += 42f;
-        kmhText = GUI.TextField(new Rect(x, y, 160f, 32f), string.IsNullOrEmpty(kmhText) ? cfg.kmh.ToString("0") : kmhText);
-        if (UiKit.Button(new Rect(x + 168f, y, 140f, 32f), "数値で指定", 13f, false, false) && float.TryParse(kmhText, out float kv)) { cfg.kmh = Mathf.Clamp(kv, 0f, 600f); kmhText = ""; }
-        if (pc != null) GUI.Label(new Rect(x + 320f, y, w - 320f, 32f), $"今: 基準 {(cfg.speedMode == 0 ? 0f : cfg.kmh):0} km/h → 実効 {pc.CurrentAutoRunSpeed * GameManager.KmhPerMps:0.0} km/h(補正 ×{pc.ArenaSpeedFactor:F2})。変更は「適用して再戦」で", UiKit.Label(12f));
-        y += 40f;
-        // 操作アシスト(試験の中だけ。通常の設定は変えない)
-        GUI.Label(new Rect(x, y, w, 22f), "操作アシスト(高速時の自動補助。闘技場の中だけ・保存しない)", UiKit.Label(13f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));
-        y += 26f;
-        string[] am = { "OFF", "高速時のみ", "常時" };
-        for (int i = 0; i < 3; i++) if (UiKit.Button(new Rect(x + i * (130f + 8f), y, 130f, 34f), am[i], 14f, cfg.assistMode == i, false)) { cfg.assistMode = i; ApplyAssist(); }
-        float ex = x + 3f * 138f + 16f;
-        GUI.Label(new Rect(ex, y, 120f, 34f), $"開始 {cfg.assistEngageKmh:0}km/h", UiKit.Label(13f));
-        if (UiKit.Button(new Rect(ex + 120f, y, 40f, 34f), "-", 15f, false, false)) { cfg.assistEngageKmh = Mathf.Max(HighSpeedAssist.MinEngageKmh, cfg.assistEngageKmh - 5f); ApplyAssist(); }
-        if (UiKit.Button(new Rect(ex + 164f, y, 40f, 34f), "+", 15f, false, false)) { cfg.assistEngageKmh = Mathf.Min(HighSpeedAssist.MaxEngageKmh, cfg.assistEngageKmh + 5f); ApplyAssist(); }
-        y += 40f;
-        if (UiKit.Button(new Rect(x, y, 260f, 34f), $"障害物を壊して通る: {(cfg.assistBreakObstacles ? "ON" : "OFF")}", 13f, cfg.assistBreakObstacles, false)) { cfg.assistBreakObstacles = !cfg.assistBreakObstacles; ApplyAssist(); }
-        if (UiKit.Button(new Rect(x + 268f, y, 300f, 34f), $"着地前の二段ジャンプ: {(cfg.assistEarlyDoubleJump ? "ON" : "OFF")}", 13f, cfg.assistEarlyDoubleJump, false)) { cfg.assistEarlyDoubleJump = !cfg.assistEarlyDoubleJump; ApplyAssist(); }
+        for (int i = 0; i < 3; i++) if (UiKit.Button(new Rect(x + i * (mw + 8f), y, mw, 42f), modes[i], 15f, cfg.speedMode == i, false)) { cfg.speedMode = i; if (i > 0 && cfg.kmh <= 0.01f) cfg.kmh = 60f; }
+        y += 46f;
+        GUI.Label(new Rect(x, y, w, 36f), cfg.speedMode == 0 ? "自動の前進だけが止まります(攻撃/ジャンプ/重力/のけぞり/敵の動きは本編どおり)" :
+            cfg.speedMode == 1 ? "基準の速度に、キャラ/カードの速さの補正(SPEED UP など)を掛けた速さで走ります" : "補正を掛けず、この速さのまま走ります(速さのカードの違いを除いて比べる時に)", note);
+        y += 36f;
+        if (cfg.speedMode > 0)
+        {
+            float[] presets = { 30f, 60f, 100f, 130f, 160f };
+            float pw = (w - 4f * 6f) / 5f;
+            for (int i = 0; i < presets.Length; i++) if (UiKit.Button(new Rect(x + i * (pw + 6f), y, pw, 40f), $"{presets[i]:0}km/h", 15f, Mathf.Approximately(cfg.kmh, presets[i]), false)) cfg.kmh = presets[i];
+            y += 44f;
+            if (pc != null) GUI.Label(new Rect(x, y, w, 22f), $"今: 基準 {cfg.kmh:0}km/h → 実際 {pc.CurrentAutoRunSpeed * GameManager.KmhPerMps:0}km/h(補正 ×{pc.ArenaSpeedFactor:F2})", UiKit.Label(13f, TextAnchor.MiddleLeft, false, Soft));
+            y += 24f;
+        }
+        y += 6f;
+        GUI.Label(new Rect(x, y, w, 26f), "無敵 / HP", head); y += 28f;
+        if (UiKit.Button(new Rect(x, y, 220f, 42f), $"無敵: {(ArenaMode.Invincible ? "ON" : "OFF")}", 16f, ArenaMode.Invincible, false)) ToggleInvincible();
+        if (UiKit.Button(new Rect(x + 228f, y, 180f, 42f), "HPを全回復", 16f, false, false)) RefillHp();
+        GUI.Label(new Rect(x + 418f, y, w - 418f, 42f), "無敵の時も「本来受けたダメージ」は結果に出ます", note);
+        y += 50f;
+        GUI.Label(new Rect(x, y, w, 26f), "操作アシスト(設定の「高速時の自動補助」と同じ。闘技場の中だけ・設定は変わりません)", head); y += 28f;
+        string[] am = Debug.isDebugBuild ? new[] { "OFF", "ON", "常時(開発版)" } : new[] { "OFF", "ON" };
+        for (int i = 0; i < am.Length; i++) if (UiKit.Button(new Rect(x + i * 148f, y, 140f, 42f), am[i], 15f, cfg.assistMode == i, false)) { cfg.assistMode = i; ApplyAssist(); }
+        float ex = x + am.Length * 148f + 12f;
+        GUI.Label(new Rect(ex, y, 150f, 42f), $"働く速さ {cfg.assistEngageKmh:0}km/h~", UiKit.Label(14f));
+        if (UiKit.Button(new Rect(ex + 152f, y, 46f, 42f), "-", 20f, false, false)) { cfg.assistEngageKmh = Mathf.Max(HighSpeedAssist.MinEngageKmh, cfg.assistEngageKmh - 5f); ApplyAssist(); }
+        if (UiKit.Button(new Rect(ex + 202f, y, 46f, 42f), "+", 20f, false, false)) { cfg.assistEngageKmh = Mathf.Min(HighSpeedAssist.MaxEngageKmh, cfg.assistEngageKmh + 5f); ApplyAssist(); }
+        y += 50f;
+        var un = UiKit.Label(12f, TextAnchor.UpperLeft, false, new Color(1f, 0.75f, 0.6f)); un.wordWrap = true;
+        GUI.Label(new Rect(x, y, w, 40f), "闘技場では未対応: FINAL EVOLUTION / AWAKENED / Mastery / ULTIMATE のゲージ / レベルアップ / ボス報酬 / BONUS ZONE(カードは通常の Lv の効果と COMBO だけ。報酬・記録・所持は一切変わりません)", un);
         y += 44f;
-        if (UiKit.Button(new Rect(x, y, 200f, 36f), $"無敵: {(ArenaMode.Invincible ? "ON" : "OFF")}", 15f, ArenaMode.Invincible, false)) ToggleInvincible();
-        if (UiKit.Button(new Rect(x + 208f, y, 160f, 36f), "HP全回復", 15f, false, false)) RefillHp();
-        if (UiKit.Button(new Rect(x + 376f, y, 160f, 36f), "敵を全削除", 15f, false, false)) ClearEnemies();
-        y += 44f;
-        if (UiKit.Button(new Rect(x, y, 200f, 34f), $"乱数シード固定: {(cfg.seedFixed ? "ON" : "OFF")}", 13f, cfg.seedFixed, false)) cfg.seedFixed = !cfg.seedFixed;
-        seedText = GUI.TextField(new Rect(x + 208f, y, 140f, 34f), string.IsNullOrEmpty(seedText) ? cfg.seed.ToString() : seedText);
-        if (UiKit.Button(new Rect(x + 356f, y, 100f, 34f), "指定", 13f, false, false) && int.TryParse(seedText, out int sv)) { cfg.seed = sv; seedText = ""; }
-        if (UiKit.Button(new Rect(x + 464f, y, 140f, 34f), "新しいシード", 13f, false, false)) { cfg.seed = Random.Range(1, 999999); seedText = ""; }
+        if (Debug.isDebugBuild)
+        {
+            GUI.Label(new Rect(x, y, w, 22f), "開発版だけ", UiKit.Label(13f, TextAnchor.MiddleLeft, true, new Color(1f, 0.55f, 0.5f)));
+            y += 24f;
+            if (UiKit.Button(new Rect(x, y, 240f, 36f), $"未遭遇の敵も選ぶ: {(cfg.devAllEnemies ? "ON" : "OFF")}", 13f, cfg.devAllEnemies, false)) cfg.devAllEnemies = !cfg.devAllEnemies;
+            if (UiKit.Button(new Rect(x + 248f, y, 240f, 36f), $"乱数を固定: {(cfg.seedFixed ? "ON" : "OFF")}", 13f, cfg.seedFixed, false)) cfg.seedFixed = !cfg.seedFixed;
+            if (UiKit.Button(new Rect(x + 496f, y, 220f, 36f), $"障害物を壊す補助: {(cfg.assistBreakObstacles ? "ON" : "OFF")}", 13f, cfg.assistBreakObstacles, false)) { cfg.assistBreakObstacles = !cfg.assistBreakObstacles; ApplyAssist(); }
+        }
     }
 
-    // ---- 計測
+    // ---- 結果(今回と前回)
     void DrawResultTab(Rect c)
     {
         var cur = ArenaMode.Current; var prev = ArenaMode.Previous;
-        GUI.Label(new Rect(c.x, c.y, c.width, 24f), $"今回: {cur.label}{(prev != null ? "    直前: " + prev.label : "")}", UiKit.Label(13f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));
-        string[] rows = { "与ダメージ", "命中数", "DPS(与ダメージ/戦闘時間)", "被ダメージ(実際のHP減少)", "本来の被ダメージ(無敵/シールド含む)", "本来の被弾回数", "撃破数", "戦闘時間(停止中を除く)", "全滅までの時間", "結果" };
+        var head = UiKit.Label(15f, TextAnchor.MiddleLeft, true, new Color(0.8f, 0.9f, 1f));
+        string outcome = cur.defeated ? "倒れた" : cur.clearTime >= 0f ? $"全滅 {cur.clearTime:F2}秒" : cur.ended ? "終了" : "戦闘中";
+        GUI.Label(new Rect(c.x, c.y, c.width, 30f), $"今回: {outcome}", UiKit.Label(20f, TextAnchor.MiddleLeft, true, Gold));
+        if (!string.IsNullOrEmpty(status)) GUI.Label(new Rect(c.x + 260f, c.y, c.width - 260f, 30f), status, UiKit.Label(14f, TextAnchor.MiddleLeft, false, Soft));
+        string[] rows = { "与ダメージ", "命中数", "撃破数", "撃破までの時間", "被ダメージ(HPが減った分)", "本来の被ダメージ(無敵/Shield も含む)", "戦闘時間" };
         System.Func<ArenaResult, string>[] vals =
         {
-            r => r.dealt.ToString("N0"), r => r.hits.ToString(), r => (r.time > 0.01f ? r.dealt / r.time : 0f).ToString("N1"),
-            r => r.taken.ToString(), r => r.wouldTake.ToString(), r => r.wouldHits.ToString(), r => $"{r.kills} / {r.spawned}",
-            r => $"{r.time:F2}s", r => r.clearTime >= 0f ? $"{r.clearTime:F2}s" : "—",
-            r => r.defeated ? "倒れた" : r.clearTime >= 0f ? "全滅" : r.ended ? "手動で終了" : "試験中",
+            r => r.dealt.ToString("N0"), r => r.hits.ToString(), r => $"{r.kills} / {r.spawned}",
+            r => r.clearTime >= 0f ? $"{r.clearTime:F2}秒" : "—",
+            r => r.taken.ToString(), r => $"{r.wouldTake}({r.wouldHits}回)", r => $"{r.time:F2}秒",
         };
-        float y = c.y + 30f, col1 = c.x, col2 = c.x + c.width * 0.42f, col3 = c.x + c.width * 0.66f;
-        var head = UiKit.Label(13f, TextAnchor.MiddleLeft, true, new Color(0.8f, 0.9f, 1f));
-        GUI.Label(new Rect(col2, y, 200f, 24f), "今回", head);
-        GUI.Label(new Rect(col3, y, 200f, 24f), "直前", head);
-        y += 26f;
-        var lab = UiKit.Label(14f, TextAnchor.MiddleLeft, false, new Color(1f, 0.95f, 0.85f));
+        float y = c.y + 36f, col1 = c.x, col2 = c.x + c.width * 0.42f, col3 = c.x + c.width * 0.68f;
+        GUI.Label(new Rect(col2, y, 200f, 26f), "今回", head);
+        GUI.Label(new Rect(col3, y, 200f, 26f), "前回", head);
+        y += 28f;
+        var lab = UiKit.Label(16f, TextAnchor.MiddleLeft, false, new Color(1f, 0.95f, 0.85f));
         for (int i = 0; i < rows.Length; i++)
         {
-            GUI.Label(new Rect(col1, y, col2 - col1, 26f), rows[i], lab);
-            GUI.Label(new Rect(col2, y, col3 - col2, 26f), vals[i](cur), lab);
-            GUI.Label(new Rect(col3, y, c.xMax - col3, 26f), prev != null ? vals[i](prev) : "—", lab);
-            y += 28f;
+            if (i % 2 == 0) UiKit.Fill(new Rect(col1, y, c.width, 30f), new Color(1f, 1f, 1f, 0.04f));
+            GUI.Label(new Rect(col1 + 6f, y, col2 - col1, 30f), rows[i], lab);
+            GUI.Label(new Rect(col2, y, col3 - col2, 30f), vals[i](cur), lab);
+            GUI.Label(new Rect(col3, y, c.xMax - col3, 30f), prev != null ? vals[i](prev) : "—", lab);
+            y += 32f;
         }
-        GUI.Label(new Rect(c.x, y + 6f, c.width, 40f), "時間はゲームの時間(設定を開いている間/停止中は進まない)。命中数は敵/ボスへのダメージの回数(継続ダメージ/追加攻撃も含む)。「同条件で再戦」で今回の結果が「直前」になる", UiKit.Label(11f, TextAnchor.UpperLeft, false, new Color(0.8f, 0.8f, 0.88f)));
+        var bl = UiKit.Label(13f, TextAnchor.UpperLeft, false, Soft); bl.wordWrap = true;
+        GUI.Label(new Rect(c.x, y + 4f, c.width, 44f), $"今回の条件: {cur.label}\n試用のビルド: {cur.build}", bl);
+        if (prev != null) GUI.Label(new Rect(c.x, y + 50f, c.width, 40f), $"前回の条件: {prev.label}\n前回のビルド: {prev.build}", UiKit.Label(12f, TextAnchor.UpperLeft, false, Dim));
+        float by = c.yMax - 56f, bw = (c.width - 16f) / 3f;
+        if (UiKit.Button(new Rect(c.x, by, bw, 52f), "同条件で再戦", 19f, true, false)) Rematch("result");
+        if (UiKit.Button(new Rect(c.x + bw + 8f, by, bw, 52f), "設定を変更", 18f, false, false)) tab = 0;
+        if (UiKit.Button(new Rect(c.x + 2f * (bw + 8f), by, bw, 52f), "ホームへ", 18f, false, false)) ExitHome();
     }
 
     // ===================================================================== 指で動かせる一覧(IMGUI のスクロールは指で引けないので、ドラッグで動かす)
-    Rect listRect; Vector2 listPos; float listContentH;
     bool dragging; Vector2 dragStart; float dragStartScroll; bool dragMoved;
     static Vector2 activeListScrollRef;
 
     Vector2 BeginList(Rect r, Vector2 scroll, float contentH)
     {
-        listRect = r; listContentH = contentH;
         var e = Event.current;
         if (e.type == EventType.MouseDown && r.Contains(e.mousePosition)) { dragging = true; dragStart = e.mousePosition; dragStartScroll = scroll.y; dragMoved = false; activeListScrollRef = r.position; }
         if (dragging && activeListScrollRef == r.position)
@@ -595,4 +654,83 @@ public class ArenaController : MonoBehaviour
     }
     void EndList() { GUI.EndScrollView(); }
 }
-#endif
+
+// 闘技場の相手の一覧(遭遇の正規データから: ボス = ProgressStats の会ったボス / 雑魚 = 距離で解放済み かつ そのステージを走ったことがある)
+public static class ArenaCatalog
+{
+    public struct Item { public string label, id; public int kind; public bool known; public Sprite sprite; }
+    public const string Unknown = "？？？(まだ会っていない)";
+
+    public static List<Item> Items(int cat, bool devAll)
+    {
+        var list = new List<Item>();
+        bool all = devAll && Debug.isDebugBuild;
+        if (cat == 1)
+        {
+            foreach (var d in EnemyDatabase.AllEnemies)
+            {
+                if (d == null || d.bonusKind != BonusEnemyKind.None) continue;
+                bool k = all || EnemySeen(d);
+                list.Add(new Item { label = k ? (string.IsNullOrEmpty(d.displayName) ? d.enemyId : d.displayName) : Unknown, id = d.enemyId, known = k, sprite = k ? d.sprite : null });
+            }
+            list.Sort((a, b) => b.known.CompareTo(a.known));
+        }
+        else if (cat >= 2)
+        {
+            var t = cat == 2 ? typeof(WildBossKind) : cat == 3 ? typeof(CaveBossKind) : typeof(SkyBossKind);
+            string fam = cat == 2 ? "Wild" : cat == 3 ? "Cave" : "Sky";
+            foreach (var n in System.Enum.GetNames(t))
+            {
+                string key = fam + "/" + n;
+                bool k = all || ProgressStats.HasSeenBoss(key);
+                list.Add(new Item { label = k ? BossName(n) : Unknown, id = k ? key : "", kind = (int)System.Enum.Parse(t, n), known = k }); // まだ会っていないボスは名前も出さない
+            }
+        }
+        return list;
+    }
+
+    public static bool EnemySeen(EnemyDefinition d)
+    {
+        if (d == null) return false;
+        if (!UnlockManager.IsTargetUnlocked(UnlockType.Enemy, d.enemyId)) return false;
+        var gm = GameManager.Instance;
+        if (d.stageIds == null || d.stageIds.Length == 0 || gm == null) return true;
+        foreach (var s in d.stageIds) if (!string.IsNullOrEmpty(s) && gm.GetStageBest(s) > 1.0) return true;
+        return false;
+    }
+
+    // "BlackKnight" → "BLACK KNIGHT"
+    public static string BossName(string enumName)
+    {
+        var sb = new System.Text.StringBuilder();
+        for (int i = 0; i < enumName.Length; i++) { if (i > 0 && char.IsUpper(enumName[i]) && !char.IsUpper(enumName[i - 1])) sb.Append(' '); sb.Append(char.ToUpperInvariant(enumName[i])); }
+        return sb.ToString();
+    }
+
+    // 構成に入っている相手が今のセーブで選べるか(まだ会っていない敵/ボスは不可。練習標的はいつでも)
+    public static bool EntryKnown(ArenaEnemyEntry e, bool devAll)
+    {
+        if (e == null) return false;
+        if (devAll && Debug.isDebugBuild) return true;
+        switch (e.kind)
+        {
+            case ArenaEnemyKind.Dummy: return true;
+            case ArenaEnemyKind.Enemy: return EnemySeen(EnemyDatabase.FindById(e.enemyId));
+            case ArenaEnemyKind.WildBoss: return ProgressStats.HasSeenBoss("Wild/" + (WildBossKind)e.bossKind);
+            case ArenaEnemyKind.CaveBoss: return ProgressStats.HasSeenBoss("Cave/" + (CaveBossKind)e.bossKind);
+            default: return ProgressStats.HasSeenBoss("Sky/" + (SkyBossKind)e.bossKind);
+        }
+    }
+
+    public static string NameOf(ArenaEnemyEntry e)
+    {
+        switch (e.kind)
+        {
+            case ArenaEnemyKind.Dummy: return "動かない標的";
+            case ArenaEnemyKind.Enemy: { var d = EnemyDatabase.FindById(e.enemyId); return d != null && !string.IsNullOrEmpty(d.displayName) ? d.displayName : e.enemyId; }
+            case ArenaEnemyKind.WildBoss: return BossName(((WildBossKind)e.bossKind).ToString());
+            case ArenaEnemyKind.CaveBoss: return BossName(((CaveBossKind)e.bossKind).ToString());
+            default: return BossName(((SkyBossKind)e.bossKind).ToString());
+        }
+    }
+}

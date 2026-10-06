@@ -154,7 +154,8 @@ public partial class EndgameDebug : MonoBehaviour
     {
         if (Instance == null) return;
         // 開発用の闘技場: 闘技場の起動以外でシーンを読み直したら(退出/保存を戻すための読み直し)、必ず試験の設定を戻す
-        if (!pendingArena) ArenaController.ResetAll();
+        // 闘技場は ArenaLauncher が起動/退出で戻す(2026-10-06 正式版)。闘技場の起動中/中は触らない
+        if (!ArenaLauncher.Pending && !ArenaMode.PendingStart && !ArenaMode.Active) ArenaController.ResetAll();
         bool endedDebugRun = DebugRun.IsActive;
         if (DebugRun.IsActive)
         {

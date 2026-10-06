@@ -1,7 +1,6 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using UnityEngine;
 
-// 開発用の闘技場の見た目(2026-10-04、手続き生成の仮素材)。石畳の床 + 奥の観客席(段・アーチ・観客・柱・旗)。
+// 闘技場の見た目(2026-10-04、手続き生成。2026-10-06 本番の背景絵を Resources/Arena/arena_stands に置けば差し替わる)。石畳の床 + 奥の観客席(段・アーチ・観客・柱・旗)。
 // どちらもカメラに合わせて横へ並べ直すので、走り続けても途切れない(床は世界に固定した模様、観客席は少し遅れて流れる)。
 // 床の高さは闘技場の地面(平地)の高さ。地形の当たり判定は通常の地面のまま(見た目だけを重ねる)。
 public class ArenaStage : MonoBehaviour
@@ -9,9 +8,9 @@ public class ArenaStage : MonoBehaviour
     const float FloorTileW = 4f, FloorDepth = 14f;
     const float BgTileW = 48f;
     float floorY;
-    SpriteRenderer floor, floorTop;
+    SpriteRenderer floor, floorTop, floorShade;
     readonly SpriteRenderer[] bg = new SpriteRenderer[3];
-    static Sprite floorSprite, floorTopSprite, bgSprite;
+    static Sprite floorSprite, floorTopSprite, bgSprite, shadeSprite;
 
     public static ArenaStage Create(float groundY)
     {
@@ -26,10 +25,16 @@ public class ArenaStage : MonoBehaviour
     {
         if (floorSprite == null) floorSprite = MakeFloor();
         if (floorTopSprite == null) floorTopSprite = MakeFloorTop();
+        // 本番の絵(Resources/Arena/arena_stands = 横長の観客席の背景、左右がつながる絵)があればそれを使う。無ければ手続き生成の絵
+        if (bgSprite == null) bgSprite = Resources.Load<Sprite>("Arena/arena_stands");
         if (bgSprite == null) bgSprite = MakeBackground();
         floor = NewRenderer("Floor", floorSprite, RenderOrder.Ground);
         floor.drawMode = SpriteDrawMode.Tiled;
         floor.size = new Vector2(FloorTileW * 30f, FloorDepth);
+        // 床の奥行きの影(地面の下は暗くして、戦う場所(床の上)へ目が行くように。通常のステージの地面と同じ考え方)
+        if (shadeSprite == null) shadeSprite = MakeShade();
+        floorShade = NewRenderer("FloorShade", shadeSprite, RenderOrder.Ground);
+        floorShade.drawMode = SpriteDrawMode.Simple;
         floorTop = NewRenderer("FloorEdge", floorTopSprite, RenderOrder.Ground);
         floorTop.drawMode = SpriteDrawMode.Tiled;
         floorTop.size = new Vector2(FloorTileW * 30f, 0.5f);
@@ -59,6 +64,8 @@ public class ArenaStage : MonoBehaviour
         float snap = Mathf.Floor(cx / FloorTileW) * FloorTileW;
         floor.transform.position = new Vector3(snap, floorY - FloorDepth * 0.5f, -0.5f);
         floorTop.transform.position = new Vector3(snap, floorY - 0.05f, -0.6f);
+        floorShade.transform.position = new Vector3(cx, floorY - FloorDepth * 0.5f, -0.55f);
+        floorShade.transform.localScale = new Vector3(FloorTileW * 30f, FloorDepth / 64f, 1f);
         // 観客席: カメラの高さに合わせ、横は少し遅れて流れる(視差)。3枚を並べて切れ目を見せない
         float h = cam.orthographicSize * 2f;
         float scale = h * 1.05f / (bgSprite.bounds.size.y);
@@ -173,8 +180,25 @@ public class ArenaStage : MonoBehaviour
         return s;
     }
 
+    // 縦 1px 幅のグラデーション(上=透明 → 下=暗い)。床の上 0.6m は明るいまま
+    static Sprite MakeShade()
+    {
+        const int H = 64;
+        var tex = NewTex(1, H, TextureWrapMode.Clamp);
+        var px = new Color[H];
+        for (int y = 0; y < H; y++)
+        {
+            float depth = 1f - y / (float)(H - 1); // 0=上 1=下
+            float a = Mathf.Clamp01((depth - 0.04f) / 0.35f);
+            px[y] = new Color(0.04f, 0.035f, 0.05f, Mathf.Lerp(0f, 0.86f, Mathf.SmoothStep(0f, 1f, a)));
+        }
+        tex.SetPixels(px); tex.Apply();
+        var s = Sprite.Create(tex, new Rect(0, 0, 1, H), new Vector2(0.5f, 0.5f), 1f, 0, SpriteMeshType.FullRect);
+        s.hideFlags = HideFlags.DontSave;
+        return s;
+    }
+
     static Texture2D NewTex(int w, int h, TextureWrapMode wrap) => new Texture2D(w, h, TextureFormat.RGBA32, false) { wrapMode = wrap, filterMode = FilterMode.Bilinear, hideFlags = HideFlags.DontSave };
     static int Hash(int a, int b) { unchecked { int h = a * 73856093 ^ b * 19349663; h ^= h >> 13; return (h & 0x7fffffff); } }
     static float Noise(int x, int y) => (Hash(x / 4, y / 4) % 1000) / 1000f;
 }
-#endif

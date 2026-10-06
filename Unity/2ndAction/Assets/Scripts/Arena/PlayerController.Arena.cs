@@ -3,6 +3,14 @@ using UnityEngine;
 // 開発用の闘技場(2026-10-04): 自動前進の速さの指定と、試験の始めの置き直し
 public partial class PlayerController
 {
+    // 闘技場の「敵を全削除」: 被弾ののけぞり/硬直/被弾後の無敵を戻す(残った攻撃の続きで動けない状態を残さない)
+    public void ArenaClearHurtState()
+    {
+        hitInvincibleTimer = 0f;
+        reactionTimer = 0f; Reaction = ReactionKind.None;
+        var sr2 = GetComponentInChildren<SpriteRenderer>(); if (sr2 != null && !hasDied) sr2.enabled = true;
+    }
+
     // 闘技場の自動前進の速さ(m/s)。闘技場でなければ null(従来の計算)
     //  0km/h … 0(自動前進だけを止める。時間/攻撃/ジャンプ/重力/ノックバック/敵の行動は通常どおり)
     //  基準速度 … 指定の速さ × (このキャラ×カードの走る速さ / 共通の基本速度)。自然加速と自然上限は使わない

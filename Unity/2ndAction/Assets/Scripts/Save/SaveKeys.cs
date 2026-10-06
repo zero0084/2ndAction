@@ -28,6 +28,7 @@ public static class SaveKeys
     public const string ReaperMetPrefix = "ReaperMet_";                // + Eldest / Second / Youngest (int 0/1)
     public const string FinalDungeonUnlocked = "FinalDungeonUnlocked"; // int 0/1(一度1になったら戻さない)
     public const string BossSeen = "BossSeenV1";
+    public const string ArenaConfig = "ArenaConfigV1";                 // 闘技場の最後の構成(JSON。練習の設定なので「設定」。デッキ/所持には書かない)
     public const string SprintGates = "SprintGatesV1";                 // 疾走出発の解放: マップごとに実際に倒した 10,000m 刻みの門番(2026-10-05)
     public const string DevSprintUnlockAll = "Dev.SprintUnlockAll";    // 開発版だけ: 疾走出発の行き先を全部選べる                       // 会ったボス(カンマ区切りの "Wild/Wolf" 等)。ラスダンの抽選で製品版が優先する(2026-10-05)
     public const string DevFinalDungeonAlwaysOpen = "Dev.FinalDungeonAlwaysOpen"; // 開発版だけ: ラスダンを常に選べる(既定1)
@@ -63,6 +64,7 @@ public static class SaveKeys
         new Entry(DevSprintUnlockAll, SaveCategory.Dev, SaveType.Int, "開発版: 疾走出発の行き先を全部選べる"),
 
         // ---- 設定 ----
+        new Entry(ArenaConfig, SaveCategory.Settings, SaveType.String, "闘技場の最後の構成(キャラ/試用のビルド/相手/速度/操作アシスト/無敵)。進行ではない"),
         new Entry("MasterVolume", SaveCategory.Settings, SaveType.Float, "全体音量 0〜1"),
         new Entry("BgmVolume", SaveCategory.Settings, SaveType.Float, "BGM音量 0〜1"),
         new Entry("SfxVolume", SaveCategory.Settings, SaveType.Float, "SE音量 0〜1"),

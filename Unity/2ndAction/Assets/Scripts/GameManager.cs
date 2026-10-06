@@ -514,6 +514,7 @@ public partial class GameManager : MonoBehaviour
         if (string.IsNullOrEmpty(characterId) || CharacterDatabase.FindById(characterId) == null) return;
         SelectedCharacterId = characterId;
         SetCharacterCardOwner(characterId); // キャラカード枠もそのキャラの物へ(2026-10-02)
+        if (DebugRun.BlocksSave("SelectedCharacterId")) return; // 闘技場/Debug Run: 試したキャラを「選択中」として保存しない
         PlayerPrefs.SetString(SelectedCharacterKey, characterId);
         PlayerPrefs.Save();
     }
@@ -631,6 +632,7 @@ public partial class GameManager : MonoBehaviour
     void SaveCharacterCards()
     {
         if (string.IsNullOrEmpty(CharacterCardOwnerId)) return;
+        if (DebugRun.BlocksSave("CharacterCardSlots")) return; // 闘技場/Debug Run では保存しない
         string[] entries = new string[CharacterCardSlotCount];
         for (int i = 0; i < CharacterCardSlotCount; i++)
         {
@@ -1863,6 +1865,12 @@ public partial class GameManager : MonoBehaviour
     {
         Rect m = GetHomeMultiButtonRect();
         return new Rect(m.x - m.width - 10f, m.y, m.width, m.height);
+    }
+    // 闘技場: マルチ/設定と同じ大きさ、その下の段の右端
+    Rect GetHomeArenaButtonRect()
+    {
+        Rect m = GetHomeMultiButtonRect();
+        return new Rect(m.x, m.yMax + 10f, m.width, m.height);
     }
     // 開発版のDEBUG: 部屋の操作対象(扉/ベッド/本/肖像画/ガチャ)と重ならない、扉と本の間の床の上(画面下)。
     Rect GetHomeDebugButtonRect()
@@ -3774,11 +3782,12 @@ public partial class GameManager : MonoBehaviour
             // HudPanelHeight/top offset - see the Get*PanelRect getters -
             // so this reads as one aligned strip instead of separately
             // placed boxes.
-            DrawStatPanel(GetBestPanelRect(), "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor);
+            // 闘技場(2026-10-06): BEST とレベル/経験値は関係が無いので出さない(距離は「○km地点相当」の強さとして出す)
+            if (!ArenaMode.Active) DrawStatPanel(GetBestPanelRect(), "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor);
             DrawStatPanel(GetDistancePanelRect(), "DISTANCE", FormatDistanceExact(SprintActive && SprintRunner.Instance != null ? SprintRunner.Instance.DistanceNow : MaxDistanceExact), HudValueColor, flashIntensity: DistanceFlashIntensity); // 疾走中(リングの3択)は疾走の距離
             DrawSpeedHud();
 
-            DrawLevelAndExp();
+            if (!ArenaMode.Active) DrawLevelAndExp();
             DrawHeartsPanel();
 
             // 開発ビルドではDEBUG TOOLSの中に表示する(リリースビルドのDebug Modeでは従来どおりここに出す)。
@@ -5108,6 +5117,8 @@ public partial class GameManager : MonoBehaviour
         if (DrawStyledButton(setRect, "    設定", fs, primary: false, ornate: true)) SettingsPanel.OpenStatic();
         UiKit.DrawGear(new Rect(setRect.x + setRect.width * 0.08f, setRect.y + setRect.height * 0.2f, setRect.height * 0.6f, setRect.height * 0.6f), 1f, new Color(1f, 0.88f, 0.55f));
         if (DrawStyledButton(GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel, fs, primary: NetSession.IsActive, ornate: true)) NetDebugUI.OpenPanel();
+        // 闘技場(2026-10-06 正式版): キャラやカードを自由に試せる練習場。マルチの部屋にいる間は出さない(ソロ用)
+        if (!NetSession.IsActive && DrawStyledButton(GetHomeArenaButtonRect(), "闘技場", fs, primary: false, ornate: true)) { ArenaConfigStore.Load(); ArenaLauncher.Launch("home", true); }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (Debug.isDebugBuild)
         {

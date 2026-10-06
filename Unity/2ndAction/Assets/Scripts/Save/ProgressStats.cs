@@ -59,7 +59,7 @@ public static class ProgressStats
     public static void AddRunDistance(double meters)
     {
         if (meters <= 0.0 || double.IsNaN(meters) || double.IsInfinity(meters)) return;
-        if (DebugRun.IsActive) return; // 記録対象外のラン(ワープした距離も含めて累計へ足さない)
+        if (DebugRun.WritesBlocked) return; // 記録対象外のラン/闘技場(ワープした距離も含めて累計へ足さない)
         Load();
         lifetime += meters;
         dirty = true;

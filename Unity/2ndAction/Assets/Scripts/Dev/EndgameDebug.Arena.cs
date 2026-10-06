@@ -10,19 +10,16 @@ public partial class EndgameDebug
     static bool pendingArena;
     public bool IsArena { get; private set; }
 
+    // 2026-10-06: 闘技場は正式な機能になった(ArenaLauncher)。DEBUG パネルの入口もそちらへ
     public static void LaunchArena(string why)
     {
         if (Instance == null) return;
-        if (Instance.Launching) { Debug.Log("[Arena] launch ignored (already launching)"); return; }
-        pending = null; pendingLong = null; pendingUlt = null;
-        pendingArena = true;
-        Instance.Launches++;
-        Debug.Log($"[Arena] LAUNCH ({why}) char={ArenaMode.Config.character} build={ArenaMode.Config.build.Count} speed={ArenaMode.Config.kmh}km/h mode={ArenaMode.Config.speedMode} distance={ArenaMode.Config.distance} enemies={ArenaMode.Config.enemies.Count} - reloading the scene");
+        pending = null; pendingLong = null; pendingUlt = null; pendingArena = false;
         Instance.StopAllCoroutines();
         Instance.keepAlive = false;
         DebugPanel.CloseStatic();
-        SafeReset("arena launch");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        ArenaConfigStore.Load();
+        ArenaLauncher.Launch(why, true);
     }
 
     IEnumerator RunLaunchArena()

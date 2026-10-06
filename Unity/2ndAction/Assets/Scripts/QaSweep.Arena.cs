@@ -3,7 +3,7 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 
-// 開発用の闘技場(2026-10-04)の自動テスト: -qaArena <dir> [-qaArenaOnly ABCDEFGHI] [-qaArenaShots 1]
+// 闘技場(2026-10-04 開発用 → 2026-10-06 正式な練習モード)の自動テスト: -qaArena <dir> [-qaArenaOnly ABCDEFGHJKI] [-qaArenaShots 1]
 //  A 0km/h: 位置は動かず、時間/攻撃/ジャンプ/重力/敵の行動は動く。距離は距離条件のまま、関門なし
 //  B 走行: 床/背景が途切れない、速度(基準×補正 / 固定)が正しい
 //  C カードの追加/解除/キャラ変更で能力が残らない
@@ -11,7 +11,9 @@ using UnityEngine;
 //  E 停止中は計測/戦闘が進まず、再開後は動く
 //  F 倒れてもランは終わらず、すぐ再戦できる / G 無敵: 本来のダメージだけ数える
 //  H ボス: 報酬の選択が出ない、距離 99km でも死神が出ない
-//  I 退出: ホームへ戻り、保存/設定に試験の結果が混ざらない
+//  J 未遭遇の敵/ボスは名前も絵も出ず選べない(保存した構成からも外れる)、練習標的はいつでも
+//  K 敵を全削除: 雑魚/ボス/敵の弾/設置攻撃/予告/落石が残らない、雑魚とボスを同時に出せる
+//  I 退出: ホームへ戻り、保存/設定に試験の結果が混ざらない(CONTINUE/所持カード/会ったボス/選択中のキャラ)。Debug Run には頼らない
 public partial class QaSweep
 {
     ArenaController Arena => ArenaController.Instance;
@@ -23,7 +25,11 @@ public partial class QaSweep
         while (GameManager.Instance == null && w < 10f) { yield return null; w += Time.unscaledDeltaTime; }
         yield return new WaitForSecondsRealtime(1f);
         gm = GameManager.Instance;
-        string only = Arg("-qaArenaOnly", "ABCDEFGHI");
+        string only = Arg("-qaArenaOnly", "ABCDEFGHJKI");
+        // 中断中のラン(CONTINUE)がある状態で試す: 闘技場の出入りで消えたり上書きされたりしないこと
+        if (!RunCheckpoint.HasActiveRun) { RunCheckpoint.Save(new RunCheckpoint.Data { active = true, characterId = "swordsman", stageId = "wasteland_road" }); }
+        ckpt0 = PlayerPrefs.GetString(RunCheckpoint.Key, "");
+        ownedAttack0 = CardInventory.GetTotalCount("attack_up");
         var save0 = SaveSystem.CaptureCategory(SaveCategory.Progress);
         int assistPref0 = PlayerPrefs.GetInt("HighSpeedAssistEnabled", -1);
         float best0 = gm.BestDistance;
@@ -35,6 +41,9 @@ public partial class QaSweep
         if (only.Contains('E')) yield return ArenaPause();
         if (only.Contains('F') || only.Contains('G')) yield return ArenaDeath();
         if (only.Contains('H')) yield return ArenaBoss();
+        if (only.Contains('J')) yield return ArenaCatalogTest();
+        if (only.Contains('K')) yield return ArenaClearAll();
+        if (only.Contains('U')) yield return ArenaUiShots();
         if (only.Contains('I')) yield return ArenaExit(save0, assistPref0, best0);
 
         SaveSystem.Restore(snapSave);
@@ -43,15 +52,23 @@ public partial class QaSweep
         L("[arena] test machine save restored");
     }
 
+    string ckpt0; int ownedAttack0;
+
+    // 正式な入口(ホームの「闘技場」と同じ ArenaLauncher)。準備画面は開かずに始める
     IEnumerator ArenaLaunch(string tag)
     {
-        EndgameDebug.LaunchArena("qa " + tag);
+        ArenaLauncher.Launch("qa " + tag, false);
         yield return new WaitForSecondsRealtime(1f);
+        yield return ArenaWaitReady();
+        Check(Arena != null && ArenaMode.Active && !DebugRun.IsActive && DebugRun.WritesBlocked, $"[{tag}] the arena starts (progress writes blocked by the arena itself, not by a DEBUG RUN)");
+    }
+
+    IEnumerator ArenaWaitReady()
+    {
         float w = 0f;
-        while ((EndgameDebug.Instance.Launching || Arena == null || !ArenaMode.BattleRunning) && w < 40f) { yield return null; w += Time.unscaledDeltaTime; }
+        while ((ArenaLauncher.Instance.Launching || Arena == null || !ArenaMode.BattleRunning) && w < 40f) { yield return null; w += Time.unscaledDeltaTime; }
         gm = GameManager.Instance; pc = PlayerController.Instance;
-        yield return new WaitForSeconds(0.3f);
-        Check(Arena != null && ArenaMode.Active && DebugRun.IsActive, $"[{tag}] the arena starts as a DEBUG RUN");
+        yield return new WaitForSecondsRealtime(0.3f); // (準備画面を開いて始めた時は止まっている)
     }
 
     void ArenaConfigReset()
@@ -192,8 +209,7 @@ public partial class QaSweep
         int hpBefore = gm.Lives;
         Arena.Rematch("qa");
         yield return new WaitForSecondsRealtime(1f);
-        float w = 0f; while ((EndgameDebug.Instance.Launching || Arena == null || !ArenaMode.BattleRunning) && w < 40f) { yield return null; w += Time.unscaledDeltaTime; }
-        gm = GameManager.Instance; pc = PlayerController.Instance;
+        yield return ArenaWaitReady();
         int n2 = FindObjectsByType<EnemyController>(FindObjectsSortMode.None).Count(e => !e.IsDying);
         int projectiles = FindObjectsByType<Rigidbody2D>(FindObjectsSortMode.None).Count(rb => rb != null && rb.GetComponent<EnemyController>() == null && rb.GetComponent<PlayerController>() == null && rb.gameObject.activeInHierarchy && rb.name.ToLower().Contains("proj"));
         L($"[D] before: enemies {n1}, dealt {r1.dealt}, hp {hpBefore}; after rematch: enemies {n2}, hp {gm.Lives}/{gm.maxLives}, metrics dealt {ArenaMode.Current.dealt} t {ArenaMode.Current.time:F2}, projectiles {projectiles}, previous dealt {ArenaMode.Previous?.dealt}");
@@ -243,8 +259,7 @@ public partial class QaSweep
         yield return ArenaShot("arena_defeat");
         Arena.Rematch("qa after defeat");
         yield return new WaitForSecondsRealtime(1f);
-        float w = 0f; while ((EndgameDebug.Instance.Launching || Arena == null || !ArenaMode.BattleRunning) && w < 40f) { yield return null; w += Time.unscaledDeltaTime; }
-        gm = GameManager.Instance; pc = PlayerController.Instance;
+        yield return ArenaWaitReady();
         Check(ArenaMode.Active && !ArenaMode.Current.defeated && gm.Lives == gm.maxLives && Time.timeScale > 0f, "F: rematch right after the defeat works");
         stopKeepAlive = false;
     }
@@ -290,14 +305,114 @@ public partial class QaSweep
         foreach (var a in save0) { var b = save1.FirstOrDefault(x => x.k == a.k); if (b == null || b.v != a.v) diff += a.k + " "; }
         foreach (var b in save1) if (!save0.Any(x => x.k == b.k)) diff += "+" + b.k + " ";
         L($"[I] home: arena={ArenaMode.Active} debugRun={DebugRun.IsActive} encounter={(EncounterDirector.Instance != null ? EncounterDirector.Instance.enabled : (bool?)null)} assistPref {assistPref0} -> {PlayerPrefs.GetInt("HighSpeedAssistEnabled", -1)} best {best0:F0} -> {gm.BestDistance:F0} progress diff [{diff}]");
-        Check(!ArenaMode.Active && !DebugRun.IsActive && !gm.HasStarted, "I: exit returns home and ends the DEBUG RUN");
+        Check(!ArenaMode.Active && !ArenaMode.PendingStart && !DebugRun.WritesBlocked && !gm.HasStarted, "I: exit returns home and progress writes are allowed again");
+        Check(PlayerPrefs.GetString(RunCheckpoint.Key, "") == ckpt0 && RunCheckpoint.HasActiveRun, "I: the suspended run (CONTINUE) survives the arena untouched");
+        Check(CardInventory.GetTotalCount("attack_up") == ownedAttack0, $"I: trial cards are not added to the owned cards (attack_up owned {ownedAttack0} -> {CardInventory.GetTotalCount("attack_up")})");
+        Check(gm.SelectedCharacterId == PlayerPrefs.GetString("SelectedCharacterId", gm.SelectedCharacterId), $"I: the selected character is the saved one ({gm.SelectedCharacterId})");
         Check(diff.Length == 0 && Mathf.Approximately(best0, gm.BestDistance), "I: no progress save changed (BEST / MILE / cards / unlocks / lifetime distance / CONTINUE / selected character)");
         Check(PlayerPrefs.GetInt("HighSpeedAssistEnabled", -1) == assistPref0 && (EncounterDirector.Instance == null || EncounterDirector.Instance.enabled) && !ArenaMode.Invincible, "I: the normal settings are untouched (assist / encounters / invincibility)");
         // 通常のランは通常どおり(自然加速・速度の指定なし)
+        RunCheckpoint.Clear(); // (試験用の中断データを片付けてから NEW RUN)
         yield return BeginRun("swordsman", "wasteland_road");
         yield return new WaitForSeconds(2f);
         Check(!ArenaMode.Active && pc.CurrentAutoRunSpeed > 0f && gm.MaxDistance > 5f && gm.HasStarted, $"I: a normal run afterwards runs normally (speed {pc.CurrentAutoRunSpeed * GameManager.KmhPerMps:F1} km/h, d {gm.MaxDistance:F0})");
         yield return EndRun();
+    }
+    // ===================================================================== U(画面の撮影: -qaArenaOnly U -qaArenaShots 1。ホーム→準備の各タブ→戦闘→結果)
+    IEnumerator ArenaUiShots()
+    {
+        L("== U: 画面 ==");
+        if (ArenaMode.Active && Arena != null)
+        {
+            Arena.ExitHome();
+            float w0 = 0f; while ((ArenaMode.Active || GameManager.Instance == null || GameManager.Instance.HasStarted) && w0 < 15f) { yield return null; w0 += Time.unscaledDeltaTime; }
+            gm = GameManager.Instance;
+        }
+        yield return new WaitForSecondsRealtime(2.5f);
+        yield return ArenaShot("ui_0_home");
+        ArenaConfigStore.ResetLoaded(); PlayerPrefs.DeleteKey(SaveKeys.ArenaConfig); // 初めての人の状態
+        ArenaConfigStore.Load();
+        var c = ArenaMode.Config;
+        L($"[U] fresh config: char {c.character}, build {c.build.Count}, enemies {string.Join("/", c.enemies.Select(ArenaCatalog.NameOf))}, speed {c.speedMode}/{c.kmh}, invincible {c.invincible}, assist {c.assistMode}");
+        Check(c.build.Count == 0 && c.speedMode == 0 && c.kmh == 0f && !c.invincible && c.enemies.Count == 1 && c.enemies[0].kind == ArenaEnemyKind.Dummy && c.character == gm.SelectedCharacterId, "U: first-time defaults (current character, no cards, a practice target, 0km/h, invincible off)");
+        ArenaLauncher.Launch("qa ui", true);
+        yield return new WaitForSecondsRealtime(1f);
+        yield return ArenaWaitReady();
+        yield return new WaitForSecondsRealtime(0.5f);
+        Check(Arena.PanelOpen && Time.timeScale == 0f, "U: entering from home opens the setup screen with the battle paused");
+        for (int t = 0; t < 4; t++) { Arena.Tab = t; yield return new WaitForSecondsRealtime(0.5f); yield return ArenaShot("ui_" + (t + 1) + "_tab" + t); }
+        Arena.SetPanel(false);
+        for (int i = 0; i < 4; i++) { StartCoroutine(Flick(PlayerController.FlickDirection.Forward)); yield return new WaitForSeconds(0.3f); }
+        yield return ArenaShot("ui_5_battle");
+        Arena.Tab = 4; Arena.SetPanel(true);
+        yield return new WaitForSecondsRealtime(0.5f);
+        yield return ArenaShot("ui_6_result");
+        Arena.ExitHome();
+        float w = 0f; while ((ArenaMode.Active || GameManager.Instance == null || GameManager.Instance.HasStarted) && w < 15f) { yield return null; w += Time.unscaledDeltaTime; }
+        yield return new WaitForSecondsRealtime(2f);
+        gm = GameManager.Instance;
+        yield return ArenaShot("ui_7_home_after");
+        Check(!ArenaMode.Active && !gm.HasStarted, "U: back home");
+    }
+
+    // ===================================================================== J
+    IEnumerator ArenaCatalogTest()
+    {
+        L("== J: 未遭遇の敵/ボス ==");
+        bool hadSeen = PlayerPrefs.HasKey(SaveKeys.BossSeen); string seen0 = PlayerPrefs.GetString(SaveKeys.BossSeen, "");
+        PlayerPrefs.SetString(SaveKeys.BossSeen, "Wild/Wolf"); ProgressStats.Reload();
+        var wild = ArenaCatalog.Items(2, false);
+        var cave = ArenaCatalog.Items(3, false);
+        int leaks = wild.Concat(cave).Count(i => !i.known && (i.label != ArenaCatalog.Unknown || i.sprite != null || !string.IsNullOrEmpty(i.id)));
+        bool wolfOnly = wild.Count(i => i.known) == 1 && wild.First(i => i.known).kind == (int)WildBossKind.Wolf && cave.All(i => !i.known);
+        L($"[J] wild known {wild.Count(i => i.known)}/{wild.Count}, cave known {cave.Count(i => i.known)}/{cave.Count}, leaks {leaks}");
+        Check(wolfOnly, "J: only the bosses already met can be chosen");
+        Check(leaks == 0, "J: unseen bosses show neither name nor image");
+        Check(ArenaCatalog.Items(3, true).All(i => i.known) == Debug.isDebugBuild, "J: the 'all enemies' option is dev-build only");
+        var cfg = new ArenaConfig();
+        cfg.enemies.Clear();
+        cfg.enemies.Add(new ArenaEnemyEntry { kind = ArenaEnemyKind.CaveBoss, bossKind = (int)CaveBossKind.Drake, count = 1 });
+        cfg.enemies.Add(new ArenaEnemyEntry { kind = ArenaEnemyKind.WildBoss, bossKind = (int)WildBossKind.Wolf, count = 1 });
+        cfg.enemies.Add(new ArenaEnemyEntry { kind = ArenaEnemyKind.Dummy, count = 1 });
+        cfg.Sanitized();
+        L("[J] sanitized: " + string.Join(", ", cfg.enemies.Select(ArenaCatalog.NameOf)));
+        Check(cfg.enemies.Count == 2 && cfg.enemies.Any(e => e.kind == ArenaEnemyKind.WildBoss) && cfg.enemies.Any(e => e.kind == ArenaEnemyKind.Dummy), "J: a saved config drops unseen bosses and keeps the practice target");
+        if (hadSeen) PlayerPrefs.SetString(SaveKeys.BossSeen, seen0); else PlayerPrefs.DeleteKey(SaveKeys.BossSeen);
+        ProgressStats.Reload();
+        yield break;
+    }
+
+    // ===================================================================== K
+    IEnumerator ArenaClearAll()
+    {
+        L("== K: 敵を全削除 ==");
+        ArenaConfigReset();
+        var c = ArenaMode.Config;
+        c.invincible = true; c.distance = 30000f; c.enemies.Clear();
+        c.enemies.Add(new ArenaEnemyEntry { kind = ArenaEnemyKind.Enemy, enemyId = "shooter_archer", tier = 4, count = 3, ahead = 9f, spacing = 2.5f });
+        c.enemies.Add(new ArenaEnemyEntry { kind = ArenaEnemyKind.CaveBoss, bossKind = (int)CaveBossKind.Drake, count = 1 });
+        yield return ArenaLaunch("K");
+        int zako = FindObjectsByType<EnemyController>(FindObjectsSortMode.None).Count(e => !e.IsDying && !e.ArenaDummy);
+        float w = 0f; while (Bm.AliveBossCount <= 0 && w < 10f) { yield return null; w += Time.deltaTime; }
+        int bosses = Bm.AliveBossCount;
+        L($"[K] spawned: zako {zako}, bosses {bosses}");
+        Check(zako == 3 && bosses >= 1, "K: zako and a boss can be fought together (the boss spawn does not wipe the zako)");
+        int Residue() => FindObjectsByType<BossProjectile>(FindObjectsSortMode.None).Length + FindObjectsByType<BossHitbox>(FindObjectsSortMode.None).Length
+            + FindObjectsByType<BossTelegraphMarker>(FindObjectsSortMode.None).Length + FindObjectsByType<FireballController>(FindObjectsSortMode.None).Length
+            + FindObjectsByType<CeilingFallRock>(FindObjectsSortMode.None).Length + FindObjectsByType<FallingDebris>(FindObjectsSortMode.None).Length + CaveHazard.LiveCount;
+        int peak = 0; w = 0f;
+        while (w < 8f) { peak = Mathf.Max(peak, Residue()); if (peak >= 3 && w > 4f) break; yield return null; w += Time.deltaTime; }
+        long would0 = ArenaMode.Current.wouldTake;
+        Arena.ClearEnemies();
+        yield return null; yield return null;
+        int after = Residue(), alive = FindObjectsByType<EnemyController>(FindObjectsSortMode.None).Count(e => !e.ArenaDummy) + Bm.AliveBossCount;
+        L($"[K] residue peak {peak}, cleared {ArenaController.LastClearedObjects}, after: residue {after}, enemies {alive}");
+        if (peak == 0) L("[K] WARN: no enemy attack object was alive at the moment of clearing (weak check)");
+        Check(after == 0 && alive == 0, "K: clear-all leaves no enemy, boss, projectile, placed attack, telegraph or falling rock");
+        yield return new WaitForSeconds(3f);
+        Check(ArenaMode.Current.wouldTake == would0 && Residue() == 0, $"K: nothing hits the player after clearing (would-take {would0} -> {ArenaMode.Current.wouldTake})");
+        Check(ArenaMode.BattleRunning && !Arena.PanelOpen && ArenaMode.Current.clearTime < 0f && ArenaMode.Current.time > 3f, "K: clearing by hand is not counted as a kill time; the session goes on");
+        yield return ArenaShot("arena_cleared");
     }
 }
 #endif
