@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// 闘技場の見た目(2026-10-04、手続き生成。2026-10-06 本番の背景絵を Resources/Arena/arena_stands に置けば差し替わる)。石畳の床 + 奥の観客席(段・アーチ・観客・柱・旗)。
+// 闘技場の見た目(2026-10-04 手続き生成 → 2026-10-06 本番の絵: Resources/Arena/arena_stands(背景)・arena_floor(床)。無ければ手続き生成)。石畳の床 + 奥の観客席(段・アーチ・観客・柱・旗)。
 // どちらもカメラに合わせて横へ並べ直すので、走り続けても途切れない(床は世界に固定した模様、観客席は少し遅れて流れる)。
 // 床の高さは闘技場の地面(平地)の高さ。地形の当たり判定は通常の地面のまま(見た目だけを重ねる)。
 public class ArenaStage : MonoBehaviour
@@ -9,8 +9,13 @@ public class ArenaStage : MonoBehaviour
     const float BgTileW = 48f;
     float floorY;
     SpriteRenderer floor, floorTop, floorShade;
-    readonly SpriteRenderer[] bg = new SpriteRenderer[3];
+    readonly SpriteRenderer[] bg = new SpriteRenderer[5]; // 横に5枚(縦長の絵でも画面の端まで切れ目なく)
     static Sprite floorSprite, floorTopSprite, bgSprite, shadeSprite;
+    static bool bgIsArt;
+    float tileW = FloorTileW;
+    float camOffset0 = float.NaN;
+    // 本番の背景絵で、闘技場の床と壁の境目がある高さ(上からの割合)。ここを地面の高さに合わせて置く
+    const float ArtGroundFrac = 0.66f; // (壁の足元は 0.62。少し奥の砂地が見えるように)
 
     public static ArenaStage Create(float groundY)
     {
@@ -23,14 +28,17 @@ public class ArenaStage : MonoBehaviour
 
     void Build()
     {
+        // 本番の床の絵(Resources/Arena/arena_floor = 上下左右につながる石積み)があればそれを使う
+        if (floorSprite == null) floorSprite = Resources.Load<Sprite>("Arena/arena_floor");
         if (floorSprite == null) floorSprite = MakeFloor();
+        tileW = Mathf.Max(0.5f, floorSprite.bounds.size.x);
         if (floorTopSprite == null) floorTopSprite = MakeFloorTop();
         // 本番の絵(Resources/Arena/arena_stands = 横長の観客席の背景、左右がつながる絵)があればそれを使う。無ければ手続き生成の絵
-        if (bgSprite == null) bgSprite = Resources.Load<Sprite>("Arena/arena_stands");
+        if (bgSprite == null) { bgSprite = Resources.Load<Sprite>("Arena/arena_stands"); bgIsArt = bgSprite != null; }
         if (bgSprite == null) bgSprite = MakeBackground();
         floor = NewRenderer("Floor", floorSprite, RenderOrder.Ground);
         floor.drawMode = SpriteDrawMode.Tiled;
-        floor.size = new Vector2(FloorTileW * 30f, FloorDepth);
+        floor.size = new Vector2(tileW * Mathf.Ceil(FloorTileW * 30f / tileW), FloorDepth);
         // 床の奥行きの影(地面の下は暗くして、戦う場所(床の上)へ目が行くように。通常のステージの地面と同じ考え方)
         if (shadeSprite == null) shadeSprite = MakeShade();
         floorShade = NewRenderer("FloorShade", shadeSprite, RenderOrder.Ground);
@@ -42,6 +50,7 @@ public class ArenaStage : MonoBehaviour
         {
             bg[i] = NewRenderer("Stands" + i, bgSprite, RenderOrder.SkyCloud + 1);
             bg[i].drawMode = SpriteDrawMode.Simple;
+            if (bgIsArt) bg[i].color = new Color(0.86f, 0.86f, 0.9f, 1f); // 奥の絵は少し落として、キャラ/攻撃の予兆を読みやすく
         }
         LateUpdate();
     }
@@ -61,21 +70,38 @@ public class ArenaStage : MonoBehaviour
         if (cam == null) return;
         float cx = cam.transform.position.x;
         // 床: 模様の継ぎ目を世界の位置にそろえる(走っても模様が床に貼り付いて見える)
-        float snap = Mathf.Floor(cx / FloorTileW) * FloorTileW;
+        float snap = Mathf.Floor(cx / tileW) * tileW;
         floor.transform.position = new Vector3(snap, floorY - FloorDepth * 0.5f, -0.5f);
+        snap = Mathf.Floor(cx / FloorTileW) * FloorTileW;
         floorTop.transform.position = new Vector3(snap, floorY - 0.05f, -0.6f);
         floorShade.transform.position = new Vector3(cx, floorY - FloorDepth * 0.5f, -0.55f);
         floorShade.transform.localScale = new Vector3(FloorTileW * 30f, FloorDepth / 64f, 1f);
         // 観客席: カメラの高さに合わせ、横は少し遅れて流れる(視差)。3枚を並べて切れ目を見せない
         float h = cam.orthographicSize * 2f;
         float scale = h * 1.05f / (bgSprite.bounds.size.y);
+        // 本番の絵: 絵の上端〜床の境目が、画面の上端〜地面にちょうど収まる大きさ(空と旗の先まで見える)
+        // カメラの上下の揺れで大きさが変わらないよう、最初のカメラの高さを基準にする(大型ボスでカメラが引くと一緒に大きくなる)
+        if (bgIsArt)
+        {
+            if (float.IsNaN(camOffset0)) camOffset0 = cam.transform.position.y - floorY;
+            scale = Mathf.Max(0.5f, camOffset0 + h * 0.5f) * 1.02f / (ArtGroundFrac * bgSprite.bounds.size.y);
+        }
         float w = bgSprite.bounds.size.x * scale;
         float par = cx * 0.85f;
         float baseX = cx - Mathf.Repeat(cx - par, w);
+        // 本番の絵は、絵の中の床と壁の境目を地面の高さに合わせる(カメラが上がって絵の上が空いてしまう時だけ上へずらす)
+        float by = cam.transform.position.y;
+        if (bgIsArt)
+        {
+            float hImg = bgSprite.bounds.size.y * scale;
+            by = floorY + (ArtGroundFrac - 0.5f) * hImg;
+            float camTop = cam.transform.position.y + h * 0.5f;
+            if (by + hImg * 0.5f < camTop) by = camTop - hImg * 0.5f;
+        }
         for (int i = 0; i < bg.Length; i++)
         {
             bg[i].transform.localScale = new Vector3(scale, scale, 1f);
-            bg[i].transform.position = new Vector3(baseX + (i - 1) * w, cam.transform.position.y, 5f);
+            bg[i].transform.position = new Vector3(baseX + (i - 2) * w, by, 5f);
         }
     }
 
@@ -112,10 +138,13 @@ public class ArenaStage : MonoBehaviour
         for (int y = 0; y < H; y++)
             for (int x = 0; x < W; x++)
             {
+                // 砂を敷いた床の縁(上が明るい砂、下の端に細い影)。本番の床の石積み/背景の砂地と同じ色味
                 float t = y / (float)H;
-                bool seam = x % 64 < 2;
-                Color c = Color.Lerp(new Color(0.55f, 0.5f, 0.42f), new Color(0.78f, 0.72f, 0.6f), t);
-                px[y * W + x] = seam ? new Color(0.3f, 0.27f, 0.23f) : c;
+                float n = Noise(x * 3, y * 3) * 0.06f;
+                Color c = Color.Lerp(new Color(0.66f, 0.52f, 0.33f), new Color(0.88f, 0.76f, 0.54f), Mathf.SmoothStep(0f, 1f, t)) * (1f - n);
+                if (y < 2) c = new Color(0.38f, 0.29f, 0.18f);
+                c.a = 1f;
+                px[y * W + x] = c;
             }
         tex.SetPixels(px); tex.Apply();
         var s = Sprite.Create(tex, new Rect(0, 0, W, H), new Vector2(0.5f, 0.5f), W / FloorTileW, 0, SpriteMeshType.FullRect);
