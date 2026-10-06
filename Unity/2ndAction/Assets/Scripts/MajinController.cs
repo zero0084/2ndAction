@@ -509,7 +509,7 @@ public partial class MajinController : MonoBehaviour
                 ? ((Vector2)player.position - (Vector2)spawnPos).normalized
                 : offset.normalized;
 
-            FireballController.Create(squareSprite, spawnPos, dir * fireballSpeed, ringHoldDuration);
+            FireballController.Create(squareSprite, spawnPos, dir * fireballSpeed, ringHoldDuration).GetComponent<FireballController>().bossOwned = true;
         }
     }
 
@@ -529,7 +529,7 @@ public partial class MajinController : MonoBehaviour
             dir = new Vector2(dir.x * cos - dir.y * sin, dir.x * sin + dir.y * cos);
         }
 
-        FireballController.Create(squareSprite, spawnPos, dir * fireballSpeed, holdDuration);
+        FireballController.Create(squareSprite, spawnPos, dir * fireballSpeed, holdDuration).GetComponent<FireballController>().bossOwned = true;
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -549,6 +549,7 @@ public partial class MajinController : MonoBehaviour
             var info = other.GetComponent<PlayerAttackInfo>();
             bool air = PlayerController.Instance != null && !PlayerController.Instance.IsGrounded;
             pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air); // 天空ボス強化: 崩し
+            NoteFinalAttack(other, info); // BOSS FINISH
             TakeDamage(damage);
             return;
         }
@@ -570,6 +571,7 @@ public partial class MajinController : MonoBehaviour
 
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
+        if (Hp <= 0) BossFinishCode = BossDeathAdapter.Decide(pendingFinal, pendingFinalSet, netAttacker, transform).Pack(); // BOSS FINISH(OpDeath に載せる)
         NetCombat.AuthorityDamaged(NetId, netAttacker, amount, Hp, 0, transform.position, Hp <= 0);
 
         if (Hp <= 0)
@@ -577,7 +579,7 @@ public partial class MajinController : MonoBehaviour
             state = State.Dead;
             if (UltimateRunning) { UltimateRunning = false; BossBattle.EndUltimate(this); }
             if (hpBar != null) hpBar.SetSub(0f, false);
-            StartCoroutine(FinalHitAndDie());
+            if (BossFinish.Enabled) BeginBossFinish(false); else StartCoroutine(FinalHitAndDie());
             return;
         }
         BattleOnDamaged();
@@ -773,6 +775,7 @@ public partial class MajinController : MonoBehaviour
         if (hpBar != null) hpBar.SetFraction(0f);
         StopAllCoroutines();
         state = State.Dead;
+        if (BossFinish.Enabled) { BeginBossFinish(true); return; }
         StartCoroutine(FinalHitAndDie());
     }
 

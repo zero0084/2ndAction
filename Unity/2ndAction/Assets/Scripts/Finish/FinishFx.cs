@@ -11,6 +11,7 @@ using UnityEngine;
 //  動き: カメラ基準(画面に対する相対位置)で動かす → 走行速度(100〜300km/h 以上)や FloatingOrigin に影響されない。
 //        時間は Time.deltaTime(HitStop/停止/カード選択の間は止まる)。物理(Rigidbody)は使わない。
 //  プール: 体/残像/粒/光は最初に作った SpriteRenderer を使い回す(Instantiate/Destroy しない)。足りない時は粒を減らす。
+[DefaultExecutionOrder(1000)] // カメラが動いた後に置く
 public class FinishFx : MonoBehaviour
 {
     public static FinishFx Instance { get; private set; }
@@ -31,8 +32,8 @@ public class FinishFx : MonoBehaviour
     readonly Stack<int> free = new Stack<int>();
     int used;
     Material glowMat, spriteMat;
-    static Texture2D glowTex, starTex, star8Tex, ringTex;
-    static Sprite glowSp, starSp, star8Sp, ringSp;
+    static Texture2D glowTex, starTex, star8Tex, ringTex, sqTex;
+    static Sprite glowSp, starSp, star8Sp, ringSp, sqSp;
 
     class Body
     {
@@ -205,6 +206,24 @@ public class FinishFx : MonoBehaviour
         RequestShake(fi.shape == FinishShape.Slam ? t.shakeSlam : fi.type == FinishType.Overkill ? t.shakeOverkill : fi.type == FinishType.Heavy ? t.shakeHeavy : t.shakeNormal);
     }
 
+    // ===================================================================== 公開の光(BOSS FINISH など。ワールド座標で指定、以後はカメラ基準で動く)
+    static Vector2 Rel(Vector3 w) { var c = Camera.main; return c != null ? (Vector2)w - (Vector2)c.transform.position : (Vector2)w; }
+    public static void Flash(Vector3 w, float size, Color c, float life = 0.2f) => Ensure().Spawn(glowSp, Rel(w), Vector2.zero, life, size * 0.5f, size, c, true);
+    public static void Star(Vector3 w, float size, Color c, float life = 0.3f) => Ensure().Spawn(star8Sp, Rel(w), Vector2.zero, life, size * 0.4f, size, c, true, rot: Random.Range(0f, 45f), spin: 90f);
+    public static void Twinkle(Vector3 w, float size, Color c, float life = 0.5f) => Ensure().Spawn(starSp, Rel(w), Vector2.zero, life, size * 0.2f, size, c, true, spin: 40f);
+    public static void Ring(Vector3 w, float size, Color c, float life = 0.3f, float sy = 1f) => Ensure().Spawn(ringSp, Rel(w), Vector2.zero, life, size * 0.3f, size, c, true, sy: sy);
+    public static void Spark(Vector3 w, Vector2 v, float size, float life, Color c, float drag = 2f, float grav = 0f, bool twinkle = false)
+        => Ensure().Spawn(glowSp, Rel(w), v, life, size, size * 0.15f, c, true, drag: drag, grav: grav, twinkle: twinkle);
+    public static void Debris(Vector3 w, Vector2 v, float size, float life, Color c, float grav = 20f)
+        => Ensure().Spawn(sqSp, Rel(w), v, life, size, size * 0.6f, c, false, rot: Random.Range(0f, 90f), spin: Random.Range(-540f, 540f), grav: grav);
+    public static void Pillar(Vector3 w, float width, float height, Color c, float life = 0.35f)
+        => Ensure().Spawn(glowSp, Rel(w), Vector2.zero, life, width, width * 0.6f, c, true, sy: height / Mathf.Max(0.05f, width));
+    public static void Cloud(Vector3 w, Vector2 v, float size, float life, Color c)
+        => Ensure().Spawn(glowSp, Rel(w), v, life, size * 0.6f, size, c, false, drag: 1.5f);
+    public static void BurstAt(Vector3 w, float size, Color c, int amount, bool firework) => Ensure().BurstCore(Rel(w), size, c, amount, firework);
+    public static void StopFor(float seconds) => Ensure().RequestStop(seconds);
+    public static void ShakeCapped(float magnitude) => Ensure().RequestShake(magnitude);
+
     // ===================================================================== HitStop / 揺れ
     float stopEnd;
     void RequestStop(float dur)
@@ -374,11 +393,15 @@ public class FinishFx : MonoBehaviour
             }
             return;
         }
+        BurstCore(at, size, col, amount, b.fi.type == FinishType.Overkill || sm > 1.01f);
+    }
+
+    void BurstCore(Vector2 at, float size, Color col, int amount, bool firework)
+    {
         // 中心の光 → 星形の衝撃 → 輪 → 円状に散る粒(花火のように少し残る)
         Spawn(glowSp, at, Vector2.zero, 0.2f, size * 0.9f, size * 2.0f, new Color(1f, 0.98f, 0.9f, 0.95f), true);
         Spawn(star8Sp, at, Vector2.zero, 0.26f, size * 0.5f, size * 1.5f, col, true, rot: Random.Range(0f, 45f), spin: 120f);
         Spawn(ringSp, at, Vector2.zero, 0.3f, size * 0.4f, size * 2.2f, new Color(col.r, col.g, col.b, 0.8f), true);
-        bool firework = b.fi.type == FinishType.Overkill || sm > 1.01f;
         for (int i = 0; i < amount; i++)
         {
             float a = (i + Random.value * 0.5f) / Mathf.Max(1, amount) * Mathf.PI * 2f;
@@ -461,6 +484,8 @@ public class FinishFx : MonoBehaviour
                 ringTex.SetPixel(x, y, new Color(1, 1, 1, r));
             }
         glowTex.Apply(); starTex.Apply(); star8Tex.Apply(); ringTex.Apply();
+        sqTex = NewTex(4); for (int y = 0; y < 4; y++) for (int x = 0; x < 4; x++) sqTex.SetPixel(x, y, Color.white); sqTex.Apply();
+        sqSp = Sprite.Create(sqTex, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f), 4);
         glowSp = Sprite.Create(glowTex, new Rect(0, 0, N, N), new Vector2(0.5f, 0.5f), N);
         starSp = Sprite.Create(starTex, new Rect(0, 0, N, N), new Vector2(0.5f, 0.5f), N);
         star8Sp = Sprite.Create(star8Tex, new Rect(0, 0, N, N), new Vector2(0.5f, 0.5f), N);

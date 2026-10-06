@@ -15,6 +15,7 @@ public class FireballController : MonoBehaviour
 {
     public Vector2 velocity;
     public bool reflected;
+    [System.NonSerialized] public bool bossOwned; // BOSS FINISH: ボス(ドラゴン/魔人)が撃った火球(最後のボスの撃破で片付ける)
     public int damageAmount = CombatScale.PlayerHit; // ボス戦の強化(2026-10-01): ドラゴンの巨大火球は強い一撃
     public float lifetime = 6f;
     public float reflectSpeedMultiplier = 2f;

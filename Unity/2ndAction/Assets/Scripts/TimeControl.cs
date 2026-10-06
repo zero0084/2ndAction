@@ -74,6 +74,8 @@ public static class TimeControl
         return 1f;
     }
 
+    public static bool PresentationBusy => presentationDriving; // BOSS FINISH: 他の演出が使っている間はスローを掛けない
+
     public static void SetPresentationScale(object owner, float scale)
     {
         if (!presentationDriving || owner != presentationOwner) return;

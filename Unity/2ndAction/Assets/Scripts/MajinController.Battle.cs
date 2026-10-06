@@ -241,7 +241,7 @@ public partial class MajinController : IBossBattleDebug
         {
             Vector3 cp = player.position + circles[i];
             Vector2 dir = ((Vector2)(player.position + Vector3.up * 0.6f) - (Vector2)cp).normalized;
-            FireballController.Create(squareSprite, cp, dir * (fireballSpeed * 0.8f));
+            FireballController.Create(squareSprite, cp, dir * (fireballSpeed * 0.8f)).GetComponent<FireballController>().bossOwned = true;
             float w = 0f; while (w < 0.45f) { w += Time.deltaTime; transform.position = RelPos(7f, 4.8f); yield return null; }
         }
         // 動ける場所を制限する帯: 低い(跳ぶ)→ 高い(地面にいる)

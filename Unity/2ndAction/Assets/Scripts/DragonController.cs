@@ -3,7 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(BoxCollider2D))]
-public class DragonController : MonoBehaviour, IBossBattleDebug
+public partial class DragonController : MonoBehaviour, IBossBattleDebug
 {
     enum State { Entering, Idle, Telegraphing, Charging, Firing, Landing, Dead, Stunned }
     public int AttacksStarted { get; private set; } // 確認用(攻撃を始めた回数)
@@ -705,7 +705,7 @@ public class DragonController : MonoBehaviour, IBossBattleDebug
             dir = new Vector2(dir.x * cos - dir.y * sin, dir.x * sin + dir.y * cos);
         }
 
-        FireballController.Create(squareSprite, spawnPos, dir * fireballSpeed);
+        FireballController.Create(squareSprite, spawnPos, dir * fireballSpeed).GetComponent<FireballController>().bossOwned = true;
     }
 
     IEnumerator LerpPosition(Vector3 from, Vector3 to, float duration)
@@ -751,6 +751,7 @@ public class DragonController : MonoBehaviour, IBossBattleDebug
             var info = other.GetComponent<PlayerAttackInfo>();
             bool air = PlayerController.Instance != null && !PlayerController.Instance.IsGrounded;
             pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air);
+            NoteFinalAttack(other, info); // BOSS FINISH
             TakeDamage(damage);
             return;
         }
@@ -785,6 +786,7 @@ public class DragonController : MonoBehaviour, IBossBattleDebug
 
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
+        if (Hp <= 0) BossFinishCode = BossDeathAdapter.Decide(pendingFinal, pendingFinalSet, netAttacker, transform).Pack(); // BOSS FINISH(OpDeath に載せる)
         NetCombat.AuthorityDamaged(NetId, netAttacker, amount, Hp, 0, transform.position, Hp <= 0);
 
         if (Hp <= 0)
@@ -798,7 +800,7 @@ public class DragonController : MonoBehaviour, IBossBattleDebug
             state = State.Dead;
             BossBattle.EndUltimate(this);
             if (hpBar != null) hpBar.SetSub(0f, false);
-            StartCoroutine(FinalHitAndDie());
+            if (BossFinish.Enabled) BeginBossFinish(false); else StartCoroutine(FinalHitAndDie());
             return;
         }
         CheckBattlePhase();
@@ -992,6 +994,7 @@ public class DragonController : MonoBehaviour, IBossBattleDebug
         Vector2 dir = ((Vector2)(aim - from)).normalized;
         GameObject fbGo = FireballController.Create(squareSprite, from, dir * 6.5f);
         var fbc = fbGo.GetComponent<FireballController>();
+        fbc.bossOwned = true;
         fbc.ScaleUp(3f);
         fbc.damageAmount = CombatScale.PlayerHeavyHit;
         fbc.lifetime = 7f;
@@ -1294,6 +1297,7 @@ public class DragonController : MonoBehaviour, IBossBattleDebug
         if (hpBar != null) hpBar.SetFraction(0f);
         StopAllCoroutines();
         state = State.Dead;
+        if (BossFinish.Enabled) { BeginBossFinish(true); return; }
         StartCoroutine(FinalHitAndDie());
     }
 

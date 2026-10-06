@@ -82,7 +82,7 @@ public partial class DebugPanel : MonoBehaviour
         if (page == 0 && UiKit.Button(new Rect(p.xMax - 352f, p.y + 12f, 146f, 42f), "ラスダン終盤…", 16f, false, false)) { page = 2; confirmSave = 0; confirmReset = false; }
         if (page != 0)
         {
-            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else if (page == 7) DrawFinalEvoPage(p); else if (page == 8) DrawComboPage(p); else if (page == 9) DrawFinishPage(p); else DrawEndgamePage(p);
+            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else if (page == 7) DrawFinalEvoPage(p); else if (page == 8) DrawComboPage(p); else if (page == 9) DrawFinishPage(p); else if (page == 10) DrawBossFinishPage(p); else DrawEndgamePage(p);
             GUI.color = keepColor;
             GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
             if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();
@@ -131,7 +131,9 @@ public partial class DebugPanel : MonoBehaviour
         if (UiKit.Button(new Rect(x + tw2 + 8f, y, tw2, 40f), "COMBO TEST…", 16f, false, false)) { page = 8; confirmSave = 0; confirmReset = false; }
         y += 46f;
         // Enemy FINISH System(2026-10-06): 撃破演出の確認(ランの中で)
-        if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "FINISH TEST…(撃破演出: 通常/HEAVY/OVERKILL/上/叩きつけ/同時撃破/速度)", 15f, false, false)) { page = 9; confirmSave = 0; confirmReset = false; }
+        float fw2 = (p.width - 48f - 8f) / 2f;
+        if (UiKit.Button(new Rect(x, y, fw2, 40f), "FINISH TEST…(雑魚の撃破演出)", 15f, false, false)) { page = 9; confirmSave = 0; confirmReset = false; }
+        if (UiKit.Button(new Rect(x + fw2 + 8f, y, fw2, 40f), "BOSS FINISH TEST…", 15f, false, false)) { page = 10; confirmSave = 0; confirmReset = false; }
         y += 46f;
         // 疾走出発(2026-10-05 試作): 門番の撃破記録が無くても全部の行き先を選べる(ステージ選択の「疾走出発…」)
         if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), SprintRecords.DevUnlockAll ? "疾走出発の行き先: 全解放 ON(押すと記録どおりに戻す)" : "疾走出発の行き先: 記録どおり(押すと全解放)", 16f, SprintRecords.DevUnlockAll, false)) SprintRecords.DevUnlockAll = !SprintRecords.DevUnlockAll;

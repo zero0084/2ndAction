@@ -69,6 +69,9 @@ public class CameraFollow : MonoBehaviour
     // FINAL EVOLUTION(2026-10-04): SPEED UP の超高速状態で少しだけ引く(1=通常)
     public static float FinalEvolutionZoom = 1f;
     float feZoomNow = 1f;
+    // BOSS FINISH(2026-10-06): 最後の一撃の一瞬の寄り(1=通常。所有者は1つだけ = 重なって暴走しない)
+    public static float BossFinishZoom = 1f;
+    float bossZoomNow = 1f;
 
     void LateUpdate()
     {
@@ -82,7 +85,8 @@ public class CameraFollow : MonoBehaviour
             float aspect = (float)Screen.width / Screen.height;
             ultZoomNow = Mathf.Lerp(ultZoomNow, UltimateZoom, 1f - Mathf.Exp(-8f * Time.unscaledDeltaTime));
             feZoomNow = Mathf.Lerp(feZoomNow, FinalEvolutionZoom, 1f - Mathf.Exp(-4f * Time.unscaledDeltaTime));
-            cam.orthographicSize = targetHorizontalHalfWidth * (1f + highSpeedZoomOut * speedBlend) / aspect * ultZoomNow * feZoomNow;
+            bossZoomNow = Mathf.Lerp(bossZoomNow, Mathf.Clamp(BossFinishZoom, 0.85f, 1f), 1f - Mathf.Exp(-14f * Time.unscaledDeltaTime));
+            cam.orthographicSize = targetHorizontalHalfWidth * (1f + highSpeedZoomOut * speedBlend) / aspect * ultZoomNow * feZoomNow * bossZoomNow;
         }
 
         if (shakeTimer > 0f) shakeTimer = Mathf.Max(0f, shakeTimer - Time.unscaledDeltaTime);

@@ -18,7 +18,7 @@ public enum WildBossKind { Wolf, GoblinRider, Serpent, Cyclops, Spider, Golem, G
 // に合わせてボスも進み続け(=間合い一定)、relVelocityぶんだけ間合いが変化
 // する。プレイヤーの攻撃ロンジ等でプレイヤー側が動いた分は、そのまま間合い
 // の変化になる。
-public abstract class WildBossBase : MonoBehaviour, IBossBattleDebug
+public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
 {
     public enum Pose { Idle, Move, Windup, Attack, Fly, Landing }
 
@@ -852,6 +852,7 @@ public abstract class WildBossBase : MonoBehaviour, IBossBattleDebug
             var info = other.GetComponent<PlayerAttackInfo>();
             bool air = PlayerController.Instance != null && !PlayerController.Instance.IsGrounded;
             pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air);
+            NoteFinalAttack(other, info); // BOSS FINISH: 最後の一撃の向き/種類
             TakeDamage(dmg, other.bounds.center);
             return;
         }
@@ -904,6 +905,7 @@ public abstract class WildBossBase : MonoBehaviour, IBossBattleDebug
             return;
         }
 
+        if (Hp <= 0) { LastFinishInfo = DecideFinishInfo(); BossFinishCode = LastFinishInfo.Pack(); } // BOSS FINISH(OpDeath に載せる)
         NetCombat.AuthorityDamaged(NetId, netAttacker, amount, Hp, 0, hitPos, Hp <= 0);
 
         if (Hp <= 0)
@@ -915,7 +917,8 @@ public abstract class WildBossBase : MonoBehaviour, IBossBattleDebug
             if (UltimateRunning) { UltimateRunning = false; BossBattle.EndUltimate(this); }
             if (hpBar != null) hpBar.SetSub(0f, false);
             Debug.Log($"[BossBattle] {bossName} defeated phase={Phase} breaks={BreakCount} ultimates={UltimatesUsed} t={Time.time - battleStartedAt:F1}s");
-            StartCoroutine(FinalHitAndDie());
+            if (BossFinish.Enabled) BeginBossFinish(hitPos); // BOSS FINISH(2026-10-06): 報酬はこの瞬間、遭遇の終了は見た目の後
+            else StartCoroutine(FinalHitAndDie());
             return;
         }
 
@@ -1530,6 +1533,14 @@ public abstract class WildBossBase : MonoBehaviour, IBossBattleDebug
         StopAllCoroutines();
         DisableAllHitboxes();
         if (hurtCol != null) hurtCol.enabled = false;
+        if (BossFinish.Enabled && BossFinishInfo.TryUnpack(NetBossFinishCode, out var fi))
+        {
+            LastFinishInfo = fi;
+            PrepareDeathVisual();
+            BossFinish.ClearBossHazards();
+            BossFinish.Begin(this, fi, CenterWorld, localImpact: NetBossFinishLocal); // 同じ見た目をこの端末で(報酬/遭遇の終了は HOST とラストヒットの本人)
+            return;
+        }
         StartCoroutine(FinalHitAndDie());
     }
 
@@ -1573,6 +1584,7 @@ public abstract class WildBossBase : MonoBehaviour, IBossBattleDebug
     void OnDestroy()
     {
         if (hpBar != null) Destroy(hpBar.gameObject);
+        OnDestroyFinish(); // BOSS FINISH: 見た目の途中で消された時も遭遇を進める
     }
 }
 

@@ -2195,7 +2195,7 @@ public partial class GameManager : MonoBehaviour
     {
         bool milestoneActive = BossMilestonePresentation.Instance != null && BossMilestonePresentation.Instance.IsRunning;
         bool defeatActive = BossDefeatPresentation.Instance != null && BossDefeatPresentation.Instance.IsRunning;
-        return milestoneActive || defeatActive;
+        return milestoneActive || defeatActive || BossFinish.AnyRunning; // BOSS FINISH の見た目の間はレベルアップ/報酬の選択を待つ
     }
 
     // Presentation Priority pass - fields backing the deferral above.
@@ -3468,6 +3468,7 @@ public partial class GameManager : MonoBehaviour
         DeathLog("GameOver cleanup start");
         try { if (BossManager.Instance != null) BossManager.Instance.StopForRunEnd(); } catch (System.Exception ex) { Debug.LogException(ex); }
         try { FinishFx.ReleaseAll(); } catch (System.Exception ex) { Debug.LogException(ex); } // 撃破の見た目(FINISH)を片付ける(何も待たない)
+        try { BossFinish.StopAll(); } catch (System.Exception ex) { Debug.LogException(ex); } // ボスの撃破の見た目も(遭遇の終了は通さない)
         DeathLog("GameOver cleanup: bosses/encounter stopped");
         try { if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.StopForRunEnd(); } catch (System.Exception ex) { Debug.LogException(ex); }
         DeathLog("GameOver cleanup: assist stopped");
