@@ -13,7 +13,7 @@ public enum EnemyMovementType
     Flying
 }
 
-public class EnemyController : MonoBehaviour
+public partial class EnemyController : MonoBehaviour
 {
     public EnemyMovementType movementType = EnemyMovementType.Ground;
     // 共通Encounter System(2026-09-28) - 荒野街道の上ルートに置かれた敵。立つ面を上ルートの面にする
@@ -535,12 +535,15 @@ public class EnemyController : MonoBehaviour
             // center - reads as "where the blade actually reached".
             Vector3 contactPoint = other.ClosestPoint(transform.position);
             int damage = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveAttackPower : 1);
+            int hpBefore = hp;
             hp -= Mathf.Max(1, damage);
             bool killed = hp <= 0;
 
             PlayerAttackKind kind = PlayerAttackKind.Normal;
             var info = other.GetComponent<PlayerAttackInfo>();
             if (info != null) kind = info.kind;
+            netReactionAttacker = 0;
+            if (killed) DecideFinishLocal(other, info, kind, Mathf.Max(1, damage), hpBefore); // FINISH(撃破の向き/種類)
             // 新4人(2026-09-27): 判定ごとのノックバック/HitStop倍率(既存5人の判定は既定値=従来どおり)。
             hitKnockbackScale = info != null ? info.knockbackScale : 1f;
             hitExtraStop = info != null ? info.hitStop : 0f;
@@ -633,6 +636,8 @@ public class EnemyController : MonoBehaviour
     void ProcessHit(PlayerAttackKind kind, Vector3 contactPoint, bool killed)
     {
         if (!killed) ShowHitPose();
+        // Enemy FINISH System(2026-10-06): HP 0 の瞬間に死亡/報酬を確定し、吹っ飛ぶのは見た目の分身(叩きつけも含む)
+        if (killed && FinishEnabled && !NetReplica) { FinishDeath(contactPoint); return; }
         // item 8 - 下攻撃フィニッシュ。浮いている敵への下攻撃は、致死でも
         // 即座には死なせず、地面へ叩き落としてから結果を出す。
         if (kind == PlayerAttackKind.Down && isLaunched)
@@ -1168,9 +1173,11 @@ public class EnemyController : MonoBehaviour
         if (dying || NetReplica || !isActiveAndEnabled) return false;
         EnsureHp();
         int dmg = Mathf.Max(1, damage);
+        int hpBefore = hp;
         hp -= dmg;
         bool killed = hp <= 0;
         netReactionAttacker = 0;
+        if (killed) DecideFinishRemote(PlayerAttackKind.Normal, dmg, hpBefore, noStop: true);
         NetCombat.AuthorityDamaged(NetId, 0, dmg, hp, (byte)PlayerAttackKind.Normal, at, killed);
         if (bonus != null) bonus.OnLocalHit(PlayerAttackKind.Normal, isLaunched, killed, at);
         if (killed)
@@ -1219,10 +1226,12 @@ public class EnemyController : MonoBehaviour
     {
         if (dying || NetReplica) return;
         EnsureHp();
+        int hpBefore = hp;
         hp -= Mathf.Max(1, damage);
         bool killed = hp <= 0;
         hitKnockbackScale = 1f; hitExtraStop = 0f; hitNoStop = false; hitNoKnockback = false;
         netReactionAttacker = attacker;
+        if (killed) DecideFinishRemote(kind, Mathf.Max(1, damage), hpBefore, noStop: true); // (HOST の画面は他の人の撃破で止めない)
         NetCombat.AuthorityDamaged(NetId, attacker, Mathf.Max(1, damage), hp, (byte)kind, contactPoint, killed);
         ProcessHit(kind, contactPoint, killed);
     }
@@ -1256,6 +1265,7 @@ public class EnemyController : MonoBehaviour
     public void NetPlayDeathVisualAndRemove()
     {
         if (!isActiveAndEnabled) { Destroy(gameObject); return; }
+        if (NetPlayFinishAndRemove()) return; // FINISH(HOST から届いた向き/種類で同じ見た目)
         StartCoroutine(NetDeathRoutine());
     }
 

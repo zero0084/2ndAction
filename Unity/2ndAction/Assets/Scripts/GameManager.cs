@@ -297,7 +297,7 @@ public partial class GameManager : MonoBehaviour
     // BONUS ZONE(2026-09-29): ボーナス区画の報酬Enemy(宝運びゴブリン/ミミック)から得たMILE。
     // 他の分類と同じく「Run中の仮取得」で、FINISH/脱出の時だけ持ち帰る(GAME OVERなら失う)。
     public int RunBonusMile { get; private set; }
-    public int RunMile => RunDistanceMile + RunEnemyMile + RunBossMile + RunBonusMile;
+    public int RunMile => RunDistanceMile + RunEnemyMile + RunBossMile + RunBonusMile + RunRingMile; // RunRingMile = 疾走出発のリングの代替報酬(2026-10-06)
 
     // ===== Run Continuation/Checkpoint Ver.1 ===== //
     // Item 12 - the furthest distance genuinely reached this Run's whole
@@ -3467,6 +3467,7 @@ public partial class GameManager : MonoBehaviour
         GameOverCleanups++;
         DeathLog("GameOver cleanup start");
         try { if (BossManager.Instance != null) BossManager.Instance.StopForRunEnd(); } catch (System.Exception ex) { Debug.LogException(ex); }
+        try { FinishFx.ReleaseAll(); } catch (System.Exception ex) { Debug.LogException(ex); } // 撃破の見た目(FINISH)を片付ける(何も待たない)
         DeathLog("GameOver cleanup: bosses/encounter stopped");
         try { if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.StopForRunEnd(); } catch (System.Exception ex) { Debug.LogException(ex); }
         DeathLog("GameOver cleanup: assist stopped");
@@ -3550,6 +3551,7 @@ public partial class GameManager : MonoBehaviour
         data.bossKillCount = BossKillCount;
         data.runEnemyMile = RunEnemyMile;
         data.runBonusMile = RunBonusMile;
+        data.runRingMile = RunRingMile;
         data.runBossMile = RunBossMile;
         data.escapeUnlocked = escapeUnlocked;
         if (BossManager.Instance != null) BossManager.Instance.ExportPool(data); // ボスの再戦プール(2026-10-02)
@@ -3623,6 +3625,7 @@ public partial class GameManager : MonoBehaviour
         BossKillCount = data.bossKillCount;
         RunEnemyMile = data.runEnemyMile;
         RunBonusMile = data.runBonusMile;
+        RunRingMile = data.runRingMile;
         RunBossMile = data.runBossMile;
         escapeUnlocked = data.escapeUnlocked;
 
@@ -4285,7 +4288,9 @@ public partial class GameManager : MonoBehaviour
         Row("TIME", FormatTime(RunTime), IsNewBestTime);
         Row("ENEMIES DEFEATED", $"{EnemyKillCount}  +{RunEnemyMile} MILE", false);
         Row("BOSSES DEFEATED", $"{BossKillCount}  +{RunBossMile} MILE", false);
-        if (RunBonusMile > 0) Row("BONUS ZONE", $"+{RunBonusMile} MILE", false);
+        if (RunBonusMile > 0 && RunRingMile > 0) Row("BONUS", $"ZONE +{RunBonusMile} / RING +{RunRingMile} MILE", false); // 行が増えすぎないよう1行に
+        else if (RunBonusMile > 0) Row("BONUS ZONE", $"+{RunBonusMile} MILE", false);
+        else if (RunRingMile > 0) Row("RING BONUS", $"+{RunRingMile} MILE", false);
         Row("TOTAL EXP", Mathf.FloorToInt(TotalExpEarned).ToString(), false);
         Row("UPGRADES OBTAINED", UpgradeCount.ToString(), false);
         Row("TOTAL MILE", $"+{RunMile}  (WALLET {TotalOwnedMile})", false);

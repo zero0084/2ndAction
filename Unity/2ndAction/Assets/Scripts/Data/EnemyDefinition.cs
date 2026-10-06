@@ -215,4 +215,10 @@ public class EnemyDefinition : ScriptableObject
     public float launchScale = 1f;
     [Tooltip("ノックバックの強さの倍率(1=従来)")]
     public float knockbackScale = 1f;
+
+    [Header("Enemy FINISH(2026-10-06)")]
+    [Tooltip("撃破の吹っ飛びの重さ(0 = 自動: 種類/大きさから。大きいほど遅く短く飛ぶ。FinishTuning.massTopple 以上は倒れてその場で弾ける)")]
+    public float finishMass = 0f;
+    [Tooltip("吹っ飛びにくさ(0〜1。重さに上乗せ)")]
+    [Range(0f, 1f)] public float finishKnockbackResistance = 0f;
 }

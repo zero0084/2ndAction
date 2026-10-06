@@ -35,6 +35,27 @@ public class SprintTuning : ScriptableObject
     [Tooltip("リング同士の最低の間隔(秒)。距離に対して短すぎる時は景色の流れの方を遅くする")]
     public float ringMinGapSeconds = 3.4f;
 
+    [Header("リングの報酬(2026-10-06)")]
+    [Tooltip("デッキの対象カードがすべてラン中 Lv9 の時、リング成功1回で自動で受け取る MILE(固定額。カードの MILE 倍率は掛けない)。" +
+             "目安: 通常の走行の距離 MILE は 5,000m(= リングの間隔)で 50、BONUS ZONE の CLEAR は 30〜100、荒野のボスは 30〜500、ガチャ1回 500")]
+    public int ringMileReward = 100;
+    [Tooltip("成功の演出(リングが弾ける光/粒子/BONUS CARD・+MILE の文字)の秒数")]
+    public float ringBurstSeconds = 0.9f;
+    [Tooltip("成功してからカードの3択を開くまでの秒数(弾ける演出を見せる)")]
+    public float ringChoiceDelay = 0.45f;
+
+    [Header("見た目(2026-10-06)")]
+    [Tooltip("疾走中のキャラの表示の大きさ(従来 = 1)。リングの判定は高さの段と時間で決まるので、小さくしても厳しくならない")]
+    [Range(0.5f, 1.2f)] public float charScale = 0.8f;
+    [Tooltip("リングの中心を合わせるキャラの高さ(足元 0 〜 頭 1)。胴体の中心")]
+    [Range(0.3f, 0.7f)] public float torsoFrac = 0.5f;
+    [Tooltip("高さの段を移る時の見た目の追従(大きいほど速い。判定はすぐ移る)")]
+    public float laneFollow = 16f;
+    [Tooltip("開始時の操作説明を出す秒数")]
+    public float introSeconds = 3.0f;
+    [Tooltip("到着して通常のランへ戻る時の補間の秒数(疾走のキャラ → 実際のキャラの位置/大きさへ)")]
+    public float outroSeconds = 0.5f;
+
     public float SecondsFor(int destination)
     {
         int i = Mathf.Clamp(destination / Mathf.Max(1, stepMeters) - 1, 0, 8);

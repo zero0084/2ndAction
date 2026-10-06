@@ -601,6 +601,7 @@ public static class GroundFactory
             if (be == null) be = enemyGO.AddComponent<BonusEnemy>();
             be.Init(def.bonusKind, ec);
         }
+        if (ec != null) { ec.Definition = def; FinishFx.Ensure(); } // Enemy FINISH System: 重さ/空中の判定と、見た目のプールの用意(最初の撃破で作らない)
         if (ec != null) ec.ApplyDefinitionTuning(def.launchScale, def.knockbackScale);
         if (def.bodyColliderScale != Vector2.one || def.bodyColliderOffset != Vector2.zero)
         {

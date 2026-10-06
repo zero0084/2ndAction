@@ -705,6 +705,7 @@ public class NetCombat : MonoBehaviour
             w.WriteValueSafe(e.RunSeed);
             w.WriteValueSafe(OpDeath);
             w.WriteValueSafe(e.Id); w.WriteValueSafe(lastHit); w.WriteValueSafe(e.LastDamagedBy); w.WriteValueSafe(cause); w.WriteValueSafe(e.MileReward);
+            w.WriteValueSafe(e.Enemy != null ? e.Enemy.NetFinishCode : (ushort)0); // Enemy FINISH: 撃破の向き/種類(見た目は各端末で再生)
             if (e.SpawnSent) SendReliableToClients(w);
         }
         if (GameManager.Instance != null && GameManager.Instance.DebugMode)
@@ -1091,7 +1092,9 @@ public class NetCombat : MonoBehaviour
     void HandleDeath(FastBufferReader r)
     {
         r.ReadValueSafe(out int id); r.ReadValueSafe(out int lastHit); r.ReadValueSafe(out int lastDamagedBy); r.ReadValueSafe(out byte cause); r.ReadValueSafe(out int mile);
+        r.ReadValueSafe(out ushort finishCode);
         if (!entities.TryGetValue(id, out Entity e)) return;
+        if (e.Enemy != null) { e.Enemy.NetFinishCode = cause == 0 ? finishCode : (ushort)0; e.Enemy.NetFinishLocal = lastHit == LocalPlayerNumber; }
         if (e.Dead) return;
         e.Dead = true; e.Hp = 0; e.LastHitPlayer = lastHit; e.LastDamagedBy = lastDamagedBy; e.DeathCause = cause;
         StatDeaths++;
