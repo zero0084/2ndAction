@@ -24,7 +24,7 @@ public class EnemyMeleeHitbox : MonoBehaviour
         if (x < cx - half - 1f || x > cx + half + 1f) return;
         var box = GetComponent<BoxCollider2D>();
         bool big = box != null && box.size.x * Mathf.Abs(transform.lossyScale.x) * box.size.y * Mathf.Abs(transform.lossyScale.y) > 3.5f;
-        am.PlaySe(big ? SeId.BigEnemyAttack : SeId.EnemyAttack);
+        am.PlaySeAt(big ? SeId.BigEnemyAttack : SeId.EnemyAttack, transform.position); // 2026-10-06: 位置で左右に振る
     }
 
     void OnTriggerEnter2D(Collider2D other)

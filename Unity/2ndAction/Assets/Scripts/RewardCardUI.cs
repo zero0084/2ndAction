@@ -169,7 +169,7 @@ public class RewardCardUI : MonoBehaviour
         textBackdrop.enabled = isFront && showDetails;
         descriptionText.enabled = isFront && showDetails;
         if (rarityText != null) rarityText.enabled = isFront && showDetails;
-        bool showLevel = isFront && !string.IsNullOrEmpty(data.LevelLine);
+        bool showLevel = isFront && !string.IsNullOrEmpty(data.LevelLine) && !data.FinalEvolution; // FINAL EVOLUTION は Lv を出さない(表記は上の帯)
         if (levelText != null) levelText.enabled = showLevel;
         if (levelBadge != null) levelBadge.SetActive(showLevel);
         // item2/3/6 - Category Iconはlevelと同じ扱い(表面のみ)。スプライト
@@ -180,7 +180,128 @@ public class RewardCardUI : MonoBehaviour
         if (countChip != null) countChip.SetActive(isFront && data.Count > 1);
         else if (countText != null) countText.enabled = isFront && data.Count > 1;
         if (equippedBadge != null) equippedBadge.SetActive(isFront && (data.ShowEquippedBadge || data.ShowNewBadge));
+        ApplyMasteryVisual(isFront);
         ApplyFocusVisual();
+    }
+
+    // ===== カード長期育成(2026-10-04): Mastery の★ / AWAKENED の光・表記・粒 =====
+    // SceneBuilder で作ったカードの部品は変えず、必要になった時にこのカードの子として作る(全画面のカードで同じ見た目)。
+    // 一覧では「Lv9 / ★の数 / AWAKENED の印」だけ(進みの数字は詳細の画面で出す)。
+    GameObject masteryRow, awakenRoot;
+    Text masteryText, awakenLabel;
+    Image awakenGlow;
+    readonly Image[] awakenSparks = new Image[4];
+    static readonly Color AwakenGold = new Color(1f, 0.82f, 0.32f);
+
+    void EnsureMasteryArt()
+    {
+        if (masteryRow != null || rect == null) return;
+        Font font = titleText != null ? titleText.font : null;
+        // 光(カードの後ろ、少し外へはみ出す)
+        awakenRoot = new GameObject("Awakened", typeof(RectTransform));
+        var ar = (RectTransform)awakenRoot.transform;
+        ar.SetParent(rect, false); ar.SetAsFirstSibling();
+        ar.anchorMin = Vector2.zero; ar.anchorMax = Vector2.one; ar.offsetMin = ar.offsetMax = Vector2.zero;
+        awakenGlow = NewChildImage("Glow", ar, new Vector2(-0.24f, -0.16f), new Vector2(1.24f, 1.16f), CardFaceArt.SoftGlow(), new Color(AwakenGold.r, AwakenGold.g, AwakenGold.b, 0.85f));
+        for (int i = 0; i < awakenSparks.Length; i++) awakenSparks[i] = NewChildImage("Spark" + i, ar, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), SparkDot(), new Color(1f, 0.95f, 0.7f, 0.95f));
+        // ★の帯(カードの下端の内側)
+        masteryRow = new GameObject("MasteryRow", typeof(RectTransform));
+        var mr = (RectTransform)masteryRow.transform;
+        mr.SetParent(rect, false); mr.SetAsLastSibling();
+        mr.anchorMin = new Vector2(0.06f, 0.008f); mr.anchorMax = new Vector2(0.94f, 0.118f); mr.offsetMin = mr.offsetMax = Vector2.zero;
+        NewChildImage("Back", mr, Vector2.zero, Vector2.one, CardFaceArt.RoundedRect(), new Color(0.02f, 0.015f, 0.05f, 0.94f));
+        masteryText = NewChildText("Stars", mr, Vector2.zero, Vector2.one, font, AwakenGold);
+        // AWAKENED の表記(上端の中央)
+        var lr = new GameObject("AwakenedLabel", typeof(RectTransform));
+        var lrt = (RectTransform)lr.transform;
+        lrt.SetParent(ar, false);
+        lrt.anchorMin = new Vector2(0.27f, 0.928f); lrt.anchorMax = new Vector2(0.73f, 0.988f); lrt.offsetMin = lrt.offsetMax = Vector2.zero; // 上端の中央(左右の菱形の間。名前を隠さない)
+        NewChildImage("Back", lrt, Vector2.zero, Vector2.one, CardFaceArt.RoundedRect(), new Color(0.35f, 0.22f, 0.02f, 0.9f));
+        awakenLabel = NewChildText("Text", lrt, Vector2.zero, Vector2.one, font, new Color(1f, 0.97f, 0.82f));
+        awakenLabel.text = "AWAKENED";
+        lr.transform.SetParent(rect, false); // 表記はカードの手前に出す(光だけ後ろ)
+        lr.transform.SetAsLastSibling();
+        awakenLabelRoot = lr;
+    }
+    GameObject awakenLabelRoot;
+
+    // AWAKENED の粒(中心が明るく外へ消える丸)。1回だけ作る
+    static Sprite sparkDot;
+    static Sprite SparkDot()
+    {
+        if (sparkDot != null) return sparkDot;
+        const int n = 32;
+        var tex = new Texture2D(n, n, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, hideFlags = HideFlags.DontSave };
+        var px = new Color[n * n];
+        for (int y = 0; y < n; y++)
+            for (int x = 0; x < n; x++)
+            {
+                float u = (x + 0.5f) / n * 2f - 1f, v = (y + 0.5f) / n * 2f - 1f;
+                float d = Mathf.Clamp01(1f - Mathf.Sqrt(u * u + v * v));
+                px[y * n + x] = new Color(1f, 1f, 1f, d * d);
+            }
+        tex.SetPixels(px); tex.Apply();
+        sparkDot = Sprite.Create(tex, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), 100f);
+        return sparkDot;
+    }
+
+    static Image NewChildImage(string name, RectTransform parent, Vector2 aMin, Vector2 aMax, Sprite sprite, Color color)
+    {
+        var go = new GameObject(name, typeof(RectTransform), typeof(Image));
+        var r = (RectTransform)go.transform;
+        r.SetParent(parent, false);
+        r.anchorMin = aMin; r.anchorMax = aMax; r.offsetMin = r.offsetMax = Vector2.zero;
+        var img = go.GetComponent<Image>();
+        img.sprite = sprite; img.color = color; img.raycastTarget = false;
+        if (sprite != null && sprite.border != Vector4.zero) img.type = Image.Type.Sliced;
+        return img;
+    }
+
+    static Text NewChildText(string name, RectTransform parent, Vector2 aMin, Vector2 aMax, Font font, Color color)
+    {
+        var go = new GameObject(name, typeof(RectTransform), typeof(Text));
+        var r = (RectTransform)go.transform;
+        r.SetParent(parent, false);
+        r.anchorMin = aMin; r.anchorMax = aMax; r.offsetMin = new Vector2(2f, 1f); r.offsetMax = new Vector2(-2f, -1f);
+        var t = go.GetComponent<Text>();
+        t.font = font != null ? font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        t.alignment = TextAnchor.MiddleCenter; t.color = color; t.raycastTarget = false;
+        t.resizeTextForBestFit = true; t.resizeTextMinSize = 6; t.resizeTextMaxSize = 40; t.fontStyle = FontStyle.Bold;
+        t.horizontalOverflow = HorizontalWrapMode.Wrap; t.verticalOverflow = VerticalWrapMode.Truncate;
+        return t;
+    }
+
+    void ApplyMasteryVisual(bool front)
+    {
+        bool show = front && data.ShowMastery && !data.FinalEvolution;
+        bool fe = front && data.FinalEvolution;
+        bool awake = front && (data.Awakened || fe);
+        if (!show && !awake && masteryRow == null) return;
+        EnsureMasteryArt();
+        if (masteryRow == null) return;
+        masteryRow.SetActive(show);
+        if (show) masteryText.text = CardMastery.StarsRich(data.MasteryStars); // 埋まった★は金、残りは暗い★
+        awakenRoot.SetActive(awake);
+        awakenLabelRoot.SetActive(awake);
+        if (awakenLabel != null) awakenLabel.text = fe ? (data.Awakened ? "FINAL EVOLUTION ★" : "FINAL EVOLUTION") : "AWAKENED";
+        if (awakenGlow != null) { var gc = fe ? new Color(1f, 0.6f, 0.15f, 0.9f) : new Color(AwakenGold.r, AwakenGold.g, AwakenGold.b, 0.85f); awakenGlow.color = gc; }
+    }
+
+    // AWAKENED の光の呼吸と、カードのまわりを回る小さな粒
+    void UpdateAwakened()
+    {
+        if (awakenRoot == null || !awakenRoot.activeSelf) return;
+        float t = Time.unscaledTime;
+        var c = awakenGlow.color; c.a = 0.7f + 0.25f * Mathf.Sin(t * 2.4f); awakenGlow.color = c;
+        Vector2 size = rect.rect.size;
+        for (int i = 0; i < awakenSparks.Length; i++)
+        {
+            float a = t * 0.9f + i * Mathf.PI * 0.5f;
+            var sr = awakenSparks[i].rectTransform;
+            sr.anchoredPosition = new Vector2(Mathf.Cos(a) * size.x * 0.56f, Mathf.Sin(a) * size.y * 0.53f);
+            float s = Mathf.Max(8f, size.x * (0.11f + 0.04f * Mathf.Sin(t * 5f + i)));
+            sr.sizeDelta = new Vector2(s, s);
+        }
     }
 
     // An unfilled DECK slot - shows just the card frame art, dimmed, with
@@ -216,6 +337,7 @@ public class RewardCardUI : MonoBehaviour
         if (valueLineText != null) valueLineText.enabled = false;
         if (countText != null) countText.enabled = false;
         if (equippedBadge != null) equippedBadge.SetActive(false);
+        if (masteryRow != null) { masteryRow.SetActive(false); awakenRoot.SetActive(false); awakenLabelRoot.SetActive(false); }
         rect.localScale = Vector3.one;
         canvasGroup.alpha = 1f;
         canvasGroup.blocksRaycasts = false;
@@ -398,6 +520,7 @@ public class RewardCardUI : MonoBehaviour
 
     void Update()
     {
+        UpdateAwakened(); // カード長期育成: AWAKENED の光と粒
         // 選択中のGlowだけ、ごくゆっくり呼吸させる(点滅はさせない)
         if (!focused || selectGlow == null || !selectGlow.gameObject.activeSelf) return;
         Color c = selectGlow.color;

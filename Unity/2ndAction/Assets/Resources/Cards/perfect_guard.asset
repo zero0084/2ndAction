@@ -15,13 +15,17 @@ MonoBehaviour:
   cardId: perfect_guard
   cardName: PERFECT GUARD
   icon: {fileID: 2800000, guid: 04a7c8c5ac9867a4da942d6d50f24772, type: 3}
-  description: "Shield\u8010\u4E45\u56DE\u6570\u304C\u5897\u3048\u308B"
+  description: "Shield\u3092\u4F7F\u3063\u305F\u6642\u3001\u77ED\u3044\u7121\u6575\u306B\u306A\u308B(0.4\u79D2+1Lv\u3054\u3068\u306B0.1\u79D2)\u3002Shield\u3092\u6301\u3063\u3066\u3044\u306A\u304F\u3066\u30821\u3064\u6301\u3066\u308B"
   category: 2
   sortOrder: 141
   recommendPriority: 5
   effects:
-  - type: 8
-    value: 2
+  - type: 79
+    value: 1
+    scaling: 0
+  - type: 77
+    value: 1
+    scaling: 1
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

@@ -52,8 +52,43 @@ public partial class PlayerController
 
     // 攻撃が敵/ボスに命中した(PlayerAttackInfo.ScaleDamage(attack, victim, …)から。障害物では呼ばれない)。
     // コンボの各段が命中するたびに更新する(空振りでは呼ばれない)。
+    // 2026-10-03: 当てた相手(近接の踏み込みを相手の体の手前で止めるため。Move の LungeStopX)
+    Component lungeHitTarget;
+    float lungeHitTime = -99f;
+    public static int LungeStops; // 確認用
+
+    // 踏み込み(lunge)で、当てた相手の体の中へ入り込まないための前方の限界(world X)。なければ null。
+    // 自動前進はそのまま(踏み込みの分だけを止める)。当てる前の間合い(実効リーチ)は変わらない。
+    // 前後比較の自動テスト専用(開発版の起動引数 -qaNoLungeStop で false)。通常は常に true。
+    // (Debug.isDebugBuild は型の初期化中に呼べないので、最初に使う時に読む)
+    static int lungeStopState; // 0=未確認 1=有効 2=無効
+    public static bool LungeStopEnabled
+    {
+        get
+        {
+            if (lungeStopState == 0)
+                lungeStopState = Debug.isDebugBuild && System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-qaNoLungeStop") >= 0 ? 2 : 1;
+            return lungeStopState == 1;
+        }
+    }
+
+    float? LungeStopX(float facingSign)
+    {
+        if (!LungeStopEnabled) return null;
+        if (lungeHitTarget == null || Time.time - lungeHitTime > 0.6f || !lungeHitTarget.gameObject.activeInHierarchy) return null;
+        var col = lungeHitTarget.GetComponentInChildren<Collider2D>();
+        var body = GetComponent<Collider2D>();
+        if (col == null || body == null) return null;
+        if ((col.bounds.center.x - transform.position.x) * facingSign <= 0f) return null; // 踏み込む向きにいる相手だけ
+        float half = body.bounds.extents.x;
+        const float margin = 0.12f;
+        return facingSign > 0f ? col.bounds.min.x - half - margin : col.bounds.max.x + half + margin;
+    }
+
     public void NotifyAttackLanded(Component target, PlayerAttackInfo attack)
     {
+        if (target != null && target is EnemyController) { lungeHitTarget = target; lungeHitTime = Time.time; }
+        OnCardAttackLanded(target, attack); // カードバランス v3(AIR DOMINION / SKY MASTER)
         if (target == null || contactGraceDuration <= 0f) return;
         if (attack != null && attack.suppressHitStop) return; // 結界/燃える地面のような細かい多段では付けない(置いておくだけで守られ続けないように)
         contactGraceUntil[GraceKey(target)] = Time.time + contactGraceDuration;

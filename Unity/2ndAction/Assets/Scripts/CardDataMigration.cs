@@ -63,12 +63,12 @@ public static class CardDataMigration
 
     public static void RunIfNeeded()
     {
-        if (PlayerPrefs.GetInt(FormatKey, 0) >= CurrentFormat) return;
+        if (SaveStore.GetInt(FormatKey, 0) >= CurrentFormat) return;
         var report = new System.Text.StringBuilder();
 
         // ---- 所持カード ----
         var wrapper = new CardInventory.SaveWrapper();
-        string json = PlayerPrefs.GetString(CardInventory.SaveKey, "");
+        string json = SaveStore.GetString(CardInventory.SaveKey, "");
         if (!string.IsNullOrEmpty(json))
         {
             try { wrapper = JsonUtility.FromJson<CardInventory.SaveWrapper>(json) ?? new CardInventory.SaveWrapper(); }
@@ -93,7 +93,7 @@ public static class CardDataMigration
         report.Append($"stacks {wrapper.stacks.Count}->{merged.Count} (converted {converted}); ");
 
         // ---- キャラクターカード("id:Lv") ----
-        string slots = PlayerPrefs.GetString(CharacterCardSlotsKey, "");
+        string slots = SaveStore.GetString(CharacterCardSlotsKey, "");
         string[] entries = slots.Split(',');
         for (int i = 0; i < entries.Length; i++)
         {
@@ -110,8 +110,8 @@ public static class CardDataMigration
         string newSlots = string.Join(",", entries);
 
         // ---- デッキ(旧: 同じcardIdの低いLvから順に割り当て) ----
-        string deckRaw = PlayerPrefs.GetString(DeckKey, "");
-        bool hadDeck = PlayerPrefs.HasKey(DeckKey);
+        string deckRaw = SaveStore.GetString(DeckKey, "");
+        bool hadDeck = SaveStore.HasKey(DeckKey);
         var deck = new List<string>();
         if (!string.IsNullOrEmpty(deckRaw))
         {
@@ -134,11 +134,11 @@ public static class CardDataMigration
         }
 
         // ---- まとめて書き込み ----
-        PlayerPrefs.SetString(CardInventory.SaveKey, JsonUtility.ToJson(new CardInventory.SaveWrapper { stacks = merged }));
-        if (!string.IsNullOrEmpty(slots)) PlayerPrefs.SetString(CharacterCardSlotsKey, newSlots);
-        if (hadDeck) PlayerPrefs.SetString(DeckKey, string.Join(",", deck));
-        PlayerPrefs.SetInt(FormatKey, CurrentFormat);
-        PlayerPrefs.Save();
+        SaveStore.SetString(CardInventory.SaveKey, JsonUtility.ToJson(new CardInventory.SaveWrapper { stacks = merged }));
+        if (!string.IsNullOrEmpty(slots)) SaveStore.SetString(CharacterCardSlotsKey, newSlots);
+        if (hadDeck) SaveStore.SetString(DeckKey, string.Join(",", deck));
+        SaveStore.SetInt(FormatKey, CurrentFormat);
+        SaveStore.Save();
         CardInventory.ReloadFromPrefs();
         LastReport = report.ToString();
         Debug.Log("[CardDataMigration] " + LastReport);

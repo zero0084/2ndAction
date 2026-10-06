@@ -13,7 +13,7 @@ public enum EnemyMovementType
     Flying
 }
 
-public class EnemyController : MonoBehaviour
+public partial class EnemyController : MonoBehaviour
 {
     public EnemyMovementType movementType = EnemyMovementType.Ground;
     // 共通Encounter System(2026-09-28) - 荒野街道の上ルートに置かれた敵。立つ面を上ルートの面にする
@@ -309,6 +309,14 @@ public class EnemyController : MonoBehaviour
         sr = GetComponentInChildren<SpriteRenderer>();
     }
 
+    // カードバランス v3(2026-10-03): 生きている雑魚の数(出現の安全の上限)/ 精鋭(ELITE/WANTED)
+    public static int ActiveCount;
+    void OnEnable() { ActiveCount++; }
+    void OnDisable() { ActiveCount = Mathf.Max(0, ActiveCount - 1); }
+    [System.NonSerialized] public bool IsElite;
+    [System.NonSerialized] public float KillExpMultiplier = 1f;
+    public void ResetHpToMax() { hp = Mathf.Max(1, maxHp); }
+
     // エリアルコンボ改修(2026-09-11) - 打ち上げ/叩き落とし中のY軸物理の
     // みここで積分する。他のあらゆる移動(EnemyAnimatorの待機bob、
     // EnemySpecialBehaviorの各種挙動)は、Launch開始時にDisableMotion
@@ -527,12 +535,15 @@ public class EnemyController : MonoBehaviour
             // center - reads as "where the blade actually reached".
             Vector3 contactPoint = other.ClosestPoint(transform.position);
             int damage = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveAttackPower : 1);
+            int hpBefore = hp;
             hp -= Mathf.Max(1, damage);
             bool killed = hp <= 0;
 
             PlayerAttackKind kind = PlayerAttackKind.Normal;
             var info = other.GetComponent<PlayerAttackInfo>();
             if (info != null) kind = info.kind;
+            netReactionAttacker = 0;
+            if (killed) DecideFinishLocal(other, info, kind, Mathf.Max(1, damage), hpBefore); // FINISH(撃破の向き/種類)
             // 新4人(2026-09-27): 判定ごとのノックバック/HitStop倍率(既存5人の判定は既定値=従来どおり)。
             hitKnockbackScale = info != null ? info.knockbackScale : 1f;
             hitExtraStop = info != null ? info.hitStop : 0f;
@@ -554,6 +565,8 @@ public class EnemyController : MonoBehaviour
             // ていないに関わらず「連続して当てた」という事実がコンボ)。
             if (ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
 
+            // 音の再設計(2026-10-06): 手応えの音を攻撃の種類で分ける(打ち上げ/飛び道具/通常)
+            nextHitSe = kind == PlayerAttackKind.Up ? SeId.HitLaunch : other.GetComponentInParent<PlayerBullet>() != null ? SeId.HitProjectile : SeId.Hit;
             ProcessHit(kind, contactPoint, killed);
             return;
         }
@@ -582,7 +595,9 @@ public class EnemyController : MonoBehaviour
     }
 
     // 体との接触ダメージを与えてよい状態か(OnTriggerEnter2Dの時点と同じ条件を、決める瞬間にもう一度見る)。
-    public bool CanDealContactDamage => isActiveAndEnabled && !dying && !IsReactingToHit && bonus == null && !(NetReplica && NetRemoteReacting);
+    public bool CanDealContactDamage => isActiveAndEnabled && !dying && !IsReactingToHit && bonus == null && !ArenaDummy && !(NetReplica && NetRemoteReacting);
+    // 開発用の闘技場の動かない標的(接触ダメージ/攻撃なし)
+    [System.NonSerialized] public bool ArenaDummy;
 
     public void ApplyContactDamage()
     {
@@ -623,6 +638,8 @@ public class EnemyController : MonoBehaviour
     void ProcessHit(PlayerAttackKind kind, Vector3 contactPoint, bool killed)
     {
         if (!killed) ShowHitPose();
+        // Enemy FINISH System(2026-10-06): HP 0 の瞬間に死亡/報酬を確定し、吹っ飛ぶのは見た目の分身(叩きつけも含む)
+        if (killed && FinishEnabled && !NetReplica) { FinishDeath(contactPoint); return; }
         // item 8 - 下攻撃フィニッシュ。浮いている敵への下攻撃は、致死でも
         // 即座には死なせず、地面へ叩き落としてから結果を出す。
         if (kind == PlayerAttackKind.Down && isLaunched)
@@ -737,9 +754,11 @@ public class EnemyController : MonoBehaviour
     // 物理的なノックバック/打ち上げ/叩き落としは呼び出し側が別途担当する
     // (演出とリアクション物理を分離、Slam等で組み合わせを変えやすくする
     // ため)。
+    SeId nextHitSe = SeId.Hit;
     IEnumerator ReactToHit(Vector3 contactPoint, float hitStopDur)
     {
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayAttackHit();
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(nextHitSe, contactPoint);
+        nextHitSe = SeId.Hit;
 
         if (hitParticleEnabled)
         {
@@ -922,7 +941,7 @@ public class EnemyController : MonoBehaviour
     // を、致死ではなく生存した場合にも(小さめに)再現する。
     IEnumerator SlamImpactRoutine()
     {
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayStrongHit(); // 叩きつけの着地 = 強Hit
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(SeId.SlamImpact, transform.position); // 叩きつけの着地(2026-10-06: 専用の地響き)
 
         Sprite impactSprite = TerrainManager.Instance != null ? TerrainManager.Instance.enemyGroundImpactSprite : null;
         if (impactSprite != null)
@@ -1002,7 +1021,8 @@ public class EnemyController : MonoBehaviour
     IEnumerator HitAndDie(Vector3 contactPoint, bool viaSlam)
     {
         if (poseDeath != null && sr != null) sr.sprite = poseDeath; // 天空回廊Enemy: 撃破の絵
-        if (AudioManager.Instance != null) { if (viaSlam) AudioManager.Instance.PlayStrongHit(); else AudioManager.Instance.PlayAttackHit(); }
+        if (AudioManager.Instance != null) { if (viaSlam) AudioManager.Instance.PlaySeAt(SeId.SlamImpact, contactPoint); else AudioManager.Instance.PlaySeAt(nextHitSe, contactPoint); }
+        nextHitSe = SeId.Hit;
 
         if (viaSlam)
         {
@@ -1050,7 +1070,7 @@ public class EnemyController : MonoBehaviour
             ExplosionEffect.CreateForDefeat(transform.position, deathBurstColor, subjectHeight, sortingOrder: RenderOrder.CombatFx);
         }
 
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayEnemyDefeat();
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(SeId.EnemyDefeat, transform.position);
 
         // The enemy's own sprite side of "Hit -> Flash -> Fade/Scale ->
         // 消滅".
@@ -1132,8 +1152,9 @@ public class EnemyController : MonoBehaviour
     void RegisterKillReward(bool fallDeath)
     {
         if (bonus != null) bonus.OnKilled(fallDeath);
+        if (netReactionAttacker == 0 && !fallDeath) CardProcs.OnEnemyKilled(this); // v3: CHAIN EXPLOSION / INFERNO(この端末のプレイヤーが倒した時)
         if (NetCombat.RouteEnemyKillReward(NetId, fallDeath)) return;
-        if (GameManager.Instance != null) GameManager.Instance.RegisterEnemyKill(mileReward);
+        if (GameManager.Instance != null) GameManager.Instance.RegisterEnemyKill(mileReward, KillExpMultiplier);
     }
 
     // JOIN: HOSTから届いた敵を「見た目と当たり判定だけ」のパペットにする。
@@ -1149,6 +1170,31 @@ public class EnemyController : MonoBehaviour
         var facing = GetComponent<EnemyFacing>();
         if (facing != null) facing.enabled = false;
     }
+
+    // 属性(2026-10-03): 炎上/出血の継続ダメージ・連鎖の落雷。HPを減らすだけで、のけぞり/ノックバック/ヒットストップは
+    // 起こさない(倒れた時は通常の撃破と同じ処理=経験値/MILE/BONUS ZONEの数え方も同じ)。HOST/シングルの敵だけ。
+    public bool ApplyElementDamage(int damage, Vector3 at)
+    {
+        if (dying || NetReplica || !isActiveAndEnabled) return false;
+        EnsureHp();
+        int dmg = Mathf.Max(1, damage);
+        int hpBefore = hp;
+        hp -= dmg;
+        bool killed = hp <= 0;
+        netReactionAttacker = 0;
+        if (killed) DecideFinishRemote(PlayerAttackKind.Normal, dmg, hpBefore, noStop: true);
+        NetCombat.AuthorityDamaged(NetId, 0, dmg, hp, (byte)PlayerAttackKind.Normal, at, killed);
+        if (bonus != null) bonus.OnLocalHit(PlayerAttackKind.Normal, isLaunched, killed, at);
+        if (killed)
+        {
+            hitNoKnockback = true;
+            hitNoStop = true;
+            ProcessHit(PlayerAttackKind.Normal, at, true);
+        }
+        return true;
+    }
+    public bool IsDyingOrReplica => dying || NetReplica;
+    public int CurrentHpForUltimate { get { EnsureHp(); return hp; } } // #100 ULTIMATE(撃破の数え)
 
     // JOIN: 自分の攻撃がパペットに当たった。
     void NetReplicaHit(Collider2D other)
@@ -1185,10 +1231,12 @@ public class EnemyController : MonoBehaviour
     {
         if (dying || NetReplica) return;
         EnsureHp();
+        int hpBefore = hp;
         hp -= Mathf.Max(1, damage);
         bool killed = hp <= 0;
         hitKnockbackScale = 1f; hitExtraStop = 0f; hitNoStop = false; hitNoKnockback = false;
         netReactionAttacker = attacker;
+        if (killed) DecideFinishRemote(kind, Mathf.Max(1, damage), hpBefore, noStop: true); // (HOST の画面は他の人の撃破で止めない)
         NetCombat.AuthorityDamaged(NetId, attacker, Mathf.Max(1, damage), hp, (byte)kind, contactPoint, killed);
         ProcessHit(kind, contactPoint, killed);
     }
@@ -1222,6 +1270,7 @@ public class EnemyController : MonoBehaviour
     public void NetPlayDeathVisualAndRemove()
     {
         if (!isActiveAndEnabled) { Destroy(gameObject); return; }
+        if (NetPlayFinishAndRemove()) return; // FINISH(HOST から届いた向き/種類で同じ見た目)
         StartCoroutine(NetDeathRoutine());
     }
 
@@ -1234,7 +1283,7 @@ public class EnemyController : MonoBehaviour
             float subjectHeight = sr != null ? sr.bounds.size.y : 1f;
             ExplosionEffect.CreateForDefeat(transform.position, deathBurstColor, subjectHeight, sortingOrder: RenderOrder.CombatFx);
         }
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayEnemyDefeat();
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(SeId.EnemyDefeat, transform.position);
         if (sr != null) yield return DieFadeRoutine();
         Destroy(gameObject);
     }

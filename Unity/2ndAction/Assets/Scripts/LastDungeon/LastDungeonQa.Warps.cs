@@ -90,6 +90,22 @@ public partial class LastDungeonQa
         // ---- B: 99km → 静寂
         yield return Launch(EndgameDebug.Point.LastDungeon99);
         flow = LastDungeonFlow.Instance; bm = BossManager.Instance;
+        if (BossManager.ContinuousRush)
+        {
+            // 2026-10-06: 走りながらのボスラッシュ: 97/98km のボスが残った状態から → 99kmで足止め → 全員倒す → 静寂
+            w = 0f;
+            while (!(bm.CurrentBossEncounter != null && bm.CurrentBossEncounter.held99) && w < 40f) { yield return null; w += Time.deltaTime; }
+            bool held = bm.CurrentBossEncounter != null && bm.CurrentBossEncounter.held99;
+            float dHeld = gm.MaxDistance;
+            L($"  B: run rush from 97km: held at 99km={held} d={dHeld:F0} remaining={(bm.CurrentBossEncounter != null ? bm.CurrentBossEncounter.Remaining : -1)}");
+            Check(held && dHeld <= 99000.5f, "B: 99km warp (run rush): the remaining bosses stop the run at 99km");
+            w = 0f;
+            while (bm.IsBossPhase && !bm.BossDefeatedThisPhase && w < 40f)
+            {
+                foreach (var b in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None)) if (b != null && !b.IsDead && !(b is ReaperSisterBoss)) b.TakeDamage(99999999, b.CenterWorld);
+                yield return new WaitForSeconds(0.5f); w += 0.5f;
+            }
+        }
         zakoMax = 0; w = 0f;
         while (flow.Current != LastDungeonFlow.State.Silence && w < 15f) { zakoMax = Mathf.Max(zakoMax, ActiveEnemies()); yield return null; w += Time.deltaTime; }
         w = 0f; int bossesMax = 0;

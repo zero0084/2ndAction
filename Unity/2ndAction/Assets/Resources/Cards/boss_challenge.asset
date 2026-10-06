@@ -15,15 +15,17 @@ MonoBehaviour:
   cardId: boss_challenge
   cardName: BOSS CHALLENGE
   icon: {fileID: 2800000, guid: 05a92c9e90fd0cc468095e4d6778a45d, type: 3}
-  description: "Boss\u304C\u5F37\u5316\u3055\u308C\u308B\u4EE3\u308F\u308A\u306B\u3001Boss\u8A0E\u4F10MILE\u304C\u5897\u52A0\u3059\u308B"
+  description: "\u30DC\u30B9\u306EHP\u304C\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+10%)\u4EE3\u308F\u308A\u306B\u3001\u30DC\u30B9MILE\u304C\u5897\u3048\u308B(+40%/Lv)"
   category: 6
   sortOrder: 128
-  recommendPriority: 5
+  recommendPriority: 2
   effects:
   - type: 21
-    value: 0.3
+    value: 0.1
+    scaling: 0
   - type: 23
     value: 0.4
+    scaling: 0
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

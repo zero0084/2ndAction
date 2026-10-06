@@ -71,7 +71,7 @@ public static class CardInventory
     {
         if (stacks != null) return;
         stacks = new List<Stack>();
-        string json = PlayerPrefs.GetString(SaveKey, "");
+        string json = SaveStore.GetString(SaveKey, "");
         if (!string.IsNullOrEmpty(json))
         {
             SaveWrapper wrapper = null;
@@ -84,17 +84,17 @@ public static class CardInventory
     static void Save()
     {
         WriteWithoutFlush();
-        PlayerPrefs.Save();
+        SaveStore.Save();
     }
 
     // 合成の確定処理(CardFusionLogic.Commit)は所持カードとMILEを両方書いてから
-    // PlayerPrefs.Save()を1回だけ呼ぶ(途中までしか保存されない状態を作らない)。
+    // SaveStore.Save()を1回だけ呼ぶ(途中までしか保存されない状態を作らない)。
     public static void WriteWithoutFlush()
     {
         EnsureLoaded();
         if (DebugRun.BlocksSave("OwnedCards")) return;
         var wrapper = new SaveWrapper { stacks = stacks };
-        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(wrapper));
+        SaveStore.SetString(SaveKey, JsonUtility.ToJson(wrapper));
     }
 
     // 合成用: 素材2枚を消費して完成品(addKey、nullなら無し)を1枚加える変更を
@@ -118,6 +118,20 @@ public static class CardInventory
             if (existing != null) existing.count++;
             else stacks.Add(new Stack { cardId = addKey, level = level, count = 1 });
         }
+        return true;
+    }
+
+    // カード長期育成(2026-10-04): Lv9 MAX のメインへの Mastery 合成。素材を1枚だけ消費する(メインは残す)。
+    // メインと素材が同じ束なら2枚以上必要。足りなければ何も変えずに false。保存は呼び出し側。
+    public static bool ConsumeForMasteryInMemory(string mainKey, string materialKey)
+    {
+        EnsureLoaded();
+        Stack a = FindByKey(mainKey);
+        Stack b = FindByKey(materialKey);
+        if (a == null || b == null) return false;
+        if (a == b ? a.count < 2 : b.count < 1) return false;
+        b.count--;
+        if (b.count <= 0) stacks.Remove(b);
         return true;
     }
 
@@ -212,7 +226,7 @@ public static class CardInventory
     {
         if (newUnconfirmed != null) return;
         newUnconfirmed = new HashSet<string>();
-        string raw = PlayerPrefs.GetString(NewUnconfirmedSaveKey, "");
+        string raw = SaveStore.GetString(NewUnconfirmedSaveKey, "");
         if (string.IsNullOrEmpty(raw)) return;
         foreach (string id in raw.Split(','))
         {
@@ -223,8 +237,8 @@ public static class CardInventory
     static void SaveNewUnconfirmed()
     {
         if (DebugRun.BlocksSave("NewUnconfirmedCards")) return;
-        PlayerPrefs.SetString(NewUnconfirmedSaveKey, string.Join(",", newUnconfirmed));
-        PlayerPrefs.Save();
+        SaveStore.SetString(NewUnconfirmedSaveKey, string.Join(",", newUnconfirmed));
+        SaveStore.Save();
     }
 
     static void MarkNewUnconfirmed(string cardId)

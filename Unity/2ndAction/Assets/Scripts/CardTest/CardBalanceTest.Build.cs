@@ -3,24 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-// CARD BALANCE TEST「ビルド」タブ(2026-10-02 カードバランス調査)。
-//  ・決まった構成(なし/代表的な数枚/攻撃 恒常最大/ボス実戦最大/速度特化)を Lv1/5/9 で、ゲームのカード適用処理(ApplyCardEffectsStacked)
-//    そのままで掛ける(先に RESET)。キャラカード3枠+デッキ10枚 = 13枚ぶん。カードはラン中の値だけを変え、所持/デッキ/保存は変えない。
-//  ・今の能力値を表示: 攻撃(条件ごと)・1発・速さ(km/h)・攻撃時間/範囲・ジャンプ・HP・Shield。
-//  ・新しいラン(シーンの読み直し)で全部消える(通常のランへ持ち越さない)。
+// CARD BALANCE TEST「ビルド」タブ(2026-10-02、カードバランス v3 で 2026-10-03 に作り直し)。
+//  ・代表的な構成(CardBuildPresets、自動テストと共通)を Lv1/5/9 で、ゲームのカード適用処理(ApplyCardEffectsStacked)そのままで掛ける(先に RESET)。
+//    カードはラン中の値だけを変え、所持/デッキ/保存は変えない。新しいラン(シーンの読み直し)で全部消える。
+//  ・今の能力値: 実効攻撃(無条件 A / 条件 C)・攻撃速度・実効範囲・実速度・HP(封印)・Shield・EXP/MILE/出現・初撃/連撃中/締め
+//    ・属性(炎/氷/雷/風/血)・吸収/回復・低HP・PHOENIX。
 public partial class CardBalanceTest
 {
-    const int BuildTabRows = 12;
+    const int BuildTabRows = 22;
     int buildLv = 9;
+    int presetPage;
     string buildNote = "";
-
-    static readonly (string name, string[] cards)[] BuildPresets =
-    {
-        ("代表的な数枚", new[] { "attack_up:2", "thunder_strike:1", "boss_killer:1" }),
-        ("攻撃 恒常最大", new[] { "deaths_contract", "giant_slayer", "ground_zero", "glass_cannon", "heavy_impact", "heart_breaker", "ground_breaker", "berserker", "high_voltage", "reverse_gear", "ultimate", "ground_fighter", "thunder_strike" }),
-        ("ボス実戦最大", new[] { "overdrive", "combo_rush", "momentum", "deaths_contract", "ground_zero", "glass_cannon", "heavy_impact", "heart_breaker", "ground_breaker", "hunter", "berserker", "boss_killer", "blood_blade" }),
-        ("速度特化", new[] { "speed_up", "greed", "no_turning_back", "close_call", "ultimate" }),
-    };
 
     // 構成を掛ける("id" は buildLv、"id:n" は n)
     public void ApplyBuild(string name, string[] list)
@@ -49,9 +42,19 @@ public partial class CardBalanceTest
         float bx = x + 92f;
         foreach (int lv in new[] { 1, 5, 9 }) { if (B(new Rect(bx, y, 56f, rowH), $"Lv{lv}", buildLv == lv)) buildLv = lv; bx += 60f; }
         if (B(new Rect(bx + 8f, y, 120f, rowH), "カードなし")) { ResetToBase(); buildNote = "カードなし(キャラの基準値)"; }
+        if (B(new Rect(bx + 136f, y, 150f, rowH), HitboxOverlay.Enabled ? "判定表示 ON" : "判定表示 OFF", HitboxOverlay.Enabled)) HitboxOverlay.Enabled = !HitboxOverlay.Enabled;
         y += rowH + gap;
+        // 構成(5つずつのページ)
+        var presets = CardBuildPresets.All;
+        int pages = (presets.Length + 4) / 5;
         bx = x;
-        foreach (var p in BuildPresets) { if (B(new Rect(bx, y, 200f, rowH), p.name)) ApplyBuild(p.name, p.cards); bx += 204f; }
+        if (B(new Rect(bx, y, 36f, rowH), "◀")) presetPage = (presetPage + pages - 1) % pages; bx += 40f;
+        for (int i = presetPage * 5; i < Mathf.Min(presets.Length, presetPage * 5 + 5); i++)
+        {
+            if (B(new Rect(bx, y, 146f, rowH), presets[i].name)) ApplyBuild(presets[i].name, presets[i].cards);
+            bx += 150f;
+        }
+        if (B(new Rect(bx, y, 36f, rowH), "▶")) presetPage = (presetPage + 1) % pages;
         y += rowH + gap;
         // 1枚だけ(カードLvタブと同じ選択)
         var cards = CardDatabase.AllCards.OrderBy(c => c.sortOrder).ToList();
@@ -61,30 +64,27 @@ public partial class CardBalanceTest
             var c = cards[cardIndex];
             GUI.Label(new Rect(x, y, 92f, rowH), "1枚だけ", sLabel);
             if (B(new Rect(x + 92f, y, 32f, rowH), "◀")) cardIndex = (cardIndex + cards.Count - 1) % cards.Count;
-            GUI.Label(new Rect(x + 128f, y, 190f, rowH), c.cardName, sTitle);
+            GUI.Label(new Rect(x + 128f, y, 190f, rowH), $"#{cardIndex + 1} {c.cardName}", sTitle);
             if (B(new Rect(x + 320f, y, 32f, rowH), "▶")) cardIndex = (cardIndex + 1) % cards.Count;
             if (B(new Rect(x + 360f, y, 150f, rowH), $"このカードをLv{buildLv}")) ApplyBuild(c.cardName, new[] { c.cardId + ":" + buildLv });
-            GUI.Label(new Rect(x + 516f, y, W - 530f, rowH), string.Join(", ", c.effects.Select(e => $"{e.type} {(e.value >= 0 ? "+" : "")}{e.value:0.##}")), sSmall);
+            GUI.Label(new Rect(x + 516f, y, W - 530f, rowH), c.description, sSmall);
         }
         y += rowH + gap;
-        GUI.Label(new Rect(x, y, W - 16f, rowH), string.IsNullOrEmpty(buildNote) ? "構成を押すと RESET してから13枚ぶんを掛ける(全キャラ共通の構成。魔法は空中の構成の方が強い)" : "適用中: " + buildNote, sSmall);
+        GUI.Label(new Rect(x, y, W - 16f, rowH), string.IsNullOrEmpty(buildNote) ? "構成を押すと RESET してから掛ける(全キャラ共通)" : "適用中: " + buildNote, sSmall);
         y += rowH + gap;
         if (pc == null || gm == null || !InRun()) { GUI.Label(new Rect(x, y, W - 16f, rowH), "ラン中に使う", sSmall); y += rowH + gap; return; }
 
-        // ---- 今の能力値
-        float mom = Mathf.Max(0f, pc.NaturalMultiplierAt(pc.DistanceFromStart) - 1f);
-        int baseAtk = pc.AttackPower;
-        int ground = baseAtk + pc.GroundAttackPowerBonus, air = baseAtk + pc.AirAttackPowerBonus;
-        int momB = Mathf.RoundToInt(pc.MomentumBonus * mom);
-        int full = pc.FullHpAttackBonus, low = pc.LowHpAttackBonus;
-        int boss = pc.BossDamageBonus;
-        Line(x, ref y, rowH, gap, $"攻撃力 {baseAtk}  地上 {ground} / 空中 {air}  初撃 +{pc.FirstHitBonus}  締め +{pc.ComboFinalStageBonus}  満HP +{full}  瀕死 +{low}×減った割合  加速 +{momB}(MOMENTUM {pc.MomentumBonus}×{mom:0.00})  ボス +{boss}");
-        int hitBoss = Mathf.Max(1, ground + momB + full + boss);
-        int hitBig = Mathf.Max(1, ground + momB + full + boss + Mathf.Max(pc.FirstHitBonus, pc.ComboFinalStageBonus));
-        Line(x, ref y, rowH, gap, $"1発(技の倍率×1): ボス・地上・満HP・今の速度 {hitBoss:N0} / +初撃か締めの大きい方 {hitBig:N0} / BREAK×1.35 {Mathf.RoundToInt(hitBig * 1.35f):N0}   今の1発(実際の状態) {pc.EffectiveBossAttackPower:N0}");
-        Line(x, ref y, rowH, gap, $"速さ {GameManager.SpeedKmh(pc.CurrentAutoRunSpeed):0}km/h(runSpeed {pc.runSpeed:0.00} × 距離の倍率 {pc.NaturalMultiplierAt(pc.DistanceFromStart):0.00})  攻撃時間 ×{pc.AttackSpeedMultiplier:0.00}(テンポ×{1f / Mathf.Max(0.01f, pc.AttackSpeedMultiplier):0.0})  攻撃範囲 ×{pc.AttackRangeMultiplier:0.00}");
-        Line(x, ref y, rowH, gap, $"ジャンプ力 {pc.jumpForce:0.0}(高さ約×{Mathf.Pow(pc.jumpForce / Mathf.Max(0.01f, pc.CardTestBaseJumpForce), 2f):0.0})  ジャンプ回数 {pc.maxJumps}  HP {gm.Lives}/{gm.maxLives}(上限{gm.maxLivesCap})  Shield {pc.ShieldCharges}  ボスHP×{gm.BossHpMultiplier:0.0}");
-        Line(x, ref y, rowH, gap, "理論DPS = 1発 × 技の倍率 × 1秒の攻撃回数(標準の剣は 1発/0.4秒×攻撃時間)。実測は QaSweep -qaBossKill -qaBkHp 999999");
+        // ---- 今の能力値(v3)
+        var T = gm.Card;
+        float A = T.Get(EffectType.AttackPct), cs = pc.CardStateCondition();
+        Line(x, ref y, rowH, gap, $"実効攻撃 {pc.EffectiveAttackPower}(基礎 {pc.AttackPower} × 無条件 {1f + CardRules.SoftAttack(A):0.00}[生{A * 100f:0}%] × 今の条件 {CardRules.CondMultiplier(cs):0.00}[生{cs * 100f:0}%])  ボス1発見積 {pc.BossHitEstimate}  連撃平均 {pc.BossHitComboAverage}");
+        Line(x, ref y, rowH, gap, $"条件: 空中{T.Get(EffectType.AirPct) * 100f:0}% 地上{T.Get(EffectType.GroundPct) * 100f:0}% 初撃{T.Get(EffectType.FirstPct) * 100f:0}% 連撃中{T.Get(EffectType.ComboPct) * 100f:0}% 締め{T.Get(EffectType.FinisherPct) * 100f:0}% ボス{T.Get(EffectType.BossPct) * 100f:0}% 雑魚{T.Get(EffectType.MobPct) * 100f:0}% 空中の敵{T.Get(EffectType.AntiAirPct) * 100f:0}% 下{T.Get(EffectType.DownPct) * 100f:0}% 満HP{T.Get(EffectType.FullHpPct) * 100f:0}% 低HP{T.Get(EffectType.LowHp50Pct) * 100f:0}/+{T.Get(EffectType.LowHp25Pct) * 100f:0}%");
+        Line(x, ref y, rowH, gap, $"攻撃速度: 攻撃時間 ×{pc.AttackSpeedMultiplier:0.00}(主攻撃 ×{pc.MainAttackSpeedMultiplier:0.00})  単発の流れの窓 {pc.SequenceResetWindow:0.00}s  実効範囲 ×{pc.AttackRangeMultiplier:0.00}(カード ×{pc.CardRangeFactor:0.00}、飛び道具の射程 ×{PlayerController.ProjectileTravelFactor:0.00})  追加攻撃 {T.Get(EffectType.DoubleAttackChance) * 100f:0}%");
+        DrawBuildSpeedAndExtras(x, ref y, rowH, gap, pc, gm);
+        Line(x, ref y, rowH, gap, $"HP {gm.Lives}/{gm.maxLives}(封印前 {gm.CardMaxLivesBeforeSeal}、封印 ハート{gm.SealedHearts}、上限 {gm.maxLivesCap})  Shield {pc.ShieldCharges}/{pc.ShieldCapacity}(回復 {pc.ShieldRechargeSeconds:0.0}s)  ジャンプ力 {pc.jumpForce:0.0}(×{pc.CardJumpFactor:0.00}) 回数 {pc.maxJumps}");
+        Line(x, ref y, rowH, gap, $"吸収 {T.Get(EffectType.LifestealChance) * 100f:0}%(HP25%以下 +{T.Get(EffectType.LowHp25LifestealChance) * 100f:0}%) 回復 ハート{gm.HealHearts(1)}  PHOENIX Charge {gm.PhoenixCharges}(Lv{gm.CardLevel("phoenix")}、使用{gm.PhoenixConsumedCount})  SECOND WIND {gm.SecondWindReadyDistance:0}m〜  LAST CHANCE {(gm.LastChanceArmed ? "待機" : "使用済み")}  OVERDRIVE {(pc.OverdriveActive ? "発動中" : $"{pc.OverdriveCharge01 * 100f:0}%")}");
+        Line(x, ref y, rowH, gap, $"敵: HP×{gm.EnemyHpMultiplier:0.00} 行動×{ChallengeSystem.EnemyActionScale:0.00} 精鋭{ChallengeSystem.EliteChance * 100f:0}%(出現{ChallengeSystem.EliteSpawned}) WANTED出現{ChallengeSystem.WantedSpawned}/撃破{ChallengeSystem.WantedKilled}  ボスHP×{gm.BossHpMultiplier:0.00}  生存の雑魚 {ChallengeSystem.LivingEnemies}(上限{CardRules.MaxLivingEnemiesForSpawn})");
+        Line(x, ref y, rowH, gap, $"追加攻撃: 二重{CardProcs.DoubleAttacks} 衝撃波{CardProcs.Shockwaves} 貫通{CardProcs.PierceHits} 空中{CardProcs.AerialSlashes} 締め{CardProcs.ComboMasterHits} 地面{CardProcs.GroundBreakers} 音速{CardProcs.SonicSlashes} 爆発{CardProcs.ChainExplosions} 炎{CardProcs.Infernos} 竜巻{CardProcs.Tornados} 反撃{CardProcs.Counters}/{CardProcs.FlameCounters}  予算で省略 {CardProcs.ProcBudgetDrops}/{CardProcs.FxBudgetDrops}");
     }
 
     void Line(float x, ref float y, float rowH, float gap, string s)

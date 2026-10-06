@@ -56,6 +56,7 @@ public static class RunCheckpoint
         public int runEnemyMile;
         public int runBossMile;
         public int runBonusMile; // BONUS ZONE(2026-09-29)の仮取得MILE(古いデータは0)
+        public int runRingMile;  // 疾走出発のリングの代替報酬の仮取得MILE(2026-10-06、古いデータは0)
         // Bugfix 2026-09-06 - "ESCAPE解禁を1000m到達からBoss撃破後へ変更".
         // A one-way flag for this Run's lifetime (set true the moment the
         // first Boss Reward completes, never reset back to false within
@@ -70,6 +71,18 @@ public static class RunCheckpoint
         // without needing to separately serialize every individual derived
         // PlayerController field.
         public List<string> upgradeHistoryCardIds = new List<string>();
+        // カードバランス v3(2026-10-03): 取得のやり直しだけでは戻せない状態(古いデータは既定値=未使用)
+        public int phoenixConsumed;
+        public int phoenixResetHistoryIndex = -1;
+        public float secondWindReadyDistance;
+        public bool lastChanceSpent;
+        // #100 ULTIMATE(2026-10-04): Gauge(%)。古いデータは0
+        public float ultimateGauge;
+        // FINAL EVOLUTION(2026-10-04): 資格/READY/ACTIVE/USED/残り。古いデータは空(状態なし)
+        public List<FinalEvolution.SaveState> finalEvolution = new List<FinalEvolution.SaveState>();
+        public ComboSystem.SaveData combo = new ComboSystem.SaveData(); // COMBO(2026-10-06): 一時的な数えと通知済みだけ(成立は能力から計算し直す)
+        // 疾走出発(2026-10-05): 飛ばした距離(持ち帰りの MILE の距離ぶんから除く)。古いデータは0
+        public float sprintSkippedMeters;
     }
 
     static Data cached;
@@ -77,7 +90,7 @@ public static class RunCheckpoint
     public static Data Load()
     {
         if (cached != null) return cached;
-        string json = PlayerPrefs.GetString(SaveKey, "");
+        string json = SaveStore.GetString(SaveKey, "");
         if (!string.IsNullOrEmpty(json))
         {
             try { cached = JsonUtility.FromJson<Data>(json); }
@@ -91,8 +104,8 @@ public static class RunCheckpoint
     {
         if (DebugRun.BlocksSave("RunCheckpoint.Save")) return; // 記録対象外のラン: プレイヤーの中断中のラン(CONTINUE)を上書きしない
         cached = data;
-        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(data));
-        PlayerPrefs.Save();
+        SaveStore.SetString(SaveKey, JsonUtility.ToJson(data));
+        SaveStore.Save();
     }
 
     // Item 15/16 - called the instant GAME OVER is confirmed (before the
@@ -103,8 +116,8 @@ public static class RunCheckpoint
     {
         if (DebugRun.BlocksSave("RunCheckpoint.Clear")) return; // 記録対象外のラン: 中断中のランを消さない
         cached = new Data { active = false };
-        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(cached));
-        PlayerPrefs.Save();
+        SaveStore.SetString(SaveKey, JsonUtility.ToJson(cached));
+        SaveStore.Save();
     }
 
     public static bool HasActiveRun => Load().active;

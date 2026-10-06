@@ -218,3 +218,88 @@ Authority は今まで通り HOST(全員の位置を HOST が把握 → HOST が
 | VERSUS: P1 脱落 → P2 だけ走る | 最前は翌秒に P2 へ切り替わった。結果は距離順 |
 | シングル(QaSweep `-qaBoss` / `-qaBranch`) | 合格 |
 | シングル(`-qaEncRuns`) | 「ボス撃破後に通常の敵が戻る」が時々不合格。3.1 以前のビルド(commit 10a6cfa)でも同じく不合格。ボス直後に BONUS ZONE が始まり、数える16秒の間は通常の敵が止まるため(既存の試験のタイミングの問題) |
+
+# TODO: マルチ完成工程での必須の修正
+
+## JOIN Player にもカード Build の実戦効果を正しく適用する(2026-10-04、カードバランス v3 で判明)
+
+**今の状態**
+JOIN のプレイヤーでは、次のカードの効果が働かない。
+- 属性(炎上 / 冷気・凍結 / 落雷・連鎖 / 風刃・竜巻 / 出血)
+- 追加攻撃(DOUBLE ATTACK / SHOCKWAVE / PIERCING BLADE の近接 / AERIAL BLADE / COMBO MASTER / GROUND BREAKER / SONIC BLADE / CHAIN EXPLOSION / INFERNO / COUNTER・FLAME COUNTER の反撃)
+- PHOENIX / SECOND WIND / LAST CHANCE
+
+**原因**
+- 敵 / ボスの HP を決めるのは HOST だけ(`NetCombat.Authority`)。
+  - 属性と追加攻撃は、HP を持つ端末でだけ判定している(`ElementSystem.Authoritative`、`CardProcs.OnPlayerHit`)。
+  - JOIN から HOST へ届くのは命中のダメージの値だけ。
+- JOIN の HP も HOST が決めている(被弾申告)。
+  - 倒れる被弾の取り消し(PHOENIX)と低HPの回復(SECOND WIND)/ 無敵(LAST CHANCE)は、HOST の判定の中に入っていない。
+
+**JOIN でも効いているもの**
+攻撃力 / 条件 / 速度 / 攻撃速度 / 範囲 / ジャンプ / Shield(被弾の申告の前に自分の端末で消費)。
+
+**直す方向(案)**
+- JOIN の命中の申告に、そのプレイヤーの属性の値と追加攻撃の Lv を載せる(または HOST が各プレイヤーのカードの合計を持つ)。
+  - HOST が、そのプレイヤーの分として属性/追加攻撃を判定する。
+- JOIN の被弾を HOST が確定する時に、そのプレイヤーの PHOENIX / SECOND WIND / LAST CHANCE の状態を見て処理する。
+- カードバランス v3 の調整と、ネットワーク同期の大きな変更は同時に行わない方針のため、今回は未対応。
+
+## #100 ULTIMATE をマルチで使えるようにする(2026-10-04、ULTIMATE の実装で未対応として記録)
+
+**今の状態**
+マルチ(`NetMatch.Active`)では ULTIMATE を使えない。
+- レベルアップの候補に出ない(`UltimateArt.Offerable`)。
+- キャラカード枠などで持っていても、ボタンは「MULTI×」で発動しない(`UltimateArt.CanActivate` が「マルチ未対応」)。Gauge も溜まらない。
+
+**使えるようにする時に必要なこと(原因)**
+- 前進(100〜200m)は「着地点の足場を平らにする」(`TerrainManager.SetResumeFlatZone`)を使う。
+  - マルチの地形は全端末で同じ順に生成する(`UpdateDeterministic`)。1人だけ足場を変えると地形が食い違う。
+- 敵 / ボスの HP は HOST だけが決める。
+  - JOIN の ULTIMATE のダメージは HOST へ申告して HOST が当てる必要がある(属性/追加攻撃の TODO と同じ経路)。
+- 出現 / 関門 / ボスの間合いは、先頭のプレイヤー(`WorldRange` / `BossLeash`)が基準。
+  - 1人が 200m 先へ出ると、他の人が取り残され、関門や雑魚の出方も変わる。
+- 着地後の安全区間(`GameManager.UltimateSetSafeUntil`)は端末ごと。
+
+**直す方向(案)**
+- 発動は HOST が決める: JOIN は要求だけ送る。HOST が開始の時刻を全員へ配る(RunState と同じ時計)。
+- 前進は「全員で一緒に進む」か「前進なし(または WorldRange の前端まで)」にする。地形の安全区間は、決まったチャンクの番号で全端末が同じように予約する。
+- ダメージは HOST の権威で当てる(`NetCombat.AuthorityDamaged`)。
+
+## FINAL EVOLUTION(2026-10-04 第1段階): マルチでは未対応(候補に出さない)
+
+`FinalEvolutionTuning.disableInMultiplayer = true`(既定)で、マルチのランでは LEVEL UP の候補に FINAL EVOLUTION を出さない。
+資格/READY の判定(ローカルの距離と能力Lv)は走るが、発動しないので効果は一切乗らない(既存のマルチの同期には触れていない)。
+
+対応に必要なこと:
+- 状態の持ち主: 各プレイヤーの FINAL EVOLUTION はその本人の端末が決める(カード選択と同じ)。HOSTの表(NetMatch)へ「誰が何を ACTIVE にしたか・残り」を送り、他の端末はオーラ等の見た目だけ再生する。
+- 効果の同期:
+  - ATTACK UP / ATTACK RANGE UP: 本人の攻撃力・射程だけなので、JOIN の命中は HOST へ届くダメージ値に乗る(今の申告方式で足りる)。斬撃波(KitProjectile)は HOST にしか当たり判定が無い → JOIN 側で出した斬撃波の命中を申告する経路が要る。
+  - SPEED UP: 接敵の自動小攻撃は HOST だけが静かなダメージを入れる(JOIN は今スキップ)→ JOIN の分は HOST へ申告が要る。接触/障害物の保護は被弾申告の前で弾けば足りる。
+  - VAMPIRE / PHOENIX / GREED: HP は HOST 権威(NetMatch)なので、Blood Shield・緊急復活・被ダメージ倍率は HOST の被弾確定の処理へ同じ判定を入れる必要がある(今は本人の TryDamagePlayer だけ)。
+  - FLAME / THUNDER: 属性は HOST だけで判定(既存の課題と同じ)。JOIN の命中には乗らない。
+  - EXP / MILE: 本人の端末の取得計算なので、そのまま使える見込み。
+- CONTINUE はマルチでは使わないので不要。
+
+### FINAL EVOLUTION 第2段階(2026-10-05: 再使用 + 全99枚)でも、マルチは未対応のまま(候補に出さない)
+- 第2段階で増えたもの: 終われば READY へ戻る(何度でも)/ 99枚それぞれの「増幅(そのカード自身の効果×amplify)+追加(EffectType)」/ 同じ FE は重ならないが別の FE は同時に ACTIVE。
+- 増幅/追加は `GameManager.RecomputeCardStats` の中で本人のカードの合計に乗るだけなので、本人の攻撃・移動・EXP/MILE の計算はマルチでもそのまま動く見込み。
+- マルチで要る追加の同期(第1段階の項目に加えて):
+  - 敵側に効くカード(MORE ENEMIES / TOUGH ENEMIES / HELL MODE / HORDE / PANDEMONIUM / BOSS CHALLENGE / BOSS RUSH / WANTED / ELITE ENEMIES 等の増幅): 敵の出現/HP/精鋭は HOST の EncounterDirector が決めるので、誰かの FE が ACTIVE の間の倍率を HOST へ送り、HOST が全員分をどう合わせるか(最大値/合計/本人の周りだけ)を決める必要がある(通常の Challenge カードのマルチでの扱いと合わせて確認する)。
+  - 最大HPの増幅(HEART UP / FORTRESS / HEAVY ARMOR 等): HP は HOST 権威(NetMatch)なので、ACTIVE の開始/終了で `NetMatch.RequestSetMax` が飛ぶ(既存の経路)。終了時に最大HPが下がる時の現在HPの切り詰めを HOST 側でも同じにすること。
+  - Shield / 被弾後の無敵 / のけぞり軽減の追加: 被弾の確定が HOST なので、HOST の被弾処理で本人の ACTIVE 状態を参照できるようにする(状態の表を NetMatch へ)。
+  - 再使用: 状態(資格/READY/ACTIVE/残り/発動回数)は本人の端末で完結させ、HOST へは「ACTIVE の開始/終了」だけを知らせる(見た目のオーラと上の HOST 側の判定のため)。
+  - 候補の公平さ(候補に出た回数)は本人の端末だけで足りる。
+
+## COMBO 第1段階(2026-10-06): マルチでは効果なし
+`ComboSystem.Enabled = !NetRunLauncher.IsMultiplayerRun`。マルチのランでは成立の計算も効果も出さない(HOST だけダメージが出る等の半端な状態にしない)。
+対応に必要なこと:
+- 成立は各プレイヤーの能力から本人の端末で計算できる(カードはプレイヤーごと)。HOST へ「成立中の COMBO の一覧」と FE による ENHANCED を送る(HUD/演出用)。
+- 効果の判定は HOST 権威の敵へ当たるので、JOIN の命中から起きる COMBO(BLAZING EDGE/SHATTER/SONIC MOMENTUM/AIR ASSAULT/FINISHING BLOW/DEATH WISH/風)は、JOIN が「どの COMBO が誰に起きたか」を申告し HOST が DealQuiet する経路が要る(今の攻撃の申告と同じ形)。
+- 属性の事件(凍結/落雷/炎上の撃破)は HOST だけで判定している(既存の課題と同じ)ので、その COMBO は HOST の側でプレイヤーごとの COMBO を見て出す必要がある。
+- BLOOD AEGIS/AEGIS COUNTER は HP が HOST 権威なので、HOST の被弾確定の処理で本人の COMBO の数え(盾の数)を参照する。
+- 同じ敵へのクールダウン/proc の予算はプレイヤーごとに持つか、HOST でまとめるかを決める。
+
+## LAN の自動発見(2026-10-05)で既定の最大人数を 8 に
+- `NetSession.DefaultMaxPlayers = PlannedMaxPlayers`(8)。部屋の知らせ/待機室は「n/8」。開発ビルドは `-netMaxPlayers N` で絞れる。
+- 上の「2人の距離が数 km 離れると同期数が増える」課題は残っている(8 人の実機負荷は未確認)。詳細は Docs/LanDiscovery_2026-10-05.md。

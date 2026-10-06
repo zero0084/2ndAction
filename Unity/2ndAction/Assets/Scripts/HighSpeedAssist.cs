@@ -28,7 +28,7 @@ using UnityEngine;
 // に対して1回だけ行われる(同じキャラに複数端末から自動入力されることはない)。入力は通常のフリックと同じ経路を
 // 通るので、攻撃/被弾/撃破報酬の同期は既存の仕組みのまま。他のプレイヤーの速度・時間・地形には影響しない。
 [DefaultExecutionOrder(-800)]
-public class HighSpeedAssist : MonoBehaviour
+public partial class HighSpeedAssist : MonoBehaviour
 {
     public static HighSpeedAssist Instance { get; private set; }
 
@@ -148,15 +148,31 @@ public class HighSpeedAssist : MonoBehaviour
     // セーブの初期化の後にも読み直す(2026-10-01)
     public void ReloadPrefs()
     {
-        assistEnabled = PlayerPrefs.GetInt(PrefKey, 1) != 0;
-        ApplyEngageKmh(PlayerPrefs.GetFloat(EngagePrefKey, DefaultEngageKmh));
+        assistEnabled = SaveStore.GetInt(PrefKey, 1) != 0;
+        ApplyEngageKmh(SaveStore.GetFloat(EngagePrefKey, DefaultEngageKmh));
+    }
+
+    // 開発用の闘技場(2026-10-04): 試験の中だけの設定(保存しない)。退出(シーンの読み直し)で ArenaRestore → 保存されている設定へ戻る
+    //  mode 0=OFF / 1=高速時のみ(engageKmh 以上) / 2=常時(0km/h から)
+    bool arenaSaved; bool savedBreak, savedEarlyDj;
+    public void ArenaApply(int mode, float engage, bool breakObs, bool earlyDj)
+    {
+        if (!arenaSaved) { arenaSaved = true; savedBreak = breakObstacles; savedEarlyDj = earlyDoubleJump; }
+        assistEnabled = mode != 0;
+        if (mode == 2) { engageKmh = 0f; releaseKmh = -1f; fullAssistKmh = 1f; } else ApplyEngageKmh(engage);
+        breakObstacles = breakObs; earlyDoubleJump = earlyDj;
+    }
+    public void ArenaRestore()
+    {
+        if (arenaSaved) { breakObstacles = savedBreak; earlyDoubleJump = savedEarlyDj; arenaSaved = false; }
+        ReloadPrefs();
     }
 
     public void SetEnabled(bool on)
     {
         assistEnabled = on;
-        PlayerPrefs.SetInt(PrefKey, on ? 1 : 0);
-        PlayerPrefs.Save();
+        SaveStore.SetInt(PrefKey, on ? 1 : 0);
+        SaveStore.Save();
     }
 
     // 設定画面(2026-10-01): 補助が始まる速度。解除/最大補助の速度は従来どおり開始速度からの差(-10 / +30km/h)で決まる
@@ -164,11 +180,14 @@ public class HighSpeedAssist : MonoBehaviour
     const string EngagePrefKey = "HighSpeedAssistEngageKmh";
     public const float DefaultEngageKmh = 100f, MinEngageKmh = 60f, MaxEngageKmh = 160f;
     public float EngageSettingKmh => engageKmh;
+    // 保存されている通常の設定(闘技場の中で一時的に変えていても、通常の設定の値)
+    public bool AssistEnabledSetting => SaveStore.GetInt(PrefKey, 1) != 0;
+    public float EngageKmhSetting => Mathf.Clamp(SaveStore.GetFloat(EngagePrefKey, DefaultEngageKmh), MinEngageKmh, MaxEngageKmh);
     public void SetEngageKmh(float kmh, bool save = true)
     {
         ApplyEngageKmh(kmh);
-        PlayerPrefs.SetFloat(EngagePrefKey, engageKmh);
-        if (save) PlayerPrefs.Save();
+        SaveStore.SetFloat(EngagePrefKey, engageKmh);
+        if (save) SaveStore.Save();
     }
     void ApplyEngageKmh(float kmh)
     {
@@ -189,11 +208,19 @@ public class HighSpeedAssist : MonoBehaviour
         LastBreakWhy = ""; LearnedAttackCycle = 0f; lastAutoAttackTime = -99f; waitingReady = false;
         committedBreak = null; lastAttackOc = null;
         decisions.Clear();
+        BossDodgeJumps = BossDoubleJumps = BossStayLow = BossAttacks = BossDownAttacks = 0; BossPlan = "";
         MaxDecideMs = 0f; DecideCount = SlowDecides = BudgetCutoffs = 0; TotalDecideMs = 0.0;
         CurrentStatus = Status.WaitingSpeed;
     }
 
     // 補助が判断しないフレーム(停止/選択/カウントダウン等)でも速度の判定と生成範囲だけは更新する。
+    // GameOver/クリアの確定(GameManager.GameOverCleanup)から: 補助の判断と表示の状態を止める
+    public void StopForRunEnd()
+    {
+        Engaged = false; JudgedKmh = 0f;
+        SetGenerateAhead(0f);
+    }
+
     void Update()
     {
         PlayerController pc = PlayerController.Instance;
@@ -201,7 +228,7 @@ public class HighSpeedAssist : MonoBehaviour
         if (pc == null || gm == null || !gm.HasStarted || gm.IsGameOver)
         {
             SetGenerateAhead(0f);
-            if (gm == null || !gm.HasStarted) { Engaged = false; JudgedKmh = 0f; }
+            if (gm == null || !gm.HasStarted || gm.IsGameOver) { Engaged = false; JudgedKmh = 0f; }
             return;
         }
         float v = pc.CurrentAutoRunSpeed;
@@ -269,7 +296,8 @@ public class HighSpeedAssist : MonoBehaviour
             committedBreak = null;
         }
         if (!assistEnabled) { CurrentStatus = Status.Off; return null; }
-        if (!Engaged) { CurrentStatus = Status.WaitingSpeed; return null; }
+        bool bossMode = BossFightNear(pc); // ボス戦(2026-10-04): ボスと戦っている間は速さに関係なく働く
+        if (!Engaged && !bossMode) { CurrentStatus = Status.WaitingSpeed; return null; }
         if (pc.IsReacting) { CurrentStatus = Status.Blocked; BlockedReason = "被弾リアクション中"; return null; }
         if (pc.AssistEscapeCharging) { CurrentStatus = Status.Blocked; BlockedReason = "脱出チャージ中"; return null; }
         if (Time.deltaTime <= 0f) { CurrentStatus = Status.Blocked; BlockedReason = "停止中"; return null; }
@@ -279,7 +307,17 @@ public class HighSpeedAssist : MonoBehaviour
         var sw = System.Diagnostics.Stopwatch.StartNew();
         PlayerController.FlickDirection? result = null;
         stepsUsed = 0;
-        try { result = DecideInner(pc, tm); }
+        try
+        {
+            if (bossMode)
+            {
+                // 回避/攻撃(ボス)を先に。何もしない時は地形の補助(穴/障害物)。天井から何か来る間は跳ばない
+                var b = DecideBoss(pc, Time.deltaTime, out bool stayLow);
+                if (b.HasValue) result = b;
+                else { var r = DecideInner(pc, tm); result = stayLow && r == PlayerController.FlickDirection.Up ? null : r; }
+            }
+            else result = DecideInner(pc, tm);
+        }
         finally
         {
             LastDecideMs = (float)sw.Elapsed.TotalMilliseconds;

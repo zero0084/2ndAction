@@ -15,15 +15,14 @@ MonoBehaviour:
   cardId: adrenaline
   cardName: ADRENALINE
   icon: {fileID: 2800000, guid: 728374e5cb6bec0498b78ee7a53621f0, type: 3}
-  description: "HP\u304C\u6E1B\u3063\u3066\u3044\u308B\u307B\u3069\u653B\u6483\u529B\u3068\u30C6\u30F3\u30DD\u304C\u4E0A\u304C\u308B"
+  description: "HP50%\u4EE5\u4E0B\u3067\u653B\u6483\u901F\u5EA6\u304C\u4E0A\u304C\u308A(1Lv\u3054\u3068\u306B+3%)\u3001HP25%\u4EE5\u4E0B\u3067\u306F\u305D\u306E2\u500D"
   category: 6
   sortOrder: 123
-  recommendPriority: 5
+  recommendPriority: 3
   effects:
-  - type: 16
-    value: 30
-  - type: 6
-    value: 0.1
+  - type: 65
+    value: 0.03
+    scaling: 0
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

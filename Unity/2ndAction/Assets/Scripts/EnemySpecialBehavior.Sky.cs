@@ -292,7 +292,7 @@ public partial class EnemySpecialBehavior
     void UpdateSky()
     {
         if (!skyInitialized) return;
-        skyCooldown -= Time.deltaTime;
+        skyCooldown -= EDt;
         switch (kind)
         {
             case EnemyBehaviorKind.SkyHound: UpdateHound(); break;
@@ -312,7 +312,7 @@ public partial class EnemySpecialBehavior
         switch (skyState)
         {
             case SkyState.Telegraph:
-                skyTimer -= Time.deltaTime;
+                skyTimer -= EDt;
                 SkyMarker(true, 1f - skyTimer / Mathf.Max(0.05f, skyStateTotal));
                 if (skyTimer <= 0f)
                 {
@@ -325,8 +325,8 @@ public partial class EnemySpecialBehavior
                 }
                 return true;
             case SkyState.Attack:
-                if (lunge > 0f) SkyMoveGround(transform.position.x + skyFacing * lunge / Mathf.Max(0.05f, lungeDuration) * Time.deltaTime);
-                skyTimer -= Time.deltaTime;
+                if (lunge > 0f) SkyMoveGround(transform.position.x + skyFacing * lunge / Mathf.Max(0.05f, lungeDuration) * EDt);
+                skyTimer -= EDt;
                 if (skyTimer <= 0f)
                 {
                     SkyHitbox(false);
@@ -335,7 +335,7 @@ public partial class EnemySpecialBehavior
                 }
                 return true;
             case SkyState.Recover:
-                skyTimer -= Time.deltaTime;
+                skyTimer -= EDt;
                 if (skyTimer <= 0f)
                 {
                     skyState = SkyState.Idle;
@@ -358,14 +358,14 @@ public partial class EnemySpecialBehavior
     // T2等の「狭い範囲をうろうろ」(元の位置からleash以内)。
     void SkyWander(float leash, float speed)
     {
-        skyWanderTimer -= Time.deltaTime;
+        skyWanderTimer -= EDt;
         if (skyWanderTimer <= 0f)
         {
             skyWanderTimer = Random.Range(0.6f, 1.6f);
             skyWanderDir = Random.value < 0.35f ? 0f : (Random.value < 0.5f ? -1f : 1f);
         }
         if (skyWanderDir == 0f) return;
-        float nx = transform.position.x + skyWanderDir * speed * Time.deltaTime;
+        float nx = transform.position.x + skyWanderDir * speed * EDt;
         if (Mathf.Abs(nx - spawnX) > leash || !SkyMoveGround(nx)) skyWanderDir = -skyWanderDir;
     }
 
@@ -390,7 +390,7 @@ public partial class EnemySpecialBehavior
             case SkyState.Idle:
             {
                 // 緩い上下 + 元の位置の周りを小さく漂う(プレイヤーへ寄っては来ない)
-                float nx = transform.position.x + Mathf.Sin((Time.time + skyBob) * 0.5f) * harpyDriftSpeed * Time.deltaTime;
+                float nx = transform.position.x + Mathf.Sin((Time.time + skyBob) * 0.5f) * harpyDriftSpeed * EDt;
                 if (Mathf.Abs(nx - spawnX) > harpyDriftLeash) nx = transform.position.x;
                 transform.position = new Vector3(nx, skyBaseY + bob, transform.position.z);
                 float dx = SkyDx;
@@ -400,9 +400,9 @@ public partial class EnemySpecialBehavior
                 break;
             }
             case SkyState.Telegraph:
-                skyTimer -= Time.deltaTime;
+                skyTimer -= EDt;
                 // 予兆: 少し上へ身構える(見て分かる動き)
-                transform.position = new Vector3(transform.position.x, Mathf.Lerp(transform.position.y, skyBaseY + 0.35f, Time.deltaTime * 6f), transform.position.z);
+                transform.position = new Vector3(transform.position.x, Mathf.Lerp(transform.position.y, skyBaseY + 0.35f, EDt * 6f), transform.position.z);
                 SkyMarker(true, 1f - skyTimer / Mathf.Max(0.05f, skyStateTotal));
                 if (skyTimer <= 0f)
                 {
@@ -425,21 +425,21 @@ public partial class EnemySpecialBehavior
                 }
                 break;
             case SkyState.Attack:
-                transform.position = Vector3.MoveTowards(transform.position, skyDiveTo, harpyDiveSpeed * Time.deltaTime);
+                transform.position = Vector3.MoveTowards(transform.position, skyDiveTo, harpyDiveSpeed * EDt);
                 if ((transform.position - skyDiveTo).sqrMagnitude < 0.01f) { skyState = SkyState.Hold; skyTimer = harpyHold; }
                 break;
             case SkyState.Hold:
-                skyTimer -= Time.deltaTime;
+                skyTimer -= EDt;
                 if (skyTimer <= 0f) { SkyHitbox(false); skyState = SkyState.Recover; skyTimer = harpyRecover; }
                 break;
             case SkyState.Recover:
-                skyTimer -= Time.deltaTime;
+                skyTimer -= EDt;
                 if (skyTimer <= 0f) { skyState = SkyState.Retreat; }
                 break;
             case SkyState.Retreat:
             {
                 Vector3 p = transform.position;
-                p.y = Mathf.MoveTowards(p.y, skyBaseY + bob, harpyReturnSpeed * Time.deltaTime);
+                p.y = Mathf.MoveTowards(p.y, skyBaseY + bob, harpyReturnSpeed * EDt);
                 transform.position = p;
                 if (Mathf.Abs(p.y - (skyBaseY + bob)) < 0.08f) { skyState = SkyState.Idle; skyCooldown = Random.Range(harpyCooldownMin, harpyCooldownMax); spawnX = p.x; }
                 break;
@@ -464,7 +464,7 @@ public partial class EnemySpecialBehavior
                 }
                 return;
             case SkyState.Wake:
-                skyTimer -= Time.deltaTime;
+                skyTimer -= EDt;
                 if (skyTimer <= 0f) { skyState = SkyState.Idle; skyCooldown = Random.Range(0.1f, 0.35f); }
                 return;
         }
@@ -472,7 +472,7 @@ public partial class EnemySpecialBehavior
         // T2: 狭い範囲の移動 / T3: プレイヤーへ短距離接近(元の位置からleash以内)
         if (aiTier >= EnemyAiTier.T3 && dx > 1.2f && dx < SkyLead(1f, 8f))
         {
-            float nx = transform.position.x - gargApproachSpeed * Time.deltaTime;
+            float nx = transform.position.x - gargApproachSpeed * EDt;
             if (Mathf.Abs(nx - spawnX) <= gargApproachLeash) SkyMoveGround(nx);
         }
         else if (aiTier >= EnemyAiTier.T2) SkyWander(gargWanderLeash, gargWanderSpeed);
@@ -507,7 +507,7 @@ public partial class EnemySpecialBehavior
         if (dx < -3f)
         {
             // もう通り過ぎた: 追いかけない(元の位置へゆっくり戻る)
-            float back = Mathf.MoveTowards(transform.position.x, spawnX, knightSpeed * 0.5f * Time.deltaTime);
+            float back = Mathf.MoveTowards(transform.position.x, spawnX, knightSpeed * 0.5f * EDt);
             SkyMoveGround(back);
             return;
         }
@@ -515,7 +515,7 @@ public partial class EnemySpecialBehavior
         // 見える所まで来たら短距離だけ接近(元の位置からknightLeash以内)
         if (dx > 0f && dx <= SkyLead(1.2f, knightEngageRange) && SkyOnScreen())
         {
-            float nx = transform.position.x - knightSpeed * Time.deltaTime;
+            float nx = transform.position.x - knightSpeed * EDt;
             if (Mathf.Abs(nx - spawnX) <= knightLeash) SkyMoveGround(nx);
         }
     }
@@ -546,7 +546,7 @@ public partial class EnemySpecialBehavior
         float dx = SkyDx;
         if (aiTier >= EnemyAiTier.T2 && dx > 1f && dx < 9f)
         {
-            float nx = transform.position.x - sentinelSpeed * Time.deltaTime;
+            float nx = transform.position.x - sentinelSpeed * EDt;
             if (Mathf.Abs(nx - spawnX) <= sentinelLeash) SkyMoveGround(nx);
         }
         float tele = Random.Range(sentinelTelegraphMin, sentinelTelegraphMax);
@@ -581,12 +581,12 @@ public partial class EnemySpecialBehavior
                 break;
             }
             case SkyState.Telegraph:
-                skyTimer -= Time.deltaTime;
+                skyTimer -= EDt;
                 SkyMarker(true, 1f - skyTimer / Mathf.Max(0.05f, skyStateTotal));
                 if (skyTimer <= 0f) { SkyMarker(false); skyState = SkyState.Recover; skyTimer = stormStrikeActive + stormRecover; }
                 break;
             case SkyState.Recover:
-                skyTimer -= Time.deltaTime;
+                skyTimer -= EDt;
                 if (skyTimer <= 0f) { skyState = SkyState.Idle; skyCooldown = Random.Range(stormCooldownMin, stormCooldownMax); }
                 break;
         }
@@ -609,10 +609,10 @@ public partial class EnemySpecialBehavior
                 return;
             case SkyState.Retreat: // 位置取り(プレイヤーの少し前・上へ)
             {
-                if (skyEngaged) skyEngageTime += Time.deltaTime;
+                if (skyEngaged) skyEngageTime += EDt;
                 Vector3 target = new Vector3(player.position.x + hunterStalkAhead + v * 0.15f, playerGround + hunterStalkHeight, p.z);
-                transform.position = Vector3.MoveTowards(p, target, maxSpeed * Time.deltaTime);
-                skyTimer -= Time.deltaTime;
+                transform.position = Vector3.MoveTowards(p, target, maxSpeed * EDt);
+                skyTimer -= EDt;
                 if (skyAttacks >= hunterMaxAttacks || skyEngageTime >= hunterMaxEngageTime) { skyState = SkyState.Leave; return; }
                 if (skyTimer <= 0f && skyCooldown <= 0f && (transform.position - target).magnitude < 1.6f && SkyOnScreen(0.8f))
                 {
@@ -626,8 +626,8 @@ public partial class EnemySpecialBehavior
             case SkyState.Telegraph:
             {
                 // 予兆中もプレイヤーとの位置関係を保つ(同じ速さで流れる)
-                transform.position = new Vector3(p.x + v * Time.deltaTime, p.y, p.z);
-                skyTimer -= Time.deltaTime;
+                transform.position = new Vector3(p.x + v * EDt, p.y, p.z);
+                skyTimer -= EDt;
                 SkyMarker(true, 1f - skyTimer / Mathf.Max(0.05f, skyStateTotal));
                 if (skyTimer <= 0f)
                 {
@@ -644,8 +644,8 @@ public partial class EnemySpecialBehavior
                 return;
             }
             case SkyState.Attack:
-                transform.position = Vector3.MoveTowards(p, skyDiveTo, (hunterDashSpeed + v) * Time.deltaTime);
-                skyTimer -= Time.deltaTime;
+                transform.position = Vector3.MoveTowards(p, skyDiveTo, (hunterDashSpeed + v) * EDt);
+                skyTimer -= EDt;
                 if (skyTimer <= 0f || (transform.position - skyDiveTo).sqrMagnitude < 0.02f)
                 {
                     SkyHitbox(false);
@@ -656,13 +656,13 @@ public partial class EnemySpecialBehavior
                 return;
             case SkyState.Recover:
                 // 硬直: プレイヤーより遅く流れる(反撃できる時間)。
-                transform.position = new Vector3(p.x + v * 0.6f * Time.deltaTime, p.y + 0.4f * Time.deltaTime, p.z);
-                skyTimer -= Time.deltaTime;
+                transform.position = new Vector3(p.x + v * 0.6f * EDt, p.y + 0.4f * EDt, p.z);
+                skyTimer -= EDt;
                 if (skyTimer <= 0f) { skyState = SkyState.Retreat; skyTimer = hunterRetreat; skyCooldown = 0.2f; }
                 return;
             case SkyState.Leave:
                 // 離脱: 上前方へ去り、画面外で消える(報酬なし)
-                transform.position = p + new Vector3(maxSpeed + 4f, 3f, 0f) * Time.deltaTime;
+                transform.position = p + new Vector3(maxSpeed + 4f, 3f, 0f) * EDt;
                 if (!SkyOnScreen(-6f) && transform.position.x > player.position.x) gameObject.SetActive(false);
                 return;
         }

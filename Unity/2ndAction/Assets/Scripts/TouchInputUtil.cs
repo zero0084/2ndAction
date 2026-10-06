@@ -21,6 +21,8 @@ public static class TouchInputUtil
             position = Input.GetTouch(0).position;
             return true;
         }
+        // ゲームパッド/キーボードの決定: フォーカスの中心を叩いたことにする(2026-10-06)
+        if (PadNav.TakeVirtualTap(out position)) return true;
         position = Vector2.zero;
         return false;
     }

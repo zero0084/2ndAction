@@ -15,15 +15,24 @@ MonoBehaviour:
   cardId: frost_edge
   cardName: FROST EDGE
   icon: {fileID: 2800000, guid: b7663384d8330dc4eb04f2ff44ea04ac, type: 3}
-  description: "\u653B\u6483\u306B\u6C37\u5C5E\u6027\u3092\u4ED8\u4E0E\u3059\u308B\uFF08Slow/Freeze\u52B9\u679C\u306F\u4ECA\u5F8C\u62E1\u5F35\u4E88\u5B9A\uFF09"
+  description: "\u6C37\u306E\u5165\u53E3\u3002\u547D\u4E2D\u3067\u6575\u304C\u51B7\u3048\u308B(\u78BA\u7387
+    15%+5%/Lv\u3001\u52D5\u304D\u304C 25%+2%/Lv \u9045\u304F)\u3002\u51B7\u3048\u304C\u91CD\u306A\u308B\u3068\u51CD\u7D50(\u30DC\u30B9\u306F\u6B62\u307E\u3089\u305A\u5F37\u3044\u6E1B\u901F)"
   category: 1
   sortOrder: 156
   recommendPriority: 5
   effects:
-  - type: 6
+  - type: 27
+    value: 0.05
+    scaling: 0
+  - type: 27
     value: 0.1
-  - type: 1
-    value: 10
+    scaling: 1
+  - type: 28
+    value: 0.02
+    scaling: 0
+  - type: 28
+    value: 0.23
+    scaling: 1
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

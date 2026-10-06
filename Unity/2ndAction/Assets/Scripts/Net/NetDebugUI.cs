@@ -45,8 +45,8 @@ public class NetDebugUI : MonoBehaviour
     void Awake()
     {
         instance = this;
-        hostIpInput = PlayerPrefs.GetString(LastHostIpKey, "192.168.");
-        portInput = PlayerPrefs.GetInt(LastPortKey, NetSession.DefaultPort).ToString();
+        hostIpInput = SaveStore.GetString(LastHostIpKey, "192.168.");
+        portInput = SaveStore.GetInt(LastPortKey, NetSession.DefaultPort).ToString();
     }
 
     void Update()
@@ -85,6 +85,8 @@ public class NetDebugUI : MonoBehaviour
         if (gm == null) return;
         GUI.depth = -1000;
         EnsureStyles();
+        PadNav.BeginLayoutButtons();
+        int padLayer = PadNav.BeginLayer(PanelOpen ? 8 : gm.HasStarted ? PadNav.HudLayer : 0); // マルチのパネルはホームより手前、ラン中の物は HUD(2026-10-06)
 
         float s = Scale;
         Matrix4x4 prevMatrix = GUI.matrix;
@@ -117,17 +119,215 @@ public class NetDebugUI : MonoBehaviour
         }
 
         GUI.matrix = prevMatrix;
+        PadNav.EndLayer(padLayer);
     }
+
+    // ===================================================================== //
+    // 2026-10-05: 正式な流れ MULTIPLAYER → LOCAL PLAY → CO-OP / VERSUS → CREATE GAME / FIND GAME(IP 入力なし)。
+    // IP を直接入れる従来の画面は ADVANCED(DEBUG)に残す。部屋の発見はゲームの同期と別(LanDiscovery)。
+    // ===================================================================== //
+    public enum MultiScreen { Top, Mode, Choose, Find, Room, Advanced }
+    MultiScreen screen = MultiScreen.Top;
+    public static MultiScreen CurrentScreen => instance != null ? instance.screen : MultiScreen.Top; // 確認用
+    string findMessage = "";
+    float findMessageUntil;
+    string joiningRoom = "";
+    float joinStartedAt;
+
 
     void DrawPanel(float w, float h)
     {
-        float pw = Mathf.Min(620f, w - 32f), ph = Mathf.Min(680f, h - 32f);
+        // 接続中は待機室(部屋)の画面へ
+        if (NetSession.IsActive && screen != MultiScreen.Advanced) screen = MultiScreen.Room;
+        else if (!NetSession.IsActive && screen == MultiScreen.Room) screen = MultiScreen.Choose;
+
+        float pw = Mathf.Min(640f, w - 32f), ph = Mathf.Min(700f, h - 32f);
         Rect panel = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f, pw, ph);
-        GUI.Box(panel, "");
+        // 後ろのホーム画面(ロゴ/CONTINUE)が透けて文字が読みにくいので、画面を暗くしてパネルの裏を濃い色で塗る
+        Color keep = GUI.color;
+        GUI.color = new Color(0f, 0f, 0f, 0.55f);
+        GUI.DrawTexture(new Rect(0f, 0f, w, h), Texture2D.whiteTexture);
+        GUI.color = new Color(0.07f, 0.08f, 0.12f, 0.96f);
+        GUI.DrawTexture(panel, Texture2D.whiteTexture);
+        GUI.color = keep;
         GUI.Box(panel, "");
         GUILayout.BeginArea(new Rect(panel.x + 20f, panel.y + 16f, pw - 40f, ph - 32f));
+        switch (screen)
+        {
+            case MultiScreen.Top: DrawTop(); break;
+            case MultiScreen.Mode: DrawMode(); break;
+            case MultiScreen.Choose: DrawChoose(); break;
+            case MultiScreen.Find: DrawFind(); break;
+            case MultiScreen.Room: DrawRoom(); break;
+            default: DrawAdvanced(); break;
+        }
+        GUILayout.EndArea();
+        ConsumePointer(panel);
+    }
 
-        GUILayout.Label("LOCAL MULTIPLAYER (開発版)", titleStyle);
+    void Go(MultiScreen s)
+    {
+        if (screen == MultiScreen.Find && s != MultiScreen.Find) LanDiscovery.StopDiscovery("back");
+        // 音の再設計(2026-10-06): 画面を進む=決定 / 最初の画面へ戻る=戻る
+        if (AudioManager.Instance != null && s != screen) AudioManager.Instance.PlaySe(s == MultiScreen.Top ? SeId.Cancel : SeId.Decide);
+        screen = s;
+        if (s == MultiScreen.Find) { findMessage = ""; LanDiscovery.StartDiscovery(); }
+    }
+
+    void ClosePanelFromUi()
+    {
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiClose);
+        if (screen == MultiScreen.Find) LanDiscovery.StopDiscovery("closed");
+        PanelOpen = false;
+        if (!NetSession.IsActive) screen = MultiScreen.Top;
+    }
+
+    void DrawTop()
+    {
+        GUILayout.Label("MULTIPLAYER", titleStyle);
+        GUILayout.Space(10f);
+        if (PadNav.LayoutButton(GUILayout.Button("LOCAL PLAY", buttonStyle, GUILayout.Height(70f)))) Go(MultiScreen.Mode);
+        GUILayout.Label("同じWi-Fi、またはスマホのテザリングにつないだ端末どうしで遊びます(最大" + NetSession.MaxPlayers + "人)。", smallStyle);
+        GUILayout.Space(10f);
+        GUI.enabled = false;
+        PadNav.LayoutButton(GUILayout.Button("ONLINE(準備中)", buttonStyle, GUILayout.Height(56f)));
+        GUI.enabled = true;
+        GUILayout.FlexibleSpace();
+        if (PadNav.LayoutButton(GUILayout.Button("ADVANCED(IPを直接入力・開発用)", buttonStyle, GUILayout.Height(40f)))) Go(MultiScreen.Advanced);
+        GUILayout.Space(6f);
+        if (PadNav.LayoutButton(GUILayout.Button("閉じる", buttonStyle, GUILayout.Height(48f)))) ClosePanelFromUi();
+    }
+
+    void DrawMode()
+    {
+        GUILayout.Label("LOCAL PLAY", titleStyle);
+        GUILayout.Label("モードを選んでください", labelStyle);
+        GUILayout.Space(8f);
+        if (PadNav.LayoutButton(GUILayout.Button("CO-OP", buttonStyle, GUILayout.Height(64f)))) { NetRunLauncher.SelectedMode = MultiplayerGameMode.Coop; Go(MultiScreen.Choose); }
+        GUILayout.Label("倒れたらDOWN。倒れた地点まで来た仲間(HP2以上)がHPを1つ渡すと復活。全員DOWNで終了。", smallStyle);
+        GUILayout.Space(8f);
+        if (PadNav.LayoutButton(GUILayout.Button("VERSUS", buttonStyle, GUILayout.Height(64f)))) { NetRunLauncher.SelectedMode = MultiplayerGameMode.Versus; Go(MultiScreen.Choose); }
+        GUILayout.Label("倒れたら脱落(復活なし)。最後の1人まで続き、到達距離で順位が決まる。", smallStyle);
+        GUILayout.FlexibleSpace();
+        if (PadNav.LayoutButton(GUILayout.Button("戻る", buttonStyle, GUILayout.Height(48f)))) Go(MultiScreen.Top);
+    }
+
+    void DrawChoose()
+    {
+        string m = NetRunLauncher.SelectedMode == MultiplayerGameMode.Coop ? "CO-OP" : "VERSUS";
+        GUILayout.Label("LOCAL PLAY · " + m, titleStyle);
+        GUILayout.Space(10f);
+        if (PadNav.LayoutButton(GUILayout.Button("CREATE GAME", buttonStyle, GUILayout.Height(70f)))) CreateGame();
+        GUILayout.Label("この端末で部屋を作ります。近くの端末の「FIND GAME」に表示されます。", smallStyle);
+        GUILayout.Space(10f);
+        if (PadNav.LayoutButton(GUILayout.Button("FIND GAME", buttonStyle, GUILayout.Height(70f)))) Go(MultiScreen.Find);
+        GUILayout.Label("近くの部屋を探して参加します(IPの入力は不要)。", smallStyle);
+        if (!string.IsNullOrEmpty(NetSession.Instance.StatusText)) GUILayout.Label(NetSession.Instance.StatusText, smallStyle);
+        GUILayout.FlexibleSpace();
+        if (PadNav.LayoutButton(GUILayout.Button("戻る", buttonStyle, GUILayout.Height(48f)))) Go(MultiScreen.Mode);
+    }
+
+    void CreateGame()
+    {
+        if (NetSession.IsActive) return;
+        if (NetSession.Instance.StartHost(NetSession.DefaultPort))
+        {
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
+            LanDiscovery.StartAdvertising();
+            screen = MultiScreen.Room;
+        }
+    }
+
+    Vector2 roomScroll;
+    void DrawFind()
+    {
+        string m = NetRunLauncher.SelectedMode == MultiplayerGameMode.Coop ? "CO-OP" : "VERSUS";
+        GUILayout.Label("FIND GAME", titleStyle);
+        GUILayout.Label($"近くの部屋({m} を選択中。HOST のモードで遊びます)", smallStyle);
+        GUILayout.Space(6f);
+        bool joining = NetSession.JoinPending;
+        if (!string.IsNullOrEmpty(NetSession.LastJoinFailure) && !joining)
+        {
+            findMessage = NetSession.LastJoinFailure == "CONNECTION FAILED" ? "CONNECTION FAILED\n接続できませんでした。同じWi-Fiか確認して、もう一度お試しください" : "CONNECTION FAILED: " + NetSession.LastJoinFailure;
+            findMessageUntil = Time.unscaledTime + 4f;
+            NetSession.ClearJoinFailure();
+        }
+        if (Time.unscaledTime < findMessageUntil) GUILayout.Label(findMessage, bannerStyle);
+        if (joining) GUILayout.Label($"接続中… {joiningRoom}", labelStyle);
+
+        var rooms = LanDiscovery.Rooms;
+        if (rooms.Count == 0)
+        {
+            GUILayout.Space(20f);
+            bool searching = Time.unscaledTime - LanDiscovery.DiscoveryStartedAt < 4f;
+            GUILayout.Label(searching ? "ローカルゲームを探しています…" : "ゲームが見つかりません", titleStyle);
+            if (!searching) GUILayout.Label("HOST の端末で「CREATE GAME」を押して、同じWi-Fi(テザリング)につないでください。", smallStyle);
+        }
+        else
+        {
+            roomScroll = GUILayout.BeginScrollView(roomScroll, GUILayout.Height(330f));
+            // 選んだモードの部屋を上に
+            var sorted = new List<LanRoom>(rooms);
+            sorted.Sort((a, b) => (a.mode == NetRunLauncher.SelectedMode ? 0 : 1).CompareTo(b.mode == NetRunLauncher.SelectedMode ? 0 : 1));
+            foreach (var r in sorted)
+            {
+                GUILayout.BeginHorizontal(GUI.skin.box);
+                GUILayout.BeginVertical();
+                GUILayout.Label(r.roomName, labelStyle);
+                GUILayout.Label($"{(r.mode == MultiplayerGameMode.Coop ? "CO-OP" : "VERSUS")}   {r.players}/{r.maxPlayers}   {r.StateLabel}", smallStyle);
+                GUILayout.EndVertical();
+                GUI.enabled = r.Joinable && !joining && !NetSession.IsActive;
+                if (PadNav.LayoutButton(GUILayout.Button(r.Joinable ? "JOIN" : r.StateLabel, buttonStyle, GUILayout.Width(170f), GUILayout.Height(56f)))) JoinRoom(r);
+                GUI.enabled = true;
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.EndScrollView();
+        }
+        GUILayout.FlexibleSpace();
+        if (PadNav.LayoutButton(GUILayout.Button("再検索", buttonStyle, GUILayout.Height(48f)))) LanDiscovery.Rescan();
+        GUILayout.Space(6f);
+        if (PadNav.LayoutButton(GUILayout.Button("戻る", buttonStyle, GUILayout.Height(48f)))) Go(MultiScreen.Choose);
+    }
+
+    void JoinRoom(LanRoom r)
+    {
+        if (r == null || !r.Joinable) return;
+        joiningRoom = r.roomName;
+        joinStartedAt = Time.unscaledTime;
+        Debug.Log($"[LAN] Join requested {r.roomId} '{r.roomName}' {r.address}:{r.port}");
+        NetSession.Instance.StartClient(r.address, r.port); // 既存の JOIN の経路へ(別のネットワークの仕組みは作らない)
+    }
+
+    void DrawRoom()
+    {
+        bool host = NetSession.IsHost;
+        string m = (host ? NetRunLauncher.SelectedMode : NetRunLauncher.ActiveMode) == MultiplayerGameMode.Coop ? "CO-OP" : "VERSUS";
+        GUILayout.Label(host ? LanDiscovery.RoomName : "参加中の部屋", titleStyle);
+        GUILayout.Label(host ? $"MODE: {m}(HOSTが決めます)" : "MODE: HOSTが決めます(Run開始時に自動で揃います)", smallStyle);
+        GUILayout.Space(8f);
+        GUILayout.Label($"WAITING FOR PLAYERS {NetSession.ConnectedPlayerCount}/{NetSession.MaxPlayers}", titleStyle);
+        var sb = new StringBuilder();
+        foreach (NetPlayer p in NetPlayer.All)
+            sb.Append($"P{p.PlayerNumber}  {(p.OwnerClientId == 0 ? "HOST" : "JOIN")}  {p.CharacterId.Value}{(p.IsOwner ? "  (自分)" : "")}\n");
+        GUILayout.Label(sb.ToString(), smallStyle);
+        if (host && LanDiscovery.Advertising) GUILayout.Label("近くの端末の「FIND GAME」に表示中", smallStyle);
+        GUILayout.Label(host
+            ? "そろったら「閉じる」→ 扉 → Stage Selectで「出発」すると、全員が同じステージで同時にスタートします。"
+            : "HOSTが出発すると自動でスタートします。そのままお待ちください。", smallStyle);
+        GUILayout.FlexibleSpace();
+        if (PadNav.LayoutButton(GUILayout.Button(host ? "部屋を閉じる" : "退出する", buttonStyle, GUILayout.Height(52f))))
+        {
+            NetSession.Instance.Leave();
+            screen = MultiScreen.Choose;
+        }
+        GUILayout.Space(6f);
+        if (PadNav.LayoutButton(GUILayout.Button("閉じる(部屋はそのまま)", buttonStyle, GUILayout.Height(48f)))) PanelOpen = false;
+    }
+
+    // ADVANCED(開発用): 従来の IP を直接入力する画面
+    void DrawAdvanced()
+    {
+        GUILayout.Label("ADVANCED: IPで接続(開発用)", titleStyle);
         GUILayout.Label($"同じWi-Fi、またはスマホのテザリングに接続してください(最大{NetSession.MaxPlayers}人)。", smallStyle);
         GUILayout.Space(6f);
 
@@ -161,16 +361,16 @@ public class NetDebugUI : MonoBehaviour
             GUILayout.EndHorizontal();
             GUILayout.Space(6f);
 
-            if (GUILayout.Button("HOST(この端末で部屋を作る)", buttonStyle, GUILayout.Height(56f)))
+            if (PadNav.LayoutButton(GUILayout.Button("HOST(この端末で部屋を作る)", buttonStyle, GUILayout.Height(56f))))
             {
                 SavePrefs();
-                NetSession.Instance.StartHost(ParsePort());
+                if (NetSession.Instance.StartHost(ParsePort())) LanDiscovery.StartAdvertising();
             }
             GUILayout.Space(10f);
             GUILayout.Label("JOIN: HOST端末に表示されたIPを入力", labelStyle);
             GUILayout.BeginHorizontal();
             hostIpInput = GUILayout.TextField(hostIpInput, 15, fieldStyle, GUILayout.Height(48f));
-            if (GUILayout.Button("JOIN", buttonStyle, GUILayout.Width(140f), GUILayout.Height(48f)))
+            if (PadNav.LayoutButton(GUILayout.Button("JOIN", buttonStyle, GUILayout.Width(140f), GUILayout.Height(48f))))
             {
                 SavePrefs();
                 NetSession.Instance.StartClient(hostIpInput, ParsePort());
@@ -190,16 +390,14 @@ public class NetDebugUI : MonoBehaviour
                 ? "扉 → Stage Selectで「出発」すると、接続中の全員が同じステージで同時にスタートします。"
                 : "HOSTが出発すると自動でスタートします。そのままお待ちください。", smallStyle);
             GUILayout.Space(8f);
-            if (GUILayout.Button(NetSession.IsHost ? "部屋を閉じる(HOST終了)" : "切断する", buttonStyle, GUILayout.Height(52f)))
+            if (PadNav.LayoutButton(GUILayout.Button(NetSession.IsHost ? "部屋を閉じる(HOST終了)" : "切断する", buttonStyle, GUILayout.Height(52f))))
             {
                 NetSession.Instance.Leave();
             }
         }
 
         GUILayout.FlexibleSpace();
-        if (GUILayout.Button("閉じる", buttonStyle, GUILayout.Height(48f))) PanelOpen = false;
-        GUILayout.EndArea();
-        ConsumePointer(panel);
+        if (PadNav.LayoutButton(GUILayout.Button("戻る", buttonStyle, GUILayout.Height(48f)))) screen = NetSession.IsActive ? MultiScreen.Room : MultiScreen.Top;
     }
 
     // このパネルの上でのクリックが、下にあるHome画面のボタン(GameManagerのOnGUI)へ届かないようにする。
@@ -280,8 +478,8 @@ public class NetDebugUI : MonoBehaviour
 
     void SavePrefs()
     {
-        PlayerPrefs.SetString(LastHostIpKey, hostIpInput);
-        PlayerPrefs.SetInt(LastPortKey, ParsePort());
-        PlayerPrefs.Save();
+        SaveStore.SetString(LastHostIpKey, hostIpInput);
+        SaveStore.SetInt(LastPortKey, ParsePort());
+        SaveStore.Save();
     }
 }

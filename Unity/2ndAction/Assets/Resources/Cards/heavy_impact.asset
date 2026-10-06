@@ -15,13 +15,17 @@ MonoBehaviour:
   cardId: heavy_impact
   cardName: HEAVY IMPACT
   icon: {fileID: 2800000, guid: e6a95b976b0ee124ab9fdda71387fa46, type: 3}
-  description: "\u5730\u4E0A\u653B\u6483\u529B\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B"
+  description: "\u4E0B\u653B\u6483/\u53E9\u304D\u3064\u3051/\u7740\u5730\u306E\u885D\u6483\u304C\u5F37\u304F\u306A\u308B(1Lv\u3054\u3068\u306B+10%)\u3002\u7DE0\u3081\u306E\u4E00\u6483\u3082\u5C11\u3057\u4E0A\u304C\u308B(+3%/Lv)"
   category: 1
   sortOrder: 145
   recommendPriority: 5
   effects:
-  - type: 13
-    value: 40
+  - type: 61
+    value: 0.1
+    scaling: 0
+  - type: 57
+    value: 0.03
+    scaling: 0
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

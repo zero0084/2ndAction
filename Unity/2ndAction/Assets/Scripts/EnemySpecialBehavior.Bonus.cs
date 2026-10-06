@@ -87,7 +87,7 @@ public partial class EnemySpecialBehavior
     void UpdateBonus()
     {
         if (!bonusInitialized || player == null) return;
-        float dt = Time.deltaTime;
+        float dt = EDt;
         if (dt <= 0f) return;
         bonusStateTime += dt;
         bool leaving = bonusComp != null && (bonusComp.Leaving || bonusComp.Capped);

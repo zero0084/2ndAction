@@ -12,5 +12,6 @@ public enum ElementType
     Thunder,
     Fire,
     Ice,
-    Wind
+    Wind,
+    Blood // 2026-10-03(吸血/出血/低HP。番号で保存されるので末尾に追加)
 }

@@ -340,6 +340,7 @@ public class TerrainManager : MonoBehaviour
         ThemeApplying?.Invoke(this);
         if (!themeDefaultsCaptured) CaptureThemeDefaults();
         pitWidthAt = null; skyAllowedAt = null; pitChanceAt = null; flatLengthAt = null; forceFlatAt = null;
+        ClearResumeFlatZone(); // CONTINUE は ApplyStageTheme の後で区間を決める
         if (cave != null) { cave.SetActive(false); cave.sectionPicker = null; cave.ApplyStyle(null); }
         activeStageId = stageId ?? "";
         TerrainThemeSet? match = null;
@@ -1491,9 +1492,104 @@ public class TerrainManager : MonoBehaviour
         forcedFlatChunksRemaining = Mathf.Max(forcedFlatChunksRemaining, additionalFlatChunks);
     }
 
+    // ===== 中断セーブからの再開の安全区間(2026-10-03) =====
+    // 以前は CONTINUE で RequestFlatRun(数)を呼んでいたが、それは「次に生成するNチャンク」の予約で、
+    // 場所の指定ではなかった。CONTINUE はホームの地形(0m付近まで生成済み)からプレイヤーを再開地点へ
+    // 動かすので、予約は0m付近の生成で使い切られ、再開地点(8km等)には普通に穴が出ていた。
+    // ここでは論理Xの範囲で「穴も坂も作らない」区間を決め、生成済みの穴は平地へ直し、
+    // 準備画面より前に区間の先まで地形を生成しておく(GO の瞬間に足場が変わらない)。
+    // ソロのCONTINUEだけが使う(マルチの決定的な生成=UpdateDeterministic には関与しない)。
+    float resumeFlatStartLogical = float.PositiveInfinity, resumeFlatEndLogical = float.NegativeInfinity;
+    public bool HasResumeFlatZone => resumeFlatEndLogical > resumeFlatStartLogical;
+    public float ResumeFlatStartLogical => resumeFlatStartLogical;
+    public float ResumeFlatEndLogical => resumeFlatEndLogical;
+
+    // 次に作るチャンクが安全区間にかかるか(穴/坂の最大の長さまで見る)
+    bool NextChunkTouchesResumeZone()
+    {
+        if (!HasResumeFlatZone) return false;
+        float lx = FloatingOrigin.ToLogical(nextStartX);
+        float maxLen = Mathf.Max(flatLength, slopeLength, pitWidthAt != null ? pitWidthAt(lx) : pitWidth);
+        return lx < resumeFlatEndLogical && lx + maxLen > resumeFlatStartLogical;
+    }
+
+    // 返り値: 直した生成済みの穴の数
+    public int SetResumeFlatZone(float logicalStart, float logicalEnd)
+    {
+        resumeFlatStartLogical = logicalStart;
+        resumeFlatEndLogical = logicalEnd;
+        int fixedPits = 0;
+        float a = logicalStart - (float)FloatingOrigin.Offset, b = logicalEnd - (float)FloatingOrigin.Offset;
+        for (int i = 0; i < chunks.Count; i++)
+        {
+            RuntimeChunk c = chunks[i];
+            if (c.endX < a || c.startX > b || c.type != ChunkType.Pit) continue;
+            EnsureSolidGroundAt((c.startX + c.endX) * 0.5f);
+            fixedPits++;
+        }
+        return fixedPits;
+    }
+
+    public void ClearResumeFlatZone() { resumeFlatStartLogical = float.PositiveInfinity; resumeFlatEndLogical = float.NegativeInfinity; }
+
+    // 開発用の闘技場(2026-10-04): これから作る地面はすべて平地(穴/坂/分岐/空中足場/飾り/チャンクの敵なし)。
+    // 既に作った地面は変えない(闘技場はプレイヤーをその先の新しい地面へ移してから始める)。シーンの読み直しで元に戻る
+    public void ConfigureArena()
+    {
+        forceFlatAt = _ => true;
+        skyAllowedAt = _ => false;
+        pitChanceAt = (_, __) => 0f;
+        routeBranchEnabled = false;
+        singleRouteMode = true;
+        enemySpawnChance = 0f;
+        decorationSprites = new Sprite[0];
+        if (cave != null) cave.enabled = false;
+    }
+    // 闘技場: 地面の先端(これから作る位置、world X)
+    public float NextGenerateX => nextStartX;
+
+    // 通常の Update と同じ生成を、worldX まで今すぐ行う(準備画面の前に地形を確定させる)
+    public void GenerateNow(float worldX)
+    {
+        if (WorldRng.IsDeterministic) return;
+        int guard = 0;
+        while (nextStartX < worldX && guard++ < 200000) GenerateNext();
+        if (routeBranchEnabled) { guard = 0; while (nextBranchX < worldX && guard++ < 20000) GenerateNextBranch(); }
+        else if (!singleRouteMode) { guard = 0; while (nextSkyStartX < worldX && guard++ < 200000) GenerateNextSkyChunk(); }
+    }
+
+    // 確認用: [worldA, worldB] に穴があれば最初の穴の始まり(world X)、無ければ null
+    public float? FirstPitBetween(float worldA, float worldB)
+    {
+        for (int i = 0; i < chunks.Count; i++)
+        {
+            RuntimeChunk c = chunks[i];
+            if (c.endX < worldA) continue;
+            if (c.startX > worldB) break;
+            if (c.type == ChunkType.Pit) return c.startX;
+        }
+        return null;
+    }
+
+    // 確認用: [worldA, worldB] で坂が何チャンクあるか / 高さの最小・最大
+    public void DescribeGround(float worldA, float worldB, out int slopes, out float minY, out float maxY)
+    {
+        slopes = 0; minY = float.PositiveInfinity; maxY = float.NegativeInfinity;
+        for (int i = 0; i < chunks.Count; i++)
+        {
+            RuntimeChunk c = chunks[i];
+            if (c.endX < worldA) continue;
+            if (c.startX > worldB) break;
+            if (c.type == ChunkType.UpSlope || c.type == ChunkType.DownSlope) slopes++;
+            minY = Mathf.Min(minY, Mathf.Min(c.startY, c.endY)); maxY = Mathf.Max(maxY, Mathf.Max(c.startY, c.endY));
+        }
+    }
+
     ChunkType PickNextType()
     {
         if (forceFlatAt != null && forceFlatAt(FloatingOrigin.ToLogical(nextStartX))) return ChunkType.Flat;
+        if (NextChunkTouchesResumeZone()) return ChunkType.Flat; // 中断再開の安全区間(2026-10-03)
+        if (CaveBossSafety.ForceFlatTerrain) return ChunkType.Flat; // 自然洞窟ボスの必殺技中は新しい穴/坂を作らない(シングルのみ)
         if (forcedFlatChunksRemaining > 0)
         {
             forcedFlatChunksRemaining--;
@@ -1905,6 +2001,7 @@ public class TerrainManager : MonoBehaviour
         if (enemyGO == null) return null;
         var ec = enemyGO.GetComponent<EnemyController>();
         if (ec != null) ec.movementType = movementType;
+        ChallengeSystem.OnEncounterEnemySpawned(ec); // カード v3: ELITE ENEMIES
         GroundFactory.ApplyAttackSprite(enemyGO, def);
         if (!airborne) enemyGO.transform.rotation = Quaternion.identity;
         AdoptEnemy(enemyGO, pos.x);

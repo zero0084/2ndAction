@@ -18,7 +18,7 @@ public enum WildBossKind { Wolf, GoblinRider, Serpent, Cyclops, Spider, Golem, G
 // に合わせてボスも進み続け(=間合い一定)、relVelocityぶんだけ間合いが変化
 // する。プレイヤーの攻撃ロンジ等でプレイヤー側が動いた分は、そのまま間合い
 // の変化になる。
-public abstract class WildBossBase : MonoBehaviour
+public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
 {
     public enum Pose { Idle, Move, Windup, Attack, Fly, Landing }
 
@@ -124,6 +124,9 @@ public abstract class WildBossBase : MonoBehaviour
     protected float FrontDist => (PlayerX - (worldX + facing * FrontReach)) * facing;
     protected float GroundY => TerrainGround(worldX);
     public Vector3 CenterWorld => transform.position + new Vector3(0f, bodyHeight * 0.5f, 0f);
+    // 自動操作補助(ボス戦、2026-10-04): 今攻撃が通るか(無敵/地中/天井/登場中は通らない)と、被弾範囲
+    public bool AssistTargetable => !dead && !invulnerable && !entering && hurtCol != null && hurtCol.enabled;
+    public Bounds AssistBounds => hurtCol != null ? hurtCol.bounds : new Bounds(CenterWorld, new Vector3(1f, bodyHeight, 1f));
 
     protected abstract IEnumerator AI();
     // Init末尾(スプライト/寸法確定後)に呼ばれる。Hitbox/Marker生成用。
@@ -270,12 +273,14 @@ public abstract class WildBossBase : MonoBehaviour
             if (netTarget != null) netTarget.SetPreferred(leash.PreferTarget);
             if (leash.Active) baseSpeed *= leash.SpeedFactor;
         }
-        worldX += (baseSpeed + relVelocity) * dt;
+        worldX += (baseSpeed + relVelocity * MoveScale) * dt; // MoveScale: ラスダンの移動速度(接近/間合い/突進)
 
         float px = PlayerX;
         float gap = worldX - px;
         if (freeGap) lastFreeGapTime = Time.time;
-        if (!entering && !freeGap)
+        // #100 ULTIMATE: ボス戦でプレイヤーがボスを通り抜けて戻る間は、間合いの即時補正をしない(終わった後は素早く戻す)
+        if (UltimateArt.ArenaFreeGap) lastFreeGapTime = Time.time;
+        if (!entering && !freeGap && !UltimateArt.ArenaFreeGap)
         {
             float lo = leashOn && leash.AllowBehindTarget ? float.MinValue : minGap;
             float excess = gap > maxGap ? gap - maxGap : gap < lo ? lo - gap : 0f;
@@ -515,10 +520,31 @@ public abstract class WildBossBase : MonoBehaviour
     }
 
     // ================= AI用ヘルパー =================
+    // 属性(2026-10-03): 氷(Chill/Freeze)を受けたボスは、待ち/予備動作の時間だけ少し長くなる(止まらない・並走の速さは同じ)
+    protected float AiDt => Time.deltaTime * ElementStatus.AiTimeScaleOf(gameObject);
+
     protected IEnumerator Wait(float seconds)
     {
         float t = 0f;
-        while (t < seconds && !dead) { t += Time.deltaTime; yield return null; }
+        seconds *= AiWaitScale; // ラスダンの攻撃の間隔(予告=Telegraph の時間は変えない)
+        while (t < seconds && !dead) { t += AiDt; yield return null; }
+    }
+
+    // ラストダンジョンの倍率(2026-10-05, LastDungeonBossTuning): 攻撃の頻度(特殊攻撃/必殺技の間隔を割る)・攻撃の間隔(待ち時間)・移動速度
+    public float AiWaitScale { get; private set; } = 1f;
+    public float MoveScale { get; private set; } = 1f;
+    public void ApplyPace(float frequencyMul, float intervalMul, float moveMul)
+    {
+        AiWaitScale = Mathf.Clamp(intervalMul, 0.5f, 1.5f);
+        MoveScale = Mathf.Clamp(moveMul, 0.5f, 1.5f);
+        if (tune != null && frequencyMul > 0.01f && Mathf.Abs(frequencyMul - 1f) > 0.001f)
+        {
+            var c = tune.Clone();
+            c.specialCooldown /= frequencyMul;
+            if (c.ultimateCooldown > 0f) c.ultimateCooldown /= frequencyMul;
+            c.firstUltimateDelay /= frequencyMul;
+            tune = c;
+        }
     }
 
     // 顔からプレイヤーまでの距離がstopDist以下になるまで接近(relVelocityで間合いを詰める)
@@ -585,11 +611,13 @@ public abstract class WildBossBase : MonoBehaviour
         relVelocity = 0f;
         SetPose(Pose.Windup);
         foreach (var z in zones) if (z != null) z.Show(facing);
+        // 音の再設計(2026-10-06): 予兆は必ず聞こえるように(長い溜め = 重い予兆)
+        if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySeAt(duration >= 0.8f ? SeId.BossTelegraphHeavy : SeId.BossTelegraph, CenterWorld);
 
         float t = 0f;
         while (t < duration && !dead)
         {
-            t += Time.deltaTime;
+            t += AiDt;
             windupProgress = Mathf.Clamp01(t / Mathf.Max(0.01f, duration));
             foreach (var z in zones) if (z != null) z.SetProgress(windupProgress);
             if (interrupted) break;
@@ -812,6 +840,7 @@ public abstract class WildBossBase : MonoBehaviour
     public void OnHurtboxTrigger(Collider2D other)
     {
         if (dead || invulnerable) return;
+        if (other.CompareTag("PlayerAttack") && PlayerAttackInfo.AlreadyHit(other, this)) return; // one hit per attack instance (2026-10-03)
 
         if (other.CompareTag("PlayerAttack") && NetPuppet)
         {
@@ -825,6 +854,7 @@ public abstract class WildBossBase : MonoBehaviour
             var info = other.GetComponent<PlayerAttackInfo>();
             bool air = PlayerController.Instance != null && !PlayerController.Instance.IsGrounded;
             pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air);
+            NoteFinalAttack(other, info); // BOSS FINISH: 最後の一撃の向き/種類
             TakeDamage(dmg, other.bounds.center);
             return;
         }
@@ -839,19 +869,31 @@ public abstract class WildBossBase : MonoBehaviour
         }
     }
 
+    // 属性(2026-10-03): 炎上/出血の継続ダメージ・連鎖の落雷。HP/段階/撃破は通常と同じ。被弾の音/揺れ/ヒットストップ/
+    // コンボ数/予備動作の中断は起こさない(1秒に何度も入るため)。
+    bool quietHit;
+    public void TakeElementDamage(int amount, Vector3 hitPos)
+    {
+        quietHit = true;
+        try { TakeDamage(amount, hitPos); }
+        finally { quietHit = false; }
+    }
+
     public void TakeDamage(int amount, Vector3 hitPos)
     {
         if (dead || NetPuppet) return;
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit); // ボス被弾(共通、連打は間引き)
+        if (!quietHit && AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit); // ボス被弾(共通、連打は間引き)
         // ボス戦の強化(2026-10-01): BREAK中/必殺技の後の隙は大きく入る
         float dmgScale = (Broken ? BossBattleTuning.I.breakDamageScale : 1f) * vulnerableScale;
         if (dmgScale > 1.001f) amount = Mathf.CeilToInt(amount * dmgScale);
         float stg = pendingStagger; pendingStagger = 0f;
+        int hpBeforeHit = Hp;
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
+        if (netAttacker <= 0) UltimateArt.OnBossDamaged(hpBeforeHit - Hp, maxHp); // #100 ULTIMATE の Gauge(発動中は溜まらない)
 
         // マルチプレイPhase 2 - 相手プレイヤーの攻撃では、この端末のプレイヤーの空中補助/コンボは進めない。
-        if (netAttacker <= 0)
+        if (netAttacker <= 0 && !quietHit)
         {
             if (PlayerController.Instance != null) PlayerController.Instance.NotifyAerialHit();
             if (ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
@@ -865,6 +907,7 @@ public abstract class WildBossBase : MonoBehaviour
             return;
         }
 
+        if (Hp <= 0) { LastFinishInfo = DecideFinishInfo(); BossFinishCode = LastFinishInfo.Pack(); } // BOSS FINISH(OpDeath に載せる)
         NetCombat.AuthorityDamaged(NetId, netAttacker, amount, Hp, 0, hitPos, Hp <= 0);
 
         if (Hp <= 0)
@@ -876,13 +919,15 @@ public abstract class WildBossBase : MonoBehaviour
             if (UltimateRunning) { UltimateRunning = false; BossBattle.EndUltimate(this); }
             if (hpBar != null) hpBar.SetSub(0f, false);
             Debug.Log($"[BossBattle] {bossName} defeated phase={Phase} breaks={BreakCount} ultimates={UltimatesUsed} t={Time.time - battleStartedAt:F1}s");
-            StartCoroutine(FinalHitAndDie());
+            if (BossFinish.Enabled) BeginBossFinish(hitPos); // BOSS FINISH(2026-10-06): 報酬はこの瞬間、遭遇の終了は見た目の後
+            else StartCoroutine(FinalHitAndDie());
             return;
         }
 
         CheckPhase();
         if (stg > 0f && !dead) AddStagger(stg);
         hitTimer = 0.16f;
+        if (quietHit) { OnDamaged(amount); return; }
         Shake(0.06f, 0.1f);
         Sprite spark = hitSparkSprite != null ? hitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
         OneShotSpriteEffect.CreateTweened(spark, hitPos, Color.white, 0.14f, 0.35f, 0.6f, 1f, 0f, default, 0f, RenderOrder.CombatFx, 0.2f);
@@ -989,7 +1034,7 @@ public abstract class WildBossBase : MonoBehaviour
         Color col = Phase >= PhaseCount ? new Color(1f, 0.35f, 0.25f, 0.95f) : new Color(1f, 0.8f, 0.35f, 0.95f);
         OneShotSpriteEffect.CreateTweened(BossFx.Ring(), c, col, 0.5f, bodyHeight * 0.4f, bodyHeight * 2.4f, 0.9f, 0f, default, 0f, RenderOrder.CombatFx, 0.1f);
         OneShotSpriteEffect.CreateTweened(BossFx.Ring(), c, new Color(1f, 1f, 1f, 0.8f), 0.35f, bodyHeight * 0.3f, bodyHeight * 1.6f, 0.8f, 0f, default, 0f, RenderOrder.CombatFx, 0.05f);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossPhase); // 2026-10-06: 段階が上がる専用の音
         BossBattleHud.Banner(Phase >= PhaseCount ? "最終段階!" : "激昂!", col, 1.2f);
     }
 
@@ -1021,6 +1066,7 @@ public abstract class WildBossBase : MonoBehaviour
 
     void AddStagger(float v)
     {
+        if (BossBattle.DebugNoStagger) return;
         if (tune == null || tune.staggerMax <= 0f || Broken || phaseRoaring || entering) return;
         stagger += v * staggerDefense;
         lastStaggerTime = Time.time;
@@ -1030,7 +1076,7 @@ public abstract class WildBossBase : MonoBehaviour
         BreakCount++;
         Debug.Log($"[BossBattle] {bossName} BREAK #{BreakCount} t={Time.time - battleStartedAt:F1}s");
         BossBattleHud.Banner("BREAK!", new Color(1f, 0.85f, 0.3f), 1.0f);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossFinalHit);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossBreak); // 2026-10-06: 崩しの専用の音(割れる)
         RunHitStop(0.08f);
         if (supportsInterrupt) InterruptAI(BreakRoutine());
         else StartCoroutine(BreakTimer());
@@ -1112,6 +1158,32 @@ public abstract class WildBossBase : MonoBehaviour
     public void DebugAddStagger(float v) => AddStagger(v);
     public float DebugStagger => stagger;
 #endif
+    // 自然洞窟ボス強化(2026-10-04): 開発用の強制操作(段階/必殺技/BREAK)。荒野街道のボスにも使える(IBossBattleDebug。ゲーム中は呼ばれない)
+    public string DebugName => bossName;
+    public bool DebugAlive => !dead && isActiveAndEnabled;
+    public void DebugSetPhase(int p)
+    {
+        if (tune == null || dead) return;
+        p = Mathf.Clamp(p, 1, PhaseCount);
+        float frac = p == 1 ? 1f : tune.phaseThresholds[p - 2] - 0.03f;
+        Hp = Mathf.Clamp(Mathf.FloorToInt(maxHp * frac), 1, maxHp);
+        if (hpBar != null) hpBar.SetFraction((float)Hp / Mathf.Max(1, maxHp));
+        if (p < Phase) { Phase = p; Debug.Log($"[BossBattle] {bossName} DEBUG phase back to {p}"); }
+        else CheckPhase();
+    }
+    public bool DebugForceUltimate()
+    {
+        if (tune == null || dead || tune.ultimateCooldown <= 0f) return false;
+        if (Phase < 2) DebugSetPhase(2);
+        lastUltimateTime = -99f;
+        phaseUnlockedAt = Time.time - 99f;
+        // BREAKの途中で割り込むとBREAKの終わりの処理が走らないので、ここで戻す
+        if (Broken) { Broken = false; stagger = 0f; staggerDefense = 1f; }
+        if (supportsInterrupt && !entering) InterruptAI(Wait(0.05f));
+        BossBattle.LastUltimateEnd = -99f; // 必殺技の連続の間隔(2.5秒)を待たない(割り込みで今の必殺技を終わらせた後に戻す)
+        return true;
+    }
+    public void DebugForceBreak() { if (tune != null && tune.staggerMax > 0f) { bool keep = BossBattle.DebugNoStagger; BossBattle.DebugNoStagger = false; AddStagger(tune.staggerMax * 1.5f / Mathf.Max(0.1f, staggerDefense)); BossBattle.DebugNoStagger = keep; } }
     // 各ボスが攻撃中に出した自分の物(溜めの玉など)を片付ける
     protected virtual void OnInterrupted() { }
     // 毎フレーム(行動のコルーチンとは別。割り込みで止まらない見た目の更新用)
@@ -1132,7 +1204,7 @@ public abstract class WildBossBase : MonoBehaviour
         lastUltimateTime = Time.time;
         Debug.Log($"[BossBattle] {bossName} ULTIMATE '{title}' #{UltimatesUsed} t={Time.time - battleStartedAt:F1}s");
         BossBattleHud.Banner(title, color, 1.6f);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossUltimate); // 2026-10-06: ボスの必殺技の専用の音
         Shake(0.12f, 0.35f);
         return true;
     }
@@ -1317,7 +1389,7 @@ public abstract class WildBossBase : MonoBehaviour
         if (NetPuppet) return; // JOINのパペット: 撃破報酬/ボス戦終了はHOSTとラストヒットの本人が処理する
         if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
         if (DefeatOverride != null) { DefeatOverride(this); return; }
-        if (BossManager.Instance != null) BossManager.Instance.OnWildBossDefeated();
+        if (BossManager.Instance != null) BossManager.Instance.OnWildBossDefeated(this);
     }
 
     IEnumerator FinalHitAndDie()
@@ -1463,6 +1535,14 @@ public abstract class WildBossBase : MonoBehaviour
         StopAllCoroutines();
         DisableAllHitboxes();
         if (hurtCol != null) hurtCol.enabled = false;
+        if (BossFinish.Enabled && BossFinishInfo.TryUnpack(NetBossFinishCode, out var fi))
+        {
+            LastFinishInfo = fi;
+            PrepareDeathVisual();
+            BossFinish.ClearBossHazards();
+            BossFinish.Begin(this, fi, CenterWorld, localImpact: NetBossFinishLocal); // 同じ見た目をこの端末で(報酬/遭遇の終了は HOST とラストヒットの本人)
+            return;
+        }
         StartCoroutine(FinalHitAndDie());
     }
 
@@ -1506,6 +1586,7 @@ public abstract class WildBossBase : MonoBehaviour
     void OnDestroy()
     {
         if (hpBar != null) Destroy(hpBar.gameObject);
+        OnDestroyFinish(); // BOSS FINISH: 見た目の途中で消された時も遭遇を進める
     }
 }
 

@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: attack_range_up
   cardName: ATTACK RANGE UP
   icon: {fileID: 2800000, guid: 0dbd1172dc0ab6f4b83b8b21b4633df9, type: 3}
-  description: "\u901A\u5E38\u653B\u6483\u306E\u653B\u6483\u5224\u5B9A\u304C\u5E83\u304C\u308B"
+  description: "\u5B9F\u52B9\u653B\u6483\u7BC4\u56F2\u304C\u5E83\u304C\u308B(1Lv\u3054\u3068\u306B+3%)\u3002\u8FD1\u63A5\u306F\u5224\u5B9A\u3001\u98DB\u3073\u9053\u5177\u306F\u98DB\u3076\u8DDD\u96E2(\u5F3E\u306F\u5927\u304D\u304F\u306A\u3089\u306A\u3044)"
   category: 1
   sortOrder: 7
   recommendPriority: 5
   effects:
-  - type: 5
-    value: 0.25
+  - type: 50
+    value: 0.03
+    scaling: 0
   rarity: 1
   unlockDistance: 0
   gachaStage: 1

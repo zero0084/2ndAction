@@ -59,7 +59,7 @@ public class SettingsPanel : MonoBehaviour
     static void PlaySe(bool open)
     {
         var am = AudioManager.Instance;
-        if (am != null) am.PlaySe(open ? SeId.Decide : SeId.Cancel);
+        if (am != null) am.PlaySe(open ? SeId.UiOpen : SeId.UiClose); // 2026-10-06: 開く/閉じる
     }
 
     void Update()
@@ -96,6 +96,7 @@ public class SettingsPanel : MonoBehaviour
     {
         if (state == St.Closed) { DrawMenuGear(); return; }
         GUI.depth = -2000;
+        int padLayer = PadNav.BeginLayer(10); // 設定は一番手前(後ろの画面へフォーカスが行かない)
         float s = S;
         Matrix4x4 keep = GUI.matrix;
         float w = Screen.width / s, h = Screen.height / s;
@@ -154,6 +155,7 @@ public class SettingsPanel : MonoBehaviour
         GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none);
         if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();
         GUI.matrix = keep;
+        PadNav.EndLayer(padLayer);
     }
 
     // ---------------------------------------------------------------- スクロール(指でドラッグ)
@@ -168,7 +170,10 @@ public class SettingsPanel : MonoBehaviour
             else if (e.type == EventType.MouseDrag && dragging && GUIUtility.hotControl == 0) { scroll.y = Mathf.Clamp(scroll.y - (e.mousePosition.y - lastDragY), 0f, max); lastDragY = e.mousePosition.y; }
             else if (e.type == EventType.MouseUp) dragging = false;
             else if (e.type == EventType.ScrollWheel && view.Contains(e.mousePosition)) { scroll.y = Mathf.Clamp(scroll.y + e.delta.y * 20f, 0f, max); e.Use(); }
+            // ゲームパッド: 端から先へ進もうとした時/右スティックで動かす(2026-10-06)
+            if (e.type == EventType.Layout) { int req = PadNav.ScrollRequestFor(PadNav.ToScreen(view)); if (req != 0) scroll.y = Mathf.Clamp(scroll.y + req * view.height * 0.5f, 0f, max); }
         }
+        PadNav.PushClip(view);
         GUI.BeginGroup(view);
         GUI.BeginGroup(new Rect(0f, -scroll.y, view.width, Mathf.Max(view.height, contentH) + scroll.y));
     }
@@ -177,6 +182,7 @@ public class SettingsPanel : MonoBehaviour
     {
         GUI.EndGroup();
         GUI.EndGroup();
+        PadNav.PopClip();
         float max = contentH - view.height;
         if (max > 1f)
         {
@@ -232,7 +238,7 @@ public class SettingsPanel : MonoBehaviour
         var am = AudioManager.Instance;
         y = Head(x, y, w, "音");
         if (am == null) return Note(x, y, w, "(音声が使えません)");
-        y = ChoiceRow(x, y, w, "全体ミュート", am.Muted ? 1 : 0, "OFF", "ON", interactive, c => am.SetMuted(c == 1));
+        y = ChoiceRow(x, y, w, "全体ミュート", am.Muted ? 1 : 0, "OFF", "ON", interactive, c => { am.SetMuted(c == 1); am.PlaySe(SeId.UiToggle); });
         bool on = !am.Muted;
         y = SliderRow(x, y, w, "全体", am.MasterVolume, Pct(am.MasterVolume), on, interactive, (v, rel) => { am.SetMasterVolume(v, rel); if (rel) TestSe(); });
         y = SliderRow(x, y, w, "BGM", am.BgmVolume, Pct(am.BgmVolume), on, interactive, (v, rel) => am.SetBgmVolume(v, rel));
@@ -244,7 +250,7 @@ public class SettingsPanel : MonoBehaviour
     static void TestSe()
     {
         var am = AudioManager.Instance;
-        if (am != null) am.PlaySe(SeId.Decide); // 離した時に今の音量で1回鳴らす
+        if (am != null) am.PlaySe(SeId.Hit); // 離した時に今の音量で1回鳴らす(2026-10-06: ゲーム中の基準の音=通常ヒット)
     }
 
     // ---------------------------------------------------------------- 表示

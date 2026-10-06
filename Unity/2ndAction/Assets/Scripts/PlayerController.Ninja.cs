@@ -50,6 +50,7 @@ public partial class PlayerController
         var p = kitDef.ninja;
         int gen = attackGeneration;
         int token = BeginKitMove("dashslash", true);
+        SetSeqTag(NextSingleTag()); // main attack (single sequence, AttackSeq)
         try
         {
             NinjaDashCount++;
@@ -103,6 +104,7 @@ public partial class PlayerController
         var p = kitDef.ninja;
         int gen = attackGeneration;
         int token = BeginKitMove("throw", true);
+        SetSeqTag(NextSingleTag()); // main attack (single sequence, AttackSeq)
         try
         {
             transform.localScale = new Vector3(-1f, 1f, 1f);
@@ -148,7 +150,7 @@ public partial class PlayerController
         {
             kitPoseTimer = p.upDashTime + 0.15f;
             lungeVelocityX = p.upDashDistanceX / Mathf.Max(0.01f, p.upDashTime);
-            ArmKitBox(new Vector2(0.45f, 0.85f), new Vector2(1.3f * AttackRangeMultiplier, 1.4f), 35f, PlayerAttackKind.Normal, p.upDamageScale, 1f, 0.03f);
+            ArmKitBox(new Vector2(0.45f, 0.85f), new Vector2(1.3f * AttackRangeMultiplier, 1.4f), 35f, PlayerAttackKind.Up, p.upDamageScale, 1f, 0.03f); // hit audit 2026-10-03: the rising slash launches (was Normal: the ninja could not start the aerial flow)
             OneShotSpriteEffect.CreateTweened(KitProjectile.Slash, KitWorld(new Vector2(0.45f, 0.95f)), new Color(1f, 1f, 1f, 0.85f), duration: 0.16f, startScale: 0.6f, endScale: 1f, rotationDegrees: KitFacing > 0f ? 40f : 140f, sortingOrder: RenderOrder.SlashFx);
             if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(2);
             float t = 0f, img = 0f;
@@ -201,7 +203,7 @@ public partial class PlayerController
             SetKitPose("downdash", 1);
             KitBlast.Create(transform.position + new Vector3(0.2f, 0.45f, 0f), new KitBlast.Spec { radius = p.landSlashRadius * AttackRangeMultiplier, active = 0.08f, kind = PlayerAttackKind.DownImpact, damageScale = p.landSlashDamageScale, knockbackScale = 1.2f, hitStop = 0.04f, fx = KitProjectile.Slash, tint = new Color(1f, 1f, 1f, 0.9f), fxScale = 0.9f, shake = 0.05f });
             OneShotSpriteEffect.CreateTweened(KitProjectile.Slash, transform.position + new Vector3(0.2f, 0.45f, 0f), NinjaCrimson, duration: 0.2f, startScale: 0.6f, endScale: 1.2f, rotationDegrees: 180f, sortingOrder: RenderOrder.SlashFx);
-            if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.LandHeavy); // 音の再設計(2026-10-06): 急降下の着地は重い着地音
             attackCooldownTimer = 0.15f;
             t = 0f;
             while (t < 0.14f)

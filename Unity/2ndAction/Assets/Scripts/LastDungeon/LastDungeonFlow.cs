@@ -4,7 +4,7 @@ using UnityEngine;
 // ラストダンジョンの一連の流れ(2026-09-30)。LAST CORRIDOR(last_corridor)をシングルプレイで走っている時だけ動く。
 //
 //   0m ── 最高難度の通常区間(難易度の波: LastCorridorDirector) ── 90,000m
-//   ── ボスラッシュ(通常の敵なし、BossManager.RushTable: 90〜98k) ── 99,000m
+//   ── ボスラッシュ(通常の敵なし、LastDungeonBossTuning.rushGates: 90〜98k、1関門に2〜5体) ── 99,000m
 //   ── 静寂(敵/ボス/大きな障害物/危険なし。曲を消して環境音だけ。99,500/99,800/99,900/99,950/99,990/99,999mの表示) ── 100,000m
 //   ── 死神三姉妹戦(ReaperFinaleBattle。RESULTへは行かない) ── 勝利
 //   ── そのまま走り続けてエンドロール(CreditsRoad: 巨大文字の道。余韻の速さ) ── THANK YOU FOR PLAYING(壊して通る) ── END
@@ -163,6 +163,8 @@ public class LastDungeonFlow : MonoBehaviour
         foreach (var sp in Resources.LoadAll<Sprite>("LastDungeon/Glyphs")) preloaded.Add(sp);
         var slab = Resources.Load<Sprite>("LastDungeon/Fx/slab");
         if (slab != null) preloaded.Add(slab);
+        // 走りながらのボスラッシュの表示の文字(ボス名は英大文字)を先に焼き込む(2026-10-06: 初めての表示の処理落ち)
+        BossBattleHud.WarmBannerGlyphs("BOSS RUSH  走りながら戦え! WARNING が迫る! 残ったボスを倒せ! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
     }
 
     // ===================================================================== //

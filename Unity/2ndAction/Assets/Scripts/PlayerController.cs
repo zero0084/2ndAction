@@ -436,13 +436,25 @@ public partial class PlayerController : MonoBehaviour
     public float AttackRangeMultiplier { get; private set; } = 1f;
     public void AddAttackRangeBonus(float delta) => AttackRangeMultiplier = Mathf.Max(0.1f, AttackRangeMultiplier + delta);
 
+    // Effective Attack Range (2026-10-03, preparation for ATTACK RANGE UP; card values unchanged).
+    //   melee:       AttackRangeMultiplier grows the attack boxes (unchanged, as before)
+    //   projectiles: RangeBonusFactor (= the card part only: current / the character's own base) multiplies the
+    //                projectile's lifetime = travel distance, never its size. Off until the card values are decided.
+    public static bool RangeAffectsProjectiles = true; // カードバランス v3(2026-10-03): ATTACK RANGE UP / LONG BLADE を飛び道具の射程にも
+    float baseAttackRangeMultiplier = 1f;
+    public float RangeBonusFactor => AttackRangeMultiplier / Mathf.Max(0.1f, baseAttackRangeMultiplier);
+    public static float ProjectileTravelFactor => RangeAffectsProjectiles && Instance != null ? Mathf.Max(0.1f, Instance.RangeBonusFactor) : 1f;
+
     // Grown by "ATTACK SPEED UP" - shrinks both attackActiveTime and
     // attackCooldown by the same factor (see DoAttack), so the whole combo
     // tempo speeds up without changing the relative timing of the combo
     // window inside it. Stacks multiplicatively (diminishing returns) and
     // is floored so it can never reach zero/negative duration.
-    public float AttackSpeedMultiplier { get; private set; } = 1f;
-    public void AddAttackSpeedBonus(float fractionFaster) => AttackSpeedMultiplier = Mathf.Max(0.25f, AttackSpeedMultiplier * (1f - fractionFaster));
+    // カードバランス v3(2026-10-03): キャラ×カード(固定の分)は attackSpeedStored、HP/OVERDRIVE で変わる分は読む時に掛ける
+    float attackSpeedStored = 1f;
+    public float AttackSpeedMultiplier { get => attackSpeedStored * CardDynamicDurationFactor * UltimateArt.BuffDurationFactor; private set => attackSpeedStored = value; } // #100 ULTIMATE の BUFF
+    public float AttackSpeedStored => attackSpeedStored;
+    public void AddAttackSpeedBonus(float fractionFaster) => attackSpeedStored = Mathf.Max(0.25f, attackSpeedStored * (1f - fractionFaster));
 
     // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - Enemy側の
     // groundKnockbackSpeedBonus(EnemyController.ApplyGroundKnockback)へ
@@ -488,8 +500,12 @@ public partial class PlayerController : MonoBehaviour
     public void ApplyCharacterBaseStats(CharacterDefinition def)
     {
         if (def == null) return;
+        ResetCardFactors(); // カードバランス v3: キャラの基本値を入れ直すので、カードの反映は1から
+        baseJumpCount = Mathf.Max(1, def.jumpCount);
+        charBaseAttackSpeed = Mathf.Max(0.05f, def.attackSpeedMultiplier);
         AttackPower = def.attackPower;
         AttackRangeMultiplier = def.attackRangeMultiplier;
+        baseAttackRangeMultiplier = Mathf.Max(0.1f, def.attackRangeMultiplier);
         AttackSpeedMultiplier = def.attackSpeedMultiplier;
         KnockbackPowerMultiplier = def.knockbackPowerMultiplier;
         maxComboChain = Mathf.Max(1, def.attackComboCount);
@@ -581,9 +597,9 @@ public partial class PlayerController : MonoBehaviour
     {
         get
         {
+            // カードバランス v3(2026-10-03): 基礎 × (1 + 無条件 A) × (1 + 今の状態の条件 C)。相手/技の条件は命中時(PlayerAttackInfo.ScaleDamage)
+            // 下の旧形式の固定値ボーナス(空中/地上/満HP/瀕死/加速)は v3 のカードでは0(古いアセット/開発用の互換)
             int power = AttackPower + (!isGrounded ? AirAttackPowerBonus : GroundAttackPowerBonus);
-            if (comboCount == 1) power += FirstHitBonus;
-            if (comboCount >= maxComboChain) power += ComboFinalStageBonus;
 
             GameManager gm = GameManager.Instance;
             if (gm != null && gm.maxLives > 0)
@@ -599,7 +615,8 @@ public partial class PlayerController : MonoBehaviour
                 }
             }
 
-            power += Mathf.RoundToInt(MomentumBonus * Mathf.Max(0f, GetSpeedMultiplier() - 1f));
+            power += Mathf.RoundToInt(MomentumBonus * MomentumSpeedTerm);
+            power = Mathf.RoundToInt(power * CardAttackFactor * UltimateArt.BuffAttackMul * FinalEvolution.AttackMul * CardRules.CondMultiplier(CardStateCondition())); // #100 ULTIMATE の BUFF / FINAL EVOLUTION(ATTACK UP)の最終倍率
             // 竜騎士(2026-09-26) - 後ろ攻撃(石突き)だけ威力を下げる。他キャラは常に1倍。
             if (isLancerCharacter && lanceDamageScale != 1f) power = Mathf.Max(1, Mathf.RoundToInt(power * lanceDamageScale));
             // 2026-10-02: 0以下にしない(空中攻撃-のカード等で負になると、ボスは1以上の下限が無いため逆に回復していた)
@@ -609,6 +626,7 @@ public partial class PlayerController : MonoBehaviour
 
     // "Boss Killer" - Dragon/Majin/Mechanical Dragon damage calculations
     // use this instead of EffectiveAttackPower.
+    // v3: ボス特効(BOSS KILLER)は命中時の条件(PlayerAttackInfo.ScaleDamage)。旧形式の固定値だけここで足す
     public int EffectiveBossAttackPower => Mathf.Max(1, EffectiveAttackPower + BossDamageBonus);
 
     // 2026-10-02: ボスへの「基本の1発」の見積り(地上・初撃/締めなし・今のHPと速度・ボス特効・技の倍率1)。
@@ -624,17 +642,34 @@ public partial class PlayerController : MonoBehaviour
                 if (gm.Lives >= gm.maxLives) power += FullHpAttackBonus;
                 else power += Mathf.RoundToInt(LowHpAttackBonus * (1f - (float)gm.Lives / gm.maxLives));
             }
-            power += Mathf.RoundToInt(MomentumBonus * Mathf.Max(0f, GetSpeedMultiplier() - 1f));
-            return Mathf.Max(1, power + BossDamageBonus);
+            power += Mathf.RoundToInt(MomentumBonus * MomentumSpeedTerm);
+            power += BossDamageBonus;
+            // v3: 地上・今の状態 + ボス特効
+            float cs = CardGroundStateCondition();
+            return Mathf.Max(1, Mathf.RoundToInt(power * CardAttackFactor * CardRules.CondMultiplier(cs + CT(EffectType.BossPct))));
         }
+    }
+    // 見積り用: 地上として数えた今の状態の条件
+    float CardGroundStateCondition()
+    {
+        bool g = isGrounded;
+        isGrounded = true;
+        float c = CardStateCondition();
+        isGrounded = g;
+        return c;
     }
     public int BossHitComboAverage
     {
         get
         {
-            int chain = Mathf.Max(1, maxComboChain);
-            if (chain == 1) return BossHitEstimate + FirstHitBonus + ComboFinalStageBonus;
-            return Mathf.RoundToInt(BossHitEstimate + (FirstHitBonus + ComboFinalStageBonus) / (float)chain);
+            // AttackSeq: one First and one Finisher per sequence (single-attack characters: a 3-attack sequence)
+            int chain = maxComboChain > 1 ? maxComboChain : SingleAttackSequenceLength;
+            // v3: 初撃/連撃中/締めは条件の枠(1シーケンスに初撃1・締め1、残りは連撃中)
+            float cs = CardGroundStateCondition() + CT(EffectType.BossPct);
+            float baseMul = CardRules.CondMultiplier(cs);
+            float avg = (CardRules.CondMultiplier(cs + CT(EffectType.FirstPct)) + CardRules.CondMultiplier(cs + CT(EffectType.FinisherPct))
+                + Mathf.Max(0, chain - 2) * CardRules.CondMultiplier(cs + CT(EffectType.ComboPct))) / Mathf.Max(2, chain);
+            return Mathf.RoundToInt(BossHitEstimate * avg / Mathf.Max(0.01f, baseMul) + (FirstHitBonus + ComboFinalStageBonus) / (float)chain);
         }
     }
 
@@ -667,7 +702,8 @@ public partial class PlayerController : MonoBehaviour
     // The player's base auto-scroll speed this frame, NOT including attack
     // lunge/recoil. Used by the boss to keep pace with ordinary running
     // without also cancelling out the player's attack-driven movement.
-    public float CurrentAutoRunSpeed => autoRunEnabled ? CapSpeed(runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale) : 0f;
+    // 開発用の闘技場(2026-10-04): 速度の指定があればそれ(停止 / 基準速度×カード・キャラの補正 / 実効速度固定)。通常は従来どおり
+    public float CurrentAutoRunSpeed => ArenaAutoSpeed() ?? (autoRunEnabled ? CapSpeed(runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale) : 0f);
 
     // 弾速の走行補正(2026-09-26) - 弾/飛び道具はすべて「プレイヤーの基本走行速度で一緒に流れる
     // 座標系」の中を、それぞれの設計速度で飛ぶ(=画面上の見た目の速さが走行速度に左右されない)。
@@ -679,8 +715,26 @@ public partial class PlayerController : MonoBehaviour
     // 表示/カメラ補正/配置間隔が参照するだけで、実際の移動速度計算には一切影響しない。
     // ラストダンジョンのエンディング(2026-09-30): 演出で速さを抑えている間(エンドロール/選択エリア)は、
     // カメラの引き/速度の演出もその速さに合わせる(100km/h用に引いたままだと巨大文字が小さく見える)。
-    public float SpeedRatio => autoRunEnabled ? Mathf.Min(EffectiveSpeedMultiplier(), ScriptedSpeedCapMps / Mathf.Max(0.01f, baseRunSpeed > 0.01f ? baseRunSpeed : 5f)) : 1f;
+    public float SpeedRatio => ArenaMode.Active ? CurrentAutoRunSpeed / Mathf.Max(0.01f, baseRunSpeed > 0.01f ? baseRunSpeed : 5f) : autoRunEnabled ? Mathf.Min(EffectiveSpeedMultiplier(), ScriptedSpeedCapMps / Mathf.Max(0.01f, baseRunSpeed > 0.01f ? baseRunSpeed : 5f)) : 1f;
     public float MaxSpeedRatio => NaturalCapMultiplier; // 見た目(カメラのズーム/速度の演出)が最大になる倍率 = 自然加速の上限
+
+    // ===== 実際の現在速度(2026-10-03) =====
+    // HUD の km/h と同じ値。自動前進の速さ(CurrentAutoRunSpeed: 距離による自然加速 × キャラの走る速さ × 速度カード、
+    // 安全上限900km/h)。踏み込み/ノックバック/被弾で止まった一瞬などの「一時的な動き」は含めない(攻撃のたびに揺れないように)。
+    public float CurrentRunKmh => GameManager.SpeedKmh(CurrentAutoRunSpeed);
+    // 速さの正規化(0〜1): fromKmh 以下=0、toKmh 以上=1、その間は直線。例) SpeedFactor01(50, 150)
+    public float SpeedFactor01(float fromKmh, float toKmh) => SpeedFactor01At(CurrentRunKmh, fromKmh, toKmh);
+    public static float SpeedFactor01At(float kmh, float fromKmh, float toKmh) =>
+        toKmh <= fromKmh ? (kmh >= toKmh ? 1f : 0f) : Mathf.Clamp01((kmh - fromKmh) / (toKmh - fromKmh));
+
+    // MOMENTUM / OVERDRIVE の速度の項(攻撃 += MomentumBonus × この値)。
+    // 以前から GetSpeedMultiplier()(走行距離だけで決まる自然加速、3.6km以降は常に×5.556)を使っていたため、
+    // 実際の速さ(速度カード/キャラ)とは無関係に距離で増えていた。最終的な増加量はまだ決めないので、既定は従来の式のまま。
+    // MomentumUsesCurrentSpeed=true で「実際の現在速度 ÷ 基準18km/h − 1」に切り替わる(次の数値調整で式ごと決める)。
+    public static bool MomentumUsesCurrentSpeed = false;
+    public float MomentumSpeedTermByDistance => Mathf.Max(0f, GetSpeedMultiplier() - 1f);
+    public float MomentumSpeedTermByCurrentSpeed => Mathf.Max(0f, CurrentAutoRunSpeed / CommonBaseRunSpeed - 1f);
+    public float MomentumSpeedTerm => MomentumUsesCurrentSpeed ? MomentumSpeedTermByCurrentSpeed : MomentumSpeedTermByDistance;
     // 走行開始位置からの論理距離(Floating Originで座標を戻しても連続)。
     public float DistanceFromStart => (float)(transform.position.x - startX);
     // cm単位の表示/保存用(floatだと100,000m超でcm精度が保てないため、startXをdoubleで持つ)。
@@ -723,6 +777,23 @@ public partial class PlayerController : MonoBehaviour
     // or an elevated sky-path platform (see TerrainManager.GetSkyHeightAt).
     bool onSky;
     int jumpsUsed;
+
+    // 中断セーブからの再開(2026-10-03): 地形を確定した直後に、再開地点の地面(下ルート)の上へ立たせる。
+    // 準備画面〜カウントダウンの間は Move が動かないので、ここで決めた位置/接地のまま GO を迎える。
+    public bool PlaceOnGroundForResume()
+    {
+        var tm = TerrainManager.Instance;
+        if (tm == null) return false;
+        float? gy = tm.GetHeightAt(transform.position.x);
+        if (!gy.HasValue) return false;
+        onSky = false;
+        isGrounded = true;
+        velocityY = 0f;
+        jumpsUsed = 0;
+        FreezeDiagnostics.NoteIntendedMove("CONTINUE (ground)");
+        transform.position = new Vector3(transform.position.x, gy.Value + groundOffset, transform.position.z);
+        return true;
+    }
     bool isAttacking;
     // 方向攻撃システム Ver.2、項目3 - trueの間、Move()の落下速度がgravity
     // 積分の代わりにdiveAttackSpeedへ上書きされ、downAttackHitboxが有効に
@@ -879,6 +950,8 @@ public partial class PlayerController : MonoBehaviour
     // 毎フレームnullへ戻し、そのフレーム内でMove()(Up方向のみ消費)と
     // HandleAttackInput()(Forward/Backwardのみ消費)の両方から参照される。
     FlickDirection? requestedFlick;
+    public FlickDirection? LastPadFlick { get; private set; } // キーボード/パッドから入った最後のフリック(確認用)
+    public int PadFlicks { get; private set; }
     bool wasStarted;
 
     void Awake()
@@ -979,6 +1052,7 @@ public partial class PlayerController : MonoBehaviour
         {
             hitInvincibleTimer = Mathf.Max(0f, hitInvincibleTimer - Time.deltaTime);
         }
+        CardTick(Time.deltaTime); // カードバランス v3(Shield の回復 / OVERDRIVE など)
         // 表示の安全装置(2026-09-26、竜騎士Sprite消失対策) - 絵を意図的に消すのは被弾後の無敵点滅
         // (hitInvincibleTimer中)と死亡時だけ。それ以外でSpriteRendererが無効のまま残っていたら
         // (点滅の途中で処理が打ち切られた等)必ず表示へ戻す。
@@ -1000,6 +1074,15 @@ public partial class PlayerController : MonoBehaviour
         // for why the ordering matters.
         wasEscapeChargingLastFrame = IsEscapeCharging;
 
+        // #100 ULTIMATE(2026-10-04): 必殺技の間は入力/通常の移動の代わりに、地面に沿って高速で走る(距離の報告は下の共通処理)
+        bool ultimateDriving = UltimateArt.Driving;
+        if (ultimateDriving)
+        {
+            requestedFlick = null; touchActive = false; bufferedUpAttackTimer = 0f; escapeHoldTimer = 0f;
+            UltimateMoveTick(Time.deltaTime);
+        }
+        else
+        {
         UpdatePointerInput();
         // Hurt/Recovery中は新規の攻撃/ジャンプ入力を受け付けない(入力は捨てる=終了後に暴発しない)。
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -1014,10 +1097,11 @@ public partial class PlayerController : MonoBehaviour
         if (reactionBlocked) { requestedFlick = null; bufferedUpAttackTimer = 0f; }
         Move(allowJump: !wasEscapeChargingLastFrame && !reactionBlocked);
         if (!wasEscapeChargingLastFrame && !reactionBlocked) HandleAttackInput();
+        }
         LancerSafetyUpdate(); // 竜騎士: 実行中の技が無いのに攻撃状態だけ残らないようにする(他キャラは何もしない)
         KitUpdate(); // 新4人: タイマー/引き絞り表示/安全装置(既存5人は何もしない)
 
-        UpdateEscapeInput();
+        if (!ultimateDriving) UpdateEscapeInput();
         UpdateEscapeVisuals();
 
         if (GameManager.Instance != null)
@@ -1064,6 +1148,10 @@ public partial class PlayerController : MonoBehaviour
         // CARD BALANCE TEST(開発ビルドのみ)のパネル上で始まったタッチは操作にしない
         if (pointerJustDown && CardBalanceTest.BlocksPointer(pointerPos)) { touchActive = false; return; }
 #endif
+        // #100 ULTIMATE のボタン(左下)で始まったタッチは操作にしない
+        if (pointerJustDown && UltimateArt.BlocksPointer(pointerPos)) { touchActive = false; return; }
+        // 開発用の闘技場のボタンで始まったタッチも操作にしない
+        if (pointerJustDown && ArenaMode.BlocksPointer(pointerPos)) { touchActive = false; return; }
         if (pointerJustDown)
         {
             touchStartPos = pointerPos;
@@ -1109,12 +1197,16 @@ public partial class PlayerController : MonoBehaviour
         if (pointerDown) lastPointerPos = pointerPos;
         if (pointerJustUp) touchActive = false;
 
-        // Editor/keyboard test convenience (mirrors the old Space=jump/
-        // Z,B=attack shortcuts) - bypasses the drag-distance system
-        // entirely, since a key press has no drag distance to measure.
-        if (Input.GetKeyDown(KeyCode.Space)) requestedFlick = FlickDirection.Up;
-        else if (Input.GetKeyDown(KeyCode.Z)) requestedFlick = FlickDirection.Forward;
-        else if (Input.GetKeyDown(KeyCode.B)) requestedFlick = FlickDirection.Backward;
+        // キーボード/ゲームパッド(GameInput、2026-10-06。旧 Space=ジャンプ / Z,B=攻撃 のキーも含む)。
+        // ドラッグの距離の仕組みは通らない(ボタンには距離が無い)。メニュー操作中(PadNav)は使わない。
+        if (!PadNav.MenuActive)
+        {
+            if (GameInput.Down(GameAction.Jump) || GameInput.Down(GameAction.AttackUp)) requestedFlick = FlickDirection.Up;
+            else if (GameInput.Down(GameAction.AttackForward)) requestedFlick = FlickDirection.Forward;
+            else if (GameInput.Down(GameAction.AttackBack)) requestedFlick = FlickDirection.Backward;
+            else if (GameInput.Down(GameAction.AttackDown)) requestedFlick = FlickDirection.Down;
+            if (requestedFlick.HasValue) { LastPadFlick = requestedFlick; PadFlicks++; }
+        }
     }
 
     // 方向攻撃システム Ver.2、項目7 - 4方向化後も「斜めフリックなどは、最
@@ -1145,7 +1237,11 @@ public partial class PlayerController : MonoBehaviour
     // 確認用(2026-09-29): 走る速さだけを変える倍率。DebugSpeedScaleと違いSpeedRatioには入れないので、
     // 障害物/敵の間隔・カメラ等は変わらない(=同じ配置のまま速度だけ上げて自動補助/破壊を確かめる)。
     public static float DebugRunOnlyScale = 1f;
-    float EffectiveSpeedMultiplier() => GetSpeedMultiplier() * DebugSpeedScale;
+    float EffectiveSpeedMultiplier()
+    {
+        float m = GetSpeedMultiplier() * DebugSpeedScale;
+        return m * FinalEvolution.SpeedFactor(runSpeed * m); // FINAL EVOLUTION(SPEED UP): 操作できる速さまで
+    }
 
     float GetSpeedMultiplier()
     {
@@ -1163,7 +1259,7 @@ public partial class PlayerController : MonoBehaviour
         float dt = Time.deltaTime;
         if (bufferedUpAttackTimer > 0f) bufferedUpAttackTimer -= dt;
         if (upShotVisualTimer > 0f) upShotVisualTimer -= dt;
-        float autoSpeed = autoRunEnabled ? CapSpeed(runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale) : 0f;
+        float autoSpeed = CurrentAutoRunSpeed; // 通常は autoRunEnabled ? CapSpeed(runSpeed × 自然加速 × DEBUG倍率) : 0(闘技場は ArenaAutoSpeed)
         // 荒野街道ボス追加(2026-09-20) - 巨大蜘蛛の糸による短時間の移動妨害。
         // CurrentAutoRunSpeed(ボス側の追従基準)には含めない - ボスは通常速度で
         // 走り続けるので、糸を受けたプレイヤーは相対的に後ろへ取り残される。
@@ -1191,9 +1287,23 @@ public partial class PlayerController : MonoBehaviour
         float knockbackFrac = knockbackDuration > 0f ? knockbackTimer / knockbackDuration : 0f;
         float effectiveKnockback = knockbackVelocityX * knockbackFrac;
         // ボス戦(2026-10-01): 攻撃の前進/後退を大きくする(ボスが離れているほど前進を伸ばす。近いと伸ばしすぎない)
-        lungeScaleNow = Mathf.Approximately(lungeVelocityX, 0f) ? 1f : BossBattle.LungeScale(lungeVelocityX, transform.position.x);
+        lungeScaleNow = Mathf.Approximately(lungeVelocityX, 0f) ? 1f : BossBattle.LungeScale(lungeVelocityX, transform.position.x) * CardHunterLungeScale;
+        if (!ArenaMode.FixedSpeed) autoSpeed *= CardAutoSpeedScale * CardHunterApproachScale(transform.position.x) * UltimateArt.BuffRunSpeedMul; // 闘技場の「実効速度固定」では補正を掛けない // v3: BRAKE ATTACK / HUNTER / #100 ULTIMATE の BUFF(勢い)
         float newX = transform.position.x + (autoSpeed + lungeVelocityX * lungeScaleNow + effectiveKnockback) * dt;
         float prevX = transform.position.x;
+        // 2026-10-03: 踏み込みは、当てた敵の体の手前で止める(長い踏み込みのお嬢様騎士などが、当てた後もそのまま体へ入り込み
+        // 接触ダメージを受けていた)。止めるのは踏み込みの分だけで、自動前進/ノックバックはそのまま。
+        if (lungeVelocityX != 0f)
+        {
+            float lungeDir = Mathf.Sign(lungeVelocityX);
+            float? stop = LungeStopX(lungeDir);
+            if (stop.HasValue)
+            {
+                float withoutLunge = prevX + (autoSpeed + effectiveKnockback) * dt;
+                if (lungeDir > 0f && newX > stop.Value) { float c = Mathf.Max(withoutLunge, stop.Value); if (c < newX) { newX = c; LungeStops++; } }
+                else if (lungeDir < 0f && newX < stop.Value) { float c = Mathf.Min(withoutLunge, stop.Value); if (c > newX) { newX = c; LungeStops++; } }
+            }
+        }
         // ラストダンジョンのエンディング: 通り抜けられない物(THANK YOU FOR PLAYINGの石板、YES/NOの石)の手前で止まる
         if (WorldPlatforms.Any) newX = WorldPlatforms.ClampMove(prevX, newX, transform.position.y - groundOffset, transform.position.y - groundOffset + 1.5f, 0.35f);
         UpdateScreenStep(dt);
@@ -1428,7 +1538,7 @@ public partial class PlayerController : MonoBehaviour
                 if (wasDiveAttacking) { DiveAttackLanded?.Invoke(); TriggerDiveImpact(); }
                 OnLancerLanded(); // 竜騎士: 急降下の着地/残った攻撃状態の安全な解除(他キャラは何もしない)
                 OnKitLanded(); // 新4人: ダイブキック/急降下斬りの着地など(既存5人は何もしない)
-                if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
+                if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(wasDiveAttacking ? SeId.LandHeavy : SeId.Land); // 2026-10-06: 急降下の着地は重く
                 Landed?.Invoke();
                 // 不具合修正(2026-09-08) - 着地直前に上フリックした分の
                 // バッファ消化(入力バッファ、上のbufferedUpAttackTimerの
@@ -1454,7 +1564,7 @@ public partial class PlayerController : MonoBehaviour
                 if (wasDiveAttacking) { DiveAttackLanded?.Invoke(); TriggerDiveImpact(); }
                 OnLancerLanded(); // 竜騎士: 急降下の着地/残った攻撃状態の安全な解除(他キャラは何もしない)
                 OnKitLanded(); // 新4人: ダイブキック/急降下斬りの着地など(既存5人は何もしない)
-                if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
+                if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(wasDiveAttacking ? SeId.LandHeavy : SeId.Land); // 2026-10-06: 急降下の着地は重く
                 Landed?.Invoke();
                 if (bufferedUpAttackTimer > 0f)
                 {
@@ -1539,6 +1649,9 @@ public partial class PlayerController : MonoBehaviour
         // GameManager.PresentationDamageLockでも防いでいるが、Finish演出中
         // (RUN正常終了)はPlayerController側でも二重に無敵化しておく。
         if (hasDied || IsFinishing) return;
+        // #100 ULTIMATE: 発動中(+終わってから少し)は接触/敵の攻撃を受けない。発動中の落下は地面へ戻すだけ(終わった後の無敵は残さない)
+        if (!isFall && UltimateArt.ProtectsFromHit) return;
+        if (isFall && UltimateArt.ProtectsFromFall) { UltimateRescueToGround(); return; }
         // A fall past failY must always respawn the player, even mid-flicker
         // from a previous hit - otherwise falling while still hit-invincible
         // silently no-ops every frame and the player free-falls forever
@@ -1547,6 +1660,8 @@ public partial class PlayerController : MonoBehaviour
         if (GameManager.Instance == null) return;
         // 新4人(2026-09-27) - 忍者の瞬身のごく短い無敵/格闘家のカウンター成立(既存5人は常にfalse)。
         if (!isFall && KitInterceptDamage(source)) return;
+        if (!isFall && FinalEvolution.InterceptDamage(source, ref amount)) return; // FINAL EVOLUTION(SPEED/VAMPIRE/GREED)
+        if (!isFall && CardProcs.ComboInterceptDamage(source)) return;              // COMBO(BLOOD AEGIS): 1回防ぐ
         // マルチプレイ: ダウン/脱落中は被弾しない。
         if (NetMatch.Active && !NetMatch.IsLocalAlive) return;
         // マルチ(2026-09-28): カード選択中の本人は敵/ボスの攻撃を受けない(その場で一時停止中のため)。
@@ -1722,6 +1837,7 @@ public partial class PlayerController : MonoBehaviour
         // "the hit actually landed" moment, same as EnemyController's own
         // hit feedback (see section 20's "Feedbackの同期" brief).
         if (AudioManager.Instance != null) AudioManager.Instance.PlayPlayerDamage();
+        Platform.Haptics.Play(HapticKind.Hit); // 振動(今の機種では何もしない。家庭用機で差し替え。2026-10-06)
         if (damageFlashEnabled && sr != null) StartCoroutine(DamageFlashRoutine());
         if (!isFall && !damageKnockbackEnabled) { /* ノックバック無効設定でもHurt停止は行う */ }
     }
@@ -1739,13 +1855,14 @@ public partial class PlayerController : MonoBehaviour
             : (charRecoveryInvincible > 0f ? charRecoveryInvincible : recoveryInvincibleDuration);
         reactionTotal = Mathf.Max(0.05f, dur);
         reactionTimer = reactionTotal;
+        if (kind == ReactionKind.Hurt) inv += CardHurtInvincibleBonus; // v3: CLOSE CALL
         // 無敵はリアクション中から効かせる(Hurt終了直後に接触中の敵から二重に被弾しない)。
         hitInvincibleTimer = Mathf.Max(hitInvincibleTimer, reactionTotal + inv);
         velocityY = 0f;
         lungeVelocityX = 0f;
         moveSlowTimer = 0f;
         if (kind == ReactionKind.Hurt && damageKnockbackEnabled)
-            ApplyKnockback(-hurtKnockbackSpeed * charHurtKnockbackMultiplier, reactionTotal);
+            ApplyKnockback(-hurtKnockbackSpeed * charHurtKnockbackMultiplier * CardHurtKnockbackScale, reactionTotal); // v3: FORTRESS
         else
             knockbackTimer = 0f; // Recoveryは復帰位置でその場停止(押し戻さない)
     }
@@ -1776,11 +1893,13 @@ public partial class PlayerController : MonoBehaviour
     float moveSlowFactor = 1f;
     float moveSlowTimer;
     public bool IsMoveSlowed => moveSlowTimer > 0f;
+    public float MoveSlowFactor => moveSlowTimer > 0f ? moveSlowFactor : 1f; // 自然洞窟ボス強化(2026-10-04): 地形の攻撃を減速中も同じ位置に保つため
 
     // 一時的な走行速度低下(ダメージなし・操作不能にはならない)。既に
     // 減速中なら弱い方で上書きせず、長い方の残り時間/強い方の係数を採用。
     public void ApplyMoveSlow(float factor, float duration)
     {
+        if (UltimateArt.ProtectsFromHit) return; // #100 ULTIMATE の間は止められない
         factor = Mathf.Clamp(factor, 0.2f, 1f);
         moveSlowFactor = moveSlowTimer > 0f ? Mathf.Min(moveSlowFactor, factor) : factor;
         moveSlowTimer = Mathf.Max(moveSlowTimer, duration);
@@ -1788,6 +1907,7 @@ public partial class PlayerController : MonoBehaviour
 
     public void ApplyKnockback(float velocityX, float duration)
     {
+        if (UltimateArt.ProtectsFromHit) return; // #100 ULTIMATE の間は押し戻されない
         knockbackVelocityX = velocityX;
         knockbackDuration = Mathf.Max(0.001f, duration);
         knockbackTimer = knockbackDuration;
@@ -1910,6 +2030,7 @@ public partial class PlayerController : MonoBehaviour
         bool down = Input.touchCount > 0
             ? Input.GetTouch(0).phase != TouchPhase.Ended && Input.GetTouch(0).phase != TouchPhase.Canceled
             : Input.GetMouseButton(0);
+        if (!down && !PadNav.MenuActive && GameInput.Held(GameAction.Hold)) down = true; // パッドの BACK / キーの H を長押し
 
         if (!canEscape || !down)
         {
@@ -2173,6 +2294,7 @@ public partial class PlayerController : MonoBehaviour
         // of another Player Damage SE for this final hit (see section 13's
         // role separation), and the BGM fades out alongside it rather than
         // cutting or continuing to play under the results screen.
+        Platform.Haptics.Play(HapticKind.Heavy); // 振動(家庭用機で差し替え)
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.PlayPlayerDeath();
@@ -2261,11 +2383,12 @@ public partial class PlayerController : MonoBehaviour
         comboWindowOpen = false;
         comboBuffered = false;
         comboCount++;
+        SetSeqTag(ChainTag(comboCount, maxComboChain)); // First / Combo / Finisher (AttackSeq)
         attackCooldownTimer = attackCooldown * AttackSpeedMultiplier;
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(comboCount);
 
         ApplyAttackDirection(dir);
-        if (attackHitbox != null) { attackHitbox.enabled = true; var ai = attackHitbox.GetComponent<PlayerAttackInfo>(); if (ai != null) ai.Rearm(); }
+        if (attackHitbox != null) { attackHitbox.enabled = true; var ai = attackHitbox.GetComponent<PlayerAttackInfo>(); if (ai != null) ai.Rearm(); TagHitbox(attackHitbox); }
         ApplyComboStageToHitbox(comboCount);
         // 品質改善 Bug #002(2026-09-09), item 8/9/11/12 - 通常攻撃も旧
         // 「巨大な紫剣」(framesベースのSetComboStage)から、上/空中/下降
@@ -2326,6 +2449,7 @@ public partial class PlayerController : MonoBehaviour
 
         isAttacking = false;
         comboWindowOpen = false;
+        SetSeqTag(AttackSeqTag.None); // AttackSeq: the chained attack (if any) sets its own
 
         if (comboBuffered)
         {
@@ -2346,7 +2470,10 @@ public partial class PlayerController : MonoBehaviour
         // フレームのMove()内で「Move()のisHoverShooting分岐がvelocityYを
         // 再度落下速度へ上書きしてジャンプが無かったことになる」事故を防ぐ。
         if (isHoverShooting) { isHoverShooting = false; hoverGeneration++; }
-        velocityY = jumpForce;
+        // v3: JUMP COUNT UP で増えた空中ジャンプは、続けるほど少し弱く(穴に落ちている時は弱めない)
+        float jumpScale = CardJumpImpulseScale(jumpsUsed + 1);
+        if (jumpScale < 0.999f) JumpDecayed++;
+        velocityY = jumpForce * jumpScale;
         isGrounded = false;
         jumpsUsed++;
         if (jumpsUsed == 1)
@@ -2398,6 +2525,7 @@ public partial class PlayerController : MonoBehaviour
     // の組み合わせで違和感なく繋がる形を優先した(マスターへの開示事項)。
     IEnumerator DoUpAttack(bool isAirborne)
     {
+        SetSeqTag(AttackSeqTag.None); // not a main attack (AttackSeq)
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.AttackUp); // 上攻撃/Launch(共通)
         // 攻撃エフェクト全面調整(2026-09-08) - 旧SetComboStage(巨大な紫剣
         // AttackSlashFx流用)から、剣の軌跡に沿った控えめな青白い三日月
@@ -2476,6 +2604,7 @@ public partial class PlayerController : MonoBehaviour
     // OVER/ESCAPE成功のいずれからも呼ばれ、後始末を一箇所に集約している。
     void DoDiveAttack()
     {
+        SetSeqTag(AttackSeqTag.None); // not a main attack (AttackSeq)
         isDiveAttacking = true;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.AttackDown); // 下攻撃/Slam(共通)
         // 攻撃エフェクト全面調整(2026-09-08) - 旧SetComboStage(巨大な紫剣、
@@ -2596,6 +2725,7 @@ public partial class PlayerController : MonoBehaviour
         comboWindowOpen = false;
         comboBuffered = false;
         comboCount++;
+        SetSeqTag(ChainTag(comboCount, maxComboChain)); // First / Combo / Finisher (AttackSeq): bullets copy it
         attackCooldownTimer = attackCooldown * AttackSpeedMultiplier;
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(comboCount);
 
@@ -2629,6 +2759,7 @@ public partial class PlayerController : MonoBehaviour
 
         isAttacking = false;
         comboWindowOpen = false;
+        SetSeqTag(AttackSeqTag.None); // AttackSeq: the chained attack (if any) sets its own
 
         if (comboBuffered)
         {

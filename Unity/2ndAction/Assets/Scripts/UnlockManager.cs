@@ -25,7 +25,7 @@ public static class UnlockManager
     public static void Initialize(float bestDistanceEver)
     {
         unlockedIds = new HashSet<string>();
-        string saved = PlayerPrefs.GetString(UnlockedIdsKey, "");
+        string saved = SaveStore.GetString(UnlockedIdsKey, "");
         if (!string.IsNullOrEmpty(saved))
         {
             foreach (string id in saved.Split(','))
@@ -102,7 +102,7 @@ public static class UnlockManager
     {
         if (DebugRun.BlocksSave("UnlockedIds")) return;
         var ids = new List<string>(unlockedIds);
-        PlayerPrefs.SetString(UnlockedIdsKey, string.Join(",", ids));
-        PlayerPrefs.Save();
+        SaveStore.SetString(UnlockedIdsKey, string.Join(",", ids));
+        SaveStore.Save();
     }
 }

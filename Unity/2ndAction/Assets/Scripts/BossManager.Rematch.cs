@@ -120,6 +120,7 @@ public partial class BossManager
         CurrentEncounterKey = key;
         recentFought.Remove(key);
         recentFought.Insert(0, key);
+        ProgressStats.MarkBossSeen(key); // 会ったボス(ラスダンの抽選で製品版が優先する)
         while (recentFought.Count > 6) recentFought.RemoveAt(recentFought.Count - 1);
         Debug.Log($"[BossPool] {LastRematchDecision} pool=[{string.Join(", ", defeatedPool)}]");
     }
@@ -173,10 +174,28 @@ public partial class BossManager
     // 再戦の強化をボスへ(段階/必殺技の間隔/崩し。荒野街道のように戦闘の調整値を持つボスだけ)
     void ApplyRematchTo(WildBossBase boss)
     {
+        TrackSpawned(boss); // 遭遇へ登録 + ラスダンの攻撃間隔/移動速度(2026-10-05)
         if (boss == null || !CurrentEncounterIsRematch || currentTier == null) return;
         boss.ApplyRematch(currentTier);
     }
     float RematchHpScaleOr(float normalScale) => CurrentEncounterIsRematch ? CurrentRematchHpMul : normalScale;
+
+    // 疾走出発(2026-10-05): 飛ばした関門(1〜lastK)の本来のボスを、このランの再戦プールへ(通常に走った時と同じ状態にする)。
+    // このランの中だけの記録(永続の撃破記録/会ったボスの記録には付けない)。ラスダンは対象外(節目はプールの抽選)。
+    public void SprintMarkSkippedGates(int lastK)
+    {
+        if (IsLastStage || !RematchStage) return;
+        int added = 0;
+        for (int k = 1; k <= lastK; k++)
+        {
+            string key = null;
+            if (IsSkyStage) { if (ResolveSkyGate(k, out var s, out _)) key = Key(GateFamily.Sky, (int)s); }
+            else if (IsCaveStage) { if (ResolveCaveGate(k, out var c, out _)) key = Key(GateFamily.Cave, (int)c); }
+            else if (ResolveGate(k, out var w, out _)) key = Key(GateFamily.Wild, (int)w);
+            if (key != null && !defeatedPool.Contains(key)) { defeatedPool.Add(key); added++; }
+        }
+        Debug.Log($"[Sprint] rematch pool +{added} from skipped gates 1-{lastK} ({defeatedPool.Count})");
+    }
 
     // ---- 中断中のラン(CONTINUE) ----
     public void ExportPool(RunCheckpoint.Data d)

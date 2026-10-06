@@ -1,0 +1,364 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 955ee0de484f2504195a684f66845e6d, type: 3}
+  m_Name: LastDungeonBossTuning
+  m_EditorClassIdentifier: Assembly-CSharp::LastDungeonBossTuning
+  pool1k:
+  - Wild/Wolf
+  - Cave/Centipede
+  - Sky/Dragon
+  pool5k:
+  - Wild/GoblinRider
+  - Cave/Scorpion
+  - Sky/Majin
+  pool10k:
+  - Wild/Serpent
+  - Wild/Cyclops
+  - Wild/Spider
+  - Wild/Golem
+  - Wild/Griffin
+  - Wild/Hydra
+  - Wild/Demon
+  - Wild/Dragon
+  - Wild/BlackKnight
+  - Cave/Mole
+  - Cave/Troll
+  - Cave/Worm
+  - Cave/CrystalGolem
+  - Cave/Bat
+  - Cave/ScorpionKing
+  - Cave/Basilisk
+  - Cave/Drake
+  - Cave/AncientDemon
+  - Sky/Behemoth
+  - Sky/Titan
+  - Sky/Jellyfish
+  - Sky/Leviathan
+  - Sky/Fenrir
+  - Sky/SkyGolem
+  - Sky/Phoenix
+  - Sky/SkySerpent
+  - Sky/Guardian
+  recentExclude: 3
+  releasePreferSeen: 1
+  minSeenCandidates: 2
+  milestoneRunResume: 1
+  rushEntranceHoldMeters: 300
+  hpMul: 1.25
+  attackFrequencyMul: 1.2
+  attackIntervalMul: 0.85
+  moveSpeedMul: 1.1
+  damageMul: 1
+  maxSimultaneous: 3
+  rushHpMulPerBoss: 0.3
+  rushDamageMul: 1.4
+  maxLarge: 2
+  maxAir: 2
+  maxAreaAttack: 1
+  maxProjectile: 2
+  maxChaser: 2
+  rushGates:
+  - km: 90
+    variants:
+    - label: "\u5730\u4E0A+\u7A7A\u4E2D \u540C\u6642"
+      slots:
+      - key: Wild/Serpent
+        trigger: 0
+        value: 0
+      - key: Sky/Fenrir
+        trigger: 0
+        value: 0
+    - label: "\u9023\u7D9A"
+      slots:
+      - key: Cave/Troll
+        trigger: 0
+        value: 0
+      - key: Wild/Griffin
+        trigger: 3
+        value: 0
+  - km: 91
+    variants:
+    - label: "\u6642\u9593\u3067\u5897\u63F4"
+      slots:
+      - key: Wild/Cyclops
+        trigger: 0
+        value: 0
+      - key: Cave/Bat
+        trigger: 1
+        value: 8
+    - label: "HP\u3067\u5897\u63F4"
+      slots:
+      - key: Sky/Behemoth
+        trigger: 0
+        value: 0
+      - key: Cave/Basilisk
+        trigger: 2
+        value: 0.6
+  - km: 92
+    variants:
+    - label: "\u540C\u6642+\u6483\u7834\u3067\u6B21"
+      slots:
+      - key: Cave/Mole
+        trigger: 0
+        value: 0
+      - key: Wild/Griffin
+        trigger: 0
+        value: 0
+      - key: Sky/Titan
+        trigger: 3
+        value: 0
+    - label: "\u6642\u9593\u3067\u5897\u63F4"
+      slots:
+      - key: Wild/Spider
+        trigger: 0
+        value: 0
+      - key: Sky/Jellyfish
+        trigger: 1
+        value: 7
+  - km: 93
+    variants:
+    - label: "\u30B4\u30FC\u30EC\u30E0"
+      slots:
+      - key: Wild/Golem
+        trigger: 0
+        value: 0
+      - key: Cave/CrystalGolem
+        trigger: 2
+        value: 0.55
+      - key: Sky/SkyGolem
+        trigger: 3
+        value: 0
+    - label: "\u6DF7\u6210"
+      slots:
+      - key: Cave/Worm
+        trigger: 0
+        value: 0
+      - key: Sky/Fenrir
+        trigger: 0
+        value: 0
+      - key: Wild/Hydra
+        trigger: 1
+        value: 10
+  - km: 94
+    variants:
+    - label: "\u5730\u4E0A2+\u7A7A\u4E2D"
+      slots:
+      - key: Cave/ScorpionKing
+        trigger: 0
+        value: 0
+      - key: Wild/Demon
+        trigger: 0
+        value: 0
+      - key: Sky/Phoenix
+        trigger: 1
+        value: 9
+    - label: "\u6483\u7834\u3067\u6B21"
+      slots:
+      - key: Sky/Leviathan
+        trigger: 0
+        value: 0
+      - key: Cave/Troll
+        trigger: 0
+        value: 0
+      - key: Wild/Cyclops
+        trigger: 3
+        value: 0
+  - km: 95
+    variants:
+    - label: "4\u4F53"
+      slots:
+      - key: Wild/Hydra
+        trigger: 0
+        value: 0
+      - key: Cave/Drake
+        trigger: 0
+        value: 0
+      - key: Sky/Jellyfish
+        trigger: 2
+        value: 0.6
+      - key: Wild/Serpent
+        trigger: 3
+        value: 0
+    - label: "3\u4F53"
+      slots:
+      - key: Sky/SkySerpent
+        trigger: 0
+        value: 0
+      - key: Cave/Basilisk
+        trigger: 1
+        value: 6
+      - key: Wild/Golem
+        trigger: 3
+        value: 0
+  - km: 96
+    variants:
+    - label: "\u5D50"
+      slots:
+      - key: Sky/SkySerpent
+        trigger: 0
+        value: 0
+      - key: Wild/Spider
+        trigger: 0
+        value: 0
+      - key: Wild/Demon
+        trigger: 1
+        value: 8
+      - key: Cave/Bat
+        trigger: 3
+        value: 0
+    - label: "\u5DE8\u4F53"
+      slots:
+      - key: Sky/Titan
+        trigger: 0
+        value: 0
+      - key: Cave/Mole
+        trigger: 0
+        value: 0
+      - key: Wild/Griffin
+        trigger: 2
+        value: 0.5
+      - key: Cave/CrystalGolem
+        trigger: 3
+        value: 0
+  - km: 97
+    variants:
+    - label: "\u9B54\u306E4\u4F53"
+      slots:
+      - key: Cave/AncientDemon
+        trigger: 0
+        value: 0
+      - key: Sky/Guardian
+        trigger: 0
+        value: 0
+      - key: Wild/Demon
+        trigger: 2
+        value: 0.55
+      - key: Sky/Fenrir
+        trigger: 3
+        value: 0
+    - label: "\u7ADC\u3068\u86C7"
+      slots:
+      - key: Cave/Drake
+        trigger: 0
+        value: 0
+      - key: Sky/Leviathan
+        trigger: 0
+        value: 0
+      - key: Wild/Hydra
+        trigger: 1
+        value: 9
+      - key: Cave/ScorpionKing
+        trigger: 3
+        value: 0
+  - km: 98
+    variants:
+    - label: "\u6700\u5F8C\u306E5\u9023"
+      slots:
+      - key: Wild/BlackKnight
+        trigger: 0
+        value: 0
+      - key: Sky/Phoenix
+        trigger: 0
+        value: 0
+      - key: Cave/Basilisk
+        trigger: 1
+        value: 8
+      - key: Sky/Guardian
+        trigger: 2
+        value: 0.5
+      - key: Cave/AncientDemon
+        trigger: 3
+        value: 0
+    - label: "\u6700\u5F8C\u306E5\u9023(\u5225)"
+      slots:
+      - key: Sky/Guardian
+        trigger: 0
+        value: 0
+      - key: Wild/Griffin
+        trigger: 0
+        value: 0
+      - key: Cave/AncientDemon
+        trigger: 2
+        value: 0.6
+      - key: Wild/BlackKnight
+        trigger: 1
+        value: 12
+      - key: Sky/SkySerpent
+        trigger: 3
+        value: 0
+  tags:
+  - key: Wild/Wolf
+    tags: 17
+  - key: Wild/GoblinRider
+    tags: 17
+  - key: Wild/Serpent
+    tags: 17
+  - key: Wild/Cyclops
+    tags: 5
+  - key: Wild/Spider
+    tags: 9
+  - key: Wild/Golem
+    tags: 5
+  - key: Wild/Griffin
+    tags: 18
+  - key: Wild/Hydra
+    tags: 13
+  - key: Wild/Demon
+    tags: 10
+  - key: Wild/Dragon
+    tags: 74
+  - key: Wild/BlackKnight
+    tags: 17
+  - key: Cave/Centipede
+    tags: 17
+  - key: Cave/Scorpion
+    tags: 1
+  - key: Cave/Mole
+    tags: 1
+  - key: Cave/Troll
+    tags: 5
+  - key: Cave/Worm
+    tags: 5
+  - key: Cave/CrystalGolem
+    tags: 37
+  - key: Cave/Bat
+    tags: 18
+  - key: Cave/ScorpionKing
+    tags: 5
+  - key: Cave/Basilisk
+    tags: 9
+  - key: Cave/Drake
+    tags: 10
+  - key: Cave/AncientDemon
+    tags: 42
+  - key: Sky/Dragon
+    tags: 74
+  - key: Sky/Majin
+    tags: 74
+  - key: Sky/Behemoth
+    tags: 49
+  - key: Sky/Titan
+    tags: 36
+  - key: Sky/Jellyfish
+    tags: 34
+  - key: Sky/Leviathan
+    tags: 36
+  - key: Sky/Fenrir
+    tags: 18
+  - key: Sky/SkyGolem
+    tags: 12
+  - key: Sky/Phoenix
+    tags: 10
+  - key: Sky/SkySerpent
+    tags: 38
+  - key: Sky/Guardian
+    tags: 42

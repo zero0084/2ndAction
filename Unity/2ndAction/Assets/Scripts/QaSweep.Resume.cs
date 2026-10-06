@@ -21,6 +21,16 @@ public partial class QaSweep
         int easeKey = PlayerPrefs.GetInt(GameManager.ResumeEaseDevKey, -1);
         autoPickHold = true;
         string ch = Arg("-qaResumeChar", "swordsman");
+        string only = Arg("-qaResumeOnly", "all"); // all / gate / footing
+        if (only == "all" || only == "footing") yield return FootingSuite(ch);
+        if (only == "footing")
+        {
+            if (hadEaseKey) PlayerPrefs.SetInt(GameManager.ResumeEaseDevKey, easeKey); else PlayerPrefs.DeleteKey(GameManager.ResumeEaseDevKey);
+            autoPickHold = false;
+            SaveSystem.Restore(snapSave); CardInventory.ReloadFromPrefs(); RunCheckpoint.Reload();
+            L("[resume] test machine save restored");
+            yield break;
+        }
         yield return ResumeCase("A normal", ch, 600f, new string[] { "attack_up", "heart_up" }, false);
         yield return ResumeCase("B high", ch, 8000f, new string[] { "attack_up", "speed_up", "speed_up", "speed_up", "heart_up" }, false);
         yield return ResumeCase("C high+ease", ch, 8000f, new string[] { "speed_up", "speed_up", "speed_up" }, true);
@@ -235,6 +245,204 @@ public partial class QaSweep
         Check(!TimeControl.IsPausedBy(gateOwner) && !TimeControl.IsPausedBy(homeOwner), $"{name}: no resume/home stop reason left");
         L($"{name}: stop reasons now: {TimeControl.DescribeActiveReasons()} (level-up choice open={gm.IsRewardSequenceWaitingForSelection})");
         Shot($"resume_{name.Split(' ')[0]}_after");
+        stopKeepAlive = false;
+        StartCoroutine(KeepAlive());
+        yield return EndRun();
+    }
+
+    // ===== 再開地点の足場(2026-10-03) =====
+    IEnumerator FootingSuite(string ch)
+    {
+        // 自動ジャンプ補助OFF・慣らしOFF(この2つに頼らずに落ちないこと)
+        if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(false);
+        PlayerPrefs.SetInt(GameManager.ResumeEaseDevKey, 0);
+        string[] speed3 = { "speed_up", "speed_up", "speed_up" };
+        string[] speed8 = { "speed_up", "speed_up", "speed_up", "speed_up", "speed_up", "speed_up", "speed_up", "speed_up" };
+
+        // 以前の動き(位置の指定なし)の再現: 荒野8km・高速で、2秒ぶんの区間に穴が出るか
+        int legacyRuns = int.Parse(Arg("-qaResumeLegacyRuns", "6")), legacyPits = 0;
+        for (int i = 0; i < legacyRuns; i++)
+        {
+            bool pit = false;
+            yield return FootingCase($"legacy#{i + 1}", ch, "wasteland_road", 8000f, speed3, legacy: true, r => pit = r);
+            if (pit) legacyPits++;
+        }
+        L($"[footing] LEGACY (before the fix): a pit within the 2-second stretch in {legacyPits}/{legacyRuns} continues at 8km");
+
+        yield return ExistingPitCase(ch);
+
+        string[] stages = Arg("-qaResumeStages", "wasteland_road,natural_cave,sky_corridor,last_corridor").Split(',');
+        foreach (string st in stages)
+        {
+            yield return FootingCase($"{st} normal", ch, st, 600f, new string[0], false, null);
+            yield return FootingCase($"{st} high", ch, st, 8000f, speed3, false, null);
+        }
+        // 8kmで繰り返し(地形は毎回乱数)+ さらに速い状態
+        int reps = int.Parse(Arg("-qaResumeReps", "4"));
+        for (int i = 0; i < reps; i++) yield return FootingCase($"wasteland 8km #{i + 1}", ch, "wasteland_road", 8000f, speed3, false, null);
+        yield return FootingCase("wasteland very high", ch, "wasteland_road", 8000f, speed8, false, null);
+    }
+
+    // 生成済みの穴を安全区間で平地へ直す経路(実際のCONTINUEでは再開地点が生成済みの範囲より先なので通らないことが多い)
+    IEnumerator ExistingPitCase(string ch)
+    {
+        yield return BeginRun(ch, "wasteland_road");
+        WarpTo(8000f);
+        var tm = TerrainManager.Instance;
+        float? pit = null;
+        float w = 0f;
+        // 前方に生成済みの穴が見つかるまで少し走る
+        while (w < 20f)
+        {
+            float px0 = pc.transform.position.x;
+            pit = tm.FirstPitBetween(px0 + 12f, tm.GeneratedEndX - 12f);
+            if (pit.HasValue) break;
+            yield return new WaitForSecondsRealtime(0.3f); w += 0.3f;
+        }
+        if (!pit.HasValue) { Warn("existing pit: no generated pit found ahead - skipped"); yield return EndRun(); yield break; }
+        TimeControl.Pause(this);
+        float a = pit.Value - 6f, b = pit.Value + 14f;
+        int fixedPits = tm.SetResumeFlatZone(FloatingOrigin.ToLogical(a), FloatingOrigin.ToLogical(b));
+        Check(fixedPits >= 1, $"existing pit: an already generated pit in the stretch was fixed ({fixedPits})");
+        Check(!tm.FirstPitBetween(a, b).HasValue, "existing pit: no pit left in the stretch");
+        float prevH = float.NaN; int gaps = 0, steps = 0;
+        for (float x = a - 10f; x <= b + 10f; x += 0.25f)
+        {
+            float? h = tm.GetHeightAt(x);
+            if (!h.HasValue) { if (x >= a && x <= b) gaps++; prevH = float.NaN; continue; }
+            if (!float.IsNaN(prevH) && Mathf.Abs(h.Value - prevH) > 0.35f) steps++;
+            prevH = h.Value;
+        }
+        Check(gaps == 0 && steps == 0, $"existing pit: ground continuous through the fixed pit and its edges (gaps {gaps}, steps {steps})");
+        // 見た目: 直した所の地面の絵(コライダー付きの地形の絵)がある
+        var cam = Camera.main;
+        if (cam != null) { var p = cam.transform.position; p.x = pit.Value + 2f; cam.transform.position = p; }
+        yield return null;
+        Shot("footing_existing_pit_fixed");
+        tm.ClearResumeFlatZone();
+        TimeControl.Resume(this);
+        L($"existing pit: fixed {fixedPits} pit(s) at {FloatingOrigin.ToLogical(pit.Value):F0}m");
+        yield return EndRun();
+    }
+
+    IEnumerator FootingCase(string name, string ch, string stage, float dist, string[] cards, bool legacy, System.Action<bool> pitResult)
+    {
+        yield return BeginRun(ch, stage);
+        string active = (string)GetPrivate(gm, "activeRunStageId");
+        if (active != stage) { Warn($"{name}: stage {stage} not available here (running {active}) - skipped"); yield return EndRun(); yield break; }
+        WarpTo(dist);
+        yield return new WaitForSecondsRealtime(0.8f);
+        var hist = (List<CardDefinition>)typeof(GameManager).GetField("upgradeHistory", NP).GetValue(gm);
+        var apply = typeof(GameManager).GetMethod("ApplyCardEffects", NP, null, new[] { typeof(CardDefinition) }, null);
+        foreach (string id in cards) { var c = CardDatabase.FindById(id); if (c != null) { apply.Invoke(gm, new object[] { c }); hist.Add(c); } }
+        // HPは満タンで保存(テスト用のHP維持を止めてから)
+        stopKeepAlive = true;
+        yield return null;
+        typeof(GameManager).GetProperty("Lives").GetSetMethod(true).Invoke(gm, new object[] { gm.maxLives });
+        typeof(GameManager).GetMethod("SaveCheckpoint", NP).Invoke(gm, null);
+        var showPauseMenu = typeof(GameManager).GetField("showPauseMenu", NP);
+        showPauseMenu.SetValue(gm, true);
+        TimeControl.Pause(typeof(GameManager).GetField("pauseMenuTimeOwner", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null));
+        yield return null;
+        showPauseMenu.SetValue(gm, false);
+        var old = gm;
+        gm.ReturnToHome();
+        float w = 0f;
+        while ((GameManager.Instance == null || GameManager.Instance == old || GameManager.Instance.HasStarted) && w < 15f) { yield return null; w += Time.unscaledDeltaTime; }
+        yield return new WaitForSecondsRealtime(0.6f);
+        gm = GameManager.Instance;
+        if (legacy) gm.resumeSafeFootingEnabled = false;
+        w = 0f; float retry = 0f;
+        while (gm.ResumeGate != GameManager.ResumeGatePhase.Waiting && w < 12f)
+        {
+            if (!gm.HasStarted && retry <= 0f) { gm.ContinueActiveRun(); retry = 0.5f; }
+            yield return null; w += Time.unscaledDeltaTime; retry -= Time.unscaledDeltaTime;
+        }
+        pc = PlayerController.Instance;
+        var tm = TerrainManager.Instance;
+        stopKeepAlive = true;
+        Check(gm.ResumeGate == GameManager.ResumeGatePhase.Waiting, $"{name}: ready screen shown");
+        float px = pc.transform.position.x;
+        float speed = pc.CurrentAutoRunSpeed;
+        float need = Mathf.Max(gm.resumeSafeMinAhead, speed * gm.resumeSafeSeconds);
+        float? pit = tm.FirstPitBetween(px - gm.resumeSafeBehind, px + need);
+        if (legacy)
+        {
+            L($"{name}: LEGACY {GameManager.SpeedKmh(speed):F0} km/h, 2s = {speed * 2f:F0}m: first pit {(pit.HasValue ? $"{pit.Value - px:F1}m ahead" : "none")}");
+            pitResult?.Invoke(pit.HasValue);
+            if (pit.HasValue && pit.Value - px < 20f) Shot($"footing_legacy_{name.Replace('#', '_')}");
+            gm.resumeSafeFootingEnabled = true;
+            yield return EndRun();
+            yield break;
+        }
+        Check(Mathf.Abs(gm.LastResumeSafeAheadMeters - need) < 0.5f, $"{name}: safe stretch = max({gm.resumeSafeMinAhead:F0}m, speed x {gm.resumeSafeSeconds:F1}s) ({gm.LastResumeSafeAheadMeters:F1} vs {need:F1}, {gm.LastResumeSafeKmh:F1} km/h)");
+        Check(!pit.HasValue, $"{name}: no pit under the feet or in the next {need:F0}m (first pit {(pit.HasValue ? (pit.Value - px).ToString("F1") + "m" : "none")})");
+        tm.DescribeGround(px - gm.resumeSafeBehind, px + need, out int slopes, out float minY, out float maxY);
+        Check(slopes == 0 && maxY - minY < 0.01f, $"{name}: the stretch is level ground ({slopes} slopes, height {minY:F2}..{maxY:F2})");
+        // 足元: 接地して地面の上に立っている
+        float? gy = tm.GetHeightAt(px);
+        Check(pc.IsGrounded && gy.HasValue && Mathf.Abs(pc.transform.position.y - (gy.Value + pc.groundOffset)) < 0.02f, $"{name}: standing on the ground at the restore point (grounded={pc.IsGrounded})");
+        // 当たり判定(着地に使う地面の高さ)が区間とつなぎ目で途切れない: 0.25m刻みで高さが取れて、急な段差が無い
+        float end = px + need, prevH = float.NaN; int gaps = 0, steps = 0;
+        for (float x = px - gm.resumeSafeBehind; x <= end + 20f; x += 0.25f)
+        {
+            float? h = tm.GetHeightAt(x);
+            if (!h.HasValue) { if (x <= end) gaps++; prevH = float.NaN; continue; }
+            if (!float.IsNaN(prevH) && Mathf.Abs(h.Value - prevH) > 0.35f) steps++;
+            prevH = h.Value;
+        }
+        Check(gaps == 0, $"{name}: ground height exists all along the stretch ({gaps} gaps)");
+        Check(steps == 0, $"{name}: no sudden step in the stretch or where it joins normal terrain ({steps})");
+        string sig0 = tm.DebugTerrainSignature(FloatingOrigin.ToLogical(px) - 10f, FloatingOrigin.ToLogical(end) + 10f);
+        Shot($"footing_{name.Replace(' ', '_')}_ready");
+
+        // 準備画面で待つ → カウントダウン → 途中で裏へ → 戻る → 再度カウントダウン → GO
+        yield return new WaitForSecondsRealtime(1f);
+        Check(gm.RequestResumeFromGate(), $"{name}: countdown starts");
+        yield return new WaitForSecondsRealtime(1.2f);
+        typeof(GameManager).GetMethod("OnApplicationPause", NP).Invoke(gm, new object[] { true });
+        typeof(GameManager).GetMethod("OnApplicationPause", NP).Invoke(gm, new object[] { false });
+        yield return new WaitForSecondsRealtime(0.5f);
+        Check(gm.ResumeGate == GameManager.ResumeGatePhase.Waiting, $"{name}: back to the ready screen after backgrounding");
+        Check(gm.RequestResumeFromGate(), $"{name}: countdown starts again");
+        while (gm.ResumeGateActive) yield return null;
+        // FloatingOriginで座標がずれていても論理Xで比べる
+        float pxGo = pc.transform.position.x;
+        float shift = pxGo - px; // ずれ(=原点の移動)。準備画面中はプレイヤーは動かない
+        string sigGo = tm.DebugTerrainSignature(FloatingOrigin.ToLogical(pxGo) - 10f, FloatingOrigin.ToLogical(pxGo) + need + 10f);
+        Check(sigGo == sig0, $"{name}: footing unchanged from the ready screen to GO ({sig0} -> {sigGo})");
+        Check(!tm.FirstPitBetween(pxGo - gm.resumeSafeBehind, pxGo + need).HasValue, $"{name}: still no pit at GO");
+
+        // GO の後 2.2 秒: 補助OFF・慣らしOFFのまま、穴へ落ちない(地面の下へ行かない/落下からの復帰が無い/被弾しない)
+        int lives0 = gm.Lives;
+        float lx0 = FloatingOrigin.ToLogical(pc.transform.position.x);
+        float t = 0f; bool fellIn = false; float lowestIn = float.PositiveInfinity;
+        float zoneEndLogical = FloatingOrigin.ToLogical(pxGo) + need;
+        int livesSeen = gm.Lives, damageIn = 0;
+        string after = "";
+        // 安全区間の中(GO〜約2秒)が判定の対象。区間を出た直後(〜2.4秒)は通常の地形なので、何が来たかを記録だけする。
+        while (t < 2.4f && !gm.IsGameOver)
+        {
+            float x = pc.transform.position.x;
+            float lx = FloatingOrigin.ToLogical(x);
+            float? h = tm.GetHeightAt(x);
+            bool inZone = lx <= zoneEndLogical;
+            if (inZone)
+            {
+                if (!h.HasValue) { fellIn = true; L($"   over a pit INSIDE the stretch at {lx - zoneEndLogical:+0.0;-0.0}m (t={t:F2}s)"); }
+                else lowestIn = Mathf.Min(lowestIn, pc.transform.position.y - (h.Value + pc.groundOffset));
+                if (gm.Lives < livesSeen) { damageIn++; L($"   damage INSIDE the stretch {livesSeen}->{gm.Lives} source={pc.LastDamageSource} (t={t:F2}s)"); }
+            }
+            else if (after.Length == 0 && (!h.HasValue || gm.Lives < livesSeen))
+                after = !h.HasValue ? $"normal terrain resumes: a pit {lx - zoneEndLogical:F1}m after the stretch end" : $"damage {pc.LastDamageSource} {lx - zoneEndLogical:F1}m after the stretch end";
+            livesSeen = gm.Lives;
+            yield return null; t += Time.unscaledDeltaTime;
+        }
+        float ran = FloatingOrigin.ToLogical(pc.transform.position.x) - lx0;
+        Check(!fellIn && lowestIn > -0.05f, $"{name}: never over a pit / below the ground inside the stretch (lowest {lowestIn:F2})");
+        Check(damageIn == 0 && !gm.IsGameOver, $"{name}: no damage inside the stretch ({damageIn})");
+        if (after.Length > 0) L($"   (after the stretch) {after}");
+        L($"{name}: {GameManager.SpeedKmh(speed):F0} km/h, stretch {need:F0}m (fixed pits {gm.LastResumeFixedPits}), ran {ran:F0}m in 2.4s, shift {shift:F1}");
         stopKeepAlive = false;
         StartCoroutine(KeepAlive());
         yield return EndRun();

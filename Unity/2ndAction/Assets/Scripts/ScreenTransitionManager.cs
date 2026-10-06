@@ -102,6 +102,22 @@ public class ScreenTransitionManager : MonoBehaviour
 
     void OnDestroy() { if (Instance == this) Instance = null; }
 
+    // 見張り(2026-10-06): 遷移は長くても数秒。止まったまま IsTransitioning が残ると、あらゆるタップ(結果画面の Retry 等)が通らなくなる
+    // → 一定時間を超えたら外す(覆いも消す)。正常な遷移はここに来ない。
+    float startedRealtime = -1f;
+    public static int StuckResets;
+    void Update()
+    {
+        if (!IsTransitioning) { startedRealtime = -1f; return; }
+        if (startedRealtime < 0f) startedRealtime = Time.realtimeSinceStartup;
+        if (Time.realtimeSinceStartup - startedRealtime < 8f) return;
+        StuckResets++;
+        Debug.LogWarning($"[Transition] stuck for {Time.realtimeSinceStartup - startedRealtime:F1}s (style={CurrentStyle}, coverage={coverage:F2}) - reset so input is not blocked");
+        StopAllCoroutines();
+        IsTransitioning = false; coverage = 0f; closing = false;
+        startedRealtime = -1f;
+    }
+
     // onFullyCovered は画面が覆われた瞬間に1回だけ呼ばれる(ここで画面/状態を切り替える)。
     public void PlayTransition(Action onFullyCovered) => PlayTransition(onFullyCovered, Style.Sweep);
 

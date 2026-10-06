@@ -15,15 +15,17 @@ MonoBehaviour:
   cardId: the_long_road
   cardName: THE LONG ROAD
   icon: {fileID: 2800000, guid: c46a71b08d1109d4bb60a0c08a408007, type: 3}
-  description: "\u7D4C\u9A13\u5024\u7372\u5F97\u91CF\u3068\u6700\u5927HP\u304C\u3068\u3082\u306B\u5927\u304D\u304F\u4E0A\u304C\u308B"
+  description: "\u7D4C\u9A13\u5024(1Lv\u3054\u3068\u306B+40%)\u3068\u6700\u5927HP(2Lv\u3054\u3068\u306B\u30CF\u30FC\u30C8+1)\u304C\u5897\u3048\u308B"
   category: 3
   sortOrder: 166
   recommendPriority: 5
   effects:
   - type: 9
     value: 0.4
-  - type: 4
-    value: 20
+    scaling: 0
+  - type: 51
+    value: 1
+    scaling: 3
   rarity: 5
   unlockDistance: 100000
   gachaStage: 5

@@ -80,7 +80,29 @@ public class EncounterDirector : MonoBehaviour
     public static System.Func<float, float> PaceAt;
     public static System.Func<float, float> SurgeAt;
     float planDistance; // 今決めているEncounterの走行距離(SurgeAt用)
-    float Pace(float d) => PaceAt != null ? Mathf.Max(0.2f, PaceAt(d)) : 1f;
+    float Pace(float d) => (PaceAt != null ? Mathf.Max(0.2f, PaceAt(d)) : 1f) * SpawnGapFactor;
+
+    // ===== 敵出現率のカード(2026-10-03) =====
+    // GameManager.EnemySpawnRateMultiplier(1 + MORE ENEMIES/HORDE/GREED/... の合計)を、このDirectorでは
+    // 「Encounterの頻度」に変える: Encounterどうしの間隔と休憩(Rest)の長さ ÷ 頻度、Restを選ぶ割合 ÷ 頻度。
+    // 1つのEncounterの中身(Formationの敵の数/並び)は変えないので、敵が1か所に重ならない。ボスの関門/ボス戦中の停止/
+    // BONUS ZONE/安全区間は今までどおり(このDirectorの外の仕組み)。極端な値でも頻度は下の範囲で止める(端末負荷)。
+    // マルチ: 出現を決めるのはHOSTだけなので、HOSTのカードの値を使う(JOINのカードは効かない。仕様の確認待ち)。
+    [Header("敵出現率カード(2026-10-03)")]
+    [Tooltip("出現率カードで上がる頻度の上限(2=間隔が半分)")]
+    public float spawnRateMaxFrequency = 2f;
+    [Tooltip("出現率が下がる場合の頻度の下限")]
+    public float spawnRateMinFrequency = 0.5f;
+    public float SpawnFrequency
+    {
+        get
+        {
+            var gm = GameManager.Instance;
+            float m = gm != null ? gm.EnemySpawnRateMultiplier : 1f;
+            return Mathf.Clamp(m, Mathf.Max(0.05f, spawnRateMinFrequency), Mathf.Max(spawnRateMinFrequency, spawnRateMaxFrequency));
+        }
+    }
+    float SpawnGapFactor => 1f / Mathf.Max(0.05f, SpawnFrequency);
     public static int SuppressedFrames; // テスト用
 
     // 統計(自動テスト/デバッグ)
@@ -259,7 +281,7 @@ public class EncounterDirector : MonoBehaviour
             if (nextAnchor < playerLogical + ahead) nextAnchor = playerLogical + ahead;
             return;
         }
-        bool bossPhase = BossManager.Instance != null && BossManager.Instance.SpawnsHeld; // ボス戦の強化: ラン再開後は雑魚を戻す
+        bool bossPhase = (BossManager.Instance != null && BossManager.Instance.SpawnsHeld) || CaveBossSafety.HoldZako; // ボス戦の強化: ラン再開後は雑魚を戻す / 自然洞窟ボスの必殺技中は出さない
         bool pauseNow = bossPhase || gm.IsDistanceInSafeZone(RefDistance) || gm.CountdownActive || gm.ResumeGateActive || (refIsLocal && pc.IsFinishing);
         if (pauseNow)
         {
@@ -341,7 +363,7 @@ public class EncounterDirector : MonoBehaviour
                         float forkDistance = RunDistanceAt(forkLogical);
                         if (DebugDistanceOffset != 0f || !BossNear(forkDistance)) PlanBranch(tm, pc, fork, merge, forkDistance, speed);
                     }
-                    nextAnchor = FloatingOrigin.ToLogical(merge) + Range(profile.afterMergeGap) * GapScale(speed);
+                    nextAnchor = FloatingOrigin.ToLogical(merge) + Range(profile.afterMergeGap) * GapScale(speed) * SpawnGapFactor;
                     continue;
                 }
                 mainLimit = fork - profile.routeLead;
@@ -588,7 +610,7 @@ public class EncounterDirector : MonoBehaviour
 
         EncounterIntensity intensity = forced != null
             ? (EncounterIntensity)Mathf.Clamp((int)EncounterIntensity.Medium, (int)forced.minIntensity, (int)forced.maxIntensity)
-            : PickIntensity(band);
+            : PickIntensity(band, SpawnGapFactor); // 出現率が高いほど休憩(Rest)を選びにくい
         if (intensity == EncounterIntensity.Rest) { DoRest(runDistance, band, speed, "wave"); return; }
 
         // 地形が合わない/直前と同じFormationしか選べない時は、少し先の地形で探し直す(最後の1回だけ連続を許す)。
@@ -925,6 +947,7 @@ public class EncounterDirector : MonoBehaviour
 
     bool Spawn(TerrainManager tm, PlayerController pc, EncounterDistanceBand band, EncounterFormation f, EncounterIntensity intensity, TerrainProbe probe, float runDistance, float speed)
     {
+        if (ChallengeSystem.SpawnHeldByCap()) return false; // カード v3: 生きている雑魚が多すぎる時は後回し(Android の負荷)
         var plan = PlanSlots(tm, band, f, intensity, probe, speed, EncounterRoute.Main);
         if (plan == null || plan.Count == 0) return false;
         float anchor = probe.AnchorX;
@@ -1399,6 +1422,7 @@ public class EncounterDirector : MonoBehaviour
     int debugEnemy, debugTier = 1;
     static bool debugAiLabels;
 
+    public List<string> StageEnemyIds() => AllEnemyIds(); // カード v3: WANTED の賞金首(このステージの Encounter に出る敵)
     List<string> AllEnemyIds()
     {
         var ids = new List<string>();

@@ -18,12 +18,15 @@ public static class DebugRun
     public static int LastRestoredKeys { get; private set; } = -1;   // 直前の終了で、控えと違って戻したキーの数(0が正常)
     public static string LastRestoreNote { get; private set; } = "";
 
+    // 進行を書き込まない状態: Debug Run(開発版)/ 闘技場(2026-10-06、リリース版でも。練習なので報酬/記録/所持/解放/累計/CONTINUE を一切書かない)
+    public static bool WritesBlocked => IsActive || ArenaMode.Active || ArenaMode.PendingStart;
+
     // 保存処理の入口で呼ぶ。true なら保存しない。
     public static bool BlocksSave(string what)
     {
-        if (!IsActive) return false;
+        if (!WritesBlocked) return false;
         BlockedWrites++;
-        if (BlockedWrites <= 40 || BlockedWrites % 100 == 0) Debug.Log($"[DebugRun] save blocked: {what} (#{BlockedWrites})");
+        if (BlockedWrites <= 40 || BlockedWrites % 100 == 0) Debug.Log($"[{(IsActive ? "DebugRun" : "Arena")}] save blocked: {what} (#{BlockedWrites})");
         return true;
     }
 

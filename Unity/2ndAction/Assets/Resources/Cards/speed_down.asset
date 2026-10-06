@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: speed_down
   cardName: SPEED DOWN
   icon: {fileID: 2800000, guid: c154a29b4fa1d1740956b529f3b53514, type: 3}
-  description: "\u79FB\u52D5\u901F\u5EA6\u304C\u4F4E\u4E0B\u3059\u308B"
+  description: "\u79FB\u52D5\u901F\u5EA6\u304C\u4E0B\u304C\u308B(1Lv\u3054\u3068\u306B-4%)\u3002\u30BD\u30ED\u3067\u306F\u9078\u3076\u7406\u7531\u306E\u5C11\u306A\u3044\u7279\u6B8A\u306A\u30AB\u30FC\u30C9"
   category: 0
   sortOrder: 2
   recommendPriority: 1
   effects:
-  - type: 0
-    value: -0.12
+  - type: 45
+    value: -0.04
+    scaling: 0
   rarity: 1
   unlockDistance: 0
   gachaStage: 1

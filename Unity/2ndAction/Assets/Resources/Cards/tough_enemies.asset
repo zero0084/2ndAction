@@ -15,15 +15,20 @@ MonoBehaviour:
   cardId: tough_enemies
   cardName: TOUGH ENEMIES
   icon: {fileID: 2800000, guid: ea9fc9f575ac0174b91b7e562e3c14c2, type: 3}
-  description: "\u96D1\u9B5A\u6575\u306EHP\u304C\u4E0A\u304C\u308B\u4EE3\u308F\u308A\u306B\u3001\u7D4C\u9A13\u5024/MILE\u304C\u5897\u52A0\u3059\u308B"
+  description: "\u96D1\u9B5A\u306EHP\u304C\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+15%)\u4EE3\u308F\u308A\u306B\u3001MILE(+15%/Lv)\u3068\u6483\u7834\u306E\u7D4C\u9A13\u5024(+5%/Lv)\u304C\u5897\u3048\u308B"
   category: 6
   sortOrder: 108
-  recommendPriority: 5
+  recommendPriority: 2
   effects:
   - type: 20
-    value: 0.3
+    value: 0.15
+    scaling: 0
   - type: 22
     value: 0.15
+    scaling: 0
+  - type: 107
+    value: 0.05
+    scaling: 0
   rarity: 2
   unlockDistance: 0
   gachaStage: 1

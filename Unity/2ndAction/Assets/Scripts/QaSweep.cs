@@ -58,6 +58,25 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaCardSurvey") { mode = "cardsurvey"; dir = a[i + 1]; }
             if (a[i] == "-qaBossKill") { mode = "bosskill"; dir = a[i + 1]; }
             if (a[i] == "-qaResume") { mode = "resume"; dir = a[i + 1]; }
+            if (a[i] == "-qaCardFix") { mode = "cardfix"; dir = a[i + 1]; }
+            if (a[i] == "-qaHitAudit") { mode = "hitaudit"; dir = a[i + 1]; }
+            if (a[i] == "-qaCardV3") { mode = "cardv3"; dir = a[i + 1]; }
+            if (a[i] == "-qaUltimate") { mode = "ultimate"; dir = a[i + 1]; }
+            if (a[i] == "-qaMastery") { mode = "mastery"; dir = a[i + 1]; }
+            if (a[i] == "-qaArena") { mode = "arena"; dir = a[i + 1]; }
+            if (a[i] == "-qaCaveBoss") { mode = "caveboss"; dir = a[i + 1]; }
+            if (a[i] == "-qaBossAssist") { mode = "bossassist"; dir = a[i + 1]; }
+            if (a[i] == "-qaFinalEvo") { mode = "finalevo"; dir = a[i + 1]; }
+            if (a[i] == "-qaFe2") { mode = "fe2"; dir = a[i + 1]; }
+            if (a[i] == "-qaRetry") { mode = "retry"; dir = a[i + 1]; }
+            if (a[i] == "-qaCombo") { mode = "combo"; dir = a[i + 1]; }
+            if (a[i] == "-qaSkyBoss") { mode = "skyboss"; dir = a[i + 1]; }
+            if (a[i] == "-qaSprint") { mode = "sprint"; dir = a[i + 1]; }
+            if (a[i] == "-qaCharSelect") { mode = "charselect"; dir = a[i + 1]; }
+            if (a[i] == "-qaPad") { mode = "pad"; dir = a[i + 1]; }
+            if (a[i] == "-qaFinish") { mode = "finish"; dir = a[i + 1]; }
+            if (a[i] == "-qaBossFinish") { mode = "bossfinish"; dir = a[i + 1]; }
+            if (a[i] == "-qaAudio") { mode = "audio"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -80,6 +99,7 @@ public partial class QaSweep : MonoBehaviour
     int failures, warnings;
     bool anyException;
     readonly List<string> exceptions = new List<string>();
+    int excCount; // 例外の総数(一覧は30件まで)
     GameManager gm;
     PlayerController pc;
     int shotNo;
@@ -93,7 +113,7 @@ public partial class QaSweep : MonoBehaviour
         System.IO.Directory.CreateDirectory(outDir);
         Application.logMessageReceived += (c, tr, type) =>
         {
-            if (type == LogType.Exception) { anyException = true; if (exceptions.Count < 30) exceptions.Add(c + " | " + tr.Split('\n')[0]); }
+            if (type == LogType.Exception) { anyException = true; excCount++; if (exceptions.Count < 30) exceptions.Add(c + " | " + tr.Split('\n')[0]); }
         };
         yield return new WaitForSecondsRealtime(2f);
         StartCoroutine(AutoPickCards());
@@ -129,6 +149,25 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "cardsurvey") yield return CardSurveyMode();
         else if (mode == "bosskill") yield return BossKillMode();
         else if (mode == "resume") yield return ResumeMode();
+        else if (mode == "cardfix") yield return CardFixMode();
+        else if (mode == "hitaudit") yield return HitAuditMode();
+        else if (mode == "cardv3") yield return CardV3Mode();
+        else if (mode == "ultimate") yield return UltimateMode();
+        else if (mode == "mastery") yield return MasteryMode();
+        else if (mode == "arena") yield return ArenaMode_();
+        else if (mode == "caveboss") yield return CaveBossMode();
+        else if (mode == "bossassist") yield return BossAssistMode();
+        else if (mode == "finalevo") yield return FinalEvoMode();
+        else if (mode == "fe2") yield return Fe2Mode();
+        else if (mode == "retry") yield return RetryMode();
+        else if (mode == "combo") yield return ComboMode();
+        else if (mode == "skyboss") yield return SkyBossMode();
+        else if (mode == "sprint") yield return SprintMode();
+        else if (mode == "charselect") yield return CharSelectMode();
+        else if (mode == "pad") yield return PadMode();
+        else if (mode == "finish") yield return FinishMode();
+        else if (mode == "bossfinish") yield return BossFinishMode();
+        else if (mode == "audio") yield return AudioMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

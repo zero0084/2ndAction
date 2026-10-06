@@ -18,7 +18,9 @@ public class FusionAutoTest : MonoBehaviour
         new GameObject("FusionTest").AddComponent<FusionAutoTest>();
     }
 
-    static readonly string[] Keys = { CardInventory.SaveKey, "DeckCardIds", "CharacterCardSlots", "TotalOwnedMile", CardDataMigration.FormatKey, "NewUnconfirmedCardsV1" };
+    static readonly string[] BaseKeys = { CardInventory.SaveKey, "DeckCardIds", "CharacterCardSlots", "TotalOwnedMile", CardDataMigration.FormatKey, "NewUnconfirmedCardsV1", CardMastery.SaveKey };
+    // キャラごとのキャラカード枠(CharacterCardSlots.<characterId>、2026-10-02)も退避する(ClearAll/装備で書き換えるため)
+    readonly List<string> Keys = new List<string>();
     readonly Dictionary<string, (bool has, string s, int i)> backup = new Dictionary<string, (bool, string, int)>();
     readonly StringBuilder log = new StringBuilder();
     int failures;
@@ -31,6 +33,9 @@ public class FusionAutoTest : MonoBehaviour
 
     void Backup()
     {
+        Keys.Clear();
+        Keys.AddRange(BaseKeys);
+        Keys.AddRange(SaveKeys.CharacterCardKeys());
         foreach (var k in Keys)
         {
             bool has = PlayerPrefs.HasKey(k);
@@ -83,6 +88,8 @@ public class FusionAutoTest : MonoBehaviour
 
     int Count(string key) { var s = CardInventory.FindByKey(key); return s != null ? s.count : 0; }
     int R(string id) => CardDatabase.FindBaseById(id).rarity;
+    // v3: 攻撃のカードの合計(カードLvから毎回計算)
+    float Atk() => gm.Card.Get(EffectType.AttackPct);
 
     IEnumerator Start()
     {
@@ -100,8 +107,8 @@ public class FusionAutoTest : MonoBehaviour
         {
             // 攻撃力を持つカードをAに(効果適用の確認用)
             var all = CardDatabase.AllCards;
-            foreach (var c in all) if (A == null && c.effects.Count == 1 && c.effects[0].type == EffectType.AttackPower) A = c.cardId;
-            foreach (var c in all) if (c.cardId != A && c.effects.Count == 1 && c.effects[0].type == EffectType.MoveSpeed) { B = c.cardId; break; }
+            foreach (var c in all) if (A == null && c.effects.Count == 1 && (c.effects[0].type == EffectType.AttackPower || c.effects[0].type == EffectType.AttackPct)) A = c.cardId; // v3: AttackPct
+            foreach (var c in all) if (c.cardId != A && c.effects.Count == 1 && (c.effects[0].type == EffectType.MoveSpeed || c.effects[0].type == EffectType.SpeedPct)) { B = c.cardId; break; } // v3: SpeedPct
             foreach (var c in all) if (c.cardId != A && c.cardId != B && C == null) C = c.cardId;
             foreach (var c in all) if (c.cardId != A && c.cardId != B && c.cardId != C && D == null) D = c.cardId;
             foreach (var c in all) if (c.cardId != A && c.cardId != B && c.cardId != C && c.cardId != D && extra.Count < 10) extra.Add(c.cardId);
@@ -149,9 +156,14 @@ public class FusionAutoTest : MonoBehaviour
         });
         PlayerPrefs.SetString(CardInventory.SaveKey, legacy);
         PlayerPrefs.SetString("DeckCardIds", $"{A},{A},{A},{A}+{B}");
+        // 旧形式の頃はキャラカード枠が全キャラ共通(CharacterCardSlots)。2026-10-02以降は起動時に
+        // 選択中のキャラの枠(CharacterCardSlots.<id>)へ移す。その時点でキャラごとの枠はまだ無い前提なので消しておく
+        string ownerKey = GameManager.CharacterCardSlotsPrefix + gm.SelectedCharacterId;
+        PlayerPrefs.DeleteKey(ownerKey);
         PlayerPrefs.SetString("CharacterCardSlots", $"{C}:2,,");
         PlayerPrefs.SetInt(CardDataMigration.FormatKey, 0);
         PlayerPrefs.Save();
+        // 起動時と同じ順: CardDataMigration → (ReloadAll内の LoadCharacterCards で)共通枠をキャラの枠へ移す
         CardDataMigration.RunIfNeeded();
         ReloadAll();
         string a3 = Key(A, 3, R(A), (A, 3));
@@ -163,7 +175,9 @@ public class FusionAutoTest : MonoBehaviour
         Check(vab != null && vab.mainId == A && vab.StacksOf(A) == 1 && vab.StacksOf(B) == 1 && vab.AbilityCount == 2, "旧複合カード(主+副)の副能力がサブ能力として残る");
         var deck = gm.DeckCards;
         Check(deck.Count == 4 && deck[0] == A && deck[1] == A && deck[2] == a3 && deck[3] == ab, $"デッキは低いLvから順に割り当てて移行(4枚とも残る) [{string.Join(",", deck)}]");
-        Check(gm.CharacterCardIds[0] == c2 && gm.GetCharacterCardLevel(0) == 2, "キャラクターカードもLvと能力を保ったまま移行");
+        Check(gm.CharacterCardOwnerId == gm.SelectedCharacterId && gm.CharacterCardIds[0] == c2 && gm.GetCharacterCardLevel(0) == 2,
+            $"キャラクターカードもLvと能力を保ったまま移行(選択中のキャラ {gm.SelectedCharacterId} の枠へ) [{PlayerPrefs.GetString(ownerKey)}]");
+        Check(!PlayerPrefs.HasKey("CharacterCardSlots") && PlayerPrefs.GetString(ownerKey).StartsWith(c2 + ":2"), "旧共通枠は消え、キャラごとの枠に新形式で保存");
         Check(PlayerPrefs.GetInt(CardDataMigration.FormatKey) == CardDataMigration.CurrentFormat, "移行済みフラグ");
         string before = PlayerPrefs.GetString(CardInventory.SaveKey);
         CardDataMigration.RunIfNeeded();
@@ -203,11 +217,20 @@ public class FusionAutoTest : MonoBehaviour
         string a5 = Key(A, 5, R(A), (A, 5)), a4 = Key(A, 4, R(A), (A, 4)), a5b = Key(A, 5, R(A), (A, 5));
         Give(a5, 2); Give(a4, 1);
         int mileBefore = gm.TotalOwnedMile;
-        var bad = CardFusionLogic.Execute(a5, a5b, out string e2);
-        Check(bad == null && Count(a5) == 2 && gm.TotalOwnedMile == mileBefore, "合計Lv.10は合成不可・何も消費しない: " + e2);
+        // カード長期育成(2026-10-04): 同名で合計 Lv.10 は、Lv.9 MAX になり超えた1は Mastery へ(以前は合成不可だった。何も捨てない)
+        int m0 = CardMastery.MasteryLevel(A) * 100 + CardMastery.MasteryProgress(A);
+        var over = CardFusionLogic.Execute(a5, a5b, out string e2);
+        Check(over != null && over.result.level == 9 && over.masteryGain == 1 && Count(a5) == 0 && gm.TotalOwnedMile == mileBefore
+            && CardMastery.MasteryLevel(A) * 100 + CardMastery.MasteryProgress(A) > m0, "同名で合計Lv.10 → Lv.9 MAX + Mastery +1(余りを捨てない) " + e2);
+        Give(a5, 1);
         var ok = CardFusionLogic.Execute(a5, a4, out string e3);
         Check(ok != null && ok.result.level == 9, "合計Lv.9は合成できる " + e3);
         Check(CardVariant.Parse(ok.resultKey).level == CardVariant.MaxLevel, "Lv.9(上限)");
+        // 違うカード同士で合計が Lv.9 を超える組み合わせは今まで通り合成不可・何も消費しない
+        string b5 = Key(B, 5, R(B), (B, 5));
+        Give(b5, 1); Give(a5, 1);
+        var cross = CardFusionLogic.Execute(a5, b5, out string e4);
+        Check(cross == null && Count(a5) == 1 && Count(b5) == 1, "異名で合計Lv.10は合成不可・何も消費しない: " + e4);
     }
 
     // ---- 異名4通り ----
@@ -321,24 +344,25 @@ public class FusionAutoTest : MonoBehaviour
     {
         L("== Effects ==");
         var pc = PlayerController.Instance;
-        int per = Mathf.RoundToInt(CardDatabase.FindBaseById(A).effects[0].value);
+        // カードバランス v3(2026-10-03 以降): 攻撃のカードは AttackPct(カードLvから毎回計算する合計 GameManager.Card)。
+        // 2026-10-04 に v3 の値へ合わせた(以前は固定値の AttackPower を見ていたので、v3 以降このテストは動いていなかった)
+        float per = CardDatabase.FindBaseById(A).effects[0].value;
         string k = Key(A, 5, R(A), (A, 3), (B, 2));
         CardDefinition def = CardDatabase.FindById(k);
         int expectedEffects = CardDatabase.FindBaseById(A).effects.Count * 3 + CardDatabase.FindBaseById(B).effects.Count * 2;
         Check(def != null && def.effects.Count == expectedEffects, $"合成カードの効果=各能力の効果×強化量({def?.effects.Count}/{expectedEffects})。合成Lv(5)は掛けない");
-        int ap0 = pc.AttackPower;
+        float ap0 = Atk();
         gm.ApplyCardEffectsStacked(def, 1);
-        Check(pc.AttackPower - ap0 == per * 3, $"取得時: 主能力が強化量ぶん適用(攻撃力 +{pc.AttackPower - ap0}、期待 +{per * 3})");
-        pc.AddAttackPower(-(pc.AttackPower - ap0));
+        Check(Mathf.Abs(Atk() - ap0 - per * 3) < 1e-4f, $"取得時: 主能力が強化量ぶん適用(攻撃 +{Atk() - ap0:0.###}、期待 +{per * 3:0.###})");
         Check(def.description.Contains(CardDatabase.FindBaseById(B).cardName), "説明文(デッキ編集/ゲーム中の選出)に全サブ能力が出る");
         // キャラカード装備: 合成カードは1回だけ適用(合成Lvで掛けない)
         ClearAll();
         Give(k, 1);
         gm.EquipCharacterCard(0, k, 5);
-        ap0 = pc.AttackPower;
+        typeof(GameManager).GetMethod("ResetCardStatsForRun", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(gm, new object[] { CharacterDatabase.FindById(gm.SelectedCharacterId) });
+        ap0 = Atk();
         typeof(GameManager).GetMethod("ApplyCharacterCardEffects", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(gm, null);
-        Check(pc.AttackPower - ap0 == per * 3, $"キャラカード: 合成Lvと強化量の二重適用なし(攻撃力 +{pc.AttackPower - ap0}、期待 +{per * 3})");
-        pc.AddAttackPower(-(pc.AttackPower - ap0));
+        Check(Mathf.Abs(Atk() - ap0 - per * 3) < 1e-4f, $"キャラカード: 合成Lvと強化量の二重適用なし(攻撃 +{Atk() - ap0:0.###}、期待 +{per * 3:0.###})");
         gm.EquipCharacterCard(0, null, 1);
     }
 
@@ -348,7 +372,7 @@ public class FusionAutoTest : MonoBehaviour
         L("== Deck / run pick ==");
         ClearAll();
         var pc = PlayerController.Instance;
-        int per = Mathf.RoundToInt(CardDatabase.FindBaseById(A).effects[0].value);
+        float per = CardDatabase.FindBaseById(A).effects[0].value;
         string k = Key(A, 4, R(A), (A, 3), (D, 1));
         Give(k, 1);
         Check(gm.AddToDeck(k) && gm.DeckCards.Count == 1 && gm.DeckCards[0] == k, "合成カードをデッキへ入れられる");
@@ -359,11 +383,11 @@ public class FusionAutoTest : MonoBehaviour
         var t = typeof(GameManager);
         var data = (RewardCardData)t.GetMethod("MakeChoiceCardData", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(gm, new object[] { def });
         Check(data.LevelLine.Contains("合成Lv.4") && data.Description.Contains(CardDatabase.FindBaseById(D).cardName), $"選出カードの説明に合成Lvと全サブ能力 [{data.LevelLine}]");
-        int ap0 = pc.AttackPower;
+        t.GetMethod("ResetCardStatsForRun", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(gm, new object[] { CharacterDatabase.FindById(gm.SelectedCharacterId) });
+        float ap0 = Atk();
         int hist0 = gm.UpgradeCount;
         t.GetMethod("ApplyUpgradeByCardId", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(gm, new object[] { k });
-        Check(pc.AttackPower - ap0 == per * 3 && gm.UpgradeCount == hist0 + 1, $"Run中に取得: 主能力が強化量×3で1回だけ適用(攻撃力 +{pc.AttackPower - ap0})");
-        pc.AddAttackPower(-(pc.AttackPower - ap0));
+        Check(Mathf.Abs(Atk() - ap0 - per * 3) < 1e-4f && gm.UpgradeCount == hist0 + 1, $"Run中に取得: 主能力が強化量×3で1回だけ適用(攻撃 +{Atk() - ap0:0.###})");
         gm.SetDeck(new string[0]);
     }
 

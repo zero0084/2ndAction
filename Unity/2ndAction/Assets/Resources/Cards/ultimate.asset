@@ -13,19 +13,22 @@ MonoBehaviour:
   m_Name: ultimate
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: ultimate
-  cardName: ULTIMATE
+  cardName: ALMIGHTY
   icon: {fileID: 2800000, guid: a2e89463517f5d04cabfca0c093dc6fb, type: 3}
-  description: "\u653B\u6483\u529B\u30FB\u6700\u5927HP\u30FB\u79FB\u52D5\u901F\u5EA6\u304C\u307E\u3068\u3081\u3066\u4E0A\u304C\u308B"
+  description: "\u653B\u6483\u529B(1Lv\u3054\u3068\u306B+3%)\u30FB\u6700\u5927HP(2Lv\u3054\u3068\u306B\u30CF\u30FC\u30C8+1)\u30FB\u79FB\u52D5\u901F\u5EA6(1Lv\u3054\u3068\u306B+2%)\u3092\u307E\u3068\u3081\u3066\u4E0A\u3052\u308B\u4E07\u80FD\u30AB\u30FC\u30C9"
   category: 5
   sortOrder: 162
   recommendPriority: 5
   effects:
-  - type: 1
-    value: 30
-  - type: 4
-    value: 20
-  - type: 0
-    value: 0.1
+  - type: 46
+    value: 0.03
+    scaling: 0
+  - type: 51
+    value: 1
+    scaling: 3
+  - type: 45
+    value: 0.02
+    scaling: 0
   rarity: 5
   unlockDistance: 50000
   gachaStage: 4

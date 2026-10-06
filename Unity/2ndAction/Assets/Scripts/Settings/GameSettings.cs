@@ -17,8 +17,8 @@ public static class GameSettings
     {
         if (loaded) return;
         loaded = true;
-        shake = PlayerPrefs.GetInt(ShakeKey, 1) != 0;
-        glow = Mathf.Clamp01(PlayerPrefs.GetFloat(GlowKey, 1f));
+        shake = SaveStore.GetInt(ShakeKey, 1) != 0;
+        glow = Mathf.Clamp01(SaveStore.GetFloat(GlowKey, 1f));
     }
 
     public static void Reload() { loaded = false; } // セーブの初期化の後に読み直す(2026-10-01)
@@ -30,8 +30,8 @@ public static class GameSettings
     {
         Load();
         shake = on;
-        PlayerPrefs.SetInt(ShakeKey, on ? 1 : 0);
-        PlayerPrefs.Save();
+        SaveStore.SetInt(ShakeKey, on ? 1 : 0);
+        SaveStore.Save();
     }
 
     // save=false: スライダーを動かしている間(離した時に Save)
@@ -39,11 +39,11 @@ public static class GameSettings
     {
         Load();
         glow = Mathf.Clamp01(v);
-        PlayerPrefs.SetFloat(GlowKey, glow);
-        if (save) PlayerPrefs.Save();
+        SaveStore.SetFloat(GlowKey, glow);
+        if (save) SaveStore.Save();
     }
 
-    public static void Save() => PlayerPrefs.Save();
+    public static void Save() => SaveStore.Save();
 }
 
 // 設定/DEBUGパネルが開いている間(と、閉じた時に押していた指が離れるまで)、背後の画面の入力を止める。
@@ -53,10 +53,12 @@ public static class UiInputGate
 {
     public static bool DebugPanelOpen;
     static bool latch;
-    public static bool ModalOpen => SettingsPanel.IsVisible || DebugPanelOpen;
+    public static bool SprintPanelOpen; // 疾走出発の行き先パネル(2026-10-05)
+    public static bool ModalOpen => SettingsPanel.IsVisible || DebugPanelOpen || SprintPanelOpen;
 
     // パネルを閉じた: 今押している指が離れるまで背後へ通さない
     public static void LatchUntilRelease() { latch = true; }
+    public static void ClearLatch() { latch = false; } // GameOver の結果画面へ持ち越さない(2026-10-06)
 
     public static bool Blocked
     {
@@ -104,7 +106,8 @@ public static class UiKit
         centered.normal.textColor = primary ? new Color(1f, 0.9f, 0.6f) : Color.white;
         GUI.Label(r, text, centered);
         GUI.color = keep;
-        return GUI.Button(r, GUIContent.none, GUIStyle.none) && enabled;
+        bool pad = enabled && PadNav.Button(r); // ゲームパッド/キーボードの決定(2026-10-06)
+        return (GUI.Button(r, GUIContent.none, GUIStyle.none) && enabled) || pad;
     }
 
     public static void Fill(Rect r, Color c)
@@ -132,6 +135,10 @@ public static class UiKit
         Fill(k, enabled ? new Color(1f, 0.92f, 0.65f, 1f) : new Color(0.6f, 0.6f, 0.65f, 1f));
         Fill(new Rect(k.x + 3f, k.y + 3f, k.width - 6f, k.height - 6f), new Color(0.12f, 0.15f, 0.3f, 1f));
         if (!enabled) return value;
+        // ゲームパッド/キーボード: フォーカス中は左右で 5% ずつ(2026-10-06)
+        PadNav.Button(r, slider: true);
+        float nudge = PadNav.SliderNudge(r);
+        if (nudge != 0f) { value = Mathf.Clamp01(value + nudge * 0.05f); GUI.changed = true; released = true; }
         switch (e.GetTypeForControl(id))
         {
             case EventType.MouseDown:

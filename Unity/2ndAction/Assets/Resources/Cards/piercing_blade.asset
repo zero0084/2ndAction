@@ -15,15 +15,14 @@ MonoBehaviour:
   cardId: piercing_blade
   cardName: PIERCING BLADE
   icon: {fileID: 2800000, guid: ce0a1798944e08e48af50f65e052bca3, type: 3}
-  description: "\u653B\u6483\u306E\u9593\u5408\u3044\u3068\u5A01\u529B\u304C\u4E0A\u304C\u308B"
+  description: "\u653B\u6483\u304C\u6575\u3092\u8CAB\u304F\u3002\u8FD1\u63A5\u306F\u5F53\u3066\u305F\u6575\u306E\u5F8C\u308D\u3078(Lv\u3067\u6570\u3068\u5A01\u529B\u304C\u4E0A\u304C\u308B)\u3001\u98DB\u3073\u9053\u5177\u306F\u8CAB\u901A\u306E\u56DE\u6570(3Lv\u3054\u3068\u306B+1)"
   category: 1
   sortOrder: 111
   recommendPriority: 5
   effects:
-  - type: 5
-    value: 0.3
-  - type: 1
-    value: 10
+  - type: 88
+    value: 1
+    scaling: 0
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

@@ -6,9 +6,23 @@ using UnityEngine;
 // standoff spot instead of holding a fixed line (see ComputeHomePosition).
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(BoxCollider2D))]
-public class MajinController : MonoBehaviour
+public partial class MajinController : MonoBehaviour
 {
-    enum State { Entering, Idle, Telegraphing, Firing, Dead }
+    enum State { Entering, Idle, Telegraphing, Firing, Dead, Exposed, Special } // Special: 天空ボス強化(2026-10-05)の瞬間移動/必殺技(追従の代わりに自分で位置を決める)
+
+    // 近接キャラの反撃の時間(2026-10-03)。以前は常にプレイヤーの約10〜18m前を漂い、近接キャラは跳ね返した火球でしか
+    // 攻撃できなかった(カードなしで撃破まで10〜33分の見込み)。exposeEveryAttacks 回の攻撃ごとに、攻撃の後で
+    // 体の手前の端がプレイヤーの exposeReach m先に来る所・地面近くまで降りてきて exposeHoldTime 秒とどまる(暗い色=今は撃ってこない)。HPは変えていない。
+    [Header("近接の反撃の時間(2026-10-03)")]
+    public int exposeEveryAttacks = 2;
+    public float exposeReach = 0.8f; // 体の手前の端までの距離(間合いの短いお嬢様騎士でも届く)
+    public float exposeClearance = 0.25f;
+    public float exposeDescendTime = 0.7f;
+    public float exposeHoldTime = 2.8f;
+    public float exposeReturnTime = 0.8f;
+    int attacksSinceExpose;
+    public int ExposeCount { get; private set; } // 確認用
+    public bool IsExposed => state == State.Exposed;
 
     [Header("Animation")]
     public Sprite[] idleFrames;
@@ -245,6 +259,7 @@ public class MajinController : MonoBehaviour
 
         AnimateSprite();
         AdvanceTrackedX();
+        BattleTick(); // 天空ボス強化: 崩しの回復/ゲージ
 
         if (state == State.Idle || state == State.Telegraphing || state == State.Firing)
         {
@@ -260,6 +275,7 @@ public class MajinController : MonoBehaviour
                 return;
             }
             BossStaggerGate.NextMajinTime = Time.time + BossStaggerGate.MajinInterval;
+            if (BattleTryStart()) return; // 天空ボス強化: 必殺技/第2段階の技
             StartCoroutine(TelegraphAndAttack());
         }
     }
@@ -347,6 +363,7 @@ public class MajinController : MonoBehaviour
     IEnumerator TelegraphAndAttack()
     {
         state = State.Telegraphing;
+        if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySeAt(SeId.BossCharge, transform.position); // 2026-10-06: 魔法の溜め
 
         float t = 0f;
         bool flash = false;
@@ -415,10 +432,54 @@ public class MajinController : MonoBehaviour
         if (sr != null && state == State.Firing) sr.color = recoveryTint;
         yield return new WaitForSeconds(fireRecoverDuration);
         if (sr != null && state == State.Firing) sr.color = Color.white;
+        if (state != State.Firing) yield break; // 撃破された
+
+        attacksSinceExpose++;
+        if (exposeEveryAttacks > 0 && attacksSinceExpose >= exposeEveryAttacks && player != null)
+        {
+            attacksSinceExpose = 0;
+            yield return DescendExposed();
+            if (state == State.Dead) yield break;
+        }
 
         state = State.Idle;
         SetFrames(idleFrames);
         ScheduleNextAttack();
+    }
+
+    Vector3 ExposedPosition()
+    {
+        var box = GetComponent<BoxCollider2D>();
+        float halfW = box != null ? box.bounds.extents.x : 1.2f;
+        float x = player.position.x + exposeReach + halfW;
+        float halfHeight = Mathf.Max(0.3f, hoverHeight - groundClearance);
+        return new Vector3(x, GroundYAt(x) + exposeClearance + halfHeight, 0f);
+    }
+
+    IEnumerator DescendExposed()
+    {
+        state = State.Exposed;
+        ExposeCount++;
+        SetFrames(idleFrames);
+        if (sr != null) sr.color = recoveryTint;
+        Vector3 start = transform.position;
+        float t = 0f;
+        while (t < 1f && state == State.Exposed && player != null)
+        {
+            t += Time.deltaTime / Mathf.Max(0.05f, exposeDescendTime);
+            transform.position = Vector3.Lerp(start, ExposedPosition(), Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t)));
+            yield return null;
+        }
+        float h = 0f;
+        while (h < exposeHoldTime && state == State.Exposed && player != null)
+        {
+            transform.position = ExposedPosition();
+            h += Time.deltaTime;
+            yield return null;
+        }
+        if (state != State.Exposed) yield break;
+        if (sr != null) sr.color = Color.white;
+        yield return ReturnToHome(exposeReturnTime);
     }
 
     IEnumerator FireLine(int count)
@@ -449,7 +510,7 @@ public class MajinController : MonoBehaviour
                 ? ((Vector2)player.position - (Vector2)spawnPos).normalized
                 : offset.normalized;
 
-            FireballController.Create(squareSprite, spawnPos, dir * fireballSpeed, ringHoldDuration);
+            FireballController.Create(squareSprite, spawnPos, dir * fireballSpeed, ringHoldDuration).GetComponent<FireballController>().bossOwned = true;
         }
     }
 
@@ -469,13 +530,14 @@ public class MajinController : MonoBehaviour
             dir = new Vector2(dir.x * cos - dir.y * sin, dir.x * sin + dir.y * cos);
         }
 
-        FireballController.Create(squareSprite, spawnPos, dir * fireballSpeed, holdDuration);
+        FireballController.Create(squareSprite, spawnPos, dir * fireballSpeed, holdDuration).GetComponent<FireballController>().bossOwned = true;
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
         if (state == State.Dead) return;
 
+        if (other.CompareTag("PlayerAttack") && PlayerAttackInfo.AlreadyHit(other, this)) return; // one hit per attack instance (2026-10-03)
         if (other.CompareTag("PlayerAttack") && NetPuppet)
         {
             NetPuppetHit(other);
@@ -485,6 +547,10 @@ public class MajinController : MonoBehaviour
         if (other.CompareTag("PlayerAttack"))
         {
             int damage = PlayerAttackInfo.ScaleDamage(other, this, PlayerController.Instance != null ? PlayerController.Instance.EffectiveBossAttackPower : playerAttackDamage);
+            var info = other.GetComponent<PlayerAttackInfo>();
+            bool air = PlayerController.Instance != null && !PlayerController.Instance.IsGrounded;
+            pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air); // 天空ボス強化: 崩し
+            NoteFinalAttack(other, info); // BOSS FINISH
             TakeDamage(damage);
             return;
         }
@@ -492,6 +558,7 @@ public class MajinController : MonoBehaviour
         FireballController fb = other.GetComponent<FireballController>();
         if (fb != null && fb.reflected)
         {
+            pendingStagger = BossBattleTuning.I.staggerReflect;
             TakeDamage(fireballDamage);
             Destroy(fb.gameObject);
         }
@@ -501,17 +568,22 @@ public class MajinController : MonoBehaviour
     {
         if (state == State.Dead || NetPuppet) return;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit); // ボス被弾(共通、連打は間引き)
+        amount = ScaleIncoming(amount); // 天空ボス強化: BREAK/硬直中は大きく入る
 
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
+        if (Hp <= 0) BossFinishCode = BossDeathAdapter.Decide(pendingFinal, pendingFinalSet, netAttacker, transform).Pack(); // BOSS FINISH(OpDeath に載せる)
         NetCombat.AuthorityDamaged(NetId, netAttacker, amount, Hp, 0, transform.position, Hp <= 0);
 
         if (Hp <= 0)
         {
             state = State.Dead;
-            StartCoroutine(FinalHitAndDie());
+            if (UltimateRunning) { UltimateRunning = false; BossBattle.EndUltimate(this); }
+            if (hpBar != null) hpBar.SetSub(0f, false);
+            if (BossFinish.Enabled) BeginBossFinish(false); else StartCoroutine(FinalHitAndDie());
             return;
         }
+        BattleOnDamaged();
 
         // Game Feel pass, section 19 - see DragonController.TakeDamage's
         // matching comment.
@@ -704,6 +776,7 @@ public class MajinController : MonoBehaviour
         if (hpBar != null) hpBar.SetFraction(0f);
         StopAllCoroutines();
         state = State.Dead;
+        if (BossFinish.Enabled) { BeginBossFinish(true); return; }
         StartCoroutine(FinalHitAndDie());
     }
 

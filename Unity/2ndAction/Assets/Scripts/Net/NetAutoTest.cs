@@ -62,6 +62,7 @@ public partial class NetAutoTest : MonoBehaviour
     float hpAtTime = -1f; int hpAtValue;
     bool hpAtDone;
     int startHp = 0;
+    string cardsArg; bool cardsDone; // カードバランス v3
     bool startHpDone;
     bool killStarted, killDone;
     readonly System.Collections.Generic.List<float> killTimes = new System.Collections.Generic.List<float>();
@@ -222,6 +223,7 @@ public partial class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoRevive") autoRevive = true;
             else if (a == "-netAutoHpAt") { var parts = next.Split(':'); if (parts.Length == 2) { float.TryParse(parts[0], out hpAtTime); int.TryParse(parts[1], out hpAtValue); } damageTest = true; }
             else if (a == "-netAutoStartHp") { int.TryParse(next, out startHp); damageTest = true; }
+            else if (a == "-netAutoCards") cardsArg = next;
             else if (a == "-netAutoForceOutAt") float.TryParse(next, out forceOutAt);
             else if (a == "-netAutoQueueAt") float.TryParse(next, out queueAt);
             else if (a == "-netAutoLateChoiceAt") float.TryParse(next, out lateChoiceAt);
@@ -320,7 +322,25 @@ public partial class NetAutoTest : MonoBehaviour
         {
             case Step.Connect:
                 if (stepTime < 2f) return;
-                if (role == "HOST") NetSession.Instance.StartHost(NetSession.DefaultPort);
+                if (role == "HOST")
+                {
+                    if (modeArg != "") NetRunLauncher.SelectedMode = modeArg == "versus" ? MultiplayerGameMode.Versus : MultiplayerGameMode.Coop;
+                    if (NetSession.Instance.StartHost(NetSession.DefaultPort)) LanDiscovery.StartAdvertising(); // LAN の部屋の自動発見(2026-10-05)
+                }
+                else if (joinIp == "lan")
+                {
+                    // LAN の自動発見: IP を使わず、見つかった部屋の一覧から JOIN(UI の JOIN と同じ経路)
+                    if (!LanDiscovery.Discovering) { LanDiscovery.StartDiscovery(); L("LAN discovery started"); }
+                    var room = LanDiscovery.Rooms.Find(r => r.Joinable);
+                    if (room == null)
+                    {
+                        if (stepTime > 25f) Finish("TIMEOUT LAN discovery (no joinable room)");
+                        return;
+                    }
+                    L($"LAN room found after {Time.unscaledTime - LanDiscovery.DiscoveryStartedAt:F2}s: {room.roomName} {room.mode} {room.players}/{room.maxPlayers} {room.address}:{room.port}");
+                    Debug.Log($"[LAN] Join requested {room.roomId} '{room.roomName}' {room.address}:{room.port}");
+                    NetSession.Instance.StartClient(room.address, room.port);
+                }
                 else NetSession.Instance.StartClient(joinIp, NetSession.DefaultPort);
                 Next(Step.WaitPlayers);
                 break;
@@ -670,6 +690,25 @@ public partial class NetAutoTest : MonoBehaviour
         int local = NetCombat.LocalPlayerNumber;
         var me = NetMatch.Get(local);
 
+        // カードバランス v3: 開始時にカードを持たせる(-netAutoCards id:lv,id:lv)
+        if (!string.IsNullOrEmpty(cardsArg) && !cardsDone && runTime > 0.3f)
+        {
+            cardsDone = true;
+            foreach (var e in cardsArg.Split(','))
+            {
+                var kv = e.Split(':');
+                var c = CardDatabase.FindBaseById(kv[0]);
+                if (c != null) gm.ApplyCardEffectsStacked(c, kv.Length > 1 && int.TryParse(kv[1], out int lv) ? lv : 9);
+            }
+            L($"v3 cards applied: {cardsArg} (atk x{pc.CardAttackFactor:F2} kmhCap {GameManager.SpeedKmh(pc.runSpeed * pc.MaxSpeedRatio):F0} maxHp {gm.maxLives} sealed {gm.SealedHearts})");
+            // #100 ULTIMATE(2026-10-04): マルチでは使えない(候補に出ない/発動しない)ことの確認
+            if (UltimateArt.HasCard && UltimateArt.Instance != null)
+            {
+                UltimateArt.Instance.DebugSetGauge(100f);
+                bool act = UltimateArt.Instance.TryActivate("netauto");
+                L($"ULTIMATE in multiplayer: Lv{UltimateArt.Level} offerable={UltimateArt.Offerable(CardDatabase.FindBaseById(UltimateArt.CardId))} activated={act} reason='{UltimateArt.Instance.LastBlockReason}' gauge={UltimateArt.Instance.Gauge:F0}");
+            }
+        }
         // 開始時のHP(被弾で早く倒れすぎないように)
         if (startHp > 0 && !startHpDone && runTime > 0.5f)
         {
@@ -819,12 +858,47 @@ public partial class NetAutoTest : MonoBehaviour
         if (bm == null || bm.IsBossPhase) { L("test boss skipped (boss phase already running)"); return; }
         if (bossKind == "Reaper") { bm.DebugSpawnReaper(); L("test reaper spawned (stage " + (GameManager.Instance != null ? GameManager.Instance.ActiveRunStageId : "?") + ")"); return; }
         BossManager.NetTestBossHpOverride = bossHp;
+        // 自然洞窟ボス強化(2026-10-04): 洞窟ボスは関門と同じ流れで出し、段階2→必殺技を強制する(地形の攻撃/天井/地中の同期を見る)
+        // 天空ボス強化(2026-10-05): -netAutoBossKind sky:Behemoth のように sky: を付けると天空回廊のボス
+        if (bossKind.StartsWith("sky:") && Enum.TryParse(bossKind.Substring(4), out SkyBossKind sk))
+        {
+            bm.DebugSkyEncounter(sk, -1);
+            BossManager.NetTestBossHpOverride = 0;
+            StartCoroutine(DriveCaveBoss());
+            L($"test sky boss spawned ({sk} hp={bossHp})");
+            return;
+        }
+        if (Enum.TryParse(bossKind, out CaveBossKind ck))
+        {
+            bm.DebugCaveEncounter(ck, -1);
+            BossManager.NetTestBossHpOverride = 0;
+            StartCoroutine(DriveCaveBoss());
+            L($"test cave boss spawned ({ck} hp={bossHp})");
+            return;
+        }
         WildBossKind kind = Enum.TryParse(bossKind, out WildBossKind k) ? k : WildBossKind.Wolf;
         bm.NetTestSpawnWild(kind, 1);
         BossManager.NetTestBossHpOverride = 0;
         L($"test boss spawned ({kind} hp={bossHp})");
 #endif
     }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    System.Collections.IEnumerator DriveCaveBoss()
+    {
+        yield return new WaitForSeconds(6f);
+        for (int i = 0; i < 3; i++)
+        {
+            IBossBattleDebug b = EndgameDebug.FirstLivingBoss();
+            if (b == null) yield break;
+            if (b.Phase < 2) b.DebugSetPhase(2);
+            yield return new WaitForSeconds(1f);
+            bool ok = b.DebugForceUltimate();
+            L($"boss ultimate forced #{i + 1} ({b.DebugName} ok={ok} phase={b.Phase})");
+            yield return new WaitForSeconds(18f);
+        }
+    }
+#endif
 
     // 共有の敵/ボスが攻撃の届く距離にいれば前攻撃する(両プレイヤーがほぼ同時に同じ敵を叩く状況を作る)。
     bool CombatBot(PlayerController pc)

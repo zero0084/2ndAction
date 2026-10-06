@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: heart_up
   cardName: HEART UP
   icon: {fileID: 2800000, guid: b5bd502148e2c5942b578a28066dd44d, type: 3}
-  description: "\u30CF\u30FC\u30C8\u4E0A\u9650\u304C\u5897\u3048\u3001HP\u304C\u56DE\u5FA9\u3059\u308B"
+  description: "\u6700\u5927HP\u304C\u5897\u3048(1Lv\u3054\u3068\u306B\u30CF\u30FC\u30C8+1\u3001\u6700\u5927\u30CF\u30FC\u30C820)\u3001HP\u304C\u56DE\u5FA9\u3059\u308B"
   category: 2
   sortOrder: 6
   recommendPriority: 5
   effects:
-  - type: 4
-    value: 10
+  - type: 51
+    value: 1
+    scaling: 0
   rarity: 1
   unlockDistance: 0
   gachaStage: 1

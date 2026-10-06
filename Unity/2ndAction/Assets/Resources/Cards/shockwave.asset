@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: shockwave
   cardName: SHOCKWAVE
   icon: {fileID: 2800000, guid: 712683ce3789f204ba48f04382d42b0e, type: 3}
-  description: "\u653B\u6483\u306E\u9593\u5408\u3044\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B"
+  description: "\u8FD1\u63A5\u306E\u547D\u4E2D\u3067\u524D\u65B9\u3078\u77ED\u3044\u885D\u6483\u6CE2\u3001\u98DB\u3073\u9053\u5177\u306F\u7740\u5F3E\u70B9\u306E\u307E\u308F\u308A\u306B\u885D\u6483\u6CE2(Lv\u3067\u5A01\u529B\u3068\u7BC4\u56F2\u304C\u4E0A\u304C\u308B)"
   category: 1
   sortOrder: 112
   recommendPriority: 5
   effects:
-  - type: 5
-    value: 0.4
+  - type: 89
+    value: 1
+    scaling: 0
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

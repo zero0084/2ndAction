@@ -29,6 +29,49 @@ public partial class GameManager
     [Tooltip("慣らしで通常の速さへ戻るまでの実時間の秒")]
     public float resumeEaseDuration = 2.5f;
 
+    [Header("中断再開の足場(2026-10-03)")]
+    [Tooltip("再開地点の前方を、穴も坂も無い平地にする(OFF=以前のチャンク数の予約のみ。確認用)")]
+    public bool resumeSafeFootingEnabled = true;
+    [Tooltip("前方の安全区間 = 保存された速度で通常どおり走った この秒数ぶんの距離")]
+    public float resumeSafeSeconds = 2f;
+    [Tooltip("前方の安全区間の最低距離(m)。低速でもこれだけは確保する")]
+    public float resumeSafeMinAhead = 15f;
+    [Tooltip("足元より後ろ側にも確保する距離(m)")]
+    public float resumeSafeBehind = 4f;
+
+    // 確認用: 直前のCONTINUEで決めた足場の区間
+    public float LastResumeSafeAheadMeters { get; private set; }
+    public float LastResumeSafeKmh { get; private set; }
+    public int LastResumeFixedPits { get; private set; }
+
+    // BeginContinuedRun から(プレイヤーを再開地点へ動かした直後、準備画面より前)
+    void SetupResumeFooting(float checkpointDistance)
+    {
+        var tm = TerrainManager.Instance;
+        var pc = PlayerController.Instance;
+        if (tm == null || pc == null) return;
+        if (!resumeSafeFootingEnabled)
+        {
+            tm.RequestFlatRun(Mathf.CeilToInt(safeZoneLength / Mathf.Max(1f, tm.flatLength)) + 1); // 以前の動き
+            return;
+        }
+        // 速さは実際の移動(PlayerController.Move)と同じ式: 単位/秒(1単位=1m)。距離で決まる自然加速と
+        // カード/キャラの速度をすべて含む。慣らしは時間の流れを遅くするだけなので、ここでは使わない(OFFが基準)。
+        float speed = pc.CurrentAutoRunSpeed;
+        float ahead = Mathf.Max(resumeSafeMinAhead, speed * Mathf.Max(0f, resumeSafeSeconds));
+        float px = pc.transform.position.x;
+        float lx = FloatingOrigin.ToLogical(px);
+        LastResumeSafeAheadMeters = ahead;
+        LastResumeSafeKmh = SpeedKmh(speed);
+        LastResumeFixedPits = tm.SetResumeFlatZone(lx - Mathf.Max(0f, resumeSafeBehind), lx + ahead);
+        // 区間の先(+通常の先読み)まで今すぐ生成する: 準備画面/カウントダウン/GO の間に足場が変わらない
+        tm.GenerateNow(px + ahead + tm.generateAheadDistance);
+        bool placed = pc.PlaceOnGroundForResume();
+        // 敵/障害物/Formation を出さない区間も、足場の区間の終わりまで伸ばす(短い方は以前の safeZoneLength)
+        safeZoneEndDistance = Mathf.Max(safeZoneEndDistance, checkpointDistance + ahead);
+        Debug.Log($"[ResumeGate] footing: {SpeedKmh(speed):F1} km/h x {resumeSafeSeconds:F1}s -> flat {lx - resumeSafeBehind:F0}..{lx + ahead:F0} ({ahead:F0}m ahead), fixed pits={LastResumeFixedPits}, placed={placed}");
+    }
+
     // 開発版だけ: DEBUGパネルでの上書き(-1=インスペクターの値に従う / 0=OFF / 1=ON)
     public const string ResumeEaseDevKey = "Dev.ResumeEase";
 
@@ -57,9 +100,9 @@ public partial class GameManager
     {
         get
         {
-            if (Debug.isDebugBuild && PlayerPrefs.HasKey(ResumeEaseDevKey))
+            if (Debug.isDebugBuild && SaveStore.HasKey(ResumeEaseDevKey))
             {
-                int v = PlayerPrefs.GetInt(ResumeEaseDevKey, -1);
+                int v = SaveStore.GetInt(ResumeEaseDevKey, -1);
                 if (v >= 0) return v != 0;
             }
             return resumeEaseEnabled;

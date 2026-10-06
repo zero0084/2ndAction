@@ -31,12 +31,15 @@ public partial class DebugPanel : MonoBehaviour
     public static void OpenStatic() { if (Instance != null) Instance.SetOpen(true); }
     // ラン中の「DEBUG RUN」表示の ≡ から: ラスダン終盤のページを直接開く
     public static void OpenEndgameStatic() { if (Instance == null) return; Instance.SetOpen(true); if (Instance.open) Instance.page = 2; }
+    public static void OpenLongStatic() { if (Instance == null) return; Instance.SetOpen(true); if (Instance.open) Instance.page = 3; }
+    public static void OpenUltimateStatic() { if (Instance == null) return; Instance.SetOpen(true); if (Instance.open) Instance.page = 4; }
     public static void CloseStatic() { if (Instance != null) Instance.SetOpen(false); }
 
     public void SetOpen(bool on)
     {
         if (on && ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (open && !on) UiInputGate.LatchUntilRelease();
+        if (!on) EndMasteryTest("panel closed"); // MASTERY TEST は閉じたら必ず元へ戻す
         open = on; t = 0f; confirmReset = false; confirmSave = 0; if (on) page = 0;
         UiInputGate.DebugPanelOpen = on;
     }
@@ -68,7 +71,7 @@ public partial class DebugPanel : MonoBehaviour
         float w = Screen.width / s, h = Screen.height / s;
         float k = Mathf.SmoothStep(0f, 1f, t / 0.15f);
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.05f, 0.02f, 0.02f, 0.5f * k));
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 516f : 470f, h - 24f);
+        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 700f : page == 4 || page == 5 || page == 6 || page == 7 || page == 8 ? 600f : 470f, h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f + (1f - k) * 12f, pw, ph);
         Color keepColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, k);
@@ -79,7 +82,7 @@ public partial class DebugPanel : MonoBehaviour
         if (page == 0 && UiKit.Button(new Rect(p.xMax - 352f, p.y + 12f, 146f, 42f), "ラスダン終盤…", 16f, false, false)) { page = 2; confirmSave = 0; confirmReset = false; }
         if (page != 0)
         {
-            if (page == 1) DrawSavePage(p); else DrawEndgamePage(p);
+            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else if (page == 7) DrawFinalEvoPage(p); else if (page == 8) DrawComboPage(p); else if (page == 9) DrawFinishPage(p); else if (page == 10) DrawBossFinishPage(p); else DrawEndgamePage(p);
             GUI.color = keepColor;
             GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
             if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();
@@ -105,7 +108,35 @@ public partial class DebugPanel : MonoBehaviour
             PlayerPrefs.SetInt(GameManager.ResumeEaseDevKey, ease ? 0 : 1);
             PlayerPrefs.Save();
         }
-        GUI.Label(new Rect(x + bw + 12f, y, bw, 40f), $"CONTINUEのGO後 x{gm.resumeEaseStartScale:0.##}→1 を{gm.resumeEaseDuration:0.#}秒", UiKit.Label(13f, TextAnchor.MiddleLeft, false, new Color(0.8f, 0.8f, 0.85f)));
+        // 攻撃判定の可視化(2026-10-03): 赤=攻撃 / 緑=被弾 / 黄=敵の体 / 紫=敵の攻撃 / 水色=ボスの被弾範囲
+        if (UiKit.Button(new Rect(x + bw + 12f, y, bw, 40f), $"判定表示: {(HitboxOverlay.Enabled ? "ON" : "OFF")}", 17f, HitboxOverlay.Enabled, false)) HitboxOverlay.Enabled = !HitboxOverlay.Enabled;
+        y += 46f;
+        // 長距離の確認(2026-10-04): 10〜100km の雑魚の硬さを実機で見る(DEBUG RUN)
+        float tw3 = (p.width - 48f - 16f) / 3f;
+        if (UiKit.Button(new Rect(x, y, tw3, 40f), "長距離の確認…", 15f, false, false)) { page = 3; confirmSave = 0; confirmReset = false; }
+        // #100 ULTIMATE の確認(2026-10-04、DEBUG RUN)
+        if (UiKit.Button(new Rect(x + tw3 + 8f, y, tw3, 40f), "ULTIMATE TEST…", 15f, false, false)) { page = 4; confirmSave = 0; confirmReset = false; }
+        // カード長期育成の確認(2026-10-04、保存しない)
+        if (UiKit.Button(new Rect(x + 2f * (tw3 + 8f), y, tw3, 40f), "MASTERY TEST…", 15f, false, false)) { page = 5; confirmSave = 0; confirmReset = false; }
+        y += 46f;
+        // 開発用の闘技場(2026-10-04): キャラ/カード/敵を好きな条件で戦わせ、同じ条件ですぐ再戦・計測(DEBUG RUN)
+        if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "闘技場(キャラ/カード/敵の試験、DEBUG RUN)", 16f, true, false)) { SetOpen(false); EndgameDebug.LaunchArena("debug panel"); }
+        y += 46f;
+        // 自然洞窟ボス強化の確認(2026-10-04、DEBUG RUN): 出現/段階/必殺技/BREAK/ラン再開の強制
+        if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), "洞窟/天空ボス試験…(出現/段階/必殺技/BREAK/ラン再開)", 16f, false, false)) { page = 6; confirmSave = 0; confirmReset = false; }
+        y += 46f;
+        // FINAL EVOLUTION の確認(2026-10-04、DEBUG RUN)
+        float tw2 = (p.width - 48f - 8f) / 2f;
+        if (UiKit.Button(new Rect(x, y, tw2, 40f), "FINAL EVOLUTION TEST…", 16f, false, false)) { page = 7; confirmSave = 0; confirmReset = false; }
+        if (UiKit.Button(new Rect(x + tw2 + 8f, y, tw2, 40f), "COMBO TEST…", 16f, false, false)) { page = 8; confirmSave = 0; confirmReset = false; }
+        y += 46f;
+        // Enemy FINISH System(2026-10-06): 撃破演出の確認(ランの中で)
+        float fw2 = (p.width - 48f - 8f) / 2f;
+        if (UiKit.Button(new Rect(x, y, fw2, 40f), "FINISH TEST…(雑魚の撃破演出)", 15f, false, false)) { page = 9; confirmSave = 0; confirmReset = false; }
+        if (UiKit.Button(new Rect(x + fw2 + 8f, y, fw2, 40f), "BOSS FINISH TEST…", 15f, false, false)) { page = 10; confirmSave = 0; confirmReset = false; }
+        y += 46f;
+        // 疾走出発(2026-10-05 試作): 門番の撃破記録が無くても全部の行き先を選べる(ステージ選択の「疾走出発…」)
+        if (UiKit.Button(new Rect(x, y, p.width - 48f, 40f), SprintRecords.DevUnlockAll ? "疾走出発の行き先: 全解放 ON(押すと記録どおりに戻す)" : "疾走出発の行き先: 記録どおり(押すと全解放)", 16f, SprintRecords.DevUnlockAll, false)) SprintRecords.DevUnlockAll = !SprintRecords.DevUnlockAll;
         y += 46f;
 
         GUI.Label(new Rect(x, y, 300f, 26f), "BESTを設定(ガチャの段階の確認)", UiKit.Label(16f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));
@@ -282,6 +313,202 @@ public partial class DebugPanel
     }
 }
 
+// DebugPanel: 長距離の確認のページ(2026-10-04)
+public partial class DebugPanel
+{
+    void DrawLongPage(Rect p)
+    {
+        float x = p.x + 24f, y = p.y + 60f, full = p.width - 48f;
+        GUI.Label(new Rect(x, y, full, 36f), "押すたびにステージを新しく始めて、その距離の関門の直後へ移動します(DEBUG RUN)。BEST / MILE / カード / 累計距離 / 解放 / CONTINUE は変わりません",
+            UiKit.Label(12f, TextAnchor.UpperLeft, false, new Color(0.85f, 0.85f, 0.9f)));
+        y += 38f;
+        var stages = new[] { ("wasteland_road", "荒野街道"), ("natural_cave", "自然洞窟"), ("sky_corridor", "天空回廊") };
+        float sw = (full - 16f) / 3f;
+        for (int i = 0; i < stages.Length; i++)
+            if (UiKit.Button(new Rect(x + i * (sw + 8f), y, sw, 34f), stages[i].Item2, 14f, EndgameDebug.SelectedLongStage == stages[i].Item1, false)) EndgameDebug.SelectedLongStage = stages[i].Item1;
+        y += 40f;
+        var builds = new[] { EndgameDebug.LongBuild.None, EndgameDebug.LongBuild.Mix, EndgameDebug.LongBuild.Attack, EndgameDebug.LongBuild.Fire, EndgameDebug.LongBuild.Lightning };
+        float bw5 = (full - 32f) / 5f;
+        for (int i = 0; i < builds.Length; i++)
+            if (UiKit.Button(new Rect(x + i * (bw5 + 8f), y, bw5, 34f), EndgameDebug.LongBuildLabel(builds[i]), 12f, EndgameDebug.SelectedLongBuild == builds[i], false)) EndgameDebug.SelectedLongBuild = builds[i];
+        y += 40f;
+        var profs = new[] { EndgameDebug.Profile.Normal, EndgameDebug.Profile.Sturdy };
+        float pw2 = (full - 8f) / 2f;
+        for (int i = 0; i < profs.Length; i++)
+            if (UiKit.Button(new Rect(x + i * (pw2 + 8f), y, pw2, 34f), EndgameDebug.ProfileLabel(profs[i]), 14f, EndgameDebug.SelectedProfile == profs[i], false)) EndgameDebug.SelectedProfile = profs[i];
+        y += 44f;
+        bool busy = EndgameDebug.Instance != null && EndgameDebug.Instance.Launching;
+        var ds = EndgameDebug.LongDistances;
+        float dw = (full - 8f * (ds.Length - 1)) / ds.Length;
+        var dtm = DistanceTierManager.Instance;
+        for (int i = 0; i < ds.Length; i++)
+        {
+            int baseBonus = dtm != null ? dtm.baseHpBonus : 4;
+            float step = dtm != null ? Mathf.Max(1f, dtm.hpIncreaseDistance) : 2000f;
+            int hp = (1 + baseBonus + Mathf.FloorToInt((ds[i] + 150f) / step)) * CombatScale.K;
+            if (UiKit.Button(new Rect(x + i * (dw + 8f), y, dw, 56f), $"{EndgameDebug.LongDistanceLabel(ds[i])}\n雑魚HP約{hp}", 14f, false, false) && !busy)
+                EndgameDebug.LaunchLong(EndgameDebug.SelectedLongStage, ds[i], EndgameDebug.SelectedLongBuild, EndgameDebug.SelectedProfile == EndgameDebug.Profile.Normal ? EndgameDebug.Profile.Normal : EndgameDebug.Profile.Sturdy);
+        }
+        y += 64f;
+        GUI.Label(new Rect(x, y, full, 36f), "カードは Lv9 で付ける(CARD BALANCE TEST と同じ構成)。雑魚HPは「HP倍率1の雑魚」の目安。カードの能力値は DEBUGモード ON → ラン中の CARD TEST の「ビルド」タブで見られる",
+            UiKit.Label(12f, TextAnchor.UpperLeft, false, new Color(0.8f, 0.8f, 0.85f)));
+        y += 38f;
+        string st = EndgameDebug.Instance != null ? EndgameDebug.Instance.Status : "";
+        string run = DebugRun.IsActive ? $"DEBUG RUN 中: {DebugRun.What}(保存を止めた回数 {DebugRun.BlockedWrites})" : "通常の状態(DEBUG RUN ではありません)";
+        GUI.Label(new Rect(x, y, full, 20f), run, UiKit.Label(12f, TextAnchor.MiddleLeft, true, DebugRun.IsActive ? new Color(1f, 0.7f, 0.4f) : new Color(0.7f, 0.9f, 0.7f)));
+        y += 20f;
+        if (!string.IsNullOrEmpty(st)) GUI.Label(new Rect(x, y, full, 20f), st, UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(1f, 0.85f, 0.5f)));
+    }
+}
+
+// DebugPanel: ULTIMATE TEST のページ(#100 ULTIMATE、2026-10-04)
+public partial class DebugPanel
+{
+    void DrawUltimatePage(Rect p)
+    {
+        float x = p.x + 24f, y = p.y + 60f, full = p.width - 48f;
+        GUI.Label(new Rect(x, y, full, 36f), "押すたびにシーンを読み直して、ULTIMATE だけを付けたランを始めます(Gauge 100%、DEBUG RUN = BEST / MILE / 解放 / CONTINUE / コレクションは変わりません)",
+            UiKit.Label(12f, TextAnchor.UpperLeft, false, new Color(0.85f, 0.85f, 0.9f)));
+        y += 38f;
+        var chars = EndgameDebug.UltCharacters;
+        float cw = (full - 3f * 6f) / 4f;
+        for (int i = 0; i < chars.Length; i++)
+        {
+            int col = i % 4, row = i / 4;
+            if (UiKit.Button(new Rect(x + col * (cw + 6f), y + row * 38f, cw, 34f), EndgameDebug.UltCharLabel(chars[i]), 12f, EndgameDebug.SelectedUltChar == chars[i], false)) EndgameDebug.SelectedUltChar = chars[i];
+        }
+        y += 3 * 38f + 4f;
+        int[] lvs = { 1, 5, 9 };
+        var stages = new[] { "wasteland_road", "natural_cave", "sky_corridor" };
+        float sw = (full - 5f * 6f) / 6f;
+        for (int i = 0; i < 3; i++)
+            if (UiKit.Button(new Rect(x + i * (sw + 6f), y, sw, 34f), $"Lv{lvs[i]}", 14f, EndgameDebug.SelectedUltLevel == lvs[i], false)) EndgameDebug.SelectedUltLevel = lvs[i];
+        for (int i = 0; i < 3; i++)
+            if (UiKit.Button(new Rect(x + (3 + i) * (sw + 6f), y, sw, 34f), EndgameDebug.StageLabel(stages[i]), 12f, EndgameDebug.SelectedUltStage == stages[i], false)) EndgameDebug.SelectedUltStage = stages[i];
+        y += 42f;
+        bool busy = EndgameDebug.Instance != null && EndgameDebug.Instance.Launching;
+        float hw = (full - 8f) / 2f;
+        if (UiKit.Button(new Rect(x, y, hw, 44f), "通常の道で開始", 16f, false, false) && !busy) EndgameDebug.LaunchUltimate(EndgameDebug.SelectedUltChar, EndgameDebug.SelectedUltLevel, EndgameDebug.SelectedUltStage, false);
+        if (UiKit.Button(new Rect(x + hw + 8f, y, hw, 44f), "ボス戦で開始", 16f, false, false) && !busy) EndgameDebug.LaunchUltimate(EndgameDebug.SelectedUltChar, EndgameDebug.SelectedUltLevel, EndgameDebug.SelectedUltStage, true);
+        y += 52f;
+        var gm = GameManager.Instance; var ua = UltimateArt.Instance;
+        bool running = gm != null && gm.HasStarted && !gm.IsGameOver && ua != null;
+        float tw = (full - 16f) / 3f;
+        if (UiKit.Button(new Rect(x, y, tw, 40f), "Gauge 100%", 15f, false, false) && running) ua.DebugSetGauge(100f);
+        if (UiKit.Button(new Rect(x + tw + 8f, y, tw, 40f), "発動", 15f, running && ua.Ready, false) && running) { SetOpen(false); ua.TryActivate("debug panel"); }
+        if (UiKit.Button(new Rect(x + 2f * (tw + 8f), y, tw, 40f), "BUFFを終える", 15f, false, false) && running) ua.DebugEndBuff();
+        y += 48f;
+        var lab = UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(1f, 0.88f, 0.6f));
+        if (running)
+        {
+            ua.CanActivate(out string why);
+            GUI.Label(new Rect(x, y, full, 18f), $"ULTIMATE Lv{UltimateArt.Level}  Gauge {ua.Gauge:F0}%  {(ua.Active ? "発動中 " + ua.Phase : ua.BuffActive ? $"BUFF 残り {ua.BuffRemaining:F1}s(攻撃 x{UltimateArt.BuffAttackMul:F2} / 速さ x{UltimateArt.BuffRunSpeedMul:F2})" : "")}  {(string.IsNullOrEmpty(why) ? "発動できます" : why)}", lab);
+            y += 18f;
+            GUI.Label(new Rect(x, y, full, 18f), $"Gauge の内訳: 距離 {ua.GaugeFromDistance:F0} / 撃破 {ua.GaugeFromKills:F0} / ボス {ua.GaugeFromBoss:F0}  雑魚の合計ダメージ {UltimateArt.MobDamageTotal(Mathf.Max(1, UltimateArt.Level))}(HP倍率1の雑魚 {(DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(1f) : 0)})", lab);
+            y += 18f;
+        }
+        var r = ua != null ? ua.Last : null;
+        if (r != null)
+        {
+            GUI.Label(new Rect(x, y, full, 18f), $"前回: {r.character} Lv{r.level} {(r.arena ? "ボス戦(アリーナ)" : $"前進 {r.d1 - r.d0:F0}m(予定 {r.plannedAdvance:F0}{(string.IsNullOrEmpty(r.limitReason) ? "" : " / " + r.limitReason)})")} {r.seconds:F1}秒", lab);
+            y += 18f;
+            GUI.Label(new Rect(x, y, full, 18f), $"命中 {r.mobsHit}体 撃破 {r.mobsKilled} ダメージ回数 {r.damageEvents} ボス {r.bossDamage}({r.bossFractionMax * 100f:F0}%) BUFF {r.buffSeconds:F0}秒{(r.aborted ? " 途中で終了: " + r.abortReason : "")}", lab);
+            y += 18f;
+        }
+        string st = EndgameDebug.Instance != null ? EndgameDebug.Instance.Status : "";
+        if (!string.IsNullOrEmpty(st)) GUI.Label(new Rect(x, y, full, 18f), st, UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(1f, 0.85f, 0.5f)));
+    }
+}
+
+// DebugPanel: MASTERY TEST のページ(カード長期育成、2026-10-04)。テストの間は DEBUG RUN(保存を止める)。
+// 終わる(または DEBUG パネルを閉じる)と、始める前の所持カード/Mastery へ戻す。実際のセーブは汚さない。
+public partial class DebugPanel
+{
+    static int masteryCardIndex;
+    static string masteryNote = "";
+
+    void DrawMasteryPage(Rect p)
+    {
+        float x = p.x + 24f, y = p.y + 60f, full = p.width - 48f;
+        bool on = MasteryTestRunning;
+        GUI.Label(new Rect(x, y, full, 36f), "所持Lv(1〜9)とは別の Mastery ★1〜5 / AWAKENED を短時間で確かめます。テストの間は保存しません(DEBUG RUN)。終わると元の所持カードと Mastery へ戻ります",
+            UiKit.Label(12f, TextAnchor.UpperLeft, false, new Color(0.85f, 0.85f, 0.9f)));
+        y += 38f;
+        float hw = (full - 8f) / 2f;
+        if (UiKit.Button(new Rect(x, y, hw, 40f), on ? "テスト中(保存しない)" : "テストを始める", 15f, on, false) && !on) StartMasteryTest();
+        if (UiKit.Button(new Rect(x + hw + 8f, y, hw, 40f), "テストを終える(元に戻す)", 15f, false, false) && on) EndMasteryTest("button");
+        y += 48f;
+        var cards = new System.Collections.Generic.List<CardDefinition>();
+        foreach (var c in CardDatabase.AllCards) if (c != null && !CardVariant.IsVariantKey(c.cardId)) cards.Add(c);
+        if (cards.Count == 0) return;
+        masteryCardIndex = (masteryCardIndex % cards.Count + cards.Count) % cards.Count;
+        var card = cards[masteryCardIndex];
+        if (UiKit.Button(new Rect(x, y, 60f, 36f), "◀", 18f, false, false)) masteryCardIndex--;
+        GUI.Label(new Rect(x + 66f, y, full - 132f, 36f), $"{card.cardName}  ({card.cardId})", UiKit.Label(16f, TextAnchor.MiddleCenter, true, new Color(1f, 0.88f, 0.55f)));
+        if (UiKit.Button(new Rect(x + full - 60f, y, 60f, 36f), "▶", 18f, false, false)) masteryCardIndex++;
+        y += 44f;
+        string id = card.cardId;
+        string k8 = CardDataMigration.LegacyToKey(id, 8), k9 = CardDataMigration.LegacyToKey(id, 9), k5 = CardDataMigration.LegacyToKey(id, 5);
+        float tw = (full - 16f) / 3f;
+        GUI.enabled = on;
+        if (UiKit.Button(new Rect(x, y, tw, 38f), "Lv8×1 + Lv1×3 を付与", 13f, false, false)) { CardInventory.AddCard(k8, 8, 1); CardInventory.AddCard(id, 1, 3); masteryNote = "Lv8 を1枚、Lv1 を3枚 付与"; }
+        if (UiKit.Button(new Rect(x + tw + 8f, y, tw, 38f), "合成 Lv8 + Lv1 → Lv9", 13f, false, false)) masteryNote = MasteryFuse(k8, id);
+        if (UiKit.Button(new Rect(x + 2f * (tw + 8f), y, tw, 38f), "合成 Lv9 + Lv1(+1)", 13f, false, false)) masteryNote = MasteryFuse(k9, id);
+        y += 44f;
+        if (UiKit.Button(new Rect(x, y, tw, 38f), "Lv5×2 → 合成(余り繰越)", 13f, false, false)) { CardInventory.AddCard(k5, 5, 2); masteryNote = MasteryFuse(k5, k5); }
+        if (UiKit.Button(new Rect(x + tw + 8f, y, tw, 38f), "Lv9 + Lv9(+9)", 13f, false, false)) { CardInventory.AddCard(k9, 9, 2); masteryNote = MasteryFuse(k9, k9); }
+        if (UiKit.Button(new Rect(x + 2f * (tw + 8f), y, tw, 38f), "★を0へ", 13f, false, false)) { CardMastery.DebugResetCard(id); masteryNote = "★を0へ戻しました(Lv9 到達の記録は所持から作り直し)"; }
+        y += 44f;
+        float qw = (full - 24f) / 4f;
+        int[] adds = { 1, 3, 5, 15 };
+        for (int i = 0; i < adds.Length; i++)
+            if (UiKit.Button(new Rect(x + i * (qw + 8f), y, qw, 38f), $"Mastery +{adds[i]}", 13f, false, false))
+            {
+                var g = CardMastery.AddProgress(id, adds[i], "debug");
+                masteryNote = $"+{adds[i]}: ★{g.levelBefore} {g.progressBefore} → ★{g.levelAfter} {g.progressAfter}{(g.awakenedNow ? "  AWAKENED!" : "")}{(g.overflowAdded > 0 ? $"  保管+{g.overflowAdded}" : "")}";
+            }
+        y += 44f;
+        if (UiKit.Button(new Rect(x, y, hw, 38f), "Save → Load の一致を確認", 13f, false, false))
+            masteryNote = CardMastery.RoundTripEquals(out string det) ? $"一致({det})" : $"不一致: {det}";
+        GUI.enabled = true;
+        y += 46f;
+        var lab = UiKit.Label(13f, TextAnchor.MiddleLeft, false, new Color(1f, 0.9f, 0.65f));
+        var sb = new System.Text.StringBuilder();
+        foreach (var s in CardInventory.Stacks) if (s.count > 0 && CardMastery.BaseIdOf(s.cardId) == id) sb.Append($"Lv{s.level}×{s.count}  ");
+        GUI.Label(new Rect(x, y, full, 20f), "所持: " + (sb.Length > 0 ? sb.ToString() : "なし"), lab); y += 20f;
+        GUI.Label(new Rect(x, y, full, 20f), $"Lv9 MAX: {(CardMastery.IsMaxReached(id) ? "到達" : "未到達")}   Mastery ★{CardMastery.MasteryLevel(id)}  {CardMastery.MasteryProgress(id)} / {CardMastery.NeedForNext(id)}   {(CardMastery.IsAwakened(id) ? "AWAKENED" : "")}   ★5後の保管 {CardMastery.Overflow(id)}", lab); y += 20f;
+        GUI.Label(new Rect(x, y, full, 20f), $"全体: MAX {CardMastery.MaxCount} / {CardMastery.TotalCards}   AWAKENED {CardMastery.AwakenedCount} / {CardMastery.TotalCards}   必要量 {string.Join("/", MasteryTuning.I.need)}(合計 {MasteryTuning.TotalToAwaken})", lab); y += 20f;
+        if (!string.IsNullOrEmpty(masteryNote)) GUI.Label(new Rect(x, y, full, 20f), masteryNote, UiKit.Label(13f, TextAnchor.MiddleLeft, true, new Color(0.7f, 1f, 0.8f)));
+    }
+
+    static string MasteryFuse(string main, string material)
+    {
+        var r = CardFusionLogic.Execute(main, material, out string err);
+        if (r == null) return "合成できません: " + err;
+        return r.kind == CardFusionLogic.Kind.Mastery || r.masteryGain > 0
+            ? $"{r.kind}: Lv{r.result.level}  Mastery +{r.masteryGain} → ★{r.mastery.levelAfter} {r.mastery.progressAfter}{(r.mastery.awakenedNow ? " AWAKENED!" : "")}"
+            : $"{r.kind}: Lv{r.result?.level}";
+    }
+
+    public static bool MasteryTestRunning { get; private set; }
+    public static void StartMasteryTest()
+    {
+        if (MasteryTestRunning || DebugRun.IsActive) { masteryNote = DebugRun.IsActive ? "他の DEBUG RUN 中は使えません" : masteryNote; return; }
+        DebugRun.Begin("MASTERY TEST");
+        MasteryTestRunning = true;
+        masteryNote = "テスト開始(保存しない)";
+    }
+    public static void EndMasteryTest(string why)
+    {
+        if (!MasteryTestRunning) return;
+        MasteryTestRunning = false;
+        int n = DebugRun.End("mastery test " + why);
+        CardInventory.ReloadFromPrefs();
+        CardMastery.ReloadFromPrefs();
+        masteryNote = $"テスト終了: 元に戻しました(戻したキー {n})";
+    }
+}
+
 // DebugPanel から使う GameManager の開発用操作の入口(開発版のみ)
 public partial class GameManager
 {
@@ -289,5 +516,144 @@ public partial class GameManager
     public void DebugToggleDebugMode() => ToggleDebugMode();
     public void DebugResetHighScores() => ResetHighScores();
     public void DebugLogGachaPoolPublic() => DebugLogGachaPool();
+}
+#endif
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+// DebugPanel: 洞窟ボス試験のページ(自然洞窟ボス強化、2026-10-04)
+public partial class DebugPanel
+{
+    void DrawCaveBossPage(Rect p)
+    {
+        float x = p.x + 24f, y = p.y + 64f, full = p.width - 48f;
+        var lab = UiKit.Label(13f, TextAnchor.UpperLeft, false, new Color(0.85f, 0.85f, 0.9f));
+        GUI.Label(new Rect(x, y, full, 36f), "押すとシーンを読み直し、DEBUG RUN(保存しない)で選んだボスを関門と同じ流れで出します。出した後は下の操作で段階/必殺技/BREAK/ラン再開を強制できます", lab);
+        y += 36f;
+        float fw = (full - 6f) / 2f;
+        if (UiKit.Button(new Rect(x, y, fw, 30f), "自然洞窟", 13f, EndgameDebug.SelectedBossFamily == 0, false)) EndgameDebug.SelectedBossFamily = 0;
+        if (UiKit.Button(new Rect(x + fw + 6f, y, fw, 30f), "天空回廊", 13f, EndgameDebug.SelectedBossFamily == 1, false)) EndgameDebug.SelectedBossFamily = 1;
+        y += 34f;
+        bool skyFam = EndgameDebug.SelectedBossFamily == 1;
+        var kindNames = skyFam ? System.Enum.GetNames(typeof(SkyBossKind)) : System.Enum.GetNames(typeof(CaveBossKind));
+        float cw = (full - 3f * 6f) / 4f;
+        for (int i = 0; i < kindNames.Length; i++)
+        {
+            int col = i % 4, row = i / 4;
+            bool on = skyFam ? (int)EndgameDebug.SelectedSkyBoss == i : (int)EndgameDebug.SelectedCaveBoss == i;
+            if (UiKit.Button(new Rect(x + col * (cw + 6f), y + row * 36f, cw, 32f), kindNames[i], 12f, on, false))
+            {
+                if (skyFam) EndgameDebug.SelectedSkyBoss = (SkyBossKind)i; else EndgameDebug.SelectedCaveBoss = (CaveBossKind)i;
+            }
+        }
+        y += 3 * 36f + 4f;
+        int nt = BossRematchTuning.I.tiers.Count;
+        float tw = (full - nt * 6f) / (nt + 1);
+        for (int i = -1; i < nt; i++)
+            if (UiKit.Button(new Rect(x + (i + 1) * (tw + 6f), y, tw, 34f), EndgameDebug.CaveTierLabel(i), 12f, EndgameDebug.SelectedCaveTier == i, false)) EndgameDebug.SelectedCaveTier = i;
+        y += 40f;
+        bool busy = EndgameDebug.Instance != null && EndgameDebug.Instance.Launching;
+        string selName = skyFam ? EndgameDebug.SelectedSkyBoss.ToString() : EndgameDebug.SelectedCaveBoss.ToString();
+        if (UiKit.Button(new Rect(x, y, full, 44f), $"出す: {selName}({EndgameDebug.CaveTierLabel(EndgameDebug.SelectedCaveTier)})", 16f, true, false) && !busy)
+        {
+            if (skyFam) EndgameDebug.LaunchSkyBoss(EndgameDebug.SelectedSkyBoss, EndgameDebug.SelectedCaveTier, EndgameDebug.SelectedCaveChar);
+            else EndgameDebug.LaunchCaveBoss(EndgameDebug.SelectedCaveBoss, EndgameDebug.SelectedCaveTier, EndgameDebug.SelectedCaveChar);
+        }
+        y += 52f;
+        var b = EndgameDebug.FirstLivingBoss();
+        var bm = BossManager.Instance;
+        string st = b == null ? "戦闘中のボスはいません" : $"{b.DebugName}  段階 {b.Phase}/{b.PhaseCount}  崩し {b.StaggerFraction * 100f:F0}%{(b.Broken ? " BREAK" : "")}  必殺技 {b.UltimatesUsed}回{(b.UltimateRunning ? "(発動中)" : "")}  {(bm != null && bm.RunResumed ? "ラン再開済み" : bm != null ? $"再開まで {bm.ResumeSecondsLeft:F0}秒" : "")}";
+        GUI.Label(new Rect(x, y, full, 20f), st, lab);
+        y += 24f;
+        float bw = (full - 2f * 6f) / 3f;
+        for (int ph = 1; ph <= 3; ph++)
+            if (UiKit.Button(new Rect(x + (ph - 1) * (bw + 6f), y, bw, 38f), $"段階{ph}へ", 14f, b != null && b.Phase == ph, false) && b != null) b.DebugSetPhase(ph);
+        y += 44f;
+        if (UiKit.Button(new Rect(x, y, bw, 38f), "必殺技", 14f, false, false) && b != null) b.DebugForceUltimate();
+        if (UiKit.Button(new Rect(x + bw + 6f, y, bw, 38f), "BREAK", 14f, false, false) && b != null) b.DebugForceBreak();
+        if (UiKit.Button(new Rect(x + 2f * (bw + 6f), y, bw, 38f), "ラン再開", 14f, false, false) && bm != null) bm.DebugForceResume();
+        y += 44f;
+        GUI.Label(new Rect(x, y, full, 36f), $"地形の攻撃: 生成{CaveHazard.Spawned} 使い回し{CaveHazard.Reused} 表示中{CaveHazard.LiveCount}  床と天井の重なり{CaveHazard.Violations}件  遅らせた{CaveBossSafety.Delayed}  穴で中止{CaveBossSafety.PitSkips}", lab);
+    }
+}
+#endif
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+// DebugPanel: FINAL EVOLUTION TEST(2026-10-04)
+public partial class DebugPanel
+{
+    void DrawFinalEvoPage(Rect p)
+    {
+        float x = p.x + 24f, y = p.y + 64f, full = p.width - 48f;
+        var lab = UiKit.Label(12f, TextAnchor.UpperLeft, false, new Color(0.85f, 0.85f, 0.9f));
+        GUI.Label(new Rect(x, y, full, 30f), "シーンを読み直して DEBUG RUN(保存/記録しない)で開始。カードを Lv9 / READY にしてから走ります。「LEVEL UP」で3択を開けます", lab);
+        y += 32f;
+        var chars = EndgameDebug.UltCharacters;
+        float cw = (full - 5f * 6f) / 6f;
+        for (int i = 0; i < chars.Length; i++)
+        {
+            int col = i % 6, row = i / 6;
+            if (UiKit.Button(new Rect(x + col * (cw + 6f), y + row * 34f, cw, 30f), EndgameDebug.UltCharLabel(chars[i]), 11f, EndgameDebug.SelectedFeChar == chars[i], false)) EndgameDebug.SelectedFeChar = chars[i];
+        }
+        y += 2 * 34f + 4f;
+        string[] stages = { "wasteland_road", "natural_cave", "sky_corridor" };
+        float sw = (full - 2f * 6f) / 3f;
+        for (int i = 0; i < 3; i++) if (UiKit.Button(new Rect(x + i * (sw + 6f), y, sw, 30f), EndgameDebug.StageLabel(stages[i]), 12f, EndgameDebug.SelectedFeStage == stages[i], false)) EndgameDebug.SelectedFeStage = stages[i];
+        y += 36f;
+        var cards = EndgameDebug.FeCards;
+        // 全対象カード(2026-10-05): 10枚ずつのページ
+        int pages = Mathf.Max(1, (cards.Length + 9) / 10);
+        EndgameDebug.FeCardPage = Mathf.Clamp(EndgameDebug.FeCardPage, 0, pages - 1);
+        float kw = (full - 4f * 6f - 2f * 40f) / 5f;
+        if (UiKit.Button(new Rect(x, y, 36f, 64f), "◀", 14f, false, false)) EndgameDebug.FeCardPage = (EndgameDebug.FeCardPage + pages - 1) % pages;
+        if (UiKit.Button(new Rect(x + full - 36f, y, 36f, 64f), "▶", 14f, false, false)) EndgameDebug.FeCardPage = (EndgameDebug.FeCardPage + 1) % pages;
+        for (int k = 0; k < 10; k++)
+        {
+            int i = EndgameDebug.FeCardPage * 10 + k;
+            if (i >= cards.Length) break;
+            int col = k % 5, row = k / 5;
+            var c = CardDatabase.FindBaseById(cards[i]);
+            if (UiKit.Button(new Rect(x + 40f + col * (kw + 6f), y + row * 34f, kw, 30f), c != null ? c.cardName : cards[i], 9f, EndgameDebug.SelectedFeCard == cards[i], false)) EndgameDebug.SelectedFeCard = cards[i];
+        }
+        y += 2 * 34f + 4f;
+        GUI.Label(new Rect(x, y - 4f, full, 16f), $"{EndgameDebug.FeCardPage + 1}/{pages} ページ  全{cards.Length}枚", UiKit.Label(10f, TextAnchor.MiddleCenter, false, new Color(0.8f, 0.8f, 0.9f)));
+        y += 12f;
+        float tw = (full - 3f * 6f) / 4f;
+        if (UiKit.Button(new Rect(x, y, tw, 30f), $"AWAKENED {(EndgameDebug.FeAwakened ? "ON" : "OFF")}", 11f, EndgameDebug.FeAwakened, false)) EndgameDebug.FeAwakened = !EndgameDebug.FeAwakened;
+        if (UiKit.Button(new Rect(x + (tw + 6f), y, tw, 30f), $"Lv9開始 {(EndgameDebug.FeLv9 ? "ON" : "OFF")}", 11f, EndgameDebug.FeLv9, false)) EndgameDebug.FeLv9 = !EndgameDebug.FeLv9;
+        if (UiKit.Button(new Rect(x + 2f * (tw + 6f), y, tw, 30f), $"READY開始 {(EndgameDebug.FeReady ? "ON" : "OFF")}", 11f, EndgameDebug.FeReady, false)) EndgameDebug.FeReady = !EndgameDebug.FeReady;
+        if (UiKit.Button(new Rect(x + 3f * (tw + 6f), y, tw, 30f), $"ボス {(EndgameDebug.FeBoss ? "あり" : "なし")}", 11f, EndgameDebug.FeBoss, false)) EndgameDebug.FeBoss = !EndgameDebug.FeBoss;
+        y += 36f;
+        bool busy = EndgameDebug.Instance != null && EndgameDebug.Instance.Launching;
+        if (UiKit.Button(new Rect(x, y, full, 40f), "開始(DEBUG RUN)", 16f, true, false) && !busy)
+            EndgameDebug.LaunchFinalEvo(EndgameDebug.SelectedFeChar, EndgameDebug.SelectedFeStage, EndgameDebug.SelectedFeCard, EndgameDebug.FeAwakened, EndgameDebug.FeLv9, EndgameDebug.FeReady, EndgameDebug.FeBoss);
+        y += 46f;
+        var gm = GameManager.Instance;
+        string id = EndgameDebug.SelectedFeCard;
+        float bw = (full - 3f * 6f) / 4f;
+        FinalEvolution.DebugForceCandidate = EndgameDebug.FeForceCandidate ? id : null;
+        if (UiKit.Button(new Rect(x, y, bw, 34f), "LEVEL UP(3択)", 12f, false, false) && gm != null && gm.HasStarted) { SetOpen(false); gm.DebugTriggerLevelUp(); }
+        if (UiKit.Button(new Rect(x + bw + 6f, y, bw, 34f), "今すぐ READY", 12f, false, false) && gm != null && gm.HasStarted) { gm.FinalEvoTestPrepare(id); FinalEvolution.DebugMakeReady(id); }
+        if (UiKit.Button(new Rect(x + 2f * (bw + 6f), y, bw, 34f), "今すぐ終了", 12f, false, false)) FinalEvolution.DebugEnd(id);
+        // 再使用の確認: ACTIVE を即終了 → READY → すぐ LEVEL UP(同じ FE を候補に固定していれば同じ FE を選び直せる)
+        if (UiKit.Button(new Rect(x + 3f * (bw + 6f), y, bw, 34f), "終了→LEVEL UP", 12f, true, false) && gm != null && gm.HasStarted) { FinalEvolution.DebugEnd(id); SetOpen(false); gm.DebugTriggerLevelUp(); }
+        y += 40f;
+        if (UiKit.Button(new Rect(x, y, full, 26f), EndgameDebug.FeForceCandidate ? "選んだカードの FE を候補に固定: ON(READY の時)" : "選んだカードの FE を候補に固定: OFF(通常の公平な抽選)", 11f, EndgameDebug.FeForceCandidate, false)) EndgameDebug.FeForceCandidate = !EndgameDebug.FeForceCandidate;
+        y += 30f;
+        if (gm != null && gm.HasStarted)
+        {
+            var sb = new System.Text.StringBuilder();
+            foreach (var c in EndgameDebug.FeCards)
+            {
+                var st = FinalEvolution.StageOf(c);
+                if (st == FinalEvolution.Stage.None && gm.GetAbilityRunStack(c) == 0) continue;
+                sb.Append($"{c} Lv{gm.GetAbilityRunStack(c)} {st}");
+                if (st == FinalEvolution.Stage.Eligible) sb.Append($"(READY まで {Mathf.Max(0f, FinalEvolutionTuning.I.readyMeters - (gm.MaxDistance - FinalEvolution.EligibleAt(c))):0}m)");
+                if (st == FinalEvolution.Stage.Active) sb.Append($"(残り {FinalEvolution.Remaining(c):0.#})");
+                if (FinalEvolution.Uses(c) > 0) sb.Append($" 発動{FinalEvolution.Uses(c)}回");
+                sb.Append("   ");
+            }
+            GUI.Label(new Rect(x, y, full, 60f), sb.Length > 0 ? sb.ToString() : "状態なし", lab);
+        }
+    }
 }
 #endif

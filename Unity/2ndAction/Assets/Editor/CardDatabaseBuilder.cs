@@ -1028,6 +1028,38 @@ public static class CardDatabaseBuilder
             effects = new[] { (EffectType.BossDamageBonus, 40f) },
             rarity = 3, unlockDistance = 5000f, gachaStage = 2
         };
+
+        // --- カードバランス v3(2026-10-03): 属性カード8枚(#92〜#99)。効果の値は Editor/CardBalanceV3.cs が入れる --- //
+        yield return new Spec { id = "burning_soul", name = "BURNING SOUL", sortOrder = so++, category = CardCategory.Attack, description = "炎上が長く、強くなる",
+            glyph = IconGlyph.Droplet, glyphColor = new Color(1f, 0.45f, 0.15f), effects = new[] { (EffectType.BurnPowerPct, 0.08f) },
+            rarity = 3, unlockDistance = 5000f, gachaStage = 2, element = ElementType.Fire };
+        yield return new Spec { id = "inferno", name = "INFERNO", sortOrder = so++, category = CardCategory.Attack, description = "燃えている敵を倒すと、周りへ炎が広がる",
+            glyph = IconGlyph.Ring, glyphColor = new Color(1f, 0.3f, 0.1f), effects = new[] { (EffectType.InfernoLevel, 1f) },
+            rarity = 4, unlockDistance = 20000f, gachaStage = 3, element = ElementType.Fire };
+        yield return new Spec { id = "ice_prison", name = "ICE PRISON", sortOrder = so++, category = CardCategory.Attack, description = "冷気が溜まりやすくなり、凍結しやすくなる",
+            glyph = IconGlyph.Shield, glyphColor = new Color(0.55f, 0.85f, 1f), effects = new[] { (EffectType.FreezeThresholdReduce, 1f) },
+            rarity = 3, unlockDistance = 5000f, gachaStage = 2, element = ElementType.Ice };
+        yield return new Spec { id = "absolute_zero", name = "ABSOLUTE ZERO", sortOrder = so++, category = CardCategory.Attack, description = "凍結した敵が砕け、冷えた敵への攻撃が強くなる",
+            glyph = IconGlyph.Ring, glyphColor = new Color(0.8f, 0.95f, 1f), effects = new[] { (EffectType.AbsoluteZeroLevel, 1f) },
+            rarity = 4, unlockDistance = 20000f, gachaStage = 3, element = ElementType.Ice };
+        yield return new Spec { id = "chain_lightning", name = "CHAIN LIGHTNING", sortOrder = so++, category = CardCategory.Attack, description = "雷が近くの別の敵へ連鎖する",
+            glyph = IconGlyph.SpeedLines, glyphColor = new Color(1f, 0.95f, 0.35f), effects = new[] { (EffectType.LightningChains, 1f) },
+            rarity = 3, unlockDistance = 5000f, gachaStage = 2, element = ElementType.Thunder };
+        yield return new Spec { id = "thunder_lord", name = "THUNDER LORD", sortOrder = so++, category = CardCategory.Attack, description = "雷の連鎖・範囲・威力が強くなる",
+            glyph = IconGlyph.CrossSwords, glyphColor = new Color(1f, 0.85f, 0.2f), effects = new[] { (EffectType.LightningDamagePct, 0.06f) },
+            rarity = 4, unlockDistance = 20000f, gachaStage = 3, element = ElementType.Thunder };
+        yield return new Spec { id = "gale", name = "GALE", sortOrder = so++, category = CardCategory.Attack, description = "風刃が速く、遠くへ、多くの敵を貫く",
+            glyph = IconGlyph.SpeedLines, glyphColor = new Color(0.6f, 1f, 0.8f), effects = new[] { (EffectType.WindSpeedPct, 0.05f) },
+            rarity = 3, unlockDistance = 5000f, gachaStage = 2, element = ElementType.Wind };
+        yield return new Spec { id = "tornado", name = "TORNADO", sortOrder = so++, category = CardCategory.Attack, description = "風刃が当たった所に小さな竜巻が起きる",
+            glyph = IconGlyph.Ring, glyphColor = new Color(0.5f, 0.95f, 0.75f), effects = new[] { (EffectType.TornadoLevel, 1f) },
+            rarity = 4, unlockDistance = 20000f, gachaStage = 3, element = ElementType.Wind };
+
+        // --- #100 ULTIMATE(2026-10-04): キャラ固有の必殺技。#79(cardId "ultimate" = 表示名 ALMIGHTY)とは別の新しい cardId。
+        //     アイコンは仮(手続き生成の星)。効果の値/説明は Editor/CardBalanceV3.cs が入れる --- //
+        yield return new Spec { id = "character_ultimate", name = "ULTIMATE", sortOrder = so++, category = CardCategory.Special, description = "キャラ固有の必殺技",
+            glyph = IconGlyph.WingSword, glyphColor = new Color(1f, 0.82f, 0.25f), effects = new[] { (EffectType.UltimateLevel, 1f) },
+            rarity = 5, unlockDistance = 20000f, gachaStage = 3 };
     }
 
     // アイコン素材追加(2026-09-11) - existingIconPathで指定された実アート

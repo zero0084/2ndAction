@@ -15,15 +15,17 @@ MonoBehaviour:
   cardId: exp_converter
   cardName: EXP CONVERTER
   icon: {fileID: 2800000, guid: 8afb6a51cf11ac440a776a667a059856, type: 3}
-  description: "\u7D4C\u9A13\u5024\u52B9\u7387\u3092\u72A0\u7272\u306B\u3001MILE\u7372\u5F97\u91CF\u3092\u9AD8\u3081\u308B"
+  description: "\u7D4C\u9A13\u5024\u304C\u6E1B\u308B(1Lv\u3054\u3068\u306B-10%\u3001\u6700\u4F4E25%)\u4EE3\u308F\u308A\u306B\u3001\u6575\u6483\u7834\u306EMILE\u304C\u5897\u3048\u308B(+30%/Lv)"
   category: 6
   sortOrder: 152
-  recommendPriority: 5
+  recommendPriority: 2
   effects:
-  - type: 9
-    value: -0.1
   - type: 22
     value: 0.3
+    scaling: 0
+  - type: 9
+    value: -0.1
+    scaling: 0
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

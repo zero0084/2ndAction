@@ -13,9 +13,16 @@ public class PlayerBullet : MonoBehaviour
 {
     public Vector2 velocity;
     public float lifetime = 1.6f;
+    // カード v3(2026-10-03): PIERCING BLADE の貫通(追加で何体まで貫くか)。既定0 = 従来どおり最初の1体で消える
+    public int pierce;
 
     float age;
     bool hasHit;
+
+    void Start()
+    {
+        if (GameManager.Instance != null) pierce += Mathf.CeilToInt(GameManager.Instance.Card.Get(EffectType.PierceLevel) / 3f - 0.001f) + GameManager.Instance.Elements.WindPierce; // 3Lvごとに+1
+    }
 
     void Update()
     {
@@ -45,11 +52,16 @@ public class PlayerBullet : MonoBehaviour
         // ダメージ自体は相手側の既存OnTriggerEnter2D(タグ"PlayerAttack"を
         // 読む)へ任せ、弾はここで消える(貫通させない - "細い射線=点で攻撃
         // する"という武器特性どおり、1発で複数の敵を巻き込まない)。
+        // 2026-10-03: 荒野/洞窟/天空のボスの被弾範囲は子の BossHurtbox にある(WildBossBase 本体には無い)ため、
+        // 以前は見つけられずに弾がボスを貫通していた(ダメージは1回、弾は後ろの敵にも当たり得た)。
         if (other.GetComponent<EnemyController>() != null ||
+            other.GetComponent<BossHurtbox>() != null ||
             other.GetComponent<WildBossBase>() != null ||
             other.GetComponent<DragonController>() != null ||
             other.GetComponent<MajinController>() != null)
         {
+            // カード v3: 貫通が残っていれば次の敵へ(同じ敵へは敵側の SwingId / ボスの AlreadyHit で2回目は入らない)
+            if (pierce > 0) { pierce--; KitProjectile.PierceThrough++; return; }
             hasHit = true;
             Destroy(gameObject);
         }
@@ -118,11 +130,14 @@ public class PlayerBullet : MonoBehaviour
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.gravityScale = 0f;
 
-        go.AddComponent<PlayerAttackInfo>().kind = PlayerAttackKind.Normal;
+        var info = go.AddComponent<PlayerAttackInfo>();
+        info.kind = PlayerAttackKind.Normal;
+        // AttackSeq: the bullet keeps the tag of the shot that fired it
+        if (PlayerController.Instance != null) { info.seqTag = PlayerController.Instance.CurrentSeqTag; info.seqMoveId = PlayerController.Instance.CurrentSeqMoveId; }
 
         PlayerBullet b = go.AddComponent<PlayerBullet>();
         b.velocity = velocity;
-        b.lifetime = lifetime;
+        b.lifetime = lifetime * PlayerController.ProjectileTravelFactor; // Effective Attack Range (off by default)
         return go;
     }
 }

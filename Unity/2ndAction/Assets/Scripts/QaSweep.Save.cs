@@ -93,18 +93,19 @@ public partial class QaSweep
             Check(Mathf.Abs(PlayerPrefs.GetFloat("BgmVolume", -1f) - 0.5f) < 0.001f && Mathf.Abs(PlayerPrefs.GetFloat("SfxVolume", -1f) - 0.25f) < 0.001f, "C: old volume levels converted (2/4 -> 0.5, 1/4 -> 0.25)");
             Check(!PlayerPrefs.HasKey("BgmVolumeLevel") && !PlayerPrefs.HasKey("SfxVolumeLevel"), "C: old duplicate volume keys removed");
             Check(PlayerPrefs.GetInt("TotalOwnedMile", 0) == 12345 && PlayerPrefs.GetString("OwnedCardsV1", "").Contains("\"level\":5") && PlayerPrefs.GetString("BestDistance_v2_wasteland_road", "") == "45678.5", "C: progress kept through the migration");
-            // 将来の多段の移行(2→3→4)
-            SaveSystem.TestSchemaTarget = 4;
-            SaveSystem.TestStep = from => { if (from == 2) PlayerPrefs.SetInt("TotalOwnedMile", PlayerPrefs.GetInt("TotalOwnedMile", 0) + 1); if (from == 3) PlayerPrefs.SetString("DeckCardIds", PlayerPrefs.GetString("DeckCardIds", "") + ",x"); return true; };
+            // 将来の多段の移行(現行の版 → +1 → +2。2026-10-04: 3 はカード長期育成の実際の移行になったので、仮の手順はその先)
+            int cur = SaveSystem.CurrentSchemaVersion;
+            SaveSystem.TestSchemaTarget = cur + 2;
+            SaveSystem.TestStep = from => { if (from == cur) PlayerPrefs.SetInt("TotalOwnedMile", PlayerPrefs.GetInt("TotalOwnedMile", 0) + 1); if (from == cur + 1) PlayerPrefs.SetString("DeckCardIds", PlayerPrefs.GetString("DeckCardIds", "") + ",x"); return true; };
             r = SaveSystem.Boot(0);
-            Check(r.schemaAfter == 4 && PlayerPrefs.GetInt("TotalOwnedMile", 0) == 12346 && PlayerPrefs.GetString("DeckCardIds", "").EndsWith(",x"), $"C: chained migration 2->3->4 applied step by step ({r.report})");
+            Check(r.schemaAfter == cur + 2 && PlayerPrefs.GetInt("TotalOwnedMile", 0) == 12346 && PlayerPrefs.GetString("DeckCardIds", "").EndsWith(",x"), $"C: chained migration {cur}->{cur + 1}->{cur + 2} applied step by step ({r.report})");
             // 移行の失敗 → 移行前へ戻して旧い形式のまま起動
-            PlayerPrefs.SetInt(SaveKeys.SchemaVersion, 2);
+            PlayerPrefs.SetInt(SaveKeys.SchemaVersion, cur);
             var beforeFail = SaveSystem.Capture();
-            SaveSystem.TestStep = from => { if (from == 2) { PlayerPrefs.SetInt("TotalOwnedMile", 1); return true; } return false; };
+            SaveSystem.TestStep = from => { if (from == cur) { PlayerPrefs.SetInt("TotalOwnedMile", 1); return true; } return false; };
             r = SaveSystem.Boot(0);
             bool sameF = SameValues(beforeFail, SaveSystem.Capture(), out string diffF);
-            Check(r.migrationFailed && r.schemaAfter == 2 && sameF, $"C: a failed migration restores the pre-migration data and keeps the old format {diffF}");
+            Check(r.migrationFailed && r.schemaAfter == cur && sameF, $"C: a failed migration restores the pre-migration data and keeps the old format {diffF}");
             SaveSystem.TestSchemaTarget = 0; SaveSystem.TestStep = null;
 
             // ---- D: 将来の製品版(releaseGeneration 0→1)

@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: pathfinder
   cardName: PATHFINDER
   icon: {fileID: 2800000, guid: 9417a4475bac01145803e32c5a0b8e34, type: 3}
-  description: "\u9060\u304F\u307E\u3067\u5230\u9054\u3057\u305F\u8A3C\u3002\u7D4C\u9A13\u5024\u7372\u5F97\u91CF\u304C\u5C11\u3057\u5897\u52A0\u3059\u308B"
+  description: "\u8D70\u3063\u305F\u8DDD\u96E2\u306E\u7D4C\u9A13\u5024\u304C\u5897\u3048\u308B(1Lv\u3054\u3068\u306B+20%)"
   category: 3
   sortOrder: 16
   recommendPriority: 5
   effects:
-  - type: 9
-    value: 0.1
+  - type: 106
+    value: 0.2
+    scaling: 0
   rarity: 2
   unlockDistance: 500
   gachaStage: 1

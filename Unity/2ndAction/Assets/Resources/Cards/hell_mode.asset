@@ -15,19 +15,26 @@ MonoBehaviour:
   cardId: hell_mode
   cardName: HELL MODE
   icon: {fileID: 2800000, guid: a3b832a5c21079e4e81f131a44884811, type: 3}
-  description: "\u6575\u304C\u5927\u5E45\u306B\u5F37\u5316\u3055\u308C\u308B\u4EE3\u308F\u308A\u306B\u3001\u7D4C\u9A13\u5024/MILE\u304C\u5927\u5E45\u306B\u5897\u52A0\u3059\u308B"
+  description: "\u96D1\u9B5A\u306EHP(+12%/Lv)\u30FB\u52D5\u304D(+4%/Lv)\u30FB\u51FA\u73FE(+8%/Lv)\u304C\u4E0A\u304C\u308B\u4EE3\u308F\u308A\u306B\u3001MILE(+50%/Lv)\u3068\u30DC\u30B9MILE(+30%/Lv)\u304C\u5927\u304D\u304F\u5897\u3048\u308B"
   category: 6
   sortOrder: 158
-  recommendPriority: 5
+  recommendPriority: 1
   effects:
-  - type: 20
-    value: 0.6
-  - type: 12
-    value: 0.4
   - type: 22
     value: 0.5
+    scaling: 0
+  - type: 20
+    value: 0.12
+    scaling: 0
+  - type: 100
+    value: 0.04
+    scaling: 0
+  - type: 12
+    value: 0.08
+    scaling: 0
   - type: 23
     value: 0.3
+    scaling: 0
   rarity: 4
   unlockDistance: 50000
   gachaStage: 4

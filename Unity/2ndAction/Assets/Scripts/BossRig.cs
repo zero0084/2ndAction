@@ -85,6 +85,36 @@ public class BossRig
         for (int k = 0; k < cells.Count; k++) cells[k].color = c;
     }
 
+    // BOSS FINISH(2026-10-06): 撃破の見た目でセルを1つずつ動かす(崩れる/列ごとに沈む等)。基準の位置は今の絵の格子の位置
+    public int Cols => cols;
+    public int Rows => rows;
+    public int CellCount => cells.Count;
+    public Vector2 CellUv(int k) => baseUv[k];
+    public SpriteRenderer Cell(int k) => cells[k];
+    public Vector2 CellBase(int k)
+    {
+        if (current != null && cachePos.TryGetValue(current, out Vector2[] pos) && k < pos.Length)
+        {
+            // セルの絵の左下が原点なので、中心は半セル分ずらす
+            return pos[k] + new Vector2(spriteSize.x / cols, spriteSize.y / rows) * 0.5f;
+        }
+        return Vector2.zero;
+    }
+    // セルの左下基準の位置(SetCell の offset はここからのずれ)
+    Vector2 CellOrigin(int k) => current != null && cachePos.TryGetValue(current, out Vector2[] pos) && k < pos.Length ? pos[k] : Vector2.zero;
+    public void SetCell(int k, Vector2 offset, float rotDeg, Color c)
+    {
+        var t = cells[k].transform;
+        Vector2 o = CellOrigin(k);
+        t.localPosition = new Vector3(o.x + offset.x, o.y + offset.y, 0f);
+        t.localRotation = Quaternion.Euler(0f, 0f, rotDeg);
+        cells[k].color = c;
+    }
+    public void ResetCells()
+    {
+        for (int k = 0; k < cells.Count; k++) { Vector2 o = CellOrigin(k); cells[k].transform.localPosition = new Vector3(o.x, o.y, 0f); cells[k].transform.localRotation = Quaternion.identity; }
+    }
+
     public void SetEnabled(bool on)
     {
         for (int k = 0; k < cells.Count; k++) cells[k].enabled = on;

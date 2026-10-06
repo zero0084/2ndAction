@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: momentum
   cardName: MOMENTUM
   icon: {fileID: 2800000, guid: f1cf2ee590c52c94fb4b170556822237, type: 3}
-  description: "\u8D70\u308A\u7D9A\u3051\u3066\u901F\u5EA6\u304C\u4E0A\u304C\u308B\u307B\u3069\u3001\u653B\u6483\u529B\u3082\u4E0A\u304C\u308B"
+  description: "\u4ECA\u306E\u901F\u3055\u304C\u653B\u6483\u529B\u306B\u306A\u308B\u3002100km/h\u3092\u8D85\u3048\u308B\u3068\u4E0A\u304C\u308A\u59CB\u3081\u3001150km/h\u3067\u6700\u5927(1Lv\u3054\u3068\u306B+4%)\u3002\u305D\u306E\u5148\u306F\u4F38\u3073\u304C\u920D\u3044"
   category: 0
   sortOrder: 129
   recommendPriority: 5
   effects:
-  - type: 18
-    value: 30
+  - type: 70
+    value: 0.04
+    scaling: 0
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

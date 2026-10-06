@@ -32,6 +32,8 @@ public class StageSelectUI : MonoBehaviour
     public float rootFadeDuration = 0.15f;
 
     int selectedIndex;
+    // 疾走出発(2026-10-05): 今選んでいるステージ(行き先パネルが読む)
+    public string SelectedStageIdInUi { get { var all = StageDatabase.AllStages; return selectedIndex >= 0 && selectedIndex < all.Count ? all[selectedIndex].stageId : null; } }
 
     Coroutine fadeCoroutine;
 
@@ -167,19 +169,19 @@ public class StageSelectUI : MonoBehaviour
 
     void HandleTap(Vector2 screenPos)
     {
-        if (backButtonRect != null && RectTransformUtility.RectangleContainsScreenPoint(backButtonRect, screenPos, null))
+        if (backButtonRect != null && UiHit.Hit(backButtonRect, screenPos))
         {
             Close();
             return;
         }
-        if (departButtonRect != null && RectTransformUtility.RectangleContainsScreenPoint(departButtonRect, screenPos, null))
+        if (departButtonRect != null && UiHit.Hit(departButtonRect, screenPos))
         {
             Confirm();
             return;
         }
         for (int i = 0; i < cardSlotRects.Length; i++)
         {
-            if (cardSlotRects[i] != null && RectTransformUtility.RectangleContainsScreenPoint(cardSlotRects[i], screenPos, null))
+            if (cardSlotRects[i] != null && UiHit.Hit(cardSlotRects[i], screenPos))
             {
                 SelectIndex(i);
                 return;
@@ -197,6 +199,7 @@ public class StageSelectUI : MonoBehaviour
         // (見た目上は問題にならないが、他画面との一貫性のため統一)。
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (UiInputGate.Blocked) return; // 設定/DEBUGパネルが手前に開いている(閉じた時の指が離れるまでも)
+        UiHit.Probe(HandleTap); // パッド操作中: 押せる枠を集める(2026-10-06)
         if (!TouchInputUtil.TryGetTapPosition(out Vector2 screenPos)) return;
         HandleTap(screenPos);
     }

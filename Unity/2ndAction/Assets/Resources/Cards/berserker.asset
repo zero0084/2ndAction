@@ -15,15 +15,20 @@ MonoBehaviour:
   cardId: berserker
   cardName: BERSERKER
   icon: {fileID: 2800000, guid: 3d66ea6c5862fdb4f90da0488dbdfbdf, type: 3}
-  description: "\u653B\u6483\u529B\u304C\u5927\u5E45\u4E0A\u6607\u3059\u308B\u304C\u3001\u6700\u5927HP\u304C\u4F4E\u4E0B\u3059\u308B"
+  description: "\u653B\u6483\u529B(1Lv\u3054\u3068\u306B+6%)\u3068\u653B\u6483\u901F\u5EA6(+1%)\u304C\u4E0A\u304C\u308B\u3002\u6700\u5927HP\u306E\u30CF\u30FC\u30C8\u30923Lv\u3054\u3068\u306B1\u3064\u5C01\u5370\u3059\u308B"
   category: 6
   sortOrder: 13
-  recommendPriority: 1
+  recommendPriority: 2
   effects:
-  - type: 1
-    value: 30
-  - type: 4
-    value: -10
+  - type: 46
+    value: 0.06
+    scaling: 0
+  - type: 48
+    value: 0.01
+    scaling: 0
+  - type: 52
+    value: 1
+    scaling: 2
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2

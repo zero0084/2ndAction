@@ -15,13 +15,24 @@ MonoBehaviour:
   cardId: overdrive
   cardName: OVERDRIVE
   icon: {fileID: 2800000, guid: 4960e94c7c065ba478ff8530ea62ba2f, type: 3}
-  description: "\u8D70\u308A\u7D9A\u3051\u3066\u901F\u5EA6\u304C\u4E0A\u304C\u308B\u307B\u3069\u3001\u653B\u6483\u529B\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B"
+  description: "115km/h\u4EE5\u4E0A\u3092\u7D9A\u3051\u308B\u3068OVERDRIVE(\u653B\u6483
+    1Lv\u3054\u3068\u306B+3%\u3001\u653B\u6483\u901F\u5EA6 +2%)\u3002\u9045\u304F\u306A\u308B\u3068\u89E3\u9664\u3002\u79FB\u52D5\u901F\u5EA6\u3082\u5C11\u3057\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+2%)"
   category: 0
   sortOrder: 149
   recommendPriority: 5
   effects:
-  - type: 18
-    value: 40
+  - type: 71
+    value: 0.03
+    scaling: 0
+  - type: 72
+    value: 0.02
+    scaling: 0
+  - type: 45
+    value: 0.02
+    scaling: 0
+  - type: 73
+    value: 1
+    scaling: 0
   rarity: 4
   unlockDistance: 20000
   gachaStage: 3

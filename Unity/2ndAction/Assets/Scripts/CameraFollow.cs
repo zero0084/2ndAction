@@ -62,6 +62,16 @@ public class CameraFollow : MonoBehaviour
 
     // ラストダンジョンのエンディング(2026-09-30): 演出が足すカメラの横ずれ(ONE MORE MILE?ではプレイヤーを画面中央へ)。通常は0。
     public static float ScriptedOffsetX;
+    // #100 ULTIMATE(2026-10-04): 必殺技の間のズーム(1=通常、小さいほど寄る。滑らかに追う)と、前進中の先の見え方(m)
+    public static float UltimateZoom = 1f;
+    public static float UltimateLookAhead;
+    float ultZoomNow = 1f;
+    // FINAL EVOLUTION(2026-10-04): SPEED UP の超高速状態で少しだけ引く(1=通常)
+    public static float FinalEvolutionZoom = 1f;
+    float feZoomNow = 1f;
+    // BOSS FINISH(2026-10-06): 最後の一撃の一瞬の寄り(1=通常。所有者は1つだけ = 重なって暴走しない)
+    public static float BossFinishZoom = 1f;
+    float bossZoomNow = 1f;
 
     void LateUpdate()
     {
@@ -73,7 +83,10 @@ public class CameraFollow : MonoBehaviour
         if (cam != null && Screen.height > 0)
         {
             float aspect = (float)Screen.width / Screen.height;
-            cam.orthographicSize = targetHorizontalHalfWidth * (1f + highSpeedZoomOut * speedBlend) / aspect;
+            ultZoomNow = Mathf.Lerp(ultZoomNow, UltimateZoom, 1f - Mathf.Exp(-8f * Time.unscaledDeltaTime));
+            feZoomNow = Mathf.Lerp(feZoomNow, FinalEvolutionZoom, 1f - Mathf.Exp(-4f * Time.unscaledDeltaTime));
+            bossZoomNow = Mathf.Lerp(bossZoomNow, Mathf.Clamp(BossFinishZoom, 0.85f, 1f), 1f - Mathf.Exp(-14f * Time.unscaledDeltaTime));
+            cam.orthographicSize = targetHorizontalHalfWidth * (1f + highSpeedZoomOut * speedBlend) / aspect * ultZoomNow * feZoomNow * bossZoomNow;
         }
 
         if (shakeTimer > 0f) shakeTimer = Mathf.Max(0f, shakeTimer - Time.unscaledDeltaTime);
@@ -99,7 +112,7 @@ public class CameraFollow : MonoBehaviour
         Vector3 pos = transform.position;
         // 攻撃の前進/後退の分だけカメラを遅らせる(画面上でキャラが踏み込む/下がるのが見える。2026-09-30)
         float stepOffset = PlayerController.Instance != null && target == PlayerController.Instance.transform ? PlayerController.Instance.ScreenStepOffset : 0f;
-        pos.x = target.position.x + offsetX + highSpeedLookAhead * speedBlend - stepOffset + ScriptedOffsetX;
+        pos.x = target.position.x + offsetX + highSpeedLookAhead * speedBlend - stepOffset + ScriptedOffsetX + UltimateLookAhead;
         bool diving = PlayerController.Instance != null && PlayerController.Instance.IsDiveAttacking;
         float smoothedY = Mathf.SmoothDamp(pos.y, target.position.y, ref velocity.y, diving ? yDampingDiveAttack : yDamping);
         pos.y = smoothedY;

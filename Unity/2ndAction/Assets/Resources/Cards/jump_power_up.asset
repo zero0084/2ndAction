@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: jump_power_up
   cardName: JUMP POWER UP
   icon: {fileID: 2800000, guid: c4fc6cd6be7dd3346afbd6ee067a1042, type: 3}
-  description: "\u30B8\u30E3\u30F3\u30D7\u529B\u304C\u4E0A\u6607\u3059\u308B"
+  description: "\u30B8\u30E3\u30F3\u30D7\u529B\u304C\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+3%)\u3002\u9B54\u6CD5\u4F7F\u3044\u306F\u9AD8\u5EA6\u306E\u4E0A\u4E0B\u304C\u901F\u304F\u306A\u308B"
   category: 0
   sortOrder: 4
   recommendPriority: 5
   effects:
-  - type: 2
-    value: 0.15
+  - type: 47
+    value: 0.03
+    scaling: 0
   rarity: 1
   unlockDistance: 0
   gachaStage: 1

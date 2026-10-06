@@ -56,6 +56,8 @@ public class BonusZone : MonoBehaviour
     float phaseTime;
     bool wasBossPhase;
     float pendingAtDistance = -1f;
+    // #100 ULTIMATE: ボスの後の抽選の距離(無ければ -1)。前進はこの手前で止まる
+    public float PendingStartDistance => pendingAtDistance;
     static System.Random rng = new System.Random();
 
     void Awake()

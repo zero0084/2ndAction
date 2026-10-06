@@ -138,7 +138,7 @@ MonoBehaviour:
   lanceBackDamageScale: 0.5
   lanceBackKnockbackScale: 0.45
   lanceUpReach: 1.9
-  lanceUpAngle: 50
+  lanceUpAngle: 40
   lanceUpActive: 0.2
   lanceDownReach: 1.7
   lanceDownHeight: 0.22

@@ -30,9 +30,19 @@ public class KitProjectile : MonoBehaviour
     public float wobbleAmp, wobbleFreq;
 
     public int HitCount { get; private set; }
+    public static int PierceThrough; // 確認用: 敵を貫いた回数(カード v3)
     Transform visual;
     float age;
     bool done;
+
+    // 属性(2026-10-03): 風の「貫通の追加」。作った側が pierce を決めた後(次のフレーム)に足す。pierce<0(無制限)はそのまま
+    void Start()
+    {
+        int add = GameManager.Instance != null ? GameManager.Instance.Elements.WindPierce : 0;
+        // カード v3: PIERCING BLADE(飛び道具は貫通の回数。同じ弾が同じ相手へ2回当たることはない: 敵側の SwingId / ボスの AlreadyHit)
+        if (GameManager.Instance != null && !(GetComponent<PlayerAttackInfo>() is PlayerAttackInfo pi && pi.elementProc)) add += Mathf.CeilToInt(GameManager.Instance.Card.Get(EffectType.PierceLevel) / 3f - 0.001f); // 3Lvごとに+1
+        if (add > 0 && pierce >= 0) pierce += add;
+    }
 
     void Update()
     {
@@ -76,6 +86,9 @@ public class KitProjectile : MonoBehaviour
             if (pierce > 0) pierce--;
             return;
         }
+        // 2026-10-03: ボス/敵の「攻撃判定」(BossHitbox/EnemyMeleeHitbox)は持ち主の子なので、以前はそれに触れただけで
+        // 「ボス/敵に当たった」扱いになり、ダメージを与えずに弾が消えていた(矢/手裏剣/札など)。攻撃判定は素通りする。
+        if (other.GetComponent<BossHitbox>() != null || other.GetComponent<EnemyMeleeHitbox>() != null) return;
         bool enemy = other.GetComponentInParent<EnemyController>() != null;
         bool boss = !enemy && (other.GetComponentInParent<WildBossBase>() != null || other.GetComponentInParent<DragonController>() != null || other.GetComponentInParent<MajinController>() != null);
         if (!enemy && !boss) return;
@@ -84,7 +97,7 @@ public class KitProjectile : MonoBehaviour
         if (boss && bossHitStop > 0f && PlayerController.Instance != null) PlayerController.Instance.StartCoroutine(HitStop.Freeze(bossHitStop));
         if (blast.radius > 0f) { Finish(other.ClosestPoint(transform.position), true); return; }
         if (pierce == 0) { Finish(transform.position, false); return; }
-        if (pierce > 0) pierce--;
+        if (pierce > 0) { pierce--; PierceThrough++; }
     }
 
     void Finish(Vector3 at, bool explode)
@@ -142,12 +155,15 @@ public class KitProjectile : MonoBehaviour
 
         var info = go.AddComponent<PlayerAttackInfo>();
         info.kind = kind;
+        // AttackSeq: a projectile keeps the tag of the move that fired it (blasts/zones stay untagged)
+        if (PlayerController.Instance != null) { info.seqTag = PlayerController.Instance.CurrentSeqTag; info.seqMoveId = PlayerController.Instance.CurrentSeqMoveId; }
         info.damageScale = damageScale;
         info.knockbackScale = knockbackScale;
         info.hitStop = hitStop;
 
         var p = go.AddComponent<KitProjectile>();
         p.velocity = velocity;
+        lifetime *= PlayerController.ProjectileTravelFactor; // Effective Attack Range: travel distance, not size (off by default)
         p.lifetime = lifetime;
         p.visual = vis.transform;
         return p;

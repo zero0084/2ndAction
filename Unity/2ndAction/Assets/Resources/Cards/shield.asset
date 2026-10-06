@@ -15,13 +15,17 @@ MonoBehaviour:
   cardId: shield
   cardName: SHIELD
   icon: {fileID: 2800000, guid: d8d08c6a0ec19614c92ca76c14a2c838, type: 3}
-  description: "\u30C0\u30E1\u30FC\u30B8\u30921\u56DE\u3060\u3051\u7121\u52B9\u5316\u3059\u308B"
+  description: "\u88AB\u5F3E\u30921\u56DE\u9632\u3050Shield\u3002\u6700\u5927\u6570\u306F3Lv\u3054\u3068\u306B+1(\u6700\u59273)\u3001\u4F7F\u3063\u305F\u5206\u306F\u6642\u9593\u3067\u623B\u308B(Lv\u3067\u901F\u304F\u306A\u308B)"
   category: 2
   sortOrder: 10
   recommendPriority: 5
   effects:
-  - type: 8
+  - type: 75
     value: 1
+    scaling: 2
+  - type: 76
+    value: 1.5
+    scaling: 0
   rarity: 2
   unlockDistance: 0
   gachaStage: 1

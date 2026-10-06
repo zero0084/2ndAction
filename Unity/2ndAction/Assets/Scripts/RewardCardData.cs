@@ -55,4 +55,12 @@ public struct RewardCardData
     // Reward候補(MakeChoiceCardData)では意図的に渡さない(常にfalseの
     // まま)。
     public bool ShowNewBadge;
+
+    // カード長期育成(2026-10-04): Lv9 MAX のカードに Mastery の★(0〜5)を出す。AWAKENED は専用の光/表記/粒。
+    // 呼び出し側(GameManager.MakeOwnedCardData / MakeCardData)が CardMastery を見て入れる。他の画面では false のまま
+    public bool ShowMastery;
+    public int MasteryStars;
+    public bool Awakened;
+    // FINAL EVOLUTION(2026-10-04): LEVEL UP の候補の FINAL EVOLUTION(金の光+表記。通常の Lv 表示はしない)
+    public bool FinalEvolution;
 }

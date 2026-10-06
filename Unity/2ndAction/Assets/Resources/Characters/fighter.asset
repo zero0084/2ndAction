@@ -79,13 +79,13 @@ MonoBehaviour:
   hurtLeanDegrees: 12
   hurtStaggerDistance: 0.12
   recoveryCrouchDepth: 0.14
-  attackHitboxForwardScale: 1
+  attackHitboxForwardScale: 1.12
   attackHitboxVerticalScale: 1
-  attackHitboxCrossScale: 1
+  attackHitboxCrossScale: 1.15
   attackHitboxNearPad: 0.35
   contactGraceDuration: 0.15
   highSpeedHitAssistEnabled: 1
-  highSpeedHitAssistStartKmh: 100
+  highSpeedHitAssistStartKmh: 0
   highSpeedHitAssistSeconds: 0.08
   highSpeedHitAssistMax: 0.5
   startFrames:
@@ -320,10 +320,10 @@ MonoBehaviour:
     - 1.15
     - 1.2
     comboLunge:
-    - 0.35
-    - 0.4
-    - 0.5
-    - 0.8
+    - 0.55
+    - 0.6
+    - 0.7
+    - 1
     comboDamageScale:
     - 0.8
     - 0.8
@@ -341,7 +341,7 @@ MonoBehaviour:
     - 0.15
     comboGrace: 0.32
     hitHeight: 0.62
-    hitThickness: 0.62
+    hitThickness: 0.8
     backStepDistance: 1.1
     backStepTime: 0.16
     counterWindow: 0.32

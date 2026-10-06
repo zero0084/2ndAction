@@ -76,7 +76,7 @@ public class AudioAutoTest : MonoBehaviour
         WarpTo(10020f);
         yield return new WaitForSecondsRealtime(0.5f);
         bool crossfading = am.PlayingBgmSources == 2;
-        yield return new WaitForSecondsRealtime(2.5f);
+        yield return new WaitForSecondsRealtime(Mathf.Max(2.5f, (am.Library != null ? am.Library.phaseFade : 1.6f) + 0.3f)); // 2026-10-06: 序盤→中盤はゆっくり(phaseFade)
         Check(am.CurrentBgm == st.middle && dir.Reason.EndsWith("Middle"), $"10,000m: middle BGM ({am.CurrentBgm?.name}, {dir.Reason})");
         Check(crossfading && am.PlayingBgmSources == 1, $"switch is a crossfade (both playing during the fade: {crossfading}), then one");
         WarpTo(70020f);

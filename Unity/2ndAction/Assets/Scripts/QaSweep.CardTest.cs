@@ -70,10 +70,11 @@ public partial class QaSweep
         yield return null;
         ct.PressSlot("speed", 2);
         yield return null;
-        Check(Near(pc.runSpeed, cardSpeed * 1.12f * pS.abc[2]), $"a card picked during the test stays (run {pc.runSpeed:F3} = {cardSpeed:F3} x 1.12 x {pS.abc[2]})");
+        float v3step = (1f + CardRules.SoftSpeed(0.06f)) / (1f + CardRules.SoftSpeed(0.03f)); // カード v3: SPEED UP は +3%/Lv の足し算
+        Check(Near(pc.runSpeed, cardSpeed * v3step * pS.abc[2]), $"a card picked during the test stays (run {pc.runSpeed:F3} = {cardSpeed:F3} x {v3step:F3} x {pS.abc[2]})");
         ct.TestOff();
         yield return null;
-        Check(Near(pc.runSpeed, cardSpeed * 1.12f) && Near(pc.AttackRangeMultiplier, cardRange, 0.02f), $"TEST OFF keeps the cards and removes only the test (run {pc.runSpeed:F3}, range {pc.AttackRangeMultiplier:F3} vs {cardRange:F3})");
+        Check(Near(pc.runSpeed, cardSpeed * v3step) && Near(pc.AttackRangeMultiplier, cardRange, 0.02f), $"TEST OFF keeps the cards and removes only the test (run {pc.runSpeed:F3}, range {pc.AttackRangeMultiplier:F3} vs {cardRange:F3})");
         L($"[info] {ct.Info(pS)}");
         ct.ResetToBase();
         yield return null;
@@ -133,12 +134,14 @@ public partial class QaSweep
         var ntb = CardDatabase.FindById("no_turning_back");
         ct.ApplyCardLevel(ntb, 9);
         yield return null;
-        L($"[card] NO TURNING BACK Lv9: run {pc.runSpeed / baseSpeed:F2}x (expect {Mathf.Pow(1.25f, 9):F2}) note");
-        Check(Near(pc.runSpeed / baseSpeed, Mathf.Pow(1.25f, 9), 0.01f), "card Lv9 applies the card's real Lv9 value");
+        float ntbExpect = 1f + CardRules.SoftSpeed(0.45f); // カード v3: +5%/Lv の足し算を曲線に通す
+        L($"[card] NO TURNING BACK Lv9: run {pc.runSpeed / baseSpeed:F3}x (expect {ntbExpect:F3}) note");
+        Check(Near(pc.runSpeed / baseSpeed, ntbExpect, 0.01f), "card Lv9 applies the card's real Lv9 value");
         var da = CardDatabase.FindById("double_attack");
         ct.ApplyCardLevel(da, 9);
         yield return null;
-        Check(Near(pc.AttackSpeedMultiplier, 0.25f), $"DOUBLE ATTACK Lv9 is floored at 0.25 like the card (got {pc.AttackSpeedMultiplier:F3})");
+        // カード v3: DOUBLE ATTACK は攻撃速度ではなく「3%/Lv の確率で追加の1撃」
+        Check(Near(pc.AttackSpeedMultiplier, def.attackSpeedMultiplier) && Near(GameManager.Instance.Card.Get(EffectType.DoubleAttackChance), 0.27f), $"DOUBLE ATTACK Lv9 = 27% extra attack chance, attack time unchanged (got x{pc.AttackSpeedMultiplier:F3}, chance {GameManager.Instance.Card.Get(EffectType.DoubleAttackChance):F2})");
         var jcu = CardDatabase.FindById("jump_count_up");
         ct.ApplyCardLevel(jcu, 5);
         yield return null;

@@ -19,7 +19,7 @@ using UnityEngine;
 //    跳ばずに走り続ける、地面の着弾点=攻撃の踏み込み/後退で位置をずらす。
 public enum SkyBossKind { Dragon, Majin, Behemoth, Titan, Jellyfish, Leviathan, Fenrir, SkyGolem, Phoenix, SkySerpent, Guardian }
 
-public abstract class SkyBossBase : WildBossBase
+public abstract partial class SkyBossBase : HazardBossBase
 {
     protected const int FarLayer = -40;       // 空の背景(-100)より手前、回廊(0)より奥
     protected const int BehindGround = -5;    // 回廊の足場より奥(雲海の中)
@@ -181,7 +181,7 @@ static class SkyProjectileGate { public static float NextTime; public static flo
 // ============ 10,000m 雷獣ベヒーモス ============
 // 遠方の落雷 → 雲の向こうを疾走する巨大シルエット → 後方から高速疾走で追いつき前へ。
 // 突進(身体を低く→角に雷→溜め→突進)/落雷(咆哮→前方に落雷予告→落雷)/雷撃衝撃波(前脚→叩きつけ)。
-public class BehemothBoss : SkyBossBase
+public partial class BehemothBoss : SkyBossBase
 {
     BossHitbox charge, stomp;
     BossTelegraphMarker chargeMark, stompMark;
@@ -191,6 +191,7 @@ public class BehemothBoss : SkyBossBase
 
     protected override void OnInit()
     {
+        HazardBattleSetup(); // 天空ボス強化(2026-10-05): スーパーアーマー+段階/BREAKの割り込み
         locoStyle = LocoStyle.Gallop;
         footstepShake = true;
         enterSpeed = 13f;
@@ -267,6 +268,8 @@ public class BehemothBoss : SkyBossBase
     {
         while (true)
         {
+            if (UltimateReady(2)) { yield return ThunderApocalypse(); continue; }
+            if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return ElectricTrail(); continue; }
             int pick = BossAiUtil.PickNoRepeat(3, ref last);
             if (pick == 0) yield return ChargeAttack();
             else if (pick == 1) yield return ThunderCall();
@@ -322,7 +325,7 @@ public class BehemothBoss : SkyBossBase
 // 雲海の中を回廊と並行して進む神話級巨人。地面より奥のレイヤーに上半身だけが見える。
 // 拳(腕を振り上げ→攻撃地点に影→叩きつけ)/暴風(息を吸う→口元に風→横風で移動妨害、ダメージなし)/
 // 雷槍(手に雷→雷槍形成→投擲、着弾点を事前表示)。
-public class SkyTitanBoss : SkyBossBase
+public partial class SkyTitanBoss : SkyBossBase
 {
     SpriteRenderer mouthGlow, handGlow;
     int last = -1;
@@ -330,6 +333,8 @@ public class SkyTitanBoss : SkyBossBase
 
     protected override void OnInit()
     {
+        HazardBattleSetup(); // 天空ボス強化(2026-10-05): スーパーアーマー+段階/BREAKの割り込み
+        restAltitude = -bodyHeight * 0.55f; // 雲海に沈んだ高さが普段の高さ
         locoStyle = LocoStyle.Stride;
         suppressLocoDust = true;
         hitStopOnHit = 0.05f;
@@ -339,7 +344,8 @@ public class SkyTitanBoss : SkyBossBase
         mouthGlow = MakeGlow("MouthGlow", new Color(0.85f, 0.95f, 1f, 0.8f));
         handGlow = MakeGlow("HandGlow", new Color(0.6f, 0.85f, 1f, 0.95f));
         // 被弾範囲: 回廊の高さから届く胸〜肩(ジャンプで届く範囲)
-        ConfigureHurtbox(new Vector2(0f, -RiseY + 2.8f), new Vector2(Mathf.Max(3f, halfWidth * 0.9f), 4.4f));
+        hurtWidth = Mathf.Max(3f, halfWidth * 0.9f);
+        ConfigureHurtbox(new Vector2(0f, -RiseY + 2.8f), new Vector2(hurtWidth, 4.4f));
         SetAlpha(0f);
         StartCoroutine(Ambient());
     }
@@ -373,15 +379,67 @@ public class SkyTitanBoss : SkyBossBase
         }
     }
 
+    // 近接キャラの反撃の時間(2026-10-03)。以前は常にプレイヤーの5〜14m前に立ち、被弾範囲(胸〜肩)の手前の端も
+    // 数m先までしか来ないため、近接キャラ(お嬢様騎士/格闘/忍者/竜人)は300秒で1発も当てられなかった。
+    // kneelEveryAttacks 回の攻撃ごとに、身をかがめて回廊のすぐ前まで寄り、拳を振り下ろした後
+    // kneelHoldSeconds 秒そのまま低い姿勢でとどまる(被弾範囲の手前の端がプレイヤーの kneelReachGap m先)。HPは変えていない。
+    public int kneelEveryAttacks = 2;
+    public float kneelReachGap = 0.8f;
+    public float kneelLower = 1.0f;
+    public float kneelHoldSeconds = 3.2f;
+    int attacksSinceKneel;
+    float hurtWidth;
+    public int KneelCount { get; private set; } // 確認用
+    public bool IsKneeling { get; private set; }
+
     protected override IEnumerator AI()
     {
         while (true)
         {
+            if (UltimateReady(2)) { yield return JudgmentOfTitan(); continue; }
+            if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return SpearRain(); continue; }
+            if (kneelEveryAttacks > 0 && attacksSinceKneel >= kneelEveryAttacks)
+            {
+                attacksSinceKneel = 0;
+                yield return KneelAndSlam();
+                continue;
+            }
             int pick = BossAiUtil.PickNoRepeat(3, ref last);
             if (pick == 0) yield return FistSlam();
             else if (pick == 1) yield return Gust();
             else yield return ThunderSpear();
+            attacksSinceKneel++;
         }
+    }
+
+    IEnumerator KneelAndSlam()
+    {
+        KneelCount++;
+        float closeGap = kneelReachGap + Mathf.Max(3f, hurtWidth) * 0.5f;
+        float keepMin = minGap;
+        minGap = Mathf.Min(minGap, closeGap - 0.5f);
+        IsKneeling = true;
+        try
+        {
+            // 身をかがめながら回廊のすぐ前へ
+            StartCoroutine(SetAltitude(RiseY - kneelLower, 0.9f));
+            yield return MoveToGap(closeGap, 9f, 1.6f);
+            // 目の前の回廊へ拳を振り下ろす(予告あり)
+            float x = PlayerX + Random.Range(0.4f, 1.6f);
+            SkyStrike.Create(x, 2.6f, 2.2f, 1.6f, 0.3f, new Color(0.88f, 0.84f, 0.8f, 1f), SkyStrike.Look.Fist);
+            yield return Telegraph(0.9f);
+            PlayAttackPose(0.9f);
+            yield return Wait(0.8f);
+            // 拳を回廊に突いたまま、低い姿勢で隙を見せる(近接キャラの反撃の時間)
+            yield return Recover(kneelHoldSeconds);
+        }
+        finally
+        {
+            IsKneeling = false;
+            minGap = keepMin;
+        }
+        StartCoroutine(SetAltitude(RiseY, 0.9f));
+        yield return MoveToGap(startGap, 6f, 2f);
     }
 
     IEnumerator FistSlam()
@@ -495,7 +553,7 @@ public class SkyTitanBoss : SkyBossBase
 // ============ 30,000m 天空クラゲ ============
 // 透明感のある身体が脈動しながら雲の中を漂う。横滑りさせず、収縮/触手の揺れ/発光で動きを見せる。
 // 触手(後方へ引く→伸ばす)/電撃(内部発光→触手に電気→前方へ)/雷球(中央へ光→遅い雷球を少数)。
-public class SkyJellyfishBoss : SkyBossBase
+public partial class SkyJellyfishBoss : SkyBossBase
 {
     BossHitbox tentacle, shock;
     BossTelegraphMarker tentacleMark, shockMark;
@@ -506,6 +564,8 @@ public class SkyJellyfishBoss : SkyBossBase
 
     protected override void OnInit()
     {
+        HazardBattleSetup(); // 天空ボス強化(2026-10-05): スーパーアーマー+段階/BREAKの割り込み
+        restAltitude = HoverAlt; // BREAK/段階の後に戻る高さ
         locoStyle = LocoStyle.Cloth;
         hitStopOnHit = 0.03f;
         startGap = 8f; minGap = 1.5f; maxGap = 14f;
@@ -536,7 +596,7 @@ public class SkyJellyfishBoss : SkyBossBase
             extraScale = new Vector2(1f - 0.06f * s, 1f + 0.09f * s);   // 傘の収縮
             float glow = 0.5f + 0.5f * Mathf.Sin(Time.time * 3.1f);
             SetBodyTint(Color.Lerp(Color.white, new Color(0.7f, 0.95f, 1f), glow * 0.6f));
-            if (approachDone && !windingUp) yOffset = HoverAlt + 0.25f * Mathf.Sin(Time.time * 1.3f);
+            if (approachDone && !windingUp && !lowHold) yOffset = HoverAlt + 0.25f * Mathf.Sin(Time.time * 1.3f);
             mote -= Time.deltaTime;
             if (mote <= 0f && approachDone)
             {
@@ -552,6 +612,8 @@ public class SkyJellyfishBoss : SkyBossBase
     {
         while (true)
         {
+            if (UltimateReady(2)) { yield return HeavenlyPulse(); continue; }
+            if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return TentacleField(); continue; }
             int pick = BossAiUtil.PickNoRepeat(3, ref last);
             if (pick == 2 && Time.time < SkyProjectileGate.NextTime) pick = 0;
             if (pick == 0) yield return TentacleLash();
@@ -607,7 +669,7 @@ public class SkyJellyfishBoss : SkyBossBase
 // だけが見え、攻撃時だけ身体を大きく露出する(露出中だけ被弾する)。
 // 飛び出し(雲海が盛り上がる→下から巨大な頭部)/横断(身体の通過位置を事前表示→画面を横断)/
 // 雲海ブレス(頭部を持ち上げる→長い溜め→巨大ブレス)。
-public class LeviathanBoss : SkyBossBase
+public partial class LeviathanBoss : SkyBossBase
 {
     BossHitbox erupt, cross, breath;
     SpriteRenderer shadowSr, finSr, mouthGlow;
@@ -619,6 +681,8 @@ public class LeviathanBoss : SkyBossBase
 
     protected override void OnInit()
     {
+        HazardBattleSetup(); // 天空ボス強化(2026-10-05): スーパーアーマー+段階/BREAKの割り込み
+        restAltitude = -bodyHeight * 0.2f; // 段階の咆哮/BREAKの後は頭を出した高さ(EmergedY)
         locoStyle = LocoStyle.Slither;
         suppressLocoDust = true;
         hitStopOnHit = 0.05f;
@@ -764,6 +828,8 @@ public class LeviathanBoss : SkyBossBase
     {
         while (true)
         {
+            if (UltimateReady(2)) { yield return LeviathanCrossing(); continue; }
+            if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return DeepApproach(); continue; }
             int pick = BossAiUtil.PickNoRepeat(3, ref last);
             if (pick == 0) yield return BurstUp();
             else if (pick == 1) yield return CrossSweep();
@@ -874,7 +940,7 @@ public class LeviathanBoss : SkyBossBase
 // ============ 50,000m 天空魔狼フェンリル ============
 // 荒野街道の巨大オオカミの「究極形」。青白い炎を纏い、回廊・雲・一瞬形成される魔力足場を蹴って疾走。
 // 神速噛みつき/天空跳躍(着地点表示)/魔力咆哮(衝撃波)/連続疾走(追い越す→振り返る→すれ違い攻撃)。
-public class FenrirBoss : SkyBossBase
+public partial class FenrirBoss : SkyBossBase
 {
     BossHitbox bite, pass;
     BossTelegraphMarker biteMark, passMark;
@@ -884,9 +950,9 @@ public class FenrirBoss : SkyBossBase
 
     protected override void OnInit()
     {
+        HazardBattleSetup(); // 天空ボス強化(2026-10-05): スーパーアーマー+段階/BREAKの割り込み
         locoStyle = LocoStyle.Gallop;
         enterSpeed = 16f;
-        interruptible = true;
         hitStopOnHit = 0.035f;
         startGap = 7f; minGap = -14f; maxGap = 18f;
         SetBodyTint(new Color(0.88f, 0.95f, 1f));
@@ -950,6 +1016,8 @@ public class FenrirBoss : SkyBossBase
     {
         while (true)
         {
+            if (UltimateReady(2)) { yield return FenrirSkyHunt(); continue; }
+            if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return SkyRun(); continue; }
             int pick = BossAiUtil.PickNoRepeat(4, ref last);
             if (pick == 0) yield return GodspeedBite();
             else if (pick == 1) yield return SkyLeap();
@@ -1040,7 +1108,7 @@ public class FenrirBoss : SkyBossBase
 // 浮島そのものから作られたような古代巨像。周囲の浮遊岩が集まって身体を形成し、コアが点灯して起動。
 // 重量感(大股・足音)と浮遊感(身体の岩がわずかに浮き沈み、周囲を岩が周回)を両立。
 // 拳(拳を形成→振りかぶる→叩きつけ)/浮遊岩(岩を分離→プレイヤー上空へ→予告→落下)/コア砲撃(チャージ→前方)。
-public class SkyGolemBoss : SkyBossBase
+public partial class SkyGolemBoss : SkyBossBase
 {
     BossHitbox fist, beam;
     BossTelegraphMarker fistMark, beamMark;
@@ -1052,6 +1120,8 @@ public class SkyGolemBoss : SkyBossBase
 
     protected override void OnInit()
     {
+        HazardBattleSetup(); // 天空ボス強化(2026-10-05): スーパーアーマー+段階/BREAKの割り込み
+        restAltitude = FloatAlt; // BREAK/段階の後に戻る高さ
         locoStyle = LocoStyle.Stride;
         footstepShake = true;
         hitStopOnHit = 0.05f;
@@ -1161,6 +1231,8 @@ public class SkyGolemBoss : SkyBossBase
     {
         while (true)
         {
+            if (UltimateReady(2)) { yield return SkyFortress(); continue; }
+            if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return Disassemble(); continue; }
             int pick = BossAiUtil.PickNoRepeat(3, ref last);
             if (pick == 0) yield return FistSlam();
             else if (pick == 1) yield return FloatingRocks();
@@ -1255,7 +1327,7 @@ public class SkyGolemBoss : SkyBossBase
 // 炎そのものが生命を持ったような巨大な火の鳥。常時飛行し、炎の軌跡を残す。
 // 急降下(上空→炎が強まる→着地点へ急降下)/炎の羽(羽ばたき→少数の羽を前方へ)/炎上突進(全身を炎→横断)。
 // 特殊: 初回HPゼロで炎となって消え、炎が集まって復活(HP40%から第二段階)。
-public class PhoenixBoss : SkyBossBase
+public partial class PhoenixBoss : SkyBossBase
 {
     BossHitbox dive, rush;
     int last = -1;
@@ -1265,6 +1337,8 @@ public class PhoenixBoss : SkyBossBase
 
     protected override void OnInit()
     {
+        HazardBattleSetup(); // 天空ボス強化(2026-10-05): スーパーアーマー+段階/BREAKの割り込み
+        restAltitude = HoverAlt; // BREAK/段階の後に戻る高さ
         locoStyle = LocoStyle.Wing;
         hitStopOnHit = 0.03f;
         startGap = 8f; minGap = -18f; maxGap = 22f;
@@ -1313,6 +1387,8 @@ public class PhoenixBoss : SkyBossBase
     {
         while (true)
         {
+            if (UltimateReady(2)) { yield return PhoenixRebirthUlt(); continue; }
+            if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return FlameTrail(); continue; }
             int pick = BossAiUtil.PickNoRepeat(3, ref last);
             if (pick == 1 && Time.time < SkyProjectileGate.NextTime) pick = 0;
             if (pick == 0) yield return DiveAttack();
@@ -1395,6 +1471,10 @@ public class PhoenixBoss : SkyBossBase
     protected override bool OnLethalDamage()
     {
         if (reborn) return false;
+        // 天空ボス強化(2026-10-05): 復活は Data(BossBattleTuning)で: 初登場は復活 / 再戦は低い確率(冗長にしない)
+        var bt = BossBattleTuning.I;
+        bool rematch = RematchTierApplied >= 0;
+        if (!(rematch ? Random.value < bt.phoenixRebirthRematchChance : bt.phoenixRebirthOnFirst)) return false;
         reborn = true;
         StopAllCoroutines();
         DisableCombatParts();
@@ -1447,7 +1527,7 @@ public class PhoenixBoss : SkyBossBase
         Sfx(SkyBossSfx.Roar(), 0.8f);
         Sfx(SkyBossSfx.Flame(), 1f);
         Shake(0.15f, 0.5f);
-        RestoreHp(Mathf.RoundToInt(maxHp * 0.4f));
+        RestoreHp(Mathf.RoundToInt(maxHp * Mathf.Clamp(BossBattleTuning.I.phoenixRebirthHp, 0.3f, 0.5f)));
         yield return Wait(0.7f);
         invulnerable = false;
         SetHurtboxEnabled(true);
@@ -1461,7 +1541,7 @@ public class PhoenixBoss : SkyBossBase
 // 雲の中を泳ぐ翼ある神獣の大蛇。荒野街道の巨大蛇/ヒュドラより遥かに長く、神秘的。
 // 雲からの噛みつき(頭部が雲へ消える→別の雲が動く→出現して噛みつき)/身体横断(雲の動きで軌道を予告)/
 // 雷ブレス(口元発光→長めの溜め)/雷雲生成(咆哮→複数地点に雷雲→落雷、必ず安全地帯を残す)。
-public class SkySerpentBoss : SkyBossBase
+public partial class SkySerpentBoss : SkyBossBase
 {
     BossHitbox bite, cross, breath;
     BossTelegraphMarker biteMark;
@@ -1472,6 +1552,8 @@ public class SkySerpentBoss : SkyBossBase
 
     protected override void OnInit()
     {
+        HazardBattleSetup(); // 天空ボス強化(2026-10-05): スーパーアーマー+段階/BREAKの割り込み
+        restAltitude = HoverAlt; // BREAK/段階の後に戻る高さ
         locoStyle = LocoStyle.Slither;
         hitStopOnHit = 0.04f;
         startGap = 8f; minGap = -26f; maxGap = 28f;
@@ -1514,6 +1596,8 @@ public class SkySerpentBoss : SkyBossBase
     {
         while (true)
         {
+            if (UltimateReady(2)) { yield return HeavenSerpentStorm(); continue; }
+            if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return StormSurge(); continue; }
             int pick = BossAiUtil.PickNoRepeat(4, ref last);
             if (pick == 0) yield return CloudBite();
             else if (pick == 1) yield return BodyCross();
@@ -1680,7 +1764,7 @@ public class SkySerpentBoss : SkyBossBase
 // 理不尽な速さではなく「予備動作は見える、しかし攻撃の種類が多い」総合試験:
 // 光剣(武器を後方へ→発光→高速斬撃)/天空斬撃(剣を上へ→チャージ→斬撃波、低い波=ジャンプ・高い波=そのまま)/
 // 空中攻撃(上空へ→一瞬停止→斜め下へ)/光柱(武器を掲げる→周辺の地面に予告→光柱、安全地帯を必ず残す)。
-public class CelestialGuardianBoss : SkyBossBase
+public partial class CelestialGuardianBoss : SkyBossBase
 {
     BossHitbox sword, dive;
     BossTelegraphMarker swordMark;
@@ -1691,8 +1775,9 @@ public class CelestialGuardianBoss : SkyBossBase
 
     protected override void OnInit()
     {
+        HazardBattleSetup(); // 天空ボス強化(2026-10-05): スーパーアーマー+段階/BREAKの割り込み
+        restAltitude = HoverAlt; // BREAK/段階の後に戻る高さ
         locoStyle = LocoStyle.Cloth;
-        interruptible = true;
         hitStopOnHit = 0.035f;
         startGap = 7f; minGap = -8f; maxGap = 16f;
         SetBodyTint(new Color(1f, 0.98f, 0.92f));
@@ -1754,6 +1839,8 @@ public class CelestialGuardianBoss : SkyBossBase
     {
         while (true)
         {
+            if (UltimateReady(2)) { yield return HeavensJudgment(); continue; }
+            if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return GuardianCombo(); continue; }
             int pick = BossAiUtil.PickNoRepeat(4, ref last);
             if (pick == 0) yield return LightSword();
             else if (pick == 1) yield return SkySlash();

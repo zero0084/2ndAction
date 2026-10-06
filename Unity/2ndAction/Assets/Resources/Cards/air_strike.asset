@@ -15,13 +15,14 @@ MonoBehaviour:
   cardId: air_strike
   cardName: AIR STRIKE
   icon: {fileID: 2800000, guid: 60f65e0ff602d9d4ca15214f82fd1b5d, type: 3}
-  description: "\u7A7A\u4E2D\u653B\u6483\u306E\u5A01\u529B\u304C\u5927\u304D\u304F\u4E0A\u304C\u308B"
+  description: "\u7A7A\u4E2D\u306E\u6575(\u6253\u3061\u4E0A\u3052\u305F\u6575/\u98DB\u3076\u6575/\u7A7A\u306E\u30DC\u30B9)\u3078\u306E\u653B\u6483\u304C\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+8%)"
   category: 1
   sortOrder: 171
   recommendPriority: 5
   effects:
-  - type: 7
-    value: 40
+  - type: 60
+    value: 0.08
+    scaling: 0
   rarity: 3
   unlockDistance: 5000
   gachaStage: 2
