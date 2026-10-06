@@ -218,7 +218,7 @@ public class SprintRunner : MonoBehaviour
             {
                 // 演出の間の自動取得で候補が尽きた: 全 Lv9 になったのなら MILE(どちらか1回だけ)
                 CheckAllMaxed();
-                if (allMaxed) { int m = gm.SprintGrantRingMile(); RingMileRewards++; SetLastBurstText($"+{m} MILE", MileColor); }
+                if (allMaxed) { int m = gm.SprintGrantRingMile(); RingMileRewards++; SetLastBurstText($"+{m} MILE", MileColor); if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.MileGet); }
                 else { RingsNoCandidate++; Banner("RING!  今は取れるカードがありません", new Color(1f, 0.8f, 0.5f), 1.4f); }
             }
         }
@@ -263,6 +263,7 @@ public class SprintRunner : MonoBehaviour
     {
         r.success = true;
         RingsSucceeded++;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.RingBurst); // 音の再設計(2026-10-06): リング成功
         var st = gm.SprintPoolDiagnose(out string why);
         var b = AddBurst(r.lane);
         if (st == GameManager.SprintPoolState.HasCandidates)
@@ -275,6 +276,7 @@ public class SprintRunner : MonoBehaviour
             int m = gm.SprintGrantRingMile();
             RingMileRewards++;
             b.text = $"+{m} MILE"; b.col = MileColor;
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.MileGet);
             CheckAllMaxed();
         }
         else

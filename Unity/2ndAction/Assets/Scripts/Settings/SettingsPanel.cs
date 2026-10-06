@@ -59,7 +59,7 @@ public class SettingsPanel : MonoBehaviour
     static void PlaySe(bool open)
     {
         var am = AudioManager.Instance;
-        if (am != null) am.PlaySe(open ? SeId.Decide : SeId.Cancel);
+        if (am != null) am.PlaySe(open ? SeId.UiOpen : SeId.UiClose); // 2026-10-06: 開く/閉じる
     }
 
     void Update()
@@ -238,7 +238,7 @@ public class SettingsPanel : MonoBehaviour
         var am = AudioManager.Instance;
         y = Head(x, y, w, "音");
         if (am == null) return Note(x, y, w, "(音声が使えません)");
-        y = ChoiceRow(x, y, w, "全体ミュート", am.Muted ? 1 : 0, "OFF", "ON", interactive, c => am.SetMuted(c == 1));
+        y = ChoiceRow(x, y, w, "全体ミュート", am.Muted ? 1 : 0, "OFF", "ON", interactive, c => { am.SetMuted(c == 1); am.PlaySe(SeId.UiToggle); });
         bool on = !am.Muted;
         y = SliderRow(x, y, w, "全体", am.MasterVolume, Pct(am.MasterVolume), on, interactive, (v, rel) => { am.SetMasterVolume(v, rel); if (rel) TestSe(); });
         y = SliderRow(x, y, w, "BGM", am.BgmVolume, Pct(am.BgmVolume), on, interactive, (v, rel) => am.SetBgmVolume(v, rel));
@@ -250,7 +250,7 @@ public class SettingsPanel : MonoBehaviour
     static void TestSe()
     {
         var am = AudioManager.Instance;
-        if (am != null) am.PlaySe(SeId.Decide); // 離した時に今の音量で1回鳴らす
+        if (am != null) am.PlaySe(SeId.Hit); // 離した時に今の音量で1回鳴らす(2026-10-06: ゲーム中の基準の音=通常ヒット)
     }
 
     // ---------------------------------------------------------------- 表示

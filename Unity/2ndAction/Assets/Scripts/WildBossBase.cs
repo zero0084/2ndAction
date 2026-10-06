@@ -611,6 +611,8 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         relVelocity = 0f;
         SetPose(Pose.Windup);
         foreach (var z in zones) if (z != null) z.Show(facing);
+        // 音の再設計(2026-10-06): 予兆は必ず聞こえるように(長い溜め = 重い予兆)
+        if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySeAt(duration >= 0.8f ? SeId.BossTelegraphHeavy : SeId.BossTelegraph, CenterWorld);
 
         float t = 0f;
         while (t < duration && !dead)
@@ -1032,7 +1034,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         Color col = Phase >= PhaseCount ? new Color(1f, 0.35f, 0.25f, 0.95f) : new Color(1f, 0.8f, 0.35f, 0.95f);
         OneShotSpriteEffect.CreateTweened(BossFx.Ring(), c, col, 0.5f, bodyHeight * 0.4f, bodyHeight * 2.4f, 0.9f, 0f, default, 0f, RenderOrder.CombatFx, 0.1f);
         OneShotSpriteEffect.CreateTweened(BossFx.Ring(), c, new Color(1f, 1f, 1f, 0.8f), 0.35f, bodyHeight * 0.3f, bodyHeight * 1.6f, 0.8f, 0f, default, 0f, RenderOrder.CombatFx, 0.05f);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossPhase); // 2026-10-06: 段階が上がる専用の音
         BossBattleHud.Banner(Phase >= PhaseCount ? "最終段階!" : "激昂!", col, 1.2f);
     }
 
@@ -1074,7 +1076,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         BreakCount++;
         Debug.Log($"[BossBattle] {bossName} BREAK #{BreakCount} t={Time.time - battleStartedAt:F1}s");
         BossBattleHud.Banner("BREAK!", new Color(1f, 0.85f, 0.3f), 1.0f);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossFinalHit);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossBreak); // 2026-10-06: 崩しの専用の音(割れる)
         RunHitStop(0.08f);
         if (supportsInterrupt) InterruptAI(BreakRoutine());
         else StartCoroutine(BreakTimer());
@@ -1202,7 +1204,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         lastUltimateTime = Time.time;
         Debug.Log($"[BossBattle] {bossName} ULTIMATE '{title}' #{UltimatesUsed} t={Time.time - battleStartedAt:F1}s");
         BossBattleHud.Banner(title, color, 1.6f);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossUltimate); // 2026-10-06: ボスの必殺技の専用の音
         Shake(0.12f, 0.35f);
         return true;
     }

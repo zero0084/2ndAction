@@ -565,6 +565,8 @@ public partial class EnemyController : MonoBehaviour
             // ていないに関わらず「連続して当てた」という事実がコンボ)。
             if (ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
 
+            // 音の再設計(2026-10-06): 手応えの音を攻撃の種類で分ける(打ち上げ/飛び道具/通常)
+            nextHitSe = kind == PlayerAttackKind.Up ? SeId.HitLaunch : other.GetComponentInParent<PlayerBullet>() != null ? SeId.HitProjectile : SeId.Hit;
             ProcessHit(kind, contactPoint, killed);
             return;
         }
@@ -752,9 +754,11 @@ public partial class EnemyController : MonoBehaviour
     // 物理的なノックバック/打ち上げ/叩き落としは呼び出し側が別途担当する
     // (演出とリアクション物理を分離、Slam等で組み合わせを変えやすくする
     // ため)。
+    SeId nextHitSe = SeId.Hit;
     IEnumerator ReactToHit(Vector3 contactPoint, float hitStopDur)
     {
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayAttackHit();
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(nextHitSe, contactPoint);
+        nextHitSe = SeId.Hit;
 
         if (hitParticleEnabled)
         {
@@ -937,7 +941,7 @@ public partial class EnemyController : MonoBehaviour
     // を、致死ではなく生存した場合にも(小さめに)再現する。
     IEnumerator SlamImpactRoutine()
     {
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayStrongHit(); // 叩きつけの着地 = 強Hit
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(SeId.SlamImpact, transform.position); // 叩きつけの着地(2026-10-06: 専用の地響き)
 
         Sprite impactSprite = TerrainManager.Instance != null ? TerrainManager.Instance.enemyGroundImpactSprite : null;
         if (impactSprite != null)
@@ -1017,7 +1021,8 @@ public partial class EnemyController : MonoBehaviour
     IEnumerator HitAndDie(Vector3 contactPoint, bool viaSlam)
     {
         if (poseDeath != null && sr != null) sr.sprite = poseDeath; // 天空回廊Enemy: 撃破の絵
-        if (AudioManager.Instance != null) { if (viaSlam) AudioManager.Instance.PlayStrongHit(); else AudioManager.Instance.PlayAttackHit(); }
+        if (AudioManager.Instance != null) { if (viaSlam) AudioManager.Instance.PlaySeAt(SeId.SlamImpact, contactPoint); else AudioManager.Instance.PlaySeAt(nextHitSe, contactPoint); }
+        nextHitSe = SeId.Hit;
 
         if (viaSlam)
         {
@@ -1065,7 +1070,7 @@ public partial class EnemyController : MonoBehaviour
             ExplosionEffect.CreateForDefeat(transform.position, deathBurstColor, subjectHeight, sortingOrder: RenderOrder.CombatFx);
         }
 
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayEnemyDefeat();
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(SeId.EnemyDefeat, transform.position);
 
         // The enemy's own sprite side of "Hit -> Flash -> Fade/Scale ->
         // 消滅".
@@ -1278,7 +1283,7 @@ public partial class EnemyController : MonoBehaviour
             float subjectHeight = sr != null ? sr.bounds.size.y : 1f;
             ExplosionEffect.CreateForDefeat(transform.position, deathBurstColor, subjectHeight, sortingOrder: RenderOrder.CombatFx);
         }
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayEnemyDefeat();
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(SeId.EnemyDefeat, transform.position);
         if (sr != null) yield return DieFadeRoutine();
         Destroy(gameObject);
     }

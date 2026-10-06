@@ -28,11 +28,36 @@ public class AudioLibrary : ScriptableObject
     [Tooltip("5000mごとの強敵ボス")] public AudioClip bossStrong;
     [Tooltip("10000mごとの特殊ボス(神話級など)")] public AudioClip bossSpecial;
     [Tooltip("100,000mの死神(専用)")] public AudioClip bossDeath;
+    [Tooltip("ラストダンジョンのボスラッシュ/最終ボス(2026-10-06)")] public AudioClip bossFinal;
     [Tooltip("特定のボスだけ専用曲にする(bossKey例: \"wasteland_road/Hydra\"、ステージを問わないなら \"*/Hydra\")")]
     public List<BossBgmOverride> bossOverrides = new List<BossBgmOverride>();
 
     [Header("BONUS ZONE(空なら道中BGMを少し速くするだけ)")]
     public AudioClip bonusZoneBgm;
+
+    [Header("闘技場(2026-10-06、空ならボス曲)")]
+    public AudioClip arenaBgm;
+
+    [Header("曲の切り替え(秒、2026-10-06)")]
+    [Tooltip("道中 → ボス曲")] public float bossInFade = 0.7f;
+    [Tooltip("ボス曲 → 道中")] public float bossOutFade = 2.4f;
+    [Tooltip("序盤 → 中盤 → 終盤")] public float phaseFade = 3.5f;
+    [Tooltip("HOME ↔ ラン")] public float homeFade = 1.2f;
+
+    [Header("曲ごとの音量補正(曲の大きさをそろえる。載っていない曲は1)")]
+    public List<ClipGain> musicGains = new List<ClipGain>();
+
+    [Header("高速時の風(2026-10-06、環境音の音量に従う)")]
+    public AudioClip speedWind;
+    [Tooltip("この速さ(km/h)から鳴り始める")] public float windFromKmh = 70f;
+    [Tooltip("この速さで最大")] public float windFullKmh = 300f;
+    [Range(0f, 1f)] public float windMaxVolume = 0.55f;
+    public Vector2 windPitch = new Vector2(0.85f, 1.25f);
+
+    [Header("音量の優先(2026-10-06)")]
+    [Tooltip("重要なSE(FINISH/ボスの撃破/警告)が鳴った時にBGMをどこまで下げるか")] [Range(0f, 1f)] public float importantDuck = 0.55f;
+    [Tooltip("下げる時間(秒)")] public float importantDuckSeconds = 0.7f;
+    [Tooltip("同時に鳴るSEの数(これを超えると優先度の低い古い音から止める)")] public int seVoices = 20;
 
     [Header("RESULT / GAME OVER(ループしない短いジングル)")]
     public AudioClip resultJingle;
@@ -76,6 +101,7 @@ public class AudioLibrary : ScriptableObject
         switch (tier)
         {
             case BossBgmTier.Death: return bossDeath != null ? bossDeath : bossSpecial;
+            case BossBgmTier.Final: return bossFinal != null ? bossFinal : bossSpecial != null ? bossSpecial : bossStrong;
             case BossBgmTier.Special: return bossSpecial != null ? bossSpecial : bossStrong != null ? bossStrong : bossNormal;
             case BossBgmTier.Strong: return bossStrong != null ? bossStrong : bossNormal;
             default: return bossNormal;
@@ -91,6 +117,13 @@ public class AudioLibrary : ScriptableObject
             foreach (var e in se) if (e != null) seMap[e.id] = e;
         }
         return seMap.TryGetValue(id, out var r) ? r : null;
+    }
+
+    public float MusicGain(AudioClip clip)
+    {
+        if (clip == null) return 1f;
+        foreach (var g in musicGains) if (g != null && g.clip == clip) return g.gain;
+        return 1f;
     }
 
     public WeaponType WeaponFor(string characterId)
@@ -115,8 +148,11 @@ public class AudioLibrary : ScriptableObject
 }
 
 public enum BgmPhase { Early, Middle, Late }
-public enum BossBgmTier { Normal, Strong, Special, Death }
-public enum WeaponType { Sword, DualBlade, Gun, Bow, Magic, Strike, Special }
+public enum BossBgmTier { Normal, Strong, Special, Death, Final }
+// SE の優先度(同時に鳴る数を超えた時、低いものから止める。Critical は BGM を一瞬下げる)
+public enum SePriority { Low = 0, Normal = 1, High = 2, Critical = 3 }
+// 2026-10-06: ランス/忍者/爪(竜人)/吸血鬼/巫女(霊術)を独立した系統に(数値は保存されるので末尾へ)
+public enum WeaponType { Sword, DualBlade, Gun, Bow, Magic, Strike, Special, Lance, Ninja, Claw, Blood, Spirit }
 
 // 数値はアセットに保存されるので、追加は必ず末尾へ。
 public enum SeId
@@ -131,6 +167,21 @@ public enum SeId
     CountdownTick, RunStart, ScreenClose, ScreenOpen,
     // HOME
     Door, DeckEdit, Gacha, Coin, UiTap,
+    // ---- 2026-10-06 音の再設計(追加は必ず末尾へ) ----
+    // 攻撃の手応えの段: Hit < HitLaunch/HitProjectile < StrongHit < Slam < FinishHit < BossFinishHit
+    HitLaunch, HitProjectile, SlamImpact, LandHeavy, FinishHit, FinishBurst,
+    BossFinishHit, BossCollapse, BossDissolve,
+    // 予兆(聞こえること)
+    EnemyTelegraph, EnemyShot, BossTelegraph, BossTelegraphHeavy, BossCharge, BossBreak, BossPhase, BossUltimate,
+    // カード/COMBO/ULTIMATE/合成
+    CardAppear, CardFlip, CardHover, CardRare, MasteryUp, MaxLevel, ComboFormed,
+    FinalEvolutionReady, FinalEvolutionActivate, UltimateReady, UltimateActivate, UltimateImpact,
+    // 疾走/MILE/速さ
+    RingPass, RingBurst, MileGet, SonicBoom,
+    // UI
+    UiOpen, UiClose, UiTab, UiToggle, UiDeny, UiSlider, Pause, Resume,
+    // 闘技場/マルチ
+    ArenaStart, ArenaWin, ArenaLose, NetJoin, NetLeave, NetDown, NetRevive,
 }
 
 [Serializable]
@@ -170,6 +221,15 @@ public class SeEntry
     [Tooltip("ピッチの揺らぎ(±)")] [Range(0f, 0.3f)] public float pitchJitter = 0.04f;
     [Tooltip("音量の揺らぎ(±)")] [Range(0f, 0.5f)] public float volumeJitter = 0.06f;
     [Tooltip("同じSEをこれより短い間隔では重ねない(秒)")] public float minInterval = 0.03f;
+    [Tooltip("優先度(同時に鳴る数を超えた時に低いものから止める。Critical は BGM を一瞬下げる)")] public SePriority priority = SePriority.Normal;
+    [Tooltip("同じSEが同時に鳴る最大数")] public int maxVoices = 3;
+}
+
+[Serializable]
+public class ClipGain
+{
+    public AudioClip clip;
+    [Range(0f, 3f)] public float gain = 1f;
 }
 
 [Serializable]

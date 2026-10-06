@@ -394,6 +394,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         float origStandoff = standoffDistance;
 
         state = State.Telegraphing; // ホバー追従を続けたまま予告
+        if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySeAt(SeId.BossCharge, transform.position); // 2026-10-06: 火球の溜め
         float landX = trackedX + landedStandoffDistance;
         TrackedHazard.Create(landX, halfHWorld * 2.4f, halfHWorld * 1.2f, landingWarnDuration, 0f, Color.clear);
         yield return BlinkFlash(landingWarnDuration);
@@ -557,6 +558,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     {
         AttacksStarted++;
         state = State.Telegraphing;
+        if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySeAt(SeId.BossTelegraph, transform.position); // 2026-10-06: 予兆の音
 
         float t = 0f;
         bool flash = false;
@@ -882,7 +884,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         var cf = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
         if (cf != null) cf.Shake(0.22f, 0.4f);
         OneShotSpriteEffect.CreateTweened(BossFx.Ring(), transform.position, new Color(1f, 0.4f, 0.2f, 0.95f), 0.5f, 1f, 6f, 0.9f, 0f, default, 0f, RenderOrder.CombatFx, 0.1f);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossPhase);
         BossBattleHud.Banner("最終段階!", new Color(1f, 0.4f, 0.25f), 1.2f);
     }
 
@@ -897,7 +899,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         BreakCount++;
         Debug.Log($"[BossBattle] Dragon BREAK #{BreakCount}");
         BossBattleHud.Banner("BREAK!", new Color(1f, 0.85f, 0.3f), 1.0f);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossFinalHit);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossBreak);
         StopAllCoroutines();
         if (flashOverlay != null) flashOverlay.enabled = false;
         if (hitFlashOverlay != null) hitFlashOverlay.enabled = false;
@@ -945,13 +947,14 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     IEnumerator GiantFireball()
     {
         state = State.Telegraphing;
+        if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySeAt(SeId.BossTelegraph, transform.position); // 2026-10-06: 予兆の音
         UltimatesUsed++;
         lastUltimateTime = Time.time;
         string ultName = skyMode ? "DRAGON FIRE CHARGE" : "煉獄の巨大火球";
         Debug.Log($"[BossBattle] Dragon ULTIMATE '{ultName}' #{UltimatesUsed}");
         BossBattleHud.Banner(ultName, new Color(1f, 0.45f, 0.15f), 1.6f);
         ultimateRunningFlag = true;
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossUltimate);
         // 上空へ
         float t = 0f;
         while (t < 0.6f)

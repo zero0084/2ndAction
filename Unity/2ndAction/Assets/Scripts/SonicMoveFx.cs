@@ -29,6 +29,7 @@ public class SonicMoveFx : MonoBehaviour
 
     public float Intensity { get; private set; }   // 0..1(自動テスト用にも)
     public float Kmh { get; private set; }
+    bool boomed;
 
     const int GhostPool = 14;
     readonly SpriteRenderer[] ghosts = new SpriteRenderer[GhostPool];
@@ -89,6 +90,9 @@ public class SonicMoveFx : MonoBehaviour
         float k = run ? Mathf.Max(ForcedIntensity, Mathf.Clamp01((Kmh - startKmh) / Mathf.Max(1f, fullKmh - startKmh))) : 0f;
         float glow = GameSettings.GlowIntensity;
         Intensity = Mathf.MoveTowards(Intensity, k, dt * 2.5f); // 急に出たり消えたりしない
+        // 音の再設計(2026-10-06): 音速の域に入った瞬間に1回だけ衝撃音(下がってから入り直すまで鳴らさない)
+        if (!boomed && Intensity >= 0.55f && ForcedIntensity <= 0f) { boomed = true; if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.SonicBoom); }
+        else if (boomed && Intensity < 0.2f) boomed = false;
         if (Intensity <= 0.01f || glow <= 0.01f || playerSr == null)
         {
             if (wave != null) wave.enabled = false;

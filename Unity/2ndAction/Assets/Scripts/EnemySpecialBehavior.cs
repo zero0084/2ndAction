@@ -514,6 +514,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
     void StartFlyingDiveTelegraph()
     {
         flyingDiveState = FlyingDiveState.Telegraph;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(SeId.EnemyTelegraph, transform.position); // 音の再設計(2026-10-06): 敵の予兆(画面内だけ)
         flyingDiveTimer = flyingDiveTelegraphDuration;
         if (flyingDiveMarkerGO != null) flyingDiveMarkerGO.SetActive(true);
     }
@@ -648,6 +649,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
             if (projectileSprite == null) return; // fail-safe - no asset, no throw, just skip firing
             Vector2 dir = ((Vector2)player.position - (Vector2)transform.position).normalized;
             shooterPoseUntil = Time.time + 0.3f;
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(SeId.EnemyShot, transform.position); // 2026-10-06: 敵の弾
             Sprite arrow = ArrowArt();
             if (arrow != null)
             {
@@ -704,6 +706,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
                 if (absDx <= rusherDetectionRange)
                 {
                     rusherState = RusherState.Telegraph;
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(SeId.EnemyTelegraph, transform.position); // 音の再設計(2026-10-06): 敵の予兆(画面内だけ)
                     rusherStateTimer = rusherTelegraphDuration;
                     rusherDashDir = Mathf.Sign(dx);
                 }
@@ -858,6 +861,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
     void StartMeleeTelegraph()
     {
         meleeAttackState = MeleeAttackState.Telegraph;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(SeId.EnemyTelegraph, transform.position); // 音の再設計(2026-10-06): 敵の予兆(画面内だけ)
         meleeTelegraphTotalDuration = Random.Range(meleeTelegraphDurationMin, meleeTelegraphDurationMax);
         meleeAttackTimer = meleeTelegraphTotalDuration;
         // 攻撃方向をここで一度だけ決めて固定する - Telegraph中にPlayerが
@@ -1025,6 +1029,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
     void StartHopperTelegraph()
     {
         hopperAttackState = HopperAttackState.Telegraph;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(SeId.EnemyTelegraph, transform.position); // 音の再設計(2026-10-06): 敵の予兆(画面内だけ)
         hopperTelegraphTotalDuration = Random.Range(hopperTelegraphDurationMin, hopperTelegraphDurationMax);
         hopperAttackTimer = hopperTelegraphTotalDuration;
         float dx = player != null ? player.position.x - transform.position.x : hopperAttackFacingDir;
@@ -1227,6 +1232,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
     void StartWormTelegraph()
     {
         wormState = WormState.Telegraph;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(SeId.EnemyTelegraph, transform.position); // 音の再設計(2026-10-06): 敵の予兆(画面内だけ)
         wormTimer = wormTelegraphDuration;
         wormDustCooldown = 0f;
         // 共通Encounter System(2026-09-27) - 地面の「亀裂」: 出現地点に暗い影を広げ、高速でも出現位置が分かるようにする。

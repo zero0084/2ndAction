@@ -203,7 +203,7 @@ public partial class PlayerController
             SetKitPose("downdash", 1);
             KitBlast.Create(transform.position + new Vector3(0.2f, 0.45f, 0f), new KitBlast.Spec { radius = p.landSlashRadius * AttackRangeMultiplier, active = 0.08f, kind = PlayerAttackKind.DownImpact, damageScale = p.landSlashDamageScale, knockbackScale = 1.2f, hitStop = 0.04f, fx = KitProjectile.Slash, tint = new Color(1f, 1f, 1f, 0.9f), fxScale = 0.9f, shake = 0.05f });
             OneShotSpriteEffect.CreateTweened(KitProjectile.Slash, transform.position + new Vector3(0.2f, 0.45f, 0f), NinjaCrimson, duration: 0.2f, startScale: 0.6f, endScale: 1.2f, rotationDegrees: 180f, sortingOrder: RenderOrder.SlashFx);
-            if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.LandHeavy); // 音の再設計(2026-10-06): 急降下の着地は重い着地音
             attackCooldownTimer = 0.15f;
             t = 0f;
             while (t < 0.14f)

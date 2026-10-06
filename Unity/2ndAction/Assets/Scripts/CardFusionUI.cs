@@ -889,6 +889,13 @@ public class CardFusionUI : MonoBehaviour
             fxCaption.text = mastery ? (r.mastery.awakenedNow ? "AWAKENED！" : $"MASTERY {CardMastery.StarsFor(r.mastery.levelAfter)}")
                 : same ? (r.masteryGain > 0 ? "Lv.9 MAX 到達！" : "同名強化 完了！") : both ? "大成功！ 両側の能力を継承" : r.kind == CardFusionLogic.Kind.CrossMainOnly ? "メイン側の能力を継承" : "素材側の能力を継承";
             fxCaption.color = both ? new Color(0.7f, 1f, 0.95f) : Gold;
+            // 音の再設計(2026-10-06): 長期育成の節目(Mastery/Lv.9 MAX/AWAKENED)は専用の音
+            if (AudioManager.Instance != null)
+            {
+                if (mastery && r.mastery.awakenedNow) AudioManager.Instance.PlaySe(SeId.MaxLevel);
+                else if (mastery) AudioManager.Instance.PlaySe(SeId.MasteryUp);
+                else if (same && r.masteryGain > 0) AudioManager.Instance.PlaySe(SeId.MaxLevel);
+            }
             yield return Wait(0.45f);
         }
         else

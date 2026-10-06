@@ -363,6 +363,7 @@ public partial class MajinController : MonoBehaviour
     IEnumerator TelegraphAndAttack()
     {
         state = State.Telegraphing;
+        if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySeAt(SeId.BossCharge, transform.position); // 2026-10-06: 魔法の溜め
 
         float t = 0f;
         bool flash = false;

@@ -9,6 +9,8 @@ using UnityEngine;
 //   BONUS ZONE(曲が割り当てられていれば) → BONUS曲
 //   それ以外                            → ステージの道中曲(距離で序盤/中盤/終盤)
 // AudioManager.PlayBgmは同じ曲なら何もしないので、毎回同じ判断をしても再スタートしない。
+// 音の再設計(2026-10-06): 切り替えの種類で長さを変える(道中→ボスは短く、ボス→道中は長く、序盤→中盤→終盤はゆっくり)。
+//   ボス曲は 通常/強敵/特殊/死神/最終(ラスダンのラッシュ)。闘技場は闘技場の曲(空ならボスの強敵曲)。
 public class BgmDirector : MonoBehaviour
 {
     AudioManager am;
@@ -41,7 +43,7 @@ public class BgmDirector : MonoBehaviour
         if (!gm.HasStarted)
         {
             jinglePlayed = false;
-            Play(lib != null && lib.homeBgm != null ? lib.homeBgm : am.titleBgm, "home");
+            Play(lib != null && lib.homeBgm != null ? lib.homeBgm : am.titleBgm, "home", Kind.Home);
             am.SetAmbience(lib != null ? lib.homeAmbience : null);
             return;
         }
@@ -77,34 +79,60 @@ public class BgmDirector : MonoBehaviour
         am.CancelFadeOut();
 
         var bm = BossManager.Instance;
-        AudioClip clip; string reason;
-        if (bm != null && bm.IsBossPhase && !string.IsNullOrEmpty(bm.BossMusicKey) && !bm.BossDefeatedThisPhase)
+        AudioClip clip; string reason; Kind kind;
+        if (ArenaMode.Active)
+        {
+            clip = lib != null ? (lib.arenaBgm != null ? lib.arenaBgm : lib.BossBgm(BossBgmTier.Strong, "")) : null;
+            reason = "arena"; kind = Kind.Boss;
+        }
+        else if (bm != null && bm.IsBossPhase && !string.IsNullOrEmpty(bm.BossMusicKey) && !bm.BossDefeatedThisPhase)
         {
             clip = lib != null ? lib.BossBgm(bm.BossMusicTier, bm.BossMusicKey) : null;
-            reason = "boss:" + bm.BossMusicTier + ":" + bm.BossMusicKey;
+            reason = "boss:" + bm.BossMusicTier + ":" + bm.BossMusicKey; kind = Kind.Boss;
         }
         else if (bm != null && bm.DeathSpawned && lib != null && lib.BossBgm(BossBgmTier.Death, "*/Death") != null)
         {
             clip = lib.BossBgm(BossBgmTier.Death, "*/Death");
-            reason = "death";
+            reason = "death"; kind = Kind.Boss;
         }
         else if (lib != null && lib.bonusZoneBgm != null && BonusZone.Instance != null && BonusZone.Instance.BlocksBoss)
         {
             clip = lib.bonusZoneBgm;
-            reason = "bonus";
+            reason = "bonus"; kind = Kind.Bonus;
         }
         else
         {
             clip = lib != null ? lib.StageBgm(stage, gm.MaxDistance) : null;
             if (clip == null) clip = am.gameplayBgm;
-            reason = "stage:" + stage + ":" + (lib != null ? lib.PhaseFor(gm.MaxDistance).ToString() : "?");
+            reason = "stage:" + stage + ":" + (lib != null ? lib.PhaseFor(gm.MaxDistance).ToString() : "?"); kind = Kind.Stage;
         }
-        Play(clip, reason);
+        Play(clip, reason, kind);
     }
 
-    void Play(AudioClip clip, string reason)
+    enum Kind { None, Home, Stage, Boss, Bonus }
+    Kind lastKind = Kind.None;
+    public float LastFadeSeconds { get; private set; }
+
+    void Play(AudioClip clip, string reason, Kind kind)
     {
         Reason = reason;
-        am.PlayBgm(clip);
+        {
+            var lib = am.Library;
+            float fade = lib != null ? lib.crossfadeSeconds : 1.6f;
+            if (lib != null)
+            {
+                if (kind == Kind.Home || lastKind == Kind.Home || lastKind == Kind.None) fade = lib.homeFade;
+                else if (kind == Kind.Boss && lastKind != Kind.Boss) fade = lib.bossInFade;       // ボスは素早く
+                else if (lastKind == Kind.Boss && kind != Kind.Boss) fade = lib.bossOutFade;      // 戦いの後はゆっくり戻る
+                else if (kind == Kind.Stage && lastKind == Kind.Stage) fade = lib.phaseFade;      // 序盤→中盤→終盤
+            }
+            if (clip != am.CurrentBgm)
+            {
+                LastFadeSeconds = fade;
+                Debug.Log($"[BGM] {reason} -> {(clip != null ? clip.name : "(none)")} fade {fade:F1}s");
+            }
+            am.PlayBgm(clip, fade);
+        }
+        lastKind = kind;
     }
 }

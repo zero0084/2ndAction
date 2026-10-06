@@ -200,7 +200,7 @@ public partial class BossManager
         enc.label = v != null ? $"{v.label}: {Describe(v)}" : "fallback";
         aliveWildThisEncounter = enc.total; // 全員(後から出る分も含む)を倒すまで関門は終わらない
         CurrentEncounterKey = "";
-        BossMusicTier = BossBgmTier.Special;
+        BossMusicTier = BossBgmTier.Final; // 音の再設計(2026-10-06): ラスダンのラッシュは最終ボス曲
         string stage = GameManager.Instance != null ? GameManager.Instance.ActiveRunStageId : "";
         BossMusicKey = $"{stage}/Rush{k}";
         BossDefeatedThisPhase = false;
@@ -448,7 +448,7 @@ public partial class BossManager
         aliveWildThisEncounter = enc.total; // 予定の全員(まだ節目に着いていない分も)を倒すまで遭遇は終わらない
         ResetRematchEncounter(); CurrentEncounterKey = "";
         RushGateK = fromK; RushMaxSimultaneous = 0; RushSpawnedThisGate = 0; RushTelegraphs = 0; prewarmedK = 0;
-        BossMusicTier = BossBgmTier.Special;
+        BossMusicTier = BossBgmTier.Final; // 音の再設計(2026-10-06): ラスダンのラッシュは最終ボス曲
         BossMusicKey = $"{(gm != null ? gm.ActiveRunStageId : "")}/Rush{fromK}";
         BossDefeatedThisPhase = false;
         BeginEncounterClock("RunRush" + fromK); // ラン再開の時計は使わない(RushGateK)

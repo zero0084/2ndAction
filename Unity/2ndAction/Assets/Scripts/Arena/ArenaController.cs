@@ -75,6 +75,7 @@ public class ArenaController : MonoBehaviour
         ArenaMode.Current = new ArenaResult { label = Label(), spawned = spawned.Count + bossesSpawned, build = BuildSummary() };
         ArenaMode.BattleRunning = true;
         ready = true;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.ArenaStart); // 音の再設計(2026-10-06): 開始の銅鑼
         setupJson = JsonUtility.ToJson(cfg);
         status = "";
         if (openSetup) { tab = 0; SetPanel(true); }
@@ -187,6 +188,7 @@ public class ArenaController : MonoBehaviour
             if (r.spawned > 0 && !r.clearedByHand && r.clearTime < 0f && AliveEnemies == 0 && r.time > 0.5f)
             {
                 r.clearTime = r.time; r.ended = true; ArenaMode.BattleRunning = false; bannerT = 3f;
+                if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.ArenaWin);
                 clearPanelAt = Time.unscaledTime + 1.6f; // 少し見せてから結果
                 Debug.Log($"[Arena] CLEAR in {r.clearTime:F2}s dealt={r.dealt} hits={r.hits} taken={r.taken} would={r.wouldTake}");
             }
@@ -207,6 +209,7 @@ public class ArenaController : MonoBehaviour
     {
         var r = ArenaMode.Current;
         r.ended = true; ArenaMode.BattleRunning = false;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.ArenaLose);
         status = "倒れました。「同条件で再戦」ですぐやり直せます";
         Debug.Log($"[Arena] DEFEATED at {r.time:F2}s ({r.defeatReason})");
         tab = 4; SetPanel(true);

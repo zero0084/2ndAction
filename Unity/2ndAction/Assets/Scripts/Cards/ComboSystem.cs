@@ -133,7 +133,7 @@ public class ComboSystem : MonoBehaviour
     void Notice(Active a)
     {
         pendingNotice.Enqueue(a);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.ComboFormed); // 音の再設計(2026-10-06): COMBO の専用の音
     }
 
     static Texture2D white;

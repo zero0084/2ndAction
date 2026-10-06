@@ -3828,7 +3828,7 @@ public partial class GameManager : MonoBehaviour
                 if (pauseTapped)
                 {
                     showPauseMenu = !showPauseMenu;
-                    if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(showPauseMenu ? SeId.Decide : SeId.Cancel);
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(showPauseMenu ? SeId.Pause : SeId.Resume); // 音の再設計(2026-10-06)
                     if (showPauseMenu) TimeControl.Pause(pauseMenuTimeOwner);
                     else TimeControl.Resume(pauseMenuTimeOwner);
                 }

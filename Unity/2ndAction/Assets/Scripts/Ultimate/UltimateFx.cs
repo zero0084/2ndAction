@@ -258,7 +258,7 @@ public static class UltimateFx
         CameraFollow.UltimateZoom = 0.86f;
         BannerText = ArtName(ch); BannerUntil = Time.unscaledTime + 1.6f; BannerColor = ThemeColor(ch);
         UltimateFxLabel.Ensure();
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UltimateActivate); // 2026-10-06
         Vector3 p = PlayerPos;
         switch (ch)
         {
@@ -286,7 +286,7 @@ public static class UltimateFx
         var v = View;
         CameraFollow.UltimateZoom = 0.93f;
         Shake(0.18f, 0.25f);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UltimateImpact); // 2026-10-06
         switch (ch)
         {
             case "swordsman":
@@ -419,7 +419,7 @@ public static class UltimateFx
         var v = View;
         CameraFollow.UltimateZoom = 0.95f;
         Shake(0.25f, 0.3f);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UltimateImpact); // 2026-10-06
         Vector3 front = p + Vector3.right * 4f;
         switch (ch)
         {

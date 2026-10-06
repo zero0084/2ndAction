@@ -1538,7 +1538,7 @@ public partial class PlayerController : MonoBehaviour
                 if (wasDiveAttacking) { DiveAttackLanded?.Invoke(); TriggerDiveImpact(); }
                 OnLancerLanded(); // 竜騎士: 急降下の着地/残った攻撃状態の安全な解除(他キャラは何もしない)
                 OnKitLanded(); // 新4人: ダイブキック/急降下斬りの着地など(既存5人は何もしない)
-                if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
+                if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(wasDiveAttacking ? SeId.LandHeavy : SeId.Land); // 2026-10-06: 急降下の着地は重く
                 Landed?.Invoke();
                 // 不具合修正(2026-09-08) - 着地直前に上フリックした分の
                 // バッファ消化(入力バッファ、上のbufferedUpAttackTimerの
@@ -1564,7 +1564,7 @@ public partial class PlayerController : MonoBehaviour
                 if (wasDiveAttacking) { DiveAttackLanded?.Invoke(); TriggerDiveImpact(); }
                 OnLancerLanded(); // 竜騎士: 急降下の着地/残った攻撃状態の安全な解除(他キャラは何もしない)
                 OnKitLanded(); // 新4人: ダイブキック/急降下斬りの着地など(既存5人は何もしない)
-                if (AudioManager.Instance != null) AudioManager.Instance.PlayLand();
+                if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(wasDiveAttacking ? SeId.LandHeavy : SeId.Land); // 2026-10-06: 急降下の着地は重く
                 Landed?.Invoke();
                 if (bufferedUpAttackTimer > 0f)
                 {

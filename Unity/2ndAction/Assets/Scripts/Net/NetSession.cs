@@ -243,11 +243,13 @@ public class NetSession : MonoBehaviour
             {
                 Log($"Client connected clientId={clientId}");
                 StatusText = $"HOST: {Manager.ConnectedClientsIds.Count}/{MaxPlayers}人 接続中";
+                if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.NetJoin); // 音の再設計(2026-10-06)
             }
         }
         else if (clientId == Manager.LocalClientId)
         {
             Log($"Client connected (local clientId={clientId})");
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.NetJoin);
             StatusText = $"JOIN: 接続完了 {LastHostAddress}";
             if (JoinPending) Debug.Log($"[LAN] Join succeeded {LastHostAddress}:{LastPort}");
             JoinPending = false; LastJoinFailure = "";
@@ -259,6 +261,7 @@ public class NetSession : MonoBehaviour
     {
         if (Manager.IsServer && clientId != NetworkManager.ServerClientId)
         {
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.NetLeave); // 2026-10-06
             int pn = NetCombat.PlayerNumberOfClient(clientId);
             if (pn <= 0 && NetMatch.Instance != null) foreach (var kv in NetMatch.Instance.Records) if (kv.Value.ClientId == clientId) pn = kv.Key; // 退出時は NetPlayer が先に消えていることがある
             int others = 0;

@@ -433,7 +433,7 @@ public class FinishFx : MonoBehaviour
             Spawn(glowSp, at + new Vector2(0f, 0.1f), new Vector2(dir * Random.Range(4f, 9f), Random.Range(1f, 4f)), Random.Range(0.25f, 0.4f), 0.35f, 0.05f, new Color(0.85f, 0.7f, 0.45f, 0.8f), false, drag: 4f, grav: 8f);
         }
         RequestShake(t.shakeSlam);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayStrongHit();
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.SlamImpact); // 叩きつけの着地(2026-10-06)
     }
 
     void Spawn(Sprite sp, Vector2 o, Vector2 v, float life, float size0, float size1, Color c, bool glow, float rot = 0f, float spin = 0f, float drag = 0f, float grav = 0f, bool twinkle = false, float sy = 1f)

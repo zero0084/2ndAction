@@ -104,7 +104,7 @@ public partial class MajinController : IBossBattleDebug
         Debug.Log($"[BossBattle] Majin PHASE {phase} (hp {Hp}/{maxHp})");
         if (hpBar != null) hpBar.Flash(0.8f);
         OneShotSpriteEffect.CreateTweened(BossFx.Ring(), transform.position, MagicCol, 0.5f, 1f, 5f, 0.9f, 0f, default, 0f, RenderOrder.CombatFx, 0.1f);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossPhase);
         BossBattleHud.Banner(phase >= PhaseCount ? "最終段階!" : "激昂!", MagicCol, 1.2f);
         lastSpecialTime = Time.time - battle.specialCooldown + 0.6f; // 新しい技をすぐ見せる
     }
@@ -120,7 +120,7 @@ public partial class MajinController : IBossBattleDebug
         BreakCount++;
         Debug.Log($"[BossBattle] Majin BREAK #{BreakCount}");
         BossBattleHud.Banner("BREAK!", new Color(1f, 0.85f, 0.3f), 1.0f);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossFinalHit);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossBreak);
         StopAllCoroutines();
         if (flashOverlay != null) flashOverlay.enabled = false;
         if (UltimateRunning) { UltimateRunning = false; BossBattle.EndUltimate(this); lastUltimateTime = Time.time; }
@@ -221,7 +221,7 @@ public partial class MajinController : IBossBattleDebug
         lastUltimateTime = Time.time;
         Debug.Log($"[BossBattle] Majin ULTIMATE 'SKY MAGIC ASSAULT' #{UltimatesUsed}");
         BossBattleHud.Banner("SKY MAGIC ASSAULT", MagicCol, 1.6f);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossUltimate);
         SetFrames(attackFrames);
         // 上空へ
         Vector3 start = transform.position; float t = 0f;

@@ -12,6 +12,12 @@ using UnityEngine;
 // ・音量: Master/BGM/SE/環境音の4つ(0〜1の連続値、PlayerPrefsに保存。2026-10-01に0〜4段階から移行)。0なら完全に無音。
 //   全体ミュートは音量とは別のフラグ(解除するとミュート前の音量に戻る)。
 // ・オンライン: 同期しない(各端末でローカルに鳴らす)。
+// 音の再設計(2026-10-06):
+// ・SE は1つの AudioSource の PlayOneShot ではなく、声(AudioSource)の束で鳴らす。SeEntry の優先度/同時数で、
+//   数を超えたら優先度の低い古い音から止める(雑魚の多重撃破で重要な音が埋もれない)。多く重なった時は少しずつ小さくする。
+// ・Critical の SE(FINISH/ボスの撃破/警告/ULTIMATE など)は BGM と環境音を一瞬下げる(重要なSE > 戦闘のSE > BGM > 環境音)。
+// ・PlaySeAt: 画面上の位置で左右に振り、画面外の低い優先度の音は鳴らさない(敵の予兆など)。
+// ・曲ごとの音量補正(AudioLibrary.musicGains)で曲の大きさをそろえる。高速時の風は速さで音量/高さが変わる(環境音の音量)。
 // 以前からある呼び出し(PlayJump/PlayAttack/PlayAttackHit/PlaySfx等)はそのまま使える。
 public class AudioManager : MonoBehaviour
 {
@@ -24,9 +30,10 @@ public class AudioManager : MonoBehaviour
 
     // 5段階(0=無音 .. 4=最大)
     public const int MaxVolumeLevel = 4;
-    const float BaseBgmVolume = 0.35f;
-    const float BaseSfxVolume = 0.45f;
-    const float BaseEnvVolume = 0.5f;
+    // 2026-10-06: 素材の大きさをそろえた上での全体の釣り合い(重要なSE > 戦闘のSE > BGM > 環境音)
+    const float BaseBgmVolume = 0.36f;
+    const float BaseSfxVolume = 1.0f; // SE の素材は gen_audio_v2.py で 5.2dB 下げて書き出している(大きい音の余裕)
+    const float BaseEnvVolume = 0.40f;
     const int DefaultVolumeLevel = MaxVolumeLevel;
 
     // ---- 以前からの割り当て(AudioLibraryに無い時の予備。SceneBuilderが入れる) ----
@@ -75,6 +82,8 @@ public class AudioManager : MonoBehaviour
     AudioSource jingleSource;
     AudioSource sfxSource;
     AudioSource envLoop, envShot;
+    AudioSource windSource;
+    float[] bgmGain = { 1f, 1f };
     public AudioClip CurrentBgm { get; private set; }
     public AudioClip CurrentJingle { get; private set; }
 
@@ -102,6 +111,8 @@ public class AudioManager : MonoBehaviour
         sfxSource = gameObject.AddComponent<AudioSource>(); sfxSource.loop = false; sfxSource.playOnAwake = false;
         envLoop = gameObject.AddComponent<AudioSource>(); envLoop.loop = true; envLoop.playOnAwake = false; envLoop.volume = 0f;
         envShot = gameObject.AddComponent<AudioSource>(); envShot.loop = false; envShot.playOnAwake = false;
+        windSource = gameObject.AddComponent<AudioSource>(); windSource.loop = true; windSource.playOnAwake = false; windSource.volume = 0f;
+        EnsureVoices();
         ApplyVolumes();
 
         // どの曲/環境音を流すかを決める係(HOME/ステージの距離/ボス/RESULT)
@@ -131,6 +142,7 @@ public class AudioManager : MonoBehaviour
         bgm[next].Stop();
         bgm[next].clip = clip;
         bgm[next].pitch = bgmPitch;
+        bgmGain[next] = Library != null ? Library.MusicGain(clip) : 1f;
         bgm[next].Play();
         bgmWeight[next] = fadeSeconds <= 0.01f ? 1f : 0f;
         if (fadeSeconds <= 0.01f) { bgmWeight[bgmCurrent] = 0f; bgm[bgmCurrent].Stop(); }
@@ -192,6 +204,10 @@ public class AudioManager : MonoBehaviour
         }
         duck = Mathf.MoveTowards(duck, duckTarget, duckSpeed * dt);
         fadeOutMul = Mathf.MoveTowards(fadeOutMul, fadeOutTarget, fadeOutSpeed * dt);
+        // 重要なSEの間だけ BGM/環境音を下げる(すぐ下げて、ゆっくり戻す)
+        float seDuckTarget = Time.unscaledTime < seDuckUntil ? seDuckLevel : 1f;
+        seDuck = seDuckTarget < seDuck ? Mathf.MoveTowards(seDuck, seDuckTarget, dt / 0.06f) : Mathf.MoveTowards(seDuck, seDuckTarget, dt / 0.5f);
+        UpdateWind(dt);
         ApplyVolumes();
         UpdateAmbienceShots(dt);
     }
@@ -199,12 +215,15 @@ public class AudioManager : MonoBehaviour
     void ApplyVolumes()
     {
         float bgmBase = BaseBgmVolume * Master * BgmVolume;
-        for (int i = 0; i < 2; i++) if (bgm[i] != null) bgm[i].volume = bgmBase * bgmWeight[i] * duck * fadeOutMul;
-        if (jingleSource != null) jingleSource.volume = bgmBase;
-        if (sfxSource != null) sfxSource.volume = BaseSfxVolume * Master * SfxVolume;
-        float envBase = BaseEnvVolume * Master * EnvVolume;
+        for (int i = 0; i < 2; i++) if (bgm[i] != null) bgm[i].volume = Mathf.Clamp01(bgmBase * bgmGain[i] * bgmWeight[i] * duck * fadeOutMul * seDuck);
+        if (jingleSource != null) jingleSource.volume = Mathf.Clamp01(bgmBase * (Library != null ? Library.MusicGain(jingleSource.clip) : 1f));
+        float sfxBase = BaseSfxVolume * Master * SfxVolume;
+        if (sfxSource != null) sfxSource.volume = sfxBase;
+        for (int i = 0; i < voices.Count; i++) { var v = voices[i]; if (v.src != null && v.src.isPlaying) v.src.volume = Mathf.Clamp01(v.baseVol * sfxBase); }
+        float envBase = BaseEnvVolume * Master * EnvVolume * (0.5f + 0.5f * seDuck);
         if (envLoop != null) envLoop.volume = envBase * (ambience != null ? ambience.loopVolume : 0f) * envWeight;
         if (envShot != null) envShot.volume = envBase;
+        if (windSource != null) windSource.volume = envBase * windLevel;
         envWeight = Mathf.MoveTowards(envWeight, ambience != null && ambience.loop != null ? 1f : 0f, Time.unscaledDeltaTime / 1.2f);
     }
 
@@ -250,8 +269,39 @@ public class AudioManager : MonoBehaviour
     public SeId LastSe { get; private set; }
 
     // SeIdで鳴らす。素材が複数ならランダム、ピッチ/音量を少し揺らす。短い間隔の連打は間引く。
-    public bool PlaySe(SeId id, float volumeScale = 1f)
+    public bool PlaySe(SeId id, float volumeScale = 1f) => PlaySeInternal(id, volumeScale, 0f);
+
+    // 画面上の位置で鳴らす(左右に振る)。画面外の優先度の低い音は鳴らさない、高い音は小さく鳴らす。
+    public bool PlaySeAt(SeId id, Vector3 worldPos, float volumeScale = 1f)
     {
+        var cam = Camera.main;
+        if (cam == null) return PlaySe(id, volumeScale);
+        Vector3 vp = cam.WorldToViewportPoint(worldPos);
+        bool off = vp.x < -0.2f || vp.x > 1.2f || vp.y < -0.35f || vp.y > 1.35f;
+        if (off)
+        {
+            var e = Library != null ? Library.FindSe(id) : null;
+            if (e == null || e.priority < SePriority.High) { OffscreenSkipped++; return false; }
+            volumeScale *= 0.5f;
+        }
+        return PlaySeInternal(id, volumeScale, Mathf.Clamp((vp.x - 0.5f) * 0.9f, -0.6f, 0.6f));
+    }
+    public int OffscreenSkipped { get; private set; }
+    public float LoudestVoiceVolume { get { float m = 0f; foreach (var v in voices) if (v.src != null && v.src.isPlaying) m = Mathf.Max(m, v.src.volume); return m; } }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 自動テストの大きさの測定用: ゲーム中の他の SE を止め、指定の音だけ鳴らす
+    public static bool QaSolo; public static SeId QaSoloId;
+#endif
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 確認用: 起動引数 -auLog で鳴らした SeId をログに出す(どのテストでも「その場面で鳴ったか」を後から見られる)
+    public static readonly bool LogSe = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-auLog") >= 0;
+#endif
+
+    bool PlaySeInternal(SeId id, float volumeScale, float pan)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (QaSolo && id != QaSoloId) return false; // 測定中は測る音だけ
+#endif
         var e = Library != null ? Library.FindSe(id) : null;
         AudioClip clip = null;
         if (e != null && e.clips != null && e.clips.Count > 0) clip = e.clips[Random.Range(0, e.clips.Count)];
@@ -262,11 +312,114 @@ public class AudioManager : MonoBehaviour
         if (lastPlayed.TryGetValue(id, out float last) && now - last < minGap) return false;
         lastPlayed[id] = now;
         SePlayCount++; LastSe = id;
+        SeCounts.TryGetValue(id, out int cnt); SeCounts[id] = cnt + 1;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (LogSe) Debug.Log($"[SE] {id}");
+#endif
         if (!SfxEnabled) return true;
         float vol = (e != null ? e.volume : 1f) * volumeScale;
         float pj = e != null ? e.pitchJitter : 0.03f, vj = e != null ? e.volumeJitter : 0.05f;
-        PlayOneShotVaried(clip, vol * Random.Range(1f - vj, 1f + vj), Random.Range(1f - pj, 1f + pj));
+        var pri = e != null ? e.priority : SePriority.Normal;
+        PlayVoice(clip, vol * Random.Range(1f - vj, 1f + vj), Random.Range(1f - pj, 1f + pj), pri, id, true, pan, e != null ? Mathf.Max(1, e.maxVoices) : 3);
+        if (pri == SePriority.Critical) DuckForImportantSe();
         return true;
+    }
+
+    // ---- SE の声(AudioSource の束) ----
+    class Voice { public AudioSource src; public SeId id; public bool hasId; public SePriority pri; public float start, baseVol; }
+    readonly List<Voice> voices = new List<Voice>();
+    public readonly Dictionary<SeId, int> SeCounts = new Dictionary<SeId, int>(); // テスト用(鳴らした回数)
+    public int DroppedVoices { get; private set; }   // 優先度で鳴らせなかった数(テスト用)
+    public int StolenVoices { get; private set; }    // 止めて差し替えた数
+    public int PeakVoices { get; private set; }
+    public int ActiveVoices { get { int n = 0; foreach (var v in voices) if (v.src != null && v.src.isPlaying) n++; return n; } }
+    public int VoiceCount => voices.Count;
+    float seDuck = 1f, seDuckLevel = 1f, seDuckUntil = -1f;
+    public float SeDuckNow => seDuck;
+    public void ResetSeStats() { SeCounts.Clear(); DroppedVoices = 0; StolenVoices = 0; PeakVoices = 0; OffscreenSkipped = 0; }
+
+    void EnsureVoices()
+    {
+        int n = Library != null ? Mathf.Clamp(Library.seVoices, 8, 32) : 20;
+        while (voices.Count < n)
+        {
+            var s = gameObject.AddComponent<AudioSource>(); s.playOnAwake = false; s.loop = false;
+            voices.Add(new Voice { src = s });
+        }
+    }
+
+    void DuckForImportantSe()
+    {
+        float lvl = Library != null ? Library.importantDuck : 0.55f;
+        float sec = Library != null ? Library.importantDuckSeconds : 0.7f;
+        seDuckLevel = Mathf.Min(Time.unscaledTime < seDuckUntil ? seDuckLevel : 1f, lvl);
+        seDuckUntil = Mathf.Max(seDuckUntil, Time.unscaledTime + sec);
+    }
+
+    bool PlayVoice(AudioClip clip, float vol, float pitch, SePriority pri, SeId id, bool hasId, float pan, int maxSame)
+    {
+        if (voices.Count == 0) EnsureVoices();
+        float now = Time.unscaledTime;
+        Voice pick = null;
+        // 同じSEが多すぎる: その中の一番古いものを差し替える(連打のリズムは保つ)。優先度の低いSEは鳴らさない
+        if (hasId)
+        {
+            int same = 0; Voice oldest = null;
+            foreach (var v in voices) if (v.hasId && v.id == id && v.src.isPlaying) { same++; if (oldest == null || v.start < oldest.start) oldest = v; }
+            if (same >= maxSame)
+            {
+                if (pri == SePriority.Low) { DroppedVoices++; return false; }
+                pick = oldest; StolenVoices++;
+            }
+        }
+        int active = 0;
+        foreach (var v in voices) { if (!v.src.isPlaying) { if (pick == null) pick = v; } else active++; }
+        if (pick == null)
+        {
+            // 空きが無い: 優先度が同じか低い、一番古い音を止める
+            foreach (var v in voices)
+                if (v.pri <= pri && (pick == null || v.pri < pick.pri || (v.pri == pick.pri && v.start < pick.start))) pick = v;
+            if (pick == null) { DroppedVoices++; return false; }
+            StolenVoices++;
+        }
+        // 多く重なった時は少しずつ小さく(重要な音は下げない)
+        if (pri <= SePriority.Normal && active > 5) vol *= 1f / (1f + 0.07f * (active - 5));
+        pick.src.Stop();
+        pick.src.clip = clip; pick.src.pitch = pitch; pick.src.panStereo = pan;
+        pick.id = id; pick.hasId = hasId; pick.pri = pri; pick.start = now; pick.baseVol = vol;
+        pick.src.volume = Mathf.Clamp01(vol * BaseSfxVolume * Master * SfxVolume);
+        pick.src.Play();
+        int nowActive = pick.src.isPlaying ? ActiveVoices : active;
+        if (nowActive > PeakVoices) PeakVoices = nowActive;
+        return true;
+    }
+
+    public void StopAllSe() { foreach (var v in voices) if (v.src != null) v.src.Stop(); }
+    public bool IsSePlaying(SeId id) { foreach (var v in voices) if (v.hasId && v.id == id && v.src != null && v.src.isPlaying) return true; return false; }
+
+    // ---- 高速時の風(速さで音量と高さ。ラン中だけ、止まっている間は消える) ----
+    float windLevel;
+    public float WindLevel => windLevel;
+    void UpdateWind(float dt)
+    {
+        if (windSource == null) return;
+        var lib = Library;
+        float target = 0f, pitch = 1f;
+        var gm = GameManager.Instance; var pc = PlayerController.Instance;
+        if (lib != null && lib.speedWind != null && gm != null && gm.HasStarted && !gm.IsGameOver && pc != null && !pc.HasDied && Time.timeScale > 0.05f)
+        {
+            float k = Mathf.InverseLerp(lib.windFromKmh, lib.windFullKmh, pc.CurrentRunKmh);
+            target = lib.windMaxVolume * k * k * (3f - 2f * k);
+            pitch = Mathf.Lerp(lib.windPitch.x, lib.windPitch.y, k);
+        }
+        windLevel = Mathf.MoveTowards(windLevel, target, dt / 0.8f);
+        if (windLevel > 0.001f && lib != null && lib.speedWind != null)
+        {
+            if (windSource.clip != lib.speedWind) windSource.clip = lib.speedWind;
+            if (!windSource.isPlaying) windSource.Play();
+            windSource.pitch = Mathf.MoveTowards(windSource.pitch, pitch, dt * 0.5f);
+        }
+        else if (windSource.isPlaying) windSource.Stop();
     }
 
     // 既存の割り当てがあればそれ、無ければAudioLibraryの音(「既存の音はそのまま」「空きだけ埋める」)
@@ -306,14 +459,7 @@ public class AudioManager : MonoBehaviour
         return null;
     }
 
-    void PlayOneShotVaried(AudioClip clip, float volumeScale, float pitch)
-    {
-        // PlayOneShotはその時点のpitchで鳴るので、鳴らしてすぐ戻してよい(1つのAudioSourceを共有)
-        float prev = sfxSource.pitch;
-        sfxSource.pitch = pitch;
-        sfxSource.PlayOneShot(clip, volumeScale);
-        sfxSource.pitch = prev;
-    }
+    void PlayOneShotVaried(AudioClip clip, float volumeScale, float pitch) => PlayVoice(clip, volumeScale, pitch, SePriority.Normal, default, false, 0f, 99);
 
     // ---- 以前からの入口(そのまま使える) ----
     public void PlayJump() => PlaySe(SeId.Jump);
@@ -325,14 +471,21 @@ public class AudioManager : MonoBehaviour
     public void PlayEnemyDefeat() => PlaySe(SeId.EnemyDefeat);
     public void PlayPlayerDeath() => PlaySe(SeId.PlayerDeath);
 
+    // 素材を直接鳴らす(以前からの入口)。声の束を通す(優先度は普通)
     public void PlaySfx(AudioClip clip)
     {
-        if (SfxEnabled && clip != null) sfxSource.PlayOneShot(clip);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (QaSolo) return;
+#endif
+        if (SfxEnabled && clip != null) PlayVoice(clip, 1f, 1f, SePriority.Normal, default, false, 0f, 99);
     }
 
     public void PlaySfxVolume(AudioClip clip, float volumeScale)
     {
-        if (SfxEnabled && clip != null) sfxSource.PlayOneShot(clip, volumeScale);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (QaSolo) return;
+#endif
+        if (SfxEnabled && clip != null) PlayVoice(clip, volumeScale, 1f, SePriority.Normal, default, false, 0f, 99);
     }
 
     // 攻撃を振った音(当たったかどうかとは別)。stage: コンボの段(3段目以降=強攻撃)。
@@ -341,13 +494,17 @@ public class AudioManager : MonoBehaviour
     public void PlayAttack(int stage)
     {
         float now = Time.unscaledTime;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (QaSolo) return;
+#endif
         if (now - lastAttackSe < 0.03f) return;
         lastAttackSe = now;
         SePlayCount++;
         if (!SfxEnabled) return;
         WeaponType w = CurrentWeapon();
         var pc = PlayerController.Instance;
-        bool melee = w == WeaponType.Sword || w == WeaponType.DualBlade || w == WeaponType.Strike || w == WeaponType.Special;
+        bool melee = w == WeaponType.Sword || w == WeaponType.DualBlade || w == WeaponType.Strike || w == WeaponType.Special
+            || w == WeaponType.Lance || w == WeaponType.Ninja || w == WeaponType.Claw || w == WeaponType.Blood;
         if (melee && pc != null && !pc.IsGrounded && stage < 3 && PlaySe(SeId.AttackAir)) return;
         var set = Library != null ? Library.FindWeapon(w) : null;
         AudioClip clip = null; float vol = 1f;

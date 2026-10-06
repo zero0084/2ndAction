@@ -88,8 +88,11 @@ public partial class EnemyController
         PlayFinishVisual(fi, contactPoint);
         if (AudioManager.Instance != null)
         {
-            if (fi.type != FinishType.Normal || fi.shape == FinishShape.Slam) AudioManager.Instance.PlayStrongHit(); else AudioManager.Instance.PlayAttackHit();
-            AudioManager.Instance.PlayEnemyDefeat();
+            // 音の再設計(2026-10-06): 通常の撃破 = 当たり+撃破、強い撃破/叩きつけ = FINISH の重い一撃+光の弾け
+            var am = AudioManager.Instance;
+            if (fi.type != FinishType.Normal || fi.shape == FinishShape.Slam) { am.PlaySeAt(fi.shape == FinishShape.Slam ? SeId.SlamImpact : SeId.FinishHit, transform.position); am.PlaySeAt(SeId.FinishBurst, transform.position); }
+            else am.PlaySeAt(SeId.StrongHit, transform.position, 0.8f); // 致死の一撃は通常ヒットより一段重く
+            am.PlaySeAt(SeId.EnemyDefeat, transform.position);
         }
         FinishDeaths++;
         gameObject.SetActive(false);
@@ -118,7 +121,7 @@ public partial class EnemyController
         var fi = FinishInfo.Unpack(NetFinishCode);
         if (!NetFinishLocal) fi.noStop = true; // 他の人が倒した敵では自分の画面を止めない
         PlayFinishVisual(fi, transform.position);
-        if (AudioManager.Instance != null) AudioManager.Instance.PlayEnemyDefeat();
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(SeId.EnemyDefeat, transform.position);
         Destroy(gameObject);
         return true;
     }

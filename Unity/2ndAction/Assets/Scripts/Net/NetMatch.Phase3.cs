@@ -223,11 +223,13 @@ public partial class NetMatch
                 // 状態の優先順位(2026-09-28): Eliminated/Down > ChoosingCard - 表示中の選択を閉じてから倒れる。
                 gm.NetCloseAllChoices(me.State == PState.Eliminated ? "local player ELIMINATED" : "local player DOWN", me.State == PState.Eliminated);
                 pc.NetEnterDown(me.State == PState.Eliminated);
+                if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.NetDown); // 2026-10-06
                 gm.NetSetLocalLives(0);
             }
             else if (me.State == PState.Alive && pc.NetIsDowned)
             {
                 pc.NetRevive();
+                if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.NetRevive); // 2026-10-06
                 if (NetCombat.Replica) gm.NetApplyAuthoritativeLives(me.Hp, me.MaxHp, fromHit: true);
             }
             else if (me.State == PState.Out && NetCombat.Replica && !gm.IsGameOver) gm.NetForceGameOver("HP0(HOST)");

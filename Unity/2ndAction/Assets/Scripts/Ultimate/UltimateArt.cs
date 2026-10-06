@@ -136,7 +136,7 @@ public class UltimateArt : MonoBehaviour
     void OnBecameReady()
     {
         readyFlash = 1f;
-        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UltimateReady); // 2026-10-06
     }
 
     public static void OnEnemyKilled(bool elite) { if (Instance != null) Instance.AddGauge(elite ? T.gaugePerEliteKill : T.gaugePerKill, 1); }

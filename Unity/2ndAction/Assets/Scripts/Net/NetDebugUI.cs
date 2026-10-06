@@ -168,12 +168,15 @@ public class NetDebugUI : MonoBehaviour
     void Go(MultiScreen s)
     {
         if (screen == MultiScreen.Find && s != MultiScreen.Find) LanDiscovery.StopDiscovery("back");
+        // 音の再設計(2026-10-06): 画面を進む=決定 / 最初の画面へ戻る=戻る
+        if (AudioManager.Instance != null && s != screen) AudioManager.Instance.PlaySe(s == MultiScreen.Top ? SeId.Cancel : SeId.Decide);
         screen = s;
         if (s == MultiScreen.Find) { findMessage = ""; LanDiscovery.StartDiscovery(); }
     }
 
     void ClosePanelFromUi()
     {
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiClose);
         if (screen == MultiScreen.Find) LanDiscovery.StopDiscovery("closed");
         PanelOpen = false;
         if (!NetSession.IsActive) screen = MultiScreen.Top;
@@ -229,6 +232,7 @@ public class NetDebugUI : MonoBehaviour
         if (NetSession.IsActive) return;
         if (NetSession.Instance.StartHost(NetSession.DefaultPort))
         {
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
             LanDiscovery.StartAdvertising();
             screen = MultiScreen.Room;
         }

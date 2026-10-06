@@ -231,6 +231,14 @@ public class RewardCardSequence : MonoBehaviour
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(clip);
     }
 
+    // AudioLibrary の音を優先(優先度/同時数/揺らぎが効く)。無ければ従来のシーンの素材
+    void PlaySe(SeId id, AudioClip fallback, float vol = 1f)
+    {
+        var am = AudioManager.Instance;
+        if (am == null) return;
+        if (AudioManager.LibraryClip(id) != null) am.PlaySe(id, vol); else if (fallback != null) am.PlaySfxVolume(fallback, vol);
+    }
+
     // Bugfix 2026-09-06 - last-resort recovery for GameManager's outer
     // stuck-choice watchdog (see UpdatePendingChoiceWatchdog): if
     // RunSequence's coroutine crashed or hung partway through (before ever
@@ -384,7 +392,7 @@ public class RewardCardSequence : MonoBehaviour
         yield return FadeRoot(1f, rootFadeDuration);
         LogStep("Dim Fade Complete");
 
-        PlaySfx(deckAppearSe);
+        PlaySe(SeId.CardAppear, deckAppearSe); // 音の再設計(2026-10-06): 音は AudioLibrary(無ければ従来の素材)
         SetDeckVisible(true);
         LogStep("Deck Show Start");
         yield return new WaitForSecondsRealtime(deckShowPause);
@@ -414,7 +422,7 @@ public class RewardCardSequence : MonoBehaviour
             card.rect.anchoredPosition = deckRoot.anchoredPosition;
             card.rect.localScale = Vector3.one * 0.8f;
             card.canvasGroup.alpha = 0f;
-            PlaySfx(drawSe);
+            PlaySe(SeId.CardFlip, drawSe, 0.7f);
             LogStep("Draw Card " + i);
             StartCoroutine(card.FadeTo(1f, cardDrawDuration));
             StartCoroutine(card.ScaleTo(1f, cardDrawDuration));
@@ -447,7 +455,8 @@ public class RewardCardSequence : MonoBehaviour
             // showDetailsに関係なく常時表示される独立行(RewardCardUI.
             // ApplyFaceVisibility参照)。
             cards[i].SetContent(cardData[i], showDetails: false);
-            PlaySfx(flipSe);
+            PlaySe(SeId.CardFlip, flipSe);
+            if ((cardData[i].Rarity >= 4 || cardData[i].FinalEvolution || cardData[i].Awakened)) PlaySe(SeId.CardRare, null); // 珍しいカードは光る音
             LogStep("Flip Card " + i);
             StartCoroutine(cards[i].FlipToFront(cardFlipDuration));
             StartCoroutine(cards[i].FlashFrame(revealFlashDuration));
@@ -539,7 +548,7 @@ public class RewardCardSequence : MonoBehaviour
         // Feedbackを明確に"。FlashFrameは終了時にFrameNormalColorへ戻す
         // ため、その後SetChoiceGlow(true)で改めて発光を維持する。
         LogStep("Select Feedback Start");
-        PlaySfx(confirmSe);
+        PlaySe(SeId.CardGet, confirmSe); // 2026-10-06: カードを得た(以前は鳴っていなかった CardGet)
         StartCoroutine(winnerCard.FlashFrame(confirmFlashDuration));
         yield return winnerCard.ScaleTo(confirmScale, confirmFlashDuration);
         winnerCard.SetChoiceGlow(true);
@@ -747,7 +756,7 @@ public class RewardCardSequence : MonoBehaviour
     void HighlightCard(int index)
     {
         highlightedIndex = index;
-        PlaySfx(selectSe);
+        PlaySe(SeId.CardSelect, selectSe);
         UpdateDetailPanel(currentCardData[index]);
         for (int i = 0; i < currentCardCount; i++)
         {

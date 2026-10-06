@@ -131,6 +131,8 @@ public class BossFinish : MonoBehaviour
         Vector3 hp = hitPos == Vector3.zero ? center : hitPos;
         FinishFx.Flash(hp, h * 1.1f, new Color(1f, 1f, 1f, 0.95f), 0.22f);
         FinishFx.Star(hp, h * 0.8f, new Color(1f, 0.97f, 0.85f, 1f), 0.3f);
+        // 音(2026-10-06): 一番重い一撃(Critical: BGM を一瞬下げる)。倒した端末でなくても鳴らす(少し小さく)
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossFinishHit, localImpact ? 1f : 0.75f);
         FinishFx.Ring(center, h * 1.6f, new Color(1f, 1f, 1f, 0.75f), 0.32f);
         // 最初の反応(最後の一撃の向き/種類)。重いほど小さい
         float k = entry.deathKnockback * tn.reactionScale / Mathf.Max(0.3f, entry.deathMass);
@@ -321,7 +323,7 @@ public class BossFinish : MonoBehaviour
                         FinishFx.BurstAt(w, h * 0.45f, entry.specialFx == BossDeathFx.Storm ? new Color(0.7f, 0.8f, 1f) : new Color(1f, 0.85f, 0.5f), 22, true);
                         Dust(cam, new Vector2(oc.x, ground), h * 1.2f);
                         FinishFx.ShakeCapped(0.12f);
-                        if (AudioManager.Instance != null) AudioManager.Instance.PlayStrongHit();
+                        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossCollapse);
                         crashP = p;
                     }
                 }
@@ -376,7 +378,7 @@ public class BossFinish : MonoBehaviour
                     for (int i = 0; i < 14; i++) FinishFx.Debris(w, Random.insideUnitCircle.normalized * Random.Range(4f, 10f) + Vector2.up * 4f, h * Random.Range(0.05f, 0.1f), Random.Range(0.6f, 1f), entry.specialFx == BossDeathFx.Crystal ? new Color(0.65f, 1f, 1f) : new Color(0.5f, 0.45f, 0.38f));
                     if (entry.specialFx == BossDeathFx.Crystal) for (int i = 0; i < 8; i++) FinishFx.Twinkle(w + (Vector3)(Random.insideUnitCircle * h * 0.6f), h * 0.3f, new Color(0.8f, 1f, 1f), 0.6f);
                     FinishFx.ShakeCapped(0.14f);
-                    if (AudioManager.Instance != null) AudioManager.Instance.PlayStrongHit();
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossCollapse);
                     if (rig != null) LooseCells(cam, 1f, dt, explode: true);
                 }
                 if (rig != null) StepCells(dt);
@@ -462,7 +464,7 @@ public class BossFinish : MonoBehaviour
                     Dust(cam, new Vector2(w.x - cam.transform.position.x, ground), h * 1.8f);
                     for (int i = 0; i < 10; i++) FinishFx.Debris(w, new Vector2(Random.Range(-8f, 8f), Random.Range(3f, 9f)), h * 0.05f, 0.7f, new Color(0.55f, 0.47f, 0.38f));
                     FinishFx.ShakeCapped(0.16f);
-                    if (AudioManager.Instance != null) AudioManager.Instance.PlayStrongHit();
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossCollapse);
                 }
                 if (p > 0.84f) alpha = Mathf.Clamp01((1f - p) / 0.16f);
                 break;
@@ -483,9 +485,11 @@ public class BossFinish : MonoBehaviour
     }
 
     // 体が光の粒になって消える(セルごとに少しずつ / セルが無ければ全体)
+    bool dissolveSe;
     void Dissolve(Camera cam, float p, float from, Color sparkColor, bool rising = false)
     {
         if (p < from) return;
+        if (!dissolveSe) { dissolveSe = true; if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossDissolve); }
         float q = Mathf.Clamp01((p - from) / (1f - from));
         tint = Color.Lerp(Color.white, new Color(1.2f, 1.15f, 1f), q);
         if (rig != null)
