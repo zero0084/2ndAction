@@ -86,7 +86,7 @@ public class AudioManager : MonoBehaviour
         BgmVolume = LoadVolume(BgmVolumeKey, BgmVolumeLevelKey);
         SfxVolume = LoadVolume(SfxVolumeKey, SfxVolumeLevelKey);
         EnvVolume = LoadVolume(EnvVolumeKey, EnvVolumeLevelKey);
-        Muted = PlayerPrefs.GetInt(MutedKey, 0) != 0;
+        Muted = SaveStore.GetInt(MutedKey, 0) != 0;
 
         // 素材が無い場合の最後の予備(手続き生成)
         if (titleBgm == null) titleBgm = AudioFactory.CreateTitleBgm();
@@ -374,17 +374,17 @@ public class AudioManager : MonoBehaviour
     // ===================================================================== //
     static float LoadVolume(string key, string legacyLevelKey)
     {
-        if (PlayerPrefs.HasKey(key)) return Mathf.Clamp01(PlayerPrefs.GetFloat(key, 1f));
-        return Mathf.Clamp(PlayerPrefs.GetInt(legacyLevelKey, DefaultVolumeLevel), 0, MaxVolumeLevel) / (float)MaxVolumeLevel; // 旧い段階の値を一度だけ読み替え
+        if (SaveStore.HasKey(key)) return Mathf.Clamp01(SaveStore.GetFloat(key, 1f));
+        return Mathf.Clamp(SaveStore.GetInt(legacyLevelKey, DefaultVolumeLevel), 0, MaxVolumeLevel) / (float)MaxVolumeLevel; // 旧い段階の値を一度だけ読み替え
     }
     // save=false: スライダーを動かしている間(PlayerPrefsの書き込みは呼び出し側がまとめて行う)
-    void Store(string key, float v, bool save) { PlayerPrefs.SetFloat(key, v); if (save) PlayerPrefs.Save(); ApplyVolumes(); }
+    void Store(string key, float v, bool save) { SaveStore.SetFloat(key, v); if (save) SaveStore.Save(); ApplyVolumes(); }
     public void SetMasterVolume(float v, bool save = true) { MasterVolume = Mathf.Clamp01(v); Store(MasterVolumeKey, MasterVolume, save); }
     public void SetBgmVolume(float v, bool save = true) { BgmVolume = Mathf.Clamp01(v); Store(BgmVolumeKey, BgmVolume, save); }
     public void SetSfxVolume(float v, bool save = true) { SfxVolume = Mathf.Clamp01(v); Store(SfxVolumeKey, SfxVolume, save); }
     public void SetEnvVolume(float v, bool save = true) { EnvVolume = Mathf.Clamp01(v); Store(EnvVolumeKey, EnvVolume, save); }
     // 全体ミュート(音量の値はそのまま=解除すると元の音量に戻る)
-    public void SetMuted(bool on) { Muted = on; PlayerPrefs.SetInt(MutedKey, on ? 1 : 0); PlayerPrefs.Save(); ApplyVolumes(); }
+    public void SetMuted(bool on) { Muted = on; SaveStore.SetInt(MutedKey, on ? 1 : 0); SaveStore.Save(); ApplyVolumes(); }
     public void SetMasterVolumeLevel(int level) => SetMasterVolume(Mathf.Clamp(level, 0, MaxVolumeLevel) / (float)MaxVolumeLevel);
     public void SetBgmVolumeLevel(int level) => SetBgmVolume(Mathf.Clamp(level, 0, MaxVolumeLevel) / (float)MaxVolumeLevel);
     public void SetSfxVolumeLevel(int level) => SetSfxVolume(Mathf.Clamp(level, 0, MaxVolumeLevel) / (float)MaxVolumeLevel);

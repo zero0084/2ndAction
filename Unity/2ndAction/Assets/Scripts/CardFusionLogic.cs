@@ -19,7 +19,7 @@ using UnityEngine;
 //      AWAKENED(★5)済みのカードを Lv9 MAX のメインにした合成は、カードを消費しない(★5 の後の使い道は今後)
 //
 // 確定処理(Execute)は抽選→所持カードとMILEの変更をメモリ上で行い→両方を書いてから
-// PlayerPrefs.Save()を1回だけ呼ぶ。演出やリザルトは確定済みの結果(FusionResult)を
+// SaveStore.Save()を1回だけ呼ぶ。演出やリザルトは確定済みの結果(FusionResult)を
 // 表示するだけで、スキップや再表示で再抽選することはない。
 public static class CardFusionLogic
 {
@@ -251,7 +251,7 @@ public static class CardFusionLogic
             if (r.masteryGain > 0) r.mastery = CardMastery.AddProgressInMemory(r.result.mainId, r.masteryGain, $"fusion {r.kind}");
             CardInventory.WriteWithoutFlush();
             CardMastery.WriteWithoutFlush();
-            PlayerPrefs.Save();
+            SaveStore.Save();
             r.mileAfter = gm != null ? gm.TotalOwnedMile : 0;
             LastResult = r;
             Debug.Log($"[Fusion] {r.kind} main={mainKey} material={materialKey} -> {(r.resultKey ?? "none")} refund={r.refundMile}");

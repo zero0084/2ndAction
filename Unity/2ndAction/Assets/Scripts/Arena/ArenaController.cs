@@ -174,6 +174,12 @@ public class ArenaController : MonoBehaviour
     void Update()
     {
         if (!ArenaMode.Active || !ready) return;
+        // ゲームパッド: LB/RB でタブ
+        if (panelOpen && PadNav.MenuActive)
+        {
+            if (GameInput.Down(GameAction.TabPrev)) tab = (tab + Tabs.Length - 1) % Tabs.Length;
+            else if (GameInput.Down(GameAction.TabNext)) tab = (tab + 1) % Tabs.Length;
+        }
         var r = ArenaMode.Current;
         if (ArenaMode.BattleRunning && !panelOpen)
         {
@@ -251,8 +257,10 @@ public class ArenaController : MonoBehaviour
         GUI.matrix = Matrix4x4.Scale(new Vector3(s, s, 1f));
         float W = Screen.width / s, H = Screen.height / s;
         ArenaMode.BlockRects.Clear();
+        int padLayer = PadNav.BeginLayer(panelOpen ? 3 : PadNav.HudLayer); // 戦闘中の左のボタンは HUD(パッドでは START で設定)
         if (panelOpen) DrawPanel(W, H, s);
         else DrawHud(W, H, s);
+        PadNav.EndLayer(padLayer);
         GUI.matrix = keep;
     }
 
@@ -349,7 +357,7 @@ public class ArenaController : MonoBehaviour
             if (d.portrait != null) GUI.DrawTexture(new Rect(r.x + 4f, r.y + 4f, r.width - 8f, r.height - 30f), d.portrait, ScaleMode.ScaleToFit);
             GUI.Label(new Rect(r.x, r.yMax - 26f, r.width, 24f), d.displayName, UiKit.Label(14f, TextAnchor.MiddleCenter, true, sel ? Gold : Color.white));
             if (!CharacterOwned(d)) GUI.Label(new Rect(r.x + 4f, r.y + 2f, r.width - 8f, 18f), "試用", UiKit.Label(12f, TextAnchor.UpperRight, true, Trial));
-            if (GUI.Button(r, GUIContent.none, GUIStyle.none)) cfg.character = d.characterId;
+            if (PadNav.Button(r) | GUI.Button(r, GUIContent.none, GUIStyle.none)) cfg.character = d.characterId;
         }
         EndList();
         var sd = CharacterDatabase.FindById(cfg.character);
@@ -480,7 +488,7 @@ public class ArenaController : MonoBehaviour
             UiKit.Fill(r, sel ? new Color(0.35f, 0.18f, 0.08f, 0.95f) : new Color(0.1f, 0.07f, 0.09f, 0.9f));
             if (it.sprite != null && it.known) DrawSprite(new Rect(r.x + 4f, r.y + 2f, r.height - 4f, r.height - 4f), it.sprite);
             GUI.Label(new Rect(r.x + r.height + 6f, r.y, r.width - r.height - 10f, r.height), it.label, UiKit.Label(15f, TextAnchor.MiddleLeft, it.known, it.known ? Color.white : Dim));
-            if (it.known && GUI.Button(r, GUIContent.none, GUIStyle.none)) { if (enemyCat == 1) enemyPickId = it.id; else enemyPickBoss = it.kind; }
+            if (it.known && (PadNav.Button(r) | GUI.Button(r, GUIContent.none, GUIStyle.none))) { if (enemyCat == 1) enemyPickId = it.id; else enemyPickBoss = it.kind; }
         }
         EndList();
         float y = listR.yMax + 6f;
@@ -650,9 +658,16 @@ public class ArenaController : MonoBehaviour
             else if (e.type == EventType.MouseUp) { dragging = false; if (dragMoved) e.Use(); }
         }
         UiKit.Fill(r, new Color(0.02f, 0.02f, 0.05f, 0.6f));
+        // ゲームパッド: 一覧の端から先へ進もうとした時/右スティックで、見えている範囲を動かす
+        if (e.type == EventType.Layout)
+        {
+            int req = PadNav.ScrollRequestFor(PadNav.ToScreen(r));
+            if (req != 0) scroll.y = Mathf.Clamp(scroll.y + req * r.height * 0.5f, 0f, Mathf.Max(0f, contentH - r.height));
+        }
+        PadNav.PushClip(r);
         return GUI.BeginScrollView(r, scroll, new Rect(0, 0, r.width - 20f, Mathf.Max(contentH, r.height)));
     }
-    void EndList() { GUI.EndScrollView(); }
+    void EndList() { GUI.EndScrollView(); PadNav.PopClip(); }
 }
 
 // 闘技場の相手の一覧(遭遇の正規データから: ボス = ProgressStats の会ったボス / 雑魚 = 距離で解放済み かつ そのステージを走ったことがある)

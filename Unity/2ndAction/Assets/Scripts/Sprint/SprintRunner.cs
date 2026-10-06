@@ -191,8 +191,9 @@ public class SprintRunner : MonoBehaviour
     void ReadInput()
     {
         if (QaRingPolicy >= 0) return;
-        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W)) MoveLane(1);
-        if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S)) MoveLane(-1);
+        // キー(↑↓ W S)/ パッド(十字キー・スティック・A=上 / B=下)。GameInput(2026-10-06)
+        if (!PadNav.MenuActive && (GameInput.Down(GameAction.NavUp) || GameInput.Down(GameAction.Jump))) MoveLane(1);
+        if (!PadNav.MenuActive && (GameInput.Down(GameAction.NavDown) || GameInput.Down(GameAction.AttackDown))) MoveLane(-1);
         Vector2 p = Input.mousePosition;
         if (Input.touchCount > 0) p = Input.GetTouch(0).position;
         bool pressed = Input.GetMouseButton(0) || Input.touchCount > 0;

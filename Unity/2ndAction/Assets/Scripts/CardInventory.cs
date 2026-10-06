@@ -71,7 +71,7 @@ public static class CardInventory
     {
         if (stacks != null) return;
         stacks = new List<Stack>();
-        string json = PlayerPrefs.GetString(SaveKey, "");
+        string json = SaveStore.GetString(SaveKey, "");
         if (!string.IsNullOrEmpty(json))
         {
             SaveWrapper wrapper = null;
@@ -84,17 +84,17 @@ public static class CardInventory
     static void Save()
     {
         WriteWithoutFlush();
-        PlayerPrefs.Save();
+        SaveStore.Save();
     }
 
     // 合成の確定処理(CardFusionLogic.Commit)は所持カードとMILEを両方書いてから
-    // PlayerPrefs.Save()を1回だけ呼ぶ(途中までしか保存されない状態を作らない)。
+    // SaveStore.Save()を1回だけ呼ぶ(途中までしか保存されない状態を作らない)。
     public static void WriteWithoutFlush()
     {
         EnsureLoaded();
         if (DebugRun.BlocksSave("OwnedCards")) return;
         var wrapper = new SaveWrapper { stacks = stacks };
-        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(wrapper));
+        SaveStore.SetString(SaveKey, JsonUtility.ToJson(wrapper));
     }
 
     // 合成用: 素材2枚を消費して完成品(addKey、nullなら無し)を1枚加える変更を
@@ -226,7 +226,7 @@ public static class CardInventory
     {
         if (newUnconfirmed != null) return;
         newUnconfirmed = new HashSet<string>();
-        string raw = PlayerPrefs.GetString(NewUnconfirmedSaveKey, "");
+        string raw = SaveStore.GetString(NewUnconfirmedSaveKey, "");
         if (string.IsNullOrEmpty(raw)) return;
         foreach (string id in raw.Split(','))
         {
@@ -237,8 +237,8 @@ public static class CardInventory
     static void SaveNewUnconfirmed()
     {
         if (DebugRun.BlocksSave("NewUnconfirmedCards")) return;
-        PlayerPrefs.SetString(NewUnconfirmedSaveKey, string.Join(",", newUnconfirmed));
-        PlayerPrefs.Save();
+        SaveStore.SetString(NewUnconfirmedSaveKey, string.Join(",", newUnconfirmed));
+        SaveStore.Save();
     }
 
     static void MarkNewUnconfirmed(string cardId)

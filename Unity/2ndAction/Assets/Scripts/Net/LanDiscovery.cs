@@ -62,8 +62,8 @@ public class LanDiscovery : MonoBehaviour
     public static string RoomId { get; private set; } = "";
     public static string RoomName
     {
-        get { var n = PlayerPrefs.GetString("net.roomName", ""); return string.IsNullOrEmpty(n) ? DefaultRoomName() : n; }
-        set { PlayerPrefs.SetString("net.roomName", value ?? ""); PlayerPrefs.Save(); }
+        get { var n = SaveStore.GetString("net.roomName", ""); return string.IsNullOrEmpty(n) ? DefaultRoomName() : n; }
+        set { SaveStore.SetString("net.roomName", value ?? ""); SaveStore.Save(); }
     }
 
     Socket sock;

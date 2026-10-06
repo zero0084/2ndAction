@@ -328,17 +328,17 @@ public class CharacterSelectUI : MonoBehaviour
 
     void HandleTap(Vector2 screenPos)
     {
-        if (backButtonRect != null && RectTransformUtility.RectangleContainsScreenPoint(backButtonRect, screenPos, null))
+        if (backButtonRect != null && UiHit.Hit(backButtonRect, screenPos))
         {
             Close();
             return;
         }
-        if (selectButtonRect != null && RectTransformUtility.RectangleContainsScreenPoint(selectButtonRect, screenPos, null))
+        if (selectButtonRect != null && UiHit.Hit(selectButtonRect, screenPos))
         {
             Confirm();
             return;
         }
-        if (charCardsButton != null && RectTransformUtility.RectangleContainsScreenPoint(charCardsButton, screenPos, null))
+        if (charCardsButton != null && UiHit.Hit(charCardsButton, screenPos))
         {
             var all = CharacterDatabase.AllCharacters;
             if (selectedIndex >= 0 && selectedIndex < all.Count && GameManager.Instance != null)
@@ -349,19 +349,19 @@ public class CharacterSelectUI : MonoBehaviour
             return;
         }
         // 左右の矢印(カードより先に判定 - 矢印はカード列の端に重なって置いてある)
-        if (carouselArrowLeft != null && carouselArrowLeft.gameObject.activeSelf && RectTransformUtility.RectangleContainsScreenPoint(carouselArrowLeft, screenPos, null))
+        if (carouselArrowLeft != null && carouselArrowLeft.gameObject.activeSelf && UiHit.Hit(carouselArrowLeft, screenPos))
         {
             BeginSnap(Mathf.Max(0, selectedIndex - 1));
             return;
         }
-        if (carouselArrowRight != null && carouselArrowRight.gameObject.activeSelf && RectTransformUtility.RectangleContainsScreenPoint(carouselArrowRight, screenPos, null))
+        if (carouselArrowRight != null && carouselArrowRight.gameObject.activeSelf && UiHit.Hit(carouselArrowRight, screenPos))
         {
             BeginSnap(Mathf.Min(CharacterDatabase.AllCharacters.Count - 1, selectedIndex + 1));
             return;
         }
         for (int i = 0; i < cardSlotRects.Length; i++)
         {
-            if (cardSlotRects[i] != null && RectTransformUtility.RectangleContainsScreenPoint(cardSlotRects[i], screenPos, null))
+            if (cardSlotRects[i] != null && UiHit.Hit(cardSlotRects[i], screenPos))
             {
                 // カルーセル化(2026-09-24) - 中央にないカード(見切れて
                 // いるカード)をタップした場合も、選択と同時にそのカードを
@@ -392,10 +392,9 @@ public class CharacterSelectUI : MonoBehaviour
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (UiInputGate.Blocked) return; // 設定/DEBUGパネルが手前に開いている(閉じた時の指が離れるまでも)
 
-        bool down = Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
-        bool up = Input.GetMouseButtonUp(0) || (Input.touchCount > 0 && (Input.GetTouch(0).phase == TouchPhase.Ended || Input.GetTouch(0).phase == TouchPhase.Canceled));
-        bool held = !down && !up && (Input.GetMouseButton(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase != TouchPhase.Ended && Input.GetTouch(0).phase != TouchPhase.Canceled));
-        Vector2 screenPos = Input.touchCount > 0 ? (Vector2)Input.GetTouch(0).position : (Vector2)Input.mousePosition;
+        UiHit.Probe(HandleTap); // パッド操作中: 押せる枠を集める
+        // タッチ/マウス + ゲームパッドの決定(フォーカスの中心を叩く)。2026-10-06
+        PointerInput.Read(this, out bool down, out bool up, out bool held, out Vector2 screenPos);
 
         // 不具合修正(2026-09-24、目視確認で発覚) - down/held/upを互いに
         // 排他的なif/else-ifチェーンにしていたため、ごく短い時間で down→up

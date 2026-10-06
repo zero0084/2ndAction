@@ -950,6 +950,8 @@ public partial class PlayerController : MonoBehaviour
     // 毎フレームnullへ戻し、そのフレーム内でMove()(Up方向のみ消費)と
     // HandleAttackInput()(Forward/Backwardのみ消費)の両方から参照される。
     FlickDirection? requestedFlick;
+    public FlickDirection? LastPadFlick { get; private set; } // キーボード/パッドから入った最後のフリック(確認用)
+    public int PadFlicks { get; private set; }
     bool wasStarted;
 
     void Awake()
@@ -1195,12 +1197,16 @@ public partial class PlayerController : MonoBehaviour
         if (pointerDown) lastPointerPos = pointerPos;
         if (pointerJustUp) touchActive = false;
 
-        // Editor/keyboard test convenience (mirrors the old Space=jump/
-        // Z,B=attack shortcuts) - bypasses the drag-distance system
-        // entirely, since a key press has no drag distance to measure.
-        if (Input.GetKeyDown(KeyCode.Space)) requestedFlick = FlickDirection.Up;
-        else if (Input.GetKeyDown(KeyCode.Z)) requestedFlick = FlickDirection.Forward;
-        else if (Input.GetKeyDown(KeyCode.B)) requestedFlick = FlickDirection.Backward;
+        // キーボード/ゲームパッド(GameInput、2026-10-06。旧 Space=ジャンプ / Z,B=攻撃 のキーも含む)。
+        // ドラッグの距離の仕組みは通らない(ボタンには距離が無い)。メニュー操作中(PadNav)は使わない。
+        if (!PadNav.MenuActive)
+        {
+            if (GameInput.Down(GameAction.Jump) || GameInput.Down(GameAction.AttackUp)) requestedFlick = FlickDirection.Up;
+            else if (GameInput.Down(GameAction.AttackForward)) requestedFlick = FlickDirection.Forward;
+            else if (GameInput.Down(GameAction.AttackBack)) requestedFlick = FlickDirection.Backward;
+            else if (GameInput.Down(GameAction.AttackDown)) requestedFlick = FlickDirection.Down;
+            if (requestedFlick.HasValue) { LastPadFlick = requestedFlick; PadFlicks++; }
+        }
     }
 
     // 方向攻撃システム Ver.2、項目7 - 4方向化後も「斜めフリックなどは、最
@@ -1831,6 +1837,7 @@ public partial class PlayerController : MonoBehaviour
         // "the hit actually landed" moment, same as EnemyController's own
         // hit feedback (see section 20's "Feedbackの同期" brief).
         if (AudioManager.Instance != null) AudioManager.Instance.PlayPlayerDamage();
+        Platform.Haptics.Play(HapticKind.Hit); // 振動(今の機種では何もしない。家庭用機で差し替え。2026-10-06)
         if (damageFlashEnabled && sr != null) StartCoroutine(DamageFlashRoutine());
         if (!isFall && !damageKnockbackEnabled) { /* ノックバック無効設定でもHurt停止は行う */ }
     }
@@ -2023,6 +2030,7 @@ public partial class PlayerController : MonoBehaviour
         bool down = Input.touchCount > 0
             ? Input.GetTouch(0).phase != TouchPhase.Ended && Input.GetTouch(0).phase != TouchPhase.Canceled
             : Input.GetMouseButton(0);
+        if (!down && !PadNav.MenuActive && GameInput.Held(GameAction.Hold)) down = true; // パッドの BACK / キーの H を長押し
 
         if (!canEscape || !down)
         {
@@ -2286,6 +2294,7 @@ public partial class PlayerController : MonoBehaviour
         // of another Player Damage SE for this final hit (see section 13's
         // role separation), and the BGM fades out alongside it rather than
         // cutting or continuing to play under the results screen.
+        Platform.Haptics.Play(HapticKind.Heavy); // 振動(家庭用機で差し替え)
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.PlayPlayerDeath();

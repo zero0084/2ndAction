@@ -148,8 +148,8 @@ public partial class HighSpeedAssist : MonoBehaviour
     // セーブの初期化の後にも読み直す(2026-10-01)
     public void ReloadPrefs()
     {
-        assistEnabled = PlayerPrefs.GetInt(PrefKey, 1) != 0;
-        ApplyEngageKmh(PlayerPrefs.GetFloat(EngagePrefKey, DefaultEngageKmh));
+        assistEnabled = SaveStore.GetInt(PrefKey, 1) != 0;
+        ApplyEngageKmh(SaveStore.GetFloat(EngagePrefKey, DefaultEngageKmh));
     }
 
     // 開発用の闘技場(2026-10-04): 試験の中だけの設定(保存しない)。退出(シーンの読み直し)で ArenaRestore → 保存されている設定へ戻る
@@ -171,8 +171,8 @@ public partial class HighSpeedAssist : MonoBehaviour
     public void SetEnabled(bool on)
     {
         assistEnabled = on;
-        PlayerPrefs.SetInt(PrefKey, on ? 1 : 0);
-        PlayerPrefs.Save();
+        SaveStore.SetInt(PrefKey, on ? 1 : 0);
+        SaveStore.Save();
     }
 
     // 設定画面(2026-10-01): 補助が始まる速度。解除/最大補助の速度は従来どおり開始速度からの差(-10 / +30km/h)で決まる
@@ -181,13 +181,13 @@ public partial class HighSpeedAssist : MonoBehaviour
     public const float DefaultEngageKmh = 100f, MinEngageKmh = 60f, MaxEngageKmh = 160f;
     public float EngageSettingKmh => engageKmh;
     // 保存されている通常の設定(闘技場の中で一時的に変えていても、通常の設定の値)
-    public bool AssistEnabledSetting => PlayerPrefs.GetInt(PrefKey, 1) != 0;
-    public float EngageKmhSetting => Mathf.Clamp(PlayerPrefs.GetFloat(EngagePrefKey, DefaultEngageKmh), MinEngageKmh, MaxEngageKmh);
+    public bool AssistEnabledSetting => SaveStore.GetInt(PrefKey, 1) != 0;
+    public float EngageKmhSetting => Mathf.Clamp(SaveStore.GetFloat(EngagePrefKey, DefaultEngageKmh), MinEngageKmh, MaxEngageKmh);
     public void SetEngageKmh(float kmh, bool save = true)
     {
         ApplyEngageKmh(kmh);
-        PlayerPrefs.SetFloat(EngagePrefKey, engageKmh);
-        if (save) PlayerPrefs.Save();
+        SaveStore.SetFloat(EngagePrefKey, engageKmh);
+        if (save) SaveStore.Save();
     }
     void ApplyEngageKmh(float kmh)
     {

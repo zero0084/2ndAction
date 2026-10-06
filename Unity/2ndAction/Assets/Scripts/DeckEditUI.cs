@@ -901,10 +901,10 @@ public class DeckEditUI : MonoBehaviour
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (UiInputGate.Blocked) return; // 設定/DEBUGパネルが手前に開いている(閉じた時の指が離れるまでも)
 
-        bool down = Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
-        bool up = Input.GetMouseButtonUp(0) || (Input.touchCount > 0 && (Input.GetTouch(0).phase == TouchPhase.Ended || Input.GetTouch(0).phase == TouchPhase.Canceled));
-        bool held = !down && !up && (Input.GetMouseButton(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase != TouchPhase.Ended && Input.GetTouch(0).phase != TouchPhase.Canceled));
-        Vector2 screenPos = Input.touchCount > 0 ? (Vector2)Input.GetTouch(0).position : (Vector2)Input.mousePosition;
+        if (confirmDialog != null && confirmDialog.IsOpen) UiHit.Probe(p => confirmDialog.HandleTap(p), 5); else UiHit.Probe(HandleTap); // パッド操作中: 押せる枠を集める
+        PadScroll();
+        // タッチ/マウス + ゲームパッドの決定(フォーカスの中心を叩く)。2026-10-06
+        PointerInput.Read(this, out bool down, out bool up, out bool held, out Vector2 screenPos);
 
         // Modal - while the confirm dialog is open, every tap resolves
         // against it alone (Yes/No, or dismissed) and nothing underneath
@@ -968,6 +968,19 @@ public class DeckEditUI : MonoBehaviour
         }
     }
 
+    // ゲームパッド: 一覧の端から先へ進もうとした時/右スティックで、見えている範囲を動かす(2026-10-06)
+    void PadScroll()
+    {
+        foreach (var sr in new[] { ownedScrollRect, deckScrollRect })
+        {
+            if (sr == null || sr.viewport == null) continue;
+            int req = PadNav.ScrollRequestForUgui(sr.viewport);
+            if (req == 0) continue;
+            float range = sr.content.rect.height - sr.viewport.rect.height;
+            if (range > 0f) sr.verticalNormalizedPosition = Mathf.Clamp01(sr.verticalNormalizedPosition - req * sr.viewport.rect.height * 0.5f / range);
+        }
+    }
+
     ScrollRect FindScrollRectContaining(Vector2 screenPos)
     {
         if (ownedScrollRect != null && RectTransformUtility.RectangleContainsScreenPoint(ownedScrollRect.viewport, screenPos, null)) return ownedScrollRect;
@@ -977,38 +990,38 @@ public class DeckEditUI : MonoBehaviour
 
     void HandleTap(Vector2 screenPos)
     {
-        if (backButtonRect != null && RectTransformUtility.RectangleContainsScreenPoint(backButtonRect, screenPos, null))
+        if (backButtonRect != null && UiHit.Hit(backButtonRect, screenPos))
         {
             Close();
             return;
         }
 
-        if (recommendButtonRect != null && RectTransformUtility.RectangleContainsScreenPoint(recommendButtonRect, screenPos, null))
+        if (recommendButtonRect != null && UiHit.Hit(recommendButtonRect, screenPos))
         {
             OnRecommendTapped();
             return;
         }
 
-        if (clearButtonRect != null && RectTransformUtility.RectangleContainsScreenPoint(clearButtonRect, screenPos, null))
+        if (clearButtonRect != null && UiHit.Hit(clearButtonRect, screenPos))
         {
             OnClearAllTapped();
             return;
         }
 
-        if (convertButtonRect != null && convertButtonRect.gameObject.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint(convertButtonRect, screenPos, null))
+        if (convertButtonRect != null && convertButtonRect.gameObject.activeInHierarchy && UiHit.Hit(convertButtonRect, screenPos))
         {
             OnConvertTapped();
             return;
         }
 
-        if (charPrevRect != null && RectTransformUtility.RectangleContainsScreenPoint(charPrevRect, screenPos, null)) { CycleCharacterCardOwner(-1); return; }
-        if (charNextRect != null && RectTransformUtility.RectangleContainsScreenPoint(charNextRect, screenPos, null)) { CycleCharacterCardOwner(+1); return; }
+        if (charPrevRect != null && UiHit.Hit(charPrevRect, screenPos)) { CycleCharacterCardOwner(-1); return; }
+        if (charNextRect != null && UiHit.Hit(charNextRect, screenPos)) { CycleCharacterCardOwner(+1); return; }
 
         for (int i = 0; i < characterSlotCards.Length; i++)
         {
             RewardCardUI slot = characterSlotCards[i];
             if (slot == null || !slot.gameObject.activeInHierarchy) continue;
-            if (RectTransformUtility.RectangleContainsScreenPoint(slot.rect, screenPos, null))
+            if (UiHit.Hit(slot.rect, screenPos))
             {
                 OnCharacterSlotTapped(i);
                 return;
@@ -1019,7 +1032,7 @@ public class DeckEditUI : MonoBehaviour
         {
             RectTransform tabRect = filterButtonRects[i];
             if (tabRect == null) continue;
-            if (RectTransformUtility.RectangleContainsScreenPoint(tabRect, screenPos, null))
+            if (UiHit.Hit(tabRect, screenPos))
             {
                 if (i < FilterNames.Length && activeFilter != FilterNames[i])
                 {
@@ -1035,7 +1048,7 @@ public class DeckEditUI : MonoBehaviour
         {
             RewardCardUI card = ownedCards[i];
             if (card == null || !card.gameObject.activeInHierarchy) continue;
-            if (RectTransformUtility.RectangleContainsScreenPoint(card.rect, screenPos, null))
+            if (UiHit.Hit(card.rect, screenPos))
             {
                 OnOwnedCardTapped(i);
                 return;
@@ -1046,7 +1059,7 @@ public class DeckEditUI : MonoBehaviour
         {
             RewardCardUI card = deckSlotCards[i];
             if (card == null || !card.gameObject.activeInHierarchy) continue;
-            if (RectTransformUtility.RectangleContainsScreenPoint(card.rect, screenPos, null))
+            if (UiHit.Hit(card.rect, screenPos))
             {
                 OnDeckSlotTapped(i);
                 return;

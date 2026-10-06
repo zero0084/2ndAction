@@ -35,7 +35,7 @@ public static class ProgressStats
             if (seenBosses == null)
             {
                 seenBosses = new System.Collections.Generic.HashSet<string>();
-                foreach (var k in PlayerPrefs.GetString(SaveKeys.BossSeen, "").Split(',')) if (!string.IsNullOrEmpty(k)) seenBosses.Add(k);
+                foreach (var k in SaveStore.GetString(SaveKeys.BossSeen, "").Split(',')) if (!string.IsNullOrEmpty(k)) seenBosses.Add(k);
             }
             return seenBosses;
         }
@@ -48,8 +48,8 @@ public static class ProgressStats
         if (string.IsNullOrEmpty(key) || Seen.Contains(key)) return;
         if (DebugRun.BlocksSave("BossSeen_" + key)) return;
         Seen.Add(key);
-        PlayerPrefs.SetString(SaveKeys.BossSeen, string.Join(",", Seen));
-        PlayerPrefs.Save();
+        SaveStore.SetString(SaveKeys.BossSeen, string.Join(",", Seen));
+        SaveStore.Save();
         Debug.Log($"[Progress] boss seen: {key} ({Seen.Count})");
     }
 
@@ -66,22 +66,22 @@ public static class ProgressStats
         if (lifetime - lastFlushed >= 100.0) Flush(true);
     }
 
-    // 書き込む(save=true で PlayerPrefs.Save まで)。ラン終了/帰還/一時停止/終了から呼ぶ。
+    // 書き込む(save=true で SaveStore.Save まで)。ラン終了/帰還/一時停止/終了から呼ぶ。
     public static void Flush(bool save)
     {
         if (DebugRun.BlocksSave("ProgressStats.Flush")) return;
         Load();
         if (dirty)
         {
-            PlayerPrefs.SetString(SaveKeys.LifetimeDistance, lifetime.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+            SaveStore.SetString(SaveKeys.LifetimeDistance, lifetime.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
             lastFlushed = lifetime;
             dirty = false;
         }
         EvaluateFinalDungeon(false);
-        if (save) PlayerPrefs.Save();
+        if (save) SaveStore.Save();
     }
 
-    public static bool HasMet(ReaperSister s) => PlayerPrefs.GetInt(SaveKeys.ReaperMetPrefix + s, 0) != 0;
+    public static bool HasMet(ReaperSister s) => SaveStore.GetInt(SaveKeys.ReaperMetPrefix + s, 0) != 0;
     public static bool MetAllSisters { get { foreach (var s in Sisters) if (!HasMet(s)) return false; return true; } }
 
     // 正式に出現した時に呼ぶ(何度呼んでもよい)
@@ -89,13 +89,13 @@ public static class ProgressStats
     {
         if (HasMet(s)) return;
         if (DebugRun.BlocksSave("ReaperMet_" + s)) return;
-        PlayerPrefs.SetInt(SaveKeys.ReaperMetPrefix + s, 1);
+        SaveStore.SetInt(SaveKeys.ReaperMetPrefix + s, 1);
         Debug.Log($"[Progress] met reaper sister: {s}");
         Flush(false);
-        PlayerPrefs.Save();
+        SaveStore.Save();
     }
 
-    public static bool FinalDungeonUnlocked => PlayerPrefs.GetInt(SaveKeys.FinalDungeonUnlocked, 0) != 0;
+    public static bool FinalDungeonUnlocked => SaveStore.GetInt(SaveKeys.FinalDungeonUnlocked, 0) != 0;
 
     // 解放の判定(一度解放したら戻さない)。true=今回解放した
     public static bool EvaluateFinalDungeon(bool save)
@@ -104,8 +104,8 @@ public static class ProgressStats
         if (FinalDungeonUnlocked) return false;
         Load();
         if (lifetime < UnlockDistance || !MetAllSisters) return false;
-        PlayerPrefs.SetInt(SaveKeys.FinalDungeonUnlocked, 1);
-        if (save) PlayerPrefs.Save();
+        SaveStore.SetInt(SaveKeys.FinalDungeonUnlocked, 1);
+        if (save) SaveStore.Save();
         Debug.Log($"[Progress] FINAL DUNGEON UNLOCKED (lifetime {lifetime:F0}m, all sisters met)");
         return true;
     }
@@ -117,7 +117,7 @@ public static class ProgressStats
         {
             if (FinalDungeonUnlocked) return true;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            if (PlayerPrefs.GetInt(SaveKeys.DevFinalDungeonAlwaysOpen, 1) != 0) return true;
+            if (SaveStore.GetInt(SaveKeys.DevFinalDungeonAlwaysOpen, 1) != 0) return true;
 #endif
             return false;
         }
@@ -125,7 +125,7 @@ public static class ProgressStats
 
     public static double ReadDouble(string key)
     {
-        string s = PlayerPrefs.GetString(key, "");
+        string s = SaveStore.GetString(key, "");
         if (string.IsNullOrEmpty(s)) return 0.0;
         if (!double.TryParse(s, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double v)) return 0.0;
         if (double.IsNaN(v) || double.IsInfinity(v) || v < 0.0) return 0.0;
@@ -143,18 +143,18 @@ public static class ProgressStats
     }
     public static void DevSetMet(ReaperSister s, bool on)
     {
-        PlayerPrefs.SetInt(SaveKeys.ReaperMetPrefix + s, on ? 1 : 0);
+        SaveStore.SetInt(SaveKeys.ReaperMetPrefix + s, on ? 1 : 0);
         Flush(true);
     }
     public static void DevSetFinalDungeonUnlocked(bool on)
     {
-        PlayerPrefs.SetInt(SaveKeys.FinalDungeonUnlocked, on ? 1 : 0);
-        PlayerPrefs.Save();
+        SaveStore.SetInt(SaveKeys.FinalDungeonUnlocked, on ? 1 : 0);
+        SaveStore.Save();
     }
     public static bool DevAlwaysOpen
     {
-        get => PlayerPrefs.GetInt(SaveKeys.DevFinalDungeonAlwaysOpen, 1) != 0;
-        set { PlayerPrefs.SetInt(SaveKeys.DevFinalDungeonAlwaysOpen, value ? 1 : 0); PlayerPrefs.Save(); }
+        get => SaveStore.GetInt(SaveKeys.DevFinalDungeonAlwaysOpen, 1) != 0;
+        set { SaveStore.SetInt(SaveKeys.DevFinalDungeonAlwaysOpen, value ? 1 : 0); SaveStore.Save(); }
     }
 #endif
 }
@@ -192,13 +192,13 @@ public static class DefaultSave
     public static void WriteNewProgress()
     {
         foreach (var e in SaveKeys.Expanded())
-            if (e.cat == SaveCategory.Progress) PlayerPrefs.DeleteKey(e.key);
-        PlayerPrefs.SetInt("TotalOwnedMile", StartingMile);
-        PlayerPrefs.SetString(SaveKeys.LifetimeDistance, "0");
-        foreach (var s in ProgressStats.Sisters) PlayerPrefs.SetInt(SaveKeys.ReaperMetPrefix + s, 0);
-        PlayerPrefs.SetInt(SaveKeys.FinalDungeonUnlocked, 0);
-        PlayerPrefs.SetString("SelectedStageId", StartingStageId);
-        PlayerPrefs.SetInt("CardDataFormat", CardDataMigration.CurrentFormat); // 新規は最初から新形式(旧形式の変換は不要)
+            if (e.cat == SaveCategory.Progress) SaveStore.DeleteKey(e.key);
+        SaveStore.SetInt("TotalOwnedMile", StartingMile);
+        SaveStore.SetString(SaveKeys.LifetimeDistance, "0");
+        foreach (var s in ProgressStats.Sisters) SaveStore.SetInt(SaveKeys.ReaperMetPrefix + s, 0);
+        SaveStore.SetInt(SaveKeys.FinalDungeonUnlocked, 0);
+        SaveStore.SetString("SelectedStageId", StartingStageId);
+        SaveStore.SetInt("CardDataFormat", CardDataMigration.CurrentFormat); // 新規は最初から新形式(旧形式の変換は不要)
         ProgressStats.Reload();
     }
 }

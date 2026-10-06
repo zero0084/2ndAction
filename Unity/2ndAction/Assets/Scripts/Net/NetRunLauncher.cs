@@ -86,8 +86,8 @@ public class NetRunLauncher : MonoBehaviour
     const string ModePrefKey = "net.mode";
     public static MultiplayerGameMode SelectedMode
     {
-        get => (MultiplayerGameMode)Mathf.Clamp(PlayerPrefs.GetInt(ModePrefKey, 0), 0, 1);
-        set { PlayerPrefs.SetInt(ModePrefKey, (int)value); PlayerPrefs.Save(); }
+        get => (MultiplayerGameMode)Mathf.Clamp(SaveStore.GetInt(ModePrefKey, 0), 0, 1);
+        set { SaveStore.SetInt(ModePrefKey, (int)value); SaveStore.Save(); }
     }
     public static MultiplayerGameMode ActiveMode { get; private set; } = MultiplayerGameMode.Coop;
     static MultiplayerGameMode pendingMode;

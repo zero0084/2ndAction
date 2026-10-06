@@ -43,7 +43,7 @@ public static class CardMastery
     {
         if (map != null) return;
         map = new Dictionary<string, Entry>();
-        string json = PlayerPrefs.GetString(SaveKey, "");
+        string json = SaveStore.GetString(SaveKey, "");
         if (!string.IsNullOrEmpty(json))
         {
             SaveWrapper w = null;
@@ -74,15 +74,15 @@ public static class CardMastery
         return JsonUtility.ToJson(w);
     }
 
-    // 所持カードと一緒に保存する時(合成の確定)は、両方書いてから PlayerPrefs.Save() を1回だけ
+    // 所持カードと一緒に保存する時(合成の確定)は、両方書いてから SaveStore.Save() を1回だけ
     public static void WriteWithoutFlush()
     {
         if (map == null) return;
         if (DebugRun.BlocksSave("CardMastery")) return;
-        PlayerPrefs.SetString(SaveKey, ExportJson());
+        SaveStore.SetString(SaveKey, ExportJson());
     }
 
-    public static void Save() { WriteWithoutFlush(); PlayerPrefs.Save(); }
+    public static void Save() { WriteWithoutFlush(); SaveStore.Save(); }
 
     // 開発用(Mastery Test): JSON から読み直して、今の状態と同じになるか
     public static bool RoundTripEquals(out string detail)
@@ -266,10 +266,10 @@ public static class CardMastery
     // 旧セーブの移行(SaveSystem 2→3): 所持カードの JSON だけを見て Lv9 を記録する(CardDatabase を使わない)。Mastery は 0 から
     public static int MigrateMarkMaxFromInventoryJson()
     {
-        if (PlayerPrefs.HasKey(SaveKey)) return 0;
+        if (SaveStore.HasKey(SaveKey)) return 0;
         var w = new SaveWrapper();
         var seen = new HashSet<string>();
-        string json = PlayerPrefs.GetString(CardInventory.SaveKey, "");
+        string json = SaveStore.GetString(CardInventory.SaveKey, "");
         if (!string.IsNullOrEmpty(json))
         {
             var inv = JsonUtility.FromJson<CardInventory.SaveWrapper>(json);
@@ -282,7 +282,7 @@ public static class CardMastery
                 }
         }
         // 記録する Lv9 が無ければキーを作らない(キーが無い = 全カード ★0。既存の値を増やさない)
-        if (w.cards.Count > 0) PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(w));
+        if (w.cards.Count > 0) SaveStore.SetString(SaveKey, JsonUtility.ToJson(w));
         map = null;
         return w.cards.Count;
     }

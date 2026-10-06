@@ -23,7 +23,7 @@ public static class BossHpPlan
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (!Debug.isDebugBuild) return 0;
-            return PlayerPrefs.GetInt(PrefKey, 0);
+            return SaveStore.GetInt(PrefKey, 0);
 #else
             return 0;
 #endif
@@ -31,8 +31,8 @@ public static class BossHpPlan
         set
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            PlayerPrefs.SetInt(PrefKey, Mathf.Max(0, value));
-            PlayerPrefs.Save();
+            SaveStore.SetInt(PrefKey, Mathf.Max(0, value));
+            SaveStore.Save();
 #endif
         }
     }

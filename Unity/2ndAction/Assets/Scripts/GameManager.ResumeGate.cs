@@ -100,9 +100,9 @@ public partial class GameManager
     {
         get
         {
-            if (Debug.isDebugBuild && PlayerPrefs.HasKey(ResumeEaseDevKey))
+            if (Debug.isDebugBuild && SaveStore.HasKey(ResumeEaseDevKey))
             {
-                int v = PlayerPrefs.GetInt(ResumeEaseDevKey, -1);
+                int v = SaveStore.GetInt(ResumeEaseDevKey, -1);
                 if (v >= 0) return v != 0;
             }
             return resumeEaseEnabled;

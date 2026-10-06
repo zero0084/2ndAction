@@ -607,6 +607,7 @@ public class UltimateArt : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.U)) TryActivate("key U");
 #endif
         if (!ButtonVisible) { pressing = false; return; }
+        if (!PadNav.MenuActive && GameInput.Down(GameAction.Ultimate)) { ButtonPressed(); return; } // パッドの RB/RT・キーの C
         Rect r = ButtonRect();
         // タッチ(どの指でも)
         for (int i = 0; i < Input.touchCount; i++)

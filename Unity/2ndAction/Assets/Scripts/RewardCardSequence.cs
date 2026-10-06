@@ -790,12 +790,17 @@ public class RewardCardSequence : MonoBehaviour
     {
         if (!waitingForSelection || selectedIndex >= 0) return;
 
+        UiHit.Probe(HandleTap, 6); // パッド操作中: カードを候補に(ラン中の HUD より手前。2026-10-06)
         if (!TouchInputUtil.TryGetTapPosition(out Vector2 screenPos)) return;
+        HandleTap(screenPos);
+    }
 
+    void HandleTap(Vector2 screenPos)
+    {
         for (int i = 0; i < cards.Length; i++)
         {
             if (cards[i] == null || !cards[i].gameObject.activeInHierarchy) continue;
-            if (RectTransformUtility.RectangleContainsScreenPoint(cards[i].rect, screenPos, null))
+            if (UiHit.Hit(cards[i].rect, screenPos))
             {
                 OnCardClicked(i);
                 return;

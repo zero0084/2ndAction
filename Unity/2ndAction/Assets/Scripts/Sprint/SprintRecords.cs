@@ -20,7 +20,7 @@ public static class SprintRecords
         {
             if (cleared != null) return cleared;
             cleared = new Dictionary<string, HashSet<int>>();
-            foreach (var part in PlayerPrefs.GetString(SaveKeys.SprintGates, "").Split(';'))
+            foreach (var part in SaveStore.GetString(SaveKeys.SprintGates, "").Split(';'))
             {
                 int c = part.IndexOf(':');
                 if (c <= 0) continue;
@@ -56,15 +56,15 @@ public static class SprintRecords
             var ks = new List<int>(kv.Value); ks.Sort();
             parts.Add(kv.Key + ":" + string.Join(",", ks));
         }
-        PlayerPrefs.SetString(SaveKeys.SprintGates, string.Join(";", parts));
-        PlayerPrefs.Save();
+        SaveStore.SetString(SaveKeys.SprintGates, string.Join(";", parts));
+        SaveStore.Save();
     }
 
     // 開発版: 記録が無くても全部の行き先を選べる(DEBUG パネル)
     public static bool DevUnlockAll
     {
-        get => Debug.isDebugBuild && PlayerPrefs.GetInt(SaveKeys.DevSprintUnlockAll, 0) != 0;
-        set { if (Debug.isDebugBuild) { PlayerPrefs.SetInt(SaveKeys.DevSprintUnlockAll, value ? 1 : 0); PlayerPrefs.Save(); } }
+        get => Debug.isDebugBuild && SaveStore.GetInt(SaveKeys.DevSprintUnlockAll, 0) != 0;
+        set { if (Debug.isDebugBuild) { SaveStore.SetInt(SaveKeys.DevSprintUnlockAll, value ? 1 : 0); SaveStore.Save(); } }
     }
 
     public struct Destination { public int meters; public bool unlocked; public string why; }

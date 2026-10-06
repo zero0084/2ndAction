@@ -122,7 +122,7 @@ public static class ArenaConfigStore
     {
         if (loaded) return;
         loaded = true;
-        string json = PlayerPrefs.GetString(SaveKeys.ArenaConfig, "");
+        string json = SaveStore.GetString(SaveKeys.ArenaConfig, "");
         if (string.IsNullOrEmpty(json)) { ArenaMode.Config = ArenaConfig.Fresh(); return; }
         try { var c = JsonUtility.FromJson<ArenaConfig>(json); ArenaMode.Config = c != null ? c.Sanitized() : ArenaConfig.Fresh(); }
         catch { ArenaMode.Config = ArenaConfig.Fresh(); }
@@ -130,8 +130,8 @@ public static class ArenaConfigStore
     public static void Save(ArenaConfig c)
     {
         if (c == null) return;
-        PlayerPrefs.SetString(SaveKeys.ArenaConfig, JsonUtility.ToJson(c));
-        PlayerPrefs.Save();
+        SaveStore.SetString(SaveKeys.ArenaConfig, JsonUtility.ToJson(c));
+        SaveStore.Save();
     }
     public static void ResetLoaded() { loaded = false; }
 }

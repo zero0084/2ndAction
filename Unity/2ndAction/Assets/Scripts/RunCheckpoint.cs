@@ -89,7 +89,7 @@ public static class RunCheckpoint
     public static Data Load()
     {
         if (cached != null) return cached;
-        string json = PlayerPrefs.GetString(SaveKey, "");
+        string json = SaveStore.GetString(SaveKey, "");
         if (!string.IsNullOrEmpty(json))
         {
             try { cached = JsonUtility.FromJson<Data>(json); }
@@ -103,8 +103,8 @@ public static class RunCheckpoint
     {
         if (DebugRun.BlocksSave("RunCheckpoint.Save")) return; // 記録対象外のラン: プレイヤーの中断中のラン(CONTINUE)を上書きしない
         cached = data;
-        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(data));
-        PlayerPrefs.Save();
+        SaveStore.SetString(SaveKey, JsonUtility.ToJson(data));
+        SaveStore.Save();
     }
 
     // Item 15/16 - called the instant GAME OVER is confirmed (before the
@@ -115,8 +115,8 @@ public static class RunCheckpoint
     {
         if (DebugRun.BlocksSave("RunCheckpoint.Clear")) return; // 記録対象外のラン: 中断中のランを消さない
         cached = new Data { active = false };
-        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(cached));
-        PlayerPrefs.Save();
+        SaveStore.SetString(SaveKey, JsonUtility.ToJson(cached));
+        SaveStore.Save();
     }
 
     public static bool HasActiveRun => Load().active;

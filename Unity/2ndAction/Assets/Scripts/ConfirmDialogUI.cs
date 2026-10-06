@@ -58,14 +58,14 @@ public class ConfirmDialogUI : MonoBehaviour
     {
         if (!IsOpen) return false;
 
-        if (yesRect != null && RectTransformUtility.RectangleContainsScreenPoint(yesRect, screenPos, null))
+        if (yesRect != null && UiHit.Hit(yesRect, screenPos))
         {
             System.Action callback = onConfirm;
             Hide();
             callback?.Invoke();
             return true;
         }
-        if (noRect != null && RectTransformUtility.RectangleContainsScreenPoint(noRect, screenPos, null))
+        if (noRect != null && UiHit.Hit(noRect, screenPos))
         {
             System.Action callback = onCancel;
             Hide();

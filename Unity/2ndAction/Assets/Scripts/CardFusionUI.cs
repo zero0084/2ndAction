@@ -1124,10 +1124,10 @@ public class CardFusionUI : MonoBehaviour
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (UiInputGate.Blocked) return; // 設定/DEBUGパネルが手前に開いている(閉じた時の指が離れるまでも)
 
-        bool down = Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
-        bool up = Input.GetMouseButtonUp(0) || (Input.touchCount > 0 && (Input.GetTouch(0).phase == TouchPhase.Ended || Input.GetTouch(0).phase == TouchPhase.Canceled));
-        bool held = !down && !up && (Input.GetMouseButton(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase != TouchPhase.Ended && Input.GetTouch(0).phase != TouchPhase.Canceled));
-        Vector2 screenPos = Input.touchCount > 0 ? (Vector2)Input.GetTouch(0).position : (Vector2)Input.mousePosition;
+        UiHit.Probe(HandleTap, (overlay != null && overlay.gameObject.activeSelf) ? 5 : 0); // パッド操作中: 押せる枠を集める
+        PadScroll();
+        // タッチ/マウス + ゲームパッドの決定(フォーカスの中心を叩く)。2026-10-06
+        PointerInput.Read(this, out bool down, out bool up, out bool held, out Vector2 screenPos);
 
         if (down)
         {
@@ -1160,6 +1160,20 @@ public class CardFusionUI : MonoBehaviour
         }
     }
 
+    // ゲームパッド: 一覧の端から先へ進もうとした時/右スティックで、見えている範囲を動かす(2026-10-06)
+    void PadScroll()
+    {
+        foreach (var sr in new[] { gridScroll, detailScroll, resultScroll })
+        {
+            if (sr == null || sr.viewport == null || !sr.gameObject.activeInHierarchy) continue;
+            int req = PadNav.ScrollRequestForUgui(sr.viewport);
+            if (req == 0) continue;
+            float range = sr.content.rect.height - sr.viewport.rect.height;
+            if (range > 0f) sr.verticalNormalizedPosition = Mathf.Clamp01(sr.verticalNormalizedPosition - req * sr.viewport.rect.height * 0.5f / range);
+            if (sr == gridScroll) savedGridScroll = gridScroll.verticalNormalizedPosition;
+        }
+    }
+
     ScrollRect PickScroll(Vector2 screenPos)
     {
         bool overlayOn = overlay != null && overlay.gameObject.activeSelf;
@@ -1180,7 +1194,7 @@ public class CardFusionUI : MonoBehaviour
         {
             Tap t = taps[i];
             if (t.overlay != overlayOn) continue;
-            if (!Contains(t.rect, screenPos)) continue;
+            if (t.rect == null || !t.rect.gameObject.activeInHierarchy || !UiHit.Hit(t.rect, screenPos)) continue;
             // 一覧のカードは表示範囲(ビューポート)の中だけ有効
             if (!t.overlay && t.rect.IsChildOf(gridScroll.content) && !Contains(gridScroll.viewport, screenPos)) continue;
             t.action?.Invoke();

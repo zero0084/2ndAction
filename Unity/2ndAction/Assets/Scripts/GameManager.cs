@@ -49,8 +49,8 @@ public partial class GameManager : MonoBehaviour
         // saved - SaveDeck() always writes the key, even for an empty
         // deck, so a returning player's empty deck must NOT re-trigger the
         // first-run default fill below (0/10 is a valid, persisted choice).
-        bool hasSavedDeck = PlayerPrefs.HasKey(DeckKey);
-        string saved = PlayerPrefs.GetString(DeckKey, "");
+        bool hasSavedDeck = SaveStore.HasKey(DeckKey);
+        string saved = SaveStore.GetString(DeckKey, "");
         if (!string.IsNullOrEmpty(saved))
         {
             foreach (string id in saved.Split(','))
@@ -96,8 +96,8 @@ public partial class GameManager : MonoBehaviour
     void SaveDeck()
     {
         if (DebugRun.BlocksSave("DeckCardIds")) return;
-        PlayerPrefs.SetString(DeckKey, string.Join(",", deckCards));
-        PlayerPrefs.Save();
+        SaveStore.SetString(DeckKey, string.Join(",", deckCards));
+        SaveStore.Save();
     }
 
     // Reward/Card Ownership/Gacha/Fusion System Ver.1, item 6 - the deck
@@ -251,14 +251,14 @@ public partial class GameManager : MonoBehaviour
 
     void LoadMile()
     {
-        TotalOwnedMile = PlayerPrefs.GetInt(TotalMileKey, 0);
+        TotalOwnedMile = SaveStore.GetInt(TotalMileKey, 0);
     }
 
     void SaveMile()
     {
         if (DebugRun.BlocksSave("TotalOwnedMile")) return;
-        PlayerPrefs.SetInt(TotalMileKey, TotalOwnedMile);
-        PlayerPrefs.Save();
+        SaveStore.SetInt(TotalMileKey, TotalOwnedMile);
+        SaveStore.Save();
     }
 
     // カード合成の確定処理用 - 値だけ変えてPlayerPrefsへ書き、Save()は呼び出し側が
@@ -268,7 +268,7 @@ public partial class GameManager : MonoBehaviour
         if (amount == 0) return;
         TotalOwnedMile = Mathf.Max(0, TotalOwnedMile + amount);
         if (DebugRun.BlocksSave("TotalOwnedMile")) return;
-        PlayerPrefs.SetInt(TotalMileKey, TotalOwnedMile);
+        SaveStore.SetInt(TotalMileKey, TotalOwnedMile);
     }
 
     public void AddMile(int amount)
@@ -488,7 +488,7 @@ public partial class GameManager : MonoBehaviour
 
     void LoadSelectedCharacter()
     {
-        string saved = PlayerPrefs.GetString(SelectedCharacterKey, "");
+        string saved = SaveStore.GetString(SelectedCharacterKey, "");
         // 未保存(初回起動)、または保存値がデータベースに存在しない(アセ
         // ットが削除された等)場合は、CharacterDatabaseの先頭(=黒剣士、
         // CharacterDatabaseBuilder.Specsのswordsman、sortOrder=0)へ安全に
@@ -515,8 +515,8 @@ public partial class GameManager : MonoBehaviour
         SelectedCharacterId = characterId;
         SetCharacterCardOwner(characterId); // キャラカード枠もそのキャラの物へ(2026-10-02)
         if (DebugRun.BlocksSave("SelectedCharacterId")) return; // 闘技場/Debug Run: 試したキャラを「選択中」として保存しない
-        PlayerPrefs.SetString(SelectedCharacterKey, characterId);
-        PlayerPrefs.Save();
+        SaveStore.SetString(SelectedCharacterKey, characterId);
+        SaveStore.Save();
     }
 
     // ===== ステージ選択(2026-09-12) ===== //
@@ -528,7 +528,7 @@ public partial class GameManager : MonoBehaviour
 
     void LoadSelectedStage()
     {
-        string saved = PlayerPrefs.GetString(SelectedStageKey, "");
+        string saved = SaveStore.GetString(SelectedStageKey, "");
         StageDefinition savedDef = StageDatabase.FindById(saved);
         if (!string.IsNullOrEmpty(saved) && savedDef != null && StageDatabase.IsAvailable(savedDef))
         {
@@ -555,8 +555,8 @@ public partial class GameManager : MonoBehaviour
         if (def == null || !StageDatabase.IsAvailable(def)) return;
         SelectedStageId = stageId;
         if (DebugRun.BlocksSave("SelectedStageId")) return;
-        PlayerPrefs.SetString(SelectedStageKey, stageId);
-        PlayerPrefs.Save();
+        SaveStore.SetString(SelectedStageKey, stageId);
+        SaveStore.Save();
     }
 
     void LoadCharacterCards()
@@ -570,13 +570,13 @@ public partial class GameManager : MonoBehaviour
     // 旧: 全キャラ共通の3枠(CharacterCardSlots) → 今選んでいるキャラの枠へ移す(他のキャラは空から)。1回だけ
     void MigrateSharedCharacterCards()
     {
-        if (!PlayerPrefs.HasKey(CharacterCardSlotsKey)) return;
-        string shared = PlayerPrefs.GetString(CharacterCardSlotsKey, "");
+        if (!SaveStore.HasKey(CharacterCardSlotsKey)) return;
+        string shared = SaveStore.GetString(CharacterCardSlotsKey, "");
         string owner = !string.IsNullOrEmpty(SelectedCharacterId) ? SelectedCharacterId : "swordsman";
-        if (!string.IsNullOrEmpty(shared.Replace(",", "")) && !PlayerPrefs.HasKey(CharacterCardSlotsPrefix + owner))
-            PlayerPrefs.SetString(CharacterCardSlotsPrefix + owner, shared);
-        PlayerPrefs.DeleteKey(CharacterCardSlotsKey);
-        PlayerPrefs.Save();
+        if (!string.IsNullOrEmpty(shared.Replace(",", "")) && !SaveStore.HasKey(CharacterCardSlotsPrefix + owner))
+            SaveStore.SetString(CharacterCardSlotsPrefix + owner, shared);
+        SaveStore.DeleteKey(CharacterCardSlotsKey);
+        SaveStore.Save();
         Debug.Log($"[CharacterCards] shared slots moved to {owner}: '{shared}'");
     }
 
@@ -584,7 +584,7 @@ public partial class GameManager : MonoBehaviour
     {
         var ids = new string[CharacterCardSlotCount];
         var levels = new int[CharacterCardSlotCount];
-        string[] entries = PlayerPrefs.GetString(CharacterCardSlotsPrefix + characterId, "").Split(',');
+        string[] entries = SaveStore.GetString(CharacterCardSlotsPrefix + characterId, "").Split(',');
         for (int i = 0; i < CharacterCardSlotCount; i++)
         {
             levels[i] = 1;
@@ -638,8 +638,8 @@ public partial class GameManager : MonoBehaviour
         {
             entries[i] = string.IsNullOrEmpty(characterCardIds[i]) ? "" : $"{characterCardIds[i]}:{characterCardLevels[i]}";
         }
-        PlayerPrefs.SetString(CharacterCardSlotsPrefix + CharacterCardOwnerId, string.Join(",", entries));
-        PlayerPrefs.Save();
+        SaveStore.SetString(CharacterCardSlotsPrefix + CharacterCardOwnerId, string.Join(",", entries));
+        SaveStore.Save();
         slotCache.Remove(CharacterCardOwnerId);
     }
 
@@ -1194,7 +1194,7 @@ public partial class GameManager : MonoBehaviour
     {
         if (string.IsNullOrEmpty(stageId)) return 0.0;
         if (stageBestCache.TryGetValue(stageId, out double v)) return v;
-        string s = PlayerPrefs.GetString(StageBestKeyPrefix + stageId, "");
+        string s = SaveStore.GetString(StageBestKeyPrefix + stageId, "");
         double.TryParse(s, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out v);
         stageBestCache[stageId] = v;
         return v;
@@ -1205,7 +1205,7 @@ public partial class GameManager : MonoBehaviour
         if (string.IsNullOrEmpty(stageId)) return;
         if (DebugRun.BlocksSave("StageBest " + stageId)) return; // 記録対象外のラン: キャッシュも変えない(HUDのBESTも元のまま)
         stageBestCache[stageId] = value;
-        PlayerPrefs.SetString(StageBestKeyPrefix + stageId, value.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+        SaveStore.SetString(StageBestKeyPrefix + stageId, value.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
     }
 
     // HUD/タイトルに出すBEST対象のステージ: ラン中はそのランのステージ、タイトルでは次に出発する選択中ステージ。
@@ -1283,19 +1283,19 @@ public partial class GameManager : MonoBehaviour
         // one place its shared frame texture gets assigned, from the field
         // SceneBuilder already populated on this component.
         OrnateUi.FrameTexture = ornateFrame;
-        BestDistance = PlayerPrefs.GetFloat(BestDistanceKey, 0f);
-        if (!PlayerPrefs.HasKey(LegacyBestBackupKey) && PlayerPrefs.HasKey(BestDistanceKey))
-            PlayerPrefs.SetFloat(LegacyBestBackupKey, BestDistance); // 元データを保持(マップへの割り当ては行わない)
-        BestTime = PlayerPrefs.GetFloat(BestTimeKey, 0f);
+        BestDistance = SaveStore.GetFloat(BestDistanceKey, 0f);
+        if (!SaveStore.HasKey(LegacyBestBackupKey) && SaveStore.HasKey(BestDistanceKey))
+            SaveStore.SetFloat(LegacyBestBackupKey, BestDistance); // 元データを保持(マップへの割り当ては行わない)
+        BestTime = SaveStore.GetFloat(BestTimeKey, 0f);
         // 2026-10-01: 開発版だけの機能。リリース版では保存値が残っていても有効にしない(表示も起動経路も無い)。
-        InvincibleMode = Debug.isDebugBuild && PlayerPrefs.GetInt(InvincibleKey, 0) != 0;
-        DebugMode = Debug.isDebugBuild && PlayerPrefs.GetInt(DebugModeKey, 0) != 0;
+        InvincibleMode = Debug.isDebugBuild && SaveStore.GetInt(InvincibleKey, 0) != 0;
+        DebugMode = Debug.isDebugBuild && SaveStore.GetInt(DebugModeKey, 0) != 0;
         Lives = startingLives;
         ExpToNext = expBaseForLevel2;
         ClearResumeGate(); // 前のシーンの再開待ちの停止理由/慣らしを残さない(2026-10-03)
         ElementSystem.ResetCounters(); // 属性の発動回数(確認用)はランごと
 
-        preferredOrientation = (ScreenOrientation)PlayerPrefs.GetInt(OrientationKey, (int)ScreenOrientation.LandscapeLeft);
+        preferredOrientation = (ScreenOrientation)SaveStore.GetInt(OrientationKey, (int)ScreenOrientation.LandscapeLeft);
         Screen.orientation = preferredOrientation;
 
         // Must happen before LoadDeck() - its default-deck fallback (and
@@ -1751,14 +1751,14 @@ public partial class GameManager : MonoBehaviour
     // used by the TOP-screen "RESET HIGH SCORE" button.
     void ResetHighScores()
     {
-        foreach (string k in new System.Collections.Generic.List<string>(stageBestCache.Keys)) PlayerPrefs.DeleteKey(StageBestKeyPrefix + k);
+        foreach (string k in new System.Collections.Generic.List<string>(stageBestCache.Keys)) SaveStore.DeleteKey(StageBestKeyPrefix + k);
         stageBestCache.Clear();
-        if (StageDatabase.AllStages != null) foreach (var st in StageDatabase.AllStages) PlayerPrefs.DeleteKey(StageBestKeyPrefix + st.stageId);
+        if (StageDatabase.AllStages != null) foreach (var st in StageDatabase.AllStages) SaveStore.DeleteKey(StageBestKeyPrefix + st.stageId);
         BestDistance = 0f;
         BestTime = 0f;
-        PlayerPrefs.DeleteKey(BestDistanceKey);
-        PlayerPrefs.DeleteKey(BestTimeKey);
-        PlayerPrefs.Save();
+        SaveStore.DeleteKey(BestDistanceKey);
+        SaveStore.DeleteKey(BestTimeKey);
+        SaveStore.Save();
     }
 
     // Keeps UI elements inside the device's safe area (avoids notches/rounded
@@ -1889,8 +1889,8 @@ public partial class GameManager : MonoBehaviour
     void ToggleInvincible()
     {
         InvincibleMode = !InvincibleMode;
-        PlayerPrefs.SetInt(InvincibleKey, InvincibleMode ? 1 : 0);
-        PlayerPrefs.Save();
+        SaveStore.SetInt(InvincibleKey, InvincibleMode ? 1 : 0);
+        SaveStore.Save();
     }
 
     void ToggleDebugMode()
@@ -1898,8 +1898,8 @@ public partial class GameManager : MonoBehaviour
         DebugMode = !DebugMode;
         // DEBUGをOFFにしたら、見えないまま速度倍率が残らないよう必ず等倍へ戻す。
         if (!DebugMode) PlayerController.DebugSpeedScale = 1f;
-        PlayerPrefs.SetInt(DebugModeKey, DebugMode ? 1 : 0);
-        PlayerPrefs.Save();
+        SaveStore.SetInt(DebugModeKey, DebugMode ? 1 : 0);
+        SaveStore.Save();
     }
 
     void ToggleOrientation()
@@ -1909,8 +1909,8 @@ public partial class GameManager : MonoBehaviour
             : ScreenOrientation.Portrait;
 
         Screen.orientation = preferredOrientation;
-        PlayerPrefs.SetInt(OrientationKey, (int)preferredOrientation);
-        PlayerPrefs.Save();
+        SaveStore.SetInt(OrientationKey, (int)preferredOrientation);
+        SaveStore.Save();
     }
 
     // Any tap/click starts the game or retries, EXCEPT one landing on a
@@ -1929,6 +1929,7 @@ public partial class GameManager : MonoBehaviour
     {
         why = "";
         bool down = Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.R);
+        if (!down && !PadNav.MenuActive && GameInput.Consume(GameAction.Confirm)) down = true; // ゲームパッドの A / Enter(2026-10-06)
         for (int i = 0; !down && i < Input.touchCount; i++) if (Input.GetTouch(i).phase == TouchPhase.Began) down = true;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (DebugResultTapPending) { DebugResultTapPending = false; down = true; }
@@ -3415,17 +3416,17 @@ public partial class GameManager : MonoBehaviour
         if (record && MaxDistance > BestDistance)
         {
             BestDistance = MaxDistance;
-            PlayerPrefs.SetFloat(BestDistanceKey, BestDistance);
+            SaveStore.SetFloat(BestDistanceKey, BestDistance);
         }
 
         IsNewBestTime = record && RunTime > BestTime;
         if (IsNewBestTime)
         {
             BestTime = RunTime;
-            PlayerPrefs.SetFloat(BestTimeKey, BestTime);
+            SaveStore.SetFloat(BestTimeKey, BestTime);
         }
 
-        if (IsNewBestDistance || IsNewBestTime) PlayerPrefs.Save();
+        if (IsNewBestDistance || IsNewBestTime) SaveStore.Save();
 
         // Reward/MILE System Ver.1, items 1/2 - DISTANCE MILE only finalizes
         // here (MaxDistance stops changing the instant the run ends);
@@ -3797,7 +3798,7 @@ public partial class GameManager : MonoBehaviour
             DrawUnlockAnnouncement();
             DrawEscapeAvailableBanner();
             if (CountdownActive) DrawRunStartCountdown();
-            DrawResumeGate(); // 中断セーブからの再開: ボタン/3-2-1/GO!(2026-10-03)
+            { int pl = PadNav.BeginLayer(4); DrawResumeGate(); PadNav.EndLayer(pl); } // 中断セーブからの再開: ボタン/3-2-1/GO!(2026-10-03)
 
             // Item 9 - small Pause/Menu button, hidden while a Level Up/
             // Boss Reward card choice is already showing its own pause
@@ -3817,17 +3818,20 @@ public partial class GameManager : MonoBehaviour
             // levelUpPending.
             if (!IsGameOver && !levelUpPending && !IsBossPresentationActive())
             {
-                if (DrawStyledButton(GetPauseButtonRect(), "II", 22f, primary: showPauseMenu))
+                int padLayer = PadNav.BeginLayer(PadNav.HudLayer); // II はラン中の HUD(パッドでは START で開く)
+                bool pauseTapped = DrawStyledButton(GetPauseButtonRect(), "II", 22f, primary: showPauseMenu);
+                PadNav.EndLayer(padLayer);
+                if (pauseTapped)
                 {
                     showPauseMenu = !showPauseMenu;
                     if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(showPauseMenu ? SeId.Decide : SeId.Cancel);
                     if (showPauseMenu) TimeControl.Pause(pauseMenuTimeOwner);
                     else TimeControl.Resume(pauseMenuTimeOwner);
                 }
-                if (showPauseMenu) DrawPauseMenu();
+                if (showPauseMenu) { int pl = PadNav.BeginLayer(4); DrawPauseMenu(); PadNav.EndLayer(pl); }
             }
         }
-        DrawReturnHomeConfirm();
+        { int pl = PadNav.BeginLayer(5); DrawReturnHomeConfirm(); PadNav.EndLayer(pl); }
 
         // The level-up choice UI itself is now the RewardCardSequence
         // (Canvas-based card draw/flip/select presentation, kicked off from
@@ -4151,7 +4155,7 @@ public partial class GameManager : MonoBehaviour
                     // タップ時の軽い発光で示す」という要望を満たしている
                     // ため、常時枠を重ねて貼り付け感を足す必要がなかった。
 
-                    if (roomInteractable && GUI.Button(machineRect, GUIContent.none, GUIStyle.none) && roomFadeAlpha > 0.99f)
+                    if (roomInteractable && (PadNav.Button(machineRect) | GUI.Button(machineRect, GUIContent.none, GUIStyle.none)) && roomFadeAlpha > 0.99f)
                     {
                         OnGachaMachineTapped();
                     }
@@ -4181,9 +4185,9 @@ public partial class GameManager : MonoBehaviour
             // スコアリセットやBESTの設定(ガチャの確認)などの開発用操作は、開発版のDEBUGパネルへ移した。
             if (Event.current.type == EventType.Repaint) DrawHomeChrome();
 
-            DrawGachaResultPopup();
+            { int pl = PadNav.BeginLayer(4); DrawGachaResultPopup(); PadNav.EndLayer(pl); }
             DrawInsufficientMileToast();
-            DrawNewRunConfirm();
+            { int pl = PadNav.BeginLayer(4); DrawNewRunConfirm(); PadNav.EndLayer(pl); }
 
             DrawStartTransitionOverlay();
             return;
@@ -4992,8 +4996,8 @@ public partial class GameManager : MonoBehaviour
     {
         if (!Debug.isDebugBuild) return; // Release Build safety net, same pattern as DebugWarpToDistance
         BestDistance = value;
-        PlayerPrefs.SetFloat(BestDistanceKey, BestDistance);
-        PlayerPrefs.Save();
+        SaveStore.SetFloat(BestDistanceKey, BestDistance);
+        SaveStore.Save();
         Debug.Log($"[Debug] BestDistance set to {value}m -> Gacha Stage {CurrentGachaStage} ({GachaStage.StageNames[CurrentGachaStage - 1]})");
     }
 
@@ -5116,7 +5120,7 @@ public partial class GameManager : MonoBehaviour
         Rect setRect = GetHomeSettingsButtonRect();
         if (DrawStyledButton(setRect, "    設定", fs, primary: false, ornate: true)) SettingsPanel.OpenStatic();
         UiKit.DrawGear(new Rect(setRect.x + setRect.width * 0.08f, setRect.y + setRect.height * 0.2f, setRect.height * 0.6f, setRect.height * 0.6f), 1f, new Color(1f, 0.88f, 0.55f));
-        if (DrawStyledButton(GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel, fs, primary: NetSession.IsActive, ornate: true)) NetDebugUI.OpenPanel();
+        if (Platform.Online.LanMultiplayer && DrawStyledButton(GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel, fs, primary: NetSession.IsActive, ornate: true)) NetDebugUI.OpenPanel();
         // 闘技場(2026-10-06 正式版): キャラやカードを自由に試せる練習場。マルチの部屋にいる間は出さない(ソロ用)
         if (!NetSession.IsActive && DrawStyledButton(GetHomeArenaButtonRect(), "闘技場", fs, primary: false, ornate: true)) { ArenaConfigStore.Load(); ArenaLauncher.Launch("home", true); }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -5165,7 +5169,8 @@ public partial class GameManager : MonoBehaviour
             GUI.color = prevFlash;
         }
 
-        return GUI.Button(rect, GUIContent.none, GUIStyle.none);
+        bool pad = PadNav.Button(rect); // ゲームパッド/キーボードの決定(2026-10-06)
+        return GUI.Button(rect, GUIContent.none, GUIStyle.none) || pad;
     }
 
     // ===== Home Room UI reconstruction pass ===== //
@@ -5422,7 +5427,7 @@ public partial class GameManager : MonoBehaviour
     // popup's own OK button drawn later this same OnGUI pass.
     bool DrawRoomHotspot(Rect rect, ref float flashTimer, bool interactable = true)
     {
-        bool tapped = interactable && GUI.Button(rect, GUIContent.none, GUIStyle.none);
+        bool tapped = interactable && (PadNav.Button(rect) | GUI.Button(rect, GUIContent.none, GUIStyle.none));
         if (tapped)
         {
             flashTimer = roomHotspotFlashDuration;
@@ -5449,7 +5454,7 @@ public partial class GameManager : MonoBehaviour
     // 「常時強く発光/点滅はしない、タップ時だけ軽く反応する」を近似する。
     bool DrawDoorHotspot(Rect rect, ref float flashTimer, bool interactable, float roomFadeAlpha)
     {
-        bool tapped = interactable && GUI.Button(rect, GUIContent.none, GUIStyle.none);
+        bool tapped = interactable && (PadNav.Button(rect) | GUI.Button(rect, GUIContent.none, GUIStyle.none));
         if (tapped)
         {
             flashTimer = roomHotspotFlashDuration;
@@ -5591,7 +5596,7 @@ public partial class GameManager : MonoBehaviour
         string nameLabel = selectedDef != null ? selectedDef.displayName : "";
         GUI.Label(new Rect(rect.x, frameRect.yMax + 2f, rect.width, 20f), nameLabel, nameStyle);
 
-        bool tapped = roomInteractable && GUI.Button(rect, GUIContent.none, GUIStyle.none);
+        bool tapped = roomInteractable && (PadNav.Button(rect) | GUI.Button(rect, GUIContent.none, GUIStyle.none));
         if (tapped)
         {
             characterHotspotFlashTimer = roomHotspotFlashDuration;
@@ -5777,7 +5782,20 @@ public partial class GameManager : MonoBehaviour
     // 遷移中は何もしない(連打で二重に開閉しない)。ホームではアプリを終了させない。
     void HandleBackButton()
     {
-        if (Input.GetKeyDown(KeyCode.Escape)) DoBack();
+        if (Input.GetKeyDown(KeyCode.Escape)) { DoBack(); return; }
+        // ゲームパッドの B / Backspace(2026-10-06): メニューを操作している時/ホームだけ(ラン中の B は下攻撃)
+        if (GameInput.Down(GameAction.Cancel) && (PadNav.MenuActive || !HasStarted)) DoBack();
+        // START / P: 一時停止(II と同じ条件)。闘技場では設定を開く/閉じる
+        if (GameInput.Down(GameAction.Pause)) PadPause();
+    }
+
+    void PadPause()
+    {
+        if (!HasStarted || IsGameOver) return;
+        if (ArenaMode.Active && ArenaController.Instance != null) { ArenaController.Instance.SetPanel(!ArenaController.Instance.PanelOpen); return; }
+        if (showReturnHomeConfirm) return;
+        if (showPauseMenu) { DoBack(); return; }
+        if (!levelUpPending && !IsBossPresentationActive() && !AnyOverlayOpen && !ResumeGateActive) DoBack();
     }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -5804,6 +5822,7 @@ public partial class GameManager : MonoBehaviour
         }
         if (IsGameOver) return;
         if (showReturnHomeConfirm) { showReturnHomeConfirm = false; return; }
+        if (ArenaMode.Active && ArenaController.Instance != null && ArenaController.Instance.PanelOpen && !showPauseMenu) { ArenaController.Instance.SetPanel(false); return; }
         if (showPauseMenu)
         {
             showPauseMenu = false;

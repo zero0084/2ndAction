@@ -50,7 +50,7 @@ public static class GachaStage
         get
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            return Debug.isDebugBuild && PlayerPrefs.GetInt(DevAllCardsOpenKey, 0) == 1;
+            return Debug.isDebugBuild && SaveStore.GetInt(DevAllCardsOpenKey, 0) == 1;
 #else
             return false;
 #endif
@@ -58,7 +58,7 @@ public static class GachaStage
         set
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            PlayerPrefs.SetInt(DevAllCardsOpenKey, value ? 1 : 0); PlayerPrefs.Save();
+            SaveStore.SetInt(DevAllCardsOpenKey, value ? 1 : 0); SaveStore.Save();
 #endif
         }
     }
