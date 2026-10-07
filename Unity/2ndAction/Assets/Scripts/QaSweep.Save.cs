@@ -72,6 +72,8 @@ public partial class QaSweep
             r = SaveSystem.Boot(0);
             Check(r.kind == SaveSystem.BootKind.Existing && r.generationBefore == 0, $"B: existing dev save, generation 0 ({r.kind})");
             Check(SameValues(before, SaveSystem.Capture(), out string diffB), "B: every existing value kept " + diffB);
+            bool playedB = ProgressStats.ReadDouble(SaveKeys.LifetimeDistance) > 0.0 || SaveStore.GetFloat("BestDistance", 0f) > 0f;
+            Check(!playedB || (TutorialProgress.Offered && TutorialProgress.PracticeDone && TutorialProgress.EscapeGuideShown && TutorialProgress.MileGuide == 2), "B: an existing player gets no first-time tutorial offers/guides (marked as shown)");
             r = SaveSystem.Boot(0); // 2回目(次のアップデート)
             Check(r.kind == SaveSystem.BootKind.Existing && r.schemaBefore == SaveSystem.CurrentSchemaVersion && SameValues(before, SaveSystem.Capture(), out diffB), "B: a second update changes nothing " + diffB);
 
@@ -247,7 +249,7 @@ public partial class QaSweep
         foreach (var kv in db)
         {
             if (kv.Key == SaveKeys.SchemaVersion || kv.Key == SaveKeys.ReleaseGeneration) continue;
-            if (!da.ContainsKey(kv.Key) && !(kv.Key.StartsWith(SaveKeys.ReaperMetPrefix) || kv.Key == SaveKeys.LifetimeDistance || kv.Key == SaveKeys.FinalDungeonUnlocked)) bad.Add($"{kv.Key} added");
+            if (!da.ContainsKey(kv.Key) && !(kv.Key.StartsWith(SaveKeys.ReaperMetPrefix) || kv.Key == SaveKeys.LifetimeDistance || kv.Key == SaveKeys.FinalDungeonUnlocked || kv.Key.StartsWith("Tutorial."))) bad.Add($"{kv.Key} added"); // Tutorial.*: 初回チュートリアルの印(既存データには「案内済み」で1回だけ足す、2026-10-07)
         }
         diff = bad.Count == 0 ? "" : "(" + string.Join(", ", bad) + ")";
         return bad.Count == 0;

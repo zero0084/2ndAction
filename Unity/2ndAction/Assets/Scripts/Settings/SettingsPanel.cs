@@ -267,7 +267,7 @@ public class SettingsPanel : MonoBehaviour
     }
 
     // ---------------------------------------------------------------- 操作
-    float MeasureControls() => HeadH + 4f + RowH * 2f + 44f;
+    float MeasureControls() => HeadH + 4f + RowH * 2f + 44f + 12f + RowH + 22f;
     float DrawControls(float x, float y, float w, bool interactive)
     {
         var hsa = HighSpeedAssist.Instance;
@@ -279,6 +279,21 @@ public class SettingsPanel : MonoBehaviour
         y = SliderRow(x, y, w, "補助開始速度", v01, $"{hsa.EngageSettingKmh:F0}km/h", hsa.assistEnabled, interactive,
             (v, rel) => hsa.SetEngageKmh(HighSpeedAssist.MinEngageKmh + v * range, rel));
         y = Note(x, y, w, "走る速さがこの値を超えると、穴/障害物/敵へのジャンプと");
-        return Note(x, y, w, "攻撃を自動で補助します(自分の操作が優先)");
+        y = Note(x, y, w, "攻撃を自動で補助します(自分の操作が優先)");
+        return DrawHowToPlay(x, y + 12f, w, interactive);
+    }
+
+    // 遊び方(2026-10-07): 操作の練習をもう一度。ホームでだけ始められる(終わるとホームへ戻る)
+    float DrawHowToPlay(float x, float y, float w, bool interactive)
+    {
+        RowLabel(x, y, "遊び方");
+        bool can = TutorialMode.CanLaunchFromHome;
+        if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), "操作を練習する", 19f, can, true, can) && interactive && can)
+        {
+            Close();
+            TutorialLauncher.Launch(false, "settings");
+        }
+        y += RowH;
+        return Note(x, y, w, can ? "前後の攻撃/ジャンプ/下攻撃/打ち上げ/カードを練習(報酬なし)" : "練習はホームで始められます(ラン中/マルチ中は不可)");
     }
 }

@@ -2041,7 +2041,7 @@ public partial class GameManager : MonoBehaviour
         // frame.
         lastRawDistanceSeen = rawDistance;
         // 開発用の闘技場(2026-10-04): 距離は「距離条件」のまま止める(敵の強さにだけ使う。距離のイベント/EXP/解放/保存を起こさない)
-        if (ArenaMode.Active) return;
+        if (ArenaMode.Active || TutorialMode.Active) return; // 操作の練習(2026-10-07)も同じ
         float distance = rawDistance - distanceExclusionOffset;
 
         // Distance Level Design Ver.1.1, item 1 - Boss Gate: while a Boss
@@ -3067,6 +3067,7 @@ public partial class GameManager : MonoBehaviour
         Vector3 dmgPos = PlayerController.Instance != null ? PlayerController.Instance.transform.position : Vector3.zero;
         if (IsGameOver) { DamageAfterDeathIgnored++; return DamageResult.Ignored; } // 死亡済み: 以後のダメージ/死亡要求は無視
         if (PresentationDamageLock) { FreezeDiagnostics.LogEvent($"[Damage] Ignored(PresentationDamageLock) reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); return DamageResult.Ignored; }
+        if (TutorialMode.Active) return DamageResult.Ignored; // 操作の練習はダメージなし(2026-10-07)
         // 開発用の闘技場: 本来受けるはずだったダメージを記録。闘技場の無敵(通常の無敵の設定とは別、保存しない)なら受けない
         if (ArenaMode.Active) { ArenaMode.OnPlayerWouldTakeDamage(amount, reason); if (ArenaMode.Invincible) return DamageResult.Ignored; }
         if (!bypassInvincibleMode && InvincibleMode) return DamageResult.Ignored;
@@ -3447,7 +3448,11 @@ public partial class GameManager : MonoBehaviour
         // (this method also runs for that path) LOSES it entirely instead -
         // "そのRunで獲得した未確定MILEは全て失います".
         RunDistanceMile = Mathf.FloorToInt(MileDistanceForRun / 100f * Mathf.Max(0f, 1f + Card.Get(EffectType.DistanceMilePct))); // 疾走で飛ばした距離は除く(2026-10-05)
-        if (IsWin) AddMile(RunMile);
+        if (IsWin)
+        {
+            AddMile(RunMile);
+            if (!DebugRun.WritesBlocked && !NetRunLauncher.IsMultiplayerRun) TutorialProgress.MarkMileGuidePending(); // 初めての脱出の後: ホームでMILEの使い道を案内(2026-10-07)
+        }
 
         // Item 15/16 - Active Run/Checkpoint is invalidated on EITHER end
         // condition (idempotent with the earlier RunCheckpoint.Clear() call
@@ -4287,16 +4292,38 @@ public partial class GameManager : MonoBehaviour
         // style: the MILE each category earned is folded directly into its
         // existing row instead of adding 3 more rows, matching the brief's
         // own example layout.
-        Row("DISTANCE", $"{Mathf.FloorToInt(MaxDistance)}m  +{RunDistanceMile} MILE", IsNewBestDistance);
-        Row("TIME", FormatTime(RunTime), IsNewBestTime);
-        Row("ENEMIES DEFEATED", $"{EnemyKillCount}  +{RunEnemyMile} MILE", false);
-        Row("BOSSES DEFEATED", $"{BossKillCount}  +{RunBossMile} MILE", false);
-        if (RunBonusMile > 0 && RunRingMile > 0) Row("BONUS", $"ZONE +{RunBonusMile} / RING +{RunRingMile} MILE", false); // 行が増えすぎないよう1行に
-        else if (RunBonusMile > 0) Row("BONUS ZONE", $"+{RunBonusMile} MILE", false);
-        else if (RunRingMile > 0) Row("RING BONUS", $"+{RunRingMile} MILE", false);
-        Row("TOTAL EXP", Mathf.FloorToInt(TotalExpEarned).ToString(), false);
-        Row("UPGRADES OBTAINED", UpgradeCount.ToString(), false);
-        Row("TOTAL MILE", $"+{RunMile}  (WALLET {TotalOwnedMile})", false);
+        if (IsWin)
+        {
+            Row("DISTANCE", $"{Mathf.FloorToInt(MaxDistance)}m  +{RunDistanceMile} MILE", IsNewBestDistance);
+            Row("TIME", FormatTime(RunTime), IsNewBestTime);
+            Row("ENEMIES DEFEATED", $"{EnemyKillCount}  +{RunEnemyMile} MILE", false);
+            Row("BOSSES DEFEATED", $"{BossKillCount}  +{RunBossMile} MILE", false);
+            if (RunBonusMile > 0 && RunRingMile > 0) Row("BONUS", $"ZONE +{RunBonusMile} / RING +{RunRingMile} MILE", false); // 行が増えすぎないよう1行に
+            else if (RunBonusMile > 0) Row("BONUS ZONE", $"+{RunBonusMile} MILE", false);
+            else if (RunRingMile > 0) Row("RING BONUS", $"+{RunRingMile} MILE", false);
+            Row("TOTAL EXP", Mathf.FloorToInt(TotalExpEarned).ToString(), false);
+            Row("UPGRADES OBTAINED", UpgradeCount.ToString(), false);
+            Row("TOTAL MILE", $"+{RunMile}  (WALLET {TotalOwnedMile})", false);
+        }
+        else
+        {
+            // 2026-10-07: 倒れた時は MILE が入らない(このランの MILE は失う)。以前は「+N MILE」と出ていて、もらえたように見えた。
+            // 失ったもの / 残るもの をはっきり出す(残る: BEST距離の記録・累計走行距離・持っているカード・所持MILE)
+            Row("DISTANCE", $"{Mathf.FloorToInt(MaxDistance)}m", IsNewBestDistance);
+            Row("TIME", FormatTime(RunTime), IsNewBestTime);
+            Row("ENEMIES / BOSSES", $"{EnemyKillCount} / {BossKillCount}", false);
+            Row("TOTAL EXP / UPGRADES", $"{Mathf.FloorToInt(TotalExpEarned)} / {UpgradeCount}", false);
+            Color keepRow = rowStyle.normal.textColor;
+            rowStyle.normal.textColor = new Color(1f, 0.55f, 0.5f);
+            GUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), $"失ったもの: このランのMILE {RunMile}", rowStyle);
+            y += 34f;
+            rowStyle.normal.textColor = new Color(0.6f, 1f, 0.7f);
+            GUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), IsNewBestDistance ? "残るもの: BEST距離の記録(更新!)・累計走行距離" : "残るもの: BEST距離の記録・累計走行距離", rowStyle);
+            y += 34f;
+            GUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), $"              持っているカード・MILE(WALLET {TotalOwnedMile})", rowStyle);
+            y += 34f;
+            rowStyle.normal.textColor = keepRow;
+        }
 
         if (upgradeHistory.Count > 0)
         {
@@ -5859,6 +5886,7 @@ public partial class GameManager : MonoBehaviour
         }
         else
         {
+            if (FirstRunGuide.TryDoorPrompt()) return; // 新規のデータで初めて: 「操作を練習する/そのまま始める」(2026-10-07)
             OpenStageSelect();
         }
     }

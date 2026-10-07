@@ -566,6 +566,7 @@ public partial class EnemyController : MonoBehaviour
             if (ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
 
             StallProbe.NoteHit(name, kind.ToString(), killed); // 2026-10-07: 止まりの切り分け用(直前の命中を数件だけ覚える)
+            LocalHit?.Invoke(this, kind, isLaunched, killed); // 操作の練習(2026-10-07): 打ち上げ/空中追撃の判定。isLaunched は当たる前の状態
             // 音の再設計(2026-10-06): 手応えの音を攻撃の種類で分ける(打ち上げ/飛び道具/通常)
             nextHitSe = kind == PlayerAttackKind.Up ? SeId.HitLaunch : other.GetComponentInParent<PlayerBullet>() != null ? SeId.HitProjectile : SeId.Hit;
             ProcessHit(kind, contactPoint, killed);
@@ -599,6 +600,8 @@ public partial class EnemyController : MonoBehaviour
     public bool CanDealContactDamage => isActiveAndEnabled && !dying && !IsReactingToHit && bonus == null && !ArenaDummy && !(NetReplica && NetRemoteReacting);
     // 開発用の闘技場の動かない標的(接触ダメージ/攻撃なし)
     [System.NonSerialized] public bool ArenaDummy;
+    // この端末のプレイヤーの攻撃が当たった(敵, 攻撃の種類, 当たる前に浮いていたか, 倒したか)
+    public static event System.Action<EnemyController, PlayerAttackKind, bool, bool> LocalHit;
 
     public void ApplyContactDamage()
     {

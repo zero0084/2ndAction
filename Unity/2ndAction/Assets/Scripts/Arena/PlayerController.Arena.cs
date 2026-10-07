@@ -17,6 +17,7 @@ public partial class PlayerController
     //  実効速度固定 … 指定の速さそのもの(キャラ/カードの補正は移動に入れない)
     float? ArenaAutoSpeed()
     {
+        if (TutorialMode.Active) return TutorialMode.SpeedMps; // 操作の練習(2026-10-07): ゆっくり一定
         if (!ArenaMode.Active) return null;
         var c = ArenaMode.Config;
         if (c.speedMode == 0 || c.kmh <= 0.01f) return 0f;

@@ -40,7 +40,7 @@ public partial class DebugPanel : MonoBehaviour
         if (on && ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (open && !on) UiInputGate.LatchUntilRelease();
         if (!on) EndMasteryTest("panel closed"); // MASTERY TEST は閉じたら必ず元へ戻す
-        open = on; t = 0f; confirmReset = false; confirmSave = 0; if (on) page = 0;
+        open = on; t = 0f; confirmReset = false; confirmSave = 0; confirmTest = 0; if (on) page = 0;
         UiInputGate.DebugPanelOpen = on;
     }
 
@@ -50,6 +50,7 @@ public partial class DebugPanel : MonoBehaviour
         if (!open) return false;
         if (confirmReset) confirmReset = false;
         else if (confirmSave != 0) confirmSave = 0;
+        else if (confirmTest != 0) confirmTest = 0;
         else if (page != 0) page = 0;
         else SetOpen(false);
         return true;
@@ -71,7 +72,7 @@ public partial class DebugPanel : MonoBehaviour
         float w = Screen.width / s, h = Screen.height / s;
         float k = Mathf.SmoothStep(0f, 1f, t / 0.15f);
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.05f, 0.02f, 0.02f, 0.5f * k));
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 700f : page == 4 || page == 5 || page == 6 || page == 7 || page == 8 ? 600f : 470f, h - 24f);
+        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 740f : page == 4 || page == 5 || page == 6 || page == 7 || page == 8 ? 600f : 470f, h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f + (1f - k) * 12f, pw, ph);
         Color keepColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, k);
@@ -80,9 +81,10 @@ public partial class DebugPanel : MonoBehaviour
         if (UiKit.Button(new Rect(p.xMax - 66f, p.y + 12f, 48f, 42f), "×", 24f, false, false)) SetOpen(false);
         if (UiKit.Button(new Rect(p.xMax - 200f, p.y + 12f, 126f, 42f), page == 0 ? "セーブ…" : "← 一般", 17f, page != 0, false)) { page = page == 0 ? 1 : 0; confirmSave = 0; confirmReset = false; }
         if (page == 0 && UiKit.Button(new Rect(p.xMax - 352f, p.y + 12f, 146f, 42f), "ラスダン終盤…", 16f, false, false)) { page = 2; confirmSave = 0; confirmReset = false; }
+        if (page == 0 && UiKit.Button(new Rect(p.x + 24f, p.y + 62f, p.width - 48f, 34f), SaveProfile.IsTest ? "テストデータ…(今: TEST DATA)" : "テストデータ…(新規ユーザーの状態で試す)", 15f, SaveProfile.IsTest, false)) { page = 11; confirmTest = 0; testNote = ""; }
         if (page != 0)
         {
-            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else if (page == 7) DrawFinalEvoPage(p); else if (page == 8) DrawComboPage(p); else if (page == 9) DrawFinishPage(p); else if (page == 10) DrawBossFinishPage(p); else DrawEndgamePage(p);
+            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else if (page == 7) DrawFinalEvoPage(p); else if (page == 8) DrawComboPage(p); else if (page == 9) DrawFinishPage(p); else if (page == 10) DrawBossFinishPage(p); else if (page == 11) DrawTestDataPage(p); else DrawEndgamePage(p);
             GUI.color = keepColor;
             GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
             if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();
@@ -90,7 +92,7 @@ public partial class DebugPanel : MonoBehaviour
             return;
         }
 
-        float x = p.x + 24f, y = p.y + 64f, bw = (p.width - 48f - 12f) / 2f, bh = 46f;
+        float x = p.x + 24f, y = p.y + 104f, bw = (p.width - 48f - 12f) / 2f, bh = 46f;
         if (UiKit.Button(new Rect(x, y, bw, bh), $"無敵: {(gm.InvincibleMode ? "ON" : "OFF")}", 18f, gm.InvincibleMode, false)) gm.DebugToggleInvincible();
         if (UiKit.Button(new Rect(x + bw + 12f, y, bw, bh), $"DEBUGモード: {(gm.DebugMode ? "ON" : "OFF")}", 18f, gm.DebugMode, false)) gm.DebugToggleDebugMode();
         y += bh + 10f;
@@ -177,7 +179,7 @@ public partial class DebugPanel
     {
         float x = p.x + 24f, y = p.y + 62f, full = p.width - 48f, bh = 44f;
         var boot = SaveSystem.LastBoot;
-        string info = $"セーブ形式 v{PlayerPrefs.GetInt(SaveKeys.SchemaVersion, 0)} / リリース世代 {PlayerPrefs.GetInt(SaveKeys.ReleaseGeneration, 0)}(このビルド {SaveSystem.BuildReleaseGeneration})"
+        string info = $"{(SaveProfile.IsTest ? "[TEST DATA] " : "")}セーブ形式 v{SaveStore.GetInt(SaveKeys.SchemaVersion, 0)} / リリース世代 {SaveStore.GetInt(SaveKeys.ReleaseGeneration, 0)}(このビルド {SaveSystem.BuildReleaseGeneration})"
             + (boot != null ? $" / 起動時: {boot.kind}" : "");
         GUI.Label(new Rect(x, y, full, 22f), info, UiKit.Label(14f, TextAnchor.MiddleLeft, false, new Color(0.8f, 0.85f, 0.95f)));
         y += 26f;

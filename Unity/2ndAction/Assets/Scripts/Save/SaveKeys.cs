@@ -31,7 +31,7 @@ public static class SaveKeys
     public const string ArenaConfig = "ArenaConfigV1";                 // 闘技場の最後の構成(JSON。練習の設定なので「設定」。デッキ/所持には書かない)
     public const string SprintGates = "SprintGatesV1";                 // 疾走出発の解放: マップごとに実際に倒した 10,000m 刻みの門番(2026-10-05)
     public const string DevSprintUnlockAll = "Dev.SprintUnlockAll";    // 開発版だけ: 疾走出発の行き先を全部選べる                       // 会ったボス(カンマ区切りの "Wild/Wolf" 等)。ラスダンの抽選で製品版が優先する(2026-10-05)
-    public const string DevFinalDungeonAlwaysOpen = "Dev.FinalDungeonAlwaysOpen"; // 開発版だけ: ラスダンを常に選べる(既定1)
+    public const string DevFinalDungeonAlwaysOpen = "Dev.FinalDungeonAlwaysOpen"; // 開発版だけ: ラスダンを常に選べる(既定1。テスト用データでは既定0)
 
     // 既存のキー(保存しているクラスの定数と同じ文字列)
     public static readonly Entry[] All =
@@ -62,6 +62,11 @@ public static class SaveKeys
         new Entry(BossSeen, SaveCategory.Progress, SaveType.String, "会ったボス(カンマ区切り。ラスダンの節目のボスの抽選に使う)"),
         new Entry(SprintGates, SaveCategory.Progress, SaveType.String, "疾走出発の解放: マップごとに実際に倒した10,000m刻みの門番"),
         new Entry(DevSprintUnlockAll, SaveCategory.Dev, SaveType.Int, "開発版: 疾走出発の行き先を全部選べる"),
+        new Entry(TutorialProgress.InitKey, SaveCategory.Progress, SaveType.Int, "初回チュートリアルの仕組みを入れた印(無い既存データは遊んでいれば案内を全部「出した」にする、2026-10-07)"),
+        new Entry(TutorialProgress.OfferedKey, SaveCategory.Progress, SaveType.Int, "初回の扉で「操作を練習する/そのまま始める」を出した"),
+        new Entry(TutorialProgress.PracticeDoneKey, SaveCategory.Progress, SaveType.Int, "操作の練習を最後まで(またはスキップ)"),
+        new Entry(TutorialProgress.EscapeGuideKey, SaveCategory.Progress, SaveType.Int, "初めてのボス報酬の後の脱出の説明を出した"),
+        new Entry(TutorialProgress.MileGuideKey, SaveCategory.Progress, SaveType.Int, "MILEの使い道の案内 0=まだ/1=初めて脱出した(ホームで出す)/2=出した"),
 
         // ---- 設定 ----
         new Entry(ArenaConfig, SaveCategory.Settings, SaveType.String, "闘技場の最後の構成(キャラ/試用のビルド/相手/速度/操作アシスト/無敵)。進行ではない"),
@@ -88,6 +93,9 @@ public static class SaveKeys
         new Entry(DevFinalDungeonAlwaysOpen, SaveCategory.Dev, SaveType.Int, "ラスダンを常に選べる(開発版のみ)"),
         new Entry(GameManager.ResumeEaseDevKey, SaveCategory.Dev, SaveType.Int, "中断再開の慣らし 0=OFF/1=ON(開発版のみ、無ければGameManagerの設定)"),
     };
+
+    // 登録の表に無いが設定として両方のデータで共有するキー(テスト用データ SaveProfile)
+    public static readonly string[] ExtraSharedKeys = { };
 
     // 旧形式(移行で読み替えた後に消す)
     public static readonly string[] Legacy = { "MasterVolumeLevel", "BgmVolumeLevel", "SfxVolumeLevel", "EnvVolumeLevel" };

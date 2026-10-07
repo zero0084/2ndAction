@@ -50,6 +50,7 @@ public static class SaveSystem
     public static BootResult Boot(int buildGeneration)
     {
         booted = true;
+        if (SaveProfile.IsTest) Debug.Log("[Save] boot: TEST DATA profile");
         var r = new BootResult();
         var log = new StringBuilder();
         bool hasSchema = SaveStore.HasKey(SaveKeys.SchemaVersion);
@@ -121,6 +122,7 @@ public static class SaveSystem
 
         // ④ 検査と修復
         Validate(r.repairs);
+        log.Append(TutorialProgress.EnsureInitialized()); // 初回チュートリアル(2026-10-07): 既存のデータには初回の案内を出さない
         if (r.repairs.Count > 0) log.Append("repairs: " + string.Join(" / ", r.repairs) + "; ");
 
         SaveStore.Save();
@@ -388,7 +390,7 @@ public static class SaveSystem
     {
         get
         {
-            string d = System.IO.Path.Combine(Application.persistentDataPath, TestBackupSubdir ?? "SaveBackups");
+            string d = System.IO.Path.Combine(Application.persistentDataPath, TestBackupSubdir ?? SaveProfile.BackupSubdir(SaveProfile.IsTest));
             try { System.IO.Directory.CreateDirectory(d); } catch { }
             return d;
         }
@@ -460,6 +462,7 @@ public static class SaveSystem
     public static void ReloadCaches()
     {
         CardInventory.ReloadFromPrefs();
+        CardMastery.ReloadFromPrefs();
         RunCheckpoint.Reload();
         ProgressStats.Reload();
         GameSettings.Reload();

@@ -58,7 +58,7 @@ public static class CardInventory
     }
 
     // CardDataMigration等がPlayerPrefsを書き換えた後に、次のアクセスで読み直させる。
-    public static void ReloadFromPrefs() { stacks = null; }
+    public static void ReloadFromPrefs() { stacks = null; newUnconfirmed = null; }
 
     static List<Stack> stacks;
 

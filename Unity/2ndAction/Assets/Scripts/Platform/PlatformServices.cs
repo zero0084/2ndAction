@@ -39,18 +39,27 @@ public class PlayerPrefsStore : ISaveStore
 }
 
 // PlayerPrefs と同じ形の入口(ゲームのコードはここを呼ぶ)。中身は Platform.Save
+// 開発版のテスト用データの間は、進行のキーを "test:" 付きへ読み替える(SaveProfile。設定は共有、リリース版は読み替えなし)
 public static class SaveStore
 {
     static ISaveStore S => Platform.Save;
-    public static bool HasKey(string key) => S.HasKey(key);
-    public static int GetInt(string key, int def = 0) => S.GetInt(key, def);
-    public static float GetFloat(string key, float def = 0f) => S.GetFloat(key, def);
-    public static string GetString(string key, string def = "") => S.GetString(key, def);
-    public static void SetInt(string key, int v) => S.SetInt(key, v);
-    public static void SetFloat(string key, float v) => S.SetFloat(key, v);
-    public static void SetString(string key, string v) => S.SetString(key, v);
-    public static void DeleteKey(string key) => S.DeleteKey(key);
-    public static void DeleteAll() => S.DeleteAll();
+    static string K(string key) => SaveProfile.Map(key);
+    public static bool HasKey(string key) => S.HasKey(K(key));
+    public static int GetInt(string key, int def = 0) => S.GetInt(K(key), def);
+    public static float GetFloat(string key, float def = 0f) => S.GetFloat(K(key), def);
+    public static string GetString(string key, string def = "") => S.GetString(K(key), def);
+    public static void SetInt(string key, int v) => S.SetInt(K(key), v);
+    public static void SetFloat(string key, float v) => S.SetFloat(K(key), v);
+    public static void SetString(string key, string v) => S.SetString(K(key), v);
+    public static void DeleteKey(string key) => S.DeleteKey(K(key));
+    // テスト用データの間はテスト用データだけを消す(通常のデータを巻き込まない)
+    public static void DeleteAll()
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (SaveProfile.IsTest) { SaveProfile.DeleteTestData(); return; }
+#endif
+        S.DeleteAll();
+    }
     public static void Save() => S.Save();
 }
 

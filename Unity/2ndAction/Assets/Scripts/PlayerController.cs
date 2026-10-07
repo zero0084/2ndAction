@@ -699,6 +699,8 @@ public partial class PlayerController : MonoBehaviour
     // のようなクリーンアップ経由のEndDiveAttack()呼び出しでは発火させない
     // (あれらは本当の着地ではないため)。
     public event System.Action DiveAttackLanded;
+    // 前/後ろの攻撃を始めた(操作の練習が見る、2026-10-07)
+    public static event System.Action<AttackDirection> AttackStarted;
     // The player's base auto-scroll speed this frame, NOT including attack
     // lunge/recoil. Used by the boss to keep pace with ordinary running
     // without also cancelling out the player's attack-driven movement.
@@ -1121,6 +1123,15 @@ public partial class PlayerController : MonoBehaviour
     // finger is still down, never waiting for release (item 6). Releasing
     // without ever crossing either threshold now does nothing at all (item
     // 5 - tap-jump is gone).
+    // 押しかけの指の状態を捨てる(説明の板を閉じた時など。次に指を置き直すまで何も起きない)
+    public void ClearPointerState()
+    {
+        touchActive = false;
+        requestedFlick = null;
+        flickCooldownTimer = 0f;
+        escapeHoldTimer = 0f;
+    }
+
     void UpdatePointerInput()
     {
         requestedFlick = null;
@@ -1152,6 +1163,8 @@ public partial class PlayerController : MonoBehaviour
         if (pointerJustDown && UltimateArt.BlocksPointer(pointerPos)) { touchActive = false; return; }
         // 開発用の闘技場のボタンで始まったタッチも操作にしない
         if (pointerJustDown && ArenaMode.BlocksPointer(pointerPos)) { touchActive = false; return; }
+        // 説明/設定などの板が手前にある間と、板を閉じた指が離れるまでは操作にしない(2026-10-07: 練習の説明の「やってみる」の指で攻撃しない)
+        if (UiInputGate.Blocked) { touchActive = false; requestedFlick = null; return; }
         if (pointerJustDown)
         {
             touchStartPos = pointerPos;
@@ -2031,6 +2044,7 @@ public partial class PlayerController : MonoBehaviour
             ? Input.GetTouch(0).phase != TouchPhase.Ended && Input.GetTouch(0).phase != TouchPhase.Canceled
             : Input.GetMouseButton(0);
         if (!down && !PadNav.MenuActive && GameInput.Held(GameAction.Hold)) down = true; // パッドの BACK / キーの H を長押し
+        if (UiInputGate.Blocked) down = false; // 説明の板の「わかった」を押した指で脱出を溜めない(2026-10-07)
 
         if (!canEscape || !down)
         {
@@ -2363,6 +2377,7 @@ public partial class PlayerController : MonoBehaviour
 
     IEnumerator DoAttack(AttackDirection dir)
     {
+        AttackStarted?.Invoke(dir);
         // 二丁拳銃士(2026-09-23) - Forward/Backwardとも「面で斬る」既存の
         // 剣士コンボ(Lunge/Recoil/成長するHitbox)には一切乗せず、専用の
         // 弾丸ロジックへ完全に分岐する。isRanged=falseの既存3キャラの

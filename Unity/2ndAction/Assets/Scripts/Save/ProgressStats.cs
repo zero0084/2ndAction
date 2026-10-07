@@ -117,7 +117,7 @@ public static class ProgressStats
         {
             if (FinalDungeonUnlocked) return true;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            if (SaveStore.GetInt(SaveKeys.DevFinalDungeonAlwaysOpen, 1) != 0) return true;
+            if (SaveStore.GetInt(SaveKeys.DevFinalDungeonAlwaysOpen, SaveProfile.IsTest ? 0 : 1) != 0) return true;
 #endif
             return false;
         }
@@ -153,7 +153,7 @@ public static class ProgressStats
     }
     public static bool DevAlwaysOpen
     {
-        get => SaveStore.GetInt(SaveKeys.DevFinalDungeonAlwaysOpen, 1) != 0;
+        get => SaveStore.GetInt(SaveKeys.DevFinalDungeonAlwaysOpen, SaveProfile.IsTest ? 0 : 1) != 0;
         set { SaveStore.SetInt(SaveKeys.DevFinalDungeonAlwaysOpen, value ? 1 : 0); SaveStore.Save(); }
     }
 #endif

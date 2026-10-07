@@ -19,7 +19,7 @@ public static class DebugRun
     public static string LastRestoreNote { get; private set; } = "";
 
     // 進行を書き込まない状態: Debug Run(開発版)/ 闘技場(2026-10-06、リリース版でも。練習なので報酬/記録/所持/解放/累計/CONTINUE を一切書かない)
-    public static bool WritesBlocked => IsActive || ArenaMode.Active || ArenaMode.PendingStart;
+    public static bool WritesBlocked => IsActive || ArenaMode.Active || ArenaMode.PendingStart || TutorialMode.Active || TutorialMode.PendingStart; // 操作の練習(2026-10-07)も書かない
 
     // 保存処理の入口で呼ぶ。true なら保存しない。
     public static bool BlocksSave(string what)
@@ -33,7 +33,7 @@ public static class DebugRun
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     [System.Serializable] class FileData { public string what; public string time; public List<SaveSystem.Item> items = new List<SaveSystem.Item>(); }
     static List<SaveSystem.Item> snapshot;
-    static string FilePath => System.IO.Path.Combine(Application.persistentDataPath, "DebugRunRestore.json");
+    static string FilePath => System.IO.Path.Combine(Application.persistentDataPath, SaveProfile.DebugRunFile(SaveProfile.IsTest));
 
     public static void Begin(string what)
     {

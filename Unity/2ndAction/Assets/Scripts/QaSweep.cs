@@ -80,6 +80,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaBreak") { mode = "break"; dir = a[i + 1]; }
             if (a[i] == "-qaFix4") { mode = "fix4"; dir = a[i + 1]; }
             if (a[i] == "-qaHitStall") { mode = "hitstall"; dir = a[i + 1]; }
+            if (a[i] == "-qaTutorial") { mode = "tutorial"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -174,6 +175,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "break") yield return BreakMode();
         else if (mode == "fix4") yield return Fix4Mode();
         else if (mode == "hitstall") yield return HitStallMode();
+        else if (mode == "tutorial") yield return TutorialModeQa();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);
