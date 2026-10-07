@@ -36,7 +36,7 @@ public partial class GameManager : MonoBehaviour
     // draws its 3-of-N pool from this. Persisted across runs as a
     // comma-separated list of CardDefinition.cardId strings. DeckEditUI's
     // "owned cards" list is just CardDatabase.AllCards.
-    public const int DeckCapacity = 10;
+    public const int DeckCapacity = 12; // 2026-10-07: 10 → 12(旧デッキはそのまま読み、ホームで1回だけ案内)
     readonly List<string> deckCards = new List<string>();
     public IReadOnlyList<string> DeckCards => deckCards;
 
@@ -61,9 +61,10 @@ public partial class GameManager : MonoBehaviour
                 // カード合成改修(2026-09-26)で見つけた不具合の修正: 同じカードを複数枚
                 // デッキへ入れられる仕様(AddToDeck/SetDeck)なのに、読み込み時だけ
                 // 重複を捨てていたため、再起動で2枚目以降が消えていた。容量だけで制限する。
-                if (!string.IsNullOrEmpty(id) && CardDatabase.FindById(id) != null && deckCards.Count < DeckCapacity)
+                if (!string.IsNullOrEmpty(id) && CardDatabase.FindById(id) != null)
                 {
-                    deckCards.Add(id);
+                    if (deckCards.Count < DeckCapacity) deckCards.Add(id);
+                    else DeckOverflowDropped++; // 上限を超えた分はデッキから外す(カードは所持一覧に残る)
                 }
             }
         }
@@ -91,7 +92,10 @@ public partial class GameManager : MonoBehaviour
             // 初期カードをもう1枚ずつ渡していた(新規インストール/進行の初期化の後、デッキを編集するまで)。1回だけにする。
             SaveDeck();
         }
+        DeckCapacityNotice.Check(this, hasSavedDeck);
     }
+
+    public int DeckOverflowDropped { get; private set; } // 読み込みで上限を超えて外した枚数(案内を出す)
 
     void SaveDeck()
     {
@@ -495,7 +499,7 @@ public partial class GameManager : MonoBehaviour
         // フォールバックする。現在の黒剣士の戦闘性能・スプライトはこの値
         // に一切影響を受けないため、フォールバックしても実際のプレイには
         // 何の影響もない。
-        if (!string.IsNullOrEmpty(saved) && CharacterDatabase.FindById(saved) != null)
+        if (!string.IsNullOrEmpty(saved) && CharacterDatabase.FindById(saved) != null && UnlockRules.IsCharacterUnlocked(saved))
         {
             SelectedCharacterId = saved;
             return;
@@ -512,6 +516,8 @@ public partial class GameManager : MonoBehaviour
     public void SetSelectedCharacter(string characterId)
     {
         if (string.IsNullOrEmpty(characterId) || CharacterDatabase.FindById(characterId) == null) return;
+        // 未解放のキャラは選べない(闘技場の試用/練習は書き込まないので可、2026-10-07)
+        if (!UnlockRules.IsCharacterUnlocked(characterId) && !DebugRun.WritesBlocked) { Debug.Log($"[Unlock] {characterId} is locked - not selected"); return; }
         SelectedCharacterId = characterId;
         SetCharacterCardOwner(characterId); // キャラカード枠もそのキャラの物へ(2026-10-02)
         if (DebugRun.BlocksSave("SelectedCharacterId")) return; // 闘技場/Debug Run: 試したキャラを「選択中」として保存しない
@@ -1242,6 +1248,7 @@ public partial class GameManager : MonoBehaviour
 
     void Awake()
     {
+        UnlockRules.ClearRunFlags(); // 新しいシーン = ランの外(前のランの「飛ばした」印を持ち越さない)
         Instance = this;
         // RUN BUILD HUD(2026-09-29): ラン中の取得カード一覧。このRunのカード状態を表示するだけのView
         // (GameManagerと同じObjectに付くので、シーン再読込=次Run/Homeで一緒に作り直される)。
@@ -1512,6 +1519,7 @@ public partial class GameManager : MonoBehaviour
     void ApplyGameStart(string stageIdOverride = null)
     {
         HasStarted = true;
+        UnlockRules.RunSkipped = false;
         ClearGachaPresentation(); // ガチャの見せる分の残り(カードは引いた時点で所持済み、2026-10-07)
         runStartTime = Time.time;
         activeRunCharacterId = SelectedCharacterId;
@@ -2031,7 +2039,10 @@ public partial class GameManager : MonoBehaviour
         if (distance > MaxDistance)
         {
             float delta = distance - MaxDistance;
-            ProgressStats.AddRunDistance(delta); // 累計走行距離(2026-10-01、100mごとに保存)
+            // 累計走行距離(2026-10-01、100mごとに保存)。2026-10-07: CONTINUE で戻った区間(このランで既に走った所まで)は足さない。
+            // ラスダンの距離は数えない(解放条件は通常3マップの合計)
+            float newGround = distance - Mathf.Max(MaxDistance, HighestReachedDistance);
+            if (newGround > 0f && activeRunStageId != BossManager.LastStageId) ProgressStats.AddRunDistance(newGround);
             MaxDistance = distance;
             GainExp(delta * expPerMeter * ExpMultDistance); // カードの EXP(1つの枠 + 曲線、GameManager.CardStats)
             UnlockManager.CheckUnlocks(MaxDistance);
@@ -2040,6 +2051,7 @@ public partial class GameManager : MonoBehaviour
             // escapeMinDistance), so it stays correct even for the very
             // first Boss Checkpoint.
             if (MaxDistance > HighestReachedDistance) HighestReachedDistance = MaxDistance;
+            UnlockRules.OnRunDistance(activeRunStageId, MaxDistance); // マップ/キャラの解放(1回のランで到達した瞬間、2026-10-07)
 
             // Item 11 - "強制終了による逃げ対策": keeps the interrupt-state
             // save (HP/RunMile/build/HighestReachedDistance) reasonably
@@ -3356,6 +3368,7 @@ public partial class GameManager : MonoBehaviour
         if (!QaLegacyDeathBehaviour) ReaperBase.StopAllForRunEnd();
         if (!QaLegacyDeathBehaviour) GameOverCleanup(); // 2026-10-06: ボス/Encounter/補助/入力の片付け(撃破の処理は通さない)
         ProgressStats.Flush(true); // 死亡/正常終了: 累計走行距離を保存(2026-10-01)
+        UnlockRules.OnRunEnded(activeRunStageId, MaxDistance, realGameOver: !IsWin); // 2026-10-07: 到達距離の保存 / お嬢様騎士(1,000m以下で倒れた)
         gameOverTime = Time.time;
         // Safety net: Time.timeScale is a global engine setting that would
         // otherwise persist across a scene reload (Retry) - if the run
@@ -3557,6 +3570,7 @@ public partial class GameManager : MonoBehaviour
         // 被弾/前進して、保存したHPや距離が確認画面の時点とずれることがあった。次のシーンの Awake で解除する。
         if (!NetRunLauncher.IsMultiplayerRun) TimeControl.Pause(returnHomeTimeOwner); // マルチは従来どおり(ほかの端末の世界は止められない)
         ProgressStats.Flush(true); // 途中帰還: 累計走行距離を保存(2026-10-01)
+        UnlockRules.OnRunEnded(activeRunStageId, MaxDistance, realGameOver: false); // 到達距離の保存(リタイアはお嬢様騎士の対象外)
         SaveInterruptState();
         RetryWithTransition();
     }
@@ -5071,6 +5085,7 @@ public partial class GameManager : MonoBehaviour
     public void DebugWarpToDistance(float targetDistance)
     {
         if (!Debug.isDebugBuild) return; // Release Build safety net - a stray call can never actually warp outside a dev build
+        UnlockRules.RunSkipped = true; // 距離を飛ばしたランは解放に数えない(2026-10-07)
         MaxDistance = targetDistance;
         MaxDistanceExact = targetDistance;
         // 2026-09-29: ボスの関門もワープ先へ合わせる(以前は1,000mの関門が残っていて、ワープ直後に1,000mのボスが出て距離が戻された)。
@@ -5133,7 +5148,14 @@ public partial class GameManager : MonoBehaviour
         UiKit.DrawGear(new Rect(setRect.x + setRect.width * 0.08f, setRect.y + setRect.height * 0.2f, setRect.height * 0.6f, setRect.height * 0.6f), 1f, new Color(1f, 0.88f, 0.55f));
         if (Platform.Online.LanMultiplayer && DrawStyledButton(GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel, fs, primary: NetSession.IsActive, ornate: true)) NetDebugUI.OpenPanel();
         // 闘技場(2026-10-06 正式版): キャラやカードを自由に試せる練習場。マルチの部屋にいる間は出さない(ソロ用)
-        if (!NetSession.IsActive && DrawStyledButton(GetHomeArenaButtonRect(), "闘技場", fs, primary: false, ornate: true)) { ArenaConfigStore.Load(); ArenaLauncher.Launch("home", true); }
+        // 闘技場: 天空回廊で30,000m到達で解放(2026-10-07)。未解放は鍵付きで、押すと条件を見せる
+        bool arenaOpen = UnlockRules.IsArenaUnlocked;
+        if (!NetSession.IsActive && DrawStyledButton(GetHomeArenaButtonRect(), arenaOpen ? "闘技場" : "闘技場 (LOCK)", arenaOpen ? fs : fs * 0.82f, primary: false, ornate: true))
+        {
+            if (arenaOpen) { ArenaConfigStore.Load(); ArenaLauncher.Launch("home", true); }
+            else if (UnlockRules.TryStageRule(UnlockRules.Arena, out var ar))
+                NoticeQueue.Enqueue("arena_locked", "闘技場はまだ解放されていません", $"解放の条件: {UnlockRules.ConditionText(ar)}\n{UnlockRules.ProgressText(ar)}", null);
+        }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (Debug.isDebugBuild)
         {

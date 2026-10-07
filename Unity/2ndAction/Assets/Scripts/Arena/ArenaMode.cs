@@ -95,7 +95,7 @@ public class ArenaConfig
     // 読み込んだ構成を正す(消えたキャラ/カード/敵、範囲外の値、通常版で選べない物)
     public ArenaConfig Sanitized()
     {
-        if (CharacterDatabase.FindById(character) == null) character = GameManager.Instance != null ? GameManager.Instance.SelectedCharacterId : "swordsman";
+        if (CharacterDatabase.FindById(character) == null || !UnlockRules.IsCharacterVisible(character)) character = GameManager.Instance != null ? GameManager.Instance.SelectedCharacterId : "swordsman";
         if (build == null) build = new List<ArenaBuildEntry>();
         build.RemoveAll(b => b == null || string.IsNullOrEmpty(b.key) || CardDatabase.FindById(b.key) == null);
         foreach (var b in build) b.times = Mathf.Clamp(b.times, 1, GameManager.MaxRunCardLevel);

@@ -305,8 +305,49 @@ public class DeckEditUI : MonoBehaviour
         if (GameManager.Instance != null) GameManager.Instance.CloseDeckEdit();
     }
 
+    // デッキ枠の数をデッキの上限に合わせる(2026-10-07 10→12)。シーンに作ってある枠が足りなければ、同じ枠を複製して足す
+    // (枠は GridLayoutGroup の中なので、増やせばそのまま並ぶ。3列×4段)
+    void EnsureDeckSlots()
+    {
+        if (deckSlotCards == null || deckSlotCards.Length == 0) return;
+        if (deckSlotCards.Length >= GameManager.DeckCapacity) { FitDeckGrid(); return; }
+        var src = deckSlotCards[deckSlotCards.Length - 1];
+        if (src == null) return;
+        var list = new System.Collections.Generic.List<RewardCardUI>(deckSlotCards);
+        while (list.Count < GameManager.DeckCapacity)
+        {
+            var go = Instantiate(src.gameObject, src.transform.parent);
+            go.name = "DeckSlot_" + list.Count;
+            list.Add(go.GetComponent<RewardCardUI>());
+        }
+        deckSlotCards = list.ToArray();
+        FitDeckGrid();
+    }
+
+    // 12枚を一度に見られるよう、デッキ欄は 4列×3段 にして、欄の中に収まる大きさへ縮める(カードの中身はそのままの比率)。
+    // 詳しい説明はカードをタップした時の中央の欄で読む
+    bool deckGridFitted;
+    void FitDeckGrid()
+    {
+        if (deckGridFitted || deckScrollRect == null || deckScrollRect.content == null) return;
+        var grid = deckScrollRect.content.GetComponent<UnityEngine.UI.GridLayoutGroup>();
+        var vp = deckScrollRect.viewport != null ? deckScrollRect.viewport : (RectTransform)deckScrollRect.transform;
+        if (grid == null || vp == null) return;
+        const int cols = 4;
+        int rows = Mathf.CeilToInt(GameManager.DeckCapacity / (float)cols);
+        float w = cols * grid.cellSize.x + (cols - 1) * grid.spacing.x + grid.padding.horizontal;
+        float h = rows * grid.cellSize.y + (rows - 1) * grid.spacing.y + grid.padding.vertical;
+        float k = Mathf.Min(1f, vp.rect.width / w, vp.rect.height / h);
+        grid.constraint = UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount;
+        grid.constraintCount = cols;
+        deckScrollRect.content.localScale = new Vector3(k, k, 1f);
+        deckGridFitted = true;
+        Debug.Log($"[DeckEdit] deck grid {cols}x{rows}, scale {k:F2} (viewport {vp.rect.width:F0}x{vp.rect.height:F0})");
+    }
+
     void Refresh()
     {
+        EnsureDeckSlots();
         var gm = GameManager.Instance;
         if (gm == null) return;
 

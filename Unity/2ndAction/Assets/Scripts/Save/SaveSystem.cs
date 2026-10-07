@@ -122,7 +122,8 @@ public static class SaveSystem
 
         // ④ 検査と修復
         Validate(r.repairs);
-        log.Append(TutorialProgress.EnsureInitialized()); // 初回チュートリアル(2026-10-07): 既存のデータには初回の案内を出さない
+        log.Append(TutorialProgress.EnsureInitialized());
+        log.Append(UnlockRules.EnsureInitialized()); // 解放条件(2026-10-07): 既存データは今使える物をそのまま解放済みに // 初回チュートリアル(2026-10-07): 既存のデータには初回の案内を出さない
         if (r.repairs.Count > 0) log.Append("repairs: " + string.Join(" / ", r.repairs) + "; ");
 
         SaveStore.Save();
@@ -131,6 +132,7 @@ public static class SaveSystem
         r.report = log.ToString();
         LastBoot = r;
         ReloadCaches();
+        UnlockRules.RequeuePending(); // 解放したのに確認していないお知らせ(アプリが落ちても失わない)
         // 正常を確認できた状態を残す(壊れた値を直した後の状態)
         RotateLastGood();
         Debug.Log($"[Save] boot: {r.kind} schema {r.schemaBefore}->{r.schemaAfter} generation {r.generationBefore}->{r.generationAfter} | {r.report}");
@@ -463,6 +465,7 @@ public static class SaveSystem
     {
         CardInventory.ReloadFromPrefs();
         CardMastery.ReloadFromPrefs();
+        UnlockRules.Reload();
         RunCheckpoint.Reload();
         ProgressStats.Reload();
         GameSettings.Reload();

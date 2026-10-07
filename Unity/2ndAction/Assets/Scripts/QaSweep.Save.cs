@@ -133,9 +133,13 @@ public partial class QaSweep
             ProgressStats.MarkReaperMet(ReaperSister.Second);
             Check(!ProgressStats.HasMet(ReaperSister.Eldest) && ProgressStats.HasMet(ReaperSister.Second) && !ProgressStats.HasMet(ReaperSister.Youngest) && PlayerPrefs.GetInt("ReaperMet_Second", 0) == 1, "E: meeting one sister sets only her flag");
             ProgressStats.MarkReaperMet(ReaperSister.Eldest); ProgressStats.MarkReaperMet(ReaperSister.Youngest);
+            // 2026-10-07: ラスダンの条件は「通常3マップそれぞれで死神に遭遇」+ 累計1,000,000m(UnlockRules)
+            ProgressStats.DevSetLifetime(1000000);
+            Check(!ProgressStats.FinalDungeonUnlocked, "F: all sisters met (no per-map record) + 1,000,000m -> still locked");
             ProgressStats.DevSetLifetime(999999);
-            ProgressStats.EvaluateFinalDungeon(true);
-            Check(!ProgressStats.FinalDungeonUnlocked, "F: all sisters met but 999,999m -> still locked");
+            foreach (var m in UnlockRules.NormalMaps) UnlockRules.OnReaperMet(m);
+            UnlockRules.EvaluateLastDungeon();
+            Check(!ProgressStats.FinalDungeonUnlocked, "F: reaper on all 3 maps but 999,999m -> still locked");
             ProgressStats.DevAlwaysOpen = false;
             var lc = StageDatabase.FindById(BossManager.LastStageId);
             Check(lc != null && !StageDatabase.IsAvailable(lc), "F: LAST CORRIDOR not selectable while locked (dev 'always open' OFF)");
@@ -249,7 +253,7 @@ public partial class QaSweep
         foreach (var kv in db)
         {
             if (kv.Key == SaveKeys.SchemaVersion || kv.Key == SaveKeys.ReleaseGeneration) continue;
-            if (!da.ContainsKey(kv.Key) && !(kv.Key.StartsWith(SaveKeys.ReaperMetPrefix) || kv.Key == SaveKeys.LifetimeDistance || kv.Key == SaveKeys.FinalDungeonUnlocked || kv.Key.StartsWith("Tutorial."))) bad.Add($"{kv.Key} added"); // Tutorial.*: 初回チュートリアルの印(既存データには「案内済み」で1回だけ足す、2026-10-07)
+            if (!da.ContainsKey(kv.Key) && !(kv.Key.StartsWith(SaveKeys.ReaperMetPrefix) || kv.Key == SaveKeys.LifetimeDistance || kv.Key == SaveKeys.FinalDungeonUnlocked || kv.Key.StartsWith("Tutorial.") || kv.Key.StartsWith("Unlock") || kv.Key.StartsWith(UnlockRules.ReachPrefix))) bad.Add($"{kv.Key} added"); // Tutorial.*: 初回チュートリアルの印(既存データには「案内済み」で1回だけ足す、2026-10-07)
         }
         diff = bad.Count == 0 ? "" : "(" + string.Join(", ", bad) + ")";
         return bad.Count == 0;

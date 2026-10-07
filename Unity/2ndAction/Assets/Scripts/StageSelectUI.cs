@@ -132,38 +132,60 @@ public class StageSelectUI : MonoBehaviour
     }
 
     // 解放状態は実行中に変わる(ラスダンの解放、2026-10-01)ので、開くたびに LOCKED の表示を合わせる
+    // 2026-10-07: 未解放のマップは条件と進捗を見せる。ラスダンは解放前は枠ごと出さない(完全な隠し要素)。見えている枠は中央へ並べ直す
+    Vector2[] slotHome;
+    public bool LastDungeonVisible { get; private set; }
     void RefreshLocks(System.Collections.Generic.IReadOnlyList<StageDefinition> all)
     {
+        if (slotHome == null || slotHome.Length != cardSlotRects.Length)
+        {
+            slotHome = new Vector2[cardSlotRects.Length];
+            for (int i = 0; i < cardSlotRects.Length; i++) if (cardSlotRects[i] != null) slotHome[i] = cardSlotRects[i].anchoredPosition;
+        }
+        var visible = new System.Collections.Generic.List<int>();
         for (int i = 0; i < all.Count && i < cardSlotRects.Length; i++)
         {
             bool open = StageDatabase.IsAvailable(all[i]);
             if (i < cardUnlocked.Length) cardUnlocked[i] = open;
             var slot = cardSlotRects[i];
             if (slot == null) continue;
+            bool hidden = all[i].stageId == BossManager.LastStageId && !open;
+            if (all[i].stageId == BossManager.LastStageId) LastDungeonVisible = !hidden;
+            slot.gameObject.SetActive(!hidden);
+            if (hidden) continue;
+            visible.Add(i);
             var lockLabel = slot.Find("LockLabel");
             if (lockLabel != null)
             {
                 lockLabel.gameObject.SetActive(!open);
                 var t = lockLabel.GetComponent<Text>();
-                if (t != null && !open && all[i].stageId == BossManager.LastStageId)
+                if (t != null && !open && UnlockRules.TryStageRule(all[i].stageId, out var rule))
                 {
                     t.fontSize = 22;
-                    t.text = $"LOCKED\n累計 {ProgressStats.LifetimeDistance:N0} / {ProgressStats.UnlockDistance:N0}m\n死神三姉妹 {MetCount()}/3";
+                    t.text = "LOCKED\n" + UnlockRules.ConditionText(rule) + "\n" + UnlockRules.ProgressText(rule);
+                    t.color = new Color(1f, 0.9f, 0.6f);
+                    if (t.GetComponent<Outline>() == null) { var ol = t.gameObject.AddComponent<Outline>(); ol.effectColor = new Color(0f, 0f, 0f, 0.95f); ol.effectDistance = new Vector2(2f, -2f); }
                 }
             }
             var cg = slot.GetComponent<CanvasGroup>();
             if (cg == null && !open) cg = slot.gameObject.AddComponent<CanvasGroup>();
-            if (cg != null) cg.alpha = open ? 1f : 0.55f;
+            if (cg != null) cg.alpha = open ? 1f : 0.8f;
         }
+        // 見えている枠を中央へ(元の間隔のまま)
+        if (visible.Count > 0 && visible.Count < cardSlotRects.Length && cardSlotRects.Length >= 2)
+        {
+            float stride = slotHome[1].x - slotHome[0].x;
+            float start = -stride * (visible.Count - 1) * 0.5f;
+            for (int k = 0; k < visible.Count; k++) cardSlotRects[visible[k]].anchoredPosition = new Vector2(start + k * stride, slotHome[visible[k]].y);
+        }
+        else for (int i = 0; i < cardSlotRects.Length; i++) if (cardSlotRects[i] != null) cardSlotRects[i].anchoredPosition = slotHome[i];
     }
-
-    static int MetCount() { int n = 0; foreach (var s in ProgressStats.Sisters) if (ProgressStats.HasMet(s)) n++; return n; }
 
     void RefreshGlow()
     {
         for (int i = 0; i < cardGlowImages.Length; i++)
         {
-            if (cardGlowImages[i] != null) cardGlowImages[i].gameObject.SetActive(i == selectedIndex);
+            if (cardGlowImages[i] != null) cardGlowImages[i].gameObject.SetActive(i == selectedIndex && (i >= cardSlotRects.Length || cardSlotRects[i] == null || cardSlotRects[i].gameObject.activeSelf));
         }
     }
 

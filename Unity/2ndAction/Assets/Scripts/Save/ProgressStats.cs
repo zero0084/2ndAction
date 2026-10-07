@@ -77,7 +77,7 @@ public static class ProgressStats
             lastFlushed = lifetime;
             dirty = false;
         }
-        EvaluateFinalDungeon(false);
+        UnlockRules.EvaluateLastDungeon(); // 2026-10-07: 通常3マップすべてで死神に遭遇 + 累計1,000,000m
         if (save) SaveStore.Save();
     }
 
@@ -96,19 +96,10 @@ public static class ProgressStats
     }
 
     public static bool FinalDungeonUnlocked => SaveStore.GetInt(SaveKeys.FinalDungeonUnlocked, 0) != 0;
+    public static void SetFinalDungeonUnlocked() { if (DebugRun.BlocksSave("FinalDungeonUnlocked")) return; SaveStore.SetInt(SaveKeys.FinalDungeonUnlocked, 1); SaveStore.Save(); }
 
-    // 解放の判定(一度解放したら戻さない)。true=今回解放した
-    public static bool EvaluateFinalDungeon(bool save)
-    {
-        if (DebugRun.BlocksSave("FinalDungeonUnlocked")) return false;
-        if (FinalDungeonUnlocked) return false;
-        Load();
-        if (lifetime < UnlockDistance || !MetAllSisters) return false;
-        SaveStore.SetInt(SaveKeys.FinalDungeonUnlocked, 1);
-        if (save) SaveStore.Save();
-        Debug.Log($"[Progress] FINAL DUNGEON UNLOCKED (lifetime {lifetime:F0}m, all sisters met)");
-        return true;
-    }
+    // 解放の判定(一度解放したら戻さない)。2026-10-07: 条件は UnlockRules(通常3マップすべてで死神に遭遇 + 累計1,000,000m)
+    public static bool EvaluateFinalDungeon(bool save) => UnlockRules.EvaluateLastDungeon();
 
     // ステージ選択でラスダンを出してよいか
     public static bool FinalDungeonAvailable

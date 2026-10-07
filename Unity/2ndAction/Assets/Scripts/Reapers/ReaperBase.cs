@@ -90,6 +90,7 @@ public abstract class ReaperBase : MonoBehaviour
         Active = r;
         // 進行(2026-10-01): 死神三姉妹と「遭遇」した記録(倒したかどうかは問わない。この後死んでも残る)
         ProgressStats.MarkReaperMet(name == "ReaperSecond" ? ReaperSister.Second : name == "ReaperYoungest" ? ReaperSister.Youngest : ReaperSister.Eldest);
+        UnlockRules.OnReaperMet(stageId); // 2026-10-07: マップ別の遭遇(ラスダンの解放条件)
         // マルチ: HOSTでは共有ボスとして登録(JOINのパペットはNetCombat側でこのAIを止める)。
         NetCombat.OnBossInit(r);
         return r;

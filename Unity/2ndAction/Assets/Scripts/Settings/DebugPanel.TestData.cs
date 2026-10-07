@@ -67,6 +67,13 @@ public partial class DebugPanel
             if (UiKit.Button(new Rect(x + bw + 8f, y, bw, bh), "やめる", 17f, false, false)) confirmTest = 0;
             y += bh + 8f;
         }
+        // 開発用: 全マップ/全キャラを選べる(正式な解放状態は変えない。テスト用データでは既定OFF)
+        bool ua = UnlockRules.DevUnlockAll;
+        if (UiKit.Button(new Rect(x, y, full, 36f), $"開発用 全マップ/全キャラ選択: {(ua ? "ON" : "OFF")}(解放の記録は変えない)", 14f, ua, false)) UnlockRules.DevUnlockAll = !ua;
+        y += 42f;
+        GUI.Label(new Rect(x, y, full, 20f), $"解放: マップ {string.Join(",", System.Array.FindAll(UnlockRules.NormalMaps, m => UnlockRules.OfficialStageUnlocked(m)))}{(UnlockRules.OfficialStageUnlocked(UnlockRules.Arena) ? ",arena" : "")} / 死神 {UnlockRules.ReaperMapsMet}/3 / 累計 {ProgressStats.LifetimeDistance:N0}m",
+            UiKit.Label(12f, TextAnchor.MiddleLeft, false, new Color(0.8f, 0.85f, 0.95f)));
+        y += 24f;
         if (!string.IsNullOrEmpty(testNote)) GUI.Label(new Rect(x, y, full, 22f), testNote, UiKit.Label(13f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f)));
     }
 

@@ -6,6 +6,8 @@ public partial class GameManager
     // ホームの上に出る確認/結果(ガチャの結果・NEW RUN の確認・停止メニュー)
     public bool HomeModalOpen => gachaResultOpen || showNewRunConfirm || showPauseMenu;
 
+    public void SaveDeckNow() => SaveDeck();
+
     // 練習のカード: このランの中だけ効く(所持/デッキには書かない。通常のレベルアップの取得と同じ能力ごとの上限)
     public void TutorialApplyCard(string cardId)
     {

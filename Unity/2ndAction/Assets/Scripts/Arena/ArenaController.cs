@@ -346,7 +346,8 @@ public class ArenaController : MonoBehaviour
     void DrawCharTab(Rect c)
     {
         var cfg = ArenaMode.Config;
-        var chars = CharacterDatabase.AllCharacters;
+        var chars = new System.Collections.Generic.List<CharacterDefinition>();
+        foreach (var cd in CharacterDatabase.AllCharacters) if (UnlockRules.IsCharacterVisible(cd.characterId)) chars.Add(cd); // 竜人は解放前は出さない(2026-10-07)
         float gw = c.width * 0.56f;
         int cols = 4; float cw = (gw - 20f - (cols - 1) * 8f) / cols, ch = 112f;
         var listR = new Rect(c.x, c.y, gw, c.height);
@@ -375,7 +376,7 @@ public class ArenaController : MonoBehaviour
         var desc = UiKit.Label(14f, TextAnchor.UpperLeft, false, Soft); desc.wordWrap = true;
         GUI.Label(new Rect(rx, y, rw, c.yMax - y), sd.flavorText ?? "", desc);
     }
-    static bool CharacterOwned(CharacterDefinition d) => d != null; // キャラは全員プレイアブル(所持/解放の概念が無い)。将来キャラの解放が入ったらここで「試用」
+    static bool CharacterOwned(CharacterDefinition d) => d != null && UnlockRules.IsCharacterUnlocked(d.characterId); // 2026-10-07: 未解放のキャラは闘技場では「試用」
 
     // ---- カード(画像/名前/効果/試用Lv。検索と絞り込み。デッキ/キャラカードのコピー)
     static readonly string[] CardFilters = { "すべて", "移動", "攻撃", "防御", "成長", "回復", "特殊", "リスク" };

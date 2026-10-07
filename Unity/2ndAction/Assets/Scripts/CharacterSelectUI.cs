@@ -174,8 +174,9 @@ public class CharacterSelectUI : MonoBehaviour
         var all = CharacterDatabase.AllCharacters;
         string current = !string.IsNullOrEmpty(openAtId) ? openAtId : GameManager.Instance != null ? GameManager.Instance.SelectedCharacterId : null;
         openAtId = null;
+        ApplyUnlockState();
         selectedIndex = 0;
-        for (int i = 0; i < all.Count; i++)
+        for (int i = 0; i < VisibleCount; i++)
         {
             if (all[i].characterId == current) { selectedIndex = i; break; }
         }
@@ -248,6 +249,13 @@ public class CharacterSelectUI : MonoBehaviour
     {
         var all = CharacterDatabase.AllCharacters;
         if (selectedIndex < 0 || selectedIndex >= all.Count) return;
+        if (!UnlockRules.IsCharacterUnlocked(all[selectedIndex].characterId))
+        {
+            // 未解放: 選べない(条件は右の説明に出ている)
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiDeny);
+            lockDenyFlash = 0.5f;
+            return;
+        }
         // Active Run / Checkpointには一切触れない(GameManager.
         // SetSelectedCharacterのコメント参照) - 「選択キャラクター=次回
         // NEW RUNで使用するキャラクター」という仕様どおり。
@@ -277,8 +285,9 @@ public class CharacterSelectUI : MonoBehaviour
 
         if (titleText != null) titleText.text = def.displayName;
         RefreshCharCards(def);
-        if (subtitleText != null) subtitleText.text = def.subtitle;
-        if (flavorText != null) flavorText.text = def.flavorText;
+        bool unlocked = UnlockRules.IsCharacterUnlocked(def.characterId);
+        if (subtitleText != null) subtitleText.text = unlocked ? def.subtitle : "LOCKED";
+        if (flavorText != null) flavorText.text = unlocked ? def.flavorText : "解放の条件: " + UnlockRules.CharConditionText(def.characterId);
         if (roleBadgeText != null) roleBadgeText.text = def.role;
         if (roleBadgeBg != null) roleBadgeBg.color = def.challengeFlag ? RoleBadgeChallengeColor : RoleBadgeNormalColor;
         if (challengeBadge != null) challengeBadge.SetActive(def.challengeFlag);
@@ -356,7 +365,7 @@ public class CharacterSelectUI : MonoBehaviour
         }
         if (carouselArrowRight != null && carouselArrowRight.gameObject.activeSelf && UiHit.Hit(carouselArrowRight, screenPos))
         {
-            BeginSnap(Mathf.Min(CharacterDatabase.AllCharacters.Count - 1, selectedIndex + 1));
+            BeginSnap(Mathf.Min(VisibleCount - 1, selectedIndex + 1));
             return;
         }
         for (int i = 0; i < cardSlotRects.Length; i++)
@@ -457,7 +466,7 @@ public class CharacterSelectUI : MonoBehaviour
     // 左右にまだカードがある(=カード列がViewportの外へ続いている)側だけ矢印を出し、軽く明滅させる。
     void UpdateCarouselHints()
     {
-        int count = CharacterDatabase.AllCharacters.Count;
+        int count = VisibleCount;
         float x = carouselContent != null ? carouselContent.anchoredPosition.x : 0f;
         float minX = carouselContent != null ? Mathf.Min(0f, -(carouselContent.rect.width - carouselViewportWidth)) : 0f;
         float pulse = 0.65f + 0.35f * Mathf.Sin(Time.unscaledTime * 4f);
@@ -515,12 +524,12 @@ public class CharacterSelectUI : MonoBehaviour
         float minX = Mathf.Min(0f, -(carouselContent.rect.width - carouselViewportWidth));
         const float edgeEpsilon = 1f;
         if (currentX >= -edgeEpsilon) return 0;
-        if (currentX <= minX + edgeEpsilon) return all.Count - 1;
+        if (currentX <= minX + edgeEpsilon) return VisibleCount - 1;
 
         float viewportCenterX = carouselViewportWidth * 0.5f;
         int nearest = 0;
         float bestDist = float.MaxValue;
-        for (int i = 0; i < all.Count && i < cardSlotRects.Length; i++)
+        for (int i = 0; i < VisibleCount && i < cardSlotRects.Length; i++)
         {
             if (cardSlotRects[i] == null) continue;
             float cardCenterX = currentX + cardSlotRects[i].anchoredPosition.x + cardWidth * 0.5f;
@@ -580,5 +589,59 @@ public class CharacterSelectUI : MonoBehaviour
                 cardGlowImages[i].color = c;
             }
         }
+    }
+
+    // ===== 解放条件(2026-10-07) =====
+    // 未解放のキャラは暗くして「LOCKED」と条件を出し、選べない。竜人は解放前は一覧に出さない(末尾の枠を消してカード列を縮める)。
+    int visibleCount = -1;
+    float contentFullWidth = -1f;
+    float lockDenyFlash;
+    readonly System.Collections.Generic.Dictionary<int, Text> lockLabels = new System.Collections.Generic.Dictionary<int, Text>();
+    public int VisibleCount => visibleCount > 0 ? visibleCount : CharacterDatabase.AllCharacters.Count;
+
+    void ApplyUnlockState()
+    {
+        var all = CharacterDatabase.AllCharacters;
+        int visible = all.Count;
+        // 末尾の隠しキャラ(竜人)だけを数えない
+        while (visible > 0 && !UnlockRules.IsCharacterVisible(all[visible - 1].characterId)) visible--;
+        visibleCount = visible;
+        if (carouselContent != null)
+        {
+            if (contentFullWidth < 0f) contentFullWidth = carouselContent.sizeDelta.x;
+            int hidden = all.Count - visible;
+            carouselContent.sizeDelta = new Vector2(contentFullWidth - hidden * cardStride, carouselContent.sizeDelta.y);
+        }
+        for (int i = 0; i < all.Count && i < cardSlotRects.Length; i++)
+        {
+            var slot = cardSlotRects[i];
+            if (slot == null) continue;
+            bool show = i < visible;
+            slot.gameObject.SetActive(show);
+            if (i < cardGlowImages.Length && cardGlowImages[i] != null && !show) cardGlowImages[i].gameObject.SetActive(false);
+            if (!show) continue;
+            bool unlocked = UnlockRules.IsCharacterUnlocked(all[i].characterId);
+            var cg = slot.GetComponent<CanvasGroup>();
+            if (cg == null && !unlocked) cg = slot.gameObject.AddComponent<CanvasGroup>();
+            if (cg != null) cg.alpha = unlocked ? 1f : 0.5f;
+            if (!lockLabels.TryGetValue(i, out var label) || label == null)
+            {
+                if (unlocked) continue;
+                var go = new GameObject("LockLabel", typeof(RectTransform));
+                go.transform.SetParent(slot, false);
+                var rt = (RectTransform)go.transform;
+                rt.anchorMin = new Vector2(0f, 0.35f); rt.anchorMax = new Vector2(1f, 0.65f); rt.offsetMin = rt.offsetMax = Vector2.zero;
+                label = go.AddComponent<Text>();
+                label.font = flavorText != null ? flavorText.font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                label.alignment = TextAnchor.MiddleCenter;
+                label.fontSize = 30; label.fontStyle = FontStyle.Bold;
+                label.color = new Color(1f, 0.85f, 0.5f);
+                label.text = "LOCKED";
+                var ol = go.AddComponent<Outline>(); ol.effectColor = new Color(0f, 0f, 0f, 0.9f); ol.effectDistance = new Vector2(2f, -2f);
+                lockLabels[i] = label;
+            }
+            label.gameObject.SetActive(!unlocked);
+        }
+        if (selectedIndex >= visible) selectedIndex = Mathf.Max(0, visible - 1);
     }
 }

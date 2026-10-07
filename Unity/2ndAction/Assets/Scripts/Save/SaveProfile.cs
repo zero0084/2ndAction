@@ -36,7 +36,7 @@ public static class SaveProfile
     // 開発用の値のうち、進行に効くのでテスト用データでは別に持つ(既定0 = 新規ユーザーと同じ)
     static readonly HashSet<string> profileDevKeys = new HashSet<string>
     {
-        GachaStage.DevAllCardsOpenKey, SaveKeys.DevFinalDungeonAlwaysOpen, SaveKeys.DevSprintUnlockAll,
+        GachaStage.DevAllCardsOpenKey, SaveKeys.DevFinalDungeonAlwaysOpen, SaveKeys.DevSprintUnlockAll, UnlockRules.DevUnlockAllKey,
     };
 
     public static bool SharedKey(string key)
@@ -123,6 +123,7 @@ public static class SaveProfile
         Platform.Save.Save();
         active = test ? 1 : 0;
         testKeys = null;
+        NoticeQueue.ClearAll(); // 前のデータのお知らせを持ち越さない
         SaveSystem.Boot(SaveSystem.BuildReleaseGeneration); // 新しいデータの起動時処理(テスト用が空なら新規ユーザーの初期状態を作る)+ static の読み直し
         Debug.Log($"[SaveProfile] switched to {(test ? "TEST" : "NORMAL")} data{(fresh ? " (fresh)" : "")}");
     }

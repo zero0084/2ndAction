@@ -72,7 +72,7 @@ public partial class DebugPanel : MonoBehaviour
         float w = Screen.width / s, h = Screen.height / s;
         float k = Mathf.SmoothStep(0f, 1f, t / 0.15f);
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.05f, 0.02f, 0.02f, 0.5f * k));
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 740f : page == 4 || page == 5 || page == 6 || page == 7 || page == 8 ? 600f : 470f, h - 24f);
+        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 740f : page == 4 || page == 5 || page == 6 || page == 7 || page == 8 || page == 11 ? 600f : 470f, h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f + (1f - k) * 12f, pw, ph);
         Color keepColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, k);

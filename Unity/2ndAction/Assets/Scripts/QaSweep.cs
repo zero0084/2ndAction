@@ -82,6 +82,8 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaHitStall") { mode = "hitstall"; dir = a[i + 1]; }
             if (a[i] == "-qaTutorial") { mode = "tutorial"; dir = a[i + 1]; }
             if (a[i] == "-qaGacha") { mode = "gacha"; dir = a[i + 1]; }
+            if (a[i] == "-qaDeck") { mode = "deck"; dir = a[i + 1]; }
+            if (a[i] == "-qaUnlock") { mode = "unlock"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -120,6 +122,8 @@ public partial class QaSweep : MonoBehaviour
         {
             if (type == LogType.Exception) { anyException = true; excCount++; if (exceptions.Count < 30) exceptions.Add(c + " | " + tr.Split('\n')[0]); }
         };
+        // ホームのお知らせ(解放/デッキ12枚 等)は、それを確かめるテスト以外では自動で閉じる(テスト機の古いデータで毎回出るため)
+        NoticeQueue.QaAutoAcknowledge = !(mode == "deck" || mode == "unlock" || mode == "tutorial" || mode == "gacha");
         yield return new WaitForSecondsRealtime(2f);
         StartCoroutine(AutoPickCards());
         if (mode == "visual") yield return VisualMode();
@@ -178,6 +182,8 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "hitstall") yield return HitStallMode();
         else if (mode == "tutorial") yield return TutorialModeQa();
         else if (mode == "gacha") yield return GachaModeQa();
+        else if (mode == "deck") yield return DeckModeQa();
+        else if (mode == "unlock") yield return UnlockModeQa();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

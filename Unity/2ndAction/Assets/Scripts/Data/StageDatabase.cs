@@ -34,8 +34,7 @@ public static class StageDatabase
     public static bool IsAvailable(StageDefinition def)
     {
         if (def == null || !def.unlocked) return false;
-        if (def.stageId == BossManager.LastStageId) return ProgressStats.FinalDungeonAvailable;
-        return true;
+        return UnlockRules.IsStageUnlocked(def.stageId); // 2026-10-07: 解放条件(ラスダンは FinalDungeonAvailable)
     }
 
     public static StageDefinition FindById(string stageId)
