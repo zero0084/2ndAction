@@ -120,7 +120,7 @@ public class SettingsPanel : MonoBehaviour
         GUIUtility.ScaleAroundPivot(new Vector2(scale, scale), panel.center * s);
 
         OrnateUi.DrawPanel(panel, 0.94f);
-        GUI.Label(new Rect(panel.x + 28f, panel.y + 14f, panel.width - 120f, 44f), "設定", UiKit.Label(28f, TextAnchor.MiddleLeft, true, new Color(1f, 0.86f, 0.45f)));
+        LocGUI.Label(new Rect(panel.x + 28f, panel.y + 14f, panel.width - 120f, 44f), "設定", UiKit.Label(28f, TextAnchor.MiddleLeft, true, new Color(1f, 0.86f, 0.45f)));
         bool interactive = state == St.Open || state == St.Opening;
         if (UiKit.Button(new Rect(panel.xMax - 70f, panel.y + 14f, 50f, 46f), "×", 26f, false, false) && interactive) Close();
 
@@ -130,18 +130,20 @@ public class SettingsPanel : MonoBehaviour
         if (wide)
         {
             float colW = (view.width - 30f) * 0.5f;
-            contentH = Mathf.Max(MeasureAudio(), MeasureDisplay() + MeasureControls() + 16f);
+            contentH = Mathf.Max(MeasureAudio() + 16f + MeasureLanguage(), MeasureDisplay() + MeasureControls() + 16f);
             BeginScroll(view, contentH);
-            DrawAudio(0f, 0f, colW, interactive);
+            float ya = DrawAudio(0f, 0f, colW, interactive);
+            DrawLanguage(0f, ya + 16f, colW, interactive);
             float y2 = DrawDisplay(colW + 30f, 0f, colW, interactive);
             DrawControls(colW + 30f, y2 + 16f, colW, interactive);
             EndScroll(view, contentH);
         }
         else
         {
-            contentH = MeasureAudio() + MeasureDisplay() + MeasureControls() + 32f;
+            contentH = MeasureAudio() + MeasureLanguage() + MeasureDisplay() + MeasureControls() + 48f;
             BeginScroll(view, contentH);
             float y = DrawAudio(0f, 0f, view.width, interactive);
+            y = DrawLanguage(0f, y + 16f, view.width, interactive);
             y = DrawDisplay(0f, y + 16f, view.width, interactive);
             DrawControls(0f, y + 16f, view.width, interactive);
             EndScroll(view, contentH);
@@ -198,12 +200,12 @@ public class SettingsPanel : MonoBehaviour
 
     float Head(float x, float y, float w, string text)
     {
-        GUI.Label(new Rect(x, y, w, HeadH), text, UiKit.Label(22f, TextAnchor.MiddleLeft, true, new Color(1f, 0.82f, 0.4f)));
+        LocGUI.Label(new Rect(x, y, w, HeadH), text, UiKit.Label(22f, TextAnchor.MiddleLeft, true, new Color(1f, 0.82f, 0.4f)));
         UiKit.Fill(new Rect(x, y + HeadH - 4f, w, 2f), new Color(1f, 0.8f, 0.4f, 0.45f));
         return y + HeadH + 4f;
     }
 
-    void RowLabel(float x, float y, string text) => GUI.Label(new Rect(x, y, LabelW, RowH), text, UiKit.Label(20f));
+    void RowLabel(float x, float y, string text) => LocGUI.Label(new Rect(x, y, LabelW, RowH), text, UiKit.Label(20f));
 
     float SliderRow(float x, float y, float w, string text, float value, string valueText, bool enabled, bool interactive, System.Action<float, bool> set)
     {
@@ -211,7 +213,7 @@ public class SettingsPanel : MonoBehaviour
         var r = new Rect(x + LabelW, y + 6f, w - LabelW - ValueW - 8f, RowH - 12f);
         float v = UiKit.Slider(r, value, enabled && interactive, out bool released);
         if (interactive && enabled && (Mathf.Abs(v - value) > 1e-5f || released)) set(v, released);
-        GUI.Label(new Rect(x + w - ValueW, y, ValueW, RowH), valueText, UiKit.Label(19f, TextAnchor.MiddleRight, false, enabled ? Color.white : new Color(0.6f, 0.6f, 0.65f)));
+        LocGUI.Label(new Rect(x + w - ValueW, y, ValueW, RowH), valueText, UiKit.Label(19f, TextAnchor.MiddleRight, false, enabled ? Color.white : new Color(0.6f, 0.6f, 0.65f)));
         return y + RowH;
     }
 
@@ -225,7 +227,7 @@ public class SettingsPanel : MonoBehaviour
 
     float Note(float x, float y, float w, string text)
     {
-        GUI.Label(new Rect(x, y - 4f, w, 26f), text, UiKit.Label(15f, TextAnchor.UpperLeft, false, new Color(0.75f, 0.8f, 0.9f)));
+        LocGUI.Label(new Rect(x, y - 4f, w, 26f), text, UiKit.Label(15f, TextAnchor.UpperLeft, false, new Color(0.75f, 0.8f, 0.9f)));
         return y + 22f;
     }
 
@@ -251,6 +253,25 @@ public class SettingsPanel : MonoBehaviour
     {
         var am = AudioManager.Instance;
         if (am != null) am.PlaySe(SeId.Hit); // 離した時に今の音量で1回鳴らす(2026-10-06: ゲーム中の基準の音=通常ヒット)
+    }
+
+    // ---------------------------------------------------------------- 言語(2026-10-07)
+    // 言語の名前はその言語自身の名前で。選ぶとすぐ切り替わる(再起動なし)。端末の言語に合わせている間は「(端末)」と出す
+    const int LangCols = 3; const float LangRowH = 44f;
+    float MeasureLanguage() => HeadH + 4f + Mathf.Ceil(Loc.Languages.Length / (float)LangCols) * LangRowH + 26f;
+    float DrawLanguage(float x, float y, float w, bool interactive)
+    {
+        y = Head(x, y, w, Loc.IsJapanese ? "言語 / Language" : Loc.T("言語") + " / Language");
+        float cw = (w - (LangCols - 1) * 6f) / LangCols;
+        for (int i = 0; i < Loc.Languages.Length; i++)
+        {
+            var l = Loc.Languages[i];
+            var r = new Rect(x + (i % LangCols) * (cw + 6f), y + (i / LangCols) * LangRowH, cw, LangRowH - 6f);
+            bool sel = Loc.Current == l.code;
+            if (UiKit.Button(r, Loc.NativeName(l), 16f, sel, false) && interactive && !sel) { Loc.Set(l.code); if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiToggle); }
+        }
+        y += Mathf.Ceil(Loc.Languages.Length / (float)LangCols) * LangRowH;
+        return Note(x, y, w, Loc.UserChose ? Loc.T("選んだ言語で表示します") : Loc.T("端末の言語に合わせています"));
     }
 
     // ---------------------------------------------------------------- 表示

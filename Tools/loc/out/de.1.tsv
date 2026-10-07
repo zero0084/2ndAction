@@ -1,0 +1,531 @@
+0	ABSOLUTER NULLPUNKT
+1	Eingefrorene Schergen zerspringen und nehmen Schaden; Angriff gegen unterkühlte/eingefrorene Gegner steigt (+3% pro Lv). Bei Bossen wird stattdessen die Verlangsamung stärker
+2	ADRENALIN
+3	Bei HP 50% oder weniger steigt das Angriffstempo (+3% pro Lv), bei HP 25% oder weniger doppelt so stark
+4	LUFTKLINGE
+5	Treffer in der Luft lösen einen Nachschlag aus (Stärke und Reichweite steigen mit Lv)
+6	LUFTANGRIFF +
+7	Angriff in der Luft steigt (+7% pro Lv)
+8	LUFTHERRSCHAFT
+9	Luftangriff steigt (+3% pro Lv) und noch mehr, je länger du ohne Landung triffst (+1%/Lv pro Treffer, bis zu 4)
+10	LUFTSCHLAG
+11	Angriff gegen Gegner in der Luft (hochgeschlagene/fliegende/Luftbosse) steigt (+8% pro Lv)
+12	REICHWEITE +
+13	Effektive Angriffsreichweite steigt (+3% pro Lv). Nahkampf: Trefferzone; Fernkampf: Flugweite (Geschosse werden nicht größer)
+14	ANGRIFFSTEMPO +
+15	Angriffstempo steigt (+3% pro Lv)
+16	ANGRIFF +
+17	Angriff steigt (+5% pro Lv)
+18	BERSERKERWUT
+19	Bei HP 50% oder weniger steigen Angriff (+5% pro Lv) und Angriffstempo (+2%), bei HP 25% oder weniger beide noch mehr
+20	BERSERKER
+21	Angriff (+6% pro Lv) und Angriffstempo (+1%) steigen. Versiegelt alle 3 Lv 1 Herz der max. HP
+22	BLUTKLINGE
+23	Angriffe verursachen Blutung (Chance und Stärke steigen mit Lv). Bei vollen HP doppelte Blutungschance. Angriff bei vollen HP steigt leicht (+2%/Lv)
+24	BLUTRAUSCH
+25	Bei HP 50% oder weniger steigt der Angriff (+4% pro Lv), bei HP 25% oder weniger auch die Absorptionschance (+3%/Lv)
+26	BOSS-HERAUSFORDERUNG
+27	Boss-HP steigen (+10% pro Lv), dafür steigt die Boss-MILE (+40%/Lv)
+28	BOSSKILLER
+29	Angriff gegen Bosse steigt (+8% pro Lv)
+30	BOSS-ANSTURM
+31	An Boss-Toren erscheint mit einer Chance (+8% pro Lv) ein weiterer Boss. Boss-MILE steigt (+50%/Lv)
+32	BREMSANGRIFF
+33	Angriff steigt (+7% pro Lv). Direkt nach dem Hauptangriff wirst du kurz langsamer
+34	BRENNENDE SEELE
+35	Verbrennung wird stärker (+8% pro Lv) und länger (+0.25 Sek./Lv). Verursacht auch selbst ein wenig Verbrennung
+36	KETTENEXPLOSION
+37	Besiegte Gegner explodieren. Durch die Explosion besiegte Gegner explodieren ebenfalls (bis zu 3-mal, pro Kette 1-mal pro Gegner)
+38	KETTENBLITZ
+39	Blitzschläge springen auf einen anderen Gegner in der Nähe über (alle 3 Lv +1 Ziel, Reichweite steigt mit Lv). Löst auch selbst ein paar Blitzschläge aus
+40	Aktiviert sich bei 100% Leiste (Knopf unten links). Spezialangriff des Charakters: trifft Gegner auf dem Bildschirm und stürmt weit vor (Lv1 ca. 100m → Lv9 ca. 200m), danach hält eine Verstärkung an (Lv1 5 Sek. → Lv9 12 Sek.). Die Leiste füllt sich durch Distanz, Siege und Schaden an Bossen
+41	KNAPP DAVON
+42	Bewegungstempo (+2% pro Lv) und Unverwundbarkeit nach einem Treffer (+0.05 Sek. pro Lv) steigen
+43	COMBO-KLINGE
+44	Je länger die Trefferserie (HIT) anhält, desto stärker der Angriff (+0.4%/Lv pro Treffer, bis 10 Treffer)
+45	COMBO-MEISTER
+46	Der Abschlusshieb setzt eine spezielle Schockwelle nach vorn frei (Stärke und Reichweite steigen mit Lv)
+47	COMBO +
+48	Der letzte Schlag einer Angriffsfolge (Abschlusshieb) wird stärker (+7% pro Lv)
+49	COMBO-ANSTURM
+50	Die mittleren Schläge einer Angriffsfolge werden stärker (+6% pro Lv), das Tempo des Hauptangriffs steigt leicht (+2%/Lv)
+51	KONTER
+52	Blockst du mit einem Schild, folgt ein Konter-Stoß rundum (Stärke steigt mit Lv). Gibt 1 Schild, auch ohne die Karte SCHILD
+53	TODESPAKT
+54	Angriff steigt sehr stark (+12% pro Lv). Versiegelt alle 2 Lv 1 Herz der max. HP
+55	DOPPELANGRIFF
+56	Beim Angreifen mit einer Chance (+3% pro Lv) ein zusätzlicher Schlag. Der Zusatzschlag löst keinen weiteren aus
+57	ELITEGEGNER
+58	Manche Schergen werden zu Elite (+4% pro Lv. HP ×2.5, etwas schneller; besiegt: MILE ×3 / EXP ×2). MILE steigt ebenfalls (+30%/Lv)
+59	HENKER
+60	MILE für besiegte Gegner steigt (+15% pro Lv)
+61	EXP-WANDLER
+62	EXP sinkt (-10% pro Lv, min. 25%), dafür steigt die MILE für besiegte Gegner (+30%/Lv)
+63	EXP +
+64	Erhaltene EXP steigt (+20% pro Lv)
+65	EXP-EXPLOSION
+66	EXP von Gegnern/Bossen/BONUS ZONE steigt stark (+80% pro Lv)
+67	SCHNELLE GEGNER
+68	Bewegung, Verfolgung und Angriffe der Schergen werden schneller (+4% pro Lv), dafür steigen MILE (+15%/Lv) und EXP für Siege (+5%/Lv)
+69	ERSTSCHLAG
+70	Der 1. Schlag einer Angriffsfolge (Erstschlag) wird stärker (+10% pro Lv)
+71	FLAMMENKLINGE
+72	Einstieg Feuer. Treffer setzen Gegner in Brand (Chance 15%+5%/Lv, 5+1.5/Lv Schaden pro Sekunde, 3 Sek.)
+73	FLAMMENKONTER
+74	Blockst du mit einem Schild, folgt ein Feuerkonter rundum (Stärke steigt mit Lv), getroffene Gegner brennen. Gibt 1 Schild, auch ohne die Karte SCHILD
+75	FESTUNG
+76	Max. HP steigen (+1 Herz pro Lv), Rückstoß bei Treffern sinkt (+5%/Lv), aber das Bewegungstempo sinkt (-3% pro Lv)
+77	FROSTKLINGE
+78	Einstieg Eis. Treffer unterkühlen Gegner (Chance 15%+5%/Lv, 25%+2%/Lv langsamer). Gestapelte Kälte friert ein (Bosse stoppen nicht, werden aber stark verlangsamt)
+79	STURMWIND
+80	Windklingen werden schneller (+5% pro Lv), fliegen weiter (+0.4m/Lv) und durchbohren mehr Gegner (alle 3 Lv +1). Auch Geschosse durchbohren mehr
+81	RIESENTÖTER
+82	Angriff steigt stark (+9% pro Lv), aber das Angriffstempo sinkt (-3% pro Lv)
+83	GLASKANONE
+84	Angriff steigt stark (+9% pro Lv). Versiegelt alle 2 Lv 1 Herz der max. HP
+85	GIER
+86	Bewegungstempo steigt (+4% pro Lv), aber es erscheinen mehr Gegner (+8%/Lv)
+87	BODENBRECHER
+88	Landung nach dem Sturzangriff und Abschlusshieb am Boden erzeugen eine Schockwelle über den Boden (Stärke und Länge steigen mit Lv). Bodenangriff steigt leicht (+2%/Lv)
+89	BODENKÄMPFER
+90	Angriff am Boden steigt (+7% pro Lv)
+91	GROUND ZERO
+92	Angriff am Boden steigt stark (+11% pro Lv), in der Luft sinkt er (-5% pro Lv)
+93	HERZBRECHER
+94	Angriff steigt (+4% pro Lv), dazu +0.6%/Lv pro versiegeltem Herz. Versiegelt alle 3 Lv 1 Herz der max. HP
+95	HERZ +
+96	Max. HP steigen (+1 Herz pro Lv, max. 20 Herzen) und HP werden geheilt
+97	SCHWERE RÜSTUNG
+98	Starke Treffer (2 Herzen oder mehr) richten 1 Herz weniger an. Max. HP steigen ebenfalls (alle 2 Lv +1 Herz), aber die Sprungkraft sinkt (-3% pro Lv)
+99	SCHWERER AUFPRALL
+100	Wucht von Abwärtsangriff/Sturzangriff/Landung steigt (+10% pro Lv). Abschlusshieb steigt leicht (+3%/Lv)
+101	HÖLLENMODUS
+102	HP (+12%/Lv), Tempo (+4%/Lv) und Auftreten (+8%/Lv) der Schergen steigen, dafür steigen MILE (+50%/Lv) und Boss-MILE (+30%/Lv) stark
+103	HOCHSPANNUNG
+104	Blitz wird stärker (+5% pro Lv). Blitzschläge lähmen Schergen kurz. Blitzschlag-Chance steigt leicht (+1%/Lv)
+105	HORDE
+106	Es erscheinen viel mehr Gegner (+15% pro Lv), dafür steigen MILE (+5%/Lv) und EXP für Siege (+5%/Lv)
+107	JÄGER
+108	Mehr Beweglichkeit im Bosskampf. Vor-/Rückschritt bei Angriffen wird länger (+4% pro Lv), du näherst dich fernen Bossen schneller (+3%/Lv)
+109	EISKERKER
+110	Einfrieren fällt leichter (nötige Kältestapel alle 3 Lv -1). Kälte-Chance und -Dauer steigen
+111	INFERNO
+112	Besiegst du einen brennenden Gegner, breitet sich Feuer aus und setzt Gegner in Brand (Stärke und Reichweite steigen mit Lv). Verursacht auch selbst ein wenig Verbrennung
+113	EISERNER WILLE
+114	Bei vollen HP steigt der Angriff (+5% pro Lv). Max. HP steigen ebenfalls (alle 3 Lv +1 Herz)
+115	SPRUNGANZAHL +
+116	Mehr Luftsprünge (+1 pro Lv). Jeder weitere Sprung ist etwas schwächer, aber nicht nach einem Sturz in ein Loch. Zauberin: alle 3 Lv +1 Höhenstufe
+117	SPRUNGKRAFT +
+118	Sprungkraft steigt (+3% pro Lv). Zauberin: Höhenwechsel wird schneller
+119	Fallen deine HP auf 1 Herz, wirst du kurz unverwundbar (1 Sek. + 0.15 Sek. pro Lv). Erst wieder aktiv, nachdem die HP geheilt wurden und etwas Zeit vergangen ist
+120	LETZTES GEFECHT
+121	Bei HP 50% oder weniger steigt der Angriff (+4% pro Lv), bei HP 25% oder weniger noch mehr (+4%/Lv)
+122	LEVEL-DURCHBRUCH
+123	Erhaltene EXP steigt stark (+30% pro Lv)
+124	LANGE KLINGE
+125	Effektive Angriffsreichweite steigt stark (+5% pro Lv)
+126	LANGSTRECKE
+127	EXP (+15% pro Lv) und max. HP (alle 3 Lv +1 Herz) steigen
+128	SCHERGENTÖTER
+129	Angriff gegen Nicht-Bosse (+5% pro Lv) und MILE für Siege (+10% pro Lv) steigen
+130	SCHWUNG
+131	Dein aktuelles Tempo wird zu Angriff. Steigt ab über 100km/h, Maximum bei 150km/h (+4% pro Lv). Darüber nur noch schwacher Zuwachs
+132	MONSTERANSTURM
+133	Es erscheinen mehr Gegner (+10% pro Lv), dafür steigt die EXP (+15%/Lv)
+134	MEHR GEGNER
+135	Es erscheinen mehr Gegner (+10% pro Lv). MILE für Siege steigt leicht (+3%/Lv)
+136	KEIN ZURÜCK
+137	Bewegungstempo steigt stark (+5% pro Lv), aber es erscheinen mehr Gegner (+10%/Lv)
+138	ONE MORE MILE
+139	MILE (+50% pro Lv), Boss-MILE (+50%) und EXP (+20%) steigen
+140	Hältst du 115km/h oder mehr, aktiviert sich OVERDRIVE (Angriff +3% pro Lv, Angriffstempo +2%). Endet, wenn du langsamer wirst. Bewegungstempo steigt leicht (+2% pro Lv)
+141	ÜBERHEILUNG
+142	Heilung steigt (Lv4–6: +1, Lv7–9: +2 Herzen). Heilung bei vollen HP wird zu 1 Schild
+143	PANDÄMONIUM
+144	HP/Tempo/Auftreten/Elite der Schergen und Boss-HP steigen alle, dafür steigen MILE (+60%/Lv) und Boss-MILE (+60%/Lv) sehr stark
+145	PFADFINDER
+146	EXP für gelaufene Distanz steigt (+20% pro Lv)
+147	PERFEKTE ABWEHR
+148	Beim Verbrauch eines Schilds wirst du kurz unverwundbar (0.4 Sek. + 0.1 Sek. pro Lv). Gibt 1 Schild, auch ohne die Karte SCHILD
+149	Einmalige Wiederbelebung beim Fallen (HP je nach Lv 1–5 Herzen). Danach wird die Karte entfernt und kann wieder angeboten werden (neu ab Lv1)
+150	DURCHBOHRENDE KLINGE
+151	Angriffe durchbohren Gegner. Nahkampf: trifft Gegner hinter dem Ziel (Anzahl und Stärke steigen mit Lv); Fernkampf: Durchschläge (alle 3 Lv +1)
+152	RAUBTIER
+153	Absorptionschance steigt (+3% pro Lv). Auch Angriffe auf Bosse können manchmal absorbieren
+154	SCHNELLE KLINGE
+155	Tempo des Hauptangriffs (vorn/hinten) steigt (+5% pro Lv). Gilt nicht für oben/unten/Sturzangriff/Spezialangriffe
+156	RÜCKWÄRTSGANG
+157	Angriff steigt (+8% pro Lv), aber das Bewegungstempo sinkt (-3% pro Lv)
+158	Fallen die HP auf 30% oder weniger, heilst du etwas HP (1–3 Herzen). Danach Abklingzeit über Distanz (10,000m, kürzer mit Lv)
+159	SCHILD
+160	Ein Schild, der 1 Treffer blockt. Maximum alle 3 Lv +1 (max. 3), verbrauchte Schilde laden sich mit der Zeit auf (schneller mit Lv)
+161	SCHOCKWELLE
+162	Nahkampftreffer erzeugen eine kurze Schockwelle nach vorn, Geschosse eine Schockwelle am Einschlag (Stärke und Reichweite steigen mit Lv)
+163	HIMMELSMEISTER
+164	Luftangriff steigt (+4% pro Lv). Treffer in der Luft geben 1 Luftsprung zurück (pro Sprung alle 3 Lv 1-mal)
+165	HIMMELSLÄUFER
+166	Sprungkraft (+2% pro Lv) und Luftangriff (+3% pro Lv) steigen
+167	HIMMELWÄRTS
+168	Angriff in der Luft steigt stark (+11% pro Lv), am Boden sinkt er (-5% pro Lv)
+169	SCHALLKLINGE
+170	Jeder Hauptangriff schleudert einen Hieb nach vorn. Je schneller du läufst, desto weiter, größer und stärker
+171	TEMPO -
+172	Bewegungstempo sinkt (-4% pro Lv). Spezialkarte, solo kaum sinnvoll
+173	TEMPO +
+174	Bewegungstempo steigt (+3% pro Lv)
+175	DER LANGE WEG
+176	EXP (+40% pro Lv) und max. HP (alle 2 Lv +1 Herz) steigen
+177	DONNERFÜRST
+178	Höhere Blitzstufe. Stärke (+4% pro Lv), Kette (alle 3 Lv +1 Ziel) und Wirkungsbereich um den Blitzschlag werden stärker
+179	DONNERSCHLAG
+180	Einstieg Blitz. Treffer lösen Blitzschläge aus (Chance 5%+2%/Lv, Stärke 7.5+1.5/Lv; pro Gegner max. 1-mal alle 0.4 Sek.)
+181	TORNADO
+182	Wo eine Windklinge trifft, entsteht ein kleiner Tornado, der Gegner in der Nähe erfasst (Stärke und Reichweite steigen mit Lv). Feuert auch selbst ein paar Windklingen
+183	ZÄHE GEGNER
+184	HP der Schergen steigen (+15% pro Lv), dafür steigen MILE (+15%/Lv) und EXP für Siege (+5%/Lv)
+185	SCHATZJÄGER
+186	MILE aus Schätzen und Belohnungen steigt (+30% pro Lv) (BONUS ZONE: Schatzgoblin/Goldschleim/Mimic/GESCHAFFT/PERFEKT, GESUCHT-Kopfgeld). Boss- und Distanz-MILE steigen leicht
+187	ALLMACHT
+188	Allround-Karte: Angriff (+3% pro Lv), max. HP (alle 2 Lv +1 Herz) und Bewegungstempo (+2% pro Lv) steigen zusammen
+189	VAMPIR
+190	Besiegst du einen Gegner, heilst du mit einer Chance (+3% pro Lv) 1 Herz
+191	GESUCHT
+192	In festen Abständen erscheint ein Kopfgeldgegner (mit Lv stärker und häufiger). Besiegt: Kopfgeld; überholt: er entkommt. MILE steigt (+35%/Lv)
+193	WINDSCHNEIDER
+194	Einstieg Wind. Treffer feuern eine durchbohrende Windklinge nach vorn (Chance 10%+3%/Lv, Stärke 8+1.5/Lv). Angriffsreichweite steigt leicht (+1%/Lv)
+195	WALDLÄUFER
+196	Spannen, zielen, durchbohren
+197	Ein Waldläufer aus tiefen Wäldern mit einem Langbogen, größer als er selbst. Je länger er spannt, desto härter trifft er – doch aus der Nähe hat er wenig entgegenzusetzen.
+198	SCHARFSCHÜTZE
+199	DRACHENLANZER
+200	Durchbrechen, nie nachgeben
+201	Ein junger Drachenritter mit einer Lanze aus einem Drachenzahn. Er durchbricht jede Linie frontal – doch was in seine Reichweite schlüpft, kann er kaum kontern.
+202	BRECHER
+203	DRACHENBLUT
+204	Klaue, Schweif, Flügel, Flamme
+205	Eine Kriegerin mit Drachenblut. Sie braucht keine Waffe – Klauen, Schweif und Feuer fegen alles fort. Durch ihre Größe ist sie leicht zu treffen, aber schwer aufzuhalten.
+206	ROHLING
+207	ZWILLINGSKLINGE
+208	Flinker Stahl, endlose Bewegung
+209	Eine flinke Doppelklingen-Kämpferin, die Hiebe aneinanderreiht, ohne je langsamer zu werden. Tempo und Schwung sind ihre stärksten Waffen.
+210	BODEN-COMBO
+211	SCHLÄGER
+212	Fäuste, die zurückschlagen
+213	Ein Kampfkünstler, der nur mit eisernen Panzerhandschuhen kämpft. Er muss nah ran – und schlägst du zuerst zu, schlägt er härter zurück.
+214	REVOLVERHELDIN
+215	Ein Schuss, eine Distanz
+216	Zwei Pistolen, eine scharfe Feuerlinie. Sie gewinnt den Kampf, bevor er nah kommt – doch lässt sie einen Gegner durch, ist sie machtlos.
+217	FERNKAMPF
+218	ZAUBERIN
+219	Oben schweben, unten zuschlagen
+220	Eine Zauberin, die nie den Boden berührt. Sie steigt und sinkt nach Belieben und lässt Zauber auf alles darunter regnen – doch ein einziger Treffer schmerzt sehr.
+221	FLUGMAGIERIN
+222	SCHREINMAID
+223	Versiegle den Weg voraus
+224	Eine Exorzistin eines Bergschreins. Sie legt Ofuda und Barrieren vor sich aus, und der Weg selbst wendet sich gegen ihre Feinde – doch beim ersten Schlag ist sie langsam.
+225	SIEGLERIN
+226	SHINOBI
+227	Verschwinden, schneiden, verschwinden
+228	Eine Shinobi, die nie dort ist, wo du zuschlägst. Mit einem Schnitt huscht sie durch Gegner und ist fort, bevor sie fallen – doch viele Treffer verträgt sie nicht.
+229	MOBILITÄT
+230	EDLE DAME
+231	Eine noch nicht erwachte Heldin
+232	In Silber und Gold gehüllt, führt sie ein Großschwert, das Drachen fällen soll. Doch ihre Legende hat ihre Rüstung noch nicht eingeholt.
+233	EDLE RITTERIN
+234	SCHWERTKÄMPFER
+235	Der, der immer weiterläuft
+236	Ein einsamer Schwertkämpfer, der seinen eigenen Weg geht. Egal wie oft er fällt, er steht wieder auf – denn es gibt noch einen ferneren Ort zu erreichen.
+237	AUSGEWOGEN
+238	Je länger, desto stärker
+239	Ein Adliger der Nacht, der keine Klinge braucht. Jede Wunde, die er schlägt, nährt sein Blut, und ein langer Kampf macht ihn nur schneller – doch er beginnt jeden Kampf hungrig.
+240	BLUT
+241	CHARAKTERKARTEN
+242	CHARAKTERWAHL
+243	WÄHLEN
+244	LEBEN
+245	KRAFT
+246	STRECKENWAHL
+247	Los
+248	Empfohlenes Deck
+249	Alle entfernen
+250	Ja
+251	Nein
+252	LETZTER KORRIDOR
+253	Gegner: aus allen Strecken gemischt (verstärkt)
+254	Merkmale: einstürzende Böden, fallende Trümmer, schwebende Korridore
+255	Route: riesiger antiker Korridor → Einsturz → Abgrund → letzter Weg
+256	Naturhöhle
+257	Gegner: Ameise / Hüpfer / Fledermaus / Wurm
+258	Merkmale: Felsdecke, Deckenstacheln, Dunkelheit und Fackeln
+259	Route: ein einziger Weg (Gefahren am Boden, in der Luft, unter der Erde, an der Decke)
+260	Himmelskorridor
+261	Gegner: Goblins + mit der Distanz nach und nach neue
+262	Merkmale: schwebende Plattformen aus Fels und Wolken, Weg hoch oben
+263	Route: je weiter, desto gefährlicher
+264	Ödlandstraße
+265	Gegner: Goblin / Vogel
+266	Hindernisse: Steine, Sträucher, Mauern, zerstörbare Bäume, Riesenfelsen, Löcher
+267	Route: oben Leicht / unten Gefahr
+268	Du bist gefallen. Mit „Gleicher Rückkampf“ sofort neu versuchen
+269	HP vollständig geheilt
+270	Alle Gegner und gegnerischen Angriffe entfernt (zählt nicht zur Besiegt-Zeit)
+271	Schaden ausgeteilt {0}    Schaden erlitten {1}    {2} Sek.
+272	Unverwundbar
+273	≡ Einstellungen
+274	Gleicher Rückkampf
+275	Gegner entfernen
+276	Zum Hauptmenü
+277	Alle besiegt  {0} Sek.
+278	Gegner
+279	Details
+280	Ergebnis
+281	Übungsplatz zum freien Testen von Charakteren und Karten
+282	Mit diesen Einstellungen starten
+283	Start
+284	Test
+285	(Test)
+286	Suchen
+287	<color=#8ce6ff>Test</color>
+288	+ Hinzufügen
+289	Aktuelles Deck kopieren
+290	Charakterkarten kopieren
+291	Test-Build ({0} Karten)
+292	Alle entfernen
+293	Lv = wie oft in diesem Lauf genommen (max. 9 pro Fähigkeit). Besitz und Deck bleiben unverändert
+294	Füge Karten über „+ Hinzufügen“ in der Liste links hinzu. Testen geht auch ohne Karten
+295	Kopie aus Besitz (Fusions-Lv{0}, {1} Fähigkeiten)
+296	{0} Karten aus dem Deck in den Test-Build kopiert (Deck unverändert)
+297	{0} Charakterkarten kopiert (Start-Lv)
+298	Übungsziel
+299	Schergen
+300	Ödland-Bosse
+301	Höhlen-Bosse
+302	Himmels-Bosse
+303	Unbewegliches Ziel: greift nicht an (kein Kontaktschaden) und fällt nicht. Zum Testen von Angriffen. Beim Laufen hält es Abstand zu dir
+304	Anzahl
+305	Bewegungsstärke
+306	Phase
+307	Bosse erscheinen mit ihrem eigenen Auftritt von vorn
+308	Gelände-Angriffe der Höhlen-/Himmelsbosse (Löcher/Decke/Steinschlag/Himmelsbänder usw.) wirken in der flachen Arena anders
+309	Nur 1 Bossart (mit Schergen kombinierbar)
+310	Zu Gegnern hinzufügen
+311	Nur 1 Bossart (vorheriger Boss ersetzt)
+312	Aktuelle Gegner ({0})
+313	Keine Gegner (so startest du ohne Gegner und testest nur Bewegung)
+314	Gegnerstärke: wie bei {0}km (HP/Angriff wie bei dieser Distanz im Spiel)
+315	Tempo
+316	Stehen (0km/h)
+317	Laufen (Grundtempo + Boni)
+318	Laufen (festes Tempo)
+319	Nur das automatische Vorwärtslaufen stoppt (Angriffe/Sprünge/Schwerkraft/Rückstoß/Gegner wie im Spiel)
+320	Läuft mit Grundtempo × Tempo-Boni von Charakter/Karten (TEMPO + usw.)
+321	Läuft ohne Boni mit genau diesem Tempo (zum Vergleichen ohne Tempokarten)
+322	Jetzt: Basis {0}km/h → real {1}km/h (Bonus ×{2})
+323	Unverwundbar / HP
+324	Unverwundbar: {0}
+325	HP voll heilen
+326	Auch unverwundbar wird der „eigentliche Schaden“ im Ergebnis angezeigt
+327	Steuerhilfe (wie „Hilfe bei hohem Tempo“ in den Einstellungen; nur in der Arena, Einstellungen bleiben)
+328	OFF
+329	ON
+330	Immer (Dev)
+331	Ab {0}km/h aktiv
+332	In der Arena nicht verfügbar: FINAL EVOLUTION / AWAKENED / Mastery / ULTIMATE-Leiste / Level-Up / Boss-Belohnungen / BONUS ZONE (Karten: nur normale Lv-Effekte und COMBO. Belohnungen, Rekorde und Besitz bleiben unverändert)
+333	Nur Dev-Version
+334	Auch unbekannte Gegner wählbar: {0}
+335	Zufall fixieren: {0}
+336	Hilfe beim Zerstören von Hindernissen: {0}
+337	Gefallen
+338	Alle besiegt {0} Sek.
+339	Ende
+340	Im Kampf
+341	Diesmal: {0}
+342	Schaden ausgeteilt
+343	Treffer
+344	Besiegt
+345	Zeit bis zum Sieg
+346	Schaden erlitten (verlorene HP)
+347	Eigentlicher Schaden (inkl. Unverwundbarkeit/Schild)
+348	Kampfdauer
+349	{0} Sek.
+350	{0} ({1}-mal)
+351	Diesmal
+352	Letztes Mal
+353	Aktuelle Bedingungen: {0}
+354	Test-Build: {0}
+355	Letzte Bedingungen: {0}
+356	Letzter Build: {0}
+357	Einstellungen ändern
+358	？？？ (noch nicht begegnet)
+359	Unbewegliches Ziel
+360	{0} / {1} Karten / {2} / wie bei {3}km
+361	Keine Karten
+362	(Kopie aus Besitz)
+363	Arena wird vorbereitet
+364	ARENA
+365	MIMIC K.O.
+366	GOBLIN
+367	SCHLEIM
+368	FEE
+369	MIMIC
+370	MILE
+371	EXP
+372	JACKPOT!!
+373	BONUS ZONE!
+374	PERFEKT:
+375	JACKPOT GESCHAFFT!
+376	BONUS GESCHAFFT!
+377	JACKPOT  PERFEKT!
+378	PERFEKTER BONUS!
+379	JACKPOT-ERGEBNIS
+380	BONUS-ERGEBNIS
+381	GEGNER
+382	GESCHAFFT
+383	PERFEKT
+384	GESAMT
+385	ZUFALL
+386	ENDE
+387	Lauf geht weiter in {0}
+388	Aktuell
+389	{0} Treffer
+390	(fest)
+391	Eine Materialkarte wird im Deck/als Charakterkarte verwendet
+392	Bereits AWAKENED (★5), Mastery steigt nicht weiter (Karte wird nicht verbraucht. Eine Verwendung für überschüssige Karten nach ★5 folgt später)
+393	Fusion nicht möglich: Lv wäre {0} (max. Lv.{1})
+394	Fusion nicht möglich: {0} Fähigkeiten (max. {1})
+395	Fusion läuft
+396	Nicht genug Karten
+397	<color=#ffd76a><b>[MASTERY] Training ab Lv.9 MAX</b></color>
+398	Die Hauptkarte bleibt erhalten (Lv.9 MAX), nur die Materialkarte wird verbraucht.
+399	Aktuelle Mastery: <color=#ffd76a>{0}</color>  {1}
+400	Diese Fusion: <b>+{0} Mastery</b> (Material Lv.{1} = {2} Karten)
+401	Nach der Fusion: <color=#ffd76a>{0}</color>  {1}
+402	<size=19>(+{0} ★, Rest geht auf den nächsten ★ über)</size>
+403	<size=19>Überschuss von {0} nach ★5 wird aufbewahrt</size>
+404	<color=#ff9a8a><size=19>Nebenfähigkeiten des Materials ({0}) werden nicht übernommen</size></color>
+405	<size=19>Mastery erhöht keine normalen Werte (Angriff/Tempo/EXP usw.). Sie zeigt deinen Fortschritt auf dem Weg zu AWAKENED.</size>
+406	<color=#ff9a8a>Beim Ausführen wird 1 Materialkarte verbraucht.</color>
+407	<color=#ffd76a><b>[Gleiche Karte → Lv.9 MAX] Erfolgsrate 100%</b></color>
+408	Fusions-Lv: Lv.{0} + Lv.{1} → <b>Lv.9 MAX</b>
+409	Überschuss über Lv.9 (<b>{0}</b>) geht in Mastery: {1} → <color=#ffd76a>{2}</color>{3}
+410	<b>Übernommene Fähigkeiten (Verstärkung bis 9)</b>
+411	・{0} <b>×{1}</b>
+412	<color=#ff9a8a>Beim Ausführen werden die 2 gewählten Karten verbraucht (du erhältst 1 Karte Lv.9 MAX).</color>
+413	<color=#ffd76a><b>[Gleiche Karte] Erfolgsrate 100%</b></color>
+414	Fusions-Lv: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+415	<b>Übernommene Fähigkeiten (gleiche Fähigkeiten werden addiert)</b>
+416	・{0} {1}<b>×{2}</b>  <size=18>({3} ×{4})</size>
+417	<color=#9fd0ff><b>[Verschiedene Karten] Ergebnis per Zufall</b></color>
+418	<b>Fusions-Lv der neuen Karte (je nach Ergebnis)</b>
+419	・Beide erfolgreich: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+420	・Nur Haupt erfolgreich: <b>Lv.{0}</b> (nur Lv der Hauptkarte)
+421	・Nur Material erfolgreich: <b>Lv.{0}</b> (nur Lv der Materialkarte)
+422	・Beide gescheitert: keine Karte, <color=#ffd76a>{0} MILE</color> zurück
+423	<b>Hauptseite: Übernahmechance {0}%</b>
+424	・{0} ×{1}  <size=18>({2} ×{3})</size>
+425	<b>Materialseite: Übernahmechance {0}%</b>
+426	Beide erfolgreich: alle Fähigkeiten beider Seiten übernommen (gleiche Fähigkeiten werden addiert)
+427	Nur eine Seite erfolgreich: nur deren Fähigkeiten, Verstärkung und Lv werden übernommen (die andere Seite verfällt)
+428	Ist nur die Materialseite erfolgreich, wird ihre Hauptfähigkeit zur Hauptfähigkeit der neuen Karte
+429	<size=18>(Rückerstattung bei doppeltem Fehlschlag = ★{0}×Lv.{1}×{2} + ★{3}×Lv.{4}×{5})</size>
+430	<color=#ff9a8a>Beim Ausführen werden die 2 gewählten Karten verbraucht.</color>
+431	Du besitzt diese Karte nicht
+432	Nicht wählbar: im Deck und als Charakterkarte in Verwendung
+433	Nicht wählbar: als Charakterkarte ausgerüstet
+434	Nicht wählbar: im Deck in Verwendung
+435	2 gleiche Karten nötig (1 im Besitz)
+436	Wähle eine Hauptkarte und eine Materialkarte
+437	Karteninfos konnten nicht geladen werden
+438	MASTERY UP!
+439	GROSSER ERFOLG!
+440	FUSION ERFOLGREICH!
+441	<size=21>+{0} ★ (Rest geht auf den nächsten ★ über)</size>
+442	<size=21>Überschuss von {0} nach ★5 aufbewahrt (für spätere Verwendung)</size>
+443	<size=21>Diese Karte ist jetzt AWAKENED (dauerhafter Status; normale Werte unverändert)</size>
+444	Die Hauptkarte (Lv.9 MAX) bleibt erhalten, 1 Materialkarte wurde verbraucht.
+445	<size=21>Mastery erhöht keine normalen Werte (Angriff/Tempo/EXP usw.).</size>
+446	Fusions-Lv.<b>{0}</b>{1}
+447	<color=#ffd76a>Gleiche Karte (garantiert)</color> … alle Fähigkeiten übernommen
+448	Hauptseite ({0} Lv.{1}): {2}
+449	Materialseite ({0} Lv.{1}): {2}
+450	Nur Lv der Hauptkarte
+451	Nur Lv der Materialkarte
+452	<size=21>Neues Lv.{0} = {1}</size>
+453	<b>Hauptfähigkeit</b>
+454	<b>Nebenfähigkeiten ({0}/{1})</b>
+455	Keine
+456	Fusion gescheitert…
+457	Hauptseite ({0} Lv.{1}): <color=#9aa3b8>Übernahme gescheitert</color>
+458	Materialseite ({0} Lv.{1}): <color=#9aa3b8>Übernahme gescheitert</color>
+459	Die 2 gewählten Karten wurden verbraucht.
+460	MILE zurück  <color=#ffd76a><b><size=40>+{0}</size></b></color>
+461	MILE im Besitz  <b>{0}</b>
+462	<color=#ffd76a><b>Verstärkung ×{0}→×{1}</b></color>
+463	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3} ×{4})</color></size>
+464	Zurück
+465	Kartenfusion
+466	Sortieren
+467	Haupt
+468	Material
+469	Karten
+470	Ausgewählt
+471	Fusionieren
+472	Überspringen ▶▶
+473	Weiter fusionieren
+474	Zur Liste
+475	MILE im Besitz  {0}
+476	{0} Arten / {1} Karten
+477	Hauptkarte
+478	Materialkarte
+479	Alle
+480	Bewegung
+481	Angriff
+482	Verteidigung
+483	Wachstum
+484	Heilung
+485	Spezial
+486	Risiko
+487	Wähle 2 Karten
+488	Fusion nicht möglich
+489	Name
+490	Level
+491	Seltenheit
+492	Anzahl
+493	Besitz {0}  Verfügbar<color=#{1}
+494	Fähigkeiten {0}
+495	Haupt+Material
+496	In Verwendung
+497	<color=#ffd76a><b>{0}</b></color>  <b>{1}</b>  {2}  Fusions-Lv.{3}{4}
+498	Hauptfähigkeit: {0}
+499	Nebenfähigkeiten ({0}):
+500	・{0}
+501	Nebenfähigkeiten: keine
+502	<size=19><color=#b7bfd8>Besitz {0} / Verfügbar {1}</color></size>
+503	Wähle eine Karte aus der Liste links.
+504	Die Karte kommt in den ausgewählten (leuchtenden) Platz. Tippe auf einen Platz, um das Ziel zu wechseln, und auf ×, um ihn zu leeren.
+505	・Gleiche Karten … 100% Erfolg, Fusions-Lv und alle Fähigkeiten werden addiert
+506	・Verschiedene Karten … Fähigkeiten werden per Zufall übernommen (Haupt 50% / Material 25%). Gelingt nur eine Seite, bleiben nur deren Lv und Fähigkeiten
+507	・Max. Fusions-Lv ist Lv.9. Bei gleichen Karten geht der Überschuss über Lv.9 in Mastery (verschiedene Karten über insgesamt Lv.9 können nicht fusioniert werden)
+508	・Fusionierst du eine Lv.9-MAX-Karte mit einer gleichen, steigt die Mastery (★5 = AWAKENED)
+509	<size=19>★5 (AWAKENED) erreicht. Eine Verwendung für überschüssige Karten nach ★5 folgt später (derzeit werden sie nicht verbraucht).</size>
+510	Wählst du dieselbe Karte ({0}) als Material, steigt die Mastery um deren Lv (Lv.1 = +1).
+511	Wähle jetzt eine Materialkarte.
+512	Wähle jetzt eine Hauptkarte.
+513	Diese Karte ist AWAKENED (★5)
+514	Neue Karte als Hauptkarte gesetzt. Wähle eine Materialkarte
+515	Garantierte Verstärkung
+516	AWAKENED!
+517	Lv.9 MAX erreicht!
+518	Gleiche Karte fusioniert!
+519	Großer Erfolg! Fähigkeiten beider Seiten übernommen
+520	Fähigkeiten der Hauptseite übernommen
+521	Fähigkeiten der Materialseite übernommen
+522	Übernahme gescheitert…  Karten in MILE umgewandelt
+523	{0}seite: Übernahme erfolgreich!
+524	{0}seite: Übernahme gescheitert
+525	Fokus Speed
+526	Fokus Defense
+527	Fokus Blood
+528	Fokus Fire
+529	Fokus Ice
+530	Fokus Lightning

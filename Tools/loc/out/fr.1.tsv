@@ -1,0 +1,531 @@
+0	ZÉRO ABSOLU
+1	Les sbires gelés volent en éclats et subissent des dégâts ; attaque accrue contre les ennemis refroidis/gelés (+3% par Lv). Sur les boss, le ralentissement (au lieu du gel) est plus fort
+2	ADRÉNALINE
+3	À 50% de HP ou moins, vitesse d'attaque accrue (+3% par Lv), doublée à 25% de HP ou moins
+4	LAME AÉRIENNE
+5	Toucher un ennemi en l'air déclenche une entaille de suivi (puissance et portée selon le Lv)
+6	ATTAQUE AÉRIENNE +
+7	Attaque accrue en l'air (+7% par Lv)
+8	DOMINATION AÉRIENNE
+9	Attaque aérienne accrue (+3% par Lv), et encore plus en enchaînant les coups sans atterrir (+1%/Lv par coup, jusqu'à 4)
+10	FRAPPE AÉRIENNE
+11	Attaque accrue contre les ennemis en l'air (projetés/volants/boss aériens) (+8% par Lv)
+12	PORTÉE +
+13	Portée d'attaque effective accrue (+3% par Lv). Mêlée : zone de coup ; projectiles : distance parcourue (ils ne grossissent pas)
+14	VITESSE D'ATTAQUE +
+15	Vitesse d'attaque accrue (+3% par Lv)
+16	ATTAQUE +
+17	Attaque accrue (+5% par Lv)
+18	RAGE BERSERK
+19	À 50% de HP ou moins, attaque (+5% par Lv) et vitesse d'attaque (+2%) accrues ; les deux augmentent encore à 25% de HP ou moins
+20	BERSERKER
+21	Attaque (+6% par Lv) et vitesse d'attaque (+1%) accrues. Scelle 1 cœur de HP max tous les 3 Lv
+22	LAME DE SANG
+23	Les attaques causent un saignement (chance et puissance selon le Lv). Chance de saignement doublée tant que les HP sont pleins. Attaque à HP pleins un peu accrue (+2%/Lv)
+24	RUÉE SANGLANTE
+25	À 50% de HP ou moins, attaque accrue (+4% par Lv) ; à 25% de HP ou moins, chance d'absorption accrue (+3%/Lv)
+26	DÉFI DE BOSS
+27	HP des boss accrus (+10% par Lv), mais MILE de boss accrus (+40%/Lv)
+28	TUEUR DE BOSS
+29	Attaque accrue contre les boss (+8% par Lv)
+30	RUÉE DE BOSS
+31	Aux portes de boss, chance (+8% par Lv) qu'un boss supplémentaire apparaisse. MILE de boss accrus (+50%/Lv)
+32	ATTAQUE FREIN
+33	Attaque accrue (+7% par Lv). Léger ralentissement juste après l'attaque principale
+34	ÂME ARDENTE
+35	Brûlure plus forte (+8% par Lv) et plus longue (+0.25 s/Lv). Provoque aussi un peu de brûlure par elle-même
+36	EXPLOSION EN CHAÎNE
+37	Les ennemis vaincus explosent. Les ennemis tués par l'explosion explosent à leur tour (jusqu'à 3 fois, 1 fois par ennemi et par chaîne)
+38	FOUDRE EN CHAÎNE
+39	La foudre rebondit sur un autre ennemi proche (+1 cible tous les 3 Lv, portée accrue avec le Lv). Déclenche aussi un peu de foudre par elle-même
+40	S'active quand la jauge atteint 100% (bouton en bas à gauche). Attaque spéciale du perso : frappe les ennemis à l'écran en avançant loin (Lv1 ~100m → Lv9 ~200m), puis bonus temporaire (Lv1 5 s → Lv9 12 s). La jauge se remplit avec la distance, les éliminations et les dégâts aux boss
+41	DE JUSTESSE
+42	Vitesse de déplacement (+2% par Lv) et invincibilité après un coup reçu (+0.05 s par Lv) accrues
+43	LAME COMBO
+44	Plus la série de coups (HIT) dure, plus l'attaque augmente (+0.4%/Lv par coup, jusqu'à 10 coups)
+45	MAÎTRE DU COMBO
+46	Le coup final libère une onde de choc spéciale vers l'avant (puissance et portée selon le Lv)
+47	COMBO +
+48	Le dernier coup d'un enchaînement (coup final) est renforcé (+7% par Lv)
+49	RUÉE COMBO
+50	Les coups intermédiaires d'un enchaînement sont renforcés (+6% par Lv), et la vitesse de l'attaque principale augmente un peu (+2%/Lv)
+51	CONTRE
+52	Bloquer avec un bouclier libère une onde de riposte autour de toi (puissance selon le Lv). Donne 1 bouclier même sans la carte BOUCLIER
+53	PACTE DE LA MORT
+54	Attaque très fortement accrue (+12% par Lv). Scelle 1 cœur de HP max tous les 2 Lv
+55	DOUBLE ATTAQUE
+56	En attaquant, chance (+3% par Lv) de porter 1 coup supplémentaire. Le coup supplémentaire n'en déclenche pas d'autre
+57	ENNEMIS D'ÉLITE
+58	Certains sbires deviennent des élites (+4% par Lv. HP ×2.5, un peu plus rapides ; vaincus : MILE ×3 / EXP ×2). MILE accrus aussi (+30%/Lv)
+59	BOURREAU
+60	MILE gagnés en vainquant des ennemis accrus (+15% par Lv)
+61	CONVERTISSEUR D'EXP
+62	EXP réduite (-10% par Lv, min. 25%), mais MILE des ennemis vaincus accrus (+30%/Lv)
+63	EXP +
+64	EXP gagnée accrue (+20% par Lv)
+65	EXPLOSION D'EXP
+66	EXP des ennemis/boss/BONUS ZONE fortement accrue (+80% par Lv)
+67	ENNEMIS RAPIDES
+68	Déplacement, poursuite et attaques des sbires plus rapides (+4% par Lv), mais MILE (+15%/Lv) et EXP des éliminations (+5%/Lv) accrus
+69	PREMIÈRE FRAPPE
+70	Le 1er coup d'un enchaînement (premier coup) est renforcé (+10% par Lv)
+71	LAME DE FEU
+72	Carte de base Feu. Les coups enflamment les ennemis (chance 15%+5%/Lv, 5+1.5/Lv dégâts par seconde, 3 s)
+73	CONTRE ENFLAMMÉ
+74	Bloquer avec un bouclier libère une riposte de feu autour de toi (puissance selon le Lv) qui enflamme les ennemis touchés. Donne 1 bouclier même sans la carte BOUCLIER
+75	FORTERESSE
+76	HP max accrus (+1 cœur par Lv) et recul réduit quand tu es touché (+5%/Lv), mais vitesse de déplacement réduite (-3% par Lv)
+77	LAME DE GIVRE
+78	Carte de base Glace. Les coups refroidissent les ennemis (chance 15%+5%/Lv, ralentis de 25%+2%/Lv). Le froid cumulé les gèle (les boss ne s'arrêtent pas mais sont fortement ralentis)
+79	BOURRASQUE
+80	Lames de vent plus rapides (+5% par Lv), plus longues (+0.4m/Lv), qui percent plus d'ennemis (+1 tous les 3 Lv). Perforation des projectiles accrue aussi
+81	TUEUR DE GÉANTS
+82	Attaque fortement accrue (+9% par Lv), mais vitesse d'attaque réduite (-3% par Lv)
+83	CANON DE VERRE
+84	Attaque fortement accrue (+9% par Lv). Scelle 1 cœur de HP max tous les 2 Lv
+85	AVIDITÉ
+86	Vitesse de déplacement accrue (+4% par Lv), mais plus d'ennemis apparaissent (+8%/Lv)
+87	BRISE-SOL
+88	L'atterrissage d'une frappe plongeante et le coup final au sol créent une onde de choc rasante (puissance et longueur selon le Lv). Attaque au sol un peu accrue (+2%/Lv)
+89	COMBATTANT AU SOL
+90	Attaque au sol accrue (+7% par Lv)
+91	POINT ZÉRO
+92	Attaque au sol fortement accrue (+11% par Lv), mais réduite en l'air (-5% par Lv)
+93	BRISE-CŒUR
+94	Attaque accrue (+4% par Lv), et +0.6%/Lv d'attaque par cœur scellé. Scelle 1 cœur de HP max tous les 3 Lv
+95	CŒUR +
+96	HP max accrus (+1 cœur par Lv, max 20 cœurs) et HP restaurés
+97	ARMURE LOURDE
+98	Réduit d'1 cœur les coups puissants (2 cœurs ou plus). HP max accrus aussi (+1 cœur tous les 2 Lv), mais saut réduit (-3% par Lv)
+99	IMPACT LOURD
+100	Impacts des attaques basses/frappes plongeantes/atterrissages renforcés (+10% par Lv). Coup final un peu accru aussi (+3%/Lv)
+101	MODE ENFER
+102	HP (+12%/Lv), vitesse (+4%/Lv) et apparitions (+8%/Lv) des sbires accrus, mais MILE (+50%/Lv) et MILE de boss (+30%/Lv) fortement accrus
+103	HAUTE TENSION
+104	Foudre renforcée (+5% par Lv). La foudre immobilise brièvement les sbires. Chance de foudre un peu accrue (+1%/Lv)
+105	HORDE
+106	Apparitions d'ennemis fortement accrues (+15% par Lv), mais MILE (+5%/Lv) et EXP des éliminations (+5%/Lv) accrus
+107	CHASSEUR
+108	Plus mobile en combat de boss. Avancée/recul des attaques allongés (+4% par Lv), approche des boss lointains plus rapide (+3%/Lv)
+109	PRISON DE GLACE
+110	Gel plus facile (froids requis -1 tous les 3 Lv). Chance et durée du froid accrues
+111	INFERNO
+112	Vaincre un ennemi en feu propage les flammes autour et enflamme les ennemis (puissance et portée selon le Lv). Enflamme aussi un peu par elle-même
+113	VOLONTÉ DE FER
+114	Tant que les HP sont pleins, attaque accrue (+5% par Lv). HP max accrus aussi (+1 cœur tous les 3 Lv)
+115	SAUTS MULTIPLES +
+116	Sauts aériens supplémentaires (+1 par Lv). Chaque saut successif est un peu plus faible, sauf après une chute dans un trou. Sorcière : +1 palier de hauteur tous les 3 Lv
+117	PUISSANCE DE SAUT +
+118	Saut plus puissant (+3% par Lv). Sorcière : montée/descente d'altitude plus rapide
+119	Quand les HP tombent à 1 cœur, brève invincibilité (1 s + 0.15 s par Lv). Ne se redéclenche qu'une fois les HP restaurés depuis un moment
+120	DERNIER RAMPART
+121	À 50% de HP ou moins, attaque accrue (+4% par Lv), encore plus à 25% de HP ou moins (+4%/Lv)
+122	BRISE-NIVEAU
+123	EXP gagnée fortement accrue (+30% par Lv)
+124	LAME LONGUE
+125	Portée d'attaque effective fortement accrue (+5% par Lv)
+126	LONGUE HALEINE
+127	EXP (+15% par Lv) et HP max (+1 cœur tous les 3 Lv) accrus
+128	TUEUR DE SBIRES
+129	Attaque contre les non-boss (+5% par Lv) et MILE des éliminations (+10% par Lv) accrus
+130	ÉLAN
+131	Ta vitesse actuelle devient de l'attaque. Commence au-delà de 100km/h, max à 150km/h (+4% par Lv). Gain réduit au-delà
+132	RUÉE DE MONSTRES
+133	Plus d'ennemis apparaissent (+10% par Lv), mais EXP accrue (+15%/Lv)
+134	PLUS D'ENNEMIS
+135	Plus d'ennemis apparaissent (+10% par Lv). MILE des éliminations un peu accrus (+3%/Lv)
+136	SANS RETOUR
+137	Vitesse de déplacement fortement accrue (+5% par Lv), mais plus d'ennemis apparaissent (+10%/Lv)
+138	ONE MORE MILE
+139	MILE (+50% par Lv), MILE de boss (+50%) et EXP (+20%) accrus
+140	Rester à 115km/h ou plus active OVERDRIVE (attaque +3% par Lv, vitesse d'attaque +2%). Prend fin si tu ralentis. Vitesse de déplacement un peu accrue (+2% par Lv)
+141	SURSOIN
+142	Soins accrus (+1 cœur aux Lv4–6, +2 aux Lv7–9). Les soins reçus à HP pleins deviennent 1 bouclier
+143	PANDÉMONIUM
+144	HP/vitesse/apparitions/élites des sbires et HP des boss tous accrus, mais MILE (+60%/Lv) et MILE de boss (+60%/Lv) très fortement accrus
+145	ÉCLAIREUR
+146	EXP de la distance parcourue accrue (+20% par Lv)
+147	GARDE PARFAITE
+148	Utiliser un bouclier donne une brève invincibilité (0.4 s + 0.1 s par Lv). Donne 1 bouclier même sans la carte BOUCLIER
+149	Ressuscite une seule fois à la mort (HP : 1 à 5 cœurs selon le Lv). Après la résurrection, cette carte est retirée et peut réapparaître (repart du Lv1)
+150	LAME PERÇANTE
+151	Les attaques transpercent. Mêlée : touche les ennemis derrière la cible (nombre et puissance selon le Lv) ; projectiles : perforations (+1 tous les 3 Lv)
+152	PRÉDATEUR
+153	Chance d'absorption accrue (+3% par Lv). Les attaques contre les boss peuvent aussi parfois absorber
+154	LAME RAPIDE
+155	Vitesse de l'attaque principale (avant/arrière) accrue (+5% par Lv). Sans effet sur haut/bas/frappe plongeante/coups spéciaux
+156	MARCHE ARRIÈRE
+157	Attaque accrue (+8% par Lv), mais vitesse de déplacement réduite (-3% par Lv)
+158	Quand les HP tombent à 30% ou moins, restaure un peu de HP (1 à 3 cœurs). Recharge ensuite sur la distance (10,000m, réduite avec le Lv)
+159	BOUCLIER
+160	Un bouclier qui bloque 1 coup. Max +1 tous les 3 Lv (max 3) ; les boucliers utilisés se rechargent avec le temps (plus vite selon le Lv)
+161	ONDE DE CHOC
+162	Mêlée : courte onde de choc vers l'avant à l'impact ; projectiles : onde de choc autour du point d'impact (puissance et portée selon le Lv)
+163	MAÎTRE DU CIEL
+164	Attaque aérienne accrue (+4% par Lv). Toucher en l'air rend 1 saut aérien (par saut : 1 fois tous les 3 Lv)
+165	COUREUR CÉLESTE
+166	Saut (+2% par Lv) et attaque aérienne (+3% par Lv) accrus
+167	VERS LE CIEL
+168	Attaque aérienne fortement accrue (+11% par Lv), mais réduite au sol (-5% par Lv)
+169	LAME SONIQUE
+170	Chaque attaque principale projette une entaille vers l'avant. Plus tu cours vite, plus elle va loin et devient grande et forte
+171	VITESSE -
+172	Vitesse de déplacement réduite (-4% par Lv). Carte spéciale, peu utile en solo
+173	VITESSE +
+174	Vitesse de déplacement accrue (+3% par Lv)
+175	LA LONGUE ROUTE
+176	EXP (+40% par Lv) et HP max (+1 cœur tous les 2 Lv) accrus
+177	SEIGNEUR DU TONNERRE
+178	Version supérieure de la foudre. Puissance (+4% par Lv), chaîne (+1 cible tous les 3 Lv) et zone autour de la foudre renforcées
+179	FRAPPE DU TONNERRE
+180	Carte de base Foudre. Les coups déclenchent la foudre (chance 5%+2%/Lv, puissance 7.5+1.5/Lv ; max 1 fois par 0.4 s sur un même ennemi)
+181	TORNADE
+182	Une petite tornade naît là où frappe la lame de vent et aspire les ennemis proches (puissance et portée selon le Lv). Lance aussi un peu de lames de vent par elle-même
+183	ENNEMIS COSTAUDS
+184	HP des sbires accrus (+15% par Lv), mais MILE (+15%/Lv) et EXP des éliminations (+5%/Lv) accrus
+185	CHASSEUR DE TRÉSORS
+186	MILE des trésors et récompenses accrus (+30% par Lv) (BONUS ZONE : gobelin porteur, slime doré, mimique, RÉUSSI/PARFAIT ; primes RECHERCHÉ). MILE des boss et de la distance un peu accrus aussi
+187	TOUT-PUISSANT
+188	Carte polyvalente : attaque (+3% par Lv), HP max (+1 cœur tous les 2 Lv) et vitesse de déplacement (+2% par Lv) accrus
+189	VAMPIRE
+190	En vainquant un ennemi, chance (+3% par Lv) de restaurer 1 cœur de HP
+191	RECHERCHÉ
+192	Une cible à prime apparaît à intervalles réguliers (plus forte et fréquente selon le Lv). Vaincue : prime ; dépassée : elle s'enfuit. MILE accrus (+35%/Lv)
+193	COUPE-VENT
+194	Carte de base Vent. Les coups projettent une lame de vent perçante vers l'avant (chance 10%+3%/Lv, puissance 8+1.5/Lv). Portée d'attaque un peu accrue (+1%/Lv)
+195	RÔDEUR
+196	Bander, viser, transpercer
+197	Un rôdeur des bois profonds, à l'arc long plus grand que lui. Plus il bande, plus il frappe fort, mais de près, il a peu de réponses.
+198	TIREUR D'ÉLITE
+199	LANCIER DRAGON
+200	Percer, ne jamais plier
+201	Un jeune chevalier dragon armé d'une lance forgée dans un croc de dragon. Il enfonce toutes les lignes de front, mais ce qui se glisse dans sa garde le met en difficulté.
+202	BRISEUR
+203	DRACONIDE
+204	Griffe, queue, aile, flamme
+205	Une guerrière au sang de dragon. Nul besoin d'arme : griffes, queue et feu balaient tout. Sa taille fait d'elle une cible facile, mais difficile à arrêter.
+206	BRUTE
+207	DOUBLE LAME
+208	Acier vif, mouvement sans fin
+209	Une bretteuse agile qui enchaîne les coups de ses deux lames sans jamais ralentir. Vitesse et élan sont ses meilleures armes.
+210	COMBO AU SOL
+211	BAGARREUR
+212	Des poings qui rendent les coups
+213	Un artiste martial qui ne se bat qu'avec des gantelets de fer. Il doit s'approcher, et si tu frappes le premier, il riposte plus fort.
+214	PISTOLERA
+215	Un tir, une distance
+216	Deux pistolets, une ligne de feu nette. Elle gagne avant que l'ennemi ne s'approche, mais si l'un d'eux passe, elle est sans défense.
+217	DISTANCE
+218	SORCIÈRE
+219	Flotter en haut, frapper en bas
+220	Une sorcière qui ne touche jamais le sol. Elle monte et descend à volonté et fait pleuvoir ses sorts sur ce qui est en dessous, mais un seul coup la blesse gravement.
+221	MAGE VOLANTE
+222	PRÊTRESSE
+223	Sceller la route devant
+224	Une exorciste d'un sanctuaire de montagne. Elle pose ofuda et barrières devant elle, et la route elle-même se retourne contre ses ennemis, mais elle est lente à frapper la première.
+225	SCELLEUSE
+226	SHINOBI
+227	Disparaître, trancher, disparaître
+228	Une shinobi jamais là où tu frappes. Elle traverse les ennemis d'une seule entaille et disparaît avant qu'ils ne tombent, mais elle encaisse mal les coups.
+229	MOBILITÉ
+230	NOBLE DAME
+231	Une héroïne pas encore éveillée
+232	Vêtue d'argent et d'or, elle manie une épée géante qui abattrait les dragons. Mais sa légende n'a pas encore rattrapé son armure.
+233	CHEVALIÈRE NOBLE
+234	ÉPÉISTE
+235	Celui qui avance toujours
+236	Un épéiste solitaire qui suit sa propre voie. Peu importe combien de fois il tombe, il se relève, car il reste un endroit plus loin à atteindre.
+237	ÉQUILIBRÉ
+238	Plus c'est long, plus il est fort
+239	Un noble de la nuit qui n'a pas besoin de lame. Chaque blessure qu'il inflige nourrit son sang, et un long combat le rend plus rapide, mais il commence chaque combat affamé.
+240	SANG
+241	CARTES PERSO
+242	CHOIX DU PERSO
+243	CHOISIR
+244	VIE
+245	PUISSANCE
+246	CHOIX DU PARCOURS
+247	Départ
+248	Deck conseillé
+249	Tout retirer
+250	Oui
+251	Non
+252	DERNIER CORRIDOR
+253	Ennemis : ceux de tous les parcours, mélangés (renforcés)
+254	Particularités : sols qui s'effondrent, débris qui tombent, corridors flottants
+255	Route : immense corridor antique → effondrement → abîme → dernière route
+256	Grotte naturelle
+257	Ennemis : fourmi / sauteur / chauve-souris / ver
+258	Particularités : plafond rocheux, pics au plafond, obscurité et torches
+259	Route : chemin unique (menaces au sol, en l'air, sous terre et au plafond)
+260	Corridor céleste
+261	Ennemis : gobelins + nouveaux types débloqués avec la distance
+262	Particularités : plateformes flottantes de roche et de nuages, chemin dans le ciel
+263	Route : danger croissant au fil de la progression
+264	Route des landes
+265	Ennemis : gobelin / oiseau
+266	Obstacles : pierres, arbustes, murs, arbres cassables, rochers géants, trous
+267	Route : haut Facile / bas Danger
+268	Tu es tombé. « Revanche identique » pour réessayer tout de suite
+269	HP entièrement restaurés
+270	Ennemis et attaques ennemies effacés (non compté dans le temps d'élimination)
+271	Dégâts infligés {0}    Dégâts subis {1}    {2} s
+272	Invincible
+273	≡ Options
+274	Revanche identique
+275	Effacer les ennemis
+276	Accueil
+277	Tous vaincus  {0} s
+278	Adversaires
+279	Détails
+280	Résultat
+281	Terrain d'entraînement pour tester persos et cartes librement
+282	Lancer avec ces réglages
+283	Lancer
+284	Essai
+285	(essai)
+286	Rechercher
+287	<color=#8ce6ff>Essai</color>
+288	+ Ajouter
+289	Copier le deck actuel
+290	Copier les cartes perso
+291	Build d'essai ({0} cartes)
+292	Tout retirer
+293	Lv = nombre de prises dans cette course (max 9 par capacité). Possessions et deck inchangés
+294	Ajoute des cartes avec « + Ajouter » dans la liste à gauche. Tu peux aussi tester sans carte
+295	Copie possédée (Fusion Lv{0}, {1} capacités)
+296	{0} cartes du deck copiées dans le build d'essai (deck inchangé)
+297	{0} cartes perso copiées (Lv de départ)
+298	Cible d'entraînement
+299	Sbires
+300	Boss des landes
+301	Boss de la grotte
+302	Boss du ciel
+303	Cible immobile : n'attaque pas (aucun dégât au contact) et ne tombe pas. Pour tester tes attaques. En course, elle garde sa distance avec toi
+304	Nombre
+305	Intensité des mouvements
+306	Phase
+307	Les boss arrivent par l'avant avec leur entrée habituelle
+308	Les attaques des boss de grotte/ciel liées au terrain (trous/plafond/chutes de pierres/bandes célestes, etc.) diffèrent dans l'arène plate
+309	1 seul type de boss (combinable avec des sbires)
+310	Ajouter aux adversaires
+311	1 seul type de boss (le précédent a été remplacé)
+312	Adversaires actuels ({0})
+313	Aucun adversaire (lancer ainsi permet de tester sans ennemis)
+314	Force des ennemis : équivalent {0}km (HP/attaque comme à cette distance en jeu)
+315	Vitesse
+316	Arrêt (0km/h)
+317	Course (vitesse de base + bonus)
+318	Course (vitesse fixe)
+319	Seule l'avancée auto s'arrête (attaques/sauts/gravité/recul/ennemis comme en jeu)
+320	Court à la vitesse de base multipliée par les bonus de vitesse du perso/des cartes (VITESSE +, etc.)
+321	Court à cette vitesse sans bonus (pour comparer sans l'effet des cartes de vitesse)
+322	Actuel : base {0}km/h → réel {1}km/h (bonus ×{2})
+323	Invincible / HP
+324	Invincible : {0}
+325	Restaurer tous les HP
+326	Même invincible, les « dégâts bruts » s'affichent dans le résultat
+327	Assistance (comme « Assistance à haute vitesse » des options ; arène uniquement, options inchangées)
+328	OFF
+329	ON
+330	Toujours (dev)
+331	Active dès {0}km/h
+332	Non disponible dans l'arène : FINAL EVOLUTION / AWAKENED / Mastery / jauge ULTIMATE / montée de niveau / récompenses de boss / BONUS ZONE (cartes : effets Lv normaux et COMBO seulement. Récompenses, records et possessions inchangés)
+333	Version dev uniquement
+334	Inclure les ennemis non rencontrés : {0}
+335	Aléatoire fixe : {0}
+336	Aide pour casser les obstacles : {0}
+337	Tombé
+338	Tous vaincus {0} s
+339	Terminé
+340	En combat
+341	Cette fois : {0}
+342	Dégâts infligés
+343	Coups portés
+344	Éliminations
+345	Temps d'élimination
+346	Dégâts subis (HP perdus)
+347	Dégâts bruts (invincibilité/bouclier inclus)
+348	Durée du combat
+349	{0} s
+350	{0} ({1} fois)
+351	Cette fois
+352	Précédent
+353	Conditions actuelles : {0}
+354	Build d'essai : {0}
+355	Conditions précédentes : {0}
+356	Build précédent : {0}
+357	Modifier les réglages
+358	？？？ (pas encore rencontré)
+359	Cible immobile
+360	{0} / {1} cartes / {2} / équiv. {3}km
+361	Aucune carte
+362	(copie possédée)
+363	Préparation de l'arène
+364	ARÈNE
+365	MIMIQUE KO
+366	GOBELIN
+367	SLIME
+368	FÉE
+369	MIMIQUE
+370	MILE
+371	EXP
+372	JACKPOT !!
+373	BONUS ZONE!
+374	PARFAIT :
+375	JACKPOT RÉUSSI !
+376	BONUS RÉUSSI !
+377	JACKPOT  PARFAIT !
+378	BONUS PARFAIT !
+379	RÉSULTAT JACKPOT
+380	RÉSULTAT BONUS
+381	ENNEMIS
+382	RÉUSSI
+383	PARFAIT
+384	TOTAL
+385	ALÉATOIRE
+386	FIN
+387	Reprise de la course dans {0}
+388	Actuel
+389	{0} coups
+390	(fixe)
+391	Une carte matériau est utilisée dans le deck ou les cartes perso
+392	Déjà AWAKENED (★5) : la Mastery ne progresse plus (carte non consommée. L'usage des cartes en surplus après ★5 sera ajouté plus tard)
+393	Fusion impossible : le Lv deviendrait {0} (max Lv.{1})
+394	Fusion impossible : il y aurait {0} capacités (max {1})
+395	Fusion en cours
+396	Cartes insuffisantes
+397	<color=#ffd76a><b>[MASTERY] Progression Lv.9 MAX</b></color>
+398	La carte principale est conservée (Lv.9 MAX) ; seule la carte matériau est consommée.
+399	Mastery actuelle : <color=#ffd76a>{0}</color>  {1}
+400	Cette fusion : <b>+{0} Mastery</b> (matériau Lv.{1} = {2} cartes)
+401	Après fusion : <color=#ffd76a>{0}</color>  {1}
+402	<size=19>(+{0} ★, le surplus passe au ★ suivant)</size>
+403	<size=19>Le surplus de {0} après ★5 est conservé</size>
+404	<color=#ff9a8a><size=19>Les capacités secondaires du matériau ({0}) ne sont pas transmises</size></color>
+405	<size=19>La Mastery n'améliore pas les stats normales (attaque/vitesse/EXP, etc.). Elle mesure ta progression vers AWAKENED.</size>
+406	<color=#ff9a8a>Confirmer consommera 1 carte matériau.</color>
+407	<color=#ffd76a><b>[Fusion identique → Lv.9 MAX] Réussite 100%</b></color>
+408	Fusion Lv : Lv.{0} + Lv.{1} → <b>Lv.9 MAX</b>
+409	Le surplus au-delà de Lv.9 (<b>{0}</b>) va en Mastery : {1} → <color=#ffd76a>{2}</color>{3}
+410	<b>Capacités transmises (bonus jusqu'à 9)</b>
+411	・{0} <b>×{1}</b>
+412	<color=#ff9a8a>Confirmer consommera les 2 cartes choisies (tu obtiens 1 carte Lv.9 MAX).</color>
+413	<color=#ffd76a><b>[Fusion identique] Réussite 100%</b></color>
+414	Fusion Lv : Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+415	<b>Capacités transmises (bonus cumulés pour une même capacité)</b>
+416	・{0} {1}<b>×{2}</b>  <size=18>({3} ×{4})</size>
+417	<color=#9fd0ff><b>[Fusion différente] Résultat tiré au sort</b></color>
+418	<b>Fusion Lv de la carte obtenue (selon le résultat)</b>
+419	・Les deux réussissent : Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+420	・Principale seule : <b>Lv.{0}</b> (Lv principale uniquement)
+421	・Matériau seul : <b>Lv.{0}</b> (Lv matériau uniquement)
+422	・Double échec : aucune carte, <color=#ffd76a>{0} MILE</color> remboursés
+423	<b>Côté principal : transmission {0}%</b>
+424	・{0} ×{1}  <size=18>({2} ×{3})</size>
+425	<b>Côté matériau : transmission {0}%</b>
+426	Les deux réussissent : toutes les capacités transmises (bonus cumulés pour une même capacité)
+427	Un seul côté réussit : seuls ses capacités, bonus et Lv sont transmis (l'autre côté est perdu)
+428	Si seul le matériau réussit, sa capacité principale devient celle de la carte obtenue
+429	<size=18>(Remboursement en cas de double échec = ★{0}×Lv.{1}×{2} + ★{3}×Lv.{4}×{5})</size>
+430	<color=#ff9a8a>Confirmer consommera les 2 cartes choisies.</color>
+431	Tu ne possèdes pas cette carte
+432	Indisponible : utilisée dans le deck et les cartes perso
+433	Indisponible : équipée en carte perso
+434	Indisponible : utilisée dans le deck
+435	Il faut 2 cartes identiques (1 possédée)
+436	Choisis une carte principale et une carte matériau
+437	Impossible de charger les infos de la carte
+438	MASTERY UP !
+439	FUSION PARFAITE !
+440	FUSION RÉUSSIE !
+441	<size=21>+{0} ★ (le surplus passe au ★ suivant)</size>
+442	<size=21>Le surplus de {0} après ★5 est conservé (pour un usage futur)</size>
+443	<size=21>Cette carte est devenue AWAKENED (statut permanent ; stats normales inchangées)</size>
+444	La carte principale (Lv.9 MAX) est conservée ; 1 carte matériau a été consommée.
+445	<size=21>La Mastery n'améliore pas les stats normales (attaque/vitesse/EXP, etc.).</size>
+446	Fusion Lv.<b>{0}</b>{1}
+447	<color=#ffd76a>Fusion identique (garantie)</color> … toutes les capacités transmises
+448	Principale ({0} Lv.{1}) : {2}
+449	Matériau ({0} Lv.{1}) : {2}
+450	Lv principale uniquement
+451	Lv matériau uniquement
+452	<size=21>Lv obtenu {0} = {1}</size>
+453	<b>Capacité principale</b>
+454	<b>Capacités secondaires ({0}/{1})</b>
+455	Aucune
+456	Fusion ratée…
+457	Principale ({0} Lv.{1}) : <color=#9aa3b8>transmission ratée</color>
+458	Matériau ({0} Lv.{1}) : <color=#9aa3b8>transmission ratée</color>
+459	Les 2 cartes choisies ont été consommées.
+460	MILE remboursés  <color=#ffd76a><b><size=40>+{0}</size></b></color>
+461	MILE possédés  <b>{0}</b>
+462	<color=#ffd76a><b>Bonus ×{0}→×{1}</b></color>
+463	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3} ×{4})</color></size>
+464	Retour
+465	Fusion de cartes
+466	Trier
+467	Principale
+468	Matériau
+469	Cartes
+470	Sélectionnée
+471	Fusionner
+472	Passer ▶▶
+473	Fusionner encore
+474	Retour à la liste
+475	MILE possédés  {0}
+476	{0} types / {1} cartes
+477	Carte principale
+478	Carte matériau
+479	Toutes
+480	Mouvement
+481	Attaque
+482	Défense
+483	Croissance
+484	Soin
+485	Spécial
+486	Risque
+487	Choisis 2 cartes
+488	Fusion impossible
+489	Nom
+490	Niveau
+491	Rareté
+492	Quantité
+493	Possédées {0}  Utilisables<color=#{1}
+494	Capacités {0}
+495	Principale+Matériau
+496	En usage
+497	<color=#ffd76a><b>{0}</b></color>  <b>{1}</b>  {2}  Fusion Lv.{3}{4}
+498	Capacité principale : {0}
+499	Capacités secondaires ({0}) :
+500	・{0}
+501	Capacités secondaires : aucune
+502	<size=19><color=#b7bfd8>Possédées {0} / Utilisables {1}</color></size>
+503	Choisis une carte dans la liste à gauche.
+504	La carte va dans l'emplacement sélectionné (en surbrillance). Touche un emplacement pour changer de cible, × pour le vider.
+505	・Cartes identiques … réussite 100%, Fusion Lv et capacités cumulés
+506	・Cartes différentes … capacités transmises par tirage (principale 50% / matériau 25%). Si un seul côté réussit, seuls son Lv et ses capacités restent
+507	・Fusion Lv max : Lv.9. Avec des cartes identiques, le surplus au-delà de Lv.9 va en Mastery (des cartes différentes dont le total dépasse Lv.9 ne peuvent pas fusionner)
+508	・Fusionner une carte Lv.9 MAX avec une carte identique fait progresser la Mastery (★5 = AWAKENED)
+509	<size=19>★5 (AWAKENED) atteint. L'usage des cartes en surplus après ★5 sera ajouté plus tard (elles ne sont pas consommées pour l'instant).</size>
+510	Choisir la même carte ({0}) comme matériau fait progresser la Mastery de son Lv (Lv.1 = +1).
+511	Choisis maintenant une carte matériau.
+512	Choisis maintenant une carte principale.
+513	Cette carte est AWAKENED (★5)
+514	Carte obtenue placée en principale. Choisis une carte matériau
+515	Bonus garanti
+516	AWAKENED !
+517	Lv.9 MAX atteint !
+518	Fusion identique terminée !
+519	Succès total ! Capacités des deux côtés transmises
+520	Capacités principales transmises
+521	Capacités du matériau transmises
+522	Transmission ratée…  Cartes converties en MILE
+523	Côté {0} : transmission réussie !
+524	Côté {0} : transmission ratée
+525	Focus Speed
+526	Focus Defense
+527	Focus Blood
+528	Focus Fire
+529	Focus Ice
+530	Focus Lightning

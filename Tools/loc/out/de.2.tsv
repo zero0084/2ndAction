@@ -1,0 +1,531 @@
+531	Fokus Wind
+532	Fokus Boss
+533	Fokus EXP
+534	Fokus MILE
+535	Viel Challenge
+536	Alle Zusatzangriffe (Lasttest)
+537	Normale Mischung
+538	Fokus Attack
+539	Extremes Risk (HP-Opfer)
+540	ÄGIS-KONTER
+541	OVERDRIVE
+542	Kleiner Verstärkungs-VFX bei Treffern
+543	Stärkere Nachbilder bei hohem Tempo
+544	Blood Aura beim Heilen
+545	Stärkerer Wiederbelebungseffekt / kleiner Zusatzbonus
+546	Eigener VFX beim Auslösen
+547	Finale Spezialangriff-Show / eigene Aura / BUFF-Effekt / Abschluss-VFX (kein Extraschaden)
+548	GESUCHT! Ein Kopfgeldgegner taucht auf
+549	KOPFGELD!
+550	COMBO!
+551	für {0} Sek.
+552	nächste {0}m
+553	FINAL EVOLUTION: WIEDERGEBURT
+554	LETZTE CHANCE
+555	ZWEITER ATEM
+556	PHÖNIX
+557	Schweifschlag, er ist starr! Greif an!
+558	Seine Augen sind geschwächt! Der Kopf ist die Schwachstelle!
+559	Der Kopf ist unten! Lange Konterchance!
+560	Spring!
+561	Runter!
+562	Keine Magie mehr! Lange Angriffschance!
+563	Er liegt auf dem Rücken! Große Chance!
+564	Schweif steckt im Boden! Greif an!
+565	Er ist benommen! Greif an!
+566	Keule steckt fest! Greif an!
+567	Der Kopf liegt am Boden! Greif an!
+568	Kern freigelegt! Leicht zu brechen!
+569	Er ist auf den Boden gekracht! Greif an!
+570	Karten ▶
+571	<color=#FFD866><b>Charakterkarten</b></color>
+572	<color=#8890A0>(leer)</color>
+573	GESPERRT
+574	Freischaltbedingung:
+575	[Haupt]
+576	[Neben]
+577	Bewegungstempo
+578	Angriff
+579	Sprungkraft
+580	Sprunganzahl
+581	Max. HP
+582	Angriffsreichweite
+583	Angriffstempo
+584	Luftangriff
+585	Schild
+586	Erhaltene EXP
+587	Absorptionschance
+588	Absorptionsmenge
+589	Gegnerhäufigkeit
+590	Bodenangriff
+591	Abschlusshieb-Stärke
+592	Erstschlag-Stärke
+593	Angriff bei kritischen HP
+594	Angriff bei vollen HP
+595	Angriff bei Tempo
+596	Angriff gegen Bosse
+597	Gegner-HP
+598	Boss-HP
+599	Erhaltene MILE
+600	Boss-MILE
+601	Brandchance (Burn)
+602	Brandstärke
+603	Branddauer
+604	Kältechance (Chill)
+605	Kälte-Verlangsamung
+606	Kältedauer
+607	Stapel bis Einfrieren
+608	Einfrierdauer
+609	Blitzschlagchance
+610	Blitzschlagstärke
+611	Kettenziele
+612	Kettenreichweite
+613	Windklingenchance
+614	Windklingenstärke
+615	Durchschläge
+616	Windklingenreichweite
+617	Blutungschance (Bleed)
+618	Blutungsstärke
+619	Blutungsdauer
+620	Blutungsabsorption
+621	Blutung bei kritischen HP
+622	Tempo des Hauptangriffs
+623	Effektive Angriffsreichweite
+624	Max. HP (Herzen)
+625	Versiegelte Herzen
+626	Luftangriff
+627	Bodenangriff
+628	Erstschlag
+629	Mittlere Schläge
+630	Abschlusshieb
+631	Angriff gegen Bosse
+632	Angriff gegen Schergen
+633	Angriff gegen Luftgegner
+634	Abwärts-/Sturzangriff
+635	Angriff bei vollen HP
+636	Angriff bei HP ≤50%
+637	Angriff bei HP ≤25%
+638	Angriffstempo bei wenig HP
+639	Absorptionschance bei HP ≤25%
+640	Angriff pro Siegel
+641	Angriff pro Treffer
+642	Angriff pro Lufttreffer
+643	Angriff bei 150km/h
+644	Angriff im OVERDRIVE
+645	Angriffstempo im OVERDRIVE
+646	Max. Schilde
+647	Schild-Aufladung (Sek. weniger)
+648	Heilmenge (Herzen)
+649	Zusatzangriff-Chance
+650	Unverwundbar nach Treffer (Sek.)
+651	Weniger Rückstoß
+652	Gegnertempo
+653	Elite-Chance
+654	Schatz-/Belohnungs-MILE
+655	Distanz-MILE
+656	Distanz-EXP
+657	Sieg-EXP
+658	Kältestapel bis Einfrieren
+659	Blitzstärke
+660	Blitzschlag-Lähmung (Sek.)
+661	Blitzschlag-Bereich (m)
+662	Windklingentempo
+663	Effekt-Lv
+664	In Verwendung, keine Umwandlung
+665	Besitz x{0}
+666	Tippe auf eine Karte für Details
+667	[Charakterkarte eines anderen Charakters]
+668	Diese Karte ist in Verwendung. Entferne sie zuerst.
+669	 in {CardConvertMile} MILE umwandeln?
+670	Aktuelles Deck durch
+671	das empfohlene Deck ersetzen?
+672	Alle Karten aus dem Deck
+673	entfernen?
+674	Der Drache fliegt tief! Konterchance!
+675	Letzte Phase!
+676	BREAK!
+677	DRACHENFEUER-LADUNG
+678	Riesiger Fegefeuer-Feuerball
+679	Feuer {0}% {1}/s {2}s
+680	Eis {0}% -{1}% {2}s Einfrieren {3}x/{4}s
+681	Absoluter Nullpunkt Lv{0}
+682	Blitz {0}% {1} Kette {2} Bereich {3}m Lähmung {4}s
+683	Wind {0}% {1} Durchschl.+{2} {3}m
+684	Blut {0}%{1}
+685	NEUE KARTE
+686	DUPLIKAT
+687	(Bereits AWAKENED, aufbewahrt)
+688	→ Per Fusion MASTERY +1
+689	Tippen für weiter (noch {0})
+690	Tippen zum Schließen / Gacha antippen für weiteren Zug
+691	WEITER
+692	OK
+693	Nicht genug MILE
+694	Pausiert ― schau dich um, bevor du weitermachst
+695	Weiter, wenn du bereit bist
+696	GO!
+697	NEU FREIGESCHALTET:
+698	BEREIT
+699	TEMPO
+700	TEMPO UP!
+701	Nur der Pausengrund „Warte auf Auswahl“ war übrig
+702	Nur der Pausengrund des Pausenmenüs war übrig
+703	Zeitlupe beim Boss-Auftritt war zu lang
+704	Nur die Zeitlupe des Boss-Auftritts war übrig
+705	BOSS-BELOHNUNG
+706	LEVEL UP
+707	Warte auf Auswahl, aber kein Auswahlfenster → erneut gezeigt ({0}, {1}. Mal, ok={2})
+708	Warte auf Auswahl, aber Fenster nicht anzeigbar → ohne Auswahl gelöst ({0})
+709	Auswahlfenster war inkonsistent offen → geschlossen und {0} neu gezeigt
+710	BEST
+711	DISTANZ
+712	II
+713	SCHRITT:
+714	NEUER LAUF
+715	SPIEL GESCHAFFT
+716	GESCHEITERT
+717	ZEIT
+718	BESIEGTE GEGNER
+719	BESIEGTE BOSSE
+720	BONUS
+721	BONUS ZONE
+722	RING-BONUS
+723	EXP GESAMT
+724	ERHALTENE UPGRADES
+725	MILE GESAMT
+726	GEGNER / BOSSE
+727	EXP GESAMT / UPGRADES
+728	Verloren: MILE dieses Laufs {0}
+729	Bleibt: BEST-Distanzrekord (neu!) und Gesamtlaufstrecke
+730	Bleibt: BEST-Distanzrekord und Gesamtlaufstrecke
+731	Karten im Besitz und MILE (WALLET {0})
+732	HP
+733	Siegel {0}
+734	Schild {0}
+735	MAX
+736	Fusions-Lv.{0}  {1} Fähigkeiten
+737	Nur Tempo x{0} (Abstände unverändert)
+738	HILFE ON
+739	HILFE OFF
+740	Zuletzt: {0} ({1})
+741	Unmöglich: {0}
+742	Hindernisse: {0} zerstört {1}/gesprungen {2}/unmöglich {3}
+743	{0} Grenze {1}km/h (ON≧{2}/OFF<{3}){4}{5}
+744	Hintergrund: {0}
+745	[Vorschau]
+746	Geladen {0} {1}MB
+747	Hintergr.◀
+748	Hintergr.▶
+749	Übergang
+750	Normal
+751	Zur Grenze
+752	Einstellungen
+753	Arena
+754	Arena (GESPERRT)
+755	Die Arena ist noch nicht freigeschaltet
+756	Freischaltbedingung: {0}
+757	DEBUG
+758	Aktueller Lauf und nicht gesicherte MILE
+759	gehen verloren. Fortfahren?
+760	Verwerfen & NEUER LAUF
+761	Abbrechen
+762	FORTSETZEN
+763	ZUM HAUPTMENÜ
+764	Zurück zum Hauptmenü.
+765	Der Lauf endet nicht – du kannst
+766	später FORTSETZEN.
+767	Diese Karte wird anderswo verwendet
+768	{0} kann nicht ausgerüstet werden: zusammen mit anderen Charakterkarten über Lv{1} (der Überschuss wirkt nicht)
+769	Achtung: {0} liegt zusammen mit anderen Charakterkarten über Lv{1} ({2} Lv wirken nicht)
+770	BOSS RUSH  Kämpf im Laufen! WARNING naht! Besiege die übrigen Bosse! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+771	JENSEITS
+772	Die drei Schnitter-Schwestern
+773	Die drei Schwestern
+774	ONE MORE MILE?
+775	Raserei!
+776	HIMMELSMAGIE-ANGRIFF
+777	Der Dämon ist starr! Greif an!
+778	VERSION PASST NICHT
+779	LÄUFT
+780	VOLL
+781	OFFEN
+782	BOSS:
+783	HOST
+784	JOIN
+785	BOSS
+786	ZIEL
+787	BOSS-LETZTTREFFER:
+788	GEGNER BESIEGT:
+789	Spielt auf Geräten im selben WLAN oder über einen Handy-Hotspot (max. Spieler:
+790	).
+791	ONLINE (in Arbeit)
+792	ERWEITERT (IP direkt eingeben, Dev)
+793	Schließen
+794	Multi {0}/{1}
+795	Multi
+796	Wähle einen Modus
+797	Wer fällt, ist DOWN. Ein Mitspieler (HP 2+), der deine Fallstelle erreicht, gibt dir 1 HP und belebt dich. Alle DOWN = Ende.
+798	Wer fällt, scheidet aus (keine Wiederbelebung). Bis zum letzten Spieler, Rang nach erreichter Distanz.
+799	CO-OP
+800	VERSUS
+801	Erstellt einen Raum auf diesem Gerät. Er erscheint bei „FIND GAME“ auf Geräten in der Nähe.
+802	Sucht Räume in der Nähe und tritt bei (keine IP nötig).
+803	Räume in der Nähe ({0} gewählt. Gespielt wird im Modus des HOST)
+804	VERBINDUNG FEHLGESCHLAGEN
+805	Keine Verbindung. Prüfe, ob ihr im selben WLAN seid, und versuch es erneut
+806	VERBINDUNG FEHLGESCHLAGEN:
+807	Verbinde… {0}
+808	Suche lokale Spiele…
+809	Keine Spiele gefunden
+810	Drück auf dem HOST-Gerät „CREATE GAME“ und verbinde dich mit demselben WLAN (Hotspot).
+811	Erneut suchen
+812	Beigetretener Raum
+813	MODUS: {0} (vom HOST festgelegt)
+814	MODUS: legt der HOST fest (wird beim Laufstart abgeglichen)
+815	Sichtbar bei „FIND GAME“ auf Geräten in der Nähe
+816	Sind alle da: „Schließen“ → Tür → Streckenwahl → „Los“, und alle starten gleichzeitig auf derselben Strecke.
+817	Startet automatisch, sobald der HOST losläuft. Bitte warten.
+818	Raum schließen
+819	Verlassen
+820	Schließen (Raum bleibt)
+821	ERWEITERT: per IP verbinden (Dev)
+822	Verbinde dich mit demselben WLAN oder einem Handy-Hotspot (max. {0} Spieler).
+823	(Nicht verfügbar – prüfe die WLAN-Einstellungen des Geräts)
+824	IP dieses Geräts:
+825	Status:
+826	CO-OP: Wer fällt, ist DOWN. Ein Mitspieler (HP 2+), der deine Fallstelle erreicht, gibt dir 1 HP und belebt dich. Alle DOWN = Ende.
+827	VERSUS: Wer fällt, scheidet aus (keine Wiederbelebung). Bis zum letzten Spieler, Rang nach erreichter Distanz.
+828	MODUS: wählt der HOST (wird beim Laufstart abgeglichen)
+829	Port
+830	HOST (Raum auf diesem Gerät erstellen)
+831	JOIN: IP vom HOST-Gerät eingeben
+832	Verbundene Spieler {0}/{1}
+833	Tür → Streckenwahl → „Los“: Alle verbundenen Spieler starten gleichzeitig auf derselben Strecke.
+834	Raum schließen (HOST beenden)
+835	Trennen
+836	MULTI: getrennt
+837	UI:
+838	Zum Hauptmenü
+839	Weiterlaufen
+840	VERSUS-ERGEBNIS
+841	CO-OP-ERGEBNIS
+842	Warte auf den Start des HOST
+843	Es laufen noch Spieler
+844	HOST: warte auf Spieler
+845	Initialisierungsfehler
+846	Vorherige Verbindung wird beendet. Warte kurz und versuch es erneut
+847	HOST konnte nicht starten (Port evtl. belegt)
+848	Ungültiges IP-Format (z. B. 192.168.1.23)
+849	Verbinde… {0}:{1}
+850	JOIN konnte nicht starten
+851	HOST: {0}/{1} verbunden
+852	JOIN: verbunden {0}
+853	MEHRSPIELER-VERBINDUNG VERLOREN
+854	Mitspieler
+855	hat die Verbindung getrennt
+856	Verbindung zum HOST verloren
+857	Verbindung abgelehnt:
+858	RAUM VOLL
+859	LAUF LÄUFT BEREITS
+860	Keine Verbindung zum HOST möglich
+861	Kommunikationsfehler
+862	OMM-NET-
+863	PS5
+864	FLUCHT
+865	Zum Bestätigen erneut tippen
+866	Tippe auf eine Karte zum Auswählen
+867	AWAKENED
+868	FINAL EVOLUTION
+869	AUSGERÜSTET
+870	NEU
+871	Stärke Lv{d.level:0.0}{(d.def.risk ?
+872	COMBO
+873	Charakter
+874	Deck
+875	{1}m auf {0} erreichen
+876	Rekord {0}m / {1}m
+877	Game Over bei 1,000m oder weniger auf einer beliebigen Strecke
+878	FREIGESCHALTET:
+879	NEUER CHARAKTER:
+880	Erreichbar über „Arena“ im Hauptmenü.
+881	Start über die Streckenwahl möglich.
+882	{0} freigeschaltet
+883	{0} ist jetzt dabei
+884	In der Charakterwahl wählbar.
+885	Für alle, die nie aufgehört haben zu laufen.
+886	Der letzte Weg hat sich geöffnet.
+887	Ton
+888	(Audio nicht verfügbar)
+889	Gesamt
+890	Musik
+891	Effekte
+892	Umgebung
+893	Sprache / Language
+894	Sprache
+895	Anzeige in der gewählten Sprache
+896	Folgt der Gerätesprache
+897	Anzeige
+898	Ausrichtung
+899	Quer
+900	Hoch
+901	Bildschirmwackeln
+902	Leuchteffekte
+903	* Warnsignale gegnerischer Angriffe und spielwichtige Anzeigen werden nicht abgeschwächt
+904	Steuerung
+905	(Automatische Hilfe nicht verfügbar)
+906	Hilfe bei hohem Tempo
+907	Starttempo der Hilfe
+908	Über diesem Tempo werden Sprünge (Löcher/Hindernisse/Gegner) und
+909	Angriffe automatisch unterstützt (deine Eingabe hat Vorrang)
+910	Spielanleitung
+911	Steuerung üben
+912	Übe Angriffe vorn/hinten, Sprung, Abwärtsangriff, Hochschlag und Karten (ohne Belohnung)
+913	Training startest du im Hauptmenü (nicht im Lauf oder Mehrspieler)
+914	Die Riesenhand liegt auf der Plattform! Große Chance!
+915	Der Kern ist dunkel! Leicht zu brechen!
+916	Der Kopf ist nah! Greif an!
+917	Er hat das Gleichgewicht verloren! Konterchance!
+918	Neuaufbau gescheitert! Kern freigelegt!
+919	Die Flammen werden schwächer! Greif an!
+920	Der Kopf ragt tief aus den Wolken! Greif an!
+921	Der Lichtkranz ist weg! Lange Konterchance!
+922	Die Ladung ist weg! Große Konterchance!
+923	Sprintstart… ({0})
+924	Sprintstart…
+925	Sprintstart  {0}
+926	Rase durch bereits geschaffte Abschnitte und starte kurz vor dem gewählten Tor. Karten aus Boss-Belohnungen unterwegs erhältst du automatisch. Durch jeden Ring alle 5,000m darfst du 1 weitere Karte wählen.
+927	Sprint bis {0}km   (ca. {1} Sek. + Ringe){2}
+928	(Dev: DEBUG-Komplettfreischaltung ist ON)
+929	Distanz nicht zulässig
+930	DEBUG alles frei
+931	{0}km nicht erreicht (Rekord {1}km)
+932	Torwächter bei {0}km nicht besiegt
+933	Sprint geht weiter!
+934	RING!  Gerade keine Karte verfügbar
+935	Ring verpasst
+936	BONUSKARTE
+937	RING!
+938	Gerade keine Karte verfügbar
+939	Alle Karten im Deck sind Lv9.
+940	Ringe geben ab jetzt MILE
+941	Steuerkreuz / Stick hoch-runter (A = hoch / B = runter)
+942	↑↓-Tasten / W・S
+943	Hoch/runter wischen / ▲▼ unten rechts
+944	Sprintstart  →  vor das Tor bei {0}m
+945	Boss-Belohnungen automatisch {0}/{1}   Ringe {2}/{3}{4}
+946	Alle Deckkarten Lv{0} MAX
+947	Ringbelohnung: +{0} MILE
+948	Gerade keine Karte verfügbar (×{0})
+949	Mit {0} die Höhe anpassen und durch den Ring fliegen (Verpassen kostet nichts)
+950	Hoch/runter bewegen / Ring = +MILE
+951	Hoch/runter bewegen / Ring = Bonuskarte
+952	Alle Karten im Deck sind Lv9. Ringe geben MILE
+953	H-Taste (oder Maustaste) 3 Sek. halten
+954	BACK-Taste 3 Sek. halten
+955	Bildschirm 3 Sek. gedrückt halten
+956	Zum ersten Mal hier?
+957	Du kannst zuerst die Steuerung üben (2–3 Min., kein Zeitlimit).
+958	Training bringt keine Belohnungen oder Rekorde.
+959	Training geht jederzeit über „Spielanleitung“ in den Einstellungen.
+960	Du kannst jetzt fliehen
+961	{0}, um zu fliehen und
+962	die in diesem Lauf gesammelten MILE mitzunehmen.
+963	Fällst du, gehen die MILE dieses Laufs verloren.
+964	(Dein BEST-Distanzrekord bleibt)
+965	Du kannst auch einfach weiterlaufen. Ob du fliehst, entscheidest du.
+966	MILE mitgenommen!
+967	MILE nutzt du beim Gacha im Hauptmenü ({0} MILE pro Zug).
+968	Gezogene Karten kommen ins Deck und machen deinen nächsten Lauf stärker.
+969	Direkt starten
+970	Verstanden
+971	({0} Meldungen)
+972	Deck aufgeräumt
+973	{1} Karten über dem Decklimit ({0}) wurden aus dem Deck entfernt.
+974	Die Karten bleiben in deiner Sammlung. Tausch sie in der Deckbearbeitung aus.
+975	Das Deck fasst jetzt 12 Karten
+976	In Arbeit
+977	Nach rechts (vorn) wischen
+978	Tasten → / D / Z
+979	X-Taste (rechter Stick →)
+980	Nach links (hinten) wischen
+981	Tasten ← / A / X
+982	Y-Taste (rechter Stick ←)
+983	Nach oben wischen
+984	Tasten ↑ / W / Leertaste
+985	A-Taste (rechter Stick ↑)
+986	Nach unten wischen
+987	Tasten ↓ / S
+988	B-Taste (rechter Stick ↓)
+989	Sprung
+990	Abwärtsangriff
+991	Hochschlag → Luftverfolgung
+992	Karte wählen
+993	Training beendet
+994	Dein Charakter läuft von selbst.
+995	Wische nach vorn oder hinten, um in diese Richtung anzugreifen.
+996	Vorn: {0}
+997	Hinten: {0}
+998	Wische nach oben, um zu springen.
+999	Wische in der Luft erneut nach oben für einen Doppelsprung.
+1000	Sprung: {0}
+1001	Wische im Sprung nach unten, um senkrecht herabzustürzen und anzugreifen.
+1002	Nutze es über festem Boden.
+1003	Abwärtsangriff: {0}
+1004	Springst du nahe an einem Gegner, schlägst du ihn mit einem Angriff nach oben hoch.
+1005	Schwebende Gegner kannst du in der Luft weiter treffen.
+1006	(Zu schwer? Du kannst überspringen)
+1007	Beim Laufen steigst du im Level auf und wählst 1 von 3 Karten.
+1008	Die gewählte Verstärkung gilt nur für diesen Lauf.
+1009	Hier ist Training, der Effekt gilt nur in diesem Training.
+1010	Das war die Grundsteuerung.
+1011	Ziel: der Boss bei 1,000m!
+1012	Angriff vorn [{0}]   Angriff hinten [{1}]
+1013	Sprung [{0}]   Doppelsprung [{1}]
+1014	Im Sprung noch einmal nach oben
+1015	Springen, dann nach unten [{0}]
+1016	Erst nach oben springen → in der Luft nach unten
+1017	Hochschlagen [{0}]   Luftverfolgung [{1}]
+1018	Direkt vor dem Gegner springen
+1019	Schwebenden Gegner im Sprung nach vorn angreifen
+1020	Wähle 1 Karte
+1021	Training beenden
+1022	Loslaufen
+1023	Zum Hauptmenü
+1024	Nochmal üben
+1025	Ausprobieren
+1026	Überspringen
+1027	Auswählen
+1028	OK!
+1029	Kein Mehrspieler
+1030	Aktiv
+1031	Gerade nicht nutzbar
+1032	Boss-Auftritt
+1033	Getroffen
+1034	Im BONUS
+1035	ULTIMATE
+1036	MULTI×
+1037	Schwarzer Blitzhieb
+1038	Ein Hieb aus Kirsch- und Rosenblüten
+1039	Zwillingstanz
+1040	Rundumfeuer
+1041	Drachentöter-Durchstoß
+1042	Höchste Magie: Ground Zero
+1043	Regenfürst
+1044	Kampfgeist-Schlaghagel
+1045	Blitzschnelle Schattenklone
+1046	Überhitzung
+1047	Das Ende
+1048	Bombardement-Bannkreis
+1049	Keine KartenAktivAuswahl läuftBoss-AuftrittGerade nicht nutzbarGetroffenIm BONUSIn Arbeit
+1050	Dreifacher Sturmgleitflug
+1051	Dreiköpfiger Ansturm
+1052	Chance!
+1053	Säulenkreis der Unterwelt
+1054	Dreifacher Schwarzklingenblitz
+1055	Berittener Sturmangriff
+1056	Erdspaltende Riesenschlange
+1057	Himmelsbrechende Riesenkeule
+1058	Achtbeiniger Todestanz
+1059	Sturmwind-Überholansturm
+1060	Zorn der Erde
+1061	Kern freigelegt!

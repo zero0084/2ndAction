@@ -67,10 +67,10 @@ public class ComboCounterUI : MonoBehaviour
         Vector2[] offsets = { new Vector2(-2, -2), new Vector2(2, -2), new Vector2(-2, 2), new Vector2(2, 2) };
         foreach (Vector2 o in offsets)
         {
-            GUI.Label(new Rect(rect.x + o.x, rect.y + o.y, rect.width, rect.height), text, style);
+            LocGUI.Label(new Rect(rect.x + o.x, rect.y + o.y, rect.width, rect.height), text, style);
         }
 
         style.normal.textColor = new Color(1f, 0.9f, 0.4f);
-        GUI.Label(rect, text, style);
+        LocGUI.Label(rect, text, style);
     }
 }

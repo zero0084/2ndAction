@@ -647,8 +647,8 @@ public class UltimateFxLabel : MonoBehaviour
         Rect r = new Rect(0f, Screen.height * 0.24f, Screen.width, Screen.height * 0.12f);
         var c = UltimateFx.BannerColor;
         st.normal.textColor = new Color(0f, 0f, 0f, 0.7f * a);
-        GUI.Label(new Rect(r.x + 3f, r.y + 3f, r.width, r.height), UltimateFx.BannerText, st);
+        LocGUI.Label(new Rect(r.x + 3f, r.y + 3f, r.width, r.height), UltimateFx.BannerText, st);
         st.normal.textColor = new Color(Mathf.Lerp(c.r, 1f, 0.35f), Mathf.Lerp(c.g, 1f, 0.35f), Mathf.Lerp(c.b, 1f, 0.35f), a);
-        GUI.Label(r, UltimateFx.BannerText, st);
+        LocGUI.Label(r, UltimateFx.BannerText, st);
     }
 }

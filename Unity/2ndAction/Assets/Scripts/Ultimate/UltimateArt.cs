@@ -682,17 +682,17 @@ public class UltimateArt : MonoBehaviour
         if (labelStyle == null) labelStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold, wordWrap = false };
         labelStyle.fontSize = Mathf.RoundToInt(r.height * 0.15f);
         labelStyle.normal.textColor = ready ? Color.white : new Color(1f, 1f, 1f, 0.75f);
-        GUI.Label(new Rect(r.x - 10f, r.y + r.height * 0.22f, r.width + 20f, r.height * 0.3f), "ULTIMATE", labelStyle);
+        LocGUI.Label(new Rect(r.x - 10f, r.y + r.height * 0.22f, r.width + 20f, r.height * 0.3f), "ULTIMATE", labelStyle);
         labelStyle.fontSize = Mathf.RoundToInt(r.height * (ready ? 0.2f : 0.22f));
         string mid = Active ? "!!" : ready ? (can ? "READY" : why) : (NetMatch.Active ? "MULTI×" : $"{Mathf.FloorToInt(Gauge)}%");
         labelStyle.normal.textColor = ready ? new Color(1f, 0.92f, 0.5f) : Color.white;
-        GUI.Label(new Rect(r.x - 10f, r.y + r.height * 0.48f, r.width + 20f, r.height * 0.32f), mid, labelStyle);
+        LocGUI.Label(new Rect(r.x - 10f, r.y + r.height * 0.48f, r.width + 20f, r.height * 0.32f), mid, labelStyle);
         // BUFF の残り(ボタンの上)
         if (BuffActive)
         {
             labelStyle.fontSize = Mathf.RoundToInt(r.height * 0.14f);
             labelStyle.normal.textColor = theme;
-            GUI.Label(new Rect(r.x - 20f, r.y - r.height * 0.24f, r.width + 40f, r.height * 0.22f), $"BUFF {buffLeft:0.0}s", labelStyle);
+            LocGUI.Label(new Rect(r.x - 20f, r.y - r.height * 0.24f, r.width + 40f, r.height * 0.22f), $"BUFF {buffLeft:0.0}s", labelStyle);
         }
     }
 }

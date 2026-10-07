@@ -218,7 +218,7 @@ public class RewardCardUI : MonoBehaviour
         lrt.anchorMin = new Vector2(0.27f, 0.928f); lrt.anchorMax = new Vector2(0.73f, 0.988f); lrt.offsetMin = lrt.offsetMax = Vector2.zero; // 上端の中央(左右の菱形の間。名前を隠さない)
         NewChildImage("Back", lrt, Vector2.zero, Vector2.one, CardFaceArt.RoundedRect(), new Color(0.35f, 0.22f, 0.02f, 0.9f));
         awakenLabel = NewChildText("Text", lrt, Vector2.zero, Vector2.one, font, new Color(1f, 0.97f, 0.82f));
-        awakenLabel.text = "AWAKENED";
+        awakenLabel.text = Loc.Auto("AWAKENED");
         lr.transform.SetParent(rect, false); // 表記はカードの手前に出す(光だけ後ろ)
         lr.transform.SetAsLastSibling();
         awakenLabelRoot = lr;
@@ -280,10 +280,10 @@ public class RewardCardUI : MonoBehaviour
         EnsureMasteryArt();
         if (masteryRow == null) return;
         masteryRow.SetActive(show);
-        if (show) masteryText.text = CardMastery.StarsRich(data.MasteryStars); // 埋まった★は金、残りは暗い★
+        if (show) masteryText.text = Loc.Auto(CardMastery.StarsRich(data.MasteryStars)); // 埋まった★は金、残りは暗い★
         awakenRoot.SetActive(awake);
         awakenLabelRoot.SetActive(awake);
-        if (awakenLabel != null) awakenLabel.text = fe ? (data.Awakened ? "FINAL EVOLUTION ★" : "FINAL EVOLUTION") : "AWAKENED";
+        if (awakenLabel != null) awakenLabel.text = Loc.Auto(fe ? (data.Awakened ? "FINAL EVOLUTION ★" : "FINAL EVOLUTION") : "AWAKENED");
         if (awakenGlow != null) { var gc = fe ? new Color(1f, 0.6f, 0.15f, 0.9f) : new Color(AwakenGold.r, AwakenGold.g, AwakenGold.b, 0.85f); awakenGlow.color = gc; }
     }
 
@@ -361,10 +361,10 @@ public class RewardCardUI : MonoBehaviour
         iconImage.sprite = cardData.Icon != null
             ? Sprite.Create(cardData.Icon, new Rect(0f, 0f, cardData.Icon.width, cardData.Icon.height), new Vector2(0.5f, 0.5f))
             : null;
-        titleText.text = cardData.Title;
+        titleText.text = Loc.Auto(cardData.Title);
         FitTitle();
-        descriptionText.text = cardData.Description;
-        if (valueLineText != null) valueLineText.text = cardData.ValueLine;
+        descriptionText.text = Loc.Auto(cardData.Description);
+        if (valueLineText != null) valueLineText.text = Loc.Auto(cardData.ValueLine);
 
         // Card UI / Rarity Frame pass - frame Sprite switches with Rarity;
         // frameImage.color stays whatever SetSelected/FlashFrame/idle pulse
@@ -392,7 +392,7 @@ public class RewardCardUI : MonoBehaviour
         // 対して呼ばれても何も見た目を変えない。
         if (rarityText != null)
         {
-            rarityText.text = new string('★', Mathf.Clamp(cardData.Rarity <= 0 ? 1 : cardData.Rarity, 1, 5));
+            rarityText.text = Loc.Auto(new string('★', Mathf.Clamp(cardData.Rarity <= 0 ? 1 : cardData.Rarity, 1, 5)));
         }
         if (levelText != null)
         {
@@ -404,12 +404,12 @@ public class RewardCardUI : MonoBehaviour
             string line = cardData.LevelLine ?? "";
             MatchCollection lv = LevelNumberPattern.Matches(line);
             bool isMax = line.Contains("MAX");
-            levelText.text = lv.Count > 0 ? lv[lv.Count - 1].Groups[1].Value : line;
+            levelText.text = Loc.Auto(lv.Count > 0 ? lv[lv.Count - 1].Groups[1].Value : line);
             levelText.color = isMax ? LevelMaxColor : LevelColor;
         }
         if (countText != null)
         {
-            countText.text = cardData.Count > 1 ? $"×{cardData.Count}" : "";
+            countText.text = Loc.Auto(cardData.Count > 1 ? $"×{cardData.Count}" : "");
         }
         // item2/3 - Category Icon本体。スプライトが無い(未生成カテゴリ)場合
         // はnullのままにしておき、ApplyFaceVisibility側がそれを見てバッジ
@@ -423,7 +423,7 @@ public class RewardCardUI : MonoBehaviour
         // 踏襲する)。
         if (equippedBadgeLabel != null)
         {
-            equippedBadgeLabel.text = cardData.ShowEquippedBadge ? "EQUIPPED" : cardData.ShowNewBadge ? "NEW" : "";
+            equippedBadgeLabel.text = Loc.Auto(cardData.ShowEquippedBadge ? "EQUIPPED" : cardData.ShowNewBadge ? "NEW" : "");
             // NEWはエメラルド、EQUIPPEDは金(同じ部品で役割の違いを色で分ける)
             equippedBadgeLabel.color = cardData.ShowEquippedBadge ? new Color(1f, 0.9f, 0.62f) : new Color(0.62f, 1f, 0.86f);
         }

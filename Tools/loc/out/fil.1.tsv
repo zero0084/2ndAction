@@ -1,0 +1,531 @@
+0	GANAP NA LAMIG
+1	Nababasag ang nagyelong alipores at nagdudulot ng damage; tumataas ang atake sa nilalamig/nagyelong kalaban (+3% bawat Lv). Sa boss, mas lumalakas ang pagbagal kapalit ng pagyelo
+2	ADRENALINA
+3	Sa HP 50% pababa, tumataas ang bilis ng atake (+3% bawat Lv); doble ito sa HP 25% pababa
+4	TALIM SA ERE
+5	Kapag tumama ka sa kalaban habang nasa ere, may kasunod na hiwa (tumataas ang lakas at saklaw sa Lv)
+6	DAGDAG ATAKE SA ERE
+7	Tumataas ang atake habang nasa ere (+7% bawat Lv)
+8	HARI NG HIMPAPAWID
+9	Tumataas ang atake sa ere (+3% bawat Lv), at lalo pang tumataas habang tuloy-tuloy kang tumatama nang hindi lumalapag (+1%/Lv bawat tama, hanggang 4 na beses)
+10	SALAKAY SA ERE
+11	Tumataas ang atake sa kalabang nasa ere (inangat na kalaban/lumilipad na kalaban/boss sa langit) (+8% bawat Lv)
+12	DAGDAG ABOT NG ATAKE
+13	Lumalawak ang epektibong abot ng atake (+3% bawat Lv). Malapitan: hitbox; projectile: layo ng lipad (hindi lumalaki ang bala)
+14	DAGDAG BILIS NG ATAKE
+15	Tumataas ang bilis ng atake (+3% bawat Lv)
+16	DAGDAG ATAKE
+17	Tumataas ang lakas ng atake (+5% bawat Lv)
+18	NGITNGIT NA BUGSO
+19	Sa HP 50% pababa, tumataas ang lakas ng atake (+5% bawat Lv) at bilis ng atake (+2%); sa HP 25% pababa, lalo pang tumataas ang dalawa
+20	NAGWAWALA
+21	Tumataas ang lakas ng atake (+6% bawat Lv) at bilis ng atake (+1%). Nase-selyuhan ang 1 puso ng max HP bawat 3 Lv
+22	TALIM NG DUGO
+23	Nagdudulot ng pagdurugo ang atake (tumataas ang tsansa at lakas sa Lv). Habang puno ang HP, doble ang tsansa ng pagdurugo. Bahagyang tumataas din ang atake sa punong HP (+2%/Lv)
+24	DALUYONG NG DUGO
+25	Sa HP 50% pababa, tumataas ang lakas ng atake (+4% bawat Lv); sa HP 25% pababa, tumataas din ang tsansa ng pagsipsip (+3%/Lv)
+26	HAMON NG BOSS
+27	Tumataas ang HP ng boss (+10% bawat Lv), kapalit ng mas maraming boss MILE (+40%/Lv)
+28	PAMATAY-BOSS
+29	Tumataas ang atake sa boss (+8% bawat Lv)
+30	DAGSA NG BOSS
+31	Sa boss gate, may tsansa (+8% bawat Lv) na may sumaling 1 pang boss. Dumarami ang boss MILE (+50%/Lv)
+32	ATAKENG PRENO
+33	Tumataas ang lakas ng atake (+7% bawat Lv). Bahagyang bumabagal ka pagkatapos ng pangunahing atake
+34	KALULUWANG APOY
+35	Lumalakas (+8% bawat Lv) at humahaba (+0.25 seg/Lv) ang sunog. May kaunti ka ring tsansang manunog
+36	KADENANG SABOG
+37	Sumasabog ang kalabang natalo mo. Sumasabog din ang mga kalabang natalo ng sabog (hanggang 3 beses; isang beses lang bawat kalaban sa iisang kadena)
+38	KADENANG KIDLAT
+39	Tumatalon ang kidlat sa ibang kalapit na kalaban (+1 kalaban bawat 3 Lv; humahaba rin ang abot sa Lv). May kaunti ka ring tsansang magpatama ng kidlat
+40	Gumagana kapag 100% ang Gauge (button sa kaliwang ibaba). Gamit ang natatanging special move ng karakter, inaatake ang mga kalaban sa screen habang malaki ang pag-abante (Lv1 ~100m → Lv9 ~200m), at tatagal ang buff nang ilang sandali (Lv1 5 seg → Lv9 12 seg). Napupuno ang Gauge sa layo, pagpatay, at damage sa boss
+41	MUNTIK NA
+42	Tumataas ang bilis ng galaw (+2% bawat Lv) at ang tagal ng pagiging invincible matapos tamaan (+0.05 seg bawat Lv)
+43	TALIM NG COMBO
+44	Habang humahaba ang sunod-sunod na tama (bilang ng HIT), tumataas ang lakas ng atake (+0.4%/Lv bawat tama, hanggang 10 tama)
+45	HARI NG COMBO
+46	Sa pantapos na hampas, may espesyal na shockwave pasulong (tumataas ang lakas at saklaw sa Lv)
+47	DAGDAG COMBO
+48	Lumalakas ang huling hampas (pantapos) sa daloy ng atake (+7% bawat Lv)
+49	DAGSA NG COMBO
+50	Lumalakas ang mga atake sa gitna ng combo (+6% bawat Lv), at bahagyang bumibilis ang pangunahing atake (+2%/Lv)
+51	GANTI
+52	Kapag sinangga ng Shield, may gumanting shockwave sa paligid (lumalakas sa Lv). Kahit wala kang Shield, magkakaroon ka ng 1
+53	KONTRATA NG KAMATAYAN
+54	Napakalaking dagdag sa lakas ng atake (+12% bawat Lv). Nase-selyuhan ang 1 puso ng max HP bawat 2 Lv
+55	DOBLENG ATAKE
+56	Kapag umatake, may tsansa (+3% bawat Lv) na may dagdag na 1 tama. Hindi ito lalabas mula sa dagdag na tama
+57	PILING KALABAN
+58	Nagiging elite ang ilang alipores (+4% bawat Lv. HP\xD72.5・medyo mabilis; kapag natalo: MILE\xD73/EXP\xD72). Dumarami rin ang MILE (+30%/Lv)
+59	BERDUGO
+60	Dumarami ang MILE mula sa pagpatay ng kalaban (+15% bawat Lv)
+61	PALIT-EXP
+62	Bumababa ang EXP (-10% bawat Lv, minimum 25%), kapalit ng mas maraming MILE sa pagpatay (+30%/Lv)
+63	DAGDAG EXP
+64	Dumarami ang nakukuhang EXP (+20% bawat Lv)
+65	SABOG NG EXP
+66	Malaking dagdag sa EXP mula sa kalaban/boss/BONUS ZONE (+80% bawat Lv)
+67	MABILIS NA KALABAN
+68	Bumibilis ang galaw, paghabol, at atake ng alipores (+4% bawat Lv), kapalit ng mas maraming MILE (+15%/Lv) at EXP sa pagpatay (+5%/Lv)
+69	UNANG TAMA
+70	Lumalakas ang unang hampas sa daloy ng atake (+10% bawat Lv)
+71	TALIM NG APOY
+72	Panimula sa apoy. Nasusunog ang kalaban kapag tinamaan (tsansa 15%+5%/Lv, 5+1.5/Lv na damage bawat segundo, 3 seg)
+73	GANTING APOY
+74	Kapag sinangga ng Shield, may gumanting apoy sa paligid (lumalakas sa Lv), at nasusunog ang tinamaang kalaban. Kahit wala kang Shield, magkakaroon ka ng 1
+75	KUTA
+76	Dumarami ang max HP (+1 puso bawat Lv) at nababawasan ang pagkagulantang kapag tinamaan (+5%/Lv), pero bumababa ang bilis ng galaw (-3% bawat Lv)
+77	TALIM NG YELO
+78	Panimula sa yelo. Nilalamig ang kalaban kapag tinamaan (tsansa 15%+5%/Lv, bumabagal ng 25%+2%/Lv). Kapag naipon ang lamig, nagyeyelo (hindi tumitigil ang boss pero malakas ang pagbagal)
+79	UNOS
+80	Bumibilis (+5% bawat Lv), lumalayo (+0.4m/Lv), at tumatagos sa mas maraming kalaban (+1 bawat 3 Lv) ang talim ng hangin. Dumarami rin ang pagtagos ng projectile
+81	PAMATAY-HIGANTE
+82	Malaking dagdag sa lakas ng atake (+9% bawat Lv), pero bumababa ang bilis ng atake (-3% bawat Lv)
+83	KANYONG SALAMIN
+84	Malaking dagdag sa lakas ng atake (+9% bawat Lv). Nase-selyuhan ang 1 puso ng max HP bawat 2 Lv
+85	KASAKIMAN
+86	Tumataas ang bilis ng galaw (+4% bawat Lv), pero dumarami ang paglitaw ng kalaban (+8%/Lv)
+87	BASAG-LUPA
+88	Sa paglapag ng bagsak at sa pantapos sa lupa, may shockwave na gumagapang sa lupa (tumataas ang lakas at haba sa Lv). Bahagyang tumataas din ang atake sa lupa (+2%/Lv)
+89	MANDIRIGMA SA LUPA
+90	Tumataas ang lakas ng atake sa lupa (+7% bawat Lv)
+91	PUSOD NG LUPA
+92	Malaking dagdag sa atake sa lupa (+11% bawat Lv), pero bumababa sa ere (-5% bawat Lv)
+93	DUROG-PUSO
+94	Tumataas ang lakas ng atake (+4% bawat Lv), at +0.6%/Lv pang atake bawat selyadong puso. Nase-selyuhan ang 1 puso ng max HP bawat 3 Lv
+95	DAGDAG PUSO
+96	Dumarami ang max HP (+1 puso bawat Lv, max 20 puso) at gumagaling ang HP
+97	MABIGAT NA BALUTI
+98	Binabawasan ng 1 puso ang malalakas na tama (2 puso pataas). Dumarami rin ang max HP (+1 puso bawat 2 Lv), pero bumababa ang lakas ng talon (-3% bawat Lv)
+99	MABIGAT NA BAGSAK
+100	Lumalakas ang impact ng pababang atake/bagsak/paglapag (+10% bawat Lv). Bahagyang lumalakas din ang pantapos (+3%/Lv)
+101	MODONG IMPIYERNO
+102	Tumataas ang HP (+12%/Lv), galaw (+4%/Lv), at paglitaw (+8%/Lv) ng alipores, kapalit ng malaking dagdag sa MILE (+50%/Lv) at boss MILE (+30%/Lv)
+103	MATAAS NA BOLTAHE
+104	Lumalakas ang kidlat (+5% bawat Lv). Sandaling napapatigil ng kidlat ang alipores. Bahagyang tumataas din ang tsansa ng kidlat (+1%/Lv)
+105	KAWAN
+106	Malaking dagdag sa paglitaw ng kalaban (+15% bawat Lv), kapalit ng mas maraming MILE (+5%/Lv) at EXP sa pagpatay (+5%/Lv)
+107	MANGANGASO
+108	Mas madaling gumalaw sa laban sa boss. Humahaba ang pag-abante/pag-atras ng atake (+4% bawat Lv), at bumibilis ang paglapit sa malayong boss (+3%/Lv)
+109	KULUNGANG YELO
+110	Mas madaling magyelo (nababawasan ng 1 ang kailangang lamig bawat 3 Lv). Tumataas din ang tsansa at tagal ng lamig
+111	SIKLAB
+112	Kapag natalo mo ang nasusunog na kalaban, kumakalat ang apoy sa paligid at nanunog (tumataas ang lakas at saklaw sa Lv). May kaunti ka ring tsansang manunog
+113	BAKAL NA LOOB
+114	Habang puno ang HP, tumataas ang lakas ng atake (+5% bawat Lv). Dumarami rin ang max HP (+1 puso bawat 3 Lv)
+115	DAGDAG TALON
+116	Dumarami ang talon sa ere (+1 bawat Lv). Bahagyang humihina habang sunod-sunod kang tumatalon, pero hindi humihina kapag nahulog ka sa butas. Sa Salamangkera, +1 antas ng naaabot na taas bawat 3 Lv
+117	LAKAS NG TALON
+118	Tumataas ang lakas ng talon (+3% bawat Lv). Sa Salamangkera, bumibilis ang pagtaas-baba ng altitude
+119	Sa sandaling 1 puso na lang ang HP, sandaling magiging invincible (1 seg + 0.15 seg bawat Lv). Hindi na ito lalabas ulit hanggang gumaling ang HP at lumipas ang ilang sandali
+120	HULING TINDIG
+121	Sa HP 50% pababa, tumataas ang lakas ng atake (+4% bawat Lv); sa HP 25% pababa, lalo pang tumataas (+4%/Lv)
+122	LAMPAS-LEVEL
+123	Malaking dagdag sa nakukuhang EXP (+30% bawat Lv)
+124	MAHABANG TALIM
+125	Malaking dagdag sa epektibong abot ng atake (+5% bawat Lv)
+126	MAHABANG LAKBAY
+127	Dumarami ang EXP (+15% bawat Lv) at max HP (+1 puso bawat 3 Lv)
+128	PAMATAY-ALIPORES
+129	Tumataas ang atake sa mga hindi boss (+5% bawat Lv) at ang MILE sa pagpatay (+10% bawat Lv)
+130	BWELO
+131	Nagiging lakas ng atake ang bilis mo ngayon. Nagsisimulang tumaas lampas 100km/h, max sa 150km/h (+4% bawat Lv). Lampas doon, mabagal na ang pagtaas
+132	DAGSA NG HALIMAW
+133	Dumarami ang paglitaw ng kalaban (+10% bawat Lv), kapalit ng mas maraming EXP (+15%/Lv)
+134	MAS MARAMING KALABAN
+135	Dumarami ang paglitaw ng kalaban (+10% bawat Lv). Bahagyang dumarami rin ang MILE sa pagpatay (+3%/Lv)
+136	WALANG ATRASAN
+137	Malaking dagdag sa bilis ng galaw (+5% bawat Lv), pero dumarami ang paglitaw ng kalaban (+10%/Lv)
+138	ONE MORE MILE
+139	Dumarami ang MILE (+50% bawat Lv), boss MILE (+50%), at EXP (+20%)
+140	Kapag tuloy-tuloy sa 115km/h pataas: OVERDRIVE (atake +3% bawat Lv, bilis ng atake +2%). Natatanggal kapag bumagal. Bahagyang tumataas din ang bilis ng galaw (+2% bawat Lv)
+141	SOBRANG LUNAS
+142	Dumarami ang nagagamot (+1 sa Lv4〜6, +2 puso sa Lv7〜9). Ang lunas habang puno ang HP ay nagiging 1 Shield
+143	KAGULUHAN
+144	Tumataas lahat: HP/galaw/paglitaw/elite ng alipores at HP ng boss, kapalit ng napakalaking dagdag sa MILE (+60%/Lv) at boss MILE (+60%/Lv)
+145	MANLALAKBAY
+146	Dumarami ang EXP mula sa layong tinakbo (+20% bawat Lv)
+147	PERPEKTONG SANGGA
+148	Kapag ginamit ang Shield, sandaling invincible (0.4 seg + 0.1 seg bawat Lv). Kahit wala kang Shield, magkakaroon ka ng 1
+149	Kapag natalo ka, mabubuhay ka ulit nang isang beses (HP: 1〜5 puso ayon sa Lv). Pagkabuhay, matatanggal ang card na ito at lalabas ulit bilang pagpipilian (magsisimula ulit sa Lv1)
+150	TUMATAGOS NA TALIM
+151	Tumatagos sa kalaban ang atake. Malapitan: sa likod ng tinamaang kalaban (tumataas ang bilang at lakas sa Lv); projectile: bilang ng pagtagos (+1 bawat 3 Lv)
+152	MANDARAGIT
+153	Tumataas ang tsansa ng pagsipsip (+3% bawat Lv). Paminsan-minsan, may pagsipsip din sa atake sa boss
+154	MABILIS NA TALIM
+155	Tumataas ang bilis ng pangunahing atake (harap/likod) (+5% bawat Lv). Walang epekto sa taas/baba/bagsak/malaking atake
+156	KAMBYONG PAATRAS
+157	Tumataas ang lakas ng atake (+8% bawat Lv), pero bumababa ang bilis ng galaw (-3% bawat Lv)
+158	Kapag bumaba ang HP sa 30% pababa, bahagyang gagaling ang HP (1〜3 puso). Pagkagamit, may cooldown sa layo (10,000m, umiikli sa Lv)
+159	KALASAG
+160	Shield na sumasangga ng 1 tama. Max na bilang +1 bawat 3 Lv (max 3); bumabalik ang nagamit sa paglipas ng oras (bumibilis sa Lv)
+161	DAGUNDONG
+162	Sa malapitang tama, maikling shockwave pasulong; sa projectile, shockwave sa paligid ng tinamaan (tumataas ang lakas at saklaw sa Lv)
+163	AMO NG LANGIT
+164	Tumataas ang atake sa ere (+4% bawat Lv). Kapag tumama sa ere, bumabalik ang 1 talon sa ere (1 beses bawat 3 Lv sa bawat lipad)
+165	TAKBONG LANGIT
+166	Tumataas ang lakas ng talon (+2% bawat Lv) at atake sa ere (+3% bawat Lv)
+167	PATUNGONG LANGIT
+168	Malaking dagdag sa atake sa ere (+11% bawat Lv), pero bumababa sa lupa (-5% bawat Lv)
+169	SONIKONG TALIM
+170	Sa bawat pangunahing atake, may lumilipad na hiwa pasulong. Kapag mas mabilis ang takbo, mas malayo, mas malaki, at mas malakas
+171	BAWAS BILIS
+172	Bumababa ang bilis ng galaw (-4% bawat Lv). Espesyal na card na kaunti ang dahilan para piliin sa solo
+173	DAGDAG BILIS
+174	Tumataas ang bilis ng galaw (+3% bawat Lv)
+175	ANG MAHABANG DAAN
+176	Dumarami ang EXP (+40% bawat Lv) at max HP (+1 puso bawat 2 Lv)
+177	PANGINOON NG KULOG
+178	Mas mataas na antas ng kidlat. Lumalakas ang damage (+4% bawat Lv), kadena (+1 kalaban bawat 3 Lv), at saklaw sa paligid ng kidlat
+179	TAMA NG KULOG
+180	Panimula sa kidlat. Tinatamaan ng kidlat ang kalaban kapag tinamaan mo (tsansa 5%+2%/Lv, lakas 7.5+1.5/Lv. Hanggang 1 beses bawat 0.4 seg sa iisang kalaban)
+181	BUHAWI
+182	Kung saan tumama ang talim ng hangin, may maliit na buhawing humihigop sa kalapit na kalaban (tumataas ang lakas at saklaw sa Lv). May kaunti ka ring tsansang magpalabas ng talim ng hangin
+183	MATITIBAY NA KALABAN
+184	Tumataas ang HP ng alipores (+15% bawat Lv), kapalit ng mas maraming MILE (+15%/Lv) at EXP sa pagpatay (+5%/Lv)
+185	MAGHAHANAP NG YAMAN
+186	Dumarami ang MILE mula sa yaman at gantimpala (Goblin na may dalang yaman/Gintong Slime/Mimic/TAGUMPAY/PERPEKTO ng BONUS ZONE, at pabuya ng PINAGHAHANAP) (+30% bawat Lv). Bahagyang dumarami rin ang MILE mula sa boss at layo
+187	MAKAPANGYARIHAN
+188	All-around na card na sabay nagpapataas ng lakas ng atake (+3% bawat Lv), max HP (+1 puso bawat 2 Lv), at bilis ng galaw (+2% bawat Lv)
+189	BAMPIRA
+190	Kapag nakatalo ng kalaban, may tsansa (+3% bawat Lv) na gumaling ng 1 puso ng HP
+191	PINAGHAHANAP
+192	Bawat takdang layo, may lumilitaw na may patong sa ulo (lumalakas at dumadalas sa Lv). Talunin para sa pabuya; kapag nilampasan, nakatakas siya. Dumarami ang MILE (+35%/Lv)
+193	PANGHIWA NG HANGIN
+194	Panimula sa hangin. Kapag tumama, may lumilipad na tumatagos na talim ng hangin pasulong (tsansa 10%+3%/Lv, lakas 8+1.5/Lv). Bahagyang lumalawak din ang abot ng atake (+1%/Lv)
+195	BANTAY-GUBAT
+196	Hila, Asinta, Tusok
+197	'Isang bantay ng malalim na gubat
+198	ASINTADO
+199	MANINIBAT NG DRAGON
+200	Lumusot, Huwag Sumuko
+201	'Isang batang kabalyerong dragon na may dalang sibat
+202	TAGAWASAK
+203	LAHING DRAGON
+204	Kuko, Buntot, Pakpak, Apoy
+205	'Isang mandirigmang may dugo ng dragon.
+206	PUWERSA
+207	KAMBAL NA TALIM
+208	Bakal na Mabilis, Galaw na Walang Tigil
+209	'Isang maliksing may dalawang talim na nagdudugtong ng tama
+210	COMBO SA LUPA
+211	MANUNUNTOK
+212	Kamaong Gumaganti
+213	'Isang martial artist na lumalaban
+214	PISTOLERO
+215	Isang Putok, Isang Layo
+216	'Kambal na pistola, iisang matalim na guhit ng putok.
+217	MALAYUAN
+218	SALAMANGKERA
+219	Lumutang sa Itaas, Tumama sa Ibaba
+220	'Salamangkerang hindi kailanman tumatapak sa lupa.
+221	LIPAD-MAGO
+222	DALAGA NG DAMBANA
+223	Selyuhan ang Daan sa Unahan
+224	'Isang exorcist ng dambana sa bundok.
+225	TAGASELYO
+226	SHINOBI
+227	Maglaho, Hiwa, Maglaho
+228	'Shinobing wala roon kung saan ka tumama.
+229	LIKSI
+230	MARANGAL NA BINIBINI
+231	Bayaning Hindi Pa Gising
+232	'Nakasuot ng pilak at ginto, hawak niya ang isang
+233	MARANGAL NA KABALYERO
+234	ESKRIMADOR
+235	Ang Hindi Tumitigil
+236	'Isang nag-iisang eskrimador na tumatahak sa sariling landas.
+237	BALANSE
+238	Habang Tumatagal, Lalong Lumalakas
+239	'Isang maharlika ng gabi na hindi kailangan ng talim.
+240	DUGO
+241	MGA CARD NG KARAKTER
+242	PUMILI NG KARAKTER
+243	PILIIN
+244	BUHAY
+245	LAKAS
+246	PUMILI NG MAPA
+247	Lumarga
+248	Rekomendadong Deck
+249	Alisin Lahat
+250	Oo
+251	Hindi
+252	HULING PASILYO
+253	Kalaban: halo ang kalaban ng lahat ng mapa (pinalakas)
+254	Katangian: gumuguhong sahig・nahuhulog na istruktura・lumulutang na pasilyo
+255	Ruta: higanteng sinaunang pasilyo → pagguho → bangin → huling daan
+256	Likas na Kuweba
+257	Kalaban: Langgam / Tipaklong / Paniki / Uod
+258	Katangian: batong kisame・tinik sa kisame・dilim at sulo
+259	Ruta: iisang daan (banta sa lupa, ere, ilalim ng lupa, at kisame)
+260	Pasilyo sa Langit
+261	Kalaban: mga Goblin + unti-unting nadadagdagan habang lumalayo
+262	Katangian: lumulutang na tuntungang bato at ulap, daan sa kalangitan
+263	Ruta: lalong delikado habang sumusulong
+264	Daan sa Ilang
+265	Kalaban: Goblin / Ibon
+266	Hadlang: bato・maliit na puno・pader・nasisirang puno・higanteng bato・butas
+267	Ruta: itaas Easy / ibaba Danger
+268	Natalo ka. Ulitin agad gamit ang "Ulitin ang Laban"
+269	Buong naibalik ang HP
+270	Binura ang lahat ng kalaban at atake nila (hindi kasama sa oras ng pagpatay)
+271	Damage na binigay {0}    Damage na natanggap {1}    {2} seg
+272	Invincible
+273	≡ Setting
+274	Ulitin ang Laban
+275	Burahin ang Kalaban
+276	Sa Home
+277	Ubos Lahat  {0} seg
+278	Kalaban
+279	Detalye
+280	Resulta
+281	Lugar ng pagsasanay para malayang subukan ang mga karakter at card
+282	Simulan sa Setting na Ito
+283	Simulan
+284	Subok
+285	(Subok)
+286	Hanapin
+287	<color=#8ce6ff>Subok</color>
+288	+ Idagdag
+289	Kopyahin ang Deck Ngayon
+290	Kopyahin ang Card ng Karakter
+291	Build na Subok ({0} card)
+292	Alisin Lahat
+293	Lv = ilang beses nakuha sa run na ito (max 9 bawat kakayahan). Hindi nagbabago ang hawak at deck
+294	Pindutin ang "+ Idagdag" sa listahan sa kaliwa para magdagdag ng card. Puwede ring subukan nang walang card
+295	Kopya ng hawak (Fusion Lv{0}・{1} kakayahan)
+296	Nakopya ang {0} card ng deck sa Build na Subok (hindi nagbabago ang deck)
+297	Nakopya ang {0} card ng karakter (Lv sa simula)
+298	Target sa Pagsasanay
+299	Alipores
+300	Boss ng Ilang
+301	Boss ng Kuweba
+302	Boss ng Langit
+303	Di-gumagalaw na target: hindi umaatake (walang damage kahit tamaan), hindi natatalo. Para subukan ang atake. Habang tumatakbo, pinapanatili nito ang layo sa player
+304	Bilang
+305	Lakas ng Galaw
+306	Yugto
+307	Lumalabas ang boss mula sa harap gamit ang sarili nitong entrance
+308	Ang mga atake ng boss ng Kuweba/Langit na gumagamit ng terrain (butas/kisame/bumabagsak na bato/sinturon sa langit, atbp.) ay iba ang labas sa patag na Arena kaysa sa main game
+309	1 uri lang ng boss (puwedeng isama sa alipores)
+310	Idagdag sa Kalaban
+311	1 uri lang ng boss (pinalitan ang naunang boss)
+312	Kalaban Ngayon ({0})
+313	Walang kalaban (kung sisimulan nang ganito, galaw lang ang masusubukan nang walang kalaban)
+314	Lakas ng kalaban: katumbas ng {0}km (HP/atake gaya ng layong iyon sa main game)
+315	Bilis
+316	Nakatigil (0km/h)
+317	Tumakbo (base na bilis + modifier)
+318	Tumakbo (nakapirming bilis)
+319	Ang awtomatikong pag-abante lang ang titigil (ang atake/talon/gravity/pagkagulantang/galaw ng kalaban ay gaya ng main game)
+320	Tumatakbo sa base na bilis na may modifier ng bilis ng karakter/card (DAGDAG BILIS, atbp.)
+321	Tumatakbo sa bilis na ito nang walang modifier (para maghambing nang hindi kasama ang epekto ng speed card)
+322	Ngayon: base {0}km/h → aktuwal {1}km/h (modifier ×{2})
+323	Invincible / HP
+324	Invincible: {0}
+325	Ibalik ang Buong HP
+326	Kahit invincible, ipinapakita sa resulta ang "dapat sanang natanggap na damage"
+327	Assist sa Kontrol (gaya ng "Assist sa Mataas na Bilis" sa Setting. Dito lang sa Arena; hindi nagbabago ang Setting)
+328	OFF
+329	ON
+330	Palagi (dev build)
+331	Gumagana sa {0}km/h~
+332	Hindi suportado sa Arena: FINAL EVOLUTION / AWAKENED / Mastery / gauge ng ULTIMATE / level up / gantimpala ng boss / BONUS ZONE (normal na epekto ng Lv at COMBO lang ang card. Walang nagbabago sa gantimpala, rekord, o hawak)
+333	Dev build lang
+334	Isama ang di pa nakikitang kalaban: {0}
+335	I-fix ang random: {0}
+336	Tulong sa pagsira ng hadlang: {0}
+337	Natalo
+338	Ubos Lahat {0} seg
+339	Tapos
+340	Naglalaban
+341	Ngayon: {0}
+342	Damage na Binigay
+343	Tumama
+344	Napatay
+345	Oras Hanggang Mapatay
+346	Natanggap na Damage (nabawas sa HP)
+347	Totoong Natanggap na Damage (kasama ang invincible/Shield)
+348	Oras ng Laban
+349	{0} seg
+350	{0} ({1} beses)
+351	Ngayon
+352	Nakaraan
+353	Kondisyon ngayon: {0}
+354	Build na Subok: {0}
+355	Nakaraang kondisyon: {0}
+356	Nakaraang build: {0}
+357	Baguhin ang Setting
+358	？？？(di pa nakikita)
+359	Di-gumagalaw na Target
+360	{0} / {1} card / {2} / katumbas ng {3}km
+361	Walang card
+362	(Kopya ng hawak)
+363	Inihahanda ang Arena
+364	ARENA
+365	MIMIC KO
+366	GOBLIN
+367	SLIME
+368	DIWATA
+369	MIMIC
+370	MILE
+371	EXP
+372	JACKPOT!!
+373	BONUS ZONE!
+374	PERPEKTO:
+375	JACKPOT TAGUMPAY!
+376	BONUS TAGUMPAY!
+377	JACKPOT  PERPEKTO!
+378	PERPEKTONG BONUS!
+379	RESULTA NG JACKPOT
+380	RESULTA NG BONUS
+381	KALABAN
+382	TAGUMPAY
+383	PERPEKTO
+384	KABUUAN
+385	SAPALARAN
+386	TAPOS
+387	Tuloy ang run sa {0}
+388	Kasalukuyan
+389	{0} tama
+390	(nakapirmi)
+391	Ginagamit sa deck/card ng karakter ang 1 card na materyal
+392	AWAKENED (★5) na kaya hindi na uusad ang Mastery (hindi mauubos ang card. Idadagdag sa hinaharap ang gamit ng sobrang card pagkatapos ng ★5)
+393	Hindi ma-fusion dahil magiging {0} ang Lv pagkatapos (max Lv.{1})
+394	Hindi ma-fusion dahil magiging {0} uri ang kakayahan (max {1} uri)
+395	Pinoproseso ang fusion
+396	Kulang ang card
+397	<color=#ffd76a><b>[MASTERY] Pagpapalakas ng Lv.9 MAX</b></color>
+398	Mananatili ang pangunahing card (Lv.9 MAX); ang materyal na card lang ang mauubos.
+399	Mastery ngayon: <color=#ffd76a>{0}</color>  {1}
+400	Fusion na ito: <b>+{0} Mastery</b> (materyal Lv.{1} = katumbas ng {2} card)
+401	Pagkatapos ng fusion: <color=#ffd76a>{0}</color>  {1}
+402	<size=19>(katumbas ng {0} ★; ililipat ang sobra sa susunod na ★)</size>
+403	<size=19>Itatabi, hindi itatapon, ang {0} na sobra pagkatapos ng ★5</size>
+404	<color=#ff9a8a><size=19>Hindi mamanahin ang sub-kakayahan ng materyal ({0} uri)</size></color>
+405	<size=19>Hindi pinapataas ng Mastery ang normal na performance (atake/bilis/EXP, atbp.). Rekord ito ng pagpapalakas at daan patungong AWAKENED.</size>
+406	<color=#ff9a8a>Kapag itinuloy, mauubos ang 1 materyal na card.</color>
+407	<color=#ffd76a><b>[Parehong Card → Lv.9 MAX] Tsansa 100%</b></color>
+408	Fusion Lv: Lv.{0} + Lv.{1} → <b>Lv.9 MAX</b>
+409	Ang <b>{0}</b> na lampas sa Lv.9 ay hindi itatapon, mapupunta sa Mastery: {1} → <color=#ffd76a>{2}</color>{3}
+410	<b>Mamanahing kakayahan (lakas hanggang 9)</b>
+411	・{0} <b>×{1}</b>
+412	<color=#ff9a8a>Kapag itinuloy, mauubos ang 2 napiling card (makakakuha ka ng 1 tapos na card Lv.9 MAX).</color>
+413	<color=#ffd76a><b>[Parehong Card] Tsansa 100%</b></color>
+414	Fusion Lv: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+415	<b>Mamanahing kakayahan (pinagsasama ang lakas ng parehong kakayahan)</b>
+416	・{0} {1}<b>×{2}</b>  <size=18>({3} ×{4})</size>
+417	<color=#9fd0ff><b>[Magkaibang Card] Bunutan ang resulta</b></color>
+418	<b>Fusion Lv ng tapos na card (ayon sa resulta)</b>
+419	・Parehong tagumpay: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+420	・Pangunahin lang ang tagumpay: <b>Lv.{0}</b> (Lv ng pangunahin lang)
+421	・Materyal lang ang tagumpay: <b>Lv.{0}</b> (Lv ng materyal lang)
+422	・Parehong bigo: walang tapos na card・ibabalik ang <color=#ffd76a>{0} MILE</color>
+423	<b>Tsansang mamana ang buong kakayahan ng pangunahin {0}%</b>
+424	・{0} ×{1}  <size=18>({2} ×{3})</size>
+425	<b>Tsansang mamana ang buong kakayahan ng materyal {0}%</b>
+426	Parehong tagumpay: mamanahin lahat ng kakayahan ng dalawa (pinagsasama ang lakas ng parehong kakayahan)
+427	Isa lang ang tagumpay: kakayahan, lakas, at Lv lang ng nagtagumpay ang mamanahin (walang matitira sa nabigo)
+428	Kung materyal lang ang nagtagumpay, ang pangunahing kakayahan ng materyal ang magiging pangunahing kakayahan ng tapos na card
+429	<size=18>(Ibabalik kapag parehong bigo = ★{0}×Lv.{1}×{2} + ★{3}×Lv.{4}×{5})</size>
+430	<color=#ff9a8a>Kapag itinuloy, mauubos ang 2 napiling card.</color>
+431	Wala kang hawak na card na ito
+432	Hindi mapili dahil ginagamit sa deck at card ng karakter
+433	Hindi mapili dahil naka-equip sa card ng karakter
+434	Hindi mapili dahil ginagamit sa deck
+435	Kailangan ng 2 card na pareho ang performance (1 ang hawak)
+436	Pumili ng pangunahing card at materyal na card
+437	Hindi ma-load ang impormasyon ng card
+438	TUMAAS ANG MASTERY!
+439	Super Tagumpay sa Fusion!
+440	Tagumpay ang Fusion!
+441	<size=21>Umusad ng {0} ★ (ililipat ang sobra sa susunod na ★)</size>
+442	<size=21>Naitabi ang {0} na sobra pagkatapos ng ★5 (magagamit sa hinaharap)</size>
+443	<size=21>Naging AWAKENED ang card na ito (permanenteng rekord. Hindi nagbabago ang normal na performance)</size>
+444	Nanatili ang pangunahing card (Lv.9 MAX), at naubos ang 1 materyal na card.
+445	<size=21>Hindi pinapataas ng Mastery ang normal na performance (atake/bilis/EXP, atbp.).</size>
+446	Fusion Lv.<b>{0}</b>{1}
+447	<color=#ffd76a>Parehong Card (sigurado)</color> … mamanahin lahat ng kakayahan ng dalawa
+448	Pangunahin ({0} Lv.{1}): {2}
+449	Materyal ({0} Lv.{1}): {2}
+450	Lv ng pangunahin lang
+451	Lv ng materyal lang
+452	<size=21>Tapos na Lv.{0} = {1}</size>
+453	<b>Pangunahing Kakayahan</b>
+454	<b>Sub-kakayahan ({0}/{1})</b>
+455	Wala
+456	Bigo ang Fusion…
+457	Pangunahin ({0} Lv.{1}): <color=#9aa3b8>Bigong mamana</color>
+458	Materyal ({0} Lv.{1}): <color=#9aa3b8>Bigong mamana</color>
+459	Naubos ang 2 napiling card.
+460	Ibinalik na MILE  <color=#ffd76a><b><size=40>+{0}</size></b></color>
+461	Hawak na MILE  <b>{0}</b>
+462	<color=#ffd76a><b>Lakas ×{0}→×{1}</b></color>
+463	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3} ×{4})</color></size>
+464	Bumalik
+465	Fusion ng Card
+466	Ayusin
+467	Pangunahin
+468	Materyal
+469	Card
+470	Napili
+471	I-fusion
+472	Laktawan ▶▶
+473	Fusion Ulit
+474	Bumalik sa Listahan
+475	Hawak na MILE  {0}
+476	{0} uri / {1} card lahat
+477	Pangunahing Card
+478	Materyal na Card
+479	Lahat
+480	Galaw
+481	Atake
+482	Depensa
+483	Paglago
+484	Lunas
+485	Espesyal
+486	Panganib
+487	Pumili ng 2 card
+488	Hindi ma-fusion
+489	Pangalan
+490	Level
+491	Pambihira
+492	Bilang ng Hawak
+493	Hawak {0}  Magagamit<color=#{1}
+494	Kakayahan {0}
+495	Pangunahin+Materyal
+496	Ginagamit
+497	<color=#ffd76a><b>{0}</b></color>  <b>{1}</b>  {2}  Fusion Lv.{3}{4}
+498	Pangunahing kakayahan: {0}
+499	Sub-kakayahan ({0}):
+500	・{0}
+501	Sub-kakayahan: wala
+502	<size=19><color=#b7bfd8>Hawak {0} / Magagamit {1}</color></size>
+503	Pumili ng card mula sa listahan sa kaliwa.
+504	Papasok ang card sa napiling slot (ang umiilaw na slot). I-tap ang slot para palitan ang pipiliin, at pindutin ang × para alisin.
+505	・Parehong card … 100% tagumpay; pinagsasama ang Fusion Lv at lahat ng kakayahan
+506	・Magkaibang card … namamana ang buong kakayahan sa pangunahin 50%/materyal 25% (bunutan). Kung isa lang ang tagumpay, Lv at kakayahan lang ng nagtagumpay ang matitira
+507	・Max ng Fusion Lv ay Lv.9. Sa parehong card, ang lampas sa Lv.9 ay hindi itatapon kundi mapupunta sa Mastery (hindi ma-fusion ang magkaibang card na lalampas sa Lv.9 ang kabuuan)
+508	・Kapag pinag-fusion ang parehong card sa card na Lv.9 MAX, uusad ang Mastery (★5 = AWAKENED)
+509	<size=19>Naabot na ang ★5 (AWAKENED). Idadagdag sa hinaharap ang gamit ng sobrang card pagkatapos ng ★5 (hindi muna ito mauubos sa fusion).</size>
+510	Kapag pinili ang parehong card ({0}) bilang materyal, uusad ang Mastery ayon sa Lv ng materyal (Lv.1 = +1).
+511	Susunod, pumili ng materyal na card.
+512	Susunod, pumili ng pangunahing card.
+513	AWAKENED (★5) na ang card na ito
+514	Inilagay ang tapos na card bilang pangunahin. Pumili ng materyal na card
+515	Siguradong Upgrade
+516	AWAKENED!
+517	Naabot ang Lv.9 MAX!
+518	Parehong Card: Tapos!
+519	Super Tagumpay! Namana ang kakayahan ng dalawa
+520	Namana ang kakayahan ng pangunahin
+521	Namana ang kakayahan ng materyal
+522	Bigong mamana…  Ginawang MILE ang card
+523	{0}: Matagumpay na Namana!
+524	{0}: Bigong Mamana
+525	Pokus sa Speed
+526	Pokus sa Defense
+527	Pokus sa Blood
+528	Pokus sa Fire
+529	Pokus sa Ice
+530	Pokus sa Lightning

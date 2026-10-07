@@ -1,0 +1,6704 @@
+[
+ {
+  "key": "ABSOLUTE ZERO",
+  "ctx": "card:absolute_zero",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "凍結した雑魚が砕けてダメージ、冷えた/凍った敵への攻撃が上がる(1Lvごとに+3%)。ボスは凍結の代わりの減速が強くなる",
+  "ctx": "card:absolute_zero",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "ADRENALINE",
+  "ctx": "card:adrenaline",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "HP50%以下で攻撃速度が上がり(1Lvごとに+3%)、HP25%以下ではその2倍",
+  "ctx": "card:adrenaline",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "AERIAL BLADE",
+  "ctx": "card:aerial_blade",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "空中で敵に当てると、追い斬りの斬撃が出る(Lvで威力と範囲が上がる)",
+  "ctx": "card:aerial_blade",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "AIR ATTACK UP",
+  "ctx": "card:air_attack_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "空中での攻撃力が上がる(1Lvごとに+7%)",
+  "ctx": "card:air_attack_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "AIR DOMINION",
+  "ctx": "card:air_dominion",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "空中攻撃が上がり(1Lvごとに+3%)、着地せずに当て続けるほどさらに上がる(1回ごとに+1%/Lv、4回まで)",
+  "ctx": "card:air_dominion",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "AIR STRIKE",
+  "ctx": "card:air_strike",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "空中の敵(打ち上げた敵/飛ぶ敵/空のボス)への攻撃が上がる(1Lvごとに+8%)",
+  "ctx": "card:air_strike",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "ATTACK RANGE UP",
+  "ctx": "card:attack_range_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "実効攻撃範囲が広がる(1Lvごとに+3%)。近接は判定、飛び道具は飛ぶ距離(弾は大きくならない)",
+  "ctx": "card:attack_range_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "ATTACK SPEED UP",
+  "ctx": "card:attack_speed_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "攻撃速度が上がる(1Lvごとに+3%)",
+  "ctx": "card:attack_speed_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "ATTACK UP",
+  "ctx": "card:attack_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "攻撃力が上がる(1Lvごとに+5%)",
+  "ctx": "card:attack_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "BERSERK DRIVE",
+  "ctx": "card:berserk_drive",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "HP50%以下で攻撃力(1Lvごとに+5%)と攻撃速度(+2%)、HP25%以下でさらに両方が上がる",
+  "ctx": "card:berserk_drive",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "BERSERKER",
+  "ctx": "card:berserker",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "攻撃力(1Lvごとに+6%)と攻撃速度(+1%)が上がる。最大HPのハートを3Lvごとに1つ封印する",
+  "ctx": "card:berserker",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "BLOOD BLADE",
+  "ctx": "card:blood_blade",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "攻撃が出血を起こす(確率と威力がLvで上がる)。HPが満タンの間は出血の確率が2倍。満HPの攻撃も少し上がる(+2%/Lv)",
+  "ctx": "card:blood_blade",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "BLOOD RUSH",
+  "ctx": "card:blood_rush",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "HP50%以下で攻撃力が上がり(1Lvごとに+4%)、HP25%以下では吸収の確率も上がる(+3%/Lv)",
+  "ctx": "card:blood_rush",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "BOSS CHALLENGE",
+  "ctx": "card:boss_challenge",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "ボスのHPが上がる(1Lvごとに+10%)代わりに、ボスMILEが増える(+40%/Lv)",
+  "ctx": "card:boss_challenge",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "BOSS KILLER",
+  "ctx": "card:boss_killer",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "ボスへの攻撃力が上がる(1Lvごとに+8%)",
+  "ctx": "card:boss_killer",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "BOSS RUSH",
+  "ctx": "card:boss_rush",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "ボスの関門で、確率(1Lvごとに+8%)でボスがもう1体加わる。ボスMILEが増える(+50%/Lv)",
+  "ctx": "card:boss_rush",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "BRAKE ATTACK",
+  "ctx": "card:brake_attack",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "攻撃力が上がる(1Lvごとに+7%)。主攻撃の直後に少し減速する",
+  "ctx": "card:brake_attack",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "BURNING SOUL",
+  "ctx": "card:burning_soul",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "炎上が強く(1Lvごとに+8%)、長く(+0.25秒/Lv)なる。少しだけ自分でも炎上させる",
+  "ctx": "card:burning_soul",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "CHAIN EXPLOSION",
+  "ctx": "card:chain_explosion",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "敵を倒すと爆発する。爆発で倒れた敵からも爆発が続く(3回まで、同じ連鎖で同じ敵へは1回)",
+  "ctx": "card:chain_explosion",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "CHAIN LIGHTNING",
+  "ctx": "card:chain_lightning",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "落雷が近くの別の敵へ連鎖する(3Lvごとに+1体、届く距離もLvで伸びる)。少しだけ自分でも落雷を起こす",
+  "ctx": "card:chain_lightning",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "Gaugeが100%で発動(左下のボタン)。キャラ固有の必殺技で画面内の敵を攻撃しながら大きく前進し(Lv1 約100m → Lv9 約200m)、しばらく強化が続く(Lv1 5秒 → Lv9 12秒)。Gaugeは距離・撃破・ボスへのダメージで溜まる",
+  "ctx": "card:character_ultimate",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "CLOSE CALL",
+  "ctx": "card:close_call",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "移動速度(1Lvごとに+2%)と、被弾した後の無敵時間(1Lvごとに+0.05秒)が上がる",
+  "ctx": "card:close_call",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "COMBO EDGE",
+  "ctx": "card:combo_edge",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "連続ヒット(HIT数)が続くほど攻撃力が上がる(1ヒットごとに+0.4%/Lv、10ヒットまで)",
+  "ctx": "card:combo_edge",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "COMBO MASTER",
+  "ctx": "card:combo_master",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "締めの一撃で、前方へ特殊な衝撃が出る(Lvで威力と範囲が上がる)",
+  "ctx": "card:combo_master",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "COMBO PLUS",
+  "ctx": "card:combo_plus",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "攻撃の流れの最後の一撃(締め)が強くなる(1Lvごとに+7%)",
+  "ctx": "card:combo_plus",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "COMBO RUSH",
+  "ctx": "card:combo_rush",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "連撃の途中の攻撃が強くなり(1Lvごとに+6%)、主攻撃の攻撃速度も少し上がる(+2%/Lv)",
+  "ctx": "card:combo_rush",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "COUNTER",
+  "ctx": "card:counter",
+  "kind": "card",
+  "n": 2
+ },
+ {
+  "key": "Shieldで防いだ時、まわりへ反撃の衝撃(Lvで威力が上がる)。Shieldを持っていなくても1つ持てる",
+  "ctx": "card:counter",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "DEATH'S CONTRACT",
+  "ctx": "card:deaths_contract",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "攻撃力がとても大きく上がる(1Lvごとに+12%)。最大HPのハートを2Lvごとに1つ封印する",
+  "ctx": "card:deaths_contract",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "DOUBLE ATTACK",
+  "ctx": "card:double_attack",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "攻撃したとき、確率(1Lvごとに+3%)で追加の1撃が出る。追加の1撃からは出ない",
+  "ctx": "card:double_attack",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "ELITE ENEMIES",
+  "ctx": "card:elite_enemies",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "雑魚の一部が精鋭になる(1Lvごとに+4%。HP\\xD72.5・少し速い、倒すとMILE\\xD73/経験値\\xD72)。MILEも増える(+30%/Lv)",
+  "ctx": "card:elite_enemies",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "EXECUTIONER",
+  "ctx": "card:executioner",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "敵撃破で得られるMILEが増える(1Lvごとに+15%)",
+  "ctx": "card:executioner",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "EXP CONVERTER",
+  "ctx": "card:exp_converter",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "経験値が減る(1Lvごとに-10%、最低25%)代わりに、敵撃破のMILEが増える(+30%/Lv)",
+  "ctx": "card:exp_converter",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "EXP UP",
+  "ctx": "card:exp_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "得られる経験値が増える(1Lvごとに+20%)",
+  "ctx": "card:exp_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "EXPERIENCE BURST",
+  "ctx": "card:experience_burst",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "敵/ボス/BONUS ZONE の経験値が大きく増える(1Lvごとに+80%)",
+  "ctx": "card:experience_burst",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "FAST ENEMIES",
+  "ctx": "card:fast_enemies",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "雑魚の動き・追尾・攻撃が速くなる(1Lvごとに+4%)代わりに、MILE(+15%/Lv)と撃破の経験値(+5%/Lv)が増える",
+  "ctx": "card:fast_enemies",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "FIRST STRIKE",
+  "ctx": "card:first_strike",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "攻撃の流れの1撃目(初撃)が強くなる(1Lvごとに+10%)",
+  "ctx": "card:first_strike",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "FLAME BLADE",
+  "ctx": "card:flame_blade",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "炎の入口。命中で敵が炎上する(確率 15%+5%/Lv、1秒あたり 5+1.5/Lv のダメージ、3秒)",
+  "ctx": "card:flame_blade",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "FLAME COUNTER",
+  "ctx": "card:flame_counter",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "Shieldで防いだ時、まわりへ炎の反撃(Lvで威力が上がる)、当たった敵は炎上する。Shieldを持っていなくても1つ持てる",
+  "ctx": "card:flame_counter",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "FORTRESS",
+  "ctx": "card:fortress",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "最大HPが増え(1Lvごとにハート+1)、被弾ののけぞりが減る(+5%/Lv)が、移動速度が下がる(1Lvごとに-3%)",
+  "ctx": "card:fortress",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "FROST EDGE",
+  "ctx": "card:frost_edge",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "氷の入口。命中で敵が冷える(確率 15%+5%/Lv、動きが 25%+2%/Lv 遅く)。冷えが重なると凍結(ボスは止まらず強い減速)",
+  "ctx": "card:frost_edge",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "GALE",
+  "ctx": "card:gale",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "風刃が速く(1Lvごとに+5%)、遠くへ(+0.4m/Lv)、多くの敵を貫く(3Lvごとに+1)。飛び道具の貫通も増える",
+  "ctx": "card:gale",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "GIANT SLAYER",
+  "ctx": "card:giant_slayer",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "攻撃力が大きく上がる(1Lvごとに+9%)が、攻撃速度が下がる(1Lvごとに-3%)",
+  "ctx": "card:giant_slayer",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "GLASS CANNON",
+  "ctx": "card:glass_cannon",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "攻撃力が大きく上がる(1Lvごとに+9%)。最大HPのハートを2Lvごとに1つ封印する",
+  "ctx": "card:glass_cannon",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "GREED",
+  "ctx": "card:greed",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "移動速度が上がる(1Lvごとに+4%)が、敵の出現が増える(+8%/Lv)",
+  "ctx": "card:greed",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "GROUND BREAKER",
+  "ctx": "card:ground_breaker",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "叩きつけの着地と地上の締めで、地面を走る衝撃波が出る(Lvで威力と長さが上がる)。地上攻撃も少し上がる(+2%/Lv)",
+  "ctx": "card:ground_breaker",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "GROUND FIGHTER",
+  "ctx": "card:ground_fighter",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "地上での攻撃力が上がる(1Lvごとに+7%)",
+  "ctx": "card:ground_fighter",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "GROUND ZERO",
+  "ctx": "card:ground_zero",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "地上での攻撃力が大きく上がる(1Lvごとに+11%)が、空中では下がる(1Lvごとに-5%)",
+  "ctx": "card:ground_zero",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "HEART BREAKER",
+  "ctx": "card:heart_breaker",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "攻撃力が上がり(1Lvごとに+4%)、封印したハート1つごとにさらに攻撃+0.6%/Lv。最大HPのハートを3Lvごとに1つ封印する",
+  "ctx": "card:heart_breaker",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "HEART UP",
+  "ctx": "card:heart_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "最大HPが増え(1Lvごとにハート+1、最大ハート20)、HPが回復する",
+  "ctx": "card:heart_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "HEAVY ARMOR",
+  "ctx": "card:heavy_armor",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "強い一撃(ハート2つ以上)をハート1つ軽くする。最大HPも増える(2Lvごとにハート+1)が、ジャンプ力が下がる(1Lvごとに-3%)",
+  "ctx": "card:heavy_armor",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "HEAVY IMPACT",
+  "ctx": "card:heavy_impact",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "下攻撃/叩きつけ/着地の衝撃が強くなる(1Lvごとに+10%)。締めの一撃も少し上がる(+3%/Lv)",
+  "ctx": "card:heavy_impact",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "HELL MODE",
+  "ctx": "card:hell_mode",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "雑魚のHP(+12%/Lv)・動き(+4%/Lv)・出現(+8%/Lv)が上がる代わりに、MILE(+50%/Lv)とボスMILE(+30%/Lv)が大きく増える",
+  "ctx": "card:hell_mode",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "HIGH VOLTAGE",
+  "ctx": "card:high_voltage",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "雷が強くなる(1Lvごとに+5%)。落雷は雑魚を一瞬止める。落雷の確率も少し上がる(+1%/Lv)",
+  "ctx": "card:high_voltage",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "HORDE",
+  "ctx": "card:horde",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "敵の出現が大きく増える(1Lvごとに+15%)代わりに、MILE(+5%/Lv)と撃破の経験値(+5%/Lv)が増える",
+  "ctx": "card:horde",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "HUNTER",
+  "ctx": "card:hunter",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "ボス戦で動きやすくなる。攻撃の前進/後退が伸び(1Lvごとに+4%)、遠いボスへ近づく速さも上がる(+3%/Lv)",
+  "ctx": "card:hunter",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "ICE PRISON",
+  "ctx": "card:ice_prison",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "凍結しやすくなる(必要な冷えの回数が3Lvごとに-1)。冷えの確率と時間も上がる",
+  "ctx": "card:ice_prison",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "INFERNO",
+  "ctx": "card:inferno",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "燃えている敵を倒すと、まわりへ炎が広がり炎上させる(Lvで威力と範囲が上がる)。少しだけ自分でも炎上させる",
+  "ctx": "card:inferno",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "IRON WILL",
+  "ctx": "card:iron_will",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "HPが満タンの間、攻撃力が上がる(1Lvごとに+5%)。最大HPも増える(3Lvごとにハート+1)",
+  "ctx": "card:iron_will",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "JUMP COUNT UP",
+  "ctx": "card:jump_count_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "空中ジャンプが増える(1Lvごとに+1回)。続けて跳ぶほど少し弱くなるが、穴に落ちた時は弱くならない。魔法使いは上がれる高さが3Lvごとに1段増える",
+  "ctx": "card:jump_count_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "JUMP POWER UP",
+  "ctx": "card:jump_power_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "ジャンプ力が上がる(1Lvごとに+3%)。魔法使いは高度の上下が速くなる",
+  "ctx": "card:jump_power_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "HPがハート1つになった瞬間、短い無敵になる(1秒+1Lvごとに0.15秒)。HPが回復してしばらくたつまで次は出ない",
+  "ctx": "card:last_chance",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "LAST STAND",
+  "ctx": "card:last_stand",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "HP50%以下で攻撃力が上がり(1Lvごとに+4%)、HP25%以下でさらに上がる(+4%/Lv)",
+  "ctx": "card:last_stand",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "LEVEL BREAK",
+  "ctx": "card:level_break",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "得られる経験値が大きく増える(1Lvごとに+30%)",
+  "ctx": "card:level_break",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "LONG BLADE",
+  "ctx": "card:long_blade",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "実効攻撃範囲が大きく広がる(1Lvごとに+5%)",
+  "ctx": "card:long_blade",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "LONG HAUL",
+  "ctx": "card:long_haul",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "経験値(1Lvごとに+15%)と最大HP(3Lvごとにハート+1)が増える",
+  "ctx": "card:long_haul",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "MOB KILLER",
+  "ctx": "card:mob_killer",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "ボス以外の敵への攻撃(1Lvごとに+5%)と、敵撃破のMILE(1Lvごとに+10%)が上がる",
+  "ctx": "card:mob_killer",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "MOMENTUM",
+  "ctx": "card:momentum",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "今の速さが攻撃力になる。100km/hを超えると上がり始め、150km/hで最大(1Lvごとに+4%)。その先は伸びが鈍い",
+  "ctx": "card:momentum",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "MONSTER RUSH",
+  "ctx": "card:monster_rush",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "敵の出現が増える(1Lvごとに+10%)代わりに、経験値が増える(+15%/Lv)",
+  "ctx": "card:monster_rush",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "MORE ENEMIES",
+  "ctx": "card:more_enemies",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "敵の出現が増える(1Lvごとに+10%)。敵撃破のMILEも少し増える(+3%/Lv)",
+  "ctx": "card:more_enemies",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "NO TURNING BACK",
+  "ctx": "card:no_turning_back",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "移動速度が大きく上がる(1Lvごとに+5%)が、敵の出現が増える(+10%/Lv)",
+  "ctx": "card:no_turning_back",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "MILE(1Lvごとに+50%)・ボスMILE(+50%)・経験値(+20%)が増える",
+  "ctx": "card:one_more_mile",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "115km/h以上を続けるとOVERDRIVE(攻撃 1Lvごとに+3%、攻撃速度 +2%)。遅くなると解除。移動速度も少し上がる(1Lvごとに+2%)",
+  "ctx": "card:overdrive",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "OVERHEAL",
+  "ctx": "card:overheal",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "回復量が増える(Lv4〜6で+1、Lv7〜9で+2ハート)。満タンで回復した分はShield1つになる",
+  "ctx": "card:overheal",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "PANDEMONIUM",
+  "ctx": "card:pandemonium",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "雑魚のHP/動き/出現/精鋭、ボスのHPがすべて上がる代わりに、MILE(+60%/Lv)とボスMILE(+60%/Lv)がとても大きく増える",
+  "ctx": "card:pandemonium",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "PATHFINDER",
+  "ctx": "card:pathfinder",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "走った距離の経験値が増える(1Lvごとに+20%)",
+  "ctx": "card:pathfinder",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "PERFECT GUARD",
+  "ctx": "card:perfect_guard",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "Shieldを使った時、短い無敵になる(0.4秒+1Lvごとに0.1秒)。Shieldを持っていなくても1つ持てる",
+  "ctx": "card:perfect_guard",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "倒れた時に一度だけ復活(HPはLvで ハート1〜5)。復活するとこのカードは外れ、また候補に出る(取り直しはLv1から)",
+  "ctx": "card:phoenix",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "PIERCING BLADE",
+  "ctx": "card:piercing_blade",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "攻撃が敵を貫く。近接は当てた敵の後ろへ(Lvで数と威力が上がる)、飛び道具は貫通の回数(3Lvごとに+1)",
+  "ctx": "card:piercing_blade",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "PREDATOR",
+  "ctx": "card:predator",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "吸収の確率が上がる(1Lvごとに+3%)。ボスへの攻撃でも、時々吸収の判定がある",
+  "ctx": "card:predator",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "RAPID EDGE",
+  "ctx": "card:rapid_edge",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "主攻撃(前/後)の攻撃速度が上がる(1Lvごとに+5%)。上/下/叩きつけ/大技には掛からない",
+  "ctx": "card:rapid_edge",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "REVERSE GEAR",
+  "ctx": "card:reverse_gear",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "攻撃力が上がる(1Lvごとに+8%)が、移動速度が下がる(1Lvごとに-3%)",
+  "ctx": "card:reverse_gear",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "HPが30%以下に落ちた時、HPを少し回復(ハート1〜3)。一度出ると距離のクールダウン(10,000m、Lvで短く)",
+  "ctx": "card:second_wind",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "SHIELD",
+  "ctx": "card:shield",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "被弾を1回防ぐShield。最大数は3Lvごとに+1(最大3)、使った分は時間で戻る(Lvで速くなる)",
+  "ctx": "card:shield",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "SHOCKWAVE",
+  "ctx": "card:shockwave",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "近接の命中で前方へ短い衝撃波、飛び道具は着弾点のまわりに衝撃波(Lvで威力と範囲が上がる)",
+  "ctx": "card:shockwave",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "SKY MASTER",
+  "ctx": "card:sky_master",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "空中攻撃が上がる(1Lvごとに+4%)。空中で当てると空中ジャンプを1回取り戻す(1回の滞空で3Lvごとに1回)",
+  "ctx": "card:sky_master",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "SKY RUNNER",
+  "ctx": "card:sky_runner",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "ジャンプ力(1Lvごとに+2%)と空中攻撃(1Lvごとに+3%)が上がる",
+  "ctx": "card:sky_runner",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "SKYBOUND",
+  "ctx": "card:skybound",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "空中での攻撃力が大きく上がる(1Lvごとに+11%)が、地上では下がる(1Lvごとに-5%)",
+  "ctx": "card:skybound",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "SONIC BLADE",
+  "ctx": "card:sonic_blade",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "主攻撃のたびに前方へ斬撃が飛ぶ。速く走っているほど遠く・大きく・強くなる",
+  "ctx": "card:sonic_blade",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "SPEED DOWN",
+  "ctx": "card:speed_down",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "移動速度が下がる(1Lvごとに-4%)。ソロでは選ぶ理由の少ない特殊なカード",
+  "ctx": "card:speed_down",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "SPEED UP",
+  "ctx": "card:speed_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "移動速度が上がる(1Lvごとに+3%)",
+  "ctx": "card:speed_up",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "THE LONG ROAD",
+  "ctx": "card:the_long_road",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "経験値(1Lvごとに+40%)と最大HP(2Lvごとにハート+1)が増える",
+  "ctx": "card:the_long_road",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "THUNDER LORD",
+  "ctx": "card:thunder_lord",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "雷の上位。威力(1Lvごとに+4%)・連鎖(3Lvごとに+1体)・落雷のまわりへの範囲が強くなる",
+  "ctx": "card:thunder_lord",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "THUNDER STRIKE",
+  "ctx": "card:thunder_strike",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "雷の入口。命中で落雷が起きる(確率 5%+2%/Lv、威力 7.5+1.5/Lv。同じ敵へは0.4秒に1回まで)",
+  "ctx": "card:thunder_strike",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "TORNADO",
+  "ctx": "card:tornado",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "風刃が当たった所に小さな竜巻が起き、まわりの敵を巻き込む(Lvで威力と範囲が上がる)。少しだけ自分でも風刃を出す",
+  "ctx": "card:tornado",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "TOUGH ENEMIES",
+  "ctx": "card:tough_enemies",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "雑魚のHPが上がる(1Lvごとに+15%)代わりに、MILE(+15%/Lv)と撃破の経験値(+5%/Lv)が増える",
+  "ctx": "card:tough_enemies",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "TREASURE HUNTER",
+  "ctx": "card:treasure_hunter",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "宝・報酬(BONUS ZONE の宝運びゴブリン/黄金スライム/ミミック/CLEAR/PERFECT、WANTED の賞金)のMILEが増える(1Lvごとに+30%)。ボスと距離のMILEも少し増える",
+  "ctx": "card:treasure_hunter",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "ALMIGHTY",
+  "ctx": "card:ultimate",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "攻撃力(1Lvごとに+3%)・最大HP(2Lvごとにハート+1)・移動速度(1Lvごとに+2%)をまとめて上げる万能カード",
+  "ctx": "card:ultimate",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "VAMPIRE",
+  "ctx": "card:vampire",
+  "kind": "card",
+  "n": 2
+ },
+ {
+  "key": "敵を倒した時、確率(1Lvごとに+3%)でHPをハート1つ回復",
+  "ctx": "card:vampire",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "WANTED",
+  "ctx": "card:wanted",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "一定距離ごとに賞金首が現れる(Lvで強く・頻繁に)。倒せば賞金、通り過ぎれば逃げ切り。MILEが増える(+35%/Lv)",
+  "ctx": "card:wanted",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "WIND CUTTER",
+  "ctx": "card:wind_cutter",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "風の入口。命中で前方へ貫通する風刃が飛ぶ(確率 10%+3%/Lv、威力 8+1.5/Lv)。攻撃範囲も少し広がる(+1%/Lv)",
+  "ctx": "card:wind_cutter",
+  "kind": "card",
+  "n": 1
+ },
+ {
+  "key": "RANGER",
+  "ctx": "char:archer",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "Draw, Aim, Pierce",
+  "ctx": "char:archer",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "A ranger of the deep woods\nwith a longbow taller than himself.\nThe longer he draws, the harder it hits -\nbut up close, he has little to answer with.",
+  "ctx": "char:archer",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "SNIPER",
+  "ctx": "char:archer",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "DRAGON LANCER",
+  "ctx": "char:dragon_lancer",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "Break Through, Never Yield",
+  "ctx": "char:dragon_lancer",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "A young dragon knight bearing a lance\nforged from a dragon's fang.\nHe breaks every line head-on -\nbut anything that slips inside his reach\nis hard for him to answer.",
+  "ctx": "char:dragon_lancer",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "BREAKER",
+  "ctx": "char:dragon_lancer",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "DRAGONKIN",
+  "ctx": "char:dragonkin",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "Claw, Tail, Wing, Flame",
+  "ctx": "char:dragonkin",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "A warrior with the blood of dragons.\nShe needs no weapon - claws, tail and fire\nsweep everything aside.\nHer size makes her easy to hit, but hard to stop.",
+  "ctx": "char:dragonkin",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "BRUTE",
+  "ctx": "char:dragonkin",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "DUAL BLADE",
+  "ctx": "char:dual_blade",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "Swift Steel, Endless Motion",
+  "ctx": "char:dual_blade",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "A swift dual-wielder who chains strikes\ntogether without ever slowing down.\nSpeed and momentum are her greatest weapons.",
+  "ctx": "char:dual_blade",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "GROUND COMBO",
+  "ctx": "char:dual_blade",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "BRAWLER",
+  "ctx": "char:fighter",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "Fists That Answer Back",
+  "ctx": "char:fighter",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "A martial artist who fights\nwith nothing but iron gauntlets.\nHe must get close - and when you strike first,\nhe strikes back harder.",
+  "ctx": "char:fighter",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "GUNSLINGER",
+  "ctx": "char:gunslinger",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "One Shot, One Distance",
+  "ctx": "char:gunslinger",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "Twin pistols, a single sharp line of fire.\nShe wins the fight before it ever\ncloses in - but let an enemy through,\nand she has no answer for it.",
+  "ctx": "char:gunslinger",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "RANGED",
+  "ctx": "char:gunslinger",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "SORCERESS",
+  "ctx": "char:mage",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "Float Above, Strike Below",
+  "ctx": "char:mage",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "A sorceress who never touches the ground.\nShe rises and sinks at will,\nraining spells on whatever lies below -\nbut a single blow cuts deep.",
+  "ctx": "char:mage",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "FLIGHT MAGE",
+  "ctx": "char:mage",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "SHRINE MAIDEN",
+  "ctx": "char:miko",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "Seal the Path Ahead",
+  "ctx": "char:miko",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "An exorcist of a mountain shrine.\nShe lays ofuda and barriers ahead,\nand the path itself turns against her foes -\nbut she is slow to strike first.",
+  "ctx": "char:miko",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "SEALER",
+  "ctx": "char:miko",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "SHINOBI",
+  "ctx": "char:ninja",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "Vanish, Cut, Vanish",
+  "ctx": "char:ninja",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "A shinobi who is never where you strike.\nShe blinks through enemies with a single cut\nand is gone before they fall -\nbut she cannot take many hits.",
+  "ctx": "char:ninja",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "MOBILITY",
+  "ctx": "char:ninja",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "NOBLE LADY",
+  "ctx": "char:noble_lady",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "A Hero Not Yet Awakened",
+  "ctx": "char:noble_lady",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "Clad in silver and gold, she wields a\ngreatsword said to fell dragons.\nHer legend, however, has yet to catch\nup with her armor.",
+  "ctx": "char:noble_lady",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "NOBLE KNIGHT",
+  "ctx": "char:noble_lady",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "SWORDSMAN",
+  "ctx": "char:swordsman",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "The One Who Keeps Moving",
+  "ctx": "char:swordsman",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "A lone swordsman who walks his own path.\nNo matter how many times he falls,\nhe rises again - because there is still\na further place to reach.",
+  "ctx": "char:swordsman",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "BALANCED",
+  "ctx": "char:swordsman",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "The Longer, The Stronger",
+  "ctx": "char:vampire",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "A noble of the night who needs no blade.\nEvery wound he deals feeds his blood,\nand a long fight only makes him faster -\nbut he starts every battle hungry.",
+  "ctx": "char:vampire",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "BLOOD",
+  "ctx": "char:vampire",
+  "kind": "char",
+  "n": 1
+ },
+ {
+  "key": "CHARACTER CARDS",
+  "ctx": "Editor/SceneBuilder.cs:1449",
+  "kind": "scene",
+  "n": 1
+ },
+ {
+  "key": "CHARACTER SELECT",
+  "ctx": "Editor/SceneBuilder.cs:1619",
+  "kind": "scene",
+  "n": 1
+ },
+ {
+  "key": "SELECT",
+  "ctx": "Editor/SceneBuilder.cs:1646",
+  "kind": "scene",
+  "n": 1
+ },
+ {
+  "key": "LIFE",
+  "ctx": "Editor/SceneBuilder.cs:1889",
+  "kind": "scene",
+  "n": 1
+ },
+ {
+  "key": "POWER",
+  "ctx": "Editor/SceneBuilder.cs:1889",
+  "kind": "scene",
+  "n": 1
+ },
+ {
+  "key": "STAGE SELECT",
+  "ctx": "Editor/SceneBuilder.cs:1994",
+  "kind": "scene",
+  "n": 1
+ },
+ {
+  "key": "出発",
+  "ctx": "Editor/SceneBuilder.cs:2023",
+  "kind": "scene",
+  "n": 1
+ },
+ {
+  "key": "おすすめ編成",
+  "ctx": "Editor/SceneBuilder.cs:2383",
+  "kind": "scene",
+  "n": 1
+ },
+ {
+  "key": "全て外す",
+  "ctx": "Editor/SceneBuilder.cs:2400",
+  "kind": "scene",
+  "n": 1
+ },
+ {
+  "key": "はい",
+  "ctx": "Editor/SceneBuilder.cs:2464",
+  "kind": "scene",
+  "n": 1
+ },
+ {
+  "key": "いいえ",
+  "ctx": "Editor/SceneBuilder.cs:2482",
+  "kind": "scene",
+  "n": 1
+ },
+ {
+  "key": "LAST CORRIDOR",
+  "ctx": "stage:last_corridor",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "敵: 全ステージの敵が混在(強化)",
+  "ctx": "stage:last_corridor",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "特徴: 崩落する床・落ちてくる構造物・浮遊する回廊",
+  "ctx": "stage:last_corridor",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "ルート: 巨大な古代回廊 → 崩壊 → 奈落 → 最後の道",
+  "ctx": "stage:last_corridor",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "自然洞窟",
+  "ctx": "stage:natural_cave",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "敵: アリ / ホッパー / コウモリ / ワーム",
+  "ctx": "stage:natural_cave",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "特徴: 岩の天井・天井の針・暗がりとたいまつ",
+  "ctx": "stage:natural_cave",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "ルート: 一本道(地上・空中・地中・天井の脅威)",
+  "ctx": "stage:natural_cave",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "天空回廊",
+  "ctx": "stage:sky_corridor",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "敵: ゴブリン系 + 距離進行で徐々に解禁",
+  "ctx": "stage:sky_corridor",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "特徴: 岩と雲の浮遊足場、上空の道",
+  "ctx": "stage:sky_corridor",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "ルート: 進むほど危険度が上昇",
+  "ctx": "stage:sky_corridor",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "荒野街道",
+  "ctx": "stage:wasteland_road",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "敵: ゴブリン / 鳥",
+  "ctx": "stage:wasteland_road",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "障害物: 石・小木・壁・壊せる木・巨大石・穴",
+  "ctx": "stage:wasteland_road",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "ルート: 上 Easy / 下 Danger",
+  "ctx": "stage:wasteland_road",
+  "kind": "stage",
+  "n": 1
+ },
+ {
+  "key": "倒れました。「同条件で再戦」ですぐやり直せます",
+  "ctx": "Arena/ArenaController.cs:213",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HPを全回復しました",
+  "ctx": "Arena/ArenaController.cs:232",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "敵と敵の攻撃を全部消しました(撃破の時間には数えません)",
+  "ctx": "Arena/ArenaController.cs:234",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "与ダメージ {0}    被ダメージ {1}    {2}秒",
+  "ctx": "Arena/ArenaController.cs:282",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "無敵",
+  "ctx": "Arena/ArenaController.cs:282",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "≡ 設定",
+  "ctx": "Arena/ArenaController.cs:290",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "同条件で再戦",
+  "ctx": "Arena/ArenaController.cs:290",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "敵を全削除",
+  "ctx": "Arena/ArenaController.cs:290",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ホームへ",
+  "ctx": "Arena/ArenaController.cs:290",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "全滅  {0}秒",
+  "ctx": "Arena/ArenaController.cs:310",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "相手",
+  "ctx": "Arena/ArenaController.cs:315",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "詳細",
+  "ctx": "Arena/ArenaController.cs:315",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "結果",
+  "ctx": "Arena/ArenaController.cs:315",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "キャラやカードを自由に試せる練習場",
+  "ctx": "Arena/ArenaController.cs:324",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "この設定で開始",
+  "ctx": "Arena/ArenaController.cs:331",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "開始",
+  "ctx": "Arena/ArenaController.cs:331",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "試用",
+  "ctx": "Arena/ArenaController.cs:363",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "(試用)",
+  "ctx": "Arena/ArenaController.cs:372",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "検索",
+  "ctx": "Arena/ArenaController.cs:387",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<color=#8ce6ff>試用</color>",
+  "ctx": "Arena/ArenaController.cs:407",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "+ 追加",
+  "ctx": "Arena/ArenaController.cs:410",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "今のデッキをコピー",
+  "ctx": "Arena/ArenaController.cs:414",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "キャラカードをコピー",
+  "ctx": "Arena/ArenaController.cs:415",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "試用のビルド({0}枚)",
+  "ctx": "Arena/ArenaController.cs:417",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "全部外す",
+  "ctx": "Arena/ArenaController.cs:418",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "Lv = このランで取った回数(能力ごとに最大9)。所持・デッキは変わりません",
+  "ctx": "Arena/ArenaController.cs:419",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "左の一覧の「+ 追加」でカードを入れます。カードなしでも試せます",
+  "ctx": "Arena/ArenaController.cs:423",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "所持のコピー(合成Lv{0}・能力{1}種)",
+  "ctx": "Arena/ArenaController.cs:432",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "デッキの{0}枚を試用のビルドへコピーしました(デッキは変わりません)",
+  "ctx": "Arena/ArenaController.cs:457",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "キャラカードの{0}枚をコピーしました(開始時のLv)",
+  "ctx": "Arena/ArenaController.cs:470",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "練習標的",
+  "ctx": "Arena/ArenaController.cs:474",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "雑魚",
+  "ctx": "Arena/ArenaController.cs:474",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "荒野のボス",
+  "ctx": "Arena/ArenaController.cs:474",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "洞窟のボス",
+  "ctx": "Arena/ArenaController.cs:474",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "天空のボス",
+  "ctx": "Arena/ArenaController.cs:474",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "動かない標的: 攻撃もしない(当たってもダメージなし)・倒れない。攻撃の確認に。走っている時はプレイヤーとの間合いを保ちます",
+  "ctx": "Arena/ArenaController.cs:486",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "数",
+  "ctx": "Arena/ArenaController.cs:500",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "動きの強さ",
+  "ctx": "Arena/ArenaController.cs:501",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "段階",
+  "ctx": "Arena/ArenaController.cs:501",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ボスは自分の登場の動きで前から現れます",
+  "ctx": "Arena/ArenaController.cs:502",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "洞窟/天空のボスの地形を使う技(穴/天井/落石/空の帯など)は、平らな闘技場では本編と出方が違います",
+  "ctx": "Arena/ArenaController.cs:502",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ボスは1種類まで(雑魚と一緒に出せます)",
+  "ctx": "Arena/ArenaController.cs:504",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "相手に加える",
+  "ctx": "Arena/ArenaController.cs:505",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ボスは1種類まで(前のボスと入れ替えました)",
+  "ctx": "Arena/ArenaController.cs:513",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "今の相手({0})",
+  "ctx": "Arena/ArenaController.cs:518",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "相手がいません(このまま始めると敵なしで動きだけ試せます)",
+  "ctx": "Arena/ArenaController.cs:522",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "敵の強さ: {0}km地点相当(HP/攻撃が本編のその距離と同じ)",
+  "ctx": "Arena/ArenaController.cs:533",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "速度",
+  "ctx": "Arena/ArenaController.cs:565",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "止まる(0km/h)",
+  "ctx": "Arena/ArenaController.cs:566",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "走る(基準速度+補正)",
+  "ctx": "Arena/ArenaController.cs:566",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "走る(速度を固定)",
+  "ctx": "Arena/ArenaController.cs:566",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "自動の前進だけが止まります(攻撃/ジャンプ/重力/のけぞり/敵の動きは本編どおり)",
+  "ctx": "Arena/ArenaController.cs:570",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "基準の速度に、キャラ/カードの速さの補正(SPEED UP など)を掛けた速さで走ります",
+  "ctx": "Arena/ArenaController.cs:571",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "補正を掛けず、この速さのまま走ります(速さのカードの違いを除いて比べる時に)",
+  "ctx": "Arena/ArenaController.cs:571",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "今: 基準 {0}km/h → 実際 {1}km/h(補正 ×{2})",
+  "ctx": "Arena/ArenaController.cs:579",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "無敵 / HP",
+  "ctx": "Arena/ArenaController.cs:583",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "無敵: {0}",
+  "ctx": "Arena/ArenaController.cs:584",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HPを全回復",
+  "ctx": "Arena/ArenaController.cs:585",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "無敵の時も「本来受けたダメージ」は結果に出ます",
+  "ctx": "Arena/ArenaController.cs:586",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "操作アシスト(設定の「高速時の自動補助」と同じ。闘技場の中だけ・設定は変わりません)",
+  "ctx": "Arena/ArenaController.cs:588",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "OFF",
+  "ctx": "Arena/ArenaController.cs:589",
+  "kind": "ui",
+  "n": 5
+ },
+ {
+  "key": "ON",
+  "ctx": "Arena/ArenaController.cs:589",
+  "kind": "ui",
+  "n": 5
+ },
+ {
+  "key": "常時(開発版)",
+  "ctx": "Arena/ArenaController.cs:589",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "働く速さ {0}km/h~",
+  "ctx": "Arena/ArenaController.cs:592",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "闘技場では未対応: FINAL EVOLUTION / AWAKENED / Mastery / ULTIMATE のゲージ / レベルアップ / ボス報酬 / BONUS ZONE(カードは通常の Lv の効果と COMBO だけ。報酬・記録・所持は一切変わりません)",
+  "ctx": "Arena/ArenaController.cs:597",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "開発版だけ",
+  "ctx": "Arena/ArenaController.cs:601",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "未遭遇の敵も選ぶ: {0}",
+  "ctx": "Arena/ArenaController.cs:603",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "乱数を固定: {0}",
+  "ctx": "Arena/ArenaController.cs:604",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "障害物を壊す補助: {0}",
+  "ctx": "Arena/ArenaController.cs:605",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "倒れた",
+  "ctx": "Arena/ArenaController.cs:614",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "全滅 {0}秒",
+  "ctx": "Arena/ArenaController.cs:614",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "終了",
+  "ctx": "Arena/ArenaController.cs:614",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "戦闘中",
+  "ctx": "Arena/ArenaController.cs:614",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "今回: {0}",
+  "ctx": "Arena/ArenaController.cs:615",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "与ダメージ",
+  "ctx": "Arena/ArenaController.cs:617",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "命中数",
+  "ctx": "Arena/ArenaController.cs:617",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "撃破数",
+  "ctx": "Arena/ArenaController.cs:617",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "撃破までの時間",
+  "ctx": "Arena/ArenaController.cs:617",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "被ダメージ(HPが減った分)",
+  "ctx": "Arena/ArenaController.cs:617",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "本来の被ダメージ(無敵/Shield も含む)",
+  "ctx": "Arena/ArenaController.cs:617",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "戦闘時間",
+  "ctx": "Arena/ArenaController.cs:617",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "N0",
+  "ctx": "Arena/ArenaController.cs:620",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0}秒",
+  "ctx": "Arena/ArenaController.cs:621",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "{0}({1}回)",
+  "ctx": "Arena/ArenaController.cs:622",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "今回",
+  "ctx": "Arena/ArenaController.cs:625",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "前回",
+  "ctx": "Arena/ArenaController.cs:626",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "今回の条件: {0}",
+  "ctx": "Arena/ArenaController.cs:638",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "試用のビルド: {0}",
+  "ctx": "Arena/ArenaController.cs:638",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "前回の条件: {0}",
+  "ctx": "Arena/ArenaController.cs:639",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "前回のビルド: {0}",
+  "ctx": "Arena/ArenaController.cs:639",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "設定を変更",
+  "ctx": "Arena/ArenaController.cs:642",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "？？？(まだ会っていない)",
+  "ctx": "Arena/ArenaController.cs:681",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "動かない標的",
+  "ctx": "Arena/ArenaController.cs:748",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0} / カード{1}枚 / {2} / {3}km地点相当",
+  "ctx": "Arena/ArenaController.cs:90",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "カードなし",
+  "ctx": "Arena/ArenaController.cs:96",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "(所持のコピー)",
+  "ctx": "Arena/ArenaController.cs:97",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "闘技場を準備中",
+  "ctx": "Arena/ArenaLauncher.cs:55",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ARENA",
+  "ctx": "Arena/ArenaLauncher.cs:56",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MIMIC KO",
+  "ctx": "BonusZone.cs:267",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "GOBLIN",
+  "ctx": "BonusZone.cs:277",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "SLIME",
+  "ctx": "BonusZone.cs:277",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "FAIRY",
+  "ctx": "BonusZone.cs:277",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MIMIC",
+  "ctx": "BonusZone.cs:277",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MILE",
+  "ctx": "BonusZone.cs:441",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "EXP",
+  "ctx": "BonusZone.cs:441",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "JACKPOT!!",
+  "ctx": "BonusZone.cs:564",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BONUS ZONE!",
+  "ctx": "BonusZone.cs:564",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "PERFECT:",
+  "ctx": "BonusZone.cs:567",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "JACKPOT CLEAR!",
+  "ctx": "BonusZone.cs:607",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BONUS CLEAR!",
+  "ctx": "BonusZone.cs:607",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "JACKPOT  PERFECT!",
+  "ctx": "BonusZone.cs:626",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "PERFECT BONUS!",
+  "ctx": "BonusZone.cs:626",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "JACKPOT RESULT",
+  "ctx": "BonusZone.cs:626",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BONUS RESULT",
+  "ctx": "BonusZone.cs:626",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ENEMY",
+  "ctx": "BonusZone.cs:631",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "CLEAR",
+  "ctx": "BonusZone.cs:632",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "PERFECT",
+  "ctx": "BonusZone.cs:633",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "TOTAL",
+  "ctx": "BonusZone.cs:636",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "RANDOM",
+  "ctx": "BonusZone.cs:683",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "END",
+  "ctx": "BonusZone.cs:684",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "GAME CLEAR",
+  "ctx": "BossDefeatPresentation.cs:49",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "BOSS APPROACHING",
+  "ctx": "BossMilestonePresentation.cs:51",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ラン再開まで {0}",
+  "ctx": "Bosses/BossBattle.cs:148",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "現行",
+  "ctx": "Bosses/BossHpPlan.cs:40",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0}発",
+  "ctx": "Bosses/BossHpPlan.cs:40",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "(固定)",
+  "ctx": "CardEffectFormat.cs:79",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "素材にする1枚がデッキ/キャラクターカードで使用中です",
+  "ctx": "CardFusionLogic.cs:105",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "AWAKENED(★5)済みのため、これ以上Masteryは進みません(カードは消費しません。★5後の余ったカードの使い道は今後追加します)",
+  "ctx": "CardFusionLogic.cs:108",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "合成後のLvが{0}になるため合成できません(上限Lv.{1})",
+  "ctx": "CardFusionLogic.cs:115",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "能力が{0}種類になるため合成できません(上限{1}種類)",
+  "ctx": "CardFusionLogic.cs:117",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "合成処理中です",
+  "ctx": "CardFusionLogic.cs:220",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "カードが不足しています",
+  "ctx": "CardFusionLogic.cs:245",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "<color=#ffd76a><b>【MASTERY】 Lv.9 MAX の育成</b></color>",
+  "ctx": "CardFusionLogic.cs:275",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "メインカードはそのまま残り(Lv.9 MAX)、素材カードだけを消費します。",
+  "ctx": "CardFusionLogic.cs:276",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "今の Mastery: <color=#ffd76a>{0}</color>  {1}",
+  "ctx": "CardFusionLogic.cs:277",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "今回の合成: <b>+{0} Mastery</b>(素材 Lv.{1} = {2}枚分)",
+  "ctx": "CardFusionLogic.cs:278",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "合成後: <color=#ffd76a>{0}</color>  {1}",
+  "ctx": "CardFusionLogic.cs:279",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<size=19>(★{0}つ分、余りは次の★へ繰り越し)</size>",
+  "ctx": "CardFusionLogic.cs:280",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<size=19>★5 の後に余る {0} は捨てずに保管します</size>",
+  "ctx": "CardFusionLogic.cs:282",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<color=#ff9a8a><size=19>素材のサブ能力({0}種)は引き継がれません</size></color>",
+  "ctx": "CardFusionLogic.cs:283",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<size=19>Mastery は通常の性能(攻撃/速度/EXP など)を上げません。育成の記録と AWAKENED への道のりです。</size>",
+  "ctx": "CardFusionLogic.cs:284",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<color=#ff9a8a>実行すると、素材カード1枚が消費されます。</color>",
+  "ctx": "CardFusionLogic.cs:285",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<color=#ffd76a><b>【同名強化 → Lv.9 MAX】 成功率 100%</b></color>",
+  "ctx": "CardFusionLogic.cs:295",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "合成Lv: Lv.{0} + Lv.{1} → <b>Lv.9 MAX</b>",
+  "ctx": "CardFusionLogic.cs:296",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Lv.9 を超える <b>{0}</b> は捨てずに Mastery へ: {1} → <color=#ffd76a>{2}</color>{3}",
+  "ctx": "CardFusionLogic.cs:297",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<b>継承する能力(強化量は9まで)</b>",
+  "ctx": "CardFusionLogic.cs:298",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・{0} <b>×{1}</b>",
+  "ctx": "CardFusionLogic.cs:299",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<color=#ff9a8a>実行すると、選んだ2枚は消費されます(完成カード Lv.9 MAX を1枚得ます)。</color>",
+  "ctx": "CardFusionLogic.cs:300",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<color=#ffd76a><b>【同名強化】 成功率 100%</b></color>",
+  "ctx": "CardFusionLogic.cs:303",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "合成Lv: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>",
+  "ctx": "CardFusionLogic.cs:304",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<b>継承する能力(同じ能力は強化量を合算)</b>",
+  "ctx": "CardFusionLogic.cs:305",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・{0} {1}<b>×{2}</b>  <size=18>({3} ×{4})</size>",
+  "ctx": "CardFusionLogic.cs:310",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<color=#9fd0ff><b>【異名合成】 結果は抽選で決まります</b></color>",
+  "ctx": "CardFusionLogic.cs:315",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<b>完成カードの合成Lv(結果ごと)</b>",
+  "ctx": "CardFusionLogic.cs:316",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・両側成功: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>",
+  "ctx": "CardFusionLogic.cs:317",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・メインのみ成功: <b>Lv.{0}</b>(メイン側のLvのみ)",
+  "ctx": "CardFusionLogic.cs:318",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・素材のみ成功: <b>Lv.{0}</b>(素材側のLvのみ)",
+  "ctx": "CardFusionLogic.cs:319",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・両側失敗: 完成カードなし・<color=#ffd76a>{0} MILE</color> を還元",
+  "ctx": "CardFusionLogic.cs:320",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<b>メイン側 能力一式 継承率 {0}%</b>",
+  "ctx": "CardFusionLogic.cs:321",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・{0} ×{1}  <size=18>({2} ×{3})</size>",
+  "ctx": "CardFusionLogic.cs:322",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "<b>素材側 能力一式 継承率 {0}%</b>",
+  "ctx": "CardFusionLogic.cs:323",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "両方成功: 両側の能力をすべて継承(同じ能力は強化量を合算)",
+  "ctx": "CardFusionLogic.cs:325",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "片側だけ成功: 成功した側の能力・強化量・Lvだけを継承(失敗した側は残りません)",
+  "ctx": "CardFusionLogic.cs:326",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "素材側だけ成功した場合は、素材側の主能力が完成カードの主能力になります",
+  "ctx": "CardFusionLogic.cs:327",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<size=18>(両側失敗の還元 =★{0}×Lv.{1}×{2} + ★{3}×Lv.{4}×{5})</size>",
+  "ctx": "CardFusionLogic.cs:328",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<color=#ff9a8a>実行すると、選んだ2枚は消費されます。</color>",
+  "ctx": "CardFusionLogic.cs:330",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "このカードを所持していません",
+  "ctx": "CardFusionLogic.cs:69",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "デッキとキャラクターカードで使用中のため選べません",
+  "ctx": "CardFusionLogic.cs:74",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "キャラクターカードに装備中のため選べません",
+  "ctx": "CardFusionLogic.cs:75",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "デッキで使用中のため選べません",
+  "ctx": "CardFusionLogic.cs:76",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "同じ性能のカードが2枚必要です(所持1枚)",
+  "ctx": "CardFusionLogic.cs:77",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "メインカードと素材カードを選んでください",
+  "ctx": "CardFusionLogic.cs:93",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "カードの情報を読み込めません",
+  "ctx": "CardFusionLogic.cs:95",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MASTERY UP！",
+  "ctx": "CardFusionUI.cs:1036",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "合成大成功！",
+  "ctx": "CardFusionUI.cs:1037",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "合成成功！",
+  "ctx": "CardFusionUI.cs:1037",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<size=21>★{0}つ分進みました(余りは次の★へ繰り越し)</size>",
+  "ctx": "CardFusionUI.cs:1049",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<size=21>★5 の後に余った {0} は保管しました(今後の使い道に使えます)</size>",
+  "ctx": "CardFusionUI.cs:1050",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<size=21>このカードは AWAKENED になりました(永久の記録。通常の性能は変わりません)</size>",
+  "ctx": "CardFusionUI.cs:1051",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "メインカード(Lv.9 MAX)はそのまま残り、素材カードを1枚消費しました。",
+  "ctx": "CardFusionUI.cs:1056",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<size=21>Mastery は通常の性能(攻撃/速度/EXP など)を上げません。</size>",
+  "ctx": "CardFusionUI.cs:1057",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "合成Lv.<b>{0}</b>{1}",
+  "ctx": "CardFusionUI.cs:1066",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": ")}    レア度 <color=#ffd76a>{new string('★', v.rarity)}</color>",
+  "ctx": "CardFusionUI.cs:1066",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<color=#ffd76a>同名強化(確定)</color> … 両方の能力をすべて継承",
+  "ctx": "CardFusionUI.cs:1067",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "メイン側({0} Lv.{1}): {2}",
+  "ctx": "CardFusionUI.cs:1070",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "素材側({0} Lv.{1}): {2}",
+  "ctx": "CardFusionUI.cs:1071",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "メイン側のLvのみ",
+  "ctx": "CardFusionUI.cs:1074",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "素材側のLvのみ",
+  "ctx": "CardFusionUI.cs:1074",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<size=21>完成Lv.{0} = {1}</size>",
+  "ctx": "CardFusionUI.cs:1075",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<b>主能力</b>",
+  "ctx": "CardFusionUI.cs:1077",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<b>サブ能力 ({0}/{1})</b>",
+  "ctx": "CardFusionUI.cs:1078",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "なし",
+  "ctx": "CardFusionUI.cs:1079",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "合成失敗…",
+  "ctx": "CardFusionUI.cs:1084",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "メイン側({0} Lv.{1}): <color=#9aa3b8>継承失敗</color>",
+  "ctx": "CardFusionUI.cs:1087",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "素材側({0} Lv.{1}): <color=#9aa3b8>継承失敗</color>",
+  "ctx": "CardFusionUI.cs:1088",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "選んだ2枚のカードは消費されました。",
+  "ctx": "CardFusionUI.cs:1089",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "還元MILE  <color=#ffd76a><b><size=40>+{0}</size></b></color>",
+  "ctx": "CardFusionUI.cs:1090",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "所持MILE  <b>{0}</b>",
+  "ctx": "CardFusionUI.cs:1092",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<color=#ffd76a><b>強化 ×{0}→×{1}</b></color>",
+  "ctx": "CardFusionUI.cs:1114",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3} ×{4})</color></size>",
+  "ctx": "CardFusionUI.cs:1115",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "戻る",
+  "ctx": "CardFusionUI.cs:249",
+  "kind": "ui",
+  "n": 6
+ },
+ {
+  "key": "カード合成",
+  "ctx": "CardFusionUI.cs:254",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "並び替え",
+  "ctx": "CardFusionUI.cs:273",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "メイン",
+  "ctx": "CardFusionUI.cs:293",
+  "kind": "ui",
+  "n": 4
+ },
+ {
+  "key": "素材",
+  "ctx": "CardFusionUI.cs:293",
+  "kind": "ui",
+  "n": 4
+ },
+ {
+  "key": "カード",
+  "ctx": "CardFusionUI.cs:304",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "選択中",
+  "ctx": "CardFusionUI.cs:308",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "合成する",
+  "ctx": "CardFusionUI.cs:333",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "スキップ ▶▶",
+  "ctx": "CardFusionUI.cs:396",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "続けて合成",
+  "ctx": "CardFusionUI.cs:413",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "一覧へ戻る",
+  "ctx": "CardFusionUI.cs:417",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "所持MILE  {0}",
+  "ctx": "CardFusionUI.cs:452",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "{0}種 / 全{1}枚",
+  "ctx": "CardFusionUI.cs:474",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "メインカード",
+  "ctx": "CardFusionUI.cs:488",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "素材カード",
+  "ctx": "CardFusionUI.cs:488",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "すべて",
+  "ctx": "CardFusionUI.cs:49",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "移動",
+  "ctx": "CardFusionUI.cs:49",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "攻撃",
+  "ctx": "CardFusionUI.cs:49",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "防御",
+  "ctx": "CardFusionUI.cs:49",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "成長",
+  "ctx": "CardFusionUI.cs:49",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "回復",
+  "ctx": "CardFusionUI.cs:49",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "特殊",
+  "ctx": "CardFusionUI.cs:49",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "リスク",
+  "ctx": "CardFusionUI.cs:49",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "カードを2枚選んでください",
+  "ctx": "CardFusionUI.cs:497",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "合成できません",
+  "ctx": "CardFusionUI.cs:497",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "名前",
+  "ctx": "CardFusionUI.cs:50",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "レベル",
+  "ctx": "CardFusionUI.cs:50",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "レア度",
+  "ctx": "CardFusionUI.cs:50",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "所持枚数",
+  "ctx": "CardFusionUI.cs:50",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "所持{0}  使用可<color=#{1}",
+  "ctx": "CardFusionUI.cs:583",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "能力{0}",
+  "ctx": "CardFusionUI.cs:583",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "メイン+素材",
+  "ctx": "CardFusionUI.cs:587",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "使用中",
+  "ctx": "CardFusionUI.cs:587",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<color=#ffd76a><b>{0}</b></color>  <b>{1}</b>  {2}  合成Lv.{3}{4}",
+  "ctx": "CardFusionUI.cs:620",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "主能力: {0}",
+  "ctx": "CardFusionUI.cs:621",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "サブ能力({0}):",
+  "ctx": "CardFusionUI.cs:624",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・{0}",
+  "ctx": "CardFusionUI.cs:625",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "サブ能力: なし",
+  "ctx": "CardFusionUI.cs:627",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<size=19><color=#b7bfd8>所持{0}枚 / 使用可{1}枚</color></size>",
+  "ctx": "CardFusionUI.cs:628",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "左の一覧からカードを選んでください。",
+  "ctx": "CardFusionUI.cs:636",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "選択中の枠(光っている枠)にカードが入ります。枠をタップすると選択先を切り替えられ、×で選択を外せます。",
+  "ctx": "CardFusionUI.cs:636",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・同じカード同士 … 成功率100%で合成Lvと全能力を合算",
+  "ctx": "CardFusionUI.cs:636",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・違うカード同士 … メイン側50%/素材側25%で能力一式を継承(抽選)。片側だけ成功した場合は、成功した側のLvと能力だけが残ります",
+  "ctx": "CardFusionUI.cs:636",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・合成Lvの上限はLv.9。同じカードで Lv.9 を超える分は捨てずに Mastery へ(違うカードで合計が Lv.9 を超える組み合わせは合成できません)",
+  "ctx": "CardFusionUI.cs:636",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・Lv.9 MAX のカードに同じカードを合成すると Mastery が進みます(★5 で AWAKENED)",
+  "ctx": "CardFusionUI.cs:636",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<size=19>★5(AWAKENED)に到達しています。★5 の後に余ったカードの使い道は今後追加します(今は合成で消費しません)。</size>",
+  "ctx": "CardFusionUI.cs:654",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "同じカード({0})を素材に選ぶと、素材のLvぶん Mastery が進みます(Lv.1 = +1)。",
+  "ctx": "CardFusionUI.cs:655",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "次に素材カードを選んでください。",
+  "ctx": "CardFusionUI.cs:657",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "次にメインカードを選んでください。",
+  "ctx": "CardFusionUI.cs:657",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "このカードは AWAKENED(★5)です",
+  "ctx": "CardFusionUI.cs:722",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "完成カードをメインにセットしました。素材カードを選んでください",
+  "ctx": "CardFusionUI.cs:724",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "確定強化",
+  "ctx": "CardFusionUI.cs:830",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "AWAKENED！",
+  "ctx": "CardFusionUI.cs:889",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "Lv.9 MAX 到達！",
+  "ctx": "CardFusionUI.cs:890",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "同名強化 完了！",
+  "ctx": "CardFusionUI.cs:890",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "大成功！ 両側の能力を継承",
+  "ctx": "CardFusionUI.cs:890",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "メイン側の能力を継承",
+  "ctx": "CardFusionUI.cs:890",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "素材側の能力を継承",
+  "ctx": "CardFusionUI.cs:890",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "継承失敗…  カードはMILEに還元されました",
+  "ctx": "CardFusionUI.cs:920",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0}側 継承成功！",
+  "ctx": "CardFusionUI.cs:930",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0}側 継承失敗",
+  "ctx": "CardFusionUI.cs:930",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Speed特化",
+  "ctx": "Cards/CardBuildPresets.cs:10",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Defense特化",
+  "ctx": "Cards/CardBuildPresets.cs:11",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Blood特化",
+  "ctx": "Cards/CardBuildPresets.cs:12",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Fire特化",
+  "ctx": "Cards/CardBuildPresets.cs:13",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Ice特化",
+  "ctx": "Cards/CardBuildPresets.cs:14",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Lightning特化",
+  "ctx": "Cards/CardBuildPresets.cs:15",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Wind特化",
+  "ctx": "Cards/CardBuildPresets.cs:16",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Boss特化",
+  "ctx": "Cards/CardBuildPresets.cs:17",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "EXP特化",
+  "ctx": "Cards/CardBuildPresets.cs:18",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MILE特化",
+  "ctx": "Cards/CardBuildPresets.cs:19",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Challenge大量",
+  "ctx": "Cards/CardBuildPresets.cs:20",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "追加攻撃 全部(負荷確認)",
+  "ctx": "Cards/CardBuildPresets.cs:21",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "一般的な混合",
+  "ctx": "Cards/CardBuildPresets.cs:7",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Attack特化",
+  "ctx": "Cards/CardBuildPresets.cs:8",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "極端なRisk(HP犠牲)",
+  "ctx": "Cards/CardBuildPresets.cs:9",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "AEGIS COUNTER",
+  "ctx": "Cards/CardProcs.Combo.cs:328",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "OVERDRIVE",
+  "ctx": "Cards/CardProcs.cs:315",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "命中時の小さな強化VFX",
+  "ctx": "Cards/CardProgression.cs:73",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "高速時の残像の強化",
+  "ctx": "Cards/CardProgression.cs:74",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "回復時の Blood Aura",
+  "ctx": "Cards/CardProgression.cs:75",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "復活の演出の強化 / 小さな追加の恩恵",
+  "ctx": "Cards/CardProgression.cs:76",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "発動時の専用VFX",
+  "ctx": "Cards/CardProgression.cs:77",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "必殺技の最終演出/専用オーラ/BUFF演出/締めのVFX(ダメージは上げない)",
+  "ctx": "Cards/CardProgression.cs:78",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "WANTED! 賞金首が現れた",
+  "ctx": "Cards/ChallengeSystem.cs:109",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BOUNTY!",
+  "ctx": "Cards/ChallengeSystem.cs:77",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "COMBO!",
+  "ctx": "Cards/ComboSystem.cs:167",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0}秒間",
+  "ctx": "Cards/FinalEvolution.cs:210",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "次の{0}m",
+  "ctx": "Cards/FinalEvolution.cs:210",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "FINAL EVOLUTION: REBIRTH",
+  "ctx": "Cards/FinalEvolution.cs:411",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "LAST CHANCE",
+  "ctx": "Cards/GameManager.CardStats.cs:323",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "SECOND WIND",
+  "ctx": "Cards/GameManager.CardStats.cs:333",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "PHOENIX",
+  "ctx": "Cards/GameManager.CardStats.cs:357",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "尻尾を叩きつけて硬直! 攻撃のチャンス!",
+  "ctx": "CaveBosses.cs:1006",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "PETRIFYING GAZE",
+  "ctx": "CaveBosses.cs:1090",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "CAVE CRAWLER",
+  "ctx": "CaveBosses.cs:110",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "目が弱った! 頭が弱点!",
+  "ctx": "CaveBosses.cs:1115",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "CAVERN DRAGON RAGE",
+  "ctx": "CaveBosses.cs:1202",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "頭が下がった! 長い反撃のチャンス!",
+  "ctx": "CaveBosses.cs:1228",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ABYSSAL CAVERN",
+  "ctx": "CaveBosses.cs:1337",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "跳べ!",
+  "ctx": "CaveBosses.cs:1348",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "降りろ!",
+  "ctx": "CaveBosses.cs:1353",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "魔力切れ! 長い攻撃のチャンス!",
+  "ctx": "CaveBosses.cs:1360",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ひっくり返った! 大チャンス!",
+  "ctx": "CaveBosses.cs:151",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "SCORPION DEATH ZONE",
+  "ctx": "CaveBosses.cs:250",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "尻尾が地面に刺さった! 攻撃のチャンス!",
+  "ctx": "CaveBosses.cs:271",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "UNDERGROUND HUNT",
+  "ctx": "CaveBosses.cs:334",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "目を回している! 攻撃のチャンス!",
+  "ctx": "CaveBosses.cs:359",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "CAVE COLLAPSE",
+  "ctx": "CaveBosses.cs:440",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "棍棒が抜けない! 攻撃のチャンス!",
+  "ctx": "CaveBosses.cs:469",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "EARTH BREAKER",
+  "ctx": "CaveBosses.cs:549",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "頭が地面に残った! 攻撃のチャンス!",
+  "ctx": "CaveBosses.cs:575",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "CRYSTAL PRISON",
+  "ctx": "CaveBosses.cs:677",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "コア露出! 崩しやすい!",
+  "ctx": "CaveBosses.cs:708",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ECHO HUNT",
+  "ctx": "CaveBosses.cs:841",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "地面に激突! 攻撃のチャンス!",
+  "ctx": "CaveBosses.cs:864",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "カード設定 ▶",
+  "ctx": "CharacterSelectUI.cs:151",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<color=#FFD866><b>キャラカード</b></color>",
+  "ctx": "CharacterSelectUI.cs:160",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<color=#8890A0>(空き)</color>",
+  "ctx": "CharacterSelectUI.cs:164",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "LOCKED",
+  "ctx": "CharacterSelectUI.cs:289",
+  "kind": "ui",
+  "n": 4
+ },
+ {
+  "key": "解放の条件: {0}",
+  "ctx": "CharacterSelectUI.cs:290",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "【主】",
+  "ctx": "Data/CardVariant.cs:165",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "【副】",
+  "ctx": "Data/CardVariant.cs:165",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "移動速度",
+  "ctx": "Data/CardVariant.cs:174",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "攻撃力",
+  "ctx": "Data/CardVariant.cs:175",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "ジャンプ力",
+  "ctx": "Data/CardVariant.cs:176",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "ジャンプ回数",
+  "ctx": "Data/CardVariant.cs:177",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "最大HP",
+  "ctx": "Data/CardVariant.cs:178",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "攻撃範囲",
+  "ctx": "Data/CardVariant.cs:179",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "攻撃速度",
+  "ctx": "Data/CardVariant.cs:180",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "空中攻撃力",
+  "ctx": "Data/CardVariant.cs:181",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "シールド",
+  "ctx": "Data/CardVariant.cs:182",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "獲得EXP",
+  "ctx": "Data/CardVariant.cs:183",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "吸収確率",
+  "ctx": "Data/CardVariant.cs:184",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "吸収量",
+  "ctx": "Data/CardVariant.cs:185",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "敵出現率",
+  "ctx": "Data/CardVariant.cs:186",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "地上攻撃力",
+  "ctx": "Data/CardVariant.cs:187",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "コンボ締め威力",
+  "ctx": "Data/CardVariant.cs:188",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "初撃威力",
+  "ctx": "Data/CardVariant.cs:189",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "瀕死時攻撃力",
+  "ctx": "Data/CardVariant.cs:190",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HP満タン時攻撃力",
+  "ctx": "Data/CardVariant.cs:191",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "加速時攻撃力",
+  "ctx": "Data/CardVariant.cs:192",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ボスへの攻撃力",
+  "ctx": "Data/CardVariant.cs:193",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "敵HP",
+  "ctx": "Data/CardVariant.cs:194",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ボスHP",
+  "ctx": "Data/CardVariant.cs:195",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "獲得MILE",
+  "ctx": "Data/CardVariant.cs:196",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ボス獲得MILE",
+  "ctx": "Data/CardVariant.cs:197",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "炎上(Burn)確率",
+  "ctx": "Data/CardVariant.cs:198",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "炎上の威力",
+  "ctx": "Data/CardVariant.cs:199",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "炎上の時間",
+  "ctx": "Data/CardVariant.cs:200",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "冷気(Chill)確率",
+  "ctx": "Data/CardVariant.cs:201",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "冷気の鈍化",
+  "ctx": "Data/CardVariant.cs:202",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "冷気の時間",
+  "ctx": "Data/CardVariant.cs:203",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "凍結までの蓄積",
+  "ctx": "Data/CardVariant.cs:204",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "凍結の時間",
+  "ctx": "Data/CardVariant.cs:205",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "落雷確率",
+  "ctx": "Data/CardVariant.cs:206",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "落雷の威力",
+  "ctx": "Data/CardVariant.cs:207",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "連鎖数",
+  "ctx": "Data/CardVariant.cs:208",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "連鎖の距離",
+  "ctx": "Data/CardVariant.cs:209",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "風刃確率",
+  "ctx": "Data/CardVariant.cs:210",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "風刃の威力",
+  "ctx": "Data/CardVariant.cs:211",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "貫通数",
+  "ctx": "Data/CardVariant.cs:212",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "風刃の射程",
+  "ctx": "Data/CardVariant.cs:213",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "出血(Bleed)確率",
+  "ctx": "Data/CardVariant.cs:214",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "出血の威力",
+  "ctx": "Data/CardVariant.cs:215",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "出血の時間",
+  "ctx": "Data/CardVariant.cs:216",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "出血の吸収",
+  "ctx": "Data/CardVariant.cs:217",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "瀕死時の出血強化",
+  "ctx": "Data/CardVariant.cs:218",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "主攻撃の攻撃速度",
+  "ctx": "Data/CardVariant.cs:224",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "実効攻撃範囲",
+  "ctx": "Data/CardVariant.cs:225",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "最大HP(ハート)",
+  "ctx": "Data/CardVariant.cs:226",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "封印するハート",
+  "ctx": "Data/CardVariant.cs:227",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "空中攻撃",
+  "ctx": "Data/CardVariant.cs:228",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "地上攻撃",
+  "ctx": "Data/CardVariant.cs:229",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "初撃",
+  "ctx": "Data/CardVariant.cs:230",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "連撃中",
+  "ctx": "Data/CardVariant.cs:231",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "締め",
+  "ctx": "Data/CardVariant.cs:232",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ボスへの攻撃",
+  "ctx": "Data/CardVariant.cs:233",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "雑魚への攻撃",
+  "ctx": "Data/CardVariant.cs:234",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "空中の敵への攻撃",
+  "ctx": "Data/CardVariant.cs:235",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "下攻撃/叩きつけ",
+  "ctx": "Data/CardVariant.cs:236",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "満HPの攻撃",
+  "ctx": "Data/CardVariant.cs:237",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HP50%以下の攻撃",
+  "ctx": "Data/CardVariant.cs:238",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HP25%以下の攻撃",
+  "ctx": "Data/CardVariant.cs:239",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "低HPの攻撃速度",
+  "ctx": "Data/CardVariant.cs:240",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HP25%以下の吸収確率",
+  "ctx": "Data/CardVariant.cs:241",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "封印1つごとの攻撃",
+  "ctx": "Data/CardVariant.cs:242",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "1ヒットごとの攻撃",
+  "ctx": "Data/CardVariant.cs:243",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "空中で当てた回数ごとの攻撃",
+  "ctx": "Data/CardVariant.cs:244",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "150km/hでの攻撃",
+  "ctx": "Data/CardVariant.cs:245",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "OVERDRIVE中の攻撃",
+  "ctx": "Data/CardVariant.cs:246",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "OVERDRIVE中の攻撃速度",
+  "ctx": "Data/CardVariant.cs:247",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Shieldの最大数",
+  "ctx": "Data/CardVariant.cs:248",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Shieldの回復(秒短縮)",
+  "ctx": "Data/CardVariant.cs:249",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "回復量(ハート)",
+  "ctx": "Data/CardVariant.cs:250",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "追加攻撃の確率",
+  "ctx": "Data/CardVariant.cs:251",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "被弾後の無敵(秒)",
+  "ctx": "Data/CardVariant.cs:252",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "のけぞりの軽減",
+  "ctx": "Data/CardVariant.cs:253",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "敵の行動の速さ",
+  "ctx": "Data/CardVariant.cs:254",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "精鋭の確率",
+  "ctx": "Data/CardVariant.cs:255",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "宝・報酬のMILE",
+  "ctx": "Data/CardVariant.cs:256",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "距離のMILE",
+  "ctx": "Data/CardVariant.cs:257",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "距離のEXP",
+  "ctx": "Data/CardVariant.cs:258",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "撃破のEXP",
+  "ctx": "Data/CardVariant.cs:259",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "凍結までの回数",
+  "ctx": "Data/CardVariant.cs:261",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "雷の威力",
+  "ctx": "Data/CardVariant.cs:262",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "落雷の停止(秒)",
+  "ctx": "Data/CardVariant.cs:263",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "落雷の範囲(m)",
+  "ctx": "Data/CardVariant.cs:264",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "風刃の速さ",
+  "ctx": "Data/CardVariant.cs:265",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "効果Lv",
+  "ctx": "Data/CardVariant.cs:267",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "OLD",
+  "ctx": "Data/GachaStage.cs:15",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "REPAIRED",
+  "ctx": "Data/GachaStage.cs:15",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MECHANICAL",
+  "ctx": "Data/GachaStage.cs:15",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MAGICAL",
+  "ctx": "Data/GachaStage.cs:15",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "DEATH-TOUCHED",
+  "ctx": "Data/GachaStage.cs:15",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ALL",
+  "ctx": "DeckEditUI.cs:127",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ATTACK",
+  "ctx": "DeckEditUI.cs:127",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "DEFENSE",
+  "ctx": "DeckEditUI.cs:127",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "SUPPORT",
+  "ctx": "DeckEditUI.cs:127",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "SPECIAL",
+  "ctx": "DeckEditUI.cs:127",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": ")} のキャラカード",
+  "ctx": "DeckEditUI.cs:222",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "使用中のため変換不可",
+  "ctx": "DeckEditUI.cs:492",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "所持 x{0}",
+  "ctx": "DeckEditUI.cs:567",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "カードをタップして詳細を確認",
+  "ctx": "DeckEditUI.cs:58",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "[他のキャラのキャラカード]",
+  "ctx": "DeckEditUI.cs:593",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "現在使用中のカードです。外してから使用してください。",
+  "ctx": "DeckEditUI.cs:774",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "を{CardConvertMile} MILEに変換しますか？",
+  "ctx": "DeckEditUI.cs:781",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "現在のデッキを",
+  "ctx": "DeckEditUI.cs:844",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "おすすめ編成に変更しますか？",
+  "ctx": "DeckEditUI.cs:844",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "デッキからすべてのカードを",
+  "ctx": "DeckEditUI.cs:867",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "外しますか？",
+  "ctx": "DeckEditUI.cs:867",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ドラゴンが低空へ! 反撃のチャンス!",
+  "ctx": "DragonController.cs:1048",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "最終段階!",
+  "ctx": "DragonController.cs:892",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "BREAK!",
+  "ctx": "DragonController.cs:905",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "DRAGON FIRE CHARGE",
+  "ctx": "DragonController.cs:974",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "煉獄の巨大火球",
+  "ctx": "DragonController.cs:974",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "炎 {0}% {1}/s {2}s",
+  "ctx": "Elements/ElementStats.cs:90",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "氷 {0}% -{1}% {2}s 凍結{3}回/{4}s",
+  "ctx": "Elements/ElementStats.cs:91",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "絶対零度Lv{0}",
+  "ctx": "Elements/ElementStats.cs:91",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "雷 {0}% {1} 連鎖{2} 範囲{3}m 停止{4}s",
+  "ctx": "Elements/ElementStats.cs:92",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "風 {0}% {1} 貫通+{2} {3}m",
+  "ctx": "Elements/ElementStats.cs:93",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "血 {0}%{1}",
+  "ctx": "Elements/ElementStats.cs:94",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": ")} {BleedPower * Scale:0.#}/s 吸収{BleedLifesteal * 100f:0}%",
+  "ctx": "Elements/ElementStats.cs:94",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "NEW CARD",
+  "ctx": "GameManager.Gacha.cs:133",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "DUPLICATE",
+  "ctx": "GameManager.Gacha.cs:133",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "(AWAKENED済み・保管)",
+  "ctx": "GameManager.Gacha.cs:157",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "→ 合成で MASTERY +1",
+  "ctx": "GameManager.Gacha.cs:157",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "タップで次へ(あと {0} 枚)",
+  "ctx": "GameManager.Gacha.cs:166",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "タップで閉じる / ガチャをタップで続けて引く",
+  "ctx": "GameManager.Gacha.cs:166",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "NEXT",
+  "ctx": "GameManager.Gacha.cs:169",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "OK",
+  "ctx": "GameManager.Gacha.cs:169",
+  "kind": "ui",
+  "n": 4
+ },
+ {
+  "key": "MILE不足",
+  "ctx": "GameManager.Gacha.cs:180",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "一時停止中 ― 周りを確かめてから再開できます",
+  "ctx": "GameManager.ResumeGate.cs:281",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "準備ができたら再開",
+  "ctx": "GameManager.ResumeGate.cs:284",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "GO!",
+  "ctx": "GameManager.ResumeGate.cs:87",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "NEW UNLOCK:",
+  "ctx": "GameManager.cs:1451",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "READY",
+  "ctx": "GameManager.cs:1567",
+  "kind": "ui",
+  "n": 4
+ },
+ {
+  "key": "SPEED",
+  "ctx": "GameManager.cs:1810",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "SPEED UP!",
+  "ctx": "GameManager.cs:1822",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "選択待ちの停止理由だけが残っていた",
+  "ctx": "GameManager.cs:2485",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ポーズメニューの停止理由だけが残っていた",
+  "ctx": "GameManager.cs:2485",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ボス登場演出のスローが長すぎた",
+  "ctx": "GameManager.cs:2500",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ボス登場演出のスローだけが残っていた",
+  "ctx": "GameManager.cs:2500",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BOSS REWARD",
+  "ctx": "GameManager.cs:2515",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "LEVEL UP",
+  "ctx": "GameManager.cs:2515",
+  "kind": "ui",
+  "n": 5
+ },
+ {
+  "key": "選択待ちなのに選択画面が無かった → もう一度出した({0}, {1}回目, ok={2})",
+  "ctx": "GameManager.cs:2516",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "選択待ちなのに選択画面が出せない → 選択無しで解決({0})",
+  "ctx": "GameManager.cs:2520",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "選択画面が食い違って開いていた → 畳んで{0}を出し直した",
+  "ctx": "GameManager.cs:2531",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BOSS",
+  "ctx": "GameManager.cs:2595",
+  "kind": "ui",
+  "n": 4
+ },
+ {
+  "key": "BEST",
+  "ctx": "GameManager.cs:3784",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "DISTANCE",
+  "ctx": "GameManager.cs:3785",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "II",
+  "ctx": "GameManager.cs:3819",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "STEP:",
+  "ctx": "GameManager.cs:3859",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "NEW RUN",
+  "ctx": "GameManager.cs:4009",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "FAILED",
+  "ctx": "GameManager.cs:4255",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "TIME",
+  "ctx": "GameManager.cs:4288",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "ENEMIES DEFEATED",
+  "ctx": "GameManager.cs:4289",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BOSSES DEFEATED",
+  "ctx": "GameManager.cs:4290",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BONUS",
+  "ctx": "GameManager.cs:4291",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "BONUS ZONE",
+  "ctx": "GameManager.cs:4292",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "RING BONUS",
+  "ctx": "GameManager.cs:4293",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "TOTAL EXP",
+  "ctx": "GameManager.cs:4294",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "UPGRADES OBTAINED",
+  "ctx": "GameManager.cs:4295",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "TOTAL MILE",
+  "ctx": "GameManager.cs:4296",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ENEMIES / BOSSES",
+  "ctx": "GameManager.cs:4304",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "TOTAL EXP / UPGRADES",
+  "ctx": "GameManager.cs:4305",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "失ったもの: このランのMILE {0}",
+  "ctx": "GameManager.cs:4308",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "残るもの: BEST距離の記録(更新!)・累計走行距離",
+  "ctx": "GameManager.cs:4311",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "残るもの: BEST距離の記録・累計走行距離",
+  "ctx": "GameManager.cs:4311",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "持っているカード・MILE(WALLET {0})",
+  "ctx": "GameManager.cs:4313",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HP",
+  "ctx": "GameManager.cs:4520",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "封印{0}",
+  "ctx": "GameManager.cs:4526",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "盾{0}",
+  "ctx": "GameManager.cs:4526",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MAX",
+  "ctx": "GameManager.cs:4691",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "合成Lv.{0}  能力{1}種",
+  "ctx": "GameManager.cs:4694",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "速度のみ x{0}(配置間隔は変えない)",
+  "ctx": "GameManager.cs:4897",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ASSIST ON",
+  "ctx": "GameManager.cs:4912",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ASSIST OFF",
+  "ctx": "GameManager.cs:4912",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "直近:{0}({1})",
+  "ctx": "GameManager.cs:4917",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "不可:{0}",
+  "ctx": "GameManager.cs:4918",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "障害物:{0} 壊す{1}/跳ぶ{2}/無理{3}",
+  "ctx": "GameManager.cs:4919",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0} 判定{1}km/h(ON≧{2}/OFF<{3}){4}{5}",
+  "ctx": "GameManager.cs:4920",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MILE RESET",
+  "ctx": "GameManager.cs:4991",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "CARD RESET",
+  "ctx": "GameManager.cs:4993",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "背景: {0}",
+  "ctx": "GameManager.cs:5051",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "[プレビュー]",
+  "ctx": "GameManager.cs:5051",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "読込{0}枚 {1}MB",
+  "ctx": "GameManager.cs:5052",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "背景◀",
+  "ctx": "GameManager.cs:5060",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "背景▶",
+  "ctx": "GameManager.cs:5060",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "移行",
+  "ctx": "GameManager.cs:5060",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "通常",
+  "ctx": "GameManager.cs:5060",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "境目へ",
+  "ctx": "GameManager.cs:5060",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "設定",
+  "ctx": "GameManager.cs:5147",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "闘技場",
+  "ctx": "GameManager.cs:5153",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "闘技場 (LOCK)",
+  "ctx": "GameManager.cs:5153",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "闘技場はまだ解放されていません",
+  "ctx": "GameManager.cs:5157",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "DEBUG",
+  "ctx": "GameManager.cs:5163",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "現在のRunと未確定MILEを",
+  "ctx": "GameManager.cs:5792",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "破棄します。よろしいですか？",
+  "ctx": "GameManager.cs:5792",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "破棄してNEW RUN",
+  "ctx": "GameManager.cs:5796",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "キャンセル",
+  "ctx": "GameManager.cs:5804",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "RESUME",
+  "ctx": "GameManager.cs:5824",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "RETURN TO HOME",
+  "ctx": "GameManager.cs:5831",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "Home Roomへ戻ります。",
+  "ctx": "GameManager.cs:5860",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Runは終了せず、この続きから",
+  "ctx": "GameManager.cs:5860",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "CONTINUEできます。",
+  "ctx": "GameManager.cs:5860",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ESCAPE AVAILABLE",
+  "ctx": "GameManager.cs:5890",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "このカードは他で使われています",
+  "ctx": "GameManager.cs:673",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0} は他のキャラカードと合わせて Lv{1} を超えるので装備できません(超える分は効きません)",
+  "ctx": "GameManager.cs:680",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "注意: {0} は他のキャラカードと合わせて Lv{1} を超えます(超える {2} Lv 分は効きません)",
+  "ctx": "GameManager.cs:681",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BOSS RUSH  走りながら戦え! WARNING が迫る! 残ったボスを倒せ! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+  "ctx": "LastDungeon/LastDungeonFlow.cs:167",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BEYOND",
+  "ctx": "LastDungeon/LastDungeonFlow.cs:319",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "死神三姉妹",
+  "ctx": "LastDungeon/ReaperFinaleBattle.cs:66",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "三姉妹",
+  "ctx": "LastDungeon/ReaperFinaleBattle.cs:90",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ONE MORE MILE?",
+  "ctx": "LastDungeon/StaffCreditsData.cs:37",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ONE MORE MILE",
+  "ctx": "LastDungeon/StaffCreditsData.cs:53",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "PROGRAMMING",
+  "ctx": "LastDungeon/StaffCreditsData.cs:54",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "IRENE",
+  "ctx": "LastDungeon/StaffCreditsData.cs:54",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "GAME DESIGN",
+  "ctx": "LastDungeon/StaffCreditsData.cs:55",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ESTELLE",
+  "ctx": "LastDungeon/StaffCreditsData.cs:55",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ART / DESIGN",
+  "ctx": "LastDungeon/StaffCreditsData.cs:56",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ALICIA",
+  "ctx": "LastDungeon/StaffCreditsData.cs:56",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "SPECIAL THANKS",
+  "ctx": "LastDungeon/StaffCreditsData.cs:57",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "YOU",
+  "ctx": "LastDungeon/StaffCreditsData.cs:57",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "激昂!",
+  "ctx": "MajinController.Battle.cs:108",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "SKY MAGIC ASSAULT",
+  "ctx": "MajinController.Battle.cs:225",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "魔人が硬直! 攻撃のチャンス!",
+  "ctx": "MajinController.Battle.cs:270",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "VERSION MISMATCH",
+  "ctx": "Net/LanDiscovery.cs:28",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "IN PROGRESS",
+  "ctx": "Net/LanDiscovery.cs:28",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "FULL",
+  "ctx": "Net/LanDiscovery.cs:28",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "OPEN",
+  "ctx": "Net/LanDiscovery.cs:28",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "OMMLAN",
+  "ctx": "Net/LanDiscovery.cs:47",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "PLAYER",
+  "ctx": "Net/LanDiscovery.cs:83",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BOSS:",
+  "ctx": "Net/NetCombat.cs:1071",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HOST",
+  "ctx": "Net/NetCombat.cs:1299",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "JOIN",
+  "ctx": "Net/NetCombat.cs:1299",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "SYNC",
+  "ctx": "Net/NetCombat.cs:221",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "TARGET",
+  "ctx": "Net/NetCombat.cs:304",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BOSS LAST HIT:",
+  "ctx": "Net/NetCombat.cs:712",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "ENEMY KILL:",
+  "ctx": "Net/NetCombat.cs:712",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "MULTIPLAYER",
+  "ctx": "Net/NetDebugUI.cs:187",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "LOCAL PLAY",
+  "ctx": "Net/NetDebugUI.cs:189",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "同じWi-Fi、またはスマホのテザリングにつないだ端末どうしで遊びます(最大",
+  "ctx": "Net/NetDebugUI.cs:190",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "人)。",
+  "ctx": "Net/NetDebugUI.cs:190",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ONLINE(準備中)",
+  "ctx": "Net/NetDebugUI.cs:193",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ADVANCED(IPを直接入力・開発用)",
+  "ctx": "Net/NetDebugUI.cs:196",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "閉じる",
+  "ctx": "Net/NetDebugUI.cs:198",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "マルチ {0}/{1}",
+  "ctx": "Net/NetDebugUI.cs:20",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "マルチ",
+  "ctx": "Net/NetDebugUI.cs:20",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "モードを選んでください",
+  "ctx": "Net/NetDebugUI.cs:204",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "倒れたらDOWN。倒れた地点まで来た仲間(HP2以上)がHPを1つ渡すと復活。全員DOWNで終了。",
+  "ctx": "Net/NetDebugUI.cs:207",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "VERSUS",
+  "ctx": "Net/NetDebugUI.cs:209",
+  "kind": "ui",
+  "n": 5
+ },
+ {
+  "key": "倒れたら脱落(復活なし)。最後の1人まで続き、到達距離で順位が決まる。",
+  "ctx": "Net/NetDebugUI.cs:210",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "CO-OP",
+  "ctx": "Net/NetDebugUI.cs:217",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "CREATE GAME",
+  "ctx": "Net/NetDebugUI.cs:220",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "この端末で部屋を作ります。近くの端末の「FIND GAME」に表示されます。",
+  "ctx": "Net/NetDebugUI.cs:221",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "FIND GAME",
+  "ctx": "Net/NetDebugUI.cs:223",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "近くの部屋を探して参加します(IPの入力は不要)。",
+  "ctx": "Net/NetDebugUI.cs:224",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "近くの部屋({0} を選択中。HOST のモードで遊びます)",
+  "ctx": "Net/NetDebugUI.cs:246",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "CONNECTION FAILED",
+  "ctx": "Net/NetDebugUI.cs:251",
+  "kind": "ui",
+  "n": 4
+ },
+ {
+  "key": "接続できませんでした。同じWi-Fiか確認して、もう一度お試しください",
+  "ctx": "Net/NetDebugUI.cs:251",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "CONNECTION FAILED:",
+  "ctx": "Net/NetDebugUI.cs:251",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "接続中… {0}",
+  "ctx": "Net/NetDebugUI.cs:256",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ローカルゲームを探しています…",
+  "ctx": "Net/NetDebugUI.cs:263",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ゲームが見つかりません",
+  "ctx": "Net/NetDebugUI.cs:263",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HOST の端末で「CREATE GAME」を押して、同じWi-Fi(テザリング)につないでください。",
+  "ctx": "Net/NetDebugUI.cs:264",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "再検索",
+  "ctx": "Net/NetDebugUI.cs:287",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "参加中の部屋",
+  "ctx": "Net/NetDebugUI.cs:305",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MODE: {0}(HOSTが決めます)",
+  "ctx": "Net/NetDebugUI.cs:306",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MODE: HOSTが決めます(Run開始時に自動で揃います)",
+  "ctx": "Net/NetDebugUI.cs:306",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "近くの端末の「FIND GAME」に表示中",
+  "ctx": "Net/NetDebugUI.cs:313",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "そろったら「閉じる」→ 扉 → Stage Selectで「出発」すると、全員が同じステージで同時にスタートします。",
+  "ctx": "Net/NetDebugUI.cs:315",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HOSTが出発すると自動でスタートします。そのままお待ちください。",
+  "ctx": "Net/NetDebugUI.cs:316",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "部屋を閉じる",
+  "ctx": "Net/NetDebugUI.cs:318",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "退出する",
+  "ctx": "Net/NetDebugUI.cs:318",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "閉じる(部屋はそのまま)",
+  "ctx": "Net/NetDebugUI.cs:324",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ADVANCED: IPで接続(開発用)",
+  "ctx": "Net/NetDebugUI.cs:330",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "同じWi-Fi、またはスマホのテザリングに接続してください(最大{0}人)。",
+  "ctx": "Net/NetDebugUI.cs:331",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "(取得できません - 端末のWi-Fi設定で確認してください)",
+  "ctx": "Net/NetDebugUI.cs:334",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "この端末のIP:",
+  "ctx": "Net/NetDebugUI.cs:335",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "状態:",
+  "ctx": "Net/NetDebugUI.cs:336",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MODE",
+  "ctx": "Net/NetDebugUI.cs:344",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "CO-OP: 倒れたらDOWN。倒れた地点まで来た仲間(HP2以上)がHPを1つ渡すと復活。全員DOWNで終了。",
+  "ctx": "Net/NetDebugUI.cs:350",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "VERSUS: 倒れたら脱落(復活なし)。最後の1人まで続き、到達距離で順位が決まる。",
+  "ctx": "Net/NetDebugUI.cs:351",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MODE: HOSTが選択します(Run開始時に自動で揃います)",
+  "ctx": "Net/NetDebugUI.cs:353",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ポート",
+  "ctx": "Net/NetDebugUI.cs:359",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HOST(この端末で部屋を作る)",
+  "ctx": "Net/NetDebugUI.cs:364",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "JOIN: HOST端末に表示されたIPを入力",
+  "ctx": "Net/NetDebugUI.cs:370",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "接続中のプレイヤー {0}/{1}",
+  "ctx": "Net/NetDebugUI.cs:387",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "扉 → Stage Selectで「出発」すると、接続中の全員が同じステージで同時にスタートします。",
+  "ctx": "Net/NetDebugUI.cs:390",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "部屋を閉じる(HOST終了)",
+  "ctx": "Net/NetDebugUI.cs:393",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "切断する",
+  "ctx": "Net/NetDebugUI.cs:393",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MULTI: 切断",
+  "ctx": "Net/NetDebugUI.cs:413",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "UI:",
+  "ctx": "Net/NetDebugUI.cs:42",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Homeへ戻る",
+  "ctx": "Net/NetDebugUI.cs:459",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "このまま走る",
+  "ctx": "Net/NetDebugUI.cs:464",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "VERSUS RESULT",
+  "ctx": "Net/NetMatch.Phase3.cs:397",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "CO-OP RESULT",
+  "ctx": "Net/NetMatch.Phase3.cs:397",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HOSTの出発を待っています",
+  "ctx": "Net/NetRunLauncher.cs:353",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "まだ走っているプレイヤーがいます",
+  "ctx": "Net/NetRunLauncher.cs:361",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HOST: 参加待ち",
+  "ctx": "Net/NetSession.cs:123",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "初期化エラー",
+  "ctx": "Net/NetSession.cs:147",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "前の接続を終了中です。少し待ってから再試行してください",
+  "ctx": "Net/NetSession.cs:148",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "HOSTを開始できませんでした(ポート使用中の可能性)",
+  "ctx": "Net/NetSession.cs:159",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "IPアドレスの形式が正しくありません(例: 192.168.1.23)",
+  "ctx": "Net/NetSession.cs:170",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "接続中… {0}:{1}",
+  "ctx": "Net/NetSession.cs:183",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "JOINを開始できませんでした",
+  "ctx": "Net/NetSession.cs:189",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "RUN IN PROGRESS",
+  "ctx": "Net/NetSession.cs:224",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "ROOM FULL",
+  "ctx": "Net/NetSession.cs:231",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "HOST: {0}/{1}人 接続中",
+  "ctx": "Net/NetSession.cs:245",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "JOIN: 接続完了 {0}",
+  "ctx": "Net/NetSession.cs:253",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": ")} が切断しました(残り{1 + others}人)",
+  "ctx": "Net/NetSession.cs:272",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MULTIPLAYER CONNECTION LOST",
+  "ctx": "Net/NetSession.cs:273",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "相手プレイヤー",
+  "ctx": "Net/NetSession.cs:273",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "が切断しました",
+  "ctx": "Net/NetSession.cs:273",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HOSTとの接続が切れました",
+  "ctx": "Net/NetSession.cs:282",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "接続が拒否されました:",
+  "ctx": "Net/NetSession.cs:282",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HOSTへ接続できませんでした",
+  "ctx": "Net/NetSession.cs:291",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "通信エラーが発生しました",
+  "ctx": "Net/NetSession.cs:299",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "OMM-NET-",
+  "ctx": "Net/NetSession.cs:45",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "PS5",
+  "ctx": "Platform/PlatformServices.cs:114",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ESCAPE",
+  "ctx": "PlayerController.cs:2281",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "もう一度タップして決定",
+  "ctx": "RewardCardSequence.cs:779",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "カードをタップして選択してください",
+  "ctx": "RewardCardSequence.cs:787",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "AWAKENED",
+  "ctx": "RewardCardUI.cs:221",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "FINAL EVOLUTION",
+  "ctx": "RewardCardUI.cs:286",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "EQUIPPED",
+  "ctx": "RewardCardUI.cs:426",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "NEW",
+  "ctx": "RewardCardUI.cs:426",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "強さ Lv{d.level:0.0}{(d.def.risk ?",
+  "ctx": "RunBuildHud.cs:352",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "COMBO",
+  "ctx": "RunBuildHud.cs:358",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "キャラ",
+  "ctx": "RunBuildHud.cs:378",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "デッキ",
+  "ctx": "RunBuildHud.cs:379",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0}で{1}m到達",
+  "ctx": "Save/UnlockRules.cs:106",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "最高 {0}m / {1}m",
+  "ctx": "Save/UnlockRules.cs:107",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "いずれかのマップで1,000m以下でゲームオーバー",
+  "ctx": "Save/UnlockRules.cs:112",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "UNLOCKED:",
+  "ctx": "Save/UnlockRules.cs:188",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "NEW CHARACTER:",
+  "ctx": "Save/UnlockRules.cs:197",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ホームの「闘技場」から入れます。",
+  "ctx": "Save/UnlockRules.cs:213",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "マップ選択から出発できます。",
+  "ctx": "Save/UnlockRules.cs:213",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0} が解放されました",
+  "ctx": "Save/UnlockRules.cs:214",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0} が仲間になりました",
+  "ctx": "Save/UnlockRules.cs:218",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "キャラ選択で選べます。",
+  "ctx": "Save/UnlockRules.cs:218",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "走り続けたあなたへ。",
+  "ctx": "Save/UnlockRules.cs:225",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "最後の道が開かれました。",
+  "ctx": "Save/UnlockRules.cs:225",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "音",
+  "ctx": "Settings/SettingsPanel.cs:241",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "(音声が使えません)",
+  "ctx": "Settings/SettingsPanel.cs:242",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "全体ミュート",
+  "ctx": "Settings/SettingsPanel.cs:243",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "全体",
+  "ctx": "Settings/SettingsPanel.cs:245",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BGM",
+  "ctx": "Settings/SettingsPanel.cs:246",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "SE",
+  "ctx": "Settings/SettingsPanel.cs:247",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "環境音",
+  "ctx": "Settings/SettingsPanel.cs:248",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "言語 / Language",
+  "ctx": "Settings/SettingsPanel.cs:264",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "言語",
+  "ctx": "Settings/SettingsPanel.cs:264",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "選んだ言語で表示します",
+  "ctx": "Settings/SettingsPanel.cs:274",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "端末の言語に合わせています",
+  "ctx": "Settings/SettingsPanel.cs:274",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "表示",
+  "ctx": "Settings/SettingsPanel.cs:282",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "画面の向き",
+  "ctx": "Settings/SettingsPanel.cs:283",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "横画面",
+  "ctx": "Settings/SettingsPanel.cs:283",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "縦画面",
+  "ctx": "Settings/SettingsPanel.cs:283",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "画面揺れ",
+  "ctx": "Settings/SettingsPanel.cs:285",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "発光演出",
+  "ctx": "Settings/SettingsPanel.cs:286",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "※敵の攻撃予兆や操作に必要な表示は弱くなりません",
+  "ctx": "Settings/SettingsPanel.cs:287",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "操作",
+  "ctx": "Settings/SettingsPanel.cs:295",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "(自動補助は使えません)",
+  "ctx": "Settings/SettingsPanel.cs:296",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "高速時の補助",
+  "ctx": "Settings/SettingsPanel.cs:297",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "補助開始速度",
+  "ctx": "Settings/SettingsPanel.cs:300",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "走る速さがこの値を超えると、穴/障害物/敵へのジャンプと",
+  "ctx": "Settings/SettingsPanel.cs:302",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "攻撃を自動で補助します(自分の操作が優先)",
+  "ctx": "Settings/SettingsPanel.cs:303",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "遊び方",
+  "ctx": "Settings/SettingsPanel.cs:310",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "操作を練習する",
+  "ctx": "Settings/SettingsPanel.cs:312",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "前後の攻撃/ジャンプ/下攻撃/打ち上げ/カードを練習(報酬なし)",
+  "ctx": "Settings/SettingsPanel.cs:318",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "練習はホームで始められます(ラン中/マルチ中は不可)",
+  "ctx": "Settings/SettingsPanel.cs:318",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "JUDGMENT OF TITAN",
+  "ctx": "SkyBossesBattle.cs:132",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "巨大な手が足場に残った! 大きなチャンス!",
+  "ctx": "SkyBossesBattle.cs:168",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HEAVENLY PULSE",
+  "ctx": "SkyBossesBattle.cs:213",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "コアが暗くなった! 崩しやすい!",
+  "ctx": "SkyBossesBattle.cs:247",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "LEVIATHAN CROSSING",
+  "ctx": "SkyBossesBattle.cs:274",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "頭部が近くに! 攻撃のチャンス!",
+  "ctx": "SkyBossesBattle.cs:322",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "FENRIR SKY HUNT",
+  "ctx": "SkyBossesBattle.cs:370",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "体勢を崩した! 反撃のチャンス!",
+  "ctx": "SkyBossesBattle.cs:415",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "SKY FORTRESS",
+  "ctx": "SkyBossesBattle.cs:453",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "再構築に失敗! コア露出!",
+  "ctx": "SkyBossesBattle.cs:495",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "PHOENIX REBIRTH",
+  "ctx": "SkyBossesBattle.cs:517",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "炎が弱まった! 攻撃のチャンス!",
+  "ctx": "SkyBossesBattle.cs:544",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HEAVEN SERPENT STORM",
+  "ctx": "SkyBossesBattle.cs:584",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "THUNDER APOCALYPSE",
+  "ctx": "SkyBossesBattle.cs:59",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "頭が雲から低く出た! 攻撃のチャンス!",
+  "ctx": "SkyBossesBattle.cs:625",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "光輪が消えた! 長い反撃のチャンス!",
+  "ctx": "SkyBossesBattle.cs:694",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "帯電が消えた! 大きな反撃のチャンス!",
+  "ctx": "SkyBossesBattle.cs:97",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "疾走出発…({0})",
+  "ctx": "Sprint/SprintDeparturePanel.cs:48",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "疾走出発…",
+  "ctx": "Sprint/SprintDeparturePanel.cs:48",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "疾走出発  {0}",
+  "ctx": "Sprint/SprintDeparturePanel.cs:63",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "攻略済みの区間を一気に駆け抜け、選んだ関門の少し手前から走り始めます。途中のボス報酬ぶんのカードは自動で取得。5,000mごとのリングをくぐると追加で1枚選べます。",
+  "ctx": "Sprint/SprintDeparturePanel.cs:65",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0}km まで疾走   (約{1}秒 + リング){2}",
+  "ctx": "Sprint/SprintDeparturePanel.cs:71",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "(開発版: DEBUG の全解放が ON)",
+  "ctx": "Sprint/SprintDeparturePanel.cs:82",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "対象外の距離",
+  "ctx": "Sprint/SprintRecords.cs:93",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "DEBUG 全解放",
+  "ctx": "Sprint/SprintRecords.cs:94",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0}km に未到達(最高 {1}km)",
+  "ctx": "Sprint/SprintRecords.cs:96",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0}km の門番が未撃破",
+  "ctx": "Sprint/SprintRecords.cs:98",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "疾走再開!",
+  "ctx": "Sprint/SprintRunner.cs:189",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "RING!  今は取れるカードがありません",
+  "ctx": "Sprint/SprintRunner.cs:222",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "リングを逃した",
+  "ctx": "Sprint/SprintRunner.cs:245",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BONUS CARD",
+  "ctx": "Sprint/SprintRunner.cs:271",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "RING!",
+  "ctx": "Sprint/SprintRunner.cs:285",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "今は取れるカードがありません",
+  "ctx": "Sprint/SprintRunner.cs:286",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "デッキ内のカードがすべてLv9になりました。",
+  "ctx": "Sprint/SprintRunner.cs:307",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "以降のリング報酬はMILEです",
+  "ctx": "Sprint/SprintRunner.cs:307",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "十字キー / スティックの上下(A = 上 / B = 下)",
+  "ctx": "Sprint/SprintRunner.cs:359",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "↑↓ キー / W・S",
+  "ctx": "Sprint/SprintRunner.cs:360",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "上下にフリック / 右下の ▲▼",
+  "ctx": "Sprint/SprintRunner.cs:361",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "疾走出発  →  {0}m の関門の手前へ",
+  "ctx": "Sprint/SprintRunner.cs:531",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ボス報酬の自動取得 {0}/{1}   リング {2}/{3}{4}",
+  "ctx": "Sprint/SprintRunner.cs:544",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "デッキ全カード Lv{0} MAX",
+  "ctx": "Sprint/SprintRunner.cs:553",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "リング報酬は +{0} MILE",
+  "ctx": "Sprint/SprintRunner.cs:553",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "今は取れるカードがありません(×{0})",
+  "ctx": "Sprint/SprintRunner.cs:554",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0} で高さを合わせてリングをくぐる(逃しても減るものはありません)",
+  "ctx": "Sprint/SprintRunner.cs:582",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "上下で移動 / リング通過で +MILE",
+  "ctx": "Sprint/SprintRunner.cs:591",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "上下で移動 / リング通過で追加カード",
+  "ctx": "Sprint/SprintRunner.cs:591",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "デッキ内のカードがすべてLv9です。リング報酬はMILEです",
+  "ctx": "Sprint/SprintRunner.cs:593",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "H キー(またはマウスのボタン)を3秒長押し",
+  "ctx": "Tutorial/FirstRunGuide.cs:134",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BACK ボタンを3秒長押し",
+  "ctx": "Tutorial/FirstRunGuide.cs:135",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "画面を3秒長押し",
+  "ctx": "Tutorial/FirstRunGuide.cs:136",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "はじめての方へ",
+  "ctx": "Tutorial/FirstRunGuide.cs:155",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "最初に操作を練習できます(2〜3分・時間制限なし)。",
+  "ctx": "Tutorial/FirstRunGuide.cs:156",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "練習では報酬や記録は増えません。",
+  "ctx": "Tutorial/FirstRunGuide.cs:156",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "練習は、あとから設定の「遊び方」でいつでもできます。",
+  "ctx": "Tutorial/FirstRunGuide.cs:156",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "脱出できるようになりました",
+  "ctx": "Tutorial/FirstRunGuide.cs:159",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0}すると脱出して、",
+  "ctx": "Tutorial/FirstRunGuide.cs:160",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "このランで集めたMILEを持ち帰れます。",
+  "ctx": "Tutorial/FirstRunGuide.cs:160",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "倒れてしまうと、このランのMILEは失われます。",
+  "ctx": "Tutorial/FirstRunGuide.cs:160",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "(BEST距離の記録は残ります)",
+  "ctx": "Tutorial/FirstRunGuide.cs:160",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "このまま走り続けてもOK。脱出するかどうかは自由です。",
+  "ctx": "Tutorial/FirstRunGuide.cs:160",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MILEを持ち帰りました!",
+  "ctx": "Tutorial/FirstRunGuide.cs:163",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MILEは、ホームのガチャで使えます(1回 {0} MILE)。",
+  "ctx": "Tutorial/FirstRunGuide.cs:164",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "引いたカードはデッキに入れて、次のランを強くできます。",
+  "ctx": "Tutorial/FirstRunGuide.cs:164",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "そのまま始める",
+  "ctx": "Tutorial/FirstRunGuide.cs:185",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "わかった",
+  "ctx": "Tutorial/FirstRunGuide.cs:187",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "({0}件のお知らせ)",
+  "ctx": "Tutorial/NoticeQueue.cs:118",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "デッキを整理しました",
+  "ctx": "Tutorial/NoticeQueue.cs:135",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "デッキの上限({0}枚)を超えていた {1} 枚をデッキから外しました。",
+  "ctx": "Tutorial/NoticeQueue.cs:136",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "カードは所持一覧に残っています。デッキ編集で入れ替えてください。",
+  "ctx": "Tutorial/NoticeQueue.cs:136",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "デッキが12枚になりました",
+  "ctx": "Tutorial/NoticeQueue.cs:141",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "準備中",
+  "ctx": "Tutorial/TutorialMode.cs:250",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "PRACTICE",
+  "ctx": "Tutorial/TutorialRun.cs:242",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "右(前)へフリック",
+  "ctx": "Tutorial/TutorialRun.cs:278",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "→ / D / Z キー",
+  "ctx": "Tutorial/TutorialRun.cs:278",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "X ボタン(右スティック →)",
+  "ctx": "Tutorial/TutorialRun.cs:278",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "左(後ろ)へフリック",
+  "ctx": "Tutorial/TutorialRun.cs:279",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "← / A / X キー",
+  "ctx": "Tutorial/TutorialRun.cs:279",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "Y ボタン(右スティック ←)",
+  "ctx": "Tutorial/TutorialRun.cs:279",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "上へフリック",
+  "ctx": "Tutorial/TutorialRun.cs:280",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "↑ / W / Space キー",
+  "ctx": "Tutorial/TutorialRun.cs:280",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "A ボタン(右スティック ↑)",
+  "ctx": "Tutorial/TutorialRun.cs:280",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "下へフリック",
+  "ctx": "Tutorial/TutorialRun.cs:281",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "↓ / S キー",
+  "ctx": "Tutorial/TutorialRun.cs:281",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "B ボタン(右スティック ↓)",
+  "ctx": "Tutorial/TutorialRun.cs:281",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ジャンプ",
+  "ctx": "Tutorial/TutorialRun.cs:288",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "下攻撃",
+  "ctx": "Tutorial/TutorialRun.cs:289",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "打ち上げ → 空中追撃",
+  "ctx": "Tutorial/TutorialRun.cs:290",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "カードを選ぶ",
+  "ctx": "Tutorial/TutorialRun.cs:291",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "練習おわり",
+  "ctx": "Tutorial/TutorialRun.cs:292",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "キャラは自動で走ります。",
+  "ctx": "Tutorial/TutorialRun.cs:300",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "前後にフリックすると、その方向へ攻撃します。",
+  "ctx": "Tutorial/TutorialRun.cs:300",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "前: {0}",
+  "ctx": "Tutorial/TutorialRun.cs:300",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "後ろ: {0}",
+  "ctx": "Tutorial/TutorialRun.cs:300",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "上へフリックするとジャンプします。",
+  "ctx": "Tutorial/TutorialRun.cs:301",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "空中でもう一度上へフリックすると、二段ジャンプです。",
+  "ctx": "Tutorial/TutorialRun.cs:301",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ジャンプ: {0}",
+  "ctx": "Tutorial/TutorialRun.cs:301",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ジャンプ中に下へフリックすると、真下へ急降下して攻撃します。",
+  "ctx": "Tutorial/TutorialRun.cs:302",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "足元がしっかりした地面の上で使いましょう。",
+  "ctx": "Tutorial/TutorialRun.cs:302",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "下攻撃: {0}",
+  "ctx": "Tutorial/TutorialRun.cs:302",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "敵の近くでジャンプすると、上への攻撃で敵を打ち上げます。",
+  "ctx": "Tutorial/TutorialRun.cs:303",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "浮いた敵には、空中で攻撃を当てて追撃できます。",
+  "ctx": "Tutorial/TutorialRun.cs:303",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "(難しければスキップできます)",
+  "ctx": "Tutorial/TutorialRun.cs:303",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "走っているとレベルが上がり、3枚のカードから1枚を選べます。",
+  "ctx": "Tutorial/TutorialRun.cs:304",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "選んだ強化は、そのランの間だけ有効です。",
+  "ctx": "Tutorial/TutorialRun.cs:304",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ここでは練習なので、効果はこの練習の中だけです。",
+  "ctx": "Tutorial/TutorialRun.cs:304",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "これで基本の操作はおしまいです。",
+  "ctx": "Tutorial/TutorialRun.cs:305",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "まずは1,000mのボスを目指そう!",
+  "ctx": "Tutorial/TutorialRun.cs:305",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "前へ攻撃 [{0}]   後ろへ攻撃 [{1}]",
+  "ctx": "Tutorial/TutorialRun.cs:314",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ジャンプ [{0}]   二段ジャンプ [{1}]",
+  "ctx": "Tutorial/TutorialRun.cs:315",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ジャンプ中にもう一度、上へ",
+  "ctx": "Tutorial/TutorialRun.cs:315",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ジャンプしてから下へ [{0}]",
+  "ctx": "Tutorial/TutorialRun.cs:316",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "まず上でジャンプ → 空中で下へ",
+  "ctx": "Tutorial/TutorialRun.cs:316",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "打ち上げる [{0}]   空中で追撃 [{1}]",
+  "ctx": "Tutorial/TutorialRun.cs:317",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "敵のすぐ手前でジャンプ",
+  "ctx": "Tutorial/TutorialRun.cs:317",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "浮いた敵へ、ジャンプ中に前へ攻撃",
+  "ctx": "Tutorial/TutorialRun.cs:317",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "カードを1枚選んでください",
+  "ctx": "Tutorial/TutorialRun.cs:318",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "練習をやめる",
+  "ctx": "Tutorial/TutorialRun.cs:342",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "出発する",
+  "ctx": "Tutorial/TutorialRun.cs:361",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ホームへ戻る",
+  "ctx": "Tutorial/TutorialRun.cs:361",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "もう一度練習する",
+  "ctx": "Tutorial/TutorialRun.cs:362",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "やってみる",
+  "ctx": "Tutorial/TutorialRun.cs:366",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "スキップ",
+  "ctx": "Tutorial/TutorialRun.cs:367",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "選んでみる",
+  "ctx": "Tutorial/TutorialRun.cs:369",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "OK!",
+  "ctx": "Tutorial/TutorialRun.cs:377",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "マルチ未対応",
+  "ctx": "Ultimate/UltimateArt.cs:177",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "発動中",
+  "ctx": "Ultimate/UltimateArt.cs:178",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "今は使えない",
+  "ctx": "Ultimate/UltimateArt.cs:180",
+  "kind": "ui",
+  "n": 4
+ },
+ {
+  "key": "ボス登場中",
+  "ctx": "Ultimate/UltimateArt.cs:182",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "被弾中",
+  "ctx": "Ultimate/UltimateArt.cs:184",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "BONUS中",
+  "ctx": "Ultimate/UltimateArt.cs:186",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ULTIMATE",
+  "ctx": "Ultimate/UltimateArt.cs:685",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "MULTI×",
+  "ctx": "Ultimate/UltimateArt.cs:687",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "黒一閃",
+  "ctx": "Ultimate/UltimateFx.cs:35",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "桜花乱咲薔薇ノ一太刀",
+  "ctx": "Ultimate/UltimateFx.cs:36",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "双舞",
+  "ctx": "Ultimate/UltimateFx.cs:37",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "オールレンジファイア",
+  "ctx": "Ultimate/UltimateFx.cs:38",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "龍殺凸",
+  "ctx": "Ultimate/UltimateFx.cs:39",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "最高位魔法グラウンドゼロ",
+  "ctx": "Ultimate/UltimateFx.cs:40",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "レインロード",
+  "ctx": "Ultimate/UltimateFx.cs:41",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "気合の連続パンチ",
+  "ctx": "Ultimate/UltimateFx.cs:42",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "高速影分身",
+  "ctx": "Ultimate/UltimateFx.cs:43",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "オーバーヒート",
+  "ctx": "Ultimate/UltimateFx.cs:44",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ジ・エンド",
+  "ctx": "Ultimate/UltimateFx.cs:45",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "爆撃結界",
+  "ctx": "Ultimate/UltimateFx.cs:46",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "カードなし発動中選択中ボス登場中今は使えない被弾中BONUS中準備中",
+  "ctx": "Ultimate/UltimateFx.cs:637",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "嵐の三連滑空",
+  "ctx": "WildBosses.cs:1001",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "三首の連撃",
+  "ctx": "WildBosses.cs:1156",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "チャンス!",
+  "ctx": "WildBosses.cs:129",
+  "kind": "ui",
+  "n": 5
+ },
+ {
+  "key": "冥界の魔柱陣",
+  "ctx": "WildBosses.cs:1319",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "黒刃三連閃",
+  "ctx": "WildBosses.cs:1480",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "騎乗突撃",
+  "ctx": "WildBosses.cs:178",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "大地を裂く大蛇",
+  "ctx": "WildBosses.cs:378",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "天崩しの大棍棒",
+  "ctx": "WildBosses.cs:522",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "八脚の死の舞踏",
+  "ctx": "WildBosses.cs:603",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "疾風の追い越し突進",
+  "ctx": "WildBosses.cs:74",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "大地の怒り",
+  "ctx": "WildBosses.cs:856",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "コア露出!",
+  "ctx": "WildBosses.cs:879",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0} のキャラカード",
+  "ctx": "manual",
+  "kind": "ui",
+  "n": 1
+ }
+]

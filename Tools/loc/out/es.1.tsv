@@ -1,0 +1,531 @@
+0	CERO ABSOLUTO
+1	Los esbirros congelados se hacen añicos y reciben daño; más ataque contra enemigos enfriados/congelados (+3% por Lv). Con los jefes, la ralentización (en lugar de congelar) es más fuerte
+2	ADRENALINA
+3	Con 50% de HP o menos, sube la velocidad de ataque (+3% por Lv); con 25% de HP o menos, el doble
+4	HOJA AÉREA
+5	Al golpear a un enemigo en el aire, lanzas un tajo de seguimiento (potencia y alcance suben con el Lv)
+6	ATAQUE AÉREO +
+7	Sube el ataque en el aire (+7% por Lv)
+8	DOMINIO AÉREO
+9	Sube el ataque aéreo (+3% por Lv), y aún más cuanto más golpees sin aterrizar (+1%/Lv por golpe, hasta 4)
+10	GOLPE AÉREO
+11	Sube el ataque contra enemigos en el aire (lanzados/voladores/jefes aéreos) (+8% por Lv)
+12	ALCANCE +
+13	Sube el alcance de ataque efectivo (+3% por Lv). Cuerpo a cuerpo: zona de impacto; proyectiles: distancia de vuelo (no se hacen más grandes)
+14	VELOCIDAD DE ATAQUE +
+15	Sube la velocidad de ataque (+3% por Lv)
+16	ATAQUE +
+17	Sube el ataque (+5% por Lv)
+18	FURIA BERSERKER
+19	Con 50% de HP o menos, suben el ataque (+5% por Lv) y la velocidad de ataque (+2%); con 25% de HP o menos, ambos suben aún más
+20	BERSERKER
+21	Suben el ataque (+6% por Lv) y la velocidad de ataque (+1%). Sella 1 corazón de HP máx. cada 3 Lv
+22	HOJA DE SANGRE
+23	Tus ataques causan sangrado (probabilidad y potencia suben con el Lv). Con HP al máximo, el doble de probabilidad. El ataque con HP al máximo también sube un poco (+2%/Lv)
+24	FRENESÍ DE SANGRE
+25	Con 50% de HP o menos, sube el ataque (+4% por Lv); con 25% de HP o menos, también la probabilidad de absorción (+3%/Lv)
+26	DESAFÍO DE JEFES
+27	Sube el HP de los jefes (+10% por Lv), a cambio de más MILE de jefe (+40%/Lv)
+28	MATAJEFES
+29	Sube el ataque contra jefes (+8% por Lv)
+30	OLEADA DE JEFES
+31	En las puertas de jefe, probabilidad (+8% por Lv) de que aparezca un jefe más. Más MILE de jefe (+50%/Lv)
+32	ATAQUE FRENO
+33	Sube el ataque (+7% por Lv). Frenas un poco justo después del ataque principal
+34	ALMA ARDIENTE
+35	La quemadura es más fuerte (+8% por Lv) y más larga (+0.25 s/Lv). También causa un poco de quemadura por sí misma
+36	EXPLOSIÓN EN CADENA
+37	Los enemigos derrotados explotan. Los que caen por la explosión también explotan (hasta 3 veces; 1 vez por enemigo en cada cadena)
+38	RAYO EN CADENA
+39	El rayo salta a otro enemigo cercano (+1 objetivo cada 3 Lv; el alcance sube con el Lv). También provoca algún rayo por sí misma
+40	Se activa con la barra al 100% (botón abajo a la izquierda). Ataque especial del personaje: golpea a los enemigos en pantalla mientras avanza mucho (Lv1 ~100m → Lv9 ~200m), y luego da una mejora temporal (Lv1 5 s → Lv9 12 s). La barra se llena con la distancia, las derrotas y el daño a jefes
+41	POR LOS PELOS
+42	Suben la velocidad de movimiento (+2% por Lv) y la invencibilidad tras recibir un golpe (+0.05 s por Lv)
+43	FILO COMBO
+44	Cuanto más dure la racha de golpes (HIT), más sube el ataque (+0.4%/Lv por golpe, hasta 10 golpes)
+45	MAESTRO COMBO
+46	El golpe final lanza una onda de choque especial hacia delante (potencia y alcance suben con el Lv)
+47	COMBO +
+48	El último golpe de una secuencia (golpe final) es más fuerte (+7% por Lv)
+49	COMBO FRENÉTICO
+50	Los golpes intermedios de una secuencia son más fuertes (+6% por Lv) y sube un poco la velocidad del ataque principal (+2%/Lv)
+51	CONTRAATAQUE
+52	Al bloquear con un escudo, sueltas una onda de contraataque a tu alrededor (la potencia sube con el Lv). Da 1 escudo aunque no tengas la carta ESCUDO
+53	PACTO MORTAL
+54	El ataque sube muchísimo (+12% por Lv). Sella 1 corazón de HP máx. cada 2 Lv
+55	ATAQUE DOBLE
+56	Al atacar, probabilidad (+3% por Lv) de un golpe extra. El golpe extra no genera otro
+57	ENEMIGOS DE ÉLITE
+58	Algunos esbirros se vuelven de élite (+4% por Lv. HP ×2.5, algo más rápidos; al derrotarlos: MILE ×3 / EXP ×2). También sube el MILE (+30%/Lv)
+59	VERDUGO
+60	Sube el MILE por derrotar enemigos (+15% por Lv)
+61	CONVERSOR DE EXP
+62	Baja la EXP (-10% por Lv, mín. 25%), a cambio de más MILE por derrotar enemigos (+30%/Lv)
+63	EXP +
+64	Sube la EXP obtenida (+20% por Lv)
+65	ESTALLIDO DE EXP
+66	Sube mucho la EXP de enemigos/jefes/BONUS ZONE (+80% por Lv)
+67	ENEMIGOS RÁPIDOS
+68	Los esbirros se mueven, persiguen y atacan más rápido (+4% por Lv), a cambio de más MILE (+15%/Lv) y EXP por derrota (+5%/Lv)
+69	PRIMER GOLPE
+70	El 1.er golpe de una secuencia (primer golpe) es más fuerte (+10% por Lv)
+71	HOJA DE FUEGO
+72	Carta inicial de Fuego. Los golpes queman al enemigo (probabilidad 15%+5%/Lv, 5+1.5/Lv de daño por segundo, 3 s)
+73	CONTRA ÍGNEO
+74	Al bloquear con un escudo, sueltas un contraataque de fuego a tu alrededor (la potencia sube con el Lv) que quema a los enemigos alcanzados. Da 1 escudo aunque no tengas la carta ESCUDO
+75	FORTALEZA
+76	Sube el HP máx. (+1 corazón por Lv) y baja el retroceso al recibir golpes (+5%/Lv), pero baja la velocidad de movimiento (-3% por Lv)
+77	FILO GÉLIDO
+78	Carta inicial de Hielo. Los golpes enfrían al enemigo (probabilidad 15%+5%/Lv, se mueve 25%+2%/Lv más lento). El frío acumulado congela (los jefes no se detienen, pero se ralentizan mucho)
+79	VENDAVAL
+80	Las hojas de viento son más rápidas (+5% por Lv), llegan más lejos (+0.4m/Lv) y atraviesan más enemigos (+1 cada 3 Lv). También aumenta la perforación de proyectiles
+81	MATAGIGANTES
+82	El ataque sube mucho (+9% por Lv), pero baja la velocidad de ataque (-3% por Lv)
+83	CAÑÓN DE CRISTAL
+84	El ataque sube mucho (+9% por Lv). Sella 1 corazón de HP máx. cada 2 Lv
+85	CODICIA
+86	Sube la velocidad de movimiento (+4% por Lv), pero aparecen más enemigos (+8%/Lv)
+87	ROMPESUELOS
+88	Al aterrizar de un golpe en picado y con el golpe final en suelo, una onda de choque recorre el suelo (potencia y longitud suben con el Lv). El ataque en suelo también sube un poco (+2%/Lv)
+89	LUCHADOR TERRESTRE
+90	Sube el ataque en el suelo (+7% por Lv)
+91	ZONA CERO
+92	El ataque en el suelo sube mucho (+11% por Lv), pero baja en el aire (-5% por Lv)
+93	ROMPECORAZONES
+94	Sube el ataque (+4% por Lv) y +0.6%/Lv más por cada corazón sellado. Sella 1 corazón de HP máx. cada 3 Lv
+95	CORAZÓN +
+96	Sube el HP máx. (+1 corazón por Lv, máx. 20 corazones) y recupera HP
+97	ARMADURA PESADA
+98	Los golpes fuertes (2 corazones o más) quitan 1 corazón menos. También sube el HP máx. (+1 corazón cada 2 Lv), pero baja la fuerza de salto (-3% por Lv)
+99	IMPACTO PESADO
+100	El impacto del ataque abajo/golpe en picado/aterrizaje es más fuerte (+10% por Lv). El golpe final también sube un poco (+3%/Lv)
+101	MODO INFIERNO
+102	Suben el HP (+12%/Lv), la velocidad (+4%/Lv) y la aparición (+8%/Lv) de esbirros, a cambio de mucho más MILE (+50%/Lv) y MILE de jefe (+30%/Lv)
+103	ALTO VOLTAJE
+104	El rayo es más fuerte (+5% por Lv). El rayo paraliza un instante a los esbirros. La probabilidad de rayo sube un poco (+1%/Lv)
+105	HORDA
+106	Aparecen muchos más enemigos (+15% por Lv), a cambio de más MILE (+5%/Lv) y EXP por derrota (+5%/Lv)
+107	CAZADOR
+108	Más movilidad en combates de jefe. El avance/retroceso de los ataques es mayor (+4% por Lv) y te acercas más rápido a jefes lejanos (+3%/Lv)
+109	PRISIÓN DE HIELO
+110	Congelar es más fácil (frío necesario -1 cada 3 Lv). Suben la probabilidad y duración del frío
+111	INFIERNO
+112	Al derrotar a un enemigo en llamas, el fuego se extiende y quema a los de alrededor (potencia y alcance suben con el Lv). También quema un poco por sí misma
+113	VOLUNTAD DE HIERRO
+114	Con HP al máximo, sube el ataque (+5% por Lv). También sube el HP máx. (+1 corazón cada 3 Lv)
+115	SALTOS +
+116	Más saltos en el aire (+1 por Lv). Cada salto seguido es un poco más débil, salvo al caer en un agujero. Hechicera: +1 nivel de altura cada 3 Lv
+117	FUERZA DE SALTO +
+118	Sube la fuerza de salto (+3% por Lv). Hechicera: sube y baja de altura más rápido
+119	Cuando tu HP baja a 1 corazón, eres invencible un momento (1 s + 0.15 s por Lv). No vuelve a activarse hasta que recuperes HP y pase un rato
+120	ÚLTIMA RESISTENCIA
+121	Con 50% de HP o menos, sube el ataque (+4% por Lv); con 25% de HP o menos, aún más (+4%/Lv)
+122	RUPTURA DE NIVEL
+123	La EXP obtenida sube mucho (+30% por Lv)
+124	HOJA LARGA
+125	El alcance de ataque efectivo sube mucho (+5% por Lv)
+126	LARGO RECORRIDO
+127	Suben la EXP (+15% por Lv) y el HP máx. (+1 corazón cada 3 Lv)
+128	MATAESBIRROS
+129	Suben el ataque contra no jefes (+5% por Lv) y el MILE por derrota (+10% por Lv)
+130	ÍMPETU
+131	Tu velocidad actual se convierte en ataque. Empieza a subir por encima de 100km/h y llega al máximo a 150km/h (+4% por Lv). Más allá, sube poco
+132	OLEADA DE MONSTRUOS
+133	Aparecen más enemigos (+10% por Lv), a cambio de más EXP (+15%/Lv)
+134	MÁS ENEMIGOS
+135	Aparecen más enemigos (+10% por Lv). El MILE por derrota sube un poco (+3%/Lv)
+136	SIN VUELTA ATRÁS
+137	La velocidad de movimiento sube mucho (+5% por Lv), pero aparecen más enemigos (+10%/Lv)
+138	ONE MORE MILE
+139	Suben el MILE (+50% por Lv), el MILE de jefe (+50%) y la EXP (+20%)
+140	Mantener 115km/h o más activa OVERDRIVE (ataque +3% por Lv, velocidad de ataque +2%). Se desactiva si frenas. La velocidad de movimiento también sube un poco (+2% por Lv)
+141	SOBRECURACIÓN
+142	Más curación (Lv4–6: +1, Lv7–9: +2 corazones). Curarte con HP al máximo te da 1 escudo
+143	PANDEMÓNIUM
+144	Suben el HP/velocidad/aparición/élites de esbirros y el HP de jefes, a cambio de muchísimo más MILE (+60%/Lv) y MILE de jefe (+60%/Lv)
+145	EXPLORADOR
+146	Sube la EXP por distancia recorrida (+20% por Lv)
+147	GUARDIA PERFECTA
+148	Al usar un escudo, eres invencible un momento (0.4 s + 0.1 s por Lv). Da 1 escudo aunque no tengas la carta ESCUDO
+149	Revives una sola vez al caer (HP: de 1 a 5 corazones según el Lv). Al revivir, la carta se retira y puede volver a salir (empieza de nuevo en Lv1)
+150	HOJA PERFORANTE
+151	Los ataques atraviesan enemigos. Cuerpo a cuerpo: golpea a los que hay detrás (número y potencia suben con el Lv); proyectiles: perforaciones (+1 cada 3 Lv)
+152	DEPREDADOR
+153	Sube la probabilidad de absorción (+3% por Lv). Los ataques a jefes también pueden absorber a veces
+154	FILO RÁPIDO
+155	Sube la velocidad del ataque principal (delante/detrás) (+5% por Lv). No afecta a arriba/abajo/golpe en picado/ataques especiales
+156	MARCHA ATRÁS
+157	Sube el ataque (+8% por Lv), pero baja la velocidad de movimiento (-3% por Lv)
+158	Cuando tu HP baja al 30% o menos, recuperas algo de HP (1 a 3 corazones). Luego se recarga con la distancia (10,000m, menos con el Lv)
+159	ESCUDO
+160	Un escudo que bloquea 1 golpe. Máximo +1 cada 3 Lv (máx. 3); los usados se recargan con el tiempo (más rápido con el Lv)
+161	ONDA DE CHOQUE
+162	Cuerpo a cuerpo: onda de choque corta hacia delante al golpear; proyectiles: onda de choque alrededor del impacto (potencia y alcance suben con el Lv)
+163	MAESTRO DEL CIELO
+164	Sube el ataque aéreo (+4% por Lv). Golpear en el aire te devuelve 1 salto aéreo (por salto: 1 vez cada 3 Lv)
+165	CORREDOR AÉREO
+166	Suben la fuerza de salto (+2% por Lv) y el ataque aéreo (+3% por Lv)
+167	RUMBO AL CIELO
+168	El ataque en el aire sube mucho (+11% por Lv), pero baja en el suelo (-5% por Lv)
+169	HOJA SÓNICA
+170	Cada ataque principal lanza un tajo hacia delante. Cuanto más rápido corras, más lejos llega y más grande y fuerte es
+171	VELOCIDAD -
+172	Baja la velocidad de movimiento (-4% por Lv). Carta especial, poco útil en solitario
+173	VELOCIDAD +
+174	Sube la velocidad de movimiento (+3% por Lv)
+175	EL LARGO CAMINO
+176	Suben la EXP (+40% por Lv) y el HP máx. (+1 corazón cada 2 Lv)
+177	SEÑOR DEL TRUENO
+178	Versión superior del rayo. Mejora la potencia (+4% por Lv), la cadena (+1 objetivo cada 3 Lv) y el área alrededor del rayo
+179	GOLPE DE TRUENO
+180	Carta inicial de Rayo. Los golpes provocan rayos (probabilidad 5%+2%/Lv, potencia 7.5+1.5/Lv; máx. 1 vez cada 0.4 s por enemigo)
+181	TORNADO
+182	Donde golpea la hoja de viento surge un pequeño tornado que atrapa a los enemigos cercanos (potencia y alcance suben con el Lv). También lanza alguna hoja de viento por sí misma
+183	ENEMIGOS DUROS
+184	Sube el HP de los esbirros (+15% por Lv), a cambio de más MILE (+15%/Lv) y EXP por derrota (+5%/Lv)
+185	CAZATESOROS
+186	Sube el MILE de tesoros y recompensas (+30% por Lv) (BONUS ZONE: goblin portador, slime dorado, mímico, SUPERADO/PERFECTO; recompensas de SE BUSCA). El MILE de jefes y distancia también sube un poco
+187	TODOPODEROSO
+188	Carta todoterreno: sube a la vez el ataque (+3% por Lv), el HP máx. (+1 corazón cada 2 Lv) y la velocidad de movimiento (+2% por Lv)
+189	VAMPIRO
+190	Al derrotar a un enemigo, probabilidad (+3% por Lv) de recuperar 1 corazón de HP
+191	SE BUSCA
+192	Cada cierta distancia aparece un enemigo con recompensa (más fuerte y frecuente con el Lv). Si lo derrotas, cobras; si lo adelantas, escapa. Sube el MILE (+35%/Lv)
+193	CORTAVIENTOS
+194	Carta inicial de Viento. Los golpes lanzan una hoja de viento perforante hacia delante (probabilidad 10%+3%/Lv, potencia 8+1.5/Lv). El alcance de ataque también sube un poco (+1%/Lv)
+195	GUARDABOSQUES
+196	Tensar, apuntar, perforar
+197	Un guardabosques de los bosques profundos con un arco largo más alto que él. Cuanto más tensa, más fuerte golpea, pero de cerca tiene poco con qué responder.
+198	FRANCOTIRADOR
+199	LANCERO DRAGÓN
+200	Romper el frente, nunca ceder
+201	Un joven caballero dragón con una lanza forjada de un colmillo de dragón. Rompe cualquier línea de frente, pero le cuesta responder a lo que se cuela en su alcance.
+202	ROMPEDOR
+203	DRACONIANA
+204	Garra, cola, ala, llama
+205	Una guerrera con sangre de dragón. No necesita armas: garras, cola y fuego lo barren todo. Su tamaño la hace fácil de golpear, pero difícil de detener.
+206	BRUTA
+207	DOBLE HOJA
+208	Acero veloz, movimiento sin fin
+209	Una ágil luchadora de dos espadas que encadena golpes sin frenar nunca. La velocidad y el ímpetu son sus mejores armas.
+210	COMBO EN SUELO
+211	PELEADOR
+212	Puños que devuelven el golpe
+213	Un artista marcial que solo lucha con guanteletes de hierro. Tiene que acercarse, y si golpeas primero, él devuelve el golpe con más fuerza.
+214	PISTOLERA
+215	Un disparo, una distancia
+216	Dos pistolas, una línea de fuego precisa. Gana el combate antes de que se acerque, pero si un enemigo pasa, no tiene respuesta.
+217	A DISTANCIA
+218	HECHICERA
+219	Flotar arriba, golpear abajo
+220	Una hechicera que nunca toca el suelo. Sube y baja a voluntad y hace llover hechizos sobre lo que haya debajo, pero un solo golpe le hace mucho daño.
+221	MAGA VOLADORA
+222	SACERDOTISA
+223	Sella el camino
+224	Una exorcista de un santuario de montaña. Coloca ofuda y barreras por delante, y el propio camino se vuelve contra sus enemigos, pero es lenta para golpear primero.
+225	SELLADORA
+226	SHINOBI
+227	Desaparecer, cortar, desaparecer
+228	Una shinobi que nunca está donde golpeas. Atraviesa a los enemigos de un solo corte y desaparece antes de que caigan, pero no aguanta muchos golpes.
+229	MOVILIDAD
+230	DAMA NOBLE
+231	Una heroína aún por despertar
+232	Vestida de plata y oro, empuña un mandoble que, dicen, abate dragones. Pero su leyenda aún no ha alcanzado a su armadura.
+233	CABALLERA NOBLE
+234	ESPADACHÍN
+235	El que nunca deja de avanzar
+236	Un espadachín solitario que sigue su propio camino. Por muchas veces que caiga, se levanta, porque aún hay un lugar más lejano que alcanzar.
+237	EQUILIBRADO
+238	Cuanto más dura, más fuerte
+239	Un noble de la noche que no necesita espada. Cada herida que causa alimenta su sangre, y un combate largo solo lo hace más rápido, pero empieza cada batalla hambriento.
+240	SANGRE
+241	CARTAS DE PERSONAJE
+242	ELEGIR PERSONAJE
+243	ELEGIR
+244	VIDA
+245	PODER
+246	ELEGIR ZONA
+247	Salir
+248	Mazo recomendado
+249	Quitar todo
+250	Sí
+251	No
+252	ÚLTIMO CORREDOR
+253	Enemigos: los de todas las zonas mezclados (reforzados)
+254	Rasgos: suelos que se derrumban, estructuras que caen, corredores flotantes
+255	Ruta: enorme corredor antiguo → derrumbe → abismo → último camino
+256	Cueva Natural
+257	Enemigos: hormiga / saltador / murciélago / gusano
+258	Rasgos: techo de roca, pinchos en el techo, oscuridad y antorchas
+259	Ruta: un solo camino (amenazas en suelo, aire, subsuelo y techo)
+260	Corredor Celeste
+261	Enemigos: goblins + nuevos tipos que se desbloquean con la distancia
+262	Rasgos: plataformas flotantes de roca y nubes, camino en las alturas
+263	Ruta: cuanto más avanzas, más peligro
+264	Camino del Páramo
+265	Enemigos: goblin / pájaro
+266	Obstáculos: piedras, arbustos, muros, árboles rompibles, rocas gigantes, agujeros
+267	Ruta: arriba Fácil / abajo Peligro
+268	Has caído. Usa «Revancha igual» para reintentarlo ya
+269	HP recuperado por completo
+270	Se eliminaron todos los enemigos y sus ataques (no cuenta para el tiempo de derrota)
+271	Daño infligido {0}    Daño recibido {1}    {2} s
+272	Invencible
+273	≡ Ajustes
+274	Revancha igual
+275	Borrar enemigos
+276	Al inicio
+277	Todos derrotados  {0} s
+278	Rivales
+279	Detalles
+280	Resultado
+281	Zona de práctica para probar personajes y cartas libremente
+282	Empezar con estos ajustes
+283	Empezar
+284	Prueba
+285	(prueba)
+286	Buscar
+287	<color=#8ce6ff>Prueba</color>
+288	+ Añadir
+289	Copiar mazo actual
+290	Copiar cartas de personaje
+291	Build de prueba ({0} cartas)
+292	Quitar todo
+293	Lv = veces que la cogiste en esta carrera (máx. 9 por habilidad). No cambia lo que tienes ni el mazo
+294	Añade cartas con «+ Añadir» en la lista de la izquierda. También puedes probar sin cartas
+295	Copia de tu colección (Lv de fusión {0}, {1} habilidades)
+296	{0} cartas del mazo copiadas al build de prueba (el mazo no cambia)
+297	{0} cartas de personaje copiadas (Lv inicial)
+298	Objetivo de práctica
+299	Esbirros
+300	Jefes del Páramo
+301	Jefes de la Cueva
+302	Jefes del Cielo
+303	Objetivo inmóvil: no ataca (sin daño al tocarlo) y no cae. Para probar ataques. Al correr, mantiene la distancia contigo
+304	Cantidad
+305	Intensidad de movimiento
+306	Fase
+307	Los jefes aparecen por delante con su propia entrada
+308	Los ataques de terreno de los jefes de cueva/cielo (agujeros/techo/caída de rocas/franjas del cielo, etc.) funcionan distinto en la arena plana
+309	Solo 1 tipo de jefe (se puede combinar con esbirros)
+310	Añadir a rivales
+311	Solo 1 tipo de jefe (se sustituyó el anterior)
+312	Rivales actuales ({0})
+313	Sin rivales (si empiezas así, solo pruebas el movimiento)
+314	Fuerza enemiga: como a {0}km (HP/ataque iguales a esa distancia del juego)
+315	Velocidad
+316	Quieto (0km/h)
+317	Correr (velocidad base + bonus)
+318	Correr (velocidad fija)
+319	Solo se detiene el avance automático (ataques/saltos/gravedad/retroceso/enemigos como en el juego)
+320	Corre a la velocidad base multiplicada por los bonus de velocidad del personaje/cartas (VELOCIDAD +, etc.)
+321	Corre a esta velocidad sin bonus (para comparar sin el efecto de las cartas de velocidad)
+322	Ahora: base {0}km/h → real {1}km/h (bonus ×{2})
+323	Invencible / HP
+324	Invencible: {0}
+325	Recuperar todo el HP
+326	Aun siendo invencible, el resultado muestra el «daño real que habrías recibido»
+327	Asistencia (igual que «Asistencia a alta velocidad» en ajustes; solo en la arena, no cambia los ajustes)
+328	OFF
+329	ON
+330	Siempre (dev)
+331	Actúa desde {0}km/h
+332	No disponible en la arena: FINAL EVOLUTION / AWAKENED / Mastery / barra ULTIMATE / subida de nivel / recompensas de jefe / BONUS ZONE (cartas: solo efectos normales de Lv y COMBO. No cambian recompensas, récords ni colección)
+333	Solo versión dev
+334	Elegir también enemigos no vistos: {0}
+335	Aleatoriedad fija: {0}
+336	Ayuda para romper obstáculos: {0}
+337	Caído
+338	Todos derrotados {0} s
+339	Fin
+340	En combate
+341	Esta vez: {0}
+342	Daño infligido
+343	Golpes acertados
+344	Derrotas
+345	Tiempo hasta derrotar
+346	Daño recibido (HP perdido)
+347	Daño real (incl. invencible/escudo)
+348	Tiempo de combate
+349	{0} s
+350	{0} ({1} veces)
+351	Esta vez
+352	Anterior
+353	Condiciones actuales: {0}
+354	Build de prueba: {0}
+355	Condiciones anteriores: {0}
+356	Build anterior: {0}
+357	Cambiar ajustes
+358	？？？ (aún no encontrado)
+359	Objetivo inmóvil
+360	{0} / {1} cartas / {2} / como a {3}km
+361	Sin cartas
+362	(copia de tu colección)
+363	Preparando la arena
+364	ARENA
+365	MÍMICO KO
+366	GOBLIN
+367	SLIME
+368	HADA
+369	MÍMICO
+370	MILE
+371	EXP
+372	¡¡JACKPOT!!
+373	¡BONUS ZONE!
+374	PERFECTO:
+375	¡JACKPOT SUPERADO!
+376	¡BONUS SUPERADO!
+377	¡JACKPOT  PERFECTO!
+378	¡BONUS PERFECTO!
+379	RESULTADO JACKPOT
+380	RESULTADO BONUS
+381	ENEMIGOS
+382	SUPERADO
+383	PERFECTO
+384	TOTAL
+385	ALEATORIO
+386	FIN
+387	La carrera sigue en {0}
+388	Actual
+389	{0} golpes
+390	(fijo)
+391	Una carta de material está en uso en el mazo/cartas de personaje
+392	Ya es AWAKENED (★5), la Mastery no avanza más (la carta no se gasta. El uso de cartas sobrantes tras ★5 se añadirá más adelante)
+393	No se puede fusionar: el Lv sería {0} (máx. Lv.{1})
+394	No se puede fusionar: tendría {0} habilidades (máx. {1})
+395	Fusionando
+396	No tienes suficientes cartas
+397	<color=#ffd76a><b>[MASTERY] Mejora de Lv.9 MAX</b></color>
+398	La carta principal se queda (Lv.9 MAX); solo se gasta la carta de material.
+399	Mastery actual: <color=#ffd76a>{0}</color>  {1}
+400	Esta fusión: <b>+{0} Mastery</b> (material Lv.{1} = {2} cartas)
+401	Tras la fusión: <color=#ffd76a>{0}</color>  {1}
+402	<size=19>(+{0} ★, el sobrante pasa a la siguiente ★)</size>
+403	<size=19>El sobrante de {0} tras ★5 se guarda</size>
+404	<color=#ff9a8a><size=19>Las habilidades secundarias del material ({0}) no se heredan</size></color>
+405	<size=19>La Mastery no mejora las estadísticas normales (ataque/velocidad/EXP, etc.). Es tu registro de progreso hacia AWAKENED.</size>
+406	<color=#ff9a8a>Al confirmar, se gastará 1 carta de material.</color>
+407	<color=#ffd76a><b>[Mejora idéntica → Lv.9 MAX] Éxito 100%</b></color>
+408	Lv de fusión: Lv.{0} + Lv.{1} → <b>Lv.9 MAX</b>
+409	Lo que supera Lv.9 (<b>{0}</b>) pasa a Mastery: {1} → <color=#ffd76a>{2}</color>{3}
+410	<b>Habilidades heredadas (mejora hasta 9)</b>
+411	・{0} <b>×{1}</b>
+412	<color=#ff9a8a>Al confirmar, se gastarán las 2 cartas elegidas (obtienes 1 carta Lv.9 MAX).</color>
+413	<color=#ffd76a><b>[Mejora idéntica] Éxito 100%</b></color>
+414	Lv de fusión: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+415	<b>Habilidades heredadas (las iguales suman su mejora)</b>
+416	・{0} {1}<b>×{2}</b>  <size=18>({3} ×{4})</size>
+417	<color=#9fd0ff><b>[Fusión distinta] El resultado se sortea</b></color>
+418	<b>Lv de fusión de la carta resultante (según resultado)</b>
+419	・Ambas con éxito: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+420	・Solo la principal: <b>Lv.{0}</b> (solo el Lv de la principal)
+421	・Solo el material: <b>Lv.{0}</b> (solo el Lv del material)
+422	・Ambas fallan: sin carta, se devuelven <color=#ffd76a>{0} MILE</color>
+423	<b>Lado principal: herencia {0}%</b>
+424	・{0} ×{1}  <size=18>({2} ×{3})</size>
+425	<b>Lado material: herencia {0}%</b>
+426	Ambas con éxito: se heredan todas las habilidades (las iguales suman su mejora)
+427	Solo un lado con éxito: solo se heredan sus habilidades, mejoras y Lv (el otro lado se pierde)
+428	Si solo tiene éxito el material, su habilidad principal pasa a ser la de la carta resultante
+429	<size=18>(Reembolso si ambas fallan = ★{0}×Lv.{1}×{2} + ★{3}×Lv.{4}×{5})</size>
+430	<color=#ff9a8a>Al confirmar, se gastarán las 2 cartas elegidas.</color>
+431	No tienes esta carta
+432	No disponible: en uso en el mazo y en cartas de personaje
+433	No disponible: equipada como carta de personaje
+434	No disponible: en uso en el mazo
+435	Necesitas 2 cartas iguales (tienes 1)
+436	Elige una carta principal y una de material
+437	No se pudo cargar la información de la carta
+438	¡MASTERY UP!
+439	¡GRAN ÉXITO!
+440	¡FUSIÓN CON ÉXITO!
+441	<size=21>+{0} ★ (el sobrante pasa a la siguiente ★)</size>
+442	<size=21>El sobrante de {0} tras ★5 se ha guardado (para usos futuros)</size>
+443	<size=21>Esta carta es ahora AWAKENED (registro permanente; las estadísticas normales no cambian)</size>
+444	La carta principal (Lv.9 MAX) se queda; se gastó 1 carta de material.
+445	<size=21>La Mastery no mejora las estadísticas normales (ataque/velocidad/EXP, etc.).</size>
+446	Lv de fusión <b>{0}</b>{1}
+447	<color=#ffd76a>Mejora idéntica (garantizada)</color> … se heredan todas las habilidades
+448	Principal ({0} Lv.{1}): {2}
+449	Material ({0} Lv.{1}): {2}
+450	Solo el Lv de la principal
+451	Solo el Lv del material
+452	<size=21>Lv final {0} = {1}</size>
+453	<b>Habilidad principal</b>
+454	<b>Habilidades secundarias ({0}/{1})</b>
+455	Ninguna
+456	Fusión fallida…
+457	Principal ({0} Lv.{1}): <color=#9aa3b8>herencia fallida</color>
+458	Material ({0} Lv.{1}): <color=#9aa3b8>herencia fallida</color>
+459	Se gastaron las 2 cartas elegidas.
+460	MILE devuelto  <color=#ffd76a><b><size=40>+{0}</size></b></color>
+461	MILE en posesión  <b>{0}</b>
+462	<color=#ffd76a><b>Mejora ×{0}→×{1}</b></color>
+463	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3} ×{4})</color></size>
+464	Volver
+465	Fusión de cartas
+466	Ordenar
+467	Principal
+468	Material
+469	Cartas
+470	Seleccionada
+471	Fusionar
+472	Saltar ▶▶
+473	Fusionar otra vez
+474	Volver a la lista
+475	MILE en posesión  {0}
+476	{0} tipos / {1} cartas
+477	Carta principal
+478	Carta de material
+479	Todas
+480	Movimiento
+481	Ataque
+482	Defensa
+483	Crecimiento
+484	Curación
+485	Especial
+486	Riesgo
+487	Elige 2 cartas
+488	No se puede fusionar
+489	Nombre
+490	Nivel
+491	Rareza
+492	Cantidad
+493	Tienes {0}  Disponibles<color=#{1}
+494	Habilidades {0}
+495	Principal+Material
+496	En uso
+497	<color=#ffd76a><b>{0}</b></color>  <b>{1}</b>  {2}  Fusión Lv.{3}{4}
+498	Habilidad principal: {0}
+499	Habilidades secundarias ({0}):
+500	・{0}
+501	Habilidades secundarias: ninguna
+502	<size=19><color=#b7bfd8>Tienes {0} / Disponibles {1}</color></size>
+503	Elige una carta de la lista de la izquierda.
+504	La carta va al hueco seleccionado (el que brilla). Toca un hueco para cambiar de destino y × para quitarla.
+505	・Cartas iguales … éxito 100%, suman el Lv de fusión y todas las habilidades
+506	・Cartas distintas … heredan habilidades por sorteo (principal 50% / material 25%). Si solo un lado tiene éxito, solo quedan su Lv y sus habilidades
+507	・El Lv de fusión máximo es Lv.9. Con cartas iguales, lo que supera Lv.9 pasa a Mastery (cartas distintas que sumen más de Lv.9 no se pueden fusionar)
+508	・Fusionar una carta Lv.9 MAX con otra igual hace avanzar la Mastery (★5 = AWAKENED)
+509	<size=19>Has alcanzado ★5 (AWAKENED). El uso de cartas sobrantes tras ★5 se añadirá más adelante (por ahora no se gastan).</size>
+510	Si eliges la misma carta ({0}) como material, la Mastery avanza según su Lv (Lv.1 = +1).
+511	Ahora elige una carta de material.
+512	Ahora elige una carta principal.
+513	Esta carta es AWAKENED (★5)
+514	La carta resultante se colocó como principal. Elige una carta de material
+515	Mejora garantizada
+516	¡AWAKENED!
+517	¡Lv.9 MAX alcanzado!
+518	¡Mejora idéntica completada!
+519	¡Gran éxito! Se heredan las habilidades de ambos lados
+520	Se heredan las habilidades de la principal
+521	Se heredan las habilidades del material
+522	Herencia fallida…  Las cartas se convirtieron en MILE
+523	Lado {0}: ¡herencia con éxito!
+524	Lado {0}: herencia fallida
+525	Enfoque Speed
+526	Enfoque Defense
+527	Enfoque Blood
+528	Enfoque Fire
+529	Enfoque Ice
+530	Enfoque Lightning

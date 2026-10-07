@@ -149,7 +149,7 @@ public class BossBattleHud : MonoBehaviour
             Rect r = new Rect(w * 0.5f - 140f, h * 0.17f, 280f, 30f);
             UiKit.Fill(new Rect(r.x + 40f, r.y + 2f, r.width - 80f, r.height - 4f), new Color(0.05f, 0.03f, 0.08f, 0.55f));
             small.normal.textColor = Color.Lerp(new Color(1f, 0.4f, 0.3f), new Color(1f, 0.9f, 0.5f), Mathf.PingPong(Time.unscaledTime * 3f, 1f));
-            GUI.Label(r, t, small);
+            LocGUI.Label(r, t, small);
         }
 
         if (!string.IsNullOrEmpty(bannerText) && Time.unscaledTime < bannerUntil)
@@ -163,9 +163,9 @@ public class BossBattleHud : MonoBehaviour
             Color c = bannerColor; c.a *= a;
             Color sh = new Color(0f, 0f, 0f, 0.8f * a);
             big.normal.textColor = sh;
-            GUI.Label(new Rect(r.x + 2f, r.y + 2f, r.width, r.height), bannerText, big);
+            LocGUI.Label(new Rect(r.x + 2f, r.y + 2f, r.width, r.height), bannerText, big);
             big.normal.textColor = c;
-            GUI.Label(r, bannerText, big);
+            LocGUI.Label(r, bannerText, big);
         }
         GUI.matrix = keep;
     }

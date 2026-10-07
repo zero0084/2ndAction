@@ -115,7 +115,7 @@ public class NetDebugUI : MonoBehaviour
         {
             Rect r = new Rect(w * 0.5f - 260f, h * 0.18f, 520f, 56f);
             GUI.Box(r, "");
-            GUI.Label(r, toastText, bannerStyle);
+            LocGUI.Label(r, toastText, bannerStyle);
         }
 
         GUI.matrix = prevMatrix;
@@ -424,7 +424,7 @@ public class NetDebugUI : MonoBehaviour
         text = text.Replace("  P", "\nP");
         int nLines = text.Split('\n').Length;
         Rect r = new Rect(w * 0.5f - 240f, safeTop + 64f, 480f, 26f * nLines + 4f);
-        GUI.Label(r, text, tagStyle);
+        LocGUI.Label(r, text, tagStyle);
     }
 
     void DrawRemoteNameTags()
@@ -441,7 +441,7 @@ public class NetDebugUI : MonoBehaviour
             float gx = sp.x / s, gy = (Screen.height - sp.y) / s;
             Matrix4x4 prev = GUI.matrix;
             GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(s, s, 1f));
-            GUI.Label(new Rect(gx - 80f, gy - 28f, 160f, 28f), $"P{p.PlayerNumber}", tagStyle);
+            LocGUI.Label(new Rect(gx - 80f, gy - 28f, 160f, 28f), $"P{p.PlayerNumber}", tagStyle);
             GUI.matrix = prev;
         }
     }
@@ -452,7 +452,7 @@ public class NetDebugUI : MonoBehaviour
         Rect r = new Rect((w - bw) * 0.5f, (h - bh) * 0.5f, bw, bh);
         GUI.Box(r, "");
         GUI.Box(r, "");
-        GUI.Label(new Rect(r.x + 16f, r.y + 16f, bw - 32f, 120f), NetSession.Instance.ConnectionLostMessage, bannerStyle);
+        LocGUI.Label(new Rect(r.x + 16f, r.y + 16f, bw - 32f, 120f), NetSession.Instance.ConnectionLostMessage, bannerStyle);
         bool inRun = gm.HasStarted && !gm.IsGameOver;
         if (inRun)
         {

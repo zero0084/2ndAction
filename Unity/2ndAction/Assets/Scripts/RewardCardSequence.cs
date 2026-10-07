@@ -604,7 +604,7 @@ public class RewardCardSequence : MonoBehaviour
             if (GameManager.Instance != null) GameManager.Instance.FlashExpBar();
             PlaySfx(AudioManager.Se(SeId.LevelUp, levelUpSe));
         }
-        if (levelUpText != null) levelUpText.text = announcementText;
+        if (levelUpText != null) levelUpText.text = Loc.Auto(announcementText);
 
         if (levelUpTextGroup == null || levelUpTextRect == null) yield break;
 
@@ -773,10 +773,10 @@ public class RewardCardSequence : MonoBehaviour
 
     void UpdateDetailPanel(RewardCardData data)
     {
-        if (detailTitleText != null) detailTitleText.text = data.Title;
-        if (detailLevelText != null) detailLevelText.text = data.LevelLine;
-        if (detailDescriptionText != null) detailDescriptionText.text = data.Description;
-        if (detailHintText != null) detailHintText.text = "もう一度タップして決定";
+        if (detailTitleText != null) detailTitleText.text = Loc.Auto(data.Title);
+        if (detailLevelText != null) detailLevelText.text = Loc.Auto(data.LevelLine);
+        if (detailDescriptionText != null) detailDescriptionText.text = Loc.Auto(data.Description);
+        if (detailHintText != null) detailHintText.text = Loc.Auto("もう一度タップして決定");
     }
 
     // 1枚もまだ選ばれていない間、詳細説明エリアに出す案内文。
@@ -784,7 +784,7 @@ public class RewardCardSequence : MonoBehaviour
     {
         if (detailTitleText != null) detailTitleText.text = "";
         if (detailLevelText != null) detailLevelText.text = "";
-        if (detailDescriptionText != null) detailDescriptionText.text = "カードをタップして選択してください";
+        if (detailDescriptionText != null) detailDescriptionText.text = Loc.Auto("カードをタップして選択してください");
         if (detailHintText != null) detailHintText.text = "";
     }
 

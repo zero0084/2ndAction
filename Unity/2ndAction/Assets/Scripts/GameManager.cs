@@ -1458,7 +1458,7 @@ public partial class GameManager : MonoBehaviour
         Vector2 size = style.CalcSize(new GUIContent(text));
         Rect rect = new Rect(Screen.width / 2f - size.x / 2f - 20f, Screen.height * 0.22f, size.x + 40f, size.y + 16f);
         UiBackdrop.Draw(rect, 0.85f * alpha);
-        GUI.Label(rect, text, style);
+        LocGUI.Label(rect, text, style);
     }
 
     // Measures each one's actual frame-to-frame X movement (not just the
@@ -1645,8 +1645,8 @@ public partial class GameManager : MonoBehaviour
         GUIStyle shadowStyle = new GUIStyle(style);
         shadowStyle.normal.textColor = new Color(0.04f, 0.06f, 0.14f, 0.85f);
         Rect shadowRect = new Rect(rect.x + 4f, rect.y + 4f, rect.width, rect.height);
-        GUI.Label(shadowRect, CountdownLabel, shadowStyle);
-        GUI.Label(rect, CountdownLabel, style);
+        LocGUI.Label(shadowRect, CountdownLabel, shadowStyle);
+        LocGUI.Label(rect, CountdownLabel, style);
     }
 
     void StartGame()
@@ -1807,10 +1807,10 @@ public partial class GameManager : MonoBehaviour
         UiBackdrop.Draw(r, 0.6f);
         var labelStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
         labelStyle.normal.textColor = HudLabelColor;
-        GUI.Label(new Rect(r.x + 12f, r.y, 70f, r.height), "SPEED", labelStyle);
+        LocGUI.Label(new Rect(r.x + 12f, r.y, 70f, r.height), "SPEED", labelStyle);
         var valueStyle = new GUIStyle(GUI.skin.label) { fontSize = 17, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleRight };
         valueStyle.normal.textColor = ratio >= 1.01f ? HudGoldColor : HudValueColor;
-        GUI.Label(new Rect(r.x + 60f, r.y, r.width - 72f, r.height), kmh.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " km/h", valueStyle);
+        LocGUI.Label(new Rect(r.x + 60f, r.y, r.width - 72f, r.height), kmh.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " km/h", valueStyle);
 
         float since = Time.unscaledTime - speedUpShownAt;
         if (since >= 0f && since < SpeedUpNoticeSeconds)
@@ -1819,7 +1819,7 @@ public partial class GameManager : MonoBehaviour
             var nStyle = new GUIStyle(GUI.skin.label) { fontSize = 15, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft };
             Color c = HudGoldColor; c.a = a;
             nStyle.normal.textColor = c;
-            GUI.Label(new Rect(r.x + 4f, r.yMax + 2f, 220f, 22f), "SPEED UP! " + speedUpShownKmh.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " km/h", nStyle);
+            LocGUI.Label(new Rect(r.x + 4f, r.yMax + 2f, 220f, 22f), "SPEED UP! " + speedUpShownKmh.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " km/h", nStyle);
         }
     }
 
@@ -3765,7 +3765,7 @@ public partial class GameManager : MonoBehaviour
         string buildText = "build " + Application.version;
         Rect buildRect = new Rect(Screen.width * 0.66f, Screen.height - 26f, 240f, 22f);
         UiBackdrop.Draw(buildRect, 0.35f);
-        GUI.Label(buildRect, buildText, buildStyle);
+        LocGUI.Label(buildRect, buildText, buildStyle);
 
         // Distance/level/EXP/BEST/hearts are the in-run HUD - meaningless
         // (and, per feedback, just visual clutter) on the title screen or
@@ -3847,7 +3847,7 @@ public partial class GameManager : MonoBehaviour
             diagStyle.normal.textColor = Color.cyan;
             Rect diagRect = new Rect(0f, Screen.height * 0.5f - 90f, Screen.width, 26f);
             DrawCenteredBackdrop(diagRect, lastLevelUpDiagnostic, diagStyle);
-            GUI.Label(diagRect, lastLevelUpDiagnostic, diagStyle);
+            LocGUI.Label(diagRect, lastLevelUpDiagnostic, diagStyle);
         }
 
         if (DebugMode && levelUpPending && !string.IsNullOrEmpty(RewardCardSequence.DebugStep))
@@ -3859,7 +3859,7 @@ public partial class GameManager : MonoBehaviour
             string stepText = "STEP: " + RewardCardSequence.DebugStep;
             Rect stepRect = new Rect(0f, Screen.height * 0.5f - 60f, Screen.width, 26f);
             DrawCenteredBackdrop(stepRect, stepText, stepStyle);
-            GUI.Label(stepRect, stepText, stepStyle);
+            LocGUI.Label(stepRect, stepText, stepStyle);
         }
 
         // ホーム(!HasStarted)では、ギア/設定/DEBUG列を「入力判定は従来どおり最初(ここ)」で行い、
@@ -3937,7 +3937,7 @@ public partial class GameManager : MonoBehaviour
                 titleTextStyle.normal.textColor = new Color(1f, 1f, 1f, logoFadeAlpha);
                 Rect titleRect = new Rect(0f, Screen.height * 0.03f, Screen.width, 70f);
                 DrawCenteredBackdrop(titleRect, GameTitle, titleTextStyle);
-                GUI.Label(titleRect, GameTitle, titleTextStyle);
+                LocGUI.Label(titleRect, GameTitle, titleTextStyle);
             }
 
             // Home Room UI reconstruction pass - "部屋に存在する物を触る"
@@ -4001,7 +4001,7 @@ public partial class GameManager : MonoBehaviour
                     continueStyle.normal.textColor = new Color(1f, 0.85f, 0.4f);
                     Rect continueLabelRect = new Rect(doorRect.x, doorRect.y - 54f, doorRect.width, 46f);
                     DrawCenteredBackdrop(continueLabelRect, continueLabel, continueStyle);
-                    GUI.Label(continueLabelRect, continueLabel, continueStyle);
+                    LocGUI.Label(continueLabelRect, continueLabel, continueStyle);
 
                     // Item 13 - "Active Runが存在する状態でNEW RUNを開始で
                     // きるようにする場合は確認を必ず入れてください".
@@ -4260,7 +4260,7 @@ public partial class GameManager : MonoBehaviour
         UiBackdrop.Draw(panelRect, 0.8f);
 
         float y = panelRect.y + 16f;
-        GUI.Label(new Rect(panelRect.x, y, panelRect.width, 46f), headline, headlineStyle);
+        LocGUI.Label(new Rect(panelRect.x, y, panelRect.width, 46f), headline, headlineStyle);
         y += 52f;
 
         GUIStyle rowStyle = new GUIStyle(GUI.skin.label);
@@ -4270,10 +4270,10 @@ public partial class GameManager : MonoBehaviour
 
         void Row(string label, string value, bool star)
         {
-            string text = star ? $"{label}: {value}  ★" : $"{label}: {value}";
+            string text = star ? $"{Loc.T(label)}: {value}  ★" : $"{Loc.T(label)}: {value}"; // 見出しだけ訳す(2026-10-07)
             Color prevColor = rowStyle.normal.textColor;
             rowStyle.normal.textColor = star ? new Color(1f, 0.85f, 0.3f) : Color.white;
-            GUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), text, rowStyle);
+            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), text, rowStyle);
             rowStyle.normal.textColor = prevColor;
             y += 34f;
         }
@@ -4305,12 +4305,12 @@ public partial class GameManager : MonoBehaviour
             Row("TOTAL EXP / UPGRADES", $"{Mathf.FloorToInt(TotalExpEarned)} / {UpgradeCount}", false);
             Color keepRow = rowStyle.normal.textColor;
             rowStyle.normal.textColor = new Color(1f, 0.55f, 0.5f);
-            GUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), $"失ったもの: このランのMILE {RunMile}", rowStyle);
+            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), $"失ったもの: このランのMILE {RunMile}", rowStyle);
             y += 34f;
             rowStyle.normal.textColor = new Color(0.6f, 1f, 0.7f);
-            GUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), IsNewBestDistance ? "残るもの: BEST距離の記録(更新!)・累計走行距離" : "残るもの: BEST距離の記録・累計走行距離", rowStyle);
+            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), IsNewBestDistance ? "残るもの: BEST距離の記録(更新!)・累計走行距離" : "残るもの: BEST距離の記録・累計走行距離", rowStyle);
             y += 34f;
-            GUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), $"              持っているカード・MILE(WALLET {TotalOwnedMile})", rowStyle);
+            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), $"              持っているカード・MILE(WALLET {TotalOwnedMile})", rowStyle);
             y += 34f;
             rowStyle.normal.textColor = keepRow;
         }
@@ -4330,7 +4330,7 @@ public partial class GameManager : MonoBehaviour
             retryStyle.fontSize = 20;
             retryStyle.alignment = TextAnchor.MiddleCenter;
             retryStyle.normal.textColor = new Color(1f, 1f, 1f, 0.85f);
-            GUI.Label(new Rect(panelRect.x, panelRect.yMax - 40f, panelRect.width, 30f), "Tap to Retry", retryStyle);
+            LocGUI.Label(new Rect(panelRect.x, panelRect.yMax - 40f, panelRect.width, 30f), "Tap to Retry", retryStyle);
         }
     }
 
@@ -4419,7 +4419,7 @@ public partial class GameManager : MonoBehaviour
         labelStyle.fontSize = HudLabelFontSize;
         labelStyle.alignment = TextAnchor.UpperLeft;
         labelStyle.normal.textColor = HudLabelColor;
-        GUI.Label(new Rect(rect.x + pad, rect.y + topPad, rect.width - pad * 2f, 18f), label, labelStyle);
+        LocGUI.Label(new Rect(rect.x + pad, rect.y + topPad, rect.width - pad * 2f, 18f), label, labelStyle);
 
         GUIStyle valueStyle = new GUIStyle(GUI.skin.label);
         valueStyle.fontSize = flashIntensity > 0f ? Mathf.RoundToInt(HudValueFontSize * Mathf.Lerp(1f, 1.25f, flashIntensity)) : HudValueFontSize;
@@ -4433,7 +4433,7 @@ public partial class GameManager : MonoBehaviour
             if (vs.x > availW && vs.x > 1f) valueStyle.fontSize = Mathf.Max(11, Mathf.FloorToInt(valueStyle.fontSize * availW / vs.x));
         }
         valueStyle.normal.textColor = flashIntensity > 0f ? Color.Lerp(valueColor, new Color(1f, 0.85f, 0.4f), flashIntensity) : valueColor;
-        GUI.Label(new Rect(rect.x + pad, rect.y + topPad + 16f, rect.width - pad * 2f, rect.height - topPad - 18f), valueText, valueStyle);
+        LocGUI.Label(new Rect(rect.x + pad, rect.y + topPad + 16f, rect.width - pad * 2f, rect.height - topPad - 18f), valueText, valueStyle);
     }
 
     void DrawLevelAndExp()
@@ -4448,7 +4448,7 @@ public partial class GameManager : MonoBehaviour
         lvStyle.normal.textColor = HudGoldColor;
         string lvText = $"Lv.{Level}";
         Rect lvRect = new Rect(panelRect.x + 14f, panelRect.y, 66f, panelRect.height);
-        GUI.Label(lvRect, lvText, lvStyle);
+        LocGUI.Label(lvRect, lvText, lvStyle);
 
         // Dark fill + thin gold frame (same UiBackdrop treatment as every
         // other panel) with a blue-cyan progress fill inset inside it.
@@ -4517,14 +4517,14 @@ public partial class GameManager : MonoBehaviour
         labelStyle.fontSize = HudLabelFontSize;
         labelStyle.alignment = TextAnchor.UpperLeft;
         labelStyle.normal.textColor = HudLabelColor;
-        GUI.Label(new Rect(rect.x + 12f, rect.y + 4f, rect.width - 16f, 18f), "HP", labelStyle);
+        LocGUI.Label(new Rect(rect.x + 12f, rect.y + 4f, rect.width - 16f, 18f), "HP", labelStyle);
         // 2026-10-02: HPは10倍スケール。数値(今/最大)を見出しの右に出す
         GUIStyle numStyle = new GUIStyle(labelStyle) { alignment = TextAnchor.UpperRight };
         numStyle.normal.textColor = new Color(1f, 0.85f, 0.88f, 0.95f);
         // カードバランス v3: 封印したハート(HP犠牲)と Shield の数も出す
         var pcHud = PlayerController.Instance;
         string extra = (SealedHearts > 0 ? $"  封印{SealedHearts}" : "") + (pcHud != null && (pcHud.ShieldCapacity > 0 || pcHud.ShieldCharges > 0) ? $"  盾{pcHud.ShieldCharges}" : "");
-        GUI.Label(new Rect(rect.x + 12f, rect.y + 4f, rect.width - 22f, 18f), $"{Lives} / {maxLives}{extra}", numStyle);
+        LocGUI.Label(new Rect(rect.x + 12f, rect.y + 4f, rect.width - 22f, 18f), $"{Lives} / {maxLives}{extra}", numStyle);
 
         float flash = heartDamageFlashDuration > 0f ? Mathf.Clamp01(heartDamageFlashTimer / heartDamageFlashDuration) : 0f;
         float pulse = 1f - flash * 0.08f;
@@ -4545,7 +4545,7 @@ public partial class GameManager : MonoBehaviour
         if (Lives >= 10 * per)
         {
             var hc = new GUIContent("♥ ×" + (Lives % per == 0 ? (Lives / per).ToString() : heartsNow.ToString("0.0")));
-            GUI.Label(hr, hc, heartStyle);
+            LocGUI.Label(hr, hc, heartStyle);
             return;
         }
         int slots = slotsMax <= 10 ? slotsMax : Mathf.CeilToInt(heartsNow - 0.001f);
@@ -4571,20 +4571,20 @@ public partial class GameManager : MonoBehaviour
             {
                 float gx = hr.x + (slots + k) * (glyphW + gap);
                 if (gx + glyphW > hr.xMax + 2f) break;
-                GUI.Label(new Rect(gx, hr.y, glyphW * 1.6f, glyphH), "♥", sealStyle);
+                LocGUI.Label(new Rect(gx, hr.y, glyphW * 1.6f, glyphH), "♥", sealStyle);
             }
         }
         for (int i = 0; i < slots; i++)
         {
             Rect g = new Rect(hr.x + i * (glyphW + gap), hr.y, glyphW, glyphH);
             float fill = Mathf.Clamp01(heartsNow - i);
-            if (fill >= 0.999f) { GUI.Label(g, "♥", heartStyle); continue; }
-            GUI.Label(new Rect(g.x, g.y, g.width * 1.6f, g.height), "♡", heartStyle);
+            if (fill >= 0.999f) { LocGUI.Label(g, "♥", heartStyle); continue; }
+            LocGUI.Label(new Rect(g.x, g.y, g.width * 1.6f, g.height), "♡", heartStyle);
             if (fill > 0.001f)
             {
                 // 端数: ♥を左から途中まで塗る
                 GUI.BeginGroup(new Rect(g.x, g.y, g.width * fill, g.height));
-                GUI.Label(new Rect(0f, 0f, g.width, g.height), "♥", heartStyle);
+                LocGUI.Label(new Rect(0f, 0f, g.width, g.height), "♥", heartStyle);
                 GUI.EndGroup();
             }
         }
@@ -4631,7 +4631,7 @@ public partial class GameManager : MonoBehaviour
             Vector2 countSize = countStyle.CalcSize(new GUIContent(countText));
             Rect countRect = new Rect(iconRect.xMax - countSize.x - 2f, iconRect.yMax - countSize.y - 2f, countSize.x + 8f, countSize.y + 2f);
             UiBackdrop.Draw(countRect, 0.75f);
-            GUI.Label(countRect, countText, countStyle);
+            LocGUI.Label(countRect, countText, countStyle);
 
             x += iconSize + spacing;
         }
@@ -4828,7 +4828,7 @@ public partial class GameManager : MonoBehaviour
         Vector2 size = style.CalcSize(new GUIContent(text));
         Rect rect = new Rect(x, y, size.x + 10f, size.y + 6f);
         UiBackdrop.Draw(rect, 0.55f);
-        GUI.Label(rect, text, style);
+        LocGUI.Label(rect, text, style);
         return rect.yMax;
     }
 
@@ -4876,7 +4876,7 @@ public partial class GameManager : MonoBehaviour
         speedStyle.normal.textColor = Mathf.Abs(PlayerController.DebugSpeedScale - 1f) > 0.001f ? new Color(1f, 0.85f, 0.3f) : new Color(0.6f, 1f, 0.7f);
         Rect speedRect = new Rect(x0 + speedButtons.Length * (bw + gap), y, speedStyle.CalcSize(new GUIContent(speedText)).x + 14f, bh);
         UiBackdrop.Draw(speedRect, 0.55f);
-        GUI.Label(new Rect(speedRect.x + 6f, speedRect.y, speedRect.width - 6f, speedRect.height), speedText, speedStyle);
+        LocGUI.Label(new Rect(speedRect.x + 6f, speedRect.y, speedRect.width - 6f, speedRect.height), speedText, speedStyle);
         y += bh + gap;
 
         // ---- RUN(速度だけのデバッグ倍率、2026-09-29)----
@@ -4899,7 +4899,7 @@ public partial class GameManager : MonoBehaviour
         UiBackdrop.Draw(runRect, 0.55f);
         GUIStyle runStyle = new GUIStyle(speedStyle);
         runStyle.normal.textColor = Mathf.Abs(PlayerController.DebugRunOnlyScale - 1f) > 0.001f ? new Color(1f, 0.85f, 0.3f) : new Color(0.6f, 1f, 0.7f);
-        GUI.Label(new Rect(runRect.x + 6f, runRect.y, runRect.width - 6f, runRect.height), runText, runStyle);
+        LocGUI.Label(new Rect(runRect.x + 6f, runRect.y, runRect.width - 6f, runRect.height), runText, runStyle);
         y += bh + gap;
 
         // ---- ASSIST(高速時の自動操作補助、2026-09-28)----
@@ -4924,7 +4924,7 @@ public partial class GameManager : MonoBehaviour
             Vector2 sz = assistStyle.CalcSize(new GUIContent(assistText));
             Rect assistRect = new Rect(toggleRect.xMax + gap, y, sz.x + 14f, Mathf.Max(bh, sz.y + 4f));
             UiBackdrop.Draw(assistRect, 0.55f);
-            GUI.Label(new Rect(assistRect.x + 6f, assistRect.y, assistRect.width - 6f, assistRect.height), assistText, assistStyle);
+            LocGUI.Label(new Rect(assistRect.x + 6f, assistRect.y, assistRect.width - 6f, assistRect.height), assistText, assistStyle);
             y += Mathf.Max(bh, assistRect.height) + gap;
         }
 
@@ -4962,7 +4962,7 @@ public partial class GameManager : MonoBehaviour
         Vector2 statusSize = statusStyle.CalcSize(new GUIContent(statusText));
         Rect statusRect = new Rect(x0, y, statusSize.x + 10f, statusSize.y + 6f);
         UiBackdrop.Draw(statusRect, 0.55f);
-        GUI.Label(statusRect, statusText, statusStyle);
+        LocGUI.Label(statusRect, statusText, statusStyle);
         y = statusRect.yMax + gap;
         y = DrawDebugSpeedReadout(x0, y) + gap;
 
@@ -5055,7 +5055,7 @@ public partial class GameManager : MonoBehaviour
         Vector2 sz = st.CalcSize(new GUIContent(label));
         Rect lr = new Rect(x0, y, sz.x + 10f, sz.y + 4f);
         UiBackdrop.Draw(lr, 0.55f);
-        GUI.Label(lr, label, st);
+        LocGUI.Label(lr, label, st);
         y = lr.yMax + gap;
         string[] names = { "背景◀", "背景▶", "移行", "通常", "境目へ" };
         for (int i = 0; i < names.Length; i++)
@@ -5192,7 +5192,7 @@ public partial class GameManager : MonoBehaviour
         style.fontStyle = FontStyle.Bold;
         style.alignment = TextAnchor.MiddleCenter;
         style.normal.textColor = primary ? new Color(1f, 0.93f, 0.75f) : Color.white;
-        GUI.Label(rect, text, style);
+        LocGUI.Label(rect, text, style);
 
         if (flashAlpha > 0.001f)
         {
@@ -5627,7 +5627,7 @@ public partial class GameManager : MonoBehaviour
         nameStyle.alignment = TextAnchor.UpperCenter;
         nameStyle.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, roomFadeAlpha * 0.85f);
         string nameLabel = selectedDef != null ? selectedDef.displayName : "";
-        GUI.Label(new Rect(rect.x, frameRect.yMax + 2f, rect.width, 20f), nameLabel, nameStyle);
+        LocGUI.Label(new Rect(rect.x, frameRect.yMax + 2f, rect.width, 20f), nameLabel, nameStyle);
 
         bool tapped = roomInteractable && (PadNav.Button(rect) | GUI.Button(rect, GUIContent.none, GUIStyle.none));
         if (tapped)
@@ -5679,7 +5679,7 @@ public partial class GameManager : MonoBehaviour
         GUI.color = new Color(prevBg.r, prevBg.g, prevBg.b, prevBg.a * alpha);
         DrawCenteredBackdrop(rect, text, style);
         GUI.color = prevBg;
-        GUI.Label(rect, text, style);
+        LocGUI.Label(rect, text, style);
     }
 
     // Home画面 / Stage Select改善依頼(2026-09-16), item5/6/10 - 扉の
@@ -5788,7 +5788,7 @@ public partial class GameManager : MonoBehaviour
         msgStyle.alignment = TextAnchor.MiddleCenter;
         msgStyle.wordWrap = true;
         msgStyle.normal.textColor = Color.white;
-        GUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 26f, panelRect.width - 48f, 100f),
+        LocGUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 26f, panelRect.width - 48f, 100f),
             "現在のRunと未確定MILEを\n破棄します。よろしいですか？", msgStyle);
 
         Rect yesRect = new Rect(panelRect.x + 28f, panelRect.yMax - 68f, panelRect.width / 2f - 42f, 50f);
@@ -5856,7 +5856,7 @@ public partial class GameManager : MonoBehaviour
         msgStyle.alignment = TextAnchor.MiddleCenter;
         msgStyle.wordWrap = true;
         msgStyle.normal.textColor = Color.white;
-        GUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 24f, panelRect.width - 48f, 130f),
+        LocGUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 24f, panelRect.width - 48f, 130f),
             "Home Roomへ戻ります。\nRunは終了せず、この続きから\nCONTINUEできます。", msgStyle);
 
         Rect yesRect = new Rect(panelRect.x + 28f, panelRect.yMax - 68f, panelRect.width / 2f - 42f, 50f);
@@ -5893,6 +5893,6 @@ public partial class GameManager : MonoBehaviour
         GUI.color = new Color(prevBg.r, prevBg.g, prevBg.b, prevBg.a * alpha);
         DrawCenteredBackdrop(rect, text, style);
         GUI.color = prevBg;
-        GUI.Label(rect, text, style);
+        LocGUI.Label(rect, text, style);
     }
 }

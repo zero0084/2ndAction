@@ -1,0 +1,531 @@
+0	MUTLAK SIFIR
+1	Donmuş sıradan düşmanlar parçalanıp hasar verir; üşümüş/donmuş düşmanlara saldırı artar (Lv başına +3%). Boss'lar donmak yerine daha güçlü yavaşlar
+2	ADRENALİN
+3	HP 50% ve altındayken saldırı hızı artar (Lv başına +3%), HP 25% ve altındayken bunun 2 katı
+4	HAVA KILICI
+5	Havada düşmana vurunca takip kesiği çıkar (güç ve alan Lv ile artar)
+6	HAVA SALDIRISI+
+7	Havadaki saldırı gücü artar (Lv başına +7%)
+8	GÖK HAKİMİYETİ
+9	Hava saldırısı artar (Lv başına +3%) ve yere inmeden vurdukça daha da artar (vuruş başına +1%/Lv, 4 kereye kadar)
+10	HAVA DARBESİ
+11	Havadaki düşmanlara (fırlatılan/uçan düşmanlar, gökteki boss'lar) saldırı artar (Lv başına +8%)
+12	SALDIRI MENZİLİ+
+13	Etkin saldırı menzili artar (Lv başına +3%). Yakın dövüşte vuruş alanı, menzilli saldırıda uçuş mesafesi (mermi büyümez)
+14	SALDIRI HIZI+
+15	Saldırı hızı artar (Lv başına +3%)
+16	SALDIRI+
+17	Saldırı gücü artar (Lv başına +5%)
+18	ÇILGIN HÜCUM
+19	HP 50% ve altındayken saldırı gücü (Lv başına +5%) ve saldırı hızı (+2%) artar, HP 25% ve altında ikisi de daha da artar
+20	ÇILGIN SAVAŞÇI
+21	Saldırı gücü (Lv başına +6%) ve saldırı hızı (+1%) artar. Her 3 Lv'de maks. HP'den 1 kalp mühürlenir
+22	KAN KILICI
+23	Saldırılar kanamaya yol açar (şans ve güç Lv ile artar). HP doluyken kanama şansı 2 kat. Dolu HP'de saldırı da biraz artar (+2%/Lv)
+24	KAN HÜCUMU
+25	HP 50% ve altındayken saldırı gücü artar (Lv başına +4%), HP 25% ve altında can emme şansı da artar (+3%/Lv)
+26	BOSS MEYDAN OKUMASI
+27	Boss HP'si artar (Lv başına +10%), karşılığında boss MILE'ı artar (+40%/Lv)
+28	BOSS KATİLİ
+29	Boss'lara saldırı gücü artar (Lv başına +8%)
+30	BOSS AKINI
+31	Boss geçidinde şansla (Lv başına +8%) bir boss daha katılır. Boss MILE'ı artar (+50%/Lv)
+32	FREN SALDIRISI
+33	Saldırı gücü artar (Lv başına +7%). Ana saldırının hemen ardından biraz yavaşlarsın
+34	YANAN RUH
+35	Yanma daha güçlü (Lv başına +8%) ve uzun (+0.25 sn/Lv). Kart kendisi de biraz tutuşturur
+36	ZİNCİRLEME PATLAMA
+37	Yenilen düşman patlar. Patlamayla yenilenler de patlar (3 kereye kadar, aynı zincirde her düşmana 1 kez)
+38	ZİNCİRLEME YILDIRIM
+39	Yıldırım yakındaki başka düşmanlara sıçrar (her 3 Lv'de +1 hedef, menzil de Lv ile uzar). Kart kendisi de biraz yıldırım düşürür
+40	Gauge 100% olunca kullanılır (sol alttaki düğme). Karaktere özel ulti, ekrandaki düşmanlara saldırarak büyük ilerleme sağlar (Lv1 yakl. 100m → Lv9 yakl. 200m), ardından güçlenme bir süre sürer (Lv1 5 sn → Lv9 12 sn). Gauge mesafe, düşman yenme ve boss'a verilen hasarla dolar
+41	KIL PAYI
+42	Hareket hızı (Lv başına +2%) ve hasar sonrası dokunulmazlık (Lv başına +0.05 sn) artar
+43	COMBO KESKİNLİĞİ
+44	Seri isabet (HIT) sürdükçe saldırı gücü artar (isabet başına +0.4%/Lv, 10 isabete kadar)
+45	COMBO USTASI
+46	Bitiriş vuruşu ileriye özel bir şok dalgası yollar (güç ve alan Lv ile artar)
+47	COMBO+
+48	Saldırı serisinin son vuruşu (bitiriş) güçlenir (Lv başına +7%)
+49	COMBO HÜCUMU
+50	Seri ortasındaki vuruşlar güçlenir (Lv başına +6%), ana saldırı hızı da biraz artar (+2%/Lv)
+51	KARŞI SALDIRI
+52	Shield ile engelleyince çevreye karşı şok dalgası (güç Lv ile artar). Shield'in yoksa da 1 tane verir
+53	ÖLÜM SÖZLEŞMESİ
+54	Saldırı gücü çok büyük artar (Lv başına +12%). Her 2 Lv'de maks. HP'den 1 kalp mühürlenir
+55	ÇİFT SALDIRI
+56	Saldırınca şansla (Lv başına +3%) ek 1 vuruş çıkar. Ek vuruştan yeni ek vuruş çıkmaz
+57	SEÇKİN DÜŞMANLAR
+58	Sıradan düşmanların bir kısmı seçkin olur (Lv başına +4%; HP×2.5, biraz hızlı, yenince MILE×3/EXP×2). MILE da artar (+30%/Lv)
+59	CELLAT
+60	Düşman yenerek kazanılan MILE artar (Lv başına +15%)
+61	EXP DÖNÜŞTÜRÜCÜ
+62	EXP azalır (Lv başına -10%, en az 25%), karşılığında düşman yenme MILE'ı artar (+30%/Lv)
+63	EXP+
+64	Kazanılan EXP artar (Lv başına +20%)
+65	EXP PATLAMASI
+66	Düşman/boss/BONUS ZONE EXP'si büyük artar (Lv başına +80%)
+67	HIZLI DÜŞMANLAR
+68	Sıradan düşmanların hareketi, takibi ve saldırısı hızlanır (Lv başına +4%), karşılığında MILE (+15%/Lv) ve yenme EXP'si (+5%/Lv) artar
+69	İLK DARBE
+70	Saldırı serisinin ilk vuruşu güçlenir (Lv başına +10%)
+71	ALEV KILICI
+72	Ateşin temel kartı. İsabet düşmanı tutuşturur (şans 15%+5%/Lv, saniyede 5+1.5/Lv hasar, 3 sn)
+73	ALEVLİ KARŞILIK
+74	Shield ile engelleyince çevreye alevli karşı saldırı (güç Lv ile artar), değen düşmanlar tutuşur. Shield'in yoksa da 1 tane verir
+75	KALE
+76	Maks. HP artar (Lv başına +1 kalp), darbe sendelemesi azalır (+5%/Lv), ama hareket hızı düşer (Lv başına -3%)
+77	AYAZ KESKİNLİĞİ
+78	Buzun temel kartı. İsabet düşmanı üşütür (şans 15%+5%/Lv, hareket 25%+2%/Lv yavaşlar). Üşüme birikince donar (boss'lar durmaz, güçlü yavaşlar)
+79	BORA
+80	Rüzgâr bıçakları hızlanır (Lv başına +5%), daha uzağa gider (+0.4m/Lv) ve daha çok düşmanı deler (her 3 Lv'de +1). Mermilerin delmesi de artar
+81	DEV AVCISI
+82	Saldırı gücü büyük artar (Lv başına +9%), ama saldırı hızı düşer (Lv başına -3%)
+83	CAM TOP
+84	Saldırı gücü büyük artar (Lv başına +9%). Her 2 Lv'de maks. HP'den 1 kalp mühürlenir
+85	AÇGÖZLÜLÜK
+86	Hareket hızı artar (Lv başına +4%), ama düşman çıkışı artar (+8%/Lv)
+87	YER KIRICI
+88	Yere çakma inişi ve yerdeki bitiriş, yerde ilerleyen şok dalgası çıkarır (güç ve uzunluk Lv ile artar). Yer saldırısı da biraz artar (+2%/Lv)
+89	YER SAVAŞÇISI
+90	Yerdeki saldırı gücü artar (Lv başına +7%)
+91	SIFIR NOKTASI
+92	Yerdeki saldırı gücü büyük artar (Lv başına +11%), ama havada düşer (Lv başına -5%)
+93	KALP KIRAN
+94	Saldırı gücü artar (Lv başına +4%), mühürlü her kalp için +0.6%/Lv daha. Her 3 Lv'de maks. HP'den 1 kalp mühürlenir
+95	KALP+
+96	Maks. HP artar (Lv başına +1 kalp, en fazla 20 kalp) ve HP yenilenir
+97	AĞIR ZIRH
+98	Güçlü darbeler (2 kalp ve üstü) 1 kalp az vurur. Maks. HP de artar (her 2 Lv'de +1 kalp), ama zıplama gücü düşer (Lv başına -3%)
+99	AĞIR DARBE
+100	Aşağı saldırı/yere çakma/iniş darbesi güçlenir (Lv başına +10%). Bitiriş vuruşu da biraz artar (+3%/Lv)
+101	CEHENNEM MODU
+102	Sıradan düşmanların HP'si (+12%/Lv), hızı (+4%/Lv) ve çıkışı (+8%/Lv) artar, karşılığında MILE (+50%/Lv) ve boss MILE'ı (+30%/Lv) büyük artar
+103	YÜKSEK GERİLİM
+104	Yıldırım güçlenir (Lv başına +5%). Yıldırım sıradan düşmanları bir an durdurur. Yıldırım şansı da biraz artar (+1%/Lv)
+105	SÜRÜ
+106	Düşman çıkışı büyük artar (Lv başına +15%), karşılığında MILE (+5%/Lv) ve yenme EXP'si (+5%/Lv) artar
+107	AVCI
+108	Boss savaşında hareket kolaylaşır. Saldırıdaki ileri/geri atılma uzar (Lv başına +4%), uzaktaki boss'a yaklaşma hızlanır (+3%/Lv)
+109	BUZ HAPSİ
+110	Dondurmak kolaylaşır (gereken üşüme sayısı her 3 Lv'de -1). Üşüme şansı ve süresi de artar
+111	İNFERNO
+112	Yanan düşmanı yenince alev çevreye yayılıp düşmanları tutuşturur (güç ve alan Lv ile artar). Kart kendisi de biraz tutuşturur
+113	DEMİR İRADE
+114	HP doluyken saldırı gücü artar (Lv başına +5%). Maks. HP de artar (her 3 Lv'de +1 kalp)
+115	ZIPLAMA SAYISI+
+116	Havada zıplama sayısı artar (Lv başına +1). Art arda zıpladıkça biraz zayıflar, ama çukura düşünce zayıflamaz. Büyücü her 3 Lv'de 1 kat daha yükseğe çıkabilir
+117	ZIPLAMA GÜCÜ+
+118	Zıplama gücü artar (Lv başına +3%). Büyücü irtifasını daha hızlı değiştirir
+119	HP 1 kalbe indiği an kısa dokunulmazlık (1 sn + Lv başına 0.15 sn). HP yenilenip bir süre geçmeden tekrar çalışmaz
+120	SON DİRENİŞ
+121	HP 50% ve altındayken saldırı gücü artar (Lv başına +4%), HP 25% ve altında daha da artar (+4%/Lv)
+122	SEVİYE ATILIMI
+123	Kazanılan EXP büyük artar (Lv başına +30%)
+124	UZUN KILIÇ
+125	Etkin saldırı menzili büyük artar (Lv başına +5%)
+126	UZUN SOLUK
+127	EXP (Lv başına +15%) ve maks. HP (her 3 Lv'de +1 kalp) artar
+128	KALABALIK AVCISI
+129	Boss dışındaki düşmanlara saldırı (Lv başına +5%) ve düşman yenme MILE'ı (Lv başına +10%) artar
+130	İVME
+131	Anlık hızın saldırı gücüne dönüşür. 100km/h üstünde artmaya başlar, 150km/h'de en yüksek (Lv başına +4%). Ötesinde artış yavaşlar
+132	CANAVAR AKINI
+133	Düşman çıkışı artar (Lv başına +10%), karşılığında EXP artar (+15%/Lv)
+134	DAHA ÇOK DÜŞMAN
+135	Düşman çıkışı artar (Lv başına +10%). Düşman yenme MILE'ı da biraz artar (+3%/Lv)
+136	GERİ DÖNÜŞ YOK
+137	Hareket hızı büyük artar (Lv başına +5%), ama düşman çıkışı artar (+10%/Lv)
+138	ONE MORE MILE
+139	MILE (Lv başına +50%), boss MILE'ı (+50%) ve EXP (+20%) artar
+140	115km/h ve üstünü korursan TAM GAZ (saldırı Lv başına +3%, saldırı hızı +2%). Yavaşlayınca biter. Hareket hızı da biraz artar (Lv başına +2%)
+141	AŞIRI İYİLEŞME
+142	İyileşme artar (Lv4-6: +1, Lv7-9: +2 kalp). HP doluyken iyileşen kısım 1 Shield olur
+143	PANDEMONYUM
+144	Sıradan düşmanların HP/hız/çıkış/seçkin oranı ve boss HP'si hep artar, karşılığında MILE (+60%/Lv) ve boss MILE'ı (+60%/Lv) çok büyük artar
+145	İZCİ
+146	Koşulan mesafeden gelen EXP artar (Lv başına +20%)
+147	KUSURSUZ SAVUNMA
+148	Shield kullanılınca kısa dokunulmazlık (0.4 sn + Lv başına 0.1 sn). Shield'in yoksa da 1 tane verir
+149	Yenilince bir kez diriltir (HP Lv'ye göre 1-5 kalp). Dirilince kart çıkar ve yeniden seçeneklerde görünür (yeniden alınca Lv1'den)
+150	DELİCİ KILIÇ
+151	Saldırılar düşmanı deler. Yakın dövüşte vurulan düşmanın arkasına (sayı ve güç Lv ile artar), menzillide delme sayısı (her 3 Lv'de +1)
+152	YIRTICI
+153	Can emme şansı artar (Lv başına +3%). Boss'a saldırılar da ara sıra can emme şansı verir
+154	HIZLI KESKİNLİK
+155	Ana saldırının (ileri/geri) hızı artar (Lv başına +5%). Yukarı/aşağı/yere çakma/özel saldırılara etki etmez
+156	GERİ VİTES
+157	Saldırı gücü artar (Lv başına +8%), ama hareket hızı düşer (Lv başına -3%)
+158	HP 30% ve altına düşünce biraz HP yeniler (1-3 kalp). Sonra mesafe bekleme süresi (10,000m, Lv ile kısalır)
+159	KALKAN
+160	1 darbeyi engelleyen Shield. En fazla sayı her 3 Lv'de +1 (en çok 3), kullanılanlar zamanla geri gelir (Lv ile hızlanır)
+161	ŞOK DALGASI
+162	Yakın dövüş isabeti ileriye kısa şok dalgası, mermi ise isabet noktası çevresinde şok dalgası çıkarır (güç ve alan Lv ile artar)
+163	GÖK USTASI
+164	Hava saldırısı artar (Lv başına +4%). Havada vurunca 1 hava zıplaması geri gelir (bir havada kalışta her 3 Lv'de 1 kez)
+165	GÖK KOŞUCUSU
+166	Zıplama gücü (Lv başına +2%) ve hava saldırısı (Lv başına +3%) artar
+167	GÖĞE DOĞRU
+168	Havadaki saldırı gücü büyük artar (Lv başına +11%), ama yerde düşer (Lv başına -5%)
+169	SONİK KILIÇ
+170	Her ana saldırıda ileriye kesik fırlar. Ne kadar hızlı koşarsan o kadar uzak, büyük ve güçlü olur
+171	HIZ-
+172	Hareket hızı düşer (Lv başına -4%). Tek oyunculuda seçmek için pek sebebi olmayan özel kart
+173	HIZ+
+174	Hareket hızı artar (Lv başına +3%)
+175	UZUN YOL
+176	EXP (Lv başına +40%) ve maks. HP (her 2 Lv'de +1 kalp) artar
+177	YILDIRIM LORDU
+178	Yıldırımın üst kartı. Güç (Lv başına +4%), zincir (her 3 Lv'de +1 hedef) ve yıldırımın çevre alanı güçlenir
+179	YILDIRIM DARBESİ
+180	Yıldırımın temel kartı. İsabet yıldırım düşürür (şans 5%+2%/Lv, güç 7.5+1.5/Lv; aynı düşmana 0.4 sn'de en çok 1 kez)
+181	HORTUM
+182	Rüzgâr bıçağının vurduğu yerde küçük bir hortum çıkar, çevredeki düşmanları içine çeker (güç ve alan Lv ile artar). Kart kendisi de biraz rüzgâr bıçağı atar
+183	DAYANIKLI DÜŞMANLAR
+184	Sıradan düşmanların HP'si artar (Lv başına +15%), karşılığında MILE (+15%/Lv) ve yenme EXP'si (+5%/Lv) artar
+185	HAZİNE AVCISI
+186	Hazine ve ödüllerin (BONUS ZONE'daki hazine taşıyan goblin/altın balçık/mimik/TEMİZLENDİ/KUSURSUZ, ARANIYOR ödülü) MILE'ı artar (Lv başına +30%). Boss ve mesafe MILE'ı da biraz artar
+187	KUDRET
+188	Saldırı gücünü (Lv başına +3%), maks. HP'yi (her 2 Lv'de +1 kalp) ve hareket hızını (Lv başına +2%) birlikte artıran çok yönlü kart
+189	VAMPİR
+190	Düşman yenince şansla (Lv başına +3%) 1 kalp HP yeniler
+191	ARANIYOR
+192	Belli mesafelerde aranan bir düşman çıkar (Lv ile daha güçlü ve sık). Yenersen ödül, geçip gidersen kaçar. MILE artar (+35%/Lv)
+193	RÜZGÂR KESİCİ
+194	Rüzgârın temel kartı. İsabet ileriye delici rüzgâr bıçağı fırlatır (şans 10%+3%/Lv, güç 8+1.5/Lv). Saldırı menzili de biraz artar (+1%/Lv)
+195	KORUCU
+196	Ger, Nişan Al, Del
+197	Kendinden uzun bir yay taşıyan, derin ormanların korucusu. Yayı ne kadar uzun gerer ise ok o kadar sert vurur, ama yakından karşılık verecek pek bir şeyi yoktur.
+198	KESKİN NİŞANCI
+199	EJDER MIZRAKÇISI
+200	Yarıp Geç, Asla Yılma
+201	Ejder dişinden dövülmüş bir mızrak taşıyan genç ejder şövalyesi. Her hattı önden yarar, ama menzilinin içine sızanlara karşılık vermekte zorlanır.
+202	YARICI
+203	EJDERSOY
+204	Pençe, Kuyruk, Kanat, Alev
+205	Ejder kanı taşıyan bir savaşçı. Silaha ihtiyacı yok: pençeleri, kuyruğu ve ateşi her şeyi süpürür. İriliği yüzünden vurması kolay, durdurması zordur.
+206	KABA KUVVET
+207	ÇİFT KILIÇ
+208	Hızlı Çelik, Bitmeyen Hareket
+209	Hiç yavaşlamadan vuruşları birbirine bağlayan çevik bir çift kılıç ustası. Hız ve ivme en büyük silahıdır.
+210	YERDE COMBO
+211	DÖVÜŞÇÜ
+212	Karşılık Veren Yumruklar
+213	Yalnızca demir eldivenlerle dövüşen bir dövüş sanatçısı. Yaklaşması gerekir; sen önce vurursan o daha sert karşılık verir.
+214	SİLAHŞOR
+215	Tek Atış, Tek Mesafe
+216	İkiz tabancalar, tek keskin bir ateş hattı. Dövüşü düşman yaklaşmadan kazanır, ama biri geçerse buna verecek cevabı yoktur.
+217	MENZİLLİ
+218	BÜYÜCÜ
+219	Yukarıda Süzül, Aşağıya Vur
+220	Yere hiç değmeyen bir büyücü. İstediği gibi yükselip alçalır, aşağıdaki her şeye büyü yağdırır, ama tek bir darbe onu derinden yaralar.
+221	UÇAN BÜYÜCÜ
+222	TAPINAK RAHİBESİ
+223	Önündeki Yolu Mühürle
+224	Bir dağ tapınağının cin kovucusu. Önüne ofuda ve bariyerler serer, yolun kendisi düşmanlarına döner, ama ilk vuruşta yavaştır.
+225	MÜHÜRCÜ
+226	ŞİNOBİ
+227	Kaybol, Kes, Kaybol
+228	Vurduğun yerde asla olmayan bir şinobi. Tek kesikle düşmanların arasından geçer ve onlar düşmeden kaybolur, ama çok darbe kaldıramaz.
+229	ÇEVİKLİK
+230	SOYLU LEYDİ
+231	Henüz Uyanmamış Bir Kahraman
+232	Gümüş ve altına bürünmüş, ejderha devirdiği söylenen bir büyük kılıç kuşanır. Ne var ki efsanesi henüz zırhına yetişemedi.
+233	SOYLU ŞÖVALYE
+234	KILIÇ USTASI
+235	Hep İlerleyen
+236	Kendi yolunda yürüyen yalnız bir kılıç ustası. Kaç kez düşerse düşsün yeniden kalkar, çünkü varılacak daha uzak bir yer hâlâ vardır.
+237	DENGELİ
+238	Uzadıkça Güçlenen
+239	Kılıca ihtiyaç duymayan bir gece asilzadesi. Açtığı her yara kanını besler, uzun dövüş onu yalnızca hızlandırır, ama her savaşa aç başlar.
+240	KAN
+241	KARAKTER KARTLARI
+242	KARAKTER SEÇ
+243	SEÇ
+244	CAN
+245	GÜÇ
+246	HARİTA SEÇ
+247	Yola çık
+248	Önerilen düzen
+249	Hepsini çıkar
+250	Evet
+251	Hayır
+252	SON KORİDOR
+253	Düşmanlar: tüm haritaların düşmanları karışık (güçlendirilmiş)
+254	Özellikler: çöken zemin, düşen yapılar, havada süzülen koridorlar
+255	Rota: dev antik koridor → çöküş → uçurum → son yol
+256	Doğal Mağara
+257	Düşmanlar: Karınca / Zıplayan / Yarasa / Solucan
+258	Özellikler: kaya tavan, tavan dikenleri, karanlık ve meşaleler
+259	Rota: tek yol (yerde, havada, yer altında ve tavanda tehlike)
+260	Gök Koridoru
+261	Düşmanlar: Goblin türleri + mesafeyle yavaş yavaş yenileri
+262	Özellikler: kaya ve buluttan yüzen platformlar, gökteki yol
+263	Rota: ilerledikçe tehlike artar
+264	Çorak Yol
+265	Düşmanlar: Goblin / Kuş
+266	Engeller: taş, fidan, duvar, kırılabilir ağaç, dev kaya, çukur
+267	Rota: üst Kolay / alt Tehlikeli
+268	Yenildin. "Aynı şartlarla tekrar" ile hemen yeniden dene
+269	HP tamamen yenilendi
+270	Tüm düşmanlar ve saldırıları silindi (yenme süresine sayılmaz)
+271	Verilen hasar {0}    Alınan hasar {1}    {2} sn
+272	Dokunulmazlık
+273	≡ Ayarlar
+274	Aynı şartlarla tekrar
+275	Düşmanları sil
+276	Ana ekrana
+277	Hepsi yenildi  {0} sn
+278	Rakip
+279	Ayrıntı
+280	Sonuç
+281	Karakter ve kartları özgürce deneyebileceğin antrenman alanı
+282	Bu ayarlarla başla
+283	Başla
+284	Dene
+285	(deneme)
+286	Ara
+287	<color=#8ce6ff>Dene</color>
+288	+ Ekle
+289	Mevcut desteyi kopyala
+290	Karakter kartlarını kopyala
+291	Deneme dizilimi ({0} kart)
+292	Hepsini çıkar
+293	Lv = bu koşuda alınma sayısı (yetenek başına en çok 9). Sahip olunan kartlar ve deste değişmez
+294	Soldaki listedeki "+ Ekle" ile kart ekle. Kartsız da deneyebilirsin
+295	Sahip olunandan kopya (birleştirme Lv{0}, {1} yetenek)
+296	Destedeki {0} kart deneme dizilimine kopyalandı (deste değişmedi)
+297	{0} karakter kartı kopyalandı (başlangıç Lv'si)
+298	Antrenman hedefi
+299	Sıradan düşmanlar
+300	Çorak Yol boss'ları
+301	Mağara boss'ları
+302	Gök boss'ları
+303	Hareketsiz hedef: saldırmaz (değse de hasar yok), yenilmez. Saldırı denemek için. Koşarken oyuncuyla mesafesini korur
+304	Sayı
+305	Hareket şiddeti
+306	Aşama
+307	Boss kendi giriş hareketiyle önden gelir
+308	Mağara/gök boss'larının arazi kullanan teknikleri (çukur/tavan/düşen kaya/gök şeridi vb.) düz arenada oyundakinden farklı çalışır
+309	En fazla 1 tür boss (sıradan düşmanlarla birlikte olabilir)
+310	Rakiplere ekle
+311	En fazla 1 tür boss (önceki boss değiştirildi)
+312	Mevcut rakipler ({0})
+313	Rakip yok (böyle başlarsan düşmansız sadece hareketleri denersin)
+314	Düşman gücü: {0}km noktasına denk (HP/saldırı oyunda o mesafedekiyle aynı)
+315	Hız
+316	Dur (0km/h)
+317	Koş (temel hız + düzeltme)
+318	Koş (sabit hız)
+319	Yalnızca otomatik ilerleme durur (saldırı/zıplama/yerçekimi/sendeleme/düşman hareketi oyundaki gibi)
+320	Temel hıza karakter/kart hız düzeltmesi (HIZ+ vb.) eklenmiş hızla koşar
+321	Düzeltme olmadan bu hızla koşar (hız kartlarının farkını dışarıda tutarak karşılaştırmak için)
+322	Şu an: temel {0}km/h → gerçek {1}km/h (düzeltme ×{2})
+323	Dokunulmazlık / HP
+324	Dokunulmazlık: {0}
+325	HP'yi tamamen yenile
+326	Dokunulmazken de "aslında alınacak hasar" sonuçta görünür
+327	Kontrol yardımı (ayarlardaki "Yüksek hızda yardım" ile aynı; sadece arenada, ayarlar değişmez)
+328	OFF
+329	ON
+330	Her zaman (geliştirici)
+331	Devreye girdiği hız {0}km/h~
+332	Arenada yok: FINAL EVOLUTION / AWAKENED / Mastery / ULTIMATE göstergesi / seviye atlama / boss ödülü / BONUS ZONE (kartlar yalnızca normal Lv etkisi ve COMBO verir; ödül, kayıt ve sahip olunanlar hiç değişmez)
+333	Sadece geliştirici sürümü
+334	Karşılaşılmamış düşmanları da seç: {0}
+335	Rastgeleliği sabitle: {0}
+336	Engel kırma yardımı: {0}
+337	Yenildi
+338	Hepsi yenildi {0} sn
+339	Bitti
+340	Savaşta
+341	Bu sefer: {0}
+342	Verilen hasar
+343	İsabet sayısı
+344	Yenilen sayısı
+345	Yenene kadar süre
+346	Alınan hasar (azalan HP)
+347	Aslında alınacak hasar (dokunulmazlık/Shield dahil)
+348	Savaş süresi
+349	{0} sn
+350	{0} ({1} kez)
+351	Bu sefer
+352	Önceki
+353	Bu seferki şartlar: {0}
+354	Deneme dizilimi: {0}
+355	Önceki şartlar: {0}
+356	Önceki dizilim: {0}
+357	Ayarları değiştir
+358	？？？(henüz karşılaşılmadı)
+359	Hareketsiz hedef
+360	{0} / {1} kart / {2} / {3}km noktasına denk
+361	Kart yok
+362	(sahip olunandan kopya)
+363	Arena hazırlanıyor
+364	ARENA
+365	MİMİK YENİLDİ
+366	GOBLİN
+367	BALÇIK
+368	PERİ
+369	MİMİK
+370	MILE
+371	EXP
+372	JACKPOT!!
+373	BONUS ZONE!
+374	KUSURSUZ:
+375	JACKPOT TEMİZLENDİ!
+376	BONUS TEMİZLENDİ!
+377	JACKPOT  KUSURSUZ!
+378	KUSURSUZ BONUS!
+379	JACKPOT SONUCU
+380	BONUS SONUCU
+381	DÜŞMAN
+382	TEMİZLENDİ
+383	KUSURSUZ
+384	TOPLAM
+385	RASTGELE
+386	BİTİŞ
+387	Koşunun devamına: {0}
+388	Mevcut
+389	{0} vuruş
+390	(sabit)
+391	Malzeme kartı destede/karakter kartında kullanılıyor
+392	AWAKENED (★5) olduğu için Mastery daha fazla ilerlemez (kart harcanmaz. ★5 sonrası artan kartların kullanımı ileride eklenecek)
+393	Birleştirme sonrası Lv {0} olacağı için birleştirilemez (sınır Lv.{1})
+394	Yetenek sayısı {0} olacağı için birleştirilemez (sınır {1})
+395	Birleştirme sürüyor
+396	Yeterli kart yok
+397	<color=#ffd76a><b>[MASTERY] Lv.9 MAX gelişimi</b></color>
+398	Ana kart olduğu gibi kalır (Lv.9 MAX), yalnızca malzeme kartı harcanır.
+399	Şu anki Mastery: <color=#ffd76a>{0}</color>  {1}
+400	Bu birleştirme: <b>+{0} Mastery</b> (malzeme Lv.{1} = {2} kart)
+401	Birleştirme sonrası: <color=#ffd76a>{0}</color>  {1}
+402	<size=19>({0} ★ değerinde, artan kısım sonraki ★'a aktarılır)</size>
+403	<size=19>★5 sonrası artan {0} atılmaz, saklanır</size>
+404	<color=#ff9a8a><size=19>Malzemenin yan yetenekleri ({0} tür) aktarılmaz</size></color>
+405	<size=19>Mastery normal performansı (saldırı/hız/EXP vb.) artırmaz. Gelişimin kaydı ve AWAKENED'a giden yoldur.</size>
+406	<color=#ff9a8a>Uygularsan 1 malzeme kartı harcanır.</color>
+407	<color=#ffd76a><b>[Aynı kart güçlendirme → Lv.9 MAX] Başarı 100%</b></color>
+408	Birleştirme Lv: Lv.{0} + Lv.{1} → <b>Lv.9 MAX</b>
+409	Lv.9'u aşan <b>{0}</b> atılmaz, Mastery'ye gider: {1} → <color=#ffd76a>{2}</color>{3}
+410	<b>Aktarılan yetenekler (güçlendirme 9'a kadar)</b>
+411	・{0} <b>×{1}</b>
+412	<color=#ff9a8a>Uygularsan seçilen 2 kart harcanır (1 adet Lv.9 MAX kart alırsın).</color>
+413	<color=#ffd76a><b>[Aynı kart güçlendirme] Başarı 100%</b></color>
+414	Birleştirme Lv: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+415	<b>Aktarılan yetenekler (aynı yetenekler toplanır)</b>
+416	・{0} {1}<b>×{2}</b>  <size=18>({3} ×{4})</size>
+417	<color=#9fd0ff><b>[Farklı kart birleştirme] Sonuç çekilişle belirlenir</b></color>
+418	<b>Oluşan kartın birleştirme Lv'si (sonuca göre)</b>
+419	・İki taraf başarılı: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+420	・Yalnız ana başarılı: <b>Lv.{0}</b> (yalnız ana kartın Lv'si)
+421	・Yalnız malzeme başarılı: <b>Lv.{0}</b> (yalnız malzemenin Lv'si)
+422	・İki taraf başarısız: kart yok, <color=#ffd76a>{0} MILE</color> iade
+423	<b>Ana taraf yetenek seti aktarım oranı {0}%</b>
+424	・{0} ×{1}  <size=18>({2} ×{3})</size>
+425	<b>Malzeme tarafı yetenek seti aktarım oranı {0}%</b>
+426	İkisi de başarılı: iki tarafın tüm yetenekleri aktarılır (aynı yetenekler toplanır)
+427	Tek taraf başarılı: yalnız başarılı tarafın yetenekleri, güçlendirmesi ve Lv'si aktarılır (başarısız taraf kalmaz)
+428	Yalnız malzeme başarılıysa, malzemenin ana yeteneği oluşan kartın ana yeteneği olur
+429	<size=18>(İki taraf başarısız iadesi = ★{0}×Lv.{1}×{2} + ★{3}×Lv.{4}×{5})</size>
+430	<color=#ff9a8a>Uygularsan seçilen 2 kart harcanır.</color>
+431	Bu karta sahip değilsin
+432	Destede ve karakter kartında kullanıldığı için seçilemez
+433	Karakter kartı olarak takılı olduğu için seçilemez
+434	Destede kullanıldığı için seçilemez
+435	Aynı özellikte 2 kart gerekir (sahip olunan 1)
+436	Ana kartı ve malzeme kartını seç
+437	Kart bilgisi yüklenemedi
+438	MASTERY YÜKSELDİ!
+439	Birleştirme büyük başarı!
+440	Birleştirme başarılı!
+441	<size=21>{0} ★ ilerledi (artan kısım sonraki ★'a aktarıldı)</size>
+442	<size=21>★5 sonrası artan {0} saklandı (ileride kullanılabilir)</size>
+443	<size=21>Bu kart AWAKENED oldu (kalıcı kayıt. Normal performans değişmez)</size>
+444	Ana kart (Lv.9 MAX) olduğu gibi kaldı, 1 malzeme kartı harcandı.
+445	<size=21>Mastery normal performansı (saldırı/hız/EXP vb.) artırmaz.</size>
+446	Birleştirme Lv.<b>{0}</b>{1}
+447	<color=#ffd76a>Aynı kart güçlendirme (kesin)</color> … iki tarafın tüm yetenekleri aktarılır
+448	Ana taraf ({0} Lv.{1}): {2}
+449	Malzeme tarafı ({0} Lv.{1}): {2}
+450	Yalnız ana kartın Lv'si
+451	Yalnız malzemenin Lv'si
+452	<size=21>Oluşan Lv.{0} = {1}</size>
+453	<b>Ana yetenek</b>
+454	<b>Yan yetenekler ({0}/{1})</b>
+455	Yok
+456	Birleştirme başarısız…
+457	Ana taraf ({0} Lv.{1}): <color=#9aa3b8>aktarım başarısız</color>
+458	Malzeme tarafı ({0} Lv.{1}): <color=#9aa3b8>aktarım başarısız</color>
+459	Seçilen 2 kart harcandı.
+460	İade MILE  <color=#ffd76a><b><size=40>+{0}</size></b></color>
+461	Sahip olunan MILE  <b>{0}</b>
+462	<color=#ffd76a><b>Güçlendirme ×{0}→×{1}</b></color>
+463	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3} ×{4})</color></size>
+464	Geri
+465	Kart birleştirme
+466	Sırala
+467	Ana
+468	Malzeme
+469	Kart
+470	Seçili
+471	Birleştir
+472	Atla ▶▶
+473	Tekrar birleştir
+474	Listeye dön
+475	Sahip olunan MILE  {0}
+476	{0} tür / toplam {1} kart
+477	Ana kart
+478	Malzeme kartı
+479	Tümü
+480	Hareket
+481	Saldırı
+482	Savunma
+483	Gelişim
+484	İyileşme
+485	Özel
+486	Risk
+487	2 kart seç
+488	Birleştirilemez
+489	İsim
+490	Seviye
+491	Nadirlik
+492	Adet
+493	Sahip {0}  Kullanılabilir<color=#{1}
+494	Yetenek {0}
+495	Ana+Malzeme
+496	Kullanımda
+497	<color=#ffd76a><b>{0}</b></color>  <b>{1}</b>  {2}  Birleştirme Lv.{3}{4}
+498	Ana yetenek: {0}
+499	Yan yetenekler ({0}):
+500	・{0}
+501	Yan yetenek: yok
+502	<size=19><color=#b7bfd8>Sahip {0} / kullanılabilir {1}</color></size>
+503	Soldaki listeden bir kart seç.
+504	Kart seçili (parlayan) yuvaya girer. Yuvaya dokunarak seçim yerini değiştirebilir, × ile seçimi kaldırabilirsin.
+505	・Aynı kartlar … 100% başarıyla birleştirme Lv'si ve tüm yetenekler toplanır
+506	・Farklı kartlar … yetenek seti ana tarafta 50%, malzemede 25% şansla aktarılır (çekiliş). Tek taraf başarılıysa yalnız o tarafın Lv'si ve yetenekleri kalır
+507	・Birleştirme Lv sınırı Lv.9. Aynı kartlarda Lv.9'u aşan kısım atılmaz, Mastery'ye gider (farklı kartlarda toplamı Lv.9'u aşan eşleşme birleştirilemez)
+508	・Lv.9 MAX karta aynı kartı birleştirince Mastery ilerler (★5'te AWAKENED)
+509	<size=19>★5'e (AWAKENED) ulaşıldı. ★5 sonrası artan kartların kullanımı ileride eklenecek (şimdilik birleştirmede harcanmaz).</size>
+510	Aynı kartı ({0}) malzeme seçersen, malzemenin Lv'si kadar Mastery ilerler (Lv.1 = +1).
+511	Şimdi malzeme kartını seç.
+512	Şimdi ana kartı seç.
+513	Bu kart AWAKENED (★5)
+514	Oluşan kart ana karta yerleştirildi. Malzeme kartını seç
+515	Kesin güçlendirme
+516	AWAKENED!
+517	Lv.9 MAX'a ulaşıldı!
+518	Aynı kart güçlendirme tamam!
+519	Büyük başarı! İki tarafın yetenekleri aktarıldı
+520	Ana tarafın yetenekleri aktarıldı
+521	Malzeme tarafının yetenekleri aktarıldı
+522	Aktarım başarısız…  Kartlar MILE'a çevrildi
+523	{0} tarafı aktarım başarılı!
+524	{0} tarafı aktarım başarısız
+525	Speed odaklı
+526	Defense odaklı
+527	Blood odaklı
+528	Fire odaklı
+529	Ice odaklı
+530	Lightning odaklı

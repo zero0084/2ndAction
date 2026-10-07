@@ -162,7 +162,7 @@ public class StageSelectUI : MonoBehaviour
                 if (t != null && !open && UnlockRules.TryStageRule(all[i].stageId, out var rule))
                 {
                     t.fontSize = 22;
-                    t.text = "LOCKED\n" + UnlockRules.ConditionText(rule) + "\n" + UnlockRules.ProgressText(rule);
+                    t.text = Loc.Auto("LOCKED\n" + UnlockRules.ConditionText(rule) + "\n" + UnlockRules.ProgressText(rule));
                     t.color = new Color(1f, 0.9f, 0.6f);
                     if (t.GetComponent<Outline>() == null) { var ol = t.gameObject.AddComponent<Outline>(); ol.effectColor = new Color(0f, 0f, 0f, 0.95f); ol.effectDistance = new Vector2(2f, -2f); }
                 }
@@ -225,4 +225,9 @@ public class StageSelectUI : MonoBehaviour
         if (!TouchInputUtil.TryGetTapPosition(out Vector2 screenPos)) return;
         HandleTap(screenPos);
     }
+
+    // 言語を切り替えた時(2026-10-07)
+    void OnEnable() { Loc.Changed += OnLocChanged; }
+    void OnDisable() { Loc.Changed -= OnLocChanged; }
+    void OnLocChanged() { if (gameObject.activeInHierarchy) RefreshLocks(StageDatabase.AllStages); }
 }

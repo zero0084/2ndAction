@@ -1,0 +1,531 @@
+0	ĐỘ KHÔNG TUYỆT ĐỐI
+1	Quái thường bị đóng băng vỡ tan và gây sát thương; tấn công lên địch bị lạnh/đóng băng tăng (+3% mỗi Lv). Với boss, hiệu ứng làm chậm thay cho đóng băng sẽ mạnh hơn
+2	ADRENALINE
+3	Khi HP từ 50% trở xuống, tốc độ đánh tăng (+3% mỗi Lv); khi HP từ 25% trở xuống thì gấp đôi
+4	KIẾM KHÔNG TRUNG
+5	Đánh trúng địch trên không sẽ tung thêm một nhát chém đuổi (uy lực và phạm vi tăng theo Lv)
+6	TĂNG CÔNG TRÊN KHÔNG
+7	Sức tấn công trên không tăng (+7% mỗi Lv)
+8	BÁ CHỦ BẦU TRỜI
+9	Tấn công trên không tăng (+3% mỗi Lv), và tăng thêm mỗi lần đánh trúng mà chưa tiếp đất (+1%/Lv mỗi lần, tối đa 4 lần)
+10	KHÔNG KÍCH
+11	Tấn công lên địch trên không (địch bị hất lên/địch bay/boss trên trời) tăng (+8% mỗi Lv)
+12	TĂNG TẦM ĐÁNH
+13	Tầm đánh thực tế rộng hơn (+3% mỗi Lv). Cận chiến: vùng trúng đòn; đạn: tầm bay (đạn không to ra)
+14	TĂNG TỐC ĐÁNH
+15	Tốc độ đánh tăng (+3% mỗi Lv)
+16	TĂNG CÔNG
+17	Sức tấn công tăng (+5% mỗi Lv)
+18	CUỒNG NỘ BÙNG PHÁT
+19	Khi HP từ 50% trở xuống, sức tấn công (+5% mỗi Lv) và tốc độ đánh (+2%) tăng; khi HP từ 25% trở xuống, cả hai tăng thêm
+20	CUỒNG CHIẾN BINH
+21	Sức tấn công (+6% mỗi Lv) và tốc độ đánh (+1%) tăng. Phong ấn 1 tim HP tối đa mỗi 3 Lv
+22	HUYẾT KIẾM
+23	Đòn đánh gây chảy máu (tỉ lệ và uy lực tăng theo Lv). Khi HP đầy, tỉ lệ chảy máu gấp đôi. Tấn công khi đầy HP cũng tăng nhẹ (+2%/Lv)
+24	HUYẾT CUỒNG
+25	Khi HP từ 50% trở xuống, sức tấn công tăng (+4% mỗi Lv); khi HP từ 25% trở xuống, tỉ lệ hấp thụ cũng tăng (+3%/Lv)
+26	THÁCH ĐẤU BOSS
+27	HP của boss tăng (+10% mỗi Lv), đổi lại MILE từ boss tăng (+40%/Lv)
+28	SÁT THỦ BOSS
+29	Sức tấn công lên boss tăng (+8% mỗi Lv)
+30	ĐẠI CHIẾN BOSS
+31	Tại cửa ải boss, có tỉ lệ (+8% mỗi Lv) xuất hiện thêm 1 boss. MILE từ boss tăng (+50%/Lv)
+32	ĐÒN PHANH
+33	Sức tấn công tăng (+7% mỗi Lv). Chậm lại một chút ngay sau đòn chính
+34	LINH HỒN RỰC CHÁY
+35	Thiêu đốt mạnh hơn (+8% mỗi Lv) và lâu hơn (+0.25 giây/Lv). Bản thân cũng tự gây thiêu đốt một chút
+36	NỔ DÂY CHUYỀN
+37	Hạ địch sẽ gây nổ. Địch bị hạ bởi vụ nổ cũng tiếp tục nổ (tối đa 3 lần, mỗi địch chỉ 1 lần trong cùng chuỗi)
+38	SÉT DÂY CHUYỀN
+39	Sét đánh lan sang địch khác ở gần (+1 địch mỗi 3 Lv, tầm lan tăng theo Lv). Bản thân cũng tự gọi sét một chút
+40	Kích hoạt khi Gauge đạt 100% (nút góc dưới trái). Tuyệt chiêu riêng của nhân vật vừa tấn công địch trên màn hình vừa lao lên xa (Lv1 khoảng 100m → Lv9 khoảng 200m), sau đó cường hóa kéo dài một lúc (Lv1 5 giây → Lv9 12 giây). Gauge tích lũy từ quãng đường, hạ địch và sát thương lên boss
+41	SUÝT SOÁT
+42	Tốc độ di chuyển (+2% mỗi Lv) và thời gian bất tử sau khi trúng đòn (+0.05 giây mỗi Lv) tăng
+43	LƯỠI COMBO
+44	Chuỗi đánh trúng liên tiếp (số HIT) càng dài, sức tấn công càng tăng (+0.4%/Lv mỗi hit, tối đa 10 hit)
+45	BẬC THẦY COMBO
+46	Đòn kết tung một luồng xung kích đặc biệt về phía trước (uy lực và phạm vi tăng theo Lv)
+47	COMBO CỘNG
+48	Đòn cuối của chuỗi đánh (đòn kết) mạnh hơn (+7% mỗi Lv)
+49	COMBO DỒN DẬP
+50	Các đòn giữa chuỗi mạnh hơn (+6% mỗi Lv), tốc độ đánh của đòn chính cũng tăng nhẹ (+2%/Lv)
+51	PHẢN ĐÒN
+52	Khi đỡ bằng Shield, tung xung kích phản công ra xung quanh (uy lực tăng theo Lv). Có thể giữ 1 Shield dù chưa có
+53	KHẾ ƯỚC TỬ THẦN
+54	Sức tấn công tăng rất mạnh (+12% mỗi Lv). Phong ấn 1 tim HP tối đa mỗi 2 Lv
+55	ĐÁNH ĐÔI
+56	Khi tấn công, có tỉ lệ (+3% mỗi Lv) ra thêm 1 đòn. Đòn thêm không kích hoạt tiếp
+57	QUÁI TINH ANH
+58	Một phần quái thường trở thành tinh anh (+4% mỗi Lv. HP×2.5・nhanh hơn chút, hạ được MILE×3/EXP×2). MILE cũng tăng (+30%/Lv)
+59	ĐAO PHỦ
+60	MILE nhận khi hạ địch tăng (+15% mỗi Lv)
+61	CHUYỂN HÓA EXP
+62	EXP giảm (-10% mỗi Lv, tối thiểu 25%), đổi lại MILE khi hạ địch tăng (+30%/Lv)
+63	TĂNG EXP
+64	EXP nhận được tăng (+20% mỗi Lv)
+65	BÙNG NỔ KINH NGHIỆM
+66	EXP từ địch/boss/BONUS ZONE tăng mạnh (+80% mỗi Lv)
+67	QUÁI NHANH NHẸN
+68	Di chuyển・truy đuổi・tấn công của quái thường nhanh hơn (+4% mỗi Lv), đổi lại MILE (+15%/Lv) và EXP hạ địch (+5%/Lv) tăng
+69	ĐÒN PHỦ ĐẦU
+70	Đòn đầu tiên của chuỗi đánh (đòn đầu) mạnh hơn (+10% mỗi Lv)
+71	HỎA KIẾM
+72	Khởi đầu hệ lửa. Đánh trúng khiến địch bị thiêu đốt (tỉ lệ 15%+5%/Lv, sát thương 5+1.5/Lv mỗi giây, 3 giây)
+73	HỎA PHẢN
+74	Khi đỡ bằng Shield, phản công bằng lửa ra xung quanh (uy lực tăng theo Lv), địch trúng đòn bị thiêu đốt. Có thể giữ 1 Shield dù chưa có
+75	PHÁO ĐÀI
+76	HP tối đa tăng (+1 tim mỗi Lv), khựng khi trúng đòn giảm (+5%/Lv), nhưng tốc độ di chuyển giảm (-3% mỗi Lv)
+77	BĂNG NHẬN
+78	Khởi đầu hệ băng. Đánh trúng khiến địch bị lạnh (tỉ lệ 15%+5%/Lv, chậm đi 25%+2%/Lv). Lạnh chồng lên sẽ đóng băng (boss không dừng nhưng bị làm chậm mạnh)
+79	CUỒNG PHONG
+80	Lưỡi gió nhanh hơn (+5% mỗi Lv), bay xa hơn (+0.4m/Lv), xuyên qua nhiều địch hơn (+1 mỗi 3 Lv). Số lần xuyên của đạn cũng tăng
+81	DIỆT KHỔNG LỒ
+82	Sức tấn công tăng mạnh (+9% mỗi Lv), nhưng tốc độ đánh giảm (-3% mỗi Lv)
+83	PHÁO THỦY TINH
+84	Sức tấn công tăng mạnh (+9% mỗi Lv). Phong ấn 1 tim HP tối đa mỗi 2 Lv
+85	THAM LAM
+86	Tốc độ di chuyển tăng (+4% mỗi Lv), nhưng địch xuất hiện nhiều hơn (+8%/Lv)
+87	PHÁ ĐỊA
+88	Khi tiếp đất bằng đòn đập và đòn kết trên mặt đất, tạo sóng xung kích chạy dọc mặt đất (uy lực và độ dài tăng theo Lv). Tấn công mặt đất cũng tăng nhẹ (+2%/Lv)
+89	CHIẾN BINH MẶT ĐẤT
+90	Sức tấn công trên mặt đất tăng (+7% mỗi Lv)
+91	TÂM CHẤN
+92	Sức tấn công trên mặt đất tăng mạnh (+11% mỗi Lv), nhưng giảm khi trên không (-5% mỗi Lv)
+93	PHÁ TIM
+94	Sức tấn công tăng (+4% mỗi Lv), thêm +0.6%/Lv cho mỗi tim bị phong ấn. Phong ấn 1 tim HP tối đa mỗi 3 Lv
+95	TĂNG TIM
+96	HP tối đa tăng (+1 tim mỗi Lv, tối đa 20 tim) và hồi HP
+97	GIÁP NẶNG
+98	Đòn mạnh (từ 2 tim trở lên) giảm đi 1 tim. HP tối đa cũng tăng (+1 tim mỗi 2 Lv), nhưng lực nhảy giảm (-3% mỗi Lv)
+99	TRỌNG KÍCH
+100	Đánh xuống/đòn đập/va chạm khi tiếp đất mạnh hơn (+10% mỗi Lv). Đòn kết cũng tăng nhẹ (+3%/Lv)
+101	CHẾ ĐỘ ĐỊA NGỤC
+102	HP (+12%/Lv)・di chuyển (+4%/Lv)・tần suất xuất hiện (+8%/Lv) của quái thường tăng, đổi lại MILE (+50%/Lv) và MILE từ boss (+30%/Lv) tăng mạnh
+103	ĐIỆN CAO THẾ
+104	Sét mạnh hơn (+5% mỗi Lv). Sét đánh làm quái thường đứng yên trong chốc lát. Tỉ lệ sét đánh cũng tăng nhẹ (+1%/Lv)
+105	BẦY ĐÀN
+106	Địch xuất hiện nhiều hơn hẳn (+15% mỗi Lv), đổi lại MILE (+5%/Lv) và EXP hạ địch (+5%/Lv) tăng
+107	THỢ SĂN
+108	Di chuyển linh hoạt hơn khi đánh boss. Tiến/lùi khi tấn công xa hơn (+4% mỗi Lv), tiếp cận boss ở xa nhanh hơn (+3%/Lv)
+109	NGỤC BĂNG
+110	Dễ đóng băng hơn (số lần lạnh cần thiết -1 mỗi 3 Lv). Tỉ lệ và thời gian lạnh cũng tăng
+111	HỎA NGỤC
+112	Hạ địch đang cháy sẽ làm lửa lan ra xung quanh và thiêu đốt (uy lực và phạm vi tăng theo Lv). Bản thân cũng tự gây thiêu đốt một chút
+113	Ý CHÍ THÉP
+114	Khi HP đầy, sức tấn công tăng (+5% mỗi Lv). HP tối đa cũng tăng (+1 tim mỗi 3 Lv)
+115	TĂNG SỐ LẦN NHẢY
+116	Số lần nhảy trên không tăng (+1 mỗi Lv). Nhảy liên tiếp sẽ yếu dần, trừ khi rơi xuống hố. Phù thủy: độ cao tối đa +1 bậc mỗi 3 Lv
+117	TĂNG LỰC NHẢY
+118	Lực nhảy tăng (+3% mỗi Lv). Phù thủy lên xuống độ cao nhanh hơn
+119	Khi HP còn 1 tim, được bất tử ngắn (1 giây + 0.15 giây mỗi Lv). Không kích hoạt lại cho đến khi HP hồi và qua một lúc
+120	TỬ CHIẾN
+121	Khi HP từ 50% trở xuống, sức tấn công tăng (+4% mỗi Lv); khi HP từ 25% trở xuống, tăng thêm (+4%/Lv)
+122	PHÁ GIỚI HẠN
+123	EXP nhận được tăng mạnh (+30% mỗi Lv)
+124	TRƯỜNG KIẾM
+125	Tầm đánh thực tế rộng hơn nhiều (+5% mỗi Lv)
+126	BỀN BỈ
+127	EXP (+15% mỗi Lv) và HP tối đa (+1 tim mỗi 3 Lv) tăng
+128	DIỆT QUÁI
+129	Tấn công lên địch không phải boss (+5% mỗi Lv) và MILE khi hạ địch (+10% mỗi Lv) tăng
+130	QUÁN TÍNH
+131	Tốc độ hiện tại biến thành sức tấn công. Bắt đầu tăng khi vượt 100km/h, tối đa ở 150km/h (+4% mỗi Lv). Sau đó tăng chậm lại
+132	QUÁI VẬT TRÀN ĐẾN
+133	Địch xuất hiện nhiều hơn (+10% mỗi Lv), đổi lại EXP tăng (+15%/Lv)
+134	THÊM QUÁI
+135	Địch xuất hiện nhiều hơn (+10% mỗi Lv). MILE khi hạ địch cũng tăng nhẹ (+3%/Lv)
+136	KHÔNG ĐƯỜNG LUI
+137	Tốc độ di chuyển tăng mạnh (+5% mỗi Lv), nhưng địch xuất hiện nhiều hơn (+10%/Lv)
+138	ONE MORE MILE
+139	MILE (+50% mỗi Lv)・MILE từ boss (+50%)・EXP (+20%) tăng
+140	Duy trì từ 115km/h trở lên sẽ vào OVERDRIVE (tấn công +3% mỗi Lv, tốc độ đánh +2%). Chậm lại thì mất. Tốc độ di chuyển cũng tăng nhẹ (+2% mỗi Lv)
+141	HỒI QUÁ MỨC
+142	Lượng hồi tăng (+1 ở Lv4〜6, +2 tim ở Lv7〜9). Phần hồi khi HP đã đầy sẽ thành 1 Shield
+143	HỖN LOẠN
+144	HP/di chuyển/tần suất xuất hiện/tinh anh của quái thường và HP của boss đều tăng, đổi lại MILE (+60%/Lv) và MILE từ boss (+60%/Lv) tăng cực mạnh
+145	NGƯỜI MỞ ĐƯỜNG
+146	EXP từ quãng đường chạy tăng (+20% mỗi Lv)
+147	PHÒNG THỦ HOÀN HẢO
+148	Khi dùng Shield, được bất tử ngắn (0.4 giây + 0.1 giây mỗi Lv). Có thể giữ 1 Shield dù chưa có
+149	Hồi sinh một lần khi gục ngã (HP 1〜5 tim tùy Lv). Sau khi hồi sinh, thẻ này bị gỡ và có thể xuất hiện lại để chọn (nhận lại từ Lv1)
+150	KIẾM XUYÊN THẤU
+151	Đòn đánh xuyên qua địch. Cận chiến: xuyên ra sau địch trúng đòn (số lượng và uy lực tăng theo Lv); đạn: số lần xuyên (+1 mỗi 3 Lv)
+152	KẺ SĂN MỒI
+153	Tỉ lệ hấp thụ tăng (+3% mỗi Lv). Đánh boss đôi khi cũng có thể hấp thụ
+154	KIẾM TỐC
+155	Tốc độ đánh của đòn chính (trước/sau) tăng (+5% mỗi Lv). Không áp dụng cho đòn lên/xuống/đập/tuyệt kỹ
+156	SỐ LÙI
+157	Sức tấn công tăng (+8% mỗi Lv), nhưng tốc độ di chuyển giảm (-3% mỗi Lv)
+158	Khi HP rơi xuống 30% trở xuống, hồi một ít HP (1〜3 tim). Sau khi kích hoạt có hồi chiêu theo quãng đường (10,000m, rút ngắn theo Lv)
+159	KHIÊN
+160	Shield chặn được 1 lần trúng đòn. Số lượng tối đa +1 mỗi 3 Lv (tối đa 3), phần đã dùng hồi lại theo thời gian (nhanh hơn theo Lv)
+161	SÓNG XUNG KÍCH
+162	Cận chiến trúng đòn tạo sóng xung kích ngắn phía trước; đạn tạo sóng xung kích quanh điểm trúng (uy lực và phạm vi tăng theo Lv)
+163	BẬC THẦY BẦU TRỜI
+164	Tấn công trên không tăng (+4% mỗi Lv). Đánh trúng trên không hồi lại 1 lần nhảy trên không (1 lần mỗi 3 Lv cho mỗi lần bay)
+165	LƯỚT TRỜI
+166	Lực nhảy (+2% mỗi Lv) và tấn công trên không (+3% mỗi Lv) tăng
+167	VƯƠN TRỜI
+168	Sức tấn công trên không tăng mạnh (+11% mỗi Lv), nhưng giảm trên mặt đất (-5% mỗi Lv)
+169	KIẾM SIÊU THANH
+170	Mỗi đòn chính phóng một nhát chém về phía trước. Chạy càng nhanh, càng xa・to・mạnh
+171	GIẢM TỐC
+172	Tốc độ di chuyển giảm (-4% mỗi Lv). Thẻ đặc biệt hiếm khi có ích khi chơi solo
+173	TĂNG TỐC
+174	Tốc độ di chuyển tăng (+3% mỗi Lv)
+175	ĐƯỜNG DÀI
+176	EXP (+40% mỗi Lv) và HP tối đa (+1 tim mỗi 2 Lv) tăng
+177	LÔI VƯƠNG
+178	Cấp cao của hệ sét. Uy lực (+4% mỗi Lv)・dây chuyền (+1 địch mỗi 3 Lv)・phạm vi quanh sét đánh đều mạnh hơn
+179	LÔI KÍCH
+180	Khởi đầu hệ sét. Đánh trúng gọi sét đánh (tỉ lệ 5%+2%/Lv, uy lực 7.5+1.5/Lv. Mỗi địch tối đa 1 lần mỗi 0.4 giây)
+181	LỐC XOÁY
+182	Lưỡi gió tạo lốc xoáy nhỏ tại điểm trúng, cuốn địch xung quanh vào (uy lực và phạm vi tăng theo Lv). Bản thân cũng tự tung lưỡi gió một chút
+183	QUÁI CỨNG CÁP
+184	HP của quái thường tăng (+15% mỗi Lv), đổi lại MILE (+15%/Lv) và EXP hạ địch (+5%/Lv) tăng
+185	THỢ SĂN KHO BÁU
+186	MILE từ kho báu・phần thưởng (Goblin mang báu/Slime vàng/Mimic/HOÀN THÀNH/HOÀN HẢO ở BONUS ZONE, tiền thưởng TRUY NÃ) tăng (+30% mỗi Lv). MILE từ boss và quãng đường cũng tăng nhẹ
+187	TOÀN NĂNG
+188	Thẻ đa năng tăng cùng lúc sức tấn công (+3% mỗi Lv)・HP tối đa (+1 tim mỗi 2 Lv)・tốc độ di chuyển (+2% mỗi Lv)
+189	MA CÀ RỒNG
+190	Khi hạ địch, có tỉ lệ (+3% mỗi Lv) hồi 1 tim HP
+191	TRUY NÃ
+192	Cứ mỗi quãng đường nhất định sẽ xuất hiện kẻ bị truy nã (mạnh hơn・thường xuyên hơn theo Lv). Hạ được thì nhận thưởng, bỏ qua thì hắn trốn thoát. MILE tăng (+35%/Lv)
+193	PHONG NHẬN
+194	Khởi đầu hệ gió. Đánh trúng phóng lưỡi gió xuyên thấu về phía trước (tỉ lệ 10%+3%/Lv, uy lực 8+1.5/Lv). Tầm đánh cũng rộng thêm chút (+1%/Lv)
+195	CUNG THỦ
+196	Kéo, Ngắm, Xuyên
+197	'Người gác rừng nơi rừng sâu
+198	BẮN TỈA
+199	LONG THƯƠNG KỴ SĨ
+200	Phá Vây, Không Lùi Bước
+201	'Hiệp sĩ rồng trẻ tuổi mang ngọn thương
+202	PHÁ TRẬN
+203	LONG NHÂN
+204	Vuốt, Đuôi, Cánh, Lửa
+205	'Chiến binh mang dòng máu rồng.
+206	CUỒNG BẠO
+207	SONG KIẾM
+208	Thép Thần Tốc, Chuyển Động Bất Tận
+209	'Kiếm khách song kiếm nối liền từng đòn
+210	COMBO MẶT ĐẤT
+211	VÕ SĨ
+212	Nắm Đấm Đáp Trả
+213	'Võ sĩ chiến đấu
+214	XẠ THỦ
+215	Một Phát, Một Khoảng Cách
+216	'Song súng, một đường đạn sắc bén.
+217	TẦM XA
+218	PHÙ THỦY
+219	Bay Trên Cao, Đánh Xuống Dưới
+220	'Phù thủy chưa từng chạm đất.
+221	PHÁP SƯ BAY
+222	VU NỮ
+223	Phong Ấn Con Đường Phía Trước
+224	'Pháp sư trừ tà của đền núi.
+225	PHONG ẤN SƯ
+226	NHẪN GIẢ
+227	Biến Mất, Chém, Biến Mất
+228	'Nhẫn giả không bao giờ ở nơi bạn đánh tới.
+229	CƠ ĐỘNG
+230	TIỂU THƯ QUÝ TỘC
+231	Anh Hùng Chưa Thức Tỉnh
+232	'Khoác bạc và vàng, nàng vung
+233	HIỆP SĨ QUÝ TỘC
+234	KIẾM SĨ
+235	Kẻ Không Ngừng Bước
+236	'Kiếm sĩ đơn độc đi con đường của riêng mình.
+237	CÂN BẰNG
+238	Càng Lâu, Càng Mạnh
+239	'Quý tộc bóng đêm không cần lưỡi kiếm.
+240	HUYẾT
+241	THẺ NHÂN VẬT
+242	CHỌN NHÂN VẬT
+243	CHỌN
+244	SINH LỰC
+245	SỨC MẠNH
+246	CHỌN MÀN
+247	Xuất phát
+248	Đội hình đề xuất
+249	Gỡ tất cả
+250	Có
+251	Không
+252	HÀNH LANG CUỐI CÙNG
+253	Địch: địch của mọi màn trộn lẫn (cường hóa)
+254	Đặc điểm: sàn sụp đổ・công trình rơi xuống・hành lang lơ lửng
+255	Lộ trình: Hành lang cổ khổng lồ → Sụp đổ → Vực thẳm → Con đường cuối
+256	Hang Động Tự Nhiên
+257	Địch: Kiến / Châu chấu / Dơi / Giun
+258	Đặc điểm: trần đá・gai trên trần・bóng tối và đuốc
+259	Lộ trình: một đường duy nhất (hiểm họa mặt đất・trên không・dưới đất・trên trần)
+260	Hành Lang Trời
+261	Địch: họ Goblin + mở dần theo quãng đường
+262	Đặc điểm: bệ đá và mây lơ lửng, đường trên không
+263	Lộ trình: càng đi càng nguy hiểm
+264	Đường Hoang Địa
+265	Địch: Goblin / Chim
+266	Chướng ngại: đá・cây nhỏ・tường・cây phá được・đá khổng lồ・hố
+267	Lộ trình: Trên Easy / Dưới Danger
+268	Bạn đã gục. Chơi lại ngay bằng "Đấu lại cùng điều kiện"
+269	Đã hồi đầy HP
+270	Đã xóa toàn bộ địch và đòn tấn công của chúng (không tính vào thời gian hạ)
+271	Gây ST {0}    Nhận ST {1}    {2} giây
+272	Bất tử
+273	≡ Cài đặt
+274	Đấu lại cùng điều kiện
+275	Xóa toàn bộ địch
+276	Về sảnh
+277	Hạ hết  {0} giây
+278	Đối thủ
+279	Chi tiết
+280	Kết quả
+281	Sân tập để thử nhân vật và thẻ thoải mái
+282	Bắt đầu với thiết lập này
+283	Bắt đầu
+284	Dùng thử
+285	(Dùng thử)
+286	Tìm kiếm
+287	<color=#8ce6ff>Dùng thử</color>
+288	+ Thêm
+289	Sao chép bộ bài hiện tại
+290	Sao chép thẻ nhân vật
+291	Build thử ({0} thẻ)
+292	Gỡ tất cả
+293	Lv = số lần nhận trong lượt chạy này (tối đa 9 mỗi năng lực). Thẻ sở hữu & bộ bài không đổi
+294	Thêm thẻ bằng "+ Thêm" ở danh sách bên trái. Không có thẻ cũng thử được
+295	Bản sao thẻ sở hữu (Lv dung hợp {0}・{1} năng lực)
+296	Đã sao chép {0} thẻ của bộ bài vào build thử (bộ bài không đổi)
+297	Đã sao chép {0} thẻ nhân vật (Lv ban đầu)
+298	Mục tiêu tập luyện
+299	Quái thường
+300	Boss Hoang Địa
+301	Boss Hang Động
+302	Boss Trời
+303	Mục tiêu đứng yên: không tấn công (trúng cũng không mất máu)・không gục. Dùng để kiểm tra đòn đánh. Khi chạy sẽ giữ khoảng cách với người chơi
+304	Số lượng
+305	Độ mạnh chuyển động
+306	Giai đoạn
+307	Boss xuất hiện từ phía trước với động tác ra sân riêng
+308	Chiêu dùng địa hình của boss hang động/trời (hố/trần/đá rơi/dải trên không...) ở Đấu trường bằng phẳng sẽ khác với bản chính
+309	Tối đa 1 loại boss (có thể đi cùng quái thường)
+310	Thêm vào đối thủ
+311	Tối đa 1 loại boss (đã thay boss trước)
+312	Đối thủ hiện tại ({0})
+313	Chưa có đối thủ (bắt đầu luôn thì chỉ thử chuyển động, không có địch)
+314	Sức mạnh địch: tương đương mốc {0}km (HP/tấn công như ở quãng đường đó trong bản chính)
+315	Tốc độ
+316	Đứng yên (0km/h)
+317	Chạy (tốc độ cơ bản+hiệu chỉnh)
+318	Chạy (cố định tốc độ)
+319	Chỉ dừng việc tự chạy tới (tấn công/nhảy/trọng lực/khựng/chuyển động địch vẫn như bản chính)
+320	Chạy với tốc độ cơ bản nhân hiệu chỉnh tốc độ của nhân vật/thẻ (TĂNG TỐC...)
+321	Chạy đúng tốc độ này không hiệu chỉnh (để so sánh mà loại bỏ khác biệt của thẻ tốc độ)
+322	Hiện tại: cơ bản {0}km/h → thực tế {1}km/h (hiệu chỉnh ×{2})
+323	Bất tử / HP
+324	Bất tử: {0}
+325	Hồi đầy HP
+326	Kể cả khi bất tử, "sát thương lẽ ra phải nhận" vẫn hiện trong kết quả
+327	Hỗ trợ điều khiển (giống "Hỗ trợ khi tốc độ cao" trong Cài đặt. Chỉ trong Đấu trường・cài đặt không đổi)
+328	OFF
+329	ON
+330	Luôn bật (bản dev)
+331	Hoạt động từ {0}km/h~
+332	Không hỗ trợ ở Đấu trường: FINAL EVOLUTION / AWAKENED / Mastery / Gauge ULTIMATE / lên cấp / thưởng boss / BONUS ZONE (thẻ chỉ có hiệu ứng Lv thường và COMBO. Phần thưởng・kỷ lục・thẻ sở hữu hoàn toàn không đổi)
+333	Chỉ bản dev
+334	Chọn cả địch chưa gặp: {0}
+335	Cố định ngẫu nhiên: {0}
+336	Hỗ trợ phá chướng ngại: {0}
+337	Đã gục
+338	Hạ hết {0} giây
+339	Kết thúc
+340	Đang chiến đấu
+341	Lần này: {0}
+342	Sát thương gây ra
+343	Số đòn trúng
+344	Số địch hạ
+345	Thời gian hạ
+346	Sát thương nhận (HP bị mất)
+347	Sát thương lẽ ra phải nhận (gồm cả bất tử/Shield)
+348	Thời gian chiến đấu
+349	{0} giây
+350	{0} ({1} lần)
+351	Lần này
+352	Lần trước
+353	Điều kiện lần này: {0}
+354	Build thử: {0}
+355	Điều kiện lần trước: {0}
+356	Build lần trước: {0}
+357	Đổi thiết lập
+358	？？？(chưa gặp)
+359	Mục tiêu đứng yên
+360	{0} / {1} thẻ / {2} / tương đương {3}km
+361	Không có thẻ
+362	(bản sao thẻ sở hữu)
+363	Đang chuẩn bị Đấu trường
+364	ĐẤU TRƯỜNG
+365	HẠ MIMIC
+366	GOBLIN
+367	SLIME
+368	TIÊN
+369	MIMIC
+370	MILE
+371	EXP
+372	JACKPOT!!
+373	BONUS ZONE!
+374	HOÀN HẢO:
+375	JACKPOT HOÀN THÀNH!
+376	BONUS HOÀN THÀNH!
+377	JACKPOT  HOÀN HẢO!
+378	BONUS HOÀN HẢO!
+379	KẾT QUẢ JACKPOT
+380	KẾT QUẢ BONUS
+381	ĐỊCH
+382	HOÀN THÀNH
+383	HOÀN HẢO
+384	TỔNG
+385	NGẪU NHIÊN
+386	KẾT THÚC
+387	Tiếp tục chạy sau {0}
+388	Hiện tại
+389	{0} đòn
+390	(cố định)
+391	Thẻ nguyên liệu đang được dùng trong bộ bài/thẻ nhân vật
+392	Đã AWAKENED (★5) nên Mastery không tăng thêm (không tiêu thẻ. Cách dùng thẻ dư sau ★5 sẽ được bổ sung sau)
+393	Không thể dung hợp: Lv sau dung hợp sẽ là {0} (giới hạn Lv.{1})
+394	Không thể dung hợp: năng lực sẽ thành {0} loại (giới hạn {1} loại)
+395	Đang dung hợp
+396	Không đủ thẻ
+397	<color=#ffd76a><b>[MASTERY] Bồi dưỡng Lv.9 MAX</b></color>
+398	Thẻ chính được giữ nguyên (Lv.9 MAX), chỉ tiêu thẻ nguyên liệu.
+399	Mastery hiện tại: <color=#ffd76a>{0}</color>  {1}
+400	Lần dung hợp này: <b>+{0} Mastery</b> (nguyên liệu Lv.{1} = {2} thẻ)
+401	Sau dung hợp: <color=#ffd76a>{0}</color>  {1}
+402	<size=19>(★{0}, phần dư chuyển sang ★ tiếp theo)</size>
+403	<size=19>Phần dư {0} sau ★5 được lưu giữ, không bỏ đi</size>
+404	<color=#ff9a8a><size=19>Năng lực phụ của nguyên liệu ({0} loại) không được kế thừa</size></color>
+405	<size=19>Mastery không tăng chỉ số thường (tấn công/tốc độ/EXP...). Đây là dấu ấn bồi dưỡng và con đường đến AWAKENED.</size>
+406	<color=#ff9a8a>Nếu thực hiện, 1 thẻ nguyên liệu sẽ bị tiêu hao.</color>
+407	<color=#ffd76a><b>[Cường hóa cùng tên → Lv.9 MAX] Tỉ lệ thành công 100%</b></color>
+408	Lv dung hợp: Lv.{0} + Lv.{1} → <b>Lv.9 MAX</b>
+409	Phần <b>{0}</b> vượt Lv.9 không bị bỏ mà chuyển vào Mastery: {1} → <color=#ffd76a>{2}</color>{3}
+410	<b>Năng lực kế thừa (cường hóa tối đa 9)</b>
+411	・{0} <b>×{1}</b>
+412	<color=#ff9a8a>Nếu thực hiện, 2 thẻ đã chọn sẽ bị tiêu hao (nhận 1 thẻ thành phẩm Lv.9 MAX).</color>
+413	<color=#ffd76a><b>[Cường hóa cùng tên] Tỉ lệ thành công 100%</b></color>
+414	Lv dung hợp: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+415	<b>Năng lực kế thừa (năng lực giống nhau được cộng dồn)</b>
+416	・{0} {1}<b>×{2}</b>  <size=18>({3} ×{4})</size>
+417	<color=#9fd0ff><b>[Dung hợp khác tên] Kết quả được quyết định ngẫu nhiên</b></color>
+418	<b>Lv dung hợp của thẻ thành phẩm (theo kết quả)</b>
+419	・Cả hai thành công: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+420	・Chỉ thẻ chính thành công: <b>Lv.{0}</b> (chỉ Lv thẻ chính)
+421	・Chỉ nguyên liệu thành công: <b>Lv.{0}</b> (chỉ Lv nguyên liệu)
+422	・Cả hai thất bại: không có thẻ thành phẩm・hoàn lại <color=#ffd76a>{0} MILE</color>
+423	<b>Tỉ lệ kế thừa trọn bộ năng lực thẻ chính {0}%</b>
+424	・{0} ×{1}  <size=18>({2} ×{3})</size>
+425	<b>Tỉ lệ kế thừa trọn bộ năng lực nguyên liệu {0}%</b>
+426	Cả hai thành công: kế thừa toàn bộ năng lực hai bên (năng lực giống nhau được cộng dồn)
+427	Một bên thành công: chỉ kế thừa năng lực・cường hóa・Lv của bên thành công (bên thất bại không còn)
+428	Nếu chỉ nguyên liệu thành công, năng lực chính của nguyên liệu sẽ thành năng lực chính của thẻ thành phẩm
+429	<size=18>(Hoàn lại khi cả hai thất bại =★{0}×Lv.{1}×{2} + ★{3}×Lv.{4}×{5})</size>
+430	<color=#ff9a8a>Nếu thực hiện, 2 thẻ đã chọn sẽ bị tiêu hao.</color>
+431	Bạn chưa sở hữu thẻ này
+432	Không thể chọn vì đang dùng trong bộ bài và thẻ nhân vật
+433	Không thể chọn vì đang trang bị cho thẻ nhân vật
+434	Không thể chọn vì đang dùng trong bộ bài
+435	Cần 2 thẻ cùng chỉ số (đang có 1)
+436	Hãy chọn thẻ chính và thẻ nguyên liệu
+437	Không thể tải dữ liệu thẻ
+438	MASTERY TĂNG!
+439	Dung hợp đại thành công!
+440	Dung hợp thành công!
+441	<size=21>Đã tiến ★{0} (phần dư chuyển sang ★ tiếp theo)</size>
+442	<size=21>Đã lưu phần dư {0} sau ★5 (có thể dùng sau này)</size>
+443	<size=21>Thẻ này đã AWAKENED (dấu ấn vĩnh viễn. Chỉ số thường không đổi)</size>
+444	Thẻ chính (Lv.9 MAX) được giữ nguyên, đã tiêu 1 thẻ nguyên liệu.
+445	<size=21>Mastery không tăng chỉ số thường (tấn công/tốc độ/EXP...).</size>
+446	Dung hợp Lv.<b>{0}</b>{1}
+447	<color=#ffd76a>Cường hóa cùng tên (chắc chắn)</color> … kế thừa toàn bộ năng lực hai thẻ
+448	Thẻ chính ({0} Lv.{1}): {2}
+449	Nguyên liệu ({0} Lv.{1}): {2}
+450	Chỉ Lv thẻ chính
+451	Chỉ Lv nguyên liệu
+452	<size=21>Thành phẩm Lv.{0} = {1}</size>
+453	<b>Năng lực chính</b>
+454	<b>Năng lực phụ ({0}/{1})</b>
+455	Không có
+456	Dung hợp thất bại…
+457	Thẻ chính ({0} Lv.{1}): <color=#9aa3b8>Kế thừa thất bại</color>
+458	Nguyên liệu ({0} Lv.{1}): <color=#9aa3b8>Kế thừa thất bại</color>
+459	2 thẻ đã chọn đã bị tiêu hao.
+460	MILE hoàn lại  <color=#ffd76a><b><size=40>+{0}</size></b></color>
+461	MILE sở hữu  <b>{0}</b>
+462	<color=#ffd76a><b>Cường hóa ×{0}→×{1}</b></color>
+463	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3} ×{4})</color></size>
+464	Quay lại
+465	Dung hợp thẻ
+466	Sắp xếp
+467	Chính
+468	Nguyên liệu
+469	Thẻ
+470	Đang chọn
+471	Dung hợp
+472	Bỏ qua ▶▶
+473	Dung hợp tiếp
+474	Về danh sách
+475	MILE sở hữu  {0}
+476	{0} loại / tổng {1} thẻ
+477	Thẻ chính
+478	Thẻ nguyên liệu
+479	Tất cả
+480	Di chuyển
+481	Tấn công
+482	Phòng thủ
+483	Phát triển
+484	Hồi phục
+485	Đặc biệt
+486	Rủi ro
+487	Hãy chọn 2 thẻ
+488	Không thể dung hợp
+489	Tên
+490	Cấp
+491	Độ hiếm
+492	Số lượng sở hữu
+493	Có {0}  Dùng được<color=#{1}
+494	Năng lực {0}
+495	Chính+Nguyên liệu
+496	Đang dùng
+497	<color=#ffd76a><b>{0}</b></color>  <b>{1}</b>  {2}  Dung hợp Lv.{3}{4}
+498	Năng lực chính: {0}
+499	Năng lực phụ ({0}):
+500	・{0}
+501	Năng lực phụ: không có
+502	<size=19><color=#b7bfd8>Có {0} thẻ / dùng được {1} thẻ</color></size>
+503	Hãy chọn thẻ từ danh sách bên trái.
+504	Thẻ sẽ vào ô đang chọn (ô phát sáng). Chạm vào ô để đổi ô đích, chạm × để bỏ chọn.
+505	・Thẻ giống nhau … tỉ lệ thành công 100%, cộng dồn Lv dung hợp và toàn bộ năng lực
+506	・Thẻ khác nhau … kế thừa trọn bộ năng lực với tỉ lệ thẻ chính 50%/nguyên liệu 25% (ngẫu nhiên). Nếu chỉ một bên thành công, chỉ giữ lại Lv và năng lực của bên đó
+507	・Giới hạn Lv dung hợp là Lv.9. Phần vượt Lv.9 của thẻ giống nhau không bỏ mà chuyển vào Mastery (thẻ khác nhau có tổng vượt Lv.9 thì không thể dung hợp)
+508	・Dung hợp thẻ giống nhau vào thẻ Lv.9 MAX sẽ tăng Mastery (★5 thì AWAKENED)
+509	<size=19>Đã đạt ★5 (AWAKENED). Cách dùng thẻ dư sau ★5 sẽ được bổ sung sau (hiện không tiêu khi dung hợp).</size>
+510	Chọn thẻ giống nhau ({0}) làm nguyên liệu sẽ tăng Mastery bằng Lv của nguyên liệu (Lv.1 = +1).
+511	Tiếp theo, hãy chọn thẻ nguyên liệu.
+512	Tiếp theo, hãy chọn thẻ chính.
+513	Thẻ này đã AWAKENED (★5)
+514	Đã đặt thẻ thành phẩm làm thẻ chính. Hãy chọn thẻ nguyên liệu
+515	Cường hóa chắc chắn
+516	AWAKENED!
+517	Đạt Lv.9 MAX!
+518	Cường hóa cùng tên hoàn tất!
+519	Đại thành công! Kế thừa năng lực cả hai bên
+520	Kế thừa năng lực thẻ chính
+521	Kế thừa năng lực nguyên liệu
+522	Kế thừa thất bại…  Thẻ đã được đổi thành MILE
+523	Bên {0} kế thừa thành công!
+524	Bên {0} kế thừa thất bại
+525	Chuyên Speed
+526	Chuyên Defense
+527	Chuyên Blood
+528	Chuyên Fire
+529	Chuyên Ice
+530	Chuyên Lightning

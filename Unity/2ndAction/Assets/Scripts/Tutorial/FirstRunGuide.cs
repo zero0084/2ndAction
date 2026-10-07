@@ -157,11 +157,11 @@ public class FirstRunGuide : MonoBehaviour
                 break;
             case Kind.EscapeGuide:
                 title = "脱出できるようになりました";
-                body = HoldIn() + "すると脱出して、\nこのランで集めたMILEを持ち帰れます。\n\n倒れてしまうと、このランのMILEは失われます。\n(BEST距離の記録は残ります)\n\nこのまま走り続けてもOK。脱出するかどうかは自由です。";
+                body = $"{HoldIn()}すると脱出して、\nこのランで集めたMILEを持ち帰れます。\n\n倒れてしまうと、このランのMILEは失われます。\n(BEST距離の記録は残ります)\n\nこのまま走り続けてもOK。脱出するかどうかは自由です。";
                 break;
             default:
                 title = "MILEを持ち帰りました!";
-                body = "MILEは、ホームのガチャで使えます(1回 " + GameManager.GachaCostMile + " MILE)。\n引いたカードはデッキに入れて、次のランを強くできます。";
+                body = $"MILEは、ホームのガチャで使えます(1回 {GameManager.GachaCostMile} MILE)。\n引いたカードはデッキに入れて、次のランを強くできます。";
                 break;
         }
 
@@ -175,8 +175,8 @@ public class FirstRunGuide : MonoBehaviour
         titleSt.fontSize = Mathf.RoundToInt(32 * s * k); titleSt.normal.textColor = new Color(1f, 0.86f, 0.45f);
         bodySt.fontSize = Mathf.RoundToInt(23 * s * k); bodySt.normal.textColor = Color.white;
         OrnateUi.DrawPanel(p, 0.95f);
-        GUI.Label(new Rect(p.x + 20 * s, p.y + 10 * s * k, p.width - 40 * s, 46 * s * k), title, titleSt);
-        GUI.Label(new Rect(p.x + 28 * s, p.y + 54 * s * k, p.width - 56 * s, p.height - 130 * s * k), body, bodySt);
+        LocGUI.Label(new Rect(p.x + 20 * s, p.y + 10 * s * k, p.width - 40 * s, 46 * s * k), title, titleSt);
+        LocGUI.Label(new Rect(p.x + 28 * s, p.y + 54 * s * k, p.width - 56 * s, p.height - 130 * s * k), body, bodySt);
         float bw = 280 * s * k, bh = 58 * s * k, by = p.yMax - bh - 14 * s * k;
         int pl = PadNav.BeginLayer(60); // 手前の窓(パッド/キーのフォーカスはこの窓のボタンだけ)
         if (showing == Kind.DoorPrompt)

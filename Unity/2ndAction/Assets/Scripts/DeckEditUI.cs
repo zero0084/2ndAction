@@ -219,7 +219,7 @@ public class DeckEditUI : MonoBehaviour
         var gm = GameManager.Instance;
         if (charHeader == null || gm == null) return;
         var def = CharacterDatabase.FindById(gm.CharacterCardOwnerId);
-        charHeader.text = $"{(def != null ? def.displayName : "?")} のキャラカード";
+        charHeader.text = Loc.Auto($"{(def != null ? def.displayName : "?")} のキャラカード");
     }
     // 自動テスト用
     public string CharHeaderText => charHeader != null ? charHeader.text : "";
@@ -459,7 +459,7 @@ public class DeckEditUI : MonoBehaviour
 
         if (countText != null)
         {
-            countText.text = $"DECK {deck.Count} / {GameManager.DeckCapacity}";
+            countText.text = Loc.Auto($"DECK {deck.Count} / {GameManager.DeckCapacity}");
         }
         if (collectionCountText != null)
         {
@@ -467,7 +467,7 @@ public class DeckEditUI : MonoBehaviour
             int total = CardMastery.TotalCards;
             collectionCountText.horizontalOverflow = HorizontalWrapMode.Overflow;
             collectionCountText.supportRichText = true;
-            collectionCountText.text = $"COLLECTION ({displayedStacks.Count})  <size=17><color=#ffe6a0>MAX {CardMastery.MaxCount}/{total}  AWAKENED {CardMastery.AwakenedCount}/{total}</color></size>";
+            collectionCountText.text = Loc.Auto($"COLLECTION ({displayedStacks.Count})  <size=17><color=#ffe6a0>MAX {CardMastery.MaxCount}/{total}  AWAKENED {CardMastery.AwakenedCount}/{total}</color></size>");
         }
 
         RefreshConvertButton();
@@ -489,7 +489,7 @@ public class DeckEditUI : MonoBehaviour
         if (bg != null) bg.color = inUse ? new Color(0.25f, 0.25f, 0.28f, 0.85f) : new Color(0.55f, 0.42f, 0.14f, 0.9f);
         if (convertButtonLabel != null)
         {
-            convertButtonLabel.text = inUse ? "使用中のため変換不可" : $"CONVERT (+{CardConvertMile} MILE)";
+            convertButtonLabel.text = Loc.Auto(inUse ? "使用中のため変換不可" : $"CONVERT (+{CardConvertMile} MILE)");
         }
     }
 
@@ -512,10 +512,10 @@ public class DeckEditUI : MonoBehaviour
         if (detailPlaceholderLabel != null)
         {
             detailPlaceholderLabel.gameObject.SetActive(true);
-            detailPlaceholderLabel.text = detailPlaceholder;
+            detailPlaceholderLabel.text = Loc.Auto(detailPlaceholder);
             if (detailText != null) detailText.text = "";
         }
-        else if (detailText != null) detailText.text = detailPlaceholder;
+        else if (detailText != null) detailText.text = Loc.Auto(detailPlaceholder);
         detailCardId = null;
         detailLevel = -1;
         focusCardId = null;
@@ -563,16 +563,16 @@ public class DeckEditUI : MonoBehaviour
         if (detailPreviewCard != null)
         {
             // カードUI最終デザイン改修(2026-09-26) - 名前 / Category・Lv / 主な効果 / 説明 の順
-            if (detailName != null) detailName.text = card.cardName;
+            if (detailName != null) detailName.text = Loc.Auto(card.cardName);
             string countLabel = level >= 1 && count > 1 ? $"   所持 x{count}" : "";
-            if (detailCategory != null) detailCategory.text = $"{card.category.ToString().ToUpperInvariant()}  /  {levelLabel}   {card.RarityStars}{countLabel}";
-            if (detailValue != null) detailValue.text = MasteryDetailLine(card) + BuildDetailValueText(card);
+            if (detailCategory != null) detailCategory.text = Loc.Auto($"{card.category.ToString().ToUpperInvariant()}  /  {levelLabel}   {card.RarityStars}{countLabel}");
+            if (detailValue != null) detailValue.text = Loc.Auto(MasteryDetailLine(card) + BuildDetailValueText(card));
         }
         else
         {
-            if (detailName != null) detailName.text = $"{card.cardName} {card.RarityStars} " + (level >= 1 ? levelLabel : "");
+            if (detailName != null) detailName.text = Loc.Auto($"{card.cardName} {card.RarityStars} " + (level >= 1 ? levelLabel : ""));
             string countLabel = level >= 1 ? $"  x{count}" : "";
-            if (detailCategory != null) detailCategory.text = card.category.ToString().ToUpperInvariant() + countLabel;
+            if (detailCategory != null) detailCategory.text = Loc.Auto(card.category.ToString().ToUpperInvariant() + countLabel);
         }
 
         // Item 2/9 - "Character装備状態" / "Deck使用状態" always visible in
@@ -592,7 +592,7 @@ public class DeckEditUI : MonoBehaviour
             else if (inDeck) statusLine = "\n\n[IN DECK]";
             if (otherChar) statusLine += "\n[他のキャラのキャラカード]";
         }
-        if (detailText != null) detailText.text = (detailPreviewCard != null ? DetailDescription(card) : card.description) + statusLine;
+        if (detailText != null) detailText.text = Loc.Auto((detailPreviewCard != null ? DetailDescription(card) : card.description) + statusLine);
 
         detailCardId = card.cardId;
         detailLevel = level;
@@ -771,7 +771,7 @@ public class DeckEditUI : MonoBehaviour
         if (gm == null) return;
         if (gm.IsCardInUse(detailCardId))
         {
-            if (detailText != null) detailText.text = "現在使用中のカードです。外してから使用してください。";
+            if (detailText != null) detailText.text = Loc.Auto("現在使用中のカードです。外してから使用してください。");
             return;
         }
 
@@ -788,7 +788,7 @@ public class DeckEditUI : MonoBehaviour
     {
         if (!CardInventory.RemoveCard(cardId, level, 1))
         {
-            if (detailText != null) detailText.text = "カードが不足しています";
+            if (detailText != null) detailText.text = Loc.Auto("カードが不足しています");
             return;
         }
         GameManager.Instance?.AddMile(CardConvertMile);
@@ -1107,4 +1107,9 @@ public class DeckEditUI : MonoBehaviour
             }
         }
     }
+
+    // 言語を切り替えた時(2026-10-07): 開いていれば今の言語で書き直す
+    void OnEnable() { Loc.Changed += OnLocChanged; }
+    void OnDisable() { Loc.Changed -= OnLocChanged; }
+    void OnLocChanged() { if (root != null && root.gameObject.activeInHierarchy) Refresh(); }
 }

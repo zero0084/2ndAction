@@ -370,7 +370,7 @@ public class BossMilestonePresentation : MonoBehaviour
             style.fontStyle = FontStyle.Bold;
             style.alignment = TextAnchor.MiddleCenter;
             style.normal.textColor = new Color(warningGoldColor.r, warningGoldColor.g, warningGoldColor.b, warningAlpha);
-            GUI.Label(new Rect(0f, centerY - 50f, Screen.width, 40f), warningText, style);
+            LocGUI.Label(new Rect(0f, centerY - 50f, Screen.width, 40f), warningText, style);
         }
     }
 }

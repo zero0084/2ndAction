@@ -280,7 +280,7 @@ public partial class GameManager
         noteStyle.normal.textColor = new Color(0.92f, 0.95f, 1f);
         const string noteText = "一時停止中 ― 周りを確かめてから再開できます";
         DrawCenteredBackdrop(note, noteText, noteStyle);
-        GUI.Label(note, noteText, noteStyle);
+        LocGUI.Label(note, noteText, noteStyle);
         if (DrawStyledButton(btn, "準備ができたら再開", 20f, primary: true))
         {
             if (RequestResumeFromGate() && AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
@@ -299,8 +299,8 @@ public partial class GameManager
         Rect rect = new Rect(0f, Screen.height * 0.5f - 90f, Screen.width, 180f);
         GUIStyle shadowStyle = new GUIStyle(style);
         shadowStyle.normal.textColor = new Color(0.04f, 0.06f, 0.14f, 0.85f);
-        GUI.Label(new Rect(rect.x + 4f, rect.y + 4f, rect.width, rect.height), label, shadowStyle);
-        GUI.Label(rect, label, style);
+        LocGUI.Label(new Rect(rect.x + 4f, rect.y + 4f, rect.width, rect.height), label, shadowStyle);
+        LocGUI.Label(rect, label, style);
     }
 
     // カウントダウンの音(新規ランのカウントダウンと同じ音)。表示の文字が変わった時だけ鳴らす。

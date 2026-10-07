@@ -90,7 +90,7 @@ public class NoticeQueue : MonoBehaviour
             var r = new Rect(Screen.width * 0.5f - 260 * ts, 96 * ts, 520 * ts, 44 * ts);
             Color keep = GUI.color; GUI.color = new Color(1f, 1f, 1f, a);
             UiBackdrop.Draw(r, 0.75f);
-            GUI.Label(r, toastNow, UiKit.Label(20 * ts, TextAnchor.MiddleCenter, true, new Color(1f, 0.88f, 0.5f)));
+            LocGUI.Label(r, toastNow, UiKit.Label(20 * ts, TextAnchor.MiddleCenter, true, new Color(1f, 0.88f, 0.5f)));
             GUI.color = keep;
         }
         if (!current.HasValue) return;
@@ -113,9 +113,9 @@ public class NoticeQueue : MonoBehaviour
             UiKit.Fill(new Rect(p.x - 10 * s, p.y - 10 * s, p.width + 20 * s, p.height + 20 * s), new Color(1f, 0.85f, 0.5f, 0.15f + 0.15f * glow));
         }
         OrnateUi.DrawPanel(p, 0.95f);
-        GUI.Label(new Rect(p.x + 20 * s, p.y + 14 * s, p.width - 40 * s, 46 * s), n.title, titleSt);
-        GUI.Label(new Rect(p.x + 28 * s, p.y + 62 * s, p.width - 56 * s, p.height - 140 * s), n.body, bodySt);
-        if (queue.Count > 0) GUI.Label(new Rect(p.x, p.yMax - 96 * s, p.width, 22 * s), $"({queue.Count + 1}件のお知らせ)", UiKit.Label(15 * s, TextAnchor.MiddleCenter, false, new Color(1f, 1f, 1f, 0.6f)));
+        LocGUI.Label(new Rect(p.x + 20 * s, p.y + 14 * s, p.width - 40 * s, 46 * s), n.title, titleSt);
+        LocGUI.Label(new Rect(p.x + 28 * s, p.y + 62 * s, p.width - 56 * s, p.height - 140 * s), n.body, bodySt);
+        if (queue.Count > 0) LocGUI.Label(new Rect(p.x, p.yMax - 96 * s, p.width, 22 * s), $"({queue.Count + 1}件のお知らせ)", UiKit.Label(15 * s, TextAnchor.MiddleCenter, false, new Color(1f, 1f, 1f, 0.6f)));
         int pl = PadNav.BeginLayer(70);
         if (UiKit.Button(new Rect(p.center.x - 130 * s, p.yMax - 70 * s, 260 * s, 54 * s), "OK", 24 * s, true)) Acknowledge();
         PadNav.EndLayer(pl);

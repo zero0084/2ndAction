@@ -1,0 +1,531 @@
+531	Build: Wind
+532	Build: Boss
+533	Build: EXP
+534	Build: MILE
+535	Dużo Challenge
+536	Wszystkie dodatkowe ataki (test obciążenia)
+537	Zwykła mieszanka
+538	Build: Attack
+539	Skrajne Risk (kosztem HP)
+540	KONTRA EGIDY
+541	OVERDRIVE
+542	Mały dodatkowy VFX przy trafieniu
+543	Wzmocnione powidoki przy dużej prędkości
+544	Blood Aura przy leczeniu
+545	Wzmocniony efekt odrodzenia / mały dodatkowy bonus
+546	Unikalny VFX przy aktywacji
+547	Finałowy efekt ciosu specjalnego/unikalna aura/efekt BUFF/kończący VFX (bez zwiększania obrażeń)
+548	POSZUKIWANY! Pojawił się cel z nagrodą
+549	NAGRODA!
+550	COMBO!
+551	przez {0} s
+552	przez następne {0}m
+553	FINAL EVOLUTION: ODRODZENIE
+554	OSTATNIA SZANSA
+555	DRUGI ODDECH
+556	FENIKS
+557	Uderzył ogonem i zastygł! Atakuj!
+558	Oczy osłabły! Głowa to słaby punkt!
+559	Głowa opadła! Długa szansa na kontrę!
+560	Skacz!
+561	Zejdź niżej!
+562	Brak many! Długa szansa na atak!
+563	Przewrócił się! Wielka szansa!
+564	Ogon utknął w ziemi! Atakuj!
+565	Kręci mu się w głowie! Atakuj!
+566	Maczuga utknęła! Atakuj!
+567	Głowa została na ziemi! Atakuj!
+568	Rdzeń odsłonięty! Łatwo o BREAK!
+569	Uderzył w ziemię! Atakuj!
+570	Karty ▶
+571	<color=#FFD866><b>Karty postaci</b></color>
+572	<color=#8890A0>(puste)</color>
+573	ZABLOKOWANE
+574	Warunek odblokowania:
+575	[Gł.]
+576	[Dod.]
+577	Szybkość ruchu
+578	Atak
+579	Siła skoku
+580	Liczba skoków
+581	Maks. HP
+582	Zasięg ataku
+583	Szybkość ataku
+584	Atak powietrzny
+585	Shield
+586	Zdobywany EXP
+587	Szansa wchłaniania
+588	Ilość wchłaniania
+589	Pojawianie się wrogów
+590	Atak na ziemi
+591	Siła ciosu kończącego
+592	Siła pierwszego ciosu
+593	Atak przy niskim HP
+594	Atak przy pełnym HP
+595	Atak przy przyspieszeniu
+596	Atak na bossów
+597	HP wrogów
+598	HP bossów
+599	Zdobywane MILE
+600	MILE za bossów
+601	Szansa podpalenia (Burn)
+602	Siła podpalenia
+603	Czas podpalenia
+604	Szansa wychłodzenia (Chill)
+605	Spowolnienie wychłodzenia
+606	Czas wychłodzenia
+607	Kumulacja do zamrożenia
+608	Czas zamrożenia
+609	Szansa pioruna
+610	Siła pioruna
+611	Cele łańcucha
+612	Zasięg łańcucha
+613	Szansa ostrza wiatru
+614	Siła ostrza wiatru
+615	Przebicia
+616	Zasięg ostrza wiatru
+617	Szansa krwawienia (Bleed)
+618	Siła krwawienia
+619	Czas krwawienia
+620	Wchłanianie z krwawienia
+621	Silniejsze krwawienie przy niskim HP
+622	Szybkość głównego ataku
+623	Efektywny zasięg ataku
+624	Maks. HP (serca)
+625	Pieczętowane serca
+626	Atak powietrzny
+627	Atak na ziemi
+628	Pierwszy cios
+629	Środek serii
+630	Cios kończący
+631	Atak na bossów
+632	Atak na zwykłych wrogów
+633	Atak na wrogów w powietrzu
+634	Atak w dół/uderzenie w ziemię
+635	Atak przy pełnym HP
+636	Atak przy HP 50% lub mniej
+637	Atak przy HP 25% lub mniej
+638	Szybkość ataku przy niskim HP
+639	Szansa wchłaniania przy HP 25% lub mniej
+640	Atak za każdą pieczęć
+641	Atak za każde trafienie
+642	Atak za trafienie w powietrzu
+643	Atak przy 150km/h
+644	Atak w OVERDRIVE
+645	Szybkość ataku w OVERDRIVE
+646	Maks. liczba Shield
+647	Odnowienie Shield (s krócej)
+648	Leczenie (serca)
+649	Szansa dodatkowego ataku
+650	Nietykalność po trafieniu (s)
+651	Mniejszy odrzut
+652	Szybkość działań wrogów
+653	Szansa na elitę
+654	MILE ze skarbów/nagród
+655	MILE za dystans
+656	EXP za dystans
+657	EXP za pokonanie
+658	Liczba do zamrożenia
+659	Siła błyskawic
+660	Unieruchomienie piorunem (s)
+661	Obszar pioruna (m)
+662	Prędkość ostrza wiatru
+663	Lv efektu
+664	W użyciu: nie można zamienić
+665	Posiadane x{0}
+666	Dotknij karty, aby zobaczyć szczegóły
+667	[Karta innej postaci]
+668	Ta karta jest w użyciu. Zdejmij ją przed użyciem.
+669	Zamienić na {CardConvertMile} MILE?
+670	Zmienić obecną talię
+671	na polecany zestaw?
+672	Zdjąć wszystkie karty
+673	z talii?
+674	Smok zniżył lot! Szansa na kontrę!
+675	Ostatnia faza!
+676	BREAK!
+677	SMOCZY ŁADUNEK OGNIA
+678	Gigantyczna kula ognia czyśćca
+679	Ogień {0}% {1}/s {2}s
+680	Lód {0}% -{1}% {2}s zamrożenie {3}x/{4}s
+681	ZERO ABSOLUTNE Lv{0}
+682	Piorun {0}% {1} łańcuch {2} obszar {3}m stop {4}s
+683	Wiatr {0}% {1} przebicie +{2} {3}m
+684	Krew {0}%{1}
+685	NOWA KARTA
+686	DUPLIKAT
+687	(już AWAKENED · zachowana)
+688	→ fuzja daje MASTERY +1
+689	Dotknij, by przejść dalej (zostało {0})
+690	Dotknij, by zamknąć / dotknij gachy, by losować dalej
+691	DALEJ
+692	OK
+693	Za mało MILE
+694	Pauza ― rozejrzyj się przed wznowieniem
+695	Wznów, gdy będziesz gotów
+696	GO!
+697	NOWE ODBLOKOWANIE:
+698	GOTOWE
+699	PRĘDKOŚĆ
+700	PRZYSPIESZENIE!
+701	Została tylko pauza oczekiwania na wybór
+702	Została tylko pauza z menu pauzy
+703	Spowolnienie przy wejściu bossa trwało za długo
+704	Zostało tylko spowolnienie przy wejściu bossa
+705	NAGRODA ZA BOSSA
+706	NOWY POZIOM
+707	Czekano na wybór bez ekranu wyboru → pokazano ponownie ({0}, raz {1}., ok={2})
+708	Czekano na wybór, ale ekran się nie otwiera → rozwiązano bez wyboru ({0})
+709	Ekrany wyboru kolidowały → zamknięto i pokazano {0} ponownie
+710	BEST
+711	DYSTANS
+712	II
+713	KROK:
+714	NOWY BIEG
+715	GRA UKOŃCZONA
+716	PORAŻKA
+717	CZAS
+718	POKONANI WROGOWIE
+719	POKONANI BOSSOWIE
+720	BONUS
+721	BONUS ZONE
+722	BONUS ZA PIERŚCIENIE
+723	EXP ŁĄCZNIE
+724	ZDOBYTE ULEPSZENIA
+725	MILE ŁĄCZNIE
+726	WROGOWIE / BOSSOWIE
+727	EXP ŁĄCZNIE / ULEPSZENIA
+728	Tracisz: MILE z tego biegu {0}
+729	Zostaje: rekord BEST dystansu (nowy!) · łączny przebyty dystans
+730	Zostaje: rekord BEST dystansu · łączny przebyty dystans
+731	Posiadane karty · MILE (PORTFEL {0})
+732	HP
+733	Pieczęcie {0}
+734	Shield {0}
+735	MAX
+736	Fuzja Lv.{0}  zdolności: {1}
+737	Tylko prędkość x{0} (odstępy bez zmian)
+738	ASYSTA ON
+739	ASYSTA OFF
+740	Ostatnio: {0} ({1})
+741	Niemożliwe: {0}
+742	Przeszkody: {0} zniszcz {1}/skocz {2}/niemożliwe {3}
+743	{0} próg {1}km/h (ON≧{2}/OFF<{3}){4}{5}
+744	Tło: {0}
+745	[Podgląd]
+746	Wczytano {0} {1}MB
+747	Tło◀
+748	Tło▶
+749	Przejście
+750	Normalnie
+751	Do granicy
+752	Ustawienia
+753	Arena
+754	Arena (ZABLOK.)
+755	Arena nie jest jeszcze odblokowana
+756	Warunek odblokowania: {0}
+757	DEBUG
+758	Obecny bieg i niepotwierdzone MILE
+759	zostaną odrzucone. Na pewno?
+760	Odrzuć i NOWY BIEG
+761	Anuluj
+762	WZNÓW
+763	WRÓĆ DO MENU
+764	Wracasz do menu głównego.
+765	Bieg się nie kończy: możesz
+766	kontynuować stąd przez CONTINUE.
+767	Ta karta jest używana gdzie indziej
+768	{0} razem z innymi kartami postaci przekroczy Lv{1}, więc nie można jej założyć (nadwyżka by nie działała)
+769	Uwaga: {0} razem z innymi kartami postaci przekracza Lv{1} (nadwyżka {2} Lv nie działa)
+770	NAWAŁA BOSSÓW  Walcz w biegu! WARNING nadciąga! Pokonaj pozostałych bossów! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+771	POZA
+772	Trzy Siostry Żniwiarki
+773	Trzy Siostry
+774	ONE MORE MILE?
+775	Wściekłość!
+776	NIEBIAŃSKI ATAK MAGICZNY
+777	Demon zastygł! Atakuj!
+778	INNA WERSJA
+779	W TOKU
+780	PEŁNY
+781	OTWARTY
+782	BOSS:
+783	HOST
+784	JOIN
+785	BOSS
+786	CEL
+787	OSTATNI CIOS W BOSSA:
+788	ZABÓJSTWO:
+789	Graj na urządzeniach w tej samej sieci Wi-Fi lub hotspocie telefonu (maks.
+790	graczy).
+791	ONLINE (wkrótce)
+792	ZAAWANSOWANE (ręczne IP · dev)
+793	Zamknij
+794	Multi {0}/{1}
+795	Multi
+796	Wybierz tryb
+797	Upadek = DOWN. Sojusznik (HP 2+), który dotrze na miejsce, oddaje 1 HP i cię wskrzesza. Wszyscy DOWN = koniec.
+798	Upadek = odpadasz (bez wskrzeszania). Gra trwa do ostatniego gracza; o miejscu decyduje osiągnięty dystans.
+799	CO-OP
+800	VERSUS
+801	Tworzy pokój na tym urządzeniu. Pojawi się w "FIND GAME" na pobliskich urządzeniach.
+802	Szuka pobliskich pokoi, by dołączyć (bez wpisywania IP).
+803	Pobliskie pokoje (wybrano {0}. Gra w trybie HOSTA)
+804	BŁĄD POŁĄCZENIA
+805	Nie udało się połączyć. Sprawdź, czy to ta sama sieć Wi-Fi, i spróbuj ponownie
+806	BŁĄD POŁĄCZENIA:
+807	Łączenie… {0}
+808	Szukanie gier lokalnych…
+809	Nie znaleziono gier
+810	Na urządzeniu HOST naciśnij "CREATE GAME" i połącz się z tą samą siecią Wi-Fi (hotspotem).
+811	Szukaj ponownie
+812	Bieżący pokój
+813	TRYB: {0} (decyduje HOST)
+814	TRYB: decyduje HOST (ustawi się przy starcie biegu)
+815	Widoczny w "FIND GAME" na pobliskich urządzeniach
+816	Gdy wszyscy są: "Zamknij" → drzwi → "Wyrusz" w wyborze mapy, a wszyscy wystartują razem na tej samej mapie.
+817	Start nastąpi automatycznie, gdy HOST wyruszy. Poczekaj.
+818	Zamknij pokój
+819	Wyjdź
+820	Zamknij (pokój zostaje)
+821	ZAAWANSOWANE: połącz przez IP (dev)
+822	Połącz się z tą samą siecią Wi-Fi lub hotspotem telefonu (maks. {0} graczy).
+823	(niedostępne - sprawdź w ustawieniach Wi-Fi urządzenia)
+824	IP tego urządzenia:
+825	Stan:
+826	CO-OP: upadek = DOWN. Sojusznik (HP 2+), który dotrze na miejsce, oddaje 1 HP i cię wskrzesza. Wszyscy DOWN = koniec.
+827	VERSUS: upadek = odpadasz (bez wskrzeszania). Gra trwa do ostatniego gracza; o miejscu decyduje osiągnięty dystans.
+828	TRYB: wybiera HOST (ustawi się przy starcie biegu)
+829	Port
+830	HOST (utwórz pokój tutaj)
+831	JOIN: wpisz IP widoczne na urządzeniu HOST
+832	Połączeni gracze {0}/{1}
+833	Drzwi → "Wyrusz" w wyborze mapy, a wszyscy połączeni wystartują razem na tej samej mapie.
+834	Zamknij pokój (zakończ HOST)
+835	Rozłącz
+836	MULTI: rozłączono
+837	UI:
+838	Wróć do menu
+839	Biegnij dalej
+840	WYNIK VERSUS
+841	WYNIK CO-OP
+842	Czekamy, aż HOST wyruszy
+843	Niektórzy gracze wciąż biegną
+844	HOST: czekamy na graczy
+845	Błąd inicjalizacji
+846	Kończenie poprzedniego połączenia. Poczekaj chwilę i spróbuj ponownie
+847	Nie udało się uruchomić HOST (port może być zajęty)
+848	Nieprawidłowy format IP (np. 192.168.1.23)
+849	Łączenie… {0}:{1}
+850	Nie udało się uruchomić JOIN
+851	HOST: połączono {0}/{1}
+852	JOIN: połączono {0}
+853	UTRACONO POŁĄCZENIE MULTI
+854	Gracz
+855	rozłączył się
+856	Utracono połączenie z HOST
+857	Połączenie odrzucone:
+858	POKÓJ PEŁNY
+859	BIEG W TOKU
+860	Nie udało się połączyć z HOST
+861	Wystąpił błąd komunikacji
+862	OMM-NET-
+863	PS5
+864	UCIECZKA
+865	Dotknij ponownie, by potwierdzić
+866	Dotknij karty, by ją wybrać
+867	AWAKENED
+868	FINAL EVOLUTION
+869	ZAŁOŻONA
+870	NOWA
+871	Siła Lv{d.level:0.0}{(d.def.risk ?
+872	COMBO
+873	Postać
+874	Talia
+875	Dotrzyj do {1}m na mapie {0}
+876	Rekord {0}m / {1}m
+877	Koniec gry przy 1,000m lub mniej na dowolnej mapie
+878	ODBLOKOWANO:
+879	NOWA POSTAĆ:
+880	Wejście przez "Arena" w menu głównym.
+881	Możesz wyruszyć z wyboru mapy.
+882	Odblokowano: {0}
+883	{0} dołącza do drużyny
+884	Do wyboru na ekranie wyboru postaci.
+885	Dla ciebie, który nigdy nie przestał biec.
+886	Otworzyła się ostatnia droga.
+887	Dźwięk
+888	(dźwięk niedostępny)
+889	Ogólna
+890	Muzyka
+891	Efekty
+892	Otoczenie
+893	Język / Language
+894	Język
+895	Wyświetlanie w wybranym języku
+896	Zgodnie z językiem urządzenia
+897	Ekran
+898	Orientacja
+899	Pozioma
+900	Pionowa
+901	Wstrząsy ekranu
+902	Efekty świetlne
+903	※Ostrzeżenia o atakach wrogów i oznaczenia potrzebne do gry nie słabną
+904	Sterowanie
+905	(automatyczna asysta niedostępna)
+906	Asysta przy dużej prędkości
+907	Prędkość aktywacji asysty
+908	Powyżej tej prędkości skoki nad dziurami/przeszkodami/wrogami
+909	i ataki są wspomagane automatycznie (twoje sterowanie ma pierwszeństwo)
+910	Jak grać
+911	Ćwicz sterowanie
+912	Ćwicz ataki w przód/tył, skok, atak w dół, wybicie i karty (bez nagród)
+913	Trening uruchomisz w menu głównym (nie w trakcie biegu/multi)
+914	Wielka dłoń została na platformie! Wielka szansa!
+915	Rdzeń pociemniał! Łatwo o BREAK!
+916	Głowa jest blisko! Atakuj!
+917	Stracił równowagę! Szansa na kontrę!
+918	Odbudowa nieudana! Rdzeń odsłonięty!
+919	Płomienie osłabły! Atakuj!
+920	Głowa wyłoniła się nisko z chmur! Atakuj!
+921	Aureola zgasła! Długa szansa na kontrę!
+922	Ładunek elektryczny zniknął! Wielka szansa na kontrę!
+923	Szybki start… ({0})
+924	Szybki start…
+925	Szybki start  {0}
+926	Przemknij przez pokonane już odcinki i zacznij tuż przed wybraną bramą. Karty z nagród za bossów po drodze zdobywasz automatycznie. Przelatując przez pierścienie co 5,000m, wybierasz 1 dodatkową kartę.
+927	Szybki bieg do {0}km   (ok. {1} s + pierścienie){2}
+928	(dev: pełne odblokowanie DEBUG ON)
+929	Nieobsługiwany dystans
+930	DEBUG pełne odblokowanie
+931	Nie osiągnięto {0}km (rekord {1}km)
+932	Strażnik {0}km niepokonany
+933	Szybki bieg wznowiony!
+934	PIERŚCIEŃ!  Brak kart do zdobycia
+935	Pierścień ominięty
+936	KARTA BONUSOWA
+937	PIERŚCIEŃ!
+938	Brak kart do zdobycia
+939	Wszystkie karty w talii mają Lv9.
+940	Od teraz pierścienie dają MILE
+941	Krzyżak / gałka w górę i w dół (A = góra / B = dół)
+942	Klawisze ↑↓ / W・S
+943	Przesuń w górę/dół / ▲▼ w prawym dolnym rogu
+944	Szybki start  →  tuż przed bramą na {0}m
+945	Automatyczne nagrody za bossów {0}/{1}   Pierścienie {2}/{3}{4}
+946	Wszystkie karty w talii Lv{0} MAX
+947	Pierścienie dają +{0} MILE
+948	Brak kart do zdobycia (×{0})
+949	{0}, by dopasować wysokość i przelecieć przez pierścień (ominięcie nic nie kosztuje)
+950	Góra/dół: ruch / pierścień = +MILE
+951	Góra/dół: ruch / pierścień = dodatkowa karta
+952	Wszystkie karty w talii mają Lv9. Pierścienie dają MILE
+953	Przytrzymaj klawisz H (lub przycisk myszy) przez 3 s
+954	Przytrzymaj przycisk BACK przez 3 s
+955	Przytrzymaj ekran przez 3 s
+956	Dla początkujących
+957	Najpierw możesz poćwiczyć sterowanie (2–3 min, bez limitu czasu).
+958	Trening nie daje nagród ani rekordów.
+959	Trenować możesz zawsze w "Jak grać" w ustawieniach.
+960	Możesz już uciec
+961	{0}, by uciec
+962	i zabrać MILE zebrane w tym biegu.
+963	Jeśli padniesz, stracisz MILE z tego biegu.
+964	(rekord BEST dystansu zostaje)
+965	Możesz też biec dalej. Uciec czy nie — twój wybór.
+966	MILE zabrane do domu!
+967	MILE wydasz na gachę w menu głównym (1 losowanie = {0} MILE).
+968	Wylosowane karty dodaj do talii, by wzmocnić następny bieg.
+969	Zacznij od razu
+970	Rozumiem
+971	(powiadomienia: {0})
+972	Talia uporządkowana
+973	Zdjęto z talii {1} kart ponad limit ({0}).
+974	Karty zostały w kolekcji. Zamień je w edycji talii.
+975	Talia ma teraz 12 kart
+976	Wkrótce
+977	Przesuń w prawo (przód)
+978	Klawisze → / D / Z
+979	Przycisk X (prawa gałka →)
+980	Przesuń w lewo (tył)
+981	Klawisze ← / A / X
+982	Przycisk Y (prawa gałka ←)
+983	Przesuń w górę
+984	Klawisze ↑ / W / Spacja
+985	Przycisk A (prawa gałka ↑)
+986	Przesuń w dół
+987	Klawisze ↓ / S
+988	Przycisk B (prawa gałka ↓)
+989	Skok
+990	Atak w dół
+991	Wybicie → atak w powietrzu
+992	Wybierz kartę
+993	Koniec treningu
+994	Postać biegnie sama.
+995	Przesuń w przód lub w tył, by zaatakować w tym kierunku.
+996	Przód: {0}
+997	Tył: {0}
+998	Przesuń w górę, by skoczyć.
+999	W powietrzu przesuń ponownie w górę, by wykonać podwójny skok.
+1000	Skok: {0}
+1001	Podczas skoku przesuń w dół, by spaść pionowo z atakiem.
+1002	Używaj, gdy pod tobą jest stabilny grunt.
+1003	Atak w dół: {0}
+1004	Skocz blisko wroga, by wybić go w górę atakiem.
+1005	Wybitych wrogów możesz dobijać atakami w powietrzu.
+1006	(Jeśli to za trudne, możesz pominąć.)
+1007	Podczas biegu awansujesz i wybierasz 1 z 3 kart.
+1008	Wybrane wzmocnienie działa tylko do końca biegu.
+1009	To trening, więc efekt działa tylko w nim.
+1010	To już wszystkie podstawy sterowania.
+1011	Na początek dotrzyj do bossa na 1,000m!
+1012	Atak w przód [{0}]   Atak w tył [{1}]
+1013	Skok [{0}]   Podwójny skok [{1}]
+1014	W trakcie skoku jeszcze raz w górę
+1015	Skocz, potem w dół [{0}]
+1016	Najpierw skocz (góra) → w powietrzu w dół
+1017	Wybij [{0}]   Atak w powietrzu [{1}]
+1018	Skocz tuż przed wrogiem
+1019	W skoku zaatakuj w przód wybitego wroga
+1020	Wybierz 1 kartę
+1021	Przerwij trening
+1022	Wyrusz
+1023	Wróć do menu
+1024	Trenuj ponownie
+1025	Spróbuj
+1026	Pomiń
+1027	Wybierz
+1028	OK!
+1029	Niedostępne w multi
+1030	Aktywne
+1031	Teraz niedostępne
+1032	Wejście bossa
+1033	Trafiony
+1034	W BONUS
+1035	ULTIMATE
+1036	MULTI×
+1037	Czarny Błysk
+1038	Burza Sakury: Cięcie Róży
+1039	Podwójny Taniec
+1040	Ogień Pełnego Zasięgu
+1041	Smokobójcze Pchnięcie
+1042	Najwyższa Magia: Punkt Zero
+1043	Deszczowy Szlak
+1044	Grad Ciosów
+1045	Szybkie Klony Cienia
+1046	Przegrzanie
+1047	Koniec
+1048	Bariera Bombardowania
+1049	Brak kartAktywneWybórWejście bossaTeraz niedostępneTrafionyW BONUSPrzygotowanie
+1050	Potrójny Ślizg Burzy
+1051	Atak Trzech Głów
+1052	Szansa!
+1053	Krąg Piekielnych Filarów
+1054	Potrójny Błysk Czarnego Ostrza
+1055	Szarża Konna
+1056	Wielki Wąż Rozłupujący Ziemię
+1057	Wielka Maczuga Kruszycielka Niebios
+1058	Taniec Śmierci Ośmiu Nóg
+1059	Wichrowa Szarża
+1060	Gniew Ziemi
+1061	Rdzeń odsłonięty!

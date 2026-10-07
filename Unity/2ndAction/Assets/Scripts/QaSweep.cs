@@ -84,6 +84,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaGacha") { mode = "gacha"; dir = a[i + 1]; }
             if (a[i] == "-qaDeck") { mode = "deck"; dir = a[i + 1]; }
             if (a[i] == "-qaUnlock") { mode = "unlock"; dir = a[i + 1]; }
+            if (a[i] == "-qaLoc") { mode = "loc"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -184,6 +185,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "gacha") yield return GachaModeQa();
         else if (mode == "deck") yield return DeckModeQa();
         else if (mode == "unlock") yield return UnlockModeQa();
+        else if (mode == "loc") yield return LocModeQa();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

@@ -1,0 +1,1062 @@
+0	card	card:absolute_zero	ABSOLUTE ZERO
+1	card	card:absolute_zero	凍結した雑魚が砕けてダメージ、冷えた/凍った敵への攻撃が上がる(1Lvごとに+3%)。ボスは凍結の代わりの減速が強くなる
+2	card	card:adrenaline	ADRENALINE
+3	card	card:adrenaline	HP50%以下で攻撃速度が上がり(1Lvごとに+3%)、HP25%以下ではその2倍
+4	card	card:aerial_blade	AERIAL BLADE
+5	card	card:aerial_blade	空中で敵に当てると、追い斬りの斬撃が出る(Lvで威力と範囲が上がる)
+6	card	card:air_attack_up	AIR ATTACK UP
+7	card	card:air_attack_up	空中での攻撃力が上がる(1Lvごとに+7%)
+8	card	card:air_dominion	AIR DOMINION
+9	card	card:air_dominion	空中攻撃が上がり(1Lvごとに+3%)、着地せずに当て続けるほどさらに上がる(1回ごとに+1%/Lv、4回まで)
+10	card	card:air_strike	AIR STRIKE
+11	card	card:air_strike	空中の敵(打ち上げた敵/飛ぶ敵/空のボス)への攻撃が上がる(1Lvごとに+8%)
+12	card	card:attack_range_up	ATTACK RANGE UP
+13	card	card:attack_range_up	実効攻撃範囲が広がる(1Lvごとに+3%)。近接は判定、飛び道具は飛ぶ距離(弾は大きくならない)
+14	card	card:attack_speed_up	ATTACK SPEED UP
+15	card	card:attack_speed_up	攻撃速度が上がる(1Lvごとに+3%)
+16	card	card:attack_up	ATTACK UP
+17	card	card:attack_up	攻撃力が上がる(1Lvごとに+5%)
+18	card	card:berserk_drive	BERSERK DRIVE
+19	card	card:berserk_drive	HP50%以下で攻撃力(1Lvごとに+5%)と攻撃速度(+2%)、HP25%以下でさらに両方が上がる
+20	card	card:berserker	BERSERKER
+21	card	card:berserker	攻撃力(1Lvごとに+6%)と攻撃速度(+1%)が上がる。最大HPのハートを3Lvごとに1つ封印する
+22	card	card:blood_blade	BLOOD BLADE
+23	card	card:blood_blade	攻撃が出血を起こす(確率と威力がLvで上がる)。HPが満タンの間は出血の確率が2倍。満HPの攻撃も少し上がる(+2%/Lv)
+24	card	card:blood_rush	BLOOD RUSH
+25	card	card:blood_rush	HP50%以下で攻撃力が上がり(1Lvごとに+4%)、HP25%以下では吸収の確率も上がる(+3%/Lv)
+26	card	card:boss_challenge	BOSS CHALLENGE
+27	card	card:boss_challenge	ボスのHPが上がる(1Lvごとに+10%)代わりに、ボスMILEが増える(+40%/Lv)
+28	card	card:boss_killer	BOSS KILLER
+29	card	card:boss_killer	ボスへの攻撃力が上がる(1Lvごとに+8%)
+30	card	card:boss_rush	BOSS RUSH
+31	card	card:boss_rush	ボスの関門で、確率(1Lvごとに+8%)でボスがもう1体加わる。ボスMILEが増える(+50%/Lv)
+32	card	card:brake_attack	BRAKE ATTACK
+33	card	card:brake_attack	攻撃力が上がる(1Lvごとに+7%)。主攻撃の直後に少し減速する
+34	card	card:burning_soul	BURNING SOUL
+35	card	card:burning_soul	炎上が強く(1Lvごとに+8%)、長く(+0.25秒/Lv)なる。少しだけ自分でも炎上させる
+36	card	card:chain_explosion	CHAIN EXPLOSION
+37	card	card:chain_explosion	敵を倒すと爆発する。爆発で倒れた敵からも爆発が続く(3回まで、同じ連鎖で同じ敵へは1回)
+38	card	card:chain_lightning	CHAIN LIGHTNING
+39	card	card:chain_lightning	落雷が近くの別の敵へ連鎖する(3Lvごとに+1体、届く距離もLvで伸びる)。少しだけ自分でも落雷を起こす
+40	card	card:character_ultimate	Gaugeが100%で発動(左下のボタン)。キャラ固有の必殺技で画面内の敵を攻撃しながら大きく前進し(Lv1 約100m → Lv9 約200m)、しばらく強化が続く(Lv1 5秒 → Lv9 12秒)。Gaugeは距離・撃破・ボスへのダメージで溜まる
+41	card	card:close_call	CLOSE CALL
+42	card	card:close_call	移動速度(1Lvごとに+2%)と、被弾した後の無敵時間(1Lvごとに+0.05秒)が上がる
+43	card	card:combo_edge	COMBO EDGE
+44	card	card:combo_edge	連続ヒット(HIT数)が続くほど攻撃力が上がる(1ヒットごとに+0.4%/Lv、10ヒットまで)
+45	card	card:combo_master	COMBO MASTER
+46	card	card:combo_master	締めの一撃で、前方へ特殊な衝撃が出る(Lvで威力と範囲が上がる)
+47	card	card:combo_plus	COMBO PLUS
+48	card	card:combo_plus	攻撃の流れの最後の一撃(締め)が強くなる(1Lvごとに+7%)
+49	card	card:combo_rush	COMBO RUSH
+50	card	card:combo_rush	連撃の途中の攻撃が強くなり(1Lvごとに+6%)、主攻撃の攻撃速度も少し上がる(+2%/Lv)
+51	card	card:counter	COUNTER
+52	card	card:counter	Shieldで防いだ時、まわりへ反撃の衝撃(Lvで威力が上がる)。Shieldを持っていなくても1つ持てる
+53	card	card:deaths_contract	DEATH'S CONTRACT
+54	card	card:deaths_contract	攻撃力がとても大きく上がる(1Lvごとに+12%)。最大HPのハートを2Lvごとに1つ封印する
+55	card	card:double_attack	DOUBLE ATTACK
+56	card	card:double_attack	攻撃したとき、確率(1Lvごとに+3%)で追加の1撃が出る。追加の1撃からは出ない
+57	card	card:elite_enemies	ELITE ENEMIES
+58	card	card:elite_enemies	雑魚の一部が精鋭になる(1Lvごとに+4%。HP\xD72.5・少し速い、倒すとMILE\xD73/経験値\xD72)。MILEも増える(+30%/Lv)
+59	card	card:executioner	EXECUTIONER
+60	card	card:executioner	敵撃破で得られるMILEが増える(1Lvごとに+15%)
+61	card	card:exp_converter	EXP CONVERTER
+62	card	card:exp_converter	経験値が減る(1Lvごとに-10%、最低25%)代わりに、敵撃破のMILEが増える(+30%/Lv)
+63	card	card:exp_up	EXP UP
+64	card	card:exp_up	得られる経験値が増える(1Lvごとに+20%)
+65	card	card:experience_burst	EXPERIENCE BURST
+66	card	card:experience_burst	敵/ボス/BONUS ZONE の経験値が大きく増える(1Lvごとに+80%)
+67	card	card:fast_enemies	FAST ENEMIES
+68	card	card:fast_enemies	雑魚の動き・追尾・攻撃が速くなる(1Lvごとに+4%)代わりに、MILE(+15%/Lv)と撃破の経験値(+5%/Lv)が増える
+69	card	card:first_strike	FIRST STRIKE
+70	card	card:first_strike	攻撃の流れの1撃目(初撃)が強くなる(1Lvごとに+10%)
+71	card	card:flame_blade	FLAME BLADE
+72	card	card:flame_blade	炎の入口。命中で敵が炎上する(確率 15%+5%/Lv、1秒あたり 5+1.5/Lv のダメージ、3秒)
+73	card	card:flame_counter	FLAME COUNTER
+74	card	card:flame_counter	Shieldで防いだ時、まわりへ炎の反撃(Lvで威力が上がる)、当たった敵は炎上する。Shieldを持っていなくても1つ持てる
+75	card	card:fortress	FORTRESS
+76	card	card:fortress	最大HPが増え(1Lvごとにハート+1)、被弾ののけぞりが減る(+5%/Lv)が、移動速度が下がる(1Lvごとに-3%)
+77	card	card:frost_edge	FROST EDGE
+78	card	card:frost_edge	氷の入口。命中で敵が冷える(確率 15%+5%/Lv、動きが 25%+2%/Lv 遅く)。冷えが重なると凍結(ボスは止まらず強い減速)
+79	card	card:gale	GALE
+80	card	card:gale	風刃が速く(1Lvごとに+5%)、遠くへ(+0.4m/Lv)、多くの敵を貫く(3Lvごとに+1)。飛び道具の貫通も増える
+81	card	card:giant_slayer	GIANT SLAYER
+82	card	card:giant_slayer	攻撃力が大きく上がる(1Lvごとに+9%)が、攻撃速度が下がる(1Lvごとに-3%)
+83	card	card:glass_cannon	GLASS CANNON
+84	card	card:glass_cannon	攻撃力が大きく上がる(1Lvごとに+9%)。最大HPのハートを2Lvごとに1つ封印する
+85	card	card:greed	GREED
+86	card	card:greed	移動速度が上がる(1Lvごとに+4%)が、敵の出現が増える(+8%/Lv)
+87	card	card:ground_breaker	GROUND BREAKER
+88	card	card:ground_breaker	叩きつけの着地と地上の締めで、地面を走る衝撃波が出る(Lvで威力と長さが上がる)。地上攻撃も少し上がる(+2%/Lv)
+89	card	card:ground_fighter	GROUND FIGHTER
+90	card	card:ground_fighter	地上での攻撃力が上がる(1Lvごとに+7%)
+91	card	card:ground_zero	GROUND ZERO
+92	card	card:ground_zero	地上での攻撃力が大きく上がる(1Lvごとに+11%)が、空中では下がる(1Lvごとに-5%)
+93	card	card:heart_breaker	HEART BREAKER
+94	card	card:heart_breaker	攻撃力が上がり(1Lvごとに+4%)、封印したハート1つごとにさらに攻撃+0.6%/Lv。最大HPのハートを3Lvごとに1つ封印する
+95	card	card:heart_up	HEART UP
+96	card	card:heart_up	最大HPが増え(1Lvごとにハート+1、最大ハート20)、HPが回復する
+97	card	card:heavy_armor	HEAVY ARMOR
+98	card	card:heavy_armor	強い一撃(ハート2つ以上)をハート1つ軽くする。最大HPも増える(2Lvごとにハート+1)が、ジャンプ力が下がる(1Lvごとに-3%)
+99	card	card:heavy_impact	HEAVY IMPACT
+100	card	card:heavy_impact	下攻撃/叩きつけ/着地の衝撃が強くなる(1Lvごとに+10%)。締めの一撃も少し上がる(+3%/Lv)
+101	card	card:hell_mode	HELL MODE
+102	card	card:hell_mode	雑魚のHP(+12%/Lv)・動き(+4%/Lv)・出現(+8%/Lv)が上がる代わりに、MILE(+50%/Lv)とボスMILE(+30%/Lv)が大きく増える
+103	card	card:high_voltage	HIGH VOLTAGE
+104	card	card:high_voltage	雷が強くなる(1Lvごとに+5%)。落雷は雑魚を一瞬止める。落雷の確率も少し上がる(+1%/Lv)
+105	card	card:horde	HORDE
+106	card	card:horde	敵の出現が大きく増える(1Lvごとに+15%)代わりに、MILE(+5%/Lv)と撃破の経験値(+5%/Lv)が増える
+107	card	card:hunter	HUNTER
+108	card	card:hunter	ボス戦で動きやすくなる。攻撃の前進/後退が伸び(1Lvごとに+4%)、遠いボスへ近づく速さも上がる(+3%/Lv)
+109	card	card:ice_prison	ICE PRISON
+110	card	card:ice_prison	凍結しやすくなる(必要な冷えの回数が3Lvごとに-1)。冷えの確率と時間も上がる
+111	card	card:inferno	INFERNO
+112	card	card:inferno	燃えている敵を倒すと、まわりへ炎が広がり炎上させる(Lvで威力と範囲が上がる)。少しだけ自分でも炎上させる
+113	card	card:iron_will	IRON WILL
+114	card	card:iron_will	HPが満タンの間、攻撃力が上がる(1Lvごとに+5%)。最大HPも増える(3Lvごとにハート+1)
+115	card	card:jump_count_up	JUMP COUNT UP
+116	card	card:jump_count_up	空中ジャンプが増える(1Lvごとに+1回)。続けて跳ぶほど少し弱くなるが、穴に落ちた時は弱くならない。魔法使いは上がれる高さが3Lvごとに1段増える
+117	card	card:jump_power_up	JUMP POWER UP
+118	card	card:jump_power_up	ジャンプ力が上がる(1Lvごとに+3%)。魔法使いは高度の上下が速くなる
+119	card	card:last_chance	HPがハート1つになった瞬間、短い無敵になる(1秒+1Lvごとに0.15秒)。HPが回復してしばらくたつまで次は出ない
+120	card	card:last_stand	LAST STAND
+121	card	card:last_stand	HP50%以下で攻撃力が上がり(1Lvごとに+4%)、HP25%以下でさらに上がる(+4%/Lv)
+122	card	card:level_break	LEVEL BREAK
+123	card	card:level_break	得られる経験値が大きく増える(1Lvごとに+30%)
+124	card	card:long_blade	LONG BLADE
+125	card	card:long_blade	実効攻撃範囲が大きく広がる(1Lvごとに+5%)
+126	card	card:long_haul	LONG HAUL
+127	card	card:long_haul	経験値(1Lvごとに+15%)と最大HP(3Lvごとにハート+1)が増える
+128	card	card:mob_killer	MOB KILLER
+129	card	card:mob_killer	ボス以外の敵への攻撃(1Lvごとに+5%)と、敵撃破のMILE(1Lvごとに+10%)が上がる
+130	card	card:momentum	MOMENTUM
+131	card	card:momentum	今の速さが攻撃力になる。100km/hを超えると上がり始め、150km/hで最大(1Lvごとに+4%)。その先は伸びが鈍い
+132	card	card:monster_rush	MONSTER RUSH
+133	card	card:monster_rush	敵の出現が増える(1Lvごとに+10%)代わりに、経験値が増える(+15%/Lv)
+134	card	card:more_enemies	MORE ENEMIES
+135	card	card:more_enemies	敵の出現が増える(1Lvごとに+10%)。敵撃破のMILEも少し増える(+3%/Lv)
+136	card	card:no_turning_back	NO TURNING BACK
+137	card	card:no_turning_back	移動速度が大きく上がる(1Lvごとに+5%)が、敵の出現が増える(+10%/Lv)
+138	card	card:one_more_mile	ONE MORE MILE
+139	card	card:one_more_mile	MILE(1Lvごとに+50%)・ボスMILE(+50%)・経験値(+20%)が増える
+140	card	card:overdrive	115km/h以上を続けるとOVERDRIVE(攻撃 1Lvごとに+3%、攻撃速度 +2%)。遅くなると解除。移動速度も少し上がる(1Lvごとに+2%)
+141	card	card:overheal	OVERHEAL
+142	card	card:overheal	回復量が増える(Lv4〜6で+1、Lv7〜9で+2ハート)。満タンで回復した分はShield1つになる
+143	card	card:pandemonium	PANDEMONIUM
+144	card	card:pandemonium	雑魚のHP/動き/出現/精鋭、ボスのHPがすべて上がる代わりに、MILE(+60%/Lv)とボスMILE(+60%/Lv)がとても大きく増える
+145	card	card:pathfinder	PATHFINDER
+146	card	card:pathfinder	走った距離の経験値が増える(1Lvごとに+20%)
+147	card	card:perfect_guard	PERFECT GUARD
+148	card	card:perfect_guard	Shieldを使った時、短い無敵になる(0.4秒+1Lvごとに0.1秒)。Shieldを持っていなくても1つ持てる
+149	card	card:phoenix	倒れた時に一度だけ復活(HPはLvで ハート1〜5)。復活するとこのカードは外れ、また候補に出る(取り直しはLv1から)
+150	card	card:piercing_blade	PIERCING BLADE
+151	card	card:piercing_blade	攻撃が敵を貫く。近接は当てた敵の後ろへ(Lvで数と威力が上がる)、飛び道具は貫通の回数(3Lvごとに+1)
+152	card	card:predator	PREDATOR
+153	card	card:predator	吸収の確率が上がる(1Lvごとに+3%)。ボスへの攻撃でも、時々吸収の判定がある
+154	card	card:rapid_edge	RAPID EDGE
+155	card	card:rapid_edge	主攻撃(前/後)の攻撃速度が上がる(1Lvごとに+5%)。上/下/叩きつけ/大技には掛からない
+156	card	card:reverse_gear	REVERSE GEAR
+157	card	card:reverse_gear	攻撃力が上がる(1Lvごとに+8%)が、移動速度が下がる(1Lvごとに-3%)
+158	card	card:second_wind	HPが30%以下に落ちた時、HPを少し回復(ハート1〜3)。一度出ると距離のクールダウン(10,000m、Lvで短く)
+159	card	card:shield	SHIELD
+160	card	card:shield	被弾を1回防ぐShield。最大数は3Lvごとに+1(最大3)、使った分は時間で戻る(Lvで速くなる)
+161	card	card:shockwave	SHOCKWAVE
+162	card	card:shockwave	近接の命中で前方へ短い衝撃波、飛び道具は着弾点のまわりに衝撃波(Lvで威力と範囲が上がる)
+163	card	card:sky_master	SKY MASTER
+164	card	card:sky_master	空中攻撃が上がる(1Lvごとに+4%)。空中で当てると空中ジャンプを1回取り戻す(1回の滞空で3Lvごとに1回)
+165	card	card:sky_runner	SKY RUNNER
+166	card	card:sky_runner	ジャンプ力(1Lvごとに+2%)と空中攻撃(1Lvごとに+3%)が上がる
+167	card	card:skybound	SKYBOUND
+168	card	card:skybound	空中での攻撃力が大きく上がる(1Lvごとに+11%)が、地上では下がる(1Lvごとに-5%)
+169	card	card:sonic_blade	SONIC BLADE
+170	card	card:sonic_blade	主攻撃のたびに前方へ斬撃が飛ぶ。速く走っているほど遠く・大きく・強くなる
+171	card	card:speed_down	SPEED DOWN
+172	card	card:speed_down	移動速度が下がる(1Lvごとに-4%)。ソロでは選ぶ理由の少ない特殊なカード
+173	card	card:speed_up	SPEED UP
+174	card	card:speed_up	移動速度が上がる(1Lvごとに+3%)
+175	card	card:the_long_road	THE LONG ROAD
+176	card	card:the_long_road	経験値(1Lvごとに+40%)と最大HP(2Lvごとにハート+1)が増える
+177	card	card:thunder_lord	THUNDER LORD
+178	card	card:thunder_lord	雷の上位。威力(1Lvごとに+4%)・連鎖(3Lvごとに+1体)・落雷のまわりへの範囲が強くなる
+179	card	card:thunder_strike	THUNDER STRIKE
+180	card	card:thunder_strike	雷の入口。命中で落雷が起きる(確率 5%+2%/Lv、威力 7.5+1.5/Lv。同じ敵へは0.4秒に1回まで)
+181	card	card:tornado	TORNADO
+182	card	card:tornado	風刃が当たった所に小さな竜巻が起き、まわりの敵を巻き込む(Lvで威力と範囲が上がる)。少しだけ自分でも風刃を出す
+183	card	card:tough_enemies	TOUGH ENEMIES
+184	card	card:tough_enemies	雑魚のHPが上がる(1Lvごとに+15%)代わりに、MILE(+15%/Lv)と撃破の経験値(+5%/Lv)が増える
+185	card	card:treasure_hunter	TREASURE HUNTER
+186	card	card:treasure_hunter	宝・報酬(BONUS ZONE の宝運びゴブリン/黄金スライム/ミミック/CLEAR/PERFECT、WANTED の賞金)のMILEが増える(1Lvごとに+30%)。ボスと距離のMILEも少し増える
+187	card	card:ultimate	ALMIGHTY
+188	card	card:ultimate	攻撃力(1Lvごとに+3%)・最大HP(2Lvごとにハート+1)・移動速度(1Lvごとに+2%)をまとめて上げる万能カード
+189	card	card:vampire	VAMPIRE
+190	card	card:vampire	敵を倒した時、確率(1Lvごとに+3%)でHPをハート1つ回復
+191	card	card:wanted	WANTED
+192	card	card:wanted	一定距離ごとに賞金首が現れる(Lvで強く・頻繁に)。倒せば賞金、通り過ぎれば逃げ切り。MILEが増える(+35%/Lv)
+193	card	card:wind_cutter	WIND CUTTER
+194	card	card:wind_cutter	風の入口。命中で前方へ貫通する風刃が飛ぶ(確率 10%+3%/Lv、威力 8+1.5/Lv)。攻撃範囲も少し広がる(+1%/Lv)
+195	char	char:archer	RANGER
+196	char	char:archer	Draw, Aim, Pierce
+197	char	char:archer	'A ranger of the deep woods
+198	char	char:archer	SNIPER
+199	char	char:dragon_lancer	DRAGON LANCER
+200	char	char:dragon_lancer	Break Through, Never Yield
+201	char	char:dragon_lancer	'A young dragon knight bearing a lance
+202	char	char:dragon_lancer	BREAKER
+203	char	char:dragonkin	DRAGONKIN
+204	char	char:dragonkin	Claw, Tail, Wing, Flame
+205	char	char:dragonkin	'A warrior with the blood of dragons.
+206	char	char:dragonkin	BRUTE
+207	char	char:dual_blade	DUAL BLADE
+208	char	char:dual_blade	Swift Steel, Endless Motion
+209	char	char:dual_blade	'A swift dual-wielder who chains strikes
+210	char	char:dual_blade	GROUND COMBO
+211	char	char:fighter	BRAWLER
+212	char	char:fighter	Fists That Answer Back
+213	char	char:fighter	'A martial artist who fights
+214	char	char:gunslinger	GUNSLINGER
+215	char	char:gunslinger	One Shot, One Distance
+216	char	char:gunslinger	'Twin pistols, a single sharp line of fire.
+217	char	char:gunslinger	RANGED
+218	char	char:mage	SORCERESS
+219	char	char:mage	Float Above, Strike Below
+220	char	char:mage	'A sorceress who never touches the ground.
+221	char	char:mage	FLIGHT MAGE
+222	char	char:miko	SHRINE MAIDEN
+223	char	char:miko	Seal the Path Ahead
+224	char	char:miko	'An exorcist of a mountain shrine.
+225	char	char:miko	SEALER
+226	char	char:ninja	SHINOBI
+227	char	char:ninja	Vanish, Cut, Vanish
+228	char	char:ninja	'A shinobi who is never where you strike.
+229	char	char:ninja	MOBILITY
+230	char	char:noble_lady	NOBLE LADY
+231	char	char:noble_lady	A Hero Not Yet Awakened
+232	char	char:noble_lady	'Clad in silver and gold, she wields a
+233	char	char:noble_lady	NOBLE KNIGHT
+234	char	char:swordsman	SWORDSMAN
+235	char	char:swordsman	The One Who Keeps Moving
+236	char	char:swordsman	'A lone swordsman who walks his own path.
+237	char	char:swordsman	BALANCED
+238	char	char:vampire	The Longer, The Stronger
+239	char	char:vampire	'A noble of the night who needs no blade.
+240	char	char:vampire	BLOOD
+241	scene	Editor/SceneBuilder.cs:1449	CHARACTER CARDS
+242	scene	Editor/SceneBuilder.cs:1619	CHARACTER SELECT
+243	scene	Editor/SceneBuilder.cs:1646	SELECT
+244	scene	Editor/SceneBuilder.cs:1889	LIFE
+245	scene	Editor/SceneBuilder.cs:1889	POWER
+246	scene	Editor/SceneBuilder.cs:1994	STAGE SELECT
+247	scene	Editor/SceneBuilder.cs:2023	出発
+248	scene	Editor/SceneBuilder.cs:2383	おすすめ編成
+249	scene	Editor/SceneBuilder.cs:2400	全て外す
+250	scene	Editor/SceneBuilder.cs:2464	はい
+251	scene	Editor/SceneBuilder.cs:2482	いいえ
+252	stage	stage:last_corridor	LAST CORRIDOR
+253	stage	stage:last_corridor	敵: 全ステージの敵が混在(強化)
+254	stage	stage:last_corridor	特徴: 崩落する床・落ちてくる構造物・浮遊する回廊
+255	stage	stage:last_corridor	ルート: 巨大な古代回廊 → 崩壊 → 奈落 → 最後の道
+256	stage	stage:natural_cave	自然洞窟
+257	stage	stage:natural_cave	敵: アリ / ホッパー / コウモリ / ワーム
+258	stage	stage:natural_cave	特徴: 岩の天井・天井の針・暗がりとたいまつ
+259	stage	stage:natural_cave	ルート: 一本道(地上・空中・地中・天井の脅威)
+260	stage	stage:sky_corridor	天空回廊
+261	stage	stage:sky_corridor	敵: ゴブリン系 + 距離進行で徐々に解禁
+262	stage	stage:sky_corridor	特徴: 岩と雲の浮遊足場、上空の道
+263	stage	stage:sky_corridor	ルート: 進むほど危険度が上昇
+264	stage	stage:wasteland_road	荒野街道
+265	stage	stage:wasteland_road	敵: ゴブリン / 鳥
+266	stage	stage:wasteland_road	障害物: 石・小木・壁・壊せる木・巨大石・穴
+267	stage	stage:wasteland_road	ルート: 上 Easy / 下 Danger
+268	ui	Arena/ArenaController.cs:213	倒れました。「同条件で再戦」ですぐやり直せます
+269	ui	Arena/ArenaController.cs:232	HPを全回復しました
+270	ui	Arena/ArenaController.cs:234	敵と敵の攻撃を全部消しました(撃破の時間には数えません)
+271	ui	Arena/ArenaController.cs:282	与ダメージ {0}    被ダメージ {1}    {2}秒
+272	ui	Arena/ArenaController.cs:282	無敵
+273	ui	Arena/ArenaController.cs:290	≡ 設定
+274	ui	Arena/ArenaController.cs:290	同条件で再戦
+275	ui	Arena/ArenaController.cs:290	敵を全削除
+276	ui	Arena/ArenaController.cs:290	ホームへ
+277	ui	Arena/ArenaController.cs:310	全滅  {0}秒
+278	ui	Arena/ArenaController.cs:315	相手
+279	ui	Arena/ArenaController.cs:315	詳細
+280	ui	Arena/ArenaController.cs:315	結果
+281	ui	Arena/ArenaController.cs:324	キャラやカードを自由に試せる練習場
+282	ui	Arena/ArenaController.cs:331	この設定で開始
+283	ui	Arena/ArenaController.cs:331	開始
+284	ui	Arena/ArenaController.cs:363	試用
+285	ui	Arena/ArenaController.cs:372	(試用)
+286	ui	Arena/ArenaController.cs:387	検索
+287	ui	Arena/ArenaController.cs:407	<color=#8ce6ff>試用</color>
+288	ui	Arena/ArenaController.cs:410	+ 追加
+289	ui	Arena/ArenaController.cs:414	今のデッキをコピー
+290	ui	Arena/ArenaController.cs:415	キャラカードをコピー
+291	ui	Arena/ArenaController.cs:417	試用のビルド({0}枚)
+292	ui	Arena/ArenaController.cs:418	全部外す
+293	ui	Arena/ArenaController.cs:419	Lv = このランで取った回数(能力ごとに最大9)。所持・デッキは変わりません
+294	ui	Arena/ArenaController.cs:423	左の一覧の「+ 追加」でカードを入れます。カードなしでも試せます
+295	ui	Arena/ArenaController.cs:432	所持のコピー(合成Lv{0}・能力{1}種)
+296	ui	Arena/ArenaController.cs:457	デッキの{0}枚を試用のビルドへコピーしました(デッキは変わりません)
+297	ui	Arena/ArenaController.cs:470	キャラカードの{0}枚をコピーしました(開始時のLv)
+298	ui	Arena/ArenaController.cs:474	練習標的
+299	ui	Arena/ArenaController.cs:474	雑魚
+300	ui	Arena/ArenaController.cs:474	荒野のボス
+301	ui	Arena/ArenaController.cs:474	洞窟のボス
+302	ui	Arena/ArenaController.cs:474	天空のボス
+303	ui	Arena/ArenaController.cs:486	動かない標的: 攻撃もしない(当たってもダメージなし)・倒れない。攻撃の確認に。走っている時はプレイヤーとの間合いを保ちます
+304	ui	Arena/ArenaController.cs:500	数
+305	ui	Arena/ArenaController.cs:501	動きの強さ
+306	ui	Arena/ArenaController.cs:501	段階
+307	ui	Arena/ArenaController.cs:502	ボスは自分の登場の動きで前から現れます
+308	ui	Arena/ArenaController.cs:502	洞窟/天空のボスの地形を使う技(穴/天井/落石/空の帯など)は、平らな闘技場では本編と出方が違います
+309	ui	Arena/ArenaController.cs:504	ボスは1種類まで(雑魚と一緒に出せます)
+310	ui	Arena/ArenaController.cs:505	相手に加える
+311	ui	Arena/ArenaController.cs:513	ボスは1種類まで(前のボスと入れ替えました)
+312	ui	Arena/ArenaController.cs:518	今の相手({0})
+313	ui	Arena/ArenaController.cs:522	相手がいません(このまま始めると敵なしで動きだけ試せます)
+314	ui	Arena/ArenaController.cs:533	敵の強さ: {0}km地点相当(HP/攻撃が本編のその距離と同じ)
+315	ui	Arena/ArenaController.cs:565	速度
+316	ui	Arena/ArenaController.cs:566	止まる(0km/h)
+317	ui	Arena/ArenaController.cs:566	走る(基準速度+補正)
+318	ui	Arena/ArenaController.cs:566	走る(速度を固定)
+319	ui	Arena/ArenaController.cs:570	自動の前進だけが止まります(攻撃/ジャンプ/重力/のけぞり/敵の動きは本編どおり)
+320	ui	Arena/ArenaController.cs:571	基準の速度に、キャラ/カードの速さの補正(SPEED UP など)を掛けた速さで走ります
+321	ui	Arena/ArenaController.cs:571	補正を掛けず、この速さのまま走ります(速さのカードの違いを除いて比べる時に)
+322	ui	Arena/ArenaController.cs:579	今: 基準 {0}km/h → 実際 {1}km/h(補正 ×{2})
+323	ui	Arena/ArenaController.cs:583	無敵 / HP
+324	ui	Arena/ArenaController.cs:584	無敵: {0}
+325	ui	Arena/ArenaController.cs:585	HPを全回復
+326	ui	Arena/ArenaController.cs:586	無敵の時も「本来受けたダメージ」は結果に出ます
+327	ui	Arena/ArenaController.cs:588	操作アシスト(設定の「高速時の自動補助」と同じ。闘技場の中だけ・設定は変わりません)
+328	ui	Arena/ArenaController.cs:589	OFF
+329	ui	Arena/ArenaController.cs:589	ON
+330	ui	Arena/ArenaController.cs:589	常時(開発版)
+331	ui	Arena/ArenaController.cs:592	働く速さ {0}km/h~
+332	ui	Arena/ArenaController.cs:597	闘技場では未対応: FINAL EVOLUTION / AWAKENED / Mastery / ULTIMATE のゲージ / レベルアップ / ボス報酬 / BONUS ZONE(カードは通常の Lv の効果と COMBO だけ。報酬・記録・所持は一切変わりません)
+333	ui	Arena/ArenaController.cs:601	開発版だけ
+334	ui	Arena/ArenaController.cs:603	未遭遇の敵も選ぶ: {0}
+335	ui	Arena/ArenaController.cs:604	乱数を固定: {0}
+336	ui	Arena/ArenaController.cs:605	障害物を壊す補助: {0}
+337	ui	Arena/ArenaController.cs:614	倒れた
+338	ui	Arena/ArenaController.cs:614	全滅 {0}秒
+339	ui	Arena/ArenaController.cs:614	終了
+340	ui	Arena/ArenaController.cs:614	戦闘中
+341	ui	Arena/ArenaController.cs:615	今回: {0}
+342	ui	Arena/ArenaController.cs:617	与ダメージ
+343	ui	Arena/ArenaController.cs:617	命中数
+344	ui	Arena/ArenaController.cs:617	撃破数
+345	ui	Arena/ArenaController.cs:617	撃破までの時間
+346	ui	Arena/ArenaController.cs:617	被ダメージ(HPが減った分)
+347	ui	Arena/ArenaController.cs:617	本来の被ダメージ(無敵/Shield も含む)
+348	ui	Arena/ArenaController.cs:617	戦闘時間
+349	ui	Arena/ArenaController.cs:621	{0}秒
+350	ui	Arena/ArenaController.cs:622	{0}({1}回)
+351	ui	Arena/ArenaController.cs:625	今回
+352	ui	Arena/ArenaController.cs:626	前回
+353	ui	Arena/ArenaController.cs:638	今回の条件: {0}
+354	ui	Arena/ArenaController.cs:638	試用のビルド: {0}
+355	ui	Arena/ArenaController.cs:639	前回の条件: {0}
+356	ui	Arena/ArenaController.cs:639	前回のビルド: {0}
+357	ui	Arena/ArenaController.cs:642	設定を変更
+358	ui	Arena/ArenaController.cs:681	？？？(まだ会っていない)
+359	ui	Arena/ArenaController.cs:748	動かない標的
+360	ui	Arena/ArenaController.cs:90	{0} / カード{1}枚 / {2} / {3}km地点相当
+361	ui	Arena/ArenaController.cs:96	カードなし
+362	ui	Arena/ArenaController.cs:97	(所持のコピー)
+363	ui	Arena/ArenaLauncher.cs:55	闘技場を準備中
+364	ui	Arena/ArenaLauncher.cs:56	ARENA
+365	ui	BonusZone.cs:267	MIMIC KO
+366	ui	BonusZone.cs:277	GOBLIN
+367	ui	BonusZone.cs:277	SLIME
+368	ui	BonusZone.cs:277	FAIRY
+369	ui	BonusZone.cs:277	MIMIC
+370	ui	BonusZone.cs:441	MILE
+371	ui	BonusZone.cs:441	EXP
+372	ui	BonusZone.cs:564	JACKPOT!!
+373	ui	BonusZone.cs:564	BONUS ZONE!
+374	ui	BonusZone.cs:567	PERFECT:
+375	ui	BonusZone.cs:607	JACKPOT CLEAR!
+376	ui	BonusZone.cs:607	BONUS CLEAR!
+377	ui	BonusZone.cs:626	JACKPOT  PERFECT!
+378	ui	BonusZone.cs:626	PERFECT BONUS!
+379	ui	BonusZone.cs:626	JACKPOT RESULT
+380	ui	BonusZone.cs:626	BONUS RESULT
+381	ui	BonusZone.cs:631	ENEMY
+382	ui	BonusZone.cs:632	CLEAR
+383	ui	BonusZone.cs:633	PERFECT
+384	ui	BonusZone.cs:636	TOTAL
+385	ui	BonusZone.cs:683	RANDOM
+386	ui	BonusZone.cs:684	END
+387	ui	Bosses/BossBattle.cs:148	ラン再開まで {0}
+388	ui	Bosses/BossHpPlan.cs:40	現行
+389	ui	Bosses/BossHpPlan.cs:40	{0}発
+390	ui	CardEffectFormat.cs:79	(固定)
+391	ui	CardFusionLogic.cs:105	素材にする1枚がデッキ/キャラクターカードで使用中です
+392	ui	CardFusionLogic.cs:108	AWAKENED(★5)済みのため、これ以上Masteryは進みません(カードは消費しません。★5後の余ったカードの使い道は今後追加します)
+393	ui	CardFusionLogic.cs:115	合成後のLvが{0}になるため合成できません(上限Lv.{1})
+394	ui	CardFusionLogic.cs:117	能力が{0}種類になるため合成できません(上限{1}種類)
+395	ui	CardFusionLogic.cs:220	合成処理中です
+396	ui	CardFusionLogic.cs:245	カードが不足しています
+397	ui	CardFusionLogic.cs:275	<color=#ffd76a><b>【MASTERY】 Lv.9 MAX の育成</b></color>
+398	ui	CardFusionLogic.cs:276	メインカードはそのまま残り(Lv.9 MAX)、素材カードだけを消費します。
+399	ui	CardFusionLogic.cs:277	今の Mastery: <color=#ffd76a>{0}</color>  {1}
+400	ui	CardFusionLogic.cs:278	今回の合成: <b>+{0} Mastery</b>(素材 Lv.{1} = {2}枚分)
+401	ui	CardFusionLogic.cs:279	合成後: <color=#ffd76a>{0}</color>  {1}
+402	ui	CardFusionLogic.cs:280	<size=19>(★{0}つ分、余りは次の★へ繰り越し)</size>
+403	ui	CardFusionLogic.cs:282	<size=19>★5 の後に余る {0} は捨てずに保管します</size>
+404	ui	CardFusionLogic.cs:283	<color=#ff9a8a><size=19>素材のサブ能力({0}種)は引き継がれません</size></color>
+405	ui	CardFusionLogic.cs:284	<size=19>Mastery は通常の性能(攻撃/速度/EXP など)を上げません。育成の記録と AWAKENED への道のりです。</size>
+406	ui	CardFusionLogic.cs:285	<color=#ff9a8a>実行すると、素材カード1枚が消費されます。</color>
+407	ui	CardFusionLogic.cs:295	<color=#ffd76a><b>【同名強化 → Lv.9 MAX】 成功率 100%</b></color>
+408	ui	CardFusionLogic.cs:296	合成Lv: Lv.{0} + Lv.{1} → <b>Lv.9 MAX</b>
+409	ui	CardFusionLogic.cs:297	Lv.9 を超える <b>{0}</b> は捨てずに Mastery へ: {1} → <color=#ffd76a>{2}</color>{3}
+410	ui	CardFusionLogic.cs:298	<b>継承する能力(強化量は9まで)</b>
+411	ui	CardFusionLogic.cs:299	・{0} <b>×{1}</b>
+412	ui	CardFusionLogic.cs:300	<color=#ff9a8a>実行すると、選んだ2枚は消費されます(完成カード Lv.9 MAX を1枚得ます)。</color>
+413	ui	CardFusionLogic.cs:303	<color=#ffd76a><b>【同名強化】 成功率 100%</b></color>
+414	ui	CardFusionLogic.cs:304	合成Lv: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+415	ui	CardFusionLogic.cs:305	<b>継承する能力(同じ能力は強化量を合算)</b>
+416	ui	CardFusionLogic.cs:310	・{0} {1}<b>×{2}</b>  <size=18>({3} ×{4})</size>
+417	ui	CardFusionLogic.cs:315	<color=#9fd0ff><b>【異名合成】 結果は抽選で決まります</b></color>
+418	ui	CardFusionLogic.cs:316	<b>完成カードの合成Lv(結果ごと)</b>
+419	ui	CardFusionLogic.cs:317	・両側成功: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+420	ui	CardFusionLogic.cs:318	・メインのみ成功: <b>Lv.{0}</b>(メイン側のLvのみ)
+421	ui	CardFusionLogic.cs:319	・素材のみ成功: <b>Lv.{0}</b>(素材側のLvのみ)
+422	ui	CardFusionLogic.cs:320	・両側失敗: 完成カードなし・<color=#ffd76a>{0} MILE</color> を還元
+423	ui	CardFusionLogic.cs:321	<b>メイン側 能力一式 継承率 {0}%</b>
+424	ui	CardFusionLogic.cs:322	・{0} ×{1}  <size=18>({2} ×{3})</size>
+425	ui	CardFusionLogic.cs:323	<b>素材側 能力一式 継承率 {0}%</b>
+426	ui	CardFusionLogic.cs:325	両方成功: 両側の能力をすべて継承(同じ能力は強化量を合算)
+427	ui	CardFusionLogic.cs:326	片側だけ成功: 成功した側の能力・強化量・Lvだけを継承(失敗した側は残りません)
+428	ui	CardFusionLogic.cs:327	素材側だけ成功した場合は、素材側の主能力が完成カードの主能力になります
+429	ui	CardFusionLogic.cs:328	<size=18>(両側失敗の還元 =★{0}×Lv.{1}×{2} + ★{3}×Lv.{4}×{5})</size>
+430	ui	CardFusionLogic.cs:330	<color=#ff9a8a>実行すると、選んだ2枚は消費されます。</color>
+431	ui	CardFusionLogic.cs:69	このカードを所持していません
+432	ui	CardFusionLogic.cs:74	デッキとキャラクターカードで使用中のため選べません
+433	ui	CardFusionLogic.cs:75	キャラクターカードに装備中のため選べません
+434	ui	CardFusionLogic.cs:76	デッキで使用中のため選べません
+435	ui	CardFusionLogic.cs:77	同じ性能のカードが2枚必要です(所持1枚)
+436	ui	CardFusionLogic.cs:93	メインカードと素材カードを選んでください
+437	ui	CardFusionLogic.cs:95	カードの情報を読み込めません
+438	ui	CardFusionUI.cs:1036	MASTERY UP！
+439	ui	CardFusionUI.cs:1037	合成大成功！
+440	ui	CardFusionUI.cs:1037	合成成功！
+441	ui	CardFusionUI.cs:1049	<size=21>★{0}つ分進みました(余りは次の★へ繰り越し)</size>
+442	ui	CardFusionUI.cs:1050	<size=21>★5 の後に余った {0} は保管しました(今後の使い道に使えます)</size>
+443	ui	CardFusionUI.cs:1051	<size=21>このカードは AWAKENED になりました(永久の記録。通常の性能は変わりません)</size>
+444	ui	CardFusionUI.cs:1056	メインカード(Lv.9 MAX)はそのまま残り、素材カードを1枚消費しました。
+445	ui	CardFusionUI.cs:1057	<size=21>Mastery は通常の性能(攻撃/速度/EXP など)を上げません。</size>
+446	ui	CardFusionUI.cs:1066	合成Lv.<b>{0}</b>{1}
+447	ui	CardFusionUI.cs:1067	<color=#ffd76a>同名強化(確定)</color> … 両方の能力をすべて継承
+448	ui	CardFusionUI.cs:1070	メイン側({0} Lv.{1}): {2}
+449	ui	CardFusionUI.cs:1071	素材側({0} Lv.{1}): {2}
+450	ui	CardFusionUI.cs:1074	メイン側のLvのみ
+451	ui	CardFusionUI.cs:1074	素材側のLvのみ
+452	ui	CardFusionUI.cs:1075	<size=21>完成Lv.{0} = {1}</size>
+453	ui	CardFusionUI.cs:1077	<b>主能力</b>
+454	ui	CardFusionUI.cs:1078	<b>サブ能力 ({0}/{1})</b>
+455	ui	CardFusionUI.cs:1079	なし
+456	ui	CardFusionUI.cs:1084	合成失敗…
+457	ui	CardFusionUI.cs:1087	メイン側({0} Lv.{1}): <color=#9aa3b8>継承失敗</color>
+458	ui	CardFusionUI.cs:1088	素材側({0} Lv.{1}): <color=#9aa3b8>継承失敗</color>
+459	ui	CardFusionUI.cs:1089	選んだ2枚のカードは消費されました。
+460	ui	CardFusionUI.cs:1090	還元MILE  <color=#ffd76a><b><size=40>+{0}</size></b></color>
+461	ui	CardFusionUI.cs:1092	所持MILE  <b>{0}</b>
+462	ui	CardFusionUI.cs:1114	<color=#ffd76a><b>強化 ×{0}→×{1}</b></color>
+463	ui	CardFusionUI.cs:1115	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3} ×{4})</color></size>
+464	ui	CardFusionUI.cs:249	戻る
+465	ui	CardFusionUI.cs:254	カード合成
+466	ui	CardFusionUI.cs:273	並び替え
+467	ui	CardFusionUI.cs:293	メイン
+468	ui	CardFusionUI.cs:293	素材
+469	ui	CardFusionUI.cs:304	カード
+470	ui	CardFusionUI.cs:308	選択中
+471	ui	CardFusionUI.cs:333	合成する
+472	ui	CardFusionUI.cs:396	スキップ ▶▶
+473	ui	CardFusionUI.cs:413	続けて合成
+474	ui	CardFusionUI.cs:417	一覧へ戻る
+475	ui	CardFusionUI.cs:452	所持MILE  {0}
+476	ui	CardFusionUI.cs:474	{0}種 / 全{1}枚
+477	ui	CardFusionUI.cs:488	メインカード
+478	ui	CardFusionUI.cs:488	素材カード
+479	ui	CardFusionUI.cs:49	すべて
+480	ui	CardFusionUI.cs:49	移動
+481	ui	CardFusionUI.cs:49	攻撃
+482	ui	CardFusionUI.cs:49	防御
+483	ui	CardFusionUI.cs:49	成長
+484	ui	CardFusionUI.cs:49	回復
+485	ui	CardFusionUI.cs:49	特殊
+486	ui	CardFusionUI.cs:49	リスク
+487	ui	CardFusionUI.cs:497	カードを2枚選んでください
+488	ui	CardFusionUI.cs:497	合成できません
+489	ui	CardFusionUI.cs:50	名前
+490	ui	CardFusionUI.cs:50	レベル
+491	ui	CardFusionUI.cs:50	レア度
+492	ui	CardFusionUI.cs:50	所持枚数
+493	ui	CardFusionUI.cs:583	所持{0}  使用可<color=#{1}
+494	ui	CardFusionUI.cs:583	能力{0}
+495	ui	CardFusionUI.cs:587	メイン+素材
+496	ui	CardFusionUI.cs:587	使用中
+497	ui	CardFusionUI.cs:620	<color=#ffd76a><b>{0}</b></color>  <b>{1}</b>  {2}  合成Lv.{3}{4}
+498	ui	CardFusionUI.cs:621	主能力: {0}
+499	ui	CardFusionUI.cs:624	サブ能力({0}):
+500	ui	CardFusionUI.cs:625	・{0}
+501	ui	CardFusionUI.cs:627	サブ能力: なし
+502	ui	CardFusionUI.cs:628	<size=19><color=#b7bfd8>所持{0}枚 / 使用可{1}枚</color></size>
+503	ui	CardFusionUI.cs:636	左の一覧からカードを選んでください。
+504	ui	CardFusionUI.cs:636	選択中の枠(光っている枠)にカードが入ります。枠をタップすると選択先を切り替えられ、×で選択を外せます。
+505	ui	CardFusionUI.cs:636	・同じカード同士 … 成功率100%で合成Lvと全能力を合算
+506	ui	CardFusionUI.cs:636	・違うカード同士 … メイン側50%/素材側25%で能力一式を継承(抽選)。片側だけ成功した場合は、成功した側のLvと能力だけが残ります
+507	ui	CardFusionUI.cs:636	・合成Lvの上限はLv.9。同じカードで Lv.9 を超える分は捨てずに Mastery へ(違うカードで合計が Lv.9 を超える組み合わせは合成できません)
+508	ui	CardFusionUI.cs:636	・Lv.9 MAX のカードに同じカードを合成すると Mastery が進みます(★5 で AWAKENED)
+509	ui	CardFusionUI.cs:654	<size=19>★5(AWAKENED)に到達しています。★5 の後に余ったカードの使い道は今後追加します(今は合成で消費しません)。</size>
+510	ui	CardFusionUI.cs:655	同じカード({0})を素材に選ぶと、素材のLvぶん Mastery が進みます(Lv.1 = +1)。
+511	ui	CardFusionUI.cs:657	次に素材カードを選んでください。
+512	ui	CardFusionUI.cs:657	次にメインカードを選んでください。
+513	ui	CardFusionUI.cs:722	このカードは AWAKENED(★5)です
+514	ui	CardFusionUI.cs:724	完成カードをメインにセットしました。素材カードを選んでください
+515	ui	CardFusionUI.cs:830	確定強化
+516	ui	CardFusionUI.cs:889	AWAKENED！
+517	ui	CardFusionUI.cs:890	Lv.9 MAX 到達！
+518	ui	CardFusionUI.cs:890	同名強化 完了！
+519	ui	CardFusionUI.cs:890	大成功！ 両側の能力を継承
+520	ui	CardFusionUI.cs:890	メイン側の能力を継承
+521	ui	CardFusionUI.cs:890	素材側の能力を継承
+522	ui	CardFusionUI.cs:920	継承失敗…  カードはMILEに還元されました
+523	ui	CardFusionUI.cs:930	{0}側 継承成功！
+524	ui	CardFusionUI.cs:930	{0}側 継承失敗
+525	ui	Cards/CardBuildPresets.cs:10	Speed特化
+526	ui	Cards/CardBuildPresets.cs:11	Defense特化
+527	ui	Cards/CardBuildPresets.cs:12	Blood特化
+528	ui	Cards/CardBuildPresets.cs:13	Fire特化
+529	ui	Cards/CardBuildPresets.cs:14	Ice特化
+530	ui	Cards/CardBuildPresets.cs:15	Lightning特化
+531	ui	Cards/CardBuildPresets.cs:16	Wind特化
+532	ui	Cards/CardBuildPresets.cs:17	Boss特化
+533	ui	Cards/CardBuildPresets.cs:18	EXP特化
+534	ui	Cards/CardBuildPresets.cs:19	MILE特化
+535	ui	Cards/CardBuildPresets.cs:20	Challenge大量
+536	ui	Cards/CardBuildPresets.cs:21	追加攻撃 全部(負荷確認)
+537	ui	Cards/CardBuildPresets.cs:7	一般的な混合
+538	ui	Cards/CardBuildPresets.cs:8	Attack特化
+539	ui	Cards/CardBuildPresets.cs:9	極端なRisk(HP犠牲)
+540	ui	Cards/CardProcs.Combo.cs:328	AEGIS COUNTER
+541	ui	Cards/CardProcs.cs:315	OVERDRIVE
+542	ui	Cards/CardProgression.cs:73	命中時の小さな強化VFX
+543	ui	Cards/CardProgression.cs:74	高速時の残像の強化
+544	ui	Cards/CardProgression.cs:75	回復時の Blood Aura
+545	ui	Cards/CardProgression.cs:76	復活の演出の強化 / 小さな追加の恩恵
+546	ui	Cards/CardProgression.cs:77	発動時の専用VFX
+547	ui	Cards/CardProgression.cs:78	必殺技の最終演出/専用オーラ/BUFF演出/締めのVFX(ダメージは上げない)
+548	ui	Cards/ChallengeSystem.cs:109	WANTED! 賞金首が現れた
+549	ui	Cards/ChallengeSystem.cs:77	BOUNTY!
+550	ui	Cards/ComboSystem.cs:167	COMBO!
+551	ui	Cards/FinalEvolution.cs:210	{0}秒間
+552	ui	Cards/FinalEvolution.cs:210	次の{0}m
+553	ui	Cards/FinalEvolution.cs:411	FINAL EVOLUTION: REBIRTH
+554	ui	Cards/GameManager.CardStats.cs:323	LAST CHANCE
+555	ui	Cards/GameManager.CardStats.cs:333	SECOND WIND
+556	ui	Cards/GameManager.CardStats.cs:357	PHOENIX
+557	ui	CaveBosses.cs:1006	尻尾を叩きつけて硬直! 攻撃のチャンス!
+558	ui	CaveBosses.cs:1115	目が弱った! 頭が弱点!
+559	ui	CaveBosses.cs:1228	頭が下がった! 長い反撃のチャンス!
+560	ui	CaveBosses.cs:1348	跳べ!
+561	ui	CaveBosses.cs:1353	降りろ!
+562	ui	CaveBosses.cs:1360	魔力切れ! 長い攻撃のチャンス!
+563	ui	CaveBosses.cs:151	ひっくり返った! 大チャンス!
+564	ui	CaveBosses.cs:271	尻尾が地面に刺さった! 攻撃のチャンス!
+565	ui	CaveBosses.cs:359	目を回している! 攻撃のチャンス!
+566	ui	CaveBosses.cs:469	棍棒が抜けない! 攻撃のチャンス!
+567	ui	CaveBosses.cs:575	頭が地面に残った! 攻撃のチャンス!
+568	ui	CaveBosses.cs:708	コア露出! 崩しやすい!
+569	ui	CaveBosses.cs:864	地面に激突! 攻撃のチャンス!
+570	ui	CharacterSelectUI.cs:151	カード設定 ▶
+571	ui	CharacterSelectUI.cs:160	<color=#FFD866><b>キャラカード</b></color>
+572	ui	CharacterSelectUI.cs:164	<color=#8890A0>(空き)</color>
+573	ui	CharacterSelectUI.cs:289	LOCKED
+574	ui	CharacterSelectUI.cs:290	解放の条件:
+575	ui	Data/CardVariant.cs:165	【主】
+576	ui	Data/CardVariant.cs:165	【副】
+577	ui	Data/CardVariant.cs:174	移動速度
+578	ui	Data/CardVariant.cs:175	攻撃力
+579	ui	Data/CardVariant.cs:176	ジャンプ力
+580	ui	Data/CardVariant.cs:177	ジャンプ回数
+581	ui	Data/CardVariant.cs:178	最大HP
+582	ui	Data/CardVariant.cs:179	攻撃範囲
+583	ui	Data/CardVariant.cs:180	攻撃速度
+584	ui	Data/CardVariant.cs:181	空中攻撃力
+585	ui	Data/CardVariant.cs:182	シールド
+586	ui	Data/CardVariant.cs:183	獲得EXP
+587	ui	Data/CardVariant.cs:184	吸収確率
+588	ui	Data/CardVariant.cs:185	吸収量
+589	ui	Data/CardVariant.cs:186	敵出現率
+590	ui	Data/CardVariant.cs:187	地上攻撃力
+591	ui	Data/CardVariant.cs:188	コンボ締め威力
+592	ui	Data/CardVariant.cs:189	初撃威力
+593	ui	Data/CardVariant.cs:190	瀕死時攻撃力
+594	ui	Data/CardVariant.cs:191	HP満タン時攻撃力
+595	ui	Data/CardVariant.cs:192	加速時攻撃力
+596	ui	Data/CardVariant.cs:193	ボスへの攻撃力
+597	ui	Data/CardVariant.cs:194	敵HP
+598	ui	Data/CardVariant.cs:195	ボスHP
+599	ui	Data/CardVariant.cs:196	獲得MILE
+600	ui	Data/CardVariant.cs:197	ボス獲得MILE
+601	ui	Data/CardVariant.cs:198	炎上(Burn)確率
+602	ui	Data/CardVariant.cs:199	炎上の威力
+603	ui	Data/CardVariant.cs:200	炎上の時間
+604	ui	Data/CardVariant.cs:201	冷気(Chill)確率
+605	ui	Data/CardVariant.cs:202	冷気の鈍化
+606	ui	Data/CardVariant.cs:203	冷気の時間
+607	ui	Data/CardVariant.cs:204	凍結までの蓄積
+608	ui	Data/CardVariant.cs:205	凍結の時間
+609	ui	Data/CardVariant.cs:206	落雷確率
+610	ui	Data/CardVariant.cs:207	落雷の威力
+611	ui	Data/CardVariant.cs:208	連鎖数
+612	ui	Data/CardVariant.cs:209	連鎖の距離
+613	ui	Data/CardVariant.cs:210	風刃確率
+614	ui	Data/CardVariant.cs:211	風刃の威力
+615	ui	Data/CardVariant.cs:212	貫通数
+616	ui	Data/CardVariant.cs:213	風刃の射程
+617	ui	Data/CardVariant.cs:214	出血(Bleed)確率
+618	ui	Data/CardVariant.cs:215	出血の威力
+619	ui	Data/CardVariant.cs:216	出血の時間
+620	ui	Data/CardVariant.cs:217	出血の吸収
+621	ui	Data/CardVariant.cs:218	瀕死時の出血強化
+622	ui	Data/CardVariant.cs:224	主攻撃の攻撃速度
+623	ui	Data/CardVariant.cs:225	実効攻撃範囲
+624	ui	Data/CardVariant.cs:226	最大HP(ハート)
+625	ui	Data/CardVariant.cs:227	封印するハート
+626	ui	Data/CardVariant.cs:228	空中攻撃
+627	ui	Data/CardVariant.cs:229	地上攻撃
+628	ui	Data/CardVariant.cs:230	初撃
+629	ui	Data/CardVariant.cs:231	連撃中
+630	ui	Data/CardVariant.cs:232	締め
+631	ui	Data/CardVariant.cs:233	ボスへの攻撃
+632	ui	Data/CardVariant.cs:234	雑魚への攻撃
+633	ui	Data/CardVariant.cs:235	空中の敵への攻撃
+634	ui	Data/CardVariant.cs:236	下攻撃/叩きつけ
+635	ui	Data/CardVariant.cs:237	満HPの攻撃
+636	ui	Data/CardVariant.cs:238	HP50%以下の攻撃
+637	ui	Data/CardVariant.cs:239	HP25%以下の攻撃
+638	ui	Data/CardVariant.cs:240	低HPの攻撃速度
+639	ui	Data/CardVariant.cs:241	HP25%以下の吸収確率
+640	ui	Data/CardVariant.cs:242	封印1つごとの攻撃
+641	ui	Data/CardVariant.cs:243	1ヒットごとの攻撃
+642	ui	Data/CardVariant.cs:244	空中で当てた回数ごとの攻撃
+643	ui	Data/CardVariant.cs:245	150km/hでの攻撃
+644	ui	Data/CardVariant.cs:246	OVERDRIVE中の攻撃
+645	ui	Data/CardVariant.cs:247	OVERDRIVE中の攻撃速度
+646	ui	Data/CardVariant.cs:248	Shieldの最大数
+647	ui	Data/CardVariant.cs:249	Shieldの回復(秒短縮)
+648	ui	Data/CardVariant.cs:250	回復量(ハート)
+649	ui	Data/CardVariant.cs:251	追加攻撃の確率
+650	ui	Data/CardVariant.cs:252	被弾後の無敵(秒)
+651	ui	Data/CardVariant.cs:253	のけぞりの軽減
+652	ui	Data/CardVariant.cs:254	敵の行動の速さ
+653	ui	Data/CardVariant.cs:255	精鋭の確率
+654	ui	Data/CardVariant.cs:256	宝・報酬のMILE
+655	ui	Data/CardVariant.cs:257	距離のMILE
+656	ui	Data/CardVariant.cs:258	距離のEXP
+657	ui	Data/CardVariant.cs:259	撃破のEXP
+658	ui	Data/CardVariant.cs:261	凍結までの回数
+659	ui	Data/CardVariant.cs:262	雷の威力
+660	ui	Data/CardVariant.cs:263	落雷の停止(秒)
+661	ui	Data/CardVariant.cs:264	落雷の範囲(m)
+662	ui	Data/CardVariant.cs:265	風刃の速さ
+663	ui	Data/CardVariant.cs:267	効果Lv
+664	ui	DeckEditUI.cs:492	使用中のため変換不可
+665	ui	DeckEditUI.cs:567	所持 x{0}
+666	ui	DeckEditUI.cs:58	カードをタップして詳細を確認
+667	ui	DeckEditUI.cs:593	[他のキャラのキャラカード]
+668	ui	DeckEditUI.cs:774	現在使用中のカードです。外してから使用してください。
+669	ui	DeckEditUI.cs:781	を{CardConvertMile} MILEに変換しますか？
+670	ui	DeckEditUI.cs:844	現在のデッキを
+671	ui	DeckEditUI.cs:844	おすすめ編成に変更しますか？
+672	ui	DeckEditUI.cs:867	デッキからすべてのカードを
+673	ui	DeckEditUI.cs:867	外しますか？
+674	ui	DragonController.cs:1048	ドラゴンが低空へ! 反撃のチャンス!
+675	ui	DragonController.cs:892	最終段階!
+676	ui	DragonController.cs:905	BREAK!
+677	ui	DragonController.cs:974	DRAGON FIRE CHARGE
+678	ui	DragonController.cs:974	煉獄の巨大火球
+679	ui	Elements/ElementStats.cs:90	炎 {0}% {1}/s {2}s
+680	ui	Elements/ElementStats.cs:91	氷 {0}% -{1}% {2}s 凍結{3}回/{4}s
+681	ui	Elements/ElementStats.cs:91	絶対零度Lv{0}
+682	ui	Elements/ElementStats.cs:92	雷 {0}% {1} 連鎖{2} 範囲{3}m 停止{4}s
+683	ui	Elements/ElementStats.cs:93	風 {0}% {1} 貫通+{2} {3}m
+684	ui	Elements/ElementStats.cs:94	血 {0}%{1}
+685	ui	GameManager.Gacha.cs:133	NEW CARD
+686	ui	GameManager.Gacha.cs:133	DUPLICATE
+687	ui	GameManager.Gacha.cs:157	(AWAKENED済み・保管)
+688	ui	GameManager.Gacha.cs:157	→ 合成で MASTERY +1
+689	ui	GameManager.Gacha.cs:166	タップで次へ(あと {0} 枚)
+690	ui	GameManager.Gacha.cs:166	タップで閉じる / ガチャをタップで続けて引く
+691	ui	GameManager.Gacha.cs:169	NEXT
+692	ui	GameManager.Gacha.cs:169	OK
+693	ui	GameManager.Gacha.cs:180	MILE不足
+694	ui	GameManager.ResumeGate.cs:281	一時停止中 ― 周りを確かめてから再開できます
+695	ui	GameManager.ResumeGate.cs:284	準備ができたら再開
+696	ui	GameManager.ResumeGate.cs:87	GO!
+697	ui	GameManager.cs:1451	NEW UNLOCK:
+698	ui	GameManager.cs:1621	READY
+699	ui	GameManager.cs:1810	SPEED
+700	ui	GameManager.cs:1822	SPEED UP!
+701	ui	GameManager.cs:2485	選択待ちの停止理由だけが残っていた
+702	ui	GameManager.cs:2485	ポーズメニューの停止理由だけが残っていた
+703	ui	GameManager.cs:2500	ボス登場演出のスローが長すぎた
+704	ui	GameManager.cs:2500	ボス登場演出のスローだけが残っていた
+705	ui	GameManager.cs:2515	BOSS REWARD
+706	ui	GameManager.cs:2515	LEVEL UP
+707	ui	GameManager.cs:2516	選択待ちなのに選択画面が無かった → もう一度出した({0}, {1}回目, ok={2})
+708	ui	GameManager.cs:2520	選択待ちなのに選択画面が出せない → 選択無しで解決({0})
+709	ui	GameManager.cs:2531	選択画面が食い違って開いていた → 畳んで{0}を出し直した
+710	ui	GameManager.cs:3784	BEST
+711	ui	GameManager.cs:3785	DISTANCE
+712	ui	GameManager.cs:3819	II
+713	ui	GameManager.cs:3859	STEP:
+714	ui	GameManager.cs:4009	NEW RUN
+715	ui	GameManager.cs:4255	GAME CLEAR
+716	ui	GameManager.cs:4255	FAILED
+717	ui	GameManager.cs:4288	TIME
+718	ui	GameManager.cs:4289	ENEMIES DEFEATED
+719	ui	GameManager.cs:4290	BOSSES DEFEATED
+720	ui	GameManager.cs:4291	BONUS
+721	ui	GameManager.cs:4292	BONUS ZONE
+722	ui	GameManager.cs:4293	RING BONUS
+723	ui	GameManager.cs:4294	TOTAL EXP
+724	ui	GameManager.cs:4295	UPGRADES OBTAINED
+725	ui	GameManager.cs:4296	TOTAL MILE
+726	ui	GameManager.cs:4304	ENEMIES / BOSSES
+727	ui	GameManager.cs:4305	TOTAL EXP / UPGRADES
+728	ui	GameManager.cs:4308	失ったもの: このランのMILE {0}
+729	ui	GameManager.cs:4311	残るもの: BEST距離の記録(更新!)・累計走行距離
+730	ui	GameManager.cs:4311	残るもの: BEST距離の記録・累計走行距離
+731	ui	GameManager.cs:4313	持っているカード・MILE(WALLET {0})
+732	ui	GameManager.cs:4520	HP
+733	ui	GameManager.cs:4526	封印{0}
+734	ui	GameManager.cs:4526	盾{0}
+735	ui	GameManager.cs:4691	MAX
+736	ui	GameManager.cs:4694	合成Lv.{0}  能力{1}種
+737	ui	GameManager.cs:4897	速度のみ x{0}(配置間隔は変えない)
+738	ui	GameManager.cs:4912	ASSIST ON
+739	ui	GameManager.cs:4912	ASSIST OFF
+740	ui	GameManager.cs:4917	直近:{0}({1})
+741	ui	GameManager.cs:4918	不可:{0}
+742	ui	GameManager.cs:4919	障害物:{0} 壊す{1}/跳ぶ{2}/無理{3}
+743	ui	GameManager.cs:4920	{0} 判定{1}km/h(ON≧{2}/OFF<{3}){4}{5}
+744	ui	GameManager.cs:5051	背景: {0}
+745	ui	GameManager.cs:5051	[プレビュー]
+746	ui	GameManager.cs:5052	読込{0}枚 {1}MB
+747	ui	GameManager.cs:5060	背景◀
+748	ui	GameManager.cs:5060	背景▶
+749	ui	GameManager.cs:5060	移行
+750	ui	GameManager.cs:5060	通常
+751	ui	GameManager.cs:5060	境目へ
+752	ui	GameManager.cs:5147	設定
+753	ui	GameManager.cs:5153	闘技場
+754	ui	GameManager.cs:5153	闘技場 (LOCK)
+755	ui	GameManager.cs:5157	闘技場はまだ解放されていません
+756	ui	GameManager.cs:5157	解放の条件: {0}
+757	ui	GameManager.cs:5163	DEBUG
+758	ui	GameManager.cs:5792	現在のRunと未確定MILEを
+759	ui	GameManager.cs:5792	破棄します。よろしいですか？
+760	ui	GameManager.cs:5796	破棄してNEW RUN
+761	ui	GameManager.cs:5804	キャンセル
+762	ui	GameManager.cs:5824	RESUME
+763	ui	GameManager.cs:5831	RETURN TO HOME
+764	ui	GameManager.cs:5860	Home Roomへ戻ります。
+765	ui	GameManager.cs:5860	Runは終了せず、この続きから
+766	ui	GameManager.cs:5860	CONTINUEできます。
+767	ui	GameManager.cs:673	このカードは他で使われています
+768	ui	GameManager.cs:680	{0} は他のキャラカードと合わせて Lv{1} を超えるので装備できません(超える分は効きません)
+769	ui	GameManager.cs:681	注意: {0} は他のキャラカードと合わせて Lv{1} を超えます(超える {2} Lv 分は効きません)
+770	ui	LastDungeon/LastDungeonFlow.cs:167	BOSS RUSH  走りながら戦え! WARNING が迫る! 残ったボスを倒せ! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+771	ui	LastDungeon/LastDungeonFlow.cs:319	BEYOND
+772	ui	LastDungeon/ReaperFinaleBattle.cs:66	死神三姉妹
+773	ui	LastDungeon/ReaperFinaleBattle.cs:90	三姉妹
+774	ui	LastDungeon/StaffCreditsData.cs:37	ONE MORE MILE?
+775	ui	MajinController.Battle.cs:108	激昂!
+776	ui	MajinController.Battle.cs:225	SKY MAGIC ASSAULT
+777	ui	MajinController.Battle.cs:270	魔人が硬直! 攻撃のチャンス!
+778	ui	Net/LanDiscovery.cs:28	VERSION MISMATCH
+779	ui	Net/LanDiscovery.cs:28	IN PROGRESS
+780	ui	Net/LanDiscovery.cs:28	FULL
+781	ui	Net/LanDiscovery.cs:28	OPEN
+782	ui	Net/NetCombat.cs:1071	BOSS:
+783	ui	Net/NetCombat.cs:1299	HOST
+784	ui	Net/NetCombat.cs:1299	JOIN
+785	ui	Net/NetCombat.cs:174	BOSS
+786	ui	Net/NetCombat.cs:304	TARGET
+787	ui	Net/NetCombat.cs:712	BOSS LAST HIT:
+788	ui	Net/NetCombat.cs:712	ENEMY KILL:
+789	ui	Net/NetDebugUI.cs:190	同じWi-Fi、またはスマホのテザリングにつないだ端末どうしで遊びます(最大
+790	ui	Net/NetDebugUI.cs:190	人)。
+791	ui	Net/NetDebugUI.cs:193	ONLINE(準備中)
+792	ui	Net/NetDebugUI.cs:196	ADVANCED(IPを直接入力・開発用)
+793	ui	Net/NetDebugUI.cs:198	閉じる
+794	ui	Net/NetDebugUI.cs:20	マルチ {0}/{1}
+795	ui	Net/NetDebugUI.cs:20	マルチ
+796	ui	Net/NetDebugUI.cs:204	モードを選んでください
+797	ui	Net/NetDebugUI.cs:207	倒れたらDOWN。倒れた地点まで来た仲間(HP2以上)がHPを1つ渡すと復活。全員DOWNで終了。
+798	ui	Net/NetDebugUI.cs:210	倒れたら脱落(復活なし)。最後の1人まで続き、到達距離で順位が決まる。
+799	ui	Net/NetDebugUI.cs:217	CO-OP
+800	ui	Net/NetDebugUI.cs:217	VERSUS
+801	ui	Net/NetDebugUI.cs:221	この端末で部屋を作ります。近くの端末の「FIND GAME」に表示されます。
+802	ui	Net/NetDebugUI.cs:224	近くの部屋を探して参加します(IPの入力は不要)。
+803	ui	Net/NetDebugUI.cs:246	近くの部屋({0} を選択中。HOST のモードで遊びます)
+804	ui	Net/NetDebugUI.cs:251	CONNECTION FAILED
+805	ui	Net/NetDebugUI.cs:251	接続できませんでした。同じWi-Fiか確認して、もう一度お試しください
+806	ui	Net/NetDebugUI.cs:251	CONNECTION FAILED:
+807	ui	Net/NetDebugUI.cs:256	接続中… {0}
+808	ui	Net/NetDebugUI.cs:263	ローカルゲームを探しています…
+809	ui	Net/NetDebugUI.cs:263	ゲームが見つかりません
+810	ui	Net/NetDebugUI.cs:264	HOST の端末で「CREATE GAME」を押して、同じWi-Fi(テザリング)につないでください。
+811	ui	Net/NetDebugUI.cs:287	再検索
+812	ui	Net/NetDebugUI.cs:305	参加中の部屋
+813	ui	Net/NetDebugUI.cs:306	MODE: {0}(HOSTが決めます)
+814	ui	Net/NetDebugUI.cs:306	MODE: HOSTが決めます(Run開始時に自動で揃います)
+815	ui	Net/NetDebugUI.cs:313	近くの端末の「FIND GAME」に表示中
+816	ui	Net/NetDebugUI.cs:315	そろったら「閉じる」→ 扉 → Stage Selectで「出発」すると、全員が同じステージで同時にスタートします。
+817	ui	Net/NetDebugUI.cs:316	HOSTが出発すると自動でスタートします。そのままお待ちください。
+818	ui	Net/NetDebugUI.cs:318	部屋を閉じる
+819	ui	Net/NetDebugUI.cs:318	退出する
+820	ui	Net/NetDebugUI.cs:324	閉じる(部屋はそのまま)
+821	ui	Net/NetDebugUI.cs:330	ADVANCED: IPで接続(開発用)
+822	ui	Net/NetDebugUI.cs:331	同じWi-Fi、またはスマホのテザリングに接続してください(最大{0}人)。
+823	ui	Net/NetDebugUI.cs:334	(取得できません - 端末のWi-Fi設定で確認してください)
+824	ui	Net/NetDebugUI.cs:335	この端末のIP:
+825	ui	Net/NetDebugUI.cs:336	状態:
+826	ui	Net/NetDebugUI.cs:350	CO-OP: 倒れたらDOWN。倒れた地点まで来た仲間(HP2以上)がHPを1つ渡すと復活。全員DOWNで終了。
+827	ui	Net/NetDebugUI.cs:351	VERSUS: 倒れたら脱落(復活なし)。最後の1人まで続き、到達距離で順位が決まる。
+828	ui	Net/NetDebugUI.cs:353	MODE: HOSTが選択します(Run開始時に自動で揃います)
+829	ui	Net/NetDebugUI.cs:359	ポート
+830	ui	Net/NetDebugUI.cs:364	HOST(この端末で部屋を作る)
+831	ui	Net/NetDebugUI.cs:370	JOIN: HOST端末に表示されたIPを入力
+832	ui	Net/NetDebugUI.cs:387	接続中のプレイヤー {0}/{1}
+833	ui	Net/NetDebugUI.cs:390	扉 → Stage Selectで「出発」すると、接続中の全員が同じステージで同時にスタートします。
+834	ui	Net/NetDebugUI.cs:393	部屋を閉じる(HOST終了)
+835	ui	Net/NetDebugUI.cs:393	切断する
+836	ui	Net/NetDebugUI.cs:413	MULTI: 切断
+837	ui	Net/NetDebugUI.cs:42	UI:
+838	ui	Net/NetDebugUI.cs:459	Homeへ戻る
+839	ui	Net/NetDebugUI.cs:464	このまま走る
+840	ui	Net/NetMatch.Phase3.cs:397	VERSUS RESULT
+841	ui	Net/NetMatch.Phase3.cs:397	CO-OP RESULT
+842	ui	Net/NetRunLauncher.cs:353	HOSTの出発を待っています
+843	ui	Net/NetRunLauncher.cs:361	まだ走っているプレイヤーがいます
+844	ui	Net/NetSession.cs:123	HOST: 参加待ち
+845	ui	Net/NetSession.cs:147	初期化エラー
+846	ui	Net/NetSession.cs:148	前の接続を終了中です。少し待ってから再試行してください
+847	ui	Net/NetSession.cs:159	HOSTを開始できませんでした(ポート使用中の可能性)
+848	ui	Net/NetSession.cs:170	IPアドレスの形式が正しくありません(例: 192.168.1.23)
+849	ui	Net/NetSession.cs:183	接続中… {0}:{1}
+850	ui	Net/NetSession.cs:189	JOINを開始できませんでした
+851	ui	Net/NetSession.cs:245	HOST: {0}/{1}人 接続中
+852	ui	Net/NetSession.cs:253	JOIN: 接続完了 {0}
+853	ui	Net/NetSession.cs:273	MULTIPLAYER CONNECTION LOST
+854	ui	Net/NetSession.cs:273	相手プレイヤー
+855	ui	Net/NetSession.cs:273	が切断しました
+856	ui	Net/NetSession.cs:282	HOSTとの接続が切れました
+857	ui	Net/NetSession.cs:282	接続が拒否されました:
+858	ui	Net/NetSession.cs:287	ROOM FULL
+859	ui	Net/NetSession.cs:287	RUN IN PROGRESS
+860	ui	Net/NetSession.cs:291	HOSTへ接続できませんでした
+861	ui	Net/NetSession.cs:299	通信エラーが発生しました
+862	ui	Net/NetSession.cs:45	OMM-NET-
+863	ui	Platform/PlatformServices.cs:114	PS5
+864	ui	PlayerController.cs:2281	ESCAPE
+865	ui	RewardCardSequence.cs:779	もう一度タップして決定
+866	ui	RewardCardSequence.cs:787	カードをタップして選択してください
+867	ui	RewardCardUI.cs:221	AWAKENED
+868	ui	RewardCardUI.cs:286	FINAL EVOLUTION
+869	ui	RewardCardUI.cs:426	EQUIPPED
+870	ui	RewardCardUI.cs:426	NEW
+871	ui	RunBuildHud.cs:352	強さ Lv{d.level:0.0}{(d.def.risk ?
+872	ui	RunBuildHud.cs:358	COMBO
+873	ui	RunBuildHud.cs:378	キャラ
+874	ui	RunBuildHud.cs:379	デッキ
+875	ui	Save/UnlockRules.cs:106	{0}で{1}m到達
+876	ui	Save/UnlockRules.cs:107	最高 {0}m / {1}m
+877	ui	Save/UnlockRules.cs:112	いずれかのマップで1,000m以下でゲームオーバー
+878	ui	Save/UnlockRules.cs:188	UNLOCKED:
+879	ui	Save/UnlockRules.cs:197	NEW CHARACTER:
+880	ui	Save/UnlockRules.cs:213	ホームの「闘技場」から入れます。
+881	ui	Save/UnlockRules.cs:213	マップ選択から出発できます。
+882	ui	Save/UnlockRules.cs:214	{0} が解放されました
+883	ui	Save/UnlockRules.cs:218	{0} が仲間になりました
+884	ui	Save/UnlockRules.cs:218	キャラ選択で選べます。
+885	ui	Save/UnlockRules.cs:225	走り続けたあなたへ。
+886	ui	Save/UnlockRules.cs:225	最後の道が開かれました。
+887	ui	Settings/SettingsPanel.cs:241	音
+888	ui	Settings/SettingsPanel.cs:242	(音声が使えません)
+889	ui	Settings/SettingsPanel.cs:245	全体
+890	ui	Settings/SettingsPanel.cs:246	BGM
+891	ui	Settings/SettingsPanel.cs:247	SE
+892	ui	Settings/SettingsPanel.cs:248	環境音
+893	ui	Settings/SettingsPanel.cs:264	言語 / Language
+894	ui	Settings/SettingsPanel.cs:264	言語
+895	ui	Settings/SettingsPanel.cs:274	選んだ言語で表示します
+896	ui	Settings/SettingsPanel.cs:274	端末の言語に合わせています
+897	ui	Settings/SettingsPanel.cs:282	表示
+898	ui	Settings/SettingsPanel.cs:283	画面の向き
+899	ui	Settings/SettingsPanel.cs:283	横画面
+900	ui	Settings/SettingsPanel.cs:283	縦画面
+901	ui	Settings/SettingsPanel.cs:285	画面揺れ
+902	ui	Settings/SettingsPanel.cs:286	発光演出
+903	ui	Settings/SettingsPanel.cs:287	※敵の攻撃予兆や操作に必要な表示は弱くなりません
+904	ui	Settings/SettingsPanel.cs:295	操作
+905	ui	Settings/SettingsPanel.cs:296	(自動補助は使えません)
+906	ui	Settings/SettingsPanel.cs:297	高速時の補助
+907	ui	Settings/SettingsPanel.cs:300	補助開始速度
+908	ui	Settings/SettingsPanel.cs:302	走る速さがこの値を超えると、穴/障害物/敵へのジャンプと
+909	ui	Settings/SettingsPanel.cs:303	攻撃を自動で補助します(自分の操作が優先)
+910	ui	Settings/SettingsPanel.cs:310	遊び方
+911	ui	Settings/SettingsPanel.cs:312	操作を練習する
+912	ui	Settings/SettingsPanel.cs:318	前後の攻撃/ジャンプ/下攻撃/打ち上げ/カードを練習(報酬なし)
+913	ui	Settings/SettingsPanel.cs:318	練習はホームで始められます(ラン中/マルチ中は不可)
+914	ui	SkyBossesBattle.cs:168	巨大な手が足場に残った! 大きなチャンス!
+915	ui	SkyBossesBattle.cs:247	コアが暗くなった! 崩しやすい!
+916	ui	SkyBossesBattle.cs:322	頭部が近くに! 攻撃のチャンス!
+917	ui	SkyBossesBattle.cs:415	体勢を崩した! 反撃のチャンス!
+918	ui	SkyBossesBattle.cs:495	再構築に失敗! コア露出!
+919	ui	SkyBossesBattle.cs:544	炎が弱まった! 攻撃のチャンス!
+920	ui	SkyBossesBattle.cs:625	頭が雲から低く出た! 攻撃のチャンス!
+921	ui	SkyBossesBattle.cs:694	光輪が消えた! 長い反撃のチャンス!
+922	ui	SkyBossesBattle.cs:97	帯電が消えた! 大きな反撃のチャンス!
+923	ui	Sprint/SprintDeparturePanel.cs:48	疾走出発…({0})
+924	ui	Sprint/SprintDeparturePanel.cs:48	疾走出発…
+925	ui	Sprint/SprintDeparturePanel.cs:63	疾走出発  {0}
+926	ui	Sprint/SprintDeparturePanel.cs:65	攻略済みの区間を一気に駆け抜け、選んだ関門の少し手前から走り始めます。途中のボス報酬ぶんのカードは自動で取得。5,000mごとのリングをくぐると追加で1枚選べます。
+927	ui	Sprint/SprintDeparturePanel.cs:71	{0}km まで疾走   (約{1}秒 + リング){2}
+928	ui	Sprint/SprintDeparturePanel.cs:82	(開発版: DEBUG の全解放が ON)
+929	ui	Sprint/SprintRecords.cs:93	対象外の距離
+930	ui	Sprint/SprintRecords.cs:94	DEBUG 全解放
+931	ui	Sprint/SprintRecords.cs:96	{0}km に未到達(最高 {1}km)
+932	ui	Sprint/SprintRecords.cs:98	{0}km の門番が未撃破
+933	ui	Sprint/SprintRunner.cs:189	疾走再開!
+934	ui	Sprint/SprintRunner.cs:222	RING!  今は取れるカードがありません
+935	ui	Sprint/SprintRunner.cs:245	リングを逃した
+936	ui	Sprint/SprintRunner.cs:271	BONUS CARD
+937	ui	Sprint/SprintRunner.cs:285	RING!
+938	ui	Sprint/SprintRunner.cs:286	今は取れるカードがありません
+939	ui	Sprint/SprintRunner.cs:307	デッキ内のカードがすべてLv9になりました。
+940	ui	Sprint/SprintRunner.cs:307	以降のリング報酬はMILEです
+941	ui	Sprint/SprintRunner.cs:359	十字キー / スティックの上下(A = 上 / B = 下)
+942	ui	Sprint/SprintRunner.cs:360	↑↓ キー / W・S
+943	ui	Sprint/SprintRunner.cs:361	上下にフリック / 右下の ▲▼
+944	ui	Sprint/SprintRunner.cs:531	疾走出発  →  {0}m の関門の手前へ
+945	ui	Sprint/SprintRunner.cs:544	ボス報酬の自動取得 {0}/{1}   リング {2}/{3}{4}
+946	ui	Sprint/SprintRunner.cs:553	デッキ全カード Lv{0} MAX
+947	ui	Sprint/SprintRunner.cs:553	リング報酬は +{0} MILE
+948	ui	Sprint/SprintRunner.cs:554	今は取れるカードがありません(×{0})
+949	ui	Sprint/SprintRunner.cs:582	{0} で高さを合わせてリングをくぐる(逃しても減るものはありません)
+950	ui	Sprint/SprintRunner.cs:591	上下で移動 / リング通過で +MILE
+951	ui	Sprint/SprintRunner.cs:591	上下で移動 / リング通過で追加カード
+952	ui	Sprint/SprintRunner.cs:593	デッキ内のカードがすべてLv9です。リング報酬はMILEです
+953	ui	Tutorial/FirstRunGuide.cs:134	H キー(またはマウスのボタン)を3秒長押し
+954	ui	Tutorial/FirstRunGuide.cs:135	BACK ボタンを3秒長押し
+955	ui	Tutorial/FirstRunGuide.cs:136	画面を3秒長押し
+956	ui	Tutorial/FirstRunGuide.cs:155	はじめての方へ
+957	ui	Tutorial/FirstRunGuide.cs:156	最初に操作を練習できます(2〜3分・時間制限なし)。
+958	ui	Tutorial/FirstRunGuide.cs:156	練習では報酬や記録は増えません。
+959	ui	Tutorial/FirstRunGuide.cs:156	練習は、あとから設定の「遊び方」でいつでもできます。
+960	ui	Tutorial/FirstRunGuide.cs:159	脱出できるようになりました
+961	ui	Tutorial/FirstRunGuide.cs:160	{0}すると脱出して、
+962	ui	Tutorial/FirstRunGuide.cs:160	このランで集めたMILEを持ち帰れます。
+963	ui	Tutorial/FirstRunGuide.cs:160	倒れてしまうと、このランのMILEは失われます。
+964	ui	Tutorial/FirstRunGuide.cs:160	(BEST距離の記録は残ります)
+965	ui	Tutorial/FirstRunGuide.cs:160	このまま走り続けてもOK。脱出するかどうかは自由です。
+966	ui	Tutorial/FirstRunGuide.cs:163	MILEを持ち帰りました!
+967	ui	Tutorial/FirstRunGuide.cs:164	MILEは、ホームのガチャで使えます(1回 {0} MILE)。
+968	ui	Tutorial/FirstRunGuide.cs:164	引いたカードはデッキに入れて、次のランを強くできます。
+969	ui	Tutorial/FirstRunGuide.cs:185	そのまま始める
+970	ui	Tutorial/FirstRunGuide.cs:187	わかった
+971	ui	Tutorial/NoticeQueue.cs:118	({0}件のお知らせ)
+972	ui	Tutorial/NoticeQueue.cs:135	デッキを整理しました
+973	ui	Tutorial/NoticeQueue.cs:136	デッキの上限({0}枚)を超えていた {1} 枚をデッキから外しました。
+974	ui	Tutorial/NoticeQueue.cs:136	カードは所持一覧に残っています。デッキ編集で入れ替えてください。
+975	ui	Tutorial/NoticeQueue.cs:141	デッキが12枚になりました
+976	ui	Tutorial/TutorialMode.cs:250	準備中
+977	ui	Tutorial/TutorialRun.cs:278	右(前)へフリック
+978	ui	Tutorial/TutorialRun.cs:278	→ / D / Z キー
+979	ui	Tutorial/TutorialRun.cs:278	X ボタン(右スティック →)
+980	ui	Tutorial/TutorialRun.cs:279	左(後ろ)へフリック
+981	ui	Tutorial/TutorialRun.cs:279	← / A / X キー
+982	ui	Tutorial/TutorialRun.cs:279	Y ボタン(右スティック ←)
+983	ui	Tutorial/TutorialRun.cs:280	上へフリック
+984	ui	Tutorial/TutorialRun.cs:280	↑ / W / Space キー
+985	ui	Tutorial/TutorialRun.cs:280	A ボタン(右スティック ↑)
+986	ui	Tutorial/TutorialRun.cs:281	下へフリック
+987	ui	Tutorial/TutorialRun.cs:281	↓ / S キー
+988	ui	Tutorial/TutorialRun.cs:281	B ボタン(右スティック ↓)
+989	ui	Tutorial/TutorialRun.cs:288	ジャンプ
+990	ui	Tutorial/TutorialRun.cs:289	下攻撃
+991	ui	Tutorial/TutorialRun.cs:290	打ち上げ → 空中追撃
+992	ui	Tutorial/TutorialRun.cs:291	カードを選ぶ
+993	ui	Tutorial/TutorialRun.cs:292	練習おわり
+994	ui	Tutorial/TutorialRun.cs:300	キャラは自動で走ります。
+995	ui	Tutorial/TutorialRun.cs:300	前後にフリックすると、その方向へ攻撃します。
+996	ui	Tutorial/TutorialRun.cs:300	前: {0}
+997	ui	Tutorial/TutorialRun.cs:300	後ろ: {0}
+998	ui	Tutorial/TutorialRun.cs:301	上へフリックするとジャンプします。
+999	ui	Tutorial/TutorialRun.cs:301	空中でもう一度上へフリックすると、二段ジャンプです。
+1000	ui	Tutorial/TutorialRun.cs:301	ジャンプ: {0}
+1001	ui	Tutorial/TutorialRun.cs:302	ジャンプ中に下へフリックすると、真下へ急降下して攻撃します。
+1002	ui	Tutorial/TutorialRun.cs:302	足元がしっかりした地面の上で使いましょう。
+1003	ui	Tutorial/TutorialRun.cs:302	下攻撃: {0}
+1004	ui	Tutorial/TutorialRun.cs:303	敵の近くでジャンプすると、上への攻撃で敵を打ち上げます。
+1005	ui	Tutorial/TutorialRun.cs:303	浮いた敵には、空中で攻撃を当てて追撃できます。
+1006	ui	Tutorial/TutorialRun.cs:303	(難しければスキップできます)
+1007	ui	Tutorial/TutorialRun.cs:304	走っているとレベルが上がり、3枚のカードから1枚を選べます。
+1008	ui	Tutorial/TutorialRun.cs:304	選んだ強化は、そのランの間だけ有効です。
+1009	ui	Tutorial/TutorialRun.cs:304	ここでは練習なので、効果はこの練習の中だけです。
+1010	ui	Tutorial/TutorialRun.cs:305	これで基本の操作はおしまいです。
+1011	ui	Tutorial/TutorialRun.cs:305	まずは1,000mのボスを目指そう!
+1012	ui	Tutorial/TutorialRun.cs:314	前へ攻撃 [{0}]   後ろへ攻撃 [{1}]
+1013	ui	Tutorial/TutorialRun.cs:315	ジャンプ [{0}]   二段ジャンプ [{1}]
+1014	ui	Tutorial/TutorialRun.cs:315	ジャンプ中にもう一度、上へ
+1015	ui	Tutorial/TutorialRun.cs:316	ジャンプしてから下へ [{0}]
+1016	ui	Tutorial/TutorialRun.cs:316	まず上でジャンプ → 空中で下へ
+1017	ui	Tutorial/TutorialRun.cs:317	打ち上げる [{0}]   空中で追撃 [{1}]
+1018	ui	Tutorial/TutorialRun.cs:317	敵のすぐ手前でジャンプ
+1019	ui	Tutorial/TutorialRun.cs:317	浮いた敵へ、ジャンプ中に前へ攻撃
+1020	ui	Tutorial/TutorialRun.cs:318	カードを1枚選んでください
+1021	ui	Tutorial/TutorialRun.cs:342	練習をやめる
+1022	ui	Tutorial/TutorialRun.cs:361	出発する
+1023	ui	Tutorial/TutorialRun.cs:361	ホームへ戻る
+1024	ui	Tutorial/TutorialRun.cs:362	もう一度練習する
+1025	ui	Tutorial/TutorialRun.cs:366	やってみる
+1026	ui	Tutorial/TutorialRun.cs:367	スキップ
+1027	ui	Tutorial/TutorialRun.cs:369	選んでみる
+1028	ui	Tutorial/TutorialRun.cs:377	OK!
+1029	ui	Ultimate/UltimateArt.cs:177	マルチ未対応
+1030	ui	Ultimate/UltimateArt.cs:178	発動中
+1031	ui	Ultimate/UltimateArt.cs:180	今は使えない
+1032	ui	Ultimate/UltimateArt.cs:182	ボス登場中
+1033	ui	Ultimate/UltimateArt.cs:184	被弾中
+1034	ui	Ultimate/UltimateArt.cs:186	BONUS中
+1035	ui	Ultimate/UltimateArt.cs:685	ULTIMATE
+1036	ui	Ultimate/UltimateArt.cs:687	MULTI×
+1037	ui	Ultimate/UltimateFx.cs:35	黒一閃
+1038	ui	Ultimate/UltimateFx.cs:36	桜花乱咲薔薇ノ一太刀
+1039	ui	Ultimate/UltimateFx.cs:37	双舞
+1040	ui	Ultimate/UltimateFx.cs:38	オールレンジファイア
+1041	ui	Ultimate/UltimateFx.cs:39	龍殺凸
+1042	ui	Ultimate/UltimateFx.cs:40	最高位魔法グラウンドゼロ
+1043	ui	Ultimate/UltimateFx.cs:41	レインロード
+1044	ui	Ultimate/UltimateFx.cs:42	気合の連続パンチ
+1045	ui	Ultimate/UltimateFx.cs:43	高速影分身
+1046	ui	Ultimate/UltimateFx.cs:44	オーバーヒート
+1047	ui	Ultimate/UltimateFx.cs:45	ジ・エンド
+1048	ui	Ultimate/UltimateFx.cs:46	爆撃結界
+1049	ui	Ultimate/UltimateFx.cs:637	カードなし発動中選択中ボス登場中今は使えない被弾中BONUS中準備中
+1050	ui	WildBosses.cs:1001	嵐の三連滑空
+1051	ui	WildBosses.cs:1156	三首の連撃
+1052	ui	WildBosses.cs:129	チャンス!
+1053	ui	WildBosses.cs:1319	冥界の魔柱陣
+1054	ui	WildBosses.cs:1480	黒刃三連閃
+1055	ui	WildBosses.cs:178	騎乗突撃
+1056	ui	WildBosses.cs:378	大地を裂く大蛇
+1057	ui	WildBosses.cs:522	天崩しの大棍棒
+1058	ui	WildBosses.cs:603	八脚の死の舞踏
+1059	ui	WildBosses.cs:74	疾風の追い越し突進
+1060	ui	WildBosses.cs:856	大地の怒り
+1061	ui	WildBosses.cs:879	コア露出!

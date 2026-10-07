@@ -1,0 +1,531 @@
+531	Wind Focus
+532	Boss Focus
+533	EXP Focus
+534	MILE Focus
+535	Challenge Heavy
+536	All Extra Attacks (load test)
+537	Balanced Mix
+538	Attack Focus
+539	Extreme Risk (HP sacrifice)
+540	AEGIS COUNTER
+541	OVERDRIVE
+542	Small boost VFX on hit
+543	Enhanced afterimages at high speed
+544	Blood Aura on heal
+545	Enhanced revival effect / small extra perk
+546	Unique VFX on trigger
+547	Ultimate finale/unique aura/BUFF effect/finisher VFX (no damage increase)
+548	WANTED! A bounty target appeared
+549	BOUNTY!
+550	COMBO!
+551	for {0}s
+552	next {0}m
+553	FINAL EVOLUTION: REBIRTH
+554	LAST CHANCE
+555	SECOND WIND
+556	PHOENIX
+557	Tail slam left it stuck! Attack now!
+558	Its eyes are weak! Hit the head!
+559	Head lowered! Long counter window!
+560	Jump!
+561	Get down!
+562	Out of mana! Long attack window!
+563	Flipped over! Huge chance!
+564	Tail stuck in the ground! Attack now!
+565	It's dizzy! Attack now!
+566	Club stuck! Attack now!
+567	Head left on the ground! Attack now!
+568	Core exposed! Easy to BREAK!
+569	Crashed into the ground! Attack now!
+570	Card Setup ▶
+571	<color=#FFD866><b>Character Cards</b></color>
+572	<color=#8890A0>(Empty)</color>
+573	LOCKED
+574	Unlock condition:
+575	[Main]
+576	[Sub]
+577	Move Speed
+578	Attack
+579	Jump Power
+580	Jump Count
+581	Max HP
+582	Attack Range
+583	Attack Speed
+584	Air Attack
+585	Shield
+586	EXP Gain
+587	Drain Chance
+588	Drain Amount
+589	Enemy Spawn Rate
+590	Ground Attack
+591	Finisher Power
+592	Opener Power
+593	Attack at Low HP
+594	Attack at Full HP
+595	Attack at Speed
+596	Attack vs Bosses
+597	Enemy HP
+598	Boss HP
+599	MILE Gain
+600	Boss MILE Gain
+601	Burn Chance
+602	Burn Power
+603	Burn Duration
+604	Chill Chance
+605	Chill Slow
+606	Chill Duration
+607	Chill Buildup to Freeze
+608	Freeze Duration
+609	Lightning Chance
+610	Lightning Power
+611	Chain Count
+612	Chain Range
+613	Wind Blade Chance
+614	Wind Blade Power
+615	Pierce Count
+616	Wind Blade Range
+617	Bleed Chance
+618	Bleed Power
+619	Bleed Duration
+620	Bleed Drain
+621	Bleed Boost at Low HP
+622	Main Attack Speed
+623	Effective Attack Range
+624	Max HP (Hearts)
+625	Sealed Hearts
+626	Air Attack
+627	Ground Attack
+628	Opener
+629	Mid-Combo
+630	Finisher
+631	Attack vs Bosses
+632	Attack vs Mobs
+633	Attack vs Airborne
+634	Down Attack/Slam
+635	Attack at Full HP
+636	Attack at HP 50% or less
+637	Attack at HP 25% or less
+638	Attack Speed at Low HP
+639	Drain Chance at HP 25% or less
+640	Attack per Sealed Heart
+641	Attack per Hit
+642	Attack per Air Hit
+643	Attack at 150km/h
+644	Attack in OVERDRIVE
+645	Attack Speed in OVERDRIVE
+646	Max Shields
+647	Shield Recharge (s faster)
+648	Healing (Hearts)
+649	Extra Attack Chance
+650	Post-Hit Invincibility (s)
+651	Flinch Reduction
+652	Enemy Action Speed
+653	Elite Chance
+654	Treasure/Reward MILE
+655	Distance MILE
+656	Distance EXP
+657	Kill EXP
+658	Chills to Freeze
+659	Lightning Power
+660	Lightning Stun (s)
+661	Lightning Area (m)
+662	Wind Blade Speed
+663	Effect Lv
+664	In use; can't convert
+665	Owned x{0}
+666	Tap a card to see details
+667	[Another character's card]
+668	This card is in use. Remove it first.
+669	: convert to {CardConvertMile} MILE?
+670	Change your current deck
+671	to the recommended setup?
+672	Remove all cards
+673	from the deck?
+674	The dragon is flying low! Counter now!
+675	Final phase!
+676	BREAK!
+677	DRAGON FIRE CHARGE
+678	Giant Purgatory Fireball
+679	Fire {0}% {1}/s {2}s
+680	Ice {0}% -{1}% {2}s Freeze {3}x/{4}s
+681	Absolute Zero Lv{0}
+682	Lightning {0}% {1} Chain {2} Area {3}m Stun {4}s
+683	Wind {0}% {1} Pierce +{2} {3}m
+684	Blood {0}%{1}
+685	NEW CARD
+686	DUPLICATE
+687	(AWAKENED, stored)
+688	→ MASTERY +1 via fusion
+689	Tap for next ({0} left)
+690	Tap to close / Tap the gacha to pull again
+691	NEXT
+692	OK
+693	Not enough MILE
+694	Paused — check your surroundings before resuming
+695	Resume When Ready
+696	GO!
+697	NEW UNLOCK:
+698	READY
+699	SPEED
+700	SPEED UP!
+701	Only the selection-wait pause reason remained
+702	Only the pause-menu pause reason remained
+703	Boss entrance slow-mo lasted too long
+704	Only the boss entrance slow-mo remained
+705	BOSS REWARD
+706	LEVEL UP
+707	Awaiting a choice but no selection screen → shown again ({0}, attempt {1}, ok={2})
+708	Awaiting a choice but can't show the screen → resolved with no choice ({0})
+709	Selection screens were out of sync → closed them and reopened {0}
+710	BEST
+711	DISTANCE
+712	II
+713	STEP:
+714	NEW RUN
+715	GAME CLEAR
+716	FAILED
+717	TIME
+718	ENEMIES DEFEATED
+719	BOSSES DEFEATED
+720	BONUS
+721	BONUS ZONE
+722	RING BONUS
+723	TOTAL EXP
+724	UPGRADES OBTAINED
+725	TOTAL MILE
+726	ENEMIES / BOSSES
+727	TOTAL EXP / UPGRADES
+728	Lost: this run's MILE {0}
+729	Kept: BEST distance record (NEW!) & total distance run
+730	Kept: BEST distance record & total distance run
+731	Your cards & MILE (WALLET {0})
+732	HP
+733	Sealed {0}
+734	Shield {0}
+735	MAX
+736	Fusion Lv.{0}  {1} abilities
+737	Speed only x{0} (spacing unchanged)
+738	ASSIST ON
+739	ASSIST OFF
+740	Recent: {0} ({1})
+741	Unable: {0}
+742	Obstacles: {0} break {1}/jump {2}/impossible {3}
+743	{0} check {1}km/h (ON≧{2}/OFF<{3}){4}{5}
+744	Background: {0}
+745	[Preview]
+746	Loaded {0} images {1}MB
+747	BG◀
+748	BG▶
+749	Transition
+750	Normal
+751	To Boundary
+752	Settings
+753	Arena
+754	Arena (LOCK)
+755	The Arena isn't unlocked yet
+756	Unlock condition: {0}
+757	DEBUG
+758	Your current run and unbanked MILE
+759	will be discarded. Are you sure?
+760	Discard & NEW RUN
+761	Cancel
+762	RESUME
+763	RETURN TO HOME
+764	Returning to the Home Room.
+765	The run won't end; you can
+766	CONTINUE from here.
+767	This card is used elsewhere
+768	Can't equip {0}: with your other character cards it would exceed Lv{1} (the excess has no effect)
+769	Note: {0} exceeds Lv{1} with your other character cards (the extra {2} Lv has no effect)
+770	BOSS RUSH  Fight on the run! WARNING is closing in! Defeat the remaining bosses! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+771	BEYOND
+772	The Reaper Sisters
+773	Three Sisters
+774	ONE MORE MILE?
+775	Enraged!
+776	SKY MAGIC ASSAULT
+777	The demon is stunned! Attack now!
+778	VERSION MISMATCH
+779	IN PROGRESS
+780	FULL
+781	OPEN
+782	BOSS:
+783	HOST
+784	JOIN
+785	BOSS
+786	TARGET
+787	BOSS LAST HIT:
+788	ENEMY KILL:
+789	Play with devices on the same Wi-Fi or phone tethering (up to
+790	 players).
+791	ONLINE (coming soon)
+792	ADVANCED (enter IP directly, dev)
+793	Close
+794	Multi {0}/{1}
+795	Multi
+796	Choose a mode
+797	Fall and you're DOWN. A teammate (HP 2+) who reaches you can give 1 HP to revive you. Ends when everyone is DOWN.
+798	Fall and you're out (no revives). Goes on until one remains; ranked by distance reached.
+799	CO-OP
+800	VERSUS
+801	Create a room on this device. It shows up in "FIND GAME" on nearby devices.
+802	Find a nearby room and join (no IP needed).
+803	Nearby rooms ({0} selected. You'll play in the HOST's mode)
+804	CONNECTION FAILED
+805	Couldn't connect. Make sure you're on the same Wi-Fi and try again
+806	CONNECTION FAILED:
+807	Connecting… {0}
+808	Searching for local games…
+809	No games found
+810	On the HOST device, press "CREATE GAME" and connect to the same Wi-Fi (tethering).
+811	Search Again
+812	Joined Room
+813	MODE: {0} (set by HOST)
+814	MODE: set by HOST (synced automatically at run start)
+815	Shown in "FIND GAME" on nearby devices
+816	When everyone's in, tap "Close" → door → "Depart" in Stage Select, and everyone starts the same stage together.
+817	The run starts automatically when the HOST departs. Please wait.
+818	Close Room
+819	Leave
+820	Close (keep room)
+821	ADVANCED: Connect by IP (dev)
+822	Connect to the same Wi-Fi or phone tethering (up to {0} players).
+823	(Unavailable - check your device's Wi-Fi settings)
+824	This device's IP:
+825	Status:
+826	CO-OP: Fall and you're DOWN. A teammate (HP 2+) who reaches you can give 1 HP to revive you. Ends when everyone is DOWN.
+827	VERSUS: Fall and you're out (no revives). Goes on until one remains; ranked by distance reached.
+828	MODE: chosen by HOST (synced automatically at run start)
+829	Port
+830	HOST (create a room on this device)
+831	JOIN: enter the IP shown on the HOST device
+832	Players connected {0}/{1}
+833	Door → "Depart" in Stage Select, and everyone connected starts the same stage together.
+834	Close Room (end HOST)
+835	Disconnect
+836	MULTI: Disconnected
+837	UI:
+838	Back to Home
+839	Keep Running
+840	VERSUS RESULT
+841	CO-OP RESULT
+842	Waiting for the HOST to depart
+843	Some players are still running
+844	HOST: waiting for players
+845	Initialization error
+846	Closing the previous connection. Wait a moment and try again
+847	Couldn't start HOST (port may be in use)
+848	Invalid IP address format (e.g. 192.168.1.23)
+849	Connecting… {0}:{1}
+850	Couldn't start JOIN
+851	HOST: {0}/{1} connected
+852	JOIN: connected {0}
+853	MULTIPLAYER CONNECTION LOST
+854	Other player
+855	 disconnected
+856	Lost connection to the HOST
+857	Connection refused:
+858	ROOM FULL
+859	RUN IN PROGRESS
+860	Couldn't connect to the HOST
+861	A network error occurred
+862	OMM-NET-
+863	PS5
+864	ESCAPE
+865	Tap again to confirm
+866	Tap a card to choose
+867	AWAKENED
+868	FINAL EVOLUTION
+869	EQUIPPED
+870	NEW
+871	Power Lv{d.level:0.0}{(d.def.risk ?
+872	COMBO
+873	Char
+874	Deck
+875	Reach {1}m on {0}
+876	Best {0}m / {1}m
+877	Game over at 1,000m or less on any map
+878	UNLOCKED:
+879	NEW CHARACTER:
+880	Enter from "Arena" at Home.
+881	You can depart from Map Select.
+882	{0} unlocked
+883	{0} joined the team
+884	Choose them in Character Select.
+885	To you, who kept on running.
+886	The final road has opened.
+887	Sound
+888	(Audio unavailable)
+889	Master
+890	BGM
+891	SFX
+892	Ambience
+893	Language
+894	Language
+895	Shown in the selected language
+896	Matching your device language
+897	Display
+898	Screen Orientation
+899	Landscape
+900	Portrait
+901	Screen Shake
+902	Flash Effects
+903	* Enemy attack warnings and essential cues won't be dimmed
+904	Controls
+905	(Auto-assist unavailable)
+906	High-Speed Assist
+907	Assist Start Speed
+908	When your running speed exceeds this value, jumps over pits/obstacles/enemies and
+909	attacks are auto-assisted (your own input takes priority)
+910	How to Play
+911	Practice Controls
+912	Practice front/back attacks, jumps, down attacks, launches and cards (no rewards)
+913	Practice can be started from Home (not during a run or multiplayer)
+914	The giant hand is stuck on the platform! Big chance!
+915	The core dimmed! Easy to BREAK!
+916	Its head is close! Attack now!
+917	Off balance! Counter now!
+918	Rebuild failed! Core exposed!
+919	The flames weakened! Attack now!
+920	Its head dipped below the clouds! Attack now!
+921	The halo vanished! Long counter window!
+922	The charge faded! Big counter chance!
+923	Sprint Start… ({0})
+924	Sprint Start…
+925	Sprint Start  {0}
+926	Dash through cleared sections and start just before your chosen gate. Cards from boss rewards along the way are collected automatically. Pass through the ring every 5,000m to pick 1 extra card.
+927	Sprint to {0}km   (~{1}s + rings){2}
+928	(Dev build: DEBUG unlock-all is ON)
+929	Distance not eligible
+930	DEBUG unlock-all
+931	{0}km not reached (best {1}km)
+932	{0}km gatekeeper not defeated
+933	Sprint resumed!
+934	RING!  No cards available right now
+935	Missed the ring
+936	BONUS CARD
+937	RING!
+938	No cards available right now
+939	All cards in your deck are now Lv9.
+940	Ring rewards are now MILE
+941	D-pad / stick up-down (A = up / B = down)
+942	↑↓ keys / W・S
+943	Flick up/down / ▲▼ at bottom right
+944	Sprint Start  →  to just before the {0}m gate
+945	Boss rewards auto-collected {0}/{1}   Rings {2}/{3}{4}
+946	All deck cards Lv{0} MAX
+947	Ring reward is +{0} MILE
+948	No cards available right now (×{0})
+949	Use {0} to match the height and pass through rings (nothing lost if you miss)
+950	Up/down to move / Pass rings for +MILE
+951	Up/down to move / Pass rings for extra cards
+952	All cards in your deck are Lv9. Ring rewards are MILE
+953	Hold the H key (or a mouse button) for 3 seconds
+954	Hold the BACK button for 3 seconds
+955	Hold the screen for 3 seconds
+956	New to the Game?
+957	You can practice the controls first (2-3 min, no time limit).
+958	Practice doesn't earn rewards or records.
+959	You can practice anytime later via "How to Play" in Settings.
+960	You can now escape
+961	{0} to escape and
+962	bring home the MILE collected this run.
+963	If you fall, this run's MILE is lost.
+964	(Your BEST distance record stays)
+965	You can also keep running. Escaping is up to you.
+966	MILE brought home!
+967	Spend MILE on the gacha at Home ({0} MILE per pull).
+968	Add pulled cards to your deck to power up your next run.
+969	Start Now
+970	Got It
+971	({0} notices)
+972	Deck tidied up
+973	Removed {1} cards over the deck limit ({0}) from your deck.
+974	The cards are still in your collection. Swap them in Deck Edit.
+975	Your deck now holds 12 cards
+976	Preparing
+977	Flick right (forward)
+978	→ / D / Z keys
+979	X button (right stick →)
+980	Flick left (back)
+981	← / A / X keys
+982	Y button (right stick ←)
+983	Flick up
+984	↑ / W / Space keys
+985	A button (right stick ↑)
+986	Flick down
+987	↓ / S keys
+988	B button (right stick ↓)
+989	Jump
+990	Down Attack
+991	Launch → Air Follow-up
+992	Choose a Card
+993	Practice Done
+994	Your character runs automatically.
+995	Flick forward or back to attack in that direction.
+996	Forward: {0}
+997	Back: {0}
+998	Flick up to jump.
+999	Flick up again in midair to double jump.
+1000	Jump: {0}
+1001	Flick down while jumping to dive straight down and attack.
+1002	Use it over solid ground.
+1003	Down attack: {0}
+1004	Jump near an enemy to launch it with an upward attack.
+1005	Hit launched enemies in midair to follow up.
+1006	(You can skip this if it's too hard)
+1007	As you run, you level up and choose 1 of 3 cards.
+1008	Chosen upgrades last only for that run.
+1009	This is practice, so effects only last here.
+1010	That's it for the basic controls.
+1011	First, aim for the boss at 1,000m!
+1012	Attack forward [{0}]   Attack back [{1}]
+1013	Jump [{0}]   Double jump [{1}]
+1014	Up again while jumping
+1015	Jump, then down [{0}]
+1016	Jump with up first → then down in midair
+1017	Launch [{0}]   Air follow-up [{1}]
+1018	Jump right in front of an enemy
+1019	Attack forward mid-jump at the launched enemy
+1020	Choose 1 card
+1021	Quit Practice
+1022	Depart
+1023	Back to Home
+1024	Practice Again
+1025	Try It
+1026	Skip
+1027	Choose
+1028	OK!
+1029	Not in Multi
+1030	Active
+1031	Unavailable
+1032	Boss Entering
+1033	Hit
+1034	In BONUS
+1035	ULTIMATE
+1036	MULTI×
+1037	Black Flash
+1038	Blossom Storm: Rose Blade
+1039	Twin Dance
+1040	All-Range Fire
+1041	Dragonslayer Thrust
+1042	Supreme Magic: Ground Zero
+1043	Rain Lord
+1044	Spirit Punch Barrage
+1045	Shadow Clone Blitz
+1046	Overheat
+1047	The End
+1048	Blast Barrier
+1049	No cardsActiveSelectingBoss EnteringUnavailableHitIn BONUSPreparing
+1050	Triple Storm Glide
+1051	Three-Headed Barrage
+1052	Chance!
+1053	Underworld Pillar Array
+1054	Black Blade Triple Flash
+1055	Mounted Charge
+1056	Earth-Splitting Serpent
+1057	Sky-Breaker Club
+1058	Eight-Legged Dance of Death
+1059	Gale Overtake Rush
+1060	Wrath of the Earth
+1061	Core exposed!

@@ -1,0 +1,531 @@
+0	ZERO ABSOLUTNE
+1	Zamrożeni zwykli wrogowie roztrzaskują się, zadając obrażenia; atak na wychłodzonych/zamrożonych wrogów rośnie (+3% na Lv). Na bossach silniejsze spowolnienie zamiast zamrożenia
+2	ADRENALINA
+3	Przy HP 50% lub mniej szybkość ataku rośnie (+3% na Lv), przy HP 25% lub mniej podwójnie
+4	OSTRZE POWIETRZNE
+5	Trafienie wroga w powietrzu wyzwala dodatkowe cięcie (Lv zwiększa obrażenia i zasięg)
+6	ATAK POWIETRZNY +
+7	Zwiększa atak w powietrzu (+7% na Lv)
+8	WŁADZA NAD NIEBEM
+9	Atak powietrzny rośnie (+3% na Lv) i jeszcze bardziej przy kolejnych trafieniach bez lądowania (+1%/Lv za trafienie, maks. 4)
+10	UDERZENIE Z POWIETRZA
+11	Zwiększa atak na wrogów w powietrzu (wybitych/latających/bossów powietrznych) (+8% na Lv)
+12	ZASIĘG +
+13	Zwiększa efektywny zasięg ataku (+3% na Lv). Wręcz: obszar trafienia; dystansowe: zasięg lotu (pociski nie rosną)
+14	SZYBKOŚĆ ATAKU +
+15	Zwiększa szybkość ataku (+3% na Lv)
+16	ATAK +
+17	Zwiększa atak (+5% na Lv)
+18	SZAŁ BERSERKA
+19	Przy HP 50% lub mniej rośnie atak (+5% na Lv) i szybkość ataku (+2%), przy HP 25% lub mniej oba rosną jeszcze bardziej
+20	BERSERKER
+21	Zwiększa atak (+6% na Lv) i szybkość ataku (+1%). Pieczętuje 1 serce maks. HP co 3 Lv
+22	KRWAWE OSTRZE
+23	Ataki wywołują krwawienie (szansa i obrażenia rosną z Lv). Przy pełnym HP szansa na krwawienie jest podwójna. Atak przy pełnym HP też nieco rośnie (+2%/Lv)
+24	KRWAWY SZAŁ
+25	Przy HP 50% lub mniej atak rośnie (+4% na Lv), przy HP 25% lub mniej rośnie też szansa na wchłanianie (+3%/Lv)
+26	WYZWANIE BOSSÓW
+27	HP bossów rośnie (+10% na Lv), ale rośnie też MILE za bossów (+40%/Lv)
+28	POGROMCA BOSSÓW
+29	Zwiększa atak na bossów (+8% na Lv)
+30	NAWAŁA BOSSÓW
+31	Przy bramach bossów jest szansa (+8% na Lv), że dołączy 1 dodatkowy boss. MILE za bossów rośnie (+50%/Lv)
+32	HAMUJĄCY ATAK
+33	Zwiększa atak (+7% na Lv). Tuż po głównym ataku lekko zwalniasz
+34	PŁONĄCA DUSZA
+35	Podpalenie jest silniejsze (+8% na Lv) i dłuższe (+0.25 s/Lv). Karta sama też czasem podpala
+36	REAKCJA ŁAŃCUCHOWA
+37	Pokonani wrogowie wybuchają. Wrogowie pokonani przez wybuch też wybuchają (do 3 razy; każdy wróg raz na łańcuch)
+38	PIORUN ŁAŃCUCHOWY
+39	Pioruny przeskakują na pobliskich wrogów (+1 cel co 3 Lv; zasięg też rośnie z Lv). Karta sama też czasem przywołuje pioruny
+40	Aktywuje się przy Gauge 100% (przycisk w lewym dolnym rogu). Unikalny cios postaci atakuje wrogów na ekranie i mocno pcha cię do przodu (Lv1 ok. 100m → Lv9 ok. 200m), potem przez chwilę trwa wzmocnienie (Lv1 5 s → Lv9 12 s). Gauge ładuje się za dystans, pokonanych wrogów i obrażenia bossom
+41	O WŁOS
+42	Zwiększa szybkość ruchu (+2% na Lv) i czas nietykalności po trafieniu (+0.05 s na Lv)
+43	OSTRZE COMBO
+44	Im dłuższa seria trafień (HIT), tym większy atak (+0.4%/Lv za trafienie, do 10 trafień)
+45	MISTRZ COMBO
+46	Cios kończący wyzwala specjalną falę uderzeniową do przodu (Lv zwiększa obrażenia i zasięg)
+47	COMBO +
+48	Ostatni cios serii (cios kończący) jest silniejszy (+7% na Lv)
+49	SZAŁ COMBO
+50	Środkowe ciosy serii są silniejsze (+6% na Lv), a szybkość głównego ataku nieco rośnie (+2%/Lv)
+51	KONTRA
+52	Po bloku Shieldem wokół wybucha kontratak (Lv zwiększa obrażenia). Nawet bez Shielda możesz mieć 1
+53	PAKT ZE ŚMIERCIĄ
+54	Bardzo mocno zwiększa atak (+12% na Lv). Pieczętuje 1 serce maks. HP co 2 Lv
+55	PODWÓJNY ATAK
+56	Przy ataku jest szansa (+3% na Lv) na dodatkowy cios. Dodatkowy cios nie wywołuje kolejnego
+57	ELITARNI WROGOWIE
+58	Część zwykłych wrogów staje się elitą (+4% na Lv; HP×2.5, nieco szybsi, za pokonanie MILE×3/EXP×2). MILE też rośnie (+30%/Lv)
+59	KAT
+60	Więcej MILE za pokonanych wrogów (+15% na Lv)
+61	KONWERTER EXP
+62	EXP spada (-10% na Lv, min. 25%), ale MILE za pokonanych wrogów rośnie (+30%/Lv)
+63	EXP +
+64	Więcej zdobywanego EXP (+20% na Lv)
+65	WYBUCH EXP
+66	Znacznie więcej EXP z wrogów/bossów/BONUS ZONE (+80% na Lv)
+67	SZYBCY WROGOWIE
+68	Ruch, pościg i ataki zwykłych wrogów przyspieszają (+4% na Lv), ale rośnie MILE (+15%/Lv) i EXP za pokonanie (+5%/Lv)
+69	PIERWSZY CIOS
+70	Pierwszy cios serii jest silniejszy (+10% na Lv)
+71	PŁOMIENNE OSTRZE
+72	Wejście w ogień. Trafienie podpala wroga (szansa 15%+5%/Lv, 5+1.5/Lv obrażeń na sekundę, 3 s)
+73	OGNISTA KONTRA
+74	Po bloku Shieldem wokół wybucha ognisty kontratak (Lv zwiększa obrażenia), a trafieni wrogowie płoną. Nawet bez Shielda możesz mieć 1
+75	TWIERDZA
+76	Zwiększa maks. HP (+1 serce na Lv) i zmniejsza odrzut po trafieniu (+5%/Lv), ale obniża szybkość ruchu (-3% na Lv)
+77	MROŹNE OSTRZE
+78	Wejście w lód. Trafienie wychładza wroga (szansa 15%+5%/Lv, ruch wolniejszy o 25%+2%/Lv). Nałożone wychłodzenie zamraża (bossowie nie stają, ale mocno zwalniają)
+79	WICHURA
+80	Ostrza wiatru są szybsze (+5% na Lv), lecą dalej (+0.4m/Lv) i przebijają więcej wrogów (+1 co 3 Lv). Pociski też przebijają więcej
+81	POGROMCA OLBRZYMÓW
+82	Mocno zwiększa atak (+9% na Lv), ale obniża szybkość ataku (-3% na Lv)
+83	SZKLANE DZIAŁO
+84	Mocno zwiększa atak (+9% na Lv). Pieczętuje 1 serce maks. HP co 2 Lv
+85	CHCIWOŚĆ
+86	Zwiększa szybkość ruchu (+4% na Lv), ale pojawia się więcej wrogów (+8%/Lv)
+87	ŁAMACZ ZIEMI
+88	Lądowanie po uderzeniu w ziemię i ciosy kończące na ziemi wyzwalają falę uderzeniową biegnącą po gruncie (Lv zwiększa obrażenia i długość). Atak na ziemi też nieco rośnie (+2%/Lv)
+89	WOJOWNIK ZIEMI
+90	Zwiększa atak na ziemi (+7% na Lv)
+91	PUNKT ZERO
+92	Mocno zwiększa atak na ziemi (+11% na Lv), ale obniża go w powietrzu (-5% na Lv)
+93	ŁAMACZ SERC
+94	Zwiększa atak (+4% na Lv) oraz +0.6%/Lv za każde zapieczętowane serce. Pieczętuje 1 serce maks. HP co 3 Lv
+95	SERCE +
+96	Zwiększa maks. HP (+1 serce na Lv, maks. 20 serc) i leczy HP
+97	CIĘŻKA ZBROJA
+98	Silne ciosy (2+ serca) zabierają 1 serce mniej. Maks. HP też rośnie (+1 serce co 2 Lv), ale siła skoku spada (-3% na Lv)
+99	CIĘŻKIE UDERZENIE
+100	Ataki w dół, uderzenia w ziemię i wstrząsy przy lądowaniu są silniejsze (+10% na Lv). Cios kończący też nieco rośnie (+3%/Lv)
+101	TRYB PIEKŁA
+102	HP (+12%/Lv), ruch (+4%/Lv) i liczba (+8%/Lv) zwykłych wrogów rosną, ale MILE (+50%/Lv) i MILE za bossów (+30%/Lv) mocno rosną
+103	WYSOKIE NAPIĘCIE
+104	Piorun jest silniejszy (+5% na Lv). Uderzenie pioruna na chwilę unieruchamia zwykłych wrogów. Szansa na piorun też nieco rośnie (+1%/Lv)
+105	HORDA
+106	Pojawia się znacznie więcej wrogów (+15% na Lv), ale rośnie MILE (+5%/Lv) i EXP za pokonanie (+5%/Lv)
+107	ŁOWCA
+108	Łatwiej się ruszać w walce z bossem. Wypad/odskok przy ataku jest dłuższy (+4% na Lv) i szybciej zbliżasz się do dalekich bossów (+3%/Lv)
+109	LODOWE WIĘZIENIE
+110	Łatwiej zamrozić (potrzebnych wychłodzeń -1 co 3 Lv). Szansa i czas wychłodzenia też rosną
+111	INFERNO
+112	Pokonanie płonącego wroga rozprzestrzenia ogień i podpala pobliskich (Lv zwiększa obrażenia i zasięg). Karta sama też czasem podpala
+113	ŻELAZNA WOLA
+114	Przy pełnym HP atak rośnie (+5% na Lv). Maks. HP też rośnie (+1 serce co 3 Lv)
+115	LICZBA SKOKÓW +
+116	Więcej skoków w powietrzu (+1 na Lv). Kolejne skoki są nieco słabsze, ale nie po wpadnięciu do dziury. Czarodziejka zyskuje 1 poziom wysokości co 3 Lv
+117	SIŁA SKOKU +
+118	Zwiększa siłę skoku (+3% na Lv). Czarodziejka szybciej zmienia wysokość
+119	Gdy HP spadnie do 1 serca, dostajesz krótką nietykalność (1 s + 0.15 s na Lv). Nie zadziała ponownie, dopóki HP nie wzrośnie i nie minie trochę czasu
+120	OSTATNI BASTION
+121	Przy HP 50% lub mniej atak rośnie (+4% na Lv), przy HP 25% lub mniej jeszcze bardziej (+4%/Lv)
+122	PRZEŁAMANIE POZIOMU
+123	Znacznie więcej zdobywanego EXP (+30% na Lv)
+124	DŁUGIE OSTRZE
+125	Znacznie zwiększa efektywny zasięg ataku (+5% na Lv)
+126	DŁUGA TRASA
+127	Zwiększa EXP (+15% na Lv) i maks. HP (+1 serce co 3 Lv)
+128	POGROMCA PŁOTEK
+129	Zwiększa atak na wrogów innych niż bossowie (+5% na Lv) i MILE za pokonanych wrogów (+10% na Lv)
+130	PĘD
+131	Twoja obecna prędkość zamienia się w atak. Zaczyna rosnąć powyżej 100km/h, maksimum przy 150km/h (+4% na Lv). Dalej rośnie słabo
+132	NAWAŁA POTWORÓW
+133	Pojawia się więcej wrogów (+10% na Lv), ale rośnie EXP (+15%/Lv)
+134	WIĘCEJ WROGÓW
+135	Pojawia się więcej wrogów (+10% na Lv). MILE za pokonanych wrogów też nieco rośnie (+3%/Lv)
+136	BEZ ODWROTU
+137	Mocno zwiększa szybkość ruchu (+5% na Lv), ale pojawia się więcej wrogów (+10%/Lv)
+138	ONE MORE MILE
+139	Zwiększa MILE (+50% na Lv), MILE za bossów (+50%) i EXP (+20%)
+140	Utrzymując 115km/h lub więcej, wchodzisz w OVERDRIVE (atak +3% na Lv, szybkość ataku +2%). Zwolnienie go wyłącza. Szybkość ruchu też nieco rośnie (+2% na Lv)
+141	NADLECZENIE
+142	Leczenie rośnie (+1 serce na Lv4–6, +2 na Lv7–9). Leczenie przy pełnym HP daje 1 Shield
+143	PANDEMONIUM
+144	HP/ruch/liczba/elity zwykłych wrogów i HP bossów rosną, ale MILE (+60%/Lv) i MILE za bossów (+60%/Lv) rosną ogromnie
+145	ODKRYWCA
+146	Więcej EXP za przebyty dystans (+20% na Lv)
+147	IDEALNA OBRONA
+148	Użycie Shielda daje krótką nietykalność (0.4 s + 0.1 s na Lv). Nawet bez Shielda możesz mieć 1
+149	Po upadku raz się odradzasz (HP od 1 do 5 serc zależnie od Lv). Po odrodzeniu karta znika i znów może się pojawić (od Lv1)
+150	PRZEBIJAJĄCE OSTRZE
+151	Ataki przebijają wrogów. Wręcz: trafia wrogów za celem (Lv zwiększa liczbę i obrażenia); dystansowe: liczba przebić (+1 co 3 Lv)
+152	DRAPIEŻNIK
+153	Zwiększa szansę na wchłanianie (+3% na Lv). Ataki na bossów też czasem mogą wchłaniać
+154	SZYBKIE OSTRZE
+155	Zwiększa szybkość głównego ataku (przód/tył) (+5% na Lv). Nie działa na ataki w górę/dół, uderzenia w ziemię i ciosy specjalne
+156	WSTECZNY BIEG
+157	Zwiększa atak (+8% na Lv), ale obniża szybkość ruchu (-3% na Lv)
+158	Gdy HP spadnie do 30% lub mniej, odzyskujesz trochę HP (1–3 serca). Potem odnowienie zależne od dystansu (10,000m, krótsze z Lv)
+159	TARCZA
+160	Shield blokujący 1 trafienie. Maks. +1 co 3 Lv (do 3); zużyte odnawiają się z czasem (szybciej z Lv)
+161	FALA UDERZENIOWA
+162	Trafienia wręcz wyzwalają krótką falę uderzeniową do przodu, a pociski falę wokół miejsca trafienia (Lv zwiększa obrażenia i zasięg)
+163	PAN NIEBIOS
+164	Zwiększa atak powietrzny (+4% na Lv). Trafienie w powietrzu przywraca 1 skok powietrzny (na jeden lot: 1 raz co 3 Lv)
+165	NIEBIAŃSKI BIEGACZ
+166	Zwiększa siłę skoku (+2% na Lv) i atak powietrzny (+3% na Lv)
+167	KU NIEBU
+168	Mocno zwiększa atak w powietrzu (+11% na Lv), ale obniża go na ziemi (-5% na Lv)
+169	DŹWIĘKOWE OSTRZE
+170	Każdy główny atak wypuszcza cięcie do przodu. Im szybciej biegniesz, tym dalej leci i tym jest większe i silniejsze
+171	SZYBKOŚĆ -
+172	Obniża szybkość ruchu (-4% na Lv). Specjalna karta, w grze solo mało powodów, by ją wybrać
+173	SZYBKOŚĆ +
+174	Zwiększa szybkość ruchu (+3% na Lv)
+175	DŁUGA DROGA
+176	Zwiększa EXP (+40% na Lv) i maks. HP (+1 serce co 2 Lv)
+177	WŁADCA PIORUNÓW
+178	Wyższa forma pioruna. Obrażenia (+4% na Lv), łańcuch (+1 cel co 3 Lv) i obszar wokół uderzenia są silniejsze
+179	UDERZENIE PIORUNA
+180	Wejście w piorun. Trafienie przywołuje piorun (szansa 5%+2%/Lv, obrażenia 7.5+1.5/Lv; maks. raz na 0.4 s na tego samego wroga)
+181	TORNADO
+182	W miejscu trafienia ostrza wiatru powstaje małe tornado, wciągające pobliskich wrogów (Lv zwiększa obrażenia i zasięg). Karta sama też czasem wypuszcza ostrza wiatru
+183	TWARDZI WROGOWIE
+184	HP zwykłych wrogów rośnie (+15% na Lv), ale rośnie MILE (+15%/Lv) i EXP za pokonanie (+5%/Lv)
+185	ŁOWCA SKARBÓW
+186	Więcej MILE ze skarbów i nagród (goblin ze skarbem/złoty slime/mimik/UKOŃCZONO/PERFEKCYJNIE w BONUS ZONE i nagrody za POSZUKIWANYCH) (+30% na Lv). MILE za bossów i dystans też nieco rośnie
+187	WSZECHMOC
+188	Uniwersalna karta zwiększająca naraz atak (+3% na Lv), maks. HP (+1 serce co 2 Lv) i szybkość ruchu (+2% na Lv)
+189	WAMPIR
+190	Po pokonaniu wroga szansa (+3% na Lv) na odzyskanie 1 serca HP
+191	POSZUKIWANY
+192	Co pewien dystans pojawia się poszukiwany (silniejszy i częstszy z Lv). Pokonaj go dla nagrody albo miń, a ucieknie. MILE rośnie (+35%/Lv)
+193	WIETRZNE CIĘCIE
+194	Wejście w wiatr. Trafienie wypuszcza przebijające ostrze wiatru do przodu (szansa 10%+3%/Lv, obrażenia 8+1.5/Lv). Zasięg ataku też nieco rośnie (+1%/Lv)
+195	TROPICIEL
+196	Napnij, Wyceluj, Przebij
+197	'Tropiciel z głębi lasów
+198	SNAJPER
+199	SMOCZY KOPIJNIK
+200	Przebij Się, Nigdy Nie Ustępuj
+201	'Młody smoczy rycerz z lancą
+202	TARAN
+203	SMOKOWIEC
+204	Pazur, Ogon, Skrzydło, Płomień
+205	'Wojownik ze smoczą krwią.
+206	OSIŁEK
+207	PODWÓJNE OSTRZA
+208	Szybka Stal, Nieustanny Ruch
+209	'Zwinny wojownik z dwoma ostrzami, łączący ciosy
+210	COMBO NAZIEMNE
+211	ZABIJAKA
+212	Pięści, Które Oddają
+213	'Mistrz sztuk walki, który walczy
+214	REWOLWEROWIEC
+215	Jeden Strzał, Jeden Dystans
+216	'Bliźniacze pistolety, jedna precyzyjna linia ognia.
+217	DYSTANSOWY
+218	CZARODZIEJKA
+219	Unoś Się, Uderzaj z Góry
+220	'Czarodziejka, która nigdy nie dotyka ziemi.
+221	LATAJĄCA MAGINI
+222	KAPŁANKA
+223	Zapieczętuj Drogę Przed Sobą
+224	'Egzorcystka z górskiej świątyni.
+225	PIECZĘTUJĄCA
+226	SHINOBI
+227	Znikaj, Tnij, Znikaj
+228	'Shinobi, którego nigdy nie ma tam, gdzie uderzasz.
+229	MOBILNOŚĆ
+230	SZLACHCIANKA
+231	Bohaterka, Która Jeszcze Się Nie Przebudziła
+232	'Odziana w srebro i złoto, dzierży
+233	SZLACHETNA RYCERKA
+234	SZERMIERZ
+235	Ten, Który Nie Staje
+236	'Samotny szermierz, który idzie własną drogą.
+237	ZRÓWNOWAŻONY
+238	Im Dłużej, Tym Silniej
+239	'Szlachcic nocy, który nie potrzebuje ostrza.
+240	KREW
+241	KARTY POSTACI
+242	WYBÓR POSTACI
+243	WYBIERZ
+244	ŻYCIE
+245	MOC
+246	WYBÓR MAPY
+247	Wyrusz
+248	Polecany zestaw
+249	Zdejmij wszystko
+250	Tak
+251	Nie
+252	OSTATNI KORYTARZ
+253	Wrogowie: mieszanka wrogów ze wszystkich map (wzmocnieni)
+254	Cechy: zapadające się podłogi, spadające konstrukcje, unoszące się korytarze
+255	Trasa: gigantyczny starożytny korytarz → zawalenie → otchłań → ostatnia droga
+256	Naturalna Jaskinia
+257	Wrogowie: mrówka / skoczek / nietoperz / robak
+258	Cechy: skalny strop, kolce na stropie, ciemność i pochodnie
+259	Trasa: jedna droga (zagrożenia na ziemi, w powietrzu, pod ziemią i ze stropu)
+260	Niebiański Korytarz
+261	Wrogowie: gobliny + nowi, odblokowywani z dystansem
+262	Cechy: unoszące się platformy ze skał i chmur, ścieżki wysoko w górze
+263	Trasa: im dalej, tym groźniej
+264	Pustynny Trakt
+265	Wrogowie: goblin / ptak
+266	Przeszkody: kamienie, krzaki, ściany, łamliwe drzewa, wielkie głazy, dziury
+267	Trasa: góra Łatwa / dół Groźna
+268	Padłeś. Dotknij "Rewanż", by od razu spróbować ponownie
+269	HP w pełni odnowione
+270	Usunięto wszystkich wrogów i ich ataki (nie liczy się do czasu pokonania)
+271	Zadane {0}    Otrzymane {1}    {2} s
+272	Nietykalność
+273	≡ Ustawienia
+274	Rewanż
+275	Usuń wrogów
+276	Do menu
+277	Wszyscy pokonani  {0} s
+278	Przeciwnicy
+279	Szczegóły
+280	Wynik
+281	Plac treningowy do swobodnego testowania postaci i kart
+282	Start z tymi ustawieniami
+283	Start
+284	Test
+285	(test)
+286	Szukaj
+287	<color=#8ce6ff>Test</color>
+288	+ Dodaj
+289	Kopiuj obecną talię
+290	Kopiuj karty postaci
+291	Build testowy ({0} kart)
+292	Zdejmij wszystko
+293	Lv = ile razy zdobyto w tym biegu (maks. 9 na zdolność). Posiadane karty i talia się nie zmieniają
+294	Dodawaj karty przez "+ Dodaj" na liście po lewej. Możesz też testować bez kart
+295	Kopia posiadanych (Lv fuzji {0}, zdolności: {1})
+296	Skopiowano {0} kart z talii do buildu testowego (talia bez zmian)
+297	Skopiowano {0} kart postaci (Lv startowy)
+298	Cel treningowy
+299	Zwykli wrogowie
+300	Bossowie Traktu
+301	Bossowie Jaskini
+302	Bossowie Niebios
+303	Nieruchomy cel: nie atakuje (dotyk nie rani) i nie pada. Do testowania ataków. Podczas biegu trzyma dystans od gracza
+304	Liczba
+305	Siła ruchów
+306	Faza
+307	Bossowie wchodzą od przodu z własną animacją wejścia
+308	Ruchy bossów jaskini/niebios korzystające z terenu (dziury/strop/spadające skały/pasy nieba itp.) działają inaczej na płaskiej arenie
+309	Maks. 1 rodzaj bossa (można łączyć ze zwykłymi wrogami)
+310	Dodaj przeciwnika
+311	Maks. 1 rodzaj bossa (zastąpiono poprzedniego)
+312	Obecni przeciwnicy ({0})
+313	Brak przeciwników (start bez wrogów pozwala testować tylko ruch)
+314	Siła wrogów: jak na {0}km (HP/atak jak na tym dystansie w grze)
+315	Prędkość
+316	Stój (0km/h)
+317	Biegnij (bazowa + bonusy)
+318	Biegnij (stała prędkość)
+319	Zatrzymuje się tylko automatyczny bieg (ataki/skoki/grawitacja/odrzut/wrogowie jak w grze)
+320	Biegniesz z prędkością bazową pomnożoną przez bonusy postaci/kart (SZYBKOŚĆ + itp.)
+321	Biegniesz z tą prędkością bez bonusów (do porównań bez wpływu kart szybkości)
+322	Teraz: bazowa {0}km/h → faktyczna {1}km/h (bonus ×{2})
+323	Nietykalność / HP
+324	Nietykalność: {0}
+325	Odnów HP
+326	Nawet z nietykalnością "obrażenia, które byś otrzymał" widać w wyniku
+327	Wsparcie sterowania (jak "Asysta przy dużej prędkości" w ustawieniach. Tylko na arenie; ustawienia się nie zmieniają)
+328	OFF
+329	ON
+330	Zawsze (dev)
+331	Działa od {0}km/h
+332	Niedostępne na arenie: FINAL EVOLUTION / AWAKENED / Mastery / pasek ULTIMATE / awans / nagrody za bossów / BONUS ZONE (karty mają tylko zwykłe efekty Lv i COMBO. Nagrody, rekordy i posiadane karty się nie zmieniają)
+333	Tylko wersja dev
+334	Też niespotkani wrogowie: {0}
+335	Stałe losowanie: {0}
+336	Pomoc w niszczeniu przeszkód: {0}
+337	Padłeś
+338	Wszyscy pokonani {0} s
+339	Koniec
+340	Walka trwa
+341	Tym razem: {0}
+342	Zadane obrażenia
+343	Trafienia
+344	Pokonani
+345	Czas do pokonania
+346	Otrzymane obrażenia (utracone HP)
+347	Faktyczne otrzymane obrażenia (z nietykalnością/Shield)
+348	Czas walki
+349	{0} s
+350	{0} ({1}x)
+351	Teraz
+352	Poprzednio
+353	Obecne warunki: {0}
+354	Build testowy: {0}
+355	Poprzednie warunki: {0}
+356	Poprzedni build: {0}
+357	Zmień ustawienia
+358	??? (jeszcze niespotkany)
+359	Nieruchomy cel
+360	{0} / kart: {1} / {2} / jak na {3}km
+361	Brak kart
+362	(kopia posiadanych)
+363	Przygotowanie areny
+364	ARENA
+365	MIMIK KO
+366	GOBLIN
+367	SLIME
+368	WRÓŻKA
+369	MIMIK
+370	MILE
+371	EXP
+372	JACKPOT!!
+373	BONUS ZONE!
+374	PERFEKCYJNIE:
+375	JACKPOT UKOŃCZONY!
+376	BONUS UKOŃCZONY!
+377	JACKPOT  PERFEKCYJNIE!
+378	PERFEKCYJNY BONUS!
+379	WYNIK JACKPOTA
+380	WYNIK BONUSU
+381	WROGOWIE
+382	UKOŃCZONO
+383	PERFEKCYJNIE
+384	RAZEM
+385	LOSOWO
+386	KONIEC
+387	Wznowienie biegu za {0}
+388	Obecny
+389	{0} trafień
+390	(stałe)
+391	Jedna z kart materiału jest używana w talii/kartach postaci
+392	Już AWAKENED (★5), więc Mastery nie rośnie dalej (karta nie zostanie zużyta. Zastosowanie nadwyżki kart po ★5 pojawi się w przyszłości)
+393	Fuzja niemożliwa: Lv po fuzji wyniósłby {0} (limit Lv.{1})
+394	Fuzja niemożliwa: zdolności byłoby {0} (limit {1})
+395	Trwa fuzja
+396	Za mało kart
+397	<color=#ffd76a><b>[MASTERY] Rozwój ponad Lv.9 MAX</b></color>
+398	Karta główna zostaje (Lv.9 MAX); zużywana jest tylko karta materiału.
+399	Obecne Mastery: <color=#ffd76a>{0}</color>  {1}
+400	Ta fuzja: <b>+{0} Mastery</b> (materiał Lv.{1} = {2} kart)
+401	Po fuzji: <color=#ffd76a>{0}</color>  {1}
+402	<size=19>(równowartość {0}★; nadwyżka przechodzi na następną ★)</size>
+403	<size=19>Nadwyżka {0} po ★5 jest przechowywana, nie przepada</size>
+404	<color=#ff9a8a><size=19>Zdolności dodatkowe materiału ({0}) nie są dziedziczone</size></color>
+405	<size=19>Mastery nie zwiększa zwykłych parametrów (atak/szybkość/EXP itp.). To zapis rozwoju i droga do AWAKENED.</size>
+406	<color=#ff9a8a>Po potwierdzeniu zostanie zużyta 1 karta materiału.</color>
+407	<color=#ffd76a><b>[Fuzja identycznych → Lv.9 MAX] Szansa 100%</b></color>
+408	Lv fuzji: Lv.{0} + Lv.{1} → <b>Lv.9 MAX</b>
+409	Nadwyżka <b>{0}</b> ponad Lv.9 trafia do Mastery: {1} → <color=#ffd76a>{2}</color>{3}
+410	<b>Dziedziczone zdolności (bonus do 9)</b>
+411	・{0} <b>×{1}</b>
+412	<color=#ff9a8a>Po potwierdzeniu 2 wybrane karty zostaną zużyte (otrzymasz 1 kartę Lv.9 MAX).</color>
+413	<color=#ffd76a><b>[Fuzja identycznych] Szansa 100%</b></color>
+414	Lv fuzji: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+415	<b>Dziedziczone zdolności (te same sumują bonus)</b>
+416	・{0} {1}<b>×{2}</b>  <size=18>({3} ×{4})</size>
+417	<color=#9fd0ff><b>[Fuzja różnych] Wynik jest losowy</b></color>
+418	<b>Lv fuzji karty wynikowej (wg wyniku)</b>
+419	・Obie udane: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+420	・Tylko główna: <b>Lv.{0}</b> (tylko Lv głównej)
+421	・Tylko materiał: <b>Lv.{0}</b> (tylko Lv materiału)
+422	・Obie nieudane: brak karty, zwrot <color=#ffd76a>{0} MILE</color>
+423	<b>Szansa dziedziczenia zestawu głównej: {0}%</b>
+424	・{0} ×{1}  <size=18>({2} ×{3})</size>
+425	<b>Szansa dziedziczenia zestawu materiału: {0}%</b>
+426	Obie udane: dziedziczy wszystkie zdolności obu stron (te same sumują bonus)
+427	Udana tylko jedna: dziedziczy tylko zdolności, bonusy i Lv tej strony (nieudana przepada)
+428	Jeśli uda się tylko materiał, jego zdolność główna staje się zdolnością główną karty wynikowej
+429	<size=18>(Zwrot przy obu nieudanych = ★{0}×Lv.{1}×{2} + ★{3}×Lv.{4}×{5})</size>
+430	<color=#ff9a8a>Po potwierdzeniu 2 wybrane karty zostaną zużyte.</color>
+431	Nie posiadasz tej karty
+432	Używana w talii i kartach postaci; nie można wybrać
+433	Założona w kartach postaci; nie można wybrać
+434	Używana w talii; nie można wybrać
+435	Potrzebne 2 identyczne karty (masz 1)
+436	Wybierz kartę główną i kartę materiału
+437	Nie można wczytać danych karty
+438	MASTERY W GÓRĘ!
+439	Wielki sukces fuzji!
+440	Fuzja udana!
+441	<size=21>Postęp o {0}★ (nadwyżka przechodzi na następną ★)</size>
+442	<size=21>Nadwyżka {0} po ★5 została zachowana (na przyszłe zastosowania)</size>
+443	<size=21>Ta karta stała się AWAKENED (trwały zapis; zwykłe parametry bez zmian)</size>
+444	Karta główna (Lv.9 MAX) zostaje; zużyto 1 kartę materiału.
+445	<size=21>Mastery nie zwiększa zwykłych parametrów (atak/szybkość/EXP itp.).</size>
+446	Fuzja Lv.<b>{0}</b>{1}
+447	<color=#ffd76a>Fuzja identycznych (pewna)</color> … dziedziczy wszystkie zdolności obu
+448	Główna ({0} Lv.{1}): {2}
+449	Materiał ({0} Lv.{1}): {2}
+450	Tylko Lv głównej
+451	Tylko Lv materiału
+452	<size=21>Lv końcowy {0} = {1}</size>
+453	<b>Zdolność główna</b>
+454	<b>Zdolności dodatkowe ({0}/{1})</b>
+455	Brak
+456	Fuzja nieudana…
+457	Główna ({0} Lv.{1}): <color=#9aa3b8>Nie odziedziczono</color>
+458	Materiał ({0} Lv.{1}): <color=#9aa3b8>Nie odziedziczono</color>
+459	2 wybrane karty zostały zużyte.
+460	Zwrot MILE  <color=#ffd76a><b><size=40>+{0}</size></b></color>
+461	Twoje MILE  <b>{0}</b>
+462	<color=#ffd76a><b>Bonus ×{0}→×{1}</b></color>
+463	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3} ×{4})</color></size>
+464	Wróć
+465	Fuzja kart
+466	Sortuj
+467	Główna
+468	Materiał
+469	Karta
+470	Wybrana
+471	Połącz
+472	Pomiń ▶▶
+473	Łącz dalej
+474	Wróć do listy
+475	Twoje MILE  {0}
+476	{0} rodz. / {1} kart
+477	Karta główna
+478	Karta materiału
+479	Wszystkie
+480	Ruch
+481	Atak
+482	Obrona
+483	Rozwój
+484	Leczenie
+485	Specjalne
+486	Ryzyko
+487	Wybierz 2 karty
+488	Fuzja niemożliwa
+489	Nazwa
+490	Poziom
+491	Rzadkość
+492	Liczba
+493	Posiadane {0}  Dostępne<color=#{1}
+494	Zdolności {0}
+495	Główna+materiał
+496	W użyciu
+497	<color=#ffd76a><b>{0}</b></color>  <b>{1}</b>  {2}  Fuzja Lv.{3}{4}
+498	Zdolność główna: {0}
+499	Zdolności dodatkowe ({0}):
+500	・{0}
+501	Zdolności dodatkowe: brak
+502	<size=19><color=#b7bfd8>Posiadane {0} / Dostępne {1}</color></size>
+503	Wybierz kartę z listy po lewej.
+504	Karta trafia do wybranego slotu (podświetlonego). Dotknij slotu, by zmienić wybór; × usuwa kartę.
+505	・Te same karty … sukces 100%, sumuje Lv fuzji i wszystkie zdolności
+506	・Różne karty … główna 50% / materiał 25% szansy na odziedziczenie zestawu zdolności (losowo). Gdy uda się tylko jedna, zostaje tylko jej Lv i zdolności
+507	・Maks. Lv fuzji to Lv.9. Przy tych samych kartach nadwyżka ponad Lv.9 trafia do Mastery (różnych kart o łącznym Lv ponad Lv.9 nie można połączyć)
+508	・Połączenie tej samej karty z kartą Lv.9 MAX zwiększa Mastery (★5 = AWAKENED)
+509	<size=19>Osiągnięto ★5 (AWAKENED). Zastosowanie nadwyżki kart po ★5 pojawi się w przyszłości (na razie fuzja ich nie zużywa).</size>
+510	Wybranie tej samej karty ({0}) jako materiału zwiększa Mastery o jej Lv (Lv.1 = +1).
+511	Teraz wybierz kartę materiału.
+512	Teraz wybierz kartę główną.
+513	Ta karta jest AWAKENED (★5)
+514	Karta wynikowa ustawiona jako główna. Wybierz kartę materiału
+515	Pewne wzmocnienie
+516	AWAKENED!
+517	Osiągnięto Lv.9 MAX!
+518	Fuzja identycznych ukończona!
+519	Wielki sukces! Odziedziczono zdolności obu stron
+520	Odziedziczono zdolności głównej
+521	Odziedziczono zdolności materiału
+522	Nie odziedziczono…  karty zamieniono na MILE
+523	{0}: dziedziczenie udane!
+524	{0}: dziedziczenie nieudane
+525	Build: Speed
+526	Build: Defense
+527	Build: Blood
+528	Build: Fire
+529	Build: Ice
+530	Build: Lightning

@@ -311,7 +311,7 @@ public class BossDefeatPresentation : MonoBehaviour
             style.fontStyle = FontStyle.Bold;
             style.alignment = TextAnchor.MiddleCenter;
             style.normal.textColor = new Color(0.85f, 0.9f, 1f, keepRunningAlpha);
-            GUI.Label(new Rect(0f, Screen.height * 0.4f + 60f, Screen.width, 34f), keepRunningText, style);
+            LocGUI.Label(new Rect(0f, Screen.height * 0.4f + 60f, Screen.width, 34f), keepRunningText, style);
         }
     }
 
@@ -336,7 +336,7 @@ public class BossDefeatPresentation : MonoBehaviour
         style.fontStyle = FontStyle.Bold;
         style.alignment = TextAnchor.MiddleCenter;
         style.normal.textColor = new Color(textColor.r, textColor.g, textColor.b, alpha);
-        GUI.Label(new Rect(0f, centerY - fontSize * 0.7f, Screen.width, fontSize * 1.4f), text, style);
+        LocGUI.Label(new Rect(0f, centerY - fontSize * 0.7f, Screen.width, fontSize * 1.4f), text, style);
 
         GUI.matrix = savedMatrix;
     }

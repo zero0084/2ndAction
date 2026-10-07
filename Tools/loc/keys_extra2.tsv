@@ -1,0 +1,44 @@
+3012	ui	BossMilestonePresentation.cs:51	BOSS APPROACHING
+3013	ui	CaveBosses.cs:1090	PETRIFYING GAZE
+3014	ui	CaveBosses.cs:110	CAVE CRAWLER
+3015	ui	CaveBosses.cs:1202	CAVERN DRAGON RAGE
+3016	ui	CaveBosses.cs:1337	ABYSSAL CAVERN
+3017	ui	CaveBosses.cs:250	SCORPION DEATH ZONE
+3018	ui	CaveBosses.cs:334	UNDERGROUND HUNT
+3019	ui	CaveBosses.cs:440	CAVE COLLAPSE
+3020	ui	CaveBosses.cs:549	EARTH BREAKER
+3021	ui	CaveBosses.cs:677	CRYSTAL PRISON
+3022	ui	CaveBosses.cs:841	ECHO HUNT
+3023	ui	Data/GachaStage.cs:15	OLD
+3024	ui	Data/GachaStage.cs:15	REPAIRED
+3025	ui	Data/GachaStage.cs:15	MECHANICAL
+3026	ui	Data/GachaStage.cs:15	MAGICAL
+3027	ui	Data/GachaStage.cs:15	DEATH-TOUCHED
+3028	ui	DeckEditUI.cs:127	ALL
+3029	ui	DeckEditUI.cs:127	ATTACK
+3030	ui	DeckEditUI.cs:127	DEFENSE
+3031	ui	DeckEditUI.cs:127	SUPPORT
+3032	ui	DeckEditUI.cs:127	SPECIAL
+3035	ui	GameManager.cs:5890	ESCAPE AVAILABLE
+3036	ui	LastDungeon/StaffCreditsData.cs:54	PROGRAMMING
+3038	ui	LastDungeon/StaffCreditsData.cs:55	GAME DESIGN
+3040	ui	LastDungeon/StaffCreditsData.cs:56	ART / DESIGN
+3042	ui	LastDungeon/StaffCreditsData.cs:57	SPECIAL THANKS
+3043	ui	LastDungeon/StaffCreditsData.cs:57	YOU
+3045	ui	Net/LanDiscovery.cs:83	PLAYER
+3047	ui	Net/NetDebugUI.cs:187	MULTIPLAYER
+3048	ui	Net/NetDebugUI.cs:189	LOCAL PLAY
+3049	ui	Net/NetDebugUI.cs:220	CREATE GAME
+3050	ui	Net/NetDebugUI.cs:223	FIND GAME
+3051	ui	Net/NetDebugUI.cs:344	MODE
+3052	ui	Settings/SettingsPanel.cs:243	全体ミュート
+3053	ui	SkyBossesBattle.cs:132	JUDGMENT OF TITAN
+3054	ui	SkyBossesBattle.cs:213	HEAVENLY PULSE
+3055	ui	SkyBossesBattle.cs:274	LEVIATHAN CROSSING
+3056	ui	SkyBossesBattle.cs:370	FENRIR SKY HUNT
+3057	ui	SkyBossesBattle.cs:453	SKY FORTRESS
+3058	ui	SkyBossesBattle.cs:517	PHOENIX REBIRTH
+3059	ui	SkyBossesBattle.cs:584	HEAVEN SERPENT STORM
+3060	ui	SkyBossesBattle.cs:59	THUNDER APOCALYPSE
+3061	ui	Tutorial/TutorialRun.cs:242	PRACTICE
+3062	ui	manual	{0} のキャラカード

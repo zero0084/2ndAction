@@ -330,10 +330,10 @@ public class RunBuildHud : MonoBehaviour
             Color c = a.def.color; c.a = 0.95f;
             Round(Scale(r, 0.86f), c);
             comboIconStyle.normal.textColor = Color.black;
-            GUI.Label(new Rect(r.x + 1f, r.y + 1f, r.width, r.height), a.def.iconText, comboIconStyle);
+            LocGUI.Label(new Rect(r.x + 1f, r.y + 1f, r.width, r.height), a.def.iconText, comboIconStyle);
             comboIconStyle.normal.textColor = Color.white;
-            GUI.Label(r, a.def.iconText, comboIconStyle);
-            if (a.awakened) { comboIconStyle.normal.textColor = new Color(1f, 0.85f, 0.35f); GUI.Label(new Rect(r.xMax - s * 0.38f, r.y - s * 0.22f, s * 0.4f, s * 0.4f), "★", comboIconStyle); }
+            LocGUI.Label(r, a.def.iconText, comboIconStyle);
+            if (a.awakened) { comboIconStyle.normal.textColor = new Color(1f, 0.85f, 0.35f); LocGUI.Label(new Rect(r.xMax - s * 0.38f, r.y - s * 0.22f, s * 0.4f, s * 0.4f), "★", comboIconStyle); }
             var ev = Event.current;
             if (ev.type == EventType.MouseDown && Scale(r, 1.2f).Contains(ev.mousePosition))
             {
@@ -355,9 +355,9 @@ public class RunBuildHud : MonoBehaviour
         if (panel.yMax > Screen.height - 8f) panel.y = Screen.height - 8f - h;
         Round(panel, new Color(0.04f, 0.06f, 0.12f, 0.92f));
         comboTitleStyle.normal.textColor = d.def.color;
-        GUI.Label(new Rect(panel.x + 12f, panel.y + 6f, w - 24f, fs * 1.6f), "COMBO  " + d.def.displayName, comboTitleStyle);
+        LocGUI.Label(new Rect(panel.x + 12f, panel.y + 6f, w - 24f, fs * 1.6f), "COMBO  " + d.def.displayName, comboTitleStyle);
         comboDetailStyle.normal.textColor = new Color(0.9f, 0.92f, 1f);
-        GUI.Label(new Rect(panel.x + 12f, panel.y + fs * 1.8f, w - 24f, h), body, comboDetailStyle);
+        LocGUI.Label(new Rect(panel.x + 12f, panel.y + fs * 1.8f, w - 24f, h), body, comboDetailStyle);
     }
 
     static GUIStyle groupStyle;
@@ -397,9 +397,9 @@ public class RunBuildHud : MonoBehaviour
         var r2 = new Rect(panel.x + 2f, first.y, lw - 2f, first.height);
         Color keep = groupStyle.normal.textColor;
         groupStyle.normal.textColor = new Color(0f, 0f, 0f, 0.85f);
-        GUI.Label(new Rect(r2.x + 1.5f, r2.y + 1.5f, r2.width, r2.height), text, groupStyle);
+        LocGUI.Label(new Rect(r2.x + 1.5f, r2.y + 1.5f, r2.width, r2.height), text, groupStyle);
         groupStyle.normal.textColor = labelColor;
-        GUI.Label(r2, text, groupStyle);
+        LocGUI.Label(r2, text, groupStyle);
         groupStyle.normal.textColor = keep;
     }
 
@@ -445,9 +445,9 @@ public class RunBuildHud : MonoBehaviour
             var ss = numStyle.CalcSize(star);
             var sr = new Rect(body.x + body.width * 0.04f, body.y - ss.y * 0.12f, ss.x, ss.y);
             numStyle.normal.textColor = new Color(0f, 0f, 0f, 0.85f);
-            GUI.Label(new Rect(sr.x + 1f, sr.y + 1f, sr.width, sr.height), star, numStyle);
+            LocGUI.Label(new Rect(sr.x + 1f, sr.y + 1f, sr.width, sr.height), star, numStyle);
             numStyle.normal.textColor = CharEdge;
-            GUI.Label(sr, star, numStyle);
+            LocGUI.Label(sr, star, numStyle);
             if (slot.picked > 0)
             {
                 numStyle.fontSize = Mathf.Max(10, Mathf.RoundToInt(body.height * 0.27f));
@@ -455,9 +455,9 @@ public class RunBuildHud : MonoBehaviour
                 var ps = numStyle.CalcSize(pc);
                 var pr = new Rect(body.x + body.width * 0.05f, body.yMax - ps.y, ps.x, ps.y);
                 numStyle.normal.textColor = new Color(0f, 0f, 0f, 0.85f);
-                GUI.Label(new Rect(pr.x + 1f, pr.y + 1f, pr.width, pr.height), pc, numStyle);
+                LocGUI.Label(new Rect(pr.x + 1f, pr.y + 1f, pr.width, pr.height), pc, numStyle);
                 numStyle.normal.textColor = DeckLabel;
-                GUI.Label(pr, pc, numStyle);
+                LocGUI.Label(pr, pc, numStyle);
             }
         }
 
@@ -474,10 +474,10 @@ public class RunBuildHud : MonoBehaviour
         numStyle.normal.textColor = new Color(0f, 0f, 0f, 0.9f);
         for (int dx = -1; dx <= 1; dx++)
             for (int dy = -1; dy <= 1; dy++)
-                if (dx != 0 || dy != 0) GUI.Label(new Rect(nr.x + dx * 1.5f, nr.y + dy * 1.5f, nr.width, nr.height), content, numStyle);
+                if (dx != 0 || dy != 0) LocGUI.Label(new Rect(nr.x + dx * 1.5f, nr.y + dy * 1.5f, nr.width, nr.height), content, numStyle);
         Color nc = Color.Lerp(Color.white, LevelUpColor, lp > 0f ? 1f : 0f);
         numStyle.normal.textColor = nc;
-        GUI.Label(nr, content, numStyle);
+        LocGUI.Label(nr, content, numStyle);
     }
 
     // FINAL EVOLUTION(2026-10-04): READY=金の枠が脈動+★ / ACTIVE=明るい枠+残り(秒/m) / USED=小さな紋章(暗くはしない)。
@@ -524,9 +524,9 @@ public class RunBuildHud : MonoBehaviour
             var ms = numStyle.CalcSize(mc);
             var mr = new Rect(body.xMax - ms.x * 0.9f, body.y - ms.y * 0.15f, ms.x, ms.y);
             numStyle.normal.textColor = new Color(0f, 0f, 0f, 0.85f);
-            GUI.Label(new Rect(mr.x + 1f, mr.y + 1f, mr.width, mr.height), mc, numStyle);
+            LocGUI.Label(new Rect(mr.x + 1f, mr.y + 1f, mr.width, mr.height), mc, numStyle);
             numStyle.normal.textColor = st == FinalEvolution.Stage.Used ? new Color(1f, 0.78f, 0.35f, 0.9f) : FeGold;
-            GUI.Label(mr, mc, numStyle);
+            LocGUI.Label(mr, mc, numStyle);
         }
         if (st == FinalEvolution.Stage.Active)
         {
@@ -539,9 +539,9 @@ public class RunBuildHud : MonoBehaviour
             var tr = new Rect(Mathf.Min(body.center.x - ts.x * 0.5f, Screen.width - ts.x - 4f), body.y - ts.y * 0.9f, ts.x, ts.y);
             Round(new Rect(tr.x - 3f, tr.y + ts.y * 0.1f, tr.width + 6f, ts.y * 0.9f), new Color(0f, 0f, 0f, 0.6f));
             numStyle.normal.textColor = new Color(0f, 0f, 0f, 0.9f);
-            GUI.Label(new Rect(tr.x + 1f, tr.y + 1f, tr.width, tr.height), tc, numStyle);
+            LocGUI.Label(new Rect(tr.x + 1f, tr.y + 1f, tr.width, tr.height), tc, numStyle);
             numStyle.normal.textColor = FeActive;
-            GUI.Label(tr, tc, numStyle);
+            LocGUI.Label(tr, tc, numStyle);
         }
     }
 

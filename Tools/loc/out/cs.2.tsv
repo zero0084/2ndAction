@@ -1,0 +1,531 @@
+531	Zaměření: vítr
+532	Zaměření: bossové
+533	Zaměření: EXP
+534	Zaměření: MILE
+535	Spousta výzev
+536	Všechny extra útoky (zátěžový test)
+537	Běžný mix
+538	Zaměření: útok
+539	Extrémní riziko (oběť HP)
+540	PROTIÚDER AEGIS
+541	OVERDRIVE
+542	Malé VFX posílení při zásahu
+543	Silnější stopy při vysoké rychlosti
+544	Blood Aura při léčení
+545	Silnější efekt oživení / malý bonus navíc
+546	Speciální VFX při aktivaci
+547	Finální efekt speciálu / vlastní aura / efekt BUFF / závěrečné VFX (poškození nezvyšuje)
+548	WANTED! Objevil se hledaný nepřítel
+549	ODMĚNA!
+550	COMBO!
+551	{0} s
+552	Dalších {0}m
+553	FINAL EVOLUTION: ZNOVUZROZENÍ
+554	POSLEDNÍ ŠANCE
+555	DRUHÝ DECH
+556	FÉNIX
+557	Udeřil ocasem a ztuhl! Šance zaútočit!
+558	Oči oslabeny! Hlava je slabina!
+559	Hlava klesla! Dlouhá šance na protiútok!
+560	Skoč!
+561	Dolů!
+562	Došla mu mana! Dlouhá šance zaútočit!
+563	Převrátil se! Velká šance!
+564	Ocas uvízl v zemi! Šance zaútočit!
+565	Točí se mu hlava! Šance zaútočit!
+566	Kyj uvízl! Šance zaútočit!
+567	Hlava zůstala na zemi! Šance zaútočit!
+568	Jádro odhaleno! Snadný BREAK!
+569	Narazil do země! Šance zaútočit!
+570	Nastavení karet ▶
+571	<color=#FFD866><b>Karty postavy</b></color>
+572	<color=#8890A0>(volné)</color>
+573	ZAMČENO
+574	Podmínka odemčení:
+575	[Hlavní]
+576	[Vedlejší]
+577	Rychlost pohybu
+578	Útok
+579	Síla skoku
+580	Počet skoků
+581	Max. HP
+582	Dosah útoku
+583	Rychlost útoku
+584	Útok ve vzduchu
+585	Shield
+586	Získané EXP
+587	Šance na vysátí
+588	Množství vysátí
+589	Výskyt nepřátel
+590	Útok na zemi
+591	Síla závěrečného úderu
+592	Síla prvního úderu
+593	Útok v nouzi
+594	Útok při plném HP
+595	Útok při zrychlení
+596	Útok proti bossům
+597	HP nepřátel
+598	HP bossů
+599	Získané MILE
+600	MILE z bossů
+601	Šance na hoření (Burn)
+602	Síla hoření
+603	Doba hoření
+604	Šance na chlad (Chill)
+605	Zpomalení chladem
+606	Doba chladu
+607	Hromadění do zmrazení
+608	Doba zmrazení
+609	Šance na úder blesku
+610	Síla úderu blesku
+611	Počet přeskoků
+612	Dosah přeskoku
+613	Šance na větrnou čepel
+614	Síla větrné čepele
+615	Průraz
+616	Dolet větrné čepele
+617	Šance na krvácení (Bleed)
+618	Síla krvácení
+619	Doba krvácení
+620	Vysátí z krvácení
+621	Krvácení v nouzi
+622	Rychlost hlavního útoku
+623	Efektivní dosah útoku
+624	Max. HP (srdce)
+625	Zapečetěná srdce
+626	Útok ve vzduchu
+627	Útok na zemi
+628	První úder
+629	Uprostřed série
+630	Závěrečný úder
+631	Útok proti bossům
+632	Útok proti běžným nepřátelům
+633	Útok proti nepřátelům ve vzduchu
+634	Útok dolů / úder o zem
+635	Útok při plném HP
+636	Útok při HP do 50%
+637	Útok při HP do 25%
+638	Rychlost útoku při nízkém HP
+639	Šance na vysátí při HP do 25%
+640	Útok za zapečetěné srdce
+641	Útok za zásah
+642	Útok za zásah ve vzduchu
+643	Útok při 150km/h
+644	Útok při OVERDRIVE
+645	Rychlost útoku při OVERDRIVE
+646	Max. počet Shield
+647	Obnova Shield (zkrácení s)
+648	Léčení (srdce)
+649	Šance na extra úder
+650	Nesmrtelnost po zásahu (s)
+651	Méně zapotácení
+652	Rychlost nepřátel
+653	Šance na elitu
+654	MILE z pokladů/odměn
+655	MILE za vzdálenost
+656	EXP za vzdálenost
+657	EXP za zabití
+658	Prochlazení do zmrazení
+659	Síla blesku
+660	Zastavení bleskem (s)
+661	Dosah úderu blesku (m)
+662	Rychlost větrné čepele
+663	Lv efektu
+664	Nelze převést: používá se
+665	Vlastníš x{0}
+666	Klepni na kartu pro detaily
+667	[Karta jiné postavy]
+668	Tato karta se právě používá. Nejdřív ji odeber.
+669	převést na {CardConvertMile} MILE?
+670	Změnit aktuální balíček
+671	na doporučenou sestavu?
+672	Odebrat z balíčku
+673	všechny karty?
+674	Drak klesl nízko! Šance na protiútok!
+675	Poslední fáze!
+676	BREAK!
+677	NABÍJENÍ DRAČÍHO OHNĚ
+678	Obří očistcová ohnivá koule
+679	Oheň {0}% {1}/s {2}s
+680	Led {0}% -{1}% {2}s zmrazení {3}×/{4}s
+681	Absolutní nula Lv{0}
+682	Blesk {0}% {1} řetěz {2} dosah {3}m stop {4}s
+683	Vítr {0}% {1} průraz +{2} {3}m
+684	Krev {0}%{1}
+685	NOVÁ KARTA
+686	DUPLIKÁT
+687	(již AWAKENED, uloženo)
+688	→ fúzí MASTERY +1
+689	Klepni pro další (zbývá {0})
+690	Klepni pro zavření / klepni na gachu pro další tah
+691	DALŠÍ
+692	OK
+693	Málo MILE
+694	Pozastaveno ― rozhlédni se a pak pokračuj
+695	Pokračovat, až budeš připraven
+696	GO!
+697	NOVĚ ODEMČENO:
+698	PŘIPRAVENO
+699	RYCHLOST
+700	ZRYCHLENÍ!
+701	Zůstal jen důvod pozastavení „čeká na výběr“
+702	Zůstal jen důvod pozastavení z menu pauzy
+703	Zpomalení při příchodu bosse trvalo moc dlouho
+704	Zůstalo jen zpomalení z příchodu bosse
+705	ODMĚNA ZA BOSSE
+706	NOVÁ ÚROVEŇ
+707	Čekalo se na výběr, ale okno chybělo → zobrazeno znovu ({0}, pokus {1}, ok={2})
+708	Čekalo se na výběr, ale okno nejde zobrazit → vyřešeno bez výběru ({0})
+709	Okna výběru se neshodovala → zavřeno a znovu zobrazeno {0}
+710	BEST
+711	VZDÁLENOST
+712	II
+713	KROK:
+714	NOVÝ BĚH
+715	HRA DOKONČENA
+716	NEÚSPĚCH
+717	ČAS
+718	PORAŽENÍ NEPŘÁTELÉ
+719	PORAŽENÍ BOSSOVÉ
+720	BONUS
+721	BONUS ZONE
+722	BONUS ZA KRUHY
+723	CELKEM EXP
+724	ZÍSKANÁ VYLEPŠENÍ
+725	CELKEM MILE
+726	NEPŘÁTELÉ / BOSSOVÉ
+727	CELKEM EXP / VYLEPŠENÍ
+728	Ztraceno: MILE z tohoto běhu {0}
+729	Zůstává: rekord BEST vzdálenosti (nový!) a celková uběhnutá vzdálenost
+730	Zůstává: rekord BEST vzdálenosti a celková uběhnutá vzdálenost
+731	Vlastněné karty a MILE (PENĚŽENKA {0})
+732	HP
+733	Pečeť {0}
+734	Shield {0}
+735	MAX
+736	Fúze Lv.{0}  {1} schopností
+737	Jen rychlost x{0} (rozestupy beze změny)
+738	ASISTENCE ON
+739	ASISTENCE OFF
+740	Poslední:{0}({1})
+741	Nelze:{0}
+742	Překážky:{0} rozbít{1}/skok{2}/nelze{3}
+743	{0} měřeno {1}km/h(ON≧{2}/OFF<{3}){4}{5}
+744	Pozadí: {0}
+745	[Náhled]
+746	Načteno {0} {1}MB
+747	Pozadí◀
+748	Pozadí▶
+749	Přechod
+750	Normální
+751	K hranici
+752	Nastavení
+753	Aréna
+754	Aréna (ZAMČENO)
+755	Aréna ještě není odemčena
+756	Podmínka odemčení: {0}
+757	DEBUG
+758	Aktuální běh a nepotvrzené MILE
+759	budou zahozeny. Opravdu?
+760	Zahodit a NOVÝ BĚH
+761	Zrušit
+762	POKRAČOVAT
+763	ZPĚT DOMŮ
+764	Vrátíš se domů.
+765	Běh neskončí, později můžeš
+766	pokračovat přes CONTINUE.
+767	Tato karta se používá jinde
+768	{0} nelze vybavit: s ostatními kartami postavy přesáhne Lv{1} (přebytek nefunguje)
+769	Pozor: {0} s ostatními kartami postavy přesáhne Lv{1} (přebytečných {2} Lv nefunguje)
+770	NÁPOR BOSSŮ  Bojuj za běhu! Blíží se VAROVÁNÍ! Poraz zbylé bosse! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+771	ZA HRANICE
+772	Tři sestry Smrtky
+773	Tři sestry
+774	ONE MORE MILE?
+775	Zuří!
+776	NEBESKÝ MAGICKÝ ÚTOK
+777	Démon ztuhl! Šance zaútočit!
+778	JINÁ VERZE
+779	PROBÍHÁ
+780	PLNO
+781	OTEVŘENO
+782	BOSS:
+783	HOST
+784	JOIN
+785	BOSS
+786	CÍL
+787	POSLEDNÍ ÚDER BOSSE:
+788	ZABITÍ:
+789	Hrajte se zařízeními na stejné Wi-Fi nebo tetheringu z mobilu (max.
+790	hráčů).
+791	ONLINE (připravujeme)
+792	POKROČILÉ (zadání IP, pro vývoj)
+793	Zavřít
+794	Multi {0}/{1}
+795	Multi
+796	Vyber režim
+797	Kdo padne, je DOWN. Spoluhráč (HP 2+), který dojde na místo pádu, mu dá 1 HP a oživí ho. Když jsou všichni DOWN, konec.
+798	Kdo padne, vypadává (bez oživení). Hraje se do posledního, pořadí podle uběhnuté vzdálenosti.
+799	CO-OP
+800	VERSUS
+801	Vytvoří místnost na tomto zařízení. Zobrazí se v „FIND GAME“ na zařízeních poblíž.
+802	Najde místnosti poblíž a připojí se (IP netřeba).
+803	Místnosti poblíž (vybráno {0}. Hraje se v režimu HOST)
+804	PŘIPOJENÍ SELHALO
+805	Nelze se připojit. Zkontroluj, že jste na stejné Wi-Fi, a zkus to znovu
+806	PŘIPOJENÍ SELHALO:
+807	Připojuji… {0}
+808	Hledám místní hry…
+809	Žádná hra nenalezena
+810	Na zařízení HOST stiskni „CREATE GAME“ a připoj se ke stejné Wi-Fi (tetheringu).
+811	Hledat znovu
+812	Místnost
+813	REŽIM: {0} (určuje HOST)
+814	REŽIM: určuje HOST (sjednotí se při startu běhu)
+815	Zobrazeno v „FIND GAME“ na zařízeních poblíž
+816	Až budete všichni: „Zavřít“ → dveře → ve Výběru mapy dej „Vyrazit“ a všichni vyrazí současně na stejné mapě.
+817	Hra začne automaticky, až HOST vyrazí. Chvíli počkej.
+818	Zavřít místnost
+819	Odejít
+820	Zavřít (místnost zůstane)
+821	POKROČILÉ: připojení přes IP (vývoj)
+822	Připoj se ke stejné Wi-Fi nebo tetheringu z mobilu (max. {0} hráčů).
+823	(Nelze zjistit - zkontroluj nastavení Wi-Fi zařízení)
+824	IP zařízení:
+825	Stav:
+826	CO-OP: Kdo padne, je DOWN. Spoluhráč (HP 2+), který dojde na místo pádu, mu dá 1 HP a oživí ho. Když jsou všichni DOWN, konec.
+827	VERSUS: Kdo padne, vypadává (bez oživení). Hraje se do posledního, pořadí podle uběhnuté vzdálenosti.
+828	REŽIM: vybírá HOST (sjednotí se při startu běhu)
+829	Port
+830	HOST (vytvořit místnost zde)
+831	JOIN: zadej IP zobrazenou na zařízení HOST
+832	Připojení hráči {0}/{1}
+833	Dveře → ve Výběru mapy dej „Vyrazit“ a všichni připojení vyrazí současně na stejné mapě.
+834	Zavřít místnost (konec HOST)
+835	Odpojit
+836	MULTI: odpojeno
+837	UI:
+838	Zpět domů
+839	Běžet dál
+840	VÝSLEDEK VERSUS
+841	VÝSLEDEK CO-OP
+842	Čekám, až HOST vyrazí
+843	Někdo ještě běží
+844	HOST: čekám na hráče
+845	Chyba inicializace
+846	Ukončuji předchozí připojení. Chvíli počkej a zkus to znovu
+847	HOST nelze spustit (port je možná obsazen)
+848	Neplatný formát IP adresy (např. 192.168.1.23)
+849	Připojuji… {0}:{1}
+850	JOIN nelze spustit
+851	HOST: připojeno {0}/{1}
+852	JOIN: připojeno {0}
+853	SPOJENÍ PŘERUŠENO
+854	Hráč
+855	se odpojil
+856	Spojení s HOST přerušeno
+857	Připojení odmítnuto:
+858	MÍSTNOST PLNÁ
+859	BĚH PROBÍHÁ
+860	Nelze se připojit k HOST
+861	Chyba komunikace
+862	OMM-NET-
+863	PS5
+864	ÚNIK
+865	Klepni znovu pro potvrzení
+866	Klepnutím vyber kartu
+867	AWAKENED
+868	FINAL EVOLUTION
+869	VYBAVENO
+870	NOVÉ
+871	Síla Lv{d.level:0.0}{(d.def.risk ?
+872	COMBO
+873	Postava
+874	Balíček
+875	{0}: dosáhni {1}m
+876	Rekord {0}m / {1}m
+877	Prohraj na libovolné mapě do 1,000m
+878	ODEMČENO:
+879	NOVÁ POSTAVA:
+880	Vstup přes „Aréna“ na domovské obrazovce.
+881	Vyrazíš z výběru mapy.
+882	Odemčeno: {0}
+883	{0} se přidává k týmu
+884	Dostupné ve výběru postavy.
+885	Tobě, kdo nepřestal běžet.
+886	Poslední cesta je otevřena.
+887	Zvuk
+888	(Zvuk není k dispozici)
+889	Celkově
+890	BGM
+891	Efekty
+892	Okolí
+893	Jazyk / Language
+894	Jazyk
+895	Zobrazení ve vybraném jazyce
+896	Podle jazyka zařízení
+897	Zobrazení
+898	Orientace
+899	Na šířku
+900	Na výšku
+901	Otřesy obrazovky
+902	Světelné efekty
+903	※Varování před útoky nepřátel a prvky nutné k ovládání se nezeslabí
+904	Ovládání
+905	(Automatická asistence není dostupná)
+906	Asistence při vysoké rychlosti
+907	Rychlost spuštění asistence
+908	Nad touto rychlostí ti hra automaticky pomůže se skoky přes díry/překážky/na nepřátele
+909	a s útoky (tvé ovládání má přednost)
+910	Jak hrát
+911	Trénovat ovládání
+912	Trénink útoků vpřed/vzad, skoku, útoku dolů, vyhození a karet (bez odměn)
+913	Trénink se spouští z domovské obrazovky (ne během běhu/multi)
+914	Obří ruka zůstala na plošině! Velká šance!
+915	Jádro potemnělo! Snadný BREAK!
+916	Hlava je blízko! Šance zaútočit!
+917	Ztratil rovnováhu! Šance na protiútok!
+918	Obnova selhala! Jádro odhaleno!
+919	Plamen zeslábl! Šance zaútočit!
+920	Hlava vykoukla z mraků! Šance zaútočit!
+921	Svatozář zmizela! Dlouhá šance na protiútok!
+922	Náboj vyprchal! Velká šance na protiútok!
+923	Sprintový start… ({0})
+924	Sprintový start…
+925	Sprintový start  {0}
+926	Proletíš již zdolané úseky a začneš kousek před zvolenou bránou. Karty za odměny bossů po cestě získáš automaticky. Průletem kruhem každých 5,000m vybereš 1 kartu navíc.
+927	Sprint do {0}km   (cca {1} s + kruhy){2}
+928	(Vývoj. verze: DEBUG odemknout vše je ON)
+929	Nepodporovaná vzdálenost
+930	DEBUG vše odemčeno
+931	{0}km nedosaženo (rekord {1}km)
+932	Strážce brány na {0}km neporažen
+933	Sprint pokračuje!
+934	KRUH!  Teď není žádná karta k zisku
+935	Kruh minut
+936	BONUSOVÁ KARTA
+937	KRUH!
+938	Teď není žádná karta k zisku
+939	Všechny karty v balíčku jsou Lv9.
+940	Další odměny z kruhů jsou MILE
+941	Kříž / páčka nahoru-dolů (A = nahoru / B = dolů)
+942	Klávesy ↑↓ / W・S
+943	Švihni nahoru/dolů / ▲▼ vpravo dole
+944	Sprintový start  →  před bránu na {0}m
+945	Auto zisk odměn bossů {0}/{1}   Kruhy {2}/{3}{4}
+946	Všechny karty balíčku Lv{0} MAX
+947	Odměna z kruhu: +{0} MILE
+948	Teď není žádná karta k zisku (×{0})
+949	{0}: srovnej výšku a proleť kruhem (minutí nic nestojí)
+950	Pohyb nahoru/dolů / kruh = +MILE
+951	Pohyb nahoru/dolů / kruh = karta navíc
+952	Všechny karty v balíčku jsou Lv9. Odměna z kruhů je MILE
+953	Drž klávesu H (nebo tlačítko myši) 3 s
+954	Drž tlačítko BACK 3 s
+955	Drž prst na obrazovce 3 s
+956	Pro nováčky
+957	Nejdřív si můžeš natrénovat ovládání (2-3 min, bez časového limitu).
+958	Trénink nepřidává odměny ani záznamy.
+959	Trénovat můžeš kdykoli v nastavení v „Jak hrát“.
+960	Teď můžeš uniknout
+961	{0}: tak unikneš
+962	a odneseš si MILE z tohoto běhu.
+963	Když padneš, MILE z tohoto běhu ztratíš.
+964	(Rekord BEST vzdálenosti zůstane)
+965	Klidně běž dál. Jestli uniknout, je na tobě.
+966	MILE přineseny domů!
+967	MILE utratíš v gacha doma (1 tah {0} MILE).
+968	Získané karty dej do balíčku a posil další běh.
+969	Rovnou začít
+970	Rozumím
+971	({0} oznámení)
+972	Balíček upraven
+973	{1} karet nad limit balíčku ({0}) bylo z balíčku odebráno.
+974	Karty máš dál mezi vlastněnými. Vyměň je v úpravě balíčku.
+975	Balíček má teď 12 karet
+976	Připravujeme
+977	Švihni doprava (vpřed)
+978	Klávesa → / D / Z
+979	Tlačítko X (pravá páčka →)
+980	Švihni doleva (vzad)
+981	Klávesa ← / A / X
+982	Tlačítko Y (pravá páčka ←)
+983	Švihni nahoru
+984	Klávesa ↑ / W / Space
+985	Tlačítko A (pravá páčka ↑)
+986	Švihni dolů
+987	Klávesa ↓ / S
+988	Tlačítko B (pravá páčka ↓)
+989	Skok
+990	Útok dolů
+991	Vyhození → útok ve vzduchu
+992	Výběr karty
+993	Konec tréninku
+994	Postava běží sama.
+995	Švihnutím vpřed nebo vzad zaútočíš tím směrem.
+996	Vpřed: {0}
+997	Vzad: {0}
+998	Švihnutím nahoru vyskočíš.
+999	Dalším švihnutím nahoru ve vzduchu uděláš dvojskok.
+1000	Skok: {0}
+1001	Švihnutím dolů během skoku se střemhlav vrhneš dolů a zaútočíš.
+1002	Používej nad pevnou zemí.
+1003	Útok dolů: {0}
+1004	Skokem u nepřítele ho útokem nahoru vyhodíš.
+1005	Vyhozené nepřátele můžeš dál zasahovat ve vzduchu.
+1006	(Když je to těžké, můžeš přeskočit)
+1007	Během běhu získáváš úrovně a vybíráš 1 ze 3 karet.
+1008	Vybrané vylepšení platí jen během daného běhu.
+1009	Tady jde o trénink, takže efekt platí jen v tréninku.
+1010	Tím jsou základy ovládání hotové.
+1011	Nejdřív se probij k bossovi na 1,000m!
+1012	Útok vpřed [{0}]   Útok vzad [{1}]
+1013	Skok [{0}]   Dvojskok [{1}]
+1014	Během skoku ještě jednou nahoru
+1015	Skoč a pak dolů [{0}]
+1016	Nejdřív skoč nahoru → ve vzduchu dolů
+1017	Vyhoď [{0}]   Útok ve vzduchu [{1}]
+1018	Skoč těsně před nepřítelem
+1019	Během skoku útoč vpřed na vyhozeného nepřítele
+1020	Vyber 1 kartu
+1021	Ukončit trénink
+1022	Vyrazit
+1023	Domů
+1024	Trénovat znovu
+1025	Zkusit
+1026	Přeskočit
+1027	Vybrat
+1028	OK!
+1029	Multi nepodporuje
+1030	Aktivní
+1031	Teď nelze
+1032	Přichází boss
+1033	Zasažen
+1034	Během BONUS
+1035	ULTIMATE
+1036	MULTI×
+1037	Černý blesk
+1038	Sek květů sakury a růží
+1039	Dvojí tanec
+1040	Palba všemi směry
+1041	Drakobijecký výpad
+1042	Nejvyšší magie: Epicentrum
+1043	Pán deště
+1044	Smršť bojových pěstí
+1045	Bleskové stínové klony
+1046	Přehřátí
+1047	Konec
+1048	Bombardovací bariéra
+1049	Bez karetAktivníVybíráníPřichází bossTeď nelzeZasaženBěhem BONUSPřipravujeme
+1050	Bouřlivý trojitý nálet
+1051	Úder tří hlav
+1052	Šance!
+1053	Démonické sloupy podsvětí
+1054	Trojitý sek černé čepele
+1055	Jezdecký nájezd
+1056	Had, jenž trhá zemi
+1057	Kyj, jenž bortí nebe
+1058	Tanec smrti osmi nohou
+1059	Vichřicový výpad
+1060	Hněv země
+1061	Jádro odhaleno!

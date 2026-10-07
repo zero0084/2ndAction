@@ -1388,7 +1388,7 @@ public class EncounterDirector : MonoBehaviour
         sb.Append("history: ");
         for (int i = Mathf.Max(0, Recent.Count - 6); i < Recent.Count; i++) sb.Append(Recent[i].formation).Append('/').Append(Recent[i].intensity.ToString()[0]).Append(' ');
         sb.Append($"\nR/E/M/H = {IntensityCounts[0]}/{IntensityCounts[1]}/{IntensityCounts[2]}/{IntensityCounts[3]}  spawned={SpawnedEnemies}");
-        GUI.Label(new Rect(r.x + 6f, r.y + 4f, r.width - 12f, r.height - 8f), sb.ToString(), style);
+        LocGUI.Label(new Rect(r.x + 6f, r.y + 4f, r.width - 12f, r.height - 8f), sb.ToString(), style);
 
         // 指定Formationを強制(次の出現位置で1回)
         var ids = AllFormationIds();
@@ -1397,7 +1397,7 @@ public class EncounterDirector : MonoBehaviour
             debugSelect = Mathf.Clamp(debugSelect, 0, ids.Count - 1);
             float by = r.yMax + 6f;
             if (GUI.Button(new Rect(r.x, by, 44f, 40f), "<", btn)) debugSelect = (debugSelect + ids.Count - 1) % ids.Count;
-            GUI.Label(new Rect(r.x + 50f, by + 8f, 210f, 30f), ids[debugSelect], style);
+            LocGUI.Label(new Rect(r.x + 50f, by + 8f, 210f, 30f), ids[debugSelect], style);
             if (GUI.Button(new Rect(r.x + 262f, by, 44f, 40f), ">", btn)) debugSelect = (debugSelect + 1) % ids.Count;
             if (GUI.Button(new Rect(r.x + 312f, by, 118f, 40f), "FORCE", btn)) ForceFormation(ids[debugSelect], 1);
         }
@@ -1409,7 +1409,7 @@ public class EncounterDirector : MonoBehaviour
             debugEnemy = Mathf.Clamp(debugEnemy, 0, enemyIds.Count - 1);
             float ey = r.yMax + 52f;
             if (GUI.Button(new Rect(r.x, ey, 44f, 40f), "<", btn)) debugEnemy = (debugEnemy + enemyIds.Count - 1) % enemyIds.Count;
-            GUI.Label(new Rect(r.x + 50f, ey + 8f, 160f, 30f), enemyIds[debugEnemy], style);
+            LocGUI.Label(new Rect(r.x + 50f, ey + 8f, 160f, 30f), enemyIds[debugEnemy], style);
             if (GUI.Button(new Rect(r.x + 212f, ey, 44f, 40f), ">", btn)) debugEnemy = (debugEnemy + 1) % enemyIds.Count;
             if (GUI.Button(new Rect(r.x + 262f, ey, 48f, 40f), "T" + debugTier, btn)) debugTier = (debugTier + 1) % 6;
             if (GUI.Button(new Rect(r.x + 312f, ey, 118f, 40f), "SPAWN", btn)) DebugSpawnEnemy(enemyIds[debugEnemy], (EnemyAiTier)debugTier);
@@ -1458,7 +1458,7 @@ public class EncounterDirector : MonoBehaviour
             if (!sb.isActiveAndEnabled) continue;
             Vector3 sp = cam.WorldToScreenPoint(sb.transform.position + Vector3.up * 2.2f);
             if (sp.z < 0f || sp.x < 0f || sp.x > Screen.width) continue;
-            GUI.Label(new Rect(sp.x - 90f, Screen.height - sp.y - 10f, 180f, 20f), sb.DebugState, aiLabelStyle);
+            LocGUI.Label(new Rect(sp.x - 90f, Screen.height - sp.y - 10f, 180f, 20f), sb.DebugState, aiLabelStyle);
         }
     }
 

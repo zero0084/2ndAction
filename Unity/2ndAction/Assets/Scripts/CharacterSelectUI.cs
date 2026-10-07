@@ -148,7 +148,7 @@ public class CharacterSelectUI : MonoBehaviour
         lr.anchorMin = Vector2.zero; lr.anchorMax = Vector2.one; lr.offsetMin = lr.offsetMax = Vector2.zero;
         var lt = lgo.AddComponent<Text>();
         lt.font = flavorText.font; lt.fontSize = 20; lt.fontStyle = FontStyle.Bold; lt.alignment = TextAnchor.MiddleCenter;
-        lt.color = new Color(1f, 0.93f, 0.7f); lt.text = "カード設定 ▶"; lt.raycastTarget = false;
+        lt.color = new Color(1f, 0.93f, 0.7f); lt.text = Loc.T("カード設定") + " ▶"; lt.raycastTarget = false;
     }
 
     void RefreshCharCards(CharacterDefinition def)
@@ -161,10 +161,10 @@ public class CharacterSelectUI : MonoBehaviour
         for (int i = 0; i < slots.ids.Length; i++)
         {
             CardDefinition c = string.IsNullOrEmpty(slots.ids[i]) ? null : CardDatabase.FindById(slots.ids[i]);
-            string name = c == null ? "<color=#8890A0>(空き)</color>" : (CardVariant.IsVariantKey(slots.ids[i]) ? c.cardName : $"{c.cardName} Lv{Mathf.Max(1, slots.levels[i])}");
+            string name = c == null ? $"<color=#8890A0>({Loc.T("空き")})</color>" : (CardVariant.IsVariantKey(slots.ids[i]) ? c.cardName : $"{c.cardName} Lv{Mathf.Max(1, slots.levels[i])}");
             sb.Append(i == 0 ? "" : " / ").Append(name);
         }
-        charCardsText.text = sb.ToString();
+        charCardsText.text = Loc.Auto(sb.ToString());
     }
 
     public void Open()
@@ -283,19 +283,19 @@ public class CharacterSelectUI : MonoBehaviour
         // からの距離に応じて毎フレーム連続的に更新するため、ここでの
         // バイナリSetActiveは廃止した。
 
-        if (titleText != null) titleText.text = def.displayName;
+        if (titleText != null) titleText.text = Loc.Auto(def.displayName);
         RefreshCharCards(def);
         bool unlocked = UnlockRules.IsCharacterUnlocked(def.characterId);
-        if (subtitleText != null) subtitleText.text = unlocked ? def.subtitle : "LOCKED";
-        if (flavorText != null) flavorText.text = unlocked ? def.flavorText : "解放の条件: " + UnlockRules.CharConditionText(def.characterId);
-        if (roleBadgeText != null) roleBadgeText.text = def.role;
+        if (subtitleText != null) subtitleText.text = Loc.Auto(unlocked ? def.subtitle : "LOCKED");
+        if (flavorText != null) flavorText.text = Loc.Auto(unlocked ? def.flavorText : $"解放の条件: {UnlockRules.CharConditionText(def.characterId)}");
+        if (roleBadgeText != null) roleBadgeText.text = Loc.Auto(def.role);
         if (roleBadgeBg != null) roleBadgeBg.color = def.challengeFlag ? RoleBadgeChallengeColor : RoleBadgeNormalColor;
         if (challengeBadge != null) challengeBadge.SetActive(def.challengeFlag);
 
-        if (lifeStarsText != null) lifeStarsText.text = StarString(def.lifeRating);
-        if (powerStarsText != null) powerStarsText.text = StarString(def.powerRating);
-        if (speedStarsText != null) speedStarsText.text = StarString(def.speedRating);
-        if (comboStarsText != null) comboStarsText.text = StarString(def.comboRating);
+        if (lifeStarsText != null) lifeStarsText.text = Loc.Auto(StarString(def.lifeRating));
+        if (powerStarsText != null) powerStarsText.text = Loc.Auto(StarString(def.powerRating));
+        if (speedStarsText != null) speedStarsText.text = Loc.Auto(StarString(def.speedRating));
+        if (comboStarsText != null) comboStarsText.text = Loc.Auto(StarString(def.comboRating));
 
         if (mainVisualImage != null)
         {
@@ -472,7 +472,7 @@ public class CharacterSelectUI : MonoBehaviour
         float pulse = 0.65f + 0.35f * Mathf.Sin(Time.unscaledTime * 4f);
         SetArrow(carouselArrowLeft, x < -1f, pulse);
         SetArrow(carouselArrowRight, x > minX + 1f, pulse);
-        if (carouselPageText != null) carouselPageText.text = count > 0 ? $"{selectedIndex + 1} / {count}" : "";
+        if (carouselPageText != null) carouselPageText.text = Loc.Auto(count > 0 ? $"{selectedIndex + 1} / {count}" : "");
     }
 
     static void SetArrow(RectTransform arrow, bool show, float pulse)
@@ -636,7 +636,7 @@ public class CharacterSelectUI : MonoBehaviour
                 label.alignment = TextAnchor.MiddleCenter;
                 label.fontSize = 30; label.fontStyle = FontStyle.Bold;
                 label.color = new Color(1f, 0.85f, 0.5f);
-                label.text = "LOCKED";
+                label.text = Loc.Auto("LOCKED");
                 var ol = go.AddComponent<Outline>(); ol.effectColor = new Color(0f, 0f, 0f, 0.9f); ol.effectDistance = new Vector2(2f, -2f);
                 lockLabels[i] = label;
             }
@@ -644,4 +644,9 @@ public class CharacterSelectUI : MonoBehaviour
         }
         if (selectedIndex >= visible) selectedIndex = Mathf.Max(0, visible - 1);
     }
+
+    // 言語を切り替えた時(2026-10-07)
+    void OnEnable() { Loc.Changed += OnLocChanged; }
+    void OnDisable() { Loc.Changed -= OnLocChanged; }
+    void OnLocChanged() { if (gameObject.activeInHierarchy) RefreshDetail(instant: true); }
 }

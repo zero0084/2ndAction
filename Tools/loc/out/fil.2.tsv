@@ -1,0 +1,531 @@
+531	Pokus sa Wind
+532	Pokus sa Boss
+533	Pokus sa EXP
+534	Pokus sa MILE
+535	Maraming Challenge
+536	Lahat ng Dagdag na Atake (pagsubok sa load)
+537	Karaniwang Halo
+538	Pokus sa Attack
+539	Matinding Risk (isinasakripisyo ang HP)
+540	GANTING KALASAG
+541	OVERDRIVE
+542	Maliit na pinalakas na VFX sa pagtama
+543	Pinalakas na afterimage sa mataas na bilis
+544	Blood Aura sa paggaling
+545	Pinalakas na effect ng pagkabuhay / maliit na dagdag na benepisyo
+546	Espesyal na VFX sa pag-activate
+547	Huling effect ng special move/espesyal na aura/BUFF effect/VFX ng pantapos (hindi nagpapataas ng damage)
+548	PINAGHAHANAP! May lumitaw na may patong sa ulo
+549	PABUYA!
+550	COMBO!
+551	{0} seg
+552	susunod na {0}m
+553	FINAL EVOLUTION: MULING PAGSILANG
+554	HULING PAGKAKATAON
+555	PANIBAGONG HININGA
+556	PENIKS
+557	Hinampas ang buntot at natigilan! Pagkakataong umatake!
+558	Humina ang mata! Ulo ang kahinaan!
+559	Bumaba ang ulo! Mahabang pagkakataong gumanti!
+560	Talon!
+561	Baba!
+562	Ubos ang mahika! Mahabang pagkakataong umatake!
+563	Bumaliktad! Malaking pagkakataon!
+564	Bumaon ang buntot sa lupa! Pagkakataong umatake!
+565	Nahihilo! Pagkakataong umatake!
+566	Hindi mahugot ang pamalo! Pagkakataong umatake!
+567	Naiwan ang ulo sa lupa! Pagkakataong umatake!
+568	Lantad ang core! Madaling i-BREAK!
+569	Bumangga sa lupa! Pagkakataong umatake!
+570	Setting ng Card ▶
+571	<color=#FFD866><b>Card ng Karakter</b></color>
+572	<color=#8890A0>(bakante)</color>
+573	NAKA-LOCK
+574	Kondisyon para ma-unlock:
+575	[Pangunahin]
+576	[Sub]
+577	Bilis ng Galaw
+578	Lakas ng Atake
+579	Lakas ng Talon
+580	Bilang ng Talon
+581	Max HP
+582	Abot ng Atake
+583	Bilis ng Atake
+584	Atake sa Ere
+585	Shield
+586	Nakuhang EXP
+587	Tsansa ng Pagsipsip
+588	Dami ng Pagsipsip
+589	Paglitaw ng Kalaban
+590	Atake sa Lupa
+591	Lakas ng Pantapos ng Combo
+592	Lakas ng Unang Tama
+593	Atake Kapag Agaw-buhay
+594	Atake Kapag Puno ang HP
+595	Atake Kapag Mabilis
+596	Atake sa Boss
+597	HP ng Kalaban
+598	HP ng Boss
+599	Nakuhang MILE
+600	Nakuhang MILE sa Boss
+601	Tsansa ng Sunog (Burn)
+602	Lakas ng Sunog
+603	Tagal ng Sunog
+604	Tsansa ng Lamig (Chill)
+605	Pagbagal sa Lamig
+606	Tagal ng Lamig
+607	Ipon Hanggang Magyelo
+608	Tagal ng Pagyelo
+609	Tsansa ng Kidlat
+610	Lakas ng Kidlat
+611	Bilang ng Kadena
+612	Layo ng Kadena
+613	Tsansa ng Talim ng Hangin
+614	Lakas ng Talim ng Hangin
+615	Bilang ng Pagtagos
+616	Abot ng Talim ng Hangin
+617	Tsansa ng Pagdurugo (Bleed)
+618	Lakas ng Pagdurugo
+619	Tagal ng Pagdurugo
+620	Pagsipsip sa Pagdurugo
+621	Pagdurugo Kapag Agaw-buhay
+622	Bilis ng Pangunahing Atake
+623	Epektibong Abot ng Atake
+624	Max HP (Puso)
+625	Selyadong Puso
+626	Atake sa Ere
+627	Atake sa Lupa
+628	Unang Tama
+629	Gitna ng Combo
+630	Pantapos
+631	Atake sa Boss
+632	Atake sa Alipores
+633	Atake sa Kalabang nasa Ere
+634	Pababang Atake/Bagsak
+635	Atake sa Punong HP
+636	Atake sa HP 50% Pababa
+637	Atake sa HP 25% Pababa
+638	Bilis ng Atake sa Mababang HP
+639	Tsansa ng Pagsipsip sa HP 25% Pababa
+640	Atake bawat Selyo
+641	Atake bawat Tama
+642	Atake bawat Tama sa Ere
+643	Atake sa 150km/h
+644	Atake habang OVERDRIVE
+645	Bilis ng Atake habang OVERDRIVE
+646	Max na Bilang ng Shield
+647	Balik ng Shield (bawas seg)
+648	Dami ng Lunas (Puso)
+649	Tsansa ng Dagdag na Atake
+650	Invincible Matapos Tamaan (seg)
+651	Bawas sa Pagkagulantang
+652	Bilis ng Kilos ng Kalaban
+653	Tsansa ng Elite
+654	MILE sa Yaman/Gantimpala
+655	MILE sa Layo
+656	EXP sa Layo
+657	EXP sa Pagpatay
+658	Bilang Hanggang Magyelo
+659	Lakas ng Kuryente
+660	Tigil sa Kidlat (seg)
+661	Saklaw ng Kidlat (m)
+662	Bilis ng Talim ng Hangin
+663	Lv ng Epekto
+664	Hindi ma-convert dahil ginagamit
+665	Hawak x{0}
+666	I-tap ang card para makita ang detalye
+667	[Card ng karakter ng ibang karakter]
+668	Ginagamit ang card na ito ngayon. Alisin muna bago gamitin.
+669	 → gawing {CardConvertMile} MILE?
+670	Palitan ang kasalukuyang deck
+671	ng Rekomendadong Deck?
+672	Alisin ang lahat ng card
+673	sa deck?
+674	Bumaba ang dragon! Pagkakataong gumanti!
+675	Huling yugto!
+676	BREAK!
+677	APOY NG DRAGON: NAG-IIPON
+678	Higanteng Bolang Apoy ng Impiyerno
+679	Apoy {0}% {1}/s {2}s
+680	Yelo {0}% -{1}% {2}s Pagyelo {3}x/{4}s
+681	GANAP NA LAMIG Lv{0}
+682	Kidlat {0}% {1} Kadena {2} Saklaw {3}m Tigil {4}s
+683	Hangin {0}% {1} Tagos+{2} {3}m
+684	Dugo {0}%{1}
+685	BAGONG CARD
+686	DOBLE
+687	(AWAKENED na・itinabi)
+688	→ MASTERY +1 sa fusion
+689	I-tap para sa susunod ({0} pa)
+690	I-tap para isara / I-tap ang gacha para humugot ulit
+691	SUSUNOD
+692	OK
+693	Kulang ang MILE
+694	Naka-pause ― Tingnan muna ang paligid bago ituloy
+695	Ituloy kapag handa na
+696	GO!
+697	NA-UNLOCK:
+698	HANDA
+699	BILIS
+700	DAGDAG BILIS!
+701	Naiwan lang ang pause na naghihintay ng pagpili
+702	Naiwan lang ang pause ng pause menu
+703	Masyadong mahaba ang slow-mo ng entrance ng boss
+704	Naiwan lang ang slow-mo ng entrance ng boss
+705	GANTIMPALA NG BOSS
+706	TUMAAS ANG LEVEL
+707	Naghihintay ng pagpili pero walang selection screen → inilabas ulit ({0}, ika-{1} beses, ok={2})
+708	Naghihintay ng pagpili pero hindi mailabas ang selection screen → nilutas nang walang pagpili ({0})
+709	Hindi tugma ang bukas na selection screen → isinara at inilabas ulit ang {0}
+710	BEST
+711	LAYO
+712	II
+713	HAKBANG:
+714	BAGONG RUN
+715	TAGUMPAY
+716	BIGO
+717	ORAS
+718	NATALONG KALABAN
+719	NATALONG BOSS
+720	BONUS
+721	BONUS ZONE
+722	BONUS NG RING
+723	KABUUANG EXP
+724	NAKUHANG UPGRADE
+725	KABUUANG MILE
+726	KALABAN / BOSS
+727	KABUUANG EXP / UPGRADE
+728	Nawala: MILE ng run na ito {0}
+729	Natira: rekord ng BEST na layo (bago!)・kabuuang layong tinakbo
+730	Natira: rekord ng BEST na layo・kabuuang layong tinakbo
+731	Hawak na card・MILE (PITAKA {0})
+732	HP
+733	Selyo{0}
+734	Shield{0}
+735	MAX
+736	Fusion Lv.{0}  {1} kakayahan
+737	Bilis lang x{0} (hindi nagbabago ang pagitan ng pagkakalagay)
+738	ASSIST ON
+739	ASSIST OFF
+740	Huli:{0}({1})
+741	Hindi:{0}
+742	Hadlang:{0} sira{1}/talon{2}/imposible{3}
+743	{0} tantiya{1}km/h(ON≧{2}/OFF<{3}){4}{5}
+744	BG: {0}
+745	[Preview]
+746	Na-load {0} {1}MB
+747	BG◀
+748	BG▶
+749	Transisyon
+750	Normal
+751	Sa Hangganan
+752	Setting
+753	Arena
+754	Arena (LOCK)
+755	Hindi pa naka-unlock ang Arena
+756	Kondisyon para ma-unlock: {0}
+757	DEBUG
+758	Itatapon ang kasalukuyang Run at
+759	di-kumpirmadong MILE. Sigurado ka ba?
+760	Itapon at BAGONG RUN
+761	Kanselahin
+762	ITULOY
+763	BUMALIK SA HOME
+764	Babalik sa Home Room.
+765	Hindi matatapos ang Run, at puwede kang
+766	mag-CONTINUE mula rito.
+767	Ginagamit ang card na ito sa iba
+768	Hindi ma-equip ang {0} dahil lalampas sa Lv{1} kasama ang ibang card ng karakter (walang epekto ang sobra)
+769	Paalala: lalampas sa Lv{1} ang {0} kasama ang ibang card ng karakter (walang epekto ang sobrang {2} Lv)
+770	DAGSA NG BOSS  Lumaban habang tumatakbo! Paparating ang WARNING! Talunin ang natitirang boss! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+771	LAMPAS PA
+772	Tatlong Kapatid na Reaper
+773	Tatlong Kapatid
+774	ONE MORE MILE?
+775	Nagngangalit!
+776	SALAKAY NG MAHIKA NG LANGIT
+777	Natigilan ang Demonyo! Pagkakataong umatake!
+778	HINDI TUGMA ANG BERSYON
+779	NAGLALARO NA
+780	PUNO
+781	BUKAS
+782	BOSS:
+783	HOST
+784	JOIN
+785	BOSS
+786	PUNTIRYA
+787	HULING TAMA SA BOSS:
+788	NAPATAY:
+789	Maglaro sa mga device na nakakonekta sa parehong Wi-Fi o sa tethering ng phone (max
+790	na tao).
+791	ONLINE (inihahanda pa)
+792	ADVANCED (direktang IP・para sa dev)
+793	Isara
+794	Multi {0}/{1}
+795	Multi
+796	Pumili ng mode
+797	Kapag natalo, DOWN. Mabubuhay kapag nagbigay ng 1 HP ang kakampi (HP 2 pataas) na nakarating sa lugar mo. Tapos kapag DOWN lahat.
+798	Kapag natalo, tanggal na (walang pagbuhay). Tuloy hanggang sa huling isa; ang ranggo ay ayon sa layong naabot.
+799	CO-OP
+800	VERSUS
+801	Gagawa ng room sa device na ito. Lalabas ito sa "FIND GAME" ng mga kalapit na device.
+802	Hahanap ng kalapit na room at sasali (hindi kailangan ng IP).
+803	Kalapit na room (napili ang {0}. Lalaro sa mode ng HOST)
+804	BIGO ANG KONEKSYON
+805	Hindi makakonekta. Tiyaking nasa parehong Wi-Fi, at subukan ulit
+806	BIGO ANG KONEKSYON:
+807	Kumokonekta… {0}
+808	Naghahanap ng local na laro…
+809	Walang nahanap na laro
+810	Pindutin ang "CREATE GAME" sa device ng HOST, at kumonekta sa parehong Wi-Fi (tethering).
+811	Hanapin Ulit
+812	Room na Sinalihan
+813	MODE: {0} (HOST ang magpapasya)
+814	MODE: HOST ang magpapasya (awtomatikong itutugma sa simula ng Run)
+815	Ipinapakita sa "FIND GAME" ng mga kalapit na device
+816	Kapag kumpleto na: "Isara" → pinto → "Lumarga" sa Pumili ng Mapa, at sabay-sabay magsisimula ang lahat sa parehong mapa.
+817	Awtomatikong magsisimula kapag lumarga ang HOST. Maghintay lang.
+818	Isara ang Room
+819	Umalis
+820	Isara (mananatili ang room)
+821	ADVANCED: Kumonekta gamit ang IP (para sa dev)
+822	Kumonekta sa parehong Wi-Fi o sa tethering ng phone (max {0} na tao).
+823	(Hindi makuha - tingnan sa Wi-Fi setting ng device)
+824	IP ng device na ito:
+825	Status:
+826	CO-OP: Kapag natalo, DOWN. Mabubuhay kapag nagbigay ng 1 HP ang kakampi (HP 2 pataas) na nakarating sa lugar mo. Tapos kapag DOWN lahat.
+827	VERSUS: Kapag natalo, tanggal na (walang pagbuhay). Tuloy hanggang sa huling isa; ang ranggo ay ayon sa layong naabot.
+828	MODE: HOST ang pipili (awtomatikong itutugma sa simula ng Run)
+829	Port
+830	HOST (gumawa ng room sa device na ito)
+831	JOIN: Ilagay ang IP na nakikita sa device ng HOST
+832	Mga nakakonektang player {0}/{1}
+833	Pinto → "Lumarga" sa Pumili ng Mapa, at sabay-sabay magsisimula ang lahat ng nakakonekta sa parehong mapa.
+834	Isara ang Room (tapusin ang HOST)
+835	Mag-disconnect
+836	MULTI: Diskonekta
+837	UI:
+838	Bumalik sa Home
+839	Tumakbo Lang
+840	RESULTA NG VERSUS
+841	RESULTA NG CO-OP
+842	Hinihintay lumarga ang HOST
+843	May player pang tumatakbo
+844	HOST: Naghihintay ng sasali
+845	Error sa pag-initialize
+846	Tinatapos ang naunang koneksyon. Maghintay saglit at subukan ulit
+847	Hindi masimulan ang HOST (baka ginagamit ang port)
+848	Mali ang format ng IP address (hal.: 192.168.1.23)
+849	Kumokonekta… {0}:{1}
+850	Hindi masimulan ang JOIN
+851	HOST: {0}/{1} na tao ang nakakonekta
+852	JOIN: Nakakonekta na {0}
+853	NAWALA ANG KONEKSYON SA MULTIPLAYER
+854	Ang ibang player
+855	ay nadiskonekta
+856	Naputol ang koneksyon sa HOST
+857	Tinanggihan ang koneksyon:
+858	PUNO ANG ROOM
+859	MAY RUN NA NAGAGANAP
+860	Hindi makakonekta sa HOST
+861	Nagkaroon ng error sa komunikasyon
+862	OMM-NET-
+863	PS5
+864	TUMAKAS
+865	I-tap ulit para kumpirmahin
+866	I-tap ang card para pumili
+867	AWAKENED
+868	FINAL EVOLUTION
+869	NAKA-EQUIP
+870	BAGO
+871	Lakas Lv{d.level:0.0}{(d.def.risk ?
+872	COMBO
+873	Karakter
+874	Deck
+875	Umabot ng {1}m sa {0}
+876	Pinakamataas {0}m / {1}m
+877	Mag-game over sa 1,000m pababa sa alinmang mapa
+878	NA-UNLOCK:
+879	BAGONG KARAKTER:
+880	Makakapasok mula sa "Arena" sa Home.
+881	Makakalarga mula sa Pumili ng Mapa.
+882	Na-unlock ang {0}
+883	Kakampi mo na si {0}
+884	Mapipili sa Pumili ng Karakter.
+885	Para sa iyong hindi tumigil sa pagtakbo.
+886	Nabuksan na ang huling daan.
+887	Tunog
+888	(Hindi magamit ang audio)
+889	Lahat
+890	BGM
+891	SE
+892	Tunog ng Paligid
+893	Wika / Language
+894	Wika
+895	Ipinapakita sa napiling wika
+896	Sinusunod ang wika ng device
+897	Display
+898	Oryentasyon ng Screen
+899	Pahiga
+900	Patayo
+901	Yanig ng Screen
+902	Effect ng Liwanag
+903	※Hindi hihina ang babala ng atake ng kalaban at mga display na kailangan sa kontrol
+904	Kontrol
+905	(Hindi magamit ang auto assist)
+906	Assist sa Mataas na Bilis
+907	Bilis ng Simula ng Assist
+908	Kapag lumampas sa halagang ito ang bilis ng takbo, awtomatikong tutulong sa pagtalon sa butas/hadlang/kalaban
+909	at sa pag-atake (mas inuuna ang sarili mong kontrol)
+910	Paano Maglaro
+911	Magsanay ng Kontrol
+912	Sanayin ang atake sa harap/likod, talon, pababang atake, pag-angat, at card (walang gantimpala)
+913	Masisimulan ang pagsasanay sa Home (hindi habang may run/multi)
+914	Naiwan ang higanteng kamay sa tuntungan! Malaking pagkakataon!
+915	Dumilim ang core! Madaling i-BREAK!
+916	Lumapit ang ulo! Pagkakataong umatake!
+917	Nawalan ng balanse! Pagkakataong gumanti!
+918	Bigo ang pagbuo muli! Lantad ang core!
+919	Humina ang apoy! Pagkakataong umatake!
+920	Bumaba ang ulo mula sa ulap! Pagkakataong umatake!
+921	Nawala ang halo! Mahabang pagkakataong gumanti!
+922	Nawala ang kuryente! Malaking pagkakataong gumanti!
+923	Sprint na Larga…({0})
+924	Sprint na Larga…
+925	Sprint na Larga  {0}
+926	Mabilis na tatakbuhin ang mga natapos nang bahagi, at magsisimula ka bago lang ng napiling gate. Awtomatikong makukuha ang mga card mula sa gantimpala ng boss sa daan. Dumaan sa ring bawat 5,000m para pumili ng 1 pang card.
+927	Sprint hanggang {0}km   (mga {1} seg + ring){2}
+928	(Dev build: ON ang DEBUG na pag-unlock ng lahat)
+929	Layong hindi kasama
+930	DEBUG unlock lahat
+931	Hindi pa naaabot ang {0}km (pinakamataas {1}km)
+932	Hindi pa natatalo ang bantay sa {0}km
+933	Tuloy ang Sprint!
+934	RING!  Walang card na makukuha ngayon
+935	Nalampasan ang ring
+936	BONUS NA CARD
+937	RING!
+938	Walang card na makukuha ngayon
+939	Lv9 na lahat ng card sa deck.
+940	MILE na ang gantimpala ng ring mula ngayon
+941	D-pad / taas-baba ng stick (A = taas / B = baba)
+942	↑↓ key / W・S
+943	I-flick pataas-pababa / ▲▼ sa kanang ibaba
+944	Sprint na Larga  →  bago ang gate sa {0}m
+945	Auto-kuha ng gantimpala ng boss {0}/{1}   Ring {2}/{3}{4}
+946	Lahat ng card sa deck Lv{0} MAX
+947	Gantimpala ng ring: +{0} MILE
+948	Walang card na makukuha ngayon (×{0})
+949	Gamitin ang {0} para itugma ang taas at dumaan sa ring (walang mawawala kahit malampasan)
+950	Taas-baba para gumalaw / Dumaan sa ring para sa +MILE
+951	Taas-baba para gumalaw / Dumaan sa ring para sa dagdag na card
+952	Lv9 na lahat ng card sa deck. MILE ang gantimpala ng ring
+953	Pindutin nang matagal ang H key (o button ng mouse) nang 3 segundo
+954	Pindutin nang matagal ang BACK button nang 3 segundo
+955	Pindutin nang matagal ang screen nang 3 segundo
+956	Para sa Bagong Player
+957	Puwede munang magsanay ng kontrol (2〜3 minuto・walang time limit).
+958	Walang gantimpala o rekord na nadaragdag sa pagsasanay.
+959	Puwede ring magsanay kahit kailan sa "Paano Maglaro" sa Setting.
+960	Puwede ka nang tumakas
+961	{0} para tumakas at
+962	maiuwi ang MILE na naipon sa run na ito.
+963	Kapag natalo ka, mawawala ang MILE ng run na ito.
+964	(Mananatili ang rekord ng BEST na layo)
+965	Puwede ring tumakbo lang. Ikaw ang bahala kung tatakas.
+966	Naiuwi ang MILE!
+967	Magagamit ang MILE sa gacha sa Home ({0} MILE bawat hugot).
+968	Ilagay sa deck ang nakuhang card para lumakas sa susunod na run.
+969	Simulan Na
+970	Sige!
+971	({0} abiso)
+972	Inayos ang deck
+973	Inalis sa deck ang {1} card na lumampas sa limit ng deck ({0} card).
+974	Nasa listahan ng hawak pa rin ang mga card. Palitan sa pag-edit ng deck.
+975	12 card na ang deck
+976	Inihahanda
+977	I-flick pakanan (harap)
+978	→ / D / Z key
+979	X button (kanang stick →)
+980	I-flick pakaliwa (likod)
+981	← / A / X key
+982	Y button (kanang stick ←)
+983	I-flick pataas
+984	↑ / W / Space key
+985	A button (kanang stick ↑)
+986	I-flick pababa
+987	↓ / S key
+988	B button (kanang stick ↓)
+989	Talon
+990	Pababang Atake
+991	Pag-angat → Habol sa Ere
+992	Pumili ng Card
+993	Tapos ang Pagsasanay
+994	Kusang tumatakbo ang karakter.
+995	I-flick pasulong o paatras para umatake sa direksyong iyon.
+996	Harap: {0}
+997	Likod: {0}
+998	I-flick pataas para tumalon.
+999	I-flick ulit pataas habang nasa ere para sa double jump.
+1000	Talon: {0}
+1001	Habang tumatalon, i-flick pababa para bumulusok at umatake.
+1002	Gamitin ito sa ibabaw ng matibay na lupa.
+1003	Pababang atake: {0}
+1004	Tumalon malapit sa kalaban para iangat siya gamit ang pataas na atake.
+1005	Puwedeng habulin ang lumulutang na kalaban ng atake sa ere.
+1006	(Puwedeng laktawan kung mahirap)
+1007	Habang tumatakbo, tataas ang level, at pipili ka ng 1 sa 3 card.
+1008	Sa run na iyon lang epektibo ang napiling upgrade.
+1009	Dahil pagsasanay ito, dito lang sa pagsasanay ang epekto.
+1010	Iyan na ang mga pangunahing kontrol.
+1011	Una, puntiryahin ang boss sa 1,000m!
+1012	Atake sa harap [{0}]   Atake sa likod [{1}]
+1013	Talon [{0}]   Double jump [{1}]
+1014	Habang tumatalon, pataas ulit
+1015	Tumalon, saka pababa [{0}]
+1016	Tumalon muna pataas → pababa sa ere
+1017	Iangat [{0}]   Habol sa ere [{1}]
+1018	Tumalon bago mismo ang kalaban
+1019	Sa lumulutang na kalaban, umatake pasulong habang tumatalon
+1020	Pumili ng 1 card
+1021	Ihinto ang Pagsasanay
+1022	Lumarga
+1023	Bumalik sa Home
+1024	Magsanay Ulit
+1025	Subukan
+1026	Laktawan
+1027	Pumili
+1028	OK!
+1029	Hindi sa Multi
+1030	Aktibo
+1031	Hindi magamit ngayon
+1032	Pasok ng boss
+1033	Tinamaan
+1034	Habang BONUS
+1035	ULTIMATE
+1036	MULTI×
+1037	Itim na Kislap
+1038	Hiwa ng Sakura at Rosas
+1039	Sayaw ng Kambal
+1040	Putok sa Lahat ng Direksyon
+1041	Tusok-Pamatay-Dragon
+1042	Pinakamataas na Mahika: Ground Zero
+1043	Ulan ng Palaso
+1044	Sunod-sunod na Suntok ng Diwa
+1045	Mabilis na Anino-Kopya
+1046	Sobrang Init
+1047	Ang Wakas
+1048	Harang ng Pagbomba
+1049	Walang cardAktiboPumipiliPasok ng bossHindi magamit ngayonTinamaanHabang BONUSInihahanda
+1050	Tatlong Lipad ng Bagyo
+1051	Sunod-sunod na Atake ng Tatlong Ulo
+1052	Pagkakataon!
+1053	Haligi ng Demonyo ng Kabilang-buhay
+1054	Tatlong Kislap ng Itim na Talim
+1055	Sugod ng Mangangabayo
+1056	Ahas na Bumibiyak sa Lupa
+1057	Pamalong Gumuguho ng Langit
+1058	Sayaw ng Kamatayan ng Walong Paa
+1059	Sugod-Lampas ng Unos
+1060	Galit ng Lupa
+1061	Lantad ang core!

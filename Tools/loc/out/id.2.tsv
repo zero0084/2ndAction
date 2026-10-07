@@ -1,0 +1,531 @@
+531	Fokus Wind
+532	Fokus Boss
+533	Fokus EXP
+534	Fokus MILE
+535	Banyak Challenge
+536	Semua serangan tambahan (cek beban)
+537	Campuran umum
+538	Fokus Attack
+539	Risk ekstrem (korbankan HP)
+540	BALASAN AEGIS
+541	OVERDRIVE
+542	VFX kecil saat serangan kena
+543	Bayangan lebih kuat saat cepat
+544	Blood Aura saat pulih
+545	Efek bangkit lebih keren / bonus kecil tambahan
+546	VFX khusus saat aktif
+547	Efek akhir jurus pamungkas/aura khusus/efek BUFF/VFX penutup (tidak menambah damage)
+548	BURONAN! Target hadiah muncul
+549	HADIAH!
+550	COMBO!
+551	selama {0} dtk
+552	{0}m berikutnya
+553	FINAL EVOLUTION: LAHIR KEMBALI
+554	KESEMPATAN TERAKHIR
+555	NAPAS KEDUA
+556	FENIKS
+557	Ekornya menghantam, ia kaku! Saatnya menyerang!
+558	Matanya melemah! Kepala titik lemahnya!
+559	Kepalanya turun! Peluang balas panjang!
+560	Lompat!
+561	Turun!
+562	Mana habis! Peluang serang panjang!
+563	Terbalik! Peluang besar!
+564	Ekornya tertancap di tanah! Saatnya menyerang!
+565	Ia pusing! Saatnya menyerang!
+566	Gadanya tersangkut! Saatnya menyerang!
+567	Kepalanya tertahan di tanah! Saatnya menyerang!
+568	Inti terbuka! Mudah dijebol!
+569	Menghantam tanah! Saatnya menyerang!
+570	Atur kartu ▶
+571	<color=#FFD866><b>Kartu Karakter</b></color>
+572	<color=#8890A0>(kosong)</color>
+573	TERKUNCI
+574	Syarat buka:
+575	[Utama]
+576	[Sub]
+577	Kecepatan gerak
+578	Serangan
+579	Daya lompat
+580	Jumlah lompat
+581	HP maks
+582	Jangkauan serang
+583	Kecepatan serang
+584	Serangan udara
+585	Perisai
+586	EXP didapat
+587	Peluang serap
+588	Jumlah serap
+589	Laju muncul musuh
+590	Serangan darat
+591	Daya penutup combo
+592	Daya serangan pertama
+593	Serangan saat sekarat
+594	Serangan saat HP penuh
+595	Serangan saat cepat
+596	Serangan ke bos
+597	HP musuh
+598	HP bos
+599	MILE didapat
+600	MILE dari bos
+601	Peluang bakar (Burn)
+602	Daya bakar
+603	Durasi bakar
+604	Peluang dingin (Chill)
+605	Perlambatan dingin
+606	Durasi dingin
+607	Tumpukan sampai beku
+608	Durasi beku
+609	Peluang sambaran petir
+610	Daya sambaran petir
+611	Jumlah rantai
+612	Jarak rantai
+613	Peluang bilah angin
+614	Daya bilah angin
+615	Jumlah tembus
+616	Jangkauan bilah angin
+617	Peluang pendarahan (Bleed)
+618	Daya pendarahan
+619	Durasi pendarahan
+620	Serapan pendarahan
+621	Pendarahan kuat saat sekarat
+622	Kec. serang serangan utama
+623	Jangkauan serang efektif
+624	HP maks (hati)
+625	Hati tersegel
+626	Serangan udara
+627	Serangan darat
+628	Serangan pertama
+629	Tengah rangkaian
+630	Penutup
+631	Serangan ke bos
+632	Serangan ke musuh biasa
+633	Serangan ke musuh udara
+634	Serangan bawah/hantaman
+635	Serangan saat HP penuh
+636	Serangan saat HP 50% ke bawah
+637	Serangan saat HP 25% ke bawah
+638	Kec. serang saat HP rendah
+639	Peluang serap saat HP 25% ke bawah
+640	Serangan per segel
+641	Serangan per hit
+642	Serangan per kena di udara
+643	Serangan di 150km/h
+644	Serangan saat OVERDRIVE
+645	Kec. serang saat OVERDRIVE
+646	Maks Shield
+647	Pemulihan Shield (detik lebih cepat)
+648	Jumlah pulih (hati)
+649	Peluang serangan tambahan
+650	Kebal usai terkena (dtk)
+651	Kurangi sentakan
+652	Kecepatan aksi musuh
+653	Peluang elit
+654	MILE harta・hadiah
+655	MILE jarak
+656	EXP jarak
+657	EXP kalahkan
+658	Hitungan sampai beku
+659	Daya petir
+660	Henti sambaran (dtk)
+661	Radius sambaran (m)
+662	Kecepatan bilah angin
+663	Lv efek
+664	Dipakai, tidak bisa ditukar
+665	Punya x{0}
+666	Ketuk kartu untuk lihat detail
+667	[Kartu karakter lain]
+668	Kartu ini sedang dipakai. Lepas dulu sebelum memakainya.
+669	Tukar jadi {CardConvertMile} MILE?
+670	Ubah dek saat ini
+671	ke susunan rekomendasi?
+672	Lepas semua kartu
+673	dari dek?
+674	Naga terbang rendah! Saatnya membalas!
+675	Tahap akhir!
+676	BREAK!
+677	PENGISIAN API NAGA
+678	Bola Api Raksasa Neraka
+679	Api {0}% {1}/s {2}s
+680	Es {0}% -{1}% {2}s beku {3}x/{4}s
+681	Nol Mutlak Lv{0}
+682	Petir {0}% {1} rantai {2} area {3}m henti {4}s
+683	Angin {0}% {1} tembus+{2} {3}m
+684	Darah {0}%{1}
+685	KARTU BARU
+686	DUPLIKAT
+687	(sudah AWAKENED・disimpan)
+688	→ MASTERY +1 lewat fusi
+689	Ketuk untuk lanjut (sisa {0})
+690	Ketuk untuk tutup / ketuk gacha untuk tarik lagi
+691	LANJUT
+692	OK
+693	MILE kurang
+694	Dijeda ― cek sekitar dulu sebelum lanjut
+695	Lanjut jika sudah siap
+696	GO!
+697	BARU TERBUKA:
+698	SIAP
+699	KECEPATAN
+700	KECEPATAN NAIK!
+701	Hanya alasan jeda tunggu-pilihan yang tersisa
+702	Hanya alasan jeda menu pause yang tersisa
+703	Efek lambat kemunculan bos terlalu lama
+704	Hanya efek lambat kemunculan bos yang tersisa
+705	HADIAH BOS
+706	NAIK LEVEL
+707	Menunggu pilihan tapi layar pilihan tidak ada → ditampilkan lagi ({0}, ke-{1}, ok={2})
+708	Menunggu pilihan tapi layar tidak bisa muncul → diselesaikan tanpa pilihan ({0})
+709	Layar pilihan terbuka tidak sesuai → ditutup lalu {0} ditampilkan ulang
+710	BEST
+711	JARAK
+712	II
+713	LANGKAH:
+714	RUN BARU
+715	GAME TUNTAS
+716	GAGAL
+717	WAKTU
+718	MUSUH DIKALAHKAN
+719	BOS DIKALAHKAN
+720	BONUS
+721	BONUS ZONE
+722	BONUS CINCIN
+723	TOTAL EXP
+724	PENINGKATAN DIDAPAT
+725	TOTAL MILE
+726	MUSUH / BOS
+727	TOTAL EXP / PENINGKATAN
+728	Yang hilang: MILE run ini {0}
+729	Yang tersisa: rekor jarak BEST (baru!)・total jarak lari
+730	Yang tersisa: rekor jarak BEST・total jarak lari
+731	Kartu dan MILE yang dimiliki (DOMPET {0})
+732	HP
+733	Segel {0}
+734	Perisai {0}
+735	MAX
+736	Fusi Lv.{0}  {1} kemampuan
+737	Hanya kecepatan x{0} (jarak penempatan tetap)
+738	BANTUAN ON
+739	BANTUAN OFF
+740	Terakhir:{0}({1})
+741	Gagal:{0}
+742	Rintangan:{0} hancur{1}/lompat{2}/mustahil{3}
+743	{0} cek{1}km/h(ON≧{2}/OFF<{3}){4}{5}
+744	Latar: {0}
+745	[Pratinjau]
+746	Dimuat {0} {1}MB
+747	Latar◀
+748	Latar▶
+749	Transisi
+750	Normal
+751	Ke batas
+752	Pengaturan
+753	Arena
+754	Arena (TERKUNCI)
+755	Arena belum terbuka
+756	Syarat buka: {0}
+757	DEBUG
+758	Run saat ini dan MILE yang belum pasti
+759	akan dibuang. Lanjutkan?
+760	Buang & RUN BARU
+761	Batal
+762	LANJUTKAN
+763	KEMBALI KE BERANDA
+764	Kembali ke Ruang Beranda.
+765	Run tidak berakhir, kamu bisa
+766	LANJUTKAN dari titik ini.
+767	Kartu ini dipakai di tempat lain
+768	{0} tidak bisa dipasang: total dengan kartu karakter lain melebihi Lv{1} (kelebihan tidak berefek)
+769	Awas: {0} bersama kartu karakter lain melebihi Lv{1} (kelebihan {2} Lv tidak berefek)
+770	SERBUAN BOS  Bertarung sambil berlari! PERINGATAN mendekat! Kalahkan bos yang tersisa! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+771	MELAMPAUI
+772	Tiga Saudari Malaikat Maut
+773	Tiga Saudari
+774	ONE MORE MILE?
+775	Mengamuk!
+776	SERBUAN SIHIR LANGIT
+777	Iblis kaku! Saatnya menyerang!
+778	VERSI BERBEDA
+779	BERLANGSUNG
+780	PENUH
+781	TERBUKA
+782	BOS:
+783	HOST
+784	JOIN
+785	BOS
+786	TARGET
+787	HIT TERAKHIR BOS:
+788	MUSUH DIKALAHKAN:
+789	Main bersama perangkat di Wi-Fi yang sama atau tethering ponsel (maks
+790	orang).
+791	ONLINE (dalam persiapan)
+792	LANJUTAN (input IP langsung・untuk dev)
+793	Tutup
+794	Multi {0}/{1}
+795	Multi
+796	Pilih mode
+797	Tumbang = DOWN. Rekan (HP 2+) yang datang ke titikmu bisa memberi 1 HP untuk membangkitkanmu. Semua DOWN = selesai.
+798	Tumbang = gugur (tanpa bangkit). Berlanjut sampai tersisa 1 orang, peringkat ditentukan jarak tempuh.
+799	CO-OP
+800	VERSUS
+801	Buat room di perangkat ini. Room akan muncul di "FIND GAME" perangkat terdekat.
+802	Cari dan gabung room terdekat (tanpa input IP).
+803	Room terdekat ({0} dipilih. Main dengan mode HOST)
+804	KONEKSI GAGAL
+805	Gagal terhubung. Pastikan di Wi-Fi yang sama, lalu coba lagi
+806	KONEKSI GAGAL:
+807	Menghubungkan… {0}
+808	Mencari game lokal…
+809	Game tidak ditemukan
+810	Tekan "CREATE GAME" di perangkat HOST, lalu sambung ke Wi-Fi (tethering) yang sama.
+811	Cari lagi
+812	Room yang diikuti
+813	MODE: {0} (ditentukan HOST)
+814	MODE: ditentukan HOST (otomatis disamakan saat run mulai)
+815	Tampil di "FIND GAME" perangkat terdekat
+816	Jika sudah lengkap, "Tutup" → Pintu → tekan "Berangkat" di PILIH STAGE, semua mulai bersamaan di stage yang sama.
+817	Mulai otomatis saat HOST berangkat. Mohon tunggu.
+818	Tutup room
+819	Keluar
+820	Tutup (room tetap ada)
+821	LANJUTAN: sambung via IP (dev)
+822	Sambung ke Wi-Fi yang sama atau tethering ponsel (maks {0} orang).
+823	(tidak terbaca - cek pengaturan Wi-Fi perangkat)
+824	IP perangkat ini:
+825	Status:
+826	CO-OP: Tumbang = DOWN. Rekan (HP 2+) yang datang ke titikmu bisa memberi 1 HP untuk membangkitkanmu. Semua DOWN = selesai.
+827	VERSUS: Tumbang = gugur (tanpa bangkit). Berlanjut sampai tersisa 1 orang, peringkat ditentukan jarak tempuh.
+828	MODE: dipilih HOST (otomatis disamakan saat run mulai)
+829	Port
+830	HOST (buat room di perangkat ini)
+831	JOIN: masukkan IP yang tampil di perangkat HOST
+832	Pemain terhubung {0}/{1}
+833	Pintu → tekan "Berangkat" di PILIH STAGE, semua pemain terhubung mulai bersamaan di stage yang sama.
+834	Tutup room (akhiri HOST)
+835	Putuskan
+836	MULTI: terputus
+837	UI:
+838	Kembali ke Beranda
+839	Terus berlari
+840	HASIL VERSUS
+841	HASIL CO-OP
+842	Menunggu HOST berangkat
+843	Masih ada pemain yang berlari
+844	HOST: menunggu pemain
+845	Error inisialisasi
+846	Menutup koneksi sebelumnya. Tunggu sebentar lalu coba lagi
+847	Gagal memulai HOST (port mungkin sedang dipakai)
+848	Format alamat IP salah (contoh: 192.168.1.23)
+849	Menghubungkan… {0}:{1}
+850	Gagal memulai JOIN
+851	HOST: {0}/{1} orang terhubung
+852	JOIN: terhubung {0}
+853	KONEKSI MULTIPLAYER PUTUS
+854	Pemain lain
+855	terputus
+856	Koneksi ke HOST terputus
+857	Koneksi ditolak:
+858	ROOM PENUH
+859	RUN BERLANGSUNG
+860	Gagal terhubung ke HOST
+861	Terjadi error komunikasi
+862	OMM-NET-
+863	PS5
+864	KABUR
+865	Ketuk lagi untuk konfirmasi
+866	Ketuk kartu untuk memilih
+867	AWAKENED
+868	FINAL EVOLUTION
+869	TERPASANG
+870	BARU
+871	Kekuatan Lv{d.level:0.0}{(d.def.risk ?
+872	COMBO
+873	Karakter
+874	Dek
+875	Capai {1}m di {0}
+876	Terbaik {0}m / {1}m
+877	Game over di 1,000m atau kurang di peta mana pun
+878	TERBUKA:
+879	KARAKTER BARU:
+880	Masuk lewat "Arena" di Beranda.
+881	Bisa berangkat dari pilihan peta.
+882	{0} terbuka
+883	{0} bergabung
+884	Bisa dipilih di Pilih Karakter.
+885	Untukmu yang terus berlari.
+886	Jalan terakhir telah terbuka.
+887	Suara
+888	(audio tidak tersedia)
+889	Utama
+890	BGM
+891	SFX
+892	Ambien
+893	Bahasa / Language
+894	Bahasa
+895	Tampil dalam bahasa terpilih
+896	Mengikuti bahasa perangkat
+897	Tampilan
+898	Orientasi layar
+899	Lanskap
+900	Potret
+901	Guncangan layar
+902	Efek cahaya
+903	※Tanda serangan musuh dan tampilan penting untuk kontrol tidak dikurangi
+904	Kontrol
+905	(bantuan otomatis tidak tersedia)
+906	Bantuan kecepatan tinggi
+907	Kecepatan mulai bantuan
+908	Jika kecepatan lari melebihi nilai ini, lompatan atas lubang/rintangan/musuh dan
+909	serangan dibantu otomatis (kontrolmu diutamakan)
+910	Cara Main
+911	Latihan kontrol
+912	Latihan serang depan-belakang/lompat/serangan bawah/lontar/kartu (tanpa hadiah)
+913	Latihan bisa dimulai di Beranda (tidak saat run/multi)
+914	Tangan raksasa tertahan di pijakan! Peluang besar!
+915	Inti meredup! Mudah dijebol!
+916	Kepala mendekat! Saatnya menyerang!
+917	Kuda-kudanya goyah! Saatnya membalas!
+918	Gagal membentuk ulang! Inti terbuka!
+919	Apinya melemah! Saatnya menyerang!
+920	Kepala muncul rendah dari awan! Saatnya menyerang!
+921	Lingkar cahaya hilang! Peluang balas panjang!
+922	Listriknya hilang! Peluang balas besar!
+923	Berangkat Kilat…({0})
+924	Berangkat Kilat…
+925	Berangkat Kilat  {0}
+926	Lewati cepat bagian yang sudah ditaklukkan dan mulai berlari sedikit sebelum gerbang pilihanmu. Kartu dari hadiah bos di jalan diambil otomatis. Lewati cincin tiap 5,000m untuk memilih 1 kartu tambahan.
+927	Melaju ke {0}km   (±{1} dtk + cincin){2}
+928	(Versi dev: buka semua DEBUG ON)
+929	Jarak tidak berlaku
+930	DEBUG buka semua
+931	Belum capai {0}km (terbaik {1}km)
+932	Penjaga {0}km belum dikalahkan
+933	Lanjut melaju!
+934	CINCIN!  Belum ada kartu yang bisa diambil
+935	Cincin terlewat
+936	KARTU BONUS
+937	CINCIN!
+938	Belum ada kartu yang bisa diambil
+939	Semua kartu di dek sudah Lv9.
+940	Hadiah cincin berikutnya berupa MILE
+941	D-pad / stik atas-bawah (A = atas / B = bawah)
+942	Tombol ↑↓ / W・S
+943	Usap atas/bawah / ▲▼ kanan bawah
+944	Berangkat Kilat  →  sebelum gerbang {0}m
+945	Hadiah bos otomatis {0}/{1}   Cincin {2}/{3}{4}
+946	Semua kartu dek Lv{0} MAX
+947	Hadiah cincin +{0} MILE
+948	Belum ada kartu yang bisa diambil (×{0})
+949	Atur tinggi dengan {0} dan lewati cincin (tidak ada ruginya jika terlewat)
+950	Gerak atas/bawah / lewati cincin = +MILE
+951	Gerak atas/bawah / lewati cincin = kartu tambahan
+952	Semua kartu di dek sudah Lv9. Hadiah cincin berupa MILE
+953	Tahan tombol H (atau tombol mouse) 3 detik
+954	Tahan tombol BACK 3 detik
+955	Tahan layar 3 detik
+956	Untuk pemain baru
+957	Kamu bisa latihan kontrol dulu (2〜3 menit・tanpa batas waktu).
+958	Latihan tidak memberi hadiah atau rekor.
+959	Latihan bisa diulang kapan saja lewat "Cara Main" di Pengaturan.
+960	Sekarang kamu bisa kabur
+961	{0} untuk kabur dan
+962	membawa pulang MILE dari run ini.
+963	Jika tumbang, MILE run ini akan hilang.
+964	(rekor jarak BEST tetap tersimpan)
+965	Terus berlari juga OK. Kabur atau tidak, terserah kamu.
+966	MILE berhasil dibawa pulang!
+967	MILE bisa dipakai untuk gacha di Beranda (1x = {0} MILE).
+968	Masukkan kartu yang didapat ke dek untuk memperkuat run berikutnya.
+969	Langsung mulai
+970	Mengerti
+971	({0} pemberitahuan)
+972	Dek telah dirapikan
+973	{1} kartu yang melebihi batas dek ({0}) dilepas dari dek.
+974	Kartu tetap ada di koleksi. Atur ulang di edit dek.
+975	Dek kini 12 kartu
+976	Dalam persiapan
+977	Usap ke kanan (depan)
+978	Tombol → / D / Z
+979	Tombol X (stik kanan →)
+980	Usap ke kiri (belakang)
+981	Tombol ← / A / X
+982	Tombol Y (stik kanan ←)
+983	Usap ke atas
+984	Tombol ↑ / W / Space
+985	Tombol A (stik kanan ↑)
+986	Usap ke bawah
+987	Tombol ↓ / S
+988	Tombol B (stik kanan ↓)
+989	Lompat
+990	Serangan bawah
+991	Lontar → kejar di udara
+992	Pilih kartu
+993	Latihan selesai
+994	Karakter berlari otomatis.
+995	Usap ke depan/belakang untuk menyerang ke arah itu.
+996	Depan: {0}
+997	Belakang: {0}
+998	Usap ke atas untuk melompat.
+999	Usap ke atas lagi di udara untuk lompat ganda.
+1000	Lompat: {0}
+1001	Usap ke bawah saat melompat untuk menukik dan menyerang ke bawah.
+1002	Gunakan di atas tanah yang kokoh.
+1003	Serangan bawah: {0}
+1004	Lompat di dekat musuh untuk melontarkannya dengan serangan ke atas.
+1005	Musuh yang melayang bisa dikejar dengan serangan di udara.
+1006	(Bisa dilewati jika sulit)
+1007	Saat berlari, levelmu naik dan kamu bisa pilih 1 dari 3 kartu.
+1008	Peningkatan yang dipilih hanya berlaku selama run itu.
+1009	Karena ini latihan, efeknya hanya berlaku di latihan ini.
+1010	Kontrol dasar selesai.
+1011	Ayo kejar bos di 1,000m dulu!
+1012	Serang depan [{0}]   Serang belakang [{1}]
+1013	Lompat [{0}]   Lompat ganda [{1}]
+1014	Saat melompat, ke atas lagi
+1015	Lompat lalu ke bawah [{0}]
+1016	Lompat ke atas dulu → ke bawah di udara
+1017	Lontar [{0}]   Kejar di udara [{1}]
+1018	Lompat tepat di depan musuh
+1019	Saat melompat, serang ke depan musuh yang melayang
+1020	Pilih 1 kartu
+1021	Akhiri latihan
+1022	Berangkat
+1023	Kembali ke Beranda
+1024	Latihan lagi
+1025	Coba
+1026	Lewati
+1027	Coba pilih
+1028	OK!
+1029	Tidak untuk multi
+1030	Aktif
+1031	Belum bisa dipakai
+1032	Bos muncul
+1033	Terkena serangan
+1034	Saat BONUS
+1035	ULTIMATE
+1036	MULTI×
+1037	Kilatan Hitam
+1038	Tebasan Mawar Sakura Mekar
+1039	Tarian Kembar
+1040	Tembakan Segala Arah
+1041	Tusukan Pembunuh Naga
+1042	Sihir Tertinggi: Titik Nol
+1043	Hujan Panah
+1044	Rentetan Pukulan Semangat
+1045	Bayangan Kilat
+1046	Panas Berlebih
+1047	Akhir Riwayat
+1048	Penghalang Ledakan
+1049	Tanpa kartuAktifMemilihBos munculBelum bisa dipakaiTerkena seranganSaat BONUSDalam persiapan
+1050	Tiga Luncuran Badai
+1051	Serangan Beruntun Tiga Kepala
+1052	Peluang!
+1053	Formasi Pilar Iblis Alam Baka
+1054	Tiga Kilatan Bilah Hitam
+1055	Serbuan Berkuda
+1056	Ular Raksasa Pembelah Bumi
+1057	Gada Raksasa Peruntuh Langit
+1058	Tarian Maut Delapan Kaki
+1059	Terjangan Angin Penyalip
+1060	Amarah Bumi
+1061	Inti terbuka!

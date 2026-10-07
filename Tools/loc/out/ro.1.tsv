@@ -1,0 +1,531 @@
+0	ZERO ABSOLUT
+1	Inamicii obișnuiți înghețați se sparg și provoacă daune, iar atacul contra inamicilor răciți/înghețați crește (+3% pe Lv). La boși, încetinirea care înlocuiește înghețul e mai puternică
+2	ADRENALINĂ
+3	La HP până la 50%, viteza de atac crește (+3% pe Lv), iar la HP până la 25% se dublează
+4	LAMĂ AERIANĂ
+5	Când lovești un inamic în aer, apare o tăietură suplimentară (puterea și raza cresc cu Lv)
+6	ATAC AERIAN+
+7	Atacul în aer crește (+7% pe Lv)
+8	DOMINAȚIE AERIANĂ
+9	Atacul în aer crește (+3% pe Lv) și mai mult cu fiecare lovitură fără aterizare (+1%/Lv per lovitură, max. 4)
+10	LOVITURĂ AERIANĂ
+11	Atacul contra inamicilor din aer (aruncați în sus/zburători/boși aerieni) crește (+8% pe Lv)
+12	RAZĂ DE ATAC+
+13	Raza efectivă de atac crește (+3% pe Lv). Corp la corp: zona de lovire; proiectile: distanța de zbor (gloanțele nu se măresc)
+14	VITEZĂ DE ATAC+
+15	Viteza de atac crește (+3% pe Lv)
+16	ATAC+
+17	Atacul crește (+5% pe Lv)
+18	IMPULS BERSERK
+19	La HP până la 50%, atacul (+5% pe Lv) și viteza de atac (+2%) cresc; la HP până la 25%, ambele cresc și mai mult
+20	BERSERKER
+21	Atacul (+6% pe Lv) și viteza de atac (+1%) cresc. Sigilează 1 inimă din HP max. la fiecare 3 Lv
+22	LAMĂ SÂNGEROASĂ
+23	Atacurile provoacă sângerare (șansa și puterea cresc cu Lv). Cu HP plin, șansa de sângerare se dublează. Atacul cu HP plin crește și el puțin (+2%/Lv)
+24	VAL DE SÂNGE
+25	La HP până la 50%, atacul crește (+4% pe Lv); la HP până la 25% crește și șansa de absorbție (+3%/Lv)
+26	PROVOCAREA BOȘILOR
+27	HP-ul boșilor crește (+10% pe Lv), dar MILE de la boși cresc (+40%/Lv)
+28	UCIGAȘ DE BOȘI
+29	Atacul contra boșilor crește (+8% pe Lv)
+30	ASALTUL BOȘILOR
+31	La poarta bossului, cu o șansă (+8% pe Lv) mai apare un boss. MILE de la boși cresc (+50%/Lv)
+32	ATAC CU FRÂNĂ
+33	Atacul crește (+7% pe Lv). Încetinești puțin imediat după atacul principal
+34	SUFLET ARZÂND
+35	Arderea e mai puternică (+8% pe Lv) și mai lungă (+0.25 s/Lv). Cartea aprinde și ea uneori inamicii
+36	EXPLOZIE ÎN LANȚ
+37	Inamicii învinși explodează. Cei doborâți de explozie explodează și ei (max. 3 ori, fiecare inamic o dată per lanț)
+38	FULGER ÎN LANȚ
+39	Trăsnetul sare la alți inamici din apropiere (+1 țintă la 3 Lv, raza crește cu Lv). Cartea provoacă și ea uneori trăsnete
+40	Se activează la Gauge 100% (butonul din stânga jos). Atacul suprem unic al personajului lovește inamicii de pe ecran și avansează mult (Lv1 cca 100m → Lv9 cca 200m), apoi urmează un buff temporar (Lv1 5 s → Lv9 12 s). Gauge se umple prin distanță, inamici învinși și daune date boșilor
+41	LA MUSTAȚĂ
+42	Viteza de mișcare (+2% pe Lv) și invincibilitatea după lovire (+0.05 s pe Lv) cresc
+43	TĂIȘ COMBO
+44	Cu cât seria de lovituri (HIT) e mai lungă, cu atât atacul crește (+0.4%/Lv per lovitură, max. 10 lovituri)
+45	MAESTRU COMBO
+46	Lovitura finală trimite înainte o undă specială (puterea și raza cresc cu Lv)
+47	COMBO PLUS
+48	Ultima lovitură a seriei (lovitura finală) e mai puternică (+7% pe Lv)
+49	ASALT COMBO
+50	Loviturile din mijlocul seriei sunt mai puternice (+6% pe Lv), iar viteza atacului principal crește puțin (+2%/Lv)
+51	CONTRAATAC
+52	Când blochezi cu Shield, o undă de contraatac lovește în jur (puterea crește cu Lv). Chiar fără Shield, poți avea 1
+53	CONTRACTUL MORȚII
+54	Atacul crește foarte mult (+12% pe Lv). Sigilează 1 inimă din HP max. la fiecare 2 Lv
+55	ATAC DUBLU
+56	La atac, cu o șansă (+3% pe Lv) mai vine o lovitură. Lovitura extra nu declanșează alta
+57	INAMICI DE ELITĂ
+58	Unii inamici obișnuiți devin elite (+4% pe Lv; HP×2.5, puțin mai rapizi, învinși dau MILE×3/EXP×2). MILE cresc și ele (+30%/Lv)
+59	CĂLĂU
+60	MILE din inamicii învinși cresc (+15% pe Lv)
+61	CONVERTOR EXP
+62	EXP scade (-10% pe Lv, min. 25%), dar MILE din inamicii învinși cresc (+30%/Lv)
+63	EXP+
+64	EXP obținut crește (+20% pe Lv)
+65	EXPLOZIE DE EXP
+66	EXP de la inamici/boși/BONUS ZONE crește mult (+80% pe Lv)
+67	INAMICI RAPIZI
+68	Mișcarea, urmărirea și atacurile inamicilor obișnuiți se accelerează (+4% pe Lv), dar MILE (+15%/Lv) și EXP din inamici învinși (+5%/Lv) cresc
+69	PRIMA LOVITURĂ
+70	Prima lovitură a seriei e mai puternică (+10% pe Lv)
+71	LAMĂ DE FOC
+72	Poarta focului. Lovitura aprinde inamicul (șansă 15%+5%/Lv, 5+1.5/Lv daune pe secundă, 3 s)
+73	CONTRAATAC DE FOC
+74	Când blochezi cu Shield, un contraatac de foc lovește în jur (puterea crește cu Lv), iar inamicii loviți ard. Chiar fără Shield, poți avea 1
+75	FORTĂREAȚĂ
+76	HP max. crește (+1 inimă pe Lv) și reculul la lovire scade (+5%/Lv), dar viteza de mișcare scade (-3% pe Lv)
+77	TĂIȘ DE GHEAȚĂ
+78	Poarta gheții. Lovitura răcește inamicul (șansă 15%+5%/Lv, mișcare cu 25%+2%/Lv mai lentă). Răcirea acumulată îngheață (boșii nu se opresc, dar încetinesc puternic)
+79	VIJELIE
+80	Lamele de vânt sunt mai rapide (+5% pe Lv), zboară mai departe (+0.4m/Lv) și străpung mai mulți inamici (+1 la 3 Lv). Crește și străpungerea proiectilelor
+81	UCIGAȘ DE GIGANȚI
+82	Atacul crește mult (+9% pe Lv), dar viteza de atac scade (-3% pe Lv)
+83	TUN DE STICLĂ
+84	Atacul crește mult (+9% pe Lv). Sigilează 1 inimă din HP max. la fiecare 2 Lv
+85	LĂCOMIE
+86	Viteza de mișcare crește (+4% pe Lv), dar apar mai mulți inamici (+8%/Lv)
+87	SPĂRGĂTOR DE PĂMÂNT
+88	Impactul loviturii în sol și lovitura finală la sol trimit o undă de șoc pe sol (puterea și lungimea cresc cu Lv). Atacul la sol crește și el puțin (+2%/Lv)
+89	LUPTĂTOR DE SOL
+90	Atacul la sol crește (+7% pe Lv)
+91	EPICENTRU
+92	Atacul la sol crește mult (+11% pe Lv), dar în aer scade (-5% pe Lv)
+93	FRÂNGĂTOR DE INIMI
+94	Atacul crește (+4% pe Lv) și încă +0.6%/Lv pentru fiecare inimă sigilată. Sigilează 1 inimă din HP max. la fiecare 3 Lv
+95	INIMĂ+
+96	HP max. crește (+1 inimă pe Lv, max. 20 inimi) și HP se reface
+97	ARMURĂ GREA
+98	Loviturile puternice (2+ inimi) iau cu 1 inimă mai puțin. HP max. crește și el (+1 inimă la 2 Lv), dar forța de salt scade (-3% pe Lv)
+99	IMPACT GREU
+100	Impactul atacului în jos/loviturii în sol/aterizării e mai puternic (+10% pe Lv). Lovitura finală crește și ea puțin (+3%/Lv)
+101	MODUL INFERN
+102	HP (+12%/Lv), mișcarea (+4%/Lv) și apariția (+8%/Lv) inamicilor obișnuiți cresc, dar MILE (+50%/Lv) și MILE de la boși (+30%/Lv) cresc mult
+103	TENSIUNE ÎNALTĂ
+104	Fulgerul e mai puternic (+5% pe Lv). Trăsnetul oprește o clipă inamicii obișnuiți. Șansa de trăsnet crește și ea puțin (+1%/Lv)
+105	HOARDĂ
+106	Apariția inamicilor crește mult (+15% pe Lv), dar MILE (+5%/Lv) și EXP din inamici învinși (+5%/Lv) cresc
+107	VÂNĂTOR
+108	Te miști mai ușor în lupta cu bossul. Avansul/retragerea la atac cresc (+4% pe Lv) și te apropii mai repede de un boss îndepărtat (+3%/Lv)
+109	ÎNCHISOARE DE GHEAȚĂ
+110	Îngheți mai ușor inamicii (răciri necesare -1 la 3 Lv). Cresc și șansa și durata răcirii
+111	INFERNO
+112	Când învingi un inamic care arde, focul se răspândește în jur și aprinde (puterea și raza cresc cu Lv). Cartea aprinde și ea uneori inamicii
+113	VOINȚĂ DE FIER
+114	Cât timp HP e plin, atacul crește (+5% pe Lv). HP max. crește și el (+1 inimă la 3 Lv)
+115	SĂRITURI+
+116	Mai multe sărituri în aer (+1 pe Lv). Fiecare săritură succesivă e puțin mai slabă, dar nu și când cazi într-o groapă. Vrăjitoarea câștigă 1 nivel de altitudine la 3 Lv
+117	FORȚĂ DE SALT+
+118	Forța de salt crește (+3% pe Lv). Vrăjitoarea își schimbă altitudinea mai repede
+119	Când HP scade la 1 inimă, primești o scurtă invincibilitate (1 s + 0.15 s pe Lv). Nu se mai declanșează până la un timp după ce HP se reface
+120	ULTIMA REZISTENȚĂ
+121	La HP până la 50%, atacul crește (+4% pe Lv), iar la HP până la 25% și mai mult (+4%/Lv)
+122	SALT DE NIVEL
+123	EXP obținut crește mult (+30% pe Lv)
+124	LAMĂ LUNGĂ
+125	Raza efectivă de atac crește mult (+5% pe Lv)
+126	MARATON
+127	EXP (+15% pe Lv) și HP max. (+1 inimă la 3 Lv) cresc
+128	UCIGAȘ DE PLEAVĂ
+129	Atacul contra inamicilor care nu sunt boși (+5% pe Lv) și MILE din inamici învinși (+10% pe Lv) cresc
+130	AVÂNT
+131	Viteza actuală devine atac. Începe să crească peste 100km/h, maxim la 150km/h (+4% pe Lv). Mai departe crește doar lent
+132	INVAZIA MONȘTRILOR
+133	Apar mai mulți inamici (+10% pe Lv), dar EXP crește (+15%/Lv)
+134	MAI MULȚI INAMICI
+135	Apar mai mulți inamici (+10% pe Lv). MILE din inamici învinși cresc și ele puțin (+3%/Lv)
+136	FĂRĂ CALE DE ÎNTOARCERE
+137	Viteza de mișcare crește mult (+5% pe Lv), dar apar mai mulți inamici (+10%/Lv)
+138	ONE MORE MILE
+139	MILE (+50% pe Lv), MILE de la boși (+50%) și EXP (+20%) cresc
+140	Menținând 115km/h sau mai mult intri în OVERDRIVE (atac +3% pe Lv, viteză de atac +2%). Se anulează când încetinești. Viteza de mișcare crește și ea puțin (+2% pe Lv)
+141	SUPRAVINDECARE
+142	Vindecarea crește (Lv4-6: +1, Lv7-9: +2 inimi). Vindecarea primită cu HP plin devine 1 Shield
+143	PANDEMONIUM
+144	HP/mișcarea/apariția/elitele inamicilor obișnuiți și HP-ul boșilor cresc toate, dar MILE (+60%/Lv) și MILE de la boși (+60%/Lv) cresc foarte mult
+145	EXPLORATOR
+146	EXP pentru distanța parcursă crește (+20% pe Lv)
+147	GARDĂ PERFECTĂ
+148	Folosirea unui Shield dă o scurtă invincibilitate (0.4 s + 0.1 s pe Lv). Chiar fără Shield, poți avea 1
+149	Când cazi, revii o singură dată (HP 1-5 inimi după Lv). După reînviere, cartea se scoate și reapare ca opțiune (reluată de la Lv1)
+150	LAMĂ STRĂPUNGĂTOARE
+151	Atacurile străpung inamicii. Corp la corp: lovesc și în spatele țintei (numărul și puterea cresc cu Lv); proiectile: străpungere (+1 la 3 Lv)
+152	PRĂDĂTOR
+153	Șansa de absorbție crește (+3% pe Lv). Și atacurile asupra boșilor pot declanșa uneori absorbția
+154	TĂIȘ RAPID
+155	Viteza atacului principal (față/spate) crește (+5% pe Lv). Nu se aplică atacului sus/jos/loviturii în sol/atacurilor mari
+156	MARȘARIER
+157	Atacul crește (+8% pe Lv), dar viteza de mișcare scade (-3% pe Lv)
+158	Când HP scade la 30% sau mai puțin, te vindeci puțin (1-3 inimi). Apoi urmează un cooldown pe distanță (10,000m, mai scurt cu Lv)
+159	SCUT
+160	Un Shield blochează 1 lovitură. Maximul crește cu +1 la 3 Lv (max. 3); cele folosite revin în timp (mai repede cu Lv)
+161	UNDĂ DE ȘOC
+162	Lovitura corp la corp trimite înainte o undă scurtă; proiectilele creează o undă în jurul impactului (puterea și raza cresc cu Lv)
+163	STĂPÂNUL CERULUI
+164	Atacul în aer crește (+4% pe Lv). Lovind în aer recuperezi 1 săritură aeriană (1 la 3 Lv per zbor)
+165	ALERGĂTOR CERESC
+166	Forța de salt (+2% pe Lv) și atacul în aer (+3% pe Lv) cresc
+167	SPRE CER
+168	Atacul în aer crește mult (+11% pe Lv), dar la sol scade (-5% pe Lv)
+169	LAMĂ SONICĂ
+170	Fiecare atac principal trimite înainte o tăietură. Cu cât alergi mai repede, cu atât zboară mai departe și e mai mare și mai puternică
+171	ÎNCETINIRE
+172	Viteza de mișcare scade (-4% pe Lv). Carte specială, cu puține motive s-o alegi în solo
+173	VITEZĂ+
+174	Viteza de mișcare crește (+3% pe Lv)
+175	DRUMUL LUNG
+176	EXP (+40% pe Lv) și HP max. (+1 inimă la 2 Lv) cresc
+177	STĂPÂNUL TUNETULUI
+178	Treapta superioară a fulgerului. Puterea (+4% pe Lv), lanțul (+1 țintă la 3 Lv) și raza din jurul trăsnetului cresc
+179	LOVITURA TUNETULUI
+180	Poarta fulgerului. Lovitura provoacă un trăsnet (șansă 5%+2%/Lv, putere 7.5+1.5/Lv; pe același inamic max. o dată la 0.4 s)
+181	TORNADĂ
+182	Unde lovește lama de vânt apare o mică tornadă care trage inamicii din jur (puterea și raza cresc cu Lv). Cartea lansează și ea uneori lame de vânt
+183	INAMICI REZISTENȚI
+184	HP-ul inamicilor obișnuiți crește (+15% pe Lv), dar MILE (+15%/Lv) și EXP din inamici învinși (+5%/Lv) cresc
+185	VÂNĂTOR DE COMORI
+186	MILE din comori și recompense (BONUS ZONE: goblinul cu comoară/mâzga aurie/mimicul/CLEAR/PERFECT, recompensele WANTED) cresc (+30% pe Lv). Cresc puțin și MILE de la boși și din distanță
+187	ATOTPUTERNIC
+188	Carte universală: crește atacul (+3% pe Lv), HP max. (+1 inimă la 2 Lv) și viteza de mișcare (+2% pe Lv)
+189	VAMPIR
+190	Când învingi un inamic, cu o șansă (+3% pe Lv) refaci 1 inimă de HP
+191	WANTED
+192	La anumite distanțe apare un inamic căutat (mai puternic și mai des cu Lv). Învinge-l pentru recompensă; dacă treci de el, scapă. MILE cresc (+35%/Lv)
+193	TĂIETOR DE VÂNT
+194	Poarta vântului. Lovitura trimite înainte o lamă de vânt străpungătoare (șansă 10%+3%/Lv, putere 8+1.5/Lv). Raza de atac crește și ea puțin (+1%/Lv)
+195	ARCAȘ
+196	Încordează, țintește, străpunge
+197	'Un arcaș din pădurile adânci
+198	LUNETIST
+199	LĂNCIER DRAGON
+200	Străpunge, nu ceda niciodată
+201	'Un tânăr cavaler-dragon purtând o lance
+202	SPĂRGĂTOR
+203	DRACONID
+204	Gheară, coadă, aripă, flacără
+205	'Un războinic cu sânge de dragon.
+206	FORȚĂ BRUTĂ
+207	DUBLĂ LAMĂ
+208	Oțel iute, mișcare fără sfârșit
+209	'Un luptător iute cu două lame, care înlănțuie lovituri
+210	COMBO LA SOL
+211	BĂTĂUȘ
+212	Pumni care răspund
+213	'Un maestru al artelor marțiale care luptă
+214	PISTOLAR
+215	O împușcătură, o distanță
+216	'Două pistoale, o singură linie ascuțită de foc.
+217	LA DISTANȚĂ
+218	VRĂJITOARE
+219	Plutește sus, lovește jos
+220	'O vrăjitoare care nu atinge niciodată pământul.
+221	MAG ZBURĂTOR
+222	PREOTEASĂ
+223	Sigilează drumul înainte
+224	'O exorcistă de la un altar din munți.
+225	SIGILATOARE
+226	SHINOBI
+227	Dispari, taie, dispari
+228	'Un shinobi care nu e niciodată unde lovești.
+229	MOBILITATE
+230	DOMNIȚA
+231	O eroină încă netrezită
+232	'Îmbrăcată în argint și aur, mânuiește
+233	CAVALER NOBIL
+234	SPADASIN
+235	Cel care merge mereu înainte
+236	'Un spadasin singuratic, pe propriul drum.
+237	ECHILIBRAT
+238	Cu cât mai mult, cu atât mai puternic
+239	'Un nobil al nopții, care n-are nevoie de lamă.
+240	SÂNGE
+241	CĂRȚI DE PERSONAJ
+242	ALEGE PERSONAJUL
+243	ALEGE
+244	VIAȚĂ
+245	PUTERE
+246	ALEGE HARTA
+247	Pornește
+248	Formație recomandată
+249	Scoate tot
+250	Da
+251	Nu
+252	ULTIMUL CORIDOR
+253	Inamici: amestec din toate hărțile (întăriți)
+254	Specific: podele care se prăbușesc, structuri care cad, coridoare plutitoare
+255	Traseu: coridor antic uriaș → prăbușire → abis → ultimul drum
+256	Peștera naturală
+257	Inamici: furnici / săltăreți / lilieci / viermi
+258	Specific: tavan de piatră, țepi în tavan, întuneric și torțe
+259	Traseu: un singur drum (pericole la sol, în aer, sub pământ și din tavan)
+260	Coridorul ceresc
+261	Inamici: goblini + alții deblocați treptat cu distanța
+262	Specific: platforme plutitoare din stâncă și nori, drum prin înalturi
+263	Traseu: tot mai periculos pe măsură ce avansezi
+264	Drumul pustiului
+265	Inamici: goblini / păsări
+266	Obstacole: pietre, tufișuri, ziduri, copaci distructibili, bolovani uriași, gropi
+267	Traseu: sus ușor / jos periculos
+268	Ai căzut. Apasă „Luptă din nou” ca să reîncerci imediat
+269	HP refăcut complet
+270	Toți inamicii și atacurile lor au fost șterși (nu intră în timpul de învingere)
+271	Daune date {0}    Daune primite {1}    {2} s
+272	Invincibil
+273	≡ Setări
+274	Luptă din nou
+275	Șterge inamicii
+276	Acasă
+277	Toți învinși  {0} s
+278	Adversari
+279	Detalii
+280	Rezultat
+281	Arenă de antrenament unde încerci liber personaje și cărți
+282	Începe cu aceste setări
+283	Start
+284	Test
+285	(test)
+286	Caută
+287	<color=#8ce6ff>Test</color>
+288	+ Adaugă
+289	Copiază pachetul actual
+290	Copiază cărțile personajului
+291	Build de test ({0} cărți)
+292	Scoate tot
+293	Lv = de câte ori ai luat-o în cursa asta (max. 9 per abilitate). Cărțile deținute și pachetul nu se schimbă
+294	Adaugă cărți cu „+ Adaugă” din lista din stânga. Poți testa și fără cărți
+295	Copie deținută (fuziune Lv{0}, {1} abilități)
+296	{0} cărți din pachet copiate în build-ul de test (pachetul nu se schimbă)
+297	{0} cărți de personaj copiate (Lv de start)
+298	Țintă de antrenament
+299	Inamici obișnuiți
+300	Boșii pustiului
+301	Boșii peșterii
+302	Boșii cerului
+303	Țintă fixă: nu atacă (loviturile nu rănesc) și nu cade. Pentru testat atacuri. Când alergi, păstrează distanța față de jucător
+304	Număr
+305	Intensitate mișcare
+306	Fază
+307	Bossul apare din față cu propria intrare
+308	Atacurile boșilor din peșteră/cer care folosesc terenul (gropi/tavan/pietre căzătoare/benzi în cer etc.) se comportă altfel pe arena plată decât în joc
+309	Max. 1 tip de boss (poate fi cu inamici obișnuiți)
+310	Adaugă adversar
+311	Max. 1 tip de boss (l-a înlocuit pe cel anterior)
+312	Adversari actuali ({0})
+313	Niciun adversar (start fără inamici: testezi doar mișcarea)
+314	Puterea inamicilor: ca la {0}km (HP/atac ca în joc la acea distanță)
+315	Viteză
+316	Stai (0km/h)
+317	Aleargă (bază + bonusuri)
+318	Aleargă (viteză fixă)
+319	Se oprește doar avansul automat (atacurile/săriturile/gravitația/reculul/mișcarea inamicilor sunt ca în joc)
+320	Alergi cu viteza de bază înmulțită cu bonusurile personajului/cărților (VITEZĂ+ etc.)
+321	Alergi exact cu viteza asta, fără bonusuri (pentru comparații fără efectul cărților de viteză)
+322	Acum: bază {0}km/h → real {1}km/h (bonus ×{2})
+323	Invincibil / HP
+324	Invincibil: {0}
+325	Refă HP
+326	Chiar dacă ești invincibil, „daunele reale primite” apar în rezultat
+327	Asistență la control (ca „Asistență la viteză mare” din setări; doar în arenă, setările nu se schimbă)
+328	OFF
+329	ON
+330	Mereu (dev)
+331	De la {0}km/h
+332	Nu funcționează în arenă: FINAL EVOLUTION / AWAKENED / Mastery / indicatorul ULTIMATE / creșterea de nivel / recompense de boss / BONUS ZONE (cărțile doar cu efectul normal de Lv și COMBO. Recompensele, recordurile și cărțile deținute nu se schimbă)
+333	Doar versiunea dev
+334	Alege și inamici neîntâlniți: {0}
+335	Aleatoriu fix: {0}
+336	Ajutor la spart obstacole: {0}
+337	Căzut
+338	Toți învinși {0} s
+339	Gata
+340	În luptă
+341	Acum: {0}
+342	Daune date
+343	Lovituri
+344	Învinși
+345	Timp până la învingere
+346	Daune primite (HP pierdut)
+347	Daune reale primite (incl. invincibil/Shield)
+348	Durata luptei
+349	{0} s
+350	{0} ({1} ori)
+351	Acum
+352	Data trecută
+353	Condiții acum: {0}
+354	Build de test: {0}
+355	Condiții trecute: {0}
+356	Build trecut: {0}
+357	Schimbă setările
+358	??? (neîntâlnit încă)
+359	Țintă fixă
+360	{0} / {1} cărți / {2} / ca la {3}km
+361	Fără cărți
+362	(copie deținută)
+363	Se pregătește arena
+364	ARENĂ
+365	MIMIC KO
+366	GOBLIN
+367	MÂZGĂ
+368	ZÂNĂ
+369	MIMIC
+370	MILE
+371	EXP
+372	JACKPOT!!
+373	BONUS ZONE!
+374	PERFECT:
+375	JACKPOT REUȘIT!
+376	BONUS REUȘIT!
+377	JACKPOT  PERFECT!
+378	BONUS PERFECT!
+379	REZULTAT JACKPOT
+380	REZULTAT BONUS
+381	INAMICI
+382	REUȘIT
+383	PERFECT
+384	TOTAL
+385	ALEATORIU
+386	SFÂRȘIT
+387	Reluarea cursei în {0}
+388	Actual
+389	{0} lovituri
+390	(fix)
+391	O carte-material e folosită în pachet/cărțile de personaj
+392	Deja AWAKENED (★5), Mastery nu mai crește (cartea nu se consumă. Folosirea cărților rămase după ★5 va fi adăugată mai târziu)
+393	Fuziune imposibilă: Lv după fuziune ar fi {0} (max. Lv.{1})
+394	Fuziune imposibilă: ar rezulta {0} abilități (max. {1})
+395	Fuziune în curs
+396	Cărți insuficiente
+397	<color=#ffd76a><b>[MASTERY] Antrenament Lv.9 MAX</b></color>
+398	Cartea principală rămâne (Lv.9 MAX), se consumă doar cartea-material.
+399	Mastery actual: <color=#ffd76a>{0}</color>  {1}
+400	Această fuziune: <b>+{0} Mastery</b> (material Lv.{1} = {2} cărți)
+401	După fuziune: <color=#ffd76a>{0}</color>  {1}
+402	<size=19>(+{0} ★, restul trece la următoarea ★)</size>
+403	<size=19>Surplusul de {0} după ★5 nu se pierde, se păstrează</size>
+404	<color=#ff9a8a><size=19>Abilitățile secundare ale materialului ({0}) nu se moștenesc</size></color>
+405	<size=19>Mastery nu crește performanța normală (atac/viteză/EXP etc.). E istoricul antrenamentului și drumul spre AWAKENED.</size>
+406	<color=#ff9a8a>La execuție se consumă 1 carte-material.</color>
+407	<color=#ffd76a><b>[Întărire cu aceeași carte → Lv.9 MAX] Succes 100%</b></color>
+408	Fuziune Lv: Lv.{0} + Lv.{1} → <b>Lv.9 MAX</b>
+409	<b>{0}</b> peste Lv.9 nu se pierde, merge în Mastery: {1} → <color=#ffd76a>{2}</color>{3}
+410	<b>Abilități moștenite (întărire max. 9)</b>
+411	・{0} <b>×{1}</b>
+412	<color=#ff9a8a>La execuție, cele 2 cărți alese se consumă (primești 1 carte finală Lv.9 MAX).</color>
+413	<color=#ffd76a><b>[Întărire cu aceeași carte] Succes 100%</b></color>
+414	Fuziune Lv: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+415	<b>Abilități moștenite (cele identice se adună)</b>
+416	・{0} {1}<b>×{2}</b>  <size=18>({3} ×{4})</size>
+417	<color=#9fd0ff><b>[Fuziune de cărți diferite] Rezultatul e tras la sorți</b></color>
+418	<b>Fuziune Lv a cărții finale (după rezultat)</b>
+419	・Ambele reușesc: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+420	・Reușește doar principala: <b>Lv.{0}</b> (doar Lv principalei)
+421	・Reușește doar materialul: <b>Lv.{0}</b> (doar Lv materialului)
+422	・Ambele eșuează: nicio carte, primești înapoi <color=#ffd76a>{0} MILE</color>
+423	<b>Principala: șansă de moștenire a abilităților {0}%</b>
+424	・{0} ×{1}  <size=18>({2} ×{3})</size>
+425	<b>Materialul: șansă de moștenire a abilităților {0}%</b>
+426	Ambele reușesc: se moștenesc toate abilitățile ambelor (cele identice se adună)
+427	Reușește o parte: se moștenesc doar abilitățile, întăririle și Lv ale ei (partea eșuată nu rămâne)
+428	Dacă reușește doar materialul, abilitatea lui principală devine abilitatea principală a cărții finale
+429	<size=18>(Returnare la eșec dublu =★{0}×Lv.{1}×{2} + ★{3}×Lv.{4}×{5})</size>
+430	<color=#ff9a8a>La execuție, cele 2 cărți alese se consumă.</color>
+431	Nu deții această carte
+432	Nu poate fi aleasă: folosită în pachet și în cărțile de personaj
+433	Nu poate fi aleasă: echipată în cărțile de personaj
+434	Nu poate fi aleasă: folosită în pachet
+435	Ai nevoie de 2 cărți identice (deții 1)
+436	Alege cartea principală și cartea-material
+437	Datele cărții nu pot fi încărcate
+438	MASTERY CREȘTE!
+439	Fuziune: mare succes!
+440	Fuziune reușită!
+441	<size=21>Ai avansat {0}★ (restul trece la următoarea ★)</size>
+442	<size=21>Surplusul de {0} după ★5 a fost păstrat (pentru utilizări viitoare)</size>
+443	<size=21>Cartea a devenit AWAKENED (istoric permanent, performanța normală nu se schimbă)</size>
+444	Cartea principală (Lv.9 MAX) a rămas, s-a consumat 1 carte-material.
+445	<size=21>Mastery nu crește performanța normală (atac/viteză/EXP etc.).</size>
+446	Fuziune Lv.<b>{0}</b>{1}
+447	<color=#ffd76a>Întărire cu aceeași carte (garantat)</color> … moștenește toate abilitățile ambelor
+448	Principala ({0} Lv.{1}): {2}
+449	Materialul ({0} Lv.{1}): {2}
+450	Doar Lv principalei
+451	Doar Lv materialului
+452	<size=21>Lv.{0} final = {1}</size>
+453	<b>Abilitate principală</b>
+454	<b>Abilități secundare ({0}/{1})</b>
+455	Niciuna
+456	Fuziune eșuată…
+457	Principala ({0} Lv.{1}): <color=#9aa3b8>moștenire eșuată</color>
+458	Materialul ({0} Lv.{1}): <color=#9aa3b8>moștenire eșuată</color>
+459	Cele 2 cărți alese au fost consumate.
+460	MILE returnate  <color=#ffd76a><b><size=40>+{0}</size></b></color>
+461	MILE deținute  <b>{0}</b>
+462	<color=#ffd76a><b>Întărire ×{0}→×{1}</b></color>
+463	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3} ×{4})</color></size>
+464	Înapoi
+465	Fuziune cărți
+466	Sortare
+467	Principală
+468	Material
+469	Cărți
+470	Selectat
+471	Fuzionează
+472	Sari ▶▶
+473	Încă o fuziune
+474	Înapoi la listă
+475	MILE deținute  {0}
+476	{0} tipuri / {1} în total
+477	Carte principală
+478	Carte-material
+479	Toate
+480	Mișcare
+481	Atac
+482	Apărare
+483	Creștere
+484	Vindecare
+485	Special
+486	Risc
+487	Alege 2 cărți
+488	Fuziune imposibilă
+489	Nume
+490	Nivel
+491	Raritate
+492	Deținute
+493	Deții {0}  Utilizabile<color=#{1}
+494	Abilități {0}
+495	Principală+material
+496	În uz
+497	<color=#ffd76a><b>{0}</b></color>  <b>{1}</b>  {2}  Fuziune Lv.{3}{4}
+498	Abilitate principală: {0}
+499	Abilități secundare ({0}):
+500	・{0}
+501	Abilități secundare: niciuna
+502	<size=19><color=#b7bfd8>Deții {0} / utilizabile {1}</color></size>
+503	Alege o carte din lista din stânga.
+504	Cartea intră în slotul selectat (cel luminat). Atinge un slot ca să schimbi ținta; × anulează selecția.
+505	・Cărți identice … succes 100%, se adună Lv de fuziune și toate abilitățile
+506	・Cărți diferite … principala 50% / materialul 25% șansă de a moșteni setul de abilități (tragere la sorți). Dacă reușește doar o parte, rămân doar Lv și abilitățile ei
+507	・Lv maxim de fuziune e Lv.9. La cărți identice, surplusul peste Lv.9 merge în Mastery (cărțile diferite cu suma peste Lv.9 nu se pot fuziona)
+508	・Fuzionând aceeași carte cu una Lv.9 MAX crește Mastery (★5 = AWAKENED)
+509	<size=19>Ai atins ★5 (AWAKENED). Folosirea cărților rămase după ★5 va fi adăugată mai târziu (acum nu se consumă la fuziune).</size>
+510	Alege aceeași carte ({0}) ca material și Mastery crește cu Lv-ul ei (Lv.1 = +1).
+511	Acum alege cartea-material.
+512	Acum alege cartea principală.
+513	Această carte e AWAKENED (★5)
+514	Cartea finală a fost pusă ca principală. Alege cartea-material
+515	Întărire garantată
+516	AWAKENED!
+517	Lv.9 MAX atins!
+518	Întărire completă!
+519	Mare succes! Abilitățile ambelor moștenite
+520	Abilitățile principalei moștenite
+521	Abilitățile materialului moștenite
+522	Moștenire eșuată…  Cărțile au devenit MILE
+523	{0}: moștenire reușită!
+524	{0}: moștenire eșuată
+525	Specializare: viteză
+526	Specializare: apărare
+527	Specializare: sânge
+528	Specializare: foc
+529	Specializare: gheață
+530	Specializare: fulger

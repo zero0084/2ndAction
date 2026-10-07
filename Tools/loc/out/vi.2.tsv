@@ -1,0 +1,531 @@
+531	Chuyên Wind
+532	Chuyên Boss
+533	Chuyên EXP
+534	Chuyên MILE
+535	Nhiều Challenge
+536	Mọi đòn đánh thêm (kiểm tra tải)
+537	Hỗn hợp phổ thông
+538	Chuyên Attack
+539	Risk cực đoan (hy sinh HP)
+540	PHẢN ĐÒN AEGIS
+541	OVERDRIVE
+542	VFX cường hóa nhỏ khi trúng đòn
+543	Tăng cường bóng mờ khi tốc độ cao
+544	Blood Aura khi hồi phục
+545	Tăng cường hiệu ứng hồi sinh / thêm lợi ích nhỏ
+546	VFX riêng khi kích hoạt
+547	Hiệu ứng cuối tuyệt chiêu/hào quang riêng/hiệu ứng BUFF/VFX đòn kết (không tăng sát thương)
+548	TRUY NÃ! Kẻ bị truy nã đã xuất hiện
+549	TIỀN THƯỞNG!
+550	COMBO!
+551	trong {0} giây
+552	{0}m tiếp theo
+553	FINAL EVOLUTION: TÁI SINH
+554	CƠ HỘI CUỐI
+555	HỒI SỨC
+556	PHƯỢNG HOÀNG
+557	Quật đuôi xong bị cứng người! Cơ hội tấn công!
+558	Mắt đã yếu! Đầu là điểm yếu!
+559	Đầu đã hạ xuống! Cơ hội phản công dài!
+560	Nhảy!
+561	Xuống!
+562	Cạn ma lực! Cơ hội tấn công dài!
+563	Lật ngửa rồi! Cơ hội lớn!
+564	Đuôi cắm xuống đất! Cơ hội tấn công!
+565	Đang choáng! Cơ hội tấn công!
+566	Chùy bị kẹt! Cơ hội tấn công!
+567	Đầu kẹt dưới đất! Cơ hội tấn công!
+568	Lộ lõi! Dễ phá thế!
+569	Đâm sầm xuống đất! Cơ hội tấn công!
+570	Thiết lập thẻ ▶
+571	<color=#FFD866><b>Thẻ nhân vật</b></color>
+572	<color=#8890A0>(trống)</color>
+573	ĐÃ KHÓA
+574	Điều kiện mở khóa:
+575	[Chính]
+576	[Phụ]
+577	Tốc độ di chuyển
+578	Tấn công
+579	Lực nhảy
+580	Số lần nhảy
+581	HP tối đa
+582	Tầm đánh
+583	Tốc độ đánh
+584	Tấn công trên không
+585	Khiên
+586	EXP nhận được
+587	Tỉ lệ hấp thụ
+588	Lượng hấp thụ
+589	Tỉ lệ địch xuất hiện
+590	Tấn công mặt đất
+591	Uy lực đòn kết combo
+592	Uy lực đòn đầu
+593	Tấn công khi nguy kịch
+594	Tấn công khi đầy HP
+595	Tấn công khi tăng tốc
+596	Tấn công lên boss
+597	HP địch
+598	HP boss
+599	MILE nhận được
+600	MILE từ boss
+601	Tỉ lệ thiêu đốt (Burn)
+602	Uy lực thiêu đốt
+603	Thời gian thiêu đốt
+604	Tỉ lệ làm lạnh (Chill)
+605	Làm chậm khi lạnh
+606	Thời gian lạnh
+607	Tích lũy đến đóng băng
+608	Thời gian đóng băng
+609	Tỉ lệ sét đánh
+610	Uy lực sét đánh
+611	Số lần dây chuyền
+612	Tầm dây chuyền
+613	Tỉ lệ lưỡi gió
+614	Uy lực lưỡi gió
+615	Số lần xuyên
+616	Tầm lưỡi gió
+617	Tỉ lệ chảy máu (Bleed)
+618	Uy lực chảy máu
+619	Thời gian chảy máu
+620	Hấp thụ từ chảy máu
+621	Chảy máu mạnh khi nguy kịch
+622	Tốc độ đánh của đòn chính
+623	Tầm đánh thực tế
+624	HP tối đa (tim)
+625	Tim bị phong ấn
+626	Tấn công trên không
+627	Tấn công mặt đất
+628	Đòn đầu
+629	Giữa chuỗi đánh
+630	Đòn kết
+631	Tấn công lên boss
+632	Tấn công lên quái thường
+633	Tấn công lên địch trên không
+634	Đánh xuống/đòn đập
+635	Tấn công khi đầy HP
+636	Tấn công khi HP từ 50% trở xuống
+637	Tấn công khi HP từ 25% trở xuống
+638	Tốc độ đánh khi HP thấp
+639	Tỉ lệ hấp thụ khi HP từ 25% trở xuống
+640	Tấn công mỗi phong ấn
+641	Tấn công mỗi hit
+642	Tấn công mỗi lần trúng trên không
+643	Tấn công ở 150km/h
+644	Tấn công khi OVERDRIVE
+645	Tốc độ đánh khi OVERDRIVE
+646	Số Shield tối đa
+647	Hồi Shield (giảm giây)
+648	Lượng hồi (tim)
+649	Tỉ lệ đòn đánh thêm
+650	Bất tử sau khi trúng đòn (giây)
+651	Giảm khựng
+652	Tốc độ hành động của địch
+653	Tỉ lệ tinh anh
+654	MILE kho báu・phần thưởng
+655	MILE quãng đường
+656	EXP quãng đường
+657	EXP hạ địch
+658	Số lần đến đóng băng
+659	Uy lực sét
+660	Đứng yên do sét (giây)
+661	Phạm vi sét đánh (m)
+662	Tốc độ lưỡi gió
+663	Lv hiệu ứng
+664	Đang dùng, không thể đổi
+665	Có x{0}
+666	Chạm vào thẻ để xem chi tiết
+667	[Thẻ nhân vật của nhân vật khác]
+668	Thẻ này đang được dùng. Hãy gỡ ra trước khi dùng.
+669	đổi thành {CardConvertMile} MILE?
+670	Đổi bộ bài hiện tại
+671	sang đội hình đề xuất?
+672	Gỡ tất cả thẻ
+673	khỏi bộ bài?
+674	Rồng bay thấp! Cơ hội phản công!
+675	Giai đoạn cuối!
+676	BREAK!
+677	RỒNG TỤ LỬA
+678	Cầu lửa luyện ngục khổng lồ
+679	Lửa {0}% {1}/s {2}s
+680	Băng {0}% -{1}% {2}s đóng băng {3} lần/{4}s
+681	Độ không tuyệt đối Lv{0}
+682	Sét {0}% {1} dây chuyền {2} phạm vi {3}m đứng yên {4}s
+683	Gió {0}% {1} xuyên+{2} {3}m
+684	Máu {0}%{1}
+685	THẺ MỚI
+686	TRÙNG LẶP
+687	(đã AWAKENED・lưu giữ)
+688	→ dung hợp để MASTERY +1
+689	Chạm để tiếp (còn {0} thẻ)
+690	Chạm để đóng / chạm gacha để rút tiếp
+691	TIẾP
+692	OK
+693	Không đủ MILE
+694	Đang tạm dừng ― quan sát xung quanh rồi hãy tiếp tục
+695	Tiếp tục khi sẵn sàng
+696	GO!
+697	MỞ KHÓA MỚI:
+698	SẴN SÀNG
+699	TỐC ĐỘ
+700	TĂNG TỐC!
+701	Chỉ còn lý do dừng chờ lựa chọn
+702	Chỉ còn lý do dừng của menu tạm dừng
+703	Hiệu ứng chậm khi boss xuất hiện quá lâu
+704	Chỉ còn hiệu ứng chậm khi boss xuất hiện
+705	THƯỞNG BOSS
+706	LÊN CẤP
+707	Đang chờ lựa chọn nhưng không có màn hình chọn → đã hiện lại ({0}, lần {1}, ok={2})
+708	Đang chờ lựa chọn nhưng không hiện được màn hình chọn → xử lý không cần chọn ({0})
+709	Màn hình chọn mở sai lệch → đã đóng và hiện lại {0}
+710	BEST
+711	QUÃNG ĐƯỜNG
+712	II
+713	BƯỚC:
+714	LƯỢT CHẠY MỚI
+715	PHÁ ĐẢO
+716	THẤT BẠI
+717	THỜI GIAN
+718	ĐỊCH ĐÃ HẠ
+719	BOSS ĐÃ HẠ
+720	BONUS
+721	BONUS ZONE
+722	THƯỞNG VÒNG
+723	TỔNG EXP
+724	NÂNG CẤP ĐÃ NHẬN
+725	TỔNG MILE
+726	ĐỊCH / BOSS
+727	TỔNG EXP / NÂNG CẤP
+728	Đã mất: MILE của lượt chạy này {0}
+729	Được giữ: kỷ lục quãng đường BEST (mới!)・tổng quãng đường đã chạy
+730	Được giữ: kỷ lục quãng đường BEST・tổng quãng đường đã chạy
+731	Thẻ đang có・MILE (VÍ {0})
+732	HP
+733	Phong ấn {0}
+734	Khiên {0}
+735	MAX
+736	Dung hợp Lv.{0}  {1} năng lực
+737	Chỉ tốc độ x{0} (không đổi khoảng cách bố trí)
+738	HỖ TRỢ ON
+739	HỖ TRỢ OFF
+740	Gần nhất:{0}({1})
+741	Không được:{0}
+742	Chướng ngại:{0} phá{1}/nhảy{2}/bó tay{3}
+743	{0} xét{1}km/h(ON≧{2}/OFF<{3}){4}{5}
+744	Nền: {0}
+745	[Xem trước]
+746	Đã tải {0} {1}MB
+747	Nền◀
+748	Nền▶
+749	Chuyển tiếp
+750	Thường
+751	Đến ranh giới
+752	Cài đặt
+753	Đấu trường
+754	Đấu trường (KHÓA)
+755	Đấu trường chưa được mở khóa
+756	Điều kiện mở khóa: {0}
+757	DEBUG
+758	Lượt chạy hiện tại và MILE chưa chốt
+759	sẽ bị hủy. Bạn chắc chứ?
+760	Hủy & LƯỢT CHẠY MỚI
+761	Hủy bỏ
+762	TIẾP TỤC
+763	VỀ SẢNH
+764	Quay về Phòng chính.
+765	Lượt chạy không kết thúc, bạn có thể
+766	TIẾP TỤC từ chỗ này.
+767	Thẻ này đang được dùng ở nơi khác
+768	Không thể trang bị {0} vì cộng với thẻ nhân vật khác sẽ vượt Lv{1} (phần vượt không có tác dụng)
+769	Lưu ý: {0} cộng với thẻ nhân vật khác vượt Lv{1} (phần vượt {2} Lv không có tác dụng)
+770	ĐẠI CHIẾN BOSS  Vừa chạy vừa chiến! CẢNH BÁO đang ập tới! Hạ những boss còn lại! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+771	VƯỢT XA
+772	Ba Chị Em Tử Thần
+773	Ba Chị Em
+774	ONE MORE MILE?
+775	Nổi giận!
+776	MA PHÁP TRỜI CUỒNG KÍCH
+777	Ma nhân bị cứng người! Cơ hội tấn công!
+778	KHÁC PHIÊN BẢN
+779	ĐANG DIỄN RA
+780	ĐẦY
+781	MỞ
+782	BOSS:
+783	HOST
+784	JOIN
+785	BOSS
+786	MỤC TIÊU
+787	ĐÒN KẾT LIỄU BOSS:
+788	HẠ ĐỊCH:
+789	Chơi cùng các máy chung Wi-Fi hoặc chung điểm phát từ điện thoại (tối đa
+790	người).
+791	ONLINE (đang chuẩn bị)
+792	NÂNG CAO (nhập IP trực tiếp・cho dev)
+793	Đóng
+794	Nhiều người {0}/{1}
+795	Nhiều người
+796	Hãy chọn chế độ
+797	Gục thì DOWN. Đồng đội (HP từ 2) đến chỗ bạn gục và chia 1 HP thì bạn hồi sinh. Tất cả DOWN là kết thúc.
+798	Gục là bị loại (không hồi sinh). Tiếp tục đến khi còn 1 người, xếp hạng theo quãng đường đạt được.
+799	CO-OP
+800	VERSUS
+801	Tạo phòng trên máy này. Phòng sẽ hiện ở "FIND GAME" của các máy gần đó.
+802	Tìm và tham gia phòng gần đây (không cần nhập IP).
+803	Phòng gần đây (đang chọn {0}. Chơi theo chế độ của HOST)
+804	KẾT NỐI THẤT BẠI
+805	Không thể kết nối. Hãy kiểm tra cùng Wi-Fi rồi thử lại
+806	KẾT NỐI THẤT BẠI:
+807	Đang kết nối… {0}
+808	Đang tìm trận nội bộ…
+809	Không tìm thấy trận
+810	Bấm "CREATE GAME" trên máy HOST và kết nối cùng Wi-Fi (điểm phát).
+811	Tìm lại
+812	Phòng đang tham gia
+813	CHẾ ĐỘ: {0} (HOST quyết định)
+814	CHẾ ĐỘ: HOST quyết định (tự đồng bộ khi bắt đầu lượt chạy)
+815	Đang hiện ở "FIND GAME" của các máy gần đó
+816	Khi đủ người, "Đóng" → Cửa → bấm "Xuất phát" ở CHỌN MÀN, mọi người sẽ cùng bắt đầu ở cùng một màn.
+817	Sẽ tự bắt đầu khi HOST xuất phát. Vui lòng chờ.
+818	Đóng phòng
+819	Rời phòng
+820	Đóng (giữ phòng)
+821	NÂNG CAO: kết nối bằng IP (cho dev)
+822	Hãy kết nối cùng Wi-Fi hoặc điểm phát từ điện thoại (tối đa {0} người).
+823	(không lấy được - hãy kiểm tra cài đặt Wi-Fi của máy)
+824	IP của máy này:
+825	Trạng thái:
+826	CO-OP: Gục thì DOWN. Đồng đội (HP từ 2) đến chỗ bạn gục và chia 1 HP thì bạn hồi sinh. Tất cả DOWN là kết thúc.
+827	VERSUS: Gục là bị loại (không hồi sinh). Tiếp tục đến khi còn 1 người, xếp hạng theo quãng đường đạt được.
+828	CHẾ ĐỘ: HOST chọn (tự đồng bộ khi bắt đầu lượt chạy)
+829	Cổng
+830	HOST (tạo phòng trên máy này)
+831	JOIN: nhập IP hiển thị trên máy HOST
+832	Người chơi đã kết nối {0}/{1}
+833	Cửa → bấm "Xuất phát" ở CHỌN MÀN, mọi người đang kết nối sẽ cùng bắt đầu ở cùng một màn.
+834	Đóng phòng (kết thúc HOST)
+835	Ngắt kết nối
+836	MULTI: đã ngắt
+837	UI:
+838	Về sảnh
+839	Tiếp tục chạy
+840	KẾT QUẢ VERSUS
+841	KẾT QUẢ CO-OP
+842	Đang chờ HOST xuất phát
+843	Vẫn còn người chơi đang chạy
+844	HOST: chờ người tham gia
+845	Lỗi khởi tạo
+846	Đang đóng kết nối trước. Vui lòng chờ một chút rồi thử lại
+847	Không thể bắt đầu HOST (có thể cổng đang được dùng)
+848	Định dạng địa chỉ IP không đúng (ví dụ: 192.168.1.23)
+849	Đang kết nối… {0}:{1}
+850	Không thể bắt đầu JOIN
+851	HOST: {0}/{1} người đã kết nối
+852	JOIN: đã kết nối {0}
+853	MẤT KẾT NỐI NHIỀU NGƯỜI
+854	Người chơi khác
+855	đã ngắt kết nối
+856	Đã mất kết nối với HOST
+857	Kết nối bị từ chối:
+858	PHÒNG ĐÃ ĐẦY
+859	ĐANG TRONG LƯỢT CHẠY
+860	Không thể kết nối đến HOST
+861	Đã xảy ra lỗi kết nối
+862	OMM-NET-
+863	PS5
+864	THOÁT
+865	Chạm lần nữa để xác nhận
+866	Hãy chạm vào thẻ để chọn
+867	AWAKENED
+868	FINAL EVOLUTION
+869	ĐÃ TRANG BỊ
+870	MỚI
+871	Sức mạnh Lv{d.level:0.0}{(d.def.risk ?
+872	COMBO
+873	Nhân vật
+874	Bộ bài
+875	Đạt {1}m ở {0}
+876	Cao nhất {0}m / {1}m
+877	Thua ở mốc 1,000m trở xuống tại bất kỳ bản đồ nào
+878	ĐÃ MỞ KHÓA:
+879	NHÂN VẬT MỚI:
+880	Vào từ "Đấu trường" ở sảnh.
+881	Có thể xuất phát từ màn chọn bản đồ.
+882	Đã mở khóa {0}
+883	{0} đã gia nhập
+884	Có thể chọn ở Chọn nhân vật.
+885	Gửi bạn, người đã chạy không ngừng.
+886	Con đường cuối cùng đã mở ra.
+887	Âm thanh
+888	(không dùng được âm thanh)
+889	Tổng
+890	BGM
+891	SE
+892	Âm môi trường
+893	Ngôn ngữ / Language
+894	Ngôn ngữ
+895	Hiển thị bằng ngôn ngữ đã chọn
+896	Theo ngôn ngữ của máy
+897	Hiển thị
+898	Hướng màn hình
+899	Ngang
+900	Dọc
+901	Rung màn hình
+902	Hiệu ứng phát sáng
+903	※Dấu hiệu đòn đánh của địch và hiển thị cần cho điều khiển không bị giảm
+904	Điều khiển
+905	(không dùng được hỗ trợ tự động)
+906	Hỗ trợ khi tốc độ cao
+907	Tốc độ bắt đầu hỗ trợ
+908	Khi tốc độ chạy vượt giá trị này, việc nhảy qua hố/chướng ngại/địch và
+909	tấn công sẽ được tự động hỗ trợ (thao tác của bạn được ưu tiên)
+910	Cách chơi
+911	Luyện tập điều khiển
+912	Luyện đánh trước sau/nhảy/đánh xuống/hất tung/thẻ (không có thưởng)
+913	Có thể bắt đầu luyện tập ở sảnh (không được khi đang chạy/chơi nhiều người)
+914	Bàn tay khổng lồ kẹt trên bệ! Cơ hội lớn!
+915	Lõi đã tối đi! Dễ phá thế!
+916	Đầu đã tới gần! Cơ hội tấn công!
+917	Mất thăng bằng! Cơ hội phản công!
+918	Tái tạo thất bại! Lộ lõi!
+919	Lửa đã yếu đi! Cơ hội tấn công!
+920	Đầu thò thấp ra khỏi mây! Cơ hội tấn công!
+921	Vầng sáng đã tắt! Cơ hội phản công dài!
+922	Hết tích điện! Cơ hội phản công lớn!
+923	Xuất phát tốc hành…({0})
+924	Xuất phát tốc hành…
+925	Xuất phát tốc hành  {0}
+926	Lướt nhanh qua đoạn đã chinh phục và bắt đầu chạy ngay trước cửa ải đã chọn. Thẻ thưởng boss trên đường được nhận tự động. Đi qua vòng mỗi 5,000m để chọn thêm 1 thẻ.
+927	Tốc hành đến {0}km   (khoảng {1} giây + vòng){2}
+928	(Bản dev: DEBUG mở khóa tất cả ON)
+929	Quãng đường không hợp lệ
+930	DEBUG mở khóa tất cả
+931	Chưa đạt {0}km (cao nhất {1}km)
+932	Chưa hạ người gác cửa {0}km
+933	Tiếp tục tốc hành!
+934	VÒNG!  Hiện không có thẻ nào để nhận
+935	Đã lỡ vòng
+936	THẺ THƯỞNG
+937	VÒNG!
+938	Hiện không có thẻ nào để nhận
+939	Tất cả thẻ trong bộ bài đã đạt Lv9.
+940	Từ giờ thưởng vòng là MILE
+941	Phím chữ thập / cần lên xuống (A = lên / B = xuống)
+942	Phím ↑↓ / W・S
+943	Vuốt lên/xuống / ▲▼ góc dưới phải
+944	Xuất phát tốc hành  →  trước cửa ải {0}m
+945	Tự nhận thưởng boss {0}/{1}   Vòng {2}/{3}{4}
+946	Toàn bộ thẻ trong bộ bài Lv{0} MAX
+947	Thưởng vòng +{0} MILE
+948	Hiện không có thẻ nào để nhận (×{0})
+949	Dùng {0} chỉnh độ cao để chui qua vòng (lỡ cũng không mất gì)
+950	Lên xuống để di chuyển / qua vòng được +MILE
+951	Lên xuống để di chuyển / qua vòng được thêm thẻ
+952	Tất cả thẻ trong bộ bài đã Lv9. Thưởng vòng là MILE
+953	Giữ phím H (hoặc nút chuột) 3 giây
+954	Giữ nút BACK 3 giây
+955	Giữ màn hình 3 giây
+956	Dành cho người mới
+957	Bạn có thể luyện tập điều khiển trước (2〜3 phút・không giới hạn thời gian).
+958	Luyện tập không tăng phần thưởng hay kỷ lục.
+959	Bạn có thể luyện tập lại bất cứ lúc nào ở "Cách chơi" trong Cài đặt.
+960	Giờ bạn đã có thể thoát
+961	{0} để thoát và
+962	mang về MILE thu được trong lượt chạy này.
+963	Nếu gục ngã, MILE của lượt chạy này sẽ mất.
+964	(kỷ lục quãng đường BEST vẫn được giữ)
+965	Cứ chạy tiếp cũng OK. Thoát hay không là tùy bạn.
+966	Đã mang MILE về!
+967	MILE dùng được cho gacha ở sảnh (1 lần {0} MILE).
+968	Đưa thẻ rút được vào bộ bài để lượt chạy sau mạnh hơn.
+969	Bắt đầu luôn
+970	Đã hiểu
+971	({0} thông báo)
+972	Đã sắp xếp lại bộ bài
+973	Đã gỡ {1} thẻ vượt giới hạn bộ bài ({0} thẻ).
+974	Thẻ vẫn còn trong danh sách sở hữu. Hãy thay đổi ở phần chỉnh bộ bài.
+975	Bộ bài đã có 12 thẻ
+976	Đang chuẩn bị
+977	Vuốt sang phải (phía trước)
+978	Phím → / D / Z
+979	Nút X (cần phải →)
+980	Vuốt sang trái (phía sau)
+981	Phím ← / A / X
+982	Nút Y (cần phải ←)
+983	Vuốt lên
+984	Phím ↑ / W / Space
+985	Nút A (cần phải ↑)
+986	Vuốt xuống
+987	Phím ↓ / S
+988	Nút B (cần phải ↓)
+989	Nhảy
+990	Đánh xuống
+991	Hất tung → truy kích trên không
+992	Chọn thẻ
+993	Kết thúc luyện tập
+994	Nhân vật sẽ tự động chạy.
+995	Vuốt về trước/sau để tấn công theo hướng đó.
+996	Trước: {0}
+997	Sau: {0}
+998	Vuốt lên để nhảy.
+999	Vuốt lên lần nữa khi đang trên không để nhảy đôi.
+1000	Nhảy: {0}
+1001	Vuốt xuống khi đang nhảy để lao thẳng xuống tấn công.
+1002	Hãy dùng khi bên dưới là mặt đất vững chắc.
+1003	Đánh xuống: {0}
+1004	Nhảy gần địch để hất tung địch bằng đòn đánh lên.
+1005	Địch bị hất lên có thể bị truy kích bằng đòn trên không.
+1006	(Khó quá thì có thể bỏ qua)
+1007	Khi chạy bạn sẽ lên cấp và được chọn 1 trong 3 thẻ.
+1008	Cường hóa đã chọn chỉ có hiệu lực trong lượt chạy đó.
+1009	Vì đây là luyện tập nên hiệu ứng chỉ có trong buổi tập này.
+1010	Vậy là xong các thao tác cơ bản.
+1011	Trước tiên hãy nhắm đến boss ở 1,000m!
+1012	Đánh về trước [{0}]   Đánh về sau [{1}]
+1013	Nhảy [{0}]   Nhảy đôi [{1}]
+1014	Khi đang nhảy, lên thêm lần nữa
+1015	Nhảy rồi xuống [{0}]
+1016	Nhảy lên trước → xuống khi trên không
+1017	Hất tung [{0}]   Truy kích trên không [{1}]
+1018	Nhảy ngay trước mặt địch
+1019	Khi đang nhảy, đánh về trước vào địch bị hất lên
+1020	Hãy chọn 1 thẻ
+1021	Dừng luyện tập
+1022	Xuất phát
+1023	Về sảnh
+1024	Luyện tập lại
+1025	Thử ngay
+1026	Bỏ qua
+1027	Thử chọn
+1028	OK!
+1029	Chưa hỗ trợ nhiều người
+1030	Đang kích hoạt
+1031	Chưa dùng được
+1032	Boss đang xuất hiện
+1033	Đang trúng đòn
+1034	Đang BONUS
+1035	ULTIMATE
+1036	MULTI×
+1037	Hắc Nhất Thiểm
+1038	Anh Hoa Loạn Khai・Nhất Kiếm Hoa Hồng
+1039	Song Vũ
+1040	Hỏa Lực Toàn Diện
+1041	Long Sát Đột
+1042	Ma Pháp Tối Thượng: Tâm Chấn
+1043	Mưa Tên
+1044	Liên Hoàn Quyền Khí Thế
+1045	Ảnh Phân Thân Thần Tốc
+1046	Quá Nhiệt
+1047	Hồi Kết
+1048	Kết Giới Oanh Tạc
+1049	Không có thẻĐang kích hoạtĐang chọnBoss đang xuất hiệnChưa dùng đượcĐang trúng đònĐang BONUSĐang chuẩn bị
+1050	Tam Liên Lướt Bão
+1051	Liên Kích Ba Đầu
+1052	Cơ hội!
+1053	Trận Ma Trụ Minh Giới
+1054	Hắc Nhận Tam Liên Thiểm
+1055	Kỵ Mã Đột Kích
+1056	Đại Xà Xé Đất
+1057	Đại Chùy Sập Trời
+1058	Vũ Điệu Tử Thần Tám Chân
+1059	Đột Kích Cuồng Phong Vượt Mặt
+1060	Cơn Thịnh Nộ Của Đất
+1061	Lộ lõi!

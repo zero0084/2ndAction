@@ -483,9 +483,9 @@ public class LastDungeonFlow : MonoBehaviour
     {
         var prev = st.normal.textColor;
         st.normal.textColor = new Color(0f, 0f, 0f, c.a * 0.7f);
-        GUI.Label(new Rect(r.x + 3f, r.y + 3f, r.width, r.height), text, st);
+        LocGUI.Label(new Rect(r.x + 3f, r.y + 3f, r.width, r.height), text, st);
         st.normal.textColor = c;
-        GUI.Label(r, text, st);
+        LocGUI.Label(r, text, st);
         st.normal.textColor = prev;
     }
 

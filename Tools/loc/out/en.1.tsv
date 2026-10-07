@@ -1,0 +1,531 @@
+0	ABSOLUTE ZERO
+1	Frozen mobs shatter for damage; attack vs chilled/frozen enemies up (+3% per Lv). Bosses get a stronger slow instead of freezing
+2	ADRENALINE
+3	Attack speed up at HP 50% or less (+3% per Lv), doubled at HP 25% or less
+4	AERIAL BLADE
+5	Hitting enemies in midair adds a follow-up slash (Lv raises power and range)
+6	AIR ATTACK UP
+7	Attack up in midair (+7% per Lv)
+8	AIR DOMINION
+9	Air attack up (+3% per Lv), rising more with each hit before landing (+1%/Lv per hit, up to 4)
+10	AIR STRIKE
+11	Attack vs airborne enemies (launched/flying/sky bosses) up (+8% per Lv)
+12	ATTACK RANGE UP
+13	Effective attack range up (+3% per Lv). Melee: hitbox; ranged: travel distance (shots don't get bigger)
+14	ATTACK SPEED UP
+15	Attack speed up (+3% per Lv)
+16	ATTACK UP
+17	Attack up (+5% per Lv)
+18	BERSERK DRIVE
+19	At HP 50% or less, attack (+5% per Lv) and attack speed (+2%) up; both rise further at HP 25% or less
+20	BERSERKER
+21	Attack (+6% per Lv) and attack speed (+1%) up. Seals 1 max HP heart every 3 Lv
+22	BLOOD BLADE
+23	Attacks cause bleed (chance and power rise with Lv). Bleed chance doubled while HP is full. Attack at full HP also up a little (+2%/Lv)
+24	BLOOD RUSH
+25	Attack up at HP 50% or less (+4% per Lv); drain chance also up at HP 25% or less (+3%/Lv)
+26	BOSS CHALLENGE
+27	Boss HP up (+10% per Lv) in exchange for more boss MILE (+40%/Lv)
+28	BOSS KILLER
+29	Attack vs bosses up (+8% per Lv)
+30	BOSS RUSH
+31	At boss gates, a chance (+8% per Lv) for 1 extra boss to join. Boss MILE up (+50%/Lv)
+32	BRAKE ATTACK
+33	Attack up (+7% per Lv). You slow down a little right after a main attack
+34	BURNING SOUL
+35	Burn gets stronger (+8% per Lv) and longer (+0.25s/Lv). Also causes a little burn on its own
+36	CHAIN EXPLOSION
+37	Defeated enemies explode. Enemies killed by a blast explode too (up to 3 times; each enemy once per chain)
+38	CHAIN LIGHTNING
+39	Lightning chains to other nearby enemies (+1 target every 3 Lv; reach also grows with Lv). Also causes a little lightning on its own
+40	Activates at 100% Gauge (bottom-left button). Your character's signature move hits on-screen enemies while surging far ahead (Lv1 ~100m → Lv9 ~200m), then a buff lasts a while (Lv1 5s → Lv9 12s). Gauge fills with distance, kills and boss damage
+41	CLOSE CALL
+42	Move speed (+2% per Lv) and invincibility after getting hit (+0.05s per Lv) up
+43	COMBO EDGE
+44	Attack rises the longer your hit streak lasts (+0.4%/Lv per hit, up to 10 hits)
+45	COMBO MASTER
+46	Finishers release a special shockwave forward (Lv raises power and range)
+47	COMBO PLUS
+48	The last hit of an attack string (finisher) gets stronger (+7% per Lv)
+49	COMBO RUSH
+50	Mid-combo hits get stronger (+6% per Lv), and main attack speed rises a little (+2%/Lv)
+51	COUNTER
+52	Blocking with a Shield sends out a counter shockwave (Lv raises power). Grants 1 Shield even if you have none
+53	DEATH'S CONTRACT
+54	Attack up hugely (+12% per Lv). Seals 1 max HP heart every 2 Lv
+55	DOUBLE ATTACK
+56	Attacks have a chance (+3% per Lv) of an extra hit. Extra hits can't trigger more
+57	ELITE ENEMIES
+58	Some mobs become elites (+4% per Lv; HP ×2.5, a bit faster, kills give MILE ×3/EXP ×2). MILE also up (+30%/Lv)
+59	EXECUTIONER
+60	MILE from kills up (+15% per Lv)
+61	EXP CONVERTER
+62	EXP down (-10% per Lv, min 25%) in exchange for more MILE from kills (+30%/Lv)
+63	EXP UP
+64	EXP gained up (+20% per Lv)
+65	EXPERIENCE BURST
+66	EXP from enemies/bosses/BONUS ZONE up hugely (+80% per Lv)
+67	FAST ENEMIES
+68	Mob movement, tracking and attacks get faster (+4% per Lv), but MILE (+15%/Lv) and kill EXP (+5%/Lv) go up
+69	FIRST STRIKE
+70	The first hit of an attack string (opener) gets stronger (+10% per Lv)
+71	FLAME BLADE
+72	Fire starter. Hits set enemies ablaze (chance 15%+5%/Lv, 5+1.5/Lv damage per second, 3s)
+73	FLAME COUNTER
+74	Blocking with a Shield unleashes a fire counter around you (Lv raises power) that burns enemies hit. Grants 1 Shield even if you have none
+75	FORTRESS
+76	Max HP up (+1 heart per Lv) and less flinching (+5%/Lv), but move speed down (-3% per Lv)
+77	FROST EDGE
+78	Ice starter. Hits chill enemies (chance 15%+5%/Lv, slowed by 25%+2%/Lv). Stacked chill freezes them (bosses don't stop but get a strong slow)
+79	GALE
+80	Wind blades fly faster (+5% per Lv) and farther (+0.4m/Lv), and pierce more enemies (+1 every 3 Lv). Projectile pierce also up
+81	GIANT SLAYER
+82	Attack up greatly (+9% per Lv), but attack speed down (-3% per Lv)
+83	GLASS CANNON
+84	Attack up greatly (+9% per Lv). Seals 1 max HP heart every 2 Lv
+85	GREED
+86	Move speed up (+4% per Lv), but more enemies appear (+8%/Lv)
+87	GROUND BREAKER
+88	Slam landings and ground finishers send a shockwave along the ground (Lv raises power and length). Ground attack also up a little (+2%/Lv)
+89	GROUND FIGHTER
+90	Attack up on the ground (+7% per Lv)
+91	GROUND ZERO
+92	Ground attack up greatly (+11% per Lv), but down in midair (-5% per Lv)
+93	HEART BREAKER
+94	Attack up (+4% per Lv), plus +0.6%/Lv attack per sealed heart. Seals 1 max HP heart every 3 Lv
+95	HEART UP
+96	Max HP up (+1 heart per Lv, max 20 hearts) and restores HP
+97	HEAVY ARMOR
+98	Heavy hits (2+ hearts) deal 1 heart less. Max HP also up (+1 heart every 2 Lv), but jump power down (-3% per Lv)
+99	HEAVY IMPACT
+100	Down attack/slam/landing impact gets stronger (+10% per Lv). Finishers also up a little (+3%/Lv)
+101	HELL MODE
+102	Mob HP (+12%/Lv), speed (+4%/Lv) and spawns (+8%/Lv) go up, but MILE (+50%/Lv) and boss MILE (+30%/Lv) rise greatly
+103	HIGH VOLTAGE
+104	Lightning gets stronger (+5% per Lv). Strikes briefly stun mobs. Strike chance also up a little (+1%/Lv)
+105	HORDE
+106	Far more enemies appear (+15% per Lv), but MILE (+5%/Lv) and kill EXP (+5%/Lv) go up
+107	HUNTER
+108	Easier to move in boss fights. Attack lunges/retreats go farther (+4% per Lv), and you close in on distant bosses faster (+3%/Lv)
+109	ICE PRISON
+110	Easier to freeze (chills needed -1 every 3 Lv). Chill chance and duration also up
+111	INFERNO
+112	Defeating a burning enemy spreads fire around it, setting others ablaze (Lv raises power and range). Also causes a little burn on its own
+113	IRON WILL
+114	Attack up while HP is full (+5% per Lv). Max HP also up (+1 heart every 3 Lv)
+115	JUMP COUNT UP
+116	More air jumps (+1 per Lv). Each jump in a row is a bit weaker, except when falling into a pit. Sorceress: +1 height tier every 3 Lv
+117	JUMP POWER UP
+118	Jump power up (+3% per Lv). Sorceress: changes altitude faster
+119	The moment HP drops to 1 heart, gain brief invincibility (1s + 0.15s per Lv). Won't trigger again until a while after you heal
+120	LAST STAND
+121	Attack up at HP 50% or less (+4% per Lv), and further at HP 25% or less (+4%/Lv)
+122	LEVEL BREAK
+123	EXP gained up greatly (+30% per Lv)
+124	LONG BLADE
+125	Effective attack range up greatly (+5% per Lv)
+126	LONG HAUL
+127	EXP (+15% per Lv) and max HP (+1 heart every 3 Lv) up
+128	MOB KILLER
+129	Attack vs non-boss enemies (+5% per Lv) and MILE from kills (+10% per Lv) up
+130	MOMENTUM
+131	Your current speed becomes attack power. Kicks in above 100km/h, maxes at 150km/h (+4% per Lv). Gains taper off beyond that
+132	MONSTER RUSH
+133	More enemies appear (+10% per Lv) in exchange for more EXP (+15%/Lv)
+134	MORE ENEMIES
+135	More enemies appear (+10% per Lv). MILE from kills also up a little (+3%/Lv)
+136	NO TURNING BACK
+137	Move speed up greatly (+5% per Lv), but more enemies appear (+10%/Lv)
+138	ONE MORE MILE
+139	MILE (+50% per Lv), boss MILE (+50%) and EXP (+20%) up
+140	Stay at 115km/h or more to enter OVERDRIVE (attack +3% per Lv, attack speed +2%). Ends when you slow down. Move speed also up a little (+2% per Lv)
+141	OVERHEAL
+142	Healing up (+1 at Lv4-6, +2 hearts at Lv7-9). Healing at full HP becomes 1 Shield
+143	PANDEMONIUM
+144	Mob HP/speed/spawns/elites and boss HP all rise, but MILE (+60%/Lv) and boss MILE (+60%/Lv) rise hugely
+145	PATHFINDER
+146	EXP from distance run up (+20% per Lv)
+147	PERFECT GUARD
+148	Using a Shield grants brief invincibility (0.4s + 0.1s per Lv). Grants 1 Shield even if you have none
+149	Revive once when you fall (HP: 1-5 hearts by Lv). Reviving removes this card, and it can be offered again (restarts at Lv1)
+150	PIERCING BLADE
+151	Attacks pierce enemies. Melee: hits enemies behind the target (Lv raises count and power); ranged: pierce count (+1 every 3 Lv)
+152	PREDATOR
+153	Drain chance up (+3% per Lv). Attacks on bosses can sometimes drain too
+154	RAPID EDGE
+155	Main attack (front/back) speed up (+5% per Lv). Doesn't apply to up/down/slam/special moves
+156	REVERSE GEAR
+157	Attack up (+8% per Lv), but move speed down (-3% per Lv)
+158	When HP drops to 30% or less, heal a little (1-3 hearts). Then goes on a distance cooldown (10,000m, shorter with Lv)
+159	SHIELD
+160	A Shield that blocks 1 hit. Max +1 every 3 Lv (up to 3); used ones recharge over time (faster with Lv)
+161	SHOCKWAVE
+162	Melee hits send a short shockwave forward; ranged hits make a shockwave at impact (Lv raises power and range)
+163	SKY MASTER
+164	Air attack up (+4% per Lv). Midair hits restore 1 air jump (1 per 3 Lv per airtime)
+165	SKY RUNNER
+166	Jump power (+2% per Lv) and air attack (+3% per Lv) up
+167	SKYBOUND
+168	Air attack up greatly (+11% per Lv), but down on the ground (-5% per Lv)
+169	SONIC BLADE
+170	Every main attack fires a slash forward. The faster you run, the farther, bigger and stronger it gets
+171	SPEED DOWN
+172	Move speed down (-4% per Lv). A special card with little reason to pick in solo play
+173	SPEED UP
+174	Move speed up (+3% per Lv)
+175	THE LONG ROAD
+176	EXP (+40% per Lv) and max HP (+1 heart every 2 Lv) up
+177	THUNDER LORD
+178	Advanced lightning. Power (+4% per Lv), chain (+1 target every 3 Lv) and strike area all improve
+179	THUNDER STRIKE
+180	Lightning starter. Hits call down lightning (chance 5%+2%/Lv, power 7.5+1.5/Lv; max once per 0.4s per enemy)
+181	TORNADO
+182	Wind blades spawn a small tornado where they hit, sweeping in nearby enemies (Lv raises power and range). Also fires a few wind blades on its own
+183	TOUGH ENEMIES
+184	Mob HP up (+15% per Lv), but MILE (+15%/Lv) and kill EXP (+5%/Lv) go up
+185	TREASURE HUNTER
+186	MILE from treasure/rewards (BONUS ZONE Treasure Goblin/Golden Slime/Mimic/CLEAR/PERFECT, WANTED bounties) up (+30% per Lv). Boss and distance MILE also up a little
+187	ALMIGHTY
+188	All-round card that raises attack (+3% per Lv), max HP (+1 heart every 2 Lv) and move speed (+2% per Lv)
+189	VAMPIRE
+190	On kill, a chance (+3% per Lv) to heal 1 heart
+191	WANTED
+192	A bounty target appears every so often (stronger and more frequent with Lv). Defeat it for a bounty; pass it and it escapes. MILE up (+35%/Lv)
+193	WIND CUTTER
+194	Wind starter. Hits fire a piercing wind blade forward (chance 10%+3%/Lv, power 8+1.5/Lv). Attack range also up a little (+1%/Lv)
+195	RANGER
+196	Draw, Aim, Pierce
+197	'A ranger of the deep woods
+198	SNIPER
+199	DRAGON LANCER
+200	Break Through, Never Yield
+201	'A young dragon knight bearing a lance
+202	BREAKER
+203	DRAGONKIN
+204	Claw, Tail, Wing, Flame
+205	'A warrior with the blood of dragons.
+206	BRUTE
+207	DUAL BLADE
+208	Swift Steel, Endless Motion
+209	'A swift dual-wielder who chains strikes
+210	GROUND COMBO
+211	BRAWLER
+212	Fists That Answer Back
+213	'A martial artist who fights
+214	GUNSLINGER
+215	One Shot, One Distance
+216	'Twin pistols, a single sharp line of fire.
+217	RANGED
+218	SORCERESS
+219	Float Above, Strike Below
+220	'A sorceress who never touches the ground.
+221	FLIGHT MAGE
+222	SHRINE MAIDEN
+223	Seal the Path Ahead
+224	'An exorcist of a mountain shrine.
+225	SEALER
+226	SHINOBI
+227	Vanish, Cut, Vanish
+228	'A shinobi who is never where you strike.
+229	MOBILITY
+230	NOBLE LADY
+231	A Hero Not Yet Awakened
+232	'Clad in silver and gold, she wields a
+233	NOBLE KNIGHT
+234	SWORDSMAN
+235	The One Who Keeps Moving
+236	'A lone swordsman who walks his own path.
+237	BALANCED
+238	The Longer, The Stronger
+239	'A noble of the night who needs no blade.
+240	BLOOD
+241	CHARACTER CARDS
+242	CHARACTER SELECT
+243	SELECT
+244	LIFE
+245	POWER
+246	STAGE SELECT
+247	Depart
+248	Recommended
+249	Remove All
+250	Yes
+251	No
+252	LAST CORRIDOR
+253	Enemies: foes from every stage, mixed (empowered)
+254	Features: collapsing floors, falling structures, floating corridors
+255	Route: Giant ancient corridor → Collapse → Abyss → The Final Road
+256	Natural Cave
+257	Enemies: Ants / Hoppers / Bats / Worms
+258	Features: rock ceilings, ceiling spikes, darkness and torches
+259	Route: Single path (threats on the ground, in the air, underground and above)
+260	Sky Corridor
+261	Enemies: Goblins + more unlock as you go farther
+262	Features: floating rock and cloud platforms, paths in the sky
+263	Route: Danger rises the farther you go
+264	Wasteland Road
+265	Enemies: Goblins / Birds
+266	Obstacles: rocks, shrubs, walls, breakable trees, giant boulders, pits
+267	Route: Upper Easy / Lower Danger
+268	You fell. Tap "Rematch" to try again right away
+269	HP fully restored
+270	Cleared all enemies and enemy attacks (not counted toward kill time)
+271	Damage dealt {0}    Damage taken {1}    {2}s
+272	Invincible
+273	≡ Settings
+274	Rematch
+275	Clear Enemies
+276	Home
+277	All defeated  {0}s
+278	Opponents
+279	Details
+280	Results
+281	A practice ground to try out characters and cards freely
+282	Start with These Settings
+283	Start
+284	Trial
+285	(Trial)
+286	Search
+287	<color=#8ce6ff>Trial</color>
+288	+ Add
+289	Copy Current Deck
+290	Copy Character Cards
+291	Trial Build ({0} cards)
+292	Remove All
+293	Lv = times taken this run (max 9 per ability). Your owned cards and deck don't change
+294	Add cards with "+ Add" in the list on the left. You can also test with no cards
+295	Copy of owned (Fusion Lv{0}, {1} abilities)
+296	Copied {0} deck cards to the trial build (deck unchanged)
+297	Copied {0} character cards (at starting Lv)
+298	Training Target
+299	Mobs
+300	Wasteland Bosses
+301	Cave Bosses
+302	Sky Bosses
+303	Stationary target: doesn't attack (no contact damage) and can't be defeated. For checking attacks. Keeps its distance from you while running
+304	Count
+305	Move Intensity
+306	Phase
+307	Bosses enter from the front with their own entrance moves
+308	Cave/Sky boss moves that use terrain (pits/ceiling/falling rocks/sky bands, etc.) play out differently in the flat Arena
+309	Only 1 boss type (can appear with mobs)
+310	Add to Opponents
+311	Only 1 boss type (replaced the previous boss)
+312	Current Opponents ({0})
+313	No opponents (start now to test movement with no enemies)
+314	Enemy strength: as at {0}km (HP/attack match that distance in the main game)
+315	Speed
+316	Stop (0km/h)
+317	Run (base speed + modifiers)
+318	Run (fixed speed)
+319	Only auto-run stops (attacks/jumps/gravity/flinching/enemy movement work as in the main game)
+320	Runs at base speed multiplied by character/card speed modifiers (SPEED UP, etc.)
+321	Runs at this exact speed with no modifiers (to compare without speed-card differences)
+322	Now: base {0}km/h → actual {1}km/h (modifier ×{2})
+323	Invincible / HP
+324	Invincible: {0}
+325	Fully Restore HP
+326	Even when invincible, "damage you would have taken" shows in the results
+327	Control Assist (same as "High-Speed Assist" in Settings. Arena only; your Settings don't change)
+328	OFF
+329	ON
+330	Always (dev build)
+331	Active from {0}km/h
+332	Not available in the Arena: FINAL EVOLUTION / AWAKENED / Mastery / ULTIMATE gauge / level ups / boss rewards / BONUS ZONE (cards use only normal Lv effects and COMBO. Rewards, records and owned items never change)
+333	Dev build only
+334	Include unmet enemies: {0}
+335	Fixed random seed: {0}
+336	Obstacle-breaking assist: {0}
+337	Fell
+338	All defeated {0}s
+339	Finished
+340	Fighting
+341	This time: {0}
+342	Damage dealt
+343	Hits
+344	Kills
+345	Time to defeat
+346	Damage taken (HP lost)
+347	Raw damage taken (incl. invincible/Shield)
+348	Battle time
+349	{0}s
+350	{0} ({1}x)
+351	This Time
+352	Last Time
+353	This setup: {0}
+354	Trial build: {0}
+355	Last setup: {0}
+356	Last build: {0}
+357	Change Settings
+358	??? (not met yet)
+359	Stationary Target
+360	{0} / {1} cards / {2} / as at {3}km
+361	No cards
+362	(Copy of owned)
+363	Preparing the Arena
+364	ARENA
+365	MIMIC KO
+366	GOBLIN
+367	SLIME
+368	FAIRY
+369	MIMIC
+370	MILE
+371	EXP
+372	JACKPOT!!
+373	BONUS ZONE!
+374	PERFECT:
+375	JACKPOT CLEAR!
+376	BONUS CLEAR!
+377	JACKPOT  PERFECT!
+378	PERFECT BONUS!
+379	JACKPOT RESULT
+380	BONUS RESULT
+381	ENEMY
+382	CLEAR
+383	PERFECT
+384	TOTAL
+385	RANDOM
+386	END
+387	Run resumes in {0}
+388	Current
+389	{0} hits
+390	(Fixed)
+391	The material card is in use in your deck/character cards
+392	Already AWAKENED (★5), so Mastery can't go further (no card is used. Uses for leftover cards after ★5 are coming later)
+393	Can't fuse: the result would be Lv{0} (max Lv.{1})
+394	Can't fuse: it would have {0} abilities (max {1})
+395	Fusing...
+396	Not enough cards
+397	<color=#ffd76a><b>[MASTERY] Training at Lv.9 MAX</b></color>
+398	The main card stays (Lv.9 MAX); only the material card is used up.
+399	Current Mastery: <color=#ffd76a>{0}</color>  {1}
+400	This fusion: <b>+{0} Mastery</b> (material Lv.{1} = {2} cards' worth)
+401	After fusion: <color=#ffd76a>{0}</color>  {1}
+402	<size=19>({0}★ worth; the rest carries over to the next ★)</size>
+403	<size=19>The {0} left over after ★5 is kept, not discarded</size>
+404	<color=#ff9a8a><size=19>The material's sub-abilities ({0}) are not inherited</size></color>
+405	<size=19>Mastery doesn't raise normal stats (attack/speed/EXP, etc.). It's a record of your training and your path to AWAKENED.</size>
+406	<color=#ff9a8a>Fusing uses up 1 material card.</color>
+407	<color=#ffd76a><b>[Same-Card Boost → Lv.9 MAX] Success 100%</b></color>
+408	Fusion Lv: Lv.{0} + Lv.{1} → <b>Lv.9 MAX</b>
+409	The <b>{0}</b> over Lv.9 goes to Mastery, not wasted: {1} → <color=#ffd76a>{2}</color>{3}
+410	<b>Inherited abilities (boost up to 9)</b>
+411	・{0} <b>×{1}</b>
+412	<color=#ff9a8a>Fusing uses up both selected cards (you get 1 finished Lv.9 MAX card).</color>
+413	<color=#ffd76a><b>[Same-Card Boost] Success 100%</b></color>
+414	Fusion Lv: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+415	<b>Inherited abilities (same abilities add their boosts)</b>
+416	・{0} {1}<b>×{2}</b>  <size=18>({3} ×{4})</size>
+417	<color=#9fd0ff><b>[Mixed Fusion] The result is random</b></color>
+418	<b>Fusion Lv of the new card (by result)</b>
+419	・Both succeed: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+420	・Main only succeeds: <b>Lv.{0}</b> (main card's Lv only)
+421	・Material only succeeds: <b>Lv.{0}</b> (material's Lv only)
+422	・Both fail: no new card, <color=#ffd76a>{0} MILE</color> refunded
+423	<b>Main side: full ability set inherit rate {0}%</b>
+424	・{0} ×{1}  <size=18>({2} ×{3})</size>
+425	<b>Material side: full ability set inherit rate {0}%</b>
+426	Both succeed: inherit all abilities from both (same abilities add their boosts)
+427	One side succeeds: inherit only that side's abilities, boosts and Lv (nothing from the failed side remains)
+428	If only the material side succeeds, its main ability becomes the new card's main ability
+429	<size=18>(Refund if both fail = ★{0}×Lv.{1}×{2} + ★{3}×Lv.{4}×{5})</size>
+430	<color=#ff9a8a>Fusing uses up both selected cards.</color>
+431	You don't own this card
+432	In use in your deck and character cards; can't select
+433	Equipped as a character card; can't select
+434	In use in your deck; can't select
+435	Needs 2 cards with the same stats (owned: 1)
+436	Choose a main card and a material card
+437	Can't load card data
+438	MASTERY UP!
+439	Great Fusion Success!
+440	Fusion Success!
+441	<size=21>Advanced {0}★ (the rest carries over to the next ★)</size>
+442	<size=21>The {0} left over after ★5 was saved (for future use)</size>
+443	<size=21>This card is now AWAKENED (a permanent record; normal stats don't change)</size>
+444	The main card (Lv.9 MAX) remains; 1 material card was used up.
+445	<size=21>Mastery doesn't raise normal stats (attack/speed/EXP, etc.).</size>
+446	Fusion Lv.<b>{0}</b>{1}
+447	<color=#ffd76a>Same-Card Boost (guaranteed)</color> … inherits all abilities from both
+448	Main ({0} Lv.{1}): {2}
+449	Material ({0} Lv.{1}): {2}
+450	Main Lv only
+451	Material Lv only
+452	<size=21>Final Lv.{0} = {1}</size>
+453	<b>Main Ability</b>
+454	<b>Sub-Abilities ({0}/{1})</b>
+455	None
+456	Fusion Failed…
+457	Main ({0} Lv.{1}): <color=#9aa3b8>Inherit failed</color>
+458	Material ({0} Lv.{1}): <color=#9aa3b8>Inherit failed</color>
+459	The 2 selected cards were used up.
+460	MILE Refund  <color=#ffd76a><b><size=40>+{0}</size></b></color>
+461	MILE Owned  <b>{0}</b>
+462	<color=#ffd76a><b>Boost ×{0}→×{1}</b></color>
+463	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3} ×{4})</color></size>
+464	Back
+465	Card Fusion
+466	Sort
+467	Main
+468	Material
+469	Card
+470	Selected
+471	Fuse
+472	Skip ▶▶
+473	Fuse Again
+474	Back to List
+475	MILE Owned  {0}
+476	{0} types / {1} cards
+477	Main Card
+478	Material Card
+479	All
+480	Move
+481	Attack
+482	Defense
+483	Growth
+484	Heal
+485	Special
+486	Risk
+487	Choose 2 cards
+488	Can't fuse
+489	Name
+490	Level
+491	Rarity
+492	Owned
+493	Owned {0}  Usable<color=#{1}
+494	Abilities {0}
+495	Main + Material
+496	In Use
+497	<color=#ffd76a><b>{0}</b></color>  <b>{1}</b>  {2}  Fusion Lv.{3}{4}
+498	Main ability: {0}
+499	Sub-abilities ({0}):
+500	・{0}
+501	Sub-abilities: none
+502	<size=19><color=#b7bfd8>Owned {0} / Usable {1}</color></size>
+503	Choose a card from the list on the left.
+504	Cards go into the selected (glowing) slot. Tap a slot to switch targets; tap × to deselect.
+505	・Same cards … 100% success; Fusion Lv and all abilities combine
+506	・Different cards … ability sets inherited at Main 50% / Material 25% (random). If only one side succeeds, only that side's Lv and abilities remain
+507	・Max Fusion Lv is Lv.9. With the same card, anything over Lv.9 goes to Mastery, not wasted (different cards totaling over Lv.9 can't be fused)
+508	・Fusing the same card into a Lv.9 MAX card advances Mastery (AWAKENED at ★5)
+509	<size=19>Reached ★5 (AWAKENED). Uses for leftover cards after ★5 are coming later (fusion won't use them up for now).</size>
+510	Choose the same card ({0}) as material to advance Mastery by its Lv (Lv.1 = +1).
+511	Next, choose a material card.
+512	Next, choose a main card.
+513	This card is AWAKENED (★5)
+514	The new card is set as main. Choose a material card
+515	Guaranteed Boost
+516	AWAKENED!
+517	Lv.9 MAX Reached!
+518	Same-Card Boost Complete!
+519	Great Success! Both sides' abilities inherited
+520	Main card's abilities inherited
+521	Material's abilities inherited
+522	Inherit failed…  Cards were refunded as MILE
+523	{0}: Inherit Success!
+524	{0}: Inherit Failed
+525	Speed Focus
+526	Defense Focus
+527	Blood Focus
+528	Fire Focus
+529	Ice Focus
+530	Lightning Focus

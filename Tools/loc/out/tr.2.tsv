@@ -1,0 +1,531 @@
+531	Wind odaklı
+532	Boss odaklı
+533	EXP odaklı
+534	MILE odaklı
+535	Bol Challenge
+536	Tüm ek saldırılar (yük testi)
+537	Genel karışım
+538	Attack odaklı
+539	Aşırı Risk (HP feda)
+540	AEGIS KARŞILIĞI
+541	TAM GAZ
+542	İsabette küçük güçlendirme VFX'i
+543	Yüksek hızda güçlü art görüntü
+544	İyileşmede Blood Aura
+545	Güçlü diriliş efekti / küçük ek fayda
+546	Tetiklenince özel VFX
+547	Ulti final efekti/özel aura/BUFF efekti/bitiriş VFX'i (hasarı artırmaz)
+548	ARANIYOR! Ödüllü düşman çıktı
+549	ÖDÜL!
+550	COMBO!
+551	{0} sn boyunca
+552	sonraki {0}m
+553	FINAL EVOLUTION: YENİDEN DOĞUŞ
+554	SON ŞANS
+555	İKİNCİ NEFES
+556	ANKA
+557	Kuyruğunu çaktı, kaskatı! Saldırı fırsatı!
+558	Gözleri zayıfladı! Kafa zayıf nokta!
+559	Kafası eğildi! Uzun karşı saldırı fırsatı!
+560	Zıpla!
+561	İn!
+562	Büyü gücü bitti! Uzun saldırı fırsatı!
+563	Ters döndü! Büyük fırsat!
+564	Kuyruğu yere saplandı! Saldırı fırsatı!
+565	Başı dönüyor! Saldırı fırsatı!
+566	Sopası sıkıştı! Saldırı fırsatı!
+567	Kafası yerde kaldı! Saldırı fırsatı!
+568	Çekirdek açıkta! BREAK kolay!
+569	Yere çakıldı! Saldırı fırsatı!
+570	Kart ayarı ▶
+571	<color=#FFD866><b>Karakter kartı</b></color>
+572	<color=#8890A0>(boş)</color>
+573	KİLİTLİ
+574	Kilit açma şartı:
+575	[Ana]
+576	[Yan]
+577	Hareket hızı
+578	Saldırı gücü
+579	Zıplama gücü
+580	Zıplama sayısı
+581	Maks. HP
+582	Saldırı menzili
+583	Saldırı hızı
+584	Hava saldırı gücü
+585	Kalkan
+586	Kazanılan EXP
+587	Can emme şansı
+588	Can emme miktarı
+589	Düşman çıkış oranı
+590	Yer saldırı gücü
+591	Bitiriş vuruşu gücü
+592	İlk vuruş gücü
+593	Düşük HP'de saldırı
+594	Dolu HP'de saldırı
+595	Hızlanınca saldırı
+596	Boss'a saldırı gücü
+597	Düşman HP'si
+598	Boss HP'si
+599	Kazanılan MILE
+600	Boss MILE'ı
+601	Yanma (Burn) şansı
+602	Yanma gücü
+603	Yanma süresi
+604	Üşüme (Chill) şansı
+605	Üşüme yavaşlatması
+606	Üşüme süresi
+607	Donmaya kadar birikim
+608	Donma süresi
+609	Yıldırım şansı
+610	Yıldırım gücü
+611	Zincir sayısı
+612	Zincir mesafesi
+613	Rüzgâr bıçağı şansı
+614	Rüzgâr bıçağı gücü
+615	Delme sayısı
+616	Rüzgâr bıçağı menzili
+617	Kanama (Bleed) şansı
+618	Kanama gücü
+619	Kanama süresi
+620	Kanamadan can emme
+621	Düşük HP'de kanama artışı
+622	Ana saldırı hızı
+623	Etkin saldırı menzili
+624	Maks. HP (kalp)
+625	Mühürlenen kalp
+626	Hava saldırısı
+627	Yer saldırısı
+628	İlk vuruş
+629	Seri ortası
+630	Bitiriş
+631	Boss'a saldırı
+632	Sıradan düşmana saldırı
+633	Havadaki düşmana saldırı
+634	Aşağı saldırı/yere çakma
+635	Dolu HP'de saldırı
+636	HP 50% ve altında saldırı
+637	HP 25% ve altında saldırı
+638	Düşük HP'de saldırı hızı
+639	HP 25% ve altında can emme şansı
+640	Mühür başına saldırı
+641	İsabet başına saldırı
+642	Havada isabet başına saldırı
+643	150km/h'de saldırı
+644	TAM GAZ'da saldırı
+645	TAM GAZ'da saldırı hızı
+646	En fazla Shield
+647	Shield dolumu (sn kısalma)
+648	İyileşme (kalp)
+649	Ek saldırı şansı
+650	Hasar sonrası dokunulmazlık (sn)
+651	Sendeleme azalması
+652	Düşman hareket hızı
+653	Seçkin şansı
+654	Hazine/ödül MILE'ı
+655	Mesafe MILE'ı
+656	Mesafe EXP'si
+657	Yenme EXP'si
+658	Donmaya kadar sayı
+659	Yıldırım gücü
+660	Yıldırım durdurması (sn)
+661	Yıldırım alanı (m)
+662	Rüzgâr bıçağı hızı
+663	Etki Lv
+664	Kullanımda, dönüştürülemez
+665	Sahip x{0}
+666	Ayrıntı için karta dokun
+667	[Başka karakterin karakter kartı]
+668	Bu kart şu an kullanımda. Önce çıkar.
+669	{CardConvertMile} MILE'a dönüştürülsün mü?
+670	Mevcut deste
+671	önerilen düzene geçirilsin mi?
+672	Destedeki tüm kartlar
+673	çıkarılsın mı?
+674	Ejderha alçaldı! Karşı saldırı fırsatı!
+675	Son aşama!
+676	BREAK!
+677	EJDER ATEŞİ YÜKLEMESİ
+678	Arafın dev ateş topu
+679	Ateş {0}% {1}/sn {2}sn
+680	Buz {0}% -{1}% {2}sn donma {3} kez/{4}sn
+681	MUTLAK SIFIR Lv{0}
+682	Yıldırım {0}% {1} zincir {2} alan {3}m durdurma {4}sn
+683	Rüzgâr {0}% {1} delme +{2} {3}m
+684	Kan {0}%{1}
+685	YENİ KART
+686	TEKRAR
+687	(AWAKENED, saklandı)
+688	→ birleştirince MASTERY +1
+689	Sonraki için dokun (kalan {0})
+690	Kapatmak için dokun / tekrar çekmek için gacha'ya dokun
+691	SONRAKİ
+692	OK
+693	MILE yetersiz
+694	Duraklatıldı ― etrafına bakıp devam edebilirsin
+695	Hazır olunca devam et
+696	GO!
+697	YENİ AÇILAN:
+698	HAZIR
+699	HIZ
+700	HIZLANDIN!
+701	Yalnızca seçim bekleme duraklatma sebebi kalmıştı
+702	Yalnızca duraklatma menüsü sebebi kalmıştı
+703	Boss giriş yavaşlatması çok uzun sürdü
+704	Yalnızca boss giriş yavaşlatması kalmıştı
+705	BOSS ÖDÜLÜ
+706	SEVİYE ATLADIN
+707	Seçim bekleniyordu ama seçim ekranı yoktu → tekrar gösterildi ({0}, {1}. kez, ok={2})
+708	Seçim bekleniyordu ama seçim ekranı açılamadı → seçimsiz çözüldü ({0})
+709	Seçim ekranları uyuşmuyordu → kapatılıp {0} yeniden gösterildi
+710	BEST
+711	MESAFE
+712	II
+713	ADIM:
+714	YENİ KOŞU
+715	OYUN TAMAMLANDI
+716	BAŞARISIZ
+717	SÜRE
+718	YENİLEN DÜŞMAN
+719	YENİLEN BOSS
+720	BONUS
+721	BONUS ZONE
+722	HALKA BONUSU
+723	TOPLAM EXP
+724	KAZANILAN GELİŞTİRME
+725	TOPLAM MILE
+726	DÜŞMAN / BOSS
+727	TOPLAM EXP / GELİŞTİRME
+728	Kaybedilen: bu koşunun MILE'ı {0}
+729	Kalan: BEST mesafe kaydı (yenilendi!) ve toplam koşu mesafesi
+730	Kalan: BEST mesafe kaydı ve toplam koşu mesafesi
+731	Sahip olduğun kartlar ve MILE (CÜZDAN {0})
+732	HP
+733	Mühür {0}
+734	Kalkan {0}
+735	MAX
+736	Birleştirme Lv.{0}  {1} yetenek
+737	Yalnızca hız x{0} (yerleşim aralığı değişmez)
+738	YARDIM ON
+739	YARDIM OFF
+740	Son:{0}({1})
+741	Olmadı:{0}
+742	Engel:{0} kır{1}/zıpla{2}/imkânsız{3}
+743	{0} ölçüm{1}km/h(ON≧{2}/OFF<{3}){4}{5}
+744	Arka plan: {0}
+745	[Önizleme]
+746	{0} adet yüklendi {1}MB
+747	Arka plan◀
+748	Arka plan▶
+749	Geçiş
+750	Normal
+751	Sınıra git
+752	Ayarlar
+753	Arena
+754	Arena (KİLİTLİ)
+755	Arena henüz açılmadı
+756	Kilit açma şartı: {0}
+757	DEBUG
+758	Mevcut koşu ve kesinleşmemiş MILE
+759	silinecek. Emin misin?
+760	Sil ve YENİ KOŞU
+761	İptal
+762	DEVAM ET
+763	ANA EKRANA DÖN
+764	Ana ekrana dönülüyor.
+765	Koşu bitmez, kaldığın yerden
+766	CONTINUE ile devam edebilirsin.
+767	Bu kart başka yerde kullanılıyor
+768	{0}, diğer karakter kartlarıyla birlikte Lv{1} sınırını aşacağı için takılamaz (aşan kısım etki etmez)
+769	Dikkat: {0}, diğer karakter kartlarıyla birlikte Lv{1} sınırını aşıyor (aşan {2} Lv etki etmez)
+770	BOSS AKINI  Koşarken savaş! WARNING yaklaşıyor! Kalan boss'ları yen! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+771	ÖTESİ
+772	Üç Azrail Kardeş
+773	Üç Kardeş
+774	ONE MORE MILE?
+775	Öfkelendi!
+776	GÖK BÜYÜSÜ HÜCUMU
+777	İblis kaskatı! Saldırı fırsatı!
+778	SÜRÜM UYUŞMUYOR
+779	OYUNDA
+780	DOLU
+781	AÇIK
+782	BOSS:
+783	HOST
+784	JOIN
+785	BOSS
+786	HEDEF
+787	BOSS SON VURUŞ:
+788	DÜŞMAN YENEN:
+789	Aynı Wi-Fi'a ya da telefon hotspot'una bağlı cihazlarla oynanır (oyuncu: 1-
+790	).
+791	ONLINE (hazırlanıyor)
+792	GELİŞMİŞ (IP'yi elle gir, geliştirici)
+793	Kapat
+794	Çok oyunculu {0}/{1}
+795	Çok oyunculu
+796	Bir mod seç
+797	Yenilince DOWN. Yenildiğin yere gelen arkadaş (HP 2+) 1 HP verirse dirilirsin. Herkes DOWN olursa biter.
+798	Yenilince elenirsin (diriliş yok). Son kişiye kadar sürer, sıralama ulaşılan mesafeye göre.
+799	CO-OP
+800	VERSUS
+801	Bu cihazda oda kur. Yakındaki cihazların "FIND GAME" ekranında görünür.
+802	Yakındaki odaları bulup katıl (IP girmen gerekmez).
+803	Yakındaki odalar ({0} seçili. HOST'un modunda oynanır)
+804	BAĞLANTI BAŞARISIZ
+805	Bağlanılamadı. Aynı Wi-Fi'da olduğunu kontrol edip tekrar dene
+806	BAĞLANTI BAŞARISIZ:
+807	Bağlanıyor… {0}
+808	Yerel oyun aranıyor…
+809	Oyun bulunamadı
+810	HOST cihazında "CREATE GAME"e bas ve aynı Wi-Fi'a (hotspot) bağlanın.
+811	Tekrar ara
+812	Katıldığın oda
+813	MOD: {0} (HOST belirler)
+814	MOD: HOST belirler (koşu başlarken otomatik eşitlenir)
+815	Yakındaki cihazların "FIND GAME" ekranında görünüyor
+816	Herkes gelince "Kapat" → kapı → harita seçiminde "Yola çık" de, herkes aynı haritada aynı anda başlar.
+817	HOST yola çıkınca otomatik başlar. Lütfen bekle.
+818	Odayı kapat
+819	Ayrıl
+820	Kapat (oda açık kalır)
+821	GELİŞMİŞ: IP ile bağlan (geliştirici)
+822	Aynı Wi-Fi'a ya da telefon hotspot'una bağlan (en fazla {0} kişi).
+823	(alınamadı - cihazın Wi-Fi ayarlarından kontrol et)
+824	Bu cihazın IP'si:
+825	Durum:
+826	CO-OP: Yenilince DOWN. Yenildiğin yere gelen arkadaş (HP 2+) 1 HP verirse dirilirsin. Herkes DOWN olursa biter.
+827	VERSUS: Yenilince elenirsin (diriliş yok). Son kişiye kadar sürer, sıralama ulaşılan mesafeye göre.
+828	MOD: HOST seçer (koşu başlarken otomatik eşitlenir)
+829	Port
+830	HOST (bu cihazda oda kur)
+831	JOIN: HOST cihazında görünen IP'yi gir
+832	Bağlı oyuncu {0}/{1}
+833	Kapı → harita seçiminde "Yola çık" deyince bağlı herkes aynı haritada aynı anda başlar.
+834	Odayı kapat (HOST'u bitir)
+835	Bağlantıyı kes
+836	ÇOKLU: bağlantı kesildi
+837	UI:
+838	Ana ekrana dön
+839	Koşmaya devam et
+840	VERSUS SONUCU
+841	CO-OP SONUCU
+842	HOST'un yola çıkması bekleniyor
+843	Hâlâ koşan oyuncu var
+844	HOST: katılım bekleniyor
+845	Başlatma hatası
+846	Önceki bağlantı kapanıyor. Biraz bekleyip tekrar dene
+847	HOST başlatılamadı (port kullanımda olabilir)
+848	IP adresi biçimi hatalı (örnek: 192.168.1.23)
+849	Bağlanıyor… {0}:{1}
+850	JOIN başlatılamadı
+851	HOST: {0}/{1} kişi bağlı
+852	JOIN: bağlandı {0}
+853	ÇOK OYUNCULU BAĞLANTI KOPTU
+854	Diğer oyuncu
+855	bağlantıyı kesti
+856	HOST ile bağlantı koptu
+857	Bağlantı reddedildi:
+858	ODA DOLU
+859	KOŞU SÜRÜYOR
+860	HOST'a bağlanılamadı
+861	İletişim hatası oluştu
+862	OMM-NET-
+863	PS5
+864	KAÇIŞ
+865	Onaylamak için tekrar dokun
+866	Seçmek için bir karta dokun
+867	AWAKENED
+868	FINAL EVOLUTION
+869	TAKILI
+870	YENİ
+871	Güç Lv{d.level:0.0}{(d.def.risk ?
+872	COMBO
+873	Karakter
+874	Deste
+875	{0}: {1}m'ye ulaş
+876	En iyi {0}m / {1}m
+877	Herhangi bir haritada 1,000m'den önce oyun bitsin
+878	AÇILDI:
+879	YENİ KARAKTER:
+880	Ana ekrandaki "Arena"dan girebilirsin.
+881	Harita seçiminden yola çıkabilirsin.
+882	{0} açıldı
+883	{0} ekibe katıldı
+884	Karakter seçiminden seçebilirsin.
+885	Hiç durmadan koşan sana.
+886	Son yol açıldı.
+887	Ses
+888	(ses kullanılamıyor)
+889	Genel
+890	Müzik
+891	Efektler
+892	Ortam sesi
+893	Dil / Language
+894	Dil
+895	Seçilen dilde gösterilir
+896	Cihaz diline göre
+897	Görüntü
+898	Ekran yönü
+899	Yatay
+900	Dikey
+901	Ekran sarsıntısı
+902	Parlama efektleri
+903	* Düşman saldırı uyarıları ve oynanış için gerekli göstergeler zayıflamaz
+904	Kontroller
+905	(otomatik yardım kullanılamıyor)
+906	Yüksek hızda yardım
+907	Yardım başlama hızı
+908	Koşu hızı bu değeri geçince çukur/engel/düşmanlara zıplama ve
+909	saldırıyı otomatik destekler (senin kontrolün önceliklidir)
+910	Nasıl oynanır
+911	Kontrolleri dene
+912	İleri/geri saldırı, zıplama, aşağı saldırı, fırlatma ve kartları dene (ödül yok)
+913	Antrenman ana ekranda başlatılabilir (koşu/çok oyunculu sırasında olmaz)
+914	Dev el platformda kaldı! Büyük fırsat!
+915	Çekirdek karardı! BREAK kolay!
+916	Kafa yakında! Saldırı fırsatı!
+917	Dengesini kaybetti! Karşı saldırı fırsatı!
+918	Yeniden kurulamadı! Çekirdek açıkta!
+919	Alevler zayıfladı! Saldırı fırsatı!
+920	Kafa bulutlardan alçaldı! Saldırı fırsatı!
+921	Hale söndü! Uzun karşı saldırı fırsatı!
+922	Elektrik yükü bitti! Büyük karşı saldırı fırsatı!
+923	Hızlı çıkış… ({0})
+924	Hızlı çıkış…
+925	Hızlı çıkış  {0}
+926	Geçtiğin bölümleri bir solukta koşup seçtiğin geçidin biraz önünden başlarsın. Yoldaki boss ödülü kartlar otomatik alınır. Her 5,000m'deki halkadan geçersen 1 kart daha seçersin.
+927	{0}km'ye kadar hızlı koşu   (yakl. {1} sn + halka){2}
+928	(Geliştirici sürümü: DEBUG tümünü aç ON)
+929	Uygun olmayan mesafe
+930	DEBUG tümü açık
+931	{0}km'ye ulaşılmadı (en iyi {1}km)
+932	{0}km bekçisi yenilmedi
+933	Hızlı koşu sürüyor!
+934	HALKA!  Şu an alınabilecek kart yok
+935	Halka kaçtı
+936	BONUS KART
+937	HALKA!
+938	Şu an alınabilecek kart yok
+939	Destedeki tüm kartlar Lv9 oldu.
+940	Bundan sonra halka ödülü MILE
+941	Yön tuşları / çubuk yukarı-aşağı (A = yukarı / B = aşağı)
+942	↑↓ tuşları / W・S
+943	Yukarı-aşağı kaydır / sağ alttaki ▲▼
+944	Hızlı çıkış  →  {0}m geçidinin önüne
+945	Boss ödülü otomatik alım {0}/{1}   Halka {2}/{3}{4}
+946	Destedeki tüm kartlar Lv{0} MAX
+947	Halka ödülü +{0} MILE
+948	Şu an alınabilecek kart yok (×{0})
+949	{0} ile yüksekliği ayarlayıp halkadan geç (kaçırınca bir şey kaybetmezsin)
+950	Yukarı/aşağı hareket / halkadan geç +MILE
+951	Yukarı/aşağı hareket / halkadan geç ek kart
+952	Destedeki tüm kartlar Lv9. Halka ödülü MILE
+953	H tuşuna (ya da fare düğmesine) 3 saniye bas
+954	BACK düğmesine 3 saniye bas
+955	Ekrana 3 saniye basılı tut
+956	Yeni başlayanlara
+957	Önce kontrolleri deneyebilirsin (2-3 dk, süre sınırı yok).
+958	Antrenmanda ödül ve kayıt artmaz.
+959	Antrenmanı sonra da ayarlardaki "Nasıl oynanır"dan istediğin zaman yapabilirsin.
+960	Artık kaçabilirsin
+961	{0}: kaçarsın ve
+962	bu koşuda topladığın MILE'ı eve götürürsün.
+963	Yenilirsen bu koşunun MILE'ı kaybolur.
+964	(BEST mesafe kaydı kalır)
+965	Koşmaya devam da edebilirsin. Kaçıp kaçmamak sana kalmış.
+966	MILE'ı eve getirdin!
+967	MILE'ı ana ekrandaki gacha'da kullanabilirsin (1 çekiş {0} MILE).
+968	Çektiğin kartları desteye koyarak sonraki koşunu güçlendirebilirsin.
+969	Hemen başla
+970	Anladım
+971	({0} bildirim)
+972	Deste düzenlendi
+973	Deste sınırını ({0} kart) aşan {1} kart desteden çıkarıldı.
+974	Kartlar koleksiyonunda duruyor. Deste düzenlemeden değiştirebilirsin.
+975	Deste 12 kart oldu
+976	Hazırlanıyor
+977	Sağa (ileri) kaydır
+978	→ / D / Z tuşu
+979	X düğmesi (sağ çubuk →)
+980	Sola (geri) kaydır
+981	← / A / X tuşu
+982	Y düğmesi (sağ çubuk ←)
+983	Yukarı kaydır
+984	↑ / W / Boşluk tuşu
+985	A düğmesi (sağ çubuk ↑)
+986	Aşağı kaydır
+987	↓ / S tuşu
+988	B düğmesi (sağ çubuk ↓)
+989	Zıplama
+990	Aşağı saldırı
+991	Fırlatma → havada takip
+992	Kart seç
+993	Antrenman bitti
+994	Karakter kendiliğinden koşar.
+995	İleri ya da geri kaydırınca o yöne saldırır.
+996	İleri: {0}
+997	Geri: {0}
+998	Yukarı kaydırınca zıplar.
+999	Havada tekrar yukarı kaydırırsan çift zıplama.
+1000	Zıplama: {0}
+1001	Zıplarken aşağı kaydırınca dümdüz aşağı dalıp saldırır.
+1002	Ayağının altında sağlam zemin varken kullan.
+1003	Aşağı saldırı: {0}
+1004	Düşmanın yakınında zıplarsan yukarı saldırıyla onu havaya fırlatırsın.
+1005	Havadaki düşmana havada saldırıp takip edebilirsin.
+1006	(zorsa atlayabilirsin)
+1007	Koştukça seviye atlarsın ve 3 karttan 1'ini seçersin.
+1008	Seçtiğin güçlendirme yalnızca o koşu boyunca geçerli.
+1009	Burası antrenman, etkisi yalnızca bu antrenmanda.
+1010	Temel kontroller bu kadar.
+1011	Önce 1,000m'deki boss'u hedefle!
+1012	İleri saldırı [{0}]   Geri saldırı [{1}]
+1013	Zıplama [{0}]   Çift zıplama [{1}]
+1014	Zıplarken bir kez daha yukarı
+1015	Zıpla, sonra aşağı [{0}]
+1016	Önce yukarıyla zıpla → havada aşağı
+1017	Fırlat [{0}]   Havada takip [{1}]
+1018	Düşmanın hemen önünde zıpla
+1019	Havadaki düşmana zıplarken ileri saldır
+1020	1 kart seç
+1021	Antrenmanı bırak
+1022	Yola çık
+1023	Ana ekrana dön
+1024	Tekrar antrenman yap
+1025	Dene
+1026	Atla
+1027	Seçmeyi dene
+1028	OK!
+1029	Çok oyunculuda yok
+1030	Etkin
+1031	Şu an kullanılamaz
+1032	Boss geliyor
+1033	Hasar alınıyor
+1034	BONUS ZONE'da
+1035	ULTIMATE
+1036	ÇOKLU×
+1037	Kara Tek Kesik
+1038	Kiraz ve Gül Tek Kılıç Darbesi
+1039	İkiz Dans
+1040	Her Yöne Ateş
+1041	Ejder Delen Hücum
+1042	En Yüce Büyü: Sıfır Noktası
+1043	Yağmur Lordu
+1044	Ruhlu Seri Yumruk
+1045	Hızlı Gölge Klonları
+1046	Aşırı Isınma
+1047	Son
+1048	Bombardıman Bariyeri
+1049	Kart yokEtkinSeçiliyorBoss geliyorŞu an kullanılamazHasar alınıyorBONUS ZONE'daHazırlanıyor
+1050	Fırtınanın Üçlü Süzülüşü
+1051	Üç Başın Seri Saldırısı
+1052	Fırsat!
+1053	Yeraltı Sütunları Çemberi
+1054	Kara Bıçak Üçlü Kesik
+1055	Atlı Hücum
+1056	Yeri Yaran Dev Yılan
+1057	Gökyüzünü Yıkan Dev Sopa
+1058	Sekiz Bacaklı Ölüm Dansı
+1059	Kasırga Gibi Sollama Hücumu
+1060	Toprağın Öfkesi
+1061	Çekirdek açıkta!

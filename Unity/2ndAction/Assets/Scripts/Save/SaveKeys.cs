@@ -83,6 +83,7 @@ public static class SaveKeys
 
         // ---- 設定 ----
         new Entry(ArenaConfig, SaveCategory.Settings, SaveType.String, "闘技場の最後の構成(キャラ/試用のビルド/相手/速度/操作アシスト/無敵)。進行ではない"),
+        new Entry(Loc.PrefKey, SaveCategory.Settings, SaveType.String, "言語(無ければ端末の言語。ユーザーが選んだ時だけ保存、2026-10-07)"),
         new Entry("MasterVolume", SaveCategory.Settings, SaveType.Float, "全体音量 0〜1"),
         new Entry("BgmVolume", SaveCategory.Settings, SaveType.Float, "BGM音量 0〜1"),
         new Entry("SfxVolume", SaveCategory.Settings, SaveType.Float, "SE音量 0〜1"),

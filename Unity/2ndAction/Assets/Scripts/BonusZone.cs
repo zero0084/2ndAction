@@ -535,10 +535,10 @@ public class BonusZone : MonoBehaviour
     {
         Color keep = st.normal.textColor;
         st.normal.textColor = new Color(0f, 0f, 0f, 0.85f * c.a);
-        GUI.Label(new Rect(r.x - o, r.y, r.width, r.height), text, st); GUI.Label(new Rect(r.x + o, r.y, r.width, r.height), text, st);
-        GUI.Label(new Rect(r.x, r.y - o, r.width, r.height), text, st); GUI.Label(new Rect(r.x, r.y + o, r.width, r.height), text, st);
+        LocGUI.Label(new Rect(r.x - o, r.y, r.width, r.height), text, st); LocGUI.Label(new Rect(r.x + o, r.y, r.width, r.height), text, st);
+        LocGUI.Label(new Rect(r.x, r.y - o, r.width, r.height), text, st); LocGUI.Label(new Rect(r.x, r.y + o, r.width, r.height), text, st);
         st.normal.textColor = c;
-        GUI.Label(r, text, st);
+        LocGUI.Label(r, text, st);
         st.normal.textColor = keep;
     }
 
@@ -677,7 +677,7 @@ public class BonusZone : MonoBehaviour
         info.normal.textColor = new Color(1f, 0.9f, 0.5f);
         string st = State == Phase.Idle ? $"BONUS idle (zones {ZonesStarted}){(pendingAtDistance >= 0f ? $" roll at {pendingAtDistance:F0}m" : "")}"
             : $"BONUS {State} {Current?.id} {RemainingSeconds:F1}s/{RemainingDistance:F0}m MILE+{BonusMile} EXP+{BonusExp:F0} CARD+{BonusCards} enemies={ActiveEnemyCount()}";
-        GUI.Label(new Rect(x + 102f, y + 8f, 560f, 22f), st, info);
+        LocGUI.Label(new Rect(x + 102f, y + 8f, 560f, 22f), st, info);
         if (!debugOpen || Profile == null) return;
         float by = y - 38f;
         if (GUI.Button(new Rect(x, by, 96f, 32f), "RANDOM", btn)) Force();

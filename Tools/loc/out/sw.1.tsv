@@ -1,0 +1,531 @@
+0	SIFURI KAMILI
+1	Maadui wadogo walioganda huvunjika na kuleta uharibifu; shambulio dhidi ya maadui wenye baridi/walioganda hupanda (+3% kwa kila Lv). Kwa mabosi, badala ya kuganda, kupunguzwa kasi huwa kukali zaidi
+2	ADRENALINI
+3	HP ikiwa 50% au chini, kasi ya shambulio hupanda (+3% kwa kila Lv); HP ikiwa 25% au chini, huwa mara 2 ya hapo
+4	UPANGA WA ANGANI
+5	Ukimgonga adui ukiwa hewani, pigo la ziada la upanga hutokea (nguvu na eneo hupanda kwa Lv)
+6	ONGEZA SHAMBULIO ANGANI
+7	Nguvu ya shambulio ukiwa hewani hupanda (+7% kwa kila Lv)
+8	UTAWALA WA ANGANI
+9	Shambulio la angani hupanda (+3% kwa kila Lv), na hupanda zaidi kadri unavyoendelea kugonga bila kutua (+1%/Lv kwa kila pigo, hadi mara 4)
+10	PIGO LA ANGANI
+11	Shambulio dhidi ya maadui walio hewani (waliorushwa juu/wanaoruka/mabosi wa angani) hupanda (+8% kwa kila Lv)
+12	ONGEZA UFIKIAJI
+13	Eneo halisi la shambulio hupanuka (+3% kwa kila Lv). Kwa karibu: eneo la kugonga; kwa silaha za mbali: umbali wa kuruka (risasi hazikui)
+14	ONGEZA KASI YA SHAMBULIO
+15	Kasi ya shambulio hupanda (+3% kwa kila Lv)
+16	ONGEZA SHAMBULIO
+17	Nguvu ya shambulio hupanda (+5% kwa kila Lv)
+18	HASIRA KALI
+19	HP ikiwa 50% au chini, nguvu ya shambulio (+5% kwa kila Lv) na kasi ya shambulio (+2%) hupanda; HP ikiwa 25% au chini, zote mbili hupanda zaidi
+20	WAZIMU WA VITA
+21	Nguvu ya shambulio (+6% kwa kila Lv) na kasi ya shambulio (+1%) hupanda. Hufunga moyo 1 wa HP ya juu kila Lv 3
+22	UPANGA WA DAMU
+23	Mashambulizi husababisha kuvuja damu (uwezekano na nguvu hupanda kwa Lv). HP ikiwa imejaa, uwezekano wa kuvuja damu ni mara 2. Shambulio ukiwa na HP kamili pia hupanda kidogo (+2%/Lv)
+24	KASI YA DAMU
+25	HP ikiwa 50% au chini, nguvu ya shambulio hupanda (+4% kwa kila Lv); HP ikiwa 25% au chini, uwezekano wa kufyonza pia hupanda (+3%/Lv)
+26	CHANGAMOTO YA BOSI
+27	HP ya mabosi hupanda (+10% kwa kila Lv), lakini MILE ya bosi huongezeka (+40%/Lv)
+28	MUUAJI WA MABOSI
+29	Nguvu ya shambulio dhidi ya mabosi hupanda (+8% kwa kila Lv)
+30	MSURURU WA MABOSI
+31	Kwenye lango la bosi, kuna uwezekano (+8% kwa kila Lv) bosi mmoja zaidi kujiunga. MILE ya bosi huongezeka (+50%/Lv)
+32	SHAMBULIO LA BREKI
+33	Nguvu ya shambulio hupanda (+7% kwa kila Lv). Unapunguza kasi kidogo mara baada ya shambulio kuu
+34	ROHO INAYOWAKA
+35	Kuungua huwa kukali zaidi (+8% kwa kila Lv) na kudumu zaidi (+0.25 sek/Lv). Pia wewe mwenyewe husababisha kuungua kidogo
+36	MLIPUKO MFULULIZO
+37	Ukiua adui, hulipuka. Maadui waliouawa na mlipuko nao hulipuka (hadi mara 3; adui yuleyule mara 1 tu kwa mnyororo mmoja)
+38	RADI MFULULIZO
+39	Radi huruka kwa adui mwingine aliye karibu (+adui 1 kila Lv 3; umbali wa kufika pia huongezeka kwa Lv). Pia wewe mwenyewe husababisha radi kidogo
+40	Huwashwa Gauge ikiwa 100% (kitufe cha chini kushoto). Mbinu maalum ya mhusika hushambulia maadui walio skrinini huku ukisonga mbele sana (Lv1 takriban 100m → Lv9 takriban 200m), kisha nguvu za ziada hudumu kwa muda (Lv1 sek 5 → Lv9 sek 12). Gauge hujaa kwa umbali, kuua maadui na uharibifu kwa mabosi
+41	NUSURA
+42	Kasi ya mwendo (+2% kwa kila Lv) na muda wa kutodhurika baada ya kupigwa (+0.05 sek kwa kila Lv) hupanda
+43	MAKALI YA COMBO
+44	Kadiri mapigo mfululizo (idadi ya HIT) yanavyoendelea, nguvu ya shambulio hupanda (+0.4%/Lv kwa kila pigo, hadi mapigo 10)
+45	BINGWA WA COMBO
+46	Pigo la mwisho hutoa mshtuko maalum mbele (nguvu na eneo hupanda kwa Lv)
+47	COMBO ZAIDI
+48	Pigo la mwisho la mfululizo wa mashambulizi huwa na nguvu zaidi (+7% kwa kila Lv)
+49	MFULULIZO WA COMBO
+50	Mashambulizi ya katikati ya mfululizo huwa na nguvu zaidi (+6% kwa kila Lv), na kasi ya shambulio kuu hupanda kidogo (+2%/Lv)
+51	JIBU PIGO
+52	Ukizuia kwa Shield, mshtuko wa kujibu huenea pande zote (nguvu hupanda kwa Lv). Hata bila Shield, unaweza kubeba 1
+53	MKATABA WA MAUTI
+54	Nguvu ya shambulio hupanda sana (+12% kwa kila Lv). Hufunga moyo 1 wa HP ya juu kila Lv 2
+55	SHAMBULIO MARA MBILI
+56	Ukishambulia, kuna uwezekano (+3% kwa kila Lv) wa pigo 1 la ziada. Pigo la ziada halizai jingine
+57	MAADUI HODARI
+58	Baadhi ya maadui wadogo huwa hodari (+4% kwa kila Lv. HP×2.5, wepesi kidogo; ukiwaua MILE×3/EXP×2). MILE pia huongezeka (+30%/Lv)
+59	MNYONGAJI
+60	MILE ya kuua maadui huongezeka (+15% kwa kila Lv)
+61	KIBADILISHA EXP
+62	EXP hupungua (-10% kwa kila Lv, angalau 25%), lakini MILE ya kuua maadui huongezeka (+30%/Lv)
+63	ONGEZA EXP
+64	EXP unayopata huongezeka (+20% kwa kila Lv)
+65	MLIPUKO WA UZOEFU
+66	EXP ya maadui/mabosi/BONUS ZONE huongezeka sana (+80% kwa kila Lv)
+67	MAADUI WEPESI
+68	Mwendo, ufuatiliaji na mashambulizi ya maadui wadogo huwa ya kasi zaidi (+4% kwa kila Lv), lakini MILE (+15%/Lv) na EXP ya kuua (+5%/Lv) huongezeka
+69	PIGO LA KWANZA
+70	Pigo la kwanza la mfululizo wa mashambulizi huwa na nguvu zaidi (+10% kwa kila Lv)
+71	UPANGA WA MOTO
+72	Mlango wa moto. Ukigonga, adui huungua (uwezekano 15%+5%/Lv, uharibifu 5+1.5/Lv kwa sekunde, sek 3)
+73	JIBU LA MOTO
+74	Ukizuia kwa Shield, moto wa kujibu huenea pande zote (nguvu hupanda kwa Lv), na maadui walioguswa huungua. Hata bila Shield, unaweza kubeba 1
+75	NGOME
+76	HP ya juu huongezeka (moyo +1 kwa kila Lv) na kuyumba ukipigwa hupungua (+5%/Lv), lakini kasi ya mwendo hushuka (-3% kwa kila Lv)
+77	MAKALI YA BARAFU
+78	Mlango wa barafu. Ukigonga, adui hupata baridi (uwezekano 15%+5%/Lv, mwendo hupungua 25%+2%/Lv). Baridi ikirundikana, huganda (mabosi hawasimami, ila hupungua kasi sana)
+79	DHORUBA
+80	Wembe wa upepo huwa wa kasi zaidi (+5% kwa kila Lv), hufika mbali (+0.4m/Lv) na hutoboa maadui wengi (+1 kila Lv 3). Utoboaji wa silaha za mbali pia huongezeka
+81	MUUAJI WA MAJITU
+82	Nguvu ya shambulio hupanda sana (+9% kwa kila Lv), lakini kasi ya shambulio hushuka (-3% kwa kila Lv)
+83	KANUNI YA KIOO
+84	Nguvu ya shambulio hupanda sana (+9% kwa kila Lv). Hufunga moyo 1 wa HP ya juu kila Lv 2
+85	TAMAA
+86	Kasi ya mwendo hupanda (+4% kwa kila Lv), lakini maadui hujitokeza zaidi (+8%/Lv)
+87	MVUNJA ARDHI
+88	Kutua kwa kubamiza na pigo la mwisho ardhini hutoa wimbi la mshtuko linalokimbia ardhini (nguvu na urefu hupanda kwa Lv). Shambulio la ardhini pia hupanda kidogo (+2%/Lv)
+89	MPIGANAJI WA ARDHINI
+90	Nguvu ya shambulio ukiwa ardhini hupanda (+7% kwa kila Lv)
+91	ARDHI SIFURI
+92	Nguvu ya shambulio ardhini hupanda sana (+11% kwa kila Lv), lakini hushuka ukiwa hewani (-5% kwa kila Lv)
+93	MVUNJA MIOYO
+94	Nguvu ya shambulio hupanda (+4% kwa kila Lv), na kwa kila moyo uliofungwa shambulio hupanda zaidi +0.6%/Lv. Hufunga moyo 1 wa HP ya juu kila Lv 3
+95	ONGEZA MOYO
+96	HP ya juu huongezeka (moyo +1 kwa kila Lv, hadi mioyo 20) na HP hurejeshwa
+97	DERAYA NZITO
+98	Pigo kali (mioyo 2 au zaidi) hupunguzwa kwa moyo 1. HP ya juu pia huongezeka (moyo +1 kila Lv 2), lakini nguvu ya kuruka hushuka (-3% kwa kila Lv)
+99	PIGO ZITO
+100	Mshtuko wa shambulio la chini/kubamiza/kutua huwa na nguvu zaidi (+10% kwa kila Lv). Pigo la mwisho pia hupanda kidogo (+3%/Lv)
+101	HALI YA JEHANAMU
+102	HP (+12%/Lv), mwendo (+4%/Lv) na kujitokeza (+8%/Lv) kwa maadui wadogo hupanda, lakini MILE (+50%/Lv) na MILE ya bosi (+30%/Lv) huongezeka sana
+103	VOLTI KALI
+104	Radi huwa na nguvu zaidi (+5% kwa kila Lv). Radi husimamisha maadui wadogo kwa muda mfupi. Uwezekano wa radi pia hupanda kidogo (+1%/Lv)
+105	KUNDI KUBWA
+106	Maadui hujitokeza zaidi sana (+15% kwa kila Lv), lakini MILE (+5%/Lv) na EXP ya kuua (+5%/Lv) huongezeka
+107	MWINDAJI
+108	Ni rahisi kusonga kwenye vita vya bosi. Kusonga mbele/nyuma kwa shambulio huongezeka (+4% kwa kila Lv), na kasi ya kumkaribia bosi aliye mbali pia hupanda (+3%/Lv)
+109	GEREZA LA BARAFU
+110	Huganda kwa urahisi zaidi (idadi ya baridi inayohitajika -1 kila Lv 3). Uwezekano na muda wa baridi pia hupanda
+111	TANURU
+112	Ukiua adui anayeungua, moto huenea pande zote na kuwaunguza wengine (nguvu na eneo hupanda kwa Lv). Pia wewe mwenyewe husababisha kuungua kidogo
+113	NIA YA CHUMA
+114	HP ikiwa imejaa, nguvu ya shambulio hupanda (+5% kwa kila Lv). HP ya juu pia huongezeka (moyo +1 kila Lv 3)
+115	ONGEZA MIRUKO
+116	Miruko ya hewani huongezeka (+1 kwa kila Lv). Kadiri unavyoruka mfululizo hudhoofika kidogo, lakini si unapoangukia shimo. Kwa Mchawi, urefu wa kupanda huongezeka ngazi 1 kila Lv 3
+117	ONGEZA NGUVU YA KURUKA
+118	Nguvu ya kuruka hupanda (+3% kwa kila Lv). Kwa Mchawi, kupanda na kushuka huwa kwa kasi zaidi
+119	HP ikifika moyo 1, unapata kutodhurika kwa muda mfupi (sek 1 + 0.15 kwa kila Lv). Haitatokea tena hadi HP irejeshwe na muda upite
+120	MSIMAMO WA MWISHO
+121	HP ikiwa 50% au chini, nguvu ya shambulio hupanda (+4% kwa kila Lv); HP ikiwa 25% au chini, hupanda zaidi (+4%/Lv)
+122	KUVUNJA KIWANGO
+123	EXP unayopata huongezeka sana (+30% kwa kila Lv)
+124	UPANGA MREFU
+125	Eneo halisi la shambulio hupanuka sana (+5% kwa kila Lv)
+126	SAFARI NDEFU
+127	EXP (+15% kwa kila Lv) na HP ya juu (moyo +1 kila Lv 3) huongezeka
+128	MUUAJI WA MAKUNDI
+129	Shambulio dhidi ya maadui wasio mabosi (+5% kwa kila Lv) na MILE ya kuua maadui (+10% kwa kila Lv) hupanda
+130	MSUKUMO
+131	Kasi yako ya sasa huwa nguvu ya shambulio. Huanza kupanda ukizidi 100km/h, na hufika upeo kwa 150km/h (+4% kwa kila Lv). Baada ya hapo hupanda polepole
+132	WIMBI LA MAZIMWI
+133	Maadui hujitokeza zaidi (+10% kwa kila Lv), lakini EXP huongezeka (+15%/Lv)
+134	MAADUI ZAIDI
+135	Maadui hujitokeza zaidi (+10% kwa kila Lv). MILE ya kuua maadui pia huongezeka kidogo (+3%/Lv)
+136	HAKUNA KURUDI
+137	Kasi ya mwendo hupanda sana (+5% kwa kila Lv), lakini maadui hujitokeza zaidi (+10%/Lv)
+138	ONE MORE MILE
+139	MILE (+50% kwa kila Lv), MILE ya bosi (+50%) na EXP (+20%) huongezeka
+140	Ukidumisha 115km/h au zaidi, OVERDRIVE huwaka (shambulio +3% kwa kila Lv, kasi ya shambulio +2%). Ukipunguza kasi huisha. Kasi ya mwendo pia hupanda kidogo (+2% kwa kila Lv)
+141	UPONYAJI ZIADA
+142	Kiasi cha kupona huongezeka (Lv4–6: +1, Lv7–9: +2 mioyo). Kupona ukiwa umejaa huwa Shield 1
+143	VURUGU KUU
+144	HP/mwendo/kujitokeza/uhodari wa maadui wadogo na HP ya mabosi vyote hupanda, lakini MILE (+60%/Lv) na MILE ya bosi (+60%/Lv) huongezeka sana mno
+145	MTAFUTA NJIA
+146	EXP ya umbali uliokimbia huongezeka (+20% kwa kila Lv)
+147	ULINZI KAMILI
+148	Ukitumia Shield, unapata kutodhurika kwa muda mfupi (sek 0.4 + 0.1 kwa kila Lv). Hata bila Shield, unaweza kubeba 1
+149	Ukianguka, unafufuka mara moja tu (HP mioyo 1–5 kulingana na Lv). Ukifufuka, kadi hii huondolewa na itaonekana tena kama chaguo (ukiichukua tena inaanza Lv1)
+150	UPANGA UTOBOAO
+151	Mashambulizi hutoboa maadui. Kwa karibu: hufika nyuma ya adui uliyemgonga (idadi na nguvu hupanda kwa Lv); kwa silaha za mbali: idadi ya kutoboa (+1 kila Lv 3)
+152	MBUAI
+153	Uwezekano wa kufyonza hupanda (+3% kwa kila Lv). Hata ukishambulia mabosi, mara kwa mara kuna nafasi ya kufyonza
+154	MAKALI YA HARAKA
+155	Kasi ya shambulio kuu (mbele/nyuma) hupanda (+5% kwa kila Lv). Haihusu juu/chini/kubamiza/mbinu kubwa
+156	GIA YA NYUMA
+157	Nguvu ya shambulio hupanda (+8% kwa kila Lv), lakini kasi ya mwendo hushuka (-3% kwa kila Lv)
+158	HP ikishuka hadi 30% au chini, HP hurejeshwa kidogo (mioyo 1–3). Ikishatokea, kuna kipindi cha kusubiri kwa umbali (10,000m, hupungua kwa Lv)
+159	NGAO
+160	Shield inayozuia pigo 1. Idadi ya juu +1 kila Lv 3 (hadi 3); zilizotumika hurudi kwa muda (haraka zaidi kwa Lv)
+161	WIMBI LA MSHTUKO
+162	Pigo la karibu hutoa wimbi fupi la mshtuko mbele; silaha za mbali hutoa wimbi la mshtuko zinapogonga (nguvu na eneo hupanda kwa Lv)
+163	BINGWA WA ANGA
+164	Shambulio la angani hupanda (+4% kwa kila Lv). Ukigonga hewani, unarudishiwa mruko 1 wa hewani (mara 1 kila Lv 3 kwa kila kuwa hewani)
+165	MKIMBIAJI WA ANGA
+166	Nguvu ya kuruka (+2% kwa kila Lv) na shambulio la angani (+3% kwa kila Lv) hupanda
+167	KUELEKEA ANGANI
+168	Nguvu ya shambulio hewani hupanda sana (+11% kwa kila Lv), lakini hushuka ukiwa ardhini (-5% kwa kila Lv)
+169	UPANGA WA SAUTI
+170	Kila shambulio kuu hurusha wembe mbele. Kadiri unavyokimbia kwa kasi, ndivyo unavyofika mbali, kuwa mkubwa na wenye nguvu zaidi
+171	PUNGUZA KASI
+172	Kasi ya mwendo hushuka (-4% kwa kila Lv). Kadi maalum yenye sababu chache za kuichagua ukicheza peke yako
+173	ONGEZA KASI
+174	Kasi ya mwendo hupanda (+3% kwa kila Lv)
+175	NJIA NDEFU
+176	EXP (+40% kwa kila Lv) na HP ya juu (moyo +1 kila Lv 2) huongezeka
+177	BWANA WA RADI
+178	Ngazi ya juu ya radi. Nguvu (+4% kwa kila Lv), mnyororo (+adui 1 kila Lv 3) na eneo kuzunguka radi huimarika
+179	PIGO LA RADI
+180	Mlango wa radi. Ukigonga, radi hupiga (uwezekano 5%+2%/Lv, nguvu 7.5+1.5/Lv. Kwa adui yuleyule mara 1 kila sek 0.4)
+181	KIMBUNGA
+182	Wembe wa upepo ukigonga, kimbunga kidogo hutokea na kuwavuta maadui wa karibu (nguvu na eneo hupanda kwa Lv). Pia wewe mwenyewe hutoa wembe wa upepo kidogo
+183	MAADUI SUGU
+184	HP ya maadui wadogo hupanda (+15% kwa kila Lv), lakini MILE (+15%/Lv) na EXP ya kuua (+5%/Lv) huongezeka
+185	MSAKA HAZINA
+186	MILE ya hazina/zawadi (goblini wabeba hazina wa BONUS ZONE/slime wa dhahabu/mimic/CLEAR/PERFECT, zawadi ya WANTED) huongezeka (+30% kwa kila Lv). MILE ya mabosi na umbali pia huongezeka kidogo
+187	MWENYE NGUVU ZOTE
+188	Kadi ya kila kitu inayoongeza kwa pamoja nguvu ya shambulio (+3% kwa kila Lv), HP ya juu (moyo +1 kila Lv 2) na kasi ya mwendo (+2% kwa kila Lv)
+189	MNYONYA DAMU
+190	Ukiua adui, kuna uwezekano (+3% kwa kila Lv) wa kurejesha moyo 1 wa HP
+191	ANATAFUTWA
+192	Kila umbali fulani, mhalifu mwenye zawadi hutokea (huwa na nguvu na kuja mara nyingi zaidi kwa Lv). Ukimuua unapata zawadi, ukimpita anakutoroka. MILE huongezeka (+35%/Lv)
+193	MKATA UPEPO
+194	Mlango wa upepo. Ukigonga, wembe wa upepo unaotoboa huruka mbele (uwezekano 10%+3%/Lv, nguvu 8+1.5/Lv). Eneo la shambulio pia hupanuka kidogo (+1%/Lv)
+195	MPIGA MISHALE
+196	Vuta, Lenga, Toboa
+197	Mwindaji wa misitu minene
+198	MDUNGUAJI
+199	MKUKI WA JOKA
+200	Penya, Usisalimu Amri
+201	Shujaa kijana wa joka mwenye mkuki
+202	MVUNJAJI
+203	MZAWA WA JOKA
+204	Kucha, Mkia, Bawa, Moto
+205	Shujaa mwenye damu ya majoka.
+206	MBABE
+207	PANGA PACHA
+208	Chuma Chepesi, Mwendo Usiokoma
+209	Mwepesi wa panga mbili, mapigo mfululizo
+210	COMBO YA ARDHINI
+211	MPIGANAJI NGUMI
+212	Ngumi Zinazojibu
+213	Bingwa wa sanaa za mapigano
+214	MPIGA BASTOLA
+215	Risasi Moja, Umbali Mmoja
+216	Bastola pacha, mstari mmoja mkali wa moto.
+217	WA MBALI
+218	MCHAWI
+219	Elea Juu, Piga Chini
+220	Mchawi asiyegusa ardhi kamwe.
+221	MCHAWI WA ANGANI
+222	MWALI WA HEKALU
+223	Funga Njia Iliyo Mbele
+224	Mtoa pepo wa hekalu la mlimani.
+225	MFUNGAJI
+226	SHINOBI
+227	Toweka, Kata, Toweka
+228	Shinobi asiyekuwepo pale unapopiga.
+229	WEPESI
+230	BIBI MTUKUFU
+231	Shujaa Ambaye Bado Hajaamka
+232	Amevaa fedha na dhahabu
+233	SHUJAA MTUKUFU
+234	MPIGA UPANGA
+235	Yule Asiyeacha Kusonga
+236	Mpiga upanga pekee afuataye njia yake.
+237	MLINGANIFU
+238	Muda Zaidi, Nguvu Zaidi
+239	Mtukufu wa usiku asiyehitaji upanga.
+240	DAMU
+241	KADI ZA WAHUSIKA
+242	CHAGUA MHUSIKA
+243	CHAGUA
+244	MAISHA
+245	NGUVU
+246	CHAGUA RAMANI
+247	Anza Safari
+248	Mpangilio Bora
+249	Ondoa Zote
+250	Ndiyo
+251	Hapana
+252	UKUMBI WA MWISHO
+253	Maadui: wa ramani zote wamechanganyika (wameimarishwa)
+254	Sifa: sakafu zinazoporomoka, miundo inayoanguka, kumbi zinazoelea
+255	Njia: ukumbi mkubwa wa kale → maporomoko → shimo kuu → njia ya mwisho
+256	Pango la Asili
+257	Maadui: Chungu / Panzi / Popo / Mnyoo
+258	Sifa: dari la mwamba, miiba ya darini, giza na mienge
+259	Njia: njia moja (hatari za ardhini, angani, chini ya ardhi na darini)
+260	Ukumbi wa Angani
+261	Maadui: jamii ya goblini + wapya hufunguka kadiri ya umbali
+262	Sifa: majukwaa yanayoelea ya miamba na mawingu, njia za juu angani
+263	Njia: hatari huongezeka kadiri unavyoendelea
+264	Barabara ya Nyika
+265	Maadui: Goblini / Ndege
+266	Vizuizi: mawe, miti midogo, kuta, miti inayovunjika, mawe makubwa, mashimo
+267	Njia: Juu Rahisi / Chini Hatari
+268	Umeanguka. Tumia "Rudia kwa masharti sawa" kujaribu tena mara moja
+269	HP imerejeshwa yote
+270	Maadui na mashambulizi yao yote yamefutwa (hayahesabiwi kwenye muda wa kuua)
+271	Uharibifu uliotoa {0}    Uharibifu uliopokea {1}    {2} sek
+272	Kutodhurika
+273	≡ Mipangilio
+274	Rudia kwa masharti sawa
+275	Futa maadui wote
+276	Nyumbani
+277	Wote wameangamizwa  {0} sek
+278	Wapinzani
+279	Maelezo
+280	Matokeo
+281	Uwanja wa mazoezi wa kujaribu wahusika na kadi kwa uhuru
+282	Anza na mipangilio hii
+283	Anza
+284	Jaribio
+285	(jaribio)
+286	Tafuta
+287	<color=#8ce6ff>Jaribio</color>
+288	+ Ongeza
+289	Nakili deki ya sasa
+290	Nakili kadi za mhusika
+291	Muundo wa jaribio (kadi {0})
+292	Ondoa zote
+293	Lv = mara ulizochukua kwenye mbio hizi (hadi 9 kwa kila uwezo). Kadi ulizonazo na deki hazibadiliki
+294	Ongeza kadi kwa "+ Ongeza" kwenye orodha ya kushoto. Unaweza kujaribu hata bila kadi
+295	Nakala ya ulizonazo (muunganiko Lv{0}, uwezo aina {1})
+296	Kadi {0} za deki zimenakiliwa kwenye muundo wa jaribio (deki haibadiliki)
+297	Kadi {0} za mhusika zimenakiliwa (Lv ya mwanzo)
+298	Shabaha ya mazoezi
+299	Maadui wadogo
+300	Mabosi wa nyika
+301	Mabosi wa pango
+302	Mabosi wa angani
+303	Shabaha isiyosogea: haishambulii (ukiigusa hakuna uharibifu) na haianguki. Kwa kukagua mashambulizi. Ukikimbia, huweka umbali na mchezaji
+304	Idadi
+305	Ukali wa mwendo
+306	Awamu
+307	Mabosi hutokea mbele kwa mwendo wao wa kuingia
+308	Mbinu za mabosi wa pango/angani zinazotumia ardhi (mashimo/dari/mawe yanayoanguka/mikanda ya angani n.k.) hutokea tofauti kwenye uwanja tambarare
+309	Bosi aina 1 tu (unaweza kumweka pamoja na maadui wadogo)
+310	Ongeza kwa wapinzani
+311	Bosi aina 1 tu (amebadilishwa na bosi wa awali)
+312	Wapinzani wa sasa ({0})
+313	Hakuna wapinzani (ukianza hivi, unajaribu mwendo tu bila maadui)
+314	Nguvu ya maadui: sawa na {0}km (HP/shambulio sawa na umbali huo kwenye mchezo halisi)
+315	Kasi
+316	Simama (0km/h)
+317	Kimbia (kasi ya msingi + marekebisho)
+318	Kimbia (kasi isiyobadilika)
+319	Kusonga mbele kiotomatiki tu ndiko kunasimama (shambulio/kuruka/mvuto/kuyumba/mwendo wa maadui ni kama mchezo halisi)
+320	Hukimbia kwa kasi ya msingi ikizidishwa na marekebisho ya kasi ya mhusika/kadi (SPEED UP n.k.)
+321	Hukimbia kwa kasi hii bila marekebisho (kwa kulinganisha bila tofauti za kadi za kasi)
+322	Sasa: msingi {0}km/h → halisi {1}km/h (marekebisho ×{2})
+323	Kutodhurika / HP
+324	Kutodhurika: {0}
+325	Rejesha HP yote
+326	Hata ukiwa huwezi kudhurika, "uharibifu ambao ungepokea" huonyeshwa kwenye matokeo
+327	Msaada wa udhibiti (sawa na "Msaada wa kasi ya juu" kwenye mipangilio. Uwanjani tu; mipangilio haibadiliki)
+328	OFF
+329	ON
+330	Daima (toleo la dev)
+331	Hufanya kazi kuanzia {0}km/h
+332	Haipo uwanjani: FINAL EVOLUTION / AWAKENED / Mastery / gauge ya ULTIMATE / kupanda kiwango / zawadi za bosi / BONUS ZONE (kadi zina athari za kawaida za Lv na COMBO tu. Zawadi, rekodi na umiliki havibadiliki kamwe)
+333	Toleo la dev tu
+334	Chagua hata maadui ambao hujakutana nao: {0}
+335	Nasibu isiyobadilika: {0}
+336	Msaada wa kuvunja vizuizi: {0}
+337	Umeanguka
+338	Wote wameangamizwa {0} sek
+339	Imekwisha
+340	Vitani
+341	Mara hii: {0}
+342	Uharibifu uliotoa
+343	Mapigo yaliyogonga
+344	Maadui waliouawa
+345	Muda hadi kuua
+346	Uharibifu uliopokea (HP iliyopungua)
+347	Uharibifu halisi (pamoja na kutodhurika/Shield)
+348	Muda wa vita
+349	{0} sek
+350	{0} (mara {1})
+351	Mara hii
+352	Mara iliyopita
+353	Masharti ya sasa: {0}
+354	Muundo wa jaribio: {0}
+355	Masharti ya awali: {0}
+356	Muundo wa awali: {0}
+357	Badilisha mipangilio
+358	??? (bado hujakutana naye)
+359	Shabaha isiyosogea
+360	{0} / kadi {1} / {2} / sawa na {3}km
+361	Hakuna kadi
+362	(nakala ya ulizonazo)
+363	Uwanja unaandaliwa
+364	UWANJA
+365	MWIGAJI KO
+366	GOBLINI
+367	ROJO
+368	KIBWENGO
+369	MWIGAJI
+370	MILE
+371	EXP
+372	JACKPOT!!
+373	BONUS ZONE!
+374	PERFECT:
+375	JACKPOT IMEKAMILIKA!
+376	BONASI IMEKAMILIKA!
+377	JACKPOT  KAMILIFU!
+378	BONASI KAMILIFU!
+379	MATOKEO YA JACKPOT
+380	MATOKEO YA BONASI
+381	MAADUI
+382	CLEAR
+383	PERFECT
+384	JUMLA
+385	NASIBU
+386	MWISHO
+387	Mbio zinaendelea baada ya {0}
+388	Ya sasa
+389	Mapigo {0}
+390	(isiyobadilika)
+391	Kadi 1 ya malighafi inatumika kwenye deki/kadi ya mhusika
+392	Imeshafika AWAKENED (★5), kwa hivyo Mastery haiwezi kuendelea zaidi (kadi haitumiki. Matumizi ya kadi za ziada baada ya ★5 yataongezwa baadaye)
+393	Haiwezi kuunganishwa: Lv baada ya muunganiko itakuwa {0} (kikomo Lv.{1})
+394	Haiwezi kuunganishwa: uwezo utakuwa aina {0} (kikomo aina {1})
+395	Muunganiko unaendelea
+396	Kadi hazitoshi
+397	<color=#ffd76a><b>[MASTERY] Kukuza Lv.9 MAX</b></color>
+398	Kadi kuu inabaki kama ilivyo (Lv.9 MAX); kadi ya malighafi pekee ndiyo inatumika.
+399	Mastery ya sasa: <color=#ffd76a>{0}</color>  {1}
+400	Muunganiko huu: <b>+{0} Mastery</b> (malighafi Lv.{1} = kadi {2})
+401	Baada ya muunganiko: <color=#ffd76a>{0}</color>  {1}
+402	<size=19>(sawa na ★{0}, ziada huhamia ★ inayofuata)</size>
+403	<size=19>{0} ya ziada baada ya ★5 inahifadhiwa, haitupwi</size>
+404	<color=#ff9a8a><size=19>Uwezo wa ziada wa malighafi (aina {0}) haurithiwi</size></color>
+405	<size=19>Mastery haiongezi utendaji wa kawaida (shambulio/kasi/EXP n.k.). Ni rekodi ya ukuzaji na njia kuelekea AWAKENED.</size>
+406	<color=#ff9a8a>Ukiendelea, kadi 1 ya malighafi itatumika.</color>
+407	<color=#ffd76a><b>[Kuimarisha Kadi Sawa → Lv.9 MAX] Kufaulu 100%</b></color>
+408	Muunganiko Lv: Lv.{0} + Lv.{1} → <b>Lv.9 MAX</b>
+409	<b>{0}</b> inayozidi Lv.9 haitupwi, inaenda Mastery: {1} → <color=#ffd76a>{2}</color>{3}
+410	<b>Uwezo unaorithiwa (nguvu hadi 9)</b>
+411	・{0} <b>×{1}</b>
+412	<color=#ff9a8a>Ukiendelea, kadi 2 ulizochagua zitatumika (utapata kadi kamili 1 ya Lv.9 MAX).</color>
+413	<color=#ffd76a><b>[Kuimarisha Kadi Sawa] Kufaulu 100%</b></color>
+414	Muunganiko Lv: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+415	<b>Uwezo unaorithiwa (uwezo sawa hujumlishwa)</b>
+416	・{0} {1}<b>×{2}</b>  <size=18>({3} ×{4})</size>
+417	<color=#9fd0ff><b>[Kuunganisha Kadi Tofauti] Matokeo huamuliwa kwa bahati</b></color>
+418	<b>Muunganiko Lv wa kadi kamili (kwa kila tokeo)</b>
+419	・Zote zimefaulu: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+420	・Kuu pekee imefaulu: <b>Lv.{0}</b> (Lv ya upande mkuu tu)
+421	・Malighafi pekee imefaulu: <b>Lv.{0}</b> (Lv ya malighafi tu)
+422	・Zote zimeshindwa: hakuna kadi kamili, <color=#ffd76a>{0} MILE</color> zinarejeshwa
+423	<b>Uwezekano wa kurithi uwezo wote wa upande mkuu {0}%</b>
+424	・{0} ×{1}  <size=18>({2} ×{3})</size>
+425	<b>Uwezekano wa kurithi uwezo wote wa malighafi {0}%</b>
+426	Zote zikifaulu: uwezo wote wa pande zote unarithiwa (uwezo sawa hujumlishwa)
+427	Upande mmoja ukifaulu: uwezo, nguvu na Lv za upande uliofaulu tu ndizo zinarithiwa (upande ulioshindwa haubaki)
+428	Ikiwa malighafi pekee imefaulu, uwezo mkuu wa malighafi unakuwa uwezo mkuu wa kadi kamili
+429	<size=18>(Marejesho ya zote kushindwa = ★{0}×Lv.{1}×{2} + ★{3}×Lv.{4}×{5})</size>
+430	<color=#ff9a8a>Ukiendelea, kadi 2 ulizochagua zitatumika.</color>
+431	Huna kadi hii
+432	Haiwezi kuchaguliwa: inatumika kwenye deki na kadi ya mhusika
+433	Haiwezi kuchaguliwa: imewekwa kwenye kadi ya mhusika
+434	Haiwezi kuchaguliwa: inatumika kwenye deki
+435	Unahitaji kadi 2 zenye utendaji sawa (unazo 1)
+436	Chagua kadi kuu na kadi ya malighafi
+437	Taarifa za kadi haziwezi kupakiwa
+438	MASTERY IMEPANDA!
+439	Muunganiko bora kabisa!
+440	Muunganiko umefaulu!
+441	<size=21>Umesonga ★{0} (ziada huhamia ★ inayofuata)</size>
+442	<size=21>{0} ya ziada baada ya ★5 imehifadhiwa (itatumika baadaye)</size>
+443	<size=21>Kadi hii imekuwa AWAKENED (rekodi ya kudumu. Utendaji wa kawaida haubadiliki)</size>
+444	Kadi kuu (Lv.9 MAX) imebaki, na kadi 1 ya malighafi imetumika.
+445	<size=21>Mastery haiongezi utendaji wa kawaida (shambulio/kasi/EXP n.k.).</size>
+446	Muunganiko Lv.<b>{0}</b>{1}
+447	<color=#ffd76a>Kuimarisha Kadi Sawa (hakika)</color> … uwezo wote wa pande zote unarithiwa
+448	Upande mkuu ({0} Lv.{1}): {2}
+449	Malighafi ({0} Lv.{1}): {2}
+450	Lv ya upande mkuu tu
+451	Lv ya malighafi tu
+452	<size=21>Lv.{0} kamili = {1}</size>
+453	<b>Uwezo mkuu</b>
+454	<b>Uwezo wa ziada ({0}/{1})</b>
+455	Hakuna
+456	Muunganiko umeshindwa…
+457	Upande mkuu ({0} Lv.{1}): <color=#9aa3b8>Kurithi kumeshindwa</color>
+458	Malighafi ({0} Lv.{1}): <color=#9aa3b8>Kurithi kumeshindwa</color>
+459	Kadi 2 ulizochagua zimetumika.
+460	MILE zilizorejeshwa  <color=#ffd76a><b><size=40>+{0}</size></b></color>
+461	MILE ulizonazo  <b>{0}</b>
+462	<color=#ffd76a><b>Nguvu ×{0}→×{1}</b></color>
+463	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3} ×{4})</color></size>
+464	Rudi
+465	Unganisha Kadi
+466	Panga
+467	Kuu
+468	Malighafi
+469	Kadi
+470	Inachaguliwa
+471	Unganisha
+472	Pita ▶▶
+473	Unganisha tena
+474	Rudi kwenye orodha
+475	MILE ulizonazo  {0}
+476	Aina {0} / Kadi {1} zote
+477	Kadi kuu
+478	Kadi ya malighafi
+479	Zote
+480	Mwendo
+481	Shambulio
+482	Ulinzi
+483	Ukuaji
+484	Kupona
+485	Maalum
+486	Hatari
+487	Chagua kadi 2
+488	Haiwezi kuunganishwa
+489	Jina
+490	Kiwango
+491	Uadimu
+492	Idadi uliyonayo
+493	Unazo {0}  Zinapatikana<color=#{1}
+494	Uwezo {0}
+495	Kuu+Malighafi
+496	Inatumika
+497	<color=#ffd76a><b>{0}</b></color>  <b>{1}</b>  {2}  Muunganiko Lv.{3}{4}
+498	Uwezo mkuu: {0}
+499	Uwezo wa ziada ({0}):
+500	・{0}
+501	Uwezo wa ziada: hakuna
+502	<size=19><color=#b7bfd8>Unazo {0} / Zinapatikana {1}</color></size>
+503	Chagua kadi kutoka orodha ya kushoto.
+504	Kadi huingia kwenye kisanduku kilichochaguliwa (kinachong'aa). Gusa kisanduku kubadilisha lengo, na × kuondoa uchaguzi.
+505	・Kadi sawa … kufaulu 100%, Lv ya muunganiko na uwezo wote hujumlishwa
+506	・Kadi tofauti … uwezo wote hurithiwa kwa bahati (upande mkuu 50%/malighafi 25%). Upande mmoja ukifaulu, Lv na uwezo wa upande huo tu ndivyo hubaki
+507	・Kikomo cha Lv ya muunganiko ni Lv.9. Kwa kadi sawa, ziada inayozidi Lv.9 inaenda Mastery (kadi tofauti zenye jumla inayozidi Lv.9 haziwezi kuunganishwa)
+508	・Ukiunganisha kadi sawa na kadi ya Lv.9 MAX, Mastery husonga (★5 ni AWAKENED)
+509	<size=19>Imefika ★5 (AWAKENED). Matumizi ya kadi za ziada baada ya ★5 yataongezwa baadaye (kwa sasa hazitumiki kwenye muunganiko).</size>
+510	Ukichagua kadi sawa ({0}) kama malighafi, Mastery husonga kwa Lv ya malighafi (Lv.1 = +1).
+511	Sasa chagua kadi ya malighafi.
+512	Sasa chagua kadi kuu.
+513	Kadi hii ni AWAKENED (★5)
+514	Kadi kamili imewekwa kama kuu. Chagua kadi ya malighafi
+515	Uimarishaji hakika
+516	AWAKENED!
+517	Lv.9 MAX imefikiwa!
+518	Kuimarisha kadi sawa kumekamilika!
+519	Mafanikio makubwa! Uwezo wa pande zote umerithiwa
+520	Uwezo wa upande mkuu umerithiwa
+521	Uwezo wa malighafi umerithiwa
+522	Kurithi kumeshindwa…  Kadi zimegeuzwa kuwa MILE
+523	Upande wa {0}: kurithi kumefaulu!
+524	Upande wa {0}: kurithi kumeshindwa
+525	Kasi Kwanza
+526	Ulinzi Kwanza
+527	Damu Kwanza
+528	Moto Kwanza
+529	Barafu Kwanza
+530	Radi Kwanza

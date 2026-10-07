@@ -104,7 +104,7 @@ public static class UiKit
         if (centered == null) centered = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold, wordWrap = false };
         centered.fontSize = Mathf.RoundToInt(size);
         centered.normal.textColor = primary ? new Color(1f, 0.9f, 0.6f) : Color.white;
-        GUI.Label(r, text, centered);
+        LocGUI.Label(r, text, centered);
         GUI.color = keep;
         bool pad = enabled && PadNav.Button(r); // ゲームパッド/キーボードの決定(2026-10-06)
         return (GUI.Button(r, GUIContent.none, GUIStyle.none) && enabled) || pad;

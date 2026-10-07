@@ -130,7 +130,7 @@ public partial class GameManager
 
         bool isNew = gachaResultOwnedCount <= 1;
         float y = panel.y + 18f * s;
-        GUI.Label(new Rect(panel.x, y, panel.width, 36f * s), isNew ? "NEW CARD" : "DUPLICATE", UiKit.Label(26f * s, TextAnchor.MiddleCenter, true, isNew ? new Color(1f, 0.85f, 0.4f) : new Color(0.7f, 0.85f, 1f)));
+        LocGUI.Label(new Rect(panel.x, y, panel.width, 36f * s), isNew ? "NEW CARD" : "DUPLICATE", UiKit.Label(26f * s, TextAnchor.MiddleCenter, true, isNew ? new Color(1f, 0.85f, 0.4f) : new Color(0.7f, 0.85f, 1f)));
         y += 40f * s;
 
         // カード(絵 + レア度の枠)
@@ -141,30 +141,30 @@ public partial class GameManager
         if (card.icon != null) GUI.DrawTexture(iconRect, card.icon, ScaleMode.ScaleToFit);
         y = iconRect.yMax + icon * 0.24f;
 
-        GUI.Label(new Rect(panel.x, y, panel.width, 40f * s), card.cardName, UiKit.Label(30f * s, TextAnchor.MiddleCenter, true, Color.white));
+        LocGUI.Label(new Rect(panel.x, y, panel.width, 40f * s), card.cardName, UiKit.Label(30f * s, TextAnchor.MiddleCenter, true, Color.white));
         y += 38f * s;
         Color starC = card.rarity >= 5 ? new Color(1f, 0.65f, 0.2f) : card.rarity >= 4 ? new Color(0.65f, 0.8f, 1f) : new Color(1f, 0.85f, 0.4f);
-        GUI.Label(new Rect(panel.x, y, panel.width, 28f * s), card.RarityStars, UiKit.Label(22f * s, TextAnchor.MiddleCenter, true, starC));
+        LocGUI.Label(new Rect(panel.x, y, panel.width, 28f * s), card.RarityStars, UiKit.Label(22f * s, TextAnchor.MiddleCenter, true, starC));
         y += 30f * s;
         // 効果の説明(折り返し)
         var desc = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.UpperCenter, wordWrap = true, fontSize = Mathf.RoundToInt(20f * s) };
         desc.normal.textColor = new Color(0.92f, 0.94f, 1f);
         string text = string.IsNullOrEmpty(card.description) ? "" : card.description;
         float dh = Mathf.Min(desc.CalcHeight(new GUIContent(text), panel.width - 56f * s), 90f * s);
-        GUI.Label(new Rect(panel.x + 28f * s, y, panel.width - 56f * s, dh), text, desc);
+        LocGUI.Label(new Rect(panel.x + 28f * s, y, panel.width - 56f * s, dh), text, desc);
         y += dh + 6f * s;
 
         string masteryHint = CardMastery.IsAwakened(card.cardId) ? "  (AWAKENED済み・保管)" : CardMastery.IsMaxReached(card.cardId) ? "  → 合成で MASTERY +1" : "";
-        GUI.Label(new Rect(panel.x, y, panel.width, 26f * s), $"Lv.1 +1   OWNED x{gachaResultOwnedCount}{masteryHint}", UiKit.Label(18f * s, TextAnchor.MiddleCenter, false, new Color(1f, 1f, 1f, 0.85f)));
+        LocGUI.Label(new Rect(panel.x, y, panel.width, 26f * s), $"Lv.1 +1   OWNED x{gachaResultOwnedCount}{masteryHint}", UiKit.Label(18f * s, TextAnchor.MiddleCenter, false, new Color(1f, 1f, 1f, 0.85f)));
         y += 26f * s;
         int st = CurrentGachaStage;
         float next = GachaStage.NextEvolutionDistance(st);
-        GUI.Label(new Rect(panel.x, y, panel.width, 22f * s), next > 0f ? $"CARD GACHA Lv.{st}   NEXT EVOLUTION {Mathf.FloorToInt(next)}m" : $"CARD GACHA Lv.{st}   MAX EVOLUTION",
+        LocGUI.Label(new Rect(panel.x, y, panel.width, 22f * s), next > 0f ? $"CARD GACHA Lv.{st}   NEXT EVOLUTION {Mathf.FloorToInt(next)}m" : $"CARD GACHA Lv.{st}   MAX EVOLUTION",
             UiKit.Label(14f * s, TextAnchor.MiddleCenter, false, new Color(0.75f, 0.85f, 1f, 0.85f)));
 
         // 下: 案内 + (パッド/キー用)閉じる
         string hint = gachaRevealQueue.Count > 0 ? $"タップで次へ(あと {gachaRevealQueue.Count} 枚)" : "タップで閉じる / ガチャをタップで続けて引く";
-        GUI.Label(new Rect(panel.x, panel.yMax - 74f * s, panel.width, 24f * s), hint, UiKit.Label(16f * s, TextAnchor.MiddleCenter, false, new Color(1f, 0.9f, 0.6f, 0.9f)));
+        LocGUI.Label(new Rect(panel.x, panel.yMax - 74f * s, panel.width, 24f * s), hint, UiKit.Label(16f * s, TextAnchor.MiddleCenter, false, new Color(1f, 0.9f, 0.6f, 0.9f)));
         var okRect = new Rect(panel.center.x - 80f * s, panel.yMax - 48f * s, 160f * s, 38f * s);
         if (DrawStyledButton(okRect, gachaRevealQueue.Count > 0 ? "NEXT" : "OK", 18f * s, primary: true, ornate: true)) CloseGachaResult();
 
@@ -176,7 +176,7 @@ public partial class GameManager
             GUI.color = new Color(1f, 0.95f, 0.8f, 1f);
             GUI.DrawTexture(lastGachaMachineRect, gachaMachineTexture, ScaleMode.ScaleToFit);
             GUI.color = keep;
-            GUI.Label(new Rect(lastGachaMachineRect.x - 30f * s, lastGachaMachineRect.yMax + 2f * s, lastGachaMachineRect.width + 60f * s, 24f * s),
+            LocGUI.Label(new Rect(lastGachaMachineRect.x - 30f * s, lastGachaMachineRect.yMax + 2f * s, lastGachaMachineRect.width + 60f * s, 24f * s),
                 TotalOwnedMile >= GachaCostMile ? $"TAP +1 ({GachaCostMile} MILE)" : "MILE不足", UiKit.Label(15f * s, TextAnchor.MiddleCenter, true, new Color(1f, 0.85f, 0.4f, pulse)));
             if (PadNav.Button(lastGachaMachineRect)) OnGachaMachineTapped();
         }

@@ -2278,20 +2278,20 @@ public partial class PlayerController : MonoBehaviour
         labelStyle.fontStyle = FontStyle.Bold;
         labelStyle.alignment = TextAnchor.MiddleCenter;
         labelStyle.normal.textColor = new Color(0.75f, 0.95f, 1f);
-        GUI.Label(new Rect(ringRect.x - 30f, ringRect.y - 26f, ringRect.width + 60f, 24f), "ESCAPE", labelStyle);
+        LocGUI.Label(new Rect(ringRect.x - 30f, ringRect.y - 26f, ringRect.width + 60f, 24f), "ESCAPE", labelStyle);
 
         GUIStyle pctStyle = new GUIStyle(GUI.skin.label);
         pctStyle.fontSize = 20;
         pctStyle.fontStyle = FontStyle.Bold;
         pctStyle.alignment = TextAnchor.MiddleCenter;
         pctStyle.normal.textColor = Color.white;
-        GUI.Label(ringRect, $"{Mathf.RoundToInt(progress * 100f)}%", pctStyle);
+        LocGUI.Label(ringRect, $"{Mathf.RoundToInt(progress * 100f)}%", pctStyle);
 
         GUIStyle secStyle = new GUIStyle(GUI.skin.label);
         secStyle.fontSize = 14;
         secStyle.alignment = TextAnchor.MiddleCenter;
         secStyle.normal.textColor = new Color(1f, 1f, 1f, 0.85f);
-        GUI.Label(new Rect(ringRect.x - 30f, ringRect.yMax + 2f, ringRect.width + 60f, 22f), $"{remaining:0.0}s", secStyle);
+        LocGUI.Label(new Rect(ringRect.x - 30f, ringRect.yMax + 2f, ringRect.width + 60f, 22f), $"{remaining:0.0}s", secStyle);
     }
 
     void OnDeath()

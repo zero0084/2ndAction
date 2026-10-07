@@ -297,9 +297,9 @@ public class TutorialRun : MonoBehaviour
     {
         switch (CurrentStep)
         {
-            case Step.Attack: return "キャラは自動で走ります。\n前後にフリックすると、その方向へ攻撃します。\n\n前: " + FwdIn + "\n後ろ: " + BackIn;
-            case Step.Jump: return "上へフリックするとジャンプします。\n空中でもう一度上へフリックすると、二段ジャンプです。\n\nジャンプ: " + UpIn;
-            case Step.Dive: return "ジャンプ中に下へフリックすると、真下へ急降下して攻撃します。\n足元がしっかりした地面の上で使いましょう。\n\n下攻撃: " + DownIn;
+            case Step.Attack: return $"キャラは自動で走ります。\n前後にフリックすると、その方向へ攻撃します。\n\n前: {FwdIn}\n後ろ: {BackIn}";
+            case Step.Jump: return $"上へフリックするとジャンプします。\n空中でもう一度上へフリックすると、二段ジャンプです。\n\nジャンプ: {UpIn}";
+            case Step.Dive: return $"ジャンプ中に下へフリックすると、真下へ急降下して攻撃します。\n足元がしっかりした地面の上で使いましょう。\n\n下攻撃: {DownIn}";
             case Step.Launch: return "敵の近くでジャンプすると、上への攻撃で敵を打ち上げます。\n浮いた敵には、空中で攻撃を当てて追撃できます。\n\n(難しければスキップできます)";
             case Step.Card: return "走っているとレベルが上がり、3枚のカードから1枚を選べます。\n選んだ強化は、そのランの間だけ有効です。\n\nここでは練習なので、効果はこの練習の中だけです。";
             default: return "これで基本の操作はおしまいです。\n\nまずは1,000mのボスを目指そう!";
@@ -352,8 +352,8 @@ public class TutorialRun : MonoBehaviour
             titleSt.fontSize = Mathf.RoundToInt(34 * s * k); titleSt.normal.textColor = new Color(1f, 0.86f, 0.45f);
             bodySt.fontSize = Mathf.RoundToInt(25 * s * k); bodySt.normal.textColor = Color.white;
             OrnateUi.DrawPanel(p, 0.95f);
-            GUI.Label(new Rect(p.x + 20 * s, p.y + 10 * s * k, p.width - 40 * s, 46 * s * k), $"{(CurrentStep == Step.End ? "" : (int)CurrentStep + " / 5  ")}{Title()}", titleSt);
-            GUI.Label(new Rect(p.x + 28 * s, p.y + 56 * s * k, p.width - 56 * s, p.height - 130 * s * k), Explain(), bodySt);
+            LocGUI.Label(new Rect(p.x + 20 * s, p.y + 10 * s * k, p.width - 40 * s, 46 * s * k), (CurrentStep == Step.End ? Loc.T(Title()) : $"{(int)CurrentStep} / 5  {Loc.T(Title())}"), titleSt);
+            LocGUI.Label(new Rect(p.x + 28 * s, p.y + 56 * s * k, p.width - 56 * s, p.height - 130 * s * k), Explain(), bodySt);
             float bw = 260 * s * k, bh = 58 * s * k, by = p.yMax - bh - 14 * s * k;
             if (CurrentStep == Step.End)
             {
@@ -383,7 +383,7 @@ public class TutorialRun : MonoBehaviour
             var r = new Rect((Screen.width - bw) * 0.5f, up ? 92 * s : Screen.height - bh - 16 * s, bw, bh);
             UiBackdrop.Draw(r, 0.7f);
             hintSt.normal.textColor = phase == Phase.Done ? new Color(0.6f, 1f, 0.6f) : Color.white;
-            GUI.Label(r, h, hintSt);
+            LocGUI.Label(r, h, hintSt);
             if (CurrentStep == Step.Launch && phase == Phase.Practice)
             {
                 var sk = new Rect(r.xMax - 150 * s, r.yMax + 6 * s, 150 * s, 42 * s);

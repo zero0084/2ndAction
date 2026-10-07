@@ -1308,7 +1308,7 @@ public class NetCombat : MonoBehaviour
             GUI.color = new Color(0f, 0f, 0f, 0.55f);
             GUI.DrawTexture(new Rect(rect.x + 20f, rect.y + 4f, rect.width - 40f, rect.height - 4f), Texture2D.whiteTexture);
             GUI.color = Color.white;
-            GUI.Label(rect, text, labelStyle);
+            LocGUI.Label(rect, text, labelStyle);
         }
         var panel = new Rect(10f, Screen.height - 330f, 560f, 310f);
         GUI.color = new Color(0f, 0f, 0f, 0.6f);
@@ -1319,7 +1319,7 @@ public class NetCombat : MonoBehaviour
         sb.Append($"spawn={StatSpawns} dmgEv={StatDamageEvents} death={StatDeaths} req sent={StatHitRequestsSent} applied={StatHitRequestsApplied} ignored={StatHitRequestsIgnored} dup={StatDuplicateHits}\n");
         sb.Append(LoadSummary()).Append('\n');
         for (int i = Mathf.Max(0, KillLog.Count - 5); i < KillLog.Count; i++) sb.Append(KillLog[i]).Append('\n');
-        GUI.Label(new Rect(panel.x + 8f, panel.y + 4f, panel.width - 16f, panel.height - 8f), sb.ToString());
+        LocGUI.Label(new Rect(panel.x + 8f, panel.y + 4f, panel.width - 16f, panel.height - 8f), sb.ToString());
     }
 
     // 負荷の目安(2026-10-02、最大8人の予定): 送受信量・フレーム時間・同期している敵/ボス/飛び道具の数。開発用パネルと自動テストのログ。

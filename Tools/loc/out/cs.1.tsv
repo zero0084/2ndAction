@@ -1,0 +1,531 @@
+0	ABSOLUTNÍ NULA
+1	Zmražení běžní nepřátelé se roztříští a způsobí poškození, útok proti prochlazeným/zmraženým nepřátelům roste (+3% za Lv). U bossů místo zmrazení zesílí zpomalení
+2	ADRENALIN
+3	Při HP do 50% roste rychlost útoku (+3% za Lv), při HP do 25% dvojnásobně
+4	VZDUŠNÁ ČEPEL
+5	Zásah nepřítele ve vzduchu vyšle navazující sek (síla a dosah rostou s Lv)
+6	VZDUŠNÝ ÚTOK+
+7	Útok ve vzduchu roste (+7% za Lv)
+8	NADVLÁDA VZDUCHU
+9	Útok ve vzduchu roste (+3% za Lv) a dál roste s každým zásahem bez přistání (+1%/Lv za zásah, max. 4×)
+10	VZDUŠNÝ ÚDER
+11	Útok proti nepřátelům ve vzduchu (vyhozeným/létajícím/vzdušným bossům) roste (+8% za Lv)
+12	DOSAH ÚTOKU+
+13	Efektivní dosah útoku roste (+3% za Lv). Zblízka zásahová zóna, u střel dolet (střely se nezvětšují)
+14	RYCHLOST ÚTOKU+
+15	Rychlost útoku roste (+3% za Lv)
+16	ÚTOK+
+17	Útok roste (+5% za Lv)
+18	BĚSNÝ NÁPOR
+19	Při HP do 50% roste útok (+5% za Lv) a rychlost útoku (+2%), při HP do 25% obojí ještě víc
+20	BERSERKR
+21	Roste útok (+6% za Lv) a rychlost útoku (+1%). Každé 3 Lv zapečetí 1 srdce max. HP
+22	KRVAVÁ ČEPEL
+23	Útoky způsobují krvácení (šance a síla rostou s Lv). Při plném HP dvojnásobná šance na krvácení. Útok při plném HP také mírně roste (+2%/Lv)
+24	KRVAVÝ NÁPOR
+25	Při HP do 50% roste útok (+4% za Lv), při HP do 25% roste i šance na vysátí (+3%/Lv)
+26	VÝZVA BOSSŮ
+27	HP bossů roste (+10% za Lv), ale MILE z bossů roste (+40%/Lv)
+28	ZABIJÁK BOSSŮ
+29	Útok proti bossům roste (+8% za Lv)
+30	NÁPOR BOSSŮ
+31	U brány bosse se se šancí (+8% za Lv) přidá další boss. MILE z bossů roste (+50%/Lv)
+32	BRZDNÝ ÚTOK
+33	Útok roste (+7% za Lv). Hned po hlavním útoku mírně zpomalíš
+34	HOŘÍCÍ DUŠE
+35	Hoření je silnější (+8% za Lv) a delší (+0.25 s/Lv). Karta sama také občas zapálí
+36	ŘETĚZOVÝ VÝBUCH
+37	Poražení nepřátelé vybuchnou. Nepřátelé zabití výbuchem vybuchnou také (max. 3×, každý nepřítel 1× za řetěz)
+38	ŘETĚZOVÝ BLESK
+39	Úder blesku přeskočí na další blízké nepřátele (+1 cíl za 3 Lv, dosah roste s Lv). Karta sama také občas sešle blesk
+40	Aktivace při Gauge 100% (tlačítko vlevo dole). Unikátní speciální útok postavy zasahuje nepřátele na obrazovce a prudce postoupí vpřed (Lv1 cca 100m → Lv9 cca 200m), pak chvíli trvá posílení (Lv1 5 s → Lv9 12 s). Gauge se plní vzdáleností, zabitími a poškozením bossů
+41	O VLÁSEK
+42	Roste rychlost pohybu (+2% za Lv) a nesmrtelnost po zásahu (+0.05 s za Lv)
+43	OSTŘÍ COMBO
+44	Čím delší série zásahů (HIT), tím vyšší útok (+0.4%/Lv za zásah, max. 10 zásahů)
+45	MISTR COMBO
+46	Závěrečný úder vyšle vpřed zvláštní rázovou vlnu (síla a dosah rostou s Lv)
+47	COMBO PLUS
+48	Poslední úder útočné série (závěrečný) je silnější (+7% za Lv)
+49	COMBO NÁPOR
+50	Útoky uprostřed série jsou silnější (+6% za Lv) a rychlost hlavního útoku mírně roste (+2%/Lv)
+51	PROTIÚDER
+52	Při bloku Shieldem vyšle kolem protiútočnou vlnu (síla roste s Lv). I bez Shieldu můžeš mít 1
+53	SMLOUVA SE SMRTÍ
+54	Útok roste velmi výrazně (+12% za Lv). Každé 2 Lv zapečetí 1 srdce max. HP
+55	DVOJITÝ ÚTOK
+56	Při útoku se šancí (+3% za Lv) vyrazí další úder. Další úder nespouští další
+57	ELITNÍ NEPŘÁTELÉ
+58	Část běžných nepřátel se stane elitou (+4% za Lv; HP×2.5, trochu rychlejší, zabití dá MILE×3/EXP×2). MILE také roste (+30%/Lv)
+59	KAT
+60	MILE za poražené nepřátele roste (+15% za Lv)
+61	PŘEVOD EXP
+62	EXP klesá (-10% za Lv, min. 25%), ale MILE za zabití roste (+30%/Lv)
+63	EXP+
+64	Získané EXP roste (+20% za Lv)
+65	VÝBUCH ZKUŠENOSTÍ
+66	EXP z nepřátel/bossů/BONUS ZONE výrazně roste (+80% za Lv)
+67	RYCHLÍ NEPŘÁTELÉ
+68	Pohyb, sledování a útoky běžných nepřátel se zrychlí (+4% za Lv), ale roste MILE (+15%/Lv) a EXP za zabití (+5%/Lv)
+69	PRVNÍ ÚDER
+70	První úder útočné série je silnější (+10% za Lv)
+71	PLAMENNÁ ČEPEL
+72	Vstup do ohně. Zásah zapálí nepřítele (šance 15%+5%/Lv, 5+1.5/Lv poškození za sekundu, 3 s)
+73	PLAMENNÝ PROTIÚDER
+74	Při bloku Shieldem vyšle kolem ohnivý protiútok (síla roste s Lv), zasažení nepřátelé hoří. I bez Shieldu můžeš mít 1
+75	PEVNOST
+76	Max. HP roste (+1 srdce za Lv) a zapotácení po zásahu klesá (+5%/Lv), ale rychlost pohybu klesá (-3% za Lv)
+77	MRAZIVÉ OSTŘÍ
+78	Vstup do ledu. Zásah prochladí nepřítele (šance 15%+5%/Lv, pohyb pomalejší o 25%+2%/Lv). Nahromaděný chlad zmrazí (bossové se nezastaví, ale silně zpomalí)
+79	VICHŘICE
+80	Větrné čepele jsou rychlejší (+5% za Lv), letí dál (+0.4m/Lv) a probodnou víc nepřátel (+1 za 3 Lv). Roste i průraz střel
+81	ZABIJÁK OBRŮ
+82	Útok výrazně roste (+9% za Lv), ale rychlost útoku klesá (-3% za Lv)
+83	SKLENĚNÉ DĚLO
+84	Útok výrazně roste (+9% za Lv). Každé 2 Lv zapečetí 1 srdce max. HP
+85	CHAMTIVOST
+86	Rychlost pohybu roste (+4% za Lv), ale objevuje se víc nepřátel (+8%/Lv)
+87	DRTIČ ZEMĚ
+88	Dopad úderu o zem a závěrečný úder na zemi vyšlou rázovou vlnu po zemi (síla a délka rostou s Lv). Útok na zemi také mírně roste (+2%/Lv)
+89	POZEMNÍ BOJOVNÍK
+90	Útok na zemi roste (+7% za Lv)
+91	EPICENTRUM
+92	Útok na zemi výrazně roste (+11% za Lv), ale ve vzduchu klesá (-5% za Lv)
+93	LAMAČ SRDCÍ
+94	Útok roste (+4% za Lv) a za každé zapečetěné srdce o dalších +0.6%/Lv. Každé 3 Lv zapečetí 1 srdce max. HP
+95	SRDCE+
+96	Max. HP roste (+1 srdce za Lv, max. 20 srdcí) a HP se doplní
+97	TĚŽKÁ ZBROJ
+98	Silný zásah (2+ srdce) zmírní o 1 srdce. Max. HP také roste (+1 srdce za 2 Lv), ale síla skoku klesá (-3% za Lv)
+99	TĚŽKÝ DOPAD
+100	Dopad útoku dolů/úderu o zem/přistání je silnější (+10% za Lv). Závěrečný úder také mírně roste (+3%/Lv)
+101	PEKELNÝ REŽIM
+102	HP (+12%/Lv), pohyb (+4%/Lv) a výskyt (+8%/Lv) běžných nepřátel rostou, ale MILE (+50%/Lv) a MILE z bossů (+30%/Lv) výrazně rostou
+103	VYSOKÉ NAPĚTÍ
+104	Blesk je silnější (+5% za Lv). Úder blesku na okamžik zastaví běžné nepřátele. Šance na úder blesku také mírně roste (+1%/Lv)
+105	HORDA
+106	Výskyt nepřátel výrazně roste (+15% za Lv), ale roste MILE (+5%/Lv) a EXP za zabití (+5%/Lv)
+107	LOVEC
+108	Snazší pohyb v boji s bossem. Výpad/ústup při útoku se prodlouží (+4% za Lv) a ke vzdálenému bossovi se přiblížíš rychleji (+3%/Lv)
+109	LEDOVÉ VĚZENÍ
+110	Snazší zmrazení (potřebný počet prochlazení -1 za 3 Lv). Šance a doba prochlazení také rostou
+111	INFERNO
+112	Poražení hořícího nepřítele rozšíří oheň kolem a zapálí okolí (síla a dosah rostou s Lv). Karta sama také občas zapálí
+113	ŽELEZNÁ VŮLE
+114	Při plném HP roste útok (+5% za Lv). Max. HP také roste (+1 srdce za 3 Lv)
+115	POČET SKOKŮ+
+116	Víc skoků ve vzduchu (+1 za Lv). Každý další skok je trochu slabší, ale ne při pádu do díry. Čarodějce se každé 3 Lv přidá 1 úroveň výšky
+117	SÍLA SKOKU+
+118	Síla skoku roste (+3% za Lv). Čarodějka mění výšku rychleji
+119	Když HP klesne na 1 srdce, získáš krátkou nesmrtelnost (1 s + 0.15 s za Lv). Znovu se spustí až chvíli po doplnění HP
+120	POSLEDNÍ VZDOR
+121	Při HP do 50% roste útok (+4% za Lv), při HP do 25% ještě víc (+4%/Lv)
+122	PRŮLOM ÚROVNĚ
+123	Získané EXP výrazně roste (+30% za Lv)
+124	DLOUHÁ ČEPEL
+125	Efektivní dosah útoku výrazně roste (+5% za Lv)
+126	DÁLKOVÝ BĚH
+127	Roste EXP (+15% za Lv) a max. HP (+1 srdce za 3 Lv)
+128	ZABIJÁK POTVOR
+129	Útok proti nepřátelům kromě bossů (+5% za Lv) a MILE za zabití (+10% za Lv) rostou
+130	HYBNOST
+131	Aktuální rychlost se mění v útok. Roste nad 100km/h, maximum při 150km/h (+4% za Lv). Dál už roste jen pomalu
+132	NÁJEZD PŘÍŠER
+133	Objevuje se víc nepřátel (+10% za Lv), ale roste EXP (+15%/Lv)
+134	VÍC NEPŘÁTEL
+135	Objevuje se víc nepřátel (+10% za Lv). MILE za zabití také mírně roste (+3%/Lv)
+136	BEZ NÁVRATU
+137	Rychlost pohybu výrazně roste (+5% za Lv), ale objevuje se víc nepřátel (+10%/Lv)
+138	ONE MORE MILE
+139	Roste MILE (+50% za Lv), MILE z bossů (+50%) a EXP (+20%)
+140	Při udržení 115km/h a víc nastane OVERDRIVE (útok +3% za Lv, rychlost útoku +2%). Při zpomalení skončí. Rychlost pohybu také mírně roste (+2% za Lv)
+141	PŘELÉČENÍ
+142	Léčení je silnější (Lv4-6: +1, Lv7-9: +2 srdce). Léčení při plném HP se změní na 1 Shield
+143	PANDEMONIUM
+144	HP/pohyb/výskyt/elity běžných nepřátel a HP bossů rostou, ale MILE (+60%/Lv) a MILE z bossů (+60%/Lv) rostou velmi výrazně
+145	PRŮKOPNÍK
+146	EXP za uběhnutou vzdálenost roste (+20% za Lv)
+147	DOKONALÝ BLOK
+148	Použití Shieldu dá krátkou nesmrtelnost (0.4 s + 0.1 s za Lv). I bez Shieldu můžeš mít 1
+149	Po pádu jednou oživí (HP 1-5 srdcí podle Lv). Po oživení se karta odebere a znovu se nabízí (znovu od Lv1)
+150	PRŮRAZNÁ ČEPEL
+151	Útoky probodávají nepřátele. Zblízka zasáhnou i nepřátele za cílem (počet a síla rostou s Lv), střely získají průraz (+1 za 3 Lv)
+152	PREDÁTOR
+153	Šance na vysátí roste (+3% za Lv). I útoky na bosse občas spustí vysátí
+154	RYCHLÉ OSTŘÍ
+155	Rychlost hlavního útoku (vpřed/vzad) roste (+5% za Lv). Neplatí pro útok nahoru/dolů/úder o zem/velké útoky
+156	ZPÁTEČKA
+157	Útok roste (+8% za Lv), ale rychlost pohybu klesá (-3% za Lv)
+158	Když HP klesne na 30% nebo níž, trochu se vyléčíš (1-3 srdce). Pak běží cooldown na vzdálenost (10,000m, s Lv kratší)
+159	ŠTÍT
+160	Shield zablokuje 1 zásah. Max. počet +1 za 3 Lv (max. 3), použité se časem obnoví (s Lv rychleji)
+161	RÁZOVÁ VLNA
+162	Zásah zblízka vyšle krátkou rázovou vlnu vpřed, střely ji vyšlou kolem místa dopadu (síla a dosah rostou s Lv)
+163	PÁN NEBE
+164	Útok ve vzduchu roste (+4% za Lv). Zásah ve vzduchu vrátí 1 skok ve vzduchu (1× za 3 Lv během jednoho letu)
+165	NEBESKÝ BĚŽEC
+166	Roste síla skoku (+2% za Lv) a útok ve vzduchu (+3% za Lv)
+167	K NEBESŮM
+168	Útok ve vzduchu výrazně roste (+11% za Lv), ale na zemi klesá (-5% za Lv)
+169	SONICKÁ ČEPEL
+170	Každý hlavní útok vyšle vpřed letící sek. Čím rychleji běžíš, tím dál letí a je větší a silnější
+171	ZPOMALENÍ
+172	Rychlost pohybu klesá (-4% za Lv). Zvláštní karta, kterou v sólu nemá moc smysl brát
+173	RYCHLOST+
+174	Rychlost pohybu roste (+3% za Lv)
+175	DLOUHÁ CESTA
+176	Roste EXP (+40% za Lv) a max. HP (+1 srdce za 2 Lv)
+177	PÁN HROMU
+178	Vyšší stupeň blesku. Síla (+4% za Lv), řetěz (+1 cíl za 3 Lv) a dosah kolem úderu blesku rostou
+179	ÚDER HROMU
+180	Vstup do blesku. Zásah sešle úder blesku (šance 5%+2%/Lv, síla 7.5+1.5/Lv; na stejného nepřítele max. 1× za 0.4 s)
+181	TORNÁDO
+182	Kde zasáhne větrná čepel, vznikne malé tornádo, které vtáhne okolní nepřátele (síla a dosah rostou s Lv). Karta sama také občas vyšle větrnou čepel
+183	ODOLNÍ NEPŘÁTELÉ
+184	HP běžných nepřátel roste (+15% za Lv), ale roste MILE (+15%/Lv) a EXP za zabití (+5%/Lv)
+185	LOVEC POKLADŮ
+186	MILE z pokladů a odměn (BONUS ZONE: goblin s pokladem/zlatý sliz/mimik/CLEAR/PERFECT, odměny WANTED) roste (+30% za Lv). MILE z bossů a ze vzdálenosti také mírně roste
+187	VŠEMOCNÝ
+188	Univerzální karta: zvýší útok (+3% za Lv), max. HP (+1 srdce za 2 Lv) a rychlost pohybu (+2% za Lv)
+189	UPÍR
+190	Po zabití nepřítele se šancí (+3% za Lv) obnoví 1 srdce HP
+191	WANTED
+192	V určitých vzdálenostech se objeví hledaný nepřítel (s Lv silnější a častější). Poraz ho pro odměnu, jinak ti uteče. MILE roste (+35%/Lv)
+193	VĚTRNÝ ŘEZ
+194	Vstup do větru. Zásah vyšle vpřed průraznou větrnou čepel (šance 10%+3%/Lv, síla 8+1.5/Lv). Dosah útoku také mírně roste (+1%/Lv)
+195	HRANIČÁŘ
+196	Natáhni, zamiř, probodni
+197	'Hraničář z hlubokých lesů
+198	ODSTŘELOVAČ
+199	DRAČÍ KOPINÍK
+200	Prorazit a nikdy necouvnout
+201	'Mladý dračí rytíř s kopím
+202	BOŘITEL
+203	DRAKONID
+204	Dráp, ocas, křídlo, plamen
+205	'Válečník s dračí krví.
+206	SILÁK
+207	DVOJITÁ ČEPEL
+208	Rychlá ocel, nekonečný pohyb
+209	'Hbitý bojovník se dvěma čepelemi, který řetězí údery
+210	POZEMNÍ COMBO
+211	RVÁČ
+212	Pěsti, které vracejí úder
+213	'Bojový umělec, který bojuje
+214	PISTOLNÍK
+215	Jeden výstřel, jedna vzdálenost
+216	'Dvě pistole, jediná ostrá linie palby.
+217	NA DÁLKU
+218	ČARODĚJKA
+219	Vznášej se nahoře, udeř dole
+220	'Čarodějka, která se nikdy nedotkne země.
+221	LÉTAJÍCÍ MÁG
+222	KNĚŽKA
+223	Zapečeť cestu vpřed
+224	'Exorcistka z horské svatyně.
+225	PEČETITELKA
+226	SHINOBI
+227	Zmiz, sekni, zmiz
+228	'Shinobi, který nikdy není tam, kam udeříš.
+229	MOBILITA
+230	ŠLECHTIČNA
+231	Hrdinka, která se ještě neprobudila
+232	'Oděná ve stříbře a zlatě, třímá
+233	VZNEŠENÁ RYTÍŘKA
+234	ŠERMÍŘ
+235	Ten, kdo jde stále dál
+236	'Osamělý šermíř, který jde vlastní cestou.
+237	VYVÁŽENÝ
+238	Čím déle, tím silnější
+239	'Šlechtic noci, který nepotřebuje čepel.
+240	KREV
+241	KARTY POSTAVY
+242	VÝBĚR POSTAVY
+243	VYBRAT
+244	ŽIVOT
+245	SÍLA
+246	VÝBĚR MAPY
+247	Vyrazit
+248	Doporučená sestava
+249	Odebrat vše
+250	Ano
+251	Ne
+252	POSLEDNÍ KORIDOR
+253	Nepřátelé: mix ze všech map (posílení)
+254	Prvky: hroutící se podlaha, padající konstrukce, plovoucí koridory
+255	Trasa: obří starověký koridor → kolaps → propast → poslední cesta
+256	Přírodní jeskyně
+257	Nepřátelé: mravenci / skokani / netopýři / červi
+258	Prvky: skalní strop, bodce na stropě, tma a pochodně
+259	Trasa: jediná cesta (hrozby na zemi, ve vzduchu, pod zemí i ze stropu)
+260	Nebeský koridor
+261	Nepřátelé: goblini + další se odemykají se vzdáleností
+262	Prvky: plovoucí plošiny ze skal a mraků, cesta v oblacích
+263	Trasa: čím dál, tím nebezpečnější
+264	Cesta pustinou
+265	Nepřátelé: goblini / ptáci
+266	Překážky: kameny, keříky, zdi, rozbitné stromy, obří balvany, díry
+267	Trasa: nahoře snadná / dole nebezpečná
+268	Padl jsi. Přes „Opakovat boj“ to hned zkusíš znovu
+269	HP plně doplněno
+270	Všichni nepřátelé a jejich útoky odstraněni (nepočítá se do času zabití)
+271	Poškození {0}    Utrženo {1}    {2} s
+272	Nesmrtelnost
+273	≡ Nastavení
+274	Opakovat boj
+275	Smazat nepřátele
+276	Domů
+277	Všichni poraženi  {0} s
+278	Soupeři
+279	Detaily
+280	Výsledek
+281	Tréninková aréna, kde si volně vyzkoušíš postavy a karty
+282	Začít s tímto nastavením
+283	Začít
+284	Test
+285	(test)
+286	Hledat
+287	<color=#8ce6ff>Test</color>
+288	+ Přidat
+289	Kopírovat aktuální balíček
+290	Kopírovat karty postavy
+291	Testovací build ({0} karet)
+292	Odebrat vše
+293	Lv = kolikrát byla karta v tomto běhu vzata (max. 9 na schopnost). Vlastněné karty ani balíček se nemění
+294	Karty přidáš tlačítkem „+ Přidat“ v seznamu vlevo. Zkoušet můžeš i bez karet
+295	Kopie vlastněné (fúze Lv{0}, {1} schopností)
+296	{0} karet z balíčku zkopírováno do testovacího buildu (balíček se nemění)
+297	Zkopírováno {0} karet postavy (počáteční Lv)
+298	Cvičný terč
+299	Běžní nepřátelé
+300	Bossové pustiny
+301	Bossové jeskyně
+302	Nebeští bossové
+303	Nehybný terč: neútočí (zásahy nezraňují) a nepadne. Na zkoušení útoků. Při běhu drží odstup od hráče
+304	Počet
+305	Síla pohybu
+306	Fáze
+307	Boss přichází zepředu se svým nástupem
+308	Útoky bossů z jeskyně/nebe využívající terén (díry/strop/padající kameny/pásy na nebi atd.) se na rovné aréně chovají jinak než v hlavní hře
+309	Max. 1 druh bosse (lze s běžnými nepřáteli)
+310	Přidat soupeře
+311	Max. 1 druh bosse (předchozí boss nahrazen)
+312	Aktuální soupeři ({0})
+313	Žádní soupeři (start bez nepřátel = zkoušíš jen pohyb)
+314	Síla nepřátel: jako na {0}km (HP/útok jako v hlavní hře na té vzdálenosti)
+315	Rychlost
+316	Stát (0km/h)
+317	Běh (základ + bonusy)
+318	Běh (pevná rychlost)
+319	Zastaví se jen automatický pohyb vpřed (útoky/skoky/gravitace/zapotácení/pohyb nepřátel jako v hlavní hře)
+320	Běží základní rychlostí násobenou bonusy postavy/karet (RYCHLOST+ apod.)
+321	Běží touto rychlostí bez bonusů (pro srovnání bez vlivu karet na rychlost)
+322	Teď: základ {0}km/h → skutečně {1}km/h (bonus ×{2})
+323	Nesmrtelnost / HP
+324	Nesmrtelnost: {0}
+325	Doplnit HP
+326	I při nesmrtelnosti se ve výsledku ukáže „skutečně utržené poškození“
+327	Asistence ovládání (stejná jako „Asistence při vysoké rychlosti“ v nastavení; jen v aréně, nastavení se nemění)
+328	OFF
+329	ON
+330	Vždy (vývoj. verze)
+331	Od rychlosti {0}km/h
+332	V aréně nefunguje: FINAL EVOLUTION / AWAKENED / Mastery / ukazatel ULTIMATE / postup úrovně / odměny bossů / BONUS ZONE (karty jen s běžným efektem Lv a COMBO. Odměny, záznamy ani vlastněné karty se nemění)
+333	Jen vývoj. verze
+334	Vybírat i nepotkané nepřátele: {0}
+335	Pevná náhoda: {0}
+336	Pomoc s ničením překážek: {0}
+337	Padl jsi
+338	Všichni poraženi {0} s
+339	Konec
+340	V boji
+341	Tento boj: {0}
+342	Způsobené poškození
+343	Zásahy
+344	Zabití
+345	Čas do zabití
+346	Utržené poškození (ztracené HP)
+347	Skutečné utržené poškození (vč. nesmrtelnosti/Shield)
+348	Doba boje
+349	{0} s
+350	{0} ({1}×)
+351	Teď
+352	Minule
+353	Podmínky teď: {0}
+354	Testovací build: {0}
+355	Minulé podmínky: {0}
+356	Minulý build: {0}
+357	Změnit nastavení
+358	??? (ještě nepotkán)
+359	Nehybný terč
+360	{0} / {1} karet / {2} / jako {3}km
+361	Bez karet
+362	(kopie vlastněných)
+363	Připravuji arénu
+364	ARÉNA
+365	MIMIK K.O.
+366	GOBLIN
+367	SLIZ
+368	VÍLA
+369	MIMIK
+370	MILE
+371	EXP
+372	JACKPOT!!
+373	BONUS ZONE!
+374	PERFEKTNÍ:
+375	JACKPOT SPLNĚN!
+376	BONUS SPLNĚN!
+377	JACKPOT  PERFEKTNĚ!
+378	PERFEKTNÍ BONUS!
+379	VÝSLEDEK JACKPOTU
+380	VÝSLEDEK BONUSU
+381	NEPŘÁTELÉ
+382	SPLNĚNO
+383	PERFEKTNÍ
+384	CELKEM
+385	NÁHODNĚ
+386	KONEC
+387	Návrat do běhu za {0}
+388	Aktuální
+389	{0} ran
+390	(pevné)
+391	Jedna z materiálových karet se používá v balíčku/kartách postavy
+392	Už AWAKENED (★5), Mastery dál neroste (karta se nespotřebuje. Využití přebytečných karet po ★5 přidáme později)
+393	Fúze není možná: Lv po fúzi by byla {0} (max. Lv.{1})
+394	Fúze není možná: bylo by {0} schopností (max. {1})
+395	Probíhá fúze
+396	Nedostatek karet
+397	<color=#ffd76a><b>[MASTERY] Trénink Lv.9 MAX</b></color>
+398	Hlavní karta zůstane (Lv.9 MAX), spotřebuje se jen materiálová karta.
+399	Aktuální Mastery: <color=#ffd76a>{0}</color>  {1}
+400	Tato fúze: <b>+{0} Mastery</b> (materiál Lv.{1} = {2} karet)
+401	Po fúzi: <color=#ffd76a>{0}</color>  {1}
+402	<size=19>(+{0} ★, zbytek se převede do dalšího ★)</size>
+403	<size=19>Přebytek {0} po ★5 se neztratí, uloží se</size>
+404	<color=#ff9a8a><size=19>Vedlejší schopnosti materiálu ({0}) se nepřenesou</size></color>
+405	<size=19>Mastery nezvyšuje běžné parametry (útok/rychlost/EXP atd.). Je to záznam tréninku a cesta k AWAKENED.</size>
+406	<color=#ff9a8a>Provedením se spotřebuje 1 materiálová karta.</color>
+407	<color=#ffd76a><b>[Posílení stejnou kartou → Lv.9 MAX] Úspěšnost 100%</b></color>
+408	Fúze Lv: Lv.{0} + Lv.{1} → <b>Lv.9 MAX</b>
+409	<b>{0}</b> nad Lv.9 se neztratí, jde do Mastery: {1} → <color=#ffd76a>{2}</color>{3}
+410	<b>Zděděné schopnosti (posílení max. 9)</b>
+411	・{0} <b>×{1}</b>
+412	<color=#ff9a8a>Provedením se 2 vybrané karty spotřebují (získáš 1 hotovou kartu Lv.9 MAX).</color>
+413	<color=#ffd76a><b>[Posílení stejnou kartou] Úspěšnost 100%</b></color>
+414	Fúze Lv: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+415	<b>Zděděné schopnosti (stejné se sčítají)</b>
+416	・{0} {1}<b>×{2}</b>  <size=18>({3} ×{4})</size>
+417	<color=#9fd0ff><b>[Fúze různých karet] Výsledek se losuje</b></color>
+418	<b>Fúze Lv hotové karty (podle výsledku)</b>
+419	・Obě strany uspějí: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+420	・Uspěje jen hlavní: <b>Lv.{0}</b> (jen Lv hlavní strany)
+421	・Uspěje jen materiál: <b>Lv.{0}</b> (jen Lv materiálu)
+422	・Obě selžou: žádná karta, vrátí se <color=#ffd76a>{0} MILE</color>
+423	<b>Hlavní strana: šance zdědit schopnosti {0}%</b>
+424	・{0} ×{1}  <size=18>({2} ×{3})</size>
+425	<b>Materiál: šance zdědit schopnosti {0}%</b>
+426	Obě uspějí: zdědí se všechny schopnosti obou stran (stejné se sčítají)
+427	Uspěje jedna strana: zdědí se jen její schopnosti, posílení a Lv (neúspěšná strana nezůstane)
+428	Pokud uspěje jen materiál, jeho hlavní schopnost se stane hlavní schopností hotové karty
+429	<size=18>(Vrácení při selhání obou =★{0}×Lv.{1}×{2} + ★{3}×Lv.{4}×{5})</size>
+430	<color=#ff9a8a>Provedením se 2 vybrané karty spotřebují.</color>
+431	Tuto kartu nevlastníš
+432	Nelze vybrat: používá se v balíčku i v kartách postavy
+433	Nelze vybrat: vybavena v kartách postavy
+434	Nelze vybrat: používá se v balíčku
+435	Potřebuješ 2 karty se stejnými vlastnostmi (vlastníš 1)
+436	Vyber hlavní a materiálovou kartu
+437	Nelze načíst údaje karty
+438	MASTERY ROSTE!
+439	Fúze: velký úspěch!
+440	Fúze úspěšná!
+441	<size=21>Postup o {0}★ (zbytek se převede do dalšího ★)</size>
+442	<size=21>Přebytek {0} po ★5 uložen (využiješ ho později)</size>
+443	<size=21>Karta je teď AWAKENED (trvalý záznam, běžné parametry se nemění)</size>
+444	Hlavní karta (Lv.9 MAX) zůstala, spotřebovala se 1 materiálová karta.
+445	<size=21>Mastery nezvyšuje běžné parametry (útok/rychlost/EXP atd.).</size>
+446	Fúze Lv.<b>{0}</b>{1}
+447	<color=#ffd76a>Posílení stejnou kartou (jisté)</color> … zdědí všechny schopnosti obou
+448	Hlavní ({0} Lv.{1}): {2}
+449	Materiál ({0} Lv.{1}): {2}
+450	Jen Lv hlavní strany
+451	Jen Lv materiálu
+452	<size=21>Výsledná Lv.{0} = {1}</size>
+453	<b>Hlavní schopnost</b>
+454	<b>Vedlejší schopnosti ({0}/{1})</b>
+455	Žádné
+456	Fúze selhala…
+457	Hlavní ({0} Lv.{1}): <color=#9aa3b8>dědění selhalo</color>
+458	Materiál ({0} Lv.{1}): <color=#9aa3b8>dědění selhalo</color>
+459	2 vybrané karty byly spotřebovány.
+460	Vrácené MILE  <color=#ffd76a><b><size=40>+{0}</size></b></color>
+461	Vlastněné MILE  <b>{0}</b>
+462	<color=#ffd76a><b>Posílení ×{0}→×{1}</b></color>
+463	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3} ×{4})</color></size>
+464	Zpět
+465	Fúze karet
+466	Řadit
+467	Hlavní
+468	Materiál
+469	Karty
+470	Vybráno
+471	Provést fúzi
+472	Přeskočit ▶▶
+473	Další fúze
+474	Zpět na seznam
+475	Vlastněné MILE  {0}
+476	{0} druhů / celkem {1}
+477	Hlavní karta
+478	Materiálová karta
+479	Vše
+480	Pohyb
+481	Útok
+482	Obrana
+483	Růst
+484	Léčení
+485	Speciální
+486	Riziko
+487	Vyber 2 karty
+488	Fúze není možná
+489	Název
+490	Úroveň
+491	Vzácnost
+492	Počet
+493	Vlastníš {0}  Použitelné<color=#{1}
+494	Schopnosti {0}
+495	Hlavní+materiál
+496	Používá se
+497	<color=#ffd76a><b>{0}</b></color>  <b>{1}</b>  {2}  Fúze Lv.{3}{4}
+498	Hlavní schopnost: {0}
+499	Vedlejší schopnosti ({0}):
+500	・{0}
+501	Vedlejší schopnosti: žádné
+502	<size=19><color=#b7bfd8>Vlastníš {0} / použitelné {1}</color></size>
+503	Vyber kartu ze seznamu vlevo.
+504	Karta se vloží do vybraného (svítícího) slotu. Klepnutím na slot přepneš cíl, × výběr zruší.
+505	・Stejné karty … se 100% úspěšností se sečte fúze Lv i všechny schopnosti
+506	・Různé karty … hlavní strana 50% / materiál 25% šance zdědit sadu schopností (los). Když uspěje jen jedna strana, zůstane jen její Lv a schopnosti
+507	・Max. fúze Lv je Lv.9. U stejných karet jde přebytek nad Lv.9 do Mastery (různé karty se součtem nad Lv.9 spojit nelze)
+508	・Fúze stejné karty s kartou Lv.9 MAX zvyšuje Mastery (★5 = AWAKENED)
+509	<size=19>Dosaženo ★5 (AWAKENED). Využití přebytečných karet po ★5 přidáme později (teď se fúzí nespotřebují).</size>
+510	Vyber stejnou kartu ({0}) jako materiál a Mastery vzroste o její Lv (Lv.1 = +1).
+511	Teď vyber materiálovou kartu.
+512	Teď vyber hlavní kartu.
+513	Tato karta je AWAKENED (★5)
+514	Hotová karta nastavena jako hlavní. Vyber materiálovou kartu
+515	Jisté posílení
+516	AWAKENED!
+517	Lv.9 MAX dosaženo!
+518	Posílení dokončeno!
+519	Velký úspěch! Zděděny schopnosti obou stran
+520	Zděděny schopnosti hlavní strany
+521	Zděděny schopnosti materiálu
+522	Dědění selhalo…  Karty se změnily v MILE
+523	{0}: dědění úspěšné!
+524	{0}: dědění selhalo
+525	Zaměření: rychlost
+526	Zaměření: obrana
+527	Zaměření: krev
+528	Zaměření: oheň
+529	Zaměření: led
+530	Zaměření: blesk

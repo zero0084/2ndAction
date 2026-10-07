@@ -52,8 +52,8 @@ public class ArenaLauncher : MonoBehaviour
         coverStyle.fontSize = Mathf.RoundToInt(46 * s); coverStyle.normal.textColor = new Color(1f, 0.86f, 0.55f);
         coverSub.fontSize = Mathf.RoundToInt(22 * s); coverSub.normal.textColor = new Color(0.85f, 0.78f, 0.68f);
         int dots = 1 + (int)(Time.unscaledTime * 2.5f) % 3;
-        GUI.Label(new Rect(0, Screen.height * 0.5f - 60 * s, Screen.width, 70 * s), "闘技場を準備中" + new string('.', dots), coverStyle);
-        GUI.Label(new Rect(0, Screen.height * 0.5f + 20 * s, Screen.width, 40 * s), "ARENA", coverSub);
+        LocGUI.Label(new Rect(0, Screen.height * 0.5f - 60 * s, Screen.width, 70 * s), Loc.T("闘技場を準備中") + new string('.', dots), coverStyle);
+        LocGUI.Label(new Rect(0, Screen.height * 0.5f + 20 * s, Screen.width, 40 * s), "ARENA", coverSub);
         // 覆っている間のタッチ/クリックは下へ通さない
         if (Event.current != null && (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp)) Event.current.Use();
     }

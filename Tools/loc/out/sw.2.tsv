@@ -1,0 +1,531 @@
+531	Upepo Kwanza
+532	Bosi Kwanza
+533	EXP Kwanza
+534	MILE Kwanza
+535	Changamoto Nyingi
+536	Mashambulizi ya ziada yote (jaribio la mzigo)
+537	Mchanganyiko wa kawaida
+538	Shambulio Kwanza
+539	Hatari Kali (HP hutolewa)
+540	JIBU LA NGAO
+541	OVERDRIVE
+542	VFX ndogo ya nguvu unapogonga
+543	Taswira za kasi ya juu zilizoimarishwa
+544	Blood Aura unapopona
+545	Madoido ya kufufuka yaliyoimarishwa / faida ndogo ya ziada
+546	VFX maalum inapowashwa
+547	Madoido ya mwisho ya mbinu maalum/aura maalum/madoido ya BUFF/VFX ya pigo la mwisho (uharibifu hauongezeki)
+548	ANATAFUTWA! Mhalifu mwenye zawadi ametokea
+549	ZAWADI!
+550	COMBO!
+551	{0} sek
+552	{0}m zinazofuata
+553	FINAL EVOLUTION: KUZALIWA UPYA
+554	NAFASI YA MWISHO
+555	PUMZI YA PILI
+556	FENIKSI
+557	Amebamiza mkia na kukwama! Nafasi ya kushambulia!
+558	Macho yamedhoofika! Kichwa ndicho udhaifu!
+559	Kichwa kimeshuka! Nafasi ndefu ya kujibu!
+560	Ruka!
+561	Shuka!
+562	Nguvu za uchawi zimeisha! Nafasi ndefu ya kushambulia!
+563	Amepinduka! Nafasi kubwa!
+564	Mkia umekwama ardhini! Nafasi ya kushambulia!
+565	Ana kizunguzungu! Nafasi ya kushambulia!
+566	Rungu limekwama! Nafasi ya kushambulia!
+567	Kichwa kimebaki ardhini! Nafasi ya kushambulia!
+568	Kiini kiko wazi! Rahisi kuvunja!
+569	Amegonga ardhi! Nafasi ya kushambulia!
+570	Mipangilio ya kadi ▶
+571	<color=#FFD866><b>Kadi za Mhusika</b></color>
+572	<color=#8890A0>(tupu)</color>
+573	IMEFUNGWA
+574	Masharti ya kufungua:
+575	[Kuu]
+576	[Ziada]
+577	Kasi ya mwendo
+578	Nguvu ya shambulio
+579	Nguvu ya kuruka
+580	Idadi ya miruko
+581	HP ya juu
+582	Eneo la shambulio
+583	Kasi ya shambulio
+584	Shambulio angani
+585	Shield
+586	EXP inayopatikana
+587	Uwezekano wa kufyonza
+588	Kiasi cha kufyonza
+589	Kiwango cha maadui kujitokeza
+590	Shambulio ardhini
+591	Nguvu ya pigo la mwisho
+592	Nguvu ya pigo la kwanza
+593	Shambulio ukikaribia kufa
+594	Shambulio HP ikiwa imejaa
+595	Shambulio ukiongeza kasi
+596	Shambulio dhidi ya bosi
+597	HP ya maadui
+598	HP ya bosi
+599	MILE inayopatikana
+600	MILE ya bosi
+601	Uwezekano wa kuungua (Burn)
+602	Nguvu ya kuungua
+603	Muda wa kuungua
+604	Uwezekano wa baridi (Chill)
+605	Kupunguza kasi kwa baridi
+606	Muda wa baridi
+607	Mrundikano hadi kuganda
+608	Muda wa kuganda
+609	Uwezekano wa radi
+610	Nguvu ya radi
+611	Idadi ya mnyororo
+612	Umbali wa mnyororo
+613	Uwezekano wa wembe wa upepo
+614	Nguvu ya wembe wa upepo
+615	Idadi ya kutoboa
+616	Masafa ya wembe wa upepo
+617	Uwezekano wa kuvuja damu (Bleed)
+618	Nguvu ya kuvuja damu
+619	Muda wa kuvuja damu
+620	Kufyonza kwa kuvuja damu
+621	Kuvuja damu kukali ukikaribia kufa
+622	Kasi ya shambulio kuu
+623	Eneo halisi la shambulio
+624	HP ya juu (mioyo)
+625	Mioyo inayofungwa
+626	Shambulio angani
+627	Shambulio ardhini
+628	Pigo la kwanza
+629	Katikati ya mfululizo
+630	Pigo la mwisho
+631	Shambulio dhidi ya bosi
+632	Shambulio dhidi ya maadui wadogo
+633	Shambulio dhidi ya maadui angani
+634	Shambulio la chini/kubamiza
+635	Shambulio HP ikiwa kamili
+636	Shambulio HP 50% au chini
+637	Shambulio HP 25% au chini
+638	Kasi ya shambulio HP ikiwa chini
+639	Kufyonza HP 25% au chini
+640	Shambulio kwa kila moyo uliofungwa
+641	Shambulio kwa kila pigo
+642	Shambulio kwa kila pigo angani
+643	Shambulio kwa 150km/h
+644	Shambulio wakati wa OVERDRIVE
+645	Kasi ya shambulio wakati wa OVERDRIVE
+646	Idadi ya juu ya Shield
+647	Kurejea kwa Shield (sek zilizopunguzwa)
+648	Kiasi cha kupona (mioyo)
+649	Uwezekano wa shambulio la ziada
+650	Kutodhurika baada ya kupigwa (sek)
+651	Kupunguza kuyumba
+652	Kasi ya matendo ya maadui
+653	Uwezekano wa maadui hodari
+654	MILE ya hazina/zawadi
+655	MILE ya umbali
+656	EXP ya umbali
+657	EXP ya kuua
+658	Idadi hadi kuganda
+659	Nguvu ya radi
+660	Kusimamisha kwa radi (sek)
+661	Eneo la radi (m)
+662	Kasi ya wembe wa upepo
+663	Lv ya athari
+664	Inatumika, haiwezi kubadilishwa
+665	Unazo x{0}
+666	Gusa kadi kuona maelezo
+667	[Kadi ya mhusika mwingine]
+668	Kadi hii inatumika sasa. Iondoe kwanza kisha uitumie.
+669	 ibadilishwe kuwa {CardConvertMile} MILE?
+670	Badilisha deki ya sasa
+671	kuwa mpangilio bora?
+672	Ondoa kadi zote
+673	kwenye deki?
+674	Joka limeshuka chini! Nafasi ya kujibu!
+675	Awamu ya mwisho!
+676	BREAK!
+677	MOTO WA JOKA UNAJAA
+678	Tufe kubwa la moto wa jehanamu
+679	Moto {0}% {1}/s {2}s
+680	Barafu {0}% -{1}% {2}s Kuganda mara {3}/{4}s
+681	Sifuri Kamili Lv{0}
+682	Radi {0}% {1} Mnyororo {2} Eneo {3}m Kusimama {4}s
+683	Upepo {0}% {1} Kutoboa +{2} {3}m
+684	Damu {0}%{1}
+685	KADI MPYA
+686	NAKALA
+687	(Tayari AWAKENED, imehifadhiwa)
+688	→ MASTERY +1 kwa muunganiko
+689	Gusa kuendelea (zimebaki {0})
+690	Gusa kufunga / Gusa gacha kuvuta tena
+691	IJAYO
+692	OK
+693	MILE hazitoshi
+694	Imesitishwa ― angalia mazingira kisha uendelee
+695	Endelea ukiwa tayari
+696	GO!
+697	UFUNGUZI MPYA:
+698	TAYARI
+699	KASI
+700	KASI IMEPANDA!
+701	Sababu ya kusimama ya kusubiri uchaguzi pekee ilibaki
+702	Sababu ya kusimama ya menyu ya pause pekee ilibaki
+703	Mwendo wa polepole wa kuingia kwa bosi ulikuwa mrefu mno
+704	Mwendo wa polepole wa kuingia kwa bosi pekee ulibaki
+705	ZAWADI YA BOSI
+706	KIWANGO KIMEPANDA
+707	Inasubiri uchaguzi lakini skrini haikuwepo → imeonyeshwa tena ({0}, mara {1}, ok={2})
+708	Inasubiri uchaguzi lakini skrini haiwezi kuonyeshwa → imetatuliwa bila uchaguzi ({0})
+709	Skrini za uchaguzi hazikulingana → zimefungwa na {0} imeonyeshwa upya
+710	BEST
+711	UMBALI
+712	II
+713	HATUA:
+714	MBIO MPYA
+715	MCHEZO UMEKAMILIKA
+716	UMESHINDWA
+717	MUDA
+718	MAADUI WALIOUAWA
+719	MABOSI WALIOUAWA
+720	BONASI
+721	BONUS ZONE
+722	BONASI YA PETE
+723	JUMLA YA EXP
+724	MABORESHO YALIYOPATIKANA
+725	JUMLA YA MILE
+726	MAADUI / MABOSI
+727	JUMLA YA EXP / MABORESHO
+728	Ulichopoteza: MILE za mbio hizi {0}
+729	Kinachobaki: rekodi ya umbali BEST (mpya!), umbali wote uliokimbia
+730	Kinachobaki: rekodi ya umbali BEST, umbali wote uliokimbia
+731	Kadi ulizonazo, MILE (POCHI {0})
+732	HP
+733	Zimefungwa {0}
+734	Shield {0}
+735	MAX
+736	Muunganiko Lv.{0}  Uwezo aina {1}
+737	Kasi tu x{0} (nafasi za uwekaji hazibadiliki)
+738	MSAADA ON
+739	MSAADA OFF
+740	Hivi karibuni:{0} ({1})
+741	Haiwezekani:{0}
+742	Vizuizi:{0} vunja{1}/ruka{2}/haiwezekani{3}
+743	{0} Ukaguzi {1}km/h (ON≧{2}/OFF<{3}){4}{5}
+744	Mandhari: {0}
+745	[Hakiki]
+746	Zimepakiwa {0} {1}MB
+747	Mandhari◀
+748	Mandhari▶
+749	Mpito
+750	Kawaida
+751	Kwenye mpaka
+752	Mipangilio
+753	Uwanja
+754	Uwanja (IMEFUNGWA)
+755	Uwanja bado haujafunguliwa
+756	Masharti ya kufungua: {0}
+757	DEBUG
+758	Mbio za sasa na MILE zisizothibitishwa
+759	zitafutwa. Una uhakika?
+760	Futa na uanze MBIO MPYA
+761	Ghairi
+762	ENDELEA
+763	RUDI NYUMBANI
+764	Unarudi Nyumbani.
+765	Mbio hazitaisha; utaweza
+766	KUENDELEA kutoka hapa.
+767	Kadi hii inatumika mahali pengine
+768	{0} haiwezi kuwekwa: pamoja na kadi zingine za mhusika inazidi Lv{1} (ziada haifanyi kazi)
+769	Tahadhari: {0} pamoja na kadi zingine za mhusika inazidi Lv{1} ({2} Lv za ziada hazifanyi kazi)
+770	BOSS RUSH  Pigana ukikimbia! WARNING inakaribia! Waue mabosi waliobaki! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+771	ZAIDI YA MIPAKA
+772	DADA WATATU WAVUNAJI
+773	DADA WATATU
+774	ONE MORE MILE?
+775	Amekasirika!
+776	SHAMBULIO LA UCHAWI WA ANGANI
+777	Jini amekwama! Nafasi ya kushambulia!
+778	TOLEO HALILINGANI
+779	INAENDELEA
+780	IMEJAA
+781	WAZI
+782	BOSI:
+783	HOST
+784	JOIN
+785	BOSI
+786	LENGO
+787	PIGO LA MWISHO KWA BOSI:
+788	ADUI ALIYEUAWA:
+789	Cheza na vifaa vilivyo kwenye Wi-Fi moja au tethering ya simu (wachezaji hadi
+790	).
+791	MTANDAONI (inaandaliwa)
+792	ZA JUU (ingiza IP moja kwa moja, kwa dev)
+793	Funga
+794	Wachezaji wengi {0}/{1}
+795	Wachezaji wengi
+796	Chagua aina ya mchezo
+797	Ukianguka uko DOWN. Mwenzako (HP 2+) akifika ulipoanguka na kukupa HP 1, unafufuka. Wote wakiwa DOWN, mchezo unaisha.
+798	Ukianguka unatolewa (hakuna kufufuka). Inaendelea hadi abaki 1, na nafasi huamuliwa kwa umbali uliofikiwa.
+799	CO-OP
+800	VERSUS
+801	Tengeneza chumba kwenye kifaa hiki. Kitaonekana kwenye "FIND GAME" ya vifaa vya karibu.
+802	Tafuta chumba cha karibu ujiunge (hakuna haja ya kuingiza IP).
+803	Vyumba vya karibu ({0} kimechaguliwa. Mtacheza kwa aina ya HOST)
+804	MUUNGANISHO UMESHINDIKANA
+805	Haikuweza kuunganisha. Hakikisha mko kwenye Wi-Fi moja, kisha jaribu tena
+806	MUUNGANISHO UMESHINDIKANA:
+807	Inaunganisha… {0}
+808	Inatafuta michezo ya karibu…
+809	Hakuna mchezo uliopatikana
+810	Kwenye kifaa cha HOST bonyeza "CREATE GAME", kisha unganisha kwenye Wi-Fi moja (tethering).
+811	Tafuta tena
+812	Chumba ulichomo
+813	AINA: {0} (HOST anaamua)
+814	AINA: HOST anaamua (inalinganishwa kiotomatiki mbio zikianza)
+815	Kinaonekana kwenye "FIND GAME" ya vifaa vya karibu
+816	Mkiwa tayari: "Funga" → mlango → kwenye Chagua Ramani bonyeza "Anza Safari", wote wataanza ramani moja kwa wakati mmoja.
+817	Mbio zitaanza kiotomatiki HOST akianza safari. Tafadhali subiri.
+818	Funga chumba
+819	Ondoka
+820	Funga (chumba kinabaki)
+821	ZA JUU: Unganisha kwa IP (kwa dev)
+822	Unganisha kwenye Wi-Fi moja au tethering ya simu (wachezaji hadi {0}).
+823	(Haipatikani - angalia mipangilio ya Wi-Fi ya kifaa)
+824	IP ya kifaa hiki:
+825	Hali:
+826	CO-OP: Ukianguka uko DOWN. Mwenzako (HP 2+) akifika ulipoanguka na kukupa HP 1, unafufuka. Wote wakiwa DOWN, mchezo unaisha.
+827	VERSUS: Ukianguka unatolewa (hakuna kufufuka). Inaendelea hadi abaki 1, na nafasi huamuliwa kwa umbali uliofikiwa.
+828	AINA: HOST anachagua (inalinganishwa kiotomatiki mbio zikianza)
+829	Port
+830	HOST (tengeneza chumba kwenye kifaa hiki)
+831	JOIN: Ingiza IP inayoonyeshwa kwenye kifaa cha HOST
+832	Wachezaji waliounganishwa {0}/{1}
+833	Mlango → kwenye Chagua Ramani bonyeza "Anza Safari", wote waliounganishwa wataanza ramani moja kwa wakati mmoja.
+834	Funga chumba (maliza HOST)
+835	Tenganisha
+836	WACHEZAJI WENGI: Imetenganishwa
+837	UI:
+838	Rudi Nyumbani
+839	Endelea kukimbia
+840	MATOKEO YA VERSUS
+841	MATOKEO YA CO-OP
+842	Inasubiri HOST aanze safari
+843	Bado kuna wachezaji wanaokimbia
+844	HOST: inasubiri wachezaji
+845	Hitilafu ya kuanzisha
+846	Muunganisho wa awali unafungwa. Subiri kidogo kisha jaribu tena
+847	HOST haikuweza kuanzishwa (huenda port inatumika)
+848	Muundo wa anwani ya IP si sahihi (mfano: 192.168.1.23)
+849	Inaunganisha… {0}:{1}
+850	JOIN haikuweza kuanzishwa
+851	HOST: {0}/{1} wameunganishwa
+852	JOIN: Imeunganishwa {0}
+853	MUUNGANISHO WA WACHEZAJI WENGI UMEKATIKA
+854	Mchezaji mwingine
+855	ametenganishwa
+856	Muunganisho na HOST umekatika
+857	Muunganisho umekataliwa:
+858	CHUMBA KIMEJAA
+859	MBIO ZINAENDELEA
+860	Haikuweza kuunganisha na HOST
+861	Hitilafu ya mawasiliano imetokea
+862	OMM-NET-
+863	PS5
+864	TOROKA
+865	Gusa tena kuthibitisha
+866	Gusa kadi kuichagua
+867	AWAKENED
+868	FINAL EVOLUTION
+869	IMEWEKWA
+870	MPYA
+871	Nguvu Lv{d.level:0.0}{(d.def.risk ?
+872	COMBO
+873	Mhusika
+874	Deki
+875	Fika {1}m kwenye {0}
+876	Bora {0}m / {1}m
+877	Mchezo uishe kwa 1,000m au chini kwenye ramani yoyote
+878	IMEFUNGULIWA:
+879	MHUSIKA MPYA:
+880	Ingia kupitia "Uwanja" nyumbani.
+881	Unaweza kuanza safari kutoka uchaguzi wa ramani.
+882	{0} imefunguliwa
+883	{0} amejiunga nawe
+884	Unaweza kumchagua kwenye uchaguzi wa mhusika.
+885	Kwako uliyeendelea kukimbia.
+886	Njia ya mwisho imefunguka.
+887	Sauti
+888	(Sauti haipatikani)
+889	Jumla
+890	Muziki
+891	Madoido
+892	Sauti za mazingira
+893	Lugha / Language
+894	Lugha
+895	Inaonyesha kwa lugha uliyochagua
+896	Inafuata lugha ya kifaa
+897	Onyesho
+898	Mwelekeo wa skrini
+899	Mlalo
+900	Wima
+901	Kutikisika kwa skrini
+902	Madoido ya mwanga
+903	※Ishara za mashambulizi ya maadui na maonyesho muhimu ya udhibiti hayapungui
+904	Udhibiti
+905	(Msaada wa kiotomatiki haupatikani)
+906	Msaada wa kasi ya juu
+907	Kasi ya kuanza msaada
+908	Kasi ya kukimbia ikizidi thamani hii, kuruka juu ya mashimo/vizuizi/maadui na
+909	kushambulia husaidiwa kiotomatiki (udhibiti wako unatangulia)
+910	Jinsi ya kucheza
+911	Fanya mazoezi ya udhibiti
+912	Fanya mazoezi ya shambulio mbele/nyuma, kuruka, shambulio la chini, kurusha juu na kadi (bila zawadi)
+913	Mazoezi yanaanzishwa nyumbani (si wakati wa mbio/wachezaji wengi)
+914	Mkono mkubwa umebaki jukwaani! Nafasi kubwa!
+915	Kiini kimefifia! Rahisi kuvunja!
+916	Kichwa kiko karibu! Nafasi ya kushambulia!
+917	Amepoteza mizani! Nafasi ya kujibu!
+918	Kujijenga upya kumeshindikana! Kiini kiko wazi!
+919	Moto umepungua! Nafasi ya kushambulia!
+920	Kichwa kimetoka chini ya mawingu! Nafasi ya kushambulia!
+921	Duara la mwanga limetoweka! Nafasi ndefu ya kujibu!
+922	Umeme umetoweka! Nafasi kubwa ya kujibu!
+923	Mbio za kasi… ({0})
+924	Mbio za kasi…
+925	Mbio za kasi  {0}
+926	Pita kwa kasi sehemu ulizoshinda tayari na uanze kukimbia kidogo kabla ya lango ulilochagua. Kadi za zawadi za mabosi njiani hupatikana kiotomatiki. Ukipita pete kila 5,000m, unachagua kadi 1 ya ziada.
+927	Mbio za kasi hadi {0}km   (takriban sek {1} + pete){2}
+928	(Toleo la dev: DEBUG kufungua yote ni ON)
+929	Umbali usiohusika
+930	DEBUG fungua yote
+931	Hujafika {0}km (bora {1}km)
+932	Mlinzi wa lango wa {0}km hajashindwa
+933	Mbio za kasi zinaendelea!
+934	PETE!  Hakuna kadi ya kuchukua sasa
+935	Umeikosa pete
+936	KADI YA BONASI
+937	PETE!
+938	Hakuna kadi ya kuchukua sasa
+939	Kadi zote kwenye deki zimefika Lv9.
+940	Zawadi za pete zinazofuata ni MILE
+941	Kitufe cha msalaba / stick juu-chini (A = juu / B = chini)
+942	Vitufe ↑↓ / W/S
+943	Telezesha juu/chini / ▲▼ chini kulia
+944	Mbio za kasi  →  kabla ya lango la {0}m
+945	Zawadi za bosi zilizochukuliwa kiotomatiki {0}/{1}   Pete {2}/{3}{4}
+946	Kadi zote za deki Lv{0} MAX
+947	Zawadi ya pete ni +{0} MILE
+948	Hakuna kadi ya kuchukua sasa (×{0})
+949	Tumia {0} kulinganisha urefu na kupita kwenye pete (ukikosa hupotezi chochote)
+950	Juu/chini kusonga / Pita pete kwa +MILE
+951	Juu/chini kusonga / Pita pete kwa kadi ya ziada
+952	Kadi zote kwenye deki ni Lv9. Zawadi ya pete ni MILE
+953	Shikilia kitufe H (au kitufe cha kipanya) kwa sek 3
+954	Shikilia kitufe BACK kwa sek 3
+955	Shikilia skrini kwa sek 3
+956	Kwa wanaoanza
+957	Unaweza kufanya mazoezi ya udhibiti kwanza (dakika 2–3, bila kikomo cha muda).
+958	Mazoezi hayaongezi zawadi wala rekodi.
+959	Unaweza kufanya mazoezi wakati wowote baadaye kupitia "Jinsi ya kucheza" kwenye mipangilio.
+960	Sasa unaweza kutoroka
+961	{0} ili kutoroka,
+962	na kurudi na MILE ulizokusanya kwenye mbio hizi.
+963	Ukianguka, MILE za mbio hizi zinapotea.
+964	(Rekodi ya umbali BEST inabaki)
+965	Pia ni sawa kuendelea kukimbia. Kutoroka ni hiari yako.
+966	Umerudi na MILE!
+967	MILE zinatumika kwenye gacha nyumbani ({0} MILE kwa kuvuta 1).
+968	Weka kadi ulizovuta kwenye deki ili mbio zijazo ziwe na nguvu zaidi.
+969	Anza moja kwa moja
+970	Nimeelewa
+971	(Taarifa {0})
+972	Deki imepangwa
+973	Kadi {1} zilizozidi kikomo cha deki (kadi {0}) zimeondolewa kwenye deki.
+974	Kadi bado ziko kwenye orodha ya ulizonazo. Zibadilishe kwenye uhariri wa deki.
+975	Deki sasa ina kadi 12
+976	Inaandaliwa
+977	Telezesha kulia (mbele)
+978	Vitufe → / D / Z
+979	Kitufe X (stick ya kulia →)
+980	Telezesha kushoto (nyuma)
+981	Vitufe ← / A / X
+982	Kitufe Y (stick ya kulia ←)
+983	Telezesha juu
+984	Vitufe ↑ / W / Space
+985	Kitufe A (stick ya kulia ↑)
+986	Telezesha chini
+987	Vitufe ↓ / S
+988	Kitufe B (stick ya kulia ↓)
+989	Ruka
+990	Shambulio la chini
+991	Rusha juu → shambulio angani
+992	Chagua kadi
+993	Mazoezi yamekwisha
+994	Mhusika hukimbia kiotomatiki.
+995	Telezesha mbele au nyuma kushambulia upande huo.
+996	Mbele: {0}
+997	Nyuma: {0}
+998	Telezesha juu kuruka.
+999	Ukiwa hewani, telezesha juu tena kwa kuruka mara mbili.
+1000	Ruka: {0}
+1001	Ukiwa unaruka, telezesha chini kushuka kwa kasi moja kwa moja na kushambulia.
+1002	Itumie ukiwa juu ya ardhi imara.
+1003	Shambulio la chini: {0}
+1004	Ukiruka karibu na adui, shambulio la juu humrusha hewani.
+1005	Adui aliye hewani unaweza kumfuatilia kwa shambulio angani.
+1006	(Kama ni ngumu, unaweza kupita hatua hii)
+1007	Ukikimbia kiwango hupanda, na unachagua kadi 1 kati ya 3.
+1008	Uimarishaji uliochagua unafanya kazi kwa mbio hizo tu.
+1009	Hapa ni mazoezi, kwa hivyo athari ni ndani ya mazoezi haya tu.
+1010	Hayo ndiyo udhibiti wa msingi.
+1011	Kwanza, lenga bosi wa 1,000m!
+1012	Shambulia mbele [{0}]   Shambulia nyuma [{1}]
+1013	Ruka [{0}]   Ruka mara mbili [{1}]
+1014	Ukiwa unaruka, juu tena
+1015	Ruka kisha chini [{0}]
+1016	Kwanza ruka kwa juu → hewani chini
+1017	Rusha juu [{0}]   Shambulio angani [{1}]
+1018	Ruka karibu kabisa mbele ya adui
+1019	Ukiwa unaruka, shambulia mbele adui aliye hewani
+1020	Chagua kadi 1
+1021	Acha mazoezi
+1022	Anza safari
+1023	Rudi nyumbani
+1024	Fanya mazoezi tena
+1025	Jaribu
+1026	Pita
+1027	Jaribu kuchagua
+1028	OK!
+1029	Si kwa wachezaji wengi
+1030	Inafanya kazi
+1031	Haipatikani sasa
+1032	Bosi anaingia
+1033	Unapigwa
+1034	Kwenye BONUS
+1035	ULTIMATE
+1036	WENGI×
+1037	MKATO MWEUSI
+1038	PIGO LA MAUA YA CHERRY NA WARIDI
+1039	NGOMA PACHA
+1040	MOTO WA PANDE ZOTE
+1041	MSUKUMO WA KUUA JOKA
+1042	UCHAWI MKUU: ARDHI SIFURI
+1043	BWANA WA MVUA
+1044	NGUMI MFULULIZO ZA ARI
+1045	VIVULI PACHA VYA KASI
+1046	JOTO KUPITA KIASI
+1047	MWISHO
+1048	UZIO WA MILIPUKO
+1049	Hakuna kadiInafanya kaziInachaguliwaBosi anaingiaHaipatikani sasaUnapigwaKwenye BONUSInaandaliwa
+1050	MITELEZO MITATU YA DHORUBA
+1051	MAPIGO YA VICHWA VITATU
+1052	Nafasi!
+1053	NGUZO ZA KUZIMU
+1054	MIKATO MITATU YA UPANGA MWEUSI
+1055	SHAMBULIO LA FARASI
+1056	NYOKA MKUBWA APASUAYE ARDHI
+1057	RUNGU KUU LA KUANGUSHA MBINGU
+1058	NGOMA YA MAUTI YA MIGUU MINANE
+1059	SHAMBULIO LA UPEPO LA KUPITA
+1060	GHADHABU YA ARDHI
+1061	Kiini kiko wazi!

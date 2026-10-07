@@ -60,9 +60,9 @@ public class SprintDeparturePanel : MonoBehaviour
         UiKit.Fill(panel, new Color(0.06f, 0.08f, 0.15f, 0.97f));
         float y = panel.y + 20f * s, x = panel.x + 28f * s, w = pw - 56f * s;
         var st = StageDatabase.FindById(stageForPanel);
-        GUI.Label(new Rect(x, y, w, 50f * s), $"疾走出発  {(st != null ? st.displayName : stageForPanel)}", UiKit.Label(34f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f)));
+        LocGUI.Label(new Rect(x, y, w, 50f * s), $"疾走出発  {(st != null ? st.displayName : stageForPanel)}", UiKit.Label(34f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f)));
         y += 52f * s;
-        GUI.Label(new Rect(x, y, w, 70f * s), "攻略済みの区間を一気に駆け抜け、選んだ関門の少し手前から走り始めます。途中のボス報酬ぶんのカードは自動で取得。5,000mごとのリングをくぐると追加で1枚選べます。", UiKit.Label(20f * s, TextAnchor.UpperLeft, false, new Color(0.85f, 0.9f, 1f)));
+        LocGUI.Label(new Rect(x, y, w, 70f * s), "攻略済みの区間を一気に駆け抜け、選んだ関門の少し手前から走り始めます。途中のボス報酬ぶんのカードは自動で取得。5,000mごとのリングをくぐると追加で1枚選べます。", UiKit.Label(20f * s, TextAnchor.UpperLeft, false, new Color(0.85f, 0.9f, 1f)));
         y += 80f * s;
         var list = SprintRecords.Destinations(stageForPanel);
         foreach (var d in list)
@@ -79,7 +79,7 @@ public class SprintDeparturePanel : MonoBehaviour
             }
             y += 68f * s;
         }
-        if (SprintRecords.DevUnlockAll) GUI.Label(new Rect(x, y, w, 30f * s), "(開発版: DEBUG の全解放が ON)", UiKit.Label(18f * s, TextAnchor.MiddleLeft, false, new Color(1f, 0.6f, 0.5f)));
+        if (SprintRecords.DevUnlockAll) LocGUI.Label(new Rect(x, y, w, 30f * s), "(開発版: DEBUG の全解放が ON)", UiKit.Label(18f * s, TextAnchor.MiddleLeft, false, new Color(1f, 0.6f, 0.5f)));
         if (UiKit.Button(new Rect(x, panel.yMax - 76f * s, w, 56f * s), "閉じる", 24f * s, false, false, true))
         {
             Open = false; UiInputGate.SprintPanelOpen = false; UiInputGate.LatchUntilRelease();

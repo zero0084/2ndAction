@@ -380,7 +380,7 @@ public partial class NetMatch
         float boxH = Mathf.Max(170f, 8f + lines * 24f);
         GUI.DrawTexture(new Rect(10f, py, 440f, boxH), Texture2D.whiteTexture);
         GUI.color = Color.white;
-        GUI.Label(new Rect(18f, py + 4f, 430f, boxH), sb.ToString(), hudStyle);
+        LocGUI.Label(new Rect(18f, py + 4f, 430f, boxH), sb.ToString(), hudStyle);
 
         // 復活: 倒れていて自分が助けられる人ごとにボタン(最大8人の予定。誰を助けるかを選べる)
         if (!runOver)
@@ -394,11 +394,11 @@ public partial class NetMatch
             GUI.color = new Color(0f, 0f, 0f, 0.8f);
             GUI.DrawTexture(panel, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            GUI.Label(new Rect(panel.x, panel.y + 8f, pw, 40f), Mode == MultiplayerGameMode.Versus ? "VERSUS RESULT" : "CO-OP RESULT", hudBig);
+            LocGUI.Label(new Rect(panel.x, panel.y + 8f, pw, 40f), Mode == MultiplayerGameMode.Versus ? "VERSUS RESULT" : "CO-OP RESULT", hudBig);
             for (int i = 0; i < results.Count; i++)
             {
                 var r = results[i];
-                GUI.Label(new Rect(panel.x + 30f, panel.y + 56f + i * 40f, pw - 60f, 40f),
+                LocGUI.Label(new Rect(panel.x + 30f, panel.y + 56f + i * 40f, pw - 60f, 40f),
                     $"{r.Rank}.  P{r.Pn}   {r.Distance:N0}m   KILL {r.Kills}   BOSS {r.BossLastHits}", hudStyle);
             }
         }

@@ -247,7 +247,7 @@ public class TutorialLauncher : MonoBehaviour
         if (coverStyle == null) coverStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
         coverStyle.fontSize = Mathf.RoundToInt(44 * s); coverStyle.normal.textColor = new Color(1f, 0.86f, 0.55f);
         int dots = 1 + (int)(Time.unscaledTime * 2.5f) % 3;
-        GUI.Label(new Rect(0, Screen.height * 0.5f - 40 * s, Screen.width, 80 * s), "準備中" + new string('.', dots), coverStyle);
+        LocGUI.Label(new Rect(0, Screen.height * 0.5f - 40 * s, Screen.width, 80 * s), Loc.T("準備中") + new string('.', dots), coverStyle);
         if (Event.current != null && (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp)) Event.current.Use();
     }
 }

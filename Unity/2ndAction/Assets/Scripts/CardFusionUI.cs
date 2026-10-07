@@ -206,7 +206,7 @@ public class CardFusionUI : MonoBehaviour
             img.pixelsPerUnitMultiplier = 2.4f;
         }
         var t = AddText(NewRect("Label", r, Vector2.zero, Vector2.one, new Vector2(6, 2), new Vector2(-6, -2)), fontSize, Color.white, TextAnchor.MiddleCenter, true);
-        t.text = label;
+        t.text = Loc.Auto(label);
         // 狭い画面比率でも文字が切れないよう、枠に収まる大きさまで自動で縮める(最小14)
         t.resizeTextForBestFit = true; t.resizeTextMinSize = Mathf.Min(14, fontSize); t.resizeTextMaxSize = fontSize;
         taps.Add(new Tap { rect = r, action = action, overlay = overlayLayer });
@@ -251,7 +251,7 @@ public class CardFusionUI : MonoBehaviour
         back.rect.anchorMin = back.rect.anchorMax = new Vector2(0, 0.5f);
         back.rect.pivot = new Vector2(0, 0.5f); back.rect.sizeDelta = new Vector2(170, 66); back.rect.anchoredPosition = new Vector2(26, 0);
         var title = AddText(NewRect("Title", header, new Vector2(0.3f, 0), new Vector2(0.7f, 1), Vector2.zero, Vector2.zero), 44, Gold, TextAnchor.MiddleCenter, true);
-        title.text = "カード合成";
+        title.text = Loc.Auto("カード合成");
         var milePanel = Panel("MilePanel", header, new Vector2(1, 0.5f), new Vector2(1, 0.5f), Vector2.zero, Vector2.zero, 2.4f);
         milePanel.pivot = new Vector2(1, 0.5f); milePanel.sizeDelta = new Vector2(330, 66); milePanel.anchoredPosition = new Vector2(-146, 0); // 右端は共通の設定ボタン(SettingsPanel.MenuGearRect)の場所
         mileText = AddText(NewRect("Mile", milePanel, Vector2.zero, Vector2.one, new Vector2(14, 0), new Vector2(-14, 0)), 28, Gold, TextAnchor.MiddleCenter, true);
@@ -270,7 +270,7 @@ public class CardFusionUI : MonoBehaviour
         }
         var sortRow = NewRect("SortRow", leftPanel, new Vector2(0, 1), new Vector2(1, 1), new Vector2(22, -134), new Vector2(-22, -84));
         var sortLabel = AddText(NewRect("SortLabel", sortRow, new Vector2(0, 0), new Vector2(0.14f, 1), Vector2.zero, Vector2.zero), 21, TextDim, TextAnchor.MiddleLeft);
-        sortLabel.text = "並び替え";
+        sortLabel.text = Loc.Auto("並び替え");
         for (int i = 0; i < SortLabels.Length; i++)
         {
             int idx = i;
@@ -301,11 +301,11 @@ public class CardFusionUI : MonoBehaviour
             AddImage(inner, new Color(0.05f, 0.06f, 0.12f, 0.95f));
             s.label = AddText(NewRect("Label", s.frame, new Vector2(0, 1), new Vector2(1, 1), new Vector2(12, -40), new Vector2(-58, 0)), 24, Gold, TextAnchor.MiddleCenter, true);
             s.label.resizeTextForBestFit = true; s.label.resizeTextMinSize = 14; s.label.resizeTextMaxSize = 24;
-            s.label.text = slotNames[i] + "カード";
+            s.label.text = Loc.Auto(slotNames[i] + "カード");
             var badgeR = NewRect("ActiveBadge", s.frame, new Vector2(0.2f, 0), new Vector2(0.8f, 0), new Vector2(0, 6), new Vector2(0, 38));
             s.activeBadgeBg = AddImage(badgeR, new Color(0.55f, 0.36f, 0.08f, 0.95f));
             s.activeBadge = AddText(NewRect("Text", badgeR, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero), 20, Color.white, TextAnchor.MiddleCenter, true);
-            s.activeBadge.text = "選択中";
+            s.activeBadge.text = Loc.Auto("選択中");
             var slotScaler = Scaler(s.frame, "Scaler", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f));
             slotScaler.anchoredPosition = new Vector2(0, -4);
             slotScaler.localScale = Vector3.one * 0.9f;
@@ -319,7 +319,7 @@ public class CardFusionUI : MonoBehaviour
             slots[i] = s;
         }
         var plus = AddText(NewRect("Plus", slotArea, new Vector2(0.47f, 0.3f), new Vector2(0.53f, 0.7f), Vector2.zero, Vector2.zero), 48, Gold, TextAnchor.MiddleCenter, true);
-        plus.text = "+";
+        plus.text = Loc.Auto("+");
 
         detailScroll = MakeScroll("Detail", rightPanel, Vector2.zero, Vector2.one, new Vector2(24, 150), new Vector2(-24, -366), out RectTransform detailContent);
         detailText = AddText(NewRect("DetailText", detailContent, new Vector2(0, 1), new Vector2(1, 1), Vector2.zero, Vector2.zero), 22, TextMain, TextAnchor.UpperLeft);
@@ -430,7 +430,7 @@ public class CardFusionUI : MonoBehaviour
     void SetStatus(string text, bool error)
     {
         if (statusText == null) return;
-        statusText.text = text;
+        statusText.text = Loc.Auto(text);
         statusText.color = error ? ErrorRed : Gold;
     }
 
@@ -449,13 +449,13 @@ public class CardFusionUI : MonoBehaviour
     {
         var gm = GameManager.Instance;
         if (!built) return;
-        if (mileText != null) mileText.text = $"所持MILE  {(gm != null ? gm.TotalOwnedMile : 0):N0}";
+        if (mileText != null) mileText.text = Loc.Auto($"所持MILE  {(gm != null ? gm.TotalOwnedMile : 0):N0}");
 
         for (int i = 0; i < filterButtons.Count; i++) Highlight(filterButtons[i], i == filterIndex);
         for (int i = 0; i < sortButtons.Count; i++)
         {
             Highlight(sortButtons[i], i == sortMode);
-            sortButtons[i].label.text = SortLabels[i] + (i == sortMode ? (sortDescending ? " ▼" : " ▲") : "");
+            sortButtons[i].label.text = Loc.Auto(SortLabels[i] + (i == sortMode ? (sortDescending ? " ▼" : " ▲") : ""));
         }
 
         // ---- 一覧 ----
@@ -471,7 +471,7 @@ public class CardFusionUI : MonoBehaviour
             if (MatchesFilter(def)) shown.Add(s);
         }
         shown.Sort(CompareStacks);
-        if (listCountText != null) listCountText.text = $"{shown.Count}種 / 全{totalCopies}枚";
+        if (listCountText != null) listCountText.text = Loc.Auto($"{shown.Count}種 / 全{totalCopies}枚");
         LayoutGrid();
 
         // ---- 枠 ----
@@ -485,16 +485,16 @@ public class CardFusionUI : MonoBehaviour
             s.clearButton.gameObject.SetActive(def != null);
             bool active = i == activeSlot;
             s.glow.color = active ? new Color(1f, 0.8f, 0.3f, 0.9f) : new Color(1f, 0.8f, 0.3f, 0.12f);
-            s.label.text = i == 0 ? "メインカード" : "素材カード";
+            s.label.text = Loc.Auto(i == 0 ? "メインカード" : "素材カード");
             s.label.color = active ? Gold : TextDim;
             s.activeBadgeBg.gameObject.SetActive(active);
         }
 
         // ---- 詳細・ボタン ----
         string block = CardFusionLogic.BlockReason(mainKey, materialKey);
-        detailText.text = BuildDetail(block);
+        detailText.text = Loc.Auto(BuildDetail(block));
         bool ready = block == null;
-        fuseLabel.text = ready ? "合成する" : (string.IsNullOrEmpty(mainKey) || string.IsNullOrEmpty(materialKey) ? "カードを2枚選んでください" : "合成できません");
+        fuseLabel.text = Loc.Auto(ready ? "合成する" : (string.IsNullOrEmpty(mainKey) || string.IsNullOrEmpty(materialKey) ? "カードを2枚選んでください" : "合成できません"));
         fuseLabel.fontSize = ready ? 34 : 26;
         fuseFill.color = ready ? new Color(0.55f, 0.36f, 0.08f, 0.98f) : new Color(0.12f, 0.13f, 0.18f, 0.95f);
 
@@ -584,7 +584,7 @@ public class CardFusionUI : MonoBehaviour
                 + (v != null && v.level >= CardVariant.MaxLevel ? (CardMastery.IsAwakened(v.mainId) ? "  <color=#ffe08a>AWAKENED</color>" : $"  <color=#ffd76a>★{CardMastery.MasteryLevel(v.mainId)}</color>") : "");
             bool isMain = mainKey == s.cardId, isMat = materialKey == s.cardId;
             c.card.SetSelected(isMain || isMat);
-            c.tag.text = isMain && isMat ? "メイン+素材" : isMain ? "メイン" : isMat ? "素材" : (available <= 0 ? "使用中" : "");
+            c.tag.text = Loc.Auto(isMain && isMat ? "メイン+素材" : isMain ? "メイン" : isMat ? "素材" : (available <= 0 ? "使用中" : ""));
             c.tagBg.color = isMain || isMat ? new Color(0.55f, 0.36f, 0.08f, 0.95f) : new Color(0.3f, 0.08f, 0.08f, 0.9f);
             c.tagBg.gameObject.SetActive(c.tag.text.Length > 0);
             if (available <= 0 && !isMain && !isMat && c.card.frameImage != null) c.card.frameImage.color = new Color(1f, 1f, 1f, 0.35f);
@@ -781,7 +781,7 @@ public class CardFusionUI : MonoBehaviour
         resultPanel.gameObject.SetActive(false);
         skipButton.gameObject.SetActive(true);
         foreach (var img in new[] { circle, circle2, flash, ring, ring2, burst }) { var c = img.color; c.a = 0f; img.color = c; img.rectTransform.localScale = Vector3.one; img.rectTransform.localRotation = Quaternion.identity; }
-        fxMainLabel.text = fxMaterialLabel.text = fxCaption.text = fxMile.text = "";
+        fxMainLabel.text = Loc.Auto(fxMaterialLabel.text = fxCaption.text = fxMile.text = "");
         fxResult.gameObject.SetActive(false);
         dim.color = new Color(0.01f, 0.01f, 0.04f, 0f);
     }
@@ -827,8 +827,8 @@ public class CardFusionUI : MonoBehaviour
         // ---- 継承抽選の結果(両側それぞれ) ----
         if (same)
         {
-            fxMainLabel.text = mastery ? "Lv.9 MAX" : "確定強化";
-            fxMaterialLabel.text = mastery ? $"MASTERY +{r.masteryGain}" : "確定強化";
+            fxMainLabel.text = Loc.Auto(mastery ? "Lv.9 MAX" : "確定強化");
+            fxMaterialLabel.text = Loc.Auto(mastery ? $"MASTERY +{r.masteryGain}" : "確定強化");
             fxMainLabel.color = fxMaterialLabel.color = Gold;
             FusionSfx.Play(FusionSfx.Success());
             yield return Wait(0.35f);
@@ -914,10 +914,10 @@ public class CardFusionUI : MonoBehaviour
             yield return Tween(0.8f, f =>
             {
                 int shownMile = Mathf.RoundToInt(Mathf.Lerp(0, r.refundMile, EaseOut(f)));
-                fxMile.text = $"+{shownMile:N0} MILE";
-                if (mileText != null) mileText.text = $"所持MILE  {before + shownMile:N0}";
+                fxMile.text = Loc.Auto($"+{shownMile:N0} MILE");
+                if (mileText != null) mileText.text = Loc.Auto($"所持MILE  {before + shownMile:N0}");
             });
-            fxCaption.text = "継承失敗…  カードはMILEに還元されました";
+            fxCaption.text = Loc.Auto("継承失敗…  カードはMILEに還元されました");
             fxCaption.color = new Color(1f, 0.8f, 0.55f);
             yield return Wait(0.5f);
         }
@@ -927,7 +927,7 @@ public class CardFusionUI : MonoBehaviour
 
     IEnumerator RevealSide(RewardCardUI card, Text label, bool success, string side)
     {
-        label.text = success ? $"{side}側 継承成功！" : $"{side}側 継承失敗";
+        label.text = Loc.Auto(success ? $"{side}側 継承成功！" : $"{side}側 継承失敗");
         label.color = success ? Gold : new Color(0.62f, 0.66f, 0.76f);
         FusionSfx.Play(success ? FusionSfx.Success() : FusionSfx.Fail());
         Vector2 basePos = card.rect.anchoredPosition;
@@ -1024,11 +1024,11 @@ public class CardFusionUI : MonoBehaviour
         ClearParticles();
         fxMain.gameObject.SetActive(false); fxMaterial.gameObject.SetActive(false); fxResult.gameObject.SetActive(false);
         foreach (var img in new[] { circle, circle2, flash, ring, ring2, burst }) { var c = img.color; c.a = 0f; img.color = c; }
-        fxMainLabel.text = fxMaterialLabel.text = fxCaption.text = fxMile.text = "";
+        fxMainLabel.text = Loc.Auto(fxMaterialLabel.text = fxCaption.text = fxMile.text = "");
         skipButton.gameObject.SetActive(false);
         dim.color = new Color(0.01f, 0.01f, 0.04f, 0.9f);
         resultPanel.gameObject.SetActive(true);
-        if (mileText != null && GameManager.Instance != null) mileText.text = $"所持MILE  {GameManager.Instance.TotalOwnedMile:N0}";
+        if (mileText != null && GameManager.Instance != null) mileText.text = Loc.Auto($"所持MILE  {GameManager.Instance.TotalOwnedMile:N0}");
 
         var sb = new StringBuilder();
         if (r.IsSuccess)
@@ -1055,7 +1055,7 @@ public class CardFusionUI : MonoBehaviour
             {
                 sb.Append("メインカード(Lv.9 MAX)はそのまま残り、素材カードを1枚消費しました。\n\n");
                 sb.Append("<size=21>Mastery は通常の性能(攻撃/速度/EXP など)を上げません。</size>\n");
-                resultBody.text = sb.ToString();
+                resultBody.text = Loc.Auto(sb.ToString());
                 resultBody.alignment = TextAnchor.UpperLeft;
                 resultScroll.viewport.anchorMin = new Vector2(0.4f, 0);
                 Canvas.ForceUpdateCanvases();
@@ -1081,7 +1081,7 @@ public class CardFusionUI : MonoBehaviour
         }
         else
         {
-            resultTitle.text = "合成失敗…";
+            resultTitle.text = Loc.Auto("合成失敗…");
             resultTitle.color = new Color(1f, 0.8f, 0.55f);
             resultCard.gameObject.SetActive(false);
             sb.Append($"メイン側({CardDatabase.FindById(r.mainKey)?.cardName} Lv.{r.main.level}): <color=#9aa3b8>継承失敗</color>\n");
@@ -1091,7 +1091,7 @@ public class CardFusionUI : MonoBehaviour
             sb.Append($"<size=21>(★{r.main.rarity}×Lv.{r.main.level}×{CardFusionLogic.RefundCoefficient} + ★{r.material.rarity}×Lv.{r.material.level}×{CardFusionLogic.RefundCoefficient})</size>\n\n");
             sb.Append($"所持MILE  <b>{r.mileAfter:N0}</b>\n");
         }
-        resultBody.text = sb.ToString();
+        resultBody.text = Loc.Auto(sb.ToString());
         resultBody.alignment = r.IsSuccess ? TextAnchor.UpperLeft : TextAnchor.UpperCenter;
         var bodyView = resultScroll.viewport;
         bodyView.anchorMin = r.IsSuccess ? new Vector2(0.4f, 0) : new Vector2(0.1f, 0);
@@ -1243,4 +1243,9 @@ public class CardFusionUI : MonoBehaviour
         }
         return rowTops.Count;
     }
+
+    // 言語を切り替えた時(2026-10-07): 一覧を開いていれば今の言語で書き直す
+    void OnEnable() { Loc.Changed += OnLocChanged; }
+    void OnDisable() { Loc.Changed -= OnLocChanged; }
+    void OnLocChanged() { if (root != null && root.activeInHierarchy && phase == Phase.Select) Refresh(restoreScroll: true); }
 }

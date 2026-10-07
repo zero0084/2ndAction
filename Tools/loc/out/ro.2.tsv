@@ -1,0 +1,531 @@
+531	Specializare: vânt
+532	Specializare: boși
+533	Specializare: EXP
+534	Specializare: MILE
+535	Multe provocări
+536	Toate atacurile extra (test de încărcare)
+537	Mix obișnuit
+538	Specializare: atac
+539	Risc extrem (sacrificiu HP)
+540	CONTRAATAC AEGIS
+541	OVERDRIVE
+542	VFX mic de întărire la lovire
+543	Urme mai intense la viteză mare
+544	Blood Aura la vindecare
+545	Efect de reînviere mai intens / mic bonus extra
+546	VFX special la activare
+547	Efect final al atacului suprem / aură proprie / efect BUFF / VFX de final (fără daune extra)
+548	WANTED! A apărut un inamic căutat
+549	RECOMPENSĂ!
+550	COMBO!
+551	{0} s
+552	Următorii {0}m
+553	FINAL EVOLUTION: RENAȘTERE
+554	ULTIMA ȘANSĂ
+555	SUFLU NOU
+556	FENIX
+557	A izbit cu coada și a înțepenit! Șansă de atac!
+558	Ochii slăbiți! Capul e punctul slab!
+559	Capul a coborât! Șansă lungă de contraatac!
+560	Sari!
+561	Coboară!
+562	Fără mana! Șansă lungă de atac!
+563	S-a răsturnat! Mare șansă!
+564	Coada s-a înfipt în pământ! Șansă de atac!
+565	E amețit! Șansă de atac!
+566	Bâta s-a blocat! Șansă de atac!
+567	Capul a rămas la sol! Șansă de atac!
+568	Nucleu expus! BREAK ușor!
+569	S-a izbit de sol! Șansă de atac!
+570	Setări cărți ▶
+571	<color=#FFD866><b>Cărți de personaj</b></color>
+572	<color=#8890A0>(liber)</color>
+573	BLOCAT
+574	Condiție de deblocare:
+575	[Principală]
+576	[Secundară]
+577	Viteză de mișcare
+578	Atac
+579	Forță de salt
+580	Număr de sărituri
+581	HP max.
+582	Rază de atac
+583	Viteză de atac
+584	Atac în aer
+585	Shield
+586	EXP obținut
+587	Șansă de absorbție
+588	Cantitate absorbită
+589	Apariție inamici
+590	Atac la sol
+591	Putere lovitură finală
+592	Putere prima lovitură
+593	Atac la HP critic
+594	Atac cu HP plin
+595	Atac la accelerare
+596	Atac contra boșilor
+597	HP inamici
+598	HP boși
+599	MILE obținute
+600	MILE de la boși
+601	Șansă de ardere (Burn)
+602	Putere ardere
+603	Durată ardere
+604	Șansă de răcire (Chill)
+605	Încetinire din răcire
+606	Durată răcire
+607	Acumulare până la îngheț
+608	Durată îngheț
+609	Șansă de trăsnet
+610	Putere trăsnet
+611	Ținte în lanț
+612	Rază lanț
+613	Șansă lamă de vânt
+614	Putere lamă de vânt
+615	Străpungere
+616	Bătaie lamă de vânt
+617	Șansă de sângerare (Bleed)
+618	Putere sângerare
+619	Durată sângerare
+620	Absorbție din sângerare
+621	Sângerare la HP critic
+622	Viteza atacului principal
+623	Rază efectivă de atac
+624	HP max. (inimi)
+625	Inimi sigilate
+626	Atac în aer
+627	Atac la sol
+628	Prima lovitură
+629	În mijlocul seriei
+630	Lovitura finală
+631	Atac contra boșilor
+632	Atac contra inamicilor obișnuiți
+633	Atac contra inamicilor din aer
+634	Atac în jos / lovitură în sol
+635	Atac cu HP plin
+636	Atac la HP până la 50%
+637	Atac la HP până la 25%
+638	Viteză de atac la HP mic
+639	Absorbție la HP până la 25%
+640	Atac per inimă sigilată
+641	Atac per lovitură
+642	Atac per lovitură în aer
+643	Atac la 150km/h
+644	Atac în OVERDRIVE
+645	Viteză de atac în OVERDRIVE
+646	Număr max. Shield
+647	Refacere Shield (s mai puțin)
+648	Vindecare (inimi)
+649	Șansă lovitură extra
+650	Invincibilitate după lovire (s)
+651	Recul redus
+652	Viteza inamicilor
+653	Șansă de elită
+654	MILE din comori/recompense
+655	MILE din distanță
+656	EXP din distanță
+657	EXP din inamici învinși
+658	Răciri până la îngheț
+659	Putere fulger
+660	Oprire de trăsnet (s)
+661	Rază trăsnet (m)
+662	Viteză lamă de vânt
+663	Lv efect
+664	Nu se poate converti: în uz
+665	Deții x{0}
+666	Atinge o carte pentru detalii
+667	[Carte de personaj a altui personaj]
+668	Cartea e în uz acum. Scoate-o mai întâi.
+669	o transformi în {CardConvertMile} MILE?
+670	Schimbi pachetul actual
+671	cu formația recomandată?
+672	Scoți toate cărțile
+673	din pachet?
+674	Dragonul a coborât! Șansă de contraatac!
+675	Faza finală!
+676	BREAK!
+677	ÎNCĂRCARE FOC DE DRAGON
+678	Globul uriaș de foc al purgatoriului
+679	Foc {0}% {1}/s {2}s
+680	Gheață {0}% -{1}% {2}s îngheț {3} ori/{4}s
+681	Zero absolut Lv{0}
+682	Fulger {0}% {1} lanț {2} rază {3}m oprire {4}s
+683	Vânt {0}% {1} străpungere +{2} {3}m
+684	Sânge {0}%{1}
+685	CARTE NOUĂ
+686	DUPLICAT
+687	(deja AWAKENED, păstrată)
+688	→ prin fuziune MASTERY +1
+689	Atinge pentru următoarea (mai sunt {0})
+690	Atinge ca să închizi / atinge gacha pentru încă o tragere
+691	URMĂTOAREA
+692	OK
+693	MILE insuficiente
+694	Pauză ― uită-te în jur, apoi continuă
+695	Continuă când ești gata
+696	GO!
+697	DEBLOCAT NOU:
+698	GATA
+699	VITEZĂ
+700	ACCELERARE!
+701	A rămas doar motivul de pauză „așteptare alegere”
+702	A rămas doar motivul de pauză din meniul de pauză
+703	Încetinirea de la intrarea bossului a durat prea mult
+704	A rămas doar încetinirea de la intrarea bossului
+705	RECOMPENSĂ DE BOSS
+706	NIVEL NOU
+707	Se aștepta o alegere, dar fereastra lipsea → afișată din nou ({0}, a {1}-a oară, ok={2})
+708	Se aștepta o alegere, dar fereastra nu poate fi afișată → rezolvat fără alegere ({0})
+709	Ferestrele de alegere nu se potriveau → închise și {0} reafișat
+710	BEST
+711	DISTANȚĂ
+712	II
+713	PAS:
+714	CURSĂ NOUĂ
+715	JOC TERMINAT
+716	EȘEC
+717	TIMP
+718	INAMICI ÎNVINȘI
+719	BOȘI ÎNVINȘI
+720	BONUS
+721	BONUS ZONE
+722	BONUS INELE
+723	EXP TOTAL
+724	ÎMBUNĂTĂȚIRI OBȚINUTE
+725	MILE TOTAL
+726	INAMICI / BOȘI
+727	EXP TOTAL / ÎMBUNĂTĂȚIRI
+728	Pierdut: MILE din cursa asta {0}
+729	Rămân: recordul BEST de distanță (nou!) și distanța totală parcursă
+730	Rămân: recordul BEST de distanță și distanța totală parcursă
+731	Cărțile și MILE deținute (PORTOFEL {0})
+732	HP
+733	Sigiliu {0}
+734	Shield {0}
+735	MAX
+736	Fuziune Lv.{0}  {1} abilități
+737	Doar viteza x{0} (spațierea rămâne)
+738	ASISTENȚĂ ON
+739	ASISTENȚĂ OFF
+740	Recent:{0}({1})
+741	Imposibil:{0}
+742	Obstacole:{0} sparte{1}/sărite{2}/imposibil{3}
+743	{0} măsurat {1}km/h(ON≧{2}/OFF<{3}){4}{5}
+744	Fundal: {0}
+745	[Previzualizare]
+746	Încărcate {0} {1}MB
+747	Fundal◀
+748	Fundal▶
+749	Tranziție
+750	Normal
+751	Spre graniță
+752	Setări
+753	Arenă
+754	Arenă (BLOCAT)
+755	Arena nu e încă deblocată
+756	Condiție de deblocare: {0}
+757	DEBUG
+758	Cursa actuală și MILE neconfirmate
+759	vor fi abandonate. Sigur?
+760	Abandonează și CURSĂ NOUĂ
+761	Anulează
+762	CONTINUĂ
+763	ÎNAPOI ACASĂ
+764	Te întorci acasă.
+765	Cursa nu se termină; poți
+766	continua de aici cu CONTINUE.
+767	Cartea e folosită în altă parte
+768	{0} nu poate fi echipată: cu celelalte cărți de personaj depășește Lv{1} (surplusul nu are efect)
+769	Atenție: {0} cu celelalte cărți de personaj depășește Lv{1} (cele {2} Lv în plus nu au efect)
+770	ASALTUL BOȘILOR  Luptă din mers! Se apropie AVERTISMENTUL! Învinge boșii rămași! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+771	DINCOLO
+772	Surorile Secerătoare
+773	Cele trei surori
+774	ONE MORE MILE?
+775	Furie!
+776	ASALT MAGIC CERESC
+777	Demonul a înțepenit! Șansă de atac!
+778	VERSIUNE DIFERITĂ
+779	ÎN DESFĂȘURARE
+780	PLIN
+781	DESCHIS
+782	BOSS:
+783	HOST
+784	JOIN
+785	BOSS
+786	ȚINTĂ
+787	ULTIMA LOVITURĂ LA BOSS:
+788	INAMIC ÎNVINS:
+789	Jucați pe dispozitive din același Wi-Fi sau hotspot de pe telefon (max.
+790	jucători).
+791	ONLINE (în curând)
+792	AVANSAT (IP manual, pentru dezvoltare)
+793	Închide
+794	Multi {0}/{1}
+795	Multi
+796	Alege modul
+797	Cine cade e DOWN. Un coechipier (HP 2+) care ajunge la locul căderii îi dă 1 HP și îl reînvie. Când toți sunt DOWN, jocul se termină.
+798	Cine cade e eliminat (fără reînviere). Se joacă până la ultimul, clasamentul după distanță.
+799	CO-OP
+800	VERSUS
+801	Creează o cameră pe acest dispozitiv. Apare la „FIND GAME” pe dispozitivele din apropiere.
+802	Caută camere din apropiere și intră (fără IP).
+803	Camere din apropiere ({0} selectată. Se joacă în modul HOST-ului)
+804	CONECTARE EȘUATĂ
+805	Conectare eșuată. Verifică dacă sunteți pe același Wi-Fi și reîncearcă
+806	CONECTARE EȘUATĂ:
+807	Se conectează… {0}
+808	Se caută jocuri locale…
+809	Niciun joc găsit
+810	Pe dispozitivul HOST apasă „CREATE GAME” și conectează-te la același Wi-Fi (hotspot).
+811	Caută din nou
+812	Camera ta
+813	MOD: {0} (decide HOST)
+814	MOD: decide HOST (se sincronizează la startul cursei)
+815	Vizibilă la „FIND GAME” pe dispozitivele din apropiere
+816	Când sunteți toți: „Închide” → ușa → în Alege harta apasă „Pornește” și toți pornesc simultan pe aceeași hartă.
+817	Cursa pornește automat când HOST pornește. Așteaptă puțin.
+818	Închide camera
+819	Ieși
+820	Închide (camera rămâne)
+821	AVANSAT: conectare prin IP (dezvoltare)
+822	Conectează-te la același Wi-Fi sau hotspot de pe telefon (max. {0} jucători).
+823	(Indisponibil - verifică setările Wi-Fi ale dispozitivului)
+824	IP-ul dispozitivului:
+825	Stare:
+826	CO-OP: Cine cade e DOWN. Un coechipier (HP 2+) care ajunge la locul căderii îi dă 1 HP și îl reînvie. Când toți sunt DOWN, jocul se termină.
+827	VERSUS: Cine cade e eliminat (fără reînviere). Se joacă până la ultimul, clasamentul după distanță.
+828	MOD: alege HOST (se sincronizează la startul cursei)
+829	Port
+830	HOST (creează camera aici)
+831	JOIN: introdu IP-ul afișat pe dispozitivul HOST
+832	Jucători conectați {0}/{1}
+833	Ușa → în Alege harta apasă „Pornește” și toți cei conectați pornesc simultan pe aceeași hartă.
+834	Închide camera (oprește HOST)
+835	Deconectează
+836	MULTI: deconectat
+837	UI:
+838	Înapoi acasă
+839	Continuă să alergi
+840	REZULTAT VERSUS
+841	REZULTAT CO-OP
+842	Se așteaptă pornirea HOST
+843	Încă aleargă unii jucători
+844	HOST: se așteaptă jucători
+845	Eroare de inițializare
+846	Conexiunea anterioară se închide. Așteaptă puțin și reîncearcă
+847	HOST nu a putut porni (portul poate fi ocupat)
+848	Format IP invalid (ex.: 192.168.1.23)
+849	Se conectează… {0}:{1}
+850	JOIN nu a putut porni
+851	HOST: {0}/{1} conectați
+852	JOIN: conectat {0}
+853	CONEXIUNE MULTIPLAYER PIERDUTĂ
+854	Jucătorul
+855	s-a deconectat
+856	Conexiunea cu HOST s-a pierdut
+857	Conexiune refuzată:
+858	CAMERĂ PLINĂ
+859	CURSĂ ÎN DESFĂȘURARE
+860	Nu s-a putut conecta la HOST
+861	Eroare de comunicare
+862	OMM-NET-
+863	PS5
+864	EVADARE
+865	Atinge din nou pentru a confirma
+866	Atinge o carte pentru a o alege
+867	AWAKENED
+868	FINAL EVOLUTION
+869	ECHIPAT
+870	NOU
+871	Putere Lv{d.level:0.0}{(d.def.risk ?
+872	COMBO
+873	Personaj
+874	Pachet
+875	{0}: atinge {1}m
+876	Record {0}m / {1}m
+877	Pierde pe orice hartă până la 1,000m
+878	DEBLOCAT:
+879	PERSONAJ NOU:
+880	Intri din „Arenă” de pe ecranul principal.
+881	Pornești din alegerea hărții.
+882	{0} a fost deblocat
+883	{0} s-a alăturat echipei
+884	Îl poți alege la alegerea personajului.
+885	Pentru tine, cel care n-a încetat să alerge.
+886	Ultimul drum s-a deschis.
+887	Sunet
+888	(Sunet indisponibil)
+889	General
+890	BGM
+891	Efecte
+892	Ambient
+893	Limbă / Language
+894	Limbă
+895	Afișare în limba aleasă
+896	Conform limbii dispozitivului
+897	Afișare
+898	Orientare
+899	Orizontal
+900	Vertical
+901	Tremurul ecranului
+902	Efecte luminoase
+903	※Avertismentele de atac și elementele necesare controlului nu se atenuează
+904	Control
+905	(Asistența automată nu e disponibilă)
+906	Asistență la viteză mare
+907	Viteza de pornire a asistenței
+908	Peste această viteză, jocul te ajută automat cu sărituri peste gropi/obstacole/spre inamici
+909	și cu atacuri (comenzile tale au prioritate)
+910	Cum se joacă
+911	Exersează controlul
+912	Exersează atacuri față/spate, salt, atac în jos, aruncare în sus și cărți (fără recompense)
+913	Antrenamentul pornește de acasă (nu în timpul cursei/multi)
+914	Mâna uriașă a rămas pe platformă! Mare șansă!
+915	Nucleul s-a întunecat! BREAK ușor!
+916	Capul e aproape! Șansă de atac!
+917	Și-a pierdut echilibrul! Șansă de contraatac!
+918	Reconstrucție eșuată! Nucleu expus!
+919	Flacăra a slăbit! Șansă de atac!
+920	Capul a ieșit din nori! Șansă de atac!
+921	Aureola a dispărut! Șansă lungă de contraatac!
+922	Încărcătura a dispărut! Mare șansă de contraatac!
+923	Start în sprint… ({0})
+924	Start în sprint…
+925	Start în sprint  {0}
+926	Treci în viteză prin secțiunile deja cucerite și pornești puțin înaintea porții alese. Cărțile din recompensele de boss de pe drum se obțin automat. Trecând prin inelul de la fiecare 5,000m alegi încă 1 carte.
+927	Sprint până la {0}km   (cca {1} s + inele){2}
+928	(Dev: DEBUG deblocare totală ON)
+929	Distanță neeligibilă
+930	DEBUG totul deblocat
+931	{0}km neatins (record {1}km)
+932	Paznicul porții de la {0}km neînvins
+933	Sprintul continuă!
+934	INEL!  Nicio carte disponibilă acum
+935	Inel ratat
+936	CARTE BONUS
+937	INEL!
+938	Nicio carte disponibilă acum
+939	Toate cărțile din pachet sunt Lv9.
+940	De acum, recompensa inelelor e MILE
+941	Cruce / stick sus-jos (A = sus / B = jos)
+942	Tastele ↑↓ / W・S
+943	Glisează sus/jos / ▲▼ dreapta jos
+944	Start în sprint  →  înaintea porții de la {0}m
+945	Recompense de boss automate {0}/{1}   Inele {2}/{3}{4}
+946	Toate cărțile din pachet Lv{0} MAX
+947	Recompensă inel: +{0} MILE
+948	Nicio carte disponibilă acum (×{0})
+949	{0}: potrivește înălțimea și treci prin inel (ratarea nu costă nimic)
+950	Sus/jos pentru mișcare / inel = +MILE
+951	Sus/jos pentru mișcare / inel = carte extra
+952	Toate cărțile din pachet sunt Lv9. Recompensa inelelor e MILE
+953	Ține apăsat H (sau un buton de mouse) 3 s
+954	Ține apăsat BACK 3 s
+955	Ține apăsat pe ecran 3 s
+956	Pentru începători
+957	Poți exersa întâi controlul (2-3 min, fără limită de timp).
+958	Antrenamentul nu dă recompense și nu salvează recorduri.
+959	Poți exersa oricând din setări, la „Cum se joacă”.
+960	Acum poți evada
+961	{0} ca să evadezi
+962	și să duci acasă MILE strânse în cursa asta.
+963	Dacă cazi, pierzi MILE din cursa asta.
+964	(Recordul BEST de distanță rămâne)
+965	Poți și să alergi mai departe. Evadezi doar dacă vrei.
+966	Ai adus MILE acasă!
+967	MILE se folosesc la gacha de acasă (o tragere: {0} MILE).
+968	Pune cărțile obținute în pachet ca să fii mai puternic în cursa următoare.
+969	Începe direct
+970	Am înțeles
+971	({0} notificări)
+972	Pachet reorganizat
+973	{1} cărți peste limita pachetului ({0}) au fost scoase din pachet.
+974	Cărțile rămân în colecție. Schimbă-le din editarea pachetului.
+975	Pachetul are acum 12 cărți
+976	În pregătire
+977	Glisează spre dreapta (înainte)
+978	Tasta → / D / Z
+979	Butonul X (stick drept →)
+980	Glisează spre stânga (înapoi)
+981	Tasta ← / A / X
+982	Butonul Y (stick drept ←)
+983	Glisează în sus
+984	Tasta ↑ / W / Space
+985	Butonul A (stick drept ↑)
+986	Glisează în jos
+987	Tasta ↓ / S
+988	Butonul B (stick drept ↓)
+989	Salt
+990	Atac în jos
+991	Aruncare → urmărire în aer
+992	Alege o carte
+993	Antrenament încheiat
+994	Personajul aleargă singur.
+995	Glisează înainte sau înapoi ca să ataci în acea direcție.
+996	Înainte: {0}
+997	Înapoi: {0}
+998	Glisează în sus ca să sari.
+999	Glisează din nou în sus în aer pentru salt dublu.
+1000	Salt: {0}
+1001	Glisează în jos în timpul saltului ca să plonjezi drept în jos și să ataci.
+1002	Folosește-l deasupra unui teren solid.
+1003	Atac în jos: {0}
+1004	Sărind lângă un inamic, îl arunci în sus cu un atac ascendent.
+1005	Inamicii aruncați în sus pot fi loviți din nou în aer.
+1006	(Dacă e prea greu, poți sări peste)
+1007	Alergând crești în nivel și alegi 1 din 3 cărți.
+1008	Îmbunătățirea aleasă ține doar pe durata cursei.
+1009	Aici e antrenament, deci efectul ține doar în antrenament.
+1010	Gata, asta e tot controlul de bază.
+1011	Țintește întâi bossul de la 1,000m!
+1012	Atac înainte [{0}]   Atac înapoi [{1}]
+1013	Salt [{0}]   Salt dublu [{1}]
+1014	În timpul saltului, încă o dată în sus
+1015	Sari, apoi în jos [{0}]
+1016	Întâi sari în sus → apoi în jos în aer
+1017	Aruncă în sus [{0}]   Urmărire în aer [{1}]
+1018	Sari chiar în fața inamicului
+1019	În timpul saltului, atacă înainte inamicul aruncat
+1020	Alege 1 carte
+1021	Oprește antrenamentul
+1022	Pornește
+1023	Acasă
+1024	Exersează din nou
+1025	Încearcă
+1026	Sari peste
+1027	Alege
+1028	OK!
+1029	Nu merge în multi
+1030	Activ
+1031	Indisponibil acum
+1032	Apare bossul
+1033	Lovit
+1034	În BONUS
+1035	ULTIMATE
+1036	MULTI×
+1037	Fulgerul negru
+1038	Tăietura sakura și trandafir
+1039	Dansul dublu
+1040	Foc din toate direcțiile
+1041	Străpungerea ucigașului de dragoni
+1042	Magie supremă: Epicentru
+1043	Stăpânul ploii
+1044	Rafală de pumni
+1045	Clone de umbră fulger
+1046	Supraîncălzire
+1047	Sfârșitul
+1048	Barieră de bombardament
+1049	Fără cărțiActivSe alegeApare bossulIndisponibil acumLovitÎn BONUSÎn pregătire
+1050	Triplul zbor al furtunii
+1051	Asaltul celor trei capete
+1052	Șansă!
+1053	Stâlpii demonici ai Infernului
+1054	Tripla tăietură a lamei negre
+1055	Șarja călare
+1056	Șarpele care despică pământul
+1057	Bâta care prăbușește cerul
+1058	Dansul morții pe opt picioare
+1059	Năvala vijeliei
+1060	Furia pământului
+1061	Nucleu expus!

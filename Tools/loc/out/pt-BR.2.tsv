@@ -1,0 +1,531 @@
+531	Foco em Wind
+532	Foco em Boss
+533	Foco em EXP
+534	Foco em MILE
+535	Muitas Challenge
+536	Todos os ataques extras (teste de carga)
+537	Mistura comum
+538	Foco em Attack
+539	Risk extremo (sacrifica HP)
+540	CONTRA-ATAQUE ÉGIDE
+541	OVERDRIVE
+542	Pequeno VFX extra ao acertar
+543	Rastros reforçados em alta velocidade
+544	Blood Aura ao curar
+545	Efeito de renascimento reforçado / pequeno bônus extra
+546	VFX exclusivo ao ativar
+547	Efeito final do golpe especial/aura exclusiva/efeito de BUFF/VFX de finalização (sem aumentar o dano)
+548	PROCURADO! Apareceu um alvo com recompensa
+549	RECOMPENSA!
+550	COMBO!
+551	por {0} s
+552	nos próximos {0}m
+553	FINAL EVOLUTION: RENASCIMENTO
+554	ÚLTIMA CHANCE
+555	SEGUNDO FÔLEGO
+556	FÊNIX
+557	Bateu a cauda e travou! Hora de atacar!
+558	Os olhos enfraqueceram! A cabeça é o ponto fraco!
+559	A cabeça baixou! Chance longa de contra-atacar!
+560	Pule!
+561	Desça!
+562	Sem magia! Chance longa de atacar!
+563	Virou de costas! Grande chance!
+564	A cauda cravou no chão! Hora de atacar!
+565	Está tonto! Hora de atacar!
+566	A clava ficou presa! Hora de atacar!
+567	A cabeça ficou no chão! Hora de atacar!
+568	Núcleo exposto! Fácil de causar BREAK!
+569	Bateu no chão! Hora de atacar!
+570	Cartas ▶
+571	<color=#FFD866><b>Cartas de personagem</b></color>
+572	<color=#8890A0>(vazio)</color>
+573	BLOQUEADO
+574	Para desbloquear:
+575	[Princ.]
+576	[Sub]
+577	Velocidade de movimento
+578	Ataque
+579	Força do pulo
+580	Nº de pulos
+581	HP máximo
+582	Alcance de ataque
+583	Velocidade de ataque
+584	Ataque aéreo
+585	Shield
+586	EXP obtida
+587	Chance de absorção
+588	Quantidade absorvida
+589	Surgimento de inimigos
+590	Ataque no chão
+591	Força do golpe final
+592	Força do primeiro golpe
+593	Ataque com HP baixo
+594	Ataque com HP cheio
+595	Ataque em aceleração
+596	Ataque contra chefes
+597	HP dos inimigos
+598	HP dos chefes
+599	MILE obtida
+600	MILE de chefe
+601	Chance de queimadura (Burn)
+602	Dano da queimadura
+603	Duração da queimadura
+604	Chance de resfriamento (Chill)
+605	Lentidão do resfriamento
+606	Duração do resfriamento
+607	Acúmulo até congelar
+608	Duração do congelamento
+609	Chance de raio
+610	Dano do raio
+611	Alvos em cadeia
+612	Distância da cadeia
+613	Chance de lâmina de vento
+614	Dano da lâmina de vento
+615	Perfurações
+616	Alcance da lâmina de vento
+617	Chance de sangramento (Bleed)
+618	Dano do sangramento
+619	Duração do sangramento
+620	Absorção do sangramento
+621	Sangramento reforçado com HP baixo
+622	Vel. do ataque principal
+623	Alcance efetivo de ataque
+624	HP máximo (corações)
+625	Corações selados
+626	Ataque aéreo
+627	Ataque no chão
+628	Primeiro golpe
+629	Meio da sequência
+630	Golpe final
+631	Ataque contra chefes
+632	Ataque contra inimigos comuns
+633	Ataque contra inimigos no ar
+634	Ataque para baixo/esmagador
+635	Ataque com HP cheio
+636	Ataque com HP em 50% ou menos
+637	Ataque com HP em 25% ou menos
+638	Vel. de ataque com HP baixo
+639	Chance de absorção com HP em 25% ou menos
+640	Ataque por selo
+641	Ataque por acerto
+642	Ataque por acerto aéreo
+643	Ataque a 150km/h
+644	Ataque em OVERDRIVE
+645	Vel. de ataque em OVERDRIVE
+646	Máximo de Shield
+647	Recarga do Shield (s a menos)
+648	Cura (corações)
+649	Chance de ataque extra
+650	Invencibilidade após dano (s)
+651	Redução de recuo
+652	Velocidade dos inimigos
+653	Chance de elite
+654	MILE de tesouros/recompensas
+655	MILE por distância
+656	EXP por distância
+657	EXP por abate
+658	Acúmulos até congelar
+659	Poder elétrico
+660	Paralisia do raio (s)
+661	Área do raio (m)
+662	Velocidade da lâmina de vento
+663	Lv do efeito
+664	Em uso: não dá para converter
+665	Possui x{0}
+666	Toque numa carta para ver os detalhes
+667	[Carta de outro personagem]
+668	Esta carta está em uso. Remova-a antes de usar.
+669	Converter em {CardConvertMile} MILE?
+670	Trocar o deck atual
+671	pela montagem recomendada?
+672	Remover todas as cartas
+673	do deck?
+674	O dragão desceu! Chance de contra-atacar!
+675	Fase final!
+676	BREAK!
+677	CARGA DE FOGO DO DRAGÃO
+678	Bola de fogo gigante do purgatório
+679	Fogo {0}% {1}/s {2}s
+680	Gelo {0}% -{1}% {2}s congela {3}x/{4}s
+681	ZERO ABSOLUTO Lv{0}
+682	Raio {0}% {1} cadeia {2} área {3}m paralisa {4}s
+683	Vento {0}% {1} perfura +{2} {3}m
+684	Sangue {0}%{1}
+685	NOVA CARTA
+686	REPETIDA
+687	(já AWAKENED · guardada)
+688	→ MASTERY +1 com fusão
+689	Toque para a próxima (faltam {0})
+690	Toque para fechar / toque no gacha para puxar de novo
+691	PRÓXIMA
+692	OK
+693	MILE insuficiente
+694	Pausado ― confira os arredores antes de continuar
+695	Continuar quando estiver pronto
+696	GO!
+697	NOVO DESBLOQUEIO:
+698	PRONTO
+699	VELOCIDADE
+700	MAIS RÁPIDO!
+701	Só restava a pausa de espera da escolha
+702	Só restava a pausa do menu de pausa
+703	A câmera lenta da entrada do chefe durou demais
+704	Só restava a câmera lenta da entrada do chefe
+705	RECOMPENSA DE CHEFE
+706	SUBIU DE NÍVEL
+707	Esperando escolha sem tela de escolha → reaberta ({0}, {1}ª vez, ok={2})
+708	Esperando escolha, mas a tela não abre → resolvido sem escolha ({0})
+709	Telas de escolha conflitantes → fechadas e {0} reaberta
+710	BEST
+711	DISTÂNCIA
+712	II
+713	PASSO:
+714	NOVA CORRIDA
+715	JOGO CONCLUÍDO
+716	FALHOU
+717	TEMPO
+718	INIMIGOS DERROTADOS
+719	CHEFES DERROTADOS
+720	BÔNUS
+721	BONUS ZONE
+722	BÔNUS DE ANÉIS
+723	EXP TOTAL
+724	MELHORIAS OBTIDAS
+725	MILE TOTAL
+726	INIMIGOS / CHEFES
+727	EXP TOTAL / MELHORIAS
+728	Perdido: MILE desta corrida {0}
+729	Fica: recorde BEST de distância (novo!) · distância total percorrida
+730	Fica: recorde BEST de distância · distância total percorrida
+731	Cartas possuídas · MILE (CARTEIRA {0})
+732	HP
+733	Selados {0}
+734	Shield {0}
+735	MAX
+736	Fusão Lv.{0}  {1} habilidades
+737	Só velocidade x{0} (intervalo de posicionamento igual)
+738	AUXÍLIO ON
+739	AUXÍLIO OFF
+740	Recente: {0} ({1})
+741	Impossível: {0}
+742	Obstáculos: {0} quebrar {1}/pular {2}/impossível {3}
+743	{0} limite {1}km/h (ON≧{2}/OFF<{3}){4}{5}
+744	Fundo: {0}
+745	[Prévia]
+746	{0} carregadas {1}MB
+747	Fundo◀
+748	Fundo▶
+749	Transição
+750	Normal
+751	Ir à divisa
+752	Ajustes
+753	Arena
+754	Arena (BLOQ.)
+755	A arena ainda não foi desbloqueada
+756	Para desbloquear: {0}
+757	DEBUG
+758	A corrida atual e a MILE não garantida
+759	serão descartadas. Tem certeza?
+760	Descartar e NOVA CORRIDA
+761	Cancelar
+762	CONTINUAR
+763	VOLTAR AO INÍCIO
+764	Você vai voltar ao Início.
+765	A corrida não termina: você pode
+766	continuar daqui com CONTINUE.
+767	Esta carta está em uso em outro lugar
+768	{0} somado às outras cartas de personagem passaria de Lv{1}, então não pode ser equipada (o excesso não teria efeito)
+769	Atenção: {0} somado às outras cartas de personagem passa de Lv{1} ({2} Lv excedentes não têm efeito)
+770	ONDA DE CHEFES  Lute enquanto corre! O WARNING se aproxima! Derrote os chefes restantes! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+771	ALÉM
+772	As Três Irmãs Ceifadoras
+773	As Três Irmãs
+774	ONE MORE MILE?
+775	Enfurecido!
+776	ASSALTO MÁGICO CELESTE
+777	O demônio travou! Hora de atacar!
+778	VERSÃO DIFERENTE
+779	EM ANDAMENTO
+780	CHEIO
+781	ABERTO
+782	CHEFE:
+783	HOST
+784	JOIN
+785	CHEFE
+786	ALVO
+787	GOLPE FINAL NO CHEFE:
+788	ABATE:
+789	Jogue com aparelhos no mesmo Wi-Fi ou no roteador do celular (até
+790	pessoas).
+791	ONLINE (em breve)
+792	AVANÇADO (digitar IP · dev)
+793	Fechar
+794	Multi {0}/{1}
+795	Multi
+796	Escolha o modo
+797	Caiu = DOWN. Um aliado (HP 2+) que chegar ao local passa 1 HP e revive você. Todos em DOWN = fim.
+798	Caiu = eliminado (sem reviver). Segue até o último jogador; a classificação é pela distância alcançada.
+799	CO-OP
+800	VERSUS
+801	Cria uma sala neste aparelho. Ela aparece em "FIND GAME" nos aparelhos próximos.
+802	Procura salas próximas para entrar (sem digitar IP).
+803	Salas próximas ({0} selecionada. Joga no modo do HOST)
+804	FALHA NA CONEXÃO
+805	Não foi possível conectar. Confira se está no mesmo Wi-Fi e tente de novo
+806	FALHA NA CONEXÃO:
+807	Conectando… {0}
+808	Procurando jogos locais…
+809	Nenhum jogo encontrado
+810	No aparelho HOST, toque em "CREATE GAME" e conecte-se ao mesmo Wi-Fi (roteador).
+811	Buscar de novo
+812	Sala atual
+813	MODO: {0} (o HOST decide)
+814	MODO: o HOST decide (ajustado ao iniciar a corrida)
+815	Visível em "FIND GAME" nos aparelhos próximos
+816	Com todos prontos: "Fechar" → porta → toque em "Partir" na escolha de mapa, e todos começam juntos no mesmo mapa.
+817	A partida começa sozinha quando o HOST partir. Aguarde.
+818	Fechar sala
+819	Sair
+820	Fechar (a sala continua)
+821	AVANÇADO: conectar por IP (dev)
+822	Conecte-se ao mesmo Wi-Fi ou ao roteador do celular (até {0} pessoas).
+823	(indisponível - confira nas configurações de Wi-Fi do aparelho)
+824	IP deste aparelho:
+825	Estado:
+826	CO-OP: caiu = DOWN. Um aliado (HP 2+) que chegar ao local passa 1 HP e revive você. Todos em DOWN = fim.
+827	VERSUS: caiu = eliminado (sem reviver). Segue até o último jogador; a classificação é pela distância alcançada.
+828	MODO: o HOST escolhe (ajustado ao iniciar a corrida)
+829	Porta
+830	HOST (criar sala neste aparelho)
+831	JOIN: digite o IP mostrado no aparelho HOST
+832	Jogadores conectados {0}/{1}
+833	Porta → toque em "Partir" na escolha de mapa, e todos os conectados começam juntos no mesmo mapa.
+834	Fechar sala (encerrar HOST)
+835	Desconectar
+836	MULTI: desconectado
+837	UI:
+838	Voltar ao Início
+839	Continuar correndo
+840	RESULTADO VERSUS
+841	RESULTADO CO-OP
+842	Esperando o HOST partir
+843	Ainda há jogadores correndo
+844	HOST: aguardando jogadores
+845	Erro de inicialização
+846	Encerrando a conexão anterior. Aguarde um pouco e tente de novo
+847	Não foi possível iniciar o HOST (a porta pode estar em uso)
+848	Formato de IP inválido (ex.: 192.168.1.23)
+849	Conectando… {0}:{1}
+850	Não foi possível iniciar o JOIN
+851	HOST: {0}/{1} conectados
+852	JOIN: conectado {0}
+853	CONEXÃO MULTIJOGADOR PERDIDA
+854	O jogador
+855	se desconectou
+856	A conexão com o HOST caiu
+857	Conexão recusada:
+858	SALA CHEIA
+859	CORRIDA EM ANDAMENTO
+860	Não foi possível conectar ao HOST
+861	Ocorreu um erro de comunicação
+862	OMM-NET-
+863	PS5
+864	ESCAPAR
+865	Toque de novo para confirmar
+866	Toque numa carta para escolher
+867	AWAKENED
+868	FINAL EVOLUTION
+869	EQUIPADA
+870	NOVA
+871	Força Lv{d.level:0.0}{(d.def.risk ?
+872	COMBO
+873	Personagem
+874	Deck
+875	Chegue a {1}m em {0}
+876	Recorde {0}m / {1}m
+877	Game over com 1,000m ou menos em qualquer mapa
+878	DESBLOQUEADO:
+879	NOVO PERSONAGEM:
+880	Acesse pela "Arena" no Início.
+881	Já pode partir pela escolha de mapa.
+882	{0} foi desbloqueado
+883	{0} entrou para o time
+884	Disponível na escolha de personagem.
+885	Para você, que nunca parou de correr.
+886	O caminho final se abriu.
+887	Som
+888	(áudio indisponível)
+889	Geral
+890	Música
+891	Efeitos
+892	Ambiente
+893	Idioma / Language
+894	Idioma
+895	Exibindo no idioma escolhido
+896	Seguindo o idioma do aparelho
+897	Tela
+898	Orientação
+899	Horizontal
+900	Vertical
+901	Tremor de tela
+902	Efeitos de brilho
+903	※Avisos de ataque inimigo e indicações necessárias para jogar não ficam mais fracos
+904	Controles
+905	(auxílio automático indisponível)
+906	Auxílio em alta velocidade
+907	Velocidade de ativação
+908	Acima desta velocidade, pulos sobre buracos/obstáculos/inimigos e
+909	ataques são auxiliados automaticamente (seus comandos têm prioridade)
+910	Como jogar
+911	Praticar controles
+912	Pratique ataques frente/trás, pulo, ataque para baixo, lançamento e cartas (sem recompensas)
+913	O treino começa pelo Início (não durante corridas ou multi)
+914	A mão gigante ficou na plataforma! Grande chance!
+915	O núcleo escureceu! Fácil de causar BREAK!
+916	A cabeça está perto! Hora de atacar!
+917	Perdeu o equilíbrio! Chance de contra-atacar!
+918	Falhou ao se reconstruir! Núcleo exposto!
+919	As chamas enfraqueceram! Hora de atacar!
+920	A cabeça saiu baixa das nuvens! Hora de atacar!
+921	O halo sumiu! Chance longa de contra-atacar!
+922	A carga elétrica sumiu! Grande chance de contra-atacar!
+923	Partida Veloz… ({0})
+924	Partida Veloz…
+925	Partida Veloz  {0}
+926	Atravessa num instante os trechos já vencidos e começa pouco antes do portão escolhido. As cartas das recompensas de chefe no caminho são obtidas automaticamente. Passe pelos anéis a cada 5,000m para escolher 1 carta extra.
+927	Até {0}km na Partida Veloz   (~{1} s + anéis){2}
+928	(dev: liberação total DEBUG ON)
+929	Distância não elegível
+930	DEBUG liberação total
+931	{0}km não alcançado (recorde {1}km)
+932	Guardião dos {0}km não derrotado
+933	Corrida veloz retomada!
+934	ANEL!  Nenhuma carta disponível agora
+935	Anel perdido
+936	CARTA BÔNUS
+937	ANEL!
+938	Nenhuma carta disponível agora
+939	Todas as cartas do deck chegaram a Lv9.
+940	Daqui em diante, os anéis dão MILE
+941	Direcional / analógico para cima e baixo (A = cima / B = baixo)
+942	Teclas ↑↓ / W・S
+943	Deslize para cima/baixo / ▲▼ no canto inferior direito
+944	Partida Veloz  →  até pouco antes do portão dos {0}m
+945	Recompensas de chefe automáticas {0}/{1}   Anéis {2}/{3}{4}
+946	Todas as cartas do deck Lv{0} MAX
+947	Anéis dão +{0} MILE
+948	Nenhuma carta disponível agora (×{0})
+949	Use {0} para ajustar a altura e passar pelos anéis (errar não tira nada)
+950	Cima/baixo para mover / anel = +MILE
+951	Cima/baixo para mover / anel = carta extra
+952	Todas as cartas do deck estão em Lv9. Os anéis dão MILE
+953	Segure a tecla H (ou um botão do mouse) por 3 s
+954	Segure o botão BACK por 3 s
+955	Segure a tela por 3 s
+956	Para iniciantes
+957	Você pode praticar os controles primeiro (2–3 min, sem limite de tempo).
+958	O treino não dá recompensas nem recordes.
+959	Dá para treinar a qualquer momento em "Como jogar", nos ajustes.
+960	Agora você pode escapar
+961	{0} para escapar e
+962	levar a MILE coletada nesta corrida.
+963	Se você cair, perde a MILE desta corrida.
+964	(o recorde BEST de distância fica)
+965	Pode continuar correndo. Escapar ou não é com você.
+966	Você levou a MILE para casa!
+967	Use a MILE no gacha do Início (1 puxada = {0} MILE).
+968	Ponha as cartas obtidas no deck para fortalecer a próxima corrida.
+969	Começar direto
+970	Entendi
+971	({0} avisos)
+972	Deck organizado
+973	{1} cartas acima do limite do deck ({0}) foram removidas do deck.
+974	As cartas continuam na sua coleção. Troque-as na edição de deck.
+975	O deck agora tem 12 cartas
+976	Em breve
+977	Deslize para a direita (frente)
+978	Teclas → / D / Z
+979	Botão X (analógico direito →)
+980	Deslize para a esquerda (trás)
+981	Teclas ← / A / X
+982	Botão Y (analógico direito ←)
+983	Deslize para cima
+984	Teclas ↑ / W / Espaço
+985	Botão A (analógico direito ↑)
+986	Deslize para baixo
+987	Teclas ↓ / S
+988	Botão B (analógico direito ↓)
+989	Pulo
+990	Ataque para baixo
+991	Lançar → ataque aéreo
+992	Escolher carta
+993	Fim do treino
+994	O personagem corre sozinho.
+995	Deslize para frente ou para trás para atacar nessa direção.
+996	Frente: {0}
+997	Trás: {0}
+998	Deslize para cima para pular.
+999	No ar, deslize para cima de novo para dar um pulo duplo.
+1000	Pulo: {0}
+1001	Durante o pulo, deslize para baixo para mergulhar atacando.
+1002	Use quando houver chão firme embaixo.
+1003	Ataque para baixo: {0}
+1004	Pule perto de um inimigo para lançá-lo com um ataque para cima.
+1005	Inimigos lançados podem ser atingidos de novo com ataques no ar.
+1006	(Se estiver difícil, pode passar esta etapa.)
+1007	Correndo, você sobe de nível e escolhe 1 de 3 cartas.
+1008	O bônus escolhido vale só durante aquela corrida.
+1009	Aqui é treino, então o efeito vale só neste treino.
+1010	Esses são os controles básicos.
+1011	Primeiro, mire no chefe dos 1,000m!
+1012	Atacar à frente [{0}]   Atacar atrás [{1}]
+1013	Pular [{0}]   Pulo duplo [{1}]
+1014	No pulo, para cima de novo
+1015	Pule e depois para baixo [{0}]
+1016	Primeiro pule (cima) → no ar, para baixo
+1017	Lançar [{0}]   Ataque aéreo [{1}]
+1018	Pule bem na frente do inimigo
+1019	No pulo, ataque à frente o inimigo lançado
+1020	Escolha 1 carta
+1021	Parar treino
+1022	Partir
+1023	Voltar ao Início
+1024	Treinar de novo
+1025	Tentar
+1026	Passar
+1027	Escolher
+1028	OK!
+1029	Indisponível no multi
+1030	Ativo
+1031	Indisponível agora
+1032	Chefe chegando
+1033	Sendo atingido
+1034	Em BONUS
+1035	ULTIMATE
+1036	MULTI×
+1037	Lampejo Negro
+1038	Tempestade de Sakura: Corte da Rosa
+1039	Dança Dupla
+1040	Fogo de Alcance Total
+1041	Investida Mata-Dragão
+1042	Magia Suprema: Marco Zero
+1043	Estrada de Chuva
+1044	Rajada de Socos
+1045	Clones de Sombra Velozes
+1046	Superaquecimento
+1047	O Fim
+1048	Barreira de Bombardeio
+1049	Sem cartasAtivoSelecionandoChefe chegandoIndisponível agoraSendo atingidoEm BONUSPreparando
+1050	Tríplice Planagem da Tempestade
+1051	Ataque das Três Cabeças
+1052	Chance!
+1053	Pilares Demoníacos do Submundo
+1054	Tríplice Lampejo da Lâmina Negra
+1055	Investida Montada
+1056	Grande Serpente Racha-Terra
+1057	Clava Gigante Quebra-Céus
+1058	Dança da Morte de Oito Patas
+1059	Investida do Vendaval
+1060	Fúria da Terra
+1061	Núcleo exposto!

@@ -1,0 +1,531 @@
+0	NOL MUTLAK
+1	Musuh biasa yang beku pecah dan memberi damage; serangan ke musuh dingin/beku naik (+3% per Lv). Pada bos, perlambatan pengganti beku jadi lebih kuat
+2	ADRENALIN
+3	Saat HP 50% ke bawah, kecepatan serang naik (+3% per Lv); saat HP 25% ke bawah jadi 2 kali lipat
+4	BILAH UDARA
+5	Mengenai musuh di udara memicu tebasan susulan (daya dan area naik sesuai Lv)
+6	SERANGAN UDARA NAIK
+7	Serangan di udara naik (+7% per Lv)
+8	PENGUASA UDARA
+9	Serangan udara naik (+3% per Lv), dan naik lagi tiap kena tanpa mendarat (+1%/Lv per kena, maks 4 kali)
+10	HANTAMAN UDARA
+11	Serangan ke musuh di udara (musuh terlontar/terbang/bos udara) naik (+8% per Lv)
+12	JANGKAUAN NAIK
+13	Jangkauan serang efektif bertambah (+3% per Lv). Jarak dekat: area kena; proyektil: jarak terbang (peluru tidak membesar)
+14	KECEPATAN SERANG NAIK
+15	Kecepatan serang naik (+3% per Lv)
+16	SERANGAN NAIK
+17	Serangan naik (+5% per Lv)
+18	DORONGAN AMUK
+19	Saat HP 50% ke bawah, serangan (+5% per Lv) dan kecepatan serang (+2%) naik; saat HP 25% ke bawah, keduanya naik lagi
+20	PENGAMUK
+21	Serangan (+6% per Lv) dan kecepatan serang (+1%) naik. Menyegel 1 hati HP maks tiap 3 Lv
+22	BILAH DARAH
+23	Serangan memicu pendarahan (peluang dan daya naik sesuai Lv). Saat HP penuh, peluang pendarahan 2 kali lipat. Serangan saat HP penuh juga sedikit naik (+2%/Lv)
+24	GELORA DARAH
+25	Saat HP 50% ke bawah, serangan naik (+4% per Lv); saat HP 25% ke bawah, peluang serap juga naik (+3%/Lv)
+26	TANTANGAN BOS
+27	HP bos naik (+10% per Lv), sebagai gantinya MILE bos bertambah (+40%/Lv)
+28	PEMBASMI BOS
+29	Serangan ke bos naik (+8% per Lv)
+30	SERBUAN BOS
+31	Di gerbang bos, ada peluang (+8% per Lv) 1 bos tambahan ikut muncul. MILE bos bertambah (+50%/Lv)
+32	SERANGAN REM
+33	Serangan naik (+7% per Lv). Sedikit melambat setelah serangan utama
+34	JIWA MEMBARA
+35	Bakar lebih kuat (+8% per Lv) dan lebih lama (+0.25 dtk/Lv). Kamu juga bisa sedikit memicu bakar sendiri
+36	LEDAKAN BERANTAI
+37	Musuh yang dikalahkan meledak. Musuh yang tumbang karena ledakan ikut meledak (maks 3 kali, 1 kali per musuh dalam rantai yang sama)
+38	PETIR BERANTAI
+39	Sambaran petir merambat ke musuh lain di dekatnya (+1 musuh tiap 3 Lv, jangkauan bertambah sesuai Lv). Kamu juga bisa sedikit memicu petir sendiri
+40	Aktif saat Gauge 100% (tombol kiri bawah). Jurus pamungkas khas karakter menyerang musuh di layar sambil melaju jauh (Lv1 ±100m → Lv9 ±200m), lalu penguatan bertahan sebentar (Lv1 5 dtk → Lv9 12 dtk). Gauge terisi dari jarak, kalahkan musuh, dan damage ke bos
+41	NYARIS SAJA
+42	Kecepatan gerak (+2% per Lv) dan durasi kebal setelah terkena (+0.05 dtk per Lv) naik
+43	KETAJAMAN COMBO
+44	Serangan makin naik selama hit beruntun (jumlah HIT) berlanjut (+0.4%/Lv per hit, maks 10 hit)
+45	AHLI COMBO
+46	Serangan penutup melepas gelombang khusus ke depan (daya dan area naik sesuai Lv)
+47	COMBO EKSTRA
+48	Serangan terakhir dalam rangkaian (penutup) lebih kuat (+7% per Lv)
+49	SERBUAN COMBO
+50	Serangan di tengah rangkaian lebih kuat (+6% per Lv), kecepatan serangan utama juga sedikit naik (+2%/Lv)
+51	SERANGAN BALIK
+52	Saat menahan dengan Shield, gelombang balasan ke sekitar (daya naik sesuai Lv). Dapat 1 Shield meski belum punya
+53	KONTRAK MAUT
+54	Serangan naik sangat besar (+12% per Lv). Menyegel 1 hati HP maks tiap 2 Lv
+55	SERANGAN GANDA
+56	Saat menyerang, ada peluang (+3% per Lv) muncul 1 serangan tambahan. Serangan tambahan tidak memicu lagi
+57	MUSUH ELIT
+58	Sebagian musuh biasa jadi elit (+4% per Lv. HP×2.5・sedikit cepat, saat dikalahkan MILE×3/EXP×2). MILE juga bertambah (+30%/Lv)
+59	ALGOJO
+60	MILE dari mengalahkan musuh bertambah (+15% per Lv)
+61	PENGUBAH EXP
+62	EXP berkurang (-10% per Lv, min 25%), sebagai gantinya MILE dari musuh bertambah (+30%/Lv)
+63	EXP NAIK
+64	EXP yang didapat bertambah (+20% per Lv)
+65	LEDAKAN PENGALAMAN
+66	EXP dari musuh/bos/BONUS ZONE bertambah besar (+80% per Lv)
+67	MUSUH CEPAT
+68	Gerak・kejaran・serangan musuh biasa lebih cepat (+4% per Lv), sebagai gantinya MILE (+15%/Lv) dan EXP kalahkan (+5%/Lv) bertambah
+69	SERANGAN PERTAMA
+70	Serangan pertama dalam rangkaian lebih kuat (+10% per Lv)
+71	BILAH API
+72	Awal elemen api. Serangan membakar musuh (peluang 15%+5%/Lv, damage 5+1.5/Lv per detik, 3 dtk)
+73	BALASAN API
+74	Saat menahan dengan Shield, balasan api ke sekitar (daya naik sesuai Lv), musuh yang kena terbakar. Dapat 1 Shield meski belum punya
+75	BENTENG
+76	HP maks bertambah (+1 hati per Lv) dan sentakan saat terkena berkurang (+5%/Lv), tapi kecepatan gerak turun (-3% per Lv)
+77	BILAH BEKU
+78	Awal elemen es. Serangan mendinginkan musuh (peluang 15%+5%/Lv, gerak 25%+2%/Lv lebih lambat). Dingin bertumpuk = beku (bos tidak berhenti, tapi sangat melambat)
+79	ANGIN KENCANG
+80	Bilah angin lebih cepat (+5% per Lv), lebih jauh (+0.4m/Lv), dan menembus lebih banyak musuh (+1 tiap 3 Lv). Tembus proyektil juga bertambah
+81	PEMBANTAI RAKSASA
+82	Serangan naik besar (+9% per Lv), tapi kecepatan serang turun (-3% per Lv)
+83	MERIAM KACA
+84	Serangan naik besar (+9% per Lv). Menyegel 1 hati HP maks tiap 2 Lv
+85	SERAKAH
+86	Kecepatan gerak naik (+4% per Lv), tapi musuh lebih sering muncul (+8%/Lv)
+87	PEMECAH BUMI
+88	Pendaratan hantaman dan penutup di darat melepas gelombang kejut di tanah (daya dan panjang naik sesuai Lv). Serangan darat juga sedikit naik (+2%/Lv)
+89	PETARUNG DARAT
+90	Serangan di darat naik (+7% per Lv)
+91	TITIK NOL
+92	Serangan di darat naik besar (+11% per Lv), tapi turun di udara (-5% per Lv)
+93	PEMATAH HATI
+94	Serangan naik (+4% per Lv), plus serangan +0.6%/Lv per hati tersegel. Menyegel 1 hati HP maks tiap 3 Lv
+95	HATI NAIK
+96	HP maks bertambah (+1 hati per Lv, maks 20 hati) dan HP pulih
+97	ZIRAH BERAT
+98	Serangan kuat (2 hati atau lebih) dikurangi 1 hati. HP maks juga bertambah (+1 hati tiap 2 Lv), tapi daya lompat turun (-3% per Lv)
+99	HANTAMAN BERAT
+100	Serangan bawah/hantaman/benturan mendarat lebih kuat (+10% per Lv). Serangan penutup juga sedikit naik (+3%/Lv)
+101	MODE NERAKA
+102	HP (+12%/Lv)・gerak (+4%/Lv)・kemunculan (+8%/Lv) musuh biasa naik, sebagai gantinya MILE (+50%/Lv) dan MILE bos (+30%/Lv) bertambah besar
+103	TEGANGAN TINGGI
+104	Petir lebih kuat (+5% per Lv). Sambaran petir menghentikan musuh biasa sesaat. Peluang sambaran juga sedikit naik (+1%/Lv)
+105	GEROMBOLAN
+106	Musuh jauh lebih sering muncul (+15% per Lv), sebagai gantinya MILE (+5%/Lv) dan EXP kalahkan (+5%/Lv) bertambah
+107	PEMBURU
+108	Lebih lincah saat lawan bos. Maju/mundur saat menyerang lebih jauh (+4% per Lv), dan lebih cepat mendekati bos yang jauh (+3%/Lv)
+109	PENJARA ES
+110	Lebih mudah membekukan (dingin yang diperlukan -1 tiap 3 Lv). Peluang dan durasi dingin juga naik
+111	INFERNO
+112	Mengalahkan musuh yang terbakar menyebarkan api ke sekitar (daya dan area naik sesuai Lv). Kamu juga bisa sedikit memicu bakar sendiri
+113	TEKAD BAJA
+114	Selama HP penuh, serangan naik (+5% per Lv). HP maks juga bertambah (+1 hati tiap 3 Lv)
+115	JUMLAH LOMPAT NAIK
+116	Lompatan di udara bertambah (+1 per Lv). Lompatan beruntun sedikit melemah, kecuali saat jatuh ke lubang. Penyihir: tinggi maksimum +1 tingkat tiap 3 Lv
+117	DAYA LOMPAT NAIK
+118	Daya lompat naik (+3% per Lv). Penyihir naik-turun ketinggian lebih cepat
+119	Saat HP tinggal 1 hati, kebal sesaat (1 dtk + 0.15 dtk per Lv). Tidak aktif lagi sampai HP pulih dan beberapa saat berlalu
+120	PERLAWANAN TERAKHIR
+121	Saat HP 50% ke bawah, serangan naik (+4% per Lv); saat HP 25% ke bawah, naik lagi (+4%/Lv)
+122	TEMBUS LEVEL
+123	EXP yang didapat bertambah besar (+30% per Lv)
+124	BILAH PANJANG
+125	Jangkauan serang efektif bertambah besar (+5% per Lv)
+126	PERJALANAN PANJANG
+127	EXP (+15% per Lv) dan HP maks (+1 hati tiap 3 Lv) bertambah
+128	PEMBASMI KAWANAN
+129	Serangan ke musuh selain bos (+5% per Lv) dan MILE dari musuh (+10% per Lv) naik
+130	MOMENTUM
+131	Kecepatanmu jadi serangan. Mulai naik di atas 100km/h, maksimal di 150km/h (+4% per Lv). Setelah itu kenaikannya melambat
+132	SERBUAN MONSTER
+133	Musuh lebih sering muncul (+10% per Lv), sebagai gantinya EXP bertambah (+15%/Lv)
+134	MUSUH BERTAMBAH
+135	Musuh lebih sering muncul (+10% per Lv). MILE dari musuh juga sedikit bertambah (+3%/Lv)
+136	PANTANG MUNDUR
+137	Kecepatan gerak naik besar (+5% per Lv), tapi musuh lebih sering muncul (+10%/Lv)
+138	ONE MORE MILE
+139	MILE (+50% per Lv)・MILE bos (+50%)・EXP (+20%) bertambah
+140	Bertahan di 115km/h ke atas memicu OVERDRIVE (serangan +3% per Lv, kecepatan serang +2%). Hilang jika melambat. Kecepatan gerak juga sedikit naik (+2% per Lv)
+141	PULIH BERLEBIH
+142	Jumlah pulih bertambah (+1 di Lv4〜6, +2 hati di Lv7〜9). Pemulihan saat HP penuh jadi 1 Shield
+143	HURU-HARA
+144	HP/gerak/kemunculan/elit musuh biasa dan HP bos semuanya naik, sebagai gantinya MILE (+60%/Lv) dan MILE bos (+60%/Lv) bertambah sangat besar
+145	PENJELAJAH
+146	EXP dari jarak lari bertambah (+20% per Lv)
+147	TANGKIS SEMPURNA
+148	Saat Shield terpakai, kebal sesaat (0.4 dtk + 0.1 dtk per Lv). Dapat 1 Shield meski belum punya
+149	Bangkit sekali saat tumbang (HP 1〜5 hati sesuai Lv). Setelah bangkit, kartu ini lepas dan bisa muncul lagi sebagai pilihan (mulai lagi dari Lv1)
+150	BILAH TEMBUS
+151	Serangan menembus musuh. Jarak dekat: tembus ke belakang musuh (jumlah dan daya naik sesuai Lv); proyektil: jumlah tembus (+1 tiap 3 Lv)
+152	PREDATOR
+153	Peluang serap naik (+3% per Lv). Serangan ke bos juga kadang bisa menyerap
+154	BILAH KILAT
+155	Kecepatan serangan utama (depan/belakang) naik (+5% per Lv). Tidak berlaku untuk atas/bawah/hantaman/jurus besar
+156	GIGI MUNDUR
+157	Serangan naik (+8% per Lv), tapi kecepatan gerak turun (-3% per Lv)
+158	Saat HP turun ke 30% atau kurang, HP sedikit pulih (1〜3 hati). Setelah aktif ada cooldown jarak (10,000m, makin pendek sesuai Lv)
+159	PERISAI
+160	Shield yang menahan 1 serangan. Jumlah maks +1 tiap 3 Lv (maks 3), yang terpakai pulih seiring waktu (makin cepat sesuai Lv)
+161	GELOMBANG KEJUT
+162	Serangan dekat melepas gelombang kejut pendek ke depan; proyektil memicu gelombang kejut di titik kena (daya dan area naik sesuai Lv)
+163	PENGUASA LANGIT
+164	Serangan udara naik (+4% per Lv). Mengenai musuh di udara memulihkan 1 lompatan udara (1 kali tiap 3 Lv per sekali melayang)
+165	PELARI LANGIT
+166	Daya lompat (+2% per Lv) dan serangan udara (+3% per Lv) naik
+167	TERBANG TINGGI
+168	Serangan di udara naik besar (+11% per Lv), tapi turun di darat (-5% per Lv)
+169	BILAH SONIK
+170	Tiap serangan utama melepas tebasan ke depan. Makin cepat berlari, makin jauh・besar・kuat
+171	KECEPATAN TURUN
+172	Kecepatan gerak turun (-4% per Lv). Kartu khusus yang jarang berguna saat solo
+173	KECEPATAN NAIK
+174	Kecepatan gerak naik (+3% per Lv)
+175	JALAN PANJANG
+176	EXP (+40% per Lv) dan HP maks (+1 hati tiap 2 Lv) bertambah
+177	PENGUASA GUNTUR
+178	Tingkat lanjut petir. Daya (+4% per Lv)・rantai (+1 musuh tiap 3 Lv)・area di sekitar sambaran makin kuat
+179	SAMBARAN GUNTUR
+180	Awal elemen petir. Serangan memicu sambaran petir (peluang 5%+2%/Lv, daya 7.5+1.5/Lv. Maks 1 kali per 0.4 dtk ke musuh yang sama)
+181	TORNADO
+182	Bilah angin memicu tornado kecil di titik kena yang menyeret musuh sekitar (daya dan area naik sesuai Lv). Kamu juga bisa sedikit melepas bilah angin sendiri
+183	MUSUH TANGGUH
+184	HP musuh biasa naik (+15% per Lv), sebagai gantinya MILE (+15%/Lv) dan EXP kalahkan (+5%/Lv) bertambah
+185	PEMBURU HARTA
+186	MILE dari harta・hadiah (goblin pembawa harta/slime emas/mimik/TUNTAS/SEMPURNA di BONUS ZONE, hadiah BURONAN) bertambah (+30% per Lv). MILE bos dan jarak juga sedikit naik
+187	MAHAKUASA
+188	Kartu serba bisa yang menaikkan serangan (+3% per Lv)・HP maks (+1 hati tiap 2 Lv)・kecepatan gerak (+2% per Lv) sekaligus
+189	VAMPIR
+190	Saat mengalahkan musuh, ada peluang (+3% per Lv) memulihkan 1 hati HP
+191	BURONAN
+192	Buronan muncul tiap jarak tertentu (makin kuat・sering sesuai Lv). Kalahkan untuk hadiah, lewati dan ia lolos. MILE bertambah (+35%/Lv)
+193	PEMOTONG ANGIN
+194	Awal elemen angin. Serangan melepas bilah angin tembus ke depan (peluang 10%+3%/Lv, daya 8+1.5/Lv). Jangkauan serang juga sedikit bertambah (+1%/Lv)
+195	PEMANAH
+196	Tarik, Bidik, Tembus
+197	'Penjaga dari hutan belantara
+198	PENEMBAK JITU
+199	PENOMBAK NAGA
+200	Terobos, Pantang Menyerah
+201	'Ksatria naga muda bersenjata tombak
+202	PENEROBOS
+203	MANUSIA NAGA
+204	Cakar, Ekor, Sayap, Api
+205	'Prajurit berdarah naga.
+206	BUAS
+207	PEDANG GANDA
+208	Baja Kilat, Gerak Tanpa Henti
+209	'Petarung dua pedang yang merangkai serangan
+210	COMBO DARAT
+211	PETARUNG
+212	Tinju yang Membalas
+213	'Ahli bela diri yang bertarung
+214	PENEMBAK
+215	Satu Tembakan, Satu Jarak
+216	'Dua pistol, satu garis tembakan tajam.
+217	JARAK JAUH
+218	PENYIHIR
+219	Melayang di Atas, Serang ke Bawah
+220	'Penyihir yang tak pernah menyentuh tanah.
+221	PENYIHIR TERBANG
+222	GADIS KUIL
+223	Segel Jalan di Depan
+224	'Pengusir roh dari kuil gunung.
+225	PENYEGEL
+226	SHINOBI
+227	Lenyap, Tebas, Lenyap
+228	'Shinobi yang tak pernah ada di tempat kau serang.
+229	LINCAH
+230	PUTRI BANGSAWAN
+231	Pahlawan yang Belum Bangkit
+232	'Berbalut perak dan emas, ia menghunus
+233	KSATRIA BANGSAWAN
+234	PENDEKAR PEDANG
+235	Yang Terus Melangkah
+236	'Pendekar pedang penyendiri yang menempuh jalannya sendiri.
+237	SEIMBANG
+238	Makin Lama, Makin Kuat
+239	'Bangsawan malam yang tak butuh pedang.
+240	DARAH
+241	KARTU KARAKTER
+242	PILIH KARAKTER
+243	PILIH
+244	NYAWA
+245	KEKUATAN
+246	PILIH STAGE
+247	Berangkat
+248	Susunan Rekomendasi
+249	Lepas Semua
+250	Ya
+251	Tidak
+252	KORIDOR TERAKHIR
+253	Musuh: campuran musuh semua stage (diperkuat)
+254	Ciri: lantai runtuh・reruntuhan jatuh・koridor melayang
+255	Rute: Koridor kuno raksasa → Runtuh → Jurang → Jalan terakhir
+256	Gua Alami
+257	Musuh: Semut / Belalang / Kelelawar / Cacing
+258	Ciri: langit-langit batu・duri di langit-langit・gelap dan obor
+259	Rute: satu jalur (ancaman darat・udara・bawah tanah・langit-langit)
+260	Koridor Langit
+261	Musuh: jenis goblin + bertahap terbuka seiring jarak
+262	Ciri: pijakan batu dan awan melayang, jalur di angkasa
+263	Rute: makin jauh, makin berbahaya
+264	Jalan Tanah Tandus
+265	Musuh: Goblin / Burung
+266	Rintangan: batu・pohon kecil・dinding・pohon yang bisa dihancurkan・batu raksasa・lubang
+267	Rute: Atas Easy / Bawah Danger
+268	Kamu tumbang. Coba lagi langsung dengan "Ulangi Kondisi Sama"
+269	HP pulih penuh
+270	Semua musuh dan serangannya dihapus (tidak dihitung ke waktu kalahkan)
+271	DMG diberi {0}    DMG diterima {1}    {2} dtk
+272	Kebal
+273	≡ Pengaturan
+274	Ulangi Kondisi Sama
+275	Hapus Semua Musuh
+276	Ke Beranda
+277	Musuh habis  {0} dtk
+278	Lawan
+279	Detail
+280	Hasil
+281	Tempat latihan untuk mencoba karakter dan kartu dengan bebas
+282	Mulai dengan setelan ini
+283	Mulai
+284	Coba
+285	(Coba)
+286	Cari
+287	<color=#8ce6ff>Coba</color>
+288	+ Tambah
+289	Salin dek saat ini
+290	Salin kartu karakter
+291	Build coba ({0} kartu)
+292	Lepas semua
+293	Lv = jumlah diambil di run ini (maks 9 per kemampuan). Koleksi & dek tidak berubah
+294	Tambah kartu lewat "+ Tambah" di daftar kiri. Bisa juga dicoba tanpa kartu
+295	Salinan milikmu (Lv fusi {0}・{1} kemampuan)
+296	{0} kartu dek disalin ke build coba (dek tidak berubah)
+297	{0} kartu karakter disalin (Lv awal)
+298	Target latihan
+299	Musuh biasa
+300	Bos Tanah Tandus
+301	Bos Gua
+302	Bos Langit
+303	Target diam: tidak menyerang (tanpa damage)・tidak bisa kalah. Untuk cek serangan. Saat berlari, menjaga jarak dengan pemain
+304	Jumlah
+305	Kekuatan gerak
+306	Tahap
+307	Bos muncul dari depan dengan gerakan kemunculannya sendiri
+308	Jurus bos gua/langit yang memakai medan (lubang/langit-langit/batu jatuh/pita langit dll.) tampil beda di Arena yang datar
+309	Maks 1 jenis bos (bisa bersama musuh biasa)
+310	Tambah ke lawan
+311	Maks 1 jenis bos (bos sebelumnya diganti)
+312	Lawan saat ini ({0})
+313	Tidak ada lawan (jika mulai sekarang, kamu bisa coba gerakan tanpa musuh)
+314	Kekuatan musuh: setara titik {0}km (HP/serangan sama dengan jarak itu di game utama)
+315	Kecepatan
+316	Diam (0km/h)
+317	Lari (kecepatan dasar+bonus)
+318	Lari (kecepatan tetap)
+319	Hanya lari otomatis yang berhenti (serangan/lompat/gravitasi/sentakan/gerak musuh tetap seperti biasa)
+320	Lari dengan kecepatan dasar dikali bonus kecepatan karakter/kartu (KECEPATAN NAIK dll.)
+321	Lari di kecepatan ini tanpa bonus (untuk membandingkan tanpa efek kartu kecepatan)
+322	Kini: dasar {0}km/h → nyata {1}km/h (bonus ×{2})
+323	Kebal / HP
+324	Kebal: {0}
+325	Pulihkan HP penuh
+326	Saat kebal pun, "damage asli yang diterima" tetap tampil di hasil
+327	Bantuan kontrol (sama dengan "Bantuan kecepatan tinggi" di Pengaturan. Hanya di Arena・pengaturan tidak berubah)
+328	OFF
+329	ON
+330	Selalu (versi dev)
+331	Aktif mulai {0}km/h~
+332	Tidak tersedia di Arena: FINAL EVOLUTION / AWAKENED / Mastery / gauge ULTIMATE / naik level / hadiah bos / BONUS ZONE (kartu hanya efek Lv biasa dan COMBO. Hadiah・rekor・koleksi tidak berubah sama sekali)
+333	Khusus versi dev
+334	Pilih musuh yang belum ditemui: {0}
+335	Kunci nilai acak: {0}
+336	Bantuan hancurkan rintangan: {0}
+337	Tumbang
+338	Musuh habis {0} dtk
+339	Selesai
+340	Bertarung
+341	Kali ini: {0}
+342	Damage diberi
+343	Jumlah kena
+344	Musuh dikalahkan
+345	Waktu mengalahkan
+346	Damage diterima (HP berkurang)
+347	Damage asli (termasuk kebal/Shield)
+348	Waktu tempur
+349	{0} dtk
+350	{0} ({1}x)
+351	Kali ini
+352	Sebelumnya
+353	Kondisi kali ini: {0}
+354	Build coba: {0}
+355	Kondisi sebelumnya: {0}
+356	Build sebelumnya: {0}
+357	Ubah setelan
+358	？？？(belum ditemui)
+359	Target diam
+360	{0} / {1} kartu / {2} / setara {3}km
+361	Tanpa kartu
+362	(salinan milikmu)
+363	Menyiapkan Arena
+364	ARENA
+365	MIMIK KO
+366	GOBLIN
+367	SLIME
+368	PERI
+369	MIMIK
+370	MILE
+371	EXP
+372	JACKPOT!!
+373	BONUS ZONE!
+374	SEMPURNA:
+375	JACKPOT TUNTAS!
+376	BONUS TUNTAS!
+377	JACKPOT  SEMPURNA!
+378	BONUS SEMPURNA!
+379	HASIL JACKPOT
+380	HASIL BONUS
+381	MUSUH
+382	TUNTAS
+383	SEMPURNA
+384	TOTAL
+385	ACAK
+386	SELESAI
+387	Run lanjut dalam {0}
+388	Saat ini
+389	{0} hit
+390	(tetap)
+391	Kartu bahan sedang dipakai di dek/kartu karakter
+392	Sudah AWAKENED (★5), Mastery tidak bisa naik lagi (kartu tidak dipakai. Kegunaan kartu sisa setelah ★5 akan ditambahkan nanti)
+393	Tidak bisa fusi: Lv akan jadi {0} (batas Lv.{1})
+394	Tidak bisa fusi: kemampuan akan jadi {0} jenis (batas {1} jenis)
+395	Sedang memproses fusi
+396	Kartu tidak cukup
+397	<color=#ffd76a><b>[MASTERY] Latih Lv.9 MAX</b></color>
+398	Kartu utama tetap ada (Lv.9 MAX), hanya kartu bahan yang dipakai.
+399	Mastery kini: <color=#ffd76a>{0}</color>  {1}
+400	Fusi ini: <b>+{0} Mastery</b> (bahan Lv.{1} = {2} kartu)
+401	Setelah fusi: <color=#ffd76a>{0}</color>  {1}
+402	<size=19>(★{0}, sisa dibawa ke ★ berikutnya)</size>
+403	<size=19>Sisa {0} setelah ★5 disimpan, tidak dibuang</size>
+404	<color=#ff9a8a><size=19>Kemampuan sub bahan ({0} jenis) tidak diwariskan</size></color>
+405	<size=19>Mastery tidak menaikkan performa biasa (serangan/kecepatan/EXP dll.). Ini catatan latihan dan jalan menuju AWAKENED.</size>
+406	<color=#ff9a8a>Jika dijalankan, 1 kartu bahan akan dipakai.</color>
+407	<color=#ffd76a><b>[Perkuat Sama → Lv.9 MAX] Peluang sukses 100%</b></color>
+408	Lv fusi: Lv.{0} + Lv.{1} → <b>Lv.9 MAX</b>
+409	Kelebihan <b>{0}</b> di atas Lv.9 masuk ke Mastery: {1} → <color=#ffd76a>{2}</color>{3}
+410	<b>Kemampuan diwariskan (penguatan maks 9)</b>
+411	・{0} <b>×{1}</b>
+412	<color=#ff9a8a>Jika dijalankan, 2 kartu terpilih akan dipakai (dapat 1 kartu hasil Lv.9 MAX).</color>
+413	<color=#ffd76a><b>[Perkuat Sama] Peluang sukses 100%</b></color>
+414	Lv fusi: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+415	<b>Kemampuan diwariskan (kemampuan sama dijumlahkan)</b>
+416	・{0} {1}<b>×{2}</b>  <size=18>({3} ×{4})</size>
+417	<color=#9fd0ff><b>[Fusi Beda] Hasil ditentukan acak</b></color>
+418	<b>Lv fusi kartu hasil (per hasil)</b>
+419	・Keduanya sukses: Lv.{0} + Lv.{1} → <b>Lv.{2}</b>
+420	・Hanya utama sukses: <b>Lv.{0}</b> (hanya Lv utama)
+421	・Hanya bahan sukses: <b>Lv.{0}</b> (hanya Lv bahan)
+422	・Keduanya gagal: tanpa kartu hasil・<color=#ffd76a>{0} MILE</color> dikembalikan
+423	<b>Peluang warisan set kemampuan utama {0}%</b>
+424	・{0} ×{1}  <size=18>({2} ×{3})</size>
+425	<b>Peluang warisan set kemampuan bahan {0}%</b>
+426	Keduanya sukses: semua kemampuan kedua sisi diwariskan (kemampuan sama dijumlahkan)
+427	Satu sisi sukses: hanya kemampuan・penguatan・Lv sisi yang sukses diwariskan (sisi yang gagal hilang)
+428	Jika hanya bahan yang sukses, kemampuan utama bahan jadi kemampuan utama kartu hasil
+429	<size=18>(Pengembalian jika keduanya gagal =★{0}×Lv.{1}×{2} + ★{3}×Lv.{4}×{5})</size>
+430	<color=#ff9a8a>Jika dijalankan, 2 kartu terpilih akan dipakai.</color>
+431	Kamu tidak punya kartu ini
+432	Tidak bisa dipilih: dipakai di dek dan kartu karakter
+433	Tidak bisa dipilih: terpasang di kartu karakter
+434	Tidak bisa dipilih: dipakai di dek
+435	Perlu 2 kartu yang sama (punya 1)
+436	Pilih kartu utama dan kartu bahan
+437	Gagal memuat data kartu
+438	MASTERY NAIK!
+439	Fusi sukses besar!
+440	Fusi sukses!
+441	<size=21>Maju ★{0} (sisa dibawa ke ★ berikutnya)</size>
+442	<size=21>Sisa {0} setelah ★5 disimpan (bisa dipakai nanti)</size>
+443	<size=21>Kartu ini kini AWAKENED (catatan permanen. Performa biasa tidak berubah)</size>
+444	Kartu utama (Lv.9 MAX) tetap ada, 1 kartu bahan telah dipakai.
+445	<size=21>Mastery tidak menaikkan performa biasa (serangan/kecepatan/EXP dll.).</size>
+446	Fusi Lv.<b>{0}</b>{1}
+447	<color=#ffd76a>Perkuat Sama (pasti)</color> … semua kemampuan kedua kartu diwariskan
+448	Utama ({0} Lv.{1}): {2}
+449	Bahan ({0} Lv.{1}): {2}
+450	Hanya Lv utama
+451	Hanya Lv bahan
+452	<size=21>Hasil Lv.{0} = {1}</size>
+453	<b>Kemampuan utama</b>
+454	<b>Kemampuan sub ({0}/{1})</b>
+455	Tidak ada
+456	Fusi gagal…
+457	Utama ({0} Lv.{1}): <color=#9aa3b8>Gagal diwariskan</color>
+458	Bahan ({0} Lv.{1}): <color=#9aa3b8>Gagal diwariskan</color>
+459	2 kartu terpilih telah dipakai.
+460	MILE kembali  <color=#ffd76a><b><size=40>+{0}</size></b></color>
+461	MILE dimiliki  <b>{0}</b>
+462	<color=#ffd76a><b>Penguatan ×{0}→×{1}</b></color>
+463	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3} ×{4})</color></size>
+464	Kembali
+465	Fusi Kartu
+466	Urutkan
+467	Utama
+468	Bahan
+469	Kartu
+470	Dipilih
+471	Fusi
+472	Lewati ▶▶
+473	Fusi lagi
+474	Kembali ke daftar
+475	MILE dimiliki  {0}
+476	{0} jenis / total {1} kartu
+477	Kartu utama
+478	Kartu bahan
+479	Semua
+480	Gerak
+481	Serang
+482	Bertahan
+483	Tumbuh
+484	Pulih
+485	Spesial
+486	Risiko
+487	Pilih 2 kartu
+488	Tidak bisa fusi
+489	Nama
+490	Level
+491	Kelangkaan
+492	Jumlah dimiliki
+493	Punya {0}  Bisa dipakai<color=#{1}
+494	Kemampuan {0}
+495	Utama+Bahan
+496	Dipakai
+497	<color=#ffd76a><b>{0}</b></color>  <b>{1}</b>  {2}  Fusi Lv.{3}{4}
+498	Kemampuan utama: {0}
+499	Kemampuan sub ({0}):
+500	・{0}
+501	Kemampuan sub: tidak ada
+502	<size=19><color=#b7bfd8>Punya {0} / bisa dipakai {1}</color></size>
+503	Pilih kartu dari daftar kiri.
+504	Kartu masuk ke slot terpilih (yang bersinar). Ketuk slot untuk mengganti tujuan, ketuk × untuk membatalkan.
+505	・Kartu sama … peluang 100%, Lv fusi dan semua kemampuan dijumlahkan
+506	・Kartu berbeda … set kemampuan diwariskan dengan peluang utama 50%/bahan 25% (acak). Jika hanya satu sisi sukses, hanya Lv dan kemampuan sisi itu yang tersisa
+507	・Batas Lv fusi adalah Lv.9. Kelebihan di atas Lv.9 dari kartu sama masuk ke Mastery (kartu berbeda yang totalnya melebihi Lv.9 tidak bisa difusi)
+508	・Fusi kartu sama ke kartu Lv.9 MAX menaikkan Mastery (★5 = AWAKENED)
+509	<size=19>Sudah mencapai ★5 (AWAKENED). Kegunaan kartu sisa setelah ★5 akan ditambahkan nanti (kini tidak dipakai saat fusi).</size>
+510	Pilih kartu yang sama ({0}) sebagai bahan untuk menaikkan Mastery sebesar Lv bahan (Lv.1 = +1).
+511	Sekarang pilih kartu bahan.
+512	Sekarang pilih kartu utama.
+513	Kartu ini AWAKENED (★5)
+514	Kartu hasil dipasang sebagai utama. Pilih kartu bahan
+515	Penguatan pasti
+516	AWAKENED!
+517	Lv.9 MAX tercapai!
+518	Perkuat Sama selesai!
+519	Sukses besar! Kemampuan kedua sisi diwariskan
+520	Kemampuan utama diwariskan
+521	Kemampuan bahan diwariskan
+522	Gagal diwariskan…  Kartu diubah jadi MILE
+523	Sisi {0} berhasil diwariskan!
+524	Sisi {0} gagal diwariskan
+525	Fokus Speed
+526	Fokus Defense
+527	Fokus Blood
+528	Fokus Fire
+529	Fokus Ice
+530	Fokus Lightning
