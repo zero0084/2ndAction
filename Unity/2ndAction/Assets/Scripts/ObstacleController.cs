@@ -29,7 +29,7 @@ public class ObstacleController : MonoBehaviour
 
     public static int TotalBroken, TotalHits;
     // 診断/マルチの自動テスト用: 体当たりの被弾 / 自分より前にある障害物を他のプレイヤーが壊した回数
-    public static int TotalContactDamage, RemoteBrokenAhead;
+    public static int TotalContactDamage, RemoteBrokenAhead, ContactBroken; // ContactBroken: 体当たりで消えた数(2026-10-08)
     int lastAttacker;
     // 前後比較の自動テスト専用: 改修前の規則(壊せる木だけ耐久2、他は壊れない)を再現する。通常は常にfalse。
     public static bool LegacyRules;
@@ -203,16 +203,22 @@ public class ObstacleController : MonoBehaviour
         }
         if (!pendingContact) return;
         pendingContact = false;
-        if (Broken) return; // 同じフレームに攻撃で壊れた: 被弾しない
-        ContactDamaged = true;
-        TotalContactDamage++;
-        if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: "Obstacle:" + (string.IsNullOrEmpty(kind) ? name : kind));
+        if (Broken) return; // 同じフレームに攻撃で壊れた: 被弾しない(破壊/命中の演出だけ)
+        var pc = PlayerController.Instance;
+        int before = pc != null ? pc.DamageAppliedCount : 0;
+        if (pc != null) pc.TakeDamage(source: "Obstacle:" + (string.IsNullOrEmpty(kind) ? name : kind));
+        // 2026-10-08: 実際にダメージが入った時だけ「被弾」として数える(無敵/無敵時間/盾で無効なら数えない。赤点滅も PlayerController 側で出ない)
+        bool hurt = pc != null && pc.DamageAppliedCount > before;
+        if (hurt) { ContactDamaged = true; TotalContactDamage++; }
         if (!configured || vanishOnContact)
         {
-            // 石/壁/大岩: 体当たりした個体はその場から消える(従来どおり。見た目が重なり続けない)
+            // 石/壁/大岩: 体当たりした個体はその場から消える。2026-10-08: 黙って消さず、素材に合った破壊の演出(石=破片+砂ぼこり、木=木片)で消す。
+            // 当たり判定はすぐ外す。これはその端末だけの見た目(体当たりは各端末で判定する。HOST の破壊の同期は通さない)。破片は見た目だけ
             Broken = true;
+            pendingContact = false;
             foreach (var c in GetComponentsInChildren<Collider2D>()) c.enabled = false;
-            gameObject.SetActive(false);
+            ContactBroken++;
+            ObstacleFx.Break(this, pc != null ? pc.transform.position : transform.position);
         }
     }
 }

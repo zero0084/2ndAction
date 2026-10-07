@@ -102,6 +102,15 @@ public class UiScroll
         string t = Loc.Auto(text ?? "");
         var st = new GUIStyle(style) { wordWrap = true };
         float contentH = st.CalcHeight(new GUIContent(t), view.width - 12f);
+        if (contentH <= view.height)
+        {
+            // 収まる時は今までどおり(揃え方もそのまま)。スクロールの状態だけ合わせる
+            string k = (key ?? text ?? "") + "|" + Loc.Current;
+            if (k != lastKey) { lastKey = k; Reset(); }
+            CanScroll = false;
+            GUI.Label(view, t, st);
+            return;
+        }
         Begin(view, contentH, key ?? text);
         GUI.Label(new Rect(0f, 0f, view.width - 12f, contentH), t, st);
         End(view, contentH);

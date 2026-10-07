@@ -49,7 +49,7 @@ public class ViewModeToggle : MonoBehaviour
     {
         PortraitActive = !PortraitActive;
         ApplyCameras();
-        Screen.orientation = PortraitActive ? ScreenOrientation.Portrait : ScreenOrientation.LandscapeLeft;
+        OrientationControl.Apply(PortraitActive ? ScreenOrientation.Portrait : ScreenOrientation.LandscapeLeft);
         Debug.Log($"[ViewMode] Switched to {(PortraitActive ? "Portrait (斜め上視点)" : "Landscape")}");
     }
 

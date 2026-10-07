@@ -6,6 +6,7 @@ using UnityEngine;
 // (パネルを開いている間は UiInputGate で背後の uGUI のタップを止める)。
 public class SprintDeparturePanel : MonoBehaviour
 {
+    readonly UiScroll descScroll = new UiScroll(), listScroll = new UiScroll(); // 2026-10-08
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Boot()
     {
@@ -62,12 +63,19 @@ public class SprintDeparturePanel : MonoBehaviour
         var st = StageDatabase.FindById(stageForPanel);
         LocGUI.Label(new Rect(x, y, w, 50f * s), $"疾走出発  {(st != null ? st.displayName : stageForPanel)}", UiKit.Label(34f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f)));
         y += 52f * s;
-        LocGUI.Label(new Rect(x, y, w, 70f * s), "攻略済みの区間を一気に駆け抜け、選んだ関門の少し手前から走り始めます。途中のボス報酬ぶんのカードは自動で取得。5,000mごとのリングをくぐると追加で1枚選べます。", UiKit.Label(20f * s, TextAnchor.UpperLeft, false, new Color(0.85f, 0.9f, 1f)));
-        y += 80f * s;
+        // 2026-10-08: 説明は折り返し、長い言語ではスクロール(以前は1行のままで切れていた)
+        var descSt = UiKit.Label(20f * s, TextAnchor.UpperLeft, false, new Color(0.85f, 0.9f, 1f)); descSt.wordWrap = true;
+        descScroll.Text(new Rect(x, y, w, 76f * s), "攻略済みの区間を一気に駆け抜け、選んだ関門の少し手前から走り始めます。途中のボス報酬ぶんのカードは自動で取得。5,000mごとのリングをくぐると追加で1枚選べます。", descSt, stageForPanel);
+        y += 84f * s;
         var list = SprintRecords.Destinations(stageForPanel);
+        // 行き先の一覧も、収まらない時はスクロール(ドラッグした指では行き先を選ばない)
+        var listView = new Rect(x, y, w, Mathf.Max(68f * s, panel.yMax - 90f * s - y));
+        float listH = list.Count * 68f * s + (SprintRecords.DevUnlockAll ? 34f * s : 0f);
+        listScroll.Begin(listView, listH, stageForPanel);
+        float x0 = x; x = 0f; y = 0f;
         foreach (var d in list)
         {
-            Rect row = new Rect(x, y, w, 62f * s);
+            Rect row = new Rect(x, y, w - 12f, 62f * s);
             string label = d.unlocked ? $"{d.meters / 1000}km まで疾走   (約{SprintTuning.I.SecondsFor(d.meters):F0}秒 + リング){(d.why == "DEBUG 全解放" ? "  [DEBUG 全解放]" : "")}" : $"{d.meters / 1000}km   🔒 {d.why}";
             if (UiKit.Button(row, label, 24f * s, d.unlocked, false, d.unlocked) && d.unlocked)
             {
@@ -75,11 +83,14 @@ public class SprintDeparturePanel : MonoBehaviour
                 UiInputGate.LatchUntilRelease();
                 if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
                 if (!gm.DepartSprint(stageForPanel, d.meters)) Debug.Log("[Sprint] depart failed");
+                listScroll.End(listView, listH);
                 return;
             }
             y += 68f * s;
         }
         if (SprintRecords.DevUnlockAll) LocGUI.Label(new Rect(x, y, w, 30f * s), "(開発版: DEBUG の全解放が ON)", UiKit.Label(18f * s, TextAnchor.MiddleLeft, false, new Color(1f, 0.6f, 0.5f)));
+        listScroll.End(listView, listH);
+        x = x0;
         if (UiKit.Button(new Rect(x, panel.yMax - 76f * s, w, 56f * s), "閉じる", 24f * s, false, false, true))
         {
             Open = false; UiInputGate.SprintPanelOpen = false; UiInputGate.LatchUntilRelease();

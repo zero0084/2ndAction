@@ -596,6 +596,7 @@ public class DeckEditUI : MonoBehaviour
             else if (inDeck) statusLine = "\n\n[IN DECK]";
             if (otherChar) statusLine += "\n[他のキャラのキャラカード]";
         }
+        UguiScrollText.Wrap(detailText); // 2026-10-08: 長い説明は枠の中でスクロール(縮めない)
         if (detailText != null) detailText.text = Loc.Auto((detailPreviewCard != null ? DetailDescription(card) : card.description) + statusLine);
 
         detailCardId = card.cardId;

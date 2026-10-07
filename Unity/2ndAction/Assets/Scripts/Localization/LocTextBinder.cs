@@ -52,6 +52,7 @@ public class LocTextBinder : MonoBehaviour
                 if (t.text != tr) t.text = tr;
                 e.applied = tr;
                 bool translated = !Loc.IsJapanese;
+                if (t.GetComponentInParent<UguiScrollText>(true) != null) { n++; continue; } // 2026-10-08: スクロールする説明文は縮めない(全文を折り返して読む)
                 t.resizeTextForBestFit = translated || e.baseBestFit;
                 if (translated) { t.resizeTextMaxSize = e.baseSize; t.resizeTextMinSize = Mathf.Max(8, Mathf.RoundToInt(e.baseSize * 0.6f)); }
                 else { t.resizeTextMaxSize = e.baseMax; t.resizeTextMinSize = e.baseMin; }

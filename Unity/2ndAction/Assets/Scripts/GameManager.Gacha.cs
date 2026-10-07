@@ -84,11 +84,28 @@ public partial class GameManager
     }
 
     // OnGUI の最初(ホームのボタンより前)。確認中は本体以外への押下/離しを全部ここで吸い取り、離した時に閉じる。
+    // 2026-10-08: 説明が長い時は説明の所を指でドラッグしてスクロールできる。ドラッグした指は離しても閉じない(タップで閉じる と競合させない)
+    readonly UiScroll gachaDescScroll = new UiScroll();
+    Rect lastGachaDescRect; float gachaDescMax; Vector2 gachaPressPos; bool gachaDragging, gachaPressInDesc; float gachaLastY;
+    public bool GachaDescDragging => gachaDragging; // テスト用
     void GachaPopupInput()
     {
         if (!gachaResultOpen || HasStarted) return;
         var e = Event.current;
-        if (e == null || (e.type != EventType.MouseDown && e.type != EventType.MouseUp)) return;
+        if (e == null || (e.type != EventType.MouseDown && e.type != EventType.MouseUp && e.type != EventType.MouseDrag)) return;
+        if (e.type == EventType.MouseDrag)
+        {
+            if (gachaPressInDesc && gachaDescMax > 0.5f && !gachaDragging && Mathf.Abs(e.mousePosition.y - gachaPressPos.y) > UiScroll.DragThreshold) gachaDragging = true;
+            if (gachaDragging)
+            {
+                gachaDescScroll.y = Mathf.Clamp(gachaDescScroll.y - (e.mousePosition.y - gachaLastY), 0f, gachaDescMax);
+                gachaLastY = e.mousePosition.y;
+                e.Use();
+            }
+            return;
+        }
+        if (e.type == EventType.MouseDown) { gachaPressPos = e.mousePosition; gachaLastY = e.mousePosition.y; gachaDragging = false; gachaPressInDesc = lastGachaDescRect.Contains(e.mousePosition); }
+        if (e.type == EventType.MouseUp && gachaDragging) { gachaDragging = false; gachaCloseArmed = false; e.Use(); return; } // スクロールした指: 閉じない
         if (lastGachaMachineRect.width > 0f && lastGachaMachineRect.Contains(e.mousePosition)) return; // 本体のボタンが受け取る
         if (e.type == EventType.MouseDown)
         {
@@ -150,8 +167,12 @@ public partial class GameManager
         var desc = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.UpperCenter, wordWrap = true, fontSize = Mathf.RoundToInt(20f * s) };
         desc.normal.textColor = new Color(0.92f, 0.94f, 1f);
         string text = string.IsNullOrEmpty(card.description) ? "" : card.description;
-        float dh = Mathf.Min(desc.CalcHeight(new GUIContent(text), panel.width - 56f * s), 90f * s);
-        LocGUI.Label(new Rect(panel.x + 28f * s, y, panel.width - 56f * s, dh), text, desc);
+        // 2026-10-08: 高さは訳した文で測る。収まらなければ縮めずにスクロール(右にバー)
+        float full = desc.CalcHeight(new GUIContent(Loc.Auto(text)), panel.width - 56f * s - 12f);
+        float dh = Mathf.Min(full, 90f * s);
+        var descRect = new Rect(panel.x + 28f * s, y, panel.width - 56f * s, dh);
+        lastGachaDescRect = descRect; gachaDescMax = Mathf.Max(0f, full - dh);
+        gachaDescScroll.Text(descRect, text, desc, card.cardId + "@" + gachaResultOpenedAt.ToString("F3"));
         y += dh + 6f * s;
 
         string masteryHint = CardMastery.IsAwakened(card.cardId) ? "  (AWAKENED済み・保管)" : CardMastery.IsMaxReached(card.cardId) ? "  → 合成で MASTERY +1" : "";

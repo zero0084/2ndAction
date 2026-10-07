@@ -1839,8 +1839,12 @@ public partial class PlayerController : MonoBehaviour
         FreezeDiagnostics.LogEvent($"[Net] REVIVED at x={transform.position.x:F2} dist={DistanceExact:F1}");
     }
 
+    // 実際にダメージが入った回数(2026-10-08)。障害物などが「当たったが無効だった」と区別する(無効なら赤点滅も出ない)
+    public int DamageAppliedCount { get; private set; }
+
     void ApplyDamageReaction(bool isFall)
     {
+        DamageAppliedCount++;
         RespawnAtCurrentPosition(isFall);
         // 被弾リアクション: 通常被弾=Hurt、落下復帰=Recovery。無敵時間はリアクション中から数え始め、
         // リアクションが終わってから点滅する(Hurt=被弾の瞬間、点滅=その後の無敵)。

@@ -773,6 +773,7 @@ public class RewardCardSequence : MonoBehaviour
 
     void UpdateDetailPanel(RewardCardData data)
     {
+        UguiScrollText.Wrap(detailDescriptionText); // 2026-10-08: 長い説明は枠の中でスクロール(縮めない)
         if (detailTitleText != null) detailTitleText.text = Loc.Auto(data.Title);
         if (detailLevelText != null) detailLevelText.text = Loc.Auto(data.LevelLine);
         if (detailDescriptionText != null) detailDescriptionText.text = Loc.Auto(data.Description);
@@ -782,6 +783,7 @@ public class RewardCardSequence : MonoBehaviour
     // 1枚もまだ選ばれていない間、詳細説明エリアに出す案内文。
     void ShowDetailPrompt()
     {
+        UguiScrollText.Wrap(detailDescriptionText);
         if (detailTitleText != null) detailTitleText.text = "";
         if (detailLevelText != null) detailLevelText.text = "";
         if (detailDescriptionText != null) detailDescriptionText.text = Loc.Auto("カードをタップして選択してください");

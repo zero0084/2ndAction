@@ -1284,7 +1284,7 @@ public partial class GameManager : MonoBehaviour
         ElementSystem.ResetCounters(); // 属性の発動回数(確認用)はランごと
 
         preferredOrientation = (ScreenOrientation)SaveStore.GetInt(OrientationKey, (int)ScreenOrientation.LandscapeLeft);
-        Screen.orientation = preferredOrientation;
+        OrientationControl.Apply(preferredOrientation); // 2026-10-08: 横は左右どちらの横持ちにも回る
 
         // Must happen before LoadDeck() - its default-deck fallback (and
         // CardDatabase.AllCards callers in general) needs unlock state to
@@ -1912,7 +1912,7 @@ public partial class GameManager : MonoBehaviour
             ? ScreenOrientation.LandscapeLeft
             : ScreenOrientation.Portrait;
 
-        Screen.orientation = preferredOrientation;
+        OrientationControl.Apply(preferredOrientation); // 2026-10-08: 横は左右どちらの横持ちにも回る
         SaveStore.SetInt(OrientationKey, (int)preferredOrientation);
         SaveStore.Save();
     }
@@ -3373,6 +3373,7 @@ public partial class GameManager : MonoBehaviour
         NetMatch.RequestHeal(amount);
     }
 
+    readonly UiScroll confirmScroll = new UiScroll(); // 2026-10-08: はい/いいえ の確認文
     public RunLedger.CommitResult LastCommit { get; private set; } // 2026-10-08: このランの確定の結果(結果画面)
 
     public void Win()
@@ -4285,7 +4286,10 @@ public partial class GameManager : MonoBehaviour
         string headline = IsWin ? "GAME CLEAR" : "FAILED";
 
         float panelWidth = Mathf.Min(560f, Screen.width * 0.8f);
-        float panelHeight = Mathf.Min(504f, Screen.height * 0.85f);
+        // 2026-10-08: 行の数に合わせて行の間隔を詰める(画面の低い端末/文の長い言語でも全部の行が枠に収まる。文字は1行のまま)
+        int rowCount = IsWin ? 8 + ((RunBonusMile > 0 || RunRingMile > 0) ? 1 : 0) + ((LastCommit != null && (LastCommit.unlockedStages.Count + LastCommit.unlockedChars.Count > 0 || (!LastCommit.committed && Debug.isDebugBuild))) ? 1 : 0) : 7;
+        float panelHeight = Mathf.Min(Screen.height * 0.92f, Mathf.Max(504f, 68f + rowCount * 34f + (upgradeHistory.Count > 0 ? 62f : 0f) + 50f));
+        float rowStep = Mathf.Clamp((panelHeight - 68f - (upgradeHistory.Count > 0 ? 62f : 0f) - 50f) / Mathf.Max(1, rowCount), 22f, 34f);
         Rect panelRect = new Rect(Screen.width / 2f - panelWidth / 2f, Screen.height / 2f - panelHeight / 2f, panelWidth, panelHeight);
         UiBackdrop.Draw(panelRect, 0.8f);
 
@@ -4303,9 +4307,9 @@ public partial class GameManager : MonoBehaviour
             string text = star ? $"{Loc.T(label)}: {value}  ★" : $"{Loc.T(label)}: {value}"; // 見出しだけ訳す(2026-10-07)
             Color prevColor = rowStyle.normal.textColor;
             rowStyle.normal.textColor = star ? new Color(1f, 0.85f, 0.3f) : Color.white;
-            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), text, rowStyle);
+            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, rowStep - 4f), text, rowStyle);
             rowStyle.normal.textColor = prevColor;
-            y += 34f;
+            y += rowStep;
         }
 
         // Reward/MILE System Ver.1, item 3 - "DISTANCE 23,400m +234 MILE"
@@ -4332,17 +4336,17 @@ public partial class GameManager : MonoBehaviour
                 foreach (var id in LastCommit.unlockedChars) names.Add(Loc.Auto(UnlockRules.CharName(id)));
                 Color keepU = rowStyle.normal.textColor;
                 rowStyle.normal.textColor = new Color(1f, 0.85f, 0.3f);
-                LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), "NEW: " + string.Join(" / ", names), rowStyle);
+                LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, rowStep - 4f), "NEW: " + string.Join(" / ", names), rowStyle);
                 rowStyle.normal.textColor = keepU;
-                y += 34f;
+                y += rowStep;
             }
             else if (LastCommit != null && !LastCommit.committed && !string.IsNullOrEmpty(LastCommit.skippedWhy) && Debug.isDebugBuild && !DebugRun.WritesBlocked)
             {
                 Color keepU = rowStyle.normal.textColor;
                 rowStyle.normal.textColor = new Color(1f, 0.6f, 0.5f);
-                LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), "DEV: 記録の対象外 (" + LastCommit.skippedWhy + ")", rowStyle);
+                LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, rowStep - 4f), "DEV: 記録の対象外 (" + LastCommit.skippedWhy + ")", rowStyle);
                 rowStyle.normal.textColor = keepU;
-                y += 34f;
+                y += rowStep;
             }
         }
         else
@@ -4355,14 +4359,14 @@ public partial class GameManager : MonoBehaviour
             Row("TOTAL EXP / UPGRADES", $"{Mathf.FloorToInt(TotalExpEarned)} / {UpgradeCount}", false);
             Color keepRow = rowStyle.normal.textColor;
             rowStyle.normal.textColor = new Color(1f, 0.55f, 0.5f);
-            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), $"失ったもの: このランのMILE {RunMile}", rowStyle);
-            y += 34f;
+            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, rowStep - 4f), $"失ったもの: このランのMILE {RunMile}", rowStyle);
+            y += rowStep;
             rowStyle.normal.textColor = new Color(0.6f, 1f, 0.7f);
-            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), "今回の距離は正式な記録(BEST・累計・解放)に残りません", rowStyle);
-            y += 34f;
+            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, rowStep - 4f), "今回の距離は正式な記録(BEST・累計・解放)に残りません", rowStyle);
+            y += rowStep;
             rowStyle.normal.textColor = new Color(0.6f, 1f, 0.7f);
-            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), $"残るもの: これまでに確定した記録・カード・MILE(WALLET {TotalOwnedMile})", rowStyle);
-            y += 34f;
+            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, rowStep - 4f), $"残るもの: これまでに確定した記録・カード・MILE(WALLET {TotalOwnedMile})", rowStyle);
+            y += rowStep;
             rowStyle.normal.textColor = keepRow;
         }
 
@@ -5863,8 +5867,8 @@ public partial class GameManager : MonoBehaviour
         msgStyle.alignment = TextAnchor.MiddleCenter;
         msgStyle.wordWrap = true;
         msgStyle.normal.textColor = Color.white;
-        LocGUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 26f, panelRect.width - 48f, 100f),
-            "現在のRunと未確定MILEを\n破棄します。よろしいですか？", msgStyle);
+        confirmScroll.Text(new Rect(panelRect.x + 24f, panelRect.y + 26f, panelRect.width - 48f, 100f),
+            "現在のRunと未確定MILEを\n破棄します。よろしいですか？", msgStyle, "newrun"); // 2026-10-08: 長い言語はスクロール
 
         Rect yesRect = new Rect(panelRect.x + 28f, panelRect.yMax - 68f, panelRect.width / 2f - 42f, 50f);
         Rect noRect = new Rect(panelRect.x + panelRect.width / 2f + 14f, panelRect.yMax - 68f, panelRect.width / 2f - 42f, 50f);
@@ -5931,8 +5935,8 @@ public partial class GameManager : MonoBehaviour
         msgStyle.alignment = TextAnchor.MiddleCenter;
         msgStyle.wordWrap = true;
         msgStyle.normal.textColor = Color.white;
-        LocGUI.Label(new Rect(panelRect.x + 24f, panelRect.y + 24f, panelRect.width - 48f, 130f),
-            "Home Roomへ戻ります。\nRunは終了せず、この続きから\nCONTINUEできます。", msgStyle);
+        confirmScroll.Text(new Rect(panelRect.x + 24f, panelRect.y + 24f, panelRect.width - 48f, 130f),
+            "Home Roomへ戻ります。\nRunは終了せず、この続きから\nCONTINUEできます。", msgStyle, "returnhome"); // 2026-10-08
 
         Rect yesRect = new Rect(panelRect.x + 28f, panelRect.yMax - 68f, panelRect.width / 2f - 42f, 50f);
         Rect noRect = new Rect(panelRect.x + panelRect.width / 2f + 14f, panelRect.yMax - 68f, panelRect.width / 2f - 42f, 50f);

@@ -8,6 +8,7 @@ using UnityEngine;
 //  説明の間は時間を止める(①③はホームなので止める物は無い)。閉じた指は離すまで操作にしない。
 public class FirstRunGuide : MonoBehaviour
 {
+    readonly UiScroll bodyScroll = new UiScroll(); // 2026-10-08
     public static FirstRunGuide Instance { get; private set; }
     public enum Kind { None, DoorPrompt, EscapeGuide, MileGuide }
     public static Kind Showing => Instance != null ? Instance.showing : Kind.None;
@@ -176,7 +177,7 @@ public class FirstRunGuide : MonoBehaviour
         bodySt.fontSize = Mathf.RoundToInt(23 * s * k); bodySt.normal.textColor = Color.white;
         OrnateUi.DrawPanel(p, 0.95f);
         LocGUI.Label(new Rect(p.x + 20 * s, p.y + 10 * s * k, p.width - 40 * s, 46 * s * k), title, titleSt);
-        LocGUI.Label(new Rect(p.x + 28 * s, p.y + 54 * s * k, p.width - 56 * s, p.height - 130 * s * k), body, bodySt);
+        bodyScroll.Text(new Rect(p.x + 28 * s, p.y + 54 * s * k, p.width - 56 * s, p.height - 130 * s * k), body, bodySt, showing.ToString()); // 2026-10-08: 長い説明はスクロール
         float bw = 280 * s * k, bh = 58 * s * k, by = p.yMax - bh - 14 * s * k;
         int pl = PadNav.BeginLayer(60); // 手前の窓(パッド/キーのフォーカスはこの窓のボタンだけ)
         if (showing == Kind.DoorPrompt)

@@ -12,6 +12,7 @@ using UnityEngine;
 //  ・未所持のキャラ/カードは「試用」(所持/解放は変えない)。未遭遇のボスは名前を伏せて選べない。開発版だけの項目は「開発版」の欄へ分ける。
 public class ArenaController : MonoBehaviour
 {
+    readonly UiScroll flavorScroll = new UiScroll(); // 2026-10-08
     public static ArenaController Instance { get; private set; }
     static readonly object pauseOwner = new object();
 
@@ -374,7 +375,7 @@ public class ArenaController : MonoBehaviour
         if (!string.IsNullOrEmpty(sd.subtitle)) { LocGUI.Label(new Rect(rx, y, rw, 22f), sd.subtitle, UiKit.Label(14f, TextAnchor.MiddleLeft, false, Soft)); y += 22f; }
         if (!string.IsNullOrEmpty(sd.role)) { LocGUI.Label(new Rect(rx, y, rw, 22f), sd.role, UiKit.Label(13f, TextAnchor.MiddleLeft, true, Trial)); y += 24f; }
         var desc = UiKit.Label(14f, TextAnchor.UpperLeft, false, Soft); desc.wordWrap = true;
-        LocGUI.Label(new Rect(rx, y, rw, c.yMax - y), sd.flavorText ?? "", desc);
+        flavorScroll.Text(new Rect(rx, y, rw, c.yMax - y), sd.flavorText ?? "", desc, sd.characterId); // 2026-10-08: 長い説明はスクロール
     }
     static bool CharacterOwned(CharacterDefinition d) => d != null && UnlockRules.IsCharacterUnlocked(d.characterId); // 2026-10-07: 未解放のキャラは闘技場では「試用」
 

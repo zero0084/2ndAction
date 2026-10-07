@@ -16,8 +16,8 @@ public class SettingsPanel : MonoBehaviour
     St state = St.Closed;
     float t;
     Vector2 scroll;
-    bool dragging;
-    float lastDragY;
+    bool dragging, pressed;
+    float lastDragY, pressY;
 
     const float OpenTime = 0.18f, CloseTime = 0.12f;
 
@@ -130,25 +130,27 @@ public class SettingsPanel : MonoBehaviour
         if (wide)
         {
             float colW = (view.width - 30f) * 0.5f;
-            contentH = Mathf.Max(MeasureAudio() + 16f + MeasureLanguage() + 16f + MeasureProfile(), MeasureDisplay() + MeasureControls() + 16f);
+            contentH = Mathf.Max(drawnH, Mathf.Max(MeasureAudio() + 16f + MeasureLanguage() + 16f + MeasureProfile(), MeasureDisplay() + MeasureControls() + 16f));
             BeginScroll(view, contentH);
             float ya = DrawAudio(0f, 0f, colW, interactive);
             ya = DrawLanguage(0f, ya + 16f, colW, interactive);
-            DrawProfile(0f, ya + 16f, colW, interactive);
+            ya = DrawProfile(0f, ya + 16f, colW, interactive);
             float y2 = DrawDisplay(colW + 30f, 0f, colW, interactive);
-            DrawControls(colW + 30f, y2 + 16f, colW, interactive);
+            y2 = DrawControls(colW + 30f, y2 + 16f, colW, interactive);
             EndScroll(view, contentH);
+            if (Event.current.type == EventType.Repaint) drawnH = Mathf.Max(ya, y2) + 12f;
         }
         else
         {
-            contentH = MeasureAudio() + MeasureLanguage() + MeasureDisplay() + MeasureControls() + MeasureProfile() + 64f;
+            contentH = Mathf.Max(drawnH, MeasureAudio() + MeasureLanguage() + MeasureDisplay() + MeasureControls() + MeasureProfile() + 64f);
             BeginScroll(view, contentH);
             float y = DrawAudio(0f, 0f, view.width, interactive);
             y = DrawLanguage(0f, y + 16f, view.width, interactive);
             y = DrawDisplay(0f, y + 16f, view.width, interactive);
             y = DrawControls(0f, y + 16f, view.width, interactive);
-            DrawProfile(0f, y + 16f, view.width, interactive);
+            y = DrawProfile(0f, y + 16f, view.width, interactive);
             EndScroll(view, contentH);
+            if (Event.current.type == EventType.Repaint) drawnH = y + 12f;
         }
 
         if (UiKit.Button(new Rect(panel.center.x - 110f, panel.yMax - 66f, 220f, 52f), "閉じる", 22f, true) && interactive) Close();
@@ -170,9 +172,14 @@ public class SettingsPanel : MonoBehaviour
         Event e = Event.current;
         if (max > 0f)
         {
-            if (e.type == EventType.MouseDown && view.Contains(e.mousePosition) && GUIUtility.hotControl == 0) { dragging = true; lastDragY = e.mousePosition.y; }
-            else if (e.type == EventType.MouseDrag && dragging && GUIUtility.hotControl == 0) { scroll.y = Mathf.Clamp(scroll.y - (e.mousePosition.y - lastDragY), 0f, max); lastDragY = e.mousePosition.y; }
-            else if (e.type == EventType.MouseUp) dragging = false;
+            // 2026-10-08: ボタンの上から始めたドラッグでもスクロールする。閾値を越えたら押していたボタンを取り消す(離しても押されない)
+            if (e.type == EventType.MouseDown && view.Contains(e.mousePosition)) { pressed = true; dragging = false; pressY = lastDragY = e.mousePosition.y; }
+            else if (e.type == EventType.MouseDrag && pressed)
+            {
+                if (!dragging && Mathf.Abs(e.mousePosition.y - pressY) > UiScroll.DragThreshold) dragging = true;
+                if (dragging) { scroll.y = Mathf.Clamp(scroll.y - (e.mousePosition.y - lastDragY), 0f, max); lastDragY = e.mousePosition.y; GUIUtility.hotControl = 0; e.Use(); }
+            }
+            else if (e.type == EventType.MouseUp) { if (dragging) e.Use(); pressed = dragging = false; }
             else if (e.type == EventType.ScrollWheel && view.Contains(e.mousePosition)) { scroll.y = Mathf.Clamp(scroll.y + e.delta.y * 20f, 0f, max); e.Use(); }
             // ゲームパッド: 端から先へ進もうとした時/右スティックで動かす(2026-10-06)
             if (e.type == EventType.Layout) { int req = PadNav.ScrollRequestFor(PadNav.ToScreen(view)); if (req != 0) scroll.y = Mathf.Clamp(scroll.y + req * view.height * 0.5f, 0f, max); }
@@ -227,11 +234,17 @@ public class SettingsPanel : MonoBehaviour
         return y + RowH;
     }
 
+    // 2026-10-08: 説明は幅で折り返す(長い言語でも縮めずに全部出す。内容全体は BeginScroll でスクロールする)
     float Note(float x, float y, float w, string text)
     {
-        LocGUI.Label(new Rect(x, y - 4f, w, 26f), text, UiKit.Label(15f, TextAnchor.UpperLeft, false, new Color(0.75f, 0.8f, 0.9f)));
-        return y + 22f;
+        var st = UiKit.Label(15f, TextAnchor.UpperLeft, false, new Color(0.75f, 0.8f, 0.9f));
+        st.wordWrap = true;
+        string t = Loc.Auto(text);
+        float h = Mathf.Max(22f, st.CalcHeight(new GUIContent(t), w) + 2f);
+        GUI.Label(new Rect(x, y - 4f, w, h + 4f), t, st);
+        return y + h;
     }
+    float drawnH; // 前のフレームで実際に描いた内容の高さ(折り返しで Measure より伸びた分もスクロールに入れる)
 
     static string Pct(float v) => $"{Mathf.RoundToInt(v * 100f)}%";
 

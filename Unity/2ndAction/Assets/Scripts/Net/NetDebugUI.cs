@@ -141,6 +141,7 @@ public class NetDebugUI : MonoBehaviour
     bool online;
     public static bool OnlineFlow => instance != null && instance.online;
     static string L(string s) => Loc.Auto(s); // GUILayout の文は LocGUI を通らないのでここで訳す
+    Vector2 panelScroll; float panelContentH, panelPressY, panelLastY; bool panelPressed, panelDragging; MultiScreen lastPanelScreen = (MultiScreen)(-1);
     // 相手のキャラの名前。自分がまだ解放していないキャラは名前を出さない(2026-10-08)
     static string CharLabel(string id) => !string.IsNullOrEmpty(id) && UnlockRules.IsCharacterVisible(id) ? Loc.Auto(UnlockRules.CharName(id)) : "";
     string findMessage = "";
@@ -164,7 +165,25 @@ public class NetDebugUI : MonoBehaviour
         GUI.DrawTexture(panel, Texture2D.whiteTexture);
         GUI.color = keep;
         GUI.Box(panel, "");
-        GUILayout.BeginArea(new Rect(panel.x + 20f, panel.y + 16f, pw - 40f, ph - 32f));
+        // 2026-10-08: 長い言語で文が増えても下のボタンへ届くよう、中身全体を指でスクロールできるようにする(収まる時は今までどおり)
+        Rect area = new Rect(panel.x + 20f, panel.y + 16f, pw - 40f, ph - 32f);
+        float max = Mathf.Max(0f, panelContentH - area.height);
+        var ev = Event.current;
+        if (max > 0.5f)
+        {
+            if (ev.type == EventType.MouseDown && area.Contains(ev.mousePosition)) { panelPressed = true; panelDragging = false; panelPressY = panelLastY = ev.mousePosition.y; }
+            else if (ev.type == EventType.MouseDrag && panelPressed)
+            {
+                if (!panelDragging && Mathf.Abs(ev.mousePosition.y - panelPressY) > UiScroll.DragThreshold) panelDragging = true;
+                if (panelDragging) { panelScroll.y = Mathf.Clamp(panelScroll.y - (ev.mousePosition.y - panelLastY), 0f, max); panelLastY = ev.mousePosition.y; GUIUtility.hotControl = 0; ev.Use(); }
+            }
+            else if (ev.type == EventType.MouseUp) { if (panelDragging) ev.Use(); panelPressed = panelDragging = false; }
+        }
+        else panelScroll.y = 0f;
+        if (screen != lastPanelScreen) { lastPanelScreen = screen; panelScroll = Vector2.zero; }
+        GUILayout.BeginArea(area);
+        panelScroll = GUILayout.BeginScrollView(panelScroll, false, false, GUIStyle.none, GUIStyle.none, GUIStyle.none, GUILayout.Height(area.height));
+        GUILayout.BeginVertical(GUILayout.MinHeight(area.height - 2f));
         switch (screen)
         {
             case MultiScreen.Top: DrawTop(); break;
@@ -176,7 +195,18 @@ public class NetDebugUI : MonoBehaviour
             case MultiScreen.OnlineUnavailable: DrawOnlineUnavailable(); break;
             default: DrawAdvanced(); break;
         }
+        GUILayout.EndVertical();
+        if (ev.type == EventType.Repaint) panelContentH = GUILayoutUtility.GetLastRect().height;
+        GUILayout.EndScrollView();
         GUILayout.EndArea();
+        if (max > 1f)
+        {
+            float barH = Mathf.Max(28f, area.height * area.height / panelContentH);
+            float by = area.y + (area.height - barH) * (panelScroll.y / max);
+            Color kc = GUI.color; GUI.color = new Color(1f, 0.85f, 0.45f, 0.7f);
+            GUI.DrawTexture(new Rect(area.xMax + 8f, by, 5f, barH), Texture2D.whiteTexture);
+            GUI.color = kc;
+        }
         ConsumePointer(panel);
     }
 

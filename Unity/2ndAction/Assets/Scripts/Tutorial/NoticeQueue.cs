@@ -5,6 +5,7 @@ using UnityEngine;
 // ラン中に起きた物はホームへ戻ってから出す(進行中のランを遮らない)。各お知らせは表示済みの印を呼び出し側が持つ。
 public class NoticeQueue : MonoBehaviour
 {
+    readonly UiScroll bodyScroll = new UiScroll(); // 2026-10-08
     public struct Notice { public string title, body, id; public System.Action onShown; public bool special; }
     public static NoticeQueue Instance { get; private set; }
     static readonly List<Notice> queue = new List<Notice>();
@@ -114,7 +115,7 @@ public class NoticeQueue : MonoBehaviour
         }
         OrnateUi.DrawPanel(p, 0.95f);
         LocGUI.Label(new Rect(p.x + 20 * s, p.y + 14 * s, p.width - 40 * s, 46 * s), n.title, titleSt);
-        LocGUI.Label(new Rect(p.x + 28 * s, p.y + 62 * s, p.width - 56 * s, p.height - 140 * s), n.body, bodySt);
+        bodyScroll.Text(new Rect(p.x + 28 * s, p.y + 62 * s, p.width - 56 * s, p.height - 140 * s), n.body, bodySt, n.id); // 2026-10-08: 長いお知らせはスクロール
         if (queue.Count > 0) LocGUI.Label(new Rect(p.x, p.yMax - 96 * s, p.width, 22 * s), $"({queue.Count + 1}件のお知らせ)", UiKit.Label(15 * s, TextAnchor.MiddleCenter, false, new Color(1f, 1f, 1f, 0.6f)));
         int pl = PadNav.BeginLayer(70);
         if (UiKit.Button(new Rect(p.center.x - 130 * s, p.yMax - 70 * s, 260 * s, 54 * s), "OK", 24 * s, true)) Acknowledge();

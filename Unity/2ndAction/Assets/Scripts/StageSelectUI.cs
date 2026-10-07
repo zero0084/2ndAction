@@ -160,6 +160,8 @@ public class StageSelectUI : MonoBehaviour
             visible.Add(i);
             var lockLabel = slot.Find("LockLabel");
             if (lockLabel != null) lockLabel.gameObject.SetActive(false);
+            var feat = slot.Find("FeatureText"); // 2026-10-08: 特徴の文は枠の中でスクロール(縮めない)
+            if (feat != null) UguiScrollText.Wrap(feat.GetComponent<Text>());
             var cg = slot.GetComponent<CanvasGroup>();
             if (cg != null) cg.alpha = 1f;
             bool isNew = UnlockRules.IsNewStage(all[i].stageId);

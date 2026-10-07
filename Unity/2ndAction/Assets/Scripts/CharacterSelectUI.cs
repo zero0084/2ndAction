@@ -289,6 +289,7 @@ public class CharacterSelectUI : MonoBehaviour
         RefreshCharCards(def);
         bool unlocked = UnlockRules.IsCharacterUnlocked(def.characterId);
         if (subtitleText != null) subtitleText.text = Loc.Auto(unlocked ? def.subtitle : "LOCKED");
+        UguiScrollText.Wrap(flavorText); // 2026-10-08: 長い説明は枠の中でスクロール
         if (flavorText != null) flavorText.text = Loc.Auto(def.flavorText); // 2026-10-08: 未解放は一覧に出ないので条件は出さない
         if (roleBadgeText != null) roleBadgeText.text = Loc.Auto(def.role);
         if (roleBadgeBg != null) roleBadgeBg.color = def.challengeFlag ? RoleBadgeChallengeColor : RoleBadgeNormalColor;

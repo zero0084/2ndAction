@@ -27,7 +27,8 @@ public class ConfirmDialogUI : MonoBehaviour
 
     public void Show(string message, System.Action confirmCallback, System.Action cancelCallback = null)
     {
-        if (messageText != null) messageText.text = message;
+        UguiScrollText.Wrap(messageText); // 2026-10-08: 長い確認文はスクロール
+        if (messageText != null) messageText.text = Loc.Auto(message); // 2026-10-08: 訳していなかった(日本語のままだった)
         onConfirm = confirmCallback;
         onCancel = cancelCallback;
         if (root != null) root.SetActive(true);
@@ -57,6 +58,7 @@ public class ConfirmDialogUI : MonoBehaviour
     public bool HandleTap(Vector2 screenPos)
     {
         if (!IsOpen) return false;
+        if (UguiScrollText.PointerCaptured) return true; // 2026-10-08: 文をスクロールした指は はい/いいえ にしない
 
         if (yesRect != null && UiHit.Hit(yesRect, screenPos))
         {

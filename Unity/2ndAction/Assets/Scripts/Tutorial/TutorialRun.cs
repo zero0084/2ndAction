@@ -10,6 +10,7 @@ using UnityEngine;
 //  ・時間制限なし。ダメージなし。報酬/記録は書かない。いつでも「練習をやめる」で抜けられる。
 public class TutorialRun : MonoBehaviour
 {
+    readonly UiScroll bodyScroll = new UiScroll(); // 2026-10-08
     public const string CharacterId = "swordsman";
     public static TutorialRun Instance { get; private set; }
     public static bool PanelOpen => Instance != null && Instance.phase == Phase.Explain;
@@ -353,7 +354,7 @@ public class TutorialRun : MonoBehaviour
             bodySt.fontSize = Mathf.RoundToInt(25 * s * k); bodySt.normal.textColor = Color.white;
             OrnateUi.DrawPanel(p, 0.95f);
             LocGUI.Label(new Rect(p.x + 20 * s, p.y + 10 * s * k, p.width - 40 * s, 46 * s * k), (CurrentStep == Step.End ? Loc.T(Title()) : $"{(int)CurrentStep} / 5  {Loc.T(Title())}"), titleSt);
-            LocGUI.Label(new Rect(p.x + 28 * s, p.y + 56 * s * k, p.width - 56 * s, p.height - 130 * s * k), Explain(), bodySt);
+            bodyScroll.Text(new Rect(p.x + 28 * s, p.y + 56 * s * k, p.width - 56 * s, p.height - 130 * s * k), Explain(), bodySt, "step" + (int)CurrentStep); // 2026-10-08: 長い説明はスクロール(縮めない)
             float bw = 260 * s * k, bh = 58 * s * k, by = p.yMax - bh - 14 * s * k;
             if (CurrentStep == Step.End)
             {

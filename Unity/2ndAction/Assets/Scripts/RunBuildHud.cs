@@ -350,14 +350,22 @@ public class RunBuildHud : MonoBehaviour
         comboDetailStyle.fontSize = Mathf.RoundToInt(fs); comboTitleStyle.fontSize = Mathf.RoundToInt(fs * 1.25f);
         string parts = string.Join(" + ", d.def.abilities.ConvertAll(id => { var cd = CardDatabase.FindBaseById(id); return (cd != null ? cd.cardName : id) + $" Lv{(GameManager.Instance != null ? GameManager.Instance.GetAbilityRunStack(id) : 0)}"; }));
         string body = $"{parts}\n{d.def.description}{(d.enhanced ? "\n[ENHANCED] " + d.def.enhancedDescription : "")}\n強さ Lv{d.level:0.0}{(d.def.risk ? "  (リスクはそのまま)" : "")}";
-        float h = comboDetailStyle.CalcHeight(new GUIContent(body), w - 24f) + fs * 2.2f;
+        // 2026-10-08: 高さは訳した文で測る(以前は訳す前の日本語で測って、長い言語で切れていた)。ラン中なので指でスクロールさせず、
+        // 枠を画面の 70% まで伸ばし、それでも入らない時だけ文字を少しだけ(85%まで)小さくする
+        string bodyTr = Loc.Auto(body);
+        float h = comboDetailStyle.CalcHeight(new GUIContent(bodyTr), w - 24f) + fs * 2.2f;
+        for (int shrink = 0; shrink < 3 && h > Screen.height * 0.7f; shrink++)
+        {
+            comboDetailStyle.fontSize = Mathf.Max(10, Mathf.RoundToInt(comboDetailStyle.fontSize * 0.95f));
+            h = comboDetailStyle.CalcHeight(new GUIContent(bodyTr), w - 24f) + fs * 2.2f;
+        }
         var panel = new Rect(right - w, y + (Mathf.CeilToInt(list.Count / (float)perRow)) * (s + gap) + 4f, w, h);
         if (panel.yMax > Screen.height - 8f) panel.y = Screen.height - 8f - h;
         Round(panel, new Color(0.04f, 0.06f, 0.12f, 0.92f));
         comboTitleStyle.normal.textColor = d.def.color;
         LocGUI.Label(new Rect(panel.x + 12f, panel.y + 6f, w - 24f, fs * 1.6f), "COMBO  " + d.def.displayName, comboTitleStyle);
         comboDetailStyle.normal.textColor = new Color(0.9f, 0.92f, 1f);
-        LocGUI.Label(new Rect(panel.x + 12f, panel.y + fs * 1.8f, w - 24f, h), body, comboDetailStyle);
+        GUI.Label(new Rect(panel.x + 12f, panel.y + fs * 1.8f, w - 24f, h), bodyTr, comboDetailStyle);
     }
 
     static GUIStyle groupStyle;
