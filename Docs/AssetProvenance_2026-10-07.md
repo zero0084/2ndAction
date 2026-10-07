@@ -236,4 +236,4 @@ This game contains content created with generative AI during development. No con
 | 9 | 「Visual Style Ver.1」の手本(作風の参考として最初に渡した絵) | (入らない) | 2026-08-30 の会話の添付(1) | 入らない | ChatGPT(U、「かな」) |
 | 10 | 能力アイコン10種のシート | (入らない) | 2026-09-11 の会話の添付(1) | 入らない | **Grok**(U) |
 
-確認用のシートと取り出した画像は、作業用の一時フォルダ(scratchpad `prov_ask/sheets`, `prov_ask/att`)にある。記録として残すかはマスターと相談する。
+確認用のシートと取り出した画像は、マスターの指示(2026-10-08「置くだけでいい」)で手元の `Docs/AssetProvenance_review_2026-10-08/` に置いた(git には入れない。説明は同フォルダの README.md)。
