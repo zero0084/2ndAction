@@ -1065,19 +1065,7 @@ public partial class GameManager : MonoBehaviour
         if (characterHotspotFlashTimer > 0f) characterHotspotFlashTimer -= Time.unscaledDeltaTime;
         if (gachaInsufficientMessageTimer > 0f) gachaInsufficientMessageTimer -= Time.unscaledDeltaTime;
 
-        if (gachaMachineShakeTimer > 0f)
-        {
-            gachaMachineShakeTimer -= Time.unscaledDeltaTime;
-            if (gachaMachineShakeTimer <= 0f && pendingGachaCard != null)
-            {
-                gachaResultOpen = true;
-                gachaResultCard = pendingGachaCard;
-                gachaResultOwnedCount = CardInventory.GetTotalCount(pendingGachaCard.cardId);
-                gachaResultRevealTimer = pendingGachaCard.rarity >= 4 ? GachaResultRevealDuration : 0f;
-                pendingGachaCard = null;
-            }
-        }
-        if (gachaResultRevealTimer > 0f) gachaResultRevealTimer -= Time.unscaledDeltaTime;
+        UpdateGachaReveal(); // 2026-10-07: 連続で引いた分を順番に見せる(GameManager.Gacha.cs)
     }
 
     // Tapping the desk machine directly runs the Gacha (item 4) - no
@@ -1155,26 +1143,7 @@ public partial class GameManager : MonoBehaviour
         return chosenBucket[Random.Range(0, chosenBucket.Count)];
     }
 
-    void OnGachaMachineTapped()
-    {
-        if (gachaResultOpen || gachaMachineShakeTimer > 0f) return; // ignore re-taps mid-animation/while Result is up
-        if (TotalOwnedMile < GachaCostMile)
-        {
-            gachaInsufficientMessageTimer = gachaInsufficientMessageDuration;
-            return;
-        }
-        List<CardDefinition> pool = BuildGachaPool();
-        if (pool.Count == 0) return;
-        CardDefinition drawn = DrawFromGachaPool(pool);
-        if (drawn == null) return;
-
-        TrySpendMile(GachaCostMile);
-        CardInventory.AddCard(drawn.cardId, 1, 1);
-        pendingGachaCard = drawn;
-        gachaMachineShakeTimer = gachaMachineShakeDuration;
-        deskHotspotFlashTimer = roomHotspotFlashDuration;
-        if (AudioManager.Instance != null) { AudioManager.Instance.PlaySe(SeId.Gacha); AudioManager.Instance.PlaySe(SeId.Coin); }
-    }
+    // ガチャ本体のタップ: GameManager.Gacha.cs(2026-10-07 連続操作)
 
     public bool HasStarted { get; private set; }
     public bool IsGameOver { get; private set; }
@@ -1543,6 +1512,7 @@ public partial class GameManager : MonoBehaviour
     void ApplyGameStart(string stageIdOverride = null)
     {
         HasStarted = true;
+        ClearGachaPresentation(); // ガチャの見せる分の残り(カードは引いた時点で所持済み、2026-10-07)
         runStartTime = Time.time;
         activeRunCharacterId = SelectedCharacterId;
         activeRunStageId = stageIdOverride ?? SelectedStageId;
@@ -3888,6 +3858,7 @@ public partial class GameManager : MonoBehaviour
             // DEBUG's own, which must stay reachable somehow or it could
             // never be turned back on) exactly as available as before,
             // just one tap further away.
+            if (!HasStarted) GachaPopupInput(); // ガチャの確認中: 本体以外への押下は吸い取る(背後のボタンへ通さない、2026-10-07)
             if (HasStarted || Event.current.type != EventType.Repaint) DrawHomeChrome();
         }
 
@@ -4166,7 +4137,10 @@ public partial class GameManager : MonoBehaviour
                     // タップ時の軽い発光で示す」という要望を満たしている
                     // ため、常時枠を重ねて貼り付け感を足す必要がなかった。
 
-                    if (roomInteractable && (PadNav.Button(machineRect) | GUI.Button(machineRect, GUIContent.none, GUIStyle.none)) && roomFadeAlpha > 0.99f)
+                    lastGachaMachineRect = machineRect;
+                    // 確認中も本体は押せる(確認を閉じて次の1回)。確認中のパッド/キーの選択は確認の層の中で行う
+                    bool machineInteractable = (roomInteractable || (gachaResultOpen && !showNewRunConfirm && !NetDebugUI.BlocksHomeInput && !UiInputGate.Blocked));
+                    if (machineInteractable && ((!gachaResultOpen && PadNav.Button(machineRect)) | GUI.Button(machineRect, GUIContent.none, GUIStyle.none)) && roomFadeAlpha > 0.99f)
                     {
                         OnGachaMachineTapped();
                     }
@@ -5660,136 +5634,13 @@ public partial class GameManager : MonoBehaviour
     // / OK", closing straight back to the room (no forced navigation to
     // Card Edit). A fresh Gacha draw is always Lv.1, so this doesn't need
     // CardInventory.MaxCardLevel's "MAX" tag logic at all.
-    void DrawGachaResultPopup()
-    {
-        if (!gachaResultOpen || gachaResultCard == null) return;
-
-        // Item 14 - "★4/★5draw gets a slightly stronger Reveal" - a brief
-        // pulsing glow behind the panel for its first
-        // GachaResultRevealDuration seconds, separate from
-        // gachaMachineShakeTimer (which already finished before the Result
-        // popup even opens). Pure color/alpha, no extra sprites, so this
-        // stays cheap and doesn't extend the overall presentation length.
-        bool highRarity = gachaResultCard.rarity >= 4;
-        float revealT = GachaResultRevealDuration > 0f ? Mathf.Clamp01(gachaResultRevealTimer / GachaResultRevealDuration) : 0f;
-
-        Color dimPrev = GUI.color;
-        GUI.color = new Color(0f, 0f, 0f, 0.6f * dimPrev.a);
-        GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), Texture2D.whiteTexture);
-        GUI.color = dimPrev;
-
-        float panelWidth = Mathf.Min(440f, Screen.width * 0.8f);
-        // Bugfix 2026-09-05, item 5 - +32 vs the Rarity-only layout to fit
-        // the Gacha Stage/Next Evolution line moved in from the (now
-        // removed) always-on Home Room label below.
-        float panelHeight = 432f;
-        Rect panelRect = new Rect(Screen.width / 2f - panelWidth / 2f, Screen.height / 2f - panelHeight / 2f, panelWidth, panelHeight);
-
-        if (highRarity && revealT > 0f)
-        {
-            Color glowColor = gachaResultCard.rarity >= 5 ? new Color(1f, 0.65f, 0.2f) : new Color(0.6f, 0.75f, 1f);
-            float pulse = 0.4f + 0.6f * Mathf.Abs(Mathf.Sin(revealT * Mathf.PI * 5f));
-            Color prevGlow = GUI.color;
-            GUI.color = new Color(glowColor.r, glowColor.g, glowColor.b, pulse * revealT * prevGlow.a);
-            float pad = 26f * revealT;
-            GUI.DrawTexture(new Rect(panelRect.x - pad, panelRect.y - pad, panelRect.width + pad * 2f, panelRect.height + pad * 2f), Texture2D.whiteTexture);
-            GUI.color = prevGlow;
-        }
-
-        OrnateUi.DrawPanel(panelRect, 0.92f);
-
-        GUIStyle headlineStyle = new GUIStyle(GUI.skin.label);
-        headlineStyle.fontSize = 24;
-        headlineStyle.fontStyle = FontStyle.Bold;
-        headlineStyle.alignment = TextAnchor.MiddleCenter;
-        headlineStyle.normal.textColor = new Color(1f, 0.85f, 0.4f);
-        // Card UI改修(2026-09-08), item 6-5 - 「NEW/DUPLICATEを別ラベルで
-        // 表示」。Gacha抽選は常にLv.1を1枚付与するため(下の"Lv.1  GAINED
-        // +1"参照)、抽選後の合計所持数(gachaResultOwnedCount)が1ならその
-        // 1枚が今回初めて得たもの=NEW、2以上なら既に持っていた=DUPLICATE
-        // と判定できる(抽選ロジック自体には手を入れず、表示側だけで導出)。
-        bool isNewCard = gachaResultOwnedCount <= 1;
-        headlineStyle.normal.textColor = isNewCard ? new Color(1f, 0.85f, 0.4f) : new Color(0.7f, 0.85f, 1f);
-        GUI.Label(new Rect(panelRect.x, panelRect.y + 24f, panelRect.width, 34f), isNewCard ? "NEW CARD" : "DUPLICATE", headlineStyle);
-
-        // Card UI / Rarity Frame pass, item 15 - "GachaでCardを引いた際も、
-        // RevealしたCardのRarityに応じて同じFrameを使用". Drawn as a border
-        // just around the icon (rather than replacing the popup's own
-        // OrnateUi dialog chrome). Rarity 1 now also has a real frame Sprite
-        // (Card UI改修2026-09-08 - CardFrameRarity1.png), so every Rarity
-        // draws its own frame here now.
-        float iconSize = highRarity ? 110f + 14f * revealT : 110f;
-        Rect iconDrawRect = new Rect(panelRect.x + panelRect.width / 2f - iconSize / 2f, panelRect.y + 70f - (iconSize - 110f) / 2f, iconSize, iconSize);
-        Sprite rarityFrameSprite = CardRarityFrames.GetFrame(gachaResultCard.rarity, null);
-        if (rarityFrameSprite != null)
-        {
-            float framePad = iconSize * 0.22f;
-            GUI.DrawTexture(new Rect(iconDrawRect.x - framePad, iconDrawRect.y - framePad, iconDrawRect.width + framePad * 2f, iconDrawRect.height + framePad * 2f), rarityFrameSprite.texture, ScaleMode.ScaleToFit);
-        }
-        if (gachaResultCard.icon != null)
-        {
-            GUI.DrawTexture(iconDrawRect, gachaResultCard.icon, ScaleMode.ScaleToFit);
-        }
-
-        GUIStyle nameStyle = new GUIStyle(GUI.skin.label);
-        nameStyle.fontSize = 26;
-        nameStyle.fontStyle = FontStyle.Bold;
-        nameStyle.alignment = TextAnchor.MiddleCenter;
-        nameStyle.normal.textColor = Color.white;
-        GUI.Label(new Rect(panelRect.x, panelRect.y + 190f, panelRect.width, 36f), gachaResultCard.cardName, nameStyle);
-
-        // Rarity Visual, item 15 - ★ rating shown right under the name,
-        // color-coded so higher Rarity reads as visually special without
-        // ★1 ever looking "trash" (it still gets the same gold star glyph,
-        // just fewer of them).
-        GUIStyle starStyle = new GUIStyle(GUI.skin.label);
-        starStyle.fontSize = 22;
-        starStyle.fontStyle = FontStyle.Bold;
-        starStyle.alignment = TextAnchor.MiddleCenter;
-        starStyle.normal.textColor = gachaResultCard.rarity >= 5 ? new Color(1f, 0.65f, 0.2f)
-            : gachaResultCard.rarity >= 4 ? new Color(0.65f, 0.8f, 1f)
-            : new Color(1f, 0.85f, 0.4f);
-        GUI.Label(new Rect(panelRect.x, panelRect.y + 222f, panelRect.width, 28f), gachaResultCard.RarityStars, starStyle);
-
-        GUIStyle subStyle = new GUIStyle(GUI.skin.label);
-        subStyle.fontSize = 20;
-        subStyle.alignment = TextAnchor.MiddleCenter;
-        subStyle.normal.textColor = new Color(1f, 1f, 1f, 0.85f);
-        // Item 6 - "今回取得枚数" (always +1 for a single Gacha draw) and
-        // "取得後所持数" (total owned across all levels) shown as two
-        // distinct lines rather than one ambiguous "OWNED xN".
-        // カード長期育成(2026-10-04): Lv9 MAX のカードを引いてもハズレではない。カードはそのまま所持に入り(勝手に消費しない)、
-        // 合成で Lv9 MAX のカードの素材にすると Mastery が進む
-        string masteryHint = CardMastery.IsAwakened(gachaResultCard.cardId) ? "   (AWAKENED済み・保管)" : CardMastery.IsMaxReached(gachaResultCard.cardId) ? "   → 合成で MASTERY +1" : "";
-        GUI.Label(new Rect(panelRect.x, panelRect.y + 252f, panelRect.width, 28f), "Lv.1  GAINED +1" + masteryHint, subStyle);
-        GUI.Label(new Rect(panelRect.x, panelRect.y + 280f, panelRect.width, 28f), $"OWNED (TOTAL) x{gachaResultOwnedCount}", subStyle);
-
-        // Bugfix 2026-09-05, item 5 - Gacha Stage/Next Evolution info moved
-        // here from the (now removed) always-on Home Room background label -
-        // shown only inside this post-tap popup instead of sitting directly
-        // on the painted room scene.
-        int gachaStage = CurrentGachaStage;
-        float nextEvoDistance = GachaStage.NextEvolutionDistance(gachaStage);
-        string gachaStageLine = nextEvoDistance > 0f
-            ? $"CARD GACHA Lv.{gachaStage}   NEXT EVOLUTION {Mathf.FloorToInt(nextEvoDistance)}m"
-            : $"CARD GACHA Lv.{gachaStage}   MAX EVOLUTION";
-        GUIStyle gachaStageStyle = new GUIStyle(GUI.skin.label);
-        gachaStageStyle.fontSize = 13;
-        gachaStageStyle.alignment = TextAnchor.MiddleCenter;
-        gachaStageStyle.normal.textColor = new Color(0.75f, 0.85f, 1f, 0.85f);
-        GUI.Label(new Rect(panelRect.x, panelRect.y + 312f, panelRect.width, 22f), gachaStageLine, gachaStageStyle);
-
-        Rect okRect = new Rect(panelRect.x + panelRect.width / 2f - 90f, panelRect.yMax - 70f, 180f, 52f);
-        if (DrawStyledButton(okRect, "OK", 22f, primary: true, ornate: true))
-        {
-            gachaResultOpen = false;
-        }
-    }
+    // ガチャの確認の表示: GameManager.Gacha.cs(2026-10-07 大きく/どこでも閉じる/本体は押せる)
 
     // Item 5 - a brief toast, no dedicated screen/dialog.
     void DrawInsufficientMileToast()
     {
         if (gachaInsufficientMessageTimer <= 0f) return;
+        if (gachaResultOpen) return; // 確認中は本体の下の「MILE不足」で知らせる(カードに重ねない)
 
         float alpha = Mathf.Clamp01(gachaInsufficientMessageTimer / 0.3f); // quick fade at the very end
         GUIStyle style = new GUIStyle(GUI.skin.label);
@@ -5847,7 +5698,7 @@ public partial class GameManager : MonoBehaviour
         if (NetDebugUI.PanelOpen) { NetDebugUI.ClosePanel(); return; }
         if (!HasStarted)
         {
-            if (gachaResultOpen) { gachaResultOpen = false; return; }
+            if (gachaResultOpen) { CloseGachaResult(); return; }
             if (showNewRunConfirm) { showNewRunConfirm = false; return; }
             if (deckEditOpen && deckEditUI != null) { deckEditUI.HandleBack(); return; }
             if (cardFusionOpen && cardFusionUI != null) { cardFusionUI.HandleBack(); return; }
