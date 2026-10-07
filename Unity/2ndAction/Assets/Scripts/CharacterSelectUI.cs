@@ -174,11 +174,13 @@ public class CharacterSelectUI : MonoBehaviour
         var all = CharacterDatabase.AllCharacters;
         string current = !string.IsNullOrEmpty(openAtId) ? openAtId : GameManager.Instance != null ? GameManager.Instance.SelectedCharacterId : null;
         openAtId = null;
+        markSeenOnApply = true; // 2026-10-08: 開いた時点で NEW を「見た」にする(この表示では NEW を付けたまま)
         ApplyUnlockState();
+        markSeenOnApply = false;
         selectedIndex = 0;
         for (int i = 0; i < VisibleCount; i++)
         {
-            if (all[i].characterId == current) { selectedIndex = i; break; }
+            if (DefAt(i).characterId == current) { selectedIndex = i; break; }
         }
         RefreshDetail(instant: true);
 
@@ -248,8 +250,8 @@ public class CharacterSelectUI : MonoBehaviour
     void Confirm()
     {
         var all = CharacterDatabase.AllCharacters;
-        if (selectedIndex < 0 || selectedIndex >= all.Count) return;
-        if (!UnlockRules.IsCharacterUnlocked(all[selectedIndex].characterId))
+        if (selectedIndex < 0 || selectedIndex >= VisibleCount) return;
+        if (!UnlockRules.IsCharacterUnlocked(DefAt(selectedIndex).characterId))
         {
             // 未解放: 選べない(条件は右の説明に出ている)
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiDeny);
@@ -259,7 +261,7 @@ public class CharacterSelectUI : MonoBehaviour
         // Active Run / Checkpointには一切触れない(GameManager.
         // SetSelectedCharacterのコメント参照) - 「選択キャラクター=次回
         // NEW RUNで使用するキャラクター」という仕様どおり。
-        if (GameManager.Instance != null) GameManager.Instance.SetSelectedCharacter(all[selectedIndex].characterId);
+        if (GameManager.Instance != null) GameManager.Instance.SetSelectedCharacter(DefAt(selectedIndex).characterId);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
         suppressCloseSe = true;
         Close();
@@ -276,8 +278,8 @@ public class CharacterSelectUI : MonoBehaviour
     void RefreshDetail(bool instant)
     {
         var all = CharacterDatabase.AllCharacters;
-        if (selectedIndex < 0 || selectedIndex >= all.Count) return;
-        CharacterDefinition def = all[selectedIndex];
+        if (selectedIndex < 0 || selectedIndex >= VisibleCount) return;
+        CharacterDefinition def = DefAt(selectedIndex);
 
         // カルーセル化(2026-09-24) - 発光の強弱はUpdateCardVisualsが中心
         // からの距離に応じて毎フレーム連続的に更新するため、ここでの
@@ -287,7 +289,7 @@ public class CharacterSelectUI : MonoBehaviour
         RefreshCharCards(def);
         bool unlocked = UnlockRules.IsCharacterUnlocked(def.characterId);
         if (subtitleText != null) subtitleText.text = Loc.Auto(unlocked ? def.subtitle : "LOCKED");
-        if (flavorText != null) flavorText.text = Loc.Auto(unlocked ? def.flavorText : $"解放の条件: {UnlockRules.CharConditionText(def.characterId)}");
+        if (flavorText != null) flavorText.text = Loc.Auto(def.flavorText); // 2026-10-08: 未解放は一覧に出ないので条件は出さない
         if (roleBadgeText != null) roleBadgeText.text = Loc.Auto(def.role);
         if (roleBadgeBg != null) roleBadgeBg.color = def.challengeFlag ? RoleBadgeChallengeColor : RoleBadgeNormalColor;
         if (challengeBadge != null) challengeBadge.SetActive(def.challengeFlag);
@@ -350,10 +352,10 @@ public class CharacterSelectUI : MonoBehaviour
         if (charCardsButton != null && UiHit.Hit(charCardsButton, screenPos))
         {
             var all = CharacterDatabase.AllCharacters;
-            if (selectedIndex >= 0 && selectedIndex < all.Count && GameManager.Instance != null)
+            if (selectedIndex >= 0 && selectedIndex < VisibleCount && GameManager.Instance != null)
             {
                 if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
-                GameManager.Instance.OpenCharacterCardsFromSelect(all[selectedIndex].characterId);
+                GameManager.Instance.OpenCharacterCardsFromSelect(DefAt(selectedIndex).characterId);
             }
             return;
         }
@@ -370,13 +372,14 @@ public class CharacterSelectUI : MonoBehaviour
         }
         for (int i = 0; i < cardSlotRects.Length; i++)
         {
-            if (cardSlotRects[i] != null && UiHit.Hit(cardSlotRects[i], screenPos))
+            if (cardSlotRects[i] != null && cardSlotRects[i].gameObject.activeSelf && UiHit.Hit(cardSlotRects[i], screenPos))
             {
+                int pos = PosOfSlot(i); if (pos < 0) return;
                 // カルーセル化(2026-09-24) - 中央にないカード(見切れて
                 // いるカード)をタップした場合も、選択と同時にそのカードを
                 // 中央付近へスナップさせる(マスター指示「タップで即座に
                 // そのカードが選択・中央化される」)。
-                BeginSnap(i);
+                BeginSnap(pos);
                 return;
             }
         }
@@ -529,12 +532,13 @@ public class CharacterSelectUI : MonoBehaviour
         float viewportCenterX = carouselViewportWidth * 0.5f;
         int nearest = 0;
         float bestDist = float.MaxValue;
-        for (int i = 0; i < VisibleCount && i < cardSlotRects.Length; i++)
+        for (int k = 0; k < VisibleCount; k++)
         {
-            if (cardSlotRects[i] == null) continue;
-            float cardCenterX = currentX + cardSlotRects[i].anchoredPosition.x + cardWidth * 0.5f;
+            var slot = SlotAt(k);
+            if (slot == null) continue;
+            float cardCenterX = currentX + slot.anchoredPosition.x + cardWidth * 0.5f;
             float dist = Mathf.Abs(cardCenterX - viewportCenterX);
-            if (dist < bestDist) { bestDist = dist; nearest = i; }
+            if (dist < bestDist) { bestDist = dist; nearest = k; }
         }
         return nearest;
     }
@@ -591,59 +595,57 @@ public class CharacterSelectUI : MonoBehaviour
         }
     }
 
-    // ===== 解放条件(2026-10-07) =====
-    // 未解放のキャラは暗くして「LOCKED」と条件を出し、選べない。竜人は解放前は一覧に出さない(末尾の枠を消してカード列を縮める)。
+    // ===== 解放(2026-10-08 仕様変更) =====
+    // 未解放のキャラは一覧に出さない(鍵/シルエット/条件/総数も出さない)。解放済みのキャラだけをデータの順に左から詰めて並べる。
+    // selectedIndex は「並んでいる位置」。order[位置] = CharacterDatabase.AllCharacters の番号。解放したばかりのキャラには NEW を付ける
     int visibleCount = -1;
     float contentFullWidth = -1f;
     float lockDenyFlash;
-    readonly System.Collections.Generic.Dictionary<int, Text> lockLabels = new System.Collections.Generic.Dictionary<int, Text>();
-    public int VisibleCount => visibleCount > 0 ? visibleCount : CharacterDatabase.AllCharacters.Count;
+    int[] order = new int[0];
+    Vector2[] slotHome;
+    public int VisibleCount => visibleCount >= 0 ? visibleCount : CharacterDatabase.AllCharacters.Count;
+    CharacterDefinition DefAt(int pos) { var all = CharacterDatabase.AllCharacters; int i = pos >= 0 && pos < order.Length ? order[pos] : pos; return all[Mathf.Clamp(i, 0, all.Count - 1)]; }
+    RectTransform SlotAt(int pos) { int i = pos >= 0 && pos < order.Length ? order[pos] : -1; return i >= 0 && i < cardSlotRects.Length ? cardSlotRects[i] : null; }
+    int PosOfSlot(int slot) { for (int k = 0; k < order.Length; k++) if (order[k] == slot) return k; return -1; }
 
     void ApplyUnlockState()
     {
         var all = CharacterDatabase.AllCharacters;
-        int visible = all.Count;
-        // 末尾の隠しキャラ(竜人)だけを数えない
-        while (visible > 0 && !UnlockRules.IsCharacterVisible(all[visible - 1].characterId)) visible--;
-        visibleCount = visible;
+        if (slotHome == null || slotHome.Length != cardSlotRects.Length)
+        {
+            slotHome = new Vector2[cardSlotRects.Length];
+            for (int i = 0; i < cardSlotRects.Length; i++) if (cardSlotRects[i] != null) slotHome[i] = cardSlotRects[i].anchoredPosition;
+        }
+        var list = new System.Collections.Generic.List<int>();
+        for (int i = 0; i < all.Count && i < cardSlotRects.Length; i++) if (UnlockRules.IsCharacterVisible(all[i].characterId)) list.Add(i);
+        order = list.ToArray();
+        visibleCount = order.Length;
         if (carouselContent != null)
         {
             if (contentFullWidth < 0f) contentFullWidth = carouselContent.sizeDelta.x;
-            int hidden = all.Count - visible;
+            int hidden = Mathf.Min(all.Count, cardSlotRects.Length) - visibleCount;
             carouselContent.sizeDelta = new Vector2(contentFullWidth - hidden * cardStride, carouselContent.sizeDelta.y);
         }
-        for (int i = 0; i < all.Count && i < cardSlotRects.Length; i++)
+        for (int i = 0; i < cardSlotRects.Length; i++)
         {
             var slot = cardSlotRects[i];
             if (slot == null) continue;
-            bool show = i < visible;
+            int pos = PosOfSlot(i);
+            bool show = pos >= 0;
             slot.gameObject.SetActive(show);
             if (i < cardGlowImages.Length && cardGlowImages[i] != null && !show) cardGlowImages[i].gameObject.SetActive(false);
             if (!show) continue;
-            bool unlocked = UnlockRules.IsCharacterUnlocked(all[i].characterId);
+            if (slotHome.Length > 0) slot.anchoredPosition = new Vector2(slotHome[0].x + pos * cardStride, slotHome[i].y);
             var cg = slot.GetComponent<CanvasGroup>();
-            if (cg == null && !unlocked) cg = slot.gameObject.AddComponent<CanvasGroup>();
-            if (cg != null) cg.alpha = unlocked ? 1f : 0.5f;
-            if (!lockLabels.TryGetValue(i, out var label) || label == null)
-            {
-                if (unlocked) continue;
-                var go = new GameObject("LockLabel", typeof(RectTransform));
-                go.transform.SetParent(slot, false);
-                var rt = (RectTransform)go.transform;
-                rt.anchorMin = new Vector2(0f, 0.35f); rt.anchorMax = new Vector2(1f, 0.65f); rt.offsetMin = rt.offsetMax = Vector2.zero;
-                label = go.AddComponent<Text>();
-                label.font = flavorText != null ? flavorText.font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-                label.alignment = TextAnchor.MiddleCenter;
-                label.fontSize = 30; label.fontStyle = FontStyle.Bold;
-                label.color = new Color(1f, 0.85f, 0.5f);
-                label.text = Loc.Auto("LOCKED");
-                var ol = go.AddComponent<Outline>(); ol.effectColor = new Color(0f, 0f, 0f, 0.9f); ol.effectDistance = new Vector2(2f, -2f);
-                lockLabels[i] = label;
-            }
-            label.gameObject.SetActive(!unlocked);
+            if (cg != null) cg.alpha = 1f;
+            var oldLock = slot.Find("LockLabel"); if (oldLock != null) oldLock.gameObject.SetActive(false);
+            bool isNew = UnlockRules.IsNewCharacter(all[i].characterId);
+            NewBadge.Set(slot, isNew, new Vector2(0.5f, 1f), new Vector2(0f, -8f), 0.8f);
+            if (isNew && markSeenOnApply) UnlockRules.MarkCharacterSeen(all[i].characterId);
         }
-        if (selectedIndex >= visible) selectedIndex = Mathf.Max(0, visible - 1);
+        if (selectedIndex >= visibleCount) selectedIndex = Mathf.Max(0, visibleCount - 1);
     }
+    bool markSeenOnApply;
 
     // 言語を切り替えた時(2026-10-07)
     void OnEnable() { Loc.Changed += OnLocChanged; }

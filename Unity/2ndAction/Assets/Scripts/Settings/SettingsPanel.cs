@@ -41,7 +41,7 @@ public class SettingsPanel : MonoBehaviour
     {
         if (state == St.Open || state == St.Opening) return;
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
-        state = St.Opening; t = 0f; scroll = Vector2.zero; dragging = false;
+        state = St.Opening; t = 0f; scroll = Vector2.zero; dragging = false; nameEditing = false;
         PlaySe(true);
     }
 
@@ -130,22 +130,24 @@ public class SettingsPanel : MonoBehaviour
         if (wide)
         {
             float colW = (view.width - 30f) * 0.5f;
-            contentH = Mathf.Max(MeasureAudio() + 16f + MeasureLanguage(), MeasureDisplay() + MeasureControls() + 16f);
+            contentH = Mathf.Max(MeasureAudio() + 16f + MeasureLanguage() + 16f + MeasureProfile(), MeasureDisplay() + MeasureControls() + 16f);
             BeginScroll(view, contentH);
             float ya = DrawAudio(0f, 0f, colW, interactive);
-            DrawLanguage(0f, ya + 16f, colW, interactive);
+            ya = DrawLanguage(0f, ya + 16f, colW, interactive);
+            DrawProfile(0f, ya + 16f, colW, interactive);
             float y2 = DrawDisplay(colW + 30f, 0f, colW, interactive);
             DrawControls(colW + 30f, y2 + 16f, colW, interactive);
             EndScroll(view, contentH);
         }
         else
         {
-            contentH = MeasureAudio() + MeasureLanguage() + MeasureDisplay() + MeasureControls() + 48f;
+            contentH = MeasureAudio() + MeasureLanguage() + MeasureDisplay() + MeasureControls() + MeasureProfile() + 64f;
             BeginScroll(view, contentH);
             float y = DrawAudio(0f, 0f, view.width, interactive);
             y = DrawLanguage(0f, y + 16f, view.width, interactive);
             y = DrawDisplay(0f, y + 16f, view.width, interactive);
-            DrawControls(0f, y + 16f, view.width, interactive);
+            y = DrawControls(0f, y + 16f, view.width, interactive);
+            DrawProfile(0f, y + 16f, view.width, interactive);
             EndScroll(view, contentH);
         }
 
@@ -287,21 +289,59 @@ public class SettingsPanel : MonoBehaviour
         return Note(x, y, w, "※敵の攻撃予兆や操作に必要な表示は弱くなりません");
     }
 
-    // ---------------------------------------------------------------- 操作
-    float MeasureControls() => HeadH + 4f + RowH * 2f + 44f + 12f + RowH + 22f;
+    // ---------------------------------------------------------------- 操作(2026-10-08: オートの個別設定)
+    // 全体の ON/OFF と開始の速さ(今までの「補助開始速度」。距離ではなく走る速さで始まる)は今までどおり。
+    // ボス戦でもオート / 自動攻撃 / 自動回避 を個別に切り替える。説明は実際に対応している範囲だけ(必ず避けられるとは書かない)
+    float MeasureControls() => HeadH + 4f + RowH * 5f + 22f * 6f + 12f + RowH + 22f;
     float DrawControls(float x, float y, float w, bool interactive)
     {
         var hsa = HighSpeedAssist.Instance;
         y = Head(x, y, w, "操作");
         if (hsa == null) return Note(x, y, w, "(自動補助は使えません)");
-        y = ChoiceRow(x, y, w, "高速時の補助", hsa.assistEnabled ? 1 : 0, "OFF", "ON", interactive, c => hsa.SetEnabled(c == 1));
+        y = ChoiceRow(x, y, w, "オートモード", hsa.assistEnabled ? 1 : 0, "OFF", "ON", interactive, c => hsa.SetEnabled(c == 1));
+        bool on = hsa.assistEnabled;
         float range = HighSpeedAssist.MaxEngageKmh - HighSpeedAssist.MinEngageKmh;
         float v01 = (hsa.EngageSettingKmh - HighSpeedAssist.MinEngageKmh) / range;
-        y = SliderRow(x, y, w, "補助開始速度", v01, $"{hsa.EngageSettingKmh:F0}km/h", hsa.assistEnabled, interactive,
+        y = SliderRow(x, y, w, "オート開始速度", v01, $"{hsa.EngageSettingKmh:F0}km/h", on, interactive,
             (v, rel) => hsa.SetEngageKmh(HighSpeedAssist.MinEngageKmh + v * range, rel));
-        y = Note(x, y, w, "走る速さがこの値を超えると、穴/障害物/敵へのジャンプと");
-        y = Note(x, y, w, "攻撃を自動で補助します(自分の操作が優先)");
+        y = ChoiceRow(x, y, w, "ボス戦でもオート", hsa.autoInBoss ? 1 : 0, "OFF", "ON", interactive && on, c => hsa.SetAutoInBoss(c == 1));
+        y = ChoiceRow(x, y, w, "自動攻撃", hsa.autoAttack ? 1 : 0, "OFF", "ON", interactive && on, c => hsa.SetAutoAttack(c == 1));
+        y = ChoiceRow(x, y, w, "自動回避", hsa.autoAvoid ? 1 : 0, "OFF", "ON", interactive && on, c => hsa.SetAutoAvoid(c == 1));
+        y = Note(x, y, w, "走る速さが開始速度を超えると、ONの操作だけ自動で行います。");
+        y = Note(x, y, w, "自動攻撃: 前の敵・壊せる障害物・ボスへの攻撃。");
+        y = Note(x, y, w, "自動回避: 穴・障害物・壁・トゲへのジャンプ。ボス戦では弾や攻撃範囲も。");
+        y = Note(x, y, w, "通常の敵の攻撃は避けません。必ず避けられるわけではありません。");
+        y = Note(x, y, w, "自分の操作が優先。ボス戦OFFならボス戦の間は自動操作しません。");
+        y = Note(x, y, w, "※ ボス戦でもオートは、ボスと戦っている間は速さに関係なく働きます。");
         return DrawHowToPlay(x, y + 12f, w, interactive);
+    }
+
+    // ---------------------------------------------------------------- プロフィール(2026-10-08: コードネーム)
+    string nameEdit; bool nameEditing;
+    float MeasureProfile() => HeadH + 4f + RowH + 22f * 2f;
+    float DrawProfile(float x, float y, float w, bool interactive)
+    {
+        y = Head(x, y, w, "プロフィール");
+        RowLabel(x, y, "コードネーム");
+        float fw = w - LabelW - 120f;
+        var fr = new Rect(x + LabelW, y + 7f, fw, RowH - 14f);
+        if (!nameEditing) nameEdit = Codename.Current;
+        GUI.SetNextControlName("codename");
+        var style = new GUIStyle(GUI.skin.textField) { fontSize = 20, alignment = TextAnchor.MiddleLeft };
+        string edited = GUI.TextField(fr, nameEdit ?? "", 40, style);
+        if (edited != nameEdit) { nameEdit = edited; nameEditing = true; }
+        if (GUI.GetNameOfFocusedControl() == "codename") nameEditing = true;
+        bool changed = nameEditing && Codename.Sanitize(nameEdit) != Codename.Current;
+        if (UiKit.Button(new Rect(x + LabelW + fw + 8f, y + 7f, 112f, RowH - 14f), "保存", 18f, changed, true, changed) && interactive && changed)
+        {
+            nameEdit = Codename.Set(nameEdit);
+            nameEditing = false;
+            GUI.FocusControl(null);
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
+        }
+        y += RowH;
+        y = Note(x, y, w, $"ランキングとマルチで表示する名前(最大{Codename.MaxLength}文字)。未設定でも遊べます。");
+        return Note(x, y, w, "本名などの個人情報は入れないでください。");
     }
 
     // 遊び方(2026-10-07): 操作の練習をもう一度。ホームでだけ始められる(終わるとホームへ戻る)

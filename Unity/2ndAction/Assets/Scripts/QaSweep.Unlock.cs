@@ -105,9 +105,9 @@ public partial class QaSweep
 
         // ---- お嬢様騎士
         L("== noble lady ==");
-        UnlockRules.OnRunEnded(W, 500, realGameOver: false);
+        // リタイア(中断)はゲームオーバーではない: 何も呼ばない(2026-10-08)
         Check(!UnlockRules.IsCharacterUnlocked("noble_lady"), "lady: retiring at 500m does not unlock");
-        UnlockRules.OnRunEnded(W, 1000.5, realGameOver: true);
+        UnlockRules.OnRealGameOver(W, 1000.5);
         Check(!UnlockRules.IsCharacterUnlocked("noble_lady"), "lady: a game over at 1,000.5m does not unlock");
         yield return BeginRun("swordsman", W);
         yield return new WaitForSecondsRealtime(1f);

@@ -87,6 +87,8 @@ public static class RunCheckpoint
         public ComboSystem.SaveData combo = new ComboSystem.SaveData(); // COMBO(2026-10-06): 一時的な数えと通知済みだけ(成立は能力から計算し直す)
         // 疾走出発(2026-10-05): 飛ばした距離(持ち帰りの MILE の距離ぶんから除く)。古いデータは0
         public float sprintSkippedMeters;
+        // 2026-10-08: このランの途中の数値(RunLedger)。古いデータは空(runId 無し = 使った機能を確かめられない)
+        public RunLedger.Run ledger = new RunLedger.Run();
     }
 
     static Data cached;
@@ -101,6 +103,12 @@ public static class RunCheckpoint
             catch (Exception e) { Debug.LogWarning("[RunCheckpoint] Failed to parse save, starting with no active run: " + e.Message); }
         }
         if (cached == null) cached = new Data();
+        // 2026-10-08: 既に確定したラン(保存の直後に落ちた等)の中断データは再開させない(記録を二度確定しない)
+        if (cached.active && cached.ledger != null && RunLedger.IsCommitted(cached.ledger.runId))
+        {
+            Debug.Log("[RunCheckpoint] the suspended run was already committed -> discarded");
+            cached.active = false;
+        }
         return cached;
     }
 

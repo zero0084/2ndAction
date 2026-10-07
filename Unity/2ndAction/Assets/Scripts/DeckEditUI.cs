@@ -207,7 +207,11 @@ public class DeckEditUI : MonoBehaviour
         if (gm == null || all.Count == 0) return;
         int i = 0;
         for (int k = 0; k < all.Count; k++) if (all[k].characterId == gm.CharacterCardOwnerId) i = k;
-        i = (i + dir + all.Count) % all.Count;
+        for (int step = 0; step < all.Count; step++) // 2026-10-08: 未解放のキャラは飛ばす(存在を見せない)
+        {
+            i = (i + dir + all.Count) % all.Count;
+            if (UnlockRules.IsCharacterVisible(all[i].characterId)) break;
+        }
         gm.SetCharacterCardOwner(all[i].characterId);
         pendingEquipSlot = -1;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);

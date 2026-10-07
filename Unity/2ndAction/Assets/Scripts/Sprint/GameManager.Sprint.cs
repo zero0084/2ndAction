@@ -189,6 +189,7 @@ public partial class GameManager
     void SprintArrive(float arrival, int destination)
     {
         SprintSkippedMeters = arrival;
+        RunLedger.MarkSprint(arrival); // 2026-10-08: 疾走出発を使った(ランキングに記録。飛ばした区間は累計に入らない)
         MaxDistance = arrival;
         MaxDistanceExact = arrival;
         HighestReachedDistance = Mathf.Max(HighestReachedDistance, arrival);

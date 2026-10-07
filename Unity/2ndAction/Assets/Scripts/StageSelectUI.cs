@@ -48,7 +48,9 @@ public class StageSelectUI : MonoBehaviour
         {
             if (all[i].stageId == current) { selectedIndex = i; break; }
         }
+        markSeenOnRefresh = true;
         RefreshLocks(all);
+        markSeenOnRefresh = false;
         if (selectedIndex < all.Count && !StageDatabase.IsAvailable(all[selectedIndex]))
             for (int i = 0; i < all.Count; i++) if (StageDatabase.IsAvailable(all[i])) { selectedIndex = i; break; }
         RefreshGlow();
@@ -131,9 +133,11 @@ public class StageSelectUI : MonoBehaviour
         RefreshGlow();
     }
 
-    // 解放状態は実行中に変わる(ラスダンの解放、2026-10-01)ので、開くたびに LOCKED の表示を合わせる
-    // 2026-10-07: 未解放のマップは条件と進捗を見せる。ラスダンは解放前は枠ごと出さない(完全な隠し要素)。見えている枠は中央へ並べ直す
+    // 解放状態は実行中に変わる(ラスダンの解放、2026-10-01)ので、開くたびに合わせる。
+    // 2026-10-08(仕様変更): 未解放のマップは枠ごと出さない(鍵/条件/総数も出さない)。見えている枠は中央へ並べ直す。
+    // 解放したばかりのマップには NEW を付け、この画面を開いた時点で「見た」にする(次からは付かない)
     Vector2[] slotHome;
+    bool markSeenOnRefresh;
     public bool LastDungeonVisible { get; private set; }
     void RefreshLocks(System.Collections.Generic.IReadOnlyList<StageDefinition> all)
     {
@@ -149,27 +153,18 @@ public class StageSelectUI : MonoBehaviour
             if (i < cardUnlocked.Length) cardUnlocked[i] = open;
             var slot = cardSlotRects[i];
             if (slot == null) continue;
-            bool hidden = all[i].stageId == BossManager.LastStageId && !open;
+            bool hidden = !open;
             if (all[i].stageId == BossManager.LastStageId) LastDungeonVisible = !hidden;
             slot.gameObject.SetActive(!hidden);
             if (hidden) continue;
             visible.Add(i);
             var lockLabel = slot.Find("LockLabel");
-            if (lockLabel != null)
-            {
-                lockLabel.gameObject.SetActive(!open);
-                var t = lockLabel.GetComponent<Text>();
-                if (t != null && !open && UnlockRules.TryStageRule(all[i].stageId, out var rule))
-                {
-                    t.fontSize = 22;
-                    t.text = Loc.Auto("LOCKED\n" + UnlockRules.ConditionText(rule) + "\n" + UnlockRules.ProgressText(rule));
-                    t.color = new Color(1f, 0.9f, 0.6f);
-                    if (t.GetComponent<Outline>() == null) { var ol = t.gameObject.AddComponent<Outline>(); ol.effectColor = new Color(0f, 0f, 0f, 0.95f); ol.effectDistance = new Vector2(2f, -2f); }
-                }
-            }
+            if (lockLabel != null) lockLabel.gameObject.SetActive(false);
             var cg = slot.GetComponent<CanvasGroup>();
-            if (cg == null && !open) cg = slot.gameObject.AddComponent<CanvasGroup>();
-            if (cg != null) cg.alpha = open ? 1f : 0.8f;
+            if (cg != null) cg.alpha = 1f;
+            bool isNew = UnlockRules.IsNewStage(all[i].stageId);
+            NewBadge.Set(slot, isNew, new Vector2(0.5f, 1f), new Vector2(0f, -10f));
+            if (isNew && markSeenOnRefresh) UnlockRules.MarkStageSeen(all[i].stageId);
         }
         // 見えている枠を中央へ(元の間隔のまま)
         if (visible.Count > 0 && visible.Count < cardSlotRects.Length && cardSlotRects.Length >= 2)

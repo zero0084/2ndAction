@@ -30,7 +30,7 @@ public class LanRoom
 
 public class LanDiscovery : MonoBehaviour
 {
-    public const int MultiplayerProtocolVersion = 1;   // 部屋の知らせ+ゲームの同期の版(違えば一覧で VERSION MISMATCH、接続も断る)
+    public const int MultiplayerProtocolVersion = 2;   // 2026-10-08: 2 = コードネーム(NetPlayer.CodenameVar)を追加   // 部屋の知らせ+ゲームの同期の版(違えば一覧で VERSION MISMATCH、接続も断る)
     // 知らせに載せる版(開発ビルドだけ -lanProtocol N で変えて、版違いの表示を確かめられる)
     public static int AdvertisedProtocol
     {
@@ -77,10 +77,11 @@ public class LanDiscovery : MonoBehaviour
 
     void Awake() { Instance = this; }
 
+    // 2026-10-08: コードネームがあればそれを使う。無ければ "PLAYER"(端末名には本名が入っていることがあるので使わない)
     static string DefaultRoomName()
     {
-        string who = SystemInfo.deviceName;
-        if (string.IsNullOrEmpty(who) || who == SystemInfo.unsupportedIdentifier || who.Length > 18) who = "PLAYER";
+        string who = Codename.Current;
+        if (string.IsNullOrEmpty(who)) who = "PLAYER";
         return who + "'s Room";
     }
 

@@ -340,7 +340,7 @@ public class NetSession : MonoBehaviour
             StatusText = $"HOST: {1 + others}/{MaxPlayers}人 接続中";
             // 2026-10-02(最大8人の予定): まだ他の参加者がいる時は通知だけ。全員いなくなった時は従来どおりの画面
             if (others > 0) NetDebugUI.Toast($"P{(pn > 0 ? pn.ToString() : "?")} が切断しました(残り{1 + others}人)");
-            else RaiseConnectionLost("MULTIPLAYER CONNECTION LOST\n" + (pn > 0 ? $"P{pn}" : "相手プレイヤー") + "が切断しました");
+            else RaiseConnectionLost("MULTIPLAYER CONNECTION LOST\n" + (pn > 0 ? NetPlayer.TagOf(pn) : "相手プレイヤー") + "が切断しました");
             return;
         }
         if (!Manager.IsServer)

@@ -8,7 +8,11 @@ using UnityEngine;
 //  キャラ: 黒剣士=最初から / 双剣士・二丁拳銃士・竜騎士=荒野街道 30k/50k/100k / 弓・魔法・格闘=自然洞窟 30k/50k/100k /
 //          忍者・巫女・吸血鬼=天空回廊 30k/50k/100k / 竜人=ラスダン解放と同時(解放前は一覧に出さない) /
 //          お嬢様騎士=ラン用マップで1,000m以下でゲームオーバー(1,000mちょうども対象。リタイア/闘技場は対象外)
-//  距離は1回のランで「到達した瞬間」に判定して保存する(その後倒れても取り消さない)。CONTINUE は同じランの続き。
+//  2026-10-08(仕様変更): 距離の条件はラン中は「仮判定」だけ。正規の帰還(脱出/ラスダンの終わり)= 成功の時に
+//  RunLedger.CommitSuccess → CommitRun で正式に解放する。ゲームオーバーなら、そのランによる距離の解放は無い。
+//  一度正式に解放したものは、以後の失敗で取り消さない。お嬢様騎士だけはゲームオーバーが条件(帰還は不要)。
+//  未解放のマップ/キャラは一覧から完全に隠す(鍵の枠/シルエット/条件/総数も出さない)。解放したら NEW を付ける(SeenV1)。
+//  CONTINUE は同じランの続き(仮判定も中断データの台帳 RunLedger から)。
 //  数えない: 闘技場/操作の練習/Debug Run(DebugRun.WritesBlocked)、開発版のワープで距離を飛ばしたラン(RunSkipped)。
 //  既存データ: この仕組みより前のデータで遊んだ形跡があれば、今使えるマップ/キャラ(=全部)をそのまま解放済みにする(取り上げない)。
 //            ラスダンは既存の解放フラグのまま。死神の「マップ別」遭遇はこれまで記録していないので推測で作らない。
@@ -22,6 +26,7 @@ public static class UnlockRules
     public const string ReaperMapPrefix = "ReaperMapV1_";     // + stageId: そのマップで死神戦が始まった(遭遇)
     public const string RevealShownKey = "LastDungeonRevealShown"; // ラスダン出現演出を出した
     public const string DevUnlockAllKey = "Dev.UnlockAll";    // 開発版だけ: 全マップ/全キャラを選べる(正式な解放状態は変えない)
+    public const string SeenKey = "UnlockSeenV1";             // 2026-10-08: 一覧で見た解放(s:<id> / c:<id>)。見ていない物に NEW を付ける
 
     public const string Wasteland = "wasteland_road", Cave = "natural_cave", Sky = "sky_corridor", Arena = "arena";
     public static readonly string[] NormalMaps = { Wasteland, Cave, Sky };
@@ -41,7 +46,7 @@ public static class UnlockRules
 
     static HashSet<string> stages, chars, notified;
     static readonly Dictionary<string, double> reach = new Dictionary<string, double>();
-    public static void Reload() { stages = chars = notified = null; reach.Clear(); }
+    public static void Reload() { stages = chars = notified = seen = null; reach.Clear(); }
 
     static HashSet<string> Set(ref HashSet<string> s, string key)
     {
@@ -80,8 +85,9 @@ public static class UnlockRules
         if (DevUnlockAll) return true;
         return Chars.Contains(id);
     }
-    // 竜人は解放前は一覧にも出さない(ラスダンの存在を明かさない)
-    public static bool IsCharacterVisible(string id) => id != HiddenCharacter || IsCharacterUnlocked(id);
+    // 2026-10-08: 未解放のキャラは一覧に出さない(竜人に限らず全員。鍵/シルエット/総数も出さない)
+    public static bool IsCharacterVisible(string id) => IsCharacterUnlocked(id);
+    public static bool IsStageVisible(string id) => IsStageUnlocked(id);
 
     public static double Reach(string stageId)
     {
@@ -118,18 +124,43 @@ public static class UnlockRules
     public static bool RunSkipped; // 開発版のワープで距離を飛ばした(このランは解放に数えない。新しいランで戻す)
     static bool Counts(string stageId) => !DebugRun.WritesBlocked && !RunSkipped && !string.IsNullOrEmpty(stageId) && stageId != BossManager.LastStageId;
 
-    // GameManager.ReportDistance から(距離が伸びた時)。到達した瞬間に解放して保存する
+    // GameManager.ReportDistance から(距離が伸びた時)。2026-10-08: ラン中は「仮判定」だけ(保存しない・名前を出さない)。
+    // まだ解放していない物の条件を満たしたら、控えめに「帰還すると確定」とだけ知らせる(何が解放されるかは言わない)
+    static double runProvisionalFrom = -1; static string runProvisionalStage;
+    public static int ProvisionalCount { get; private set; }
     public static void OnRunDistance(string stageId, double distance)
     {
         if (!Counts(stageId)) return;
-        double prev = Reach(stageId);
+        if (runProvisionalStage != stageId) { runProvisionalStage = stageId; runProvisionalFrom = -1; ProvisionalCount = 0; }
+        double prev = runProvisionalFrom;
         if (distance <= prev) return;
-        reach[stageId] = distance;
-        bool crossed = false;
-        foreach (var r in StageRules) if (r.stage == stageId && prev < r.meters && distance >= r.meters) { UnlockStage(r.id); crossed = true; }
-        foreach (var r in CharRules) if (r.stage == stageId && prev < r.meters && distance >= r.meters) { UnlockChar(r.id); crossed = true; }
-        // 進捗(最高到達)は 500m ごと/解放の瞬間/ラン終了で保存(毎フレームは書かない)
-        if (crossed || System.Math.Floor(distance / 500.0) > System.Math.Floor(prev / 500.0)) SaveReach(stageId, true);
+        runProvisionalFrom = distance;
+        int n = 0;
+        foreach (var r in StageRules) if (r.stage == stageId && prev < r.meters && distance >= r.meters && !Stages.Contains(r.id)) n++;
+        foreach (var r in CharRules) if (r.stage == stageId && prev < r.meters && distance >= r.meters && !Chars.Contains(r.id)) n++;
+        if (n > 0 && prev >= 0)
+        {
+            ProvisionalCount += n;
+            Debug.Log($"[Unlock] provisional: {n} condition(s) met on {stageId} at {distance:F0}m (confirmed only by returning safely)");
+            NoticeQueue.Toast("新しい発見の条件を満たしました。無事に帰還すると確定します");
+        }
+    }
+
+    // 2026-10-08: 成功したラン(正規の帰還)の確定。1回のランで到達した距離で正式に解放する(一度だけ、RunLedger から)
+    public static void CommitRun(string stageId, double reached, RunLedger.CommitResult res)
+    {
+        if (!Counts(stageId)) return;
+        if (reached > Reach(stageId)) { reach[stageId] = reached; SaveReach(stageId, false); }
+        foreach (var r in StageRules) if (r.stage == stageId && reached >= r.meters && UnlockStage(r.id)) res?.unlockedStages.Add(r.id);
+        foreach (var r in CharRules) if (r.stage == stageId && reached >= r.meters && UnlockChar(r.id)) res?.unlockedChars.Add(r.id);
+    }
+
+    // 2026-10-08: 本当のゲームオーバー(リタイア/闘技場/練習は来ない)。お嬢様騎士: ラン用マップで 1,000m 以下(ちょうども対象)
+    public static void OnRealGameOver(string stageId, double reached)
+    {
+        if (DebugRun.WritesBlocked || RunSkipped || string.IsNullOrEmpty(stageId)) return;
+        bool runMap = System.Array.IndexOf(NormalMaps, stageId) >= 0 || stageId == BossManager.LastStageId;
+        if (runMap && reached <= NobleLadyMaxMeters) { UnlockChar(NobleLady); SaveStore.Save(); }
     }
 
     static void SaveReach(string stageId, bool flush)
@@ -139,22 +170,8 @@ public static class UnlockRules
         if (flush) SaveStore.Save();
     }
 
-    // ランが終わった時(倒れた/脱出/ホームへ)。realGameOver = 実際のゲームオーバー(リタイアではない)
-    public static void OnRunEnded(string stageId, double distance, bool realGameOver)
-    {
-        try { OnRunEndedInner(stageId, distance, realGameOver); } finally { ClearRunFlags(); }
-    }
-
-    static void OnRunEndedInner(string stageId, double distance, bool realGameOver)
-    {
-        if (!Counts(stageId) && !(realGameOver && stageId == BossManager.LastStageId && !DebugRun.WritesBlocked && !RunSkipped)) return;
-        if (Counts(stageId)) { OnRunDistance(stageId, distance); SaveReach(stageId, false); }
-        if (realGameOver && distance <= NobleLadyMaxMeters) UnlockChar(NobleLady);
-        SaveStore.Save();
-    }
-
-    // ランが終わった後(結果/ホーム)は「飛ばしたラン」の印を戻す(次のランへ持ち越さない)
-    public static void ClearRunFlags() { RunSkipped = false; }
+    // ランが終わった後(結果/ホーム)は「飛ばしたラン」の印と仮判定を戻す(次のランへ持ち越さない)
+    public static void ClearRunFlags() { RunSkipped = false; runProvisionalStage = null; runProvisionalFrom = -1; ProvisionalCount = 0; }
 
     // 死神戦が始まった(撃破は不要)。通常3マップだけマップ別に記録
     public static void OnReaperMet(string stageId)
@@ -178,24 +195,45 @@ public static class UnlockRules
     }
 
     // ---------------------------------------------------------------- 解放と通知
-    static void UnlockStage(string id)
+    static bool UnlockStage(string id)
     {
-        if (!Stages.Add(id)) return;
+        if (!Stages.Add(id)) return false;
         SaveStore.SetString(StagesKey, string.Join(",", stages));
         SaveStore.Save();
         Debug.Log($"[Unlock] stage {id}");
         QueueNotice("s:" + id);
         NoticeQueue.Toast("UNLOCKED: " + StageName(id));
+        return true;
     }
 
-    static void UnlockChar(string id, bool notify = true)
+    static bool UnlockChar(string id, bool notify = true)
     {
-        if (!Chars.Add(id)) return;
+        if (!Chars.Add(id)) return false;
         SaveStore.SetString(CharsKey, string.Join(",", chars));
         SaveStore.Save();
         Debug.Log($"[Unlock] character {id}");
         if (notify) { QueueNotice("c:" + id); NoticeQueue.Toast("NEW CHARACTER: " + CharName(id)); }
+        return true;
     }
+
+    // ---------------------------------------------------------------- NEW(一覧で見たか)
+    static HashSet<string> seen;
+    static HashSet<string> Seen => Set(ref seen, SeenKey);
+    // 解放していて、一覧でまだ見ていない(最初から使える物と既存データの解放は「見た」扱い)
+    public static bool IsNewStage(string id) => id != Wasteland && IsOfficialStage(id) && !Seen.Contains("s:" + id);
+    public static bool IsNewCharacter(string id) => id != StartCharacter && Chars.Contains(id) && !Seen.Contains("c:" + id);
+    static bool IsOfficialStage(string id) => id == BossManager.LastStageId ? ProgressStats.FinalDungeonUnlocked : Stages.Contains(id);
+    public static bool AnyNewStage { get { foreach (var r in StageRules) if (r.id != Arena && IsNewStage(r.id)) return true; return IsNewStage(BossManager.LastStageId); } }
+    public static bool AnyNewCharacter { get { foreach (var c in Chars) if (IsNewCharacter(c) && IsCharacterVisible(c)) return true; return false; } }
+    public static bool NewArena => IsNewStage(Arena);
+    public static void MarkSeen(string key)
+    {
+        if (!Seen.Add(key)) return;
+        SaveStore.SetString(SeenKey, string.Join(",", seen));
+        SaveStore.Save();
+    }
+    public static void MarkStageSeen(string id) { if (IsNewStage(id)) MarkSeen("s:" + id); }
+    public static void MarkCharacterSeen(string id) { if (IsNewCharacter(id)) MarkSeen("c:" + id); }
 
     static void MarkNotified(string key)
     {
@@ -256,6 +294,7 @@ public static class UnlockRules
             foreach (var s in st) n.Add("s:" + s);
             foreach (var c in ch) n.Add("c:" + c);
             SaveStore.SetString(NotifiedKey, string.Join(",", n));
+            SaveStore.SetString(SeenKey, string.Join(",", n)); // 2026-10-08: 既存の解放には NEW を付けない
             if (ProgressStats.FinalDungeonUnlocked) SaveStore.SetInt(RevealShownKey, 1);
             // 進捗の表示: マップ別BEST(終了時の記録)から(確実に分かる値だけ)
             foreach (var m in NormalMaps)

@@ -37,7 +37,18 @@ public class NetPlayer : NetworkBehaviour
     // HOSTが割り当てるプレイヤー番号(0始まり)。MaxPlayersまで人数非依存。
     public readonly NetworkVariable<int> Slot = new NetworkVariable<int>(-1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
+    // コードネーム(2026-10-08)。表示名だけで、本人の識別は接続番号(OwnerClientId)。受け取った側でも整え直して表示する
+    public readonly NetworkVariable<FixedString128Bytes> CodenameVar = new NetworkVariable<FixedString128Bytes>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+
     public int PlayerNumber => Slot.Value >= 0 ? Slot.Value + 1 : 0;
+    public static string TagOf(int playerNumber)
+    {
+        foreach (var p in All) if (p != null && p.PlayerNumber == playerNumber) return p.Tag;
+        return $"P{playerNumber}";
+    }
+    // 表示名: コードネーム(未設定なら P1 等)
+    public string DisplayName { get { string n = global::Codename.Sanitize(CodenameVar.Value.ToString()); return string.IsNullOrEmpty(n) ? $"P{PlayerNumber}" : n; } }
+    public string Tag => $"P{PlayerNumber}" + (string.IsNullOrEmpty(global::Codename.Sanitize(CodenameVar.Value.ToString())) ? "" : " " + DisplayName);
 
     const float SendRate = 30f;
     float sendTimer;
@@ -122,6 +133,21 @@ public class NetPlayer : NetworkBehaviour
         if (RunSeed.Value != seed) RunSeed.Value = seed;
         var fs = new FixedString32Bytes(charId ?? "");
         if (!CharacterId.Value.Equals(fs)) CharacterId.Value = fs;
+        var cn = new FixedString128Bytes(FitBytes(global::Codename.Current, 120));
+        if (!CodenameVar.Value.Equals(cn)) CodenameVar.Value = cn;
+    }
+
+    // 送れる長さ(UTF-8 のバイト数)に、文字の途中で切らずに収める
+    static string FitBytes(string s, int maxBytes)
+    {
+        if (string.IsNullOrEmpty(s)) return "";
+        var si = new System.Globalization.StringInfo(s);
+        for (int n = si.LengthInTextElements; n > 0; n--)
+        {
+            string t = si.SubstringByTextElements(0, n);
+            if (System.Text.Encoding.UTF8.GetByteCount(t) <= maxBytes) return t;
+        }
+        return "";
     }
 
     void OwnerUpdate()

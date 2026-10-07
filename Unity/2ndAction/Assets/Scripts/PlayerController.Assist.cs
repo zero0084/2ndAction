@@ -177,6 +177,7 @@ public partial class PlayerController
         {
             requestedFlick = auto;
             LastFlickWasAssist = true;
+            RunLedger.MarkAuto(); // 2026-10-08: オート(補助)を使ったラン(ランキングに記録する)
         }
     }
 }

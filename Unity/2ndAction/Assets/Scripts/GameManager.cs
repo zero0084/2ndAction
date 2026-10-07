@@ -1175,6 +1175,18 @@ public partial class GameManager : MonoBehaviour
         return v;
     }
 
+    // 2026-10-08: 確定(RunLedger.CommitSuccess)から使う静的な入口。GameManager が無い時(テスト)は保存値を直接読む/書く
+    public static double ReadStageBest(string stageId)
+    {
+        if (Instance != null) return Instance.GetStageBest(stageId);
+        return ProgressStats.ReadDouble(StageBestKeyPrefix + stageId);
+    }
+    public static void WriteStageBest(string stageId, double value)
+    {
+        if (Instance != null) { Instance.SetStageBest(stageId, value); return; }
+        if (!string.IsNullOrEmpty(stageId) && !DebugRun.BlocksSave("StageBest " + stageId)) SaveStore.SetString(StageBestKeyPrefix + stageId, value.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+    }
+
     void SetStageBest(string stageId, double value)
     {
         if (string.IsNullOrEmpty(stageId)) return;
@@ -1344,6 +1356,11 @@ public partial class GameManager : MonoBehaviour
         UpdateResumeGate(); // 中断セーブからの再開の準備時間(2026-10-03)
         UpdateResumeCountdownSe();
         if (HasStarted && !IsGameOver) { UpdateCardRunState(); ChallengeSystem.Tick(); } // カードバランス v3(LAST CHANCE の再発動 / WANTED)
+        if (HasStarted && !IsGameOver)
+        {
+            RunLedger.Tick(Time.deltaTime); // 走っていた時間(止まっている間は 0)
+            if (InvincibleMode) RunLedger.MarkDebug("invincible"); // 2026-10-08: 無敵(開発版)を使ったランは対象外のまま
+        }
         if (!HasStarted)
         {
             // Starting now happens only via the on-screen START button (see
@@ -1524,6 +1541,8 @@ public partial class GameManager : MonoBehaviour
         runStartTime = Time.time;
         activeRunCharacterId = SelectedCharacterId;
         activeRunStageId = stageIdOverride ?? SelectedStageId;
+        // 2026-10-08: このランの途中の数値(確定は成功の時だけ)。闘技場/練習も作るが確定はしない(WritesBlocked)
+        RunLedger.BeginNew(activeRunStageId, activeRunCharacterId, NetRunLauncher.IsMultiplayerRun);
         if (TerrainManager.Instance != null) TerrainManager.Instance.ApplyStageTheme(activeRunStageId);
         ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
         SetCharacterCardOwner(activeRunCharacterId); // そのキャラのキャラカード枠(2026-10-02)
@@ -1852,6 +1871,11 @@ public partial class GameManager : MonoBehaviour
         Rect m = GetHomeMultiButtonRect();
         return new Rect(m.x, m.yMax + 10f, m.width, m.height);
     }
+    Rect GetHomeRankingButtonRect()
+    {
+        Rect m = GetHomeSettingsButtonRect();
+        return new Rect(m.x, m.yMax + 10f, m.width, m.height);
+    }
     // 開発版のDEBUG: 部屋の操作対象(扉/ベッド/本/肖像画/ガチャ)と重ならない、扉と本の間の床の上(画面下)。
     Rect GetHomeDebugButtonRect()
     {
@@ -2042,7 +2066,7 @@ public partial class GameManager : MonoBehaviour
             // 累計走行距離(2026-10-01、100mごとに保存)。2026-10-07: CONTINUE で戻った区間(このランで既に走った所まで)は足さない。
             // ラスダンの距離は数えない(解放条件は通常3マップの合計)
             float newGround = distance - Mathf.Max(MaxDistance, HighestReachedDistance);
-            if (newGround > 0f && activeRunStageId != BossManager.LastStageId) ProgressStats.AddRunDistance(newGround);
+            RunLedger.OnDistance(distance, newGround > 0f ? newGround : 0f); // 2026-10-08: 累計は成功した時だけ確定(RunLedger.CommitSuccess)
             MaxDistance = distance;
             GainExp(delta * expPerMeter * ExpMultDistance); // カードの EXP(1つの枠 + 曲線、GameManager.CardStats)
             UnlockManager.CheckUnlocks(MaxDistance);
@@ -2051,7 +2075,7 @@ public partial class GameManager : MonoBehaviour
             // escapeMinDistance), so it stays correct even for the very
             // first Boss Checkpoint.
             if (MaxDistance > HighestReachedDistance) HighestReachedDistance = MaxDistance;
-            UnlockRules.OnRunDistance(activeRunStageId, MaxDistance); // マップ/キャラの解放(1回のランで到達した瞬間、2026-10-07)
+            UnlockRules.OnRunDistance(activeRunStageId, MaxDistance); // 2026-10-08: ラン中は仮判定だけ(正式な解放は帰還した時)
 
             // Item 11 - "強制終了による逃げ対策": keeps the interrupt-state
             // save (HP/RunMile/build/HighestReachedDistance) reasonably
@@ -3349,6 +3373,8 @@ public partial class GameManager : MonoBehaviour
         NetMatch.RequestHeal(amount);
     }
 
+    public RunLedger.CommitResult LastCommit { get; private set; } // 2026-10-08: このランの確定の結果(結果画面)
+
     public void Win()
     {
         if (IsGameOver) return;
@@ -3367,8 +3393,11 @@ public partial class GameManager : MonoBehaviour
         // 死神(三姉妹)は追跡/攻撃/接触判定をここで止める(死因が何であっても)
         if (!QaLegacyDeathBehaviour) ReaperBase.StopAllForRunEnd();
         if (!QaLegacyDeathBehaviour) GameOverCleanup(); // 2026-10-06: ボス/Encounter/補助/入力の片付け(撃破の処理は通さない)
-        ProgressStats.Flush(true); // 死亡/正常終了: 累計走行距離を保存(2026-10-01)
-        UnlockRules.OnRunEnded(activeRunStageId, MaxDistance, realGameOver: !IsWin); // 2026-10-07: 到達距離の保存 / お嬢様騎士(1,000m以下で倒れた)
+        ProgressStats.Flush(true);
+        // 2026-10-08(仕様変更): 正式な記録は成功(正規の帰還)の時だけ。ゲームオーバーは記録しない(お嬢様騎士の条件だけ見る)
+        if (IsWin) LastCommit = RunLedger.CommitSuccess(MaxDistanceExact);
+        else { RunLedger.OnGameOver(MaxDistanceExact); LastCommit = RunLedger.LastResult; }
+        UnlockRules.ClearRunFlags();
         gameOverTime = Time.time;
         // Safety net: Time.timeScale is a global engine setting that would
         // otherwise persist across a scene reload (Retry) - if the run
@@ -3394,11 +3423,10 @@ public partial class GameManager : MonoBehaviour
         RunTime = Time.time - runStartTime;
 
         // マップ別BEST: そのランのステージIDの記録だけを更新する(帰還/ゲームオーバーの確定タイミングは従来どおりここ)。
-        string bestStageId = activeRunStageId;
-        IsNewBestDistance = MaxDistanceExact > GetStageBest(bestStageId);
-        if (IsNewBestDistance) SetStageBest(bestStageId, MaxDistanceExact);
-        // 全体の最高距離(解放/ガチャ進行用)は従来どおり。
-        bool record = !DebugRun.BlocksSave("BestDistance/BestTime"); // 記録対象外のラン(デバッグワープ)は全体のBEST/時間も更新しない
+        // マップ別BEST は RunLedger.CommitSuccess が成功の時だけ書く(2026-10-08)
+        IsNewBestDistance = LastCommit != null && LastCommit.committed && LastCommit.newBest;
+        // 全体の最高距離(旧の距離解放/ガチャ進行用)と最長時間も、確定した成功だけ
+        bool record = LastCommit != null && LastCommit.committed && !DebugRun.BlocksSave("BestDistance/BestTime");
         if (record && MaxDistance > BestDistance)
         {
             BestDistance = MaxDistance;
@@ -3554,6 +3582,7 @@ public partial class GameManager : MonoBehaviour
         data.finalEvolution = FinalEvolution.Export(); // FINAL EVOLUTION
         data.combo = ComboSystem.Export();             // COMBO(一時的な数え/通知済み)
         data.sprintSkippedMeters = SprintSkippedMeters; // 疾走出発(2026-10-05)
+        data.ledger = RunLedger.Current; // 2026-10-08: 途中の数値(確定前)。使ったデバッグ機能も持ち越す
     }
 
     // Item 9 - "RETURN TO HOME" - NOT a FINISH: Run MILE stays unconfirmed,
@@ -3569,9 +3598,8 @@ public partial class GameManager : MonoBehaviour
         // 2026-10-03: ホームへの暗転(実時間)の間もゲームは止めておく。以前は ResetAll で動き出し、暗転中に
         // 被弾/前進して、保存したHPや距離が確認画面の時点とずれることがあった。次のシーンの Awake で解除する。
         if (!NetRunLauncher.IsMultiplayerRun) TimeControl.Pause(returnHomeTimeOwner); // マルチは従来どおり(ほかの端末の世界は止められない)
-        ProgressStats.Flush(true); // 途中帰還: 累計走行距離を保存(2026-10-01)
-        UnlockRules.OnRunEnded(activeRunStageId, MaxDistance, realGameOver: false); // 到達距離の保存(リタイアはお嬢様騎士の対象外)
-        SaveInterruptState();
+        ProgressStats.Flush(true);
+        SaveInterruptState(); // 2026-10-08: 中断は未確定のまま保存(台帳ごと)。記録/解放は再開後の結果で決める
         RetryWithTransition();
     }
 
@@ -3607,6 +3635,7 @@ public partial class GameManager : MonoBehaviour
 
         HasStarted = true;
         runStartTime = Time.time;
+        RunLedger.Resume(data.ledger, data.stageId, data.characterId, Mathf.Max(data.highestReachedDistance, data.checkpointDistance)); // 2026-10-08
 
         MaxDistance = data.checkpointDistance;
         MaxDistanceExact = data.checkpointDistance;
@@ -3989,6 +4018,7 @@ public partial class GameManager : MonoBehaviour
                     lastDoorRect = doorRect;
                     OnDoorTapped();
                 }
+                if (roomFadeAlpha > 0.5f && UnlockRules.AnyNewStage) DrawNewDot(doorRect); // 2026-10-08: 新しいマップが増えた
 
                 if (RunCheckpoint.HasActiveRun && roomFadeAlpha > 0.5f)
                 {
@@ -4294,11 +4324,31 @@ public partial class GameManager : MonoBehaviour
             Row("TOTAL EXP", Mathf.FloorToInt(TotalExpEarned).ToString(), false);
             Row("UPGRADES OBTAINED", UpgradeCount.ToString(), false);
             Row("TOTAL MILE", $"+{RunMile}  (WALLET {TotalOwnedMile})", false);
+            // 2026-10-08: 帰還で確定した解放(複数でも全部出す)/ 記録の対象外だった理由
+            if (LastCommit != null && LastCommit.committed && LastCommit.unlockedStages.Count + LastCommit.unlockedChars.Count > 0)
+            {
+                var names = new System.Collections.Generic.List<string>();
+                foreach (var id in LastCommit.unlockedStages) names.Add(Loc.Auto(UnlockRules.StageName(id)));
+                foreach (var id in LastCommit.unlockedChars) names.Add(Loc.Auto(UnlockRules.CharName(id)));
+                Color keepU = rowStyle.normal.textColor;
+                rowStyle.normal.textColor = new Color(1f, 0.85f, 0.3f);
+                LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), "NEW: " + string.Join(" / ", names), rowStyle);
+                rowStyle.normal.textColor = keepU;
+                y += 34f;
+            }
+            else if (LastCommit != null && !LastCommit.committed && !string.IsNullOrEmpty(LastCommit.skippedWhy) && Debug.isDebugBuild && !DebugRun.WritesBlocked)
+            {
+                Color keepU = rowStyle.normal.textColor;
+                rowStyle.normal.textColor = new Color(1f, 0.6f, 0.5f);
+                LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), "DEV: 記録の対象外 (" + LastCommit.skippedWhy + ")", rowStyle);
+                rowStyle.normal.textColor = keepU;
+                y += 34f;
+            }
         }
         else
         {
             // 2026-10-07: 倒れた時は MILE が入らない(このランの MILE は失う)。以前は「+N MILE」と出ていて、もらえたように見えた。
-            // 失ったもの / 残るもの をはっきり出す(残る: BEST距離の記録・累計走行距離・持っているカード・所持MILE)
+            // 失ったもの / 残るもの をはっきり出す。2026-10-08(仕様変更): 倒れたランの距離は正式記録(BEST/累計/解放)に残らない
             Row("DISTANCE", $"{Mathf.FloorToInt(MaxDistance)}m", IsNewBestDistance);
             Row("TIME", FormatTime(RunTime), IsNewBestTime);
             Row("ENEMIES / BOSSES", $"{EnemyKillCount} / {BossKillCount}", false);
@@ -4308,9 +4358,10 @@ public partial class GameManager : MonoBehaviour
             LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), $"失ったもの: このランのMILE {RunMile}", rowStyle);
             y += 34f;
             rowStyle.normal.textColor = new Color(0.6f, 1f, 0.7f);
-            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), IsNewBestDistance ? "残るもの: BEST距離の記録(更新!)・累計走行距離" : "残るもの: BEST距離の記録・累計走行距離", rowStyle);
+            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), "今回の距離は正式な記録(BEST・累計・解放)に残りません", rowStyle);
             y += 34f;
-            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), $"              持っているカード・MILE(WALLET {TotalOwnedMile})", rowStyle);
+            rowStyle.normal.textColor = new Color(0.6f, 1f, 0.7f);
+            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, 30f), $"残るもの: これまでに確定した記録・カード・MILE(WALLET {TotalOwnedMile})", rowStyle);
             y += 34f;
             rowStyle.normal.textColor = keepRow;
         }
@@ -5086,6 +5137,7 @@ public partial class GameManager : MonoBehaviour
     {
         if (!Debug.isDebugBuild) return; // Release Build safety net - a stray call can never actually warp outside a dev build
         UnlockRules.RunSkipped = true; // 距離を飛ばしたランは解放に数えない(2026-10-07)
+        RunLedger.MarkDebug("warp"); // 2026-10-08: このランは正式記録/ランキングの対象外(OFF に戻しても)
         MaxDistance = targetDistance;
         MaxDistanceExact = targetDistance;
         // 2026-09-29: ボスの関門もワープ先へ合わせる(以前は1,000mの関門が残っていて、ワープ直後に1,000mのボスが出て距離が戻された)。
@@ -5148,14 +5200,16 @@ public partial class GameManager : MonoBehaviour
         UiKit.DrawGear(new Rect(setRect.x + setRect.width * 0.08f, setRect.y + setRect.height * 0.2f, setRect.height * 0.6f, setRect.height * 0.6f), 1f, new Color(1f, 0.88f, 0.55f));
         if (Platform.Online.LanMultiplayer && DrawStyledButton(GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel, fs, primary: NetSession.IsActive, ornate: true)) NetDebugUI.OpenPanel();
         // 闘技場(2026-10-06 正式版): キャラやカードを自由に試せる練習場。マルチの部屋にいる間は出さない(ソロ用)
-        // 闘技場: 天空回廊で30,000m到達で解放(2026-10-07)。未解放は鍵付きで、押すと条件を見せる
+        // 闘技場: 天空回廊で30,000m到達+帰還で解放。2026-10-08: 未解放の間はボタンごと出さない(存在を見せない)。解放直後は NEW
         bool arenaOpen = UnlockRules.IsArenaUnlocked;
-        if (!NetSession.IsActive && DrawStyledButton(GetHomeArenaButtonRect(), arenaOpen ? "闘技場" : "闘技場 (LOCK)", arenaOpen ? fs : fs * 0.82f, primary: false, ornate: true))
+        if (arenaOpen && !NetSession.IsActive)
         {
-            if (arenaOpen) { ArenaConfigStore.Load(); ArenaLauncher.Launch("home", true); }
-            else if (UnlockRules.TryStageRule(UnlockRules.Arena, out var ar))
-                NoticeQueue.Enqueue("arena_locked", "闘技場はまだ解放されていません", $"解放の条件: {UnlockRules.ConditionText(ar)}\n{UnlockRules.ProgressText(ar)}", null);
+            Rect ar = GetHomeArenaButtonRect();
+            if (DrawStyledButton(ar, "闘技場", fs, primary: false, ornate: true)) { UnlockRules.MarkStageSeen(UnlockRules.Arena); ArenaConfigStore.Load(); ArenaLauncher.Launch("home", true); }
+            if (UnlockRules.NewArena) DrawNewDot(ar);
         }
+        // ランキング(2026-10-08): 設定の下の段。参加は任意(ランキングの画面で)
+        if (!NetSession.IsActive && DrawStyledButton(GetHomeRankingButtonRect(), "ランキング", fs * 0.92f, primary: false, ornate: true)) RankingPanel.OpenStatic();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (Debug.isDebugBuild)
         {
@@ -5163,6 +5217,26 @@ public partial class GameManager : MonoBehaviour
             if (DrawStyledButton(dr, "DEBUG", Mathf.Round(dr.height * 0.38f), primary: DebugMode)) DebugPanel.OpenStatic();
         }
 #endif
+    }
+
+    // 2026-10-08: 解放したばかりの物がある入口に付ける小さな光(右上に NEW)。見た目だけで入力は取らない
+    GUIStyle newDotStyle;
+    void DrawNewDot(Rect anchor)
+    {
+        if (Event.current.type != EventType.Repaint) return;
+        float k = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 3.2f);
+        float h = Mathf.Clamp(anchor.height * 0.16f, 20f, 34f), w = h * 2.3f;
+        Rect r = new Rect(anchor.xMax - w * 0.85f, anchor.y - h * 0.25f, w, h);
+        Color keep = GUI.color;
+        GUI.color = new Color(1f, 0.85f, 0.3f, 0.25f + 0.25f * k);
+        GUI.DrawTexture(new Rect(r.x - h * 0.3f, r.y - h * 0.3f, r.width + h * 0.6f, r.height + h * 0.6f), Texture2D.whiteTexture);
+        GUI.color = new Color(1f, Mathf.Lerp(0.72f, 0.92f, k), 0.2f, 0.95f);
+        GUI.DrawTexture(r, Texture2D.whiteTexture);
+        GUI.color = keep;
+        if (newDotStyle == null) newDotStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
+        newDotStyle.fontSize = Mathf.RoundToInt(h * 0.62f);
+        newDotStyle.normal.textColor = new Color(0.2f, 0.08f, 0.02f);
+        GUI.Label(r, "NEW", newDotStyle);
     }
 
     // Visual Style Ver.1 button: a UiBackdrop box (navy fill + thin gold
@@ -5628,6 +5702,7 @@ public partial class GameManager : MonoBehaviour
         nameStyle.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, roomFadeAlpha * 0.85f);
         string nameLabel = selectedDef != null ? selectedDef.displayName : "";
         LocGUI.Label(new Rect(rect.x, frameRect.yMax + 2f, rect.width, 20f), nameLabel, nameStyle);
+        if (roomFadeAlpha > 0.5f && UnlockRules.AnyNewCharacter) DrawNewDot(frameRect); // 2026-10-08: 新しい仲間が増えた
 
         bool tapped = roomInteractable && (PadNav.Button(rect) | GUI.Button(rect, GUIContent.none, GUIStyle.none));
         if (tapped)

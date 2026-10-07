@@ -66,6 +66,17 @@ public static class ProgressStats
         if (lifetime - lastFlushed >= 100.0) Flush(true);
     }
 
+    // 2026-10-08(仕様変更): 累計は成功したランの実走分だけ。RunLedger.CommitSuccess から一度だけ足して保存する
+    public static void AddCommittedDistance(double meters)
+    {
+        if (meters <= 0.0 || double.IsNaN(meters) || double.IsInfinity(meters)) return;
+        if (DebugRun.WritesBlocked) return;
+        Load();
+        lifetime += meters;
+        dirty = true;
+        Flush(false);
+    }
+
     // 書き込む(save=true で SaveStore.Save まで)。ラン終了/帰還/一時停止/終了から呼ぶ。
     public static void Flush(bool save)
     {

@@ -350,12 +350,12 @@ public partial class NetMatch
         Rec me = Get(local);
         var sb = new StringBuilder();
         sb.Append(Mode == MultiplayerGameMode.Coop ? "<color=#8fe3ff>CO-OP</color>" : "<color=#ffb070>VERSUS</color>");
-        if (me != null) sb.Append($"  P{local} HP {me.Hp}/{me.MaxHp}  {me.State}");
+        if (me != null) sb.Append($"  {NetPlayer.TagOf(local)} HP {me.Hp}/{me.MaxHp}  {me.State}");
         var reviveTargets = new System.Collections.Generic.List<int>(); string reviveText = null; int lines = 1;
         foreach (var r in recs.Values)
         {
             if (r.Pn == local) continue;
-            sb.Append($"\nP{r.Pn}: {r.State} HP {r.Hp}  {(r.State == PState.Down ? r.DownDistance : r.State == PState.Eliminated ? r.FinalDistance : r.Distance):F0}m"); lines++;
+            sb.Append($"\n{NetPlayer.TagOf(r.Pn)}: {r.State} HP {r.Hp}  {(r.State == PState.Down ? r.DownDistance : r.State == PState.Eliminated ? r.FinalDistance : r.Distance):F0}m"); lines++;
             if (Mode == MultiplayerGameMode.Coop && r.State == PState.Down)
             {
                 sb.Append("\n<color=#ff8080>ALLY DOWN</color>");
@@ -385,7 +385,7 @@ public partial class NetMatch
         // 復活: 倒れていて自分が助けられる人ごとにボタン(最大8人の予定。誰を助けるかを選べる)
         if (!runOver)
             for (int i = 0; i < reviveTargets.Count; i++)
-                if (GUI.Button(new Rect(18f + (i % 3) * 250f, py + boxH + 8f + (i / 3) * 66f, 240f, 60f), $"REVIVE P{reviveTargets[i]}", hudButton)) RequestRevive(reviveTargets[i]);
+                if (GUI.Button(new Rect(18f + (i % 3) * 250f, py + boxH + 8f + (i / 3) * 66f, 240f, 60f), "REVIVE " + NetPlayer.TagOf(reviveTargets[i]), hudButton)) RequestRevive(reviveTargets[i]);
 
         if (runOver && results.Count > 0)
         {
@@ -399,7 +399,7 @@ public partial class NetMatch
             {
                 var r = results[i];
                 LocGUI.Label(new Rect(panel.x + 30f, panel.y + 56f + i * 40f, pw - 60f, 40f),
-                    $"{r.Rank}.  P{r.Pn}   {r.Distance:N0}m   KILL {r.Kills}   BOSS {r.BossLastHits}", hudStyle);
+                    $"{r.Rank}.  {NetPlayer.TagOf(r.Pn)}   {r.Distance:N0}m   KILL {r.Kills}   BOSS {r.BossLastHits}", hudStyle);
             }
         }
         GUI.matrix = prev;

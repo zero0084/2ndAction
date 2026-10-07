@@ -141,6 +141,8 @@ public class NetDebugUI : MonoBehaviour
     bool online;
     public static bool OnlineFlow => instance != null && instance.online;
     static string L(string s) => Loc.Auto(s); // GUILayout の文は LocGUI を通らないのでここで訳す
+    // 相手のキャラの名前。自分がまだ解放していないキャラは名前を出さない(2026-10-08)
+    static string CharLabel(string id) => !string.IsNullOrEmpty(id) && UnlockRules.IsCharacterVisible(id) ? Loc.Auto(UnlockRules.CharName(id)) : "";
     string findMessage = "";
     float findMessageUntil;
     string joiningRoom = "";
@@ -454,7 +456,7 @@ public class NetDebugUI : MonoBehaviour
         GUILayout.Label($"WAITING FOR PLAYERS {NetSession.ConnectedPlayerCount}/{NetSession.MaxPlayers}", titleStyle);
         var sb = new StringBuilder();
         foreach (NetPlayer p in NetPlayer.All)
-            sb.Append($"P{p.PlayerNumber}  {(p.OwnerClientId == 0 ? "HOST" : "JOIN")}  {p.CharacterId.Value}{(p.IsOwner ? "  (" + L("自分") + ")" : "")}").Append('\n');
+            sb.Append($"{p.Tag}  {(p.OwnerClientId == 0 ? "HOST" : "JOIN")}  {CharLabel(p.CharacterId.Value.ToString())}{(p.IsOwner ? "  (" + L("自分") + ")" : "")}").Append('\n');
         GUILayout.Label(sb.ToString(), smallStyle);
         if (host && LanDiscovery.Advertising) GUILayout.Label(L("近くの端末の「FIND GAME」に表示中"), smallStyle);
         if (host && onl && OnlineServices.Current != null) GUILayout.Label(L("オンラインの「FIND GAME」に表示中"), smallStyle);
@@ -567,7 +569,7 @@ public class NetDebugUI : MonoBehaviour
             foreach (NetPlayer p in NetPlayer.All)
             {
                 if (p.IsOwner) continue;
-                text += $"  P{p.PlayerNumber}:{(p.Phase.Value == NetPlayer.PhaseInRun ? $"走行中 遅延{p.PlaybackLag * 1000f:F0}ms" : p.Phase.Value == NetPlayer.PhaseRunEnded ? "終了" : "Home")}";
+                text += $"  {p.Tag}:{(p.Phase.Value == NetPlayer.PhaseInRun ? $"走行中 遅延{p.PlaybackLag * 1000f:F0}ms" : p.Phase.Value == NetPlayer.PhaseRunEnded ? "終了" : "Home")}";
             }
         }
         // 人数が増えても切れないよう、相手ごとに改行して高さを伸ばす(2026-10-02)
@@ -591,7 +593,7 @@ public class NetDebugUI : MonoBehaviour
             float gx = sp.x / s, gy = (Screen.height - sp.y) / s;
             Matrix4x4 prev = GUI.matrix;
             GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(s, s, 1f));
-            LocGUI.Label(new Rect(gx - 80f, gy - 28f, 160f, 28f), $"P{p.PlayerNumber}", tagStyle);
+            LocGUI.Label(new Rect(gx - 120f, gy - 28f, 240f, 28f), p.Tag, tagStyle);
             GUI.matrix = prev;
         }
     }

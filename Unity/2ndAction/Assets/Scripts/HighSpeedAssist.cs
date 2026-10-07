@@ -149,6 +149,9 @@ public partial class HighSpeedAssist : MonoBehaviour
     public void ReloadPrefs()
     {
         assistEnabled = SaveStore.GetInt(PrefKey, 1) != 0;
+        autoInBoss = SaveStore.GetInt(BossPrefKey, 1) != 0;
+        autoAttack = SaveStore.GetInt(AttackPrefKey, 1) != 0;
+        autoAvoid = SaveStore.GetInt(AvoidPrefKey, 1) != 0;
         ApplyEngageKmh(SaveStore.GetFloat(EngagePrefKey, DefaultEngageKmh));
     }
 
@@ -167,6 +170,18 @@ public partial class HighSpeedAssist : MonoBehaviour
         if (arenaSaved) { breakObstacles = savedBreak; earlyDoubleJump = savedEarlyDj; arenaSaved = false; }
         ReloadPrefs();
     }
+
+    // ---- オートの個別設定(2026-10-08)。全体が ON で開始の速さに達した時、個別に ON の操作だけを行う。
+    //  ボス戦でもオート: OFF ならボス戦の間は自動の攻撃も回避もしない(撃破後は設定と速さに従って戻る。ラスダンの複数ボスも同じ)。
+    //  自動攻撃: 前の敵/壊せる障害物への攻撃、ボス戦の攻撃(下攻撃を含む)。OFF の時は障害物を壊す前提の計画も立てない(跳んで越える)。
+    //  自動回避: 穴/障害物/壁/トゲ/落下へのジャンプ・二段ジャンプ、ボス戦の弾/攻撃範囲/洞窟の危険へのジャンプ。
+    //  既存の設定には無かった項目で、初期値はどれも ON(今までの動きと同じ)。
+    public const string BossPrefKey = "AutoInBossV1", AttackPrefKey = "AutoAttackV1", AvoidPrefKey = "AutoAvoidV1";
+    [System.NonSerialized] public bool autoInBoss = true, autoAttack = true, autoAvoid = true;
+    public void SetAutoInBoss(bool on) { autoInBoss = on; SaveStore.SetInt(BossPrefKey, on ? 1 : 0); SaveStore.Save(); }
+    public void SetAutoAttack(bool on) { autoAttack = on; SaveStore.SetInt(AttackPrefKey, on ? 1 : 0); SaveStore.Save(); }
+    public void SetAutoAvoid(bool on) { autoAvoid = on; SaveStore.SetInt(AvoidPrefKey, on ? 1 : 0); SaveStore.Save(); }
+    static bool IsAttack(PlayerController.FlickDirection d) => d != PlayerController.FlickDirection.Up;
 
     public void SetEnabled(bool on)
     {
@@ -297,6 +312,8 @@ public partial class HighSpeedAssist : MonoBehaviour
         }
         if (!assistEnabled) { CurrentStatus = Status.Off; return null; }
         bool bossMode = BossFightNear(pc); // ボス戦(2026-10-04): ボスと戦っている間は速さに関係なく働く
+        if (bossMode && !autoInBoss) { CurrentStatus = Status.Blocked; BlockedReason = "ボス戦はオートOFF"; return null; } // 2026-10-08
+        if (!autoAttack && !autoAvoid) { CurrentStatus = Status.Off; return null; }
         if (!Engaged && !bossMode) { CurrentStatus = Status.WaitingSpeed; return null; }
         if (pc.IsReacting) { CurrentStatus = Status.Blocked; BlockedReason = "被弾リアクション中"; return null; }
         if (pc.AssistEscapeCharging) { CurrentStatus = Status.Blocked; BlockedReason = "脱出チャージ中"; return null; }
@@ -307,6 +324,8 @@ public partial class HighSpeedAssist : MonoBehaviour
         var sw = System.Diagnostics.Stopwatch.StartNew();
         PlayerController.FlickDirection? result = null;
         stepsUsed = 0;
+        bool keepBreak = breakObstacles;
+        if (!autoAttack) breakObstacles = false; // 自動攻撃が OFF: 障害物を壊す前提にしない(跳んで越える計画にする)
         try
         {
             if (bossMode)
@@ -320,6 +339,7 @@ public partial class HighSpeedAssist : MonoBehaviour
         }
         finally
         {
+            breakObstacles = keepBreak;
             LastDecideMs = (float)sw.Elapsed.TotalMilliseconds;
             DecideCount++;
             if (DecideCount > 30)
@@ -329,6 +349,8 @@ public partial class HighSpeedAssist : MonoBehaviour
                 if (LastDecideMs >= 2f) SlowDecides++;
             }
         }
+        // 個別に OFF の操作は出さない(2026-10-08)
+        if (result.HasValue && (IsAttack(result.Value) ? !autoAttack : !autoAvoid)) result = null;
         bool manual = Time.time < manualAttackUntil || Time.time < manualJumpUntil;
         CurrentStatus = manual ? Status.ManualPriority : Status.Active;
         return result;
