@@ -74,7 +74,10 @@ public struct NetPlayerSnapshot : INetworkSerializable
 //    (位置そのものを遅らせるスムージングはしない - 高速時に大きく遅れて見えるため)。
 public class NetSnapshotInterpolator
 {
-    public float InterpDelay = 0.1f;         // 30Hz送信で約3パケット分
+    public float InterpDelay = 0.1f;         // 30Hz送信で約3パケット分(LOCAL)
+    // ONLINE(2026-10-07): インターネット越しは届く間隔の揺らぎが大きいので、少し多めに貯めてから再生する(見た目だけ。判定/権威は変わらない)
+    public static float OnlineInterpDelay = 0.15f;
+    float Delay => NetSession.Connection == ConnectionType.Online ? Mathf.Max(InterpDelay, OnlineInterpDelay) : InterpDelay;
     public float MaxExtrapolation = 0.2f;
     public float TeleportDistance = 6f;      // これ以上の段差は補間せずに瞬間移動として扱う
     public float ErrorDecayTime = 0.12f;
@@ -118,7 +121,7 @@ public class NetSnapshotInterpolator
         discrete = default; x = 0; y = 0; visPosX = visPosY = visRotZ = rootRotZ = 0f; visScaleX = visScaleY = 1f;
         if (buf.Count == 0) return false;
 
-        double target = LatestTime - InterpDelay;
+        double target = LatestTime - Delay;
         if (!clockStarted || System.Math.Abs(playT - target) > 0.5)
         {
             playT = target;

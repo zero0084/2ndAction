@@ -1317,6 +1317,7 @@ public class NetCombat : MonoBehaviour
         var sb = new System.Text.StringBuilder();
         sb.Append($"NET COMBAT [{role}] me=P{LocalPlayerNumber} shared={entities.Count}\n");
         sb.Append($"spawn={StatSpawns} dmgEv={StatDamageEvents} death={StatDeaths} req sent={StatHitRequestsSent} applied={StatHitRequestsApplied} ignored={StatHitRequestsIgnored} dup={StatDuplicateHits}\n");
+        sb.Append(NetStats.PingLine().Replace(" | ", "\n")).Append('\n');
         sb.Append(LoadSummary()).Append('\n');
         for (int i = Mathf.Max(0, KillLog.Count - 5); i < KillLog.Count; i++) sb.Append(KillLog[i]).Append('\n');
         LocGUI.Label(new Rect(panel.x + 8f, panel.y + 4f, panel.width - 16f, panel.height - 8f), sb.ToString());

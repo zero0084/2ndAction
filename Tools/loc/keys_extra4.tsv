@@ -1,0 +1,19 @@
+5000	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	同じWi-Fi、またはスマホのテザリングにつないだ端末どうしで遊びます(最大8人)。
+5001	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	インターネットで、離れた場所の人と遊びます(最大8人)。
+5002	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	オンラインサービスに接続しています…
+5003	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	部屋を作ります。オンラインの「FIND GAME」に表示されます。
+5004	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	オンラインの部屋を探して参加します。
+5005	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	部屋を作っています…
+5006	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	部屋を作れませんでした。通信を確認して、もう一度お試しください
+5007	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	オンラインの部屋
+5008	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	接続できませんでした。もう一度お試しください
+5009	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	接続中…
+5010	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	オンラインの部屋を探しています…
+5011	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	「CREATE GAME」で部屋を作るか、少し待ってから再検索してください。
+5012	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	通信を確認してください
+5013	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	インターネットにつながっているか確認して、もう一度お試しください。LOCAL PLAY(同じWi-Fi)はこのまま遊べます。
+5014	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	近くの部屋
+5015	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	(HOSTが決めます)
+5016	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	HOSTが決めます(Run開始時に自動で揃います)
+5017	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	自分
+5018	ui	Net/NetDebugUI.cs (MULTIPLAYER / ONLINE PLAY panel)	オンラインの「FIND GAME」に表示中

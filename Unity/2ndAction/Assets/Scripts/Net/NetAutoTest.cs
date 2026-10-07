@@ -1098,7 +1098,7 @@ public partial class NetAutoTest : MonoBehaviour
         }
         if (ReaperBase.Active != null) { var rp = ReaperBase.Active; var lp = PlayerController.Instance; L($"reaper t={runTime:F1} me=P{NetCombat.LocalPlayerNumber} type={rp.GetType().Name} ai={rp.enabled} phase={rp.CurrentPhase} gapAI={rp.Gap:F1} dxLocal={(lp != null ? lp.transform.position.x - rp.transform.position.x : 0f):F1} strikes={rp.Strikes} reaperCount={FindObjectsByType<ReaperBase>(FindObjectsSortMode.None).Length} maxJump={reaperMaxJump:F2} lives={(GameManager.Instance != null ? GameManager.Instance.Lives : -1)}"); }
         L($"obst t={runTime:F1} me=P{NetCombat.LocalPlayerNumber} {ObstacleLine()}");
-        L($"t={runTime:F1} local X={lx:F2} Y={(pc != null ? pc.transform.position.y : 0f):F2} speed={(pc != null ? pc.CurrentAutoRunSpeed : 0f):F1} grounded={(pc != null && pc.IsGrounded)} dist={(gm != null ? gm.MaxDistance : 0f):F0} offset={FloatingOrigin.Offset:F0} | remote {remoteStr} | connected={NetSession.IsConnected}");
+        L($"t={runTime:F1} local X={lx:F2} Y={(pc != null ? pc.transform.position.y : 0f):F2} speed={(pc != null ? pc.CurrentAutoRunSpeed : 0f):F1} grounded={(pc != null && pc.IsGrounded)} dist={(gm != null ? gm.MaxDistance : 0f):F0} offset={FloatingOrigin.Offset:F0} | remote {remoteStr} | connected={NetSession.IsConnected} ping={NetStats.CurPingMs:F0}ms");
 
         TerrainManager tm = TerrainManager.Instance;
         if (tm != null && pc != null)
@@ -1131,7 +1131,7 @@ public partial class NetAutoTest : MonoBehaviour
         }
         L($"OBSTACLES role={role} {ObstacleLine()}");
         L(WorldSummary());
-        L($"SUMMARY reason={reason} role={role} exceptions={exceptions} errors={errors} remoteShownSeconds={remoteShownSeconds} maxStepErr={totalMaxStepErr:F3} maxStep={totalMaxStep:F3} backSteps={totalBackSteps}/{totalFrames} sigA={sigA} sigB={sigB} sigC={sigC}");
+        L($"SUMMARY reason={reason} role={role} exceptions={exceptions} errors={errors} remoteShownSeconds={remoteShownSeconds} maxStepErr={totalMaxStepErr:F3} maxStep={totalMaxStep:F3} backSteps={totalBackSteps}/{totalFrames} sigA={sigA} sigB={sigB} sigC={sigC} ping avg={NetStats.SessionAvgPingMs:F0} max={NetStats.SessionMaxPingMs:F0} sim={NetLatencySim.DelayMs}");
         Invoke(nameof(Quit), 1f);
     }
 

@@ -26,6 +26,13 @@ public static class NetStats
     public static float AvgPingMs { get; private set; }
     public static float MaxPingMs { get; private set; }
     public static float RunMaxPingMs { get; private set; }
+    public static float TransportRttMs { get; private set; }
+    // ONLINE(2026-10-07): 今の値 / この接続の平均 / この接続の最大(接続が切れたら0から)
+    public static float CurPingMs { get; private set; }
+    public static float SessionAvgPingMs => pingSamples > 0 ? pingSum / pingSamples : 0f;
+    public static float SessionMaxPingMs { get; private set; }
+    static float pingSum; static int pingSamples;
+    public static void ResetSessionPing() { pingSum = 0f; pingSamples = 0; SessionMaxPingMs = 0f; CurPingMs = 0f; }
 
     static Counter Get(Dictionary<string, Counter> d, string k) { if (!d.TryGetValue(k, out var c)) { c = new Counter(); d[k] = c; } return c; }
 
@@ -66,7 +73,7 @@ public static class NetStats
     static void SamplePing()
     {
         NetworkManager nm = NetSession.Manager;
-        if (nm == null || !NetSession.IsActive || nm.NetworkConfig == null || nm.NetworkConfig.NetworkTransport == null) { AvgPingMs = MaxPingMs = 0f; return; }
+        if (nm == null || !NetSession.IsActive || nm.NetworkConfig == null || nm.NetworkConfig.NetworkTransport == null) { AvgPingMs = MaxPingMs = CurPingMs = 0f; return; } // この接続の平均/最大は切断後も残す(次の接続の開始で0へ)
         var tr = nm.NetworkConfig.NetworkTransport;
         float sum = 0f, max = 0f; int n = 0;
         try
@@ -82,9 +89,22 @@ public static class NetStats
             else { float rtt = tr.GetCurrentRtt(NetworkManager.ServerClientId); sum = rtt; max = rtt; n = 1; }
         }
         catch (System.Exception) { n = 0; }
-        AvgPingMs = n > 0 ? sum / n : 0f;
-        MaxPingMs = max;
+        TransportRttMs = n > 0 ? sum / n : 0f; // 参考(確実な通信の確認応答から。少ない時は大きく出る)
+        // 2026-10-07: 表示/ログの Ping は自前の往復計測(NetPing)。まだ測れていない間だけ Transport の値
+        if (NetPing.HasSamples) { AvgPingMs = NetPing.AvgMs; MaxPingMs = NetPing.MaxMs; }
+        else { AvgPingMs = n > 0 ? sum / n : 0f; MaxPingMs = max; }
+        max = MaxPingMs;
         RunMaxPingMs = Mathf.Max(RunMaxPingMs, max);
+        CurPingMs = AvgPingMs;
+        if (NetPing.HasSamples && AvgPingMs > 0f) { pingSum += AvgPingMs; pingSamples++; SessionMaxPingMs = Mathf.Max(SessionMaxPingMs, max); }
+    }
+
+    // 開発用の通信パネルの1行(接続の種類/Relay リージョン/Ping/通信量)
+    public static string PingLine()
+    {
+        string conn = NetSession.Connection == ConnectionType.Online ? $"ONLINE relay {OnlineServices.RelayRegion}" : "LOCAL";
+        string lag = NetLatencySim.Enabled ? $" sim+{NetLatencySim.DelayMs}ms" : "";
+        return $"{conn}{lag} | ping {CurPingMs:F0}/{SessionAvgPingMs:F0}/{SessionMaxPingMs:F0}ms (cur/avg/max) | out {SentBytesPerSec / 1024f:F1}KB/s in {RecvBytesPerSec / 1024f:F1}KB/s";
     }
 
     // ===== 人数ごとの負荷の基礎情報(DebugのNET COMBATパネル/自動テストのログ)=====

@@ -58,7 +58,7 @@ public class NetSession : MonoBehaviour
     // LAN の部屋へ JOIN した時の結果(2026-10-05): 接続できなかった/断られた理由(VERSION MISMATCH / ROOM FULL / RUN IN PROGRESS / 接続できない)
     public static string LastJoinFailure { get; private set; } = "";
     public static bool JoinPending { get; private set; }
-    public static ConnectionType Connection { get; private set; } = ConnectionType.Local;
+    public static ConnectionType Connection { get; set; } = ConnectionType.Local; // ONLINE PLAY(Relay)の時は Online(2026-10-07)
     public static void ClearJoinFailure() => LastJoinFailure = "";
     public string LastHostAddress { get; private set; } = "";
     public ushort LastPort { get; private set; } = DefaultPort;
@@ -80,6 +80,7 @@ public class NetSession : MonoBehaviour
         go.AddComponent<NetSession>();
         go.AddComponent<NetDebugUI>();
         go.AddComponent<NetRunLauncher>();
+        go.AddComponent<NetPing>(); // 往復時間の計測(2026-10-07)
         go.AddComponent<LanDiscovery>(); // LAN の部屋の自動発見(2026-10-05、ゲームの同期とは別)
         if (NetAutoTest.ShouldRun) go.AddComponent<NetAutoTest>();
     }
@@ -138,6 +139,66 @@ public class NetSession : MonoBehaviour
         transport.DisconnectTimeoutMS = 8000;
         transport.SetConnectionData(address, port, listenAddress);
         Manager.NetworkConfig.ConnectionData = Encoding.UTF8.GetBytes(ProtocolVersion);
+        Connection = ConnectionType.Local;
+        NetLatencySim.Apply(Manager.gameObject);
+        NetStats.ResetSessionPing();
+    }
+
+    // ---- ONLINE PLAY(2026-10-07): Relay の接続先で HOST/Client を始める。版の照合/満員/途中参加の拒否/切断の処理は LOCAL と同じ
+    void ConfigureRelay(Unity.Networking.Transport.Relay.RelayServerData data)
+    {
+        // インターネット越しは往復が長い: 接続試行は1秒×15回、無通信10秒で切断扱い
+        transport.ConnectTimeoutMS = 1000;
+        transport.MaxConnectAttempts = 15;
+        transport.DisconnectTimeoutMS = 10000;
+        transport.SetRelayServerData(data);
+        // 版 + UGS の PlayerId(公開の識別子で秘密ではない)。HOST が切断した JOIN を Session から外すのに使う
+        Manager.NetworkConfig.ConnectionData = Encoding.UTF8.GetBytes(ProtocolVersion + "|" + OnlineServices.PlayerId);
+        Connection = ConnectionType.Online;
+        NetLatencySim.Apply(Manager.gameObject);
+        NetStats.ResetSessionPing();
+    }
+
+    public bool StartRelayHost(Unity.Networking.Transport.Relay.RelayServerData data)
+    {
+        if (IsActive) return false;
+        OnlinePlayerIds.Clear();
+        NetworkManager nm = EnsureManager();
+        if (nm == null || nm.ShutdownInProgress) { StatusText = "初期化エラー"; return false; }
+        ClearConnectionLost();
+        ConfigureRelay(data);
+        Application.runInBackground = true;
+        bool ok = nm.StartHost();
+        if (!ok) { Log("Host start failed (relay)"); Connection = ConnectionType.Local; }
+        return ok;
+    }
+
+    public bool StartRelayClient(Unity.Networking.Transport.Relay.RelayServerData data)
+    {
+        if (IsActive) return false;
+        NetworkManager nm = EnsureManager();
+        if (nm == null || nm.ShutdownInProgress) { StatusText = "初期化エラー"; return false; }
+        ClearConnectionLost();
+        LastHostAddress = "relay";
+        ConfigureRelay(data);
+        Application.runInBackground = true;
+        Log("Client connecting via relay");
+        StatusText = "接続中…";
+        LastJoinFailure = ""; JoinPending = true;
+        bool ok = nm.StartClient();
+        if (!ok) { Log("Client start failed (relay)"); JoinPending = false; LastJoinFailure = "CONNECTION FAILED"; Connection = ConnectionType.Local; }
+        return ok;
+    }
+
+    // 通信だけを止める(ONLINE の Session の後始末からも呼ばれる。Session の操作はしない)
+    public void ShutdownNetwork(string why)
+    {
+        if (Manager == null || !(Manager.IsServer || Manager.IsClient)) return;
+        Log($"Network shutdown ({why})");
+        LanDiscovery.StopAdvertising(why);
+        JoinPending = false;
+        Manager.Shutdown();
+        StatusText = "";
     }
 
     public bool StartHost(ushort port)
@@ -196,6 +257,7 @@ public class NetSession : MonoBehaviour
     // 自分から切断する(HOSTならセッション終了)。
     public void Leave()
     {
+        if (OnlineServices.InSession) { _ = OnlineServices.LeaveAsync("leave"); return; } // ONLINE: HOST は部屋を消す/JOIN は抜ける(通信もそこで止まる)
         if (Manager == null || !(Manager.IsServer || Manager.IsClient)) return;
         Log(Manager.IsHost ? "Host stopping (local leave)" : "Client leaving");
         LanDiscovery.StopAdvertising("leave");
@@ -208,6 +270,9 @@ public class NetSession : MonoBehaviour
     {
         bool isHostSelf = request.ClientNetworkId == NetworkManager.ServerClientId;
         string payload = request.Payload != null ? Encoding.UTF8.GetString(request.Payload) : "";
+        string ugsPlayerId = "";
+        int bar = payload.IndexOf('|');
+        if (bar >= 0) { ugsPlayerId = payload.Substring(bar + 1); payload = payload.Substring(0, bar); }
         response.Pending = false;
         response.CreatePlayerObject = true;
         if (!isHostSelf && payload != ProtocolVersion)
@@ -233,7 +298,11 @@ public class NetSession : MonoBehaviour
             return;
         }
         response.Approved = true;
+        if (!isHostSelf && !string.IsNullOrEmpty(ugsPlayerId)) OnlinePlayerIds[request.ClientNetworkId] = ugsPlayerId;
     }
+
+    // ONLINE: NGO の clientId → UGS の PlayerId(HOST だけが持つ。切断した人を Session から外して一覧の人数を正しくする)
+    public static readonly Dictionary<ulong, string> OnlinePlayerIds = new Dictionary<ulong, string>();
 
     void OnClientConnected(ulong clientId)
     {
@@ -261,6 +330,7 @@ public class NetSession : MonoBehaviour
     {
         if (Manager.IsServer && clientId != NetworkManager.ServerClientId)
         {
+            if (OnlinePlayerIds.TryGetValue(clientId, out string pid)) { OnlinePlayerIds.Remove(clientId); OnlineServices.HostRemovePlayer(pid); }
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.NetLeave); // 2026-10-06
             int pn = NetCombat.PlayerNumberOfClient(clientId);
             if (pn <= 0 && NetMatch.Instance != null) foreach (var kv in NetMatch.Instance.Records) if (kv.Value.ClientId == clientId) pn = kv.Key; // 退出時は NetPlayer が先に消えていることがある
@@ -295,12 +365,15 @@ public class NetSession : MonoBehaviour
     void OnTransportFailure()
     {
         Log("Transport failure");
+        if (OnlineServices.InSession) _ = OnlineServices.LeaveAsync("transport failure");
         StatusText = "";
         RaiseConnectionLost("MULTIPLAYER CONNECTION LOST\n通信エラーが発生しました");
     }
 
     void RaiseConnectionLost(string message)
     {
+        // ONLINE の JOIN: HOST との接続が切れたら Session からも抜ける(HOST は残った人がいなくても部屋を残す。通信の故障は OnTransportFailure)
+        if (OnlineServices.InSession && Manager != null && !Manager.IsServer) _ = OnlineServices.LeaveAsync("connection lost");
         ConnectionLostPending = true;
         ConnectionLostMessage = message;
     }

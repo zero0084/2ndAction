@@ -12,7 +12,7 @@ NL = chr(10)
 BSN = chr(92) + 'n'
 
 keys = {}
-for name in ('keys.tsv', 'keys_extra.tsv', 'keys_extra2.tsv', 'keys_extra3.tsv'):
+for name in ('keys.tsv', 'keys_extra.tsv', 'keys_extra2.tsv', 'keys_extra3.tsv', 'keys_extra4.tsv'):
     path = os.path.join(HERE, name)
     if not os.path.exists(path): continue
     for line in io.open(path, encoding='utf-8'):
@@ -30,12 +30,12 @@ KANA = re.compile('[぀-ヺー-ヿ]')  # ・(30FB) は記号として残して�
 
 def tags(s): return sorted(m.group(0).split('=')[0] for m in TAG.finditer(s))
 
-codes = sorted(set(re.sub(r'\.(\d|x|y|z)\.tsv$', '', os.path.basename(p)) for p in glob.glob(os.path.join(HERE, 'out', '*.tsv'))))
+codes = sorted(set(re.sub(r'\.(\d|x|y|z|w)\.tsv$', '', os.path.basename(p)) for p in glob.glob(os.path.join(HERE, 'out', '*.tsv'))))
 report = []
 for code in codes:
     tr = {}
     for part in sorted(glob.glob(os.path.join(HERE, 'out', code + '.*.tsv'))):
-        if not re.search(r'\.(\d|x|y|z)\.tsv$', part): continue
+        if not re.search(r'\.(\d|x|y|z|w)\.tsv$', part): continue
         for line in io.open(part, encoding='utf-8-sig'):
             line = line.rstrip('\r\n')
             if not line or '\t' not in line: continue
