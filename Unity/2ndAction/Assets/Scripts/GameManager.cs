@@ -3511,6 +3511,7 @@ public partial class GameManager : MonoBehaviour
         RunCheckpoint.Data data = RunCheckpoint.Load();
         data.active = true;
         data.checkpointDistance = MaxDistance;
+        FillCheckpointSpeed(data);
         FillCheckpointSnapshot(data);
         RunCheckpoint.Save(data);
     }
@@ -3676,12 +3677,13 @@ public partial class GameManager : MonoBehaviour
         // Item 14 - 再開地点の足場。2026-10-03: 以前の RequestFlatRun(チャンク数の予約)は、ワープ前の0m付近の
         // 生成で使い切られて再開地点に届いていなかった。保存速度で約2秒ぶんの区間を位置で平地にし、
         // 準備画面より前に地形を生成して、キャラをその地面へ立たせる(GameManager.ResumeGate.cs)。
+        ApplyCheckpointSpeed(data); // 保存時の速さ(足場の安全区間もこの速さで測る)
         SetupResumeFooting(data.checkpointDistance);
 
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
 
         // 2026-10-03: すぐには走り出さず、停止した画面で「準備ができたら再開」を待つ(GameManager.ResumeGate.cs)
-        BeginResumeGate();
+        BeginResumeGate(autoResume: true); // 2026-10-07: 再開ボタンなし、自動で走り出して5秒で保存時の速さへ
     }
 
     // Presentation pass - RESULT->TOP goes through the shared wipe's Close

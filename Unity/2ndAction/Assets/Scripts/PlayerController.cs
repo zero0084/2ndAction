@@ -705,7 +705,7 @@ public partial class PlayerController : MonoBehaviour
     // lunge/recoil. Used by the boss to keep pace with ordinary running
     // without also cancelling out the player's attack-driven movement.
     // 開発用の闘技場(2026-10-04): 速度の指定があればそれ(停止 / 基準速度×カード・キャラの補正 / 実効速度固定)。通常は従来どおり
-    public float CurrentAutoRunSpeed => ArenaAutoSpeed() ?? (autoRunEnabled ? CapSpeed(runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale) : 0f);
+    public float CurrentAutoRunSpeed => ArenaAutoSpeed() ?? (autoRunEnabled ? ApplyResumeAccel(CapSpeed(runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale)) : 0f); // CONTINUE の5秒加速(ResumeAccel.cs)
 
     // 弾速の走行補正(2026-09-26) - 弾/飛び道具はすべて「プレイヤーの基本走行速度で一緒に流れる
     // 座標系」の中を、それぞれの設計速度で飛ぶ(=画面上の見た目の速さが走行速度に左右されない)。
@@ -999,6 +999,7 @@ public partial class PlayerController : MonoBehaviour
 
     void Update()
     {
+        TickResumeAccel(); // CONTINUE の5秒加速(ゲーム内時間)
 #if UNITY_EDITOR
         // RUN開始/終了演出 動画撮影用の一時デバッグキー(2026-09-23) -
         // マスターの動画確認が終わったら残すか削除するか相談する。
@@ -1258,7 +1259,7 @@ public partial class PlayerController : MonoBehaviour
 
     float GetSpeedMultiplier()
     {
-        float distance = (float)(transform.position.x - startX);
+        float distance = (float)(transform.position.x - startX) + speedDistanceOffset; // CONTINUE: 保存時の速さに合わせる(ResumeAccel.cs)
         return NaturalMultiplierAt(distance);
     }
 

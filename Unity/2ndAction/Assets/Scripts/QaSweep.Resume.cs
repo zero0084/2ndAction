@@ -34,10 +34,12 @@ public partial class QaSweep
         yield return ResumeCase("A normal", ch, 600f, new string[] { "attack_up", "heart_up" }, false);
         yield return ResumeCase("B high", ch, 8000f, new string[] { "attack_up", "speed_up", "speed_up", "speed_up", "heart_up" }, false);
         yield return ResumeCase("C high+ease", ch, 8000f, new string[] { "speed_up", "speed_up", "speed_up" }, true);
+        yield return ResumeCase("R re-interrupt", ch, 3000f, new string[] { "speed_up" }, false, 1);
+        yield return ResumeCase("O old save", ch, 3000f, new string[0], false, 2);
 
         // D: 新規ランは従来どおり(準備画面なし、カウントダウンだけ)
         yield return BeginRun(ch, "wasteland_road");
-        Check(gm.ResumeGate == GameManager.ResumeGatePhase.None && !gm.ResumeGateActive, "D: a new run has no resume gate");
+        Check(gm.ResumeGate == GameManager.ResumeGatePhase.None && !gm.ResumeGateActive && !pc.ResumeAccelActive, "D: a new run has no resume gate / acceleration");
         Check(Time.timeScale > 0.99f && !TimeControl.IsResumeEasing, $"D: a new run runs at normal time ({Time.timeScale:F2})");
         float x0 = pc.transform.position.x;
         yield return new WaitForSecondsRealtime(1f);
@@ -70,184 +72,134 @@ public partial class QaSweep
         return sb.ToString();
     }
 
-    IEnumerator ResumeCase(string name, string ch, float dist, string[] cards, bool ease)
+    IEnumerator ResumeCase(string name, string ch, float dist, string[] cards, bool ease, int variant = 0)
     {
-        L($"---- {name}: {ch} {dist:F0}m cards={string.Join(",", cards)} ease={ease}");
+        // variant: 0 = 通常 / 1 = 加速の途中で再び中断して CONTINUE / 2 = 古い保存(速さの距離なし)
+        L($"---- {name}: {ch} {dist:F0}m cards={string.Join(",", cards)} ease={ease} variant={variant}");
         PlayerPrefs.SetInt(GameManager.ResumeEaseDevKey, ease ? 1 : 0);
         yield return BeginRun(ch, "wasteland_road");
         WarpTo(dist);
         yield return new WaitForSecondsRealtime(1.2f);
-        // カードを取った状態を作る(ラン中の取得と同じ: 効果を掛けて取得履歴へ)
         var hist = (List<CardDefinition>)typeof(GameManager).GetField("upgradeHistory", NP).GetValue(gm);
         var apply = typeof(GameManager).GetMethod("ApplyCardEffects", NP, null, new[] { typeof(CardDefinition) }, null);
         foreach (string id in cards) { var c = CardDatabase.FindById(id); if (c == null) { Warn($"{name}: unknown card {id}"); continue; } apply.Invoke(gm, new object[] { c }); hist.Add(c); }
-        // 傷を負った状態(満タンでない)
         stopKeepAlive = true;
         yield return null;
         var livesSetter = typeof(GameManager).GetProperty("Lives").GetSetMethod(true);
         int hurt = Mathf.Max(1, gm.maxLives - 13);
         livesSetter.Invoke(gm, new object[] { hurt });
-        // ボス報酬の確定と同じく、今の距離をCONTINUEの再開位置にする(テスト機に残っていた古い再開位置を使わない)
         typeof(GameManager).GetMethod("SaveCheckpoint", NP).Invoke(gm, null);
         string before = StatSignature();
         float kmhBefore = GameManager.SpeedKmh(pc.CurrentAutoRunSpeed);
-        // 実際の操作と同じく、ポーズメニューを開いてから RETURN TO HOME(暗転中にゲームが進まないことも確かめる)
+        L($"{name}: before home d={gm.MaxDistance:F0} raw={pc.DistanceExact:F0} {before}");
+        yield return ResumeGoHome();
+        var cp = RunCheckpoint.Load();
+        Check(RunCheckpoint.HasActiveRun && Mathf.Abs(cp.savedSpeedKmh - kmhBefore) < 0.6f, $"{name}: the checkpoint keeps the speed at save ({cp.savedSpeedKmh:F1} vs {kmhBefore:F1} km/h, speedDistance {cp.speedDistance:F0})");
+        if (variant == 2)
+        {
+            cp.speedDistance = 0; cp.savedSpeedKmh = 0f; // この仕組みより前の保存
+            RunCheckpoint.Save(cp);
+        }
+        double life0 = ProgressStats.LifetimeDistance;
+        yield return ResumeContinue(name);
+        Check(gm.AutoResumes == 1 && !resumeSawWaiting && !gm.ResumeGateActive, $"{name}: CONTINUE starts running by itself (no resume button / countdown) (auto {gm.AutoResumes}, waited {resumeSawWaiting})");
+        Check(pc.ResumeAccelActive, $"{name}: the 5-second acceleration is running");
+        string restored = StatSignature();
+        Check(SigHead(restored) == SigHead(before), $"{name}: stats/HP/level/cards restored exactly");
+        if (SigHead(restored) != SigHead(before)) L($"   before  : {before}\n   restored: {restored}");
+        Check(Mathf.Abs(gm.MaxDistance - cp.checkpointDistance) < 1f, $"{name}: resumes at the saved checkpoint distance");
+        float runStart = GameManager.SpeedKmh(pc.RunStartSpeed), target = GameManager.SpeedKmh(pc.NormalAutoRunSpeed), now0 = GameManager.SpeedKmh(pc.CurrentAutoRunSpeed);
+        L($"{name}: run start {runStart:F1} km/h, now {now0:F1}, target {target:F1}, speed at save {kmhBefore:F1}");
+        Check(now0 < runStart + Mathf.Max(1.5f, (target - runStart) * 0.08f), $"{name}: starts from the normal run start speed ({now0:F1} vs {runStart:F1})");
+        if (variant != 2) Check(Mathf.Abs(target - kmhBefore) < 1f, $"{name}: accelerates to the speed at save, not some other speed ({target:F1} vs {kmhBefore:F1})");
+        else L($"{name}: old save (no speed distance): target {target:F1} km/h (as before this change: from the checkpoint distance)");
+        if (ease) Check(TimeControl.IsResumeEasing, $"{name}: dev ease still applies on top");
+
+        // 途中: 止まっている間は計測も止まる
+        while (pc.ResumeAccelActive && pc.ResumeAccelElapsed < 1.5f) yield return null;
+        var owner = new object();
+        float eP = pc.ResumeAccelElapsed, xP = pc.transform.position.x, kP = GameManager.SpeedKmh(pc.CurrentAutoRunSpeed);
+        TimeControl.Pause(owner);
+        yield return new WaitForSecondsRealtime(1.2f);
+        Check(Mathf.Abs(pc.ResumeAccelElapsed - eP) < 0.001f && Mathf.Abs(pc.transform.position.x - xP) < 0.001f, $"{name}: a pause (card choice etc.) freezes the 5-second timer ({eP:F2} -> {pc.ResumeAccelElapsed:F2})");
+        TimeControl.Resume(owner);
+        Check(Mathf.Abs(GameManager.SpeedKmh(pc.CurrentAutoRunSpeed) - kP) < 1f, $"{name}: continues from the same speed after the pause");
+        if (variant == 1)
+        {
+            // 加速の途中で再び中断 → 保存は変わらず、次の CONTINUE も同じ速さへ
+            yield return new WaitForSecondsRealtime(0.5f);
+            var cpA = RunCheckpoint.Load();
+            yield return ResumeGoHome();
+            var cpB = RunCheckpoint.Load();
+            Check(cpB.checkpointDistance == cpA.checkpointDistance && System.Math.Abs(cpB.speedDistance - cpA.speedDistance) < 0.01 && Mathf.Abs(cpB.savedSpeedKmh - cpA.savedSpeedKmh) < 0.01f,
+                $"{name}: interrupting during the acceleration does not change the saved state ({cpA.savedSpeedKmh:F1} -> {cpB.savedSpeedKmh:F1})");
+            life0 = ProgressStats.LifetimeDistance;
+            yield return ResumeContinue(name + " again");
+            float target2 = GameManager.SpeedKmh(pc.NormalAutoRunSpeed);
+            Check(pc.ResumeAccelActive && Mathf.Abs(target2 - target) < 1f, $"{name}: the second CONTINUE accelerates to the same speed ({target2:F1} vs {target:F1})");
+        }
+        // 操作: 加速中もジャンプできる
+        float y0 = pc.transform.position.y; float yMax = y0;
+        pc.debugInjectFlick = PlayerController.FlickDirection.Up;
+        yield return null; yield return null;
+        pc.debugInjectFlick = null;
+        for (int i = 0; i < 20; i++) { yMax = Mathf.Max(yMax, pc.transform.position.y); yield return null; }
+        Check(yMax > y0 + 0.5f, $"{name}: jump works during the acceleration (+{yMax - y0:F2}m)");
+        // 最後まで: 増えていき、終わりで継ぎ目が無い
+        float last = GameManager.SpeedKmh(pc.CurrentAutoRunSpeed), maxStep = 0f; int downs = 0;
+        while (pc.ResumeAccelActive)
+        {
+            yield return null;
+            float k = GameManager.SpeedKmh(pc.CurrentAutoRunSpeed);
+            if (Time.deltaTime > 0f) { maxStep = Mathf.Max(maxStep, Mathf.Abs(k - last)); if (k < last - 0.05f) downs++; }
+            last = k;
+        }
+        for (int i = 0; i < 10; i++) { yield return null; float k = GameManager.SpeedKmh(pc.CurrentAutoRunSpeed); maxStep = Mathf.Max(maxStep, Mathf.Abs(k - last)); last = k; }
+        float targetEnd = GameManager.SpeedKmh(pc.NormalAutoRunSpeed);
+        L($"{name}: acceleration done: now {last:F1} km/h (normal {targetEnd:F1}), biggest per-frame change {maxStep:F2} km/h, drops {downs}");
+        Check(Mathf.Abs(last - targetEnd) < 0.5f && maxStep < 2.5f, $"{name}: joins the normal speed smoothly (no jump at the end, max step {maxStep:F2} km/h)");
+        Check(downs <= 2, $"{name}: speed only rises during the acceleration ({downs} drops)");
+        // 累計距離: 再開後に走った分だけ増える(保存済みの距離を二重に足さない)
+        double ran = gm.MaxDistance - cp.checkpointDistance;
+        double lifeAdd = ProgressStats.LifetimeDistance - life0;
+        Check(lifeAdd >= 0 && System.Math.Abs(lifeAdd - ran) < 5.0, $"{name}: lifetime distance grows only by what was run after CONTINUE (+{lifeAdd:F0}m vs ran {ran:F0}m)");
+        Shot($"resume_{name.Split(' ')[0]}_after");
+        stopKeepAlive = false;
+        StartCoroutine(KeepAlive());
+        yield return EndRun();
+    }
+
+    static string SigHead(string sig) { int i = sig.IndexOf(" kmh=", System.StringComparison.Ordinal); return i >= 0 ? sig.Substring(0, i) : sig; }
+
+    bool resumeSawWaiting;
+    IEnumerator ResumeGoHome()
+    {
         var showPauseMenu = typeof(GameManager).GetField("showPauseMenu", NP);
         showPauseMenu.SetValue(gm, true);
         TimeControl.Pause(typeof(GameManager).GetField("pauseMenuTimeOwner", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null));
         yield return null;
         showPauseMenu.SetValue(gm, false);
-        L($"{name}: before home d={gm.MaxDistance:F0} {before}");
-
-        // RETURN TO HOME → 新しいシーン(ホーム)
         var old = gm;
         gm.ReturnToHome();
         float w = 0f;
         while ((GameManager.Instance == null || GameManager.Instance == old || GameManager.Instance.HasStarted) && w < 15f) { yield return null; w += Time.unscaledDeltaTime; }
         yield return new WaitForSecondsRealtime(0.8f);
         gm = GameManager.Instance;
-        Check(RunCheckpoint.HasActiveRun, $"{name}: an active run was saved");
-        var cp = RunCheckpoint.Load();
-        w = 0f;
-        float retry = 0f;
-        while (gm.ResumeGate != GameManager.ResumeGatePhase.Waiting && w < 12f)
+    }
+
+    IEnumerator ResumeContinue(string name)
+    {
+        float w = 0f, retry = 0f;
+        resumeSawWaiting = false;
+        while (w < 15f)
         {
-            // ホームへ戻る遷移が開き切るまでは CONTINUE を受け付けないので、出発するまで押し直す
             if (!gm.HasStarted && retry <= 0f) { gm.ContinueActiveRun(); retry = 0.5f; }
+            if (gm.ResumeGate == GameManager.ResumeGatePhase.Waiting || gm.ResumeGate == GameManager.ResumeGatePhase.Countdown) resumeSawWaiting = true;
+            if (gm.HasStarted && gm.AutoResumes > 0 && !gm.ResumeGateActive) break;
             yield return null; w += Time.unscaledDeltaTime; retry -= Time.unscaledDeltaTime;
         }
         pc = PlayerController.Instance;
-        Check(gm.ResumeGate == GameManager.ResumeGatePhase.Waiting, $"{name}: CONTINUE stops at the ready screen ({gm.ResumeGate})");
-        Check(Time.timeScale == 0f, $"{name}: time is stopped while waiting ({Time.timeScale:F2}, reasons={TimeControl.DescribeActiveReasons()})");
-        string waiting = StatSignature();
-        L($"{name}: waiting  d={gm.MaxDistance:F0} (checkpoint {cp.checkpointDistance:F0}) {waiting}");
-        Check(Mathf.Abs(gm.MaxDistance - cp.checkpointDistance) < 0.5f, $"{name}: resumes at the saved checkpoint distance");
-        Check(gm.Lives == hurt, $"{name}: HP restored as saved ({gm.Lives} vs {hurt})");
-        Check(gm.UpgradeCount == cards.Length, $"{name}: picked cards restored ({gm.UpgradeCount} vs {cards.Length})");
-        float kmhWait = GameManager.SpeedKmh(pc.CurrentAutoRunSpeed);
-        string Head(string sig) => sig.Substring(0, sig.IndexOf(" kmh=", System.StringComparison.Ordinal));
-        Check(Head(waiting) == Head(before), $"{name}: stats/HP/level/cards restored exactly");
-        if (Head(waiting) != Head(before)) L($"   before : {before}\n   waiting: {waiting}");
-        Check(Mathf.Abs(kmhWait - kmhBefore) < 1f, $"{name}: saved speed restored ({kmhBefore:F1} -> {kmhWait:F1} km/h)");
-        // 速度は距離で決まる(再開位置=checkpoint)。カードの倍率は同じ
-        L($"{name}: speed before home {kmhBefore:F1} km/h, while waiting {kmhWait:F1} km/h (shown on the HUD)");
-        Shot($"resume_{name.Split(' ')[0]}_waiting");
-
-        // 待機中に敵を出しても動かない/被弾しない
-        var dir = FindFirstObjectByType<EncounterDirector>();
-        var spawned = new List<GameObject>();
-        if (dir != null)
-            foreach (string eid in new[] { "goblin_rider", "wolf", "bat" })
-            {
-                var go = dir.DebugSpawnEnemy(eid, EnemyAiTier.T3);
-                if (go != null) spawned.Add(go);
-            }
-        if (spawned.Count == 0 && dir != null)
-        {
-            var ids = (List<string>)typeof(EncounterDirector).GetMethod("AllEnemyIds", NP).Invoke(dir, null);
-            foreach (string eid in ids.Take(3)) { var go = dir.DebugSpawnEnemy(eid, EnemyAiTier.T3); if (go != null) spawned.Add(go); }
-        }
-        // プレイヤーの目の前へ寄せる(接触すれば被弾する位置)
-        for (int i = 0; i < spawned.Count; i++)
-        {
-            var p = spawned[i].transform.position;
-            p.x = pc.transform.position.x + 1.2f + i * 2.5f;
-            spawned[i].transform.position = p;
-        }
-        yield return null;
-        var objs = MovingThings();
-        var pos0 = objs.ToDictionary(t => t, t => t.position);
-        float px0 = pc.transform.position.x, py0 = pc.transform.position.y, d0 = gm.MaxDistance;
-        int lives0 = gm.Lives;
-        yield return new WaitForSecondsRealtime(2.5f);
-        int moved = objs.Count(t => t != null && (t.position - pos0[t]).sqrMagnitude > 0.0001f);
-        Check(spawned.Count > 0, $"{name}: test enemies spawned ({spawned.Count})");
-        Check(moved == 0, $"{name}: nothing moved while waiting ({moved}/{objs.Count} moved: {string.Join(",", objs.Where(t => t != null && (t.position - pos0[t]).sqrMagnitude > 0.0001f).Take(6).Select(t => t.name))})");
-        Check(Mathf.Abs(pc.transform.position.x - px0) < 0.001f && Mathf.Abs(pc.transform.position.y - py0) < 0.001f, $"{name}: player stays still while waiting");
-        Check(gm.MaxDistance == d0, $"{name}: distance does not grow while waiting");
-        Check(gm.Lives == lives0, $"{name}: no damage while waiting (enemies touching)");
-        Check(StatSignature() == waiting, $"{name}: stats unchanged while waiting");
-
-        // ボタン連打: 1回だけ受け付ける
-        int accepted = 0;
-        for (int i = 0; i < 6; i++) if (gm.RequestResumeFromGate()) accepted++;
-        Check(accepted == 1 && gm.ResumeGate == GameManager.ResumeGatePhase.Countdown, $"{name}: repeated taps start one countdown ({accepted})");
-        yield return new WaitForSecondsRealtime(1.3f);
-        Check(gm.ResumeCountdownLabel == "2", $"{name}: countdown shows 2 after 1.3s ({gm.ResumeCountdownLabel})");
-        Check(Time.timeScale == 0f, $"{name}: time still stopped during the countdown");
-        // カウントダウン中にアプリが裏へ → 準備画面へ戻る
-        int rev0 = gm.ResumeGateRevertCount;
-        typeof(GameManager).GetMethod("OnApplicationPause", NP).Invoke(gm, new object[] { true });
-        typeof(GameManager).GetMethod("OnApplicationPause", NP).Invoke(gm, new object[] { false });
-        Check(gm.ResumeGate == GameManager.ResumeGatePhase.Waiting && gm.ResumeGateRevertCount == rev0 + 1, $"{name}: backgrounding during the countdown returns to the ready screen ({gm.ResumeGate})");
-        yield return new WaitForSecondsRealtime(0.5f);
-        Check(Time.timeScale == 0f && gm.ResumeGate == GameManager.ResumeGatePhase.Waiting, $"{name}: still waiting after coming back");
-        // ポーズメニューを開いてもカウントダウンは準備画面へ戻る
-        Check(gm.RequestResumeFromGate(), $"{name}: second countdown starts");
-        var showPause = typeof(GameManager).GetField("showPauseMenu", NP);
-        showPause.SetValue(gm, true);
-        yield return null; yield return null;
-        Check(gm.ResumeGate == GameManager.ResumeGatePhase.Waiting, $"{name}: opening the pause menu during the countdown returns to waiting ({gm.ResumeGate})");
-        Check(!gm.RequestResumeFromGate(), $"{name}: resume button ignored while the pause menu is open");
-        showPause.SetValue(gm, false);
-        yield return null;
-
-        // 本番のカウントダウン: 待機中に入れたフリックが GO の後に出ない
-        string atStart = StatSignature();
-        Check(gm.RequestResumeFromGate(), $"{name}: final countdown starts");
-        float t0 = Time.realtimeSinceStartup;
-        pc.debugInjectFlick = PlayerController.FlickDirection.Up;
-        bool flickWhileGated = false;
-        float py1 = pc.transform.position.y;
-        while (gm.ResumeGateActive && Time.realtimeSinceStartup - t0 < 6f)
-        {
-            if (pc.IsAttacking || Mathf.Abs(pc.transform.position.y - py1) > 0.001f) flickWhileGated = true;
-            yield return null;
-        }
-        pc.debugInjectFlick = null;
-        float took = Time.realtimeSinceStartup - t0;
-        Check(!flickWhileGated, $"{name}: no attack/jump during the countdown");
-        Check(took > 2.8f && took < 3.4f, $"{name}: countdown takes ~3s ({took:F2}s)");
-        Check(gm.ResumeCountdownLabel == "GO!", $"{name}: GO! shown at release ({gm.ResumeCountdownLabel})");
-        string atGo = StatSignature();
-        Check(atGo == atStart, $"{name}: stats/HP/distance/cards unchanged from waiting to GO");
-        if (atGo != atStart) L($"   waiting: {atStart}\n   go     : {atGo}");
-        Check(gm.MaxDistance == d0, $"{name}: distance unchanged until GO");
-        if (ease)
-        {
-            Check(TimeControl.IsResumeEasing && Mathf.Abs(Time.timeScale - gm.resumeEaseStartScale) < 0.05f, $"{name}: ease starts at x{gm.resumeEaseStartScale:F2} ({Time.timeScale:F2})");
-            float runSpeed0 = pc.runSpeed;
-            yield return new WaitForSecondsRealtime(gm.resumeEaseDuration * 0.4f);
-            float mid = Time.timeScale;
-            Check(mid > gm.resumeEaseStartScale + 0.02f && mid < 1f, $"{name}: ease ramps up ({mid:F2})");
-            // 途中でカード選択などの停止が入ると 0 が優先、解除で慣らしの続き
-            var owner = new object();
-            TimeControl.Pause(owner);
-            Check(Time.timeScale == 0f, $"{name}: a pause during the ease stops time");
-            yield return new WaitForSecondsRealtime(1.5f);
-            TimeControl.Resume(owner);
-            Check(TimeControl.IsResumeEasing && Mathf.Abs(Time.timeScale - mid) < 0.15f, $"{name}: the ease continues after the pause ({Time.timeScale:F2} vs {mid:F2})");
-            yield return new WaitForSecondsRealtime(gm.resumeEaseDuration * 0.75f);
-            Check(!TimeControl.IsResumeEasing && Time.timeScale > 0.99f, $"{name}: ease ends at normal time ({Time.timeScale:F2})");
-            Check(pc.runSpeed == runSpeed0, $"{name}: the ease does not touch the character's speed stat");
-        }
-        else
-        {
-            Check(Time.timeScale > 0.99f && !TimeControl.IsResumeEasing, $"{name}: normal time right after GO ({Time.timeScale:F2})");
-        }
-        float px2 = pc.transform.position.x;
-        yield return new WaitForSecondsRealtime(1.2f);
-        Check(pc.transform.position.x > px2 + 1f && gm.MaxDistance > d0, $"{name}: running again after GO (x +{pc.transform.position.x - px2:F1})");
-        int movedAfter = objs.Count(t => t != null && pos0.ContainsKey(t) && (t.position - pos0[t]).sqrMagnitude > 0.0001f);
-        L($"{name}: after GO {movedAfter}/{objs.Count} tracked objects moved (they do move once time runs)");
-        object gateOwner = typeof(GameManager).GetField("resumeGateTimeOwner", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
-        object homeOwner = typeof(GameManager).GetField("returnHomeTimeOwner", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
-        Check(!TimeControl.IsPausedBy(gateOwner) && !TimeControl.IsPausedBy(homeOwner), $"{name}: no resume/home stop reason left");
-        L($"{name}: stop reasons now: {TimeControl.DescribeActiveReasons()} (level-up choice open={gm.IsRewardSequenceWaitingForSelection})");
-        Shot($"resume_{name.Split(' ')[0]}_after");
-        stopKeepAlive = false;
-        StartCoroutine(KeepAlive());
-        yield return EndRun();
+        stopKeepAlive = true;
     }
 
     // ===== 再開地点の足場(2026-10-03) =====
@@ -352,18 +304,22 @@ public partial class QaSweep
         yield return new WaitForSecondsRealtime(0.6f);
         gm = GameManager.Instance;
         if (legacy) gm.resumeSafeFootingEnabled = false;
+        // CONTINUE は自動で走り出す(2026-10-07)。足場は走り出す前(遷移の覆いの下)に作ってある。走り出す直前の位置で測る
+        float pxStart = 0f; bool got = false;
         w = 0f; float retry = 0f;
-        while (gm.ResumeGate != GameManager.ResumeGatePhase.Waiting && w < 12f)
+        while (w < 15f)
         {
             if (!gm.HasStarted && retry <= 0f) { gm.ContinueActiveRun(); retry = 0.5f; }
+            if (gm.HasStarted && gm.ResumeGate == GameManager.ResumeGatePhase.Settling && PlayerController.Instance != null) { pxStart = PlayerController.Instance.transform.position.x; got = true; }
+            if (gm.HasStarted && gm.AutoResumes > 0) break;
             yield return null; w += Time.unscaledDeltaTime; retry -= Time.unscaledDeltaTime;
         }
         pc = PlayerController.Instance;
         var tm = TerrainManager.Instance;
         stopKeepAlive = true;
-        Check(gm.ResumeGate == GameManager.ResumeGatePhase.Waiting, $"{name}: ready screen shown");
-        float px = pc.transform.position.x;
-        float speed = pc.CurrentAutoRunSpeed;
+        Check(gm.AutoResumes > 0 && got, $"{name}: CONTINUE started running by itself");
+        float px = got ? pxStart : pc.transform.position.x;
+        float speed = pc.NormalAutoRunSpeed;
         float need = Mathf.Max(gm.resumeSafeMinAhead, speed * gm.resumeSafeSeconds);
         float? pit = tm.FirstPitBetween(px - gm.resumeSafeBehind, px + need);
         if (legacy)
@@ -396,18 +352,8 @@ public partial class QaSweep
         string sig0 = tm.DebugTerrainSignature(FloatingOrigin.ToLogical(px) - 10f, FloatingOrigin.ToLogical(end) + 10f);
         Shot($"footing_{name.Replace(' ', '_')}_ready");
 
-        // 準備画面で待つ → カウントダウン → 途中で裏へ → 戻る → 再度カウントダウン → GO
-        yield return new WaitForSecondsRealtime(1f);
-        Check(gm.RequestResumeFromGate(), $"{name}: countdown starts");
-        yield return new WaitForSecondsRealtime(1.2f);
-        typeof(GameManager).GetMethod("OnApplicationPause", NP).Invoke(gm, new object[] { true });
-        typeof(GameManager).GetMethod("OnApplicationPause", NP).Invoke(gm, new object[] { false });
-        yield return new WaitForSecondsRealtime(0.5f);
-        Check(gm.ResumeGate == GameManager.ResumeGatePhase.Waiting, $"{name}: back to the ready screen after backgrounding");
-        Check(gm.RequestResumeFromGate(), $"{name}: countdown starts again");
-        while (gm.ResumeGateActive) yield return null;
         // FloatingOriginで座標がずれていても論理Xで比べる
-        float pxGo = pc.transform.position.x;
+        float pxGo = px;
         float shift = pxGo - px; // ずれ(=原点の移動)。準備画面中はプレイヤーは動かない
         string sigGo = tm.DebugTerrainSignature(FloatingOrigin.ToLogical(pxGo) - 10f, FloatingOrigin.ToLogical(pxGo) + need + 10f);
         Check(sigGo == sig0, $"{name}: footing unchanged from the ready screen to GO ({sig0} -> {sigGo})");

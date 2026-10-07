@@ -39,6 +39,10 @@ public static class RunCheckpoint
         // Where Gameplay actually resumes (the last Boss Reward's
         // completion point) - item 10/12's "距離だけCheckpointへ戻る".
         public float checkpointDistance;
+        // CONTINUE の速さ(2026-10-07): チェックポイントを保存した瞬間の「生の走行距離」(自然加速の元。ボス戦の間も含む)と、
+        // その時の走行速度(確認用)。0 = この仕組みより前の保存(従来どおり記録の距離から)
+        public double speedDistance;
+        public float savedSpeedKmh;
         // The furthest distance genuinely reached across this Run's whole
         // lifetime (including before any interruption) - item 12's MILE-
         // dedup guard. Always >= checkpointDistance.

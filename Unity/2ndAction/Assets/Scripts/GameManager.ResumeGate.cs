@@ -110,9 +110,13 @@ public partial class GameManager
     }
 
     // BeginContinuedRun の最後から(ソロのCONTINUEだけ)
-    void BeginResumeGate()
+    bool resumeGateAuto;
+    public int AutoResumes { get; private set; } // 確認用
+
+    void BeginResumeGate(bool autoResume = false)
     {
         if (NetRunLauncher.IsMultiplayerRun) return;
+        resumeGateAuto = autoResume;
         ResumeGate = ResumeGatePhase.Settling;
         resumeSettleTime = 0f;
         resumeSettleFrames = 0;
@@ -204,7 +208,17 @@ public partial class GameManager
                 resumeSettleFrames++;
                 bool transitioning = ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning;
                 // 遷移が開き切って、カメラ/地形が追いつく数フレームが過ぎたら止める(遷移が詰まっても3秒で止める)
-                if ((!transitioning && resumeSettleFrames >= 6) || resumeSettleTime > 3f) EnterResumeWaiting();
+                if ((!transitioning && resumeSettleFrames >= 6) || resumeSettleTime > 3f)
+                {
+                    if (resumeGateAuto)
+                    {
+                        // CONTINUE: ボタンを待たずに走り出す。初速から保存時の速さまで5秒(ゲーム内時間)で加速
+                        AutoResumes++;
+                        ReleaseResumeGate();
+                        if (PlayerController.Instance != null) PlayerController.Instance.BeginResumeAccel();
+                    }
+                    else EnterResumeWaiting();
+                }
                 break;
             case ResumeGatePhase.Waiting:
                 // 停止理由が何かの安全装置で外されていたら付け直す(待機中に勝手に進まない)
@@ -298,5 +312,25 @@ public partial class GameManager
         resumeSeLabel = label;
         if (AudioManager.Instance == null || string.IsNullOrEmpty(label)) return;
         AudioManager.Instance.PlaySe(label == "GO!" ? SeId.RunStart : SeId.CountdownTick);
+    }
+}
+
+// CONTINUE の速さ(2026-10-07、ResumeAccel.cs)
+public partial class GameManager
+{
+    void FillCheckpointSpeed(RunCheckpoint.Data data)
+    {
+        var pc = PlayerController.Instance;
+        if (pc == null) return;
+        data.speedDistance = pc.DistanceExact + pc.speedDistanceOffset;
+        data.savedSpeedKmh = pc.NormalAutoRunSpeed * KmhPerMps; // 加速の途中でも、加速を掛けない通常の速さ
+    }
+
+    void ApplyCheckpointSpeed(RunCheckpoint.Data data)
+    {
+        var pc = PlayerController.Instance;
+        if (pc == null) return;
+        pc.speedDistanceOffset = data.speedDistance > data.checkpointDistance ? (float)(data.speedDistance - data.checkpointDistance) : 0f;
+        Debug.Log($"[ResumeAccel] checkpoint {data.checkpointDistance:F0}m speedDistance {data.speedDistance:F0} (offset {pc.speedDistanceOffset:F0}) saved {data.savedSpeedKmh:F1}km/h -> now {pc.NormalAutoRunSpeed * KmhPerMps:F1}km/h");
     }
 }
