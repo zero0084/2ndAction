@@ -27,12 +27,64 @@ public abstract class HazardBossBase : WildBossBase
 
     protected override void OnBattleTick(float dt)
     {
-        // 天井を這っている間は天井の高さに沿う
-        if (onCeiling && !climbing) yOffset = Mathf.MoveTowards(yOffset, CeilY(worldX) - GroundY, 10f * dt);
+        // 天井を這っている間は天井の高さに沿う。本物の天井が途切れたら(天井の無い区間へ出た等)、その場から降りて通常の行動へ(2026-10-07)
+        if (onCeiling && !climbing)
+        {
+            if (RealCeilingSpace(worldX) > 0f) yOffset = Mathf.MoveTowards(yOffset, CeilY(worldX) - GroundY, 10f * dt);
+            else if (!ceilingLost && !IsDead && supportsInterrupt)
+            {
+                ceilingLost = true; CeilingLostCount++;
+                Debug.Log($"[BossBattle] {bossName} lost the ceiling at x={worldX:F1}: dropping and back to normal moves");
+                InterruptAI(DropAfterLostCeiling());
+            }
+        }
+    }
+
+    // ---- 地形に合った行動(2026-10-07): 天井へ張り付く技は、本物の天井があり、ボスが収まる空間がある時だけ ----
+    public static int CeilingLostCount, CeilingSkipCount; // 確認用
+    public static string LastCeilingSkip = "";
+    const float CeilingMinSpace = 4.2f;
+    protected override bool IntentionallyAway => buried; // 地中に潜っている間は、画面から外れても戻さない(技の一部)
+    bool ceilingLost;
+    // その位置の本物の天井までの高さ(m)。天井が無い/低すぎる/高すぎる(画面の外)なら -1
+    protected float RealCeilingSpace(float x)
+    {
+        var tm = TerrainManager.Instance;
+        if (tm == null) return -1f;
+        float? c = tm.GetEffectiveCeilingHeightAt(x);
+        if (!c.HasValue) return -1f;
+        float g = tm.GetHeightAt(x) ?? GroundY; // 天井の下が穴でも、天井そのものには張り付ける(高さはボスの足元の地面から)
+        float space = c.Value - g;
+        // ぶら下がる高さは元から地面+4.6m以上(CaveHazard.CeilingAt)。それより低い天井(4.2m未満)や、高すぎて画面の外の天井は使わない
+        return space >= CeilingMinSpace && space <= 9.5f ? space : -1f;
+    }
+    // 張り付く場所(今の位置の前後)に、張り付ける天井があるか。技の途中で天井が低くなる/途切れる所は、
+    // 張り付いた後に OnBattleTick が見つけて降ろす(技の全区間まで求めると、低い天井が混ざる洞窟ではほとんど選べなくなる)
+    protected bool CanUseCeiling(float seconds)
+    {
+        float ahead = 12f + TargetBaseSpeed() * Mathf.Min(seconds, 0.6f);
+        for (float x = worldX - 3f; x <= worldX + ahead; x += 2.5f)
+            if (RealCeilingSpace(x) < 0f)
+            {
+                CeilingSkipCount++;
+                var tm = TerrainManager.Instance;
+                float? c = tm != null ? tm.GetEffectiveCeilingHeightAt(x) : null, g = tm != null ? tm.GetHeightAt(x) : null;
+                LastCeilingSkip = $"x={x:F1} (boss {worldX:F1}, ahead {ahead:F0}m) ceiling={(c.HasValue ? c.Value.ToString("F1") : "none")} ground={(g.HasValue ? g.Value.ToString("F1") : "none")} need>={CeilingMinSpace:F1}";
+                return false;
+            }
+        return true;
+    }
+    IEnumerator DropAfterLostCeiling()
+    {
+        onCeiling = true; extraScale = new Vector2(1f, -1f); freeGap = false; facingLocked = false;
+        yield return DropFromCeiling(0.3f);
+        ceilingLost = false;
+        yield return Recover(0.5f);
     }
 
     protected override void OnInterrupted()
     {
+        if (ceilingLost) { climbing = false; return; } // 天井を見失った: 今の高さから滑らかに降りる(DropAfterLostCeiling)
         if (onCeiling || buried) { yOffset = restAltitude; onCeiling = false; buried = false; }
         climbing = false;
         SetHpBarOffset(bodyHeight + 0.6f);
@@ -118,7 +170,8 @@ public abstract class HazardBossBase : WildBossBase
     // 壁を登って天井へ(天井では体を上下逆に。天井にいる間は攻撃が届かない=無敵)
     protected IEnumerator ClimbToCeiling(float dur)
     {
-        onCeiling = true; climbing = true; invulnerable = true; SetHurtboxEnabled(false);
+        // 2026-10-07: 天井にいる間も攻撃が届けば当たる(以前は登る時から無敵+被弾判定を切っていた)。被弾判定は体の向きに合わせて上下反転する
+        onCeiling = true; climbing = true; ceilingLost = false;
         SetPose(Pose.Move);
         float start = yOffset, t = 0f;
         while (t < dur && !IsDead)

@@ -608,12 +608,16 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     // idle-tracking would already be and there's no post-attack snap.
     IEnumerator ReturnToHome(float duration)
     {
-        Vector3 start = transform.position;
+        // 出発点はプレイヤーに対する位置で持つ(2026-10-07): 世界の位置のままだと高速時に出発点が後ろへ置き去りになり、
+        // 戻りの途中で一度後ろへ飛んでから追いつく動きになっていた(BREAK の終わりなど)
+        float px0 = player != null ? player.position.x : 0f;
+        Vector3 startRel = transform.position - new Vector3(px0, 0f, 0f);
         float t = 0f;
         while (t < 1f)
         {
             t += Time.deltaTime / Mathf.Max(0.01f, duration);
             Vector3 target = ComputeHomePosition();
+            Vector3 start = startRel + new Vector3(player != null ? player.position.x : px0, 0f, 0f);
             transform.position = Vector3.Lerp(start, target, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t)));
             yield return null;
         }
@@ -911,15 +915,31 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         StartCoroutine(StunRoutine());
     }
 
+    // BREAK 中の位置(2026-10-07 修正): 以前は「目標へ毎秒14mまで」の絶対速度で寄せていたため、走行が 50km/h(=14m/s)を
+    // 超えると追いつけず、画面の後ろ(左)へ流され続けた。いまは ①走行の分だけ毎フレーム前へ運び(画面上の位置を保つ)、
+    // ②そのうえで「プレイヤーの少し前・地面近く」(近接で届く位置 = BREAK Anchor)へ約0.15秒の時定数で滑らかに寄せる。
+    // 攻撃の突進/急降下などの速度はコルーチンごと止まっているので残らない。
+    [Tooltip("BREAK 中にいる位置: プレイヤーの何m前(体の中心)")] public float breakAnchorAhead = 4f;
+    [Tooltip("BREAK 中の体の下端の地面からの高さ(m)")] public float breakBottomClearance = 0.25f;
     float stunY;
     void StunFollow()
     {
-        Vector3 home = ComputeHomePosition();
-        float x = home.x;
-        float gy = GroundYAt(x) + hoverHeight * 0.45f;
-        stunY = Mathf.MoveTowards(transform.position.y, gy, 9f * Time.deltaTime);
-        transform.position = new Vector3(Mathf.MoveTowards(transform.position.x, Mathf.Min(x, player != null ? player.position.x + 4f : x), 14f * Time.deltaTime), stunY, 0f);
+        float dt = Time.deltaTime;
+        float px = player != null ? player.position.x : transform.position.x;
+        float ax = px + breakAnchorAhead;
+        // 当たり判定(体)の下端が地面の少し上に来る高さ(近接で届く高さ)。絵ではなく当たり判定で測る
+        var box = GetComponent<BoxCollider2D>();
+        float bottomOffset = box != null ? transform.position.y - box.bounds.min.y : Mathf.Max(0.3f, hoverHeight - groundClearance);
+        float gy = GroundYAt(ax) + bottomOffset + breakBottomClearance;
+        float k = 1f - Mathf.Exp(-dt / 0.15f);
+        float x = transform.position.x + TargetBaseSpeed() * dt; // ① 走行に合わせて運ぶ
+        x = Mathf.Lerp(x, ax, k);                                  // ② 届く位置へ寄せる
+        stunY = Mathf.Lerp(transform.position.y, gy, 1f - Mathf.Exp(-dt / 0.1f));
+        transform.position = new Vector3(x, stunY, 0f);
+        if (BreakDiag) breakDiagGap = x - px;
     }
+    public static bool BreakDiag; // 確認用(自動テスト): BREAK 中のプレイヤーとの距離
+    [System.NonSerialized] public float breakDiagGap;
 
     IEnumerator StunRoutine()
     {
@@ -938,6 +958,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
             yield return null;
         }
         stagger = 0f;
+        Debug.Log($"[BossBattle] Dragon BREAK end after {t:F2}s (duration {dur:F2}s)");
         state = State.Landing; // 戻りの間は通常の追従をしない(体当たり判定の無い状態)
         yield return ReturnToHome(0.6f);
         state = State.Idle;
@@ -1148,7 +1169,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
 
             if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Boss defeated");
 
-            yield return HitStop.Freeze(finalHitStopDuration);
+            yield return HitStop.Run(finalHitStopDuration);
 
             if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Final hit presentation");
 

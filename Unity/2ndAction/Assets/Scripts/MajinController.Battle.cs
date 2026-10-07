@@ -138,6 +138,8 @@ public partial class MajinController : IBossBattleDebug
         Broken = false; stagger = 0f;
         if (state == State.Dead) yield break;
         if (sr != null) sr.color = Color.white;
+        yield return ReturnToHome(exposeReturnTime); // BREAK の後に、今の位置から(プレイヤー基準で)元の位置へ
+        if (state == State.Dead) yield break;
         state = State.Idle;
         SetFrames(idleFrames);
         ScheduleNextAttack();

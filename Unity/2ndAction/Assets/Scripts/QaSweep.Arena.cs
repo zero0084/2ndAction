@@ -34,6 +34,7 @@ public partial class QaSweep
         int assistPref0 = PlayerPrefs.GetInt("HighSpeedAssistEnabled", -1);
         float best0 = gm.BestDistance;
 
+        if (only.Contains('T')) yield return ArenaTransition();
         if (only.Contains('A')) yield return ArenaStop();
         if (only.Contains('B')) yield return ArenaRun();
         if (only.Contains('C')) yield return ArenaBuild();
@@ -53,6 +54,48 @@ public partial class QaSweep
     }
 
     string ckpt0; int ownedAttack0;
+
+    // ===================================================================== T(2026-10-07)
+    // ホームの「闘技場」→ 準備画面 / 再戦: 途中に 通常のダンジョン開始(3・2・1・GO/扉の光の遷移)を挟まず、
+    // 闘技場が出来上がるまで「闘技場を準備中」で覆う。覆っている間は時間/戦闘/計測が進まない。
+    IEnumerator ArenaTransition()
+    {
+        foreach (bool setup in new[] { true, false })
+        {
+            string tag = setup ? "T home->setup" : "T rematch";
+            L($"== {tag} ==");
+            ArenaConfigReset();
+            ArenaMode.Config.enemies.Add(new ArenaEnemyEntry { kind = ArenaEnemyKind.Enemy, enemyId = "goblin", tier = 1, count = 2, ahead = 12f });
+            ArenaLauncher.Launch("qa " + tag, setup);
+            float w = 0f; int frames = 0, uncovered = 0, countdownFrames = 0, timeMoving = 0, transitionFrames = 0; bool sawShot = false;
+            while ((ArenaLauncher.Instance.Launching || ArenaLauncher.Covering) && w < 40f)
+            {
+                yield return null; w += Time.unscaledDeltaTime; frames++;
+                var g = GameManager.Instance;
+                if (!ArenaLauncher.Covering && ArenaLauncher.Instance.Launching) uncovered++;
+                if (g != null && (g.CountdownActive || !string.IsNullOrEmpty(g.CountdownLabel))) countdownFrames++;
+                if (ArenaLauncher.Covering && Time.timeScale > 0f && GameManager.Instance != null && GameManager.Instance.HasStarted) timeMoving++;
+                if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) transitionFrames++;
+                if (!sawShot && w > 0.15f && Arg("-qaArenaShots", "0") == "1") { sawShot = true; ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(outDir, $"arena_cover_{(setup ? "home" : "rematch")}.png")); }
+            }
+            yield return null;
+            gm = GameManager.Instance; pc = PlayerController.Instance;
+            var r = ArenaMode.Current;
+            float t0 = r != null ? r.time : -1f;
+            yield return new WaitForSecondsRealtime(0.5f);
+            float t1 = r != null ? r.time : -1f;
+            L($"[{tag}] cover {ArenaLauncher.LastCoverSeconds:F2}s over {frames} frames; uncovered while launching {uncovered}, countdown frames {countdownFrames}, time moving under the cover {timeMoving}, transition frames {transitionFrames}; panel open {Arena?.PanelOpen}, timer {t0:F2} -> {t1:F2}");
+            Check(uncovered == 0, $"{tag}: covered from the tap until the arena is ready ({uncovered} uncovered frames)");
+            Check(countdownFrames == 0, $"{tag}: no dungeon start countdown (3-2-1-GO) on the way ({countdownFrames} frames)");
+            Check(timeMoving == 0, $"{tag}: nothing moves while preparing ({timeMoving} frames)");
+            Check(transitionFrames == 0, $"{tag}: no door-light transition on the way ({transitionFrames} frames)");
+            Check(ArenaMode.Active && Arena != null && ArenaMode.BattleRunning, $"{tag}: the arena is ready");
+            if (setup) Check(Arena.PanelOpen && Mathf.Abs(t1 - t0) < 0.001f, $"{tag}: opens on the setup panel and the timer does not run ({t0:F2} -> {t1:F2})");
+            else Check(t1 > t0, $"{tag}: a rematch starts straight away ({t0:F2} -> {t1:F2})");
+            if (Arena != null && Arena.PanelOpen) Arena.SetPanel(false);
+            yield return new WaitForSecondsRealtime(0.5f);
+        }
+    }
 
     // 正式な入口(ホームの「闘技場」と同じ ArenaLauncher)。準備画面は開かずに始める
     IEnumerator ArenaLaunch(string tag)
@@ -104,6 +147,8 @@ public partial class QaSweep
         for (int i = 0; i < 6; i++) { StartCoroutine(Flick(PlayerController.FlickDirection.Forward)); yield return new WaitForSeconds(0.35f); }
         Check(ArenaMode.Current.dealt > d0 && ArenaMode.Current.hits > 0, $"A: attacks hit the dummy and are measured (dealt {ArenaMode.Current.dealt}, hits {ArenaMode.Current.hits})");
         // ジャンプ/重力
+        var juF = typeof(PlayerController).GetField("jumpsUsed", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        L($"[A] before the jump: grounded {pc.IsGrounded} jumpsUsed {(juF != null ? juF.GetValue(pc) : "?")} y {pc.transform.position.y:F2} y0 {y0:F2} timeScale {Time.timeScale} countdown {gm.CountdownActive} idle {pc.IsStandingIdle}");
         float yMax = pc.transform.position.y;
         StartCoroutine(Flick(PlayerController.FlickDirection.Up));
         float w = 0f; while (w < 1.2f) { yMax = Mathf.Max(yMax, pc.transform.position.y); yield return null; w += Time.deltaTime; }

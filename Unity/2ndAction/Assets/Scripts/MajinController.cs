@@ -18,6 +18,7 @@ public partial class MajinController : MonoBehaviour
     public float exposeReach = 0.8f; // 体の手前の端までの距離(間合いの短いお嬢様騎士でも届く)
     public float exposeClearance = 0.25f;
     public float exposeDescendTime = 0.7f;
+    [Tooltip("BREAK の時に届く位置まで降りる時間(秒)")] public float breakDescendTime = 0.35f;
     public float exposeHoldTime = 2.8f;
     public float exposeReturnTime = 0.8f;
     int attacksSinceExpose;
@@ -383,16 +384,18 @@ public partial class MajinController : MonoBehaviour
 
     IEnumerator ReturnToHome(float duration)
     {
-        Vector3 start = transform.position;
+        // 出発点はプレイヤーに対する位置で持つ(2026-10-07): 世界の位置のままだと高速時に出発点が後ろへ置き去りになる
+        Vector3 startRel = transform.position - PlayerXOffset();
         float t = 0f;
         while (t < 1f)
         {
             t += Time.deltaTime / Mathf.Max(0.01f, duration);
             Vector3 target = ComputeHomePosition();
-            transform.position = Vector3.Lerp(start, target, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t)));
+            transform.position = Vector3.Lerp(startRel + PlayerXOffset(), target, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t)));
             yield return null;
         }
     }
+    Vector3 PlayerXOffset() => new Vector3(player != null ? player.position.x : 0f, 0f, 0f);
 
     enum FirePattern { Line5, Line10, Ring12ToPlayer, Ring12Scatter, Ring24Scatter }
 
@@ -462,12 +465,13 @@ public partial class MajinController : MonoBehaviour
         ExposeCount++;
         SetFrames(idleFrames);
         if (sr != null) sr.color = recoveryTint;
-        Vector3 start = transform.position;
+        Vector3 startRel = transform.position - PlayerXOffset(); // 2026-10-07: プレイヤーに対する位置で(高速で後ろへ流れない)
+        float descend = Broken ? breakDescendTime : exposeDescendTime;
         float t = 0f;
         while (t < 1f && state == State.Exposed && player != null)
         {
-            t += Time.deltaTime / Mathf.Max(0.05f, exposeDescendTime);
-            transform.position = Vector3.Lerp(start, ExposedPosition(), Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t)));
+            t += Time.deltaTime / Mathf.Max(0.05f, descend);
+            transform.position = Vector3.Lerp(startRel + PlayerXOffset(), ExposedPosition(), Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t)));
             yield return null;
         }
         float h = 0f;
@@ -479,6 +483,7 @@ public partial class MajinController : MonoBehaviour
         }
         if (state != State.Exposed) yield break;
         if (sr != null) sr.color = Color.white;
+        if (Broken) yield break; // BREAK: 戻りは BREAK が終わってから(BREAK 扱いのまま元の高さへ飛び去らない、2026-10-07)
         yield return ReturnToHome(exposeReturnTime);
     }
 
@@ -633,7 +638,7 @@ public partial class MajinController : MonoBehaviour
 
             if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Boss defeated");
 
-            yield return HitStop.Freeze(finalHitStopDuration);
+            yield return HitStop.Run(finalHitStopDuration);
 
             if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[BossDefeat] Final hit presentation");
 

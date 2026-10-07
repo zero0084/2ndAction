@@ -565,6 +565,7 @@ public partial class EnemyController : MonoBehaviour
             // ていないに関わらず「連続して当てた」という事実がコンボ)。
             if (ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
 
+            StallProbe.NoteHit(name, kind.ToString(), killed); // 2026-10-07: 止まりの切り分け用(直前の命中を数件だけ覚える)
             // 音の再設計(2026-10-06): 手応えの音を攻撃の種類で分ける(打ち上げ/飛び道具/通常)
             nextHitSe = kind == PlayerAttackKind.Up ? SeId.HitLaunch : other.GetComponentInParent<PlayerBullet>() != null ? SeId.HitProjectile : SeId.Hit;
             ProcessHit(kind, contactPoint, killed);
@@ -766,7 +767,7 @@ public partial class EnemyController : MonoBehaviour
             OneShotSpriteEffect.CreateTweened(spark, contactPoint, hitParticleColor, duration: hitParticleDuration, startScale: hitParticleScale * 0.7f, endScale: hitParticleScale, sortingOrder: RenderOrder.CombatFx, holdFraction: hitParticleHoldFraction);
         }
 
-        if (hitStopEnabled && hitStopDur > 0f) yield return HitStop.Freeze(hitStopDur);
+        if (hitStopEnabled && hitStopDur > 0f) yield return HitStop.Run(hitStopDur);
 
         // Flash to hitFlashColor and back - a surviving enemy needs to
         // visibly return to normal, or every subsequent hit would just
@@ -949,7 +950,7 @@ public partial class EnemyController : MonoBehaviour
             OneShotSpriteEffect.CreateTweened(impactSprite, transform.position, Color.white, duration: 0.3f, startScale: groundImpactScale * 0.7f, endScale: groundImpactScale, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.2f);
         }
 
-        if (hitStopEnabled) yield return HitStop.Freeze(slamHitStopDuration);
+        if (hitStopEnabled) yield return HitStop.Run(slamHitStopDuration);
 
         if (hitKnockbackEnabled && slamSurviveBounce > 0f)
         {
@@ -1031,7 +1032,7 @@ public partial class EnemyController : MonoBehaviour
             {
                 OneShotSpriteEffect.CreateTweened(impactSprite, transform.position, Color.white, duration: 0.3f, startScale: groundImpactScale * 0.7f, endScale: groundImpactScale * 1.15f, sortingOrder: RenderOrder.CombatFx, holdFraction: 0.2f);
             }
-            if (hitStopEnabled) yield return HitStop.Freeze(slamHitStopDuration);
+            if (hitStopEnabled) yield return HitStop.Run(slamHitStopDuration);
         }
 
         // item 2/最終確認3 - 「敵を倒した攻撃：通常ヒットより大きく吹き
@@ -1053,7 +1054,7 @@ public partial class EnemyController : MonoBehaviour
         // viaSlamの場合は上で既に強めのHitStopを消化済み - 通常の
         // hitStopDurationを二重にかけると「叩き落とし」の一撃なのに
         // 停止が長すぎてテンポを損なうため、ここではスキップする。
-        if (!viaSlam && hitStopEnabled) yield return HitStop.Freeze(hitStopDuration);
+        if (!viaSlam && hitStopEnabled) yield return HitStop.Run(hitStopDuration);
         if (hitFlashHoldDuration > 0f) yield return new WaitForSecondsRealtime(hitFlashHoldDuration);
 
         if (deathCloudSprite != null)

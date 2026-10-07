@@ -77,6 +77,9 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaFinish") { mode = "finish"; dir = a[i + 1]; }
             if (a[i] == "-qaBossFinish") { mode = "bossfinish"; dir = a[i + 1]; }
             if (a[i] == "-qaAudio") { mode = "audio"; dir = a[i + 1]; }
+            if (a[i] == "-qaBreak") { mode = "break"; dir = a[i + 1]; }
+            if (a[i] == "-qaFix4") { mode = "fix4"; dir = a[i + 1]; }
+            if (a[i] == "-qaHitStall") { mode = "hitstall"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -168,6 +171,9 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "finish") yield return FinishMode();
         else if (mode == "bossfinish") yield return BossFinishMode();
         else if (mode == "audio") yield return AudioMode();
+        else if (mode == "break") yield return BreakMode();
+        else if (mode == "fix4") yield return Fix4Mode();
+        else if (mode == "hitstall") yield return HitStallMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

@@ -387,7 +387,9 @@ public partial class BossManager : MonoBehaviour
     void BeginEncounterClock(string key)
     {
         encounterKey = key;
-        encounterResumable = StageUsesBattle && RushGateK == 0 && !ArenaMode.Active && !(IsLastStage && !LastDungeonBossTuning.I.milestoneRunResume); // 開発用の闘技場では「時間でラン再開」をしない
+        // 2026-10-07: 通常のボス戦は倒すまで続く(時間切れで通常のランへ戻る「ラン再開」は廃止)。未決着のまま進むと次のボスが
+        // 不自然な場面に出ていたため。ラスダン 90km 以降のボスラッシュ(走りながら距離でボスが加わる)は別の仕組み(RushGateK)で変わらない。
+        encounterResumable = false;
         RunResumed = false;
         encounterTimer = -2.2f; // 登場の演出のぶん(ボスへ集中できる時間は「倒すまでの秒数」に含めない)
         var tn = BossBattleTuning.I;
@@ -399,12 +401,12 @@ public partial class BossManager : MonoBehaviour
 
     void TickResume()
     {
-        if (!IsBossPhase || !encounterResumable || RunResumed || BossDefeatedThisPhase) return;
+        if (!IsBossPhase || RunResumed || BossDefeatedThisPhase) return;
         if (AliveBossCount <= 0) return;
         // 撃破の演出中(倒れている最中)は数えない: 倒した直後にラン再開にならないように
         if (!BossBattle.AnyBossFighting && AliveMajinCount <= 0) return;
-        encounterTimer += Time.deltaTime;
-        if (encounterTimer >= resumeSeconds) ResumeRun();
+        encounterTimer += Time.deltaTime; // 戦闘の経過時間(記録/表示用)。2026-10-07: 通常のボス戦は時間でラン再開しない(encounterResumable は常に false)
+        if (encounterResumable && encounterTimer >= resumeSeconds) ResumeRun();
     }
 
     public void ResumeRun()

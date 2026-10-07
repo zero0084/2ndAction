@@ -1551,6 +1551,7 @@ public partial class GameManager : MonoBehaviour
         SetCharacterCardOwner(activeRunCharacterId); // そのキャラのキャラカード枠(2026-10-02)
         ApplyCharacterCardEffects();
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
+        if (skipStartCountdown) { skipStartCountdown = false; CountdownActive = false; CountdownLabel = ""; return; } // 闘技場(2026-10-07): 開始の 3・2・1 を出さない
         if (!TryStartSprintInsteadOfCountdown()) StartCoroutine(RunStartCountdownRoutine()); // 疾走出発(2026-10-05)は演出の後に到着地点から
     }
 
@@ -1572,6 +1573,7 @@ public partial class GameManager : MonoBehaviour
     // マルチプレイ(2026-09-28): マルチRunではHOSTが決めたRunStateがRunningになった瞬間に解除する
     // (NetRunLauncher.ReleasedForRun)。各端末のコルーチンの進み具合に左右されない。
     bool countdownActive;
+    bool skipStartCountdown; // 闘技場: 開始のカウントダウンを出さない(ArenaStartRun)
     public bool CountdownActive
     {
         get => countdownActive && !NetRunLauncher.ReleasedForRun;

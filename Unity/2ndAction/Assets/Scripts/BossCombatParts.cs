@@ -305,6 +305,10 @@ public class BossProjectile : MonoBehaviour
     public float bouncePeriod = 0.6f;
     public float spin;           // 見た目の回転(度/秒)
     float age;
+    // 地面に沿う弾の落下(2026-10-07)
+    bool falling; float fallVy, lastGround = float.NaN;
+    const float StepUp = 0.9f, StepDown = 1.6f, FallGravity = 30f;
+
 
     // 弾速の走行補正(2026-09-26) - 各ボスの弾速は「世界に固定された弾」前提で調整されていたため、走行速度で
     // 流れる座標系へ移したぶん(PlayerController.RunFrameSpeed)を一律の倍率で補う。
@@ -343,13 +347,35 @@ public class BossProjectile : MonoBehaviour
         transform.position += (Vector3)((velocity + new Vector2(NetTargets.FrameSpeedNear(transform.position), 0f)) * Time.deltaTime);
         if (hugGround && TerrainManager.Instance != null)
         {
+            // 2026-10-07: 地面に沿って転がる/跳ねる。足場を外れたら重力で落ち、下の足場の上面に上から触れた時だけ着地する
+            // (以前は穴の上で高さを変えずに浮いたまま進み、次の地面の上で、その高さへ戻っていた)
             float? h = TerrainManager.Instance.GetHeightAt(transform.position.x);
-            if (h.HasValue)
+            Vector3 p = transform.position;
+            float bottom = p.y - groundOffset; // 転がる時の地面の高さ(跳ねている分は含まない)
+            if (float.IsNaN(lastGround)) lastGround = h ?? bottom;
+            if (!falling && h.HasValue && h.Value > lastGround + StepUp) { Destroy(gameObject); return; } // 前が高い壁: 登らず、壁に当たって消える
+            if (!falling)
             {
-                Vector3 p = transform.position;
-                p.y = h.Value + groundOffset + (bounceHeight > 0f ? bounceHeight * Mathf.Abs(Mathf.Sin(age * Mathf.PI / Mathf.Max(0.1f, bouncePeriod))) : 0f);
-                transform.position = p;
+                // 下りの坂/小さな段差は沿う。地面が無い(穴)/大きく下がった(崖) → 落ちる。前が高い壁 → その壁の上へは登らず落ちる
+                if (h.HasValue && h.Value <= lastGround + StepUp && h.Value >= lastGround - StepDown)
+                {
+                    lastGround = h.Value;
+                    p.y = h.Value + groundOffset + (bounceHeight > 0f ? bounceHeight * Mathf.Abs(Mathf.Sin(age * Mathf.PI / Mathf.Max(0.1f, bouncePeriod))) : 0f);
+                }
+                else { falling = true; fallVy = 0f; p.y = lastGround + groundOffset; }
             }
+            if (falling)
+            {
+                fallVy -= FallGravity * Time.deltaTime;
+                float prevBottom = p.y - groundOffset;
+                p.y += fallVy * Time.deltaTime;
+                bottom = p.y - groundOffset;
+                // 下の足場の上面を上から通り過ぎた時だけ着地(下から地面をすり抜けて上へ戻らない)
+                if (h.HasValue && prevBottom >= h.Value - 0.05f && bottom <= h.Value) { falling = false; lastGround = h.Value; p.y = h.Value + groundOffset; age = 0f; }
+                var cam = Camera.main;
+                if (cam != null && p.y < cam.transform.position.y - cam.orthographicSize - 4f) { Destroy(gameObject); return; } // 画面の下へ十分に落ちた
+            }
+            transform.position = p;
         }
         if (spin != 0f) transform.Rotate(0f, 0f, spin * Time.deltaTime);
         age += Time.deltaTime;

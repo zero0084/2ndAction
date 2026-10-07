@@ -45,7 +45,37 @@ public static class HitStop
     // Freezeコルーチンのtry/finallyのfinallyまで到達しないケースがある」
     // (GameObjectが通常と異なる形でDestroy/非アクティブ化される経路など)
     // 可能性に備え、この自己修復ロジック自体は維持する。
-    const float MaxReasonableFreezeSeconds = 3f;
+    // 2026-10-07: 3秒 → 1秒(本物の HitStop は 0.2秒未満。重なっても1秒を超えない)。見張りが働く時は必ずログが出る
+    const float MaxReasonableFreezeSeconds = 1f;
+    public static int LeakHeals { get; private set; } // 確認用: 自己修復が働いた回数(0 のはず)
+
+    // 2026-10-07「攻撃が当たった時にまれに数秒止まる」の原因:
+    //  敵の通常の命中(EnemyController.ReactToHit など)が HitStop を「その敵のコルーチンの中」で動かしていた。
+    //  止めている間(実時間0.05〜0.1秒)にその敵が倒れて非表示(FINISH は撃破の瞬間に SetActive(false))になると、
+    //  Unity はコルーチンを止めるだけで finally を実行しないことがあり、時間を戻す処理(TimeControl.Resume)が漏れる。
+    //  漏れた停止は、見張り(PollForLeakedFreeze)が「3秒以上」で直すまで続いていた = 数秒止まる。
+    // 対策: 停止の登録/解除は、消えない専用の実行役(Runner)の上で行う。呼び出し側は Run(d) で同じ時間だけ待つ(手応えは同じ)。
+    class Runner : MonoBehaviour { }
+    static Runner runner;
+    static Runner GetRunner()
+    {
+        if (runner == null)
+        {
+            var go = new GameObject("[HitStopRunner]");
+            Object.DontDestroyOnLoad(go);
+            go.hideFlags = HideFlags.HideInHierarchy;
+            runner = go.AddComponent<Runner>();
+        }
+        return runner;
+    }
+    // 停止を消えない実行役で始め、呼び出し側は実時間で同じだけ待つ(呼び出し側が途中で止まっても停止は必ず解ける)
+    public static IEnumerator Run(float durationRealSeconds)
+    {
+        if (durationRealSeconds <= 0f) yield break;
+        GetRunner().StartCoroutine(Freeze(durationRealSeconds));
+        yield return new WaitForSecondsRealtime(durationRealSeconds);
+    }
+    public static void Begin(float durationRealSeconds) { if (durationRealSeconds > 0f) GetRunner().StartCoroutine(Freeze(durationRealSeconds)); }
     static float freezeStartRealtime = -1f;
 
     // 診断用(BossDiagnostics.BuildSnapshotから参照) - 通常時はIsActive=
@@ -101,6 +131,8 @@ public static class HitStop
         if (Time.realtimeSinceStartup - freezeStartRealtime <= MaxReasonableFreezeSeconds) return;
 
         Debug.LogWarning($"[HitStop] Leaked freeze detected via periodic watchdog (stuck {Time.realtimeSinceStartup - freezeStartRealtime:F1}s, a legitimate HitStop always finishes in well under 1s) - self-healing.");
+        FreezeDiagnostics.LogEvent($"[HitStop] LEAK healed after {Time.realtimeSinceStartup - freezeStartRealtime:F2}s owners={activeOwners.Count} {StallProbe.LastHitsText()}");
+        LeakHeals++;
         ForceReset();
     }
 

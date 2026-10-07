@@ -73,7 +73,7 @@ public static class SprintRecords
     {
         var list = new List<Destination>();
         var t = SprintTuning.I;
-        float best = GameManager.Instance != null ? (float)GameManager.Instance.GetStageBest(stageId) : 0f;
+        double best = GameManager.Instance != null ? GameManager.Instance.GetStageBest(stageId) : 0.0;
         for (int d = t.stepMeters; d <= t.maxDestination; d += t.stepMeters)
         {
             bool ok = IsUnlocked(stageId, d, out string why, best);
@@ -83,15 +83,17 @@ public static class SprintRecords
     }
 
     public static bool IsUnlocked(string stageId, int destination, out string why) =>
-        IsUnlocked(stageId, destination, out why, GameManager.Instance != null ? (float)GameManager.Instance.GetStageBest(stageId) : 0f);
+        IsUnlocked(stageId, destination, out why, GameManager.Instance != null ? GameManager.Instance.GetStageBest(stageId) : 0.0);
 
-    static bool IsUnlocked(string stageId, int destination, out string why, float best)
+    // 表示(Destinations)と出発(GameManager.DepartSprint)の両方がこれを使う。参照するのは「そのマップの最高到達距離」と「そのマップの門番の撃破」だけ
+    static bool IsUnlocked(string stageId, int destination, out string why, double best)
     {
         why = "";
         var t = SprintTuning.I;
         if (destination <= 0 || destination % t.stepMeters != 0 || destination > t.maxDestination) { why = "対象外の距離"; return false; }
         if (DevUnlockAll) { why = "DEBUG 全解放"; return true; }
-        if (best + 0.5f < destination) { why = $"{destination / 1000}km に未到達"; return false; }
+        // 2026-10-07: そのマップの最高到達距離が行き先に実際に届いていること(切り上げ/許容は無し。59,999m では 60km は選べない)
+        if (best < destination) { why = $"{destination / 1000}km に未到達(最高 {System.Math.Floor(best / 100.0) / 10.0:0.0}km)"; return false; }
         for (int g = 10; g * 1000 < destination; g += 10)
             if (!IsGateCleared(stageId, g)) { why = $"{g}km の門番が未撃破"; return false; }
         return true;

@@ -68,7 +68,7 @@ public class SprintDeparturePanel : MonoBehaviour
         foreach (var d in list)
         {
             Rect row = new Rect(x, y, w, 62f * s);
-            string label = d.unlocked ? $"{d.meters / 1000}km まで疾走   (約{SprintTuning.I.SecondsFor(d.meters):F0}秒 + リング)" : $"{d.meters / 1000}km   🔒 {d.why}";
+            string label = d.unlocked ? $"{d.meters / 1000}km まで疾走   (約{SprintTuning.I.SecondsFor(d.meters):F0}秒 + リング){(d.why == "DEBUG 全解放" ? "  [DEBUG 全解放]" : "")}" : $"{d.meters / 1000}km   🔒 {d.why}";
             if (UiKit.Button(row, label, 24f * s, d.unlocked, false, d.unlocked) && d.unlocked)
             {
                 Open = false; UiInputGate.SprintPanelOpen = false;

@@ -87,6 +87,8 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // ---- runtime ----
     protected float worldX;
     protected float relVelocity;
+    const float BreakReach = 3f; // BREAK 中: 体の手前の端までこれより遠ければ、届く位置へ寄せる(m)
+    bool breakPulling;
     protected float yOffset;
     protected float facing = -1f;   // -1=左(プレイヤー側), +1=右
     protected bool facingLocked;
@@ -193,6 +195,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         hurtCol.size = new Vector2(Mathf.Max(0.5f, halfWidth * 2f * hurtWidthRatio), bodyHeight * hurtHeightRatio);
         hurtCol.offset = Vector2.zero;
         h.transform.localPosition = new Vector3(0f, bodyHeight * 0.5f, 0f);
+        hurtBaseLocal = h.transform.localPosition;
         var fwd = h.AddComponent<BossHurtbox>();
         fwd.owner = this;
         var dbg = h.AddComponent<ColliderDebugView>();
@@ -283,7 +286,10 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (!entering && !freeGap && !UltimateArt.ArenaFreeGap)
         {
             float lo = leashOn && leash.AllowBehindTarget ? float.MinValue : minGap;
-            float excess = gap > maxGap ? gap - maxGap : gap < lo ? lo - gap : 0f;
+            float hi = maxGap;
+            // BREAK 中: 普段の間合い(minGap/maxGap)より近くへ寄れる(届く位置へ寄せる処理のため。2026-10-07)
+            if (Broken) { lo = Mathf.Min(lo, -halfWidth - 3f); hi = Mathf.Max(hi, halfWidth + 3f); }
+            float excess = gap > hi ? gap - hi : gap < lo ? lo - gap : 0f;
             if (leashOn && excess > 6f)
             {
                 // 狙いの相手が替わった/大きく離れた: 瞬間移動せず、速度で間合いへ戻る(誰にも見えていない時だけ位置を直す)
@@ -293,11 +299,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             {
                 // ボス戦の強化(2026-10-01): 追い越し/画面の外からの突進の直後だけ、瞬間移動させずに素早く戻す(それ以外は従来どおり即座に範囲内へ)
                 bool soft = Time.time - lastFreeGapTime < 1.5f;
-                if (gap > maxGap) worldX = soft && gap > maxGap + 3f ? Mathf.MoveTowards(worldX, px + maxGap, 22f * dt) : px + maxGap;
+                if (gap > hi) worldX = soft && gap > hi + 3f ? Mathf.MoveTowards(worldX, px + hi, 22f * dt) : px + hi;
                 else if (gap < lo) worldX = soft && gap < lo - 3f ? Mathf.MoveTowards(worldX, px + lo, 22f * dt) : px + lo;
             }
         }
         BattleTick(dt);
+        OffArenaWatch(dt, px);
 
         if (!facingLocked && player != null)
         {
@@ -313,11 +320,41 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         LocomotionFx(dt);
     }
 
+    // 戦えない所へ消えたボスを戻す(2026-10-07): 画面から大きく外れた(地形の中/画面の外)まま 5 秒続いたら、
+    // プレイヤーの前の戦える位置・普段の高さへ戻す。HP/報酬はそのまま(回復しない/報酬も出ない)。
+    // 正常な行動(追い越し/画面の外からの突進=freeGap、地中/無敵の技、登場、BREAK、撃破の見た目)は数えない。
+    float offArenaTime;
+    public static int OffArenaRecovered { get; private set; } // 確認用
+    protected virtual bool IntentionallyAway => false; // 地中に潜る等(洞窟ボスが上書き)
+    void OffArenaWatch(float dt, float px)
+    {
+        var cam = Camera.main;
+        if (cam == null || entering || dead || freeGap || invulnerable || IntentionallyAway || NetPuppet || !BossManager.Instance || !BossManager.Instance.IsBossPhase) { offArenaTime = 0f; return; }
+        Vector3 vp = cam.WorldToViewportPoint(new Vector3(worldX, TerrainGround(worldX) + yOffset + bodyHeight * 0.5f, 0f));
+        bool away = vp.x < -0.15f || vp.x > 1.15f || vp.y < -0.3f || vp.y > 1.3f;
+        offArenaTime = away ? offArenaTime + dt : 0f;
+        if (offArenaTime < 5f) return;
+        offArenaTime = 0f; OffArenaRecovered++;
+        float gapTo = Mathf.Clamp(6f, minGap, maxGap);
+        Debug.LogWarning($"[BossBattle] {bossName} was out of the fighting area for 5s (viewport {vp.x:F2},{vp.y:F2}) -> back in front of the player (hp {Hp} unchanged)");
+        worldX = px + gapTo;
+        yOffset = restAltitude;
+        relVelocity = 0f;
+        if (supportsInterrupt) InterruptAI(Recover(0.4f));
+    }
+
     void ApplyTransform()
     {
         float g = TerrainGround(worldX);
         transform.position = new Vector3(worldX, g + yOffset, 0f);
+        // 被弾判定は体の見た目に合わせる(天井にぶら下がる=体を上下反転した時は、判定も根元から下側へ。2026-10-07)
+        if (hurtCol != null)
+        {
+            float sy = Mathf.Clamp(extraScale.y, -1f, 1f); // 反転の途中(登る/降りる)も見た目と同じく連続で
+            hurtCol.transform.localPosition = new Vector3(hurtBaseLocal.x, hurtBaseLocal.y * sy, 0f);
+        }
     }
+    Vector2 hurtBaseLocal;
 
     // 自然洞窟ボス拡張(2026-09-22) - 荒野街道は単一のflatな下ルートしか
     // 想定していなかったため`protected virtual`にし、洞窟ボス(上下ルート/
@@ -750,6 +787,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     {
         if (hurtCol == null) return;
         hurtCol.transform.localPosition = new Vector3(localCenter.x, localCenter.y, 0f);
+        hurtBaseLocal = localCenter;
         hurtCol.size = new Vector2(Mathf.Max(0.3f, size.x), Mathf.Max(0.3f, size.y));
     }
 
@@ -1102,6 +1140,24 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             t += Time.deltaTime;
             starT -= Time.deltaTime;
             relVelocity = -facing * 1.2f * Mathf.Clamp01(1f - t / 0.5f); // 少しよろけて下がる
+            // 2026-10-07: BREAK はプレイヤーへのご褒美の時間。体の手前の端が届かない距離(3m超)にいる時だけ、
+            // 届く位置(手前の端がプレイヤーから2m)へ滑らかに寄せる(瞬間移動しない)。届く位置にいるボスは動かさない
+            if (t > 0.3f)
+            {
+                float gapNow = worldX - PlayerX;
+                // 手前の端は被弾判定(hurtCol)で測る(絵の幅とは違うことがある)
+                float half = hurtCol != null && hurtCol.enabled ? hurtCol.bounds.extents.x : halfWidth;
+                float centerOff = hurtCol != null && hurtCol.enabled ? hurtCol.bounds.center.x - worldX : 0f;
+                float g = gapNow + centerOff;
+                float edge = Mathf.Abs(g) - half;
+                if (edge > BreakReach) breakPulling = true;   // 届かない → 寄せ始める
+                else if (edge <= 2.2f) breakPulling = false;  // 手前の端が2m付近まで来たら止める(届くぎりぎりで止めない)
+                if (breakPulling)
+                {
+                    float want = Mathf.Sign(g == 0f ? 1f : g) * (half + 2f) - centerOff;
+                    relVelocity = Mathf.Clamp((want - gapNow) / 0.25f, -45f, 45f);
+                }
+            }
             SetBodyTint(Color.Lerp(new Color(0.7f, 0.8f, 1f), Color.white, Mathf.PingPong(t * 2.5f, 0.6f)));
             if (starT <= 0f)
             {
@@ -1112,7 +1168,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             if (pose == Pose.Landing && poseTime > 0.45f) SetPose(Pose.Idle);
             yield return null;
         }
-        relVelocity = 0f;
+        relVelocity = 0f; breakPulling = false;
         SetBodyTint(Color.white);
         Broken = false;
         stagger = 0f;

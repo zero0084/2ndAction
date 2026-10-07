@@ -244,7 +244,7 @@ public class FinalEvolution : MonoBehaviour
         Instance.lastWasAwakened = awake;
         Debug.Log($"[FinalEvo] ACTIVATE {abilityId} ({e.kind} {s.remaining:F0}{(e.kind == FinalEvolutionTuning.Kind.Time ? "s" : "m")}) awakened={awake} uses={s.uses}");
         BossBattleHud.Banner("FINAL EVOLUTION  " + (CardDatabase.FindBaseById(abilityId)?.cardName ?? abilityId), awake ? new Color(1f, 0.9f, 0.45f) : new Color(1f, 0.72f, 0.3f), 1.5f);
-        if (GameManager.Instance != null) GameManager.Instance.StartCoroutine(HitStop.Freeze(0.08f));
+        if (GameManager.Instance != null) HitStop.Begin(0.08f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.FinalEvolutionActivate); // 2026-10-06
         Activated?.Invoke(abilityId, awake);
         return true;

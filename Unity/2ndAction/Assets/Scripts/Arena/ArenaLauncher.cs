@@ -16,6 +16,48 @@ public class ArenaLauncher : MonoBehaviour
     public static bool Pending => pending;
     public bool Launching { get; private set; }
 
+    // 2026-10-07: 闘技場の準備中の画面。ホーム/再戦の押した瞬間から、闘技場が出来上がる(準備画面が開く)まで画面を覆う。
+    // 間に見えていた ホームの読み直し / 扉の光の遷移 / 3・2・1・GO / HUD / 操作前のキャラ・背景 を見せない。
+    // 覆っている間は時間を止める(戦闘/計測/走行が進まない)。演出のための待ち時間は入れない(出来上がったらすぐ外す)。
+    public static bool Covering { get; private set; }
+    static readonly object coverTimeOwner = new object();
+    float coverSince;
+    public static float LastCoverSeconds { get; private set; } // 確認用: 覆っていた時間
+    static Texture2D coverTex;
+    static GUIStyle coverStyle, coverSub;
+    static void BeginCover() { Covering = true; if (Instance != null) Instance.coverSince = Time.unscaledTime; }
+    static void EndCover()
+    {
+        if (!Covering) return;
+        Covering = false;
+        TimeControl.Resume(coverTimeOwner);
+        if (Instance != null) LastCoverSeconds = Time.unscaledTime - Instance.coverSince;
+        UiInputGate.LatchUntilRelease(); // 覆いを外した直後のタッチを攻撃/ボタンにしない
+        Debug.Log($"[Arena] ready, cover removed after {LastCoverSeconds:F2}s");
+    }
+
+    void OnGUI()
+    {
+        if (!Covering) return;
+        GUI.depth = -30000; // 一番手前(HUD/ホームより前)
+        if (coverTex == null) { coverTex = new Texture2D(1, 1); coverTex.SetPixel(0, 0, new Color(0.07f, 0.05f, 0.04f, 1f)); coverTex.Apply(); }
+        var full = new Rect(0, 0, Screen.width, Screen.height);
+        GUI.DrawTexture(full, coverTex);
+        float s = Mathf.Max(0.6f, Screen.height / 1080f);
+        if (coverStyle == null)
+        {
+            coverStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
+            coverSub = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter };
+        }
+        coverStyle.fontSize = Mathf.RoundToInt(46 * s); coverStyle.normal.textColor = new Color(1f, 0.86f, 0.55f);
+        coverSub.fontSize = Mathf.RoundToInt(22 * s); coverSub.normal.textColor = new Color(0.85f, 0.78f, 0.68f);
+        int dots = 1 + (int)(Time.unscaledTime * 2.5f) % 3;
+        GUI.Label(new Rect(0, Screen.height * 0.5f - 60 * s, Screen.width, 70 * s), "闘技場を準備中" + new string('.', dots), coverStyle);
+        GUI.Label(new Rect(0, Screen.height * 0.5f + 20 * s, Screen.width, 40 * s), "ARENA", coverSub);
+        // 覆っている間のタッチ/クリックは下へ通さない
+        if (Event.current != null && (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp)) Event.current.Use();
+    }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Boot()
     {
@@ -37,6 +79,7 @@ public class ArenaLauncher : MonoBehaviour
         ResetStatics("launch");
         ArenaMode.BattleRunning = false; // 前の試合の計測を新しい闘技場へ持ち込まない(作り終わる前に「CLEAR」と判定しない)
         ArenaMode.BeginPending(); // 読み直しの前から進行を書かない(この後のシーン/ランの開始で CONTINUE 等を書かない)
+        BeginCover();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
@@ -66,6 +109,7 @@ public class ArenaLauncher : MonoBehaviour
             return;
         }
         pending = false;
+        TimeControl.Pause(coverTimeOwner); // 準備中は止める(読み直しの後に ResetAll された状態から)
         Instance.StartCoroutine(Instance.Run(openSetup));
     }
 
@@ -104,12 +148,15 @@ public class ArenaLauncher : MonoBehaviour
         if (!gm.HasStarted) { Fail("the run did not start"); ArenaMode.End(); yield break; }
         var ctl = new GameObject("ArenaController").AddComponent<ArenaController>();
         yield return ctl.Setup(setup);
+        yield return null; // 出来上がった最初の1フレームを描いてから外す(作り替えの途中の絵を見せない)
+        EndCover();
         Launching = false;
     }
 
     void Fail(string why)
     {
         Debug.LogError("[Arena] launch failed: " + why);
+        EndCover();
         Launching = false;
     }
 }

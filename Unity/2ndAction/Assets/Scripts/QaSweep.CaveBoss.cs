@@ -194,9 +194,12 @@ public partial class QaSweep
         yield return new WaitForSeconds(0.4f);
         Check(b.BreakCount > br0 && b.Broken, $"{n} G: BREAK by stagger");
         Shot($"cave_{n}_G_break");
-        yield return new WaitForSeconds(tune.breakDuration + 0.8f);
+        // BREAK が終わった瞬間の高さで見る(2026-10-07: その後は通常の行動へ戻り、天井へ登ることもある=正常)
+        float wg = 0f; while (b.Broken && wg < tune.breakDuration + 3f) { yield return null; wg += Time.deltaTime; }
+        float yEnd = b.transform.position.y - (TerrainManager.Instance.GetHeightAt(b.transform.position.x) ?? b.transform.position.y);
+        yield return new WaitForSeconds(0.8f);
         Check(!b.Broken, $"{n} G: recovers from BREAK");
-        Check(Mathf.Abs(b.transform.position.y - (TerrainManager.Instance.GetHeightAt(b.transform.position.x) ?? b.transform.position.y)) < 6f, $"{n} G: not launched far by the break");
+        Check(Mathf.Abs(yEnd) < 6f, $"{n} G: not launched far by the break ({yEnd:F1}m at the end of BREAK)");
 
         // H: ラン再開
         float d0 = gm.MaxDistance;

@@ -202,7 +202,7 @@ public partial class PlayerController
             kitIFrameTimer = Mathf.Max(kitIFrameTimer, p.counterInvincible);
             Vector3 c = transform.position + new Vector3(0f, p.hitHeight, 0f);
             OneShotSpriteEffect.CreateTweened(KitProjectile.Ring, c, new Color(1f, 0.9f, 0.5f, 1f), duration: 0.25f, startScale: 0.3f, endScale: p.counterRadius * 2.2f, sortingOrder: RenderOrder.SlashFx);
-            StartCoroutine(HitStop.Freeze(0.06f));
+            HitStop.Begin(0.06f);
             float t = 0f;
             while (t < 0.05f)
             {

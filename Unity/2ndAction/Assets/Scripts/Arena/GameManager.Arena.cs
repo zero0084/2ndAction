@@ -33,9 +33,13 @@ public partial class GameManager
     public void ArenaRefillLives() { Lives = maxLives; }
 
     // 闘技場のランを始める(選択中のステージは保存しない。解放の状態にも関係なく)
+    // 2026-10-07: 通常のダンジョン開始(扉の光の遷移 + 3・2・1・GO)を通さない。闘技場の準備中の画面(ArenaLauncher)が
+    // 覆っている間に、その場でランを始めて闘技場へ作り替える。
     public void ArenaStartRun(string stageId)
     {
+        if (HasStarted) return;
         SelectedStageId = stageId;
-        StartGame();
+        skipStartCountdown = true;
+        ApplyGameStart();
     }
 }

@@ -94,7 +94,7 @@ public class KitProjectile : MonoBehaviour
         if (!enemy && !boss) return;
         HitCount++;
         onHitEnemy?.Invoke(this, other);
-        if (boss && bossHitStop > 0f && PlayerController.Instance != null) PlayerController.Instance.StartCoroutine(HitStop.Freeze(bossHitStop));
+        if (boss && bossHitStop > 0f && PlayerController.Instance != null) HitStop.Begin(bossHitStop);
         if (blast.radius > 0f) { Finish(other.ClosestPoint(transform.position), true); return; }
         if (pierce == 0) { Finish(transform.position, false); return; }
         if (pierce > 0) { pierce--; PierceThrough++; }

@@ -551,7 +551,7 @@ public partial class PlayerController
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.LandHeavy); // 音の再設計(2026-10-06): 急降下の着地は重い着地音
             var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
             if (camFollow != null) camFollow.Shake(0.18f, 0.22f);
-            StartCoroutine(HitStop.Freeze(d.lanceDiveImpactHitStop));
+            HitStop.Begin(d.lanceDiveImpactHitStop);
             t = 0f;
             while (t < d.lanceDiveImpactActive)
             {

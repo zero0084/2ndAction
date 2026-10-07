@@ -153,7 +153,7 @@ public class CaveHazard : MonoBehaviour
     void ResetState(CaveHazardKind k, string source)
     {
         Serial = ++serialNext;
-        kind = k; src = source; timer = 0f; landed = false; released = false; activated = false;
+        kind = k; src = source; timer = 0f; landed = false; released = false; activated = false; rockFalling = false; rockGround = float.NaN; rockVy = 0f;
         follow = null; followOffset = 0f; drift = 0f; damage = CombatScale.PlayerHit; heavy = false; strong = true;
         hitsLeft = 0; lastHitTime = -9f; rot = 0f; colShrink = 0.85f; fallDur = 0.35f; slowFactor = 1f; slowDuration = 0f;
         onActivate = null; onLand = null; overReported = false;
@@ -186,6 +186,29 @@ public class CaveHazard : MonoBehaviour
     {
         for (int i = live.Count - 1; i >= 0; i--) { var h = live[i]; if (h == null) live.RemoveAt(i); else h.Release(); }
         CaveBossSafety.ResetAll();
+    }
+
+    // 転がる落石(2026-10-07): 足場を外れたら重力で落ちる。下の足場の上面に上から触れた時だけ着地、前が高い壁なら消える。
+    // (以前は「地面の高さ(穴の上では0)」へ毎フレーム合わせていたので、穴の上で消えて次の地面で戻ってきていた)
+    bool rockFalling; float rockGround = float.NaN, rockY, rockVy;
+    float RollingGround(float x, float g, float dt)
+    {
+        var tm = TerrainManager.Instance;
+        float? h = tm != null ? tm.GetHeightAt(x) : null;
+        if (float.IsNaN(rockGround)) { rockGround = h ?? transform.position.y; rockY = rockGround; }
+        if (!rockFalling)
+        {
+            if (h.HasValue && h.Value > rockGround + 0.9f) { life = Mathf.Min(life, timer); return rockGround; } // 壁に当たった
+            if (h.HasValue && h.Value >= rockGround - 1.6f) { rockGround = h.Value; rockY = h.Value; return h.Value; } // 坂/小さな段差は沿う
+            rockFalling = true; rockVy = 0f; rockY = rockGround;
+        }
+        rockVy -= 30f * dt;
+        float prev = rockY;
+        rockY += rockVy * dt;
+        if (h.HasValue && prev >= h.Value - 0.05f && rockY <= h.Value) { rockFalling = false; rockGround = h.Value; rockY = h.Value; }
+        var cam = Camera.main;
+        if (cam != null && rockY < cam.transform.position.y - cam.orthographicSize - 4f) life = Mathf.Min(life, timer); // 画面の下へ十分に落ちた
+        return rockY;
     }
 
     static float GroundAt(float x)
@@ -347,6 +370,7 @@ public class CaveHazard : MonoBehaviour
             p.x += (frame - d) * dt;
         }
         float g = GroundAt(p.x);
+        if (kind == CaveHazardKind.FallRock && landed && followOffset > 0.01f) g = RollingGround(p.x, g, dt);
         p.y = g;
         transform.position = p;
 

@@ -67,11 +67,12 @@ public partial class QaSweep
         while (WildAlive().Any(b => b.IsEntering) && w < 8f) { yield return null; w += Time.unscaledDeltaTime; }
     }
 
+    // 残りHPぶんを1発で入れる(-qaBossはボスHPを大きく固定するので、99999では倒れない)
     void KillAllBosses()
     {
-        foreach (var b in WildAlive()) b.TakeDamage(99999, b.CenterWorld);
-        foreach (var d in DragonsAlive()) d.TakeDamage(99999);
-        foreach (var m in FindObjectsByType<MajinController>(FindObjectsSortMode.None)) if (!m.IsDead) m.TakeDamage(99999); // 天空の魔人(2026-10-02)
+        foreach (var b in WildAlive()) b.TakeDamage(Mathf.Max(99999, b.Hp), b.CenterWorld);
+        foreach (var d in DragonsAlive()) d.TakeDamage(Mathf.Max(99999, d.Hp));
+        foreach (var m in FindObjectsByType<MajinController>(FindObjectsSortMode.None)) if (!m.IsDead) m.TakeDamage(Mathf.Max(99999, m.Hp)); // 天空の魔人(2026-10-02)
     }
 
     IEnumerator WaitPhaseEnd(float timeout = 30f)
@@ -84,6 +85,12 @@ public partial class QaSweep
     {
         Application.targetFrameRate = 60;
         HookBossLogs();
+        // 2026-10-02: 結果を毎回同じにする。以前は自動補助の攻撃+ランダムに出るカードの取得でプレイヤーの火力がばらつき、
+        // 強い回はボスが「ラン再開」の前に倒れて C〜H が連鎖して落ちていた(0〜18件)。ボスの倒れ方は試験側が決める:
+        // ボスHPを大きく固定し(開発用のNetTestBossHpOverride。BossHpPlan/再戦の強化/カードの倍率より優先)、倒す時は KillAllBosses。
+        // 段階/必殺技はHPの割合で決まるので、割合で削る G/H はそのまま成り立つ。
+        Random.InitState(QaBossSeed);
+        BossManager.NetTestBossHpOverride = QaBossHp;
         yield return BeginRun("swordsman", "wasteland_road");
         typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
         var tn = BossBattleTuning.I;
@@ -135,41 +142,59 @@ public partial class QaSweep
         Check(Bm.ResumeCount == 0 && bossLogResumed == 0, $"B: killed just before resume -> no resume (resumes {bossLogResumed})");
         Check(Mathf.Abs(dB - 2000f) < 2f, $"B: distance stayed at the gate during the fight ({dB:F1})");
 
-        // ---- C: ラン再開の後に撃破(距離/雑魚/障害物が戻る、ボスは戦闘継続、撃破後に二重開始しない)
+        // ---- C(2026-10-07 ラン再開の廃止): 従来の制限時間を過ぎても戦いが続く(距離/雑魚は止まったまま)。
+        //      戦えない所へ消えたボスは戻る(HP/報酬はそのまま)。撃破の後に一度だけ再開し、次の関門は正しく 4,000m
         WarpTo(2940f);
         yield return WaitBossSpawn();
-        w = 0f;
-        while (!Bm.RunResumed && w < 40f) { yield return null; w += Time.deltaTime; }
-        Check(Bm.RunResumed, $"C: run resumed after {Bm.EncounterSeconds:F1}s (limit {Bm.ResumeSecondsTotal:F0}s)");
         float dC0 = gm.MaxDistance;
-        yield return new WaitForSeconds(0.3f);
-        Shot("C_run_resumed_banner");
-        yield return new WaitForSeconds(5f);
+        w = 0f;
+        while (Bm.EncounterSeconds < Bm.ResumeSecondsTotal + 5f && w < 60f) { yield return null; w += Time.deltaTime; }
         int zako = FindObjectsByType<EnemyController>(FindObjectsSortMode.None).Count(e => e != null && e.isActiveAndEnabled && e.GetComponent<BonusEnemy>() == null);
-        Check(gm.MaxDistance > dC0 + 30f, $"C: distance counts again after resume ({dC0:F0} -> {gm.MaxDistance:F0})");
-        Check(Bm.AliveBossCount > 0 && WildAlive().Count > 0, "C: boss still alive and fighting after resume");
-        Check(zako > 0, $"C: normal enemies spawn again after resume ({zako} alive)");
+        L($"[C] {Bm.EncounterSeconds:F1}s into the fight (old limit {Bm.ResumeSecondsTotal:F0}s): resumed {Bm.RunResumed}, distance {dC0:F0} -> {gm.MaxDistance:F0}, zako {zako}, bosses {Bm.AliveBossCount}");
+        Check(!Bm.RunResumed && Bm.ResumeCount == 0 && bossLogResumed == 0, "C: no run resume after the old time limit (the fight goes on until the boss is down)");
+        Check(gm.MaxDistance <= dC0 + 2f, $"C: distance stays during the fight ({dC0:F0} -> {gm.MaxDistance:F0})");
+        Check(zako == 0 && Bm.AliveBossCount > 0, $"C: no normal enemies, the boss is still there ({zako} zako)");
+        // 戦えない所へ消えた(地形の中/画面の外)ボスは、5秒で戦える位置へ戻る。HP はそのまま
         var bC = WildAlive().FirstOrDefault();
-        if (bC != null) L($"[C] boss gap after 5s of resumed run: {bC.transform.position.x - pc.transform.position.x:F1}");
-        Shot("C_resumed_with_boss_and_enemies");
+        if (bC != null)
+        {
+            var yF = typeof(WildBossBase).GetField("yOffset", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            int hp0 = bC.Hp, rec0 = WildBossBase.OffArenaRecovered, kills0 = gm.BossKillCount;
+            float lostT = 0f; bool back = false;
+            while (lostT < 9f)
+            {
+                // 毎フレーム地形の中(画面の下の外)へ押し込む(地形に埋まって戦えない状態)。戻されたら終わり
+                if (WildBossBase.OffArenaRecovered > rec0) { back = true; break; }
+                yF.SetValue(bC, -25f);
+                yield return null; lostT += Time.deltaTime;
+            }
+            yield return null;
+            var cam = Camera.main; float vx = cam != null ? cam.WorldToViewportPoint(bC.transform.position).x : -1f;
+            L($"[C] boss pushed out of the area: recovered {back} after {lostT:F1}s, now viewport x {vx:F2}, hp {hp0} -> {bC.Hp}, boss kills {kills0} -> {gm.BossKillCount}");
+            Check(back && vx > 0f && vx < 1f && cam.WorldToViewportPoint(bC.transform.position).y > 0f, "C: a boss stuck outside the fighting area comes back in front of the player");
+            Check(bC.Hp == hp0 && gm.BossKillCount == kills0, "C: coming back does not heal the boss or give a reward");
+        }
         float speedBefore = pc.CurrentAutoRunSpeed;
-        float startSpeed = pc.runSpeed;
         int resetsBefore = bossLogNewRunReset;
-        int resumesBefore = bossLogResumed;
         KillAllBosses();
         yield return WaitPhaseEnd();
         yield return new WaitForSeconds(3f);
-        Check(bossLogNewRunReset == resetsBefore, "C: killing the boss after resume does not restart the run");
-        Check(bossLogResumed == resumesBefore, "C: no second 'run resume' after the kill");
-        Check(pc.CurrentAutoRunSpeed >= speedBefore * 0.97f && pc.CurrentAutoRunSpeed > startSpeed * 1.05f, $"C: run speed not reset ({speedBefore:F1} -> {pc.CurrentAutoRunSpeed:F1}, start {startSpeed:F1})");
-        Check(Bm.NextBossDistance > gm.MaxDistance - 1f || Bm.NextBossDistance <= 4000f, $"C: next gate {Bm.NextBossDistance} (d={gm.MaxDistance:F0})");
+        Check(bossLogNewRunReset == resetsBefore, "C: killing the boss does not restart the run");
+        Check(bossLogResumed == 0, "C: no run resume at all (the run goes on through the normal end of the fight)");
+        Check(gm.MaxDistance > dC0 + 5f, $"C: distance moves again after the kill ({dC0:F0} -> {gm.MaxDistance:F0})");
+        Check(Mathf.Abs(Bm.NextBossDistance - 4000f) < 1f, $"C: next gate 4000 (got {Bm.NextBossDistance}), no gate skipped or doubled");
 
-        // ---- D: 倒さず次の1,000mを通過 → 重ならない → 撃破後に1つだけ保留から出る
-        yield return GateCarryCase("D", 5940f, 6000f, 7150f, 7000f);
-        // ---- E: 倒さず5,000mを通過(4,000mのオオカミが残る) → 保留は5,000m(ライダー)
-        yield return GateCarryCase("E", 3940f, 4000f, 6150f, 5000f);
-        // ---- F: 倒さず10,000mを通過 → 保留は10,000m(大蛇)、11,000mは飛ばす
-        yield return GateCarryCase("F", 8940f, 9000f, 11150f, 10000f);
+        // ---- D/E/F(2026-10-07): 以前は「倒さずに次の関門を通過 → 保留」を見ていたが、ラン再開の廃止で通過自体が起きない。
+        //      代わりに 5,000m の強敵を長く戦ってから倒し、次の関門が 6,000m に1つだけ出ることを見る
+        WarpTo(4940f);
+        yield return WaitBossSpawn();
+        float dD = gm.MaxDistance;
+        w = 0f;
+        while (Bm.EncounterSeconds < Bm.ResumeSecondsTotal + 3f && w < 70f) { yield return null; w += Time.deltaTime; }
+        Check(!Bm.RunResumed && gm.MaxDistance <= dD + 2f, $"D: the 5,000m fight goes on past the old limit ({Bm.EncounterSeconds:F0}s)");
+        KillAllBosses();
+        yield return WaitPhaseEnd();
+        Check(Mathf.Abs(Bm.NextBossDistance - 6000f) < 1f && bossLogPending == 0, $"D: next gate 6000 (got {Bm.NextBossDistance}), nothing pending ({bossLogPending})");
 
         // ---- G: 複数体(13,000mはオオカミ2体): 同時に必殺技(突進)を始めない
         Bm.DebugPoolReset(); // 2026-10-02: 再戦の抽選にせず、本来のオオカミの群れを出す
@@ -191,7 +216,11 @@ public partial class QaSweep
             yield return null;
         }
         Check(overlap == 0, $"G: never two ultimates at once (overlap frames {overlap})");
-        Check(ultSeen >= 2, $"G: both wolves used the overtake charge in turn ({ultSeen})");
+        Check(ultSeen >= 2, $"G: two overtake charges one after another ({ultSeen})");
+        // 2026-10-02: 合計だけでは「同じ1体が2回」でも通るので、1体ずつの回数も残す(順番が回らないのは仕様の判断待ち: 警告どまり)
+        string perWolf = string.Join(",", wolves.Select(b => b.UltimatesUsed));
+        L($"[G] ultimates per wolf: {perWolf} in {gT:F1}s");
+        if (wolves.Count >= 2 && wolves.Any(b => b.UltimatesUsed == 0)) Warn($"G: one wolf never got a turn for the overtake charge (per wolf {perWolf})");
         KillAllBosses();
         yield return WaitPhaseEnd();
 
@@ -201,8 +230,12 @@ public partial class QaSweep
 
         L($"[summary] resumes={bossLogResumed} pendingChosen={bossLogPending} ultimates={bossLogUltimates} breaks={bossLogBreaks} distanceDrops={distDrops} newRunResets={bossLogNewRunReset}");
         Check(distDrops == 0, "distance never went backwards (outside of debug warps)");
+        BossManager.NetTestBossHpOverride = 0;
         yield return EndRun();
     }
+
+    const int QaBossSeed = 20261002;
+    const int QaBossHp = 50000000; // 自動補助の攻撃では試験の時間内に削り切れない量
 
     // 1つ目のボスを倒さずに passTo まで走り、途中の関門が重ならないこと/撃破後に保留(wantPending)が1つだけ出ることを確かめる
     IEnumerator GateCarryCase(string tag, float warp, float gate, float passTo, float wantPending)

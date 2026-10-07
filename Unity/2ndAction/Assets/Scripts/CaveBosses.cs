@@ -59,8 +59,9 @@ public class CentipedeBoss : CaveBossBase
     {
         while (true)
         {
-            if (UltimateReady(2)) { yield return CaveCrawler(); continue; }
-            if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return CeilingChase(); continue; }
+            // 天井を使う技は、張り付ける天井が続く所でだけ(2026-10-07)。無ければ地上の技を続ける
+            if (UltimateReady(2) && CanUseCeiling(9f)) { yield return CaveCrawler(); continue; }
+            if (SpecialReady(SpecialPhase) && CanUseCeiling(5f)) { MarkSpecial(); yield return CeilingChase(); continue; }
             int pick = BossAiUtil.PickNoRepeat(3, ref lastPick);
             if (pick == 0) yield return Melee(bite, biteMark, 1.3f, 2.8f, 0.6f, 0.24f, 0.7f);
             else if (pick == 1)
@@ -762,7 +763,7 @@ public class BatBoss : CaveBossBase
         while (true)
         {
             if (UltimateReady(2)) { yield return EchoHunt(); continue; }
-            if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return CeilingHang(); continue; }
+            if (SpecialReady(SpecialPhase) && CanUseCeiling(5f)) { MarkSpecial(); yield return CeilingHang(); continue; } // 天井が続く所でだけ(2026-10-07)
             int pick = BossAiUtil.PickNoRepeat(3, ref lastPick);
             if (pick == 0) yield return ClawPass();
             else if (pick == 1) yield return DiveAttack(false);

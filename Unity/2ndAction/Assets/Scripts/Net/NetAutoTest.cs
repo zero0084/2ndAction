@@ -171,6 +171,36 @@ public partial class NetAutoTest : MonoBehaviour
         }
     }
 
+    // BREAK の位置(2026-10-07): -netAutoBreakAt t … HOST が t 秒でボスを BREAK させ、両方の端末で4秒間「ボス - 自分のプレイヤー」の距離を記録する
+    float breakAt = -1f, breakLogNext; bool breakDone;
+    void BreakTest()
+    {
+        if (breakAt <= 0f || runTime < breakAt || runTime > breakAt + 4.5f) return;
+        if (role == "HOST" && !breakDone)
+        {
+            breakDone = true;
+            foreach (var mb in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
+                if (mb is IBossBattleDebug b && b.DebugAlive) { b.DebugForceBreak(); L($"BREAK forced on {b.DebugName}"); }
+        }
+        if (runTime < breakLogNext) return;
+        breakLogNext = runTime + 0.25f;
+        var me = PlayerController.Instance;
+        if (me == null) return;
+        foreach (var mb in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
+            if (mb is IBossBattleDebug b && mb.isActiveAndEnabled)
+            {
+                var cam = Camera.main;
+                float vx = cam != null ? cam.WorldToViewportPoint(mb.transform.position).x : -1f;
+                // ボスが狙っているプレイヤー(マルチでは相手のこともある)との距離も
+                var pf = mb.GetType().GetField("player", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var tgt = pf != null ? pf.GetValue(mb) as Transform : null;
+                string tg = tgt != null ? $"{mb.transform.position.x - tgt.position.x:F2}" : "-";
+                var others = FindObjectsByType<NetPlayer>(FindObjectsSortMode.None);
+                string op = string.Join(",", System.Linq.Enumerable.Select(others, o => $"{o.transform.position.x - me.transform.position.x:F1}"));
+                L($"BREAKPOS t={runTime - breakAt:F2} role={role} boss={b.DebugName} broken={b.Broken} gap={mb.transform.position.x - me.transform.position.x:F2} toTarget={tg} target={(tgt != null ? tgt.name : "-")} players(rel)=[{op}] screenX={vx:F2} kmh={me.CurrentRunKmh:F0} puppet={(mb is DragonController dd ? dd.NetPuppet.ToString() : "-")} enabled={mb.enabled} ts={Time.timeScale:F2} frame={Time.frameCount}");
+            }
+    }
+
     // ボス戦の強化(2026-10-01): ボス戦中の状態を毎秒(ラン再開/ボス数/雑魚数/距離)。-netAutoBossAt と一緒に使う
     float bossLogNext;
     void BossRunLog(GameManager gm)
@@ -215,6 +245,7 @@ public partial class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoRematch") rematchTest = true;
             else if (a == "-netAutoPassive") passive = true;
             else if (a == "-netAutoBossKind") bossKind = next;
+            else if (a == "-netAutoBreakAt") float.TryParse(next, out breakAt);
             else if (a == "-netAutoChoiceAt") float.TryParse(next, out choiceAt);
             else if (a == "-netAutoChoiceHold") float.TryParse(next, out choiceHold);
             else if (a == "-netAutoMode") modeArg = next.ToLowerInvariant();
@@ -400,6 +431,7 @@ public partial class NetAutoTest : MonoBehaviour
                 Phase3Test(gm);
                 if (step == Step.Done) break;
                 if (role == "HOST" && bossAt > 0f && !bossSpawned && runTime >= bossAt) SpawnTestBoss();
+                BreakTest();
                 if (runTime >= runSeconds) Finish("run time elapsed");
                 break;
             case Step.AfterLeave:

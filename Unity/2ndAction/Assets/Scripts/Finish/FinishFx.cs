@@ -234,7 +234,7 @@ public class FinishFx : MonoBehaviour
         if (now + dur <= stopEnd + 0.001f) return; // もう止まっている(長い方だけを使う)
         float add = now + dur - Mathf.Max(now, stopEnd);
         stopEnd = now + dur;
-        StartCoroutine(HitStop.Freeze(add));
+        HitStop.Begin(add);
     }
     float shakeUntil, shakeMag;
     void RequestShake(float mag)
