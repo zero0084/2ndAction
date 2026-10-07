@@ -83,7 +83,7 @@
 | 双剣士 | `Art/DualBlade*_v1` | 走り・ジャンプ・攻撃・空中・下攻撃は Claude が ChatGPT で生成(既存の `dual_blade_portrait.png` を参照)。走りは途中でマスターの6コマシート(`ChatGPT Image 2026年9月13日 17_22_35.png`)→ ChatGPT の4コマ → マスター提供 `run_01〜06.png`(352f725)→ 「提供7コマ」(bc1e716, 09-26)と変わった | ChatGPT。`run_01〜06.png` は Z で **grok-sandbox.com**(Grok の作業環境, 09-14)。現行7コマはマスターが会話に添付した画像(`images/11〜17.png`, T1 2026-09-26T06:04Z) | 既存の立ち絵 | T1 09-13T07:08〜11:57、G 534bbda, 3e8e5af, b81373a, ed9d78a, 352f725, bc1e716、Z | **入る**。現行の走り7コマは**ユーザー提供・作成経路未確認** |
 | お嬢様騎士 | `Art/NobleLady*_v1` | 走り・ジャンプ・攻撃は Claude が ChatGPT で生成(マスターの元絵 `f5ac0db0-….png` と `PlayerRun_v1` を添付)。走りは Grok 動画 `generated_video (4).mp4` から ffmpeg でコマ抽出→ ChatGPT で左右反転の手直し(6c09518)→ 現行はマスター提供 `knight_run_frames_1〜3.zip`(1本の動画145コマ)から6コマを選んだもの(bf7dbbe) | ChatGPT / Grok(元絵は Z で chatgpt.com、`generated_video (4).mp4` は assets.grok.com、`knight_run_frames_*.zip` は grok.com) | マスターの元絵 | T1 09-12T16:11〜17:50、09-13T06:13〜06:29、M 864・995〜997行、G 2f42f76, 6c09518, bf7dbbe、Z | **入る** |
 | 二丁拳銃士(走り以外) | `Art/Gunslinger*_v1`(Run を除く)、`Art/GunslingerBullet.png`、マズルフラッシュ | Claude が ChatGPT で生成(既存の絵を添付) | ChatGPT | 自作の絵 | G 7e63b63, d04f89c, bc1e716 | **入る** |
-| **二丁拳銃士の走り8コマ** | `Art/GunslingerRun_v1/run_00〜07.png` | マスターが会話に画像8枚(`images/3〜9.png`, `10.webp`)を添付し「添付した画像の順番にして」と指示 → そのまま並べてサイズだけ揃えた | **ユーザー提供・作成経路未確認**(U: 主に ChatGPT/Grok)。添付された8枚は会話記録に残っていた(A、2026-10-08 に取り出し、5 章 1 番)。C2PA などの来歴情報は入っていない(会話に添付した時点で消えた可能性がある) | — | T1 2026-09-25T08:56Z、G 15f2ff5 | **入る**。**注意**: コミット 15f2ff5 の「原作/参考ゲームの走行GIF」、メモ M 1520行の「Grok生成と思われる、`grok_*.gif` を確認」は**Claude の推測で、裏付けがない**(記録に `grok_*.gif` は見当たらない)。既存ゲームから取った絵ではないか、**マスターに必ず確認** |
+| **二丁拳銃士の走り8コマ** | `Art/GunslingerRun_v1/run_00〜07.png` | マスターが会話に画像8枚(`images/3〜9.png`, `10.webp`)を添付し「添付した画像の順番にして」と指示 → そのまま並べてサイズだけ揃えた | **ユーザー提供・作成経路未確認**(U: 主に ChatGPT/Grok)。添付された8枚は会話記録に残っていた(A、2026-10-08 に取り出し、5 章 1 番)。C2PA などの来歴情報は入っていない(会話に添付した時点で消えた可能性がある) | — | T1 2026-09-25T08:56Z、G 15f2ff5 | **入る**。**注意**: コミット 15f2ff5 の「原作/参考ゲームの走行GIF」、メモ M 1520行の「Grok生成と思われる、`grok_*.gif` を確認」は**Claude の推測で、裏付けがない**(記録に `grok_*.gif` は見当たらない)。既存ゲームから取った絵ではないか、**マスターに必ず確認** → **2026-10-08 マスター申告(U): Grok で生成**(5 章) |
 | 竜騎士 | `Art/Lancer*_v1` | Claude が ChatGPT で生成(シート → 切り出し) | ChatGPT(`lancer_*_sheet.png` 等, 09-26 Z) | **マスターが添付したデザイン画 `images/18.webp`**(T1 2026-09-26T07:08Z)を参照画像として ChatGPT に添付(07:11Z `lancer/ref.png`) | N、Z、G 65f9391, f0ef5a4 | **入る**。参照に使ったデザイン画は**ユーザー提供・作成経路未確認** → 生成した竜騎士の絵は、出どころ不明の参照画像をもとにしている |
 | 弓/魔法/格闘/忍者、巫女/吸血鬼/竜人 | `Art/{Archer,Mage,Fighter,Ninja,Miko,Vampire,Dragonkin}*_v1` | Claude が ChatGPT で生成(シート → 切り出し)。既存キャラの立ち絵を画風の参考として添付 | ChatGPT(`omm_*_*.png` 09-27、`omm2_*_*.png`) | 自作の立ち絵(`noble_lady_portrait.png`、合成した `newchars/stand_swordsman_900.png` など) | N、Z、G 18dc55c, dcfe2ad | **入る**。`*Stand_v1` だけは入らない。`KitArt`(コードで描く技の見た目)は自作 |
 | 開始/終了ポーズ | `*Start_v1`, `*Finish*_v1` | Claude が ChatGPT で生成 | ChatGPT | 各キャラの既存の絵 | G d503de4, 716c30d | **入る** |
@@ -180,7 +180,7 @@ U(マスター申告)は「基本的に ChatGPT か Grok で生成。音声へ�
 - 2026-08 の Grok 素材と、マスターが自分で生成した ChatGPT 素材のプロンプト: 記録なし。
 - (2026-10-08 解消) `PortraitFrame.png` は OpenAI の C2PA 署名で ChatGPT 生成と確認。
 - **ユーザー提供・作成経路未確認**(U: 主に ChatGPT/Grok。個別は未確認。確認用の一覧は 5 章): 黒剣士の下攻撃イラスト2枚(9ebdc3f)、キャラ選択画面のモックアップ、`OneMoreMile_GameFeel.zip`(中の画像は chatgpt.com)、`Downloads/grokbot_run_preview/`、そして次の3件。
-  - **二丁拳銃士の走り8コマ**(そのままビルドに入る): コミット 15f2ff5 とメモ M 1520 の「原作/参考ゲーム」「Grok生成と思われる」は裏付けのない推測。**既存ゲームから取った絵でないかを最優先で確認**。
+  - **二丁拳銃士の走り8コマ**(そのままビルドに入る): コミット 15f2ff5 とメモ M 1520 の「原作/参考ゲーム」「Grok生成と思われる」は裏付けのない推測。**既存ゲームから取った絵でないかを最優先で確認** → 2026-10-08 マスター申告(U): Grok で生成(5 章)。
   - 双剣士の現行の走り7コマ(そのままビルドに入る)。
   - 竜騎士のデザイン画(ChatGPT に参照として渡し、竜騎士の絵の元になった)。
 - 2026-08 にマスターが作った Grok・ChatGPT 素材(Z でサービスは分かる)は、**どんなプロンプトで作ったかが記録にない**。
@@ -218,17 +218,22 @@ This game contains content created with generative AI during development. No con
 会話に添付された画像は、会話記録(A)から取り出した。C2PA などの来歴情報はどれにも入っていなかった(添付の時点で消えた可能性がある)。
 回答はこの表の「マスターの回答」へ書く。回答は U として扱い、ログ・メタデータで裏付けが取れたものだけ「確認済み」にする。
 
+**2026-10-08 のマスターの回答**: 「1, 2, 7, 10 は Grok。他は ChatGPT かな」。
+- 回答は U(記憶による申告)として記録した。「かな」とあるため、ChatGPT とした 3, 4, 5, 8, 9 は記憶ベースのやや不確かな申告として扱う。
+- ログ・メタデータと一致するもの: 6(C2PA で ChatGPT と確認済み)、7(フォルダ名 `grokbot_*`)、8(中の画像の Z が chatgpt.com)、2(以前の走りの Z が grok-sandbox.com。現行7コマとの関係は未確認)。
+- **1 番(二丁拳銃士の走り8コマ)**: マスターの申告では Grok で生成したもの。既存ゲームから取った絵だという根拠は記録上なく、コミット 15f2ff5 の「原作/参考ゲームの走行GIF」は Claude の推測による誤った表現だった(記録は残し、ここで訂正する)。Grok の会話・生成履歴が残っていれば、それで裏付けられる。
+
 | 番号 | 内容 | ゲームでのファイル | 見せている画像(枚数) | ビルド | マスターの回答 |
 |---|---|---|---|---|---|
-| 1 | 二丁拳銃士の走り8コマ(**最優先**: 既存ゲームから取った絵でないか) | `Art/GunslingerRun_v1/run_00〜07.png` | 2026-09-25 の会話の添付(8) | 入る | |
-| 2 | 双剣士の走り7コマ | `Art/DualBladeRun_v1/run_00〜06.png` | 2026-09-26 の会話の添付(7) | 入る | |
-| 3 | 竜騎士のデザイン画(ChatGPT へ参照画像として渡し、竜騎士の絵の元にした) | (直接は入らない。`Art/Lancer*_v1` の元) | 2026-09-26 の会話の添付(1) | 間接 | |
-| 4 | 黒剣士の下攻撃イラスト2枚 | `Art/PlayerDownAttack_v1`, `PlayerDownAttackLand_v1` | 2026-09-09 の会話の添付(2) | 入る | |
-| 5 | キャラ選択画面の案(肖像の切り抜き元) | `Art/UI/Characters/{swordsman,noble_lady,dual_blade}_portrait.png` | 2026-09-12 の会話の添付(2) | 入る(切り抜き) | |
-| 6 | 肖像画の額(**2026-10-08 に OpenAI の C2PA を確認済み**。参考に載せた) | `Art/UI/PortraitFrame.png` | `Downloads/portrait_frame.png`(1) | 入る | |
-| 7 | `grokbot_run_preview`(初期の黒剣士の走り) | `Art/PlayerRun/run_0*.png` | `Downloads/grokbot_run_preview/run_00〜06.png`(7) | 入らない | |
-| 8 | `OneMoreMile_GameFeel.zip` の中身(中の各画像は chatgpt.com から保存の記録あり。zip をどう作ったかが未確認) | `Art/Effects/*`, `Art/Decoration/Decor*` ほか | `Downloads/OneMoreMile_GameFeel/*.png`(14) | ほぼ入る | |
-| 9 | 「Visual Style Ver.1」の手本(作風の参考として最初に渡した絵) | (入らない) | 2026-08-30 の会話の添付(1) | 入らない | |
-| 10 | 能力アイコン10種のシート | (入らない) | 2026-09-11 の会話の添付(1) | 入らない | |
+| 1 | 二丁拳銃士の走り8コマ(**最優先**: 既存ゲームから取った絵でないか) | `Art/GunslingerRun_v1/run_00〜07.png` | 2026-09-25 の会話の添付(8) | 入る | **Grok**(U, 2026-10-08) |
+| 2 | 双剣士の走り7コマ | `Art/DualBladeRun_v1/run_00〜06.png` | 2026-09-26 の会話の添付(7) | 入る | **Grok**(U)。裏付けの方向: 以前の走り `run_01〜06.png` は Z で grok-sandbox.com(Grok)。現行7コマとの関係は未確認 |
+| 3 | 竜騎士のデザイン画(ChatGPT へ参照画像として渡し、竜騎士の絵の元にした) | (直接は入らない。`Art/Lancer*_v1` の元) | 2026-09-26 の会話の添付(1) | 間接 | ChatGPT(U、「かな」= 記憶ベース) |
+| 4 | 黒剣士の下攻撃イラスト2枚 | `Art/PlayerDownAttack_v1`, `PlayerDownAttackLand_v1` | 2026-09-09 の会話の添付(2) | 入る | ChatGPT(U、「かな」) |
+| 5 | キャラ選択画面の案(肖像の切り抜き元) | `Art/UI/Characters/{swordsman,noble_lady,dual_blade}_portrait.png` | 2026-09-12 の会話の添付(2) | 入る(切り抜き) | ChatGPT(U、「かな」) |
+| 6 | 肖像画の額(**2026-10-08 に OpenAI の C2PA を確認済み**。参考に載せた) | `Art/UI/PortraitFrame.png` | `Downloads/portrait_frame.png`(1) | 入る | ChatGPT(U)。**C2PA で確認済み**と一致 |
+| 7 | `grokbot_run_preview`(初期の黒剣士の走り) | `Art/PlayerRun/run_0*.png` | `Downloads/grokbot_run_preview/run_00〜06.png`(7) | 入らない | **Grok**(U)。フォルダ名 `grokbot_*` とも一致 |
+| 8 | `OneMoreMile_GameFeel.zip` の中身(中の各画像は chatgpt.com から保存の記録あり。zip をどう作ったかが未確認) | `Art/Effects/*`, `Art/Decoration/Decor*` ほか | `Downloads/OneMoreMile_GameFeel/*.png`(14) | ほぼ入る | ChatGPT(U、「かな」)。中の画像の Z(chatgpt.com)と一致 |
+| 9 | 「Visual Style Ver.1」の手本(作風の参考として最初に渡した絵) | (入らない) | 2026-08-30 の会話の添付(1) | 入らない | ChatGPT(U、「かな」) |
+| 10 | 能力アイコン10種のシート | (入らない) | 2026-09-11 の会話の添付(1) | 入らない | **Grok**(U) |
 
 確認用のシートと取り出した画像は、作業用の一時フォルダ(scratchpad `prov_ask/sheets`, `prov_ask/att`)にある。記録として残すかはマスターと相談する。
