@@ -4358,15 +4358,19 @@ public partial class GameManager : MonoBehaviour
             Row("ENEMIES / BOSSES", $"{EnemyKillCount} / {BossKillCount}", false);
             Row("TOTAL EXP / UPGRADES", $"{Mathf.FloorToInt(TotalExpEarned)} / {UpgradeCount}", false);
             Color keepRow = rowStyle.normal.textColor;
-            rowStyle.normal.textColor = new Color(1f, 0.55f, 0.5f);
-            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, rowStep - 4f), $"失ったもの: このランのMILE {RunMile}", rowStyle);
-            y += rowStep;
-            rowStyle.normal.textColor = new Color(0.6f, 1f, 0.7f);
-            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, rowStep - 4f), "今回の距離は正式な記録(BEST・累計・解放)に残りません", rowStyle);
-            y += rowStep;
-            rowStyle.normal.textColor = new Color(0.6f, 1f, 0.7f);
-            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, rowStep - 4f), $"残るもの: これまでに確定した記録・カード・MILE(WALLET {TotalOwnedMile})", rowStyle);
-            y += rowStep;
+            // 2026-10-08: 説明の行は折り返して、行の高さを文に合わせる(長い言語で重ならない)
+            var noteSt = new GUIStyle(rowStyle) { wordWrap = true, fontSize = 17 };
+            float NoteLine(string text, Color c)
+            {
+                noteSt.normal.textColor = c;
+                string t = Loc.Auto(text);
+                float hh = Mathf.Max(rowStep - 4f, noteSt.CalcHeight(new GUIContent(t), panelRect.width - 60f));
+                GUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, hh), t, noteSt);
+                return hh + 6f;
+            }
+            y += NoteLine($"失ったもの: このランのMILE {RunMile}", new Color(1f, 0.55f, 0.5f));
+            y += NoteLine("今回の距離は、正式な記録(BEST・累計・解放)には残りません", new Color(1f, 0.75f, 0.55f));
+            y += NoteLine($"残るもの: これまでに確定した記録・カード・MILE(WALLET {TotalOwnedMile})", new Color(0.6f, 1f, 0.7f));
             rowStyle.normal.textColor = keepRow;
         }
 

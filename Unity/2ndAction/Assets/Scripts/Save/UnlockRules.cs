@@ -132,17 +132,17 @@ public static class UnlockRules
     {
         if (!Counts(stageId)) return;
         if (runProvisionalStage != stageId) { runProvisionalStage = stageId; runProvisionalFrom = -1; ProvisionalCount = 0; }
-        double prev = runProvisionalFrom;
+        double prev = System.Math.Max(0.0, runProvisionalFrom);
         if (distance <= prev) return;
         runProvisionalFrom = distance;
         int n = 0;
         foreach (var r in StageRules) if (r.stage == stageId && prev < r.meters && distance >= r.meters && !Stages.Contains(r.id)) n++;
         foreach (var r in CharRules) if (r.stage == stageId && prev < r.meters && distance >= r.meters && !Chars.Contains(r.id)) n++;
-        if (n > 0 && prev >= 0)
+        if (n > 0)
         {
             ProvisionalCount += n;
             Debug.Log($"[Unlock] provisional: {n} condition(s) met on {stageId} at {distance:F0}m (confirmed only by returning safely)");
-            NoticeQueue.Toast("新しい発見の条件を満たしました。無事に帰還すると確定します");
+            NoticeQueue.Toast("条件達成! 帰還すると確定します");
         }
     }
 

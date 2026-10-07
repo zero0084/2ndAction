@@ -143,6 +143,13 @@ public static class RunLedger
         Debug.Log($"[RunLedger] game over {r.runId.Substring(0, 8)} reached={r.maxReached:F0} -> not recorded");
     }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 自動テスト用: ワープで準備した距離を「走った」扱いにする / 値を直接変える(製品版には無い)
+    public static void DevClearDebug() { if (Current != null) { Current.debugUsed = false; Current.debugWhat = ""; } }
+    public static void DevSet(Action<Run> f) { if (Current != null) f(Current); }
+    public static void DevForgetCommitted() { SaveStore.DeleteKey(CommittedKey); }
+#endif
+
     public static string Describe(Run r) => r == null ? "-" :
         string.Format(CultureInfo.InvariantCulture, "{0} {1}/{2} reached={3:F0} walked={4:F0} t={5:F0}s auto={6} sprint={7}{8}{9}{10}",
             r.runId.Length >= 8 ? r.runId.Substring(0, 8) : r.runId, r.stageId, r.characterId, r.maxReached, r.walked, r.playSeconds, r.usedAuto, r.usedSprint,

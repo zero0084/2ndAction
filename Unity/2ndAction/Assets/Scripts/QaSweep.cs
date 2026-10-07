@@ -86,6 +86,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaUnlock") { mode = "unlock"; dir = a[i + 1]; }
             if (a[i] == "-qaLoc") { mode = "loc"; dir = a[i + 1]; }
             if (a[i] == "-qaOnline") { mode = "online"; dir = a[i + 1]; }
+            if (a[i] == "-qaRecords") { mode = "records"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -188,6 +189,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "unlock") yield return UnlockModeQa();
         else if (mode == "loc") yield return LocModeQa();
         else if (mode == "online") yield return OnlineModeQa();
+        else if (mode == "records") yield return RecordsModeQa();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

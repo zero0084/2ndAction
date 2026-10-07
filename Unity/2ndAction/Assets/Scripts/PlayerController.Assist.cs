@@ -161,6 +161,7 @@ public partial class PlayerController
     // 手動入力(タッチ/テスト用の注入)があればそれを優先し、補助へ「手動操作があった」と知らせるだけ。
     // 無ければ補助の判断を1つだけ requestedFlick に入れる。予約はしない(毎フレームその場で判断する)。
     public bool LastFlickWasAssist { get; private set; }
+    public static int AssistJumpCount, AssistAttackCount;
 
     void ApplyHighSpeedAssist()
     {
@@ -177,6 +178,7 @@ public partial class PlayerController
         {
             requestedFlick = auto;
             LastFlickWasAssist = true;
+            if (auto.Value == FlickDirection.Up) AssistJumpCount++; else AssistAttackCount++; // 自動テスト用の数え(2026-10-08)
             RunLedger.MarkAuto(); // 2026-10-08: オート(補助)を使ったラン(ランキングに記録する)
         }
     }
