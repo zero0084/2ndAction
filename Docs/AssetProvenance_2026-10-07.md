@@ -2,6 +2,10 @@
 
 > 調査と記録のみ。素材・コード・シーン・設定は一切変更していない。
 > 区分: **確認済み**(根拠あり)/ **推測** / **不明**。署名付きURL・アカウントID・会話IDは載せていない。
+>
+> **2026-10-08 追記(マスター申告)**: ユーザー申告:主に ChatGPT/Grok で生成。個別の生成経路は一部未確認。
+> (マスターの説明: 渡した画像や BGM は、記憶では基本的に ChatGPT か Grok で生成したもの。個々のファイルでどちらを使ったか、参考画像を添付したか、音声への書き出しをどう行ったかは、現時点では断定できない。)
+> この申告は **U** として扱う。ログ・メタデータで確認済みの情報は書き換えず、そのまま残す。U だけを根拠に「確認済み」にはしない。
 
 ## 0. 根拠の種類と「ビルドに入るか」の判定方法
 
@@ -15,6 +19,8 @@
 | **M** | 自動メモ `memory/project_2ndaction.md`(行番号) |
 | **R** | リポジトリ内のスクリプト・記録ファイル |
 | **C** | 画像に埋め込まれた来歴情報(C2PA。PNG の `caBX` チャンク)。Downloads の `ChatGPT Image *.png` は **174件すべて**に C2PA があり、OpenAI / ChatGPT / gpt-image、digitalSourceType = trainedAlgorithmicMedia(AI 生成)と記録されている(`selmain_*`, `scn_*`, `arena_*` 等も同じ)。プロジェクト内の画像では **138/1346 件が OpenAI の C2PA を残している**(Art 104、Resources 22、ArtSource 12。ダウンロードしたままのもの)。切り抜き・透過などで加工した画像では消えている |
+| **U** | マスターの申告(2026-10-08)。「主に ChatGPT/Grok で生成。個別の生成経路は一部未確認」。単独では確認済みの根拠にしない |
+| **A** | 会話記録に残っていた添付画像そのもの(2026-10-08 に取り出し。確認用の一覧は 5 章) |
 | **B** | ビルドに入るかの判定: 唯一のビルド対象シーン `Assets/Scenes/Main.unity`(`ProjectSettings/EditorBuildSettings.asset`)と、`Resources` 配下すべてを起点に、`.unity/.prefab/.asset/.mat/.controller/.anim` 内の GUID 参照をたどって集計。アプリアイコンは `ProjectSettings.asset` からの参照で判定。スクリプトだけから読み込む例外は見落としている可能性がある |
 
 ---
@@ -69,7 +75,7 @@
 | UI 素材(Claude が生成) | `Art/UI/OrnateFrame.png`(`CardFrame.png` を添付し9スライス用に生成)、`HomeCurtainStandalone.png`(部屋の絵の切り抜きを ChatGPT で背景除去)、`HomeCurtain.png`(不採用)、`PortraitAgingOverlay.png`、`HangerRack.png`、`PortraitBackdrop.png`、旅の地図の枠・持ち物アイコン(デスクトップアプリ) | Claude が ChatGPT で生成・編集 | ChatGPT | 自作/マスター提供の UI 画像 | **H**(PortraitAgingOverlay, HangerRack, PortraitBackdrop, HomeCurtain)、T0 09-01T03:35、T1 09-15T11:24〜11:35、09-17T03:41〜13:27、09-18T06:18 | OrnateFrame・HomeCurtainStandalone・PortraitAgingOverlay・PortraitBackdrop は**入る**。HomeCurtain・HangerRack・TravelAtlasFrame は**入らない**。`OrnateFrameSmall.png`・`AppIconForeground.png`(アイコンとして入る)の作り方は未追跡 |
 | キャラの肖像(Home/旧セレクト) | `Art/UI/Characters/*_portrait.png` | マスター添付のキャラ選択画面の案(モックアップ)から切り抜き | モックアップの出どころは**不明** | — | T1 09-12T13:22、M 786行 | 黒剣士・お嬢様騎士・双剣士の分は**入る**。残り9人分(弓〜竜人)は**入らず**、作り方も未追跡 |
 | 初期の剣の光(青い斬撃) | `Art/Effects/SlashArcBlue*`, `SlashUpBlue*`, `DiveTrailBlue`, `ImpactBurstBlue`, `SlashArcBlueFrames/`, `SlashUpBlueFrames/`、`SlashCrescentBlue.png` | Claude が ChatGPT で生成(SlashCrescentBlue と最初の DiveTrailBlue はマスター提供の `ChatGPT Image …`) | ChatGPT | — | T1 09-08T13:57、09-09T13:29〜14:39、09-10T00:08 / 03:56〜04:03、G 68ef619, 22fed7a | `Art/Effects` は 24/25 が**入る**(SlashCrescentBlue は入らない) |
-| 肖像画の額 | `Art/UI/PortraitFrame.png` | マスター提供 | `portrait_frame.png`(Z なし, 09-16) | — | **H** | **ユーザー提供・作成経路未確認**。**ビルドに入る** |
+| 肖像画の額 | `Art/UI/PortraitFrame.png` | マスター提供 | `portrait_frame.png`(Z なし, 09-16)。**2026-10-08: ファイルに OpenAI の C2PA 署名(OpenAI OpCo, LLC / OpenAI Media Service)が入っていることを確認 → ChatGPT(OpenAI の画像生成)で作られた画像** | 不明 | **H**、**C**(2026-10-08) | **ビルドに入る**。生成したのはマスターの ChatGPT と推測(U と一致)。プロンプト・参考画像は記録なし |
 | カード枠(★1〜5)・カード下地・タイトル板 | `Resources/CardFrames/CardFrameRarity1〜5.png`, `Art/UI/CardFrames/CardBase.png`, `CardTitlePlate.png` | そのまま | ChatGPT(`☆1〜5.png`, `カード下地.png`, `カードタイトル部分.png`) | `カード修正参考.png`(ChatGPT) | **H**、T 0a4c9a70 のコピー記録 | 入る(CardTitlePlate は入らない) |
 | カードのカテゴリアイコン | `Resources/CardCategoryIcons/Icon_*.png`(7) | Claude が ChatGPT で生成 | ChatGPT | — | **H**(7件)、T1 09-17T13:56〜22:11 | **入る** |
 | カードの能力アイコン(現行) | `Art/Icons/CardIcons/*.png`(91)、`CardIconSources` | Claude が ChatGPT で生成(09-15〜16 はデスクトップアプリ、09-17〜18 の9枚は Chrome)。G 51ca522 の「アイコン手描き化」は、**AI へのプロンプトで手描き風の質感を指定した**という意味で、人が描いたものではない | ChatGPT | — | **H**(9件)、T1 09-15T14:25〜15:29、09-17T22:23〜22:47、G 1aa98ce, f2fdc49, 51ca522 | `Art/Icons` 全体で 100/227 が**入る** |
@@ -77,7 +83,7 @@
 | 双剣士 | `Art/DualBlade*_v1` | 走り・ジャンプ・攻撃・空中・下攻撃は Claude が ChatGPT で生成(既存の `dual_blade_portrait.png` を参照)。走りは途中でマスターの6コマシート(`ChatGPT Image 2026年9月13日 17_22_35.png`)→ ChatGPT の4コマ → マスター提供 `run_01〜06.png`(352f725)→ 「提供7コマ」(bc1e716, 09-26)と変わった | ChatGPT。`run_01〜06.png` は Z で **grok-sandbox.com**(Grok の作業環境, 09-14)。現行7コマはマスターが会話に添付した画像(`images/11〜17.png`, T1 2026-09-26T06:04Z) | 既存の立ち絵 | T1 09-13T07:08〜11:57、G 534bbda, 3e8e5af, b81373a, ed9d78a, 352f725, bc1e716、Z | **入る**。現行の走り7コマは**ユーザー提供・作成経路未確認** |
 | お嬢様騎士 | `Art/NobleLady*_v1` | 走り・ジャンプ・攻撃は Claude が ChatGPT で生成(マスターの元絵 `f5ac0db0-….png` と `PlayerRun_v1` を添付)。走りは Grok 動画 `generated_video (4).mp4` から ffmpeg でコマ抽出→ ChatGPT で左右反転の手直し(6c09518)→ 現行はマスター提供 `knight_run_frames_1〜3.zip`(1本の動画145コマ)から6コマを選んだもの(bf7dbbe) | ChatGPT / Grok(元絵は Z で chatgpt.com、`generated_video (4).mp4` は assets.grok.com、`knight_run_frames_*.zip` は grok.com) | マスターの元絵 | T1 09-12T16:11〜17:50、09-13T06:13〜06:29、M 864・995〜997行、G 2f42f76, 6c09518, bf7dbbe、Z | **入る** |
 | 二丁拳銃士(走り以外) | `Art/Gunslinger*_v1`(Run を除く)、`Art/GunslingerBullet.png`、マズルフラッシュ | Claude が ChatGPT で生成(既存の絵を添付) | ChatGPT | 自作の絵 | G 7e63b63, d04f89c, bc1e716 | **入る** |
-| **二丁拳銃士の走り8コマ** | `Art/GunslingerRun_v1/run_00〜07.png` | マスターが会話に画像8枚(`images/3〜9.png`, `10.webp`)を添付し「添付した画像の順番にして」と指示 → そのまま並べてサイズだけ揃えた | **ユーザー提供・作成経路未確認**。添付元の画像は残っていない | — | T1 2026-09-25T08:56Z、G 15f2ff5 | **入る**。**注意**: コミット 15f2ff5 の「原作/参考ゲームの走行GIF」、メモ M 1520行の「Grok生成と思われる、`grok_*.gif` を確認」は**Claude の推測で、裏付けがない**(記録に `grok_*.gif` は見当たらない)。既存ゲームから取った絵ではないか、**マスターに必ず確認** |
+| **二丁拳銃士の走り8コマ** | `Art/GunslingerRun_v1/run_00〜07.png` | マスターが会話に画像8枚(`images/3〜9.png`, `10.webp`)を添付し「添付した画像の順番にして」と指示 → そのまま並べてサイズだけ揃えた | **ユーザー提供・作成経路未確認**(U: 主に ChatGPT/Grok)。添付された8枚は会話記録に残っていた(A、2026-10-08 に取り出し、5 章 1 番)。C2PA などの来歴情報は入っていない(会話に添付した時点で消えた可能性がある) | — | T1 2026-09-25T08:56Z、G 15f2ff5 | **入る**。**注意**: コミット 15f2ff5 の「原作/参考ゲームの走行GIF」、メモ M 1520行の「Grok生成と思われる、`grok_*.gif` を確認」は**Claude の推測で、裏付けがない**(記録に `grok_*.gif` は見当たらない)。既存ゲームから取った絵ではないか、**マスターに必ず確認** |
 | 竜騎士 | `Art/Lancer*_v1` | Claude が ChatGPT で生成(シート → 切り出し) | ChatGPT(`lancer_*_sheet.png` 等, 09-26 Z) | **マスターが添付したデザイン画 `images/18.webp`**(T1 2026-09-26T07:08Z)を参照画像として ChatGPT に添付(07:11Z `lancer/ref.png`) | N、Z、G 65f9391, f0ef5a4 | **入る**。参照に使ったデザイン画は**ユーザー提供・作成経路未確認** → 生成した竜騎士の絵は、出どころ不明の参照画像をもとにしている |
 | 弓/魔法/格闘/忍者、巫女/吸血鬼/竜人 | `Art/{Archer,Mage,Fighter,Ninja,Miko,Vampire,Dragonkin}*_v1` | Claude が ChatGPT で生成(シート → 切り出し)。既存キャラの立ち絵を画風の参考として添付 | ChatGPT(`omm_*_*.png` 09-27、`omm2_*_*.png`) | 自作の立ち絵(`noble_lady_portrait.png`、合成した `newchars/stand_swordsman_900.png` など) | N、Z、G 18dc55c, dcfe2ad | **入る**。`*Stand_v1` だけは入らない。`KitArt`(コードで描く技の見た目)は自作 |
 | 開始/終了ポーズ | `*Start_v1`, `*Finish*_v1` | Claude が ChatGPT で生成 | ChatGPT | 各キャラの既存の絵 | G d503de4, 716c30d | **入る** |
@@ -109,9 +115,7 @@
 
 | 素材・依存関係名 | 用途・ファイルパス | 使用・同梱状況 | 作成・入手方法 | サービス・配布元 | 確認根拠 | 利用条件 | 必要な対応・未確認事項 |
 |---|---|---|---|---|---|---|---|
-| タイトル曲 | `Assets/Audio/TitleBgm.wav`(HOME) | **入る**(Main.unity の AudioManager と AudioLibrary の homeBgm) | ChatGPT が作った MIDI(`ゲームTOPBGM.mid`、元の名前 `One_More_Mile_Dust_Runner_v1.mid`)を、マスターが **MuseScore Studio 4** の **MS Basic** 音源で WAV にした | MIDI: chatgpt.com(Z, 08-19)。WAV: ローカルで作成(Z なし) | **H**(`Downloads/ゲームTOPBGM.wav`)、T 0a4c9a70 2026-08-22T13:35Z「wavに変えてきたよ」、MuseScore の `recent_files.json` と `Downloads/ゲームTOPBGM.mp4/` 内の MuseScore 保存データ(元は mid、全トラック MS Basic) | ChatGPT の出力の扱いは OpenAI の規約による(当時のプランは記録なし)。MS Basic は MIT ライセンス(`C:/Program Files/MuseScore 4/sound/MS Basic_License.md`) | MS Basic の文書は「謝辞と著作権表示を派生物に含めること」を求めている → クレジット等への表記を検討 |
-| 道中の曲(荒野・序盤) | `Assets/Audio/GameplayBgm.wav` | **入る** | ChatGPT の MIDI(`ゲームプレイBGM.mid`、元の名前 `One_More_Mile_Celtic_Road_Loop_v1.mid`)を WAV にした | 同上 | **H**、Z(08-21)。MuseScore で作ったことは **推測**(recent_files にあり、形式も同じだが保存データは残っていない) | 同上 | 同上 |
-| HOME 曲の候補 | `Downloads/OneMoreMile_HOME_Celtic_Morning_v3_Flute_Organ.mid/.mp3` | **使っていない** | MIDI は ChatGPT(Z, 09-18)、mp3 は MuseScore で書き出し(推測) | — | Z | — | 使うかどうかをマスターに確認 |
+| BGM(タイトル曲・道中の曲・HOME 曲の候補) | `Assets/Audio/TitleBgm.wav`, `GameplayBgm.wav` ほか | 下の **2-A** に「作曲・MIDI 作成」と「音声への書き出し」を分けて記録 | — | — | — | — | — |
 | 効果音(攻撃1〜3・ジャンプ・二段ジャンプ・着地・カード5種・SE Pack 5種) | `Assets/Audio/SE/*.wav`(16) | **すべて入る**(Main.unity から参照)。`Docs/AudioRedesign_2026-10-06.md` 136〜141行には「4件はビルドに入らない」とあるが、参照があるので誤り | ChatGPT が作った WAV をマスターが添付 | chatgpt.com(Z, 08-24〜09-01)。SE Pack の README には「restrained SE pack」と書かれている | **H**(16件すべて: `OneMoreMile_SE_Subtle_Pack/*`, `2ndAction_*_v4/v5_quiet.wav`, `OMM_card_*.wav`, `着地.wav`)、T 0a4c9a70(08-26〜09-01 の添付) | 同上。ChatGPT がどう作ったか(推測: ChatGPT 内の Python 合成)とプロンプトは記録なし | — |
 | 仮の音源(BGM / ジングル / 環境音 / 効果音) | `Assets/Audio/Placeholder/**`(249) | 170件が AudioLibrary から参照されて**入る**(Bgm 18/36、Ambience 20/33、Jingle 2/2、SE 130/178)。音量を揃える前の元ファイルなど **79件は入らない** | Python の数式合成 | 自作スクリプト `Tools/audio/gen_audio.py`(G f7e8a9a, 2026-09-29)、`gen_audio_v2.py`(G 43ad355, 2026-10-07)。Claude が作成 | R、T 972e48a6 2026-09-29T01:33Z、M 1719・2200行節 | 外部素材なし。ただし `Placeholder/SE/old_*_n.wav`(15件、うち9件が入る)は上の ChatGPT 効果音の音量を揃えたもの | 入らない79件は、ビルドに入らないことを確認済み |
 | コードで作る音 | `AudioFactory.cs`(予備。実際は Main.unity に音が設定済みのため使われない)、`FusionSfx.cs`, `SkyBossFx.cs`, `BonusZone.cs`(`AudioClip.Create`) | 入る(コード) | C# で合成 | 自作 | R | 外部素材なし | — |
@@ -132,6 +136,21 @@
 | Unity 本体 | 6000.5.6f1。起動ロゴ表示 ON | — | — | Unity | `ProjectSettings/ProjectVersion.txt`, `ProjectSettings.asset` | Unity の規約 | Unity のクラウドサービスはすべて無効 |
 | Asset Store 素材・外部プラグイン | — | **なし** | — | — | `Assets/Plugins` なし、`.unitypackage` なし、dll / aar なし | — | — |
 
+### 2-A. BGM(作曲・MIDI 作成 と 音声への書き出し を分けて記録。2026-10-08 改訂)
+
+U(マスター申告)は「基本的に ChatGPT か Grok で生成。音声への書き出しをどう行ったかは断定できない」。U だけでは MuseScore / MS Basic の使用を確認済みにしない。下の「確認済み」はすべて U 以外の根拠による。
+
+| 曲 | ゲーム内のファイル / ビルド | ① 作曲・MIDI 作成 | ①の根拠と状態 | ② 音声(WAV/mp3)への書き出し | ②の根拠と状態 |
+|---|---|---|---|---|---|
+| タイトル曲 | `Assets/Audio/TitleBgm.wav`(HOME)/ **入る**(Main.unity の AudioManager、AudioLibrary の homeBgm) | ChatGPT が作った MIDI(`ゲームTOPBGM.mid`、元の名前 `One_More_Mile_Dust_Runner_v1.mid`) | **確認済み**: Z(chatgpt.com, 08-19)。プロンプト・どう作らせたかは記録なし | マスターが PC で WAV にした。使った道具は **MuseScore Studio 4、音源 MS Basic** | **確認済み(メタデータ)**: MuseScore 自身の `recent_files.json` と、`Downloads/ゲームTOPBGM.mp4/` 内の MuseScore 保存データ(元は mid、全トラック MS Basic)。WAV は `Downloads/ゲームTOPBGM.wav` と **H** 一致、Z なし(ローカル作成)。T 0a4c9a70 2026-08-22T13:35Z「wavに変えてきたよ」。※この判定は U ではなく上記のファイルによる |
+| 道中の曲(荒野・序盤) | `Assets/Audio/GameplayBgm.wav` / **入る** | ChatGPT が作った MIDI(`ゲームプレイBGM.mid`、元の名前 `One_More_Mile_Celtic_Road_Loop_v1.mid`) | **確認済み**: Z(chatgpt.com, 08-21) | マスターが WAV にした(H で `Downloads` の WAV と一致)。**道具は未確認** | **推測**: MuseScore の `recent_files.json` にこの mid があり、WAV の形式もタイトル曲と同じ。ただしこの曲の保存データ(使った音源が分かるもの)は残っていない → MuseScore / MS Basic は**未確認** |
+| HOME 曲の候補 | `Downloads/OneMoreMile_HOME_Celtic_Morning_v3_Flute_Organ.mid/.mp3` / **使っていない** | ChatGPT の MIDI | **確認済み**: Z(chatgpt.com, 09-18) | mp3 に書き出し済み。**道具は未確認** | **推測**のみ(MuseScore と思われるが根拠なし) |
+
+利用条件:
+- ① ChatGPT の出力の扱いは OpenAI の規約による(当時のプランは 2026-09-12 の Plus 以外は記録なし)。
+- ② MS Basic は MIT ライセンス(`C:/Program Files/MuseScore 4/sound/MS Basic_License.md`)。文書は「謝辞と著作権表示を派生物に含めること」を求めている → **タイトル曲**はクレジット等への表記を検討。道中の曲は道具が確認できたら同じ扱い。
+- 効果音(ChatGPT の WAV)は ① ② の区別がなく、ChatGPT がファイルを直接作った(Z)。ChatGPT 内でどう作ったかは記録なし。
+
 ---
 
 ## 3. まとめ
@@ -143,8 +162,9 @@
 **出どころ(確認済みの流れ)**
 1. **Grok**(2026-08、マスターが自分で生成して添付): ドラゴン、魔人、砂煙・煙、初期の背景・機械竜。初期の黒剣士・斬撃・TOP背景も Grok 由来だが、これらは**現在ビルドに入らない**。
 2. **ChatGPT**(2026-08-28 以降。マスターが自分で生成した分と、2026-08-30 以降 Claude がマスターの ChatGPT アカウントを操作して生成した分がある): 全12キャラ、敵・ボス、背景・景色、UI・カード、エフェクト、闘技場、ラスダン。2026-09-20 以降の新しい素材は、すべて Claude が ChatGPT で生成した(Grok の利用なし)。ダウンロードした元画像には OpenAI の C2PA(AI 生成の来歴情報)が入っている。
-3. **音**: BGM 2曲は ChatGPT の MIDI を MuseScore 4(MS Basic 音源, MIT)で WAV にしたもの。効果音16件は ChatGPT の WAV。仮音源は Claude の Python スクリプトで合成。
+3. **音**: BGM 2曲の MIDI は ChatGPT 製(確認済み)。音声への書き出しは、タイトル曲が MuseScore 4 + MS Basic 音源(MuseScore の保存データで確認済み)、道中の曲は道具未確認(推測: 同じ)。詳細は 2-A。効果音16件は ChatGPT の WAV。仮音源は Claude の Python スクリプトで合成。
 4. **自作コード**: ゲームのコード、コードで描く演出・音、エンドロール文字の画像化。
+5. **マスター申告(U, 2026-10-08)**: 渡した画像・BGM は主に ChatGPT/Grok で生成。個別の生成経路は一部未確認。
 
 **利用条件を記録上確認できたもの**
 - Unity パッケージ各種(LICENSE.md)、MS Basic 音源(MIT、表示義務あり)。
@@ -158,7 +178,8 @@
 - プラン: ChatGPT は **2026-09-12 時点で Plus**(アカウントメニューの表示, T1 09-12T15:44Z)。それより前の ChatGPT と、Grok のプランは**記録なし**。各サービスの当時の規約の写しもない。
 - **既存作品の名前**: Claude が打った画像のプロンプトには、ゲーム・アニメ・作家・ブランドの名前は見つからなかった(2026-08-30〜10-07 の全期間を確認)。ただしマスターの企画メモでは、ゲームの発想として「チャリ走」(T0 2026-08-14T11:42)、レベルアップの選択画面の参考として「ヴァンサバ風選択UI」(Vampire Survivors、M 47・53・622行)が名前で出ている。仕組みの参考であり絵の参考ではないが、**選択画面の見た目が似すぎていないかは一度確認するとよい**。マスターが自分で Grok / ChatGPT に入れたプロンプトは記録がない。
 - 2026-08 の Grok 素材と、マスターが自分で生成した ChatGPT 素材のプロンプト: 記録なし。
-- **ユーザー提供・作成経路未確認**: `PortraitFrame.png`(元 `portrait_frame.png`、Z なし)、黒剣士の下攻撃イラスト2枚(9ebdc3f)、キャラ選択画面のモックアップ、`OneMoreMile_GameFeel.zip`(中の画像は chatgpt.com)、`Downloads/grokbot_run_preview/`、そして次の3件。
+- (2026-10-08 解消) `PortraitFrame.png` は OpenAI の C2PA 署名で ChatGPT 生成と確認。
+- **ユーザー提供・作成経路未確認**(U: 主に ChatGPT/Grok。個別は未確認。確認用の一覧は 5 章): 黒剣士の下攻撃イラスト2枚(9ebdc3f)、キャラ選択画面のモックアップ、`OneMoreMile_GameFeel.zip`(中の画像は chatgpt.com)、`Downloads/grokbot_run_preview/`、そして次の3件。
   - **二丁拳銃士の走り8コマ**(そのままビルドに入る): コミット 15f2ff5 とメモ M 1520 の「原作/参考ゲーム」「Grok生成と思われる」は裏付けのない推測。**既存ゲームから取った絵でないかを最優先で確認**。
   - 双剣士の現行の走り7コマ(そのままビルドに入る)。
   - 竜騎士のデザイン画(ChatGPT に参照として渡し、竜騎士の絵の元になった)。
@@ -168,10 +189,9 @@
 
 **マスターへの質問**
 1. ChatGPT は 2026-09-12 時点で Plus と記録されています。それより前(08月)と、Grok はどのプランでしたか。会話を残せるならそれも記録になります。
-2. **二丁拳銃士の走り8コマ**(2026-09-25 に添付)は、どこで作った、または入手したものですか。既存のゲームから取ったものではありませんか。
-3. 双剣士の走り7コマ(09-26)、竜騎士のデザイン画(09-26)、`portrait_frame.png`、下攻撃のイラスト2枚、キャラ選択画面の案、`grokbot_run_preview` はどこで作ったものですか。
+2. 〜3. → **5 章の一覧(番号つき)で、思い出せる範囲で回答してもらう**(2026-10-08 依頼済み)。特に **1 番 二丁拳銃士の走り8コマ**が既存のゲームから取ったものでないか。
 4. 「手描き」とされた最初の上攻撃/下攻撃の絵(803dbee)は、エステル(ChatGPT)に描いてもらったものですか(記録上は chatgpt.com から保存)。
-5. ゲームプレイ BGM も、タイトル曲と同じく MuseScore 4 の MS Basic で WAV にしましたか。
+5. ゲームプレイ BGM の音声への書き出しに使った道具(2-A。U だけでは確認済みにしない。MuseScore の保存データ等が残っていれば確認できる)。
 6. エンドロールの文字を、自由に使えるフォントで作り直すことを検討しますか(今回は記録のみで、変更はしていない)。
 
 ## 4. Steam AI 利用申告の説明文(下書き)
@@ -191,3 +211,24 @@ This game contains content created with generative AI during development. No con
 - The game code was written with the help of an AI assistant (Claude).
 
 (この下書きは記録で確認できた事実だけをもとにしている。審査に通ること、法的に問題がないことを保証するものではない。)
+
+## 5. 出どころ未確認の画像の確認用一覧(2026-10-08)
+
+マスターに実物を見て思い出してもらうための一覧。番号は確認用シートの番号と同じ(シートは 1 番〜10 番の各1枚、画像の左上に「番号-枚目」)。
+会話に添付された画像は、会話記録(A)から取り出した。C2PA などの来歴情報はどれにも入っていなかった(添付の時点で消えた可能性がある)。
+回答はこの表の「マスターの回答」へ書く。回答は U として扱い、ログ・メタデータで裏付けが取れたものだけ「確認済み」にする。
+
+| 番号 | 内容 | ゲームでのファイル | 見せている画像(枚数) | ビルド | マスターの回答 |
+|---|---|---|---|---|---|
+| 1 | 二丁拳銃士の走り8コマ(**最優先**: 既存ゲームから取った絵でないか) | `Art/GunslingerRun_v1/run_00〜07.png` | 2026-09-25 の会話の添付(8) | 入る | |
+| 2 | 双剣士の走り7コマ | `Art/DualBladeRun_v1/run_00〜06.png` | 2026-09-26 の会話の添付(7) | 入る | |
+| 3 | 竜騎士のデザイン画(ChatGPT へ参照画像として渡し、竜騎士の絵の元にした) | (直接は入らない。`Art/Lancer*_v1` の元) | 2026-09-26 の会話の添付(1) | 間接 | |
+| 4 | 黒剣士の下攻撃イラスト2枚 | `Art/PlayerDownAttack_v1`, `PlayerDownAttackLand_v1` | 2026-09-09 の会話の添付(2) | 入る | |
+| 5 | キャラ選択画面の案(肖像の切り抜き元) | `Art/UI/Characters/{swordsman,noble_lady,dual_blade}_portrait.png` | 2026-09-12 の会話の添付(2) | 入る(切り抜き) | |
+| 6 | 肖像画の額(**2026-10-08 に OpenAI の C2PA を確認済み**。参考に載せた) | `Art/UI/PortraitFrame.png` | `Downloads/portrait_frame.png`(1) | 入る | |
+| 7 | `grokbot_run_preview`(初期の黒剣士の走り) | `Art/PlayerRun/run_0*.png` | `Downloads/grokbot_run_preview/run_00〜06.png`(7) | 入らない | |
+| 8 | `OneMoreMile_GameFeel.zip` の中身(中の各画像は chatgpt.com から保存の記録あり。zip をどう作ったかが未確認) | `Art/Effects/*`, `Art/Decoration/Decor*` ほか | `Downloads/OneMoreMile_GameFeel/*.png`(14) | ほぼ入る | |
+| 9 | 「Visual Style Ver.1」の手本(作風の参考として最初に渡した絵) | (入らない) | 2026-08-30 の会話の添付(1) | 入らない | |
+| 10 | 能力アイコン10種のシート | (入らない) | 2026-09-11 の会話の添付(1) | 入らない | |
+
+確認用のシートと取り出した画像は、作業用の一時フォルダ(scratchpad `prov_ask/sheets`, `prov_ask/att`)にある。記録として残すかはマスターと相談する。
