@@ -1603,577 +1603,577 @@
  },
  {
   "key": "倒れました。「同条件で再戦」ですぐやり直せます",
-  "ctx": "Arena/ArenaController.cs:213",
+  "ctx": "Arena/ArenaController.cs:214",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "HPを全回復しました",
-  "ctx": "Arena/ArenaController.cs:232",
+  "ctx": "Arena/ArenaController.cs:233",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "敵と敵の攻撃を全部消しました(撃破の時間には数えません)",
-  "ctx": "Arena/ArenaController.cs:234",
+  "ctx": "Arena/ArenaController.cs:235",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "与ダメージ {0}    被ダメージ {1}    {2}秒",
-  "ctx": "Arena/ArenaController.cs:282",
+  "ctx": "Arena/ArenaController.cs:283",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "無敵",
-  "ctx": "Arena/ArenaController.cs:282",
+  "ctx": "Arena/ArenaController.cs:283",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "≡ 設定",
-  "ctx": "Arena/ArenaController.cs:290",
+  "ctx": "Arena/ArenaController.cs:291",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "同条件で再戦",
-  "ctx": "Arena/ArenaController.cs:290",
+  "ctx": "Arena/ArenaController.cs:291",
   "kind": "ui",
   "n": 3
  },
  {
   "key": "敵を全削除",
-  "ctx": "Arena/ArenaController.cs:290",
+  "ctx": "Arena/ArenaController.cs:291",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ホームへ",
-  "ctx": "Arena/ArenaController.cs:290",
+  "ctx": "Arena/ArenaController.cs:291",
   "kind": "ui",
   "n": 3
  },
  {
   "key": "全滅  {0}秒",
-  "ctx": "Arena/ArenaController.cs:310",
+  "ctx": "Arena/ArenaController.cs:311",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "相手",
-  "ctx": "Arena/ArenaController.cs:315",
+  "ctx": "Arena/ArenaController.cs:316",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "詳細",
-  "ctx": "Arena/ArenaController.cs:315",
+  "ctx": "Arena/ArenaController.cs:316",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "結果",
-  "ctx": "Arena/ArenaController.cs:315",
+  "ctx": "Arena/ArenaController.cs:316",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "キャラやカードを自由に試せる練習場",
-  "ctx": "Arena/ArenaController.cs:324",
+  "ctx": "Arena/ArenaController.cs:325",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "この設定で開始",
-  "ctx": "Arena/ArenaController.cs:331",
+  "ctx": "Arena/ArenaController.cs:332",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "開始",
-  "ctx": "Arena/ArenaController.cs:331",
+  "ctx": "Arena/ArenaController.cs:332",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "試用",
-  "ctx": "Arena/ArenaController.cs:363",
+  "ctx": "Arena/ArenaController.cs:364",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "(試用)",
-  "ctx": "Arena/ArenaController.cs:372",
+  "ctx": "Arena/ArenaController.cs:373",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "検索",
-  "ctx": "Arena/ArenaController.cs:387",
+  "ctx": "Arena/ArenaController.cs:388",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "<color=#8ce6ff>試用</color>",
-  "ctx": "Arena/ArenaController.cs:407",
+  "ctx": "Arena/ArenaController.cs:408",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "+ 追加",
-  "ctx": "Arena/ArenaController.cs:410",
+  "ctx": "Arena/ArenaController.cs:411",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "今のデッキをコピー",
-  "ctx": "Arena/ArenaController.cs:414",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "キャラカードをコピー",
   "ctx": "Arena/ArenaController.cs:415",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "キャラカードをコピー",
+  "ctx": "Arena/ArenaController.cs:416",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "試用のビルド({0}枚)",
-  "ctx": "Arena/ArenaController.cs:417",
+  "ctx": "Arena/ArenaController.cs:418",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "全部外す",
-  "ctx": "Arena/ArenaController.cs:418",
+  "ctx": "Arena/ArenaController.cs:419",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "Lv = このランで取った回数(能力ごとに最大9)。所持・デッキは変わりません",
-  "ctx": "Arena/ArenaController.cs:419",
+  "ctx": "Arena/ArenaController.cs:420",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "左の一覧の「+ 追加」でカードを入れます。カードなしでも試せます",
-  "ctx": "Arena/ArenaController.cs:423",
+  "ctx": "Arena/ArenaController.cs:424",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "所持のコピー(合成Lv{0}・能力{1}種)",
-  "ctx": "Arena/ArenaController.cs:432",
+  "ctx": "Arena/ArenaController.cs:433",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "デッキの{0}枚を試用のビルドへコピーしました(デッキは変わりません)",
-  "ctx": "Arena/ArenaController.cs:457",
+  "ctx": "Arena/ArenaController.cs:458",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "キャラカードの{0}枚をコピーしました(開始時のLv)",
-  "ctx": "Arena/ArenaController.cs:470",
+  "ctx": "Arena/ArenaController.cs:471",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "練習標的",
-  "ctx": "Arena/ArenaController.cs:474",
+  "ctx": "Arena/ArenaController.cs:475",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "雑魚",
-  "ctx": "Arena/ArenaController.cs:474",
+  "ctx": "Arena/ArenaController.cs:475",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "荒野のボス",
-  "ctx": "Arena/ArenaController.cs:474",
+  "ctx": "Arena/ArenaController.cs:475",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "洞窟のボス",
-  "ctx": "Arena/ArenaController.cs:474",
+  "ctx": "Arena/ArenaController.cs:475",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "天空のボス",
-  "ctx": "Arena/ArenaController.cs:474",
+  "ctx": "Arena/ArenaController.cs:475",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "動かない標的: 攻撃もしない(当たってもダメージなし)・倒れない。攻撃の確認に。走っている時はプレイヤーとの間合いを保ちます",
-  "ctx": "Arena/ArenaController.cs:486",
+  "ctx": "Arena/ArenaController.cs:487",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "数",
-  "ctx": "Arena/ArenaController.cs:500",
+  "ctx": "Arena/ArenaController.cs:501",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "動きの強さ",
-  "ctx": "Arena/ArenaController.cs:501",
+  "ctx": "Arena/ArenaController.cs:502",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "段階",
-  "ctx": "Arena/ArenaController.cs:501",
+  "ctx": "Arena/ArenaController.cs:502",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ボスは自分の登場の動きで前から現れます",
-  "ctx": "Arena/ArenaController.cs:502",
+  "ctx": "Arena/ArenaController.cs:503",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "洞窟/天空のボスの地形を使う技(穴/天井/落石/空の帯など)は、平らな闘技場では本編と出方が違います",
-  "ctx": "Arena/ArenaController.cs:502",
+  "ctx": "Arena/ArenaController.cs:503",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ボスは1種類まで(雑魚と一緒に出せます)",
-  "ctx": "Arena/ArenaController.cs:504",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "相手に加える",
   "ctx": "Arena/ArenaController.cs:505",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "相手に加える",
+  "ctx": "Arena/ArenaController.cs:506",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "ボスは1種類まで(前のボスと入れ替えました)",
-  "ctx": "Arena/ArenaController.cs:513",
+  "ctx": "Arena/ArenaController.cs:514",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "今の相手({0})",
-  "ctx": "Arena/ArenaController.cs:518",
+  "ctx": "Arena/ArenaController.cs:519",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "相手がいません(このまま始めると敵なしで動きだけ試せます)",
-  "ctx": "Arena/ArenaController.cs:522",
+  "ctx": "Arena/ArenaController.cs:523",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "敵の強さ: {0}km地点相当(HP/攻撃が本編のその距離と同じ)",
-  "ctx": "Arena/ArenaController.cs:533",
+  "ctx": "Arena/ArenaController.cs:534",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "速度",
-  "ctx": "Arena/ArenaController.cs:565",
+  "ctx": "Arena/ArenaController.cs:566",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "止まる(0km/h)",
-  "ctx": "Arena/ArenaController.cs:566",
+  "ctx": "Arena/ArenaController.cs:567",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "走る(基準速度+補正)",
-  "ctx": "Arena/ArenaController.cs:566",
+  "ctx": "Arena/ArenaController.cs:567",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "走る(速度を固定)",
-  "ctx": "Arena/ArenaController.cs:566",
+  "ctx": "Arena/ArenaController.cs:567",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "自動の前進だけが止まります(攻撃/ジャンプ/重力/のけぞり/敵の動きは本編どおり)",
-  "ctx": "Arena/ArenaController.cs:570",
+  "ctx": "Arena/ArenaController.cs:571",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "基準の速度に、キャラ/カードの速さの補正(SPEED UP など)を掛けた速さで走ります",
-  "ctx": "Arena/ArenaController.cs:571",
+  "ctx": "Arena/ArenaController.cs:572",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "補正を掛けず、この速さのまま走ります(速さのカードの違いを除いて比べる時に)",
-  "ctx": "Arena/ArenaController.cs:571",
+  "ctx": "Arena/ArenaController.cs:572",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "今: 基準 {0}km/h → 実際 {1}km/h(補正 ×{2})",
-  "ctx": "Arena/ArenaController.cs:579",
+  "ctx": "Arena/ArenaController.cs:580",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "無敵 / HP",
-  "ctx": "Arena/ArenaController.cs:583",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "無敵: {0}",
   "ctx": "Arena/ArenaController.cs:584",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "HPを全回復",
+  "key": "無敵: {0}",
   "ctx": "Arena/ArenaController.cs:585",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "無敵の時も「本来受けたダメージ」は結果に出ます",
+  "key": "HPを全回復",
   "ctx": "Arena/ArenaController.cs:586",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "無敵の時も「本来受けたダメージ」は結果に出ます",
+  "ctx": "Arena/ArenaController.cs:587",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "操作アシスト(設定の「高速時の自動補助」と同じ。闘技場の中だけ・設定は変わりません)",
-  "ctx": "Arena/ArenaController.cs:588",
+  "ctx": "Arena/ArenaController.cs:589",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "OFF",
-  "ctx": "Arena/ArenaController.cs:589",
+  "ctx": "Arena/ArenaController.cs:590",
   "kind": "ui",
-  "n": 5
+  "n": 8
  },
  {
   "key": "ON",
-  "ctx": "Arena/ArenaController.cs:589",
+  "ctx": "Arena/ArenaController.cs:590",
   "kind": "ui",
-  "n": 5
+  "n": 8
  },
  {
   "key": "常時(開発版)",
-  "ctx": "Arena/ArenaController.cs:589",
+  "ctx": "Arena/ArenaController.cs:590",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "働く速さ {0}km/h~",
-  "ctx": "Arena/ArenaController.cs:592",
+  "ctx": "Arena/ArenaController.cs:593",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "闘技場では未対応: FINAL EVOLUTION / AWAKENED / Mastery / ULTIMATE のゲージ / レベルアップ / ボス報酬 / BONUS ZONE(カードは通常の Lv の効果と COMBO だけ。報酬・記録・所持は一切変わりません)",
-  "ctx": "Arena/ArenaController.cs:597",
+  "ctx": "Arena/ArenaController.cs:598",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "開発版だけ",
-  "ctx": "Arena/ArenaController.cs:601",
+  "ctx": "Arena/ArenaController.cs:602",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "未遭遇の敵も選ぶ: {0}",
-  "ctx": "Arena/ArenaController.cs:603",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "乱数を固定: {0}",
   "ctx": "Arena/ArenaController.cs:604",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "障害物を壊す補助: {0}",
+  "key": "乱数を固定: {0}",
   "ctx": "Arena/ArenaController.cs:605",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "障害物を壊す補助: {0}",
+  "ctx": "Arena/ArenaController.cs:606",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "倒れた",
-  "ctx": "Arena/ArenaController.cs:614",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "全滅 {0}秒",
-  "ctx": "Arena/ArenaController.cs:614",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "終了",
-  "ctx": "Arena/ArenaController.cs:614",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "戦闘中",
-  "ctx": "Arena/ArenaController.cs:614",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "今回: {0}",
   "ctx": "Arena/ArenaController.cs:615",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "全滅 {0}秒",
+  "ctx": "Arena/ArenaController.cs:615",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "終了",
+  "ctx": "Arena/ArenaController.cs:615",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "戦闘中",
+  "ctx": "Arena/ArenaController.cs:615",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "今回: {0}",
+  "ctx": "Arena/ArenaController.cs:616",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "与ダメージ",
-  "ctx": "Arena/ArenaController.cs:617",
+  "ctx": "Arena/ArenaController.cs:618",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "命中数",
-  "ctx": "Arena/ArenaController.cs:617",
+  "ctx": "Arena/ArenaController.cs:618",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "撃破数",
-  "ctx": "Arena/ArenaController.cs:617",
+  "ctx": "Arena/ArenaController.cs:618",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "撃破までの時間",
-  "ctx": "Arena/ArenaController.cs:617",
+  "ctx": "Arena/ArenaController.cs:618",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "被ダメージ(HPが減った分)",
-  "ctx": "Arena/ArenaController.cs:617",
+  "ctx": "Arena/ArenaController.cs:618",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "本来の被ダメージ(無敵/Shield も含む)",
-  "ctx": "Arena/ArenaController.cs:617",
+  "ctx": "Arena/ArenaController.cs:618",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "戦闘時間",
-  "ctx": "Arena/ArenaController.cs:617",
+  "ctx": "Arena/ArenaController.cs:618",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "N0",
-  "ctx": "Arena/ArenaController.cs:620",
+  "ctx": "Arena/ArenaController.cs:621",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "{0}秒",
-  "ctx": "Arena/ArenaController.cs:621",
+  "ctx": "Arena/ArenaController.cs:622",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "{0}({1}回)",
-  "ctx": "Arena/ArenaController.cs:622",
+  "ctx": "Arena/ArenaController.cs:623",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "今回",
-  "ctx": "Arena/ArenaController.cs:625",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "前回",
   "ctx": "Arena/ArenaController.cs:626",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "前回",
+  "ctx": "Arena/ArenaController.cs:627",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "今回の条件: {0}",
-  "ctx": "Arena/ArenaController.cs:638",
+  "ctx": "Arena/ArenaController.cs:639",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "試用のビルド: {0}",
-  "ctx": "Arena/ArenaController.cs:638",
+  "ctx": "Arena/ArenaController.cs:639",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "前回の条件: {0}",
-  "ctx": "Arena/ArenaController.cs:639",
+  "ctx": "Arena/ArenaController.cs:640",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "前回のビルド: {0}",
-  "ctx": "Arena/ArenaController.cs:639",
+  "ctx": "Arena/ArenaController.cs:640",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "設定を変更",
-  "ctx": "Arena/ArenaController.cs:642",
+  "ctx": "Arena/ArenaController.cs:643",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "？？？(まだ会っていない)",
-  "ctx": "Arena/ArenaController.cs:681",
+  "ctx": "Arena/ArenaController.cs:682",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "動かない標的",
-  "ctx": "Arena/ArenaController.cs:748",
+  "ctx": "Arena/ArenaController.cs:749",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "{0} / カード{1}枚 / {2} / {3}km地点相当",
-  "ctx": "Arena/ArenaController.cs:90",
+  "ctx": "Arena/ArenaController.cs:91",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "カードなし",
-  "ctx": "Arena/ArenaController.cs:96",
+  "ctx": "Arena/ArenaController.cs:97",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "(所持のコピー)",
-  "ctx": "Arena/ArenaController.cs:97",
+  "ctx": "Arena/ArenaController.cs:98",
   "kind": "ui",
   "n": 1
  },
@@ -2805,7 +2805,7 @@
   "key": "戻る",
   "ctx": "CardFusionUI.cs:249",
   "kind": "ui",
-  "n": 6
+  "n": 3
  },
  {
   "key": "カード合成",
@@ -3498,7 +3498,7 @@
   "n": 1
  },
  {
-  "key": "カード設定 ▶",
+  "key": "カード設定",
   "ctx": "CharacterSelectUI.cs:151",
   "kind": "ui",
   "n": 1
@@ -3510,20 +3510,8 @@
   "n": 1
  },
  {
-  "key": "<color=#8890A0>(空き)</color>",
-  "ctx": "CharacterSelectUI.cs:164",
-  "kind": "ui",
-  "n": 1
- },
- {
   "key": "LOCKED",
-  "ctx": "CharacterSelectUI.cs:289",
-  "kind": "ui",
-  "n": 4
- },
- {
-  "key": "解放の条件: {0}",
-  "ctx": "CharacterSelectUI.cs:290",
+  "ctx": "CharacterSelectUI.cs:291",
   "kind": "ui",
   "n": 2
  },
@@ -4123,19 +4111,19 @@
  },
  {
   "key": ")} のキャラカード",
-  "ctx": "DeckEditUI.cs:222",
+  "ctx": "DeckEditUI.cs:226",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "使用中のため変換不可",
-  "ctx": "DeckEditUI.cs:492",
+  "ctx": "DeckEditUI.cs:496",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "所持 x{0}",
-  "ctx": "DeckEditUI.cs:567",
+  "ctx": "DeckEditUI.cs:571",
   "kind": "ui",
   "n": 1
  },
@@ -4147,43 +4135,43 @@
  },
  {
   "key": "[他のキャラのキャラカード]",
-  "ctx": "DeckEditUI.cs:593",
+  "ctx": "DeckEditUI.cs:597",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "現在使用中のカードです。外してから使用してください。",
-  "ctx": "DeckEditUI.cs:774",
+  "ctx": "DeckEditUI.cs:779",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "を{CardConvertMile} MILEに変換しますか？",
-  "ctx": "DeckEditUI.cs:781",
+  "ctx": "DeckEditUI.cs:786",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "現在のデッキを",
-  "ctx": "DeckEditUI.cs:844",
+  "ctx": "DeckEditUI.cs:849",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "おすすめ編成に変更しますか？",
-  "ctx": "DeckEditUI.cs:844",
+  "ctx": "DeckEditUI.cs:849",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "デッキからすべてのカードを",
-  "ctx": "DeckEditUI.cs:867",
+  "ctx": "DeckEditUI.cs:872",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "外しますか？",
-  "ctx": "DeckEditUI.cs:867",
+  "ctx": "DeckEditUI.cs:872",
   "kind": "ui",
   "n": 1
  },
@@ -4261,55 +4249,55 @@
  },
  {
   "key": "NEW CARD",
-  "ctx": "GameManager.Gacha.cs:133",
+  "ctx": "GameManager.Gacha.cs:150",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "DUPLICATE",
-  "ctx": "GameManager.Gacha.cs:133",
+  "ctx": "GameManager.Gacha.cs:150",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "(AWAKENED済み・保管)",
-  "ctx": "GameManager.Gacha.cs:157",
+  "ctx": "GameManager.Gacha.cs:178",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "→ 合成で MASTERY +1",
-  "ctx": "GameManager.Gacha.cs:157",
+  "ctx": "GameManager.Gacha.cs:178",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "タップで次へ(あと {0} 枚)",
-  "ctx": "GameManager.Gacha.cs:166",
+  "ctx": "GameManager.Gacha.cs:187",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "タップで閉じる / ガチャをタップで続けて引く",
-  "ctx": "GameManager.Gacha.cs:166",
+  "ctx": "GameManager.Gacha.cs:187",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "NEXT",
-  "ctx": "GameManager.Gacha.cs:169",
+  "ctx": "GameManager.Gacha.cs:190",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "OK",
-  "ctx": "GameManager.Gacha.cs:169",
+  "ctx": "GameManager.Gacha.cs:190",
   "kind": "ui",
   "n": 4
  },
  {
   "key": "MILE不足",
-  "ctx": "GameManager.Gacha.cs:180",
+  "ctx": "GameManager.Gacha.cs:201",
   "kind": "ui",
   "n": 1
  },
@@ -4333,433 +4321,439 @@
  },
  {
   "key": "NEW UNLOCK:",
-  "ctx": "GameManager.cs:1451",
+  "ctx": "GameManager.cs:1468",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "READY",
-  "ctx": "GameManager.cs:1567",
+  "ctx": "GameManager.cs:1586",
   "kind": "ui",
   "n": 4
  },
  {
   "key": "SPEED",
-  "ctx": "GameManager.cs:1810",
+  "ctx": "GameManager.cs:1829",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "SPEED UP!",
-  "ctx": "GameManager.cs:1822",
+  "ctx": "GameManager.cs:1841",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "選択待ちの停止理由だけが残っていた",
-  "ctx": "GameManager.cs:2485",
+  "ctx": "GameManager.cs:2509",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ポーズメニューの停止理由だけが残っていた",
-  "ctx": "GameManager.cs:2485",
+  "ctx": "GameManager.cs:2509",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ボス登場演出のスローが長すぎた",
-  "ctx": "GameManager.cs:2500",
+  "ctx": "GameManager.cs:2524",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ボス登場演出のスローだけが残っていた",
-  "ctx": "GameManager.cs:2500",
+  "ctx": "GameManager.cs:2524",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "BOSS REWARD",
-  "ctx": "GameManager.cs:2515",
+  "ctx": "GameManager.cs:2539",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "LEVEL UP",
-  "ctx": "GameManager.cs:2515",
+  "ctx": "GameManager.cs:2539",
   "kind": "ui",
   "n": 5
  },
  {
   "key": "選択待ちなのに選択画面が無かった → もう一度出した({0}, {1}回目, ok={2})",
-  "ctx": "GameManager.cs:2516",
+  "ctx": "GameManager.cs:2540",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "選択待ちなのに選択画面が出せない → 選択無しで解決({0})",
-  "ctx": "GameManager.cs:2520",
+  "ctx": "GameManager.cs:2544",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "選択画面が食い違って開いていた → 畳んで{0}を出し直した",
-  "ctx": "GameManager.cs:2531",
+  "ctx": "GameManager.cs:2555",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "BOSS",
-  "ctx": "GameManager.cs:2595",
+  "ctx": "GameManager.cs:2619",
   "kind": "ui",
   "n": 4
  },
  {
   "key": "BEST",
-  "ctx": "GameManager.cs:3784",
+  "ctx": "GameManager.cs:3814",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "DISTANCE",
-  "ctx": "GameManager.cs:3785",
+  "ctx": "GameManager.cs:3815",
   "kind": "ui",
   "n": 3
  },
  {
   "key": "II",
-  "ctx": "GameManager.cs:3819",
+  "ctx": "GameManager.cs:3849",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "STEP:",
-  "ctx": "GameManager.cs:3859",
+  "ctx": "GameManager.cs:3889",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "NEW RUN",
-  "ctx": "GameManager.cs:4009",
+  "ctx": "GameManager.cs:4040",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "FAILED",
-  "ctx": "GameManager.cs:4255",
+  "ctx": "GameManager.cs:4286",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "TIME",
-  "ctx": "GameManager.cs:4288",
+  "ctx": "GameManager.cs:4322",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "ENEMIES DEFEATED",
-  "ctx": "GameManager.cs:4289",
+  "ctx": "GameManager.cs:4323",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "BOSSES DEFEATED",
-  "ctx": "GameManager.cs:4290",
+  "ctx": "GameManager.cs:4324",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "BONUS",
-  "ctx": "GameManager.cs:4291",
+  "ctx": "GameManager.cs:4325",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "BONUS ZONE",
-  "ctx": "GameManager.cs:4292",
+  "ctx": "GameManager.cs:4326",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "RING BONUS",
-  "ctx": "GameManager.cs:4293",
+  "ctx": "GameManager.cs:4327",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "TOTAL EXP",
-  "ctx": "GameManager.cs:4294",
+  "ctx": "GameManager.cs:4328",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "UPGRADES OBTAINED",
-  "ctx": "GameManager.cs:4295",
+  "ctx": "GameManager.cs:4329",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "TOTAL MILE",
-  "ctx": "GameManager.cs:4296",
+  "ctx": "GameManager.cs:4330",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "NEW:",
+  "ctx": "GameManager.cs:4339",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "DEV: 記録の対象外 (",
+  "ctx": "GameManager.cs:4347",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ENEMIES / BOSSES",
-  "ctx": "GameManager.cs:4304",
+  "ctx": "GameManager.cs:4358",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "TOTAL EXP / UPGRADES",
-  "ctx": "GameManager.cs:4305",
+  "ctx": "GameManager.cs:4359",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "失ったもの: このランのMILE {0}",
-  "ctx": "GameManager.cs:4308",
+  "ctx": "GameManager.cs:4371",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "残るもの: BEST距離の記録(更新!)・累計走行距離",
-  "ctx": "GameManager.cs:4311",
+  "key": "今回の距離は、正式な記録(BEST・累計・解放)には残りません",
+  "ctx": "GameManager.cs:4372",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "残るもの: BEST距離の記録・累計走行距離",
-  "ctx": "GameManager.cs:4311",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "持っているカード・MILE(WALLET {0})",
-  "ctx": "GameManager.cs:4313",
+  "key": "残るもの: これまでに確定した記録・カード・MILE(WALLET {0})",
+  "ctx": "GameManager.cs:4373",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "HP",
-  "ctx": "GameManager.cs:4520",
+  "ctx": "GameManager.cs:4579",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "封印{0}",
-  "ctx": "GameManager.cs:4526",
+  "ctx": "GameManager.cs:4585",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "盾{0}",
-  "ctx": "GameManager.cs:4526",
+  "ctx": "GameManager.cs:4585",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "MAX",
-  "ctx": "GameManager.cs:4691",
+  "ctx": "GameManager.cs:4750",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "合成Lv.{0}  能力{1}種",
-  "ctx": "GameManager.cs:4694",
+  "ctx": "GameManager.cs:4753",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "速度のみ x{0}(配置間隔は変えない)",
-  "ctx": "GameManager.cs:4897",
+  "ctx": "GameManager.cs:4956",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ASSIST ON",
-  "ctx": "GameManager.cs:4912",
+  "ctx": "GameManager.cs:4971",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ASSIST OFF",
-  "ctx": "GameManager.cs:4912",
+  "ctx": "GameManager.cs:4971",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "直近:{0}({1})",
-  "ctx": "GameManager.cs:4917",
+  "ctx": "GameManager.cs:4976",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "不可:{0}",
-  "ctx": "GameManager.cs:4918",
+  "ctx": "GameManager.cs:4977",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "障害物:{0} 壊す{1}/跳ぶ{2}/無理{3}",
-  "ctx": "GameManager.cs:4919",
+  "ctx": "GameManager.cs:4978",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "{0} 判定{1}km/h(ON≧{2}/OFF<{3}){4}{5}",
-  "ctx": "GameManager.cs:4920",
+  "ctx": "GameManager.cs:4979",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "MILE RESET",
-  "ctx": "GameManager.cs:4991",
+  "ctx": "GameManager.cs:5050",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "CARD RESET",
-  "ctx": "GameManager.cs:4993",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "背景: {0}",
-  "ctx": "GameManager.cs:5051",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "[プレビュー]",
-  "ctx": "GameManager.cs:5051",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "読込{0}枚 {1}MB",
   "ctx": "GameManager.cs:5052",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "背景: {0}",
+  "ctx": "GameManager.cs:5110",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "[プレビュー]",
+  "ctx": "GameManager.cs:5110",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "読込{0}枚 {1}MB",
+  "ctx": "GameManager.cs:5111",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "背景◀",
-  "ctx": "GameManager.cs:5060",
+  "ctx": "GameManager.cs:5119",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "背景▶",
-  "ctx": "GameManager.cs:5060",
+  "ctx": "GameManager.cs:5119",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "移行",
-  "ctx": "GameManager.cs:5060",
+  "ctx": "GameManager.cs:5119",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "通常",
-  "ctx": "GameManager.cs:5060",
+  "ctx": "GameManager.cs:5119",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "境目へ",
-  "ctx": "GameManager.cs:5060",
+  "ctx": "GameManager.cs:5119",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "設定",
-  "ctx": "GameManager.cs:5147",
+  "ctx": "GameManager.cs:5207",
   "kind": "ui",
   "n": 3
  },
  {
   "key": "闘技場",
-  "ctx": "GameManager.cs:5153",
+  "ctx": "GameManager.cs:5216",
   "kind": "ui",
   "n": 3
  },
  {
-  "key": "闘技場 (LOCK)",
-  "ctx": "GameManager.cs:5153",
+  "key": "ランキング",
+  "ctx": "GameManager.cs:5220",
   "kind": "ui",
-  "n": 1
- },
- {
-  "key": "闘技場はまだ解放されていません",
-  "ctx": "GameManager.cs:5157",
-  "kind": "ui",
-  "n": 1
+  "n": 2
  },
  {
   "key": "DEBUG",
-  "ctx": "GameManager.cs:5163",
+  "ctx": "GameManager.cs:5225",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "NEW",
+  "ctx": "GameManager.cs:5247",
+  "kind": "ui",
+  "n": 3
+ },
+ {
   "key": "現在のRunと未確定MILEを",
-  "ctx": "GameManager.cs:5792",
+  "ctx": "GameManager.cs:5875",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "破棄します。よろしいですか？",
-  "ctx": "GameManager.cs:5792",
+  "ctx": "GameManager.cs:5875",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "破棄してNEW RUN",
-  "ctx": "GameManager.cs:5796",
+  "ctx": "GameManager.cs:5879",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "キャンセル",
-  "ctx": "GameManager.cs:5804",
+  "ctx": "GameManager.cs:5887",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "RESUME",
-  "ctx": "GameManager.cs:5824",
+  "ctx": "GameManager.cs:5907",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "RETURN TO HOME",
-  "ctx": "GameManager.cs:5831",
+  "ctx": "GameManager.cs:5914",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "Home Roomへ戻ります。",
-  "ctx": "GameManager.cs:5860",
+  "ctx": "GameManager.cs:5943",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "Runは終了せず、この続きから",
-  "ctx": "GameManager.cs:5860",
+  "ctx": "GameManager.cs:5943",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "CONTINUEできます。",
-  "ctx": "GameManager.cs:5860",
+  "ctx": "GameManager.cs:5943",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ESCAPE AVAILABLE",
-  "ctx": "GameManager.cs:5890",
+  "ctx": "GameManager.cs:5973",
   "kind": "ui",
   "n": 1
  },
@@ -4815,7 +4809,7 @@
   "key": "ONE MORE MILE",
   "ctx": "LastDungeon/StaffCreditsData.cs:53",
   "kind": "ui",
-  "n": 2
+  "n": 3
  },
  {
   "key": "PROGRAMMING",
@@ -4887,25 +4881,25 @@
   "key": "VERSION MISMATCH",
   "ctx": "Net/LanDiscovery.cs:28",
   "kind": "ui",
-  "n": 3
+  "n": 4
  },
  {
   "key": "IN PROGRESS",
   "ctx": "Net/LanDiscovery.cs:28",
   "kind": "ui",
-  "n": 1
+  "n": 2
  },
  {
   "key": "FULL",
   "ctx": "Net/LanDiscovery.cs:28",
   "kind": "ui",
-  "n": 1
+  "n": 2
  },
  {
   "key": "OPEN",
   "ctx": "Net/LanDiscovery.cs:28",
   "kind": "ui",
-  "n": 1
+  "n": 2
  },
  {
   "key": "OMMLAN",
@@ -4915,7 +4909,7 @@
  },
  {
   "key": "PLAYER",
-  "ctx": "Net/LanDiscovery.cs:83",
+  "ctx": "Net/LanDiscovery.cs:84",
   "kind": "ui",
   "n": 1
  },
@@ -4935,7 +4929,7 @@
   "key": "JOIN",
   "ctx": "Net/NetCombat.cs:1299",
   "kind": "ui",
-  "n": 3
+  "n": 4
  },
  {
   "key": "SYNC",
@@ -4962,48 +4956,6 @@
   "n": 2
  },
  {
-  "key": "MULTIPLAYER",
-  "ctx": "Net/NetDebugUI.cs:187",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "LOCAL PLAY",
-  "ctx": "Net/NetDebugUI.cs:189",
-  "kind": "ui",
-  "n": 2
- },
- {
-  "key": "同じWi-Fi、またはスマホのテザリングにつないだ端末どうしで遊びます(最大",
-  "ctx": "Net/NetDebugUI.cs:190",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "人)。",
-  "ctx": "Net/NetDebugUI.cs:190",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "ONLINE(準備中)",
-  "ctx": "Net/NetDebugUI.cs:193",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "ADVANCED(IPを直接入力・開発用)",
-  "ctx": "Net/NetDebugUI.cs:196",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "閉じる",
-  "ctx": "Net/NetDebugUI.cs:198",
-  "kind": "ui",
-  "n": 3
- },
- {
   "key": "マルチ {0}/{1}",
   "ctx": "Net/NetDebugUI.cs:20",
   "kind": "ui",
@@ -5016,266 +4968,104 @@
   "n": 1
  },
  {
-  "key": "モードを選んでください",
-  "ctx": "Net/NetDebugUI.cs:204",
+  "key": "MULTIPLAYER",
+  "ctx": "Net/NetDebugUI.cs:243",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "倒れたらDOWN。倒れた地点まで来た仲間(HP2以上)がHPを1つ渡すと復活。全員DOWNで終了。",
-  "ctx": "Net/NetDebugUI.cs:207",
+  "key": "LOCAL PLAY",
+  "ctx": "Net/NetDebugUI.cs:245",
   "kind": "ui",
-  "n": 1
+  "n": 2
  },
  {
-  "key": "VERSUS",
-  "ctx": "Net/NetDebugUI.cs:209",
-  "kind": "ui",
-  "n": 5
- },
- {
-  "key": "倒れたら脱落(復活なし)。最後の1人まで続き、到達距離で順位が決まる。",
-  "ctx": "Net/NetDebugUI.cs:210",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "CO-OP",
-  "ctx": "Net/NetDebugUI.cs:217",
+  "key": "ONLINE PLAY",
+  "ctx": "Net/NetDebugUI.cs:248",
   "kind": "ui",
   "n": 3
  },
  {
+  "key": "VERSUS",
+  "ctx": "Net/NetDebugUI.cs:284",
+  "kind": "ui",
+  "n": 6
+ },
+ {
+  "key": "CO-OP",
+  "ctx": "Net/NetDebugUI.cs:295",
+  "kind": "ui",
+  "n": 4
+ },
+ {
   "key": "CREATE GAME",
-  "ctx": "Net/NetDebugUI.cs:220",
+  "ctx": "Net/NetDebugUI.cs:300",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "部屋を作ります。オンラインの「FIND GAME」に表示されます。",
+  "ctx": "Net/NetDebugUI.cs:301",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "この端末で部屋を作ります。近くの端末の「FIND GAME」に表示されます。",
-  "ctx": "Net/NetDebugUI.cs:221",
+  "ctx": "Net/NetDebugUI.cs:301",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "FIND GAME",
-  "ctx": "Net/NetDebugUI.cs:223",
+  "ctx": "Net/NetDebugUI.cs:303",
   "kind": "ui",
   "n": 2
  },
  {
+  "key": "オンラインの部屋を探して参加します。",
+  "ctx": "Net/NetDebugUI.cs:304",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "近くの部屋を探して参加します(IPの入力は不要)。",
-  "ctx": "Net/NetDebugUI.cs:224",
+  "ctx": "Net/NetDebugUI.cs:304",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "近くの部屋({0} を選択中。HOST のモードで遊びます)",
-  "ctx": "Net/NetDebugUI.cs:246",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "CONNECTION FAILED",
-  "ctx": "Net/NetDebugUI.cs:251",
-  "kind": "ui",
-  "n": 4
- },
- {
-  "key": "接続できませんでした。同じWi-Fiか確認して、もう一度お試しください",
-  "ctx": "Net/NetDebugUI.cs:251",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "CONNECTION FAILED:",
-  "ctx": "Net/NetDebugUI.cs:251",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "接続中… {0}",
-  "ctx": "Net/NetDebugUI.cs:256",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "ローカルゲームを探しています…",
-  "ctx": "Net/NetDebugUI.cs:263",
+  "key": "オンラインの部屋を探しています…",
+  "ctx": "Net/NetDebugUI.cs:365",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ゲームが見つかりません",
-  "ctx": "Net/NetDebugUI.cs:263",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "HOST の端末で「CREATE GAME」を押して、同じWi-Fi(テザリング)につないでください。",
-  "ctx": "Net/NetDebugUI.cs:264",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "再検索",
-  "ctx": "Net/NetDebugUI.cs:287",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "参加中の部屋",
-  "ctx": "Net/NetDebugUI.cs:305",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "MODE: {0}(HOSTが決めます)",
-  "ctx": "Net/NetDebugUI.cs:306",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "MODE: HOSTが決めます(Run開始時に自動で揃います)",
-  "ctx": "Net/NetDebugUI.cs:306",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "近くの端末の「FIND GAME」に表示中",
-  "ctx": "Net/NetDebugUI.cs:313",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "そろったら「閉じる」→ 扉 → Stage Selectで「出発」すると、全員が同じステージで同時にスタートします。",
-  "ctx": "Net/NetDebugUI.cs:315",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "HOSTが出発すると自動でスタートします。そのままお待ちください。",
-  "ctx": "Net/NetDebugUI.cs:316",
+  "ctx": "Net/NetDebugUI.cs:365",
   "kind": "ui",
   "n": 2
  },
  {
-  "key": "部屋を閉じる",
-  "ctx": "Net/NetDebugUI.cs:318",
+  "key": "ONLINE SERVICE UNAVAILABLE",
+  "ctx": "Net/NetDebugUI.cs:404",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "DEV:",
+  "ctx": "Net/NetDebugUI.cs:408",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "退出する",
-  "ctx": "Net/NetDebugUI.cs:318",
+  "key": "RETRY",
+  "ctx": "Net/NetDebugUI.cs:411",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "閉じる(部屋はそのまま)",
-  "ctx": "Net/NetDebugUI.cs:324",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "ADVANCED: IPで接続(開発用)",
-  "ctx": "Net/NetDebugUI.cs:330",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "同じWi-Fi、またはスマホのテザリングに接続してください(最大{0}人)。",
-  "ctx": "Net/NetDebugUI.cs:331",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "(取得できません - 端末のWi-Fi設定で確認してください)",
-  "ctx": "Net/NetDebugUI.cs:334",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "この端末のIP:",
-  "ctx": "Net/NetDebugUI.cs:335",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "状態:",
-  "ctx": "Net/NetDebugUI.cs:336",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "MODE",
-  "ctx": "Net/NetDebugUI.cs:344",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "CO-OP: 倒れたらDOWN。倒れた地点まで来た仲間(HP2以上)がHPを1つ渡すと復活。全員DOWNで終了。",
-  "ctx": "Net/NetDebugUI.cs:350",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "VERSUS: 倒れたら脱落(復活なし)。最後の1人まで続き、到達距離で順位が決まる。",
-  "ctx": "Net/NetDebugUI.cs:351",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "MODE: HOSTが選択します(Run開始時に自動で揃います)",
-  "ctx": "Net/NetDebugUI.cs:353",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "ポート",
-  "ctx": "Net/NetDebugUI.cs:359",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "HOST(この端末で部屋を作る)",
-  "ctx": "Net/NetDebugUI.cs:364",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "JOIN: HOST端末に表示されたIPを入力",
-  "ctx": "Net/NetDebugUI.cs:370",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "接続中のプレイヤー {0}/{1}",
-  "ctx": "Net/NetDebugUI.cs:387",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "扉 → Stage Selectで「出発」すると、接続中の全員が同じステージで同時にスタートします。",
-  "ctx": "Net/NetDebugUI.cs:390",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "部屋を閉じる(HOST終了)",
-  "ctx": "Net/NetDebugUI.cs:393",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "切断する",
-  "ctx": "Net/NetDebugUI.cs:393",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "MULTI: 切断",
-  "ctx": "Net/NetDebugUI.cs:413",
+  "key": "BACK",
+  "ctx": "Net/NetDebugUI.cs:414",
   "kind": "ui",
   "n": 1
  },
@@ -5286,14 +5076,158 @@
   "n": 1
  },
  {
+  "key": "ローカルゲームを探しています…",
+  "ctx": "Net/NetDebugUI.cs:439",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "DEV",
+  "ctx": "Net/NetDebugUI.cs:493",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "そろったら「閉じる」→ 扉 → Stage Selectで「出発」すると、全員が同じステージで同時にスタートします。",
+  "ctx": "Net/NetDebugUI.cs:495",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HOSTが出発すると自動でスタートします。そのままお待ちください。",
+  "ctx": "Net/NetDebugUI.cs:496",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "部屋を閉じる",
+  "ctx": "Net/NetDebugUI.cs:499",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "退出する",
+  "ctx": "Net/NetDebugUI.cs:499",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ADVANCED: IPで接続(開発用)",
+  "ctx": "Net/NetDebugUI.cs:512",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "同じWi-Fi、またはスマホのテザリングに接続してください(最大{0}人)。",
+  "ctx": "Net/NetDebugUI.cs:513",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "(取得できません - 端末のWi-Fi設定で確認してください)",
+  "ctx": "Net/NetDebugUI.cs:516",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "この端末のIP:",
+  "ctx": "Net/NetDebugUI.cs:517",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "状態:",
+  "ctx": "Net/NetDebugUI.cs:518",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MODE",
+  "ctx": "Net/NetDebugUI.cs:526",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "CO-OP: 倒れたらDOWN。倒れた地点まで来た仲間(HP2以上)がHPを1つ渡すと復活。全員DOWNで終了。",
+  "ctx": "Net/NetDebugUI.cs:532",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "VERSUS: 倒れたら脱落(復活なし)。最後の1人まで続き、到達距離で順位が決まる。",
+  "ctx": "Net/NetDebugUI.cs:533",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MODE: HOSTが選択します(Run開始時に自動で揃います)",
+  "ctx": "Net/NetDebugUI.cs:535",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ポート",
+  "ctx": "Net/NetDebugUI.cs:541",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "HOST(この端末で部屋を作る)",
+  "ctx": "Net/NetDebugUI.cs:546",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "JOIN: HOST端末に表示されたIPを入力",
+  "ctx": "Net/NetDebugUI.cs:552",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "接続中のプレイヤー {0}/{1}",
+  "ctx": "Net/NetDebugUI.cs:569",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "扉 → Stage Selectで「出発」すると、接続中の全員が同じステージで同時にスタートします。",
+  "ctx": "Net/NetDebugUI.cs:572",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "部屋を閉じる(HOST終了)",
+  "ctx": "Net/NetDebugUI.cs:575",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "切断する",
+  "ctx": "Net/NetDebugUI.cs:575",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "MULTI: 切断",
+  "ctx": "Net/NetDebugUI.cs:595",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "Homeへ戻る",
-  "ctx": "Net/NetDebugUI.cs:459",
+  "ctx": "Net/NetDebugUI.cs:641",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "このまま走る",
-  "ctx": "Net/NetDebugUI.cs:464",
+  "ctx": "Net/NetDebugUI.cs:646",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "REVIVE",
+  "ctx": "Net/NetMatch.Phase3.cs:388",
   "kind": "ui",
   "n": 1
  },
@@ -5323,121 +5257,277 @@
  },
  {
   "key": "HOST: 参加待ち",
-  "ctx": "Net/NetSession.cs:123",
+  "ctx": "Net/NetSession.cs:124",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "初期化エラー",
-  "ctx": "Net/NetSession.cs:147",
+  "ctx": "Net/NetSession.cs:167",
   "kind": "ui",
-  "n": 2
+  "n": 4
+ },
+ {
+  "key": "接続中…",
+  "ctx": "Net/NetSession.cs:186",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "CONNECTION FAILED",
+  "ctx": "Net/NetSession.cs:189",
+  "kind": "ui",
+  "n": 6
  },
  {
   "key": "前の接続を終了中です。少し待ってから再試行してください",
-  "ctx": "Net/NetSession.cs:148",
+  "ctx": "Net/NetSession.cs:209",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "HOSTを開始できませんでした(ポート使用中の可能性)",
-  "ctx": "Net/NetSession.cs:159",
+  "ctx": "Net/NetSession.cs:220",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "IPアドレスの形式が正しくありません(例: 192.168.1.23)",
-  "ctx": "Net/NetSession.cs:170",
+  "ctx": "Net/NetSession.cs:231",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "接続中… {0}:{1}",
-  "ctx": "Net/NetSession.cs:183",
+  "ctx": "Net/NetSession.cs:244",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "JOINを開始できませんでした",
-  "ctx": "Net/NetSession.cs:189",
+  "ctx": "Net/NetSession.cs:250",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "RUN IN PROGRESS",
-  "ctx": "Net/NetSession.cs:224",
+  "ctx": "Net/NetSession.cs:289",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "ROOM FULL",
-  "ctx": "Net/NetSession.cs:231",
+  "ctx": "Net/NetSession.cs:296",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "HOST: {0}/{1}人 接続中",
-  "ctx": "Net/NetSession.cs:245",
+  "ctx": "Net/NetSession.cs:314",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "JOIN: 接続完了 {0}",
-  "ctx": "Net/NetSession.cs:253",
+  "ctx": "Net/NetSession.cs:322",
   "kind": "ui",
   "n": 1
  },
  {
   "key": ")} が切断しました(残り{1 + others}人)",
-  "ctx": "Net/NetSession.cs:272",
+  "ctx": "Net/NetSession.cs:342",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "MULTIPLAYER CONNECTION LOST",
-  "ctx": "Net/NetSession.cs:273",
+  "ctx": "Net/NetSession.cs:343",
   "kind": "ui",
   "n": 3
  },
  {
   "key": "相手プレイヤー",
-  "ctx": "Net/NetSession.cs:273",
+  "ctx": "Net/NetSession.cs:343",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "が切断しました",
-  "ctx": "Net/NetSession.cs:273",
+  "ctx": "Net/NetSession.cs:343",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "HOSTとの接続が切れました",
-  "ctx": "Net/NetSession.cs:282",
+  "ctx": "Net/NetSession.cs:352",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "接続が拒否されました:",
-  "ctx": "Net/NetSession.cs:282",
+  "ctx": "Net/NetSession.cs:352",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "HOSTへ接続できませんでした",
-  "ctx": "Net/NetSession.cs:291",
+  "ctx": "Net/NetSession.cs:361",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "通信エラーが発生しました",
-  "ctx": "Net/NetSession.cs:299",
+  "ctx": "Net/NetSession.cs:370",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "OMM-NET-",
   "ctx": "Net/NetSession.cs:45",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "この名前で参加します。参加すると、帰還して確定した記録(マップ別の最高到達距離・使ったキャラ・オート/疾走出発の使用)がコードネームと一緒に公開されます。",
+  "ctx": "Online/RankingPanel.cs:103",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ランキングに参加すると、コードネームと記録(マップ別の最高到達距離・使ったキャラ・オート/疾走出発の使用)が公開されます。参加しなくても、通常プレイと手元の記録はそのまま使えます。",
+  "ctx": "Online/RankingPanel.cs:104",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "コードネーム",
+  "ctx": "Online/RankingPanel.cs:108",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "最大{0}文字。本名などの個人情報は入れないでください。",
+  "ctx": "Online/RankingPanel.cs:112",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "参加にはコードネームが必要です",
+  "ctx": "Online/RankingPanel.cs:116",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "参加する",
+  "ctx": "Online/RankingPanel.cs:118",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "次へ",
+  "ctx": "Online/RankingPanel.cs:118",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "あなた",
+  "ctx": "Online/RankingPanel.cs:152",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "あなた: 投稿待ちの記録があります",
+  "ctx": "Online/RankingPanel.cs:153",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "あなた: まだ記録がありません",
+  "ctx": "Online/RankingPanel.cs:153",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "投稿待ち",
+  "ctx": "Online/RankingPanel.cs:158",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "送信中…",
+  "ctx": "Online/RankingPanel.cs:159",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "再送",
+  "ctx": "Online/RankingPanel.cs:159",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "読み込み中…",
+  "ctx": "Online/RankingPanel.cs:164",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ランキングを読み込めませんでした。通信を確認してください",
+  "ctx": "Online/RankingPanel.cs:167",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "再試行",
+  "ctx": "Online/RankingPanel.cs:168",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "まだ記録がありません",
+  "ctx": "Online/RankingPanel.cs:170",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "AUTO",
+  "ctx": "Online/RankingPanel.cs:186",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "SPRINT",
+  "ctx": "Online/RankingPanel.cs:186",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "更新",
+  "ctx": "Online/RankingPanel.cs:191",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "参加をやめる",
+  "ctx": "Online/RankingPanel.cs:192",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "通信できない時は投稿待ちに残し、後で送ります",
+  "ctx": "Online/RankingPanel.cs:194",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "閉じる",
+  "ctx": "Online/RankingPanel.cs:89",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "UGS",
+  "ctx": "Online/UgsLeaderboardBackend.cs:18",
   "kind": "ui",
   "n": 1
  },
@@ -5449,19 +5539,19 @@
  },
  {
   "key": "ESCAPE",
-  "ctx": "PlayerController.cs:2281",
+  "ctx": "PlayerController.cs:2285",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "もう一度タップして決定",
-  "ctx": "RewardCardSequence.cs:779",
+  "ctx": "RewardCardSequence.cs:780",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "カードをタップして選択してください",
-  "ctx": "RewardCardSequence.cs:787",
+  "ctx": "RewardCardSequence.cs:789",
   "kind": "ui",
   "n": 1
  },
@@ -5484,12 +5574,6 @@
   "n": 2
  },
  {
-  "key": "NEW",
-  "ctx": "RewardCardUI.cs:426",
-  "kind": "ui",
-  "n": 1
- },
- {
   "key": "強さ Lv{d.level:0.0}{(d.def.risk ?",
   "ctx": "RunBuildHud.cs:352",
   "kind": "ui",
@@ -5497,259 +5581,331 @@
  },
  {
   "key": "COMBO",
-  "ctx": "RunBuildHud.cs:358",
+  "ctx": "RunBuildHud.cs:366",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "キャラ",
-  "ctx": "RunBuildHud.cs:378",
+  "ctx": "RunBuildHud.cs:386",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "デッキ",
-  "ctx": "RunBuildHud.cs:379",
+  "ctx": "RunBuildHud.cs:387",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "{0}で{1}m到達",
-  "ctx": "Save/UnlockRules.cs:106",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "最高 {0}m / {1}m",
-  "ctx": "Save/UnlockRules.cs:107",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "いずれかのマップで1,000m以下でゲームオーバー",
   "ctx": "Save/UnlockRules.cs:112",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "最高 {0}m / {1}m",
+  "ctx": "Save/UnlockRules.cs:113",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "いずれかのマップで1,000m以下でゲームオーバー",
+  "ctx": "Save/UnlockRules.cs:118",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "条件達成! 帰還すると確定します",
+  "ctx": "Save/UnlockRules.cs:145",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "UNLOCKED:",
-  "ctx": "Save/UnlockRules.cs:188",
+  "ctx": "Save/UnlockRules.cs:205",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "NEW CHARACTER:",
-  "ctx": "Save/UnlockRules.cs:197",
+  "ctx": "Save/UnlockRules.cs:215",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ホームの「闘技場」から入れます。",
-  "ctx": "Save/UnlockRules.cs:213",
+  "ctx": "Save/UnlockRules.cs:251",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "マップ選択から出発できます。",
-  "ctx": "Save/UnlockRules.cs:213",
+  "ctx": "Save/UnlockRules.cs:251",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "{0} が解放されました",
-  "ctx": "Save/UnlockRules.cs:214",
+  "ctx": "Save/UnlockRules.cs:252",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "{0} が仲間になりました",
-  "ctx": "Save/UnlockRules.cs:218",
+  "ctx": "Save/UnlockRules.cs:256",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "キャラ選択で選べます。",
-  "ctx": "Save/UnlockRules.cs:218",
+  "ctx": "Save/UnlockRules.cs:256",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "走り続けたあなたへ。",
-  "ctx": "Save/UnlockRules.cs:225",
+  "ctx": "Save/UnlockRules.cs:263",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "最後の道が開かれました。",
-  "ctx": "Save/UnlockRules.cs:225",
+  "ctx": "Save/UnlockRules.cs:263",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "音",
-  "ctx": "Settings/SettingsPanel.cs:241",
+  "ctx": "Settings/SettingsPanel.cs:256",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "(音声が使えません)",
-  "ctx": "Settings/SettingsPanel.cs:242",
+  "ctx": "Settings/SettingsPanel.cs:257",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "全体ミュート",
-  "ctx": "Settings/SettingsPanel.cs:243",
+  "ctx": "Settings/SettingsPanel.cs:258",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "全体",
-  "ctx": "Settings/SettingsPanel.cs:245",
+  "ctx": "Settings/SettingsPanel.cs:260",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "BGM",
-  "ctx": "Settings/SettingsPanel.cs:246",
+  "ctx": "Settings/SettingsPanel.cs:261",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "SE",
-  "ctx": "Settings/SettingsPanel.cs:247",
+  "ctx": "Settings/SettingsPanel.cs:262",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "環境音",
-  "ctx": "Settings/SettingsPanel.cs:248",
+  "ctx": "Settings/SettingsPanel.cs:263",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "言語 / Language",
-  "ctx": "Settings/SettingsPanel.cs:264",
+  "ctx": "Settings/SettingsPanel.cs:279",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "言語",
-  "ctx": "Settings/SettingsPanel.cs:264",
+  "ctx": "Settings/SettingsPanel.cs:279",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "選んだ言語で表示します",
-  "ctx": "Settings/SettingsPanel.cs:274",
+  "ctx": "Settings/SettingsPanel.cs:289",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "端末の言語に合わせています",
-  "ctx": "Settings/SettingsPanel.cs:274",
+  "ctx": "Settings/SettingsPanel.cs:289",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "表示",
-  "ctx": "Settings/SettingsPanel.cs:282",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "画面の向き",
-  "ctx": "Settings/SettingsPanel.cs:283",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "横画面",
-  "ctx": "Settings/SettingsPanel.cs:283",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "縦画面",
-  "ctx": "Settings/SettingsPanel.cs:283",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "画面揺れ",
-  "ctx": "Settings/SettingsPanel.cs:285",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "発光演出",
-  "ctx": "Settings/SettingsPanel.cs:286",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "※敵の攻撃予兆や操作に必要な表示は弱くなりません",
-  "ctx": "Settings/SettingsPanel.cs:287",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "操作",
-  "ctx": "Settings/SettingsPanel.cs:295",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "(自動補助は使えません)",
-  "ctx": "Settings/SettingsPanel.cs:296",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "高速時の補助",
   "ctx": "Settings/SettingsPanel.cs:297",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "補助開始速度",
+  "key": "画面の向き",
+  "ctx": "Settings/SettingsPanel.cs:298",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "横画面",
+  "ctx": "Settings/SettingsPanel.cs:298",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "縦画面",
+  "ctx": "Settings/SettingsPanel.cs:298",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "画面揺れ",
   "ctx": "Settings/SettingsPanel.cs:300",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "走る速さがこの値を超えると、穴/障害物/敵へのジャンプと",
+  "key": "発光演出",
+  "ctx": "Settings/SettingsPanel.cs:301",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "※敵の攻撃予兆や操作に必要な表示は弱くなりません",
   "ctx": "Settings/SettingsPanel.cs:302",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "攻撃を自動で補助します(自分の操作が優先)",
-  "ctx": "Settings/SettingsPanel.cs:303",
+  "key": "操作",
+  "ctx": "Settings/SettingsPanel.cs:312",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "(自動補助は使えません)",
+  "ctx": "Settings/SettingsPanel.cs:313",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "オートモード",
+  "ctx": "Settings/SettingsPanel.cs:314",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "オート開始速度",
+  "ctx": "Settings/SettingsPanel.cs:318",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ボス戦でもオート",
+  "ctx": "Settings/SettingsPanel.cs:320",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "自動攻撃",
+  "ctx": "Settings/SettingsPanel.cs:321",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "自動回避",
+  "ctx": "Settings/SettingsPanel.cs:322",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "走る速さが開始速度を超えると、ONの操作だけ自動で行います。",
+  "ctx": "Settings/SettingsPanel.cs:323",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "自動攻撃: 前の敵・壊せる障害物・ボスへの攻撃。",
+  "ctx": "Settings/SettingsPanel.cs:324",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "自動回避: 穴・障害物・壁・トゲへのジャンプ。ボス戦では弾や攻撃範囲も。",
+  "ctx": "Settings/SettingsPanel.cs:325",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "通常の敵の攻撃は避けません。必ず避けられるわけではありません。",
+  "ctx": "Settings/SettingsPanel.cs:326",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "自分の操作が優先。ボス戦OFFならボス戦の間は自動操作しません。",
+  "ctx": "Settings/SettingsPanel.cs:327",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "※ ボス戦でもオートは、ボスと戦っている間は速さに関係なく働きます。",
+  "ctx": "Settings/SettingsPanel.cs:328",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "プロフィール",
+  "ctx": "Settings/SettingsPanel.cs:337",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "保存",
+  "ctx": "Settings/SettingsPanel.cs:348",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ランキングとマルチで表示する名前(最大{0}文字)。未設定でも遊べます。",
+  "ctx": "Settings/SettingsPanel.cs:356",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "本名などの個人情報は入れないでください。",
+  "ctx": "Settings/SettingsPanel.cs:357",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "遊び方",
-  "ctx": "Settings/SettingsPanel.cs:310",
+  "ctx": "Settings/SettingsPanel.cs:363",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "操作を練習する",
-  "ctx": "Settings/SettingsPanel.cs:312",
+  "ctx": "Settings/SettingsPanel.cs:365",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "前後の攻撃/ジャンプ/下攻撃/打ち上げ/カードを練習(報酬なし)",
-  "ctx": "Settings/SettingsPanel.cs:318",
+  "ctx": "Settings/SettingsPanel.cs:371",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "練習はホームで始められます(ラン中/マルチ中は不可)",
-  "ctx": "Settings/SettingsPanel.cs:318",
+  "ctx": "Settings/SettingsPanel.cs:371",
   "kind": "ui",
   "n": 1
  },
@@ -5857,37 +6013,37 @@
  },
  {
   "key": "疾走出発…({0})",
-  "ctx": "Sprint/SprintDeparturePanel.cs:48",
+  "ctx": "Sprint/SprintDeparturePanel.cs:49",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "疾走出発…",
-  "ctx": "Sprint/SprintDeparturePanel.cs:48",
+  "ctx": "Sprint/SprintDeparturePanel.cs:49",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "疾走出発  {0}",
-  "ctx": "Sprint/SprintDeparturePanel.cs:63",
+  "ctx": "Sprint/SprintDeparturePanel.cs:64",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "攻略済みの区間を一気に駆け抜け、選んだ関門の少し手前から走り始めます。途中のボス報酬ぶんのカードは自動で取得。5,000mごとのリングをくぐると追加で1枚選べます。",
-  "ctx": "Sprint/SprintDeparturePanel.cs:65",
+  "ctx": "Sprint/SprintDeparturePanel.cs:68",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "{0}km まで疾走   (約{1}秒 + リング){2}",
-  "ctx": "Sprint/SprintDeparturePanel.cs:71",
+  "ctx": "Sprint/SprintDeparturePanel.cs:79",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "(開発版: DEBUG の全解放が ON)",
-  "ctx": "Sprint/SprintDeparturePanel.cs:82",
+  "ctx": "Sprint/SprintDeparturePanel.cs:91",
   "kind": "ui",
   "n": 1
  },
@@ -6037,139 +6193,139 @@
  },
  {
   "key": "H キー(またはマウスのボタン)を3秒長押し",
-  "ctx": "Tutorial/FirstRunGuide.cs:134",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "BACK ボタンを3秒長押し",
   "ctx": "Tutorial/FirstRunGuide.cs:135",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "画面を3秒長押し",
+  "key": "BACK ボタンを3秒長押し",
   "ctx": "Tutorial/FirstRunGuide.cs:136",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "画面を3秒長押し",
+  "ctx": "Tutorial/FirstRunGuide.cs:137",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "はじめての方へ",
-  "ctx": "Tutorial/FirstRunGuide.cs:155",
+  "ctx": "Tutorial/FirstRunGuide.cs:156",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "最初に操作を練習できます(2〜3分・時間制限なし)。",
-  "ctx": "Tutorial/FirstRunGuide.cs:156",
+  "ctx": "Tutorial/FirstRunGuide.cs:157",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "練習では報酬や記録は増えません。",
-  "ctx": "Tutorial/FirstRunGuide.cs:156",
+  "ctx": "Tutorial/FirstRunGuide.cs:157",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "練習は、あとから設定の「遊び方」でいつでもできます。",
-  "ctx": "Tutorial/FirstRunGuide.cs:156",
+  "ctx": "Tutorial/FirstRunGuide.cs:157",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "脱出できるようになりました",
-  "ctx": "Tutorial/FirstRunGuide.cs:159",
+  "ctx": "Tutorial/FirstRunGuide.cs:160",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "{0}すると脱出して、",
-  "ctx": "Tutorial/FirstRunGuide.cs:160",
+  "ctx": "Tutorial/FirstRunGuide.cs:161",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "このランで集めたMILEを持ち帰れます。",
-  "ctx": "Tutorial/FirstRunGuide.cs:160",
+  "ctx": "Tutorial/FirstRunGuide.cs:161",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "倒れてしまうと、このランのMILEは失われます。",
-  "ctx": "Tutorial/FirstRunGuide.cs:160",
+  "ctx": "Tutorial/FirstRunGuide.cs:161",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "(BEST距離の記録は残ります)",
-  "ctx": "Tutorial/FirstRunGuide.cs:160",
+  "ctx": "Tutorial/FirstRunGuide.cs:161",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "このまま走り続けてもOK。脱出するかどうかは自由です。",
-  "ctx": "Tutorial/FirstRunGuide.cs:160",
+  "ctx": "Tutorial/FirstRunGuide.cs:161",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "MILEを持ち帰りました!",
-  "ctx": "Tutorial/FirstRunGuide.cs:163",
+  "ctx": "Tutorial/FirstRunGuide.cs:164",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "MILEは、ホームのガチャで使えます(1回 {0} MILE)。",
-  "ctx": "Tutorial/FirstRunGuide.cs:164",
+  "ctx": "Tutorial/FirstRunGuide.cs:165",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "引いたカードはデッキに入れて、次のランを強くできます。",
-  "ctx": "Tutorial/FirstRunGuide.cs:164",
+  "ctx": "Tutorial/FirstRunGuide.cs:165",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "そのまま始める",
-  "ctx": "Tutorial/FirstRunGuide.cs:185",
+  "ctx": "Tutorial/FirstRunGuide.cs:186",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "わかった",
-  "ctx": "Tutorial/FirstRunGuide.cs:187",
+  "ctx": "Tutorial/FirstRunGuide.cs:188",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "({0}件のお知らせ)",
-  "ctx": "Tutorial/NoticeQueue.cs:118",
+  "ctx": "Tutorial/NoticeQueue.cs:119",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "デッキを整理しました",
-  "ctx": "Tutorial/NoticeQueue.cs:135",
+  "ctx": "Tutorial/NoticeQueue.cs:136",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "デッキの上限({0}枚)を超えていた {1} 枚をデッキから外しました。",
-  "ctx": "Tutorial/NoticeQueue.cs:136",
+  "ctx": "Tutorial/NoticeQueue.cs:137",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "カードは所持一覧に残っています。デッキ編集で入れ替えてください。",
-  "ctx": "Tutorial/NoticeQueue.cs:136",
+  "ctx": "Tutorial/NoticeQueue.cs:137",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "デッキが12枚になりました",
-  "ctx": "Tutorial/NoticeQueue.cs:141",
+  "ctx": "Tutorial/NoticeQueue.cs:142",
   "kind": "ui",
   "n": 1
  },
@@ -6181,319 +6337,319 @@
  },
  {
   "key": "PRACTICE",
-  "ctx": "Tutorial/TutorialRun.cs:242",
+  "ctx": "Tutorial/TutorialRun.cs:243",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "右(前)へフリック",
-  "ctx": "Tutorial/TutorialRun.cs:278",
+  "ctx": "Tutorial/TutorialRun.cs:279",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "→ / D / Z キー",
-  "ctx": "Tutorial/TutorialRun.cs:278",
+  "ctx": "Tutorial/TutorialRun.cs:279",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "X ボタン(右スティック →)",
-  "ctx": "Tutorial/TutorialRun.cs:278",
+  "ctx": "Tutorial/TutorialRun.cs:279",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "左(後ろ)へフリック",
-  "ctx": "Tutorial/TutorialRun.cs:279",
+  "ctx": "Tutorial/TutorialRun.cs:280",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "← / A / X キー",
-  "ctx": "Tutorial/TutorialRun.cs:279",
+  "ctx": "Tutorial/TutorialRun.cs:280",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "Y ボタン(右スティック ←)",
-  "ctx": "Tutorial/TutorialRun.cs:279",
+  "ctx": "Tutorial/TutorialRun.cs:280",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "上へフリック",
-  "ctx": "Tutorial/TutorialRun.cs:280",
+  "ctx": "Tutorial/TutorialRun.cs:281",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "↑ / W / Space キー",
-  "ctx": "Tutorial/TutorialRun.cs:280",
+  "ctx": "Tutorial/TutorialRun.cs:281",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "A ボタン(右スティック ↑)",
-  "ctx": "Tutorial/TutorialRun.cs:280",
+  "ctx": "Tutorial/TutorialRun.cs:281",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "下へフリック",
-  "ctx": "Tutorial/TutorialRun.cs:281",
+  "ctx": "Tutorial/TutorialRun.cs:282",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "↓ / S キー",
-  "ctx": "Tutorial/TutorialRun.cs:281",
+  "ctx": "Tutorial/TutorialRun.cs:282",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "B ボタン(右スティック ↓)",
-  "ctx": "Tutorial/TutorialRun.cs:281",
+  "ctx": "Tutorial/TutorialRun.cs:282",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ジャンプ",
-  "ctx": "Tutorial/TutorialRun.cs:288",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "下攻撃",
   "ctx": "Tutorial/TutorialRun.cs:289",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "打ち上げ → 空中追撃",
+  "key": "下攻撃",
   "ctx": "Tutorial/TutorialRun.cs:290",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "カードを選ぶ",
+  "key": "打ち上げ → 空中追撃",
   "ctx": "Tutorial/TutorialRun.cs:291",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "練習おわり",
+  "key": "カードを選ぶ",
   "ctx": "Tutorial/TutorialRun.cs:292",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "練習おわり",
+  "ctx": "Tutorial/TutorialRun.cs:293",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "キャラは自動で走ります。",
-  "ctx": "Tutorial/TutorialRun.cs:300",
+  "ctx": "Tutorial/TutorialRun.cs:301",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "前後にフリックすると、その方向へ攻撃します。",
-  "ctx": "Tutorial/TutorialRun.cs:300",
+  "ctx": "Tutorial/TutorialRun.cs:301",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "前: {0}",
-  "ctx": "Tutorial/TutorialRun.cs:300",
+  "ctx": "Tutorial/TutorialRun.cs:301",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "後ろ: {0}",
-  "ctx": "Tutorial/TutorialRun.cs:300",
+  "ctx": "Tutorial/TutorialRun.cs:301",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "上へフリックするとジャンプします。",
-  "ctx": "Tutorial/TutorialRun.cs:301",
+  "ctx": "Tutorial/TutorialRun.cs:302",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "空中でもう一度上へフリックすると、二段ジャンプです。",
-  "ctx": "Tutorial/TutorialRun.cs:301",
+  "ctx": "Tutorial/TutorialRun.cs:302",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ジャンプ: {0}",
-  "ctx": "Tutorial/TutorialRun.cs:301",
+  "ctx": "Tutorial/TutorialRun.cs:302",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ジャンプ中に下へフリックすると、真下へ急降下して攻撃します。",
-  "ctx": "Tutorial/TutorialRun.cs:302",
+  "ctx": "Tutorial/TutorialRun.cs:303",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "足元がしっかりした地面の上で使いましょう。",
-  "ctx": "Tutorial/TutorialRun.cs:302",
+  "ctx": "Tutorial/TutorialRun.cs:303",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "下攻撃: {0}",
-  "ctx": "Tutorial/TutorialRun.cs:302",
+  "ctx": "Tutorial/TutorialRun.cs:303",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "敵の近くでジャンプすると、上への攻撃で敵を打ち上げます。",
-  "ctx": "Tutorial/TutorialRun.cs:303",
+  "ctx": "Tutorial/TutorialRun.cs:304",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "浮いた敵には、空中で攻撃を当てて追撃できます。",
-  "ctx": "Tutorial/TutorialRun.cs:303",
+  "ctx": "Tutorial/TutorialRun.cs:304",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "(難しければスキップできます)",
-  "ctx": "Tutorial/TutorialRun.cs:303",
+  "ctx": "Tutorial/TutorialRun.cs:304",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "走っているとレベルが上がり、3枚のカードから1枚を選べます。",
-  "ctx": "Tutorial/TutorialRun.cs:304",
+  "ctx": "Tutorial/TutorialRun.cs:305",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "選んだ強化は、そのランの間だけ有効です。",
-  "ctx": "Tutorial/TutorialRun.cs:304",
+  "ctx": "Tutorial/TutorialRun.cs:305",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ここでは練習なので、効果はこの練習の中だけです。",
-  "ctx": "Tutorial/TutorialRun.cs:304",
+  "ctx": "Tutorial/TutorialRun.cs:305",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "これで基本の操作はおしまいです。",
-  "ctx": "Tutorial/TutorialRun.cs:305",
+  "ctx": "Tutorial/TutorialRun.cs:306",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "まずは1,000mのボスを目指そう!",
-  "ctx": "Tutorial/TutorialRun.cs:305",
+  "ctx": "Tutorial/TutorialRun.cs:306",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "前へ攻撃 [{0}]   後ろへ攻撃 [{1}]",
-  "ctx": "Tutorial/TutorialRun.cs:314",
+  "ctx": "Tutorial/TutorialRun.cs:315",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ジャンプ [{0}]   二段ジャンプ [{1}]",
-  "ctx": "Tutorial/TutorialRun.cs:315",
+  "ctx": "Tutorial/TutorialRun.cs:316",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ジャンプ中にもう一度、上へ",
-  "ctx": "Tutorial/TutorialRun.cs:315",
+  "ctx": "Tutorial/TutorialRun.cs:316",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ジャンプしてから下へ [{0}]",
-  "ctx": "Tutorial/TutorialRun.cs:316",
+  "ctx": "Tutorial/TutorialRun.cs:317",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "まず上でジャンプ → 空中で下へ",
-  "ctx": "Tutorial/TutorialRun.cs:316",
+  "ctx": "Tutorial/TutorialRun.cs:317",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "打ち上げる [{0}]   空中で追撃 [{1}]",
-  "ctx": "Tutorial/TutorialRun.cs:317",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "敵のすぐ手前でジャンプ",
-  "ctx": "Tutorial/TutorialRun.cs:317",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "浮いた敵へ、ジャンプ中に前へ攻撃",
-  "ctx": "Tutorial/TutorialRun.cs:317",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "カードを1枚選んでください",
   "ctx": "Tutorial/TutorialRun.cs:318",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "敵のすぐ手前でジャンプ",
+  "ctx": "Tutorial/TutorialRun.cs:318",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "浮いた敵へ、ジャンプ中に前へ攻撃",
+  "ctx": "Tutorial/TutorialRun.cs:318",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "カードを1枚選んでください",
+  "ctx": "Tutorial/TutorialRun.cs:319",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "練習をやめる",
-  "ctx": "Tutorial/TutorialRun.cs:342",
+  "ctx": "Tutorial/TutorialRun.cs:343",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "出発する",
-  "ctx": "Tutorial/TutorialRun.cs:361",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "ホームへ戻る",
-  "ctx": "Tutorial/TutorialRun.cs:361",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "もう一度練習する",
   "ctx": "Tutorial/TutorialRun.cs:362",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "やってみる",
-  "ctx": "Tutorial/TutorialRun.cs:366",
+  "key": "ホームへ戻る",
+  "ctx": "Tutorial/TutorialRun.cs:362",
   "kind": "ui",
-  "n": 2
+  "n": 1
  },
  {
-  "key": "スキップ",
+  "key": "もう一度練習する",
+  "ctx": "Tutorial/TutorialRun.cs:363",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "やってみる",
   "ctx": "Tutorial/TutorialRun.cs:367",
   "kind": "ui",
   "n": 2
  },
  {
+  "key": "スキップ",
+  "ctx": "Tutorial/TutorialRun.cs:368",
+  "kind": "ui",
+  "n": 2
+ },
+ {
   "key": "選んでみる",
-  "ctx": "Tutorial/TutorialRun.cs:369",
+  "ctx": "Tutorial/TutorialRun.cs:370",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "OK!",
-  "ctx": "Tutorial/TutorialRun.cs:377",
+  "ctx": "Tutorial/TutorialRun.cs:378",
   "kind": "ui",
   "n": 1
  },

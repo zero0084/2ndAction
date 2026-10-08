@@ -1,0 +1,41 @@
+7000	Bu koşunun mesafesi resmi rekorlara (BEST, toplam, kilit açma) sayılmaz
+7001	Kalanlar: şimdiye dek onaylanan rekorlar, kartlar, MILE (CÜZDAN {0})
+7002	Sıralama
+7003	Bu adla katılacaksın. Katılınca, eve dönerek onaylanan rekorların (harita başına en iyi mesafe, kullanılan karakter, AUTO/Hızlı çıkış kullanımı) kod adınla birlikte yayınlanır.
+7004	Sıralamaya katılırsan kod adın ve rekorların (harita başına en iyi mesafe, kullanılan karakter, AUTO/Hızlı çıkış kullanımı) herkese açık olur. Katılmasan da normal oyun ve cihazdaki rekorların aynen kullanılır.
+7005	Kod adı
+7006	En fazla {0} karakter. Gerçek adını veya kişisel bilgilerini girme.
+7007	Katılmak için kod adı gerekli
+7008	Katıl
+7009	İleri
+7010	Sen
+7011	Sen: gönderilmeyi bekleyen rekorlar var
+7012	Sen: henüz rekor yok
+7013	Bekleyen
+7014	Gönderiliyor…
+7015	Tekrar gönder
+7016	Yükleniyor…
+7017	Sıralama yüklenemedi. Bağlantını kontrol et
+7018	Tekrar dene
+7019	Henüz rekor yok
+7020	Yenile
+7021	Sıralamadan çık
+7022	Bağlantı yoksa rekorlar bekletilir ve sonra gönderilir
+7023	Başardın! Eve dön ve onayla
+7024	AUTO modu
+7025	AUTO başlama hızı
+7026	Boss savaşında da AUTO
+7027	Otomatik saldırı
+7028	Otomatik kaçınma
+7029	Koşu hızın başlama hızını geçince yalnızca ON olan işlemler otomatik yapılır.
+7030	Otomatik saldırı: öndeki düşmanlara, kırılabilir engellere ve boss'lara saldırır.
+7031	Otomatik kaçınma: çukur, engel, duvar ve dikenlerin üstünden atlar. Boss savaşında mermiler ve saldırı alanları da.
+7032	Normal düşmanların saldırılarından kaçmaz. Kaçınma garanti değildir.
+7033	Kendi kontrolün önceliklidir. Boss savaşı OFF ise boss savaşında otomatik kontrol yapılmaz.
+7034	※ Boss savaşında da AUTO, boss ile savaşırken hızdan bağımsız çalışır.
+7035	Profil
+7036	Kaydet
+7037	Sıralamada ve çok oyunculuda görünen ad (en fazla {0} karakter). Ayarlamadan da oynayabilirsin.
+7038	Gerçek adını veya kişisel bilgilerini girme.
+7039	.
+7040	YENİ KARAKTER:\x20

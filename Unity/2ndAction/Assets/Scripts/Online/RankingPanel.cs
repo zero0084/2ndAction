@@ -149,7 +149,7 @@ public class RankingPanel : MonoBehaviour
         // 自分(上に固定)
         var best = Leaderboard.VerifiedBest(st);
         string meLine = page != null && page.me != null
-            ? Loc.Auto("あなた") + $": {page.me.rank}{Loc.Auto("位")}  {page.me.meters:N0}m"
+            ? Loc.Auto("あなた") + $": #{page.me.rank}  {page.me.meters:N0}m" // 順位は # で(言語ごとの順位の言い方に頼らない)
             : Loc.Auto(best != null ? "あなた: 投稿待ちの記録があります" : "あなた: まだ記録がありません");
         LocGUI.Label(new Rect(r.x, y, r.width * 0.6f, 30f), meLine, UiKit.Label(19f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.4f)));
         int pending = Leaderboard.PendingCount;

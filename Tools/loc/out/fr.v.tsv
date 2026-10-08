@@ -1,0 +1,41 @@
+7000	La distance de cette course ne compte pas dans les records officiels (BEST, total, déblocages)
+7001	Conservé : records validés jusqu'ici, cartes, MILE (PORTEFEUILLE {0})
+7002	Classement
+7003	Tu participes avec ce nom. Ensuite, les records validés en rentrant (meilleure distance par parcours, perso utilisé, usage d'AUTO/Départ sprint) sont publiés avec ton nom de code.
+7004	En rejoignant le classement, ton nom de code et tes records (meilleure distance par parcours, perso utilisé, usage d'AUTO/Départ sprint) deviennent publics. Sans participer, le jeu normal et tes records locaux restent disponibles.
+7005	Nom de code
+7006	{0} caractères max. N'entre pas ton vrai nom ni d'infos personnelles.
+7007	Un nom de code est requis pour participer
+7008	Participer
+7009	Suivant
+7010	Toi
+7011	Toi : records en attente d'envoi
+7012	Toi : aucun record pour l'instant
+7013	En attente
+7014	Envoi…
+7015	Renvoyer
+7016	Chargement…
+7017	Impossible de charger le classement. Vérifie ta connexion
+7018	Réessayer
+7019	Aucun record pour l'instant
+7020	Actualiser
+7021	Quitter le classement
+7022	Sans connexion, les records restent en attente et sont envoyés plus tard
+7023	Réussi ! Rentre pour valider
+7024	Mode AUTO
+7025	Vitesse de départ AUTO
+7026	AUTO en combat de boss
+7027	Attaque auto
+7028	Esquive auto
+7029	Quand ta vitesse dépasse la vitesse de départ, seules les actions sur ON sont automatiques.
+7030	Attaque auto : attaque les ennemis devant, les obstacles cassables et les boss.
+7031	Esquive auto : saute au-dessus des trous, obstacles, murs et pics. En combat de boss, aussi les tirs et zones d'attaque.
+7032	N'esquive pas les attaques des ennemis normaux. L'esquive n'est pas garantie.
+7033	Tes commandes passent en priorité. Avec combat de boss sur OFF, pas d'auto pendant les combats de boss.
+7034	※ AUTO en combat de boss fonctionne pendant le combat, quelle que soit la vitesse.
+7035	Profil
+7036	Enregistrer
+7037	Nom affiché dans les classements et en multi ({0} caractères max). Tu peux jouer sans.
+7038	N'entre pas ton vrai nom ni d'infos personnelles.
+7039	e
+7040	NOUVEAU PERSONNAGE :\x20

@@ -172,7 +172,7 @@ public partial class QaSweep
             Check(!PlayerPrefs.HasKey("OwnedCardsV1"), $"corrupt without a backup: only that item goes back to default, the game still starts ({string.Join(" / ", r.repairs)})");
             Check(PlayerPrefs.GetInt("TotalOwnedMile", -1) >= 0 && PlayerPrefs.GetString("DeckCardIds", "") == "attack_up,attack_up", "corrupt without a backup: other items untouched");
 
-            // ---- I: 実際のラン: 一時停止/死亡/途中帰還 で累計距離と遭遇が保存される
+            // ---- I: 実際のラン(2026-10-08 仕様変更): 累計距離はラン中/一時停止/死亡/途中帰還では書かず、正規の帰還(成功)で確定する。遭遇は出現の時点で保存
             ClearRegistered(); SaveSystem.Boot(0);
             yield return ReloadSceneForSave();
             yield return BeginRun("swordsman", "wasteland_road");
@@ -181,12 +181,13 @@ public partial class QaSweep
             if (BossManager.Instance != null) BossManager.Instance.enabled = false;
             SetKmh(150f);
             yield return new WaitForSeconds(8f);
+            double life00 = ProgressStats.ReadDouble(SaveKeys.LifetimeDistance);
             double inMem = ProgressStats.LifetimeDistance;
             double saved = ProgressStats.ReadDouble(SaveKeys.LifetimeDistance);
-            Check(inMem > 150 && saved >= inMem - 100.5, $"I: lifetime saved every 100m while running (memory {inMem:F0}, saved {saved:F0})");
+            Check(gm.MaxDistance > 150 && System.Math.Abs(inMem - life00) < 0.01 && RunLedger.Current != null && RunLedger.Current.walked > 150, $"I: while running the distance stays in the run (ledger {RunLedger.Current?.walked:F0}m), lifetime not written ({saved:F0})");
             gm.SendMessage("OnApplicationPause", true);
             saved = ProgressStats.ReadDouble(SaveKeys.LifetimeDistance);
-            Check(System.Math.Abs(saved - ProgressStats.LifetimeDistance) < 0.01, $"I: app pause writes the lifetime distance ({saved:F1})");
+            Check(System.Math.Abs(saved - life00) < 0.01 && RunCheckpoint.Load().ledger != null && RunCheckpoint.Load().ledger.walked > 150, $"I: app pause saves the unconfirmed run (in the suspend data), not the lifetime ({saved:F1})");
             if (BossManager.Instance != null) { BossManager.Instance.enabled = true; BossManager.Instance.DebugSpawnReaper(); }
             yield return new WaitForSeconds(1f);
             Check(PlayerPrefs.GetInt("ReaperMet_Eldest", 0) == 1, "I: the reaper sister of the wasteland is recorded as met when she appears");
@@ -200,7 +201,7 @@ public partial class QaSweep
             gm.TryDamagePlayer(false, "qa-save");
             yield return new WaitForSecondsRealtime(0.8f);
             saved = ProgressStats.ReadDouble(SaveKeys.LifetimeDistance);
-            Check(gm.IsGameOver && System.Math.Abs(saved - ProgressStats.LifetimeDistance) < 0.01, $"I: death writes the lifetime distance ({saved:F0}, run {dBefore:F0}m)");
+            Check(gm.IsGameOver && System.Math.Abs(saved - life00) < 0.01, $"I: a death does not add the run to the lifetime ({saved:F0}, run {dBefore:F0}m)");
             Check(PlayerPrefs.GetInt("ReaperMet_Eldest", 0) == 1, "I: the encounter stays recorded after dying in that run");
             yield return EndRun();
             // 途中帰還
@@ -215,8 +216,24 @@ public partial class QaSweep
             gm.ReturnToHome();
             yield return new WaitForSecondsRealtime(0.3f);
             double l1 = ProgressStats.ReadDouble(SaveKeys.LifetimeDistance);
-            Check(l1 - l0 >= runD - 1.0, $"I: returning home writes the lifetime distance (+{l1 - l0:F0} for a {runD:F0}m run)");
+            Check(System.Math.Abs(l1 - l0) < 0.01, $"I: returning home (suspend) leaves the run unconfirmed (+{l1 - l0:F0} for a {runD:F0}m run)");
             yield return new WaitForSecondsRealtime(1.5f);
+            // 成功(帰還)で確定
+            gm = GameManager.Instance;
+            RunCheckpoint.Clear();
+            yield return BeginRun("swordsman", "wasteland_road");
+            typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false);
+            if (BossManager.Instance != null) BossManager.Instance.enabled = false;
+            SetKmh(150f);
+            yield return new WaitForSeconds(3f);
+            PlayerController.DebugSpeedScale = 1f;
+            RunLedger.DevClearDebug();
+            double walkedS = RunLedger.Current.walked;
+            gm.Win();
+            yield return new WaitForSecondsRealtime(0.5f);
+            double l2 = ProgressStats.ReadDouble(SaveKeys.LifetimeDistance);
+            Check(walkedS > 50 && System.Math.Abs(l2 - l1 - walkedS) < 1.0, $"I: a successful return adds the distance actually run (+{l2 - l1:F0} / ran {walkedS:F0})");
+            yield return EndRun();
         }
         finally
         {

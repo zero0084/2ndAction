@@ -41,8 +41,8 @@ public class UguiScrollText : MonoBehaviour
         crt.anchorMin = new Vector2(0f, 1f); crt.anchorMax = new Vector2(1f, 1f); crt.pivot = new Vector2(0.5f, 1f);
         crt.offsetMin = new Vector2(0f, 0f); crt.offsetMax = new Vector2(-12f, 0f); crt.anchoredPosition = Vector2.zero;
         trt.SetParent(crt, false);
-        trt.anchorMin = new Vector2(0f, 1f); trt.anchorMax = new Vector2(1f, 1f); trt.pivot = new Vector2(0.5f, 1f);
-        trt.offsetMin = Vector2.zero; trt.offsetMax = Vector2.zero; trt.anchoredPosition = Vector2.zero;
+        trt.anchorMin = new Vector2(0f, 0f); trt.anchorMax = new Vector2(1f, 1f); trt.pivot = new Vector2(0.5f, 1f); // 中身(Content)いっぱい
+        trt.offsetMin = Vector2.zero; trt.offsetMax = Vector2.zero;
         t.resizeTextForBestFit = false;
         t.horizontalOverflow = HorizontalWrapMode.Wrap;
         t.verticalOverflow = VerticalWrapMode.Overflow;
@@ -67,12 +67,15 @@ public class UguiScrollText : MonoBehaviour
     void LateUpdate()
     {
         if (text == null) return;
-        if (text.text != lastText || Mathf.Abs(viewport.rect.width - lastWidth) > 0.5f)
+        if (text.text != lastText || Mathf.Abs(content.rect.width - lastWidth) > 0.5f)
         {
             if (text.text != lastText) scrollY = 0f; // 表示対象/言語が変わった: 先頭から
-            lastText = text.text; lastWidth = viewport.rect.width;
-            var settings = text.GetGenerationSettings(new Vector2(content.rect.width > 1f ? content.rect.width : viewport.rect.width - 12f, 0f));
+            lastText = text.text; lastWidth = content.rect.width;
+            float w = content.rect.width > 1f ? content.rect.width : viewport.rect.width - 12f;
+            var settings = text.GetGenerationSettings(new Vector2(w, 0f));
+            settings.generateOutOfBounds = true;
             contentH = text.cachedTextGeneratorForLayout.GetPreferredHeight(text.text, settings) / Mathf.Max(0.01f, text.pixelsPerUnit) + 4f;
+            if (contentH < 1f || float.IsNaN(contentH)) contentH = viewport.rect.height;
         }
         viewH = viewport.rect.height;
         float max = Mathf.Max(0f, contentH - viewH);

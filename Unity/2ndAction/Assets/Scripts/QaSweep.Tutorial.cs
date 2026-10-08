@@ -147,7 +147,7 @@ public partial class QaSweep
         SaveProfile.Switch(true, true);
         yield return ReloadHome();
         string ch0 = gm.SelectedCharacterId == "swordsman" ? "dual_blade" : gm.SelectedCharacterId;
-        UnlockRules.OnRunDistance(UnlockRules.Wasteland, 30000); // 新規データでは双剣士は未解放(2026-10-07)。解放してから選ぶ
+        UnlockRules.CommitRun(UnlockRules.Wasteland, 30000, null); // 新規データでは双剣士は未解放。成功したランの確定として解放してから選ぶ(2026-10-08)
         gm.SetSelectedCharacter(ch0);
         string deck0 = SaveStore.GetString("DeckCardIds", "");
         var prog0 = SaveSystem.CaptureCategory(SaveCategory.Progress).Where(i => !i.k.StartsWith("Tutorial.")).Select(i => i.k + "=" + i.v).ToList();

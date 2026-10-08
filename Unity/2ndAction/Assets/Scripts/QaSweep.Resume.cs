@@ -103,6 +103,7 @@ public partial class QaSweep
         double life0 = ProgressStats.LifetimeDistance;
         float highAtContinue = cp.highestReachedDistance;
         yield return ResumeContinue(name);
+        double walked0 = RunLedger.Current != null ? RunLedger.Current.walked : 0;
         Check(gm.AutoResumes == 1 && !resumeSawWaiting && !gm.ResumeGateActive, $"{name}: CONTINUE starts running by itself (no resume button / countdown) (auto {gm.AutoResumes}, waited {resumeSawWaiting})");
         Check(pc.ResumeAccelActive, $"{name}: the 5-second acceleration is running");
         string restored = StatSignature();
@@ -137,6 +138,7 @@ public partial class QaSweep
             life0 = ProgressStats.LifetimeDistance;
             highAtContinue = cpB.highestReachedDistance; // 1回目の再開で走った所までは2回目では数えない(二重に足さない)
             yield return ResumeContinue(name + " again");
+            walked0 = RunLedger.Current != null ? RunLedger.Current.walked : 0;
             float target2 = GameManager.SpeedKmh(pc.NormalAutoRunSpeed);
             Check(pc.ResumeAccelActive && Mathf.Abs(target2 - target) < 1f, $"{name}: the second CONTINUE accelerates to the same speed ({target2:F1} vs {target:F1})");
         }
@@ -161,10 +163,11 @@ public partial class QaSweep
         L($"{name}: acceleration done: now {last:F1} km/h (normal {targetEnd:F1}), biggest per-frame change {maxStep:F2} km/h, drops {downs}");
         Check(Mathf.Abs(last - targetEnd) < 0.5f && maxStep < 2.5f, $"{name}: joins the normal speed smoothly (no jump at the end, max step {maxStep:F2} km/h)");
         Check(downs <= 2, $"{name}: speed only rises during the acceleration ({downs} drops)");
-        // 累計距離: 再開後に走った分だけ増える(保存済みの距離を二重に足さない)
+        // 累計距離(2026-10-08: 成功した時に確定するので、ラン中は台帳の「実際に走った距離」で見る): 再開後に新しく走った分だけ増える
         double ran = gm.MaxDistance - Mathf.Max(cp.checkpointDistance, highAtContinue); // 新しく走った所だけ
-        double lifeAdd = ProgressStats.LifetimeDistance - life0;
-        Check(lifeAdd >= 0 && System.Math.Abs(lifeAdd - ran) < 5.0, $"{name}: lifetime distance grows only by what was run after CONTINUE (+{lifeAdd:F0}m vs ran {ran:F0}m)");
+        double lifeAdd = (RunLedger.Current != null ? RunLedger.Current.walked : 0) - walked0;
+        Check(lifeAdd >= 0 && System.Math.Abs(lifeAdd - ran) < 5.0, $"{name}: the run's distance grows only by what was run after CONTINUE (+{lifeAdd:F0}m vs ran {ran:F0}m)");
+        Check(System.Math.Abs(ProgressStats.LifetimeDistance - life0) < 0.5, $"{name}: lifetime is not written before the run succeeds");
         Shot($"resume_{name.Split(' ')[0]}_after");
         stopKeepAlive = false;
         StartCoroutine(KeepAlive());
