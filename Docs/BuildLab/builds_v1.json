@@ -1,0 +1,1924 @@
+{
+ "builds": [
+  {
+   "name": "swordsman_A",
+   "character": "swordsman",
+   "type": "A",
+   "note": "攻撃重視",
+   "deck": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "swordsman_D",
+   "character": "swordsman",
+   "type": "D",
+   "note": "耐久・回復重視",
+   "deck": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "charCards": [
+    "heart_up",
+    "shield",
+    "vampire"
+   ],
+   "priority": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "swordsman_B",
+   "character": "swordsman",
+   "type": "B",
+   "note": "バランス",
+   "deck": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "heart_up",
+    "boss_killer"
+   ],
+   "priority": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "swordsman_S",
+   "character": "swordsman",
+   "type": "S",
+   "note": "キャラの得意能力・相乗",
+   "deck": [
+    "combo_plus",
+    "combo_rush",
+    "attack_up",
+    "boss_killer",
+    "first_strike",
+    "combo_master",
+    "sonic_blade",
+    "attack_speed_up",
+    "heart_up",
+    "shield",
+    "vampire",
+    "speed_up"
+   ],
+   "charCards": [
+    "combo_plus",
+    "combo_rush",
+    "attack_up"
+   ],
+   "priority": [
+    "combo_plus",
+    "combo_rush",
+    "attack_up",
+    "boss_killer",
+    "first_strike",
+    "combo_master",
+    "sonic_blade",
+    "attack_speed_up",
+    "heart_up",
+    "shield",
+    "vampire",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "dual_blade_A",
+   "character": "dual_blade",
+   "type": "A",
+   "note": "攻撃重視",
+   "deck": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "dual_blade_D",
+   "character": "dual_blade",
+   "type": "D",
+   "note": "耐久・回復重視",
+   "deck": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "charCards": [
+    "heart_up",
+    "shield",
+    "vampire"
+   ],
+   "priority": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "dual_blade_B",
+   "character": "dual_blade",
+   "type": "B",
+   "note": "バランス",
+   "deck": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "heart_up",
+    "boss_killer"
+   ],
+   "priority": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "dual_blade_S",
+   "character": "dual_blade",
+   "type": "S",
+   "note": "キャラの得意能力・相乗",
+   "deck": [
+    "combo_edge",
+    "attack_speed_up",
+    "double_attack",
+    "combo_rush",
+    "attack_up",
+    "boss_killer",
+    "rapid_edge",
+    "blood_blade",
+    "vampire",
+    "heart_up",
+    "shield",
+    "speed_up"
+   ],
+   "charCards": [
+    "combo_edge",
+    "attack_speed_up",
+    "double_attack"
+   ],
+   "priority": [
+    "combo_edge",
+    "attack_speed_up",
+    "double_attack",
+    "combo_rush",
+    "attack_up",
+    "boss_killer",
+    "rapid_edge",
+    "blood_blade",
+    "vampire",
+    "heart_up",
+    "shield",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "noble_lady_A",
+   "character": "noble_lady",
+   "type": "A",
+   "note": "攻撃重視",
+   "deck": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "noble_lady_D",
+   "character": "noble_lady",
+   "type": "D",
+   "note": "耐久・回復重視",
+   "deck": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "speed_up"
+   ],
+   "charCards": [
+    "heart_up",
+    "shield",
+    "vampire"
+   ],
+   "priority": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "noble_lady_B",
+   "character": "noble_lady",
+   "type": "B",
+   "note": "バランス",
+   "deck": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "heart_up",
+    "boss_killer"
+   ],
+   "priority": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "noble_lady_S",
+   "character": "noble_lady",
+   "type": "S",
+   "note": "キャラの得意能力・相乗",
+   "deck": [
+    "jump_count_up",
+    "speed_up",
+    "ground_fighter",
+    "heart_up",
+    "attack_up",
+    "boss_killer",
+    "shield",
+    "iron_will",
+    "attack_speed_up",
+    "ground_zero",
+    "sonic_blade",
+    "jump_power_up"
+   ],
+   "charCards": [
+    "jump_count_up",
+    "speed_up",
+    "ground_fighter"
+   ],
+   "priority": [
+    "jump_count_up",
+    "speed_up",
+    "ground_fighter",
+    "heart_up",
+    "attack_up",
+    "boss_killer",
+    "shield",
+    "iron_will",
+    "attack_speed_up",
+    "ground_zero",
+    "sonic_blade",
+    "jump_power_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "gunslinger_A",
+   "character": "gunslinger",
+   "type": "A",
+   "note": "攻撃重視",
+   "deck": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "gunslinger_D",
+   "character": "gunslinger",
+   "type": "D",
+   "note": "耐久・回復重視",
+   "deck": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "charCards": [
+    "heart_up",
+    "shield",
+    "vampire"
+   ],
+   "priority": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "gunslinger_B",
+   "character": "gunslinger",
+   "type": "B",
+   "note": "バランス",
+   "deck": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "heart_up",
+    "boss_killer"
+   ],
+   "priority": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "gunslinger_S",
+   "character": "gunslinger",
+   "type": "S",
+   "note": "キャラの得意能力・相乗",
+   "deck": [
+    "piercing_blade",
+    "attack_speed_up",
+    "attack_up",
+    "boss_killer",
+    "shockwave",
+    "rapid_edge",
+    "double_attack",
+    "attack_range_up",
+    "heart_up",
+    "shield",
+    "vampire",
+    "speed_up"
+   ],
+   "charCards": [
+    "piercing_blade",
+    "attack_speed_up",
+    "attack_up"
+   ],
+   "priority": [
+    "piercing_blade",
+    "attack_speed_up",
+    "attack_up",
+    "boss_killer",
+    "shockwave",
+    "rapid_edge",
+    "double_attack",
+    "attack_range_up",
+    "heart_up",
+    "shield",
+    "vampire",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "dragon_lancer_A",
+   "character": "dragon_lancer",
+   "type": "A",
+   "note": "攻撃重視",
+   "deck": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "dragon_lancer_D",
+   "character": "dragon_lancer",
+   "type": "D",
+   "note": "耐久・回復重視",
+   "deck": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "charCards": [
+    "heart_up",
+    "shield",
+    "vampire"
+   ],
+   "priority": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "dragon_lancer_B",
+   "character": "dragon_lancer",
+   "type": "B",
+   "note": "バランス",
+   "deck": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "heart_up",
+    "boss_killer"
+   ],
+   "priority": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "dragon_lancer_S",
+   "character": "dragon_lancer",
+   "type": "S",
+   "note": "キャラの得意能力・相乗",
+   "deck": [
+    "attack_speed_up",
+    "rapid_edge",
+    "attack_up",
+    "boss_killer",
+    "first_strike",
+    "long_blade",
+    "heavy_impact",
+    "ground_breaker",
+    "heart_up",
+    "shield",
+    "vampire",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_speed_up",
+    "rapid_edge",
+    "attack_up"
+   ],
+   "priority": [
+    "attack_speed_up",
+    "rapid_edge",
+    "attack_up",
+    "boss_killer",
+    "first_strike",
+    "long_blade",
+    "heavy_impact",
+    "ground_breaker",
+    "heart_up",
+    "shield",
+    "vampire",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "archer_A",
+   "character": "archer",
+   "type": "A",
+   "note": "攻撃重視",
+   "deck": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "archer_D",
+   "character": "archer",
+   "type": "D",
+   "note": "耐久・回復重視",
+   "deck": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "speed_up"
+   ],
+   "charCards": [
+    "heart_up",
+    "shield",
+    "vampire"
+   ],
+   "priority": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "archer_B",
+   "character": "archer",
+   "type": "B",
+   "note": "バランス",
+   "deck": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "heart_up",
+    "boss_killer"
+   ],
+   "priority": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "archer_S",
+   "character": "archer",
+   "type": "S",
+   "note": "キャラの得意能力・相乗",
+   "deck": [
+    "speed_up",
+    "piercing_blade",
+    "attack_speed_up",
+    "attack_up",
+    "boss_killer",
+    "rapid_edge",
+    "wind_cutter",
+    "gale",
+    "heart_up",
+    "shield",
+    "vampire",
+    "double_attack"
+   ],
+   "charCards": [
+    "speed_up",
+    "piercing_blade",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "speed_up",
+    "piercing_blade",
+    "attack_speed_up",
+    "attack_up",
+    "boss_killer",
+    "rapid_edge",
+    "wind_cutter",
+    "gale",
+    "heart_up",
+    "shield",
+    "vampire",
+    "double_attack"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "mage_A",
+   "character": "mage",
+   "type": "A",
+   "note": "攻撃重視",
+   "deck": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "mage_D",
+   "character": "mage",
+   "type": "D",
+   "note": "耐久・回復重視",
+   "deck": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "charCards": [
+    "heart_up",
+    "shield",
+    "vampire"
+   ],
+   "priority": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "mage_B",
+   "character": "mage",
+   "type": "B",
+   "note": "バランス",
+   "deck": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "heart_up",
+    "boss_killer"
+   ],
+   "priority": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "mage_S",
+   "character": "mage",
+   "type": "S",
+   "note": "キャラの得意能力・相乗",
+   "deck": [
+    "heart_up",
+    "shield",
+    "thunder_strike",
+    "attack_up",
+    "boss_killer",
+    "high_voltage",
+    "chain_lightning",
+    "attack_speed_up",
+    "vampire",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "charCards": [
+    "heart_up",
+    "shield",
+    "thunder_strike"
+   ],
+   "priority": [
+    "heart_up",
+    "shield",
+    "thunder_strike",
+    "attack_up",
+    "boss_killer",
+    "high_voltage",
+    "chain_lightning",
+    "attack_speed_up",
+    "vampire",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "fighter_A",
+   "character": "fighter",
+   "type": "A",
+   "note": "攻撃重視",
+   "deck": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "fighter_D",
+   "character": "fighter",
+   "type": "D",
+   "note": "耐久・回復重視",
+   "deck": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "charCards": [
+    "heart_up",
+    "shield",
+    "vampire"
+   ],
+   "priority": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "fighter_B",
+   "character": "fighter",
+   "type": "B",
+   "note": "バランス",
+   "deck": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "heart_up",
+    "boss_killer"
+   ],
+   "priority": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "fighter_S",
+   "character": "fighter",
+   "type": "S",
+   "note": "キャラの得意能力・相乗",
+   "deck": [
+    "attack_range_up",
+    "long_blade",
+    "combo_rush",
+    "attack_up",
+    "boss_killer",
+    "combo_plus",
+    "ground_fighter",
+    "ground_breaker",
+    "heart_up",
+    "shield",
+    "vampire",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_range_up",
+    "long_blade",
+    "combo_rush"
+   ],
+   "priority": [
+    "attack_range_up",
+    "long_blade",
+    "combo_rush",
+    "attack_up",
+    "boss_killer",
+    "combo_plus",
+    "ground_fighter",
+    "ground_breaker",
+    "heart_up",
+    "shield",
+    "vampire",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "ninja_A",
+   "character": "ninja",
+   "type": "A",
+   "note": "攻撃重視",
+   "deck": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "ninja_D",
+   "character": "ninja",
+   "type": "D",
+   "note": "耐久・回復重視",
+   "deck": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "charCards": [
+    "heart_up",
+    "shield",
+    "vampire"
+   ],
+   "priority": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "ninja_B",
+   "character": "ninja",
+   "type": "B",
+   "note": "バランス",
+   "deck": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "heart_up",
+    "boss_killer"
+   ],
+   "priority": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "ninja_S",
+   "character": "ninja",
+   "type": "S",
+   "note": "キャラの得意能力・相乗",
+   "deck": [
+    "speed_up",
+    "sonic_blade",
+    "first_strike",
+    "attack_up",
+    "boss_killer",
+    "momentum",
+    "overdrive",
+    "close_call",
+    "attack_speed_up",
+    "heart_up",
+    "shield",
+    "vampire"
+   ],
+   "charCards": [
+    "speed_up",
+    "sonic_blade",
+    "first_strike"
+   ],
+   "priority": [
+    "speed_up",
+    "sonic_blade",
+    "first_strike",
+    "attack_up",
+    "boss_killer",
+    "momentum",
+    "overdrive",
+    "close_call",
+    "attack_speed_up",
+    "heart_up",
+    "shield",
+    "vampire"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "miko_A",
+   "character": "miko",
+   "type": "A",
+   "note": "攻撃重視",
+   "deck": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "miko_D",
+   "character": "miko",
+   "type": "D",
+   "note": "耐久・回復重視",
+   "deck": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "charCards": [
+    "heart_up",
+    "shield",
+    "vampire"
+   ],
+   "priority": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "miko_B",
+   "character": "miko",
+   "type": "B",
+   "note": "バランス",
+   "deck": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "heart_up",
+    "boss_killer"
+   ],
+   "priority": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "miko_S",
+   "character": "miko",
+   "type": "S",
+   "note": "キャラの得意能力・相乗",
+   "deck": [
+    "shield",
+    "attack_speed_up",
+    "attack_up",
+    "boss_killer",
+    "counter",
+    "perfect_guard",
+    "piercing_blade",
+    "shockwave",
+    "heart_up",
+    "vampire",
+    "phoenix",
+    "speed_up"
+   ],
+   "charCards": [
+    "shield",
+    "attack_speed_up",
+    "attack_up"
+   ],
+   "priority": [
+    "shield",
+    "attack_speed_up",
+    "attack_up",
+    "boss_killer",
+    "counter",
+    "perfect_guard",
+    "piercing_blade",
+    "shockwave",
+    "heart_up",
+    "vampire",
+    "phoenix",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "vampire_A",
+   "character": "vampire",
+   "type": "A",
+   "note": "攻撃重視",
+   "deck": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "vampire_D",
+   "character": "vampire",
+   "type": "D",
+   "note": "耐久・回復重視",
+   "deck": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "charCards": [
+    "heart_up",
+    "shield",
+    "vampire"
+   ],
+   "priority": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "long_haul"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "vampire_B",
+   "character": "vampire",
+   "type": "B",
+   "note": "バランス",
+   "deck": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "heart_up",
+    "boss_killer"
+   ],
+   "priority": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "vampire_S",
+   "character": "vampire",
+   "type": "S",
+   "note": "キャラの得意能力・相乗",
+   "deck": [
+    "vampire",
+    "predator",
+    "attack_up",
+    "boss_killer",
+    "blood_blade",
+    "blood_rush",
+    "attack_speed_up",
+    "double_attack",
+    "heart_up",
+    "shield",
+    "last_stand",
+    "speed_up"
+   ],
+   "charCards": [
+    "vampire",
+    "predator",
+    "attack_up"
+   ],
+   "priority": [
+    "vampire",
+    "predator",
+    "attack_up",
+    "boss_killer",
+    "blood_blade",
+    "blood_rush",
+    "attack_speed_up",
+    "double_attack",
+    "heart_up",
+    "shield",
+    "last_stand",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "dragonkin_A",
+   "character": "dragonkin",
+   "type": "A",
+   "note": "攻撃重視",
+   "deck": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "attack_speed_up",
+    "boss_killer",
+    "double_attack",
+    "sonic_blade",
+    "first_strike",
+    "combo_plus",
+    "long_blade",
+    "rapid_edge",
+    "shockwave",
+    "brake_attack",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "dragonkin_D",
+   "character": "dragonkin",
+   "type": "D",
+   "note": "耐久・回復重視",
+   "deck": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "speed_up"
+   ],
+   "charCards": [
+    "heart_up",
+    "shield",
+    "vampire"
+   ],
+   "priority": [
+    "heart_up",
+    "shield",
+    "vampire",
+    "predator",
+    "iron_will",
+    "second_wind",
+    "overheal",
+    "phoenix",
+    "last_chance",
+    "perfect_guard",
+    "heavy_armor",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "dragonkin_B",
+   "character": "dragonkin",
+   "type": "B",
+   "note": "バランス",
+   "deck": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "heart_up",
+    "boss_killer"
+   ],
+   "priority": [
+    "attack_up",
+    "heart_up",
+    "boss_killer",
+    "shield",
+    "attack_speed_up",
+    "vampire",
+    "sonic_blade",
+    "second_wind",
+    "double_attack",
+    "phoenix",
+    "iron_will",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "dragonkin_S",
+   "character": "dragonkin",
+   "type": "S",
+   "note": "キャラの得意能力・相乗",
+   "deck": [
+    "attack_up",
+    "boss_killer",
+    "heavy_impact",
+    "ground_breaker",
+    "iron_will",
+    "heart_up",
+    "sonic_blade",
+    "shield",
+    "vampire",
+    "attack_speed_up",
+    "second_wind",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "heavy_impact"
+   ],
+   "priority": [
+    "attack_up",
+    "boss_killer",
+    "heavy_impact",
+    "ground_breaker",
+    "iron_will",
+    "heart_up",
+    "sonic_blade",
+    "shield",
+    "vampire",
+    "attack_speed_up",
+    "second_wind",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  }
+ ]
+}

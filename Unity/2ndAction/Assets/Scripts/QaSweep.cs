@@ -88,6 +88,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaOnline") { mode = "online"; dir = a[i + 1]; }
             if (a[i] == "-qaRecords") { mode = "records"; dir = a[i + 1]; }
             if (a[i] == "-qaPortrait") { mode = "portrait"; dir = a[i + 1]; }
+            if (a[i] == "-qaBuildLab") { mode = "buildlab"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -129,7 +130,7 @@ public partial class QaSweep : MonoBehaviour
         // ホームのお知らせ(解放/デッキ12枚 等)は、それを確かめるテスト以外では自動で閉じる(テスト機の古いデータで毎回出るため)
         NoticeQueue.QaAutoAcknowledge = !(mode == "deck" || mode == "unlock" || mode == "tutorial" || mode == "gacha");
         yield return new WaitForSecondsRealtime(2f);
-        StartCoroutine(AutoPickCards());
+        if (mode != "buildlab") StartCoroutine(AutoPickCards()); // ビルド検証はビルドの方針で自分で選ぶ
         if (mode == "visual") yield return VisualMode();
         else if (mode == "enemies") yield return EnemyMode();
         else if (mode == "ranged") yield return RangedMode();
@@ -192,6 +193,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "online") yield return OnlineModeQa();
         else if (mode == "records") yield return RecordsModeQa();
         else if (mode == "portrait") yield return PortraitModeQa();
+        else if (mode == "buildlab") yield return BuildLabMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

@@ -3162,6 +3162,9 @@ public partial class GameManager : MonoBehaviour
     // Bugfix 2026-09-06, item 2 - `reason` is Debug-log only (Debug.Log
     // below, no behavior branches on it) so the actual GAME OVER cause can
     // be confirmed on a real device rather than inferred from review alone.
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public static System.Action<string, int, int, int> QaDamageEvent; // (理由, ダメージ, 前のHP, 後のHP) 自動検証の記録用
+#endif
     public DamageResult TryDamagePlayer(bool bypassInvincibleMode = false, string reason = "Other", int amount = CombatScale.PlayerHit)
     {
         Vector3 dmgPos = PlayerController.Instance != null ? PlayerController.Instance.transform.position : Vector3.zero;
@@ -3184,6 +3187,9 @@ public partial class GameManager : MonoBehaviour
         FreezeDiagnostics.LogEvent($"[Damage] Hit reason={reason} amount={dmg} pos=({dmgPos.x:F2},{dmgPos.y:F2}) livesBefore={Lives} timeScale={Time.timeScale:F2}");
         int livesBeforeHit = Lives;
         Lives = Mathf.Max(0, Lives - dmg);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        QaDamageEvent?.Invoke(reason, dmg, livesBeforeHit, Lives); // 検証の記録用(開発版だけ。挙動は変えない)
+#endif
         if (ArenaMode.Active) ArenaMode.OnPlayerHpLost(livesBeforeHit - Lives);
         heartDamageFlashTimer = heartDamageFlashDuration;
         // マルチプレイPhase 2.5: HOST自身のHPの変化もHOSTの表(全員へ配る正解)へ即反映する。
