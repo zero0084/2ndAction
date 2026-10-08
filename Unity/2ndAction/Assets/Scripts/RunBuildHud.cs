@@ -32,7 +32,7 @@ public class RunBuildHud : MonoBehaviour
     }
 
     [Header("Layout")]
-    public int maxColumns = 5;                 // 1行の最大個数(これを超えたら次の行へ)
+    public int maxColumns = 6;                 // 1行の最大個数(これを超えたら次の行へ)。2026-10-08: デッキ12枚 = 6x2
     public float slotHeightFraction = 0.052f;  // Slotの大きさ = 画面の高さ × これ(px)
     public float minSlot = 40f, maxSlot = 62f;
     public float gapFraction = 0.12f;          // Slot間の隙間(Slotの大きさに対する比)
@@ -59,7 +59,7 @@ public class RunBuildHud : MonoBehaviour
     public Rect SlotRect(int index) => index >= 0 && index < slotRects.Count ? slotRects[index] : default;
     readonly List<Rect> slotRects = new List<Rect>();
 
-    void Awake() { Instance = this; }
+    void Awake() { Instance = this; if (maxColumns < 6) maxColumns = 6; } // 2026-10-08: デッキ12枚 = 6列x2行(シーンに焼き込まれた旧値 5 を上書き)
     void OnDestroy() { if (Instance == this) Instance = null; }
 
     static bool ChoiceOpen(GameManager gm) => gm.IsLocalChoiceOpen || gm.IsRewardSequenceRunning;
@@ -219,6 +219,15 @@ public class RunBuildHud : MonoBehaviour
         if (compact) s *= choiceScale;
         float bottom = Screen.height * maxBottomFraction;
         int perRow = maxColumns;
+        if (GameManager.HudStacked)
+        {
+            // 縦画面: 左の列(BEST/距離/速度、幅168)に重ならない。まず枠を少し小さくして列数を保ち、それでも足りなければ列を減らす
+            float leftCol = safe.x + margin + 168f + 10f + 54f; // + 段の見出し(キャラ/デッキ)の幅
+            float avail = right - leftCol;
+            float fitS = avail / (maxColumns + (maxColumns - 1) * gapFraction);
+            if (fitS < s) s = Mathf.Max(minSlot * 0.9f, fitS);
+            perRow = Mathf.Clamp(Mathf.FloorToInt((avail + s * gapFraction) / (s * (1f + gapFraction))), 1, maxColumns);
+        }
         if (avoid != null && avoid.Count > 0)
         {
             // 3択カードの右端より右の空き(足りなければSlotを小さくして1列)

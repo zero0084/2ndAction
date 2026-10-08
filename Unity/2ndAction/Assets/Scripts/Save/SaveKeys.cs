@@ -104,6 +104,7 @@ public static class SaveKeys
         new Entry(HighSpeedAssist.AttackPrefKey, SaveCategory.Settings, SaveType.Int, "オートの自動攻撃(既定1)"),
         new Entry(HighSpeedAssist.AvoidPrefKey, SaveCategory.Settings, SaveType.Int, "オートの自動回避(既定1)"),
         new Entry("PreferredOrientation", SaveCategory.Settings, SaveType.Int, "画面の向き"),
+        new Entry(PortraitRunView.Key, SaveCategory.Settings, SaveType.Int, "縦画面のラン表示 0=横から見る / 1=斜め上から見る(2026-10-08。今までは保存なし→既定0)"),
         new Entry("net.lastHostIp", SaveCategory.Settings, SaveType.String, "マルチ: 最後に接続したHOSTのIP"),
         new Entry("net.lastPort", SaveCategory.Settings, SaveType.Int, "マルチ: 最後のポート"),
         new Entry("net.mode", SaveCategory.Settings, SaveType.Int, "マルチ: CO-OP/VERSUS"),

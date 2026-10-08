@@ -1,5 +1,5 @@
 // カードバランス v3(2026-10-03): 確認用の代表的な構成(CARD BALANCE TEST の「ビルド」タブと自動テスト QaSweep -qaCardV3 で共通)。
-// キャラカード3枠 + デッキ10枚 = 13枚まで。"id" は選んだLv、"id:n" は Lv n。
+// キャラカード3枠 + デッキ12枚 = 15枚まで(2026-10-07 にデッキ10→12)。"id" は選んだLv、"id:n" は Lv n。
 public static class CardBuildPresets
 {
     public static readonly (string key, string name, string[] cards)[] All =

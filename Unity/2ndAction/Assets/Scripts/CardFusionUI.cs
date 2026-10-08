@@ -91,6 +91,7 @@ public class CardFusionUI : MonoBehaviour
     {
         if (root != null) root.SetActive(true);
         EnsureBuilt();
+        ApplyOrientationLayout();
         mainKey = materialKey = null;
         activeSlot = 0;
         phase = Phase.Select;
@@ -544,6 +545,40 @@ public class CardFusionUI : MonoBehaviour
     }
 
     // 2段が必ず完全に見える大きさで並べる(画面比率が変わっても毎回計算)。
+    // 縦画面(2026-10-08、依頼E-1): 一覧を上(広く)、合成の枠と決定を下に。横は左右に並べる(作った時のまま)
+    bool layoutPortrait, layoutApplied;
+    void ApplyOrientationLayout()
+    {
+        if (leftPanel == null || rightPanel == null) return;
+        layoutPortrait = PortraitRunView.IsPortraitScreen; layoutApplied = true;
+        var header = leftPanel.parent != null ? leftPanel.parent.Find("Header") as RectTransform : null;
+        var title = header != null ? header.Find("Title") as RectTransform : null;
+        var mile = header != null ? header.Find("MilePanel") as RectTransform : null;
+        if (title != null)
+        {
+            // 縦: 見出しは「戻る」の右、所持MILEは右上の設定ボタンの左(重ならない)
+            title.anchorMin = layoutPortrait ? new Vector2(0f, 0f) : new Vector2(0.3f, 0f); title.anchorMax = layoutPortrait ? new Vector2(0f, 1f) : new Vector2(0.7f, 1f);
+            title.pivot = layoutPortrait ? new Vector2(0f, 0.5f) : new Vector2(0.5f, 0.5f);
+            title.sizeDelta = layoutPortrait ? new Vector2(340f, 0f) : Vector2.zero; title.anchoredPosition = layoutPortrait ? new Vector2(210f, 0f) : Vector2.zero;
+            var tt = title.GetComponent<Text>(); if (tt != null) { tt.fontSize = layoutPortrait ? 38 : 44; tt.alignment = layoutPortrait ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter; }
+        }
+        if (mile != null) { mile.sizeDelta = layoutPortrait ? new Vector2(300f, 66f) : new Vector2(330f, 66f); mile.anchoredPosition = layoutPortrait ? new Vector2(-200f, 0f) : new Vector2(-146f, 0f); }
+        if (layoutPortrait)
+        {
+            leftPanel.anchorMin = new Vector2(0.01f, 0.43f); leftPanel.anchorMax = new Vector2(0.99f, 1f);
+            leftPanel.offsetMax = new Vector2(0, -184); // 右上の設定ボタンの下から
+            rightPanel.anchorMin = new Vector2(0.01f, 0.01f); rightPanel.anchorMax = new Vector2(0.99f, 0.425f);
+            rightPanel.offsetMax = Vector2.zero;
+        }
+        else
+        {
+            leftPanel.anchorMin = new Vector2(0.01f, 0.02f); leftPanel.anchorMax = new Vector2(0.595f, 1f);
+            leftPanel.offsetMax = new Vector2(0, -116);
+            rightPanel.anchorMin = new Vector2(0.605f, 0.02f); rightPanel.anchorMax = new Vector2(0.99f, 1f);
+            rightPanel.offsetMax = new Vector2(0, -116);
+        }
+    }
+
     void LayoutGrid()
     {
         Canvas.ForceUpdateCanvases();
@@ -633,7 +668,7 @@ public class CardFusionUI : MonoBehaviour
     {
         bool hasMain = !string.IsNullOrEmpty(mainKey), hasMat = !string.IsNullOrEmpty(materialKey);
         if (!hasMain && !hasMat)
-            return "左の一覧からカードを選んでください。\n\n選択中の枠(光っている枠)にカードが入ります。枠をタップすると選択先を切り替えられ、×で選択を外せます。\n\n・同じカード同士 … 成功率100%で合成Lvと全能力を合算\n・違うカード同士 … メイン側50%/素材側25%で能力一式を継承(抽選)。片側だけ成功した場合は、成功した側のLvと能力だけが残ります\n・合成Lvの上限はLv.9。同じカードで Lv.9 を超える分は捨てずに Mastery へ(違うカードで合計が Lv.9 を超える組み合わせは合成できません)\n・Lv.9 MAX のカードに同じカードを合成すると Mastery が進みます(★5 で AWAKENED)";
+            return (layoutPortrait ? "上の一覧からカードを選んでください。\n\n" : "左の一覧からカードを選んでください。\n\n") + "選択中の枠(光っている枠)にカードが入ります。枠をタップすると選択先を切り替えられ、×で選択を外せます。\n\n・同じカード同士 … 成功率100%で合成Lvと全能力を合算\n・違うカード同士 … メイン側50%/素材側25%で能力一式を継承(抽選)。片側だけ成功した場合は、成功した側のLvと能力だけが残ります\n・合成Lvの上限はLv.9。同じカードで Lv.9 を超える分は捨てずに Mastery へ(違うカードで合計が Lv.9 を超える組み合わせは合成できません)\n・Lv.9 MAX のカードに同じカードを合成すると Mastery が進みます(★5 で AWAKENED)";
         var sb = new StringBuilder();
         if (hasMain) sb.Append(CardDetail(mainKey, "メイン")).Append('\n');
         if (hasMat) sb.Append(CardDetail(materialKey, "素材")).Append('\n');
@@ -1130,6 +1165,7 @@ public class CardFusionUI : MonoBehaviour
         if (particles.Count > 0) UpdateParticles();
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (UiInputGate.Blocked) return; // 設定/DEBUGパネルが手前に開いている(閉じた時の指が離れるまでも)
+        if (layoutApplied && layoutPortrait != PortraitRunView.IsPortraitScreen) { ApplyOrientationLayout(); Refresh(restoreScroll: true); UiInputGate.LatchUntilRelease(); return; } // 向きが変わった: 並べ直し(選んだ枠はそのまま)
 
         UiHit.Probe(HandleTap, (overlay != null && overlay.gameObject.activeSelf) ? 5 : 0); // パッド操作中: 押せる枠を集める
         PadScroll();

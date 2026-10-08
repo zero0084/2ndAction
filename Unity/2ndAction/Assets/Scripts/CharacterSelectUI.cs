@@ -167,9 +167,55 @@ public class CharacterSelectUI : MonoBehaviour
         charCardsText.text = Loc.Auto(sb.ToString());
     }
 
+    // ---- 縦画面(2026-10-08、依頼E-1): 上に 立ち絵(左)+情報(右)、その下に横いっぱいのカルーセル。横画面は作った時の配置に戻す
+    struct RtState { public Vector2 aMin, aMax, pivot, pos, size; }
+    static RtState Grab(RectTransform r) => new RtState { aMin = r.anchorMin, aMax = r.anchorMax, pivot = r.pivot, pos = r.anchoredPosition, size = r.sizeDelta };
+    static void Put(RectTransform r, RtState st) { r.anchorMin = st.aMin; r.anchorMax = st.aMax; r.pivot = st.pivot; r.anchoredPosition = st.pos; r.sizeDelta = st.size; }
+    RectTransform[] layoutRts; RtState[] layoutHome; float carouselWidthHome;
+    bool layoutPortrait, layoutDone;
+    Vector2 layoutSize;
+    void ApplyOrientationLayout()
+    {
+        var rootRt = root != null ? root : transform as RectTransform;
+        bool portrait = PortraitRunView.IsPortraitScreen;
+        if (layoutDone && portrait == layoutPortrait && rootRt.rect.size == layoutSize) return;
+        if (layoutRts == null)
+        {
+            layoutRts = new[] { mainVisualImage != null ? mainVisualImage.rectTransform : null, flavorText != null ? flavorText.rectTransform.parent as RectTransform : null,
+                carouselScroll != null ? (RectTransform)carouselScroll.transform : null, carouselArrowLeft, carouselArrowRight, carouselPageText != null ? carouselPageText.rectTransform : null };
+            layoutHome = new RtState[layoutRts.Length];
+            for (int i = 0; i < layoutRts.Length; i++) if (layoutRts[i] != null) layoutHome[i] = Grab(layoutRts[i]);
+            carouselWidthHome = carouselViewportWidth;
+        }
+        layoutDone = true; layoutPortrait = portrait; layoutSize = rootRt.rect.size;
+        for (int i = 0; i < layoutRts.Length; i++) if (layoutRts[i] != null) Put(layoutRts[i], layoutHome[i]);
+        carouselViewportWidth = carouselWidthHome;
+        if (portrait)
+        {
+            float W = rootRt.rect.width, H = rootRt.rect.height, m = 30f;
+            float iw = Mathf.Min(560f, (W - 3f * m) * 0.54f), vw = W - 3f * m - iw, vh = Mathf.Min(880f, vw * 1.57f, 780f);
+            float top = H * 0.5f - 190f, cy = top - 390f; // 右上の設定ボタンの下から
+            var mid = new Vector2(0.5f, 0.5f);
+            if (layoutRts[0] != null) { var v = layoutRts[0]; v.anchorMin = v.anchorMax = v.pivot = mid; v.sizeDelta = new Vector2(vw, vh); v.anchoredPosition = new Vector2(-W * 0.5f + m + vw * 0.5f, cy); }
+            if (layoutRts[1] != null) { var v = layoutRts[1]; v.anchorMin = v.anchorMax = v.pivot = mid; v.sizeDelta = new Vector2(iw, 780f); v.anchoredPosition = new Vector2(W * 0.5f - m - iw * 0.5f, cy); }
+            float rowH = layoutHome[2].size.y;
+            float freeTop = top - 780f - 20f, freeBottom = -H * 0.5f + 140f; // 情報の下 〜 戻る/決定の上 の真ん中
+            float carY = Mathf.Min(freeTop - rowH * 0.5f, (freeTop + freeBottom) * 0.5f + 20f);
+            carouselViewportWidth = W - 2f * m;
+            if (layoutRts[2] != null) { var v = layoutRts[2]; v.anchorMin = v.anchorMax = new Vector2(0f, 0.5f); v.pivot = new Vector2(0f, 0.5f); v.sizeDelta = new Vector2(carouselViewportWidth, rowH); v.anchoredPosition = new Vector2(m, carY); }
+            if (layoutRts[3] != null) layoutRts[3].anchoredPosition = new Vector2(m + 20f, carY);
+            if (layoutRts[4] != null) layoutRts[4].anchoredPosition = new Vector2(m + carouselViewportWidth - 20f, carY);
+            if (layoutRts[5] != null) layoutRts[5].anchoredPosition = new Vector2(m + carouselViewportWidth * 0.5f, carY - rowH * 0.5f - 4f);
+        }
+        if (carouselContent != null && VisibleCount > 0) carouselContent.anchoredPosition = new Vector2(TargetContentXForIndex(selectedIndex), carouselContent.anchoredPosition.y);
+    }
+
     public void Open()
     {
         gameObject.SetActive(true);
+        layoutDone = false;
+        Canvas.ForceUpdateCanvases();
+        ApplyOrientationLayout();
 
         var all = CharacterDatabase.AllCharacters;
         string current = !string.IsNullOrEmpty(openAtId) ? openAtId : GameManager.Instance != null ? GameManager.Instance.SelectedCharacterId : null;
@@ -404,6 +450,12 @@ public class CharacterSelectUI : MonoBehaviour
         // があった。
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (UiInputGate.Blocked) return; // 設定/DEBUGパネルが手前に開いている(閉じた時の指が離れるまでも)
+        // 画面の向き/大きさが変わった: 並べ直して、押しかけの指(ドラッグ)は捨てる(選択はそのまま)
+        if (layoutDone && (layoutPortrait != PortraitRunView.IsPortraitScreen || (root != null && root.rect.size != layoutSize)))
+        {
+            pointerActive = false; draggingCarousel = false; snapping = false;
+            ApplyOrientationLayout(); UpdateCardVisuals(); UiInputGate.LatchUntilRelease(); return;
+        }
 
         UiHit.Probe(HandleTap); // パッド操作中: 押せる枠を集める
         // タッチ/マウス + ゲームパッドの決定(フォーカスの中心を叩く)。2026-10-06

@@ -60,7 +60,7 @@ public class OrientationWatcher : MonoBehaviour
 // uGUI の画面の中身を左右の安全領域の内側へ寄せる(背景 "Background"/"Backdrop" は画面いっぱいのまま)
 public class SafeAreaFitter : MonoBehaviour
 {
-    RectTransform rt; Vector2 baseMin, baseMax; Rect applied; bool init;
+    RectTransform rt; Vector2 baseMin, baseMax; Rect applied; Vector2Int appliedSize; bool init;
     RectTransform[] fullBleed;
 
     public static void AttachToMenus()
@@ -92,22 +92,24 @@ public class SafeAreaFitter : MonoBehaviour
     }
 
     void OnEnable() { Init(); applied = default; Fit(); }
-    void LateUpdate() { if (Screen.safeArea != applied) Fit(); }
+    void LateUpdate() { if (Screen.safeArea != applied || appliedSize.x != Screen.width || appliedSize.y != Screen.height) Fit(); }
 
     void Fit()
     {
         if (rt == null) return;
-        applied = Screen.safeArea;
+        applied = Screen.safeArea; appliedSize = new Vector2Int(Screen.width, Screen.height);
         var canvas = GetComponentInParent<Canvas>();
         float scale = canvas != null && canvas.rootCanvas != null ? Mathf.Max(0.01f, canvas.rootCanvas.scaleFactor) : 1f;
         float left = Screen.safeArea.xMin / scale, right = (Screen.width - Screen.safeArea.xMax) / scale;
-        rt.offsetMin = new Vector2(baseMin.x + left, baseMin.y);
-        rt.offsetMax = new Vector2(baseMax.x - right, baseMax.y);
+        // 2026-10-08(依頼E-1): 縦画面の切り欠き/システムバーのため上下も
+        float bottom = Screen.safeArea.yMin / scale, top = (Screen.height - Screen.safeArea.yMax) / scale;
+        rt.offsetMin = new Vector2(baseMin.x + left, baseMin.y + bottom);
+        rt.offsetMax = new Vector2(baseMax.x - right, baseMax.y - top);
         foreach (var b in fullBleed)
         {
             if (b == null) continue;
-            b.offsetMin = new Vector2(-left, b.offsetMin.y);
-            b.offsetMax = new Vector2(right, b.offsetMax.y);
+            b.offsetMin = new Vector2(-left, -bottom);
+            b.offsetMax = new Vector2(right, top);
         }
     }
 }

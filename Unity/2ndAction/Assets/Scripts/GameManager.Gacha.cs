@@ -129,7 +129,7 @@ public partial class GameManager
 
         // 板は本体の左側(本体を隠さない)。入らなければ画面の中央
         float margin = 16f * s;
-        float availRight = lastGachaMachineRect.width > 0f ? lastGachaMachineRect.xMin - margin : Screen.width - margin;
+        float availRight = Mathf.Min(Screen.width - margin, lastGachaMachineRect.width > 0f ? lastGachaMachineRect.xMin - margin : Screen.width - margin); // 本体が画面外でも窓は画面内(2026-10-08)
         float pw = Mathf.Min(availRight - margin, 760f * s);
         Rect panel;
         float ph = Mathf.Min(Screen.height - margin * 2f, 640f * s);
@@ -197,7 +197,9 @@ public partial class GameManager
             GUI.color = new Color(1f, 0.95f, 0.8f, 1f);
             GUI.DrawTexture(lastGachaMachineRect, gachaMachineTexture, ScaleMode.ScaleToFit);
             GUI.color = keep;
-            LocGUI.Label(new Rect(lastGachaMachineRect.x - 30f * s, lastGachaMachineRect.yMax + 2f * s, lastGachaMachineRect.width + 60f * s, 24f * s),
+            float lw = Mathf.Max(lastGachaMachineRect.width + 60f * s, 170f * s);
+            float lx = Mathf.Clamp(lastGachaMachineRect.center.x - lw * 0.5f, 4f, Screen.width - lw - 4f); // 画面の端で切れない(縦画面、2026-10-08)
+            LocGUI.Label(new Rect(lx, lastGachaMachineRect.yMax + 2f * s, lw, 24f * s),
                 TotalOwnedMile >= GachaCostMile ? $"TAP +1 ({GachaCostMile} MILE)" : "MILE不足", UiKit.Label(15f * s, TextAnchor.MiddleCenter, true, new Color(1f, 0.85f, 0.4f, pulse)));
             if (PadNav.Button(lastGachaMachineRect)) OnGachaMachineTapped();
         }

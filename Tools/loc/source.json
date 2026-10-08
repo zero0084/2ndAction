@@ -2641,253 +2641,253 @@
  },
  {
   "key": "MASTERY UP！",
-  "ctx": "CardFusionUI.cs:1036",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "合成大成功！",
-  "ctx": "CardFusionUI.cs:1037",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "合成成功！",
-  "ctx": "CardFusionUI.cs:1037",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "<size=21>★{0}つ分進みました(余りは次の★へ繰り越し)</size>",
-  "ctx": "CardFusionUI.cs:1049",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "<size=21>★5 の後に余った {0} は保管しました(今後の使い道に使えます)</size>",
-  "ctx": "CardFusionUI.cs:1050",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "<size=21>このカードは AWAKENED になりました(永久の記録。通常の性能は変わりません)</size>",
-  "ctx": "CardFusionUI.cs:1051",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "メインカード(Lv.9 MAX)はそのまま残り、素材カードを1枚消費しました。",
-  "ctx": "CardFusionUI.cs:1056",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "<size=21>Mastery は通常の性能(攻撃/速度/EXP など)を上げません。</size>",
-  "ctx": "CardFusionUI.cs:1057",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "合成Lv.<b>{0}</b>{1}",
-  "ctx": "CardFusionUI.cs:1066",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": ")}    レア度 <color=#ffd76a>{new string('★', v.rarity)}</color>",
-  "ctx": "CardFusionUI.cs:1066",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "<color=#ffd76a>同名強化(確定)</color> … 両方の能力をすべて継承",
-  "ctx": "CardFusionUI.cs:1067",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "メイン側({0} Lv.{1}): {2}",
-  "ctx": "CardFusionUI.cs:1070",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "素材側({0} Lv.{1}): {2}",
   "ctx": "CardFusionUI.cs:1071",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "メイン側のLvのみ",
-  "ctx": "CardFusionUI.cs:1074",
+  "key": "合成大成功！",
+  "ctx": "CardFusionUI.cs:1072",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "素材側のLvのみ",
-  "ctx": "CardFusionUI.cs:1074",
+  "key": "合成成功！",
+  "ctx": "CardFusionUI.cs:1072",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "<size=21>完成Lv.{0} = {1}</size>",
-  "ctx": "CardFusionUI.cs:1075",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "<b>主能力</b>",
-  "ctx": "CardFusionUI.cs:1077",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "<b>サブ能力 ({0}/{1})</b>",
-  "ctx": "CardFusionUI.cs:1078",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "なし",
-  "ctx": "CardFusionUI.cs:1079",
-  "kind": "ui",
-  "n": 2
- },
- {
-  "key": "合成失敗…",
+  "key": "<size=21>★{0}つ分進みました(余りは次の★へ繰り越し)</size>",
   "ctx": "CardFusionUI.cs:1084",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "メイン側({0} Lv.{1}): <color=#9aa3b8>継承失敗</color>",
-  "ctx": "CardFusionUI.cs:1087",
+  "key": "<size=21>★5 の後に余った {0} は保管しました(今後の使い道に使えます)</size>",
+  "ctx": "CardFusionUI.cs:1085",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "素材側({0} Lv.{1}): <color=#9aa3b8>継承失敗</color>",
-  "ctx": "CardFusionUI.cs:1088",
+  "key": "<size=21>このカードは AWAKENED になりました(永久の記録。通常の性能は変わりません)</size>",
+  "ctx": "CardFusionUI.cs:1086",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "選んだ2枚のカードは消費されました。",
-  "ctx": "CardFusionUI.cs:1089",
+  "key": "メインカード(Lv.9 MAX)はそのまま残り、素材カードを1枚消費しました。",
+  "ctx": "CardFusionUI.cs:1091",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "還元MILE  <color=#ffd76a><b><size=40>+{0}</size></b></color>",
-  "ctx": "CardFusionUI.cs:1090",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "所持MILE  <b>{0}</b>",
+  "key": "<size=21>Mastery は通常の性能(攻撃/速度/EXP など)を上げません。</size>",
   "ctx": "CardFusionUI.cs:1092",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "<color=#ffd76a><b>強化 ×{0}→×{1}</b></color>",
+  "key": "合成Lv.<b>{0}</b>{1}",
+  "ctx": "CardFusionUI.cs:1101",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": ")}    レア度 <color=#ffd76a>{new string('★', v.rarity)}</color>",
+  "ctx": "CardFusionUI.cs:1101",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<color=#ffd76a>同名強化(確定)</color> … 両方の能力をすべて継承",
+  "ctx": "CardFusionUI.cs:1102",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "メイン側({0} Lv.{1}): {2}",
+  "ctx": "CardFusionUI.cs:1105",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "素材側({0} Lv.{1}): {2}",
+  "ctx": "CardFusionUI.cs:1106",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "メイン側のLvのみ",
+  "ctx": "CardFusionUI.cs:1109",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "素材側のLvのみ",
+  "ctx": "CardFusionUI.cs:1109",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<size=21>完成Lv.{0} = {1}</size>",
+  "ctx": "CardFusionUI.cs:1110",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<b>主能力</b>",
+  "ctx": "CardFusionUI.cs:1112",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<b>サブ能力 ({0}/{1})</b>",
+  "ctx": "CardFusionUI.cs:1113",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "なし",
   "ctx": "CardFusionUI.cs:1114",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "合成失敗…",
+  "ctx": "CardFusionUI.cs:1119",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "メイン側({0} Lv.{1}): <color=#9aa3b8>継承失敗</color>",
+  "ctx": "CardFusionUI.cs:1122",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "素材側({0} Lv.{1}): <color=#9aa3b8>継承失敗</color>",
+  "ctx": "CardFusionUI.cs:1123",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "選んだ2枚のカードは消費されました。",
+  "ctx": "CardFusionUI.cs:1124",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "還元MILE  <color=#ffd76a><b><size=40>+{0}</size></b></color>",
+  "ctx": "CardFusionUI.cs:1125",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "所持MILE  <b>{0}</b>",
+  "ctx": "CardFusionUI.cs:1127",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<color=#ffd76a><b>強化 ×{0}→×{1}</b></color>",
+  "ctx": "CardFusionUI.cs:1149",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3} ×{4})</color></size>",
-  "ctx": "CardFusionUI.cs:1115",
+  "ctx": "CardFusionUI.cs:1150",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "戻る",
-  "ctx": "CardFusionUI.cs:249",
+  "ctx": "CardFusionUI.cs:250",
   "kind": "ui",
   "n": 3
  },
  {
   "key": "カード合成",
-  "ctx": "CardFusionUI.cs:254",
+  "ctx": "CardFusionUI.cs:255",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "並び替え",
-  "ctx": "CardFusionUI.cs:273",
+  "ctx": "CardFusionUI.cs:274",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "メイン",
-  "ctx": "CardFusionUI.cs:293",
+  "ctx": "CardFusionUI.cs:294",
   "kind": "ui",
   "n": 4
  },
  {
   "key": "素材",
-  "ctx": "CardFusionUI.cs:293",
+  "ctx": "CardFusionUI.cs:294",
   "kind": "ui",
   "n": 4
  },
  {
   "key": "カード",
-  "ctx": "CardFusionUI.cs:304",
+  "ctx": "CardFusionUI.cs:305",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "選択中",
-  "ctx": "CardFusionUI.cs:308",
+  "ctx": "CardFusionUI.cs:309",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "合成する",
-  "ctx": "CardFusionUI.cs:333",
+  "ctx": "CardFusionUI.cs:334",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "スキップ ▶▶",
-  "ctx": "CardFusionUI.cs:396",
+  "ctx": "CardFusionUI.cs:397",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "続けて合成",
-  "ctx": "CardFusionUI.cs:413",
+  "ctx": "CardFusionUI.cs:414",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "一覧へ戻る",
-  "ctx": "CardFusionUI.cs:417",
+  "ctx": "CardFusionUI.cs:418",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "所持MILE  {0}",
-  "ctx": "CardFusionUI.cs:452",
+  "ctx": "CardFusionUI.cs:453",
   "kind": "ui",
   "n": 3
  },
  {
   "key": "{0}種 / 全{1}枚",
-  "ctx": "CardFusionUI.cs:474",
+  "ctx": "CardFusionUI.cs:475",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "メインカード",
-  "ctx": "CardFusionUI.cs:488",
+  "ctx": "CardFusionUI.cs:489",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "素材カード",
-  "ctx": "CardFusionUI.cs:488",
+  "ctx": "CardFusionUI.cs:489",
   "kind": "ui",
   "n": 1
  },
@@ -2941,13 +2941,13 @@
  },
  {
   "key": "カードを2枚選んでください",
-  "ctx": "CardFusionUI.cs:497",
+  "ctx": "CardFusionUI.cs:498",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "合成できません",
-  "ctx": "CardFusionUI.cs:497",
+  "ctx": "CardFusionUI.cs:498",
   "kind": "ui",
   "n": 1
  },
@@ -2977,193 +2977,199 @@
  },
  {
   "key": "所持{0}  使用可<color=#{1}",
-  "ctx": "CardFusionUI.cs:583",
+  "ctx": "CardFusionUI.cs:618",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "能力{0}",
-  "ctx": "CardFusionUI.cs:583",
+  "ctx": "CardFusionUI.cs:618",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "メイン+素材",
-  "ctx": "CardFusionUI.cs:587",
+  "ctx": "CardFusionUI.cs:622",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "使用中",
-  "ctx": "CardFusionUI.cs:587",
+  "ctx": "CardFusionUI.cs:622",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "<color=#ffd76a><b>{0}</b></color>  <b>{1}</b>  {2}  合成Lv.{3}{4}",
-  "ctx": "CardFusionUI.cs:620",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "主能力: {0}",
-  "ctx": "CardFusionUI.cs:621",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "サブ能力({0}):",
-  "ctx": "CardFusionUI.cs:624",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "・{0}",
-  "ctx": "CardFusionUI.cs:625",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "サブ能力: なし",
-  "ctx": "CardFusionUI.cs:627",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "<size=19><color=#b7bfd8>所持{0}枚 / 使用可{1}枚</color></size>",
-  "ctx": "CardFusionUI.cs:628",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "左の一覧からカードを選んでください。",
-  "ctx": "CardFusionUI.cs:636",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "選択中の枠(光っている枠)にカードが入ります。枠をタップすると選択先を切り替えられ、×で選択を外せます。",
-  "ctx": "CardFusionUI.cs:636",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "・同じカード同士 … 成功率100%で合成Lvと全能力を合算",
-  "ctx": "CardFusionUI.cs:636",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "・違うカード同士 … メイン側50%/素材側25%で能力一式を継承(抽選)。片側だけ成功した場合は、成功した側のLvと能力だけが残ります",
-  "ctx": "CardFusionUI.cs:636",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "・合成Lvの上限はLv.9。同じカードで Lv.9 を超える分は捨てずに Mastery へ(違うカードで合計が Lv.9 を超える組み合わせは合成できません)",
-  "ctx": "CardFusionUI.cs:636",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "・Lv.9 MAX のカードに同じカードを合成すると Mastery が進みます(★5 で AWAKENED)",
-  "ctx": "CardFusionUI.cs:636",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "<size=19>★5(AWAKENED)に到達しています。★5 の後に余ったカードの使い道は今後追加します(今は合成で消費しません)。</size>",
-  "ctx": "CardFusionUI.cs:654",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "同じカード({0})を素材に選ぶと、素材のLvぶん Mastery が進みます(Lv.1 = +1)。",
   "ctx": "CardFusionUI.cs:655",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "主能力: {0}",
+  "ctx": "CardFusionUI.cs:656",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "サブ能力({0}):",
+  "ctx": "CardFusionUI.cs:659",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・{0}",
+  "ctx": "CardFusionUI.cs:660",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "サブ能力: なし",
+  "ctx": "CardFusionUI.cs:662",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<size=19><color=#b7bfd8>所持{0}枚 / 使用可{1}枚</color></size>",
+  "ctx": "CardFusionUI.cs:663",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "上の一覧からカードを選んでください。",
+  "ctx": "CardFusionUI.cs:671",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "左の一覧からカードを選んでください。",
+  "ctx": "CardFusionUI.cs:671",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "選択中の枠(光っている枠)にカードが入ります。枠をタップすると選択先を切り替えられ、×で選択を外せます。",
+  "ctx": "CardFusionUI.cs:671",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・同じカード同士 … 成功率100%で合成Lvと全能力を合算",
+  "ctx": "CardFusionUI.cs:671",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・違うカード同士 … メイン側50%/素材側25%で能力一式を継承(抽選)。片側だけ成功した場合は、成功した側のLvと能力だけが残ります",
+  "ctx": "CardFusionUI.cs:671",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・合成Lvの上限はLv.9。同じカードで Lv.9 を超える分は捨てずに Mastery へ(違うカードで合計が Lv.9 を超える組み合わせは合成できません)",
+  "ctx": "CardFusionUI.cs:671",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "・Lv.9 MAX のカードに同じカードを合成すると Mastery が進みます(★5 で AWAKENED)",
+  "ctx": "CardFusionUI.cs:671",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "<size=19>★5(AWAKENED)に到達しています。★5 の後に余ったカードの使い道は今後追加します(今は合成で消費しません)。</size>",
+  "ctx": "CardFusionUI.cs:689",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "同じカード({0})を素材に選ぶと、素材のLvぶん Mastery が進みます(Lv.1 = +1)。",
+  "ctx": "CardFusionUI.cs:690",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "次に素材カードを選んでください。",
-  "ctx": "CardFusionUI.cs:657",
+  "ctx": "CardFusionUI.cs:692",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "次にメインカードを選んでください。",
-  "ctx": "CardFusionUI.cs:657",
+  "ctx": "CardFusionUI.cs:692",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "このカードは AWAKENED(★5)です",
-  "ctx": "CardFusionUI.cs:722",
+  "ctx": "CardFusionUI.cs:757",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "完成カードをメインにセットしました。素材カードを選んでください",
-  "ctx": "CardFusionUI.cs:724",
+  "ctx": "CardFusionUI.cs:759",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "確定強化",
-  "ctx": "CardFusionUI.cs:830",
+  "ctx": "CardFusionUI.cs:865",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "AWAKENED！",
-  "ctx": "CardFusionUI.cs:889",
+  "ctx": "CardFusionUI.cs:924",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "Lv.9 MAX 到達！",
-  "ctx": "CardFusionUI.cs:890",
+  "ctx": "CardFusionUI.cs:925",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "同名強化 完了！",
-  "ctx": "CardFusionUI.cs:890",
+  "ctx": "CardFusionUI.cs:925",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "大成功！ 両側の能力を継承",
-  "ctx": "CardFusionUI.cs:890",
+  "ctx": "CardFusionUI.cs:925",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "メイン側の能力を継承",
-  "ctx": "CardFusionUI.cs:890",
+  "ctx": "CardFusionUI.cs:925",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "素材側の能力を継承",
-  "ctx": "CardFusionUI.cs:890",
+  "ctx": "CardFusionUI.cs:925",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "継承失敗…  カードはMILEに還元されました",
-  "ctx": "CardFusionUI.cs:920",
+  "ctx": "CardFusionUI.cs:955",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "{0}側 継承成功！",
-  "ctx": "CardFusionUI.cs:930",
+  "ctx": "CardFusionUI.cs:965",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "{0}側 継承失敗",
-  "ctx": "CardFusionUI.cs:930",
+  "ctx": "CardFusionUI.cs:965",
   "kind": "ui",
   "n": 1
  },
@@ -3511,7 +3517,7 @@
  },
  {
   "key": "LOCKED",
-  "ctx": "CharacterSelectUI.cs:291",
+  "ctx": "CharacterSelectUI.cs:337",
   "kind": "ui",
   "n": 2
  },
@@ -4117,13 +4123,7 @@
  },
  {
   "key": "使用中のため変換不可",
-  "ctx": "DeckEditUI.cs:496",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "所持 x{0}",
-  "ctx": "DeckEditUI.cs:571",
+  "ctx": "DeckEditUI.cs:507",
   "kind": "ui",
   "n": 1
  },
@@ -4134,44 +4134,50 @@
   "n": 1
  },
  {
+  "key": "所持 x{0}",
+  "ctx": "DeckEditUI.cs:582",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "[他のキャラのキャラカード]",
-  "ctx": "DeckEditUI.cs:597",
+  "ctx": "DeckEditUI.cs:608",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "現在使用中のカードです。外してから使用してください。",
-  "ctx": "DeckEditUI.cs:779",
+  "ctx": "DeckEditUI.cs:790",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "を{CardConvertMile} MILEに変換しますか？",
-  "ctx": "DeckEditUI.cs:786",
+  "ctx": "DeckEditUI.cs:797",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "現在のデッキを",
-  "ctx": "DeckEditUI.cs:849",
+  "ctx": "DeckEditUI.cs:860",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "おすすめ編成に変更しますか？",
-  "ctx": "DeckEditUI.cs:849",
+  "ctx": "DeckEditUI.cs:860",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "デッキからすべてのカードを",
-  "ctx": "DeckEditUI.cs:872",
+  "ctx": "DeckEditUI.cs:883",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "外しますか？",
-  "ctx": "DeckEditUI.cs:872",
+  "ctx": "DeckEditUI.cs:883",
   "kind": "ui",
   "n": 1
  },
@@ -4297,7 +4303,7 @@
  },
  {
   "key": "MILE不足",
-  "ctx": "GameManager.Gacha.cs:201",
+  "ctx": "GameManager.Gacha.cs:203",
   "kind": "ui",
   "n": 1
  },
@@ -4333,427 +4339,451 @@
  },
  {
   "key": "SPEED",
-  "ctx": "GameManager.cs:1829",
+  "ctx": "GameManager.cs:1832",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "SPEED UP!",
-  "ctx": "GameManager.cs:1841",
+  "ctx": "GameManager.cs:1844",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "キャラ",
+  "ctx": "GameManager.cs:1946",
+  "kind": "ui",
+  "n": 3
+ },
+ {
+  "key": "デッキ",
+  "ctx": "GameManager.cs:1946",
+  "kind": "ui",
+  "n": 2
+ },
+ {
+  "key": "合成",
+  "ctx": "GameManager.cs:1946",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ガチャ",
+  "ctx": "GameManager.cs:1946",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "選択待ちの停止理由だけが残っていた",
-  "ctx": "GameManager.cs:2509",
+  "ctx": "GameManager.cs:2594",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ポーズメニューの停止理由だけが残っていた",
-  "ctx": "GameManager.cs:2509",
+  "ctx": "GameManager.cs:2594",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ボス登場演出のスローが長すぎた",
-  "ctx": "GameManager.cs:2524",
+  "ctx": "GameManager.cs:2609",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ボス登場演出のスローだけが残っていた",
-  "ctx": "GameManager.cs:2524",
+  "ctx": "GameManager.cs:2609",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "BOSS REWARD",
-  "ctx": "GameManager.cs:2539",
+  "ctx": "GameManager.cs:2624",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "LEVEL UP",
-  "ctx": "GameManager.cs:2539",
+  "ctx": "GameManager.cs:2624",
   "kind": "ui",
   "n": 5
  },
  {
   "key": "選択待ちなのに選択画面が無かった → もう一度出した({0}, {1}回目, ok={2})",
-  "ctx": "GameManager.cs:2540",
+  "ctx": "GameManager.cs:2625",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "選択待ちなのに選択画面が出せない → 選択無しで解決({0})",
-  "ctx": "GameManager.cs:2544",
+  "ctx": "GameManager.cs:2629",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "選択画面が食い違って開いていた → 畳んで{0}を出し直した",
-  "ctx": "GameManager.cs:2555",
+  "ctx": "GameManager.cs:2640",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "BOSS",
-  "ctx": "GameManager.cs:2619",
+  "ctx": "GameManager.cs:2704",
   "kind": "ui",
   "n": 4
  },
  {
   "key": "BEST",
-  "ctx": "GameManager.cs:3814",
+  "ctx": "GameManager.cs:3915",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "DISTANCE",
-  "ctx": "GameManager.cs:3815",
+  "ctx": "GameManager.cs:3916",
   "kind": "ui",
   "n": 3
  },
  {
   "key": "II",
-  "ctx": "GameManager.cs:3849",
+  "ctx": "GameManager.cs:3950",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "STEP:",
-  "ctx": "GameManager.cs:3889",
+  "ctx": "GameManager.cs:3990",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "NEW RUN",
-  "ctx": "GameManager.cs:4040",
+  "ctx": "GameManager.cs:4132",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "FAILED",
-  "ctx": "GameManager.cs:4286",
+  "ctx": "GameManager.cs:4382",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "TIME",
-  "ctx": "GameManager.cs:4322",
+  "ctx": "GameManager.cs:4419",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "ENEMIES DEFEATED",
-  "ctx": "GameManager.cs:4323",
+  "ctx": "GameManager.cs:4420",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "BOSSES DEFEATED",
-  "ctx": "GameManager.cs:4324",
+  "ctx": "GameManager.cs:4421",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "BONUS",
-  "ctx": "GameManager.cs:4325",
+  "ctx": "GameManager.cs:4422",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "BONUS ZONE",
-  "ctx": "GameManager.cs:4326",
+  "ctx": "GameManager.cs:4423",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "RING BONUS",
-  "ctx": "GameManager.cs:4327",
+  "ctx": "GameManager.cs:4424",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "TOTAL EXP",
-  "ctx": "GameManager.cs:4328",
+  "ctx": "GameManager.cs:4425",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "UPGRADES OBTAINED",
-  "ctx": "GameManager.cs:4329",
+  "ctx": "GameManager.cs:4426",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "TOTAL MILE",
-  "ctx": "GameManager.cs:4330",
+  "ctx": "GameManager.cs:4427",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "NEW:",
-  "ctx": "GameManager.cs:4339",
+  "ctx": "GameManager.cs:4436",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "DEV: 記録の対象外 (",
-  "ctx": "GameManager.cs:4347",
+  "ctx": "GameManager.cs:4444",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ENEMIES / BOSSES",
-  "ctx": "GameManager.cs:4358",
+  "ctx": "GameManager.cs:4455",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "TOTAL EXP / UPGRADES",
-  "ctx": "GameManager.cs:4359",
+  "ctx": "GameManager.cs:4456",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "失ったもの: このランのMILE {0}",
-  "ctx": "GameManager.cs:4371",
+  "ctx": "GameManager.cs:4468",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "今回の距離は、正式な記録(BEST・累計・解放)には残りません",
-  "ctx": "GameManager.cs:4372",
+  "ctx": "GameManager.cs:4469",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "残るもの: これまでに確定した記録・カード・MILE(WALLET {0})",
-  "ctx": "GameManager.cs:4373",
+  "ctx": "GameManager.cs:4470",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "HP",
-  "ctx": "GameManager.cs:4579",
+  "ctx": "GameManager.cs:4676",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "封印{0}",
-  "ctx": "GameManager.cs:4585",
+  "ctx": "GameManager.cs:4682",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "盾{0}",
-  "ctx": "GameManager.cs:4585",
+  "ctx": "GameManager.cs:4682",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "MAX",
-  "ctx": "GameManager.cs:4750",
+  "ctx": "GameManager.cs:4847",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "合成Lv.{0}  能力{1}種",
-  "ctx": "GameManager.cs:4753",
+  "ctx": "GameManager.cs:4850",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "速度のみ x{0}(配置間隔は変えない)",
-  "ctx": "GameManager.cs:4956",
+  "ctx": "GameManager.cs:5053",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ASSIST ON",
-  "ctx": "GameManager.cs:4971",
+  "ctx": "GameManager.cs:5068",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ASSIST OFF",
-  "ctx": "GameManager.cs:4971",
+  "ctx": "GameManager.cs:5068",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "直近:{0}({1})",
-  "ctx": "GameManager.cs:4976",
+  "ctx": "GameManager.cs:5073",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "不可:{0}",
-  "ctx": "GameManager.cs:4977",
+  "ctx": "GameManager.cs:5074",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "障害物:{0} 壊す{1}/跳ぶ{2}/無理{3}",
-  "ctx": "GameManager.cs:4978",
+  "ctx": "GameManager.cs:5075",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "{0} 判定{1}km/h(ON≧{2}/OFF<{3}){4}{5}",
-  "ctx": "GameManager.cs:4979",
+  "ctx": "GameManager.cs:5076",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "MILE RESET",
-  "ctx": "GameManager.cs:5050",
+  "ctx": "GameManager.cs:5147",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "CARD RESET",
-  "ctx": "GameManager.cs:5052",
+  "ctx": "GameManager.cs:5149",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "背景: {0}",
-  "ctx": "GameManager.cs:5110",
+  "ctx": "GameManager.cs:5207",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "[プレビュー]",
-  "ctx": "GameManager.cs:5110",
+  "ctx": "GameManager.cs:5207",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "読込{0}枚 {1}MB",
-  "ctx": "GameManager.cs:5111",
+  "ctx": "GameManager.cs:5208",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "背景◀",
-  "ctx": "GameManager.cs:5119",
+  "ctx": "GameManager.cs:5216",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "背景▶",
-  "ctx": "GameManager.cs:5119",
+  "ctx": "GameManager.cs:5216",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "移行",
-  "ctx": "GameManager.cs:5119",
+  "ctx": "GameManager.cs:5216",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "通常",
-  "ctx": "GameManager.cs:5119",
+  "ctx": "GameManager.cs:5216",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "境目へ",
-  "ctx": "GameManager.cs:5119",
+  "ctx": "GameManager.cs:5216",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "設定",
-  "ctx": "GameManager.cs:5207",
+  "ctx": "GameManager.cs:5305",
   "kind": "ui",
   "n": 3
  },
  {
   "key": "闘技場",
-  "ctx": "GameManager.cs:5216",
+  "ctx": "GameManager.cs:5314",
   "kind": "ui",
   "n": 3
  },
  {
   "key": "ランキング",
-  "ctx": "GameManager.cs:5220",
+  "ctx": "GameManager.cs:5318",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "DEBUG",
-  "ctx": "GameManager.cs:5225",
+  "ctx": "GameManager.cs:5323",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "NEW",
-  "ctx": "GameManager.cs:5247",
+  "ctx": "GameManager.cs:5345",
   "kind": "ui",
   "n": 3
  },
  {
   "key": "現在のRunと未確定MILEを",
-  "ctx": "GameManager.cs:5875",
+  "ctx": "GameManager.cs:5973",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "破棄します。よろしいですか？",
-  "ctx": "GameManager.cs:5875",
+  "ctx": "GameManager.cs:5973",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "破棄してNEW RUN",
-  "ctx": "GameManager.cs:5879",
+  "ctx": "GameManager.cs:5977",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "キャンセル",
-  "ctx": "GameManager.cs:5887",
+  "ctx": "GameManager.cs:5985",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "RESUME",
-  "ctx": "GameManager.cs:5907",
+  "ctx": "GameManager.cs:6005",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "RETURN TO HOME",
-  "ctx": "GameManager.cs:5914",
+  "ctx": "GameManager.cs:6012",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "Home Roomへ戻ります。",
-  "ctx": "GameManager.cs:5943",
+  "ctx": "GameManager.cs:6041",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "Runは終了せず、この続きから",
-  "ctx": "GameManager.cs:5943",
+  "ctx": "GameManager.cs:6041",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "CONTINUEできます。",
-  "ctx": "GameManager.cs:5943",
+  "ctx": "GameManager.cs:6041",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ESCAPE AVAILABLE",
-  "ctx": "GameManager.cs:5973",
+  "ctx": "GameManager.cs:6071",
   "kind": "ui",
   "n": 1
  },
@@ -5544,14 +5574,20 @@
   "n": 1
  },
  {
+  "key": "カードをタップして選択 → もう一度タップで決定",
+  "ctx": "RewardCardSequence.cs:430",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "もう一度タップして決定",
-  "ctx": "RewardCardSequence.cs:780",
+  "ctx": "RewardCardSequence.cs:869",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "カードをタップして選択してください",
-  "ctx": "RewardCardSequence.cs:789",
+  "ctx": "RewardCardSequence.cs:878",
   "kind": "ui",
   "n": 1
  },
@@ -5575,27 +5611,15 @@
  },
  {
   "key": "強さ Lv{d.level:0.0}{(d.def.risk ?",
-  "ctx": "RunBuildHud.cs:352",
+  "ctx": "RunBuildHud.cs:361",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "COMBO",
-  "ctx": "RunBuildHud.cs:366",
+  "ctx": "RunBuildHud.cs:375",
   "kind": "ui",
   "n": 2
- },
- {
-  "key": "キャラ",
-  "ctx": "RunBuildHud.cs:386",
-  "kind": "ui",
-  "n": 2
- },
- {
-  "key": "デッキ",
-  "ctx": "RunBuildHud.cs:387",
-  "kind": "ui",
-  "n": 1
  },
  {
   "key": "{0}で{1}m到達",
@@ -5677,235 +5701,283 @@
  },
  {
   "key": "音",
-  "ctx": "Settings/SettingsPanel.cs:256",
+  "ctx": "Settings/SettingsPanel.cs:264",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "(音声が使えません)",
-  "ctx": "Settings/SettingsPanel.cs:257",
+  "ctx": "Settings/SettingsPanel.cs:265",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "全体ミュート",
-  "ctx": "Settings/SettingsPanel.cs:258",
+  "ctx": "Settings/SettingsPanel.cs:266",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "全体",
-  "ctx": "Settings/SettingsPanel.cs:260",
+  "ctx": "Settings/SettingsPanel.cs:268",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "BGM",
-  "ctx": "Settings/SettingsPanel.cs:261",
+  "ctx": "Settings/SettingsPanel.cs:269",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "SE",
-  "ctx": "Settings/SettingsPanel.cs:262",
+  "ctx": "Settings/SettingsPanel.cs:270",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "環境音",
-  "ctx": "Settings/SettingsPanel.cs:263",
+  "ctx": "Settings/SettingsPanel.cs:271",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "言語 / Language",
-  "ctx": "Settings/SettingsPanel.cs:279",
+  "ctx": "Settings/SettingsPanel.cs:287",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "言語",
-  "ctx": "Settings/SettingsPanel.cs:279",
+  "ctx": "Settings/SettingsPanel.cs:287",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "選んだ言語で表示します",
-  "ctx": "Settings/SettingsPanel.cs:289",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "端末の言語に合わせています",
-  "ctx": "Settings/SettingsPanel.cs:289",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "表示",
   "ctx": "Settings/SettingsPanel.cs:297",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "端末の言語に合わせています",
+  "ctx": "Settings/SettingsPanel.cs:297",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "表示",
+  "ctx": "Settings/SettingsPanel.cs:305",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "画面の向き",
-  "ctx": "Settings/SettingsPanel.cs:298",
+  "ctx": "Settings/SettingsPanel.cs:306",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "横画面",
-  "ctx": "Settings/SettingsPanel.cs:298",
+  "ctx": "Settings/SettingsPanel.cs:306",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "縦画面",
-  "ctx": "Settings/SettingsPanel.cs:298",
+  "ctx": "Settings/SettingsPanel.cs:306",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "画面揺れ",
-  "ctx": "Settings/SettingsPanel.cs:300",
+  "ctx": "Settings/SettingsPanel.cs:309",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "発光演出",
-  "ctx": "Settings/SettingsPanel.cs:301",
+  "ctx": "Settings/SettingsPanel.cs:310",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "※敵の攻撃予兆や操作に必要な表示は弱くなりません",
-  "ctx": "Settings/SettingsPanel.cs:302",
+  "ctx": "Settings/SettingsPanel.cs:311",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "操作",
-  "ctx": "Settings/SettingsPanel.cs:312",
+  "key": "縦画面のラン表示",
+  "ctx": "Settings/SettingsPanel.cs:319",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "(自動補助は使えません)",
-  "ctx": "Settings/SettingsPanel.cs:313",
+  "key": "横から見る",
+  "ctx": "Settings/SettingsPanel.cs:319",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "オートモード",
-  "ctx": "Settings/SettingsPanel.cs:314",
+  "key": "斜め上から見る",
+  "ctx": "Settings/SettingsPanel.cs:319",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "オート開始速度",
-  "ctx": "Settings/SettingsPanel.cs:318",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "ボス戦でもオート",
-  "ctx": "Settings/SettingsPanel.cs:320",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "自動攻撃",
-  "ctx": "Settings/SettingsPanel.cs:321",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "自動回避",
-  "ctx": "Settings/SettingsPanel.cs:322",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "走る速さが開始速度を超えると、ONの操作だけ自動で行います。",
-  "ctx": "Settings/SettingsPanel.cs:323",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "自動攻撃: 前の敵・壊せる障害物・ボスへの攻撃。",
-  "ctx": "Settings/SettingsPanel.cs:324",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "自動回避: 穴・障害物・壁・トゲへのジャンプ。ボス戦では弾や攻撃範囲も。",
+  "key": "横から見る: 道が横に流れる。足もとと上下の段が見やすい",
   "ctx": "Settings/SettingsPanel.cs:325",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "通常の敵の攻撃は避けません。必ず避けられるわけではありません。",
+  "key": "斜め上から見る: 道が奥へ続く。先の敵や穴を早めに見通せる",
+  "ctx": "Settings/SettingsPanel.cs:325",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ラン中の変更は設定を閉じると反映されます",
   "ctx": "Settings/SettingsPanel.cs:326",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "縦画面のランで使われます",
+  "ctx": "Settings/SettingsPanel.cs:326",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "縦画面にした時に使われます(横画面の表示は変わりません)",
+  "ctx": "Settings/SettingsPanel.cs:326",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "操作",
+  "ctx": "Settings/SettingsPanel.cs:369",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "(自動補助は使えません)",
+  "ctx": "Settings/SettingsPanel.cs:370",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "オートモード",
+  "ctx": "Settings/SettingsPanel.cs:371",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "オート開始速度",
+  "ctx": "Settings/SettingsPanel.cs:375",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ボス戦でもオート",
+  "ctx": "Settings/SettingsPanel.cs:377",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "自動攻撃",
+  "ctx": "Settings/SettingsPanel.cs:378",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "自動回避",
+  "ctx": "Settings/SettingsPanel.cs:379",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "走る速さが開始速度を超えると、ONの操作だけ自動で行います。",
+  "ctx": "Settings/SettingsPanel.cs:380",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "自動攻撃: 前の敵・壊せる障害物・ボスへの攻撃。",
+  "ctx": "Settings/SettingsPanel.cs:381",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "自動回避: 穴・障害物・壁・トゲへのジャンプ。ボス戦では弾や攻撃範囲も。",
+  "ctx": "Settings/SettingsPanel.cs:382",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "通常の敵の攻撃は避けません。必ず避けられるわけではありません。",
+  "ctx": "Settings/SettingsPanel.cs:383",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "自分の操作が優先。ボス戦OFFならボス戦の間は自動操作しません。",
-  "ctx": "Settings/SettingsPanel.cs:327",
+  "ctx": "Settings/SettingsPanel.cs:384",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "※ ボス戦でもオートは、ボスと戦っている間は速さに関係なく働きます。",
-  "ctx": "Settings/SettingsPanel.cs:328",
+  "ctx": "Settings/SettingsPanel.cs:385",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "プロフィール",
-  "ctx": "Settings/SettingsPanel.cs:337",
+  "ctx": "Settings/SettingsPanel.cs:394",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "保存",
-  "ctx": "Settings/SettingsPanel.cs:348",
+  "ctx": "Settings/SettingsPanel.cs:405",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "ランキングとマルチで表示する名前(最大{0}文字)。未設定でも遊べます。",
-  "ctx": "Settings/SettingsPanel.cs:356",
+  "ctx": "Settings/SettingsPanel.cs:413",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "本名などの個人情報は入れないでください。",
-  "ctx": "Settings/SettingsPanel.cs:357",
+  "ctx": "Settings/SettingsPanel.cs:414",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "遊び方",
-  "ctx": "Settings/SettingsPanel.cs:363",
+  "ctx": "Settings/SettingsPanel.cs:420",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "操作を練習する",
-  "ctx": "Settings/SettingsPanel.cs:365",
+  "ctx": "Settings/SettingsPanel.cs:422",
   "kind": "ui",
   "n": 2
  },
  {
   "key": "前後の攻撃/ジャンプ/下攻撃/打ち上げ/カードを練習(報酬なし)",
-  "ctx": "Settings/SettingsPanel.cs:371",
+  "ctx": "Settings/SettingsPanel.cs:428",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "練習はホームで始められます(ラン中/マルチ中は不可)",
-  "ctx": "Settings/SettingsPanel.cs:371",
+  "ctx": "Settings/SettingsPanel.cs:428",
   "kind": "ui",
   "n": 1
  },
@@ -6073,121 +6145,157 @@
  },
  {
   "key": "疾走再開!",
-  "ctx": "Sprint/SprintRunner.cs:189",
+  "ctx": "Sprint/SprintRunner.cs:190",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "RING!  今は取れるカードがありません",
-  "ctx": "Sprint/SprintRunner.cs:222",
+  "ctx": "Sprint/SprintRunner.cs:223",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "リングを逃した",
-  "ctx": "Sprint/SprintRunner.cs:245",
+  "ctx": "Sprint/SprintRunner.cs:246",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "BONUS CARD",
-  "ctx": "Sprint/SprintRunner.cs:271",
+  "ctx": "Sprint/SprintRunner.cs:272",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "RING!",
-  "ctx": "Sprint/SprintRunner.cs:285",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "今は取れるカードがありません",
   "ctx": "Sprint/SprintRunner.cs:286",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "今は取れるカードがありません",
+  "ctx": "Sprint/SprintRunner.cs:287",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "デッキ内のカードがすべてLv9になりました。",
-  "ctx": "Sprint/SprintRunner.cs:307",
+  "ctx": "Sprint/SprintRunner.cs:308",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "以降のリング報酬はMILEです",
-  "ctx": "Sprint/SprintRunner.cs:307",
+  "ctx": "Sprint/SprintRunner.cs:308",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "十字キー / スティックの上下(A = 上 / B = 下)",
-  "ctx": "Sprint/SprintRunner.cs:359",
+  "ctx": "Sprint/SprintRunner.cs:374",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "↑↓ キー / W・S",
-  "ctx": "Sprint/SprintRunner.cs:360",
+  "ctx": "Sprint/SprintRunner.cs:375",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "上下にフリック / 右下の ▲▼",
-  "ctx": "Sprint/SprintRunner.cs:361",
+  "ctx": "Sprint/SprintRunner.cs:376",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "疾走出発  →  {0}m の関門の手前へ",
-  "ctx": "Sprint/SprintRunner.cs:531",
+  "key": "疾走出発",
+  "ctx": "Sprint/SprintRunner.cs:552",
   "kind": "ui",
   "n": 1
  },
  {
-  "key": "ボス報酬の自動取得 {0}/{1}   リング {2}/{3}{4}",
-  "ctx": "Sprint/SprintRunner.cs:544",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "デッキ全カード Lv{0} MAX",
-  "ctx": "Sprint/SprintRunner.cs:553",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "リング報酬は +{0} MILE",
-  "ctx": "Sprint/SprintRunner.cs:553",
-  "kind": "ui",
-  "n": 1
- },
- {
-  "key": "今は取れるカードがありません(×{0})",
+  "key": "→ {0}m の関門の手前へ",
   "ctx": "Sprint/SprintRunner.cs:554",
   "kind": "ui",
   "n": 1
  },
  {
+  "key": "疾走出発  →  {0}m の関門の手前へ",
+  "ctx": "Sprint/SprintRunner.cs:559",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "報酬 {0}/{1}    リング {2}/{3}{4}",
+  "ctx": "Sprint/SprintRunner.cs:573",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ボス報酬の自動取得 {0}/{1}   リング {2}/{3}{4}",
+  "ctx": "Sprint/SprintRunner.cs:574",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "デッキ全カード Lv{0} MAX",
+  "ctx": "Sprint/SprintRunner.cs:586",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "リング報酬は +{0} MILE",
+  "ctx": "Sprint/SprintRunner.cs:586",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "今は取れるカードがありません(×{0})",
+  "ctx": "Sprint/SprintRunner.cs:587",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "ほか {0} 枚",
+  "ctx": "Sprint/SprintRunner.cs:615",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "{0} で高さを合わせてリングをくぐる",
+  "ctx": "Sprint/SprintRunner.cs:630",
+  "kind": "ui",
+  "n": 1
+ },
+ {
+  "key": "(逃しても減るものはありません)",
+  "ctx": "Sprint/SprintRunner.cs:630",
+  "kind": "ui",
+  "n": 1
+ },
+ {
   "key": "{0} で高さを合わせてリングをくぐる(逃しても減るものはありません)",
-  "ctx": "Sprint/SprintRunner.cs:582",
+  "ctx": "Sprint/SprintRunner.cs:632",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "上下で移動 / リング通過で +MILE",
-  "ctx": "Sprint/SprintRunner.cs:591",
+  "ctx": "Sprint/SprintRunner.cs:642",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "上下で移動 / リング通過で追加カード",
-  "ctx": "Sprint/SprintRunner.cs:591",
+  "ctx": "Sprint/SprintRunner.cs:642",
   "kind": "ui",
   "n": 1
  },
  {
   "key": "デッキ内のカードがすべてLv9です。リング報酬はMILEです",
-  "ctx": "Sprint/SprintRunner.cs:593",
+  "ctx": "Sprint/SprintRunner.cs:644",
   "kind": "ui",
   "n": 1
  },

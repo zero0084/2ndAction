@@ -243,7 +243,7 @@ public class TutorialLauncher : MonoBehaviour
         if (!Covering) return;
         GUI.depth = -30000;
         UiKit.Fill(new Rect(0, 0, Screen.width, Screen.height), new Color(0.07f, 0.05f, 0.04f, 1f));
-        float s = Mathf.Max(0.6f, Screen.height / 1080f);
+        float s = Mathf.Max(0.6f, Mathf.Min(Screen.width, Screen.height) / 1080f); // 短い辺基準(2026-10-08)
         if (coverStyle == null) coverStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
         coverStyle.fontSize = Mathf.RoundToInt(44 * s); coverStyle.normal.textColor = new Color(1f, 0.86f, 0.55f);
         int dots = 1 + (int)(Time.unscaledTime * 2.5f) % 3;

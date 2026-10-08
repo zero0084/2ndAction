@@ -38,6 +38,7 @@ public class SprintRunner : MonoBehaviour
     public int GatesTotal { get; private set; }
     public int AutoSkipped { get; private set; }
     public int FeedRowsNoCandidate { get; private set; }   // 「取れるカードなし」を右側に積んだ行の数(確認用: 0 のはず)
+    public int FeedMerged { get; private set; }           // 縦画面で「ほか N 枚」にまとめた数(確認用、2026-10-08)
     public bool AllMaxedAtStart { get; private set; }
     public bool AllMaxedNotified { get; private set; }
     public int AllMaxedNotices { get; private set; }
@@ -344,8 +345,22 @@ public class SprintRunner : MonoBehaviour
             }
         }
     }
-    static Rect UpButton() { float s = Screen.height / 1080f; return new Rect(Screen.width - 200f * s, Screen.height - 420f * s, 160f * s, 150f * s); }
-    static Rect DownButton() { float s = Screen.height / 1080f; return new Rect(Screen.width - 200f * s, Screen.height - 250f * s, 160f * s, 150f * s); }
+    // 縦画面(2026-10-08、依頼E-7): 大きさは「高さ/1080」と「幅/864」の小さい方(横画面は今までどおり 高さ/1080)。縦では▲▼を下の段に横並び
+    static bool Portrait => Screen.height > Screen.width;
+    static float Ui => Mathf.Min(Screen.height / 1080f, Screen.width / 864f);
+    static float SafeBottomPx => Screen.safeArea.yMin;
+    static Rect UpButton()
+    {
+        float s = Ui;
+        if (Portrait) return new Rect(Screen.width - 340f * s, Screen.height - SafeBottomPx - 170f * s, 150f * s, 140f * s);
+        return new Rect(Screen.width - 200f * s, Screen.height - 420f * s, 160f * s, 150f * s);
+    }
+    static Rect DownButton()
+    {
+        float s = Ui;
+        if (Portrait) return new Rect(Screen.width - 175f * s, Screen.height - SafeBottomPx - 170f * s, 150f * s, 140f * s);
+        return new Rect(Screen.width - 200f * s, Screen.height - 250f * s, 160f * s, 150f * s);
+    }
 
     void MoveLane(int d) { if (waitingChoice) return; lane = Mathf.Clamp(lane + d, 0, lanes - 1); }
 
@@ -370,7 +385,9 @@ public class SprintRunner : MonoBehaviour
         if (!outro && (waitingChoice || gm.SprintChoiceOpen)) return; // カードの3択(と取得中のカード一覧)を見せる
         GUI.depth = -900;
         var tn = SprintTuning.I;
-        float W = Screen.width, H = Screen.height, s = H / 1080f;
+        float W = Screen.width, H = Screen.height, s = Ui;
+        bool P = Portrait;
+        float safeTop = H - Screen.safeArea.yMax;
         float speedPhase = t * 2.4f;
         float op = 1f; // 画面全体の濃さ(到着の補間で薄くなる)
         float op01 = 0f;
@@ -401,7 +418,7 @@ public class SprintRunner : MonoBehaviour
             UiKit.Fill(new Rect(x * W, streakY[i] * H * 0.75f, streakLen[i] * W, 2f * s), new Color(1f, 1f, 1f, 0.25f));
         }
         // 地面の帯
-        float groundY = H * 0.78f;
+        float groundY = H * (P ? 0.72f : 0.78f); // 縦: 下の段(▲▼/説明)の分だけ上げる
         UiKit.Fill(new Rect(0, groundY, W, H - groundY), new Color(0.08f, 0.07f, 0.06f, 0.92f));
         for (int i = 0; i < 14; i++)
         {
@@ -519,7 +536,7 @@ public class SprintRunner : MonoBehaviour
             {
                 float ta = Mathf.Clamp01((1f - p) * 3f);
                 float ty = cy - 130f * s - 40f * s * p;
-                var tr2 = new Rect(cx - 260f * s, ty, 520f * s, 56f * s);
+                var tr2 = new Rect(Mathf.Clamp(cx - 260f * s, 8f, Mathf.Max(8f, W - 528f * s)), ty, 520f * s, 56f * s);
                 GUI.color = new Color(1f, 1f, 1f, ta);
                 LocGUI.Label(new Rect(tr2.x + 2f * s, tr2.y + 2f * s, tr2.width, tr2.height), b.text, UiKit.Label(40f * s, TextAnchor.MiddleCenter, true, new Color(0f, 0f, 0f, 0.75f * ta)));
                 LocGUI.Label(tr2, b.text, UiKit.Label(40f * s, TextAnchor.MiddleCenter, true, new Color(b.col.r, b.col.g, b.col.b, ta)));
@@ -528,9 +545,21 @@ public class SprintRunner : MonoBehaviour
         }
 
         // 上部: 行き先と距離 / 進み具合(関門とリングの印)
-        LocGUI.Label(new Rect(40f * s, 24f * s, W, 50f * s), $"疾走出発  →  {Destination:N0}m の関門の手前へ", UiKit.Label(34f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f)));
-        LocGUI.Label(new Rect(40f * s, 70f * s, W, 90f * s), $"{DistanceNow:N0} m", UiKit.Label(72f * s, TextAnchor.MiddleLeft, true, Color.white));
-        Rect bar = new Rect(40f * s, 170f * s, W - 80f * s, 14f * s);
+        // 縦: 見出しを2行に(疾走出発 / 行き先)、その下に距離・進み具合・数
+        float top0 = P ? safeTop + 16f * s : 0f;
+        if (P)
+        {
+            LocGUI.Label(new Rect(30f * s, top0, W - 60f * s, 48f * s), "疾走出発", UiKit.Label(38f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f)));
+            var dl = UiKit.Label(30f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f)); dl.wordWrap = true;
+            LocGUI.Label(new Rect(30f * s, top0 + 46f * s, W - 60f * s, 44f * s), $"→ {Destination:N0}m の関門の手前へ", dl);
+            LocGUI.Label(new Rect(30f * s, top0 + 92f * s, W - 60f * s, 90f * s), $"{DistanceNow:N0} m", UiKit.Label(72f * s, TextAnchor.MiddleLeft, true, Color.white));
+        }
+        else
+        {
+            LocGUI.Label(new Rect(40f * s, 24f * s, W, 50f * s), $"疾走出発  →  {Destination:N0}m の関門の手前へ", UiKit.Label(34f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f)));
+            LocGUI.Label(new Rect(40f * s, 70f * s, W, 90f * s), $"{DistanceNow:N0} m", UiKit.Label(72f * s, TextAnchor.MiddleLeft, true, Color.white));
+        }
+        Rect bar = P ? new Rect(30f * s, top0 + 196f * s, W - 60f * s, 14f * s) : new Rect(40f * s, 170f * s, W - 80f * s, 14f * s);
         UiKit.Fill(bar, new Color(1f, 1f, 1f, 0.15f));
         UiKit.Fill(new Rect(bar.x, bar.y, bar.width * DistanceNow / Mathf.Max(1f, ArrivalMeters), bar.height), new Color(1f, 0.8f, 0.35f, 0.9f));
         for (int k = 1; k <= GatesTotal; k++) UiKit.Fill(new Rect(bar.x + bar.width * k * 1000f / ArrivalMeters - 1f, bar.y - 4f * s, 2f, bar.height + 8f * s), new Color(1f, 1f, 1f, 0.35f));
@@ -541,13 +570,17 @@ public class SprintRunner : MonoBehaviour
         }
         GUI.color = Color.white;
         int ringMile = gm.RunRingMile;
-        LocGUI.Label(new Rect(40f * s, 196f * s, W, 36f * s), $"ボス報酬の自動取得 {GatesPassed}/{GatesTotal}   リング {RingsSucceeded}/{rings.Count}{(ringMile > 0 ? $"   リングの MILE +{ringMile}" : "")}", UiKit.Label(24f * s, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.9f, 1f)));
+        if (P) LocGUI.Label(new Rect(30f * s, bar.yMax + 12f * s, W - 60f * s, 40f * s), $"報酬 {GatesPassed}/{GatesTotal}    リング {RingsSucceeded}/{rings.Count}{(ringMile > 0 ? $"    MILE +{ringMile}" : "")}", UiKit.Label(30f * s, TextAnchor.MiddleLeft, true, new Color(0.85f, 0.9f, 1f)));
+        else LocGUI.Label(new Rect(40f * s, 196f * s, W, 36f * s), $"ボス報酬の自動取得 {GatesPassed}/{GatesTotal}   リング {RingsSucceeded}/{rings.Count}{(ringMile > 0 ? $"   リングの MILE +{ringMile}" : "")}", UiKit.Label(24f * s, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.9f, 1f)));
 
         // 右: 取得したカード(アイコン/名前/更新後のLv)。候補が無い時は積み重ねずに状態の1行
-        float fy = 250f * s;
+        // 縦: 数の下に横いっぱいの小さな行(最大3行、それより多い時は「ほか N 枚」にまとめる)
+        float fy = P ? bar.yMax + 62f * s : 250f * s;
+        float rowX = P ? 30f * s : W - 520f * s, rowW = P ? W - 60f * s : 480f * s, rowH = P ? 52f * s : 64f * s, rowStep = P ? 58f * s : 70f * s;
+        int maxRows = P ? 3 : 5;
         if (allMaxed || AutoSkipped > 0)
         {
-            Rect row = new Rect(W - 520f * s, fy, 480f * s, 64f * s);
+            Rect row = new Rect(rowX, fy, rowW, P ? 64f * s : 64f * s);
             UiKit.Fill(row, allMaxed ? new Color(0.12f, 0.1f, 0.03f, 0.85f) : new Color(0.08f, 0.08f, 0.12f, 0.85f));
             statusLine = allMaxed
                 ? $"デッキ全カード Lv{GameManager.MaxRunCardLevel} MAX\nリング報酬は +{tn.ringMileReward} MILE"
@@ -555,22 +588,32 @@ public class SprintRunner : MonoBehaviour
             var stl = UiKit.Label(22f * s, TextAnchor.MiddleLeft, true, allMaxed ? new Color(1f, 0.88f, 0.45f) : new Color(0.85f, 0.85f, 0.9f));
             stl.wordWrap = true;
             LocGUI.Label(new Rect(row.x + 16f * s, row.y, row.width - 24f * s, row.height), statusLine, stl);
-            fy += 70f * s;
+            fy += rowStep + (P ? 6f * s : 0f);
         }
-        int shown = 0;
-        for (int i = feed.Count - 1; i >= 0 && shown < 5; i--)
+        int shown = 0, live = 0;
+        for (int i = feed.Count - 1; i >= 0; i--) { if (Time.unscaledTime - feed[i].at > tn.grantFeedSeconds) break; live++; }
+        int rowsCards = live > maxRows ? maxRows - 1 : maxRows; // 多い時は最後の1行を「ほか N 枚」に
+        float icon = rowH - 12f * s;
+        for (int i = feed.Count - 1; i >= 0 && shown < rowsCards; i--)
         {
             var f = feed[i];
             float age = Time.unscaledTime - f.at;
             if (age > tn.grantFeedSeconds) break;
             float a = Mathf.Clamp01((tn.grantFeedSeconds - age) / 0.6f);
-            Rect row = new Rect(W - 520f * s, fy, 480f * s, 64f * s);
+            Rect row = new Rect(rowX, fy, rowW, rowH);
             UiKit.Fill(row, new Color(0.06f, 0.08f, 0.16f, 0.82f * a));
-            if (f.card != null && f.card.icon != null) { GUI.color = new Color(1, 1, 1, a); GUI.DrawTexture(new Rect(row.x + 8f * s, row.y + 6f * s, 52f * s, 52f * s), f.card.icon, ScaleMode.ScaleToFit); GUI.color = Color.white; }
+            if (f.card != null && f.card.icon != null) { GUI.color = new Color(1, 1, 1, a); GUI.DrawTexture(new Rect(row.x + 8f * s, row.y + 6f * s, icon, icon), f.card.icon, ScaleMode.ScaleToFit); GUI.color = Color.white; }
             string txt = f.card != null ? $"+ {f.card.cardName}  Lv.{f.lv}{(f.lv >= GameManager.MaxRunCardLevel ? " MAX" : "")}" : f.text;
             if (f.card == null) FeedRowsNoCandidate++;
-            LocGUI.Label(new Rect(row.x + 70f * s, row.y, row.width - 76f * s, row.height), txt, UiKit.Label(26f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.95f, 0.8f, a)));
-            fy += 70f * s; shown++;
+            LocGUI.Label(new Rect(row.x + icon + 18f * s, row.y, row.width - icon - 24f * s, row.height), txt, UiKit.Label((P ? 24f : 26f) * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.95f, 0.8f, a)));
+            fy += rowStep; shown++;
+        }
+        if (live > rowsCards)
+        {
+            Rect row = new Rect(rowX, fy, rowW, rowH * 0.8f);
+            UiKit.Fill(row, new Color(0.06f, 0.08f, 0.16f, 0.7f));
+            LocGUI.Label(new Rect(row.x + 14f * s, row.y, row.width - 20f * s, row.height), $"ほか {live - rowsCards} 枚", UiKit.Label((P ? 22f : 24f) * s, TextAnchor.MiddleLeft, true, new Color(0.9f, 0.9f, 1f)));
+            FeedMerged = live - rowsCards;
         }
 
         // 右下: 上下の操作
@@ -579,7 +622,15 @@ public class SprintRunner : MonoBehaviour
         LocGUI.Label(up, "▲", UiKit.Label(64f * s, TextAnchor.MiddleCenter, true, Color.white));
         LocGUI.Label(dn, "▼", UiKit.Label(64f * s, TextAnchor.MiddleCenter, true, Color.white));
         if (introStart < 0f || Time.unscaledTime - introStart > tn.introSeconds)
-            LocGUI.Label(new Rect(40f * s, H - 70f * s, W - 300f * s, 50f * s), $"{ControlHint()} で高さを合わせてリングをくぐる(逃しても減るものはありません)", UiKit.Label(24f * s, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.9f, 1f)));
+        {
+            if (P)
+            {
+                // 縦: ▲▼ の左に折り返して(下の段の中)
+                var hl = UiKit.Label(24f * s, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.9f, 1f)); hl.wordWrap = true;
+                LocGUI.Label(new Rect(24f * s, up.y, up.x - 40f * s, up.height), $"{ControlHint()} で高さを合わせてリングをくぐる\n(逃しても減るものはありません)", hl);
+            }
+            else LocGUI.Label(new Rect(40f * s, H - 70f * s, W - 300f * s, 50f * s), $"{ControlHint()} で高さを合わせてリングをくぐる(逃しても減るものはありません)", UiKit.Label(24f * s, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.9f, 1f)));
+        }
 
         // 開始の説明(読みやすい大きさで短く)
         if (introStart >= 0f)
@@ -591,25 +642,31 @@ public class SprintRunner : MonoBehaviour
                 string l1 = AllMaxedAtStart ? "上下で移動 / リング通過で +MILE" : "上下で移動 / リング通過で追加カード";
                 string l2 = ControlHint();
                 string l3 = AllMaxedAtStart ? "デッキ内のカードがすべてLv9です。リング報酬はMILEです" : "";
-                Rect pr = new Rect(W * 0.45f - 560f * s, groundY + 22f * s, 1120f * s, (l3.Length > 0 ? 190f : 140f) * s); // 地面の帯(キャラ/リングの通り道を隠さない)
+                float pw = Mathf.Min(1120f * s, W - 32f * s);
+                float f1 = P ? 40f : 48f, l1h = P ? 104f : 64f, l3h = P ? 80f : 44f; // 縦: 幅が狭いので折り返す(2行まで)
+                Rect pr = new Rect(Mathf.Clamp(W * 0.45f - pw * 0.5f, 16f * s, W - pw - 16f * s), groundY + 22f * s, pw, (24f + l1h + 52f + (l3.Length > 0 ? l3h + 6f : 0f)) * s); // 地面の帯(キャラ/リングの通り道を隠さない)
                 UiKit.Fill(pr, new Color(0.03f, 0.04f, 0.09f, 0.78f * a));
-                LocGUI.Label(new Rect(pr.x, pr.y + 12f * s, pr.width, 64f * s), l1, UiKit.Label(48f * s, TextAnchor.MiddleCenter, true, new Color(1f, 0.92f, 0.6f, a)));
-                LocGUI.Label(new Rect(pr.x, pr.y + 80f * s, pr.width, 44f * s), l2, UiKit.Label(32f * s, TextAnchor.MiddleCenter, true, new Color(0.85f, 0.95f, 1f, a)));
-                if (l3.Length > 0) LocGUI.Label(new Rect(pr.x, pr.y + 130f * s, pr.width, 44f * s), l3, UiKit.Label(28f * s, TextAnchor.MiddleCenter, true, new Color(0.6f, 1f, 0.75f, a)));
+                var s1 = UiKit.Label(f1 * s, TextAnchor.MiddleCenter, true, new Color(1f, 0.92f, 0.6f, a)); s1.wordWrap = true;
+                var s2 = UiKit.Label(32f * s, TextAnchor.MiddleCenter, true, new Color(0.85f, 0.95f, 1f, a)); s2.wordWrap = true;
+                var s3 = UiKit.Label(28f * s, TextAnchor.MiddleCenter, true, new Color(0.6f, 1f, 0.75f, a)); s3.wordWrap = true;
+                LocGUI.Label(new Rect(pr.x + 10f * s, pr.y + 12f * s, pr.width - 20f * s, l1h * s), l1, s1);
+                LocGUI.Label(new Rect(pr.x + 10f * s, pr.y + (16f + l1h) * s, pr.width - 20f * s, 44f * s), l2, s2);
+                if (l3.Length > 0) LocGUI.Label(new Rect(pr.x + 10f * s, pr.y + (66f + l1h) * s, pr.width - 20f * s, l3h * s), l3, s3);
             }
         }
         // 途中で全 Lv9 になった時の案内(一度だけ)
         if (!string.IsNullOrEmpty(notice) && Time.unscaledTime < noticeUntil)
         {
             float a = Mathf.Clamp01((noticeUntil - Time.unscaledTime) / 0.4f);
-            Rect pr = new Rect(W * 0.45f - 520f * s, groundY + 30f * s, 1040f * s, 120f * s);
+            float pw = Mathf.Min(1040f * s, W - 32f * s);
+            Rect pr = new Rect(Mathf.Clamp(W * 0.45f - pw * 0.5f, 16f * s, W - pw - 16f * s), groundY + 30f * s, pw, (P ? 160f : 120f) * s);
             UiKit.Fill(pr, new Color(0.08f, 0.06f, 0.01f, 0.8f * a));
             var nl = UiKit.Label(36f * s, TextAnchor.MiddleCenter, true, new Color(1f, 0.9f, 0.5f, a)); nl.wordWrap = true;
             LocGUI.Label(pr, notice, nl);
         }
 
         if (!string.IsNullOrEmpty(banner) && Time.unscaledTime < bannerUntil)
-            LocGUI.Label(new Rect(0, H * 0.26f, W, 70f * s), banner, UiKit.Label(40f * s, TextAnchor.MiddleCenter, true, bannerColor));
+            LocGUI.Label(new Rect(0, P ? fy + 16f * s : H * 0.26f, W, 70f * s), banner, UiKit.Label(40f * s, TextAnchor.MiddleCenter, true, bannerColor)); // 縦: 知らせの行の下
         GUI.color = keep;
 
         // このオーバーレイの下(止まっているゲーム画面/HUD)へ押下を通さない

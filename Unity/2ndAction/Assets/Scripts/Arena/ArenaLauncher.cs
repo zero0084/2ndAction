@@ -43,7 +43,7 @@ public class ArenaLauncher : MonoBehaviour
         if (coverTex == null) { coverTex = new Texture2D(1, 1); coverTex.SetPixel(0, 0, new Color(0.07f, 0.05f, 0.04f, 1f)); coverTex.Apply(); }
         var full = new Rect(0, 0, Screen.width, Screen.height);
         GUI.DrawTexture(full, coverTex);
-        float s = Mathf.Max(0.6f, Screen.height / 1080f);
+        float s = Mathf.Max(0.6f, Mathf.Min(Screen.width, Screen.height) / 1080f); // 短い辺基準(2026-10-08)
         if (coverStyle == null)
         {
             coverStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };

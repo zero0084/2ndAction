@@ -244,11 +244,22 @@ public class DeckEditUI : MonoBehaviour
         // screen may have left either one scrolled partway down.
         if (ownedScrollRect != null) ownedScrollRect.verticalNormalizedPosition = 1f;
         if (deckScrollRect != null) deckScrollRect.verticalNormalizedPosition = 1f;
+        ApplyOrientationLayout();
         if (rootGroup != null)
         {
             rootGroup.alpha = 0f;
             StartCoroutine(FadeGroupTo(1f));
         }
+    }
+
+    // 縦画面(2026-10-08、依頼E-1): 上にデッキ(+キャラカード)、下に一覧と詳細を並べる(PortraitColumns)
+    PortraitColumns portraitColumns;
+    void ApplyOrientationLayout()
+    {
+        if (root == null) return;
+        if (portraitColumns == null) { portraitColumns = root.GetComponent<PortraitColumns>(); if (portraitColumns == null) portraitColumns = root.AddComponent<PortraitColumns>(); }
+        Canvas.ForceUpdateCanvases();
+        portraitColumns.Apply();
     }
 
     // Androidの戻る(2026-10-01): 確認ダイアログが出ていればそれを閉じる、無ければ画面を閉じる
@@ -946,6 +957,7 @@ public class DeckEditUI : MonoBehaviour
         // out) is mid-flight.
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (UiInputGate.Blocked) return; // 設定/DEBUGパネルが手前に開いている(閉じた時の指が離れるまでも)
+        if (portraitColumns != null && portraitColumns.NeedsApply) { pointerActive = false; ApplyOrientationLayout(); UiInputGate.LatchUntilRelease(); return; } // 向き/大きさが変わった: 並べ直し、押しかけの指は捨てる
 
         if (confirmDialog != null && confirmDialog.IsOpen) UiHit.Probe(p => confirmDialog.HandleTap(p), 5); else UiHit.Probe(HandleTap); // パッド操作中: 押せる枠を集める
         PadScroll();

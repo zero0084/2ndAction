@@ -489,7 +489,7 @@ public class HomeIdleFx
         Texture2D soft = SoftTex();
         float dt = moteDt; moteDt = 0f;
         Color prev = GUI.color;
-        float px = Mathf.Max(0.5f, Screen.height / 1080f);
+        float px = Mathf.Max(0.5f, Mathf.Min(Screen.width, Screen.height) / 1080f); // 短い辺基準(2026-10-08)
         for (int i = 0; i < motes.Count; i++)
         {
             Mote m = motes[i];

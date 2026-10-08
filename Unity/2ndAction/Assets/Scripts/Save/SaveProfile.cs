@@ -156,7 +156,7 @@ public class TestDataLabel : MonoBehaviour
         if (!SaveProfile.IsTest) return;
         GUI.depth = -1000;
         if (style == null) style = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
-        float s = Mathf.Max(1f, Screen.height / 720f);
+        float s = Mathf.Max(1f, Mathf.Min(Screen.width, Screen.height) / 720f); // 短い辺基準(縦画面で大きくなりすぎない、2026-10-08)
         style.fontSize = Mathf.RoundToInt(13 * s);
         var r = new Rect(Screen.width * 0.5f - 60 * s, 2 * s, 120 * s, 20 * s);
         var old = GUI.color;

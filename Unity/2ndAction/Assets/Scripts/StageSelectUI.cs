@@ -138,6 +138,7 @@ public class StageSelectUI : MonoBehaviour
     // 解放したばかりのマップには NEW を付け、この画面を開いた時点で「見た」にする(次からは付かない)
     Vector2[] slotHome;
     bool markSeenOnRefresh;
+    bool layoutPortrait;
     public bool LastDungeonVisible { get; private set; }
     void RefreshLocks(System.Collections.Generic.IReadOnlyList<StageDefinition> all)
     {
@@ -168,8 +169,29 @@ public class StageSelectUI : MonoBehaviour
             NewBadge.Set(slot, isNew, new Vector2(0.5f, 1f), new Vector2(0f, -10f));
             if (isNew && markSeenOnRefresh) UnlockRules.MarkStageSeen(all[i].stageId);
         }
+        layoutPortrait = PortraitRunView.IsPortraitScreen;
+        for (int i = 0; i < cardSlotRects.Length; i++) if (cardSlotRects[i] != null) cardSlotRects[i].localScale = Vector3.one;
+        // 縦画面(2026-10-08、依頼E-1): 2列に積む(多ければ少し縮める)。横は今までどおり1行
+        if (layoutPortrait && visible.Count > 0 && cardSlotRects.Length >= 2)
+        {
+            var any = cardSlotRects[visible[0]];
+            float cw = any.rect.width, ch = any.rect.height, gap = 40f;
+            int cols = visible.Count == 1 ? 1 : 2, rows = (visible.Count + cols - 1) / cols;
+            var parent = any.parent as RectTransform;
+            float availH = parent != null ? parent.rect.height - 560f : 1300f, availW = parent != null ? parent.rect.width - 60f : 1000f;
+            float sc = Mathf.Min(1f, availH / Mathf.Max(1f, rows * (ch + gap) - gap), availW / Mathf.Max(1f, cols * (cw + gap) - gap));
+            float sx = (cw + gap) * sc, sy = (ch + gap) * sc, cy = slotHome[visible[0]].y;
+            for (int k = 0; k < visible.Count; k++)
+            {
+                int row = k / cols, col = k % cols;
+                int inRow = Mathf.Min(cols, visible.Count - row * cols);
+                var rt = cardSlotRects[visible[k]];
+                rt.localScale = new Vector3(sc, sc, 1f);
+                rt.anchoredPosition = new Vector2((col - (inRow - 1) * 0.5f) * sx, cy + ((rows - 1) * 0.5f - row) * sy);
+            }
+        }
         // 見えている枠を中央へ(元の間隔のまま)
-        if (visible.Count > 0 && visible.Count < cardSlotRects.Length && cardSlotRects.Length >= 2)
+        else if (visible.Count > 0 && visible.Count < cardSlotRects.Length && cardSlotRects.Length >= 2)
         {
             float stride = slotHome[1].x - slotHome[0].x;
             float start = -stride * (visible.Count - 1) * 0.5f;
@@ -218,6 +240,7 @@ public class StageSelectUI : MonoBehaviour
         // (見た目上は問題にならないが、他画面との一貫性のため統一)。
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (UiInputGate.Blocked) return; // 設定/DEBUGパネルが手前に開いている(閉じた時の指が離れるまでも)
+        if (layoutPortrait != PortraitRunView.IsPortraitScreen) { RefreshLocks(StageDatabase.AllStages); RefreshGlow(); UiInputGate.LatchUntilRelease(); return; } // 画面の向きが変わった: 並べ直し、押しかけの指は捨てる
         UiHit.Probe(HandleTap); // パッド操作中: 押せる枠を集める(2026-10-06)
         if (!TouchInputUtil.TryGetTapPosition(out Vector2 screenPos)) return;
         HandleTap(screenPos);

@@ -16,7 +16,8 @@ public partial class QaSweep
         while (GameManager.Instance == null && w < 10f) { yield return null; w += Time.unscaledDeltaTime; }
         gm = GameManager.Instance;
         yield return new WaitForSecondsRealtime(2f);
-        // キャラ固有カードを2枚付けて始める
+        // キャラ固有カードを2枚付けて始める(キャラごとの枠なので、走るキャラの枠に付ける。2026-10-08)
+        gm.SetSelectedCharacter("swordsman"); gm.SetCharacterCardOwner("swordsman");
         var unlocked = CardDatabase.UnlockedCards.Where(c => c != null && c.icon != null && !CardVariant.IsVariantKey(c.cardId)).ToList();
         for (int s = 0; s < 2 && s < unlocked.Count; s++)
         {

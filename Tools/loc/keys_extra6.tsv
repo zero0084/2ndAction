@@ -1,0 +1,18 @@
+8000	ui	GameManager.cs:1946	合成
+8001	ui	GameManager.cs:1946	ガチャ
+8002	ui	RewardCardSequence.cs:430	カードをタップして選択 → もう一度タップで決定
+8003	ui	Settings/SettingsPanel.cs:319	縦画面のラン表示
+8004	ui	Settings/SettingsPanel.cs:319	横から見る
+8005	ui	Settings/SettingsPanel.cs:319	斜め上から見る
+8006	ui	Settings/SettingsPanel.cs:325	横から見る: 道が横に流れる。足もとと上下の段が見やすい
+8007	ui	Settings/SettingsPanel.cs:325	斜め上から見る: 道が奥へ続く。先の敵や穴を早めに見通せる
+8008	ui	Settings/SettingsPanel.cs:326	ラン中の変更は設定を閉じると反映されます
+8009	ui	Settings/SettingsPanel.cs:326	縦画面のランで使われます
+8010	ui	Settings/SettingsPanel.cs:326	縦画面にした時に使われます(横画面の表示は変わりません)
+8011	ui	Sprint/SprintRunner.cs:552	疾走出発
+8012	ui	Sprint/SprintRunner.cs:554	→ {0}m の関門の手前へ
+8013	ui	Sprint/SprintRunner.cs:573	報酬 {0}/{1}    リング {2}/{3}{4}
+8014	ui	Sprint/SprintRunner.cs:615	ほか {0} 枚
+8015	ui	Sprint/SprintRunner.cs:630	{0} で高さを合わせてリングをくぐる
+8016	ui	Sprint/SprintRunner.cs:630	(逃しても減るものはありません)
+8017	ui	CardFusionUI.cs:657	上の一覧からカードを選んでください。

@@ -1793,7 +1793,10 @@ public partial class GameManager : MonoBehaviour
     static readonly Color HudValueColor = Color.white;
     static readonly Color HudGoldColor = new Color(1f, 0.85f, 0.35f);
 
-    Rect GetBestPanelRect() => new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, DistancePanelWidth(false), HudPanelHeight);
+    // 縦画面(2026-10-08、依頼E-1): 狭い幅では BEST / Lv / HP の3つが1段に入らず重なる → 1段目 = Lv/EXP(左)+HP(右)、
+    // BEST → 距離 → 速度 は2段目から左の列に積む(右の列はデッキの表示)。横画面は今までどおり
+    public static bool HudStacked => Screen.height > Screen.width && Screen.safeArea.width < 168f + 380f + HeartsPanelWidth + UiMargin * 2f + 24f;
+    Rect GetBestPanelRect() => new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin + (HudStacked ? HudPanelHeight + HudPanelGap : 0f), DistancePanelWidth(false), HudPanelHeight);
     Rect GetDistancePanelRect() => new Rect(SafeLeft() + UiMargin, GetBestPanelRect().yMax + HudPanelGap, DistancePanelWidth(false), HudPanelHeight);
     // 高速走行の視認性補正(2026-09-22) - 現在のAuto Run速度を基礎速度に対する倍率で常時表示する小さなHUD。
     // 既存の速度値(PlayerController.SpeedRatio)を参照して表示するだけで、移動速度の計算には影響しない。
@@ -1842,7 +1845,9 @@ public partial class GameManager : MonoBehaviour
         }
     }
 
-    Rect GetLevelExpPanelRect() => new Rect(Screen.width / 2f - 190f, SafeTop() + UiMargin, 380f, HudPanelHeight);
+    Rect GetLevelExpPanelRect() => HudStacked
+        ? new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, Screen.width - SafeLeft() - SafeRight() - UiMargin * 2f - HeartsPanelWidth - 10f, HudPanelHeight)
+        : new Rect(Screen.width / 2f - 190f, SafeTop() + UiMargin, 380f, HudPanelHeight);
     // 2026-10-01: 幅は固定(最大HPが増えても枠を広げない)。中身は DrawHeartsPanel が枠に収まるように描く。
     const float HeartsPanelWidth = 220f;
     Rect GetHeartsPanelRect()
@@ -1854,33 +1859,122 @@ public partial class GameManager : MonoBehaviour
     // ホーム右上(2026-10-01): 所持MILE → その下に「設定」「マルチ」を横並び(互いに重ならない、セーフエリアの内側)。
     // ボタンの高さは画面の高さに比例(スマホでも押しやすい大きさ、最小/最大あり)。
     float HomeButtonHeight => Mathf.Clamp(Screen.height * 0.075f, 46f, 100f);
-    Rect GetHomeMileRect() => new Rect(Screen.width - SafeRight() - UiMargin - 190f, SafeTop() + UiMargin, 190f, 72f);
+    Rect GetHomeMileRect() => HomePortrait
+        ? new Rect(Screen.width - SafeRight() - 16f - 190f, PortraitHome().statsY, 190f, 72f)
+        : new Rect(Screen.width - SafeRight() - UiMargin - 190f, SafeTop() + UiMargin, 190f, 72f);
     Rect GetHomeMultiButtonRect()
     {
+        if (HomePortrait) return PortraitChromeSlot(1);
         float h = HomeButtonHeight, w = h * 1.9f;
         return new Rect(Screen.width - SafeRight() - UiMargin - w, GetHomeMileRect().yMax + 10f, w, h);
     }
     Rect GetHomeSettingsButtonRect()
     {
+        if (HomePortrait) return PortraitChromeSlot(0);
         Rect m = GetHomeMultiButtonRect();
         return new Rect(m.x - m.width - 10f, m.y, m.width, m.height);
     }
     // 闘技場: マルチ/設定と同じ大きさ、その下の段の右端
     Rect GetHomeArenaButtonRect()
     {
+        if (HomePortrait) return PortraitChromeSlot(3);
         Rect m = GetHomeMultiButtonRect();
         return new Rect(m.x, m.yMax + 10f, m.width, m.height);
     }
     Rect GetHomeRankingButtonRect()
     {
+        if (HomePortrait) return PortraitChromeSlot(2);
         Rect m = GetHomeSettingsButtonRect();
         return new Rect(m.x, m.yMax + 10f, m.width, m.height);
     }
     // 開発版のDEBUG: 部屋の操作対象(扉/ベッド/本/肖像画/ガチャ)と重ならない、扉と本の間の床の上(画面下)。
     Rect GetHomeDebugButtonRect()
     {
+        if (HomePortrait) { var pl = PortraitHome(); float dh = Mathf.Round(pl.chrome.height * 0.62f); return new Rect(pl.chrome.xMax - dh * 2.4f, pl.room.y + 8f, dh * 2.4f, dh); } // 縦: 部屋の絵の右上の角(押せる物が無い所)
         float h = Mathf.Clamp(Screen.height * 0.06f, 40f, 80f), w = h * 2.6f;
         return new Rect(Screen.width * 0.6f - w * 0.5f, Screen.height - SafeBottom() - UiMargin - h, w, h);
+    }
+
+    // ---- 縦画面のホーム(2026-10-08、依頼E-2)
+    // 横向きの部屋の絵を縦の画面に「覆う」で広げると扉しか見えなかった。縦では上から
+    //   ロゴ → BEST / MILE → 部屋の絵(縦横比はそのまま、横の 8 割ほどを見せる) → 施設のボタン(キャラ/デッキ/合成/ガチャ) → 設定/マルチ/ランキング/闘技場
+    // の順に積む。絵の上下の余りは同じ絵を暗くして埋める。部屋の物(扉/肖像画/ベッド/本/ガチャ)は今までどおり絵の上で押せ、
+    // 小さくなる分は下の施設のボタンでも開ける。横画面は今までどおり
+    bool HomePortrait => Screen.height > Screen.width;
+    const float HomePortraitMaxVisibleFrac = 0.86f, HomePortraitMinVisibleFrac = 0.7f, HomePortraitCenterFrac = 0.53f;
+    struct PortraitHomeLayout { public Rect logo, room, facility, chrome; public float statsY; }
+    PortraitHomeLayout PortraitHome()
+    {
+        var o = new PortraitHomeLayout();
+        float L = SafeLeft() + 16f, R = Screen.width - SafeRight() - 16f, T = SafeTop() + 10f;
+        float B = Screen.height - SafeBottom() - 30f; // 一番下の行はビルドの表示の上
+        float aw = R - L;
+        float logoW = titleLogo != null ? Mathf.Min(aw * 0.8f, titleLogo.width) : aw;
+        float logoH = titleLogo != null ? logoW * (titleLogo.height / (float)titleLogo.width) : 64f;
+        o.logo = new Rect((Screen.width - logoW) * 0.5f, T, logoW, logoH);
+        o.statsY = o.logo.yMax + 6f;
+        float bh = Mathf.Clamp(Screen.height * 0.058f, 44f, 84f);
+        o.chrome = new Rect(L, B - bh, aw, bh);
+        float fh = Mathf.Round(bh * 1.2f);
+        o.facility = new Rect(L, o.chrome.y - 10f - fh, aw, fh);
+        float top = o.statsY + 72f + 10f, bottom = o.facility.y - 14f;
+        float aspect = topBackground != null ? topBackground.height / (float)Mathf.Max(1, topBackground.width) : 1f / 1.5f;
+        // 空いている高さいっぱいまで大きく(ただし絵の横は 7 割以上見せる。狭い画面でも 86% 以上は縮めない)
+        float rh = Mathf.Max(80f, bottom - top), rw = rh / aspect;
+        rw = Mathf.Clamp(rw, Screen.width / HomePortraitMaxVisibleFrac, Screen.width / HomePortraitMinVisibleFrac); rh = rw * aspect;
+        if (rh > bottom - top) { rh = Mathf.Max(80f, bottom - top); rw = rh / aspect; }
+        o.room = new Rect(Screen.width * 0.5f - rw * HomePortraitCenterFrac, top + Mathf.Max(0f, (bottom - top - rh) * 0.5f), rw, rh);
+        return o;
+    }
+    // 下の行: 設定/マルチ/ランキング/闘技場(出ている物だけで幅を分ける)
+    Rect PortraitChromeSlot(int slot)
+    {
+        var pl = PortraitHome();
+        int n = 0, idx = -1;
+        bool[] shown = { true, Platform.Online.LanMultiplayer, !NetSession.IsActive, UnlockRules.IsArenaUnlocked && !NetSession.IsActive };
+        for (int i = 0; i < shown.Length; i++) { if (i == slot) idx = n; if (shown[i]) n++; }
+        if (idx < 0 || !shown[slot]) idx = n; // 出ていない物の場所(呼ばれても画面内のどこか)
+        n = Mathf.Max(1, n);
+        float gap = 8f, w = (pl.chrome.width - gap * (n - 1)) / n;
+        return new Rect(pl.chrome.x + Mathf.Min(idx, n - 1) * (w + gap), pl.chrome.y, w, pl.chrome.height);
+    }
+    // 施設のボタン(部屋の物と同じ動き)
+    void DrawPortraitFacilityButtons(bool interactable, float fade)
+    {
+        if (!HomePortrait || fade < 0.5f) return;
+        var pl = PortraitHome();
+        string[] labels = { "キャラ", "デッキ", "合成", "ガチャ" };
+        float gap = 8f, w = (pl.facility.width - gap * 3f) / 4f;
+        float fs = Mathf.Round(Mathf.Min(pl.facility.height * 0.34f, w * 0.2f));
+        for (int i = 0; i < 4; i++)
+        {
+            Rect b = new Rect(pl.facility.x + i * (w + gap), pl.facility.y, w, pl.facility.height);
+            bool ok = i == 3 ? (interactable || (gachaResultOpen && !showNewRunConfirm && !NetDebugUI.BlocksHomeInput && !UiInputGate.Blocked)) : interactable;
+            if (i == 3 && gachaResultOpen) continue; // 確認中は本体を押す(下の窓と重ねない)
+            bool hit = DrawStyledButton(b, labels[i], FitFont(labels[i], b.width - 14f, fs), primary: i == 0, ornate: true);
+            if (!hit || !ok || fade <= 0.99f) continue;
+            if (i == 0) OpenCharacterSelect();
+            else if (i == 1) OpenDeckEdit();
+            else if (i == 2) OpenCardFusion();
+            else OnGachaMachineTapped();
+        }
+    }
+    // ボタンの文字が幅に入らない時(長い言語/縦画面の狭いボタン)だけ字を小さく(2026-10-08)
+    GUIStyle fitFontStyle;
+    float FitFont(string text, float maxW, float fs)
+    {
+        if (fitFontStyle == null) fitFontStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, wordWrap = false };
+        fitFontStyle.fontSize = Mathf.RoundToInt(fs);
+        float w = fitFontStyle.CalcSize(new GUIContent(Loc.Auto(text))).x;
+        return w > maxW && w > 0f ? Mathf.Max(10f, Mathf.Floor(fs * maxW / w)) : fs;
+    }
+    Rect HomeLogoRect()
+    {
+        if (HomePortrait) return PortraitHome().logo;
+        float lcx = bgRoomRect.width > 0f ? bgRoomRect.x + bgRoomRect.width * DoorCenterFrac : Screen.width / 2f;
+        float lw = Mathf.Min(Screen.width * 0.46f, titleLogo.width);
+        float lh = lw * (titleLogo.height / (float)titleLogo.width);
+        return new Rect(lcx - lw / 2f, Screen.height * 0.015f, lw, lh);
     }
     public bool PreferPortrait => preferredOrientation == ScreenOrientation.Portrait;
     public void SetPreferredOrientation(bool portrait) { if (PreferPortrait != portrait) ToggleOrientation(); }
@@ -3782,7 +3876,23 @@ public partial class GameManager : MonoBehaviour
             float bgWidth = topBackground.width * coverScale;
             float bgHeight = topBackground.height * coverScale;
             bgRoomRect = new Rect((Screen.width - bgWidth) / 2f, (Screen.height - bgHeight) / 2f, bgWidth, bgHeight);
-            GUI.DrawTexture(bgRoomRect, topBackground, ScaleMode.StretchToFill);
+            if (HomePortrait)
+            {
+                // 縦: 画面全体は同じ絵を暗く(余りを埋める)、その上に部屋の絵を縦横比のまま。境目は暗くぼかす
+                Color keepBg = GUI.color;
+                GUI.color = new Color(0.3f, 0.27f, 0.26f, 1f);
+                GUI.DrawTexture(bgRoomRect, topBackground, ScaleMode.StretchToFill);
+                GUI.color = keepBg;
+                bgRoomRect = PortraitHome().room;
+                GUI.DrawTexture(bgRoomRect, topBackground, ScaleMode.StretchToFill);
+                for (int i = 0; i < 8; i++)
+                {
+                    float a = 0.5f * (1f - i / 8f), hh = 4f;
+                    UiKit.Fill(new Rect(0f, bgRoomRect.y + i * hh, Screen.width, hh), new Color(0f, 0f, 0f, a));
+                    UiKit.Fill(new Rect(0f, bgRoomRect.yMax - (i + 1) * hh, Screen.width, hh), new Color(0f, 0f, 0f, a));
+                }
+            }
+            else GUI.DrawTexture(bgRoomRect, topBackground, ScaleMode.StretchToFill);
         }
 
         // Always-visible build stamp - offset right of center (not dead
@@ -3922,13 +4032,7 @@ public partial class GameManager : MonoBehaviour
             // と肖像画の領域では薄くする(視認性優先)。
             {
                 var quiet = new System.Collections.Generic.List<Rect>();
-                if (titleLogo != null && bgRoomRect.width > 0f)
-                {
-                    float lcx = bgRoomRect.x + bgRoomRect.width * DoorCenterFrac;
-                    float lw = Mathf.Min(Screen.width * 0.46f, titleLogo.width);
-                    float lh = lw * (titleLogo.height / (float)titleLogo.width);
-                    quiet.Add(new Rect(lcx - lw / 2f, Screen.height * 0.015f, lw, lh));
-                }
+                if (titleLogo != null && bgRoomRect.width > 0f) quiet.Add(HomeLogoRect());
                 if (bgRoomRect.width > 0f) quiet.Add(FracRect(bgRoomRect, 0.02f, 0.14f, 0.17f, 0.38f));
                 DrawHomeAmbientAnimations(roomFadeAlpha, quiet.ToArray());
             }
@@ -3949,10 +4053,7 @@ public partial class GameManager : MonoBehaviour
                 // 0.5)を使っていたが、扉自体が背景アート上でフラクション
                 // 0.4825の位置に描かれているため、画面の見た目の中心からは
                 // 常にわずかに左へズレていた。
-                float logoCenterX = bgRoomRect.width > 0f ? bgRoomRect.x + bgRoomRect.width * DoorCenterFrac : Screen.width / 2f;
-                float logoWidth = Mathf.Min(Screen.width * 0.46f, titleLogo.width);
-                float logoHeight = logoWidth * (titleLogo.height / (float)titleLogo.width);
-                Rect logoRect = new Rect(logoCenterX - logoWidth / 2f, Screen.height * 0.015f, logoWidth, logoHeight);
+                Rect logoRect = HomeLogoRect(); // 縦画面は画面の上の中央(2026-10-08)
                 Color prevLogo = GUI.color;
                 GUI.color = new Color(1f, 1f, 1f, logoFadeAlpha);
                 GUI.DrawTexture(logoRect, titleLogo, ScaleMode.ScaleToFit);
@@ -4078,6 +4179,7 @@ public partial class GameManager : MonoBehaviour
                 // 安全側にクランプする(通常のアスペクト比では発火しない)。
                 float minCharacterTop = SafeTop() + UiMargin + 72f + 16f;
                 if (characterRect.y < minCharacterTop) characterRect.y = minCharacterTop;
+                if (HomePortrait && characterRect.x < SafeLeft() + 6f) characterRect.x = SafeLeft() + 6f; // 縦: 絵の左の端が切れても額は画面に入れる
                 DrawCharacterHotspot(characterRect, roomInteractable, roomFadeAlpha);
 
                 // Home画面改善依頼⑪(2026-09-17), item1 - キャラ連動の装備/
@@ -4203,12 +4305,15 @@ public partial class GameManager : MonoBehaviour
                 }
 
                 GUI.color = prevRoom;
+                DrawPortraitFacilityButtons(roomInteractable, roomFadeAlpha); // 縦画面だけ
             }
 
             // BEST (top-left) and MILE (top-right) - the room's only
             // persistent chrome besides the gear icon, both tucked into
             // corners so they never sit over the door/bed/book/desk.
-            Rect titleBestRect = new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, DistancePanelWidth(true), 72f);
+            Rect titleBestRect = HomePortrait
+                ? new Rect(SafeLeft() + 16f, PortraitHome().statsY, Mathf.Min(DistancePanelWidth(true), Screen.width - SafeLeft() - SafeRight() - 32f - 190f - 10f), 72f)
+                : new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, DistancePanelWidth(true), 72f);
             DrawStatPanel(titleBestRect, "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor, ornate: true);
 
             DrawStatPanel(GetHomeMileRect(), "MILE", TotalOwnedMile.ToString(), HudGoldColor, ornate: true);
@@ -4285,12 +4390,13 @@ public partial class GameManager : MonoBehaviour
         headlineStyle.normal.textColor = Color.white;
         string headline = IsWin ? "GAME CLEAR" : "FAILED";
 
-        float panelWidth = Mathf.Min(560f, Screen.width * 0.8f);
+        float panelWidth = HudStacked ? Mathf.Min(560f, Screen.width - SafeLeft() - SafeRight() - 32f) : Mathf.Min(560f, Screen.width * 0.8f);
         // 2026-10-08: 行の数に合わせて行の間隔を詰める(画面の低い端末/文の長い言語でも全部の行が枠に収まる。文字は1行のまま)
         int rowCount = IsWin ? 8 + ((RunBonusMile > 0 || RunRingMile > 0) ? 1 : 0) + ((LastCommit != null && (LastCommit.unlockedStages.Count + LastCommit.unlockedChars.Count > 0 || (!LastCommit.committed && Debug.isDebugBuild))) ? 1 : 0) : 7;
         float panelHeight = Mathf.Min(Screen.height * 0.92f, Mathf.Max(504f, 68f + rowCount * 34f + (upgradeHistory.Count > 0 ? 62f : 0f) + 50f));
         float rowStep = Mathf.Clamp((panelHeight - 68f - (upgradeHistory.Count > 0 ? 62f : 0f) - 50f) / Mathf.Max(1, rowCount), 22f, 34f);
         Rect panelRect = new Rect(Screen.width / 2f - panelWidth / 2f, Screen.height / 2f - panelHeight / 2f, panelWidth, panelHeight);
+        if (HudStacked) panelRect.y = Mathf.Max(panelRect.y, Mathf.Min(GetSpeedPanelRect().yMax + 12f, Screen.height - SafeBottom() - panelHeight - 90f)); // 縦画面: 左の列(BEST/距離/速度)の下から
         UiBackdrop.Draw(panelRect, 0.8f);
 
         float y = panelRect.y + 16f;
@@ -5203,21 +5309,22 @@ public partial class GameManager : MonoBehaviour
         }
         if (NetDebugUI.PanelOpen) return; // マルチのパネル(手前)を開いている間は出さない
         float fs = Mathf.Round(HomeButtonHeight * 0.32f);
+        if (HomePortrait) fs = Mathf.Round(Mathf.Min(PortraitHome().chrome.height * 0.38f, PortraitChromeSlot(0).width * 0.17f)); // 縦: 4つ並びの幅に収まる字の大きさ
         Rect setRect = GetHomeSettingsButtonRect();
-        if (DrawStyledButton(setRect, "    設定", fs, primary: false, ornate: true)) SettingsPanel.OpenStatic();
+        if (DrawStyledButton(setRect, "    設定", FitFont("    設定", setRect.width - 12f, fs), primary: false, ornate: true)) SettingsPanel.OpenStatic();
         UiKit.DrawGear(new Rect(setRect.x + setRect.width * 0.08f, setRect.y + setRect.height * 0.2f, setRect.height * 0.6f, setRect.height * 0.6f), 1f, new Color(1f, 0.88f, 0.55f));
-        if (Platform.Online.LanMultiplayer && DrawStyledButton(GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel, fs, primary: NetSession.IsActive, ornate: true)) NetDebugUI.OpenPanel();
+        if (Platform.Online.LanMultiplayer && DrawStyledButton(GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel, FitFont(NetDebugUI.HomeButtonLabel, GetHomeMultiButtonRect().width - 12f, fs), primary: NetSession.IsActive, ornate: true)) NetDebugUI.OpenPanel();
         // 闘技場(2026-10-06 正式版): キャラやカードを自由に試せる練習場。マルチの部屋にいる間は出さない(ソロ用)
         // 闘技場: 天空回廊で30,000m到達+帰還で解放。2026-10-08: 未解放の間はボタンごと出さない(存在を見せない)。解放直後は NEW
         bool arenaOpen = UnlockRules.IsArenaUnlocked;
         if (arenaOpen && !NetSession.IsActive)
         {
             Rect ar = GetHomeArenaButtonRect();
-            if (DrawStyledButton(ar, "闘技場", fs, primary: false, ornate: true)) { UnlockRules.MarkStageSeen(UnlockRules.Arena); ArenaConfigStore.Load(); ArenaLauncher.Launch("home", true); }
+            if (DrawStyledButton(ar, "闘技場", FitFont("闘技場", ar.width - 12f, fs), primary: false, ornate: true)) { UnlockRules.MarkStageSeen(UnlockRules.Arena); ArenaConfigStore.Load(); ArenaLauncher.Launch("home", true); }
             if (UnlockRules.NewArena) DrawNewDot(ar);
         }
         // ランキング(2026-10-08): 設定の下の段。参加は任意(ランキングの画面で)
-        if (!NetSession.IsActive && DrawStyledButton(GetHomeRankingButtonRect(), "ランキング", fs * 0.92f, primary: false, ornate: true)) RankingPanel.OpenStatic();
+        if (!NetSession.IsActive && DrawStyledButton(GetHomeRankingButtonRect(), "ランキング", FitFont("ランキング", GetHomeRankingButtonRect().width - 12f, fs * 0.92f), primary: false, ornate: true)) RankingPanel.OpenStatic();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (Debug.isDebugBuild)
         {

@@ -215,7 +215,14 @@ public class SettingsPanel : MonoBehaviour
         return y + HeadH + 4f;
     }
 
-    void RowLabel(float x, float y, string text) => LocGUI.Label(new Rect(x, y, LabelW, RowH), text, UiKit.Label(20f));
+    // 2026-10-08: 長い見出し(長い言語/狭い縦画面)は右の操作に重ならないよう、小さめの字で2行に折り返す
+    void RowLabel(float x, float y, string text)
+    {
+        var st = UiKit.Label(20f);
+        float max = LabelW - 8f;
+        if (st.CalcSize(new GUIContent(Loc.Auto(text))).x > max) { st = UiKit.Label(16f); st.wordWrap = true; }
+        LocGUI.Label(new Rect(x, y, max, RowH), text, st);
+    }
 
     float SliderRow(float x, float y, float w, string text, float value, string valueText, bool enabled, bool interactive, System.Action<float, bool> set)
     {
@@ -291,16 +298,65 @@ public class SettingsPanel : MonoBehaviour
     }
 
     // ---------------------------------------------------------------- 表示
-    float MeasureDisplay() => HeadH + 4f + RowH * 3f + 22f;
+    float MeasureDisplay() => HeadH + 4f + RowH * 3f + 22f + RowH + 96f + 44f;
     float DrawDisplay(float x, float y, float w, bool interactive)
     {
         var gm = GameManager.Instance;
         y = Head(x, y, w, "表示");
         if (gm != null) y = ChoiceRow(x, y, w, "画面の向き", gm.PreferPortrait ? 1 : 0, "横画面", "縦画面", interactive, c => gm.SetPreferredOrientation(c == 1));
         else y += RowH;
+        y = DrawPortraitRunView(x, y, w, interactive);
         y = ChoiceRow(x, y, w, "画面揺れ", GameSettings.ScreenShake ? 1 : 0, "OFF", "ON", interactive, c => GameSettings.SetScreenShake(c == 1));
         y = SliderRow(x, y, w, "発光演出", GameSettings.GlowIntensity, Pct(GameSettings.GlowIntensity), true, interactive, (v, rel) => GameSettings.SetGlowIntensity(v, rel));
         return Note(x, y, w, "※敵の攻撃予兆や操作に必要な表示は弱くなりません");
+    }
+
+    // ---------------------------------------------------------------- 縦画面のラン表示(2026-10-08、依頼E-4)
+    // 2つの見せ方を名前と短い説明と小さな図で選ぶ。縦の画面の時だけ効く(横画面の表示は変わらない)。ラン中は設定を閉じた時に反映
+    float DrawPortraitRunView(float x, float y, float w, bool interactive)
+    {
+        int cur = PortraitRunView.Mode;
+        y = ChoiceRow(x, y, w, "縦画面のラン表示", cur, "横から見る", "斜め上から見る", interactive, c => PortraitRunView.Set(c));
+        // 比較図(選んでいる方を明るく)
+        float bw = Mathf.Min(150f, (w - LabelW - 20f) * 0.5f), bh = 92f, bx = x + LabelW;
+        DrawRunViewIcon(new Rect(bx, y, bw, bh), 0, cur == 0);
+        DrawRunViewIcon(new Rect(bx + bw + 16f, y, bw, bh), 1, cur == 1);
+        y += bh + 6f;
+        y = Note(x, y, w, cur == 0 ? "横から見る: 道が横に流れる。足もとと上下の段が見やすい" : "斜め上から見る: 道が奥へ続く。先の敵や穴を早めに見通せる");
+        return Note(x, y, w, PortraitRunView.IsPortraitScreen ? (HasStartedRun ? "ラン中の変更は設定を閉じると反映されます" : "縦画面のランで使われます") : "縦画面にした時に使われます(横画面の表示は変わりません)");
+    }
+    static bool HasStartedRun => GameManager.Instance != null && GameManager.Instance.HasStarted;
+
+    static void DrawRunViewIcon(Rect r, int mode, bool on)
+    {
+        Color frame = on ? new Color(1f, 0.85f, 0.4f, 1f) : new Color(0.6f, 0.65f, 0.75f, 0.6f);
+        UiKit.Fill(r, new Color(0.25f, 0.45f, 0.75f, on ? 0.55f : 0.25f));            // 空
+        UiKit.Fill(new Rect(r.x, r.y, r.width, 2f), frame); UiKit.Fill(new Rect(r.x, r.yMax - 2f, r.width, 2f), frame);
+        UiKit.Fill(new Rect(r.x, r.y, 2f, r.height), frame); UiKit.Fill(new Rect(r.xMax - 2f, r.y, 2f, r.height), frame);
+        Color ground = new Color(0.45f, 0.33f, 0.22f, on ? 1f : 0.6f), grass = new Color(0.55f, 0.75f, 0.3f, on ? 1f : 0.6f);
+        if (mode == 0)
+        {
+            float gy = r.y + r.height * 0.74f;
+            UiKit.Fill(new Rect(r.x + 2f, gy, r.width - 4f, r.yMax - gy - 2f), ground);
+            UiKit.Fill(new Rect(r.x + 2f, gy, r.width - 4f, 3f), grass);
+            UiKit.Fill(new Rect(r.x + r.width * 0.3f, gy - 14f, 7f, 14f), new Color(0.9f, 0.2f, 0.2f, on ? 1f : 0.6f)); // キャラ
+            UiKit.Fill(new Rect(r.x + r.width * 0.75f, gy - 10f, 9f, 10f), new Color(0.2f, 0.2f, 0.25f, on ? 1f : 0.6f)); // 敵
+        }
+        else
+        {
+            // 斜めの道(左下から右上の奥へ、遠いほど細く)
+            int n = 10;
+            for (int i = 0; i < n; i++)
+            {
+                float t0 = i / (float)n;
+                float px = Mathf.Lerp(r.x + 6f, r.xMax - 10f, t0), py = Mathf.Lerp(r.yMax - 10f, r.y + 14f, t0);
+                float th = Mathf.Lerp(14f, 3f, t0);
+                UiKit.Fill(new Rect(px, py, (r.width - 16f) / n + 1f, th), ground);
+                UiKit.Fill(new Rect(px, py, (r.width - 16f) / n + 1f, 2f), grass);
+            }
+            UiKit.Fill(new Rect(r.x + r.width * 0.22f, r.yMax - 34f, 8f, 16f), new Color(0.9f, 0.2f, 0.2f, on ? 1f : 0.6f));
+            UiKit.Fill(new Rect(r.x + r.width * 0.72f, r.y + 22f, 5f, 6f), new Color(0.2f, 0.2f, 0.25f, on ? 1f : 0.6f));
+        }
     }
 
     // ---------------------------------------------------------------- 操作(2026-10-08: オートの個別設定)
