@@ -24,8 +24,11 @@ public class BossRig
     readonly int cols, rows, order;
     readonly List<SpriteRenderer> cells = new List<SpriteRenderer>();
     readonly List<Vector2> baseUv = new List<Vector2>();
-    readonly Dictionary<Sprite, Sprite[]> cache = new Dictionary<Sprite, Sprite[]>();
-    readonly Dictionary<Sprite, Vector2[]> cachePos = new Dictionary<Sprite, Vector2[]>();
+    // 2026-10-08(メモリの漏れの修正): 切り分けた絵は全員で共有する(同じ絵・同じ格子なら1回だけ作る)。
+    // 以前はボスを出すたびに自分用に作り直し、ボスが消えても切り分けた Sprite は残り続けていた(長いランで数千枚)
+    static readonly Dictionary<(Sprite, int, int), Sprite[]> sharedCache = new Dictionary<(Sprite, int, int), Sprite[]>();
+    static readonly Dictionary<(Sprite, int, int), Vector2[]> sharedPos = new Dictionary<(Sprite, int, int), Vector2[]>();
+    bool TryPos(Sprite s, out Vector2[] pos) { pos = null; return s != null && sharedPos.TryGetValue((s, cols, rows), out pos); }
     Sprite current;
     Vector2 spriteSize = Vector2.one;
     float amount;
@@ -54,7 +57,7 @@ public class BossRig
         if (s == null || s == current) return;
         current = s;
         spriteSize = s.bounds.size;
-        if (!cache.TryGetValue(s, out Sprite[] set))
+        if (!sharedCache.TryGetValue((s, cols, rows), out Sprite[] set))
         {
             set = new Sprite[cols * rows];
             var pos = new Vector2[cols * rows];
@@ -75,7 +78,7 @@ public class BossRig
                     pos[k] = new Vector2((sub.x - r.x - pv.x) / ppu, (sub.y - r.y - pv.y) / ppu);
                 }
             }
-            cache[s] = set; cachePos[s] = pos;
+            sharedCache[(s, cols, rows)] = set; sharedPos[(s, cols, rows)] = pos;
         }
         for (int k = 0; k < cells.Count; k++) cells[k].sprite = set[k];
     }
@@ -93,7 +96,7 @@ public class BossRig
     public SpriteRenderer Cell(int k) => cells[k];
     public Vector2 CellBase(int k)
     {
-        if (current != null && cachePos.TryGetValue(current, out Vector2[] pos) && k < pos.Length)
+        if (current != null && TryPos(current, out Vector2[] pos) && k < pos.Length)
         {
             // セルの絵の左下が原点なので、中心は半セル分ずらす
             return pos[k] + new Vector2(spriteSize.x / cols, spriteSize.y / rows) * 0.5f;
@@ -101,7 +104,7 @@ public class BossRig
         return Vector2.zero;
     }
     // セルの左下基準の位置(SetCell の offset はここからのずれ)
-    Vector2 CellOrigin(int k) => current != null && cachePos.TryGetValue(current, out Vector2[] pos) && k < pos.Length ? pos[k] : Vector2.zero;
+    Vector2 CellOrigin(int k) => current != null && TryPos(current, out Vector2[] pos) && k < pos.Length ? pos[k] : Vector2.zero;
     public void SetCell(int k, Vector2 offset, float rotDeg, Color c)
     {
         var t = cells[k].transform;
@@ -154,7 +157,7 @@ public class BossRig
     {
         amount = Mathf.MoveTowards(amount, targetAmount, dt * 5f);
         Phase += dt * Freq(style) * Mathf.Lerp(0.6f, 1f, amount);
-        if (current == null || !cachePos.TryGetValue(current, out Vector2[] pos)) return;
+        if (current == null || !TryPos(current, out Vector2[] pos)) return;
         float W = spriteSize.x, H = spriteSize.y;
         float a = amount;
         float ph = Phase;

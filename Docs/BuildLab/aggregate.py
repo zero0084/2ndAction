@@ -14,7 +14,7 @@ for f in sorted(glob.glob(os.path.join(resdir, '*', 'result.json'))):
         'trial': trial, 'commit': r.get('commit'), 'platform': r.get('platform'), 'seed': r.get('seed'),
         'character': r.get('character'), 'stage': r.get('stage'), 'build': r.get('build'), 'type': r.get('buildType'),
         'growth': r.get('growth'), 'depart': r.get('depart'), 'ring': r.get('ringPolicy'),
-        'engageKmh': r.get('engageKmh'), 'assist': 'auto boss/attack/avoid ON',
+        'engageKmh': r.get('engageKmh'), 'assistMode': r.get('assistMode') or 'setting', 'assist': 'auto boss/attack/avoid ON',
         'deck': ' '.join(r.get('deck') or []), 'charCards': ' '.join(r.get('charCards') or []),
         'outcome': r.get('outcome'), 'success': r.get('success'), 'maxDistance': round(r.get('maxDistance') or 0),
         'gameMin': round((r.get('gameSeconds') or 0) / 60, 2), 'successGameMin': round(r['successGameSeconds'] / 60, 2) if (r.get('successGameSeconds') or -1) >= 0 else '',

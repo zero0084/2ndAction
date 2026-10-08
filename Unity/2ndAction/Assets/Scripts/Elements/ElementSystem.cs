@@ -246,7 +246,7 @@ public static class ElementSystem
     {
         var go = new GameObject("ElementBolt");
         var lr = go.AddComponent<LineRenderer>();
-        lr.material = new Material(Shader.Find("Sprites/Default"));
+        lr.sharedMaterial = SharedMaterials.SpritesDefault; // 共有(出すたびに作ると消えずに残る。2026-10-08)
         lr.startColor = lr.endColor = new Color(1f, 0.95f, 0.45f, 0.95f);
         lr.startWidth = 0.12f; lr.endWidth = 0.05f;
         lr.sortingOrder = RenderOrder.CombatFx + 1;

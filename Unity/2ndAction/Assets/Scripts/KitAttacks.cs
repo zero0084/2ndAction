@@ -138,7 +138,7 @@ public class KitProjectile : MonoBehaviour
             trail.minVertexDistance = 0.03f;
             trail.startWidth = Mathf.Min(0.22f, colliderSize.y * 0.9f);
             trail.endWidth = 0.01f;
-            trail.material = new Material(Shader.Find("Sprites/Default"));
+            trail.sharedMaterial = SharedMaterials.SpritesDefault; // 共有(出すたびに作ると消えずに残る。2026-10-08)
             trail.sortingOrder = RenderOrder.CombatFx - 1;
             trail.numCapVertices = 4;
             Color c = trailColor.Value;

@@ -108,7 +108,7 @@ public class PlayerBullet : MonoBehaviour
         trail.minVertexDistance = 0.03f;
         trail.startWidth = 0.14f;
         trail.endWidth = 0.01f;
-        trail.material = new Material(Shader.Find("Sprites/Default"));
+        trail.sharedMaterial = SharedMaterials.SpritesDefault; // 共有(出すたびに作ると消えずに残る。2026-10-08)
         trail.sortingLayerID = sr.sortingLayerID;
         trail.sortingOrder = RenderOrder.CombatFx - 1;
         trail.textureMode = LineTextureMode.Stretch;

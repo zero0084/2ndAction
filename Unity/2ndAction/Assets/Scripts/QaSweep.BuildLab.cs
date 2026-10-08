@@ -26,6 +26,7 @@ public partial class QaSweep
         public string trial, commit, platform, build, buildType, character, stage, depart, ringPolicy;
         public int seed, growth, deckSize;
         public float engageKmh, bossLimit;
+        public string assistMode = "setting"; // setting = 設定の開始速度どおり / always = この検証の間だけ速度に関係なく常に補助(マスター指示 2026-10-08)
         public bool autoInBoss = true, autoAttack = true, autoAvoid = true;
         public string[] deck, charCards;
         public string outcome;          // success / dead / boss_timeout / stuck / time_limit / setup_error
@@ -39,7 +40,8 @@ public partial class QaSweep
         public string finalAbilities = "";
         public BlPick[] picks; public BlBoss[] bosses; public BlHit[] lastHits;
         public string notes = "";
-        public float avgFps; public int slowFrames; // 実行の負荷の確認(並列で 60fps を保てたか。slowFrames = 1/30 秒より長いフレーム)
+        public float avgFps; public int slowFrames;
+        public float memStartMB = -1f, memEndMB = -1f, memPeakMB = -1f; // プロセスのメモリ(Private Bytes)。長い試行で増え続けるかの確認 // 実行の負荷の確認(並列で 60fps を保てたか。slowFrames = 1/30 秒より長いフレーム)
     }
 
     BlResult bl;
@@ -49,6 +51,7 @@ public partial class QaSweep
     readonly StringBuilder blEvents = new StringBuilder("t\tdist\tkind\tdetail\n");
     float blT, blReal0, blRunReal0; int blFrames;
     BlBoss blCurBoss;
+    HighSpeedAssist blAlwaysApplied;
     string blSnapshot = "";
 
     void BlEvent(string kind, string detail) => blEvents.Append($"{blT:F1}\t{(gm != null ? gm.MaxDistance : 0f):F0}\t{kind}\t{detail}\n");
@@ -67,6 +70,10 @@ public partial class QaSweep
         float reaperLimit = float.Parse(Arg("-blReaperLimit", "300"), System.Globalization.CultureInfo.InvariantCulture);
         float maxMin = float.Parse(Arg("-blMaxMin", "240"), System.Globalization.CultureInfo.InvariantCulture);
         int sprintDest = int.Parse(Arg("-blSprintDest", "50000"));
+        bool assistAlways = Arg("-blAssistAlways", "0") == "1";
+        if (assistAlways) bl.assistMode = "always";
+        // 部分試験(通し攻略とは別): 完成ビルド(デッキの各能力を Lv9)を再現し、開発用ワープで関門の手前から1つのボス戦/難所だけを試す
+        float partialAt = float.Parse(Arg("-blPartialAt", "0"), System.Globalization.CultureInfo.InvariantCulture);
         bool fast = Arg("-blFast", "0") == "1"; // 既定は通常速度(固定刻みの早送りは実時間で進む処理とずれるため使わない)
         blReal0 = Time.realtimeSinceStartup;
 
@@ -142,12 +149,27 @@ public partial class QaSweep
         pc = PlayerController.Instance;
         if (fast) { QualitySettings.vSyncCount = 0; Application.targetFrameRate = -1; Time.captureDeltaTime = 1f / 60f; }
         else { QualitySettings.vSyncCount = 0; Application.targetFrameRate = 60; } // スマホと同じ 60fps の通常速度(画面の更新間隔に左右されない)
+        if (partialAt > 0f)
+        {
+            float wt = 0f; while (gm.CountdownActive && wt < 15f) { yield return null; wt += Time.unscaledDeltaTime; }
+            yield return new WaitForSeconds(1f);
+            foreach (var key in gm.DeckCards.Distinct().ToList())
+            {
+                string baseId = CardVariant.IsVariantKey(key) ? CardVariant.Parse(key)?.mainId : key;
+                var c = CardDatabase.FindById(baseId);
+                if (c != null) gm.DebugApplyRunCard(c, GameManager.MaxRunCardLevel);
+            }
+            WarpTo(partialAt - 400f);
+            bl.depart = $"partial:{partialAt:F0}";
+            BlEvent("partial", $"build Lv9 applied, warped to {partialAt - 400f:F0}m HP {gm.Lives}/{gm.MaxLives} [{BlAbilities()}]");
+        }
         blRunReal0 = Time.realtimeSinceStartup; blFrames = 0;
         BlEvent("start", $"{b.name} {bl.character} {bl.stage} growth{bl.growth} seed{bl.seed} {bl.depart} engage{bl.engageKmh}");
 
         // ---- 走る
         bool lastDungeon = bl.stage == BossManager.LastStageId;
-        float lastProgressT = 0f, lastProgressD = 0f, snapAt = 0f, progressAt = 0f;
+        bool lastDungeonPartialFinale = lastDungeon && partialAt >= 99999f; // ラスダン 100km の部分試験は最終戦の突破まで
+        float lastProgressT = 0f, lastProgressD = 0f, snapAt = 0f, progressAt = 0f, memAt = 0f;
         bool wasBoss = false;
         while (true)
         {
@@ -159,12 +181,16 @@ public partial class QaSweep
             var pcNow = PlayerController.Instance;
             if (pcNow != null) bl.maxKmh = Mathf.Max(bl.maxKmh, SpeedKmhOf(pcNow.CurrentAutoRunSpeed));
             if (hsa == null) hsa = HighSpeedAssist.Instance;
-            if (bl.assistFirstActiveDist < 0f && hsa != null && pcNow != null && SpeedKmhOf(pcNow.CurrentAutoRunSpeed) >= bl.engageKmh) bl.assistFirstActiveDist = d;
+            // 常に補助(検証の間だけ。保存しない。闘技場の「常時」と同じ入口): 補助の部品が作り直されたら当て直す
+            if (assistAlways && hsa != null && hsa != blAlwaysApplied) { hsa.ArenaApply(2, 0f, hsa.breakObstacles, hsa.earlyDoubleJump); blAlwaysApplied = hsa; BlEvent("assist", "always on"); }
+            if (bl.assistFirstActiveDist < 0f && hsa != null && pcNow != null && (assistAlways || SpeedKmhOf(pcNow.CurrentAutoRunSpeed) >= bl.engageKmh)) bl.assistFirstActiveDist = d;
 
             // 案内(初回の脱出の説明など)は「わかった」で閉じる(プレイヤーが閉じるのと同じ)
             if (FirstRunGuide.Open) FirstRunGuideDebug.Answer(0);
             // 再開の停止画面(疾走の到着/CONTINUE)は、プレイヤーがタップするのと同じ入口で始める
             if (gm.ResumeGate == GameManager.ResumeGatePhase.Waiting) { if (gm.RequestResumeFromGate()) BlEvent("resume_gate", "tap"); }
+            // メモリの記録(60秒ごと): 何が増えているかの手がかり
+            if (blT >= memAt) { memAt = blT + 60f; BlMem(d); }
             // 経過の控え(長い試行の様子を外から見る)
             if (blT >= progressAt) { progressAt = blT + 30f; System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, "progress.txt"), $"{blT / 60f:F1}min {d:F0}m {(Time.realtimeSinceStartup - blReal0) / 60f:F1}min-real {blSnapshot}"); }
             // カード選択(レベルアップ/ボス報酬/リング)
@@ -193,6 +219,7 @@ public partial class QaSweep
                 }
             }
             if (!boss && wasBoss && blCurBoss != null) { blCurBoss.seconds = blT - blCurBoss.t0; blCurBoss.defeated = true; BlEvent("boss_end", $"{blCurBoss.names} {blCurBoss.seconds:F1}s"); }
+            if (partialAt > 0f && !lastDungeonPartialFinale && !boss && wasBoss && blCurBoss != null && blCurBoss.dist >= partialAt - 1f) { bl.outcome = "partial_cleared"; bl.success = false; BlEvent("partial_cleared", $"{blCurBoss.names} {blCurBoss.seconds:F1}s"); wasBoss = false; break; }
             wasBoss = boss;
 
             // 状態の控え(倒れた直前を残す)
@@ -230,6 +257,41 @@ public partial class QaSweep
     }
 
     static float SpeedKmhOf(float mps) => mps * 3.6f;
+
+    readonly StringBuilder blMem = new StringBuilder("gameMin\tdist\tprivateMB\tmonoMB\tallocMB\treservedMB\tgfxMB\ttextures\ttexMB\tsprites\tmeshes\tmaterials\tgameObjects\taudio\n");
+    void BlMem(float d)
+    {
+        float priv = System.Diagnostics.Process.GetCurrentProcess().PrivateMemorySize64 / 1048576f;
+        if (bl.memStartMB < 0f) bl.memStartMB = priv;
+        bl.memEndMB = priv; bl.memPeakMB = Mathf.Max(bl.memPeakMB, priv);
+        var tex = Resources.FindObjectsOfTypeAll<Texture2D>();
+        long texBytes = 0; foreach (var t in tex) texBytes += UnityEngine.Profiling.Profiler.GetRuntimeMemorySizeLong(t);
+        int go = FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length;
+        blMem.Append($"{blT / 60f:F1}\t{d:F0}\t{priv:F0}\t{UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong() / 1048576f:F0}\t{UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() / 1048576f:F0}\t{UnityEngine.Profiling.Profiler.GetTotalReservedMemoryLong() / 1048576f:F0}\t{UnityEngine.Profiling.Profiler.GetAllocatedMemoryForGraphicsDriver() / 1048576f:F0}\t{tex.Length}\t{texBytes / 1048576f:F0}\t{Resources.FindObjectsOfTypeAll<Sprite>().Length}\t{Resources.FindObjectsOfTypeAll<Mesh>().Length}\t{Resources.FindObjectsOfTypeAll<Material>().Length}\t{go}\t{Resources.FindObjectsOfTypeAll<AudioClip>().Length}\n");
+        System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, "mem.tsv"), blMem.ToString());
+        // 増えている物の手がかり: 名前ごとの数(多い順 15 件)。Sprite / Material / Mesh / Texture2D
+        var sbn = new StringBuilder();
+        sbn.Append($"== {blT / 60f:F1}min {d:F0}m\n");
+        void Top<T>(string label) where T : Object
+        {
+            var g = Resources.FindObjectsOfTypeAll<T>().GroupBy(x => x != null ? x.name : "(null)").Select(x => (x.Key, x.Count())).OrderByDescending(x => x.Item2).Take(15);
+            sbn.Append(label).Append(": ").Append(string.Join(" | ", g.Select(x => $"{(string.IsNullOrEmpty(x.Key) ? "(no name)" : x.Key)} x{x.Item2}"))).Append("\n");
+        }
+        Top<Sprite>("sprites"); Top<Material>("materials"); Top<Mesh>("meshes"); Top<Texture2D>("textures"); Top<RenderTexture>("renderTextures");
+        // 名前の無い Sprite は元の画像(texture)と大きさで、Sprites/Default の Material は使っている物(Renderer)の名前で分ける
+        var noName = Resources.FindObjectsOfTypeAll<Sprite>().Where(x => x != null && string.IsNullOrEmpty(x.name))
+            .GroupBy(x => $"{(x.texture != null ? x.texture.name : "(no tex)")} {x.rect.width:F0}x{x.rect.height:F0} ppu{x.pixelsPerUnit:F0}").Select(x => (x.Key, x.Count())).OrderByDescending(x => x.Item2).Take(15);
+        sbn.Append("unnamedSpritesByTexture: ").Append(string.Join(" | ", noName.Select(x => $"{x.Key} x{x.Item2}"))).Append("\n");
+        var users = new Dictionary<string, int>();
+        foreach (var rr in FindObjectsByType<Renderer>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            var m = rr.sharedMaterial; if (m == null || m.name != "Sprites/Default") continue;
+            string k = rr.GetType().Name + ":" + rr.gameObject.name.Replace("(Clone)", "");
+            users[k] = users.TryGetValue(k, out int c) ? c + 1 : 1;
+        }
+        sbn.Append("liveSpritesDefaultUsers: ").Append(string.Join(" | ", users.OrderByDescending(x => x.Value).Take(15).Select(x => $"{x.Key} x{x.Value}"))).Append("\n");
+        System.IO.File.AppendAllText(System.IO.Path.Combine(outDir, "mem_names.txt"), sbn.ToString());
+    }
 
     // ---- カード選択: 出た候補から、ビルドの優先順位の一番上(FINAL EVOLUTION はビルドの方針どおり)。順位に無い物しか無ければ1枚目
     IEnumerator BlPickCard(BlBuild b)

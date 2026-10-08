@@ -29,7 +29,7 @@ public class ColliderDebugView : MonoBehaviour
         lr.useWorldSpace = false;
         lr.startWidth = lineWidth;
         lr.endWidth = lineWidth;
-        lr.material = new Material(Shader.Find("Sprites/Default"));
+        lr.sharedMaterial = SharedMaterials.SpritesDefault; // 共有(出すたびに作ると消えずに残る。2026-10-08)
         lr.startColor = color;
         lr.endColor = color;
         lr.sortingOrder = 50;
