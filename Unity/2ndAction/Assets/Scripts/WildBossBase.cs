@@ -1494,6 +1494,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
 
             gameObject.SetActive(false);
             RegisterDefeatOnce();
+            Destroy(gameObject, DefeatedBodyLifetime); // 2026-10-08(メモリの修正): 非表示のまま溜まらないように
         }
         finally
         {

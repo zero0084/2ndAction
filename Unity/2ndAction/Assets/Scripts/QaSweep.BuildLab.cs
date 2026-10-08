@@ -18,7 +18,7 @@ public partial class QaSweep
     [System.Serializable] public class BlBuildFile { public BlBuild[] builds; }
 
     [System.Serializable] public class BlPick { public float dist, t; public string kind; public string[] offered; public string picked, why; public int level; }
-    [System.Serializable] public class BlBoss { public float dist, t0, seconds; public string names; public bool defeated, timedOut; public float hpLeftFrac; public int hitsTaken; }
+    [System.Serializable] public class BlBoss { public float dist, t0, seconds; public string names; public bool defeated, timedOut; public float hpLeftFrac; public int hitsTaken, terrainHits; }
     [System.Serializable] public class BlHit { public float dist, t; public string reason, near; public int dmg, after; public bool boss; }
     [System.Serializable]
     public class BlResult
@@ -131,7 +131,7 @@ public partial class QaSweep
         {
             var h = new BlHit { dist = gm != null ? gm.MaxDistance : 0f, t = blT, reason = reason, dmg = dmg, after = after, boss = BossManager.Instance != null && BossManager.Instance.IsBossPhase, near = BlNear(4f) };
             blHits.Add(h); if (blHits.Count > 60) blHits.RemoveAt(0);
-            bl.hitsTaken++; if (blCurBoss != null) blCurBoss.hitsTaken++;
+            bl.hitsTaken++; if (blCurBoss != null && h.boss) { blCurBoss.hitsTaken++; if (reason.StartsWith("DeathY") || reason.Contains("TerrainWall")) blCurBoss.terrainHits++; }
             BlEvent("hit", $"{reason} -{dmg} -> {after} near[{h.near}]");
         };
 
@@ -289,6 +289,12 @@ public partial class QaSweep
             string k = rr.GetType().Name + ":" + rr.gameObject.name.Replace("(Clone)", "");
             users[k] = users.TryGetValue(k, out int c) ? c + 1 : 1;
         }
+        // 増え続けるオブジェクトの手がかり: 名前ごとの数(多い順 25)と、いちばん上の親(ルート)ごとの数(多い順 15)。非アクティブも数える
+        var allT = FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        var byName = allT.GroupBy(t => t.name.Replace("(Clone)", "")).Select(g => (g.Key, g.Count(), g.Count(t => !t.gameObject.activeInHierarchy))).OrderByDescending(x => x.Item2).Take(25);
+        sbn.Append("objectsByName: ").Append(string.Join(" | ", byName.Select(x => $"{x.Key} x{x.Item2}(off {x.Item3})"))).Append("\n");
+        var byRoot = allT.GroupBy(t => t.root.name.Replace("(Clone)", "")).Select(g => (g.Key, g.Count())).OrderByDescending(x => x.Item2).Take(15);
+        sbn.Append("objectsByRoot: ").Append(string.Join(" | ", byRoot.Select(x => $"{x.Key} x{x.Item2}"))).Append("\n");
         sbn.Append("liveSpritesDefaultUsers: ").Append(string.Join(" | ", users.OrderByDescending(x => x.Value).Take(15).Select(x => $"{x.Key} x{x.Value}"))).Append("\n");
         System.IO.File.AppendAllText(System.IO.Path.Combine(outDir, "mem_names.txt"), sbn.ToString());
     }

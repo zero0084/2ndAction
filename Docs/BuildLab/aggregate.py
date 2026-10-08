@@ -21,7 +21,7 @@ for f in sorted(glob.glob(os.path.join(resdir, '*', 'result.json'))):
         'reaperSurvivedM': round(r['reaperSurvivedMeters']) if (r.get('reaperSurvivedMeters') or -1) >= 0 else '', 'reaperSurvivedS': round(r['reaperSurvivedSeconds']) if (r.get('reaperSurvivedSeconds') or -1) >= 0 else '', 'reaperEnd': r.get('reaperEnd'),
         'level': r.get('level'), 'bossesDefeated': r.get('bossesDefeated'), 'bossFights': len(bl),
         'bossMaxSec': round(max([b.get('seconds') or 0 for b in bl] or [0]), 1),
-        'hitsTaken': r.get('hitsTaken'), 'assistFirstActiveM': round(r.get('assistFirstActiveDist') or -1), 'maxKmh': round(r.get('maxKmh') or 0),
+        'hitsTaken': r.get('hitsTaken'), 'assistFirstActiveM': round(r['assistFirstActiveDist']) if r.get('assistFirstActiveDist') is not None else -1, 'maxKmh': round(r.get('maxKmh') or 0),
         'cause': r.get('cause'), 'causeDetail': r.get('causeDetail'), 'deathSnapshot': r.get('deathSnapshot'), 'finalAbilities': r.get('finalAbilities'),
         'avgFps': round(r.get('avgFps') or 0, 1), 'slowFrames': r.get('slowFrames'), 'realMin': round((r.get('realSeconds') or 0) / 60, 1), 'notes': r.get('notes'),
     })
@@ -30,7 +30,7 @@ for f in sorted(glob.glob(os.path.join(resdir, '*', 'result.json'))):
                       'offered': ' '.join(p.get('offered') or []), 'picked': p.get('picked'), 'why': p.get('why')})
     for b in bl:
         bosses.append({'trial': trial, 'character': r.get('character'), 'stage': r.get('stage'), 'build': r.get('build'), 'dist': round(b.get('dist') or 0), 'names': b.get('names'),
-                       'seconds': round(b.get('seconds') or 0, 1), 'defeated': b.get('defeated'), 'timedOut': b.get('timedOut'), 'hpLeftFrac': round(b.get('hpLeftFrac') or 0, 3), 'hitsTaken': b.get('hitsTaken')})
+                       'seconds': round(b.get('seconds') or 0, 1), 'defeated': b.get('defeated'), 'timedOut': b.get('timedOut'), 'hpLeftFrac': round(b.get('hpLeftFrac') or 0, 3), 'hitsTaken': b.get('hitsTaken'), 'terrainHits': b.get('terrainHits')})
 
 def write(name, data):
     if not data: return

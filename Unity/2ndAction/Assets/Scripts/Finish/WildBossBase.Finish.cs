@@ -25,7 +25,11 @@ public abstract partial class WildBossBase : IBossDeathBody
         if (hpBar != null) { Destroy(hpBar.gameObject); hpBar = null; }
         gameObject.SetActive(false);
         NotifyDefeatEncounter();
+        // 2026-10-08(メモリの修正): 非表示のまま残すと、ボス戦のたびに部品(約100個/体)が溜まり続けていた。少し待ってから消す
+        //  (遭遇の終了/報酬の選択はここまでで済んでいる。参照している所は null を見て飛ばす)
+        Destroy(gameObject, DefeatedBodyLifetime);
     }
+    public const float DefeatedBodyLifetime = 10f;
 
     // 命中した攻撃(この端末のプレイヤー)の向き/種類を、致死になった時のために控える
     void NoteFinalAttack(Collider2D other, PlayerAttackInfo info)

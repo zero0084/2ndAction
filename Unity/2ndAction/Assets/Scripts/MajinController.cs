@@ -702,6 +702,7 @@ public partial class MajinController : MonoBehaviour
 
             gameObject.SetActive(false);
             RegisterDefeatOnce();
+            Destroy(gameObject, WildBossBase.DefeatedBodyLifetime); // 2026-10-08(メモリの修正): 非表示のまま溜まらないように
         }
         finally
         {

@@ -28,6 +28,7 @@ public partial class DragonController
         {
             if (hpBar != null) { Destroy(hpBar.gameObject); hpBar = null; }
             gameObject.SetActive(false);
+            Destroy(gameObject, WildBossBase.DefeatedBodyLifetime); // 2026-10-08(メモリの修正): 非表示のまま溜まらないように
             if (puppet || finishNotified) return;
             finishNotified = true;
             if (GameManager.Instance != null && GameManager.Instance.IsGameOver) return;
@@ -77,6 +78,7 @@ public partial class MajinController
         {
             if (hpBar != null) { Destroy(hpBar.gameObject); hpBar = null; }
             gameObject.SetActive(false);
+            Destroy(gameObject, WildBossBase.DefeatedBodyLifetime); // 2026-10-08(メモリの修正): 非表示のまま溜まらないように
             if (puppet || finishNotified) return;
             finishNotified = true;
             if (GameManager.Instance != null && GameManager.Instance.IsGameOver) return;
