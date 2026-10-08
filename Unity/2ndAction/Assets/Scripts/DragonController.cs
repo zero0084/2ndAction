@@ -248,7 +248,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     {
         Camera cam = Camera.main;
         float rightEdge = cam != null
-            ? cam.transform.position.x + cam.orthographicSize * cam.aspect
+            ? GameView.Right(cam)
             : target.x + 6f;
         float startX = Mathf.Max(target.x, rightEdge) + entranceOffscreenMargin;
         return new Vector3(startX, target.y, 0f);
@@ -551,7 +551,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     {
         Camera cam = Camera.main;
         if (cam == null) return transform.position.x + 6f;
-        return cam.transform.position.x + cam.orthographicSize * cam.aspect - riseEdgeMargin;
+        return GameView.Right(cam) - riseEdgeMargin;
     }
 
     IEnumerator TelegraphAndAttack(bool isCharge)

@@ -20,7 +20,7 @@ public class EnemyMeleeHitbox : MonoBehaviour
     {
         var am = AudioManager.Instance; var cam = Camera.main;
         if (am == null || cam == null) return;
-        float half = cam.orthographicSize * cam.aspect, x = transform.position.x, cx = cam.transform.position.x;
+        float half = GameView.HalfWidth(cam), x = transform.position.x, cx = GameView.CenterX(cam);
         if (x < cx - half - 1f || x > cx + half + 1f) return;
         var box = GetComponent<BoxCollider2D>();
         bool big = box != null && box.size.x * Mathf.Abs(transform.lossyScale.x) * box.size.y * Mathf.Abs(transform.lossyScale.y) > 3.5f;

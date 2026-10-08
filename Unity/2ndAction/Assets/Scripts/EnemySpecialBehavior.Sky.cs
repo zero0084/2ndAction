@@ -248,8 +248,8 @@ public partial class EnemySpecialBehavior
         if (NetCombat.Authority) return WorldRange.VisibleToAnyone(transform.position.x, margin);
         Camera cam = Camera.main;
         if (cam == null) return true;
-        float half = cam.orthographicSize * cam.aspect;
-        float x = transform.position.x, cx = cam.transform.position.x;
+        float half = GameView.HalfWidth(cam);
+        float x = transform.position.x, cx = GameView.CenterX(cam);
         return x < cx + half - margin && x > cx - half + margin;
     }
 

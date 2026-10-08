@@ -28,7 +28,23 @@ public class ViewModeToggle : MonoBehaviour
         // overwriting it here on every scene load would fight that existing
         // system. The initial camera state (Landscape active, matching
         // PortraitActive's default false) is safe to (redundantly) apply.
+        // 2026-10-08: 縦の画面で「斜め上から見る」を選んでいる時だけ斜めのカメラ(設定 PortraitRunView)。回転/設定の変更で当て直す
+        PortraitActive = PortraitRunView.UseOblique;
         ApplyCameras();
+        PortraitRunView.Changed += Reapply;
+        OrientationWatcher.Changed += Reapply;
+    }
+
+    void OnDestroy() { PortraitRunView.Changed -= Reapply; OrientationWatcher.Changed -= Reapply; }
+
+    void Reapply()
+    {
+        if (this == null) return;
+        bool want = PortraitRunView.UseOblique;
+        if (want == PortraitActive) return;
+        PortraitActive = want;
+        ApplyCameras();
+        Debug.Log($"[ViewMode] {(PortraitActive ? "oblique (portrait)" : "side")}");
     }
 
     void Update()
@@ -45,12 +61,11 @@ public class ViewModeToggle : MonoBehaviour
         if (portraitRig != null) portraitRig.SetActive(PortraitActive);
     }
 
+    // 開発用の切り替え: 縦のラン表示の設定を入れ替える(縦の画面で効く)
     public void Toggle()
     {
-        PortraitActive = !PortraitActive;
-        ApplyCameras();
-        OrientationControl.Apply(PortraitActive ? ScreenOrientation.Portrait : ScreenOrientation.LandscapeLeft);
-        Debug.Log($"[ViewMode] Switched to {(PortraitActive ? "Portrait (斜め上視点)" : "Landscape")}");
+        PortraitRunView.Set(PortraitRunView.Mode == PortraitRunView.Oblique ? PortraitRunView.Side : PortraitRunView.Oblique);
+        Reapply();
     }
 
     // On-device convenience (a real phone has no 'V' key) - a small

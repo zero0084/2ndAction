@@ -263,7 +263,7 @@ public abstract class ReaperBase : MonoBehaviour
         var local = PlayerController.Instance;
         if (cam != null && cam.orthographic && local != null && player == local.transform)
         {
-            float half = cam.orthographicSize * cam.aspect;
+            float half = GameView.HalfWidth(cam);
             return Mathf.Max(3f, player.position.x - (cam.transform.position.x - half));
         }
         var cf = cam != null ? cam.GetComponent<CameraFollow>() : null;

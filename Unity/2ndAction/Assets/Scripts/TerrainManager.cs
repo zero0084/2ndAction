@@ -90,6 +90,8 @@ public class TerrainManager : MonoBehaviour
     // より「描画が壊れている」ように見えるリスク)ため、カメラに実際に
     // 映る範囲を十分覆いつつ側壁の圧迫感を抑えた14まで縮小した。
     public float groundFillDepth = 14f;
+    // 2026-10-08: 縦の横から見る表示では、地表より下に見える高さまで塗る(画面の下端に背景が見えないように。穴は塗らない)
+    float FillDepth => Mathf.Max(groundFillDepth, CameraFollow.PortraitBelowGround() - groundFillTopOffset + 2f);
     public float groundFillOverlap = 0.05f;
     // 路面と地中断面の接続見た目修正(2026-09-15) - マスター報告「路面の下に
     // 空色の帯が見える」の根本原因。GroundFillの開始位置は、以前は表面
@@ -444,7 +446,7 @@ public class TerrainManager : MonoBehaviour
         if (!c.needsLeftCap && platformArt.IsValid && i > 0 && (c.type == ChunkType.Flat) != (chunks[i - 1].type == ChunkType.Flat))
         {
             float theta = Mathf.Atan2(slopeHeight, slopeLength);
-            float fillOuterDepth = groundFillTopOffset - groundFillOverlap + groundFillDepth;
+            float fillOuterDepth = groundFillTopOffset - groundFillOverlap + FillDepth;
             bleed = fillOuterDepth * Mathf.Tan(theta) * cornerBleedSafetyMargin;
         }
         float li = c.needsLeftCap ? pitEdgeFillInset : 0f;
@@ -452,7 +454,7 @@ public class TerrainManager : MonoBehaviour
         float topExtra = (c.needsLeftCap || nextIsPit) ? pitEdgeFillTopExtra : 0f;
         c.fillVisual = GroundFactory.CreateGroundFillVisual(transform, groundFillSprite,
             new Vector2(c.startX, c.startY), new Vector2(c.endX, c.endY),
-            groundFillTopOffset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, bleed, groundFillTint, li, ri, topExtra);
+            groundFillTopOffset, FillDepth, groundFillOverlap, RenderOrder.GroundFill, bleed, groundFillTint, li, ri, topExtra);
     }
 
     void RebuildChunkVisual(int i)
@@ -1742,7 +1744,7 @@ public class TerrainManager : MonoBehaviour
             if (!needsLeftCap && platformArt.IsValid && (type == ChunkType.Flat) != (lastType == ChunkType.Flat))
             {
                 float theta = Mathf.Atan2(slopeHeight, slopeLength);
-                float fillOuterDepth = groundFillTopOffset - groundFillOverlap + groundFillDepth;
+                float fillOuterDepth = groundFillTopOffset - groundFillOverlap + FillDepth;
                 fillLeftBleed = fillOuterDepth * Mathf.Tan(theta) * cornerBleedSafetyMargin;
             }
 
@@ -1754,7 +1756,7 @@ public class TerrainManager : MonoBehaviour
             {
                 chunk.fillVisual = GroundFactory.CreateGroundFillVisual(transform, groundFillSprite,
                     new Vector2(startX, startY), new Vector2(endX, endY),
-                    groundFillTopOffset, groundFillDepth, groundFillOverlap, RenderOrder.GroundFill, fillLeftBleed, groundFillTint,
+                    groundFillTopOffset, FillDepth, groundFillOverlap, RenderOrder.GroundFill, fillLeftBleed, groundFillTint,
                     needsLeftCap ? pitEdgeFillInset : 0f, 0f, needsLeftCap ? pitEdgeFillTopExtra : 0f);
             }
 

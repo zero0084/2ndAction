@@ -38,6 +38,31 @@ public class CameraFollow : MonoBehaviour
     Camera cam;
     Vector3 velocity;
 
+    // ---- 縦画面(2026-10-08、依頼E-5): 「横から見る」縦のラン表示の構図。ゲームの判定(出現/画面端/ボスの間合い)は
+    //      LogicalHalfWidth/LogicalCenterX(横画面と同じ値)を使うので、見た目の幅を変えてもゲームの進み方は変わらない。
+    public static CameraFollow Instance { get; private set; }
+    [Header("Portrait (縦画面の横から見る表示)")]
+    public float portraitHalfWidth = 12f;         // 縦で見せる横幅の半分(横画面の 20.8 より狭く = キャラを大きく)
+    [Range(0.6f, 0.9f)] public float portraitGroundFromTop = 0.78f; // 走っている地表を画面の上から何割の所に置くか
+    public float portraitSurfaceSmooth = 0.35f;     // 地表の高さの追従の速さ(秒。ジャンプでは動かない)
+    public float LogicalHalfWidth { get; private set; } = 20.8f;
+    public float LogicalCenterX { get; private set; }
+    public bool HasLogical { get; private set; }
+    public bool PortraitSide { get; private set; }
+    float surfaceY, surfaceVel; bool surfaceInit;
+
+    // 縦の横から見る表示で、地表より下に見える高さ(地中の塗りの深さに使う)。横では 0
+    public static float PortraitBelowGround()
+    {
+        if (!PortraitRunView.UseSidePortrait || Screen.height <= 0) return 0f;
+        var cf = Instance;
+        float half = cf != null ? cf.portraitHalfWidth : 12f;
+        float fromTop = cf != null ? cf.portraitGroundFromTop : 0.78f;
+        float aspect = (float)Screen.width / Screen.height;
+        float ortho = half * 1.15f / aspect; // 高速時の引き(+12%)と余裕
+        return ortho * 2f * (1f - fromTop);
+    }
+
     // Game Feel pass, section 19 - "非常に小さなShake" for boss/strong hits
     // only (see DragonController.TakeDamage) - never for a normal enemy
     // kill, and never anything big enough to risk reading as screen shake/
@@ -50,7 +75,9 @@ public class CameraFollow : MonoBehaviour
     void Awake()
     {
         cam = GetComponent<Camera>();
+        Instance = this;
     }
+    void OnDestroy() { if (Instance == this) Instance = null; }
 
     public void Shake(float magnitude, float duration)
     {
@@ -86,7 +113,10 @@ public class CameraFollow : MonoBehaviour
             ultZoomNow = Mathf.Lerp(ultZoomNow, UltimateZoom, 1f - Mathf.Exp(-8f * Time.unscaledDeltaTime));
             feZoomNow = Mathf.Lerp(feZoomNow, FinalEvolutionZoom, 1f - Mathf.Exp(-4f * Time.unscaledDeltaTime));
             bossZoomNow = Mathf.Lerp(bossZoomNow, Mathf.Clamp(BossFinishZoom, 0.85f, 1f), 1f - Mathf.Exp(-14f * Time.unscaledDeltaTime));
-            cam.orthographicSize = targetHorizontalHalfWidth * (1f + highSpeedZoomOut * speedBlend) / aspect * ultZoomNow * feZoomNow * bossZoomNow;
+            float zoom = (1f + highSpeedZoomOut * speedBlend) * ultZoomNow * feZoomNow * bossZoomNow;
+            LogicalHalfWidth = targetHorizontalHalfWidth * zoom;
+            PortraitSide = PortraitRunView.UseSidePortrait;
+            cam.orthographicSize = (PortraitSide ? portraitHalfWidth : targetHorizontalHalfWidth) * zoom / aspect;
         }
 
         if (shakeTimer > 0f) shakeTimer = Mathf.Max(0f, shakeTimer - Time.unscaledDeltaTime);
@@ -113,9 +143,34 @@ public class CameraFollow : MonoBehaviour
         // 攻撃の前進/後退の分だけカメラを遅らせる(画面上でキャラが踏み込む/下がるのが見える。2026-09-30)
         float stepOffset = PlayerController.Instance != null && target == PlayerController.Instance.transform ? PlayerController.Instance.ScreenStepOffset : 0f;
         pos.x = target.position.x + offsetX + highSpeedLookAhead * speedBlend - stepOffset + ScriptedOffsetX + UltimateLookAhead;
+        LogicalCenterX = pos.x; HasLogical = true;
         bool diving = PlayerController.Instance != null && PlayerController.Instance.IsDiveAttacking;
-        float smoothedY = Mathf.SmoothDamp(pos.y, target.position.y, ref velocity.y, diving ? yDampingDiveAttack : yDamping);
-        pos.y = smoothedY;
+        if (PortraitSide)
+        {
+            // 縦の横から見る表示: 横の位置は横画面と同じ割合(プレイヤーの前を広く)、縦は「走っている地表」を画面の下寄りに置く。
+            // 地表の高さは地面に立っている時だけ更新し、ゆっくり追う(ジャンプのたびに上下しない)。下へ落ちていく時は追う
+            float k = portraitHalfWidth / Mathf.Max(1f, targetHorizontalHalfWidth);
+            pos.x = target.position.x + (offsetX + highSpeedLookAhead * speedBlend) * k - stepOffset + ScriptedOffsetX + UltimateLookAhead * k;
+            var pcs = PlayerController.Instance;
+            float py = target.position.y;
+            if (!surfaceInit) { surfaceY = py; surfaceInit = true; }
+            float want = surfaceY;
+            if (pcs == null || pcs.IsGrounded) want = py;
+            else if (py < surfaceY - 1.5f) want = py; // 下の段/穴へ
+            surfaceY = Mathf.SmoothDamp(surfaceY, want, ref surfaceVel, diving ? 0.08f : portraitSurfaceSmooth);
+            float ortho = cam != null ? cam.orthographicSize : 20f;
+            float y = surfaceY + ortho * (1f - 2f * (1f - portraitGroundFromTop));
+            // 高く跳んだ時は頭が画面の上から出ないようにだけ上げる
+            float topLimit = py + 3f - ortho * 0.85f;
+            if (y < topLimit) y = topLimit;
+            pos.y = Mathf.SmoothDamp(pos.y, y, ref velocity.y, 0.08f);
+        }
+        else
+        {
+            surfaceInit = false;
+            float smoothedY = Mathf.SmoothDamp(pos.y, target.position.y, ref velocity.y, diving ? yDampingDiveAttack : yDamping);
+            pos.y = smoothedY;
+        }
 
         if (shakeTimer > 0f)
         {

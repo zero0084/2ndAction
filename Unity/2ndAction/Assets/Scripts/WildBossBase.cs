@@ -151,7 +151,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         SetupBattleUi();
 
         Camera cam = Camera.main;
-        float rightEdge = cam != null ? cam.transform.position.x + cam.orthographicSize * cam.aspect : PlayerX + 12f;
+        float rightEdge = cam != null ? GameView.Right(cam) : PlayerX + 12f;
         if (cam != null && pc != null && player != pc.transform) rightEdge = PlayerX + (rightEdge - pc.transform.position.x); // マルチ: 最前の相手の画面の右端
         worldX = Mathf.Max(PlayerX + startGap, rightEdge) + 3f;
         lastGroundY = TerrainGround(worldX);
@@ -1358,18 +1358,18 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // 画面の外(前方/後方)にあたる間合い
     // マルチ Phase 3.1: 「狙っている人の画面」の外。この端末のカメラとプレイヤーの差(全員同じ構図)を、狙いの相手に当てはめる。
     // 以前はこの端末(HOST)のカメラの端そのものだったため、遠くの相手を狙うボスがHOSTの画面の端へ飛んでいた。自分が狙いなら従来と同じ値。
-    float CamCenterOffset(Camera cam) => pc != null ? cam.transform.position.x - pc.transform.position.x : cam.transform.position.x - PlayerX;
+    float CamCenterOffset(Camera cam) => pc != null ? GameView.CenterX(cam) - pc.transform.position.x : GameView.CenterX(cam) - PlayerX; // 2026-10-08: 見た目のカメラでなく判定の画面
     protected float OffscreenAheadGap()
     {
         Camera cam = Camera.main;
         if (cam == null) return 26f;
-        return CamCenterOffset(cam) + cam.orthographicSize * cam.aspect + halfWidth + 2f;
+        return CamCenterOffset(cam) + GameView.HalfWidth(cam) + halfWidth + 2f;
     }
     protected float OffscreenBehindGap()
     {
         Camera cam = Camera.main;
         if (cam == null) return -18f;
-        return CamCenterOffset(cam) - cam.orthographicSize * cam.aspect - halfWidth - 2f;
+        return CamCenterOffset(cam) - GameView.HalfWidth(cam) - halfWidth - 2f;
     }
 
     // 画面を横切る突進/滑空(相対速度を使う攻撃)。fromGap→toGapを高さlaneで。hbは通過中ずっと有効。

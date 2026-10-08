@@ -50,6 +50,7 @@ public class SettingsPanel : MonoBehaviour
         if (state == St.Closed || state == St.Closing) return;
         state = St.Closing; t = 0f;
         GameSettings.Save();
+        PortraitRunView.NotifyIfPending(); // 2026-10-08: ラン中に変えた縦のラン表示は閉じた時に反映
         UiInputGate.LatchUntilRelease();
         PlaySe(false);
     }

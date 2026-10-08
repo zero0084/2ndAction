@@ -197,7 +197,7 @@ public partial class MajinController : MonoBehaviour
     {
         Camera cam = Camera.main;
         float rightEdge = cam != null
-            ? cam.transform.position.x + cam.orthographicSize * cam.aspect
+            ? GameView.Right(cam)
             : target.x + 6f;
         float startX = Mathf.Max(target.x, rightEdge) + entranceOffscreenMargin;
         return new Vector3(startX, target.y, 0f);

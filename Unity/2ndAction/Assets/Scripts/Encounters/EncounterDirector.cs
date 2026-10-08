@@ -416,7 +416,7 @@ public class EncounterDirector : MonoBehaviour
         float unit = Mathf.Max(0.5f, pc.runSpeed);
         refSpeed = Mathf.Max(1f, Mathf.Max(f.RunSpeed / unit, Mathf.Min(SpeedScale(pc), 1f)));
         Camera cam = Camera.main;
-        float fullWidth = cam != null ? cam.orthographicSize * cam.aspect * 2f : 32f;
+        float fullWidth = cam != null ? GameView.HalfWidth(cam) * 2f : 32f;
         refVisibleAhead = Mathf.Max(VisibleAhead(pc), fullWidth - 2f);
         RefPlayer = f.Pn;
     }
@@ -575,7 +575,7 @@ public class EncounterDirector : MonoBehaviour
     {
         Camera cam = Camera.main;
         if (cam == null) return 20f;
-        float right = cam.transform.position.x + cam.orthographicSize * cam.aspect;
+        float right = GameView.Right(cam);
         return Mathf.Max(8f, right - pc.transform.position.x);
     }
 

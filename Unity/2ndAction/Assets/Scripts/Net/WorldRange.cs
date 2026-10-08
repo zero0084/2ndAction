@@ -139,7 +139,7 @@ public static class WorldRange
         Camera cam = Camera.main;
         PlayerController pc = PlayerController.Instance;
         if (cam == null || pc == null) return true;
-        float half = cam.orthographicSize * cam.aspect;
+        float half = GameView.HalfWidth(cam);
         float camOffset = cam.transform.position.x - pc.transform.position.x; // 自分のカメラ中心とプレイヤーの差(全員同じ構図)
         if (x < cam.transform.position.x + half - margin && x > cam.transform.position.x - half + margin) return true;
         if (!NetMatch.Active) return false;
