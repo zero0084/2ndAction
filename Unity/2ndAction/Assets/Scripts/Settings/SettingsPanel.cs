@@ -452,7 +452,7 @@ public class SettingsPanel : MonoBehaviour
     }
 
     // ---------------------------------------------------------------- 表示
-    float MeasureDisplay() => HeadH + 4f + RowH * 3f + 22f + RowH + 96f + 44f + 24f + 22f; // 説明が2行に折り返す分
+    float MeasureDisplay() => HeadH + 4f + RowH * 3f + 22f + RowH * 2f - 14f + 90f + 44f + 24f + 22f; // 説明が2行に折り返す分。ラン表示は見出しの行+選択の行
     float DrawDisplay(float x, float y, float w, bool interactive)
     {
         var gm = GameManager.Instance;
@@ -475,17 +475,25 @@ public class SettingsPanel : MonoBehaviour
     }
 
     // ---------------------------------------------------------------- 縦画面のラン表示(2026-10-08、依頼E-4)
-    // 2つの見せ方を名前と短い説明と小さな図で選ぶ。縦の画面の時だけ効く(横画面の表示は変わらない)。ラン中は設定を閉じた時に反映
+    // 3つの見せ方(横から/上下2段/斜め上)を名前と短い説明と小さな図で選ぶ。縦の画面の時だけ効く(横画面の表示は変わらない)。ラン中は設定を閉じた時に反映
+    // 2026-10-09: 3つ並べると名前が入らないので、見出しの行の下に全幅で並べる
+    static readonly int[] RunViewOrder = { PortraitRunView.Side, PortraitRunView.Fold, PortraitRunView.Oblique };
     float DrawPortraitRunView(float x, float y, float w, bool interactive)
     {
         int cur = PortraitRunView.Mode;
-        y = ChoiceRow(x, y, w, "縦画面のラン表示", Mathf.Min(cur, 1), "横から見る", "上下2段で見る", interactive, c => PortraitRunView.Set(c));
+        RowLabel(x, y, "縦画面のラン表示");
+        y += RowH - 8f;
+        int idx = System.Array.IndexOf(RunViewOrder, cur);
+        int c = UiKit.Choice(new Rect(x, y, w, RowH - 14f), idx, new[] { "横から見る", "上下2段で見る", "斜め上から見る" }, 17f);
+        if (interactive && c != idx && c >= 0) PortraitRunView.Set(RunViewOrder[c]);
+        y += RowH - 6f;
         // 比較図(選んでいる方を明るく)
-        float bw = Mathf.Min(150f, (w - LabelW - 20f) * 0.5f), bh = 92f, bx = x + LabelW;
-        DrawRunViewIcon(new Rect(bx, y, bw, bh), 0, cur == 0);
-        DrawRunViewIcon(new Rect(bx + bw + 16f, y, bw, bh), 1, cur == 1);
+        float gap = 10f, bw = (w - gap * 2f) / 3f, bh = 86f;
+        for (int i = 0; i < 3; i++) DrawRunViewIcon(new Rect(x + i * (bw + gap), y, bw, bh), RunViewOrder[i], cur == RunViewOrder[i]);
         y += bh + 6f;
-        y = Note(x, y, w, cur == 0 ? "横から見る: 道が横に流れる。足もとと上下の段が見やすい" : "上下2段で見る: 下が今の走り、上がその先(右端で折り返し)。先の敵や穴が早めに見える");
+        y = Note(x, y, w, cur == PortraitRunView.Side ? "横から見る: 道が横に流れる。足もとと上下の段が見やすい"
+            : cur == PortraitRunView.Fold ? "上下2段で見る: 下が今の走り、上がその先(右端で折り返し)。先の敵や穴が早めに見える"
+            : "斜め上から見る: 道が奥へ続く。先の敵や穴を早めに見通せる");
         return Note(x, y, w, PortraitRunView.IsPortraitScreen ? (HasStartedRun ? "ラン中の変更は設定を閉じると反映されます" : "縦画面のランで使われます") : "縦画面にした時に使われます(横画面の表示は変わりません)");
     }
     static bool HasStartedRun => GameManager.Instance != null && GameManager.Instance.HasStarted;
@@ -505,7 +513,7 @@ public class SettingsPanel : MonoBehaviour
             UiKit.Fill(new Rect(r.x + r.width * 0.3f, gy - 14f, 7f, 14f), new Color(0.9f, 0.2f, 0.2f, on ? 1f : 0.6f)); // キャラ
             UiKit.Fill(new Rect(r.x + r.width * 0.75f, gy - 10f, 9f, 10f), new Color(0.2f, 0.2f, 0.25f, on ? 1f : 0.6f)); // 敵
         }
-        else if (mode == 1)
+        else if (mode == PortraitRunView.Fold)
         {
             // 上下2段: 下の段(キャラ)と上の段(その先、左右反転)。右端の金の印で折り返す
             float mid = r.y + r.height * 0.5f;

@@ -46,7 +46,7 @@ public partial class QaSweep
                 float ma = (float)typeof(SettingsPanel).GetMethod("MeasureAudio", NP).Invoke(sp, null), ml = (float)typeof(SettingsPanel).GetMethod("MeasureLanguage", NP).Invoke(sp, null);
                 SetPrivate(sp, "scroll", new Vector2(0f, ma + 16f + ml + 16f - 8f));
                 yield return new WaitForSecondsRealtime(0.3f); S("settings_display");
-                PortraitRunView.Set(PortraitRunView.Fold); yield return new WaitForSecondsRealtime(0.3f); S("settings_display_fold");
+                PortraitRunView.Set(PortraitRunView.Fold); yield return new WaitForSecondsRealtime(0.3f); S("settings_display_fold"); yield return new WaitForSecondsRealtime(0.3f); // 撮ってから戻す(同じフレームで戻すと戻した後が写る)
                 PortraitRunView.Set(PortraitRunView.Side); yield return new WaitForSecondsRealtime(0.2f);
             }
             SettingsPanel.Instance.Close(); yield return new WaitForSecondsRealtime(0.5f);
@@ -73,7 +73,7 @@ public partial class QaSweep
         }
         if (PCase('R'))
         {
-            foreach (int view in new[] { 0, 1 })
+            foreach (int view in new[] { 0, 1, 2 }) // 0=横から 1=上下2段 2=斜め上
             {
                 PortraitRunView.Set(view);
                 yield return BeginRun("swordsman", "wasteland_road");
@@ -215,7 +215,7 @@ public partial class QaSweep
         if (PCase('B'))
         {
             // 地形/ボスの見え方(横から・斜め): 天空回廊(浮島・段差)、自然洞窟(穴/天井)、荒野のボス
-            foreach (int view in new[] { 0, 1 })
+            foreach (int view in new[] { 0, 1, 2 }) // 0=横から 1=上下2段 2=斜め上
             {
                 PortraitRunView.Set(view);
                 foreach (var st in new[] { "sky_corridor", "natural_cave" })
