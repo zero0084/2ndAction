@@ -34,8 +34,9 @@ public class FoldView : MonoBehaviour
     public static float BgCoverScaleX { get; private set; } = 1f;
     public static float HalfWidthWorld { get; private set; }
     // 画面を覆う物(背景/洞窟の暗さ/幕)用: 上下2段の時だけ中心のずれと横幅の倍率、それ以外は 0 と 1
-    public static float CoverShiftX => Active ? BgCoverShift : 0f;
-    public static float CoverScaleX => Active ? BgCoverScaleX : 1f;
+    //  斜め上の上下2段(FoldViewOblique)では、上の段のカメラが道の先へ Ahead m ずれる分
+    public static float CoverShiftX => Active ? BgCoverShift : FoldViewOblique.Active ? FoldViewOblique.Ahead * 0.5f : 0f;
+    public static float CoverScaleX => Active ? BgCoverScaleX : FoldViewOblique.Active ? 1.6f : 1f;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void ReadArgs()

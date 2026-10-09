@@ -532,18 +532,26 @@ public class SettingsPanel : MonoBehaviour
         }
         else
         {
-            // 斜めの道(左下から右上の奥へ、遠いほど細く)
-            int n = 10;
-            for (int i = 0; i < n; i++)
+            // 斜め上の上下2段(2026-10-09): 下の段は道が右上へ、上の段は右から左上へ(右端で折り返すジグザグ)
+            float mid = r.y + r.height * 0.5f;
+            Color gold = new Color(1f, 0.82f, 0.38f, on ? 1f : 0.6f);
+            int n = 8;
+            for (int band = 0; band < 2; band++)
             {
-                float t0 = i / (float)n;
-                float px = Mathf.Lerp(r.x + 6f, r.xMax - 10f, t0), py = Mathf.Lerp(r.yMax - 10f, r.y + 14f, t0);
-                float th = Mathf.Lerp(14f, 3f, t0);
-                UiKit.Fill(new Rect(px, py, (r.width - 16f) / n + 1f, th), ground);
-                UiKit.Fill(new Rect(px, py, (r.width - 16f) / n + 1f, 2f), grass);
+                float top = band == 0 ? mid + 1f : r.y + 2f, bottom = band == 0 ? r.yMax - 2f : mid - 1f;
+                for (int i = 0; i < n; i++)
+                {
+                    float t0 = i / (float)n;
+                    float u = band == 0 ? t0 : 1f - t0; // 上の段は左右反転
+                    float px = Mathf.Lerp(r.x + 4f, r.xMax - 4f - (r.width - 8f) / n, u), py = Mathf.Lerp(bottom - 9f, top + 4f, t0);
+                    UiKit.Fill(new Rect(px, py, (r.width - 8f) / n + 1f, 6f), ground);
+                    UiKit.Fill(new Rect(px, py, (r.width - 8f) / n + 1f, 2f), grass);
+                }
             }
-            UiKit.Fill(new Rect(r.x + r.width * 0.22f, r.yMax - 34f, 8f, 16f), new Color(0.9f, 0.2f, 0.2f, on ? 1f : 0.6f));
-            UiKit.Fill(new Rect(r.x + r.width * 0.72f, r.y + 22f, 5f, 6f), new Color(0.2f, 0.2f, 0.25f, on ? 1f : 0.6f));
+            UiKit.Fill(new Rect(r.x + 2f, mid - 1f, r.width - 4f, 2f), gold);
+            UiKit.Fill(new Rect(r.xMax - 5f, mid - 12f, 3f, 24f), gold);
+            UiKit.Fill(new Rect(r.x + r.width * 0.2f, r.yMax - 26f, 6f, 12f), new Color(0.9f, 0.2f, 0.2f, on ? 1f : 0.6f)); // キャラ(下の段)
+            UiKit.Fill(new Rect(r.x + r.width * 0.55f, r.y + 14f, 6f, 6f), new Color(0.2f, 0.2f, 0.25f, on ? 1f : 0.6f));  // 先の敵(上の段)
         }
     }
 

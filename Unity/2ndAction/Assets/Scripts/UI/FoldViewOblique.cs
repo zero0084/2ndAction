@@ -1,14 +1,14 @@
 using UnityEngine;
 
-// 「斜め上から見る」を上下2段にする試作(2026-10-09、マスターの依頼: 斜め上も上下で見て判断する)。表示だけ。
+// 「斜め上から見る」の上下2段(2026-10-09、マスターが採用)。表示だけ。
 //  下の段 = 斜めのカメラ(PortraitCameraRig)の映す絵の下の部分(キャラのいる所)を、大きさを変えずに画面の下半分へ
 //  上の段 = 同じ向きのカメラを道の先(+X に Ahead m)へずらし、左右反転して画面の上半分へ
 //   → 下の段では道が右上へ、上の段では右から左上へ続く(右端で折り返すジグザグ)
-//  開発用の起動引数 -foldObq 1 の時だけ(-foldObqAhead m / -foldObqFrac 0.5 で調整)。判定/出現は変えない(GameView のまま)
+//  設定「斜め上から見る」で常に使う(開発用の起動引数 -foldObq 0 で外せる。-foldObqAhead m / -foldObqFrac 0.5 で調整)。判定/出現は変えない(GameView のまま)
 [DefaultExecutionOrder(-40)] // PortraitCameraRig(-50)が射影を作った後
 public class FoldViewOblique : MonoBehaviour
 {
-    public static bool Requested;
+    public static bool Requested = true;
     public static float Ahead = 22f, Frac = 0.52f, UpperLift = 0f;
     public static bool Active => instance != null && instance.active;
     static FoldViewOblique instance;
@@ -36,7 +36,6 @@ public class FoldViewOblique : MonoBehaviour
 
     static void Attach()
     {
-        if (!Requested) return;
         var r = Object.FindFirstObjectByType<PortraitCameraRig>(FindObjectsInactive.Include);
         if (r != null && r.cam != null && r.cam.GetComponent<FoldViewOblique>() == null) r.cam.gameObject.AddComponent<FoldViewOblique>();
     }
@@ -56,7 +55,7 @@ public class FoldViewOblique : MonoBehaviour
 
     bool Want()
     {
-        if (!Requested || rig == null || cam == null || !cam.enabled || !rig.IsActive) return false;
+        if (!Requested || rig == null || cam == null || !cam.enabled || !rig.IsActive || !PortraitRunView.UseOblique) return false;
         var gm = GameManager.Instance;
         return gm != null && gm.HasStarted;
     }
