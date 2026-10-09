@@ -358,7 +358,7 @@ public partial class MajinController : MonoBehaviour
     float GroundYAt(float x)
     {
         if (TerrainManager.Instance == null) return 0f;
-        return TerrainManager.Instance.GetHeightAt(x) ?? 0f;
+        return TerrainManager.Instance.GetSupportHeightAt(x); // 2026-10-10: 穴の上を 0 にしない(上下に跳んでいた原因)
     }
 
     IEnumerator TelegraphAndAttack()

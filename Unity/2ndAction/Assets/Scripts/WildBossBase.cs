@@ -364,8 +364,8 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     {
         if (TerrainManager.Instance != null)
         {
-            float? h = TerrainManager.Instance.GetHeightAt(x);
-            if (h.HasValue) lastGroundY = h.Value;
+            // 2026-10-10: 穴の上は「最後に見た地面」ではなく、穴の両側の地面を結んだ高さ(穴の向こうで高さが違うと、出口で一気に跳んでいた)
+            lastGroundY = TerrainManager.Instance.GetSupportHeightAt(x);
         }
         return lastGroundY;
     }
@@ -1712,7 +1712,7 @@ public class TrackedHazard : MonoBehaviour
     static float GroundAt(float x)
     {
         if (TerrainManager.Instance == null) return 0f;
-        return TerrainManager.Instance.GetHeightAt(x) ?? 0f;
+        return TerrainManager.Instance.GetSupportHeightAt(x); // 予兆の帯: 穴の上でも途切れない高さ(2026-10-10)
     }
 
     // マルチプレイPhase 2.5: 予兆/範囲攻撃ゾーンをJOINにも出す(有効になった瞬間から判定あり)。

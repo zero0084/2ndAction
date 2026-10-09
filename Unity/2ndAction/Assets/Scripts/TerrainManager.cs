@@ -1440,6 +1440,40 @@ public class TerrainManager : MonoBehaviour
         return chunks.Count > 0 ? chunks[chunks.Count - 1].endY : (float?)0f;
     }
 
+    // 飛ぶ敵/空中の予兆の「基準の地面」(2026-10-10): 地面の上は GetHeightAt と同じ。穴の上は、穴の手前の地面の高さと
+    // 向こう側の地面の高さを直線で結んだ高さ(GetHeightAt は穴で null → 呼ぶ側が 0 として扱い、ドラゴン/魔人が穴の上で
+    // 地面の高さぶん上下に跳んでいた)。生成した範囲の外は一番近い端の高さ。どこでも途切れない(位置が飛ばない)
+    public static bool DebugLegacySupport; // 比較用(開発版の -qaFlyOldGround 1): 以前の「穴 = 0」
+    public float GetSupportHeightAt(float x)
+    {
+        if (DebugLegacySupport) return GetHeightAt(x) ?? 0f;
+        int n = chunks.Count;
+        if (n == 0) return 0f;
+        for (int i = 0; i < n; i++)
+        {
+            RuntimeChunk c = chunks[i];
+            if (x < c.startX || x > c.endX) continue;
+            if (c.type != ChunkType.Pit)
+            {
+                float span = c.endX - c.startX;
+                return Mathf.Lerp(c.startY, c.endY, span > 0.0001f ? (x - c.startX) / span : 0f);
+            }
+            // 穴(続く穴もまとめて): 手前の地面の端 〜 向こうの地面の端
+            int a = i, b = i;
+            while (a > 0 && chunks[a - 1].type == ChunkType.Pit) a--;
+            while (b < n - 1 && chunks[b + 1].type == ChunkType.Pit) b++;
+            bool hasL = a > 0, hasR = b < n - 1;
+            float yL = hasL ? chunks[a - 1].endY : (hasR ? chunks[b + 1].startY : c.startY);
+            float yR = hasR ? chunks[b + 1].startY : yL;
+            float x0 = chunks[a].startX, x1 = chunks[b].endX;
+            return Mathf.Lerp(yL, yR, x1 > x0 + 0.0001f ? Mathf.Clamp01((x - x0) / (x1 - x0)) : 0f);
+        }
+        // 生成した範囲の外: 一番近い地面の端
+        if (x < chunks[0].startX) { for (int i = 0; i < n; i++) if (chunks[i].type != ChunkType.Pit) return chunks[i].startY; }
+        for (int i = n - 1; i >= 0; i--) if (chunks[i].type != ChunkType.Pit) return chunks[i].endY;
+        return 0f;
+    }
+
     // Visual-only slope angle (degrees) of whichever ground chunk sits
     // under x, matching the exact rotation GroundFactory already gives the
     // ground art itself, so a grounded character tilted by this angle
