@@ -352,7 +352,7 @@ public class SprintRunner : MonoBehaviour
     // 縦画面(2026-10-08、依頼E-7): 大きさは「高さ/1080」と「幅/864」の小さい方(横画面は今までどおり 高さ/1080)。縦では▲▼を下の段に横並び
     static bool Portrait => Screen.height > Screen.width;
     static float Ui => Mathf.Min(Screen.height / 1080f, Screen.width / 864f);
-    static float SafeBottomPx => Screen.safeArea.yMin;
+    static float SafeBottomPx => StableSafeArea.Rect.yMin;
     static Rect UpButton()
     {
         float s = Ui;
@@ -391,7 +391,7 @@ public class SprintRunner : MonoBehaviour
         var tn = SprintTuning.I;
         float W = Screen.width, H = Screen.height, s = Ui;
         bool P = Portrait;
-        float safeTop = H - Screen.safeArea.yMax;
+        float safeTop = H - StableSafeArea.Rect.yMax;
         float speedPhase = t * 2.4f;
         float op = 1f; // 画面全体の濃さ(到着の補間で薄くなる)
         float op01 = 0f;
@@ -788,6 +788,7 @@ public class SprintRunner : MonoBehaviour
     void OnDestroy()
     {
         if (Instance == this) Instance = null;
+        if (!Done) SceneryCycle.ExtraPrefetchDistance = null; // 途中でやめた(ホームへ戻った等)
         if (freezeTex != null) Destroy(freezeTex);
     }
 }

@@ -19,6 +19,13 @@ public partial class QaSweep
 {
     bool SprintCase(char c) { string o = Arg("-qaSprintOnly", ""); return o == "" || o.IndexOf(c) >= 0; }
 
+    float sprintWorstFrame;
+    IEnumerator TrackSprintWorstFrame(float secs)
+    {
+        float t = 0f;
+        while (t < secs) { yield return null; t += Time.unscaledDeltaTime; if (Time.frameCount - lastShotFrame > 2) sprintWorstFrame = Mathf.Max(sprintWorstFrame, Time.unscaledDeltaTime); } // 撮影の直後は数えない
+    }
+
     IEnumerator SprintMode()
     {
         Application.targetFrameRate = 60;
@@ -157,6 +164,7 @@ public partial class QaSweep
             yield return null; w += Time.unscaledDeltaTime;
         }
         int grants = gm.SprintAutoGrants, noCand = gm.SprintAutoSkippedNoCandidate;
+        sprintWorstFrame = 0f; StartCoroutine(TrackSprintWorstFrame(4f)); // 到着の瞬間からの一番長いフレーム(2026-10-10)
         // 到着の補間(疾走のキャラ → 実際のキャラ)の途中を撮る
         { float wo = 0f; while (r.OutroProgress < 0.45f && SprintRunner.Instance == r && wo < 3f) { yield return null; wo += Time.unscaledDeltaTime; } }
         if (!quick || tag == "K_swordsman") Shot($"sprint_{tag}_outro");
@@ -186,9 +194,16 @@ public partial class QaSweep
             Check(maxLv <= GameManager.MaxRunCardLevel && noCand > 0, $"{tag}: with a {deckSize}-card deck the cards stop at Lv{GameManager.MaxRunCardLevel} (max {maxLv}) and the rest grant nothing ({noCand})");
         }
 
-        // 到着
-        w = 0f;
-        while (gm.ResumeGate != GameManager.ResumeGatePhase.Waiting && w < 10f) { yield return null; w += Time.unscaledDeltaTime; }
+        // 到着(2026-10-10: ボタン/3-2-1 なしで自動で走り出す。到着から走り出すまでの時間と、いちばん長いフレームを測る)
+        w = 0f; float dAtGo = -1f;
+        while (gm.ResumeGate != GameManager.ResumeGatePhase.None || SprintRunner.Instance != null || !gm.HasStarted)
+        {
+            yield return null; w += Time.unscaledDeltaTime;
+            if (w > 10f) break;
+        }
+        float worstFrame = sprintWorstFrame;
+        dAtGo = gm.MaxDistance;
+        float goDelay = w;
         float arrival = dest - SprintTuning.I.arriveBeforeMeters;
         var bm = BossManager.Instance;
         float kmh = pc.CurrentAutoRunSpeed * GameManager.KmhPerMps;
@@ -196,9 +211,11 @@ public partial class QaSweep
         var data = RunCheckpoint.Load();
         L($"[{tag}] arrival: d={gm.MaxDistance:F0} (exp {arrival:F0}) gate={bm.NextBossDistance:F0} gateK={bm.NextGateIndex} speed={kmh:F0}km/h naturalMul={natural:F2} Lv={gm.Level} exp={gm.Exp:F0} skipped={gm.SprintSkippedMeters:F0} mileDist={typeof(GameManager).GetProperty("MileDistanceForRun", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(gm)} checkpoint={data.checkpointDistance:F0} history={data.upgradeHistoryCardIds.Count} lifetime +{ProgressStats.LifetimeDistance - lifeBefore:F0} fixedPits={gm.LastResumeFixedPits} safeAhead={gm.LastResumeSafeAheadMeters:F0}m");
         Shot($"sprint_{tag}_arrival");
-        Check(Mathf.Abs(gm.MaxDistance - arrival) < 1f && Mathf.Abs(bm.NextBossDistance - dest) < 1f, $"{tag}: arrives {SprintTuning.I.arriveBeforeMeters:F0}m before the {dest}m gate, next gate = {dest}m");
-        Check(gm.ResumeGate == GameManager.ResumeGatePhase.Waiting, $"{tag}: stops on the ready screen (3-2-1 after the button)");
-        Check(gm.Level == 1 && gm.Exp < 1f, $"{tag}: skipped distance gives no distance EXP / level-ups (Lv{gm.Level})");
+        L($"[{tag}] go: resumed {goDelay:F2}s after the overlay ended its run, worst frame {worstFrame * 1000f:F0}ms, d at go {dAtGo:F0}");
+        Check(Mathf.Abs(dAtGo - arrival) < 3f && Mathf.Abs(bm.NextBossDistance - dest) < 1f, $"{tag}: arrives {SprintTuning.I.arriveBeforeMeters:F0}m before the {dest}m gate, next gate = {dest}m (d at go {dAtGo:F0})");
+        Check(gm.ResumeGate == GameManager.ResumeGatePhase.None && goDelay < 1.5f, $"{tag}: runs on by itself after the arrival (no button / 3-2-1; {goDelay:F2}s)");
+        Check(worstFrame < 0.25f, $"{tag}: no long stall at the arrival (worst frame {worstFrame * 1000f:F0}ms)");
+        Check(gm.Level == 1, $"{tag}: skipped distance gives no distance EXP / level-ups (Lv{gm.Level})");
         Check(Mathf.Abs(data.checkpointDistance - arrival) < 1f && data.upgradeHistoryCardIds.Count >= grants && Mathf.Abs(data.sprintSkippedMeters - arrival) < 1f, $"{tag}: CONTINUE data saved once at the arrival (history {data.upgradeHistoryCardIds.Count})");
         Check(data.runRingMile == gm.RunRingMile, $"{tag}: the ring MILE is in the CONTINUE data once ({data.runRingMile} / {gm.RunRingMile})");
         if (tag == "H")
@@ -217,10 +234,7 @@ public partial class QaSweep
         Check(SprintRecords.IsGateCleared(stage, 10) == cleared10Before, $"{tag}: no gatekeeper record from skipped gates");
         Check(kmh > 1f && !gm.SprintActive, $"{tag}: normal run speed at arrival ({kmh:F0}km/h)");
 
-        // GO → 走る → 目的地の関門のボス
-        gm.RequestResumeFromGate();
-        w = 0f;
-        while (gm.ResumeGate != GameManager.ResumeGatePhase.None && w < 8f) { yield return null; w += Time.unscaledDeltaTime; }
+        // 走る → 目的地の関門のボス
         typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
         int hits0 = HitCountQa();
         bool falling = false; float minY = 999f; w = 0f;

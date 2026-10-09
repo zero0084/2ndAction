@@ -110,13 +110,16 @@ public partial class GameManager
     }
 
     // BeginContinuedRun の最後から(ソロのCONTINUEだけ)
-    bool resumeGateAuto;
+    bool resumeGateAuto, resumeGateAccel = true, resumeGateWaitSprint;
     public int AutoResumes { get; private set; } // 確認用
 
-    void BeginResumeGate(bool autoResume = false)
+    // autoResume: ボタンを待たずに走り出す / accel: 走り出しを初速から加速する(CONTINUE) / waitSprintOutro: 疾走の絵が消えるまで待つ
+    void BeginResumeGate(bool autoResume = false, bool accel = true, bool waitSprintOutro = false)
     {
         if (NetRunLauncher.IsMultiplayerRun) return;
         resumeGateAuto = autoResume;
+        resumeGateAccel = accel;
+        resumeGateWaitSprint = waitSprintOutro;
         ResumeGate = ResumeGatePhase.Settling;
         resumeSettleTime = 0f;
         resumeSettleFrames = 0;
@@ -208,14 +211,17 @@ public partial class GameManager
                 resumeSettleFrames++;
                 bool transitioning = ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning;
                 // 遷移が開き切って、カメラ/地形が追いつく数フレームが過ぎたら止める(遷移が詰まっても3秒で止める)
+                // 疾走の到着: 疾走の絵が実際のキャラへ重なって消えるまで(最長 2秒)待つ = 絵が消えた瞬間に走り出す
+                if (resumeGateWaitSprint && SprintRunner.Instance != null && resumeSettleTime < 2f) break;
                 if ((!transitioning && resumeSettleFrames >= 6) || resumeSettleTime > 3f)
                 {
                     if (resumeGateAuto)
                     {
                         // CONTINUE: ボタンを待たずに走り出す。初速から保存時の速さまで5秒(ゲーム内時間)で加速
+                        // 疾走の到着: 加速なし(疾走の勢いのまま、その距離の速さで)
                         AutoResumes++;
                         ReleaseResumeGate();
-                        if (PlayerController.Instance != null) PlayerController.Instance.BeginResumeAccel();
+                        if (resumeGateAccel && PlayerController.Instance != null) PlayerController.Instance.BeginResumeAccel();
                     }
                     else EnterResumeWaiting();
                 }

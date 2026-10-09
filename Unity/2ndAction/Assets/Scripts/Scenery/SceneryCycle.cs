@@ -138,6 +138,9 @@ public class SceneryCycle : MonoBehaviour
         mist.enabled = false;
     }
 
+    // 先に読んでおく距離(疾走出発の到着地点。2026-10-10)。その区間と次の区間の背景を非同期で読み、到着まで解放しない
+    public static float? ExtraPrefetchDistance;
+
     void LateUpdate()
     {
         if (profile == null) return;
@@ -186,6 +189,12 @@ public class SceneryCycle : MonoBehaviour
             look += Mathf.Max(1f, profile.segments[k].length);
             k = profile.NextSegment(k);
             wanted.Add(profile.ResourceFor(k));
+        }
+        if (ExtraPrefetchDistance.HasValue)
+        {
+            int es = profile.SegmentAt(ExtraPrefetchDistance.Value, out _, out _);
+            wanted.Add(profile.ResourceFor(es));
+            wanted.Add(profile.ResourceFor(profile.NextSegment(es)));
         }
         RequestLoads();
 

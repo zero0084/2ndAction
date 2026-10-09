@@ -57,6 +57,18 @@ public partial class GameManager
         return true;
     }
 
+    // 比較用: 以前の到着の置き方(開発版だけ -qaSprintOldArrival 1)
+    static bool QaSprintOldArrival
+    {
+        get
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            foreach (var a in System.Environment.GetCommandLineArgs()) if (a == "-qaSprintOldArrival") return true;
+#endif
+            return false;
+        }
+    }
+
     IEnumerator SprintRoutine(SprintRequest r)
     {
         CountdownActive = true; // 自分のキャラ/敵/障害物/距離を止めたまま(疾走は画面の演出だけ)
@@ -75,6 +87,7 @@ public partial class GameManager
             }
 #endif
         var runner = SprintRunner.Begin(this, r.stageId, r.destination);
+        if (runner != null && !QaSprintOldArrival) SceneryCycle.ExtraPrefetchDistance = runner.ArrivalMeters; // 到着地点の背景を疾走の間に読む(2026-10-10)
         while (runner != null && !runner.Done) yield return null;
         float arrival = runner != null ? runner.ArrivalMeters : Mathf.Max(0f, r.destination - SprintTuning.I.arriveBeforeMeters);
         SprintArrive(arrival, r.destination);
@@ -202,15 +215,30 @@ public partial class GameManager
         safeZoneEndDistance = arrival + safeZoneLength;
         if (PlayerController.Instance != null)
         {
-            Vector3 p = PlayerController.Instance.transform.position;
-            p.x = arrival - (float)FloatingOrigin.Offset;
+            // 2026-10-10: 以前はプレイヤーの位置を到着地点(何万m先)へ実際に動かしていた → 0m〜到着地点の地形を1フレームで
+            // 作り(90km で約1.2万区画)、直後の座標の付け替えでほぼ全部壊す = 到着の瞬間の長い停止の主な原因だった。
+            // 距離ワープ(DebugWarpToDistance)と同じく論理距離だけ進める(足元の地形はそのまま、先は到着地点の続きとして作られる)
             FreezeDiagnostics.NoteIntendedMove("SPRINT arrival");
-            PlayerController.Instance.transform.position = p;
+            if (QaSprintOldArrival)
+            {
+                // 比較用(開発版の -qaSprintOldArrival 1): 以前の置き方(実際に何万m動かす)
+                Vector3 p = PlayerController.Instance.transform.position;
+                p.x = arrival - (float)FloatingOrigin.Offset;
+                PlayerController.Instance.transform.position = p;
+            }
+            else
+            {
+                float current = PlayerController.Instance.DistanceFromStart;
+                FloatingOrigin.LogicalWarp(arrival + distanceExclusionOffset - current);
+            }
         }
+        SceneryCycle.ExtraPrefetchDistance = null; // 到着地点の背景は疾走の間に読み込み済み
         CountdownActive = false;
         SetupResumeFooting(arrival);
         SaveCheckpoint(); // 到着の時点(取得したカード込み)を1回だけ。以後の CONTINUE はここから(自動取得/リングを重ねない)
-        BeginResumeGate();
+        // 2026-10-10: 到着後の「準備ができたら再開」ボタンと 3-2-1 は撤去(マスター)。疾走の絵が実際のキャラへ重なり終わったら、
+        // その時の速さのまま自動で走り出す(CONTINUE の5秒の加速はしない)。カードの選択の停止はそのまま
+        BeginResumeGate(autoResume: true, accel: false, waitSprintOutro: true);
         Debug.Log($"[Sprint] arrived at {arrival:F0}m (destination {destination}m): auto grants {SprintAutoGrants} (no candidate {SprintAutoSkippedNoCandidate}), ring picks {SprintRingPicks}, ring MILE x{SprintRingMileRewards} (+{RunRingMile}), Lv{Level}, speed {(PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed * KmhPerMps : 0f):F0}km/h, next gate {(bm != null ? bm.NextBossDistance : 0f):F0}m");
     }
 

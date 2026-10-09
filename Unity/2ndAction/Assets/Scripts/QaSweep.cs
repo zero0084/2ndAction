@@ -71,6 +71,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaRetry") { mode = "retry"; dir = a[i + 1]; }
             if (a[i] == "-qaCombo") { mode = "combo"; dir = a[i + 1]; }
             if (a[i] == "-qaSkyBoss") { mode = "skyboss"; dir = a[i + 1]; }
+            if (a[i] == "-qaFlyJitter") { mode = "flyjitter"; dir = a[i + 1]; }
             if (a[i] == "-qaSprint") { mode = "sprint"; dir = a[i + 1]; }
             if (a[i] == "-qaCharSelect") { mode = "charselect"; dir = a[i + 1]; }
             if (a[i] == "-qaPad") { mode = "pad"; dir = a[i + 1]; }
@@ -176,6 +177,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "retry") yield return RetryMode();
         else if (mode == "combo") yield return ComboMode();
         else if (mode == "skyboss") yield return SkyBossMode();
+        else if (mode == "flyjitter") yield return FlyJitterMode();
         else if (mode == "sprint") yield return SprintMode();
         else if (mode == "charselect") yield return CharSelectMode();
         else if (mode == "pad") yield return PadMode();
@@ -283,8 +285,11 @@ public partial class QaSweep : MonoBehaviour
         }
     }
 
+    int lastShotFrame = -100; // 撮影したフレーム(撮影の重さを処理落ちに数えないため)
     void Shot(string name)
     {
+        lastShotFrame = Time.frameCount;
+        if (Arg("-qaNoShots", "0") == "1") return; // 処理落ちを測る時は撮らない(撮影そのものが数百ms かかる)
         ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(outDir, $"{shotNo++:0000}_{name}.png"));
     }
 
