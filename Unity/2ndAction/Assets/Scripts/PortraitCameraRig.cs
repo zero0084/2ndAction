@@ -48,13 +48,14 @@ public class PortraitCameraRig : MonoBehaviour
     // the lookAtOffset's own +Z=0 (aiming AT the gameplay plane, not away
     // from it) is what turns +X progress into a diagonal-into-the-screen
     // read instead of a flat sideways slide.
-    public Vector3 positionOffset = new Vector3(-10f, 9f, -6f); // 2026-10-08: 計算で選んだ構図(プレイヤー 画面の下寄り・大きく、27m 先まで右上へ続く)
+    // 2026-10-09(マスター採用 B): 後ろ寄りから引いて角度を付け、道が画面の上へ縦に近く伸びる構図(以前は -10, 9, -6 / 見る点 +10 / 視野 50)
+    public Vector3 positionOffset = new Vector3(-16f, 11f, -7f);
     // Where the camera aims, relative to target - biased ahead (+X) and
     // slightly up (+Y) of the player's own position so the frame naturally
     // opens up toward the oncoming course rather than centering dead-on
     // the player (who should sit in the lower third of frame, per the
     // brief).
-    public Vector3 lookAtOffset = new Vector3(10f, 0f, 0f);
+    public Vector3 lookAtOffset = new Vector3(16f, 0f, 0f);
 
     public bool IsActive => cam != null && cam.enabled;
 
@@ -71,13 +72,16 @@ public class PortraitCameraRig : MonoBehaviour
     // 2026-10-08(依頼E-6): 縦画面の「斜め上から見る」。プレイヤーを画面の下寄りに、道が画面の上の奥へ続くように前方を見る。
     // 縦は「走っている地表の高さ」をゆっくり追う(ジャンプのたびに上下しない)。横は 1:1(進む向きの揺れを出さない)。
     // 見せる範囲を変えても、敵の出現/行動/攻撃の始まる距離は変わらない(判定は GameView = 横画面と同じ幅)。
-    public float fov = 50f;
+    public float fov = 55f;
     public Vector2 lensShift = new Vector2(-0.15f, 0f); // 画像を左上へずらす = プレイヤーを中央寄り/下寄りに(見る向きは変えない)
     public float surfaceSmooth = 0.35f;
     float surfaceY, surfaceVel; bool surfaceInit;
 
+    // シーンに保存された古い値(-6, 7, -8 / 3, 3, 0)より、この構図を優先する(2026-10-09 マスター採用 B)
+    public static readonly Vector3 AdoptedOffset = new Vector3(-16f, 11f, -7f), AdoptedLook = new Vector3(16f, 0f, 0f);
     void Start()
     {
+        positionOffset = AdoptedOffset; lookAtOffset = AdoptedLook;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // 開発用の調整: -obqOff x,y,z -obqLook x,y,z -obqFov f
         var a = System.Environment.GetCommandLineArgs();
@@ -123,12 +127,55 @@ public class PortraitCameraRig : MonoBehaviour
         Vector3 basePos = new Vector3(target.position.x, surfaceY, target.position.z);
 
         transform.position = basePos + positionOffset;
+        UpdateBackdrop();
         ZigRoad.Apply(IsActive, target.position.x); // ジグザグの道(表示だけ、2026-10-09)
         Vector3 lookDir = (basePos + lookAtOffset) - transform.position;
         if (lookDir.sqrMagnitude > 0.0001f)
         {
             transform.rotation = Quaternion.LookRotation(lookDir.normalized, Vector3.up);
         }
+    }
+
+    // ---- 遠景の幕(2026-10-09): 後ろ寄りから道の先を見通すと、平らな背景の絵の端(その先の空の色)が画面の右に見える。
+    //  カメラの子として遠くに、いちばん奥の背景と同じ絵/色の1枚を、視野を覆う大きさで置く(背景の絵の後ろに隠れて、端だけを埋める)
+    SpriteRenderer backdrop;
+    BackgroundFollower baseBg;
+    float baseBgSearchAt;
+    void UpdateBackdrop()
+    {
+        if (cam == null) return;
+        if ((baseBg == null || !baseBg.isActiveAndEnabled) && Time.unscaledTime >= baseBgSearchAt)
+        {
+            baseBgSearchAt = Time.unscaledTime + 1f;
+            baseBg = null; int best = int.MaxValue;
+            foreach (var b in FindObjectsByType<BackgroundFollower>(FindObjectsSortMode.None))
+            {
+                var r = b.GetComponent<SpriteRenderer>();
+                if (r == null || r.sprite == null || !b.isActiveAndEnabled) continue;
+                if (r.sortingOrder < best) { best = r.sortingOrder; baseBg = b; }
+            }
+        }
+        var src = baseBg != null ? baseBg.GetComponent<SpriteRenderer>() : null;
+        if (src == null || src.sprite == null) { if (backdrop != null) backdrop.enabled = false; return; }
+        if (backdrop == null)
+        {
+            var go = new GameObject("ObliqueBackdrop");
+            go.transform.SetParent(cam.transform, false);
+            backdrop = go.AddComponent<SpriteRenderer>();
+        }
+        float dist = Mathf.Min(400f, cam.farClipPlane * 0.9f);
+        backdrop.enabled = IsActive;
+        backdrop.sprite = src.sprite;
+        float dk = CaveLighting.DarknessOn ? Mathf.Clamp01(1f - CaveLighting.DarknessAmount * 0.9f) : 1f; // 洞窟では暗く(暗さの幕は遠景まで届かない)
+        backdrop.color = new Color(src.color.r * dk, src.color.g * dk, src.color.b * dk, src.color.a);
+        backdrop.sharedMaterial = src.sharedMaterial;
+        backdrop.sortingLayerID = src.sortingLayerID; backdrop.sortingOrder = src.sortingOrder - 1;
+        float h = 2f * dist * Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * 1.6f, w = h * Mathf.Max(0.3f, cam.aspect) * 1.6f;
+        Vector2 sz = src.sprite.bounds.size;
+        float k = Mathf.Max(w / Mathf.Max(0.01f, sz.x), h / Mathf.Max(0.01f, sz.y));
+        backdrop.transform.localPosition = new Vector3(0f, 0f, dist);
+        backdrop.transform.localRotation = Quaternion.identity;
+        backdrop.transform.localScale = new Vector3(k, k, 1f);
     }
 
     // Called by ViewModeToggle when switching modes - enabling/disabling
@@ -141,6 +188,7 @@ public class PortraitCameraRig : MonoBehaviour
     {
         if (cam != null) cam.enabled = active;
         if (!active) ZigRoad.Apply(false, 0f);
+        if (backdrop != null) backdrop.enabled = active;
         AudioListener listener = cam != null ? cam.GetComponent<AudioListener>() : null;
         if (listener != null) listener.enabled = active;
     }

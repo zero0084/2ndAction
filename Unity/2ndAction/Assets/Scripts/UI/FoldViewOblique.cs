@@ -8,8 +8,10 @@ using UnityEngine;
 [DefaultExecutionOrder(-40)] // PortraitCameraRig(-50)が射影を作った後
 public class FoldViewOblique : MonoBehaviour
 {
-    public static bool Requested = true;
+    public static bool Requested; // 2026-10-09: 斜め上は上下2段をやめて角度を付けた1画面に(マスター採用)。開発用 -foldObq 1 の時だけ
     public static float Ahead = 22f, Frac = 0.52f, UpperLift = 0f;
+    // 引き(2026-10-09 マスター): 1 = 元の大きさ。大きいほど広い範囲を映す(奥ほど小さく、遠くまで)。上の段のずらしも同じ割合で伸ばす
+    public static float ZoomOut = 1.35f;
     public static bool Active => instance != null && instance.active;
     static FoldViewOblique instance;
 
@@ -29,6 +31,7 @@ public class FoldViewOblique : MonoBehaviour
             if (a[i] == "-foldObqAhead") float.TryParse(a[i + 1], ns, ci, out Ahead);
             if (a[i] == "-foldObqFrac") float.TryParse(a[i + 1], ns, ci, out Frac);
             if (a[i] == "-foldObqLift") float.TryParse(a[i + 1], ns, ci, out UpperLift);
+            if (a[i] == "-foldObqZoom") float.TryParse(a[i + 1], ns, ci, out ZoomOut);
         }
 #endif
         UnityEngine.SceneManagement.SceneManager.sceneLoaded += (s, m) => Attach();
@@ -66,7 +69,19 @@ public class FoldViewOblique : MonoBehaviour
         float aspect = Screen.height > 0 ? (float)Screen.width / Screen.height : 0.5625f;
         var m = Matrix4x4.Perspective(cam.fieldOfView, aspect, cam.nearClipPlane, cam.farClipPlane);
         m[0, 2] = rig.lensShift.x * 2f; m[1, 2] = rig.lensShift.y * 2f;
-        return m;
+        // 引き: キャラの画面の位置を中心に縮める(= 視野を広げる)。キャラの位置はそのまま、まわりと奥が小さく広く映る
+        float z = Mathf.Clamp(ZoomOut, 0.7f, 2.5f);
+        Vector2 a = Vector2.zero;
+        {
+            // カメラが追う地表の点(ジャンプでは動かない = 跳んでも景色は揺れない)の上 1m を中心にする
+            Vector3 basePos = transform.position - rig.positionOffset;
+            Vector4 c = m * (cam.worldToCameraMatrix * new Vector4(basePos.x, basePos.y + 1f, basePos.z, 1f));
+            if (Mathf.Abs(c.w) > 1e-4f) a = new Vector2(Mathf.Clamp(c.x / c.w, -0.9f, 0.9f), Mathf.Clamp(c.y / c.w, -0.95f, 0.5f));
+        }
+        var s = Matrix4x4.identity;
+        s[0, 0] = 1f / z; s[0, 3] = a.x * (1f - 1f / z);
+        s[1, 1] = 1f / z; s[1, 3] = a.y * (1f - 1f / z);
+        return s * m;
     }
 
     // 画面全体の絵の、縦の [c - h, c + h](NDC)の部分を、そのままの大きさで高さ h*2 の段へ
@@ -109,7 +124,7 @@ public class FoldViewOblique : MonoBehaviour
         upper.enabled = true;
         upper.fieldOfView = cam.fieldOfView;
         upper.rect = new Rect(0f, f, 1f, 1f - f);
-        upper.transform.SetPositionAndRotation(transform.position + new Vector3(Ahead, UpperLift, 0f), transform.rotation);
+        upper.transform.SetPositionAndRotation(transform.position + new Vector3(Ahead * Mathf.Clamp(ZoomOut, 0.7f, 2.5f), UpperLift, 0f), transform.rotation);
         float h = 1f - f;
         upper.projectionMatrix = Matrix4x4.Scale(new Vector3(-1f, 1f, 1f)) * Band(-1f + h, h) * full; // 同じ構図の下の部分、左右反転
     }

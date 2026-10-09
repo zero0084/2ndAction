@@ -64,8 +64,14 @@ public class CaveLighting : MonoBehaviour
         go.SetActive(false);
     }
 
+    // 洞窟の暗さが出ているか(斜め上の遠景の幕を同じくらい暗くするため、2026-10-09)
+    public static bool DarknessOn { get; private set; }
+    void OnDestroy() { DarknessOn = false; }
+    public static float DarknessAmount => DarknessOn ? (instanceDark) : 0f;
+    static float instanceDark;
     public void SetActive(bool on)
     {
+        DarknessOn = on; instanceDark = maxDarkness;
         if (quad != null) quad.gameObject.SetActive(on);
         smoothedForward = 0f;
     }
