@@ -19,7 +19,7 @@ public partial class HighSpeedAssist
     [Tooltip("回避の踏み切りに使う余裕(秒)")]
     public float bossJumpMargin = 0.04f;
 
-    public int BossDodgeJumps, BossDoubleJumps, BossStayLow, BossAttacks, BossDownAttacks;
+    public int BossDodgeJumps, BossDoubleJumps, BossStayLow, BossAttacks, BossDownAttacks, BossTerrainJumps;
     public string BossPlan { get; private set; } = "";
 
     bool BossFightNear(PlayerController pc)

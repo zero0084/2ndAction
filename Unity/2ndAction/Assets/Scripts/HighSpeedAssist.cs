@@ -331,9 +331,13 @@ public partial class HighSpeedAssist : MonoBehaviour
             if (bossMode)
             {
                 // 回避/攻撃(ボス)を先に。何もしない時は地形の補助(穴/障害物)。天井から何か来る間は跳ばない
+                // 2026-10-09: ボス戦中もボスを殴り続けて穴/壁に突っ込んでいた(倒れる直前の被弾の約4割が地形)。
+                //  地形の踏み切り(跳ぶ)が今必要な時は、ボスへの攻撃より先に跳ぶ(天井から来る間は従来どおり跳ばない)
                 var b = DecideBoss(pc, Time.deltaTime, out bool stayLow);
-                if (b.HasValue) result = b;
-                else { var r = DecideInner(pc, tm); result = stayLow && r == PlayerController.FlickDirection.Up ? null : r; }
+                var r = DecideInner(pc, tm);
+                if (r == PlayerController.FlickDirection.Up && !stayLow) { result = r; BossTerrainJumps++; }
+                else if (b.HasValue) result = b;
+                else result = stayLow && r == PlayerController.FlickDirection.Up ? null : r;
             }
             else result = DecideInner(pc, tm);
         }
