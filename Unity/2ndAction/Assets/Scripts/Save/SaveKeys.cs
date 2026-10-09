@@ -87,6 +87,8 @@ public static class SaveKeys
         new Entry(TutorialProgress.PracticeDoneKey, SaveCategory.Progress, SaveType.Int, "操作の練習を最後まで(またはスキップ)"),
         new Entry(TutorialProgress.EscapeGuideKey, SaveCategory.Progress, SaveType.Int, "初めてのボス報酬の後の脱出の説明を出した"),
         new Entry(TutorialProgress.MileGuideKey, SaveCategory.Progress, SaveType.Int, "MILEの使い道の案内 0=まだ/1=初めて脱出した(ホームで出す)/2=出した"),
+        new Entry(AdRewards.Key, SaveCategory.Progress, SaveType.String, "広告/パスの報酬の記録(JSON: MILE 2倍にしたランの ID/広告ガチャの日付と回数/追加した MILE の合計。走行の記録とは別、2026-10-10)"),
+        new Entry(AdRewards.RunsFinishedKey, SaveCategory.Progress, SaveType.Int, "終わったランの数(チュートリアル/練習/闘技場/DEBUG RUN を除く。初回ランの後に広告を出さない判定)"),
 
         // ---- 設定 ----
         new Entry(ArenaConfig, SaveCategory.Settings, SaveType.String, "闘技場の最後の構成(キャラ/試用のビルド/相手/速度/操作アシスト/無敵)。進行ではない"),
@@ -108,6 +110,9 @@ public static class SaveKeys
         new Entry("net.lastHostIp", SaveCategory.Settings, SaveType.String, "マルチ: 最後に接続したHOSTのIP"),
         new Entry("net.lastPort", SaveCategory.Settings, SaveType.Int, "マルチ: 最後のポート"),
         new Entry("net.mode", SaveCategory.Settings, SaveType.Int, "マルチ: CO-OP/VERSUS"),
+        new Entry(NoAdsPass.Key, SaveCategory.Settings, SaveType.String, "広告なしパス: ストアで持っていると最後に確認した控え(JSON。権利はストアのアカウントの物。初期化でも消さない、2026-10-10)"),
+        new Entry(AdManager.LastAdEndUtcKey, SaveCategory.Settings, SaveType.String, "最後に広告が終わった時刻(UTC ticks。次の広告までの間隔)"),
+        new Entry(TrustedClock.LastSeenKey, SaveCategory.Settings, SaveType.String, "見た一番新しい時刻(UTC ticks。時計を戻して広告ガチャの回数を復活させない)"),
         new Entry("net.roomName", SaveCategory.Settings, SaveType.String, "マルチ: LAN の部屋の名前(空なら「端末名's Room」、2026-10-05)"),
 
         // ---- 開発版のみ ----
@@ -116,6 +121,9 @@ public static class SaveKeys
         new Entry(BossHpPlan.PrefKey, SaveCategory.Dev, SaveType.Int, "ボスHPの再設計案 0=現行/15/20/25発(開発版のみ)"),
         new Entry(GachaStage.DevAllCardsOpenKey, SaveCategory.Dev, SaveType.Int, "全カード開放(開発版のみ)"),
         new Entry(DevFinalDungeonAlwaysOpen, SaveCategory.Dev, SaveType.Int, "ラスダンを常に選べる(開発版のみ)"),
+        new Entry(Monetization.DevMockKey, SaveCategory.Dev, SaveType.Int, "広告/購入を模擬にする(開発版のみ。次の起動から)"),
+        new Entry(NoAdsPass.DevMockKey, SaveCategory.Dev, SaveType.String, "模擬の広告なしパスの状態(開発版のみ。本物の権利とは別)"),
+        new Entry("Dev.MockStoreOwnedV1", SaveCategory.Dev, SaveType.Int, "模擬ストアのアカウントで購入済み(開発版のみ)"),
         new Entry(GameManager.ResumeEaseDevKey, SaveCategory.Dev, SaveType.Int, "中断再開の慣らし 0=OFF/1=ON(開発版のみ、無ければGameManagerの設定)"),
     };
 

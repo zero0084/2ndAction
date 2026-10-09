@@ -1,0 +1,49 @@
+8100	ui	GameManager.Monetization.cs:result	通常{0}MILE＋追加{1}MILE＝合計{2}MILE
+8101	ui	GameManager.Monetization.cs:result	MILE 2倍 受け取り済み
+8102	ui	GameManager.Monetization.cs:result	広告なしパス: MILE 2倍を受け取る
+8103	ui	GameManager.Monetization.cs:result	広告を見て MILE 2倍
+8104	ui	GameManager.Monetization.cs:result	最後まで見なかったため、追加の MILE は受け取れませんでした
+8105	ui	GameManager.Monetization.cs:result	広告を表示できませんでした。もう一度お試しください
+8106	ui	GameManager.Monetization.cs:gacha	本日の回数は終わりました(あと{0}で回復)
+8107	ui	GameManager.Monetization.cs:gacha	最後まで見なかったため、引けませんでした(回数は減っていません)
+8108	ui	GameManager.Monetization.cs:gacha	広告を表示できませんでした(回数は減っていません)
+8109	ui	GameManager.Monetization.cs:gacha time	{0}時間{1}分
+8110	ui	GameManager.Monetization.cs:gacha time	{0}分
+8111	ui	GameManager.Monetization.cs:gacha button	無料で1回引く(パス)
+8112	ui	GameManager.Monetization.cs:gacha button	広告で1回引く
+8113	ui	GameManager.Monetization.cs:gacha button	本日あと{0}回
+8114	ui	GameManager.Monetization.cs:gacha button	次の回復まで {0}
+8115	ui	AdManager.cs	広告を利用できません
+8116	ui	AdManager.cs	広告の表示中です
+8117	ui	AdManager.cs	広告を準備しています。少し待ってからお試しください
+8118	ui	MonetizationUi.cs:title	広告なしパス(買い切り)
+8119	ui	MonetizationUi.cs	特典
+8120	ui	MonetizationUi.cs	1. ゲームオーバー後の広告が出なくなります
+8121	ui	MonetizationUi.cs	2. 脱出に成功したランの MILE 2倍を、広告を見ずに受け取れます(1ランにつき1回)
+8122	ui	MonetizationUi.cs	3. 1日3回、カードを無料で引けます(広告で引く回数と共通。日本時間 0時に回復)
+8123	ui	MonetizationUi.cs	買い切りです(1回の購入。定期的な支払いはありません)
+8124	ui	MonetizationUi.cs	・MILE 2倍の額や、1日に引ける回数は広告で受け取る場合と同じです(増えません)
+8125	ui	MonetizationUi.cs	・購入の権利はストアのアカウントに付きます。機種変更/再インストールの後は「購入を復元」で戻せます。育成データ(カード/MILE 等)の復元とは別です
+8126	ui	MonetizationUi.cs	・オフラインでも、最後に確認した状態のまま使えます
+8127	ui	MonetizationUi.cs	有効です
+8128	ui	MonetizationUi.cs	お支払いの完了待ちです。完了すると自動で有効になります
+8129	ui	MonetizationUi.cs:button	購入済み
+8130	ui	MonetizationUi.cs:button	価格を取得できません
+8131	ui	MonetizationUi.cs:button ({0}=store price)	購入する {0}
+8132	ui	MonetizationUi.cs:button	確認中…
+8133	ui	MonetizationUi.cs:button	購入を復元
+8134	ui	NoAdsPass.cs	広告なしパスが有効になりました
+8135	ui	NoAdsPass.cs	ストアに接続できませんでした。最後に確認した状態のままです
+8136	ui	NoAdsPass.cs	購入が取り消されたため、広告なしパスは無効になりました
+8137	ui	NoAdsPass.cs	購入を確認できませんでした。次の起動でもう一度確認します
+8138	ui	NoAdsPass.cs	購入の記録はありませんでした
+8139	ui	NoAdsPass.cs	購入をキャンセルしました
+8140	ui	NoAdsPass.cs	購入できませんでした。時間をおいてお試しください
+8141	ui	NoAdsPass.cs	ストアを利用できません
+8142	ui	SettingsPanel.cs:section	広告なしパス
+8143	ui	SettingsPanel.cs:button	有効(内容を見る)
+8144	ui	SettingsPanel.cs:button	内容と購入
+8145	ui	SettingsPanel.cs:row	購入の復元
+8146	ui	SettingsPanel.cs:row	広告のプライバシー
+8147	ui	SettingsPanel.cs:button	プライバシーの設定
+8148	ui	SettingsPanel.cs:note	購入の権利はストアのアカウントに付きます(育成データの復元とは別)

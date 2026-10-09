@@ -1389,7 +1389,7 @@ public partial class GameManager : MonoBehaviour
             {
                 ResultTapsAccepted++;
                 DeathLog($"Result tap detected -> Retry requested (taps ignored before: {ResultTapsIgnored}{(ResultTapsIgnored > 0 ? ", last: " + LastResultTapBlock : "")})");
-                RetryWithTransition();
+                LeaveResult(); // 条件がそろえば強制広告 → ホーム(2026-10-10)
             }
         }
 
@@ -1969,6 +1969,7 @@ public partial class GameManager : MonoBehaviour
             else if (i == 2) OpenCardFusion();
             else OnGachaMachineTapped();
         }
+        if (!gachaResultOpen) DrawAdGachaButton(new Rect(pl.facility.x + 3f * (w + gap), pl.facility.y, w, pl.facility.height), interactable, fade); // 広告で1回引く(2026-10-10)
     }
     // ボタンの文字が幅に入らない時(長い言語/縦画面の狭いボタン)だけ字を小さく(2026-10-08)
     GUIStyle fitFontStyle;
@@ -2045,7 +2046,9 @@ public partial class GameManager : MonoBehaviour
         if (DebugResultTapPending) { DebugResultTapPending = false; down = true; }
 #endif
         if (!down) return false;
-        if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) why = "screen transition";
+        if (PointerOnResultButton()) return false; // MILE 2倍のボタン(ボタンが受け取る、2026-10-10)
+        if (AdManager.Showing || leavingResult || doubleBusy) why = "ad showing";
+        else if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) why = "screen transition";
         else if (SettingsPanel.IsVisible) why = "settings panel open";
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         else if (UiInputGate.DebugPanelOpen) why = "debug panel open";
@@ -3584,6 +3587,7 @@ public partial class GameManager : MonoBehaviour
         // FINISH/Win() path).
         // マルチプレイRunの終了で、シングルの中断データ(CONTINUE)を消さない。
         if (!NetRunLauncher.IsMultiplayerRun) RunCheckpoint.Clear();
+        NoteRunFinishedForAds(); // 広告: 初回ランの判定/MILE 2倍の元の額(通常分は上で保存済み、2026-10-10)
         DeathLog($"FinishRun done timeScale={Time.timeScale:F2}");
     }
 
@@ -4315,6 +4319,7 @@ public partial class GameManager : MonoBehaviour
                     {
                         OnGachaMachineTapped();
                     }
+                    if (!HomePortrait && !gachaResultOpen) DrawAdGachaButton(machineRect, roomInteractable, roomFadeAlpha); // 広告で1回引く(2026-10-10)
 
                     // Bugfix 2026-09-05, item 5 - the always-on "CARD GACHA
                     // Lv.X / NEXT EVOLUTION Ym" label sitting directly on the
@@ -4415,8 +4420,9 @@ public partial class GameManager : MonoBehaviour
         float panelWidth = HudStacked ? Mathf.Min(560f, Screen.width - SafeLeft() - SafeRight() - 32f) : Mathf.Min(560f, Screen.width * 0.8f);
         // 2026-10-08: 行の数に合わせて行の間隔を詰める(画面の低い端末/文の長い言語でも全部の行が枠に収まる。文字は1行のまま)
         int rowCount = IsWin ? 8 + ((RunBonusMile > 0 || RunRingMile > 0) ? 1 : 0) + ((LastCommit != null && (LastCommit.unlockedStages.Count + LastCommit.unlockedChars.Count > 0 || (!LastCommit.committed && Debug.isDebugBuild))) ? 1 : 0) : 7;
-        float panelHeight = Mathf.Min(Screen.height * 0.92f, Mathf.Max(504f, 68f + rowCount * 34f + (upgradeHistory.Count > 0 ? 62f : 0f) + 50f));
-        float rowStep = Mathf.Clamp((panelHeight - 68f - (upgradeHistory.Count > 0 ? 62f : 0f) - 50f) / Mathf.Max(1, rowCount), 22f, 34f);
+        float monetH = ResultMonetizationExtraHeight(); // MILE 2倍のボタン(2026-10-10)
+        float panelHeight = Mathf.Min(Screen.height * 0.92f, Mathf.Max(504f, 68f + rowCount * 34f + (upgradeHistory.Count > 0 ? 62f : 0f) + 50f) + monetH);
+        float rowStep = Mathf.Clamp((panelHeight - 68f - (upgradeHistory.Count > 0 ? 62f : 0f) - 50f - monetH) / Mathf.Max(1, rowCount), 22f, 34f);
         Rect panelRect = new Rect(Screen.width / 2f - panelWidth / 2f, Screen.height / 2f - panelHeight / 2f, panelWidth, panelHeight);
         if (HudStacked) panelRect.y = Mathf.Max(panelRect.y, Mathf.Min(GetSpeedPanelRect().yMax + 12f, Screen.height - SafeBottom() - panelHeight - 90f)); // 縦画面: 左の列(BEST/距離/速度)の下から
         UiBackdrop.Draw(panelRect, 0.8f);
@@ -4509,6 +4515,7 @@ public partial class GameManager : MonoBehaviour
             y += 56f;
         }
 
+        DrawResultMonetization(panelRect);
         bool retryAllowed = SecondsSinceGameOver >= retryDelayAfterGameOver;
         if (!ResultShown && Event.current.type == EventType.Repaint) { ResultShown = true; DeathLog($"Result shown (reason={DeathReason}, timeScale={Time.timeScale:F2})"); }
         if (retryAllowed)

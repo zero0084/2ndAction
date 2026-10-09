@@ -189,7 +189,13 @@ public static class CardInventory
 
     public static void AddCard(string cardId, int level, int count = 1)
     {
-        if (string.IsNullOrEmpty(cardId) || count <= 0) return;
+        if (AddCardWithoutFlush(cardId, level, count)) SaveStore.Save();
+    }
+
+    // 値だけ変えて書き、SaveStore.Save() は呼び出し側が他の記録と一緒に1回だけ行う(広告ガチャ: カード+回数+記録を同じ保存で、2026-10-10)
+    public static bool AddCardWithoutFlush(string cardId, int level, int count = 1)
+    {
+        if (string.IsNullOrEmpty(cardId) || count <= 0) return false;
         EnsureLoaded();
         // 素のカードIDをLv.2以上で追加する旧来の呼び方は、その性能のv2キーへ読み替える
         // (素のIDは常にLv.1・強化量1を意味する)。
@@ -211,7 +217,8 @@ public static class CardInventory
         if (existing != null) existing.count += count;
         else stacks.Add(new Stack { cardId = cardId, level = level, count = count });
         if (!wasOwnedBefore) MarkNewUnconfirmed(cardId);
-        Save();
+        WriteWithoutFlush();
+        return true;
     }
 
     // カードVisual最終調整依頼(2026-09-18), item1 - 「実際に新規取得した

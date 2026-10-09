@@ -72,7 +72,7 @@ public partial class DebugPanel : MonoBehaviour
         float w = Screen.width / s, h = Screen.height / s;
         float k = Mathf.SmoothStep(0f, 1f, t / 0.15f);
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.05f, 0.02f, 0.02f, 0.5f * k));
-        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 740f : page == 4 || page == 5 || page == 6 || page == 7 || page == 8 || page == 11 ? 600f : 470f, h - 24f);
+        float pw = Mathf.Min(620f, w - 24f), ph = Mathf.Min(page == 0 ? 740f : page == 4 || page == 5 || page == 6 || page == 7 || page == 8 || page == 11 || page == 13 ? 600f : 470f, h - 24f);
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f + (1f - k) * 12f, pw, ph);
         Color keepColor = GUI.color;
         GUI.color = new Color(1f, 1f, 1f, k);
@@ -82,10 +82,11 @@ public partial class DebugPanel : MonoBehaviour
         if (UiKit.Button(new Rect(p.xMax - 200f, p.y + 12f, 126f, 42f), page == 0 ? "セーブ…" : "← 一般", 17f, page != 0, false)) { page = page == 0 ? 1 : 0; confirmSave = 0; confirmReset = false; }
         if (page == 0 && UiKit.Button(new Rect(p.xMax - 352f, p.y + 12f, 146f, 42f), "ラスダン終盤…", 16f, false, false)) { page = 2; confirmSave = 0; confirmReset = false; }
         if (page == 0 && UiKit.Button(new Rect(p.xMax - 504f, p.y + 12f, 146f, 42f), "画面の記録…", 16f, false, false)) { page = 12; confirmSave = 0; confirmReset = false; } // HUD/安全領域(2026-10-10)
-        if (page == 0 && UiKit.Button(new Rect(p.x + 24f, p.y + 62f, p.width - 48f, 34f), SaveProfile.IsTest ? "テストデータ…(今: TEST DATA)" : "テストデータ…(新規ユーザーの状態で試す)", 15f, SaveProfile.IsTest, false)) { page = 11; confirmTest = 0; testNote = ""; }
+        if (page == 0 && UiKit.Button(new Rect(p.xMax - 24f - 160f, p.y + 62f, 160f, 34f), "広告/課金(模擬)…", 14f, Monetization.Mode == MonetizationMode.Mock, false)) { page = 13; confirmSave = 0; confirmReset = false; } // 2026-10-10(依頼I)
+        if (page == 0 && UiKit.Button(new Rect(p.x + 24f, p.y + 62f, p.width - 48f - 168f, 34f), SaveProfile.IsTest ? "テストデータ…(今: TEST DATA)" : "テストデータ…(新規ユーザーの状態で試す)", 15f, SaveProfile.IsTest, false)) { page = 11; confirmTest = 0; testNote = ""; }
         if (page != 0)
         {
-            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else if (page == 7) DrawFinalEvoPage(p); else if (page == 8) DrawComboPage(p); else if (page == 9) DrawFinishPage(p); else if (page == 10) DrawBossFinishPage(p); else if (page == 11) DrawTestDataPage(p); else if (page == 12) DrawScreenLogPage(p); else DrawEndgamePage(p);
+            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else if (page == 7) DrawFinalEvoPage(p); else if (page == 8) DrawComboPage(p); else if (page == 9) DrawFinishPage(p); else if (page == 10) DrawBossFinishPage(p); else if (page == 11) DrawTestDataPage(p); else if (page == 12) DrawScreenLogPage(p); else if (page == 13) DrawMonetizationPage(p); else DrawEndgamePage(p);
             GUI.color = keepColor;
             GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
             if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();

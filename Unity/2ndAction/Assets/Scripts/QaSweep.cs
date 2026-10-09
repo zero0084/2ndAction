@@ -72,6 +72,9 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaCombo") { mode = "combo"; dir = a[i + 1]; }
             if (a[i] == "-qaSkyBoss") { mode = "skyboss"; dir = a[i + 1]; }
             if (a[i] == "-qaFlyJitter") { mode = "flyjitter"; dir = a[i + 1]; }
+            if (a[i] == "-qaMonet") { mode = "monet"; dir = a[i + 1]; }
+            if (a[i] == "-qaMonetNone") { mode = "monetnone"; dir = a[i + 1]; }
+            if (a[i] == "-qaMonetShots") { mode = "monetshots"; dir = a[i + 1]; }
             if (a[i] == "-qaSprint") { mode = "sprint"; dir = a[i + 1]; }
             if (a[i] == "-qaCharSelect") { mode = "charselect"; dir = a[i + 1]; }
             if (a[i] == "-qaPad") { mode = "pad"; dir = a[i + 1]; }
@@ -178,6 +181,9 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "combo") yield return ComboMode();
         else if (mode == "skyboss") yield return SkyBossMode();
         else if (mode == "flyjitter") yield return FlyJitterMode();
+        else if (mode == "monet") yield return MonetizationModeQa();
+        else if (mode == "monetnone") yield return MonetizationNoneQa();
+        else if (mode == "monetshots") yield return MonetizationShotsQa();
         else if (mode == "sprint") yield return SprintMode();
         else if (mode == "charselect") yield return CharSelectMode();
         else if (mode == "pad") yield return PadMode();

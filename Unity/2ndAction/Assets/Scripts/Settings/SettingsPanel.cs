@@ -132,11 +132,12 @@ public class SettingsPanel : MonoBehaviour
         if (wide)
         {
             float colW = (view.width - 30f) * 0.5f;
-            contentH = Mathf.Max(drawnH, Mathf.Max(MeasureAudio() + 16f + MeasureLanguage() + 16f + MeasureProfile(), MeasureDisplay() + MeasureControls() + 16f));
+            contentH = Mathf.Max(drawnH, Mathf.Max(MeasureAudio() + 16f + MeasureLanguage() + 16f + MeasureProfile() + MeasureNoAds(), MeasureDisplay() + MeasureControls() + 16f));
             BeginScroll(view, contentH);
             float ya = DrawAudio(0f, 0f, colW, interactive);
             ya = DrawLanguage(0f, ya + 16f, colW, interactive);
             ya = DrawProfile(0f, ya + 16f, colW, interactive);
+            ya = DrawNoAds(0f, ya, colW, interactive);
             float y2 = DrawDisplay(colW + 30f, 0f, colW, interactive);
             y2 = DrawControls(colW + 30f, y2 + 16f, colW, interactive);
             EndScroll(view, contentH);
@@ -144,13 +145,14 @@ public class SettingsPanel : MonoBehaviour
         }
         else
         {
-            contentH = Mathf.Max(drawnH, MeasureAudio() + MeasureLanguage() + MeasureDisplay() + MeasureControls() + MeasureProfile() + 64f);
+            contentH = Mathf.Max(drawnH, MeasureAudio() + MeasureLanguage() + MeasureDisplay() + MeasureControls() + MeasureProfile() + MeasureNoAds() + 64f);
             BeginScroll(view, contentH);
             float y = DrawAudio(0f, 0f, view.width, interactive);
             y = DrawLanguage(0f, y + 16f, view.width, interactive);
             y = DrawDisplay(0f, y + 16f, view.width, interactive);
             y = DrawControls(0f, y + 16f, view.width, interactive);
             y = DrawProfile(0f, y + 16f, view.width, interactive);
+            y = DrawNoAds(0f, y, view.width, interactive);
             EndScroll(view, contentH);
             if (Event.current.type == EventType.Repaint) drawnH = y + 12f;
         }
@@ -600,6 +602,31 @@ public class SettingsPanel : MonoBehaviour
         y += RowH;
         y = Note(x, y, w, $"ランキングとマルチで表示する名前(最大{Codename.MaxLength}文字)。未設定でも遊べます。");
         return Note(x, y, w, "本名などの個人情報は入れないでください。");
+    }
+
+    // 広告なしパス/購入の復元/プライバシー(2026-10-10、依頼I)。Steam/PC(広告も課金も無い)では出さない
+    static bool PrivacyRow => Monetization.Ads != null && Monetization.Ads.PrivacyOptionsRequired;
+    float MeasureNoAds() => Monetization.Mode == MonetizationMode.None ? 0f : 16f + HeadH + 4f + RowH * (PrivacyRow ? 3f : 2f) + 22f * 2f;
+    float DrawNoAds(float x, float y, float w, bool interactive)
+    {
+        if (Monetization.Mode == MonetizationMode.None) return y;
+        y = Head(x, y + 16f, w, "広告なしパス");
+        RowLabel(x, y, "広告なしパス");
+        bool owned = NoAdsPass.Owned;
+        if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), owned ? "有効(内容を見る)" : "内容と購入", 19f, !owned, true) && interactive) MonetizationUi.OpenPass();
+        y += RowH;
+        RowLabel(x, y, "購入の復元");
+        bool busy = NoAdsPass.Busy;
+        if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), busy ? "確認中…" : "購入を復元", 19f, false, true, !busy) && interactive && !busy) NoAdsPass.Check("settings restore");
+        y += RowH;
+        if (PrivacyRow)
+        {
+            RowLabel(x, y, "広告のプライバシー");
+            if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), "プライバシーの設定", 19f, false, true) && interactive) Monetization.Ads.ShowPrivacyOptions();
+            y += RowH;
+        }
+        y = Note(x, y, w, string.IsNullOrEmpty(NoAdsPass.LastNote) ? "購入の権利はストアのアカウントに付きます(育成データの復元とは別)" : NoAdsPass.LastNote);
+        return y;
     }
 
     // 遊び方(2026-10-07): 操作の練習をもう一度。ホームでだけ始められる(終わるとホームへ戻る)
