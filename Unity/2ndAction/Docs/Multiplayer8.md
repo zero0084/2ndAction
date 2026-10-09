@@ -303,3 +303,10 @@ JOIN のプレイヤーでは、次のカードの効果が働かない。
 ## LAN の自動発見(2026-10-05)で既定の最大人数を 8 に
 - `NetSession.DefaultMaxPlayers = PlannedMaxPlayers`(8)。部屋の知らせ/待機室は「n/8」。開発ビルドは `-netMaxPlayers N` で絞れる。
 - 上の「2人の距離が数 km 離れると同期数が増える」課題は残っている(8 人の実機負荷は未確認)。詳細は Docs/LanDiscovery_2026-10-05.md。
+
+## ULTIMATE 第2段階(2026-10-09)のマルチ対応で必要になること
+ULTIMATE はマルチでは今も使えない(候補に出ない)。第2段階の仕組みをマルチへ持ち込む時に同期が要る所:
+- 殲滅: 範囲内の通常の敵を一撃で倒す処理は HOST が行う(JOIN の発動は HOST へ申告)。撃破の報酬は今の撃破の同期と同じ経路。
+- 突破で通り過ぎた敵を報酬なしで消す処理(`UltimateArt.PassClear`、SetActive(false))は、HOST で消して JOIN のパペットにも「消えた(撃破ではない)」を送る新しいメッセージが要る。
+- 突破(300〜1000m)は発動した人だけが前へ進む。WorldRange(Front/Back)が大きく伸びるので、出現/関門/BossLeash を「最前の人」基準で見直す。突破の着地点の安全区間(SetResumeFlatZone/UltimateSetSafeUntil)も全員の世界で同じにする必要がある。
+- ボスへの 20/30/40% は HOST が上限を管理する(人数ぶん重ねると1回の ULTIMATE で倒しきれてしまうので、ボスごとの合計の上限も要る)。

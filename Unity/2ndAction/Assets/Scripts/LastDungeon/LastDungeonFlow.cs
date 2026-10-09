@@ -20,6 +20,15 @@ public class LastDungeonFlow : MonoBehaviour
     public static LastDungeonFlow Instance { get; private set; }
     public State Current { get; private set; } = State.Idle;
     public bool Enabled { get; private set; }
+    // ULTIMATE の突破が飛び越えてはいけない、次の場面の始まり(ボスラッシュ/静寂の区間)。無ければ -1(2026-10-09)
+    public float NextEventDistance(float d)
+    {
+        if (!Enabled) return -1f;
+        float rushFrom = lc != null ? lc.rushFrom : 90000f, silenceFrom = lc != null ? lc.silenceFrom : 99000f;
+        if (Current == State.Run && d < rushFrom) return rushFrom;
+        if ((Current == State.Run || Current == State.Rush) && d < silenceFrom) return silenceFrom;
+        return -1f;
+    }
 
     [Header("エンドロール")]
     [Tooltip("エンドロールを走る速さ(m/s)。余韻を感じられる速さ")] public float creditsSpeed = 8f;

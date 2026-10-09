@@ -16,13 +16,21 @@ public class UltimateTuning : ScriptableObject
     [Tooltip("Lv が1上がるごとの溜まりやすさ(+割合)")] public float gaugeLevelBonus = 0.04f;
     [Tooltip("BUFF 中の溜まり方(倍率)。発動中は常に0")] public float gaugeDuringBuff = 0.5f;
 
-    [Header("前進(m) Lv1 / Lv5 / Lv9")]
-    public Vector3 advance = new Vector3(100f, 150f, 200f);
-    [Tooltip("前進にかける時間(秒)")] public float dashSeconds = 1.9f;
+    [Header("突破(前進)の距離(m) Lv1 / Lv5 / Lv9")]
+    // 2026-10-09(依頼H-A 第2段階): 100/150/200 → 300/600/1000
+    public Vector3 advance = new Vector3(300f, 600f, 1000f);
+    [Tooltip("(旧)前進にかける時間(秒)。今は dashSecondsByLevel を使う")] public float dashSeconds = 1.9f;
+    [Tooltip("突破にかける時間(秒) Lv1 / Lv5 / Lv9。長い距離ほど少し長く(速さが極端にならないように)")] public Vector3 dashSecondsByLevel = new Vector3(1.9f, 2.4f, 3.0f);
     [Tooltip("次のボス関門の何m手前で止めるか")] public float stopBeforeGate = 30f;
     [Tooltip("着地の後、敵/障害物を出さない距離(m)")] public float landingSafeMeters = 25f;
 
-    [Header("通常の敵へのダメージ = その距離の HP倍率1 の雑魚のHP × 倍率(Lv1 / Lv5 / Lv9)")]
+    [Header("殲滅(発動した場所の通常の敵を一撃で倒す、2026-10-09)")]
+    [Tooltip("判定の画面(GameView)の右端より何m先まで")] public float annihilateAheadMargin = 4f;
+    [Tooltip("プレイヤーより何m上まで(飛ぶ敵)")] public float annihilateUp = 18f;
+    [Tooltip("プレイヤーより何m下まで")] public float annihilateDown = 10f;
+    [Tooltip("突破の道筋の敵を報酬なしで消す範囲: 着地点の何m先まで")] public float passClearBeyond = 40f;
+
+    [Header("(旧)通常の敵へのダメージ = その距離の HP倍率1 の雑魚のHP × 倍率(Lv1 / Lv5 / Lv9)。2026-10-09 から通常の敵は殲滅(一撃)なので使わない")]
     public Vector3 mobDamage = new Vector3(1.8f, 2.8f, 4.0f);
     [Tooltip("カードの攻撃力(A)が効く割合: 1 + この値 × SoftAttack(A)")] public float buildAttackShare = 0.35f;
     [Tooltip("カードの攻撃力による倍率の上限")] public float buildFactorMax = 1.8f;
@@ -30,8 +38,9 @@ public class UltimateTuning : ScriptableObject
     [Tooltip("1回目に入る割合(前進で画面から外れた敵にも大部分が入るように)。残りは画面に残っていれば次の当たりで")] public float mobFirstShare = 0.75f;
 
     [Header("ボス: 最大HPの何割(Lv1 / Lv5 / Lv9)。1回で戦闘を終わらせない")]
-    public Vector3 bossDamageFraction = new Vector3(0.10f, 0.14f, 0.18f);
-    [Tooltip("1回の ULTIMATE でボスに入る上限(最大HPの割合)")] public float bossDamageCap = 0.22f;
+    // 2026-10-09(依頼H-A): 10/14/18% → 20/30/40%。カードの攻撃力では増やさない(この割合がそのまま上限)
+    public Vector3 bossDamageFraction = new Vector3(0.20f, 0.30f, 0.40f);
+    [Tooltip("1回の ULTIMATE でボスに入る上限(最大HPの割合、ULTIMATE 専用)")] public float bossDamageCap = 0.40f;
     [Tooltip("ボス戦: ボスを通り抜けた先(ボスの端から m)")] public float arenaPassBeyond = 3f;
     [Tooltip("ボス戦: 戻る位置(ボスの手前の端から m)")] public float arenaReturnGap = 6f;
 

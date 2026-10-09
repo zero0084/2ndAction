@@ -347,9 +347,20 @@ public static class UltimateFx
     {
         CameraFollow.UltimateZoom = arena ? 0.96f : 1.06f;
         var th = ThemeOf(ch);
+        float ds = UltimateArt.Instance != null && UltimateArt.Instance.DashSecondsNow > 0f ? UltimateArt.Instance.DashSecondsNow : UltimateTuning.I.dashSeconds;
         // 前進中の体のまわりの光(技の勢いで走っている見え方)
-        Spawn(dot, PlayerPos, ThemeColor(ch), UltimateTuning.I.dashSeconds + 0.4f, Vector2.one * 4f, Vector2.one * 3f, 0.55f, 0.1f, default, 0f, 0f, true, playerT, RenderOrder.Player - 2, true);
-        Spawn(streak, PlayerPos + Vector3.left * 3f, ThemeColor(ch), UltimateTuning.I.dashSeconds + 0.3f, new Vector2(7f, 1.2f), new Vector2(5f, 0.8f), 0.5f, 0f, default, 0f, 0f, true, playerT, RenderOrder.Player - 2, true);
+        Spawn(dot, PlayerPos, ThemeColor(ch), ds + 0.4f, Vector2.one * 4f, Vector2.one * 3f, 0.55f, 0.1f, default, 0f, 0f, true, playerT, RenderOrder.Player - 2, true);
+        Spawn(streak, PlayerPos + Vector3.left * 3f, ThemeColor(ch), ds + 0.3f, new Vector2(7f, 1.2f), new Vector2(5f, 0.8f), 0.5f, 0f, default, 0f, 0f, true, playerT, RenderOrder.Player - 2, true);
+        if (!arena)
+        {
+            // 突破の入り(ワープの入口): 縦の光の裂け目 + 広がる輪 + 短い閃光(強すぎない)。背景を少し暗く(速さの中で前が見えるように)
+            Vector3 p0 = PlayerPos;
+            Streak(p0 + Vector3.right * 1.5f, 90f, 9f, 0.5f, th.flash, 0.35f);
+            Streak(p0 + Vector3.right * 1.5f, 90f, 9f, 0.12f, Color.white, 0.3f);
+            Ring(p0, 0.6f, 8f, Color.white, 0.35f);
+            if (ch != "dragon_lancer") Flash(th.flash, 0.28f, 6f);
+            BackTint(new Color(th.main.r * 0.15f, th.main.g * 0.15f, th.main.b * 0.2f, 0.35f), 8f);
+        }
         if (ch == "dragon_lancer") Flash(Color.white, 0.45f, 5f);
         if (ch == "archer") MagicCircle(PlayerPos + new Vector3(5f, 5f, 0f), 2.2f, th, 2f, playerT);
         if (ch == "dragonkin") { var q = Spawn(disc, PlayerPos + Vector3.right * 2.5f, th.sub, 2.2f, Vector2.one * 1.6f, Vector2.one * 2.2f, 0.95f, 0.6f, default, 0f, 0f, true, playerT); }
@@ -437,6 +448,30 @@ public static class UltimateFx
             case "miko": for (int i = 0; i < 7; i++) Explosion(new Vector3(Mathf.Lerp(v.xMin + 2f, v.xMax - 2f, i / 6f), p.y + Random.Range(-0.5f, 2.5f), 0f), th, 1.3f); Shake(0.3f, 0.35f); break;
             default: Ring(front, 0.5f, 6f, th.flash, 0.45f); break;
         }
+    }
+
+    // 突破の着地(再出現の衝撃): 白い輪 + 地面の土煙 + 短い閃光(揺れは小さく)。2026-10-09
+    public static void Reappear(string ch)
+    {
+        var th = ThemeOf(ch);
+        Vector3 p = PlayerPos;
+        Vector3 ground = OnGround(p + Vector3.down);
+        Ring(p, 0.8f, 9f, Color.white, 0.4f);
+        Ring(p, 0.5f, 6f, th.flash, 0.45f);
+        Glow(p, 1.5f, 6f, th.sub, 0.35f, 0.8f);
+        Scatter(dot, ground + Vector3.up * 0.2f, 22, 7f, new Color(0.75f, 0.7f, 0.6f, 0.7f), 0.8f, 1.2f, false, 0.4f);
+        Streak(p + Vector3.left * 6f, 0f, 14f, 0.3f, Color.white, 0.25f);
+        Flash(Color.white, 0.25f, 6f);
+        BackTint(new Color(0, 0, 0, 0), 5f);
+    }
+
+    // 突破で通り過ぎた敵(報酬なしで消える): 後ろへ吹き飛ぶ光だけ
+    public static void PassVisual(string ch, Vector3 at)
+    {
+        var th = ThemeOf(ch);
+        Glow(at, 0.5f, 2.2f, th.flash, 0.25f, 0.8f);
+        Streak(at, 0f, 3.5f, 0.12f, Color.white, 0.2f, true, new Vector3(-30f, 0f, 0f), 1.2f);
+        Scatter(dot, at, 6, 6f, th.sub, 0.35f, 0.35f, true);
     }
 
     public static void End(string ch)
@@ -636,8 +671,44 @@ public class UltimateFxLabel : MonoBehaviour
         Font f = GUI.skin.font;
         if (f != null) { f.RequestCharactersInTexture(sb.ToString(), size, FontStyle.Bold); f.RequestCharactersInTexture("カードなし発動中選択中ボス登場中今は使えない被弾中BONUS中準備中", Mathf.RoundToInt(Mathf.Clamp(Screen.height * 0.12f, 84f, 160f) * 0.22f), FontStyle.Bold); }
     }
+    // 突破中の速さの線(画面を右から左へ流れる細い線 + 左右の端を少し暗く)。勢い(DashIntensity)に合わせて濃くなる。点滅はしない
+    static readonly float[] lineY = new float[28], lineLen = new float[28], linePhase = new float[28], lineThick = new float[28];
+    static bool linesInit;
+    void DrawSpeedLines()
+    {
+        var ua = UltimateArt.Instance;
+        float k = ua != null && ua.Active ? ua.DashIntensity : 0f;
+        if (k < 0.02f || Event.current.type != EventType.Repaint) return;
+        if (!linesInit)
+        {
+            linesInit = true;
+            var rnd = new System.Random(1009);
+            for (int i = 0; i < lineY.Length; i++) { lineY[i] = (float)rnd.NextDouble(); lineLen[i] = 0.12f + 0.25f * (float)rnd.NextDouble(); linePhase[i] = (float)rnd.NextDouble(); lineThick[i] = 1.5f + 2.5f * (float)rnd.NextDouble(); }
+        }
+        float W = Screen.width, H = Screen.height, t = Time.unscaledTime;
+        Color th = UltimateFx.ThemeColor(ua.CharacterId);
+        for (int i = 0; i < lineY.Length; i++)
+        {
+            float u = Mathf.Repeat(linePhase[i] - t * (1.6f + 1.4f * lineLen[i]) * (0.6f + 0.8f * k), 1.3f) - 0.15f; // 右から左へ
+            float len = W * lineLen[i] * (0.6f + 0.6f * k);
+            float x = u * W, y = Mathf.Lerp(H * 0.08f, H * 0.95f, lineY[i]);
+            Color c = i % 4 == 0 ? new Color(th.r, th.g, th.b, 0.30f * k) : new Color(1f, 1f, 1f, 0.22f * k);
+            UiKit.Fill(new Rect(x, y, len, lineThick[i]), c);
+        }
+        // 端を少し暗く(視線を中央へ)
+        for (int j = 0; j < 6; j++)
+        {
+            float a = 0.05f * k * (6 - j);
+            float w = W * 0.025f;
+            UiKit.Fill(new Rect(j * w, 0f, w, H), new Color(0f, 0f, 0.03f, a));
+            UiKit.Fill(new Rect(W - (j + 1) * w, 0f, w, H), new Color(0f, 0f, 0.03f, a));
+        }
+    }
+
     void OnGUI()
     {
+        GUI.depth = -45;
+        DrawSpeedLines();
         float left = UltimateFx.BannerUntil - Time.unscaledTime;
         if (left <= 0f || string.IsNullOrEmpty(UltimateFx.BannerText)) return;
         GUI.depth = -45;

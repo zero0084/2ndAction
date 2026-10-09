@@ -4,7 +4,10 @@ using UnityEngine;
 // ===== #100 ULTIMATE(2026-10-04) =====
 // カード「ULTIMATE」(cardId "character_ultimate"。#79 ALMIGHTY の旧ID "ultimate" とは別物)を持っていると、
 // Gauge(距離・撃破・ボスへのダメージ)が溜まり、100% で HUD 左下のボタンから発動できる。
-//   CUT1 構え(少し減速・ズーム・暗転) → CUT2 一撃目(画面内の敵) → CUT3 前進(100〜200m を高速で走り抜けながら、画面に入った敵にも当てる)
+//   CUT1 構え(少し減速・ズーム・暗転) → CUT2 殲滅(発動した場所の通常の敵を一撃で倒す) → CUT3 突破(300〜1000m を高速で走り抜ける)
+//   2026-10-09(第2段階): 殲滅と突破を分けた。殲滅の範囲(判定の画面 + 少し先)の通常の敵(雑魚/重装/飛行/精鋭)は既存の撃破の処理で一撃
+//   (経験値/MILE/撃破数/FINISH はふつうに入る)。突破の道筋で通り過ぎる敵は報酬なしで消す(倒したことにしない)。
+//   ボス/BONUS ZONE の敵/マルチの写しは殲滅しない。ボスは最大HPの 20/30/40%(Lv1/5/9、ULTIMATE 専用の上限)
 //   → CUT4 締め(通常の速さへ戻る) → BUFF(しばらく攻撃/攻撃速度/勢いが少し上がる余韻)
 // 移動は瞬間移動ではなく「地面に沿って高速で走る」(PlayerController.UltimateMoveTick)。距離・EXP・関門・BONUS ZONE・昼夜などは
 // 通常の走行と同じ経路で進む(ReportDistance)。次のボス関門/100km/BONUS ZONE の手前で止まる。穴の上は前の地面の高さで渡る。
@@ -85,6 +88,7 @@ public class UltimateArt : MonoBehaviour
         public float d0, d1, plannedAdvance, limitedAdvance; public string limitReason = "";
         public float x0, x1; public float seconds;
         public int pulses, damageEvents, mobsHit, mobsKilled, bossesHit; public long mobDamage, bossDamage;
+        public int annihilated, passCleared, eventSkipped; // 殲滅で倒した数 / 突破で報酬なしで消した数 / 対象外(BONUS の敵など)
         public float bossFractionMax; public int visualHits;
         public bool aborted; public string abortReason = "";
         public float buffSeconds; public bool landedOnGround; public float landY, landGroundY;
@@ -227,10 +231,11 @@ public class UltimateArt : MonoBehaviour
         r.limitedAdvance = adv;
         advanceTarget = Mathf.Max(0f, adv - cutsMove);
         traveled = 0f;
-        float T3 = Mathf.Max(0.6f, T.dashSeconds);
+        float T3 = Mathf.Max(0.6f, UltimateTuning.At(T.dashSecondsByLevel, lv));
         // 速さの形: 立ち上がり15% / 一定60% / 減速25%(終わりは通常の速さへ繋ぐ)。∫v = vAuto*T + (vPeak - vAuto)*T*0.8
         dashPeak = vAuto + Mathf.Max(0f, advanceTarget - vAuto * T3) / (0.8f * T3);
         dashSeconds = T3;
+        landX = pc.transform.position.x + adv;
         if (!arena && adv > 1f)
         {
             // 着地点の足場: 穴/坂を作らない区間 + 着地後しばらく敵/障害物を出さない
@@ -267,11 +272,18 @@ public class UltimateArt : MonoBehaviour
         }
         float bonus = BonusZone.Instance != null ? BonusZone.Instance.PendingStartDistance : -1f;
         if (bonus > d && bonus - 10f < limit) { limit = bonus - 10f; reason = $"BONUS ZONE {bonus:F0}m"; }
+        // ラストダンジョン: ボスラッシュ/静寂の区間の始まりを飛び越えない(2026-10-09)
+        var flow = LastDungeonFlow.Instance;
+        float ev = flow != null ? flow.NextEventDistance(d) : -1f;
+        if (ev > d && ev - gateMargin < limit) { limit = ev - gateMargin; reason = $"last dungeon event {ev:F0}m"; }
         return Mathf.Max(0f, limit - d);
     }
 
     // ===================================================================== 毎フレーム(PlayerController.Update から)
-    float advanceTarget, traveled, dashPeak, dashSeconds, nextPulseT;
+    float advanceTarget, traveled, dashPeak, dashSeconds, nextPulseT, landX;
+    public float DashSecondsNow => dashSeconds;
+    // 突破中の勢い(0〜1、見た目の速さの演出用)
+    public float DashIntensity { get; private set; }
     WildBossBase arenaBoss;
     int arenaStep;
     bool heldAtStart;
@@ -281,7 +293,8 @@ public class UltimateArt : MonoBehaviour
         Phase = p; phaseT = 0f;
         if (p == UltimatePhase.Burst) { Pulse(false); UltimateFx.Burst(CharacterId); }
         if (p == UltimatePhase.Dash || p == UltimatePhase.Arena) { nextPulseT = T.pulseInterval; UltimateFx.DashStart(CharacterId, arena); }
-        if (p == UltimatePhase.Finish) { Pulse(true); UltimateFx.Finish(CharacterId); }
+        if (p == UltimatePhase.Dash) ClearPath(); // 突破の道筋の敵は報酬なしで消す(殲滅とは別)
+        if (p == UltimatePhase.Finish) { Pulse(true); UltimateFx.Finish(CharacterId); if (!arena && traveled > 30f) UltimateFx.Reappear(CharacterId); }
     }
 
     // その時の移動量(m、+が前)を返す。地面に沿わせるのは PlayerController 側
@@ -311,6 +324,7 @@ public class UltimateArt : MonoBehaviour
                 float u = phaseT / dashSeconds;
                 float bell = u < 0.15f ? 0.5f - 0.5f * Mathf.Cos(Mathf.PI * u / 0.15f) : u < 0.75f ? 1f : u < 1f ? 0.5f + 0.5f * Mathf.Cos(Mathf.PI * (u - 0.75f) / 0.25f) : 0f;
                 float v = vAuto + (dashPeak - vAuto) * bell;
+                DashIntensity = bell;
                 dx = v * dt;
                 if (traveled + dx > advanceTarget) dx = Mathf.Max(0f, advanceTarget - traveled);
                 traveled += dx;
@@ -329,6 +343,7 @@ public class UltimateArt : MonoBehaviour
                 if (arenaStep >= 2 || phaseT > 2.4f) SetPhase(UltimatePhase.Finish);
                 break;
             case UltimatePhase.Finish:
+                DashIntensity = 0f;
                 dx = vAuto * dt;
                 CameraFollow.UltimateLookAhead = Mathf.Lerp(CameraFollow.UltimateLookAhead, 0f, 1f - Mathf.Exp(-6f * dt));
                 UltimateFx.Tick(Phase, phaseT, dt);
@@ -434,40 +449,76 @@ public class UltimateArt : MonoBehaviour
         return new Rect(c.x - w * 0.5f, c.y - h * 0.5f, w, h);
     }
 
+    // 殲滅の範囲: 判定の画面(GameView: 横画面と同じ幅、縦画面/上下2段でも同じ)+ 少し先、プレイヤーの上下
+    public static Rect AnnihilationRect()
+    {
+        var pc = PlayerController.Instance;
+        var cam = Camera.main;
+        float px = pc != null ? pc.transform.position.x : 0f, py = pc != null ? pc.transform.position.y : 0f;
+        float l = cam != null ? GameView.Left(cam) : px - 15f, rr = cam != null ? GameView.Right(cam) : px + 28f;
+        rr += T.annihilateAheadMargin;
+        return Rect.MinMaxRect(l, py - T.annihilateDown, rr, py + T.annihilateUp);
+    }
+
+    // 殲滅の対象外: BONUS ZONE の敵(区画の報酬の敵)/マルチの写し/撃破の途中
+    static bool Excluded(EnemyController en) => en == null || en.bonus != null || en.IsDyingOrReplica || !en.isActiveAndEnabled;
+
     void Pulse(bool final)
     {
         var r = Last;
         if (r != null) r.pulses++;
         int lv = Mathf.Max(1, r != null ? r.level : Level);
-        Rect v = ViewRect();
+        // 殲滅: 一撃目(Burst)と、ボス戦のアリーナ(その場で戦う)。突破(Dash)/突破の後の締めは「通り過ぎる」だけ
+        bool annihilate = Phase == UltimatePhase.Burst || Phase == UltimatePhase.Arena || (Phase == UltimatePhase.Finish && arena) || (Phase == UltimatePhase.Finish && heldAtStart);
+        Rect v = annihilate ? AnnihilationRect() : ViewRect();
         buf.Clear();
         CardProcs.CollectTargets(v.center, v.size, buf);
-        int total = MobDamageTotal(lv);
-        int events = Mathf.Max(1, T.mobDamageEvents);
         foreach (var c in buf)
         {
             if (c == null || !ElementSystem.IsAlive(c)) continue;
             Vector3 at = CardProcs.CenterOf(c);
             if (c is WildBossBase || c is DragonController || c is MajinController) { BossPulse(c, lv, final, at); continue; }
-            if (!targets.TryGetValue(c, out var h)) { h = new Hit { lastT = -9f }; targets[c] = h; if (r != null) r.mobsHit++; }
-            if (h.events >= events || totalT - h.lastT < 0.25f) continue;
-            int amount = h.events == events - 1 ? (int)Mathf.Max(1, total - h.dealt)
-                : h.events == 0 ? Mathf.Max(1, Mathf.CeilToInt(total * (events == 1 ? 1f : Mathf.Clamp01(T.mobFirstShare))))
-                : Mathf.Max(1, Mathf.CeilToInt((total - h.dealt) / (float)(events - h.events)));
-            bool dealt = false, killed = false;
-            switch (c)
-            {
-                case EnemyController en:
-                    int hp0 = en.CurrentHpForUltimate;
-                    dealt = en.ApplyElementDamage(amount, at);
-                    killed = dealt && hp0 <= amount;
-                    break;
-            }
-            if (!dealt) continue;
-            h.events++; h.lastT = totalT; h.dealt += amount;
-            if (r != null) { r.damageEvents++; r.mobDamage += amount; if (killed) r.mobsKilled++; }
-            UltimateFx.HitVisual(CharacterId, at, killed);
-            if (r != null) r.visualHits += 3;
+            if (!(c is EnemyController en)) continue;
+            if (Excluded(en)) { if (r != null && en != null && en.bonus != null) r.eventSkipped++; continue; }
+            if (!targets.ContainsKey(c)) { targets[c] = new Hit(); if (r != null) r.mobsHit++; }
+            if (annihilate) Annihilate(en, at);
+            else PassClear(en, at);
+        }
+    }
+
+    // 一撃で倒す(既存の撃破の処理: 経験値/MILE/撃破数/FINISH/BONUS の数え方はそのまま)。二重に倒さない(撃破の途中は対象外)
+    void Annihilate(EnemyController en, Vector3 at)
+    {
+        var r = Last;
+        int hp = en.CurrentHpForUltimate;
+        if (hp <= 0) return;
+        bool dealt = en.ApplyElementDamage(hp, at);
+        if (!dealt) return;
+        if (r != null) { r.damageEvents++; r.mobDamage += hp; r.mobsKilled++; r.annihilated++; r.visualHits += 3; }
+        UltimateFx.HitVisual(CharacterId, at, true);
+    }
+
+    // 通り過ぎる: 報酬なしで消す(倒したことにしない)。見た目は吹き飛ぶ光だけ
+    void PassClear(EnemyController en, Vector3 at)
+    {
+        if (Excluded(en)) return;
+        en.gameObject.SetActive(false);
+        if (Last != null) Last.passCleared++;
+        UltimateFx.PassVisual(CharacterId, at);
+    }
+
+    // 突破の始まり: 殲滅の範囲より先 〜 着地点の少し先の通常の敵を、報酬なしで消す(着地の後に背後から襲われない/報酬を拾わない)
+    void ClearPath()
+    {
+        var pc = PlayerController.Instance;
+        if (pc == null) return;
+        float from = AnnihilationRect().xMax, to = landX + T.passClearBeyond;
+        foreach (var en in FindObjectsByType<EnemyController>(FindObjectsSortMode.None))
+        {
+            if (Excluded(en)) continue;
+            float x = en.transform.position.x;
+            if (x <= from || x > to) continue;
+            PassClear(en, CardProcs.CenterOf(en));
         }
     }
 
@@ -480,12 +531,12 @@ public class UltimateArt : MonoBehaviour
         int maxHp = Mathf.Max(1, BossMaxHp(c));
         if (!bossBudget.TryGetValue(c, out var b))
         {
-            float frac = Mathf.Min(T.bossDamageCap, UltimateTuning.At(T.bossDamageFraction, lv) * Mathf.Sqrt(BuildFactor));
+            float frac = Mathf.Min(T.bossDamageCap, UltimateTuning.At(T.bossDamageFraction, lv)); // カードの攻撃力では増やさない(2026-10-09)
             b = (Mathf.Max(1, Mathf.RoundToInt(maxHp * frac)), 0, 0, BossHp(c));
             if (r != null) r.bossesHit++;
         }
         const int BossEvents = 4;
-        if (b.events >= BossEvents || b.dealt >= b.budget) { bossBudget[c] = b; return; }
+        if ((b.events >= BossEvents && !final) || b.dealt >= b.budget) { bossBudget[c] = b; return; } // 締めは必ず(途中で入らなかった分も)
         bool loud = final || b.events == BossEvents - 1;
         // 締め(または最後の回)は残りを全部(当たった回数が少なくても、Lv の割合どおりに入る)
         int amount = (int)Mathf.Max(1, loud ? b.budget - b.dealt : Mathf.Min(b.budget - b.dealt, Mathf.CeilToInt(b.budget / (float)BossEvents)));
@@ -497,7 +548,7 @@ public class UltimateArt : MonoBehaviour
             case MajinController m: m.TakeDamage(amount); break;
         }
         int lost = Mathf.Max(0, before - BossHp(c));
-        b.dealt += Mathf.Max(lost, amount); b.events++;
+        b.dealt += lost; b.events++; // 実際に減った分だけ(無敵/段階の切り替えで入らなかった分は、次の回/締めで入る)
         bossBudget[c] = b;
         if (r != null)
         {
@@ -527,7 +578,7 @@ public class UltimateArt : MonoBehaviour
         CameraFollow.UltimateLookAhead = 0f; CameraFollow.UltimateZoom = 1f;
         UltimateFx.End(CharacterId);
         UltimateFx.BuffStart(CharacterId);
-        if (Last != null) Debug.Log($"[ULTIMATE] END char={Last.character} Lv{Last.level} {(Last.arena ? "arena" : $"advanced {Last.d1 - Last.d0:F0}m ({Last.d0:F0}->{Last.d1:F0})")} pulses={Last.pulses} events={Last.damageEvents} mobs hit/killed={Last.mobsHit}/{Last.mobsKilled} bosses={Last.bossesHit} bossDmg={Last.bossDamage} ({Last.bossFractionMax * 100f:F0}%) t={Last.seconds:F2}s buff={buffTotal:F1}s{(Last.aborted ? " CUT SHORT: " + Last.abortReason : "")}");
+        if (Last != null) Debug.Log($"[ULTIMATE] END char={Last.character} Lv{Last.level} {(Last.arena ? "arena" : $"advanced {Last.d1 - Last.d0:F0}m ({Last.d0:F0}->{Last.d1:F0})")} pulses={Last.pulses} events={Last.damageEvents} annihilated={Last.annihilated} passCleared={Last.passCleared} skipped={Last.eventSkipped} mobs hit/killed={Last.mobsHit}/{Last.mobsKilled} bosses={Last.bossesHit} bossDmg={Last.bossDamage} ({Last.bossFractionMax * 100f:F0}%) t={Last.seconds:F2}s buff={buffTotal:F1}s{(Last.aborted ? " CUT SHORT: " + Last.abortReason : "")}");
     }
 
     // 異常時(死亡/シーン切り替え/ランのリセット): 守りや見た目を残さずに終える(BUFF は付けない)

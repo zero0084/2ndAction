@@ -406,15 +406,16 @@ public partial class DebugPanel
             ua.CanActivate(out string why);
             GUI.Label(new Rect(x, y, full, 18f), $"ULTIMATE Lv{UltimateArt.Level}  Gauge {ua.Gauge:F0}%  {(ua.Active ? "発動中 " + ua.Phase : ua.BuffActive ? $"BUFF 残り {ua.BuffRemaining:F1}s(攻撃 x{UltimateArt.BuffAttackMul:F2} / 速さ x{UltimateArt.BuffRunSpeedMul:F2})" : "")}  {(string.IsNullOrEmpty(why) ? "発動できます" : why)}", lab);
             y += 18f;
-            GUI.Label(new Rect(x, y, full, 18f), $"Gauge の内訳: 距離 {ua.GaugeFromDistance:F0} / 撃破 {ua.GaugeFromKills:F0} / ボス {ua.GaugeFromBoss:F0}  雑魚の合計ダメージ {UltimateArt.MobDamageTotal(Mathf.Max(1, UltimateArt.Level))}(HP倍率1の雑魚 {(DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(1f) : 0)})", lab);
+            int ulv = Mathf.Max(1, UltimateArt.Level);
+            GUI.Label(new Rect(x, y, full, 18f), $"Gauge の内訳: 距離 {ua.GaugeFromDistance:F0} / 撃破 {ua.GaugeFromKills:F0} / ボス {ua.GaugeFromBoss:F0}  突破 {UltimateTuning.At(UltimateTuning.I.advance, ulv):F0}m  殲滅: 範囲内の通常の敵を一撃  ボス 最大HPの{UltimateTuning.At(UltimateTuning.I.bossDamageFraction, ulv) * 100f:F0}%", lab);
             y += 18f;
         }
         var r = ua != null ? ua.Last : null;
         if (r != null)
         {
-            GUI.Label(new Rect(x, y, full, 18f), $"前回: {r.character} Lv{r.level} {(r.arena ? "ボス戦(アリーナ)" : $"前進 {r.d1 - r.d0:F0}m(予定 {r.plannedAdvance:F0}{(string.IsNullOrEmpty(r.limitReason) ? "" : " / " + r.limitReason)})")} {r.seconds:F1}秒", lab);
+            GUI.Label(new Rect(x, y, full, 18f), $"前回: {r.character} Lv{r.level} {(r.arena ? "ボス戦(アリーナ)" : $"突破 {r.d1 - r.d0:F0}m(予定 {r.plannedAdvance:F0}{(string.IsNullOrEmpty(r.limitReason) ? "" : " / 手前で停止: " + r.limitReason)})")} {r.seconds:F1}秒", lab);
             y += 18f;
-            GUI.Label(new Rect(x, y, full, 18f), $"命中 {r.mobsHit}体 撃破 {r.mobsKilled} ダメージ回数 {r.damageEvents} ボス {r.bossDamage}({r.bossFractionMax * 100f:F0}%) BUFF {r.buffSeconds:F0}秒{(r.aborted ? " 途中で終了: " + r.abortReason : "")}", lab);
+            GUI.Label(new Rect(x, y, full, 18f), $"殲滅 {r.annihilated}体(報酬あり) 突破で消した {r.passCleared}体(報酬なし) 対象外 {r.eventSkipped} ボス {r.bossDamage}({r.bossFractionMax * 100f:F0}%) BUFF {r.buffSeconds:F0}秒{(r.aborted ? " 途中で終了: " + r.abortReason : "")}", lab);
             y += 18f;
         }
         string st = EndgameDebug.Instance != null ? EndgameDebug.Instance.Status : "";
