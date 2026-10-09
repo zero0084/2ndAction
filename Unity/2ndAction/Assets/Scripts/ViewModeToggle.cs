@@ -64,7 +64,7 @@ public class ViewModeToggle : MonoBehaviour
     // 開発用の切り替え: 縦のラン表示の設定を入れ替える(縦の画面で効く)
     public void Toggle()
     {
-        PortraitRunView.Set(PortraitRunView.Mode == PortraitRunView.Oblique ? PortraitRunView.Side : PortraitRunView.Oblique);
+        PortraitRunView.Set((PortraitRunView.Mode + 1) % 3); // 横から → 上下2段 → 斜め上(開発用)
         Reapply();
     }
 

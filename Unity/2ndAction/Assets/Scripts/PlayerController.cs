@@ -2210,10 +2210,10 @@ public partial class PlayerController : MonoBehaviour
         Camera cam = Camera.main;
         if (cam == null) return;
 
-        float camTopWorldY = cam.transform.position.y + cam.orthographicSize;
         float worldHeight = cam.orthographicSize * 2f;
         if (worldHeight <= 0.0001f) return;
-        float deadlineScreenY = (camTopWorldY - failY) / worldHeight * Screen.height;
+        // 2026-10-09: カメラの映す範囲が画面の一部(上下2段の下の段)でも合うよう、画面の位置はカメラから求める
+        float deadlineScreenY = Screen.height - cam.WorldToScreenPoint(new Vector3(cam.transform.position.x, failY, 0f)).y;
 
         float topY = Mathf.Clamp(deadlineScreenY, 0f, Screen.height);
         float coverHeight = Screen.height - topY;

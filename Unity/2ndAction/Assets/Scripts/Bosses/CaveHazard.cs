@@ -749,7 +749,7 @@ public class CaveDarkness : MonoBehaviour
         if (!BossBattle.UltimateActive) target = 0f;
         current = Mathf.MoveTowards(current, target, Time.deltaTime * 1.2f);
         var cam = Camera.main;
-        if (cam != null) transform.localScale = new Vector3(cam.orthographicSize * 2f * cam.aspect + 6f, cam.orthographicSize * 2f + 6f, 1f);
+        if (cam != null) transform.localScale = new Vector3(cam.orthographicSize * 2f * cam.aspect * FoldView.CoverScaleX + 6f + Mathf.Abs(FoldView.CoverShiftX) * 2f, cam.orthographicSize * 2f + 6f, 1f); // 上下2段の上の段も
         sr.color = new Color(0f, 0f, 0.02f, current);
         sr.enabled = current > 0.001f;
     }

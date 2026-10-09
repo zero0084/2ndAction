@@ -8,12 +8,12 @@ using UnityEngine;
 //  ・メインのカメラを下の段にする(位置/大きさは CameraFollow が決めた物から毎フレーム作り直し、次のフレームの初めに戻す = 追従の計算に混ざらない)。
 //    世界の位置→画面の位置の計算(ダメージの数字など Camera.main を使う物)は下の段に正しく合う
 //  ・背景(BackgroundFollower)は2段とも覆う広さにする(BgCoverShift/BgCoverScaleX)
-//  ・開発用の起動引数 -foldView 1 で使う(試作。方式が決まったら設定の選択肢へ)
+//  ・設定「縦画面のラン表示」の「上下2段で見る」(PortraitRunView.Fold、2026-10-09 採用)。開発用の起動引数 -foldView 1 でも強制できる
 [DefaultExecutionOrder(-40)] // CameraFollow(-50)の後、背景(100)の前
 public class FoldView : MonoBehaviour
 {
     public static FoldView Instance { get; private set; }
-    public static bool Requested;   // 試作: -foldView 1
+    public static bool Requested;   // 開発用: -foldView 1(設定に関係なく使う)
     public static bool Active => Instance != null && Instance.active;
 
     [Range(0.35f, 0.65f)] public float bottomFrac = 0.52f;   // 下の段の高さ(画面の割合)
@@ -33,6 +33,9 @@ public class FoldView : MonoBehaviour
     public static float BgCoverShift { get; private set; }
     public static float BgCoverScaleX { get; private set; } = 1f;
     public static float HalfWidthWorld { get; private set; }
+    // 画面を覆う物(背景/洞窟の暗さ/幕)用: 上下2段の時だけ中心のずれと横幅の倍率、それ以外は 0 と 1
+    public static float CoverShiftX => Active ? BgCoverShift : 0f;
+    public static float CoverScaleX => Active ? BgCoverScaleX : 1f;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void ReadArgs()
@@ -50,7 +53,6 @@ public class FoldView : MonoBehaviour
 
     static void Attach()
     {
-        if (!Requested) return;
         var cf = Object.FindFirstObjectByType<CameraFollow>();
         if (cf != null && cf.GetComponent<FoldView>() == null) cf.gameObject.AddComponent<FoldView>();
     }
@@ -71,7 +73,7 @@ public class FoldView : MonoBehaviour
 
     bool Want()
     {
-        if (!Requested || cam == null || follow == null || !cam.enabled) return false;
+        if (!(Requested || PortraitRunView.UseFold) || cam == null || follow == null || !cam.enabled) return false;
         if (!follow.PortraitSide) return false; // 縦画面の「横から見る」の時だけ
         var gm = GameManager.Instance;
         return gm != null && gm.HasStarted;

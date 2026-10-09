@@ -76,9 +76,9 @@ public class CaveLighting : MonoBehaviour
 
         // クアッドはカメラを覆う大きさで追従(余白を持たせる)。
         float h = cam.orthographicSize * 2f * 1.08f;
-        float w = h * cam.aspect;
+        float w = h * cam.aspect * FoldView.CoverScaleX; // 上下2段の時は上の段(右へ画面1枚先)まで覆う
         Vector3 cp = cam.transform.position;
-        quad.position = new Vector3(cp.x, cp.y, 0f);
+        quad.position = new Vector3(cp.x + FoldView.CoverShiftX, cp.y, 0f);
         quad.localScale = new Vector3(w, h, 1f);
 
         PlayerController pc = PlayerController.Instance;
@@ -109,7 +109,8 @@ public class CaveLighting : MonoBehaviour
             {
                 CaveStage.Torch t = list[i];
                 float r = stage.torchLightRadius * torchRadiusScale;
-                if (Mathf.Abs(t.lightPos.x - cp.x) > viewHalf + r) continue;
+                float dx = t.lightPos.x - cp.x;
+                if (dx < -viewHalf - r || dx > viewHalf * (FoldView.Active ? 3f : 1f) + r) continue; // 上下2段: 上の段のたいまつも
                 float flick = 1f - flickerAmount * Mathf.PerlinNoise(t.phase, Time.time * 6f);
                 torchBuf[n++] = new Vector4(t.lightPos.x, t.lightPos.y, r, flick);
             }

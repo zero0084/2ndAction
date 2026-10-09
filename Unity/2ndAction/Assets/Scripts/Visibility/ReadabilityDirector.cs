@@ -230,8 +230,8 @@ public class ReadabilityDirector : MonoBehaviour
         veilRenderer.sortingOrder = stage == "last_corridor" ? -5 : -50;
         float h = cam.orthographicSize * 2f * 1.1f;
         Vector3 cp = cam.transform.position;
-        veilRenderer.transform.position = new Vector3(cp.x, cp.y, 0f);
-        veilRenderer.transform.localScale = new Vector3(h * cam.aspect, h, 1f);
+        veilRenderer.transform.position = new Vector3(cp.x + FoldView.CoverShiftX, cp.y, 0f);
+        veilRenderer.transform.localScale = new Vector3(h * cam.aspect * FoldView.CoverScaleX, h, 1f);
         Color c = veilColor;
         c.a = VeilA;
         veilMat.SetFloat(BaseAId, veilBaseA);

@@ -452,7 +452,7 @@ public class SettingsPanel : MonoBehaviour
     }
 
     // ---------------------------------------------------------------- 表示
-    float MeasureDisplay() => HeadH + 4f + RowH * 3f + 22f + RowH + 96f + 44f + 24f;
+    float MeasureDisplay() => HeadH + 4f + RowH * 3f + 22f + RowH + 96f + 44f + 24f + 22f; // 説明が2行に折り返す分
     float DrawDisplay(float x, float y, float w, bool interactive)
     {
         var gm = GameManager.Instance;
@@ -479,13 +479,13 @@ public class SettingsPanel : MonoBehaviour
     float DrawPortraitRunView(float x, float y, float w, bool interactive)
     {
         int cur = PortraitRunView.Mode;
-        y = ChoiceRow(x, y, w, "縦画面のラン表示", cur, "横から見る", "斜め上から見る", interactive, c => PortraitRunView.Set(c));
+        y = ChoiceRow(x, y, w, "縦画面のラン表示", Mathf.Min(cur, 1), "横から見る", "上下2段で見る", interactive, c => PortraitRunView.Set(c));
         // 比較図(選んでいる方を明るく)
         float bw = Mathf.Min(150f, (w - LabelW - 20f) * 0.5f), bh = 92f, bx = x + LabelW;
         DrawRunViewIcon(new Rect(bx, y, bw, bh), 0, cur == 0);
         DrawRunViewIcon(new Rect(bx + bw + 16f, y, bw, bh), 1, cur == 1);
         y += bh + 6f;
-        y = Note(x, y, w, cur == 0 ? "横から見る: 道が横に流れる。足もとと上下の段が見やすい" : "斜め上から見る: 道が奥へ続く。先の敵や穴を早めに見通せる");
+        y = Note(x, y, w, cur == 0 ? "横から見る: 道が横に流れる。足もとと上下の段が見やすい" : "上下2段で見る: 下が今の走り、上がその先(右端で折り返し)。先の敵や穴が早めに見える");
         return Note(x, y, w, PortraitRunView.IsPortraitScreen ? (HasStartedRun ? "ラン中の変更は設定を閉じると反映されます" : "縦画面のランで使われます") : "縦画面にした時に使われます(横画面の表示は変わりません)");
     }
     static bool HasStartedRun => GameManager.Instance != null && GameManager.Instance.HasStarted;
@@ -504,6 +504,23 @@ public class SettingsPanel : MonoBehaviour
             UiKit.Fill(new Rect(r.x + 2f, gy, r.width - 4f, 3f), grass);
             UiKit.Fill(new Rect(r.x + r.width * 0.3f, gy - 14f, 7f, 14f), new Color(0.9f, 0.2f, 0.2f, on ? 1f : 0.6f)); // キャラ
             UiKit.Fill(new Rect(r.x + r.width * 0.75f, gy - 10f, 9f, 10f), new Color(0.2f, 0.2f, 0.25f, on ? 1f : 0.6f)); // 敵
+        }
+        else if (mode == 1)
+        {
+            // 上下2段: 下の段(キャラ)と上の段(その先、左右反転)。右端の金の印で折り返す
+            float mid = r.y + r.height * 0.5f;
+            Color gold = new Color(1f, 0.82f, 0.38f, on ? 1f : 0.6f);
+            foreach (var (top, bottom) in new[] { (r.y + 2f, mid - 1f), (mid + 1f, r.yMax - 2f) })
+            {
+                float gy = Mathf.Lerp(top, bottom, 0.7f);
+                UiKit.Fill(new Rect(r.x + 2f, gy, r.width - 4f, bottom - gy), ground);
+                UiKit.Fill(new Rect(r.x + 2f, gy, r.width - 4f, 2f), grass);
+            }
+            UiKit.Fill(new Rect(r.x + 2f, mid - 1f, r.width - 4f, 2f), gold);
+            UiKit.Fill(new Rect(r.xMax - 5f, mid - 12f, 3f, 24f), gold);
+            float g2 = Mathf.Lerp(mid + 1f, r.yMax - 2f, 0.7f), g1 = Mathf.Lerp(r.y + 2f, mid - 1f, 0.7f);
+            UiKit.Fill(new Rect(r.x + r.width * 0.25f, g2 - 12f, 6f, 12f), new Color(0.9f, 0.2f, 0.2f, on ? 1f : 0.6f)); // キャラ(下の段)
+            UiKit.Fill(new Rect(r.x + r.width * 0.3f, g1 - 8f, 8f, 8f), new Color(0.2f, 0.2f, 0.25f, on ? 1f : 0.6f)); // 先の敵(上の段)
         }
         else
         {

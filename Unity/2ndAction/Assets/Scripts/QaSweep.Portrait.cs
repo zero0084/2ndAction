@@ -46,7 +46,7 @@ public partial class QaSweep
                 float ma = (float)typeof(SettingsPanel).GetMethod("MeasureAudio", NP).Invoke(sp, null), ml = (float)typeof(SettingsPanel).GetMethod("MeasureLanguage", NP).Invoke(sp, null);
                 SetPrivate(sp, "scroll", new Vector2(0f, ma + 16f + ml + 16f - 8f));
                 yield return new WaitForSecondsRealtime(0.3f); S("settings_display");
-                PortraitRunView.Set(PortraitRunView.Oblique); yield return new WaitForSecondsRealtime(0.3f); S("settings_display_oblique");
+                PortraitRunView.Set(PortraitRunView.Fold); yield return new WaitForSecondsRealtime(0.3f); S("settings_display_fold");
                 PortraitRunView.Set(PortraitRunView.Side); yield return new WaitForSecondsRealtime(0.2f);
             }
             SettingsPanel.Instance.Close(); yield return new WaitForSecondsRealtime(0.5f);
@@ -197,17 +197,18 @@ public partial class QaSweep
             yield return Rot(false); Shot("rot_run_port2");
             // ラン中に表示を変える: 設定を開いている間は変えず、閉じた時に変わる
             SettingsPanel.OpenStatic(); yield return new WaitForSecondsRealtime(0.4f);
-            PortraitRunView.Set(PortraitRunView.Oblique); yield return new WaitForSecondsRealtime(0.3f);
-            Check(vmt == null || !vmt.PortraitActive, "view change is held while settings is open");
+            PortraitRunView.Set(PortraitRunView.Fold); yield return new WaitForSecondsRealtime(0.3f);
+            Check(!FoldView.Active, "view change is held while settings is open");
             SettingsPanel.Instance.Close(); yield return new WaitForSecondsRealtime(1f);
-            Check(vmt == null || vmt.PortraitActive, "view change applied after closing settings");
-            Shot("mode_applied_oblique");
+            Check(FoldView.Active, "view change applied after closing settings (two-band view)");
+            Check(vmt == null || !vmt.PortraitActive, "two-band view uses the side camera (not the oblique one)");
+            Shot("mode_applied_fold");
             float d2 = gm.MaxDistance;
             Check(gm.HasStarted && !gm.IsGameOver && d2 >= d1 && RunLedger.Current != null && RunLedger.Current.runId == rid, $"run not reset by view change ({d1:F0} -> {d2:F0}, same run)");
-            yield return Rot(true); Shot("rot_run_land_from_oblique");
-            Check(vmt == null || !vmt.PortraitActive, "landscape after oblique uses the side camera");
-            yield return Rot(false); Shot("rot_run_port_oblique");
-            Check(vmt == null || vmt.PortraitActive, "portrait again returns to the oblique camera");
+            yield return Rot(true); Shot("rot_run_land_from_fold");
+            Check(!FoldView.Active && Camera.main != null && Camera.main.rect.height > 0.99f, "landscape after the two-band view uses the full screen");
+            yield return Rot(false); Shot("rot_run_port_fold");
+            Check(FoldView.Active, "portrait again returns to the two-band view");
             PortraitRunView.Set(PortraitRunView.Side);
             yield return EndRun();
         }

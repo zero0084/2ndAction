@@ -5,3 +5,5 @@
 8022	ui	Settings/SettingsPanel.cs:465	自動
 8023	ui	Settings/SettingsPanel.cs:468	自動: 端末の自動回転の設定に従います
 8024	ui	DeckEditUI.cs:354	タップして設定
+8025	ui	Settings/SettingsPanel.cs:482	上下2段で見る
+8026	ui	Settings/SettingsPanel.cs:487	上下2段で見る: 下が今の走り、上がその先(右端で折り返し)。先の敵や穴が早めに見える
