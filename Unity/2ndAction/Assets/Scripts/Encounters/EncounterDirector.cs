@@ -1366,7 +1366,7 @@ public class EncounterDirector : MonoBehaviour
         float w = Screen.width / s, h = Screen.height / s;
         // 2026-09-27 - プレイ画面(敵が来る右側)を遮らないよう、既定は右下(一時停止ボタンの上)に1行だけ。
         // タップで詳細/FORCEを開く(上に向かって広がる)。
-        Rect safe = Screen.safeArea;
+        Rect safe = StableSafeArea.Rect;
         float right = w - (Screen.width - safe.xMax) / s - 8f, bottom = h - safe.yMin / s - 70f;
         string line = Last != null ? $"ENC #{Last.index} {Last.intensity.ToString()[0]} {Last.formation} {(paused ? "PAUSED" : "")}" : $"ENC {(paused ? "PAUSED" : "-")}";
         Rect lineRect = new Rect(right - 300f, bottom - 26f, 300f, 26f);

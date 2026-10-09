@@ -78,15 +78,17 @@ public class OrientationWatcher : MonoBehaviour
     }
 
     void Start() { Snap(); }
-    void OnApplicationPause(bool paused) { if (!paused) OrientationControl.Reapply(); }
-    void OnApplicationFocus(bool focus) { if (focus) OrientationControl.Reapply(); }
+    // 安全領域の記録([SafeArea])に「何の後か」を残す(2026-10-10、HUD のずれを実機で追えるように)
+    void OnApplicationPause(bool paused) { StableSafeArea.LastReason = paused ? "pause" : "resume"; if (!paused) OrientationControl.Reapply(); }
+    void OnApplicationFocus(bool focus) { StableSafeArea.LastReason = focus ? "focus" : "focus lost"; if (focus) OrientationControl.Reapply(); }
     void Snap() { lastSafe = Screen.safeArea; lastW = Screen.width; lastH = Screen.height; lastOri = Screen.orientation; }
 
     void Update()
     {
         OrientationControl.Tick();
         if (Screen.safeArea == lastSafe && Screen.width == lastW && Screen.height == lastH && Screen.orientation == lastOri) return;
-        Debug.Log($"[Orientation] {lastOri} {lastW}x{lastH} -> {Screen.orientation} {Screen.width}x{Screen.height} safe={Screen.safeArea}");
+        Debug.Log($"[Orientation] {lastOri} {lastW}x{lastH} -> {Screen.orientation} {Screen.width}x{Screen.height} safe={Screen.safeArea} used={StableSafeArea.Rect}");
+        if (Screen.orientation != lastOri || Screen.width != lastW) StableSafeArea.LastReason = "rotation";
         Snap();
         Changes++;
         // 回っている間に触っていた指は捨てる(離すまで入力にしない)
@@ -131,17 +133,17 @@ public class SafeAreaFitter : MonoBehaviour
     }
 
     void OnEnable() { Init(); applied = default; Fit(); }
-    void LateUpdate() { if (Screen.safeArea != applied || appliedSize.x != Screen.width || appliedSize.y != Screen.height) Fit(); }
+    void LateUpdate() { if (StableSafeArea.Rect != applied || appliedSize.x != Screen.width || appliedSize.y != Screen.height) Fit(); }
 
     void Fit()
     {
         if (rt == null) return;
-        applied = Screen.safeArea; appliedSize = new Vector2Int(Screen.width, Screen.height);
+        applied = StableSafeArea.Rect; appliedSize = new Vector2Int(Screen.width, Screen.height);
         var canvas = GetComponentInParent<Canvas>();
         float scale = canvas != null && canvas.rootCanvas != null ? Mathf.Max(0.01f, canvas.rootCanvas.scaleFactor) : 1f;
-        float left = Screen.safeArea.xMin / scale, right = (Screen.width - Screen.safeArea.xMax) / scale;
+        float left = StableSafeArea.Rect.xMin / scale, right = (Screen.width - StableSafeArea.Rect.xMax) / scale;
         // 2026-10-08(依頼E-1): 縦画面の切り欠き/システムバーのため上下も
-        float bottom = Screen.safeArea.yMin / scale, top = (Screen.height - Screen.safeArea.yMax) / scale;
+        float bottom = StableSafeArea.Rect.yMin / scale, top = (Screen.height - StableSafeArea.Rect.yMax) / scale;
         rt.offsetMin = new Vector2(baseMin.x + left, baseMin.y + bottom);
         rt.offsetMax = new Vector2(baseMax.x - right, baseMax.y - top);
         foreach (var b in fullBleed)

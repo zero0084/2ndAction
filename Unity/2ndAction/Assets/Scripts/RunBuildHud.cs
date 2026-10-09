@@ -209,7 +209,7 @@ public class RunBuildHud : MonoBehaviour
     public void ComputeLayout(int n, bool compact, List<Rect> into, out Rect grid, out float size, List<Rect> avoid = null, int groupChar = 0)
     {
         into.Clear();
-        Rect safe = Screen.safeArea;
+        Rect safe = StableSafeArea.Rect;
         float safeTop = Screen.height - (safe.y + safe.height);
         float safeRight = Screen.width - (safe.x + safe.width);
         const float margin = 28f, hudPanel = 54f, gapBelowHp = 10f; // GameManagerのUiMargin/HudPanelHeight(HPパネルの真下)

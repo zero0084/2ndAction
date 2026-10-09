@@ -77,7 +77,7 @@ public class SettingsPanel : MonoBehaviour
     public static Rect MenuGearRect()
     {
         float size = Mathf.Clamp(Screen.height * 0.085f, 48f, 110f);
-        Rect safe = Screen.safeArea;
+        Rect safe = StableSafeArea.Rect;
         return new Rect(safe.xMax - 14f - size, (Screen.height - safe.yMax) + 12f, size, size);
     }
 
@@ -101,7 +101,7 @@ public class SettingsPanel : MonoBehaviour
         float s = S;
         Matrix4x4 keep = GUI.matrix;
         float w = Screen.width / s, h = Screen.height / s;
-        Rect safe = Screen.safeArea;
+        Rect safe = StableSafeArea.Rect;
         float sl = safe.xMin / s, sr = (Screen.width - safe.xMax) / s, st = (Screen.height - safe.yMax) / s, sb = safe.yMin / s;
 
         // 開閉の進み(0..1)。開く: 暗さ/不透明度が上がり、少し下から浮き上がる。閉じる: 短く消える。

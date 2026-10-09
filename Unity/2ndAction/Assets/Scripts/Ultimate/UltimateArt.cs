@@ -628,8 +628,8 @@ public class UltimateArt : MonoBehaviour
     {
         float size = Mathf.Clamp(Screen.height * 0.12f, 84f, 160f);
         float margin = 28f;
-        float x = Screen.safeArea.x + margin;
-        float bottom = Screen.safeArea.y + margin + (DebugRun.IsActive ? Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f) * 36f : 0f);
+        float x = StableSafeArea.Rect.x + margin;
+        float bottom = StableSafeArea.Rect.y + margin + (DebugRun.IsActive ? Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f) * 36f : 0f);
         return new Rect(x, Screen.height - bottom - size, size, size);
     }
     // ボタンの周り(少し広め)で始まったタッチは、攻撃/ジャンプのフリックにしない

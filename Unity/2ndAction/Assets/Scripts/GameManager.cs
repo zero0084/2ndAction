@@ -1764,20 +1764,31 @@ public partial class GameManager : MonoBehaviour
     // corners) with a comfortable margin, instead of hugging the raw screen edge.
     const float UiMargin = 28f;
 
+    // HUD の配置の記録(2026-10-10): 同じ画面サイズ/向きなのに位置が変わったら、理由を追えるように [HUD] で出す
+    string lastHudSig;
+    void NoteHudLayout()
+    {
+        Rect a = GetBestPanelRect(), b = GetLevelExpPanelRect(), c = GetHeartsPanelRect();
+        string sig = $"{Screen.width}x{Screen.height} best({a.x:F0},{a.y:F0}) lv({b.x:F0},{b.y:F0}) hp({c.x:F0},{c.y:F0})";
+        if (sig == lastHudSig) return;
+        StableSafeArea.Note($"[HUD] {sig} raw={Screen.safeArea} used={StableSafeArea.Rect} orient={Screen.orientation} stacked={HudStacked} choice={levelUpPending} overlay={AnyOverlayOpen} reason={StableSafeArea.LastReason}");
+        lastHudSig = sig;
+    }
+
     float SafeTop()
     {
-        Rect safe = Screen.safeArea;
+        Rect safe = StableSafeArea.Rect;
         return Screen.height - (safe.y + safe.height);
     }
 
     float SafeRight()
     {
-        Rect safe = Screen.safeArea;
+        Rect safe = StableSafeArea.Rect;
         return Screen.width - (safe.x + safe.width);
     }
 
-    float SafeLeft() => Screen.safeArea.x;
-    float SafeBottom() => Screen.safeArea.y;
+    float SafeLeft() => StableSafeArea.Rect.x;
+    float SafeBottom() => StableSafeArea.Rect.y;
 
     // ===== HUD design system (Visual Style Ver.1) =====
     // One shared strip across the top: BEST/DISTANCE (left), Lv/EXP
@@ -1795,7 +1806,7 @@ public partial class GameManager : MonoBehaviour
 
     // 縦画面(2026-10-08、依頼E-1): 狭い幅では BEST / Lv / HP の3つが1段に入らず重なる → 1段目 = Lv/EXP(左)+HP(右)、
     // BEST → 距離 → 速度 は2段目から左の列に積む(右の列はデッキの表示)。横画面は今までどおり
-    public static bool HudStacked => Screen.height > Screen.width && Screen.safeArea.width < 168f + 380f + HeartsPanelWidth + UiMargin * 2f + 24f;
+    public static bool HudStacked => Screen.height > Screen.width && StableSafeArea.Rect.width < 168f + 380f + HeartsPanelWidth + UiMargin * 2f + 24f;
     Rect GetBestPanelRect() => new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin + (HudStacked ? HudPanelHeight + HudPanelGap : 0f), DistancePanelWidth(false), HudPanelHeight);
     Rect GetDistancePanelRect() => new Rect(SafeLeft() + UiMargin, GetBestPanelRect().yMax + HudPanelGap, DistancePanelWidth(false), HudPanelHeight);
     // 高速走行の視認性補正(2026-09-22) - 現在のAuto Run速度を基礎速度に対する倍率で常時表示する小さなHUD。
@@ -3925,6 +3936,7 @@ public partial class GameManager : MonoBehaviour
         bool sprintChoiceBackdrop = SprintActive && SprintRunner.Instance != null && SprintRunner.Instance.ChoiceBackdropShown;
         if (HasStarted && !AnyOverlayOpen && !sprintChoiceBackdrop)
         {
+            if (Event.current.type == EventType.Repaint) NoteHudLayout(); // HUD の位置が変わった時だけ記録(2026-10-10)
             // Left: BEST/DISTANCE, same panel shape, stacked. Center: Lv/EXP
             // grouped into one panel. Right: HP. All three share
             // HudPanelHeight/top offset - see the Get*PanelRect getters -

@@ -81,10 +81,11 @@ public partial class DebugPanel : MonoBehaviour
         if (UiKit.Button(new Rect(p.xMax - 66f, p.y + 12f, 48f, 42f), "×", 24f, false, false)) SetOpen(false);
         if (UiKit.Button(new Rect(p.xMax - 200f, p.y + 12f, 126f, 42f), page == 0 ? "セーブ…" : "← 一般", 17f, page != 0, false)) { page = page == 0 ? 1 : 0; confirmSave = 0; confirmReset = false; }
         if (page == 0 && UiKit.Button(new Rect(p.xMax - 352f, p.y + 12f, 146f, 42f), "ラスダン終盤…", 16f, false, false)) { page = 2; confirmSave = 0; confirmReset = false; }
+        if (page == 0 && UiKit.Button(new Rect(p.xMax - 504f, p.y + 12f, 146f, 42f), "画面の記録…", 16f, false, false)) { page = 12; confirmSave = 0; confirmReset = false; } // HUD/安全領域(2026-10-10)
         if (page == 0 && UiKit.Button(new Rect(p.x + 24f, p.y + 62f, p.width - 48f, 34f), SaveProfile.IsTest ? "テストデータ…(今: TEST DATA)" : "テストデータ…(新規ユーザーの状態で試す)", 15f, SaveProfile.IsTest, false)) { page = 11; confirmTest = 0; testNote = ""; }
         if (page != 0)
         {
-            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else if (page == 7) DrawFinalEvoPage(p); else if (page == 8) DrawComboPage(p); else if (page == 9) DrawFinishPage(p); else if (page == 10) DrawBossFinishPage(p); else if (page == 11) DrawTestDataPage(p); else DrawEndgamePage(p);
+            if (page == 1) DrawSavePage(p); else if (page == 3) DrawLongPage(p); else if (page == 4) DrawUltimatePage(p); else if (page == 5) DrawMasteryPage(p); else if (page == 6) DrawCaveBossPage(p); else if (page == 7) DrawFinalEvoPage(p); else if (page == 8) DrawComboPage(p); else if (page == 9) DrawFinishPage(p); else if (page == 10) DrawBossFinishPage(p); else if (page == 11) DrawTestDataPage(p); else if (page == 12) DrawScreenLogPage(p); else DrawEndgamePage(p);
             GUI.color = keepColor;
             GUI.Button(new Rect(0f, 0f, w, h), GUIContent.none, GUIStyle.none); // 背後へ通さない
             if (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDrag) Event.current.Use();
@@ -175,6 +176,21 @@ public partial class DebugPanel : MonoBehaviour
 public partial class DebugPanel
 {
     string cardNote = "";
+    // 画面の記録(2026-10-10): HUD の位置/安全領域が変わった時の記録(直近20件)。実機で HUD がずれた時にここを撮ってもらう
+    void DrawScreenLogPage(Rect p)
+    {
+        float x = p.x + 24f, y = p.y + 64f, full = p.width - 48f;
+        var lab = new GUIStyle(UiKit.Label(11f, TextAnchor.UpperLeft, false, new Color(0.9f, 0.92f, 1f))) { wordWrap = true };
+        GUI.Label(new Rect(x, y, full, 36f), $"今: 画面 {Screen.width}x{Screen.height} {Screen.orientation}  安全領域(端末) {Screen.safeArea}  使っている値 {StableSafeArea.Rect}  切り欠き {Screen.cutouts.Length}  変化 {StableSafeArea.Changes}回", lab);
+        y += 40f;
+        for (int i = StableSafeArea.Recent.Count - 1; i >= 0 && y < p.yMax - 24f; i--)
+        {
+            float h = lab.CalcHeight(new GUIContent(StableSafeArea.Recent[i]), full);
+            GUI.Label(new Rect(x, y, full, h), StableSafeArea.Recent[i], lab);
+            y += h + 2f;
+        }
+    }
+
     void DrawSavePage(Rect p)
     {
         float x = p.x + 24f, y = p.y + 62f, full = p.width - 48f, bh = 44f;

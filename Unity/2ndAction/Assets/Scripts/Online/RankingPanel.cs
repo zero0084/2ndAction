@@ -72,7 +72,7 @@ public class RankingPanel : MonoBehaviour
         float s = S;
         Matrix4x4 keep = GUI.matrix;
         float w = Screen.width / s, h = Screen.height / s;
-        Rect safe = Screen.safeArea;
+        Rect safe = StableSafeArea.Rect;
         float sl = safe.xMin / s, sr = (Screen.width - safe.xMax) / s, st = (Screen.height - safe.yMax) / s, sb = safe.yMin / s;
         GUI.matrix = Matrix4x4.Scale(new Vector3(s, s, 1f));
         UiKit.Fill(new Rect(0f, 0f, w, h), new Color(0.02f, 0.03f, 0.08f, 0.6f));

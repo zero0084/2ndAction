@@ -84,7 +84,7 @@ public class DiagnosticsOverlay : MonoBehaviour
         Matrix4x4 prev = GUI.matrix;
         GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(s, s, 1f));
         float w = Screen.width / s, h = Screen.height / s;
-        Rect safe = Screen.safeArea;
+        Rect safe = StableSafeArea.Rect;
         float left = safe.xMin / s + 8f, right = w - (Screen.width - safe.xMax) / s - 8f, bottom = h - safe.yMin / s - 8f;
 
         // ---- 左下: 小さなボタン(一時停止ボタン(右下)/HUD(上)と重ならない位置) ----

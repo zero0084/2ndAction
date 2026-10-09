@@ -573,7 +573,7 @@ public class BonusZone : MonoBehaviour
         EnsureStyles();
         float h = Screen.height;
         stripStyle.fontSize = Mathf.Max(12, Mathf.RoundToInt(h * 0.024f));
-        Rect safe = Screen.safeArea;
+        Rect safe = StableSafeArea.Rect;
         float top = Screen.height - (safe.y + safe.height) + 28f + 54f + 8f;
         string txt = $"{(IsJackpot ? $"JACKPOT ×{Current.mileMultiplier:0.#}" : "BONUS  " + Current.displayName)}   {RemainingSeconds:0}s   MILE +{BonusMile}   EXP +{Mathf.RoundToInt(BonusExp)}{(BonusCards > 0 ? $"   CARD +{BonusCards}" : "")}";
         Vector2 sz = stripStyle.CalcSize(new GUIContent(txt));
@@ -670,7 +670,7 @@ public class BonusZone : MonoBehaviour
     {
         EnsureStyles();
         var btn = new GUIStyle(GUI.skin.button) { fontSize = 13 };
-        Rect safe = Screen.safeArea;
+        Rect safe = StableSafeArea.Rect;
         float x = Screen.width * 0.30f, y = Screen.height - safe.y - 28f - 36f;
         if (GUI.Button(new Rect(x, y, 96f, 34f), debugOpen ? "BONUS ▼" : "BONUS ▲", btn)) debugOpen = !debugOpen;
         var info = new GUIStyle(GUI.skin.label) { fontSize = 12 };

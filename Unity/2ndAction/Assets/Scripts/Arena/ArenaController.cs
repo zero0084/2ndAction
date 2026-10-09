@@ -270,7 +270,7 @@ public class ArenaController : MonoBehaviour
 
     Rect SafeRect(float W, float H, float s)
     {
-        var sa = Screen.safeArea;
+        var sa = StableSafeArea.Rect;
         float l = sa.x / s, t = (Screen.height - sa.yMax) / s, r = (Screen.width - sa.xMax) / s, b = sa.y / s;
         return new Rect(l + 10f, t + 10f, W - l - r - 20f, H - t - b - 20f);
     }

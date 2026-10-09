@@ -99,7 +99,7 @@ public class NetDebugUI : MonoBehaviour
         Matrix4x4 prevMatrix = GUI.matrix;
         GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(s, s, 1f));
         float w = Screen.width / s, h = Screen.height / s;
-        Rect safe = Screen.safeArea;
+        Rect safe = StableSafeArea.Rect;
         float safeRight = (Screen.width - safe.xMax) / s, safeTop = (Screen.height - safe.yMax) / s;
 
         if (!gm.HasStarted)
