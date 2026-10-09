@@ -123,6 +123,7 @@ public class PortraitCameraRig : MonoBehaviour
         Vector3 basePos = new Vector3(target.position.x, surfaceY, target.position.z);
 
         transform.position = basePos + positionOffset;
+        ZigRoad.Apply(IsActive, target.position.x); // ジグザグの道(表示だけ、2026-10-09)
         Vector3 lookDir = (basePos + lookAtOffset) - transform.position;
         if (lookDir.sqrMagnitude > 0.0001f)
         {
@@ -139,6 +140,7 @@ public class PortraitCameraRig : MonoBehaviour
     public void SetActive(bool active)
     {
         if (cam != null) cam.enabled = active;
+        if (!active) ZigRoad.Apply(false, 0f);
         AudioListener listener = cam != null ? cam.GetComponent<AudioListener>() : null;
         if (listener != null) listener.enabled = active;
     }

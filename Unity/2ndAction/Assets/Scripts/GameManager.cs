@@ -1890,7 +1890,7 @@ public partial class GameManager : MonoBehaviour
     // 開発版のDEBUG: 部屋の操作対象(扉/ベッド/本/肖像画/ガチャ)と重ならない、扉と本の間の床の上(画面下)。
     Rect GetHomeDebugButtonRect()
     {
-        if (HomePortrait) { var pl = PortraitHome(); float dh = Mathf.Round(pl.chrome.height * 0.62f); return new Rect(pl.chrome.xMax - dh * 2.4f, pl.room.y + 8f, dh * 2.4f, dh); } // 縦: 部屋の絵の右上の角(押せる物が無い所)
+        if (HomePortrait) { var pl = PortraitHome(); float dh = Mathf.Round(pl.chrome.height * 0.5f); return new Rect(pl.chrome.xMax - dh * 2.4f, pl.room.y + 8f, dh * 2.4f, dh); } // 縦: 部屋の絵の右上の角(押せる物が無い所)
         float h = Mathf.Clamp(Screen.height * 0.06f, 40f, 80f), w = h * 2.6f;
         return new Rect(Screen.width * 0.6f - w * 0.5f, Screen.height - SafeBottom() - UiMargin - h, w, h);
     }
@@ -1977,7 +1977,17 @@ public partial class GameManager : MonoBehaviour
         return new Rect(lcx - lw / 2f, Screen.height * 0.015f, lw, lh);
     }
     public bool PreferPortrait => preferredOrientation == ScreenOrientation.Portrait;
-    public void SetPreferredOrientation(bool portrait) { if (PreferPortrait != portrait) ToggleOrientation(); }
+    public void SetPreferredOrientation(bool portrait) => SetOrientationMode(portrait ? OrientationControl.Mode.Portrait : OrientationControl.Mode.Landscape);
+    // 2026-10-09(依頼G): 横 / 縦 / 自動(端末の回転に従う)
+    public OrientationControl.Mode OrientationMode => OrientationControl.FromSaved(preferredOrientation);
+    public void SetOrientationMode(OrientationControl.Mode m)
+    {
+        if (OrientationMode == m) { OrientationControl.Apply(m); return; }
+        preferredOrientation = OrientationControl.ToSaved(m);
+        OrientationControl.Apply(m);
+        SaveStore.SetInt(OrientationKey, (int)preferredOrientation);
+        SaveStore.Save();
+    }
 
 #if UNITY_EDITOR
     public void DebugSetInvincible(bool on) { InvincibleMode = on; Lives = 999; }
@@ -2000,16 +2010,7 @@ public partial class GameManager : MonoBehaviour
         SaveStore.Save();
     }
 
-    void ToggleOrientation()
-    {
-        preferredOrientation = preferredOrientation == ScreenOrientation.Portrait
-            ? ScreenOrientation.LandscapeLeft
-            : ScreenOrientation.Portrait;
-
-        OrientationControl.Apply(preferredOrientation); // 2026-10-08: 横は左右どちらの横持ちにも回る
-        SaveStore.SetInt(OrientationKey, (int)preferredOrientation);
-        SaveStore.Save();
-    }
+    void ToggleOrientation() => SetOrientationMode(PreferPortrait ? OrientationControl.Mode.Landscape : OrientationControl.Mode.Portrait);
 
     // Any tap/click starts the game or retries, EXCEPT one landing on a
     // settings button (those handle themselves via OnGUI).
@@ -3919,7 +3920,10 @@ public partial class GameManager : MonoBehaviour
         // both cases. BEST alone gets a small standalone display back on
         // the title screen (see the title block below) since it's still
         // relevant there.
-        if (HasStarted && !AnyOverlayOpen)
+        // 2026-10-09: 疾走中のリングの3択は、止めた疾走の画面(SprintRunner の背景)の上で選ぶ。疾走の画面に距離/進み具合が
+        // 写っているので、ランの HUD は重ねない(重ねると ダンジョンのランへ戻ったように見える)
+        bool sprintChoiceBackdrop = SprintActive && SprintRunner.Instance != null && SprintRunner.Instance.ChoiceBackdropShown;
+        if (HasStarted && !AnyOverlayOpen && !sprintChoiceBackdrop)
         {
             // Left: BEST/DISTANCE, same panel shape, stacked. Center: Lv/EXP
             // grouped into one panel. Right: HP. All three share
@@ -5332,10 +5336,13 @@ public partial class GameManager : MonoBehaviour
         // ランキング(2026-10-08): 設定の下の段。参加は任意(ランキングの画面で)
         if (!NetSession.IsActive && DrawStyledButton(GetHomeRankingButtonRect(), "ランキング", FitFont("ランキング", GetHomeRankingButtonRect().width - 12f, fs * 0.92f), primary: false, ornate: true)) RankingPanel.OpenStatic();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        if (Debug.isDebugBuild)
+        // 2026-10-09(依頼G-2): 開発版だけの入口。小さく薄く、ポップアップ(ガチャの結果など)が開いている間は出さない
+        if (Debug.isDebugBuild && !gachaResultOpen && !UiInputGate.ModalOpen && !NetDebugUI.PanelOpen)
         {
             Rect dr = GetHomeDebugButtonRect();
-            if (DrawStyledButton(dr, "DEBUG", Mathf.Round(dr.height * 0.38f), primary: DebugMode)) DebugPanel.OpenStatic();
+            Color keepC = GUI.color; GUI.color = new Color(keepC.r, keepC.g, keepC.b, keepC.a * 0.7f);
+            if (DrawStyledButton(dr, "DEBUG", Mathf.Round(dr.height * 0.42f), primary: DebugMode)) DebugPanel.OpenStatic();
+            GUI.color = keepC;
         }
 #endif
     }
@@ -5382,12 +5389,13 @@ public partial class GameManager : MonoBehaviour
     {
         if (ornate) OrnateUi.DrawPanel(rect, primary ? 0.85f : 0.6f);
         else UiBackdrop.Draw(rect, primary ? 0.85f : 0.55f);
+        bool pressed = UiKit.ButtonStateOverlay(rect, false, true); // 押している間は暗く(2026-10-09、依頼G-2)
         GUIStyle style = new GUIStyle(GUI.skin.label);
         style.fontSize = Mathf.RoundToInt(fontSize);
         style.fontStyle = FontStyle.Bold;
         style.alignment = TextAnchor.MiddleCenter;
         style.normal.textColor = primary ? new Color(1f, 0.93f, 0.75f) : Color.white;
-        LocGUI.Label(rect, text, style);
+        LocGUI.Label(pressed ? new Rect(rect.x, rect.y + 2f, rect.width, rect.height) : rect, text, style);
 
         if (flashAlpha > 0.001f)
         {
@@ -5914,6 +5922,7 @@ public partial class GameManager : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (DebugPanel.Instance != null && DebugPanel.Instance.Back()) return;
 #endif
+        if (SettingsPanel.LangListOpen) { SettingsPanel.CloseLangList(); return; } // 言語の一覧だけを閉じる(2026-10-09)
         if (SettingsPanel.IsVisible) { SettingsPanel.CloseStatic(); return; }
         if (NetDebugUI.PanelOpen) { NetDebugUI.ClosePanel(); return; }
         if (!HasStarted)

@@ -188,6 +188,11 @@ public class CharacterSelectUI : MonoBehaviour
             carouselWidthHome = carouselViewportWidth;
         }
         layoutDone = true; layoutPortrait = portrait; layoutSize = rootRt.rect.size;
+        // 2026-10-09(依頼G-2): 戻る/決定の置き方を画面共通に(UiConventions)
+        UiConventions.PlaceBack(backButtonRect);
+        var header = rootRt.Find("HeaderTitle") as RectTransform;
+        if (header != null) header.anchoredPosition = new Vector2(UiConventions.AfterBackX, -30f);
+        UiConventions.PlaceConfirm(selectButtonRect, portrait, rootRt.rect.width, new Vector2(280f, 76f), new Vector2(-56f, 40f));
         for (int i = 0; i < layoutRts.Length; i++) if (layoutRts[i] != null) Put(layoutRts[i], layoutHome[i]);
         carouselViewportWidth = carouselWidthHome;
         if (portrait)

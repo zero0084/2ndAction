@@ -78,7 +78,7 @@ public class NetDebugUI : MonoBehaviour
         smallStyle = new GUIStyle(labelStyle) { fontSize = 16 };
         titleStyle = new GUIStyle(labelStyle) { fontSize = 24, fontStyle = FontStyle.Bold };
         titleStyle.normal.textColor = new Color(1f, 0.86f, 0.45f);
-        buttonStyle = new GUIStyle(GUI.skin.button) { fontSize = 20, fontStyle = FontStyle.Bold };
+        buttonStyle = UiKit.MakeButtonStyle(20); // 2026-10-09(依頼G-2): 他の画面と同じ 濃紺+金の縁
         fieldStyle = new GUIStyle(GUI.skin.textField) { fontSize = 22, alignment = TextAnchor.MiddleLeft };
         tagStyle = new GUIStyle(labelStyle) { fontSize = 18, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
         tagStyle.normal.textColor = new Color(0.55f, 0.95f, 1f);

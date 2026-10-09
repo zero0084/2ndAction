@@ -142,7 +142,7 @@ public partial class QaSweep
                 charH = r.CharHeightPx / (Screen.height / 1080f);
             }
             if (!burstShot && r.RingsSucceeded > 0 && !gm.SprintChoiceOpen) { burstShot = true; yield return new WaitForSecondsRealtime(0.12f); Shot($"sprint_{tag}_ring_burst"); }
-            if (!introShot && r.Elapsed > 0.3f) { introShot = true; Shot($"sprint_{tag}_intro"); }
+            if (!introShot && r.Elapsed > 0.3f) { introShot = true; Shot($"sprint_{tag}_intro"); if (Arg("-qaSprintVideo", "0") == "1") StartCoroutine(RecordUltimate($"sprint_{tag}", 3f)); } // 走りのコマの大きさの確認用(2026-10-09)
             if (!gm.SprintChoiceOpen) choiceFrames = 0; // 閉じたら数え直す(次の選択が開いた最初のフレームを数えない)
             if (appPause && !pausedOnce && r.Elapsed > r.TotalSeconds * 0.4f)
             {

@@ -338,7 +338,7 @@ public partial class NetMatch
             hudStyle = new GUIStyle(GUI.skin.label) { fontSize = 18, fontStyle = FontStyle.Bold, richText = true, wordWrap = true };
             hudStyle.normal.textColor = Color.white;
             hudBig = new GUIStyle(hudStyle) { fontSize = 26, alignment = TextAnchor.MiddleCenter };
-            hudButton = new GUIStyle(GUI.skin.button) { fontSize = 22, fontStyle = FontStyle.Bold };
+            hudButton = UiKit.MakeButtonStyle(22); // 2026-10-09(依頼G-2): 濃紺+金の縁
         }
         float s = Mathf.Max(1f, Mathf.Min(Screen.width, Screen.height) / 720f);
         Matrix4x4 prev = GUI.matrix;

@@ -203,8 +203,8 @@ public partial class QaSweep
             var es = ComboEnemies(8);
             yield return new WaitForSeconds(0.3f);
             float t = 0f;
-            // それぞれの現象を実際に起こす(最大 8 秒)
-            while (a != null && a.procs == p0 && t < 8f)
+            // それぞれの現象を実際に起こす(最大 12 秒)
+            while (a != null && a.procs == p0 && t < 12f) // 2026-10-09: 8→12秒(REDLINE は OVERDRIVE の溜めに約6秒+被弾の硬直で間に合わないことがあった)
             {
                 es.RemoveAll(e => e == null || !ElementSystem.IsAlive(e));
                 if (es.Count < 4) es.AddRange(ComboEnemies(6));
@@ -234,6 +234,7 @@ public partial class QaSweep
                 yield return new WaitForSeconds(0.25f);
                 t += 0.25f;
                 a = CA(c.id);
+                if (c.module == ComboTuning.Module.Redline && Mathf.Abs(t % 2f) < 0.01f) L($"[redline] t={t:F1} kmh={pc.CurrentRunKmh:F0} overdrive={pc.OverdriveActive} reacting={pc.IsReacting} grounded={pc.IsGrounded} x={pc.transform.position.x:F0}"); // 失敗の切り分け用(2026-10-09)
             }
             bool effect = a != null && a.procs > p0;
             PlayerController.DebugSpeedScale = 1f;

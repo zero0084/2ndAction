@@ -89,25 +89,74 @@ public static class UiKit
         if (label == null) label = new GUIStyle(GUI.skin.label) { wordWrap = false, clipping = TextClipping.Clip };
         label.fontSize = Mathf.RoundToInt(size);
         label.alignment = anchor;
+        // 2026-10-09: 使い回しの1つの GUIStyle。呼んだ側が折り返し等を変えても、次の呼び出しでは既定へ戻す
+        //  (以前は wordWrap = true が残り、後の文まで折り返されていた)。同時に複数の見た目が要る時は new GUIStyle(...) で複製する
+        label.wordWrap = false; label.clipping = TextClipping.Clip;
         label.fontStyle = bold ? FontStyle.Bold : FontStyle.Normal;
         label.normal.textColor = color ?? Color.white;
         return label;
     }
 
     // 既存の DrawStyledButton と同じ見た目(濃紺/金枠)。押されたら true。
+    // 2026-10-09(依頼G-2): 状態の見分け 通常 / 選択中(primary: 金の縁+淡い金) / 押している間(暗く+文字が少し沈む) / 使用不可(薄く+灰の文字)
     public static bool Button(Rect r, string text, float size, bool primary = false, bool ornate = true, bool enabled = true)
     {
         Color keep = GUI.color;
         if (!enabled) GUI.color = new Color(keep.r, keep.g, keep.b, keep.a * 0.45f);
         if (ornate) OrnateUi.DrawPanel(r, primary ? 0.9f : 0.7f);
         else UiBackdrop.Draw(r, primary ? 0.85f : 0.6f);
+        bool pressed = ButtonStateOverlay(r, primary && !ornate, enabled);
         if (centered == null) centered = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold, wordWrap = false };
         centered.fontSize = Mathf.RoundToInt(size);
-        centered.normal.textColor = primary ? new Color(1f, 0.9f, 0.6f) : Color.white;
-        LocGUI.Label(r, text, centered);
+        centered.normal.textColor = !enabled ? new Color(0.62f, 0.64f, 0.7f) : primary ? new Color(1f, 0.9f, 0.6f) : Color.white;
+        LocGUI.Label(pressed ? new Rect(r.x, r.y + 2f, r.width, r.height) : r, text, centered);
         GUI.color = keep;
         bool pad = enabled && PadNav.Button(r); // ゲームパッド/キーボードの決定(2026-10-06)
         return (GUI.Button(r, GUIContent.none, GUIStyle.none) && enabled) || pad;
+    }
+
+    // GUILayout.Button 用の見た目(2026-10-09、依頼G-2): 灰色の標準ボタンの代わりに 濃紺+金の縁。押している間は暗く、上に乗せると金の文字
+    static Texture2D btnNormal, btnHover, btnActive;
+    static Texture2D FramedTex(Color fill, Color edge)
+    {
+        const int n = 12, e = 2;
+        var t = new Texture2D(n, n, TextureFormat.RGBA32, false) { hideFlags = HideFlags.HideAndDontSave, filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
+        for (int y = 0; y < n; y++) for (int x = 0; x < n; x++)
+            t.SetPixel(x, y, x < e || y < e || x >= n - e || y >= n - e ? edge : fill);
+        t.Apply();
+        return t;
+    }
+    public static GUIStyle MakeButtonStyle(int fontSize)
+    {
+        Color gold = new Color(0.83f, 0.68f, 0.32f, 1f);
+        if (btnNormal == null) btnNormal = FramedTex(new Color(0.07f, 0.09f, 0.19f, 0.96f), gold);
+        if (btnHover == null) btnHover = FramedTex(new Color(0.11f, 0.13f, 0.26f, 0.98f), new Color(1f, 0.84f, 0.42f, 1f));
+        if (btnActive == null) btnActive = FramedTex(new Color(0.03f, 0.04f, 0.09f, 0.98f), new Color(1f, 0.84f, 0.42f, 1f));
+        var st = new GUIStyle(GUI.skin.button) { fontSize = fontSize, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, border = new RectOffset(3, 3, 3, 3) };
+        st.normal.background = btnNormal; st.normal.textColor = new Color(0.95f, 0.95f, 1f);
+        st.hover.background = btnHover; st.hover.textColor = new Color(1f, 0.9f, 0.6f);
+        st.focused.background = btnHover; st.focused.textColor = new Color(1f, 0.9f, 0.6f);
+        st.active.background = btnActive; st.active.textColor = new Color(1f, 0.86f, 0.5f);
+        st.onNormal.background = btnHover; st.onNormal.textColor = new Color(1f, 0.9f, 0.6f);
+        return st;
+    }
+
+    // ボタンの状態の上塗り(UiKit.Button / GameManager.DrawStyledButton 共通)。押している間なら true(文字を沈める)
+    //  selected: 選択中の選択肢(ON/OFF、横画面/縦画面 など)。金の縁を太く+淡い金を敷いて、選ばれていない方とはっきり分ける
+    public static bool ButtonStateOverlay(Rect r, bool selected, bool enabled)
+    {
+        var e = Event.current;
+        if (e == null || e.type != EventType.Repaint) return false;
+        if (selected)
+        {
+            Fill(r, new Color(1f, 0.78f, 0.3f, 0.16f));
+            Color g = new Color(1f, 0.82f, 0.38f, 0.95f); float t = 3f;
+            Fill(new Rect(r.x, r.y, r.width, t), g); Fill(new Rect(r.x, r.yMax - t, r.width, t), g);
+            Fill(new Rect(r.x, r.y, t, r.height), g); Fill(new Rect(r.xMax - t, r.y, t, r.height), g);
+        }
+        bool pressed = enabled && GUI.enabled && Input.GetMouseButton(0) && r.Contains(e.mousePosition) && !UiInputGate.Blocked;
+        if (pressed) Fill(new Rect(r.x + 2f, r.y + 2f, r.width - 4f, r.height - 4f), new Color(0f, 0f, 0.02f, 0.32f));
+        return pressed;
     }
 
     public static void Fill(Rect r, Color c)
@@ -184,6 +233,17 @@ public static class UiKit
     }
 
     // ON/OFF などの2択スイッチ(左右の2ボタン)。選択中を金色に。
+    // 3つ以上の選択(2026-10-09)
+    public static int Choice(Rect r, int current, string[] options, float size)
+    {
+        int n = Mathf.Max(1, options.Length);
+        float gap = 6f, w = (r.width - gap * (n - 1)) / n;
+        int result = current;
+        for (int i = 0; i < n; i++)
+            if (Button(new Rect(r.x + i * (w + gap), r.y, w, r.height), options[i], size, current == i, false)) result = i;
+        return result;
+    }
+
     public static int Choice(Rect r, int current, string a, string b, float size)
     {
         float half = (r.width - 6f) * 0.5f;

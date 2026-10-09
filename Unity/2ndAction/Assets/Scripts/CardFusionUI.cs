@@ -247,10 +247,10 @@ public class CardFusionUI : MonoBehaviour
         AddImage(header, new Color(0.02f, 0.025f, 0.06f, 0.9f));
         var gline = NewRect("GoldLine", header, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 0), new Vector2(0, 3));
         AddImage(gline, new Color(Gold.r, Gold.g, Gold.b, 0.6f));
-        var back = Button("BackButton", header, "戻る", 28, () => { if (phase == Phase.Select) Close(); });
+        var back = Button("BackButton", header, "« BACK", UiConventions.BackFont, () => { if (phase == Phase.Select) Close(); });
         backButton = back.rect;
         back.rect.anchorMin = back.rect.anchorMax = new Vector2(0, 0.5f);
-        back.rect.pivot = new Vector2(0, 0.5f); back.rect.sizeDelta = new Vector2(170, 66); back.rect.anchoredPosition = new Vector2(26, 0);
+        back.rect.pivot = new Vector2(0, 0.5f); back.rect.sizeDelta = UiConventions.BackSize; back.rect.anchoredPosition = new Vector2(UiConventions.BackPos.x, 0); // 2026-10-09: 他の画面の「« 戻る」と同じ大きさ
         var title = AddText(NewRect("Title", header, new Vector2(0.3f, 0), new Vector2(0.7f, 1), Vector2.zero, Vector2.zero), 44, Gold, TextAnchor.MiddleCenter, true);
         title.text = Loc.Auto("カード合成");
         var milePanel = Panel("MilePanel", header, new Vector2(1, 0.5f), new Vector2(1, 0.5f), Vector2.zero, Vector2.zero, 2.4f);

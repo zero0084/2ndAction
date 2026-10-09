@@ -97,7 +97,7 @@ public class RankingPanel : MonoBehaviour
     // ---------------------------------------------------------------- 参加の案内
     void DrawJoin(Rect r)
     {
-        var note = UiKit.Label(19f, TextAnchor.UpperLeft, false, new Color(0.9f, 0.93f, 1f)); note.wordWrap = true;
+        var note = new GUIStyle(UiKit.Label(19f, TextAnchor.UpperLeft, false, new Color(0.9f, 0.93f, 1f))); note.wordWrap = true;
         float y = r.y;
         string text = joinStep
             ? "この名前で参加します。参加すると、帰還して確定した記録(マップ別の最高到達距離・使ったキャラ・オート/疾走出発の使用)がコードネームと一緒に公開されます。"
@@ -115,7 +115,10 @@ public class RankingPanel : MonoBehaviour
         bool ok = !string.IsNullOrEmpty(clean);
         if (!ok) LocGUI.Label(new Rect(r.x, y, r.width, 26f), "参加にはコードネームが必要です", UiKit.Label(16f, TextAnchor.UpperLeft, false, new Color(1f, 0.7f, 0.5f)));
         y += 30f;
-        if (UiKit.Button(new Rect(r.x, y, 260f, 56f), joinStep ? "参加する" : "次へ", 21f, ok, true, ok) && ok)
+        // 2026-10-09(依頼G-2): 中央に置く。確認の段では「戻る」(左)と「参加する」(右)の2つを1組で中央に
+        float bw = 260f, bgap = 20f, bx = joinStep ? r.x + (r.width - (bw * 2f + bgap)) * 0.5f : r.x + (r.width - bw) * 0.5f;
+        if (joinStep && UiKit.Button(new Rect(bx, y, bw, 64f), "戻る", 21f, false)) joinStep = false;
+        if (UiKit.Button(new Rect(joinStep ? bx + bw + bgap : bx, y, bw, 64f), joinStep ? "参加する" : "次へ", 22f, ok, true, ok) && ok)
         {
             if (!joinStep) { joinStep = true; }
             else
@@ -126,7 +129,6 @@ public class RankingPanel : MonoBehaviour
                 Load(force: true);
             }
         }
-        if (joinStep && UiKit.Button(new Rect(r.x + 276f, y, 200f, 56f), "戻る", 20f, false)) joinStep = false;
     }
 
     // ---------------------------------------------------------------- 一覧
@@ -144,7 +146,7 @@ public class RankingPanel : MonoBehaviour
         string st = tabs[tab];
         float y = r.y + 54f;
         cache.TryGetValue(st, out var page);
-        var info = UiKit.Label(17f, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.9f, 1f));
+        var info = new GUIStyle(UiKit.Label(17f, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.9f, 1f)));
 
         // 自分(上に固定)
         var best = Leaderboard.VerifiedBest(st);
@@ -178,7 +180,7 @@ public class RankingPanel : MonoBehaviour
                 var row = page.top[i];
                 var rr = new Rect(0f, i * RowH, view.width - 12f, RowH - 4f);
                 UiKit.Fill(rr, row.isMe ? new Color(1f, 0.8f, 0.3f, 0.22f) : new Color(1f, 1f, 1f, i % 2 == 0 ? 0.05f : 0.02f));
-                var cs = UiKit.Label(18f, TextAnchor.MiddleLeft, row.isMe, row.isMe ? new Color(1f, 0.9f, 0.55f) : Color.white);
+                var cs = new GUIStyle(UiKit.Label(18f, TextAnchor.MiddleLeft, row.isMe, row.isMe ? new Color(1f, 0.9f, 0.55f) : Color.white));
                 GUI.Label(new Rect(rr.x + 8f, rr.y, 64f, rr.height), row.rank.ToString(), cs);
                 GUI.Label(new Rect(rr.x + 72f, rr.y, rr.width * 0.42f, rr.height), string.IsNullOrEmpty(row.name) ? "-" : row.name, cs); // 名前は訳さない
                 LocGUI.Label(new Rect(rr.x + 72f + rr.width * 0.42f, rr.y, rr.width * 0.2f, rr.height), $"{row.meters:N0}m", cs);

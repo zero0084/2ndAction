@@ -252,11 +252,136 @@ public class DeckEditUI : MonoBehaviour
         }
     }
 
+    // ===== キャラカードの専用パネル(2026-10-09、依頼G-5) =====
+    // デッキ欄の上の小さな3枠が暗く小さく、デッキの枠と重なって見えていた → 右の列の上に専用のパネルを置き、
+    // 「○○のキャラカード」の見出し・大きな切り替えボタン・大きめの3枠・空き枠の案内を入れる。デッキの欄はその下へずらす。
+    // 装備の条件/保存は今までどおり(見た目と押しやすさだけ)。作りはシーンのまま、開いた時に1回だけ並べ直す
+    bool charPanelBuilt;
+    RectTransform charPanel;
+    readonly Text[] charSlotHints = new Text[GameManager.CharacterCardSlotCount];
+    readonly Text[] charSlotPlus = new Text[GameManager.CharacterCardSlotCount]; // 空き枠の中の大きな「+」
+    const float CharPanelTop = -12f, CharPanelH = 296f, CharPanelGap = 16f, CharSlotScale = 1.45f;
+    void BuildCharPanel()
+    {
+        if (charPanelBuilt || root == null) return;
+        EnsureCharHeader();
+        var rootRt = root.transform as RectTransform;
+        var deckPanel = rootRt.Find("Panel_DECK") as RectTransform;
+        if (deckPanel == null || charHeader == null || characterSlotCards.Length == 0) return;
+        charPanelBuilt = true;
+        float cx = deckPanel.anchoredPosition.x, pw = deckPanel.sizeDelta.x;
+        float shift = (-(CharPanelTop - CharPanelH - CharPanelGap)) - (-deckPanel.anchoredPosition.y); // デッキの欄の上端を下げる量
+        // デッキの欄(右の列の上の方にある物)を下へ。高さのある物は下端を保つ(縮める)
+        var skip = new HashSet<Transform>(); foreach (var c in characterSlotCards) if (c != null) skip.Add(c.transform);
+        skip.Add(charHeader.transform); if (charPrevRect != null) skip.Add(charPrevRect); if (charNextRect != null) skip.Add(charNextRect);
+        var top = new Vector2(0.5f, 1f);
+        for (int i = 0; i < rootRt.childCount; i++)
+        {
+            var c = rootRt.GetChild(i) as RectTransform;
+            if (c == null || skip.Contains(c) || c.anchorMin != top || c.anchorMax != top) continue;
+            if (c.anchoredPosition.x < 250f) continue;
+            float topY = c.anchoredPosition.y + (1f - c.pivot.y) * c.sizeDelta.y;
+            if (topY < -260f) continue;      // 下の方(ボタン/枚数)はそのまま
+            // 上端を shift 下げる。高さのある物(パネル/一覧)は高さも shift 縮めて下端を元のままにする
+            bool tall = c.sizeDelta.y > 300f;
+            float oldTop = topY, newTop = topY - shift;
+            if (tall) c.sizeDelta -= new Vector2(0f, shift);
+            c.anchoredPosition = new Vector2(c.anchoredPosition.x, newTop - (1f - c.pivot.y) * c.sizeDelta.y);
+        }
+        deckGridFitted = false;
+        // 専用のパネル(デッキのパネルの見た目を写す)
+        var go = Instantiate(deckPanel.gameObject, rootRt);
+        go.name = "Panel_CharCards";
+        charPanel = (RectTransform)go.transform;
+        charPanel.SetSiblingIndex(deckPanel.GetSiblingIndex());
+        charPanel.pivot = top; charPanel.sizeDelta = new Vector2(pw, CharPanelH); charPanel.anchoredPosition = new Vector2(cx, CharPanelTop);
+        // 見出しと切り替え
+        var hr = (RectTransform)charHeader.transform;
+        hr.SetAsLastSibling();
+        hr.sizeDelta = new Vector2(Mathf.Min(pw - 60f, 400f), 46f); hr.anchoredPosition = new Vector2(cx, CharPanelTop - 14f);
+        charHeader.resizeTextMaxSize = 30; charHeader.resizeTextMinSize = 16; charHeader.fontSize = 30;
+        charHeader.color = new Color(1f, 0.86f, 0.45f);
+        // 3枠の大きさ(切り替えボタンは枠の列の左右、上下は枠の中央 → 右上の設定ボタンに掛からない)
+        int n = Mathf.Min(GameManager.CharacterCardSlotCount, characterSlotCards.Length);
+        float sw = 72f * CharSlotScale, sh = 108f * CharSlotScale, gap = 56f;
+        float rowHalf = (n * sw + (n - 1) * gap) * 0.5f;
+        float x0 = cx - rowHalf + sw * 0.5f;
+        float arrowDx = Mathf.Min(rowHalf + 18f + 42f, pw * 0.5f - 48f);
+        foreach (var (ar, dir) in new[] { (charPrevRect, -1), (charNextRect, 1) })
+        {
+            if (ar == null) continue;
+            ar.SetAsLastSibling();
+            ar.sizeDelta = new Vector2(84f, 96f);
+            ar.anchoredPosition = new Vector2(cx + dir * arrowDx, CharPanelTop - 78f - sh * 0.5f + 48f);
+            var img = ar.GetComponent<Image>(); if (img != null) img.color = new Color(0.32f, 0.24f, 0.08f, 0.95f);
+            if (ar.GetComponent<Outline>() == null) { var ol = ar.gameObject.AddComponent<Outline>(); ol.effectColor = new Color(1f, 0.82f, 0.38f, 0.9f); ol.effectDistance = new Vector2(2f, -2f); }
+            var t = ar.GetComponentInChildren<Text>(); if (t != null) { t.fontSize = 30; t.color = new Color(1f, 0.92f, 0.6f); }
+        }
+        // 3枠(大きく、間を空けて)+ 案内
+        Font font = charHeader.font;
+        for (int i = 0; i < n; i++)
+        {
+            var sc = characterSlotCards[i];
+            // 枠の台紙(紺+金の輪郭)を後ろに敷いて、押せる場所をはっきりさせる
+            var bgo = new GameObject("CharSlotBack" + i, typeof(RectTransform));
+            bgo.transform.SetParent(rootRt, false);
+            var br = (RectTransform)bgo.transform;
+            br.anchorMin = br.anchorMax = top; br.pivot = new Vector2(0.5f, 1f);
+            br.sizeDelta = new Vector2(sw + 14f, sh + 14f);
+            br.anchoredPosition = new Vector2(x0 + i * (sw + gap), CharPanelTop - 71f);
+            var bimg = bgo.AddComponent<Image>(); bimg.color = new Color(0.1f, 0.13f, 0.26f, 0.95f); bimg.raycastTarget = false;
+            var bol = bgo.AddComponent<Outline>(); bol.effectColor = new Color(1f, 0.82f, 0.38f, 0.85f); bol.effectDistance = new Vector2(2.5f, -2.5f);
+            sc.rect.SetAsLastSibling();
+            sc.rect.localScale = new Vector3(CharSlotScale, CharSlotScale, 1f);
+            sc.rect.anchoredPosition = new Vector2(x0 + i * (sw + gap), CharPanelTop - 78f);
+            var hgo = new GameObject("CharSlotHint" + i, typeof(RectTransform));
+            hgo.transform.SetParent(rootRt, false);
+            var h = (RectTransform)hgo.transform;
+            h.anchorMin = h.anchorMax = top; h.pivot = new Vector2(0.5f, 1f);
+            h.sizeDelta = new Vector2(sw + gap - 6f, 30f);
+            h.anchoredPosition = new Vector2(x0 + i * (sw + gap), CharPanelTop - 78f - sh - 8f);
+            var t = hgo.AddComponent<Text>();
+            t.font = font; t.fontSize = 21; t.alignment = TextAnchor.MiddleCenter; t.raycastTarget = false;
+            t.resizeTextForBestFit = true; t.resizeTextMinSize = 12; t.resizeTextMaxSize = 21;
+            t.horizontalOverflow = HorizontalWrapMode.Wrap; t.verticalOverflow = VerticalWrapMode.Truncate; t.color = new Color(0.85f, 0.88f, 0.98f);
+            // 空き枠の中の大きな「+」(押せる場所だと分かるように)
+            var pgo = new GameObject("CharSlotPlus" + i, typeof(RectTransform));
+            pgo.transform.SetParent(rootRt, false);
+            var pr = (RectTransform)pgo.transform;
+            pr.anchorMin = pr.anchorMax = top; pr.pivot = new Vector2(0.5f, 0.5f);
+            pr.sizeDelta = new Vector2(sw, sw);
+            pr.anchoredPosition = new Vector2(x0 + i * (sw + gap), CharPanelTop - 78f - sh * 0.5f);
+            var pt = pgo.AddComponent<Text>();
+            pt.font = font; pt.fontSize = 64; pt.fontStyle = FontStyle.Bold; pt.alignment = TextAnchor.MiddleCenter; pt.raycastTarget = false;
+            pt.horizontalOverflow = HorizontalWrapMode.Overflow; pt.verticalOverflow = VerticalWrapMode.Overflow;
+            pt.color = new Color(1f, 0.84f, 0.42f, 0.9f); pt.text = "+";
+            charSlotPlus[i] = pt;
+            charSlotHints[i] = t;
+        }
+        RefreshCharSlotHints();
+        FitDeckGrid(); // デッキの欄が縮んだので、12枚が収まる並べ方を選び直す
+        Debug.Log($"[DeckEdit] character card panel built (deck column moved down {shift:F0})");
+    }
+    void RefreshCharSlotHints()
+    {
+        var gm = GameManager.Instance;
+        for (int i = 0; i < charSlotHints.Length; i++)
+        {
+            var t = charSlotHints[i]; if (t == null || gm == null) continue;
+            bool empty = string.IsNullOrEmpty(gm.CharacterCardIds[i]);
+            t.text = Loc.Auto(i == pendingEquipSlot ? "一覧からカードを選ぶ" : empty ? "タップして設定" : "タップで変更");
+            if (charSlotPlus[i] != null) charSlotPlus[i].enabled = empty;
+            t.color = i == pendingEquipSlot ? new Color(1f, 0.85f, 0.4f) : empty ? new Color(0.95f, 0.8f, 0.45f) : new Color(0.8f, 0.84f, 0.95f);
+        }
+    }
+
     // 縦画面(2026-10-08、依頼E-1): 上にデッキ(+キャラカード)、下に一覧と詳細を並べる(PortraitColumns)
     PortraitColumns portraitColumns;
     void ApplyOrientationLayout()
     {
         if (root == null) return;
+        UiConventions.PlaceBack(backButtonRect); // 2026-10-09(依頼G-2): 戻るは画面共通の左上
+        BuildCharPanel();
         if (portraitColumns == null) { portraitColumns = root.GetComponent<PortraitColumns>(); if (portraitColumns == null) portraitColumns = root.AddComponent<PortraitColumns>(); }
         Canvas.ForceUpdateCanvases();
         portraitColumns.Apply();
@@ -348,11 +473,16 @@ public class DeckEditUI : MonoBehaviour
         var grid = deckScrollRect.content.GetComponent<UnityEngine.UI.GridLayoutGroup>();
         var vp = deckScrollRect.viewport != null ? deckScrollRect.viewport : (RectTransform)deckScrollRect.transform;
         if (grid == null || vp == null) return;
-        const int cols = 4;
-        int rows = Mathf.CeilToInt(GameManager.DeckCapacity / (float)cols);
-        float w = cols * grid.cellSize.x + (cols - 1) * grid.spacing.x + grid.padding.horizontal;
-        float h = rows * grid.cellSize.y + (rows - 1) * grid.spacing.y + grid.padding.vertical;
-        float k = Mathf.Min(1f, vp.rect.width / w, vp.rect.height / h);
+        // 2026-10-09(依頼G-5): 欄の形に合わせて 3/4/6 列から一番大きく見える並べ方を選ぶ(キャラカードの欄の分だけ低くなった時は 6列×2段)
+        int cols = 4, rows = 3; float k = 0f;
+        foreach (int c in new[] { 4, 6, 3 })
+        {
+            int rr = Mathf.CeilToInt(GameManager.DeckCapacity / (float)c);
+            float ww = c * grid.cellSize.x + (c - 1) * grid.spacing.x + grid.padding.horizontal;
+            float hh = rr * grid.cellSize.y + (rr - 1) * grid.spacing.y + grid.padding.vertical;
+            float kk = Mathf.Min(1f, vp.rect.width / ww, vp.rect.height / hh);
+            if (kk > k + 0.01f) { k = kk; cols = c; rows = rr; }
+        }
         grid.constraint = UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount;
         grid.constraintCount = cols;
         deckScrollRect.content.localScale = new Vector3(k, k, 1f);
@@ -445,6 +575,7 @@ public class DeckEditUI : MonoBehaviour
 
         // Item 7 - Character Card slots.
         RefreshCharHeader();
+        RefreshCharSlotHints();
         for (int i = 0; i < characterSlotCards.Length && i < GameManager.CharacterCardSlotCount; i++)
         {
             string id = gm.CharacterCardIds[i];

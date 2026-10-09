@@ -122,7 +122,8 @@ public class SettingsPanel : MonoBehaviour
 
         OrnateUi.DrawPanel(panel, 0.94f);
         LocGUI.Label(new Rect(panel.x + 28f, panel.y + 14f, panel.width - 120f, 44f), "設定", UiKit.Label(28f, TextAnchor.MiddleLeft, true, new Color(1f, 0.86f, 0.45f)));
-        bool interactive = state == St.Open || state == St.Opening;
+        if (langOpen) LangPopupInput(panel);
+        bool interactive = (state == St.Open || state == St.Opening) && !langOpen;
         if (UiKit.Button(new Rect(panel.xMax - 70f, panel.y + 14f, 50f, 46f), "×", 26f, false, false) && interactive) Close();
 
         // 内容(スクロール部分)
@@ -155,6 +156,7 @@ public class SettingsPanel : MonoBehaviour
         }
 
         if (UiKit.Button(new Rect(panel.center.x - 110f, panel.yMax - 66f, 220f, 52f), "閉じる", 22f, true) && interactive) Close();
+        if (langOpen) DrawLangPopup(panel);
 
         GUI.matrix = Matrix4x4.Scale(new Vector3(s, s, 1f));
         GUI.color = keepColor;
@@ -218,9 +220,9 @@ public class SettingsPanel : MonoBehaviour
     // 2026-10-08: 長い見出し(長い言語/狭い縦画面)は右の操作に重ならないよう、小さめの字で2行に折り返す
     void RowLabel(float x, float y, string text)
     {
-        var st = UiKit.Label(20f);
+        var st = new GUIStyle(UiKit.Label(20f));
         float max = LabelW - 8f;
-        if (st.CalcSize(new GUIContent(Loc.Auto(text))).x > max) { st = UiKit.Label(16f); st.wordWrap = true; }
+        if (st.CalcSize(new GUIContent(Loc.Auto(text))).x > max) { st = new GUIStyle(UiKit.Label(16f)); st.wordWrap = true; }
         LocGUI.Label(new Rect(x, y, max, RowH), text, st);
     }
 
@@ -245,7 +247,7 @@ public class SettingsPanel : MonoBehaviour
     // 2026-10-08: 説明は幅で折り返す(長い言語でも縮めずに全部出す。内容全体は BeginScroll でスクロールする)
     float Note(float x, float y, float w, string text)
     {
-        var st = UiKit.Label(15f, TextAnchor.UpperLeft, false, new Color(0.75f, 0.8f, 0.9f));
+        var st = new GUIStyle(UiKit.Label(15f, TextAnchor.UpperLeft, false, new Color(0.75f, 0.8f, 0.9f)));
         st.wordWrap = true;
         string t = Loc.Auto(text);
         float h = Mathf.Max(22f, st.CalcHeight(new GUIContent(t), w) + 2f);
@@ -280,30 +282,191 @@ public class SettingsPanel : MonoBehaviour
 
     // ---------------------------------------------------------------- 言語(2026-10-07)
     // 言語の名前はその言語自身の名前で。選ぶとすぐ切り替わる(再起動なし)。端末の言語に合わせている間は「(端末)」と出す
-    const int LangCols = 3; const float LangRowH = 44f;
-    float MeasureLanguage() => HeadH + 4f + Mathf.Ceil(Loc.Languages.Length / (float)LangCols) * LangRowH + 26f;
+    const float LangRowH = 54f;
+    float MeasureLanguage() => RowH + 26f;
+    // 2026-10-09(依頼G): 30言語のボタンが設定の大部分を占めていた → 普段は「言語 / Language  日本語 ▼」の1行。押すと縦の一覧
     float DrawLanguage(float x, float y, float w, bool interactive)
     {
-        y = Head(x, y, w, Loc.IsJapanese ? "言語 / Language" : Loc.T("言語") + " / Language");
-        float cw = (w - (LangCols - 1) * 6f) / LangCols;
-        for (int i = 0; i < Loc.Languages.Length; i++)
+        string label = Loc.IsJapanese ? "言語 / Language" : Loc.T("言語") + " / Language";
+        var lab = new GUIStyle(UiKit.Label(20f)); lab.wordWrap = true;
+        float lw = Mathf.Min(w * 0.45f, 220f);
+        GUI.Label(new Rect(x, y, lw, RowH), label, lab);
+        var r = new Rect(x + lw, y + 6f, w - lw, RowH - 12f);
+        string cur = CurrentLangName();
+        OrnateUi.DrawPanel(r, 0.75f);
+        var st = new GUIStyle(UiKit.Label(19f, TextAnchor.MiddleLeft, true, new Color(1f, 0.9f, 0.6f)));
+        var keepFont = st.font; st.font = LocFonts.FontFor(Loc.Current);
+        GUI.Label(new Rect(r.x + 16f, r.y, r.width - 56f, r.height), cur, st);
+        st.font = keepFont;
+        DrawTriangle(new Rect(r.xMax - 40f, r.y, 28f, r.height), new Color(1f, 0.85f, 0.45f));
+        if (interactive && (GUI.Button(r, GUIContent.none, GUIStyle.none) | PadNav.Button(r)))
         {
-            var l = Loc.Languages[i];
-            var r = new Rect(x + (i % LangCols) * (cw + 6f), y + (i / LangCols) * LangRowH, cw, LangRowH - 6f);
-            bool sel = Loc.Current == l.code;
-            if (UiKit.Button(r, Loc.NativeName(l), 16f, sel, false) && interactive && !sel) { Loc.Set(l.code); if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiToggle); }
+            langOpen = true; langScroll = -1f; langPress = false;
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiOpen);
         }
-        y += Mathf.Ceil(Loc.Languages.Length / (float)LangCols) * LangRowH;
+        y += RowH;
         return Note(x, y, w, Loc.UserChose ? Loc.T("選んだ言語で表示します") : Loc.T("端末の言語に合わせています"));
     }
 
+    static string CurrentLangName()
+    {
+        foreach (var l in Loc.Languages) if (l.code == Loc.Current) return Loc.NativeName(l);
+        return Loc.Current;
+    }
+
+    // 下向きの三角(▼ が無いフォントがあるので描く)
+    static void DrawTriangle(Rect r, Color c)
+    {
+        float cx = r.center.x, cy = r.center.y, s = Mathf.Min(r.width, r.height) * 0.42f;
+        for (int i = 0; i < 8; i++)
+        {
+            float t = i / 8f, ww = s * 2f * (1f - t);
+            UiKit.Fill(new Rect(cx - ww * 0.5f, cy - s * 0.5f + t * s, ww, s / 8f + 0.5f), c);
+        }
+    }
+
+    // ---- 言語の一覧(縦のスクロール)。タップで適用して閉じる / スクロールして離しただけでは選ばない / 外側か「閉じる」で元のまま閉じる
+    bool langOpen, langPress, langDragged;
+    public static bool LangListOpen => Instance != null && Instance.state != St.Closed && Instance.langOpen;
+    public static void CloseLangList() { if (Instance != null && Instance.langOpen) Instance.CloseLang(false); }
+    float langScroll = -1f, langPressY, langPressScroll;
+    Vector2 langPressPos;
+    Rect LangBox(Rect panel) => new Rect(panel.x + 24f, panel.y + 66f, panel.width - 48f, panel.height - 66f - 84f);
+    Rect LangList(Rect panel) { var b = LangBox(panel); return new Rect(b.x + 10f, b.y + 54f, b.width - 20f, b.height - 54f - 10f); }
+    Rect LangClose(Rect panel) => new Rect(panel.center.x - 110f, panel.yMax - 72f, 220f, 54f);
+    float LangMax(Rect panel) => Mathf.Max(0f, Loc.Languages.Length * LangRowH - LangList(panel).height);
+
+    void LangPopupInput(Rect panel)
+    {
+        var e = Event.current;
+        if (e == null) return;
+        var list = LangList(panel);
+        float max = LangMax(panel);
+        if (langScroll < 0f)
+        {
+            // 開いた時: 今の言語が見える位置へ
+            int ci = 0; for (int i = 0; i < Loc.Languages.Length; i++) if (Loc.Languages[i].code == Loc.Current) ci = i;
+            langScroll = Mathf.Clamp(ci * LangRowH - list.height * 0.4f, 0f, max);
+        }
+        // パッド/キーボード: 決定で今フォーカスの言語、戻るで閉じる(PadNav の層の中)
+        switch (e.type)
+        {
+            case EventType.MouseDown:
+                langPress = true; langDragged = false; langPressPos = e.mousePosition; langPressY = e.mousePosition.y; langPressScroll = langScroll;
+                e.Use();
+                break;
+            case EventType.MouseDrag:
+                if (langPress)
+                {
+                    if (Mathf.Abs(e.mousePosition.y - langPressPos.y) > 10f) langDragged = true;
+                    if (langDragged) langScroll = Mathf.Clamp(langPressScroll - (e.mousePosition.y - langPressY), 0f, max);
+                }
+                e.Use();
+                break;
+            case EventType.MouseUp:
+                if (langPress && !langDragged)
+                {
+                    Vector2 m = e.mousePosition;
+                    if (LangClose(panel).Contains(m) || !LangBox(panel).Contains(m)) CloseLang(false);
+                    else if (list.Contains(m))
+                    {
+                        int i = Mathf.FloorToInt((m.y - list.y + langScroll) / LangRowH);
+                        if (i >= 0 && i < Loc.Languages.Length) PickLang(i);
+                    }
+                }
+                langPress = false;
+                e.Use();
+                break;
+            case EventType.ScrollWheel:
+                langScroll = Mathf.Clamp(langScroll + e.delta.y * 20f, 0f, max);
+                e.Use();
+                break;
+        }
+    }
+
+    void PickLang(int i)
+    {
+        var l = Loc.Languages[i];
+        if (Loc.Current != l.code) { Loc.Set(l.code); if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiToggle); }
+        CloseLang(true);
+    }
+
+    void CloseLang(bool picked)
+    {
+        langOpen = false; langPress = false;
+        if (!picked && AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiClose);
+        UiInputGate.LatchUntilRelease(); // 一覧を閉じた指で後ろの設定を押さない
+    }
+
+    void DrawLangPopup(Rect panel)
+    {
+        var box = LangBox(panel); var list = LangList(panel);
+        UiKit.Fill(panel, new Color(0.01f, 0.02f, 0.05f, 0.6f));
+        OrnateUi.DrawPanel(box, 0.97f);
+        GUI.Label(new Rect(box.x + 20f, box.y + 8f, box.width - 40f, 40f), Loc.IsJapanese ? "言語 / Language" : Loc.T("言語") + " / Language", UiKit.Label(22f, TextAnchor.MiddleLeft, true, new Color(1f, 0.86f, 0.45f)));
+        GUI.BeginClip(list);
+        // UiKit.Label は使い回しの1つの GUIStyle を返すので、名前用と英語名用は別に複製する
+        var st = new GUIStyle(UiKit.Label(20f, TextAnchor.MiddleLeft, true, Color.white));
+        var en = new GUIStyle(UiKit.Label(14f, TextAnchor.MiddleRight, false, new Color(0.7f, 0.75f, 0.85f)));
+        var keepFont = st.font;
+        for (int i = 0; i < Loc.Languages.Length; i++)
+        {
+            float ry = i * LangRowH - langScroll;
+            if (ry + LangRowH < 0f || ry > list.height) continue;
+            var l = Loc.Languages[i];
+            bool sel = l.code == Loc.Current;
+            var row = new Rect(0f, ry + 3f, list.width, LangRowH - 6f);
+            UiKit.Fill(row, sel ? new Color(0.45f, 0.35f, 0.12f, 0.75f) : new Color(0.08f, 0.1f, 0.2f, 0.85f));
+            if (sel) { UiKit.Fill(new Rect(row.x, row.y, 4f, row.height), new Color(1f, 0.85f, 0.4f)); DrawCheck(new Rect(row.xMax - 44f, row.y + 6f, 32f, row.height - 12f)); }
+            st.font = LocFonts.FontFor(l.code);
+            st.normal.textColor = sel ? new Color(1f, 0.92f, 0.65f) : Color.white;
+            GUI.Label(new Rect(row.x + 18f, row.y, row.width - 80f, row.height), Loc.NativeName(l), st);
+            st.font = keepFont;
+            GUI.Label(new Rect(row.xMax - 240f, row.y, 180f, row.height), l.english, en);
+        }
+        GUI.EndClip();
+        float max = LangMax(panel);
+        if (max > 0f)
+        {
+            float bh = Mathf.Max(30f, list.height * list.height / (list.height + max));
+            float by = list.y + (list.height - bh) * (langScroll / max);
+            UiKit.Fill(new Rect(list.xMax + 3f, by, 4f, bh), new Color(1f, 0.85f, 0.4f, 0.6f));
+        }
+        var c = LangClose(panel);
+        OrnateUi.DrawPanel(c, 0.85f);
+        GUI.Label(c, Loc.Auto("閉じる"), UiKit.Label(22f, TextAnchor.MiddleCenter, true, new Color(1f, 0.93f, 0.75f)));
+    }
+
+    static void DrawCheck(Rect r)
+    {
+        // チェック印(✓ が無いフォントがあるので描く)
+        Color c = new Color(1f, 0.88f, 0.45f);
+        Vector2 a = new Vector2(r.x + r.width * 0.18f, r.y + r.height * 0.55f), m = new Vector2(r.x + r.width * 0.42f, r.y + r.height * 0.80f), b = new Vector2(r.x + r.width * 0.90f, r.y + r.height * 0.22f);
+        void Seg(Vector2 p0, Vector2 p1)
+        {
+            // 回転を使わず、小さな四角を並べて線にする(拡大/切り抜きの中でもずれない)
+            int n = Mathf.Max(2, Mathf.CeilToInt(Vector2.Distance(p0, p1) / 1.5f));
+            for (int i = 0; i <= n; i++) { var q = Vector2.Lerp(p0, p1, i / (float)n); UiKit.Fill(new Rect(q.x - 2.5f, q.y - 2.5f, 5f, 5f), c); }
+        }
+        Seg(a, m); Seg(m, b);
+    }
+
     // ---------------------------------------------------------------- 表示
-    float MeasureDisplay() => HeadH + 4f + RowH * 3f + 22f + RowH + 96f + 44f;
+    float MeasureDisplay() => HeadH + 4f + RowH * 3f + 22f + RowH + 96f + 44f + 24f;
     float DrawDisplay(float x, float y, float w, bool interactive)
     {
         var gm = GameManager.Instance;
         y = Head(x, y, w, "表示");
-        if (gm != null) y = ChoiceRow(x, y, w, "画面の向き", gm.PreferPortrait ? 1 : 0, "横画面", "縦画面", interactive, c => gm.SetPreferredOrientation(c == 1));
+        if (gm != null)
+        {
+            // 2026-10-09(依頼G): 横 / 縦 は端末の自動回転に関係なくその向きに固定。自動 だけ端末の回転の設定に従う
+            RowLabel(x, y, "画面の向き");
+            int cur = (int)gm.OrientationMode;
+            int c = UiKit.Choice(new Rect(x + LabelW, y + 7f, w - LabelW, RowH - 14f), cur, new[] { "横画面", "縦画面", "自動" }, 18f);
+            if (interactive && c != cur) gm.SetOrientationMode((OrientationControl.Mode)c);
+            y += RowH;
+            y = Note(x, y, w, "自動: 端末の自動回転の設定に従います");
+        }
         else y += RowH;
         y = DrawPortraitRunView(x, y, w, interactive);
         y = ChoiceRow(x, y, w, "画面揺れ", GameSettings.ScreenShake ? 1 : 0, "OFF", "ON", interactive, c => GameSettings.SetScreenShake(c == 1));

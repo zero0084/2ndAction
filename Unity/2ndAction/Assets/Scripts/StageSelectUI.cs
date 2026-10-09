@@ -170,6 +170,7 @@ public class StageSelectUI : MonoBehaviour
             if (isNew && markSeenOnRefresh) UnlockRules.MarkStageSeen(all[i].stageId);
         }
         layoutPortrait = PortraitRunView.IsPortraitScreen;
+        ApplyButtonLayout();
         for (int i = 0; i < cardSlotRects.Length; i++) if (cardSlotRects[i] != null) cardSlotRects[i].localScale = Vector3.one;
         // 縦画面(2026-10-08、依頼E-1): 2列に積む(多ければ少し縮める)。横は今までどおり1行
         if (layoutPortrait && visible.Count > 0 && cardSlotRects.Length >= 2)
@@ -198,6 +199,35 @@ public class StageSelectUI : MonoBehaviour
             for (int k = 0; k < visible.Count; k++) cardSlotRects[visible[k]].anchoredPosition = new Vector2(start + k * stride, slotHome[visible[k]].y);
         }
         else for (int i = 0; i < cardSlotRects.Length; i++) if (cardSlotRects[i] != null) cardSlotRects[i].anchoredPosition = slotHome[i];
+    }
+
+    // 2026-10-09(依頼G-2): 「« 戻る」は左上(どの画面も同じ)。下は「出発」と「疾走出発…」(SprintDeparturePanel が出発の右隣に描く)を
+    // 2つで1組として中央に置く
+    public const float DepartW = 280f, DepartH = 76f, SprintW = 300f, PairGap = 24f;
+    void ApplyButtonLayout()
+    {
+        UiConventions.PlaceBack(backButtonRect);
+        if (departButtonRect != null)
+        {
+            departButtonRect.anchorMin = departButtonRect.anchorMax = departButtonRect.pivot = new Vector2(0.5f, 0f);
+            departButtonRect.sizeDelta = new Vector2(DepartW, DepartH);
+            float total = DepartW + PairGap + SprintW;
+            departButtonRect.anchoredPosition = new Vector2(-total * 0.5f + DepartW * 0.5f, 40f);
+        }
+    }
+
+    // 出発ボタンの画面上の四角(GUI 座標: 左上が原点)。疾走出発のボタンをこの右隣に置く
+    public Rect DepartGuiRect
+    {
+        get
+        {
+            if (departButtonRect == null) return Rect.zero;
+            var c = new Vector3[4]; departButtonRect.GetWorldCorners(c);
+            var cv = departButtonRect.GetComponentInParent<Canvas>();
+            Camera cam = cv != null && cv.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay ? cv.rootCanvas.worldCamera : null;
+            Vector2 a = RectTransformUtility.WorldToScreenPoint(cam, c[0]), b = RectTransformUtility.WorldToScreenPoint(cam, c[2]);
+            return new Rect(a.x, Screen.height - b.y, b.x - a.x, b.y - a.y);
+        }
     }
 
     void RefreshGlow()

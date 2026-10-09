@@ -40,8 +40,11 @@ public class SprintDeparturePanel : MonoBehaviour
         string stage = gm.stageSelectUI.SelectedStageIdInUi;
         if (string.IsNullOrEmpty(stage)) return;
 
-        // 「出発」(中央下 280x76、下から40)の右隣
-        Rect btn = new Rect(Screen.width * 0.5f + 170f * s, Screen.height - (40f + 76f) * s, 300f * s, 76f * s);
+        // 「出発」の右隣(2026-10-09: 出発と2つで1組として中央に置く。StageSelectUI.ApplyButtonLayout)
+        Rect dep = gm.stageSelectUI.DepartGuiRect;
+        Rect btn = dep.width > 0f
+            ? new Rect(dep.xMax + StageSelectUI.PairGap * s, dep.y, StageSelectUI.SprintW * s, dep.height)
+            : new Rect(Screen.width * 0.5f + 170f * s, Screen.height - (40f + 76f) * s, 300f * s, 76f * s);
         if (!Open)
         {
             int unlocked = 0;
@@ -64,7 +67,7 @@ public class SprintDeparturePanel : MonoBehaviour
         LocGUI.Label(new Rect(x, y, w, 50f * s), $"疾走出発  {(st != null ? st.displayName : stageForPanel)}", UiKit.Label(34f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f)));
         y += 52f * s;
         // 2026-10-08: 説明は折り返し、長い言語ではスクロール(以前は1行のままで切れていた)
-        var descSt = UiKit.Label(20f * s, TextAnchor.UpperLeft, false, new Color(0.85f, 0.9f, 1f)); descSt.wordWrap = true;
+        var descSt = new GUIStyle(UiKit.Label(20f * s, TextAnchor.UpperLeft, false, new Color(0.85f, 0.9f, 1f))); descSt.wordWrap = true;
         descScroll.Text(new Rect(x, y, w, 76f * s), "攻略済みの区間を一気に駆け抜け、選んだ関門の少し手前から走り始めます。途中のボス報酬ぶんのカードは自動で取得。5,000mごとのリングをくぐると追加で1枚選べます。", descSt, stageForPanel);
         y += 84f * s;
         var list = SprintRecords.Destinations(stageForPanel);

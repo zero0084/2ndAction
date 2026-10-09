@@ -19,6 +19,22 @@ public class LocFonts : MonoBehaviour
     static Font builtinSkinFont; static bool skinFontKnown;
     public static string ActiveFontName => current != null ? current.name : "";
 
+    // 2026-10-09(依頼G): 言語の一覧で、選ぶ前の言語の名前も □ にならないように、その言語用のフォント(無ければ null = 既定)
+    static readonly Dictionary<string, Font> perLang = new Dictionary<string, Font>();
+    public static Font FontFor(string lang)
+    {
+        if (string.IsNullOrEmpty(lang) || Application.platform == RuntimePlatform.Android) return null;
+        if (perLang.TryGetValue(lang, out var f)) return f;
+        f = null;
+        if (OsFonts.TryGetValue(lang, out var names))
+        {
+            var installed = new HashSet<string>(Font.GetOSInstalledFontNames());
+            foreach (var n in names) if (installed.Contains(n)) { f = Font.CreateDynamicFontFromOSFont(n, 32); break; }
+        }
+        perLang[lang] = f;
+        return f;
+    }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Boot()
     {

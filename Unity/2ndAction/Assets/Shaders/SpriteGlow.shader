@@ -18,13 +18,14 @@ Shader "OneMoreMile/SpriteGlow"
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
+            #include "Zig.cginc" // 縦画面「斜め上から見る」のジグザグの道(表示だけ、2026-10-09)
             sampler2D _MainTex;
             struct appdata { float4 vertex : POSITION; float2 uv : TEXCOORD0; fixed4 color : COLOR; };
             struct v2f { float4 pos : SV_POSITION; float2 uv : TEXCOORD0; fixed4 color : COLOR; };
             v2f vert (appdata v)
             {
                 v2f o;
-                o.pos = UnityObjectToClipPos(v.vertex);
+                o.pos = UnityObjectToClipPos(ZigObject(v.vertex));
                 o.uv = v.uv;
                 o.color = v.color;
                 return o;

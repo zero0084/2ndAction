@@ -34,6 +34,12 @@ public partial class QaSweep
             SettingsPanel.OpenStatic();
             for (int i = 0; i < 6; i++) { yield return new WaitForSecondsRealtime(0.1f); L($"[portrait] settings state={GetPrivate(SettingsPanel.Instance, "state")} t={GetPrivate(SettingsPanel.Instance, "t")} dt={Time.unscaledDeltaTime:F3} en={SettingsPanel.Instance.isActiveAndEnabled}"); }
             S("settings"); yield return new WaitForSecondsRealtime(0.3f);
+            // 言語の一覧(2026-10-09)
+            SetPrivate(SettingsPanel.Instance, "langScroll", -1f); SetPrivate(SettingsPanel.Instance, "langOpen", true);
+            yield return new WaitForSecondsRealtime(0.4f); S("settings_lang"); yield return new WaitForSecondsRealtime(0.3f);
+            Check(SettingsPanel.LangListOpen, "language list opens");
+            SettingsPanel.CloseLangList(); yield return new WaitForSecondsRealtime(0.3f);
+            Check(!SettingsPanel.LangListOpen && SettingsPanel.IsVisible, "closing the language list keeps the settings open");
             {
                 // 表示の段(縦画面のラン表示の行)まで送って撮る
                 var sp = SettingsPanel.Instance;
@@ -51,13 +57,13 @@ public partial class QaSweep
         }
         if (PCase('M'))
         {
-            gm.OpenStageSelect(); yield return new WaitForSecondsRealtime(1.3f); S("stage_select"); yield return new WaitForSecondsRealtime(0.3f);
+            gm.OpenStageSelect(); yield return new WaitForSecondsRealtime(1.3f); yield return WaitTut(() => ScreenTransitionManager.Instance == null || !ScreenTransitionManager.Instance.IsTransitioning, 6f); yield return new WaitForSecondsRealtime(0.5f); S("stage_select"); yield return new WaitForSecondsRealtime(0.3f);
             FindFirstObjectByType<StageSelectUI>()?.Close(); yield return new WaitForSecondsRealtime(1.3f);
-            gm.OpenCharacterSelect(); yield return new WaitForSecondsRealtime(1.3f); S("char_select"); yield return new WaitForSecondsRealtime(0.3f);
+            gm.OpenCharacterSelect(); yield return new WaitForSecondsRealtime(1.3f); yield return WaitTut(() => ScreenTransitionManager.Instance == null || !ScreenTransitionManager.Instance.IsTransitioning, 6f); yield return new WaitForSecondsRealtime(0.5f); S("char_select"); yield return new WaitForSecondsRealtime(0.3f);
             FindFirstObjectByType<CharacterSelectUI>()?.Close(); yield return new WaitForSecondsRealtime(1.3f);
-            gm.OpenDeckEdit(); yield return new WaitForSecondsRealtime(1.3f); S("deck_edit"); yield return new WaitForSecondsRealtime(0.3f);
+            gm.OpenDeckEdit(); yield return new WaitForSecondsRealtime(1.3f); yield return WaitTut(() => ScreenTransitionManager.Instance == null || !ScreenTransitionManager.Instance.IsTransitioning, 6f); yield return new WaitForSecondsRealtime(0.5f); S("deck_edit"); yield return new WaitForSecondsRealtime(0.3f);
             FindFirstObjectByType<DeckEditUI>()?.Close(); yield return new WaitForSecondsRealtime(1.3f);
-            gm.OpenCardFusion(); yield return new WaitForSecondsRealtime(1.3f); S("fusion"); yield return new WaitForSecondsRealtime(0.3f);
+            gm.OpenCardFusion(); yield return new WaitForSecondsRealtime(1.3f); yield return WaitTut(() => ScreenTransitionManager.Instance == null || !ScreenTransitionManager.Instance.IsTransitioning, 6f); yield return new WaitForSecondsRealtime(0.5f); S("fusion"); yield return new WaitForSecondsRealtime(0.3f);
             var fu = FindFirstObjectByType<CardFusionUI>(); if (fu != null) fu.SendMessage("Close", SendMessageOptions.DontRequireReceiver);
             yield return new WaitForSecondsRealtime(1.3f);
             yield return ReloadHome();

@@ -26,6 +26,7 @@ Shader "OneMoreMile/SpriteRim"
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
+            #include "Zig.cginc" // 縦画面「斜め上から見る」のジグザグの道(表示だけ、2026-10-09)
             sampler2D _MainTex;
             float4 _UvRect, _Step1, _Step2;
             fixed4 _DarkColor, _LightColor;
@@ -35,7 +36,7 @@ Shader "OneMoreMile/SpriteRim"
             v2f vert (appdata v)
             {
                 v2f o;
-                o.pos = UnityObjectToClipPos(v.vertex);
+                o.pos = UnityObjectToClipPos(ZigObject(v.vertex));
                 o.uv = v.uv;
                 return o;
             }

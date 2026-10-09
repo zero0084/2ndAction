@@ -161,8 +161,8 @@ public class ComboSystem : MonoBehaviour
         GUI.DrawTexture(new Rect(r.x, r.y, r.width, 3f * s), white); GUI.DrawTexture(new Rect(r.x, r.yMax - 3f * s, r.width, 3f * s), white);
         if (t < 0.15f) { GUI.color = new Color(col.r, col.g, col.b, 0.25f * (1f - t / 0.15f)); GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), white); } // 小さな光
         GUI.color = keep;
-        var big = UiKit.Label(30f * s, TextAnchor.UpperCenter, true, new Color(1f, 1f, 1f, k));
-        var small = UiKit.Label(16f * s, TextAnchor.LowerCenter, false, new Color(0.9f, 0.9f, 1f, k));
+        var big = new GUIStyle(UiKit.Label(30f * s, TextAnchor.UpperCenter, true, new Color(1f, 1f, 1f, k)));
+        var small = new GUIStyle(UiKit.Label(16f * s, TextAnchor.LowerCenter, false, new Color(0.9f, 0.9f, 1f, k)));
         string names = string.Join(" + ", noticing.def.abilities.ConvertAll(id => CardDatabase.FindBaseById(id) != null ? CardDatabase.FindBaseById(id).cardName : id));
         LocGUI.Label(new Rect(r.x, r.y + 4f * s, r.width, 40f * s), (gold ? "★ " : "") + "COMBO!  " + noticing.def.displayName, big);
         LocGUI.Label(new Rect(r.x, r.y, r.width, r.height - 6f * s), names, small);

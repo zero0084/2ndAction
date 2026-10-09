@@ -24,16 +24,19 @@ public class BackgroundFollower : MonoBehaviour
     void Awake()
     {
         sr = GetComponent<SpriteRenderer>();
+        if (ZigRoad.NoZigMaterial != null) sr.sharedMaterial = ZigRoad.NoZigMaterial; // 背景の空はジグザグに曲げない(2026-10-09)
     }
 
     void LateUpdate()
     {
         if (cam == null || sr.sprite == null) return;
 
-        transform.position = new Vector3(cam.transform.position.x * parallaxFactor, cam.transform.position.y, 0f);
+        // 折り返して見る(FoldView、2026-10-09): 下の段と上の段(右へ画面1枚先)の両方を覆う
+        float foldShift = FoldView.Active ? FoldView.BgCoverShift : 0f;
+        transform.position = new Vector3(cam.transform.position.x * parallaxFactor + foldShift, cam.transform.position.y, 0f);
 
         float worldHeight = cam.orthographicSize * 2f;
-        float worldWidth = worldHeight * cam.aspect;
+        float worldWidth = worldHeight * cam.aspect * (FoldView.Active ? FoldView.BgCoverScaleX : 1f);
 
         Vector2 spriteSize = sr.sprite.bounds.size;
         float scale = Mathf.Max(worldWidth / spriteSize.x, worldHeight / spriteSize.y);

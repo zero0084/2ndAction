@@ -187,6 +187,7 @@ public class SprintRunner : MonoBehaviour
             // 選択の状態が1フレームだけ閉じて見えることがある(開き直し)ので、閉じたまま数フレーム続いてから再開する
             if (++closedFrames < 4) return;
             waitingChoice = false;
+            ShowFreeze(false);
             Banner("疾走再開!", new Color(0.6f, 0.95f, 1f), 1.0f);
             CheckAllMaxed(); // 選んだカードで全 Lv9 になったら、以降は MILE と案内
         }
@@ -211,10 +212,13 @@ public class SprintRunner : MonoBehaviour
         }
 
         // 成功したリングのカードの3択(弾ける演出を少し見せてから開く)
-        if (pendingChoiceAt > 0f && Time.unscaledTime >= pendingChoiceAt)
+        if (pendingChoiceAt > 0f && Time.unscaledTime >= pendingChoiceAt && !freezeCapturing)
         {
+            // 2026-10-09: 開く前に、今の疾走の画面を1枚撮って カードの3択の後ろに敷く(StartCoroutine の後、次のフレームで開く)
+            if (!freezeReady) { StartCoroutine(CaptureFreeze()); return; }
+            freezeReady = false;
             pendingChoiceAt = -1f;
-            if (gm.StartSprintRingChoice()) { RingCardRewards++; waitingChoice = true; choiceOpened = false; choiceWaitSince = Time.unscaledTime; }
+            if (gm.StartSprintRingChoice()) { RingCardRewards++; waitingChoice = true; choiceOpened = false; choiceWaitSince = Time.unscaledTime; ShowFreeze(true); }
             else
             {
                 // 演出の間の自動取得で候補が尽きた: 全 Lv9 になったのなら MILE(どちらか1回だけ)
@@ -478,29 +482,42 @@ public class SprintRunner : MonoBehaviour
         }
 
         // 走るキャラ(到着の補間: 実際のキャラの位置/大きさへ寄せる)
+        // 2026-10-09: 全部のコマを同じ縮尺(1m あたりの画素)で、絵の基準点(pivot)を同じ所に置いて描く。
+        //  以前はコマごとに絵の四角の高さを th に合わせていたため、余白の多いコマ/背の高いポーズのコマだけ一瞬小さく見えていた
+        //  (ゲーム中の PlayerAnimator は PPU 固定なので、同じ並べ方にすると大きさがそろう)
         if (runFrames != null && runFrames.Length > 0)
         {
             var sp = runFrames[(int)(t * 14f) % runFrames.Length];
-            if (sp != null)
+            var refSp = RefFrame();
+            if (sp != null && refSp != null)
             {
-                Rect tr = sp.textureRect;
-                float tw = th * tr.width / Mathf.Max(1f, tr.height);
-                Rect cr = new Rect(charX - tw * 0.5f, LaneY(visLane) - th, tw, th);
-                if (!outro) LastCharRect = cr;
+                // 縮尺: 全コマの絵の中身の高さの平均 = th(今までの見た目の大きさのまま)。基準のコマ(1枚目)の中身の足元を段の高さ、中心を charX に
+                float ppu0 = refSp.pixelsPerUnit;
+                Rect tr0 = refSp.textureRect; Vector2 off0 = refSp.textureRectOffset;
+                float k = th / Mathf.Max(0.01f, AvgContentUnits());                    // 1m あたりの画素
+                // 基準点(pivot)から見た、基準のコマの中身の中心(横)と下端(縦)。GUI 座標は下向きが +
+                float cxU = (off0.x + tr0.width * 0.5f - refSp.pivot.x) / ppu0, byU = (refSp.pivot.y - off0.y) / ppu0;
+                Vector2 pivot = new Vector2(charX - cxU * k, LaneY(visLane) - byU * k);
+                float bw = th * tr0.width / Mathf.Max(1f, tr0.height);
+                if (!outro) LastCharRect = new Rect(charX - bw * 0.5f, LaneY(visLane) - th, bw, th);
                 else
                 {
                     float ez = Mathf.SmoothStep(0f, 1f, op01);
-                    cr = outroFrom;
-                    if (PlayerScreenRect(out Rect target))
+                    float kFrom = outroFrom.height / Mathf.Max(0.01f, AvgContentUnits());
+                    Vector2 pFrom = new Vector2(outroFrom.center.x - cxU * kFrom, outroFrom.yMax - byU * kFrom);
+                    k = kFrom; pivot = pFrom;
+                    if (PlayerScreenPivot(out Vector2 pTo, out float kTo))
                     {
-                        // 足元の中心と高さを合わせる(横幅は絵の比率のまま)
-                        float h2 = Mathf.Lerp(outroFrom.height, target.height, ez);
-                        float w2 = h2 * tr.width / Mathf.Max(1f, tr.height);
-                        float cx = Mathf.Lerp(outroFrom.center.x, target.center.x, ez);
-                        float by = Mathf.Lerp(outroFrom.yMax, target.yMax, ez);
-                        cr = new Rect(cx - w2 * 0.5f, by - h2, w2, h2);
+                        k = Mathf.Lerp(kFrom, kTo, ez);
+                        pivot = Vector2.Lerp(pFrom, pTo, ez);
                     }
                 }
+                float ppu = sp.pixelsPerUnit;
+                Rect tr = sp.textureRect;
+                Vector2 off = sp.textureRectOffset;
+                float left = pivot.x - sp.pivot.x / ppu * k + off.x / ppu * k;
+                float bottom = pivot.y + sp.pivot.y / ppu * k - off.y / ppu * k;
+                Rect cr = new Rect(left, bottom - tr.height / ppu * k, tr.width / ppu * k, tr.height / ppu * k);
                 Rect uv = new Rect(tr.x / sp.texture.width, tr.y / sp.texture.height, tr.width / sp.texture.width, tr.height / sp.texture.height);
                 GUI.color = new Color(1f, 1f, 1f, outro ? Mathf.Clamp01((1f - op01) * 4f) : 1f); // 最後に実際のキャラへ重なって消える
                 GUI.DrawTextureWithTexCoords(cr, sp.texture, uv);
@@ -550,7 +567,7 @@ public class SprintRunner : MonoBehaviour
         if (P)
         {
             LocGUI.Label(new Rect(30f * s, top0, W - 60f * s, 48f * s), "疾走出発", UiKit.Label(38f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f)));
-            var dl = UiKit.Label(30f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f)); dl.wordWrap = true;
+            var dl = new GUIStyle(UiKit.Label(30f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f))); dl.wordWrap = true;
             LocGUI.Label(new Rect(30f * s, top0 + 46f * s, W - 60f * s, 44f * s), $"→ {Destination:N0}m の関門の手前へ", dl);
             LocGUI.Label(new Rect(30f * s, top0 + 92f * s, W - 60f * s, 90f * s), $"{DistanceNow:N0} m", UiKit.Label(72f * s, TextAnchor.MiddleLeft, true, Color.white));
         }
@@ -585,7 +602,7 @@ public class SprintRunner : MonoBehaviour
             statusLine = allMaxed
                 ? $"デッキ全カード Lv{GameManager.MaxRunCardLevel} MAX\nリング報酬は +{tn.ringMileReward} MILE"
                 : $"今は取れるカードがありません(×{AutoSkipped})";
-            var stl = UiKit.Label(22f * s, TextAnchor.MiddleLeft, true, allMaxed ? new Color(1f, 0.88f, 0.45f) : new Color(0.85f, 0.85f, 0.9f));
+            var stl = new GUIStyle(UiKit.Label(22f * s, TextAnchor.MiddleLeft, true, allMaxed ? new Color(1f, 0.88f, 0.45f) : new Color(0.85f, 0.85f, 0.9f)));
             stl.wordWrap = true;
             LocGUI.Label(new Rect(row.x + 16f * s, row.y, row.width - 24f * s, row.height), statusLine, stl);
             fy += rowStep + (P ? 6f * s : 0f);
@@ -626,7 +643,7 @@ public class SprintRunner : MonoBehaviour
             if (P)
             {
                 // 縦: ▲▼ の左に折り返して(下の段の中)
-                var hl = UiKit.Label(24f * s, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.9f, 1f)); hl.wordWrap = true;
+                var hl = new GUIStyle(UiKit.Label(24f * s, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.9f, 1f))); hl.wordWrap = true;
                 LocGUI.Label(new Rect(24f * s, up.y, up.x - 40f * s, up.height), $"{ControlHint()} で高さを合わせてリングをくぐる\n(逃しても減るものはありません)", hl);
             }
             else LocGUI.Label(new Rect(40f * s, H - 70f * s, W - 300f * s, 50f * s), $"{ControlHint()} で高さを合わせてリングをくぐる(逃しても減るものはありません)", UiKit.Label(24f * s, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.9f, 1f)));
@@ -646,9 +663,9 @@ public class SprintRunner : MonoBehaviour
                 float f1 = P ? 40f : 48f, l1h = P ? 104f : 64f, l3h = P ? 80f : 44f; // 縦: 幅が狭いので折り返す(2行まで)
                 Rect pr = new Rect(Mathf.Clamp(W * 0.45f - pw * 0.5f, 16f * s, W - pw - 16f * s), groundY + 22f * s, pw, (24f + l1h + 52f + (l3.Length > 0 ? l3h + 6f : 0f)) * s); // 地面の帯(キャラ/リングの通り道を隠さない)
                 UiKit.Fill(pr, new Color(0.03f, 0.04f, 0.09f, 0.78f * a));
-                var s1 = UiKit.Label(f1 * s, TextAnchor.MiddleCenter, true, new Color(1f, 0.92f, 0.6f, a)); s1.wordWrap = true;
-                var s2 = UiKit.Label(32f * s, TextAnchor.MiddleCenter, true, new Color(0.85f, 0.95f, 1f, a)); s2.wordWrap = true;
-                var s3 = UiKit.Label(28f * s, TextAnchor.MiddleCenter, true, new Color(0.6f, 1f, 0.75f, a)); s3.wordWrap = true;
+                var s1 = new GUIStyle(UiKit.Label(f1 * s, TextAnchor.MiddleCenter, true, new Color(1f, 0.92f, 0.6f, a))) { wordWrap = true };
+                var s2 = new GUIStyle(UiKit.Label(32f * s, TextAnchor.MiddleCenter, true, new Color(0.85f, 0.95f, 1f, a))) { wordWrap = true };
+                var s3 = new GUIStyle(UiKit.Label(28f * s, TextAnchor.MiddleCenter, true, new Color(0.6f, 1f, 0.75f, a))) { wordWrap = true };
                 LocGUI.Label(new Rect(pr.x + 10f * s, pr.y + 12f * s, pr.width - 20f * s, l1h * s), l1, s1);
                 LocGUI.Label(new Rect(pr.x + 10f * s, pr.y + (16f + l1h) * s, pr.width - 20f * s, 44f * s), l2, s2);
                 if (l3.Length > 0) LocGUI.Label(new Rect(pr.x + 10f * s, pr.y + (66f + l1h) * s, pr.width - 20f * s, l3h * s), l3, s3);
@@ -661,7 +678,7 @@ public class SprintRunner : MonoBehaviour
             float pw = Mathf.Min(1040f * s, W - 32f * s);
             Rect pr = new Rect(Mathf.Clamp(W * 0.45f - pw * 0.5f, 16f * s, W - pw - 16f * s), groundY + 30f * s, pw, (P ? 160f : 120f) * s);
             UiKit.Fill(pr, new Color(0.08f, 0.06f, 0.01f, 0.8f * a));
-            var nl = UiKit.Label(36f * s, TextAnchor.MiddleCenter, true, new Color(1f, 0.9f, 0.5f, a)); nl.wordWrap = true;
+            var nl = new GUIStyle(UiKit.Label(36f * s, TextAnchor.MiddleCenter, true, new Color(1f, 0.9f, 0.5f, a))); nl.wordWrap = true;
             LocGUI.Label(pr, notice, nl);
         }
 
@@ -674,7 +691,42 @@ public class SprintRunner : MonoBehaviour
         if (e.type == EventType.MouseDown || e.type == EventType.MouseUp) e.Use();
     }
 
-    // 実際のキャラの画面上の矩形(GUI 座標)。到着の補間の行き先
+    // 全コマの絵の中身(透明な余白を除いた部分)の高さの平均(m)。疾走の画面のキャラの大きさの基準
+    float avgContentUnits = -1f;
+    float AvgContentUnits()
+    {
+        if (avgContentUnits > 0f) return avgContentUnits;
+        float sum = 0f; int n = 0;
+        if (runFrames != null) foreach (var f in runFrames) if (f != null) { sum += f.textureRect.height / f.pixelsPerUnit; n++; }
+        avgContentUnits = n > 0 ? sum / n : 1f;
+        return avgContentUnits;
+    }
+
+    // 大きさの基準にするコマ(走りの1枚目)
+    Sprite RefFrame()
+    {
+        if (runFrames == null) return null;
+        foreach (var f in runFrames) if (f != null) return f;
+        return null;
+    }
+
+    // 実際のキャラ(PlayerAnimator の絵)の基準点の画面位置(GUI 座標)と 1m あたりの画素。到着の補間の行き先
+    bool PlayerScreenPivot(out Vector2 p, out float k)
+    {
+        p = default; k = 0f;
+        var pc = PlayerController.Instance; var cam = Camera.main;
+        if (pc == null || cam == null) return false;
+        var pa = pc.GetComponentInChildren<PlayerAnimator>();
+        var sr = pa != null ? pa.VisualRenderer : null;
+        if (sr == null || !sr.enabled || sr.sprite == null) return false;
+        Vector3 w = sr.transform.position;
+        Vector3 a = cam.WorldToScreenPoint(w), b = cam.WorldToScreenPoint(w + Vector3.up);
+        k = Mathf.Abs(b.y - a.y) * Mathf.Abs(sr.transform.lossyScale.y);
+        p = new Vector2(a.x, Screen.height - a.y);
+        return k > 0.01f;
+    }
+
+    // 実際のキャラの画面上の矩形(GUI 座標)
     bool PlayerScreenRect(out Rect r)
     {
         r = default;
@@ -692,5 +744,50 @@ public class SprintRunner : MonoBehaviour
         return r.width > 1f && r.height > 1f;
     }
 
-    void OnDestroy() { if (Instance == this) Instance = null; }
+    // ---- カードの3択の後ろに敷く「止めた疾走の画面」(2026-10-09)
+    // 3択(RewardCardCanvas、並び 100)は uGUI なので、IMGUI の疾走の画面はその上に描けない(IMGUI は常に一番上)。
+    // そこで開く直前の画面を1枚の絵にして、HUD(90)より上・3択(100)より下の uGUI(95)で全面に出す。
+    // 一瞬ダンジョンの画面が見えて「疾走が終わった」と勘違いさせないため
+    bool freezeCapturing, freezeReady;
+    Texture2D freezeTex;
+    GameObject freezeGo;
+    System.Collections.IEnumerator CaptureFreeze()
+    {
+        freezeCapturing = true;
+        yield return new WaitForEndOfFrame(); // このフレームの疾走の画面(IMGUI まで描いた後)
+        if (freezeTex != null) Destroy(freezeTex);
+        freezeTex = ScreenCapture.CaptureScreenshotAsTexture();
+        freezeCapturing = false;
+        freezeReady = true;
+    }
+    void ShowFreeze(bool on)
+    {
+        if (on && freezeTex != null)
+        {
+            if (freezeGo == null)
+            {
+                freezeGo = new GameObject("SprintChoiceBackdrop");
+                freezeGo.transform.SetParent(transform, false);
+                var cv = freezeGo.AddComponent<Canvas>();
+                cv.renderMode = RenderMode.ScreenSpaceOverlay;
+                cv.sortingOrder = 95;
+                var img = new GameObject("Image", typeof(RectTransform)).AddComponent<UnityEngine.UI.RawImage>();
+                img.transform.SetParent(freezeGo.transform, false);
+                var rt = img.rectTransform; rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one; rt.offsetMin = rt.offsetMax = Vector2.zero;
+                img.raycastTarget = false;
+            }
+            var raw = freezeGo.GetComponentInChildren<UnityEngine.UI.RawImage>();
+            raw.texture = freezeTex;
+            raw.color = new Color(0.8f, 0.8f, 0.85f, 1f); // 少し暗く(カードを目立たせる)
+            freezeGo.SetActive(true);
+        }
+        else if (freezeGo != null) freezeGo.SetActive(false);
+    }
+    public bool ChoiceBackdropShown => freezeGo != null && freezeGo.activeSelf; // 確認用
+
+    void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+        if (freezeTex != null) Destroy(freezeTex);
+    }
 }
