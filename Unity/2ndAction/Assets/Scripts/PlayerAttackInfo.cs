@@ -53,6 +53,7 @@ public class PlayerAttackInfo : MonoBehaviour
     // 判定が有効になるたび(PlayerAttackSweeperが有効化の瞬間を検出)、または技の開始時(ArmKitBox等)に新しい番号になる。
     // 飛び道具は1発ごとに別のGameObjectなので、生成時の番号のまま。
     static int swingCounter;
+    public static int SwingCount => swingCounter; // 検証用: これまでの攻撃判定の発生回数(振り/発射/出し直し)
     public int SwingId { get; private set; }
     public void NewSwing() { SwingId = ++swingCounter; }
     // 判定を別の位置/大きさで出し直した(前の位置からの掃引はしない)

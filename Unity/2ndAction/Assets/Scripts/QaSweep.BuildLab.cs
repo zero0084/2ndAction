@@ -18,7 +18,12 @@ public partial class QaSweep
     [System.Serializable] public class BlBuildFile { public BlBuild[] builds; }
 
     [System.Serializable] public class BlPick { public float dist, t; public string kind; public string[] offered; public string picked, why; public int level; }
-    [System.Serializable] public class BlBoss { public float dist, t0, seconds; public string names; public bool defeated, timedOut; public float hpLeftFrac; public int hitsTaken, terrainHits; }
+    [System.Serializable] public class BlBoss
+    {
+        public float dist, t0, seconds; public string names; public bool defeated, timedOut; public float hpLeftFrac; public int hitsTaken, terrainHits;
+        // 2026-10-11(再検証): 当てた回数(ボスの HP が減ったフレーム)/攻撃判定の回数/開始・終了の HP/最後に HP が減ってからの秒数
+        public int hpDrops, swings, playerHpStart, playerHpEnd; public float hpStartFrac = -1f, lastDropT = -1f, firstDropT = -1f;
+    }
     [System.Serializable] public class BlHit { public float dist, t; public string reason, near; public int dmg, after; public bool boss; }
     [System.Serializable]
     public class BlResult
@@ -42,6 +47,13 @@ public partial class QaSweep
         public string notes = "";
         public float avgFps; public int slowFrames;
         public float memStartMB = -1f, memEndMB = -1f, memPeakMB = -1f; // プロセスのメモリ(Private Bytes)。長い試行で増え続けるかの確認 // 実行の負荷の確認(並列で 60fps を保てたか。slowFrames = 1/30 秒より長いフレーム)
+        // 2026-10-11(再検証): DEBUG 設定の確認 / 補助の状態ごとの秒数 / 攻撃と命中 / 補助の最後の判断 / 版
+        public string debugCheck = ""; public bool debugClean;
+        public string assistSeconds = ""; public float assistActiveFrac = -1f;
+        public int swings, zakoHits, zakoKills, lv9Abilities, abilityCount;
+        public string assistLast = "", exe = "";
+        public string stopEnemy = "";   // 止まった時の近くの敵/ボス
+        public string category = "";    // 止まった理由の区分(依頼の分類)
     }
 
     BlResult bl;
@@ -51,6 +63,9 @@ public partial class QaSweep
     readonly StringBuilder blEvents = new StringBuilder("t\tdist\tkind\tdetail\n");
     float blT, blReal0, blRunReal0; int blFrames;
     BlBoss blCurBoss;
+    float blCurBossLastFrac = -1f; int blCurBossSwing0;
+    int blSwing0; readonly Dictionary<HighSpeedAssist.Status, float> blAssistT = new Dictionary<HighSpeedAssist.Status, float>();
+    System.Action<EnemyController, PlayerAttackKind, bool, bool> blHitTap;
     HighSpeedAssist blAlwaysApplied;
     string blSnapshot = "";
 
@@ -164,6 +179,23 @@ public partial class QaSweep
             BlEvent("partial", $"build Lv9 applied, warped to {partialAt - 400f:F0}m HP {gm.Lives}/{gm.MaxLives} [{BlAbilities()}]");
         }
         blRunReal0 = Time.realtimeSinceStartup; blFrames = 0;
+        // 2026-10-11(再検証): 結果に影響する DEBUG 設定が無効か(無敵/速度・時間の倍率/攻撃の上乗せ/経験値停止/ボスHPの固定/カード試験の適用)
+        {
+            var p0 = PlayerController.Instance;
+            var def = CharacterDatabase.AllCharacters.FirstOrDefault(c => c.characterId == bl.character);
+            int baseAtk = def != null ? def.attackPower : -1;
+            int atk = p0 != null ? p0.AttackPower : -1;
+            bool clean = !gm.InvincibleMode && Mathf.Approximately(PlayerController.DebugSpeedScale, 1f) && Mathf.Approximately(PlayerController.DebugRunOnlyScale, 1f)
+                && Mathf.Approximately(TimeControl.DebugTimeScale, 1f) && !GameManager.BlockExpGain && BossManager.NetTestBossHpOverride == 0 && CardBalanceTest.Applications == 0
+                && !ComboSystem.DebugForceAwakened && !FinalEvolution.DebugForceAwakened && string.IsNullOrEmpty(FinalEvolution.DebugForceCandidate) && (partialAt > 0f || atk == baseAtk);
+            bl.debugCheck = $"invincible={gm.InvincibleMode} speedScale={PlayerController.DebugSpeedScale} runOnly={PlayerController.DebugRunOnlyScale} timeScale={TimeControl.DebugTimeScale} blockExp={GameManager.BlockExpGain} bossHpOverride={BossManager.NetTestBossHpOverride} cardTest={CardBalanceTest.Applications} comboForce={ComboSystem.DebugForceAwakened} feForce={FinalEvolution.DebugForceAwakened} attack={atk} base={baseAtk}";
+            bl.debugClean = clean;
+            if (!clean) bl.notes += " DEBUG_ACTIVE";
+            bl.exe = Arg("-blExe", "");
+        }
+        blSwing0 = PlayerAttackInfo.SwingCount;
+        blHitTap = (e, kind, launched, killed) => { bl.zakoHits++; if (killed) bl.zakoKills++; };
+        EnemyController.LocalHit += blHitTap;
         BlEvent("start", $"{b.name} {bl.character} {bl.stage} growth{bl.growth} seed{bl.seed} {bl.depart} engage{bl.engageKmh}");
 
         // ---- 走る
@@ -181,6 +213,7 @@ public partial class QaSweep
             var pcNow = PlayerController.Instance;
             if (pcNow != null) bl.maxKmh = Mathf.Max(bl.maxKmh, SpeedKmhOf(pcNow.CurrentAutoRunSpeed));
             if (hsa == null) hsa = HighSpeedAssist.Instance;
+            if (hsa != null && gm.HasStarted && !gm.IsGameOver && Time.timeScale > 0.01f) { var st = hsa.CurrentStatus; blAssistT[st] = (blAssistT.TryGetValue(st, out float at) ? at : 0f) + Time.deltaTime; }
             // 常に補助(検証の間だけ。保存しない。闘技場の「常時」と同じ入口): 補助の部品が作り直されたら当て直す
             if (assistAlways && hsa != null && hsa != blAlwaysApplied) { hsa.ArenaApply(2, 0f, hsa.breakObstacles, hsa.earlyDoubleJump); blAlwaysApplied = hsa; BlEvent("assist", "always on"); }
             if (bl.assistFirstActiveDist < 0f && hsa != null && pcNow != null && (assistAlways || SpeedKmhOf(pcNow.CurrentAutoRunSpeed) >= bl.engageKmh)) bl.assistFirstActiveDist = d;
@@ -199,7 +232,7 @@ public partial class QaSweep
             // ボス
             var bm = BossManager.Instance;
             bool boss = bm != null && bm.IsBossPhase;
-            if (boss && !wasBoss) { blCurBoss = new BlBoss { dist = d, t0 = blT }; blBosses.Add(blCurBoss); BlEvent("boss_start", ""); }
+            if (boss && !wasBoss) { blCurBoss = new BlBoss { dist = d, t0 = blT, playerHpStart = gm.Lives }; blBosses.Add(blCurBoss); blCurBossLastFrac = -1f; blCurBossSwing0 = PlayerAttackInfo.SwingCount; BlEvent("boss_start", ""); }
             if (boss && blCurBoss != null)
             {
                 var alive = BlBossesAlive();
@@ -208,17 +241,21 @@ public partial class QaSweep
                     string names = string.Join("+", alive.Select(x => x.name).Distinct());
                     if (string.IsNullOrEmpty(blCurBoss.names) || (blCurBoss.names.Length < 120 && !blCurBoss.names.Contains(names))) blCurBoss.names = string.IsNullOrEmpty(blCurBoss.names) ? names : blCurBoss.names + "|" + names;
                     blCurBoss.hpLeftFrac = alive.Average(x => x.frac);
+                    if (blCurBoss.hpStartFrac < 0f) blCurBoss.hpStartFrac = blCurBoss.hpLeftFrac;
+                    if (blCurBossLastFrac >= 0f && blCurBoss.hpLeftFrac < blCurBossLastFrac - 0.0005f) { blCurBoss.hpDrops++; blCurBoss.lastDropT = blT - blCurBoss.t0; if (blCurBoss.firstDropT < 0f) blCurBoss.firstDropT = blT - blCurBoss.t0; }
+                    blCurBossLastFrac = blCurBoss.hpLeftFrac;
+                    blCurBoss.swings = PlayerAttackInfo.SwingCount - blCurBossSwing0; blCurBoss.playerHpEnd = gm.Lives;
                 }
                 if (blT - blCurBoss.t0 > bl.bossLimit)
                 {
                     blCurBoss.seconds = blT - blCurBoss.t0; blCurBoss.timedOut = true;
-                    bl.outcome = "boss_timeout"; bl.cause = "制限時間内に撃破できず";
+                    bl.outcome = "boss_timeout"; bl.cause = "検証の時間上限(ボス戦)内に撃破できず"; // ゲームの敗北ではない(ゲームにボス戦の時間制限は無い)
                     bl.causeDetail = $"{blCurBoss.names} @{blCurBoss.dist:F0}m HP残り{blCurBoss.hpLeftFrac:P0} {bl.bossLimit:F0}s";
                     BlEvent("boss_timeout", bl.causeDetail);
                     break;
                 }
             }
-            if (!boss && wasBoss && blCurBoss != null) { blCurBoss.seconds = blT - blCurBoss.t0; blCurBoss.defeated = true; BlEvent("boss_end", $"{blCurBoss.names} {blCurBoss.seconds:F1}s"); }
+            if (!boss && wasBoss && blCurBoss != null) { blCurBoss.seconds = blT - blCurBoss.t0; blCurBoss.defeated = true; blCurBoss.playerHpEnd = gm.Lives; blCurBoss.swings = PlayerAttackInfo.SwingCount - blCurBossSwing0; BlEvent("boss_end", $"{blCurBoss.names} {blCurBoss.seconds:F1}s"); }
             if (partialAt > 0f && !lastDungeonPartialFinale && !boss && wasBoss && blCurBoss != null && blCurBoss.dist >= partialAt - 1f) { bl.outcome = "partial_cleared"; bl.success = false; BlEvent("partial_cleared", $"{blCurBoss.names} {blCurBoss.seconds:F1}s"); wasBoss = false; break; }
             wasBoss = boss;
 
@@ -253,6 +290,7 @@ public partial class QaSweep
         if (bl.success && !lastDungeon) { bl.reaperSurvivedMeters = gm.MaxDistance - 100000f; bl.reaperSurvivedSeconds = blT - bl.successGameSeconds; }
         Time.captureDeltaTime = 0f;
         GameManager.QaDamageEvent = null;
+        if (blHitTap != null) EnemyController.LocalHit -= blHitTap;
         BlWrite();
     }
 
@@ -421,6 +459,35 @@ public partial class QaSweep
         bl.deathSnapshot = blSnapshot;
     }
 
+    // 止まった理由の区分(2026-10-11、依頼の分類)。手がかりからの推定で、判断できない時は「未確定」
+    string BlCategory()
+    {
+        if (bl.success) return bl.stage == BossManager.LastStageId ? "成功(最終戦突破)" : "成功(10万m)";
+        if (bl.outcome == "partial_cleared") return "部分試験: 関門突破";
+        if (bl.outcome == "stuck" || bl.outcome == "setup_error") return "G 不具合・試験環境";
+        if (bl.outcome == "time_limit") return "G 試験の時間上限(走行)";
+        var lb = blBosses.Count > 0 ? blBosses[blBosses.Count - 1] : null;
+        if (bl.outcome == "boss_timeout" && lb != null)
+        {
+            float dealt = Mathf.Max(0f, lb.hpStartFrac - lb.hpLeftFrac);
+            if (lb.hpDrops == 0 || dealt < 0.05f) return "C 攻撃が当てられない(ボス戦、試験の上限)";
+            if (lb.lastDropT >= 0f && lb.seconds - lb.lastDropT > 30f) return "C 途中から当てられない(ボス戦、試験の上限)";
+            return "D 当たるが火力不足(ボス戦、試験の上限)";
+        }
+        string c = bl.cause ?? "";
+        if (c.Contains("補助が未作動")) return "A 自動補助が未発動";
+        if (c.Contains("穴") || c.Contains("段差") || c.Contains("障害物")) return "B 穴・段差・地形";
+        if (c.Contains("攻撃が届かない")) return "C 攻撃が当てられない";
+        if (c.Contains("ボス戦"))
+        {
+            if (lb != null && lb.seconds > 20f && lb.hpDrops < lb.seconds / 8f) return "C 当てる機会が少ない(ボス戦で被弾)";
+            return "E 被弾の積み重ね(ボス戦)";
+        }
+        if (c.Contains("雑魚")) return "E 被弾の積み重ね(雑魚)";
+        if (c.Contains("死神")) return "死神";
+        return "未確定";
+    }
+
     void BlWrite()
     {
         if (gm != null)
@@ -431,6 +498,19 @@ public partial class QaSweep
             if (string.IsNullOrEmpty(bl.deathSnapshot)) bl.deathSnapshot = blSnapshot;
         }
         bl.gameSeconds = blT; bl.realSeconds = Time.realtimeSinceStartup - blReal0;
+        bl.swings = PlayerAttackInfo.SwingCount - blSwing0;
+        float atot = blAssistT.Values.Sum();
+        bl.assistSeconds = string.Join(" ", blAssistT.OrderByDescending(kv => kv.Value).Select(kv => $"{kv.Key}={kv.Value:F0}s"));
+        bl.assistActiveFrac = atot > 0f ? (blAssistT.TryGetValue(HighSpeedAssist.Status.Active, out float act) ? act / atot : 0f) : -1f;
+        var hsa2 = HighSpeedAssist.Instance;
+        if (hsa2 != null) bl.assistLast = $"status={hsa2.CurrentStatus} action={hsa2.LastAction} why={hsa2.LastActionReason} fail={hsa2.LastFailure}";
+        if (gm != null)
+        {
+            var abil = BlAbilities().Split(',').Where(x => x.Contains(':')).ToList();
+            bl.abilityCount = abil.Count; bl.lv9Abilities = abil.Count(x => x.EndsWith(":9"));
+        }
+        bl.stopEnemy = BlNear(8f);
+        bl.category = BlCategory();
         bl.avgFps = blFrames / Mathf.Max(1f, Time.realtimeSinceStartup - blRunReal0);
         bl.picks = blPicks.ToArray(); bl.bosses = blBosses.ToArray(); bl.lastHits = blHits.Skip(Mathf.Max(0, blHits.Count - 12)).ToArray();
         System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, "result.json"), JsonUtility.ToJson(bl));
