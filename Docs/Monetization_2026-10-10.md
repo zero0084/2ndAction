@@ -2,7 +2,7 @@
 
 Android 版は「無料 + 広告 + 買い切りの広告なしパス」、Steam/PC 版は広告も課金も無し。
 
-**今回できているのは、模擬(開発版のみ)で全部の流れを動かすところまでです。**
+**2026-10-10 追記: パッケージを導入し(マスターの許可)、Android エミュレーターで本物の SDK のテスト広告まで確認しました(下の7章)。** 以下の1〜6章は導入前の記録(模擬で全部の流れ)です。
 - 本物の広告 SDK / 課金 SDK のパッケージはまだ入れていません。ダウンロードにはマスターの許可が要るためです。
 - 本物とつなぐコード(AdMobAdService / UnityIapStoreService)は書いてあります。ただし `OMM_ADMOB` / `OMM_UNITY_IAP` の定義を付けるまでビルドに入らないので、**未接続・未確認**です。
 
@@ -16,8 +16,10 @@ Android 版は「無料 + 広告 + 買い切りの広告なしパス」、Steam/
 | 購入(成功/支払い待ち→完了/キャンセル/失敗/オフライン/復元/購入済みでオフライン起動/返金) | ✓(模擬ストア) | — | — | 未確認 |
 | 広告の間 音停止・入力停止、後で戻る / 時間の速さ | ✓ | — | — | 未確認 |
 | テスト用データの報酬が通常のデータに混ざらない | ✓ | — | — | — |
-| Steam/PC(模擬なしの起動)で何も始めない/出さない、ビルドに広告/課金の DLL が無い | ✓(Windows ビルド) | — | — | — |
-| 本物の AdMob/UMP 同意画面、Unity IAP の購入・acknowledge・復元 | — | **未** | **未** | **未** |
+| Steam/PC(模擬なしの起動)で何も始めない/出さない | ✓(Windows ビルド。パッケージ導入後は C# の DLL は入るが呼ばれない、7章) | — | — | — |
+| 本物の AdMob(テスト用の広告ユニット): 読み込み/報酬広告で MILE 2倍/報酬広告で広告ガチャ/強制広告→ホーム、広告中の音・入力停止 | ✓ | **✓(Android エミュレーター、APK 286/287、-qaAdSdk)** | — | 未確認 |
+| UMP の同意の確認(EEA 外の扱い)→ AdMob 初期化(初回起動を含む) | — | **✓(エミュレーター、APK 287)** | — | 未確認 |
+| Unity IAP: ストア接続/購入を復元(購入記録なし)/購入 → 検証できないので付与しない | — | — | **未**(Play ストアの無いエミュレーターでは Unity の FakeStore につながる。FakeStore で「付与しない」ことまでは確認) | 未確認 |
 
 **自動テスト**
 - `-qaMonet <dir> -monetizationMock 1`(C/A/D/E/F/G の全項目)… failures=0
@@ -147,3 +149,60 @@ Android 版は「無料 + 広告 + 買い切りの広告なしパス」、Steam/
 7. 確認: SDK のテスト広告 → ライセンステスターでのテスト購入 → 実機。
 
 **本番の契約、商品の有効化、ストアへの公開は行っていません。**
+
+
+## 7. パッケージ導入とテスト広告の確認(2026-10-10 追記)
+
+**入れた物**
+- `com.google.ads.mobile` 11.5.0(OpenUPM)
+- `com.google.external-dependency-manager` 1.2.190(OpenUPM。AdMob の依存。「非推奨、Unity 公式版を使え」の警告は出るが動作は正常)
+- `com.unity.purchasing` 5.4.4
+
+**設定**
+- Android の Scripting Define Symbols を `OMM_ADMOB;OMM_UNITY_IAP` にした(Standalone/Steam には付けない)。
+- Custom Main Gradle / Gradle Properties / Gradle Settings Template を ON にした(`Assets/Plugins/Android/`)。
+  - External Dependency Manager がここに play-services-ads 25.4.0 と UMP 4.0.0 を書き込む。
+- AdMob のアプリ ID は Google のテスト用 `ca-app-pub-3940256099942544~3347511713` にした。
+  - 設定は `Assets/Editor/MonetizationSetup.cs`(Tools/OneMoreMile/Monetization: Apply SDK Settings)。本番のアプリ ID は `ProdAndroidAppId` に入れる。
+- AGP 9 の既知の問題(#4212)は今回のビルドでは出なかった。`android.uniquePackageNames` は入れていない。
+
+**レシートの検証**
+- GooglePlayTangle(ライセンスキーから作る)が無い間は `OMM_IAP_TANGLE` を付けない。
+- その間は検証できない = 付与しない = 確定もしない(テスト購入は Google 側で自動返金される)。
+
+**確認方法**
+- PC に Android エミュレーターを入れた(Android 15 / Google APIs / x86_64、ARM64 のアプリを変換して動かす)。
+- 開発版の APK を入れ、`qa_args.txt`(`-qaAdSdk adsdk`)を adb で置いて起動した。広告の「閉じる」は外から adb で押した。
+
+**結果: すべて PASS(failures=0、例外なし)**
+
+| 項目 | 結果 |
+|---|---|
+| R1 読み込み | 報酬広告・強制広告とも用意できた |
+| R2 MILE 2倍 | 本物の報酬広告の報酬通知で 200 → 400 MILE(+基準額を1回)。広告中は音停止・入力停止、閉じた後に戻る |
+| R3 広告ガチャ | 本物の報酬広告でカード1枚、残り 3 → 2回 |
+| R4 強制広告 | ゲームオーバー → ホームへ の時に本物のインタースティシャル → 閉じたらホーム(時間の速さ 1) |
+| 手で操作 | ホームの「Pull with Ad / 3 left today」(英語の訳も表示)→ テスト広告 → 「Reward granted」→ 閉じる → カードの確認画面 |
+
+**見つけて直した物**
+- 初回起動の時だけ、UMP の通知が Java のスレッドから来て、その中で次の処理を呼んでいたため例外(TypeInitializationException)が出て、広告が始まらなかった。
+  - 2回目の起動では前回の同意で先に始まるので出なかった。
+  - 修正: AdMob/UMP の通知をすべて主スレッドへ戻す。APK 287 の初回起動で「同意の確認 → 初期化」まで確認済み。
+- Unity IAP の FakeStore の確認画面(IMGUI)が、こちらのパスの画面の後ろに隠れた。
+  - 修正: 購入の画面を出している間はパスの画面を隠す。
+  - 本物の Google Play の購入画面はアプリの上に出るので、この問題は FakeStore の時だけ。
+- 確認の途中で「Not enough MILE」が出たのは、既存のカードの確認画面の案内(MILE が足りない時は「本体をタップでもう1回」の代わりに出す)で、ガチャは実行されていない(記録で確認)。不具合ではない。
+
+**まだの物**
+- Play ストア経由のテスト購入(商品の登録・ライセンスキー・ライセンステスター・内部テストへの配信が必要)
+- EEA の同意画面の表示(テスト端末の ID を登録して DebugGeography で試す)
+- Android 実機
+- **APK のサイズ**: 約 488MB(導入前のサイズは記録していないので、増えた量は未確認。大部分はゲームの素材)。
+
+**Steam/PC 版について**
+- Unity IAP はパッケージなので、Windows の出力にも Unity.Purchasing の DLL は入る。
+- ただし `OMM_UNITY_IAP` が無いので初期化も画面もない(-qaMonetNone で確認)。
+- AdMob も C# の包み(GoogleMobileAds*.dll)だけは Windows の出力に入る(パッケージの部品がどの機種向けにも入る設定のため)。
+  - ネイティブの広告 SDK は入らない。
+  - 呼ぶコード(AdMobAdService)は Android の定義の時だけなので、Windows では一度も呼ばれない。
+  - Steam 版で DLL 自体も外すなら、Steam 用のビルドの手順でパッケージを外す必要がある(今は Steam 用のビルド手順が無い)。

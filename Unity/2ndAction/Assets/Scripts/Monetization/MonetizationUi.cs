@@ -13,7 +13,7 @@ public class MonetizationUi : MonoBehaviour
 
     void OnGUI()
     {
-        if (!Open || AdManager.Showing) return;
+        if (!Open || AdManager.Showing || NoAdsPass.Purchasing) return; // ストアの購入画面の間は隠す(テスト用ストアの画面が後ろに隠れないように)
         GUI.depth = -2200; // 設定(-2000)/DEBUG(-2100)より手前
         int padLayer = PadNav.BeginLayer(11);
         float s = S;

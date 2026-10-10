@@ -37,6 +37,7 @@ public static class NoAdsPass
     public static DateTime LastConfirmed => S.lastConfirmedUtc > 0 ? new DateTime(S.lastConfirmedUtc, DateTimeKind.Utc) : DateTime.MinValue;
     public static string LastNote { get; private set; } = "";
     public static bool Busy { get; private set; }
+    public static bool Purchasing { get; private set; } // ストアの購入画面を出している間(こちらの画面は隠す)
 
     // 起動時: ストアの初期化 → 権利の確認
     public static void StartStore()
@@ -79,10 +80,10 @@ public static class NoAdsPass
     {
         var st = Monetization.Store;
         if (st == null || Busy) { done?.Invoke(new PurchaseResult { status = PurchaseStatus.NotReady, message = "ストアを利用できません" }); return; }
-        Busy = true;
+        Busy = true; Purchasing = true;
         st.Purchase(MonetizationConfig.NoAdsProductId, r => AdManager.Post(() =>
         {
-            Busy = false;
+            Busy = false; Purchasing = false;
             switch (r.status)
             {
                 case PurchaseStatus.Purchased:

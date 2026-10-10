@@ -31,6 +31,7 @@ public partial class GameManager
         {
             gachaInsufficientMessageTimer = gachaInsufficientMessageDuration;
             GachaRefusedNoMile++;
+            Debug.Log($"[Gacha] refused: MILE {TotalOwnedMile} < {GachaCostMile} (frame {Time.frameCount}, touches {Input.touchCount})"); // 断った回を記録(2026-10-10)
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiDeny);
             return false;
         }

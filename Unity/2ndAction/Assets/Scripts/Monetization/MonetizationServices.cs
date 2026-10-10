@@ -86,7 +86,7 @@ public static class Monetization
     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         bool mockArg = false;
-        var a = Environment.GetCommandLineArgs();
+        var a = QaArgs.All;
         for (int i = 0; i < a.Length - 1; i++) if (a[i] == "-monetizationMock") mockArg = a[i + 1] != "0";
         if (mockArg || SaveStore.GetInt(DevMockKey, 0) == 1) return MonetizationMode.Mock;
 #endif

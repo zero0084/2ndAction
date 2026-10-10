@@ -21,7 +21,7 @@ public partial class QaSweep : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Boot()
     {
-        string[] a = System.Environment.GetCommandLineArgs();
+        string[] a = QaArgs.All; // Android は qa_args.txt も(2026-10-10)
         string mode = null, dir = null;
         for (int i = 0; i < a.Length - 1; i++)
         {
@@ -75,6 +75,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaMonet") { mode = "monet"; dir = a[i + 1]; }
             if (a[i] == "-qaMonetNone") { mode = "monetnone"; dir = a[i + 1]; }
             if (a[i] == "-qaMonetShots") { mode = "monetshots"; dir = a[i + 1]; }
+            if (a[i] == "-qaAdSdk") { mode = "adsdk"; dir = a[i + 1]; }
             if (a[i] == "-qaSprint") { mode = "sprint"; dir = a[i + 1]; }
             if (a[i] == "-qaCharSelect") { mode = "charselect"; dir = a[i + 1]; }
             if (a[i] == "-qaPad") { mode = "pad"; dir = a[i + 1]; }
@@ -99,12 +100,12 @@ public partial class QaSweep : MonoBehaviour
         var go = new GameObject("QaSweep");
         DontDestroyOnLoad(go);
         var q = go.AddComponent<QaSweep>();
-        q.mode = mode; q.outDir = dir;
+        q.mode = mode; q.outDir = QaArgs.Dir(dir);
     }
 
     static string Arg(string name, string def)
     {
-        var a = System.Environment.GetCommandLineArgs();
+        var a = QaArgs.All;
         for (int i = 0; i < a.Length - 1; i++) if (a[i] == name) return a[i + 1];
         return def;
     }
@@ -184,6 +185,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "monet") yield return MonetizationModeQa();
         else if (mode == "monetnone") yield return MonetizationNoneQa();
         else if (mode == "monetshots") yield return MonetizationShotsQa();
+        else if (mode == "adsdk") yield return AdSdkModeQa();
         else if (mode == "sprint") yield return SprintMode();
         else if (mode == "charselect") yield return CharSelectMode();
         else if (mode == "pad") yield return PadMode();

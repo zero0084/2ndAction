@@ -33,6 +33,9 @@ public class UnityIapStoreService : IStoreService
             store.OnPurchaseFailed += OnFailed;
             store.OnPurchaseDeferred += OnDeferred;
             store.OnProductsFetched += ps => { foreach (var p in ps) products[p.definition.id] = p; };
+            store.OnStoreConnected += () => Debug.Log("[IAP] store connected");
+            store.OnStoreDisconnected += d => { Ready = false; Debug.LogWarning($"[IAP] store disconnected: {d?.Message}"); };
+            store.OnProductsFetchFailed += f => Debug.LogWarning($"[IAP] products fetch failed: {f?.FailureReason} ({f?.FailedFetchProducts?.Count} products) - the product must exist in Play Console");
             store.OnPurchasesFetched += OnFetched;
             store.OnPurchasesFetchFailed += f => { restoreCallback?.Invoke(new RestoreResult { ok = false, message = f.FailureReason.ToString() }); restoreCallback = null; };
             await store.Connect();
@@ -91,8 +94,11 @@ public class UnityIapStoreService : IStoreService
         else LatePurchase?.Invoke(r); // 前の起動の購入/支払い待ちの完了
     }
 
+    // レシートの検証。GooglePlayTangle(Play Console のライセンスキーから IAP の難読化ツールで作る)が入るまでは
+    // OMM_IAP_TANGLE を付けない = 検証できない = 付与しない(確定もしないので、テスト購入は Google 側で自動返金される)
     static bool Validate(string receipt)
     {
+#if OMM_IAP_TANGLE
         try
         {
             var v = new CrossPlatformValidator(GooglePlayTangle.Data(), null, Application.identifier);
@@ -100,6 +106,10 @@ public class UnityIapStoreService : IStoreService
             return true;
         }
         catch (Exception e) { Debug.LogWarning($"[IAP] invalid receipt: {e.Message}"); return false; }
+#else
+        Debug.LogWarning("[IAP] receipt validation is not set up (GooglePlayTangle / OMM_IAP_TANGLE missing) - not granting");
+        return false;
+#endif
     }
 }
 #endif

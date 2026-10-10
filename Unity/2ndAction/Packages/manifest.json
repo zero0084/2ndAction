@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "com.google.ads.mobile": "11.5.0",
+    "com.google.external-dependency-manager": "1.2.190",
     "com.unity.modules.accessibility": "1.0.0",
     "com.unity.modules.adaptiveperformance": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
@@ -37,9 +39,20 @@
     "com.unity.multiplayer.center": "1.0.1",
     "com.unity.multiplayer.tools": "2.2.9",
     "com.unity.netcode.gameobjects": "2.13.0",
+    "com.unity.purchasing": "5.4.4",
     "com.unity.services.cloudcode": "2.10.4",
     "com.unity.services.leaderboards": "2.3.4",
     "com.unity.services.multiplayer": "2.2.4",
     "com.unity.ugui": "2.0.0"
-  }
+  },
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.google.ads.mobile",
+        "com.google.external-dependency-manager"
+      ]
+    }
+  ]
 }
