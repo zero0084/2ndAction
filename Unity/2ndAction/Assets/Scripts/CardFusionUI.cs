@@ -1147,7 +1147,7 @@ public class CardFusionUI : MonoBehaviour
     {
         int before = baseline != null ? baseline.StacksOf(a.id) : 0;
         string tag = before <= 0 ? " <color=#7dff9b><b>NEW</b></color>" : a.stacks > before ? $" <color=#ffd76a><b>強化 ×{before}→×{a.stacks}</b></color>" : "";
-        return $"・{CardVariant.AbilityName(a.id)} ×{a.stacks}{tag}  <size=21><color=#b7bfd8>({CardVariant.AbilityEffectText(a.id)} ×{a.stacks})</color></size>";
+        return $"・{CardVariant.AbilityName(a.id)} ×{a.stacks}{tag}  <size=21><color=#b7bfd8>({CardVariant.AbilityEffectTextAt(a.id, a.stacks)})</color></size>";
     }
 
     // ===================================================================== //

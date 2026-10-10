@@ -153,7 +153,22 @@ public sealed class CardVariant
     // ため、表示は「1回分 ×強化量」で出す)。
     public static string AbilityLine(string abilityId, int stacks)
     {
-        return $"{AbilityName(abilityId)} ×{stacks}  ({AbilityEffectText(abilityId)} ×{stacks})";
+        return $"{AbilityName(abilityId)} ×{stacks}  ({AbilityEffectTextAt(abilityId, stacks)})";
+    }
+
+    // 2026-10-11: 強化量ぶんの効果の表示。ATTACK UP は高い Lv で伸びが大きい(BalanceTuning)ので「1回分 ×強化量」ではなく合計で出す
+    public static string AbilityEffectTextAt(string abilityId, int stacks)
+    {
+        if (BalanceTuning.AttackUpHighLevel && abilityId == "attack_up")
+        {
+            CardDefinition def = CardDatabase.FindBaseById(abilityId);
+            if (def != null && def.effects != null && def.effects.Count > 0)
+            {
+                float p = def.effects[0].value * BalanceTuning.AttackUpLevelFactor(stacks) * 100f;
+                return $"{EffectLabel(def.effects[0].type)} +{p:0.#}%";
+            }
+        }
+        return $"{AbilityEffectText(abilityId)} ×{stacks}";
     }
 
     public string Describe()

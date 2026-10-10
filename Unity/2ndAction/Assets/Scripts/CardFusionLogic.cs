@@ -307,7 +307,7 @@ public static class CardFusionLogic
             {
                 int sa = a.StacksOf(x.id), sbb = b.StacksOf(x.id);
                 string from = sa > 0 && sbb > 0 ? $"×{sa} + ×{sbb} → " : "";
-                sb.Append($"・{CardVariant.AbilityName(x.id)} {from}<b>×{x.stacks}</b>  <size=18>({CardVariant.AbilityEffectText(x.id)} ×{x.stacks})</size>\n");
+                sb.Append($"・{CardVariant.AbilityName(x.id)} {from}<b>×{x.stacks}</b>  <size=18>({CardVariant.AbilityEffectTextAt(x.id, x.stacks)})</size>\n");
             }
         }
         else
@@ -319,9 +319,9 @@ public static class CardFusionLogic
             sb.Append($"・素材のみ成功: <b>Lv.{ResultLevel(a, b, Kind.CrossMaterialOnly)}</b>(素材側のLvのみ)\n");
             sb.Append($"・両側失敗: 完成カードなし・<color=#ffd76a>{RefundFor(a, b)} MILE</color> を還元\n\n");
             sb.Append($"<b>メイン側 能力一式 継承率 {Mathf.RoundToInt(MainInheritChance * 100)}%</b>\n");
-            foreach (var x in a.abilities) sb.Append($"・{CardVariant.AbilityName(x.id)} ×{x.stacks}  <size=18>({CardVariant.AbilityEffectText(x.id)} ×{x.stacks})</size>\n");
+            foreach (var x in a.abilities) sb.Append($"・{CardVariant.AbilityName(x.id)} ×{x.stacks}  <size=18>({CardVariant.AbilityEffectTextAt(x.id, x.stacks)})</size>\n");
             sb.Append($"\n<b>素材側 能力一式 継承率 {Mathf.RoundToInt(MaterialInheritChance * 100)}%</b>\n");
-            foreach (var x in b.abilities) sb.Append($"・{CardVariant.AbilityName(x.id)} ×{x.stacks}  <size=18>({CardVariant.AbilityEffectText(x.id)} ×{x.stacks})</size>\n");
+            foreach (var x in b.abilities) sb.Append($"・{CardVariant.AbilityName(x.id)} ×{x.stacks}  <size=18>({CardVariant.AbilityEffectTextAt(x.id, x.stacks)})</size>\n");
             sb.Append("\n両方成功: 両側の能力をすべて継承(同じ能力は強化量を合算)\n");
             sb.Append("片側だけ成功: 成功した側の能力・強化量・Lvだけを継承(失敗した側は残りません)\n");
             sb.Append($"素材側だけ成功した場合は、素材側の主能力が完成カードの主能力になります\n");

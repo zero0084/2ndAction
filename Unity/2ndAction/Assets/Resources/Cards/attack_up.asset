@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: attack_up
   cardName: ATTACK UP
   icon: {fileID: 2800000, guid: 65577e3189e00674e8366c4372cbd88e, type: 3}
-  description: "\u653B\u6483\u529B\u304C\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+5%)"
+  description: "\u653B\u6483\u529B\u304C\u4E0A\u304C\u308B(Lv3\u307E\u3067\u306F1Lv\u3054\u3068\u306B+5%\u3001\u9AD8\u3044Lv\u307B\u3069\u4F38\u3073\u304C\u5927\u304D\u304FLv9\u3067+80%)"
   category: 1
   sortOrder: 3
   recommendPriority: 5

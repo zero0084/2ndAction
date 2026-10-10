@@ -772,8 +772,12 @@ public class DeckEditUI : MonoBehaviour
                 if (i > 0) sb.Append('\n');
                 sb.Append(i == 0 ? mainTag : subTag);
                 if (i > 0) sb.Append(CardVariant.AbilityName(a.id)).Append("  ");
-                sb.Append(CardVariant.AbilityEffectText(a.id));
-                if (a.stacks > 1) sb.Append($"  ×{a.stacks}");
+                if (BalanceTuning.AttackUpHighLevel && a.id == "attack_up") sb.Append(CardVariant.AbilityEffectTextAt(a.id, a.stacks)); // 2026-10-11: 高い Lv の伸び(合計で出す)
+                else
+                {
+                    sb.Append(CardVariant.AbilityEffectText(a.id));
+                    if (a.stacks > 1) sb.Append($"  ×{a.stacks}");
+                }
             }
             return sb.ToString();
         }
