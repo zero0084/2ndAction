@@ -1379,6 +1379,8 @@ public partial class GameManager : MonoBehaviour
         }
 
         UpdateGameOverGuard();
+        UpdateQueuedRetry();
+        UpdateDeferredInterruptSave();
         // 2026-10-06: Result(FAILED/CLEAR)の入力は Gameplay 側の状態(パネルを閉じた指のラッチ/ボス/Encounter/補助)に左右されない
         // 専用の判定(ResultTapThisFrame)。受け付けなかった時は理由を残す(実機で「Tap to Retry が効かない」を追えるように)。
         if (IsGameOver && ResultTapThisFrame(out string tapBlock))
@@ -2041,6 +2043,7 @@ public partial class GameManager : MonoBehaviour
         why = "";
         bool down = Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.R);
         if (!down && !PadNav.MenuActive && GameInput.Consume(GameAction.Confirm)) down = true; // ゲームパッドの A / Enter(2026-10-06)
+        if (!down && GameInput.Consume(GameAction.Cancel)) down = true; // 戻る(B / Esc)はボタンがあっても「ホームへ」(2026-10-10: MILE 2倍のボタンが選ばれていても戻れる)
         for (int i = 0; !down && i < Input.touchCount; i++) if (Input.GetTouch(i).phase == TouchPhase.Began) down = true;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (DebugResultTapPending) { DebugResultTapPending = false; down = true; }
@@ -2192,7 +2195,7 @@ public partial class GameManager : MonoBehaviour
             // cheap and frequent enough that an app kill can't lose much.
             if (Mathf.FloorToInt(MaxDistance / 100f) > Mathf.FloorToInt((MaxDistance - delta) / 100f))
             {
-                SaveInterruptState();
+                RequestInterruptSave(); // 2026-10-10: 戦闘中は間引いて保存(Android の保存は毎回 XML を書き直す)
             }
         }
     }
@@ -3216,14 +3219,14 @@ public partial class GameManager : MonoBehaviour
             NetMatch.RequestSetMax(maxLives, false);
             GrantCardInvincible(CardRules.PhoenixInvincibleSeconds);
             if (NetCombat.Authority) NetMatch.HostLocalHpChanged(reason);
-            SaveInterruptState();
+            RequestInterruptSave(); // 2026-10-10: 戦闘中は間引いて保存(Android の保存は毎回 XML を書き直す)
             return DamageResult.Hit;
         }
         if (Lives <= 0 && TryPhoenix(reason))
         {
             // PHOENIX(v3): 倒れる被弾を取り消して復活(落下なら通常の被弾と同じく足場へ戻る)
             if (NetCombat.Authority) NetMatch.HostLocalHpChanged(reason);
-            SaveInterruptState();
+            RequestInterruptSave(); // 2026-10-10: 戦闘中は間引いて保存(Android の保存は毎回 XML を書き直す)
             return DamageResult.Hit;
         }
         // 開発用の闘技場: 倒れてもランを終えない(試験を終えて結果を出し、すぐ再戦できる)
@@ -3262,7 +3265,7 @@ public partial class GameManager : MonoBehaviour
         // Item 11 - HP is the single most important piece of "強制終了に
         // よる逃げ対策" state; saved the instant it actually changes; not
         // gated on !IsGameOver since a fatal hit already returned above.
-        SaveInterruptState();
+        RequestInterruptSave(); // 2026-10-10: 戦闘中は間引いて保存(Android の保存は毎回 XML を書き直す)
         return DamageResult.Hit;
     }
 
@@ -3462,7 +3465,7 @@ public partial class GameManager : MonoBehaviour
         // immediately (unlike every ordinary enemy kill, which would be
         // too frequent to write to disk each time - the periodic 100m save
         // in ReportDistance already keeps RunEnemyMile reasonably fresh).
-        SaveInterruptState();
+        RequestInterruptSave(); // 2026-10-10: 戦闘中は間引いて保存(Android の保存は毎回 XML を書き直す)
     }
 
     void TryLifesteal() => TryLifesteal(1f);
@@ -3648,8 +3651,28 @@ public partial class GameManager : MonoBehaviour
     // enough (one JSON serialize + PlayerPrefs write) to not matter
     // performance-wise at that frequency. Deliberately does NOT touch
     // checkpointDistance - only SaveCheckpoint (Boss Reward) moves that.
+    // 2026-10-10(全体点検): 被弾/撃破/100m ごとの中断データの保存は、その場で SaveStore.Save(Android は設定ファイルを丸ごと書き直す)を
+    // 呼んでいて、攻撃の当て合いやボスの撃破の時に小さな引っかかりになっていた → 2秒に1回まで(最後の分は必ず書く)。
+    // 一時停止/終了/中断の操作はこれまでどおりすぐ書く(SaveInterruptState)。
+    float interruptSaveDueAt = -1f, lastInterruptSaveAt = -999f;
+    public int InterruptSavesDeferred { get; private set; }
+    void RequestInterruptSave()
+    {
+        float now = Time.realtimeSinceStartup;
+        if (now - lastInterruptSaveAt >= 2f && interruptSaveDueAt < 0f) { interruptSaveDueAt = now + 0.3f; return; } // 少しだけ遅らせて、同じ場面の続けての要求をまとめる
+        if (interruptSaveDueAt < 0f) interruptSaveDueAt = lastInterruptSaveAt + 2f;
+        InterruptSavesDeferred++;
+    }
+    void UpdateDeferredInterruptSave()
+    {
+        if (interruptSaveDueAt < 0f || Time.realtimeSinceStartup < interruptSaveDueAt) return;
+        interruptSaveDueAt = -1f;
+        SaveInterruptState();
+    }
+
     void SaveInterruptState()
     {
+        interruptSaveDueAt = -1f; lastInterruptSaveAt = Time.realtimeSinceStartup;
         if (!HasStarted || IsGameOver) return;
         // マルチプレイRunはシングル用の中断データ(CONTINUE)を上書きしない。
         if (NetRunLauncher.IsMultiplayerRun) return;
@@ -3851,14 +3874,26 @@ public partial class GameManager : MonoBehaviour
     // ScreenTransitionManager.PlayCloseThenReload's own comment for how the
     // Open half survives across that reload). Falls back to the old
     // instant reload if a scene was built before this manager existed.
+    // 2026-10-10(全体点検): 別の画面の切り替えの最中に呼ばれると、以前は黙って捨てられた(ラスダンの「NO」/広告の後のホームへ が
+    // 永久に進まない)→ 切り替えが終わるまで待ってから行う(Update で)
+    bool retryQueued;
+    public int RetryQueued { get; private set; }
     void RetryWithTransition()
     {
         if (ScreenTransitionManager.Instance != null)
         {
+            if (ScreenTransitionManager.Instance.IsTransitioning) { if (!retryQueued) { retryQueued = true; RetryQueued++; DeathLog("Retry queued (another transition is running)"); } return; }
+            retryQueued = false;
             ScreenTransitionManager.Instance.PlayCloseThenReload(Retry, ScreenTransitionManager.Style.Fade);
             return;
         }
         Retry();
+    }
+    void UpdateQueuedRetry()
+    {
+        if (!retryQueued) return;
+        if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
+        RetryWithTransition();
     }
 
     void OnGUI()

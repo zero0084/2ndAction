@@ -32,16 +32,30 @@ public class ExplosionEffect : MonoBehaviour
     }
 
     readonly List<Particle> particles = new List<Particle>();
+    int used; // このうち今回使っている数
     float duration;
     float elapsed;
 
+    // 2026-10-10(全体点検): 撃破のたびに 9〜64 個の GameObject を作って消していた(大勢をまとめて倒すと1フレームで数百個)→ 使い回す
+    static readonly Stack<ExplosionEffect> pool = new Stack<ExplosionEffect>();
+    const int PoolMax = 32;
+    public static int Created { get; private set; }
+    public static int Reused { get; private set; }
+
     public static ExplosionEffect Create(Sprite sprite, Vector3 position, Color color, int count = 16, float duration = 3f, float sizeScale = 1f, float speedScale = 1f, int sortingOrder = 20)
     {
-        GameObject go = new GameObject("Explosion");
-        go.transform.position = position;
-
-        ExplosionEffect fx = go.AddComponent<ExplosionEffect>();
+        ExplosionEffect fx = null;
+        while (pool.Count > 0 && fx == null) fx = pool.Pop(); // シーンの読み直しで消えた物は捨てる
+        if (fx == null)
+        {
+            GameObject go = new GameObject("Explosion");
+            fx = go.AddComponent<ExplosionEffect>();
+            Created++;
+        }
+        else { fx.gameObject.SetActive(true); Reused++; }
+        fx.transform.position = position;
         fx.duration = duration;
+        fx.elapsed = 0f;
         fx.Init(sprite, color, count, sizeScale, speedScale, sortingOrder);
         return fx;
     }
@@ -69,24 +83,29 @@ public class ExplosionEffect : MonoBehaviour
 
     void Init(Sprite sprite, Color color, int count, float sizeScale, float speedScale, int sortingOrder)
     {
-        for (int i = 0; i < count; i++)
+        while (particles.Count < count)
         {
-            GameObject p = new GameObject("Particle");
-            p.transform.SetParent(transform);
-            p.transform.localPosition = Vector3.zero;
-            p.transform.localScale = Vector3.one * (Random.Range(0.15f, 0.32f) * sizeScale);
-            p.transform.rotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
-
-            SpriteRenderer sr = p.AddComponent<SpriteRenderer>();
-            sr.sprite = sprite;
-            sr.color = color;
-            sr.sortingOrder = sortingOrder;
-
+            GameObject go = new GameObject("Particle");
+            go.transform.SetParent(transform, false);
+            particles.Add(new Particle { t = go.transform, sr = go.AddComponent<SpriteRenderer>() });
+        }
+        used = count;
+        for (int i = 0; i < particles.Count; i++)
+        {
+            Particle p = particles[i];
+            bool on = i < count;
+            if (p.t.gameObject.activeSelf != on) p.t.gameObject.SetActive(on);
+            if (!on) continue;
+            p.t.localPosition = Vector3.zero;
+            p.t.localScale = Vector3.one * (Random.Range(0.15f, 0.32f) * sizeScale);
+            p.t.rotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
+            p.sr.sprite = sprite;
+            p.sr.color = color;
+            p.sr.sortingOrder = sortingOrder;
             float angle = Random.Range(0f, Mathf.PI * 2f);
             float speed = Random.Range(1.5f, 4.5f) * speedScale;
-            Vector2 vel = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * speed;
-
-            particles.Add(new Particle { t = p.transform, velocity = vel, sr = sr, rotSpeed = Random.Range(-360f, 360f) });
+            p.velocity = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * speed;
+            p.rotSpeed = Random.Range(-360f, 360f);
         }
     }
 
@@ -96,8 +115,9 @@ public class ExplosionEffect : MonoBehaviour
         float t = Mathf.Clamp01(elapsed / duration);
         float drag = 1f - t * 0.6f;
 
-        foreach (Particle p in particles)
+        for (int i = 0; i < used; i++)
         {
+            Particle p = particles[i];
             p.t.localPosition += (Vector3)(p.velocity * Time.deltaTime * drag);
             p.t.Rotate(0f, 0f, p.rotSpeed * Time.deltaTime);
 
@@ -108,7 +128,8 @@ public class ExplosionEffect : MonoBehaviour
 
         if (elapsed >= duration)
         {
-            Destroy(gameObject);
+            if (pool.Count < PoolMax) { gameObject.SetActive(false); pool.Push(this); }
+            else Destroy(gameObject);
         }
     }
 }

@@ -211,10 +211,12 @@ public class CaveHazard : MonoBehaviour
         return rockY;
     }
 
+    // 2026-10-10(全体点検): 穴の上は「高さ0」ではなく、両側の縁をつないだ高さ(GetSupportHeightAt。ボスの GroundY と同じ基準)。
+    // 以前は落石の予告/落下の途中に予告の場所が穴を通ると根元が0へ沈み、穴を抜けると地上へ戻って見えた。天井の高さの丸めも同じ基準になる
     static float GroundAt(float x)
     {
         var tm = TerrainManager.Instance;
-        return tm != null ? (tm.GetHeightAt(x) ?? 0f) : 0f;
+        return tm != null ? tm.GetSupportHeightAt(x) : 0f;
     }
 
     // 天井の高さ(無い所=闘技場等は地面+7の仮の天井)。極端に低い/高い所は丸める。

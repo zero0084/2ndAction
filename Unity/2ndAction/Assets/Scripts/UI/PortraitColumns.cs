@@ -9,6 +9,7 @@ public class PortraitColumns : MonoBehaviour
 {
     public float splitX = 250f;     // これより左/右が横の列
     public float topReserve = 110f; // 上の「戻る」の段
+    public float MaxTopScale = 1.4f, MaxRowScale = 1.3f;
     public System.Func<RectTransform, bool> Skip;
 
     RectTransform root;
@@ -79,10 +80,18 @@ public class PortraitColumns : MonoBehaviour
         Vector2 Size(int g) => groups[g].Count == 0 || bmax[g].x < bmin[g].x ? Vector2.zero : bmax[g] - bmin[g];
         Vector2 s0 = Size(0), s1 = Size(1), s2 = Size(2);
         float rowW = s0.x + s1.x + (s0.x > 0f && s1.x > 0f ? gap : 0f);
-        float k2 = Mathf.Min(1f, (W - 2f * m) / Mathf.Max(1f, rowW));
-        float rowH = Mathf.Max(s0.y, s1.y) * k2;
-        float avail = H - topReserve - gap - rowH - m;
-        float k1 = Mathf.Min(1f, (W - 2f * m) / Mathf.Max(1f, s2.x), avail / Mathf.Max(1f, s2.y));
+        // 2026-10-10(全体点検): 縦長の端末では余った高さがあっても1倍のままで、デッキのカード名や一覧が小さかった
+        //  → 余裕があれば拡大(下の一覧 1.3倍、上のデッキ 1.4倍まで)。上が小さくなりすぎる(0.75倍未満)なら下を縮めて上へ回す
+        float maxRowH = Mathf.Max(1f, Mathf.Max(s0.y, s1.y));
+        float k2 = Mathf.Min(MaxRowScale, (W - 2f * m) / Mathf.Max(1f, rowW));
+        float TopFit(float kRow) => Mathf.Min(MaxTopScale, (W - 2f * m) / Mathf.Max(1f, s2.x), (H - topReserve - gap - maxRowH * kRow - m) / Mathf.Max(1f, s2.y));
+        float k1 = TopFit(k2);
+        if (k1 < 0.75f && k2 > 0.5f)
+        {
+            float k2Room = (H - topReserve - gap - m - s2.y * Mathf.Min(0.75f, (W - 2f * m) / Mathf.Max(1f, s2.x))) / maxRowH;
+            k2 = Mathf.Clamp(Mathf.Min(k2, k2Room), Mathf.Min(k2, 0.5f), k2);
+            k1 = TopFit(k2);
+        }
         // 上: 右の列(中央寄せ)
         Place(2, k1, new Vector2(-s2.x * k1 * 0.5f, -topReserve), bmin[2], bmax[2]);
         // 下: 左の列 + 中央の列

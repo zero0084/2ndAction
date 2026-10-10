@@ -598,6 +598,10 @@ public partial class EnemySpecialBehavior
         float v = SkyPlayerSpeed();
         float maxSpeed = v + hunterSpeedBonus;
         Vector3 p = transform.position;
+        // 2026-10-10(全体点検): 凍結/感電で行動が止まっている間も、狙っている位置関係(プレイヤーの少し前)は保つ。
+        // 以前は世界の中で止まってプレイヤーだけ進み、後方へ流れて、解けた後も追いつけずに去っていった。行動(予兆/突進の時間)は止まったまま
+        if (skyEngaged && (skyState == SkyState.Retreat || skyState == SkyState.Telegraph) && elementStatus != null && elementStatus.TimeScale < 0.999f)
+        { p.x += v * Time.deltaTime * (1f - Mathf.Clamp01(elementStatus.TimeScale)); transform.position = p; }
         float playerGround = player.position.y;
         switch (skyState)
         {

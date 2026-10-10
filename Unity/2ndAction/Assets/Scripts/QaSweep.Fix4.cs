@@ -150,6 +150,8 @@ public partial class QaSweep
     IEnumerator F4Ceiling()
     {
         L("== C: 天井に張り付くボス ==");
+        // 2026-10-10: BREAK すると前へ寄せる(全体点検の修正)ため、自動の攻撃で倒れてレベルアップの選択(時間が止まる)で止まっていた → 崩しを溜めない
+        bool keepNoStagger = BossBattle.DebugNoStagger; BossBattle.DebugNoStagger = true;
         // 洞窟: 天井がある → 張り付ける。被弾判定は張り付く途中/最中/降りた後も有効で、見た目の中
         yield return BfBeginStage("natural_cave");
         foreach (var kind in new[] { CaveBossKind.Centipede, CaveBossKind.Bat })
@@ -233,6 +235,7 @@ public partial class QaSweep
         }
         else Check(false, "C: centipede spawned in the wasteland");
         yield return EndRun();
+        BossBattle.DebugNoStagger = keepNoStagger;
     }
 }
 #endif

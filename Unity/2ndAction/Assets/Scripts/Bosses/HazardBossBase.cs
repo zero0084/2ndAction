@@ -20,6 +20,17 @@ public abstract class HazardBossBase : WildBossBase
     protected int lastPick = -1;
 
     protected float CeilY(float x) => CaveHazard.CeilingAt(x);
+    // 2026-10-10(全体点検): 天井にぶら下がる時の足場(根元)の高さ。仮の天井の丸め(地面+4.6〜8.5m)が本物の天井より上になると
+    // 岩の中へ入り、高い天井では体の下端が5m以上の高さになって攻撃が届かなかった → 本物の天井の少し下、かつ地面+6.5m まで
+    public const float HangMaxAboveGround = 6.5f;
+    protected float HangY(float x)
+    {
+        float y = CeilY(x);
+        var tm = TerrainManager.Instance;
+        float? c = tm != null ? tm.GetEffectiveCeilingHeightAt(x) : null;
+        if (c.HasValue) y = Mathf.Min(y, c.Value - 0.1f);
+        return Mathf.Min(y, GroundY + HangMaxAboveGround);
+    }
 
     // スーパーアーマー(崩しで止める)+段階の咆哮/BREAK の割り込み。各ボスの OnInit の最初に呼ぶ
     protected void HazardBattleSetup() { interruptible = false; supportsInterrupt = true; }
@@ -30,7 +41,7 @@ public abstract class HazardBossBase : WildBossBase
         // 天井を這っている間は天井の高さに沿う。本物の天井が途切れたら(天井の無い区間へ出た等)、その場から降りて通常の行動へ(2026-10-07)
         if (onCeiling && !climbing)
         {
-            if (RealCeilingSpace(worldX) > 0f) yOffset = Mathf.MoveTowards(yOffset, CeilY(worldX) - GroundY, 10f * dt);
+            if (RealCeilingSpace(worldX) > 0f) yOffset = Mathf.MoveTowards(yOffset, HangY(worldX) - GroundY, 10f * dt);
             else if (!ceilingLost && !IsDead && supportsInterrupt)
             {
                 ceilingLost = true; CeilingLostCount++;
@@ -178,7 +189,7 @@ public abstract class HazardBossBase : WildBossBase
         {
             t += Time.deltaTime;
             float f = Mathf.Clamp01(t / dur);
-            float target = Mathf.Max(2.8f, CeilY(worldX) - GroundY);
+            float target = Mathf.Max(2.8f, HangY(worldX) - GroundY);
             yOffset = Mathf.Lerp(start, target, f * f * (3f - 2f * f));
             extraScale = new Vector2(1f, Mathf.Lerp(1f, -1f, Mathf.Clamp01((f - 0.35f) / 0.5f)));
             if (Random.value < 0.25f) ImpactDust(new Vector3(worldX, GroundY + yOffset, 0f), 2, 0.6f);

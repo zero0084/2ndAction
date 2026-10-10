@@ -125,7 +125,9 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // 顔(正面)からプレイヤーまでの距離。正=プレイヤーが顔の前方、負=顔より奥(重なり)。
     protected float FrontDist => (PlayerX - (worldX + facing * FrontReach)) * facing;
     protected float GroundY => TerrainGround(worldX);
-    public Vector3 CenterWorld => transform.position + new Vector3(0f, bodyHeight * 0.5f, 0f);
+    // 2026-10-10(全体点検): 天井にぶら下がっている(上下反転)時は体が根元より下にある → 中心/攻撃の出る位置も下向きに
+    protected float UpSign => extraScale.y < 0f ? -1f : 1f;
+    public Vector3 CenterWorld => transform.position + new Vector3(0f, bodyHeight * 0.5f * UpSign, 0f);
     // 自動操作補助(ボス戦、2026-10-04): 今攻撃が通るか(無敵/地中/天井/登場中は通らない)と、被弾範囲
     public bool AssistTargetable => !dead && !invulnerable && !entering && hurtCol != null && hurtCol.enabled;
     public Bounds AssistBounds => hurtCol != null ? hurtCol.bounds : new Bounds(CenterWorld, new Vector3(1f, bodyHeight, 1f));
@@ -843,7 +845,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // 常に生存しているGameManager上で実行する。
     protected static void RunHitStop(float seconds)
     {
-        if (GameManager.Instance != null) GameManager.Instance.StartCoroutine(HitStop.Freeze(seconds));
+        if (GameManager.Instance != null) HitStop.Begin(seconds); // 2026-10-10: 消えない実行役で
     }
 
     protected void Shake(float magnitude, float duration = 0.2f)
@@ -865,7 +867,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
 
     protected Vector3 FrontWorld(float forward, float height)
     {
-        return new Vector3(worldX + facing * (FrontReach + forward), GroundY + yOffset + height, 0f);
+        return new Vector3(worldX + facing * (FrontReach + forward), GroundY + yOffset + height * UpSign, 0f);
     }
 
     protected Vector2 AimFrom(Vector3 from)
@@ -985,6 +987,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     public int Phase { get; private set; } = 1;
     public int PhaseCount => (tune != null && tune.phaseThresholds != null ? tune.phaseThresholds.Length : 0) + 1;
     public bool Broken { get; private set; }
+    public int BreakPulledFromBehind { get; private set; } // 確認用: BREAK 中に後ろから前へ寄せたフレーム数
     public int BreakCount { get; private set; }
     public float StaggerFraction => tune != null && tune.staggerMax > 0f ? Mathf.Clamp01(stagger / tune.staggerMax) : 0f;
     public bool UltimateRunning { get; private set; }
@@ -1150,11 +1153,15 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
                 float centerOff = hurtCol != null && hurtCol.enabled ? hurtCol.bounds.center.x - worldX : 0f;
                 float g = gapNow + centerOff;
                 float edge = Mathf.Abs(g) - half;
-                if (edge > BreakReach) breakPulling = true;   // 届かない → 寄せ始める
+                // 2026-10-10(全体点検): 後ろ側(突進/すり抜けの途中で BREAK した等)にいる時は、その場に留めず必ず前へ寄せる
+                // (以前は後ろ側の届く位置へ寄せて、そのまま後方へ流れて離れることがあった)。前にいる時は今までどおり
+                bool behind = g < -0.5f;
+                if (edge > BreakReach || behind) breakPulling = true;   // 届かない/後ろ → 寄せ始める
                 else if (edge <= 2.2f) breakPulling = false;  // 手前の端が2m付近まで来たら止める(届くぎりぎりで止めない)
                 if (breakPulling)
                 {
-                    float want = Mathf.Sign(g == 0f ? 1f : g) * (half + 2f) - centerOff;
+                    float want = (half + 2f) - centerOff; // いつも前(プレイヤーの進む側)の届く位置
+                    BreakPulledFromBehind += behind ? 1 : 0;
                     relVelocity = Mathf.Clamp((want - gapNow) / 0.25f, -45f, 45f);
                 }
             }
@@ -1456,7 +1463,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             Shake(0.14f, 0.16f);
             Sprite spark = hitSparkSprite != null ? hitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
             OneShotSpriteEffect.CreateTweened(spark, CenterWorld, Color.white, 0.18f, 0.5f, 0.9f, 1f, 0f, default, 0f, RenderOrder.CombatFx, 0.2f);
-            yield return HitStop.Freeze(0.14f);
+            yield return HitStop.Run(0.14f); // 2026-10-10: 消えない実行役で(このボスが途中で消えても停止が残らない)
 
             // 撃破ポーズ: 崩れ落ちる(Hit扱い、暗転して沈みながらフェード)
             SetPose(Pose.Idle);

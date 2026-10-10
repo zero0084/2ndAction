@@ -10,6 +10,10 @@ using UnityEngine.UI;
 //  横の AutoRotation(横だけ許可)は Android では端末の回転の固定に従うことがあり、縦で固定されている端末では横へ回らない。
 //  → まず横に「固定」して必ず回し(端末の設定に関係なく回る)、回り終えてから左右どちらの横持ちにも回れるようにする。
 //  縦: 縦に固定。自動: 端末の回転の設定に従う(縦も横も)。選んだ向きは保存され、起動時/復帰時にもう一度当てる。
+// 2026-10-10(全体点検): 上の「回り終えたら AutoRotation(横だけ)」も Android の USER_LANDSCAPE = 端末の回転ロックに従うため、
+//  端末によっては 0.8秒後に縦へ戻っていた。→ 横は AutoRotation を一切使わず、いつも LandscapeLeft/Right を明示して固定する。
+//  左右どちらの横持ちかは本体のセンサー(Input.deviceOrientation。回転ロック中も値は来る)を見て、こちらで切り替える。
+//  復帰/フォーカスの度に当て直すのは、選んだ向きと今の向きが違う時だけ(通知を下ろしただけで固定し直さない)。
 public static class OrientationControl
 {
     public enum Mode { Landscape = 0, Portrait = 1, Auto = 2 }
@@ -37,12 +41,13 @@ public static class OrientationControl
             Screen.orientation = ScreenOrientation.AutoRotation;
             return;
         }
-        // 横: いったん横へ固定(今が右向きの横ならそのまま右向き)→ 少し後に左右どちらの横にも回れるようにする
+        // 横: 横へ固定(今が右向きの横ならそのまま右向き)。左右の切り替えは Tick でセンサーを見て明示的に
         Screen.autorotateToPortrait = false; Screen.autorotateToPortraitUpsideDown = false;
         Screen.autorotateToLandscapeLeft = true; Screen.autorotateToLandscapeRight = true;
         Screen.orientation = Screen.orientation == ScreenOrientation.LandscapeRight ? ScreenOrientation.LandscapeRight : ScreenOrientation.LandscapeLeft;
         landscapeUnlockAt = Time.unscaledTime + 0.8f;
     }
+    public static int Forced { get; private set; } // 確認用: 横へ当て直した回数
 
     // 横に固定してから、横の範囲での自動回転に切り替える時刻(OrientationWatcher が見る)
     static float landscapeUnlockAt = -1f;
@@ -51,12 +56,22 @@ public static class OrientationControl
         if (landscapeUnlockAt < 0f || Time.unscaledTime < landscapeUnlockAt) return;
         landscapeUnlockAt = -1f;
         if (Current != Mode.Landscape) return;
-        if (Screen.width < Screen.height) { landscapeUnlockAt = Time.unscaledTime + 0.5f; Screen.orientation = ScreenOrientation.LandscapeLeft; return; } // まだ回っていない: もう一度固定して待つ
-        Screen.orientation = ScreenOrientation.AutoRotation;
+        landscapeUnlockAt = Time.unscaledTime + 0.25f; // 横の間は見張り続ける
+        if (Screen.width < Screen.height) { Forced++; Screen.orientation = ScreenOrientation.LandscapeLeft; return; } // まだ回っていない/縦へ戻された: もう一度固定
+        // 左右の横持ち: センサーが反対側を向いていたら明示的に切り替える(AutoRotation は使わない)
+        var d = Input.deviceOrientation;
+        if (d == DeviceOrientation.LandscapeLeft && Screen.orientation != ScreenOrientation.LandscapeLeft) Screen.orientation = ScreenOrientation.LandscapeLeft;
+        else if (d == DeviceOrientation.LandscapeRight && Screen.orientation != ScreenOrientation.LandscapeRight) Screen.orientation = ScreenOrientation.LandscapeRight;
     }
 
     // アプリへ戻った時(バックグラウンドからの復帰): 端末側で向きが変わっていることがあるので、選んでいる向きを当て直す
-    public static void Reapply() => Apply(Current);
+    public static void Reapply()
+    {
+        bool portraitNow = Screen.width < Screen.height;
+        if (Current == Mode.Portrait && portraitNow && Screen.orientation == ScreenOrientation.Portrait) return;
+        if (Current == Mode.Landscape && !portraitNow) { if (landscapeUnlockAt < 0f) landscapeUnlockAt = Time.unscaledTime + 0.25f; return; }
+        Apply(Current);
+    }
 }
 
 // 回転/画面の大きさ/安全領域が変わったのを見張る

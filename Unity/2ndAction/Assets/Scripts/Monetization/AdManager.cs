@@ -34,8 +34,21 @@ public class AdManager : MonoBehaviour
     static readonly List<Action> queue = new List<Action>();
     public static void Post(Action a) { lock (queue) queue.Add(a); }
 
+    // 2026-10-10(全体点検): SDK の「閉じた/失敗」の通知が来ないと Showing が残り、入力/音/結果画面が止まったままになっていた → 見張り
+    public const float MaxShowSeconds = 180f;     // 報酬広告でも 60秒程度。これを超えたら打ち切る
+    public const float ResumeCallbackWait = 4f;   // こちらへ戻ってから通知を待つ時間
+    static float showStartedAt, resumeCheckAt = -1f;
+    static Action<AdOutcome, string> forceFinish;
+    public static int ForcedFinishes { get; private set; }
+    static void Force(string why) { var f = forceFinish; if (f == null) return; ForcedFinishes++; Debug.LogWarning($"[Ads] no callback from the SDK ({why}) - finishing the ad here"); f(AdOutcome.Failed, why); }
+
     void Update()
     {
+        if (Showing)
+        {
+            if (Time.realtimeSinceStartup - showStartedAt > MaxShowSeconds) Force("timeout");
+            else if (resumeCheckAt > 0f && Time.realtimeSinceStartup > resumeCheckAt) { resumeCheckAt = -1f; Force("no callback after resume"); }
+        }
         Action[] run = null;
         lock (queue) { if (queue.Count > 0) { run = queue.ToArray(); queue.Clear(); } }
         if (run != null) foreach (var a in run) { try { a(); } catch (Exception e) { Debug.LogException(e); } }
@@ -51,6 +64,8 @@ public class AdManager : MonoBehaviour
     float lastResumeCheck = -999f;
     void OnApplicationPause(bool paused)
     {
+        // 広告の画面(別のアクティビティ)が閉じると、こちらが復帰してすぐ「閉じた」の通知が来るはず。来ない時は待ち続けない(2026-10-10)
+        if (!paused && Showing && Monetization.Mode == MonetizationMode.Store) resumeCheckAt = Time.realtimeSinceStartup + ResumeCallbackWait;
         if (paused || Showing) return;
         if (Time.realtimeSinceStartup - lastResumeCheck < 60f) return;
         lastResumeCheck = Time.realtimeSinceStartup;
@@ -97,7 +112,7 @@ public class AdManager : MonoBehaviour
         Ensure();
         if (Monetization.Ads == null || Showing) { onDone?.Invoke(false); return false; }
         if (!Monetization.Ads.IsReady(kind)) { Monetization.Ads.Load(kind); LastNote = $"{tag}: not ready"; onDone?.Invoke(false); return false; }
-        Showing = true; ShowsStarted++;
+        Showing = true; ShowsStarted++; showStartedAt = Time.realtimeSinceStartup; resumeCheckAt = -1f;
         bool rewarded = false, finished = false, prevPause = AudioListener.pause;
         AudioListener.pause = true;
         LastNote = $"{tag}: showing";
@@ -106,7 +121,7 @@ public class AdManager : MonoBehaviour
         {
             if (finished) return;
             finished = true;
-            Showing = false;
+            Showing = false; forceFinish = null; resumeCheckAt = -1f;
             AudioListener.pause = prevPause;
             if (o == AdOutcome.Shown)
             {
@@ -120,14 +135,19 @@ public class AdManager : MonoBehaviour
             onDone?.Invoke(o == AdOutcome.Shown);
             Monetization.Ads.Load(kind); // 次の分
         }
-        Monetization.Ads.Show(kind,
-            () => Post(() =>
-            {
-                if (rewarded) { DuplicateRewardsIgnored++; Debug.Log($"[Ads] duplicate reward ignored ({tag})"); return; }
-                rewarded = true; RewardsDelivered++;
-                onReward?.Invoke(); // 呼ぶ側(AdRewards)が鍵で付与済みを記録する
-            }),
-            (o, msg) => Post(() => Finish(o, msg)));
+        forceFinish = Finish;
+        try
+        {
+            Monetization.Ads.Show(kind,
+                () => Post(() =>
+                {
+                    if (rewarded) { DuplicateRewardsIgnored++; Debug.Log($"[Ads] duplicate reward ignored ({tag})"); return; }
+                    rewarded = true; RewardsDelivered++;
+                    onReward?.Invoke(); // 呼ぶ側(AdRewards)が鍵で付与済みを記録する(打ち切った後に遅れて届いても1回だけ)
+                }),
+                (o, msg) => Post(() => Finish(o, msg)));
+        }
+        catch (Exception e) { Debug.LogException(e); Finish(AdOutcome.Failed, "exception: " + e.Message); return false; }
         return true;
     }
 }

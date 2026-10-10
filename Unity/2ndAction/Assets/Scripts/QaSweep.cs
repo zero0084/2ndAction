@@ -76,6 +76,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaMonetNone") { mode = "monetnone"; dir = a[i + 1]; }
             if (a[i] == "-qaMonetShots") { mode = "monetshots"; dir = a[i + 1]; }
             if (a[i] == "-qaAdSdk") { mode = "adsdk"; dir = a[i + 1]; }
+            if (a[i] == "-qaBalHits") { mode = "balhits"; dir = a[i + 1]; }
             if (a[i] == "-qaSprint") { mode = "sprint"; dir = a[i + 1]; }
             if (a[i] == "-qaCharSelect") { mode = "charselect"; dir = a[i + 1]; }
             if (a[i] == "-qaPad") { mode = "pad"; dir = a[i + 1]; }
@@ -186,6 +187,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "monetnone") yield return MonetizationNoneQa();
         else if (mode == "monetshots") yield return MonetizationShotsQa();
         else if (mode == "adsdk") yield return AdSdkModeQa();
+        else if (mode == "balhits") yield return BalHitsModeQa();
         else if (mode == "sprint") yield return SprintMode();
         else if (mode == "charselect") yield return CharSelectMode();
         else if (mode == "pad") yield return PadMode();
