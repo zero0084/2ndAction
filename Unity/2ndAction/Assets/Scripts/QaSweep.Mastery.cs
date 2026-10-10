@@ -185,7 +185,9 @@ public partial class QaSweep
         string before = CardMastery.ExportJson();
         int totalBefore = CardInventory.Stacks.Sum(s => s.count);
         typeof(GameManager).GetMethod("OnGachaMachineTapped", NP).Invoke(gm, null);
-        var drawn = (CardDefinition)typeof(GameManager).GetField("pendingGachaCard", NP).GetValue(gm);
+        // 2026-10-10: ガチャ連続(10/07)から、引いたカードは見せる順番待ちの列(gachaRevealQueue)の最後に入る
+        var queue = (List<CardDefinition>)typeof(GameManager).GetField("gachaRevealQueue", NP).GetValue(gm);
+        var drawn = queue != null && queue.Count > 0 ? queue[queue.Count - 1] : (CardDefinition)typeof(GameManager).GetField("gachaResultCard", NP)?.GetValue(gm);
         int totalAfter = CardInventory.Stacks.Sum(s => s.count);
         L($"[K] drew {drawn?.cardId}: owned {totalBefore} -> {totalAfter}, Lv1 copies {Cnt(drawn?.cardId)}, MAX={CardMastery.IsMaxReached(drawn?.cardId)}");
         Check(drawn != null && totalAfter == totalBefore + 1 && Cnt(drawn.cardId) >= 1, "K: the drawn duplicate of a Lv9 MAX card is kept as a card (not lost)");

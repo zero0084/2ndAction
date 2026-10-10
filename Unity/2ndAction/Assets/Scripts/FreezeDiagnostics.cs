@@ -144,7 +144,7 @@ public static class FreezeDiagnostics
         {
             frame = Time.frameCount,
             realtime = Time.realtimeSinceStartup,
-            rawDt = Time.unscaledDeltaTime,
+            rawDt = StallProbe.RealDt > 0f ? StallProbe.RealDt : Time.unscaledDeltaTime, // 2026-10-10: 実時間(unscaledDeltaTime はなめらかにされる)
             scaledDt = Time.deltaTime,
             timeScale = Time.timeScale,
             pauseReasons = TimeControl.ActiveReasonCount,

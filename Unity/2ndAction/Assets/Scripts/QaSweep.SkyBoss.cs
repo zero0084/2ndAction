@@ -255,9 +255,17 @@ public partial class QaSweep
         if (b == null) { Check(false, "J: behemoth spawned"); yield break; }
         int enc0 = caveEncPlanned;
         bm.DebugForceResume();
-        int zako = 0; float wz = 0f;
-        while (wz < 12f) { zako = Mathf.Max(zako, FindObjectsByType<EnemyController>(FindObjectsSortMode.None).Count(e => e != null && e.isActiveAndEnabled && e.GetComponent<BonusEnemy>() == null)); wz += Time.deltaTime; yield return null; }
-        Check(zako > 0 || caveEncPlanned > enc0, $"J: sky enemies come back after the run resumes with the boss (max {zako}, planned {caveEncPlanned - enc0})");
+        int zako = 0, bonusZako = 0; float wz = 0f; bool bonusZone = false;
+        while (wz < 12f)
+        {
+            var es = FindObjectsByType<EnemyController>(FindObjectsSortMode.None).Where(e => e != null && e.isActiveAndEnabled).ToList();
+            zako = Mathf.Max(zako, es.Count(e => e.GetComponent<BonusEnemy>() == null));
+            bonusZako = Mathf.Max(bonusZako, es.Count(e => e.GetComponent<BonusEnemy>() != null));
+            bonusZone |= BonusZone.SuppressesNormalSpawns;
+            wz += Time.deltaTime; yield return null;
+        }
+        // 2026-10-10: ラン再開の直後に BONUS ZONE(通常の敵の代わりに報酬の敵だけが出る区画、仕様)が始まると、通常の雑魚は出ない → 報酬の敵が出ていれば戻ったとみなす
+        Check(zako > 0 || caveEncPlanned > enc0 || (bonusZone && bonusZako > 0), $"J: sky enemies come back after the run resumes with the boss (max {zako}, planned {caveEncPlanned - enc0}, BONUS ZONE {bonusZone} with {bonusZako} reward enemies)");
         b.DebugSetPhase(2);
         yield return new WaitForSeconds(0.5f);
         b.DebugForceUltimate();

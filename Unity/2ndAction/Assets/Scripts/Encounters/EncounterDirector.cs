@@ -232,7 +232,28 @@ public class EncounterDirector : MonoBehaviour
     // 毎フレーム
     // ===================================================================== //
 
-    void Update() { using (FrameCost.Scope("Encounter")) UpdateMeasured(); }
+    void Update()
+    {
+        double leadBefore = nextAnchor - refLogical;
+        using (FrameCost.Scope("Encounter")) UpdateMeasured();
+        // 開発版: 次の出現位置が1フレームで 300m 以上先へ飛んだら、その時の様子を記録(原因の調査用)
+        double leadAfter = nextAnchor - refLogical;
+        if (Debug.isDebugBuild && nextAnchor >= 0 && leadBefore > -1e6 && leadAfter - leadBefore > 300.0)
+        {
+            var cam0 = Camera.main; var pc0 = PlayerController.Instance;
+            Debug.Log($"[ENCOUNTER] anchor lead jumped +{leadBefore:F0}m -> +{leadAfter:F0}m | visibleAhead {(pc0 != null ? VisibleAhead(pc0) : 0f):F0}m cam {(cam0 != null ? cam0.transform.position.x : 0f):F1} player {(pc0 != null ? pc0.transform.position.x : 0f):F1} refX {refX:F1} paused {paused} last #{encounterIndex}");
+        }
+        // 2026-10-10(全体点検): 走っているのに長い間なにも出さない時は、止まっている理由をログへ(開発版。「ボスが残ったままのラン再開の後、雑魚が戻らない」の調査用)
+        var g = GameManager.Instance;
+        if (Debug.isDebugBuild && g != null && g.HasStarted && !g.IsGameOver && Time.timeScale > 0.01f)
+        {
+            if (Time.time - lastCommitTime > 8f && Time.time - lastIdleLog > 4f) { lastIdleLog = Time.time; IdleLogs++; Debug.Log($"[ENCOUNTER] idle {Time.time - lastCommitTime:F0}s: {WaitReason} | {StateLine()}"); }
+        }
+    }
+    public static string WaitReason = "";
+    public static int FarAnchorClamps;  // 次の出現位置が遠すぎて手前へ戻した回数(確認用)
+    public static int IdleLogs;
+    float lastCommitTime, lastIdleLog, lastClampLog;
     void UpdateMeasured()
     {
         GameManager gm = GameManager.Instance;
@@ -243,7 +264,7 @@ public class EncounterDirector : MonoBehaviour
         // 前のランがどう終わったか(通常/ボス戦中/BONUS中の死亡、FINISH、HOME)に関係なく必ず初期状態から始める。
         if (gm != boundGm) { boundGm = gm; boundStarted = false; }
         if (!gm.HasStarted) { boundStarted = false; return; }
-        if (!boundStarted) { boundStarted = true; ResetForNewRun(gm); }
+        if (!boundStarted) { boundStarted = true; ResetForNewRun(gm); lastCommitTime = Time.time; }
         if (gm.IsGameOver)
         {
             if (!logGameOver) { logGameOver = true; Debug.Log($"[Encounter] GameOver BossActive={logBoss} BonusActive={logBonus} Suppressed={paused || logBonus} | {StateLine()}"); }
@@ -261,9 +282,9 @@ public class EncounterDirector : MonoBehaviour
             if (profile != null) Debug.Log($"[ENCOUNTER] Director active for stage={stage} bands={profile.bands.Count} stageFormations={profile.stageFormations.Count}");
         }
         LogTransitions(gm);
-        if (profile == null || !profile.replacesChunkSpawns) return;
-        if (NetCombat.SuppressLocalEnemySpawn) return; // JOIN: 敵はHOSTが出す
-        if (tm.enemySpawnChance <= 0f) return;          // 敵の出現そのものを止めている(自動テスト等の既存の切り替え)
+        if (profile == null || !profile.replacesChunkSpawns) { WaitReason = "no profile"; lastCommitTime = Time.time; return; }
+        if (NetCombat.SuppressLocalEnemySpawn) { WaitReason = "JOIN"; lastCommitTime = Time.time; return; } // JOIN: 敵はHOSTが出す
+        if (tm.enemySpawnChance <= 0f) { WaitReason = "enemySpawnChance 0"; lastCommitTime = Time.time; return; } // 敵の出現そのものを止めている(自動テスト等の既存の切り替え)
 
         // マルチ Phase 3.1(最大8人の予定): 出現の基準は HOST ではなく WorldFront(ALIVEで走っている全員の最前)。
         // HOSTがカード選択で止まっている/DOWN/後方でも、最前の人の前に敵が出続ける。出すのは今まで通りHOSTだけ。
@@ -278,7 +299,7 @@ public class EncounterDirector : MonoBehaviour
 
         if (SuppressAt != null && SuppressAt(RefDistance))
         {
-            SuppressedFrames++;
+            SuppressedFrames++; WaitReason = "suppressed (SuppressAt)"; lastCommitTime = Time.time; // 意図して止めている区間は数えない
             if (nextAnchor < playerLogical + ahead) nextAnchor = playerLogical + ahead;
             return;
         }
@@ -287,9 +308,10 @@ public class EncounterDirector : MonoBehaviour
         if (pauseNow)
         {
             // 止めている間に出現位置がプレイヤーに追い越されないよう、前方へ送り続ける。
-            if (!paused) { paused = true; pausedForBoss = bossPhase; Debug.Log($"[ENCOUNTER] paused ({(bossPhase ? "boss phase" : gm.IsDistanceInSafeZone(RefDistance) ? "safe zone" : "countdown/finish")})"); }
+            if (!paused) { paused = true; pausedForBoss = bossPhase; Debug.Log($"[ENCOUNTER] paused ({(bossPhase ? "boss phase" : gm.IsDistanceInSafeZone(RefDistance) ? "safe zone" : "countdown/finish")}) next anchor +{nextAnchor - playerLogical:F0}m ahead {ahead:F0}m speed x{speed:F2}"); }
             if (bossPhase) pausedForBoss = true;
             if (nextAnchor < playerLogical + ahead) nextAnchor = playerLogical + ahead;
+            WaitReason = bossPhase ? "paused (boss phase)" : "paused (safe zone/countdown/finish)"; lastCommitTime = Time.time; // 止めている間は数えない
             return;
         }
         if (paused)
@@ -299,7 +321,7 @@ public class EncounterDirector : MonoBehaviour
             bool bossStillAlive = BossManager.Instance != null && BossManager.Instance.RunResumed;
             double resume = playerLogical + ahead + (pausedForBoss && !bossStillAlive ? profile.bossPostRest * GapScale(speed) : 0f);
             if (nextAnchor < resume) nextAnchor = resume;
-            if (pausedForBoss) { intensityHistory.Add(EncounterIntensity.Rest); Debug.Log($"[ENCOUNTER] resumed after boss: rest {profile.bossPostRest:F0}m before the next encounter"); }
+            if (pausedForBoss) { intensityHistory.Add(EncounterIntensity.Rest); Debug.Log($"[ENCOUNTER] resumed after boss: rest {profile.bossPostRest:F0}m before the next encounter (next anchor +{nextAnchor - playerLogical:F0}m, ahead {ahead:F0}m, speed x{speed:F2}, boss alive {bossStillAlive})"); }
             pausedForBoss = false;
         }
 
@@ -309,6 +331,7 @@ public class EncounterDirector : MonoBehaviour
         if (BonusZone.SuppressesNormalSpawns && bonus != null)
         {
             UpdateBonus(tm, pc, gm, bonus, playerLogical, ahead, visibleAhead, speed);
+            WaitReason = "bonus zone"; lastCommitTime = Time.time;
             return;
         }
         if (bonusWasActive)
@@ -326,12 +349,29 @@ public class EncounterDirector : MonoBehaviour
         if (nextAnchor < 0) nextAnchor = playerLogical + ahead;
         // 画面内(目の前)には絶対に出さない。
         if (nextAnchor < playerLogical + visibleAhead + 2.0) nextAnchor = playerLogical + ahead;
+        // 2026-10-10(全体点検): ボス戦の一時停止の後、次の出現位置がプレイヤーの約2km先に残り、1分以上雑魚が出ないことがあった
+        // (原因はカメラの判定用の中心が浮動原点のずらしに付いてこなかったこと = CameraFollow で修正済み)。念のための安全策として、
+        // どの間隔/休みよりも遠い「走りの60秒ぶんより先」に離れていた時だけ手前へ戻す(普通の間隔/休みの長さ=出現のペースは変えない)。
+        float runMps = Mathf.Max(5f, pc.CurrentAutoRunSpeed);
+        double maxLead = ahead + 60.0 * runMps;
+        // (ラスダンの止める区間(ボスラッシュ/静寂)の先へ送った位置はそのまま)
+        if (nextAnchor > playerLogical + maxLead && !(SuppressAt != null && SuppressAt(RunDistanceAt(playerLogical + ahead) - DebugDistanceOffset)))
+        {
+            FarAnchorClamps++;
+            if (Time.time - lastClampLog > 3f) { lastClampLog = Time.time; Debug.Log($"[ENCOUNTER] next anchor was +{nextAnchor - playerLogical:F0}m ahead (max +{maxLead:F0}m at {runMps * 3.6f:F0}km/h) -> +{ahead:F0}m"); }
+            nextAnchor = playerLogical + ahead;
+        }
 
         int guard = 0;
+        WaitReason = $"next anchor {nextAnchor - playerLogical:F0}m ahead (plans at <= {ahead:F0}m)";
         while (nextAnchor <= playerLogical + ahead && guard++ < 4)
         {
             float sceneAnchor = (float)(nextAnchor - FloatingOrigin.Offset);
-            if (!tm.IsGenerated(sceneAnchor + 30f) || (tm.cave != null && tm.cave.Active && tm.cave.GeneratedEndX < sceneAnchor + 30f)) break;
+            if (!tm.IsGenerated(sceneAnchor + 30f) || (tm.cave != null && tm.cave.Active && tm.cave.GeneratedEndX < sceneAnchor + 30f))
+            {
+                WaitReason = $"terrain not generated (anchor +{sceneAnchor - pc.transform.position.x:F0}m, ground +{tm.GeneratedEndX - pc.transform.position.x:F0}m, cave {(tm.cave != null && tm.cave.Active ? "+" + (tm.cave.GeneratedEndX - pc.transform.position.x).ToString("F0") + "m" : "-")})";
+                break;
+            }
             float runDistance = RunDistanceAt(nextAnchor);
             // 2026-10-02: 止める区間(ボスラッシュ/静寂)は「出す位置の距離」でも判定する(以前はプレイヤーの距離だけで、
             // 89,9xxmで決めた出現位置が90,000mの先=ボスラッシュの中へ雑魚を置いていた)
@@ -346,6 +386,7 @@ public class EncounterDirector : MonoBehaviour
             }
             if (DebugDistanceOffset == 0f && BossNear(runDistance))
             {
+                WaitReason = $"boss near (d {runDistance:F0}, gate {(BossManager.Instance != null ? BossManager.Instance.NextBossDistance : 0f):F0})";
                 nextAnchor += 20f;
                 continue;
             }
@@ -356,7 +397,7 @@ public class EncounterDirector : MonoBehaviour
             {
                 if (sceneAnchor >= fork - profile.routeLead)
                 {
-                    if (!branchGenerated || !tm.IsGenerated(merge + 2f)) break; // 分岐の地形ができるまで待つ
+                    if (!branchGenerated || !tm.IsGenerated(merge + 2f)) { WaitReason = "waiting for the branch terrain"; break; } // 分岐の地形ができるまで待つ
                     double forkLogical = FloatingOrigin.ToLogical(fork);
                     if (forkLogical > lastBranchForkLogical + 1.0)
                     {
@@ -963,6 +1004,7 @@ public class EncounterDirector : MonoBehaviour
         OnEncounterSpawned?.Invoke(rec, f, spawnedGos);
         Spawned?.Invoke(rec, f, spawnedGos);
         nextAnchor = rec.endLogical + Range(GapRange(intensity)) * GapScale(speed) * Pace(runDistance);
+        if (Debug.isDebugBuild && nextAnchor - refLogical > 300.0) Debug.Log($"[ENCOUNTER] next anchor far: +{nextAnchor - refLogical:F0}m after #{rec.index} (end +{rec.endLogical - refLogical:F0}m, gap {GapRange(intensity)} x speed {GapScale(speed):F2} x pace {Pace(runDistance):F2}, speed x{speed:F2})");
         return true;
     }
 
@@ -1225,10 +1267,12 @@ public class EncounterDirector : MonoBehaviour
         if (!short_) Commit(rec);
         else Debug.Log($"[ENCOUNTER] skip {len:F0}m at d={runDistance:F0} ({reason})");
         nextAnchor += len;
+        if (Debug.isDebugBuild && nextAnchor - refLogical > 300.0) Debug.Log($"[ENCOUNTER] next anchor far: +{nextAnchor - refLogical:F0}m after a rest of {len:F0}m ({reason}, speed x{speed:F2}, pace {Pace(runDistance):F2})");
     }
 
     void Commit(Record rec)
     {
+        lastCommitTime = Time.time;
         intensityHistory.Add(rec.intensity);
         if (intensityHistory.Count > 8) intensityHistory.RemoveAt(0);
         if (rec.intensity != EncounterIntensity.Rest)

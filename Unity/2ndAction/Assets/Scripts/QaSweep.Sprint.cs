@@ -23,7 +23,7 @@ public partial class QaSweep
     IEnumerator TrackSprintWorstFrame(float secs)
     {
         float t = 0f;
-        while (t < secs) { yield return null; t += Time.unscaledDeltaTime; if (Time.frameCount - lastShotFrame > 2) sprintWorstFrame = Mathf.Max(sprintWorstFrame, Time.unscaledDeltaTime); } // 撮影の直後は数えない
+        while (t < secs) { yield return null; t += Time.unscaledDeltaTime; if (Time.frameCount - lastShotFrame > 2) sprintWorstFrame = Mathf.Max(sprintWorstFrame, Mathf.Max(Time.unscaledDeltaTime, StallProbe.RealDt)); } // 撮影の直後は数えない
     }
 
     IEnumerator SprintMode()

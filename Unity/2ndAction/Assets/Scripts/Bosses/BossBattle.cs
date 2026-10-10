@@ -122,6 +122,17 @@ public class BossBattleHud : MonoBehaviour
         Instance.bannerUntil = Time.unscaledTime + seconds;
     }
 
+    // 2026-10-10(全体点検): 連続命中(N HIT)の表示がこの帯と同じ高さで重なっていた → 帯が出ている間は、その下端(実際の画素)より下へ
+    public static bool BannerVisible => Instance != null && !string.IsNullOrEmpty(Instance.bannerText) && Time.unscaledTime < Instance.bannerUntil;
+    public static float BannerBottomPx
+    {
+        get
+        {
+            float s = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f);
+            return (Screen.height / s * 0.24f + 50f) * s;
+        }
+    }
+
     void OnGUI()
     {
         if (warmQueue.Count > 0 && Event.current.type == EventType.Layout && big != null)

@@ -72,7 +72,7 @@ public partial class QaSweep
             yield return null;
             FinishDebug.Kill(list.Where((e, i) => i % 2 == 0).ToList(), PlayerAttackKind.Up, false, false, false);
             float w = 0f;
-            while (w < 0.8f) { yield return null; float dt = Time.unscaledDeltaTime; w += dt; maxDt = Mathf.Max(maxDt, dt); sumDt += dt; frames++; }
+            while (w < 0.8f) { yield return null; float dt = Mathf.Max(Time.unscaledDeltaTime, StallProbe.RealDt); w += dt; maxDt = Mathf.Max(maxDt, dt); sumDt += dt; frames++; }
         }
         L($"[B] frame avg {(frames > 0 ? sumDt / frames * 1000f : 0f):F1}ms max {maxDt * 1000f:F0}ms; longest HitStop-only stop {StallProbe.LongestStopSeconds:F2}s; stalls logged {StallProbe.Stalls - stall0} ({StallProbe.LastStall}); self-heals {HitStop.LeakHeals - heal0}");
         Check(StallProbe.LongestStopSeconds < 0.4f, $"B: no long stop from overlapping HitStops (longest {StallProbe.LongestStopSeconds:F2}s)");

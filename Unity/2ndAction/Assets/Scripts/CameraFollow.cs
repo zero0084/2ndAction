@@ -76,8 +76,13 @@ public class CameraFollow : MonoBehaviour
     {
         cam = GetComponent<Camera>();
         Instance = this;
+        FloatingOrigin.Shifted += OnOriginShifted;
     }
-    void OnDestroy() { if (Instance == this) Instance = null; }
+    void OnDestroy() { FloatingOrigin.Shifted -= OnOriginShifted; if (Instance == this) Instance = null; }
+    // 2026-10-10(全体点検): 判定用の画面の中心(LogicalCenterX)は時間が止まっている間(カード選択/ヒットストップ)は更新しないので、
+    // その間に浮動原点のずらし(1,024m 単位)が起きると古い座標のまま約2km先を指し、敵の出現位置が2km先へ送られていた
+    // (ボスが残ったままのラン再開の後、1分以上雑魚が出ない)。ずらした分だけ一緒に戻す。
+    void OnOriginShifted(float s) { LogicalCenterX -= s; }
 
     public void Shake(float magnitude, float duration)
     {

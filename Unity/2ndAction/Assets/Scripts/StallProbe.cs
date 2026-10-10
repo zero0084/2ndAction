@@ -14,11 +14,15 @@ public class StallProbe : MonoBehaviour
     static readonly Queue<Hit> hits = new Queue<Hit>();
     static int hitsThisFrame, killsThisFrame, frameOfCount = -1;
     public static int Stalls { get; private set; }
-    public static int CostSpikes { get; private set; }  // 1つの処理が 40ms 以上かかったフレームの数(開発版)      // 確認用: 計測した止まりの回数
+    public static int CostSpikes { get; private set; }
+    // 2026-10-10: 前のフレームの実時間(秒)。Time.unscaledDeltaTime は Unity がなめらかにするので、50〜70ms のフレームでも 17ms と出ることがある
+    // (止まりの検出が中くらいの止まりを見逃していた)。フレームの最初(このクラスの Update)で測る
+    public static float RealDt { get; private set; }  // 1つの処理が 40ms 以上かかったフレームの数(開発版)      // 確認用: 計測した止まりの回数
     public static float LongestStopSeconds { get; private set; }
     public static string LastStall { get; private set; } = "";
     public static void ResetLongest() { LongestStopSeconds = 0f; }
     static float quietUntil;
+    void OnApplicationPause(bool paused) { if (!paused) { quietUntil = Time.realtimeSinceStartup + 1.5f; lastReal = -1; } } // 復帰直後(裏にいた時間)は数えない
     void OnEnable() { UnityEngine.SceneManagement.SceneManager.sceneLoaded += (s, m) => quietUntil = Time.realtimeSinceStartup + 1.5f; }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -49,6 +53,7 @@ public class StallProbe : MonoBehaviour
 
     float stopSince = -1f; bool stopLogged;
     int gcPrev = -1;
+    double lastReal = -1;
 
     // 2026-10-10: Unity の内部の計測点(開発版で有効)。重いフレームで、スクリプトの外(描画/読み込みの取り込み/生成/破棄/物理など)のどこに時間が掛かったかを出す
     static readonly string[] markerNames =
@@ -105,8 +110,11 @@ public class StallProbe : MonoBehaviour
         int gcDelta = gcPrev < 0 ? 0 : gc - gcPrev;
         gcPrev = gc;
         FrameCost.EndFrame();
+        double nowReal = Time.realtimeSinceStartupAsDouble; float realDt = lastReal > 0 ? (float)(nowReal - lastReal) : 0f; lastReal = nowReal;
+        RealDt = realDt > 0f ? realDt : dt;
+        dt = Mathf.Max(dt, realDt); // 重いフレームの判定も実時間で
         // 開発版: 止まりにならなくても、1つの処理が 40ms 以上かかったフレームは記録する(実機ではその数倍になる)
-        if (FrameCost.LastMaxMs >= 40.0 && Debug.isDebugBuild && Time.realtimeSinceStartup > quietUntil) { CostSpikes++; Debug.Log($"[Cost] {FrameCost.LastMaxMs:F0}ms frame {dt * 1000f:F0}ms: {FrameCost.LastTop(6, 5f)}"); }
+        if (FrameCost.LastMaxMs >= 40.0 && Debug.isDebugBuild && Time.realtimeSinceStartup > quietUntil) { CostSpikes++; Debug.Log($"[Cost] {FrameCost.LastMaxMs:F0}ms frame {dt * 1000f:F0}ms (real {realDt * 1000f:F0}ms, ts {Time.timeScale:F2}): {FrameCost.LastTop(6, 5f)}"); }
         if (dt > 0.25f && Time.frameCount > 30 && Time.realtimeSinceStartup > quietUntil) // シーンの読み直し直後は数えない
             Report($"heavy frame {dt:F2}s gc+{gcDelta} heap {UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong() / 1048576}MB/{UnityEngine.Profiling.Profiler.GetMonoHeapSizeLong() / 1048576}MB cost[{FrameCost.LastTop(6, 5f)}] unity[{MarkerText(10f)}]");
         // ゲーム内時間の停止(HitStop だけが理由の時)

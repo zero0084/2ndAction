@@ -313,24 +313,33 @@ public partial class QaSweep
         var hsa = HighSpeedAssist.Instance; bool hsaWas = hsa != null && hsa.assistEnabled;
         if (hsa != null) hsa.assistEnabled = false;
         b.DebugForceUltimate();
-        float w = 0f, maxDrift = 0f; int farFrames = 0, samples = 0;
+        float w = 0f, maxDrift = 0f, maxDriftPlayer = 0f, maxLag = 0f; int farFrames = 0, samples = 0;
         var startRel = new Dictionary<int, float>(); // 使い回しで同じ物が別の場所に出るので、出るたびの番号で
+        var startRelP = new Dictionary<int, float>();
+        // 2026-10-10: 地形の攻撃は「走る速さで流れる座標」(RunFrameSpeed)に置かれる。補助を切った 300km/h ではプレイヤーが障害物で一瞬止まり、
+        // プレイヤー基準だと数十mずれて見える(攻撃は前へ流れるので当たる側にはずれない)。判定は走りの座標で行い、プレイヤーの遅れは別に記録する
+        float frameX = pc.transform.position.x, lastOrigin = (float)FloatingOrigin.Offset;
         while (w < 25f && (w < 4f || b.UltimateRunning) && !b.IsDead)
         {
-            float px = pc.transform.position.x;
+            float shift = (float)FloatingOrigin.Offset - lastOrigin; lastOrigin = (float)FloatingOrigin.Offset; frameX -= shift;
+            frameX += PlayerController.RunFrameSpeed * pc.MoveSlowFactor * Time.deltaTime;
+            float pxReal = pc.transform.position.x;
+            maxLag = Mathf.Max(maxLag, frameX - pxReal);
+            float px = frameX;
             foreach (var h in CaveHazard.Live)
             {
                 if (h == null || (h.Kind != CaveHazardKind.Floor && h.Kind != CaveHazardKind.Ceiling)) continue;
-                float rel = h.transform.position.x - px;
-                if (!startRel.TryGetValue(h.Serial, out float r0)) startRel[h.Serial] = rel;
-                else { maxDrift = Mathf.Max(maxDrift, Mathf.Abs(rel - r0)); samples++; }
+                float rel = h.transform.position.x - px, relP = h.transform.position.x - pxReal;
+                if (!startRel.TryGetValue(h.Serial, out float r0)) { startRel[h.Serial] = rel; startRelP[h.Serial] = relP; }
+                else { maxDrift = Mathf.Max(maxDrift, Mathf.Abs(rel - r0)); maxDriftPlayer = Mathf.Max(maxDriftPlayer, Mathf.Abs(relP - startRelP[h.Serial])); samples++; }
             }
             if (Mathf.Abs(b.transform.position.x - px) > 30f && !b.UltimateRunning) farFrames++;
             w += Time.deltaTime; yield return null;
         }
         if (hsa != null) hsa.assistEnabled = hsaWas;
         Check(b.UltimatesUsed > 0, $"{tag}: the ultimate happens at {kmh:0}km/h");
-        Check(samples > 0 && maxDrift < 1.0f, $"{tag}: floor/ceiling attacks stay where they were telegraphed at {kmh:0}km/h (max drift {maxDrift:F2}m, {samples} samples)");
+        L($"[{tag}] drift in the run frame {maxDrift:F2}m, from the player {maxDriftPlayer:F2}m, player behind the run frame up to {maxLag:F1}m");
+        Check(samples > 0 && maxDrift < 1.0f, $"{tag}: floor/ceiling attacks stay where they were telegraphed at {kmh:0}km/h (max drift {maxDrift:F2}m in the run frame, {samples} samples)");
         Check(farFrames <= 3, $"{tag}: boss stays near the player ({farFrames} far frames)");
         Shot($"cave_{tag}_after");
         PlayerController.DebugSpeedScale = 1f;

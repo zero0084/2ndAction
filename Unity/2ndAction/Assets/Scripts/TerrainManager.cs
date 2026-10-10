@@ -158,6 +158,7 @@ public class TerrainManager : MonoBehaviour
     // (EncounterDirectorが毎フレーム書き換える)とは別の値として持ち、生成範囲は大きい方を使う。
     [System.NonSerialized] public float assistGenerateAhead;
     float EffectiveGenerateAhead => Mathf.Max(generateAheadDistance, assistGenerateAhead);
+    const int ExtraChunksPerFrame = 3; // すぐ要る範囲より先を1フレームに作る空中の足場の数(UpdateMeasured)
     public float minEnemySpacing = 14f;
     public float pitChanceBase = 0.2f;
     public float enemySpawnChance = 0.5f;
@@ -916,17 +917,44 @@ public class TerrainManager : MonoBehaviour
         if (WorldRng.IsDeterministic) { UpdateDeterministic(); return; }
 
         float ahead = EffectiveGenerateAhead;
-        while (nextStartX < player.position.x + ahead)
+        // 2026-10-10(全体点検): 敵の出現の先読み(EncounterDirector.ExtendGeneration)が速度に応じて生成範囲を一気に広げ
+        // (260km/h で 400m → 2,155m)、約300区画を1フレームで作って 30ms 前後の処理落ちになっていた(ボス戦の後に速度が戻った時)。
+        // 必ずすぐ要る範囲(画面の先/高速の補助の先読み/1.5秒ぶん、最低120m)は今までどおり作り、その先は1フレーム 3ms までに分ける。
+        // 出現の計画は「地形ができてから」(IsGenerated を確かめて待つ)なので、分けても置き場所は変わらない。
+        float px = player.position.x;
+        float runV = PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f;
+        float must = px + Mathf.Min(ahead, Mathf.Max(120f, Mathf.Max(assistGenerateAhead, runV * 1.5f)));
+        long genT0 = System.Diagnostics.Stopwatch.GetTimestamp();
+        long budget = (long)(System.Diagnostics.Stopwatch.Frequency * 0.003);
+        int made = 0;
+        float lead0 = nextStartX - px;
+        while (nextStartX < px + ahead)
         {
-            using (FrameCost.Scope("Terrain.Ground")) GenerateNext();
+            if (nextStartX >= must && System.Diagnostics.Stopwatch.GetTimestamp() - genT0 > budget) break;
+            using (FrameCost.Scope(made++ == 0 ? "Terrain.Ground1" : "Terrain.GroundMore")) GenerateNext();
+        }
+        if (made > 1 && Debug.isDebugBuild)
+        {
+            double ms = (System.Diagnostics.Stopwatch.GetTimestamp() - genT0) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
+            if (ms > 12.0) Debug.Log($"[TerrainGen] {made} chunks in {ms:F0}ms (lead {lead0:F0}m -> {nextStartX - px:F0}m, ahead {ahead:F0}m, must {must - px:F0}m, chunks {chunks.Count})");
         }
         if (routeBranchEnabled)
         {
-            while (nextBranchX < player.position.x + ahead) using (FrameCost.Scope("Terrain.Branch")) GenerateNextBranch();
+            int extraB = 1;
+            while (nextBranchX < px + ahead)
+            {
+                if (nextBranchX >= must && extraB-- <= 0) break;
+                using (FrameCost.Scope("Terrain.Branch")) GenerateNextBranch();
+            }
         }
         else if (!singleRouteMode)
         {
-            while (nextSkyStartX < player.position.x + ahead) using (FrameCost.Scope("Terrain.Sky")) GenerateNextSkyChunk();
+            int extraS = ExtraChunksPerFrame;
+            while (nextSkyStartX < px + ahead)
+            {
+                if (nextSkyStartX >= must && extraS-- <= 0) break;
+                using (FrameCost.Scope("Terrain.Sky")) GenerateNextSkyChunk();
+            }
         }
 
         // Old chunks are intentionally never destroyed: getting hit sends the

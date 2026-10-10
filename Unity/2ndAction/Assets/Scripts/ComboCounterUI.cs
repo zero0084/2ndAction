@@ -48,23 +48,27 @@ public class ComboCounterUI : MonoBehaviour
         if (timer <= 0f) ComboCount = 0;
     }
 
+    GUIStyle style;
+    static readonly Vector2[] offsets = { new Vector2(-2, -2), new Vector2(2, -2), new Vector2(-2, 2), new Vector2(2, 2) };
     void OnGUI()
     {
         if (ComboCount < showThreshold) return;
         if (GameManager.Instance == null || GameManager.Instance.IsGameOver) return;
+        if (BonusZone.Instance != null && BonusZone.Instance.State == BonusZone.Phase.Ending) return; // BONUS CLEAR/RESULT(1〜2秒)と同じ所に重なるので、その間は出さない
 
-        GUIStyle style = new GUIStyle(GUI.skin.label);
-        style.fontSize = 34;
-        style.fontStyle = FontStyle.Bold;
-        style.alignment = TextAnchor.MiddleCenter;
+        if (style == null) style = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter }; // 毎回作らない(OnGUI は1フレームに何度も呼ばれる)
 
-        Rect rect = new Rect(Screen.width / 2f - 160f, Screen.height * 0.2f, 320f, 60f);
+        // 2026-10-10(全体点検): 高解像度では HUD と同じ倍率で大きく。ボス戦の帯(BREAK!/反撃のチャンス 等)が出ている間はその下へ(重なって読めなかった)
+        float k = GameManager.HudK;
+        style.fontSize = Mathf.RoundToInt(34 * k);
+        float y = Screen.height * 0.2f;
+        if (BossBattleHud.BannerVisible) y = Mathf.Max(y, BossBattleHud.BannerBottomPx + 4f);
+        Rect rect = new Rect(Screen.width / 2f - 160f * k, y, 320f * k, 60f * k);
         string text = $"{ComboCount} HIT";
 
         // 黒縁取り(4方向にずらして重ねる簡易アウトライン) - 明るい空背景
         // でも読めるように、既存HUDのUiBackdrop的な発想をテキストへ適用。
         style.normal.textColor = new Color(0f, 0f, 0f, 0.85f);
-        Vector2[] offsets = { new Vector2(-2, -2), new Vector2(2, -2), new Vector2(-2, 2), new Vector2(2, 2) };
         foreach (Vector2 o in offsets)
         {
             LocGUI.Label(new Rect(rect.x + o.x, rect.y + o.y, rect.width, rect.height), text, style);
