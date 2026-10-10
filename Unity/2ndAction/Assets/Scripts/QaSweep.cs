@@ -135,6 +135,8 @@ public partial class QaSweep : MonoBehaviour
         };
         // ホームのお知らせ(解放/デッキ12枚 等)は、それを確かめるテスト以外では自動で閉じる(テスト機の古いデータで毎回出るため)
         NoticeQueue.QaAutoAcknowledge = !(mode == "deck" || mode == "unlock" || mode == "tutorial" || mode == "gacha");
+        // 2026-10-10: マップ/キャラの解放を確かめるテスト以外は、全部を選べるようにする(保存しない)。未解放で別のマップへ黙って替わっていた
+        UnlockRules.QaOverride = !(mode == "unlock" || mode == "tutorial" || mode == "records" || mode == "save" || mode == "saveshots");
         yield return new WaitForSecondsRealtime(2f);
         if (mode != "buildlab") StartCoroutine(AutoPickCards()); // ビルド検証はビルドの方針で自分で選ぶ
         if (mode == "visual") yield return VisualMode();
@@ -300,7 +302,10 @@ public partial class QaSweep : MonoBehaviour
     {
         lastShotFrame = Time.frameCount;
         if (Arg("-qaNoShots", "0") == "1") return; // 処理落ちを測る時は撮らない(撮影そのものが数百ms かかる)
-        ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(outDir, $"{shotNo++:0000}_{name}.png"));
+        string shotPath = System.IO.Path.Combine(outDir, $"{shotNo++:0000}_{name}.png");
+        // Android: CaptureScreenshot はアプリのフォルダからの相対の名前を取る(絶対パスを渡すと保存されなかった、2026-10-10)
+        if (Application.isMobilePlatform && shotPath.StartsWith(Application.persistentDataPath)) shotPath = shotPath.Substring(Application.persistentDataPath.Length).TrimStart('/');
+        ScreenCapture.CaptureScreenshot(shotPath);
     }
 
     object GetPrivate(object o, string field) { var f = o.GetType().GetField(field, NP); return f != null ? f.GetValue(o) : null; }

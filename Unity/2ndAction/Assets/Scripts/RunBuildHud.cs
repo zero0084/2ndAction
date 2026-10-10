@@ -392,6 +392,19 @@ public class RunBuildHud : MonoBehaviour
             var labelArea = Rect.MinMaxRect(left, LastGridRect.yMin - pad, LastGridRect.xMin, LastGridRect.yMax + pad);
             foreach (var a in ChoiceAvoidRects()) if (a.Overlaps(labelArea)) { lw = 0f; break; }
         }
+        // 2026-10-10(全体点検): 縦画面では見出しが左の列(BEST/距離/速度)の下に潜って「キ」だけ見えていた → 左の列の右端まで。入らなければ字を縮め、それでも無理なら板だけ
+        if (GameManager.HudStacked && lw > 0f)
+        {
+            float colRight = StableSafeArea.Rect.x + 28f + 168f + 6f;
+            float room = LastGridRect.xMin - pad - colRight;
+            if (room < lw)
+            {
+                var gc = new GUIContent(Loc.Auto("デッキ"));
+                int fs = groupStyle.fontSize;
+                while (fs > 10 && groupStyle.CalcSize(gc).x > room - 4f) groupStyle.fontSize = --fs;
+                lw = groupStyle.CalcSize(gc).x <= room - 2f ? Mathf.Max(0f, room) : 0f;
+            }
+        }
         if (nChar > 0) Group(0, nChar, "キャラ", CharLabel, CharPanelEdge, CharPanelFill, pad, lw);
         if (nChar < slotRects.Count) Group(nChar, slotRects.Count, "デッキ", DeckLabel, DeckPanelEdge, DeckPanelFill, pad, lw);
     }

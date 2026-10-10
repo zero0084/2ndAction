@@ -89,6 +89,16 @@ public class NoticeQueue : MonoBehaviour
             float ts = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.6f);
             float a = Mathf.Clamp01(toastT / 0.4f) * Mathf.Clamp01((3f - toastT) / 0.25f);
             var r = new Rect(Screen.width * 0.5f - 260 * ts, 96 * ts, 520 * ts, 44 * ts);
+            // 2026-10-10(全体点検): 結果画面では見出し(FAILED/GAME CLEAR)に重なっていた → 結果の板の上(入らなければ下)へ
+            var gmq = GameManager.Instance;
+            if (gmq != null && gmq.IsGameOver && gmq.LastResultPanelRect.height > 0f)
+            {
+                Rect rp = gmq.LastResultPanelRect;
+                if (rp.y - r.height - 6f >= 4f) r.y = rp.y - r.height - 6f;
+                else if (rp.yMax + 6f + r.height <= Screen.height - 4f) r.y = rp.yMax + 6f;
+                else r.y = rp.y + 4f + 50f; // 板の中の見出しの下
+            }
+            r.width = Mathf.Min(r.width, Screen.width - 16f); r.x = Screen.width * 0.5f - r.width * 0.5f;
             Color keep = GUI.color; GUI.color = new Color(1f, 1f, 1f, a);
             UiBackdrop.Draw(r, 0.75f);
             LocGUI.Label(r, toastNow, UiKit.Label(20 * ts, TextAnchor.MiddleCenter, true, new Color(1f, 0.88f, 0.5f)));

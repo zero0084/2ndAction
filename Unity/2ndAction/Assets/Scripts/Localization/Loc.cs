@@ -200,7 +200,7 @@ public static class Loc
     // 言語の名前(その言語自身の名前)は訳さない。右から左の名前は今の言語に関係なく並べ替えて見せる
     static Dictionary<string, string> nativeDisplay;
     public static string NativeName(Lang l) { if (nativeDisplay == null) BuildNative(); return nativeDisplay[l.native]; }
-    static void BuildNative() { nativeDisplay = new Dictionary<string, string>(); foreach (var l in Languages) nativeDisplay[l.native] = l.rtl ? ArabicShaper.ForDisplay(l.native) : l.native; }
+    static void BuildNative() { nativeDisplay = new Dictionary<string, string>(); foreach (var l in Languages) nativeDisplay[l.native] = l.rtl ? ArabicShaper.ForDisplay(l.native) : IndicShaper.Handles(l.code) ? IndicShaper.ForDisplay(l.native, l.code) : l.native; }
 
     public static string Auto(string s)
     {
@@ -236,7 +236,8 @@ public static class Loc
         if (found) return Display(one);
         if (current != "ja" && (current.StartsWith("zh") ? Kana.IsMatch(s) : Jp.IsMatch(s))) LocDebug.Untranslated(current, s); // 中国語は漢字が同じなので仮名だけで判定
         else if (current != "en" && UiWord.IsMatch(s)) LocDebug.Unknown(s); // 表に無い英語の UI ラベル(開発版で集めて訳を足す)
-        return current == "ja" ? s : Display(s);
+        // 表に無い文(数値/英語/すでに表示用に並べ替えた文をつないだ物)は、並べ替えを二重に掛けない(右から左の言語は今までどおり)
+        return current == "ja" || IndicShaper.Handles(current) ? s : Display(s);
     }
 
     static string LookupLine(string s, out bool found)
@@ -277,7 +278,8 @@ public static class Loc
     }
 
     // 右から左の言語は表示用に並べ替える
-    static string Display(string s) => IsRtl ? ArabicShaper.ForDisplay(s) : s;
+    // 2026-10-10: ヒンディー語/ベンガル語/タミル語/ビルマ語/クメール語は、前に書く母音記号を見た目の順へ(IndicShaper)
+    static string Display(string s) => IsRtl ? ArabicShaper.ForDisplay(s) : IndicShaper.Handles(current) ? IndicShaper.ForDisplay(s, current) : s;
 }
 
 // 開発版: 欠けている訳 / 訳されずに出た日本語 を集める(DEBUG のページとテストが読む)

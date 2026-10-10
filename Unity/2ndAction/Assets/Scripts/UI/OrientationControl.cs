@@ -88,8 +88,24 @@ public class OrientationWatcher : MonoBehaviour
         DontDestroyOnLoad(go);
         go.hideFlags = HideFlags.HideInHierarchy;
         go.AddComponent<OrientationWatcher>();
-        UnityEngine.SceneManagement.SceneManager.sceneLoaded += (s, m) => SafeAreaFitter.AttachToMenus();
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += (s, m) => { SafeAreaFitter.AttachToMenus(); ApplyCanvasScalers(); };
         SafeAreaFitter.AttachToMenus();
+        ApplyCanvasScalers();
+    }
+
+    // 2026-10-10(全体点検): uGUI のメニュー画面(1920x1080 基準、幅と高さの中間で合わせる)は、16:9 以外の横画面で端が切れていた
+    // (4:3 のタブレットではデッキ編集の一覧/デッキが左右で切れ、19.5:9 では上下が詰まる)。
+    // → 横画面では Expand(基準の 1920x1080 が必ず全部入る大きさ)。16:9 では今までと同じ大きさ。縦画面は今までどおり(PortraitColumns が並べ直す)
+    public static int ScalerApplies { get; private set; }
+    public static void ApplyCanvasScalers()
+    {
+        bool landscape = Screen.width >= Screen.height;
+        foreach (var cs in Object.FindObjectsByType<CanvasScaler>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (cs == null || cs.uiScaleMode != CanvasScaler.ScaleMode.ScaleWithScreenSize) continue;
+            var want = landscape ? CanvasScaler.ScreenMatchMode.Expand : CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+            if (cs.screenMatchMode != want) { cs.screenMatchMode = want; ScalerApplies++; }
+        }
     }
 
     void Start() { Snap(); }
@@ -106,6 +122,7 @@ public class OrientationWatcher : MonoBehaviour
         if (Screen.orientation != lastOri || Screen.width != lastW) StableSafeArea.LastReason = "rotation";
         Snap();
         Changes++;
+        ApplyCanvasScalers();
         // 回っている間に触っていた指は捨てる(離すまで入力にしない)
         if (PlayerController.Instance != null) PlayerController.Instance.ClearPointerState();
         UiInputGate.LatchUntilRelease();

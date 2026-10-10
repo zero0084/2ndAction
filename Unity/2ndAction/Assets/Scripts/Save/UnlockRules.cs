@@ -59,9 +59,12 @@ public static class UnlockRules
     static HashSet<string> Chars => Set(ref chars, CharsKey);
     static HashSet<string> Notified => Set(ref notified, NotifiedKey);
 
+    // 自動テスト(開発版): 保存せずに全部を選べるようにする(2026-10-10: 新しいテスト用データでマップが未解放のため、
+    // 洞窟/天空のテストが黙って荒野街道で走っていた)。解放そのものを確かめるテストでは使わない
+    public static bool QaOverride;
     public static bool DevUnlockAll
     {
-        get { return Debug.isDebugBuild && SaveStore.GetInt(DevUnlockAllKey, 0) != 0; }
+        get { return Debug.isDebugBuild && (QaOverride || SaveStore.GetInt(DevUnlockAllKey, 0) != 0); }
         set { if (Debug.isDebugBuild) { SaveStore.SetInt(DevUnlockAllKey, value ? 1 : 0); SaveStore.Save(); } }
     }
 

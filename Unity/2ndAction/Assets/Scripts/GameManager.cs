@@ -1474,10 +1474,18 @@ public partial class GameManager : MonoBehaviour
         style.alignment = TextAnchor.MiddleCenter;
         style.normal.textColor = new Color(1f, 0.93f, 0.75f, alpha);
 
-        Vector2 size = style.CalcSize(new GUIContent(text));
-        Rect rect = new Rect(Screen.width / 2f - size.x / 2f - 20f, Screen.height * 0.22f, size.x + 40f, size.y + 16f);
+        // 2026-10-10(全体点検): 縦画面では左の列(BEST/距離/速度)に重なっていた → 左の列の下へ。幅が足りない時は折り返す
+        string shown = Loc.Auto(text);
+        float maxW = Screen.width - SafeLeft() - SafeRight() - 24f;
+        Vector2 size = style.CalcSize(new GUIContent(shown));
+        float w = Mathf.Min(size.x + 40f, maxW);
+        if (size.x + 40f > maxW) style.wordWrap = true;
+        float h = style.wordWrap ? style.CalcHeight(new GUIContent(shown), w - 40f) + 16f : size.y + 16f;
+        float y = Screen.height * 0.22f;
+        if (HudStacked) y = Mathf.Max(y, GetSpeedPanelRect().yMax + 12f);
+        Rect rect = new Rect(Screen.width / 2f - w / 2f, y, w, h);
         UiBackdrop.Draw(rect, 0.85f * alpha);
-        LocGUI.Label(rect, text, style);
+        GUI.Label(new Rect(rect.x + 20f, rect.y, rect.width - 40f, rect.height), shown, style);
     }
 
     // Measures each one's actual frame-to-frame X movement (not just the
@@ -3949,7 +3957,29 @@ public partial class GameManager : MonoBehaviour
                     UiKit.Fill(new Rect(0f, bgRoomRect.yMax - (i + 1) * hh, Screen.width, hh), new Color(0f, 0f, 0f, a));
                 }
             }
-            else GUI.DrawTexture(bgRoomRect, topBackground, ScaleMode.StretchToFill);
+            else
+            {
+                // 2026-10-10(全体点検): 横長が足りない横画面(4:3 のタブレット等)では、画面いっぱいに切り取ると左のキャラの額/右のガチャ機が
+                // 画面の外へ出ていた → 左右の切り取りは各4%まで。足りない分は上下に余りを作り、縦画面と同じく暗くした同じ絵で埋める
+                float fitScale = Mathf.Min(coverScale, Screen.width / (topBackground.width * 0.92f));
+                if (fitScale < coverScale - 0.0001f)
+                {
+                    Color keepBg = GUI.color;
+                    GUI.color = new Color(0.3f, 0.27f, 0.26f, 1f);
+                    GUI.DrawTexture(bgRoomRect, topBackground, ScaleMode.StretchToFill);
+                    GUI.color = keepBg;
+                    float w2 = topBackground.width * fitScale, h2 = topBackground.height * fitScale;
+                    bgRoomRect = new Rect((Screen.width - w2) / 2f, (Screen.height - h2) / 2f, w2, h2);
+                    GUI.DrawTexture(bgRoomRect, topBackground, ScaleMode.StretchToFill);
+                    for (int i = 0; i < 8; i++)
+                    {
+                        float a = 0.5f * (1f - i / 8f), hh = 4f;
+                        UiKit.Fill(new Rect(0f, bgRoomRect.y + i * hh, Screen.width, hh), new Color(0f, 0f, 0f, a));
+                        UiKit.Fill(new Rect(0f, bgRoomRect.yMax - (i + 1) * hh, Screen.width, hh), new Color(0f, 0f, 0f, a));
+                    }
+                }
+                else GUI.DrawTexture(bgRoomRect, topBackground, ScaleMode.StretchToFill);
+            }
         }
 
         // Always-visible build stamp - offset right of center (not dead
@@ -4443,6 +4473,7 @@ public partial class GameManager : MonoBehaviour
     // Full results panel shown once the run ends - distance/time (each
     // starred if it beat the persisted best), kill counts, total EXP
     // earned, and how many level-up choices were taken this run.
+    public Rect LastResultPanelRect { get; private set; } // お知らせ(トースト)を重ねないため(2026-10-10)
     void DrawResults()
     {
         GUIStyle headlineStyle = new GUIStyle(GUI.skin.label);
@@ -4461,6 +4492,7 @@ public partial class GameManager : MonoBehaviour
         Rect panelRect = new Rect(Screen.width / 2f - panelWidth / 2f, Screen.height / 2f - panelHeight / 2f, panelWidth, panelHeight);
         if (HudStacked) panelRect.y = Mathf.Max(panelRect.y, Mathf.Min(GetSpeedPanelRect().yMax + 12f, Screen.height - SafeBottom() - panelHeight - 90f)); // 縦画面: 左の列(BEST/距離/速度)の下から
         UiBackdrop.Draw(panelRect, 0.8f);
+        LastResultPanelRect = panelRect;
 
         float y = panelRect.y + 16f;
         LocGUI.Label(new Rect(panelRect.x, y, panelRect.width, 46f), headline, headlineStyle);
@@ -5375,8 +5407,17 @@ public partial class GameManager : MonoBehaviour
         float fs = Mathf.Round(HomeButtonHeight * 0.32f);
         if (HomePortrait) fs = Mathf.Round(Mathf.Min(PortraitHome().chrome.height * 0.38f, PortraitChromeSlot(0).width * 0.17f)); // 縦: 4つ並びの幅に収まる字の大きさ
         Rect setRect = GetHomeSettingsButtonRect();
-        if (DrawStyledButton(setRect, "    設定", FitFont("    設定", setRect.width - 12f, fs), primary: false, ornate: true)) SettingsPanel.OpenStatic();
-        UiKit.DrawGear(new Rect(setRect.x + setRect.width * 0.08f, setRect.y + setRect.height * 0.2f, setRect.height * 0.6f, setRect.height * 0.6f), 1f, new Color(1f, 0.88f, 0.55f));
+        // 2026-10-10(全体点検): 長い言語(Einstellungen 等)では歯車が字に重なり、字も極端に小さかった → 歯車の右の空きに字を収める
+        float gearS = setRect.height * 0.52f, gearX = setRect.x + Mathf.Max(6f, setRect.width * 0.06f);
+        Rect setText = new Rect(gearX + gearS + 4f, setRect.y, setRect.xMax - (gearX + gearS + 4f) - 8f, setRect.height);
+        if (DrawStyledButton(setRect, "", fs, primary: false, ornate: true)) SettingsPanel.OpenStatic();
+        float setFs = FitFont("設定", setText.width, fs);
+        if (setFs >= fs * 0.7f)
+        {
+            UiKit.DrawGear(new Rect(gearX, setRect.y + (setRect.height - gearS) * 0.5f, gearS, gearS), 1f, new Color(1f, 0.88f, 0.55f));
+            LocGUI.Label(setText, "設定", UiKit.Label(setFs, TextAnchor.MiddleCenter, true, Color.white));
+        }
+        else UiKit.DrawGear(new Rect(setRect.center.x - gearS * 0.6f, setRect.y + (setRect.height - gearS * 1.2f) * 0.5f, gearS * 1.2f, gearS * 1.2f), 1f, new Color(1f, 0.88f, 0.55f)); // 字が読めない大きさになる言語: 歯車だけ
         if (Platform.Online.LanMultiplayer && DrawStyledButton(GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel, FitFont(NetDebugUI.HomeButtonLabel, GetHomeMultiButtonRect().width - 12f, fs), primary: NetSession.IsActive, ornate: true)) NetDebugUI.OpenPanel();
         // 闘技場(2026-10-06 正式版): キャラやカードを自由に試せる練習場。マルチの部屋にいる間は出さない(ソロ用)
         // 闘技場: 天空回廊で30,000m到達+帰還で解放。2026-10-08: 未解放の間はボタンごと出さない(存在を見せない)。解放直後は NEW
@@ -6073,21 +6114,24 @@ public partial class GameManager : MonoBehaviour
     void DrawPauseMenu()
     {
         // 音/表示/操作の設定は共通の設定画面へ(2026-10-01、以前は音量の段階ボタンが2×2で並んでいた)
-        Rect panelRect = new Rect(Screen.width - SafeRight() - UiMargin - 240f, Screen.height - SafeBottom() - UiMargin - 52f - 152f - 58f, 240f, 198f);
+        // 2026-10-10(全体点検): ボタンが小さく、「ホームへ戻る」だけ文字が小さかった → 一回り大きく、3つとも同じ大きさの文字(入らない言語だけ縮める)
+        const float pw = 290f, bh = 62f, gap = 10f;
+        Rect panelRect = new Rect(Screen.width - SafeRight() - UiMargin - pw, Screen.height - SafeBottom() - UiMargin - 52f - (bh * 3f + gap * 2f + 24f) - 6f, pw, bh * 3f + gap * 2f + 24f);
         OrnateUi.DrawPanel(panelRect, 0.92f);
-        Rect settingsRect = new Rect(panelRect.x + 12f, panelRect.y + 136f, panelRect.width - 24f, 50f);
-        if (DrawStyledButton(settingsRect, "    設定", 17f, primary: false)) SettingsPanel.OpenStatic();
-        UiKit.DrawGear(new Rect(settingsRect.x + 52f, settingsRect.y + 11f, 28f, 28f), 1f, new Color(1f, 0.88f, 0.55f));
+        float bw = panelRect.width - 24f, fs = 20f;
+        Rect resumeRect = new Rect(panelRect.x + 12f, panelRect.y + 12f, bw, bh);
+        Rect returnRect = new Rect(panelRect.x + 12f, resumeRect.yMax + gap, bw, bh);
+        Rect settingsRect = new Rect(panelRect.x + 12f, returnRect.yMax + gap, bw, bh);
+        if (DrawStyledButton(settingsRect, "    設定", FitFont("    設定", bw - 70f, fs), primary: false)) SettingsPanel.OpenStatic();
+        UiKit.DrawGear(new Rect(settingsRect.x + 62f, settingsRect.y + (bh - 30f) * 0.5f, 30f, 30f), 1f, new Color(1f, 0.88f, 0.55f));
 
-        Rect resumeRect = new Rect(panelRect.x + 12f, panelRect.y + 12f, panelRect.width - 24f, 52f);
-        if (DrawStyledButton(resumeRect, "RESUME", 18f, primary: true))
+        if (DrawStyledButton(resumeRect, "RESUME", FitFont("RESUME", bw - 24f, fs), primary: true))
         {
             showPauseMenu = false;
             TimeControl.Resume(pauseMenuTimeOwner);
         }
 
-        Rect returnRect = new Rect(panelRect.x + 12f, panelRect.y + 74f, panelRect.width - 24f, 52f);
-        if (DrawStyledButton(returnRect, "RETURN TO HOME", 14f, primary: false))
+        if (DrawStyledButton(returnRect, "RETURN TO HOME", FitFont("RETURN TO HOME", bw - 24f, fs), primary: false))
         {
             showReturnHomeConfirm = true;
         }
