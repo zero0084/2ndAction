@@ -199,6 +199,9 @@ public partial class GameManager
             {
                 if (e.type == EffectType.SacrificeHearts) continue;
                 float amount = CardRules.Scale(e.scaling, e.value, effLv) * amp;
+                // 2026-10-11: ATTACK UP の高い Lv の伸び(BalanceTuning)。Lv1〜3 は同じ
+                if (BalanceTuning.AttackUpHighLevel && c.cardId == "attack_up" && e.type == EffectType.AttackPct && e.scaling == CardScaling.PerLevel)
+                    amount = e.value * BalanceTuning.AttackUpLevelFactor(effLv) * amp;
                 AddLegacyOrV3(e.type, amount, per);
             }
         }

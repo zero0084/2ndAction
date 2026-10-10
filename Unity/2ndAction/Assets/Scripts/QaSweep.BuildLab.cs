@@ -498,6 +498,7 @@ public partial class QaSweep
             if (string.IsNullOrEmpty(bl.deathSnapshot)) bl.deathSnapshot = blSnapshot;
         }
         bl.gameSeconds = blT; bl.realSeconds = Time.realtimeSinceStartup - blReal0;
+        if (blCurBoss != null && blCurBoss.seconds <= 0f) blCurBoss.seconds = blT - blCurBoss.t0; // ボス戦の途中で倒れた/止めた時も秒数を残す
         bl.swings = PlayerAttackInfo.SwingCount - blSwing0;
         float atot = blAssistT.Values.Sum();
         bl.assistSeconds = string.Join(" ", blAssistT.OrderByDescending(kv => kv.Value).Select(kv => $"{kv.Key}={kv.Value:F0}s"));

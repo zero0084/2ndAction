@@ -144,7 +144,8 @@ public class DistanceTierManager : MonoBehaviour
     float CurrentDistance => GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f;
 
     // 2026-10-02: 10倍スケール(攻撃力と同じ比率)
-    public int CurrentEnemyHp => Mathf.Max(1, (1 + baseHpBonus + Mathf.FloorToInt(CurrentDistance / Mathf.Max(1f, hpIncreaseDistance))) * CombatScale.K);
+    // 2026-10-11: 距離の段は BalanceTuning.HpSteps(終盤の伸びの調整。切っている間は今までどおり floor(距離 / hpIncreaseDistance))
+    public int CurrentEnemyHp => Mathf.Max(1, (1 + baseHpBonus + BalanceTuning.HpSteps(CurrentDistance, hpIncreaseDistance)) * CombatScale.K);
 
     public DistanceTier CurrentTier
     {
