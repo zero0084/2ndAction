@@ -5,7 +5,8 @@ using UnityEngine;
 //    序盤(LateHpFrom まで)の雑魚は変わらない。ボスの HP は別(BossHpPlan/再戦)。
 //  ・AttackUpHighLevel: ATTACK UP の高い Lv の伸び。Lv1〜3 は今までどおり(+5%/Lv)、Lv4 から伸びを大きくする(AttackUpLevelFactor)。
 //  ・BossFrontReturn: ボスがプレイヤーの後ろに張り付いたままにならない(下の説明)。
-// 開発版は起動引数 -balVariant base|hp|atk|boss の組み合わせ(例 hp,atk,boss = 全部)で切り替えられる(base = 調整前)。保存はしない。
+//  ・AssistFlyingBosses: 自動の補助がドラゴン/魔人も攻撃する。
+// 開発版は起動引数 -balVariant base|hp|atk|boss|assist の組み合わせ(例 hp,atk,boss,assist = 全部)で切り替えられる(base = 調整前)。保存はしない。
 public static class BalanceTuning
 {
     public static bool LateEnemyHp = true;    // 2026-10-11 採用(比較の結果: 終盤の普通の雑魚の必要な命中数 約-35%)
@@ -25,7 +26,10 @@ public static class BalanceTuning
     public static float FlyerDriftDeadZone = 2f;  // ドラゴン/魔人: 本来の間合いからのずれがこれを超えた分を
     public static float FlyerDriftRate = 0.6f;    //   1秒あたりこの割合で戻す(一瞬の踏み込みにはすぐ付いていかない)
 
-    public static string Describe => $"lateEnemyHp={(LateEnemyHp ? $"on(from {LateHpFrom:F0}m every {LateHpEvery:F0}m)" : "off")} attackUpHighLevel={(AttackUpHighLevel ? "on" : "off")} bossFrontReturn={(BossFrontReturn ? "on" : "off")}";
+    // 自動の補助がドラゴン/魔人(専用の作りのボス)も攻撃する(2026-10-11)。以前は WildBossBase 系だけを狙っていた
+    public static bool AssistFlyingBosses = true;
+
+    public static string Describe => $"lateEnemyHp={(LateEnemyHp ? $"on(from {LateHpFrom:F0}m every {LateHpEvery:F0}m)" : "off")} attackUpHighLevel={(AttackUpHighLevel ? "on" : "off")} bossFrontReturn={(BossFrontReturn ? "on" : "off")} assistFlyingBosses={(AssistFlyingBosses ? "on" : "off")}";
 
     // 雑魚の HP の距離の段(DistanceTierManager.CurrentEnemyHp)
     public static int HpSteps(float distance, float increaseDistance)
@@ -47,12 +51,13 @@ public static class BalanceTuning
         {
             if (a[i] != "-balVariant") continue;
             string v = a[i + 1];
-            if (v == "base") { LateEnemyHp = false; AttackUpHighLevel = false; BossFrontReturn = false; }
+            if (v == "base") { LateEnemyHp = false; AttackUpHighLevel = false; BossFrontReturn = false; AssistFlyingBosses = false; }
             else
             {
                 LateEnemyHp = v.Contains("hp");
                 AttackUpHighLevel = v.Contains("atk");
                 BossFrontReturn = v.Contains("boss");
+                AssistFlyingBosses = v.Contains("assist");
             }
             Debug.Log("[BalanceTuning] variant " + v + ": " + Describe);
         }

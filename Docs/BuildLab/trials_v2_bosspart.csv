@@ -1,0 +1,51 @@
+trial,build,stage,growth,seed,depart,dest,extra,timeout
+V2P001_base_noble_lady_wasteland_road_80k,noble_lady_B,wasteland_road,9,7201,normal,,-blPartialAt 80000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P002_base_fighter_wasteland_road_80k,fighter_B,wasteland_road,9,7201,normal,,-blPartialAt 80000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P003_base_dual_blade_wasteland_road_80k,dual_blade_B,wasteland_road,9,7201,normal,,-blPartialAt 80000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P004_base_mage_wasteland_road_80k,mage_B,wasteland_road,9,7201,normal,,-blPartialAt 80000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P005_base_ninja_wasteland_road_80k,ninja_B,wasteland_road,9,7201,normal,,-blPartialAt 80000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P006_base_noble_lady_natural_cave_90k,noble_lady_B,natural_cave,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P007_base_fighter_natural_cave_90k,fighter_B,natural_cave,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P008_base_dual_blade_natural_cave_90k,dual_blade_B,natural_cave,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P009_base_mage_natural_cave_90k,mage_B,natural_cave,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P010_base_ninja_natural_cave_90k,ninja_B,natural_cave,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P011_base_noble_lady_sky_corridor_90k,noble_lady_B,sky_corridor,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P012_base_fighter_sky_corridor_90k,fighter_B,sky_corridor,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P013_base_dual_blade_sky_corridor_90k,dual_blade_B,sky_corridor,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P014_base_mage_sky_corridor_90k,mage_B,sky_corridor,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P015_base_ninja_sky_corridor_90k,ninja_B,sky_corridor,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P016_base_noble_lady_last_corridor_60k,noble_lady_B,last_corridor,9,7201,normal,,-blPartialAt 60000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P017_base_fighter_last_corridor_60k,fighter_B,last_corridor,9,7201,normal,,-blPartialAt 60000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P018_base_dual_blade_last_corridor_60k,dual_blade_B,last_corridor,9,7201,normal,,-blPartialAt 60000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P019_base_mage_last_corridor_60k,mage_B,last_corridor,9,7201,normal,,-blPartialAt 60000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P020_base_ninja_last_corridor_60k,ninja_B,last_corridor,9,7201,normal,,-blPartialAt 60000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P021_base_noble_lady_last_corridor_100k,noble_lady_B,last_corridor,9,7201,normal,,-blPartialAt 100000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P022_base_fighter_last_corridor_100k,fighter_B,last_corridor,9,7201,normal,,-blPartialAt 100000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P023_base_dual_blade_last_corridor_100k,dual_blade_B,last_corridor,9,7201,normal,,-blPartialAt 100000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P024_base_mage_last_corridor_100k,mage_B,last_corridor,9,7201,normal,,-blPartialAt 100000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P025_base_ninja_last_corridor_100k,ninja_B,last_corridor,9,7201,normal,,-blPartialAt 100000 -blBossLimit 480 -blMaxMin 25 -balVariant base,2400
+V2P026_after_noble_lady_wasteland_road_80k,noble_lady_B,wasteland_road,9,7201,normal,,-blPartialAt 80000 -blBossLimit 480 -blMaxMin 25,2400
+V2P027_after_fighter_wasteland_road_80k,fighter_B,wasteland_road,9,7201,normal,,-blPartialAt 80000 -blBossLimit 480 -blMaxMin 25,2400
+V2P028_after_dual_blade_wasteland_road_80k,dual_blade_B,wasteland_road,9,7201,normal,,-blPartialAt 80000 -blBossLimit 480 -blMaxMin 25,2400
+V2P029_after_mage_wasteland_road_80k,mage_B,wasteland_road,9,7201,normal,,-blPartialAt 80000 -blBossLimit 480 -blMaxMin 25,2400
+V2P030_after_ninja_wasteland_road_80k,ninja_B,wasteland_road,9,7201,normal,,-blPartialAt 80000 -blBossLimit 480 -blMaxMin 25,2400
+V2P031_after_noble_lady_natural_cave_90k,noble_lady_B,natural_cave,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25,2400
+V2P032_after_fighter_natural_cave_90k,fighter_B,natural_cave,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25,2400
+V2P033_after_dual_blade_natural_cave_90k,dual_blade_B,natural_cave,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25,2400
+V2P034_after_mage_natural_cave_90k,mage_B,natural_cave,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25,2400
+V2P035_after_ninja_natural_cave_90k,ninja_B,natural_cave,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25,2400
+V2P036_after_noble_lady_sky_corridor_90k,noble_lady_B,sky_corridor,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25,2400
+V2P037_after_fighter_sky_corridor_90k,fighter_B,sky_corridor,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25,2400
+V2P038_after_dual_blade_sky_corridor_90k,dual_blade_B,sky_corridor,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25,2400
+V2P039_after_mage_sky_corridor_90k,mage_B,sky_corridor,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25,2400
+V2P040_after_ninja_sky_corridor_90k,ninja_B,sky_corridor,9,7201,normal,,-blPartialAt 90000 -blBossLimit 480 -blMaxMin 25,2400
+V2P041_after_noble_lady_last_corridor_60k,noble_lady_B,last_corridor,9,7201,normal,,-blPartialAt 60000 -blBossLimit 480 -blMaxMin 25,2400
+V2P042_after_fighter_last_corridor_60k,fighter_B,last_corridor,9,7201,normal,,-blPartialAt 60000 -blBossLimit 480 -blMaxMin 25,2400
+V2P043_after_dual_blade_last_corridor_60k,dual_blade_B,last_corridor,9,7201,normal,,-blPartialAt 60000 -blBossLimit 480 -blMaxMin 25,2400
+V2P044_after_mage_last_corridor_60k,mage_B,last_corridor,9,7201,normal,,-blPartialAt 60000 -blBossLimit 480 -blMaxMin 25,2400
+V2P045_after_ninja_last_corridor_60k,ninja_B,last_corridor,9,7201,normal,,-blPartialAt 60000 -blBossLimit 480 -blMaxMin 25,2400
+V2P046_after_noble_lady_last_corridor_100k,noble_lady_B,last_corridor,9,7201,normal,,-blPartialAt 100000 -blBossLimit 480 -blMaxMin 25,2400
+V2P047_after_fighter_last_corridor_100k,fighter_B,last_corridor,9,7201,normal,,-blPartialAt 100000 -blBossLimit 480 -blMaxMin 25,2400
+V2P048_after_dual_blade_last_corridor_100k,dual_blade_B,last_corridor,9,7201,normal,,-blPartialAt 100000 -blBossLimit 480 -blMaxMin 25,2400
+V2P049_after_mage_last_corridor_100k,mage_B,last_corridor,9,7201,normal,,-blPartialAt 100000 -blBossLimit 480 -blMaxMin 25,2400
+V2P050_after_ninja_last_corridor_100k,ninja_B,last_corridor,9,7201,normal,,-blPartialAt 100000 -blBossLimit 480 -blMaxMin 25,2400

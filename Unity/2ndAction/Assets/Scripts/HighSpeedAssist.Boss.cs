@@ -194,40 +194,48 @@ public partial class HighSpeedAssist
     PlayerController.FlickDirection? BossAttack(PlayerController pc, bool grounded, bool stayLow)
     {
         if (Time.time < manualAttackUntil) return null;
-        WildBossBase best = null; float bestD = float.MaxValue;
+        string bestName = null; Bounds bb = default; float bestD = float.MaxValue;
         Vector3 p = pc.transform.position;
         foreach (var lb in BossBattle.Living)
         {
-            if (!(lb is WildBossBase w) || !w.AssistTargetable) continue;
-            Bounds b = w.AssistBounds;
+            Bounds b; string name;
+            if (lb is WildBossBase w) { if (!w.AssistTargetable) continue; b = w.AssistBounds; name = w.bossName; }
+            // 2026-10-11(攻略の再検証): ドラゴン/魔人(専用の作りのボス)も狙う。以前は WildBossBase だけを狙っていたため、
+            // 天空回廊/ラスダンのドラゴン・魔人の戦いでは自動の攻撃がほとんど出ず、480秒かけても倒しきれなかった
+            else if (BalanceTuning.AssistFlyingBosses && lb != null && lb.isActiveAndEnabled && lb is IBossBattleDebug dbg && dbg.DebugAlive)
+            {
+                var c = lb.GetComponent<Collider2D>();
+                if (c == null || !c.enabled) continue;
+                b = c.bounds; name = dbg.DebugName;
+            }
+            else continue;
             float d = b.min.x > p.x ? b.min.x - p.x : (b.max.x < p.x ? p.x - b.max.x : 0f);
             if (b.center.x < p.x - 1.5f) continue; // 後ろのボスは狙わない(前攻撃が届かない)
-            if (d < bestD) { bestD = d; best = w; }
+            if (d < bestD) { bestD = d; bestName = name; bb = b; }
         }
-        if (best == null) { BossPlan = "攻撃できるボスがいない(無敵/地中/天井)"; return null; }
-        Bounds bb = best.AssistBounds;
+        if (bestName == null) { BossPlan = "攻撃できるボスがいない(無敵/地中/天井)"; return null; }
         float reach = pc.AssistForwardIsProjectile ? 12f : Mathf.Max(pc.AssistForwardReach, bossApproachReach);
-        if (bestD > reach) { BossPlan = $"{best.bossName} まで {bestD:F1}m(届くのを待つ)"; return null; }
+        if (bestD > reach) { BossPlan = $"{bestName} まで {bestD:F1}m(届くのを待つ)"; return null; }
         float feet = p.y, top = p.y + bodyH;
         // 空中で真上付近: 下攻撃(地面への衝撃で崩しが大きい)
         if (!grounded && pc.canUseDownAttack && bestD < 1.2f && bb.max.y < feet + 0.3f && !pc.AssistIsDiveOrHover)
         {
             BossDownAttacks++; BossAttacks++;
-            BossPlan = $"{best.bossName} の真上 → 下攻撃";
+            BossPlan = $"{bestName} の真上 → 下攻撃";
             Act("下攻撃(ボス)", BossPlan);
             return PlayerController.FlickDirection.Down;
         }
         // 頭上のボス: 跳んでから攻撃(天井から何か来る時は跳ばない)
         if (grounded && !stayLow && bb.min.y > top + 0.4f && bestD < 3f && Time.time >= manualJumpUntil)
         {
-            BossPlan = $"{best.bossName} は高い所 → 跳んで攻撃";
+            BossPlan = $"{bestName} は高い所 → 跳んで攻撃";
             Act("ジャンプ(ボスへ)", BossPlan);
             return PlayerController.FlickDirection.Up;
         }
         if (!pc.AssistCanStartForwardAttack) return null;
         if (bb.max.y < feet - 0.5f || bb.min.y > top + 1.2f) return null; // 高さが合わない
         BossAttacks++;
-        BossPlan = $"{best.bossName} へ前攻撃(距離{bestD:F1}m)";
+        BossPlan = $"{bestName} へ前攻撃(距離{bestD:F1}m)";
         Act("前攻撃(ボス)", BossPlan);
         return PlayerController.FlickDirection.Forward;
     }
