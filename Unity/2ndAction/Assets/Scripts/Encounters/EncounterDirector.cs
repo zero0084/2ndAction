@@ -232,7 +232,8 @@ public class EncounterDirector : MonoBehaviour
     // 毎フレーム
     // ===================================================================== //
 
-    void Update()
+    void Update() { using (FrameCost.Scope("Encounter")) UpdateMeasured(); }
+    void UpdateMeasured()
     {
         GameManager gm = GameManager.Instance;
         PlayerController pc = PlayerController.Instance;

@@ -997,7 +997,8 @@ public partial class PlayerController : MonoBehaviour
         if (upAttackVacuumHitbox != null) upAttackVacuumHitbox.enabled = false;
     }
 
-    void Update()
+    void Update() { using (FrameCost.Scope("Player")) UpdateMeasured(); }
+    void UpdateMeasured()
     {
         TickResumeAccel(); // CONTINUE の5秒加速(ゲーム内時間)
 #if UNITY_EDITOR

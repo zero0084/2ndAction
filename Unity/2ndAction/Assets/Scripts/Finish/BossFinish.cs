@@ -165,7 +165,8 @@ public class BossFinish : MonoBehaviour
         Debug.Log($"[BossFinish] {b.DeathKey} {entry.profile} fx={entry.specialFx} {info} D={D:F1}s mass={entry.deathMass}");
     }
 
-    void Update()
+    void Update() { using (FrameCost.Scope("BossFinish")) UpdateMeasured(); }
+    void UpdateMeasured()
     {
         // 実時間の短い演出(寄り/スロー)。HitStop の後で
         var tn = BossDeathTuning.I;
@@ -183,7 +184,8 @@ public class BossFinish : MonoBehaviour
     void EndZoom() { if (!zoomOn) return; zoomOn = false; if (zoomOwner == (object)this) { zoomOwner = null; CameraFollow.BossFinishZoom = 1f; } }
     void EndSlow() { if (!slowOn) return; slowOn = false; TimeControl.EndPresentationDrive(this); if (slowOwner == (object)this) slowOwner = null; }
 
-    void LateUpdate()
+    void LateUpdate() { using (FrameCost.Scope("BossFinishLate")) LateUpdateMeasured(); }
+    void LateUpdateMeasured()
     {
         if (finished) return;
         var cam = Camera.main;

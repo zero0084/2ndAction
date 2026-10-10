@@ -311,11 +311,22 @@ public partial class MajinController : MonoBehaviour
         }
     }
 
+    // 2026-10-10(全体点検): 浮いている間の基準の地面の高さをなめらかに追う(地面の段差で 0.5m 以上いっぺんに上下していた)。
+    // 同じフレームで何度呼ばれても1回だけ進める。大きく離れた時(ワープ/位置の付け替え)はすぐ合わせる。
+    float hoverGroundY = float.NaN, hoverGroundVel; int hoverGroundFrame = -1;
+    float SmoothHoverGround(float target)
+    {
+        if (float.IsNaN(hoverGroundY) || Mathf.Abs(target - hoverGroundY) > 8f) { hoverGroundY = target; hoverGroundVel = 0f; }
+        else if (hoverGroundFrame != Time.frameCount) hoverGroundY = Mathf.SmoothDamp(hoverGroundY, target, ref hoverGroundVel, 0.2f, Mathf.Infinity, Mathf.Max(0f, Time.deltaTime));
+        hoverGroundFrame = Time.frameCount;
+        return hoverGroundY;
+    }
+
     Vector3 ComputeHomePosition()
     {
         float roamOffsetX = (Mathf.PerlinNoise(Time.time * roamSpeedX + roamSeedX, 0f) * 2f - 1f) * roamAmplitudeX;
         float x = trackedX + standoffDistance + roamOffsetX;
-        float groundY = GroundYAt(x);
+        float groundY = SmoothHoverGround(GroundYAt(x));
         float bobOffset = (Mathf.PerlinNoise(Time.time * bobSpeed + bobSeed, 0f) * 2f - 1f) * bobAmplitude;
         return new Vector3(x, groundY + hoverHeight + bobOffset, 0f);
     }

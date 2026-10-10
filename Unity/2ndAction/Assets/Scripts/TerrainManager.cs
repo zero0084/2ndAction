@@ -908,7 +908,8 @@ public class TerrainManager : MonoBehaviour
         }
     }
 
-    void Update()
+    void Update() { using (FrameCost.Scope("Terrain")) UpdateMeasured(); }
+    void UpdateMeasured()
     {
         if (GameManager.Instance != null && GameManager.Instance.IsGameOver) return;
         if (player == null) return;
@@ -917,15 +918,15 @@ public class TerrainManager : MonoBehaviour
         float ahead = EffectiveGenerateAhead;
         while (nextStartX < player.position.x + ahead)
         {
-            GenerateNext();
+            using (FrameCost.Scope("Terrain.Ground")) GenerateNext();
         }
         if (routeBranchEnabled)
         {
-            while (nextBranchX < player.position.x + ahead) GenerateNextBranch();
+            while (nextBranchX < player.position.x + ahead) using (FrameCost.Scope("Terrain.Branch")) GenerateNextBranch();
         }
         else if (!singleRouteMode)
         {
-            while (nextSkyStartX < player.position.x + ahead) GenerateNextSkyChunk();
+            while (nextSkyStartX < player.position.x + ahead) using (FrameCost.Scope("Terrain.Sky")) GenerateNextSkyChunk();
         }
 
         // Old chunks are intentionally never destroyed: getting hit sends the

@@ -1349,13 +1349,14 @@ public partial class GameManager : MonoBehaviour
         SaveInterruptState();
     }
 
-    void Update()
+    void Update() { using (FrameCost.Scope("GM")) UpdateMeasured(); }
+    void UpdateMeasured()
     {
         HandleBackButton();
         UpdateCountdownSe();
         UpdateResumeGate(); // 中断セーブからの再開の準備時間(2026-10-03)
         UpdateResumeCountdownSe();
-        if (HasStarted && !IsGameOver) { UpdateCardRunState(); ChallengeSystem.Tick(); } // カードバランス v3(LAST CHANCE の再発動 / WANTED)
+        if (HasStarted && !IsGameOver) using (FrameCost.Scope("GM.Cards")) { UpdateCardRunState(); ChallengeSystem.Tick(); } // カードバランス v3(LAST CHANCE の再発動 / WANTED)
         if (HasStarted && !IsGameOver)
         {
             RunLedger.Tick(Time.deltaTime); // 走っていた時間(止まっている間は 0)
@@ -1380,7 +1381,7 @@ public partial class GameManager : MonoBehaviour
 
         UpdateGameOverGuard();
         UpdateQueuedRetry();
-        UpdateDeferredInterruptSave();
+        using (FrameCost.Scope("GM.Save")) UpdateDeferredInterruptSave();
         // 2026-10-06: Result(FAILED/CLEAR)の入力は Gameplay 側の状態(パネルを閉じた指のラッチ/ボス/Encounter/補助)に左右されない
         // 専用の判定(ResultTapThisFrame)。受け付けなかった時は理由を残す(実機で「Tap to Retry が効かない」を追えるように)。
         if (IsGameOver && ResultTapThisFrame(out string tapBlock))
@@ -1399,10 +1400,10 @@ public partial class GameManager : MonoBehaviour
 
         UpdateUnlockAnnouncement();
         EnforceNetChoicePriority();
-        UpdateDeferredLevelUp();
-        UpdateDeferredBossReward();
+        using (FrameCost.Scope("GM.LevelUp")) UpdateDeferredLevelUp();
+        using (FrameCost.Scope("GM.BossReward")) UpdateDeferredBossReward();
         UpdatePendingChoiceWatchdog();
-        UpdateStallGuards();
+        using (FrameCost.Scope("GM.StallGuards")) UpdateStallGuards();
 
         if (heartDamageFlashTimer > 0f) heartDamageFlashTimer -= Time.deltaTime;
         // Level Up Presentation pass - unscaledDeltaTime (not deltaTime)
@@ -1424,7 +1425,7 @@ public partial class GameManager : MonoBehaviour
         // 上2つとは別に、通常時(Level Up/被弾/HitStop絡み)も含めて毎フレーム
         // 記録する。DebugModeの有無に関わらず常時軽量に記録し、異常時だけ
         // 詳細を書き出す(FreezeDiagnostics自身のコメント参照)。
-        FreezeDiagnostics.Tick();
+        using (FrameCost.Scope("GM.Diag")) FreezeDiagnostics.Tick();
     }
 
     // Distance-unlock system - shows a brief "NEW UNLOCK" toast the first
@@ -1816,12 +1817,31 @@ public partial class GameManager : MonoBehaviour
 
     // 縦画面(2026-10-08、依頼E-1): 狭い幅では BEST / Lv / HP の3つが1段に入らず重なる → 1段目 = Lv/EXP(左)+HP(右)、
     // BEST → 距離 → 速度 は2段目から左の列に積む(右の列はデッキの表示)。横画面は今までどおり
-    public static bool HudStacked => Screen.height > Screen.width && StableSafeArea.Rect.width < 168f + 380f + HeartsPanelWidth + UiMargin * 2f + 24f;
-    Rect GetBestPanelRect() => new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin + (HudStacked ? HudPanelHeight + HudPanelGap : 0f), DistancePanelWidth(false), HudPanelHeight);
-    Rect GetDistancePanelRect() => new Rect(SafeLeft() + UiMargin, GetBestPanelRect().yMax + HudPanelGap, DistancePanelWidth(false), HudPanelHeight);
+    public static bool HudStacked => Screen.height > Screen.width && StableSafeArea.Rect.width / HudK < 168f + 380f + HeartsPanelWidth + UiMargin * 2f + 24f;
+
+    // ===== ラン中の HUD の大きさ(2026-10-10、全体点検) =====
+    // HUD(BEST/距離/速度/Lv/HP/歯車/II)は画素で固定の大きさだったため、高解像度のスマホ(短辺 1080)では 720 の時の 2/3 に見え、
+    // 文字が 1.3mm ほどしかなかった → 短辺 720 を基準に k 倍(1〜1.8)。配置は「720 の時の配置(設計の単位)」を k 倍した実際の画素で返す
+    // (タッチの判定は今までどおり実際の画素の矩形で行える)。描く時だけ GUI.matrix を k 倍にして設計の単位の矩形で描く(BeginHud/EndHud)。
+    // PC の 720p では k = 1(今までと同じ)
+    public static float HudK => Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 1.8f);
+    static Rect HudReal(float x, float y, float w, float h) { float k = HudK; return new Rect(x * k, y * k, w * k, h * k); }
+    float VSafeLeft => SafeLeft() / HudK;
+    float VSafeTop => SafeTop() / HudK;
+    float VSafeRight => SafeRight() / HudK;
+    float VSafeBottom => SafeBottom() / HudK;
+    float VW => Screen.width / HudK;
+    float VH => Screen.height / HudK;
+    Matrix4x4 hudKeepMatrix; float hudScopeK = 1f; int hudScopeDepth;
+    void BeginHud() { if (hudScopeDepth++ > 0) return; hudKeepMatrix = GUI.matrix; hudScopeK = HudK; GUI.matrix = hudKeepMatrix * Matrix4x4.Scale(new Vector3(hudScopeK, hudScopeK, 1f)); }
+    void EndHud() { if (--hudScopeDepth > 0) return; hudScopeDepth = 0; GUI.matrix = hudKeepMatrix; hudScopeK = 1f; }
+    Rect V(Rect r) => hudScopeK == 1f ? r : new Rect(r.x / hudScopeK, r.y / hudScopeK, r.width / hudScopeK, r.height / hudScopeK);
+    float VBestY => VSafeTop + UiMargin + (HudStacked ? HudPanelHeight + HudPanelGap : 0f);
+    Rect GetBestPanelRect() => HudReal(VSafeLeft + UiMargin, VBestY, HudDistanceWidth(), HudPanelHeight);
+    Rect GetDistancePanelRect() => HudReal(VSafeLeft + UiMargin, VBestY + HudPanelHeight + HudPanelGap, HudDistanceWidth(), HudPanelHeight);
     // 高速走行の視認性補正(2026-09-22) - 現在のAuto Run速度を基礎速度に対する倍率で常時表示する小さなHUD。
     // 既存の速度値(PlayerController.SpeedRatio)を参照して表示するだけで、移動速度の計算には影響しない。
-    Rect GetSpeedPanelRect() => new Rect(SafeLeft() + UiMargin, GetDistancePanelRect().yMax + HudPanelGap, DistancePanelWidth(false), 30f);
+    Rect GetSpeedPanelRect() => HudReal(VSafeLeft + UiMargin, VBestY + (HudPanelHeight + HudPanelGap) * 2f, HudDistanceWidth(), 30f);
     int speedHudStep = -1;
     float speedUpShownAt = -100f;
     float speedUpShownKmh;
@@ -1846,7 +1866,7 @@ public partial class GameManager : MonoBehaviour
             speedHudStep = step;
         }
 
-        Rect r = GetSpeedPanelRect();
+        Rect r = V(GetSpeedPanelRect());
         UiBackdrop.Draw(r, 0.6f);
         var labelStyle = new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft };
         labelStyle.normal.textColor = HudLabelColor;
@@ -1867,22 +1887,22 @@ public partial class GameManager : MonoBehaviour
     }
 
     Rect GetLevelExpPanelRect() => HudStacked
-        ? new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, Screen.width - SafeLeft() - SafeRight() - UiMargin * 2f - HeartsPanelWidth - 10f, HudPanelHeight)
-        : new Rect(Screen.width / 2f - 190f, SafeTop() + UiMargin, 380f, HudPanelHeight);
+        ? HudReal(VSafeLeft + UiMargin, VSafeTop + UiMargin, VW - VSafeLeft - VSafeRight - UiMargin * 2f - HeartsPanelWidth - 10f, HudPanelHeight)
+        : HudReal(VW / 2f - 190f, VSafeTop + UiMargin, 380f, HudPanelHeight);
     // 2026-10-01: 幅は固定(最大HPが増えても枠を広げない)。中身は DrawHeartsPanel が枠に収まるように描く。
     const float HeartsPanelWidth = 220f;
     Rect GetHeartsPanelRect()
     {
-        return new Rect(Screen.width - SafeRight() - UiMargin - HeartsPanelWidth, SafeTop() + UiMargin, HeartsPanelWidth, HudPanelHeight);
+        return HudReal(VW - VSafeRight - UiMargin - HeartsPanelWidth, VSafeTop + UiMargin, HeartsPanelWidth, HudPanelHeight);
     }
 
-    Rect GetGearButtonRect() => new Rect(SafeLeft() + UiMargin, Screen.height - SafeBottom() - UiMargin - 52f, 52f, 52f);
+    Rect GetGearButtonRect() => HudReal(VSafeLeft + UiMargin, VH - VSafeBottom - UiMargin - 52f, 52f, 52f);
     // ホーム右上(2026-10-01): 所持MILE → その下に「設定」「マルチ」を横並び(互いに重ならない、セーフエリアの内側)。
     // ボタンの高さは画面の高さに比例(スマホでも押しやすい大きさ、最小/最大あり)。
     float HomeButtonHeight => Mathf.Clamp(Screen.height * 0.075f, 46f, 100f);
     Rect GetHomeMileRect() => HomePortrait
         ? new Rect(Screen.width - SafeRight() - 16f - 190f, PortraitHome().statsY, 190f, 72f)
-        : new Rect(Screen.width - SafeRight() - UiMargin - 190f, SafeTop() + UiMargin, 190f, 72f);
+        : HudReal(VW - VSafeRight - UiMargin - 190f, VSafeTop + UiMargin, 190f, 72f); // 横: HUD と同じ倍率(高解像度で小さくならない)
     Rect GetHomeMultiButtonRect()
     {
         if (HomePortrait) return PortraitChromeSlot(1);
@@ -4012,12 +4032,14 @@ public partial class GameManager : MonoBehaviour
             // so this reads as one aligned strip instead of separately
             // placed boxes.
             // 闘技場(2026-10-06): BEST とレベル/経験値は関係が無いので出さない(距離は「○km地点相当」の強さとして出す)
-            if (!ArenaMode.Active) DrawStatPanel(GetBestPanelRect(), "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor);
-            DrawStatPanel(GetDistancePanelRect(), "DISTANCE", FormatDistanceExact(SprintActive && SprintRunner.Instance != null ? SprintRunner.Instance.DistanceNow : MaxDistanceExact), HudValueColor, flashIntensity: DistanceFlashIntensity); // 疾走中(リングの3択)は疾走の距離
+            BeginHud(); // 2026-10-10: HUD は短辺 720 を基準に k 倍(HudK)
+            if (!ArenaMode.Active) DrawStatPanel(V(GetBestPanelRect()), "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor);
+            DrawStatPanel(V(GetDistancePanelRect()), "DISTANCE", FormatDistanceExact(SprintActive && SprintRunner.Instance != null ? SprintRunner.Instance.DistanceNow : MaxDistanceExact), HudValueColor, flashIntensity: DistanceFlashIntensity); // 疾走中(リングの3択)は疾走の距離
             DrawSpeedHud();
 
             if (!ArenaMode.Active) DrawLevelAndExp();
             DrawHeartsPanel();
+            EndHud();
 
             // 開発ビルドではDEBUG TOOLSの中に表示する(リリースビルドのDebug Modeでは従来どおりここに出す)。
             if (DebugMode && !Debug.isDebugBuild) DrawDebugSpeedReadout(SafeLeft() + UiMargin, GetSpeedPanelRect().yMax + HudPanelGap + 4f);
@@ -4047,7 +4069,9 @@ public partial class GameManager : MonoBehaviour
             if (!IsGameOver && !levelUpPending && !IsBossPresentationActive())
             {
                 int padLayer = PadNav.BeginLayer(PadNav.HudLayer); // II はラン中の HUD(パッドでは START で開く)
-                bool pauseTapped = DrawStyledButton(GetPauseButtonRect(), "II", 22f, primary: showPauseMenu);
+                BeginHud();
+                bool pauseTapped = DrawStyledButton(V(GetPauseButtonRect()), "II", 22f, primary: showPauseMenu);
+                EndHud();
                 PadNav.EndLayer(padLayer);
                 if (pauseTapped)
                 {
@@ -4268,7 +4292,7 @@ public partial class GameManager : MonoBehaviour
                 // 高さ72px)と重なってしまっていた。フラクション自体は
                 // そのままに、最終的なyだけBESTパネルの下端を下回らないよう
                 // 安全側にクランプする(通常のアスペクト比では発火しない)。
-                float minCharacterTop = SafeTop() + UiMargin + 72f + 16f;
+                float minCharacterTop = SafeTop() + (UiMargin + 72f + 16f) * (HomePortrait ? 1f : HudK);
                 if (characterRect.y < minCharacterTop) characterRect.y = minCharacterTop;
                 if (HomePortrait && characterRect.x < SafeLeft() + 6f) characterRect.x = SafeLeft() + 6f; // 縦: 絵の左の端が切れても額は画面に入れる
                 DrawCharacterHotspot(characterRect, roomInteractable, roomFadeAlpha);
@@ -4405,10 +4429,12 @@ public partial class GameManager : MonoBehaviour
             // corners so they never sit over the door/bed/book/desk.
             Rect titleBestRect = HomePortrait
                 ? new Rect(SafeLeft() + 16f, PortraitHome().statsY, Mathf.Min(DistancePanelWidth(true), Screen.width - SafeLeft() - SafeRight() - 32f - 190f - 10f), 72f)
-                : new Rect(SafeLeft() + UiMargin, SafeTop() + UiMargin, DistancePanelWidth(true), 72f);
-            DrawStatPanel(titleBestRect, "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor, ornate: true);
-
-            DrawStatPanel(GetHomeMileRect(), "MILE", TotalOwnedMile.ToString(), HudGoldColor, ornate: true);
+                : HudReal(VSafeLeft + UiMargin, VSafeTop + UiMargin, HudDistanceWidth() + 30f, 72f);
+            // 2026-10-10(全体点検): 横画面は HUD と同じ倍率で描く(2400x1080 等で小さすぎた)。縦画面は今までどおり
+            if (!HomePortrait) BeginHud();
+            DrawStatPanel(HomePortrait ? titleBestRect : V(titleBestRect), "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor, ornate: true);
+            DrawStatPanel(HomePortrait ? GetHomeMileRect() : V(GetHomeMileRect()), "MILE", TotalOwnedMile.ToString(), HudGoldColor, ornate: true);
+            if (!HomePortrait) EndHud();
 
             // 設定/マルチ/DEBUGのボタンは、背景・分離画像・演出・粒子より手前に描く(入力は上で先に判定済み)。
             // スコアリセットやBESTの設定(ガチャの確認)などの開発用操作は、開発版のDEBUGパネルへ移した。
@@ -4591,7 +4617,7 @@ public partial class GameManager : MonoBehaviour
             retryStyle.fontSize = 20;
             retryStyle.alignment = TextAnchor.MiddleCenter;
             retryStyle.normal.textColor = new Color(1f, 1f, 1f, 0.85f);
-            LocGUI.Label(new Rect(panelRect.x, panelRect.yMax - 40f, panelRect.width, 30f), "Tap to Retry", retryStyle);
+            LocGUI.Label(new Rect(panelRect.x, panelRect.yMax - 40f, panelRect.width, 30f), "▶ RETURN TO HOME", retryStyle); // 2026-10-10: 実際はホームへ戻る(以前の「Tap to Retry」はどの言語にも訳が無く、内容とも違った)
         }
     }
 
@@ -4638,6 +4664,21 @@ public partial class GameManager : MonoBehaviour
     // HUD左上パネルの幅: 最長想定("9,999,999.99 m")を実測した固定幅。数値が変わっても枠/文字位置が揺れない。
     float distancePanelWidthCache;
     float distancePanelWidthScreen = -1f;
+    // HUD 用(設計の単位)。ホームの BEST(ornate)は今までどおり DistancePanelWidth(実際の画素)
+    float hudDistW = -1f; float hudDistWScreen = -1f;
+    float HudDistanceWidth()
+    {
+        float vw = VW;
+        if (hudDistWScreen != vw)
+        {
+            var st = new GUIStyle(GUI.skin.label) { fontSize = HudValueFontSize, fontStyle = FontStyle.Bold, richText = true };
+            float w = st.CalcSize(new GUIContent(FormatDistanceExact(9999999.99))).x;
+            float roomForLeftPanels = vw * 0.5f - 190f - 14f - UiMargin;
+            hudDistW = Mathf.Max(168f, Mathf.Min(w + 26f, roomForLeftPanels));
+            hudDistWScreen = vw;
+        }
+        return hudDistW;
+    }
     float DistancePanelWidth(bool ornate)
     {
         if (distancePanelWidthScreen != Screen.width)
@@ -4699,7 +4740,7 @@ public partial class GameManager : MonoBehaviour
 
     void DrawLevelAndExp()
     {
-        Rect panelRect = GetLevelExpPanelRect();
+        Rect panelRect = V(GetLevelExpPanelRect());
         UiBackdrop.Draw(panelRect, 0.85f);
 
         GUIStyle lvStyle = new GUIStyle(GUI.skin.label);
@@ -4771,7 +4812,7 @@ public partial class GameManager : MonoBehaviour
 
     void DrawHeartsPanel()
     {
-        Rect rect = GetHeartsPanelRect();
+        Rect rect = V(GetHeartsPanelRect());
         UiBackdrop.Draw(rect, 0.85f);
 
         GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
@@ -5399,8 +5440,10 @@ public partial class GameManager : MonoBehaviour
     {
         if (HasStarted)
         {
-            if (DrawStyledButton(GetGearButtonRect(), "", 26f, primary: false)) SettingsPanel.OpenStatic();
-            UiKit.DrawGear(GetGearButtonRect(), 0.62f, new Color(1f, 0.9f, 0.6f));
+            BeginHud();
+            if (DrawStyledButton(V(GetGearButtonRect()), "", 26f, primary: false)) SettingsPanel.OpenStatic();
+            UiKit.DrawGear(V(GetGearButtonRect()), 0.62f, new Color(1f, 0.9f, 0.6f));
+            EndHud();
             return;
         }
         if (NetDebugUI.PanelOpen) return; // マルチのパネル(手前)を開いている間は出さない
@@ -6109,14 +6152,15 @@ public partial class GameManager : MonoBehaviour
 
     // Item 9 - small Gameplay Pause/Menu button (bottom-right, mirroring
     // the title screen's gear icon at bottom-left).
-    Rect GetPauseButtonRect() => new Rect(Screen.width - SafeRight() - UiMargin - 52f, Screen.height - SafeBottom() - UiMargin - 52f, 52f, 52f);
+    Rect GetPauseButtonRect() => HudReal(VW - VSafeRight - UiMargin - 52f, VH - VSafeBottom - UiMargin - 52f, 52f, 52f);
 
     void DrawPauseMenu()
     {
         // 音/表示/操作の設定は共通の設定画面へ(2026-10-01、以前は音量の段階ボタンが2×2で並んでいた)
         // 2026-10-10(全体点検): ボタンが小さく、「ホームへ戻る」だけ文字が小さかった → 一回り大きく、3つとも同じ大きさの文字(入らない言語だけ縮める)
         const float pw = 290f, bh = 62f, gap = 10f;
-        Rect panelRect = new Rect(Screen.width - SafeRight() - UiMargin - pw, Screen.height - SafeBottom() - UiMargin - 52f - (bh * 3f + gap * 2f + 24f) - 6f, pw, bh * 3f + gap * 2f + 24f);
+        BeginHud(); // II のボタンと同じ k 倍(設計の単位で並べる)
+        Rect panelRect = new Rect(VW - VSafeRight - UiMargin - pw, VH - VSafeBottom - UiMargin - 52f - (bh * 3f + gap * 2f + 24f) - 6f, pw, bh * 3f + gap * 2f + 24f);
         OrnateUi.DrawPanel(panelRect, 0.92f);
         float bw = panelRect.width - 24f, fs = 20f;
         Rect resumeRect = new Rect(panelRect.x + 12f, panelRect.y + 12f, bw, bh);
@@ -6135,6 +6179,7 @@ public partial class GameManager : MonoBehaviour
         {
             showReturnHomeConfirm = true;
         }
+        EndHud();
     }
 
     // Item 9 - "RETURN TO HOMEを選択した場合は、確認ダイアログを表示して

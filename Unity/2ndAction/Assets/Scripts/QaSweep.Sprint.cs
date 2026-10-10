@@ -72,7 +72,7 @@ public partial class QaSweep
             Check(!gm.SprintActive && gm.MaxDistance < 50f && SprintRunner.Instance == null, $"F: a normal departure does not sprint (d={gm.MaxDistance:F0})");
             yield return EndRun();
         }
-        if (SprintCase('H')) yield return SprintRunCase("H", "wasteland_road", 90000, 1, false);
+        if (SprintCase('H')) yield return SprintRunCase("H", "wasteland_road", 90000, 1, false, deckSize: 10); // 2026-10-10: 既定のデッキは12枚になった。説明どおり10枚で試す
         if (SprintCase('I')) yield return SprintRunCase("I", "wasteland_road", 20000, 1, false, deckSize: 2, preMax: true, endWith: "win");
         if (SprintCase('J')) yield return SprintRunCase("J", "natural_cave", 20000, 1, false, deckSize: 1, endWith: "gameover");
         if (SprintCase('K'))
@@ -139,13 +139,15 @@ public partial class QaSweep
                 var seq = FindFirstObjectByType<RewardCardSequence>();
                 if (seq != null && seq.IsWaitingForSelection && choiceFrames > 40) { seq.OnCardClicked(0); yield return new WaitForSecondsRealtime(0.25f); seq.OnCardClicked(0); choiceFrames = 0; }
             }
-            if (!ringShot && r.NextRingLead > 0f && r.NextRingLead < 0.25f && r.GatesPassed >= 3)
+            if (r.NextRingLead > 0f && r.NextRingLead < 0.25f && r.GatesPassed >= 3 && (!ringShot || ringAlignErr > 0.05f))
             {
-                ringShot = true; Shot($"sprint_{tag}_ring_coming");
-                // リングの中心とキャラの胴体の中心(表示の 80%)
+                if (!ringShot) { ringShot = true; Shot($"sprint_{tag}_ring_coming"); }
+                // リングの中心とキャラの胴体の中心(表示の 80%)。2026-10-10: キャラが段を移っている途中は別の段の高さになるので、
+                // リングが来るまでの間でいちばん合った値をとる(ボットはリングの段へ移ってから通る)
                 var cr = r.LastCharRect; var rr = r.LastRingRect;
                 float torso = cr.yMax - cr.height * SprintTuning.I.torsoFrac;
-                ringAlignErr = Mathf.Abs(rr.center.y - torso) / Mathf.Max(1f, cr.height);
+                float e = Mathf.Abs(rr.center.y - torso) / Mathf.Max(1f, cr.height);
+                ringAlignErr = ringAlignErr < 0f ? e : Mathf.Min(ringAlignErr, e);
                 charH = r.CharHeightPx / (Screen.height / 1080f);
             }
             if (!burstShot && r.RingsSucceeded > 0 && !gm.SprintChoiceOpen) { burstShot = true; yield return new WaitForSecondsRealtime(0.12f); Shot($"sprint_{tag}_ring_burst"); }

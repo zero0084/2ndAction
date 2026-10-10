@@ -1,0 +1,481 @@
+﻿group,character,stage,campaigns,depart,assist,engageKmh,growth,buildTypes,trials,withResult,noResult,fullClears,partialClears,clearBuilds,bestDistance,bestBuild,mainCause,mainBoss,medianDistance
+normal,swordsman,wasteland_road,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,103,swordsman_D,補助が未作動(開始速度に届く前)の障害物×3; 補助が未作動(開始速度に届く前)の雑魚×1,,103.0
+normal,dual_blade,wasteland_road,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,103,dual_blade_A,未確定×2; 補助が未作動(開始速度に届く前)の障害物×1,,58.0
+normal,noble_lady,wasteland_road,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,81,noble_lady_D,補助が未作動(開始速度に届く前)の障害物×2; 補助が未作動(開始速度に届く前)の雑魚×1,,68.0
+normal,gunslinger,wasteland_road,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,108,gunslinger_D,補助が未作動(開始速度に届く前)の障害物×2; 未確定×1,,103.0
+normal,dragon_lancer,wasteland_road,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,55,dragon_lancer_D,未確定×4,,49.0
+normal,archer,wasteland_road,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,103,archer_D,補助が未作動(開始速度に届く前)の障害物×2; 未確定×1,,103.0
+normal,mage,wasteland_road,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,109,mage_D,補助が未作動(開始速度に届く前)の雑魚×2; 補助が未作動(開始速度に届く前)の障害物×2,,103.0
+normal,fighter,wasteland_road,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,55,fighter_A,未確定×4,,37.0
+normal,ninja,wasteland_road,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,81,ninja_D,未確定×3; 補助が未作動(開始速度に届く前)の障害物×1,,55.0
+normal,miko,wasteland_road,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,63,miko_A,補助が未作動(開始速度に届く前)の雑魚×2; 未確定×2,,60.0
+normal,vampire,wasteland_road,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,63,vampire_D,未確定×3; 補助が未作動(開始速度に届く前)の雑魚×1,,49.0
+normal,dragonkin,wasteland_road,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,103,dragonkin_D,未確定×3; 補助が未作動(開始速度に届く前)の障害物×1,,43.0
+normal,swordsman,natural_cave,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,90,swordsman_D,補助が未作動(開始速度に届く前)の障害物×2; 補助が未作動(開始速度に届く前)の雑魚×1,,85.0
+normal,dual_blade,natural_cave,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,80,dual_blade_A,補助が未作動(開始速度に届く前)の雑魚×3; 未確定×1,,80.0
+normal,noble_lady,natural_cave,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,80,noble_lady_D,補助が未作動(開始速度に届く前)の雑魚×2; 未確定×1,,74.0
+normal,gunslinger,natural_cave,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,91,gunslinger_D,未確定×2; 補助が未作動(開始速度に届く前)の障害物×2,,67.0
+normal,dragon_lancer,natural_cave,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,80,dragon_lancer_D,補助が未作動(開始速度に届く前)の雑魚×2; 未確定×2,,74.0
+normal,archer,natural_cave,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,90,archer_D,補助が未作動(開始速度に届く前)の障害物×3; 補助が未作動(開始速度に届く前)の雑魚×1,,85.0
+normal,mage,natural_cave,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,85,mage_D,補助が未作動(開始速度に届く前)の雑魚×4,,85.0
+normal,fighter,natural_cave,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,90,fighter_D,未確定×2; 補助が未作動(開始速度に届く前)の雑魚×1,,78.0
+normal,ninja,natural_cave,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,80,ninja_B,補助が未作動(開始速度に届く前)の障害物×2; 補助が未作動(開始速度に届く前)の雑魚×2,,74.0
+normal,miko,natural_cave,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,78,miko_D,未確定×2; 補助が未作動(開始速度に届く前)の障害物×1,,74.0
+normal,vampire,natural_cave,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,43,vampire_A,未確定×4,,43.0
+normal,dragonkin,natural_cave,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,89,dragonkin_B,未確定×3; 補助が未作動(開始速度に届く前)の障害物×1,,78.0
+normal,swordsman,sky_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,300,swordsman_D,補助が未作動(開始速度に届く前)の落下×2; 補助が未作動(開始速度に届く前)の雑魚×2,,83.0
+normal,dual_blade,sky_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,282,dual_blade_D,補助が未作動(開始速度に届く前)の雑魚×2; 補助が未作動(開始速度に届く前)の落下×2,,209.0
+normal,noble_lady,sky_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,130,noble_lady_B,補助が未作動(開始速度に届く前)の落下×3; 補助が未作動(開始速度に届く前)の雑魚×1,,83.0
+normal,gunslinger,sky_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,296,gunslinger_B,補助が未作動(開始速度に届く前)の雑魚×4,,218.0
+normal,dragon_lancer,sky_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,216,dragon_lancer_A,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の落下×1,,121.0
+normal,archer,sky_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,308,archer_D,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の落下×1,,288.0
+normal,mage,sky_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,102,mage_D,補助が未作動(開始速度に届く前)の雑魚×4,,66.0
+normal,fighter,sky_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,308,fighter_D,補助が未作動(開始速度に届く前)の落下×3; 補助が未作動(開始速度に届く前)の雑魚×1,,293.0
+normal,ninja,sky_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,189,ninja_A,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の落下×1,,120.0
+normal,miko,sky_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,295,miko_B,補助が未作動(開始速度に届く前)の落下×3; 補助が未作動(開始速度に届く前)の雑魚×1,,89.0
+normal,vampire,sky_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,423,vampire_B,補助が未作動(開始速度に届く前)の落下×2; 補助が未作動(開始速度に届く前)の雑魚×2,,293.0
+normal,dragonkin,sky_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,344,dragonkin_B,補助が未作動(開始速度に届く前)の落下×3; 補助が未作動(開始速度に届く前)の雑魚×1,,287.0
+normal,swordsman,last_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,81,swordsman_D,補助が未作動(開始速度に届く前)の雑魚×4,,76.0
+normal,dual_blade,last_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,110,dual_blade_D,補助が未作動(開始速度に届く前)の障害物×3; 補助が未作動(開始速度に届く前)の雑魚×1,,87.0
+normal,noble_lady,last_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,72,noble_lady_D,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の障害物×1,,68.0
+normal,gunslinger,last_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,86,gunslinger_B,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の障害物×1,,81.0
+normal,dragon_lancer,last_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,81,dragon_lancer_D,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の障害物×1,,81.0
+normal,archer,last_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,88,archer_D,補助が未作動(開始速度に届く前)の障害物×3; 補助が未作動(開始速度に届く前)の雑魚×1,,88.0
+normal,mage,last_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,83,mage_D,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の障害物×1,,82.0
+normal,fighter,last_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,90,fighter_D,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の障害物×1,,81.0
+normal,ninja,last_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,88,ninja_D,補助が未作動(開始速度に届く前)の雑魚×2; 補助が未作動(開始速度に届く前)の障害物×2,,81.0
+normal,miko,last_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,94,miko_B,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の落下×1,,81.0
+normal,vampire,last_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,109,vampire_D,補助が未作動(開始速度に届く前)の障害物×3; 補助が未作動(開始速度に届く前)の落下×1,,88.0
+normal,dragonkin,last_corridor,normal,通常出発,既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,110,dragonkin_B,補助が未作動(開始速度に届く前)の雑魚×2; 補助が未作動(開始速度に届く前)の障害物×2,,109.0
+e60,swordsman,wasteland_road,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,108,swordsman_D,補助が未作動(開始速度に届く前)の地形の段差(壁)×3; 補助が未作動(開始速度に届く前)の雑魚×1,,103.0
+e60,dual_blade,wasteland_road,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,115,dual_blade_D,補助が未作動(開始速度に届く前)の障害物×3; 補助が未作動(開始速度に届く前)の地形の段差(壁)×1,,103.0
+e60,noble_lady,wasteland_road,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,81,noble_lady_D,補助が未作動(開始速度に届く前)の地形の段差(壁)×2; 補助が未作動(開始速度に届く前)の障害物×2,,68.0
+e60,gunslinger,wasteland_road,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,115,gunslinger_D,補助が未作動(開始速度に届く前)の地形の段差(壁)×3; 補助が未作動(開始速度に届く前)の障害物×1,,55.0
+e60,dragon_lancer,wasteland_road,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,81,dragon_lancer_A,補助が未作動(開始速度に届く前)の地形の段差(壁)×2; 補助が未作動(開始速度に届く前)の障害物×1,,60.0
+e60,archer,wasteland_road,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,108,archer_D,補助が未作動(開始速度に届く前)の障害物×2; 補助が未作動(開始速度に届く前)の雑魚×1,,103.0
+e60,mage,wasteland_road,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,103,mage_D,補助が未作動(開始速度に届く前)の障害物×3; 補助が未作動(開始速度に届く前)の雑魚×1,,82.0
+e60,fighter,wasteland_road,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,115,fighter_D,補助が未作動(開始速度に届く前)の地形の段差(壁)×3; 補助が未作動(開始速度に届く前)の落下×1,,28.0
+e60,ninja,wasteland_road,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,103,ninja_B,補助が未作動(開始速度に届く前)の障害物×2; 補助が未作動(開始速度に届く前)の地形の段差(壁)×2,,68.0
+e60,miko,wasteland_road,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,68,miko_D,補助が未作動(開始速度に届く前)の雑魚×2; 補助が未作動(開始速度に届く前)の障害物×1,,63.0
+e60,vampire,wasteland_road,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,55,vampire_A,補助が未作動(開始速度に届く前)の地形の段差(壁)×4,,55.0
+e60,dragonkin,wasteland_road,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,108,dragonkin_B,補助が未作動(開始速度に届く前)の地形の段差(壁)×3; 補助が未作動(開始速度に届く前)の雑魚×1,,55.0
+e60,swordsman,natural_cave,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,90,swordsman_D,補助が未作動(開始速度に届く前)の障害物×2; 補助が未作動(開始速度に届く前)の地形の段差(壁)×1,,67.0
+e60,dual_blade,natural_cave,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,90,dual_blade_D,補助が未作動(開始速度に届く前)の地形の段差(壁)×3; 補助が未作動(開始速度に届く前)の障害物×1,,43.0
+e60,noble_lady,natural_cave,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,74,noble_lady_D,補助が未作動(開始速度に届く前)の地形の段差(壁)×3; 補助が未作動(開始速度に届く前)の雑魚×1,,67.0
+e60,gunslinger,natural_cave,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,80,gunslinger_D,補助が未作動(開始速度に届く前)の地形の段差(壁)×3; 補助が未作動(開始速度に届く前)の雑魚×1,,28.0
+e60,dragon_lancer,natural_cave,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,78,dragon_lancer_D,補助が未作動(開始速度に届く前)の雑魚×2; 補助が未作動(開始速度に届く前)の地形の段差(壁)×2,,74.0
+e60,archer,natural_cave,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,91,archer_B,補助が未作動(開始速度に届く前)の地形の段差(壁)×3; 補助が未作動(開始速度に届く前)の雑魚×1,,90.0
+e60,mage,natural_cave,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,97,mage_S,補助が未作動(開始速度に届く前)の雑魚×4,,85.0
+e60,fighter,natural_cave,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,90,fighter_B,補助が未作動(開始速度に届く前)の地形の段差(壁)×2; 補助が未作動(開始速度に届く前)の雑魚×1,,81.0
+e60,ninja,natural_cave,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,80,ninja_B,補助が未作動(開始速度に届く前)の雑魚×2; 補助が未作動(開始速度に届く前)の障害物×1,,74.0
+e60,miko,natural_cave,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,90,miko_D,補助が未作動(開始速度に届く前)の地形の段差(壁)×2; 補助が未作動(開始速度に届く前)の障害物×2,,67.0
+e60,vampire,natural_cave,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,28,vampire_B,補助が未作動(開始速度に届く前)の地形の段差(壁)×4,,23.0
+e60,dragonkin,natural_cave,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,80,dragonkin_D,補助が未作動(開始速度に届く前)の地形の段差(壁)×3; 補助が未作動(開始速度に届く前)の雑魚×1,,79.0
+e60,swordsman,sky_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,141,swordsman_D,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の落下×1,,89.0
+e60,dual_blade,sky_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,281,dual_blade_B,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の落下×1,,126.0
+e60,noble_lady,sky_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,121,noble_lady_B,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の落下×1,,71.0
+e60,gunslinger,sky_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,547,gunslinger_D,補助が未作動(開始速度に届く前)の落下×3; 補助が未作動(開始速度に届く前)の雑魚×1,,301.0
+e60,dragon_lancer,sky_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,306,dragon_lancer_D,補助が未作動(開始速度に届く前)の雑魚×4,,89.0
+e60,archer,sky_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,308,archer_D,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の落下×1,,102.0
+e60,mage,sky_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,89,mage_D,補助が未作動(開始速度に届く前)の雑魚×4,,89.0
+e60,fighter,sky_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,245,fighter_D,補助が未作動(開始速度に届く前)の落下×2; 補助が未作動(開始速度に届く前)の雑魚×2,,215.0
+e60,ninja,sky_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,302,ninja_B,補助が未作動(開始速度に届く前)の落下×2; 補助が未作動(開始速度に届く前)の雑魚×2,,203.0
+e60,miko,sky_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,121,miko_S,補助が未作動(開始速度に届く前)の雑魚×4,,89.0
+e60,vampire,sky_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,278,vampire_D,補助が未作動(開始速度に届く前)の雑魚×4,,89.0
+e60,dragonkin,sky_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,307,dragonkin_A,補助が未作動(開始速度に届く前)の雑魚×2; 補助が未作動(開始速度に届く前)の落下×2,,277.0
+e60,swordsman,last_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,110,swordsman_D,補助が未作動(開始速度に届く前)の障害物×3; 補助が未作動(開始速度に届く前)の雑魚×1,,88.0
+e60,dual_blade,last_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,88,dual_blade_S,補助が未作動(開始速度に届く前)の雑魚×2; 補助が未作動(開始速度に届く前)の落下×1,,86.0
+e60,noble_lady,last_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,82,noble_lady_B,補助が未作動(開始速度に届く前)の雑魚×2; 補助が未作動(開始速度に届く前)の地形の段差(壁)×1,,68.0
+e60,gunslinger,last_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,88,gunslinger_D,補助が未作動(開始速度に届く前)の障害物×2; 補助が未作動(開始速度に届く前)の雑魚×2,,76.0
+e60,dragon_lancer,last_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,90,dragon_lancer_D,補助が未作動(開始速度に届く前)の雑魚×2; 補助が未作動(開始速度に届く前)の障害物×2,,88.0
+e60,archer,last_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,103,archer_B,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の落下×1,,85.0
+e60,mage,last_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,89,mage_D,補助が未作動(開始速度に届く前)の雑魚×2; 補助が未作動(開始速度に届く前)の障害物×2,,88.0
+e60,fighter,last_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,110,fighter_B,補助が未作動(開始速度に届く前)の障害物×3; 補助が未作動(開始速度に届く前)の雑魚×1,,81.0
+e60,ninja,last_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,76,ninja_D,補助が未作動(開始速度に届く前)の雑魚×4,,76.0
+e60,miko,last_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,124,miko_D,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の障害物×1,,86.0
+e60,vampire,last_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,81,vampire_D,補助が未作動(開始速度に届く前)の障害物×2; 補助が未作動(開始速度に届く前)の雑魚×2,,81.0
+e60,dragonkin,last_corridor,e60,通常出発,開始60km/h,60,G0,A B D S,4,4,0,0,0,,136,dragonkin_D,補助が未作動(開始速度に届く前)の雑魚×3; 補助が未作動(開始速度に届く前)の障害物×1,,110.0
+always,swordsman,wasteland_road,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,89000,swordsman_B,耐久不足(ボス戦)×1; 地形の段差(壁)×1,Demon×1; Serpent×1,80000.0
+always,dual_blade,wasteland_road,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,80000,dual_blade_D,地形の段差(壁)×3; 制限時間内に撃破できず×1,GoblinRider×1; Serpent×1,13000.0
+always,noble_lady,wasteland_road,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,105,noble_lady_B,障害物×2; 耐久不足(雑魚)×2,,103.0
+always,gunslinger,wasteland_road,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,99000,gunslinger_B,地形の段差(壁)×1; 耐久不足(雑魚)×1,Dragon×2,83000.0
+always,dragon_lancer,wasteland_road,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,56000,dragon_lancer_B,耐久不足(ボス戦)×2; 地形の段差(壁)×2,Serpent×1; GoblinRider×1,53000.0
+always,archer,wasteland_road,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,1,0,archer_D,101000,archer_D,耐久不足(ボス戦)×1; 耐久不足(雑魚)×1,Serpent×1; GoblinRider×1,18000.0
+always,mage,wasteland_road,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,80000,mage_S,制限時間内に撃破できず×2; 障害物×1,Dragon×2,80000.0
+always,fighter,wasteland_road,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,11649,fighter_D,耐久不足(雑魚)×2; 地形の段差(壁)×1,GoblinRider×1,7000.0
+always,ninja,wasteland_road,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,13000,ninja_D,耐久不足(雑魚)×3; 耐久不足(ボス戦)×1,Serpent×1,1611.0
+always,miko,wasteland_road,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,1,0,miko_D,100841,miko_D,耐久不足(ボス戦)×1; 地形の段差(壁)×1,Serpent×1; Wolf×1,93000.0
+always,vampire,wasteland_road,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,80000,vampire_D,地形の段差(壁)×1; 攻撃が届かない(ボスがほぼ無傷)×1,Wolf×1; Dragon×1,23082.0
+always,dragonkin,wasteland_road,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,77000,dragonkin_B,穴・落下×2; 耐久不足(ボス戦)×1,Demon×2; Serpent×1,70000.0
+always,swordsman,natural_cave,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,72000,swordsman_D,耐久不足(ボス戦)×2; 地形の段差(壁)×1,Scorpion×1; Centipede×1,53000.0
+always,dual_blade,natural_cave,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,52000,dual_blade_B,耐久不足(ボス戦)×3; 穴・落下×1,Scorpion×2; CrystalGolem×1,47000.0
+always,noble_lady,natural_cave,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,99,noble_lady_B,障害物×2; 耐久不足(雑魚)×2,,99.0
+always,gunslinger,natural_cave,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,1541,gunslinger_D,耐久不足(雑魚)×4,,709.0
+always,dragon_lancer,natural_cave,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,802,dragon_lancer_B,耐久不足(雑魚)×4,,594.0
+always,archer,natural_cave,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,84000,archer_B,耐久不足(ボス戦)×1; 耐久不足(雑魚)×1,ScorpionKing×2; Mole×1,84000.0
+always,mage,natural_cave,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,1,0,mage_D,100990,mage_D,障害物×1; 地形の段差(壁)×1,Centipede×1,1000.0
+always,fighter,natural_cave,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,11000,fighter_D,地形の段差(壁)×3; 障害物×1,Centipede×1; Scorpion×1,3000.0
+always,ninja,natural_cave,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,3000,ninja_B,耐久不足(雑魚)×3; 耐久不足(ボス戦)×1,Centipede×1,344.0
+always,miko,natural_cave,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,74000,miko_D,障害物×1; 地形の段差(壁)×1,Mole×1; Worm×1,19000.0
+always,vampire,natural_cave,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,33403,vampire_B,地形の段差(壁)×2; 耐久不足(雑魚)×1,Centipede×1; Worm×1,33000.0
+always,dragonkin,natural_cave,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,55000,dragonkin_D,耐久不足(ボス戦)×2; 地形の段差(壁)×1,Bat×1; Mole×1,54000.0
+always,swordsman,sky_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,52000,swordsman_D,耐久不足(ボス戦)×3; 穴・落下×1,Dragon×3; Majin×1,9000.0
+always,dual_blade,sky_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,21000,dual_blade_D,耐久不足(ボス戦)×4,Dragon×4,2000.0
+always,noble_lady,sky_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,248,noble_lady_D,耐久不足(雑魚)×4,,223.0
+always,gunslinger,sky_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,84000,gunslinger_B,穴・落下×2; 耐久不足(ボス戦)×2,Dragon×3; Phoenix×1,74000.0
+always,dragon_lancer,sky_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,32000,dragon_lancer_D,耐久不足(雑魚)×2; 耐久不足(ボス戦)×2,Dragon×1; Titan×1,1000.0
+always,archer,sky_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,84000,archer_B,耐久不足(ボス戦)×3; 耐久不足(雑魚)×1,SkyGolem×1; Dragon×1,44000.0
+always,mage,sky_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,1000,mage_S,耐久不足(雑魚)×2; 攻撃が届かない(ボスがほぼ無傷)×2,Dragon×2,1000.0
+always,fighter,sky_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,2000,fighter_B,穴・落下×2; 耐久不足(ボス戦)×2,Dragon×4,2000.0
+always,ninja,sky_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,6360,ninja_B,穴・落下×3; 耐久不足(ボス戦)×1,Dragon×2,1316.0
+always,miko,sky_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,92000,miko_D,耐久不足(ボス戦)×3; 耐久不足(雑魚)×1,Dragon×2; Phoenix×1,37000.0
+always,vampire,sky_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,28000,vampire_D,耐久不足(ボス戦)×3; 穴・落下×1,Dragon×2; Majin×1,9000.0
+always,dragonkin,sky_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,59000,dragonkin_D,耐久不足(ボス戦)×2; 攻撃が届かない(ボスがほぼ無傷)×1,Dragon×3; Majin×1,5000.0
+always,swordsman,last_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,50000,swordsman_B,耐久不足(ボス戦)×4,Dragon×2; AncientDemon×1,10000.0
+always,dual_blade,last_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,10000,dual_blade_B,耐久不足(ボス戦)×4,SkySerpent×1; Dragon×1,10000.0
+always,noble_lady,last_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,109,noble_lady_S,耐久不足(雑魚)×2; 障害物×2,,102.0
+always,gunslinger,last_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,1937,gunslinger_D,耐久不足(雑魚)×2; 障害物×1,,601.0
+always,dragon_lancer,last_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,1771,dragon_lancer_B,耐久不足(雑魚)×2; 障害物×2,,320.0
+always,archer,last_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,2380,archer_S,耐久不足(雑魚)×2; 障害物×2,,552.0
+always,mage,last_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,1892,mage_D,耐久不足(雑魚)×4,,334.0
+always,fighter,last_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,2185,fighter_D,耐久不足(雑魚)×2; 障害物×1,,493.0
+always,ninja,last_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,1000,ninja_S,耐久不足(雑魚)×3; 耐久不足(ボス戦)×1,Dragon×1,481.0
+always,miko,last_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,47000,miko_D,耐久不足(雑魚)×3; 制限時間内に撃破できず×1,Dragon×1,1792.0
+always,vampire,last_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,11000,vampire_D,穴・落下×2; 地形の段差(壁)×1,Wolf×1; Dragon×1,2142.0
+always,dragonkin,last_corridor,always,通常出発,常時(検証用・速度条件なし),100,G0,A B D S,4,4,0,0,0,,31000,dragonkin_D,耐久不足(ボス戦)×1; 耐久不足(雑魚)×1,Dragon×2,2000.0
+sprintB_G0,swordsman,wasteland_road,phase2 sprintB,疾走出発,既定(開始100km/h),100,G0,B,10,10,0,4,0,swordsman_B,101000,swordsman_B,制限時間内に撃破できず×3; 耐久不足(ボス戦)×3,Dragon×3; Serpent×2,99000.0
+sprintB_G0,dual_blade,wasteland_road,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,87000,dual_blade_B,耐久不足(ボス戦)×1,Demon×1,87000.0
+sprintB_G0,noble_lady,wasteland_road,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10000,noble_lady_B,補助が未作動(開始速度に届く前)の落下×1,Serpent×1,10000.0
+sprintB_G0,gunslinger,wasteland_road,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,86000,gunslinger_B,耐久不足(ボス戦)×1,Griffin×1,86000.0
+sprintB_G0,dragon_lancer,wasteland_road,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,15000,dragon_lancer_B,地形の段差(壁)×1,Serpent×1,15000.0
+sprintB_G0,archer,wasteland_road,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10000,archer_B,補助が未作動(開始速度に届く前)の落下×1,Serpent×1,10000.0
+sprintB_G0,mage,wasteland_road,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,80000,mage_B,制限時間内に撃破できず×1,Dragon×1,80000.0
+sprintB_G0,fighter,wasteland_road,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,53125,fighter_B,地形の段差(壁)×1,,53125.0
+sprintB_G0,ninja,wasteland_road,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,14000,ninja_B,耐久不足(ボス戦)×1,Serpent×1,14000.0
+sprintB_G0,miko,wasteland_road,phase2 sprintB,疾走出発,既定(開始100km/h),100,G0,B,10,10,0,3,0,miko_B,101000,miko_B,耐久不足(雑魚)×5; 耐久不足(ボス戦)×2,Griffin×1; Demon×1,97271.0
+sprintB_G0,vampire,wasteland_road,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,16000,vampire_B,耐久不足(ボス戦)×1,Serpent×1,16000.0
+sprintB_G0,dragonkin,wasteland_road,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10266,dragonkin_B,補助が未作動(開始速度に届く前)の落下×1,,10266.0
+sprintB_G0,swordsman,natural_cave,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,85000,swordsman_B,耐久不足(ボス戦)×1,ScorpionKing×1,85000.0
+sprintB_G0,dual_blade,natural_cave,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,53000,dual_blade_B,耐久不足(ボス戦)×1,Troll×1,53000.0
+sprintB_G0,noble_lady,natural_cave,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10000,noble_lady_B,補助が未作動(開始速度に届く前)の落下×1,Mole×1,10000.0
+sprintB_G0,gunslinger,natural_cave,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10000,gunslinger_B,耐久不足(ボス戦)×1,Mole×1,10000.0
+sprintB_G0,dragon_lancer,natural_cave,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,52000,dragon_lancer_B,耐久不足(ボス戦)×1,Scorpion×1,52000.0
+sprintB_G0,archer,natural_cave,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10214,archer_B,補助が未作動(開始速度に届く前)の落下×1,,10214.0
+sprintB_G0,mage,natural_cave,phase2 sprintB,疾走出発,既定(開始100km/h),100,G0,B,10,10,0,10,0,mage_B,101751,mage_B,,,101000.0
+sprintB_G0,fighter,natural_cave,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,31000,fighter_B,地形の段差(壁)×1,Troll×1,31000.0
+sprintB_G0,ninja,natural_cave,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,47000,ninja_B,耐久不足(ボス戦)×1,Worm×1,47000.0
+sprintB_G0,miko,natural_cave,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,99000,miko_B,制限時間内に撃破できず×1,AncientDemon×1,99000.0
+sprintB_G0,vampire,natural_cave,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10000,vampire_B,地形の段差(壁)×1,Mole×1,10000.0
+sprintB_G0,dragonkin,natural_cave,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10001,dragonkin_B,補助が未作動(開始速度に届く前)の落下×1,,10001.0
+sprintB_G0,swordsman,sky_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,82000,swordsman_B,耐久不足(ボス戦)×1,Majin×1,82000.0
+sprintB_G0,dual_blade,sky_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,51000,dual_blade_B,穴・落下×1,Majin×1,51000.0
+sprintB_G0,noble_lady,sky_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10000,noble_lady_B,耐久不足(ボス戦)×1,Behemoth×1,10000.0
+sprintB_G0,gunslinger,sky_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,28028,gunslinger_B,穴・落下×1,,28028.0
+sprintB_G0,dragon_lancer,sky_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,52000,dragon_lancer_B,穴・落下×1,Jellyfish×1,52000.0
+sprintB_G0,archer,sky_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,11028,archer_B,補助が未作動(開始速度に届く前)の落下×1,,11028.0
+sprintB_G0,mage,sky_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,11000,mage_B,耐久不足(ボス戦)×1,Dragon×1,11000.0
+sprintB_G0,fighter,sky_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,11000,fighter_B,耐久不足(ボス戦)×1,Dragon×1,11000.0
+sprintB_G0,ninja,sky_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,12000,ninja_B,耐久不足(ボス戦)×1,Dragon×1,12000.0
+sprintB_G0,miko,sky_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,91000,miko_B,耐久不足(ボス戦)×1,Phoenix×1,91000.0
+sprintB_G0,vampire,sky_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,13000,vampire_B,穴・落下×1,Majin×1,13000.0
+sprintB_G0,dragonkin,sky_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,11042,dragonkin_B,補助が未作動(開始速度に届く前)の落下×1,,11042.0
+sprintB_G0,swordsman,last_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10000,swordsman_B,耐久不足(ボス戦)×1,Dragon×1,10000.0
+sprintB_G0,dual_blade,last_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,12000,dual_blade_B,耐久不足(ボス戦)×1,Dragon×1,12000.0
+sprintB_G0,noble_lady,last_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10000,noble_lady_B,耐久不足(ボス戦)×1,BlackKnight×1,10000.0
+sprintB_G0,gunslinger,last_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10000,gunslinger_B,耐久不足(ボス戦)×1,SkySerpent×1,10000.0
+sprintB_G0,dragon_lancer,last_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10000,dragon_lancer_B,穴・落下×1,Drake×1,10000.0
+sprintB_G0,archer,last_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10598,archer_B,補助が未作動(開始速度に届く前)の落下×1,,10598.0
+sprintB_G0,mage,last_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,11000,mage_B,耐久不足(ボス戦)×1,Dragon×1,11000.0
+sprintB_G0,fighter,last_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10000,fighter_B,耐久不足(ボス戦)×1,SkyGolem×1,10000.0
+sprintB_G0,ninja,last_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10000,ninja_B,穴・落下×1,Bat×1,10000.0
+sprintB_G0,miko,last_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10000,miko_B,穴・落下×1,Griffin×1,10000.0
+sprintB_G0,vampire,last_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10000,vampire_B,耐久不足(ボス戦)×1,Basilisk×1,10000.0
+sprintB_G0,dragonkin,last_corridor,sprintB,疾走出発,既定(開始100km/h),100,G0,B,1,1,0,0,0,,10000,dragonkin_B,耐久不足(ボス戦)×1,Bat×1,10000.0
+sprintD_G0,swordsman,wasteland_road,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,80000,swordsman_D,制限時間内に撃破できず×1,Dragon×1,80000.0
+sprintD_G0,dual_blade,wasteland_road,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,80000,dual_blade_D,制限時間内に撃破できず×1,Dragon×1,80000.0
+sprintD_G0,noble_lady,wasteland_road,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10000,noble_lady_D,耐久不足(ボス戦)×1,Serpent×1,10000.0
+sprintD_G0,gunslinger,wasteland_road,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,93000,gunslinger_D,耐久不足(ボス戦)×1,BlackKnight×1,93000.0
+sprintD_G0,dragon_lancer,wasteland_road,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,81000,dragon_lancer_D,耐久不足(ボス戦)×1,Hydra×1,81000.0
+sprintD_G0,archer,wasteland_road,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10943,archer_D,補助が未作動(開始速度に届く前)の落下×1,,10943.0
+sprintD_G0,mage,wasteland_road,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,80000,mage_D,制限時間内に撃破できず×1,Dragon×1,80000.0
+sprintD_G0,fighter,wasteland_road,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,64000,fighter_D,耐久不足(ボス戦)×1,Cyclops×1,64000.0
+sprintD_G0,ninja,wasteland_road,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,80000,ninja_D,制限時間内に撃破できず×1,Dragon×1,80000.0
+sprintD_G0,miko,wasteland_road,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,94000,miko_D,制限時間内に撃破できず×1,Dragon×1,94000.0
+sprintD_G0,vampire,wasteland_road,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10000,vampire_D,地形の段差(壁)×1,Serpent×1,10000.0
+sprintD_G0,dragonkin,wasteland_road,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10565,dragonkin_D,補助が未作動(開始速度に届く前)の落下×1,,10565.0
+sprintD_G0,swordsman,natural_cave,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,72000,swordsman_D,耐久不足(ボス戦)×1,Scorpion×1,72000.0
+sprintD_G0,dual_blade,natural_cave,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,53000,dual_blade_D,耐久不足(ボス戦)×1,Scorpion×1,53000.0
+sprintD_G0,noble_lady,natural_cave,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10000,noble_lady_D,補助が未作動(開始速度に届く前)の落下×1,Mole×1,10000.0
+sprintD_G0,gunslinger,natural_cave,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,73000,gunslinger_D,制限時間内に撃破できず×1,Worm×1,73000.0
+sprintD_G0,dragon_lancer,natural_cave,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,62000,dragon_lancer_D,耐久不足(ボス戦)×1,CrystalGolem×1,62000.0
+sprintD_G0,archer,natural_cave,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10000,archer_D,耐久不足(ボス戦)×1,Mole×1,10000.0
+sprintD_G0,mage,natural_cave,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,81000,mage_D,制限時間内に撃破できず×1,Worm×1,81000.0
+sprintD_G0,fighter,natural_cave,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,33000,fighter_D,耐久不足(ボス戦)×1,Worm×1,33000.0
+sprintD_G0,ninja,natural_cave,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,55000,ninja_D,制限時間内に撃破できず×1,Worm×1,55000.0
+sprintD_G0,miko,natural_cave,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,88000,miko_D,耐久不足(ボス戦)×1,Mole×1,88000.0
+sprintD_G0,vampire,natural_cave,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,12000,vampire_D,穴・落下×1,Mole×1,12000.0
+sprintD_G0,dragonkin,natural_cave,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10721,dragonkin_D,補助が未作動(開始速度に届く前)の地形の段差(壁)×1,,10721.0
+sprintD_G0,swordsman,sky_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,78000,swordsman_D,制限時間内に撃破できず×1,Dragon×1,78000.0
+sprintD_G0,dual_blade,sky_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10000,dual_blade_D,耐久不足(ボス戦)×1,Behemoth×1,10000.0
+sprintD_G0,noble_lady,sky_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10000,noble_lady_D,耐久不足(ボス戦)×1,Behemoth×1,10000.0
+sprintD_G0,gunslinger,sky_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,75000,gunslinger_D,制限時間内に撃破できず×1,Leviathan×1,75000.0
+sprintD_G0,dragon_lancer,sky_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,70000,dragon_lancer_D,穴・落下×1,Phoenix×1,70000.0
+sprintD_G0,archer,sky_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,0,1,0,0,,,,,,
+sprintD_G0,mage,sky_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,13000,mage_D,耐久不足(ボス戦)×1,Majin×1,13000.0
+sprintD_G0,fighter,sky_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,0,1,0,0,,,,,,
+sprintD_G0,ninja,sky_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,32000,ninja_D,制限時間内に撃破できず×1,Dragon×1,32000.0
+sprintD_G0,miko,sky_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,84000,miko_D,制限時間内に撃破できず×1,Majin×1,84000.0
+sprintD_G0,vampire,sky_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,18000,vampire_D,穴・落下×1,Majin×1,18000.0
+sprintD_G0,dragonkin,sky_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,11000,dragonkin_D,補助が未作動(開始速度に届く前)の落下×1,Majin×1,11000.0
+sprintD_G0,swordsman,last_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10000,swordsman_D,耐久不足(ボス戦)×1,Demon×1,10000.0
+sprintD_G0,dual_blade,last_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,32000,dual_blade_D,制限時間内に撃破できず×1,Dragon×1,32000.0
+sprintD_G0,noble_lady,last_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10000,noble_lady_D,攻撃が届かない(ボスがほぼ無傷)×1,Dragon×1,10000.0
+sprintD_G0,gunslinger,last_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,48000,gunslinger_D,制限時間内に撃破できず×1,Dragon×1,48000.0
+sprintD_G0,dragon_lancer,last_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10000,dragon_lancer_D,耐久不足(ボス戦)×1,Griffin×1,10000.0
+sprintD_G0,archer,last_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10000,archer_D,耐久不足(ボス戦)×1,Guardian×1,10000.0
+sprintD_G0,mage,last_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,15000,mage_D,耐久不足(ボス戦)×1,Majin×1,15000.0
+sprintD_G0,fighter,last_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10000,fighter_D,穴・落下×1,SkySerpent×1,10000.0
+sprintD_G0,ninja,last_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10000,ninja_D,穴・落下×1,Griffin×1,10000.0
+sprintD_G0,miko,last_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,20000,miko_D,穴・落下×1,Phoenix×1,20000.0
+sprintD_G0,vampire,last_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,28000,vampire_D,耐久不足(ボス戦)×1,Centipede×1,28000.0
+sprintD_G0,dragonkin,last_corridor,sprintD,疾走出発,既定(開始100km/h),100,G0,D,1,1,0,0,0,,10000,dragonkin_D,補助が未作動(開始速度に届く前)の落下×1,Leviathan×1,10000.0
+sprintB_G9,swordsman,wasteland_road,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,85000,swordsman_B,耐久不足(ボス戦)×1,Dragon×1,85000.0
+sprintB_G9,dual_blade,wasteland_road,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,80000,dual_blade_B,穴・落下×1,Dragon×1,80000.0
+sprintB_G9,noble_lady,wasteland_road,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,68000,noble_lady_B,耐久不足(ボス戦)×1,Golem×1,68000.0
+sprintB_G9,gunslinger,wasteland_road,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,0,1,0,0,,,,,,
+sprintB_G9,dragon_lancer,wasteland_road,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,76000,dragon_lancer_B,耐久不足(ボス戦)×1,Demon×1,76000.0
+sprintB_G9,archer,wasteland_road,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,95000,archer_B,耐久不足(ボス戦)×1,Demon×1,95000.0
+sprintB_G9,mage,wasteland_road,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,0,1,0,0,,,,,,
+sprintB_G9,fighter,wasteland_road,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,53000,fighter_B,穴・落下×1,Cyclops×1,53000.0
+sprintB_G9,ninja,wasteland_road,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,91000,ninja_B,地形の段差(壁)×1,Serpent×1,91000.0
+sprintB_G9,miko,wasteland_road,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,1,0,miko_B,101000,miko_B,,,101000.0
+sprintB_G9,vampire,wasteland_road,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,92000,vampire_B,穴・落下×1,Dragon×1,92000.0
+sprintB_G9,dragonkin,wasteland_road,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,79000,dragonkin_B,耐久不足(ボス戦)×1,Hydra×1,79000.0
+sprintB_G9,swordsman,natural_cave,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,54000,swordsman_B,耐久不足(ボス戦)×1,Scorpion×1,54000.0
+sprintB_G9,dual_blade,natural_cave,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,63000,dual_blade_B,地形の段差(壁)×1,Scorpion×1,63000.0
+sprintB_G9,noble_lady,natural_cave,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,34000,noble_lady_B,耐久不足(ボス戦)×1,Mole×1,34000.0
+sprintB_G9,gunslinger,natural_cave,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,84000,gunslinger_B,耐久不足(ボス戦)×1,Bat×1,84000.0
+sprintB_G9,dragon_lancer,natural_cave,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,55000,dragon_lancer_B,耐久不足(ボス戦)×1,CrystalGolem×1,55000.0
+sprintB_G9,archer,natural_cave,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,82000,archer_B,耐久不足(ボス戦)×1,ScorpionKing×1,82000.0
+sprintB_G9,mage,natural_cave,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,1,0,mage_B,100609,mage_B,,,100609.0
+sprintB_G9,fighter,natural_cave,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,45000,fighter_B,地形の段差(壁)×1,Centipede×1,45000.0
+sprintB_G9,ninja,natural_cave,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,85000,ninja_B,耐久不足(ボス戦)×1,Worm×1,85000.0
+sprintB_G9,miko,natural_cave,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,85000,miko_B,耐久不足(ボス戦)×1,CrystalGolem×1,85000.0
+sprintB_G9,vampire,natural_cave,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,51000,vampire_B,耐久不足(ボス戦)×1,CrystalGolem×1,51000.0
+sprintB_G9,dragonkin,natural_cave,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,52000,dragonkin_B,地形の段差(壁)×1,Worm×1,52000.0
+sprintB_G9,swordsman,sky_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,82000,swordsman_B,耐久不足(ボス戦)×1,Jellyfish×1,82000.0
+sprintB_G9,dual_blade,sky_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,0,1,0,0,,,,,,
+sprintB_G9,noble_lady,sky_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,31000,noble_lady_B,耐久不足(ボス戦)×1,Titan×1,31000.0
+sprintB_G9,gunslinger,sky_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,1,0,gunslinger_B,100611,gunslinger_B,,,100611.0
+sprintB_G9,dragon_lancer,sky_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,76000,dragon_lancer_B,穴・落下×1,Phoenix×1,76000.0
+sprintB_G9,archer,sky_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,1,0,archer_B,101000,archer_B,,,101000.0
+sprintB_G9,mage,sky_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,22000,mage_B,制限時間内に撃破できず×1,Dragon×1,22000.0
+sprintB_G9,fighter,sky_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,31000,fighter_B,穴・落下×1,Majin×1,31000.0
+sprintB_G9,ninja,sky_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,79000,ninja_B,穴・落下×1,Dragon×1,79000.0
+sprintB_G9,miko,sky_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,93000,miko_B,耐久不足(ボス戦)×1,Guardian×1,93000.0
+sprintB_G9,vampire,sky_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,80000,vampire_B,耐久不足(ボス戦)×1,SkySerpent×1,80000.0
+sprintB_G9,dragonkin,sky_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,74000,dragonkin_B,耐久不足(ボス戦)×1,Leviathan×1,74000.0
+sprintB_G9,swordsman,last_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,58000,swordsman_B,制限時間内に撃破できず×1,Dragon×1,58000.0
+sprintB_G9,dual_blade,last_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,48000,dual_blade_B,制限時間内に撃破できず×1,Dragon×1,48000.0
+sprintB_G9,noble_lady,last_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,33000,noble_lady_B,耐久不足(ボス戦)×1,Dragon×1,33000.0
+sprintB_G9,gunslinger,last_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,62000,gunslinger_B,制限時間内に撃破できず×1,Dragon×1,62000.0
+sprintB_G9,dragon_lancer,last_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,53000,dragon_lancer_B,制限時間内に撃破できず×1,Dragon×1,53000.0
+sprintB_G9,archer,last_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,62000,archer_B,制限時間内に撃破できず×1,Dragon×1,62000.0
+sprintB_G9,mage,last_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,39000,mage_B,制限時間内に撃破できず×1,Dragon×1,39000.0
+sprintB_G9,fighter,last_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,10000,fighter_B,穴・落下×1,Dragon×1,10000.0
+sprintB_G9,ninja,last_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,49000,ninja_B,制限時間内に撃破できず×1,Dragon×1,49000.0
+sprintB_G9,miko,last_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,64000,miko_B,制限時間内に撃破できず×1,Dragon×1,64000.0
+sprintB_G9,vampire,last_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,56000,vampire_B,制限時間内に撃破できず×1,Dragon×1,56000.0
+sprintB_G9,dragonkin,last_corridor,phase2,疾走出発,既定(開始100km/h),100,G9,B,1,1,0,0,0,,61000,dragonkin_B,制限時間内に撃破できず×1,Dragon×1,61000.0
+partial_10k,swordsman,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,swordsman_A swordsman_B swordsman_D swordsman_S,10000,swordsman_B,,,10000.0
+partial_10k,dual_blade,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dual_blade_A dual_blade_B dual_blade_D dual_blade_S,10000,dual_blade_B,,,10000.0
+partial_10k,noble_lady,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,noble_lady_B noble_lady_D noble_lady_S,10000,noble_lady_B,耐久不足(ボス戦)×1,Serpent×1,10000.0
+partial_10k,gunslinger,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,gunslinger_A gunslinger_B gunslinger_D gunslinger_S,10000,gunslinger_B,,,10000.0
+partial_10k,dragon_lancer,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dragon_lancer_A dragon_lancer_B dragon_lancer_D dragon_lancer_S,10000,dragon_lancer_B,,,10000.0
+partial_10k,archer,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,archer_A archer_B archer_D archer_S,10000,archer_B,,,10000.0
+partial_10k,mage,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,mage_A mage_B mage_D mage_S,10000,mage_B,,,10000.0
+partial_10k,fighter,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,fighter_A fighter_B fighter_D fighter_S,10000,fighter_B,,,10000.0
+partial_10k,ninja,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,ninja_A ninja_B ninja_D ninja_S,10000,ninja_B,,,10000.0
+partial_10k,miko,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,miko_A miko_B miko_D miko_S,10000,miko_B,,,10000.0
+partial_10k,vampire,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,vampire_A vampire_B vampire_D vampire_S,10000,vampire_B,,,10000.0
+partial_10k,dragonkin,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,dragonkin_B dragonkin_D dragonkin_S,10000,dragonkin_B,耐久不足(ボス戦)×1,Serpent×1,10000.0
+partial_10k,swordsman,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,swordsman_A swordsman_B swordsman_D swordsman_S,10000,swordsman_B,,,10000.0
+partial_10k,dual_blade,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dual_blade_A dual_blade_B dual_blade_D dual_blade_S,10000,dual_blade_B,,,10000.0
+partial_10k,noble_lady,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,noble_lady_B noble_lady_D noble_lady_S,10000,noble_lady_B,耐久不足(ボス戦)×1,Mole×1,10000.0
+partial_10k,gunslinger,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,gunslinger_A gunslinger_B gunslinger_D gunslinger_S,10000,gunslinger_B,,,10000.0
+partial_10k,dragon_lancer,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dragon_lancer_A dragon_lancer_B dragon_lancer_D dragon_lancer_S,10000,dragon_lancer_B,,,10000.0
+partial_10k,archer,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,archer_A archer_B archer_D archer_S,10000,archer_B,,,10000.0
+partial_10k,mage,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,mage_A mage_B mage_D mage_S,10000,mage_B,,,10000.0
+partial_10k,fighter,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,fighter_A fighter_B fighter_D fighter_S,10000,fighter_B,,,10000.0
+partial_10k,ninja,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,ninja_A ninja_B ninja_D ninja_S,10000,ninja_B,,,10000.0
+partial_10k,miko,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,miko_A miko_B miko_D miko_S,10000,miko_B,,,10000.0
+partial_10k,vampire,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,vampire_A vampire_B vampire_D vampire_S,10000,vampire_B,,,10000.0
+partial_10k,dragonkin,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dragonkin_A dragonkin_B dragonkin_D dragonkin_S,10000,dragonkin_B,,,10000.0
+partial_10k,swordsman,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,swordsman_A swordsman_B swordsman_D swordsman_S,10000,swordsman_B,,,10000.0
+partial_10k,dual_blade,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dual_blade_A dual_blade_B dual_blade_D dual_blade_S,10000,dual_blade_B,,,10000.0
+partial_10k,noble_lady,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,noble_lady_A noble_lady_B noble_lady_D noble_lady_S,10000,noble_lady_B,,,10000.0
+partial_10k,gunslinger,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,gunslinger_A gunslinger_B gunslinger_D gunslinger_S,10000,gunslinger_B,,,10000.0
+partial_10k,dragon_lancer,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dragon_lancer_A dragon_lancer_B dragon_lancer_D dragon_lancer_S,10000,dragon_lancer_B,,,10000.0
+partial_10k,archer,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,archer_A archer_B archer_D archer_S,10000,archer_B,,,10000.0
+partial_10k,mage,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,mage_A mage_B mage_D mage_S,10000,mage_B,,,10000.0
+partial_10k,fighter,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,fighter_B fighter_D fighter_S,10000,fighter_B,耐久不足(ボス戦)×1,Behemoth×1,10000.0
+partial_10k,ninja,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,ninja_A ninja_B ninja_D ninja_S,10000,ninja_B,,,10000.0
+partial_10k,miko,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,miko_A miko_B miko_D miko_S,10000,miko_B,,,10000.0
+partial_10k,vampire,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,vampire_A vampire_B vampire_D vampire_S,10000,vampire_B,,,10000.0
+partial_10k,dragonkin,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dragonkin_A dragonkin_B dragonkin_D dragonkin_S,10000,dragonkin_B,,,10000.0
+partial_30k,swordsman,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,swordsman_B swordsman_D swordsman_S,30000,swordsman_B,耐久不足(ボス戦)×1,Bat×1,30000.0
+partial_30k,dual_blade,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,dual_blade_B dual_blade_S,30000,dual_blade_B,耐久不足(ボス戦)×1; 制限時間内に撃破できず×1,Jellyfish×1; SkySerpent×1,30000.0
+partial_30k,noble_lady,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,1,noble_lady_B,30000,noble_lady_B,穴・落下×1; 耐久不足(ボス戦)×1,AncientDemon×1; Bat×1,30000.0
+partial_30k,gunslinger,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,gunslinger_A gunslinger_B gunslinger_D gunslinger_S,30000,gunslinger_B,,,30000.0
+partial_30k,dragon_lancer,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,dragon_lancer_B dragon_lancer_D dragon_lancer_S,30000,dragon_lancer_B,耐久不足(ボス戦)×1,Cyclops×1,30000.0
+partial_30k,archer,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,archer_B archer_D archer_S,30000,archer_B,耐久不足(ボス戦)×1,Dragon×1,30000.0
+partial_30k,mage,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,mage_A mage_B mage_D mage_S,30000,mage_B,,,30000.0
+partial_30k,fighter,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,fighter_B fighter_D,30000,fighter_B,穴・落下×1; 耐久不足(ボス戦)×1,Dragon×1; AncientDemon×1,30000.0
+partial_30k,ninja,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,1,ninja_B,30000,ninja_B,穴・落下×1; 耐久不足(ボス戦)×1,SkyGolem×2; Worm×1,30000.0
+partial_30k,miko,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,miko_A miko_B miko_D miko_S,30000,miko_B,,,30000.0
+partial_30k,vampire,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,vampire_B vampire_D vampire_S,30000,vampire_B,耐久不足(ボス戦)×1,Drake×1,30000.0
+partial_30k,dragonkin,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dragonkin_A dragonkin_B dragonkin_D dragonkin_S,30000,dragonkin_B,,,30000.0
+partial_50k,swordsman,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,swordsman_A swordsman_B swordsman_D swordsman_S,50000,swordsman_B,,,50000.0
+partial_50k,dual_blade,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,dual_blade_B dual_blade_D dual_blade_S,50000,dual_blade_B,地形の段差(壁)×1,Griffin×1,50000.0
+partial_50k,noble_lady,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,noble_lady_B noble_lady_D noble_lady_S,50000,noble_lady_B,穴・落下×1,Griffin×1,50000.0
+partial_50k,gunslinger,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,gunslinger_A gunslinger_B gunslinger_D gunslinger_S,50000,gunslinger_B,,,50000.0
+partial_50k,dragon_lancer,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dragon_lancer_A dragon_lancer_B dragon_lancer_D dragon_lancer_S,50000,dragon_lancer_B,,,50000.0
+partial_50k,archer,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,archer_A archer_B archer_D archer_S,50000,archer_B,,,50000.0
+partial_50k,mage,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,mage_B mage_D mage_S,50000,mage_B,耐久不足(雑魚)×1,,50000.0
+partial_50k,fighter,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,fighter_A fighter_B fighter_D fighter_S,50000,fighter_B,,,50000.0
+partial_50k,ninja,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,ninja_A ninja_B ninja_D ninja_S,50000,ninja_B,,,50000.0
+partial_50k,miko,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,miko_A miko_B miko_D miko_S,50000,miko_B,,,50000.0
+partial_50k,vampire,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,vampire_A vampire_B vampire_D vampire_S,50000,vampire_B,,,50000.0
+partial_50k,dragonkin,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dragonkin_A dragonkin_B dragonkin_D dragonkin_S,50000,dragonkin_B,,,50000.0
+partial_50k,swordsman,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,swordsman_A swordsman_B swordsman_D swordsman_S,50000,swordsman_B,,,50000.0
+partial_50k,dual_blade,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,dual_blade_B dual_blade_D dual_blade_S,50000,dual_blade_B,耐久不足(ボス戦)×1,Bat×1,50000.0
+partial_50k,noble_lady,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,noble_lady_B noble_lady_S,50000,noble_lady_B,耐久不足(ボス戦)×1; 制限時間内に撃破できず×1,Bat×2,50000.0
+partial_50k,gunslinger,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,gunslinger_B gunslinger_D gunslinger_S,50000,gunslinger_B,耐久不足(ボス戦)×1,Bat×1,50000.0
+partial_50k,dragon_lancer,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,dragon_lancer_B dragon_lancer_D dragon_lancer_S,50000,dragon_lancer_B,耐久不足(ボス戦)×1,Bat×1,50000.0
+partial_50k,archer,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,archer_A archer_B archer_D archer_S,50000,archer_B,,,50000.0
+partial_50k,mage,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,mage_A mage_B mage_D mage_S,50000,mage_B,,,50000.0
+partial_50k,fighter,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,fighter_B fighter_D fighter_S,50000,fighter_B,耐久不足(ボス戦)×1,Bat×1,50000.0
+partial_50k,ninja,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,ninja_A ninja_B ninja_S,50000,ninja_B,制限時間内に撃破できず×1,Bat×1,50000.0
+partial_50k,miko,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,miko_A miko_B miko_D miko_S,50000,miko_B,,,50000.0
+partial_50k,vampire,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,vampire_A vampire_B vampire_D vampire_S,50000,vampire_B,,,50000.0
+partial_50k,dragonkin,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,dragonkin_B dragonkin_D dragonkin_S,50000,dragonkin_B,耐久不足(ボス戦)×1,Bat×1,50000.0
+partial_50k,swordsman,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,swordsman_A swordsman_B swordsman_D swordsman_S,50000,swordsman_B,,,50000.0
+partial_50k,dual_blade,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dual_blade_A dual_blade_B dual_blade_D dual_blade_S,50000,dual_blade_B,,,50000.0
+partial_50k,noble_lady,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,noble_lady_A noble_lady_B noble_lady_D noble_lady_S,50000,noble_lady_B,,,50000.0
+partial_50k,gunslinger,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,gunslinger_A gunslinger_B gunslinger_D gunslinger_S,50000,gunslinger_B,,,50000.0
+partial_50k,dragon_lancer,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dragon_lancer_A dragon_lancer_B dragon_lancer_D dragon_lancer_S,50000,dragon_lancer_B,,,50000.0
+partial_50k,archer,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,archer_A archer_B archer_D archer_S,50000,archer_B,,,50000.0
+partial_50k,mage,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,mage_A mage_B mage_D mage_S,50000,mage_B,,,50000.0
+partial_50k,fighter,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,fighter_A fighter_B fighter_D fighter_S,50000,fighter_B,,,50000.0
+partial_50k,ninja,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,ninja_A ninja_B ninja_D ninja_S,50000,ninja_B,,,50000.0
+partial_50k,miko,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,miko_A miko_B miko_D miko_S,50000,miko_B,,,50000.0
+partial_50k,vampire,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,vampire_B vampire_D vampire_S,50000,vampire_B,耐久不足(ボス戦)×1,Fenrir×1,50000.0
+partial_50k,dragonkin,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dragonkin_A dragonkin_B dragonkin_D dragonkin_S,50000,dragonkin_B,,,50000.0
+partial_60k,swordsman,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,swordsman_B swordsman_D swordsman_S,60000,swordsman_B,耐久不足(ボス戦)×1,Guardian×1,60000.0
+partial_60k,dual_blade,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,dual_blade_B dual_blade_D dual_blade_S,60000,dual_blade_B,耐久不足(ボス戦)×1,Jellyfish×1,60000.0
+partial_60k,noble_lady,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,noble_lady_B noble_lady_S,60000,noble_lady_B,耐久不足(ボス戦)×2,Titan×1; AncientDemon×1,60000.0
+partial_60k,gunslinger,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,gunslinger_B gunslinger_D gunslinger_S,60000,gunslinger_B,耐久不足(ボス戦)×1,Dragon×1,60000.0
+partial_60k,dragon_lancer,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,dragon_lancer_B dragon_lancer_D dragon_lancer_S,60000,dragon_lancer_B,耐久不足(ボス戦)×1,Cyclops×1,60000.0
+partial_60k,archer,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,archer_B archer_D archer_S,60000,archer_B,耐久不足(ボス戦)×1,Mole×1,60000.0
+partial_60k,mage,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,mage_A mage_B mage_D mage_S,60000,mage_B,,,60000.0
+partial_60k,fighter,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,fighter_B fighter_S,60000,fighter_B,穴・落下×1; 耐久不足(ボス戦)×1,Troll×1; Worm×1,60000.0
+partial_60k,ninja,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,1,ninja_B,60000,ninja_B,耐久不足(ボス戦)×2; 制限時間内に撃破できず×1,AncientDemon×1; Worm×1,60000.0
+partial_60k,miko,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,miko_A miko_B miko_D miko_S,60000,miko_B,,,60000.0
+partial_60k,vampire,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,vampire_A vampire_B vampire_S,60000,vampire_B,制限時間内に撃破できず×1,Titan×1,60000.0
+partial_60k,dragonkin,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dragonkin_A dragonkin_B dragonkin_D dragonkin_S,60000,dragonkin_B,,,60000.0
+partial_90k,swordsman,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,swordsman_B swordsman_D swordsman_S,90000,swordsman_B,耐久不足(ボス戦)×1,BlackKnight×1,90000.0
+partial_90k,dual_blade,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dual_blade_A dual_blade_B dual_blade_D dual_blade_S,90000,dual_blade_B,,,90000.0
+partial_90k,noble_lady,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,1,noble_lady_B,90000,noble_lady_B,耐久不足(ボス戦)×2; 地形の段差(壁)×1,BlackKnight×3,90000.0
+partial_90k,gunslinger,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,gunslinger_B gunslinger_D gunslinger_S,90000,gunslinger_B,耐久不足(ボス戦)×1,BlackKnight×1,90000.0
+partial_90k,dragon_lancer,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,dragon_lancer_B dragon_lancer_D dragon_lancer_S,90000,dragon_lancer_B,耐久不足(ボス戦)×1,BlackKnight×1,90000.0
+partial_90k,archer,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,archer_B archer_D archer_S,90000,archer_B,耐久不足(ボス戦)×1,BlackKnight×1,90000.0
+partial_90k,mage,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,mage_B mage_D mage_S,90000,mage_B,障害物×1,,90000.0
+partial_90k,fighter,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,fighter_B fighter_D,90000,fighter_B,地形の段差(壁)×1; 攻撃が届かない(ボスがほぼ無傷)×1,BlackKnight×2,90000.0
+partial_90k,ninja,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,ninja_B ninja_D ninja_S,90000,ninja_B,耐久不足(ボス戦)×1,BlackKnight×1,90000.0
+partial_90k,miko,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,miko_B miko_D miko_S,90000,miko_B,耐久不足(ボス戦)×1,BlackKnight×1,90000.0
+partial_90k,vampire,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,vampire_A vampire_B vampire_D vampire_S,90000,vampire_B,,,90000.0
+partial_90k,dragonkin,wasteland_road,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dragonkin_A dragonkin_B dragonkin_D dragonkin_S,90000,dragonkin_B,,,90000.0
+partial_90k,swordsman,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,swordsman_A swordsman_B swordsman_D swordsman_S,90000,swordsman_B,,,90000.0
+partial_90k,dual_blade,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,1,dual_blade_B,90000,dual_blade_B,耐久不足(ボス戦)×2; 制限時間内に撃破できず×1,AncientDemon×3,90000.0
+partial_90k,noble_lady,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,1,noble_lady_B,90000,noble_lady_B,耐久不足(ボス戦)×2; 制限時間内に撃破できず×1,AncientDemon×3,90000.0
+partial_90k,gunslinger,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,gunslinger_B gunslinger_D gunslinger_S,90000,gunslinger_B,耐久不足(ボス戦)×1,AncientDemon×1,90000.0
+partial_90k,dragon_lancer,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,dragon_lancer_B dragon_lancer_D dragon_lancer_S,90000,dragon_lancer_B,耐久不足(ボス戦)×1,AncientDemon×1,90000.0
+partial_90k,archer,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,archer_A archer_B archer_D archer_S,90000,archer_B,,,90000.0
+partial_90k,mage,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,mage_B mage_D mage_S,90000,mage_B,耐久不足(ボス戦)×1,AncientDemon×1,90000.0
+partial_90k,fighter,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,fighter_B fighter_D fighter_S,90000,fighter_B,耐久不足(ボス戦)×1,AncientDemon×1,90000.0
+partial_90k,ninja,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,1,ninja_S,90000,ninja_B,制限時間内に撃破できず×2; 耐久不足(ボス戦)×1,AncientDemon×3,90000.0
+partial_90k,miko,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,miko_A miko_B miko_D miko_S,90000,miko_B,,,90000.0
+partial_90k,vampire,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,vampire_B vampire_S,90000,vampire_B,穴・落下×1; 制限時間内に撃破できず×1,AncientDemon×2,90000.0
+partial_90k,dragonkin,natural_cave,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dragonkin_A dragonkin_B dragonkin_D dragonkin_S,90000,dragonkin_B,,,90000.0
+partial_90k,swordsman,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,swordsman_B swordsman_S,90000,swordsman_B,耐久不足(ボス戦)×2,Guardian×2,90000.0
+partial_90k,dual_blade,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,dual_blade_B dual_blade_S,90000,dual_blade_B,穴・落下×1; 制限時間内に撃破できず×1,Guardian×2,90000.0
+partial_90k,noble_lady,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,90000,noble_lady_B,耐久不足(ボス戦)×3; 制限時間内に撃破できず×1,Guardian×4,90000.0
+partial_90k,gunslinger,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,gunslinger_A gunslinger_B gunslinger_D gunslinger_S,90000,gunslinger_B,,,90000.0
+partial_90k,dragon_lancer,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dragon_lancer_A dragon_lancer_B dragon_lancer_D dragon_lancer_S,90000,dragon_lancer_B,,,90000.0
+partial_90k,archer,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,archer_B archer_D archer_S,90000,archer_B,耐久不足(ボス戦)×1,Guardian×1,90000.0
+partial_90k,mage,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,mage_B mage_D mage_S,90000,mage_B,耐久不足(ボス戦)×1,Guardian×1,90000.0
+partial_90k,fighter,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,fighter_B fighter_D,90000,fighter_B,穴・落下×1; 耐久不足(ボス戦)×1,Guardian×2,90000.0
+partial_90k,ninja,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,ninja_B ninja_S,90000,ninja_B,耐久不足(ボス戦)×1; 制限時間内に撃破できず×1,Guardian×2,90000.0
+partial_90k,miko,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,miko_A miko_B miko_D miko_S,90000,miko_B,,,90000.0
+partial_90k,vampire,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,vampire_B vampire_D vampire_S,90000,vampire_B,穴・落下×1,Guardian×1,90000.0
+partial_90k,dragonkin,sky_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,dragonkin_A dragonkin_B dragonkin_D dragonkin_S,90000,dragonkin_B,,,90000.0
+partial_100k,swordsman,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,swordsman_B swordsman_S,100004,swordsman_B,耐久不足(ボス戦)×1; 制限時間内に撃破できず×1,荒野街道の長女|自然洞窟の次女|天空回廊の三女|荒野街道の長女+自然洞窟の次女|荒野街道の長女+天空回廊の三女+自然洞窟の次女×1; 荒野街道の長女|自然洞窟の次女|天空回廊の三女|荒野街道の長女+自然洞窟の次女|荒野街道の長女+自然洞窟の次女+天空回廊の三女×1,100004.0
+partial_100k,dual_blade,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,dual_blade_B dual_blade_S,100004,dual_blade_B,耐久不足(ボス戦)×1; 制限時間内に撃破できず×1,荒野街道の長女|自然洞窟の次女×1; 荒野街道の長女|自然洞窟の次女|天空回廊の三女×1,100004.0
+partial_100k,noble_lady,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,100000,noble_lady_B,制限時間内に撃破できず×3; 耐久不足(ボス戦)×1,荒野街道の長女|自然洞窟の次女×2; 荒野街道の長女|自然洞窟の次女|天空回廊の三女|自然洞窟の次女+荒野街道の長女|自然洞窟の次女+天空回廊の三女+荒野街道の長女×1,100000.0
+partial_100k,gunslinger,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,gunslinger_B gunslinger_S,100004,gunslinger_B,耐久不足(ボス戦)×1; 制限時間内に撃破できず×1,荒野街道の長女|自然洞窟の次女|天空回廊の三女|自然洞窟の次女+荒野街道の長女|自然洞窟の次女+荒野街道の長女+天空回廊の三女|自然洞窟の次女+天空回廊の三女×1; 荒野街道の長女|自然洞窟の次女|天空回廊の三女|自然洞窟の次女+荒野街道の長女|自然洞窟の次女+天空回廊の三女+荒野街道の長女×1,100004.0
+partial_100k,dragon_lancer,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,dragon_lancer_B dragon_lancer_S,100004,dragon_lancer_B,耐久不足(ボス戦)×1; 制限時間内に撃破できず×1,荒野街道の長女|自然洞窟の次女|天空回廊の三女|荒野街道の長女+自然洞窟の次女|天空回廊の三女+荒野街道の長女+自然洞窟の次女|天空回廊の三女+自然洞窟の次女×1; 荒野街道の長女|自然洞窟の次女|天空回廊の三女|自然洞窟の次女+荒野街道の長女|自然洞窟の次女+荒野街道の長女+天空回廊の三女|自然洞窟の次女+天空回廊の三女×1,100004.0
+partial_100k,archer,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,archer_A archer_B archer_D archer_S,100004,archer_D,,,100003.0
+partial_100k,mage,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,4,mage_A mage_B mage_D mage_S,100004,mage_B,,,100004.0
+partial_100k,fighter,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,fighter_B fighter_S,100004,fighter_B,耐久不足(ボス戦)×1; 制限時間内に撃破できず×1,荒野街道の長女|自然洞窟の次女×1; 荒野街道の長女|自然洞窟の次女|天空回廊の三女|自然洞窟の次女+荒野街道の長女|自然洞窟の次女+荒野街道の長女+天空回廊の三女|自然洞窟の次女+天空回廊の三女×1,100004.0
+partial_100k,ninja,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,0,,100001,ninja_S,制限時間内に撃破できず×3; 耐久不足(ボス戦)×1,荒野街道の長女|自然洞窟の次女|天空回廊の三女×2; 荒野街道の長女|自然洞窟の次女×2,100000.0
+partial_100k,miko,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,3,1,0,3,miko_A miko_B miko_S,100004,miko_B,,,100004.0
+partial_100k,vampire,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,2,vampire_B vampire_S,100004,vampire_B,耐久不足(ボス戦)×1; 制限時間内に撃破できず×1,荒野街道の長女|自然洞窟の次女×1; 荒野街道の長女|自然洞窟の次女|天空回廊の三女×1,100004.0
+partial_100k,dragonkin,last_corridor,partial,途中から(部分試験),既定(開始100km/h),100,G0,A B D S,4,4,0,0,3,dragonkin_B dragonkin_D dragonkin_S,100004,dragonkin_B,制限時間内に撃破できず×1,荒野街道の長女|自然洞窟の次女|天空回廊の三女|自然洞窟の次女+荒野街道の長女|天空回廊の三女+自然洞窟の次女+荒野街道の長女×1,100004.0
+abA,swordsman,wasteland_road,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,swordsman_B,90000,swordsman_B,,,50000.0
+abA,dual_blade,wasteland_road,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,dual_blade_B,90000,dual_blade_B,,,50000.0
+abA,gunslinger,wasteland_road,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,gunslinger_B,90000,gunslinger_B,,,50000.0
+abA,dragon_lancer,wasteland_road,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,dragon_lancer_B,90000,dragon_lancer_B,,,50000.0
+abA,mage,wasteland_road,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,mage_B,90000,mage_B,,,50000.0
+abA,fighter,wasteland_road,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,fighter_B,90000,fighter_B,,,50000.0
+abA,miko,wasteland_road,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,miko_B,90000,miko_B,,,50000.0
+abA,vampire,wasteland_road,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,vampire_B,90000,vampire_B,,,50000.0
+abA,swordsman,natural_cave,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,swordsman_B,90000,swordsman_B,,,50000.0
+abA,dual_blade,natural_cave,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,dual_blade_B,90000,dual_blade_B,,,50000.0
+abA,gunslinger,natural_cave,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,gunslinger_B,90000,gunslinger_B,,,50000.0
+abA,dragon_lancer,natural_cave,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,dragon_lancer_B,90000,dragon_lancer_B,,,50000.0
+abA,mage,natural_cave,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,mage_B,90000,mage_B,,,50000.0
+abA,fighter,natural_cave,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,fighter_B,90000,fighter_B,,,50000.0
+abA,miko,natural_cave,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,miko_B,90000,miko_B,,,50000.0
+abA,vampire,natural_cave,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,vampire_B,90000,vampire_B,,,50000.0
+abA,swordsman,sky_corridor,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,swordsman_B,90000,swordsman_B,,,50000.0
+abA,dual_blade,sky_corridor,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,dual_blade_B,90000,dual_blade_B,,,50000.0
+abA,gunslinger,sky_corridor,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,gunslinger_B,90000,gunslinger_B,,,50000.0
+abA,dragon_lancer,sky_corridor,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,dragon_lancer_B,90000,dragon_lancer_B,,,50000.0
+abA,mage,sky_corridor,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,mage_B,90000,mage_B,,,50000.0
+abA,fighter,sky_corridor,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,fighter_B,90000,fighter_B,,,50000.0
+abA,miko,sky_corridor,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,miko_B,90000,miko_B,,,50000.0
+abA,vampire,sky_corridor,abA,途中から(部分試験),A/B試験 A=変更前(ボス戦の地形ジャンプ後回し),100,G0,B,6,6,0,0,6,vampire_B,90000,vampire_B,,,50000.0
+abB,swordsman,wasteland_road,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,swordsman_B,90000,swordsman_B,,,50000.0
+abB,dual_blade,wasteland_road,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,dual_blade_B,90000,dual_blade_B,,,50000.0
+abB,gunslinger,wasteland_road,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,gunslinger_B,90000,gunslinger_B,,,50000.0
+abB,dragon_lancer,wasteland_road,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,dragon_lancer_B,90000,dragon_lancer_B,,,50000.0
+abB,mage,wasteland_road,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,mage_B,90000,mage_B,,,50000.0
+abB,fighter,wasteland_road,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,fighter_B,90000,fighter_B,,,50000.0
+abB,miko,wasteland_road,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,miko_B,90000,miko_B,,,50000.0
+abB,vampire,wasteland_road,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,vampire_B,90000,vampire_B,,,50000.0
+abB,swordsman,natural_cave,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,swordsman_B,90000,swordsman_B,,,50000.0
+abB,dual_blade,natural_cave,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,dual_blade_B,90000,dual_blade_B,,,50000.0
+abB,gunslinger,natural_cave,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,gunslinger_B,90000,gunslinger_B,,,50000.0
+abB,dragon_lancer,natural_cave,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,dragon_lancer_B,90000,dragon_lancer_B,,,50000.0
+abB,mage,natural_cave,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,mage_B,90000,mage_B,,,50000.0
+abB,fighter,natural_cave,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,fighter_B,90000,fighter_B,,,50000.0
+abB,miko,natural_cave,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,miko_B,90000,miko_B,,,50000.0
+abB,vampire,natural_cave,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,vampire_B,90000,vampire_B,,,50000.0
+abB,swordsman,sky_corridor,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,swordsman_B,90000,swordsman_B,,,50000.0
+abB,dual_blade,sky_corridor,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,dual_blade_B,90000,dual_blade_B,,,50000.0
+abB,gunslinger,sky_corridor,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,gunslinger_B,90000,gunslinger_B,,,50000.0
+abB,dragon_lancer,sky_corridor,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,dragon_lancer_B,90000,dragon_lancer_B,,,50000.0
+abB,mage,sky_corridor,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,mage_B,90000,mage_B,,,50000.0
+abB,fighter,sky_corridor,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,fighter_B,90000,fighter_B,,,50000.0
+abB,miko,sky_corridor,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,miko_B,90000,miko_B,,,50000.0
+abB,vampire,sky_corridor,abB,途中から(部分試験),A/B試験 B=変更後(ボス戦も穴/段差ジャンプ優先),100,G0,B,6,6,0,0,6,vampire_B,90000,vampire_B,,,50000.0

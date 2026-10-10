@@ -273,8 +273,11 @@ public partial class QaSweep : MonoBehaviour
     int cardPicks;
     IEnumerator AutoPickCards()
     {
+        // 2026-10-10: 新しいテスト用データでは初回の案内(脱出の説明など、時間が止まる)が出て、テストが待ち続けていた → 案内そのもののテスト以外は閉じる
+        bool autoGuide = !(mode == "tutorial" || mode == "unlock" || mode == "portrait" || mode == "loc");
         while (true)
         {
+            if (autoGuide && FirstRunGuide.Open) { Debug.Log("[QA] first-run guide auto-answered " + FirstRunGuide.Showing); FirstRunGuideDebug.Answer(FirstRunGuide.Showing == FirstRunGuide.Kind.DoorPrompt ? 1 : 0); } // 扉の案内は「そのまま始める」
             var g = GameManager.Instance;
             if (g != null && !autoPickHold && g.IsRewardSequenceWaitingForSelection)
             {
@@ -1040,11 +1043,24 @@ public partial class QaSweep : MonoBehaviour
                     float dy = target.transform.position.y - pc.transform.position.y;
                     StartCoroutine(Flick(dy > 1.8f && pc.IsGrounded ? PlayerController.FlickDirection.Up : PlayerController.FlickDirection.Forward));
                 }
+                // 2026-10-10: ラスダンの最後の問い(ONE MORE MILE?)は NO(後ろへ攻撃)で終える。YES/NO も壁なので石板より先に見る
+                else if (LastDungeonFlow.Instance != null && LastDungeonFlow.Instance.Choice != null && LastDungeonFlow.Instance.Choice.Risen && !LastDungeonFlow.Instance.Choice.Decided)
+                {
+                    lastFlick = Time.time;
+                    StartCoroutine(Flick(PlayerController.FlickDirection.Backward));
+                }
+                // ラスダンのエンドロールの石板(攻撃で壊して通る)。プレイヤーと同じく前へ攻撃する
+                else if (WorldPlatforms.WallTouching(pc.transform.position.x, pc.transform.position.y, pc.transform.position.y + 1.5f, 0.35f, 0.15f) != null)
+                {
+                    lastFlick = Time.time;
+                    StartCoroutine(Flick(PlayerController.FlickDirection.Forward));
+                }
             }
 
             // 詰まり
             float lx = FloatingOrigin.ToLogical(pc.transform.position.x);
-            bool paused = inBoss || pc.IsReacting || gm.IsRewardSequenceWaitingForSelection || Time.timeScale < 0.5f || bm.IsBossPhase;
+            bool paused = inBoss || pc.IsReacting || gm.IsRewardSequenceWaitingForSelection || Time.timeScale < 0.5f || bm.IsBossPhase
+                || (LastDungeonFlow.Instance != null && LastDungeonFlow.Instance.Choice != null && LastDungeonFlow.Instance.Choice.Risen); // 最後の問いでは立ち止まる(仕様)
             if (lx > lastProgressX + 1f || paused) { lastProgressX = lx; lastProgressT = Time.time; }
             else if (Time.time - lastProgressT > 4f)
             {

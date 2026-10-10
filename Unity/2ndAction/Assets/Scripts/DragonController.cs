@@ -491,13 +491,24 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         }
     }
 
+    // 2026-10-10(全体点検): 浮いている間の基準の地面の高さをなめらかに追う(地面の段差で 0.5m 以上いっぺんに上下していた)。
+    // 同じフレームで何度呼ばれても1回だけ進める。大きく離れた時(ワープ/位置の付け替え)はすぐ合わせる。
+    float hoverGroundY = float.NaN, hoverGroundVel; int hoverGroundFrame = -1;
+    float SmoothHoverGround(float target)
+    {
+        if (float.IsNaN(hoverGroundY) || Mathf.Abs(target - hoverGroundY) > 8f) { hoverGroundY = target; hoverGroundVel = 0f; }
+        else if (hoverGroundFrame != Time.frameCount) hoverGroundY = Mathf.SmoothDamp(hoverGroundY, target, ref hoverGroundVel, 0.2f, Mathf.Infinity, Mathf.Max(0f, Time.deltaTime));
+        hoverGroundFrame = Time.frameCount;
+        return hoverGroundY;
+    }
+
     // Derives the current hover target from tracked distance, ground height,
     // and a per-instance Perlin-noise bob so the dragon drifts up and down
     // instead of holding a dead-flat line - shared by idle tracking, the
     // charge-attack return glide, and the entrance flight-in.
     Vector3 ComputeHomePosition()
     {
-        float groundY = GroundYAt(trackedX);
+        float groundY = SmoothHoverGround(GroundYAt(trackedX));
         float bobOffset = (Mathf.PerlinNoise(Time.time * bobSpeed + bobSeed, 0f) * 2f - 1f) * bobAmplitude
             + (Mathf.PerlinNoise(Time.time * bobSpeed2 + bobSeed2, 0f) * 2f - 1f) * bobAmplitude2;
         return new Vector3(trackedX + standoffDistance, groundY + hoverHeight + bobOffset, 0f);

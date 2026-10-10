@@ -141,7 +141,8 @@ public class SceneryCycle : MonoBehaviour
     // 先に読んでおく距離(疾走出発の到着地点。2026-10-10)。その区間と次の区間の背景を非同期で読み、到着まで解放しない
     public static float? ExtraPrefetchDistance;
 
-    void LateUpdate()
+    void LateUpdate() { using (FrameCost.Scope("Scenery")) LateUpdateMeasured(); }
+    void LateUpdateMeasured()
     {
         if (profile == null) return;
         if (baseBg == null) { Deactivate(); return; }

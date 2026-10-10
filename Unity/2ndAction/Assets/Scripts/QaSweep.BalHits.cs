@@ -59,6 +59,14 @@ public partial class QaSweep
                             if ((hp <= 0 || e.IsDying) && tr.death < 0f && tr.hits > 0) tr.death = t;
                         }
                         // 消えた(撃破)敵
+                        // 撃破と同じフレームで非表示になる敵: 消えた後に 撃破中の印/HP で数える(壊されて null の物は数えない)
+                        foreach (var kv in tracks)
+                        {
+                            var e2 = kv.Key; var tr2 = kv.Value;
+                            if (tr2.death >= 0f || e2 == null || e2.isActiveAndEnabled) continue;
+                            int hp2 = e2.CurrentHpForUltimate;
+                            if (e2.IsDying || hp2 <= 0) { if (hp2 < tr2.lastHp) { tr2.hits++; tr2.dmg.Add(tr2.lastHp - Mathf.Max(0, hp2)); tr2.lastHp = hp2; } if (tr2.firstHit < 0f) tr2.firstHit = t; tr2.death = t; }
+                        }
                         yield return null; t += Time.deltaTime;
                     }
                     int n = 0;

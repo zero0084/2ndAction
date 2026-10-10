@@ -32,7 +32,8 @@ public class BgmDirector : MonoBehaviour
     public static float OverrideFadeSeconds = 3.5f;
     public static void ClearOverride() { OverrideActive = false; OverrideClip = null; OverrideAmbience = null; OverrideReason = ""; OverrideFadeSeconds = 3.5f; }
 
-    void Update()
+    void Update() { using (FrameCost.Scope("Bgm")) UpdateMeasured(); }
+    void UpdateMeasured()
     {
         if (am == null || Time.unscaledTime < nextCheck) return;
         nextCheck = Time.unscaledTime + 0.15f;

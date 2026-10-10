@@ -212,7 +212,8 @@ public class RunBuildHud : MonoBehaviour
         Rect safe = StableSafeArea.Rect;
         float safeTop = Screen.height - (safe.y + safe.height);
         float safeRight = Screen.width - (safe.x + safe.width);
-        const float margin = 28f, hudPanel = 54f, gapBelowHp = 10f; // GameManagerのUiMargin/HudPanelHeight(HPパネルの真下)
+        float hk = GameManager.HudK; // 2026-10-10: GameManager の HUD と同じ倍率(短辺 720 基準)
+        float margin = 28f * hk, hudPanel = 54f * hk, gapBelowHp = 10f * hk; // GameManagerのUiMargin/HudPanelHeight(HPパネルの真下)
         float right = Screen.width - safeRight - margin;
         float top = safeTop + margin + hudPanel + gapBelowHp;
         float s = Mathf.Clamp(Screen.height * slotHeightFraction, minSlot, maxSlot);
@@ -222,7 +223,7 @@ public class RunBuildHud : MonoBehaviour
         if (GameManager.HudStacked)
         {
             // 縦画面: 左の列(BEST/距離/速度、幅168)に重ならない。まず枠を少し小さくして列数を保ち、それでも足りなければ列を減らす
-            float leftCol = safe.x + margin + 168f + 10f + 54f; // + 段の見出し(キャラ/デッキ)の幅
+            float leftCol = safe.x + margin + (168f + 10f + 54f) * hk; // + 段の見出し(キャラ/デッキ)の幅
             float avail = right - leftCol;
             float fitS = avail / (maxColumns + (maxColumns - 1) * gapFraction);
             if (fitS < s) s = Mathf.Max(minSlot * 0.9f, fitS);
@@ -395,7 +396,7 @@ public class RunBuildHud : MonoBehaviour
         // 2026-10-10(全体点検): 縦画面では見出しが左の列(BEST/距離/速度)の下に潜って「キ」だけ見えていた → 左の列の右端まで。入らなければ字を縮め、それでも無理なら板だけ
         if (GameManager.HudStacked && lw > 0f)
         {
-            float colRight = StableSafeArea.Rect.x + 28f + 168f + 6f;
+            float colRight = StableSafeArea.Rect.x + (28f + 168f + 6f) * GameManager.HudK;
             float room = LastGridRect.xMin - pad - colRight;
             if (room < lw)
             {

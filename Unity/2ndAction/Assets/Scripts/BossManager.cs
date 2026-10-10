@@ -520,7 +520,8 @@ public partial class BossManager : MonoBehaviour
         return EffectiveRepeatInterval();
     }
 
-    void Update()
+    void Update() { using (FrameCost.Scope("BossMgr")) UpdateMeasured(); }
+    void UpdateMeasured()
     {
         if (GameManager.Instance == null || !GameManager.Instance.HasStarted || GameManager.Instance.IsGameOver) return;
         // マルチプレイPhase 2 - JOIN側はボスを自分で出現させない(HOSTが出現を確定して共有する)。
