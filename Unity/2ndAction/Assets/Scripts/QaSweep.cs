@@ -374,6 +374,7 @@ public partial class QaSweep : MonoBehaviour
             yield return EndRun();
         }
         System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, "frames.csv"), csv.ToString());
+        L($"[visual] frames hidden by the invincibility flicker (expected): {flickerFrames}");
 
         // ステージの見た目(開始直後と各距離)
         foreach (string st in new[] { "wasteland_road", "natural_cave", "sky_corridor", "last_corridor" })
@@ -393,6 +394,7 @@ public partial class QaSweep : MonoBehaviour
     }
 
     readonly List<float> runFeet = new List<float>();
+    int flickerFrames;
     IEnumerator WaitGrounded() { float w = 0f; while (!pc.IsGrounded && w < 3f) { yield return null; w += Time.deltaTime; } yield return new WaitForSeconds(0.1f); }
 
     IEnumerator Flick(PlayerController.FlickDirection f)
@@ -422,7 +424,9 @@ public partial class QaSweep : MonoBehaviour
             Shot(name);
             csv.AppendLine($"{ch},{move},{i},{shotNo - 1},{(sr != null && sr.sprite != null ? sr.sprite.name : "null")},{visible},{alpha:F2},{h:F2},{feet:F2},{pc.IsGrounded},{facing},{sp.x:F0},{sp.y:F0},{sh:F0}");
             // 自動判定
-            if (!visible) Check(false, $"{name}: player sprite not visible");
+            // 2026-10-10: 被弾/落下の後の無敵の点滅(描画を交互に止める。仕様)で消えているフレームは数えない(記録だけ)
+            if (!visible && sr != null && sr.sprite != null && pc.IsHitInvincible) { flickerFrames++; }
+            else if (!visible) Check(false, $"{name}: player sprite not visible");
             else if (alpha < 0.25f && move != "hurt") Check(false, $"{name}: player almost transparent (alpha {alpha:F2})");
             if (visible && move == "run") { heights.Add(h); if (pc.IsGrounded && g.HasValue) runFeet.Add(feet); }
             if (visible && heights.Count >= 3 && move != "run")
