@@ -87,6 +87,8 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // ---- runtime ----
     protected float worldX;
     protected float relVelocity;
+    float behindTime; bool frontReturning;
+    public static int FrontReturns { get; private set; } // 確認用: 後ろから前へ回り込んだ回数
     const float BreakReach = 3f; // BREAK 中: 体の手前の端までこれより遠ければ、届く位置へ寄せる(m)
     bool breakPulling;
     protected float yOffset;
@@ -305,6 +307,22 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
                 else if (gap < lo) worldX = soft && gap < lo - 3f ? Mathf.MoveTowards(worldX, px + lo, 22f * dt) : px + lo;
             }
         }
+        // 2026-10-11(攻略の再検証): プレイヤーの後ろ(前攻撃が届かない所)に張り付いたまま数分 当てられないことがあった
+        // (自然洞窟の古代の魔人が 480秒 HP100% のまま 等)。技で後ろへ回る間(freeGap)/登場/BREAK/地中などは数えない。
+        // 後ろに BossBehindSeconds 続いたら、走る速さに少し足して前の届く位置まで回り込む(瞬間移動はしない)
+        if (BalanceTuning.BossFrontReturn && !entering && !freeGap && !Broken && !IntentionallyAway && !UltimateArt.ArenaFreeGap && !(leashOn && leash.AllowBehindTarget))
+        {
+            float g2 = worldX - px;
+            float front = halfWidth + 2.0f;
+            if (frontReturning)
+            {
+                if (g2 >= front) frontReturning = false;
+                else worldX += Mathf.Min(BalanceTuning.BossReturnSpeed * dt, front - g2);
+            }
+            else if (g2 < -0.5f) { behindTime += dt; if (behindTime >= BalanceTuning.BossBehindSeconds) { frontReturning = true; behindTime = 0f; FrontReturns++; } }
+            else behindTime = 0f;
+        }
+        else { behindTime = 0f; frontReturning = false; }
         BattleTick(dt);
         OffArenaWatch(dt, px);
 

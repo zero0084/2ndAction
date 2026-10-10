@@ -295,6 +295,14 @@ public partial class MajinController : MonoBehaviour
             if (leash.Active) baseSpeed *= leash.SpeedFactor;
         }
         trackedX += baseSpeed * Time.deltaTime;
+        // 2026-10-11(攻略の再検証): 基本の速さだけで進むので、踏み込みの大きいキャラ(忍者の突進斬り等)や穴からの戻りで
+        // 間合いが少しずつずれ、プレイヤーの後ろに張り付いて前攻撃が数分 当たらないことがあった → ずれた分をゆっくり戻す
+        if (BalanceTuning.BossFrontReturn && player != null && !(leashOn && leash.Active))
+        {
+            float drift = player.position.x - trackedX; // 0 = 本来の間合い(home = trackedX + standoffDistance)
+            float over = Mathf.Abs(drift) - BalanceTuning.FlyerDriftDeadZone;
+            if (over > 0f) trackedX += Mathf.Sign(drift) * over * Mathf.Clamp01(BalanceTuning.FlyerDriftRate * Time.deltaTime);
+        }
 
         // Repeated attack lunges in the same direction can push the home spot
         // off-screen; clamp every frame, symmetrically, against the player's

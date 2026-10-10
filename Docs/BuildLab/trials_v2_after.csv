@@ -1,0 +1,73 @@
+trial,build,stage,growth,seed,depart,dest,extra,timeout
+V2A001_noble_lady_B_wasteland_road_s7101,noble_lady_B,wasteland_road,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A002_fighter_B_wasteland_road_s7101,fighter_B,wasteland_road,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A003_dual_blade_B_wasteland_road_s7101,dual_blade_B,wasteland_road,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A004_mage_B_wasteland_road_s7101,mage_B,wasteland_road,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A005_ninja_B_wasteland_road_s7101,ninja_B,wasteland_road,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A006_noble_lady_B_natural_cave_s7101,noble_lady_B,natural_cave,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A007_fighter_B_natural_cave_s7101,fighter_B,natural_cave,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A008_dual_blade_B_natural_cave_s7101,dual_blade_B,natural_cave,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A009_mage_B_natural_cave_s7101,mage_B,natural_cave,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A010_ninja_B_natural_cave_s7101,ninja_B,natural_cave,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A011_noble_lady_B_sky_corridor_s7101,noble_lady_B,sky_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A012_fighter_B_sky_corridor_s7101,fighter_B,sky_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A013_dual_blade_B_sky_corridor_s7101,dual_blade_B,sky_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A014_mage_B_sky_corridor_s7101,mage_B,sky_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A015_ninja_B_sky_corridor_s7101,ninja_B,sky_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A016_noble_lady_B_last_corridor_s7101,noble_lady_B,last_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A017_fighter_B_last_corridor_s7101,fighter_B,last_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A018_dual_blade_B_last_corridor_s7101,dual_blade_B,last_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A019_mage_B_last_corridor_s7101,mage_B,last_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A020_ninja_B_last_corridor_s7101,ninja_B,last_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A021_noble_lady_B_wasteland_road_s7102,noble_lady_B,wasteland_road,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A022_fighter_B_wasteland_road_s7102,fighter_B,wasteland_road,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A023_dual_blade_B_wasteland_road_s7102,dual_blade_B,wasteland_road,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A024_mage_B_wasteland_road_s7102,mage_B,wasteland_road,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A025_ninja_B_wasteland_road_s7102,ninja_B,wasteland_road,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A026_noble_lady_B_natural_cave_s7102,noble_lady_B,natural_cave,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A027_fighter_B_natural_cave_s7102,fighter_B,natural_cave,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A028_dual_blade_B_natural_cave_s7102,dual_blade_B,natural_cave,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A029_mage_B_natural_cave_s7102,mage_B,natural_cave,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A030_ninja_B_natural_cave_s7102,ninja_B,natural_cave,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A031_noble_lady_B_sky_corridor_s7102,noble_lady_B,sky_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A032_fighter_B_sky_corridor_s7102,fighter_B,sky_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A033_dual_blade_B_sky_corridor_s7102,dual_blade_B,sky_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A034_mage_B_sky_corridor_s7102,mage_B,sky_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A035_ninja_B_sky_corridor_s7102,ninja_B,sky_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A036_noble_lady_B_last_corridor_s7102,noble_lady_B,last_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A037_fighter_B_last_corridor_s7102,fighter_B,last_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A038_dual_blade_B_last_corridor_s7102,dual_blade_B,last_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A039_mage_B_last_corridor_s7102,mage_B,last_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A040_ninja_B_last_corridor_s7102,ninja_B,last_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A041_noble_lady_B_wasteland_road_s7103,noble_lady_B,wasteland_road,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A042_fighter_B_wasteland_road_s7103,fighter_B,wasteland_road,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A043_dual_blade_B_wasteland_road_s7103,dual_blade_B,wasteland_road,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A044_mage_B_wasteland_road_s7103,mage_B,wasteland_road,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A045_ninja_B_wasteland_road_s7103,ninja_B,wasteland_road,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A046_noble_lady_B_natural_cave_s7103,noble_lady_B,natural_cave,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A047_fighter_B_natural_cave_s7103,fighter_B,natural_cave,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A048_dual_blade_B_natural_cave_s7103,dual_blade_B,natural_cave,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A049_mage_B_natural_cave_s7103,mage_B,natural_cave,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A050_ninja_B_natural_cave_s7103,ninja_B,natural_cave,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A051_noble_lady_B_sky_corridor_s7103,noble_lady_B,sky_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A052_fighter_B_sky_corridor_s7103,fighter_B,sky_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A053_dual_blade_B_sky_corridor_s7103,dual_blade_B,sky_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A054_mage_B_sky_corridor_s7103,mage_B,sky_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A055_ninja_B_sky_corridor_s7103,ninja_B,sky_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A056_noble_lady_B_last_corridor_s7103,noble_lady_B,last_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A057_fighter_B_last_corridor_s7103,fighter_B,last_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A058_dual_blade_B_last_corridor_s7103,dual_blade_B,last_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A059_mage_B_last_corridor_s7103,mage_B,last_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2A060_ninja_B_last_corridor_s7103,ninja_B,last_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2R01A_swordsman_B_wasteland_road_s7101,swordsman_B,wasteland_road,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2R02B_swordsman_B_wasteland_road_s7101,swordsman_B,wasteland_road,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120 -balVariant base,16000
+V2R03A_mage_B_natural_cave_s7101,mage_B,natural_cave,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2R04B_mage_B_natural_cave_s7101,mage_B,natural_cave,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120 -balVariant base,16000
+V2R05A_swordsman_B_wasteland_road_s7102,swordsman_B,wasteland_road,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2R06B_swordsman_B_wasteland_road_s7102,swordsman_B,wasteland_road,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120 -balVariant base,16000
+V2R07A_mage_B_natural_cave_s7102,mage_B,natural_cave,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2R08B_mage_B_natural_cave_s7102,mage_B,natural_cave,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120 -balVariant base,16000
+V2R09A_swordsman_B_wasteland_road_s7103,swordsman_B,wasteland_road,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2R10B_swordsman_B_wasteland_road_s7103,swordsman_B,wasteland_road,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120 -balVariant base,16000
+V2R11A_mage_B_natural_cave_s7103,mage_B,natural_cave,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V2R12B_mage_B_natural_cave_s7103,mage_B,natural_cave,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120 -balVariant base,16000

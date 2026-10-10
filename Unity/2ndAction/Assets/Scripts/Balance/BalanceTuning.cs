@@ -4,7 +4,8 @@ using UnityEngine;
 //  ・LateEnemyHp: 雑魚の HP の距離による伸びを、LateHpFrom より先は LateHpEvery ごとに +1段(それまでは hpIncreaseDistance ごと)にする。
 //    序盤(LateHpFrom まで)の雑魚は変わらない。ボスの HP は別(BossHpPlan/再戦)。
 //  ・AttackUpHighLevel: ATTACK UP の高い Lv の伸び。Lv1〜3 は今までどおり(+5%/Lv)、Lv4 から伸びを大きくする(AttackUpLevelFactor)。
-// 開発版は起動引数 -balVariant base|hp|atk|hp,atk(Android は qa_args.txt)で切り替えられる(base = 調整前)。保存はしない。
+//  ・BossFrontReturn: ボスがプレイヤーの後ろに張り付いたままにならない(下の説明)。
+// 開発版は起動引数 -balVariant base|hp|atk|boss の組み合わせ(例 hp,atk,boss = 全部)で切り替えられる(base = 調整前)。保存はしない。
 public static class BalanceTuning
 {
     public static bool LateEnemyHp = true;    // 2026-10-11 採用(比較の結果: 終盤の普通の雑魚の必要な命中数 約-35%)
@@ -16,7 +17,15 @@ public static class BalanceTuning
     static readonly float[] AttackUpLevelTable = { 0f, 1f, 2f, 3f, 4.6f, 6.2f, 7.8f, 10.5f, 13.2f, 16f };
     public static float AttackUpLevelFactor(int lv) => AttackUpLevelTable[Mathf.Clamp(lv, 0, AttackUpLevelTable.Length - 1)];
 
-    public static string Describe => $"lateEnemyHp={(LateEnemyHp ? $"on(from {LateHpFrom:F0}m every {LateHpEvery:F0}m)" : "off")} attackUpHighLevel={(AttackUpHighLevel ? "on" : "off")}";
+    // ボスの位置取り(2026-10-11): 荒野/洞窟/天空のボスがプレイヤーの後ろ(前攻撃が届かない所)に張り付いたままになる /
+    // ドラゴン・魔人の間合いが踏み込み等で少しずつ後ろへずれていく → 前へ戻す
+    public static bool BossFrontReturn = true;
+    public static float BossBehindSeconds = 3f;   // 後ろにこれだけ続いたら前へ回り込む
+    public static float BossReturnSpeed = 16f;    // 回り込む速さ(m/秒、走る速さに足す)
+    public static float FlyerDriftDeadZone = 2f;  // ドラゴン/魔人: 本来の間合いからのずれがこれを超えた分を
+    public static float FlyerDriftRate = 0.6f;    //   1秒あたりこの割合で戻す(一瞬の踏み込みにはすぐ付いていかない)
+
+    public static string Describe => $"lateEnemyHp={(LateEnemyHp ? $"on(from {LateHpFrom:F0}m every {LateHpEvery:F0}m)" : "off")} attackUpHighLevel={(AttackUpHighLevel ? "on" : "off")} bossFrontReturn={(BossFrontReturn ? "on" : "off")}";
 
     // 雑魚の HP の距離の段(DistanceTierManager.CurrentEnemyHp)
     public static int HpSteps(float distance, float increaseDistance)
@@ -38,11 +47,12 @@ public static class BalanceTuning
         {
             if (a[i] != "-balVariant") continue;
             string v = a[i + 1];
-            if (v == "base") { LateEnemyHp = false; AttackUpHighLevel = false; }
+            if (v == "base") { LateEnemyHp = false; AttackUpHighLevel = false; BossFrontReturn = false; }
             else
             {
                 LateEnemyHp = v.Contains("hp");
                 AttackUpHighLevel = v.Contains("atk");
+                BossFrontReturn = v.Contains("boss");
             }
             Debug.Log("[BalanceTuning] variant " + v + ": " + Describe);
         }
