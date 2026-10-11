@@ -126,7 +126,7 @@ public partial class PlayerController
             if (isLancerCharacter && lancerDef != null) return lancerDef.lanceReachStart + lancerDef.lanceReach * Pick(lancerDef.lanceComboReachScale, 1, 1f);
             if (attackHitbox is BoxCollider2D box)
             {
-                Vector3 sc = hitboxBaseScale * AttackRangeMultiplier;
+                Vector3 sc = hitboxBaseScale * (AttackRangeMultiplier * NobleRangeMul);
                 return hitboxBaseLocalPos.x + (box.offset.x + box.size.x * 0.5f) * sc.x;
             }
             return 1.6f;

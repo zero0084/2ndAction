@@ -2441,7 +2441,7 @@ public partial class PlayerController : MonoBehaviour
             // スプライトシートを実コマ送りするPlayFramesへ差し替え(位置
             // オフセット・stageScale・AttackRangeMultiplierの扱いは一切
             // 変えず、見た目の再生方式だけを差し替える)。
-            attackSlashVisual.PlayFrames(stageScale, AttackRangeMultiplier);
+            attackSlashVisual.PlayFrames(stageScale, AttackRangeMultiplier * NobleRangeMul);
         }
 
         // Once the chain has reached the cap, skip re-opening the combo
@@ -2707,9 +2707,10 @@ public partial class PlayerController : MonoBehaviour
     {
         if (attackHitbox == null) return;
         int step = Mathf.Max(0, stage - 1);
-        float scaleMul = (1f + step * hitboxScaleStep) * AttackRangeMultiplier;
+        float range = AttackRangeMultiplier * NobleRangeMul; // お嬢様騎士の覚醒で大剣の間合いが伸びる(他キャラは1倍)
+        float scaleMul = (1f + step * hitboxScaleStep) * range;
         attackHitbox.transform.localScale = hitboxBaseScale * scaleMul;
-        attackHitbox.transform.localPosition = hitboxBaseLocalPos + new Vector3(step * hitboxReachStep * AttackRangeMultiplier, 0f, 0f);
+        attackHitbox.transform.localPosition = hitboxBaseLocalPos + new Vector3(step * hitboxReachStep * range, 0f, 0f);
     }
 
     // Backward attacks flip the whole player transform, which also mirrors

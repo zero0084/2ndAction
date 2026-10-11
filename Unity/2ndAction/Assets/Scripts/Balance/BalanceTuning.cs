@@ -35,14 +35,18 @@ public static class BalanceTuning
     public static bool AssistKitJumpModel = true;
 
     // お嬢様騎士の強化の候補(2026-10-11、PlayerController.Noble.cs)。比べてから採用する
-    public static bool NobleAwaken = false;        // 覚醒: 走った距離で攻撃力が伸びる
+    // 2026-10-11 採用(覚醒+鎧): 平地の比較(90km)でボスの撃破時間 ゴーレム 67→45秒 / グリフォン 152→90 / トロル 67→32(被弾 16→3回)、
+    // 終盤の雑魚の取り逃し 11→3体。序盤(20km まで)の攻撃力と間合いは今までどおり
+    public static bool NobleAwaken = true;         // 覚醒: 走った距離で攻撃力と大剣の間合いが伸びる
     public static float NobleAwakenFrom = 20000f, NobleAwakenTo = 80000f, NobleAwakenMax = 0.6f; // From まで1倍 → To で 1+Max 倍
-    public static bool NobleArmor = false;         // 鎧: 振っている間の被弾で攻撃が止まらない + 受けるダメージ減
+    public static float NobleAwakenRange = 1.27f;  // 間合い: To で基礎(0.75)の 1.27倍 ≒ 0.95(グリフォンなど少し上のボスに届く)
+    public static bool NobleArmor = true;          // 鎧: 振っている間の被弾で攻撃が止まらない + 受けるダメージ減
     public static float NobleArmorDamage = 0.75f;
     public static bool NobleHeavy = false;         // 大剣(比較用): 距離に関係なく攻撃力
     public static float NobleHeavyMul = 1.4f;
     // 格闘家の跳ぶ高さの候補(2026-10-11): ジャンプは昇拳(通常の 0.9倍、空中は さらに 0.95倍)。1 = 通常のジャンプと同じ高さ
-    public static bool FighterFullJump = false;
+    // 2026-10-11 採用: 80km 4km の地形の被害 段差/壁 5〜6 → 1回、落下 1〜6 → 0〜2回(補助の計算を合わせても低いジャンプでは越えられない段差が残った)
+    public static bool FighterFullJump = true;
     public static bool NobleReach = false;         // 間合い(比較用)
     public static float NobleReachValue = 0.95f;   // 今は 0.75
 
@@ -68,7 +72,7 @@ public static class BalanceTuning
         {
             if (a[i] != "-balVariant") continue;
             string v = a[i + 1];
-            if (v == "base") { LateEnemyHp = false; AttackUpHighLevel = false; BossFrontReturn = false; AssistFlyingBosses = false; AssistFighterCombo = false; AssistKitJumpModel = false; }
+            if (v == "base") { LateEnemyHp = false; AttackUpHighLevel = false; BossFrontReturn = false; AssistFlyingBosses = false; AssistFighterCombo = false; AssistKitJumpModel = false; NobleAwaken = false; NobleArmor = false; NobleHeavy = false; NobleReach = false; FighterFullJump = false; }
             else
             {
                 LateEnemyHp = v.Contains("hp");

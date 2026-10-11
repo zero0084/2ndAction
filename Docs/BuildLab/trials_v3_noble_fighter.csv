@@ -1,0 +1,25 @@
+trial,build,stage,growth,seed,depart,dest,extra,timeout
+V3A001_noble_lady_B_wasteland_road_s7101,noble_lady_B,wasteland_road,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A002_fighter_B_wasteland_road_s7101,fighter_B,wasteland_road,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A003_noble_lady_B_natural_cave_s7101,noble_lady_B,natural_cave,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A004_fighter_B_natural_cave_s7101,fighter_B,natural_cave,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A005_noble_lady_B_sky_corridor_s7101,noble_lady_B,sky_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A006_fighter_B_sky_corridor_s7101,fighter_B,sky_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A007_noble_lady_B_last_corridor_s7101,noble_lady_B,last_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A008_fighter_B_last_corridor_s7101,fighter_B,last_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A009_noble_lady_B_wasteland_road_s7102,noble_lady_B,wasteland_road,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A010_fighter_B_wasteland_road_s7102,fighter_B,wasteland_road,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A011_noble_lady_B_natural_cave_s7102,noble_lady_B,natural_cave,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A012_fighter_B_natural_cave_s7102,fighter_B,natural_cave,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A013_noble_lady_B_sky_corridor_s7102,noble_lady_B,sky_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A014_fighter_B_sky_corridor_s7102,fighter_B,sky_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A015_noble_lady_B_last_corridor_s7102,noble_lady_B,last_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A016_fighter_B_last_corridor_s7102,fighter_B,last_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A017_noble_lady_B_wasteland_road_s7103,noble_lady_B,wasteland_road,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A018_fighter_B_wasteland_road_s7103,fighter_B,wasteland_road,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A019_noble_lady_B_natural_cave_s7103,noble_lady_B,natural_cave,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A020_fighter_B_natural_cave_s7103,fighter_B,natural_cave,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A021_noble_lady_B_sky_corridor_s7103,noble_lady_B,sky_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A022_fighter_B_sky_corridor_s7103,fighter_B,sky_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A023_noble_lady_B_last_corridor_s7103,noble_lady_B,last_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V3A024_fighter_B_last_corridor_s7103,fighter_B,last_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
