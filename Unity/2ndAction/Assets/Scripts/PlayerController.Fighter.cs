@@ -223,11 +223,15 @@ public partial class PlayerController
         finally { EndKitMove(token); }
     }
 
+    // 2026-10-11(攻略の再検証): 跳ぶ高さの候補 BalanceTuning.FighterFullJump(比べてから採用する)
+    float FighterUppercutHop => BalanceTuning.FighterFullJump ? 1f : kitDef.fighter.uppercutHop;
+    float FighterAirHop => BalanceTuning.FighterFullJump ? 1f : 0.95f;
+
     // 上: アッパー(FireJumpが出したジャンプを低い跳躍に置き換える)。
     IEnumerator FighterUppercut(bool airborne)
     {
         var p = kitDef.fighter;
-        velocityY = jumpForce * p.uppercutHop * (airborne ? 0.95f : 1f);
+        velocityY = jumpForce * FighterUppercutHop * (airborne ? FighterAirHop : 1f);
         int gen = attackGeneration;
         int token = BeginKitMove("uppercut", false);
         try

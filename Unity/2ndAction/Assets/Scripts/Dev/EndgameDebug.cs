@@ -25,8 +25,12 @@ public partial class EndgameDebug : MonoBehaviour
 
     // 長距離の確認(2026-10-04): 選んだステージを新しく始めて、10/30/50/70/100km 付近へ。代表的なカード構成を付けられる。
     // ラスダン終盤と同じく DEBUG RUN(BEST / MILE / 累計距離 / 解放 / CONTINUE を保存しない)。雑魚の硬さを実機で見る用
-    public enum LongBuild { None, Mix, Attack, Fire, Lightning }
-    public static readonly float[] LongDistances = { 10000f, 30000f, 50000f, 70000f, 99000f };
+    public enum LongBuild { None, Mix, Attack, Fire, Lightning, Retest }
+    // 2026-10-11(攻略の再検証): 終盤到達の目安の 80/90km と、再検証のバランス型(B)を追加。
+    // 自動の試験で止まった地点を、手で操作して補えるかすぐ試すため
+    public static readonly float[] LongDistances = { 10000f, 30000f, 50000f, 70000f, 80000f, 90000f, 99000f };
+    // 再検証のバランス型(B)のデッキ 12枚(Docs/BuildLab/RETEST_2026-10-11.md)。ここでは全部 Lv9 で付ける
+    public static readonly string[] RetestDeckB = { "attack_up", "heart_up", "boss_killer", "shield", "attack_speed_up", "vampire", "sonic_blade", "second_wind", "double_attack", "phoenix", "iron_will", "speed_up" };
     public static LongBuild SelectedLongBuild = LongBuild.None;
     public static string SelectedLongStage = "wasteland_road";
     static (string stage, float d, LongBuild build)? pendingLong;
@@ -34,7 +38,7 @@ public partial class EndgameDebug : MonoBehaviour
     public bool IsLongCheck { get; private set; }
     public static string LongBuildLabel(LongBuild b) => b switch
     {
-        LongBuild.Mix => "一般 Lv9", LongBuild.Attack => "Attack特化 Lv9", LongBuild.Fire => "炎特化 Lv9", LongBuild.Lightning => "雷特化 Lv9", _ => "カードなし",
+        LongBuild.Mix => "一般 Lv9", LongBuild.Attack => "Attack特化 Lv9", LongBuild.Fire => "炎特化 Lv9", LongBuild.Lightning => "雷特化 Lv9", LongBuild.Retest => "再検証B Lv9", _ => "カードなし",
     };
     static string LongBuildPreset(LongBuild b) => b switch
     {
@@ -79,8 +83,9 @@ public partial class EndgameDebug : MonoBehaviour
         if (!gm.HasStarted) { Fail("ランを開始できませんでした"); yield break; }
         ApplyProfile(prof);
         string preset = LongBuildPreset(build);
-        if (preset != null)
-            foreach (var id in CardBuildPresets.Find(preset)) { var c = CardDatabase.FindBaseById(id); if (c != null) gm.ApplyCardEffectsStacked(c, 9); }
+        var ids = build == LongBuild.Retest ? RetestDeckB : preset != null ? CardBuildPresets.Find(preset) : null;
+        if (ids != null)
+            foreach (var id in ids) { var c = CardDatabase.FindBaseById(id); if (c != null) gm.ApplyCardEffectsStacked(c, 9); }
         // 関門(1kmごと)の直後へ。100km はステージの節目(三姉妹など)の手前の 99km
         Warp(gm, d + 150f);
         Debug.Log($"[EndgameDebug] long-distance check: {currentLabel} at {d + 150f:F0}m | atk x{(PlayerController.Instance != null ? PlayerController.Instance.CardAttackFactor : 1f):F2} enemyHp(x1) {(DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(1f) : 0)}");

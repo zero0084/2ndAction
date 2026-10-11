@@ -503,9 +503,10 @@ public partial class PlayerController : MonoBehaviour
         ResetCardFactors(); // カードバランス v3: キャラの基本値を入れ直すので、カードの反映は1から
         baseJumpCount = Mathf.Max(1, def.jumpCount);
         charBaseAttackSpeed = Mathf.Max(0.05f, def.attackSpeedMultiplier);
+        CharId = def.characterId;
         AttackPower = def.attackPower;
-        AttackRangeMultiplier = def.attackRangeMultiplier;
-        baseAttackRangeMultiplier = Mathf.Max(0.1f, def.attackRangeMultiplier);
+        AttackRangeMultiplier = NobleBaseRange(def.attackRangeMultiplier);
+        baseAttackRangeMultiplier = Mathf.Max(0.1f, NobleBaseRange(def.attackRangeMultiplier));
         AttackSpeedMultiplier = def.attackSpeedMultiplier;
         KnockbackPowerMultiplier = def.knockbackPowerMultiplier;
         maxComboChain = Mathf.Max(1, def.attackComboCount);
@@ -619,6 +620,7 @@ public partial class PlayerController : MonoBehaviour
             power = Mathf.RoundToInt(power * CardAttackFactor * UltimateArt.BuffAttackMul * FinalEvolution.AttackMul * CardRules.CondMultiplier(CardStateCondition())); // #100 ULTIMATE の BUFF / FINAL EVOLUTION(ATTACK UP)の最終倍率
             // 竜騎士(2026-09-26) - 後ろ攻撃(石突き)だけ威力を下げる。他キャラは常に1倍。
             if (isLancerCharacter && lanceDamageScale != 1f) power = Mathf.Max(1, Mathf.RoundToInt(power * lanceDamageScale));
+            if (IsNoble) power = Mathf.RoundToInt(power * NobleAttackMul); // お嬢様騎士の強化の候補(PlayerController.Noble.cs、既定は1倍)
             // 2026-10-02: 0以下にしない(空中攻撃-のカード等で負になると、ボスは1以上の下限が無いため逆に回復していた)
             return Mathf.Max(1, power);
         }
@@ -1697,6 +1699,7 @@ public partial class PlayerController : MonoBehaviour
             return;
         }
 
+        if (!isFall) amount = NobleDamage(amount); // お嬢様騎士の鎧(候補、既定は無効)
         GameManager.DamageResult result = GameManager.Instance.TryDamagePlayer(bypassInvincibleMode: isFall, reason: reason, amount: amount);
         if (result != GameManager.DamageResult.Hit) return;
         RecordDamageTaken(source);
@@ -1846,6 +1849,7 @@ public partial class PlayerController : MonoBehaviour
     void ApplyDamageReaction(bool isFall)
     {
         DamageAppliedCount++;
+        if (NobleArmorHit(isFall)) return; // お嬢様騎士の鎧(候補、既定は無効): 振っている間は止まらない
         RespawnAtCurrentPosition(isFall);
         // 被弾リアクション: 通常被弾=Hurt、落下復帰=Recovery。無敵時間はリアクション中から数え始め、
         // リアクションが終わってから点滅する(Hurt=被弾の瞬間、点滅=その後の無敵)。

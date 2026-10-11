@@ -341,13 +341,13 @@ public partial class DebugPanel
         GUI.Label(new Rect(x, y, full, 36f), "押すたびにステージを新しく始めて、その距離の関門の直後へ移動します(DEBUG RUN)。BEST / MILE / カード / 累計距離 / 解放 / CONTINUE は変わりません",
             UiKit.Label(12f, TextAnchor.UpperLeft, false, new Color(0.85f, 0.85f, 0.9f)));
         y += 38f;
-        var stages = new[] { ("wasteland_road", "荒野街道"), ("natural_cave", "自然洞窟"), ("sky_corridor", "天空回廊") };
-        float sw = (full - 16f) / 3f;
+        var stages = new[] { ("wasteland_road", "荒野街道"), ("natural_cave", "自然洞窟"), ("sky_corridor", "天空回廊"), ("last_corridor", "ラスダン") };
+        float sw = (full - 8f * (stages.Length - 1)) / stages.Length;
         for (int i = 0; i < stages.Length; i++)
             if (UiKit.Button(new Rect(x + i * (sw + 8f), y, sw, 34f), stages[i].Item2, 14f, EndgameDebug.SelectedLongStage == stages[i].Item1, false)) EndgameDebug.SelectedLongStage = stages[i].Item1;
         y += 40f;
-        var builds = new[] { EndgameDebug.LongBuild.None, EndgameDebug.LongBuild.Mix, EndgameDebug.LongBuild.Attack, EndgameDebug.LongBuild.Fire, EndgameDebug.LongBuild.Lightning };
-        float bw5 = (full - 32f) / 5f;
+        var builds = new[] { EndgameDebug.LongBuild.None, EndgameDebug.LongBuild.Mix, EndgameDebug.LongBuild.Attack, EndgameDebug.LongBuild.Fire, EndgameDebug.LongBuild.Lightning, EndgameDebug.LongBuild.Retest };
+        float bw5 = (full - 8f * (builds.Length - 1)) / builds.Length;
         for (int i = 0; i < builds.Length; i++)
             if (UiKit.Button(new Rect(x + i * (bw5 + 8f), y, bw5, 34f), EndgameDebug.LongBuildLabel(builds[i]), 12f, EndgameDebug.SelectedLongBuild == builds[i], false)) EndgameDebug.SelectedLongBuild = builds[i];
         y += 40f;
@@ -364,8 +364,8 @@ public partial class DebugPanel
         {
             int baseBonus = dtm != null ? dtm.baseHpBonus : 4;
             float step = dtm != null ? Mathf.Max(1f, dtm.hpIncreaseDistance) : 2000f;
-            int hp = (1 + baseBonus + Mathf.FloorToInt((ds[i] + 150f) / step)) * CombatScale.K;
-            if (UiKit.Button(new Rect(x + i * (dw + 8f), y, dw, 56f), $"{EndgameDebug.LongDistanceLabel(ds[i])}\n雑魚HP約{hp}", 14f, false, false) && !busy)
+            int hp = (1 + baseBonus + BalanceTuning.HpSteps(ds[i] + 150f, step)) * CombatScale.K; // 2026-10-11: 終盤の伸びの調整も込み
+            if (UiKit.Button(new Rect(x + i * (dw + 8f), y, dw, 56f), $"{EndgameDebug.LongDistanceLabel(ds[i])}\nHP約{hp}", 13f, false, false) && !busy)
                 EndgameDebug.LaunchLong(EndgameDebug.SelectedLongStage, ds[i], EndgameDebug.SelectedLongBuild, EndgameDebug.SelectedProfile == EndgameDebug.Profile.Normal ? EndgameDebug.Profile.Normal : EndgameDebug.Profile.Sturdy);
         }
         y += 64f;

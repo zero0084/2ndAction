@@ -18,7 +18,7 @@ public partial class PlayerController
         if (!BalanceTuning.AssistKitJumpModel || kitDef == null) return jumpForce;
         switch (kit)
         {
-            case CharacterKit.Fighter: return jumpForce * kitDef.fighter.uppercutHop * (airborne ? 0.95f : 1f);
+            case CharacterKit.Fighter: return jumpForce * FighterUppercutHop * (airborne ? FighterAirHop : 1f);
             case CharacterKit.Ninja: return kitDef.ninja.upDashSpeedY;
             case CharacterKit.Vampire: return kitDef.vampire.mistSpeedY;
             case CharacterKit.Dragonkin: return jumpForce * kitDef.dragonkin.flapJump * (airborne ? 0.85f : 1f);

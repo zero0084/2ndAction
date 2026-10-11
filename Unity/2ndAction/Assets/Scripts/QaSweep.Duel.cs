@@ -45,8 +45,8 @@ public partial class QaSweep
         float bossSecs = float.Parse(Arg("-duelBossSecs", "180"), inv);
         float terrainM = float.Parse(Arg("-duelTerrain", "0"), inv);   // >0: 地形の被害の試験(この距離を走る。敵なし/敵ありの2通り)
         var terrRows = new StringBuilder("char\tdeck\tdist\tenemies\tmeters\tsecs\tfalls\twalls\tobstacles\tenemyHits\tother\tfallsPer10km\twallsPer10km\tswings\tassistFailAtTerrainHit\n");
-        var rows = new StringBuilder("char\tdeck\tdist\tenemy\tmaxHp\tbuildAtk\tresult\tsecs\thits\tswings\tavgDmg\testHits\tinReachS\tattackInReachS\tidleInReachS\tapproachS\tcontactHits\thurtBreaks\tassistJumps\tpushedOut\tstages\tmaxStage\n");
-        var sum = new StringBuilder("char\tdeck\tdist\tenemy\tn\tkilled\tpassed\tmedianSecsToKill\tmedianHits\tavgDmg\tmedianEstHits\tswingsPerEnemy\thitRate\tinReachS\tattackShareInReach\tcontactHitsPerEnemy\thurtBreaksPerEnemy\tassistJumpsPerEnemy\tpushedOutPerHit\tstageHistogram\n");
+        var rows = new StringBuilder("char\tdeck\tdist\tenemy\tmaxHp\tbuildAtk\tresult\tsecs\thits\tswings\tavgDmg\testHits\tinReachS\tattackInReachS\tidleInReachS\tapproachS\tcontactHits\thurtBreaks\tassistJumps\tpushedOut\tstages\tmaxStage\twhiffFar\twhiffHeight\twhiffBehind\twhiffInReach\n");
+        var sum = new StringBuilder("char\tdeck\tdist\tenemy\tn\tkilled\tpassed\tmedianSecsToKill\tmedianHits\tavgDmg\tmedianEstHits\tswingsPerEnemy\thitRate\tinReachS\tattackShareInReach\tcontactHitsPerEnemy\thurtBreaksPerEnemy\tassistJumpsPerEnemy\tpushedOutPerHit\tstageHistogram\twhiffFar\twhiffHeight\twhiffBehind\twhiffInReach\n");
         var bossRows = new StringBuilder("char\tdeck\tdist\tboss\tbossMaxHp\tresult\tsecs\thpLeft\thpDrops\tswings\tinReachS\tattackInReachS\tbossAboveS\tbossBehindS\tplayerHits\tplayerHpLost\treason\n");
         foreach (var ch in chars)
             foreach (var deckName in decks)
@@ -61,13 +61,15 @@ public partial class QaSweep
                         yield return DuelBegin(ch, deck, lv, d, false);
                         var list = new List<(bool killed, bool passed, float secs, int hits, int swings, float avgDmg, int est, float inReach, float atkIn, int contact, int hurt, int ajump, int pushed, string stages)>();
                         var stageAll = new Dictionary<int, int>();
+                        int[] whiffAll = new int[4];
                         for (int i = 0; i < perEnemy && gm.HasStarted && !gm.IsGameOver; i++)
                         {
                             DuelResult r = null;
                             yield return DuelOne(enemyId, x => r = x);
                             if (r == null) { L($"[duel] {ch} {enemyId}: could not spawn"); break; }
+                            whiffAll[0] += r.whiffFar; whiffAll[1] += r.whiffHeight; whiffAll[2] += r.whiffBehind; whiffAll[3] += r.whiffInReach;
                             foreach (var kv in r.stageHist) stageAll[kv.Key] = (stageAll.TryGetValue(kv.Key, out int c) ? c : 0) + kv.Value;
-                            rows.Append($"{ch}\t{deckName}\t{d}\t{enemyId}\t{r.maxHp}\t{r.buildAtk}\t{(r.killed ? "killed" : r.passed ? "passed" : "timeout")}\t{r.secs:F2}\t{r.hits.Count}\t{r.swings}\t{r.AvgDmg:F0}\t{r.EstHits}\t{r.inReach:F2}\t{r.attackInReach:F2}\t{r.inReach - r.attackInReach:F2}\t{r.approach:F2}\t{r.contactHits}\t{r.hurtBreaks}\t{r.assistJumps}\t{r.pushedOut}\t{string.Join("/", r.hits.Select(h => h.stage))}\t{r.maxStage}\n");
+                            rows.Append($"{ch}\t{deckName}\t{d}\t{enemyId}\t{r.maxHp}\t{r.buildAtk}\t{(r.killed ? "killed" : r.passed ? "passed" : "timeout")}\t{r.secs:F2}\t{r.hits.Count}\t{r.swings}\t{r.AvgDmg:F0}\t{r.EstHits}\t{r.inReach:F2}\t{r.attackInReach:F2}\t{r.inReach - r.attackInReach:F2}\t{r.approach:F2}\t{r.contactHits}\t{r.hurtBreaks}\t{r.assistJumps}\t{r.pushedOut}\t{string.Join("/", r.hits.Select(h => h.stage))}\t{r.maxStage}\t{r.whiffFar}\t{r.whiffHeight}\t{r.whiffBehind}\t{r.whiffInReach}\n");
                             list.Add((r.killed, r.passed, r.secs, r.hits.Count, r.swings, r.AvgDmg, r.EstHits, r.inReach, r.attackInReach, r.contactHits, r.hurtBreaks, r.assistJumps, r.pushedOut, ""));
                         }
                         if (list.Count > 0)
@@ -75,7 +77,7 @@ public partial class QaSweep
                             float Med(IEnumerable<float> xs) { var l = xs.OrderBy(x => x).ToList(); return l.Count > 0 ? l[l.Count / 2] : -1f; }
                             int totalHits = list.Sum(x => x.hits), totalSwings = list.Sum(x => x.swings);
                             float inR = list.Sum(x => x.inReach), atkIn = list.Sum(x => x.atkIn);
-                            sum.Append($"{ch}\t{deckName}\t{d}\t{enemyId}\t{list.Count}\t{list.Count(x => x.killed)}\t{list.Count(x => x.passed)}\t{Med(list.Where(x => x.killed).Select(x => x.secs)):F2}\t{Med(list.Select(x => (float)x.hits)):F0}\t{(totalHits > 0 ? list.Where(x => x.hits > 0).Average(x => x.avgDmg) : 0):F0}\t{Med(list.Where(x => x.est > 0).Select(x => (float)x.est)):F0}\t{totalSwings / (float)list.Count:F1}\t{(totalSwings > 0 ? totalHits / (float)totalSwings : 0):F2}\t{inR / list.Count:F2}\t{(inR > 0 ? atkIn / inR : 0):F2}\t{list.Sum(x => x.contact) / (float)list.Count:F2}\t{list.Sum(x => x.hurt) / (float)list.Count:F2}\t{list.Sum(x => x.ajump) / (float)list.Count:F2}\t{(totalHits > 0 ? list.Sum(x => x.pushed) / (float)totalHits : 0):F2}\t{string.Join(" ", stageAll.OrderBy(kv => kv.Key).Select(kv => $"s{kv.Key}:{kv.Value}"))}\n");
+                            sum.Append($"{ch}\t{deckName}\t{d}\t{enemyId}\t{list.Count}\t{list.Count(x => x.killed)}\t{list.Count(x => x.passed)}\t{Med(list.Where(x => x.killed).Select(x => x.secs)):F2}\t{Med(list.Select(x => (float)x.hits)):F0}\t{(totalHits > 0 ? list.Where(x => x.hits > 0).Average(x => x.avgDmg) : 0):F0}\t{Med(list.Where(x => x.est > 0).Select(x => (float)x.est)):F0}\t{totalSwings / (float)list.Count:F1}\t{(totalSwings > 0 ? totalHits / (float)totalSwings : 0):F2}\t{inR / list.Count:F2}\t{(inR > 0 ? atkIn / inR : 0):F2}\t{list.Sum(x => x.contact) / (float)list.Count:F2}\t{list.Sum(x => x.hurt) / (float)list.Count:F2}\t{list.Sum(x => x.ajump) / (float)list.Count:F2}\t{(totalHits > 0 ? list.Sum(x => x.pushed) / (float)totalHits : 0):F2}\t{string.Join(" ", stageAll.OrderBy(kv => kv.Key).Select(kv => $"s{kv.Key}:{kv.Value}"))}\t{whiffAll[0]}\t{whiffAll[1]}\t{whiffAll[2]}\t{whiffAll[3]}\n");
                         }
                         L($"[duel] {ch} {deckName} {d:F0} {enemyId}: {list.Count} enemies, killed {list.Count(x => x.killed)}, passed {list.Count(x => x.passed)}");
                         Flush(rows, sum, bossRows);
@@ -206,11 +208,18 @@ public partial class QaSweep
     class DuelResult
     {
         public int maxHp, buildAtk, swings, contactHits, hurtBreaks, assistJumps, pushedOut, maxStage;
+        // 空振りの内訳(振り始めの敵の位置で分ける): 遠い / 高さが合わない / 後ろ / 届く所にいたのに当たらない
+        public int whiffFar, whiffHeight, whiffBehind, whiffInReach;
         public bool killed, passed; public float secs, inReach, attackInReach, approach;
         public List<DuelHit> hits = new List<DuelHit>();
         public Dictionary<int, int> stageHist = new Dictionary<int, int>();
         public float AvgDmg { get { var l = hits.Count > 1 && killed ? hits.Take(hits.Count - 1).ToList() : hits; return l.Count > 0 ? (float)l.Average(h => h.dmg) : 0f; } }
         public int EstHits => AvgDmg > 0f ? Mathf.CeilToInt(maxHp / AvgDmg) : -1;
+    }
+
+    static void DuelWhiff(DuelResult r, int kind)
+    {
+        if (kind == 0) r.whiffFar++; else if (kind == 1) r.whiffHeight++; else if (kind == 2) r.whiffBehind++; else r.whiffInReach++;
     }
 
     int DuelStage() => pc.Kit == CharacterKit.Fighter ? pc.FighterComboStage : pc.CurrentAttackStage;
@@ -238,6 +247,8 @@ public partial class QaSweep
         GameManager.QaDamageEvent += tap;
         float t = 0f;
         var pending = new List<DuelHit>();
+        var swingsOpen = new List<(float t, int kind)>(); // kind: 0 遠い / 1 高さ / 2 後ろ / 3 届く所
+        int swingSeen = PlayerAttackInfo.SwingCount;
         while (t < 10f)
         {
             bool dead = en == null || !en.gameObject.activeInHierarchy || en.IsDying || en.IsDyingOrReplica;
@@ -250,6 +261,7 @@ public partial class QaSweep
                 r.hits.Add(h); pending.Add(h);
                 r.stageHist[st] = (r.stageHist.TryGetValue(st, out int c) ? c : 0) + 1; r.maxStage = Mathf.Max(r.maxStage, st);
                 lastHp = nowHp;
+                if (swingsOpen.Count > 0) swingsOpen.RemoveAt(swingsOpen.Count - 1); // 一番新しい振りが当たった
             }
             if (dead) { r.killed = true; break; }
             float dx = (en.transform.position.x - pc.transform.position.x) * HaFacing();
@@ -265,6 +277,13 @@ public partial class QaSweep
             bool inReach = vert && near <= reach && dx > -1.0f;
             if (inReach) { r.inReach += Time.deltaTime; if (pc.IsAttacking) r.attackInReach += Time.deltaTime; }
             else if (dx > reach) r.approach += Time.deltaTime;
+            if (PlayerAttackInfo.SwingCount != swingSeen)
+            {
+                swingSeen = PlayerAttackInfo.SwingCount;
+                swingsOpen.Add((t, dx < -1.0f ? 2 : !vert ? 1 : near > reach ? 0 : 3));
+            }
+            // 1秒たっても当たらなかった振りは空振りで確定
+            while (swingsOpen.Count > 0 && t - swingsOpen[0].t > 1.0f) { DuelWhiff(r, swingsOpen[0].kind); swingsOpen.RemoveAt(0); }
             // 攻撃の中断: 被弾のよろけの始まり / 補助のジャンプ(届く距離にいる間)
             if (pc.IsReacting && !wasReacting) r.hurtBreaks++;
             wasReacting = pc.IsReacting;
@@ -273,6 +292,7 @@ public partial class QaSweep
             yield return null; t += Time.deltaTime;
         }
         GameManager.QaDamageEvent -= tap;
+        if (!r.killed) foreach (var sw in swingsOpen) DuelWhiff(r, sw.kind); // 倒した時の残りは最後の一撃の分なので数えない
         r.secs = t; r.swings = PlayerAttackInfo.SwingCount - swing0;
         if (en != null && !r.killed) Destroy(en.gameObject);
         DuelRefillHp();
