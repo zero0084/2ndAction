@@ -23,6 +23,7 @@ public partial class BossManager
     public void DebugCaveEncounter(CaveBossKind kind, int tier, int count = 1) => DebugBossEncounter(GateFamily.Cave, (int)kind, tier, count);
     // 天空ボス強化(2026-10-05): 天空回廊のボスも同じ流れで
     public void DebugSkyEncounter(SkyBossKind kind, int tier, int count = 1) => DebugBossEncounter(GateFamily.Sky, (int)kind, tier, count);
+    public void DebugWildEncounter(WildBossKind kind, int tier, int count = 1) => DebugBossEncounter(GateFamily.Wild, (int)kind, tier, count); // 2026-10-11: 平地の攻撃性能の試験(-qaDuel)
 
     void DebugBossEncounter(GateFamily fam, int kindValue, int tier, int count)
     {
