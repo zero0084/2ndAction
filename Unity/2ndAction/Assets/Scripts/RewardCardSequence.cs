@@ -452,7 +452,11 @@ public class RewardCardSequence : MonoBehaviour
             var frt = portraitFrame[i].rectTransform;
             frt.anchorMin = frt.anchorMax = new Vector2(0.5f, 0.5f); frt.pivot = new Vector2(0f, 0f);
             frt.sizeDelta = pr.size; frt.anchoredPosition = pr.position;
-            frt.SetSiblingIndex(Mathf.Max(0, firstCard));
+            // 2026-10-11(実機: 一番上のカードの絵が極端に薄い): 以前は「1枚目のカードの位置」へ置いていたが、2回目以降は枠が
+            // 既にカードより前にあるため、後ろへ動かす時に1つずれて一番上の枠(ほぼ不透明の紺)がカードの手前に来ていた
+            // (説明文はさらに手前なので普通に見えた)。毎回「いちばん手前に無いカード」より後ろへ置き直す
+            int minCard = MinCardSibling();
+            if (frt.GetSiblingIndex() > minCard) frt.SetSiblingIndex(minCard);
             var brt = portraitBg[i].rectTransform;
             brt.anchorMin = Vector2.zero; brt.anchorMax = Vector2.one; brt.offsetMin = new Vector2(3f, 3f); brt.offsetMax = new Vector2(-3f, -3f);
             portraitFrame[i].gameObject.SetActive(on);
@@ -494,6 +498,21 @@ public class RewardCardSequence : MonoBehaviour
         portraitHint.gameObject.SetActive(true);
         RefreshPortraitPanels();
     }
+
+    int MinCardSibling()
+    {
+        int m = int.MaxValue;
+        foreach (var c in cards) if (c != null) m = Mathf.Min(m, c.rect.GetSiblingIndex());
+        return m == int.MaxValue ? 0 : m;
+    }
+    // 確認用: 縦画面の枠がどれもカードより後ろにあるか
+    public bool QaPortraitFramesBehindCards()
+    {
+        int m = MinCardSibling();
+        foreach (var f in portraitFrame) if (f != null && f.gameObject.activeSelf && f.rectTransform.GetSiblingIndex() > m) return false;
+        return true;
+    }
+    public RewardCardUI[] QaCards => cards;
 
     // カード名(明るい金)→ Lv/取得前後の変化(水色)→ 効果文(白)
     static string PortraitText(RewardCardData d, bool selected)
@@ -681,7 +700,7 @@ public class RewardCardSequence : MonoBehaviour
             PlaySe(SeId.CardFlip, flipSe);
             if ((cardData[i].Rarity >= 4 || cardData[i].FinalEvolution || cardData[i].Awakened)) PlaySe(SeId.CardRare, null); // 珍しいカードは光る音
             LogStep("Flip Card " + i);
-            StartCoroutine(cards[i].FlipToFront(cardFlipDuration));
+            StartCoroutine(cards[i].FlipToFront(cardFlipDuration, CardScaleBase)); // 2026-10-11: 横だけ 1 に戻して横長になっていた(縦画面 0.72)
             StartCoroutine(cards[i].FlashFrame(revealFlashDuration));
             if (i < cardCount - 1) yield return new WaitForSecondsRealtime(cardRevealInterval);
         }
@@ -993,8 +1012,9 @@ public class RewardCardSequence : MonoBehaviour
             Vector2 lift = portrait ? Vector2.zero : new Vector2(0f, cardLiftAmount);
             Vector2 targetPos = slots[i] + (isSelected ? lift : Vector2.zero);
             StartCoroutine(card.MoveTo(targetPos, cardHighlightTransitionDuration));
-            StartCoroutine(card.ScaleTo((isSelected ? (portrait ? 1.04f : selectedCardScale) : 1f) * CardScaleBase, cardHighlightTransitionDuration));
-            StartCoroutine(card.FadeTo(isSelected ? 1f : (portrait ? 0.86f : unselectedCardDimAlpha), cardHighlightTransitionDuration));
+            // 2026-10-11(実機): 縦画面は選択の前後でカードの大きさ/明るさを変えない(枠・背景・「選択中」で示す。未選択の絵柄もはっきり見せる)
+            StartCoroutine(card.ScaleTo((isSelected && !portrait ? selectedCardScale : 1f) * CardScaleBase, cardHighlightTransitionDuration));
+            StartCoroutine(card.FadeTo(isSelected || portrait ? 1f : unselectedCardDimAlpha, cardHighlightTransitionDuration));
         }
         if (portrait) RefreshPortraitPanels();
     }

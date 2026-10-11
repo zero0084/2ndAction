@@ -11,6 +11,20 @@ public partial class GameManager
     // 距離の MILE(FinishRun でも同じ式を使う)。疾走で飛ばした距離は除く
     int DistanceMileNow => Mathf.FloorToInt(MileDistanceForRun / 100f * Mathf.Max(0f, 1f + Card.Get(EffectType.DistanceMilePct)));
 
+    // ラン中の画面中央の知らせ(ボスの登場/再開まで/COMBO/ラスダンの知らせ/必殺技の名前)が使ってよい一番上(実際の画面の座標)。
+    // 2026-10-11(実機: イベント名/進行表示が上の HUD に重なった): 縦画面は左の列(BEST/距離/速度/持ち帰り予定)の下、
+    // 横画面は中央の Lv/EXP の下より下へ置く。固定の割合(画面の 17% 等)だけで置くと、縦画面で左の列に重なっていた
+    public static float NoticeTopPx
+    {
+        get
+        {
+            var gm = Instance;
+            if (gm == null || !gm.HasStarted) return 0f;
+            float b = HudStacked ? gm.HudLeftColumnBottom : gm.GetLevelExpPanelRect().yMax;
+            return b + 10f * HudK;
+        }
+    }
+
     // 帰還に成功した時に受け取る今回分(広告の追加分は含まない)
     public int TakeHomeMile => DistanceMileNow + RunEnemyMile + RunBossMile + RunBonusMile + RunRingMile;
 
@@ -93,9 +107,10 @@ public partial class GameManager
     }
 
     // 帰還の判断のための内訳(脱出の長押しの間 / 一時停止の画面)。r は BeginHud の設計の単位
-    public const float TakeHomeSummaryHeight = 166f;
-    void DrawTakeHomeSummary(Rect r, string title)
+    public const float TakeHomeSummaryHeight = 166f, TakeHomeCompactHeight = 118f;
+    void DrawTakeHomeSummary(Rect r, string title, bool compact = false)
     {
+        if (compact) { DrawTakeHomeCompact(r); return; }
         OrnateUi.DrawPanel(r, 0.92f);
         float x = r.x + 22f, w = r.width - 44f, y = r.y + 14f; // 飾り枠(OrnateUi)の縁の内側
         var titleStyle = FitStyle(new GUIStyle(GUI.skin.label) { fontSize = 15, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft, normal = { textColor = new Color(0.85f, 0.9f, 1f) } }, title, w);
@@ -123,13 +138,42 @@ public partial class GameManager
         LocGUI.Label(new Rect(x, y + 2f, w, r.yMax - y - 6f), note, ns);
     }
 
-    // 脱出の長押しの間(画面の上の中央。縦画面は左の列の下)
+    // 戦闘中の長押し用の小さな内訳(飾り枠なし、3行、注意は1行)
+    void DrawTakeHomeCompact(Rect r)
+    {
+        UiBackdrop.Draw(r, 0.85f);
+        float x = r.x + 12f, w = r.width - 24f, y = r.y + 8f;
+        void Row(string label, string value, Color vc, bool medal)
+        {
+            if (medal) DrawMileMedal(new Rect(x, y + 3f, 14f, 14f));
+            float lx = x + (medal ? 18f : 0f);
+            var vs = new GUIStyle(GUI.skin.label) { fontSize = 15, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleRight, normal = { textColor = vc } };
+            float vw = Mathf.Min(w * 0.55f, vs.CalcSize(new GUIContent(value)).x + 4f);
+            var ls = FitStyle(new GUIStyle(GUI.skin.label) { fontSize = 13, alignment = TextAnchor.MiddleLeft, normal = { textColor = new Color(0.9f, 0.92f, 1f) } }, label, w - vw - (lx - x) - 4f);
+            LocGUI.Label(new Rect(lx, y, w - vw - (lx - x) - 4f, 20f), label, ls);
+            FitStyle(vs, value, vw);
+            LocGUI.Label(new Rect(x + w - vw, y, vw, 20f), value, vs);
+            y += 22f;
+        }
+        Row("今回の持ち帰り", "+" + FormatMile(TakeHomeMile) + " MILE", HudGoldColor, true);
+        Row("帰還後の所持", FormatMile(OwnedMileAfterReturn) + " MILE", Color.white, false);
+        Row(Loc.F("ガチャ({0} MILE)", GachaCostMile), Loc.F("{0}回分", GachaPullsAfterReturn), new Color(0.6f, 0.95f, 1f), false);
+        var ns = FitStyle(new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft, normal = { textColor = new Color(1f, 0.62f, 0.55f) } }, "倒れる・ランを破棄すると、今回分は受け取れません", w, 9);
+        LocGUI.Label(new Rect(x, y + 2f, w, 18f), "倒れる・ランを破棄すると、今回分は受け取れません", ns);
+    }
+
+    // 脱出の長押しの間(1秒以上止めたまま押した時だけ。短いタップ/攻撃/フリックでは出さない。離したら短く消える)
+    public const float TakeHomeDetailDelay = 1f;
+    float takeHomeDetailA;
     void DrawEscapeTakeHome()
     {
         var pc = PlayerController.Instance;
-        if (pc == null || !ShowTakeHomeHud || pc.EscapeChargeProgress01 <= 0f) return;
+        bool want = pc != null && ShowTakeHomeHud && pc.EscapeHoldSeconds >= TakeHomeDetailDelay;
+        if (Event.current.type == EventType.Repaint) takeHomeDetailA = Mathf.MoveTowards(takeHomeDetailA, want ? 1f : 0f, Time.unscaledDeltaTime / (want ? 0.15f : 0.2f));
+        if (pc == null || !ShowTakeHomeHud || takeHomeDetailA <= 0.01f) return;
         BeginHud();
-        float w = Mathf.Min(380f, VW - VSafeLeft - VSafeRight - UiMargin * 2f);
+        Color keepA = GUI.color; GUI.color = new Color(keepA.r, keepA.g, keepA.b, keepA.a * takeHomeDetailA);
+        float w = Mathf.Min(300f, VW - VSafeLeft - VSafeRight - UiMargin * 2f);
         float y = HudStacked ? HudLeftColumnBottom / HudK + 12f : VSafeTop + UiMargin + HudPanelHeight + 16f;
         float x = (VW - w) * 0.5f;
         // 脱出の輪(キャラの上)に重ねない: 横画面は輪の右へ
@@ -140,7 +184,8 @@ public partial class GameManager
             x = Mathf.Max(x, ringRight);
         }
         x = Mathf.Min(x, VW - VSafeRight - UiMargin - w);
-        DrawTakeHomeSummary(new Rect(x, y, w, TakeHomeSummaryHeight), "帰還すると受け取れます");
+        DrawTakeHomeSummary(new Rect(x, y, w, TakeHomeCompactHeight), "帰還すると受け取れます", compact: true);
+        GUI.color = keepA;
         EndHud();
     }
 }

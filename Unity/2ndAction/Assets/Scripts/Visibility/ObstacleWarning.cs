@@ -187,6 +187,9 @@ public class ObstacleWarning : MonoBehaviour
             m.builtFor = s; m.builtPad = pad;
         }
         m.rim.transform.localScale = new Vector3(sr.flipX ? -1f : 1f, sr.flipY ? -1f : 1f, 1f);
+        // 縦画面の斜め表示: 絵の写し(ObliqueSpriteProxies)と同じくカメラへ向ける(2026-10-11)
+        if (ObliqueSpriteProxies.Active) m.rim.transform.rotation = cam.transform.rotation * Quaternion.Euler(0f, 0f, sr.transform.eulerAngles.z);
+        else m.rim.transform.localRotation = Quaternion.identity;
         m.rim.sortingLayerID = sr.sortingLayerID;
         // 洞窟の暗さの幕(100)より手前。縁は絵の外側だけなので絵そのものは隠さない
         m.rim.sortingOrder = CaveLighting.DarknessOn ? 101 : sr.sortingOrder + 1;

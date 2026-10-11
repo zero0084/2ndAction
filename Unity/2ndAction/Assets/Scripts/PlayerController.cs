@@ -417,6 +417,10 @@ public partial class PlayerController : MonoBehaviour
     // never trips this - see escapeChargeConfirmDelay's own comment.
     public bool IsEscapeCharging => escapeHoldTimer > escapeChargeConfirmDelay && !isAscending;
     public float EscapeChargeProgress01 => Mathf.Clamp01(escapeHoldTimer / Mathf.Max(0.01f, escapeHoldDuration));
+    public float EscapeHoldSeconds => escapeHoldTimer; // 持ち帰り予定の内訳は1秒以上の長押しで出す(GameManager.TakeHome)
+    bool escapeHoldWasDown, escapeHoldMoved;
+    Vector2 escapeHoldStartPos;
+    static float EscapeMoveCancelPx => Mathf.Max(24f, Mathf.Min(Screen.width, Screen.height) * 0.05f);
     // The combo stage (1-3) of the attack currently playing - stays at
     // whatever the last attack's stage was in between attacks, so animator
     // code reading it exactly while isAttacking is true always gets the
@@ -2055,8 +2059,15 @@ public partial class PlayerController : MonoBehaviour
             : Input.GetMouseButton(0);
         if (!down && !PadNav.MenuActive && GameInput.Held(GameAction.Hold)) down = true; // パッドの BACK / キーの H を長押し
         if (UiInputGate.Blocked) down = false; // 説明の板の「わかった」を押した指で脱出を溜めない(2026-10-07)
+        // 2026-10-11(実機: 戦闘中に MILE の内訳が出たり消えたり): 指を動かした(フリック/攻撃の操作)長押しは脱出に数えない。
+        // 一度動いた指は離すまで数えない(時間を持ち越さない)。止めたままの長押しは今までどおり3秒で脱出
+        Vector2 hp = Input.touchCount > 0 ? Input.GetTouch(0).position : (Vector2)Input.mousePosition;
+        if (down && !escapeHoldWasDown) { escapeHoldStartPos = hp; escapeHoldMoved = false; }
+        if (down && Input.touchCount > 0 && (hp - escapeHoldStartPos).magnitude > EscapeMoveCancelPx) escapeHoldMoved = true;
+        if (down && Input.touchCount == 0 && Input.GetMouseButton(0) && (hp - escapeHoldStartPos).magnitude > EscapeMoveCancelPx) escapeHoldMoved = true;
+        escapeHoldWasDown = down;
 
-        if (!canEscape || !down)
+        if (!canEscape || !down || escapeHoldMoved)
         {
             escapeHoldTimer = 0f;
             return;

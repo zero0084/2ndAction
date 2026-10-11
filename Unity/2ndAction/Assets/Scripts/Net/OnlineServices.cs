@@ -55,19 +55,33 @@ public static class OnlineServices
             if (UnityServices.State != ServicesInitializationState.Initialized)
             {
                 EnvironmentName = EnvFromArgs();
-                Log($"UGS Initialize (environment {EnvironmentName})");
+                string profile = ProfileFromArgs();
+                Log($"UGS Initialize (environment {EnvironmentName}{(profile != null ? ", profile " + profile : "")})");
                 var opt = new InitializationOptions().SetEnvironmentName(EnvironmentName);
+                if (profile != null) opt.SetProfile(profile); // 開発版: 同じ PC の2つ目のプロセスを別の匿名プレイヤーにする(サインインの記録はプロフィールごと)
                 await UnityServices.InitializeAsync(opt);
             }
             if (!AuthenticationService.Instance.IsSignedIn)
             {
                 await AuthenticationService.Instance.SignInAnonymouslyAsync();
-                Log($"Authentication succeeded (anonymous)");
+                Log($"Authentication succeeded (anonymous, player {ShortId(AuthenticationService.Instance.PlayerId)})");
             }
             Status = State.Ready;
             return true;
         }
         catch (Exception e) { Fail("init", e); return false; }
+    }
+
+    // PlayerId は公開の識別子(秘密ではない)。ログには先頭だけ出す(別のプレイヤーか見分ける用)
+    public static string ShortId(string id) => string.IsNullOrEmpty(id) ? "-" : (id.Length > 6 ? id.Substring(0, 6) + "…" : id);
+
+    static string ProfileFromArgs()
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        var a = Environment.GetCommandLineArgs();
+        for (int i = 0; i < a.Length - 1; i++) if (a[i] == "-ugsProfile" && !string.IsNullOrEmpty(a[i + 1])) return a[i + 1];
+#endif
+        return null;
     }
 
     static string EnvFromArgs()
@@ -99,16 +113,24 @@ public static class OnlineServices
         if (Busy || InSession || NetSession.IsActive) return false;
         if (!await EnsureReadyAsync()) return false;
         Busy = true;
+        if (!Recreating) recreatesThisRoom = 0;
         try
         {
             // Relay のリージョン: 一番近い所を測って指定する(SDK の自動選択と同じ QoS。画面/ログに出せるよう自分で持つ)。測れなければ SDK の自動選択
             string region = null;
-            try
+            // 2026-10-11(本物の Cloud で確認): 重い時は1回目の測定が応答を待ちきれずに空で返ることがあった → もう1回。結果の数も記録する
+            for (int attempt = 1; attempt <= 2 && region == null; attempt++)
             {
-                var qos = await QosService.Instance.GetSortedRelayQosResultsAsync(null);
-                if (qos != null && qos.Count > 0) { region = qos[0].Region; Log($"Relay region {region} (QoS {qos[0].AverageLatencyMs}ms, {qos.Count} regions measured)"); }
+                try
+                {
+                    var qos = await QosService.Instance.GetSortedRelayQosResultsAsync(null);
+                    int n = qos != null ? qos.Count : 0;
+                    if (n > 0) { region = qos[0].Region; Log($"Relay region {region} (QoS {qos[0].AverageLatencyMs}ms, {n} regions measured, attempt {attempt})"); }
+                    else Log($"QoS returned no regions (attempt {attempt})");
+                }
+                catch (Exception qe) { Log($"QoS failed (attempt {attempt}): {qe.GetType().Name}: {FirstLine(qe.Message)}"); }
             }
-            catch (Exception qe) { Log($"QoS failed, relay region auto ({qe.GetType().Name})"); }
+            if (region == null) Log("Relay region auto (chosen by the SDK)");
             RelayRegion = region ?? "auto";
             var opts = new SessionOptions
             {
@@ -128,10 +150,11 @@ public static class OnlineServices
                     { KeyStage, new SessionProperty(GameManager.Instance != null ? GameManager.Instance.SelectedStageId ?? "" : "", VisibilityPropertyOptions.Public) },
                 },
             }
-            .WithRelayNetwork(new RelayNetworkOptions(RelayProtocol.DTLS, region, false)) // 通信方式は DTLS(暗号化)
+            .WithRelayNetwork(new RelayNetworkOptions(RelayProto, region, false)) // 通信方式は DTLS(暗号化)。開発版は -relayProto udp で切り分け用
             .WithNetworkHandler(new OnlineNetworkHandler());
             NetRunLauncher.SelectedMode = mode;
             NetSession.Connection = ConnectionType.Online;
+            lastCreateMode = mode; lastCreateName = opts.Name;
             Current = await MultiplayerService.Instance.CreateSessionAsync(opts);
             Hook(Current);
             Log($"Session created id={Current.Id} name='{Current.Name}' mode={ModeValue(mode)} max={Current.MaxPlayers} protocol={LanDiscovery.AdvertisedProtocol}");
@@ -145,6 +168,37 @@ public static class OnlineServices
             return false;
         }
         finally { Busy = false; }
+    }
+
+    // ---------------------------------------------------------------- HOST: Relay の接続に失敗した時の作り直し(2026-10-11)
+    // 本物の Cloud で、HOST が Relay サーバーへつなぐ最初の合図(BIND)に応答が無く通信が止まることが、ときどきあった
+    // (同じ設定で次は成功する)。まだ誰も入っていない待機中なら、同じ名前/モードで部屋を自動で作り直す(最大2回)。
+    // 入っている人がいる/出発した後は今までどおり CONNECTION LOST
+    static MultiplayerGameMode lastCreateMode;
+    static string lastCreateName = "";
+    public static int AutoRecreates { get; private set; }
+    static int recreatesThisRoom;
+    public static bool Recreating { get; private set; }
+    public static bool CanAutoRecreate => Current != null && Current.IsHost && recreatesThisRoom < 2 &&
+        NetRunLauncher.RunState == NetRunState.None && !NetRunLauncher.IsMultiplayerRun && NetSession.ConnectedPlayerCount <= 1;
+    public static async void RecreateAfterRelayFailure()
+    {
+        if (Recreating) return;
+        Recreating = true; recreatesThisRoom++; AutoRecreates++;
+        try
+        {
+            var mode = lastCreateMode; string name = lastCreateName;
+            Log($"Relay connection failed while waiting -> recreating the room (try {recreatesThisRoom})");
+            await LeaveAsync("relay failure, recreating");
+            float t0 = Time.realtimeSinceStartup;
+            while ((NetSession.IsActive || (NetSession.Instance != null && NetSession.Instance.ShutdownInProgress)) && Time.realtimeSinceStartup - t0 < 5f) await Task.Yield();
+            int keep = recreatesThisRoom;
+            bool ok = await CreateAsync(mode, name);
+            recreatesThisRoom = keep; // 作り直した部屋も同じ回数で数える(無限に作り直さない)
+            Log($"Room recreated: {(ok ? "ok" : "failed")}");
+            if (!ok) NetSession.Instance?.NotifyOnlineLost();
+        }
+        finally { Recreating = false; }
     }
 
     // ---------------------------------------------------------------- 探す
@@ -205,7 +259,20 @@ public static class OnlineServices
     static string Prop(IReadOnlyDictionary<string, SessionProperty> p, string k, string def) => p != null && p.TryGetValue(k, out var v) && v != null ? v.Value : def;
 
     // ---------------------------------------------------------------- 入る(1タップ)
+    // 2026-10-11(本物の Cloud で確認): Relay への接続が、HOST/JOIN のどちらでも数回に1回失敗することがあった(次は成功する)。
+    // 1タップ JOIN が時々失敗しないよう、Relay の接続の失敗(断られた/満員/版違いではない)なら自動でもう1回だけ試す
+    public static int JoinAutoRetries { get; private set; }
     public static async Task<bool> JoinAsync(Room r)
+    {
+        bool ok = await JoinOnceAsync(r);
+        if (ok || LastJoinFailure != "CONNECTION FAILED" || r == null) return ok;
+        JoinAutoRetries++;
+        Log("Join: relay connection failed -> trying once more");
+        float w = Time.realtimeSinceStartup; while (Time.realtimeSinceStartup - w < 1.5f) await Task.Yield();
+        return await JoinOnceAsync(r);
+    }
+
+    static async Task<bool> JoinOnceAsync(Room r)
     {
         if (r == null || !r.Joinable || Busy || InSession || NetSession.IsActive) return false;
         if (!await EnsureReadyAsync()) return false;
@@ -216,10 +283,23 @@ public static class OnlineServices
             NetRunLauncher.SelectedMode = r.GameMode;
             NetSession.Connection = ConnectionType.Online;
             var opts = new JoinSessionOptions { Type = SessionType }.WithNetworkHandler(new OnlineNetworkHandler());
+            OnlineNetworkHandler.ClientFailed = false;
             Current = await MultiplayerService.Instance.JoinSessionByIdAsync(r.id, opts);
             Hook(Current);
             RelayRegion = Current.Properties != null && Current.Properties.TryGetValue(KeyRegion, out var rp) && rp != null ? rp.Value : "auto";
-            Log($"Join succeeded id={Current.Id} players={Current.PlayerCount}/{Current.MaxPlayers}");
+            // 2026-10-11(本物の Cloud で確認): HOST がまだ部屋を作っている途中(Relay の接続先を出す前)だと、SDK は Session への参加だけ先に
+            // 返し、通信の接続は後から裏で行う。その接続が失敗すると何も知らされず「部屋に居るのに通信が無い」まま待ち続けていた
+            // → 通信が実際につながるまで待つ(最大 30秒)。つながらなければ抜けて CONNECTION FAILED(一覧へ戻す)
+            float tw = Time.realtimeSinceStartup;
+            while (!NetSession.IsConnected && !OnlineNetworkHandler.ClientFailed && Current != null && Time.realtimeSinceStartup - tw < 30f) await Task.Yield();
+            if (!NetSession.IsConnected)
+            {
+                LastJoinFailure = !string.IsNullOrEmpty(NetSession.LastJoinFailure) && NetSession.LastJoinFailure != "CONNECTION FAILED" ? NetSession.LastJoinFailure : "CONNECTION FAILED";
+                Log($"Join: network did not connect in {Time.realtimeSinceStartup - tw:F1}s ({(OnlineNetworkHandler.ClientFailed ? "relay connect failed" : Current == null ? "removed from session" : "timed out")})");
+                await SafeCleanup();
+                return false;
+            }
+            Log($"Join succeeded id={Current.Id} players={Current.PlayerCount}/{Current.MaxPlayers} (network connected after {Time.realtimeSinceStartup - tw:F1}s)");
             return true;
         }
         catch (Exception e)
@@ -231,6 +311,28 @@ public static class OnlineServices
             return false;
         }
         finally { Busy = false; }
+    }
+
+    // ---------------------------------------------------------------- アプリを閉じる時(2026-10-11、本物の Cloud で確認)
+    // 以前は OnApplicationQuit で Session の削除/退出を始めるだけで、終わる前にアプリが閉じて部屋が一覧に残っていた
+    // (HOST の生存確認が止まって約30秒で消えるまで)。閉じる操作を一度止め、後始末が終わるまで(最大 2.5秒)待ってから閉じる
+    static bool quitLeaving, quitReady;
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    static void HookQuit() { Application.wantsToQuit -= WantsToQuit; Application.wantsToQuit += WantsToQuit; }
+    static bool WantsToQuit()
+    {
+        if (quitReady || Current == null) return true;
+        if (!quitLeaving) { quitLeaving = true; LeaveThenQuit(); }
+        return false;
+    }
+    static async void LeaveThenQuit()
+    {
+        float t0 = Time.realtimeSinceStartup;
+        var t = LeaveAsync("app quit");
+        while (!t.IsCompleted && Time.realtimeSinceStartup - t0 < 2.5f) await Task.Yield();
+        Log($"Quit after session cleanup ({(t.IsCompleted ? "done" : "timed out")} in {Time.realtimeSinceStartup - t0:F2}s)");
+        quitReady = true;
+        Application.Quit();
     }
 
     // ---------------------------------------------------------------- 出る / 閉じる
@@ -311,17 +413,36 @@ public static class OnlineServices
     // 開発版の表示用(Ping/接続先)
     public static string RelayHost { get; set; } = "";
     public static string RelayRegion { get; private set; } = "";
+    static RelayProtocol RelayProto
+    {
+        get
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            var a = Environment.GetCommandLineArgs();
+            for (int i = 0; i < a.Length - 1; i++) if (a[i] == "-relayProto" && a[i + 1] == "udp") return RelayProtocol.UDP;
+#endif
+            return RelayProtocol.DTLS;
+        }
+    }
+
     public static string DebugLine()
     {
         if (NetSession.Connection != ConnectionType.Online) return "connection LOCAL";
-        return $"connection ONLINE (Relay DTLS, region {RelayRegion}, relay {RelayHost}) session {(Current != null ? Current.Id : "-")} players {(Current != null ? $"{Current.PlayerCount}/{Current.MaxPlayers}" : "-")} env {EnvironmentName}";
+        return $"connection ONLINE (Relay {RelayProto}, region {RelayRegion}, relay {RelayHost}) session {(Current != null ? Current.Id : "-")} players {(Current != null ? $"{Current.PlayerCount}/{Current.MaxPlayers}" : "-")} env {EnvironmentName}";
     }
 }
 
 // SDK が作った Relay の接続先を受け取り、HOST/Client の開始は NetSession(LOCAL と共通の窓口)に任せる
 public class OnlineNetworkHandler : INetworkHandler
 {
+    public static bool ClientFailed; // 裏で行われた JOIN の通信の接続が失敗した(OnlineServices.JoinAsync が待つ)
     public async Task StartAsync(NetworkConfiguration configuration)
+    {
+        try { await StartInner(configuration); }
+        catch { if (configuration.Role == NetworkRole.Client) ClientFailed = true; throw; }
+    }
+
+    async Task StartInner(NetworkConfiguration configuration)
     {
         var ns = NetSession.Instance;
         if (ns == null) throw new InvalidOperationException("NetSession missing");

@@ -5972,7 +5972,8 @@ public partial class GameManager : MonoBehaviour
         nameStyle.alignment = TextAnchor.UpperCenter;
         nameStyle.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, roomFadeAlpha * 0.85f);
         string nameLabel = selectedDef != null ? selectedDef.displayName : "";
-        LocGUI.Label(new Rect(rect.x, frameRect.yMax + 2f, rect.width, 20f), nameLabel, nameStyle);
+        // 2026-10-11: 名前は「キャラ選択」の札の2行目へまとめた(重なっていた)。ここでは出さない
+        _ = nameLabel; _ = nameStyle;
         if (roomFadeAlpha > 0.5f && UnlockRules.AnyNewCharacter) DrawNewDot(frameRect); // 2026-10-08: 新しい仲間が増えた
 
         bool tapped = roomInteractable && (PadNav.Button(rect) | GUI.Button(rect, GUIContent.none, GUIStyle.none));

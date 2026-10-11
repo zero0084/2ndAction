@@ -61,7 +61,7 @@ public class ComboCounterUI : MonoBehaviour
         // 2026-10-10(全体点検): 高解像度では HUD と同じ倍率で大きく。ボス戦の帯(BREAK!/反撃のチャンス 等)が出ている間はその下へ(重なって読めなかった)
         float k = GameManager.HudK;
         style.fontSize = Mathf.RoundToInt(34 * k);
-        float y = Screen.height * 0.2f;
+        float y = Mathf.Max(Screen.height * 0.2f, GameManager.NoticeTopPx); // HUD の下(2026-10-11)
         if (BossBattleHud.BannerVisible) y = Mathf.Max(y, BossBattleHud.BannerBottomPx + 4f);
         Rect rect = new Rect(Screen.width / 2f - 160f * k, y, 320f * k, 60f * k);
         string text = $"{ComboCount} HIT";

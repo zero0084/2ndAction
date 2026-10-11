@@ -157,7 +157,7 @@ public class BossBattleHud : MonoBehaviour
             float left = bm.ResumeSecondsLeft;
             small.fontSize = 20;
             string t = $"ラン再開まで {Mathf.CeilToInt(left)}";
-            Rect r = new Rect(w * 0.5f - 140f, h * 0.17f, 280f, 30f);
+            Rect r = new Rect(w * 0.5f - 140f, Mathf.Max(h * 0.17f, GameManager.NoticeTopPx / s), 280f, 30f); // HUD の下(2026-10-11)
             UiKit.Fill(new Rect(r.x + 40f, r.y + 2f, r.width - 80f, r.height - 4f), new Color(0.05f, 0.03f, 0.08f, 0.55f));
             small.normal.textColor = Color.Lerp(new Color(1f, 0.4f, 0.3f), new Color(1f, 0.9f, 0.5f), Mathf.PingPong(Time.unscaledTime * 3f, 1f));
             LocGUI.Label(r, t, small);
@@ -169,8 +169,9 @@ public class BossBattleHud : MonoBehaviour
             float a = Mathf.Clamp01(age / 0.15f) * Mathf.Clamp01(left / 0.35f);
             float pop = 1f + 0.25f * Mathf.Clamp01(1f - age / 0.18f);
             big.fontSize = Mathf.RoundToInt(30 * pop);
-            Rect r = new Rect(0f, h * 0.24f, w, 50f);
-            UiKit.Fill(new Rect(w * 0.5f - 260f, r.y + 4f, 520f, 42f), new Color(0f, 0f, 0f, 0.45f * a));
+            Rect r = new Rect(0f, Mathf.Max(h * 0.24f, GameManager.NoticeTopPx / s + 36f), w, 50f); // HUD と「ラン再開まで」の下(2026-10-11)
+            float fw = Mathf.Min(520f, w - 16f);
+            UiKit.Fill(new Rect(w * 0.5f - fw * 0.5f, r.y + 4f, fw, 42f), new Color(0f, 0f, 0f, 0.45f * a));
             Color c = bannerColor; c.a *= a;
             Color sh = new Color(0f, 0f, 0f, 0.8f * a);
             big.normal.textColor = sh;

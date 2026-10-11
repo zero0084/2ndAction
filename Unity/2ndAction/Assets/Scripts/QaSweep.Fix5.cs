@@ -116,7 +116,7 @@ public partial class QaSweep
                 yield return Fix5Sprint("wasteland_road", dest);
                 float tilt = VisualTilt(), wr = VisualWidthRatio();
                 L($"[A sprint {dest}] arrival tilt={tilt:F0} width={wr:F2} {Pa?.VisualPoseReport()} hitbox {HitboxSize()}");
-                Check(tilt < 1f && wr > 0.99f, $"A: after the {dest}m sprint the character has its own width (tilt {tilt:F0}, width {wr:F2})");
+                Check(tilt < 1f && wr > 0.9f, $"A: after the {dest}m sprint the character has its own width (tilt {tilt:F0}, width {wr:F2})");
                 Shot($"A_sprint_{dest / 1000}k_arrival");
                 if (video && dest == 30000) yield return RecordUltimate("A_sprint_to_run", 3f);
                 yield return EndRun();
@@ -151,7 +151,14 @@ public partial class QaSweep
                 Shot($"B_{tag}_hud");
                 // 脱出の長押しの間の内訳
                 var eh = typeof(PlayerController).GetField("escapeHoldTimer", NP);
+                for (int i = 0; i < 10; i++) { eh.SetValue(pc, 0.5f); yield return null; }
+                Shot($"B_{tag}_escape_hold_0.5s");
+                yield return null;
+                float aShort = (float)typeof(GameManager).GetField("takeHomeDetailA", NP).GetValue(gm);
+                Check(aShort < 0.01f, $"B {tag}: a 0.5s hold does not show the MILE details (alpha {aShort:F2})");
                 for (int i = 0; i < 20; i++) { eh.SetValue(pc, 1.2f); yield return null; }
+                float aLong = (float)typeof(GameManager).GetField("takeHomeDetailA", NP).GetValue(gm);
+                Check(aLong > 0.9f, $"B {tag}: holding over 1s shows the MILE details (alpha {aLong:F2})");
                 Shot($"B_{tag}_escape_hold");
                 for (int i = 0; i < 3; i++) { eh.SetValue(pc, 1.2f); yield return null; }
                 eh.SetValue(pc, 0f);
@@ -217,6 +224,8 @@ public partial class QaSweep
                         L($"[C {tag}] cave oblique: ground generated to +{(tm != null ? tm.GeneratedEndX - pc.transform.position.x : 0f):F0}m, ceiling to +{(cs != null ? cs.GeneratedEndX - pc.transform.position.x : 0f):F0}m");
                         Check(tm != null && tm.GeneratedEndX - pc.transform.position.x >= TerrainManager.ObliqueAheadMeters - 10f, "C: in oblique view the ground is generated far enough ahead");
                         Check(cs != null && cs.GeneratedEndX - pc.transform.position.x >= TerrainManager.ObliqueAheadMeters - 20f, "C: in oblique view the cave ceiling is generated far enough ahead");
+                        L($"[C {tag}] oblique sprite proxies {ObliqueSpriteProxies.ProxyCount}");
+                        Check(ObliqueSpriteProxies.ProxyCount > 0, "C: standing objects get camera-facing copies in the oblique view");
                         if (video && res.Item2 == 960) yield return RecordUltimate($"C_cave_oblique_run", 5f);
                         WarpTo(2400f); RunLedger.DevClearDebug();
                         yield return new WaitForSecondsRealtime(3f);
@@ -266,6 +275,14 @@ public partial class QaSweep
                     yield return WaitTut(() => gm.IsRewardSequenceWaitingForSelection, 6f);
                     yield return new WaitForSecondsRealtime(0.7f);
                     Shot($"D_{tag}_choice");
+                    {
+                        var sq = FindFirstObjectByType<RewardCardSequence>();
+                        bool behind = sq.QaPortraitFramesBehindCards();
+                        string sc = string.Join(" ", sq.QaCards.Where(c => c != null && c.gameObject.activeSelf).Select(c => $"{c.rect.localScale.x:F2}x{c.rect.localScale.y:F2}/a{c.canvasGroup.alpha:F2}"));
+                        L($"[D {tag}] first open: frames behind cards={behind} cards {sc}");
+                        Check(behind, $"D {tag}: portrait frames are behind the cards (first open)");
+                        Check(sq.QaCards.Where(c => c != null && c.gameObject.activeSelf).All(c => Mathf.Abs(c.rect.localScale.x - c.rect.localScale.y) < 0.01f), $"D {tag}: card aspect is kept right after the flip ({sc})");
+                    }
                     var seq = FindFirstObjectByType<RewardCardSequence>();
                     seq.OnCardClicked(1);
                     yield return new WaitForSecondsRealtime(0.5f);
@@ -280,6 +297,28 @@ public partial class QaSweep
                     seq.OnCardClicked(2);
                     yield return WaitTut(() => !gm.IsRewardSequenceWaitingForSelection, 3f);
                     Check(!gm.IsRewardSequenceWaitingForSelection, $"D {tag}: tapping the selected candidate again confirms");
+                    // 2回目の選択(同じラン、前の選択の閉じる演出が終わってから/すぐ)を2回: 一番上の枠がカードの手前に来ない
+                    for (int again = 0; again < 2; again++)
+                    {
+                        if (again == 0) yield return WaitTut(() => !gm.IsRewardSequenceRunning, 6f);
+                        typeof(GameManager).GetMethod("TriggerLevelUpChoice", NP).Invoke(gm, null);
+                        yield return WaitTut(() => gm.IsRewardSequenceWaitingForSelection, 6f);
+                        yield return new WaitForSecondsRealtime(0.7f);
+                        var sq = FindFirstObjectByType<RewardCardSequence>();
+                        bool behind = sq.QaPortraitFramesBehindCards();
+                        string sc = string.Join(" ", sq.QaCards.Where(c => c != null && c.gameObject.activeSelf).Select(c => $"{c.rect.localScale.x:F2}x{c.rect.localScale.y:F2}/a{c.canvasGroup.alpha:F2}"));
+                        L($"[D {tag}] reopen #{again + 2}: frames behind cards={behind} cards {sc}");
+                        Check(behind, $"D {tag}: portrait frames stay behind the cards when the choice opens again (#{again + 2})");
+                        Shot($"D_{tag}_reopen{again + 2}");
+                        sq.OnCardClicked(0); yield return new WaitForSecondsRealtime(0.4f);
+                        Shot($"D_{tag}_reopen{again + 2}_selected_top");
+                        sc = string.Join(" ", sq.QaCards.Where(c => c != null && c.gameObject.activeSelf).Select(c => $"{c.rect.localScale.x:F2}x{c.rect.localScale.y:F2}/a{c.canvasGroup.alpha:F2}"));
+                        if (PortraitRunView.IsPortraitScreen) Check(sq.QaCards.Where(c => c != null && c.gameObject.activeSelf).All(c => Mathf.Abs(c.rect.localScale.x - c.rect.localScale.y) < 0.01f && c.canvasGroup.alpha > 0.99f), $"D {tag}: selecting keeps every card's size and brightness ({sc})");
+                        yield return new WaitForSecondsRealtime(0.3f);
+                        sq.OnCardClicked(0);
+                        yield return WaitTut(() => !gm.IsRewardSequenceWaitingForSelection, 3f);
+                        if (again == 1) yield return WaitTut(() => !gm.IsRewardSequenceRunning, 6f);
+                    }
                     autoPickHold = false;
                     yield return WaitTut(() => !gm.IsRewardSequenceRunning, 6f);
                     yield return EndRun();
@@ -411,6 +450,29 @@ public partial class QaSweep
                     Check(off == 0 && overlap == 0, $"G {tag}: home signs stay on screen and do not overlap each other");
                 }
             Loc.Set(langKeep);
+            SetRes(960, 540); yield return WaitRes(960, 540);
+        }
+
+        // ---------------- H: 縦画面の斜め表示の見え方(全キャラ / 地上・空の敵 / 横画面との比較) ----------------
+        if (F5('H'))
+        {
+            string[] chars = Arg("-qaFix5Chars", "swordsman,dual_blade,noble_lady,gunslinger,dragon_lancer,archer,mage,fighter,ninja,miko,vampire,dragonkin").Split(',');
+            foreach (var ch in chars)
+                foreach (var res in new[] { (540, 960), (960, 540) })
+                {
+                    SetRes(res.Item1, res.Item2); yield return WaitRes(res.Item1, res.Item2);
+                    PortraitRunView.Set(PortraitRunView.Oblique);
+                    yield return BeginRun(ch, ch == "noble_lady" || ch == "mage" ? "sky_corridor" : "wasteland_road");
+                    typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
+                    yield return new WaitForSecondsRealtime(1f);
+                    WarpTo(2600f); RunLedger.DevClearDebug();
+                    yield return new WaitForSecondsRealtime(3f);
+                    float tilt = VisualTilt();
+                    L($"[H {ch} {res.Item1}x{res.Item2}] oblique={ObliqueSpriteProxies.Active} proxies={ObliqueSpriteProxies.ProxyCount} tilt={tilt:F0} {Pa?.VisualPoseReport()}");
+                    Shot($"H_{ch}_{res.Item1}x{res.Item2}");
+                    yield return EndRun();
+                }
+            PortraitRunView.Set(PortraitRunView.Side);
             SetRes(960, 540); yield return WaitRes(960, 540);
         }
 

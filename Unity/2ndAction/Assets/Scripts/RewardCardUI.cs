@@ -634,7 +634,7 @@ public class RewardCardUI : MonoBehaviour
     // RewardCardSequence's CardFlipDuration exposes this from the
     // Inspector; the old hardcoded 0.15f+0.15f is just this method's
     // default, unchanged for any other caller).
-    public IEnumerator FlipToFront(float totalDuration = 0.3f)
+    public IEnumerator FlipToFront(float totalDuration = 0.3f, float endScaleX = 1f)
     {
         float half = totalDuration * 0.5f;
         yield return ScaleXTo(0f, half);
@@ -649,7 +649,7 @@ public class RewardCardUI : MonoBehaviour
         isFront = true;
         ApplyFaceVisibility();
 
-        yield return ScaleXTo(1f, half);
+        yield return ScaleXTo(endScaleX, half); // 縦画面のカード選択は 0.72(縦の大きさと同じ。以前は 1 で横長になっていた)
     }
 
     IEnumerator ScaleXTo(float targetX, float duration)

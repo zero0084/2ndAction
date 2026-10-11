@@ -365,6 +365,7 @@ public class NetSession : MonoBehaviour
     void OnTransportFailure()
     {
         Log("Transport failure");
+        if (OnlineServices.CanAutoRecreate) { StatusText = "接続中…"; OnlineServices.RecreateAfterRelayFailure(); return; } // 待機中の HOST: 部屋を作り直す(2026-10-11)
         if (OnlineServices.InSession) _ = OnlineServices.LeaveAsync("transport failure");
         StatusText = "";
         RaiseConnectionLost("MULTIPLAYER CONNECTION LOST\n通信エラーが発生しました");
@@ -377,6 +378,10 @@ public class NetSession : MonoBehaviour
         ConnectionLostPending = true;
         ConnectionLostMessage = message;
     }
+
+    public void NotifyOnlineLost() => RaiseConnectionLost("MULTIPLAYER CONNECTION LOST\n通信エラーが発生しました");
+
+    public bool ShutdownInProgress => Manager != null && Manager.ShutdownInProgress;
 
     public void ClearConnectionLost()
     {

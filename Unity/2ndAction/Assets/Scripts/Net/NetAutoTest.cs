@@ -96,6 +96,83 @@ public partial class NetAutoTest : MonoBehaviour
     float violationTime; int violationFrames; bool violationLogged;
 
     enum Step { Connect, WaitPlayers, WaitRun, Running, AfterLeave, Done }
+    // ONLINE(2026-10-11、本物の Unity Cloud): HOST は -netAutoHost -netAutoMode coop|versus -netAutoRoom 名前 -netAutoOnline、
+    // JOIN は -netAutoJoin online -netAutoRoom 名前。UI の CREATE GAME / FIND GAME → 1タップ JOIN と同じ OnlineServices の経路
+    string onlineRoom = "";
+    float observeSeconds = 150f;
+    async void OnlineObserve()
+    {
+        float t0 = Time.realtimeSinceStartup, lastSeen = -1f;
+        var mode = modeArg == "versus" ? MultiplayerGameMode.Versus : MultiplayerGameMode.Coop;
+        string lastState = "";
+        while (Time.realtimeSinceStartup - t0 < observeSeconds)
+        {
+            OnlineServices.ClearJoinFailure();
+            float tq = Time.realtimeSinceStartup;
+            await OnlineServices.QueryAsync(mode);
+            var room = OnlineServices.Rooms.Find(r => r.name == onlineRoom);
+            float t = Time.realtimeSinceStartup - t0;
+            string state = room != null ? $"present {room.players}/{room.maxPlayers} {room.StateLabel} joinable={room.Joinable} protocol={room.protocol}" : "absent";
+            if (state != lastState) L($"OBS t={t:F1} '{onlineRoom}' {state} (rooms {OnlineServices.Rooms.Count}, query {Time.realtimeSinceStartup - tq:F2}s)");
+            if (room != null) lastSeen = t;
+            else if (lastSeen >= 0f && lastState.StartsWith("present")) L($"OBS GONE: not listed {t - lastSeen:F1}s after the last listing (t={t:F1})");
+            lastState = state;
+            float w = Time.realtimeSinceStartup; while (Time.realtimeSinceStartup - w < 3f) await System.Threading.Tasks.Task.Yield();
+        }
+        Finish("observe done");
+    }
+    bool OnlineMode => joinIp == "online" || Array.Exists(Environment.GetCommandLineArgs(), x => x == "-netAutoOnline");
+    bool onlineStarted, onlineDone, onlineOk;
+    float onlineT0;
+    async void OnlineHost()
+    {
+        onlineT0 = Time.realtimeSinceStartup;
+        var mode = modeArg == "versus" ? MultiplayerGameMode.Versus : MultiplayerGameMode.Coop;
+        bool ok = await OnlineServices.CreateAsync(mode, string.IsNullOrEmpty(onlineRoom) ? "QA ROOM" : onlineRoom);
+        var s = OnlineServices.Current;
+        L($"ONLINE CREATE ok={ok} in {Time.realtimeSinceStartup - onlineT0:F2}s env={OnlineServices.EnvironmentName} status={OnlineServices.Status} error='{OnlineServices.ErrorDetail}' " +
+          $"session={(s != null ? s.Id : "-")} name='{(s != null ? s.Name : "")}' players={(s != null ? s.PlayerCount : 0)}/{(s != null ? s.MaxPlayers : 0)} mode={OnlineServices.ModeValue(mode)} protocol={LanDiscovery.AdvertisedProtocol} region={OnlineServices.RelayRegion} connection={NetSession.Connection} netActive={NetSession.IsActive}");
+        onlineOk = ok; onlineDone = true;
+    }
+    async void OnlineJoin()
+    {
+        onlineT0 = Time.realtimeSinceStartup;
+        var mode = modeArg == "versus" ? MultiplayerGameMode.Versus : MultiplayerGameMode.Coop;
+        OnlineServices.Room room = null;
+        int searches = 0;
+        while (Time.realtimeSinceStartup - onlineT0 < 60f)
+        {
+            await OnlineServices.QueryAsync(mode);
+            searches++;
+            room = OnlineServices.Rooms.Find(r => r.name == onlineRoom);
+            L($"ONLINE FIND #{searches}: {OnlineServices.Rooms.Count} rooms (mode {OnlineServices.ModeValue(mode)}) status={OnlineServices.Status} {(room != null ? $"FOUND '{room.name}' {room.mode} {room.players}/{room.maxPlayers} {room.StateLabel} protocol={room.protocol} version={room.gameVersion}" : "target not listed yet")}");
+            if (room != null && room.Joinable) break;
+            if (OnlineServices.Status == OnlineServices.State.Unavailable) break;
+            float w = Time.realtimeSinceStartup; while (Time.realtimeSinceStartup - w < OnlineServices.MinQueryInterval + 0.5f) await System.Threading.Tasks.Task.Yield();
+        }
+        if (room == null || !room.Joinable) { L($"ONLINE JOIN aborted: room '{onlineRoom}' not joinable (found={room != null})"); onlineOk = false; onlineDone = true; return; }
+        float tj = Time.realtimeSinceStartup;
+        bool ok = await OnlineServices.JoinAsync(room); // 1タップ JOIN と同じ(IP/Port/コードの入力なし)
+        for (int retry = 1; !ok && retry <= 2 && Time.realtimeSinceStartup - onlineT0 < 80f; retry++)
+        {
+            L($"ONLINE JOIN failed ({OnlineServices.LastJoinFailure}) -> search again and tap JOIN again (retry {retry})");
+            float w = Time.realtimeSinceStartup; while (Time.realtimeSinceStartup - w < 4f) await System.Threading.Tasks.Task.Yield();
+            room = null;
+            for (int k = 0; k < 8 && room == null; k++)
+            {
+                await OnlineServices.QueryAsync(mode);
+                var r2 = OnlineServices.Rooms.Find(r => r.name == onlineRoom && r.Joinable);
+                if (r2 != null && r2.id != (OnlineServices.Current != null ? OnlineServices.Current.Id : "")) room = r2;
+                if (room == null) { float w2 = Time.realtimeSinceStartup; while (Time.realtimeSinceStartup - w2 < 3f) await System.Threading.Tasks.Task.Yield(); }
+            }
+            if (room == null) break;
+            L($"ONLINE FIND again: '{room.name}' {room.players}/{room.maxPlayers} {room.StateLabel}");
+            ok = await OnlineServices.JoinAsync(room);
+        }
+        var s = OnlineServices.Current;
+        L($"ONLINE JOIN ok={ok} in {Time.realtimeSinceStartup - tj:F2}s (find+join {Time.realtimeSinceStartup - onlineT0:F2}s) failure='{OnlineServices.LastJoinFailure}' session={(s != null ? s.Id : "-")} players={(s != null ? s.PlayerCount : 0)}/{(s != null ? s.MaxPlayers : 0)} region={OnlineServices.RelayRegion} connection={NetSession.Connection} connected={NetSession.IsConnected}");
+        onlineOk = ok; onlineDone = true;
+    }
     Step step = Step.Connect;
     float stepTime;
     float runTime;
@@ -227,6 +304,9 @@ public partial class NetAutoTest : MonoBehaviour
             if (ParseWorldArg(a, next)) { }
             else if (a == "-netAutoHost") role = "HOST";
             else if (a == "-netAutoJoin") { role = "JOIN"; joinIp = next; }
+            else if (a == "-netAutoRoom") onlineRoom = next; // ONLINE: HOST が作る部屋の名前 / JOIN が一覧から探す名前
+            else if (a == "-netAutoObserve") role = "OBS"; // ONLINE: 一覧を見ているだけ(人数/状態/消えるまでの時間)
+            else if (a == "-netAutoObserveSeconds") float.TryParse(next, out observeSeconds);
             else if (a == "-netAutoStage") stage = next;
             else if (a == "-netAutoSpeed") float.TryParse(next, out speedMul);
             else if (a == "-netAutoRunSeconds") float.TryParse(next, out runSeconds);
@@ -353,6 +433,16 @@ public partial class NetAutoTest : MonoBehaviour
         {
             case Step.Connect:
                 if (stepTime < 2f) return;
+                if (role == "OBS") { if (!onlineStarted) { onlineStarted = true; OnlineObserve(); } return; }
+                if (OnlineMode)
+                {
+                    if (!onlineStarted) { onlineStarted = true; if (role == "HOST") OnlineHost(); else OnlineJoin(); }
+                    if (!onlineDone) { if (stepTime > 90f) Finish("TIMEOUT online connect"); return; }
+                    if (!onlineOk) { Finish("ONLINE connect failed"); return; }
+                    L($"ONLINE {OnlineServices.DebugLine()}");
+                    Next(Step.WaitPlayers);
+                    break;
+                }
                 if (role == "HOST")
                 {
                     if (modeArg != "") NetRunLauncher.SelectedMode = modeArg == "versus" ? MultiplayerGameMode.Versus : MultiplayerGameMode.Coop;
@@ -379,6 +469,7 @@ public partial class NetAutoTest : MonoBehaviour
                 if (NetSession.ConnectedPlayerCount >= expectPlayers && stepTime > 2f)
                 {
                     L($"all {expectPlayers} players connected (players={NetSession.ConnectedPlayerCount})");
+                    if (OnlineMode) L($"ONLINE {OnlineServices.DebugLine()}");
                     if (role == "HOST" && modeArg != "")
                     {
                         NetRunLauncher.SelectedMode = modeArg == "versus" ? MultiplayerGameMode.Versus : MultiplayerGameMode.Coop;
@@ -387,7 +478,7 @@ public partial class NetAutoTest : MonoBehaviour
                     if (role == "HOST" && gm != null) gm.DepartFromStageSelect(stage);
                     Next(Step.WaitRun);
                 }
-                else if (stepTime > 30f) Finish("TIMEOUT waiting for players");
+                else if (stepTime > (OnlineMode ? 120f : 30f)) Finish("TIMEOUT waiting for players");
                 break;
             case Step.WaitRun:
                 PreGoCheck(gm);

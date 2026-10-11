@@ -152,7 +152,7 @@ public class ComboSystem : MonoBehaviour
         float t = Time.unscaledTime - noticeAt, k = Mathf.Clamp01(t / 0.12f) * Mathf.Clamp01((noticeUntil - Time.unscaledTime) / 0.25f);
         float s = Mathf.Max(1f, Mathf.Min(Screen.width, Screen.height) / 720f);
         float w = 420f * s, h = 76f * s;
-        var r = new Rect((Screen.width - w) * 0.5f, Screen.height * 0.30f, w, h);
+        var r = new Rect((Screen.width - w) * 0.5f, Mathf.Max(Screen.height * 0.30f, GameManager.NoticeTopPx + 70f * s), w, h); // HUD と COMBO の数の下(2026-10-11)
         Color keep = GUI.color;
         Color col = noticing.def.color;
         bool gold = noticing.awakened;

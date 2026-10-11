@@ -465,12 +465,12 @@ public class LastDungeonFlow : MonoBehaviour
         if (Finale != null && !string.IsNullOrEmpty(Finale.Banner))
         {
             float ba = CalloutAlpha(Finale.BannerTime, 2.4f);
-            if (ba > 0f) DrawShadowed(new Rect(0f, sh * 0.2f, Screen.width, sh * 0.1f), Finale.Banner, mid, new Color(0.85f, 0.7f, 1f, ba));
+            if (ba > 0f) DrawShadowed(new Rect(0f, Mathf.Max(sh * 0.2f, GameManager.NoticeTopPx), Screen.width, sh * 0.1f), Finale.Banner, mid, new Color(0.85f, 0.7f, 1f, ba)); // HUD の下(2026-10-11)
         }
         if (!string.IsNullOrEmpty(bannerText))
         {
             float ba = CalloutAlpha(bannerAt, 3.2f);
-            if (ba > 0f) DrawShadowed(new Rect(0f, sh * 0.26f, Screen.width, sh * 0.14f), bannerText, big, new Color(1f, 0.92f, 0.6f, ba));
+            if (ba > 0f) DrawShadowed(new Rect(0f, Mathf.Max(sh * 0.26f, GameManager.NoticeTopPx), Screen.width, sh * 0.14f), bannerText, big, new Color(1f, 0.92f, 0.6f, ba)); // HUD の下(2026-10-11)
         }
         if (fade > 0f)
         {

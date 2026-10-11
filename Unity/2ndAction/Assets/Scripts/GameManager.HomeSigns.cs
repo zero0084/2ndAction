@@ -18,7 +18,7 @@ public partial class GameManager
     float HomeSignFont => Mathf.Clamp(bgRoomRect.height * 0.03f, 13f, 30f);
 
     // 札を1枚描く。押されたら true(タップの範囲 = 札)
-    bool DrawHomeSign(int idx, Vector2 anchor, bool below, string label, bool interactable, float fade, float phase)
+    bool DrawHomeSign(int idx, Vector2 anchor, bool below, string label, bool interactable, float fade, float phase, string sub = null)
     {
         float fs = HomeSignFont;
         var st = new GUIStyle(GUI.skin.label) { fontSize = Mathf.RoundToInt(fs), fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, wordWrap = false };
@@ -26,7 +26,15 @@ public partial class GameManager
         float maxW = Mathf.Min(bgRoomRect.width * 0.3f, Screen.width - SafeLeft() - SafeRight() - 12f);
         Vector2 sz = st.CalcSize(new GUIContent(shown));
         if (sz.x + fs * 1.4f > maxW) { st.fontSize = Mathf.Max(11, Mathf.FloorToInt(st.fontSize * (maxW - fs * 1.4f) / Mathf.Max(1f, sz.x))); sz = st.CalcSize(new GUIContent(shown)); }
-        float w = sz.x + fs * 1.4f, h = sz.y + fs * 0.5f;
+        // 2行目(2026-10-11、実機で「キャラ選択」の札と肖像画の下の名前が重なっていた → 名前を札の中の2行目へまとめた)
+        GUIStyle subSt = null; Vector2 subSz = Vector2.zero;
+        if (!string.IsNullOrEmpty(sub))
+        {
+            subSt = new GUIStyle(GUI.skin.label) { fontSize = Mathf.RoundToInt(fs * 0.72f), alignment = TextAnchor.MiddleCenter, wordWrap = false };
+            subSz = subSt.CalcSize(new GUIContent(sub));
+            if (subSz.x + fs * 1.4f > maxW) { subSt.fontSize = Mathf.Max(10, Mathf.FloorToInt(subSt.fontSize * (maxW - fs * 1.4f) / Mathf.Max(1f, subSz.x))); subSz = subSt.CalcSize(new GUIContent(sub)); }
+        }
+        float w = Mathf.Max(sz.x, subSz.x) + fs * 1.4f, h = sz.y + subSz.y + fs * 0.5f;
         Rect r = new Rect(anchor.x - w * 0.5f, below ? anchor.y : anchor.y - h, w, h);
         // 画面(安全な範囲)の中へ
         r.x = Mathf.Clamp(r.x, SafeLeft() + 4f, Screen.width - SafeRight() - 4f - r.width);
@@ -48,7 +56,14 @@ public partial class GameManager
         Matrix4x4 m = GUI.matrix; GUIUtility.RotateAroundPivot(45f, dot.center); GUI.DrawTexture(dot, Texture2D.whiteTexture); GUI.matrix = m;
         st.normal.textColor = new Color(1f, 0.93f, 0.7f, fade);
         GUI.color = Color.white;
-        GUI.Label(r, shown, st);
+        if (subSt == null) GUI.Label(r, shown, st);
+        else
+        {
+            float top = r.y + fs * 0.2f;
+            GUI.Label(new Rect(r.x, top, r.width, sz.y), shown, st);
+            subSt.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, 0.85f * fade);
+            GUI.Label(new Rect(r.x, top + sz.y - fs * 0.05f, r.width, subSz.y), sub, subSt);
+        }
         GUI.color = keep;
         bool hit = interactable && fade > 0.99f && GUI.Button(r, GUIContent.none, GUIStyle.none);
         if (hit) HomeSignTaps++;
@@ -59,8 +74,9 @@ public partial class GameManager
     {
         if (fade < 0.05f) return;
         for (int i = 0; i < LastHomeSignRects.Length; i++) LastHomeSignRects[i] = Rect.zero;
-        // キャラ選択: 肖像画の下(名前の下)
-        if (DrawHomeSign(0, new Vector2(characterRect.center.x, characterRect.yMax + 4f), true, HomeSignLabels[0], interactable, fade, 0f))
+        // キャラ選択: 肖像画の下(2行目に今のキャラの名前。以前の名前の表示はここへまとめた)
+        var cdef = CharacterDatabase.FindById(SelectedCharacterId);
+        if (DrawHomeSign(0, new Vector2(characterRect.center.x, characterRect.yMax + 4f), true, HomeSignLabels[0], interactable, fade, 0f, cdef != null ? cdef.displayName : null))
         { characterHotspotFlashTimer = roomHotspotFlashDuration; PlayRoomTap(); OpenCharacterSelect(); }
         // デッキ編集: ベッドの上のカードの上
         Vector2 deckAt = new Vector2(bgRoomRect.x + bgRoomRect.width * 0.17f, bgRoomRect.y + bgRoomRect.height * 0.63f);
@@ -69,8 +85,10 @@ public partial class GameManager
         // カード合成: 本の山の上
         if (DrawHomeSign(2, new Vector2(bookRect.center.x, bookRect.y + bookRect.height * 0.12f), false, HomeSignLabels[2], interactable, fade, 2f))
         { bookHotspotFlashTimer = roomHotspotFlashDuration; PlayRoomTap(); OpenCardFusion(); }
-        // ガチャ: 機械の下(上は横画面の設定/マルチのボタンと重なる)
-        if (machineRect.width > 1f && !gachaResultOpen && DrawHomeSign(3, new Vector2(machineRect.center.x, machineRect.yMax + 4f), true, HomeSignLabels[3], interactable, fade, 3f))
+        // ガチャ: 機械の下(上は横画面の設定/マルチのボタンと重なる)。横画面で「広告で1回引く」が機械の下にある時は、その下
+        float gachaY = machineRect.yMax + 4f;
+        if (!HomePortrait && AdGachaAvailable) gachaY = machineRect.yMax + 6f + 54f * GachaUiScale + 6f;
+        if (machineRect.width > 1f && !gachaResultOpen && DrawHomeSign(3, new Vector2(machineRect.center.x, gachaY), true, HomeSignLabels[3], interactable, fade, 3f))
         { deskHotspotFlashTimer = roomHotspotFlashDuration; OnGachaMachineTapped(); }
         // 出発: 扉の下(中断中のランがある時は CONTINUE の表示があるので出さない)
         if (!RunCheckpoint.HasActiveRun && DrawHomeSign(4, new Vector2(doorRect.center.x, doorRect.yMax + 6f), true, HomeSignLabels[4], interactable, fade, 4f))
