@@ -43,6 +43,9 @@ public partial class QaSweep
         int lv = int.Parse(Arg("-duelLv", "9"));
         string[] bosses = Arg("-duelBosses", "").Split(',').Where(x => x.Contains(':')).ToArray();
         float bossSecs = float.Parse(Arg("-duelBossSecs", "180"), inv);
+        float terrainM = float.Parse(Arg("-duelTerrain", "0"), inv);   // >0: 地形の被害の試験(この距離を走る。敵なし/敵ありの2通り)
+        var terrRows = new StringBuilder("char	deck	dist	enemies	meters	secs	falls	walls	obstacles	enemyHits	other	fallsPer10km	wallsPer10km	swings	assistFailAtTerrainHit
+");
         var rows = new StringBuilder("char\tdeck\tdist\tenemy\tmaxHp\tbuildAtk\tresult\tsecs\thits\tswings\tavgDmg\testHits\tinReachS\tattackInReachS\tidleInReachS\tapproachS\tcontactHits\thurtBreaks\tassistJumps\tpushedOut\tstages\tmaxStage\n");
         var sum = new StringBuilder("char\tdeck\tdist\tenemy\tn\tkilled\tpassed\tmedianSecsToKill\tmedianHits\tavgDmg\tmedianEstHits\tswingsPerEnemy\thitRate\tinReachS\tattackShareInReach\tcontactHitsPerEnemy\thurtBreaksPerEnemy\tassistJumpsPerEnemy\tpushedOutPerHit\tstageHistogram\n");
         var bossRows = new StringBuilder("char\tdeck\tdist\tboss\tbossMaxHp\tresult\tsecs\thpLeft\thpDrops\tswings\tinReachS\tattackInReachS\tbossAboveS\tbossBehindS\tplayerHits\tplayerHpLost\treason\n");
@@ -79,6 +82,13 @@ public partial class QaSweep
                         Flush(rows, sum, bossRows);
                         yield return DuelEnd();
                     }
+                    // ---- 地形の被害(穴/段差/障害物): 敵なし → 敵あり
+                    if (terrainM > 0f)
+                        foreach (bool withEnemies in new[] { false, true })
+                        {
+                            yield return DuelTerrain(ch, deck, lv, d, terrainM, withEnemies, deckName, terrRows);
+                            System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, "duel_terrain.tsv"), terrRows.ToString());
+                        }
                     // ---- ボス
                     foreach (var bk in bosses)
                     {
@@ -131,6 +141,57 @@ public partial class QaSweep
         if (BossManager.Instance != null) BossManager.Instance.enabled = withBosses;
         stopKeepAlive = true;
         yield return new WaitForSeconds(1.5f);
+    }
+
+    // 地形の被害の試験: 普通の地形(穴/坂/段差/障害物)をその距離の自然な速さで走る。HP が減ったら戻す(数は数える)
+    IEnumerator DuelTerrain(string ch, string[] deck, int lv, float d, float meters, bool withEnemies, string deckName, StringBuilder rowsOut)
+    {
+        yield return BeginRun(ch, "wasteland_road");
+        GameManager.BlockExpGain = true;
+        typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false);
+        if (lv > 0) { foreach (var id in deck.Distinct()) { var c = CardDatabase.FindBaseById(id); if (c != null) gm.DebugApplyRunCard(c, Mathf.Min(lv, GameManager.MaxRunCardLevel)); } gm.RecomputeCardStats(); }
+        WarpTo(d); RunLedger.DevClearDebug();
+        yield return new WaitForSeconds(1.0f);
+        var hsa = HighSpeedAssist.Instance;
+        if (hsa != null) { hsa.SetEnabled(true); hsa.SetAutoInBoss(true); hsa.SetAutoAttack(true); hsa.SetAutoAvoid(true); }
+        if (BossManager.Instance != null) BossManager.Instance.enabled = false;            // ボス戦は入れない(地形だけ)
+        if (!withEnemies) { var tm = TerrainManager.Instance; if (tm != null) tm.enemySpawnChance = 0f; if (EncounterDirector.Instance != null) EncounterDirector.Instance.enabled = false; foreach (var e in FindObjectsByType<EnemyController>(FindObjectsSortMode.None)) Destroy(e.gameObject); }
+        stopKeepAlive = true;
+        int falls = 0, walls = 0, obst = 0, enemyHits = 0, other = 0;
+        var fails = new Dictionary<string, int>();
+        System.Action<string, int, int, int> tap = (reason, dmg, before, after) =>
+        {
+            reason = reason ?? "";
+            bool terr = false;
+            if (reason.StartsWith("DeathY")) { falls++; terr = true; }
+            else if (reason.Contains("TerrainWall") || reason.Contains("Wall")) { walls++; terr = true; }
+            else if (reason.Contains("Obstacle")) { obst++; terr = true; }
+            else if (reason.Contains("Enemy")) enemyHits++;
+            else other++;
+            if (terr && HighSpeedAssist.Instance != null)
+            {
+                string k = HighSpeedAssist.Instance.LastFailure ?? ""; if (k.Length > 40) k = k.Substring(0, 40); if (k == "") k = "(なし)";
+                fails[k] = (fails.TryGetValue(k, out int c) ? c : 0) + 1;
+            }
+        };
+        GameManager.QaDamageEvent += tap;
+        float d0 = gm.MaxDistance, t = 0f; int swing0 = PlayerAttackInfo.SwingCount;
+        while (gm.MaxDistance - d0 < meters && t < 420f && gm.HasStarted && !gm.IsGameOver)
+        {
+            if (gm.Lives < gm.maxLives / 3) DuelRefillHp();
+            if (gm.IsRewardSequenceWaitingForSelection) { var seq = FindFirstObjectByType<RewardCardSequence>(); if (seq != null) seq.OnCardClicked(0); }
+            yield return null; t += Time.deltaTime;
+        }
+        GameManager.QaDamageEvent -= tap;
+        float run = Mathf.Max(1f, gm.MaxDistance - d0);
+        rowsOut.Append($"{ch}	{deckName}	{d}	{withEnemies}	{run:F0}	{t:F0}	{falls}	{walls}	{obst}	{enemyHits}	{other}	{falls / run * 10000f:F1}	{walls / run * 10000f:F1}	{PlayerAttackInfo.SwingCount - swing0}	{string.Join(" | ", fails.OrderByDescending(kv => kv.Value).Take(4).Select(kv => $"{kv.Key} x{kv.Value}"))}
+");
+        L($"[duel] {ch} {deckName} {d:F0} terrain enemies={withEnemies}: {run:F0}m falls {falls} walls {walls} obstacles {obst} enemyHits {enemyHits}");
+        stopKeepAlive = false; StartCoroutine(KeepAlive());
+        GameManager.BlockExpGain = false;
+        if (EncounterDirector.Instance != null) EncounterDirector.Instance.enabled = true;
+        if (BossManager.Instance != null) BossManager.Instance.enabled = true;
+        yield return EndRun();
     }
 
     IEnumerator DuelEnd()
