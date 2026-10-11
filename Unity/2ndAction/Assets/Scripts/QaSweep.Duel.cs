@@ -44,8 +44,7 @@ public partial class QaSweep
         string[] bosses = Arg("-duelBosses", "").Split(',').Where(x => x.Contains(':')).ToArray();
         float bossSecs = float.Parse(Arg("-duelBossSecs", "180"), inv);
         float terrainM = float.Parse(Arg("-duelTerrain", "0"), inv);   // >0: 地形の被害の試験(この距離を走る。敵なし/敵ありの2通り)
-        var terrRows = new StringBuilder("char	deck	dist	enemies	meters	secs	falls	walls	obstacles	enemyHits	other	fallsPer10km	wallsPer10km	swings	assistFailAtTerrainHit
-");
+        var terrRows = new StringBuilder("char\tdeck\tdist\tenemies\tmeters\tsecs\tfalls\twalls\tobstacles\tenemyHits\tother\tfallsPer10km\twallsPer10km\tswings\tassistFailAtTerrainHit\n");
         var rows = new StringBuilder("char\tdeck\tdist\tenemy\tmaxHp\tbuildAtk\tresult\tsecs\thits\tswings\tavgDmg\testHits\tinReachS\tattackInReachS\tidleInReachS\tapproachS\tcontactHits\thurtBreaks\tassistJumps\tpushedOut\tstages\tmaxStage\n");
         var sum = new StringBuilder("char\tdeck\tdist\tenemy\tn\tkilled\tpassed\tmedianSecsToKill\tmedianHits\tavgDmg\tmedianEstHits\tswingsPerEnemy\thitRate\tinReachS\tattackShareInReach\tcontactHitsPerEnemy\thurtBreaksPerEnemy\tassistJumpsPerEnemy\tpushedOutPerHit\tstageHistogram\n");
         var bossRows = new StringBuilder("char\tdeck\tdist\tboss\tbossMaxHp\tresult\tsecs\thpLeft\thpDrops\tswings\tinReachS\tattackInReachS\tbossAboveS\tbossBehindS\tplayerHits\tplayerHpLost\treason\n");
@@ -184,8 +183,7 @@ public partial class QaSweep
         }
         GameManager.QaDamageEvent -= tap;
         float run = Mathf.Max(1f, gm.MaxDistance - d0);
-        rowsOut.Append($"{ch}	{deckName}	{d}	{withEnemies}	{run:F0}	{t:F0}	{falls}	{walls}	{obst}	{enemyHits}	{other}	{falls / run * 10000f:F1}	{walls / run * 10000f:F1}	{PlayerAttackInfo.SwingCount - swing0}	{string.Join(" | ", fails.OrderByDescending(kv => kv.Value).Take(4).Select(kv => $"{kv.Key} x{kv.Value}"))}
-");
+        rowsOut.Append($"{ch}\t{deckName}\t{d}\t{withEnemies}\t{run:F0}\t{t:F0}\t{falls}\t{walls}\t{obst}\t{enemyHits}\t{other}\t{falls / run * 10000f:F1}\t{walls / run * 10000f:F1}\t{PlayerAttackInfo.SwingCount - swing0}\t{string.Join(" | ", fails.OrderByDescending(kv => kv.Value).Take(4).Select(kv => $"{kv.Key} x{kv.Value}"))}\n");
         L($"[duel] {ch} {deckName} {d:F0} terrain enemies={withEnemies}: {run:F0}m falls {falls} walls {walls} obstacles {obst} enemyHits {enemyHits}");
         stopKeepAlive = false; StartCoroutine(KeepAlive());
         GameManager.BlockExpGain = false;
