@@ -90,7 +90,10 @@
 本物の Cloud で確認した上で、補助として開発版の Network Simulator も使える(前回の文書 参照)。完了の判断には使っていない。
 
 ## 8. ダッシュボードの使用量
-**未確認**(アイリーンは Unity Dashboard を開けないため)。
+**Lobby: 使用を確認済み**(マスターがダッシュボードで確認、2026-10-11)。Lobby → 概要 → Requests by Type に
+11:20〜11:25(UTC)の Create / Create Token / Heartbeat / Get / Update / Update Player の要求が出ている。
+これは最終回帰の ONLINE 4 本(11:21〜11:25 UTC)の時刻と一致する。合計 45 KiB。
+Relay の Usage はまだ見ていない(以下は確認方法の控え)。
 マスターに見てほしい所: Unity Dashboard → Multiplayer → **Relay の Usage**(接続数/通信量)と **Lobby の Requests**。
 2026-10-11 の検証で、2人 × 数十回、4人 × 数回の部屋を作った分の使用量が出ているはず。
 
