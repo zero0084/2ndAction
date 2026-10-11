@@ -244,6 +244,9 @@ public class BossHitbox : MonoBehaviour
         vfx.transform.localPosition = Vector3.zero;
     }
 
+    // マルチ(2026-10-11): JOIN のプレイヤーに当たったことを HOST が確定した(突進が当たったか等を持ち主のボスが知る)
+    public void NotifyRemoteHit(int playerNumber) { onHitPlayer?.Invoke(null); }
+
     public void Deactivate()
     {
         if (col != null) col.enabled = false;
@@ -366,7 +369,7 @@ public class BossProjectile : MonoBehaviour
     }
 
     // マルチプレイPhase 2.5: HOSTで生まれた弾をJOINにも見せ、JOINのプレイヤーにも当たるようにする。
-    void Start() { NetAttackSync.Register(gameObject, NetAttackSync.AType.BossProjectile, velocity, destroyOnHit: true, slowFactor, slowDuration, noDamage: !damage); }
+    void Start() { NetAttackSync.Register(gameObject, NetAttackSync.AType.BossProjectile, velocity, destroyOnHit: !passThrough, slowFactor, slowDuration, noDamage: !damage); } // 岩柱/大玉(当たっても消えない)は JOIN が触れても消さない
 
     void Update()
     {

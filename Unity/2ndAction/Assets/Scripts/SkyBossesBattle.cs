@@ -565,6 +565,8 @@ public partial class SkySerpentBoss
     {
         float t = 0f, spawn = 0f;
         Camera cam = Camera.main;
+        // マルチ(2026-10-11): 以前は HOST 自身のプレイヤーにだけ掛けていた → 範囲の全員へ HOST が決めて送る(強さ・時間は同じ)
+        NetPlayerFx.ApplyNear(PlayerX, 30f, NetPlayerFx.Kind.Slow, slow, dur, "SkySerpent:StormWind");
         while (t < dur && !IsDead)
         {
             t += Time.deltaTime; spawn -= Time.deltaTime;
@@ -574,7 +576,6 @@ public partial class SkySerpentBoss
                 Vector3 p = cam.ViewportToWorldPoint(new Vector3(1.05f, Random.Range(0.1f, 0.9f), 10f)); p.z = 0f;
                 SkyDrift.Spawn(BossFx.Block(), p, new Vector2(Random.Range(1.5f, 3f), 0.05f), new Color(0.9f, 0.95f, 1f, 0.45f), new Vector3(-26f, 0f, 0f), 0.9f, RenderOrder.CombatFx, true);
             }
-            if (pc != null && !pc.IsFinishing) pc.ApplyMoveSlow(slow, 0.15f);
             yield return null;
         }
     }

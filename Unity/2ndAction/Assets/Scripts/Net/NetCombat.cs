@@ -38,8 +38,6 @@ public class NetCombat : MonoBehaviour
     // 実機のWi-Fiで補正の飛びが目立つ場合は0.03〜0.05へ。-netEnemyDelay で変更可(自動テスト用)。
     public static double InterpDelay = 0.0;
     const int MaxEntitiesPerStatePacket = 10;
-    const float NearRange = 90f;                  // どのプレイヤーからもこれ以上離れた敵は低頻度でしか送らない
-    const float FarKeepaliveInterval = 1.0f;
     const float BehindDespawnDistance = 70f;      // 全プレイヤーがこれ以上通過した敵はHOSTが片付ける
 
     // ===== 役割 =====
@@ -83,6 +81,11 @@ public class NetCombat : MonoBehaviour
         public int RunSeed;
         // HOST: 送信の間引き
         public double SentX; public float SentY; public float SentTime = -99f; public int SentHash;
+        // HOST: 送り先(プレイヤー番号 1〜8)ごとの最後の送信(2026-10-11 Interest Range)
+        public readonly int[] VHash = new int[NetInterest.MaxPlayers + 1];
+        public readonly float[] VTime = { -99f, -99f, -99f, -99f, -99f, -99f, -99f, -99f, -99f };
+        public readonly int[] VTarget = new int[NetInterest.MaxPlayers + 1]; // その送り先へ最後に送った「狙っている人」
+        public float LastDamagedTime = -99f; // 最後にダメージが成立した時刻(直前まで戦っていた人へは範囲外でも送る)
         // JOIN: 補間
         public readonly List<State> Buffer = new List<State>();
         public bool HasState;
@@ -529,39 +532,54 @@ public class NetCombat : MonoBehaviour
 
     readonly List<State> sendBuf = new List<State>();
 
+    // 2026-10-11 Interest Range: 送り先(JOIN)ごとに、その人の近くの物は高頻度・遠くの物は低頻度で送る(NetInterest)。
+    // 以前は「全プレイヤーを含む範囲」の中の敵をすべて全員へ20Hzで送っていたので、2人が数km離れると間の敵まで全部が高頻度になっていた
+    readonly List<State> stateBuf = new List<State>();
+    readonly List<Entity> stateEnt = new List<Entity>();
+    readonly List<int> stateHash = new List<int>();
+
     void SendStates()
     {
         NetworkManager nm = NetSession.Manager;
         double now = nm.ServerTime.Time;
-        bool havePlayers = AllPlayersRangeSceneX(out float minX, out float maxX);
-        sendBuf.Clear();
+        float unow = Time.unscaledTime;
+        stateBuf.Clear(); stateEnt.Clear(); stateHash.Clear();
         foreach (var e in entities.Values)
         {
             if (!e.SpawnSent || e.Go == null || !e.Go.activeInHierarchy) continue;
             State s = Capture(e);
             s.Time = now;
-            float sx = e.Go.transform.position.x;
-            bool near = !havePlayers || (sx > minX - NearRange && sx < maxX + NearRange) || e.Kind == Kind.Boss;
-            int hash = StateHash(s);
-            bool changed = hash != e.SentHash;
-            float since = Time.unscaledTime - e.SentTime;
-            if (!(near && changed) && since < FarKeepaliveInterval && !(near && since > 0.5f)) continue;
-            e.SentHash = hash; e.SentTime = Time.unscaledTime;
-            sendBuf.Add(s);
+            stateBuf.Add(s); stateEnt.Add(e); stateHash.Add(StateHash(s));
         }
-        for (int start = 0; start < sendBuf.Count; start += MaxEntitiesPerStatePacket)
+        foreach (var v in NetInterest.Viewers())
         {
-            int n = Mathf.Min(MaxEntitiesPerStatePacket, sendBuf.Count - start);
-            using (var w = new FastBufferWriter(1200, Allocator.Temp))
+            int vi = Mathf.Clamp(v.Pn, 0, NetInterest.MaxPlayers);
+            sendBuf.Clear();
+            for (int i = 0; i < stateBuf.Count; i++)
             {
-                w.WriteValueSafe(currentSceneSeed != 0 ? currentSceneSeed : NetRunLauncher.ActiveRunSeed);
-                w.WriteValueSafe(now);
-                w.WriteValueSafe((byte)n);
-                for (int i = 0; i < n; i++) WriteState(w, sendBuf[start + i]);
-                foreach (ulong clientId in nm.ConnectedClientsIds)
+                var e = stateEnt[i];
+                // 狙いが変わった時はすぐ送る(その人の画面で「まだ自分を狙っている」ように見えるのを残さない)
+                bool targetChanged = e.VTarget[vi] != e.Target;
+                bool near = e.Kind == Kind.Boss || targetChanged || NetInterest.InRange(v, e.Go.transform.position.x)
+                    || (v.Pn > 0 && e.Target == v.Pn)
+                    || (v.Pn > 0 && e.LastDamagedBy == v.Pn && unow - e.LastDamagedTime < NetInterest.RecentFight);
+                bool changed = stateHash[i] != e.VHash[vi];
+                float since = unow - e.VTime[vi];
+                if (!NetInterest.ShouldSend(near, changed, since)) { NetInterest.Skipped++; continue; }
+                e.VHash[vi] = stateHash[i]; e.VTime[vi] = unow; e.VTarget[vi] = e.Target;
+                if (near) NetInterest.SentNear++; else NetInterest.SentFar++;
+                sendBuf.Add(stateBuf[i]);
+            }
+            for (int start = 0; start < sendBuf.Count; start += MaxEntitiesPerStatePacket)
+            {
+                int n = Mathf.Min(MaxEntitiesPerStatePacket, sendBuf.Count - start);
+                using (var w = new FastBufferWriter(1200, Allocator.Temp))
                 {
-                    if (clientId == NetworkManager.ServerClientId) continue;
-                    NetStats.SendNamed(nm.CustomMessagingManager, MsgState, clientId, w, NetworkDelivery.UnreliableSequenced);
+                    w.WriteValueSafe(currentSceneSeed != 0 ? currentSceneSeed : NetRunLauncher.ActiveRunSeed);
+                    w.WriteValueSafe(now);
+                    w.WriteValueSafe((byte)n);
+                    for (int i = 0; i < n; i++) WriteState(w, sendBuf[start + i]);
+                    NetStats.SendNamed(nm.CustomMessagingManager, MsgState, v.ClientId, w, NetworkDelivery.UnreliableSequenced);
                 }
             }
         }
@@ -669,7 +687,7 @@ public class NetCombat : MonoBehaviour
         if (e.Dead) return; // 死亡後は何も上書きしない(ロック)
         int who = ResolveAttacker(attacker);
         e.Hp = Mathf.Max(0, hpAfter);
-        e.LastDamagedBy = who;
+        e.LastDamagedBy = who; e.LastDamagedTime = Time.unscaledTime;
         Instance.StatDamageEvents++;
         double cx = contactScene.x + FloatingOrigin.Offset;
         Log(KindTag(e.Kind), $"Damage id={e.Id} attacker={P(who)} dmg={damage} hp={e.Hp}/{e.MaxHp} kind={attackKind}{(killed ? " (lethal)" : "")}");

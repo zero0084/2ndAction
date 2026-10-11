@@ -312,12 +312,22 @@ public partial class NetMatch
     {
         w.WriteValueSafe((byte)Mode);
         w.WriteValueSafe(runOver);
+        // 2026-10-11: 共有世界の進行距離と、起きた世界のイベント(全員で同じ状態にする)
+        w.WriteValueSafe(WorldProgress.FrontHigh);
+        var ev = WorldProgress.Triggered;
+        w.WriteValueSafe((byte)Mathf.Min(255, ev.Count));
+        int n = 0;
+        foreach (var id in ev) { if (n++ >= 255) break; w.WriteValueSafe(new FixedString32Bytes(id)); }
     }
 
     void ReadPhase3Header(FastBufferReader r)
     {
         r.ReadValueSafe(out byte mode);
         r.ReadValueSafe(out bool over);
+        r.ReadValueSafe(out double frontHigh);
+        WorldProgress.SetFromHost(frontHigh);
+        r.ReadValueSafe(out byte evn);
+        for (int i = 0; i < evn; i++) { r.ReadValueSafe(out FixedString32Bytes id); WorldProgress.NoteFromHost(id.ToString()); }
         if ((MultiplayerGameMode)mode != Mode) Log($"WARNING mode mismatch: HOST={(MultiplayerGameMode)mode} local={Mode} (HOST wins)");
         NetRunLauncher.ForceActiveMode((MultiplayerGameMode)mode);
     }

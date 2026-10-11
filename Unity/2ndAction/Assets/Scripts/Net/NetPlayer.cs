@@ -162,11 +162,57 @@ public class NetPlayer : NetworkBehaviour
 
         if (TrySampleLocalPlayer(out NetPlayerSnapshot snap))
         {
-            SnapshotRpc(snap);
-            // 計測: HOSTは他の全員へ、JOINはHOSTへ1回(HOSTが残りへ中継する分は受信側で数える)
-            if (IsServer) { int n = NetSession.Manager != null ? NetSession.Manager.ConnectedClientsIds.Count - 1 : 0; for (int i = 0; i < n; i++) NetStats.Sent("snapshot", SnapshotBytes); }
-            else NetStats.Sent("snapshot", SnapshotBytes);
+            // 2026-10-11: 止まっている間(カード選択中/DOWN/脱落/終了の姿勢)は位置が変わらないので毎秒6回に間引く
+            bool running = (snap.Flags & NetPlayerSnapshot.FlagRunning) != 0;
+            if (!running && Time.unscaledTime - lastSendRealtime < 1f / StationarySendRate) return;
+            lastSendRealtime = Time.unscaledTime;
+            // 2026-10-11: JOIN は HOST へだけ送り、HOST が送り先ごとに中継する(遠い人へは間引く)。HOST 自身の分も同じ基準で送る
+            if (IsServer) RelayFromHost(snap, true);
+            else { SnapshotToServerRpc(snap); NetStats.Sent("snapshot", SnapshotBytes); }
         }
+    }
+
+    // ===== 位置の中継(2026-10-11 マルチ安定化) =====
+    // 以前: Owner が SendTo.NotOwner で全員へ → NGO が HOST 経由で全 JOIN へ中継(人数Nで (N-1)×(N-2) 件/回、遠い人へも30Hz)。
+    // いま: JOIN → HOST(1件)/ HOST が送り先ごとに、近い人(130m以内)へは毎回、遠い人へは6回に1回(5Hz)だけ送る。
+    //       遠い人の分身は相手の画面の外なので、間引いても見た目は変わらない。近くで一緒に走っている人は今までどおり30Hz。
+    const float StationarySendRate = 6f;
+    const float FarRelayDistance = 130f; // 縦画面の斜め表示は道の先(約120m)まで見えるので、それより遠い人だけ間引く
+    const int FarRelayEvery = 6;
+    float lastSendRealtime = -99f;
+    int relayCounter;
+    readonly List<ulong> relayTargets = new List<ulong>(8);
+
+    void RelayFromHost(NetPlayerSnapshot snap, bool own)
+    {
+        relayCounter++;
+        float sx = (float)(snap.X - FloatingOrigin.Offset);
+        bool jump = (snap.Flags & NetPlayerSnapshot.FlagTeleported) != 0;
+        relayTargets.Clear();
+        foreach (var v in NetInterest.Viewers())
+        {
+            if (v.ClientId == OwnerClientId) continue;
+            bool near = !v.HasPos || jump || Mathf.Abs(v.SceneX - sx) < FarRelayDistance;
+            if (near || relayCounter % FarRelayEvery == 0) relayTargets.Add(v.ClientId);
+        }
+        if (relayTargets.Count == 0) return;
+        SnapshotRelayRpc(snap, RpcTarget.Group(relayTargets, RpcTargetUse.Temp));
+        for (int i = 0; i < relayTargets.Count; i++) NetStats.Sent(own ? "snapshot" : "snapshotRelay", SnapshotBytes);
+    }
+
+    // JOIN → HOST
+    [Rpc(SendTo.Server, Delivery = RpcDelivery.Unreliable)]
+    void SnapshotToServerRpc(NetPlayerSnapshot snapshot)
+    {
+        ReceiveSnapshot(snapshot);
+        RelayFromHost(snapshot, false);
+    }
+
+    // HOST → 選んだ JOIN
+    [Rpc(SendTo.SpecifiedInParams, Delivery = RpcDelivery.Unreliable)]
+    void SnapshotRelayRpc(NetPlayerSnapshot snapshot, RpcParams rpcParams = default)
+    {
+        ReceiveSnapshot(snapshot);
     }
 
     bool TrySampleLocalPlayer(out NetPlayerSnapshot s)
@@ -241,13 +287,10 @@ public class NetPlayer : NetworkBehaviour
 
     const int SnapshotBytes = 77 + 24; // 中身77B + RPCの見出し(概算)。計測用
     // 位置/姿勢は毎秒30回・非信頼(UDP)で送る - 古い値の再送を待つより次の値を使う方が高速時に有利。
-    [Rpc(SendTo.NotOwner, Delivery = RpcDelivery.Unreliable)]
-    void SnapshotRpc(NetPlayerSnapshot snapshot)
+    void ReceiveSnapshot(NetPlayerSnapshot snapshot)
     {
         snapshotsReceived++;
         NetStats.Received("snapshot", SnapshotBytes);
-        // HOSTはJOINのスナップショットを残りのJOINへ中継する(人数Nで (N-1)×(N-2) 件/回。8人で一番重くなる所)
-        if (IsServer && NetSession.Manager != null) { int relay = NetSession.Manager.ConnectedClientsIds.Count - 2; for (int i = 0; i < relay; i++) NetStats.Sent("snapshotRelay", SnapshotBytes); }
         interpolator.Add(snapshot);
         remoteRunSpeed = snapshot.RunSpeed;
         remoteDistance = snapshot.Distance;

@@ -486,8 +486,11 @@ public partial class SkyTitanBoss : SkyBossBase
     IEnumerator WindGust(float dur)
     {
         float t = 0f, spawn = 0f;
-        bool pushed = false;
         Camera cam = Camera.main;
+        // マルチ(2026-10-11): 以前は HOST 自身のプレイヤーにだけ毎フレーム掛けていた → 風の範囲にいる全員(P1〜P8)へ HOST が1回ずつ決めて送る
+        // (減速は風が続く間、押し戻しは最初の1回。強さ・時間は以前と同じ)
+        NetPlayerFx.ApplyNear(PlayerX, 30f, NetPlayerFx.Kind.Slow, 0.62f, dur, "SkyTitan:Gust");
+        NetPlayerFx.ApplyNear(PlayerX, 30f, NetPlayerFx.Kind.Knockback, -3f, 0.35f, "SkyTitan:Gust");
         while (t < dur && !IsDead)
         {
             t += Time.deltaTime;
@@ -497,11 +500,6 @@ public partial class SkyTitanBoss : SkyBossBase
                 spawn = 0.03f;
                 Vector3 p = cam.ViewportToWorldPoint(new Vector3(1.05f, Random.Range(0.1f, 0.9f), 10f)); p.z = 0f;
                 SkyDrift.Spawn(BossFx.Block(), p, new Vector2(Random.Range(1.5f, 3.5f), 0.05f), new Color(1f, 1f, 1f, 0.5f), new Vector3(-30f, 0f, 0f), 0.9f, RenderOrder.CombatFx, true);
-            }
-            if (pc != null && !pc.IsFinishing)
-            {
-                pc.ApplyMoveSlow(0.62f, 0.15f);
-                if (!pushed) { pc.ApplyKnockback(-3f, 0.35f); pushed = true; }
             }
             yield return null;
         }

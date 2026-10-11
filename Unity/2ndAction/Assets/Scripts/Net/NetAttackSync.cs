@@ -81,6 +81,9 @@ public class NetAttackSync : MonoBehaviour
         public float LastActiveTime = -99f;
         public int SentHash;
         public float SentTime = -99f;
+        // 送り先(プレイヤー番号)ごとの最後の送信(2026-10-11 Interest Range)
+        public readonly int[] VHash = new int[NetInterest.MaxPlayers + 1];
+        public readonly float[] VTime = { -99f, -99f, -99f, -99f, -99f, -99f, -99f, -99f, -99f };
         public float RemovedTime = -1f;
         public bool ConsumedOnHost;
         // JOIN
@@ -320,6 +323,43 @@ public class NetAttackSync : MonoBehaviour
         return $"attackId={id} (removed)";
     }
 
+    // ===== 2026-10-11 マルチ安定化: JOIN の被弾の結果は HOST が攻撃の本物から決める =====
+    // 以前: JOIN の被弾は常にハート1つ分、減速は JOIN が自分で掛けていた(HOST の確定を通らない)、突進が当たったことをボスが知らない。
+    // いま: HOST が本物の攻撃の部品からダメージ量(必殺技の強い一撃を含む)・減速を読み、確定の返事で JOIN へ渡す。
+    //       当たったことは攻撃の持ち主へ知らせる(BossHitbox.onHitPlayer: 突進が当たったらボスの「チャンス」を出さない)。
+    public struct HitInfo { public bool Known; public int Damage; public float SlowF, SlowD; }
+    public static HitInfo HostHitInfo(int claimId)
+    {
+        var hi = new HitInfo { Damage = CombatScale.PlayerHit, SlowF = 1f };
+        if (Instance == null || !Instance.tracked.TryGetValue(claimId / 64, out Tracked t)) return hi;
+        hi.Known = true; hi.SlowF = t.SlowFactor; hi.SlowD = t.SlowDuration;
+        GameObject go = t.Go;
+        int amount = CombatScale.PlayerHit;
+        if (go != null)
+        {
+            if (go.TryGetComponent(out BossHitbox hb)) amount = hb.damageAmount;
+            else if (go.TryGetComponent(out BossProjectile bp)) amount = bp.damageAmount;
+            else if (go.TryGetComponent(out FireballController fb)) amount = fb.damageAmount;
+            else if (go.TryGetComponent(out TrackedHazard th)) amount = th.damageAmount;
+            else if (go.TryGetComponent(out CaveHazard ch)) { amount = ch.DamageAmount; hi.SlowF = ch.SlowFactor; hi.SlowD = ch.SlowDuration; }
+        }
+        hi.Damage = BossManager.ScaleDamage(amount);
+        return hi;
+    }
+
+    public static void HostNotifyHit(int claimId, int pn)
+    {
+        if (Instance == null || !Instance.tracked.TryGetValue(claimId / 64, out Tracked t) || t.Go == null) return;
+        if (t.Go.TryGetComponent(out BossHitbox hb)) hb.NotifyRemoteHit(pn);
+    }
+
+    // HOST: 登録の後で減速の値が決まった攻撃(石化の波など)
+    public static void UpdateSlow(GameObject go, float factor, float duration)
+    {
+        if (Instance == null || go == null || !Instance.byGoInstance.TryGetValue(go, out int id) || !Instance.tracked.TryGetValue(id, out Tracked t)) return;
+        t.SlowFactor = factor; t.SlowDuration = duration;
+    }
+
     // HOST: 当たったら消える弾(火球/ボス弾)を、HOST側でも消す(=両端末で1発は1回だけ)。
     public static void ConsumeOnHit(int claimId)
     {
@@ -468,49 +508,68 @@ public class NetAttackSync : MonoBehaviour
     readonly List<AState> sendList = new List<AState>();
     readonly List<int> sendIds = new List<int>();
 
+    // 2026-10-11 Interest Range: 送り先(JOIN)ごとに、その人の近く/その人を狙う攻撃は高頻度、遠い攻撃は低頻度(NetInterest)
+    readonly List<AState> capList = new List<AState>();
+    readonly List<Tracked> capT = new List<Tracked>();
+    readonly List<int> capHash = new List<int>();
+
     void SendStates(NetworkManager nm)
     {
         double now = nm.ServerTime.Time;
         float unow = Time.unscaledTime;
-        sendList.Clear(); sendIds.Clear();
+        capList.Clear(); capT.Clear(); capHash.Clear();
         foreach (var t in tracked.Values)
         {
             if (!t.SpawnSent || t.Go == null) continue;
             if (t.Attached && t.OwnerT == null) continue;
             AState s = Capture(t);
             s.Time = now;
-            int h = Hash(s);
-            bool visible = (s.Flags & FActive) != 0;
-            float since = unow - t.SentTime;
-            if (h == t.SentHash && since < (visible ? 0.5f : 2f)) continue;
-            t.SentHash = h; t.SentTime = unow;
-            sendList.Add(s); sendIds.Add(t.Id);
+            capList.Add(s); capT.Add(t); capHash.Add(Hash(s));
         }
-        // 2026-10-02: 1件の大きさは見た目の数で変わる。件数固定(8件)だと1300Bを超えて書けない/MTUを超えることがあったので、
-        // 大きさを積み上げて1200Bまでで区切る(最大8件)。
-        const int perPacket = 8, budget = 1200, header = 4 + 8 + 1;
-        int startIdx = 0;
-        while (startIdx < sendList.Count)
+        foreach (var v in NetInterest.Viewers())
         {
-            int start = startIdx, n = 0, size = header;
-            while (start + n < sendList.Count && n < perPacket)
+            int vi = Mathf.Clamp(v.Pn, 0, NetInterest.MaxPlayers);
+            sendList.Clear(); sendIds.Clear();
+            for (int i = 0; i < capList.Count; i++)
             {
-                int est = 48 + 52 * Mathf.Max(0, tracked[sendIds[start + n]].NVis); // 多めの見積もり(書き込み枠は伸びるので溢れない)
-                if (n > 0 && size + est > budget) break;
-                size += est; n++;
+                var t = capT[i];
+                bool visible = (capList[i].Flags & FActive) != 0;
+                float x = (t.Root != null ? t.Root : t.Go.transform).position.x;
+                bool near = NetInterest.InRange(v, x) || (v.Pn > 0 && t.TargetPn == v.Pn);
+                bool changed = capHash[i] != t.VHash[vi];
+                float since = unow - t.VTime[vi];
+                // 近い: 変化があれば毎回 / 見えている物は0.5秒・見えない物は2秒ごと。遠い: 2秒ごと
+                bool send = near ? (changed || since >= (visible ? NetInterest.NearResend : NetInterest.FarKeepalive)) : since >= NetInterest.FarKeepalive;
+                if (!send) { NetInterest.Skipped++; continue; }
+                t.VHash[vi] = capHash[i]; t.VTime[vi] = unow;
+                if (near) NetInterest.SentNear++; else NetInterest.SentFar++;
+                sendList.Add(capList[i]); sendIds.Add(t.Id);
             }
-            startIdx += n;
-            using (var w = new FastBufferWriter(1300, Allocator.Temp, 16384)) // 見積もりを超えても伸びる(例外で落ちない)
+            // 2026-10-02: 1件の大きさは見た目の数で変わる。大きさを積み上げて1200Bまでで区切る(最大8件)。
+            const int perPacket = 8, budget = 1200, header = 4 + 8 + 1;
+            int startIdx = 0;
+            while (startIdx < sendList.Count)
             {
-                w.WriteValueSafe(NetRunLauncher.ActiveRunSeed);
-                w.WriteValueSafe(now);
-                w.WriteValueSafe((byte)n);
-                for (int i = 0; i < n; i++)
+                int start = startIdx, n = 0, size = header;
+                while (start + n < sendList.Count && n < perPacket)
                 {
-                    int id = sendIds[start + i];
-                    WriteState(w, id, sendList[start + i], tracked[id].NVis);
+                    int est = 48 + 52 * Mathf.Max(0, tracked[sendIds[start + n]].NVis); // 多めの見積もり(書き込み枠は伸びるので溢れない)
+                    if (n > 0 && size + est > budget) break;
+                    size += est; n++;
                 }
-                SendToClients(MsgState, w, NetworkDelivery.UnreliableSequenced);
+                startIdx += n;
+                using (var w = new FastBufferWriter(1300, Allocator.Temp, 16384))
+                {
+                    w.WriteValueSafe(NetRunLauncher.ActiveRunSeed);
+                    w.WriteValueSafe(now);
+                    w.WriteValueSafe((byte)n);
+                    for (int i = 0; i < n; i++)
+                    {
+                        int id = sendIds[start + i];
+                        WriteState(w, id, sendList[start + i], tracked[id].NVis);
+                    }
+                    NetStats.SendNamed(nm.CustomMessagingManager, MsgState, v.ClientId, w, NetworkDelivery.UnreliableSequenced);
+                }
             }
         }
     }
@@ -842,8 +901,9 @@ public class NetAttackSync : MonoBehaviour
                 NetStats.SendNamed(NetSession.Manager.CustomMessagingManager, MsgRequest, NetworkManager.ServerClientId, w, NetworkDelivery.ReliableSequenced);
             }
         }
-        if (t.SlowFactor < 1f) pc.ApplyMoveSlow(t.SlowFactor, t.SlowDuration);
-        if (t.NoDamage) return; // 減速だけの弾
+        // 2026-10-11: ダメージのある攻撃の減速は HOST の確定(NetConfirmHit)で掛ける(二重に掛けない)。
+        // ダメージの無い減速だけの攻撃(蜘蛛の巣など)は HOST が何も掛けないので、ここで掛ける
+        if (t.NoDamage) { if (t.SlowFactor < 1f) pc.ApplyMoveSlow(t.SlowFactor, t.SlowDuration); return; }
         int sentBefore = NetMatch.Instance != null ? NetMatch.Instance.StatClaimsSent : 0;
         NetMatch.SetClaimContext(NetMatch.ClaimKind.Attack, id * 64 + act);
         try { pc.TakeDamage(source: $"Net{t.Type}#{id}"); }

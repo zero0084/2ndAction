@@ -426,7 +426,7 @@ public partial class BossManager : MonoBehaviour
     void ChooseNextGate()
     {
         int baseNext = currentGateK + 1;
-        float d = GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f;
+        float d = GateDistance(); // 2026-10-11: 通過済みの関門も共有世界の進行距離で数える(以前は HOST 自身の距離)
         int passedMax = Mathf.FloorToInt((d + 0.5f) / Mathf.Max(1f, gateIntervalMeters));
         int from = Mathf.Max(baseNext, catchUpFloorK);
         if (passedMax >= from)
@@ -561,7 +561,9 @@ public partial class BossManager : MonoBehaviour
         // regular boss encounter happens to be in progress right at
         // 100,000m, and must never block or get blocked by it. Does NOT
         // end/pause the run - "100,000m到達でRunを強制終了しない".
-        if (!deathSpawned && !ArenaMode.Active && GameManager.Instance.MaxDistance >= deathSpawnDistance) // 開発用の闘技場では死神/三姉妹を出さない
+        // マルチ(2026-10-11): HOST 自身の距離ではなく共有世界の進行距離(WorldProgress.FrontHigh: 最前の人の最高到達。シングルは自分の距離)。
+        // JOIN が先頭でも、その人が 100,000m に着けば出る。一度出たら先頭が入れ替わっても/後ろへ下がっても二度と出さない(TryTrigger)
+        if (!deathSpawned && !ArenaMode.Active && WorldProgress.FrontHigh >= deathSpawnDistance && WorldProgress.TryTrigger("death_100k")) // 開発用の闘技場では死神/三姉妹を出さない
         {
             deathSpawned = true;
             if (GameManager.Instance.DebugMode) Debug.Log($"[Distance] {Mathf.RoundToInt(deathSpawnDistance)} reached");
@@ -640,7 +642,7 @@ public partial class BossManager : MonoBehaviour
         GameManager gm = GameManager.Instance;
         if (gm == null) return 0f;
         if (!NetCombat.Authority || !WorldRange.HasAlive) return gm.MaxDistance;
-        return Mathf.Max(gm.MaxDistance, WorldRange.WorldFrontDistance);
+        return (float)WorldProgress.FrontHigh; // 2026-10-11: 最前の最高到達(先頭が脱落しても下がらない)
     }
 
     // ボスの登場位置の基準: マルチのHOSTは最前で走っている人(カード選択中でない)、それ以外は自分
@@ -885,8 +887,9 @@ public partial class BossManager : MonoBehaviour
         // 死神三姉妹(2026-09-29): ステージの担当(荒野街道=長女/自然洞窟=次女/天空回廊=三女)を、画面左端の外から出す。
         // マルチのJOINでは同じステージIDで同じ姉妹のパペットが作られる(NetCombat.BossMethod.Reaper)。
         string stage = GameManager.Instance != null ? GameManager.Instance.ActiveRunStageId : "";
-        Vector3 pos = player.position + new Vector3(-deathSpawnBehindPlayer * 4f, 0f, 0f);
-        ReaperBase.Spawn(stage, player, deathSprite, pos);
+        Transform anchor = SpawnRef(); // マルチ(2026-10-11): 100,000m に着いた最前の人の後ろから(シングルは自分)
+        Vector3 pos = anchor.position + new Vector3(-deathSpawnBehindPlayer * 4f, 0f, 0f);
+        ReaperBase.Spawn(stage, anchor, deathSprite, pos);
         if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[Boss] Death Spawn");
     }
 

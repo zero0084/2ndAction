@@ -1742,6 +1742,7 @@ public partial class PlayerController : MonoBehaviour
         netClaimPendingUntil = 0f;
         if (isFall || hasDied || IsFinishing) return;
         ApplyDamageReaction(false);
+        if (slowFactor < 1f && slowDuration > 0f) ApplyMoveSlow(slowFactor, slowDuration); // 2026-10-11: 減速も HOST の確定で掛ける(石化の視線など)
     }
 
     public void NetClaimRejected(int seq) { netClaimPendingUntil = 0f; }

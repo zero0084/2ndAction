@@ -31,7 +31,7 @@ public partial class NetMatch : MonoBehaviour
     const string MsgToClients = "OMM.MatchSync"; // HOST→JOIN(Reliable)
 
     const byte ReqHello = 1, ReqClaim = 2, ReqHeal = 3, ReqSetMax = 4, ReqChoosing = 5, ReqDebugSetHp = 6, ReqRevive = 7, ReqDebugForceOut = 8;
-    const byte SyncTable = 1, SyncHitResult = 2, SyncBossReward = 3, SyncRunOver = 4, SyncRevived = 5;
+    const byte SyncTable = 1, SyncHitResult = 2, SyncBossReward = 3, SyncRunOver = 4, SyncRevived = 5, SyncPlayerFx = 6;
 
     public enum ClaimKind : byte { Environment = 0, EnemyContact = 1, Attack = 2 }
     public enum PState : byte { Alive = 0, Down = 1, Eliminated = 2, Out = 3 }
@@ -237,6 +237,23 @@ public partial class NetMatch : MonoBehaviour
         }
     }
 
+    // HOST → その人の端末: 風で押す/減速などの効果(2026-10-11 マルチ安定化。NetPlayerFx から)
+    public static int StatPlayerFxSent, StatPlayerFxReceived;
+    public static void SendPlayerFx(int pn, NetPlayerFx.Kind kind, float a, float b, string source)
+    {
+        if (Instance == null || !NetCombat.Authority) return;
+        Rec rec = Get(pn);
+        if (rec == null) return;
+        StatPlayerFxSent++;
+        Instance.Log($"PlayerFx P{pn} {kind} a={a:F2} b={b:F2} src={source} -> client {rec.ClientId}");
+        SendToClients(w =>
+        {
+            w.WriteValueSafe(SyncPlayerFx);
+            w.WriteValueSafe((byte)pn); w.WriteValueSafe((byte)kind); w.WriteValueSafe(a); w.WriteValueSafe(b);
+            w.WriteValueSafe(new FixedString64Bytes(source ?? ""));
+        }, rec.ClientId);
+    }
+
     static void SendToClients(System.Action<FastBufferWriter> write, ulong onlyClient = ulong.MaxValue)
     {
         NetworkManager nm = NetSession.Manager;
@@ -385,21 +402,25 @@ public partial class NetMatch : MonoBehaviour
             return;
         }
         if (kind != ClaimKind.Environment) rec.HitKeys.Add(key);
-        if (kind == ClaimKind.Attack) NetAttackSync.ConsumeOnHit(id);
+        // 2026-10-11: ダメージ量・減速は HOST が本物の攻撃から決める(JOIN の申告の値は使わない)。消える弾は読み取ってから消す
+        var hi = kind == ClaimKind.Attack ? NetAttackSync.HostHitInfo(id) : default;
+        int dmg = hi.Known ? hi.Damage : CombatScale.PlayerHit;
+        float sf = hi.Known ? hi.SlowF : 1f, sd = hi.Known ? hi.SlowD : 0f;
+        if (kind == ClaimKind.Attack) { NetAttackSync.HostNotifyHit(id, rec.Pn); NetAttackSync.ConsumeOnHit(id); }
         if (kind == ClaimKind.EnemyContact) rec.HitKeys.Remove(key); // 同じ敵への接触は無敵明けに再び当たり得る(元の挙動と同じ)
-        ApplyHostDamage(rec, isFall, invuln, source);
+        ApplyHostDamage(rec, isFall, invuln, source, dmg);
         StatClaimsAccepted++;
-        SendHitResult(rec, seq, true, isFall, slowF, slowD, source);
+        SendHitResult(rec, seq, true, isFall, sf, sd, source);
     }
 
-    void ApplyHostDamage(Rec rec, bool isFall, float invuln, string source)
+    void ApplyHostDamage(Rec rec, bool isFall, float invuln, string source, int amount = CombatScale.PlayerHit)
     {
         float now = Time.realtimeSinceStartup;
         int before = rec.Hp;
-        rec.Hp = Mathf.Max(0, rec.Hp - CombatScale.PlayerHit); // JOINの被弾は常にハート1つ分(10倍スケール)
+        rec.Hp = Mathf.Max(0, rec.Hp - Mathf.Max(1, amount)); // 2026-10-11: 攻撃ごとの量(必殺技の強い一撃を含む)。以前は常にハート1つ分
         rec.HitsTaken++;
         rec.InvulnUntil = now + Mathf.Clamp(invuln, 0.2f, 4f);
-        Log($"Damage P{rec.Pn} src={source} fall={isFall} hp {before} -> {rec.Hp} (authority=HOST){(rec.Choosing ? " [while choosing card]" : "")}");
+        Log($"Damage P{rec.Pn} src={source} fall={isFall} amount={amount} hp {before} -> {rec.Hp} (authority=HOST){(rec.Choosing ? " [while choosing card]" : "")}");
         if (rec.Hp <= 0) OnPlayerHpZero(rec, source);
         dirty = true;
         SendTable();
@@ -502,6 +523,16 @@ public partial class NetMatch : MonoBehaviour
             {
                 r.ReadValueSafe(out byte downPn); r.ReadValueSafe(out byte donorPn);
                 OnRevivedClient(downPn, donorPn);
+                break;
+            }
+            case SyncPlayerFx:
+            {
+                r.ReadValueSafe(out byte pn); r.ReadValueSafe(out byte kind); r.ReadValueSafe(out float a); r.ReadValueSafe(out float b);
+                r.ReadValueSafe(out FixedString64Bytes src);
+                if (pn != local) break;
+                Log($"PlayerFx P{pn} {(NetPlayerFx.Kind)kind} a={a:F2} b={b:F2} src={src} (from HOST)");
+                NetPlayerFx.ApplyLocal((NetPlayerFx.Kind)kind, a, b);
+                StatPlayerFxReceived++;
                 break;
             }
         }

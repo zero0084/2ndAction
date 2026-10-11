@@ -448,7 +448,7 @@ public class TerrainManager : MonoBehaviour
         c.fillVisual = null;
         if (groundFillSprite == null || c.type == ChunkType.Pit) return;
         float bleed = 0f;
-        if (!c.needsLeftCap && platformArt.IsValid && i > 0 && (c.type == ChunkType.Flat) != (chunks[i - 1].type == ChunkType.Flat))
+        if (!c.needsLeftCap && platformArt.IsValid && i > 0 && NeedsJoinBleed(chunks[i - 1].type, c.type))
         {
             float theta = Mathf.Atan2(slopeHeight, slopeLength);
             float fillOuterDepth = groundFillTopOffset - groundFillOverlap + FillDepth;
@@ -476,7 +476,7 @@ public class TerrainManager : MonoBehaviour
         // 継ぎ目についてbleed量を計算し直す。
         bool needsRightCap = i + 1 < chunks.Count && chunks[i + 1].type == ChunkType.Pit;
         float rebuildLeftBleed = 0f;
-        if (!c.needsLeftCap && platformArt.IsValid && i > 0 && (c.type == ChunkType.Flat) != (chunks[i - 1].type == ChunkType.Flat))
+        if (!c.needsLeftCap && platformArt.IsValid && i > 0 && NeedsJoinBleed(chunks[i - 1].type, c.type))
         {
             float theta = Mathf.Atan2(slopeHeight, slopeLength);
             float outerDepth = platformVisualHeight - platformSurfaceInset;
@@ -1079,6 +1079,20 @@ public class TerrainManager : MonoBehaviour
     }
 
     // デバッグ/自動テスト用: 地形の継ぎ目(種類が変わる位置/穴の縁/上ルートの起点・終点)の一覧。
+    // 上ルート(分岐区間)のつながった継ぎ目(x, "Sky:Flat->Down" など)。点検の撮影用
+    public System.Collections.Generic.List<KeyValuePair<float, string>> DebugListSkyJoints()
+    {
+        var list = new System.Collections.Generic.List<KeyValuePair<float, string>>();
+        string K(SkyChunk c) { float d = c.endY - c.startY; return d > 0.05f ? "Up" : d < -0.05f ? "Down" : "Flat"; }
+        for (int i = 1; i < skyChunks.Count; i++)
+        {
+            var a = skyChunks[i - 1]; var b = skyChunks[i];
+            if (Mathf.Abs(a.endX - b.startX) > 0.05f) continue; // 離れた浮島どうしは継ぎ目ではない
+            if (K(a) != K(b)) list.Add(new KeyValuePair<float, string>(b.startX, "Sky:" + K(a) + "->" + K(b)));
+        }
+        return list;
+    }
+
     public System.Collections.Generic.List<KeyValuePair<float, string>> DebugListJoints()
     {
         var list = new System.Collections.Generic.List<KeyValuePair<float, string>>();
@@ -1356,11 +1370,25 @@ public class TerrainManager : MonoBehaviour
     // 覆うための食い込み量。deltaDegは隣り合う2区間の角度差、depthはその素材の下方向の厚み。
     float SkyJoinBleed(float prevAngleDeg, float angleDeg, float depth)
     {
+        // 2026-10-11: へこんだ継ぎ目(上向きに曲がる: 平地→上り / 下り→平地)だけ。出っぱった継ぎ目(平地→下り / 上り→平地)は
+        // 下側が重なるので隙間は出ず、坂の絵を坂の向きのまま後ろへ伸ばすと平地の面より上へ三角に突き出していた(90,167m の上ルート)
+        if (!LegacyConvexBleed && Mathf.DeltaAngle(prevAngleDeg, angleDeg) < 0.3f) return 0f;
         float d = Mathf.Abs(Mathf.DeltaAngle(prevAngleDeg, angleDeg)) * Mathf.Deg2Rad;
         if (d < 0.005f) return 0f;
         return Mathf.Min(depth * Mathf.Tan(Mathf.Min(d, 1.2f)) * cornerBleedSafetyMargin, 6f);
     }
     static float SegAngleDeg(Vector2 a, Vector2 b) => Mathf.Atan2(b.y - a.y, b.x - a.x) * Mathf.Rad2Deg;
+
+    // 継ぎ目の隙間埋め(leftBleed: 次の区間の絵を前の区間の側へ伸ばす)が要る継ぎ目か(2026-10-11)。
+    //  へこんだ継ぎ目(平地→上り坂 / 下り坂→平地): 2つの傾いた板の下側が開いて楔形の隙間が出る → 伸ばして埋める
+    //  出っぱった継ぎ目(平地→下り坂 / 上り坂→平地): 下側は重なるので隙間は出ない。伸ばすと次の区間の絵が
+    //                                               前の区間の面より上(下り坂)/前(平地)へ三角に突き出す → 伸ばさない
+    // 走る面の高さ(GetHeightAt)は区間の始点/終点だけで決まるので、この修正は見た目だけ(当たり・走る面は変わらない)。
+    // 開発版の -legacyBleed 1 で以前の伸ばし方(比較の撮影用)。
+    public static bool LegacyConvexBleed;
+    static bool NeedsJoinBleed(ChunkType prev, ChunkType cur) =>
+        LegacyConvexBleed ? (cur == ChunkType.Flat) != (prev == ChunkType.Flat)
+                          : (prev == ChunkType.Flat && cur == ChunkType.UpSlope) || (prev == ChunkType.DownSlope && cur == ChunkType.Flat);
 
     // 2026-09-30: 以前は「坂に沿って回転した長方形(深さ=両端の隙間の平均)」だったため、ランプ(隙間0→約3m)の
     // 上り切った側や、上下の傾きが違う並走区間で、長方形の下端と下ルートの地面の間に空が三角形に見えていた。
@@ -1775,7 +1803,7 @@ public class TerrainManager : MonoBehaviour
             // once below from the constant slope angle) closes it. 0 for a
             // flat-to-flat joint (angle difference 0) or any capped edge.
             float leftBleed = 0f;
-            if (!needsLeftCap && platformArt.IsValid && (type == ChunkType.Flat) != (lastType == ChunkType.Flat))
+            if (!needsLeftCap && platformArt.IsValid && NeedsJoinBleed(lastType, type))
             {
                 float theta = Mathf.Atan2(slopeHeight, slopeLength);
                 float outerDepth = platformVisualHeight - platformSurfaceInset;
@@ -1808,7 +1836,7 @@ public class TerrainManager : MonoBehaviour
             // なる)。同じtheta/cornerBleedSafetyMarginを使い、Fill自身の
             // 深さ基準でleftBleedを別途計算し直す。
             float fillLeftBleed = 0f;
-            if (!needsLeftCap && platformArt.IsValid && (type == ChunkType.Flat) != (lastType == ChunkType.Flat))
+            if (!needsLeftCap && platformArt.IsValid && NeedsJoinBleed(lastType, type))
             {
                 float theta = Mathf.Atan2(slopeHeight, slopeLength);
                 float fillOuterDepth = groundFillTopOffset - groundFillOverlap + FillDepth;

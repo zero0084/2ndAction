@@ -141,7 +141,8 @@ public class DistanceTierManager : MonoBehaviour
         Instance = this;
     }
 
-    float CurrentDistance => GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f;
+    // マルチの HOST(2026-10-11): 敵の強さ/隊列の距離も共有世界の進行距離(最前の人の最高到達)。シングル/JOIN は自分の距離(従来どおり)
+    float CurrentDistance => GameManager.Instance == null ? 0f : NetCombat.Authority ? (float)WorldProgress.FrontHigh : GameManager.Instance.MaxDistance;
 
     // 2026-10-02: 10倍スケール(攻撃力と同じ比率)
     // 2026-10-11: 距離の段は BalanceTuning.HpSteps(終盤の伸びの調整。切っている間は今までどおり floor(距離 / hpIncreaseDistance))

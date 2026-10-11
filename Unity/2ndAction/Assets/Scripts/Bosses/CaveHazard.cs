@@ -49,6 +49,9 @@ public class CaveHazard : MonoBehaviour
 
     public CaveHazardKind Kind => kind;
     public CaveLook Look => look; // 攻撃の見た目の点検(-qaAtkFx)
+    public int DamageAmount => damage;        // マルチ: JOIN の被弾の量を HOST が決める
+    public float SlowFactor => slowFactor;
+    public float SlowDuration => slowDuration;
     public bool IsActive => col != null && col.enabled;
     public bool Damaging => damage > 0;
     static int serialNext;
@@ -361,7 +364,7 @@ public class CaveHazard : MonoBehaviour
 
     public void EndEarly() { if (!released) life = Mathf.Min(life, timer + 0.15f); }
     public void SetDrift(float speed) { drift = speed; }
-    public void SetSlow(float factor, float duration) { slowFactor = factor; slowDuration = duration; }
+    public void SetSlow(float factor, float duration) { slowFactor = factor; slowDuration = duration; NetAttackSync.UpdateSlow(gameObject, factor, duration); } // 登録の後で決まった減速も HOST の記録へ
     public void SetTint(Color c) { body.color = c; }
     // 見た目だけ別の絵にする(魔人の爪 = 斬撃など)。判定・予告はそのまま
     public void SetBodySprite(Sprite sp, bool flipX = false) { body.sprite = sp; body.flipX = flipX; AttackArt.Animate(body); }
@@ -408,7 +411,8 @@ public class CaveHazard : MonoBehaviour
         if (timer >= life) { Release(); return; }
         // 置き去り(プレイヤーのずっと後ろ)
         var pc = PlayerController.Instance;
-        if (pc != null && follow == null && p.x < pc.transform.position.x - 18f && timer > 0.5f) Release();
+        // マルチ(2026-10-11): HOST 自身ではなく、最後尾の活動中のプレイヤーより後ろになったら(後ろの JOIN へ届く危険物を消さない)
+        if (pc != null && follow == null && p.x < NetCombat.RearmostAlivePlayerX(pc.transform.position.x) - 18f && timer > 0.5f) Release();
     }
 
     void CountOverPlayer(float x)

@@ -248,6 +248,33 @@ public partial class NetAutoTest : MonoBehaviour
         }
     }
 
+    // ボスのプレイヤーへの効果(2026-10-11): -netAutoBossFx 14:WindGust:1.8 … HOST が 14 秒目に、生きているボスの WindGust(1.8) を直接動かす。
+    // 両方の端末で、効果が自分のプレイヤーに掛かった回数(NetPlayerFx.LocalCount)と走る速さを1秒ごとに記録する
+    float bossFxAt = -1f, bossFxArg = 1f, bossFxLogNext; string bossFxMethod = ""; bool bossFxDone;
+    void BossFxTest()
+    {
+        if (bossFxAt <= 0f || runTime < bossFxAt - 1f || runTime > bossFxAt + 5f) return;
+        if (role == "HOST" && !bossFxDone && runTime >= bossFxAt)
+        {
+            bossFxDone = true;
+            foreach (var mb in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
+            {
+                if (!(mb is IBossBattleDebug b) || !b.DebugAlive) continue;
+                var m = mb.GetType().GetMethod(bossFxMethod, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+                if (m == null) continue;
+                var ps = m.GetParameters();
+                object[] args = ps.Length == 0 ? new object[0] : ps.Length == 1 ? new object[] { bossFxArg } : new object[] { bossFxArg, 0.8f };
+                mb.StartCoroutine((System.Collections.IEnumerator)m.Invoke(mb, args));
+                L($"BOSSFX {mb.GetType().Name}.{bossFxMethod}({bossFxArg}) started by HOST");
+                break;
+            }
+        }
+        if (runTime < bossFxLogNext) return;
+        bossFxLogNext = runTime + 0.5f;
+        var pc = PlayerController.Instance;
+        L($"BOSSFX t={runTime:F1} role={role} me=P{NetCombat.LocalPlayerNumber} localFx={NetPlayerFx.LocalCount} last={NetPlayerFx.LastLocalKind}@{NetPlayerFx.LastLocalTime:F1} slow={(pc != null ? pc.MoveSlowFactor : 1f):F2} speed={(pc != null ? pc.CurrentAutoRunSpeed : 0f):F1} sent={NetMatch.StatPlayerFxSent} recv={NetMatch.StatPlayerFxReceived}");
+    }
+
     // BREAK の位置(2026-10-07): -netAutoBreakAt t … HOST が t 秒でボスを BREAK させ、両方の端末で4秒間「ボス - 自分のプレイヤー」の距離を記録する
     float breakAt = -1f, breakLogNext; bool breakDone;
     void BreakTest()
@@ -326,6 +353,7 @@ public partial class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoPassive") passive = true;
             else if (a == "-netAutoBossKind") bossKind = next;
             else if (a == "-netAutoBreakAt") float.TryParse(next, out breakAt);
+            else if (a == "-netAutoBossFx") { var ps = next.Split(':'); if (ps.Length >= 2) { float.TryParse(ps[0], out bossFxAt); bossFxMethod = ps[1]; if (ps.Length >= 3) float.TryParse(ps[2], out bossFxArg); } }
             else if (a == "-netAutoChoiceAt") float.TryParse(next, out choiceAt);
             else if (a == "-netAutoChoiceHold") float.TryParse(next, out choiceHold);
             else if (a == "-netAutoMode") modeArg = next.ToLowerInvariant();
@@ -523,6 +551,7 @@ public partial class NetAutoTest : MonoBehaviour
                 if (step == Step.Done) break;
                 if (role == "HOST" && bossAt > 0f && !bossSpawned && runTime >= bossAt) SpawnTestBoss();
                 BreakTest();
+                BossFxTest();
                 if (runTime >= runSeconds) Finish("run time elapsed");
                 break;
             case Step.AfterLeave:
