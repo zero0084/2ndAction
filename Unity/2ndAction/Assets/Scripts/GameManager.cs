@@ -1467,6 +1467,7 @@ public partial class GameManager : MonoBehaviour
         // than popping in and cutting off abruptly.
         float fadeWindow = Mathf.Min(0.3f, unlockToastDuration * 0.5f);
         float alpha = Mathf.Clamp01(Mathf.Min(unlockToastDuration - unlockAnnounceTimer, unlockAnnounceTimer) / Mathf.Max(0.001f, fadeWindow));
+        if (alpha <= 0.01f) return; // 出始め(時間が止まっている間も)は描かない
 
         string text = "NEW UNLOCK: " + currentUnlockAnnouncement.displayName;
         GUIStyle style = new GUIStyle(GUI.skin.label);

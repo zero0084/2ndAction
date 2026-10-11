@@ -43,7 +43,8 @@ public partial class QaSweep
         yield return WaitTut(() => NetDebugUI.CurrentScreen == NetDebugUI.MultiScreen.OnlineUnavailable || OnlineServices.Status == OnlineServices.State.Ready, 30f);
         yield return new WaitForSecondsRealtime(0.5f);
         L($"[B] status={OnlineServices.Status} error='{OnlineServices.ErrorText}' detail='{OnlineServices.ErrorDetail}' screen={NetDebugUI.CurrentScreen}");
-        if (OnlineServices.Status == OnlineServices.State.Ready)
+        bool reachedReady = OnlineServices.Status == OnlineServices.State.Ready; // 本物の Cloud につながった(2026-10-11〜)。D で状態を作り替えるので、ここで覚えておく
+        if (reachedReady)
         {
             L("[B] online service is available on this machine: the failure path is not exercised here");
         }
@@ -132,7 +133,7 @@ public partial class QaSweep
         foreach (var m in logs) { string lo = m.ToLowerInvariant(); if (lo.Contains("token") || lo.Contains("joincode") || lo.Contains("join code") || lo.Contains("hmac") || lo.Contains("key=")) { secret = true; L("[E] suspicious log: " + m); } }
         Check(!secret, $"E: no secrets in the [ONLINE]/[NET] logs ({logs.Count} lines)");
         bool sawInit = logs.Exists(m => m.StartsWith("[ONLINE] UGS Initialize"));
-        bool sawErr = logs.Exists(m => m.StartsWith("[ONLINE] Service error")) || OnlineServices.Status == OnlineServices.State.Ready;
+        bool sawErr = logs.Exists(m => m.StartsWith("[ONLINE] Service error")) || reachedReady;
         Check(sawInit && sawErr, "E: [ONLINE] UGS Initialize / Service error are logged");
         foreach (var m in logs) if (m.StartsWith("[ONLINE]")) L("  log: " + m);
         SaveProfile.Switch(false, true);

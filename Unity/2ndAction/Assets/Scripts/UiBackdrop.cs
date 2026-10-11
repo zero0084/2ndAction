@@ -47,7 +47,9 @@ public static class UiBackdrop
         GUI.DrawTexture(rect, Tex());
 
         const float edge = 1.5f;
-        GUI.color = new Color(GoldEdge.r, GoldEdge.g, GoldEdge.b, Mathf.Min(1f, alpha + 0.35f) * ambient);
+        // 2026-10-11: 縁は下地より濃く(+0.35)するが、下地が消えかけ(フェードの出始め/終わり)の時は縁も一緒に薄くする。
+        // 以前は透明度 0 でも縁だけが 0.35 で残り、文字の無い金の枠が浮いて見えた(NEW UNLOCK の出始めなど)
+        GUI.color = new Color(GoldEdge.r, GoldEdge.g, GoldEdge.b, Mathf.Min(1f, alpha + 0.35f * Mathf.Clamp01(alpha / 0.2f)) * ambient);
         GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, edge), Tex());
         GUI.DrawTexture(new Rect(rect.x, rect.yMax - edge, rect.width, edge), Tex());
         GUI.DrawTexture(new Rect(rect.x, rect.y, edge, rect.height), Tex());
