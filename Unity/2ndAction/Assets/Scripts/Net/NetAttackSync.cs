@@ -181,6 +181,8 @@ public class NetAttackSync : MonoBehaviour
             N(SkyBossFx.Beam(), "SkyBossFx.Beam"); N(SkyBossFx.Spear(), "SkyBossFx.Spear"); N(SkyBossFx.Feather(), "SkyBossFx.Feather");
             N(SkyBossFx.Fin(), "SkyBossFx.Fin"); N(SkyBossFx.Tentacle(), "SkyBossFx.Tentacle");
             N(OneShotSpriteEffect.SoftDotSprite(), "OneShot.SoftDot");
+            N(SkyBossFx.ProceduralBeam(), "SkyBossFx.ProceduralBeam");
+            AttackArt.WarmAll(); // 攻撃の絵のコマ(名前付きの読み込み済み Sprite)をミラーで探せるように
         }
         catch (System.Exception e) { Debug.LogWarning("[NET][ATTACK] sprite warm-up failed: " + e.Message); }
     }

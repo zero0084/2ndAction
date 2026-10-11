@@ -282,7 +282,7 @@ public class SerpentBoss : WildBossBase
         dashMark = NewMarker(new Vector2(r + 4.6f, 0.5f), new Vector2(9f, 0.9f));
 
         Vector2 ec = new Vector2(0f, bodyHeight * 0.5f), es = new Vector2(2.8f, bodyHeight + 0.6f);
-        erupt = NewHitbox("Erupt", ec, es, BossFx.Block(), new Color(0.75f, 0.6f, 0.35f, 0.6f));
+        erupt = NewHitbox("Erupt", ec, es, BurstArt, BurstTint(new Color(0.75f, 0.6f, 0.35f, 0.6f)));
         eruptMark = NewMarker(new Vector2(0f, 0.9f), new Vector2(2.8f, 1.8f));
 
         Vector2 tc = new Vector2(r + 3.2f, 0.5f), ts = new Vector2(7.5f, 1.0f);
@@ -460,7 +460,7 @@ public class CyclopsBoss : WildBossBase
         sweepMark = NewMarker(c, sc);
 
         Vector2 m = new Vector2(r + 1.4f, 1.6f), sm = new Vector2(4.2f, 3.2f);
-        megaSlam = NewHitbox("MegaSlam", m, sm, BossFx.Block(), new Color(1f, 0.6f, 0.25f, 0.7f));
+        megaSlam = NewHitbox("MegaSlam", m, sm, BurstArt, BurstTint(new Color(1f, 0.6f, 0.25f, 0.7f)));
         megaSlam.damageAmount = CombatScale.PlayerHeavyHit;
         megaMark = NewMarker(m, sm);
     }
@@ -759,7 +759,7 @@ public class GolemBoss : WildBossBase
         SetAlpha(0f);
         float r = FrontReach;
         Vector2 a = new Vector2(r + 1.3f, 1.0f), sa = new Vector2(3.2f, 2.2f);
-        slam = NewHitbox("Slam", a, sa, BossFx.Block(), new Color(0.8f, 0.7f, 0.55f, 0.6f));
+        slam = NewHitbox("Slam", a, sa, BurstArt, BurstTint(new Color(0.8f, 0.7f, 0.55f, 0.6f)));
         slamMark = NewMarker(a, sa);
 
         Vector2 b = new Vector2(r + 1.3f, 0.8f), sb = new Vector2(3.6f, 1.5f);
@@ -772,7 +772,7 @@ public class GolemBoss : WildBossBase
 
         // HP半分以下の両拳叩きつけ(長い溜め+衝撃波)
         Vector2 d = new Vector2(r + 1.2f, 1.0f), sd = new Vector2(4.8f, 2.4f);
-        dbl = NewHitbox("DoubleSlam", d, sd, BossFx.Block(), new Color(1f, 0.8f, 0.5f, 0.65f));
+        dbl = NewHitbox("DoubleSlam", d, sd, BurstArt, BurstTint(new Color(1f, 0.8f, 0.5f, 0.65f)));
         dblMark = NewMarker(d, sd);
 
         // 第3段階で光るコア(胸のあたり)

@@ -1805,7 +1805,9 @@ public partial class CelestialGuardianBoss : SkyBossBase
             sr.color = new Color(1f, 0.95f, 0.75f, 0.55f);
             go.transform.position = new Vector3(top.x, top.y - 7f, 0f);
             go.transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
-            go.transform.localScale = new Vector3(16f, 2.2f, 1f);
+            Vector2 bu = AttackArt.Unit(sr.sprite);
+            go.transform.localScale = new Vector3(16f / bu.x, 2.2f / bu.y, 1f);
+            AttackArt.Animate(sr);
             go.AddComponent<SkyFadeOut>().Init(2.4f, false);
         }
         Sfx(SkyBossSfx.Whoosh(), 0.6f);

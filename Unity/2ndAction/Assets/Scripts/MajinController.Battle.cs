@@ -174,7 +174,7 @@ public partial class MajinController : IBossBattleDebug
         if (flashOverlay != null) flashOverlay.enabled = false;
         // 低い薙ぎ払い(跳ぶ)。予告の帯 0.7 秒
         float d = CaveBossSafety.Reserve(false, 0.7f, 0.3f);
-        CaveHazard.Band(player.position.x + 0.8f, 4.2f, 0f, 1.15f, 0.7f + d, 0.3f, CaveLook.Magic, MagicDmg(false), false, "Majin:claw");
+        CaveHazard.Band(player.position.x + 0.8f, 4.2f, 0f, 1.15f, 0.7f + d, 0.3f, CaveLook.Magic, MagicDmg(false), false, "Majin:claw").SetBodySprite(BossFx.Slash(), true); // 爪は斬撃の絵(2026-10-11)
         t = 0f;
         while (t < 1.0f + d && state == State.Special) { t += Time.deltaTime; transform.position = RelPos(dx, alt); yield return null; }
         // 振り抜いた後はその場にとどまる(反撃の時間、暗い色=今は撃ってこない)

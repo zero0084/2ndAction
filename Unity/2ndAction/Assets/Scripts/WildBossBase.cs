@@ -207,6 +207,10 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     }
 
     // ================= Hitbox / Marker 生成 =================
+    // 叩きつけ/噴出の本番の絵(2026-10-11、以前は色付きの四角)。絵は色付きなので、絵がある時は色を薄く乗せるだけにする
+    protected static Sprite BurstArt => AttackArt.First(AtkArtSet.Burst, BossFx.Block());
+    protected static Color BurstTint(Color old) => AttackArt.Has(AtkArtSet.Burst) ? new Color(Mathf.Lerp(1f, old.r, 0.25f), Mathf.Lerp(1f, old.g, 0.25f), Mathf.Lerp(1f, old.b, 0.25f), 0.97f) : old;
+
     protected BossHitbox NewHitbox(string name, Vector2 relCenter, Vector2 size, Sprite vfx, Color color)
     {
         BossHitbox hb = BossHitbox.Create(transform, vfx, color, name, RenderOrder.Boss + 1);
@@ -1697,6 +1701,11 @@ public class TrackedHazard : MonoBehaviour
     public bool damages = true;
     public int damageAmount = CombatScale.PlayerHit; // ボス戦の強化(2026-10-01): 必殺技は強い一撃
     public System.Action onActivate;
+    // 攻撃の本番の絵(2026-10-11、以前は発動中も色付きの四角だった): 紫/青系の色 = 魔炎の柱、それ以外 = 岩の柱。
+    // 四角(根元の SpriteRenderer)は予告の間だけ。絵は子(Art)で、作った時点で用意する(マルチのミラーが見た目の部品を数えるのは Start の時)
+    SpriteRenderer art;
+    AtkArtSet artSet;
+    Vector2 artUnit = Vector2.one;
 
     public static TrackedHazard Create(float worldX, float width, float heightSize, float warn, float active, Color activeColor)
     {
@@ -1711,6 +1720,21 @@ public class TrackedHazard : MonoBehaviour
         hz.sr.sortingOrder = RenderOrder.Boss - 1;
         hz.sr.color = new Color(1f, 0.15f, 0.08f, 0.1f);
         go.transform.localScale = new Vector3(width, heightSize, 1f);
+        if (active > 0f)
+        {
+            hz.artSet = activeColor.b > activeColor.g + 0.25f ? AtkArtSet.MagicPillar : AtkArtSet.RockPillar;
+            Sprite a = AttackArt.First(hz.artSet, null);
+            if (a != null)
+            {
+                var ag = new GameObject("Art");
+                ag.transform.SetParent(go.transform, false);
+                hz.art = ag.AddComponent<SpriteRenderer>();
+                hz.art.sprite = a;
+                hz.art.sortingOrder = RenderOrder.Boss + 1;
+                hz.art.enabled = false;
+                hz.artUnit = AttackArt.Unit(a);
+            }
+        }
 
         var rb = go.AddComponent<Rigidbody2D>();
         rb.bodyType = RigidbodyType2D.Kinematic;
@@ -1769,11 +1793,33 @@ public class TrackedHazard : MonoBehaviour
             activated = true;
             col.enabled = true;
             sr.color = activeColor;
+            if (art != null)
+            {
+                sr.enabled = false; // 四角は予告だけ
+                art.enabled = true;
+                AttackArt.Animate(art, once: artSet == AtkArtSet.RockPillar, duration: Mathf.Max(0.2f, activeDuration));
+                Vector3 foot = transform.position + new Vector3(0f, -height * 0.5f + 0.1f, 0f);
+                if (artSet == AtkArtSet.RockPillar)
+                    OneShotSpriteEffect.CreateScatterBurst(CaveBossFx.RockChunk(), foot, new Color(0.75f, 0.66f, 0.55f, 1f), 5, 0.45f, 0.1f, 0.25f, 3.5f, 2f, RenderOrder.CombatFx);
+                else
+                    OneShotSpriteEffect.CreateScatterBurst(OneShotSpriteEffect.SoftDotSprite(), foot, new Color(activeColor.r, activeColor.g, activeColor.b, 0.9f), 7, 0.45f, 0.08f, 0.18f, 3f, 3f, RenderOrder.CombatFx);
+            }
             onActivate?.Invoke();
         }
         float ft = (timer - warnDuration) / activeDuration;
         Color c = activeColor; c.a = activeColor.a * Mathf.Lerp(1f, 0.3f, ft);
         sr.color = c;
+        if (art != null)
+        {
+            // 根元からせり上がる(0.08秒)→ 終わりに向けて薄くなる。岩は色付きの絵なので色は乗せない
+            float rise = Mathf.Clamp01((timer - warnDuration) / 0.08f);
+            float k = Mathf.Lerp(0.35f, 1f, rise);
+            art.transform.localScale = new Vector3(1f / artUnit.x, k / artUnit.y, 1f);
+            art.transform.localPosition = new Vector3(0f, -(1f - k) * 0.5f, 0f);
+            Color ac = AttackArt.Natural(artSet) ? new Color(1f, 1f, 1f, 1f) : new Color(Mathf.Min(1f, activeColor.r + 0.1f), activeColor.g, Mathf.Min(1f, activeColor.b + 0.1f), 1f);
+            ac.a = Mathf.Lerp(1f, 0.35f, ft * ft);
+            art.color = ac;
+        }
         if (timer >= warnDuration + activeDuration) Destroy(gameObject);
     }
 

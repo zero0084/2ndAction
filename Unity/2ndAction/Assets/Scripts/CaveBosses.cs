@@ -384,7 +384,7 @@ public class TrollBoss : CaveBossBase
         sweep = NewHitbox("Sweep", wc, ws, BossFx.Slash(), new Color(1f, 0.6f, 0.3f, 0.95f));
         sweepMark = NewMarker(wc, ws);
         Vector2 m = new Vector2(FrontReach + 1.2f, 1.4f), sm = new Vector2(3.8f, 2.8f);
-        megaSlam = NewHitbox("MegaSlam", m, sm, BossFx.Block(), new Color(1f, 0.6f, 0.25f, 0.7f));
+        megaSlam = NewHitbox("MegaSlam", m, sm, BurstArt, BurstTint(new Color(1f, 0.6f, 0.25f, 0.7f)));
         megaMark = NewMarker(m, sm);
     }
 

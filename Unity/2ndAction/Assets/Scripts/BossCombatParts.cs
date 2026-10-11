@@ -193,7 +193,17 @@ public class BossHitbox : MonoBehaviour
         hitThisActivation = false;
         col.enabled = true;
         vfx.enabled = true;
-        vfx.transform.localScale = new Vector3(vfxFlipsWithFacing ? Mathf.Sign(facing) * size.x : size.x, size.y, 1f);
+        // 攻撃の本番の絵(2026-10-11): 噴出は判定の間に1回再生、光の帯は繰り返す。絵は 1×1 ではないので大きさで割る
+        bool art = AttackArt.SetOf(vfx.sprite, out AtkArtSet set);
+        if (art) AttackArt.Animate(vfx, once: set == AtkArtSet.Burst, duration: duration);
+        Vector2 unit = AttackArt.Unit(vfx.sprite);
+        vfx.transform.localScale = new Vector3((vfxFlipsWithFacing ? Mathf.Sign(facing) : 1f) * size.x / unit.x, size.y / unit.y, 1f);
+        if (art && set == AtkArtSet.Burst)
+        {
+            // 叩きつけの瞬間: 岩のかけらが飛び散る(地面の高さ = 判定の下端)
+            Vector3 foot = transform.position + new Vector3(0f, -size.y * 0.5f + 0.1f, 0f);
+            OneShotSpriteEffect.CreateScatterBurst(CaveBossFx.RockChunk(), foot, new Color(0.75f, 0.66f, 0.55f, 1f), 8, 0.5f, 0.12f, 0.3f, 4f, 2.4f, RenderOrder.CombatFx);
+        }
 
         float t = 0f;
         while (t < duration)
@@ -204,7 +214,7 @@ public class BossHitbox : MonoBehaviour
             vfx.color = c;
             // 一瞬だけ大きく見せる(叩きつけ感) - 判定サイズは変えない
             float punch = 1f + 0.18f * (1f - f);
-            vfx.transform.localScale = new Vector3((vfxFlipsWithFacing ? Mathf.Sign(facing) : 1f) * size.x * punch, size.y * punch, 1f);
+            vfx.transform.localScale = new Vector3((vfxFlipsWithFacing ? Mathf.Sign(facing) : 1f) * size.x * punch / unit.x, size.y * punch / unit.y, 1f);
             yield return null;
         }
         Deactivate();

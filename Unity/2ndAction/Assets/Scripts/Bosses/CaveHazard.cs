@@ -48,6 +48,7 @@ public class CaveHazard : MonoBehaviour
     public System.Action<CaveHazard> onActivate, onLand;
 
     public CaveHazardKind Kind => kind;
+    public CaveLook Look => look; // 攻撃の見た目の点検(-qaAtkFx)
     public bool IsActive => col != null && col.enabled;
     public bool Damaging => damage > 0;
     static int serialNext;
@@ -87,6 +88,11 @@ public class CaveHazard : MonoBehaviour
 
     static Sprite LookSprite(CaveLook l, CaveHazardKind k)
     {
+        // 攻撃の本番の絵(2026-10-11、以前は魔法/視線が色付きの四角、炎/水が引き伸ばした丸だった):
+        // 床から/天井からの魔法・炎・聖光・水 = 縦の魔炎の柱、帯(視線/ブレス/魔法陣の帯)= 横の光の帯。白基調の絵に LookColor を乗せる
+        bool energy = l == CaveLook.Magic || l == CaveLook.Fire || l == CaveLook.Holy || l == CaveLook.Water || l == CaveLook.Gaze;
+        if (energy && (k == CaveHazardKind.Floor || k == CaveHazardKind.Ceiling) && l != CaveLook.Gaze && AttackArt.Has(AtkArtSet.MagicPillar)) return AttackArt.First(AtkArtSet.MagicPillar, null);
+        if (energy && (k == CaveHazardKind.Band || (l == CaveLook.Gaze && k != CaveHazardKind.Tell)) && AttackArt.Has(AtkArtSet.Beam)) return AttackArt.First(AtkArtSet.Beam, null);
         switch (l)
         {
             case CaveLook.Crystal: return CaveBossFx.CrystalShard();
@@ -158,7 +164,7 @@ public class CaveHazard : MonoBehaviour
         hitsLeft = 0; lastHitTime = -9f; rot = 0f; colShrink = 0.85f; fallDur = 0.35f; slowFactor = 1f; slowDuration = 0f;
         onActivate = null; onLand = null; overReported = false;
         col.enabled = false;
-        foreach (var sr in new[] { band, body, shadow, pebA, pebB }) { sr.enabled = false; sr.transform.localPosition = Vector3.zero; sr.transform.localRotation = Quaternion.identity; sr.transform.localScale = Vector3.one; }
+        foreach (var sr in new[] { band, body, shadow, pebA, pebB }) { sr.enabled = false; sr.flipY = false; sr.flipX = false; sr.transform.localPosition = Vector3.zero; sr.transform.localRotation = Quaternion.identity; sr.transform.localScale = Vector3.one; }
         gameObject.name = "CaveHazard_" + k;
     }
 
@@ -244,6 +250,7 @@ public class CaveHazard : MonoBehaviour
         var h = Get(CaveHazardKind.Floor, sceneX, source);
         h.look = look; h.width = width; h.yLow = 0f; h.yHigh = height; h.warn = warn; h.active = active; h.damage = damage; h.heavy = heavy;
         h.body.sprite = LookSprite(look, CaveHazardKind.Floor); h.body.color = LookColor(look);
+        AttackArt.Animate(h.body);
         h.band.sprite = BossFx.Block();
         h.shadow.sprite = CaveBossFx.RockChunk(); h.shadow.color = LookColor(CaveLook.Dirt);
         h.pebA.sprite = h.pebB.sprite = CaveBossFx.RockChunk();
@@ -258,6 +265,8 @@ public class CaveHazard : MonoBehaviour
         var h = Get(CaveHazardKind.Ceiling, sceneX, source);
         h.look = look; h.width = width; h.yLow = bottom; h.yHigh = 99f; h.warn = warn; h.active = active; h.damage = damage; h.heavy = heavy;
         h.body.sprite = LookSprite(look, CaveHazardKind.Ceiling); h.body.color = LookColor(look);
+        h.body.flipY = AttackArt.SetOf(h.body.sprite, out _); // 柱の絵は根元が下 → 天井から下りる時は上下反転
+        AttackArt.Animate(h.body);
         h.band.sprite = BossFx.Block();
         h.shadow.sprite = BossFx.Block(); h.shadow.color = new Color(0.08f, 0.06f, 0.05f, 0.9f); // 天井のひび
         h.pebA.sprite = h.pebB.sprite = CaveBossFx.RockChunk();
@@ -273,6 +282,8 @@ public class CaveHazard : MonoBehaviour
         h.look = look; h.width = width; h.yLow = yLow; h.yHigh = yHigh; h.warn = warn; h.active = active; h.damage = damage; h.heavy = heavy;
         h.slowFactor = slow; h.slowDuration = slowDur;
         h.body.sprite = LookSprite(look, CaveHazardKind.Band); h.body.color = LookColor(look);
+        h.body.flipX = AttackArt.SetOf(h.body.sprite, out _); // 光の帯の絵は右へ流れる → 前方(ボス)からプレイヤーへ向かう左向きに
+        AttackArt.Animate(h.body);
         h.band.sprite = BossFx.Block();
         h.life = warn + active + 0.2f;
         h.RegisterNet();
@@ -328,6 +339,7 @@ public class CaveHazard : MonoBehaviour
         h.look = look; h.width = length; h.yLow = yLow; h.yHigh = yHigh; h.warn = 0f; h.active = 7f; h.damage = damage; h.heavy = heavy;
         h.drift = speed; h.colShrink = Mathf.Clamp(shrink, 0.3f, 1f);
         h.body.sprite = LookSprite(look, CaveHazardKind.Wave); h.body.color = LookColor(look);
+        AttackArt.Animate(h.body);
         h.life = 7f;
         h.RegisterNet();
         return h;
@@ -351,6 +363,8 @@ public class CaveHazard : MonoBehaviour
     public void SetDrift(float speed) { drift = speed; }
     public void SetSlow(float factor, float duration) { slowFactor = factor; slowDuration = duration; }
     public void SetTint(Color c) { body.color = c; }
+    // 見た目だけ別の絵にする(魔人の爪 = 斬撃など)。判定・予告はそのまま
+    public void SetBodySprite(Sprite sp, bool flipX = false) { body.sprite = sp; body.flipX = flipX; AttackArt.Animate(body); }
 
     // ===================================================================== //
     // 毎フレーム

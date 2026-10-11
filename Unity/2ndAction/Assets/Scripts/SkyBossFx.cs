@@ -157,7 +157,11 @@ public static class SkyBossFx
     }
 
     // 横長のブレス/ビーム(中心が明るく、縁がにじむ)。
-    public static Sprite Beam()
+    // 2026-10-11: 本番の絵(Effects/Atk/beam、4コマ、白基調)があればそれ。絵は 1×1 ではないので使う所は AttackArt.Unit で割る
+    public static Sprite Beam() => AttackArt.First(AtkArtSet.Beam, null) ?? ProceduralBeam();
+
+    // 手続きの帯(絵が無い時。攻撃の見た目の点検ではこれを「仮の絵」とみなす)
+    public static Sprite ProceduralBeam()
     {
         if (beam != null) return beam;
         beam = Make(64, 64, (u, v) =>
@@ -453,7 +457,8 @@ public class SkyStrike : MonoBehaviour
             case Look.Pillar:
                 strikeSr.sprite = SkyBossFx.Beam();
                 strikeSr.transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
-                strikeSr.transform.localScale = new Vector3(height + 6f, width * 1.3f, 1f);
+                { Vector2 u = AttackArt.Unit(strikeSr.sprite); strikeSr.transform.localScale = new Vector3((height + 6f) / u.x, width * 1.3f / u.y, 1f); }
+                AttackArt.Animate(strikeSr);
                 strikeSr.transform.localPosition = new Vector3(0f, (height + 6f) * 0.5f, 0f);
                 SkyBossSfx.Play(SkyBossSfx.Whoosh(), 0.7f);
                 Shake(0.06f, 0.12f);
