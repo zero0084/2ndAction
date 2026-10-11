@@ -98,6 +98,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaFix5") { mode = "fix5"; dir = a[i + 1]; }
             if (a[i] == "-qaBuildLab") { mode = "buildlab"; dir = a[i + 1]; }
             if (a[i] == "-qaAtkFx") { mode = "atkfx"; dir = a[i + 1]; }
+            if (a[i] == "-qaArtShots") { mode = "artshots"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -214,6 +215,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "fix5") yield return Fix5ModeQa();
         else if (mode == "buildlab") yield return BuildLabMode();
         else if (mode == "atkfx") yield return AtkFxMode();
+        else if (mode == "artshots") yield return ArtShotsMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

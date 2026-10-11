@@ -251,7 +251,7 @@ public class CaveHazard : MonoBehaviour
         h.look = look; h.width = width; h.yLow = 0f; h.yHigh = height; h.warn = warn; h.active = active; h.damage = damage; h.heavy = heavy;
         h.body.sprite = LookSprite(look, CaveHazardKind.Floor); h.body.color = LookColor(look);
         AttackArt.Animate(h.body);
-        h.band.sprite = BossFx.Block();
+        h.band.sprite = BossFx.WarnZone();
         h.shadow.sprite = CaveBossFx.RockChunk(); h.shadow.color = LookColor(CaveLook.Dirt);
         h.pebA.sprite = h.pebB.sprite = CaveBossFx.RockChunk();
         h.pebA.color = h.pebB.color = LookColor(CaveLook.Dirt);
@@ -267,7 +267,7 @@ public class CaveHazard : MonoBehaviour
         h.body.sprite = LookSprite(look, CaveHazardKind.Ceiling); h.body.color = LookColor(look);
         h.body.flipY = AttackArt.SetOf(h.body.sprite, out _); // 柱の絵は根元が下 → 天井から下りる時は上下反転
         AttackArt.Animate(h.body);
-        h.band.sprite = BossFx.Block();
+        h.band.sprite = BossFx.WarnZone();
         h.shadow.sprite = BossFx.Block(); h.shadow.color = new Color(0.08f, 0.06f, 0.05f, 0.9f); // 天井のひび
         h.pebA.sprite = h.pebB.sprite = CaveBossFx.RockChunk();
         h.pebA.color = h.pebB.color = LookColor(CaveLook.Rock);
@@ -284,7 +284,7 @@ public class CaveHazard : MonoBehaviour
         h.body.sprite = LookSprite(look, CaveHazardKind.Band); h.body.color = LookColor(look);
         h.body.flipX = AttackArt.SetOf(h.body.sprite, out _); // 光の帯の絵は右へ流れる → 前方(ボス)からプレイヤーへ向かう左向きに
         AttackArt.Animate(h.body);
-        h.band.sprite = BossFx.Block();
+        h.band.sprite = BossFx.WarnZone();
         h.life = warn + active + 0.2f;
         h.RegisterNet();
         return h;
@@ -296,7 +296,7 @@ public class CaveHazard : MonoBehaviour
         h.look = look; h.width = size; h.yLow = 0f; h.yHigh = size; h.warn = warn; h.active = 0f; h.damage = damage; h.heavy = heavy;
         h.drift = 0f;
         h.body.sprite = LookSprite(look, CaveHazardKind.FallRock); h.body.color = LookColor(look);
-        h.band.sprite = BossFx.Block();
+        h.band.sprite = BossFx.WarnZone();
         h.shadow.sprite = OneShotSpriteEffect.SoftDotSprite(); h.shadow.color = new Color(0f, 0f, 0f, 0f);
         h.pebA.sprite = h.pebB.sprite = CaveBossFx.RockChunk();
         h.pebA.color = h.pebB.color = LookColor(CaveLook.Rock);
@@ -312,7 +312,7 @@ public class CaveHazard : MonoBehaviour
         h.look = CaveLook.Poison; h.width = width; h.yLow = 0f; h.yHigh = 0.5f; h.warn = 0.35f; h.active = duration; h.damage = damage;
         h.drift = driftSpeed;
         h.body.sprite = OneShotSpriteEffect.SoftDotSprite(); h.body.color = LookColor(CaveLook.Poison);
-        h.band.sprite = BossFx.Block();
+        h.band.sprite = BossFx.WarnZone();
         h.pebA.sprite = h.pebB.sprite = OneShotSpriteEffect.SoftDotSprite();
         h.pebA.color = h.pebB.color = new Color(0.6f, 1f, 0.5f, 0.8f); // 泡
         h.life = h.warn + duration;
@@ -326,7 +326,7 @@ public class CaveHazard : MonoBehaviour
         h.look = look; h.width = width; h.yLow = 0f; h.yHigh = height; h.warn = warn; h.active = 9f; h.damage = damage; h.heavy = heavy;
         h.drift = driftSpeed; h.hitsLeft = Mathf.Max(1, hits);
         h.body.sprite = LookSprite(look, CaveHazardKind.Pillar); h.body.color = LookColor(look);
-        h.band.sprite = BossFx.Block();
+        h.band.sprite = BossFx.WarnZone();
         h.life = warn + 9f;
         h.RegisterNet();
         return h;

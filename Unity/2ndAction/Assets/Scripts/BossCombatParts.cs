@@ -103,7 +103,24 @@ public static class BossFx
         return ring;
     }
 
-    // 単色ブロック(警告ゾーン・柱・岩など)。
+    // 攻撃の予告の範囲(2026-10-11、以前は単色の四角 Block だった): 縁取り + 斜めの縞 + やわらかい端。
+    // 色は呼び出し側の色(赤=低い攻撃/紫=高い攻撃など)。当たる攻撃の絵(AttackArt)とひと目で区別できる見た目にする
+    static Sprite warnZone;
+    public static Sprite WarnZone()
+    {
+        if (warnZone != null) return warnZone;
+        warnZone = Make(64, (u, v) =>
+        {
+            float d = Mathf.Min(Mathf.Min(u, 1f - u), Mathf.Min(v, 1f - v));
+            float soft = Mathf.Clamp01(d / 0.025f);
+            if (d < 0.075f) return soft;                                  // 縁取り
+            float stripe = Mathf.Repeat((u + v) * 3.5f, 1f) < 0.5f ? 0.62f : 0.32f; // 斜めの縞
+            return stripe;
+        });
+        return warnZone;
+    }
+
+    // 単色ブロック(柱・岩・天井のひびなど)。
     public static Sprite Block()
     {
         if (block != null) return block;
@@ -263,7 +280,7 @@ public class BossTelegraphMarker : MonoBehaviour
         go.transform.SetParent(parent, false);
         var m = go.AddComponent<BossTelegraphMarker>();
         m.sr = go.AddComponent<SpriteRenderer>();
-        m.sr.sprite = BossFx.Block();
+        m.sr.sprite = BossFx.WarnZone();
         m.sr.sortingOrder = sortingOrder;
         m.sr.color = new Color(1f, 0.12f, 0.08f, 0f);
         m.sr.enabled = false;

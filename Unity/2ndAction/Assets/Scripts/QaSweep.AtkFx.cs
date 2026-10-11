@@ -104,6 +104,36 @@ public partial class QaSweep
         RunCheckpoint.Reload();
     }
 
+    // 画像の全体点検(2026-10-11): 闘技場へ雑魚を1種類ずつ出し、走りのコマを連続で撮る。 -qaArtShots <dir> [-qaArtEnemies goblin,...]
+    IEnumerator ArtShotsMode()
+    {
+        var snapSave = SaveSystem.Capture();
+        float w0 = 0f;
+        while (GameManager.Instance == null && w0 < 10f) { yield return null; w0 += Time.unscaledDeltaTime; }
+        yield return new WaitForSecondsRealtime(1f);
+        gm = GameManager.Instance;
+        string[] res = Arg("-qaAtkRes", "960x540").Split('x');
+        int rw = int.Parse(res[0]), rh = int.Parse(res[1]);
+        SetRes(rw, rh); yield return WaitRes(rw, rh);
+        PortraitRunView.Set(Arg("-qaAtkView", "side") == "oblique" ? PortraitRunView.Oblique : PortraitRunView.Side);
+        foreach (var id in Arg("-qaArtEnemies", "goblin,chaser_runner,shooter_archer,irregular_imp,heavy_ogre,soldier_ant").Split(','))
+        {
+            ArenaConfigReset();
+            var c = ArenaMode.Config;
+            c.distance = 3000f; c.invincible = true; c.devAllEnemies = true; c.speedMode = 1;
+            c.enemies.Clear();
+            c.enemies.Add(new ArenaEnemyEntry { kind = ArenaEnemyKind.Enemy, enemyId = id, count = 1, ahead = 7f, tier = 1 });
+            yield return ArenaLaunch("ART " + id);
+            yield return new WaitForSeconds(0.6f);
+            for (int i = 0; i < 6; i++) { Shot($"E_{id}_{i}"); yield return new WaitForSeconds(0.15f); }
+            L($"[art] {id} shots done");
+        }
+        PortraitRunView.Set(PortraitRunView.Side);
+        SaveSystem.Restore(snapSave);
+        CardInventory.ReloadFromPrefs(); CardMastery.ReloadFromPrefs();
+        RunCheckpoint.Reload();
+    }
+
     struct AtkVis { public string key; public List<SpriteRenderer> srs; }
 
     // 判定が有効で、プレイヤーに当たる攻撃と、その見た目

@@ -175,7 +175,7 @@ public class NetAttackSync : MonoBehaviour
         try
         {
             N(BossFx.Fang(), "BossFx.Fang"); N(BossFx.Slash(), "BossFx.Slash"); N(BossFx.Ring(), "BossFx.Ring");
-            N(BossFx.Block(), "BossFx.Block"); N(BossFx.Orb(), "BossFx.Orb");
+            N(BossFx.Block(), "BossFx.Block"); N(BossFx.WarnZone(), "BossFx.WarnZone"); N(BossFx.Orb(), "BossFx.Orb");
             N(CaveBossFx.RockChunk(), "CaveBossFx.RockChunk"); N(CaveBossFx.CrystalShard(), "CaveBossFx.CrystalShard");
             N(SkyBossFx.Bolt(), "SkyBossFx.Bolt"); N(SkyBossFx.GroundGlow(), "SkyBossFx.GroundGlow"); N(SkyBossFx.Fist(), "SkyBossFx.Fist");
             N(SkyBossFx.Beam(), "SkyBossFx.Beam"); N(SkyBossFx.Spear(), "SkyBossFx.Spear"); N(SkyBossFx.Feather(), "SkyBossFx.Feather");

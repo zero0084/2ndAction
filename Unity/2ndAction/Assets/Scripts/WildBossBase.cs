@@ -1716,7 +1716,7 @@ public class TrackedHazard : MonoBehaviour
         hz.height = heightSize;
         hz.activeColor = activeColor;
         hz.sr = go.AddComponent<SpriteRenderer>();
-        hz.sr.sprite = BossFx.Block();
+        hz.sr.sprite = BossFx.WarnZone(); // 予告の範囲(発動中は Art の絵)
         hz.sr.sortingOrder = RenderOrder.Boss - 1;
         hz.sr.color = new Color(1f, 0.15f, 0.08f, 0.1f);
         go.transform.localScale = new Vector3(width, heightSize, 1f);

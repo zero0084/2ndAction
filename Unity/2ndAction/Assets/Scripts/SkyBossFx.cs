@@ -358,7 +358,7 @@ public class SkyStrike : MonoBehaviour
             var c = new GameObject("Column");
             c.transform.SetParent(go.transform, false);
             s.column = c.AddComponent<SpriteRenderer>();
-            s.column.sprite = BossFx.Block();
+            s.column.sprite = BossFx.WarnZone();
             s.column.sortingOrder = RenderOrder.Boss - 1;
             c.transform.localPosition = new Vector3(0f, height * 0.5f, 0f);
             c.transform.localScale = new Vector3(width, height, 1f);
@@ -552,7 +552,7 @@ public class SkyWarnBand : MonoBehaviour
         var b = go.AddComponent<SkyWarnBand>();
         b.duration = duration; b.bottom = bottomAboveGround; b.top = topAboveGround;
         b.sr = go.AddComponent<SpriteRenderer>();
-        b.sr.sprite = BossFx.Block();
+        b.sr.sprite = BossFx.WarnZone();
         b.sr.sortingOrder = RenderOrder.Boss - 1;
         float cx = (x0 + x1) * 0.5f;
         go.transform.position = new Vector3(cx, RefGround(cx) + (b.bottom + b.top) * 0.5f, 0f);
