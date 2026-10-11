@@ -158,6 +158,8 @@ public partial class CaveStage : MonoBehaviour
     readonly List<Spike> spikes = new List<Spike>();
     readonly List<Torch> torches = new List<Torch>();
     readonly List<GameObject> spawned = new List<GameObject>();
+    readonly List<SpriteRenderer> spikeArt = new List<SpriteRenderer>(); // 針の絵(障害物の警告用、2026-10-11)
+    public List<SpriteRenderer> SpikeArt { get { spikeArt.RemoveAll(s => s == null); return spikeArt; } }
     int builtNodeIndex;
     int sectionMode;
     float sectionEndX;
@@ -329,7 +331,7 @@ public partial class CaveStage : MonoBehaviour
         while (guard++ < 600)
         {
             float x = nodeBaseX + nodes.Count * nodeSpacing;
-            if (x > px + Mathf.Max(generateAhead, assistGenerateAhead)) break;
+            if (x > px + Mathf.Max(Mathf.Max(generateAhead, assistGenerateAhead), TerrainManager.ObliqueGenerateAhead)) break; // 斜め表示は遠くまで(2026-10-11)
             // 穴/分岐の判定に必要な範囲まで地形が生成済みになるまで待つ(未生成
             // 領域の地面高さは実際の地形と無関係なため)。
             if (x + margin > tm.GeneratedEndX) break;
@@ -462,6 +464,7 @@ public partial class CaveStage : MonoBehaviour
         var go = new GameObject("CeilingSpike");
         go.transform.SetParent(transform);
         var sr = go.AddComponent<SpriteRenderer>();
+        spikeArt.Add(sr); // 障害物の警告(ObstacleWarning)が近い針の縁を出す(2026-10-11)
         sr.sprite = sp;
         sr.sortingOrder = -1;
         Vector2 size = sp.bounds.size;

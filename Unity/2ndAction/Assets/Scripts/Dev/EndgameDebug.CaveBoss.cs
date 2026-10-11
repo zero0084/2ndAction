@@ -30,7 +30,7 @@ public partial class EndgameDebug
         Instance.keepAlive = false;
         DebugPanel.CloseStatic();
         SafeReset("launch");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        LoadingScreen.ReloadActive("debug warp");
     }
 
     public static void LaunchSkyBoss(SkyBossKind kind, int tier, string ch)
@@ -45,7 +45,7 @@ public partial class EndgameDebug
         Instance.keepAlive = false;
         DebugPanel.CloseStatic();
         SafeReset("launch");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        LoadingScreen.ReloadActive("debug warp");
     }
 
     static bool TakePendingCave()

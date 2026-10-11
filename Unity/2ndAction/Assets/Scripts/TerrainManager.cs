@@ -157,7 +157,11 @@ public class TerrainManager : MonoBehaviour
     // 高速時の自動操作補助(2026-09-28): 先読みに必要な距離(走行速度×先読み秒数)。generateAheadDistance
     // (EncounterDirectorが毎フレーム書き換える)とは別の値として持ち、生成範囲は大きい方を使う。
     [System.NonSerialized] public float assistGenerateAhead;
-    float EffectiveGenerateAhead => Mathf.Max(generateAheadDistance, assistGenerateAhead);
+    float EffectiveGenerateAhead => Mathf.Max(Mathf.Max(generateAheadDistance, assistGenerateAhead), ObliqueGenerateAhead);
+    // 2026-10-11: 縦画面の斜め上から見る表示は道の先を遠くまで見通すので、生成の先端(床/天井の切れ目)が画面に入らない所まで作る
+    // (表示だけの都合。地形の作り方/当たり判定は同じ)
+    public const float ObliqueAheadMeters = 120f;
+    public static float ObliqueGenerateAhead => PortraitCameraRig.Instance != null && PortraitCameraRig.Instance.IsActive ? ObliqueAheadMeters : 0f;
     const int ExtraChunksPerFrame = 3; // すぐ要る範囲より先を1フレームに作る空中の足場の数(UpdateMeasured)
     public float minEnemySpacing = 14f;
     public float pitChanceBase = 0.2f;

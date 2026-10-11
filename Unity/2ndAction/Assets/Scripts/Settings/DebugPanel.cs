@@ -271,7 +271,7 @@ public partial class DebugPanel
                 confirmSave = 0;
                 SetOpen(false);
                 // シーン上の読み込み済みの値(GameManager等)を読み直す
-                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+                LoadingScreen.ReloadActive("debug");
             }
             if (UiKit.Button(new Rect(x + bw + 8f, y + 18f, bw, 40f), "やめる", 17f, false, false)) confirmSave = 0;
         }

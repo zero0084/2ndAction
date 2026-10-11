@@ -1483,7 +1483,7 @@ public partial class GameManager : MonoBehaviour
         if (size.x + 40f > maxW) style.wordWrap = true;
         float h = style.wordWrap ? style.CalcHeight(new GUIContent(shown), w - 40f) + 16f : size.y + 16f;
         float y = Screen.height * 0.22f;
-        if (HudStacked) y = Mathf.Max(y, GetSpeedPanelRect().yMax + 12f);
+        if (HudStacked) y = Mathf.Max(y, HudLeftColumnBottom + 12f);
         Rect rect = new Rect(Screen.width / 2f - w / 2f, y, w, h);
         UiBackdrop.Draw(rect, 0.85f * alpha);
         GUI.Label(new Rect(rect.x + 20f, rect.y, rect.width - 40f, rect.height), shown, style);
@@ -1882,7 +1882,8 @@ public partial class GameManager : MonoBehaviour
             var nStyle = new GUIStyle(GUI.skin.label) { fontSize = 15, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft };
             Color c = HudGoldColor; c.a = a;
             nStyle.normal.textColor = c;
-            LocGUI.Label(new Rect(r.x + 4f, r.yMax + 2f, 220f, 22f), "SPEED UP! " + speedUpShownKmh.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " km/h", nStyle);
+            float ny = ShowTakeHomeHud ? V(GetMilePanelRect()).yMax : r.yMax;
+            LocGUI.Label(new Rect(r.x + 4f, ny + 2f, 220f, 22f), "SPEED UP! " + speedUpShownKmh.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " km/h", nStyle);
         }
     }
 
@@ -1984,7 +1985,7 @@ public partial class GameManager : MonoBehaviour
     {
         if (!HomePortrait || fade < 0.5f) return;
         var pl = PortraitHome();
-        string[] labels = { "キャラ", "デッキ", "合成", "ガチャ" };
+        string[] labels = { HomeSignLabels[0], HomeSignLabels[1], HomeSignLabels[2], HomeSignLabels[3] }; // 部屋の札と同じ名前(2026-10-11)
         float gap = 8f, w = (pl.facility.width - gap * 3f) / 4f;
         float fs = Mathf.Round(Mathf.Min(pl.facility.height * 0.34f, w * 0.2f));
         for (int i = 0; i < 4; i++)
@@ -3605,7 +3606,7 @@ public partial class GameManager : MonoBehaviour
         // Item 1/16 - FINISH (via Win()) awards the FULL RunMile; GAME OVER
         // (this method also runs for that path) LOSES it entirely instead -
         // "そのRunで獲得した未確定MILEは全て失います".
-        RunDistanceMile = Mathf.FloorToInt(MileDistanceForRun / 100f * Mathf.Max(0f, 1f + Card.Get(EffectType.DistanceMilePct))); // 疾走で飛ばした距離は除く(2026-10-05)
+        RunDistanceMile = DistanceMileNow; // 疾走で飛ばした距離は除く(2026-10-05)。ラン中の「持ち帰り予定」(TakeHomeMile)と同じ式(2026-10-11)
         if (IsWin)
         {
             AddMile(RunMile);
@@ -3669,7 +3670,7 @@ public partial class GameManager : MonoBehaviour
     public void Retry()
     {
         DeathLog($"Retry -> Scene/Run reset start (reload scene, gameOver={IsGameOver})");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        LoadingScreen.ReloadActive("reload (retry / home / run start)"); // 2026-10-11: 裏で読み込み、長い時は「読み込み中…」(LoadingScreen)
     }
 
     // ===== Run Continuation/Checkpoint Ver.1 ===== //
@@ -4036,13 +4037,15 @@ public partial class GameManager : MonoBehaviour
             if (!ArenaMode.Active) DrawStatPanel(V(GetBestPanelRect()), "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor);
             DrawStatPanel(V(GetDistancePanelRect()), "DISTANCE", FormatDistanceExact(SprintActive && SprintRunner.Instance != null ? SprintRunner.Instance.DistanceNow : MaxDistanceExact), HudValueColor, flashIntensity: DistanceFlashIntensity); // 疾走中(リングの3択)は疾走の距離
             DrawSpeedHud();
+            DrawTakeHomeHud(); // 2026-10-11: 持ち帰り予定 MILE
 
             if (!ArenaMode.Active) DrawLevelAndExp();
             DrawHeartsPanel();
             EndHud();
+            DrawEscapeTakeHome(); // 脱出の長押しの間: 今回の持ち帰り/帰還後の所持/ガチャの回数
 
             // 開発ビルドではDEBUG TOOLSの中に表示する(リリースビルドのDebug Modeでは従来どおりここに出す)。
-            if (DebugMode && !Debug.isDebugBuild) DrawDebugSpeedReadout(SafeLeft() + UiMargin, GetSpeedPanelRect().yMax + HudPanelGap + 4f);
+            if (DebugMode && !Debug.isDebugBuild) DrawDebugSpeedReadout(SafeLeft() + UiMargin, HudLeftColumnBottom + HudPanelGap + 4f);
             if (DebugMode && Debug.isDebugBuild) DrawDistanceWarpDebugUI();
 
             DrawUnlockAnnouncement();
@@ -4421,6 +4424,7 @@ public partial class GameManager : MonoBehaviour
                 }
 
                 GUI.color = prevRoom;
+                DrawHomeSigns(roomInteractable, roomFadeAlpha, doorRect, characterRect, bedRect, bookRect, lastGachaMachineRect); // 2026-10-11: 各入口の名前の札
                 DrawPortraitFacilityButtons(roomInteractable, roomFadeAlpha); // 縦画面だけ
             }
 
@@ -4516,7 +4520,7 @@ public partial class GameManager : MonoBehaviour
         float panelHeight = Mathf.Min(Screen.height * 0.92f, Mathf.Max(504f, 68f + rowCount * 34f + (upgradeHistory.Count > 0 ? 62f : 0f) + 50f) + monetH);
         float rowStep = Mathf.Clamp((panelHeight - 68f - (upgradeHistory.Count > 0 ? 62f : 0f) - 50f - monetH) / Mathf.Max(1, rowCount), 22f, 34f);
         Rect panelRect = new Rect(Screen.width / 2f - panelWidth / 2f, Screen.height / 2f - panelHeight / 2f, panelWidth, panelHeight);
-        if (HudStacked) panelRect.y = Mathf.Max(panelRect.y, Mathf.Min(GetSpeedPanelRect().yMax + 12f, Screen.height - SafeBottom() - panelHeight - 90f)); // 縦画面: 左の列(BEST/距離/速度)の下から
+        if (HudStacked) panelRect.y = Mathf.Max(panelRect.y, Mathf.Min(HudLeftColumnBottom + 12f, Screen.height - SafeBottom() - panelHeight - 90f)); // 縦画面: 左の列(BEST/距離/速度/持ち帰り予定)の下から
         UiBackdrop.Draw(panelRect, 0.8f);
         LastResultPanelRect = panelRect;
 
@@ -5154,7 +5158,7 @@ public partial class GameManager : MonoBehaviour
     {
         float bw = 62f, bh = 26f, gap = 4f;
         float x0 = SafeLeft() + UiMargin;
-        float y = GetSpeedPanelRect().yMax + HudPanelGap + 4f;
+        float y = HudLeftColumnBottom + HudPanelGap + 4f;
 
         // ---- SPD(走行速度のデバッグ倍率)----
         float scale = PlayerController.DebugSpeedScale;
@@ -6162,6 +6166,14 @@ public partial class GameManager : MonoBehaviour
         BeginHud(); // II のボタンと同じ k 倍(設計の単位で並べる)
         Rect panelRect = new Rect(VW - VSafeRight - UiMargin - pw, VH - VSafeBottom - UiMargin - 52f - (bh * 3f + gap * 2f + 24f) - 6f, pw, bh * 3f + gap * 2f + 24f);
         OrnateUi.DrawPanel(panelRect, 0.92f);
+        // 2026-10-11: 帰還の判断のための今回の持ち帰り/帰還後の所持/ガチャの回数(一時停止のホームへ戻るは中断。受け取りは脱出の時)
+        if (ShowTakeHomeHud)
+        {
+            float sw = Mathf.Min(360f, VW - VSafeLeft - VSafeRight - UiMargin * 2f);
+            float sy = Mathf.Max(VSafeTop + UiMargin, panelRect.y - TakeHomeSummaryHeight - 10f);
+            if (!HudStacked || sy >= HudLeftColumnBottom / HudK + 6f)
+                DrawTakeHomeSummary(new Rect(VW - VSafeRight - UiMargin - sw, sy, sw, TakeHomeSummaryHeight), "持ち帰り予定(脱出に成功すると受け取り)");
+        }
         float bw = panelRect.width - 24f, fs = 20f;
         Rect resumeRect = new Rect(panelRect.x + 12f, panelRect.y + 12f, bw, bh);
         Rect returnRect = new Rect(panelRect.x + 12f, resumeRect.yMax + gap, bw, bh);

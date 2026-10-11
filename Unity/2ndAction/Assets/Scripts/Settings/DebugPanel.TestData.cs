@@ -80,7 +80,7 @@ public partial class DebugPanel
     void Reload()
     {
         SetOpen(false);
-        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+        LoadingScreen.ReloadActive("test data");
     }
 }
 #endif

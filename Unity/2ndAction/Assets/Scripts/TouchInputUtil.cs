@@ -11,6 +11,7 @@ public static class TouchInputUtil
 {
     public static bool TryGetTapPosition(out Vector2 position)
     {
+        if (LoadingScreen.BlocksInput) { position = Vector2.zero; return false; } // 読み込み中/直後のタップは次の画面へ通さない(2026-10-11)
         if (Input.GetMouseButtonDown(0))
         {
             position = Input.mousePosition;

@@ -26,7 +26,7 @@ public partial class EndgameDebug
         Instance.keepAlive = false;
         DebugPanel.CloseStatic();
         SafeReset("launch");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        LoadingScreen.ReloadActive("debug warp");
     }
 
     static bool TakePendingCombo()

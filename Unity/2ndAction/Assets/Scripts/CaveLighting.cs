@@ -68,6 +68,10 @@ public class CaveLighting : MonoBehaviour
     public static bool DarknessOn { get; private set; }
     void OnDestroy() { DarknessOn = false; }
     public static float DarknessAmount => DarknessOn ? (instanceDark) : 0f;
+    // 斜め上から見る表示(縦画面)の時の覆う範囲/明かりの伸び(2026-10-11)
+    public static bool ObliqueActive => PortraitCameraRig.Instance != null && PortraitCameraRig.Instance.IsActive;
+    public const float ObliqueCoverAhead = 150f;
+    public const float ObliqueForwardMul = 1.7f;
     static float instanceDark;
     public void SetActive(bool on)
     {
@@ -89,8 +93,20 @@ public class CaveLighting : MonoBehaviour
 
         PlayerController pc = PlayerController.Instance;
         Vector3 pp = pc != null ? pc.transform.position : new Vector3(cp.x, cp.y, 0f);
+        // 2026-10-11(縦画面の斜め表示で前方の地形が切れて見える): 斜め上から見るカメラは道の先を地平線近くまで見通すが、
+        // 暗さの幕は横から見るカメラの幅(プレイヤーの前 約28m)までしか無く、その先の天井/床が暗くならずに明るい灰色の
+        // 縦の断面のように見えていた。斜めの時は、生成済みの地形の先まで(後ろ/上下も広く)覆い、明かりも前へ伸ばす
+        bool oblique = ObliqueActive;
+        if (oblique)
+        {
+            float ahead = Mathf.Max(ObliqueCoverAhead, (TerrainManager.Instance != null ? TerrainManager.Instance.GeneratedEndX - pp.x : 0f) + 30f);
+            float back = 50f, up = 120f, down = 90f;
+            quad.position = new Vector3(pp.x + (ahead - back) * 0.5f, pp.y + (up - down) * 0.5f, 0f);
+            quad.localScale = new Vector3(ahead + back, up + down, 1f);
+        }
         float speed = pc != null ? pc.CurrentAutoRunSpeed : baseRunSpeed;
         float targetForward = Mathf.Min(forwardReachMax, forwardReachBase + Mathf.Max(0f, speed - baseRunSpeed) * forwardReachPerSpeed);
+        if (oblique) targetForward *= ObliqueForwardMul;
         smoothedForward = smoothedForward <= 0f ? targetForward : Mathf.Lerp(smoothedForward, targetForward, Time.unscaledDeltaTime * 3f);
 
         // 楕円の中心を前後の到達距離の中間へずらす(後ろ=lightBackReach、前=smoothedForward)。
@@ -110,13 +126,14 @@ public class CaveLighting : MonoBehaviour
         if (stage != null)
         {
             float viewHalf = cam.orthographicSize * cam.aspect;
+            float viewAhead = oblique ? Mathf.Max(viewHalf, ObliqueCoverAhead) : viewHalf * (FoldView.Active ? 3f : 1f);
             var list = stage.Torches;
             for (int i = 0; i < list.Count && n < torchBuf.Length; i++)
             {
                 CaveStage.Torch t = list[i];
                 float r = stage.torchLightRadius * torchRadiusScale;
                 float dx = t.lightPos.x - cp.x;
-                if (dx < -viewHalf - r || dx > viewHalf * (FoldView.Active ? 3f : 1f) + r) continue; // 上下2段: 上の段のたいまつも
+                if (dx < -viewHalf - r || dx > viewAhead + r) continue; // 上下2段: 上の段のたいまつも / 斜め: 見通せる先まで
                 float flick = 1f - flickerAmount * Mathf.PerlinNoise(t.phase, Time.time * 6f);
                 torchBuf[n++] = new Vector4(t.lightPos.x, t.lightPos.y, r, flick);
             }

@@ -454,7 +454,7 @@ public class SettingsPanel : MonoBehaviour
     }
 
     // ---------------------------------------------------------------- 表示
-    float MeasureDisplay() => HeadH + 4f + RowH * 3f + 22f + RowH * 2f - 14f + 90f + 44f + 24f + 22f; // 説明が2行に折り返す分。ラン表示は見出しの行+選択の行
+    float MeasureDisplay() => HeadH + 4f + RowH * 4f + 22f + RowH * 2f - 14f + 90f + 44f + 24f + 22f; // 説明が2行に折り返す分。ラン表示は見出しの行+選択の行
     float DrawDisplay(float x, float y, float w, bool interactive)
     {
         var gm = GameManager.Instance;
@@ -472,6 +472,7 @@ public class SettingsPanel : MonoBehaviour
         else y += RowH;
         y = DrawPortraitRunView(x, y, w, interactive);
         y = ChoiceRow(x, y, w, "画面揺れ", GameSettings.ScreenShake ? 1 : 0, "OFF", "ON", interactive, c => GameSettings.SetScreenShake(c == 1));
+        y = ChoiceRow(x, y, w, "障害物の警告", GameSettings.ObstacleWarn == 1 ? 0 : 1, "点滅あり", "輪郭のみ", interactive, c => GameSettings.SetObstacleWarn(c == 0 ? 1 : 2)); // 2026-10-11
         y = SliderRow(x, y, w, "発光演出", GameSettings.GlowIntensity, Pct(GameSettings.GlowIntensity), true, interactive, (v, rel) => GameSettings.SetGlowIntensity(v, rel));
         return Note(x, y, w, "※敵の攻撃予兆や操作に必要な表示は弱くなりません");
     }

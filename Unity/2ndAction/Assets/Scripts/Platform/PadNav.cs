@@ -325,6 +325,7 @@ public static class PointerInput
 
     public static void Read(object owner, out bool down, out bool up, out bool held, out Vector2 screenPos)
     {
+        if (LoadingScreen.BlocksInput) { down = up = held = false; screenPos = Vector2.zero; return; } // 読み込み中(2026-10-11)
         down = Input.GetMouseButtonDown(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
         up = Input.GetMouseButtonUp(0) || (Input.touchCount > 0 && (Input.GetTouch(0).phase == TouchPhase.Ended || Input.GetTouch(0).phase == TouchPhase.Canceled));
         held = !down && !up && (Input.GetMouseButton(0) || (Input.touchCount > 0 && Input.GetTouch(0).phase != TouchPhase.Ended && Input.GetTouch(0).phase != TouchPhase.Canceled));

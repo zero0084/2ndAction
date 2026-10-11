@@ -9,9 +9,11 @@ public static class GameSettings
 {
     const string ShakeKey = "ScreenShakeEnabled";
     const string GlowKey = "GlowIntensity";
+    const string ObstacleWarnKey = "ObstacleWarnMode"; // 2026-10-11: 障害物の警告 1 = 点滅あり / 2 = 輪郭のみ(点滅なし)
     static bool loaded;
     static bool shake = true;
     static float glow = 1f;
+    static int obstacleWarn = 1;
 
     static void Load()
     {
@@ -19,12 +21,22 @@ public static class GameSettings
         loaded = true;
         shake = SaveStore.GetInt(ShakeKey, 1) != 0;
         glow = Mathf.Clamp01(SaveStore.GetFloat(GlowKey, 1f));
+        obstacleWarn = Mathf.Clamp(SaveStore.GetInt(ObstacleWarnKey, 1), 1, 2);
     }
 
     public static void Reload() { loaded = false; } // セーブの初期化の後に読み直す(2026-10-01)
 
     public static bool ScreenShake { get { Load(); return shake; } }
     public static float GlowIntensity { get { Load(); return glow; } }
+    public static int ObstacleWarn { get { Load(); return obstacleWarn; } }
+
+    public static void SetObstacleWarn(int mode)
+    {
+        Load();
+        obstacleWarn = Mathf.Clamp(mode, 1, 2);
+        SaveStore.SetInt(ObstacleWarnKey, obstacleWarn);
+        SaveStore.Save();
+    }
 
     public static void SetScreenShake(bool on)
     {
@@ -54,7 +66,7 @@ public static class UiInputGate
     public static bool DebugPanelOpen;
     static bool latch;
     public static bool SprintPanelOpen; // 疾走出発の行き先パネル(2026-10-05)
-    public static bool ModalOpen => SettingsPanel.IsVisible || DebugPanelOpen || SprintPanelOpen || TutorialRun.PanelOpen || FirstRunGuide.Open || NoticeQueue.Open || RankingPanel.IsOpen || AdManager.Showing || MonetizationUi.Open; // 練習の説明/初回の案内(2026-10-07)、広告の表示中/広告なしパスの画面(2026-10-10)
+    public static bool ModalOpen => SettingsPanel.IsVisible || DebugPanelOpen || SprintPanelOpen || TutorialRun.PanelOpen || FirstRunGuide.Open || NoticeQueue.Open || RankingPanel.IsOpen || AdManager.Showing || MonetizationUi.Open || LoadingScreen.BlocksInput; // 練習の説明/初回の案内(2026-10-07)、広告の表示中/広告なしパスの画面(2026-10-10)
 
     // パネルを閉じた: 今押している指が離れるまで背後へ通さない
     public static void LatchUntilRelease() { latch = true; }

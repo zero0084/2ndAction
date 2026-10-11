@@ -45,6 +45,8 @@ public class ViewModeToggle : MonoBehaviour
         PortraitActive = want;
         ApplyCameras();
         Debug.Log($"[ViewMode] {(PortraitActive ? "oblique (portrait)" : "side")}");
+        var pa = PlayerController.Instance != null ? PlayerController.Instance.GetComponent<PlayerAnimator>() : null;
+        if (pa != null) FreezeDiagnostics.LogEvent("[VisualPose] view change " + pa.VisualPoseReport()); // 2026-10-11: 回転/表示方式の変更の時の見た目
     }
 
     void Update()

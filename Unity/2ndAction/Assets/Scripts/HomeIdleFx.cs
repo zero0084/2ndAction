@@ -130,6 +130,7 @@ public class HomeIdleFx
         return softTex;
     }
 
+    public static Texture2D CoinTexture => CoinTex(); // ラン中の「持ち帰り予定 MILE」の金貨(2026-10-11)
     static Texture2D CoinTex()
     {
         if (coinTex != null) return coinTex;

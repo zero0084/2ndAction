@@ -112,7 +112,7 @@ public class TutorialLauncher : MonoBehaviour
         TutorialMode.BeginPending(firstRun); // 読み直しの前から進行を書かない
         Covering = true;
         ResetStatics("launch");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        LoadingScreen.ReloadActive("tutorial");
         return true;
     }
 
@@ -125,7 +125,7 @@ public class TutorialLauncher : MonoBehaviour
         TutorialRun.Teardown();
         TutorialMode.End();
         ResetStatics("exit");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); // メモリ上の値(キャラ/強化/HP)は保存された値へ戻る
+        LoadingScreen.ReloadActive("tutorial"); // メモリ上の値(キャラ/強化/HP)は保存された値へ戻る
     }
 
     // 練習の中から「もう一度練習する」: ホームを見せずに、覆ったまま最初から作り直す
@@ -140,7 +140,7 @@ public class TutorialLauncher : MonoBehaviour
         pending = true;
         TutorialMode.BeginPending(first);
         Covering = true;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        LoadingScreen.ReloadActive("tutorial");
     }
 
     static void ResetStatics(string why)

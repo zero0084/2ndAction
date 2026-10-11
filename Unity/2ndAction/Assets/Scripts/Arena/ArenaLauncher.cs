@@ -80,7 +80,7 @@ public class ArenaLauncher : MonoBehaviour
         ArenaMode.BattleRunning = false; // 前の試合の計測を新しい闘技場へ持ち込まない(作り終わる前に「CLEAR」と判定しない)
         ArenaMode.BeginPending(); // 読み直しの前から進行を書かない(この後のシーン/ランの開始で CONTINUE 等を書かない)
         BeginCover();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        LoadingScreen.ReloadActive("arena");
     }
 
     // 闘技場から出る(ホームへ)。シーンを読み直すので、メモリ上の進行/選択中のキャラ等は保存された値に戻る
@@ -90,7 +90,7 @@ public class ArenaLauncher : MonoBehaviour
         Debug.Log("[Arena] EXIT to home");
         ArenaConfigStore.Save(ArenaMode.Config);
         if (gm != null) gm.ReturnToHome(); // ReturnToHome の中の保存(中断データ/累計距離)は Active の間は止まる
-        else SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        else LoadingScreen.ReloadActive("arena");
     }
 
     static void OnSceneLoaded(Scene s, LoadSceneMode m)

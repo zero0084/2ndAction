@@ -239,6 +239,7 @@ public partial class GameManager
         // 2026-10-10: 到着後の「準備ができたら再開」ボタンと 3-2-1 は撤去(マスター)。疾走の絵が実際のキャラへ重なり終わったら、
         // その時の速さのまま自動で走り出す(CONTINUE の5秒の加速はしない)。カードの選択の停止はそのまま
         BeginResumeGate(autoResume: true, accel: false, waitSprintOutro: true);
+        { var pa = PlayerController.Instance != null ? PlayerController.Instance.GetComponent<PlayerAnimator>() : null; if (pa != null) FreezeDiagnostics.LogEvent("[VisualPose] sprint arrival " + pa.VisualPoseReport()); }
         Debug.Log($"[Sprint] arrived at {arrival:F0}m (destination {destination}m): auto grants {SprintAutoGrants} (no candidate {SprintAutoSkippedNoCandidate}), ring picks {SprintRingPicks}, ring MILE x{SprintRingMileRewards} (+{RunRingMile}), Lv{Level}, speed {(PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed * KmhPerMps : 0f):F0}km/h, next gate {(bm != null ? bm.NextBossDistance : 0f):F0}m");
     }
 

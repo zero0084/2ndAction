@@ -414,14 +414,14 @@ public class NetRunLauncher : MonoBehaviour
             return;
         }
         ScreenTransitionManager stm = ScreenTransitionManager.Instance;
-        if (stm != null && !stm.IsTransitioning) stm.PlayCloseThenReload(() => SceneManager.LoadScene(buildIndex));
-        else SceneManager.LoadScene(buildIndex);
+        if (stm != null && !stm.IsTransitioning) stm.PlayCloseThenReload(() => LoadingScreen.LoadScene(buildIndex, "multiplayer"));
+        else LoadingScreen.LoadScene(buildIndex, "multiplayer");
     }
 
     IEnumerator DelayedReload(int buildIndex, float delay)
     {
         yield return new WaitForSecondsRealtime(delay);
-        SceneManager.LoadScene(buildIndex);
+        LoadingScreen.LoadScene(buildIndex, "multiplayer");
     }
 
     // sceneLoadedは読み込んだシーンのAwake後・Start前に呼ばれる - TerrainManager.Startが

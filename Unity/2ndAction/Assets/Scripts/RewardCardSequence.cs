@@ -362,58 +362,120 @@ public class RewardCardSequence : MonoBehaviour
     Vector2[] slots;
     float CardScaleBase => portrait ? 0.72f : 1f;
     float CardW => cards.Length > 0 && cards[0] != null && cards[0].rect.rect.width > 1f ? cards[0].rect.rect.width : 340f;
-    readonly Image[] portraitBg = new Image[3];
-    readonly Text[] portraitDesc = new Text[3];
+    // 2026-10-11(実機の要望): 候補ごとに「左にカード、右に説明」を1つの枠で囲む。選んでいる候補は枠全体を金色の縁と少し明るい
+    // 背景にし、「✓ 選択中」と「もう一度タップで決定」を添える(光や色だけに頼らない)。未選択も読み比べられる明るさのまま。
+    // 枠(カード/説明のどこでも)を離した時にタップとして扱い、押してから動いた(説明のスクロール)指は選択/決定にしない。
+    readonly Image[] portraitFrame = new Image[3];   // 縁(選択中は金色)
+    readonly Image[] portraitBg = new Image[3];      // 枠の背景
+    readonly Text[] portraitDesc = new Text[3];      // カード名 → Lv/取得前後 → 効果文
+    readonly GameObject[] portraitBadge = new GameObject[3]; // ✓ 選択中 / もう一度タップで決定
+    readonly Text[] portraitBadgeText = new Text[3];
+    readonly Text[] portraitConfirmText = new Text[3];
+    RewardCardData[] portraitData;
     Text portraitHint;
+    float portraitBoxH;
+    const float PortraitBadgeH = 46f;
+    static readonly Color PanelBgOff = new Color(0.07f, 0.10f, 0.18f, 0.9f), PanelBgOn = new Color(0.22f, 0.18f, 0.08f, 0.95f);
+    static readonly Color FrameOff = new Color(0.45f, 0.52f, 0.66f, 0.75f), FrameOn = new Color(1f, 0.82f, 0.35f, 1f);
     Vector2[] PortraitSlots()
     {
         var canvasRt = cards.Length > 0 && cards[0] != null ? cards[0].rect.parent as RectTransform : null;
         float w = canvasRt != null ? canvasRt.rect.width : 1080f, h = canvasRt != null ? canvasRt.rect.height : 1920f;
-        // 上の HUD(距離/デッキ)と重ならないよう、中心を少し下げる
-        float step = Mathf.Min(390f, h * 0.205f), cy = -h * 0.08f;
-        float x = -w * 0.5f + 28f + CardW * CardScaleBase * 0.5f;
+        // 上の HUD(距離/デッキ)と重ならないよう、中心を少し下げる。候補の間に余白(PortraitGap)
+        float step = Mathf.Min(400f, h * 0.21f), cy = -h * 0.08f;
+        float x = -w * 0.5f + 40f + CardW * CardScaleBase * 0.5f;
         return new[] { new Vector2(x, cy + step), new Vector2(x, cy), new Vector2(x, cy - step) };
+    }
+    const float PortraitGap = 26f;
+    // i 番目の候補の枠(カード+説明)
+    Rect PortraitPanelLocal(int i, RectTransform parent)
+    {
+        float w = parent.rect.width;
+        float step = Mathf.Abs(slots[0].y - slots[1].y);
+        float h = step - PortraitGap;
+        return new Rect(-w * 0.5f + 16f, slots[i].y - h * 0.5f, w - 32f, h);
     }
     void SetupPortraitDescs(RewardCardData[] data, int count)
     {
         var parent = cards.Length > 0 && cards[0] != null ? cards[0].rect.parent as RectTransform : null;
         if (parent == null) return;
+        portraitData = data;
         float w = parent.rect.width;
-        float left = slots[0].x + CardW * CardScaleBase * 0.5f * 1.4f + cardLiftAmount + 14f /* 選んだカードは枠の光で一回り大きく見える */, right = w * 0.5f - 24f;
-        float boxH = Mathf.Min(400f, Mathf.Abs(slots[0].y - slots[1].y) - 20f);
         Font font = detailDescriptionText != null ? detailDescriptionText.font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        int firstCard = cards.Length > 0 && cards[0] != null ? cards[0].rect.GetSiblingIndex() : 0;
         for (int i = 0; i < 3; i++)
         {
             if (portraitDesc[i] == null)
             {
+                // 縁 → 背景(縁の内側) → 説明。どれも当たり判定は持たない(タップは Update で枠の矩形を見る)
+                var fr = new GameObject("PortraitPanelFrame" + i, typeof(RectTransform)).AddComponent<Image>();
+                fr.transform.SetParent(parent, false); fr.raycastTarget = false;
+                portraitFrame[i] = fr;
+                var bg = new GameObject("PortraitPanelBg" + i, typeof(RectTransform)).AddComponent<Image>();
+                bg.transform.SetParent(fr.transform, false); bg.raycastTarget = false;
+                portraitBg[i] = bg;
                 var go = new GameObject("PortraitDesc" + i, typeof(RectTransform));
                 go.transform.SetParent(parent, false);
                 var t = go.AddComponent<Text>();
-                t.font = font; t.fontSize = 34; t.lineSpacing = 0.95f; t.alignment = TextAnchor.UpperLeft; t.supportRichText = true;
+                t.font = font; t.fontSize = 31; t.lineSpacing = 1f; t.alignment = TextAnchor.UpperLeft; t.supportRichText = true;
                 t.horizontalOverflow = HorizontalWrapMode.Wrap; t.verticalOverflow = VerticalWrapMode.Overflow;
-                t.color = new Color(0.93f, 0.95f, 1f); t.raycastTarget = false;
-                var ol = go.AddComponent<Outline>(); ol.effectColor = new Color(0f, 0f, 0f, 0.8f); ol.effectDistance = new Vector2(1.5f, -1.5f);
+                t.color = Color.white; t.raycastTarget = false;
+                var ol = go.AddComponent<Outline>(); ol.effectColor = new Color(0f, 0f, 0f, 0.85f); ol.effectDistance = new Vector2(1.5f, -1.5f);
                 portraitDesc[i] = t;
-                // 読みやすさ: 後ろの景色の上に薄い暗幕
-                var bg = new GameObject("PortraitDescBg" + i, typeof(RectTransform)).AddComponent<Image>();
-                bg.transform.SetParent(parent, false); bg.color = new Color(0.03f, 0.05f, 0.1f, 0.62f); bg.raycastTarget = false;
-                portraitBg[i] = bg;
+                // ✓ 選択中(左下)/ もう一度タップで決定(右下)
+                var badge = new GameObject("PortraitBadge" + i, typeof(RectTransform));
+                badge.transform.SetParent(parent, false);
+                portraitBadge[i] = badge;
+                var pill = new GameObject("Pill", typeof(RectTransform)).AddComponent<Image>();
+                pill.transform.SetParent(badge.transform, false); pill.color = FrameOn; pill.raycastTarget = false;
+                var prt = pill.rectTransform; prt.anchorMin = new Vector2(0f, 0f); prt.anchorMax = new Vector2(0f, 1f); prt.pivot = new Vector2(0f, 0.5f);
+                prt.sizeDelta = new Vector2(200f, 0f); prt.anchoredPosition = Vector2.zero;
+                MakeTick(pill.transform, new Vector2(26f, 0f));
+                var bt = new GameObject("Label", typeof(RectTransform)).AddComponent<Text>();
+                bt.transform.SetParent(pill.transform, false);
+                bt.font = font; bt.fontSize = 28; bt.fontStyle = FontStyle.Bold; bt.alignment = TextAnchor.MiddleLeft; bt.color = new Color(0.15f, 0.1f, 0.02f); bt.raycastTarget = false;
+                bt.horizontalOverflow = HorizontalWrapMode.Overflow;
+                var btr = bt.rectTransform; btr.anchorMin = Vector2.zero; btr.anchorMax = Vector2.one; btr.offsetMin = new Vector2(48f, 0f); btr.offsetMax = new Vector2(-12f, 0f);
+                portraitBadgeText[i] = bt;
+                var ct = new GameObject("Confirm", typeof(RectTransform)).AddComponent<Text>();
+                ct.transform.SetParent(badge.transform, false);
+                ct.font = font; ct.fontSize = 28; ct.fontStyle = FontStyle.Bold; ct.alignment = TextAnchor.MiddleRight; ct.color = new Color(1f, 0.9f, 0.55f); ct.raycastTarget = false;
+                ct.horizontalOverflow = HorizontalWrapMode.Wrap; ct.resizeTextForBestFit = true; ct.resizeTextMinSize = 20; ct.resizeTextMaxSize = 28;
+                var col = ct.gameObject.AddComponent<Outline>(); col.effectColor = new Color(0f, 0f, 0f, 0.85f);
+                var ctr = ct.rectTransform; ctr.anchorMin = Vector2.zero; ctr.anchorMax = Vector2.one; ctr.offsetMin = new Vector2(220f, 0f); ctr.offsetMax = Vector2.zero;
+                portraitConfirmText[i] = ct;
             }
+            bool on = i < count && data != null && i < data.Length;
+            Rect pr = PortraitPanelLocal(i, parent);
+            portraitBoxH = pr.height;
+            // 枠(縁と背景)。カードより後ろ
+            var frt = portraitFrame[i].rectTransform;
+            frt.anchorMin = frt.anchorMax = new Vector2(0.5f, 0.5f); frt.pivot = new Vector2(0f, 0f);
+            frt.sizeDelta = pr.size; frt.anchoredPosition = pr.position;
+            frt.SetSiblingIndex(Mathf.Max(0, firstCard));
+            var brt = portraitBg[i].rectTransform;
+            brt.anchorMin = Vector2.zero; brt.anchorMax = Vector2.one; brt.offsetMin = new Vector2(3f, 3f); brt.offsetMax = new Vector2(-3f, -3f);
+            portraitFrame[i].gameObject.SetActive(on);
+            // 説明: カードの右から枠の右まで。下に「選択中」の帯の分をあける
             var tx = portraitDesc[i];
             var scroll = tx.GetComponentInParent<UguiScrollText>(true);
             var rt = scroll != null ? (RectTransform)scroll.transform : tx.rectTransform;
-            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f); rt.pivot = new Vector2(0f, 0.5f);
-            rt.sizeDelta = new Vector2(Mathf.Max(200f, right - left), boxH);
-            rt.anchoredPosition = new Vector2(left, slots[i].y);
+            float left = slots[i].x + CardW * CardScaleBase * selectedCardScale * 0.5f + 22f, right = pr.xMax - 18f;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f); rt.pivot = new Vector2(0f, 1f);
+            rt.sizeDelta = new Vector2(Mathf.Max(200f, right - left), pr.height - 18f - PortraitBadgeH - 8f);
+            rt.anchoredPosition = new Vector2(left, pr.yMax - 16f);
             UguiScrollText.Wrap(tx);
-            bool on = i < count && data != null && i < data.Length;
             rt.gameObject.SetActive(on);
-            var brt = portraitBg[i].rectTransform;
-            brt.anchorMin = brt.anchorMax = new Vector2(0.5f, 0.5f); brt.pivot = new Vector2(0f, 0.5f);
-            brt.sizeDelta = rt.sizeDelta + new Vector2(20f, 16f); brt.anchoredPosition = rt.anchoredPosition - new Vector2(10f, 0f);
-            brt.SetSiblingIndex(rt.GetSiblingIndex()); // 文字のすぐ後ろ
-            portraitBg[i].gameObject.SetActive(on);
-            if (on) tx.text = $"<b><color=#ffd76a>{Loc.Auto(data[i].Title)}</color></b>\n<size=28>{Loc.Auto(data[i].LevelLine)}</size>\n{Loc.Auto(data[i].Description)}";
+            rt.SetAsLastSibling();
+            // 選択中の帯(説明の下、枠の内側)
+            var bgo = portraitBadge[i].GetComponent<RectTransform>();
+            bgo.anchorMin = bgo.anchorMax = new Vector2(0.5f, 0.5f); bgo.pivot = new Vector2(0f, 0f);
+            bgo.sizeDelta = new Vector2(Mathf.Max(200f, right - left), PortraitBadgeH); bgo.anchoredPosition = new Vector2(left, pr.y + 12f);
+            bgo.SetAsLastSibling();
+            portraitBadgeText[i].text = Loc.Auto("選択中");
+            portraitConfirmText[i].text = Loc.Auto("もう一度タップして決定");
+            portraitBadge[i].SetActive(false);
+            if (on) tx.text = PortraitText(data[i], false);
         }
         if (portraitHint == null)
         {
@@ -426,17 +488,93 @@ public class RewardCardSequence : MonoBehaviour
         }
         var hr = portraitHint.rectTransform;
         hr.anchorMin = hr.anchorMax = new Vector2(0.5f, 0.5f); hr.pivot = new Vector2(0.5f, 0.5f);
-        hr.sizeDelta = new Vector2(w - 60f, 60f); hr.anchoredPosition = new Vector2(0f, slots[2].y - boxH * 0.5f - 60f);
+        hr.sizeDelta = new Vector2(w - 60f, 96f); hr.anchoredPosition = new Vector2(0f, PortraitPanelLocal(2, parent).y - 60f); // 長い翻訳は2行に折り返す
+        portraitHint.resizeTextForBestFit = true; portraitHint.resizeTextMinSize = 22; portraitHint.resizeTextMaxSize = 32; portraitHint.verticalOverflow = VerticalWrapMode.Truncate;
         portraitHint.text = Loc.Auto("カードをタップして選択 → もう一度タップで決定");
         portraitHint.gameObject.SetActive(true);
+        RefreshPortraitPanels();
     }
+
+    // カード名(明るい金)→ Lv/取得前後の変化(水色)→ 効果文(白)
+    static string PortraitText(RewardCardData d, bool selected)
+    {
+        string lv = Loc.Auto(d.LevelLine ?? "").Replace("->", "→");
+        string title = selected ? "#ffe08a" : "#f2cd6a";
+        string desc = selected ? "#ffffff" : "#e6eaf2";
+        return $"<b><size=36><color={title}>{Loc.Auto(d.Title)}</color></size></b>\n<size=27><color=#9fdcff>{lv}</color></size>\n<color={desc}>{Loc.Auto(d.Description)}</color>";
+    }
+
+    // 選んでいる候補の見た目(枠全体の金の縁/明るい背景/選択中の帯)
+    void RefreshPortraitPanels()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            if (portraitFrame[i] == null || !portraitFrame[i].gameObject.activeSelf) continue;
+            bool sel = i == highlightedIndex;
+            portraitFrame[i].color = sel ? FrameOn : FrameOff;
+            portraitBg[i].color = sel ? PanelBgOn : PanelBgOff;
+            var brt = portraitBg[i].rectTransform; float inset = sel ? 6f : 3f; // 選択中は縁を太く
+            brt.offsetMin = new Vector2(inset, inset); brt.offsetMax = new Vector2(-inset, -inset);
+            if (portraitBadge[i] != null) portraitBadge[i].SetActive(sel);
+            if (portraitData != null && i < portraitData.Length && portraitDesc[i] != null) portraitDesc[i].text = PortraitText(portraitData[i], sel);
+        }
+    }
+
+    // ✓ の形(文字の絵に頼らない: 2本の細い四角を傾けて置く)
+    static void MakeTick(Transform parent, Vector2 center)
+    {
+        Color c = new Color(0.15f, 0.1f, 0.02f);
+        void Bar(Vector2 pos, float len, float deg)
+        {
+            var im = new GameObject("TickBar", typeof(RectTransform)).AddComponent<Image>();
+            im.transform.SetParent(parent, false); im.color = c; im.raycastTarget = false;
+            var r = im.rectTransform; r.anchorMin = r.anchorMax = new Vector2(0f, 0.5f); r.pivot = new Vector2(0.5f, 0.5f);
+            r.sizeDelta = new Vector2(len, 7f); r.anchoredPosition = pos; r.localRotation = Quaternion.Euler(0f, 0f, deg);
+        }
+        Bar(center + new Vector2(-6f, -3f), 14f, -45f);
+        Bar(center + new Vector2(5f, 2f), 26f, 50f);
+    }
+
     void HidePortraitDescs()
     {
         foreach (var t in portraitDesc) if (t != null) { var sc = t.GetComponentInParent<UguiScrollText>(true); (sc != null ? sc.gameObject : t.gameObject).SetActive(false); }
-        foreach (var b in portraitBg) if (b != null) b.gameObject.SetActive(false);
+        foreach (var f in portraitFrame) if (f != null) f.gameObject.SetActive(false);
+        foreach (var b in portraitBadge) if (b != null) b.SetActive(false);
         if (portraitHint != null) portraitHint.gameObject.SetActive(false);
+        portraitPress = -1;
     }
-    RectTransform PortraitDescRect(int i) { var t = i < portraitDesc.Length ? portraitDesc[i] : null; if (t == null) return null; var sc = t.GetComponentInParent<UguiScrollText>(true); return sc != null ? (RectTransform)sc.transform : t.rectTransform; }
+    RectTransform PortraitPanelRect(int i) => i < portraitFrame.Length && portraitFrame[i] != null && portraitFrame[i].gameObject.activeInHierarchy ? portraitFrame[i].rectTransform : null;
+
+    // 縦画面のタップ: 枠(カード/説明)を押して、動かさずに同じ枠で離したら、その候補を選ぶ(選んでいる候補なら決定)
+    int portraitPress = -1; Vector2 portraitPressPos; bool portraitPressMoved;
+    int PortraitPanelAt(Vector2 screenPos)
+    {
+        for (int i = 0; i < currentCardCount && i < 3; i++)
+        {
+            var r = PortraitPanelRect(i);
+            if (r != null && RectTransformUtility.RectangleContainsScreenPoint(r, screenPos, null)) return i;
+            if (cards[i] != null && cards[i].gameObject.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint(cards[i].rect, screenPos, null)) return i;
+        }
+        return -1;
+    }
+    void PortraitPointer()
+    {
+        PointerInput.Read(this, out bool down, out bool up, out bool held, out Vector2 pos);
+        if (down) { portraitPress = PortraitPanelAt(pos); portraitPressPos = pos; portraitPressMoved = false; }
+        if (portraitPress >= 0 && (held || up))
+        {
+            if ((pos - portraitPressPos).magnitude > UguiScrollText.DragThreshold || UguiScrollText.PointerCaptured) portraitPressMoved = true;
+        }
+        if (up)
+        {
+            int at = PortraitPanelAt(pos);
+            if (portraitPress >= 0 && !portraitPressMoved && at == portraitPress) OnCardClicked(portraitPress);
+            portraitPress = -1;
+        }
+    }
+    // 2026-10-11: 縦画面のカード/説明は「離した時」にだけ選ぶ(カードの Button.onClick も離した時なので、同じ1回のタップは
+    // 0.2秒の二重発火よけで1回になる)
+    bool PortraitTapsOnRelease => portrait;
 
     IEnumerator RunSequenceBody(RewardCardData[] cardData, System.Action<string> onApply, string announcementText, int cardCount)
     {
@@ -851,13 +989,14 @@ public class RewardCardSequence : MonoBehaviour
             bool isSelected = i == index;
             card.StopIdlePulse(); // タップされたら「タップして」の明滅は不要
             card.SetChoiceGlow(isSelected);
-            Vector2 lift = portrait ? new Vector2(cardLiftAmount, 0f) : new Vector2(0f, cardLiftAmount);
+            // 縦画面は枠全体で選択中を見せるので、カードは枠の中で少し大きくするだけ(説明の側へ動かさない)。未選択も読み比べられる明るさ
+            Vector2 lift = portrait ? Vector2.zero : new Vector2(0f, cardLiftAmount);
             Vector2 targetPos = slots[i] + (isSelected ? lift : Vector2.zero);
             StartCoroutine(card.MoveTo(targetPos, cardHighlightTransitionDuration));
-            StartCoroutine(card.ScaleTo((isSelected ? selectedCardScale : 1f) * CardScaleBase, cardHighlightTransitionDuration));
-            if (portrait && i < portraitDesc.Length && portraitDesc[i] != null) portraitDesc[i].color = isSelected ? Color.white : new Color(0.8f, 0.83f, 0.9f);
-            StartCoroutine(card.FadeTo(isSelected ? 1f : unselectedCardDimAlpha, cardHighlightTransitionDuration));
+            StartCoroutine(card.ScaleTo((isSelected ? (portrait ? 1.04f : selectedCardScale) : 1f) * CardScaleBase, cardHighlightTransitionDuration));
+            StartCoroutine(card.FadeTo(isSelected ? 1f : (portrait ? 0.86f : unselectedCardDimAlpha), cardHighlightTransitionDuration));
         }
+        if (portrait) RefreshPortraitPanels();
     }
 
     void UpdateDetailPanel(RewardCardData data)
@@ -891,6 +1030,7 @@ public class RewardCardSequence : MonoBehaviour
         if (!waitingForSelection || selectedIndex >= 0) return;
 
         UiHit.Probe(HandleTap, 6); // パッド操作中: カードを候補に(ラン中の HUD より手前。2026-10-06)
+        if (PortraitTapsOnRelease) { PortraitPointer(); return; } // 縦画面: 枠を離した時(スクロールした指は選ばない)
         if (!TouchInputUtil.TryGetTapPosition(out Vector2 screenPos)) return;
         HandleTap(screenPos);
     }
@@ -900,7 +1040,8 @@ public class RewardCardSequence : MonoBehaviour
         for (int i = 0; i < cards.Length; i++)
         {
             if (cards[i] == null || !cards[i].gameObject.activeInHierarchy) continue;
-            if (UiHit.Hit(cards[i].rect, screenPos) || (portrait && PortraitDescRect(i) != null && PortraitDescRect(i).gameObject.activeInHierarchy && UiHit.Hit(PortraitDescRect(i), screenPos) && !UguiScrollText.PointerCaptured))
+            if (portrait) { var pr = PortraitPanelRect(i); if (pr != null && UiHit.Hit(pr, screenPos)) { OnCardClicked(i); return; } continue; } // 縦画面は枠ごと(パッドの候補も枠)
+            if (UiHit.Hit(cards[i].rect, screenPos))
             {
                 OnCardClicked(i);
                 return;

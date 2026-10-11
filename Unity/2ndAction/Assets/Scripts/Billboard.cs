@@ -21,13 +21,32 @@ using UnityEngine;
 // so this prototype deliberately does NOT billboard them - see the brief
 // report for why that's flagged as a found limitation rather than worked
 // around here.
+//
+// 2026-10-11(実機の不具合「疾走の後にキャラが細く小さくなる」): 斜めのカメラが止まった時(縦→横の回転、表示方式の変更)に
+// 何もしないと、最後のカメラの向き(横へ約77°)がそのまま残り、横の画面でキャラ(と残像)が横につぶれて見えた。
+// 戻るのは被弾などで姿勢が入れ直された時だけ(毎回は起きない理由)。カメラが止まったら元の向きへ戻す。
 public class Billboard : MonoBehaviour
 {
     public Camera targetCamera;
+    public static bool QaDisableRestore; // 開発の確認用: 直す前の動き(向きが残る)を再現する
+    Quaternion baseLocalRotation;
+    bool facing; // 今カメラの向きに合わせている
+
+    void Awake() { baseLocalRotation = transform.localRotation; }
 
     void LateUpdate()
     {
-        if (targetCamera == null || !targetCamera.enabled) return;
+        if (targetCamera == null || !targetCamera.enabled)
+        {
+            if (facing && !QaDisableRestore) { transform.localRotation = baseLocalRotation; facing = false; }
+            return;
+        }
         transform.rotation = targetCamera.transform.rotation;
+        facing = true;
+    }
+
+    void OnDisable()
+    {
+        if (facing) { transform.localRotation = baseLocalRotation; facing = false; }
     }
 }

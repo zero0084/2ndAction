@@ -31,7 +31,7 @@ public partial class EndgameDebug
         Instance.keepAlive = false;
         DebugPanel.CloseStatic();
         SafeReset("launch");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        LoadingScreen.ReloadActive("debug warp");
     }
 
     IEnumerator RunLaunchUltimate(string ch, int lv, string stage, bool boss)

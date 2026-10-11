@@ -58,7 +58,7 @@ public partial class EndgameDebug : MonoBehaviour
         Instance.keepAlive = false;
         DebugPanel.CloseStatic();
         SafeReset("launch");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        LoadingScreen.ReloadActive("debug warp");
     }
 
     IEnumerator RunLaunchLong(string stage, float d, LongBuild build, Profile prof)
@@ -152,7 +152,7 @@ public partial class EndgameDebug : MonoBehaviour
         Instance.keepAlive = false;
         DebugPanel.CloseStatic();
         SafeReset("launch");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        LoadingScreen.ReloadActive("debug warp");
     }
 
     static void OnSceneLoaded(Scene s, LoadSceneMode m)

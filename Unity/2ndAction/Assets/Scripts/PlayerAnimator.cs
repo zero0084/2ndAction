@@ -416,6 +416,42 @@ public class PlayerAnimator : MonoBehaviour
     // を重ねて適用しない(以前はここが無条件に効いており、今回追加した
     // 実イラストの上から余計な回転/スケール変形が二重に掛かっていた -
     // マスター報告の「見た目がうまく機能していない」の主因だった)。
+    // 2026-10-11(実機の不具合「疾走の後にキャラが細く小さくなる」の見張り): 斜めのカメラ以外では、絵の向きは Z 軸の回転
+    // (のけぞり/前傾)だけ、大きさは姿勢の演出中だけ変わる。それ以外の向き/大きさが2フレーム続いたら、記録して元へ戻す。
+    // 原因だった Billboard の向きの残り(縦→横の回転/表示方式の変更)は Billboard 側で直した。これは他の原因が残っていた時の保険と記録
+    int poseOddFrames;
+    public static int VisualPoseFixes { get; private set; }
+    public static bool QaDisableGuard; // 開発の確認用: 見張りを止めて直す前の見た目を撮る
+    public static string LastVisualPoseFix { get; private set; } = "";
+    void VisualPoseGuard()
+    {
+        if (visualT == null || puppet || QaDisableGuard) return;
+        var rig = PortraitCameraRig.Instance;
+        if (rig != null && rig.IsActive) { poseOddFrames = 0; return; } // 斜めのカメラ中は Billboard がカメラへ向ける
+        Vector3 e = (Quaternion.Inverse(visualBaseRot) * visualT.localRotation).eulerAngles;
+        bool rotOdd = Mathf.Abs(Mathf.DeltaAngle(0f, e.x)) > 1f || Mathf.Abs(Mathf.DeltaAngle(0f, e.y)) > 1f;
+        bool posing = reactionPoseApplied || startFinishPoseApplied || poseExitElapsed >= 0f;
+        Vector3 ls = visualT.localScale;
+        bool sclOdd = !posing && (Mathf.Abs(ls.x - visualBaseScale.x) > 0.01f || Mathf.Abs(ls.y - visualBaseScale.y) > 0.01f);
+        if (!rotOdd && !sclOdd) { poseOddFrames = 0; return; }
+        if (++poseOddFrames < 2) return;
+        poseOddFrames = 0;
+        VisualPoseFixes++;
+        LastVisualPoseFix = VisualPoseReport();
+        FreezeDiagnostics.LogEvent("[VisualPose] corrected " + (rotOdd ? "rotation " : "") + (sclOdd ? "scale " : "") + LastVisualPoseFix);
+        if (rotOdd) visualT.localRotation = visualBaseRot;
+        if (sclOdd) visualT.localScale = visualBaseScale;
+    }
+
+    // 見た目の向き/大きさ/表示方式(診断用。疾走の到着、回転、表示方式の変更の時に記録する)
+    public string VisualPoseReport()
+    {
+        if (visualT == null) return "no visual";
+        var rig = PortraitCameraRig.Instance;
+        return $"state={state} rot={visualT.localEulerAngles} baseRot={visualBaseRot.eulerAngles} scale={visualT.localScale} baseScale={visualBaseScale} lossy={visualT.lossyScale} root={transform.localScale}/{transform.eulerAngles.z:F0} " +
+               $"sprite={(sr != null && sr.sprite != null ? sr.sprite.name : "-")} view={PortraitRunView.Applied} portraitScreen={PortraitRunView.IsPortraitScreen} oblique={(rig != null && rig.IsActive)} screen={Screen.width}x{Screen.height}";
+    }
+
     void ApplyStartFinishPose()
     {
         if (visualT == null) return;
@@ -697,6 +733,7 @@ public class PlayerAnimator : MonoBehaviour
         Sprite[] frames = ResolveFrames(state, attackStage, controller != null ? controller.FinishTierIndex : 0);
         ApplyReactionPose();
         ApplyStartFinishPose();
+        VisualPoseGuard();
         if (frames == null || frames.Length == 0) return;
 
         // Start/Finish自然化(2026-09-24) - 実イラスト表示中は「fps任せの
