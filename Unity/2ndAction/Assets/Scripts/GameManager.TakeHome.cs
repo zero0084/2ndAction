@@ -53,6 +53,19 @@ public partial class GameManager
         return mileCoin;
     }
 
+    // 金色の印(MILE)。金の縁 → 濃い金 → 明るい中心のひし形を重ねる(白い四角を回して塗る。ホームの札の印と同じ描き方)
+    static void DrawMileMedal(Rect r)
+    {
+        Color keep = GUI.color; Matrix4x4 m = GUI.matrix;
+        Vector2 c = r.center;
+        GUIUtility.RotateAroundPivot(45f, c);
+        float s0 = r.width * 0.74f, s1 = s0 * 0.78f, s2 = s0 * 0.42f;
+        GUI.color = new Color(0.45f, 0.3f, 0.05f, 1f); GUI.DrawTexture(new Rect(c.x - s0 * 0.5f, c.y - s0 * 0.5f, s0, s0), Texture2D.whiteTexture);
+        GUI.color = new Color(0.95f, 0.72f, 0.2f, 1f); GUI.DrawTexture(new Rect(c.x - s1 * 0.5f, c.y - s1 * 0.5f, s1, s1), Texture2D.whiteTexture);
+        GUI.color = new Color(1f, 0.93f, 0.6f, 1f); GUI.DrawTexture(new Rect(c.x - s2 * 0.5f, c.y - s2 * 0.5f, s2, s2), Texture2D.whiteTexture);
+        GUI.matrix = m; GUI.color = keep;
+    }
+
     static string FormatMile(int v) => v.ToString("#,0", System.Globalization.CultureInfo.InvariantCulture);
 
     static GUIStyle FitStyle(GUIStyle st, string text, float width, int minSize = 10)
@@ -69,9 +82,7 @@ public partial class GameManager
         Rect r = V(GetMilePanelRect());
         UiBackdrop.Draw(r, 0.85f);
         const float pad = 10f, icon = 16f;
-        Color keepC = GUI.color; GUI.color = Color.white; // 下地の描画が GUI.color を変えていることがある(金貨が暗い点になっていた)
-        GUI.DrawTexture(new Rect(r.x + pad, r.y + 5f, icon, icon), MileCoinIcon(), ScaleMode.ScaleToFit);
-        GUI.color = keepC;
+        DrawMileMedal(new Rect(r.x + pad, r.y + 5f, icon, icon));
         var labelStyle = FitStyle(new GUIStyle(GUI.skin.label) { fontSize = HudLabelFontSize, alignment = TextAnchor.MiddleLeft, normal = { textColor = HudLabelColor } },
             "持ち帰り予定", r.width - pad * 2f - icon - 4f);
         LocGUI.Label(new Rect(r.x + pad + icon + 4f, r.y + 3f, r.width - pad * 2f - icon - 4f, 20f), "持ち帰り予定", labelStyle);
@@ -93,7 +104,7 @@ public partial class GameManager
         void Row(string label, string value, Color vc, bool coin)
         {
             float lx = x + (coin ? 22f : 0f);
-            if (coin) { Color kc = GUI.color; GUI.color = Color.white; GUI.DrawTexture(new Rect(x, y + 3f, 18f, 18f), MileCoinIcon(), ScaleMode.ScaleToFit); GUI.color = kc; }
+            if (coin) DrawMileMedal(new Rect(x, y + 3f, 18f, 18f));
             var vs = new GUIStyle(GUI.skin.label) { fontSize = 18, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleRight, normal = { textColor = vc } };
             float vw = Mathf.Min(w * 0.55f, vs.CalcSize(new GUIContent(value)).x + 4f);
             var ls = FitStyle(new GUIStyle(GUI.skin.label) { fontSize = 15, alignment = TextAnchor.MiddleLeft, normal = { textColor = Color.white } }, label, w - vw - (lx - x) - 6f);
