@@ -465,7 +465,7 @@ public partial class HighSpeedAssist : MonoBehaviour
     public int CollectOverflows, CollectMaxCount;
     readonly Dictionary<Collider2D, int> tagCache = new Dictionary<Collider2D, int>(); // 0:無関係 1:障害物 2:敵 3:壊せる障害物
 
-    float halfW, bodyH, jumpForce, gravity, failY, headH, vx, aerialRemain, aerialScale;
+    float halfW, bodyH, jumpForce, airJumpForce, gravity, failY, headH, vx, aerialRemain, aerialScale;
     bool hasCave;
     float ceilKnownUntil, groundKnownUntil;
 
@@ -475,7 +475,7 @@ public partial class HighSpeedAssist : MonoBehaviour
         vx = Mathf.Max(0.5f, pc.AssistHorizontalSpeed);
         Vector2 body = pc.AssistBodySize;
         halfW = body.x * 0.5f; bodyH = body.y;
-        jumpForce = pc.AssistJumpForce; gravity = Mathf.Max(0.1f, pc.AssistGravity);
+        jumpForce = pc.AssistJumpForce; airJumpForce = pc.AssistAirJumpForce; gravity = Mathf.Max(0.1f, pc.AssistGravity);
         aerialRemain = pc.AssistAerialAssistRemaining; aerialScale = pc.AssistAerialGravityScale;
         failY = pc.AssistFailY; hasCave = tm.HasCave; headH = tm.CavePlayerHeadHeight;
         ceilKnownUntil = tm.CeilingKnownUntil; groundKnownUntil = tm.GeneratedEndX;
@@ -879,7 +879,7 @@ public partial class HighSpeedAssist : MonoBehaviour
             if (doubleAt >= 0f && !doubled && t >= doubleAt && !grounded)
             {
                 doubled = true;
-                if (jumpsLeft > 0) { vy = jumpForce; jumpsLeft--; }
+                if (jumpsLeft > 0) { vy = airJumpForce; jumpsLeft--; }
             }
             float nx = x + vx * dt;
             float ny;

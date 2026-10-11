@@ -28,8 +28,12 @@ public static class BalanceTuning
 
     // 自動の補助がドラゴン/魔人(専用の作りのボス)も攻撃する(2026-10-11)。以前は WildBossBase 系だけを狙っていた
     public static bool AssistFlyingBosses = true;
+    // 自動の補助が格闘家の連撃を続けて押す(猶予/予約の間も押す)(2026-10-11)
+    public static bool AssistFighterCombo = true;
+    // 自動の補助のジャンプの計算を、キャラの実際の跳び方(技のジャンプ)に合わせる(2026-10-11)
+    public static bool AssistKitJumpModel = true;
 
-    public static string Describe => $"lateEnemyHp={(LateEnemyHp ? $"on(from {LateHpFrom:F0}m every {LateHpEvery:F0}m)" : "off")} attackUpHighLevel={(AttackUpHighLevel ? "on" : "off")} bossFrontReturn={(BossFrontReturn ? "on" : "off")} assistFlyingBosses={(AssistFlyingBosses ? "on" : "off")}";
+    public static string Describe => $"lateEnemyHp={(LateEnemyHp ? $"on(from {LateHpFrom:F0}m every {LateHpEvery:F0}m)" : "off")} attackUpHighLevel={(AttackUpHighLevel ? "on" : "off")} bossFrontReturn={(BossFrontReturn ? "on" : "off")} assistFlyingBosses={(AssistFlyingBosses ? "on" : "off")} assistFighterCombo={(AssistFighterCombo ? "on" : "off")} assistKitJumpModel={(AssistKitJumpModel ? "on" : "off")}";
 
     // 雑魚の HP の距離の段(DistanceTierManager.CurrentEnemyHp)
     public static int HpSteps(float distance, float increaseDistance)
@@ -51,13 +55,15 @@ public static class BalanceTuning
         {
             if (a[i] != "-balVariant") continue;
             string v = a[i + 1];
-            if (v == "base") { LateEnemyHp = false; AttackUpHighLevel = false; BossFrontReturn = false; AssistFlyingBosses = false; }
+            if (v == "base") { LateEnemyHp = false; AttackUpHighLevel = false; BossFrontReturn = false; AssistFlyingBosses = false; AssistFighterCombo = false; AssistKitJumpModel = false; }
             else
             {
                 LateEnemyHp = v.Contains("hp");
                 AttackUpHighLevel = v.Contains("atk");
                 BossFrontReturn = v.Contains("boss");
                 AssistFlyingBosses = v.Contains("assist");
+                AssistFighterCombo = v.Contains("combo");
+                AssistKitJumpModel = v.Contains("jump");
             }
             Debug.Log("[BalanceTuning] variant " + v + ": " + Describe);
         }

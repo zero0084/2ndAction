@@ -8,7 +8,23 @@ using UnityEngine;
 public partial class PlayerController
 {
     // ---- 軌道予測用(既存の物理値そのもの) ----
-    public float AssistJumpForce => jumpForce;
+    // 2026-10-11(お嬢様/格闘家の重点調査): ジャンプで技が出るキャラは、実際の跳ぶ速さが jumpForce と違う
+    // (格闘家=昇龍 ×0.9(空中 ×0.855)、忍者=跳躍斬り、吸血鬼=霧、竜人=羽ばたき)。補助が jumpForce で計算していたため、
+    // 格闘家は「跳び越えられる」と見た段差に届かず壁にぶつかっていた(平地の地形試験: 4km で段差 11回、黒剣士 0回)
+    public float AssistJumpForce => KitJumpVelocity(false);
+    public float AssistAirJumpForce => KitJumpVelocity(true);
+    float KitJumpVelocity(bool airborne)
+    {
+        if (!BalanceTuning.AssistKitJumpModel || kitDef == null) return jumpForce;
+        switch (kit)
+        {
+            case CharacterKit.Fighter: return jumpForce * kitDef.fighter.uppercutHop * (airborne ? 0.95f : 1f);
+            case CharacterKit.Ninja: return kitDef.ninja.upDashSpeedY;
+            case CharacterKit.Vampire: return kitDef.vampire.mistSpeedY;
+            case CharacterKit.Dragonkin: return jumpForce * kitDef.dragonkin.flapJump * (airborne ? 0.85f : 1f);
+        }
+        return jumpForce;
+    }
     public float AssistGravity => gravity;
     // 空中攻撃が当たった直後の滞空補助(重力が弱まる残り時間と倍率)
     public float AssistAerialAssistRemaining => isGrounded ? 0f : Mathf.Min(aerialAssistTimer, Mathf.Max(0f, aerialAssistMaxTotalDuration - aerialAssistTotalUsed));
@@ -155,7 +171,13 @@ public partial class PlayerController
     public float AssistAttackReadyIn => isAttacking ? -1f : Mathf.Max(0f, attackCooldownTimer);
 
     // 今この瞬間に前攻撃を新しく始められるか(連打・予約にならないよう、実行中/硬直中は出さない)。
-    public bool AssistCanStartForwardAttack => !isAttacking && attackCooldownTimer <= 0f && !IsReacting;
+    public bool AssistCanStartForwardAttack =>
+        !IsReacting && ((!isAttacking && attackCooldownTimer <= 0f) || AssistFighterComboOpen);
+    // 2026-10-11(お嬢様/格闘家の重点調査): 格闘家の4段の連撃は「次の段への猶予(攻撃の後の少しの間)」か「攻撃の途中の予約」でつながる。
+    // 補助は攻撃の後の待ち時間が終わってから押していたため、猶予が切れて毎回1段目からになり、3〜4段目がほとんど出ていなかった。
+    // 猶予の間/予約できる間も「押してよい」とする(プレイヤーが続けて押すのと同じ)
+    bool AssistFighterComboOpen => BalanceTuning.AssistFighterCombo && kit == CharacterKit.Fighter && !kitDiveActive &&
+        ((!isAttacking && fighterGraceTimer > 0f) || (isAttacking && kitOwnsAttack && !comboBuffered && FighterComboStage > 0 && FighterComboStage < 4));
 
     // ---- 入力への差し込み(Update()から1回だけ呼ぶ) ----
     // 手動入力(タッチ/テスト用の注入)があればそれを優先し、補助へ「手動操作があった」と知らせるだけ。
