@@ -42,6 +42,20 @@ public partial class QaSweep
                 var kind = parts[0] == "S" ? ArenaEnemyKind.SkyBoss : parts[0] == "W" ? ArenaEnemyKind.WildBoss : ArenaEnemyKind.CaveBoss;
                 int id = kind == ArenaEnemyKind.SkyBoss ? (int)System.Enum.Parse(typeof(SkyBossKind), parts[1]) : kind == ArenaEnemyKind.WildBoss ? (int)System.Enum.Parse(typeof(WildBossKind), parts[1]) : (int)System.Enum.Parse(typeof(CaveBossKind), parts[1]);
                 c.enemies.Add(new ArenaEnemyEntry { kind = kind, bossKind = id, count = 1 });
+                // -qaDiagArenaTier N: 闘技場の設定(開発版の「ボスの強さ」)で再戦の段を掛ける。-qaDiagPanelShot 1: 設定画面(詳細のタブ)を撮る
+                int arenaTier = int.Parse(Arg("-qaDiagArenaTier", "-1"));
+                if (arenaTier >= 0) c.bossRematchTier = arenaTier;
+                if (Arg("-qaDiagPanelShot", "0") == "1" && rep == 0)
+                {
+                    ArenaLauncher.Launch("qa diag panel", true);
+                    yield return new WaitForSecondsRealtime(1f);
+                    yield return ArenaWaitReady();
+                    Arena.Tab = 3; yield return new WaitForSecondsRealtime(0.6f);
+                    ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(outDir, $"panel_detail_{spec.Replace(':', '_')}.png"));
+                    yield return new WaitForSecondsRealtime(0.5f);
+                    Arena.SetPanel(false);
+                    yield return new WaitForSecondsRealtime(0.5f);
+                }
                 yield return ArenaLaunch($"DIAG {ch} {spec}");
                 float w = 0f; while (SkyBossAlive() == null && w < 12f) { yield return null; w += Time.deltaTime; }
                 var boss = SkyBossAlive();

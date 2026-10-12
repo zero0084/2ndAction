@@ -78,6 +78,7 @@ public class ArenaConfig
     public bool assistBreakObstacles = true, assistEarlyDoubleJump = true;
     public bool invincible = false;
     public bool devAllEnemies;           // 開発版だけ: 未遭遇の敵/ボスも選べる
+    public int bossRematchTier = -1;     // 開発版だけ: ボスの強さ(-1 = 初戦 / 0〜 = BossRematchTuning の再戦の段。HP 倍率・必殺技の間隔も本番の再戦と同じ)
 
     // 初めての時: 今選んでいるキャラ・カードなし・動かない標的・0km/h・無敵OFF・操作アシストは通常の設定と同じ
     public static bool IsBoss(ArenaEnemyEntry e) => e != null && (e.kind == ArenaEnemyKind.WildBoss || e.kind == ArenaEnemyKind.CaveBoss || e.kind == ArenaEnemyKind.SkyBoss);
@@ -107,7 +108,8 @@ public class ArenaConfig
         speedMode = Mathf.Clamp(speedMode, 0, 2);
         kmh = Mathf.Clamp(kmh, 0f, 300f);
         distance = Mathf.Clamp(distance, 0f, 99000f);
-        if (!Debug.isDebugBuild) { if (assistMode == 2) assistMode = 1; devAllEnemies = false; }
+        if (!Debug.isDebugBuild) { if (assistMode == 2) assistMode = 1; devAllEnemies = false; bossRematchTier = -1; }
+        bossRematchTier = Mathf.Clamp(bossRematchTier, -1, BossRematchTuning.I != null ? BossRematchTuning.I.tiers.Count - 1 : -1);
         assistEngageKmh = Mathf.Clamp(assistEngageKmh, HighSpeedAssist.MinEngageKmh, HighSpeedAssist.MaxEngageKmh);
         return this;
     }

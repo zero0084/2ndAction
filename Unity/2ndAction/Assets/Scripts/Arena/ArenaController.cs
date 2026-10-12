@@ -105,6 +105,22 @@ public class ArenaController : MonoBehaviour
     }
 
     // ===================================================================== 敵
+    // 開発版だけ: 出したボスへ本番の再戦の強さを掛ける(問題のボス戦をすぐ試すため。HP 倍率/被弾量/崩し/必殺技の間隔)
+    IEnumerator ApplyRematchTier(int idx)
+    {
+        var rt = BossRematchTuning.I;
+        if (rt == null || idx < 0 || idx >= rt.tiers.Count) yield break;
+        var tier = rt.tiers[idx];
+        var done = new HashSet<WildBossBase>();
+        float w = 0f;
+        while (w < 4f)
+        {
+            foreach (var b in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None))
+                if (b != null && done.Add(b)) { b.ApplyRematch(tier); if (tier.hpMul != 1f) b.DebugScaleHp(tier.hpMul); Debug.Log($"[Arena] rematch tier {tier.label} -> {b.name}"); }
+            w += Time.deltaTime; yield return null;
+        }
+    }
+
     void SpawnAll()
     {
         spawned.Clear(); dummies.Clear(); bossesSpawned = 0;
@@ -115,6 +131,7 @@ public class ArenaController : MonoBehaviour
             int family = boss.kind == ArenaEnemyKind.CaveBoss ? 2 : boss.kind == ArenaEnemyKind.SkyBoss ? 3 : 1;
             BossManager.Instance.ArenaSpawnBoss(family, boss.bossKind, boss.count);
             bossesSpawned += Mathf.Clamp(boss.count, 1, 4);
+            if (Debug.isDebugBuild && ArenaMode.Config.bossRematchTier >= 0) StartCoroutine(ApplyRematchTier(ArenaMode.Config.bossRematchTier));
         }
         foreach (var e in ArenaMode.Config.enemies)
         {
@@ -604,6 +621,11 @@ public class ArenaController : MonoBehaviour
             if (UiKit.Button(new Rect(x, y, 240f, 36f), $"未遭遇の敵も選ぶ: {(cfg.devAllEnemies ? "ON" : "OFF")}", 13f, cfg.devAllEnemies, false)) cfg.devAllEnemies = !cfg.devAllEnemies;
             if (UiKit.Button(new Rect(x + 248f, y, 240f, 36f), $"乱数を固定: {(cfg.seedFixed ? "ON" : "OFF")}", 13f, cfg.seedFixed, false)) cfg.seedFixed = !cfg.seedFixed;
             if (UiKit.Button(new Rect(x + 496f, y, 220f, 36f), $"障害物を壊す補助: {(cfg.assistBreakObstacles ? "ON" : "OFF")}", 13f, cfg.assistBreakObstacles, false)) { cfg.assistBreakObstacles = !cfg.assistBreakObstacles; ApplyAssist(); }
+            y += 42f;
+            var rtt = BossRematchTuning.I;
+            int nT = rtt != null ? rtt.tiers.Count : 0;
+            string tl = cfg.bossRematchTier < 0 || cfg.bossRematchTier >= nT ? "初戦" : rtt.tiers[cfg.bossRematchTier].label;
+            if (UiKit.Button(new Rect(x, y, 300f, 36f), $"ボスの強さ: {tl}", 13f, cfg.bossRematchTier >= 0, false)) cfg.bossRematchTier = cfg.bossRematchTier + 1 >= nT ? -1 : cfg.bossRematchTier + 1;
         }
     }
 
