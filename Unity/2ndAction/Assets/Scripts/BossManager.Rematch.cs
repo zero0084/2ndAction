@@ -73,6 +73,7 @@ public partial class BossManager
     }
 
     // 関門の種類を決める。本来の予定(Resolve*)の結果を受け取り、再戦にするならkind/countを書き換える。
+    public static string DevForceRematch; public static bool DevForceRematchAll;
     void DecideEncounter(GateFamily family, ref int kind, ref int count)
     {
         CurrentEncounterIsRematch = false; CurrentRematchTier = ""; CurrentRematchHpMul = 1f; DamageMul = 1f; currentTier = null;
@@ -82,6 +83,19 @@ public partial class BossManager
         {
             LastRematchDecision = k % 10 == 0 ? $"{k}km: 専用ボス {native}(固定)" : $"{k}km: {native}";
             BeginEncounterKey(native, false);
+            return;
+        }
+        // 開発用(2026-10-12、ボスへの命中不良の調査): 再戦の関門で決まったボスを出す(部分試験で本番と同じ再戦を再現する)。-blForceBoss Cave/Scorpion
+        if (Debug.isDebugBuild && !string.IsNullOrEmpty(DevForceRematch) && ParseKey(DevForceRematch, out GateFamily ff, out int fk) && ff == family && (k % 5 != 0 || DevForceRematchAll))
+        {
+            kind = fk; count = 1;
+            float fd = k * gateIntervalMeters;
+            currentTier = BossRematchTuning.I.TierAt(fd);
+            float fdm = BossRematchTuning.I.distanceHp ? Mathf.Max(1f, BossHpPlan.MilestoneHpAt(fd) / Mathf.Max(1f, BossHpPlan.MilestoneHpAt(FirstDistanceOf(ff, fk)))) : 1f;
+            CurrentRematchHpMul = fdm * Mathf.Max(0.1f, currentTier.hpMul);
+            CurrentRematchTier = currentTier.label; DamageMul = Mathf.Max(0.1f, currentTier.damageMul); CurrentEncounterIsRematch = true; RematchCount++;
+            LastRematchDecision = $"{k}km: 再戦 {DevForceRematch}({currentTier.label} HP×{CurrentRematchHpMul:0.0} 被弾×{DamageMul:0.0}、開発用の指定)";
+            BeginEncounterKey(DevForceRematch, true);
             return;
         }
         if (!defeatedPool.Contains(native))

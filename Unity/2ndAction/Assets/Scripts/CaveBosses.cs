@@ -200,8 +200,9 @@ public class ScorpionBoss : CaveBossBase
         while (true)
         {
             if (UltimateReady(2)) { yield return DeathZone(); continue; }
-            if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return PoisonRain(Enraged || Upgraded ? 3 : 2); continue; }
-            if (FrontDist > 6.5f && Time.time - lastBoltTime > boltCooldown && Time.time >= ScorpionBoltGate.NextTime)
+            bool farLong = FarTooLong; // 遠くからの技ばかりで近づかない形を切る(WildBossBase.FarTooLong)
+            if (!farLong && SpecialReady(SpecialPhase)) { MarkSpecial(); yield return PoisonRain(Enraged || Upgraded ? 3 : 2); continue; }
+            if (!farLong && FrontDist > 6.5f && Time.time - lastBoltTime > boltCooldown && Time.time >= ScorpionBoltGate.NextTime)
             {
                 lastBoltTime = Time.time;
                 ScorpionBoltGate.NextTime = Time.time + ScorpionBoltGate.Interval;

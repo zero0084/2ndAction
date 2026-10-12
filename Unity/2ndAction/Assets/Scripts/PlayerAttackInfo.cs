@@ -74,6 +74,8 @@ public class PlayerAttackInfo : MonoBehaviour
     // A blast is a separate attack instance, so "projectile + explosion" two-stage moves still hit twice on purpose.
     static readonly System.Collections.Generic.Dictionary<(Component, int), float> recentHits = new System.Collections.Generic.Dictionary<(Component, int), float>();
     public static int DuplicateHitsBlocked;
+    // 確認用(部分試験): この振りがこの相手に当たった記録があるか(記録を書き換えない)
+    public static bool WasHit(int swingId, Component victim) => victim != null && recentHits.TryGetValue((victim, swingId), out float t) && Time.time - t < 2f;
     public static bool AlreadyHit(Collider2D attack, Component victim)
     {
         if (attack == null || victim == null) return false;

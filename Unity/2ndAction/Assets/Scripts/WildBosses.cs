@@ -181,7 +181,7 @@ public class GoblinRiderBoss : WildBossBase
                 yield return RideCharge();
                 continue;
             }
-            if (FrontDist > 6f && Time.time - lastMagicTime > magicCooldown && Time.time >= RiderMagicGate.NextTime)
+            if (FrontDist > 6f && Time.time - lastMagicTime > magicCooldown && Time.time >= RiderMagicGate.NextTime && !FarTooLong) // 遠くからの技ばかりで近づかない形を切る
             {
                 lastMagicTime = Time.time;
                 RiderMagicGate.NextTime = Time.time + RiderMagicGate.Interval;

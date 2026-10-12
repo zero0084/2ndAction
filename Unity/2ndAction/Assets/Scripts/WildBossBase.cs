@@ -87,6 +87,15 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // ---- runtime ----
     protected float worldX;
     protected float relVelocity;
+    // 診断(2026-10-12、ボスへの命中不良の調査): 今の動き/間合い。テスト・診断の表示用
+    public string DebugAct { get; protected set; } = "";
+    public float DebugGap => Gap;
+    public float DebugFrontDist => FrontDist;
+    public float DebugRelVelocity => relVelocity;
+    public bool DebugInvulnerable => invulnerable;
+    public string DebugPose => pose.ToString();
+    public int DebugRT => RematchTierApplied;
+    public void DebugScaleHp(float mul) { maxHp = Mathf.Max(1, Mathf.RoundToInt(maxHp * mul)); Hp = maxHp; }
     float behindTime; bool frontReturning;
     public static int FrontReturns { get; private set; } // 確認用: 後ろから前へ回り込んだ回数
     const float BreakReach = 3f; // BREAK 中: 体の手前の端までこれより遠ければ、届く位置へ寄せる(m)
@@ -126,12 +135,30 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     protected float PlayerY => player != null ? player.position.y : 0f;
     // 顔(正面)からプレイヤーまでの距離。正=プレイヤーが顔の前方、負=顔より奥(重なり)。
     protected float FrontDist => (PlayerX - (worldX + facing * FrontReach)) * facing;
+    // 近づかないまま遠くの技を続ける形の防止(2026-10-12、攻略の再検証)。上位強化の再戦などで必殺技の待ちが短いと、
+    // 「遠くからの技(必殺技/飛び道具)→ 次も遠くからの技」が噛み合い、ボスが一度も近づかないまま近接キャラが数分当てられなかった
+    // (自然洞窟のサソリ: 毒だまり(間合い 7.5m)→ 毒弾(6.5m より遠い時)→ 毒だまり …)。被弾で足が止まると 15m 先まで離れ、形が固定される。
+    // 体の前端がプレイヤーから NearFrontDist m 以内に来ないまま FarTooLongSeconds 秒続いたら、遠くからの技を選ぶ所(各ボス)で近接の技を選ぶ。
+    public static float NearFrontDist = 3.5f, FarTooLongSeconds = 7f;
+    float lastNearTime = -1f;
+    public static int FarLoopBreaks { get; private set; } // 確認用
+    protected bool FarTooLong
+    {
+        get
+        {
+            if (lastNearTime < 0f) lastNearTime = Time.time;
+            bool far = Time.time - lastNearTime > FarTooLongSeconds;
+            if (far) { FarLoopBreaks++; lastNearTime = Time.time; } // 1回近接を選ばせたら数え直す(近づけなかった時もまた7秒後)
+            return far;
+        }
+    }
     protected float GroundY => TerrainGround(worldX);
     // 2026-10-10(全体点検): 天井にぶら下がっている(上下反転)時は体が根元より下にある → 中心/攻撃の出る位置も下向きに
     protected float UpSign => extraScale.y < 0f ? -1f : 1f;
     public Vector3 CenterWorld => transform.position + new Vector3(0f, bodyHeight * 0.5f * UpSign, 0f);
     // 自動操作補助(ボス戦、2026-10-04): 今攻撃が通るか(無敵/地中/天井/登場中は通らない)と、被弾範囲
     public bool AssistTargetable => !dead && !invulnerable && !entering && hurtCol != null && hurtCol.enabled;
+    public Collider2D DebugHurtCol => hurtCol; // 確認用(部分試験)
     public Bounds AssistBounds => hurtCol != null ? hurtCol.bounds : new Bounds(CenterWorld, new Vector3(1f, bodyHeight, 1f));
 
     protected abstract IEnumerator AI();
@@ -327,6 +354,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             else behindTime = 0f;
         }
         else { behindTime = 0f; frontReturning = false; }
+        if (entering || Broken || FrontDist <= NearFrontDist) lastNearTime = Time.time;
         BattleTick(dt);
         OffArenaWatch(dt, px);
 
@@ -586,6 +614,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
 
     protected IEnumerator Wait(float seconds)
     {
+        DebugAct = "Wait";
         float t = 0f;
         seconds *= AiWaitScale; // ラスダンの攻撃の間隔(予告=Telegraph の時間は変えない)
         while (t < seconds && !dead) { t += AiDt; yield return null; }
@@ -611,6 +640,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // 顔からプレイヤーまでの距離がstopDist以下になるまで接近(relVelocityで間合いを詰める)
     protected IEnumerator Approach(float stopDist, float speed, float timeout = 6f)
     {
+        DebugAct = "Approach";
         SetPose(Pose.Move);
         float t = 0f;
         while (t < timeout && FrontDist > stopDist + slotOffset)
@@ -626,6 +656,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // 目標の間合い(worldX - player.x)へ向けて速度speedで移動
     protected IEnumerator MoveToGap(float targetGap, float speed, float timeout = 4f)
     {
+        DebugAct = "MoveToGap";
         SetPose(Pose.Move);
         float t = 0f;
         while (t < timeout && Mathf.Abs(Gap - (targetGap + slotOffset)) > 0.25f)
@@ -656,6 +687,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // 点滅しながら濃くなる。interruptible時にプレイヤー攻撃を受けたら中断。
     protected IEnumerator Telegraph(float duration, params BossTelegraphMarker[] zones)
     {
+        DebugAct = "Telegraph";
         // 複数体: 予備動作の開始を全体で少しずらす(同時に攻撃が重ならないように)。待つ間は走り続ける。
         float gateWait = 0f;
         while (Time.time < BossAttackGate.NextTime && !dead && gateWait < 2.5f)
@@ -692,6 +724,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // 攻撃実行: Attack姿勢+Hitbox有効化。shake/hitStopは着弾の重さ演出。
     protected IEnumerator Strike(BossHitbox hb, float active, float shake = 0f, float hitStop = 0f)
     {
+        DebugAct = "Strike";
         if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySe(SeId.BossAttack); // ボスの攻撃(共通)
         SetPose(Pose.Attack);
         attackProgress = 1f;
@@ -748,6 +781,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
 
     protected IEnumerator Recover(float seconds)
     {
+        DebugAct = "Recover";
         EndAttack();
         yield return Wait(seconds);
     }
@@ -1305,6 +1339,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // 必殺技/大技の後の大きな隙: その場で崩れて動かない。崩しが溜まりやすく、ダメージも少し増える。
     protected IEnumerator Exhausted(float seconds, float staggerMul = 2f, float dmgMul = 1.2f)
     {
+        DebugAct = "Exhausted";
         EndUltimate();
         EndAttack();
         freeGap = false;

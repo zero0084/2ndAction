@@ -313,6 +313,7 @@ public abstract class HazardBossBase : WildBossBase
     // groundAlt >= 0 または 負の値の指定: 隙の間だけその高さまで降りる(飛ぶボス/雲海のボスを攻撃の届く所へ)。float.NaN = 動かさない
     protected IEnumerator CaveRecovery(float seconds, string banner, Vector2 squash, CaveLook fx, Vector2 fxAt, float staggerMul = 2.2f, float dmgMul = 1.25f, float groundAlt = float.NaN)
     {
+        DebugAct = "CaveRecovery";
         EndUltimate();
         if (onCeiling) yield return DropFromCeiling(0.25f);
         if (buried) yield return Surface(0.25f);

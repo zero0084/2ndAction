@@ -1,0 +1,13 @@
+trial,build,stage,growth,seed,depart,dest,extra,timeout
+V4D008_dual_blade_B_natural_cave_s7101,dual_blade_B,natural_cave,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V4D028_dual_blade_B_natural_cave_s7102,dual_blade_B,natural_cave,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V4D048_dual_blade_B_natural_cave_s7103,dual_blade_B,natural_cave,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V4D006_fighter_B_sky_corridor_s7101,fighter_B,sky_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V4D007_noble_lady_B_last_corridor_s7101,noble_lady_B,last_corridor,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V4D014_fighter_B_sky_corridor_s7102,fighter_B,sky_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V4D015_noble_lady_B_last_corridor_s7102,noble_lady_B,last_corridor,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V4D022_fighter_B_sky_corridor_s7103,fighter_B,sky_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V4D023_noble_lady_B_last_corridor_s7103,noble_lady_B,last_corridor,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V4D010_ninja_B_natural_cave_s7101,ninja_B,natural_cave,9,7101,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V4D030_ninja_B_natural_cave_s7102,ninja_B,natural_cave,9,7102,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000
+V4D050_ninja_B_natural_cave_s7103,ninja_B,natural_cave,9,7103,sprint,10000,-blMaxMin 220 -blBossLimit 480 -blReaperLimit 120,16000

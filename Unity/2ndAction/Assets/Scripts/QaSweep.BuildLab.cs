@@ -71,6 +71,7 @@ public partial class QaSweep
 
     void BlEvent(string kind, string detail) => blEvents.Append($"{blT:F1}\t{(gm != null ? gm.MaxDistance : 0f):F0}\t{kind}\t{detail}\n");
 
+    float blDiagNext;
     IEnumerator BuildLabMode()
     {
         autoPickHold = true; stopKeepAlive = true;
@@ -89,6 +90,8 @@ public partial class QaSweep
         if (assistAlways) bl.assistMode = "always";
         // 部分試験(通し攻略とは別): 完成ビルド(デッキの各能力を Lv9)を再現し、開発用ワープで関門の手前から1つのボス戦/難所だけを試す
         float partialAt = float.Parse(Arg("-blPartialAt", "0"), System.Globalization.CultureInfo.InvariantCulture);
+        BossManager.DevForceRematch = Arg("-blForceBoss", ""); // 例 Cave/Scorpion: 再戦の関門をこのボスに(5km ごとの関門も含める)
+        BossManager.DevForceRematchAll = BossManager.DevForceRematch != "";
         bool fast = Arg("-blFast", "0") == "1"; // 既定は通常速度(固定刻みの早送りは実時間で進む処理とずれるため使わない)
         blReal0 = Time.realtimeSinceStartup;
 
@@ -163,7 +166,7 @@ public partial class QaSweep
         while (!(gm.HasStarted) && w < 20f) { yield return null; w += Time.unscaledDeltaTime; }
         pc = PlayerController.Instance;
         if (fast) { QualitySettings.vSyncCount = 0; Application.targetFrameRate = -1; Time.captureDeltaTime = 1f / 60f; }
-        else { QualitySettings.vSyncCount = 0; Application.targetFrameRate = 60; } // スマホと同じ 60fps の通常速度(画面の更新間隔に左右されない)
+        else { QualitySettings.vSyncCount = 0; Application.targetFrameRate = int.Parse(Arg("-blFps", "60")); } // スマホと同じ 60fps の通常速度(画面の更新間隔に左右されない)。-blFps 30 で低 fps の再現(2026-10-12)
         if (partialAt > 0f)
         {
             float wt = 0f; while (gm.CountdownActive && wt < 15f) { yield return null; wt += Time.unscaledDeltaTime; }
@@ -245,6 +248,17 @@ public partial class QaSweep
                     if (blCurBossLastFrac >= 0f && blCurBoss.hpLeftFrac < blCurBossLastFrac - 0.0005f) { blCurBoss.hpDrops++; blCurBoss.lastDropT = blT - blCurBoss.t0; if (blCurBoss.firstDropT < 0f) blCurBoss.firstDropT = blT - blCurBoss.t0; }
                     blCurBossLastFrac = blCurBoss.hpLeftFrac;
                     blCurBoss.swings = PlayerAttackInfo.SwingCount - blCurBossSwing0; blCurBoss.playerHpEnd = gm.Lives;
+                    // 2026-10-12(命中不良の調査): 長引いたボス戦(20秒〜)は1秒ごとにボスの動き・間合い・当たり判定の状態を記録
+                    if (blT - blCurBoss.t0 > 20f && blT >= blDiagNext)
+                    {
+                        blDiagNext = blT + 1f;
+                        foreach (var wbb in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None))
+                        {
+                            if (wbb == null || wbb.IsDead) continue;
+                            var bb = wbb.AssistBounds;
+                            BlEvent("boss_diag", $"{wbb.name} act={wbb.DebugAct} pose={wbb.DebugPose} gap={wbb.DebugGap:F1} front={wbb.DebugFrontDist:F1} relV={wbb.DebugRelVelocity:F1} inv={wbb.DebugInvulnerable} tgt={wbb.AssistTargetable} dy={bb.center.y - pc.transform.position.y:F1} h={bb.size.y:F1} w={bb.size.x:F1} phase={wbb.Phase} swings={blCurBoss.swings} drops={blCurBoss.hpDrops} grounded={pc.IsGrounded} kmh={GameManager.SpeedKmh(pc.CurrentAutoRunSpeed):F0} fps={(1f / Mathf.Max(0.001f, Time.unscaledDeltaTime)):F0} assist={(HighSpeedAssist.Instance != null ? HighSpeedAssist.Instance.CurrentStatus + "/" + HighSpeedAssist.Instance.LastAction : "-")}");
+                        }
+                    }
                 }
                 if (blT - blCurBoss.t0 > bl.bossLimit)
                 {
