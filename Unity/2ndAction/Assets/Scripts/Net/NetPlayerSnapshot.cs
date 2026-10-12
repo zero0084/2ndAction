@@ -32,28 +32,58 @@ public struct NetPlayerSnapshot : INetworkSerializable
     // マルチプレイPhase 2.5/3: 走行開始位置からの距離(m)。ダウン/復活/最終距離の判定に使う。
     public double Distance;
 
+    // 2026-10-12(同期の版 4): 詰めた形で送る(77B → 41B、色が白でない時だけ +4B)。受け取った側の値の型は今までどおり。
+    //  時刻 = ミリ秒(uint) / X・距離 = mm(int、±2147km) / Y = cm(short、±327m) / 速度・姿勢の小数 = 半精度 / 走る速さ = float のまま
+    //  色は白(0xFFFFFFFF)の時は送らない(Flags の最上位ビットで「色あり」を知らせる。受け取った側の Flags には残さない)
+    const byte WireHasColor = 0x80;
+    public const int WireBytes = 41, WireColorBytes = 4; // 計測用
+    public int WireSize => WireBytes + (ColorRGBA != 0xFFFFFFFFu ? WireColorBytes : 0);
+
     public void NetworkSerialize<T>(BufferSerializer<T> s) where T : IReaderWriter
     {
-        s.SerializeValue(ref Time);
-        s.SerializeValue(ref X);
-        s.SerializeValue(ref Y);
-        s.SerializeValue(ref VX);
-        s.SerializeValue(ref VY);
-        s.SerializeValue(ref RootRotZ);
-        s.SerializeValue(ref RootScaleX);
-        s.SerializeValue(ref VisPosX);
-        s.SerializeValue(ref VisPosY);
-        s.SerializeValue(ref VisRotZ);
-        s.SerializeValue(ref VisScaleX);
-        s.SerializeValue(ref VisScaleY);
-        s.SerializeValue(ref ColorRGBA);
+        uint ms = 0; int xmm = 0, dmm = 0; short ycm = 0;
+        ushort vx = 0, vy = 0, rr = 0, rs = 0, vpx = 0, vpy = 0, vr = 0, vsx = 0, vsy = 0;
+        byte flags = 0;
+        if (s.IsWriter)
+        {
+            ms = (uint)System.Math.Max(0.0, System.Math.Round(Time * 1000.0));
+            xmm = (int)System.Math.Round(System.Math.Max(-2.1e6, System.Math.Min(2.1e6, X)) * 1000.0);
+            dmm = (int)System.Math.Round(System.Math.Max(-2.1e6, System.Math.Min(2.1e6, Distance)) * 1000.0);
+            ycm = (short)Mathf.Clamp(Mathf.RoundToInt(Y * 100f), short.MinValue, short.MaxValue);
+            vx = Mathf.FloatToHalf(VX); vy = Mathf.FloatToHalf(VY);
+            rr = Mathf.FloatToHalf(RootRotZ); rs = Mathf.FloatToHalf(RootScaleX);
+            vpx = Mathf.FloatToHalf(VisPosX); vpy = Mathf.FloatToHalf(VisPosY); vr = Mathf.FloatToHalf(VisRotZ);
+            vsx = Mathf.FloatToHalf(VisScaleX); vsy = Mathf.FloatToHalf(VisScaleY);
+            flags = (byte)(Flags & 0x7F);
+            if (ColorRGBA != 0xFFFFFFFFu) flags |= WireHasColor;
+        }
+        s.SerializeValue(ref ms);
+        s.SerializeValue(ref xmm);
+        s.SerializeValue(ref ycm);
+        s.SerializeValue(ref vx); s.SerializeValue(ref vy);
+        s.SerializeValue(ref rr); s.SerializeValue(ref rs);
+        s.SerializeValue(ref vpx); s.SerializeValue(ref vpy); s.SerializeValue(ref vr); s.SerializeValue(ref vsx); s.SerializeValue(ref vsy);
         s.SerializeValue(ref State);
         s.SerializeValue(ref Frame);
         s.SerializeValue(ref AttackStage);
         s.SerializeValue(ref FinishTier);
-        s.SerializeValue(ref Flags);
+        s.SerializeValue(ref flags);
         s.SerializeValue(ref RunSpeed);
-        s.SerializeValue(ref Distance);
+        s.SerializeValue(ref dmm);
+        if ((flags & WireHasColor) != 0) s.SerializeValue(ref ColorRGBA);
+        if (s.IsReader)
+        {
+            Time = ms / 1000.0;
+            X = xmm / 1000.0;
+            Distance = dmm / 1000.0;
+            Y = ycm / 100f;
+            VX = Mathf.HalfToFloat(vx); VY = Mathf.HalfToFloat(vy);
+            RootRotZ = Mathf.HalfToFloat(rr); RootScaleX = Mathf.HalfToFloat(rs);
+            VisPosX = Mathf.HalfToFloat(vpx); VisPosY = Mathf.HalfToFloat(vpy); VisRotZ = Mathf.HalfToFloat(vr);
+            VisScaleX = Mathf.HalfToFloat(vsx); VisScaleY = Mathf.HalfToFloat(vsy);
+            Flags = (byte)(flags & 0x7F);
+            if ((flags & WireHasColor) == 0) ColorRGBA = 0xFFFFFFFFu;
+        }
     }
 
     public static uint PackColor(Color c)

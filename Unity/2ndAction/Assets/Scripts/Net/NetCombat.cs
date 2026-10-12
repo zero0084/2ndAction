@@ -37,7 +37,7 @@ public class NetCombat : MonoBehaviour
     // 直近の速度で外挿する(3倍速の2プロセス試験で表示誤差が最小、ガタつきの増加は見られなかった)。
     // 実機のWi-Fiで補正の飛びが目立つ場合は0.03〜0.05へ。-netEnemyDelay で変更可(自動テスト用)。
     public static double InterpDelay = 0.0;
-    const int MaxEntitiesPerStatePacket = 10;
+    const int MaxEntitiesPerStatePacket = 13; // 2026-10-12: 1体の最大 58B × 13 + 見出し = 約 770B(以前の 10体 × 78B と同じ程度に収める)
     const float BehindDespawnDistance = 70f;      // 全プレイヤーがこれ以上通過した敵はHOSTが片付ける
 
     // ===== 役割 =====
@@ -643,31 +643,65 @@ public class NetCombat : MonoBehaviour
         return s;
     }
 
+    // 2026-10-12(同期の版 4): 1体 78B → 多くの雑魚で 20B 前後。値のある欄だけ送る(どの欄があるかを ushort の印で知らせる)。
+    //  X = mm(int) / Y = cm(short) / 傾き・大きさ・見た目の姿勢 = 半精度 / 色は白・0 の時は送らない
+    const ushort MVis = 1, MColor = 2, MPose = 4, MBase = 8, MExtra = 16, MOrder = 32, MFrames = 64, MFlash = 128, MScale = 256, MRot = 512;
+    static ushort H(float v) => Mathf.FloatToHalf(v);
+    static float F(ushort v) => Mathf.HalfToFloat(v);
+
     static void WriteState(FastBufferWriter w, State s)
     {
-        w.WriteValueSafe(s.Id); w.WriteValueSafe(s.X); w.WriteValueSafe(s.Y);
-        w.WriteValueSafe(s.RotZ); w.WriteValueSafe(s.ScaleX); w.WriteValueSafe(s.ScaleY);
-        w.WriteValueSafe(s.Flags); w.WriteValueSafe(s.SpriteIdx);
-        w.WriteValueSafe(s.VisScaleX); w.WriteValueSafe(s.VisScaleY); w.WriteValueSafe(s.VisRotZ); w.WriteValueSafe(s.VisPosX); w.WriteValueSafe(s.VisPosY);
-        w.WriteValueSafe(s.Color);
-        w.WriteValueSafe(s.Pose); w.WriteValueSafe(s.Facing); w.WriteValueSafe(s.Windup); w.WriteValueSafe(s.Attack);
-        w.WriteValueSafe(s.BaseColor); w.WriteValueSafe(s.ExtraX); w.WriteValueSafe(s.ExtraY); w.WriteValueSafe(s.Order); w.WriteValueSafe(s.FramesSet);
-        w.WriteValueSafe(s.Flash);
-        w.WriteValueSafe(s.Target);
+        ushort m = 0;
+        if (s.VisScaleX != 0f || s.VisScaleY != 0f || s.VisRotZ != 0f || s.VisPosX != 0f || s.VisPosY != 0f) m |= MVis;
+        if (s.Color != 0xFFFFFFFFu) m |= MColor;
+        if (s.Pose != 0 || s.Facing != 0 || s.Windup != 0 || s.Attack != 0) m |= MPose;
+        if (s.BaseColor != 0) m |= MBase;
+        if (s.ExtraX != 0f || s.ExtraY != 0f) m |= MExtra;
+        if (s.Order != 0) m |= MOrder;
+        if (s.FramesSet != 0) m |= MFrames;
+        if (s.Flash != 0) m |= MFlash;
+        if (s.ScaleX != 1f || s.ScaleY != 1f) m |= MScale;
+        if (s.RotZ != 0f) m |= MRot;
+        w.WriteValueSafe(m);
+        w.WriteValueSafe(s.Id);
+        w.WriteValueSafe((int)System.Math.Round(System.Math.Max(-2.1e6, System.Math.Min(2.1e6, s.X)) * 1000.0));
+        w.WriteValueSafe((short)Mathf.Clamp(Mathf.RoundToInt(s.Y * 100f), short.MinValue, short.MaxValue));
+        w.WriteValueSafe(s.Flags); w.WriteValueSafe(s.SpriteIdx); w.WriteValueSafe(s.Target);
+        if ((m & MRot) != 0) w.WriteValueSafe(H(s.RotZ));
+        if ((m & MScale) != 0) { w.WriteValueSafe(H(s.ScaleX)); w.WriteValueSafe(H(s.ScaleY)); }
+        if ((m & MVis) != 0) { w.WriteValueSafe(H(s.VisScaleX)); w.WriteValueSafe(H(s.VisScaleY)); w.WriteValueSafe(H(s.VisRotZ)); w.WriteValueSafe(H(s.VisPosX)); w.WriteValueSafe(H(s.VisPosY)); }
+        if ((m & MColor) != 0) w.WriteValueSafe(s.Color);
+        if ((m & MPose) != 0) { w.WriteValueSafe(s.Pose); w.WriteValueSafe(s.Facing); w.WriteValueSafe(s.Windup); w.WriteValueSafe(s.Attack); }
+        if ((m & MBase) != 0) w.WriteValueSafe(s.BaseColor);
+        if ((m & MExtra) != 0) { w.WriteValueSafe(s.ExtraX); w.WriteValueSafe(s.ExtraY); } // 大きい値もあり得るので float のまま
+        if ((m & MOrder) != 0) w.WriteValueSafe(s.Order);
+        if ((m & MFrames) != 0) w.WriteValueSafe(s.FramesSet);
+        if ((m & MFlash) != 0) w.WriteValueSafe(s.Flash);
     }
 
     static State ReadState(FastBufferReader r)
     {
-        var s = new State();
-        r.ReadValueSafe(out s.Id); r.ReadValueSafe(out s.X); r.ReadValueSafe(out s.Y);
-        r.ReadValueSafe(out s.RotZ); r.ReadValueSafe(out s.ScaleX); r.ReadValueSafe(out s.ScaleY);
-        r.ReadValueSafe(out s.Flags); r.ReadValueSafe(out s.SpriteIdx);
-        r.ReadValueSafe(out s.VisScaleX); r.ReadValueSafe(out s.VisScaleY); r.ReadValueSafe(out s.VisRotZ); r.ReadValueSafe(out s.VisPosX); r.ReadValueSafe(out s.VisPosY);
-        r.ReadValueSafe(out s.Color);
-        r.ReadValueSafe(out s.Pose); r.ReadValueSafe(out s.Facing); r.ReadValueSafe(out s.Windup); r.ReadValueSafe(out s.Attack);
-        r.ReadValueSafe(out s.BaseColor); r.ReadValueSafe(out s.ExtraX); r.ReadValueSafe(out s.ExtraY); r.ReadValueSafe(out s.Order); r.ReadValueSafe(out s.FramesSet);
-        r.ReadValueSafe(out s.Flash);
-        r.ReadValueSafe(out s.Target);
+        var s = new State { Color = 0xFFFFFFFFu, ScaleX = 1f, ScaleY = 1f };
+        r.ReadValueSafe(out ushort m);
+        r.ReadValueSafe(out s.Id);
+        r.ReadValueSafe(out int xmm); s.X = xmm / 1000.0;
+        r.ReadValueSafe(out short ycm); s.Y = ycm / 100f;
+        r.ReadValueSafe(out s.Flags); r.ReadValueSafe(out s.SpriteIdx); r.ReadValueSafe(out s.Target);
+        ushort h;
+        if ((m & MRot) != 0) { r.ReadValueSafe(out h); s.RotZ = F(h); }
+        if ((m & MScale) != 0) { r.ReadValueSafe(out h); s.ScaleX = F(h); r.ReadValueSafe(out h); s.ScaleY = F(h); }
+        if ((m & MVis) != 0)
+        {
+            r.ReadValueSafe(out h); s.VisScaleX = F(h); r.ReadValueSafe(out h); s.VisScaleY = F(h); r.ReadValueSafe(out h); s.VisRotZ = F(h);
+            r.ReadValueSafe(out h); s.VisPosX = F(h); r.ReadValueSafe(out h); s.VisPosY = F(h);
+        }
+        if ((m & MColor) != 0) r.ReadValueSafe(out s.Color);
+        if ((m & MPose) != 0) { r.ReadValueSafe(out s.Pose); r.ReadValueSafe(out s.Facing); r.ReadValueSafe(out s.Windup); r.ReadValueSafe(out s.Attack); }
+        if ((m & MBase) != 0) r.ReadValueSafe(out s.BaseColor);
+        if ((m & MExtra) != 0) { r.ReadValueSafe(out s.ExtraX); r.ReadValueSafe(out s.ExtraY); }
+        if ((m & MOrder) != 0) r.ReadValueSafe(out s.Order);
+        if ((m & MFrames) != 0) r.ReadValueSafe(out s.FramesSet);
+        if ((m & MFlash) != 0) r.ReadValueSafe(out s.Flash);
         return s;
     }
 

@@ -50,7 +50,22 @@ public class NetPlayer : NetworkBehaviour
     public string DisplayName { get { string n = global::Codename.Sanitize(CodenameVar.Value.ToString()); return string.IsNullOrEmpty(n) ? $"P{PlayerNumber}" : n; } }
     public string Tag => $"P{PlayerNumber}" + (string.IsNullOrEmpty(global::Codename.Sanitize(CodenameVar.Value.ToString())) ? "" : " " + DisplayName);
 
-    const float SendRate = 30f;
+    // 位置を送る回数(毎秒)。開発版だけ -netSnapRate N で比べられる(2026-10-12、中継のまとめ送りの回数も同じにする)
+    static float sendRateCached = -1f;
+    static float SendRate
+    {
+        get
+        {
+            if (sendRateCached > 0f) return sendRateCached;
+            sendRateCached = 30f;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            var a = QaArgs.All;
+            for (int i = 0; i < a.Length - 1; i++)
+                if (a[i] == "-netSnapRate" && float.TryParse(a[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float r)) sendRateCached = Mathf.Clamp(r, 5f, 60f);
+#endif
+            return sendRateCached;
+        }
+    }
     float sendTimer;
     bool haveLastSample;
     double lastSampleTime, lastSampleX;
@@ -113,6 +128,7 @@ public class NetPlayer : NetworkBehaviour
         if (!IsSpawned) return;
         if (IsOwner) OwnerUpdate();
         else RemoteUpdate();
+        if (IsServer) FlushRelays();
     }
 
     // ===== 自分のプレイヤー(Owner) =====
@@ -168,7 +184,7 @@ public class NetPlayer : NetworkBehaviour
             lastSendRealtime = Time.unscaledTime;
             // 2026-10-11: JOIN は HOST へだけ送り、HOST が送り先ごとに中継する(遠い人へは間引く)。HOST 自身の分も同じ基準で送る
             if (IsServer) RelayFromHost(snap, true);
-            else { SnapshotToServerRpc(snap); NetStats.Sent("snapshot", SnapshotBytes); }
+            else { SnapshotToServerRpc(snap); NetStats.Sent("snapshot", RpcHeaderBytes + snap.WireSize); }
         }
     }
 
@@ -181,23 +197,75 @@ public class NetPlayer : NetworkBehaviour
     const int FarRelayEvery = 6;
     float lastSendRealtime = -99f;
     int relayCounter;
-    readonly List<ulong> relayTargets = new List<ulong>(8);
+
+    // 2026-10-12(同期の版 4): 送り先ごとに「その間に届いた全員の位置」を1件へまとめ、毎秒 RelayFlushRate 回だけ送る。
+    // 以前は 1人分ずつ別の RPC(8人で HOST の送信が約 900件/秒、うち見出しだけで約 2割)。待ちは最大 1/30秒(補間の 0.1秒の内)。
+    struct RelayEntry { public uint ObjId; public NetPlayerSnapshot Snap; }
+    struct RelayBatch : INetworkSerializable
+    {
+        public RelayEntry[] Items; public int Count;
+        public void NetworkSerialize<T>(BufferSerializer<T> s) where T : IReaderWriter
+        {
+            byte n = (byte)Count;
+            s.SerializeValue(ref n);
+            if (s.IsReader) { Count = n; Items = new RelayEntry[n]; }
+            for (int i = 0; i < n; i++)
+            {
+                uint id = Items[i].ObjId; var snap = Items[i].Snap;
+                s.SerializeValue(ref id);
+                snap.NetworkSerialize(s);
+                if (s.IsReader) Items[i] = new RelayEntry { ObjId = id, Snap = snap };
+            }
+        }
+    }
+    static float RelayFlushRate => SendRate;
+    const int RelayMaxPerPlayer = 2; // 1回分の間に同じ人の位置が2つ以上たまったら古い方を捨てる(送る側の揺らぎ)
+    static readonly Dictionary<ulong, List<RelayEntry>> pendingRelay = new Dictionary<ulong, List<RelayEntry>>();
+    static float relayFlushTimer;
+    static int relayFlushFrame = -1;
+    public static int RelayBatchesSent, RelaySnapshotsSent, RelayDroppedStale; // 確認用
 
     void RelayFromHost(NetPlayerSnapshot snap, bool own)
     {
         relayCounter++;
         float sx = (float)(snap.X - FloatingOrigin.Offset);
         bool jump = (snap.Flags & NetPlayerSnapshot.FlagTeleported) != 0;
-        relayTargets.Clear();
+        uint objId = (uint)NetworkObjectId;
         foreach (var v in NetInterest.Viewers())
         {
             if (v.ClientId == OwnerClientId) continue;
             bool near = !v.HasPos || jump || Mathf.Abs(v.SceneX - sx) < FarRelayDistance;
-            if (near || relayCounter % FarRelayEvery == 0) relayTargets.Add(v.ClientId);
+            if (!(near || relayCounter % FarRelayEvery == 0)) continue;
+            if (!pendingRelay.TryGetValue(v.ClientId, out var list)) pendingRelay[v.ClientId] = list = new List<RelayEntry>(16);
+            int same = 0, firstSame = -1;
+            for (int i = 0; i < list.Count; i++) if (list[i].ObjId == objId) { if (firstSame < 0) firstSame = i; same++; }
+            if (same >= RelayMaxPerPlayer) { list.RemoveAt(firstSame); RelayDroppedStale++; }
+            list.Add(new RelayEntry { ObjId = objId, Snap = snap });
         }
-        if (relayTargets.Count == 0) return;
-        SnapshotRelayRpc(snap, RpcTarget.Group(relayTargets, RpcTargetUse.Temp));
-        for (int i = 0; i < relayTargets.Count; i++) NetStats.Sent(own ? "snapshot" : "snapshotRelay", SnapshotBytes);
+    }
+
+    // HOST: どの NetPlayer からでも1フレームに1回だけ(LateUpdate)。毎秒 RelayFlushRate 回、送り先ごとに1件で送る
+    void FlushRelays()
+    {
+        if (relayFlushFrame == Time.frameCount) return;
+        relayFlushFrame = Time.frameCount;
+        relayFlushTimer += Time.unscaledDeltaTime;
+        if (relayFlushTimer < 1f / RelayFlushRate) return;
+        relayFlushTimer = Mathf.Min(relayFlushTimer - 1f / RelayFlushRate, 1f / RelayFlushRate);
+        var nm = NetworkManager;
+        foreach (var kv in pendingRelay)
+        {
+            var list = kv.Value;
+            if (list.Count == 0) continue;
+            if (nm == null || !nm.ConnectedClients.ContainsKey(kv.Key)) { list.Clear(); continue; }
+            var batch = new RelayBatch { Items = list.ToArray(), Count = Mathf.Min(list.Count, 255) };
+            SnapshotBatchRpc(batch, RpcTarget.Single(kv.Key, RpcTargetUse.Temp));
+            int bytes = RpcHeaderBytes + 1;
+            for (int i = 0; i < batch.Count; i++) bytes += 4 + batch.Items[i].Snap.WireSize;
+            NetStats.Sent("snapshotRelay", bytes);
+            RelayBatchesSent++; RelaySnapshotsSent += batch.Count;
+            list.Clear();
+        }
     }
 
     // JOIN → HOST
@@ -208,11 +276,20 @@ public class NetPlayer : NetworkBehaviour
         RelayFromHost(snapshot, false);
     }
 
-    // HOST → 選んだ JOIN
+    // HOST → 1人の JOIN(その間に届いた全員分)
     [Rpc(SendTo.SpecifiedInParams, Delivery = RpcDelivery.Unreliable)]
-    void SnapshotRelayRpc(NetPlayerSnapshot snapshot, RpcParams rpcParams = default)
+    void SnapshotBatchRpc(RelayBatch batch, RpcParams rpcParams = default)
     {
-        ReceiveSnapshot(snapshot);
+        int bytes = RpcHeaderBytes + 1;
+        var spawned = NetworkManager != null ? NetworkManager.SpawnManager.SpawnedObjects : null;
+        for (int i = 0; i < batch.Count; i++)
+        {
+            bytes += 4 + batch.Items[i].Snap.WireSize;
+            if (spawned == null || !spawned.TryGetValue(batch.Items[i].ObjId, out var no) || no == null) continue;
+            var p = no.GetComponent<NetPlayer>();
+            if (p != null && !p.IsOwner) p.ReceiveSnapshot(batch.Items[i].Snap, false);
+        }
+        NetStats.Received("snapshot", bytes);
     }
 
     bool TrySampleLocalPlayer(out NetPlayerSnapshot s)
@@ -285,12 +362,12 @@ public class NetPlayer : NetworkBehaviour
         return Phase.Value == PhaseInRun && remoteRunning && nowRealtime - lastSnapshotRealtime < 1f;
     }
 
-    const int SnapshotBytes = 77 + 24; // 中身77B + RPCの見出し(概算)。計測用
+    const int RpcHeaderBytes = 24; // RPC の見出し(概算)。計測用
     // 位置/姿勢は毎秒30回・非信頼(UDP)で送る - 古い値の再送を待つより次の値を使う方が高速時に有利。
-    void ReceiveSnapshot(NetPlayerSnapshot snapshot)
+    void ReceiveSnapshot(NetPlayerSnapshot snapshot, bool count = true)
     {
         snapshotsReceived++;
-        NetStats.Received("snapshot", SnapshotBytes);
+        if (count) NetStats.Received("snapshot", RpcHeaderBytes + snapshot.WireSize);
         interpolator.Add(snapshot);
         remoteRunSpeed = snapshot.RunSpeed;
         remoteDistance = snapshot.Distance;
