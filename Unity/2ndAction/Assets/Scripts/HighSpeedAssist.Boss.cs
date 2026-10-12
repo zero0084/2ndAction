@@ -121,9 +121,33 @@ public partial class HighSpeedAssist
         }
     }
 
+    // 急降下(下攻撃)の着地点に足場があるか(2026-10-12)。急降下は残りの滞空/空中ジャンプを捨てて真下へ落ちるので、
+    // 穴の上で選ぶとそのまま落ちる(お嬢様の天空回廊のクラゲ戦で 1戦あたりの落下 0.6 → 2.6回)。
+    // 今の位置から、落ち切るまでの前進ぶん(0.45秒)+ 0.6m 先まで、どこかが穴/足場なしなら急降下しない(穴を跳び越えてから使う)。
+    public static int BossDiveSkippedOverPit { get; private set; } // 確認用
+    bool DiveLandsSafely(PlayerController pc)
+    {
+        var tm = TerrainManager.Instance;
+        if (tm == null) return true;
+        Vector3 p = pc.transform.position;
+        float ahead = Mathf.Max(0.5f, pc.AssistHorizontalSpeed) * 0.45f + 0.6f;
+        for (int i = 0; i <= 6; i++)
+        {
+            float x = p.x + ahead * i / 6f;
+            float? sky = tm.GetSkyHeightFast(x);
+            if (sky.HasValue && sky.Value <= p.y + 0.1f) continue; // 上ルートの足場
+            if (tm.TryGetGroundFast(x, out float gh, out bool pit) && !pit && gh <= p.y + 0.1f) continue;
+            BossDiveSkippedOverPit++;
+            return false;
+        }
+        return true;
+    }
+
     // 戻り値: 入力 / stayLow: このフレームは跳ばない(天井から・高い攻撃が来る)
     PlayerController.FlickDirection? DecideBoss(PlayerController pc, float frameDt, out bool stayLow)
     {
+        // 魔法使いはジャンプが無く上/下が「高度の上げ下げ」なので、専用の判断を使う(2026-10-12、HighSpeedAssist.Mage.cs)
+        if (pc.AssistIsMageFlight && BalanceTuning.AssistMageAltitude) return DecideBossMage(pc, out stayLow);
         stayLow = false;
         CollectThreats(pc);
         bool grounded = pc.AssistJumpsUsed == 0 && Mathf.Abs(pc.AssistVelocityY) < 0.01f;
@@ -133,7 +157,7 @@ public partial class HighSpeedAssist
         if (ceilSoon < 0.9f)
         {
             stayLow = true;
-            if (!grounded && pc.canUseDownAttack && pc.AssistVelocityY < 4f && !pc.AssistIsDiveOrHover && Time.time >= manualJumpUntil)
+            if (!grounded && pc.canUseDownAttack && pc.AssistVelocityY < 4f && !pc.AssistIsDiveOrHover && Time.time >= manualJumpUntil && DiveLandsSafely(pc))
             {
                 BossDownAttacks++; BossStayLow++;
                 BossPlan = "天井/高い攻撃 → 下攻撃で降りる";
@@ -194,31 +218,13 @@ public partial class HighSpeedAssist
     PlayerController.FlickDirection? BossAttack(PlayerController pc, bool grounded, bool stayLow)
     {
         if (Time.time < manualAttackUntil) return null;
-        string bestName = null; Bounds bb = default; float bestD = float.MaxValue;
+        if (!PickBossTarget(pc, out string bestName, out Bounds bb, out float bestD)) { BossPlan = "攻撃できるボスがいない(無敵/地中/天井)"; return null; }
         Vector3 p = pc.transform.position;
-        foreach (var lb in BossBattle.Living)
-        {
-            Bounds b; string name;
-            if (lb is WildBossBase w) { if (!w.AssistTargetable) continue; b = w.AssistBounds; name = w.bossName; }
-            // 2026-10-11(攻略の再検証): ドラゴン/魔人(専用の作りのボス)も狙う。以前は WildBossBase だけを狙っていたため、
-            // 天空回廊/ラスダンのドラゴン・魔人の戦いでは自動の攻撃がほとんど出ず、480秒かけても倒しきれなかった
-            else if (BalanceTuning.AssistFlyingBosses && lb != null && lb.isActiveAndEnabled && lb is IBossBattleDebug dbg && dbg.DebugAlive)
-            {
-                var c = lb.GetComponent<Collider2D>();
-                if (c == null || !c.enabled) continue;
-                b = c.bounds; name = dbg.DebugName;
-            }
-            else continue;
-            float d = b.min.x > p.x ? b.min.x - p.x : (b.max.x < p.x ? p.x - b.max.x : 0f);
-            if (b.center.x < p.x - 1.5f) continue; // 後ろのボスは狙わない(前攻撃が届かない)
-            if (d < bestD) { bestD = d; bestName = name; bb = b; }
-        }
-        if (bestName == null) { BossPlan = "攻撃できるボスがいない(無敵/地中/天井)"; return null; }
         float reach = pc.AssistForwardIsProjectile ? 12f : Mathf.Max(pc.AssistForwardReach, bossApproachReach);
         if (bestD > reach) { BossPlan = $"{bestName} まで {bestD:F1}m(届くのを待つ)"; return null; }
         float feet = p.y, top = p.y + bodyH;
         // 空中で真上付近: 下攻撃(地面への衝撃で崩しが大きい)
-        if (!grounded && pc.canUseDownAttack && bestD < 1.2f && bb.max.y < feet + 0.3f && !pc.AssistIsDiveOrHover)
+        if (!grounded && pc.canUseDownAttack && bestD < 1.2f && bb.max.y < feet + 0.3f && !pc.AssistIsDiveOrHover && DiveLandsSafely(pc))
         {
             BossDownAttacks++; BossAttacks++;
             BossPlan = $"{bestName} の真上 → 下攻撃";
@@ -238,5 +244,30 @@ public partial class HighSpeedAssist
         BossPlan = $"{bestName} へ前攻撃(距離{bestD:F1}m)";
         Act("前攻撃(ボス)", BossPlan);
         return PlayerController.FlickDirection.Forward;
+    }
+
+    // 狙うボス(前にいて判定のある、いちばん近いもの)。いなければ false
+    bool PickBossTarget(PlayerController pc, out string bestName, out Bounds bb, out float bestD)
+    {
+        bestName = null; bb = default; bestD = float.MaxValue;
+        Vector3 p = pc.transform.position;
+        foreach (var lb in BossBattle.Living)
+        {
+            Bounds b; string name;
+            if (lb is WildBossBase w) { if (!w.AssistTargetable) continue; b = w.AssistBounds; name = w.bossName; }
+            // 2026-10-11(攻略の再検証): ドラゴン/魔人(専用の作りのボス)も狙う。以前は WildBossBase だけを狙っていたため、
+            // 天空回廊/ラスダンのドラゴン・魔人の戦いでは自動の攻撃がほとんど出ず、480秒かけても倒しきれなかった
+            else if (BalanceTuning.AssistFlyingBosses && lb != null && lb.isActiveAndEnabled && lb is IBossBattleDebug dbg && dbg.DebugAlive)
+            {
+                var c = lb.GetComponent<Collider2D>();
+                if (c == null || !c.enabled) continue;
+                b = c.bounds; name = dbg.DebugName;
+            }
+            else continue;
+            float d = b.min.x > p.x ? b.min.x - p.x : (b.max.x < p.x ? p.x - b.max.x : 0f);
+            if (b.center.x < p.x - 1.5f) continue; // 後ろのボスは狙わない(前攻撃が届かない)
+            if (d < bestD) { bestD = d; bestName = name; bb = b; }
+        }
+        return bestName != null;
     }
 }

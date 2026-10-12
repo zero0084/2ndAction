@@ -89,7 +89,7 @@ public partial class PlayerController
         float windup = 0.07f * sp, active = 0.20f * sp, recovery = 0.12f * sp;
         attackCooldownTimer = windup + active + recovery;
         ApplyAttackDirection(dir);
-        lungeVelocityX *= 0.5f; // 空中では踏み込みを半分(大剣の重さ)
+        // 踏み込みは地上の一振りと同じ(以前の空中の攻撃と同じだけ前へ進む。減らすと穴を越える距離が縮む)
         SetKitPose("air", 0); noblePoseUntil = float.MaxValue;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.AttackAir);
         float t = 0f;
