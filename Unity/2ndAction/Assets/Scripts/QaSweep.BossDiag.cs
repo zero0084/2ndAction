@@ -67,8 +67,10 @@ public partial class QaSweep
                 float hpMul = float.Parse(Arg("-qaDiagHpMul", "1"), System.Globalization.CultureInfo.InvariantCulture);
                 if (wb != null && hpMul != 1f) wb.DebugScaleHp(hpMul);
                 // -qaDiagMageLevel N: 魔法使いの高度を N 段にした状態で始める(前の戦いで上げた高度が残った状態、2026-10-12)
+                // -qaDiagMageLevelAt T: 戦いの途中(T秒)で N 段にする(登場でボスが真下を通ると下攻撃で段が下がるため、構えた後に作る)
                 int mageLv0 = int.Parse(Arg("-qaDiagMageLevel", "-1"));
-                if (mageLv0 >= 0) pc.DebugSetMageLevel(mageLv0);
+                float mageLvAt = float.Parse(Arg("-qaDiagMageLevelAt", "0"), System.Globalization.CultureInfo.InvariantCulture);
+                if (mageLv0 >= 0 && mageLvAt <= 0f) pc.DebugSetMageLevel(mageLv0);
                 int mageDesc0 = pc.MageSafetyDescends, maxMageLv = pc.MageAltitudeLevel;
                 int hp0 = wb != null ? wb.Hp : 0, lastHp = hp0, drops = 0, sw0 = PlayerAttackInfo.SwingCount, lives0 = gm.Lives, hitsTaken = 0, lastLives = gm.Lives;
                 float t0 = Time.time, next = 0f, firstDrop = -1f, lastDrop = -1f;
@@ -113,6 +115,7 @@ public partial class QaSweep
                             }
                         }
                     }
+                    if (mageLv0 >= 0 && mageLvAt > 0f && t >= mageLvAt) { pc.DebugSetMageLevel(mageLv0); L($"[diag {ch} {spec}] t={t:F1} mage level set to {mageLv0}"); mageLvAt = 0f; mageLv0 = -1; }
                     if (pc.MageAltitudeLevel > maxMageLv) maxMageLv = pc.MageAltitudeLevel;
                     if (gm.Lives < lastLives) hitsTaken++;
                     lastLives = gm.Lives;
