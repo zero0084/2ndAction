@@ -20,6 +20,17 @@ public partial class PlayerController
 
     static readonly string[] FighterComboPoses = { "jab", "straight", "kick", "heavy" };
 
+    // 確認用(2026-10-12): 連撃の段ごとの命中数(敵/ボスに当たった段)。-qaDuel / 部分試験の集計
+    public static readonly int[] FighterStageSwings = new int[5], FighterStageHits = new int[5];
+    void FighterStageHitsArm(int stage)
+    {
+        FighterStageSwings[Mathf.Clamp(stage, 0, 4)]++;
+        if (kitHitInfo == null) return;
+        int st = Mathf.Clamp(stage, 0, 4);
+        bool counted = false;
+        kitHitInfo.onHit = () => { if (!counted) { counted = true; FighterStageHits[st]++; } };
+    }
+
     void HandleFighterInput(FlickDirection f)
     {
         switch (f)
@@ -76,11 +87,17 @@ public partial class PlayerController
                 t += Time.deltaTime; yield return null;
             }
             SetKitPose(FighterComboPoses[stage - 1], 1);
-            float reach = ArcherPick(p.comboReach, stage - 1, 1f) * AttackRangeMultiplier;
+            // 2026-10-12 強化: 前方の届き ×1.2・上下の厚み +0.25m(拳/蹴りの絵とエフェクトの範囲内)/ 1〜3段目は押し出しを弱め、4段目の威力を上げる
+            float reach = ArcherPick(p.comboReach, stage - 1, 1f) * AttackRangeMultiplier * (BalanceTuning.FighterReach ? BalanceTuning.FighterReachMul : 1f);
             float hitStop = ArcherPick(p.comboHitStop, stage - 1, 0.04f);
             float h = stage == 3 ? p.hitHeight - 0.08f : p.hitHeight;
-            ArmKitBox(new Vector2(0.15f + reach * 0.5f, h), new Vector2(reach, p.hitThickness + (stage >= 4 ? 0.2f : 0f)), 0f,
-                PlayerAttackKind.Normal, ArcherPick(p.comboDamageScale, stage - 1, 1f), ArcherPick(p.comboKnockbackScale, stage - 1, 1f), hitStop);
+            float thick = p.hitThickness + (stage >= 4 ? 0.2f : 0f) + (BalanceTuning.FighterReach ? BalanceTuning.FighterThickAdd : 0f);
+            float dmg = ArcherPick(p.comboDamageScale, stage - 1, 1f);
+            if (stage >= 4 && BalanceTuning.FighterFinisher) dmg = BalanceTuning.FighterFinisherDamage;
+            float kb = ArcherPick(p.comboKnockbackScale, stage - 1, 1f);
+            if (stage < 4 && BalanceTuning.FighterKeepClose) kb *= BalanceTuning.FighterMidKnockMul;
+            ArmKitBox(new Vector2(0.15f + reach * 0.5f, h), new Vector2(reach, thick), 0f, PlayerAttackKind.Normal, dmg, kb, hitStop);
+            FighterStageHitsArm(stage);
             lungeVelocityX = ArcherPick(p.comboLunge, stage - 1, 0.2f) / Mathf.Max(0.01f, active);
             Vector3 fist = KitWorld(new Vector2(0.15f + reach * 0.85f, h));
             if (stage >= 4)

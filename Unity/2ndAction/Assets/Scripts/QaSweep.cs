@@ -101,6 +101,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaArtShots") { mode = "artshots"; dir = a[i + 1]; }
             if (a[i] == "-qaTerrJoints") { mode = "terrjoints"; dir = a[i + 1]; }
             if (a[i] == "-qaBossDiag") { mode = "bossdiag"; dir = a[i + 1]; }
+            if (a[i] == "-qaNobleMoves") { mode = "noblemoves"; dir = a[i + 1]; }
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -220,6 +221,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "artshots") yield return ArtShotsMode();
         else if (mode == "terrjoints") yield return TerrJointsMode();
         else if (mode == "bossdiag") yield return BossDiagMode();
+        else if (mode == "noblemoves") yield return NobleMovesMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

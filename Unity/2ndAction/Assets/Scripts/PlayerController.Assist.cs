@@ -101,6 +101,7 @@ public partial class PlayerController
                 case CharacterKit.Miko: return kitDef.miko.ofudaWindup * s;
                 case CharacterKit.Ninja: return 0f;
             }
+            if (NobleUsesAirSweep) return 0.07f * s; // お嬢様の空中の薙ぎ払いの構え
             if (isLancerCharacter && lancerDef != null) return Pick(lancerDef.lanceComboWindup, 1, lancerDef.lanceWindup) * s;
             return 0f;
         }
@@ -118,12 +119,13 @@ public partial class PlayerController
             if (AssistForwardIsProjectile) return 12f;
             switch (kit)
             {
-                case CharacterKit.Fighter: return ArcherPick(kitDef.fighter.comboReach, 0, 1f) + 0.3f;
+                case CharacterKit.Fighter: return ArcherPick(kitDef.fighter.comboReach, 0, 1f) * (BalanceTuning.FighterReach ? BalanceTuning.FighterReachMul : 1f) + 0.3f;
                 case CharacterKit.Vampire: return ArcherPick(kitDef.vampire.comboReach, 0, 1.1f) + 0.3f;
                 case CharacterKit.Dragonkin: return ArcherPick(kitDef.dragonkin.comboReach, 0, 1.3f) + 0.3f;
                 case CharacterKit.Ninja: return kitDef.ninja.dashDistance + 0.8f;
             }
             if (isLancerCharacter && lancerDef != null) return lancerDef.lanceReachStart + lancerDef.lanceReach * Pick(lancerDef.lanceComboReachScale, 1, 1f);
+            if (NobleUsesAirSweep) return 0.2f + 1.5f * AttackRangeMultiplier * NobleRangeMul; // お嬢様の空中の薙ぎ払い(2026-10-12、手動と同じ判定)
             if (attackHitbox is BoxCollider2D box)
             {
                 Vector3 sc = hitboxBaseScale * (AttackRangeMultiplier * NobleRangeMul);

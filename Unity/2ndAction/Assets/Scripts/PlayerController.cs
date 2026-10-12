@@ -521,6 +521,8 @@ public partial class PlayerController : MonoBehaviour
         canUseUpAttack = def.canUseUpAttack;
         canUseAirAttack = def.canUseAirAttack;
         canUseDownAttack = def.canUseDownAttack;
+        // お嬢様の空中からの振り下ろし(2026-10-12): 空中の下フリックで急降下(共通の操作。専用の入力は無い)
+        if (def.characterId == "noble_lady" && BalanceTuning.NobleMoves) canUseDownAttack = true;
         charHurtDuration = def.hurtDuration;
         charHurtInvincible = def.hurtInvincibleDuration;
         charRecoveryDuration = def.recoveryDuration;
@@ -625,6 +627,7 @@ public partial class PlayerController : MonoBehaviour
             // 竜騎士(2026-09-26) - 後ろ攻撃(石突き)だけ威力を下げる。他キャラは常に1倍。
             if (isLancerCharacter && lanceDamageScale != 1f) power = Mathf.Max(1, Mathf.RoundToInt(power * lanceDamageScale));
             if (IsNoble) power = Mathf.RoundToInt(power * NobleAttackMul); // お嬢様騎士の強化の候補(PlayerController.Noble.cs、既定は1倍)
+            if (CharId == "fighter" && BalanceTuning.FighterAtk) power = Mathf.RoundToInt(power * BalanceTuning.FighterAtkMul); // 格闘家の基礎攻撃力(比較用、2026-10-12)
             // 2026-10-02: 0以下にしない(空中攻撃-のカード等で負になると、ボスは1以上の下限が無いため逆に回復していた)
             return Mathf.Max(1, power);
         }
@@ -1110,6 +1113,7 @@ public partial class PlayerController : MonoBehaviour
         }
         LancerSafetyUpdate(); // 竜騎士: 実行中の技が無いのに攻撃状態だけ残らないようにする(他キャラは何もしない)
         KitUpdate(); // 新4人: タイマー/引き絞り表示/安全装置(既存5人は何もしない)
+        NobleUpdate(); // お嬢様の空中攻撃/急降下のポーズの片付け(2026-10-12)
 
         if (!ultimateDriving) UpdateEscapeInput();
         UpdateEscapeVisuals();
@@ -1912,6 +1916,7 @@ public partial class PlayerController : MonoBehaviour
         EndDiveAttack();
         CancelLanceMoves();
         CancelKitMoves();
+        NobleCancel();
     }
 
     // A brief backward push, decayed over its own duration rather than
@@ -2385,7 +2390,9 @@ public partial class PlayerController : MonoBehaviour
         if (!isAttacking && attackCooldownTimer <= 0f)
         {
             comboCount = 0;
-            StartCoroutine(DoAttack(requested.Value));
+            // お嬢様: 空中の前/後フリックは大剣の薙ぎ払い(2026-10-12)
+            if (NobleUsesAirSweep) StartCoroutine(NobleAirSweep(requested.Value));
+            else StartCoroutine(DoAttack(requested.Value));
         }
         else if (isAttacking && comboWindowOpen && !comboBuffered)
         {
@@ -2448,6 +2455,7 @@ public partial class PlayerController : MonoBehaviour
             int reachStep = Mathf.Max(0, comboCount - 1);
             attackSlashVisual.transform.localPosition =
                 hitboxBaseLocalPos + new Vector3(reachStep * hitboxReachStep * AttackRangeMultiplier, 0f, 0f);
+            attackSlashVisual.transform.localRotation = Quaternion.identity; // お嬢様の空中の薙ぎ払いの傾きを戻す(2026-10-12)
             // 派手なアニメーション化(2026-09-10) - マスターの指示で、1枚絵
             // をScale/Alphaで演出するPlaySingleから、ChatGPT生成の5コマ
             // スプライトシートを実コマ送りするPlayFramesへ差し替え(位置
@@ -2666,6 +2674,7 @@ public partial class PlayerController : MonoBehaviour
             downAttackHitbox.transform.localPosition = downHitboxBaseLocalPos * AttackRangeMultiplier;
             downAttackHitbox.enabled = true; PlayerAttackInfo.RearmOf(downAttackHitbox);
         }
+        NobleOnDiveStart(); // お嬢様: 間合い/威力/振り下ろしのポーズ(2026-10-12)
     }
 
     void EndDiveAttack()
@@ -2694,6 +2703,7 @@ public partial class PlayerController : MonoBehaviour
     // なので、ここでは全く別の新しいHitboxを短時間だけ有効にする。
     void TriggerDiveImpact()
     {
+        if (NobleOnDiveImpact()) return; // お嬢様: 大剣が地面に刺さる衝撃波(2026-10-12)
         if (downAttackLandHitbox != null)
         {
             downAttackLandHitbox.enabled = true; PlayerAttackInfo.RearmOf(downAttackLandHitbox);

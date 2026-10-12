@@ -56,10 +56,11 @@ public partial class PlayerController
         // 体の当たり判定: 竜人だけ大きく、他のキャラは元の大きさ(既存キャラは常に1倍=変化なし)
         ApplyBodyScale(kit == CharacterKit.Dragonkin ? def.dragonkin.bodyScale : 1f);
         if (sr != null) sr.color = Color.white;
-        if (!HasKit) return;
+        // 技のポーズ(キットの無いお嬢様の空中攻撃/急降下も使う、2026-10-12)
         if (def.kitPoses != null)
             foreach (var p in def.kitPoses)
                 if (p != null && !string.IsNullOrEmpty(p.name) && p.frames != null && p.frames.Length > 0) kitPoseCache[p.name] = p.frames;
+        if (!HasKit) return;
         if (kitHitbox == null)
         {
             var go = new GameObject("KitHitbox");

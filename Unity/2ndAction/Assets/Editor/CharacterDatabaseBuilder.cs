@@ -408,6 +408,9 @@ public static class CharacterDatabaseBuilder
         nobleLady.landFramesPpu = 282f;
         nobleLady.attackFramesDir = "Assets/Art/NobleLadyAttack_v1";
         nobleLady.attackFramesPpu = 310f;
+        // 空中からの振り下ろし(2026-10-12): マルチの相手の画面(分身)は技のポーズを持たないので、急降下/着地の絵としても登録する
+        nobleLady.downAttackFramesDir = "Assets/Art/NobleLadyDive_v1"; nobleLady.downAttackFramesPpu = 440f;
+        nobleLady.downAttackLandFramesDir = "Assets/Art/NobleLadyDiveLand_v1"; nobleLady.downAttackLandFramesPpu = 440f;
         // RUN開始準備/正常終了演出 本番素材化(2026-09-24) - マスター指示
         // 「見た目は強そうなのに実際は弱いというギャップ」を踏まえ、超長
         // 距離Finishでは完全に疲れ切って座り込むポーズを他キャラより強調。
@@ -842,6 +845,22 @@ public static class CharacterDatabaseBuilder
 
     static void ApplyKitArt(CharacterDefinition d, Spec spec)
     {
+        // お嬢様の空中の薙ぎ払い/急降下(2026-10-12、ChatGPT 生成): キットは Standard のまま、技のポーズだけ持たせる。
+        // 全コマ同じ大きさの画像・下端中央のピボット(コマの間で体が跳ねない)。PPU 440 = 立ち絵/攻撃の絵と同じ頭身
+        if (spec.id == "noble_lady")
+        {
+            var nl = new System.Collections.Generic.List<KitPose>();
+            foreach (var (pose, dir) in new[] { ("air", "Assets/Art/NobleLadyAir_v1"), ("plunge", "Assets/Art/NobleLadyPlunge_v1") })
+            {
+                if (!AssetDatabase.IsValidFolder(dir)) continue;
+                SceneBuilder.ConfigureSpriteFolderImportWithBottomCenterPivot(dir, 440f);
+                var fr = SceneBuilder.LoadSpriteSequence(dir);
+                if (fr.Length > 0) nl.Add(new KitPose { name = pose, frames = fr });
+            }
+            d.kitPoses = nl.ToArray();
+            EditorUtility.SetDirty(d);
+            return;
+        }
         if (spec.kit == CharacterKit.Standard) return;
         d.kit = spec.kit;
         var list = new System.Collections.Generic.List<KitPose>();

@@ -50,6 +50,21 @@ public static class BalanceTuning
     public static bool NobleReach = false;         // 間合い(比較用)
     public static float NobleReachValue = 0.95f;   // 今は 0.75
 
+    // ===== 格闘家/お嬢様の追加強化(2026-10-12)。-charTune base で全部切った状態(比較用)、-charTune fr,fk,ff,fa,ng,nm,nj で個別 =====
+    // 格闘家: 近い間合いで連撃を当て切る強さ
+    public static bool FighterReach = true;      // fr: 拳/蹴りの前方の届き ×1.2・上下の厚み +0.25m(小さな位置ずれで空振りしない)
+    public static float FighterReachMul = 1.2f, FighterThickAdd = 0.25f;
+    public static bool FighterKeepClose = true;  // fk: 1〜3段目の吹き飛ばしを弱める(連撃の途中で届かない所へ押し出さない)
+    public static float FighterMidKnockMul = 0.45f;
+    public static bool FighterFinisher = true;   // ff: 4段目(締め)の威力 2.2 → 3.0倍
+    public static float FighterFinisherDamage = 3.0f;
+    public static bool FighterAtk = false;       // fa: 基礎攻撃力(比較用。部分試験で足りなければ採用)
+    public static float FighterAtkMul = 1.15f;
+    // お嬢様: 重い大剣の一撃 + 手動で状況に対応する攻撃手段
+    public static bool NobleGreatsword = true;   // ng: 大剣の見た目に合う間合い(基礎 0.75 → 1.0)と一撃の重さ(×1.6)
+    public static float NobleGreatswordRange = 1.0f, NobleGreatswordDamage = 1.6f; // 威力: 部分試験(80km オーガ 5.75→4.50秒)で 1.2→1.6
+    public static bool NobleMoves = true;        // nm: 空中の前/後フリック=大剣の薙ぎ払い / 空中の下フリック=振り下ろしながら急降下+着地の衝撃波
+
     public static string Describe => $"lateEnemyHp={(LateEnemyHp ? $"on(from {LateHpFrom:F0}m every {LateHpEvery:F0}m)" : "off")} attackUpHighLevel={(AttackUpHighLevel ? "on" : "off")} bossFrontReturn={(BossFrontReturn ? "on" : "off")} assistFlyingBosses={(AssistFlyingBosses ? "on" : "off")} assistFighterCombo={(AssistFighterCombo ? "on" : "off")} assistKitJumpModel={(AssistKitJumpModel ? "on" : "off")} noble={(NobleAwaken ? "awaken " : "")}{(NobleArmor ? "armor " : "")}{(NobleHeavy ? "heavy " : "")}{(NobleReach ? "reach" : "")} fighterFullJump={(FighterFullJump ? "on" : "off")}";
 
     // 雑魚の HP の距離の段(DistanceTierManager.CurrentEnemyHp)
@@ -59,6 +74,8 @@ public static class BalanceTuning
         if (!LateEnemyHp || distance <= LateHpFrom) return Mathf.FloorToInt(distance / inc);
         return Mathf.FloorToInt(LateHpFrom / inc) + Mathf.FloorToInt((distance - LateHpFrom) / Mathf.Max(1f, LateHpEvery));
     }
+
+    public static string DescribeChar => $"fighterReach={FighterReach} keepClose={FighterKeepClose} finisher={FighterFinisher} fighterAtk={FighterAtk} nobleGreatsword={NobleGreatsword} nobleMoves={NobleMoves}";
 
     static bool applied;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -88,6 +105,28 @@ public static class BalanceTuning
                 FighterFullJump = v.Contains("fjump");
             }
             Debug.Log("[BalanceTuning] variant " + v + ": " + Describe);
+        }
+        for (int i = 0; i < a.Length - 1; i++)
+        {
+            if (a[i] != "-charTune") continue;
+            string v = a[i + 1];
+            if (v == "base") { FighterReach = false; FighterKeepClose = false; FighterFinisher = false; FighterAtk = false; NobleGreatsword = false; NobleMoves = false; }
+            else
+            {
+                FighterReach = v.Contains("fr"); FighterKeepClose = v.Contains("fk"); FighterFinisher = v.Contains("ff"); FighterAtk = v.Contains("fa");
+                NobleGreatsword = v.Contains("ng"); NobleMoves = v.Contains("nm");
+            }
+            Debug.Log("[BalanceTuning] charTune " + v + ": " + DescribeChar);
+        }
+        // 数値の比較用(部分試験): -charNobleDmg 1.5 / -charFighterAtk 1.15 / -charFighterFin 3.0
+        var inv = System.Globalization.CultureInfo.InvariantCulture;
+        for (int i = 0; i < a.Length - 1; i++)
+        {
+            if (a[i] == "-charNobleDmg") NobleGreatswordDamage = float.Parse(a[i + 1], inv);
+            else if (a[i] == "-charFighterAtk") { FighterAtk = true; FighterAtkMul = float.Parse(a[i + 1], inv); }
+            else if (a[i] == "-charFighterFin") FighterFinisherDamage = float.Parse(a[i + 1], inv);
+            else continue;
+            Debug.Log($"[BalanceTuning] {a[i]} {a[i + 1]}: nobleDmg={NobleGreatswordDamage} fighterAtk={(FighterAtk ? FighterAtkMul : 1f)} fighterFin={FighterFinisherDamage}");
         }
 #endif
     }

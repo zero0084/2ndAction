@@ -69,8 +69,11 @@ MonoBehaviour:
   runFps: 6
   attackFramesSmall: []
   attackFramesLarge: []
-  downAttackFrames: []
-  downAttackLandFrames: []
+  downAttackFrames:
+  - {fileID: 21300000, guid: 24041bdbebef49a4abb6d4c7dd6ba556, type: 3}
+  downAttackLandFrames:
+  - {fileID: 21300000, guid: 574a238bc14264c4d80f2c936ffcfd39, type: 3}
+  - {fileID: 21300000, guid: 4def108921623f34a93c647d3c626e0b, type: 3}
   hurtDuration: 0
   hurtInvincibleDuration: 0
   recoveryDuration: 0
@@ -197,7 +200,17 @@ MonoBehaviour:
   - 0
   deathFrames: []
   kit: 0
-  kitPoses: []
+  kitPoses:
+  - name: air
+    frames:
+    - {fileID: 21300000, guid: 2176496ede057a046aef3fb39c36bb14, type: 3}
+    - {fileID: 21300000, guid: 8faf946c3db219a4094cde5143176654, type: 3}
+    - {fileID: 21300000, guid: e9273bc646b26194cb9e961ddc8f8953, type: 3}
+  - name: plunge
+    frames:
+    - {fileID: 21300000, guid: b331604bf5534e748898cea1c67a5df6, type: 3}
+    - {fileID: 21300000, guid: dd0792d607119b3459dc13cb7af95645, type: 3}
+    - {fileID: 21300000, guid: ccac99bd385bdac42977c5e0c4be0e47, type: 3}
   archer:
     chargeMidTime: 0.55
     chargeMaxTime: 1.2
