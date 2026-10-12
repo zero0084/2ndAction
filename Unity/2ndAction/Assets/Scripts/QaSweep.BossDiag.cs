@@ -66,6 +66,10 @@ public partial class QaSweep
                 if (wb != null && rtIdx >= 0 && rtIdx < BossRematchTuning.I.tiers.Count) wb.ApplyRematch(BossRematchTuning.I.tiers[rtIdx]);
                 float hpMul = float.Parse(Arg("-qaDiagHpMul", "1"), System.Globalization.CultureInfo.InvariantCulture);
                 if (wb != null && hpMul != 1f) wb.DebugScaleHp(hpMul);
+                // -qaDiagMageLevel N: 魔法使いの高度を N 段にした状態で始める(前の戦いで上げた高度が残った状態、2026-10-12)
+                int mageLv0 = int.Parse(Arg("-qaDiagMageLevel", "-1"));
+                if (mageLv0 >= 0) pc.DebugSetMageLevel(mageLv0);
+                int mageDesc0 = pc.MageSafetyDescends, maxMageLv = pc.MageAltitudeLevel;
                 int hp0 = wb != null ? wb.Hp : 0, lastHp = hp0, drops = 0, sw0 = PlayerAttackInfo.SwingCount, lives0 = gm.Lives, hitsTaken = 0, lastLives = gm.Lives;
                 float t0 = Time.time, next = 0f, firstDrop = -1f, lastDrop = -1f;
                 var hsa = HighSpeedAssist.Instance;
@@ -109,6 +113,7 @@ public partial class QaSweep
                             }
                         }
                     }
+                    if (pc.MageAltitudeLevel > maxMageLv) maxMageLv = pc.MageAltitudeLevel;
                     if (gm.Lives < lastLives) hitsTaken++;
                     lastLives = gm.Lives;
                     fpsAcc += 1f / Mathf.Max(0.001f, Time.unscaledDeltaTime); fpsN++;
@@ -116,14 +121,14 @@ public partial class QaSweep
                     {
                         next = t + 0.5f;
                         string bstate = wb != null ? $"act={wb.DebugAct} pose={wb.DebugPose} gap={wb.DebugGap:F1} front={wb.DebugFrontDist:F1} relV={wb.DebugRelVelocity:F1} inv={wb.DebugInvulnerable} targetable={wb.AssistTargetable} y={wb.AssistBounds.center.y - pc.transform.position.y:F1} h={wb.AssistBounds.size.y:F1}" : "";
-                        L($"[diag {ch} {spec}] t={t:F1} phase={boss.Phase} hp={(wb != null ? wb.Hp : 0)}/{hp0} drops={drops} swings={PlayerAttackInfo.SwingCount - sw0} lives={gm.Lives} {bstate} assist={(hsa != null ? hsa.CurrentStatus + "/" + hsa.LastAction : "-")} grounded={pc.IsGrounded}");
+                        L($"[diag {ch} {spec}] t={t:F1} phase={boss.Phase} hp={(wb != null ? wb.Hp : 0)}/{hp0} drops={drops} swings={PlayerAttackInfo.SwingCount - sw0} lives={gm.Lives} {bstate} assist={(hsa != null ? hsa.CurrentStatus + "/" + hsa.LastAction : "-")} grounded={pc.IsGrounded}{(pc.Kit == CharacterKit.Mage ? $" mageLv={pc.MageAltitudeLevel} plan={(hsa != null ? hsa.BossPlan : "-")}" : "")}");
                     }
                     yield return null;
                 }
                 float tEnd = Time.time - t0;
                 bool killed = !boss.DebugAlive;
                 string actStr = string.Join(" ", acts.OrderByDescending(kv => kv.Value).Take(6).Select(kv => $"{kv.Key}={kv.Value:F0}s"));
-                string line = $"{ch} {spec} d={dist:F0} rep={rep} RT={(wb != null ? wb.DebugRT : -1)} killed={killed} sec={tEnd:F1} swings={PlayerAttackInfo.SwingCount - sw0} drops={drops} hitRate={(drops / Mathf.Max(1f, PlayerAttackInfo.SwingCount - sw0)):F2} firstDrop={firstDrop:F1} lastDrop={lastDrop:F1} hpLeft={(wb != null && hp0 > 0 ? (float)wb.Hp / hp0 : -1f):F2} taken={hitsTaken} fps={(fpsN > 0 ? fpsAcc / fpsN : 0f):F0} overlapSwings hit={ovlHit} miss={ovlMiss} [{string.Join(" ", missByName.Select(kv => kv.Key + "=" + kv.Value))}] acts[{actStr}]";
+                string line = $"{ch} {spec} d={dist:F0} rep={rep} RT={(wb != null ? wb.DebugRT : -1)} killed={killed} sec={tEnd:F1} swings={PlayerAttackInfo.SwingCount - sw0} drops={drops} hitRate={(drops / Mathf.Max(1f, PlayerAttackInfo.SwingCount - sw0)):F2} firstDrop={firstDrop:F1} lastDrop={lastDrop:F1} hpLeft={(wb != null && hp0 > 0 ? (float)wb.Hp / hp0 : -1f):F2} taken={hitsTaken} fps={(fpsN > 0 ? fpsAcc / fpsN : 0f):F0} overlapSwings hit={ovlHit} miss={ovlMiss} [{string.Join(" ", missByName.Select(kv => kv.Key + "=" + kv.Value))}] acts[{actStr}]{(pc.Kit == CharacterKit.Mage ? $" mage[lv0={mageLv0} maxLv={maxMageLv} endLv={pc.MageAltitudeLevel} safetyDescends={pc.MageSafetyDescends - mageDesc0}{(hsa != null ? $" ups={hsa.MageBossLevelUps} downs={hsa.MageBossLevelDowns} dodges={hsa.MageBossDodges} bolts={hsa.MageBossBolts}" : "")}]" : "")}";
                 L("[diag result] " + line);
                 summary.Add(line);
                 KillSkyBosses();

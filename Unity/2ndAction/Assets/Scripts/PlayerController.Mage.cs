@@ -28,6 +28,42 @@ public partial class PlayerController
         mageVelY = 0f;
         mageSurfaceKnown = false;
         MageCeilingBlocked = false;
+        mageIdleHighT = 0f;
+    }
+
+    // ---- 自動操作補助から読む値(2026-10-12、ボス戦で高度を合わせるため) ----
+    public int AssistMageMaxLevel => kitDef != null ? kitDef.mage.maxAltitudeLevel + MageExtraAltitudeLevels : 0;
+    // 段 level の目標の高さ(足元。上下の揺れは含まない)。基準の地面は MageFlightMove と同じ(穴の上なら直前の地面)
+    public float AssistMageLevelY(int level)
+    {
+        if (kitDef == null) return transform.position.y;
+        var p = kitDef.mage;
+        float surface = mageSurfaceKnown ? mageSurface : transform.position.y - groundOffset - p.hoverBase - mageLevel * p.altitudeStep;
+        return surface + groundOffset + p.hoverBase + level * p.altitudeStep;
+    }
+
+    // 安全装置(2026-10-12): ボス戦の間、高い段に浮いたまま魔法を1発も撃たない時間が続いたら1段ずつ降りる。
+    // ボス戦は関門で距離が止まり足元の地形も変わらないので、低いボス(オオカミ)の頭上に浮いたままだと
+    // 魔法弾はボスの上を素通り・ボスの噛みつきも届かず、何も起きないまま時間切れ(480秒)になっていた。
+    float mageIdleHighT;
+    public int MageSafetyDescends { get; private set; }
+    const float MageIdleDescendSeconds = 4f;
+    void MageHoverSafety(float dt)
+    {
+        if (!BalanceTuning.MageHoverSafety || mageLevel <= 0 || !BossBattle.AnyBossFighting) { mageIdleHighT = 0f; return; }
+        mageIdleHighT += dt;
+        if (mageIdleHighT < MageIdleDescendSeconds) return;
+        mageIdleHighT = 0f;
+        mageLevel--; MageAltitudeChanges++; MageSafetyDescends++;
+        FreezeDiagnostics.LogEvent($"[Mage] ボス戦で攻撃なしの浮遊が {MageIdleDescendSeconds:F0}秒続いた → 1段降りる(残り段 {mageLevel})");
+    }
+    void MageAttacked() => mageIdleHighT = 0f;
+
+    // 開発用(QaSweep.BossDiag -qaDiagMageLevel): 前の戦いで上げた高度が残った状態を作る
+    public void DebugSetMageLevel(int level)
+    {
+        if (kit != CharacterKit.Mage || kitDef == null) return;
+        mageLevel = Mathf.Clamp(level, 0, AssistMageMaxLevel);
     }
 
     // Move()から(魔法使いの間だけ、ジャンプ/重力/着地の代わりにこれを使う)。
@@ -63,6 +99,7 @@ public partial class PlayerController
             MageCeilingBlocked = true;
         }
 
+        MageHoverSafety(dt);
         velocityY = mageVelY;
         isGrounded = mageLevel == 0 && surf.HasValue;
         jumpsUsed = 0;
@@ -149,6 +186,7 @@ public partial class PlayerController
                 proj.name = "MageBolt_Back";
             }
             proj.spin = 360f;
+            MageAttacked();
             OneShotSpriteEffect.CreateTweened(KitProjectile.Orb, pos, new Color(0.7f, 0.85f, 1f, 0.8f), duration: 0.14f, startScale: 0.15f, endScale: 0.45f, sortingOrder: RenderOrder.SlashFx);
             if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(back ? 1 : 2);
             SetKitPose("cast", 1);
@@ -177,6 +215,7 @@ public partial class PlayerController
             p.upDamageScale, 1.2f, 0.04f, new Color(0.8f, 0.75f, 1f, 0.6f));
         proj.blast = new KitBlast.Spec { radius = p.upBlastRadius, active = 0.1f, kind = PlayerAttackKind.Normal, damageScale = 1f, knockbackScale = 1.2f, hitStop = 0.04f, fx = KitProjectile.SkyBolt, tint = new Color(0.85f, 0.8f, 1f, 0.95f), fxScale = 1.4f, shake = 0.04f };
         proj.name = "MageBolt_Up";
+        MageAttacked();
         FlashKitPose("castUp", 0.28f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(2);
     }
@@ -197,6 +236,7 @@ public partial class PlayerController
         proj.spin = -540f;
         proj.blast = new KitBlast.Spec { radius = p.downBlastRadius, active = 0.12f, kind = PlayerAttackKind.DownImpact, damageScale = p.downBlastDamageScale, knockbackScale = 1.4f, hitStop = 0.05f, fx = KitProjectile.Burst, tint = new Color(0.75f, 0.6f, 1f, 0.95f), fxScale = 1.25f, shake = 0.08f };
         proj.name = "MageBolt_Down";
+        MageAttacked();
         FlashKitPose("castDown", 0.28f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(3);
     }

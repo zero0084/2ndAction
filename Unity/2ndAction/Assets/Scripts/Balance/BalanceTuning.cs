@@ -72,6 +72,12 @@ public static class BalanceTuning
     public static int JumpCountFor(CharacterDefinition def) => def == null ? 1 : Mathf.Max(1, def.characterId == "noble_lady" && NobleJump ? NobleJumpCount : def.jumpCount);
     public static bool NobleMoves = true;        // nm: 空中の前/後フリック=大剣の薙ぎ払い / 空中の下フリック=振り下ろしながら急降下+着地の衝撃波
 
+    // 魔法使いのボス戦(2026-10-12)。開発版は -mageFix base で両方切った状態(比較用)、-mageFix assist,safety で個別
+    // assist: 自動の補助がボスに魔法弾が当たる段へ高度を合わせる(ジャンプ前提の判断を使わない、HighSpeedAssist.Mage.cs)
+    // safety: ボス戦で高い段に浮いたまま攻撃しない時間が続いたら1段ずつ降りる(PlayerController.Mage.cs)
+    public static bool AssistMageAltitude = true;
+    public static bool MageHoverSafety = true;
+
     public static string Describe => $"lateEnemyHp={(LateEnemyHp ? $"on(from {LateHpFrom:F0}m every {LateHpEvery:F0}m)" : "off")} attackUpHighLevel={(AttackUpHighLevel ? "on" : "off")} bossFrontReturn={(BossFrontReturn ? "on" : "off")} assistFlyingBosses={(AssistFlyingBosses ? "on" : "off")} assistFighterCombo={(AssistFighterCombo ? "on" : "off")} assistKitJumpModel={(AssistKitJumpModel ? "on" : "off")} noble={(NobleAwaken ? "awaken " : "")}{(NobleArmor ? "armor " : "")}{(NobleHeavy ? "heavy " : "")}{(NobleReach ? "reach" : "")} fighterFullJump={(FighterFullJump ? "on" : "off")}";
 
     // 雑魚の HP の距離の段(DistanceTierManager.CurrentEnemyHp)
@@ -124,6 +130,13 @@ public static class BalanceTuning
                 NobleGreatsword = v.Contains("ng"); NobleMoves = v.Contains("nm"); NobleJump = v.Contains("nj");
             }
             Debug.Log("[BalanceTuning] charTune " + v + ": " + DescribeChar);
+        }
+        for (int i = 0; i < a.Length - 1; i++)
+        {
+            if (a[i] != "-mageFix") continue;
+            string v = a[i + 1];
+            AssistMageAltitude = v.Contains("assist"); MageHoverSafety = v.Contains("safety");
+            Debug.Log($"[BalanceTuning] mageFix {v}: assistMageAltitude={AssistMageAltitude} mageHoverSafety={MageHoverSafety}");
         }
         // 数値の比較用(部分試験): -charNobleDmg 1.5 / -charFighterAtk 1.15 / -charFighterFin 3.0
         var inv = System.Globalization.CultureInfo.InvariantCulture;

@@ -256,7 +256,7 @@ public partial class QaSweep
                         {
                             if (wbb == null || wbb.IsDead) continue;
                             var bb = wbb.AssistBounds;
-                            BlEvent("boss_diag", $"{wbb.name} act={wbb.DebugAct} pose={wbb.DebugPose} gap={wbb.DebugGap:F1} front={wbb.DebugFrontDist:F1} relV={wbb.DebugRelVelocity:F1} inv={wbb.DebugInvulnerable} tgt={wbb.AssistTargetable} dy={bb.center.y - pc.transform.position.y:F1} h={bb.size.y:F1} w={bb.size.x:F1} phase={wbb.Phase} swings={blCurBoss.swings} drops={blCurBoss.hpDrops} grounded={pc.IsGrounded} kmh={GameManager.SpeedKmh(pc.CurrentAutoRunSpeed):F0} fps={(1f / Mathf.Max(0.001f, Time.unscaledDeltaTime)):F0} assist={(HighSpeedAssist.Instance != null ? HighSpeedAssist.Instance.CurrentStatus + "/" + HighSpeedAssist.Instance.LastAction : "-")}");
+                            BlEvent("boss_diag", $"{wbb.name} act={wbb.DebugAct} pose={wbb.DebugPose} gap={wbb.DebugGap:F1} front={wbb.DebugFrontDist:F1} relV={wbb.DebugRelVelocity:F1} inv={wbb.DebugInvulnerable} tgt={wbb.AssistTargetable} dy={bb.center.y - pc.transform.position.y:F1} h={bb.size.y:F1} w={bb.size.x:F1} phase={wbb.Phase} swings={blCurBoss.swings} drops={blCurBoss.hpDrops} grounded={pc.IsGrounded} kmh={GameManager.SpeedKmh(pc.CurrentAutoRunSpeed):F0} fps={(1f / Mathf.Max(0.001f, Time.unscaledDeltaTime)):F0} assist={(HighSpeedAssist.Instance != null ? HighSpeedAssist.Instance.CurrentStatus + "/" + HighSpeedAssist.Instance.LastAction : "-")}{(pc.Kit == CharacterKit.Mage ? $" mageLv={pc.MageAltitudeLevel}" : "")}");
                         }
                     }
                 }
