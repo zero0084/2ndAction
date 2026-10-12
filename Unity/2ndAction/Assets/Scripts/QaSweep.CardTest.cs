@@ -44,10 +44,10 @@ public partial class QaSweep
         }
         var pS = ct.Get("speed"); var pJ = ct.Get("jump"); var pN = ct.Get("jumps"); var pA = ct.Get("attack");
         var pT = ct.Get("atktime"); var pR = ct.Get("range"); var pH = ct.Get("hp"); var pE = ct.Get("exp"); var pM = ct.Get("mile");
-        L($"[cycle x5 then A] runSpeed={pc.runSpeed:F4} expect {baseSpeed * pS.abc[0]:F4} | jump={pc.jumpForce:F4} expect {baseJump * pJ.abc[0]:F4} | jumps={pc.maxJumps} expect {def.jumpCount + pN.abc[0]} | atk={pc.AttackPower} expect {def.attackPower + pA.abc[0]} | time={pc.AttackSpeedMultiplier:F4} expect {def.attackSpeedMultiplier * pT.abc[0]:F4} | range={pc.AttackRangeMultiplier:F4} expect {def.attackRangeMultiplier * pR.abc[0]:F4} | hp={gm.maxLives} expect {Mathf.Min(gm.maxLivesCap, def.baseMaxLives + (int)pH.abc[0])} | exp={gm.CardTestExpMultiplier:F4} mile={gm.MileGainMultiplier:F4}/{gm.BossMileGainMultiplier:F4}");
+        L($"[cycle x5 then A] runSpeed={pc.runSpeed:F4} expect {baseSpeed * pS.abc[0]:F4} | jump={pc.jumpForce:F4} expect {baseJump * pJ.abc[0]:F4} | jumps={pc.maxJumps} expect {BalanceTuning.JumpCountFor(def) + pN.abc[0]} | atk={pc.AttackPower} expect {def.attackPower + pA.abc[0]} | time={pc.AttackSpeedMultiplier:F4} expect {def.attackSpeedMultiplier * pT.abc[0]:F4} | range={pc.AttackRangeMultiplier:F4} expect {def.attackRangeMultiplier * pR.abc[0]:F4} | hp={gm.maxLives} expect {Mathf.Min(gm.maxLivesCap, def.baseMaxLives + (int)pH.abc[0])} | exp={gm.CardTestExpMultiplier:F4} mile={gm.MileGainMultiplier:F4}/{gm.BossMileGainMultiplier:F4}");
         Check(Near(pc.runSpeed, baseSpeed * pS.abc[0]), "speed A after 5 cycles of A/B/C/RESET is exactly base x A (no accumulation)");
         Check(Near(pc.jumpForce, baseJump * pJ.abc[0]), "jump power A is exactly base x A");
-        Check(pc.maxJumps == def.jumpCount + (int)pN.abc[0], "jump count A is base + A");
+        Check(pc.maxJumps == BalanceTuning.JumpCountFor(def) + (int)pN.abc[0], "jump count A is base + A");
         Check(pc.AttackPower == def.attackPower + (int)pA.abc[0], "attack A is base + A");
         Check(Near(pc.AttackSpeedMultiplier, def.attackSpeedMultiplier * pT.abc[0]), "attack time A is base x A");
         Check(Near(pc.AttackRangeMultiplier, def.attackRangeMultiplier * pR.abc[0]), "attack range A is base x A");
@@ -55,7 +55,7 @@ public partial class QaSweep
         Check(Near(gm.CardTestExpMultiplier, pE.abc[0]) && Near(gm.MileGainMultiplier, pM.abc[0]) && Near(gm.BossMileGainMultiplier, pM.abc[0]), "EXP/MILE A");
         ct.ResetToBase();
         yield return null;
-        Check(Near(pc.runSpeed, baseSpeed) && pc.maxJumps == def.jumpCount && pc.AttackPower == def.attackPower && Near(pc.AttackRangeMultiplier, def.attackRangeMultiplier) && gm.maxLives == def.baseMaxLives && Near(gm.CardTestExpMultiplier, 1f), "RESET returns every value to the character base");
+        Check(Near(pc.runSpeed, baseSpeed) && pc.maxJumps == BalanceTuning.JumpCountFor(def) && pc.AttackPower == def.attackPower && Near(pc.AttackRangeMultiplier, def.attackRangeMultiplier) && gm.maxLives == def.baseMaxLives && Near(gm.CardTestExpMultiplier, 1f), "RESET returns every value to the character base");
 
         // ---- 2) テスト中に取ったカード / TEST OFF
         var speedUp = CardDatabase.FindById("speed_up");
@@ -145,7 +145,7 @@ public partial class QaSweep
         var jcu = CardDatabase.FindById("jump_count_up");
         ct.ApplyCardLevel(jcu, 5);
         yield return null;
-        Check(pc.maxJumps == def.jumpCount + 5 && Near(pc.runSpeed, baseSpeed), "JUMP COUNT UP Lv5 = base + 5 jumps, other values back to base");
+        Check(pc.maxJumps == BalanceTuning.JumpCountFor(def) + 5 && Near(pc.runSpeed, baseSpeed), "JUMP COUNT UP Lv5 = base + 5 jumps, other values back to base");
         if (shots) { ct.Open(true); SetPrivate(ct, "tab", CardBalanceTest.Tab.CardChar); yield return new WaitForSeconds(0.3f); Shot("cardtest_cardchar"); yield return null; yield return null; SetPrivate(ct, "tab", CardBalanceTest.Tab.Status); yield return new WaitForSeconds(0.3f); Shot("cardtest_status"); yield return null; yield return null; SetPrivate(ct, "tab", CardBalanceTest.Tab.Control); }
         ct.ResetToBase();
 
@@ -158,7 +158,7 @@ public partial class QaSweep
             float bs = pc.CardTestBaseRunSpeed * cd.groundMobilityMultiplier;
             bool vals = Near(pc.runSpeed, bs * pS.abc[1]) && Near(pc.jumpForce, pc.CardTestBaseJumpForce * cd.jumpForceMultiplier * pJ.abc[1])
                 && Near(pc.AttackSpeedMultiplier, cd.attackSpeedMultiplier * pT.abc[1]) && Near(pc.AttackRangeMultiplier, cd.attackRangeMultiplier * pR.abc[1])
-                && pc.maxJumps == cd.jumpCount + (int)pN.abc[0] && gm.ActiveRunCharacterId == cd.characterId;
+                && pc.maxJumps == BalanceTuning.JumpCountFor(cd) + (int)pN.abc[0] && gm.ActiveRunCharacterId == cd.characterId;
             yield return WaitReady(30f, 2f);
             yield return Flick(PlayerController.FlickDirection.Forward);
             yield return new WaitForSeconds(0.5f);
@@ -204,7 +204,7 @@ public partial class QaSweep
         typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
         yield return new WaitForSeconds(0.3f);
         var fd = CardBalanceTest.CurrentDef();
-        Check(!ct.AnyActive && Near(pc.runSpeed, pc.CardTestBaseRunSpeed * fd.groundMobilityMultiplier) && pc.maxJumps == fd.jumpCount && pc.AttackPower == fd.attackPower, "a new run starts with no test values");
+        Check(!ct.AnyActive && Near(pc.runSpeed, pc.CardTestBaseRunSpeed * fd.groundMobilityMultiplier) && pc.maxJumps == BalanceTuning.JumpCountFor(fd) && pc.AttackPower == fd.attackPower, "a new run starts with no test values");
         L($"[new run] {fd.characterId} active={ct.AnyActive} run={pc.runSpeed:F3} jumps={pc.maxJumps} atk={pc.AttackPower} applications={CardBalanceTest.Applications}");
         yield return EndRun();
     }

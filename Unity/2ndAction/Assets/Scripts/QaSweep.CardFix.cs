@@ -42,7 +42,7 @@ public partial class QaSweep
         {
             pc.runSpeed = pc.CardTestBaseRunSpeed * def.groundMobilityMultiplier;
             pc.jumpForce = pc.CardTestBaseJumpForce * def.jumpForceMultiplier;
-            pc.maxJumps = Mathf.Max(1, def.jumpCount);
+            pc.maxJumps = BalanceTuning.JumpCountFor(def);
             pc.CardTestSetAttackPower(def.attackPower);
             pc.CardTestSetAttackSpeed(def.attackSpeedMultiplier);
             pc.CardTestSetAttackRange(def.attackRangeMultiplier);

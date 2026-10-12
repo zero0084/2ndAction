@@ -505,7 +505,7 @@ public partial class PlayerController : MonoBehaviour
     {
         if (def == null) return;
         ResetCardFactors(); // カードバランス v3: キャラの基本値を入れ直すので、カードの反映は1から
-        baseJumpCount = Mathf.Max(1, def.jumpCount);
+        baseJumpCount = BalanceTuning.JumpCountFor(def);
         charBaseAttackSpeed = Mathf.Max(0.05f, def.attackSpeedMultiplier);
         CharId = def.characterId;
         AttackPower = def.attackPower;
@@ -514,7 +514,7 @@ public partial class PlayerController : MonoBehaviour
         AttackSpeedMultiplier = def.attackSpeedMultiplier;
         KnockbackPowerMultiplier = def.knockbackPowerMultiplier;
         maxComboChain = Mathf.Max(1, def.attackComboCount);
-        maxJumps = Mathf.Max(1, def.jumpCount);
+        maxJumps = BalanceTuning.JumpCountFor(def);
         runSpeed = baseRunSpeed * def.groundMobilityMultiplier;
         jumpForce = baseJumpForce * def.jumpForceMultiplier;
         gravity = baseGravity * def.airControlMultiplier;
@@ -523,6 +523,7 @@ public partial class PlayerController : MonoBehaviour
         canUseDownAttack = def.canUseDownAttack;
         // お嬢様の空中からの振り下ろし(2026-10-12): 空中の下フリックで急降下(共通の操作。専用の入力は無い)
         if (def.characterId == "noble_lady" && BalanceTuning.NobleMoves) canUseDownAttack = true;
+        if (def.characterId == "noble_lady" && BalanceTuning.NobleJump) jumpForce = baseJumpForce * BalanceTuning.NobleJumpForce; // 回数は JumpCountFor
         charHurtDuration = def.hurtDuration;
         charHurtInvincible = def.hurtInvincibleDuration;
         charRecoveryDuration = def.recoveryDuration;

@@ -63,6 +63,13 @@ public static class BalanceTuning
     // お嬢様: 重い大剣の一撃 + 手動で状況に対応する攻撃手段
     public static bool NobleGreatsword = true;   // ng: 大剣の見た目に合う間合い(基礎 0.75 → 1.0)と一撃の重さ(×1.6)
     public static float NobleGreatswordRange = 1.0f, NobleGreatswordDamage = 1.6f; // 威力: 部分試験(80km オーガ 5.75→4.50秒)で 1.2→1.6
+    // nj: ジャンプ。お嬢様は 1回・高さ ×0.85 で、高速の穴/段差を越え切れず落下が格闘家の約2倍だった(補助の失敗理由の1位は
+    // 「空中でジャンプ回数を使い切っている」)。部分試験(天空回廊 60km から 14km、地形の被害 落下+段差): 今 10/17回(敵なし/あり)、
+    // 高さ 1.0 で 9/11回、2回(高さ 0.85 のまま)で 4/2回 → 重さの表現の高さは据え置き、回数だけ他のキャラと同じ 2回
+    public static bool NobleJump = true;
+    public static float NobleJumpForce = 0.85f; public static int NobleJumpCount = 2;
+    // キャラの基本のジャンプ回数(カードの前)。キャラのデータの値を直接読まず、ここを通す(お嬢様の調整が効くように)
+    public static int JumpCountFor(CharacterDefinition def) => def == null ? 1 : Mathf.Max(1, def.characterId == "noble_lady" && NobleJump ? NobleJumpCount : def.jumpCount);
     public static bool NobleMoves = true;        // nm: 空中の前/後フリック=大剣の薙ぎ払い / 空中の下フリック=振り下ろしながら急降下+着地の衝撃波
 
     public static string Describe => $"lateEnemyHp={(LateEnemyHp ? $"on(from {LateHpFrom:F0}m every {LateHpEvery:F0}m)" : "off")} attackUpHighLevel={(AttackUpHighLevel ? "on" : "off")} bossFrontReturn={(BossFrontReturn ? "on" : "off")} assistFlyingBosses={(AssistFlyingBosses ? "on" : "off")} assistFighterCombo={(AssistFighterCombo ? "on" : "off")} assistKitJumpModel={(AssistKitJumpModel ? "on" : "off")} noble={(NobleAwaken ? "awaken " : "")}{(NobleArmor ? "armor " : "")}{(NobleHeavy ? "heavy " : "")}{(NobleReach ? "reach" : "")} fighterFullJump={(FighterFullJump ? "on" : "off")}";
@@ -75,7 +82,7 @@ public static class BalanceTuning
         return Mathf.FloorToInt(LateHpFrom / inc) + Mathf.FloorToInt((distance - LateHpFrom) / Mathf.Max(1f, LateHpEvery));
     }
 
-    public static string DescribeChar => $"fighterReach={FighterReach} keepClose={FighterKeepClose} finisher={FighterFinisher} fighterAtk={FighterAtk} nobleGreatsword={NobleGreatsword} nobleMoves={NobleMoves}";
+    public static string DescribeChar => $"fighterReach={FighterReach} keepClose={FighterKeepClose} finisher={FighterFinisher} fighterAtk={FighterAtk} nobleGreatsword={NobleGreatsword} nobleMoves={NobleMoves} nobleJump={(NobleJump ? NobleJumpForce + "x" + NobleJumpCount : "off")}";
 
     static bool applied;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -110,11 +117,11 @@ public static class BalanceTuning
         {
             if (a[i] != "-charTune") continue;
             string v = a[i + 1];
-            if (v == "base") { FighterReach = false; FighterKeepClose = false; FighterFinisher = false; FighterAtk = false; NobleGreatsword = false; NobleMoves = false; }
+            if (v == "base") { FighterReach = false; FighterKeepClose = false; FighterFinisher = false; FighterAtk = false; NobleGreatsword = false; NobleMoves = false; NobleJump = false; }
             else
             {
                 FighterReach = v.Contains("fr"); FighterKeepClose = v.Contains("fk"); FighterFinisher = v.Contains("ff"); FighterAtk = v.Contains("fa");
-                NobleGreatsword = v.Contains("ng"); NobleMoves = v.Contains("nm");
+                NobleGreatsword = v.Contains("ng"); NobleMoves = v.Contains("nm"); NobleJump = v.Contains("nj");
             }
             Debug.Log("[BalanceTuning] charTune " + v + ": " + DescribeChar);
         }
@@ -125,6 +132,8 @@ public static class BalanceTuning
             if (a[i] == "-charNobleDmg") NobleGreatswordDamage = float.Parse(a[i + 1], inv);
             else if (a[i] == "-charFighterAtk") { FighterAtk = true; FighterAtkMul = float.Parse(a[i + 1], inv); }
             else if (a[i] == "-charFighterFin") FighterFinisherDamage = float.Parse(a[i + 1], inv);
+            else if (a[i] == "-charNobleJump") { NobleJump = true; NobleJumpForce = float.Parse(a[i + 1], inv); }
+            else if (a[i] == "-charNobleJumps") { NobleJump = true; NobleJumpCount = int.Parse(a[i + 1]); }
             else continue;
             Debug.Log($"[BalanceTuning] {a[i]} {a[i + 1]}: nobleDmg={NobleGreatswordDamage} fighterAtk={(FighterAtk ? FighterAtkMul : 1f)} fighterFin={FighterFinisherDamage}");
         }

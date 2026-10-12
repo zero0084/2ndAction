@@ -116,7 +116,7 @@ public partial class QaSweep
 
     IEnumerator DuelBegin(string ch, string[] deck, int lv, float d, bool withBosses)
     {
-        yield return BeginRun(ch, "wasteland_road");
+        yield return BeginRun(ch, Arg("-duelTerrainStage", "wasteland_road")); // -duelTerrainStage sky_corridor / last_corridor など
         GameManager.BlockExpGain = true;                                                // レベルアップで他のカードが混ざらない
         typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false);         // 接触の被弾を数える(HP は1体ごとに戻す)
         if (lv > 0)

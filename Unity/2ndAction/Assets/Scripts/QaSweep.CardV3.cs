@@ -306,7 +306,7 @@ public partial class QaSweep
             sb.AppendLine($"{def.characterId}\t{atk:F2}\t{rng:F2}\t{prj:F2}\t{def.attackSpeedMultiplier / Mathf.Max(0.01f, pc.AttackSpeedMultiplier):F2}\t{main:F2}\t{jf:F2}\t{jumps}\t{alt}\t{w0:F2}\t{wFast:F2}\t{wSlow:F2}");
             Check(Mathf.Abs(atk - 1.45f) < 0.01f, $"{def.characterId}: ATTACK UP Lv9 = +45%");
             Check(Mathf.Abs(rng - 1.27f) < 0.01f && Mathf.Abs(prj - 1.27f) < 0.01f, $"{def.characterId}: RANGE Lv9 = +27% (melee box and projectile travel)");
-            Check(jumps == def.jumpCount + 9, $"{def.characterId}: JUMP COUNT UP Lv9 = +9 ({jumps})");
+            Check(jumps == BalanceTuning.JumpCountFor(def) + 9, $"{def.characterId}: JUMP COUNT UP Lv9 = +9 ({jumps})");
             if (def.kit == CharacterKit.Mage) Check(alt == 3, $"mage: JUMP COUNT UP Lv9 = +3 altitude levels ({alt})");
             Check(wFast >= CardRules.SingleAttackSequenceReset * CardRules.SequenceResetMinScale - 1e-3f && wSlow > w0, $"{def.characterId}: single-attack sequence window follows attack speed (base {w0:F2}s, fast {wFast:F2}s, slow {wSlow:F2}s)");
             yield return V3End();

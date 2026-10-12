@@ -304,7 +304,7 @@ public partial class CardBalanceTest : MonoBehaviour
         pc.CardTestClearCardBonuses();
         pc.runSpeed = pc.CardTestBaseRunSpeed * def.groundMobilityMultiplier;
         pc.jumpForce = pc.CardTestBaseJumpForce * def.jumpForceMultiplier;
-        pc.maxJumps = Mathf.Max(1, def.jumpCount);
+        pc.maxJumps = BalanceTuning.JumpCountFor(def);
         pc.CardTestSetAttackPower(def.attackPower);
         pc.CardTestSetAttackSpeed(def.attackSpeedMultiplier);
         pc.CardTestSetAttackRange(def.attackRangeMultiplier);
@@ -366,7 +366,7 @@ public partial class CardBalanceTest : MonoBehaviour
             string mage = def.kit == CharacterKit.Mage ? " ※魔法使いは浮遊で不使用" : "";
             return $"{b:F1} ×{noTest / b:0.00} ×{p.applied:0.00} → {pc.jumpForce:F1}(高さ{h:F2}m){mage}";
         }
-        if (p == pJumps) return $"{def.jumpCount} {Sgn(noTest - def.jumpCount)} {Sgn(p.applied)} → {pc.maxJumps}回";
+        if (p == pJumps) return $"{BalanceTuning.JumpCountFor(def)} {Sgn(noTest - BalanceTuning.JumpCountFor(def))} {Sgn(p.applied)} → {pc.maxJumps}回";
         if (p == pAttack) return $"{def.attackPower} {Sgn(noTest - def.attackPower)} {Sgn(p.applied)} → {pc.AttackPower}(条件込み今{pc.EffectiveAttackPower})";
         if (p == pAtkTime) return $"×{def.attackSpeedMultiplier:0.00} ×{noTest / def.attackSpeedMultiplier:0.00} ×{p.applied:0.00} → ×{pc.AttackSpeedMultiplier:0.00}(小=速い)";
         if (p == pRange) return $"×{def.attackRangeMultiplier:0.00} ×{noTest / def.attackRangeMultiplier:0.00} ×{p.applied:0.00} → ×{pc.AttackRangeMultiplier:0.00}";
@@ -508,7 +508,7 @@ public partial class CardBalanceTest : MonoBehaviour
         GUI.Label(new Rect(x + 128f, y, 170f, rowH), chars.Count > 0 ? chars[charIndex].displayName : "-", sTitle);
         if (B(new Rect(x + 300f, y, 32f, rowH), "▶")) charIndex = (charIndex + 1) % chars.Count;
         if (B(new Rect(x + 338f, y, 110f, rowH), "このキャラへ切替") && chars.Count > 0) SwitchCharacter(chars[charIndex].characterId);
-        GUI.Label(new Rect(x + 456f, y, W - 470f, rowH), def != null ? $"今: {def.displayName}(移動×{def.groundMobilityMultiplier:0.##} 跳×{def.jumpForceMultiplier:0.##} 攻{def.attackPower} 範囲×{def.attackRangeMultiplier:0.##} 時間×{def.attackSpeedMultiplier:0.##} 跳{def.jumpCount} コンボ{def.attackComboCount} HP{def.baseMaxLives})" : "", sSmall);
+        GUI.Label(new Rect(x + 456f, y, W - 470f, rowH), def != null ? $"今: {def.displayName}(移動×{def.groundMobilityMultiplier:0.##} 跳×{def.jumpForceMultiplier:0.##} 攻{def.attackPower} 範囲×{def.attackRangeMultiplier:0.##} 時間×{def.attackSpeedMultiplier:0.##} 跳{BalanceTuning.JumpCountFor(def)} コンボ{def.attackComboCount} HP{def.baseMaxLives})" : "", sSmall);
         y += rowH + gap;
         GUI.Label(new Rect(x, y, W - 16f, rowH), "切替はラン中にその場で行う(カードの効果は外れ、テストで掛けている値は新しいキャラの基準へ掛け直す)", sSmall);
         y += rowH + gap;
