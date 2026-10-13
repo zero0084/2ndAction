@@ -300,8 +300,9 @@ public static class CardFusionLogic
                 sb.Append("\n<color=#ff9a8a>実行すると、選んだ2枚は消費されます(完成カード Lv.9 MAX を1枚得ます)。</color>");
                 return sb.ToString();
             }
-            sb.Append("<color=#ffd76a><b>【同名強化】 成功率 100%</b></color>\n");
-            sb.Append($"合成Lv: Lv.{a.level} + Lv.{b.level} → <b>Lv.{level}</b>\n\n");
+            bool maxNow = level >= CardVariant.MaxLevel; // 2026-10-13: ちょうど Lv.9 になる時も MAX と分かるように(MASTERY に入る分は無い)
+            sb.Append(maxNow ? "<color=#ffd76a><b>【同名強化 → Lv.9 MAX】 成功率 100%</b></color>\n" : "<color=#ffd76a><b>【同名強化】 成功率 100%</b></color>\n");
+            sb.Append(maxNow ? $"合成Lv: Lv.{a.level} + Lv.{b.level} → <b>Lv.9 MAX</b>\n\n" : $"合成Lv: Lv.{a.level} + Lv.{b.level} → <b>Lv.{level}</b>\n\n");
             sb.Append("<b>継承する能力(同じ能力は強化量を合算)</b>\n");
             foreach (var x in merged.abilities)
             {

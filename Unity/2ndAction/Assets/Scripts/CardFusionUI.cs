@@ -583,7 +583,7 @@ public class CardFusionUI : MonoBehaviour
     {
         Canvas.ForceUpdateCanvases();
         var view = gridScroll.viewport.rect;
-        const float gap = 16f, infoH = 44f, pad = 6f;
+        const float gap = 16f, infoH = 56f, pad = 6f; // 2026-10-13: 下の情報を2行に(44 → 56)
         float cardH = Mathf.Min(330f, (view.height - pad * 2f - gap - infoH * 2f) / 2f);
         cardH = Mathf.Max(150f, cardH);
         float cardW = cardH / 1.5f;
@@ -615,8 +615,11 @@ public class CardFusionUI : MonoBehaviour
             int selected = (mainKey == s.cardId ? 1 : 0) + (materialKey == s.cardId ? 1 : 0);
             CardVariant v = CardVariant.Parse(s.cardId);
             int abilities = v != null ? v.AbilityCount : 1;
-            c.info.text = $"所持{s.count}  使用可<color=#{(available - selected > 0 ? "ffe08a" : "ff8f86")}>{Mathf.Max(0, available - selected)}</color>" + (abilities > 1 ? $"  能力{abilities}" : "")
+            // 2026-10-13: 狭い幅で2行目(能力/★)が切れていた → 所持/使用可 と 能力/★ を2行に分け、枠に収まる大きさに(訳も通す)
+            string line2 = (abilities > 1 ? Loc.F("能力{0}", abilities) : "")
                 + (v != null && v.level >= CardVariant.MaxLevel ? (CardMastery.IsAwakened(v.mainId) ? "  <color=#ffe08a>AWAKENED</color>" : $"  <color=#ffd76a>★{CardMastery.MasteryLevel(v.mainId)}</color>") : "");
+            c.info.text = Loc.F("所持{0}", s.count) + "  " + Loc.T("使用可") + $"<color=#{(available - selected > 0 ? "ffe08a" : "ff8f86")}>{Mathf.Max(0, available - selected)}</color>"
+                + (line2.Trim().Length > 0 ? "\n" + line2.Trim() : "");
             bool isMain = mainKey == s.cardId, isMat = materialKey == s.cardId;
             c.card.SetSelected(isMain || isMat);
             c.tag.text = Loc.Auto(isMain && isMat ? "メイン+素材" : isMain ? "メイン" : isMat ? "素材" : (available <= 0 ? "使用中" : ""));
@@ -634,9 +637,10 @@ public class CardFusionUI : MonoBehaviour
         c.root.pivot = new Vector2(0.5f, 1f);
         c.scaler = Scaler(c.root, "Scaler", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));
         c.card = CloneCard(c.scaler, "Card");
-        var infoR = NewRect("Info", c.root, new Vector2(0, 0), new Vector2(1, 0), new Vector2(-6, 0), new Vector2(6, 40));
+        var infoR = NewRect("Info", c.root, new Vector2(0, 0), new Vector2(1, 0), new Vector2(-6, 0), new Vector2(6, 52));
         AddImage(infoR, new Color(0.02f, 0.03f, 0.07f, 0.85f));
-        c.info = AddText(NewRect("Text", infoR, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero), 19, TextMain);
+        c.info = AddText(NewRect("Text", infoR, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero), 18, TextMain);
+        c.info.resizeTextForBestFit = true; c.info.resizeTextMinSize = 12; c.info.resizeTextMaxSize = 18; c.info.lineSpacing = 0.9f;
         var tagR = NewRect("Tag", c.root, new Vector2(0, 1), new Vector2(1, 1), new Vector2(10, -40), new Vector2(-10, -6));
         c.tagBg = AddImage(tagR, new Color(0.55f, 0.36f, 0.08f, 0.95f));
         c.tag = AddText(NewRect("Text", tagR, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero), 20, Color.white, TextAnchor.MiddleCenter, true);
@@ -921,8 +925,9 @@ public class CardFusionUI : MonoBehaviour
                 circle.color = new Color(accent.r, accent.g, accent.b, 0.85f * (1f - f));
                 circle2.color = new Color(1f, 1f, 1f, 0.6f * (1f - f));
             });
+            // 2026-10-13: 同名強化でちょうど Lv.9 になった時も MAX
             fxCaption.text = mastery ? (r.mastery.awakenedNow ? "AWAKENED！" : $"MASTERY {CardMastery.StarsFor(r.mastery.levelAfter)}")
-                : same ? (r.masteryGain > 0 ? "Lv.9 MAX 到達！" : "同名強化 完了！") : both ? "大成功！ 両側の能力を継承" : r.kind == CardFusionLogic.Kind.CrossMainOnly ? "メイン側の能力を継承" : "素材側の能力を継承";
+                : same ? (r.masteryGain > 0 || (r.result != null && r.result.level >= CardVariant.MaxLevel) ? "Lv.9 MAX 到達！" : "同名強化 完了！") : both ? "大成功！ 両側の能力を継承" : r.kind == CardFusionLogic.Kind.CrossMainOnly ? "メイン側の能力を継承" : "素材側の能力を継承";
             fxCaption.color = both ? new Color(0.7f, 1f, 0.95f) : Gold;
             // 音の再設計(2026-10-06): 長期育成の節目(Mastery/Lv.9 MAX/AWAKENED)は専用の音
             if (AudioManager.Instance != null)
@@ -1069,7 +1074,7 @@ public class CardFusionUI : MonoBehaviour
         if (r.IsSuccess)
         {
             resultTitle.text = r.kind == CardFusionLogic.Kind.Mastery ? (r.mastery.awakenedNow ? "AWAKENED！" : "MASTERY UP！")
-                : r.kind == CardFusionLogic.Kind.SameName ? (r.masteryGain > 0 ? "Lv.9 MAX 到達！" : "同名強化 完了！") : r.kind == CardFusionLogic.Kind.CrossBoth ? "合成大成功！" : "合成成功！";
+                : r.kind == CardFusionLogic.Kind.SameName ? (r.masteryGain > 0 || (r.result != null && r.result.level >= CardVariant.MaxLevel) ? "Lv.9 MAX 到達！" : "同名強化 完了！") : r.kind == CardFusionLogic.Kind.CrossBoth ? "合成大成功！" : "合成成功！";
             resultTitle.color = r.kind == CardFusionLogic.Kind.CrossBoth ? new Color(0.7f, 1f, 0.95f) : Gold;
             PrepareCard(resultCard);
             resultCard.ShowFrontImmediate(MakeData(CardDatabase.FindById(r.resultKey), r.resultKey), showDetails: false);

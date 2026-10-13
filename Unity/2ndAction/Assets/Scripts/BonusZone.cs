@@ -648,6 +648,12 @@ public class BonusZone : MonoBehaviour
         float count = Mathf.Clamp01((phaseTime - 0.6f) / 0.6f); // TOTALを0.6秒で数え上げる
         stripStyle.fontSize = Mathf.RoundToInt(fsBase * 0.032f);
         ResultRow(panel, y0 + rowH * 3.05f, "TOTAL", $"MILE +{Mathf.RoundToInt(BonusMile * count)}   EXP +{Mathf.RoundToInt(BonusExp * count)}{(BonusCards > 0 ? $"   CARD +{BonusCards}" : "")}", new Color(1f, 0.92f, 0.5f, a));
+        // 2026-10-13: MILE はまだ持ち帰り予定(脱出に成功した時に受け取る)。結果の枠のすぐ下に短く1行(毎回の大きな確認は出さない)
+        if (BonusMile > 0 && !TextFit.Legacy)
+        {
+            stripStyle.fontSize = Mathf.RoundToInt(fsBase * 0.022f);
+            Outlined(new Rect(panel.x, panel.yMax + 2f, panel.width, stripStyle.fontSize * 2.6f), "無事にランを終えるとMILEを持ち帰れます", stripStyle, new Color(0.9f, 0.95f, 1f, a * 0.9f), 1f);
+        }
     }
 
     void ResultRow(Rect panel, float y, string head, string body, Color color)

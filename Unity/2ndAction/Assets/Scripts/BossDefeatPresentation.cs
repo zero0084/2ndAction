@@ -46,7 +46,8 @@ public class BossDefeatPresentation : MonoBehaviour
 
     [Header("Game Clear (first boss defeat only)")]
     public float gameClearDuration = 1f;
-    public string gameClearText = "GAME CLEAR";
+    public string gameClearText = BossClearText; // 2026-10-13: ゲーム全体のクリア(結果画面の GAME CLEAR)と分ける
+    public const string BossClearText = "ボス撃破!";
 
     [Header("Keep Running (first boss defeat only)")]
     public float keepRunningDuration = 1f;
@@ -301,7 +302,7 @@ public class BossDefeatPresentation : MonoBehaviour
 
         if (gameClearAlpha > 0.001f)
         {
-            DrawPopLabel(gameClearText, Screen.height * 0.4f, 56, gameClearScale, gameClearAlpha, Color.white, milestoneClearAccentColor);
+            DrawPopLabel(gameClearText == "GAME CLEAR" ? BossClearText : gameClearText, Screen.height * 0.4f, 56, gameClearScale, gameClearAlpha, Color.white, milestoneClearAccentColor);
         }
 
         if (keepRunningAlpha > 0.001f)

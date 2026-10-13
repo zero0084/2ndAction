@@ -445,7 +445,7 @@ public static class CharacterDatabaseBuilder
         // 表示専用の星評価 - 「遠距離では非常に強いが近距離が苦手」という
         // 武器特性を伝える暫定値(POWERは高いがLIFE低め、近接キャラとは
         // 違う尖り方であることを示す)。
-        gunslinger.lifeRating = 2; gunslinger.powerRating = 4; gunslinger.speedRating = 3; gunslinger.comboRating = 3;
+        gunslinger.lifeRating = 3; gunslinger.powerRating = 4; gunslinger.speedRating = 3; gunslinger.comboRating = 3;
         gunslinger.challengeFlag = false;
         gunslinger.sortOrder = 3;
         gunslinger.belongings = new[]

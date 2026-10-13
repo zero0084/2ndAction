@@ -27,7 +27,7 @@ MonoBehaviour:
     answer for it.'
   portrait: {fileID: 2800000, guid: 1d360988fbe33db4c9272ae17ec1bf62, type: 3}
   mainVisual: {fileID: 2800000, guid: 0820291bcb9ca4a46b300f9c9260754e, type: 3}
-  lifeRating: 2
+  lifeRating: 3
   powerRating: 4
   speedRating: 3
   comboRating: 3

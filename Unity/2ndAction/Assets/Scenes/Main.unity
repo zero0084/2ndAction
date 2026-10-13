@@ -516709,7 +516709,7 @@ MonoBehaviour:
   milestoneClearColor: {r: 1, g: 1, b: 1, a: 1}
   milestoneClearAccentColor: {r: 0.95, g: 0.83, b: 0.45, a: 1}
   gameClearDuration: 1
-  gameClearText: GAME CLEAR
+  gameClearText: "\u30DC\u30B9\u6483\u7834!"
   keepRunningDuration: 1
   keepRunningText: "KEEP RUNNING \u2192"
   bgmDuckVolume: 0.4
