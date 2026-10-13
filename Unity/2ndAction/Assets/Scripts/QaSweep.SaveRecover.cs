@@ -74,7 +74,11 @@ public partial class QaSweep
             string ek = Arg("-srExpect", ""), ef = Arg("-srFrom", ""), em = Arg("-srMile", "");
             if (ek != "") Check(b.kind.ToString() == ek, $"start-up kind {b.kind} (expected {ek})");
             if (ef != "") Check(b.restoredFrom == ef, $"restored from '{b.restoredFrom}' (expected {ef})");
-            if (em != "") Check(SaveStore.GetInt(mileKey, -1) == int.Parse(em) && gm.TotalOwnedMile == int.Parse(em), $"MILE {SaveStore.GetInt(mileKey, -1)} / game {gm.TotalOwnedMile} (expected {em})");
+            // -srMile N / latest / prev(latest・prev = 起動の前にそのバックアップに入っていた値。エミュレーターのやり直しで世代がずれても確かめられる)
+            if (em == "latest" || em == "prev") em = SaveRecoverHooks.MileInFile.TryGetValue(em == "latest" ? "lastgood" : "lastgood_prev", out int fm) ? fm.ToString() : "-999";
+            if (em != "") Check(SaveStore.GetInt(mileKey, -1) == int.Parse(em) && gm.TotalOwnedMile == int.Parse(em), $"MILE {SaveStore.GetInt(mileKey, -1)} / game {gm.TotalOwnedMile} (expected {Arg("-srMile", "")} = {em})");
+            string notMile = Arg("-srNotMile", "");
+            if (notMile != "") Check(SaveStore.GetInt(mileKey, -1) != int.Parse(notMile), $"MILE is not the value of the run that was killed while writing the backup ({notMile})");
             string expPath = System.IO.Path.Combine(shared, "sr_expect.txt");
             if (Arg("-srCompare", "") == "1")
             {

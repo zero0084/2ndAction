@@ -10,6 +10,7 @@ public static class SaveRecoverHooks
 {
     public static string Done = "";
     public static readonly List<string> DamagedHashes = new List<string>(); // 壊したファイルの中身(壊した後)の SHA-1。救済用に残っているかを確かめる
+    public static readonly Dictionary<string, int> MileInFile = new Dictionary<string, int>(); // 壊す/消す前に、各バックアップに入っていた MILE(lastgood / lastgood_prev)
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
     static void PreBoot()
@@ -24,6 +25,14 @@ public static class SaveRecoverHooks
         if (!lose && corrupt == null) return;
         if (!SaveProfile.IsTest) { Debug.LogWarning("[SaveRecoverHooks] ignored: only for the test data"); Done = "ignored (normal data)"; return; }
         var log = new List<string>();
+        string bdir = System.IO.Path.Combine(Application.persistentDataPath, SaveProfile.BackupSubdir(true));
+        foreach (var n in new[] { "lastgood", "lastgood_prev" })
+        {
+            string p = System.IO.Path.Combine(bdir, n + ".json");
+            if (!System.IO.File.Exists(p)) continue;
+            var m = System.Text.RegularExpressions.Regex.Match(System.IO.File.ReadAllText(p), @"""k"":\s*""TotalOwnedMile"",\s*""t"":\s*\d+,\s*""v"":\s*""(-?\d+)""");
+            if (m.Success) { MileInFile[n] = int.Parse(m.Groups[1].Value); log.Add($"{n} had MILE {m.Groups[1].Value}"); }
+        }
         if (corrupt != null)
         {
             string dir = System.IO.Path.Combine(Application.persistentDataPath, SaveProfile.BackupSubdir(true));

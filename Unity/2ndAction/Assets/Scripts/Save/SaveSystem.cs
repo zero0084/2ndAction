@@ -665,7 +665,9 @@ public static class SaveSystem
     static void DevBackupCrash(string at)
     {
         Debug.Log($"[Save] DEV CRASH while writing a backup at '{at}'");
-#if !UNITY_EDITOR
+#if UNITY_ANDROID && !UNITY_EDITOR
+        UnityEngine.Diagnostics.Utils.ForceCrash(UnityEngine.Diagnostics.ForcedCrashCategory.Abort); // Android は Process.Kill が使えない(2026-10-14)
+#elif !UNITY_EDITOR
         System.Diagnostics.Process.GetCurrentProcess().Kill();
 #endif
     }
