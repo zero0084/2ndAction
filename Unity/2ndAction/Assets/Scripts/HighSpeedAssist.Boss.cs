@@ -87,6 +87,16 @@ public partial class HighSpeedAssist
             if (t.tc > 1.6f) continue;
             threats.Add(t);
         }
+        // ---- 空からの着弾(SkyStrike: メカドラゴンの空爆など。2026-10-13 まで補助が知らず、立ったまま当たっていた) ----
+        // 走行と一緒に流れるので、プレイヤーとの位置の差は変わらない。自分の列に来る物だけ、有効な時間に爆発の上にいるよう跳ぶ
+        foreach (var s in FindObjectsByType<SkyStrike>(FindObjectsSortMode.None))
+        {
+            if (s == null || !s.Damaging) continue;
+            float rel = s.WorldX - px;
+            if (Mathf.Abs(rel) > s.Width * 0.5f + pad) continue;
+            if (s.WarnLeft > 1.6f) continue;
+            threats.Add(new Threat { tc = s.WarnLeft, td = s.ActiveLeft, needY = s.Height + 0.15f, what = "strike" });
+        }
         // ---- 迫ってくるボス弾/衝撃波(地面すれすれ = 跳ぶ) ----
         foreach (var bp in FindObjectsByType<BossProjectile>(FindObjectsSortMode.None))
         {

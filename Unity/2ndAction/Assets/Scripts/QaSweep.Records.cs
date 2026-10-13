@@ -103,6 +103,13 @@ public partial class QaSweep
         yield return WaitTut(() => !Leaderboard.Sending, 4f);
         Check(gm.LastCommit.committed && Leaderboard.PendingCount == 1, $"R: offline -> the local record is saved and the post waits ({Leaderboard.PendingCount} pending)");
         yield return EndRun();
+        // 2026-10-13: 読み込み失敗と送信待ちが同時の時、両方が伝わる(撮影)
+        yield return WaitTut(() => RankingPanel.Instance != null, 8f); yield return new WaitForSecondsRealtime(1.5f); // ホームへ戻るのを待つ
+        RankingPanel.OpenStatic(); yield return new WaitForSecondsRealtime(1.2f);
+        Check(RankingPanel.IsOpen, "R: the ranking panel opens while offline with a pending post");
+        Shot("records_ranking_offline_pending"); yield return null; yield return null; // 撮影は描画の終わり: 閉じる前に待つ
+        typeof(RankingPanel).GetMethod("Close", NP).Invoke(RankingPanel.Instance, null);
+        yield return new WaitForSecondsRealtime(0.3f);
         yield return ReloadHome(); // 再起動の代わり(投稿待ちは保存されている)
         Check(Leaderboard.PendingCount == 1, "R: the pending post survives a restart");
         MockBackend.SimulateOffline = false;

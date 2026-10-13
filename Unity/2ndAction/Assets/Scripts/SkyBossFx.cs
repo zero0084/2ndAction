@@ -336,6 +336,12 @@ public class SkyStrike : MonoBehaviour
 
     public float WorldX => transform.position.x;
     public float GroundY => groundY;
+    // 自動操作補助から読む(2026-10-13): 予告の残り / 有効の残り / 幅 / 高さ(地面から)
+    public float WarnLeft => fired ? 0f : Mathf.Max(0f, warn - timer);
+    public float ActiveLeft => fired ? Mathf.Max(0f, warn + active - timer) : active;
+    public float Width => width;
+    public float Height => height;
+    public bool Damaging => !fired || (col != null && col.enabled);
 
     public static SkyStrike Create(float worldX, float width, float height, float warn, float active, Color color, Look look)
     {

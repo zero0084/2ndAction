@@ -123,6 +123,7 @@ public partial class MechDragonBoss : SkyBossBase
         {
             smoothGroundFrame = Time.frameCount;
             smoothGround = Mathf.Lerp(smoothGround, g, 1f - Mathf.Exp(-5f * Time.deltaTime));
+            if (smoothGround < g) smoothGround = g; // 上り(段差を上がる)はすぐ合わせる(遅れると体が床に埋まった。2026-10-13)。なめらかにするのは下りだけ
             if (Mathf.Abs(g - smoothGround) > 4f) smoothGround = g; // 大きな高低差(崖の上下)は追いつく
         }
         return smoothGround;
@@ -450,7 +451,8 @@ public partial class MechDragonBoss : SkyBossBase
             float x = baseX + slots[i];
             var st = SkyStrike.Create(x, 2.4f, 2.4f, 1.0f + n * 0.14f, 0.3f, Muzzle, SkyStrike.Look.Burst);
             st.incomingHeight = Mathf.Max(3f, yOffset + bodyHeight * 0.4f);
-            st.onFire = p => { Blast(p); Shake(0.08f, 0.15f); Sfx(SkyBossSfx.Impact(), 0.7f); };
+            float slotRel = slots[i];
+            st.onFire = p => { Blast(p); Shake(0.08f, 0.15f); Sfx(SkyBossSfx.Impact(), 0.7f); LogBlast(p, slotRel, slots[safe]); };
             StartCoroutine(DropBomb(x, 1.0f + n * 0.14f));
             BombsDropped++;
             n++;
@@ -472,16 +474,44 @@ public partial class MechDragonBoss : SkyBossBase
         else ExplosionEffect.Create(BossFx.Orb(), p + Vector3.up * 0.6f, new Color(1f, 0.6f, 0.2f), 14, 0.6f, 0.9f, 1.2f, RenderOrder.CombatFx);
     }
 
+    // 確認用: 爆発の瞬間のプレイヤーの位置(爆発の柱の中か / 跳んで上を越えたか / 天井の高さ / 足もとが穴か)
+    public static int BlastsOverPlayer, BlastsJumpedOver;
+    void LogBlast(Vector3 p, float slotRel, float safeRel)
+    {
+        if (player == null) return;
+        float px = player.position.x, dx = px - p.x;
+        if (Mathf.Abs(dx) > 1.2f + 0.4f) return; // 柱(幅2.4m)の外
+        BlastsOverPlayer++;
+        var tm = TerrainManager.Instance;
+        float? g = tm != null ? tm.GetHeightAt(px) : null;
+        float? c = tm != null ? tm.GetEffectiveCeilingHeightAt(px) : null;
+        float dy = g.HasValue ? player.position.y - g.Value : -99f;
+        if (dy > 2.4f) BlastsJumpedOver++;
+        MLog($"blast over player: slot {slotRel:+0.0;-0.0} safe {safeRel:+0.0;-0.0} dx={dx:F1} playerY-ground={(g.HasValue ? dy.ToString("F1") : "PIT")} room={(c.HasValue && g.HasValue ? (c.Value - g.Value).ToString("F1") : "-")}");
+    }
+
     // 安全な地点: 穴の上ではない(足場がある)ものからランダム。全部穴なら真ん中
+    // 安全な地点: 穴の上ではない(足場がある)ものから。走り続けるので横へは大きく動けない(1秒で数 m は無理)。
+    // 避け方は「安全な列に居る」か「跳んで爆発(高さ 2.4m)の上を越える」。2026-10-13: 天井が低くて跳んで越えられない所
+    // (天井まで 5.2m 未満。天井の針もここ)では、今いる列を安全にする(避けようの無い組み合わせを作らない)
+    public static int SafeSlotForcedHere; // 確認用
     int PickSafeSlot(float[] slots)
     {
         var tm = TerrainManager.Instance;
         var ok = new List<int>();
+        int here = 0; float best = float.MaxValue;
         for (int i = 0; i < slots.Length; i++)
         {
+            if (Mathf.Abs(slots[i]) < best) { best = Mathf.Abs(slots[i]); here = i; }
             bool ground = true;
             if (tm != null && tm.TryGetGroundFast(PlayerX + slots[i], out _, out bool pit)) ground = !pit;
             if (ground) ok.Add(i);
+        }
+        if (tm != null && ok.Contains(here))
+        {
+            float? c = tm.GetEffectiveCeilingHeightAt(PlayerX);
+            float? g = tm.GetHeightAt(PlayerX);
+            if (c.HasValue && g.HasValue && c.Value - g.Value < 5.2f) { SafeSlotForcedHere++; MLog($"air raid: low ceiling over the player ({c.Value - g.Value:F1}m) -> the player's column is the safe one"); return here; }
         }
         if (ok.Count == 0) return slots.Length / 2;
         return ok[Random.Range(0, ok.Count)];

@@ -101,9 +101,11 @@ public partial class QaSweep
             tap.Invoke(gm, null); tap.Invoke(gm, null); // 同じカードを続けて2回(見せる前に2枚目)
             yield return WaitTut(() => gm.GachaResultOpen, 3f);
             bool firstNew = gm.GachaResultIsNew;
+            yield return new WaitForSecondsRealtime(0.8f); Shot("gacha_D_1st_new"); yield return null; yield return null;
             typeof(GameManager).GetMethod("CloseGachaResult", NP).Invoke(gm, null);
             yield return WaitTut(() => gm.GachaResultOpen, 3f);
             bool secondNew = gm.GachaResultIsNew;
+            yield return new WaitForSecondsRealtime(0.8f); Shot("gacha_D_2nd_duplicate"); yield return null; yield return null;
             Check(firstNew && !secondNew, $"D: the same new card twice in a row -> first NEW, second DUPLICATE ({firstNew}/{secondNew})");
             typeof(GameManager).GetMethod("CloseGachaResult", NP).Invoke(gm, null);
             yield return null;
@@ -116,7 +118,7 @@ public partial class QaSweep
             tap.Invoke(gm, null);
             yield return WaitTut(() => gm.GachaResultOpen, 3f);
             Check(!gm.GachaResultIsNew, "D: owning only a fused card of the same name -> DUPLICATE");
-            Shot("gacha_D_duplicate_fused");
+            yield return new WaitForSecondsRealtime(0.8f); Shot("gacha_D_duplicate_fused"); yield return null; yield return null;
             typeof(GameManager).GetMethod("CloseGachaResult", NP).Invoke(gm, null);
             GameManager.DevForceGachaCard = null;
         }

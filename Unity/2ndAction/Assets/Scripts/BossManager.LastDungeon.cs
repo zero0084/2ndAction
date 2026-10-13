@@ -135,6 +135,7 @@ public partial class BossManager
     }
 #endif
     public static bool DevForceRareRush; // 開発用: ボスラッシュの計画に必ず入れる(-ldForceRareRush 1)
+    public static bool DevRushNoSolo; // 開発用(比較の測定だけ): Solo の規則を外す。製品の動きは変えない(開発版の QA からだけ立てる)
     public static bool DevForceRare; // 開発用: 次の 0〜89km の関門を必ず希少な強敵にする(-ldForceRare 1 / デバッグ)
     public int RareCountThisRun => rareCountThisRun;
     bool RareAllowedAt(int k)
@@ -280,8 +281,9 @@ public partial class BossManager
         if (alive >= Mathf.Max(1, ld.maxSimultaneous)) { why = $"together {alive}/{ld.maxSimultaneous}"; return false; }
         var t = ld.TagsOf(key);
         // Solo(希少な強敵): 居る間は他のボスを足さない / 他のボスが居る間は出さない(2026-10-13)
-        if ((t & LastDungeonBossTuning.Tag.Solo) != 0) { why = "SOLO(wait others)"; return false; }
-        foreach (var b in enc.activeBosses) if (b != null && !b.IsDead && (ld.TagsOf(KeyOf(b)) & LastDungeonBossTuning.Tag.Solo) != 0) { why = "SOLO(alive)"; return false; }
+        bool soloRule = !(DevRushNoSolo && Debug.isDebugBuild);
+        if (soloRule && (t & LastDungeonBossTuning.Tag.Solo) != 0) { why = "SOLO(wait others)"; return false; }
+        if (soloRule) foreach (var b in enc.activeBosses) if (b != null && !b.IsDead && (ld.TagsOf(KeyOf(b)) & LastDungeonBossTuning.Tag.Solo) != 0) { why = "SOLO(alive)"; return false; }
         int large = 0, air = 0, area = 0, proj = 0, chase = 0;
         foreach (var b in enc.activeBosses)
         {

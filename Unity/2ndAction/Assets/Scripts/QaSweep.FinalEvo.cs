@@ -92,6 +92,8 @@ public partial class QaSweep
         Check(ids.Contains(FinalEvolution.ChoicePrefix + atk) && feCount == 1 && ids.Length <= 3, $"D: LEVEL UP offers FINAL EVOLUTION in at most one slot ({feCount} of {ids.Length})");
         yield return new WaitForSecondsRealtime(0.4f);
         Shot("fe_D_levelup_choice");
+        // 2026-10-13: FINAL EVOLUTION のカードを1回押して説明を出す(説明の秒数/距離は数値欄だけ)
+        { int fi = System.Array.FindIndex(ids, x => FinalEvolution.IsChoiceId(x)); var sq = FindFirstObjectByType<RewardCardSequence>(); if (fi >= 0 && sq != null) { sq.OnCardClicked(fi); yield return new WaitForSecondsRealtime(0.4f); Shot("fe_D_levelup_choice_fe_detail"); yield return null; yield return null; } } // 撮影は描画の終わり: 次の操作の前に待つ
         // ---- E: 断る → READY のまま
         string other = ids.FirstOrDefault(x => !FinalEvolution.IsChoiceId(x));
         if (other != null) yield return PickInChoice(other);

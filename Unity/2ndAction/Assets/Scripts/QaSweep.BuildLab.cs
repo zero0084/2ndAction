@@ -14,6 +14,7 @@ using UnityEngine;
 //  出力: <outDir>/result.json(1試行=1行の JSON)/ events.tsv(取得・ボス・被弾・死亡の時系列)
 public partial class QaSweep
 {
+    bool blVideoStarted; // 撃破の動画を書き出したか(1回だけ)
     [System.Serializable] public class BlBuild { public string name, character, type, note; public string[] deck, charCards, priority; public bool takeFinalEvolution = true; }
     [System.Serializable] public class BlBuildFile { public BlBuild[] builds; }
 
@@ -235,7 +236,11 @@ public partial class QaSweep
             // ボス
             var bm = BossManager.Instance;
             bool boss = bm != null && bm.IsBossPhase;
-            if (boss && !wasBoss) { blCurBoss = new BlBoss { dist = d, t0 = blT, playerHpStart = gm.Lives }; blBosses.Add(blCurBoss); blCurBossLastFrac = -1f; blCurBossSwing0 = PlayerAttackInfo.SwingCount; BlEvent("boss_start", ""); }
+            if (boss && !wasBoss) { blCurBoss = new BlBoss { dist = d, t0 = blT, playerHpStart = gm.Lives }; blBosses.Add(blCurBoss); blCurBossLastFrac = -1f; blCurBossSwing0 = PlayerAttackInfo.SwingCount; BlEvent("boss_start", "");
+                // 2026-10-13: 撃破の動画(-blVideo 秒 [-blVideoAt 距離]): 指定の距離以降の最初のボス戦を30fpsで書き出す
+                float vsec = float.Parse(Arg("-blVideo", "0"), System.Globalization.CultureInfo.InvariantCulture);
+                if (vsec > 0f && !blVideoStarted && d >= float.Parse(Arg("-blVideoAt", "0"), System.Globalization.CultureInfo.InvariantCulture)) { blVideoStarted = true; StartCoroutine(RecordUltimate($"buildlab_{bl.build}_{d:F0}", vsec)); }
+            }
             if (boss && blCurBoss != null)
             {
                 var alive = BlBossesAlive();
@@ -256,7 +261,7 @@ public partial class QaSweep
                         {
                             if (wbb == null || wbb.IsDead) continue;
                             var bb = wbb.AssistBounds;
-                            BlEvent("boss_diag", $"{wbb.name} act={wbb.DebugAct} pose={wbb.DebugPose} gap={wbb.DebugGap:F1} front={wbb.DebugFrontDist:F1} relV={wbb.DebugRelVelocity:F1} inv={wbb.DebugInvulnerable} tgt={wbb.AssistTargetable} dy={bb.center.y - pc.transform.position.y:F1} h={bb.size.y:F1} w={bb.size.x:F1} phase={wbb.Phase} swings={blCurBoss.swings} drops={blCurBoss.hpDrops} grounded={pc.IsGrounded} kmh={GameManager.SpeedKmh(pc.CurrentAutoRunSpeed):F0} fps={(1f / Mathf.Max(0.001f, Time.unscaledDeltaTime)):F0} assist={(HighSpeedAssist.Instance != null ? HighSpeedAssist.Instance.CurrentStatus + "/" + HighSpeedAssist.Instance.LastAction : "-")}{(pc.Kit == CharacterKit.Mage ? $" mageLv={pc.MageAltitudeLevel}" : "")}");
+                            BlEvent("boss_diag", $"{wbb.name} act={wbb.DebugAct} pose={wbb.DebugPose} gap={wbb.DebugGap:F1} front={wbb.DebugFrontDist:F1} relV={wbb.DebugRelVelocity:F1} inv={wbb.DebugInvulnerable} tgt={wbb.AssistTargetable} dy={bb.center.y - pc.transform.position.y:F1} h={bb.size.y:F1} w={bb.size.x:F1} phase={wbb.Phase} hp={wbb.Hp}/{wbb.maxHp} broken={wbb.Broken} swings={blCurBoss.swings} drops={blCurBoss.hpDrops} grounded={pc.IsGrounded} kmh={GameManager.SpeedKmh(pc.CurrentAutoRunSpeed):F0} fps={(1f / Mathf.Max(0.001f, Time.unscaledDeltaTime)):F0} assist={(HighSpeedAssist.Instance != null ? HighSpeedAssist.Instance.CurrentStatus + "/" + HighSpeedAssist.Instance.LastAction : "-")}{(pc.Kit == CharacterKit.Mage ? $" mageLv={pc.MageAltitudeLevel}" : "")}");
                         }
                     }
                 }
