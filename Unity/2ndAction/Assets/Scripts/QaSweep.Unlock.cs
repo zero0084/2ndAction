@@ -28,6 +28,7 @@ public partial class QaSweep
         float wk = walked >= 0f ? walked : meters;
         RunLedger.DevSet(r => { r.maxReached = System.Math.Max(r.maxReached, meters); r.walked = wk; r.playSeconds = Mathf.Max(r.playSeconds, meters / 25f + 5f); });
         UnlockRules.OnRunDistance(stage, meters);
+        UnlockManager.CheckUnlocks(meters); // 距離の解放(新しい敵): ラン中は仮
         yield return null;
         if (win) gm.Win();
         else
@@ -74,6 +75,56 @@ public partial class QaSweep
         Shot("unlock_A_char_select_new");
         yield return new WaitForSecondsRealtime(0.3f);
         cs.Close(); yield return new WaitForSecondsRealtime(1.2f);
+
+        // ---- B0 距離の解放(新しい敵 ELITE GOBLIN 1,000m。2026-10-13 から成功した時だけ確定)
+        L("== B0 distance unlock (enemy) ==");
+        const string EliteId = "unlock_elite_goblin_1000m";
+        Check(!UnlockManager.IsUnlocked(EliteId), "B0: new data -> the 1,000m enemy unlock is not saved yet");
+        int pn0 = UnlockManager.ProvisionalNotified;
+        yield return UnlockRun(UW, "swordsman", 1500f, win: false);
+        Check(UnlockManager.ProvisionalNotified > pn0, "B0: reaching 1,000m shows the provisional notice");
+        Check(!UnlockManager.IsUnlocked(EliteId) && SaveStore.GetString("UnlockedIds", "").IndexOf(EliteId) < 0, "B0: game over after 1,000m -> the enemy unlock is NOT saved");
+        Check(gm.LastCommit != null && gm.LastCommit.unlockedOther.Count == 0, "B0: the failed result lists no unlock");
+        yield return EndRun();
+        // 中断 → CONTINUE: 仮のまま(お知らせは出し直さない)→ 倒れる → 確定しない
+        yield return BeginRun("swordsman", UW);
+        typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false);
+        WarpTo(1500f); yield return null;
+        RunLedger.DevClearDebug(); UnlockRules.RunSkipped = false;
+        RunLedger.DevSet(r => { r.maxReached = 1500; r.walked = 1500; r.playSeconds = 90; });
+        UnlockManager.CheckUnlocks(1500f);
+        typeof(GameManager).GetMethod("SaveCheckpoint", NP).Invoke(gm, null);
+        yield return ResumeGoHome();
+        Check(!UnlockManager.IsUnlocked(EliteId), "B0: suspending after 1,000m does not save the unlock");
+        int pn1 = UnlockManager.ProvisionalNotified;
+        yield return ResumeContinue("unlock-b0");
+        yield return new WaitForSecondsRealtime(0.5f);
+        Check(UnlockManager.ProvisionalCount > 0 && UnlockManager.IsTargetUnlocked(UnlockType.Enemy, "goblin_elite") && !UnlockManager.IsTargetUnlockedCommitted(UnlockType.Enemy, "goblin_elite"), "B0: after CONTINUE the condition is still provisional (works in the run, not saved)");
+        Check(UnlockManager.ProvisionalNotified == pn1, $"B0: the provisional notice is not shown again after CONTINUE ({UnlockManager.ProvisionalNotified - pn1})");
+        stopKeepAlive = true; yield return null;
+        for (int i = 0; i < 40 && !gm.IsGameOver; i++) { gm.TryDamagePlayer(true, "QA", 99999); yield return new WaitForSecondsRealtime(0.05f); }
+        yield return WaitTut(() => gm.ResultShown, 6f);
+        Check(!UnlockManager.IsUnlocked(EliteId), "B0: resumed run that ends in game over -> not saved");
+        yield return EndRun();
+        // デバッグ機能を使ったラン: 帰還しても確定しない
+        yield return BeginRun("swordsman", UW);
+        typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false);
+        WarpTo(1500f); yield return null; // ワープ = デバッグ機能(台帳に残る)
+        UnlockManager.CheckUnlocks(1500f);
+        gm.Win();
+        yield return WaitTut(() => gm.ResultShown, 6f);
+        Check(!UnlockManager.IsUnlocked(EliteId), "B0: a debug-warp run is not recorded even when it ends safely");
+        yield return EndRun();
+        // 成功: 一度だけ確定し、結果に出す
+        yield return UnlockRun(UW, "swordsman", 1500f, win: true, walked: 1500f);
+        Check(UnlockManager.IsUnlocked(EliteId) && SaveStore.GetString("UnlockedIds", "").IndexOf(EliteId) >= 0, "B0: returned safely after 1,000m -> the enemy unlock is saved");
+        Check(gm.LastCommit != null && gm.LastCommit.unlockedOther.Count == 1, $"B0: the success result lists the new enemy ({(gm.LastCommit != null ? string.Join(",", gm.LastCommit.unlockedOther) : "-")})");
+        Shot("unlock_B0_result_success");
+        yield return new WaitForSecondsRealtime(0.3f);
+        yield return EndRun();
+        yield return UnlockRun(UW, "swordsman", 1500f, win: false);
+        Check(UnlockManager.IsUnlocked(EliteId), "B0: an unlock already saved is never taken away by a later failed run");
+        yield return EndRun();
 
         // ---- B 同じ 30,000m: 倒れる vs 帰還
         L("== B fail vs success ==");

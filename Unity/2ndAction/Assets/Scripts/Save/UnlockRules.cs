@@ -149,6 +149,17 @@ public static class UnlockRules
         }
     }
 
+    // 2026-10-13: 中断からの再開。中断前に満たした条件は「仮」のまま数え直す(お知らせは出し直さない)。
+    // 以前は再開すると前回の距離が 0 からになり、満たし済みの条件の「条件達成!」がもう一度出ていた
+    public static void ResumeProvisional(string stageId, double reached)
+    {
+        runProvisionalStage = stageId; runProvisionalFrom = -1; ProvisionalCount = 0;
+        if (!Counts(stageId)) return;
+        foreach (var r in StageRules) if (r.stage == stageId && reached >= r.meters && !Stages.Contains(r.id)) ProvisionalCount++;
+        foreach (var r in CharRules) if (r.stage == stageId && reached >= r.meters && !Chars.Contains(r.id)) ProvisionalCount++;
+        runProvisionalFrom = reached;
+    }
+
     // 2026-10-08: 成功したラン(正規の帰還)の確定。1回のランで到達した距離で正式に解放する(一度だけ、RunLedger から)
     public static void CommitRun(string stageId, double reached, RunLedger.CommitResult res)
     {

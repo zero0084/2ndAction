@@ -1121,8 +1121,10 @@ public partial class GameManager : MonoBehaviour
     // a Rarity bucket first (weighted by gachaRarityWeights, but ONLY
     // among rarities actually present in `pool` - an unreached Rarity
     // simply never gets a bucket), then a uniform pick within that bucket.
+    public static string DevForceGachaCard; // 確認用(開発版の自動テストだけ): 次に引くカードを決める
     CardDefinition DrawFromGachaPool(List<CardDefinition> pool)
     {
+        if (Debug.isDebugBuild && !string.IsNullOrEmpty(DevForceGachaCard)) { var f = pool.Find(c => c != null && c.cardId == DevForceGachaCard); if (f != null) return f; }
         var buckets = new Dictionary<int, List<CardDefinition>>();
         foreach (CardDefinition card in pool)
         {
@@ -1461,7 +1463,7 @@ public partial class GameManager : MonoBehaviour
 
     void DrawUnlockAnnouncement()
     {
-        if (currentUnlockAnnouncement == null) return;
+        if (currentUnlockAnnouncement == null || IsGameOver) return; // 2026-10-13: 結果画面の上には出さない(ラン中の仮のお知らせ)
 
         // Fades in/out over the first and last 0.3s of the hold rather
         // than popping in and cutting off abruptly.
@@ -1469,7 +1471,8 @@ public partial class GameManager : MonoBehaviour
         float alpha = Mathf.Clamp01(Mathf.Min(unlockToastDuration - unlockAnnounceTimer, unlockAnnounceTimer) / Mathf.Max(0.001f, fadeWindow));
         if (alpha <= 0.01f) return; // 出始め(時間が止まっている間も)は描かない
 
-        string text = "NEW UNLOCK: " + currentUnlockAnnouncement.displayName;
+        // 2026-10-13: ラン中は仮(確定はランを無事に終えた時。CommitSuccess)
+        string text = Loc.F("解放条件達成: {0}", Loc.Auto(currentUnlockAnnouncement.displayName)) + "\n" + Loc.T("ランを無事に終えると確定します");
         GUIStyle style = new GUIStyle(GUI.skin.label);
         style.fontSize = 22;
         style.fontStyle = FontStyle.Bold;
@@ -1477,7 +1480,7 @@ public partial class GameManager : MonoBehaviour
         style.normal.textColor = new Color(1f, 0.93f, 0.75f, alpha);
 
         // 2026-10-10(全体点検): 縦画面では左の列(BEST/距離/速度)に重なっていた → 左の列の下へ。幅が足りない時は折り返す
-        string shown = Loc.Auto(text);
+        string shown = text; // 上で訳し済み
         float maxW = Screen.width - SafeLeft() - SafeRight() - 24f;
         Vector2 size = style.CalcSize(new GUIContent(shown));
         float w = Mathf.Min(size.x + 40f, maxW);
@@ -1555,6 +1558,7 @@ public partial class GameManager : MonoBehaviour
         activeRunStageId = stageIdOverride ?? SelectedStageId;
         // 2026-10-08: このランの途中の数値(確定は成功の時だけ)。闘技場/練習も作るが確定はしない(WritesBlocked)
         RunLedger.BeginNew(activeRunStageId, activeRunCharacterId, NetRunLauncher.IsMultiplayerRun);
+        UnlockManager.ClearRun(); // 2026-10-13: 前のランの仮の解放を持ち越さない
         if (TerrainManager.Instance != null) TerrainManager.Instance.ApplyStageTheme(activeRunStageId);
         ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
         SetCharacterCardOwner(activeRunCharacterId); // そのキャラのキャラカード枠(2026-10-02)
@@ -3216,8 +3220,12 @@ public partial class GameManager : MonoBehaviour
     // 落下の理由は PlayerController が "DeathY[:元]" で渡す(以前は "Fall" と比べていて一致せず、カードの短い無敵が落下まで止めていた。2026-10-13)
     static bool IsFallReason(string reason) => reason != null && (reason == "Fall" || reason.StartsWith("DeathY"));
 
+    // 直前の TryDamagePlayer が Shield で防いだか(2026-10-13: 落下を Shield で防いだ時に足場へ戻すため)
+    public bool LastDamageShielded { get; private set; }
+
     public DamageResult TryDamagePlayer(bool bypassInvincibleMode = false, string reason = "Other", int amount = CombatScale.PlayerHit)
     {
+        LastDamageShielded = false;
         Vector3 dmgPos = PlayerController.Instance != null ? PlayerController.Instance.transform.position : Vector3.zero;
         if (IsGameOver) { DamageAfterDeathIgnored++; return DamageResult.Ignored; } // 死亡済み: 以後のダメージ/死亡要求は無視
         if (PresentationDamageLock) { FreezeDiagnostics.LogEvent($"[Damage] Ignored(PresentationDamageLock) reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); return DamageResult.Ignored; }
@@ -3227,7 +3235,7 @@ public partial class GameManager : MonoBehaviour
         if (!bypassInvincibleMode && InvincibleMode) return DamageResult.Ignored;
         // カードバランス v3: LAST CHANCE / PHOENIX / PERFECT GUARD の短い無敵(落下はそのまま通す)
         if (CardInvincibleActive && !IsFallReason(reason)) { FreezeDiagnostics.LogEvent($"[Damage] Ignored(CardInvincible) reason={reason}"); return DamageResult.Ignored; }
-        if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); OnShieldBlocked(); return DamageResult.Ignored; }
+        if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); OnShieldBlocked(); LastDamageShielded = true; return DamageResult.Ignored; }
 
         // ボス戦の強化(2026-10-01): 重い一撃は複数ハート。ただしハートが満タンの時に1発で倒れることはない。
         int dmg = Mathf.Max(1, amount);
@@ -3550,6 +3558,7 @@ public partial class GameManager : MonoBehaviour
         if (IsWin) LastCommit = RunLedger.CommitSuccess(MaxDistanceExact);
         else { RunLedger.OnGameOver(MaxDistanceExact); LastCommit = RunLedger.LastResult; }
         UnlockRules.ClearRunFlags();
+        UnlockManager.ClearRun(); // 2026-10-13: 仮の解放は成功の確定(CommitSuccess)でだけ残る
         gameOverTime = Time.time;
         // Safety net: Time.timeScale is a global engine setting that would
         // otherwise persist across a scene reload (Retry) - if the run
@@ -3809,6 +3818,13 @@ public partial class GameManager : MonoBehaviour
         HasStarted = true;
         runStartTime = Time.time;
         RunLedger.Resume(data.ledger, data.stageId, data.characterId, Mathf.Max(data.highestReachedDistance, data.checkpointDistance)); // 2026-10-08
+        // 2026-10-13: 中断前に満たした距離の条件は「仮」のまま作り直す(お知らせは出し直さない。確定は再開後の結果で)
+        if (RunLedger.Current != null)
+        {
+            UnlockManager.ClearRun();
+            UnlockManager.CheckUnlocks((float)RunLedger.Current.maxReached, notify: false);
+            UnlockRules.ResumeProvisional(data.stageId, RunLedger.Current.maxReached);
+        }
 
         MaxDistance = data.checkpointDistance;
         MaxDistanceExact = data.checkpointDistance;
@@ -4519,7 +4535,7 @@ public partial class GameManager : MonoBehaviour
 
         float panelWidth = HudStacked ? Mathf.Min(560f, Screen.width - SafeLeft() - SafeRight() - 32f) : Mathf.Min(560f, Screen.width * 0.8f);
         // 2026-10-08: 行の数に合わせて行の間隔を詰める(画面の低い端末/文の長い言語でも全部の行が枠に収まる。文字は1行のまま)
-        int rowCount = IsWin ? 8 + ((RunBonusMile > 0 || RunRingMile > 0) ? 1 : 0) + ((LastCommit != null && (LastCommit.unlockedStages.Count + LastCommit.unlockedChars.Count > 0 || (!LastCommit.committed && Debug.isDebugBuild))) ? 1 : 0) : 7;
+        int rowCount = IsWin ? 8 + ((RunBonusMile > 0 || RunRingMile > 0) ? 1 : 0) + ((LastCommit != null && (LastCommit.unlockedStages.Count + LastCommit.unlockedChars.Count + LastCommit.unlockedOther.Count > 0 || (!LastCommit.committed && Debug.isDebugBuild))) ? 1 : 0) : 7;
         float monetH = ResultMonetizationExtraHeight(); // MILE 2倍のボタン(2026-10-10)
         float panelHeight = Mathf.Min(Screen.height * 0.92f, Mathf.Max(504f, 68f + rowCount * 34f + (upgradeHistory.Count > 0 ? 62f : 0f) + 50f) + monetH);
         float rowStep = Mathf.Clamp((panelHeight - 68f - (upgradeHistory.Count > 0 ? 62f : 0f) - 50f - monetH) / Mathf.Max(1, rowCount), 22f, 34f);
@@ -4564,11 +4580,12 @@ public partial class GameManager : MonoBehaviour
             Row("UPGRADES OBTAINED", UpgradeCount.ToString(), false);
             Row("TOTAL MILE", $"+{RunMile}  (WALLET {TotalOwnedMile})", false);
             // 2026-10-08: 帰還で確定した解放(複数でも全部出す)/ 記録の対象外だった理由
-            if (LastCommit != null && LastCommit.committed && LastCommit.unlockedStages.Count + LastCommit.unlockedChars.Count > 0)
+            if (LastCommit != null && LastCommit.committed && LastCommit.unlockedStages.Count + LastCommit.unlockedChars.Count + LastCommit.unlockedOther.Count > 0)
             {
                 var names = new System.Collections.Generic.List<string>();
                 foreach (var id in LastCommit.unlockedStages) names.Add(Loc.Auto(UnlockRules.StageName(id)));
                 foreach (var id in LastCommit.unlockedChars) names.Add(Loc.Auto(UnlockRules.CharName(id)));
+                foreach (var n in LastCommit.unlockedOther) names.Add(Loc.Auto(n)); // 距離の解放(新しい敵など)
                 Color keepU = rowStyle.normal.textColor;
                 rowStyle.normal.textColor = new Color(1f, 0.85f, 0.3f);
                 LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, rowStep - 4f), "NEW: " + string.Join(" / ", names), rowStyle);
@@ -5013,7 +5030,7 @@ public partial class GameManager : MonoBehaviour
             Category = card.category,
             // レベルアップ選択UI改修(2026-09-11) - 横長3択UI右端の「主要な
             // 強化数値」。CardEffectFormat参照。
-            ValueLine = CardEffectFormat.FormatPrimaryValue(card)
+            ValueLine = variant != null ? "" : CardEffectFormat.FormatPrimaryValue(card) // 2026-10-13: 合成カードは説明文の各能力の行に Lv ぶんの実際の値を出す(1つ目の効果だけの値は誤解を招いた)
         };
     }
 

@@ -166,6 +166,19 @@ public static class CardInventory
         return total;
     }
 
+    // 2026-10-13: 同名(主能力が同じ)のカードを、通常/合成済み(v2 キー)のどちらでも数える。ガチャの NEW の判定用
+    public static int GetTotalCountByName(string mainId)
+    {
+        EnsureLoaded();
+        int total = 0;
+        foreach (Stack s in stacks)
+        {
+            if (s.cardId == mainId) total += s.count;
+            else if (CardVariant.IsVariantKey(s.cardId)) { var v = CardVariant.Parse(s.cardId); if (v != null && v.mainId == mainId) total += s.count; }
+        }
+        return total;
+    }
+
     public static int GetCount(string cardId, int level)
     {
         Stack s = Find(cardId, level);

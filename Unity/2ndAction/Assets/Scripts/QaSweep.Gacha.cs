@@ -1,5 +1,7 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -85,6 +87,40 @@ public partial class QaSweep
         yield return EndRun();
         yield return ReloadHome();
         Check(TotalOwned() == o1 + 3, "C: still owned after reload");
+        // ---- D NEW の判定(2026-10-13): 引いた時点で同名(通常/合成済み)を持っていないか。続けて引いた同じカードは最初の1枚だけ NEW
+        L("== D: NEW / DUPLICATE ==");
+        var poolD = (List<CardDefinition>)typeof(GameManager).GetMethod("BuildGachaPool", NP).Invoke(gm, null);
+        var fresh = poolD.Where(c => c != null && CardInventory.GetTotalCountByName(c.cardId) == 0).Take(2).ToList();
+        Check(fresh.Count == 2, $"D: two cards not owned yet exist in the pool ({fresh.Count})");
+        if (fresh.Count == 2)
+        {
+            if (gm.GachaResultOpen) typeof(GameManager).GetMethod("CloseGachaResult", NP).Invoke(gm, null);
+            while (gm.GachaPendingReveals > 0 || gm.GachaResultOpen) { if (gm.GachaResultOpen) typeof(GameManager).GetMethod("CloseGachaResult", NP).Invoke(gm, null); yield return null; }
+            gm.AddMile(GameManager.GachaCostMile * 3);
+            GameManager.DevForceGachaCard = fresh[0].cardId;
+            tap.Invoke(gm, null); tap.Invoke(gm, null); // 同じカードを続けて2回(見せる前に2枚目)
+            yield return WaitTut(() => gm.GachaResultOpen, 3f);
+            bool firstNew = gm.GachaResultIsNew;
+            typeof(GameManager).GetMethod("CloseGachaResult", NP).Invoke(gm, null);
+            yield return WaitTut(() => gm.GachaResultOpen, 3f);
+            bool secondNew = gm.GachaResultIsNew;
+            Check(firstNew && !secondNew, $"D: the same new card twice in a row -> first NEW, second DUPLICATE ({firstNew}/{secondNew})");
+            typeof(GameManager).GetMethod("CloseGachaResult", NP).Invoke(gm, null);
+            yield return null;
+            // 合成済み(v2 キー)だけを持っている同名のカード → DUPLICATE
+            var v = new CardVariant { mainId = fresh[1].cardId, level = 3, rarity = Mathf.Max(1, fresh[1].rarity) };
+            v.AddAbility(fresh[1].cardId, 3);
+            CardInventory.AddCard(v.ToKey(), 1, 1);
+            Check(CardInventory.GetTotalCount(fresh[1].cardId) == 0 && CardInventory.GetTotalCountByName(fresh[1].cardId) == 1, "D: the fused copy is counted by name only");
+            GameManager.DevForceGachaCard = fresh[1].cardId;
+            tap.Invoke(gm, null);
+            yield return WaitTut(() => gm.GachaResultOpen, 3f);
+            Check(!gm.GachaResultIsNew, "D: owning only a fused card of the same name -> DUPLICATE");
+            Shot("gacha_D_duplicate_fused");
+            typeof(GameManager).GetMethod("CloseGachaResult", NP).Invoke(gm, null);
+            GameManager.DevForceGachaCard = null;
+        }
+
         SaveProfile.Switch(false, true);
         yield return ReloadHome();
     }

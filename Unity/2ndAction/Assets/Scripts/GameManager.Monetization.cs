@@ -154,14 +154,17 @@ public partial class GameManager
     CardDefinition DrawGachaCardForAd()
     {
         var pool = BuildGachaPool();
-        return pool.Count == 0 ? null : DrawFromGachaPool(pool);
+        var c = pool.Count == 0 ? null : DrawFromGachaPool(pool);
+        adPullIsNew = c != null && CardInventory.GetTotalCountByName(c.cardId) == 0; // 加える前(ClaimGachaPull の中で加わる)
+        return c;
     }
+    bool adPullIsNew;
 
     void RevealAdGachaCard(CardDefinition card)
     {
         if (card == null) return;
         AdGachaPulls++;
-        gachaRevealQueue.Add(card);
+        gachaRevealQueue.Add(card); gachaRevealNewQ.Add(adPullIsNew);
         if (!gachaResultOpen && gachaMachineShakeTimer <= 0f) gachaMachineShakeTimer = gachaMachineShakeDuration;
         deskHotspotFlashTimer = roomHotspotFlashDuration;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Gacha);

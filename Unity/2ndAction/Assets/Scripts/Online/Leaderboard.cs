@@ -92,6 +92,8 @@ public static class Leaderboard
 
     // ---------------------------------------------------------------- 投稿待ち
     public static int PendingCount => Load(PendingKey).items.Count;
+    // 2026-10-13: マップごとの送信待ち(順位の画面の「あなた」の状態を実際の送信待ちから出す)
+    public static int PendingCountFor(string stageId) { int n = 0; foreach (var e in Load(PendingKey).items) if (e != null && e.stageId == stageId) n++; return n; }
     static void Enqueue(Entry e)
     {
         if (IsSent(e.runId)) return;

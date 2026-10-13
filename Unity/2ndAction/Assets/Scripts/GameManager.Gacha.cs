@@ -19,6 +19,10 @@ public partial class GameManager
 
     // 確認用
     public int GachaPulls { get; private set; }
+    // 見せる順番待ちと同じ並びの「引いた時点で NEW だったか」(2026-10-13。表示のために支払い/獲得をやり直さない)
+    readonly List<bool> gachaRevealNewQ = new List<bool>();
+    bool gachaResultIsNew;
+    public bool GachaResultIsNew => gachaResultIsNew;
     public int GachaRefusedNoMile { get; private set; }
     public int GachaPendingReveals => gachaRevealQueue.Count;
     public bool GachaResultOpen => gachaResultOpen;
@@ -40,9 +44,10 @@ public partial class GameManager
         CardDefinition drawn = DrawFromGachaPool(pool);
         if (drawn == null) return false;
         if (!TrySpendMile(GachaCostMile)) { gachaInsufficientMessageTimer = gachaInsufficientMessageDuration; GachaRefusedNoMile++; return false; }
+        bool isNew = CardInventory.GetTotalCountByName(drawn.cardId) == 0; // 2026-10-13: 加える前に判定(続けて引いた同じカードは最初の1枚だけ NEW)
         CardInventory.AddCard(drawn.cardId, 1, 1);
         GachaPulls++;
-        gachaRevealQueue.Add(drawn);
+        gachaRevealQueue.Add(drawn); gachaRevealNewQ.Add(isNew);
         if (!gachaResultOpen && gachaMachineShakeTimer <= 0f) gachaMachineShakeTimer = gachaMachineShakeDuration;
         deskHotspotFlashTimer = roomHotspotFlashDuration;
         if (AudioManager.Instance != null) { AudioManager.Instance.PlaySe(SeId.Gacha); AudioManager.Instance.PlaySe(SeId.Coin); }
@@ -56,7 +61,7 @@ public partial class GameManager
     }
 
     // ランへ出る時: 見せる分だけ捨てる(カードは所持済み)
-    void ClearGachaPresentation() { gachaRevealQueue.Clear(); gachaResultOpen = false; gachaCloseArmed = false; gachaMachineShakeTimer = 0f; }
+    void ClearGachaPresentation() { gachaRevealQueue.Clear(); gachaRevealNewQ.Clear(); gachaResultOpen = false; gachaCloseArmed = false; gachaMachineShakeTimer = 0f; }
 
     void CloseGachaResult()
     {
@@ -74,9 +79,11 @@ public partial class GameManager
         {
             var c = gachaRevealQueue[0];
             gachaRevealQueue.RemoveAt(0);
+            gachaResultIsNew = gachaRevealNewQ.Count > 0 ? gachaRevealNewQ[0] : CardInventory.GetTotalCountByName(c.cardId) <= 1;
+            if (gachaRevealNewQ.Count > 0) gachaRevealNewQ.RemoveAt(0);
             gachaResultOpen = true;
             gachaResultCard = c;
-            gachaResultOwnedCount = CardInventory.GetTotalCount(c.cardId);
+            gachaResultOwnedCount = CardInventory.GetTotalCountByName(c.cardId); // 同名(合成済みも含む)
             gachaResultRevealTimer = c.rarity >= 4 ? GachaResultRevealDuration : 0f;
             gachaResultOpenedAt = Time.unscaledTime;
             gachaCloseArmed = false;
@@ -146,7 +153,7 @@ public partial class GameManager
         }
         OrnateUi.DrawPanel(panel, 0.94f);
 
-        bool isNew = gachaResultOwnedCount <= 1;
+        bool isNew = gachaResultIsNew; // 2026-10-13: 引いた時点の判定(合成済みの同名も所持として数える)
         float y = panel.y + 18f * s;
         LocGUI.Label(new Rect(panel.x, y, panel.width, 36f * s), isNew ? "NEW CARD" : "DUPLICATE", UiKit.Label(26f * s, TextAnchor.MiddleCenter, true, isNew ? new Color(1f, 0.85f, 0.4f) : new Color(0.7f, 0.85f, 1f)));
         y += 40f * s;

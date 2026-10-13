@@ -1710,6 +1710,8 @@ public partial class PlayerController : MonoBehaviour
 
         if (!isFall) amount = NobleDamage(amount); // お嬢様騎士の鎧(候補、既定は無効)
         GameManager.DamageResult result = GameManager.Instance.TryDamagePlayer(bypassInvincibleMode: isFall, reason: reason, amount: amount);
+        // 2026-10-13: 落下を Shield で防いだ時も足場へ戻す(戻さないと毎フレーム落下の判定が続き、Shield を全部使い切ってから被弾していた)
+        if (isFall && result == GameManager.DamageResult.Ignored && GameManager.Instance.LastDamageShielded) { ApplyDamageReaction(true); return; }
         if (result != GameManager.DamageResult.Hit) return;
         RecordDamageTaken(source);
         ApplyDamageReaction(isFall);

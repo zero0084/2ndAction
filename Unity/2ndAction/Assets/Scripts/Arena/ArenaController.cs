@@ -751,7 +751,7 @@ public static class ArenaCatalog
     public static bool EnemySeen(EnemyDefinition d)
     {
         if (d == null) return false;
-        if (!UnlockManager.IsTargetUnlocked(UnlockType.Enemy, d.enemyId)) return false;
+        if (!UnlockManager.IsTargetUnlockedCommitted(UnlockType.Enemy, d.enemyId)) return false; // 確定した解放だけ(ラン中の仮は含めない)
         var gm = GameManager.Instance;
         if (d.stageIds == null || d.stageIds.Length == 0 || gm == null) return true;
         foreach (var s in d.stageIds) if (!string.IsNullOrEmpty(s) && gm.GetStageBest(s) > 1.0) return true;

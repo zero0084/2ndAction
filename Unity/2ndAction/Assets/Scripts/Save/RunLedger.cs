@@ -94,6 +94,7 @@ public static class RunLedger
         public bool newBest;
         public double best;
         public List<string> unlockedStages = new List<string>(), unlockedChars = new List<string>();
+        public List<string> unlockedOther = new List<string>(); // 距離の解放(新しい敵など。UnlockManager)の表示名
         public bool rankingEligible;
     }
     public static CommitResult LastResult { get; private set; }
@@ -110,6 +111,12 @@ public static class RunLedger
         if (r.debugUsed) { res.skippedWhy = "debug feature used (" + r.debugWhat + ")"; Debug.Log("[RunLedger] success not recorded: " + res.skippedWhy); return res; }
         if (IsCommitted(r.runId)) { res.skippedWhy = "already committed"; Debug.Log("[RunLedger] success already committed (" + r.runId.Substring(0, 8) + ")"); return res; }
 
+        // 2026-10-13: 確定したランの ID を最初に書く(この後の SaveStore.Save で記録と一緒に残る。途中で落ちて再開しても二重に足さない)
+        var list = new List<string>(SaveStore.GetString(CommittedKey, "").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+        list.Add(r.runId);
+        while (list.Count > 30) list.RemoveAt(0);
+        SaveStore.SetString(CommittedKey, string.Join(",", list));
+
         string stage = r.stageId;
         double best = GameManager.ReadStageBest(stage);
         res.newBest = r.maxReached > best;
@@ -117,18 +124,15 @@ public static class RunLedger
         if (res.newBest) GameManager.WriteStageBest(stage, r.maxReached);
         if (stage != BossManager.LastStageId) ProgressStats.AddCommittedDistance(r.walked); // ラスダンは累計に入れない(解放条件は通常3マップ)
         UnlockRules.CommitRun(stage, r.maxReached, res);
+        res.unlockedOther.AddRange(UnlockManager.CommitRun(r.maxReached)); // 2026-10-13: 距離の解放(新しい敵)もここで一度だけ
         res.rankingEligible = Leaderboard.IsEligible(r, out string why);
         if (res.rankingEligible) Leaderboard.OnSuccessCommitted(r);
         else Debug.Log("[RunLedger] not for ranking: " + why);
 
-        var list = new List<string>(SaveStore.GetString(CommittedKey, "").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
-        list.Add(r.runId);
-        while (list.Count > 30) list.RemoveAt(0);
-        SaveStore.SetString(CommittedKey, string.Join(",", list));
         ProgressStats.Flush(false);
         SaveStore.Save();
         res.committed = true;
-        Debug.Log($"[RunLedger] committed {r.runId.Substring(0, 8)} stage={stage} reached={r.maxReached:F0} walked={r.walked:F0} newBest={res.newBest} unlocked={res.unlockedStages.Count + res.unlockedChars.Count} auto={r.usedAuto} sprint={r.usedSprint} ranking={res.rankingEligible}");
+        Debug.Log($"[RunLedger] committed {r.runId.Substring(0, 8)} stage={stage} reached={r.maxReached:F0} walked={r.walked:F0} newBest={res.newBest} unlocked={res.unlockedStages.Count + res.unlockedChars.Count + res.unlockedOther.Count} auto={r.usedAuto} sprint={r.usedSprint} ranking={res.rankingEligible}");
         return res;
     }
 

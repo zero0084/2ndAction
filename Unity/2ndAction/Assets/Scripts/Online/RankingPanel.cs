@@ -149,18 +149,29 @@ public class RankingPanel : MonoBehaviour
         var info = new GUIStyle(UiKit.Label(17f, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.9f, 1f)));
 
         // 自分(上に固定)
+        // 2026-10-13: 「あなた」の行は実際の状態から(読み込み中 / 読み込み失敗 / このマップの送信待ち / 順位に出ていない / 記録なし)。
+        // 以前は送信待ちが無くても「投稿待ち」相当の文が出ていた。読み込み失敗と送信待ちが同時の時は、右の欄に送信待ちを別に出す
         var best = Leaderboard.VerifiedBest(st);
-        string meLine = page != null && page.me != null
-            ? Loc.Auto("あなた") + $": #{page.me.rank}  {page.me.meters:N0}m" // 順位は # で(言語ごとの順位の言い方に頼らない)
-            : Loc.Auto(best != null ? "あなた: 記録はまだ順位に表示されていません" : "あなた: まだ記録がありません");
+        int pendingHere = Leaderboard.PendingCountFor(st);
+        bool loadingHere = loadingStage == st, failedHere = errorStage == st;
+        string meLine;
+        if (page != null && page.me != null) meLine = Loc.Auto("あなた") + $": #{page.me.rank}  {page.me.meters:N0}m"; // 順位は # で(言語ごとの順位の言い方に頼らない)
+        else if (loadingHere) meLine = Loc.Auto("あなた: 読み込み中…");
+        else if (failedHere) meLine = Loc.Auto("あなた: 順位を読み込めませんでした");
+        else if (pendingHere > 0) meLine = Loc.Auto("あなた: 新しい記録を送信待ちです");
+        else if (best != null) meLine = Loc.Auto("あなた: 表示中の順位に記録がありません");
+        else meLine = Loc.Auto("あなた: まだ記録がありません");
         LocGUI.Label(new Rect(r.x, y, r.width * 0.6f, 30f), meLine, UiKit.Label(19f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.4f)));
         int pending = Leaderboard.PendingCount;
         if (pending > 0)
         {
-            LocGUI.Label(new Rect(r.x + r.width * 0.6f, y, r.width * 0.4f - 130f, 30f), Loc.Auto("投稿待ち") + $" {pending}", info);
+            string ps = Leaderboard.Sending ? Loc.F("送信中… {0}件", pending) : !string.IsNullOrEmpty(Leaderboard.LastSendError) ? Loc.F("送信失敗・再送待ち {0}件", pending) : Loc.F("送信待ち {0}件", pending);
+            LocGUI.Label(new Rect(r.x + r.width * 0.6f, y, r.width * 0.4f - 130f, 30f), ps, info);
             if (UiKit.Button(new Rect(r.xMax - 120f, y - 4f, 120f, 38f), Leaderboard.Sending ? "送信中…" : "再送", 16f, false, true, !Leaderboard.Sending) && !Leaderboard.Sending) _ = Leaderboard.FlushAsync("manual");
         }
         y += 38f;
+        // 前に読み込んだ表を出している時に、最新の読み込みに失敗した(表は前回のもの)
+        if (failedHere && page != null) { LocGUI.Label(new Rect(r.x, y - 8f, r.width, 22f), "最新の順位を読み込めませんでした(前回の表示です)", UiKit.Label(14f, TextAnchor.MiddleLeft, false, new Color(1f, 0.7f, 0.6f))); y += 16f; }
 
         var view = new Rect(r.x, y, r.width, r.yMax - y - 44f);
         if (loadingStage == st && page == null) { LocGUI.Label(view, "読み込み中…", UiKit.Label(20f, TextAnchor.MiddleCenter)); }
