@@ -13,7 +13,7 @@ using UnityEngine;
 public class LastDungeonBossTuning : ScriptableObject
 {
     [System.Flags]
-    public enum Tag { None = 0, Ground = 1, Air = 2, Large = 4, Projectile = 8, Chaser = 16, AreaAttack = 32, NoRush = 64 }
+    public enum Tag { None = 0, Ground = 1, Air = 2, Large = 4, Projectile = 8, Chaser = 16, AreaAttack = 32, NoRush = 64, Solo = 128 } // Solo: 居る間は他のボスと同時に戦わない
 
     [Header("0〜89km の関門のプール")]
     public List<string> pool1k = new List<string> { "Wild/Wolf", "Cave/Centipede", "Sky/Dragon" };
@@ -33,6 +33,24 @@ public class LastDungeonBossTuning : ScriptableObject
     public bool milestoneRunResume = true;
     [Tooltip("ラン再開したボスが残ったまま、ボスラッシュの入口のこの距離(m)手前まで来たら、再び足止めする(ボスラッシュを飛ばさない)")]
     public float rushEntranceHoldMeters = 300f;
+
+    [Header("希少な強敵(2026-10-13、メカドラゴン)。ラスダンだけ・通常の抽選より前に低い確率で判定する")]
+    [Tooltip("希少な強敵のボス(ラスダンのプールには入れない。ここでだけ選ぶ)")]
+    public string rareKey = "Sky/MechDragon";
+    [Tooltip("関門の格ごとの確率(1,000m格 / 5,000m格 / 10,000m格)")]
+    [Range(0f, 1f)] public float rareChance1k = 0f, rareChance5k = 0.05f, rareChance10k = 0.10f;
+    [Tooltip("この km より前の関門には出ない")]
+    public int rareMinKm = 40;
+    [Tooltip("前に出てから、この km の間は出ない(短い間隔で繰り返さない)")]
+    public int rareMinGapKm = 20;
+    [Tooltip("1回のランで出る最大の回数(ボスラッシュの分も含む)")]
+    public int rareMaxPerRun = 2;
+    [Tooltip("90〜98km のボスラッシュで、1枠をこのボスに置き換える確率")]
+    [Range(0f, 1f)] public float rareRushChance = 0.20f;
+    [Tooltip("ボスラッシュで置き換えてよい km の範囲(最後の 97/98km は避ける: 99km の足止めまでに倒しきれる余裕)")]
+    public int rareRushMinK = 92, rareRushMaxK = 96;
+    [Tooltip("希少な強敵の HP に追加で掛ける倍率")]
+    public float rareHpMul = 1f;
 
     [Header("ラストダンジョンの倍率(全関門)")]
     public float hpMul = 1.25f;
@@ -99,6 +117,7 @@ public class LastDungeonBossTuning : ScriptableObject
 
     public Tag TagsOf(string key)
     {
+        if (!string.IsNullOrEmpty(rareKey) && key == rareKey) return Tag.Air | Tag.Large | Tag.Projectile | Tag.Solo; // アセットに無くても(2026-10-13)
         if (tags != null) foreach (var t in tags) if (t != null && t.key == key) return t.tags;
         return Tag.Ground;
     }

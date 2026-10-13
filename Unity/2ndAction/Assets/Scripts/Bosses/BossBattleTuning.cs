@@ -176,6 +176,8 @@ public class BossBattleTuning : ScriptableObject
             new Entry { key = "Phoenix",    phaseThresholds = new[] { 0.65f },       specialCooldown = 7f,   ultimateCooldown = 17f, staggerMax = 34f, staggerRecoveryPerSec = 3.5f, breakDuration = 3f },
             new Entry { key = "SkySerpent", phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 7.5f, ultimateCooldown = 18f, staggerMax = 38f, staggerRecoveryPerSec = 3.5f, breakDuration = 3.2f },
             new Entry { key = "Guardian",   phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 7f,   ultimateCooldown = 17f, staggerMax = 44f, staggerRecoveryPerSec = 4f,  breakDuration = 3f },
+            // 希少な強敵(2026-10-13): 3段階。被弾 15(他は 10)。崩しは重いが BREAK は長め(強攻撃の後の隙と合わせて近接の反撃の機会)
+            new Entry { key = "MechDragon", phaseThresholds = new[] { 0.7f, 0.35f }, specialCooldown = 7f,   ultimateCooldown = 18f, firstUltimateDelay = 1.5f, staggerMax = 52f, staggerRecoveryPerSec = 4f, breakDuration = 3.4f, normalDamage = 15 },
         };
     }
 }

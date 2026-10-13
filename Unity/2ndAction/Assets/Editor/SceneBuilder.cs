@@ -604,11 +604,6 @@ public static class SceneBuilder
         boss.bossHitSparkSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Effects/HitSpark.png");
         boss.bossDeathSmokeSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Effects/EnemyDeathSmoke.png");
 
-        // Distance Level Design Ver.1 - Mechanical Dragon (item 7). Same
-        // "PPU chosen for a base world height, dragonScale multiplies on
-        // top" convention as the real Dragon/Majin art.
-        boss.mechanicalDragonSprite = ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Boss/MechanicalDragon.png", 1152f / 3.2f);
-
         // 荒野街道ボス追加(2026-09-20) - 新ボス10種の姿勢別スプライト。画像は
         // Assets/Art/WildBoss/<name>_<pose>.png(ChatGPT生成、マゼンタ背景を
         // キー抜き+個別に切り出し済み)。無い姿勢はnull(ボス側でIdle代用)。

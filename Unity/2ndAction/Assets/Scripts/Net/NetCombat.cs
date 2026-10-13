@@ -52,7 +52,7 @@ public class NetCombat : MonoBehaviour
 
     // ===== エンティティ =====
     public enum Kind : byte { Enemy = 1, Boss = 2 }
-    public enum BossMethod : byte { None = 0, Wild, Cave, Sky, Dragon, WastelandDragon, SkyDragon, Majin, SkyMajin, MechDragon, Reaper }
+    public enum BossMethod : byte { None = 0, Wild, Cave, Sky, Dragon, WastelandDragon, SkyDragon, Majin, SkyMajin, LegacyMechDragon, Reaper } // LegacyMechDragon: 撤去した旧メカドラゴン(番号を詰めると Reaper の番号が変わるので残す)
 
     public class Entity
     {
@@ -1120,7 +1120,7 @@ public class NetCombat : MonoBehaviour
         entities[id] = e;
         StatSpawns++;
         Log("BOSS", $"Spawn id={id} type={e.TypeKey} method={(BossMethod)method} hp={hp}/{maxHp} authority=HOST (puppet)");
-        NetDebugUI.Toast("BOSS: " + e.TypeKey.Replace("Boss", "").Replace("Controller", ""));
+        if (Debug.isDebugBuild) NetDebugUI.Toast("BOSS: " + e.TypeKey.Replace("Boss", "").Replace("Controller", "")); // 開発用(製品版では内部名を見せない)
     }
 
     void HandleDamage(FastBufferReader r)

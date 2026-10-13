@@ -17,7 +17,7 @@ using UnityEngine;
 //  - 攻撃は必ず予告(赤い予告ゾーン/地面の光る楕円/空中の帯)→ 見えている攻撃と同範囲の判定。
 //  - 回避の考え方(既存ボスと同じ): 地面沿い/低い帯(LowBand)=ジャンプ、高い帯(HighBand)=
 //    跳ばずに走り続ける、地面の着弾点=攻撃の踏み込み/後退で位置をずらす。
-public enum SkyBossKind { Dragon, Majin, Behemoth, Titan, Jellyfish, Leviathan, Fenrir, SkyGolem, Phoenix, SkySerpent, Guardian }
+public enum SkyBossKind { Dragon, Majin, Behemoth, Titan, Jellyfish, Leviathan, Fenrir, SkyGolem, Phoenix, SkySerpent, Guardian, MechDragon } // MechDragon(2026-10-13): ラスダンだけの希少な強敵。末尾に足す(番号は闘技場の設定/マルチで使う)
 
 public abstract partial class SkyBossBase : HazardBossBase
 {

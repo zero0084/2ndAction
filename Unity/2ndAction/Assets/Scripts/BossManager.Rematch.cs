@@ -66,6 +66,7 @@ public partial class BossManager
         }
         {
             var k = (SkyBossKind)kind;
+            if (k == SkyBossKind.MechDragon) return 90000f; // 希少な強敵(ラスダンだけ): 既定の 10,000m だと距離の倍率で HP が約4倍になる
             if (k == SkyBossKind.Dragon) return 1000f;
             if (k == SkyBossKind.Majin) return 5000f;
             int i = System.Array.IndexOf(SkyTenKmBosses, k); return i >= 0 ? (i + 1) * 10000f : 10000f;
@@ -157,6 +158,7 @@ public partial class BossManager
             foreach (var key in defeatedPool)
             {
                 if (skip.Contains(key)) continue;
+                if (key == "Sky/MechDragon") continue; // 希少な強敵はラスダンだけ(通常マップの再戦には出さない)
                 float w = tn.WeightFor(key, fiveK);
                 if (w <= 0f) continue;
                 cands.Add((key, w)); total += w;
@@ -247,7 +249,7 @@ public partial class BossManager
     public void DebugUnlockAll()
     {
         var fam = StageFamily;
-        if (fam == GateFamily.Sky) foreach (SkyBossKind s in System.Enum.GetValues(typeof(SkyBossKind))) { string k = Key(fam, (int)s); if (!defeatedPool.Contains(k)) defeatedPool.Add(k); }
+        if (fam == GateFamily.Sky) foreach (SkyBossKind s in System.Enum.GetValues(typeof(SkyBossKind))) { if (s == SkyBossKind.MechDragon) continue; string k = Key(fam, (int)s); if (!defeatedPool.Contains(k)) defeatedPool.Add(k); }
         else if (fam == GateFamily.Cave) foreach (CaveBossKind c in System.Enum.GetValues(typeof(CaveBossKind))) { string k = Key(fam, (int)c); if (!defeatedPool.Contains(k)) defeatedPool.Add(k); }
         else foreach (WildBossKind w in System.Enum.GetValues(typeof(WildBossKind))) { string k = Key(fam, (int)w); if (!defeatedPool.Contains(k)) defeatedPool.Add(k); }
         LastRematchDecision = "unlock all";

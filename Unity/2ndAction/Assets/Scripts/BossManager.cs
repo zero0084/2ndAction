@@ -42,25 +42,12 @@ public partial class BossManager : MonoBehaviour
     // 赤、機械龍=黄、魔人=紫」。各Spawn*でController.defeatBurstColorへ
     // コピーする。雑魚敵の青はEnemyController側の既定値。
     public Color dragonDefeatBurstColor = new Color(1f, 0.3f, 0.18f, 1f);
-    public Color mechanicalDragonDefeatBurstColor = new Color(1f, 0.82f, 0.15f, 1f);
     public Color majinDefeatBurstColor = new Color(0.7f, 0.35f, 1f, 1f);
     // No dedicated files yet - PlaySfx is null-safe, so these can stay
     // unassigned without breaking anything (see SceneBuilder).
     public AudioClip bossFinalHitSe;
     public AudioClip bossDefeatSe;
 
-    // Distance Level Design Ver.1, item 7 - Mechanical Dragon. Reuses
-    // DragonController entirely (entrance/HP/hit/death Presentation all
-    // identical - see DragonController.attacksEnabled) with attacks
-    // disabled, per "具体的な攻撃追加は後で設計" / "出現確認用の最低限
-    // Placeholder Behaviorでも構いません". null-safe - never spawns if the
-    // sprite hasn't been imported yet.
-    public Sprite mechanicalDragonSprite;
-    public float mechanicalDragonUnlockDistance = 20000f;
-    public int mechanicalDragonMaxHp = 300;
-    // Distance Level Design Ver.1.1 - best-guess default; flip in the
-    // Inspector if it still faces the wrong way once seen in Game View.
-    public bool mechanicalDragonDefaultFacingRight = true;
     public bool deathDefaultFacingRight = true;
 
     // Distance Level Design Ver.1, item 8 - Death/Grim Reaper. Explicitly
@@ -699,19 +686,6 @@ public partial class BossManager : MonoBehaviour
             SpawnMajin(majinDistances[i]);
         }
 
-        // Distance Level Design Ver.1, item 7 - "20,000m前後 Mechanical
-        // Dragon初登場" / "20,000〜99,999m Dragon/魔人/Mechanical Dragonを
-        // 距離に応じて使用". Added ON TOP of the existing dragon/majin
-        // count formula above (untouched) rather than replacing any of it -
-        // every encounter from mechanicalDragonUnlockDistance onward also
-        // gets exactly one, in addition to whatever the original formula
-        // already produces.
-        if (nextBossDistance >= mechanicalDragonUnlockDistance && mechanicalDragonSprite != null)
-        {
-            aliveDragonsThisEncounter++;
-            SpawnMechanicalDragon(dragonStandoffDistance + dragonSpacing * (dragonCount + majinCount + 1));
-        }
-
         if (GameManager.Instance != null) GameManager.Instance.LogBoss("CombatStart");
     }
 
@@ -804,69 +778,6 @@ public partial class BossManager : MonoBehaviour
 
         configure?.Invoke(dragon);
         dragon.Init(SpawnRef());
-    }
-
-    // Distance Level Design Ver.1 - visually distinct (Mechanical Dragon's
-    // own art) but behaviorally a placeholder: idleFrames/chargeFrames/
-    // fireFrames are all just a single-element array of the one static
-    // sprite provided (DragonController's frame-cycling code handles a
-    // length-1 array fine - it just never changes), and attacksEnabled is
-    // false, so it appears, can be hit/killed (full Boss Defeat
-    // Presentation included), but never attacks.
-    // マルチプレイPhase 2 - 共有ボスの出現記録(HOST)/パペットの再構築(JOIN)用の入口。
-    void SpawnMechanicalDragon(float standoffDistanceForThisDragon) { NetCombat.BeginBossSpawn(NetCombat.BossMethod.MechDragon, 0, 0, standoffDistanceForThisDragon); try { SpawnMechanicalDragonImpl(standoffDistanceForThisDragon); } finally { NetCombat.EndBossSpawn(); } }
-
-    void SpawnMechanicalDragonImpl(float standoffDistanceForThisDragon)
-    {
-        GameObject go = new GameObject("MechanicalDragon");
-        go.tag = "Boss";
-        go.transform.localScale = Vector3.one * dragonScale;
-
-        SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
-        sr.sortingOrder = RenderOrder.Boss;
-
-        BoxCollider2D col = go.AddComponent<BoxCollider2D>();
-        col.isTrigger = true;
-        col.size = new Vector2(2.2f, 2.0f);
-        var colDebug = go.AddComponent<ColliderDebugView>();
-        colDebug.color = new Color(0.2f, 0.6f, 1f);
-
-        var rb = go.AddComponent<Rigidbody2D>();
-        rb.bodyType = RigidbodyType2D.Kinematic;
-        rb.gravityScale = 0f;
-
-        DragonController dragon = go.AddComponent<DragonController>();
-        Sprite[] singleFrame = { mechanicalDragonSprite };
-        dragon.idleFrames = singleFrame;
-        dragon.chargeFrames = singleFrame;
-        dragon.fireFrames = singleFrame;
-        dragon.squareSprite = squareSprite;
-        dragon.maxHp = EffectiveBossMaxHp(mechanicalDragonMaxHp);
-        dragon.standoffDistance = standoffDistanceForThisDragon;
-        dragon.attacksEnabled = false;
-        // Reward/MILE System Ver.1 - "ボスMILE: Mechanical Dragon 200".
-        dragon.mileReward = 200;
-        dragon.finalHitSparkSprite = bossHitSparkSprite;
-        dragon.bossDeathSmokeSprite = bossDeathSmokeSprite;
-        dragon.finalHitSe = AudioManager.Se(SeId.BossFinalHit, bossFinalHitSe);
-        dragon.bossDefeatSe = AudioManager.Se(SeId.BossDefeat, bossDefeatSe);
-        dragon.defeatBurstColor = mechanicalDragonDefeatBurstColor; // 撃破パーティクル=黄
-
-        // Distance Level Design Ver.1.1 - facing fix. No separate Visual
-        // child here (DragonController's SpriteRenderer/Collider share this
-        // same Transform) - flipping localScale.x's sign is still safe
-        // since col.size has no offset (a symmetric box looks identical
-        // either way). alwaysFacePlayer=true since a boss's own forward
-        // drift (AdvanceTrackedX, matching the player's auto-run pace) is
-        // not a meaningful walking direction to face toward.
-        var facing = go.AddComponent<EnemyFacing>();
-        facing.visual = go.transform;
-        facing.defaultFacingRight = mechanicalDragonDefaultFacingRight;
-        facing.alwaysFacePlayer = true;
-        facing.player = player;
-
-        dragon.Init(SpawnRef());
-        if (GameManager.Instance != null && GameManager.Instance.DebugMode) Debug.Log("[Boss] MechanicalDragon Spawn");
     }
 
     // Distance Level Design Ver.1, item 8 - see GrimReaperController's own
@@ -1472,6 +1383,7 @@ public partial class BossManager : MonoBehaviour
             case SkyBossKind.Phoenix: return new SkySpec(2200, 430, 4.4f, 8f, new Color(1f, 0.55f, 0.2f));
             case SkyBossKind.SkySerpent: return new SkySpec(2500, 490, 3.4f, 8f, new Color(0.75f, 0.85f, 1f));
             case SkyBossKind.Guardian: return new SkySpec(3200, 580, 3.6f, 7f, new Color(1f, 0.92f, 0.65f));
+            case SkyBossKind.MechDragon: return new SkySpec(4400, 900, 5.5f, 8f, new Color(0.45f, 0.75f, 1f)); // 希少な強敵: 全ボスで最上位の HP(ラスダンの倍率込みで同じ距離の上位ボスの約1.4倍)
             default: return new SkySpec(600, 80, 3f, 9f, Color.white);
         }
     }
@@ -1504,6 +1416,8 @@ public partial class BossManager : MonoBehaviour
             case SkyBossKind.SkyGolem: boss = go.AddComponent<SkyGolemBoss>(); break;
             case SkyBossKind.Phoenix: boss = go.AddComponent<PhoenixBoss>(); break;
             case SkyBossKind.SkySerpent: boss = go.AddComponent<SkySerpentBoss>(); break;
+            case SkyBossKind.MechDragon: boss = go.AddComponent<MechDragonBoss>(); break;
+            case SkyBossKind.Guardian: boss = go.AddComponent<CelestialGuardianBoss>(); break;
             default: boss = go.AddComponent<CelestialGuardianBoss>(); break;
         }
 
@@ -1521,6 +1435,7 @@ public partial class BossManager : MonoBehaviour
         boss.deathSmokeSprite = bossDeathSmokeSprite;
         boss.finalHitSe = AudioManager.Se(SeId.BossFinalHit, bossFinalHitSe);
         boss.defeatSe = AudioManager.Se(SeId.BossDefeat, bossDefeatSe);
+        if (kind == SkyBossKind.MechDragon) MechDragonBoss.LoadArt(boss); // 姿勢の絵は Resources から(シーンの作り直し不要)
         if (art != null)
         {
             boss.idleSprite = art.idle;
@@ -1689,7 +1604,7 @@ public partial class BossManager : MonoBehaviour
             case NetCombat.BossMethod.SkyDragon: SpawnSkyDragon(standoff); break;
             case NetCombat.BossMethod.Majin: SpawnMajin(standoff); break;
             case NetCombat.BossMethod.SkyMajin: SpawnSkyMajin(standoff); break;
-            case NetCombat.BossMethod.MechDragon: SpawnMechanicalDragon(standoff); break;
+            case NetCombat.BossMethod.LegacyMechDragon: break; // 旧メカドラゴン(撤去、2026-10-13)。番号だけ残す
             case NetCombat.BossMethod.Reaper: SpawnDeath(); break;
         }
     }

@@ -119,10 +119,54 @@ public partial class BossManager
     // 0〜89km: 格ごとのプールから抽選
     // ===================================================================== //
     // その種類が「どの格か」は問わず、関門の格のプールから選ぶ。強さは今の距離に合わせる(再戦と同じ計算)+ラスダンの倍率。
+    // ---- 希少な強敵(2026-10-13、メカドラゴン): ラスダンだけ。通常の抽選(会ったボスの絞り込み)より前に判定する ----
+    int rareCountThisRun;
+    int rareLastK = -999;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void RareDevArgs()
+    {
+        var a = QaArgs.All;
+        for (int i = 0; i < a.Length - 1; i++)
+        {
+            if (a[i] == "-ldForceRare" && a[i + 1] == "1") DevForceRare = true;
+            if (a[i] == "-ldForceRareRush" && a[i + 1] == "1") DevForceRareRush = true;
+        }
+    }
+#endif
+    public static bool DevForceRareRush; // 開発用: ボスラッシュの計画に必ず入れる(-ldForceRareRush 1)
+    public static bool DevForceRare; // 開発用: 次の 0〜89km の関門を必ず希少な強敵にする(-ldForceRare 1 / デバッグ)
+    public int RareCountThisRun => rareCountThisRun;
+    bool RareAllowedAt(int k)
+    {
+        var ld = LastDungeonBossTuning.I;
+        if (string.IsNullOrEmpty(ld.rareKey) || !ParseKey(ld.rareKey, out _, out _)) return false;
+        if (rareCountThisRun >= Mathf.Max(0, ld.rareMaxPerRun)) return false;
+        if (k - rareLastK < Mathf.Max(0, ld.rareMinGapKm)) return false;
+        return true;
+    }
+    bool TryRareMilestone(int k, out string why)
+    {
+        var ld = LastDungeonBossTuning.I;
+        why = "";
+        bool force = Debug.isDebugBuild && DevForceRare;
+        if (!force)
+        {
+            if (k < ld.rareMinKm || !RareAllowedAt(k)) return false;
+            float ch = k % 10 == 0 ? ld.rareChance10k : k % 5 == 0 ? ld.rareChance5k : ld.rareChance1k;
+            if (ch <= 0f || Random.value >= ch) return false; // HOST/シングルだけが呼ぶ
+            why = $"希少な強敵 {ld.rareKey}(確率{ch:P0})";
+        }
+        else { DevForceRare = false; why = $"希少な強敵 {ld.rareKey}(開発用に強制)"; }
+        rareCountThisRun++; rareLastK = k;
+        return true;
+    }
+
     bool ResolveLastMilestone(int k, out GateFamily family, out int kind, out string why)
     {
         family = GateFamily.Wild; kind = 0;
         var ld = LastDungeonBossTuning.I;
+        if (TryRareMilestone(k, out string rw) && ParseKey(ld.rareKey, out family, out kind)) { why = rw; return true; }
         var pool = k % 10 == 0 ? ld.pool10k : k % 5 == 0 ? ld.pool5k : ld.pool1k;
         string cls = k % 10 == 0 ? "10,000m格" : k % 5 == 0 ? "5,000m格" : "1,000m格";
         var cands = new List<string>();
@@ -153,7 +197,8 @@ public partial class BossManager
         currentTier = tn.TierAt(d);
         float first = FirstDistanceOf(f, kind);
         float distMul = tn.distanceHp ? Mathf.Max(1f, BossHpPlan.MilestoneHpAt(d) / Mathf.Max(1f, BossHpPlan.MilestoneHpAt(first))) : 1f;
-        CurrentRematchHpMul = distMul * Mathf.Max(0.1f, currentTier.hpMul) * Mathf.Max(0.1f, ld.hpMul) * (rush ? Mathf.Max(0.05f, continuous ? ld.runRushHpMulPerBoss : ld.rushHpMulPerBoss) : 1f);
+        CurrentRematchHpMul = distMul * Mathf.Max(0.1f, currentTier.hpMul) * Mathf.Max(0.1f, ld.hpMul) * (rush ? Mathf.Max(0.05f, continuous ? ld.runRushHpMulPerBoss : ld.rushHpMulPerBoss) : 1f)
+            * (key == ld.rareKey ? Mathf.Max(0.1f, ld.rareHpMul) : 1f);
         CurrentRematchTier = "ラスダン " + currentTier.label;
         DamageMul = Mathf.Max(0.1f, rush ? ld.rushDamageMul : currentTier.damageMul) * Mathf.Max(0.1f, ld.damageMul);
         CurrentEncounterIsRematch = true; // 生成側の「再戦の強さ」(HP/段階/必殺技の間隔/崩し)の経路をそのまま使う
@@ -234,6 +279,9 @@ public partial class BossManager
         if (alive == 0) return true;
         if (alive >= Mathf.Max(1, ld.maxSimultaneous)) { why = $"together {alive}/{ld.maxSimultaneous}"; return false; }
         var t = ld.TagsOf(key);
+        // Solo(希少な強敵): 居る間は他のボスを足さない / 他のボスが居る間は出さない(2026-10-13)
+        if ((t & LastDungeonBossTuning.Tag.Solo) != 0) { why = "SOLO(wait others)"; return false; }
+        foreach (var b in enc.activeBosses) if (b != null && !b.IsDead && (ld.TagsOf(KeyOf(b)) & LastDungeonBossTuning.Tag.Solo) != 0) { why = "SOLO(alive)"; return false; }
         int large = 0, air = 0, area = 0, proj = 0, chase = 0;
         foreach (var b in enc.activeBosses)
         {
@@ -425,6 +473,17 @@ public partial class BossManager
                 if (c.Count > 0) pick = c[Random.Range(0, c.Count)];
             }
             plan.Add(pick ?? "Wild/BlackKnight");
+        }
+        // 希少な強敵: 低い確率で 1枠を置き換える(92〜96km。HOST/シングル)
+        int lo = Mathf.Max(fromK, ld.rareRushMinK), hi = Mathf.Min(RushLastK, ld.rareRushMaxK);
+        bool forceRush = Debug.isDebugBuild && DevForceRareRush;
+        if (hi >= lo && !string.IsNullOrEmpty(ld.rareKey) && ParseKey(ld.rareKey, out _, out _) && RareAllowedAt(lo) && (forceRush || Random.value < ld.rareRushChance))
+        {
+            DevForceRareRush = false;
+            int k = Random.Range(lo, hi + 1);
+            plan[k - fromK] = ld.rareKey;
+            rareCountThisRun++; rareLastK = k;
+            Debug.Log($"[LDBoss] rush plan: rare {ld.rareKey} at {k}km");
         }
         return plan;
     }

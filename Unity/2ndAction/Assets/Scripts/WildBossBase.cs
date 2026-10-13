@@ -449,8 +449,14 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // MILE/EXP(GameManager.RegisterBossDefeat)は通常どおり。死神三姉妹の最終戦で使う。
     [System.NonSerialized] public System.Action<WildBossBase> DefeatOverride;
 
+    // 技ごとの姿勢の絵(2026-10-13、メカドラゴン): null 以外を返すと、その絵を使う(被弾/BREAK/技の姿勢を持つボス用)。既存のボスは null
+    protected virtual Sprite PoseOverride() => null;
+    protected float HitFlashTime => hitTimer; // 被弾の赤み/揺れの残り時間(姿勢の絵の切り替えに使う)
+
     Sprite PickSprite()
     {
+        var po = PoseOverride();
+        if (po != null) return po;
         if (loopFrames != null && loopFrames.Length > 0 && (pose == Pose.Move || pose == Pose.Idle || pose == Pose.Fly))
             return loopFrames[Mathf.FloorToInt((Time.time + loopTimeOffset) * loopFps) % loopFrames.Length];
         switch (pose)
@@ -1260,6 +1266,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     {
         DisableAllHitboxes();
         windingUp = false; windupProgress = 0f; interrupted = false;
+        phaseRoaring = false; // 2026-10-13: 咆哮の途中で割り込まれると true のまま残り、以後ずっと崩し(BREAK)が溜まらなかった
         facingLocked = false; attackProgress = 0f; relVelocity = 0f;
         invulnerable = false; freeGap = false;
         SetHurtboxEnabled(true);
