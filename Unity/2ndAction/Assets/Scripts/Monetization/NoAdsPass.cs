@@ -67,7 +67,7 @@ public static class NoAdsPass
             {
                 S.absentChecks++;
                 if (S.absentChecks >= 2) { S.owned = false; S.absentChecks = 0; LastNote = "購入が取り消されたため、広告なしパスは無効になりました"; Debug.Log("[NoAds] revoked (store reports not owned twice)"); }
-                else LastNote = "購入を確認できませんでした。次の起動でもう一度確認します";
+                else LastNote = "購入を確認できませんでした。パスは有効のまま、後でもう一度確認します";
                 Write();
             }
             else { LastNote = "購入の記録はありませんでした"; }

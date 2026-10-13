@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: sky_master
   cardName: SKY MASTER
   icon: {fileID: 2800000, guid: 409d62f741270e246b21f0c8ef1566f6, type: 3}
-  description: "\u7A7A\u4E2D\u653B\u6483\u304C\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+4%)\u3002\u7A7A\u4E2D\u3067\u5F53\u3066\u308B\u3068\u7A7A\u4E2D\u30B8\u30E3\u30F3\u30D7\u30921\u56DE\u53D6\u308A\u623B\u3059(1\u56DE\u306E\u6EDE\u7A7A\u30673Lv\u3054\u3068\u306B1\u56DE)"
+  description: "空中での攻撃力+4%/Lv。空中で攻撃を当てると、使った空中ジャンプを1回取り戻す(着地までにLv1〜3で1回、Lv4〜6で2回、Lv7〜9で3回まで)"
   category: 1
   sortOrder: 139
   recommendPriority: 5

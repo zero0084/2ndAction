@@ -173,7 +173,7 @@ public class LastDungeonFlow : MonoBehaviour
         var slab = Resources.Load<Sprite>("LastDungeon/Fx/slab");
         if (slab != null) preloaded.Add(slab);
         // 走りながらのボスラッシュの表示の文字(ボス名は英大文字)を先に焼き込む(2026-10-06: 初めての表示の処理落ち)
-        BossBattleHud.WarmBannerGlyphs("BOSS RUSH  走りながら戦え! WARNING が迫る! 残ったボスを倒せ! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+        BossBattleHud.WarmBannerGlyphs("BOSS RUSH  走りながら戦え! メカドラゴン接近 冷却中 攻撃のチャンス WARNING が迫る! 残ったボスを倒せ! ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
     }
 
     // ===================================================================== //
@@ -449,8 +449,8 @@ public class LastDungeonFlow : MonoBehaviour
             mid = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
         }
         float sh = Screen.height;
-        big.fontSize = Mathf.RoundToInt(sh * 0.085f);
-        mid.fontSize = Mathf.RoundToInt(sh * 0.05f);
+        big.fontSize = Mathf.RoundToInt(TextFit.Short * 0.085f); // 文字は短い辺が基準(縦画面で横にはみ出さない、2026-10-13)
+        mid.fontSize = Mathf.RoundToInt(TextFit.Short * 0.05f);
 
         // 静寂: 100,000mへ近づくほど画面の縁が暗くなる
         if (Current == State.Silence && !gm.IsGameOver)

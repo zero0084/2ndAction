@@ -281,7 +281,8 @@ public partial class GameManager
         float bw = Mathf.Min(340f, Screen.width * 0.6f), bh = 62f;
         float bottom = Screen.height - SafeBottom() - UiMargin;
         Rect btn = new Rect(Screen.width * 0.5f - bw * 0.5f, bottom - bh, bw, bh);
-        Rect note = new Rect(Screen.width * 0.5f - 260f, btn.y - 30f, 520f, 26f);
+        float nw = Mathf.Min(520f, Screen.width - 16f); // 縦画面の狭い幅に収める(2026-10-13)
+        Rect note = new Rect(Screen.width * 0.5f - nw * 0.5f, btn.y - 30f, nw, 26f);
         GUIStyle noteStyle = new GUIStyle(GUI.skin.label) { fontSize = 16, alignment = TextAnchor.MiddleCenter };
         noteStyle.normal.textColor = new Color(0.92f, 0.95f, 1f);
         const string noteText = "一時停止中 ― 周りを確かめてから再開できます";

@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: one_more_mile
   cardName: ONE MORE MILE
   icon: {fileID: 2800000, guid: f9698f17026d58344aa8bb4e69518c59, type: 3}
-  description: "MILE(1Lv\u3054\u3068\u306B+50%)\u30FB\u30DC\u30B9MILE(+50%)\u30FB\u7D4C\u9A13\u5024(+20%)\u304C\u5897\u3048\u308B"
+  description: "敵撃破・BONUSのMILE+50%/Lv、ボス撃破MILE+50%/Lv、獲得EXP+20%/Lv"
   category: 5
   sortOrder: 163
   recommendPriority: 5

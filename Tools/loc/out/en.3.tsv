@@ -1,0 +1,261 @@
+9000	Hits may chill enemies. Freezing an enemy deals bonus damage. Attack vs chilled/frozen enemies +3%/Lv. Also lengthens freeze time and strengthens the slow on bosses
+9001	At HP 50% or less, attack speed +3%/Lv. At HP 25% or less, the bonus doubles (+6%/Lv)
+9002	Landing a hit in midair triggers a follow-up area slash at the hit point. Power and area rise with Lv
+9003	Air attack +3%/Lv. Each hit landed without touching the ground adds +1%/Lv more (up to 4 times). Landing resets the extra
+9004	Attack vs airborne enemies up (+8%/Lv) (launched or flying mobs; among bosses, only the dragon and the demon)
+9005	Attack range +3%/Lv. Melee attacks cover a wider area and projectiles fly farther (projectile size unchanged)
+9006	At HP 50% or less, attack +5%/Lv and attack speed +2%/Lv. At HP 25% or less, both bonuses double
+9007	Attack +6%/Lv, attack speed +1%/Lv. But seals max HP hearts (1 at Lv1–3, 2 at Lv4–6, 3 at Lv7–9)
+9008	At HP 50% or less, attack +4%/Lv. At HP 25% or less, the chance to drain (heal 1 heart) on enemy/boss kills is also +3%/Lv
+9009	At regular boss gates, a chance (8%/Lv) for one more boss to join. Boss MILE +50%/Lv. Doesn't apply to the dedicated bosses every 10km or the Last Dungeon boss rush
+9010	Attack +7%/Lv. But each front/back attack lowers move speed by 10% for 0.4s
+9011	Burn power +8%/Lv, burn duration +0.25s/Lv. This card alone can also burn on hit (chance 7% at Lv1, then +2%/Lv)
+9012	Defeating an enemy causes an explosion around it. Enemies killed by the blast chain further, up to 3 stages. Each enemy is hit at most once per chain
+9013	Activates at 100% Gauge (bottom-left button). Your character's signature move defeats regular on-screen enemies in one hit and deals 20–40% of max HP to bosses (rises with Lv). Then you surge far ahead (Lv1 300m → Lv9 1000m; stops before boss gates etc., no surge during boss fights) and a buff lasts a while (Lv1 5s → Lv9 12s). Gauge fills with distance, kills and boss damage
+9014	When the finisher of an attack string hits, an extra shockwave bursts forward (power and area rise with Lv)
+9015	Attack of the last hit (finisher) when chaining front/back attacks +7%/Lv
+9016	Blocking an attack with a Shield releases a counter shockwave around you. Power rises with Lv. This card alone also lets you hold 1 Shield
+9017	Attack +12%/Lv. But seals max HP hearts (1 at Lv1–2, +1 more every 2 Lv after; 5 at Lv9)
+9018	Some mobs become elites (+4% per Lv; HP ×2.5, a bit faster; kills give MILE ×3/EXP ×2). MILE also up (+30%/Lv)
+9019	MILE from defeating enemies +15%/Lv. Also applies to BONUS ZONE and WANTED reward MILE
+9020	EXP gained down (-10%/Lv, never below 25% of normal); in exchange, kill & BONUS MILE +30%/Lv
+9021	EXP from enemy kills, boss kills and BONUS ZONE greatly up (+80%/Lv). Distance EXP not included
+9022	Hits have a chance to burn enemies, dealing damage for 3s. Lv1: 15% chance, 5 damage/s; each Lv after: chance +5%, damage/s +1.5
+9023	Blocking an attack with a Shield releases a flame counter around you that burns enemies hit. Power rises with Lv. This card alone also lets you hold 1 Shield
+9024	Hits chill enemies and slow them. Lv1: 15% chance, 25% slow; each Lv after: chance +5%, slow +2%. 5 stacked chills freeze (bosses slow down instead of stopping)
+9025	Hits may release a wind blade. Wind blade speed +5%/Lv, range +0.4m/Lv. Wind blades and projectiles pierce +1 (+2 from Lv4, +3 from Lv7)
+9026	Slam landings or a grounded finisher send a shockwave along the ground (power and length rise with Lv). Ground attack also +2%/Lv
+9027	Attack +4%/Lv, plus +0.6%/Lv more attack per sealed heart (seals from other cards count too). Also seals max HP hearts itself (1 at Lv1–3, 2 at Lv4–6, 3 at Lv7–9)
+9028	Max HP +1 heart/Lv (up to 20 hearts). Fully restores HP when taken
+9029	Damage of 2+ hearts is reduced by 1 heart. Max HP also up (+1 heart at Lv1–2, then +1 every 2 Lv). Jump power -3%/Lv
+9030	Down attack and slam landing attack +10%/Lv. Finisher also +3%/Lv
+9031	Mob HP +12%/Lv, action speed +4%/Lv, enemy encounter rate +8%/Lv. In exchange, kill & BONUS MILE +50%/Lv, boss MILE +30%/Lv
+9032	Enemy encounter rate +15%/Lv. In exchange, kill & BONUS MILE +5%/Lv, kill & BONUS EXP +5%/Lv
+9033	During boss fights, attack step distance (forward/back) +4%/Lv. Move speed when closing in on a boss more than 6m away also +3%/Lv
+9034	Hits may chill. Fewer chills needed to freeze (4 at Lv1–3, 3 at Lv4–6, 2 at Lv7–9). Chill chance and duration also up
+9035	Defeating a burning enemy spreads fire around it, burning enemies (power and area rise with Lv). This card alone also has a low chance (5%) to burn on hit
+9036	Air jumps +1/Lv. Stacked extra jumps rise less, but not while falling into a pit. Sorceress: reachable height +1 tier at Lv1–3, +2 at Lv4–6, +3 at Lv7–9
+9037	The moment damage drops HP to 1 heart or less, gain brief invincibility (1s +0.15s/Lv). Doesn't prevent fall damage. Triggers again only once HP is back above 1 heart and 20s have passed since activation
+9038	EXP gained +30%/Lv
+9039	Attack range +5%/Lv. Melee attacks cover a wider area and projectiles fly farther
+9040	EXP gained +15%/Lv. Max HP also up (+1 heart at Lv1–3, +2 at Lv4–6, +3 at Lv7–9)
+9041	Attack vs non-boss enemies +5%/Lv. Kill & BONUS MILE +10%/Lv
+9042	Attack rises with running speed. No effect at 100km/h or below. +4%/Lv at 150km/h; it keeps rising above that, but at 1/4 the rate
+9043	Enemy encounter rate +10%/Lv. In exchange, EXP gained +15%/Lv
+9044	Enemy encounter rate +10%/Lv. Kill & BONUS MILE also +3%/Lv
+9045	Move speed +5%/Lv. But enemy encounter rate also +10%/Lv
+9046	Kill & BONUS MILE +50%/Lv, boss MILE +50%/Lv, EXP gained +20%/Lv
+9047	Holding 115km/h or more for a while triggers OVERDRIVE (attack +3%/Lv, attack speed +2%/Lv). Ends after 0.8s below 107km/h. Move speed always +2%/Lv
+9048	Drain and SECOND WIND heal more (+1 heart at Lv4–6, +2 at Lv7–9). Overflow at full HP becomes 1 Shield (up to max +1)
+9049	Mob HP +15%/Lv, action speed +5%/Lv, encounter rate +12%/Lv, elite rate +2%/Lv, boss HP +10%/Lv. In exchange, kill & BONUS MILE +60%/Lv, boss MILE +60%/Lv
+9050	Distance EXP +20%/Lv. Doesn't apply to kill EXP
+9051	Blocking a hit with a Shield grants brief invincibility (0.4s +0.1s/Lv). This card alone also lets you hold 1 Shield
+9052	When you go down (falls included), revive with 2s of invincibility (HP 1–5 hearts by Lv). After reviving, this card is removed and can be offered again (retaken from Lv1)
+9053	Melee hits also damage enemies behind the target. Power and number of targets rise with Lv. Projectile pierce also up (+1 at Lv1–3, +2 at Lv4–6, +3 at Lv7–9)
+9054	Chance to heal 1 heart on enemy kill +3%/Lv. Hitting bosses also has a low chance to drain HP
+9055	When hit with HP at 30% of max or less, heal 1–3 hearts (2 at Lv5, 3 at Lv9). Needs a certain run distance to trigger again (10,000m at Lv1, 6,000m at Lv9)
+9056	A Shield that blocks 1 hit. Max 1 at Lv1–3, 2 at Lv4–6, 3 at Lv7–9. Used ones come back one at a time over time (faster with Lv)
+9057	Air attack +4%/Lv. Hitting in midair restores 1 used air jump (before landing: up to 1 time at Lv1–3, 2 at Lv4–6, 3 at Lv7–9)
+9058	Jump power +2%/Lv, air attack +3%/Lv
+9059	Front/back attacks fire a piercing slash forward. The faster you run, the farther, bigger and stronger the slash
+9060	Move speed -4%/Lv. A special card for when you want to run slower
+9061	EXP gained +40%/Lv. Max HP also up (+1 heart at Lv1–2, then +1 every 2 Lv; +5 at Lv9)
+9062	Hits have a low chance to call down lightning. Lightning power +4%/Lv; chains to +1 enemy at Lv1–3, +2 at Lv4–6, +3 at Lv7–9. Lightning also damages the area around it
+9063	Hits call down lightning. Lv1: 5% chance, base power 7.5; each Lv after: chance +2%, base power +1.5. Lightning hits the same enemy at most once per 0.4s
+9064	Wind blade hits spawn a tornado that deals continuous damage to nearby enemies (power and area rise with Lv). This card alone also has a low chance to release a wind blade on hit
+9065	Mob HP +15%/Lv. In exchange, kill & BONUS MILE +15%/Lv, kill EXP +5%/Lv
+9066	Treasure/reward MILE +30%/Lv (BONUS ZONE treasure and CLEAR/PERFECT, WANTED bounties). Boss MILE +10%/Lv, distance MILE +5%/Lv
+9067	Attack +3%/Lv, move speed +2%/Lv. Max HP also up (+1 heart at Lv1–2, then +1 every 2 Lv; +5 at Lv9)
+9068	A bounty target appears every so often (stronger and more frequent with Lv). Defeat it for bounty MILE; leave it behind and you get nothing. Kill & BONUS MILE +35%/Lv
+9069	Hits have a chance to fire a piercing wind blade forward. Lv1: 10% chance, power 8; each Lv after: chance +3%, power +1.5. Attack range also slightly up (+1%/Lv)
+9070	Enemies: many from the Wasteland, Cave and Sky
+9071	Enemies: Goblins / Harpies / Gargoyles and more
+9072	Enemies: Goblins, birds, giants, archers, etc.
+9073	Obstacles: rocks, trees, walls, giant boulders (breakable with attacks), pits
+9074	Route: splits upper/lower (which one is safe is random)
+9075	Removed all enemies and enemy attacks (full clear and clear time won't be recorded)
+9076	All enemies defeated  {0}s
+9077	To Battle
+9078	Trial Build ({0} kinds)
+9079	Lv = times taken during a run (max 9 per ability). Owned cards and deck stay unchanged
+9080	Copied {0} deck cards to the trial build (deck unchanged)
+9081	Copied {0} character cards to the trial build (starting Lv)
+9082	Bosses appear from ahead with the same entrance as in the main game
+9083	Cave and Sky boss moves that use terrain (pits, ceilings, falling rocks, etc.) play out differently on the flat Arena floor
+9084	Current opponents ({0} groups)
+9085	Enemy HP: as at {0}km (applies to mob and boss HP)
+9086	Run (with modifiers)
+9087	Only auto-advance stops (attacks, jumps, gravity, knockback and enemy movement work as in the main game)
+9088	Applies character/card speed modifiers to the base speed
+9089	Ignores character/card speed modifiers and runs at the set speed
+9090	Set {0}km/h / this match {1}km/h (modifier ×{2})
+9091	Even while invincible, damage is still recorded as "raw damage taken" in the result
+9092	AUTO mode (Arena only; your normal settings don't change)
+9093	Start at {0}km/h+
+9094	Rewards, records and owned items never change. Not supported: FINAL EVOLUTION / AWAKENED / MASTERY / ULTIMATE gauge / level-ups / boss rewards / BONUS ZONE (cards use only normal Lv effects and COMBO)
+9095	First fight
+9096	Boss strength: {0}
+9097	Full clear {0}s
+9098	Kills/Spawned
+9099	Actual damage taken
+9100	Raw damage taken (incl. blocked by invincibility/Shield)
+9101	N0
+9102	Trial build: {0}
+9103	Edit Conditions
+9104	??? (not met yet)
+9105	WARNING!  MECH DRAGON approaching!
+9106	OVERKILL PROTOCOL
+9107	Cooling down! Attack now!
+9108	In use in a deck/character cards; can't be used as material
+9109	AWAKENED (★5) reached. MASTERY can't go any higher
+9110	Can't fuse: if both succeed, Lv would be {0} (max Lv.{1})
+9111	<color=#ffd76a><b>[MASTERY] Growth record after Lv.9 MAX</b></color>
+9112	Current MASTERY: <color=#ffd76a>{0}</color>  {1}
+9113	<size=19>MASTERY {0} beyond ★5 is kept as a record</size>
+9114	<size=19>MASTERY doesn't raise normal performance (attack, speed, EXP, etc.). It's a growth record until AWAKENED at ★5.</size>
+9115	<b>{0} Lv</b> beyond Lv.9 goes to MASTERY: {1} → <color=#ffd76a>{2}</color>{3}
+9116	・{0} {1}<b>×{2}</b>  <size=18>({3})</size>
+9117	<color=#9fd0ff><b>[Mixed Fusion] Different cards give a random result</b></color>
+9118	<b>Chance to inherit all main-card abilities {0}%</b>
+9119	・{0} ×{1}  <size=18>({2})</size>
+9120	<b>Chance to inherit all material abilities {0}%</b>
+9121	Both succeed: inherit all abilities of both (same abilities add up). Rarity: the higher ★ +1 (max ★5)
+9122	Not enough free cards to fuse (in use in deck/character cards)
+9123	Equipped as character cards; not enough free copies
+9124	In use in the deck; not enough copies
+9125	<size=21>MASTERY {0} beyond ★5 has been kept as a record</size>
+9126	<size=21>AWAKENED reached. Saved as a growth record; normal performance doesn't change</size>
+9127	<size=21>MASTERY doesn't raise normal performance (attack, speed, EXP, etc.).</size>
+9128	)}    Rarity <color=#ffd76a>{new string('★', v.rarity)}</color>
+9129	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3})</color></size>
+9130	Showing {0} / Owned {1}
+9131	・Different cards … each side's full ability set is inherited by chance (main 50%, material 25%). If only one side succeeds, only its Lv and abilities remain; if both fail, no card is made (MILE refunded)
+9132	・Fusion Lv cap is Lv.9. With the same card, the excess goes to MASTERY. Different cards can't be fused if their Lv total exceeds 9
+9133	・Fusing the same card into a Lv.9 MAX card advances MASTERY (AWAKENED at ★5)
+9134	<size=19>AWAKENED (★5) reached. No more MASTERY fusion.</size>
+9135	Using the same card ({0}) as material advances MASTERY by the material's Lv (Lv.1 = +1).
+9136	Its eye is weakened! Attack now!
+9137	Core exposed! BREAK chance!
+9138	Enemy Encounter Rate
+9139	Kill & BONUS MILE
+9140	Boss MILE
+9141	Burn Chance
+9142	Burn Base Power
+9143	Chill Chance
+9144	Chill Slow
+9145	Bleed Chance
+9146	Front/Back Attack Speed
+9147	Air Attack
+9148	Ground Attack
+9149	Combo Finisher
+9150	Attack vs Mobs
+9151	Down Attack/Slam
+9152	Attack Speed at HP ≤50%
+9153	Attack per Consecutive HIT
+9154	Attack per Air Hit Before Landing
+9155	Shield Recharge Cut (s)
+9156	Enemy Action Speed
+9157	Elite Rate
+9158	Distance MILE
+9159	Distance EXP
+9160	Kill EXP
+9161	Fewer Chills to Freeze
+9162	Lightning Damage Multiplier
+9163	)}'s Character Cards
+9164	Tap to remove
+9165	[Equipped by another character]
+9166	Cards in use can't be converted. Remove them from the deck or character cards.
+9167	Convert this card to {CardConvertMile} MILE?
+9168	)} {BleedPower * Scale:0.#}/s drain {BleedLifesteal * 100f:0}%
+9169	(AWAKENED)
+9170	Tap to close / tap the gacha machine to pull again
+9171	Claim: {0} MILE + bonus {1} MILE = {2} MILE total
+9172	Today's pulls are used up (refills in {0})
+9173	Resets in {0}
+9174	Take-home this run
+9175	Owned after escape
+9176	If you fall or abandon the run, you won't get this run's MILE
+9177	NEW:
+9178	DEV: not recorded (
+9179	This run's distance won't count toward official records (BEST, total distance, stage/character unlocks)
+9180	{0} sealed
+9181	MILE RESET
+9182	CARD RESET
+9183	The suspended run and its take-home MILE
+9184	Take-home MILE
+9185	Returning to Home.
+9186	The run won't end; you can
+9187	{0} can't be equipped: with your other character cards it would exceed Lv{1}
+9188	Note: {0} exceeds Lv{1} in total across character cards (the extra {2} Lv has no effect)
+9189	IRENE
+9190	ESTELLE
+9191	ALICIA
+9192	Ad is loading. Please try again in a moment
+9193	TEST AD (mock) Rewarded ad
+9194	TEST AD (mock) Interstitial
+9195	{0} s
+9196	Reward condition met
+9197	Close early
+9198	Simulate app interruption
+9199	¥(mock) 000
+9200	Mock (dev build only): not a real purchase. Saved separately from real purchase rights
+9201	・Purchases are tied to your store account. After changing devices or reinstalling, use "Restore Purchases" to get them back. Save data such as cards and MILE is not restored by this button
+9202	Couldn't verify the purchase. Your pass stays active; we'll check again later
+9203	OMMLAN
+9204	SYNC
+9205	ONLINE PLAY
+9206	Creates a room and lists it in online "FIND GAME".
+9207	Creates a room on this device. Devices on the same Wi-Fi can join via "FIND GAME".
+9208	ONLINE SERVICE UNAVAILABLE
+9209	DEV:
+9210	RETRY
+9211	Searching for nearby rooms…
+9212	DEV
+9213	When everyone's in, tap "Close (keep room)" → door → "Depart" in STAGE SELECT, and everyone starts the same stage together.
+9214	CO-OP: Fall and you're DOWN. A teammate (2+ hearts) who reaches where you fell can give you 1 heart with REVIVE to bring you back. Ends when everyone is DOWN.
+9215	MODE: chosen by the HOST (applies to everyone at run start)
+9216	Home door → "Depart" in STAGE SELECT, and everyone connected starts the same stage together.
+9217	REVIVE
+9218	Couldn't start communication. Try again or restart the app
+9219	Couldn't create a room (another app may be using the network)
+9220	P{0} disconnected ({1} left)
+9221	{0} disconnected
+9222	The other player disconnected
+9223	Can't join: game versions differ. Update both to the latest version
+9224	Can't join: this room has already started running
+9225	Can't join: the room is full
+9226	Connection refused
+9227	You: your record isn't shown in the rankings yet
+9228	AUTO
+9229	Sprint
+9230	Stop sending records
+9231	UGS
+9232	Choose a card
+9233	Select again to confirm
+9234	Select a card → select again to confirm
+9235	Condition met! Locked in when you finish the run safely
+9236	Once your running speed reaches the start speed, only the actions set to ON are done automatically.
+9237	Manual input takes priority. If "AUTO in boss fights" is OFF, nothing is automated during boss fights.
+9238	The pass is tied to your store account (restoring purchases doesn't restore save data)
+9239	Practice front/back attacks, jumps, down attacks, launches and card selection (no rewards or records).
+9240	Practice can only be started from Home (not while connected to multiplayer)
+9241	The Titan is close! Attack now!
+9242	The core dimmed! BREAK chance!
+9243	It slipped on landing! Attack now!
+9244	Its head is out of the clouds! Attack now!
+9245	The halo vanished! Big chance!
+9246	The charge faded! Attack now!
+9247	Sprint Start (at {0})
+9248	Blaze through cleared sections and start running just before the gate you chose. Boss reward cards are picked for you at random. Match each ring's height (every 5,000m, upper or lower) to choose 1 extra card. No MILE or EXP for the skipped distance.
+9249	Sprint to {0}km   (about {1}s + ring card picks){2}
+9250	{0}km gate boss not yet defeated
+9251	All cards in your deck reached Lv9 this run.
+9252	Gate {0}/{1}    Ring {2}/{3}{4}
+9253	Gates passed {0}/{1}   Rings {2}/{3}{4}
+9254	All deck cards this run Lv{0} MAX
+9255	Gates with no card taken: {0}
+9256	All deck cards are Lv9 this run. Ring rewards are now take-home MILE
+9257	(No BEST distance record will be kept either)
+9258	To Map Select
+9259	Deck limit is now 12 cards
+9260	OVERFLOW

@@ -15,7 +15,7 @@ MonoBehaviour:
   stageId: last_corridor
   displayName: LAST CORRIDOR
   thumbnail: {fileID: 2800000, guid: 6746e50d7f9dac445b69793c8aaef869, type: 3}
-  enemyText: "\u6575: \u5168\u30B9\u30C6\u30FC\u30B8\u306E\u6575\u304C\u6DF7\u5728(\u5F37\u5316)"
+  enemyText: "敵: 荒野・洞窟・天空の敵が多数出現"
   featureText: "\u7279\u5FB4: \u5D29\u843D\u3059\u308B\u5E8A\u30FB\u843D\u3061\u3066\u304F\u308B\u69CB\u9020\u7269\u30FB\u6D6E\u904A\u3059\u308B\u56DE\u5ECA"
   routeText: "\u30EB\u30FC\u30C8: \u5DE8\u5927\u306A\u53E4\u4EE3\u56DE\u5ECA \u2192
     \u5D29\u58CA \u2192 \u5948\u843D \u2192 \u6700\u5F8C\u306E\u9053"

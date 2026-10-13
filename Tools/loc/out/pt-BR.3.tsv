@@ -1,0 +1,261 @@
+9000	Acertos podem resfriar. Inimigos congelados sofrem dano extra. Ataque contra inimigos resfriados/congelados +3%/Lv. O congelamento também dura mais e a lentidão nos chefes fica mais forte
+9001	Com HP em 50% ou menos, velocidade de ataque +3%/Lv. Com HP em 25% ou menos, o bônus dobra (+6%/Lv)
+9002	Acertar um ataque no ar gera um corte de perseguição em área no ponto do impacto. O Lv aumenta dano e alcance
+9003	Ataque no ar +3%/Lv. Cada acerto sem pousar dá mais +1%/Lv (máx. 4 vezes). Ao pousar, o bônus extra zera
+9004	Mais ataque contra inimigos no ar (comuns lançados/voadores; entre chefes, só o Dragão e o Demônio) (+8%/Lv)
+9005	Alcance de ataque +3%/Lv. Corpo a corpo acerta numa área maior; projéteis vão mais longe (o tamanho do projétil não muda)
+9006	Com HP em 50% ou menos, ataque +5%/Lv e velocidade de ataque +2%/Lv. Com HP em 25% ou menos, os dois bônus dobram
+9007	Ataque +6%/Lv, velocidade de ataque +1%/Lv. Mas sela corações do HP máximo (1 no Lv1–3, 2 no Lv4–6, 3 no Lv7–9)
+9008	Com HP em 50% ou menos, ataque +4%/Lv. Com HP em 25% ou menos, a chance de absorção ao derrotar inimigos/chefes (cura 1 coração) também sobe +3%/Lv
+9009	Nos portões de chefe normais, chance (8%/Lv) de entrar mais um chefe. MILE de chefes derrotados +50%/Lv. Não vale para os chefes especiais a cada 10km nem para a onda de chefes da masmorra final
+9010	Ataque +7%/Lv. Mas cada ataque à frente/atrás reduz a velocidade de movimento em 10% por 0,4 s
+9011	Dano da queimadura +8%/Lv, duração da queimadura +0,25 s/Lv. Só esta carta já queima ao acertar (chance de 7% no Lv1, depois +2%/Lv)
+9012	Derrotar um inimigo causa uma explosão ao redor. Inimigos derrotados pela explosão também explodem, em até 3 etapas. Cada inimigo é atingido só 1 vez por cadeia
+9013	Ativa com a Gauge em 100% (botão no canto inferior esquerdo). O golpe especial do personagem derrota de uma vez os inimigos comuns na tela e causa aos chefes 20–40% do HP máximo (sobe com o Lv). Depois avança bastante (Lv1 300m → Lv9 1000m; para antes de portões de chefe etc. e não avança durante lutas contra chefes) e deixa um bônus ativo por um tempo (Lv1 5 s → Lv9 12 s). A Gauge enche com distância, abates e dano em chefes
+9014	Quando o golpe final de uma sequência de ataques acerta, solta um impacto extra à frente (o Lv aumenta dano e alcance)
+9015	Ataque do último golpe (golpe final) ao encadear ataques à frente/atrás +7%/Lv
+9016	Bloquear um ataque com o Shield solta uma onda de choque de contra-ataque ao redor. O Lv aumenta o dano. Só esta carta já dá 1 Shield
+9017	Ataque +12%/Lv. Mas sela corações do HP máximo (1 no Lv1–2, mais 1 a cada 2 Lv; 5 no Lv9)
+9018	Alguns inimigos comuns viram elite (+4% por Lv; HP×2.5, um pouco mais rápidos; derrotá-los dá MILE×3/EXP×2). A MILE também aumenta (+30%/Lv)
+9019	MILE por derrotar inimigos +15%/Lv. Também vale para a MILE das recompensas da BONUS ZONE e de PROCURADO
+9020	Reduz a EXP ganha (-10%/Lv, no mínimo 25% do normal); em troca, MILE de abates e BONUS +30%/Lv
+9021	EXP de abates, chefes derrotados e BONUS ZONE aumenta muito (+80%/Lv). Não vale para a EXP por distância
+9022	Pode queimar o inimigo atingido, causando dano por 3 s. No Lv1: chance de 15% e 5 de dano/s; a cada Lv: chance +5% e dano/s +1,5
+9023	Bloquear um ataque com o Shield solta um contra-ataque de fogo ao redor que queima os inimigos atingidos. O Lv aumenta o dano. Só esta carta já dá 1 Shield
+9024	Acertos podem resfriar e deixar o inimigo mais lento. No Lv1: chance de 15% e lentidão de 25%; a cada Lv: chance +5% e lentidão +2%. 5 resfriamentos acumulados congelam (chefes não param, só ficam lentos)
+9025	Acertos podem soltar uma lâmina de vento. Velocidade da lâmina +5%/Lv, alcance +0,4m/Lv. Lâminas de vento e projéteis perfuram +1 (+2 a partir do Lv4, +3 a partir do Lv7)
+9026	O pouso do golpe esmagador ou o golpe final no chão solta uma onda de choque pelo solo (o Lv aumenta dano e comprimento). Ataque no chão também +2%/Lv
+9027	Ataque +4%/Lv. Para cada coração selado, mais +0,6%/Lv de ataque (inclui selos de outras cartas). Também sela corações do HP máximo (1 no Lv1–3, 2 no Lv4–6, 3 no Lv7–9)
+9028	HP máximo +1 coração/Lv (limite de 20 corações). Ao pegar, recupera todo o HP
+9029	Ao sofrer dano de 2 corações ou mais, reduz em 1 coração. HP máximo também aumenta (+1 coração no Lv1–2, mais +1 a cada 2 Lv). Pulo -3%/Lv
+9030	Ataque para baixo e pouso do golpe esmagador +10%/Lv. Golpe final também +3%/Lv
+9031	HP dos inimigos comuns +12%/Lv, velocidade de ação +4%/Lv, frequência de grupos +8%/Lv. Em troca, MILE de abates e BONUS +50%/Lv, MILE de chefes derrotados +30%/Lv
+9032	Grupos de inimigos aparecem com mais frequência (+15%/Lv). Em troca, MILE de abates e BONUS +5%/Lv, EXP de abates e BONUS +5%/Lv
+9033	Em lutas contra chefes, avanço para frente/trás ao atacar +4%/Lv. Velocidade ao se aproximar de chefes a mais de 6m também +3%/Lv
+9034	Acertos podem resfriar. Precisa de menos resfriamentos para congelar (4 no Lv1–3, 3 no Lv4–6, 2 no Lv7–9). A chance e a duração do resfriamento também aumentam
+9035	Derrotar um inimigo em chamas espalha fogo ao redor e queima os inimigos (o Lv aumenta dano e alcance). Só esta carta já tem chance baixa (5%) de queimar ao acertar
+9036	Pulos no ar +1/Lv. Pulos extras seguidos sobem menos, mas não enfraquecem ao cair num buraco. Para a Feiticeira, a altura máxima aumenta 1 nível no Lv1–3, 2 no Lv4–6 e 3 no Lv7–9
+9037	Quando um dano deixa o HP em 1 coração ou menos, fica invencível por pouco tempo (1 s +0,15 s/Lv). Não protege contra quedas. Só ativa de novo quando o HP passar de 1 coração e 20 s após a ativação
+9038	EXP ganha +30%/Lv
+9039	Alcance de ataque +5%/Lv. Corpo a corpo acerta numa área maior; projéteis vão mais longe
+9040	EXP ganha +15%/Lv. HP máximo também aumenta (+1 coração no Lv1–3, +2 no Lv4–6, +3 no Lv7–9)
+9041	Ataque contra inimigos que não são chefes +5%/Lv. MILE de abates e BONUS +10%/Lv
+9042	O ataque aumenta conforme a velocidade de corrida. Sem efeito até 100km/h. +4%/Lv a 150km/h; acima disso continua subindo, mas a 1/4 do ritmo
+9043	Grupos de inimigos aparecem com mais frequência (+10%/Lv). Em troca, EXP ganha +15%/Lv
+9044	Grupos de inimigos aparecem com mais frequência (+10%/Lv). MILE de abates e BONUS também +3%/Lv
+9045	Velocidade de movimento +5%/Lv. Mas grupos de inimigos também aparecem com mais frequência (+10%/Lv)
+9046	MILE de abates e BONUS +50%/Lv, MILE de chefes derrotados +50%/Lv, EXP ganha +20%/Lv
+9047	Manter 115km/h ou mais por um tempo ativa o OVERDRIVE (ataque +3%/Lv, velocidade de ataque +2%/Lv). Termina após 0,8 s abaixo de 107km/h. Velocidade de movimento sempre +2%/Lv
+9048	Aumenta a cura da absorção e do SEGUNDO FÔLEGO (+1 coração no Lv4–6, +2 no Lv7–9). O excesso com HP cheio vira 1 Shield (até o máximo +1)
+9049	HP dos inimigos comuns +15%/Lv, velocidade de ação +5%/Lv, frequência de grupos +12%/Lv, chance de elite +2%/Lv, HP dos chefes +10%/Lv. Em troca, MILE de abates e BONUS +60%/Lv, MILE de chefes derrotados +60%/Lv
+9050	EXP por distância +20%/Lv. Não vale para a EXP de abates
+9051	Bloquear um golpe com o Shield deixa você invencível por pouco tempo (0,4 s +0,1 s/Lv). Só esta carta já dá 1 Shield
+9052	Ao cair (inclusive em buracos), você revive e fica invencível por 2 s (HP de 1 a 5 corações conforme o Lv). Ao reviver, esta carta é removida e volta a aparecer como opção (recomeça do Lv1)
+9053	Acertos corpo a corpo também causam dano extra aos inimigos atrás do alvo. O Lv aumenta dano e número de alvos. Projéteis também perfuram mais (+1 no Lv1–3, +2 no Lv4–6, +3 no Lv7–9)
+9054	Chance de curar 1 coração ao derrotar inimigos +3%/Lv. Acertos em chefes também têm chance baixa de absorver HP
+9055	Se um golpe deixar o HP em 30% do máximo ou menos, cura de 1 a 3 corações (2 no Lv5, 3 no Lv9). Para ativar de novo, é preciso correr uma certa distância (10.000m no Lv1, 6.000m no Lv9)
+9056	Shield que bloqueia 1 golpe. Máximo: 1 no Lv1–3, 2 no Lv4–6, 3 no Lv7–9. Os gastos voltam um por vez com o tempo (mais rápido com o Lv)
+9057	Ataque no ar +4%/Lv. Acertar no ar devolve 1 pulo no ar usado (até pousar: 1 vez no Lv1–3, 2 no Lv4–6, 3 no Lv7–9)
+9058	Pulo +2%/Lv, ataque no ar +3%/Lv
+9059	Ataques à frente/atrás lançam um corte à frente que atravessa inimigos. Quanto mais rápido você corre, maiores o alcance, o tamanho e o dano do corte
+9060	Velocidade de movimento -4%/Lv. Carta especial para quando quiser correr mais devagar
+9061	EXP ganha +40%/Lv. HP máximo também aumenta (+1 coração no Lv1–2, mais +1 a cada 2 Lv; +5 no Lv9)
+9062	Acertos têm chance baixa de chamar um raio. Dano do raio +4%/Lv; encadeia +1 alvo no Lv1–3, +2 no Lv4–6, +3 no Lv7–9. O raio também causa dano ao redor
+9063	Acertos podem chamar um raio. No Lv1: chance de 5% e dano base 7,5; a cada Lv: chance +2% e dano base +1,5. No máx. 1 raio a cada 0,4 s no mesmo inimigo
+9064	Onde a lâmina de vento acerta surge um tornado que causa dano contínuo aos inimigos ao redor (o Lv aumenta dano e alcance). Só esta carta já tem chance baixa de soltar lâminas de vento ao acertar
+9065	HP dos inimigos comuns +15%/Lv. Em troca, MILE de abates e BONUS +15%/Lv, EXP de abates +5%/Lv
+9066	MILE de tesouros/recompensas +30%/Lv (tesouros e CONCLUÍDO/PERFEITO da BONUS ZONE, recompensas de PROCURADO). MILE de chefes derrotados +10%/Lv, MILE por distância +5%/Lv
+9067	Ataque +3%/Lv, velocidade de movimento +2%/Lv. HP máximo também aumenta (+1 coração no Lv1–2, mais +1 a cada 2 Lv; +5 no Lv9)
+9068	A cada certa distância surge um procurado (mais forte e frequente com o Lv). Derrote-o pela MILE da recompensa; se deixá-lo para trás, não ganha nada. MILE de abates e BONUS +35%/Lv
+9069	Acertos podem lançar à frente uma lâmina de vento que atravessa inimigos. No Lv1: chance de 10% e dano 8; a cada Lv: chance +3% e dano +1,5. O alcance de ataque também aumenta um pouco (+1%/Lv)
+9070	Inimigos: muitos inimigos do ermo, da caverna e do céu
+9071	Inimigos: goblins / harpias / gárgulas e outros
+9072	Inimigos: goblins, pássaros, gigantes, atiradores etc.
+9073	Obstáculos: pedras, árvores, muros, pedras gigantes (quebráveis com ataques), buracos
+9074	Rota: divide-se em cima e embaixo (segura/perigosa é aleatório)
+9075	Todos os inimigos e ataques inimigos foram removidos (não conta como todos abatidos nem registra o tempo)
+9076	Todos abatidos  {0} s
+9077	Para a luta
+9078	Build de teste ({0} tipos)
+9079	Lv = vezes que pegou na corrida (máx. 9 por habilidade). Cartas possuídas e deck não mudam
+9080	{0} cartas do deck copiadas para a build de teste (o deck não muda)
+9081	{0} cartas de personagem copiadas para a build de teste (Lv inicial)
+9082	Os chefes surgem pela frente com a mesma entrada do jogo
+9083	Golpes de chefes da caverna e do céu que usam o terreno (buracos, teto, pedras caindo etc.) funcionam diferente na arena plana
+9084	Oponentes atuais ({0} grupos)
+9085	HP dos inimigos: equivalente a {0}km (afeta o HP de comuns e chefes)
+9086	Correr (com bônus)
+9087	Só o avanço automático para (ataques, pulos, gravidade, recuo e movimentos inimigos funcionam como no jogo)
+9088	Aplica à velocidade base os bônus de velocidade do personagem e das cartas
+9089	Ignora os bônus de velocidade do personagem e das cartas e corre na velocidade definida
+9090	Definido {0}km/h / Luta atual {1}km/h (bônus ×{2})
+9091	Mesmo invencível, o dano é registrado em "Dano sem defesa" no resultado
+9092	Modo AUTO (só na arena; os ajustes normais não mudam)
+9093	Início a partir de {0}km/h
+9094	Recompensas, recordes e itens possuídos não mudam. Não disponível: FINAL EVOLUTION / AWAKENED / MASTERY / gauge de ULTIMATE / subir de nível / recompensas de chefe / BONUS ZONE (cartas só com o efeito normal de Lv e COMBO)
+9095	Primeira luta
+9096	Força do chefe: {0}
+9097	Todos abatidos {0} s
+9098	Abates/surgidos
+9099	Dano recebido
+9100	Dano sem defesa (inclui o bloqueado por invencibilidade/Shield)
+9101	N0
+9102	Build de teste: {0}
+9103	Editar condições
+9104	??? (não encontrado)
+9105	WARNING!  MECH DRAGON se aproxima!
+9106	OVERKILL PROTOCOL
+9107	Esfriando! Hora de atacar!
+9108	Em uso no deck/cartas de personagem; não pode ser material
+9109	AWAKENED (★5) alcançado. A MASTERY não pode subir mais
+9110	Se ambas derem certo, o Lv seria {0}; não dá para fundir (máx. Lv.{1})
+9111	<color=#ffd76a><b>[MASTERY] Registro de evolução após Lv.9 MAX</b></color>
+9112	MASTERY atual: <color=#ffd76a>{0}</color>  {1}
+9113	<size=19>A MASTERY {0} acima de ★5 fica guardada como registro</size>
+9114	<size=19>A MASTERY não aumenta o desempenho normal (ataque, velocidade, EXP etc.). É um registro de evolução até virar AWAKENED no ★5.</size>
+9115	<b>{0} Lv</b> acima do Lv.9 vão para a MASTERY: {1} → <color=#ffd76a>{2}</color>{3}
+9116	・{0} {1}<b>×{2}</b>  <size=18>({3})</size>
+9117	<color=#9fd0ff><b>[Fusão mista] Com cartas diferentes, o resultado é sorteado</b></color>
+9118	<b>Chance de herdar todas as habilidades da principal: {0}%</b>
+9119	・{0} ×{1}  <size=18>({2})</size>
+9120	<b>Chance de herdar todas as habilidades do material: {0}%</b>
+9121	Ambas com sucesso: herda todas as habilidades dos dois lados (habilidades iguais somam o bônus). Raridade = ★ da maior +1 (máx. ★5)
+9122	Faltam cartas livres para fundir (em uso no deck/cartas de personagem)
+9123	Equipada como carta de personagem; faltam cópias livres
+9124	Em uso no deck; faltam cópias
+9125	<size=21>A MASTERY {0} acima de ★5 foi guardada como registro</size>
+9126	<size=21>AWAKENED alcançado. Fica salvo como registro de evolução; o desempenho normal não muda</size>
+9127	<size=21>A MASTERY não aumenta o desempenho normal (ataque, velocidade, EXP etc.).</size>
+9128	)}    Raridade <color=#ffd76a>{new string('★', v.rarity)}</color>
+9129	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3})</color></size>
+9130	Exibindo {0} / {1} cartas possuídas
+9131	・Cartas diferentes … 50% para a principal e 25% para o material herdarem o conjunto de habilidades (sorteio). Se só um lado der certo, ficam só o Lv e as habilidades dele; se ambos falharem, não sai carta (a MILE é devolvida)
+9132	・O Lv máximo de fusão é Lv.9. Na fusão de cartas iguais, o excesso vai para a MASTERY. Cartas diferentes não podem ser fundidas se a soma dos Lv passar de 9
+9133	・Fundir uma carta igual numa carta Lv.9 MAX faz a MASTERY avançar (★5 = AWAKENED)
+9134	<size=19>AWAKENED (★5) alcançado. Não dá para fundir mais MASTERY.</size>
+9135	Usar a mesma carta ({0}) como material avança a MASTERY pelo Lv dela (Lv.1 = +1).
+9136	Olho enfraquecido! Hora de atacar!
+9137	Núcleo exposto! Hora do BREAK!
+9138	Frequência de grupos inimigos
+9139	MILE de abates e BONUS
+9140	MILE de chefes derrotados
+9141	Chance de queimadura
+9142	Dano base da queimadura
+9143	Chance de resfriamento
+9144	Lentidão do resfriamento
+9145	Chance de sangramento
+9146	Velocidade do ataque à frente/atrás
+9147	Ataque no ar
+9148	Ataque no chão
+9149	Golpe final de combo
+9150	Ataque contra inimigos comuns
+9151	Ataque para baixo/esmagador
+9152	Velocidade de ataque com HP até 50%
+9153	Ataque por HIT seguido
+9154	Ataque por acerto no ar até pousar
+9155	Recarga do Shield (s a menos)
+9156	Velocidade de ação inimiga
+9157	Chance de elite
+9158	MILE por distância
+9159	EXP por distância
+9160	EXP de abates
+9161	Menos resfriamentos para congelar
+9162	Multiplicador de dano do raio
+9163	)}: cartas de personagem
+9164	Toque para remover
+9165	[Equipada em outro personagem]
+9166	Cartas em uso não podem ser convertidas. Remova-as do deck ou das cartas de personagem.
+9167	Converter esta carta em {CardConvertMile} MILE?
+9168	)} {BleedPower * Scale:0.#}/s absorção {BleedLifesteal * 100f:0}%
+9169	(já AWAKENED)
+9170	Toque para fechar / toque na máquina para girar de novo
+9171	Ao receber: {0} MILE normal + {1} MILE extra = {2} MILE no total
+9172	As puxadas de hoje acabaram (recarrega em {0})
+9173	Reinício das puxadas em {0}
+9174	A levar desta vez
+9175	Total após escapar
+9176	Se cair ou abandonar a corrida, você não recebe a MILE desta vez
+9177	NOVO:
+9178	DEV: fora dos recordes (
+9179	A distância desta corrida não conta nos recordes oficiais (BEST, distância total, desbloqueios de mapa/personagem)
+9180	{0} selados
+9181	RESETAR MILE
+9182	RESETAR CARTAS
+9183	A corrida suspensa e a MILE a levar
+9184	MILE a levar
+9185	Voltando ao Início.
+9186	A corrida não termina; dá para
+9187	{0} não pode ser equipada: com as outras cartas de personagem passaria do Lv{1}
+9188	Atenção: {0} passa do Lv{1} somando as cartas de personagem ({2} Lv excedentes não têm efeito)
+9189	IRENE
+9190	ESTELLE
+9191	ALICIA
+9192	Preparando o anúncio. Tente de novo daqui a pouco
+9193	TEST AD (simulado) anúncio com recompensa
+9194	TEST AD (simulado) intersticial
+9195	{0} s
+9196	Condição da recompensa cumprida
+9197	Fechar antes
+9198	Simular interrupção do app
+9199	¥(simulado) 000
+9200	Simulado (só versão de desenvolvimento): não é uma compra real. Salvo separado dos direitos de compras reais
+9201	・As compras ficam vinculadas à sua conta da loja. Após trocar de aparelho/reinstalar, use "Restaurar compras". Dados salvos como cartas e MILE não voltam com este botão
+9202	Não foi possível confirmar a compra. O passe continua ativo; vamos verificar de novo depois
+9203	OMMLAN
+9204	SINC
+9205	JOGO ONLINE
+9206	Cria uma sala e a publica em "BUSCAR PARTIDA" online.
+9207	Cria uma sala neste aparelho. Aparelhos no mesmo Wi-Fi entram por "BUSCAR PARTIDA".
+9208	SERVIÇO ONLINE INDISPONÍVEL
+9209	DEV:
+9210	TENTAR DE NOVO
+9211	Procurando salas próximas…
+9212	DEV
+9213	Com todos prontos: "Fechar (manter sala)" → porta → toque em "Partir" na escolha de mapa, e todos começam juntos no mesmo mapa.
+9214	CO-OP: caiu = DOWN. Um aliado (2+ corações) que chegar ao local usa REVIVER para passar 1 coração e reviver você. Todos em DOWN = fim.
+9215	MODO: o HOST escolhe (vale para todos ao iniciar a corrida)
+9216	Porta do Início → toque em "Partir" na escolha de mapa, e todos os conectados começam juntos no mesmo mapa.
+9217	REVIVER
+9218	Não foi possível iniciar a conexão. Tente de novo ou reinicie o app
+9219	Não foi possível criar a sala (outro app pode estar usando a rede)
+9220	P{0} se desconectou (restam {1})
+9221	{0} se desconectou
+9222	O outro jogador se desconectou
+9223	Versão do jogo diferente; não dá para entrar. Atualizem os dois para a versão mais recente
+9224	Esta sala já começou a correr; não dá para entrar
+9225	A sala está cheia; não dá para entrar
+9226	Conexão recusada
+9227	Você: seu recorde ainda não aparece no ranking
+9228	AUTO
+9229	Partida Veloz
+9230	Parar de enviar recordes
+9231	UGS
+9232	Escolha uma carta
+9233	Toque de novo para confirmar
+9234	Escolha uma carta → toque de novo para confirmar
+9235	Condição cumprida! Confirma ao concluir a corrida com sucesso
+9236	Quando a velocidade passar da velocidade inicial, só as ações ligadas (ON) serão automáticas.
+9237	O controle manual tem prioridade. Com "AUTO também contra chefes" em OFF, nada é automático em lutas contra chefes.
+9238	O passe fica vinculado à sua conta da loja (restaurar compras não recupera dados salvos)
+9239	Pratique ataques frente/trás, pulo, ataque para baixo, lançamento e escolha de cartas (sem recompensas nem recordes).
+9240	O treino só começa pelo Início (não durante o multijogador)
+9241	Titã se aproximando! Hora de atacar!
+9242	Núcleo apagado! Hora do BREAK!
+9243	Escorregou ao pousar! Hora de atacar!
+9244	A cabeça saiu das nuvens! Hora de atacar!
+9245	O halo sumiu! Grande chance!
+9246	A carga sumiu! Hora de atacar!
+9247	Partida Veloz (ponto de {0})
+9248	Atravessa de uma vez os trechos já vencidos e começa a correr pouco antes do portão escolhido. As cartas de recompensa de chefe são pegas ao acaso. Alinhe a altura com os anéis a cada 5.000m para escolher mais 1 carta. A distância pulada não dá MILE nem EXP.
+9249	Corrida até {0}km   (~{1} s + escolha de cartas nos anéis){2}
+9250	Chefe do portão dos {0}km ainda não derrotado
+9251	Nesta corrida, todas as cartas do deck chegaram ao Lv9.
+9252	Portões {0}/{1}    Anéis {2}/{3}{4}
+9253	Portões cruzados {0}/{1}   Anéis {2}/{3}{4}
+9254	Todas as cartas do deck da corrida Lv{0} MAX
+9255	Portões sem carta: {0}
+9256	Nesta corrida, todas as cartas do deck estão no Lv9. A recompensa dos anéis é MILE a levar
+9257	(o recorde BEST de distância também não fica)
+9258	Para a escolha de mapa
+9259	O limite do deck agora é de 12 cartas
+9260	OVERFLOW

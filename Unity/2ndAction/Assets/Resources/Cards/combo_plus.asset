@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: combo_plus
   cardName: COMBO PLUS
   icon: {fileID: 2800000, guid: f73d3b414c94d614ea875675ca822c75, type: 3}
-  description: "\u653B\u6483\u306E\u6D41\u308C\u306E\u6700\u5F8C\u306E\u4E00\u6483(\u7DE0\u3081)\u304C\u5F37\u304F\u306A\u308B(1Lv\u3054\u3068\u306B+7%)"
+  description: "前攻撃・後攻撃を続けて出した時の最後の一撃(締め)の攻撃力+7%/Lv"
   category: 1
   sortOrder: 105
   recommendPriority: 5

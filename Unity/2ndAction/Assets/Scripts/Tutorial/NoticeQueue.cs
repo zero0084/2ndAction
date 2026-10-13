@@ -91,6 +91,8 @@ public class NoticeQueue : MonoBehaviour
             var r = new Rect(Screen.width * 0.5f - 260 * ts, 96 * ts, 520 * ts, 44 * ts);
             // 2026-10-10(全体点検): 結果画面では見出し(FAILED/GAME CLEAR)に重なっていた → 結果の板の上(入らなければ下)へ
             var gmq = GameManager.Instance;
+            // ラン中の縦画面: 左上の列(BEST/距離)と重ならないよう、その下へ(2026-10-13)
+            if (gmq != null && gmq.HasStarted && !gmq.IsGameOver && !TextFit.Legacy) r.y = Mathf.Max(r.y, GameManager.NoticeTopPx + 4f);
             if (gmq != null && gmq.IsGameOver && gmq.LastResultPanelRect.height > 0f)
             {
                 Rect rp = gmq.LastResultPanelRect;
@@ -149,7 +151,7 @@ public static class DeckCapacityNotice
         }
         if (!hadSavedDeck || SaveStore.GetInt(Key, 0) != 0) return;
         if (gm.DeckCards.Count >= GameManager.DeckCapacity) { SaveStore.SetInt(Key, 1); return; }
-        NoticeQueue.Enqueue("deck12", "デッキが12枚になりました",
+        NoticeQueue.Enqueue("deck12", "デッキ上限が12枚になりました",
             $"デッキに入れられるカードが {GameManager.DeckCapacity} 枚になりました(今 {gm.DeckCards.Count} 枚)。\nデッキ編集で追加できます。", () => { SaveStore.SetInt(Key, 1); SaveStore.Save(); });
     }
     static void SaveStoreSaveDeckNow(GameManager gm) { gm.SaveDeckNow(); }

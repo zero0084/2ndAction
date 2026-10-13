@@ -477,7 +477,7 @@ public class RewardCardSequence : MonoBehaviour
             bgo.sizeDelta = new Vector2(Mathf.Max(200f, right - left), PortraitBadgeH); bgo.anchoredPosition = new Vector2(left, pr.y + 12f);
             bgo.SetAsLastSibling();
             portraitBadgeText[i].text = Loc.Auto("選択中");
-            portraitConfirmText[i].text = Loc.Auto("もう一度タップして決定");
+            portraitConfirmText[i].text = Loc.Auto("もう一度選んで決定");
             portraitBadge[i].SetActive(false);
             if (on) tx.text = PortraitText(data[i], false);
         }
@@ -494,7 +494,7 @@ public class RewardCardSequence : MonoBehaviour
         hr.anchorMin = hr.anchorMax = new Vector2(0.5f, 0.5f); hr.pivot = new Vector2(0.5f, 0.5f);
         hr.sizeDelta = new Vector2(w - 60f, 96f); hr.anchoredPosition = new Vector2(0f, PortraitPanelLocal(2, parent).y - 60f); // 長い翻訳は2行に折り返す
         portraitHint.resizeTextForBestFit = true; portraitHint.resizeTextMinSize = 22; portraitHint.resizeTextMaxSize = 32; portraitHint.verticalOverflow = VerticalWrapMode.Truncate;
-        portraitHint.text = Loc.Auto("カードをタップして選択 → もう一度タップで決定");
+        portraitHint.text = Loc.Auto("カードを選択 → もう一度選んで決定");
         portraitHint.gameObject.SetActive(true);
         RefreshPortraitPanels();
     }
@@ -1025,7 +1025,7 @@ public class RewardCardSequence : MonoBehaviour
         if (detailTitleText != null) detailTitleText.text = Loc.Auto(data.Title);
         if (detailLevelText != null) detailLevelText.text = Loc.Auto(data.LevelLine);
         if (detailDescriptionText != null) detailDescriptionText.text = Loc.Auto(data.Description);
-        if (detailHintText != null) detailHintText.text = Loc.Auto("もう一度タップして決定");
+        if (detailHintText != null) detailHintText.text = Loc.Auto("もう一度選んで決定");
     }
 
     // 1枚もまだ選ばれていない間、詳細説明エリアに出す案内文。
@@ -1034,7 +1034,7 @@ public class RewardCardSequence : MonoBehaviour
         UguiScrollText.Wrap(detailDescriptionText);
         if (detailTitleText != null) detailTitleText.text = "";
         if (detailLevelText != null) detailLevelText.text = "";
-        if (detailDescriptionText != null) detailDescriptionText.text = Loc.Auto("カードをタップして選択してください");
+        if (detailDescriptionText != null) detailDescriptionText.text = Loc.Auto("カードを選んでください");
         if (detailHintText != null) detailHintText.text = "";
     }
 

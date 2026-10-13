@@ -94,7 +94,7 @@ public partial class BehemothBoss
         CaveDarkness.Set(0f);
         facing = -1f; facingLocked = false;
         yield return MoveToGap(3.5f, 18f, 1.5f);
-        yield return CaveRecovery(3.4f, "帯電が消えた! 大きな反撃のチャンス!", new Vector2(1.05f, 0.85f), CaveLook.Lightning, new Vector2(0f, 0.8f));
+        yield return CaveRecovery(3.4f, "帯電が消えた! 攻撃のチャンス!", new Vector2(1.05f, 0.85f), CaveLook.Lightning, new Vector2(0f, 0.8f));
     }
 
     protected override void SkyRestore() { StartCoroutine(Ambient()); if (hornGlow != null) hornGlow.enabled = false; charge.damageAmount = HitDmg; }
@@ -165,7 +165,7 @@ public partial class SkyTitanBoss
         minGap = Mathf.Min(minGap, closeGap - 0.5f);
         IsKneeling = true;
         yield return MoveToGap(closeGap, 9f, 1.4f);
-        yield return CaveRecovery(4.0f, "巨大な手が足場に残った! 大きなチャンス!", new Vector2(1f, 0.95f), CaveLook.Rock, new Vector2(0.6f, 0.35f), 2.4f, 1.3f, RiseY - kneelLower);
+        yield return CaveRecovery(4.0f, "タイタン接近! 攻撃のチャンス!", new Vector2(1f, 0.95f), CaveLook.Rock, new Vector2(0.6f, 0.35f), 2.4f, 1.3f, RiseY - kneelLower);
         IsKneeling = false;
         minGap = keepMin;
         yield return MoveToGap(startGap, 6f, 2f);
@@ -244,7 +244,7 @@ public partial class SkyJellyfishBoss
         yield return Wait(2.4f);
         // 隙: コアが暗くなる(低く降りてくる)
         lowHold = true;
-        yield return CaveRecovery(3.8f, "コアが暗くなった! 崩しやすい!", new Vector2(1.05f, 0.9f), CaveLook.Water, new Vector2(0f, 0.55f), 3f, 1.35f, 0.4f);
+        yield return CaveRecovery(3.8f, "コアが暗くなった! BREAKのチャンス!", new Vector2(1.05f, 0.9f), CaveLook.Water, new Vector2(0f, 0.55f), 3f, 1.35f, 0.4f);
         lowHold = false;
     }
 
@@ -412,7 +412,7 @@ public partial class FenrirBoss
         SetPose(Pose.Landing);
         float t = 0f;
         while (t < 0.5f) { t += Time.deltaTime; relVelocity = -7f * (1f - t / 0.5f); if (Random.value < 0.4f) ImpactDust(new Vector3(worldX, GroundY, 0f), 2, 0.7f); yield return null; }
-        yield return CaveRecovery(3.2f, "体勢を崩した! 反撃のチャンス!", new Vector2(1.15f, 0.7f), CaveLook.Lightning, new Vector2(0f, 0.3f));
+        yield return CaveRecovery(3.2f, "着地で滑った! 攻撃のチャンス!", new Vector2(1.15f, 0.7f), CaveLook.Lightning, new Vector2(0f, 0.3f));
     }
 
     protected override void SkyRestore()
@@ -492,7 +492,7 @@ public partial class SkyGolemBoss
         yield return Wait(2.6f);
         // 隙: 再構築に失敗してコア露出
         coreGlow.enabled = true;
-        yield return CaveRecovery(3.8f, "再構築に失敗! コア露出!", new Vector2(1.06f, 0.88f), CaveLook.Crystal, new Vector2(0.4f, 0.6f), 3f, 1.4f);
+        yield return CaveRecovery(3.8f, "コア露出! BREAKのチャンス!", new Vector2(1.06f, 0.88f), CaveLook.Crystal, new Vector2(0.4f, 0.6f), 3f, 1.4f);
     }
 
     protected override void SkyRestore() { SetAlpha(1f); beam.damageAmount = HitDmg; if (fistGlow != null) fistGlow.enabled = false; if (coreGlow != null) coreGlow.enabled = true; StartCoroutine(Ambient()); }
@@ -623,7 +623,7 @@ public partial class SkySerpentBoss
         CaveDarkness.Set(0f);
         // 隙: 頭が雲から低く出て疲労
         yield return MoveToGap(3.5f, 12f, 1.2f);
-        yield return CaveRecovery(3.6f, "頭が雲から低く出た! 攻撃のチャンス!", new Vector2(1.06f, 0.85f), CaveLook.Wind, new Vector2(0.7f, 0.5f), 2.2f, 1.25f, 0.4f);
+        yield return CaveRecovery(3.6f, "頭が雲から出た! 攻撃のチャンス!", new Vector2(1.06f, 0.85f), CaveLook.Wind, new Vector2(0.7f, 0.5f), 2.2f, 1.25f, 0.4f);
     }
 
     protected override void SkyRestore()
@@ -692,7 +692,7 @@ public partial class CelestialGuardianBoss
         // 隙: 光輪が消えて降りてくる(長いBREAKのチャンス)
         yield return SetAltitude(HoverAlt, 0.4f);
         yield return MoveToGap(3f, 9f, 1.2f);
-        yield return CaveRecovery(4.5f, "光輪が消えた! 長い反撃のチャンス!", new Vector2(1f, 0.9f), CaveLook.Holy, new Vector2(0f, 0.9f), 3f, 1.3f);
+        yield return CaveRecovery(4.5f, "光輪が消えた! 大チャンス!", new Vector2(1f, 0.9f), CaveLook.Holy, new Vector2(0f, 0.9f), 3f, 1.3f);
     }
 
     protected override void SkyRestore() { if (swordGlow != null) swordGlow.enabled = false; StartCoroutine(Ambient()); }

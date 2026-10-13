@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: exp_converter
   cardName: EXP CONVERTER
   icon: {fileID: 2800000, guid: 8afb6a51cf11ac440a776a667a059856, type: 3}
-  description: "\u7D4C\u9A13\u5024\u304C\u6E1B\u308B(1Lv\u3054\u3068\u306B-10%\u3001\u6700\u4F4E25%)\u4EE3\u308F\u308A\u306B\u3001\u6575\u6483\u7834\u306EMILE\u304C\u5897\u3048\u308B(+30%/Lv)"
+  description: "獲得EXPが減る(-10%/Lv、最低でも通常の25%)代わりに、敵撃破・BONUSのMILE+30%/Lv"
   category: 6
   sortOrder: 152
   recommendPriority: 2

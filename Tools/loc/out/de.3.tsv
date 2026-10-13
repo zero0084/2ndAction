@@ -1,0 +1,261 @@
+9000	Treffer können Gegner unterkühlen. Frierst du einen Gegner ein, gibt es Zusatzschaden. Angriff gegen unterkühlte/eingefrorene Gegner +3%/Lv. Einfrierdauer steigt, Bosse werden stärker verlangsamt
+9001	Bei HP 50% oder weniger Angriffstempo +3%/Lv. Bei HP 25% oder weniger doppelter Bonus (+6%/Lv)
+9002	Ein Treffer in der Luft löst am Trefferpunkt einen Flächen-Nachhieb aus. Stärke und Fläche steigen mit dem Lv
+9003	Luftangriff +3%/Lv. Jeder Treffer ohne Landung gibt weitere +1%/Lv (max. 4-mal). Bei der Landung verfällt der Zusatz
+9004	Angriff gegen Gegner in der Luft steigt (+8%/Lv) (hochgeschlagene/fliegende Schergen; bei Bossen nur Drache und Dämon)
+9005	Reichweite +3%/Lv. Nahkampf trifft eine größere Fläche, Geschosse fliegen weiter (Geschossgröße bleibt gleich)
+9006	Bei HP 50% oder weniger Angriff +5%/Lv und Angriffstempo +2%/Lv. Bei HP 25% oder weniger verdoppeln sich beide Boni
+9007	Angriff +6%/Lv, Angriffstempo +1%/Lv. Versiegelt aber Herzen der max. HP (1 bei Lv1–3, 2 bei Lv4–6, 3 bei Lv7–9)
+9008	Bei HP 50% oder weniger Angriff +4%/Lv. Bei HP 25% oder weniger steigt auch die Absorptionschance (1 Herz heilen) bei besiegten Gegnern/Bossen um +3%/Lv
+9009	An normalen Bosstoren kommt mit einer Chance (8%/Lv) ein weiterer Boss dazu. Boss-MILE +50%/Lv. Gilt nicht für die festen Bosse alle 10km und den Boss-Ansturm im letzten Dungeon
+9010	Angriff +7%/Lv. Aber nach jedem Vorwärts-/Rückwärtsangriff sinkt das Lauftempo 0.4 Sek. lang um 10%
+9011	Brandstärke +8%/Lv, Branddauer +0.25 Sek./Lv. Schon diese Karte allein setzt bei Treffern in Brand (Chance 7% bei Lv1, danach +2%/Lv)
+9012	Besiegte Gegner explodieren und treffen ihre Umgebung. Von der Explosion besiegte Gegner explodieren ebenfalls, bis zu 3 Stufen. Jeder Gegner wird pro Kette nur 1-mal getroffen
+9013	Aktiviert sich bei 100% Leiste (Knopf unten links). Der Spezialangriff des Charakters besiegt normale Gegner auf dem Bildschirm mit einem Schlag und macht Bossen 20–40% ihrer max. HP Schaden (steigt mit dem Lv). Danach stürmst du weit vor (Lv1 300m → Lv9 1000m; stoppt vor Bosstoren usw., im Bosskampf kein Vorstürmen) und eine Verstärkung hält an (Lv1 5 Sek. → Lv9 12 Sek.). Die Leiste füllt sich durch Distanz, Siege und Schaden an Bossen
+9014	Trifft der Abschlusshieb einer Angriffsfolge, folgt eine zusätzliche Schockwelle nach vorn (Stärke und Fläche steigen mit dem Lv)
+9015	Angriff des letzten Schlags (Abschlusshieb) bei aufeinanderfolgenden Vorwärts-/Rückwärtsangriffen +7%/Lv
+9016	Blockst du einen Angriff mit dem Schild, entsteht eine Konter-Schockwelle um dich. Stärke steigt mit dem Lv. Schon diese Karte allein gibt dir 1 Schild
+9017	Angriff +12%/Lv. Versiegelt aber Herzen der max. HP (1 bei Lv1–2, danach alle 2 Lv +1; 5 bei Lv9)
+9018	Manche Schergen werden zu Elite (+4% pro Lv. HP ×2.5, etwas schneller; besiegt: MILE ×3 / EXP ×2). MILE steigt ebenfalls (+30%/Lv)
+9019	MILE für besiegte Gegner +15%/Lv. Gilt auch für Belohnungs-MILE aus BONUS ZONE und GESUCHT
+9020	Erhaltene EXP sinken (-10%/Lv, mindestens 25% des Normalwerts), dafür MILE aus Siegen & BONUS +30%/Lv
+9021	EXP aus besiegten Gegnern, Bossen und BONUS ZONE steigen stark (+80%/Lv). Distanz-EXP zählt nicht
+9022	Treffer setzen Gegner mit einer Chance in Brand: 3 Sek. lang Schaden. Lv1: Chance 15%, 5 Schaden/Sek.; je weiteres Lv Chance +5%, Schaden/Sek. +1.5
+9023	Blockst du einen Angriff mit dem Schild, entsteht ein Flammenkonter um dich, der getroffene Gegner in Brand setzt. Stärke steigt mit dem Lv. Schon diese Karte allein gibt dir 1 Schild
+9024	Treffer unterkühlen und verlangsamen Gegner. Lv1: Chance 15%, 25% langsamer; je weiteres Lv Chance +5%, Verlangsamung +2%. 5 Kältestapel frieren ein (Bosse stoppen nicht, werden aber langsamer)
+9025	Treffer können eine Windklinge auslösen. Windklingentempo +5%/Lv, Reichweite +0.4m/Lv. Windklingen und Geschosse durchbohren +1 (ab Lv4 +2, ab Lv7 +3)
+9026	Die Landung eines Sturzangriffs oder ein Abschlusshieb am Boden erzeugt eine Bodenschockwelle (Stärke und Länge steigen mit dem Lv). Angriff am Boden außerdem +2%/Lv
+9027	Angriff +4%/Lv, dazu +0.6%/Lv Angriff pro versiegeltem Herz (auch Siegel anderer Karten zählen). Versiegelt selbst Herzen der max. HP (1 bei Lv1–3, 2 bei Lv4–6, 3 bei Lv7–9)
+9028	Max. HP +1 Herz/Lv (bis 20 Herzen). Beim Nehmen werden die HP voll geheilt
+9029	Schaden ab 2 Herzen wird um 1 Herz verringert. Max. HP steigen auch (+1 Herz bei Lv1–2, danach alle 2 Lv +1). Sprungkraft -3%/Lv
+9030	Angriff von Abwärtsangriff und Sturzangriff-Landung +10%/Lv. Abschlusshieb ebenfalls +3%/Lv
+9031	Schergen-HP +12%/Lv, Aktionstempo +4%/Lv, Gegnerhäufigkeit +8%/Lv. Dafür MILE aus Siegen & BONUS +50%/Lv, Boss-MILE +30%/Lv
+9032	Gegnerhäufigkeit +15%/Lv. Dafür MILE aus Siegen & BONUS +5%/Lv, EXP aus Siegen & BONUS +5%/Lv
+9033	Im Bosskampf Schrittweite der Angriffe (vor/zurück) +4%/Lv. Lauftempo beim Annähern an einen Boss, der über 6m entfernt ist, +3%/Lv
+9034	Treffer können unterkühlen. Weniger Kältestapel bis zum Einfrieren (4 bei Lv1–3, 3 bei Lv4–6, 2 bei Lv7–9). Kälte-Chance und -Dauer steigen auch
+9035	Besiegst du einen brennenden Gegner, breitet sich Feuer aus und setzt Gegner in Brand (Stärke und Fläche steigen mit dem Lv). Schon diese Karte allein setzt mit geringer Chance (5%) in Brand
+9036	Luftsprünge +1/Lv. Weitere Zusatzsprünge steigen weniger hoch, aber nicht beim Fallen in ein Loch. Zauberin: erreichbare Höhe +1 Stufe bei Lv1–3, +2 bei Lv4–6, +3 bei Lv7–9
+9037	Sinken deine HP durch Schaden auf 1 Herz oder weniger, wirst du kurz unverwundbar (1 Sek. +0.15 Sek./Lv). Schützt nicht vor Sturzschaden. Erst wieder aktiv, wenn die HP über 1 Herz liegen und 20 Sek. seit dem Auslösen vergangen sind
+9038	Erhaltene EXP +30%/Lv
+9039	Reichweite +5%/Lv. Nahkampf trifft eine größere Fläche, Geschosse fliegen weiter
+9040	Erhaltene EXP +15%/Lv. Max. HP steigen auch (+1 Herz bei Lv1–3, +2 bei Lv4–6, +3 bei Lv7–9)
+9041	Angriff gegen Nicht-Boss-Gegner +5%/Lv. MILE aus Siegen & BONUS +10%/Lv
+9042	Angriff steigt mit dem Lauftempo. Bis 100km/h keine Wirkung. Bei 150km/h +4%/Lv; darüber steigt er weiter, aber nur zu 1/4
+9043	Gegnerhäufigkeit +10%/Lv. Dafür erhaltene EXP +15%/Lv
+9044	Gegnerhäufigkeit +10%/Lv. MILE aus Siegen & BONUS ebenfalls +3%/Lv
+9045	Lauftempo +5%/Lv. Aber Gegnerhäufigkeit ebenfalls +10%/Lv
+9046	MILE aus Siegen & BONUS +50%/Lv, Boss-MILE +50%/Lv, erhaltene EXP +20%/Lv
+9047	Hältst du eine Weile 115km/h oder mehr, startet OVERDRIVE (Angriff +3%/Lv, Angriffstempo +2%/Lv). Endet nach 0.8 Sek. unter 107km/h. Lauftempo immer +2%/Lv
+9048	Absorption und ZWEITER ATEM heilen mehr (+1 Herz bei Lv4–6, +2 bei Lv7–9). Überschuss bei vollen HP wird zu 1 Schild (bis max. +1)
+9049	Schergen-HP +15%/Lv, Aktionstempo +5%/Lv, Häufigkeit +12%/Lv, Elite-Rate +2%/Lv, Boss-HP +10%/Lv. Dafür MILE aus Siegen & BONUS +60%/Lv, Boss-MILE +60%/Lv
+9050	Distanz-EXP +20%/Lv. Gilt nicht für EXP aus Siegen
+9051	Blockst du einen Treffer mit dem Schild, wirst du kurz unverwundbar (0.4 Sek. +0.1 Sek./Lv). Schon diese Karte allein gibt dir 1 Schild
+9052	Gehst du zu Boden (auch durch Sturz), belebst du dich wieder und bist 2 Sek. unverwundbar (HP 1–5 Herzen je nach Lv). Danach wird die Karte entfernt und kann wieder angeboten werden (neu ab Lv1)
+9053	Nahkampftreffer schaden auch Gegnern hinter dem Ziel. Stärke und Zielanzahl steigen mit dem Lv. Geschosse durchbohren auch mehr (+1 bei Lv1–3, +2 bei Lv4–6, +3 bei Lv7–9)
+9054	Chance, bei besiegten Gegnern 1 Herz zu heilen, +3%/Lv. Auch Treffer an Bossen absorbieren mit geringer Chance HP
+9055	Wirst du bei HP von 30% oder weniger getroffen, heilst du 1–3 Herzen (2 bei Lv5, 3 bei Lv9). Danach erst nach einer bestimmten Laufstrecke wieder aktiv (10,000m bei Lv1, 6,000m bei Lv9)
+9056	Ein Schild, der 1 Treffer blockt. Max. 1 bei Lv1–3, 2 bei Lv4–6, 3 bei Lv7–9. Verbrauchte Schilde kehren nach und nach einzeln zurück (mit Lv schneller)
+9057	Luftangriff +4%/Lv. Treffer in der Luft geben 1 verbrauchten Luftsprung zurück (bis zur Landung max. 1-mal bei Lv1–3, 2-mal bei Lv4–6, 3-mal bei Lv7–9)
+9058	Sprungkraft +2%/Lv, Luftangriff +3%/Lv
+9059	Vorwärts-/Rückwärtsangriffe feuern einen durchbohrenden Hieb nach vorn. Je schneller du läufst, desto weiter, größer und stärker der Hieb
+9060	Lauftempo -4%/Lv. Spezialkarte, wenn du langsamer laufen willst
+9061	Erhaltene EXP +40%/Lv. Max. HP steigen auch (+1 Herz bei Lv1–2, danach alle 2 Lv +1; +5 bei Lv9)
+9062	Treffer lösen mit geringer Chance einen Blitzschlag aus. Blitzschlagstärke +4%/Lv; springt über auf +1 Gegner bei Lv1–3, +2 bei Lv4–6, +3 bei Lv7–9. Der Blitzschlag trifft auch die Umgebung
+9063	Treffer lösen Blitzschläge aus. Lv1: Chance 5%, Grundstärke 7.5; je weiteres Lv Chance +2%, Grundstärke +1.5. Derselbe Gegner wird höchstens alle 0.4 Sek. getroffen
+9064	Wo eine Windklinge trifft, entsteht ein Tornado, der Gegner ringsum dauerhaft schädigt (Stärke und Fläche steigen mit dem Lv). Schon diese Karte allein löst bei Treffern mit geringer Chance eine Windklinge aus
+9065	Schergen-HP +15%/Lv. Dafür MILE aus Siegen & BONUS +15%/Lv, EXP aus Siegen +5%/Lv
+9066	Schatz-/Belohnungs-MILE +30%/Lv (Schätze und GESCHAFFT/PERFEKT der BONUS ZONE, GESUCHT-Kopfgeld). Boss-MILE +10%/Lv, Distanz-MILE +5%/Lv
+9067	Angriff +3%/Lv, Lauftempo +2%/Lv. Max. HP steigen auch (+1 Herz bei Lv1–2, danach alle 2 Lv +1; +5 bei Lv9)
+9068	In festen Abständen erscheint ein Kopfgeldgegner (mit Lv stärker und häufiger). Besiegt: Kopfgeld-MILE; zurückgelassen: kein Kopfgeld. MILE aus Siegen & BONUS +35%/Lv
+9069	Treffer feuern mit einer Chance eine durchbohrende Windklinge nach vorn. Lv1: Chance 10%, Stärke 8; je weiteres Lv Chance +3%, Stärke +1.5. Reichweite steigt leicht (+1%/Lv)
+9070	Gegner: viele aus Ödland, Höhle und Himmel
+9071	Gegner: Goblin / Harpyie / Gargoyle u. a.
+9072	Gegner: Goblins, Vögel, Riesen, Schützen usw.
+9073	Hindernisse: Steine, Bäume, Mauern, Riesenfelsen (mit Angriffen zerstörbar), Löcher
+9074	Route: oben/unten geteilt (welche sicher ist, ist zufällig)
+9075	Alle Gegner und Gegnerangriffe entfernt (Komplettsieg und Zeit werden nicht gewertet)
+9076	Alle Gegner besiegt  {0} Sek.
+9077	Zum Kampf
+9078	Test-Build ({0} Arten)
+9079	Lv = Anzahl im Lauf genommen (max. 9 pro Fähigkeit). Besitz und Deck bleiben unverändert
+9080	{0} Deckkarten in den Test-Build kopiert (Deck unverändert)
+9081	{0} Charakterkarten in den Test-Build kopiert (Start-Lv)
+9082	Bosse erscheinen von vorn mit demselben Auftritt wie im Hauptspiel
+9083	Geländeangriffe der Höhlen- und Himmelsbosse (Löcher, Decke, Steinschlag usw.) laufen in der flachen Arena anders ab
+9084	Aktuelle Gegner ({0} Gruppen)
+9085	Gegner-HP: wie bei {0}km (gilt für Schergen- und Boss-HP)
+9086	Laufen (mit Boni)
+9087	Nur das automatische Vorlaufen stoppt (Angriffe, Sprünge, Schwerkraft, Rückstoß und Gegnerbewegung wie im Hauptspiel)
+9088	Wendet Tempoboni von Charakter/Karten auf das Grundtempo an
+9089	Ignoriert Tempoboni von Charakter/Karten und läuft im eingestellten Tempo
+9090	Eingestellt {0}km/h / dieser Kampf {1}km/h (Bonus ×{2})
+9091	Auch bei Unverwundbarkeit zählt der Schaden im Ergebnis als „eigentlicher Schaden“
+9092	AUTO-Modus (nur in der Arena; normale Einstellungen bleiben)
+9093	Start ab {0}km/h
+9094	Belohnungen, Rekorde und Besitz ändern sich nie. Nicht enthalten: FINAL EVOLUTION / AWAKENED / MASTERY / ULTIMATE-Leiste / Level-ups / Bossbelohnungen / BONUS ZONE (Karten nur mit normalem Lv-Effekt und COMBO)
+9095	Erster Kampf
+9096	Bossstärke: {0}
+9097	Komplettsieg {0} Sek.
+9098	Besiegt/Erschienen
+9099	Erlittener Schaden
+9100	Eigentlicher Schaden (inkl. durch Unverwundbarkeit/Schild geblockt)
+9101	N0
+9102	Test-Build: {0}
+9103	Bedingungen ändern
+9104	??? (unbekannt)
+9105	WARNING!  MECH-DRACHE im Anflug!
+9106	OVERKILL-PROTOKOLL
+9107	Kühlt ab! Greif an!
+9108	Im Deck/als Charakterkarte in Verwendung, nicht als Material nutzbar
+9109	AWAKENED (★5) erreicht. MASTERY kann nicht weiter steigen
+9110	Keine Fusion: Bei doppeltem Erfolg wäre Lv {0} (max. Lv.{1})
+9111	<color=#ffd76a><b>[MASTERY] Fortschritt nach Lv.9 MAX</b></color>
+9112	Aktuelle MASTERY: <color=#ffd76a>{0}</color>  {1}
+9113	<size=19>MASTERY {0} über ★5 hinaus wird als Rekord gespeichert</size>
+9114	<size=19>MASTERY erhöht keine normalen Werte (Angriff, Tempo, EXP usw.). Es ist der Fortschritt bis AWAKENED bei ★5.</size>
+9115	<b>{0} Lv</b> über Lv.9 gehen in MASTERY: {1} → <color=#ffd76a>{2}</color>{3}
+9116	・{0} {1}<b>×{2}</b>  <size=18>({3})</size>
+9117	<color=#9fd0ff><b>[Verschiedene Karten] Das Ergebnis wird ausgelost</b></color>
+9118	<b>Chance, alle Fähigkeiten der Hauptkarte zu übernehmen: {0}%</b>
+9119	・{0} ×{1}  <size=18>({2})</size>
+9120	<b>Chance, alle Fähigkeiten des Materials zu übernehmen: {0}%</b>
+9121	Beide erfolgreich: alle Fähigkeiten beider Seiten übernommen (gleiche addieren sich). Seltenheit: höhere ★ +1 (max. ★5)
+9122	Zu wenige freie Karten für die Fusion (im Deck/als Charakterkarte in Verwendung)
+9123	Als Charakterkarte ausgerüstet, zu wenige frei
+9124	Im Deck in Verwendung, zu wenige Exemplare
+9125	<size=21>MASTERY {0} über ★5 hinaus wurde als Rekord gespeichert</size>
+9126	<size=21>AWAKENED erreicht. Als Fortschritt gespeichert, normale Werte ändern sich nicht</size>
+9127	<size=21>MASTERY erhöht keine normalen Werte (Angriff, Tempo, EXP usw.).</size>
+9128	)}    Seltenheit <color=#ffd76a>{new string('★', v.rarity)}</color>
+9129	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3})</color></size>
+9130	{0} angezeigt / {1} im Besitz
+9131	・Verschiedene Karten … jede Seite überträgt ihr komplettes Fähigkeitenset per Zufall (Haupt 50%, Material 25%). Klappt nur eine Seite, bleiben nur deren Lv und Fähigkeiten; scheitern beide, entsteht keine Karte (MILE zurück)
+9132	・Max. Fusions-Lv ist Lv.9. Bei gleichen Karten geht der Überschuss in MASTERY. Verschiedene Karten mit Lv-Summe über 9 können nicht fusioniert werden
+9133	・Fusionierst du eine gleiche Karte in eine Lv.9-MAX-Karte, steigt MASTERY (AWAKENED bei ★5)
+9134	<size=19>AWAKENED (★5) erreicht. Keine weitere MASTERY-Fusion möglich.</size>
+9135	Mit der gleichen Karte ({0}) als Material steigt MASTERY um das Lv des Materials (Lv.1 = +1).
+9136	Sein Auge ist geschwächt! Greif an!
+9137	Kern freigelegt! Chance auf BREAK!
+9138	Gegnerhäufigkeit
+9139	MILE aus Siegen & BONUS
+9140	Boss-MILE
+9141	Brandchance
+9142	Brand-Grundstärke
+9143	Kälte-Chance
+9144	Verlangsamung durch Kälte
+9145	Blutungschance
+9146	Tempo Vorwärts-/Rückwärtsangriff
+9147	Luftangriff
+9148	Bodenangriff
+9149	Abschlusshieb
+9150	Angriff gegen Schergen
+9151	Abwärts-/Sturzangriff
+9152	Angriffstempo bei HP ≤50%
+9153	Angriff pro Treffer in Folge
+9154	Angriff pro Lufttreffer bis zur Landung
+9155	Schild-Aufladung (Sek. weniger)
+9156	Gegner-Aktionstempo
+9157	Elite-Rate
+9158	Distanz-MILE
+9159	Distanz-EXP
+9160	EXP aus Siegen
+9161	Weniger Kältestapel bis Einfrieren
+9162	Blitzschlag-Schadensfaktor
+9163	)}: Charakterkarten
+9164	Tippen zum Entfernen
+9165	[Bei anderem Charakter ausgerüstet]
+9166	Karten in Verwendung können nicht umgewandelt werden. Entferne sie aus Deck oder Charakterkarten.
+9167	Diese Karte in {CardConvertMile} MILE umwandeln?
+9168	)} {BleedPower * Scale:0.#}/Sek. Absorption {BleedLifesteal * 100f:0}%
+9169	(AWAKENED)
+9170	Tippen zum Schließen / Gacha-Automat tippen für noch einmal
+9171	Abholen: {0} MILE + Bonus {1} MILE = {2} MILE gesamt
+9172	Für heute alles gezogen (wieder verfügbar in {0})
+9173	Zurücksetzung in {0}
+9174	Mitnahme in diesem Lauf
+9175	Besitz nach der Flucht
+9176	Fällst du oder brichst den Lauf ab, bekommst du die MILE dieses Laufs nicht
+9177	NEU:
+9178	DEV: nicht gewertet (
+9179	Die Distanz dieses Laufs zählt nicht für offizielle Rekorde (BEST, Gesamtdistanz, Strecken-/Charakter-Freischaltungen)
+9180	{0} versiegelt
+9181	MILE-RESET
+9182	KARTEN-RESET
+9183	Der unterbrochene Lauf und seine Mitnahme-MILE
+9184	Mitnahme-MILE
+9185	Zurück zum Hauptmenü.
+9186	Der Lauf endet nicht, du kannst ihn
+9187	{0} kann nicht ausgerüstet werden: Mit den anderen Charakterkarten wäre Lv{1} überschritten
+9188	Hinweis: {0} überschreitet mit den Charakterkarten insgesamt Lv{1} (die {2} Lv darüber wirken nicht)
+9189	IRENE
+9190	ESTELLE
+9191	ALICIA
+9192	Werbung wird geladen. Bitte versuch es gleich noch einmal
+9193	TEST AD (Simulation) Belohnungswerbung
+9194	TEST AD (Simulation) Interstitial
+9195	{0} Sek.
+9196	Belohnungsbedingung erfüllt
+9197	Vorzeitig schließen
+9198	App-Unterbrechung simulieren
+9199	¥(Simulation) 000
+9200	Simulation (nur Dev-Build): kein echter Kauf. Getrennt von echten Kaufrechten gespeichert
+9201	・Käufe sind an dein Store-Konto gebunden. Nach Gerätewechsel oder Neuinstallation stellst du sie mit „Käufe wiederherstellen“ wieder her. Spielstände wie Karten und MILE stellt dieser Knopf nicht wieder her
+9202	Kauf konnte nicht bestätigt werden. Der Pass bleibt aktiv, wir prüfen später erneut
+9203	OMMLAN
+9204	SYNC
+9205	ONLINE SPIELEN
+9206	Erstellt einen Raum und zeigt ihn online unter „SPIEL SUCHEN“ an.
+9207	Erstellt einen Raum auf diesem Gerät. Geräte im selben WLAN treten über „SPIEL SUCHEN“ bei.
+9208	ONLINE-DIENST NICHT VERFÜGBAR
+9209	DEV:
+9210	ERNEUT
+9211	Suche Räume in der Nähe…
+9212	DEV
+9213	Sind alle da: „Schließen (Raum bleibt)“ → Tür → in der STRECKENWAHL „Los“ – alle starten gleichzeitig auf derselben Strecke.
+9214	CO-OP: Wer fällt, ist DOWN. Ein Mitspieler (2+ Herzen), der deine Fallstelle erreicht, gibt dir per REVIVE 1 Herz und belebt dich. Alle DOWN = Ende.
+9215	MODE: wählt der HOST (gilt beim Laufstart für alle)
+9216	Tür im Hauptmenü → in der STRECKENWAHL „Los“ – alle Verbundenen starten gleichzeitig auf derselben Strecke.
+9217	REVIVE
+9218	Verbindung konnte nicht starten. Erneut versuchen oder App neu starten
+9219	Raum konnte nicht erstellt werden (evtl. nutzt eine andere App das Netzwerk)
+9220	P{0} hat die Verbindung getrennt (noch {1})
+9221	{0} hat die Verbindung getrennt
+9222	Der andere Spieler hat die Verbindung getrennt
+9223	Beitritt nicht möglich: andere Spielversion. Bitte beide aktualisieren
+9224	Beitritt nicht möglich: Der Lauf in diesem Raum hat schon begonnen
+9225	Beitritt nicht möglich: Raum ist voll
+9226	Verbindung abgelehnt
+9227	Du: Dein Rekord steht noch nicht in der Rangliste
+9228	AUTO
+9229	Sprint
+9230	Rekorde nicht mehr senden
+9231	UGS
+9232	Wähle eine Karte
+9233	Zum Bestätigen erneut wählen
+9234	Karte wählen → zum Bestätigen erneut wählen
+9235	Bedingung erfüllt! Gilt, sobald du den Lauf sicher beendest
+9236	Erreicht dein Lauftempo das Starttempo, laufen nur die auf ON gestellten Aktionen automatisch.
+9237	Manuelle Eingaben haben Vorrang. Ist „AUTO auch im Bosskampf“ OFF, gibt es im Bosskampf keine Automatik.
+9238	Der Pass ist an dein Store-Konto gebunden (Käufe wiederherstellen bringt keine Spielstände zurück)
+9239	Übe Vorwärts-/Rückwärtsangriff, Sprung, Abwärtsangriff, Hochschlag und Kartenwahl (ohne Belohnung/Rekord).
+9240	Training nur im Hauptmenü startbar (nicht im Mehrspieler)
+9241	Der Titan ist nah! Greif an!
+9242	Der Kern ist dunkel! Chance auf BREAK!
+9243	Bei der Landung gerutscht! Greif an!
+9244	Kopf über den Wolken! Greif an!
+9245	Der Lichtkranz ist weg! Große Chance!
+9246	Die Ladung ist weg! Greif an!
+9247	Sprintstart (ab {0})
+9248	Rase durch bereits geschaffte Abschnitte und starte kurz vor dem gewählten Tor. Karten aus Bossbelohnungen werden zufällig automatisch genommen. Triffst du die Höhe (oben/unten) der Ringe alle 5,000m, wählst du 1 Karte extra. Für die übersprungene Strecke gibt es keine MILE und EXP.
+9249	Sprint bis {0}km   (ca. {1} Sek. + Kartenwahl an Ringen){2}
+9250	Torboss bei {0}km noch nicht besiegt
+9251	In diesem Lauf sind alle Deckkarten auf Lv9.
+9252	Tor {0}/{1}    Ring {2}/{3}{4}
+9253	Tore passiert {0}/{1}   Ringe {2}/{3}{4}
+9254	Alle Deckkarten im Lauf Lv{0} MAX
+9255	Tore ohne Karte: {0}
+9256	In diesem Lauf sind alle Deckkarten auf Lv9. Ringe geben jetzt Mitnahme-MILE
+9257	(Auch kein BEST-Distanzrekord)
+9258	Zur Streckenwahl
+9259	Deck-Limit jetzt 12 Karten
+9260	OVERFLOW

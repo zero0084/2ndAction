@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: aerial_blade
   cardName: AERIAL BLADE
   icon: {fileID: 2800000, guid: 29076f5244096b34fb672bfe15f68997, type: 3}
-  description: "\u7A7A\u4E2D\u3067\u6575\u306B\u5F53\u3066\u308B\u3068\u3001\u8FFD\u3044\u65AC\u308A\u306E\u65AC\u6483\u304C\u51FA\u308B(Lv\u3067\u5A01\u529B\u3068\u7BC4\u56F2\u304C\u4E0A\u304C\u308B)"
+  description: "空中で攻撃を当てると、命中地点に範囲攻撃の追い斬りが発生する。Lvで威力と範囲が上がる"
   category: 1
   sortOrder: 113
   recommendPriority: 5

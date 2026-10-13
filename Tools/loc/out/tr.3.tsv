@@ -1,0 +1,261 @@
+9000	İsabet düşmanı üşütebilir. Donan düşmana ek hasar. Üşümüş/donmuş düşmanlara saldırı +3%/Lv. Donma süresi de uzar, boss'ların yavaşlaması güçlenir
+9001	HP %50 veya altındayken saldırı hızı +3%/Lv. HP %25 veya altında artış iki katı (+6%/Lv)
+9002	Havadayken isabet ettirince, isabet noktasında alan hasarlı ek bir kesik çıkar. Lv ile gücü ve alanı artar
+9003	Havadaki saldırı +3%/Lv. Yere inmeden her isabette ayrıca +1%/Lv (en fazla 4 kez). Yere inince ek bonus sıfırlanır
+9004	Havadaki düşmanlara (fırlatılmış/uçan sıradan düşmanlar; boss'lardan yalnızca ejderha ve iblis) saldırı artar (+8%/Lv)
+9005	Saldırı menzili +3%/Lv. Yakın saldırılar daha geniş alana vurur, mermiler daha uzağa gider (mermi boyutu değişmez)
+9006	HP %50 veya altındayken saldırı +5%/Lv, saldırı hızı +2%/Lv. HP %25 veya altında iki artış da iki katına çıkar
+9007	Saldırı +6%/Lv, saldırı hızı +1%/Lv. Ama maks. HP'den kalp mühürler (Lv1–3: 1, Lv4–6: 2, Lv7–9: 3)
+9008	HP %50 veya altındayken saldırı +4%/Lv. HP %25 veya altında düşman/boss yenince can emme (1 kalp iyileşme) şansı da +3%/Lv
+9009	Normal boss geçitlerinde 8%/Lv şansla bir boss daha katılır. Boss yenme MILE'ı +50%/Lv. Her 10km'deki özel boss'lara ve son zindanın boss akınına katılmaz
+9010	Saldırı +7%/Lv. Ama her ileri/geri saldırıdan sonra 0.4 sn boyunca hareket hızı %10 düşer
+9011	Yanma gücü +8%/Lv, yanma süresi +0.25 sn/Lv. Bu kart tek başına da isabette yakar (şans Lv1'de 7%, sonra +2%/Lv)
+9012	Yenilen düşman patlar ve çevresine hasar verir. Patlamayla yenilenler de zincirleme patlar, en fazla 3 kademe. Aynı düşmana zincir başına 1 isabet
+9013	Gauge 100% olunca kullanılır (sol alttaki düğme). Karaktere özel ulti, ekrandaki sıradan düşmanları tek vuruşta yener, boss'lara maks. HP'lerinin %20–40'ı kadar hasar verir (Lv ile artar). Ardından büyük ilerleme sağlar (Lv1 300m → Lv9 1000m; boss geçidi vb. önünde durur, boss savaşında ilerlemez) ve güçlenme bir süre sürer (Lv1 5 sn → Lv9 12 sn). Gauge mesafe, düşman yenme ve boss'a verilen hasarla dolar
+9014	Saldırı serisinin bitiriş vuruşu isabet edince öne ek bir şok dalgası çıkar (Lv ile gücü ve alanı artar)
+9015	İleri/geri saldırıları art arda yapınca son vuruşun (bitiriş) saldırısı +7%/Lv
+9016	Shield bir saldırıyı engelleyince çevreye karşı saldırı şok dalgası yayılır. Lv ile gücü artar. Bu kart tek başına da 1 Shield verir
+9017	Saldırı +12%/Lv. Ama maks. HP'den kalp mühürler (Lv1–2: 1, sonra her 2 Lv'de +1; Lv9: 5)
+9018	Sıradan düşmanların bir kısmı seçkin olur (Lv başına +4%; HP ×2.5, biraz hızlı, yenince MILE ×3/EXP ×2). MILE de artar (+30%/Lv)
+9019	Düşman yenme MILE'ı +15%/Lv. BONUS ZONE ve ARANIYOR ödül MILE'ına da uygulanır
+9020	Kazanılan EXP azalır (-10%/Lv, en az normalin %25'i), karşılığında düşman/BONUS MILE'ı +30%/Lv
+9021	Düşman, boss ve BONUS ZONE EXP'si çok artar (+80%/Lv). Koşu mesafesi EXP'si dahil değil
+9022	Vurulan düşman şansa bağlı yanar ve 3 sn hasar alır. Lv1'de şans 15%, saniyede 5 hasar; sonra her Lv'de şans +5%, saniyelik hasar +1.5
+9023	Shield bir saldırıyı engelleyince çevreye ateşli karşı saldırı yayılır ve vurduğu düşmanları yakar. Lv ile gücü artar. Bu kart tek başına da 1 Shield verir
+9024	İsabette düşmanı üşütüp yavaşlatabilir. Lv1'de şans 15%, yavaşlatma 25%; sonra her Lv'de şans +5%, yavaşlatma +2%. Üşüme 5 kez birikince donar (boss'lar durmaz, yavaşlar)
+9025	İsabette rüzgâr bıçağı çıkabilir. Rüzgâr bıçağı hızı +5%/Lv, menzil +0.4m/Lv. Rüzgâr bıçağı ve mermi delme +1 (Lv4'ten +2, Lv7'den +3)
+9026	Yere çakma inişi veya yerdeki bitiriş vuruşu, zeminde ilerleyen bir şok dalgası çıkarır (Lv ile gücü ve uzunluğu artar). Yerdeki saldırı da +2%/Lv
+9027	Saldırı +4%/Lv. Her mühürlü kalp için ayrıca saldırı +0.6%/Lv (başka kartların mühürleri de sayılır). Kendisi de maks. HP'den kalp mühürler (Lv1–3: 1, Lv4–6: 2, Lv7–9: 3)
+9028	Maks. HP Lv başına 1 kalp artar (sınır 20 kalp). Alınca HP tamamen dolar
+9029	2 kalp veya daha fazla hasarı 1 kalp azaltır. Maks. HP de artar (Lv1–2: +1 kalp, sonra her 2 Lv'de +1). Zıplama gücü -3%/Lv
+9030	Aşağı saldırı ve yere çakma inişi +10%/Lv. Bitiriş vuruşu da +3%/Lv
+9031	Sıradan düşman HP'si +12%/Lv, hareket hızı +4%/Lv, grup çıkma sıklığı +8%/Lv. Karşılığında düşman/BONUS MILE'ı +50%/Lv, boss yenme MILE'ı +30%/Lv
+9032	Düşman grubu çıkma sıklığı +15%/Lv. Karşılığında düşman/BONUS MILE'ı +5%/Lv, düşman/BONUS EXP'si +5%/Lv
+9033	Boss savaşında saldırıdaki ileri/geri atılma mesafesi +4%/Lv. 6m'den uzaktaki boss'a yaklaşma hızı da +3%/Lv
+9034	İsabette düşmanı üşütebilir. Donma için gereken üşüme sayısı azalır (Lv1–3: 4, Lv4–6: 3, Lv7–9: 2). Üşüme şansı ve süresi de artar
+9035	Yanan düşmanı yenince ateş çevreye yayılır ve düşmanları yakar (Lv ile gücü ve alanı artar). Bu kart tek başına da isabette düşük şansla (5%) yakar
+9036	Hava zıplaması Lv başına +1. Ek zıplamalar üst üste geldikçe yükseliş zayıflar, ama çukura düşerken zayıflamaz. Büyücü için çıkılabilen yükseklik Lv1–3'te 1, Lv4–6'da 2, Lv7–9'da 3 kat artar
+9037	Hasarla HP 1 kalp veya altına inince kısa süre dokunulmaz olursun (1 sn + 0.15 sn/Lv). Düşme hasarını önlemez. Tekrar çalışması için HP'nin 1 kalbin üstüne çıkması ve 20 sn geçmesi gerekir
+9038	Kazanılan EXP +30%/Lv
+9039	Saldırı menzili +5%/Lv. Yakın saldırılar daha geniş alana vurur, mermiler daha uzağa gider
+9040	Kazanılan EXP +15%/Lv. Maks. HP de artar (Lv1–3: +1 kalp, Lv4–6: +2, Lv7–9: +3)
+9041	Boss dışındaki düşmanlara saldırı +5%/Lv. Düşman/BONUS MILE'ı +10%/Lv
+9042	Saldırı koşu hızına göre artar. 100km/h ve altında etkisiz. 150km/h'de +4%/Lv; üstünde de artar ama artış 1/4'e düşer
+9043	Düşman grubu çıkma sıklığı +10%/Lv. Karşılığında kazanılan EXP +15%/Lv
+9044	Düşman grubu çıkma sıklığı +10%/Lv. Düşman/BONUS MILE'ı da +3%/Lv
+9045	Hareket hızı +5%/Lv. Ama düşman grubu çıkma sıklığı da +10%/Lv
+9046	Düşman/BONUS MILE'ı +50%/Lv, boss yenme MILE'ı +50%/Lv, kazanılan EXP +20%/Lv
+9047	115km/h ve üstünü bir süre koruyunca TAM GAZ başlar (saldırı +3%/Lv, saldırı hızı +2%/Lv). 0.8 sn boyunca 107km/h altında kalınca biter. Hareket hızı her zaman +2%/Lv
+9048	Can emme ve İKİNCİ NEFES iyileşmesi artar (Lv4–6: +1 kalp, Lv7–9: +2). HP doluyken taşan kısım 1 Shield olur (en fazla sınır +1)
+9049	Sıradan düşman HP'si +15%/Lv, hareket hızı +5%/Lv, grup çıkma sıklığı +12%/Lv, seçkin çıkma oranı +2%/Lv, boss HP'si +10%/Lv. Karşılığında düşman/BONUS MILE'ı +60%/Lv, boss yenme MILE'ı +60%/Lv
+9050	Koşu mesafesi EXP'si +20%/Lv. Düşman yenme EXP'sine uygulanmaz
+9051	Shield bir darbeyi engelleyince kısa süre dokunulmaz olursun (0.4 sn + 0.1 sn/Lv). Bu kart tek başına da 1 Shield verir
+9052	Yenilince (düşme dahil) dirilir ve 2 sn dokunulmaz olursun (HP Lv'e göre 1–5 kalp). Dirilince kart çıkar ve yeniden seçeneklerde görünür (tekrar alınca Lv1'den)
+9053	Yakın saldırı isabet edince hedefin arkasındaki düşmanlara da ek hasar. Lv ile gücü ve hedef sayısı artar. Mermi delme sayısı da artar (Lv1–3: +1, Lv4–6: +2, Lv7–9: +3)
+9054	Düşman yenince 1 kalp iyileşme şansı +3%/Lv. Boss'a isabette de düşük şansla HP emebilirsin
+9055	Darbe alınca HP maks.'ın %30'u veya altındaysa 1–3 kalp iyileştirir (Lv5'te 2, Lv9'da 3). Tekrar çalışması için belli bir mesafe koşmak gerekir (Lv1'de 10,000m, Lv9'da 6,000m)
+9056	1 darbeyi engelleyen Shield. En fazla Lv1–3'te 1, Lv4–6'da 2, Lv7–9'da 3. Kullanılanlar zamanla birer birer geri gelir (Lv ile hızlanır)
+9057	Havadaki saldırı +4%/Lv. Havada isabet ettirince kullandığın 1 hava zıplamasını geri alırsın (yere inene kadar Lv1–3'te 1, Lv4–6'da 2, Lv7–9'da 3 kez)
+9058	Zıplama gücü +2%/Lv, havadaki saldırı +3%/Lv
+9059	İleri/geri saldırı yapınca öne düşmanları delen bir kesik fırlar. Koşu hızı arttıkça kesiğin menzili, boyutu ve gücü artar
+9060	Hareket hızı -4%/Lv. Yavaş koşmak istediğinde kullanılan özel kart
+9061	Kazanılan EXP +40%/Lv. Maks. HP de artar (Lv1–2: +1 kalp, sonra her 2 Lv'de +1; Lv9: +5)
+9062	İsabette düşük şansla yıldırım düşer. Yıldırım gücü +4%/Lv, zincir Lv1–3'te +1, Lv4–6'da +2, Lv7–9'da +3 hedef. Yıldırım çevresine de hasar verir
+9063	İsabette yıldırım düşebilir. Lv1'de şans 5%, temel güç 7.5; sonra her Lv'de şans +2%, temel güç +1.5. Aynı düşmana 0.4 sn'de en fazla 1 yıldırım
+9064	Rüzgâr bıçağının vurduğu yerde hortum çıkar, çevredeki düşmanlara sürekli hasar verir (Lv ile gücü ve alanı artar). Bu kart tek başına da isabette düşük şansla rüzgâr bıçağı çıkarır
+9065	Sıradan düşman HP'si +15%/Lv. Karşılığında düşman/BONUS MILE'ı +15%/Lv, düşman yenme EXP'si +5%/Lv
+9066	Hazine/ödül MILE'ı +30%/Lv (BONUS ZONE hazineleri, CLEAR/PERFECT, ARANIYOR ödülü). Boss yenme MILE'ı +10%/Lv, koşu mesafesi MILE'ı +5%/Lv
+9067	Saldırı +3%/Lv, hareket hızı +2%/Lv. Maks. HP de artar (Lv1–2: +1 kalp, sonra her 2 Lv'de +1; Lv9: +5)
+9068	Belli mesafelerde ödüllü bir düşman çıkar (Lv ile daha güçlü ve sık). Yenersen ödül MILE'ı alırsın, geride bırakırsan ödül yok. Düşman/BONUS MILE'ı +35%/Lv
+9069	İsabette şansa bağlı, öne düşmanları delen bir rüzgâr bıçağı fırlar. Lv1'de şans 10%, güç 8; sonra her Lv'de şans +3%, güç +1.5. Saldırı menzili de biraz artar (+1%/Lv)
+9070	Düşmanlar: çorak, mağara ve gök düşmanları bol bol
+9071	Düşmanlar: Goblin / Harpi / Gargoyle ve diğerleri
+9072	Düşmanlar: Goblin, kuş, dev, okçu vb.
+9073	Engeller: taş, ağaç, duvar, dev kaya (saldırıyla kırılır), çukur
+9074	Rota: yukarı/aşağı ayrılır (güvenli/tehlikeli rastgele)
+9075	Tüm düşmanlar ve saldırıları silindi (tümünü yenme ve süre kaydedilmez)
+9076	Tümü yenildi  {0} sn
+9077	Savaşa
+9078	Deneme dizilimi ({0} tür)
+9079	Lv = koşu sırasında kaç kez alındığı (yetenek başına en fazla 9). Sahip olunanlar ve deste değişmez
+9080	Destedeki {0} kart deneme dizilimine kopyalandı (deste değişmez)
+9081	{0} karakter kartı deneme dizilimine kopyalandı (başlangıç Lv'i)
+9082	Boss, oyundakiyle aynı giriş sahnesiyle önden gelir
+9083	Mağara/gök boss'larının arazi kullanan teknikleri (çukur, tavan, düşen kaya vb.) düz arenada oyundakinden farklı çalışır
+9084	Şu anki rakip ({0} grup)
+9085	Düşman HP'si: {0}km noktasına denk (sıradan düşman ve boss HP'sine yansır)
+9086	Koş (düzeltmeli)
+9087	Yalnızca otomatik ilerleme durur (saldırı, zıplama, yerçekimi, sendeleme ve düşman hareketi oyundaki gibi)
+9088	Temel hıza karakter ve kartların hız düzeltmeleri uygulanır
+9089	Karakter ve kartların hız düzeltmelerini yok sayar, ayarlı hızla koşar
+9090	Ayar {0}km/h / bu maç {1}km/h (düzeltme ×{2})
+9091	Dokunulmazken de sonuçtaki "Korumasız hasar"a kaydedilir
+9092	AUTO modu (yalnızca arenada; normal ayarlar değişmez)
+9093	Başlangıç {0}km/h ve üstü
+9094	Ödüller, kayıtlar ve sahip olunanlar hiç değişmez. Desteklenmez: FINAL EVOLUTION / AWAKENED / MASTERY / ULTIMATE göstergesi / seviye atlama / boss ödülü / BONUS ZONE (kartlarda yalnızca normal Lv etkisi ve COMBO)
+9095	İlk maç
+9096	Boss gücü: {0}
+9097	Tümü yenildi {0} sn
+9098	Yenilen/çıkan
+9099	Alınan hasar
+9100	Korumasız hasar (dokunulmazlık/Shield ile engellenenler dahil)
+9101	N0
+9102	Deneme dizilimi: {0}
+9103	Koşulları düzenle
+9104	??? (karşılaşılmadı)
+9105	WARNING!  MECH DRAGON yaklaşıyor!
+9106	OVERKILL PROTOKOLÜ
+9107	Soğuyor! Saldırı fırsatı!
+9108	Deste/karakter kartlarında kullanıldığı için malzeme olamaz
+9109	AWAKENED (★5) ulaşıldı. MASTERY artık yükseltilemez
+9110	İkisi de başarılı olursa Lv {0} olur, bu yüzden birleştirilemez (sınır Lv.{1})
+9111	<color=#ffd76a><b>[MASTERY] Lv.9 MAX sonrası gelişim kaydı</b></color>
+9112	Şu anki MASTERY: <color=#ffd76a>{0}</color>  {1}
+9113	<size=19>★5'i aşan MASTERY {0} kayıt olarak saklanır</size>
+9114	<size=19>MASTERY normal performansı (saldırı, hız, EXP vb.) artırmaz. ★5'te AWAKENED olana kadarki gelişim kaydıdır.</size>
+9115	Lv.9'u aşan <b>{0} Lv</b> MASTERY'ye gider: {1} → <color=#ffd76a>{2}</color>{3}
+9116	・{0} {1}<b>×{2}</b>  <size=18>({3})</size>
+9117	<color=#9fd0ff><b>[Farklı kart birleştirme] Farklı kartlarda sonuç çekilişle belirlenir</b></color>
+9118	<b>Ana kartın tüm yeteneklerini alma şansı %{0}</b>
+9119	・{0} ×{1}  <size=18>({2})</size>
+9120	<b>Malzemenin tüm yeteneklerini alma şansı %{0}</b>
+9121	İkisi de başarılı: iki taraftaki tüm yetenekler alınır (aynı yeteneklerin artışı toplanır). Nadirlik = yüksek olan ★ +1 (en fazla ★5)
+9122	Birleştirme için boşta kart yetmiyor (deste/karakter kartlarında kullanımda)
+9123	Karakter kartlarında takılı, boşta yetmiyor
+9124	Destede kullanımda, adet yetmiyor
+9125	<size=21>★5'i aşan MASTERY {0} kayıt olarak saklandı</size>
+9126	<size=21>AWAKENED'a ulaşıldı. Gelişim kaydı olarak saklandı, normal performans değişmez</size>
+9127	<size=21>MASTERY normal performansı (saldırı, hız, EXP vb.) artırmaz.</size>
+9128	)}    Nadirlik <color=#ffd76a>{new string('★', v.rarity)}</color>
+9129	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3})</color></size>
+9130	Gösterilen {0} / sahip olunan {1}
+9131	・Farklı kartlar … ana %50, malzeme %25 şansla kendi yetenek setini aktarır (çekiliş). Yalnızca biri başarılıysa o tarafın Lv'i ve yetenekleri kalır, ikisi de başarısızsa kart çıkmaz (MILE iade edilir)
+9132	・Birleştirme Lv sınırı Lv.9. Aynı kart birleştirmede taşan kısım MASTERY'ye gider. Farklı kartlarda Lv toplamı 9'u aşarsa birleştirilemez
+9133	・Lv.9 MAX karta aynı kartı birleştirince MASTERY ilerler (★5'te AWAKENED)
+9134	<size=19>AWAKENED (★5) ulaşıldı. Daha fazla MASTERY birleştirmesi yapılamaz.</size>
+9135	Aynı kartı ({0}) malzeme yapınca malzemenin Lv'i kadar MASTERY ilerler (Lv.1 = +1).
+9136	Göz zayıfladı! Saldırı fırsatı!
+9137	Çekirdek açıkta! BREAK fırsatı!
+9138	Düşman grubu çıkma sıklığı
+9139	Düşman/BONUS MILE'ı
+9140	Boss yenme MILE'ı
+9141	Yanma şansı
+9142	Yanma temel gücü
+9143	Üşüme şansı
+9144	Üşüme yavaşlatması
+9145	Kanama şansı
+9146	İleri/geri saldırı hızı
+9147	Havadaki saldırı
+9148	Yerdeki saldırı
+9149	Serinin bitiriş vuruşu
+9150	Sıradan düşmana saldırı
+9151	Aşağı saldırı/yere çakma
+9152	HP %50 altı saldırı hızı
+9153	Ardışık her HIT'te saldırı
+9154	İnene kadar her hava isabetinde saldırı
+9155	Shield dolumu (sn kısalma)
+9156	Düşman hareket hızı
+9157	Seçkin çıkma oranı
+9158	Koşu mesafesi MILE'ı
+9159	Koşu mesafesi EXP'si
+9160	Düşman yenme EXP'si
+9161	Donma için gereken sayı azalması
+9162	Yıldırım hasar çarpanı
+9163	)} Karakter Kartları
+9164	Çıkarmak için dokun
+9165	[Başka karakterde takılı]
+9166	Kullanımdaki kart dönüştürülemez. Desteden veya karakter kartlarından çıkar.
+9167	Bu 1 kartı {CardConvertMile} MILE'a dönüştürmek ister misin?
+9168	)} {BleedPower * Scale:0.#}/sn can emme %{BleedLifesteal * 100f:0}
+9169	(AWAKENED oldu)
+9170	Kapatmak için dokun / bir çekim daha için makineye dokun
+9171	Alırsan: normal {0} MILE + ek {1} MILE = toplam {2} MILE
+9172	Bugünkü çekimler bitti ({0} sonra yenilenir)
+9173	Hak yenilenmesine {0}
+9174	Bu koşudan götürülecek
+9175	Kaçıştan sonra olacak
+9176	Yenilirsen veya koşuyu bırakırsan bu koşunun MILE'ını alamazsın
+9177	YENİ:
+9178	DEV: kayıt dışı (
+9179	Bu mesafe resmi kayıtlara (BEST, toplam mesafe, harita/karakter kilit açma) geçmez
+9180	Mühür {0}
+9181	MILE SIFIRLA
+9182	KART SIFIRLA
+9183	Yarım kalan koşu ve götürülecek MILE
+9184	Götürülecek MILE
+9185	Ana ekrana dönülüyor.
+9186	Koşu bitmez, buradan devam edersin
+9187	{0} takılamaz: diğer karakter kartlarıyla birlikte Lv{1}'i aşıyor
+9188	Dikkat: {0} karakter kartları toplamında Lv{1}'i aşıyor (aşan {2} Lv etki etmez)
+9189	IRENE
+9190	ESTELLE
+9191	ALICIA
+9192	Reklam hazırlanıyor. Biraz sonra tekrar dene
+9193	TEST AD (deneme) ödüllü reklam
+9194	TEST AD (deneme) geçiş reklamı
+9195	{0} sn
+9196	Ödül koşulu sağlandı
+9197	Erken kapat
+9198	Uygulama kesintisi denemesi
+9199	¥(deneme) 000
+9200	Deneme (yalnızca geliştirme sürümü): gerçek satın alma değil. Gerçek satın alma haklarından ayrı saklanır
+9201	・Satın alımlar mağaza hesabına bağlıdır. Cihaz değişince veya yeniden kurunca "Satın Alımları Geri Yükle" ile geri alırsın. Kart, MILE gibi kayıt verileri bu düğmeyle geri gelmez
+9202	Satın alma doğrulanamadı. Geçiş etkin kalır, daha sonra tekrar kontrol edilecek
+9203	OMMLAN
+9204	SYNC
+9205	ÇEVRİMİÇİ OYUN
+9206	Oda kurar ve çevrimiçi "FIND GAME" listesinde yayınlar.
+9207	Bu cihazda oda kurar. Aynı Wi-Fi'deki cihazlar "FIND GAME" ile katılabilir.
+9208	ÇEVRİMİÇİ HİZMET KULLANILAMIYOR
+9209	DEV:
+9210	TEKRAR DENE
+9211	Yakındaki odalar aranıyor…
+9212	DEV
+9213	Herkes gelince "Kapat (oda açık kalır)" → kapı → STAGE SELECT'te "Yola çık" de; herkes aynı haritada aynı anda başlar.
+9214	CO-OP: Yenilince DOWN. Yenildiğin yere gelen arkadaş (en az 2 kalp) REVIVE ile 1 kalp verirse dirilirsin. Herkes DOWN olursa biter.
+9215	MODE: HOST seçer (koşu başında herkese uygulanır)
+9216	Ana ekrandaki kapı → STAGE SELECT'te "Yola çık" deyince bağlı herkes aynı haritada aynı anda başlar.
+9217	REVIVE
+9218	Bağlantı başlatılamadı. Tekrar dene veya uygulamayı yeniden başlat
+9219	Oda kurulamadı (ağı başka bir uygulama kullanıyor olabilir)
+9220	P{0} bağlantıyı kesti (kalan {1} kişi)
+9221	{0} bağlantıyı kesti
+9222	Diğer oyuncu bağlantıyı kesti
+9223	Oyun sürümleri farklı, katılınamıyor. İkisini de güncelleyin
+9224	Bu odada koşu başladı, katılınamıyor
+9225	Oda dolu, katılınamıyor
+9226	Bağlantı reddedildi
+9227	Sen: rekorun henüz sıralamada görünmüyor
+9228	AUTO
+9229	Hızlı çıkış
+9230	Rekor göndermeyi durdur
+9231	UGS
+9232	Bir kart seç
+9233	Onaylamak için tekrar seç
+9234	Kart seç → onaylamak için tekrar seç
+9235	Koşul sağlandı! Koşuyu başarıyla bitirince kesinleşir
+9236	Koşu hızı başlama hızına ulaşınca yalnızca ON olan işlemler otomatik yapılır.
+9237	Elle kontrol önceliklidir. "Boss savaşında da AUTO" OFF ise boss savaşında otomatik işlem yapılmaz.
+9238	Geçiş mağaza hesabına bağlıdır (satın alımları geri yüklemek kayıt verisini geri getirmez)
+9239	İleri/geri saldırı, zıplama, aşağı saldırı, fırlatma ve kart seçimini çalış (ödül ve kayıt yok).
+9240	Antrenman yalnızca ana ekrandan başlatılabilir (çok oyunculu bağlantı sırasında olmaz)
+9241	Titan yaklaşıyor! Saldırı fırsatı!
+9242	Çekirdek söndü! BREAK fırsatı!
+9243	İnişte kaydı! Saldırı fırsatı!
+9244	Başı bulutlardan çıktı! Saldırı fırsatı!
+9245	Hale söndü! Büyük fırsat!
+9246	Elektrik yükü bitti! Saldırı fırsatı!
+9247	Hızlı çıkış ({0} noktası)
+9248	Geçtiğin bölümleri hızla aşıp seçtiğin geçidin biraz önünden başlarsın. Boss ödülü kartları rastgele otomatik alınır. Her 5,000m'deki halkada yüksekliği yukarı/aşağı tutturursan 1 kart daha seçersin. Atlanan mesafe için MILE ve EXP verilmez.
+9249	{0}km'ye hızlı koşu   (yakl. {1} sn + halka kart seçimi){2}
+9250	{0}km geçit boss'u henüz yenilmedi
+9251	Bu koşuda destedeki tüm kartlar Lv9 oldu.
+9252	Geçit {0}/{1}    Halka {2}/{3}{4}
+9253	Geçilen geçit {0}/{1}   Halka {2}/{3}{4}
+9254	Koşudaki destenin tüm kartları Lv{0} MAX
+9255	Kart alınamayan geçit: {0}
+9256	Bu koşuda destedeki tüm kartlar Lv9. Halka ödülü götürülecek MILE
+9257	(BEST mesafe kaydı da tutulmaz)
+9258	Harita seçimine
+9259	Deste sınırı 12 kart oldu
+9260	OVERFLOW

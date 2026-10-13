@@ -369,7 +369,7 @@ public class DeckEditUI : MonoBehaviour
         {
             var t = charSlotHints[i]; if (t == null || gm == null) continue;
             bool empty = string.IsNullOrEmpty(gm.CharacterCardIds[i]);
-            t.text = Loc.Auto(i == pendingEquipSlot ? "一覧からカードを選ぶ" : empty ? "タップして設定" : "タップで変更");
+            t.text = Loc.Auto(i == pendingEquipSlot ? "一覧からカードを選ぶ" : empty ? "タップして設定" : "タップで外す");
             if (charSlotPlus[i] != null) charSlotPlus[i].enabled = empty;
             t.color = i == pendingEquipSlot ? new Color(1f, 0.85f, 0.4f) : empty ? new Color(0.95f, 0.8f, 0.45f) : new Color(0.8f, 0.84f, 0.95f);
         }
@@ -736,7 +736,7 @@ public class DeckEditUI : MonoBehaviour
             if (equipped && inDeck) statusLine = "\n\n[EQUIPPED / IN DECK]";
             else if (equipped) statusLine = "\n\n[EQUIPPED]";
             else if (inDeck) statusLine = "\n\n[IN DECK]";
-            if (otherChar) statusLine += "\n[他のキャラのキャラカード]";
+            if (otherChar) statusLine += "\n[他キャラに装備中]";
         }
         UguiScrollText.Wrap(detailText); // 2026-10-08: 長い説明は枠の中でスクロール(縮めない)
         if (detailText != null) detailText.text = Loc.Auto((detailPreviewCard != null ? DetailDescription(card) : card.description) + statusLine);
@@ -922,14 +922,14 @@ public class DeckEditUI : MonoBehaviour
         if (gm == null) return;
         if (gm.IsCardInUse(detailCardId))
         {
-            if (detailText != null) detailText.text = Loc.Auto("現在使用中のカードです。外してから使用してください。");
+            if (detailText != null) detailText.text = Loc.Auto("使用中のカードは変換できません。デッキやキャラクターカードから外してください。");
             return;
         }
 
         CardDefinition card = CardDatabase.FindById(detailCardId);
         string cardId = detailCardId;
         int level = detailLevel;
-        string message = $"{card?.cardName}{(level > 1 ? $" Lv.{level}" : "")}\nを{CardConvertMile} MILEに変換しますか？";
+        string message = $"{card?.cardName}{(level > 1 ? $" Lv.{level}" : "")}\nこのカード1枚を{CardConvertMile} MILEに変換しますか？";
 
         if (confirmDialog == null) { DoConvert(cardId, level); return; }
         confirmDialog.Show(message, () => DoConvert(cardId, level));

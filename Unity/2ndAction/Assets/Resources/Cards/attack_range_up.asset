@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: attack_range_up
   cardName: ATTACK RANGE UP
   icon: {fileID: 2800000, guid: 0dbd1172dc0ab6f4b83b8b21b4633df9, type: 3}
-  description: "\u5B9F\u52B9\u653B\u6483\u7BC4\u56F2\u304C\u5E83\u304C\u308B(1Lv\u3054\u3068\u306B+3%)\u3002\u8FD1\u63A5\u306F\u5224\u5B9A\u3001\u98DB\u3073\u9053\u5177\u306F\u98DB\u3076\u8DDD\u96E2(\u5F3E\u306F\u5927\u304D\u304F\u306A\u3089\u306A\u3044)"
+  description: "攻撃範囲+3%/Lv。近接攻撃は当たる範囲が広がり、飛び道具は飛ぶ距離が延びる(弾の大きさは変わらない)"
   category: 1
   sortOrder: 7
   recommendPriority: 5

@@ -152,7 +152,7 @@ public class RankingPanel : MonoBehaviour
         var best = Leaderboard.VerifiedBest(st);
         string meLine = page != null && page.me != null
             ? Loc.Auto("あなた") + $": #{page.me.rank}  {page.me.meters:N0}m" // 順位は # で(言語ごとの順位の言い方に頼らない)
-            : Loc.Auto(best != null ? "あなた: 投稿待ちの記録があります" : "あなた: まだ記録がありません");
+            : Loc.Auto(best != null ? "あなた: 記録はまだ順位に表示されていません" : "あなた: まだ記録がありません");
         LocGUI.Label(new Rect(r.x, y, r.width * 0.6f, 30f), meLine, UiKit.Label(19f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.4f)));
         int pending = Leaderboard.PendingCount;
         if (pending > 0)
@@ -185,13 +185,13 @@ public class RankingPanel : MonoBehaviour
                 GUI.Label(new Rect(rr.x + 72f, rr.y, rr.width * 0.42f, rr.height), string.IsNullOrEmpty(row.name) ? "-" : row.name, cs); // 名前は訳さない
                 LocGUI.Label(new Rect(rr.x + 72f + rr.width * 0.42f, rr.y, rr.width * 0.2f, rr.height), $"{row.meters:N0}m", cs);
                 string ch = !string.IsNullOrEmpty(row.characterId) && UnlockRules.IsCharacterVisible(row.characterId) ? Loc.Auto(UnlockRules.CharName(row.characterId)) : "";
-                string marks = (row.usedAuto ? " AUTO" : "") + (row.usedSprint ? " SPRINT" : "");
+                string marks = (row.usedAuto ? " AUTO" : "") + (row.usedSprint ? " 疾走" : "");
                 LocGUI.Label(new Rect(rr.x + 72f + rr.width * 0.62f, rr.y, rr.width * 0.38f - 72f, rr.height), ch + marks, UiKit.Label(15f, TextAnchor.MiddleLeft, false, new Color(0.8f, 0.85f, 0.95f)));
             }
             list.End(view, contentH);
         }
         if (UiKit.Button(new Rect(r.x, r.yMax - 38f, 160f, 36f), "更新", 16f, false, true, loadingStage == null) && loadingStage == null) Load(force: true);
-        if (UiKit.Button(new Rect(r.xMax - 200f, r.yMax - 38f, 200f, 36f), "参加をやめる", 15f, false, true)) { Leaderboard.Leave(); joinStep = false; }
+        if (UiKit.Button(new Rect(r.xMax - 200f, r.yMax - 38f, 200f, 36f), "記録の送信をやめる", 15f, false, true)) { Leaderboard.Leave(); joinStep = false; }
         if (!string.IsNullOrEmpty(Leaderboard.LastSendError) && pending > 0)
             LocGUI.Label(new Rect(r.x + 170f, r.yMax - 38f, r.width - 380f, 36f), "通信できない時は投稿待ちに残し、後で送ります", UiKit.Label(14f, TextAnchor.MiddleCenter, false, new Color(1f, 0.75f, 0.6f)));
     }

@@ -15,8 +15,7 @@ MonoBehaviour:
   cardId: overdrive
   cardName: OVERDRIVE
   icon: {fileID: 2800000, guid: 4960e94c7c065ba478ff8530ea62ba2f, type: 3}
-  description: "115km/h\u4EE5\u4E0A\u3092\u7D9A\u3051\u308B\u3068OVERDRIVE(\u653B\u6483
-    1Lv\u3054\u3068\u306B+3%\u3001\u653B\u6483\u901F\u5EA6 +2%)\u3002\u9045\u304F\u306A\u308B\u3068\u89E3\u9664\u3002\u79FB\u52D5\u901F\u5EA6\u3082\u5C11\u3057\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+2%)"
+  description: "115km/h以上を一定時間保つとOVERDRIVE発動(攻撃力+3%/Lv、攻撃速度+2%/Lv)。107km/h未満が0.8秒続くと解除。移動速度は常時+2%/Lv"
   category: 0
   sortOrder: 149
   recommendPriority: 5

@@ -568,11 +568,11 @@ public class SettingsPanel : MonoBehaviour
         y = ChoiceRow(x, y, w, "ボス戦でもオート", hsa.autoInBoss ? 1 : 0, "OFF", "ON", interactive && on, c => hsa.SetAutoInBoss(c == 1));
         y = ChoiceRow(x, y, w, "自動攻撃", hsa.autoAttack ? 1 : 0, "OFF", "ON", interactive && on, c => hsa.SetAutoAttack(c == 1));
         y = ChoiceRow(x, y, w, "自動回避", hsa.autoAvoid ? 1 : 0, "OFF", "ON", interactive && on, c => hsa.SetAutoAvoid(c == 1));
-        y = Note(x, y, w, "走る速さが開始速度を超えると、ONの操作だけ自動で行います。");
+        y = Note(x, y, w, "走る速さが開始速度以上になると、ONにした操作だけ自動で行います。");
         y = Note(x, y, w, "自動攻撃: 前の敵・壊せる障害物・ボスへの攻撃。");
         y = Note(x, y, w, "自動回避: 穴・障害物・壁・トゲへのジャンプ。ボス戦では弾や攻撃範囲も。");
         y = Note(x, y, w, "通常の敵の攻撃は避けません。必ず避けられるわけではありません。");
-        y = Note(x, y, w, "自分の操作が優先。ボス戦OFFならボス戦の間は自動操作しません。");
+        y = Note(x, y, w, "手動操作を優先します。「ボス戦でもオート」がOFFなら、ボス戦中は自動操作しません。");
         y = Note(x, y, w, "※ ボス戦でもオートは、ボスと戦っている間は速さに関係なく働きます。");
         return DrawHowToPlay(x, y + 12f, w, interactive);
     }
@@ -626,7 +626,7 @@ public class SettingsPanel : MonoBehaviour
             if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), "プライバシーの設定", 19f, false, true) && interactive) Monetization.Ads.ShowPrivacyOptions();
             y += RowH;
         }
-        y = Note(x, y, w, string.IsNullOrEmpty(NoAdsPass.LastNote) ? "購入の権利はストアのアカウントに付きます(育成データの復元とは別)" : NoAdsPass.LastNote);
+        y = Note(x, y, w, string.IsNullOrEmpty(NoAdsPass.LastNote) ? "パスはストアのアカウントに紐づきます(購入の復元でセーブデータは戻りません)" : NoAdsPass.LastNote);
         return y;
     }
 
@@ -641,6 +641,6 @@ public class SettingsPanel : MonoBehaviour
             TutorialLauncher.Launch(false, "settings");
         }
         y += RowH;
-        return Note(x, y, w, can ? "前後の攻撃/ジャンプ/下攻撃/打ち上げ/カードを練習(報酬なし)" : "練習はホームで始められます(ラン中/マルチ中は不可)");
+        return Note(x, y, w, can ? "前後攻撃・ジャンプ・下攻撃・打ち上げ・カード選択を練習できます(報酬・記録なし)。" : "練習はホームでのみ始められます(マルチ接続中は不可)");
     }
 }

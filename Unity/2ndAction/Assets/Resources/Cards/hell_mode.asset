@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: hell_mode
   cardName: HELL MODE
   icon: {fileID: 2800000, guid: a3b832a5c21079e4e81f131a44884811, type: 3}
-  description: "\u96D1\u9B5A\u306EHP(+12%/Lv)\u30FB\u52D5\u304D(+4%/Lv)\u30FB\u51FA\u73FE(+8%/Lv)\u304C\u4E0A\u304C\u308B\u4EE3\u308F\u308A\u306B\u3001MILE(+50%/Lv)\u3068\u30DC\u30B9MILE(+30%/Lv)\u304C\u5927\u304D\u304F\u5897\u3048\u308B"
+  description: "雑魚のHP+12%/Lv、行動速度+4%/Lv、出現頻度+8%/Lv。代わりに敵撃破・BONUSのMILE+50%/Lv、ボス撃破MILE+30%/Lv"
   category: 6
   sortOrder: 158
   recommendPriority: 1

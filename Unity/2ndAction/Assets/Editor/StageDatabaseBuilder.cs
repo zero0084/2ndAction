@@ -34,9 +34,9 @@ public static class StageDatabaseBuilder
         {
             id = "wasteland_road",
             displayName = "荒野街道",
-            enemyText = "敵: ゴブリン / 鳥",
-            featureText = "障害物: 石・小木・壁・壊せる木・巨大石・穴",
-            routeText = "ルート: 一本道の洞窟(地上・空中・地中・天井から敵)",
+            enemyText = "敵: ゴブリン・鳥・大型・射手など",
+            featureText = "障害物: 石・木・壁・巨大石(攻撃で壊せる)・穴",
+            routeText = "ルート: 上下に分岐(安全・危険はランダム)",
             unlocked = true,
             sortOrder = 0,
             thumbnailPath = "Assets/Art/Background/WastelandThumbnail.png",
@@ -63,7 +63,7 @@ public static class StageDatabaseBuilder
             // コメント参照)。
             id = "sky_corridor",
             displayName = "天空回廊",
-            enemyText = "敵: ゴブリン系 + 距離進行で徐々に解禁",
+            enemyText = "敵: ゴブリン / ハーピー / ガーゴイル ほか",
             featureText = "特徴: 岩と雲の浮遊足場、上空の道",
             routeText = "ルート: 進むほど危険度が上昇",
             unlocked = true,
@@ -79,7 +79,7 @@ public static class StageDatabaseBuilder
             // ルール(カード/速度/敵/ボス/帰還)は他マップと同じで、見た目と構成だけが違う。
             id = "last_corridor",
             displayName = "LAST CORRIDOR",
-            enemyText = "敵: 全ステージの敵が混在(強化)",
+            enemyText = "敵: 荒野・洞窟・天空の敵が多数出現",
             featureText = "特徴: 崩落する床・落ちてくる構造物・浮遊する回廊",
             routeText = "ルート: 巨大な古代回廊 → 崩壊 → 奈落 → 最後の道",
             unlocked = true,

@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: deaths_contract
   cardName: DEATH'S CONTRACT
   icon: {fileID: 2800000, guid: adb14e3ee717145438f349b6305e251c, type: 3}
-  description: "\u653B\u6483\u529B\u304C\u3068\u3066\u3082\u5927\u304D\u304F\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+12%)\u3002\u6700\u5927HP\u306E\u30CF\u30FC\u30C8\u30922Lv\u3054\u3068\u306B1\u3064\u5C01\u5370\u3059\u308B"
+  description: "攻撃力+12%/Lv。ただし最大HPのハートを封印する(Lv1〜2で1つ、以降2Lvごとに1つ追加。Lv9で5つ)"
   category: 6
   sortOrder: 164
   recommendPriority: 1

@@ -1,0 +1,261 @@
+9000	Trafienia mogą wychłodzić. Zamrożeni wrogowie otrzymują dodatkowe obrażenia. Atak na wychłodzonych/zamrożonych wrogów +3%/Lv. Zamrożenie trwa dłużej, a spowolnienie bossów jest silniejsze
+9001	Przy HP 50% lub mniej szybkość ataku +3%/Lv. Przy HP 25% lub mniej bonus jest podwójny (+6%/Lv)
+9002	Trafienie w powietrzu wyzwala w miejscu trafienia obszarowe cięcie pościgowe. Lv zwiększa obrażenia i zasięg
+9003	Atak w powietrzu +3%/Lv. Każde trafienie bez lądowania daje kolejne +1%/Lv (maks. 4 razy). Lądowanie zeruje dodatkowy bonus
+9004	Silniejszy atak na wrogów w powietrzu (wybitych/latających zwykłych; z bossów tylko Smok i Demon) (+8%/Lv)
+9005	Zasięg ataku +3%/Lv. Ataki wręcz trafiają szerszy obszar, pociski lecą dalej (rozmiar pocisku się nie zmienia)
+9006	Przy HP 50% lub mniej atak +5%/Lv, szybkość ataku +2%/Lv. Przy HP 25% lub mniej oba bonusy są podwójne
+9007	Atak +6%/Lv, szybkość ataku +1%/Lv. Ale pieczętuje serca maks. HP (1 przy Lv1–3, 2 przy Lv4–6, 3 przy Lv7–9)
+9008	Przy HP 50% lub mniej atak +4%/Lv. Przy HP 25% lub mniej również szansa na wchłonięcie za pokonanie wroga/bossa (leczy 1 serce) +3%/Lv
+9009	Przy zwykłych bramach z bossem szansa (8%/Lv), że dołączy drugi boss. MILE za pokonanych bossów +50%/Lv. Nie dotyczy specjalnych bossów co 10km ani nawały bossów w ostatnim lochu
+9010	Atak +7%/Lv. Ale każdy atak w przód/w tył obniża prędkość ruchu o 10% na 0,4 s
+9011	Siła podpalenia +8%/Lv, czas podpalenia +0,25 s/Lv. Sama ta karta też podpala przy trafieniu (szansa 7% na Lv1, potem +2%/Lv)
+9012	Pokonanie wroga wywołuje eksplozję wokół. Wrogowie pokonani eksplozją też wybuchają, maks. do 3 etapów. Każdy wróg dostaje tylko 1 raz na łańcuch
+9013	Aktywuje się przy Gauge 100% (przycisk w lewym dolnym rogu). Unikalny cios postaci jednym uderzeniem pokonuje zwykłych wrogów na ekranie i zadaje bossom 20–40% maks. HP (rośnie z Lv). Potem mocno pcha do przodu (Lv1 300m → Lv9 1000m; zatrzymuje się przed bramami z bossem itp., a w walce z bossem nie rusza naprzód), a wzmocnienie trwa przez chwilę (Lv1 5 s → Lv9 12 s). Gauge ładuje się za dystans, pokonanych wrogów i obrażenia bossom
+9014	Gdy trafi cios kończący serii ataków, wyzwala dodatkowe uderzenie do przodu (Lv zwiększa obrażenia i zasięg)
+9015	Atak ostatniego ciosu (kończącego) przy łączeniu ataków w przód/w tył +7%/Lv
+9016	Zablokowanie ataku tarczą Shield wyzwala wokół falę uderzeniową kontry. Lv zwiększa obrażenia. Sama ta karta daje 1 Shield
+9017	Atak +12%/Lv. Ale pieczętuje serca maks. HP (1 przy Lv1–2, potem +1 co 2 Lv; 5 przy Lv9)
+9018	Część zwykłych wrogów staje się elitą (+4% na Lv; HP×2.5, nieco szybsi, za pokonanie MILE×3/EXP×2). MILE też rośnie (+30%/Lv)
+9019	MILE za pokonanych wrogów +15%/Lv. Dotyczy też nagród MILE z BONUS ZONE i POSZUKIWANYCH
+9020	Mniej zdobywanego EXP (-10%/Lv, min. 25% normalnego), za to MILE za wrogów i BONUS +30%/Lv
+9021	EXP za pokonanych wrogów, bossów i BONUS ZONE mocno rośnie (+80%/Lv). Nie dotyczy EXP za dystans
+9022	Może podpalić trafionego wroga, zadając obrażenia przez 3 s. Na Lv1 szansa 15% i 5 obrażeń/s, z każdym Lv szansa +5% i obrażenia/s +1,5
+9023	Zablokowanie ataku tarczą Shield wyzwala wokół ognistą kontrę, która podpala trafionych wrogów. Lv zwiększa obrażenia. Sama ta karta daje 1 Shield
+9024	Trafienia mogą wychłodzić i spowolnić wroga. Na Lv1 szansa 15% i spowolnienie 25%, z każdym Lv szansa +5% i spowolnienie +2%. 5 nałożonych wychłodzeń zamraża (bossowie nie stają, tylko zwalniają)
+9025	Trafienia mogą wypuścić ostrze wiatru. Prędkość ostrza +5%/Lv, zasięg +0,4m/Lv. Ostrza wiatru i pociski przebijają +1 (od Lv4 +2, od Lv7 +3)
+9026	Lądowanie po uderzeniu w ziemię lub cios kończący na ziemi wyzwala falę uderzeniową biegnącą po gruncie (Lv zwiększa obrażenia i długość). Atak na ziemi też +2%/Lv
+9027	Atak +4%/Lv. Za każde zapieczętowane serce dodatkowo atak +0,6%/Lv (liczą się też pieczęcie innych kart). Sama też pieczętuje serca maks. HP (1 przy Lv1–3, 2 przy Lv4–6, 3 przy Lv7–9)
+9028	Maks. HP +1 serce/Lv (limit 20 serc). Po zdobyciu HP odnawia się w pełni
+9029	Obrażenia za 2 serca lub więcej zmniejsza o 1 serce. Maks. HP też rośnie (+1 serce przy Lv1–2, potem +1 co 2 Lv). Skok -3%/Lv
+9030	Atak w dół i lądowanie po uderzeniu w ziemię +10%/Lv. Cios kończący też +3%/Lv
+9031	HP zwykłych wrogów +12%/Lv, szybkość działania +4%/Lv, częstotliwość grup +8%/Lv. W zamian MILE za wrogów i BONUS +50%/Lv, MILE za bossów +30%/Lv
+9032	Grupy wrogów pojawiają się częściej (+15%/Lv). W zamian MILE za wrogów i BONUS +5%/Lv, EXP za wrogów i BONUS +5%/Lv
+9033	W walce z bossem wypad w przód/w tył przy ataku +4%/Lv. Prędkość zbliżania się do bossa dalszego niż 6m też +3%/Lv
+9034	Trafienia mogą wychłodzić. Do zamrożenia potrzeba mniej wychłodzeń (4 przy Lv1–3, 3 przy Lv4–6, 2 przy Lv7–9). Szansa i czas wychłodzenia też rosną
+9035	Pokonanie płonącego wroga rozprzestrzenia ogień i podpala wrogów wokół (Lv zwiększa obrażenia i zasięg). Sama ta karta też ma małą szansę (5%) na podpalenie przy trafieniu
+9036	Skoki w powietrzu +1/Lv. Kolejne dodatkowe skoki wznoszą słabiej, ale nie podczas spadania do dziury. Czarodziejka zyskuje maks. wysokość: +1 poziom przy Lv1–3, +2 przy Lv4–6, +3 przy Lv7–9
+9037	Gdy obrażenia zbiją HP do 1 serca lub mniej, dostajesz krótką nietykalność (1 s +0,15 s/Lv). Nie chroni przed upadkiem. Ponownie zadziała dopiero, gdy HP wróci powyżej 1 serca i minie 20 s od aktywacji
+9038	Zdobywany EXP +30%/Lv
+9039	Zasięg ataku +5%/Lv. Ataki wręcz trafiają szerszy obszar, pociski lecą dalej
+9040	Zdobywany EXP +15%/Lv. Maks. HP też rośnie (+1 serce przy Lv1–3, +2 przy Lv4–6, +3 przy Lv7–9)
+9041	Atak na wrogów niebędących bossami +5%/Lv. MILE za wrogów i BONUS +10%/Lv
+9042	Atak rośnie wraz z prędkością biegu. Do 100km/h brak efektu. Przy 150km/h +4%/Lv; powyżej dalej rośnie, ale 4 razy wolniej
+9043	Grupy wrogów pojawiają się częściej (+10%/Lv). W zamian zdobywany EXP +15%/Lv
+9044	Grupy wrogów pojawiają się częściej (+10%/Lv). MILE za wrogów i BONUS też +3%/Lv
+9045	Prędkość ruchu +5%/Lv. Ale grupy wrogów też pojawiają się częściej (+10%/Lv)
+9046	MILE za wrogów i BONUS +50%/Lv, MILE za bossów +50%/Lv, zdobywany EXP +20%/Lv
+9047	Utrzymanie 115km/h lub więcej przez pewien czas włącza OVERDRIVE (atak +3%/Lv, szybkość ataku +2%/Lv). Wyłącza się po 0,8 s poniżej 107km/h. Prędkość ruchu zawsze +2%/Lv
+9048	Zwiększa leczenie z wchłaniania i DRUGIEGO ODDECHU (+1 serce przy Lv4–6, +2 przy Lv7–9). Nadmiar przy pełnym HP staje się 1 Shield (do maks. +1)
+9049	HP zwykłych wrogów +15%/Lv, szybkość działania +5%/Lv, częstotliwość grup +12%/Lv, szansa na elitę +2%/Lv, HP bossów +10%/Lv. W zamian MILE za wrogów i BONUS +60%/Lv, MILE za bossów +60%/Lv
+9050	EXP za dystans +20%/Lv. Nie dotyczy EXP za pokonanych wrogów
+9051	Zablokowanie ciosu tarczą Shield daje krótką nietykalność (0,4 s +0,1 s/Lv). Sama ta karta daje 1 Shield
+9052	Po upadku (także w dziurę) wracasz do gry z 2 s nietykalności (HP od 1 do 5 serc zależnie od Lv). Po wskrzeszeniu karta znika i znów może się pojawić do wyboru (od Lv1)
+9053	Trafienie wręcz zadaje też dodatkowe obrażenia wrogom za celem. Lv zwiększa obrażenia i liczbę celów. Pociski też przebijają więcej (+1 przy Lv1–3, +2 przy Lv4–6, +3 przy Lv7–9)
+9054	Szansa na wyleczenie 1 serca za pokonanie wroga +3%/Lv. Trafiając bossa, też masz małą szansę na wchłonięcie HP
+9055	Gdy po trafieniu HP spadnie do 30% maks. lub niżej, leczy 1–3 serca (2 przy Lv5, 3 przy Lv9). Ponowne użycie wymaga przebiegnięcia pewnego dystansu (10 000m przy Lv1, 6 000m przy Lv9)
+9056	Shield blokujący 1 trafienie. Maks.: 1 przy Lv1–3, 2 przy Lv4–6, 3 przy Lv7–9. Zużyte odnawiają się z czasem po jednym (szybciej z Lv)
+9057	Atak w powietrzu +4%/Lv. Trafienie w powietrzu zwraca 1 zużyty skok w powietrzu (do lądowania: 1 raz przy Lv1–3, 2 przy Lv4–6, 3 przy Lv7–9)
+9058	Skok +2%/Lv, atak w powietrzu +3%/Lv
+9059	Ataki w przód/w tył wypuszczają do przodu cięcie przebijające wrogów. Im szybciej biegniesz, tym większy zasięg, rozmiar i siła cięcia
+9060	Prędkość ruchu -4%/Lv. Specjalna karta, gdy chcesz biec wolniej
+9061	Zdobywany EXP +40%/Lv. Maks. HP też rośnie (+1 serce przy Lv1–2, potem +1 co 2 Lv; +5 przy Lv9)
+9062	Trafienia mają małą szansę przywołać piorun. Siła pioruna +4%/Lv; łańcuch +1 cel przy Lv1–3, +2 przy Lv4–6, +3 przy Lv7–9. Piorun rani też wokół
+9063	Trafienia mogą przywołać piorun. Na Lv1 szansa 5% i siła bazowa 7,5, z każdym Lv szansa +2% i siła bazowa +1,5. Maks. 1 piorun na 0,4 s w tego samego wroga
+9064	W miejscu trafienia ostrza wiatru powstaje tornado, które stale rani wrogów wokół (Lv zwiększa obrażenia i zasięg). Sama ta karta też ma małą szansę wypuścić ostrze wiatru przy trafieniu
+9065	HP zwykłych wrogów +15%/Lv. W zamian MILE za wrogów i BONUS +15%/Lv, EXP za wrogów +5%/Lv
+9066	MILE ze skarbów/nagród +30%/Lv (skarby i UKOŃCZONO/PERFEKCYJNIE w BONUS ZONE, nagrody za POSZUKIWANYCH). MILE za bossów +10%/Lv, MILE za dystans +5%/Lv
+9067	Atak +3%/Lv, prędkość ruchu +2%/Lv. Maks. HP też rośnie (+1 serce przy Lv1–2, potem +1 co 2 Lv; +5 przy Lv9)
+9068	Co pewien dystans pojawia się poszukiwany (silniejszy i częstszy z Lv). Pokonaj go dla nagrody w MILE; jeśli go zostawisz, nagrody nie ma. MILE za wrogów i BONUS +35%/Lv
+9069	Trafienia mogą wypuścić do przodu ostrze wiatru przebijające wrogów. Na Lv1 szansa 10% i siła 8, z każdym Lv szansa +3% i siła +1,5. Zasięg ataku też nieco rośnie (+1%/Lv)
+9070	Wrogowie: mnóstwo wrogów z pustkowia, jaskini i nieba
+9071	Wrogowie: gobliny / harpie / gargulce i inni
+9072	Wrogowie: gobliny, ptaki, olbrzymy, strzelcy itd.
+9073	Przeszkody: kamienie, drzewa, mury, wielkie głazy (można rozbić atakiem), dziury
+9074	Trasa: rozwidla się w górę i w dół (bezpieczna/groźna losowo)
+9075	Usunięto wszystkich wrogów i ich ataki (nie liczy się jako wszyscy pokonani, czas nie jest zapisywany)
+9076	Wszyscy pokonani  {0} s
+9077	Do walki
+9078	Build testowy ({0} rodz.)
+9079	Lv = ile razy wzięto w biegu (maks. 9 na zdolność). Posiadane karty i talia się nie zmieniają
+9080	Skopiowano {0} kart z talii do buildu testowego (talia bez zmian)
+9081	Skopiowano {0} kart postaci do buildu testowego (Lv startowy)
+9082	Bossowie wchodzą z przodu z tym samym wejściem co w grze
+9083	Ruchy bossów jaskini i nieba korzystające z terenu (dziury, sufit, spadające skały itp.) na płaskiej arenie działają inaczej
+9084	Obecni przeciwnicy ({0} grup)
+9085	HP wrogów: jak na {0}km (dotyczy HP zwykłych wrogów i bossów)
+9086	Biegnij (z bonusami)
+9087	Zatrzymuje się tylko automatyczny bieg (ataki, skoki, grawitacja, odrzut i ruchy wrogów jak w grze)
+9088	Do prędkości bazowej dolicza bonusy prędkości postaci i kart
+9089	Ignoruje bonusy prędkości postaci i kart, biegnie z ustawioną prędkością
+9090	Ustawiona {0}km/h / Obecna walka {1}km/h (bonus ×{2})
+9091	Nawet przy nietykalności obrażenia trafiają do "Obrażeń bez ochrony" w wyniku
+9092	Tryb AUTO (tylko na arenie; zwykłe ustawienia bez zmian)
+9093	Start od {0}km/h
+9094	Nagrody, rekordy i posiadane rzeczy się nie zmieniają. Niedostępne: FINAL EVOLUTION / AWAKENED / MASTERY / pasek ULTIMATE / awans poziomu / nagrody za bossa / BONUS ZONE (karty tylko ze zwykłym efektem Lv i COMBO)
+9095	Pierwsza walka
+9096	Siła bossa: {0}
+9097	Wszyscy pokonani {0} s
+9098	Pokonani/pojawieni
+9099	Otrzymane obrażenia
+9100	Obrażenia bez ochrony (z zablokowanymi przez nietykalność/Shield)
+9101	N0
+9102	Build testowy: {0}
+9103	Edytuj warunki
+9104	??? (niespotkany)
+9105	WARNING!  MECH DRAGON nadciąga!
+9106	OVERKILL PROTOCOL
+9107	Chłodzenie! Atakuj!
+9108	Używana w talii/kartach postaci; nie może być materiałem
+9109	Osiągnięto AWAKENED (★5). MASTERY nie wzrośnie już wyżej
+9110	Przy sukcesie obu Lv wyniósłby {0}; fuzja niemożliwa (maks. Lv.{1})
+9111	<color=#ffd76a><b>[MASTERY] Zapis rozwoju po Lv.9 MAX</b></color>
+9112	Obecne MASTERY: <color=#ffd76a>{0}</color>  {1}
+9113	<size=19>MASTERY {0} ponad ★5 zostanie zachowane jako zapis</size>
+9114	<size=19>MASTERY nie zwiększa zwykłych statystyk (atak, prędkość, EXP itp.). To zapis rozwoju aż do AWAKENED przy ★5.</size>
+9115	<b>{0} Lv</b> ponad Lv.9 idzie do MASTERY: {1} → <color=#ffd76a>{2}</color>{3}
+9116	・{0} {1}<b>×{2}</b>  <size=18>({3})</size>
+9117	<color=#9fd0ff><b>[Fuzja różnych] Przy różnych kartach wynik jest losowy</b></color>
+9118	<b>Szansa na odziedziczenie wszystkich zdolności głównej {0}%</b>
+9119	・{0} ×{1}  <size=18>({2})</size>
+9120	<b>Szansa na odziedziczenie wszystkich zdolności materiału {0}%</b>
+9121	Obie udane: dziedziczy wszystkie zdolności obu stron (te same sumują bonus). Rzadkość = ★ wyższej +1 (maks. ★5)
+9122	Za mało wolnych kart do fuzji (używane w talii/kartach postaci)
+9123	Założona jako karta postaci; za mało wolnych kopii
+9124	Używana w talii; za mało kopii
+9125	<size=21>MASTERY {0} ponad ★5 zachowano jako zapis</size>
+9126	<size=21>Osiągnięto AWAKENED. Zapisano jako zapis rozwoju; zwykłe statystyki się nie zmieniają</size>
+9127	<size=21>MASTERY nie zwiększa zwykłych statystyk (atak, prędkość, EXP itp.).</size>
+9128	)}    Rzadkość <color=#ffd76a>{new string('★', v.rarity)}</color>
+9129	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3})</color></size>
+9130	Pokazano {0} / posiadane {1}
+9131	・Różne karty … główna ma 50%, a materiał 25% szansy na odziedziczenie swojego zestawu zdolności (losowanie). Gdy uda się tylko jednej, zostaje tylko jej Lv i zdolności; gdy obu się nie uda, karty nie ma (zwrot MILE)
+9132	・Maks. Lv fuzji to Lv.9. Przy fuzji tych samych kart nadmiar idzie do MASTERY. Różnych kart nie da się połączyć, jeśli suma Lv przekracza 9
+9133	・Połączenie takiej samej karty z kartą Lv.9 MAX zwiększa MASTERY (★5 = AWAKENED)
+9134	<size=19>Osiągnięto AWAKENED (★5). Kolejne fuzje MASTERY są niemożliwe.</size>
+9135	Użycie tej samej karty ({0}) jako materiału zwiększa MASTERY o jej Lv (Lv.1 = +1).
+9136	Oko osłabło! Atakuj!
+9137	Rdzeń odsłonięty! Czas na BREAK!
+9138	Częstotliwość grup wrogów
+9139	MILE za wrogów i BONUS
+9140	MILE za bossów
+9141	Szansa podpalenia
+9142	Bazowa siła podpalenia
+9143	Szansa wychłodzenia
+9144	Spowolnienie od wychłodzenia
+9145	Szansa krwawienia
+9146	Szybkość ataku w przód/w tył
+9147	Atak w powietrzu
+9148	Atak na ziemi
+9149	Cios kończący serii
+9150	Atak na zwykłych wrogów
+9151	Atak w dół/uderzenie w ziemię
+9152	Szybkość ataku przy HP ≤50%
+9153	Atak za każdy kolejny HIT
+9154	Atak za trafienie w powietrzu do lądowania
+9155	Odnowienie Shield (s krócej)
+9156	Szybkość działania wrogów
+9157	Szansa na elitę
+9158	MILE za dystans
+9159	EXP za dystans
+9160	EXP za wrogów
+9161	Mniej wychłodzeń do zamrożenia
+9162	Mnożnik obrażeń pioruna
+9163	)}: karty postaci
+9164	Dotknij, by zdjąć
+9165	[Założona u innej postaci]
+9166	Używanych kart nie można zamienić. Zdejmij je z talii lub kart postaci.
+9167	Zamienić tę kartę na {CardConvertMile} MILE?
+9168	)} {BleedPower * Scale:0.#}/s wchłanianie {BleedLifesteal * 100f:0}%
+9169	(już AWAKENED)
+9170	Dotknij, by zamknąć / dotknij maszyny, by losować znów
+9171	Odbierzesz: zwykłe {0} MILE + dodatkowe {1} MILE = razem {2} MILE
+9172	Dzisiejsze losowania wykorzystane (odnowienie za {0})
+9173	Reset losowań za {0}
+9174	Do zabrania tym razem
+9175	Stan po ucieczce
+9176	Jeśli padniesz lub porzucisz bieg, nie dostaniesz MILE z tego biegu
+9177	NOWE:
+9178	DEV: poza rekordami (
+9179	Dystans z tego biegu nie trafi do oficjalnych rekordów (BEST, łączny dystans, odblokowania map/postaci)
+9180	Pieczęcie: {0}
+9181	RESET MILE
+9182	RESET KART
+9183	Przerwany bieg i MILE do zabrania
+9184	MILE do zabrania
+9185	Wracasz do menu.
+9186	Bieg się nie kończy — możesz
+9187	Nie można założyć {0}: razem z innymi kartami postaci przekroczy Lv{1}
+9188	Uwaga: {0} przekracza Lv{1} w sumie kart postaci (nadmiarowe {2} Lv nie działa)
+9189	IRENE
+9190	ESTELLE
+9191	ALICIA
+9192	Reklama się przygotowuje. Spróbuj za chwilę
+9193	TEST AD (symulacja) reklama z nagrodą
+9194	TEST AD (symulacja) reklama pełnoekranowa
+9195	{0} s
+9196	Warunek nagrody spełniony
+9197	Zamknij wcześniej
+9198	Symuluj przerwanie aplikacji
+9199	¥(symulacja) 000
+9200	Symulacja (tylko wersja deweloperska): to nie jest prawdziwy zakup. Zapisywane osobno od prawdziwych zakupów
+9201	・Zakupy są przypisane do konta w sklepie. Po zmianie urządzenia/ponownej instalacji użyj „Przywróć zakupy”. Zapisane dane, jak karty i MILE, nie wrócą tym przyciskiem
+9202	Nie udało się potwierdzić zakupu. Karnet pozostaje aktywny; sprawdzimy ponownie później
+9203	OMMLAN
+9204	SYNC
+9205	GRA ONLINE
+9206	Tworzy pokój i publikuje go online w „ZNAJDŹ GRĘ”.
+9207	Tworzy pokój na tym urządzeniu. Urządzenia w tej samej sieci Wi-Fi dołączą przez „ZNAJDŹ GRĘ”.
+9208	USŁUGA ONLINE NIEDOSTĘPNA
+9209	DEV:
+9210	PONÓW
+9211	Szukanie pobliskich pokoi…
+9212	DEV
+9213	Gdy wszyscy są: „Zamknij (pokój zostaje)” → drzwi → „Wyrusz” w wyborze mapy, a wszyscy wystartują razem na tej samej mapie.
+9214	CO-OP: upadek = DOWN. Sojusznik (2+ serca), który dotrze na miejsce, oddaje przez WSKRZEŚ 1 serce i cię podnosi. Wszyscy DOWN = koniec.
+9215	TRYB: wybiera HOST (obowiązuje wszystkich od startu biegu)
+9216	Drzwi w menu → „Wyrusz” w wyborze mapy, a wszyscy połączeni wystartują razem na tej samej mapie.
+9217	WSKRZEŚ
+9218	Nie udało się nawiązać połączenia. Spróbuj ponownie lub uruchom aplikację od nowa
+9219	Nie udało się utworzyć pokoju (inna aplikacja może używać sieci)
+9220	P{0} rozłączył się (zostało: {1})
+9221	{0} rozłączył się
+9222	Drugi gracz się rozłączył
+9223	Inna wersja gry — nie można dołączyć. Zaktualizujcie grę na obu urządzeniach
+9224	W tym pokoju bieg już trwa — nie można dołączyć
+9225	Pokój jest pełny — nie można dołączyć
+9226	Połączenie odrzucone
+9227	Ty: twój rekord nie jest jeszcze w rankingu
+9228	AUTO
+9229	Sprint
+9230	Przestań wysyłać rekordy
+9231	UGS
+9232	Wybierz kartę
+9233	Dotknij ponownie, by potwierdzić
+9234	Wybierz kartę → dotknij ponownie, by potwierdzić
+9235	Warunek spełniony! Zatwierdzi się po udanym ukończeniu biegu
+9236	Gdy prędkość przekroczy prędkość startu, automatyczne będą tylko akcje ustawione na ON.
+9237	Sterowanie ręczne ma pierwszeństwo. Gdy „AUTO także z bossem” jest OFF, w walce z bossem nic nie dzieje się automatycznie.
+9238	Karnet jest przypisany do konta w sklepie (przywrócenie zakupów nie odzyskuje zapisów)
+9239	Ćwicz ataki w przód/tył, skok, atak w dół, wybicie i wybór kart (bez nagród i rekordów).
+9240	Trening uruchomisz tylko w menu głównym (nie w trybie multi)
+9241	Tytan nadciąga! Atakuj!
+9242	Rdzeń przygasł! Czas na BREAK!
+9243	Poślizg przy lądowaniu! Atakuj!
+9244	Głowa wyszła z chmur! Atakuj!
+9245	Aureola zgasła! Wielka szansa!
+9246	Ładunek zniknął! Atakuj!
+9247	Szybki start (od {0})
+9248	Przemkniesz przez zaliczone odcinki i zaczniesz biec tuż przed wybraną bramą. Karty z nagród za bossów są brane losowo. Wyrównaj wysokość z pierścieniami co 5 000m, by wybrać 1 kartę więcej. Za pominięty dystans nie ma MILE ani EXP.
+9249	Sprint do {0}km   (ok. {1} s + wybór kart przy pierścieniach){2}
+9250	Boss bramy na {0}km jeszcze niepokonany
+9251	W tym biegu wszystkie karty talii osiągnęły Lv9.
+9252	Bramy {0}/{1}    Pierścienie {2}/{3}{4}
+9253	Minięte bramy {0}/{1}   Pierścienie {2}/{3}{4}
+9254	Wszystkie karty talii w biegu Lv{0} MAX
+9255	Bramy bez karty: {0}
+9256	W tym biegu wszystkie karty talii mają Lv9. Nagroda za pierścienie to MILE do zabrania
+9257	(rekord BEST dystansu też nie zostanie)
+9258	Do wyboru mapy
+9259	Limit talii wynosi teraz 12 kart
+9260	OVERFLOW

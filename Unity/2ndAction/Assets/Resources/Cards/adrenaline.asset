@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: adrenaline
   cardName: ADRENALINE
   icon: {fileID: 2800000, guid: 728374e5cb6bec0498b78ee7a53621f0, type: 3}
-  description: "HP50%\u4EE5\u4E0B\u3067\u653B\u6483\u901F\u5EA6\u304C\u4E0A\u304C\u308A(1Lv\u3054\u3068\u306B+3%)\u3001HP25%\u4EE5\u4E0B\u3067\u306F\u305D\u306E2\u500D"
+  description: "HP50%以下で攻撃速度+3%/Lv。HP25%以下では上昇量が2倍(+6%/Lv)"
   category: 6
   sortOrder: 123
   recommendPriority: 3

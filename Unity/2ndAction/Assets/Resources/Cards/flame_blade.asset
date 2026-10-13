@@ -15,8 +15,7 @@ MonoBehaviour:
   cardId: flame_blade
   cardName: FLAME BLADE
   icon: {fileID: 2800000, guid: e3cfeb33cb19c7b418f372623034d777, type: 3}
-  description: "\u708E\u306E\u5165\u53E3\u3002\u547D\u4E2D\u3067\u6575\u304C\u708E\u4E0A\u3059\u308B(\u78BA\u7387
-    15%+5%/Lv\u30011\u79D2\u3042\u305F\u308A 5+1.5/Lv \u306E\u30C0\u30E1\u30FC\u30B8\u30013\u79D2)"
+  description: "命中した敵を確率で炎上させ、3秒間ダメージを与える。Lv1で確率15%・毎秒5ダメージ、以降1Lvごとに確率+5%・毎秒ダメージ+1.5"
   category: 1
   sortOrder: 155
   recommendPriority: 5

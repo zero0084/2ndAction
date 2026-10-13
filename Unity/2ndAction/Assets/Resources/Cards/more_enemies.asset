@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: more_enemies
   cardName: MORE ENEMIES
   icon: {fileID: 2800000, guid: ad68c9be5ca1b774690cf902cf709a6f, type: 3}
-  description: "\u6575\u306E\u51FA\u73FE\u304C\u5897\u3048\u308B(1Lv\u3054\u3068\u306B+10%)\u3002\u6575\u6483\u7834\u306EMILE\u3082\u5C11\u3057\u5897\u3048\u308B(+3%/Lv)"
+  description: "敵の出現頻度+10%/Lv。敵撃破・BONUSのMILEも+3%/Lv"
   category: 6
   sortOrder: 100
   recommendPriority: 2

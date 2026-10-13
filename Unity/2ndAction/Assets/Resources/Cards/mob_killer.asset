@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: mob_killer
   cardName: MOB KILLER
   icon: {fileID: 2800000, guid: fe97bb9a181010644b53dc7659296478, type: 3}
-  description: "\u30DC\u30B9\u4EE5\u5916\u306E\u6575\u3078\u306E\u653B\u6483(1Lv\u3054\u3068\u306B+5%)\u3068\u3001\u6575\u6483\u7834\u306EMILE(1Lv\u3054\u3068\u306B+10%)\u304C\u4E0A\u304C\u308B"
+  description: "ボス以外の敵への攻撃力+5%/Lv。敵撃破・BONUSのMILE+10%/Lv"
   category: 1
   sortOrder: 106
   recommendPriority: 5

@@ -388,9 +388,10 @@ public partial class NetMatch
         float py = h * 0.30f;
         lines += 3;
         float boxH = Mathf.Max(170f, 8f + lines * 24f);
-        GUI.DrawTexture(new Rect(10f, py, 440f, boxH), Texture2D.whiteTexture);
+        float bw = Mathf.Min(440f, w - 20f); // 縦画面の狭い幅に収める(2026-10-13)
+        GUI.DrawTexture(new Rect(10f, py, bw, boxH), Texture2D.whiteTexture);
         GUI.color = Color.white;
-        LocGUI.Label(new Rect(18f, py + 4f, 430f, boxH), sb.ToString(), hudStyle);
+        LocGUI.Label(new Rect(18f, py + 4f, bw - 10f, boxH), sb.ToString(), hudStyle);
 
         // 復活: 倒れていて自分が助けられる人ごとにボタン(最大8人の予定。誰を助けるかを選べる)
         if (!runOver)
@@ -399,7 +400,7 @@ public partial class NetMatch
 
         if (runOver && results.Count > 0)
         {
-            float pw = 460f, ph = 90f + results.Count * 40f;
+            float pw = Mathf.Min(460f, w - 20f), ph = 90f + results.Count * 40f;
             Rect panel = new Rect((w - pw) * 0.5f, h * 0.18f, pw, ph);
             GUI.color = new Color(0f, 0f, 0f, 0.8f);
             GUI.DrawTexture(panel, Texture2D.whiteTexture);

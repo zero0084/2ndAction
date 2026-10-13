@@ -356,7 +356,8 @@ public class RunBuildHud : MonoBehaviour
         if (comboDetailId == null || Time.unscaledTime > comboDetailUntil) return;
         var d = cs.Get(comboDetailId);
         if (d == null) { comboDetailId = null; return; }
-        float w = Mathf.Min(Screen.width * 0.42f, 520f), fs = Mathf.Clamp(Screen.height * 0.024f, 13f, 22f);
+        bool portraitPanel = Screen.height > Screen.width; // 縦画面は幅の 42% だと狭すぎる(2026-10-13)
+        float w = portraitPanel ? Mathf.Min(Screen.width - 24f, 560f) : Mathf.Min(Screen.width * 0.42f, 520f), fs = Mathf.Clamp(TextFit.Short * 0.024f, 13f, 22f);
         comboDetailStyle.fontSize = Mathf.RoundToInt(fs); comboTitleStyle.fontSize = Mathf.RoundToInt(fs * 1.25f);
         string parts = string.Join(" + ", d.def.abilities.ConvertAll(id => { var cd = CardDatabase.FindBaseById(id); return (cd != null ? cd.cardName : id) + $" Lv{(GameManager.Instance != null ? GameManager.Instance.GetAbilityRunStack(id) : 0)}"; }));
         string body = $"{parts}\n{d.def.description}{(d.enhanced ? "\n[ENHANCED] " + d.def.enhancedDescription : "")}\n強さ Lv{d.level:0.0}{(d.def.risk ? "  (リスクはそのまま)" : "")}";
@@ -369,7 +370,7 @@ public class RunBuildHud : MonoBehaviour
             comboDetailStyle.fontSize = Mathf.Max(10, Mathf.RoundToInt(comboDetailStyle.fontSize * 0.95f));
             h = comboDetailStyle.CalcHeight(new GUIContent(bodyTr), w - 24f) + fs * 2.2f;
         }
-        var panel = new Rect(right - w, y + (Mathf.CeilToInt(list.Count / (float)perRow)) * (s + gap) + 4f, w, h);
+        var panel = new Rect(portraitPanel ? (Screen.width - w) * 0.5f : right - w, y + (Mathf.CeilToInt(list.Count / (float)perRow)) * (s + gap) + 4f, w, h);
         if (panel.yMax > Screen.height - 8f) panel.y = Screen.height - 8f - h;
         Round(panel, new Color(0.04f, 0.06f, 0.12f, 0.92f));
         comboTitleStyle.normal.textColor = d.def.color;

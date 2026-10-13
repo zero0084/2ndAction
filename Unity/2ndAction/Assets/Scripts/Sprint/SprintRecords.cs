@@ -95,7 +95,7 @@ public static class SprintRecords
         // 2026-10-07: そのマップの最高到達距離が行き先に実際に届いていること(切り上げ/許容は無し。59,999m では 60km は選べない)
         if (best < destination) { why = $"{destination / 1000}km に未到達(最高 {System.Math.Floor(best / 100.0) / 10.0:0.0}km)"; return false; }
         for (int g = 10; g * 1000 < destination; g += 10)
-            if (!IsGateCleared(stageId, g)) { why = $"{g}km の門番が未撃破"; return false; }
+            if (!IsGateCleared(stageId, g)) { why = $"{g}km の関門ボスが未撃破"; return false; }
         return true;
     }
 }

@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: gale
   cardName: GALE
   icon: {fileID: 2800000, guid: db12cc1b4c68c014b9601d0d590877bd, type: 3}
-  description: "\u98A8\u5203\u304C\u901F\u304F(1Lv\u3054\u3068\u306B+5%)\u3001\u9060\u304F\u3078(+0.4m/Lv)\u3001\u591A\u304F\u306E\u6575\u3092\u8CAB\u304F(3Lv\u3054\u3068\u306B+1)\u3002\u98DB\u3073\u9053\u5177\u306E\u8CAB\u901A\u3082\u5897\u3048\u308B"
+  description: "命中で風刃が出ることがある。風刃の速さ+5%/Lv、飛距離+0.4m/Lv。風刃と飛び道具の貫通+1(Lv4〜で+2、Lv7〜で+3)"
   category: 1
   sortOrder: 181
   recommendPriority: 5

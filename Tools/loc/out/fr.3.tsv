@@ -1,0 +1,261 @@
+9000	Les coups peuvent refroidir les ennemis. Geler un ennemi inflige des dégâts bonus. Attaque contre ennemis refroidis/gelés +3%/Lv. Allonge aussi la durée du gel et renforce le ralentissement des boss
+9001	À HP 50% ou moins, vitesse d'attaque +3%/Lv. À HP 25% ou moins, le bonus double (+6%/Lv)
+9002	Un coup porté en l'air déclenche une taillade de zone au point d'impact. Puissance et zone augmentent avec le Lv
+9003	Attaque aérienne +3%/Lv. Chaque coup porté sans toucher le sol ajoute +1%/Lv (jusqu'à 4 fois). L'atterrissage annule le bonus
+9004	Attaque accrue contre les ennemis en l'air (+8%/Lv) (sbires projetés ou volants ; parmi les boss, seuls le dragon et le démon)
+9005	Portée d'attaque +3%/Lv. Les attaques au corps à corps couvrent une zone plus large, les projectiles vont plus loin (taille des projectiles inchangée)
+9006	À HP 50% ou moins, attaque +5%/Lv et vitesse d'attaque +2%/Lv. À HP 25% ou moins, les deux bonus doublent
+9007	Attaque +6%/Lv, vitesse d'attaque +1%/Lv. Mais scelle des cœurs de HP max (1 à Lv1–3, 2 à Lv4–6, 3 à Lv7–9)
+9008	À HP 50% ou moins, attaque +4%/Lv. À HP 25% ou moins, la chance d'absorption (1 cœur rendu) en battant ennemis/boss augmente aussi de +3%/Lv
+9009	Aux portes de boss normales, chance (8%/Lv) qu'un boss de plus se joigne au combat. MILE de boss +50%/Lv. Sans effet sur les boss dédiés tous les 10km ni sur l'enchaînement de boss du donjon final
+9010	Attaque +7%/Lv. Mais chaque attaque avant/arrière réduit la vitesse de 10% pendant 0.4 s
+9011	Puissance de brûlure +8%/Lv, durée de brûlure +0.25 s/Lv. Cette carte seule peut aussi brûler à l'impact (chance 7% à Lv1, puis +2%/Lv)
+9012	Vaincre un ennemi provoque une explosion autour de lui. Les ennemis tués par l'explosion la propagent à leur tour, jusqu'à 3 niveaux. Un même ennemi n'est touché qu'une fois par chaîne
+9013	S'active quand la jauge atteint 100% (bouton en bas à gauche). L'attaque spéciale du perso élimine d'un coup les ennemis normaux à l'écran et inflige aux boss 20–40% de leurs HP max (selon le Lv). Puis tu fonces loin devant (Lv1 300m → Lv9 1000m ; s'arrête avant les portes de boss, etc., pas d'avancée en combat de boss) et un bonus dure un moment (Lv1 5 s → Lv9 12 s). La jauge se remplit avec la distance, les éliminations et les dégâts aux boss
+9014	Quand le coup final d'un enchaînement touche, une onde de choc supplémentaire part vers l'avant (puissance et zone augmentent avec le Lv)
+9015	Attaque du dernier coup (coup final) lors d'attaques avant/arrière enchaînées +7%/Lv
+9016	Bloquer une attaque avec un bouclier libère une onde de riposte autour de toi. Puissance accrue avec le Lv. Cette carte seule donne aussi 1 bouclier
+9017	Attaque +12%/Lv. Mais scelle des cœurs de HP max (1 à Lv1–2, puis +1 tous les 2 Lv ; 5 à Lv9)
+9018	Certains sbires deviennent des élites (+4% par Lv. HP ×2.5, un peu plus rapides ; vaincus : MILE ×3 / EXP ×2). MILE accrus aussi (+30%/Lv)
+9019	MILE gagnés en battant des ennemis +15%/Lv. S'applique aussi aux MILE de récompense de BONUS ZONE et RECHERCHÉ
+9020	EXP gagnée réduite (-10%/Lv, jamais sous 25% de la normale) ; en échange, MILE d'éliminations et BONUS +30%/Lv
+9021	EXP des ennemis, boss et BONUS ZONE fortement accrue (+80%/Lv). EXP de distance non concernée
+9022	Les coups peuvent brûler les ennemis, infligeant des dégâts pendant 3 s. Lv1 : chance 15%, 5 dégâts/s ; ensuite par Lv : chance +5%, dégâts/s +1.5
+9023	Bloquer une attaque avec un bouclier libère une riposte de flammes autour de toi qui brûle les ennemis touchés. Puissance accrue avec le Lv. Cette carte seule donne aussi 1 bouclier
+9024	Les coups refroidissent et ralentissent les ennemis. Lv1 : chance 15%, ralenti de 25% ; ensuite par Lv : chance +5%, ralenti +2%. 5 froids cumulés gèlent (les boss ralentissent au lieu de s'arrêter)
+9025	Les coups peuvent lancer une lame de vent. Vitesse des lames de vent +5%/Lv, portée +0.4m/Lv. Lames de vent et projectiles transpercent +1 (+2 dès Lv4, +3 dès Lv7)
+9026	L'atterrissage d'une attaque plongeante ou un coup final au sol crée une onde de choc rasante (puissance et longueur augmentent avec le Lv). Attaque au sol aussi +2%/Lv
+9027	Attaque +4%/Lv, plus +0.6%/Lv d'attaque par cœur scellé (les sceaux d'autres cartes comptent aussi). Scelle elle-même des cœurs de HP max (1 à Lv1–3, 2 à Lv4–6, 3 à Lv7–9)
+9028	HP max +1 cœur/Lv (max 20 cœurs). Restaure tous les HP à l'obtention
+9029	Les dégâts de 2 cœurs ou plus sont réduits de 1 cœur. HP max accrus aussi (+1 cœur à Lv1–2, puis +1 tous les 2 Lv). Saut -3%/Lv
+9030	Attaque basse et atterrissage d'attaque plongeante +10%/Lv. Coup final aussi +3%/Lv
+9031	HP des sbires +12%/Lv, vitesse d'action +4%/Lv, fréquence des ennemis +8%/Lv. En échange, MILE d'éliminations et BONUS +50%/Lv, MILE de boss +30%/Lv
+9032	Fréquence des ennemis +15%/Lv. En échange, MILE d'éliminations et BONUS +5%/Lv, EXP d'éliminations et BONUS +5%/Lv
+9033	En combat de boss, distance d'élan des attaques (avant/arrière) +4%/Lv. Vitesse en approchant un boss à plus de 6m aussi +3%/Lv
+9034	Les coups peuvent refroidir. Moins de froids requis pour geler (4 à Lv1–3, 3 à Lv4–6, 2 à Lv7–9). Chance et durée du froid accrues aussi
+9035	Vaincre un ennemi en feu propage les flammes autour et brûle les ennemis (puissance et zone augmentent avec le Lv). Cette carte seule a aussi une faible chance (5%) de brûler à l'impact
+9036	Sauts aériens +1/Lv. Les sauts supplémentaires enchaînés montent moins, sauf en tombant dans un trou. Sorcière : hauteur atteignable +1 palier à Lv1–3, +2 à Lv4–6, +3 à Lv7–9
+9037	Dès que des dégâts font tomber les HP à 1 cœur ou moins, brève invincibilité (1 s +0.15 s/Lv). Ne protège pas des chutes. Ne se redéclenche qu'une fois les HP au-dessus de 1 cœur et 20 s après l'activation
+9038	EXP gagnée +30%/Lv
+9039	Portée d'attaque +5%/Lv. Les attaques au corps à corps couvrent une zone plus large, les projectiles vont plus loin
+9040	EXP gagnée +15%/Lv. HP max accrus aussi (+1 cœur à Lv1–3, +2 à Lv4–6, +3 à Lv7–9)
+9041	Attaque contre les ennemis hors boss +5%/Lv. MILE d'éliminations et BONUS +10%/Lv
+9042	L'attaque augmente avec la vitesse de course. Aucun effet à 100km/h ou moins. +4%/Lv à 150km/h ; au-delà, ça monte encore mais 4 fois moins vite
+9043	Fréquence des ennemis +10%/Lv. En échange, EXP gagnée +15%/Lv
+9044	Fréquence des ennemis +10%/Lv. MILE d'éliminations et BONUS aussi +3%/Lv
+9045	Vitesse +5%/Lv. Mais fréquence des ennemis aussi +10%/Lv
+9046	MILE d'éliminations et BONUS +50%/Lv, MILE de boss +50%/Lv, EXP gagnée +20%/Lv
+9047	Tenir 115km/h ou plus un moment déclenche OVERDRIVE (attaque +3%/Lv, vitesse d'attaque +2%/Lv). Prend fin après 0.8 s sous 107km/h. Vitesse toujours +2%/Lv
+9048	Absorption et SECOND SOUFFLE soignent plus (+1 cœur à Lv4–6, +2 à Lv7–9). L'excédent à HP pleins devient 1 bouclier (jusqu'au max +1)
+9049	HP des sbires +15%/Lv, vitesse d'action +5%/Lv, fréquence +12%/Lv, taux d'élites +2%/Lv, HP des boss +10%/Lv. En échange, MILE d'éliminations et BONUS +60%/Lv, MILE de boss +60%/Lv
+9050	EXP de distance +20%/Lv. Ne s'applique pas à l'EXP d'éliminations
+9051	Bloquer un coup avec un bouclier donne une brève invincibilité (0.4 s +0.1 s/Lv). Cette carte seule donne aussi 1 bouclier
+9052	Si tu tombes au combat (chutes comprises), tu ressuscites avec 2 s d'invincibilité (HP 1–5 cœurs selon le Lv). Ensuite, la carte est retirée et peut être proposée à nouveau (reprise depuis Lv1)
+9053	Les coups au corps à corps touchent aussi les ennemis derrière la cible. Puissance et nombre de cibles augmentent avec le Lv. Perforation des projectiles accrue (+1 à Lv1–3, +2 à Lv4–6, +3 à Lv7–9)
+9054	Chance de récupérer 1 cœur en battant un ennemi +3%/Lv. Toucher un boss peut aussi absorber des HP (faible chance)
+9055	Touché avec des HP à 30% du max ou moins, tu récupères 1–3 cœurs (2 à Lv5, 3 à Lv9). Se recharge après une certaine distance (10,000m à Lv1, 6,000m à Lv9)
+9056	Un bouclier qui bloque 1 coup. Max 1 à Lv1–3, 2 à Lv4–6, 3 à Lv7–9. Les boucliers utilisés reviennent un par un avec le temps (plus vite selon le Lv)
+9057	Attaque aérienne +4%/Lv. Toucher en l'air rend 1 saut aérien utilisé (avant l'atterrissage : jusqu'à 1 fois à Lv1–3, 2 à Lv4–6, 3 à Lv7–9)
+9058	Saut +2%/Lv, attaque aérienne +3%/Lv
+9059	Les attaques avant/arrière lancent une taillade perforante vers l'avant. Plus tu cours vite, plus elle va loin, grossit et frappe fort
+9060	Vitesse -4%/Lv. Carte spéciale pour courir moins vite
+9061	EXP gagnée +40%/Lv. HP max accrus aussi (+1 cœur à Lv1–2, puis +1 tous les 2 Lv ; +5 à Lv9)
+9062	Les coups ont une faible chance d'appeler la foudre. Puissance de la foudre +4%/Lv ; rebondit sur +1 ennemi à Lv1–3, +2 à Lv4–6, +3 à Lv7–9. La foudre blesse aussi les alentours
+9063	Les coups appellent la foudre. Lv1 : chance 5%, puissance de base 7.5 ; ensuite par Lv : chance +2%, puissance de base +1.5. Un même ennemi est foudroyé au plus une fois par 0.4 s
+9064	Là où une lame de vent touche, une tornade inflige des dégâts continus aux ennemis proches (puissance et zone augmentent avec le Lv). Cette carte seule a aussi une faible chance de lancer une lame de vent à l'impact
+9065	HP des sbires +15%/Lv. En échange, MILE d'éliminations et BONUS +15%/Lv, EXP d'éliminations +5%/Lv
+9066	MILE des trésors/récompenses +30%/Lv (trésors et RÉUSSI/PARFAIT de la BONUS ZONE, primes RECHERCHÉ). MILE de boss +10%/Lv, MILE de distance +5%/Lv
+9067	Attaque +3%/Lv, vitesse +2%/Lv. HP max accrus aussi (+1 cœur à Lv1–2, puis +1 tous les 2 Lv ; +5 à Lv9)
+9068	Une cible à prime apparaît régulièrement (plus forte et fréquente selon le Lv). Vaincue : prime en MILE ; laissée derrière : pas de prime. MILE d'éliminations et BONUS +35%/Lv
+9069	Les coups peuvent lancer vers l'avant une lame de vent perforante. Lv1 : chance 10%, puissance 8 ; ensuite par Lv : chance +3%, puissance +1.5. Portée d'attaque un peu accrue (+1%/Lv)
+9070	Ennemis : nombreux, des landes, de la grotte et du ciel
+9071	Ennemis : gobelin / harpie / gargouille, etc.
+9072	Ennemis : gobelins, oiseaux, géants, archers, etc.
+9073	Obstacles : pierres, arbres, murs, rochers géants (cassables par attaque), trous
+9074	Route : bifurcation haut/bas (la sûre est aléatoire)
+9075	Tous les ennemis et leurs attaques supprimés (élimination totale et temps non enregistrés)
+9076	Tous les ennemis vaincus  {0} s
+9077	Au combat
+9078	Build d'essai ({0} types)
+9079	Lv = nombre de prises en course (max 9 par capacité). Cartes possédées et deck inchangés
+9080	{0} cartes du deck copiées dans le build d'essai (deck inchangé)
+9081	{0} cartes perso copiées dans le build d'essai (Lv de départ)
+9082	Les boss arrivent de face avec la même entrée que dans le jeu principal
+9083	Les attaques des boss de la grotte et du ciel liées au terrain (trous, plafond, chutes de pierres…) se déroulent autrement dans l'arène plate
+9084	Adversaires actuels ({0} groupes)
+9085	HP ennemis : comme à {0}km (appliqué aux HP des sbires et des boss)
+9086	Course (avec bonus)
+9087	Seule l'avancée auto s'arrête (attaques, sauts, gravité, recul et mouvements ennemis comme dans le jeu principal)
+9088	Applique les bonus de vitesse du perso/des cartes à la vitesse de base
+9089	Ignore les bonus de vitesse du perso/des cartes et court à la vitesse réglée
+9090	Réglé {0}km/h / ce combat {1}km/h (bonus ×{2})
+9091	Même invincible, les dégâts sont comptés dans les « dégâts bruts » du résultat
+9092	Mode AUTO (arène uniquement ; tes réglages normaux ne changent pas)
+9093	Départ dès {0}km/h
+9094	Récompenses, records et possessions ne changent jamais. Non pris en charge : FINAL EVOLUTION / AWAKENED / MASTERY / jauge ULTIMATE / montées de niveau / récompenses de boss / BONUS ZONE (cartes : effets de Lv normaux et COMBO uniquement)
+9095	Premier combat
+9096	Force du boss : {0}
+9097	Élimination totale {0} s
+9098	Éliminés/Apparus
+9099	Dégâts réels subis
+9100	Dégâts bruts (y compris bloqués par invincibilité/bouclier)
+9101	N0
+9102	Build d'essai : {0}
+9103	Modifier les conditions
+9104	??? (jamais vu)
+9105	WARNING!  DRAGON MÉCA en approche !
+9106	PROTOCOLE OVERKILL
+9107	Il refroidit ! Attaque !
+9108	Utilisée dans un deck/en carte perso : impossible comme matériau
+9109	AWAKENED (★5) atteint. MASTERY ne peut plus progresser
+9110	Fusion impossible : si les deux réussissent, le Lv serait {0} (max Lv.{1})
+9111	<color=#ffd76a><b>[MASTERY] Progression après Lv.9 MAX</b></color>
+9112	MASTERY actuelle : <color=#ffd76a>{0}</color>  {1}
+9113	<size=19>La MASTERY {0} au-delà de ★5 est conservée comme record</size>
+9114	<size=19>La MASTERY n'augmente pas les performances normales (attaque, vitesse, EXP, etc.). C'est la progression jusqu'à AWAKENED à ★5.</size>
+9115	<b>{0} Lv</b> au-delà de Lv.9 vont en MASTERY : {1} → <color=#ffd76a>{2}</color>{3}
+9116	・{0} {1}<b>×{2}</b>  <size=18>({3})</size>
+9117	<color=#9fd0ff><b>[Fusion différente] Cartes différentes : résultat tiré au sort</b></color>
+9118	<b>Chance d'hériter de toutes les capacités principales : {0}%</b>
+9119	・{0} ×{1}  <size=18>({2})</size>
+9120	<b>Chance d'hériter de toutes les capacités du matériau : {0}%</b>
+9121	Double réussite : toutes les capacités des deux côtés transmises (les identiques s'additionnent). Rareté : ★ la plus haute +1 (max ★5)
+9122	Pas assez de cartes libres pour fusionner (utilisées dans le deck/en cartes perso)
+9123	Équipée en carte perso : pas assez d'exemplaires libres
+9124	Utilisée dans le deck : pas assez d'exemplaires
+9125	<size=21>La MASTERY {0} au-delà de ★5 a été conservée comme record</size>
+9126	<size=21>AWAKENED atteint. Enregistré comme progression ; les performances normales ne changent pas</size>
+9127	<size=21>La MASTERY n'augmente pas les performances normales (attaque, vitesse, EXP, etc.).</size>
+9128	)}    Rareté <color=#ffd76a>{new string('★', v.rarity)}</color>
+9129	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3})</color></size>
+9130	{0} affichées / {1} possédées
+9131	・Cartes différentes … chaque côté transmet son lot complet de capacités au hasard (principale 50%, matériau 25%). Si un seul côté réussit, seuls son Lv et ses capacités restent ; si les deux échouent, aucune carte (MILE remboursés)
+9132	・Le Lv de fusion max est Lv.9. Avec la même carte, l'excédent va en MASTERY. Des cartes différentes dont le total de Lv dépasse 9 ne peuvent pas fusionner
+9133	・Fusionner une carte identique dans une carte Lv.9 MAX fait progresser la MASTERY (AWAKENED à ★5)
+9134	<size=19>AWAKENED (★5) atteint. Plus de fusion MASTERY possible.</size>
+9135	Avec la même carte ({0}) comme matériau, la MASTERY progresse du Lv du matériau (Lv.1 = +1).
+9136	Son œil est affaibli ! Attaque !
+9137	Noyau exposé ! Chance de BREAK !
+9138	Fréquence des ennemis
+9139	MILE d'éliminations et BONUS
+9140	MILE de boss
+9141	Chance de brûlure
+9142	Puissance de base de brûlure
+9143	Chance de froid
+9144	Ralentissement par le froid
+9145	Chance de saignement
+9146	Vitesse attaque avant/arrière
+9147	Attaque aérienne
+9148	Attaque au sol
+9149	Coup final
+9150	Attaque contre sbires
+9151	Attaque basse/plongeante
+9152	Vitesse d'attaque à HP ≤50%
+9153	Attaque par HIT consécutif
+9154	Attaque par coup aérien avant atterrissage
+9155	Recharge bouclier (s en moins)
+9156	Vitesse d'action ennemie
+9157	Taux d'élites
+9158	MILE de distance
+9159	EXP de distance
+9160	EXP d'éliminations
+9161	Moins de froids avant gel
+9162	Multiplicateur de dégâts de foudre
+9163	)} : cartes de personnage
+9164	Toucher pour retirer
+9165	[Équipée par un autre perso]
+9166	Les cartes utilisées ne peuvent pas être converties. Retire-les du deck ou des cartes perso.
+9167	Convertir cette carte en {CardConvertMile} MILE ?
+9168	)} {BleedPower * Scale:0.#}/s absorption {BleedLifesteal * 100f:0}%
+9169	(AWAKENED)
+9170	Toucher pour fermer / touche la machine gacha pour retirer
+9171	Recevoir : {0} MILE + bonus {1} MILE = {2} MILE au total
+9172	Tirages du jour épuisés (recharge dans {0})
+9173	Réinitialisation dans {0}
+9174	À rapporter cette course
+9175	Possédés après l'évasion
+9176	Si tu tombes ou abandonnes la course, tu ne recevras pas les MILE de cette course
+9177	NOUVEAU :
+9178	DEV : non enregistré (
+9179	La distance de cette course ne compte pas dans les records officiels (BEST, distance totale, déblocages de parcours/persos)
+9180	{0} scellé(s)
+9181	RÉINIT. MILE
+9182	RÉINIT. CARTES
+9183	La course suspendue et ses MILE à rapporter
+9184	MILE à rapporter
+9185	Retour à l'accueil.
+9186	La course ne s'arrête pas, tu pourras
+9187	{0} ne peut pas être équipée : avec tes autres cartes perso, elle dépasserait Lv{1}
+9188	Attention : {0} dépasse Lv{1} au total des cartes perso (les {2} Lv en trop sont sans effet)
+9189	IRENE
+9190	ESTELLE
+9191	ALICIA
+9192	Pub en préparation. Réessaie dans un instant
+9193	TEST AD (simulation) Pub récompensée
+9194	TEST AD (simulation) Interstitielle
+9195	{0} s
+9196	Condition de récompense remplie
+9197	Fermer avant la fin
+9198	Simuler une interruption de l'appli
+9199	¥(simulation) 000
+9200	Simulation (version de dév uniquement) : pas un vrai achat. Enregistré à part des droits d'achat réels
+9201	・Les achats sont liés à ton compte de la boutique. Après un changement d'appareil ou une réinstallation, utilise « Restaurer les achats ». Ce bouton ne restaure pas les sauvegardes (cartes, MILE, etc.)
+9202	Achat non vérifié. Le pass reste actif ; nouvelle vérification plus tard
+9203	OMMLAN
+9204	SYNC
+9205	JEU EN LIGNE
+9206	Crée un salon et l'affiche en ligne dans « TROUVER UNE PARTIE ».
+9207	Crée un salon sur cet appareil. Les appareils sur le même Wi-Fi le rejoignent via « TROUVER UNE PARTIE ».
+9208	SERVICE EN LIGNE INDISPONIBLE
+9209	DEV :
+9210	RÉESSAYER
+9211	Recherche de salons proches…
+9212	DEV
+9213	Quand tout le monde est là : « Fermer (salon conservé) » → porte → « Départ » dans CHOIX DU PARCOURS, et tous partent ensemble sur le même parcours.
+9214	CO-OP : si tu tombes, tu es DOWN. Un allié (2 cœurs ou plus) qui atteint l'endroit où tu es tombé te donne 1 cœur avec REVIVE pour te relever. Tous DOWN : fin.
+9215	MODE : choisi par le HOST (appliqué à tous au départ de la course)
+9216	Porte de l'accueil → « Départ » dans CHOIX DU PARCOURS, et tous les connectés partent ensemble sur le même parcours.
+9217	REVIVE
+9218	Impossible de lancer la connexion. Réessaie ou redémarre l'appli
+9219	Impossible de créer le salon (une autre appli utilise peut-être le réseau)
+9220	P{0} s'est déconnecté (reste {1})
+9221	{0} s'est déconnecté
+9222	L'autre joueur s'est déconnecté
+9223	Impossible de rejoindre : versions différentes. Mettez les deux à jour
+9224	Impossible de rejoindre : la course de ce salon a déjà commencé
+9225	Impossible de rejoindre : salon complet
+9226	Connexion refusée
+9227	Toi : ton record n'apparaît pas encore au classement
+9228	AUTO
+9229	Sprint
+9230	Ne plus envoyer les records
+9231	UGS
+9232	Choisis une carte
+9233	Sélectionne à nouveau pour valider
+9234	Choisis une carte → sélectionne à nouveau pour valider
+9235	Condition remplie ! Validée si tu termines la course sans encombre
+9236	Quand ta vitesse atteint la vitesse de départ, seules les actions sur ON sont automatiques.
+9237	Les commandes manuelles sont prioritaires. Si « AUTO en combat de boss » est OFF, rien n'est automatique en combat de boss.
+9238	Le pass est lié à ton compte de la boutique (restaurer les achats ne restaure pas les sauvegardes)
+9239	Entraîne-toi aux attaques avant/arrière, sauts, attaques basses, projections et au choix des cartes (sans récompense ni record).
+9240	L'entraînement se lance uniquement depuis l'accueil (pas en multi connecté)
+9241	Le titan est proche ! Attaque !
+9242	Le noyau s'est assombri ! Chance de BREAK !
+9243	Il a glissé à l'atterrissage ! Attaque !
+9244	Sa tête sort des nuages ! Attaque !
+9245	Le halo a disparu ! Grosse chance !
+9246	Plus de charge électrique ! Attaque !
+9247	Départ sprint (depuis {0})
+9248	Traverse à toute vitesse les sections déjà franchies et repars juste avant la porte choisie. Les cartes des récompenses de boss sont prises au hasard automatiquement. Aligne-toi en hauteur (haut/bas) sur les anneaux tous les 5,000m pour choisir 1 carte en plus. Pas de MILE ni d'EXP pour la distance sautée.
+9249	Sprint jusqu'à {0}km   (env. {1} s + choix de cartes aux anneaux){2}
+9250	Boss de la porte des {0}km pas encore vaincu
+9251	Toutes les cartes du deck sont passées Lv9 dans cette course.
+9252	Porte {0}/{1}    Anneau {2}/{3}{4}
+9253	Portes franchies {0}/{1}   Anneaux {2}/{3}{4}
+9254	Toutes les cartes du deck en course Lv{0} MAX
+9255	Portes sans carte obtenue : {0}
+9256	Toutes les cartes du deck sont Lv9 dans cette course. Les anneaux donnent désormais des MILE à rapporter
+9257	(Aucun record BEST de distance non plus)
+9258	Vers le choix du parcours
+9259	Limite du deck : 12 cartes désormais
+9260	OVERFLOW

@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: pandemonium
   cardName: PANDEMONIUM
   icon: {fileID: 2800000, guid: 8cf8d03c993eadb4c8e512b68f0b0b5a, type: 3}
-  description: "\u96D1\u9B5A\u306EHP/\u52D5\u304D/\u51FA\u73FE/\u7CBE\u92ED\u3001\u30DC\u30B9\u306EHP\u304C\u3059\u3079\u3066\u4E0A\u304C\u308B\u4EE3\u308F\u308A\u306B\u3001MILE(+60%/Lv)\u3068\u30DC\u30B9MILE(+60%/Lv)\u304C\u3068\u3066\u3082\u5927\u304D\u304F\u5897\u3048\u308B"
+  description: "雑魚のHP+15%/Lv、行動速度+5%/Lv、出現頻度+12%/Lv、精鋭の出現率+2%/Lv、ボスHP+10%/Lv。代わりに敵撃破・BONUSのMILE+60%/Lv、ボス撃破MILE+60%/Lv"
   category: 6
   sortOrder: 167
   recommendPriority: 1

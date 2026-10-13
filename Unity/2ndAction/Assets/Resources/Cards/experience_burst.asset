@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: experience_burst
   cardName: EXPERIENCE BURST
   icon: {fileID: 2800000, guid: 90d92bb914e32444886aededea06b580, type: 3}
-  description: "\u6575/\u30DC\u30B9/BONUS ZONE \u306E\u7D4C\u9A13\u5024\u304C\u5927\u304D\u304F\u5897\u3048\u308B(1Lv\u3054\u3068\u306B+80%)"
+  description: "敵撃破・ボス撃破・BONUS ZONEのEXPが大きく増える(+80%/Lv)。走行距離EXPは対象外"
   category: 3
   sortOrder: 142
   recommendPriority: 5

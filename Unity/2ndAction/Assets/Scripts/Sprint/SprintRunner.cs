@@ -309,7 +309,7 @@ public class SprintRunner : MonoBehaviour
         if (now && !allMaxed && !AllMaxedNotified)
         {
             AllMaxedNotified = true; AllMaxedNotices++;
-            notice = "デッキ内のカードがすべてLv9になりました。\n以降のリング報酬はMILEです";
+            notice = "このランでデッキのカードがすべてLv9になりました。\n以降のリング報酬はMILEです";
             noticeUntil = Time.unscaledTime + 3.2f;
             Debug.Log($"[Sprint] all deck cards reached run Lv{GameManager.MaxRunCardLevel} at {DistanceNow:F0}m - ring rewards are MILE from now on [{gm.SprintLastPoolDetail}]");
         }
@@ -587,8 +587,8 @@ public class SprintRunner : MonoBehaviour
         }
         GUI.color = Color.white;
         int ringMile = gm.RunRingMile;
-        if (P) LocGUI.Label(new Rect(30f * s, bar.yMax + 12f * s, W - 60f * s, 40f * s), $"報酬 {GatesPassed}/{GatesTotal}    リング {RingsSucceeded}/{rings.Count}{(ringMile > 0 ? $"    MILE +{ringMile}" : "")}", UiKit.Label(30f * s, TextAnchor.MiddleLeft, true, new Color(0.85f, 0.9f, 1f)));
-        else LocGUI.Label(new Rect(40f * s, 196f * s, W, 36f * s), $"ボス報酬の自動取得 {GatesPassed}/{GatesTotal}   リング {RingsSucceeded}/{rings.Count}{(ringMile > 0 ? $"   リングの MILE +{ringMile}" : "")}", UiKit.Label(24f * s, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.9f, 1f)));
+        if (P) LocGUI.Label(new Rect(30f * s, bar.yMax + 12f * s, W - 60f * s, 40f * s), $"関門 {GatesPassed}/{GatesTotal}    リング {RingsSucceeded}/{rings.Count}{(ringMile > 0 ? $"    MILE +{ringMile}" : "")}", UiKit.Label(30f * s, TextAnchor.MiddleLeft, true, new Color(0.85f, 0.9f, 1f)));
+        else LocGUI.Label(new Rect(40f * s, 196f * s, W, 36f * s), $"通過した関門 {GatesPassed}/{GatesTotal}   リング {RingsSucceeded}/{rings.Count}{(ringMile > 0 ? $"   リングの MILE +{ringMile}" : "")}", UiKit.Label(24f * s, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.9f, 1f)));
 
         // 右: 取得したカード(アイコン/名前/更新後のLv)。候補が無い時は積み重ねずに状態の1行
         // 縦: 数の下に横いっぱいの小さな行(最大3行、それより多い時は「ほか N 枚」にまとめる)
@@ -600,8 +600,8 @@ public class SprintRunner : MonoBehaviour
             Rect row = new Rect(rowX, fy, rowW, P ? 64f * s : 64f * s);
             UiKit.Fill(row, allMaxed ? new Color(0.12f, 0.1f, 0.03f, 0.85f) : new Color(0.08f, 0.08f, 0.12f, 0.85f));
             statusLine = allMaxed
-                ? $"デッキ全カード Lv{GameManager.MaxRunCardLevel} MAX\nリング報酬は +{tn.ringMileReward} MILE"
-                : $"今は取れるカードがありません(×{AutoSkipped})";
+                ? $"ラン中のデッキ全カード Lv{GameManager.MaxRunCardLevel} MAX\nリング報酬は +{tn.ringMileReward} MILE"
+                : $"カードを取れなかった関門: {AutoSkipped}か所";
             var stl = new GUIStyle(UiKit.Label(22f * s, TextAnchor.MiddleLeft, true, allMaxed ? new Color(1f, 0.88f, 0.45f) : new Color(0.85f, 0.85f, 0.9f)));
             stl.wordWrap = true;
             LocGUI.Label(new Rect(row.x + 16f * s, row.y, row.width - 24f * s, row.height), statusLine, stl);
@@ -658,7 +658,7 @@ public class SprintRunner : MonoBehaviour
                 float a = Mathf.Clamp01(age / 0.25f) * Mathf.Clamp01((dur - age) / 0.4f);
                 string l1 = AllMaxedAtStart ? "上下で移動 / リング通過で +MILE" : "上下で移動 / リング通過で追加カード";
                 string l2 = ControlHint();
-                string l3 = AllMaxedAtStart ? "デッキ内のカードがすべてLv9です。リング報酬はMILEです" : "";
+                string l3 = AllMaxedAtStart ? "このランでデッキのカードはすべてLv9です。リング報酬は持ち帰り予定MILEです" : "";
                 float pw = Mathf.Min(1120f * s, W - 32f * s);
                 float f1 = P ? 40f : 48f, l1h = P ? 104f : 64f, l3h = P ? 80f : 44f; // 縦: 幅が狭いので折り返す(2行まで)
                 Rect pr = new Rect(Mathf.Clamp(W * 0.45f - pw * 0.5f, 16f * s, W - pw - 16f * s), groundY + 22f * s, pw, (24f + l1h + 52f + (l3.Length > 0 ? l3h + 6f : 0f)) * s); // 地面の帯(キャラ/リングの通り道を隠さない)

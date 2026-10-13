@@ -706,7 +706,7 @@ public class CrystalGolemBoss : CaveBossBase
         CoreGlow(0f);
         // 隙: コア露出(崩しやすい)
         CoreGlow(1f);
-        yield return CaveRecovery(3.6f, "コア露出! 崩しやすい!", new Vector2(1.02f, 0.92f), CaveLook.Crystal, new Vector2(0f, 0.55f), 3.0f, 1.4f);
+        yield return CaveRecovery(3.6f, "コア露出! BREAKのチャンス!", new Vector2(1.02f, 0.92f), CaveLook.Crystal, new Vector2(0f, 0.55f), 3.0f, 1.4f);
         CoreGlow(0f);
     }
 }
@@ -1113,7 +1113,7 @@ public class BasiliskBoss : CaveBossBase
         gazeGlow.enabled = false;
         // ⑤ 突進(跳ぶ)
         yield return Rush(rush, rushMark, 8f, 0.8f, 0.55f, 15f, true);
-        yield return CaveRecovery(3.4f, "目が弱った! 頭が弱点!", new Vector2(1.05f, 0.85f), CaveLook.Gaze, new Vector2(0.85f, 0.45f), 2.2f, 1.5f);
+        yield return CaveRecovery(3.4f, "目が弱った! 攻撃のチャンス!", new Vector2(1.05f, 0.85f), CaveLook.Gaze, new Vector2(0.85f, 0.45f), 2.2f, 1.5f);
     }
 }
 

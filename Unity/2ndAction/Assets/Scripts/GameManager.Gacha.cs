@@ -176,7 +176,7 @@ public partial class GameManager
         gachaDescScroll.Text(descRect, text, desc, card.cardId + "@" + gachaResultOpenedAt.ToString("F3"));
         y += dh + 6f * s;
 
-        string masteryHint = CardMastery.IsAwakened(card.cardId) ? "  (AWAKENED済み・保管)" : CardMastery.IsMaxReached(card.cardId) ? "  → 合成で MASTERY +1" : "";
+        string masteryHint = CardMastery.IsAwakened(card.cardId) ? "  (AWAKENED済み)" : CardMastery.IsMaxReached(card.cardId) ? "  → 合成で MASTERY +1" : "";
         LocGUI.Label(new Rect(panel.x, y, panel.width, 26f * s), $"Lv.1 +1   OWNED x{gachaResultOwnedCount}{masteryHint}", UiKit.Label(18f * s, TextAnchor.MiddleCenter, false, new Color(1f, 1f, 1f, 0.85f)));
         y += 26f * s;
         int st = CurrentGachaStage;
@@ -185,7 +185,7 @@ public partial class GameManager
             UiKit.Label(14f * s, TextAnchor.MiddleCenter, false, new Color(0.75f, 0.85f, 1f, 0.85f)));
 
         // 下: 案内 + (パッド/キー用)閉じる
-        string hint = gachaRevealQueue.Count > 0 ? $"タップで次へ(あと {gachaRevealQueue.Count} 枚)" : "タップで閉じる / ガチャをタップで続けて引く";
+        string hint = gachaRevealQueue.Count > 0 ? $"タップで次へ(あと {gachaRevealQueue.Count} 枚)" : "タップで閉じる / ガチャ本体をタップでもう1回";
         LocGUI.Label(new Rect(panel.x, panel.yMax - 74f * s, panel.width, 24f * s), hint, UiKit.Label(16f * s, TextAnchor.MiddleCenter, false, new Color(1f, 0.9f, 0.6f, 0.9f)));
         var okRect = new Rect(panel.center.x - 80f * s, panel.yMax - 48f * s, 160f * s, 38f * s);
         if (DrawStyledButton(okRect, gachaRevealQueue.Count > 0 ? "NEXT" : "OK", 18f * s, primary: true, ornate: true)) CloseGachaResult();

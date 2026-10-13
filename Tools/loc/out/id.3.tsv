@@ -1,0 +1,261 @@
+9000	Kadang memberi dingin saat mengenai musuh. Musuh yang membeku menerima damage tambahan. Serangan ke musuh dingin/beku +3%/Lv. Durasi beku juga lebih lama dan perlambatan bos lebih kuat
+9001	Saat HP 50% ke bawah, kecepatan serang +3%/Lv. Saat HP 25% ke bawah, kenaikannya jadi 2× (+6%/Lv)
+9002	Mengenai musuh di udara memicu tebasan susulan berarea di titik kena. Daya dan area naik sesuai Lv
+9003	Serangan di udara +3%/Lv. Tiap kena tanpa mendarat, +1%/Lv lagi (maks 4 kali). Bonus tambahan direset saat mendarat
+9004	Serangan ke musuh di udara naik (+8%/Lv) (musuh biasa terlontar/terbang; bos hanya Naga dan Iblis)
+9005	Jangkauan serang +3%/Lv. Area kena serangan dekat melebar, jarak terbang proyektil bertambah (ukuran peluru tidak berubah)
+9006	Saat HP 50% ke bawah, serangan +5%/Lv dan kecepatan serang +2%/Lv. Saat HP 25% ke bawah, kenaikan keduanya jadi 2×
+9007	Serangan +6%/Lv, kecepatan serang +1%/Lv. Tapi menyegel hati HP maks (1 di Lv1〜3, 2 di Lv4〜6, 3 di Lv7〜9)
+9008	Saat HP 50% ke bawah, serangan +4%/Lv. Saat HP 25% ke bawah, peluang serap (pulih 1 hati) saat mengalahkan musuh/bos juga +3%/Lv
+9009	Di gerbang bos biasa, ada peluang (8%/Lv) 1 bos tambahan ikut. MILE kalahkan bos +50%/Lv. Tidak berlaku untuk bos khusus tiap 10km dan serbuan bos di Dungeon Terakhir
+9010	Serangan +7%/Lv. Tapi tiap memakai serangan depan/belakang, kecepatan gerak turun 10% selama 0.4 dtk
+9011	Daya bakar +8%/Lv, durasi bakar +0.25 dtk/Lv. Kartu ini sendiri juga bisa membakar saat kena (peluang 7% di Lv1, lalu +2%/Lv)
+9012	Musuh yang dikalahkan meledak ke sekitar. Musuh yang tumbang karena ledakan ikut meledak, berantai hingga 3 tahap. Tiap musuh hanya kena 1 kali per rantai
+9013	Aktif saat Gauge 100% (tombol kiri bawah). Jurus pamungkas khas karakter mengalahkan musuh biasa di layar dalam 1 serangan dan memberi damage 20〜40% HP maks ke bos (naik sesuai Lv). Lalu melaju jauh (Lv1 300m → Lv9 1000m; berhenti sebelum gerbang bos dll., tidak maju saat lawan bos), dan penguatan bertahan sebentar (Lv1 5 dtk → Lv9 12 dtk). Gauge terisi dari jarak, kalahkan musuh, dan damage ke bos
+9014	Saat serangan penutup rangkaian mengenai musuh, gelombang kejut tambahan keluar ke depan (daya dan area naik sesuai Lv)
+9015	Serangan terakhir (penutup) saat serangan depan/belakang beruntun +7%/Lv
+9016	Saat menahan serangan dengan Shield, gelombang balasan meledak ke sekitar. Daya naik sesuai Lv. Kartu ini sendiri juga memberi 1 Shield
+9017	Serangan +12%/Lv. Tapi menyegel hati HP maks (1 di Lv1〜2, lalu +1 tiap 2 Lv; 5 di Lv9)
+9018	Sebagian musuh biasa jadi elit (+4% per Lv. HP×2.5・sedikit cepat, saat dikalahkan MILE×3/EXP×2). MILE juga bertambah (+30%/Lv)
+9019	MILE dari mengalahkan musuh +15%/Lv. Juga berlaku untuk MILE hadiah BONUS ZONE dan BURONAN
+9020	EXP didapat berkurang (-10%/Lv, min 25% dari normal), sebagai gantinya MILE musuh & BONUS +30%/Lv
+9021	EXP dari musuh, bos, dan BONUS ZONE naik besar (+80%/Lv). EXP jarak lari tidak termasuk
+9022	Kadang membakar musuh yang terkena, memberi damage selama 3 dtk. Lv1: peluang 15%, 5 damage/dtk; lalu tiap Lv peluang +5%, damage/dtk +1.5
+9023	Saat menahan serangan dengan Shield, api balasan meledak ke sekitar dan membakar musuh yang terkena. Daya naik sesuai Lv. Kartu ini sendiri juga memberi 1 Shield
+9024	Serangan mendinginkan dan memperlambat musuh. Lv1: peluang 15%, lambat 25%. Tiap Lv peluang +5%, lambat +2%. Dingin 5 kali bertumpuk = beku (bos tidak berhenti, hanya melambat)
+9025	Kadang memunculkan bilah angin saat kena. Kecepatan bilah angin +5%/Lv, jarak +0.4m/Lv. Tembus bilah angin & proyektil +1 (+2 mulai Lv4, +3 mulai Lv7)
+9026	Pendaratan hantaman atau penutup di darat melepas gelombang kejut yang merayap di tanah (daya dan panjang naik sesuai Lv). Serangan di darat juga +2%/Lv
+9027	Serangan +4%/Lv. Tiap 1 hati tersegel, serangan +0.6%/Lv lagi (termasuk segel dari kartu lain). Kartu ini juga menyegel hati HP maks (1 di Lv1〜3, 2 di Lv4〜6, 3 di Lv7〜9)
+9028	HP maks +1 hati/Lv (maks 20 hati). HP pulih penuh saat diambil
+9029	Damage 2 hati atau lebih dikurangi 1 hati. HP maks juga bertambah (+1 hati di Lv1〜2, lalu +1 tiap 2 Lv). Daya lompat -3%/Lv
+9030	Serangan bawah dan pendaratan hantaman +10%/Lv. Serangan penutup juga +3%/Lv
+9031	HP musuh biasa +12%/Lv, kecepatan aksi +4%/Lv, frekuensi muncul +8%/Lv. Sebagai gantinya MILE musuh & BONUS +50%/Lv, MILE kalahkan bos +30%/Lv
+9032	Frekuensi muncul musuh +15%/Lv. Sebagai gantinya MILE musuh & BONUS +5%/Lv, EXP musuh & BONUS +5%/Lv
+9033	Saat lawan bos, jarak maju/mundur saat menyerang +4%/Lv. Kecepatan gerak saat mendekati bos yang lebih jauh dari 6m juga +3%/Lv
+9034	Kadang memberi dingin saat kena. Jumlah dingin untuk beku berkurang (4 di Lv1〜3, 3 di Lv4〜6, 2 di Lv7〜9). Peluang dan durasi dingin juga naik
+9035	Mengalahkan musuh yang terbakar menyebarkan api ke sekitar dan membakar musuh (daya dan area naik sesuai Lv). Kartu ini sendiri juga kadang membakar saat kena (5%)
+9036	Lompatan udara +1/Lv. Lompatan tambahan beruntun makin lemah daya naiknya, kecuali saat jatuh ke lubang. Penyihir: ketinggian maks +1 tingkat di Lv1〜3, +2 di Lv4〜6, +3 di Lv7〜9
+9037	Saat damage membuat HP jadi 1 hati atau kurang, kebal sesaat (1 dtk + 0.15 dtk/Lv). Tidak mencegah damage jatuh. Aktif lagi setelah HP pulih di atas 1 hati dan 20 dtk berlalu sejak aktif
+9038	EXP didapat +30%/Lv
+9039	Jangkauan serang +5%/Lv. Area kena serangan dekat melebar, jarak terbang proyektil bertambah
+9040	EXP didapat +15%/Lv. HP maks juga bertambah (+1 hati di Lv1〜3, +2 di Lv4〜6, +3 di Lv7〜9)
+9041	Serangan ke musuh selain bos +5%/Lv. MILE musuh & BONUS +10%/Lv
+9042	Serangan naik sesuai kecepatan lari. Tidak berefek di 100km/h ke bawah. +4%/Lv di 150km/h; di atasnya masih naik tapi hanya 1/4
+9043	Frekuensi muncul musuh +10%/Lv. Sebagai gantinya EXP didapat +15%/Lv
+9044	Frekuensi muncul musuh +10%/Lv. MILE musuh & BONUS juga +3%/Lv
+9045	Kecepatan gerak +5%/Lv. Tapi frekuensi muncul musuh juga +10%/Lv
+9046	MILE musuh & BONUS +50%/Lv, MILE kalahkan bos +50%/Lv, EXP didapat +20%/Lv
+9047	Bertahan di 115km/h ke atas beberapa saat memicu OVERDRIVE (serangan +3%/Lv, kecepatan serang +2%/Lv). Berakhir jika di bawah 107km/h selama 0.8 dtk. Kecepatan gerak selalu +2%/Lv
+9048	Pemulihan dari serapan dan NAPAS KEDUA bertambah (+1 hati di Lv4〜6, +2 di Lv7〜9). Kelebihan saat HP penuh jadi 1 Shield (maks +1 dari batas)
+9049	HP musuh biasa +15%/Lv, kecepatan aksi +5%/Lv, frekuensi muncul +12%/Lv, peluang elit +2%/Lv, HP bos +10%/Lv. Sebagai gantinya MILE musuh & BONUS +60%/Lv, MILE kalahkan bos +60%/Lv
+9050	EXP jarak lari +20%/Lv. Tidak berlaku untuk EXP dari musuh
+9051	Saat Shield menahan serangan, kebal sesaat (0.4 dtk + 0.1 dtk/Lv). Kartu ini sendiri juga memberi 1 Shield
+9052	Bangkit saat tumbang (termasuk jatuh) dan kebal 2 dtk (HP 1〜5 hati sesuai Lv). Setelah bangkit, kartu ini lepas dan bisa muncul lagi sebagai pilihan (mulai lagi dari Lv1)
+9053	Serangan dekat juga memberi damage tambahan ke musuh di belakang target. Daya dan jumlah target naik sesuai Lv. Tembus proyektil juga bertambah (+1 di Lv1〜3, +2 di Lv4〜6, +3 di Lv7〜9)
+9054	Peluang pulih 1 hati saat mengalahkan musuh +3%/Lv. Saat mengenai bos juga ada peluang kecil menyerap HP
+9055	Jika terkena dan HP 30% dari maks atau kurang, pulih 1〜3 hati (2 di Lv5, 3 di Lv9). Untuk aktif lagi harus berlari jarak tertentu (10,000m di Lv1, 6,000m di Lv9)
+9056	Shield yang menahan 1 serangan. Maks 1 di Lv1〜3, 2 di Lv4〜6, 3 di Lv7〜9. Yang terpakai pulih satu per satu seiring waktu (makin cepat sesuai Lv)
+9057	Serangan di udara +4%/Lv. Mengenai musuh di udara memulihkan 1 lompatan udara yang terpakai (sebelum mendarat: maks 1 di Lv1〜3, 2 di Lv4〜6, 3 di Lv7〜9)
+9058	Daya lompat +2%/Lv, serangan di udara +3%/Lv
+9059	Serangan depan/belakang melepas tebasan tembus ke depan. Makin cepat berlari, makin jauh, besar, dan kuat tebasannya
+9060	Kecepatan gerak -4%/Lv. Kartu khusus untuk berlari lebih pelan
+9061	EXP didapat +40%/Lv. HP maks juga bertambah (+1 hati di Lv1〜2, lalu +1 tiap 2 Lv; +5 di Lv9)
+9062	Kadang memicu sambaran petir saat kena. Daya petir +4%/Lv, rantai +1 musuh di Lv1〜3, +2 di Lv4〜6, +3 di Lv7〜9. Petir juga memberi damage ke sekitarnya
+9063	Serangan memicu sambaran petir. Lv1: peluang 5%, daya dasar 7.5; lalu tiap Lv peluang +2%, daya dasar +1.5. Maks 1 sambaran per 0.4 dtk ke musuh yang sama
+9064	Bilah angin memicu tornado di titik kena yang memberi damage beruntun ke musuh sekitar (daya dan area naik sesuai Lv). Kartu ini sendiri juga kadang melepas bilah angin saat kena
+9065	HP musuh biasa +15%/Lv. Sebagai gantinya MILE musuh & BONUS +15%/Lv, EXP dari musuh +5%/Lv
+9066	MILE harta・hadiah +30%/Lv (harta & TUNTAS/SEMPURNA di BONUS ZONE, hadiah BURONAN). MILE kalahkan bos +10%/Lv, MILE jarak lari +5%/Lv
+9067	Serangan +3%/Lv, kecepatan gerak +2%/Lv. HP maks juga bertambah (+1 hati di Lv1〜2, lalu +1 tiap 2 Lv; +5 di Lv9)
+9068	Buronan muncul tiap jarak tertentu (makin kuat & sering sesuai Lv). Kalahkan untuk MILE hadiah; jika ditinggal, tidak ada hadiah. MILE musuh & BONUS +35%/Lv
+9069	Kadang melepas bilah angin tembus ke depan saat kena. Lv1: peluang 10%, daya 8; lalu tiap Lv peluang +3%, daya +1.5. Jangkauan serang juga sedikit bertambah (+1%/Lv)
+9070	Musuh: banyak musuh dari tanah tandus, gua, dan langit
+9071	Musuh: Goblin / Harpy / Gargoyle, dll.
+9072	Musuh: Goblin, burung, musuh besar, pemanah, dll.
+9073	Rintangan: batu・pohon・dinding・batu raksasa (bisa dihancurkan)・lubang
+9074	Rute: bercabang atas-bawah (aman/bahaya acak)
+9075	Semua musuh dan serangannya dihapus (semua dikalahkan & waktu kalahkan tidak dicatat)
+9076	Semua musuh dikalahkan  {0} dtk
+9077	Ke Pertarungan
+9078	Build coba ({0} jenis)
+9079	Lv = jumlah diambil di run (maks 9 per kemampuan). Koleksi & dek tidak berubah
+9080	{0} kartu dek disalin ke build coba (dek tidak berubah)
+9081	{0} kartu karakter disalin ke build coba (Lv awal)
+9082	Bos muncul dari depan dengan efek kemunculan yang sama seperti game utama
+9083	Jurus bos gua/langit yang memakai medan (lubang, langit-langit, batu jatuh, dll.) tampil beda di Arena yang datar
+9084	Lawan saat ini ({0} grup)
+9085	HP musuh: setara titik {0}km (berlaku untuk HP musuh biasa & bos)
+9086	Lari (dengan bonus)
+9087	Hanya lari otomatis yang berhenti (serangan, lompat, gravitasi, sentakan, gerak musuh tetap seperti biasa)
+9088	Bonus kecepatan karakter/kartu diterapkan ke kecepatan dasar
+9089	Abaikan bonus kecepatan karakter/kartu, lari dengan kecepatan yang diatur
+9090	Atur {0}km/h / Laga ini {1}km/h (bonus ×{2})
+9091	Saat kebal pun, tetap tercatat di "damage asli" pada hasil
+9092	Mode AUTO (hanya di Arena; pengaturan biasa tidak berubah)
+9093	Mulai {0}km/h ke atas
+9094	Hadiah, rekor, dan koleksi tidak berubah sama sekali. Tidak tersedia: FINAL EVOLUTION / AWAKENED / MASTERY / gauge ULTIMATE / naik level / hadiah bos / BONUS ZONE (kartu hanya efek Lv biasa dan COMBO)
+9095	Laga pertama
+9096	Kekuatan bos: {0}
+9097	Semua dikalahkan {0} dtk
+9098	Dikalahkan/Muncul
+9099	Damage nyata diterima
+9100	Damage asli diterima (termasuk yang ditahan kebal/Shield)
+9101	N0
+9102	Build coba: {0}
+9103	Ubah syarat
+9104	？？？(belum ditemui)
+9105	WARNING!  MECH DRAGON mendekat!
+9106	PROTOKOL PEMUSNAHAN
+9107	Sedang mendingin! Saatnya menyerang!
+9108	Tidak bisa jadi bahan: dipakai di dek/kartu karakter
+9109	Sudah AWAKENED (★5). MASTERY tidak bisa dinaikkan lagi
+9110	Tidak bisa fusi: jika keduanya sukses, Lv jadi {0} (batas Lv.{1})
+9111	<color=#ffd76a><b>[MASTERY] Catatan latihan setelah Lv.9 MAX</b></color>
+9112	MASTERY saat ini: <color=#ffd76a>{0}</color>  {1}
+9113	<size=19>MASTERY {0} di atas ★5 disimpan sebagai catatan</size>
+9114	<size=19>MASTERY tidak menaikkan performa biasa (serangan, kecepatan, EXP, dll.). Ini catatan latihan sampai jadi AWAKENED di ★5.</size>
+9115	Kelebihan <b>{0} Lv</b> di atas Lv.9 masuk ke MASTERY: {1} → <color=#ffd76a>{2}</color>{3}
+9116	・{0} {1}<b>×{2}</b>  <size=18>({3})</size>
+9117	<color=#9fd0ff><b>[Fusi Beda] Hasil fusi kartu berbeda ditentukan acak</b></color>
+9118	<b>Peluang mewarisi semua kemampuan utama {0}%</b>
+9119	・{0} ×{1}  <size=18>({2})</size>
+9120	<b>Peluang mewarisi semua kemampuan bahan {0}%</b>
+9121	Keduanya sukses: semua kemampuan kedua sisi diwariskan (kemampuan sama dijumlahkan). Kelangkaan = ★ tertinggi +1 (maks ★5)
+9122	Kartu kosong untuk fusi tidak cukup (dipakai di dek/kartu karakter)
+9123	Terpasang di kartu karakter, kartu kosong tidak cukup
+9124	Jumlah tidak cukup karena dipakai di dek
+9125	<size=21>MASTERY {0} di atas ★5 telah disimpan sebagai catatan</size>
+9126	<size=21>Mencapai AWAKENED. Disimpan sebagai catatan latihan; performa biasa tidak berubah</size>
+9127	<size=21>MASTERY tidak menaikkan performa biasa (serangan, kecepatan, EXP, dll.).</size>
+9128	)}    Kelangkaan <color=#ffd76a>{new string('★', v.rarity)}</color>
+9129	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3})</color></size>
+9130	Tampil {0} / Dimiliki {1} kartu
+9131	・Kartu berbeda … set kemampuan diwariskan acak: utama 50%, bahan 25%. Jika hanya satu sisi sukses, hanya Lv dan kemampuan sisi itu yang tersisa; jika keduanya gagal, tidak ada kartu jadi (MILE dikembalikan)
+9132	・Batas Lv fusi adalah Lv.9. Kelebihan fusi kartu sama masuk ke MASTERY. Kartu berbeda tidak bisa difusi jika total Lv lebih dari 9
+9133	・Fusi kartu sama ke kartu Lv.9 MAX menaikkan MASTERY (★5 = AWAKENED)
+9134	<size=19>Sudah AWAKENED (★5). Fusi MASTERY tidak bisa lagi.</size>
+9135	Jika kartu yang sama ({0}) jadi bahan, MASTERY naik sebesar Lv bahan (Lv.1 = +1).
+9136	Matanya melemah! Saatnya menyerang!
+9137	Inti terbuka! Saatnya BREAK!
+9138	Frekuensi muncul musuh
+9139	MILE musuh & BONUS
+9140	MILE kalahkan bos
+9141	Peluang bakar
+9142	Daya dasar bakar
+9143	Peluang dingin
+9144	Lambat karena dingin
+9145	Peluang pendarahan
+9146	Kec. serangan depan/belakang
+9147	Serangan di udara
+9148	Serangan di darat
+9149	Penutup serangan beruntun
+9150	Serangan ke musuh biasa
+9151	Serangan bawah/hantaman
+9152	Kec. serang saat HP 50% ke bawah
+9153	Serangan per HIT beruntun
+9154	Serangan per kena di udara sebelum mendarat
+9155	Pemulihan Shield lebih cepat (dtk)
+9156	Kecepatan aksi musuh
+9157	Peluang muncul elit
+9158	MILE jarak lari
+9159	EXP jarak lari
+9160	EXP dari musuh
+9161	Pengurangan hitungan sampai beku
+9162	Pengali damage petir
+9163	)} kartu karakter
+9164	Ketuk untuk lepas
+9165	[Dipakai karakter lain]
+9166	Kartu yang sedang dipakai tidak bisa ditukar. Lepas dulu dari dek atau kartu karakter.
+9167	Tukar 1 kartu ini jadi {CardConvertMile} MILE?
+9168	)} {BleedPower * Scale:0.#}/s serap{BleedLifesteal * 100f:0}%
+9169	(sudah AWAKENED)
+9170	Ketuk untuk tutup / ketuk gacha untuk tarik lagi
+9171	Jika diterima: dasar {0} MILE + bonus {1} MILE = total {2} MILE
+9172	Jatah hari ini habis (pulih dalam {0})
+9173	Reset jatah dalam {0}
+9174	Dibawa pulang run ini
+9175	Dimiliki setelah kabur
+9176	Jika tumbang atau membatalkan run, MILE run ini tidak didapat
+9177	BARU:
+9178	DEV: tidak dicatat (
+9179	Jarak run ini tidak masuk rekor resmi (BEST, total jarak, buka stage/karakter)
+9180	Segel {0}
+9181	RESET MILE
+9182	RESET KARTU
+9183	Run yang dijeda dan MILE yang akan dibawa pulang
+9184	MILE dibawa pulang
+9185	Kembali ke Beranda.
+9186	Run tidak berakhir, kamu bisa
+9187	{0} tidak bisa dipasang: total dengan kartu karakter lain melebihi Lv{1}
+9188	Awas: total kartu karakter {0} melebihi Lv{1} (kelebihan {2} Lv tidak berefek)
+9189	IRENE
+9190	ESTELLE
+9191	ALICIA
+9192	Iklan sedang disiapkan. Tunggu sebentar lalu coba lagi
+9193	TEST AD (simulasi) Iklan berhadiah
+9194	TEST AD (simulasi) Iklan interstisial
+9195	{0} dtk
+9196	Syarat hadiah terpenuhi
+9197	Tutup di tengah
+9198	Simulasi app terhenti
+9199	¥(simulasi) 000
+9200	Simulasi (khusus versi dev): bukan pembelian asli. Disimpan terpisah dari hak pembelian asli
+9201	・Pembelian terikat ke akun toko. Setelah ganti perangkat/instal ulang, pulihkan dengan "Pulihkan Pembelian". Data simpanan seperti kartu dan MILE tidak kembali lewat tombol ini
+9202	Pembelian tidak dapat dikonfirmasi. Pass tetap aktif; akan dicek lagi nanti
+9203	OMMLAN
+9204	SYNC
+9205	MAIN ONLINE
+9206	Buat room dan tampilkan di "CARI GAME" online.
+9207	Buat room di perangkat ini. Perangkat di Wi-Fi yang sama bisa ikut lewat "CARI GAME".
+9208	LAYANAN ONLINE TIDAK TERSEDIA
+9209	DEV:
+9210	COBA LAGI
+9211	Mencari room terdekat…
+9212	DEV
+9213	Jika sudah lengkap, "Tutup (room tetap ada)" → Pintu → tekan "Berangkat" di PILIH STAGE, semua mulai bersamaan di stage yang sama.
+9214	CO-OP: Tumbang = DOWN. Rekan (2 hati atau lebih) yang datang ke titikmu bisa memberi 1 hati lewat REVIVE untuk membangkitkanmu. Semua DOWN = selesai.
+9215	MODE: dipilih HOST (berlaku untuk semua saat run mulai)
+9216	Pintu di Beranda → tekan "Berangkat" di PILIH STAGE, semua pemain terhubung mulai bersamaan di stage yang sama.
+9217	REVIVE
+9218	Komunikasi gagal dimulai. Coba lagi atau mulai ulang aplikasi
+9219	Gagal membuat room (mungkin aplikasi lain sedang memakai jaringan)
+9220	P{0} terputus (sisa {1} orang)
+9221	{0} terputus
+9222	Pemain lawan terputus
+9223	Tidak bisa ikut: versi game berbeda. Perbarui keduanya ke versi terbaru
+9224	Tidak bisa ikut: room ini sudah mulai berlari
+9225	Tidak bisa ikut: room penuh
+9226	Koneksi ditolak
+9227	Kamu: rekor belum tampil di peringkat
+9228	AUTO
+9229	Kilat
+9230	Berhenti kirim rekor
+9231	UGS
+9232	Pilih kartu
+9233	Pilih lagi untuk konfirmasi
+9234	Pilih kartu → pilih lagi untuk konfirmasi
+9235	Tercapai! Terkunci jika run selesai dengan sukses
+9236	Saat kecepatan lari mencapai kecepatan mulai, hanya aksi yang ON yang dilakukan otomatis.
+9237	Kontrol manual diutamakan. Jika "AUTO juga saat lawan bos" OFF, tidak ada kontrol otomatis selama lawan bos.
+9238	Pass terikat ke akun toko (Pulihkan Pembelian tidak mengembalikan data simpanan)
+9239	Latihan serangan depan/belakang, lompat, serangan bawah, lontar, dan pilih kartu (tanpa hadiah & rekor).
+9240	Latihan hanya bisa dimulai di Beranda (tidak saat terhubung multi)
+9241	Titan mendekat! Saatnya menyerang!
+9242	Intinya meredup! Saatnya BREAK!
+9243	Tergelincir saat mendarat! Saatnya menyerang!
+9244	Kepalanya keluar dari awan! Saatnya menyerang!
+9245	Lingkar cahaya hilang! Peluang besar!
+9246	Listriknya hilang! Saatnya menyerang!
+9247	Berangkat Kilat (titik {0})
+9248	Lewati cepat bagian yang sudah ditaklukkan dan mulai berlari sedikit sebelum gerbang pilihanmu. Kartu hadiah bos diambil otomatis secara acak. Samakan tinggi atas/bawah dengan cincin tiap 5,000m untuk memilih 1 kartu tambahan. Jarak yang dilewati tidak memberi MILE/EXP.
+9249	Melaju ke {0}km   (±{1} dtk + pilih kartu cincin){2}
+9250	Bos gerbang {0}km belum dikalahkan
+9251	Semua kartu dek di run ini sudah Lv9.
+9252	Gerbang {0}/{1}    Cincin {2}/{3}{4}
+9253	Gerbang dilewati {0}/{1}   Cincin {2}/{3}{4}
+9254	Semua kartu dek di run Lv{0} MAX
+9255	Gerbang tanpa kartu: {0}
+9256	Semua kartu dek di run ini sudah Lv9. Hadiah cincin berupa MILE yang akan dibawa pulang
+9257	(Rekor jarak BEST juga tidak tersimpan)
+9258	Ke Pilihan Peta
+9259	Batas dek kini 12 kartu
+9260	OVERFLOW

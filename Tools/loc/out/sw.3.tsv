@@ -1,0 +1,261 @@
+9000	Wakati mwingine hutia baridi ukigonga. Adui akiganda hupata uharibifu wa ziada. Shambulio dhidi ya maadui wenye baridi/walioganda +3%/Lv. Muda wa kuganda pia huongezeka na kupunguzwa kasi kwa mabosi huwa kukali zaidi
+9001	HP ikiwa 50% au chini, kasi ya shambulio +3%/Lv. HP ikiwa 25% au chini, ongezeko huwa mara 2 (+6%/Lv)
+9002	Ukigonga adui hewani, mkato wa ziada wenye eneo hutokea pale ulipogonga. Nguvu na eneo hupanda kwa Lv
+9003	Shambulio hewani +3%/Lv. Kila unapogonga bila kutua, +1%/Lv zaidi (hadi mara 4). Ongezeko hilo hufutwa ukitua
+9004	Shambulio dhidi ya maadui walio hewani hupanda (+8%/Lv) (maadui wadogo waliorushwa/wanaoruka; kwa mabosi ni Joka na Jini tu)
+9005	Eneo la shambulio +3%/Lv. Pigo la karibu hufika eneo pana zaidi, na silaha za mbali huruka mbali zaidi (ukubwa wa risasi haubadiliki)
+9006	HP ikiwa 50% au chini, shambulio +5%/Lv na kasi ya shambulio +2%/Lv. HP ikiwa 25% au chini, ongezeko la vyote viwili huwa mara 2
+9007	Shambulio +6%/Lv, kasi ya shambulio +1%/Lv. Lakini hufunga mioyo ya HP ya juu (1 kwa Lv1〜3, 2 kwa Lv4〜6, 3 kwa Lv7〜9)
+9008	HP ikiwa 50% au chini, shambulio +4%/Lv. HP ikiwa 25% au chini, uwezekano wa kufyonza (kurejesha moyo 1) ukiua adui/bosi pia +3%/Lv
+9009	Kwenye lango la kawaida la bosi, kuna uwezekano (8%/Lv) bosi mmoja zaidi kujiunga. MILE ya kuua bosi +50%/Lv. Haihusu mabosi maalum wa kila 10km wala msururu wa mabosi wa Shimo la Mwisho
+9010	Shambulio +7%/Lv. Lakini kila ukitumia shambulio la mbele/nyuma, kasi ya mwendo hushuka 10% kwa sek 0.4
+9011	Nguvu ya kuungua +8%/Lv, muda wa kuungua +0.25 sek/Lv. Kadi hii peke yake pia huweza kuunguza ukigonga (uwezekano 7% kwa Lv1, kisha +2%/Lv)
+9012	Adui akiuawa, mlipuko hutokea karibu naye. Maadui waliouawa na mlipuko nao hulipuka, hadi ngazi 3. Kila adui hugongwa mara 1 tu kwa kila mnyororo
+9013	Huwashwa Gauge ikiwa 100% (kitufe cha chini kushoto). Mbinu maalum ya mhusika huua maadui wa kawaida walio skrinini kwa pigo 1, na kwa mabosi huleta uharibifu wa 20〜40% ya HP yao ya juu (hupanda kwa Lv). Kisha husonga mbele sana (Lv1 300m → Lv9 1000m; husimama kabla ya lango la bosi n.k., haisongi mbele wakati wa pambano la bosi), na nguvu za ziada hudumu kwa muda (Lv1 sek 5 → Lv9 sek 12). Gauge hujaa kwa umbali, kuua maadui na uharibifu kwa mabosi
+9014	Pigo la mwisho la mfululizo wa mashambulizi likigonga, mshtuko wa ziada hutoka mbele (nguvu na eneo hupanda kwa Lv)
+9015	Pigo la mwisho la mashambulizi ya mbele/nyuma mfululizo +7%/Lv
+9016	Ukizuia shambulio kwa Shield, wimbi la mshtuko la kujibu hutokea karibu nawe. Nguvu hupanda kwa Lv. Kadi hii peke yake pia hukupa Shield 1
+9017	Shambulio +12%/Lv. Lakini hufunga mioyo ya HP ya juu (1 kwa Lv1〜2, kisha +1 kila Lv 2; 5 kwa Lv9)
+9018	Baadhi ya maadui wadogo huwa hodari (+4% kwa kila Lv. HP×2.5, wepesi kidogo; ukiwaua MILE×3/EXP×2). MILE pia huongezeka (+30%/Lv)
+9019	MILE ya kuua maadui +15%/Lv. Pia hutumika kwa MILE za zawadi za BONUS ZONE na WANTED
+9020	EXP unayopata hupungua (-10%/Lv, angalau 25% ya kawaida), badala yake MILE ya maadui na BONUS +30%/Lv
+9021	EXP ya kuua maadui, mabosi na BONUS ZONE huongezeka sana (+80%/Lv). EXP ya umbali wa mbio haihusiki
+9022	Kuna uwezekano wa kumuunguza adui uliyemgonga, akipata uharibifu kwa sek 3. Lv1: uwezekano 15%, uharibifu 5/sek; kisha kila Lv uwezekano +5%, uharibifu/sek +1.5
+9023	Ukizuia shambulio kwa Shield, moto wa kujibu hutokea karibu nawe na kuwaunguza maadui unaowagonga. Nguvu hupanda kwa Lv. Kadi hii peke yake pia hukupa Shield 1
+9024	Ukigonga, adui hupata baridi na kupunguzwa kasi. Lv1: uwezekano 15%, kupunguza kasi 25%. Kila Lv uwezekano +5%, kupunguza kasi +2%. Baridi ikirundikana mara 5, huganda (mabosi hawasimami, hupunguzwa kasi tu)
+9025	Wakati mwingine wembe wa upepo hutoka ukigonga. Kasi ya wembe wa upepo +5%/Lv, umbali +0.4m/Lv. Kutoboa kwa wembe wa upepo na silaha za mbali +1 (+2 kuanzia Lv4, +3 kuanzia Lv7)
+9026	Kutua kwa kubamiza, au pigo la mwisho ardhini, hutoa wimbi la mshtuko linalokimbia ardhini (nguvu na urefu hupanda kwa Lv). Shambulio ardhini pia +2%/Lv
+9027	Shambulio +4%/Lv. Kwa kila moyo 1 uliofungwa, shambulio +0.6%/Lv zaidi (ikijumuisha mioyo iliyofungwa na kadi nyingine). Kadi hii pia hufunga mioyo ya HP ya juu (1 kwa Lv1〜3, 2 kwa Lv4〜6, 3 kwa Lv7〜9)
+9028	HP ya juu +moyo 1/Lv (kikomo mioyo 20). HP hurejeshwa yote ukiichukua
+9029	Uharibifu wa mioyo 2 au zaidi hupunguzwa moyo 1. HP ya juu pia huongezeka (+moyo 1 kwa Lv1〜2, kisha +1 kila Lv 2). Nguvu ya kuruka -3%/Lv
+9030	Shambulio la chini na kutua kwa kubamiza +10%/Lv. Pigo la mwisho pia +3%/Lv
+9031	HP ya maadui wadogo +12%/Lv, kasi ya vitendo +4%/Lv, marudio ya kujitokeza +8%/Lv. Badala yake MILE ya maadui na BONUS +50%/Lv, MILE ya kuua bosi +30%/Lv
+9032	Marudio ya maadui kujitokeza +15%/Lv. Badala yake MILE ya maadui na BONUS +5%/Lv, EXP ya maadui na BONUS +5%/Lv
+9033	Wakati wa pambano la bosi, umbali wa kusonga mbele/nyuma unaposhambulia +4%/Lv. Kasi ya mwendo unapomkaribia bosi aliye mbali zaidi ya 6m pia +3%/Lv
+9034	Wakati mwingine hutia baridi ukigonga. Idadi ya baridi inayohitajika kuganda hupungua (4 kwa Lv1〜3, 3 kwa Lv4〜6, 2 kwa Lv7〜9). Uwezekano na muda wa baridi pia hupanda
+9035	Ukiua adui anayeungua, moto huenea karibu na kuwaunguza maadui (nguvu na eneo hupanda kwa Lv). Kadi hii peke yake pia huunguza ukigonga kwa uwezekano mdogo (5%)
+9036	Mruko hewani +1/Lv. Miruko ya ziada mfululizo hupanda kwa nguvu ndogo zaidi, lakini si unapoangukia shimo. Mchawi: urefu wa kupanda +ngazi 1 kwa Lv1〜3, +2 kwa Lv4〜6, +3 kwa Lv7〜9
+9037	Uharibifu ukishusha HP hadi moyo 1 au chini, unapata kutodhurika kwa muda mfupi (sek 1 + sek 0.15/Lv). Haizuii uharibifu wa kuanguka. Huwashwa tena baada ya HP kurudi zaidi ya moyo 1 na sek 20 kupita tangu iwashwe
+9038	EXP unayopata +30%/Lv
+9039	Eneo la shambulio +5%/Lv. Pigo la karibu hufika eneo pana zaidi, na silaha za mbali huruka mbali zaidi
+9040	EXP unayopata +15%/Lv. HP ya juu pia huongezeka (+moyo 1 kwa Lv1〜3, +2 kwa Lv4〜6, +3 kwa Lv7〜9)
+9041	Shambulio dhidi ya maadui wasio mabosi +5%/Lv. MILE ya maadui na BONUS +10%/Lv
+9042	Nguvu ya shambulio hupanda kulingana na kasi ya mbio. Hakuna athari kwa 100km/h au chini. +4%/Lv kwa 150km/h; juu ya hapo bado hupanda lakini kwa 1/4 tu
+9043	Marudio ya maadui kujitokeza +10%/Lv. Badala yake EXP unayopata +15%/Lv
+9044	Marudio ya maadui kujitokeza +10%/Lv. MILE ya maadui na BONUS pia +3%/Lv
+9045	Kasi ya mwendo +5%/Lv. Lakini marudio ya maadui kujitokeza pia +10%/Lv
+9046	MILE ya maadui na BONUS +50%/Lv, MILE ya kuua bosi +50%/Lv, EXP unayopata +20%/Lv
+9047	Ukidumu kwa 115km/h au zaidi kwa muda, OVERDRIVE huwashwa (shambulio +3%/Lv, kasi ya shambulio +2%/Lv). Huisha ukikaa chini ya 107km/h kwa sek 0.8. Kasi ya mwendo daima +2%/Lv
+9048	Kupona kwa kufyonza na PUMZI YA PILI huongezeka (+moyo 1 kwa Lv4〜6, +2 kwa Lv7〜9). Ziada HP ikiwa imejaa huwa Shield 1 (hadi kikomo +1)
+9049	HP ya maadui wadogo +15%/Lv, kasi ya vitendo +5%/Lv, marudio ya kujitokeza +12%/Lv, uwezekano wa maadui hodari +2%/Lv, HP ya mabosi +10%/Lv. Badala yake MILE ya maadui na BONUS +60%/Lv, MILE ya kuua bosi +60%/Lv
+9050	EXP ya umbali wa mbio +20%/Lv. Haihusu EXP ya kuua maadui
+9051	Shield ikizuia pigo, unapata kutodhurika kwa muda mfupi (sek 0.4 + sek 0.1/Lv). Kadi hii peke yake pia hukupa Shield 1
+9052	Ukianguka (hata kuangukia shimo) unafufuka na hudhuriki kwa sek 2 (HP mioyo 1〜5 kwa Lv). Ukifufuka, kadi hii huondolewa na inaweza kutokea tena kama chaguo (unaanza tena Lv1)
+9053	Pigo la karibu likigonga, maadui walio nyuma ya adui huyo pia hupata uharibifu wa ziada. Nguvu na idadi ya walengwa hupanda kwa Lv. Kutoboa kwa silaha za mbali pia huongezeka (+1 kwa Lv1〜3, +2 kwa Lv4〜6, +3 kwa Lv7〜9)
+9054	Uwezekano wa kurejesha moyo 1 ukiua adui +3%/Lv. Ukimgonga bosi, pia kuna uwezekano mdogo wa kufyonza HP
+9055	Ukipigwa na HP ikawa 30% ya juu au chini, unapona mioyo 1〜3 (2 kwa Lv5, 3 kwa Lv9). Ili iwashwe tena lazima ukimbie umbali fulani (10,000m kwa Lv1, 6,000m kwa Lv9)
+9056	Shield inayozuia pigo 1. Idadi ya juu 1 kwa Lv1〜3, 2 kwa Lv4〜6, 3 kwa Lv7〜9. Zilizotumika hurudi moja moja kwa muda (haraka zaidi kwa Lv)
+9057	Shambulio hewani +4%/Lv. Ukigonga hewani, unarudishiwa mruko 1 wa hewani uliotumika (kabla ya kutua: hadi 1 kwa Lv1〜3, 2 kwa Lv4〜6, 3 kwa Lv7〜9)
+9058	Nguvu ya kuruka +2%/Lv, shambulio hewani +3%/Lv
+9059	Ukitumia shambulio la mbele/nyuma, mkato unaotoboa maadui huruka mbele. Kadiri unavyokimbia kasi, ndivyo mkato unavyofika mbali, kuwa mkubwa na wenye nguvu zaidi
+9060	Kasi ya mwendo -4%/Lv. Kadi maalum ya kukimbia polepole zaidi
+9061	EXP unayopata +40%/Lv. HP ya juu pia huongezeka (+moyo 1 kwa Lv1〜2, kisha +1 kila Lv 2; +5 kwa Lv9)
+9062	Ukigonga, kuna uwezekano mdogo wa radi kupiga. Nguvu ya radi +4%/Lv, mnyororo +adui 1 kwa Lv1〜3, +2 kwa Lv4〜6, +3 kwa Lv7〜9. Radi pia huleta uharibifu kuzunguka
+9063	Ukigonga, radi hupiga. Lv1: uwezekano 5%, nguvu ya msingi 7.5; kisha kila Lv uwezekano +2%, nguvu ya msingi +1.5. Radi 1 tu kwa kila sek 0.4 kwa adui mmoja
+9064	Wembe wa upepo ukigonga, kimbunga hutokea na kuleta uharibifu mfululizo kwa maadui wa karibu (nguvu na eneo hupanda kwa Lv). Kadi hii peke yake pia hutoa wembe wa upepo ukigonga kwa uwezekano mdogo
+9065	HP ya maadui wadogo +15%/Lv. Badala yake MILE ya maadui na BONUS +15%/Lv, EXP ya kuua maadui +5%/Lv
+9066	MILE ya hazina/zawadi +30%/Lv (hazina na CLEAR/PERFECT za BONUS ZONE, zawadi ya WANTED). MILE ya kuua bosi +10%/Lv, MILE ya umbali wa mbio +5%/Lv
+9067	Shambulio +3%/Lv, kasi ya mwendo +2%/Lv. HP ya juu pia huongezeka (+moyo 1 kwa Lv1〜2, kisha +1 kila Lv 2; +5 kwa Lv9)
+9068	Kila umbali fulani, mhalifu mwenye zawadi hutokea (huwa na nguvu na kuja mara nyingi zaidi kwa Lv). Ukimuua unapata MILE ya zawadi; ukimwacha nyuma, hakuna zawadi. MILE ya maadui na BONUS +35%/Lv
+9069	Ukigonga, kuna uwezekano wa wembe wa upepo unaotoboa maadui kuruka mbele. Lv1: uwezekano 10%, nguvu 8; kisha kila Lv uwezekano +3%, nguvu +1.5. Eneo la shambulio pia hupanuka kidogo (+1%/Lv)
+9070	Maadui: maadui wengi wa nyika, pango na angani
+9071	Maadui: Goblini / Harpy / Gargoyle n.k.
+9072	Maadui: Goblini, ndege, maadui wakubwa, wapiga mishale n.k.
+9073	Vizuizi: mawe, miti, kuta, mawe makubwa (huvunjika kwa shambulio), mashimo
+9074	Njia: hugawanyika juu na chini (salama/hatari ni bahati)
+9075	Maadui wote na mashambulizi yao yamefutwa (wote-wameuawa na muda wa kuua havirekodiwi)
+9076	Maadui wote wameuawa  sek {0}
+9077	Kwenye Pambano
+9078	Muundo wa jaribio (aina {0})
+9079	Lv = mara ulizochukua katika mbio (hadi 9 kwa kila uwezo). Ulichonacho na deki havibadiliki
+9080	Kadi {0} za deki zimenakiliwa kwenye muundo wa jaribio (deki haibadiliki)
+9081	Kadi {0} za mhusika zimenakiliwa kwenye muundo wa jaribio (Lv ya mwanzo)
+9082	Bosi hutokea mbele kwa madoido yale yale ya kuingia kama kwenye mchezo mkuu
+9083	Mbinu za mabosi wa pango/angani zinazotumia ardhi (mashimo, dari, mawe yanayoanguka n.k.) huonekana tofauti katika Uwanja ulio tambarare
+9084	Wapinzani wa sasa (vikundi {0})
+9085	HP ya maadui: sawa na kituo cha {0}km (kwa HP ya maadui wadogo na mabosi)
+9086	Kimbia (na marekebisho)
+9087	Kukimbia kiotomatiki tu ndiko husimama (shambulio, kuruka, mvuto, kurudishwa nyuma na mwendo wa maadui ni kama kwenye mchezo mkuu)
+9088	Marekebisho ya kasi ya mhusika/kadi hutumika kwenye kasi ya msingi
+9089	Hupuuza marekebisho ya kasi ya mhusika/kadi na kukimbia kwa kasi uliyoweka
+9090	Mpangilio {0}km/h / Pambano hili {1}km/h (marekebisho ×{2})
+9091	Hata ukiwa hudhuriki, hurekodiwa kwenye "uharibifu halisi uliopokea" katika matokeo
+9092	Hali ya AUTO (ndani ya Uwanja tu; mipangilio ya kawaida haibadiliki)
+9093	Kuanzia {0}km/h
+9094	Zawadi, rekodi na ulichonacho havibadiliki kabisa. Havipatikani: FINAL EVOLUTION / AWAKENED / MASTERY / Gauge ya ULTIMATE / kupanda kiwango / zawadi za bosi / BONUS ZONE (kadi hutumia tu athari ya kawaida ya Lv na COMBO)
+9095	Pambano la kwanza
+9096	Nguvu ya bosi: {0}
+9097	Wote wameuawa sek {0}
+9098	Waliouawa/Waliotokea
+9099	Uharibifu halisi uliopokea
+9100	Uharibifu kamili uliopokea (pamoja na uliozuiwa kwa kutodhurika/Shield)
+9101	N0
+9102	Muundo wa jaribio: {0}
+9103	Hariri masharti
+9104	？？？(hujakutana naye)
+9105	WARNING!  MECH DRAGON inakaribia!
+9106	ITIFAKI YA MAANGAMIZI
+9107	Inapoa! Nafasi ya kushambulia!
+9108	Haiwezi kuwa malighafi: inatumika kwenye deki/kadi ya mhusika
+9109	Tayari AWAKENED (★5). MASTERY haiwezi kuimarishwa zaidi
+9110	Haiwezi kuunganishwa: pande zote zikifaulu, Lv itakuwa {0} (kikomo Lv.{1})
+9111	<color=#ffd76a><b>[MASTERY] Rekodi ya mafunzo baada ya Lv.9 MAX</b></color>
+9112	MASTERY ya sasa: <color=#ffd76a>{0}</color>  {1}
+9113	<size=19>MASTERY {0} iliyozidi ★5 huhifadhiwa kama rekodi</size>
+9114	<size=19>MASTERY haiongezi uwezo wa kawaida (shambulio, kasi, EXP n.k.). Ni rekodi ya mafunzo hadi kuwa AWAKENED kwa ★5.</size>
+9115	<b>Lv {0}</b> zilizozidi Lv.9 huenda kwenye MASTERY: {1} → <color=#ffd76a>{2}</color>{3}
+9116	・{0} {1}<b>×{2}</b>  <size=18>({3})</size>
+9117	<color=#9fd0ff><b>[Kuunganisha Kadi Tofauti] Matokeo ya kadi tofauti huamuliwa kwa bahati</b></color>
+9118	<b>Uwezekano wa kurithi uwezo wote wa upande mkuu {0}%</b>
+9119	・{0} ×{1}  <size=18>({2})</size>
+9120	<b>Uwezekano wa kurithi uwezo wote wa malighafi {0}%</b>
+9121	Zote zikifaulu: uwezo wote wa pande zote hurithiwa (uwezo unaofanana hujumlishwa). Uadimu = ★ ya juu zaidi +1 (hadi ★5)
+9122	Kadi huru za kuunganisha hazitoshi (zinatumika kwenye deki/kadi ya mhusika)
+9123	Imewekwa kwenye kadi ya mhusika; kadi huru hazitoshi
+9124	Idadi haitoshi kwa sababu inatumika kwenye deki
+9125	<size=21>MASTERY {0} iliyozidi ★5 imehifadhiwa kama rekodi</size>
+9126	<size=21>Umefikia AWAKENED. Imehifadhiwa kama rekodi ya mafunzo; uwezo wa kawaida haubadiliki</size>
+9127	<size=21>MASTERY haiongezi uwezo wa kawaida (shambulio, kasi, EXP n.k.).</size>
+9128	)}    Uadimu <color=#ffd76a>{new string('★', v.rarity)}</color>
+9129	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3})</color></size>
+9130	Zinaonyeshwa {0} / Ulizonazo kadi {1}
+9131	・Kadi tofauti … upande mkuu 50% na malighafi 25%, kila upande hurithi seti yake yote ya uwezo (kwa bahati). Upande mmoja tu ukifaulu, Lv na uwezo wa upande huo tu hubaki; zote zikishindwa, hakuna kadi inayopatikana (MILE hurejeshwa)
+9132	・Kikomo cha Lv ya kuunganisha ni Lv.9. Ziada ya kuunganisha kadi zinazofanana huenda kwenye MASTERY. Kadi tofauti haziwezi kuunganishwa jumla ya Lv ikizidi 9
+9133	・Ukiunganisha kadi inayofanana na kadi ya Lv.9 MAX, MASTERY husonga mbele (★5 = AWAKENED)
+9134	<size=19>Tayari AWAKENED (★5). Huwezi tena kuunganisha kwa MASTERY.</size>
+9135	Ukitumia kadi ile ile ({0}) kama malighafi, MASTERY husonga kwa Lv ya malighafi (Lv.1 = +1).
+9136	Macho yamedhoofika! Nafasi ya kushambulia!
+9137	Kiini kiko wazi! Nafasi ya BREAK!
+9138	Marudio ya maadui kujitokeza
+9139	MILE ya maadui na BONUS
+9140	MILE ya kuua bosi
+9141	Uwezekano wa kuungua
+9142	Nguvu ya msingi ya kuungua
+9143	Uwezekano wa baridi
+9144	Kupunguzwa kasi kwa baridi
+9145	Uwezekano wa kuvuja damu
+9146	Kasi ya shambulio la mbele/nyuma
+9147	Shambulio hewani
+9148	Shambulio ardhini
+9149	Pigo la mwisho la mfululizo
+9150	Shambulio dhidi ya maadui wadogo
+9151	Shambulio la chini/kubamiza
+9152	Kasi ya shambulio HP 50% au chini
+9153	Shambulio kwa kila HIT mfululizo
+9154	Shambulio kwa kila pigo hewani kabla ya kutua
+9155	Kupunguza muda wa Shield kurudi (sek)
+9156	Kasi ya vitendo vya maadui
+9157	Uwezekano wa maadui hodari
+9158	MILE ya umbali wa mbio
+9159	EXP ya umbali wa mbio
+9160	EXP ya kuua maadui
+9161	Kupunguza idadi hadi kuganda
+9162	Kizidisho cha uharibifu wa radi
+9163	)} kadi za mhusika
+9164	Gusa kuondoa
+9165	[Imewekwa kwa mhusika mwingine]
+9166	Kadi inayotumika haiwezi kubadilishwa. Iondoe kwanza kwenye deki au kadi ya mhusika.
+9167	Badilisha kadi hii 1 kuwa MILE {CardConvertMile}?
+9168	)} {BleedPower * Scale:0.#}/s kufyonza{BleedLifesteal * 100f:0}%
+9169	(tayari AWAKENED)
+9170	Gusa kufunga / gusa gacha kuvuta tena
+9171	Ukipokea: kawaida MILE {0} + ziada MILE {1} = jumla MILE {2}
+9172	Zamu za leo zimeisha (zinarudi baada ya {0})
+9173	Zamu zinarudi baada ya {0}
+9174	Utakayobeba mbio hizi
+9175	Ulizonazo baada ya kutoroka
+9176	Ukianguka au ukiacha mbio, hutapokea MILE za mbio hizi
+9177	MPYA:
+9178	DEV: haitarekodiwa (
+9179	Umbali wa mbio hizi hautahesabiwa kwenye rekodi rasmi (BEST, umbali wote, kufungua ramani/wahusika)
+9180	Zimefungwa {0}
+9181	WEKA UPYA MILE
+9182	WEKA UPYA KADI
+9183	Mbio zilizositishwa na MILE utakazobeba
+9184	MILE utakazobeba
+9185	Unarudi nyumbani.
+9186	Mbio hazitaisha; utaweza
+9187	{0} haiwezi kuwekwa: pamoja na kadi nyingine za mhusika inazidi Lv{1}
+9188	Tahadhari: jumla ya kadi za mhusika {0} inazidi Lv{1} (Lv {2} za ziada hazifanyi kazi)
+9189	IRENE
+9190	ESTELLE
+9191	ALICIA
+9192	Tangazo linaandaliwa. Subiri kidogo kisha ujaribu tena
+9193	TEST AD (mfano) Tangazo la zawadi
+9194	TEST AD (mfano) Tangazo la kati
+9195	Sek {0}
+9196	Masharti ya zawadi yametimizwa
+9197	Funga katikati
+9198	Mfano wa programu kukatizwa
+9199	¥(mfano) 000
+9200	Mfano (toleo la dev tu): si ununuzi halisi. Huhifadhiwa tofauti na haki za ununuzi halisi
+9201	・Ununuzi umeunganishwa na akaunti yako ya duka. Baada ya kubadilisha kifaa au kusakinisha upya, urejeshe kwa "Rejesha Ununuzi". Data iliyohifadhiwa kama kadi na MILE hairudishwi na kitufe hiki
+9202	Ununuzi haukuweza kuthibitishwa. Pasi inabaki hai; tutaangalia tena baadaye
+9203	OMMLAN
+9204	SYNC
+9205	MCHEZO WA MTANDAONI
+9206	Unda chumba na ukionyeshe kwenye "TAFUTA MCHEZO" mtandaoni.
+9207	Unda chumba kwenye kifaa hiki. Vifaa vilivyo kwenye Wi-Fi ile ile vinaweza kujiunga kupitia "TAFUTA MCHEZO".
+9208	HUDUMA YA MTANDAONI HAIPATIKANI
+9209	DEV:
+9210	JARIBU TENA
+9211	Inatafuta vyumba vya karibu…
+9212	DEV
+9213	Mkiwa tayari: "Funga (chumba kinabaki)" → mlango → kwenye CHAGUA RAMANI bonyeza "Anza Safari", wote wataanza ramani moja kwa wakati mmoja.
+9214	CO-OP: Ukianguka uko DOWN. Mwenzako (mioyo 2 au zaidi) akifika ulipoanguka na kukupa moyo 1 kwa REVIVE, unafufuka. Wote wakiwa DOWN, mchezo unaisha.
+9215	MODE: HOST huchagua (hutumika kwa wote mbio zikianza)
+9216	Mlango wa nyumbani → kwenye CHAGUA RAMANI bonyeza "Anza Safari", wote waliounganishwa wataanza ramani moja kwa wakati mmoja.
+9217	REVIVE
+9218	Mawasiliano hayakuweza kuanza. Jaribu tena au anzisha upya programu
+9219	Chumba hakikuweza kuundwa (huenda programu nyingine inatumia mtandao)
+9220	P{0} ametenganishwa (wamebaki {1})
+9221	{0} ametenganishwa
+9222	Mchezaji mwingine ametenganishwa
+9223	Huwezi kujiunga: matoleo ya mchezo ni tofauti. Sasisha yote mawili kuwa toleo jipya
+9224	Huwezi kujiunga: chumba hiki tayari kimeanza mbio
+9225	Huwezi kujiunga: chumba kimejaa
+9226	Muunganisho umekataliwa
+9227	Wewe: rekodi yako bado haionekani kwenye viwango
+9228	AUTO
+9229	Kasi
+9230	Acha kutuma rekodi
+9231	UGS
+9232	Chagua kadi
+9233	Chagua tena kuthibitisha
+9234	Chagua kadi → chagua tena kuthibitisha
+9235	Umefanikiwa! Itathibitishwa ukimaliza mbio kwa mafanikio
+9236	Kasi ya mbio ikifikia kasi ya kuanza, vitendo vilivyo ON tu hufanywa kiotomatiki.
+9237	Udhibiti wa mkono hupewa kipaumbele. "AUTO hata kwa bosi" ikiwa OFF, hakuna udhibiti wa kiotomatiki wakati wa pambano la bosi.
+9238	Pasi imeunganishwa na akaunti yako ya duka (Rejesha Ununuzi hairudishi data iliyohifadhiwa)
+9239	Fanya mazoezi ya shambulio la mbele/nyuma, kuruka, shambulio la chini, kurusha juu na kuchagua kadi (bila zawadi wala rekodi).
+9240	Mazoezi huanzishwa nyumbani tu (si ukiwa umeunganishwa na wachezaji wengi)
+9241	Titani anakaribia! Nafasi ya kushambulia!
+9242	Kiini kimefifia! Nafasi ya BREAK!
+9243	Ameteleza akitua! Nafasi ya kushambulia!
+9244	Kichwa kimetoka mawinguni! Nafasi ya kushambulia!
+9245	Duara la mwanga limetoweka! Nafasi kubwa!
+9246	Umeme umetoweka! Nafasi ya kushambulia!
+9247	Mbio za kasi (kituo cha {0})
+9248	Pita kwa kasi sehemu ulizoshinda tayari na uanze kukimbia kidogo kabla ya lango ulilochagua. Kadi za zawadi za mabosi hupatikana kiotomatiki kwa bahati. Linganisha urefu juu/chini na pete kila 5,000m ili kuchagua kadi 1 ya ziada. Umbali uliorukwa haupati MILE wala EXP.
+9249	Mbio hadi {0}km   (takriban sek {1} + kuchagua kadi za pete){2}
+9250	Bosi wa lango la {0}km hajauawa
+9251	Kadi zote za deki katika mbio hizi sasa ni Lv9.
+9252	Malango {0}/{1}    Pete {2}/{3}{4}
+9253	Malango yaliyopitwa {0}/{1}   Pete {2}/{3}{4}
+9254	Kadi zote za deki mbioni Lv{0} MAX
+9255	Malango bila kadi: {0}
+9256	Kadi zote za deki katika mbio hizi ni Lv9. Zawadi ya pete ni MILE utakazobeba
+9257	(Rekodi ya umbali BEST pia haitahifadhiwa)
+9258	Kwenda Chagua Ramani
+9259	Kikomo cha deki sasa ni kadi 12
+9260	OVERFLOW

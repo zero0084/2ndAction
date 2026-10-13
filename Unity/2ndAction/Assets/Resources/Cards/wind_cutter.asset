@@ -15,8 +15,7 @@ MonoBehaviour:
   cardId: wind_cutter
   cardName: WIND CUTTER
   icon: {fileID: 2800000, guid: 60ac292cefc58854f80c148c377e3cdc, type: 3}
-  description: "\u98A8\u306E\u5165\u53E3\u3002\u547D\u4E2D\u3067\u524D\u65B9\u3078\u8CAB\u901A\u3059\u308B\u98A8\u5203\u304C\u98DB\u3076(\u78BA\u7387
-    10%+3%/Lv\u3001\u5A01\u529B 8+1.5/Lv)\u3002\u653B\u6483\u7BC4\u56F2\u3082\u5C11\u3057\u5E83\u304C\u308B(+1%/Lv)"
+  description: "命中時に確率で、前方へ敵を貫通する風刃が飛ぶ。Lv1で確率10%・威力8、以降1Lvごとに確率+3%・威力+1.5。攻撃範囲も少し広がる(+1%/Lv)"
   category: 1
   sortOrder: 157
   recommendPriority: 5

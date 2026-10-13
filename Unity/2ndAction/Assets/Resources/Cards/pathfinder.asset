@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: pathfinder
   cardName: PATHFINDER
   icon: {fileID: 2800000, guid: 9417a4475bac01145803e32c5a0b8e34, type: 3}
-  description: "\u8D70\u3063\u305F\u8DDD\u96E2\u306E\u7D4C\u9A13\u5024\u304C\u5897\u3048\u308B(1Lv\u3054\u3068\u306B+20%)"
+  description: "走行距離EXP+20%/Lv。敵撃破EXPには適用されない"
   category: 3
   sortOrder: 16
   recommendPriority: 5

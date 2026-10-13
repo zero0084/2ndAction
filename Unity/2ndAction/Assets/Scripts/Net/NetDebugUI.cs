@@ -298,7 +298,7 @@ public class NetDebugUI : MonoBehaviour
         bool busy = online && OnlineServices.Busy;
         GUI.enabled = !busy;
         if (PadNav.LayoutButton(GUILayout.Button("CREATE GAME", buttonStyle, GUILayout.Height(70f)))) { if (online) CreateOnlineGame(); else CreateGame(); }
-        GUILayout.Label(L(online ? "部屋を作ります。オンラインの「FIND GAME」に表示されます。" : "この端末で部屋を作ります。近くの端末の「FIND GAME」に表示されます。"), smallStyle);
+        GUILayout.Label(L(online ? "部屋を作成し、オンラインの「FIND GAME」に公開します。" : "この端末で部屋を作ります。同じWi-Fiの端末から「FIND GAME」で参加できます。"), smallStyle);
         GUILayout.Space(10f);
         if (PadNav.LayoutButton(GUILayout.Button("FIND GAME", buttonStyle, GUILayout.Height(70f)))) Go(online ? MultiScreen.OnlineFind : MultiScreen.Find);
         GUILayout.Label(L(online ? "オンラインの部屋を探して参加します。" : "近くの部屋を探して参加します(IPの入力は不要)。"), smallStyle);
@@ -411,7 +411,7 @@ public class NetDebugUI : MonoBehaviour
         if (PadNav.LayoutButton(GUILayout.Button("RETRY", buttonStyle, GUILayout.Height(60f)))) { OnlineServices.ResetError(); StartOnline(); }
         GUI.enabled = true;
         GUILayout.Space(6f);
-        if (PadNav.LayoutButton(GUILayout.Button("BACK", buttonStyle, GUILayout.Height(48f)))) Go(MultiScreen.Top);
+        if (PadNav.LayoutButton(GUILayout.Button(L("BACK"), buttonStyle, GUILayout.Height(48f)))) Go(MultiScreen.Top);
     }
 
     Vector2 roomScroll;
@@ -436,7 +436,7 @@ public class NetDebugUI : MonoBehaviour
         {
             GUILayout.Space(20f);
             bool searching = Time.unscaledTime - LanDiscovery.DiscoveryStartedAt < 4f;
-            GUILayout.Label(L(searching ? "ローカルゲームを探しています…" : "ゲームが見つかりません"), titleStyle);
+            GUILayout.Label(L(searching ? "近くの部屋を探しています…" : "ゲームが見つかりません"), titleStyle);
             if (!searching) GUILayout.Label(L("HOST の端末で「CREATE GAME」を押して、同じWi-Fi(テザリング)につないでください。"), smallStyle);
         }
         else
@@ -492,7 +492,7 @@ public class NetDebugUI : MonoBehaviour
         if (host && onl && OnlineServices.Current != null) GUILayout.Label(L("オンラインの「FIND GAME」に表示中"), smallStyle);
         if (onl && Debug.isDebugBuild) GUILayout.Label("DEV " + NetStats.PingLine(), smallStyle);
         GUILayout.Label(L(host
-            ? "そろったら「閉じる」→ 扉 → Stage Selectで「出発」すると、全員が同じステージで同時にスタートします。"
+            ? "そろったら「閉じる(部屋はそのまま)」→ 扉 → STAGE SELECTで「出発」すると、全員が同じステージで同時にスタートします。"
             : "HOSTが出発すると自動でスタートします。そのままお待ちください。"), smallStyle);
         GUILayout.FlexibleSpace();
         GUI.enabled = !OnlineServices.Busy;
@@ -529,10 +529,10 @@ public class NetDebugUI : MonoBehaviour
             GUILayout.EndHorizontal();
             if (mode != NetRunLauncher.SelectedMode) NetRunLauncher.SelectedMode = mode;
             GUILayout.Label(mode == MultiplayerGameMode.Coop
-                ? "CO-OP: 倒れたらDOWN。倒れた地点まで来た仲間(HP2以上)がHPを1つ渡すと復活。全員DOWNで終了。"
+                ? "CO-OP: 倒れたらDOWN。倒れた地点まで来た仲間(ハート2つ以上)がREVIVEでハート1つを渡すと復活。全員DOWNで終了。"
                 : "VERSUS: 倒れたら脱落(復活なし)。最後の1人まで続き、到達距離で順位が決まる。", smallStyle);
         }
-        else GUILayout.Label("MODE: HOSTが選択します(Run開始時に自動で揃います)", smallStyle);
+        else GUILayout.Label("MODE: HOSTが選択します(ラン開始時に全員へ反映)", smallStyle);
         GUILayout.Space(8f);
 
         if (!NetSession.IsActive)
@@ -569,7 +569,7 @@ public class NetDebugUI : MonoBehaviour
             GUILayout.Label($"接続中のプレイヤー {NetSession.ConnectedPlayerCount}/{NetSession.MaxPlayers}", labelStyle);
             GUILayout.Label(sb.ToString(), smallStyle);
             GUILayout.Label(NetSession.IsHost
-                ? "扉 → Stage Selectで「出発」すると、接続中の全員が同じステージで同時にスタートします。"
+                ? "ホームの扉 → STAGE SELECTで「出発」すると、接続中の全員が同じステージで同時にスタートします。"
                 : "HOSTが出発すると自動でスタートします。そのままお待ちください。", smallStyle);
             GUILayout.Space(8f);
             if (PadNav.LayoutButton(GUILayout.Button(NetSession.IsHost ? "部屋を閉じる(HOST終了)" : "切断する", buttonStyle, GUILayout.Height(52f))))
@@ -638,7 +638,7 @@ public class NetDebugUI : MonoBehaviour
         bool inRun = gm.HasStarted && !gm.IsGameOver;
         if (inRun)
         {
-            if (GUI.Button(new Rect(r.x + 24f, r.yMax - 76f, bw * 0.5f - 36f, 56f), "Homeへ戻る", buttonStyle))
+            if (GUI.Button(new Rect(r.x + 24f, r.yMax - 76f, bw * 0.5f - 36f, 56f), "ホームへ戻る", buttonStyle))
             {
                 NetSession.Instance.ClearConnectionLost();
                 gm.ReturnToHome();

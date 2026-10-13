@@ -284,6 +284,13 @@ public class RewardCardUI : MonoBehaviour
         awakenRoot.SetActive(awake);
         awakenLabelRoot.SetActive(awake);
         if (awakenLabel != null) awakenLabel.text = Loc.Auto(fe ? (data.Awakened ? "FINAL EVOLUTION ★" : "FINAL EVOLUTION") : "AWAKENED");
+        if (awakenLabelRoot != null)
+        {
+            // FINAL EVOLUTION は AWAKENED より長い: 帯を左右へ広げる(幅46%のままだと最小6pxまで縮んで読めなかった。2026-10-13)
+            var lrt = (RectTransform)awakenLabelRoot.transform;
+            lrt.anchorMin = new Vector2(fe ? 0.1f : 0.27f, 0.928f); lrt.anchorMax = new Vector2(fe ? 0.9f : 0.73f, 0.988f);
+            if (awakenLabel != null) awakenLabel.resizeTextMinSize = fe ? 9 : 6;
+        }
         if (awakenGlow != null) { var gc = fe ? new Color(1f, 0.6f, 0.15f, 0.9f) : new Color(AwakenGold.r, AwakenGold.g, AwakenGold.b, 0.85f); awakenGlow.color = gc; }
     }
 

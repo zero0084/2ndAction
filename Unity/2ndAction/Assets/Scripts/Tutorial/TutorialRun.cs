@@ -381,7 +381,9 @@ public class TutorialRun : MonoBehaviour
             // キャラから遠い側の端(上はHUDの下)
             bool up = true;
             if (GuidePlacement.PlayerBand(out float ptop, out float pbot)) up = ptop > Screen.height - pbot;
-            var r = new Rect((Screen.width - bw) * 0.5f, up ? 92 * s : Screen.height - bh - 16 * s, bw, bh);
+            // 上に出す時、右上の「練習をやめる」と横に重なるなら(縦画面)、その下へ(2026-10-13)
+            float topY = (Screen.width - bw) * 0.5f + bw > Screen.width - 210 * s ? 92 * s + 44 * s + 8 * s : 92 * s;
+            var r = new Rect((Screen.width - bw) * 0.5f, up ? topY : Screen.height - bh - 16 * s, bw, bh);
             UiBackdrop.Draw(r, 0.7f);
             hintSt.normal.textColor = phase == Phase.Done ? new Color(0.6f, 1f, 0.6f) : Color.white;
             LocGUI.Label(r, h, hintSt);

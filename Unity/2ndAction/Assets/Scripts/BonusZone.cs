@@ -557,14 +557,23 @@ public class BonusZone : MonoBehaviour
         float pop = k < 0.18f ? Mathf.Lerp(1.5f, 1f, k / 0.18f) : 1f;
         float alpha = k > 0.8f ? Mathf.Clamp01((1f - k) / 0.2f) : 1f;
         float h = Screen.height;
-        bannerStyle.fontSize = Mathf.RoundToInt(h * (IsJackpot ? 0.11f : 0.09f) * pop);
-        subStyle.fontSize = Mathf.RoundToInt(h * 0.042f);
+        float fsBase = TextFit.Short; // 文字の大きさは短い辺が基準(2026-10-13: 縦画面で高さ基準だと横にはみ出した)
+        string head = IsJackpot ? "JACKPOT!!" : "BONUS ZONE!";
+        if (!TextFit.Legacy && pop > 1f)
+        {
+            // 開始の膨らみ: 膨らんだ時も画面の幅に収まる大きさまで(縦画面で左右が切れていた。2026-10-13)
+            bannerStyle.fontSize = Mathf.RoundToInt(fsBase * (IsJackpot ? 0.11f : 0.09f));
+            float tw = bannerStyle.CalcSize(new GUIContent(Loc.T(head))).x;
+            if (tw > 1f) pop = Mathf.Min(pop, Mathf.Max(1f, (Screen.width - 24f) / tw));
+        }
+        bannerStyle.fontSize = Mathf.RoundToInt(fsBase * (IsJackpot ? 0.11f : 0.09f) * pop);
+        subStyle.fontSize = Mathf.RoundToInt(fsBase * 0.042f);
         Color c = ThemeColor(Time.unscaledTime); c.a = alpha;
-        float y = h * 0.18f; // プレイヤー(画面の高さの約半分)に重ならない高さ
-        Outlined(new Rect(0f, y, Screen.width, h * 0.13f), IsJackpot ? "JACKPOT!!" : "BONUS ZONE!", bannerStyle, c, 3f);
+        float y = TextFit.Legacy ? h * 0.18f : Mathf.Max(h * 0.18f, GameManager.NoticeTopPx + 8f); // プレイヤー(画面の高さの約半分)に重ならない高さ。縦画面は左の列(BEST/距離)の下
+        Outlined(new Rect(0f, y, Screen.width, h * 0.13f), head, bannerStyle, c, 3f);
         Color w = new Color(1f, 1f, 1f, alpha);
         Outlined(new Rect(0f, y + h * 0.12f, Screen.width, h * 0.06f), IsJackpot ? $"ALL REWARDS ×{Current.mileMultiplier:0.#}" : Current.displayName, subStyle, w);
-        if (!string.IsNullOrEmpty(Current.perfectLabel)) Outlined(new Rect(0f, y + h * 0.175f, Screen.width, h * 0.05f), "PERFECT: " + Current.perfectLabel, subStyle, new Color(1f, 0.95f, 0.6f, alpha * 0.9f), 1.5f);
+        if (!string.IsNullOrEmpty(Current.perfectLabel)) Outlined(new Rect(0f, y + h * 0.175f, Screen.width, TextFit.Legacy ? h * 0.05f : Mathf.Max(h * 0.05f, subStyle.fontSize * 2.6f)), "PERFECT: " + Current.perfectLabel, subStyle, new Color(1f, 0.95f, 0.6f, alpha * 0.9f), 1.5f);
     }
 
     // 区画の間: 画面上の中央(Lv/EXPの下)に小さく「種類・残り・稼ぎ」
@@ -572,11 +581,14 @@ public class BonusZone : MonoBehaviour
     {
         EnsureStyles();
         float h = Screen.height;
-        stripStyle.fontSize = Mathf.Max(12, Mathf.RoundToInt(h * 0.024f));
+        stripStyle.fontSize = Mathf.Max(12, Mathf.RoundToInt(TextFit.Short * 0.024f));
         Rect safe = StableSafeArea.Rect;
-        float top = Screen.height - (safe.y + safe.height) + 28f + 54f + 8f;
-        string txt = $"{(IsJackpot ? $"JACKPOT ×{Current.mileMultiplier:0.#}" : "BONUS  " + Current.displayName)}   {RemainingSeconds:0}s   MILE +{BonusMile}   EXP +{Mathf.RoundToInt(BonusExp)}{(BonusCards > 0 ? $"   CARD +{BonusCards}" : "")}";
-        Vector2 sz = stripStyle.CalcSize(new GUIContent(txt));
+        float top = Mathf.Max(Screen.height - (safe.y + safe.height) + 28f + 54f + 8f, GameManager.NoticeTopPx + 6f); // 縦画面は左の列(BEST/距離)の下
+        string head = $"{(IsJackpot ? $"JACKPOT ×{Current.mileMultiplier:0.#}" : "BONUS  " + Current.displayName)}   {RemainingSeconds:0}s";
+        string gain = $"MILE +{BonusMile}   EXP +{Mathf.RoundToInt(BonusExp)}{(BonusCards > 0 ? $"   CARD +{BonusCards}" : "")}";
+        string txt = head + "   " + gain;
+        Vector2 sz = stripStyle.CalcSize(new GUIContent(Loc.Auto(txt)));
+        if (sz.x > Screen.width - 32f && !TextFit.Legacy) { txt = head + "\n" + gain; sz = stripStyle.CalcSize(new GUIContent(Loc.Auto(txt))); } // 入らなければ2行
         var r = new Rect((Screen.width - sz.x) * 0.5f - 12f, top, sz.x + 24f, sz.y + 6f);
         UiBackdrop.Draw(r, 0.5f);
         Outlined(r, txt, stripStyle, ThemeColor(Time.unscaledTime), 1f);
@@ -603,28 +615,30 @@ public class BonusZone : MonoBehaviour
         if (phaseTime < 0.6f)
         {
             // BONUS CLEAR!(PERFECTなら続けて PERFECT BONUS!)
-            bannerStyle.fontSize = Mathf.RoundToInt(h * 0.075f);
+            bannerStyle.fontSize = Mathf.RoundToInt(TextFit.Short * 0.075f);
             Outlined(new Rect(0f, h * 0.15f, Screen.width, h * 0.12f), IsJackpot ? "JACKPOT CLEAR!" : "BONUS CLEAR!", bannerStyle, new Color(1f, 1f, 1f, a), 3f);
             if (PerfectAchieved && phaseTime > 0.25f)
             {
                 float pk = Mathf.Clamp01((phaseTime - 0.25f) / 0.12f);
-                bannerStyle.fontSize = Mathf.RoundToInt(h * 0.085f * Mathf.Lerp(1.4f, 1f, pk));
+                bannerStyle.fontSize = Mathf.RoundToInt(TextFit.Short * 0.085f * Mathf.Lerp(1.4f, 1f, pk));
                 Outlined(new Rect(0f, h * 0.26f, Screen.width, h * 0.12f), "PERFECT BONUS!", bannerStyle, new Color(1f, 0.85f, 0.3f, a * pk), 3f);
             }
             return;
         }
         // 今回の稼ぎ: 敵 / CLEAR / PERFECT / TOTAL(TOTALは数え上げ)
-        float rowH = h * 0.04f;
+        float fsBase = TextFit.Short;
+        float rowH = fsBase * 0.04f * 1.15f;
         int rows = 4;
-        // プレイヤー(画面の高さの約半分)と走る先を覆わないよう、画面の上寄り(Lv/EXPの下)に詰めて出す
-        var panel = new Rect(Screen.width * 0.5f - h * 0.4f, h * 0.17f, h * 0.8f, rowH * (rows + 1.3f));
+        // プレイヤー(画面の高さの約半分)と走る先を覆わないよう、画面の上寄り(Lv/EXPの下)に詰めて出す。幅は画面に収める(縦画面)
+        float pw = TextFit.Legacy ? fsBase * 0.8f : Mathf.Min(fsBase * 0.8f, Screen.width - 24f);
+        var panel = new Rect(Screen.width * 0.5f - pw * 0.5f, Mathf.Max(h * 0.17f, GameManager.NoticeTopPx + 8f), pw, rowH * (rows + 1.3f));
         Color prev = GUI.color; GUI.color = new Color(1f, 1f, 1f, a);
         UiBackdrop.Draw(panel, 0.78f);
         GUI.color = prev;
         Color c = ThemeColor(Time.unscaledTime); c.a = a;
-        subStyle.fontSize = Mathf.RoundToInt(h * 0.03f);
+        subStyle.fontSize = Mathf.RoundToInt(fsBase * 0.03f);
         Outlined(new Rect(panel.x, panel.y + rowH * 0.15f, panel.width, rowH), PerfectAchieved ? (IsJackpot ? "JACKPOT  PERFECT!" : "PERFECT BONUS!") : (IsJackpot ? "JACKPOT RESULT" : "BONUS RESULT"), subStyle, PerfectAchieved ? new Color(1f, 0.85f, 0.3f, a) : c, 2f);
-        stripStyle.fontSize = Mathf.RoundToInt(h * 0.026f);
+        stripStyle.fontSize = Mathf.RoundToInt(fsBase * 0.026f);
         int enemyMile = BonusMile - ClearMile - PerfectMile;
         float enemyExp = BonusExp - ClearExp - PerfectExp;
         float y0 = panel.y + rowH * 1.2f;
@@ -632,7 +646,7 @@ public class BonusZone : MonoBehaviour
         ResultRow(panel, y0 + rowH, "CLEAR", $"MILE +{ClearMile}   EXP +{Mathf.RoundToInt(ClearExp)}", new Color(0.85f, 0.95f, 1f, a));
         ResultRow(panel, y0 + rowH * 2f, "PERFECT", PerfectAchieved ? $"MILE +{PerfectMile}{(PerfectExp > 0.5f ? $"   EXP +{Mathf.RoundToInt(PerfectExp)}" : "")}" : $"—  ({PerfectDetail})", PerfectAchieved ? new Color(1f, 0.85f, 0.3f, a) : new Color(0.7f, 0.7f, 0.75f, a));
         float count = Mathf.Clamp01((phaseTime - 0.6f) / 0.6f); // TOTALを0.6秒で数え上げる
-        stripStyle.fontSize = Mathf.RoundToInt(h * 0.032f);
+        stripStyle.fontSize = Mathf.RoundToInt(fsBase * 0.032f);
         ResultRow(panel, y0 + rowH * 3.05f, "TOTAL", $"MILE +{Mathf.RoundToInt(BonusMile * count)}   EXP +{Mathf.RoundToInt(BonusExp * count)}{(BonusCards > 0 ? $"   CARD +{BonusCards}" : "")}", new Color(1f, 0.92f, 0.5f, a));
     }
 
@@ -659,7 +673,7 @@ public class BonusZone : MonoBehaviour
             Vector3 sp = cam.WorldToScreenPoint(p.world + Vector3.up * (0.9f + p.t * 1.1f));
             if (sp.z < 0f) continue;
             float a = p.t < 0.1f ? p.t / 0.1f : Mathf.Clamp01((PopLife - p.t) / 0.3f);
-            popStyle.fontSize = Mathf.RoundToInt(Screen.height * (p.big ? 0.046f : 0.034f));
+            popStyle.fontSize = Mathf.RoundToInt(TextFit.Short * (p.big ? 0.046f : 0.034f));
             Color c = p.color; c.a = a;
             Outlined(new Rect(sp.x - 120f, Screen.height - sp.y - 20f, 240f, 40f), p.text, popStyle, c, 1.5f);
         }

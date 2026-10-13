@@ -319,30 +319,170 @@ public static class LocDebug
 }
 
 // IMGUI のラベル(文字列の物だけ訳す。GUIContent/画像はそのまま)
+// 2026-10-13(文字の見切れの見直し): 日本語も含め、入らない時だけ次の順で収める(入る時は何もしない)。
+//  1) 枠が画面の外へはみ出していたら、見える範囲を使える幅とする(縦画面で「高さ×k」の枠が画面より広い等)
+//  2) 1行の文: 元の大きさの 80% まで縮める → まだ入らなければ 90% の大きさで折り返す(枠の上下へ少し広げてよい、3行まで)
+//     → それでも入らなければ折り返したまま 60% まで縮める。文字が画面の外へ出る位置なら内側へ寄せる
+//  3) 折り返す文: 高さに入るよう縮める(60% まで)
+//  開発版は「収まらなかった/縮めた/折り返した」表示を記録する(TextFit。-qaTextFit の報告に出す)
 public static class LocGUI
 {
     public static void Label(Rect r, string text) => GUI.Label(r, Loc.Auto(text));
-    // 折り返さないラベルは、訳が長くて入らなければ文字を小さくして収める(元の60%まで)。折り返すラベルは高さに収まるよう縮める
     static readonly GUIContent tmp = new GUIContent();
+    const float Margin = 6f;
+
+    // 今の GUI.matrix で見た画面の範囲(GUI 座標)
+    static Rect GuiScreen()
+    {
+        var inv = GUI.matrix.inverse;
+        Vector3 a = inv.MultiplyPoint3x4(Vector3.zero), b = inv.MultiplyPoint3x4(new Vector3(Screen.width, Screen.height, 0f));
+        return Rect.MinMaxRect(Mathf.Min(a.x, b.x), Mathf.Min(a.y, b.y), Mathf.Max(a.x, b.x), Mathf.Max(a.y, b.y));
+    }
+
     public static void Label(Rect r, string text, GUIStyle style)
+    {
+        if (TextFit.Legacy) { LegacyLabel(r, text, style); return; }
+        string s = Loc.Auto(text);
+        if (style == null || string.IsNullOrEmpty(s) || style.fontSize <= 0 || Event.current == null || Event.current.type != EventType.Repaint) { GUI.Label(r, s, style); return; }
+        int keep = style.fontSize;
+        bool keepWrap = style.wordWrap;
+        var keepClip = style.clipping;
+        tmp.text = s;
+        Rect scr = GuiScreen();
+        float left = Mathf.Max(r.x, scr.x + Margin), right = Mathf.Min(r.xMax, scr.xMax - Margin);
+        float avail = right - left;
+        if (avail < 8f) { GUI.Label(r, s, style); return; }
+        Rect dr = r;
+        if (!keepWrap)
+        {
+            float w = style.CalcSize(tmp).x;
+            if (w > avail)
+            {
+                int fit = Mathf.FloorToInt(keep * avail / w);
+                bool oneWord = s.IndexOf(' ') < 0 && s.IndexOf((char)10) < 0 && !HasCjk(s); // 1語の英字(JACKPOT!! 等)は折り返さず縮める
+                if (fit >= Mathf.RoundToInt(keep * 0.8f) || oneWord)
+                {
+                    fit = Mathf.Max(fit, Mathf.RoundToInt(keep * 0.6f));
+                    style.fontSize = fit;
+                    TextFit.Note(s, r, keep, style.fontSize, false, false);
+                }
+                else
+                {
+                    // 折り返す(9割の大きさ。枠の上下へ広げて3行まで)
+                    style.wordWrap = true; style.clipping = TextClipping.Overflow;
+                    style.fontSize = Mathf.RoundToInt(keep * 0.9f);
+                    float hh = style.CalcHeight(tmp, avail);
+                    float maxH = Mathf.Max(r.height, keep * 1.25f * 3f);
+                    while (hh > maxH && style.fontSize > Mathf.RoundToInt(keep * 0.6f)) { style.fontSize--; hh = style.CalcHeight(tmp, avail); }
+                    if (WidestWord(style, s) > avail) { style.fontSize = Mathf.Max(Mathf.RoundToInt(keep * 0.6f), Mathf.FloorToInt(style.fontSize * avail / WidestWord(style, s))); hh = style.CalcHeight(tmp, avail); }
+                    bool still = hh > maxH * 1.05f || WidestWord(style, s) > avail + 1f;
+                    float cy = r.center.y;
+                    dr = new Rect(left, cy - Mathf.Max(r.height, hh) * 0.5f, avail, Mathf.Max(r.height, hh));
+                    TextFit.Note(s, r, keep, style.fontSize, true, still);
+                }
+            }
+            if (!style.wordWrap)
+            {
+                // 文字の範囲が画面の外に出る位置なら内側へ寄せる
+                float tw = style.CalcSize(tmp).x;
+                float tx;
+                switch (style.alignment)
+                {
+                    case TextAnchor.UpperLeft: case TextAnchor.MiddleLeft: case TextAnchor.LowerLeft: tx = r.x + style.padding.left; break;
+                    case TextAnchor.UpperRight: case TextAnchor.MiddleRight: case TextAnchor.LowerRight: tx = r.xMax - style.padding.right - tw; break;
+                    default: tx = r.center.x - tw * 0.5f; break;
+                }
+                float shift = 0f;
+                if (tx < scr.x + Margin) shift = scr.x + Margin - tx;
+                else if (tx + tw > scr.xMax - Margin) shift = scr.xMax - Margin - (tx + tw);
+                if (Mathf.Abs(shift) > 0.5f && tw <= scr.width - Margin * 2f) { dr.x += shift; TextFit.NoteShift(s, r, shift); }
+            }
+        }
+        else
+        {
+            float aw = Mathf.Min(r.width, avail);
+            float h = style.CalcHeight(tmp, aw);
+            if (aw < r.width) dr = new Rect(left, r.y, aw, r.height);
+            // 1行で収まっている文(枠の高さが文字の高さより少し低いだけ)は今まで通り描く。本当に2行以上へ折り返す時だけ手を入れる
+            if (h > r.height && r.height > 4f && h > LineHeight(style) * 1.4f)
+            {
+                // 1行ぶんの高さの枠(見出し/お知らせ): 9割の大きさで上下へ広げて3行まで。それ以外(文章の枠)は高さに入るよう縮める
+                bool oneLine = r.height < keep * 1.9f;
+                // 見出し(1語の英字、または短い英字の見出し): 折り返すより先に、幅に合わせて縮める(80%まで。1語なら60%まで)
+                bool oneWordW = s.IndexOf(' ') < 0 && !HasCjk(s);
+                if (oneLine && !HasCjk(s))
+                {
+                    bool keepW = style.wordWrap; style.wordWrap = false;
+                    float w1 = style.CalcSize(tmp).x;
+                    style.wordWrap = keepW;
+                    int fitW = Mathf.FloorToInt(keep * aw / Mathf.Max(1f, w1));
+                    if (fitW >= Mathf.RoundToInt(keep * 0.8f) || oneWordW)
+                    {
+                        style.fontSize = Mathf.Max(fitW, Mathf.RoundToInt(keep * 0.6f));
+                        style.wordWrap = false;
+                        TextFit.Note(s, r, keep, style.fontSize, false, false);
+                        GUI.Label(dr, s, style);
+                        style.fontSize = keep; style.wordWrap = keepWrap; style.clipping = keepClip;
+                        return;
+                    }
+                }
+                if (oneLine)
+                {
+                    style.fontSize = Mathf.RoundToInt(keep * 0.9f);
+                    float maxH = keep * 1.25f * 3f;
+                    float hh = style.CalcHeight(tmp, aw);
+                    while (hh > maxH && style.fontSize > Mathf.RoundToInt(keep * 0.6f)) { style.fontSize--; hh = style.CalcHeight(tmp, aw); }
+                    style.clipping = TextClipping.Overflow;
+                    dr = new Rect(dr.x, r.center.y - hh * 0.5f, dr.width, hh);
+                    TextFit.Note(s, r, keep, style.fontSize, true, hh > maxH * 1.05f);
+                }
+                else
+                {
+                    style.fontSize = Mathf.Max(Mathf.RoundToInt(keep * 0.6f), Mathf.FloorToInt(keep * Mathf.Sqrt(r.height / h)));
+                    TextFit.Note(s, r, keep, style.fontSize, false, style.CalcHeight(tmp, aw) > r.height * 1.05f);
+                }
+            }
+        }
+        GUI.Label(dr, s, style);
+        style.fontSize = keep; style.wordWrap = keepWrap; style.clipping = keepClip;
+    }
+
+    // 修正前の収め方(比較の撮影用。日本語は何もしない)
+    static void LegacyLabel(Rect r, string text, GUIStyle style)
     {
         string s = Loc.Auto(text);
         if (style == null || string.IsNullOrEmpty(s) || Loc.IsJapanese || style.fontSize <= 0 || Event.current == null || Event.current.type != EventType.Repaint) { GUI.Label(r, s, style); return; }
         int keep = style.fontSize;
         tmp.text = s;
-        if (!style.wordWrap)
-        {
-            float w = style.CalcSize(tmp).x;
-            if (w > r.width && r.width > 4f) style.fontSize = Mathf.Max(Mathf.RoundToInt(keep * 0.6f), Mathf.FloorToInt(keep * r.width / w));
-        }
-        else
-        {
-            float h = style.CalcHeight(tmp, r.width);
-            if (h > r.height && r.height > 4f) style.fontSize = Mathf.Max(Mathf.RoundToInt(keep * 0.6f), Mathf.FloorToInt(keep * Mathf.Sqrt(r.height / h)));
-        }
+        if (!style.wordWrap) { float w = style.CalcSize(tmp).x; if (w > r.width && r.width > 4f) style.fontSize = Mathf.Max(Mathf.RoundToInt(keep * 0.6f), Mathf.FloorToInt(keep * r.width / w)); }
+        else { float h = style.CalcHeight(tmp, r.width); if (h > r.height && r.height > 4f) style.fontSize = Mathf.Max(Mathf.RoundToInt(keep * 0.6f), Mathf.FloorToInt(keep * Mathf.Sqrt(r.height / h))); }
         GUI.Label(r, s, style);
         style.fontSize = keep;
     }
+
+    static readonly GUIContent one = new GUIContent("Ag");
+    static float LineHeight(GUIStyle st) { bool ww = st.wordWrap; st.wordWrap = false; float h = st.CalcSize(one).y; st.wordWrap = ww; return h; }
+    static bool HasCjk(string s) { foreach (char ch in s) if (ch >= 0x2E80) return true; return false; }
+
+    // いちばん長い「切れない塊」(空白で区切った語。日本語/中国語などは1文字ずつ切れるので数えない)の幅
+    static readonly GUIContent wtmp = new GUIContent();
+    static float WidestWord(GUIStyle st, string s)
+    {
+        float best = 0f;
+        foreach (var part in s.Split(' ', (char)10))
+        {
+            if (part.Length == 0) continue;
+            bool cjk = false;
+            foreach (char ch in part) if (ch >= 0x2E80) { cjk = true; break; }
+            if (cjk) continue;
+            wtmp.text = part;
+            bool ww = st.wordWrap; st.wordWrap = false;
+            best = Mathf.Max(best, st.CalcSize(wtmp).x);
+            st.wordWrap = ww;
+        }
+        return best;
+    }
+
     public static void Label(Rect r, GUIContent c) => GUI.Label(r, c);
     public static void Label(Rect r, GUIContent c, GUIStyle style) => GUI.Label(r, c, style);
     public static void Label(Rect r, Texture t) => GUI.Label(r, t);

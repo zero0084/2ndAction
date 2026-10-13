@@ -158,7 +158,7 @@ public class FirstRunGuide : MonoBehaviour
                 break;
             case Kind.EscapeGuide:
                 title = "脱出できるようになりました";
-                body = $"{HoldIn()}すると脱出して、\nこのランで集めたMILEを持ち帰れます。\n\n倒れてしまうと、このランのMILEは失われます。\n(BEST距離の記録は残ります)\n\nこのまま走り続けてもOK。脱出するかどうかは自由です。";
+                body = $"{HoldIn()}すると脱出して、\nこのランで集めたMILEを持ち帰れます。\n\n倒れてしまうと、このランのMILEは失われます。\n(BEST距離の記録も残りません)\n\nこのまま走り続けてもOK。脱出するかどうかは自由です。";
                 break;
             default:
                 title = "MILEを持ち帰りました!";
@@ -183,7 +183,7 @@ public class FirstRunGuide : MonoBehaviour
         if (showing == Kind.DoorPrompt)
         {
             if (UiKit.Button(new Rect(p.center.x - bw - 10 * s, by, bw, bh), "操作を練習する", 23 * s, true)) DebugAnswer(0);
-            else if (UiKit.Button(new Rect(p.center.x + 10 * s, by, bw, bh), "そのまま始める", 23 * s, false)) DebugAnswer(1);
+            else if (UiKit.Button(new Rect(p.center.x + 10 * s, by, bw, bh), "マップ選択へ", 23 * s, false)) DebugAnswer(1);
         }
         else if (UiKit.Button(new Rect(p.center.x - bw * 0.5f, by, bw, bh), "わかった", 24 * s, true)) DebugAnswer(0);
         PadNav.EndLayer(pl);

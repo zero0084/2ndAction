@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: heart_up
   cardName: HEART UP
   icon: {fileID: 2800000, guid: b5bd502148e2c5942b578a28066dd44d, type: 3}
-  description: "\u6700\u5927HP\u304C\u5897\u3048(1Lv\u3054\u3068\u306B\u30CF\u30FC\u30C8+1\u3001\u6700\u5927\u30CF\u30FC\u30C820)\u3001HP\u304C\u56DE\u5FA9\u3059\u308B"
+  description: "最大HPがハート1つ/Lv増える(上限ハート20)。取得するとHPが全回復する"
   category: 2
   sortOrder: 6
   recommendPriority: 5

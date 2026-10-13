@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: the_long_road
   cardName: THE LONG ROAD
   icon: {fileID: 2800000, guid: c46a71b08d1109d4bb60a0c08a408007, type: 3}
-  description: "\u7D4C\u9A13\u5024(1Lv\u3054\u3068\u306B+40%)\u3068\u6700\u5927HP(2Lv\u3054\u3068\u306B\u30CF\u30FC\u30C8+1)\u304C\u5897\u3048\u308B"
+  description: "獲得EXP+40%/Lv。最大HPも増える(Lv1〜2でハート+1、以降2Lvごとに+1。Lv9で+5)"
   category: 3
   sortOrder: 166
   recommendPriority: 5

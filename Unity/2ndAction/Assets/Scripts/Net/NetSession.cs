@@ -164,7 +164,7 @@ public class NetSession : MonoBehaviour
         if (IsActive) return false;
         OnlinePlayerIds.Clear();
         NetworkManager nm = EnsureManager();
-        if (nm == null || nm.ShutdownInProgress) { StatusText = "初期化エラー"; return false; }
+        if (nm == null || nm.ShutdownInProgress) { StatusText = "通信を開始できませんでした。もう一度試すか、アプリを再起動してください"; return false; }
         ClearConnectionLost();
         ConfigureRelay(data);
         Application.runInBackground = true;
@@ -177,7 +177,7 @@ public class NetSession : MonoBehaviour
     {
         if (IsActive) return false;
         NetworkManager nm = EnsureManager();
-        if (nm == null || nm.ShutdownInProgress) { StatusText = "初期化エラー"; return false; }
+        if (nm == null || nm.ShutdownInProgress) { StatusText = "通信を開始できませんでした。もう一度試すか、アプリを再起動してください"; return false; }
         ClearConnectionLost();
         LastHostAddress = "relay";
         ConfigureRelay(data);
@@ -205,7 +205,7 @@ public class NetSession : MonoBehaviour
     {
         if (IsActive) return false;
         NetworkManager nm = EnsureManager();
-        if (nm == null) { StatusText = "初期化エラー"; return false; }
+        if (nm == null) { StatusText = "通信を開始できませんでした。もう一度試すか、アプリを再起動してください"; return false; }
         if (nm.ShutdownInProgress) { StatusText = "前の接続を終了中です。少し待ってから再試行してください"; return false; }
 
         ClearConnectionLost();
@@ -217,7 +217,7 @@ public class NetSession : MonoBehaviour
         if (!ok)
         {
             Log("Host start failed");
-            StatusText = "HOSTを開始できませんでした(ポート使用中の可能性)";
+            StatusText = "部屋を作成できませんでした(他のアプリが通信を使用中の可能性)";
         }
         return ok;
     }
@@ -232,7 +232,7 @@ public class NetSession : MonoBehaviour
             return false;
         }
         NetworkManager nm = EnsureManager();
-        if (nm == null) { StatusText = "初期化エラー"; return false; }
+        if (nm == null) { StatusText = "通信を開始できませんでした。もう一度試すか、アプリを再起動してください"; return false; }
         if (nm.ShutdownInProgress) { StatusText = "前の接続を終了中です。少し待ってから再試行してください"; return false; }
 
         ClearConnectionLost();
@@ -339,8 +339,9 @@ public class NetSession : MonoBehaviour
             Log($"Client disconnected clientId={clientId} (P{pn}) remaining others={others}");
             StatusText = $"HOST: {1 + others}/{MaxPlayers}人 接続中";
             // 2026-10-02(最大8人の予定): まだ他の参加者がいる時は通知だけ。全員いなくなった時は従来どおりの画面
-            if (others > 0) NetDebugUI.Toast($"P{(pn > 0 ? pn.ToString() : "?")} が切断しました(残り{1 + others}人)");
-            else RaiseConnectionLost("MULTIPLAYER CONNECTION LOST\n" + (pn > 0 ? NetPlayer.TagOf(pn) : "相手プレイヤー") + "が切断しました");
+            // 2026-10-13: 名前と文をつなげず1つの型にする(言語ごとに語順を変えられるように)
+            if (others > 0) NetDebugUI.Toast(Loc.F("P{0}が切断しました(残り{1}人)", pn > 0 ? pn.ToString() : "?", 1 + others));
+            else RaiseConnectionLost("MULTIPLAYER CONNECTION LOST\n" + (pn > 0 ? Loc.F("{0}が切断しました", NetPlayer.TagOf(pn)) : Loc.T("相手プレイヤーが切断しました")));
             return;
         }
         if (!Manager.IsServer)
@@ -349,7 +350,7 @@ public class NetSession : MonoBehaviour
             bool wasConnected = clientId == Manager.LocalClientId || clientId == NetworkManager.ServerClientId;
             Log($"Connection lost (clientId={clientId}{(string.IsNullOrEmpty(reason) ? "" : ", reason=" + reason)})");
             StatusText = "";
-            string msg = string.IsNullOrEmpty(reason) ? "HOSTとの接続が切れました" : "接続が拒否されました: " + reason;
+            string msg = string.IsNullOrEmpty(reason) ? "HOSTとの接続が切れました" : RejectText(reason);
             if (JoinPending)
             {
                 // LAN の部屋の一覧から JOIN して接続できなかった → 一覧の画面で「CONNECTION FAILED」(全画面の切断表示は出さない)
@@ -369,6 +370,18 @@ public class NetSession : MonoBehaviour
         if (OnlineServices.InSession) _ = OnlineServices.LeaveAsync("transport failure");
         StatusText = "";
         RaiseConnectionLost("MULTIPLAYER CONNECTION LOST\n通信エラーが発生しました");
+    }
+
+    // 接続を断られた理由(HOST の ApprovalCheck が入れる英語の内部文字列)→ 画面の文(2026-10-13: 内部の文字列をそのまま出していた)
+    static string RejectText(string reason)
+    {
+        switch (reason)
+        {
+            case "VERSION MISMATCH": return Loc.T("ゲームのバージョンが違うため参加できません。両方を最新版にしてください");
+            case "RUN IN PROGRESS": return Loc.T("この部屋はもう走り始めているため参加できません");
+            case "ROOM FULL": return Loc.T("部屋が満員のため参加できません");
+            default: return Loc.T("接続が拒否されました");
+        }
     }
 
     void RaiseConnectionLost(string message)

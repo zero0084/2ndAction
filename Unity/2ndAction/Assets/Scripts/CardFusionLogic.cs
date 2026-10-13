@@ -71,9 +71,9 @@ public static class CardFusionLogic
         int chara = gm != null ? gm.GetCharacterCardLockedCountForStack(key, s.level) : 0;
         int free = s.count - deck - chara;
         if (free >= wantCount) return null;
-        if (deck > 0 && chara > 0) return "デッキとキャラクターカードで使用中のため選べません";
-        if (chara > 0) return "キャラクターカードに装備中のため選べません";
-        if (deck > 0) return "デッキで使用中のため選べません";
+        if (deck > 0 && chara > 0) return "合成に使える空きカードが足りません(デッキ・キャラカードで使用中)";
+        if (chara > 0) return "キャラクターカードに装備中で、空きが足りません";
+        if (deck > 0) return "デッキで使用中のため枚数が足りません";
         return wantCount >= 2 ? "同じ性能のカードが2枚必要です(所持1枚)" : "このカードを所持していません";
     }
 
@@ -102,17 +102,17 @@ public static class CardFusionLogic
             if (sameStack)
             {
                 if (ms.count < 2) return "同じ性能のカードが2枚必要です(所持1枚)";
-                if (AvailableCount(mainKey) < 1) return "素材にする1枚がデッキ/キャラクターカードで使用中です";
+                if (AvailableCount(mainKey) < 1) return "デッキ/キャラクターカードで使用中のため、素材にできません";
             }
             else { string lockM = LockReason(materialKey); if (lockM != null) return lockM; }
-            if (CardMastery.IsAwakened(a.mainId)) return "AWAKENED(★5)済みのため、これ以上Masteryは進みません(カードは消費しません。★5後の余ったカードの使い道は今後追加します)";
+            if (CardMastery.IsAwakened(a.mainId)) return "AWAKENED(★5)到達済み。これ以上MASTERYを強化できません";
             return null;
         }
         string lockA = LockReason(mainKey, sameStack ? 2 : 1);
         if (lockA != null) return lockA;
         if (!sameStack) { string lockB = LockReason(materialKey); if (lockB != null) return lockB; }
         int level = a.level + b.level;
-        if (level > CardVariant.MaxLevel && !IsSameName(a, b)) return $"合成後のLvが{level}になるため合成できません(上限Lv.{CardVariant.MaxLevel})";
+        if (level > CardVariant.MaxLevel && !IsSameName(a, b)) return $"両方成功するとLvが{level}になるため合成できません(上限Lv.{CardVariant.MaxLevel})";
         var union = Merge(a, b, a.mainId);
         if (union.AbilityCount > CardVariant.MaxAbilities) return $"能力が{union.AbilityCount}種類になるため合成できません(上限{CardVariant.MaxAbilities}種類)";
         return null;
@@ -272,16 +272,16 @@ public static class CardFusionLogic
         {
             var g = CardMastery.Simulate(a.mainId, b.level);
             int need = CardMastery.NeedForNext(a.mainId);
-            sb.Append("<color=#ffd76a><b>【MASTERY】 Lv.9 MAX の育成</b></color>\n");
+            sb.Append("<color=#ffd76a><b>【MASTERY】 Lv.9 MAX 後の育成記録</b></color>\n");
             sb.Append("メインカードはそのまま残り(Lv.9 MAX)、素材カードだけを消費します。\n\n");
-            sb.Append($"今の Mastery: <color=#ffd76a>{CardMastery.StarsFor(g.levelBefore)}</color>  {(g.levelBefore >= CardMastery.MaxStars ? "AWAKENED" : g.progressBefore + " / " + need)}\n");
+            sb.Append($"現在のMASTERY: <color=#ffd76a>{CardMastery.StarsFor(g.levelBefore)}</color>  {(g.levelBefore >= CardMastery.MaxStars ? "AWAKENED" : g.progressBefore + " / " + need)}\n");
             sb.Append($"今回の合成: <b>+{b.level} Mastery</b>(素材 Lv.{b.level} = {b.level}枚分)\n");
             sb.Append($"合成後: <color=#ffd76a>{CardMastery.StarsFor(g.levelAfter)}</color>  {(g.levelAfter >= CardMastery.MaxStars ? "<color=#ffe08a><b>AWAKENED</b></color>" : g.progressAfter + " / " + MasteryTuning.Need(g.levelAfter))}");
             if (g.StarsGained > 1) sb.Append($"  <size=19>(★{g.StarsGained}つ分、余りは次の★へ繰り越し)</size>");
             sb.Append('\n');
-            if (g.overflowAdded > 0) sb.Append($"<size=19>★5 の後に余る {g.overflowAdded} は捨てずに保管します</size>\n");
+            if (g.overflowAdded > 0) sb.Append($"<size=19>★5 を超えた MASTERY {g.overflowAdded} は記録として保管します</size>\n");
             if (b.AbilityCount > 1) sb.Append($"<color=#ff9a8a><size=19>素材のサブ能力({b.AbilityCount - 1}種)は引き継がれません</size></color>\n");
-            sb.Append("\n<size=19>Mastery は通常の性能(攻撃/速度/EXP など)を上げません。育成の記録と AWAKENED への道のりです。</size>\n");
+            sb.Append("\n<size=19>MASTERY は通常の性能(攻撃力・速度・EXP など)を上げません。★5 で AWAKENED になるまでの育成記録です。</size>\n");
             sb.Append("\n<color=#ff9a8a>実行すると、素材カード1枚が消費されます。</color>");
             return sb.ToString();
         }
@@ -294,7 +294,7 @@ public static class CardFusionLogic
                 var g = CardMastery.Simulate(a.mainId, over);
                 sb.Append("<color=#ffd76a><b>【同名強化 → Lv.9 MAX】 成功率 100%</b></color>\n");
                 sb.Append($"合成Lv: Lv.{a.level} + Lv.{b.level} → <b>Lv.9 MAX</b>\n");
-                sb.Append($"Lv.9 を超える <b>{over}</b> は捨てずに Mastery へ: {CardMastery.StarsFor(g.levelBefore)} → <color=#ffd76a>{CardMastery.StarsFor(g.levelAfter)}</color>{(g.levelAfter >= CardMastery.MaxStars ? " AWAKENED" : " " + g.progressAfter + " / " + MasteryTuning.Need(g.levelAfter))}\n\n");
+                sb.Append($"Lv.9を超えた<b>{over}Lv分</b>はMASTERYへ: {CardMastery.StarsFor(g.levelBefore)} → <color=#ffd76a>{CardMastery.StarsFor(g.levelAfter)}</color>{(g.levelAfter >= CardMastery.MaxStars ? " AWAKENED" : " " + g.progressAfter + " / " + MasteryTuning.Need(g.levelAfter))}\n\n");
                 sb.Append("<b>継承する能力(強化量は9まで)</b>\n");
                 foreach (var x in merged.abilities) sb.Append($"・{CardVariant.AbilityName(x.id)} <b>×{Mathf.Min(CardVariant.MaxLevel, x.stacks)}</b>\n");
                 sb.Append("\n<color=#ff9a8a>実行すると、選んだ2枚は消費されます(完成カード Lv.9 MAX を1枚得ます)。</color>");
@@ -312,17 +312,17 @@ public static class CardFusionLogic
         }
         else
         {
-            sb.Append("<color=#9fd0ff><b>【異名合成】 結果は抽選で決まります</b></color>\n");
+            sb.Append("<color=#9fd0ff><b>【異名合成】 違うカード同士は結果が抽選で決まります</b></color>\n");
             sb.Append("<b>完成カードの合成Lv(結果ごと)</b>\n");
             sb.Append($"・両側成功: Lv.{a.level} + Lv.{b.level} → <b>Lv.{ResultLevel(a, b, Kind.CrossBoth)}</b>\n");
             sb.Append($"・メインのみ成功: <b>Lv.{ResultLevel(a, b, Kind.CrossMainOnly)}</b>(メイン側のLvのみ)\n");
             sb.Append($"・素材のみ成功: <b>Lv.{ResultLevel(a, b, Kind.CrossMaterialOnly)}</b>(素材側のLvのみ)\n");
             sb.Append($"・両側失敗: 完成カードなし・<color=#ffd76a>{RefundFor(a, b)} MILE</color> を還元\n\n");
-            sb.Append($"<b>メイン側 能力一式 継承率 {Mathf.RoundToInt(MainInheritChance * 100)}%</b>\n");
+            sb.Append($"<b>メイン側の全能力を継承する確率 {Mathf.RoundToInt(MainInheritChance * 100)}%</b>\n");
             foreach (var x in a.abilities) sb.Append($"・{CardVariant.AbilityName(x.id)} ×{x.stacks}  <size=18>({CardVariant.AbilityEffectTextAt(x.id, x.stacks)})</size>\n");
-            sb.Append($"\n<b>素材側 能力一式 継承率 {Mathf.RoundToInt(MaterialInheritChance * 100)}%</b>\n");
+            sb.Append($"\n<b>素材の全能力 継承率 {Mathf.RoundToInt(MaterialInheritChance * 100)}%</b>\n");
             foreach (var x in b.abilities) sb.Append($"・{CardVariant.AbilityName(x.id)} ×{x.stacks}  <size=18>({CardVariant.AbilityEffectTextAt(x.id, x.stacks)})</size>\n");
-            sb.Append("\n両方成功: 両側の能力をすべて継承(同じ能力は強化量を合算)\n");
+            sb.Append("\n両方成功: 両側の能力をすべて継承(同じ能力は強化量を合算)。レア度は高い方の★+1(最大★5)\n");
             sb.Append("片側だけ成功: 成功した側の能力・強化量・Lvだけを継承(失敗した側は残りません)\n");
             sb.Append($"素材側だけ成功した場合は、素材側の主能力が完成カードの主能力になります\n");
             sb.Append($"<size=18>(両側失敗の還元 =★{a.rarity}×Lv.{a.level}×{RefundCoefficient} + ★{b.rarity}×Lv.{b.level}×{RefundCoefficient})</size>\n");

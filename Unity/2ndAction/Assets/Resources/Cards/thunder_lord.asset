@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: thunder_lord
   cardName: THUNDER LORD
   icon: {fileID: 2800000, guid: d3ca6e0da5936044b9bbc9f25556d216, type: 3}
-  description: "\u96F7\u306E\u4E0A\u4F4D\u3002\u5A01\u529B(1Lv\u3054\u3068\u306B+4%)\u30FB\u9023\u9396(3Lv\u3054\u3068\u306B+1\u4F53)\u30FB\u843D\u96F7\u306E\u307E\u308F\u308A\u3078\u306E\u7BC4\u56F2\u304C\u5F37\u304F\u306A\u308B"
+  description: "攻撃命中時に低確率で落雷が発生する。落雷の威力+4%/Lv、連鎖数はLv1〜3で+1体、Lv4〜6で+2体、Lv7〜9で+3体。落雷の周囲にもダメージを与える"
   category: 1
   sortOrder: 180
   recommendPriority: 5

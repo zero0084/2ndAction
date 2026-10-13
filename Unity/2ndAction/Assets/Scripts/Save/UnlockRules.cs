@@ -145,7 +145,7 @@ public static class UnlockRules
         {
             ProvisionalCount += n;
             Debug.Log($"[Unlock] provisional: {n} condition(s) met on {stageId} at {distance:F0}m (confirmed only by returning safely)");
-            NoticeQueue.Toast("条件達成! 帰還すると確定します");
+            NoticeQueue.Toast("条件達成! ランを無事に終えると確定します");
         }
     }
 

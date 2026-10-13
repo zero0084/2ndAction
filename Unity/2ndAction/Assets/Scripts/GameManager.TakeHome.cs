@@ -128,11 +128,11 @@ public partial class GameManager
             LocGUI.Label(new Rect(x + w - vw, y, vw, 24f), value, vs);
             y += 26f;
         }
-        Row("今回の持ち帰り", "+" + FormatMile(TakeHomeMile) + " MILE", HudGoldColor, true);
-        Row("帰還後の所持", FormatMile(OwnedMileAfterReturn) + " MILE", Color.white, false);
+        Row("今回の持ち帰り予定", "+" + FormatMile(TakeHomeMile) + " MILE", HudGoldColor, true);
+        Row("脱出後の所持予定", FormatMile(OwnedMileAfterReturn) + " MILE", Color.white, false);
         Row(Loc.F("ガチャ({0} MILE)", GachaCostMile), Loc.F("{0}回分", GachaPullsAfterReturn), new Color(0.6f, 0.95f, 1f), false);
         var ns = new GUIStyle(GUI.skin.label) { fontSize = 13, alignment = TextAnchor.UpperLeft, wordWrap = true, normal = { textColor = new Color(1f, 0.62f, 0.55f) } };
-        string note = "倒れる・ランを破棄すると、今回分は受け取れません";
+        string note = "倒れるかランを破棄すると、今回のMILEは受け取れません";
         float nh = ns.CalcHeight(new GUIContent(Loc.Auto(note)), w);
         if (nh > r.yMax - y - 8f) ns.fontSize = 11;
         LocGUI.Label(new Rect(x, y + 2f, w, r.yMax - y - 6f), note, ns);
@@ -155,11 +155,11 @@ public partial class GameManager
             LocGUI.Label(new Rect(x + w - vw, y, vw, 20f), value, vs);
             y += 22f;
         }
-        Row("今回の持ち帰り", "+" + FormatMile(TakeHomeMile) + " MILE", HudGoldColor, true);
-        Row("帰還後の所持", FormatMile(OwnedMileAfterReturn) + " MILE", Color.white, false);
+        Row("今回の持ち帰り予定", "+" + FormatMile(TakeHomeMile) + " MILE", HudGoldColor, true);
+        Row("脱出後の所持予定", FormatMile(OwnedMileAfterReturn) + " MILE", Color.white, false);
         Row(Loc.F("ガチャ({0} MILE)", GachaCostMile), Loc.F("{0}回分", GachaPullsAfterReturn), new Color(0.6f, 0.95f, 1f), false);
-        var ns = FitStyle(new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft, normal = { textColor = new Color(1f, 0.62f, 0.55f) } }, "倒れる・ランを破棄すると、今回分は受け取れません", w, 9);
-        LocGUI.Label(new Rect(x, y + 2f, w, 18f), "倒れる・ランを破棄すると、今回分は受け取れません", ns);
+        var ns = FitStyle(new GUIStyle(GUI.skin.label) { fontSize = 12, alignment = TextAnchor.MiddleLeft, normal = { textColor = new Color(1f, 0.62f, 0.55f) } }, "倒れるかランを破棄すると、今回のMILEは受け取れません", w, 9);
+        LocGUI.Label(new Rect(x, y + 2f, w, 18f), "倒れるかランを破棄すると、今回のMILEは受け取れません", ns);
     }
 
     // 脱出の長押しの間(1秒以上止めたまま押した時だけ。短いタップ/攻撃/フリックでは出さない。離したら短く消える)

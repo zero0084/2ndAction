@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: second_wind
   cardName: SECOND WIND
   icon: {fileID: 2800000, guid: a27f5972194982f4aa14d027623b994e, type: 3}
-  description: "HP\u304C30%\u4EE5\u4E0B\u306B\u843D\u3061\u305F\u6642\u3001HP\u3092\u5C11\u3057\u56DE\u5FA9(\u30CF\u30FC\u30C81\u301C3)\u3002\u4E00\u5EA6\u51FA\u308B\u3068\u8DDD\u96E2\u306E\u30AF\u30FC\u30EB\u30C0\u30A6\u30F3(10,000m\u3001Lv\u3067\u77ED\u304F)"
+  description: "被弾してHPが最大の30%以下なら、ハート1〜3個回復する(Lv5で2個、Lv9で3個)。再発動には一定距離の走行が必要(Lv1で10,000m、Lv9で6,000m)"
   category: 4
   sortOrder: 130
   recommendPriority: 5

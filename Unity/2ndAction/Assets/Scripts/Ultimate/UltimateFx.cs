@@ -714,7 +714,7 @@ public class UltimateFxLabel : MonoBehaviour
         GUI.depth = -45;
         if (st == null) st = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold, wordWrap = false };
         float a = Mathf.Clamp01(left / 0.4f) * Mathf.Clamp01((1.6f - left) / 0.15f);
-        st.fontSize = Mathf.RoundToInt(Mathf.Clamp(Screen.height * 0.065f, 26f, 90f));
+        st.fontSize = Mathf.RoundToInt(Mathf.Clamp(TextFit.Short * 0.065f, 26f, 90f)); // 短い辺が基準(縦画面で横にはみ出さない)
         Rect r = new Rect(0f, Mathf.Max(Screen.height * 0.24f, GameManager.NoticeTopPx), Screen.width, Screen.height * 0.12f); // HUD の下(2026-10-11)
         var c = UltimateFx.BannerColor;
         st.normal.textColor = new Color(0f, 0f, 0f, 0.7f * a);

@@ -472,7 +472,7 @@ public class CardFusionUI : MonoBehaviour
             if (MatchesFilter(def)) shown.Add(s);
         }
         shown.Sort(CompareStacks);
-        if (listCountText != null) listCountText.text = Loc.Auto($"{shown.Count}種 / 全{totalCopies}枚");
+        if (listCountText != null) listCountText.text = Loc.Auto($"表示{shown.Count}件 / 所持{totalCopies}枚");
         LayoutGrid();
 
         // ---- 枠 ----
@@ -668,7 +668,7 @@ public class CardFusionUI : MonoBehaviour
     {
         bool hasMain = !string.IsNullOrEmpty(mainKey), hasMat = !string.IsNullOrEmpty(materialKey);
         if (!hasMain && !hasMat)
-            return (layoutPortrait ? "上の一覧からカードを選んでください。\n\n" : "左の一覧からカードを選んでください。\n\n") + "選択中の枠(光っている枠)にカードが入ります。枠をタップすると選択先を切り替えられ、×で選択を外せます。\n\n・同じカード同士 … 成功率100%で合成Lvと全能力を合算\n・違うカード同士 … メイン側50%/素材側25%で能力一式を継承(抽選)。片側だけ成功した場合は、成功した側のLvと能力だけが残ります\n・合成Lvの上限はLv.9。同じカードで Lv.9 を超える分は捨てずに Mastery へ(違うカードで合計が Lv.9 を超える組み合わせは合成できません)\n・Lv.9 MAX のカードに同じカードを合成すると Mastery が進みます(★5 で AWAKENED)";
+            return (layoutPortrait ? "上の一覧からカードを選んでください。\n\n" : "左の一覧からカードを選んでください。\n\n") + "選択中の枠(光っている枠)にカードが入ります。枠をタップすると選択先を切り替えられ、×で選択を外せます。\n\n・同じカード同士 … 成功率100%で合成Lvと全能力を合算\n・違うカード同士 … メイン側50%・素材側25%で、それぞれ能力一式を継承(抽選)。片側だけ成功ならその側のLvと能力だけが残り、両側失敗なら完成カードなし(MILEを還元)\n・合成Lvの上限はLv.9。同名合成の超過分はMASTERYへ。異なるカード同士はLv合計が9を超えると合成不可\n・Lv.9 MAXのカードに同名カードを合成するとMASTERYが進みます(★5でAWAKENED)";
         var sb = new StringBuilder();
         if (hasMain) sb.Append(CardDetail(mainKey, "メイン")).Append('\n');
         if (hasMat) sb.Append(CardDetail(materialKey, "素材")).Append('\n');
@@ -686,8 +686,8 @@ public class CardFusionUI : MonoBehaviour
                 string id = v.mainId;
                 sb.Append("<color=#ffd76a><b>MASTERY</b></color>  Lv.9 MAX\n");
                 sb.Append($"<color=#ffd76a>{CardMastery.Stars(id)}</color>  {(CardMastery.IsAwakened(id) ? "<color=#ffe08a><b>AWAKENED</b></color>" : CardMastery.MasteryProgress(id) + " / " + CardMastery.NeedForNext(id))}\n");
-                if (CardMastery.IsAwakened(id)) sb.Append("<size=19>★5(AWAKENED)に到達しています。★5 の後に余ったカードの使い道は今後追加します(今は合成で消費しません)。</size>\n");
-                else sb.Append($"同じカード({CardVariant.AbilityName(id)})を素材に選ぶと、素材のLvぶん Mastery が進みます(Lv.1 = +1)。\n");
+                if (CardMastery.IsAwakened(id)) sb.Append("<size=19>AWAKENED(★5)到達済み。これ以上MASTERY合成はできません。</size>\n");
+                else sb.Append($"同じカード({CardVariant.AbilityName(id)})を素材にすると、素材のLv分 MASTERY が進みます(Lv.1 = +1)。\n");
             }
             else sb.Append(hasMain ? "次に素材カードを選んでください。" : "次にメインカードを選んでください。");
         }
@@ -1082,14 +1082,14 @@ public class CardFusionUI : MonoBehaviour
                 sb.Append($"<color=#ffd76a><b>Mastery +{g.amount}</b></color>  {CardMastery.StarsFor(g.levelBefore)} → <color=#ffd76a><b>{CardMastery.StarsFor(g.levelAfter)}</b></color>");
                 sb.Append(g.levelAfter >= CardMastery.MaxStars ? "  <color=#ffe08a><b>AWAKENED</b></color>\n" : $"  {g.progressAfter} / {MasteryTuning.Need(g.levelAfter)}\n");
                 if (g.StarsGained > 1) sb.Append($"<size=21>★{g.StarsGained}つ分進みました(余りは次の★へ繰り越し)</size>\n");
-                if (g.overflowAdded > 0) sb.Append($"<size=21>★5 の後に余った {g.overflowAdded} は保管しました(今後の使い道に使えます)</size>\n");
-                if (g.awakenedNow) sb.Append("<size=21>このカードは AWAKENED になりました(永久の記録。通常の性能は変わりません)</size>\n");
+                if (g.overflowAdded > 0) sb.Append($"<size=21>★5 を超えた MASTERY {g.overflowAdded} は記録として保管しました</size>\n");
+                if (g.awakenedNow) sb.Append("<size=21>AWAKENEDに到達しました。育成記録として保存され、通常の性能は変わりません</size>\n");
                 sb.Append('\n');
             }
             if (r.kind == CardFusionLogic.Kind.Mastery)
             {
                 sb.Append("メインカード(Lv.9 MAX)はそのまま残り、素材カードを1枚消費しました。\n\n");
-                sb.Append("<size=21>Mastery は通常の性能(攻撃/速度/EXP など)を上げません。</size>\n");
+                sb.Append("<size=21>MASTERYは通常の性能(攻撃力・速度・EXPなど)を上げません。</size>\n");
                 resultBody.text = Loc.Auto(sb.ToString());
                 resultBody.alignment = TextAnchor.UpperLeft;
                 resultScroll.viewport.anchorMin = new Vector2(0.4f, 0);
@@ -1098,7 +1098,7 @@ public class CardFusionUI : MonoBehaviour
                 StartCoroutine(FadeResultIn());
                 return;
             }
-            sb.Append($"合成Lv.<b>{v.level}</b>{(v.level >= CardVariant.MaxLevel ? " <color=#ff8f86>(上限・これ以上合成できません)</color>" : "")}    レア度 <color=#ffd76a>{new string('★', v.rarity)}</color>\n\n");
+            sb.Append($"合成Lv.<b>{v.level}</b>{(v.level >= CardVariant.MaxLevel ? " <color=#ff8f86>(通常強化MAX)</color>" : "")}    レア度 <color=#ffd76a>{new string('★', v.rarity)}</color>\n\n");
             if (r.kind == CardFusionLogic.Kind.SameName) sb.Append("<color=#ffd76a>同名強化(確定)</color> … 両方の能力をすべて継承\n\n");
             else
             {

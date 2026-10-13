@@ -49,7 +49,7 @@ public class SprintDeparturePanel : MonoBehaviour
         {
             int unlocked = 0;
             foreach (var d in SprintRecords.Destinations(stage)) if (d.unlocked) unlocked++;
-            if (UiKit.Button(btn, unlocked > 0 ? $"疾走出発…({unlocked})" : "疾走出発…", 26f * s, false, true, true))
+            if (UiKit.Button(btn, unlocked > 0 ? $"疾走出発({unlocked}地点)" : "疾走出発…", 26f * s, false, true, true))
             {
                 Open = true; stageForPanel = stage; UiInputGate.SprintPanelOpen = true;
                 if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
@@ -68,7 +68,7 @@ public class SprintDeparturePanel : MonoBehaviour
         y += 52f * s;
         // 2026-10-08: 説明は折り返し、長い言語ではスクロール(以前は1行のままで切れていた)
         var descSt = new GUIStyle(UiKit.Label(20f * s, TextAnchor.UpperLeft, false, new Color(0.85f, 0.9f, 1f))); descSt.wordWrap = true;
-        descScroll.Text(new Rect(x, y, w, 76f * s), "攻略済みの区間を一気に駆け抜け、選んだ関門の少し手前から走り始めます。途中のボス報酬ぶんのカードは自動で取得。5,000mごとのリングをくぐると追加で1枚選べます。", descSt, stageForPanel);
+        descScroll.Text(new Rect(x, y, w, 76f * s), "攻略済みの区間を一気に駆け抜け、選んだ関門の少し手前から走り始めます。ボス報酬のカードはランダムに自動取得。5,000mごとのリングに上下で高さを合わせると追加で1枚選べます。飛ばした距離のMILE・EXPは付きません。", descSt, stageForPanel);
         y += 84f * s;
         var list = SprintRecords.Destinations(stageForPanel);
         // 行き先の一覧も、収まらない時はスクロール(ドラッグした指では行き先を選ばない)
@@ -79,7 +79,7 @@ public class SprintDeparturePanel : MonoBehaviour
         foreach (var d in list)
         {
             Rect row = new Rect(x, y, w - 12f, 62f * s);
-            string label = d.unlocked ? $"{d.meters / 1000}km まで疾走   (約{SprintTuning.I.SecondsFor(d.meters):F0}秒 + リング){(d.why == "DEBUG 全解放" ? "  [DEBUG 全解放]" : "")}" : $"{d.meters / 1000}km   🔒 {d.why}";
+            string label = d.unlocked ? $"{d.meters / 1000}km まで疾走   (約{SprintTuning.I.SecondsFor(d.meters):F0}秒 + リングのカード選択){(d.why == "DEBUG 全解放" ? "  [DEBUG 全解放]" : "")}" : $"{d.meters / 1000}km   🔒 {d.why}";
             if (UiKit.Button(row, label, 24f * s, d.unlocked, false, d.unlocked) && d.unlocked)
             {
                 Open = false; UiInputGate.SprintPanelOpen = false;

@@ -101,7 +101,7 @@ public class AdManager : MonoBehaviour
         why = "";
         if (Monetization.Ads == null) { why = "広告を利用できません"; return false; }
         if (Showing) { why = "広告の表示中です"; return false; }
-        if (!Monetization.Ads.IsReady(AdKind.Rewarded)) { Monetization.Ads.Load(AdKind.Rewarded); why = "広告を準備しています。少し待ってからお試しください"; return false; }
+        if (!Monetization.Ads.IsReady(AdKind.Rewarded)) { Monetization.Ads.Load(AdKind.Rewarded); why = "広告を準備中です。少し待ってからお試しください"; return false; }
         return true;
     }
 

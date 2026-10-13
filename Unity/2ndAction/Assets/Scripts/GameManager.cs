@@ -677,8 +677,8 @@ public partial class GameManager : MonoBehaviour
         int over = CharacterCardOverflow(slot, cardId, level, out string overName, out bool single);
         if (!sameAsCurrent && over > 0)
         {
-            if (single) { LastEquipMessage = $"{overName} は他のキャラカードと合わせて Lv{MaxRunCardLevel} を超えるので装備できません(超える分は効きません)"; return false; }
-            LastEquipMessage = $"注意: {overName} は他のキャラカードと合わせて Lv{MaxRunCardLevel} を超えます(超える {over} Lv 分は効きません)";
+            if (single) { LastEquipMessage = $"{overName} は他のキャラカードと合わせて Lv{MaxRunCardLevel} を超えるため装備できません"; return false; }
+            LastEquipMessage = $"注意: {overName}はキャラカードの合計でLv{MaxRunCardLevel}を超えます(超える{over}Lv分は効きません)";
         }
         characterCardIds[slot] = cardId;
         characterCardLevels[slot] = Mathf.Max(1, level);
@@ -3213,6 +3213,9 @@ public partial class GameManager : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public static System.Action<string, int, int, int> QaDamageEvent; // (理由, ダメージ, 前のHP, 後のHP) 自動検証の記録用
 #endif
+    // 落下の理由は PlayerController が "DeathY[:元]" で渡す(以前は "Fall" と比べていて一致せず、カードの短い無敵が落下まで止めていた。2026-10-13)
+    static bool IsFallReason(string reason) => reason != null && (reason == "Fall" || reason.StartsWith("DeathY"));
+
     public DamageResult TryDamagePlayer(bool bypassInvincibleMode = false, string reason = "Other", int amount = CombatScale.PlayerHit)
     {
         Vector3 dmgPos = PlayerController.Instance != null ? PlayerController.Instance.transform.position : Vector3.zero;
@@ -3223,7 +3226,7 @@ public partial class GameManager : MonoBehaviour
         if (ArenaMode.Active) { ArenaMode.OnPlayerWouldTakeDamage(amount, reason); if (ArenaMode.Invincible) return DamageResult.Ignored; }
         if (!bypassInvincibleMode && InvincibleMode) return DamageResult.Ignored;
         // カードバランス v3: LAST CHANCE / PHOENIX / PERFECT GUARD の短い無敵(落下はそのまま通す)
-        if (CardInvincibleActive && reason != "Fall") { FreezeDiagnostics.LogEvent($"[Damage] Ignored(CardInvincible) reason={reason}"); return DamageResult.Ignored; }
+        if (CardInvincibleActive && !IsFallReason(reason)) { FreezeDiagnostics.LogEvent($"[Damage] Ignored(CardInvincible) reason={reason}"); return DamageResult.Ignored; }
         if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); OnShieldBlocked(); return DamageResult.Ignored; }
 
         // ボス戦の強化(2026-10-01): 重い一撃は複数ハート。ただしハートが満タンの時に1発で倒れることはない。
@@ -3308,7 +3311,7 @@ public partial class GameManager : MonoBehaviour
         if (IsGameOver) return false;
         if (PresentationDamageLock) { FreezeDiagnostics.LogEvent($"[Damage] Ignored(PresentationDamageLock) reason={reason} (net claim)"); return false; }
         if (!bypassInvincibleMode && InvincibleMode) return false;
-        if (CardInvincibleActive && reason != "Fall") return false;
+        if (CardInvincibleActive && !IsFallReason(reason)) return false;
         if (PlayerController.Instance != null && PlayerController.Instance.TryConsumeShield()) { FreezeDiagnostics.LogEvent($"[Damage] Shielded reason={reason} (net claim)"); OnShieldBlocked(); return false; }
         return true;
     }
@@ -4601,7 +4604,7 @@ public partial class GameManager : MonoBehaviour
                 return hh + 6f;
             }
             y += NoteLine($"失ったもの: このランのMILE {RunMile}", new Color(1f, 0.55f, 0.5f));
-            y += NoteLine("今回の距離は、正式な記録(BEST・累計・解放)には残りません", new Color(1f, 0.75f, 0.55f));
+            y += NoteLine("今回の距離は、正式な記録(BEST・累計距離・ステージ/キャラの解放)には残りません", new Color(1f, 0.75f, 0.55f));
             y += NoteLine($"残るもの: これまでに確定した記録・カード・MILE(WALLET {TotalOwnedMile})", new Color(0.6f, 1f, 0.7f));
             rowStyle.normal.textColor = keepRow;
         }
@@ -4830,7 +4833,7 @@ public partial class GameManager : MonoBehaviour
         numStyle.normal.textColor = new Color(1f, 0.85f, 0.88f, 0.95f);
         // カードバランス v3: 封印したハート(HP犠牲)と Shield の数も出す
         var pcHud = PlayerController.Instance;
-        string extra = (SealedHearts > 0 ? $"  封印{SealedHearts}" : "") + (pcHud != null && (pcHud.ShieldCapacity > 0 || pcHud.ShieldCharges > 0) ? $"  盾{pcHud.ShieldCharges}" : "");
+        string extra = (SealedHearts > 0 ? $"  封印{SealedHearts}個" : "") + (pcHud != null && (pcHud.ShieldCapacity > 0 || pcHud.ShieldCharges > 0) ? $"  Shield {pcHud.ShieldCharges}" : "");
         LocGUI.Label(new Rect(rect.x + 12f, rect.y + 4f, rect.width - 22f, 18f), $"{Lives} / {maxLives}{extra}", numStyle);
 
         float flash = heartDamageFlashDuration > 0f ? Mathf.Clamp01(heartDamageFlashTimer / heartDamageFlashDuration) : 0f;
@@ -6138,7 +6141,7 @@ public partial class GameManager : MonoBehaviour
         msgStyle.wordWrap = true;
         msgStyle.normal.textColor = Color.white;
         confirmScroll.Text(new Rect(panelRect.x + 24f, panelRect.y + 26f, panelRect.width - 48f, 100f),
-            "現在のRunと未確定MILEを\n破棄します。よろしいですか？", msgStyle, "newrun"); // 2026-10-08: 長い言語はスクロール
+            "中断中のランと持ち帰り予定のMILEを\n破棄します。よろしいですか？", msgStyle, "newrun"); // 2026-10-08: 長い言語はスクロール
 
         Rect yesRect = new Rect(panelRect.x + 28f, panelRect.yMax - 68f, panelRect.width / 2f - 42f, 50f);
         Rect noRect = new Rect(panelRect.x + panelRect.width / 2f + 14f, panelRect.yMax - 68f, panelRect.width / 2f - 42f, 50f);
@@ -6174,7 +6177,7 @@ public partial class GameManager : MonoBehaviour
             float sw = Mathf.Min(360f, VW - VSafeLeft - VSafeRight - UiMargin * 2f);
             float sy = Mathf.Max(VSafeTop + UiMargin, panelRect.y - TakeHomeSummaryHeight - 10f);
             if (!HudStacked || sy >= HudLeftColumnBottom / HudK + 6f)
-                DrawTakeHomeSummary(new Rect(VW - VSafeRight - UiMargin - sw, sy, sw, TakeHomeSummaryHeight), "持ち帰り予定(脱出に成功すると受け取り)");
+                DrawTakeHomeSummary(new Rect(VW - VSafeRight - UiMargin - sw, sy, sw, TakeHomeSummaryHeight), "持ち帰り予定MILE");
         }
         float bw = panelRect.width - 24f, fs = 20f;
         Rect resumeRect = new Rect(panelRect.x + 12f, panelRect.y + 12f, bw, bh);
@@ -6219,7 +6222,7 @@ public partial class GameManager : MonoBehaviour
         msgStyle.wordWrap = true;
         msgStyle.normal.textColor = Color.white;
         confirmScroll.Text(new Rect(panelRect.x + 24f, panelRect.y + 24f, panelRect.width - 48f, 130f),
-            "Home Roomへ戻ります。\nRunは終了せず、この続きから\nCONTINUEできます。", msgStyle, "returnhome"); // 2026-10-08
+            "ホームへ戻ります。\nランは終了せず、この続きから\nCONTINUEできます。", msgStyle, "returnhome"); // 2026-10-08
 
         Rect yesRect = new Rect(panelRect.x + 28f, panelRect.yMax - 68f, panelRect.width / 2f - 42f, 50f);
         Rect noRect = new Rect(panelRect.x + panelRect.width / 2f + 14f, panelRect.yMax - 68f, panelRect.width / 2f - 42f, 50f);

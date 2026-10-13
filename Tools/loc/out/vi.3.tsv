@@ -1,0 +1,261 @@
+9000	Đánh trúng đôi khi gây lạnh. Địch bị đóng băng chịu thêm sát thương. Tấn công lên địch bị lạnh/đóng băng +3%/Lv. Thời gian đóng băng cũng dài hơn, làm chậm boss mạnh hơn
+9001	Khi HP từ 50% trở xuống, tốc độ đánh +3%/Lv. Khi HP từ 25% trở xuống, mức tăng gấp đôi (+6%/Lv)
+9002	Đánh trúng trên không sẽ tạo một nhát chém đuổi gây sát thương diện rộng tại điểm trúng. Uy lực và phạm vi tăng theo Lv
+9003	Sức tấn công trên không +3%/Lv. Mỗi lần đánh trúng mà chưa tiếp đất, thêm +1%/Lv (tối đa 4 lần). Tiếp đất thì phần thêm bị đặt lại
+9004	Tấn công lên địch trên không (quái thường bị hất lên/quái thường biết bay; boss chỉ có Rồng và Ma nhân) tăng (+8%/Lv)
+9005	Tầm đánh +3%/Lv. Cận chiến: vùng trúng đòn rộng hơn; đạn: bay xa hơn (kích thước đạn không đổi)
+9006	Khi HP từ 50% trở xuống, sức tấn công +5%/Lv, tốc độ đánh +2%/Lv. Khi HP từ 25% trở xuống, mức tăng của cả hai gấp đôi
+9007	Sức tấn công +6%/Lv, tốc độ đánh +1%/Lv. Nhưng phong ấn tim của HP tối đa (1 tim ở Lv1〜3, 2 tim ở Lv4〜6, 3 tim ở Lv7〜9)
+9008	Khi HP từ 50% trở xuống, sức tấn công +4%/Lv. Khi HP từ 25% trở xuống, tỉ lệ hấp thụ (hồi 1 tim) khi hạ địch/boss cũng +3%/Lv
+9009	Tại cửa ải boss thường, có tỉ lệ (8%/Lv) xuất hiện thêm 1 boss. MILE hạ boss +50%/Lv. Không áp dụng cho boss riêng mỗi 10km và chuỗi boss ở Hầm ngục cuối
+9010	Sức tấn công +7%/Lv. Nhưng mỗi lần đánh về trước・đánh về sau, tốc độ di chuyển giảm 10% trong 0.4 giây
+9011	Uy lực thiêu đốt +8%/Lv, thời gian thiêu đốt +0.25 giây/Lv. Chỉ riêng thẻ này cũng gây thiêu đốt khi trúng (tỉ lệ 7% ở Lv1, sau đó +2%/Lv)
+9012	Hạ địch sẽ gây nổ xung quanh. Địch bị hạ bởi vụ nổ cũng nổ tiếp, lan tối đa 3 tầng. Mỗi địch chỉ trúng 1 lần trong mỗi chuỗi
+9013	Kích hoạt khi Gauge đạt 100% (nút góc dưới trái). Tuyệt chiêu riêng của nhân vật hạ gục ngay địch thường trên màn hình, gây cho boss sát thương bằng 20〜40% HP tối đa (tăng theo Lv). Sau đó lao lên xa (Lv1 300m → Lv9 1000m; dừng trước cửa ải boss v.v., không lao lên khi đang đánh boss), rồi cường hóa kéo dài một lúc (Lv1 5 giây → Lv9 12 giây). Gauge tích lũy từ quãng đường, hạ địch và sát thương lên boss
+9014	Khi đòn kết của chuỗi đánh trúng, tung thêm một luồng xung kích về phía trước (uy lực và phạm vi tăng theo Lv)
+9015	Sức tấn công của đòn cuối (đòn kết) khi đánh về trước・đánh về sau liên tiếp +7%/Lv
+9016	Khi đỡ đòn bằng Shield, tung sóng xung kích phản công ra xung quanh. Uy lực tăng theo Lv. Chỉ riêng thẻ này cũng cho giữ 1 Shield
+9017	Sức tấn công +12%/Lv. Nhưng phong ấn tim của HP tối đa (1 tim ở Lv1〜2, sau đó thêm 1 mỗi 2 Lv; 5 tim ở Lv9)
+9018	Một phần quái thường trở thành tinh anh (+4% mỗi Lv. HP×2.5・nhanh hơn chút, hạ được MILE×3/EXP×2). MILE cũng tăng (+30%/Lv)
+9019	MILE nhận khi hạ địch +15%/Lv. Cũng áp dụng cho MILE thưởng của BONUS ZONE và TRUY NÃ
+9020	EXP nhận được giảm (-10%/Lv, tối thiểu 25% mức thường), đổi lại MILE từ hạ địch・BONUS +30%/Lv
+9021	EXP từ hạ địch・hạ boss・BONUS ZONE tăng mạnh (+80%/Lv). Không áp dụng cho EXP quãng đường
+9022	Có tỉ lệ khiến địch trúng đòn bị thiêu đốt, gây sát thương trong 3 giây. Lv1: tỉ lệ 15%・5 sát thương mỗi giây; mỗi Lv sau: tỉ lệ +5%・sát thương mỗi giây +1.5
+9023	Khi đỡ đòn bằng Shield, phản công bằng lửa ra xung quanh, địch trúng đòn bị thiêu đốt. Uy lực tăng theo Lv. Chỉ riêng thẻ này cũng cho giữ 1 Shield
+9024	Đánh trúng khiến địch bị lạnh và chậm lại. Lv1: tỉ lệ 15%・làm chậm 25%. Mỗi Lv sau: tỉ lệ +5%・làm chậm +2%. Lạnh chồng 5 lần sẽ đóng băng (boss không dừng mà bị làm chậm)
+9025	Đánh trúng đôi khi tung lưỡi gió. Tốc độ lưỡi gió +5%/Lv, tầm bay +0.4m/Lv. Xuyên thấu của lưỡi gió và đạn +1 (+2 từ Lv4, +3 từ Lv7)
+9026	Khi tiếp đất bằng đòn đập hoặc đòn kết trên mặt đất, tạo sóng xung kích chạy dọc mặt đất (uy lực và độ dài tăng theo Lv). Sức tấn công trên mặt đất cũng +2%/Lv
+9027	Sức tấn công +4%/Lv. Mỗi tim đang bị phong ấn cho thêm +0.6%/Lv sức tấn công (tính cả phong ấn từ thẻ khác). Bản thân thẻ cũng phong ấn tim của HP tối đa (1 tim ở Lv1〜3, 2 tim ở Lv4〜6, 3 tim ở Lv7〜9)
+9028	HP tối đa +1 tim/Lv (tối đa 20 tim). Khi nhận thẻ, HP hồi đầy
+9029	Khi chịu sát thương từ 2 tim trở lên, giảm đi 1 tim. HP tối đa cũng tăng (+1 tim ở Lv1〜2, sau đó +1 mỗi 2 Lv). Lực nhảy -3%/Lv
+9030	Sức tấn công của đánh xuống và tiếp đất bằng đòn đập +10%/Lv. Đòn kết cũng +3%/Lv
+9031	HP quái thường +12%/Lv, tốc độ hành động +4%/Lv, tần suất xuất hiện +8%/Lv. Đổi lại MILE từ hạ địch・BONUS +50%/Lv, MILE hạ boss +30%/Lv
+9032	Tần suất địch xuất hiện +15%/Lv. Đổi lại MILE từ hạ địch・BONUS +5%/Lv, EXP từ hạ địch・BONUS +5%/Lv
+9033	Khi đánh boss, khoảng bước tới/lùi khi tấn công +4%/Lv. Tốc độ di chuyển khi tiếp cận boss xa hơn 6m cũng +3%/Lv
+9034	Đánh trúng đôi khi gây lạnh. Số lần lạnh cần để đóng băng giảm (4 lần ở Lv1〜3, 3 lần ở Lv4〜6, 2 lần ở Lv7〜9). Tỉ lệ và thời gian lạnh cũng tăng
+9035	Hạ địch đang bị thiêu đốt sẽ làm lửa lan ra xung quanh và thiêu đốt địch (uy lực và phạm vi tăng theo Lv). Chỉ riêng thẻ này cũng có tỉ lệ thấp (5%) gây thiêu đốt khi trúng
+9036	Nhảy trên không +1 lần/Lv. Nhảy thêm liên tiếp sẽ yếu lực bật dần, nhưng khi đang rơi xuống hố thì không yếu đi. Phù thủy: độ cao bay lên được +1 bậc ở Lv1〜3, +2 bậc ở Lv4〜6, +3 bậc ở Lv7〜9
+9037	Ngay khi trúng đòn khiến HP còn 1 tim trở xuống, được bất tử ngắn (1 giây + 0.15 giây/Lv). Không chặn được sát thương rơi. Chỉ kích hoạt lại khi HP hồi trên 1 tim và đã qua 20 giây từ lần kích hoạt
+9038	EXP nhận được +30%/Lv
+9039	Tầm đánh +5%/Lv. Cận chiến: vùng trúng đòn rộng hơn; đạn: bay xa hơn
+9040	EXP nhận được +15%/Lv. HP tối đa cũng tăng (+1 tim ở Lv1〜3, +2 ở Lv4〜6, +3 ở Lv7〜9)
+9041	Sức tấn công lên địch không phải boss +5%/Lv. MILE từ hạ địch・BONUS +10%/Lv
+9042	Sức tấn công tăng theo tốc độ chạy. Không có tác dụng từ 100km/h trở xuống. +4%/Lv ở 150km/h; nhanh hơn vẫn tăng nhưng chỉ còn 1/4 mức tăng
+9043	Tần suất địch xuất hiện +10%/Lv. Đổi lại EXP nhận được +15%/Lv
+9044	Tần suất địch xuất hiện +10%/Lv. MILE từ hạ địch・BONUS cũng +3%/Lv
+9045	Tốc độ di chuyển +5%/Lv. Nhưng tần suất địch xuất hiện cũng +10%/Lv
+9046	MILE từ hạ địch・BONUS +50%/Lv, MILE hạ boss +50%/Lv, EXP nhận được +20%/Lv
+9047	Giữ từ 115km/h trở lên một lúc sẽ kích hoạt OVERDRIVE (sức tấn công +3%/Lv, tốc độ đánh +2%/Lv). Dưới 107km/h liên tục 0.8 giây thì mất. Tốc độ di chuyển luôn +2%/Lv
+9048	Lượng hồi của hấp thụ và HỒI SỨC tăng (+1 tim ở Lv4〜6, +2 ở Lv7〜9). Phần tràn khi HP đã đầy thành 1 Shield (tối đa đến giới hạn +1)
+9049	HP quái thường +15%/Lv, tốc độ hành động +5%/Lv, tần suất xuất hiện +12%/Lv, tỉ lệ tinh anh +2%/Lv, HP boss +10%/Lv. Đổi lại MILE từ hạ địch・BONUS +60%/Lv, MILE hạ boss +60%/Lv
+9050	EXP quãng đường +20%/Lv. Không áp dụng cho EXP hạ địch
+9051	Khi Shield chặn đòn, được bất tử ngắn (0.4 giây + 0.1 giây/Lv). Chỉ riêng thẻ này cũng cho giữ 1 Shield
+9052	Khi gục (kể cả rơi) sẽ hồi sinh và bất tử 2 giây (HP 1〜5 tim tùy Lv). Sau khi hồi sinh, thẻ này bị gỡ và có thể xuất hiện lại để chọn (nhận lại từ Lv1)
+9053	Đòn cận chiến trúng sẽ gây thêm sát thương cho địch đứng sau địch đó. Uy lực và số mục tiêu tăng theo Lv. Số lần xuyên của đạn cũng tăng (+1 ở Lv1〜3, +2 ở Lv4〜6, +3 ở Lv7〜9)
+9054	Tỉ lệ hồi 1 tim khi hạ địch +3%/Lv. Khi đánh trúng boss cũng có tỉ lệ thấp hấp thụ HP
+9055	Nếu sau khi trúng đòn HP còn từ 30% tối đa trở xuống, hồi 1〜3 tim (2 tim ở Lv5, 3 tim ở Lv9). Muốn kích hoạt lại phải chạy một quãng nhất định (10,000m ở Lv1, 6,000m ở Lv9)
+9056	Shield chặn được 1 lần trúng đòn. Tối đa 1 ở Lv1〜3, 2 ở Lv4〜6, 3 ở Lv7〜9. Phần đã dùng hồi lại từng cái theo thời gian (nhanh hơn theo Lv)
+9057	Sức tấn công trên không +4%/Lv. Đánh trúng trên không sẽ lấy lại 1 lần nhảy trên không đã dùng (trước khi tiếp đất: tối đa 1 lần ở Lv1〜3, 2 lần ở Lv4〜6, 3 lần ở Lv7〜9)
+9058	Lực nhảy +2%/Lv, sức tấn công trên không +3%/Lv
+9059	Khi đánh về trước・đánh về sau, phóng một nhát chém xuyên địch về phía trước. Chạy càng nhanh, tầm bay・kích thước・uy lực của nhát chém càng tăng
+9060	Tốc độ di chuyển -4%/Lv. Thẻ đặc biệt khi muốn chạy chậm lại
+9061	EXP nhận được +40%/Lv. HP tối đa cũng tăng (+1 tim ở Lv1〜2, sau đó +1 mỗi 2 Lv; +5 ở Lv9)
+9062	Đánh trúng có tỉ lệ thấp gọi sét đánh. Uy lực sét +4%/Lv, số mục tiêu dây chuyền +1 ở Lv1〜3, +2 ở Lv4〜6, +3 ở Lv7〜9. Sét cũng gây sát thương xung quanh
+9063	Đánh trúng gọi sét đánh. Lv1: tỉ lệ 5%・uy lực cơ bản 7.5. Mỗi Lv sau: tỉ lệ +2%・uy lực cơ bản +1.5. Mỗi địch tối đa 1 lần sét mỗi 0.4 giây
+9064	Lưỡi gió trúng đâu sẽ tạo lốc xoáy ở đó, gây sát thương liên tục cho địch xung quanh (uy lực và phạm vi tăng theo Lv). Chỉ riêng thẻ này cũng có tỉ lệ thấp tung lưỡi gió khi trúng
+9065	HP quái thường +15%/Lv. Đổi lại MILE từ hạ địch・BONUS +15%/Lv, EXP hạ địch +5%/Lv
+9066	MILE từ kho báu・phần thưởng +30%/Lv (kho báu và HOÀN THÀNH/HOÀN HẢO ở BONUS ZONE, tiền thưởng TRUY NÃ). MILE hạ boss +10%/Lv, MILE quãng đường +5%/Lv
+9067	Sức tấn công +3%/Lv, tốc độ di chuyển +2%/Lv. HP tối đa cũng tăng (+1 tim ở Lv1〜2, sau đó +1 mỗi 2 Lv; +5 ở Lv9)
+9068	Cứ mỗi quãng đường nhất định lại xuất hiện kẻ bị truy nã (mạnh hơn・thường xuyên hơn theo Lv). Hạ được thì nhận MILE tiền thưởng, bỏ lại phía sau thì không có thưởng. MILE từ hạ địch・BONUS +35%/Lv
+9069	Đánh trúng có tỉ lệ phóng lưỡi gió xuyên địch về phía trước. Lv1: tỉ lệ 10%・uy lực 8; mỗi Lv sau: tỉ lệ +3%・uy lực +1.5. Tầm đánh cũng rộng thêm chút (+1%/Lv)
+9070	Địch: rất nhiều địch của hoang địa・hang động・bầu trời
+9071	Địch: Goblin / Harpy / Gargoyle v.v.
+9072	Địch: Goblin・chim・quái lớn・cung thủ v.v.
+9073	Chướng ngại: đá・cây・tường・đá khổng lồ (phá được bằng đòn đánh)・hố
+9074	Lộ trình: rẽ nhánh trên/dưới (an toàn hay nguy hiểm là ngẫu nhiên)
+9075	Đã xóa mọi địch và đòn đánh của địch (không ghi nhận hạ hết・thời gian hạ)
+9076	Hạ hết địch  {0} giây
+9077	Vào trận
+9078	Build thử ({0} loại)
+9079	Lv = số lần nhận trong lượt chạy (mỗi năng lực tối đa 9). Thẻ sở hữu・bộ bài không đổi
+9080	Đã sao chép {0} thẻ trong bộ bài sang build thử (bộ bài không đổi)
+9081	Đã sao chép {0} thẻ nhân vật sang build thử (Lv ban đầu)
+9082	Boss xuất hiện từ phía trước với màn ra mắt giống bản chính
+9083	Chiêu dùng địa hình của boss hang động・trời (hố・trần・đá rơi v.v.) ở Đấu trường bằng phẳng sẽ khác với bản chính
+9084	Đối thủ hiện tại ({0} nhóm)
+9085	HP địch: tương đương mốc {0}km (áp dụng cho HP quái thường・boss)
+9086	Chạy (có hiệu chỉnh)
+9087	Chỉ dừng việc tự chạy tới (tấn công・nhảy・trọng lực・khựng・chuyển động địch vẫn như bản chính)
+9088	Áp dụng hiệu chỉnh tốc độ của nhân vật・thẻ lên tốc độ cơ bản
+9089	Bỏ qua hiệu chỉnh tốc độ của nhân vật・thẻ, chạy ở tốc độ đã đặt
+9090	Đặt {0}km/h / trận này {1}km/h (hiệu chỉnh ×{2})
+9091	Dù đang bất tử vẫn được ghi vào "Sát thương lẽ ra phải nhận" của kết quả
+9092	Chế độ AUTO (chỉ trong Đấu trường; cài đặt thường không đổi)
+9093	Bật từ {0}km/h
+9094	Phần thưởng・kỷ lục・thẻ sở hữu hoàn toàn không đổi. Chưa hỗ trợ: FINAL EVOLUTION / AWAKENED / MASTERY / thanh ULTIMATE / lên cấp / thưởng boss / BONUS ZONE (thẻ chỉ có hiệu ứng Lv thường và COMBO)
+9095	Trận đầu
+9096	Sức mạnh boss: {0}
+9097	Hạ hết {0} giây
+9098	Đã hạ/Xuất hiện
+9099	Sát thương thực nhận
+9100	Sát thương lẽ ra phải nhận (gồm cả phần bất tử/Shield chặn)
+9101	N0
+9102	Build thử: {0}
+9103	Sửa điều kiện
+9104	??? (chưa gặp)
+9105	WARNING!  RỒNG CƠ KHÍ đang đến!
+9106	GIAO THỨC HỦY DIỆT
+9107	Đang hạ nhiệt! Cơ hội tấn công!
+9108	Đang dùng trong bộ bài/thẻ nhân vật nên không thể làm nguyên liệu
+9109	Đã đạt AWAKENED (★5). Không thể cường hóa MASTERY thêm
+9110	Không thể dung hợp: nếu cả hai thành công, Lv sẽ là {0} (giới hạn Lv.{1})
+9111	<color=#ffd76a><b>[MASTERY] Nhật ký bồi dưỡng sau Lv.9 MAX</b></color>
+9112	MASTERY hiện tại: <color=#ffd76a>{0}</color>  {1}
+9113	<size=19>MASTERY {0} vượt quá ★5 được lưu giữ làm kỷ lục</size>
+9114	<size=19>MASTERY không tăng chỉ số thường (sức tấn công・tốc độ・EXP...). Đây là nhật ký bồi dưỡng cho đến khi thành AWAKENED ở ★5.</size>
+9115	Phần <b>{0} Lv</b> vượt Lv.9 chuyển vào MASTERY: {1} → <color=#ffd76a>{2}</color>{3}
+9116	・{0} {1}<b>×{2}</b>  <size=18>({3})</size>
+9117	<color=#9fd0ff><b>[Dung hợp khác tên] Hai thẻ khác nhau sẽ có kết quả ngẫu nhiên</b></color>
+9118	<b>Tỉ lệ kế thừa mọi năng lực của thẻ chính {0}%</b>
+9119	・{0} ×{1}  <size=18>({2})</size>
+9120	<b>Tỉ lệ kế thừa mọi năng lực nguyên liệu {0}%</b>
+9121	Cả hai thành công: kế thừa toàn bộ năng lực hai bên (năng lực giống nhau được cộng dồn). Độ hiếm là ★ của bên cao hơn +1 (tối đa ★5)
+9122	Không đủ thẻ rảnh để dung hợp (đang dùng trong bộ bài・thẻ nhân vật)
+9123	Đang trang bị cho thẻ nhân vật, không đủ thẻ rảnh
+9124	Đang dùng trong bộ bài nên không đủ số lượng
+9125	<size=21>Đã lưu giữ MASTERY {0} vượt quá ★5 làm kỷ lục</size>
+9126	<size=21>Đã đạt AWAKENED. Được lưu làm nhật ký bồi dưỡng, chỉ số thường không đổi</size>
+9127	<size=21>MASTERY không tăng chỉ số thường (sức tấn công・tốc độ・EXP...).</size>
+9128	)}    Độ hiếm <color=#ffd76a>{new string('★', v.rarity)}</color>
+9129	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3})</color></size>
+9130	Hiển thị {0} / Sở hữu {1} thẻ
+9131	・Hai thẻ khác nhau … thẻ chính 50%・nguyên liệu 25%, mỗi bên kế thừa trọn bộ năng lực (ngẫu nhiên). Nếu chỉ một bên thành công thì chỉ giữ Lv và năng lực bên đó; cả hai thất bại thì không có thẻ (hoàn lại MILE)
+9132	・Giới hạn Lv dung hợp là Lv.9. Phần vượt khi dung hợp cùng tên chuyển vào MASTERY. Hai thẻ khác nhau không thể dung hợp nếu tổng Lv vượt 9
+9133	・Dung hợp thẻ cùng tên vào thẻ Lv.9 MAX sẽ tăng MASTERY (★5 thành AWAKENED)
+9134	<size=19>Đã đạt AWAKENED (★5). Không thể dung hợp MASTERY thêm.</size>
+9135	Dùng thẻ giống hệt ({0}) làm nguyên liệu sẽ tăng MASTERY bằng Lv của nguyên liệu (Lv.1 = +1).
+9136	Mắt đã yếu đi! Cơ hội tấn công!
+9137	Lộ lõi! Cơ hội BREAK!
+9138	Tần suất địch xuất hiện
+9139	MILE hạ địch・BONUS
+9140	MILE hạ boss
+9141	Tỉ lệ thiêu đốt
+9142	Uy lực cơ bản thiêu đốt
+9143	Tỉ lệ lạnh
+9144	Làm chậm do lạnh
+9145	Tỉ lệ chảy máu
+9146	Tốc độ đánh về trước・sau
+9147	Sức tấn công trên không
+9148	Sức tấn công mặt đất
+9149	Đòn kết chuỗi đánh
+9150	Sức tấn công lên quái thường
+9151	Đánh xuống・đòn đập
+9152	Tốc độ đánh khi HP ≤50%
+9153	Sức tấn công mỗi HIT liên tiếp
+9154	Sức tấn công mỗi lần trúng trên không đến khi tiếp đất
+9155	Rút ngắn hồi Shield (giây)
+9156	Tốc độ hành động của địch
+9157	Tỉ lệ tinh anh xuất hiện
+9158	MILE quãng đường
+9159	EXP quãng đường
+9160	EXP hạ địch
+9161	Giảm số lần cần để đóng băng
+9162	Hệ số sát thương sét
+9163	)} - thẻ nhân vật
+9164	Chạm để gỡ
+9165	[Nhân vật khác đang trang bị]
+9166	Không thể đổi thẻ đang dùng. Hãy gỡ khỏi bộ bài hoặc thẻ nhân vật.
+9167	Đổi 1 thẻ này thành {CardConvertMile} MILE?
+9168	)} {BleedPower * Scale:0.#}/s hấp thụ {BleedLifesteal * 100f:0}%
+9169	(Đã AWAKENED)
+9170	Chạm để đóng / Chạm máy Gacha để quay thêm 1 lần
+9171	Nhận được: Cơ bản {0} MILE + Thêm {1} MILE = Tổng {2} MILE
+9172	Đã hết lượt quay hôm nay (hồi sau {0})
+9173	Đặt lại lượt sau {0}
+9174	Sẽ mang về lần này
+9175	Sở hữu dự kiến sau khi thoát
+9176	Nếu gục ngã hoặc bỏ lượt chạy, bạn sẽ không nhận được MILE lần này
+9177	MỚI:
+9178	DEV: Không tính kỷ lục (
+9179	Quãng đường lần này không được tính vào kỷ lục chính thức (BEST・tổng quãng đường・mở khóa màn/nhân vật)
+9180	Phong ấn {0}
+9181	MILE RESET
+9182	CARD RESET
+9183	Lượt chạy đang tạm dừng và MILE sẽ mang về
+9184	MILE sẽ mang về
+9185	Quay về sảnh.
+9186	Lượt chạy không kết thúc, bạn có thể
+9187	Không thể trang bị {0} vì cộng với thẻ nhân vật khác sẽ vượt Lv{1}
+9188	Lưu ý: {0} khiến tổng thẻ nhân vật vượt Lv{1} (phần vượt {2} Lv không có tác dụng)
+9189	IRENE
+9190	ESTELLE
+9191	ALICIA
+9192	Đang chuẩn bị quảng cáo. Vui lòng thử lại sau giây lát
+9193	TEST AD (giả lập) Quảng cáo thưởng
+9194	TEST AD (giả lập) Quảng cáo xen kẽ
+9195	{0} giây
+9196	Đã đạt điều kiện nhận thưởng
+9197	Đóng giữa chừng
+9198	Giả lập ứng dụng bị gián đoạn
+9199	¥(giả lập) 000
+9200	Giả lập (chỉ bản dev): không phải giao dịch thật. Lưu riêng với quyền mua thật
+9201	・Giao dịch gắn với tài khoản cửa hàng. Sau khi đổi máy・cài lại, dùng "Khôi phục giao dịch" để lấy lại. Dữ liệu lưu như thẻ hay MILE không được khôi phục bằng nút này
+9202	Không thể xác nhận giao dịch. Vé vẫn có hiệu lực, sẽ kiểm tra lại sau
+9203	OMMLAN
+9204	SYNC
+9205	CHƠI ONLINE
+9206	Tạo phòng và công khai ở "FIND GAME" trực tuyến.
+9207	Tạo phòng trên máy này. Máy cùng Wi-Fi có thể tham gia qua "FIND GAME".
+9208	DỊCH VỤ ONLINE KHÔNG KHẢ DỤNG
+9209	DEV:
+9210	THỬ LẠI
+9211	Đang tìm phòng gần đây…
+9212	DEV
+9213	Khi đủ người, "Đóng (giữ phòng)" → Cửa → bấm "Xuất phát" ở CHỌN MÀN, mọi người sẽ cùng bắt đầu ở cùng một màn.
+9214	CO-OP: Gục thì DOWN. Đồng đội (từ 2 tim) đến chỗ bạn gục và dùng HỒI SINH để chia 1 tim thì bạn hồi sinh. Tất cả DOWN là kết thúc.
+9215	MODE: HOST chọn (áp dụng cho mọi người khi bắt đầu lượt chạy)
+9216	Cửa ở sảnh → bấm "Xuất phát" ở CHỌN MÀN, mọi người đang kết nối sẽ cùng bắt đầu ở cùng một màn.
+9217	HỒI SINH
+9218	Không thể bắt đầu kết nối. Hãy thử lại hoặc khởi động lại ứng dụng
+9219	Không thể tạo phòng (có thể ứng dụng khác đang dùng kết nối mạng)
+9220	P{0} đã ngắt kết nối (còn {1} người)
+9221	{0} đã ngắt kết nối
+9222	Người chơi kia đã ngắt kết nối
+9223	Không thể tham gia vì khác phiên bản game. Hãy cập nhật cả hai lên bản mới nhất
+9224	Không thể tham gia vì phòng này đã bắt đầu chạy
+9225	Không thể tham gia vì phòng đã đầy
+9226	Kết nối bị từ chối
+9227	Bạn: kỷ lục chưa hiện trên bảng xếp hạng
+9228	AUTO
+9229	Tốc hành
+9230	Ngừng gửi kỷ lục
+9231	UGS
+9232	Hãy chọn một thẻ
+9233	Chọn lần nữa để xác nhận
+9234	Chọn thẻ → chọn lần nữa để xác nhận
+9235	Đạt điều kiện! Hoàn thành lượt chạy an toàn để xác nhận
+9236	Khi tốc độ chạy đạt từ tốc độ bắt đầu trở lên, chỉ tự động làm các thao tác đã bật ON.
+9237	Ưu tiên thao tác tay. Nếu "AUTO cả khi đánh boss" là OFF, sẽ không tự động khi đang đánh boss.
+9238	Vé gắn với tài khoản cửa hàng (khôi phục giao dịch không khôi phục dữ liệu lưu)
+9239	Luyện đánh trước sau・nhảy・đánh xuống・hất tung・chọn thẻ (không thưởng・không ghi kỷ lục).
+9240	Chỉ bắt đầu luyện tập được ở sảnh (không được khi đang kết nối nhiều người)
+9241	Titan đến gần! Cơ hội tấn công!
+9242	Lõi đã tối đi! Cơ hội BREAK!
+9243	Trượt chân khi tiếp đất! Cơ hội tấn công!
+9244	Đầu đã ló khỏi mây! Cơ hội tấn công!
+9245	Vầng sáng đã tắt! Cơ hội lớn!
+9246	Hết tích điện! Cơ hội tấn công!
+9247	Xuất phát tốc hành (mốc {0})
+9248	Chạy vụt qua các đoạn đã chinh phục, bắt đầu chạy ngay trước cửa ải đã chọn. Thẻ thưởng boss được nhận ngẫu nhiên tự động. Chỉnh độ cao lên/xuống cho khớp vòng mỗi 5,000m để chọn thêm 1 thẻ. Quãng đường bỏ qua không cho MILE・EXP.
+9249	Tốc hành đến {0}km   (khoảng {1} giây + chọn thẻ ở vòng){2}
+9250	Chưa hạ boss cửa ải {0}km
+9251	Trong lượt chạy này, mọi thẻ trong bộ bài đã đạt Lv9.
+9252	Cửa ải {0}/{1}    Vòng {2}/{3}{4}
+9253	Cửa ải đã qua {0}/{1}   Vòng {2}/{3}{4}
+9254	Mọi thẻ trong bộ bài lượt này Lv{0} MAX
+9255	Cửa ải không nhận được thẻ: {0}
+9256	Trong lượt chạy này, mọi thẻ trong bộ bài đều Lv9. Thưởng vòng là MILE sẽ mang về
+9257	(Kỷ lục quãng đường BEST cũng không được lưu)
+9258	Đến chọn bản đồ
+9259	Giới hạn bộ bài đã tăng lên 12 thẻ
+9260	OVERFLOW

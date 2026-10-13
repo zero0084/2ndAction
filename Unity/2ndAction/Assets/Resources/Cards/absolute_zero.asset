@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: absolute_zero
   cardName: ABSOLUTE ZERO
   icon: {fileID: 2800000, guid: b6a0b1c77698f0b489adabc83507dcb8, type: 3}
-  description: "\u51CD\u7D50\u3057\u305F\u96D1\u9B5A\u304C\u7815\u3051\u3066\u30C0\u30E1\u30FC\u30B8\u3001\u51B7\u3048\u305F/\u51CD\u3063\u305F\u6575\u3078\u306E\u653B\u6483\u304C\u4E0A\u304C\u308B(1Lv\u3054\u3068\u306B+3%)\u3002\u30DC\u30B9\u306F\u51CD\u7D50\u306E\u4EE3\u308F\u308A\u306E\u6E1B\u901F\u304C\u5F37\u304F\u306A\u308B"
+  description: "命中時に冷えを与えることがある。敵が凍結すると追加ダメージ。冷えた/凍結した敵への攻撃+3%/Lv。凍結時間も延び、ボスの減速が強くなる"
   category: 1
   sortOrder: 178
   recommendPriority: 5

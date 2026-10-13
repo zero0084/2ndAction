@@ -1,0 +1,261 @@
+9000	Minsan nagbibigay ng lamig kapag tumama. Dagdag na damage kapag nagyelo ang kalaban. Atake sa nilalamig/nagyelong kalaban +3%/Lv. Humahaba rin ang pagyelo at lumalakas ang pagbagal ng boss
+9001	Kapag HP 50% pababa, bilis ng atake +3%/Lv. Kapag HP 25% pababa, doble ang dagdag (+6%/Lv)
+9002	Kapag tumama sa ere, may lalabas na habol na hiwa na may saklaw sa tinamaang lugar. Tumataas ang lakas at saklaw sa Lv
+9003	Atake sa ere +3%/Lv. Bawat tama nang hindi lumalapag, +1%/Lv pa (hanggang 4 na beses). Nare-reset ang dagdag kapag lumapag
+9004	Tumataas ang atake sa kalabang nasa ere (+8%/Lv) (inangat/lumilipad na alipores; sa boss, Dragon at Demonyo lang)
+9005	Abot ng atake +3%/Lv. Lumalawak ang tama ng malapitang atake, at humahaba ang lipad ng projectile (hindi lumalaki ang bala)
+9006	Kapag HP 50% pababa, atake +5%/Lv at bilis ng atake +2%/Lv. Kapag HP 25% pababa, doble ang dagdag ng dalawa
+9007	Atake +6%/Lv, bilis ng atake +1%/Lv. Pero sine-selyuhan ang puso ng max HP (1 sa Lv1〜3, 2 sa Lv4〜6, 3 sa Lv7〜9)
+9008	Kapag HP 50% pababa, atake +4%/Lv. Kapag HP 25% pababa, +3%/Lv rin ang tsansa ng pagsipsip (gumaling ng 1 puso) kapag nakatalo ng kalaban/boss
+9009	Sa karaniwang boss gate, may tsansa (8%/Lv) na may sumaling 1 pang boss. Boss-defeat MILE +50%/Lv. Hindi kasama ang espesyal na boss bawat 10km at ang dagsa ng boss sa Huling Dungeon
+9010	Atake +7%/Lv. Pero tuwing gagamit ng atake sa harap/likod, bababa ng 10% ang bilis ng galaw nang 0.4 seg
+9011	Lakas ng sunog +8%/Lv, tagal ng sunog +0.25 seg/Lv. Kaya ring manunog ng card na ito mag-isa kapag tumama (tsansa 7% sa Lv1, tapos +2%/Lv)
+9012	Sumasabog ang natalong kalaban sa paligid. Sumasabog din ang kalabang natalo ng pagsabog, hanggang 3 antas. Isang beses lang tatamaan ang bawat kalaban sa bawat kadena
+9013	Gumagana kapag 100% ang Gauge (button sa kaliwang ibaba). Sa natatanging special move ng karakter, isang tamaan lang ang mga karaniwang kalaban sa screen, at 20〜40% ng max HP ang damage sa boss (tumataas sa Lv). Tapos malaki ang pag-abante (Lv1 300m → Lv9 1000m; humihinto bago ang boss gate atbp., hindi umaabante habang may boss fight), at tatagal ang buff nang ilang sandali (Lv1 5 seg → Lv9 12 seg). Napupuno ang Gauge sa layo, pagpatay, at damage sa boss
+9014	Kapag tumama ang pantapos ng serye ng atake, may dagdag na shockwave pasulong (tumataas ang lakas at saklaw sa Lv)
+9015	Huling hampas (pantapos) ng sunod-sunod na atake sa harap/likod +7%/Lv
+9016	Kapag sinangga ng Shield ang atake, may ganting shockwave sa paligid. Tumataas ang lakas sa Lv. Nagbibigay rin ang card na ito ng 1 Shield
+9017	Atake +12%/Lv. Pero sine-selyuhan ang puso ng max HP (1 sa Lv1〜2, tapos +1 bawat 2 Lv; 5 sa Lv9)
+9018	Nagiging elite ang ilang alipores (+4% bawat Lv. HP×2.5・medyo mabilis; kapag natalo: MILE×3/EXP×2). Dumarami rin ang MILE (+30%/Lv)
+9019	MILE mula sa pagtalo ng kalaban +15%/Lv. Kasama rin ang gantimpalang MILE ng BONUS ZONE at PINAGHAHANAP
+9020	Bumababa ang EXP na nakukuha (-10%/Lv, minimum 25% ng normal), kapalit ng MILE sa kalaban at BONUS +30%/Lv
+9021	Malaking dagdag sa EXP mula sa kalaban, boss, at BONUS ZONE (+80%/Lv). Hindi kasama ang EXP sa layo ng takbo
+9022	May tsansang masunog ang tinamaang kalaban, may damage nang 3 seg. Lv1: tsansa 15%, 5 damage/seg; tapos bawat Lv tsansa +5%, damage/seg +1.5
+9023	Kapag sinangga ng Shield ang atake, may ganting apoy sa paligid na sumusunog sa tinamaang kalaban. Tumataas ang lakas sa Lv. Nagbibigay rin ang card na ito ng 1 Shield
+9024	Pinalalamig at pinababagal ang kalaban kapag tumama. Lv1: tsansa 15%, bagal 25%. Bawat Lv tsansa +5%, bagal +2%. Kapag 5 beses naipon ang lamig, nagyeyelo (hindi tumitigil ang boss, bumabagal lang)
+9025	Minsan lumalabas ang talim ng hangin kapag tumama. Bilis ng talim ng hangin +5%/Lv, layo +0.4m/Lv. Pagtagos ng talim ng hangin at projectile +1 (+2 mula Lv4, +3 mula Lv7)
+9026	Sa paglapag ng bagsak o sa pantapos sa lupa, may shockwave na gumagapang sa lupa (tumataas ang lakas at haba sa Lv). Atake sa lupa +2%/Lv rin
+9027	Atake +4%/Lv. Bawat 1 selyadong puso, atake +0.6%/Lv pa (kasama ang selyo mula sa ibang card). Sine-selyuhan din nito ang puso ng max HP (1 sa Lv1〜3, 2 sa Lv4〜6, 3 sa Lv7〜9)
+9028	Max HP +1 puso/Lv (max 20 puso). Buong naibabalik ang HP kapag nakuha
+9029	Ang damage na 2 puso pataas ay binabawasan ng 1 puso. Dumarami rin ang max HP (+1 puso sa Lv1〜2, tapos +1 bawat 2 Lv). Lakas ng talon -3%/Lv
+9030	Pababang atake at paglapag ng bagsak +10%/Lv. Pantapos +3%/Lv rin
+9031	HP ng alipores +12%/Lv, bilis ng kilos +4%/Lv, dalas ng paglitaw +8%/Lv. Kapalit: MILE sa kalaban at BONUS +50%/Lv, boss-defeat MILE +30%/Lv
+9032	Dalas ng paglitaw ng kalaban +15%/Lv. Kapalit: MILE sa kalaban at BONUS +5%/Lv, EXP sa kalaban at BONUS +5%/Lv
+9033	Sa boss fight, layo ng abante/atras kapag umaatake +4%/Lv. Bilis ng galaw palapit sa boss na lampas 6m ang layo +3%/Lv rin
+9034	Minsan nagbibigay ng lamig kapag tumama. Bumababa ang bilang ng lamig para magyelo (4 sa Lv1〜3, 3 sa Lv4〜6, 2 sa Lv7〜9). Tumataas din ang tsansa at tagal ng lamig
+9035	Kapag natalo ang nasusunog na kalaban, kumakalat ang apoy sa paligid at sinusunog ang kalaban (tumataas ang lakas at saklaw sa Lv). Kaya ring manunog ng card na ito mag-isa sa mababang tsansa (5%)
+9036	Talon sa ere +1/Lv. Humihina ang pag-angat habang dumarami ang dagdag na talon, pero hindi kapag nahuhulog sa butas. Salamangkera: max na taas +1 antas sa Lv1〜3, +2 sa Lv4〜6, +3 sa Lv7〜9
+9037	Sa sandaling bumaba ang HP sa 1 puso o mas mababa dahil sa damage, sandaling invincible (1 seg + 0.15 seg/Lv). Hindi nito napipigilan ang damage sa pagkahulog. Gagana ulit kapag bumalik ang HP nang higit sa 1 puso at lumipas ang 20 seg mula nang gumana
+9038	EXP na nakukuha +30%/Lv
+9039	Abot ng atake +5%/Lv. Lumalawak ang tama ng malapitang atake, at humahaba ang lipad ng projectile
+9040	EXP na nakukuha +15%/Lv. Dumarami rin ang max HP (+1 puso sa Lv1〜3, +2 sa Lv4〜6, +3 sa Lv7〜9)
+9041	Atake sa kalabang hindi boss +5%/Lv. MILE sa kalaban at BONUS +10%/Lv
+9042	Tumataas ang atake ayon sa bilis ng takbo. Walang epekto sa 100km/h pababa. +4%/Lv sa 150km/h; tumataas pa lampas doon pero 1/4 lang ang dagdag
+9043	Dalas ng paglitaw ng kalaban +10%/Lv. Kapalit: EXP na nakukuha +15%/Lv
+9044	Dalas ng paglitaw ng kalaban +10%/Lv. MILE sa kalaban at BONUS +3%/Lv rin
+9045	Bilis ng galaw +5%/Lv. Pero dalas ng paglitaw ng kalaban +10%/Lv rin
+9046	MILE sa kalaban at BONUS +50%/Lv, boss-defeat MILE +50%/Lv, EXP na nakukuha +20%/Lv
+9047	Panatilihin ang 115km/h pataas nang ilang sandali para sa OVERDRIVE (atake +3%/Lv, bilis ng atake +2%/Lv). Natatapos kapag 0.8 seg na mas mababa sa 107km/h. Bilis ng galaw laging +2%/Lv
+9048	Dumarami ang lunas mula sa pagsipsip at PANIBAGONG HININGA (+1 puso sa Lv4〜6, +2 sa Lv7〜9). Ang sobra kapag puno ang HP ay nagiging 1 Shield (hanggang max +1)
+9049	HP ng alipores +15%/Lv, bilis ng kilos +5%/Lv, dalas ng paglitaw +12%/Lv, tsansa ng elite +2%/Lv, HP ng boss +10%/Lv. Kapalit: MILE sa kalaban at BONUS +60%/Lv, boss-defeat MILE +60%/Lv
+9050	EXP sa layo ng takbo +20%/Lv. Hindi kasama ang EXP sa pagtalo ng kalaban
+9051	Kapag sinangga ng Shield ang tama, sandaling invincible (0.4 seg + 0.1 seg/Lv). Nagbibigay rin ang card na ito ng 1 Shield
+9052	Nabubuhay muli kapag natalo (kasama ang pagkahulog) at invincible nang 2 seg (HP 1〜5 puso ayon sa Lv). Pagkabuhay, natatanggal ang card na ito at puwedeng lumabas ulit bilang pagpipilian (magsisimula ulit sa Lv1)
+9053	Kapag tumama ang malapitang atake, may dagdag na damage din sa mga kalaban sa likod nito. Tumataas ang lakas at bilang ng target sa Lv. Dumarami rin ang pagtagos ng projectile (+1 sa Lv1〜3, +2 sa Lv4〜6, +3 sa Lv7〜9)
+9054	Tsansang gumaling ng 1 puso kapag nakatalo ng kalaban +3%/Lv. Kapag tumama sa boss, may maliit ding tsansang sumipsip ng HP
+9055	Kapag tinamaan at 30% ng max o mas mababa ang HP, gagaling ng 1〜3 puso (2 sa Lv5, 3 sa Lv9). Para gumana ulit, kailangang tumakbo ng takdang layo (10,000m sa Lv1, 6,000m sa Lv9)
+9056	Shield na sumasangga ng 1 tama. Max 1 sa Lv1〜3, 2 sa Lv4〜6, 3 sa Lv7〜9. Isa-isang bumabalik ang nagamit habang tumatagal (bumibilis sa Lv)
+9057	Atake sa ere +4%/Lv. Kapag tumama sa ere, bumabalik ang 1 nagamit na talon sa ere (bago lumapag: hanggang 1 sa Lv1〜3, 2 sa Lv4〜6, 3 sa Lv7〜9)
+9058	Lakas ng talon +2%/Lv, atake sa ere +3%/Lv
+9059	Ang atake sa harap/likod ay nagpapalipad ng tumatagos na hiwa pasulong. Habang bumibilis ang takbo, lumalayo, lumalaki, at lumalakas ang hiwa
+9060	Bilis ng galaw -4%/Lv. Espesyal na card para tumakbo nang mas mabagal
+9061	EXP na nakukuha +40%/Lv. Dumarami rin ang max HP (+1 puso sa Lv1〜2, tapos +1 bawat 2 Lv; +5 sa Lv9)
+9062	May mababang tsansang tumama ang kidlat kapag tumama ka. Lakas ng kidlat +4%/Lv, kadena +1 kalaban sa Lv1〜3, +2 sa Lv4〜6, +3 sa Lv7〜9. May damage rin sa paligid ng kidlat
+9063	Tumatama ang kidlat kapag tumama ang atake. Lv1: tsansa 5%, base na lakas 7.5; tapos bawat Lv tsansa +2%, base na lakas +1.5. Isang kidlat lang bawat 0.4 seg sa iisang kalaban
+9064	Kung saan tumama ang talim ng hangin, may buhawing nagbibigay ng tuloy-tuloy na damage sa kalapit na kalaban (tumataas ang lakas at saklaw sa Lv). Kaya ring magpalabas ng card na ito ng talim ng hangin sa mababang tsansa
+9065	HP ng alipores +15%/Lv. Kapalit: MILE sa kalaban at BONUS +15%/Lv, EXP sa pagtalo ng kalaban +5%/Lv
+9066	MILE sa yaman/gantimpala +30%/Lv (yaman at TAGUMPAY/PERPEKTO ng BONUS ZONE, pabuya ng PINAGHAHANAP). Boss-defeat MILE +10%/Lv, MILE sa layo ng takbo +5%/Lv
+9067	Atake +3%/Lv, bilis ng galaw +2%/Lv. Dumarami rin ang max HP (+1 puso sa Lv1〜2, tapos +1 bawat 2 Lv; +5 sa Lv9)
+9068	Bawat takdang layo, may lumilitaw na may patong sa ulo (lumalakas at dumadalas sa Lv). Talunin para sa pabuyang MILE; kapag iniwan, walang pabuya. MILE sa kalaban at BONUS +35%/Lv
+9069	May tsansang lumipad ang tumatagos na talim ng hangin pasulong kapag tumama. Lv1: tsansa 10%, lakas 8; tapos bawat Lv tsansa +3%, lakas +1.5. Bahagyang lumalawak din ang abot ng atake (+1%/Lv)
+9070	Kalaban: maraming kalaban mula sa ilang, kuweba, at langit
+9071	Kalaban: Goblin / Harpy / Gargoyle, atbp.
+9072	Kalaban: Goblin, ibon, malalaki, mamamana, atbp.
+9073	Hadlang: bato・puno・pader・higanteng bato (nasisira sa atake)・butas
+9074	Ruta: may sanga sa taas at baba (random ang ligtas/delikado)
+9075	Binura ang lahat ng kalaban at atake nila (hindi itatala ang lahat-talo at oras)
+9076	Natalo lahat ng kalaban  {0} seg
+9077	Sa Laban
+9078	Build na Subok ({0} uri)
+9079	Lv = ilang beses nakuha sa run (max 9 bawat kakayahan). Hindi nagbabago ang hawak at deck
+9080	Kinopya ang {0} card ng deck sa build na subok (hindi nagbago ang deck)
+9081	Kinopya ang {0} character card sa build na subok (Lv sa simula)
+9082	Lilitaw ang boss mula sa harap gamit ang parehong entrance effect ng main game
+9083	Ang atake ng boss ng kuweba/langit na gumagamit ng lupain (butas, kisame, nahuhulog na bato, atbp.) ay iba ang labas sa patag na Arena
+9084	Kasalukuyang kalaban ({0} grupo)
+9085	HP ng kalaban: katumbas ng {0}km (para sa HP ng alipores at boss)
+9086	Takbo (may bonus)
+9087	Ang awtomatikong takbo lang ang titigil (atake, talon, gravity, pagkagulat, at galaw ng kalaban ay gaya ng sa main game)
+9088	Inilalapat ang bonus sa bilis ng karakter/card sa base na bilis
+9089	Binabalewala ang bonus sa bilis ng karakter/card at tumatakbo sa itinakdang bilis
+9090	Itinakda {0}km/h / Laban na ito {1}km/h (bonus ×{2})
+9091	Kahit invincible, naitatala pa rin sa "tunay na damage na natanggap" sa resulta
+9092	AUTO mode (sa Arena lang; hindi nagbabago ang normal na setting)
+9093	Simula {0}km/h pataas
+9094	Walang magbabago sa gantimpala, rekord, at hawak. Hindi suportado: FINAL EVOLUTION / AWAKENED / MASTERY / gauge ng ULTIMATE / level up / gantimpala ng boss / BONUS ZONE (normal na epekto ng Lv at COMBO lang ang card)
+9095	Unang Laban
+9096	Lakas ng boss: {0}
+9097	Lahat-talo {0} seg
+9098	Natalo/Lumitaw
+9099	Aktwal na damage na natanggap
+9100	Tunay na damage na natanggap (kasama ang nasangga ng invincible/Shield)
+9101	N0
+9102	Build na Subok: {0}
+9103	I-edit ang kondisyon
+9104	？？？(hindi pa nakikita)
+9105	WARNING!  Paparating ang MECH DRAGON!
+9106	PROTOKOL NG PAGLIPOL
+9107	Nagpapalamig! Pagkakataong umatake!
+9108	Hindi puwedeng materyal: ginagamit sa deck/character card
+9109	AWAKENED (★5) na. Hindi na mapapalakas ang MASTERY
+9110	Hindi ma-fusion: kapag parehong nagtagumpay, magiging Lv{0} (max Lv.{1})
+9111	<color=#ffd76a><b>[MASTERY] Rekord ng pagsasanay matapos ang Lv.9 MAX</b></color>
+9112	Kasalukuyang MASTERY: <color=#ffd76a>{0}</color>  {1}
+9113	<size=19>Itatabi bilang rekord ang MASTERY {0} na lampas sa ★5</size>
+9114	<size=19>Hindi pinalalakas ng MASTERY ang normal na stats (atake, bilis, EXP, atbp.). Rekord ito ng pagsasanay hanggang maging AWAKENED sa ★5.</size>
+9115	Ang <b>{0} Lv</b> na lampas sa Lv.9 ay mapupunta sa MASTERY: {1} → <color=#ffd76a>{2}</color>{3}
+9116	・{0} {1}<b>×{2}</b>  <size=18>({3})</size>
+9117	<color=#9fd0ff><b>[Magkaibang Card] Bunutan ang resulta ng fusion ng magkaibang card</b></color>
+9118	<b>Tsansang mamana ang lahat ng kakayahan ng pangunahin {0}%</b>
+9119	・{0} ×{1}  <size=18>({2})</size>
+9120	<b>Tsansang mamana ang lahat ng kakayahan ng materyal {0}%</b>
+9121	Parehong tagumpay: mamanahin ang lahat ng kakayahan ng dalawa (pinagsasama ang dagdag ng parehong kakayahan). Pambihira = mas mataas na ★ +1 (max ★5)
+9122	Kulang ang bakanteng card para sa fusion (ginagamit sa deck/character card)
+9123	Naka-equip sa character card, kulang ang bakante
+9124	Kulang ang bilang dahil ginagamit sa deck
+9125	<size=21>Naitabi bilang rekord ang MASTERY {0} na lampas sa ★5</size>
+9126	<size=21>Naabot ang AWAKENED. Naitala bilang rekord ng pagsasanay; hindi nagbabago ang normal na stats</size>
+9127	<size=21>Hindi pinalalakas ng MASTERY ang normal na stats (atake, bilis, EXP, atbp.).</size>
+9128	)}    Pambihira <color=#ffd76a>{new string('★', v.rarity)}</color>
+9129	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3})</color></size>
+9130	Ipinapakita {0} / Hawak {1} card
+9131	・Magkaibang card … pangunahin 50%, materyal 25%: bawat isa ay may tsansang mamana ang buong set ng kakayahan (bunutan). Kapag isa lang ang nagtagumpay, Lv at kakayahan lang ng panig na iyon ang matitira; kapag parehong bigo, walang card na mabubuo (ibabalik ang MILE)
+9132	・Max Lv ng fusion ay Lv.9. Ang sobra sa fusion ng parehong card ay mapupunta sa MASTERY. Hindi ma-fusion ang magkaibang card kapag lampas 9 ang kabuuang Lv
+9133	・Kapag ni-fusion ang parehong card sa Lv.9 MAX na card, aabante ang MASTERY (★5 = AWAKENED)
+9134	<size=19>AWAKENED (★5) na. Hindi na puwede ang MASTERY fusion.</size>
+9135	Kapag ginawang materyal ang parehong card ({0}), aabante ang MASTERY ayon sa Lv ng materyal (Lv.1 = +1).
+9136	Humina ang mata! Pagkakataong umatake!
+9137	Lantad ang core! Pagkakataong mag-BREAK!
+9138	Dalas ng Paglitaw ng Kalaban
+9139	MILE sa Kalaban at BONUS
+9140	Boss-defeat MILE
+9141	Tsansa ng Sunog
+9142	Base na Lakas ng Sunog
+9143	Tsansa ng Lamig
+9144	Bagal Dahil sa Lamig
+9145	Tsansa ng Pagdurugo
+9146	Bilis ng Atake sa Harap/Likod
+9147	Atake sa Ere
+9148	Atake sa Lupa
+9149	Pantapos ng Sunod-sunod na Atake
+9150	Atake sa Alipores
+9151	Pababang Atake/Bagsak
+9152	Bilis ng Atake sa HP 50% Pababa
+9153	Atake bawat Sunod na HIT
+9154	Atake bawat Tama sa Ere Bago Lumapag
+9155	Mas Mabilis na Balik ng Shield (seg)
+9156	Bilis ng Kilos ng Kalaban
+9157	Tsansa ng Paglitaw ng Elite
+9158	MILE sa Layo ng Takbo
+9159	EXP sa Layo ng Takbo
+9160	EXP sa Pagtalo ng Kalaban
+9161	Bawas sa Bilang Hanggang Magyelo
+9162	Multiplier ng Damage ng Kidlat
+9163	)} character card
+9164	I-tap para tanggalin
+9165	[Naka-equip sa ibang karakter]
+9166	Hindi mako-convert ang card na ginagamit. Tanggalin muna ito sa deck o character card.
+9167	I-convert ang 1 card na ito sa {CardConvertMile} MILE?
+9168	)} {BleedPower * Scale:0.#}/s sipsip{BleedLifesteal * 100f:0}%
+9169	(AWAKENED na)
+9170	I-tap para isara / I-tap ang gacha para humugot ulit
+9171	Kapag tinanggap: normal {0} MILE + dagdag {1} MILE = kabuuan {2} MILE
+9172	Ubos na ang hugot ngayong araw (babalik sa loob ng {0})
+9173	Reset ng bilang sa loob ng {0}
+9174	Maiuuwi sa run na ito
+9175	Hawak pagkatapos tumakas
+9176	Kapag natalo ka o tinalikuran ang run, hindi mo makukuha ang MILE ng run na ito
+9177	BAGO:
+9178	DEV: hindi itatala (
+9179	Hindi maitatala ang layo ng run na ito sa opisyal na rekord (BEST, kabuuang layo, pag-unlock ng mapa/karakter)
+9180	Selyo {0}
+9181	I-RESET ANG MILE
+9182	I-RESET ANG CARD
+9183	Itatapon ang naka-pause na run at ang
+9184	Maiuuwing MILE
+9185	Babalik sa Home.
+9186	Hindi matatapos ang run, at puwede kang
+9187	Hindi ma-equip ang {0}: lalampas sa Lv{1} kasama ang ibang character card
+9188	Paalala: lalampas sa Lv{1} ang {0} sa kabuuan ng character card (walang epekto ang sobrang {2} Lv)
+9189	IRENE
+9190	ESTELLE
+9191	ALICIA
+9192	Inihahanda ang ad. Maghintay sandali at subukan ulit
+9193	TEST AD (simulation) Ad na may gantimpala
+9194	TEST AD (simulation) Interstitial na ad
+9195	{0} seg
+9196	Natugunan ang kondisyon ng gantimpala
+9197	Isara sa gitna
+9198	Simulation ng pagka-interrupt ng app
+9199	¥(simulation) 000
+9200	Simulation (dev version lang): hindi tunay na pagbili. Hiwalay itong naka-save sa tunay na karapatan sa binili
+9201	・Naka-link ang binili sa store account mo. Pagkatapos magpalit ng device o mag-reinstall, ibalik gamit ang "I-restore ang Binili". Hindi naibabalik ng button na ito ang save data gaya ng card at MILE
+9202	Hindi makumpirma ang pagbili. Aktibo pa rin ang pass; susuriin ulit mamaya
+9203	OMMLAN
+9204	SYNC
+9205	ONLINE NA LARO
+9206	Gumawa ng room at ipakita ito sa online na "MAGHANAP NG LARO".
+9207	Gumawa ng room sa device na ito. Makakasali ang mga device sa parehong Wi-Fi gamit ang "MAGHANAP NG LARO".
+9208	HINDI AVAILABLE ANG ONLINE SERVICE
+9209	DEV:
+9210	SUBUKAN ULIT
+9211	Naghahanap ng kalapit na room…
+9212	DEV
+9213	Kapag kumpleto na: "Isara (mananatili ang room)" → pinto → "Lumarga" sa PUMILI NG MAPA, at sabay-sabay magsisimula ang lahat sa parehong mapa.
+9214	CO-OP: Kapag natalo, DOWN. Mabubuhay ka kapag ang kakampi (2 puso pataas) na nakarating sa lugar mo ay nagbigay ng 1 puso gamit ang REVIVE. Tapos kapag DOWN lahat.
+9215	MODE: pinipili ng HOST (para sa lahat pagsimula ng run)
+9216	Pinto sa Home → "Lumarga" sa PUMILI NG MAPA, at sabay-sabay magsisimula ang lahat ng nakakonekta sa parehong mapa.
+9217	REVIVE
+9218	Hindi masimulan ang koneksyon. Subukan ulit o i-restart ang app
+9219	Hindi makagawa ng room (baka may ibang app na gumagamit ng network)
+9220	Nadiskonekta si P{0} ({1} na lang ang natitira)
+9221	Nadiskonekta si {0}
+9222	Nadiskonekta ang kalabang player
+9223	Hindi makasali: magkaiba ang bersyon ng laro. I-update pareho sa pinakabago
+9224	Hindi makasali: nagsimula nang tumakbo ang room na ito
+9225	Hindi makasali: puno na ang room
+9226	Tinanggihan ang koneksyon
+9227	Ikaw: hindi pa lumalabas ang rekord mo sa ranking
+9228	AUTO
+9229	Sprint
+9230	Itigil ang pagpapadala ng rekord
+9231	UGS
+9232	Pumili ng card
+9233	Piliin ulit para kumpirmahin
+9234	Pumili ng card → piliin ulit para kumpirmahin
+9235	Naabot! Makukumpirma kapag matagumpay na natapos ang run
+9236	Kapag umabot sa simulang bilis ang takbo, ang mga aksyong naka-ON lang ang awtomatikong gagawin.
+9237	Inuuna ang manual na kontrol. Kung OFF ang "AUTO pati sa boss", walang awtomatikong kontrol habang may boss fight.
+9238	Naka-link ang pass sa store account mo (hindi naibabalik ng I-restore ang Binili ang save data)
+9239	Sanayin ang atake sa harap/likod, talon, pababang atake, pag-angat, at pagpili ng card (walang gantimpala at rekord).
+9240	Sa Home lang masisimulan ang pagsasanay (hindi habang nakakonekta sa multi)
+9241	Lumalapit ang Titan! Pagkakataong umatake!
+9242	Dumilim ang core! Pagkakataong mag-BREAK!
+9243	Nadulas sa paglapag! Pagkakataong umatake!
+9244	Lumabas ang ulo sa ulap! Pagkakataong umatake!
+9245	Nawala ang halo! Malaking pagkakataon!
+9246	Nawala ang kuryente! Pagkakataong umatake!
+9247	Sprint na Larga (sa {0})
+9248	Mabilis na tatakbuhin ang mga natapos nang bahagi, at magsisimula ka bago lang ng napiling gate. Random at awtomatikong makukuha ang mga card ng gantimpala ng boss. Itugma ang taas (itaas/ibaba) sa ring bawat 5,000m para pumili ng 1 pang card. Walang MILE/EXP sa nilaktawang layo.
+9249	Sprint hanggang {0}km   (~{1} seg + pagpili ng card sa ring){2}
+9250	Hindi pa natatalo ang gate boss sa {0}km
+9251	Lv9 na ang lahat ng card sa deck sa run na ito.
+9252	Gate {0}/{1}    Ring {2}/{3}{4}
+9253	Nadaanang gate {0}/{1}   Ring {2}/{3}{4}
+9254	Lahat ng card sa deck sa run Lv{0} MAX
+9255	Gate na walang nakuhang card: {0}
+9256	Lv9 na ang lahat ng card sa deck sa run na ito. Ang gantimpala ng ring ay maiuuwing MILE
+9257	(Hindi rin maitatala ang BEST na layo)
+9258	Sa Pumili ng Mapa
+9259	12 card na ang max ng deck
+9260	OVERFLOW

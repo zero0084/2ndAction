@@ -15,8 +15,7 @@ MonoBehaviour:
   cardId: phoenix
   cardName: PHOENIX
   icon: {fileID: 2800000, guid: 8b2febef771f3c24c98d7d1854a8f66f, type: 3}
-  description: "\u5012\u308C\u305F\u6642\u306B\u4E00\u5EA6\u3060\u3051\u5FA9\u6D3B(HP\u306FLv\u3067
-    \u30CF\u30FC\u30C81\u301C5)\u3002\u5FA9\u6D3B\u3059\u308B\u3068\u3053\u306E\u30AB\u30FC\u30C9\u306F\u5916\u308C\u3001\u307E\u305F\u5019\u88DC\u306B\u51FA\u308B(\u53D6\u308A\u76F4\u3057\u306FLv1\u304B\u3089)"
+  description: "倒れた時(落下も含む)に復活し、2秒間無敵になる(HPはLvでハート1〜5)。復活するとこのカードは外れ、また候補に出る(取り直しはLv1から)"
   category: 4
   sortOrder: 161
   recommendPriority: 5

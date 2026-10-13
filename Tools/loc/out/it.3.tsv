@@ -1,0 +1,261 @@
+9000	I colpi possono raffreddare. I nemici congelati subiscono danni extra. Attacco contro nemici raffreddati/congelati +3%/Lv. Il congelamento dura di più e il rallentamento sui boss è più forte
+9001	Con HP al 50% o meno, velocità d'attacco +3%/Lv. Con HP al 25% o meno, il bonus raddoppia (+6%/Lv)
+9002	Colpendo in aria, nel punto d'impatto parte un fendente di inseguimento ad area. Il Lv aumenta danno e area
+9003	Attacco in aria +3%/Lv. Ogni colpo senza atterrare aggiunge +1%/Lv (max 4 volte). Atterrando, il bonus extra si azzera
+9004	Più attacco contro i nemici in aria (comuni lanciati/volanti; tra i boss, solo Drago e Demone) (+8%/Lv)
+9005	Area d'attacco +3%/Lv. Il corpo a corpo colpisce un'area più ampia, i proiettili volano più lontano (la dimensione del proiettile non cambia)
+9006	Con HP al 50% o meno, attacco +5%/Lv e velocità d'attacco +2%/Lv. Con HP al 25% o meno, entrambi i bonus raddoppiano
+9007	Attacco +6%/Lv, velocità d'attacco +1%/Lv. Però sigilla cuori degli HP massimi (1 a Lv1–3, 2 a Lv4–6, 3 a Lv7–9)
+9008	Con HP al 50% o meno, attacco +4%/Lv. Con HP al 25% o meno, anche la prob. di assorbimento sconfiggendo nemici/boss (cura 1 cuore) +3%/Lv
+9009	Ai varchi boss normali, probabilità (8%/Lv) che si aggiunga un altro boss. MILE dai boss sconfitti +50%/Lv. Non vale per i boss speciali ogni 10km né per l'assalto di boss del dungeon finale
+9010	Attacco +7%/Lv. Però ogni attacco avanti/indietro riduce la velocità di movimento del 10% per 0,4 s
+9011	Danno bruciatura +8%/Lv, durata bruciatura +0,25 s/Lv. Anche da sola, questa carta brucia colpendo (prob. 7% a Lv1, poi +2%/Lv)
+9012	Sconfiggere un nemico genera un'esplosione attorno. Anche i nemici sconfitti dall'esplosione esplodono, fino a 3 stadi. Ogni nemico è colpito 1 sola volta per catena
+9013	Si attiva con la Gauge al 100% (pulsante in basso a sinistra). La mossa speciale del personaggio sconfigge in un colpo i nemici comuni a schermo e infligge ai boss il 20–40% degli HP massimi (sale col Lv). Poi avanza molto (Lv1 300m → Lv9 1000m; si ferma prima dei varchi boss ecc. e non avanza durante le battaglie coi boss) e resta un potenziamento per un po' (Lv1 5 s → Lv9 12 s). La Gauge si carica con distanza, uccisioni e danni ai boss
+9014	Quando il colpo finale di una sequenza d'attacchi va a segno, parte un impatto extra in avanti (il Lv aumenta danno e area)
+9015	Attacco dell'ultimo colpo (colpo finale) quando concateni attacchi avanti/indietro +7%/Lv
+9016	Parando un attacco con lo Shield, parte un'onda d'urto di contrattacco attorno. Il Lv aumenta il danno. Anche da sola, questa carta dà 1 Shield
+9017	Attacco +12%/Lv. Però sigilla cuori degli HP massimi (1 a Lv1–2, poi 1 in più ogni 2 Lv; 5 a Lv9)
+9018	Alcuni nemici comuni diventano d'élite (+4% per Lv; HP×2.5, un po' più veloci, sconfitti danno MILE×3/EXP×2). Anche più MILE (+30%/Lv)
+9019	MILE dai nemici sconfitti +15%/Lv. Vale anche per le MILE premio di BONUS ZONE e RICERCATO
+9020	Riduce l'EXP ottenuta (-10%/Lv, minimo il 25% del normale); in cambio, MILE da uccisioni e BONUS +30%/Lv
+9021	L'EXP da uccisioni, boss sconfitti e BONUS ZONE aumenta molto (+80%/Lv). Non vale per l'EXP da distanza
+9022	Può incendiare il nemico colpito, infliggendo danni per 3 s. A Lv1: prob. 15% e 5 danni/s; ogni Lv: prob. +5% e danni/s +1,5
+9023	Parando un attacco con lo Shield, parte un contrattacco di fuoco attorno che incendia i nemici colpiti. Il Lv aumenta il danno. Anche da sola, questa carta dà 1 Shield
+9024	I colpi possono raffreddare e rallentare il nemico. A Lv1: prob. 15% e rallentamento 25%; ogni Lv: prob. +5% e rallentamento +2%. 5 raffreddamenti accumulati congelano (i boss non si fermano, rallentano)
+9025	I colpi possono lanciare una lama di vento. Velocità lama +5%/Lv, gittata +0,4m/Lv. Lame di vento e proiettili perforano +1 (+2 da Lv4, +3 da Lv7)
+9026	L'atterraggio dello schianto o il colpo finale a terra genera un'onda d'urto sul terreno (il Lv aumenta danno e lunghezza). Anche l'attacco a terra +2%/Lv
+9027	Attacco +4%/Lv. Per ogni cuore sigillato, altro attacco +0,6%/Lv (contano anche i sigilli di altre carte). Sigilla anche cuori degli HP massimi (1 a Lv1–3, 2 a Lv4–6, 3 a Lv7–9)
+9028	HP massimi +1 cuore/Lv (limite 20 cuori). Ottenendola, recuperi tutti gli HP
+9029	Se subisci danni da 2 cuori o più, li riduce di 1 cuore. Aumentano anche gli HP massimi (+1 cuore a Lv1–2, poi +1 ogni 2 Lv). Salto -3%/Lv
+9030	Attacco in basso e atterraggio dello schianto +10%/Lv. Anche il colpo finale +3%/Lv
+9031	HP dei nemici comuni +12%/Lv, velocità d'azione +4%/Lv, frequenza dei gruppi +8%/Lv. In cambio, MILE da uccisioni e BONUS +50%/Lv, MILE dai boss sconfitti +30%/Lv
+9032	I gruppi di nemici compaiono più spesso (+15%/Lv). In cambio, MILE da uccisioni e BONUS +5%/Lv, EXP da uccisioni e BONUS +5%/Lv
+9033	Nelle battaglie coi boss, scatto avanti/indietro quando attacchi +4%/Lv. Anche la velocità per avvicinarti a boss oltre i 6m +3%/Lv
+9034	I colpi possono raffreddare. Servono meno raffreddamenti per congelare (4 a Lv1–3, 3 a Lv4–6, 2 a Lv7–9). Aumentano anche prob. e durata del raffreddamento
+9035	Sconfiggere un nemico in fiamme diffonde il fuoco attorno e incendia i nemici (il Lv aumenta danno e area). Anche da sola, questa carta ha una bassa prob. (5%) di incendiare colpendo
+9036	Salti in aria +1/Lv. I salti extra di fila salgono meno, ma non si indeboliscono mentre cadi in un buco. Per l'Incantatrice, l'altezza massima sale di 1 livello a Lv1–3, 2 a Lv4–6 e 3 a Lv7–9
+9037	Quando un danno porta gli HP a 1 cuore o meno, diventi invulnerabile per poco (1 s +0,15 s/Lv). Non protegge dalle cadute. Si riattiva solo quando gli HP tornano sopra 1 cuore e dopo 20 s dall'attivazione
+9038	EXP ottenuta +30%/Lv
+9039	Area d'attacco +5%/Lv. Il corpo a corpo colpisce un'area più ampia, i proiettili volano più lontano
+9040	EXP ottenuta +15%/Lv. Aumentano anche gli HP massimi (+1 cuore a Lv1–3, +2 a Lv4–6, +3 a Lv7–9)
+9041	Attacco contro i nemici non boss +5%/Lv. MILE da uccisioni e BONUS +10%/Lv
+9042	L'attacco cresce con la velocità di corsa. Nessun effetto fino a 100km/h. +4%/Lv a 150km/h; oltre continua a salire, ma a 1/4 del ritmo
+9043	I gruppi di nemici compaiono più spesso (+10%/Lv). In cambio, EXP ottenuta +15%/Lv
+9044	I gruppi di nemici compaiono più spesso (+10%/Lv). Anche MILE da uccisioni e BONUS +3%/Lv
+9045	Velocità di movimento +5%/Lv. Però anche i gruppi di nemici compaiono più spesso (+10%/Lv)
+9046	MILE da uccisioni e BONUS +50%/Lv, MILE dai boss sconfitti +50%/Lv, EXP ottenuta +20%/Lv
+9047	Mantenere 115km/h o più per un po' attiva l'OVERDRIVE (attacco +3%/Lv, velocità d'attacco +2%/Lv). Termina dopo 0,8 s sotto i 107km/h. Velocità di movimento sempre +2%/Lv
+9048	Aumenta la cura di assorbimento e SECONDO RESPIRO (+1 cuore a Lv4–6, +2 a Lv7–9). L'eccesso a HP pieni diventa 1 Shield (fino al massimo +1)
+9049	HP dei nemici comuni +15%/Lv, velocità d'azione +5%/Lv, frequenza dei gruppi +12%/Lv, prob. élite +2%/Lv, HP dei boss +10%/Lv. In cambio, MILE da uccisioni e BONUS +60%/Lv, MILE dai boss sconfitti +60%/Lv
+9050	EXP da distanza +20%/Lv. Non vale per l'EXP da uccisioni
+9051	Parando un colpo con lo Shield diventi invulnerabile per poco (0,4 s +0,1 s/Lv). Anche da sola, questa carta dà 1 Shield
+9052	Quando cadi (anche nei buchi) risorgi e sei invulnerabile per 2 s (HP da 1 a 5 cuori in base al Lv). Dopo la resurrezione la carta viene rimossa e torna tra le scelte (si riparte da Lv1)
+9053	I colpi corpo a corpo infliggono danni extra anche ai nemici dietro il bersaglio. Il Lv aumenta danno e numero di bersagli. Anche i proiettili perforano di più (+1 a Lv1–3, +2 a Lv4–6, +3 a Lv7–9)
+9054	Prob. di curare 1 cuore sconfiggendo nemici +3%/Lv. Anche colpendo i boss c'è una bassa prob. di assorbire HP
+9055	Se un colpo porta gli HP al 30% del massimo o meno, curi da 1 a 3 cuori (2 a Lv5, 3 a Lv9). Per riattivarla devi correre una certa distanza (10.000m a Lv1, 6.000m a Lv9)
+9056	Shield che blocca 1 colpo. Massimo: 1 a Lv1–3, 2 a Lv4–6, 3 a Lv7–9. Quelli usati tornano uno alla volta col tempo (più in fretta col Lv)
+9057	Attacco in aria +4%/Lv. Colpire in aria restituisce 1 salto in aria usato (prima di atterrare: 1 volta a Lv1–3, 2 a Lv4–6, 3 a Lv7–9)
+9058	Salto +2%/Lv, attacco in aria +3%/Lv
+9059	Gli attacchi avanti/indietro lanciano in avanti un fendente che trapassa i nemici. Più corri veloce, più crescono gittata, dimensione e danno del fendente
+9060	Velocità di movimento -4%/Lv. Carta speciale per quando vuoi correre più piano
+9061	EXP ottenuta +40%/Lv. Aumentano anche gli HP massimi (+1 cuore a Lv1–2, poi +1 ogni 2 Lv; +5 a Lv9)
+9062	I colpi hanno una bassa prob. di evocare un fulmine. Danno fulmine +4%/Lv; catena +1 bersaglio a Lv1–3, +2 a Lv4–6, +3 a Lv7–9. Il fulmine danneggia anche attorno
+9063	I colpi possono evocare un fulmine. A Lv1: prob. 5% e danno base 7,5; ogni Lv: prob. +2% e danno base +1,5. Max 1 fulmine ogni 0,4 s sullo stesso nemico
+9064	Dove colpisce la lama di vento nasce un tornado che danneggia di continuo i nemici attorno (il Lv aumenta danno e area). Anche da sola, questa carta ha una bassa prob. di lanciare lame di vento colpendo
+9065	HP dei nemici comuni +15%/Lv. In cambio, MILE da uccisioni e BONUS +15%/Lv, EXP da uccisioni +5%/Lv
+9066	MILE da tesori/premi +30%/Lv (tesori e COMPLETATO/PERFETTO della BONUS ZONE, taglie dei RICERCATI). MILE dai boss sconfitti +10%/Lv, MILE da distanza +5%/Lv
+9067	Attacco +3%/Lv, velocità di movimento +2%/Lv. Aumentano anche gli HP massimi (+1 cuore a Lv1–2, poi +1 ogni 2 Lv; +5 a Lv9)
+9068	A intervalli di distanza appare un ricercato (più forte e frequente col Lv). Sconfiggilo per le MILE della taglia; se lo lasci indietro, niente taglia. MILE da uccisioni e BONUS +35%/Lv
+9069	I colpi possono lanciare in avanti una lama di vento che trapassa i nemici. A Lv1: prob. 10% e danno 8; ogni Lv: prob. +3% e danno +1,5. Anche l'area d'attacco si allarga un po' (+1%/Lv)
+9070	Nemici: molti nemici di landa, caverna e cielo
+9071	Nemici: goblin / arpie / gargoyle e altri
+9072	Nemici: goblin, uccelli, giganti, tiratori ecc.
+9073	Ostacoli: rocce, alberi, muri, massi giganti (distruggibili con gli attacchi), buchi
+9074	Percorso: si divide in alto e in basso (sicuro/pericoloso è casuale)
+9075	Rimossi tutti i nemici e i loro attacchi (non vale come tutti sconfitti e il tempo non viene registrato)
+9076	Tutti sconfitti  {0} s
+9077	Alla battaglia
+9078	Build di prova ({0} tipi)
+9079	Lv = volte prese nella corsa (max 9 per abilità). Carte possedute e mazzo non cambiano
+9080	{0} carte del mazzo copiate nella build di prova (il mazzo non cambia)
+9081	{0} carte personaggio copiate nella build di prova (Lv iniziale)
+9082	I boss arrivano da davanti con lo stesso ingresso del gioco
+9083	Le mosse dei boss di caverna e cielo che usano il terreno (buchi, soffitto, rocce che cadono ecc.) funzionano diversamente nell'arena piatta
+9084	Avversari attuali ({0} gruppi)
+9085	HP nemici: come a {0}km (vale per HP di comuni e boss)
+9086	Corri (con bonus)
+9087	Si ferma solo l'avanzata automatica (attacchi, salti, gravità, contraccolpo e movimenti nemici come nel gioco)
+9088	Applica alla velocità base i bonus di velocità di personaggio e carte
+9089	Ignora i bonus di velocità di personaggio e carte e corre alla velocità impostata
+9090	Impostata {0}km/h / Incontro attuale {1}km/h (bonus ×{2})
+9091	Anche da invulnerabile, il danno viene registrato in "Danni senza difese" nel risultato
+9092	Modalità AUTO (solo nell'arena; le opzioni normali non cambiano)
+9093	Avvio da {0}km/h
+9094	Premi, record e oggetti posseduti non cambiano. Non disponibili: FINAL EVOLUTION / AWAKENED / MASTERY / gauge ULTIMATE / salita di livello / premi boss / BONUS ZONE (carte solo con l'effetto normale del Lv e COMBO)
+9095	Primo incontro
+9096	Forza del boss: {0}
+9097	Tutti sconfitti {0} s
+9098	Uccisi/comparsi
+9099	Danni subiti
+9100	Danni senza difese (incl. quelli parati da invulnerabilità/Shield)
+9101	N0
+9102	Build di prova: {0}
+9103	Modifica condizioni
+9104	??? (mai incontrato)
+9105	WARNING!  MECH DRAGON in arrivo!
+9106	OVERKILL PROTOCOL
+9107	Si raffredda! Attacca ora!
+9108	In uso nel mazzo/carte personaggio; non può fare da materiale
+9109	AWAKENED (★5) raggiunto. La MASTERY non può salire oltre
+9110	Se riuscissero entrambe il Lv sarebbe {0}; fusione impossibile (max Lv.{1})
+9111	<color=#ffd76a><b>[MASTERY] Registro di crescita dopo Lv.9 MAX</b></color>
+9112	MASTERY attuale: <color=#ffd76a>{0}</color>  {1}
+9113	<size=19>La MASTERY {0} oltre ★5 viene conservata come registro</size>
+9114	<size=19>La MASTERY non aumenta le prestazioni normali (attacco, velocità, EXP ecc.). È un registro di crescita fino a diventare AWAKENED a ★5.</size>
+9115	I <b>{0} Lv</b> oltre il Lv.9 vanno alla MASTERY: {1} → <color=#ffd76a>{2}</color>{3}
+9116	・{0} {1}<b>×{2}</b>  <size=18>({3})</size>
+9117	<color=#9fd0ff><b>[Fusione mista] Con carte diverse il risultato è casuale</b></color>
+9118	<b>Prob. di ereditare tutte le abilità della principale: {0}%</b>
+9119	・{0} ×{1}  <size=18>({2})</size>
+9120	<b>Prob. di ereditare tutte le abilità del materiale: {0}%</b>
+9121	Entrambe riuscite: eredita tutte le abilità di entrambe (le abilità uguali sommano il bonus). Rarità = ★ della più alta +1 (max ★5)
+9122	Non ci sono abbastanza carte libere per la fusione (in uso nel mazzo/carte personaggio)
+9123	Equipaggiata come carta personaggio; copie libere insufficienti
+9124	In uso nel mazzo; copie insufficienti
+9125	<size=21>La MASTERY {0} oltre ★5 è stata conservata come registro</size>
+9126	<size=21>AWAKENED raggiunto. Salvato come registro di crescita; le prestazioni normali non cambiano</size>
+9127	<size=21>La MASTERY non aumenta le prestazioni normali (attacco, velocità, EXP ecc.).</size>
+9128	)}    Rarità <color=#ffd76a>{new string('★', v.rarity)}</color>
+9129	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3})</color></size>
+9130	Mostrate {0} / {1} carte possedute
+9131	・Carte diverse … 50% per la principale e 25% per il materiale di ereditare il proprio set di abilità (sorteggio). Se riesce solo una, restano solo il suo Lv e le sue abilità; se falliscono entrambe, nessuna carta (MILE rimborsate)
+9132	・Il Lv massimo di fusione è Lv.9. Nelle fusioni tra carte uguali l'eccesso va alla MASTERY. Carte diverse non si possono fondere se la somma dei Lv supera 9
+9133	・Fondere una carta uguale in una carta Lv.9 MAX fa avanzare la MASTERY (★5 = AWAKENED)
+9134	<size=19>AWAKENED (★5) raggiunto. Niente più fusioni MASTERY.</size>
+9135	Usando la stessa carta ({0}) come materiale, la MASTERY avanza del suo Lv (Lv.1 = +1).
+9136	Occhio indebolito! Attacca ora!
+9137	Nucleo esposto! Vai di BREAK!
+9138	Frequenza dei gruppi nemici
+9139	MILE da uccisioni e BONUS
+9140	MILE dai boss sconfitti
+9141	Prob. bruciatura
+9142	Danno base bruciatura
+9143	Prob. raffreddamento
+9144	Rallentamento da raffreddamento
+9145	Prob. sanguinamento
+9146	Velocità attacco avanti/indietro
+9147	Attacco in aria
+9148	Attacco a terra
+9149	Colpo finale della combo
+9150	Attacco contro i nemici comuni
+9151	Attacco in basso/schianto
+9152	Velocità d'attacco con HP ≤50%
+9153	Attacco per HIT consecutivo
+9154	Attacco per colpo in aria prima di atterrare
+9155	Ricarica Shield (s in meno)
+9156	Velocità d'azione nemici
+9157	Prob. élite
+9158	MILE da distanza
+9159	EXP da distanza
+9160	EXP da uccisioni
+9161	Meno raffreddamenti per congelare
+9162	Moltiplicatore danno fulmine
+9163	)}: carte personaggio
+9164	Tocca per rimuovere
+9165	[Equipaggiata da un altro personaggio]
+9166	Le carte in uso non si possono convertire. Rimuovile dal mazzo o dalle carte personaggio.
+9167	Convertire questa carta in {CardConvertMile} MILE?
+9168	)} {BleedPower * Scale:0.#}/s assorbimento {BleedLifesteal * 100f:0}%
+9169	(già AWAKENED)
+9170	Tocca per chiudere / tocca la macchina per pescare ancora
+9171	Riscuotendo: {0} MILE normali + {1} MILE extra = {2} MILE in totale
+9172	Pescate di oggi esaurite (si ricaricano tra {0})
+9173	Reset pescate tra {0}
+9174	Da riportare stavolta
+9175	Totale dopo la fuga
+9176	Se cadi o abbandoni la corsa, non ricevi le MILE di questa corsa
+9177	NUOVO:
+9178	DEV: escluso dai record (
+9179	La distanza di questa corsa non conta nei record ufficiali (BEST, distanza totale, sblocchi di mappe/personaggi)
+9180	{0} sigillati
+9181	RESET MILE
+9182	RESET CARTE
+9183	La corsa sospesa e le MILE da riportare
+9184	MILE da riportare
+9185	Torni alla Home.
+9186	La corsa non finisce: potrai
+9187	{0} non si può equipaggiare: con le altre carte personaggio supererebbe Lv{1}
+9188	Attenzione: {0} supera Lv{1} sommando le carte personaggio ({2} Lv in eccesso non hanno effetto)
+9189	IRENE
+9190	ESTELLE
+9191	ALICIA
+9192	Pubblicità in preparazione. Riprova tra poco
+9193	TEST AD (simulato) annuncio con premio
+9194	TEST AD (simulato) interstitial
+9195	{0} s
+9196	Condizione del premio soddisfatta
+9197	Chiudi prima
+9198	Simula interruzione app
+9199	¥(simulato) 000
+9200	Simulato (solo versione di sviluppo): non è un acquisto reale. Salvato separatamente dai diritti d'acquisto reali
+9201	・Gli acquisti sono legati al tuo account dello store. Dopo un cambio di dispositivo/una reinstallazione, usa "Ripristina acquisti". I dati salvati come carte e MILE non tornano con questo pulsante
+9202	Impossibile confermare l'acquisto. Il pass resta attivo; ricontrolleremo più tardi
+9203	OMMLAN
+9204	SYNC
+9205	GIOCO ONLINE
+9206	Crea una stanza e la pubblica in "TROVA PARTITA" online.
+9207	Crea una stanza su questo dispositivo. I dispositivi sulla stessa Wi-Fi entrano da "TROVA PARTITA".
+9208	SERVIZIO ONLINE NON DISPONIBILE
+9209	DEV:
+9210	RIPROVA
+9211	Ricerca stanze vicine…
+9212	DEV
+9213	Quando ci siete tutti: "Chiudi (stanza aperta)" → porta → "Parti" nella scelta mappa, e tutti partono insieme sulla stessa mappa.
+9214	CO-OP: se cadi sei DOWN. Un alleato (2+ cuori) che raggiunge il punto usa RIANIMA per passarti 1 cuore e rianimarti. Tutti DOWN = fine.
+9215	MODALITÀ: sceglie l'HOST (vale per tutti all'inizio della corsa)
+9216	Porta della Home → "Parti" nella scelta mappa, e tutti i connessi partono insieme sulla stessa mappa.
+9217	RIANIMA
+9218	Impossibile avviare la connessione. Riprova o riavvia l'app
+9219	Impossibile creare la stanza (forse un'altra app sta usando la rete)
+9220	P{0} si è disconnesso (restano {1})
+9221	{0} si è disconnesso
+9222	L'altro giocatore si è disconnesso
+9223	Versione del gioco diversa: impossibile entrare. Aggiornate entrambi all'ultima versione
+9224	In questa stanza si sta già correndo: impossibile entrare
+9225	La stanza è piena: impossibile entrare
+9226	Connessione rifiutata
+9227	Tu: il tuo record non è ancora in classifica
+9228	AUTO
+9229	Sprint
+9230	Smetti di inviare record
+9231	UGS
+9232	Scegli una carta
+9233	Tocca di nuovo per confermare
+9234	Scegli una carta → tocca di nuovo per confermare
+9235	Condizione soddisfatta! Si conferma se completi la corsa
+9236	Quando la velocità supera quella di avvio, solo le azioni su ON diventano automatiche.
+9237	I comandi manuali hanno la priorità. Con "AUTO anche contro i boss" su OFF, nessun automatismo nelle battaglie coi boss.
+9238	Il pass è legato al tuo account dello store (ripristinare gli acquisti non recupera i dati salvati)
+9239	Allena attacchi avanti/indietro, salto, attacco in basso, lancio e scelta carte (niente premi né record).
+9240	L'allenamento si avvia solo dalla Home (non in multigiocatore)
+9241	Arriva il Titano! Attacca ora!
+9242	Il nucleo si è spento! Vai di BREAK!
+9243	È scivolato atterrando! Attacca ora!
+9244	La testa è uscita dalle nuvole! Attacca ora!
+9245	L'aureola è sparita! Grande occasione!
+9246	La carica è sparita! Attacca ora!
+9247	Partenza Sprint (dai {0})
+9248	Attraversi di colpo i tratti già superati e riparti poco prima del varco scelto. Le carte premio dei boss vengono prese a caso. Allinea l'altezza agli anelli ogni 5.000m per sceglierne 1 in più. La distanza saltata non dà MILE né EXP.
+9249	Sprint fino a {0}km   (~{1} s + scelta carte agli anelli){2}
+9250	Boss del varco dei {0}km non ancora sconfitto
+9251	In questa corsa tutte le carte del mazzo sono arrivate a Lv9.
+9252	Varchi {0}/{1}    Anelli {2}/{3}{4}
+9253	Varchi superati {0}/{1}   Anelli {2}/{3}{4}
+9254	Tutte le carte del mazzo in corsa Lv{0} MAX
+9255	Varchi senza carta: {0}
+9256	In questa corsa tutte le carte del mazzo sono Lv9. Il premio degli anelli sono MILE da riportare
+9257	(non resta nemmeno il record BEST di distanza)
+9258	Alla scelta mappa
+9259	Il limite del mazzo ora è di 12 carte
+9260	OVERFLOW

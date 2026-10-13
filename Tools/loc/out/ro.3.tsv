@@ -1,0 +1,261 @@
+9000	Lovitura poate răci inamicul. Inamicii înghețați primesc daune suplimentare. Atac contra inamicilor răciți/înghețați +3%/Lv. Prelungește și înghețul și întărește încetinirea boșilor
+9001	Cu HP la 50% sau mai puțin, viteză de atac +3%/Lv. La 25% sau mai puțin, bonusul se dublează (+6%/Lv)
+9002	O lovitură în aer declanșează în punctul de impact o tăietură de zonă suplimentară. Cu Lv cresc puterea și raza
+9003	Atac în aer +3%/Lv. Fiecare lovitură fără să aterizezi mai adaugă +1%/Lv (max. 4 ori). La aterizare, bonusul se resetează
+9004	Atac mai mare contra inamicilor din aer (inamici obișnuiți aruncați sau zburători; dintre boși doar dragonul și demonul) (+8%/Lv)
+9005	Rază de atac +3%/Lv. Atacurile corp la corp acoperă o zonă mai mare, proiectilele zboară mai departe (mărimea proiectilelor nu se schimbă)
+9006	Cu HP la 50% sau mai puțin, atac +5%/Lv și viteză de atac +2%/Lv. La 25% sau mai puțin, ambele bonusuri se dublează
+9007	Atac +6%/Lv, viteză de atac +1%/Lv. Dar sigilează inimi din HP max. (Lv1–3: 1, Lv4–6: 2, Lv7–9: 3)
+9008	Cu HP la 50% sau mai puțin, atac +4%/Lv. La 25% sau mai puțin, și șansa de absorbție la învingerea inamicilor/boșilor (vindecă 1 inimă) +3%/Lv
+9009	La porțile obișnuite cu boss, cu o șansă de 8%/Lv apare încă un boss. MILE din boși învinși +50%/Lv. Nu se aplică boșilor speciali de la fiecare 10km și nici boss rush-ului din ultima temniță
+9010	Atac +7%/Lv. Dar după fiecare atac înainte/înapoi, viteza de mișcare scade cu 10% pentru 0.4 s
+9011	Putere ardere +8%/Lv, durată ardere +0.25 s/Lv. Chiar și singură, cartea aprinde la lovire (șansă Lv1 7%, apoi +2%/Lv)
+9012	Inamicii învinși explodează și lovesc în jur. Cei învinși de explozie explodează și ei, până la 3 niveluri. Același inamic e lovit max. o dată per lanț
+9013	Se activează la Gauge 100% (butonul din stânga jos). Atacul suprem unic al personajului învinge dintr-o lovitură inamicii obișnuiți de pe ecran și le ia boșilor 20–40% din HP max. (crește cu Lv). Apoi avansează mult (Lv1 300m → Lv9 1000m; se oprește înaintea porților cu boss etc., nu avansează în lupta cu bossul), iar buff-ul durează o vreme (Lv1 5 s → Lv9 12 s). Gauge se umple prin distanță, inamici învinși și daune date boșilor
+9014	Când lovitura finală a seriei nimerește, trimite înainte o undă de șoc în plus (cu Lv cresc puterea și raza)
+9015	Atacul loviturii finale (ultima lovitură) după o serie de atacuri înainte/înapoi +7%/Lv
+9016	Când Shield blochează un atac, trimite în jur o undă de șoc de contraatac. Cu Lv crește puterea. Chiar și singură, cartea îți dă 1 Shield
+9017	Atac +12%/Lv. Dar sigilează inimi din HP max. (Lv1–2: 1, apoi +1 la fiecare 2 Lv; Lv9: 5)
+9018	O parte din inamicii obișnuiți devin elită (+4% pe Lv; HP ×2.5, puțin mai rapizi, la învingere MILE ×3/EXP ×2). Cresc și MILE (+30%/Lv)
+9019	MILE din inamici învinși +15%/Lv. Se aplică și recompenselor MILE din BONUS ZONE și WANTED
+9020	Primești mai puțin EXP (-10%/Lv, min. 25% din normal), dar MILE din inamici și BONUS +30%/Lv
+9021	Mult mai mult EXP din inamici, boși și BONUS ZONE (+80%/Lv). EXP din distanța parcursă nu e inclus
+9022	Inamicul lovit poate lua foc și primește daune 3 s. Lv1: șansă 15%, 5 daune/s; la fiecare Lv în plus: șansă +5%, daune/s +1.5
+9023	Când Shield blochează un atac, trimite în jur un contraatac de foc care aprinde inamicii loviți. Cu Lv crește puterea. Chiar și singură, cartea îți dă 1 Shield
+9024	Lovitura poate răci și încetini inamicul. Lv1: șansă 15%, încetinire 25%; la fiecare Lv în plus: șansă +5%, încetinire +2%. După 5 răciri, inamicul îngheață (boșii nu se opresc, doar încetinesc)
+9025	Lovitura poate lansa o lamă de vânt. Viteza lamei +5%/Lv, bătaie +0.4m/Lv. Străpungere lame de vânt și proiectile +1 (de la Lv4 +2, de la Lv7 +3)
+9026	Aterizarea dintr-o lovitură în sol sau lovitura finală pe sol trimite o undă de șoc pe pământ (cu Lv cresc puterea și lungimea). Atacul pe sol și el +2%/Lv
+9027	Atac +4%/Lv. Pentru fiecare inimă sigilată, încă +0.6%/Lv atac (contează și sigiliile altor cărți). Sigilează și ea inimi din HP max. (Lv1–3: 1, Lv4–6: 2, Lv7–9: 3)
+9028	HP max. +1 inimă/Lv (limită 20 inimi). La obținere, HP se reface complet
+9029	Daunele de 2 inimi sau mai mult scad cu 1 inimă. Crește și HP max. (Lv1–2: +1 inimă, apoi +1 la fiecare 2 Lv). Forța săriturii -3%/Lv
+9030	Atac în jos și aterizare din lovitură în sol +10%/Lv. Lovitura finală și ea +3%/Lv
+9031	HP inamici obișnuiți +12%/Lv, viteza lor de acțiune +4%/Lv, frecvența grupurilor +8%/Lv. În schimb MILE din inamici și BONUS +50%/Lv, MILE din boși +30%/Lv
+9032	Frecvența grupurilor de inamici +15%/Lv. În schimb MILE din inamici și BONUS +5%/Lv, EXP din inamici și BONUS +5%/Lv
+9033	În lupta cu bossul, pasul înainte/înapoi la atac +4%/Lv. Viteza de apropiere de un boss aflat la peste 6m și ea +3%/Lv
+9034	Lovitura poate răci inamicul. Îngheață cu mai puține răciri (Lv1–3: 4, Lv4–6: 3, Lv7–9: 2). Cresc și șansa și durata răcirii
+9035	Când învingi un inamic care arde, focul se întinde și aprinde inamicii din jur (cu Lv cresc puterea și raza). Chiar și singură, cartea aprinde la lovire cu șansă mică (5%)
+9036	Săritură în aer +1/Lv. Săriturile în plus urcă tot mai puțin, dar nu și când cazi într-o groapă. Magul urcă mai sus: Lv1–3 cu 1 treaptă, Lv4–6 cu 2, Lv7–9 cu 3
+9037	Când o lovitură îți aduce HP la 1 inimă sau mai puțin, devii invincibil scurt timp (1 s + 0.15 s/Lv). Nu oprește daunele din cădere. Se reactivează după ce HP trece de 1 inimă și au trecut 20 s de la activare
+9038	EXP obținut +30%/Lv
+9039	Rază de atac +5%/Lv. Atacurile corp la corp acoperă o zonă mai mare, proiectilele zboară mai departe
+9040	EXP obținut +15%/Lv. Crește și HP max. (Lv1–3: +1 inimă, Lv4–6: +2, Lv7–9: +3)
+9041	Atac contra inamicilor care nu sunt boși +5%/Lv. MILE din inamici și BONUS +10%/Lv
+9042	Atacul crește cu viteza de alergare. Fără efect până la 100km/h. La 150km/h +4%/Lv; peste, tot crește, dar de 4 ori mai încet
+9043	Frecvența grupurilor de inamici +10%/Lv. În schimb EXP obținut +15%/Lv
+9044	Frecvența grupurilor de inamici +10%/Lv. MILE din inamici și BONUS și ele +3%/Lv
+9045	Viteză de mișcare +5%/Lv. Dar și frecvența grupurilor de inamici +10%/Lv
+9046	MILE din inamici și BONUS +50%/Lv, MILE din boși +50%/Lv, EXP obținut +20%/Lv
+9047	Menține 115km/h sau mai mult o vreme și pornește OVERDRIVE (atac +3%/Lv, viteză de atac +2%/Lv). Se oprește după 0.8 s sub 107km/h. Viteză de mișcare permanent +2%/Lv
+9048	Mai multă vindecare din absorbție și SUFLU NOU (Lv4–6: +1 inimă, Lv7–9: +2). Surplusul la HP plin devine 1 Shield (până la max. +1)
+9049	HP inamici obișnuiți +15%/Lv, viteză de acțiune +5%/Lv, frecvența grupurilor +12%/Lv, șansă de elită +2%/Lv, HP boși +10%/Lv. În schimb MILE din inamici și BONUS +60%/Lv, MILE din boși +60%/Lv
+9050	EXP din distanța parcursă +20%/Lv. Nu se aplică EXP-ului din inamici
+9051	Când Shield blochează o lovitură, devii invincibil scurt timp (0.4 s + 0.1 s/Lv). Chiar și singură, cartea îți dă 1 Shield
+9052	Când cazi (și în groapă), reînvii și ești invincibil 2 s (HP 1–5 inimi după Lv). După reînviere cartea dispare și reapare printre opțiuni (reluată de la Lv1)
+9053	Un atac corp la corp face daune în plus și inamicilor din spatele țintei. Cu Lv cresc puterea și numărul de ținte. Crește și străpungerea proiectilelor (Lv1–3: +1, Lv4–6: +2, Lv7–9: +3)
+9054	Șansă de a vindeca 1 inimă la învingerea unui inamic +3%/Lv. Loviturile pe boși au și ele o șansă mică de a absorbi HP
+9055	Dacă după o lovitură HP e la 30% din max. sau mai puțin, vindecă 1–3 inimi (Lv5: 2, Lv9: 3). Pentru reactivare trebuie să alergi o anumită distanță (Lv1: 10,000m, Lv9: 6,000m)
+9056	Shield care blochează 1 lovitură. Număr max. Lv1–3: 1, Lv4–6: 2, Lv7–9: 3. Cele folosite revin câte unul în timp (mai repede cu Lv)
+9057	Atac în aer +4%/Lv. O lovitură în aer îți dă înapoi 1 săritură în aer folosită (până la aterizare: Lv1–3 max. 1, Lv4–6 max. 2, Lv7–9 max. 3)
+9058	Forța săriturii +2%/Lv, atac în aer +3%/Lv
+9059	Un atac înainte/înapoi lansează înainte o tăietură care străpunge inamicii. Cu cât alergi mai repede, cu atât tăietura zboară mai departe, e mai mare și mai puternică
+9060	Viteză de mișcare -4%/Lv. Carte specială pentru când vrei să alergi mai încet
+9061	EXP obținut +40%/Lv. Crește și HP max. (Lv1–2: +1 inimă, apoi +1 la fiecare 2 Lv; Lv9: +5)
+9062	Lovitura are o șansă mică să cheme un trăsnet. Putere trăsnet +4%/Lv, lanț Lv1–3 +1 țintă, Lv4–6 +2, Lv7–9 +3. Trăsnetul lovește și în jur
+9063	Lovitura poate chema un trăsnet. Lv1: șansă 5%, putere de bază 7.5; la fiecare Lv în plus: șansă +2%, putere de bază +1.5. Pe același inamic max. 1 trăsnet la 0.4 s
+9064	Unde lovește lama de vânt apare o tornadă care rănește repetat inamicii din jur (cu Lv cresc puterea și raza). Chiar și singură, cartea lansează la lovire, cu șansă mică, o lamă de vânt
+9065	HP inamici obișnuiți +15%/Lv. În schimb MILE din inamici și BONUS +15%/Lv, EXP din inamici +5%/Lv
+9066	MILE din comori/recompense +30%/Lv (comorile BONUS ZONE, CLEAR/PERFECT, recompensele WANTED). MILE din boși +10%/Lv, MILE din distanță +5%/Lv
+9067	Atac +3%/Lv, viteză de mișcare +2%/Lv. Crește și HP max. (Lv1–2: +1 inimă, apoi +1 la fiecare 2 Lv; Lv9: +5)
+9068	La anumite distanțe apare un inamic căutat (mai puternic și mai des cu Lv). Învinge-l pentru recompensa în MILE; dacă îl lași în urmă, pierzi recompensa. MILE din inamici și BONUS +35%/Lv
+9069	Lovitura poate lansa înainte o lamă de vânt care străpunge inamicii. Lv1: șansă 10%, putere 8; la fiecare Lv în plus: șansă +3%, putere +1.5. Mărește puțin și raza de atac (+1%/Lv)
+9070	Inamici: mulți inamici din pustiu, peșteră și cer
+9071	Inamici: goblini / harpii / garguie și alții
+9072	Inamici: goblini, păsări, giganți, arcași etc.
+9073	Obstacole: pietre, copaci, ziduri, bolovani uriași (se sparg cu atacuri), gropi
+9074	Traseu: se ramifică sus/jos (sigur sau periculos, la întâmplare)
+9075	Toți inamicii și atacurile lor au fost șterși (nici „toți învinși”, nici timpul nu se înregistrează)
+9076	Toți învinși  {0} s
+9077	La luptă
+9078	Build de test ({0} tipuri)
+9079	Lv = de câte ori ai luat-o în cursă (max. 9 pe abilitate). Cărțile deținute și pachetul nu se schimbă
+9080	{0} cărți din pachet copiate în buildul de test (pachetul nu se schimbă)
+9081	{0} cărți de personaj copiate în buildul de test (Lv de start)
+9082	Bossul vine din față, cu aceeași apariție ca în joc
+9083	Atacurile boșilor din peșteră/cer care folosesc terenul (gropi, tavan, pietre căzătoare etc.) se comportă altfel pe arena plată decât în joc
+9084	Adversari actuali ({0} grupuri)
+9085	HP inamici: ca la {0}km (pentru inamici obișnuiți și boși)
+9086	Alergare (cu ajustare)
+9087	Se oprește doar avansul automat (atacuri, sărituri, gravitație, recul și mișcarea inamicilor sunt ca în joc)
+9088	Aplică ajustările de viteză ale personajului și cărților la viteza de bază
+9089	Ignoră ajustările de viteză ale personajului și cărților și aleargă cu viteza setată
+9090	Setat {0}km/h / meciul acesta {1}km/h (ajustare ×{2})
+9091	Și cu invincibilitate se înregistrează la „Daune fără protecție” în rezultate
+9092	Mod AUTO (doar în arenă; setările normale nu se schimbă)
+9093	Pornire de la {0}km/h
+9094	Recompensele, recordurile și cărțile deținute nu se schimbă deloc. Nu e inclus: FINAL EVOLUTION / AWAKENED / MASTERY / gauge ULTIMATE / level up / recompense de boss / BONUS ZONE (cărțile au doar efectul Lv obișnuit și COMBO)
+9095	Primul meci
+9096	Puterea bossului: {0}
+9097	Toți învinși {0} s
+9098	Învinși/apăruți
+9099	Daune primite
+9100	Daune fără protecție (incl. cele blocate de invincibilitate/Shield)
+9101	N0
+9102	Build de test: {0}
+9103	Editează condițiile
+9104	??? (neîntâlnit)
+9105	WARNING!  MECH DRAGON se apropie!
+9106	PROTOCOL OVERKILL
+9107	Se răcește! Atacă acum!
+9108	Nu poate fi material: e folosită în pachet/cărți de personaj
+9109	AWAKENED (★5) atins. MASTERY nu mai poate crește
+9110	Dacă reușesc ambele, Lv ar fi {0}, deci fuziunea nu e posibilă (limită Lv.{1})
+9111	<color=#ffd76a><b>[MASTERY] Istoric de creștere după Lv.9 MAX</b></color>
+9112	MASTERY actual: <color=#ffd76a>{0}</color>  {1}
+9113	<size=19>MASTERY {0} peste ★5 se păstrează ca istoric</size>
+9114	<size=19>MASTERY nu crește performanța normală (atac, viteză, EXP etc.). E istoricul de creștere până la AWAKENED la ★5.</size>
+9115	Cele <b>{0} Lv</b> peste Lv.9 trec în MASTERY: {1} → <color=#ffd76a>{2}</color>{3}
+9116	・{0} {1}<b>×{2}</b>  <size=18>({3})</size>
+9117	<color=#9fd0ff><b>[Fuziune de cărți diferite] La cărți diferite rezultatul e tras la sorți</b></color>
+9118	<b>Șansă să moștenești toate abilitățile cărții principale {0}%</b>
+9119	・{0} ×{1}  <size=18>({2})</size>
+9120	<b>Șansă să moștenești toate abilitățile materialului {0}%</b>
+9121	Ambele reușesc: moștenește toate abilitățile ambelor părți (abilitățile identice își adună bonusul). Raritate = ★ mai mare +1 (max. ★5)
+9122	Nu ai destule cărți libere pentru fuziune (folosite în pachet/cărți de personaj)
+9123	Echipate pe cărți de personaj, nu sunt destule libere
+9124	Folosite în pachet, nu sunt destule
+9125	<size=21>MASTERY {0} peste ★5 a fost păstrat ca istoric</size>
+9126	<size=21>AWAKENED atins. Salvat ca istoric de creștere, performanța normală nu se schimbă</size>
+9127	<size=21>MASTERY nu crește performanța normală (atac, viteză, EXP etc.).</size>
+9128	)}    Raritate <color=#ffd76a>{new string('★', v.rarity)}</color>
+9129	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3})</color></size>
+9130	Afișate {0} / deținute {1}
+9131	・Cărți diferite … principală 50%, material 25%: fiecare parte își moștenește setul de abilități (tragere la sorți). Dacă reușește doar una, rămân doar Lv și abilitățile ei; dacă eșuează ambele, nu iese nicio carte (MILE se returnează)
+9132	・Limita de Lv la fuziune e Lv.9. La fuziunea de cărți identice surplusul trece în MASTERY. Cărțile diferite cu suma Lv peste 9 nu se pot uni
+9133	・Fuziunea unei cărți Lv.9 MAX cu aceeași carte crește MASTERY (★5 = AWAKENED)
+9134	<size=19>AWAKENED (★5) atins. Nu mai e posibilă fuziunea MASTERY.</size>
+9135	Aceeași carte ({0}) ca material crește MASTERY cu Lv-ul materialului (Lv.1 = +1).
+9136	Ochiul a slăbit! Atacă acum!
+9137	Nucleu expus! Șansă de BREAK!
+9138	Frecvența grupurilor de inamici
+9139	MILE din inamici și BONUS
+9140	MILE din boși
+9141	Șansă de ardere
+9142	Putere de bază ardere
+9143	Șansă de răcire
+9144	Încetinire din răcire
+9145	Șansă de sângerare
+9146	Viteză atac înainte/înapoi
+9147	Atac în aer
+9148	Atac pe sol
+9149	Lovitura finală a seriei
+9150	Atac contra inamicilor obișnuiți
+9151	Atac în jos / lovitură în sol
+9152	Viteză de atac cu HP sub 50%
+9153	Atac per HIT consecutiv
+9154	Atac per lovitură în aer (până la aterizare)
+9155	Refacere Shield (s mai puțin)
+9156	Viteza de acțiune a inamicilor
+9157	Șansă de elită
+9158	MILE din distanță
+9159	EXP din distanță
+9160	EXP din inamici
+9161	Mai puține răciri până la îngheț
+9162	Multiplicator daune trăsnet
+9163	)} – cărțile personajului
+9164	Atinge ca să scoți
+9165	[Echipată pe alt personaj]
+9166	Cărțile folosite nu pot fi convertite. Scoate-o din pachet sau din cărțile de personaj.
+9167	Convertești această carte în {CardConvertMile} MILE?
+9168	)} {BleedPower * Scale:0.#}/s absorbție {BleedLifesteal * 100f:0}%
+9169	(deja AWAKENED)
+9170	Atinge ca să închizi / atinge automatul pentru încă o tragere
+9171	Primești: normal {0} MILE + extra {1} MILE = total {2} MILE
+9172	Ai folosit tragerile de azi (revin în {0})
+9173	Resetare în {0}
+9174	De luat acasă în cursa asta
+9175	Vei avea după evadare
+9176	Dacă cazi sau abandonezi cursa, nu primești MILE din cursa asta
+9177	NOU:
+9178	DEV: fără înregistrare (
+9179	Distanța asta nu intră în recordurile oficiale (BEST, distanța totală, deblocarea hărților/personajelor)
+9180	Sigilii: {0}
+9181	RESETARE MILE
+9182	RESETARE CĂRȚI
+9183	Cursa întreruptă și MILE de luat acasă
+9184	MILE de luat acasă
+9185	Te întorci acasă.
+9186	Cursa nu se termină, continui de aici
+9187	{0} nu poate fi echipată: cu celelalte cărți de personaj ar depăși Lv{1}
+9188	Atenție: {0} depășește Lv{1} în total pe cărțile de personaj (cele {2} Lv în plus nu au efect)
+9189	IRENE
+9190	ESTELLE
+9191	ALICIA
+9192	Reclama se pregătește. Mai încearcă puțin mai târziu
+9193	TEST AD (simulare) reclamă cu recompensă
+9194	TEST AD (simulare) reclamă interstițială
+9195	{0} s
+9196	Condiția recompensei e îndeplinită
+9197	Închide mai devreme
+9198	Simulare întrerupere aplicație
+9199	¥(simulare) 000
+9200	Simulare (doar versiunea de dezvoltare): nu e o achiziție reală. Se salvează separat de drepturile cumpărate real
+9201	・Achizițiile sunt legate de contul din magazin. După schimbarea telefonului sau reinstalare, le recuperezi cu „Restabilește achizițiile”. Datele salvate, ca cărțile și MILE, nu revin cu acest buton
+9202	Nu am putut verifica achiziția. Permisul rămâne activ, verificăm din nou mai târziu
+9203	OMMLAN
+9204	SYNC
+9205	JOC ONLINE
+9206	Creează o cameră și o publică la „FIND GAME” online.
+9207	Creează o cameră pe acest dispozitiv. Dispozitivele din același Wi-Fi intră prin „FIND GAME”.
+9208	SERVICIU ONLINE INDISPONIBIL
+9209	DEV:
+9210	REÎNCEARCĂ
+9211	Caut camere în apropiere…
+9212	DEV
+9213	Când sunt toți, „Închide (camera rămâne)” → ușa → STAGE SELECT și „Pornește”: toți încep pe aceeași hartă în același timp.
+9214	CO-OP: Cine cade e DOWN. Un coechipier (min. 2 inimi) care ajunge la locul căderii îl reînvie cu REVIVE, dându-i 1 inimă. Când toți sunt DOWN, jocul se termină.
+9215	MODE: îl alege HOST (se aplică tuturor la startul cursei)
+9216	Ușa de acasă → STAGE SELECT și „Pornește”: toți cei conectați încep pe aceeași hartă în același timp.
+9217	REVIVE
+9218	Comunicarea nu a pornit. Încearcă din nou sau repornește aplicația
+9219	Camera nu a putut fi creată (poate altă aplicație folosește rețeaua)
+9220	P{0} s-a deconectat (mai sunt {1})
+9221	{0} s-a deconectat
+9222	Celălalt jucător s-a deconectat
+9223	Nu poți intra: versiune diferită a jocului. Actualizați-le pe amândouă
+9224	Nu poți intra: în cameră se aleargă deja
+9225	Nu poți intra: camera e plină
+9226	Conexiune refuzată
+9227	Tu: recordul tău nu apare încă în clasament
+9228	AUTO
+9229	Sprint
+9230	Nu mai trimite recorduri
+9231	UGS
+9232	Alege o carte
+9233	Alege din nou ca să confirmi
+9234	Alege o carte → încă o dată ca să confirmi
+9235	Condiție îndeplinită! Se confirmă când termini cursa cu bine
+9236	Când viteza de alergare atinge viteza de pornire, se fac automat doar acțiunile setate pe ON.
+9237	Controlul manual are prioritate. Dacă „AUTO și cu bossul” e OFF, în lupta cu bossul nu se face nimic automat.
+9238	Permisul e legat de contul din magazin (restabilirea achizițiilor nu readuce datele salvate)
+9239	Exersează atacul înainte/înapoi, săritura, atacul în jos, aruncarea și alegerea cărților (fără recompense sau recorduri).
+9240	Antrenamentul se poate porni doar acasă (nu cât ești conectat la multiplayer)
+9241	Titanul se apropie! Atacă acum!
+9242	Nucleul s-a stins! Șansă de BREAK!
+9243	A alunecat la aterizare! Atacă acum!
+9244	Capul a ieșit din nori! Atacă acum!
+9245	Aureola a dispărut! Mare șansă!
+9246	Încărcătura a dispărut! Atacă acum!
+9247	Start în sprint (punctul {0})
+9248	Treci în viteză prin secțiunile deja cucerite și pornești puțin înaintea porții alese. Cărțile din recompensele de boss se iau automat, la întâmplare. Dacă la inelul de la fiecare 5,000m nimerești înălțimea sus/jos, mai alegi 1 carte. Distanța sărită nu dă MILE sau EXP.
+9249	Sprint până la {0}km   (cca {1} s + alegerea cărților la inele){2}
+9250	Bossul porții de la {0}km nu e încă învins
+9251	În cursa asta, toate cărțile din pachet sunt Lv9.
+9252	Porți {0}/{1}    Inele {2}/{3}{4}
+9253	Porți trecute {0}/{1}   Inele {2}/{3}{4}
+9254	Toate cărțile pachetului în cursă Lv{0} MAX
+9255	Porți fără carte: {0}
+9256	În cursa asta, toate cărțile din pachet sunt Lv9. Recompensa inelelor sunt MILE de luat acasă
+9257	(Nici recordul de distanță BEST nu se salvează)
+9258	La alegerea hărții
+9259	Limita pachetului e acum 12 cărți
+9260	OVERFLOW

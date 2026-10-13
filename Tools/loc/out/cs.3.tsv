@@ -1,0 +1,261 @@
+9000	Zásah může nepřítele prochladit. Zmražený nepřítel utrpí bonusové poškození. Útok proti prochlazeným/zmraženým nepřátelům +3%/Lv. Prodlužuje i dobu zmrazení a zesiluje zpomalení bossů
+9001	Při HP 50% a méně rychlost útoku +3%/Lv. Při HP 25% a méně dvojnásobný bonus (+6%/Lv)
+9002	Zásah ve vzduchu vyvolá v místě zásahu následný plošný sek. S Lv roste síla a dosah
+9003	Útok ve vzduchu +3%/Lv. Každý zásah bez dopadu na zem přidá dalších +1%/Lv (max. 4×). Po dopadu se bonus vynuluje
+9004	Vyšší útok proti nepřátelům ve vzduchu (vyhození nebo létající běžní nepřátelé; z bossů jen drak a démon) (+8%/Lv)
+9005	Dosah útoku +3%/Lv. Útoky zblízka zasáhnou větší oblast, střely doletí dál (velikost střel se nemění)
+9006	Při HP 50% a méně útok +5%/Lv a rychlost útoku +2%/Lv. Při HP 25% a méně se oba bonusy zdvojnásobí
+9007	Útok +6%/Lv, rychlost útoku +1%/Lv. Ale zapečetí srdce max. HP (Lv1–3: 1, Lv4–6: 2, Lv7–9: 3)
+9008	Při HP 50% a méně útok +4%/Lv. Při HP 25% a méně navíc šance na vysátí po poražení nepřítele/bosse (léčí 1 srdce) +3%/Lv
+9009	U běžné brány s bossem se se šancí 8%/Lv přidá další boss. MILE za poražení bossů +50%/Lv. Neplatí pro speciální bosse každých 10km ani pro boss rush v poslední kobce
+9010	Útok +7%/Lv. Ale po každém útoku vpřed/vzad klesne na 0.4 s rychlost pohybu o 10%
+9011	Síla hoření +8%/Lv, doba hoření +0.25 s/Lv. I sama tato karta zapaluje při zásahu (šance Lv1 7%, dále +2%/Lv)
+9012	Poražený nepřítel vybuchne a zasáhne okolí. Nepřátelé poražení výbuchem řetězí dál, až do 3 stupňů. Stejný nepřítel je zasažen max. 1× za řetěz
+9013	Aktivace při Gauge 100% (tlačítko vlevo dole). Unikátní speciální útok postavy porazí jednou ranou běžné nepřátele na obrazovce a bossům ubere 20–40% max. HP (roste s Lv). Pak prudce postoupí vpřed (Lv1 300m → Lv9 1000m; zastaví se před bránou s bossem apod., během boje s bossem nepostupuje) a chvíli trvá posílení (Lv1 5 s → Lv9 12 s). Gauge se plní vzdáleností, zabitími a poškozením bossů
+9014	Když zasáhne závěrečný úder série, vyšle dopředu další rázovou vlnu (s Lv roste síla a dosah)
+9015	Útok závěrečného úderu (poslední rány) po sérii útoků vpřed/vzad +7%/Lv
+9016	Když Shield zablokuje útok, vyšle kolem protiúder v podobě rázové vlny. S Lv roste síla. I sama tato karta dává 1 Shield
+9017	Útok +12%/Lv. Ale zapečetí srdce max. HP (Lv1–2: 1, pak +1 každé 2 Lv; Lv9: 5)
+9018	Část běžných nepřátel se stane elitou (+4% za Lv; HP ×2.5, o něco rychlejší, po poražení MILE ×3/EXP ×2). Roste i MILE (+30%/Lv)
+9019	MILE za poražené nepřátele +15%/Lv. Platí i pro odměny MILE z BONUS ZONE a WANTED
+9020	Méně získaných EXP (-10%/Lv, min. 25% normálu), zato MILE z nepřátel a BONUS +30%/Lv
+9021	Výrazně více EXP z poražených nepřátel, bossů a BONUS ZONE (+80%/Lv). EXP za uběhnutou vzdálenost se nepočítá
+9022	Zasažený nepřítel může začít hořet a 3 s dostává poškození. Lv1: šance 15%, 5 poškození/s; každá další Lv: šance +5%, poškození/s +1.5
+9023	Když Shield zablokuje útok, vyšle kolem ohnivý protiúder, který zapálí zasažené nepřátele. S Lv roste síla. I sama tato karta dává 1 Shield
+9024	Zásah může nepřítele prochladit a zpomalit. Lv1: šance 15%, zpomalení 25%; každá další Lv: šance +5%, zpomalení +2%. Po 5 prochlazeních nepřítel zamrzne (bossové se nezastaví, jen zpomalí)
+9025	Zásah může vyslat větrnou čepel. Rychlost čepele +5%/Lv, dolet +0.4m/Lv. Průraz větrných čepelí a střel +1 (od Lv4 +2, od Lv7 +3)
+9026	Dopad úderu o zem nebo závěrečný úder na zemi vyšle rázovou vlnu po zemi (s Lv roste síla a délka). Útok na zemi také +2%/Lv
+9027	Útok +4%/Lv. Za každé zapečetěné srdce dalších +0.6%/Lv útoku (počítají se i pečetě z jiných karet). Sama také zapečetí srdce max. HP (Lv1–3: 1, Lv4–6: 2, Lv7–9: 3)
+9028	Max. HP +1 srdce/Lv (limit 20 srdcí). Při získání plně obnoví HP
+9029	Poškození za 2 a více srdcí sníží o 1 srdce. Zvyšuje i max. HP (Lv1–2: +1 srdce, pak +1 každé 2 Lv). Síla skoku -3%/Lv
+9030	Útok dolů a dopad úderu o zem +10%/Lv. Závěrečný úder také +3%/Lv
+9031	HP běžných nepřátel +12%/Lv, rychlost jejich akcí +4%/Lv, četnost skupin +8%/Lv. Zato MILE z nepřátel a BONUS +50%/Lv, MILE za bosse +30%/Lv
+9032	Četnost skupin nepřátel +15%/Lv. Zato MILE z nepřátel a BONUS +5%/Lv, EXP z nepřátel a BONUS +5%/Lv
+9033	V boji s bossem délka výpadu vpřed/vzad při útoku +4%/Lv. Rychlost přibližování k bossovi dál než 6m také +3%/Lv
+9034	Zásah může nepřítele prochladit. Ke zmrazení stačí méně prochlazení (Lv1–3: 4, Lv4–6: 3, Lv7–9: 2). Roste i šance a doba prochlazení
+9035	Když porazíš hořícího nepřítele, oheň se rozšíří a zapálí okolní nepřátele (s Lv roste síla a dosah). I sama tato karta zapaluje při zásahu s malou šancí (5%)
+9036	Skok ve vzduchu +1/Lv. Další skoky v řadě mají slabší výskok, ale ne při pádu do díry. Mágovi se zvýší dosažitelná výška: Lv1–3 o 1 stupeň, Lv4–6 o 2, Lv7–9 o 3
+9037	Když tě poškození srazí na 1 srdce HP nebo méně, dostaneš krátkou nesmrtelnost (1 s + 0.15 s/Lv). Pádové poškození nezastaví. Znovu se spustí, až HP stoupne nad 1 srdce a od aktivace uplyne 20 s
+9038	Získané EXP +30%/Lv
+9039	Dosah útoku +5%/Lv. Útoky zblízka zasáhnou větší oblast, střely doletí dál
+9040	Získané EXP +15%/Lv. Zvyšuje i max. HP (Lv1–3: +1 srdce, Lv4–6: +2, Lv7–9: +3)
+9041	Útok proti nepřátelům kromě bossů +5%/Lv. MILE z nepřátel a BONUS +10%/Lv
+9042	Útok roste s rychlostí běhu. Do 100km/h bez efektu. Při 150km/h +4%/Lv; nad tím roste dál, ale jen čtvrtinovým tempem
+9043	Četnost skupin nepřátel +10%/Lv. Zato získané EXP +15%/Lv
+9044	Četnost skupin nepřátel +10%/Lv. MILE z nepřátel a BONUS také +3%/Lv
+9045	Rychlost pohybu +5%/Lv. Ale četnost skupin nepřátel také +10%/Lv
+9046	MILE z nepřátel a BONUS +50%/Lv, MILE za bosse +50%/Lv, získané EXP +20%/Lv
+9047	Drž 115km/h a víc po určitou dobu a spustí se OVERDRIVE (útok +3%/Lv, rychlost útoku +2%/Lv). Končí, když jsi 0.8 s pod 107km/h. Rychlost pohybu trvale +2%/Lv
+9048	Více léčení z vysátí a DRUHÉHO DECHU (Lv4–6: +1 srdce, Lv7–9: +2). Přebytek při plném HP se změní v 1 Shield (až do max. počtu +1)
+9049	HP běžných nepřátel +15%/Lv, rychlost akcí +5%/Lv, četnost skupin +12%/Lv, šance na elitu +2%/Lv, HP bossů +10%/Lv. Zato MILE z nepřátel a BONUS +60%/Lv, MILE za bosse +60%/Lv
+9050	EXP za uběhnutou vzdálenost +20%/Lv. Neplatí pro EXP z nepřátel
+9051	Když Shield zablokuje zásah, dostaneš krátkou nesmrtelnost (0.4 s + 0.1 s/Lv). I sama tato karta dává 1 Shield
+9052	Když padneš (i pádem do díry), oživneš a 2 s jsi nesmrtelný (HP 1–5 srdcí podle Lv). Po oživení karta zmizí a znovu se objevuje v nabídce (znovu od Lv1)
+9053	Zásah zblízka způsobí bonusové poškození i nepřátelům za cílem. S Lv roste síla a počet cílů. Zvyšuje i průraz střel (Lv1–3: +1, Lv4–6: +2, Lv7–9: +3)
+9054	Šance vyléčit 1 srdce po poražení nepřítele +3%/Lv. Zásahy bossů mají také malou šanci vysát HP
+9055	Když po zásahu klesne HP na 30% max. nebo méně, vyléčí 1–3 srdce (Lv5: 2, Lv9: 3). Další aktivace vyžaduje uběhnout určitou vzdálenost (Lv1: 10,000m, Lv9: 6,000m)
+9056	Shield, který zablokuje 1 zásah. Max. počet Lv1–3: 1, Lv4–6: 2, Lv7–9: 3. Použité se časem obnovují po jednom (s Lv rychleji)
+9057	Útok ve vzduchu +4%/Lv. Zásah ve vzduchu vrátí 1 použitý skok ve vzduchu (do dopadu Lv1–3 až 1×, Lv4–6 až 2×, Lv7–9 až 3×)
+9058	Síla skoku +2%/Lv, útok ve vzduchu +3%/Lv
+9059	Útok vpřed/vzad vyšle dopředu sek, který proráží nepřátele. Čím rychleji běžíš, tím větší dolet, velikost a síla seku
+9060	Rychlost pohybu -4%/Lv. Speciální karta pro případ, kdy chceš běžet pomaleji
+9061	Získané EXP +40%/Lv. Zvyšuje i max. HP (Lv1–2: +1 srdce, pak +1 každé 2 Lv; Lv9: +5)
+9062	Zásah má malou šanci vyvolat úder blesku. Síla blesku +4%/Lv, řetězení Lv1–3 +1 cíl, Lv4–6 +2, Lv7–9 +3. Blesk zasáhne i okolí
+9063	Zásah může vyvolat úder blesku. Lv1: šance 5%, základní síla 7.5; každá další Lv: šance +2%, základní síla +1.5. Do stejného nepřítele max. 1 blesk za 0.4 s
+9064	Kde zasáhne větrná čepel, vznikne tornádo a opakovaně zraňuje okolní nepřátele (s Lv roste síla a dosah). I sama tato karta vyšle při zásahu s malou šancí větrnou čepel
+9065	HP běžných nepřátel +15%/Lv. Zato MILE z nepřátel a BONUS +15%/Lv, EXP z nepřátel +5%/Lv
+9066	MILE z pokladů/odměn +30%/Lv (poklady BONUS ZONE, CLEAR/PERFECT, odměny WANTED). MILE za bosse +10%/Lv, MILE za vzdálenost +5%/Lv
+9067	Útok +3%/Lv, rychlost pohybu +2%/Lv. Zvyšuje i max. HP (Lv1–2: +1 srdce, pak +1 každé 2 Lv; Lv9: +5)
+9068	V určitých vzdálenostech se objeví hledaný nepřítel (s Lv silnější a častější). Poraz ho pro odměnu v MILE; když ho necháš za sebou, odměna propadne. MILE z nepřátel a BONUS +35%/Lv
+9069	Zásah může vyslat dopředu větrnou čepel, která proráží nepřátele. Lv1: šance 10%, síla 8; každá další Lv: šance +3%, síla +1.5. Mírně zvětší i dosah útoku (+1%/Lv)
+9070	Nepřátelé: spousta nepřátel z pustiny, jeskyně i nebe
+9071	Nepřátelé: goblini / harpyje / chrliči a další
+9072	Nepřátelé: goblini, ptáci, obři, střelci aj.
+9073	Překážky: kameny, stromy, zdi, obří balvany (lze rozbít útokem), díry
+9074	Trasa: větví se nahoru/dolů (bezpečná a nebezpečná náhodně)
+9075	Všichni nepřátelé i jejich útoky odstraněni (vše poraženo ani čas se nezapíšou)
+9076	Vše poraženo  {0} s
+9077	Do boje
+9078	Testovací build ({0} druhů)
+9079	Lv = kolikrát vzato během běhu (max. 9 na schopnost). Vlastněné karty ani balíček se nemění
+9080	{0} karet z balíčku zkopírováno do testovacího buildu (balíček se nemění)
+9081	{0} karet postavy zkopírováno do testovacího buildu (počáteční Lv)
+9082	Boss přichází zepředu se stejným nástupem jako ve hře
+9083	Útoky bossů z jeskyně/nebe využívající terén (díry, strop, padající kameny aj.) se na rovné aréně chovají jinak než ve hře
+9084	Aktuální soupeři ({0} skupin)
+9085	HP nepřátel: jako na {0}km (pro běžné nepřátele i bosse)
+9086	Běh (s úpravou)
+9087	Zastaví se jen automatický pohyb vpřed (útoky, skoky, gravitace, zapotácení a pohyb nepřátel jako ve hře)
+9088	Na základní rychlost se použijí úpravy rychlosti od postavy a karet
+9089	Ignoruje úpravy rychlosti od postavy a karet a běží nastavenou rychlostí
+9090	Nastaveno {0}km/h / tento zápas {1}km/h (úprava ×{2})
+9091	I při nesmrtelnosti se zapisuje do „Poškození bez ochrany“ ve výsledcích
+9092	Režim AUTO (jen v aréně; běžné nastavení se nemění)
+9093	Start od {0}km/h
+9094	Odměny, rekordy ani vlastněné karty se vůbec nemění. Nepodporováno: FINAL EVOLUTION / AWAKENED / MASTERY / ukazatel ULTIMATE / level up / odměny za bosse / BONUS ZONE (karty jen s běžným efektem Lv a COMBO)
+9095	První zápas
+9096	Síla bosse: {0}
+9097	Vše poraženo {0} s
+9098	Poraženo/objeveno
+9099	Utržené poškození
+9100	Poškození bez ochrany (vč. zablokovaného nesmrtelností/Shield)
+9101	N0
+9102	Testovací build: {0}
+9103	Upravit podmínky
+9104	??? (zatím nepotkán)
+9105	WARNING!  MECH DRAGON se blíží!
+9106	PROTOKOL OVERKILL
+9107	Chladne! Šance na útok!
+9108	Nelze použít jako materiál: používá se v balíčku/kartách postavy
+9109	Dosaženo AWAKENED (★5). MASTERY už nelze dál zvyšovat
+9110	Při úspěchu obou by Lv byla {0}, fúze nejde (limit Lv.{1})
+9111	<color=#ffd76a><b>[MASTERY] Záznam růstu po Lv.9 MAX</b></color>
+9112	Aktuální MASTERY: <color=#ffd76a>{0}</color>  {1}
+9113	<size=19>MASTERY {0} nad ★5 se ukládá jako záznam</size>
+9114	<size=19>MASTERY nezvyšuje běžné parametry (útok, rychlost, EXP atd.). Je to záznam růstu až k AWAKENED na ★5.</size>
+9115	<b>{0} Lv</b> nad Lv.9 jde do MASTERY: {1} → <color=#ffd76a>{2}</color>{3}
+9116	・{0} {1}<b>×{2}</b>  <size=18>({3})</size>
+9117	<color=#9fd0ff><b>[Fúze různých karet] U různých karet se výsledek losuje</b></color>
+9118	<b>Šance zdědit všechny schopnosti hlavní karty {0}%</b>
+9119	・{0} ×{1}  <size=18>({2})</size>
+9120	<b>Šance zdědit všechny schopnosti materiálu {0}%</b>
+9121	Úspěch obou: zdědí všechny schopnosti obou stran (stejné schopnosti sčítají bonus). Vzácnost = vyšší ★+1 (max. ★5)
+9122	Málo volných karet pro fúzi (používají se v balíčku/kartách postavy)
+9123	Vybaveno v kartách postavy, málo volných
+9124	Používá se v balíčku, málo karet
+9125	<size=21>MASTERY {0} nad ★5 bylo uloženo jako záznam</size>
+9126	<size=21>Dosaženo AWAKENED. Uloženo jako záznam růstu, běžné parametry se nemění</size>
+9127	<size=21>MASTERY nezvyšuje běžné parametry (útok, rychlost, EXP atd.).</size>
+9128	)}    Vzácnost <color=#ffd76a>{new string('★', v.rarity)}</color>
+9129	・{0} ×{1}{2}  <size=21><color=#b7bfd8>({3})</color></size>
+9130	Zobrazeno {0} / vlastníš {1}
+9131	・Různé karty … hlavní 50%, materiál 25%: každá strana zdědí celou svou sadu schopností (losuje se). Uspěje-li jen jedna, zůstane jen její Lv a schopnosti; selžou-li obě, karta nevznikne (MILE se vrátí)
+9132	・Limit Lv fúze je Lv.9. Přebytek u fúze stejných karet jde do MASTERY. Různé karty se součtem Lv nad 9 sloučit nelze
+9133	・Fúze karty Lv.9 MAX se stejnou kartou zvyšuje MASTERY (★5 = AWAKENED)
+9134	<size=19>Dosaženo AWAKENED (★5). Další fúze MASTERY není možná.</size>
+9135	Stejná karta ({0}) jako materiál zvýší MASTERY o Lv materiálu (Lv.1 = +1).
+9136	Oko zesláblo! Šance na útok!
+9137	Jádro odhaleno! Šance na BREAK!
+9138	Četnost skupin nepřátel
+9139	MILE z nepřátel a BONUS
+9140	MILE za bosse
+9141	Šance na hoření
+9142	Základní síla hoření
+9143	Šance na prochlazení
+9144	Zpomalení prochlazením
+9145	Šance na krvácení
+9146	Rychlost útoku vpřed/vzad
+9147	Útok ve vzduchu
+9148	Útok na zemi
+9149	Závěrečný úder série
+9150	Útok na běžné nepřátele
+9151	Útok dolů / úder o zem
+9152	Rychlost útoku při HP do 50%
+9153	Útok za každý HIT v řadě
+9154	Útok za zásah ve vzduchu (do dopadu)
+9155	Obnova Shield (zkrácení s)
+9156	Rychlost akcí nepřátel
+9157	Šance na elitu
+9158	MILE za vzdálenost
+9159	EXP za vzdálenost
+9160	EXP z nepřátel
+9161	Méně prochlazení ke zmrazení
+9162	Násobič poškození bleskem
+9163	)}: karty postavy
+9164	Klepnutím odebrat
+9165	[Vybaveno u jiné postavy]
+9166	Používanou kartu nelze převést. Odeber ji z balíčku nebo karet postavy.
+9167	Převést tuto 1 kartu na {CardConvertMile} MILE?
+9168	)} {BleedPower * Scale:0.#}/s vysátí {BleedLifesteal * 100f:0}%
+9169	(už AWAKENED)
+9170	Klepnutím zavřeš / klepni na automat pro další tah
+9171	Po převzetí: běžných {0} MILE + bonus {1} MILE = celkem {2} MILE
+9172	Dnešní tahy jsou vyčerpány (obnova za {0})
+9173	Reset počtu za {0}
+9174	K odnesení z tohoto běhu
+9175	Po úniku budeš mít
+9176	Když padneš nebo běh zrušíš, MILE z tohoto běhu nedostaneš
+9177	NOVÉ:
+9178	DEV: mimo záznamy (
+9179	Tato vzdálenost se nezapíše do oficiálních záznamů (BEST, celková vzdálenost, odemčení map/postav)
+9180	Pečetě: {0}
+9181	RESET MILE
+9182	RESET KARET
+9183	Přerušený běh a MILE k odnesení
+9184	MILE k odnesení
+9185	Vracíš se domů.
+9186	Běh nekončí, později navážeš odtud
+9187	{0} nelze vybavit: s ostatními kartami postavy by přesáhla Lv{1}
+9188	Pozor: {0} přesáhne v kartách postavy celkem Lv{1} ({2} Lv navíc nebude působit)
+9189	IRENE
+9190	ESTELLE
+9191	ALICIA
+9192	Reklama se připravuje. Zkus to za chvíli
+9193	TEST AD (simulace) reklama s odměnou
+9194	TEST AD (simulace) celoobrazovková reklama
+9195	{0} s
+9196	Podmínka odměny splněna
+9197	Zavřít předčasně
+9198	Simulace přerušení aplikace
+9199	¥(simulace) 000
+9200	Simulace (jen vývojová verze): nejde o skutečný nákup. Ukládá se odděleně od skutečně zakoupených práv
+9201	・Nákupy jsou vázané na účet v obchodě. Po změně zařízení nebo reinstalaci je vrátíš přes „Obnovit nákupy“. Uložená data jako karty a MILE tímto tlačítkem nevrátíš
+9202	Nákup se nepodařilo ověřit. Propustka zůstává aktivní, ověříme to později znovu
+9203	OMMLAN
+9204	SYNC
+9205	HRA ONLINE
+9206	Vytvoří místnost a zveřejní ji v online „FIND GAME“.
+9207	Vytvoří místnost na tomto zařízení. Zařízení ve stejné Wi-Fi se připojí přes „FIND GAME“.
+9208	ONLINE SLUŽBA NEDOSTUPNÁ
+9209	DEV:
+9210	ZNOVU
+9211	Hledám místnosti poblíž…
+9212	DEV
+9213	Až budou všichni, dej „Zavřít (místnost zůstane)“ → dveře → STAGE SELECT a „Vyrazit“: všichni začnou na stejné mapě současně.
+9214	CO-OP: Kdo padne, je DOWN. Spoluhráč (aspoň 2 srdce), který dojde na místo pádu, ho přes REVIVE oživí předáním 1 srdce. Když jsou všichni DOWN, konec.
+9215	MODE: volí HOST (platí pro všechny při startu běhu)
+9216	Dveře domova → STAGE SELECT a „Vyrazit“: všichni připojení začnou na stejné mapě současně.
+9217	REVIVE
+9218	Komunikaci nelze spustit. Zkus to znovu nebo restartuj aplikaci
+9219	Místnost nelze vytvořit (síť možná používá jiná aplikace)
+9220	P{0} se odpojil (zbývá {1})
+9221	{0} se odpojil
+9222	Spoluhráč se odpojil
+9223	Nelze se připojit: jiná verze hry. Aktualizuj obě na nejnovější verzi
+9224	Nelze se připojit: v místnosti už se běží
+9225	Nelze se připojit: místnost je plná
+9226	Připojení odmítnuto
+9227	Ty: tvůj rekord zatím není v žebříčku
+9228	AUTO
+9229	Sprint
+9230	Přestat odesílat rekordy
+9231	UGS
+9232	Vyber kartu
+9233	Pro potvrzení vyber znovu
+9234	Vyber kartu → pro potvrzení znovu
+9235	Podmínka splněna! Potvrdí se, až běh úspěšně dokončíš
+9236	Když rychlost běhu dosáhne startovní rychlosti, provádějí se automaticky jen akce nastavené na ON.
+9237	Ruční ovládání má přednost. Je-li „AUTO i v boji s bossem“ OFF, v boji s bossem se nic neprovádí automaticky.
+9238	Propustka je vázaná na účet v obchodě (obnova nákupů nevrátí uložená data)
+9239	Procvič si útok vpřed/vzad, skok, útok dolů, vyhození a výběr karet (bez odměn a rekordů).
+9240	Trénink lze spustit jen doma (ne během připojení k multiplayeru)
+9241	Titán se blíží! Šance na útok!
+9242	Jádro pohaslo! Šance na BREAK!
+9243	Uklouzl při dopadu! Šance na útok!
+9244	Hlava vyšla z mraků! Šance na útok!
+9245	Svatozář zmizela! Velká šance!
+9246	Náboj vyprchal! Šance na útok!
+9247	Sprintový start (bod {0})
+9248	Proletíš už zdolané úseky a začneš těsně před vybranou bránou. Karty z odměn za bosse se získají automaticky náhodně. Když u kruhu každých 5,000m trefíš výšku nahoře/dole, vybereš si 1 kartu navíc. Za přeskočenou vzdálenost nejsou MILE ani EXP.
+9249	Sprint na {0}km   (cca {1} s + výběr karet u kruhů){2}
+9250	Boss brány na {0}km zatím neporažen
+9251	V tomto běhu jsou všechny karty balíčku na Lv9.
+9252	Brány {0}/{1}    Kruhy {2}/{3}{4}
+9253	Prošlé brány {0}/{1}   Kruhy {2}/{3}{4}
+9254	Všechny karty balíčku v běhu Lv{0} MAX
+9255	Brány bez karty: {0}
+9256	V tomto běhu jsou všechny karty balíčku na Lv9. Odměna z kruhů jsou MILE k odnesení
+9257	(Nezapíše se ani rekord BEST vzdálenosti)
+9258	Na výběr mapy
+9259	Limit balíčku je nyní 12 karet
+9260	OVERFLOW

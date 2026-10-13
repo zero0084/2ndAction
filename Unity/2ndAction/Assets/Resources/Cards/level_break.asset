@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: level_break
   cardName: LEVEL BREAK
   icon: {fileID: 2800000, guid: f8e7d765a5a835047a388b30c368d61d, type: 3}
-  description: "\u5F97\u3089\u308C\u308B\u7D4C\u9A13\u5024\u304C\u5927\u304D\u304F\u5897\u3048\u308B(1Lv\u3054\u3068\u306B+30%)"
+  description: "獲得EXP+30%/Lv"
   category: 3
   sortOrder: 133
   recommendPriority: 5

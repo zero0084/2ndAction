@@ -97,7 +97,9 @@ public partial class GameManager
         Rect btn = new Rect(area.x, area.y, area.width, 50f);
         resultDoubleRect = btn;
         var note = new GUIStyle(UiKit.Label(15f, TextAnchor.MiddleCenter, false, new Color(0.85f, 0.88f, 0.95f))) { wordWrap = true };
-        string sum = Loc.F("通常{0}MILE＋追加{1}MILE＝合計{2}MILE", doubleBase, doubleBase, doubleBase * 2);
+        // 受け取る前は「受け取ると」を付ける(まだ受け取っていない追加分を、もう手に入ったように見せない。2026-10-13)
+        string sum = DoubleClaimed ? Loc.F("通常{0}MILE＋追加{1}MILE＝合計{2}MILE", doubleBase, doubleBase, doubleBase * 2)
+                                   : Loc.F("受け取ると 通常{0}MILE＋追加{1}MILE＝合計{2}MILE", doubleBase, doubleBase, doubleBase * 2);
         if (DoubleClaimed)
         {
             UiKit.Button(btn, Loc.T("MILE 2倍 受け取り済み"), 18f, true, false, false);
@@ -169,7 +171,7 @@ public partial class GameManager
     {
         if (!AdGachaAvailable || adGachaBusy || AdManager.Showing) return;
         string day = TrustedClock.DayKey;
-        if (AdRewards.GachaRemaining(day) <= 0) { SetAdGachaNote(Loc.F("本日の回数は終わりました(あと{0}で回復)", FormatUntilNextDay())); return; }
+        if (AdRewards.GachaRemaining(day) <= 0) { SetAdGachaNote(Loc.F("本日の分は引き終わりました(あと{0}で回復)", FormatUntilNextDay())); return; }
         if (NoAdsPass.Owned)
         {
             TrustedClock.NoteUse();
@@ -216,7 +218,7 @@ public partial class GameManager
             : new Rect(anchor.center.x - w / 2f, anchor.yMax + 6f, w, h);
         r.x = Mathf.Clamp(r.x, SafeLeft() + 8f, Screen.width - SafeRight() - 8f - r.width);
         string title = pass ? Loc.T("無料で1回引く(パス)") : Loc.T("広告で1回引く");
-        string sub = left > 0 ? Loc.F("本日あと{0}回", left) : Loc.F("次の回復まで {0}", FormatUntilNextDay());
+        string sub = left > 0 ? Loc.F("本日あと{0}回", left) : Loc.F("回数リセットまで {0}", FormatUntilNextDay());
         bool ok = interactable && left > 0 && !adGachaBusy && !AdManager.Showing;
         Rect top = new Rect(r.x, r.y, r.width, h * 0.62f);
         if (UiKit.Button(r, "", 16f * s, false, false, ok) && interactable) OnAdGachaTapped();

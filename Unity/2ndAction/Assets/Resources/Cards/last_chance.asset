@@ -15,7 +15,7 @@ MonoBehaviour:
   cardId: last_chance
   cardName: LAST CHANCE
   icon: {fileID: 2800000, guid: d4d1c4a860db9be4985dd69e7935f613, type: 3}
-  description: "HP\u304C\u30CF\u30FC\u30C81\u3064\u306B\u306A\u3063\u305F\u77AC\u9593\u3001\u77ED\u3044\u7121\u6575\u306B\u306A\u308B(1\u79D2+1Lv\u3054\u3068\u306B0.15\u79D2)\u3002HP\u304C\u56DE\u5FA9\u3057\u3066\u3057\u3070\u3089\u304F\u305F\u3064\u307E\u3067\u6B21\u306F\u51FA\u306A\u3044"
+  description: "ダメージでHPがハート1つ以下になった瞬間、短い無敵になる(1秒+0.15秒/Lv)。落下ダメージは防げない。次に出るのは、HPがハート1つより多く戻り、発動から20秒たった後"
   category: 2
   sortOrder: 172
   recommendPriority: 5
