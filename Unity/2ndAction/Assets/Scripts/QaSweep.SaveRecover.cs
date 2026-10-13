@@ -187,6 +187,7 @@ public partial class QaSweep
             yield return ReloadHome();
             Check(!SaveProfile.IsTest, "cleanup: back to the normal data");
         }
+        if (b != null && b.restoredFrom != "") L($"[sr] notice: {Loc.T("セーブデータを復元しました。")} / {Loc.F("{0} 時点の控えから戻しています。", "x")} / {Loc.T("それ以降の進行は含まれない場合があります。")}");
         L($"[sr] backups(after): {SrFiles(SaveSystem.BackupDir)}");
         L($"[sr] progress now: {SrSnapshot(true).Replace('\n', ' ')}");
         string lg = System.IO.Path.Combine(SaveSystem.BackupDir, "lastgood.json");

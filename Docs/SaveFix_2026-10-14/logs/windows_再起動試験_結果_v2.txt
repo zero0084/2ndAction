@@ -1,0 +1,237 @@
+76 normal values
+== 01_seed (-srPhase seed)
+[sr] phase=seed profile=NORMAL boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 02_boot (-srPhase boot -srExpect Existing -srMile 7777 -srWriteExpect 1)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 03_lose (-srPhase boot -srLoseAtStart -srExpect RestoredFromBackup -srFrom lastgood -srMile 7777 -srCompare 1)
+[sr] phase=boot profile=TEST boot=RestoredFromBackup from='lastgood' (2026-10-14T06:56:31) preserved=[]
+[sr] boot report: DATA LOSS: no progress keys - restored 22 keys from lastgood (2026-10-14T06:56:31); 
+[sr] before start-up: lastgood had MILE 7777; lastgood_prev had MILE 0; deleted 21 test keys (backup files kept)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 04_boot (-srPhase boot -srExpect Existing -srMile 7777 -srCompare 1)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 05_boot (-srPhase boot -srExpect Existing -srMile 7777 -srCompare 1)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 06_set (-srPhase setmile -srValue 8888)
+[sr] phase=setmile profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 07_boot (-srPhase boot -srExpect Existing -srMile 8888)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 08_corrupt (-srPhase boot -srLoseAtStart -srCorrupt lastgood -srExpect RestoredFromBackup -srFrom lastgood_prev -srMile 7777 -srCompare 1 -srDamaged 1)
+[sr] phase=boot profile=TEST boot=RestoredFromBackup from='lastgood_prev' (2026-10-14T06:57:25) preserved=[]
+[sr] boot report: DATA LOSS: no progress keys - restored 22 keys from lastgood_prev (2026-10-14T06:57:25); 
+[sr] before start-up: lastgood had MILE 8888; lastgood_prev had MILE 7777; lastgood: cut 3435->1374 bytes; deleted 21 test keys (backup files kept)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 09_boot (-srPhase boot -srExpect Existing -srMile 7777 -srCompare 1)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 10a_set (-srPhase setmile -srValue 1010)
+[sr] phase=setmile profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 10b_boot (-srPhase boot -srExpect Existing -srMile 1010)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 10c_set (-srPhase setmile -srValue 5010)
+[sr] phase=setmile profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 10d_crash (-qaBackupCrashAt prev-partial) crash: [Save] DEV CRASH while writing a backup at 'prev-partial'
+   files: corrupt_lastgood_20261014_065753.json lastgood.json lastgood_prev.json lastgood_prev.json.tmp 
+== 10e_lose (-srPhase boot -srLoseAtStart -srExpect RestoredFromBackup -srFrom lastgood -srMile 1010 -srCompare 1)
+[sr] phase=boot profile=TEST boot=RestoredFromBackup from='lastgood' (2026-10-14T06:58:48) preserved=[]
+[sr] boot report: DATA LOSS: no progress keys - restored 22 keys from lastgood (2026-10-14T06:58:48); 
+[sr] before start-up: lastgood had MILE 1010; lastgood_prev had MILE 1010; deleted 21 test keys (backup files kept)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 10f_boot (-srPhase boot -srExpect Existing -srMile 1010 -srCompare 1)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 11a_set (-srPhase setmile -srValue 1011)
+[sr] phase=setmile profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 11b_boot (-srPhase boot -srExpect Existing -srMile 1011)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 11c_set (-srPhase setmile -srValue 5011)
+[sr] phase=setmile profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 11d_crash (-qaBackupCrashAt prev-tmp) crash: [Save] DEV CRASH while writing a backup at 'prev-tmp'
+   files: corrupt_lastgood_20261014_065753.json lastgood.json lastgood_prev.json lastgood_prev.json.tmp 
+== 11e_lose (-srPhase boot -srLoseAtStart -srExpect RestoredFromBackup -srFrom lastgood -srMile 1011 -srCompare 1)
+[sr] phase=boot profile=TEST boot=RestoredFromBackup from='lastgood' (2026-10-14T07:00:13) preserved=[]
+[sr] boot report: DATA LOSS: no progress keys - restored 22 keys from lastgood (2026-10-14T07:00:13); 
+[sr] before start-up: lastgood had MILE 1011; lastgood_prev had MILE 1011; deleted 21 test keys (backup files kept)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 11f_boot (-srPhase boot -srExpect Existing -srMile 1011 -srCompare 1)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 12a_set (-srPhase setmile -srValue 1012)
+[sr] phase=setmile profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 12b_boot (-srPhase boot -srExpect Existing -srMile 1012)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 12c_set (-srPhase setmile -srValue 5012)
+[sr] phase=setmile profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 12d_crash (-qaBackupCrashAt cur-partial) crash: [Save] DEV CRASH while writing a backup at 'cur-partial'
+   files: corrupt_lastgood_20261014_065753.json lastgood.json lastgood.json.tmp lastgood_prev.json 
+== 12e_lose (-srPhase boot -srLoseAtStart -srExpect RestoredFromBackup -srFrom lastgood -srMile 1012 -srCompare 1)
+[sr] phase=boot profile=TEST boot=RestoredFromBackup from='lastgood' (2026-10-14T07:01:38) preserved=[]
+[sr] boot report: DATA LOSS: no progress keys - restored 22 keys from lastgood (2026-10-14T07:01:38); 
+[sr] before start-up: lastgood had MILE 1012; lastgood_prev had MILE 1012; deleted 21 test keys (backup files kept)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 12f_boot (-srPhase boot -srExpect Existing -srMile 1012 -srCompare 1)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 13a_set (-srPhase setmile -srValue 1013)
+[sr] phase=setmile profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 13b_boot (-srPhase boot -srExpect Existing -srMile 1013)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 13c_set (-srPhase setmile -srValue 5013)
+[sr] phase=setmile profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 13d_crash (-qaBackupCrashAt cur-tmp) crash: [Save] DEV CRASH while writing a backup at 'cur-tmp'
+   files: corrupt_lastgood_20261014_065753.json lastgood.json lastgood.json.tmp lastgood_prev.json 
+== 13e_lose (-srPhase boot -srLoseAtStart -srExpect RestoredFromBackup -srFrom lastgood -srMile 1013 -srCompare 1)
+[sr] phase=boot profile=TEST boot=RestoredFromBackup from='lastgood' (2026-10-14T07:03:03) preserved=[]
+[sr] boot report: DATA LOSS: no progress keys - restored 22 keys from lastgood (2026-10-14T07:03:03); 
+[sr] before start-up: lastgood had MILE 1013; lastgood_prev had MILE 1013; deleted 21 test keys (backup files kept)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 13f_boot (-srPhase boot -srExpect Existing -srMile 1013 -srCompare 1)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 20_bothbad (-srPhase boot -srLoseAtStart -srCorrupt both -srExpect NewGame -srMile 0 -srDamaged 1)
+[sr] phase=boot profile=TEST boot=NewGame from='' () preserved=[orphan_20261014_070357_lastgood.json,orphan_20261014_070357_lastgood_prev.json]
+[sr] boot report: no usable backup - kept the old backup files as orphan_20261014_070357_lastgood.json, orphan_20261014_070357_lastgood_prev.json; new game (schema 3, generation 0)tutorial: new data -> first-time guides enabled; unlocks: new data -> Wasteland Road + Swordsman only; 
+[sr] before start-up: lastgood had MILE 1013; lastgood_prev had MILE 1013; lastgood: cut 3435->1374 bytes; lastgood_prev: cut 3435->1374 bytes; deleted 21 test keys (backup files kept)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 21_boot (-srPhase boot -srExpect Existing -srMile 0)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 22_seed (-srPhase seed)
+[sr] phase=seed profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 23_boot (-srPhase boot -srExpect Existing -srMile 7777)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 24_reset (-srPhase intentreset)
+[sr] phase=intentreset profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 25_boot (-srPhase boot -srExpect Existing -srMile 0)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 26_cc (development run, crash after the journal) crashed=1 journalInTestData=1 journalInNormalData=0
+== 27_release (-srPhase release -qaReleaseGen 1 -ccBase C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/sr/26_cc/cc_baseline.json)
+[sr] phase=release profile=TEST boot=ReleaseReset from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 28_release2 (-srPhase release2 -qaReleaseGen 1 -ccBase C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad/sr/26_cc/cc_baseline.json)
+[sr] phase=release2 profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 29_normal (-srPhase normal)
+[sr] phase=normal profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 30_boot (-srPhase boot -srExpect Existing -srNormal 1)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 31_boot (-srPhase boot -srExpect Existing -srNormal 1)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 33_seed (-srPhase seed)
+[sr] phase=seed profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 34_boot (-srPhase boot -srExpect Existing -srMile 7777 -srWriteExpect 1)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 35_lose_portrait (-srPhase boot -srLoseAtStart -srExpect RestoredFromBackup -srFrom lastgood -srMile 7777 -srCompare 1)
+[sr] phase=boot profile=TEST boot=RestoredFromBackup from='lastgood' (2026-10-14T07:07:20) preserved=[]
+[sr] boot report: DATA LOSS: no progress keys - restored 22 keys from lastgood (2026-10-14T07:07:20); 
+[sr] before start-up: lastgood had MILE 7777; lastgood_prev had MILE 0; deleted 21 test keys (backup files kept)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 36_set_portrait (-srPhase setmile -srValue 8888)
+[sr] phase=setmile profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 37_boot_portrait (-srPhase boot -srExpect Existing -srMile 8888)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 38_corrupt_portrait (-srPhase boot -srLoseAtStart -srCorrupt lastgood -srExpect RestoredFromBackup -srFrom lastgood_prev -srMile prev -srNotMile 8888 -srCompare 1 -srDamaged 1)
+[sr] phase=boot profile=TEST boot=RestoredFromBackup from='lastgood_prev' (2026-10-14T07:07:49) preserved=[]
+[sr] boot report: DATA LOSS: no progress keys - restored 22 keys from lastgood_prev (2026-10-14T07:07:49); 
+[sr] before start-up: lastgood had MILE 8888; lastgood_prev had MILE 7777; lastgood: cut 3435->1374 bytes; deleted 21 test keys (backup files kept)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 32_cleanup (-srPhase cleanup)
+[sr] phase=cleanup profile=TEST boot=Existing from='' () preserved=[]
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== normal data check:
+Unity window size put back: ['Screenmanager Resolution Width_h182942802', 'Screenmanager Resolution Window Width_h2524650974', 'Screenmanager Window Position Y_h4088080502']
+one-time move of the test-data key list into test:: ['SaveProfile.TestKeys_h3181901043']
+normal data unchanged (except Unity session ids / window size) []
+75 normal values
+== normal data (non-test registry values) differences:
+35d34
+< SaveProfile.TestKeys_h3181901043	3	b'SaveSchemaVersion\nOwnedCardsV1\nNewUnconfirmedCardsV1\nCardMasteryV1\nCardDataFormat\nDeckCardIds\nCharacterCardSlots\nTotalOwnedMile\nBestDistance\nBestTime\nB
+72,73c71,72
+< unity.player_session_count_h922449978	3	b'1354\x00'
+< unity.player_sessionid_h1351336811	3	b'1547887262358683488\x00'
+---
+> unity.player_session_count_h922449978	3	b'1406\x00'
+> unity.player_sessionid_h1351336811	3	b'6935454408435868552\x00'
+75,76c74,75
+< unity_connect.mega_session_id_h1802243016	3	b'325ed8e0-7474-bb54-abbf-67e3dfbe1e4c\x00'
+< unity_connect.session_id_h4145606137	3	b'4498eb7b-8d39-cb64-a95f-92eb25148784\x00'
+---
+> unity_connect.mega_session_id_h1802243016	3	b'a73d83ec-c282-7ae4-1b8e-a5989c69b1e0\x00'
+> unity_connect.session_id_h4145606137	3	b'e1f83ae4-60c7-99d4-4ad3-23569748acd3\x00'
+== totals:      47 failures=0 warnings=0 

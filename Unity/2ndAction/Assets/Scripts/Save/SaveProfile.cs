@@ -12,7 +12,9 @@ using UnityEngine;
 public static class SaveProfile
 {
     public const string ActiveKey = "SaveProfile.Active";   // 0=通常 / 1=テスト用(読み替えない)
-    public const string TestKeysKey = "SaveProfile.TestKeys"; // テスト用データで書いたキーの一覧(読み替えない)
+    // テスト用データで書いたキーの一覧(読み替えない)。2026-10-14: 通常のデータの名前の範囲に置かない("test:" の中へ。旧い名前からは1回だけ移す)
+    public const string TestKeysKey = "test:SaveProfile.TestKeys";
+    const string OldTestKeysKey = "SaveProfile.TestKeys";
     public const string Prefix = "test:";
 
     static int active = -1;
@@ -70,6 +72,11 @@ public static class SaveProfile
         {
             if (testKeys != null) return testKeys;
             testKeys = new HashSet<string>();
+            if (Platform.Save.HasKey(OldTestKeysKey))
+            {
+                if (!Platform.Save.HasKey(TestKeysKey)) Platform.Save.SetString(TestKeysKey, Platform.Save.GetString(OldTestKeysKey, ""));
+                Platform.Save.DeleteKey(OldTestKeysKey);
+            }
             foreach (var k in Platform.Save.GetString(TestKeysKey, "").Split('\n')) if (!string.IsNullOrEmpty(k)) testKeys.Add(k);
             return testKeys;
         }

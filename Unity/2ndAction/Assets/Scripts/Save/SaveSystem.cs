@@ -137,7 +137,7 @@ public static class SaveSystem
             {
                 WriteBackupFile($"release_reset_gen{r.generationBefore}to{buildGeneration}_{Stamp()}", Capture(), false);
                 DefaultSave.WriteNewProgress();
-                foreach (var e in SaveKeys.All) if (e.cat == SaveCategory.Dev) SaveStore.DeleteKey(e.key);
+                foreach (var e in SaveKeys.All) if (e.cat == SaveCategory.Dev && !SharedWithOtherProfile(e.key)) SaveStore.DeleteKey(e.key);
                 if (SaveStore.GetInt(SaveKeys.SchemaVersion, 0) < CurrentSchemaVersion) SaveStore.SetInt(SaveKeys.SchemaVersion, CurrentSchemaVersion);
                 r.kind = BootKind.ReleaseReset;
                 log.Append($"RELEASE RESET generation {r.generationBefore}->{buildGeneration} (progress reset, settings kept); ");
@@ -173,8 +173,9 @@ public static class SaveSystem
             string when = DateTime.TryParse(r.restoredTime, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime t)
                 ? t.ToString("yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture) : r.restoredTime;
             // 戻したことは見落とされないように、ホームで OK を押すまで出すお知らせにする(数秒で消える帯にしない)
-            NoticeQueue.Enqueue("save_restored_" + r.restoredTime, Loc.T("セーブデータの復旧"),
-                Loc.F("セーブデータが見つからなかったため、{0} の控えから戻しました", when) + "\n" + Loc.T("この時点より後の進行は含まれていない場合があります"), null);
+            // 2026-10-14: 1つ前の世代へ戻すこともあるので「最新の状態に戻った」と読めない文にする(戻した控えの時刻を必ず書く)。短い行に分けて縦横どちらでも折り返さない
+            NoticeQueue.Enqueue("save_restored_" + r.restoredTime, Loc.T("セーブデータの復元"),
+                Loc.T("セーブデータを復元しました。") + "\n" + Loc.F("{0} 時点の控えから戻しています。", when) + "\n" + Loc.T("それ以降の進行は含まれない場合があります。"), null);
         }
         Debug.Log($"[Save] boot: {r.kind} schema {r.schemaBefore}->{r.schemaAfter} generation {r.generationBefore}->{r.generationAfter} | {r.report}");
         return r;
@@ -618,6 +619,10 @@ public static class SaveSystem
 
     static string Stamp() => DateTime.Now.ToString("yyyyMMdd_HHmmss");
 
+    // 2026-10-14: テスト用データの間、設定/開発用の値の多くは通常のデータと共用(SaveProfile.SharedKey)。初期化でそれを消すと通常のデータまで変わるので消さない。
+    // 製品版は常に通常のデータなので、この判定は常に false(今までと同じ)
+    static bool SharedWithOtherProfile(string key) => SaveProfile.IsTest && SaveProfile.SharedKey(key);
+
     static bool AnyProgressKey()
     {
         foreach (var e in SaveKeys.Expanded()) if (e.cat == SaveCategory.Progress && SaveStore.HasKey(e.key)) return true;
@@ -690,8 +695,8 @@ public static class SaveSystem
     {
         WriteBackupFile($"dev_reset_all_{Stamp()}", Capture(), false);
         ForgetBackupsForIntentionalReset("dev_reset_all");
-        foreach (var e in SaveKeys.Expanded()) SaveStore.DeleteKey(e.key);
-        foreach (string k in SaveKeys.Legacy) SaveStore.DeleteKey(k);
+        foreach (var e in SaveKeys.Expanded()) if (!SharedWithOtherProfile(e.key)) SaveStore.DeleteKey(e.key);
+        foreach (string k in SaveKeys.Legacy) if (!SharedWithOtherProfile(k)) SaveStore.DeleteKey(k);
         SaveStore.Save();
         Boot(BuildReleaseGeneration);
         Debug.Log("[Save] DEV: everything reset (same as a new install)");
