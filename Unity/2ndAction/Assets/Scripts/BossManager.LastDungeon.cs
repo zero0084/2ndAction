@@ -132,6 +132,7 @@ public partial class BossManager
             if (a[i] == "-ldForceRare" && a[i + 1] == "1") DevForceRare = true;
             if (a[i] == "-ldForceRareRush" && a[i + 1] == "1") DevForceRareRush = true;
             if (a[i] == "-ldForceRareAtK" && int.TryParse(a[i + 1], out int fk)) DevForceRareAtK = fk;
+            if (a[i] == "-ldForceBoss") DevForceLdBoss = a[i + 1]; // 例 Sky/Majin: 0〜89km の次の関門をこのボスに(開発版の調査用。1回だけ)
         }
     }
 #endif
@@ -141,6 +142,7 @@ public partial class BossManager
     // 開発用(2026-10-13 第3弾、全キャラの通し試験): この km 以降で、本来メカドラゴンが出られる関門(5km/10km 格、rareMinKm 以降)の最初の1つで必ず出す。
     // 本番の確率は変えない(開発版の起動引数 -ldForceRareAtK N からだけ。1回出たら消える)
     public static int DevForceRareAtK = -1;
+    public static string DevForceLdBoss = "";
     public int RareCountThisRun => rareCountThisRun;
     bool RareAllowedAt(int k)
     {
@@ -173,6 +175,7 @@ public partial class BossManager
     {
         family = GateFamily.Wild; kind = 0;
         var ld = LastDungeonBossTuning.I;
+        if (Debug.isDebugBuild && !string.IsNullOrEmpty(DevForceLdBoss) && ParseKey(DevForceLdBoss, out family, out kind)) { why = $"開発用に強制 {DevForceLdBoss}"; DevForceLdBoss = ""; return true; }
         if (TryRareMilestone(k, out string rw) && ParseKey(ld.rareKey, out family, out kind)) { why = rw; return true; }
         var pool = k % 10 == 0 ? ld.pool10k : k % 5 == 0 ? ld.pool5k : ld.pool1k;
         string cls = k % 10 == 0 ? "10,000m格" : k % 5 == 0 ? "5,000m格" : "1,000m格";

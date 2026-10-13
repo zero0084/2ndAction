@@ -141,7 +141,9 @@ public class CreditsRoad : MonoBehaviour
                     : e.layout == StaffCreditsData.Layout.Stairs ? g + 4.9f
                     : e.layout == StaffCreditsData.Layout.Title ? g + 3.1f
                     : g + nameCap * 1.3f + 1.8f;
-                Subtitles.Add(CreditText.Create(transform, Loc.T(e.subtitle), new Vector3(x + GlyphFont.Measure(e.role) * roleCap * 0.5f, roleY - 0.12f - SubH(roleCap) * 0.6f, 0f), SubH(roleCap), new Color(0.9f, 0.86f, 0.78f), LetterOrder + 1, true));
+                // 階段は役職のすぐ下まで文字が上がってくるので、説明は役職の上に置く
+                float subY = e.layout == StaffCreditsData.Layout.Stairs ? roleY + roleCap * 1.15f + SubH(roleCap) * 0.5f : roleY - 0.12f - SubH(roleCap) * 0.6f;
+                Subtitles.Add(CreditText.Create(transform, Loc.T(e.subtitle), new Vector3(x + GlyphFont.Measure(e.role) * roleCap * 0.5f, subY, 0f), SubH(roleCap), new Color(0.9f, 0.86f, 0.78f), LetterOrder + 1, true));
             }
             x = right + Mathf.Max(6f, e.gapAfter);
         }
