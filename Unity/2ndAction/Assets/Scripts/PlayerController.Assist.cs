@@ -107,6 +107,16 @@ public partial class PlayerController
         }
     }
 
+    // 2026-10-13 第3弾: 自分の前への飛び道具が出る高さ(足元から。最後に撃った水平の弾で覚える。未知は -1)。
+    // 補助が「浮いているボスの下を弾が素通りする」かを見るのに使う(弓の矢は体の前の低い所 0.62m から水平に飛ぶ)
+    public static float LastShotYOffset = -1f;
+    public static void NoteShot(Vector3 pos, Vector2 velocity)
+    {
+        var pc = Instance;
+        if (pc == null || Mathf.Abs(velocity.y) > 0.1f || Mathf.Abs(velocity.x) < 0.1f) return;
+        LastShotYOffset = pos.y - pc.transform.position.y;
+    }
+
     // 飛び道具で攻撃するキャラか(間合いの考え方が近接と違う)。
     public bool AssistForwardIsProjectile =>
         isRangedCharacter || kit == CharacterKit.Archer || kit == CharacterKit.Mage || kit == CharacterKit.Miko;

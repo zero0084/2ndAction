@@ -156,8 +156,10 @@ public partial class MajinController : MonoBehaviour
     float trackedX;
 
     // Floating Origin: 座標を戻した分、追従基準X/待機位置も戻す。
-    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; }
-    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; }
+    // 2026-10-13 第3弾: 戦っているボスの一覧(BossBattle.Living)に入れる。以前は入っておらず、補助が魔人を狙えなかった
+    // (飛び道具のキャラは 150秒撃っても一度も当たらず、ボス戦の回避/攻撃の判断も働いていなかった)
+    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; BossBattle.Living.Add(this); }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; BossBattle.Living.Remove(this); }
     void OnOriginShifted(float s) { trackedX -= s; homePos.x -= s; }
 
     public void Init(Transform playerTransform)

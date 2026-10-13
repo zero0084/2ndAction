@@ -19,7 +19,7 @@ public partial class HighSpeedAssist
     [Tooltip("回避の踏み切りに使う余裕(秒)")]
     public float bossJumpMargin = 0.04f;
 
-    public int BossDodgeJumps, BossDoubleJumps, BossStayLow, BossAttacks, BossDownAttacks, BossTerrainJumps, BossTerrainOverStayLow;
+    public int BossDodgeJumps, BossDoubleJumps, BossStayLow, BossAttacks, BossDownAttacks, BossTerrainJumps, BossTerrainOverStayLow, BossShotJumps;
     public string BossPlan { get; private set; } = "";
 
     bool BossFightNear(PlayerController pc)
@@ -249,6 +249,25 @@ public partial class HighSpeedAssist
             BossPlan = $"{bestName} は高い所 → 跳んで攻撃";
             Act("ジャンプ(ボスへ)", BossPlan);
             return PlayerController.FlickDirection.Up;
+        }
+        // 2026-10-13 第3弾(全キャラのラスダン通しで発見): 飛び道具が浮いているボスの下を素通りしていた。弓の矢は足元から 0.62m を水平に飛び、
+        // 魔人は地面から 0.8m 以上浮くので、地上から撃ち続けても一度も当たらなかった(闘技場で 150秒・300回撃って 0)。
+        // 弾の高さ(最後に撃った弾で覚える)がボスの判定の下端より下なら、着地が安全な時に跳び、届く高さで撃つ
+        if (pc.AssistForwardIsProjectile && !pc.AssistIsMageFlight && PlayerController.LastShotYOffset > 0f)
+        {
+            float shotY = feet + PlayerController.LastShotYOffset;
+            if (shotY < bb.min.y + 0.1f)
+            {
+                if (grounded && !stayLow && Time.time >= manualJumpUntil && BossJumpSafe(pc, "ジャンプ(撃ち上げ)"))
+                {
+                    BossShotJumps++;
+                    BossPlan = $"{bestName} は弾より高い(弾 {shotY - feet:F1}m / 下端 {bb.min.y - feet:F1}m)→ 跳んで撃つ";
+                    Act("ジャンプ(撃ち上げ)", BossPlan);
+                    return PlayerController.FlickDirection.Up;
+                }
+                BossPlan = $"{bestName} は弾より高い → 届く高さまで待つ";
+                return null;
+            }
         }
         if (!pc.AssistCanStartForwardAttack) return null;
         if (bb.max.y < feet - 0.5f || bb.min.y > top + 1.2f) return null; // 高さが合わない

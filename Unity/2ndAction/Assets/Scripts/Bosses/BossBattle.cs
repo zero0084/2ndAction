@@ -55,6 +55,7 @@ public static class BossBattle
             float x, half;
             if (b is WildBossBase w) { if (w.IsDead || !w.isActiveAndEnabled) continue; x = w.transform.position.x; half = w.HalfWidth; }
             else if (b is DragonController dc) { if (dc.IsDead) continue; x = dc.transform.position.x; half = 1f; }
+            else if (b is MajinController mj) { if (mj.IsDead || !mj.isActiveAndEnabled) continue; x = mj.transform.position.x; half = 1f; }
             else continue;
             float front = x - half - playerX;
             if (Mathf.Abs(x - playerX) > 40f) continue;
@@ -79,6 +80,7 @@ public static class BossBattle
             {
                 if (b is WildBossBase w) { if (!w.IsDead && w.isActiveAndEnabled) return true; }
                 else if (b is DragonController d) { if (!d.IsDead) return true; }
+                else if (b is MajinController m) { if (!m.IsDead && m.isActiveAndEnabled) return true; }
             }
             return false;
         }

@@ -117,6 +117,7 @@ public class KitProjectile : MonoBehaviour
         var go = new GameObject("KitProjectile");
         go.tag = "PlayerAttack";
         go.transform.position = position;
+        PlayerController.NoteShot(position, velocity); // 補助: 弾の高さ(2026-10-13 第3弾)
         if (rotateToVelocity) go.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg);
 
         var vis = new GameObject("Visual");

@@ -543,7 +543,7 @@ public partial class QaSweep
         bl.assistActiveFrac = atot > 0f ? (blAssistT.TryGetValue(HighSpeedAssist.Status.Active, out float act) ? act / atot : 0f) : -1f;
         var hsa2 = HighSpeedAssist.Instance;
         if (hsa2 != null) bl.assistLast = $"status={hsa2.CurrentStatus} action={hsa2.LastAction} why={hsa2.LastActionReason} fail={hsa2.LastFailure}";
-        if (hsa2 != null) bl.assistCounters = $"jumps={hsa2.AutoJumps} dbl={hsa2.AutoDoubleJumps} atk={hsa2.AutoAttacks} noSafe={hsa2.NoSafeActionCount} bossDodge={hsa2.BossDodgeJumps} bossDbl={hsa2.BossDoubleJumps} bossAtk={hsa2.BossAttacks} bossDown={hsa2.BossDownAttacks} bossTerrain={hsa2.BossTerrainJumps} terrainOverLow={hsa2.BossTerrainOverStayLow} bossJumpUnsafe={hsa2.BossJumpUnsafe} frames={blFrames}";
+        if (hsa2 != null) bl.assistCounters = $"jumps={hsa2.AutoJumps} dbl={hsa2.AutoDoubleJumps} atk={hsa2.AutoAttacks} noSafe={hsa2.NoSafeActionCount} bossDodge={hsa2.BossDodgeJumps} bossDbl={hsa2.BossDoubleJumps} bossAtk={hsa2.BossAttacks} bossDown={hsa2.BossDownAttacks} bossTerrain={hsa2.BossTerrainJumps} terrainOverLow={hsa2.BossTerrainOverStayLow} bossJumpUnsafe={hsa2.BossJumpUnsafe} shotJumps={hsa2.BossShotJumps} frames={blFrames}";
         bl.fpsTarget = Application.targetFrameRate; bl.hitchMs = blHitchMs;
         if (gm != null)
         {

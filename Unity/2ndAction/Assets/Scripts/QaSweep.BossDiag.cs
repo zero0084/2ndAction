@@ -10,6 +10,8 @@ using UnityEngine;
 // 最後に「振った回数・命中(HP の減った回数)・撃破秒・被弾」をまとめる。
 public partial class QaSweep
 {
+    // 2026-10-13 第3弾: 狙っているボスの判定の下端(プレイヤーの足元から)
+    static float DiagBossBottom(PlayerController pc) { foreach (var lb in BossBattle.Living) { if (lb == null || !lb.isActiveAndEnabled) continue; var c = lb.GetComponent<Collider2D>(); if (c != null && c.enabled) return c.bounds.min.y - pc.transform.position.y; } return -99f; }
     static readonly string[] DiagDeckB = { "attack_up", "heart_up", "boss_killer", "shield", "attack_speed_up", "vampire", "sonic_blade", "second_wind", "double_attack", "phoenix", "iron_will", "speed_up" };
 
     IEnumerator BossDiagMode()
@@ -124,7 +126,7 @@ public partial class QaSweep
                     {
                         next = t + 0.5f;
                         string bstate = wb != null ? $"act={wb.DebugAct} pose={wb.DebugPose} gap={wb.DebugGap:F1} front={wb.DebugFrontDist:F1} relV={wb.DebugRelVelocity:F1} inv={wb.DebugInvulnerable} targetable={wb.AssistTargetable} y={wb.AssistBounds.center.y - pc.transform.position.y:F1} h={wb.AssistBounds.size.y:F1}" : "";
-                        L($"[diag {ch} {spec}] t={t:F1} phase={boss.Phase} hp={(wb != null ? wb.Hp : 0)}/{hp0} drops={drops} swings={PlayerAttackInfo.SwingCount - sw0} lives={gm.Lives} {bstate} assist={(hsa != null ? hsa.CurrentStatus + "/" + hsa.LastAction : "-")} grounded={pc.IsGrounded}{(pc.Kit == CharacterKit.Mage ? $" mageLv={pc.MageAltitudeLevel} plan={(hsa != null ? hsa.BossPlan : "-")}" : "")}");
+                        L($"[diag {ch} {spec}] t={t:F1} phase={boss.Phase} hp={(wb != null ? wb.Hp : 0)}/{hp0} drops={drops} swings={PlayerAttackInfo.SwingCount - sw0} lives={gm.Lives} {bstate} assist={(hsa != null ? hsa.CurrentStatus + "/" + hsa.LastAction : "-")} grounded={pc.IsGrounded}{(pc.Kit == CharacterKit.Mage ? $" mageLv={pc.MageAltitudeLevel} plan={(hsa != null ? hsa.BossPlan : "-")}" : "")}{(pc.AssistForwardIsProjectile ? $" shotY={PlayerController.LastShotYOffset:F2} bossBottom={DiagBossBottom(pc):F2} y={pc.transform.position.y:F2} plan={(hsa != null ? hsa.BossPlan : "-")}" : "")}");
                     }
                     yield return null;
                 }
