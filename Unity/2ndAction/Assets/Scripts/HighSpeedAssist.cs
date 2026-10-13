@@ -123,6 +123,7 @@ public partial class HighSpeedAssist : MonoBehaviour
     float manualAttackUntil = -99f, manualJumpUntil = -99f;
     // 地上の踏み切り計画のキャッシュ(毎フレーム全候補を探し直さない)
     float cachedTakeoffTime = -1f, cachedHazardX = float.NaN; bool cachedDouble; int cacheAge;
+    float cacheCheckedAt = -99f; const float ReplanSeconds = 4f / 60f; // 踏み切りの予定を探し直す間隔(60fps の4フレーム分)
     int lastDecideFrame = -10;
     float lastFailureHazardX = float.NaN;
 
@@ -333,11 +334,17 @@ public partial class HighSpeedAssist : MonoBehaviour
                 // 回避/攻撃(ボス)を先に。何もしない時は地形の補助(穴/障害物)。天井から何か来る間は跳ばない
                 // 2026-10-09: ボス戦中もボスを殴り続けて穴/壁に突っ込んでいた(倒れる直前の被弾の約4割が地形)。
                 //  地形の踏み切り(跳ぶ)が今必要な時は、ボスへの攻撃より先に跳ぶ(天井から来る間は従来どおり跳ばない)
-                var b = DecideBoss(pc, Time.deltaTime, out bool stayLow);
+                // 2026-10-13 第3弾: 地形の計画(DecideInner)を先に作り、その先読みの値でボスの理由の跳躍の着地を確かめる(BossJumpSafe)。
+                //  個別に OFF の操作は、ここで両方から先に外す(以前は優先の後で外していたため、OFF の側に負けた方の操作まで消えていた)
                 var r = DecideInner(pc, tm);
-                if (r == PlayerController.FlickDirection.Up && !stayLow) { result = r; BossTerrainJumps++; }
+                var b = DecideBoss(pc, Time.deltaTime, out bool stayLow);
+                if (r.HasValue && (IsAttack(r.Value) ? !autoAttack : !autoAvoid)) r = null;
+                if (b.HasValue && (IsAttack(b.Value) ? !autoAttack : !autoAvoid)) b = null;
+                // 地形の踏み切りが「今」必要(跳ばないと穴/壁)なら、天井からの攻撃が来ていても跳ぶ(以前は跳ばずに確実に落ちていた。
+                //  天井の攻撃は当たらないこともあるが、跳ばない時の穴は必ず落ちる)
+                if (r == PlayerController.FlickDirection.Up) { result = r; BossTerrainJumps++; if (stayLow) BossTerrainOverStayLow++; }
                 else if (b.HasValue) result = b;
-                else result = stayLow && r == PlayerController.FlickDirection.Up ? null : r;
+                else result = r;
             }
             else result = DecideInner(pc, tm);
         }
@@ -643,7 +650,7 @@ public partial class HighSpeedAssist : MonoBehaviour
         if (sameHazard && cachedTakeoffTime > 0f)
         {
             float remain = cachedTakeoffTime - Time.time;
-            if (remain > frameDt * 0.5f && ++cacheAge % 4 != 0)
+            if (remain > frameDt * 0.5f && Time.time - cacheCheckedAt < ReplanSeconds) // 2026-10-13 第3弾: 探し直しは時間で(以前は4フレームごと = 30fps では半分の頻度)
             {
                 PlanText = $"{HazardName(run.hazard)}まで{run.hazardTime:F2}s 踏み切り{remain:F2}s後{(cachedDouble ? "(二段)" : "")}";
                 return null;
@@ -719,7 +726,7 @@ public partial class HighSpeedAssist : MonoBehaviour
             Act(bestDouble ? "ジャンプ(二段予定)" : "ジャンプ", $"{HazardName(run.hazard)}まで{run.hazardTime:F2}s/{run.hazardX - start.x:F1}m");
             return PlayerController.FlickDirection.Up;
         }
-        cachedTakeoffTime = Time.time + best; cachedHazardX = run.hazardX; cachedDouble = bestDouble; cacheAge = 0;
+        cachedTakeoffTime = Time.time + best; cachedHazardX = run.hazardX; cachedDouble = bestDouble; cacheAge = 0; cacheCheckedAt = Time.time;
         PlanText = $"{HazardName(run.hazard)}まで{run.hazardTime:F2}s 踏み切り{best:F2}s後{(bestDouble ? "(二段)" : "")}";
         return null;
     }
@@ -833,6 +840,39 @@ public partial class HighSpeedAssist : MonoBehaviour
     // 軌道予測(既存のジャンプ物理: velocityY=jumpForce、重力gravity、天井で上昇停止、上から横切った面に着地)
     // ===================================================================== //
     struct SimState { public float x, y, vy, offset; public bool grounded, onSky; public int jumpsLeft, maxJumps; }
+
+    // 2026-10-13 第3弾: ボスの理由(攻撃を避ける/ボスへ跳ぶ/空中の二段で避ける)で「今」跳んでよいか。
+    // 地形の補助と同じ先読み(穴・壁・天井・天井の針・障害物・着地の後の余裕)で、跳んだ後の軌道が安全に着地できる時だけ true。
+    // 跳んだ後にまだ跳べる時は、後の二段ジャンプを足した軌道でも試す(その二段は地形の補助が出す)。
+    // 空中の二段は「今使うと着地が穴」になる時に断る = 地形の補助が穴のために残している二段を、ボスの回避で使い切らない。
+    // DecideInner の後に呼ぶ(速さ/体の大きさ/重力/障害物の一覧はこのフレームの値)。
+    public int BossJumpUnsafe;
+    public string LastBossJumpUnsafe = "";
+    public bool BossJumpSafe(PlayerController pc, string what)
+    {
+        var tm = TerrainManager.Instance;
+        if (tm == null || pc.AssistIsMageFlight) return true;
+        Vector3 p = pc.transform.position;
+        var start = new SimState { x = p.x, y = p.y, vy = pc.AssistVelocityY, grounded = pc.IsGrounded, onSky = pc.AssistOnSky, jumpsLeft = pc.AssistMaxJumps - pc.AssistJumpsUsed, maxJumps = pc.AssistMaxJumps, offset = pc.AssistGroundOffset };
+        if (start.jumpsLeft <= 0) return false;
+        float horizonT = LookAheadMeters(pc.CurrentAutoRunSpeed) / Mathf.Max(0.5f, vx);
+        SimResult r = Simulate(start, 0f, -1f, horizonT, false);
+        if (r.safe) return true;
+        string why = r.reason;
+        if (start.jumpsLeft >= 2)
+        {
+            foreach (float d in new[] { 0.15f, 0.3f, 0.45f, 0.6f })
+            {
+                SimResult r2 = Simulate(start, 0f, d, horizonT, false);
+                if (r2.safe) return true;
+                why = r2.reason;
+            }
+        }
+        BossJumpUnsafe++;
+        LastBossJumpUnsafe = $"{what}: {why}";
+        FreezeDiagnostics.LogEvent($"[Assist] ボスの理由の跳躍を取りやめ({what}): 着地が危険 {why}");
+        return false;
+    }
     struct SimResult
     {
         public bool safe;            // (行動あり)安全に着地し、着地後の余裕もある /(行動なし)先読み範囲内に危険なし
@@ -901,8 +941,9 @@ public partial class HighSpeedAssist : MonoBehaviour
             else
             {
                 // 空中攻撃が当たった直後の滞空補助(重力が弱い)も、今残っている分だけ予測に入れる
-                vy -= gravity * (t < aerialRemain ? aerialScale : 1f) * dt;
-                ny = y + vy * dt;
+                float gS = gravity * (t < aerialRemain ? aerialScale : 1f), vyPrev = vy;
+                vy -= gS * dt;
+                ny = y + (vyPrev + vy) * 0.5f * dt - 0.5f * gS * PlayerController.GravityRefStep * dt; // 2026-10-13 第3弾: 実際の動き(PlayerController.Move)と同じ式
                 if (hasCave)
                 {
                     if (nx > ceilKnownUntil) return EndUnknown(res, planned, x, t, "天井が未生成");

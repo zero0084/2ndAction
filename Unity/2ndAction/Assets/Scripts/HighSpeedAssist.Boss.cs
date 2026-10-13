@@ -19,7 +19,7 @@ public partial class HighSpeedAssist
     [Tooltip("回避の踏み切りに使う余裕(秒)")]
     public float bossJumpMargin = 0.04f;
 
-    public int BossDodgeJumps, BossDoubleJumps, BossStayLow, BossAttacks, BossDownAttacks, BossTerrainJumps;
+    public int BossDodgeJumps, BossDoubleJumps, BossStayLow, BossAttacks, BossDownAttacks, BossTerrainJumps, BossTerrainOverStayLow;
     public string BossPlan { get; private set; } = "";
 
     bool BossFightNear(PlayerController pc)
@@ -40,7 +40,8 @@ public partial class HighSpeedAssist
     // 単発ジャンプで高さh以上にいる時間帯 [t1, t2](踏み切りから)。届かなければ false
     bool JumpWindow(PlayerController pc, float h, out float t1, out float t2)
     {
-        float v0 = pc.AssistJumpForce, g = Mathf.Max(1f, pc.AssistGravity);
+        float g = Mathf.Max(1f, pc.AssistGravity);
+        float v0 = pc.AssistJumpForce - 0.5f * g * PlayerController.GravityRefStep; // 2026-10-13 第3弾: 実際の軌道(PlayerController.Move)と同じ
         float disc = v0 * v0 - 2f * g * h;
         if (disc <= 0f) { t1 = t2 = 0f; return false; }
         float r = Mathf.Sqrt(disc);
@@ -189,7 +190,8 @@ public partial class HighSpeedAssist
                 {
                     // 有効な時間の始まりに高さhへ届いている踏み切り(長い/背が高い物は二段で延ばす)
                     float takeoffIn = t.tc - t1 - bossJumpMargin;
-                    if (takeoffIn <= frameDt * 1.5f && t.tc + Mathf.Min(t.td, tall ? 9f : t2 - t1) > 0f)
+                    // 2026-10-13 第3弾: いちばん近いフレームで跳ぶ(以前は 1.5 フレーム前 = fps が低いほど早く跳んでいた)
+                    if (takeoffIn <= frameDt * 0.5f && t.tc + Mathf.Min(t.td, tall ? 9f : t2 - t1) > 0f && BossJumpSafe(pc, "ジャンプ(回避)"))
                     {
                         BossDodgeJumps++;
                         BossPlan = $"{t.what}(高さ{t.needY:F1}) を跳んで避ける{(tall ? "(二段)" : "")}";
@@ -204,7 +206,7 @@ public partial class HighSpeedAssist
                 // 空中: 背が高い物 / 着地の頃に有効な物は二段ジャンプで越える
                 bool falling = pc.AssistVelocityY < 1.5f;
                 bool lowNow = pc.transform.position.y - GroundYUnder(pc) < t.needY;
-                if (falling && (tall || lowNow) && t.tc < 0.35f)
+                if (falling && (tall || lowNow) && t.tc < 0.35f && BossJumpSafe(pc, "二段ジャンプ(回避)"))
                 {
                     BossDoubleJumps++;
                     BossPlan = $"{t.what} を二段ジャンプで越える";
@@ -242,7 +244,7 @@ public partial class HighSpeedAssist
             return PlayerController.FlickDirection.Down;
         }
         // 頭上のボス: 跳んでから攻撃(天井から何か来る時は跳ばない)
-        if (grounded && !stayLow && bb.min.y > top + 0.4f && bestD < 3f && Time.time >= manualJumpUntil)
+        if (grounded && !stayLow && bb.min.y > top + 0.4f && bestD < 3f && Time.time >= manualJumpUntil && BossJumpSafe(pc, "ジャンプ(ボスへ)"))
         {
             BossPlan = $"{bestName} は高い所 → 跳んで攻撃";
             Act("ジャンプ(ボスへ)", BossPlan);

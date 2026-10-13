@@ -59,11 +59,17 @@ public partial class QaSweep
         if (mech == null) { yield return EndRun(); yield break; }
         if (!powerBack) { pc.AddAttackPower(-120); powerBack = true; }
         L($"[mech] spawn d={gm.MaxDistance:F0} hp={mech.Hp}/{mech.maxHp} char={ch} rush={rush} res={Screen.width}x{Screen.height}");
+        // 2026-10-13 第3弾: ボス戦での補助の個別設定(自動攻撃 OFF / 自動回避 OFF / ボス戦オート OFF)が守られるか
+        string tog = Arg("-mechToggle", "");
+        int togJ0 = PlayerController.AssistJumpCount, togA0 = PlayerController.AssistAttackCount;
+        var togH = HighSpeedAssist.Instance;
+        if (tog != "" && togH != null) { if (tog == "attackoff") togH.SetAutoAttack(false); if (tog == "avoidoff") togH.SetAutoAvoid(false); if (tog == "bossoff") togH.SetAutoInBoss(false); }
         // 動画: 登場の警告から撃破まで(戦う時間は動画の長さ - 7秒。撃破の演出までを含める)
         if (video > 0f && rec == null) { seconds = Mathf.Min(seconds, video - 7f); rec = StartCoroutine(RecordUltimate($"mech_{ch}{(rush ? "_rush" : "")}_{Screen.width}x{Screen.height}", video)); }
         else Shot("mech_enter");
         w = 0f; while (mech.IsEntering && w < 8f) { yield return null; w += Time.deltaTime; }
         Shot("mech_after_enter");
+        togJ0 = PlayerController.AssistJumpCount; togA0 = PlayerController.AssistAttackCount; // 個別設定の数えは登場(遠くから飛んでくる間 = ボス戦の判定の外)の後から
 
         var cam = Camera.main;
         var tm = TerrainManager.Instance;
@@ -148,6 +154,15 @@ public partial class QaSweep
         int attacks = MechDragonBoss.LaserShots + MechDragonBoss.SweepShots + MechDragonBoss.VulcanBursts + MechDragonBoss.BombsDropped - c0;
         L($"[mech] {frames} frames  attacks laser={MechDragonBoss.LaserShots} sweep={MechDragonBoss.SweepShots} vulcan={MechDragonBoss.VulcanBursts} bombs={MechDragonBoss.BombsDropped} openings={MechDragonBoss.Openings} phase={mech.Phase} breaks={mech.BreakCount} ults={mech.UltimatesUsed} hp={mech.Hp}/{mech.maxHp}");
         L($"[mech] player HP lost during the fight: {lives0 - gm.Lives} (internal, heart=10)");
+        if (tog != "" && togH != null)
+        {
+            int dj = PlayerController.AssistJumpCount - togJ0, da = PlayerController.AssistAttackCount - togA0;
+            L($"[mech] toggle {tog}: assist jumps {dj}, assist attacks {da}, manual inputs {togH.ManualInputs}");
+            if (tog == "attackoff") Check(da == 0 && dj > 0, $"toggle: auto attack OFF in a boss fight -> no assist attacks, dodges still happen ({da}/{dj})");
+            if (tog == "avoidoff") Check(dj == 0 && da > 0, $"toggle: auto avoid OFF in a boss fight -> no assist jumps, attacks still happen ({dj}/{da})");
+            if (tog == "bossoff") Check(dj == 0 && da == 0, $"toggle: boss auto OFF -> no assist input in the boss fight ({dj}/{da})");
+            togH.SetAutoAttack(true); togH.SetAutoAvoid(true); togH.SetAutoInBoss(true);
+        }
         L($"[mech] jitter by act: {string.Join(", ", jitterBy.OrderByDescending(k => k.Value).Select(k => k.Key + "=" + k.Value))}");
         L($"[mech] ceiling: min room {minRoom:F1}m, altitude clamps {MechDragonBoss.CeilingClamps - clamps0}");
         L($"[mech] embedded={embedded} aboveCeiling={aboveCeil} jitterSpikes={jitterSpikes} maxBreakDrift(away)={maxBreakDrift:F2}m breakBehindFrames={breakBehind} offscreenAttackFrames={offscreenAttack}");

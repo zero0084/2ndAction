@@ -173,8 +173,10 @@ public partial class PlayerController
     public float AssistAttackReadyIn => isAttacking ? -1f : Mathf.Max(0f, attackCooldownTimer);
 
     // 今この瞬間に前攻撃を新しく始められるか(連打・予約にならないよう、実行中/硬直中は出さない)。
+    // 2026-10-13 第3弾(fps の依存): 攻撃の待ち時間はこのフレームの HandleAttackInput で dt だけ減ってから判定される。
+    // 以前は減る前の値で判定していたため、補助だけ毎回1フレーム遅れて押していた(30fps では 60fps の倍の遅れ = 攻撃の回数が約8%少ない)
     public bool AssistCanStartForwardAttack =>
-        !IsReacting && ((!isAttacking && attackCooldownTimer <= 0f) || AssistFighterComboOpen);
+        !IsReacting && ((!isAttacking && attackCooldownTimer - Time.deltaTime <= 0f) || AssistFighterComboOpen);
     // 2026-10-11(お嬢様/格闘家の重点調査): 格闘家の4段の連撃は「次の段への猶予(攻撃の後の少しの間)」か「攻撃の途中の予約」でつながる。
     // 補助は攻撃の後の待ち時間が終わってから押していたため、猶予が切れて毎回1段目からになり、3〜4段目がほとんど出ていなかった。
     // 猶予の間/予約できる間も「押してよい」とする(プレイヤーが続けて押すのと同じ)

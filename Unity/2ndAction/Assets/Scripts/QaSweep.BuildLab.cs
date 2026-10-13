@@ -15,6 +15,7 @@ using UnityEngine;
 public partial class QaSweep
 {
     bool blVideoStarted; // 撃破の動画を書き出したか(1回だけ)
+    int blHitchMs = -1, blHitchEvery = 0, blPrevSwing = -1;
     [System.Serializable] public class BlBuild { public string name, character, type, note; public string[] deck, charCards, priority; public bool takeFinalEvolution = true; }
     [System.Serializable] public class BlBuildFile { public BlBuild[] builds; }
 
@@ -53,6 +54,9 @@ public partial class QaSweep
         public string assistSeconds = ""; public float assistActiveFrac = -1f;
         public int swings, zakoHits, zakoKills, lv9Abilities, abilityCount;
         public string assistLast = "", exe = "";
+        public string assistCounters = ""; // 2026-10-13 第3弾: 補助の判断の回数(fps の比較用)
+        public int maxSwingsInFrame, maxSwingsInHitch, hitchMs;
+        public int fpsTarget;
         public string stopEnemy = "";   // 止まった時の近くの敵/ボス
         public string category = "";    // 止まった理由の区分(依頼の分類)
     }
@@ -93,6 +97,7 @@ public partial class QaSweep
         float partialAt = float.Parse(Arg("-blPartialAt", "0"), System.Globalization.CultureInfo.InvariantCulture);
         BossManager.DevForceRematch = Arg("-blForceBoss", ""); // 例 Cave/Scorpion: 再戦の関門をこのボスに(5km ごとの関門も含める)
         BossManager.DevForceRematchAll = BossManager.DevForceRematch != "";
+        blHitchMs = int.Parse(Arg("-blHitchMs", "0")); blHitchEvery = int.Parse(Arg("-blHitchEvery", "0"));
         bool fast = Arg("-blFast", "0") == "1"; // 既定は通常速度(固定刻みの早送りは実時間で進む処理とずれるため使わない)
         blReal0 = Time.realtimeSinceStartup;
 
@@ -123,6 +128,17 @@ public partial class QaSweep
         var deckKeys = (b.deck ?? new string[0]).Select(Key).ToList();
         foreach (var id in (b.deck ?? new string[0]).Concat(b.charCards ?? new string[0]).Where(x => !string.IsNullOrEmpty(x)).Distinct())
             CardInventory.AddCard(id, lv, 16);
+        // 2026-10-13 第3弾: -blMastery 5 = デッキ/キャラカードの能力を MASTERY ★5(AWAKENED)にする(通常のプレイで届く最大。メモリの中だけ)
+        int mastery = Mathf.Clamp(int.Parse(Arg("-blMastery", "0")), 0, CardMastery.MaxStars);
+        if (mastery > 0)
+        {
+            var mw = new CardMastery.SaveWrapper();
+            foreach (var id in (b.deck ?? new string[0]).Concat(b.charCards ?? new string[0]).Where(x => !string.IsNullOrEmpty(x)).Distinct())
+                mw.cards.Add(new CardMastery.Entry { cardId = id, level = mastery, awakened = mastery >= CardMastery.MaxStars, maxReached = true });
+            SaveStore.SetString(CardMastery.SaveKey, JsonUtility.ToJson(mw));
+            CardMastery.ReloadFromPrefs();
+            bl.notes += $" mastery★{mastery}";
+        }
         SaveStore.Save();
 
         // ---- 乱数: 地形(WorldRng)を固定してからシーンを読み直す(地形はシーンの最初に作られる)。出現は -encounterSeed、他は Random.InitState
@@ -213,6 +229,9 @@ public partial class QaSweep
             if (gm == null) { gm = GameManager.Instance; if (gm == null) continue; }
             if (gm.HasStarted && !gm.IsGameOver) blT += Time.deltaTime;
             blFrames++; if (Time.unscaledDeltaTime > 1f / 30f) bl.slowFrames++;
+            // 2026-10-13 第3弾: 一時的なフレーム落ちの再現(-blHitchMs ミリ秒を -blHitchEvery フレームごと)と、1フレームに始まった攻撃の数(まとめ出しが無いか)
+            if (blHitchMs > 0 && blHitchEvery > 0 && blFrames % blHitchEvery == 0) System.Threading.Thread.Sleep(blHitchMs);
+            { int sc = PlayerAttackInfo.SwingCount; if (blPrevSwing >= 0) { int dsw = sc - blPrevSwing; if (dsw > bl.maxSwingsInFrame) bl.maxSwingsInFrame = dsw; if (Time.unscaledDeltaTime > 0.05f && dsw > bl.maxSwingsInHitch) bl.maxSwingsInHitch = dsw; } blPrevSwing = sc; }
             float d = gm.MaxDistance;
             var pcNow = PlayerController.Instance;
             if (pcNow != null) bl.maxKmh = Mathf.Max(bl.maxKmh, SpeedKmhOf(pcNow.CurrentAutoRunSpeed));
@@ -524,6 +543,8 @@ public partial class QaSweep
         bl.assistActiveFrac = atot > 0f ? (blAssistT.TryGetValue(HighSpeedAssist.Status.Active, out float act) ? act / atot : 0f) : -1f;
         var hsa2 = HighSpeedAssist.Instance;
         if (hsa2 != null) bl.assistLast = $"status={hsa2.CurrentStatus} action={hsa2.LastAction} why={hsa2.LastActionReason} fail={hsa2.LastFailure}";
+        if (hsa2 != null) bl.assistCounters = $"jumps={hsa2.AutoJumps} dbl={hsa2.AutoDoubleJumps} atk={hsa2.AutoAttacks} noSafe={hsa2.NoSafeActionCount} bossDodge={hsa2.BossDodgeJumps} bossDbl={hsa2.BossDoubleJumps} bossAtk={hsa2.BossAttacks} bossDown={hsa2.BossDownAttacks} bossTerrain={hsa2.BossTerrainJumps} terrainOverLow={hsa2.BossTerrainOverStayLow} bossJumpUnsafe={hsa2.BossJumpUnsafe} frames={blFrames}";
+        bl.fpsTarget = Application.targetFrameRate; bl.hitchMs = blHitchMs;
         if (gm != null)
         {
             var abil = BlAbilities().Split(',').Where(x => x.Contains(':')).ToList();

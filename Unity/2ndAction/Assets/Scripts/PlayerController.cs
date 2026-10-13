@@ -27,6 +27,8 @@ public partial class PlayerController : MonoBehaviour
     public float runSpeed = 5f;
     public float jumpForce = 9f;
     public float gravity = 20f;
+    public const float GravityRefStep = 1f / 60f; // 2026-10-13 第3弾: 跳ぶ軌道の基準(60fps の時の計算と同じ軌道を、どの fps でも)
+    float gravityStepY = float.NaN;
     // Vertical distance from the ground line (TerrainManager.GetHeightAt)
     // up to where the player's transform sits when grounded. Left at 0
     // because every player sprite now uses a per-frame "foot pivot"
@@ -1489,10 +1491,17 @@ public partial class PlayerController : MonoBehaviour
                     aerialAssistTimer -= used;
                     aerialAssistTotalUsed += used;
                 }
-                velocityY -= gravity * gravityScale * dt;
+                float vPrevY = velocityY;
+                float gNow = gravity * gravityScale;
+                velocityY -= gNow * dt;
                 KitClampFall(); // 竜人の短い滑空中だけ落下速度を抑える(他キャラは何もしない)
+                // 2026-10-13 第3弾(描画の fps で跳ぶ高さが変わらないように): 以前は「速度を先に減らしてから位置へ足す」1フレームずつの計算で、
+                // fps が低いほど頂点が低かった(60fps と 30fps で約 0.08m)。区間の平均の速度で動かし、60fps の時の計算と同じ分だけ差し引く
+                // = 60fps では今までと全く同じ軌道、30fps などでも同じ軌道(GravityRefStep)。補助の先読み(HighSpeedAssist.Simulate)も同じ式
+                gravityStepY = (vPrevY + velocityY) * 0.5f * dt - 0.5f * gNow * GravityRefStep * dt;
             }
-            newY = prevY + velocityY * dt;
+            newY = prevY + (float.IsNaN(gravityStepY) ? velocityY * dt : gravityStepY);
+            gravityStepY = float.NaN;
 
             // 自然洞窟(2026-09-21) - 天井にぶつかったら上昇を止める(ダメージ無し)。
             // 速度を0にするので、張り付かず次フレームから通常どおり落下に移れる。
