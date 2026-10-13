@@ -48,3 +48,5 @@ MonoBehaviour:
   bodyColliderOffset: {x: 0, y: -0.050000012}
   launchScale: 1
   knockbackScale: 0.8
+  finishMass: 0
+  finishKnockbackResistance: 0
