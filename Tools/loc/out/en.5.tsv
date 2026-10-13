@@ -1,0 +1,242 @@
+9600	Finish the run safely to take your MILE home
+9601	BOSS DEFEATED!
+9602	Owned {0}
+9603	Usable
+9604	Hold 115km/h+ → OVERDRIVE in {0}s
+9605	Flying slash: power {0}, base range {1}m (longer with speed)
+9606	Shield block counter: power {0}, 3m radius
+9607	Invincible {0}s after a Shield block
+9608	Shield block fire counter: power {0}, burn {1}/s
+9609	Hit down to HP 30% or less → heal {0} hearts, recharges in {1}m
+9610	Hit down to 1 heart or less → invincible {0}s
+9611	Revive HP: {0} hearts (2s invincible)
+9612	Overflow healing at full HP becomes 1 Shield (up to max +1)
+9613	Drain HP on boss hits too (1/10 of normal drain chance)
+9614	Melee: extra hit on {0} enemies behind, power {1} / Projectiles: pierce +{2}
+9615	Shockwave: power {0}, width {1}m (projectiles: radius {2}m)
+9616	Kill explosion: power {0}, radius {1}m (chains up to 3 times)
+9617	Midair follow-up slash: power {0}, radius {1}m
+9618	Midair hits restore a jump ({0}x before landing)
+9619	Ground shockwave: power {0}, length {1}m
+9620	Finisher impact: power {0}, width {1}m
+9621	Boss fights: attack step +{0}%, approach speed to bosses over 6m away +{1}%
+9622	Move speed -10% for 0.4s after front/back attacks
+9623	Hits of 2+ hearts deal 1 heart less
+9624	Chance of an extra boss joining: {0}%
+9625	Bounty every {0}m, HP ×{1}, {2} MILE on defeat
+9626	Kill a burning enemy → fire spread: power {0}, radius {1}m
+9627	Attack vs chilled/frozen enemies +{0}%, shatter on freeze: power {1}
+9628	Tornado: power {0} ×3, radius {1}m
+9629	Bleed chance ×2 at full HP
+9630	This card alone lets you hold 1 Shield
+9631	Advance {0}m, {1}% of boss max HP as damage, boost {2}s
+9633	(grows with Lv)
+9634	(effect cap)
+9635	(boost {0}, works up to Lv9)
+9636	Unlock condition met: {0}
+9637	Locked in when you finish the run safely
+9639	You: Loading…
+9640	You: couldn't load your rank
+9641	You: new record waiting to be sent
+9642	You: no record in the rankings shown
+9643	Sending… {0}
+9644	Send failed, waiting to resend: {0}
+9645	Waiting to send: {0}
+9646	Couldn't load the latest rankings (showing the last ones)
+9647	Attack Unbound
+9648	Final damage ×1.5
+9649	Hyperspeed
+9650	Faster, auto mini-attacks near enemies, protected from obstacles and contact
+9651	Screen-Splitting Reach
+9652	Much longer range; hits release a slash wave
+9653	Bloodthirst
+9654	Drain chance greatly up; overflow becomes a Blood Shield
+9655	Phoenix Mode
+9656	One emergency revive from a fatal hit (separate from the normal PHOENIX; lost if unused)
+9657	Inferno
+9658	Stronger burn that spreads to nearby enemies
+9659	Thunder God
+9660	Lightning strikes more often and chains to 1 more
+9661	EXP Awakening
+9662	Extra EXP boost (falloff curve unchanged)
+9663	Golden Frenzy
+9664	MILE×1.5 / damage taken ×1.3
+9665	Precision Stride
+9666	Even slower, but attack/attack speed/post-hit invincibility up
+9667	Skyward Soar
+9668	Jump power effect ×2.5, air attack +15%
+9669	Multi-Jump
+9670	Air jumps ×1.6, air attack +10%
+9671	Sky Runner
+9672	Jump power/air attack effects ×2, air jumps +2
+9673	Speed Incarnate
+9674	Speed-to-attack effect ×2
+9675	Redline Drive
+9676	OVERDRIVE effect ×1.8 (easier to trigger, stronger)
+9677	Hair's Breadth
+9678	Speed/post-hit invincibility ×1.8, plus invincibility +0.4s
+9679	Hyper Barrage
+9680	Attack speed effect ×2.2
+9681	Sky Sovereign
+9682	Air attack effect ×2, air jumps +1
+9683	Braking Blow
+9684	Attack effect ×1.8 (post-attack slowdown unchanged)
+9685	Lethal Opener
+9686	Opener effect ×2.5
+9687	Art of the Finisher
+9688	Finisher effect ×2.2, finishers release an impact (like COMBO MASTER +3)
+9689	Annihilator
+9690	Attack vs mobs/kill MILE effects ×2
+9691	Earth Fist
+9692	Ground attack effect ×2.2, ground finishers send a shockwave along the ground (+3)
+9693	Chain Blade
+9694	Attack gain from hit streaks ×2.2
+9695	Total Pierce
+9696	Melee pierces 6 enemies behind at about 1.4× power; projectile pierce +6
+9697	Great Shockwave
+9698	Shockwave power about 1.4×, wider area
+9699	Sky Rend
+9700	Midair follow-up slash power about 1.4×, wider area
+9701	Kingslayer
+9702	Attack vs bosses effect ×2
+9703	Chain Detonation
+9704	Kill explosion power about 1.4×, wider area (still chains up to 3 times)
+9705	Twin Edge
+9706	Extra hit chance ×2.2 (extra hits can't trigger more)
+9707	Sonic Slash
+9708	Flying slash power and range up (size unchanged)
+9709	Godspeed Flurry
+9710	Main attack speed effect ×2.2
+9711	Long Blade
+9712	Attack range effect ×1.8
+9713	Lord of the Sky
+9714	Air attack and air jump recovery ×1.8
+9715	Earthsplitter
+9716	Down attack/slam/landing impact ×2
+9717	Air Supremacy
+9718	Bonus for chaining midair hits ×2
+9719	Secret Art Dance
+9720	Finisher impact power about 1.5×, wider area
+9721	Overvoltage
+9722	Lightning power/stun ×1.8
+9723	Frost Blade
+9724	Chill chance and slow up (slow max 70%), chills needed to freeze -1
+9725	Gale Blade
+9726	Wind blade chance/power ×1.8, pierce +1
+9727	Ley Line Breaker
+9728	Ground shockwave power about 1.5×, length 8.6m→11.4m
+9729	Relentless Barrage
+9730	Mid-string hits/main attack speed ×2
+9731	Anti-Air Apex
+9732	Attack vs airborne enemies ×2
+9733	Hunter's Instinct
+9734	Boss-fight attack step +36%→+72%, approach speed +27%→+54%
+9735	Blazing Soul
+9736	Burn strength/duration ×1.8
+9737	Hellfire
+9738	Fire spread from killing burning enemies: about 1.6× power, wider area
+9739	Frozen Hell
+9740	Chill chance, slow and duration up (chills to freeze stay at the minimum of 2)
+9741	Absolute Zero
+9742	Frozen mob shatter/attack vs chilled enemies ×1.8
+9743	Thunder Chain
+9744	Lightning chains 3→5 enemies, with longer chain reach
+9745	Thunder Emperor
+9746	Lightning power/chain/area ×1.8
+9747	Tempest
+9748	Wind blade speed/range/pierce ×1.8
+9749	Great Tornado
+9750	Tornado power about 1.5×, wider area
+9751	Iron Heart
+9752	Max HP gain ×1.6 (cap 20 hearts, reverts when it ends), healing +1
+9753	Shield Storm
+9754	Shield recharge as fast as 8s (max of 3 unchanged)
+9755	Double Payback
+9756	Shield block counter base power about 1.7×
+9757	Steel Will
+9758	Attack at full HP/max HP ×2
+9759	Perfect Guard
+9760	Invincibility after a Shield block 1.3s→2.2s
+9761	Fiery Retribution
+9762	Shield block fire counter about 1.7× power, stronger burn
+9763	Last Bastion
+9764	Invincibility on dropping to 1 heart 2.35s→3.7s
+9765	Overflowing Life
+9766	Bonus healing +2→+4 hearts (overflow Shield stays at 1)
+9767	Blood Surge
+9768	Low-HP attack/drain ×2
+9769	Predator
+9770	Drain chance ×2, easier to drain from bosses
+9771	Indomitable
+9772	Near-death heal recharge 6,000m→1,500m (heal stays at 3 hearts)
+9773	Blood Blade
+9774	Bleed chance/power ×1.8
+9775	Pathfinder
+9776	Distance EXP effect ×2 (curve still applies)
+9777	Fuel for the Journey
+9778	EXP/max HP effects ×1.8
+9779	Limitless Learning
+9780	EXP effect ×1.8 (curve still applies)
+9781	Torrent of Experience
+9782	Enemy/boss EXP effect ×1.8
+9783	Endless Road
+9784	EXP/max HP effects ×1.6
+9785	Nose for Treasure
+9786	Treasure & reward/boss/distance MILE effects ×2
+9787	Berserker
+9788	Attack/attack speed ×1.8 (sealed hearts stay sealed)
+9789	Call of the Horde
+9790	Enemy encounters and kill MILE ×2
+9791	Executioner
+9792	Kill MILE effect ×2
+9793	Trial of the Strong
+9794	Mob HP and MILE/kill EXP ×2
+9795	Swift Foes
+9796	Mob speed and MILE/kill EXP ×1.8
+9797	Back to the Wall
+9798	Low-HP attack ×2
+9799	Shattering Cannon
+9800	Attack ×1.8 (sealed hearts stay sealed)
+9801	Redline Heartbeat
+9802	Low-HP attack speed ×2
+9803	Monster Torrent
+9804	Enemy encounters and EXP ×2
+9805	Elite March
+9806	Elite chance and MILE ×2
+9807	The Swarm
+9808	Enemy encounters/MILE/kill EXP ×1.8
+9809	Challenge the Kings
+9810	(Boss fights starting meanwhile) Boss HP and boss MILE ×2
+9811	Giant Slayer
+9812	Attack ×1.8, attack speed penalty also ×1.8 (super-heavy blows)
+9813	Frenzy
+9814	Low-HP attack/attack speed ×1.8
+9815	Power in Reverse
+9816	Attack and speed penalty ×1.8
+9817	Broken Heart
+9818	Attack and attack per sealed heart ×1.8
+9819	Alchemy
+9820	EXP penalty and MILE gain ×2
+9821	Ground Demon
+9822	Ground attack and air penalty ×1.8
+9823	Sky Demon
+9824	Air attack and ground penalty ×1.8
+9825	Gates of Hell
+9826	Mob HP/speed/encounters and MILE/boss MILE ×1.8
+9827	Royal Procession
+9828	100% chance of an extra boss joining; boss MILE gain also ×2
+9829	Bounty Hunter
+9830	Stronger bounties every 1,500m, 180 MILE each. Kill & BONUS MILE gain also ×1.8
+9831	Reaper's Pact
+9832	Juggernaut
+9833	Max HP growth ×1.8, flinch -40%, post-hit invincibility +0.3s (jump power penalty also ×1.8)
+9834	Impregnable Fortress
+9835	Stronger max HP gain and flinch reduction; Shield max +1 if under 3 (move speed penalty also grows)
+9836	No Looking Back
+9837	Speed and enemy encounters ×1.6, MILE +40%
+9838	Pandemonium
+9839	Enemy/elite/boss buffs and MILE/boss MILE ×1.6
+9840	Jack of All Trades
+9841	Attack/max HP/speed ×1.6 (each below the dedicated cards)
+9842	One More Mile
+9843	MILE/boss MILE/EXP effects ×1.6

@@ -89,7 +89,7 @@ public static class CardDatabase
             CardDefinition src = FindBaseById(a.id);
             if (src == null) continue;
             for (int n = 0; n < a.stacks; n++)
-                foreach (CardEffect e in src.effects) def.effects.Add(new CardEffect { type = e.type, value = e.value });
+                foreach (CardEffect e in src.effects) def.effects.Add(new CardEffect { type = e.type, value = e.value, scaling = e.scaling }); // 2026-10-13: scaling も写す(以前は「毎Lv」扱いになっていた)
         }
         variantCache[key] = def;
         return def;

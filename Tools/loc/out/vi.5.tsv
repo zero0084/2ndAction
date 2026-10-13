@@ -1,0 +1,242 @@
+9600	Hoàn thành lượt chạy an toàn để mang MILE về
+9601	Hạ boss!
+9602	Có {0}
+9603	Dùng được
+9604	Giữ từ 115km/h → OVERDRIVE sau {0} giây
+9605	Nhát chém bay: uy lực {0}・tầm cơ bản {1}m (dài hơn theo tốc độ)
+9606	Phản công khi đỡ bằng Shield: uy lực {0}・phạm vi 3m
+9607	Bất tử {0} giây sau khi đỡ bằng Shield
+9608	Phản công lửa khi đỡ bằng Shield: uy lực {0}・thiêu đốt {1}/giây
+9609	Trúng đòn còn HP ≤30% → hồi {0} tim・dùng lại sau {1}m
+9610	Trúng đòn còn ≤1 tim → bất tử {0} giây
+9611	HP khi hồi sinh: {0} tim (bất tử 2 giây)
+9612	Lượng hồi tràn khi HP đầy thành 1 Shield (tối đa đến giới hạn +1)
+9613	Hấp thụ HP cả khi đánh trúng boss (1/10 tỉ lệ hấp thụ thường)
+9614	Cận chiến: đánh thêm {0} địch phía sau, uy lực {1} / Đạn: xuyên +{2}
+9615	Sóng xung kích: uy lực {0}・rộng {1}m (đạn: bán kính {2}m)
+9616	Nổ khi hạ địch: uy lực {0}・bán kính {1}m (dây chuyền tối đa 3 tầng)
+9617	Chém đuổi trên không: uy lực {0}・bán kính {1}m
+9618	Đánh trúng trên không hồi lần nhảy ({0} lần đến khi tiếp đất)
+9619	Sóng xung kích mặt đất: uy lực {0}・dài {1}m
+9620	Xung kích đòn kết chuỗi đánh: uy lực {0}・rộng {1}m
+9621	Đánh boss: bước tới +{0}%・tốc độ tiếp cận boss xa hơn 6m +{1}%
+9622	Sau đánh trước/sau 0.4 giây: tốc độ di chuyển -10%
+9623	Đòn mất từ 2 tim trở lên giảm bớt 1 tim
+9624	Tỉ lệ có thêm 1 boss nhập trận {0}%
+9625	Kẻ bị truy nã mỗi {0}m・HP×{1}・hạ được {2} MILE
+9626	Hạ địch đang thiêu đốt → lửa lan: uy lực {0}・bán kính {1}m
+9627	Tấn công địch bị lạnh/đóng băng +{0}%・vỡ băng: uy lực {1}
+9628	Lốc xoáy: uy lực {0}×3 lần・bán kính {1}m
+9629	Khi HP đầy: tỉ lệ chảy máu ×2
+9630	Chỉ riêng thẻ này cũng giữ được 1 Shield
+9631	Tiến {0}m・gây {1}% HP tối đa cho boss・cường hóa {2} giây
+9633	(tăng theo Lv)
+9634	(giới hạn hiệu ứng)
+9635	(cường hóa {0}・chỉ có tác dụng đến Lv9)
+9636	Đạt điều kiện mở khóa: {0}
+9637	Xác nhận khi hoàn thành lượt chạy an toàn
+9639	Bạn: đang tải…
+9640	Bạn: không tải được thứ hạng
+9641	Bạn: kỷ lục mới đang chờ gửi
+9642	Bạn: không có kỷ lục trong bảng đang hiện
+9643	Đang gửi… {0} mục
+9644	Gửi lỗi・chờ gửi lại {0} mục
+9645	Chờ gửi {0} mục
+9646	Không tải được thứ hạng mới nhất (đang hiện lần trước)
+9647	PHÁ GIỚI HẠN CÔNG
+9648	Sát thương cuối ×1.5
+9649	SIÊU TỐC
+9650	Tăng tốc・tự đánh nhẹ khi áp sát địch・chống va chạm chướng ngại vật
+9651	TẦM XÉ MÀN HÌNH
+9652	Tầm đánh tăng mạnh, trúng đòn tung sóng chém
+9653	KHÁT MÁU
+9654	Tỉ lệ hấp thụ tăng mạnh, phần tràn thành Blood Shield
+9655	PHƯỢNG HOÀNG HÓA
+9656	Hồi sinh khẩn cấp 1 lần khi trúng đòn chí mạng (khác PHƯỢNG HOÀNG thường. Không dùng thì mất khi kết thúc)
+9657	HỎA NGỤC
+9658	Thiêu đốt mạnh hơn và lửa lan ra xung quanh
+9659	LÔI THẦN
+9660	Sét đánh dễ hơn, dây chuyền +1
+9661	THỨC TỈNH EXP
+9662	Thêm cường hóa EXP (đường cong suy giảm giữ nguyên)
+9663	HOÀNG KIM CUỒNG
+9664	MILE×1.5 / sát thương nhận ×1.3
+9665	CHẠY CHÍNH XÁC
+9666	Chậm hơn nữa, nhưng tấn công/tốc độ đánh/bất tử sau trúng đòn tăng
+9667	BAY LƯỢN
+9668	Hiệu ứng lực nhảy ×2.5, tấn công trên không +15%
+9669	NHẢY ĐA TẦNG
+9670	Số lần nhảy trên không ×1.6, tấn công trên không +10%
+9671	KẺ CHẠY TRÊN TRỜI
+9672	Hiệu ứng lực nhảy/tấn công trên không ×2, nhảy trên không +2
+9673	HIỆN THÂN TỐC ĐỘ
+9674	Hiệu ứng tốc độ thành sức tấn công ×2
+9675	VẬN HÀNH GIỚI HẠN
+9676	Hiệu ứng OVERDRIVE ×1.8 (dễ kích hoạt, mạnh hơn)
+9677	TRONG GANG TẤC
+9678	Tốc độ/bất tử sau trúng đòn ×1.8, thêm bất tử +0.4 giây
+9679	SIÊU LIÊN KÍCH
+9680	Hiệu ứng tốc độ đánh ×2.2
+9681	BÁ CHỦ BẦU TRỜI
+9682	Hiệu ứng tấn công trên không ×2, nhảy trên không +1
+9683	ĐÒN HÃM TỐC
+9684	Hiệu ứng sức tấn công ×1.8 (giảm tốc sau đòn giữ nguyên)
+9685	ĐÒN ĐẦU TẤT SÁT
+9686	Hiệu ứng đòn đầu ×2.5
+9687	TINH HOA ĐÒN KẾT
+9688	Hiệu ứng đòn kết ×2.2, đòn kết tạo xung kích (tương đương BẬC THẦY COMBO +3)
+9689	KẺ HỦY DIỆT
+9690	Hiệu ứng tấn công quái thường/MILE hạ địch ×2
+9691	NẮM ĐẤM ĐẠI ĐỊA
+9692	Hiệu ứng tấn công mặt đất ×2.2, đòn kết mặt đất tạo xung kích chạy dọc đất (+3)
+9693	LƯỠI LIÊN KÍCH
+9694	Mức tăng tấn công theo chuỗi hit ×2.2
+9695	XUYÊN TOÀN BỘ
+9696	Cận chiến xuyên 6 địch phía sau, uy lực ~1.4 lần; đạn xuyên +6
+9697	ĐẠI XUNG KÍCH
+9698	Uy lực sóng xung kích ~1.4 lần, phạm vi cũng rộng hơn
+9699	XÉ TRỜI
+9700	Uy lực chém đuổi trên không ~1.4 lần, phạm vi cũng rộng hơn
+9701	SÁT VƯƠNG
+9702	Hiệu ứng tấn công lên boss ×2
+9703	NỔ DÂY CHUYỀN
+9704	Uy lực nổ khi hạ địch ~1.4 lần・phạm vi rộng hơn (dây chuyền vẫn tối đa 3 tầng)
+9705	SONG NHẬN
+9706	Tỉ lệ ra thêm 1 đòn ×2.2 (đòn thêm không kích hoạt tiếp)
+9707	CHÉM SIÊU THANH
+9708	Uy lực và tầm bay của nhát chém bay tăng (kích thước giữ nguyên)
+9709	THẦN TỐC LIÊN ĐÒN
+9710	Hiệu ứng tốc độ đánh của đòn chính ×2.2
+9711	TRƯỜNG NHẬN
+9712	Hiệu ứng tầm đánh ×1.8
+9713	CHÚA TỂ BẦU TRỜI
+9714	Tấn công trên không và hồi lần nhảy trên không ×1.8
+9715	CHẺ ĐẤT
+9716	Đánh xuống/đòn đập/xung kích tiếp đất ×2
+9717	CHẾ KHÔNG
+9718	Hiệu ứng tăng khi liên tục trúng trên không ×2
+9719	ÁO NGHĨA LIÊN VŨ
+9720	Uy lực xung kích đòn kết chuỗi đánh ~1.5 lần・phạm vi rộng hơn
+9721	SIÊU CAO ÁP
+9722	Uy lực/giữ chân của sét ×1.8
+9723	LƯỠI BĂNG
+9724	Tỉ lệ・làm chậm của lạnh tăng (làm chậm tối đa 70%), số lần cần để đóng băng -1
+9725	LƯỠI CUỒNG PHONG
+9726	Tỉ lệ/uy lực lưỡi gió ×1.8, xuyên +1
+9727	PHÁ ĐỊA MẠCH
+9728	Uy lực sóng xung kích mặt đất ~1.5 lần, độ dài 8.6m→11.4m
+9729	LIÊN KÍCH CUỒN CUỘN
+9730	Đòn giữa chuỗi/tốc độ đòn chính ×2
+9731	ĐỈNH CAO ĐỐI KHÔNG
+9732	Tấn công địch trên không ×2
+9733	BẢN NĂNG THỢ SĂN
+9734	Đánh boss: bước tới +36%→+72%・tốc độ tiếp cận +27%→+54%
+9735	LINH HỒN RỰC CHÁY
+9736	Sức mạnh/thời gian thiêu đốt ×1.8
+9737	NGHIỆP HỎA
+9738	Lửa lan khi hạ địch đang thiêu đốt: uy lực ~1.6 lần・phạm vi rộng hơn
+9739	BĂNG NGỤC
+9740	Tỉ lệ・làm chậm・thời gian của lạnh tăng (số lần cần để đóng băng vẫn tối thiểu 2)
+9741	ĐỘ KHÔNG TUYỆT ĐỐI
+9742	Vỡ băng quái thường/tấn công địch bị lạnh ×1.8
+9743	XÍCH SÉT
+9744	Dây chuyền sét đánh 3→5 địch, khoảng cách dây chuyền cũng xa hơn
+9745	LÔI ĐẾ
+9746	Uy lực/dây chuyền/phạm vi của sét ×1.8
+9747	BÃO TỐ
+9748	Tốc độ/tầm/xuyên của lưỡi gió ×1.8
+9749	ĐẠI LỐC XOÁY
+9750	Uy lực lốc xoáy ~1.5 lần, phạm vi cũng rộng hơn
+9751	TRÁI TIM THÉP
+9752	Mức tăng HP tối đa ×1.6 (tối đa 20 tim, trở lại khi hết), hồi +1
+9753	BÃO KHIÊN
+9754	Thời gian hồi Shield ngắn nhất 8 giây (tối đa 3 không đổi)
+9755	TRẢ GẤP ĐÔI
+9756	Uy lực cơ bản phản công khi đỡ bằng Shield ~1.7 lần
+9757	Ý CHÍ THÉP
+9758	Tấn công/HP tối đa khi HP đầy ×2
+9759	PHÒNG THỦ TUYỆT ĐỐI
+9760	Bất tử sau khi đỡ bằng Shield 1.3 giây→2.2 giây
+9761	BÁO THÙ RỰC LỬA
+9762	Uy lực phản công lửa khi đỡ bằng Shield ~1.7 lần・thiêu đốt cũng mạnh hơn
+9763	THÀNH LŨY CUỐI
+9764	Bất tử lúc còn 1 tim 2.35 giây→3.7 giây
+9765	SINH LỰC TRÀN ĐẦY
+9766	Hồi thêm tim +2→+4 (Shield từ lượng hồi tràn vẫn là 1)
+9767	MÁU SÔI
+9768	Tấn công/hấp thụ khi HP thấp ×2
+9769	KẺ SĂN MỒI
+9770	Tỉ lệ hấp thụ ×2, dễ hấp thụ từ boss hơn
+9771	BẤT KHUẤT
+9772	Dùng lại hồi phục lúc nguy kịch 6,000m→1,500m (vẫn hồi 3 tim)
+9773	HUYẾT NHẬN
+9774	Tỉ lệ/uy lực chảy máu ×1.8
+9775	KẺ MỞ ĐƯỜNG
+9776	Hiệu ứng EXP theo quãng đường ×2 (vẫn qua đường cong)
+9777	LƯƠNG THỰC ĐƯỜNG XA
+9778	Hiệu ứng EXP/HP tối đa ×1.8
+9779	BÀI HỌC VƯỢT GIỚI HẠN
+9780	Hiệu ứng EXP ×1.8 (vẫn qua đường cong)
+9781	DÒNG LŨ KINH NGHIỆM
+9782	Hiệu ứng EXP từ địch/boss ×1.8
+9783	CON ĐƯỜNG VÔ TẬN
+9784	Hiệu ứng EXP/HP tối đa ×1.6
+9785	KHỨU GIÁC KHO BÁU
+9786	Hiệu ứng MILE từ kho báu・thưởng/boss/quãng đường ×2
+9787	CUỒNG CHIẾN BINH
+9788	Tấn công/tốc độ đánh ×1.8 (tim bị phong ấn giữ nguyên)
+9789	GỌI BẦY
+9790	Địch xuất hiện và MILE hạ địch ×2
+9791	ĐAO PHỦ
+9792	Hiệu ứng MILE hạ địch ×2
+9793	THỬ THÁCH CƯỜNG ĐỊCH
+9794	HP quái thường và MILE/EXP hạ địch ×2
+9795	ĐỊCH CUỒNG PHONG
+9796	Tốc độ quái thường và MILE/EXP hạ địch ×1.8
+9797	TRẬN BỐI THỦY
+9798	Tấn công khi HP thấp ×2
+9799	KHẨU PHÁO VỠ NÁT
+9800	Tấn công ×1.8 (tim bị phong ấn giữ nguyên)
+9801	NHỊP ĐẬP GIỚI HẠN
+9802	Tốc độ đánh khi HP thấp ×2
+9803	DÒNG LŨ QUÁI VẬT
+9804	Địch xuất hiện và EXP ×2
+9805	TINH ANH DIỄU HÀNH
+9806	Tỉ lệ tinh anh và MILE ×2
+9807	ĐẠI QUÂN
+9808	Địch xuất hiện/MILE/EXP hạ địch ×1.8
+9809	THÁCH THỨC VUA
+9810	(Trận boss bắt đầu trong thời gian này) HP boss và MILE boss ×2
+9811	SÁT THỦ KHỔNG LỒ
+9812	Tấn công ×1.8, giảm tốc độ đánh cũng ×1.8 (đòn siêu nặng)
+9813	CUỒNG LOẠN
+9814	Tấn công/tốc độ đánh khi HP thấp ×1.8
+9815	SỨC MẠNH NGƯỢC DÒNG
+9816	Tấn công và mức giảm tốc độ đều ×1.8
+9817	TRÁI TIM VỠ
+9818	Tấn công và tấn công theo mỗi tim bị phong ấn ×1.8
+9819	GIẢ KIM
+9820	Mức giảm EXP và mức tăng MILE đều ×2
+9821	QUỶ MẶT ĐẤT
+9822	Tấn công mặt đất và mức giảm trên không đều ×1.8
+9823	QUỶ TRÊN TRỜI
+9824	Tấn công trên không và mức giảm mặt đất đều ×1.8
+9825	CỔNG ĐỊA NGỤC
+9826	HP/chuyển động/xuất hiện quái thường và MILE/MILE boss ×1.8
+9827	ĐOÀN RƯỚC CỦA VUA
+9828	Tỉ lệ có thêm 1 boss nhập trận 100%, mức tăng MILE hạ boss cũng ×2
+9829	THỢ SĂN TIỀN THƯỞNG
+9830	Kẻ bị truy nã mạnh hơn・mỗi 1,500m・hạ được 180 MILE. Mức tăng MILE từ hạ địch・BONUS cũng ×1.8
+9831	KHẾ ƯỚC TỬ THẦN
+9832	ĐỈNH CAO GIÁP NẶNG
+9833	Tăng trưởng HP tối đa ×1.8・khựng -40%・bất tử sau trúng đòn +0.3 giây (giảm lực nhảy cũng ×1.8)
+9834	PHÁO ĐÀI BẤT BẠI
+9835	Tăng HP tối đa・giảm khựng mạnh hơn, Shield tối đa dưới 3 thì +1 (giảm tốc độ di chuyển cũng mạnh hơn)
+9836	KHÔNG NGOẢNH LẠI
+9837	Tốc độ và địch xuất hiện ×1.6, MILE +40%
+9838	VẠN MA ĐIỆN
+9839	Cường hóa địch/tinh anh/boss và MILE/MILE boss ×1.6
+9840	HOÀN THIỆN ĐA NĂNG
+9841	Tấn công/HP tối đa/tốc độ ×1.6 (đều không bằng thẻ chuyên biệt)
+9842	THÊM 1 DẶM
+9843	Hiệu ứng MILE/MILE boss/EXP ×1.6

@@ -1,0 +1,242 @@
+9600	Tapusin nang ligtas ang run para maiuwi ang MILE
+9601	Talo ang boss!
+9602	Hawak {0}
+9603	Magagamit
+9604	Panatilihin ang 115km/h pataas → OVERDRIVE sa {0} seg
+9605	Lumilipad na hiwa, lakas {0}・base na layo {1}m (humahaba sa bilis)
+9606	Ganti kapag sinalag ng Shield, lakas {0}・abot 3m
+9607	Invincible pagkatapos sumalag ng Shield {0} seg
+9608	Ganting apoy kapag sinalag ng Shield, lakas {0}・Sunog {1}/seg
+9609	Tinamaan hanggang HP 30% pababa → +{0} puso・muling gagana pagkalipas ng {1}m
+9610	Tinamaan hanggang 1 puso o mas kaunti → invincible {0} seg
+9611	HP sa pagbangon: {0} puso (2 seg invincible)
+9612	Sobrang lunas kapag puno → 1 Shield (hanggang max +1)
+9613	Sipsip ng HP pati sa tama sa boss (1/10 ng normal na tsansa)
+9614	Malapitan: dagdag na atake sa {0} kalaban sa likod, lakas {1} / projectile tagos +{2}
+9615	Shockwave, lakas {0}・lapad {1}m (projectile: radius {2}m)
+9616	Pagsabog sa pagtalo, lakas {0}・radius {1}m (kadena hanggang 3 antas)
+9617	Habol na hiwa sa ere, lakas {0}・radius {1}m
+9618	Tama sa ere = balik ang talon ({0} beses hanggang lumapag)
+9619	Shockwave sa lupa, lakas {0}・haba {1}m
+9620	Impact ng pantapos ng sunod-sunod na atake, lakas {0}・lapad {1}m
+9621	Boss fight: abante +{0}%・bilis palapit sa boss na lampas 6m +{1}%
+9622	Pagkatapos ng atakeng harap/likod, bilis ng galaw -10% sa loob ng 0.4 seg
+9623	Tamang 2 puso pataas, bawas ng 1 puso
+9624	Tsansang may sumaling 1 pang boss {0}%
+9625	May patong sa ulo bawat {0}m・HP×{1}・talunin para sa {2} MILE
+9626	Talunin ang nasusunog na kalaban → kalat ng apoy, lakas {0}・radius {1}m
+9627	Atake sa nilalamig/nagyelong kalaban +{0}%・basag sa pagyelo, lakas {1}
+9628	Buhawi, lakas {0}×3・radius {1}m
+9629	Kapag puno ang HP, tsansa ng Pagdurugo ×2
+9630	Kahit ito lang ang card, may 1 Shield ka
+9631	Abante {0}m・{1}% ng max HP ng boss na damage・buff {2} seg
+9633	(lumalaki sa Lv)
+9634	(limit ng epekto)
+9635	(Lakas {0}・gumagana hanggang Lv9)
+9636	Naabot ang kondisyon: {0}
+9637	Makukumpirma kapag matagumpay na natapos ang run
+9639	Ikaw: naglo-load…
+9640	Ikaw: hindi ma-load ang ranggo
+9641	Ikaw: bagong record, naghihintay maipadala
+9642	Ikaw: walang record sa ranking na ipinapakita
+9643	Ipinapadala… {0}
+9644	Bigo・naghihintay ipadala muli {0}
+9645	Naghihintay ipadala {0}
+9646	Hindi ma-load ang pinakabagong ranking (dating ipinapakita)
+9647	Atakeng Lampas-Hangganan
+9648	Huling damage ×1.5
+9649	Hyper Bilis
+9650	Bumibilis, kusang maliit na atake kapag may kalaban, protektado sa harang at banggaan
+9651	Abot na Humihiwa sa Screen
+9652	Mas malayong abot, hiwang alon kapag tumama
+9653	Uhaw sa Dugo
+9654	Malaking taas ng tsansa ng pagsipsip, ang sobra ay nagiging Blood Shield
+9655	Phoenix Mode
+9656	Isang beses na emergency na pagbangon mula sa nakamamatay na tama (hiwalay sa normal na PENIKS. Mawawala kung hindi nagamit)
+9657	Impyerno ng Apoy
+9658	Pinalakas na Sunog at kalat ng apoy sa paligid
+9659	Diyos ng Kidlat
+9660	Mas madalas ang Kidlat, +1 sa kadena
+9661	EXP Awakening
+9662	Dagdag na lakas sa EXP (pareho pa rin ang kurba ng pagbaba)
+9663	Gintong Pagwawala
+9664	MILE×1.5 / natatanggap na damage ×1.3
+9665	Tumpak na Takbo
+9666	Mas babagal pa, pero tataas ang atake/bilis ng atake/invincible matapos tamaan
+9667	Lipad sa Langit
+9668	Epekto ng lakas ng talon ×2.5, atake sa ere +15%
+9669	Sunod-sunod na Talon
+9670	Bilang ng talon sa ere ×1.6, atake sa ere +10%
+9671	Tumatakbo sa Langit
+9672	Epekto ng lakas ng talon/atake sa ere ×2, talon sa ere +2
+9673	Anyo ng Bilis
+9674	Epekto ng bilis-na-nagiging-atake ×2
+9675	Takbong Lampas-Hangganan
+9676	Epekto ng OVERDRIVE ×1.8 (mas madaling pumasok, mas malakas)
+9677	Halos Tamaan
+9678	Bilis/invincible matapos tamaan ×1.8, dagdag invincible +0.4 seg
+9679	Super Sunod-sunod
+9680	Epekto ng bilis ng atake ×2.2
+9681	Hari ng Himpapawid
+9682	Epekto ng atake sa ere ×2, talon sa ere +1
+9683	Tamang Preno
+9684	Epekto ng lakas ng atake ×1.8 (pareho pa rin ang bagal matapos umatake)
+9685	Nakamamatay na Unang Tama
+9686	Epekto ng unang tama ×2.5
+9687	Sining ng Pantapos
+9688	Epekto ng pantapos ×2.2, may impact ang pantapos (katumbas ng HARI NG COMBO +3)
+9689	Tagapuksa
+9690	Epekto ng atake sa alipores/MILE sa pagtalo ×2
+9691	Kamao ng Lupa
+9692	Epekto ng atake sa lupa ×2.2, ang pantapos sa lupa ay may impact na gumagapang sa lupa (+3)
+9693	Talim ng Sunod-sunod
+9694	Taas ng atake mula sa sunod-sunod na tama ×2.2
+9695	Tagos Lahat
+9696	Malapitan: tagos sa 6 na kalaban sa likod, lakas mga ×1.4; projectile tagos +6
+9697	Dambuhalang Shockwave
+9698	Lakas ng shockwave mga ×1.4 at mas malawak ang abot ng atake
+9699	Hiwa sa Langit
+9700	Lakas ng habol na hiwa sa ere mga ×1.4, mas malawak din ang abot
+9701	Pumapatay ng Hari
+9702	Epekto ng atake sa boss ×2
+9703	Kadena ng Pagsabog
+9704	Lakas ng pagsabog sa pagtalo mga ×1.4・mas malawak (kadena max 3 antas pa rin)
+9705	Dobleng Talim
+9706	Tsansa ng dagdag na 1 tama ×2.2 (hindi lalabas mula sa dagdag na tama)
+9707	Supersonic na Hiwa
+9708	Tumataas ang lakas at layo ng lumilipad na hiwa (pareho ang laki)
+9709	Bilis ng Diyos
+9710	Epekto ng bilis ng pangunahing atake ×2.2
+9711	Mahabang Talim
+9712	Epekto ng abot ng atake ×1.8
+9713	Panginoon ng Langit
+9714	Atake sa ere at pagbalik ng talon sa ere ×1.8
+9715	Biyak-Lupa
+9716	Impact ng pababang atake/bagsak/paglapag ×2
+9717	Hawak sa Himpapawid
+9718	Epektong tumataas habang patuloy na tumatama sa ere ×2
+9719	Sayaw ng Lihim na Teknik
+9720	Lakas ng impact ng pantapos ng sunod-sunod na atake mga ×1.5・mas malawak
+9721	Ultra Boltahe
+9722	Lakas/pagpigil ng kidlat ×1.8
+9723	Talim ng Yelo
+9724	Pinalakas ang tsansa at bagal ng Lamig (max 70% bagal), bilang para Pagyelo -1
+9725	Talim ng Unos
+9726	Tsansa/lakas ng Talim ng Hangin ×1.8, tagos +1
+9727	Biyak-Ugat ng Lupa
+9728	Lakas ng shockwave sa lupa mga ×1.5, haba 8.6m→11.4m
+9729	Daluyong ng Atake
+9730	Bilis ng gitnang atake ng sunod-sunod/pangunahing atake ×2
+9731	Sukdulang Kontra-Ere
+9732	Atake sa kalaban sa ere ×2
+9733	Likas ng Mangangaso
+9734	Abante sa boss fight +36%→+72%・bilis palapit +27%→+54%
+9735	Nag-aapoy na Kaluluwa
+9736	Lakas/tagal ng Sunog ×1.8
+9737	Apoy ng Impyerno
+9738	Lakas ng apoy na kumakalat kapag tinalo ang nasusunog mga ×1.6・mas malawak
+9739	Kulungang Yelo
+9740	Pinalakas ang tsansa, bagal at tagal ng Lamig (bilang para Pagyelo ay minimum na 2 pa rin)
+9741	Absolute Zero
+9742	Basag ng nagyelong alipores/atake sa nilalamig na kalaban ×1.8
+9743	Kadena ng Kidlat
+9744	Kadena ng Kidlat 3→5 kalaban, humahaba rin ang layo ng kadena
+9745	Emperador ng Kidlat
+9746	Lakas/kadena/abot ng kidlat ×1.8
+9747	Bagyo
+9748	Bilis/layo/tagos ng Talim ng Hangin ×1.8
+9749	Dambuhalang Buhawi
+9750	Lakas ng buhawi mga ×1.5 at mas malawak din
+9751	Pusong Bakal
+9752	Dagdag ng max HP ×1.6 (max 20 puso; babalik pagkatapos), lunas +1
+9753	Bagyo ng Shield
+9754	Pagitan ng pagbalik ng Shield hanggang 8 seg (max 3 pa rin)
+9755	Dobleng Ganti
+9756	Base na lakas ng ganti kapag sinalag ng Shield mga ×1.7
+9757	Bakal na Loob
+9758	Atake/max HP habang puno ×2
+9759	Ganap na Depensa
+9760	Invincible matapos sumalag ng Shield 1.3 seg→2.2 seg
+9761	Ganting Apoy
+9762	Lakas ng ganting apoy kapag sinalag ng Shield mga ×1.7・mas malakas din ang Sunog
+9763	Huling Muog
+9764	Invincible sa sandaling 1 puso na lang 2.35 seg→3.7 seg
+9765	Umaapaw na Buhay
+9766	Dagdag na lunas puso +2→+4 (1 pa rin ang Shield mula sa sobrang lunas)
+9767	Kumukulong Dugo
+9768	Atake/pagsipsip kapag mababa ang HP ×2
+9769	Mandaragit
+9770	Tsansa ng pagsipsip ×2, mas madaling sumipsip pati sa boss
+9771	Di Sumusuko
+9772	Muling pagbangon mula sa bingit 6,000m→1,500m (3 puso pa rin ang lunas)
+9773	Talim ng Dugo
+9774	Tsansa/lakas ng Pagdurugo ×1.8
+9775	Tagabukas ng Daan
+9776	Epekto ng EXP sa layo ×2 (dumadaan sa kurba)
+9777	Baon sa Mahabang Lakbay
+9778	Epekto ng EXP/max HP ×1.8
+9779	Aral na Lampas-Hangganan
+9780	Epekto ng EXP ×1.8 (dumadaan sa kurba)
+9781	Agos ng Karanasan
+9782	Epekto ng EXP mula sa kalaban/boss ×1.8
+9783	Walang Katapusang Daan
+9784	Epekto ng EXP/max HP ×1.6
+9785	Ilong sa Kayamanan
+9786	Epekto ng MILE ng kayamanan・gantimpala/boss/layo ×2
+9787	Berserker
+9788	Atake/bilis ng atake ×1.8 (hindi nagbabago ang selyadong puso)
+9789	Tawag ng Kawan
+9790	Dalas ng kalaban at MILE sa pagtalo ×2
+9791	Berdugo
+9792	Epekto ng MILE sa pagtalo ×2
+9793	Pagsubok ng Malakas
+9794	HP ng alipores at MILE/EXP sa pagtalo ×2
+9795	Mabibilis na Kalaban
+9796	Bilis ng alipores at MILE/EXP sa pagtalo ×1.8
+9797	Walang Atrasan
+9798	Atake kapag mababa ang HP ×2
+9799	Marupok na Kanyon
+9800	Atake ×1.8 (hindi nagbabago ang selyadong puso)
+9801	Pintig ng Hangganan
+9802	Bilis ng atake kapag mababa ang HP ×2
+9803	Daluyong ng Halimaw
+9804	Dalas ng kalaban at EXP ×2
+9805	Martsa ng Elite
+9806	Tsansa ng Elite at MILE ×2
+9807	Dagsa
+9808	Dalas ng kalaban/MILE/EXP sa pagtalo ×1.8
+9809	Hamon sa Hari
+9810	(Boss fight na nagsimula habang aktibo) HP ng boss at boss MILE ×2
+9811	Pumapatay ng Higante
+9812	Atake ×1.8, bagal ng bilis ng atake ×1.8 din (super bigat na tama)
+9813	Pagkabaliw
+9814	Atake/bilis ng atake kapag mababa ang HP ×1.8
+9815	Lakas ng Pasalungat
+9816	Atake at bawas ng bilis ×1.8
+9817	Wasak na Puso
+9818	Atake at atake bawat selyadong puso ×1.8
+9819	Alkimya
+9820	Bawas ng EXP at dagdag ng MILE ×2
+9821	Halimaw ng Lupa
+9822	Atake sa lupa at bawas sa ere ×1.8
+9823	Halimaw ng Langit
+9824	Atake sa ere at bawas sa lupa ×1.8
+9825	Pinto ng Impyerno
+9826	HP/galaw/dalas ng alipores at MILE/boss MILE ×1.8
+9827	Prusisyon ng Hari
+9828	Tsansang may sumaling 1 pang boss 100%, dagdag ng Boss-defeat MILE ×2 din
+9829	Bounty Hunter
+9830	Mas malakas ang may patong sa ulo・bawat 1,500m・talunin para sa 180 MILE. Dagdag ng MILE sa kalaban & BONUS ×1.8 din
+9831	Kasunduan sa Reaper
+9832	Sukdulang Baluti
+9833	Paglaki ng max HP ×1.8・pagkagulantang -40%・invincible matapos tamaan +0.3 seg (bawas ng lakas ng talon ×1.8 din)
+9834	Di Matitinag na Kuta
+9835	Pinalakas ang dagdag ng max HP at bawas sa pagkagulantang; Shield max +1 kung kulang sa 3 (mas malaki rin ang bagal ng galaw)
+9836	Walang Lingon
+9837	Bilis at dalas ng kalaban ×1.6, MILE +40%
+9838	Pandemonium
+9839	Lakas ng kalaban/elite/boss at MILE/boss MILE ×1.6
+9840	Ganap na All-Rounder
+9841	Atake/max HP/bilis ×1.6 (hindi aabot sa mga espesyalistang card)
+9842	One More Mile
+9843	Epekto ng MILE/boss MILE/EXP ×1.6

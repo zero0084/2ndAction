@@ -197,10 +197,15 @@ public class FinalEvolution : MonoBehaviour
         c.rarity = 5;
         c.category = src != null ? src.category : default;
         var e = T.For(abilityId);
-        c.description = e != null ? e.description : "";
+        c.description = e != null ? EffectText(e) : "";
         choiceCards[abilityId] = c;
         return c;
     }
+
+    // 2026-10-13: 説明文の先頭の「10秒間」「次の2,000m」は外す(長さは数値欄 ValueLine に AWAKENED の延長込みで出す。
+    // 説明文に固定の数字が残ると、AWAKENED の時に数値欄と食い違っていた)
+    static readonly System.Text.RegularExpressions.Regex DurationPrefix = new System.Text.RegularExpressions.Regex(@"^\s*(\d+(\.\d+)?秒間|次の[\d,]+m)\s*");
+    public static string EffectText(FinalEvolutionTuning.Entry e) => e == null ? "" : DurationPrefix.Replace(e.description ?? "", "");
 
     public static RewardCardData ChoiceCardData(string abilityId)
     {

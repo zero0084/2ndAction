@@ -1,0 +1,242 @@
+9600	Selesaikan run dengan selamat untuk membawa pulang MILE
+9601	Bos dikalahkan!
+9602	Punya {0}
+9603	Bisa dipakai
+9604	Jaga 115km/h ke atas → OVERDRIVE dalam {0} dtk
+9605	Tebasan terbang daya {0}・jarak dasar {1}m (bertambah sesuai kecepatan)
+9606	Balasan saat menahan dengan Shield daya {0}・area 3m
+9607	Kebal setelah menahan dengan Shield {0} dtk
+9608	Balasan api saat menahan dengan Shield daya {0}・bakar {1}/dtk
+9609	Kena hingga HP 30% ke bawah → pulih {0} hati・aktif lagi setelah {1}m
+9610	Kena hingga sisa 1 hati atau kurang → kebal {0} dtk
+9611	HP saat bangkit: {0} hati (kebal 2 dtk)
+9612	Pemulihan berlebih saat penuh jadi 1 Shield (hingga maks +1)
+9613	Serap HP juga saat mengenai bos (1/10 peluang serap biasa)
+9614	Jarak dekat: serangan tambahan ke {0} musuh di belakang daya {1} / proyektil tembus +{2}
+9615	Gelombang kejut daya {0}・lebar {1}m (proyektil: radius {2}m)
+9616	Ledakan saat mengalahkan daya {0}・radius {1}m (berantai hingga 3 tingkat)
+9617	Tebasan susulan di udara daya {0}・radius {1}m
+9618	Serangan udara kena memulihkan lompatan ({0} kali sampai mendarat)
+9619	Gelombang kejut darat daya {0}・panjang {1}m
+9620	Hantaman penutup serangan beruntun daya {0}・lebar {1}m
+9621	Lawan bos: maju +{0}%・kecepatan mendekati bos di luar 6m +{1}%
+9622	Setelah serangan depan/belakang, kecepatan gerak -10% selama 0.4 dtk
+9623	Damage 2 hati atau lebih dikurangi 1 hati
+9624	Peluang 1 bos lagi ikut {0}%
+9625	Buronan tiap {0}m・HP×{1}・kalahkan dapat {2} MILE
+9626	Kalahkan musuh terbakar → api menjalar daya {0}・radius {1}m
+9627	Serangan ke musuh dingin/beku +{0}%・pecah saat beku daya {1}
+9628	Tornado daya {0}×3・radius {1}m
+9629	Saat HP penuh, peluang pendarahan ×2
+9630	Kartu ini saja sudah bisa menyimpan 1 Shield
+9631	Maju {0}m・damage {1}% HP maks bos・penguatan {2} dtk
+9633	(naik sesuai Lv)
+9634	(batas efek)
+9635	(Penguatan {0}・berlaku sampai Lv9)
+9636	Syarat buka tercapai: {0}
+9637	Terkunci jika run selesai dengan sukses
+9639	Kamu: memuat…
+9640	Kamu: gagal memuat peringkat
+9641	Kamu: rekor baru menunggu dikirim
+9642	Kamu: tak ada rekor di peringkat yang tampil
+9643	Mengirim… {0}
+9644	Gagal kirim・menunggu kirim ulang {0}
+9645	Menunggu dikirim {0}
+9646	Gagal memuat peringkat terbaru (tampilan sebelumnya)
+9647	Serangan Tanpa Batas
+9648	Damage akhir ×1.5
+9649	Hiper Kilat
+9650	Akselerasi, serangan kecil otomatis saat dekat musuh, terlindung dari rintangan dan tabrakan
+9651	Jangkauan Pembelah Layar
+9652	Jangkauan jauh lebih panjang, gelombang tebasan saat kena
+9653	Haus Darah
+9654	Peluang serap naik besar, kelebihannya jadi Blood Shield
+9655	Mode Feniks
+9656	Bangkit darurat 1 kali dari serangan fatal (terpisah dari FENIKS biasa. Hilang jika tak terpakai)
+9657	Neraka Api
+9658	Bakar yang diperkuat dan api menjalar ke sekitar
+9659	Mode Dewa Petir
+9660	Sambaran petir lebih sering, rantai +1
+9661	Kebangkitan EXP
+9662	Tambahan penguatan EXP (kurva penurunan tetap)
+9663	Amukan Emas
+9664	MILE×1.5 / damage diterima ×1.3
+9665	Lari Presisi
+9666	Makin lambat, tapi serangan/kecepatan serang/kebal setelah kena naik
+9667	Melayang Tinggi
+9668	Efek daya lompat ×2.5, serangan udara +15%
+9669	Lompatan Berlapis
+9670	Jumlah lompatan udara ×1.6, serangan udara +10%
+9671	Penjelajah Langit
+9672	Efek daya lompat/serangan udara ×2, lompatan udara +2
+9673	Jelmaan Akselerasi
+9674	Efek kecepatan jadi serangan ×2
+9675	Dorongan Batas
+9676	Efek OVERDRIVE ×1.8 (lebih mudah aktif, lebih kuat)
+9677	Setipis Rambut
+9678	Kecepatan/kebal setelah kena ×1.8, plus kebal +0.4 dtk
+9679	Serangan Super Beruntun
+9680	Efek kecepatan serang ×2.2
+9681	Penguasa Udara
+9682	Efek serangan udara ×2, lompatan udara +1
+9683	Hantaman Rem
+9684	Efek serangan ×1.8 (perlambatan setelah menyerang tetap)
+9685	Serangan Pertama Maut
+9686	Efek serangan pertama ×2.5
+9687	Rahasia Penutup
+9688	Efek penutup ×2.2, penutup memicu hantaman (setara AHLI COMBO +3)
+9689	Pembasmi
+9690	Efek serangan ke musuh biasa/MILE kalahkan ×2
+9691	Tinju Bumi
+9692	Efek serangan darat ×2.2, penutup di darat memicu hantaman yang menjalar di tanah (+3)
+9693	Bilah Beruntun
+9694	Kenaikan serangan dari hit beruntun ×2.2
+9695	Tembus Total
+9696	Jarak dekat tembus ke 6 musuh di belakang dengan daya sekitar ×1.4, proyektil tembus +6
+9697	Gelombang Kejut Raksasa
+9698	Daya gelombang kejut sekitar ×1.4 dan area serangan meluas
+9699	Pembelah Langit
+9700	Daya tebasan susulan di udara sekitar ×1.4, area serangan juga meluas
+9701	Pembunuh Raja
+9702	Efek serangan ke bos ×2
+9703	Rantai Ledakan
+9704	Daya ledakan saat mengalahkan sekitar ×1.4・area meluas (rantai tetap maks 3 tingkat)
+9705	Bilah Ganda
+9706	Peluang 1 serangan tambahan ×2.2 (serangan tambahan tak memicu lagi)
+9707	Tebasan Supersonik
+9708	Daya dan jarak tebasan terbang naik (ukurannya tetap)
+9709	Tangan Secepat Dewa
+9710	Efek kecepatan serang serangan utama ×2.2
+9711	Bilah Panjang
+9712	Efek jangkauan serang ×1.8
+9713	Tuan Angkasa
+9714	Serangan udara dan pemulihan lompatan udara ×1.8
+9715	Pembelah Bumi
+9716	Benturan serangan bawah/hantaman/mendarat ×2
+9717	Kuasai Udara
+9718	Efek yang naik makin lama kena di udara ×2
+9719	Tarian Jurus Rahasia
+9720	Daya hantaman penutup serangan beruntun sekitar ×1.5・area meluas
+9721	Tegangan Ultra
+9722	Daya/henti petir ×1.8
+9723	Bilah Es
+9724	Peluang dan lambat dingin diperkuat (lambat maks 70%), dingin yang diperlukan untuk beku -1
+9725	Bilah Badai
+9726	Peluang/daya bilah angin ×1.8, tembus +1
+9727	Penghancur Urat Bumi
+9728	Daya gelombang kejut darat sekitar ×1.5, panjang 8.6m→11.4m
+9729	Gempuran Beruntun
+9730	Kecepatan serangan tengah rangkaian/serangan utama ×2
+9731	Puncak Anti-Udara
+9732	Serangan ke musuh di udara ×2
+9733	Naluri Pemburu
+9734	Maju saat lawan bos +36%→+72%・kecepatan mendekat +27%→+54%
+9735	Jiwa Membara
+9736	Kekuatan/durasi bakar ×1.8
+9737	Api Neraka
+9738	Daya api yang menjalar saat mengalahkan musuh terbakar sekitar ×1.6・area meluas
+9739	Penjara Es
+9740	Peluang, lambat, dan durasi dingin diperkuat (dingin untuk beku tetap minimum 2 kali)
+9741	Nol Mutlak
+9742	Pecahnya musuh biasa beku/serangan ke musuh dingin ×1.8
+9743	Rantai Petir
+9744	Rantai sambaran petir 3→5 musuh, jarak rantai juga bertambah
+9745	Kaisar Petir
+9746	Daya/rantai/area petir ×1.8
+9747	Badai Dahsyat
+9748	Kecepatan/jarak/tembus bilah angin ×1.8
+9749	Tornado Raksasa
+9750	Daya tornado sekitar ×1.5 dan area juga meluas
+9751	Jantung Besi
+9752	Penambahan HP maks ×1.6 (maks 20 hati, kembali setelah selesai), pemulihan +1
+9753	Badai Perisai
+9754	Jeda pulih Shield minimal 8 dtk (maks 3 tetap)
+9755	Balas Berlipat
+9756	Daya dasar balasan saat menahan dengan Shield sekitar ×1.7
+9757	Tekad Baja
+9758	Serangan/HP maks selama HP penuh ×2
+9759	Pertahanan Sempurna
+9760	Kebal setelah menahan dengan Shield 1.3 dtk→2.2 dtk
+9761	Pembalasan Api
+9762	Daya balasan api saat menahan dengan Shield sekitar ×1.7・bakar juga lebih kuat
+9763	Benteng Terakhir
+9764	Kebal saat tersisa 1 hati 2.35 dtk→3.7 dtk
+9765	Hidup Meluap
+9766	Pemulihan tambahan hati +2→+4 (Shield dari pemulihan berlebih tetap 1)
+9767	Darah Bergejolak
+9768	Serangan/serap saat HP rendah ×2
+9769	Predator
+9770	Peluang serap ×2, lebih mudah menyerap dari bos
+9771	Pantang Menyerah
+9772	Aktif ulang pemulihan saat sekarat 6,000m→1,500m (pemulihan tetap 3 hati)
+9773	Bilah Darah
+9774	Peluang/daya pendarahan ×1.8
+9775	Pembuka Jalan
+9776	Efek EXP jarak ×2 (melalui kurva)
+9777	Bekal Perjalanan Jauh
+9778	Efek EXP/HP maks ×1.8
+9779	Pelajaran Tanpa Batas
+9780	Efek EXP ×1.8 (melalui kurva)
+9781	Arus Pengalaman
+9782	Efek EXP musuh/bos ×1.8
+9783	Jalan Tanpa Ujung
+9784	Efek EXP/HP maks ×1.6
+9785	Hidung Harta
+9786	Efek MILE harta・hadiah/bos/jarak ×2
+9787	Berserker
+9788	Serangan/kecepatan serang ×1.8 (hati tersegel tetap)
+9789	Panggil Kawanan
+9790	Frekuensi musuh dan MILE kalahkan ×2
+9791	Algojo
+9792	Efek MILE kalahkan ×2
+9793	Ujian Musuh Kuat
+9794	HP musuh biasa dan MILE/EXP kalahkan ×2
+9795	Musuh Secepat Angin
+9796	Kecepatan musuh biasa dan MILE/EXP kalahkan ×1.8
+9797	Tanpa Jalan Mundur
+9798	Serangan saat HP rendah ×2
+9799	Meriam Rapuh
+9800	Serangan ×1.8 (hati tersegel tetap)
+9801	Detak Batas
+9802	Kecepatan serang saat HP rendah ×2
+9803	Arus Monster
+9804	Frekuensi musuh dan EXP ×2
+9805	Pawai Elit
+9806	Peluang elit dan MILE ×2
+9807	Gerombolan
+9808	Frekuensi musuh/MILE/EXP kalahkan ×1.8
+9809	Tantang Sang Raja
+9810	(Lawan bos yang dimulai selama efek) HP bos dan MILE bos ×2
+9811	Pembunuh Raksasa
+9812	Serangan ×1.8, penurunan kecepatan serang juga ×1.8 (hantaman super berat)
+9813	Amukan
+9814	Serangan/kecepatan serang saat HP rendah ×1.8
+9815	Kekuatan Melawan Arus
+9816	Serangan dan penurunan kecepatan ×1.8
+9817	Hati yang Hancur
+9818	Serangan dan serangan per hati tersegel ×1.8
+9819	Alkimia
+9820	Penurunan EXP dan kenaikan MILE ×2
+9821	Iblis Darat
+9822	Serangan darat dan penurunan di udara ×1.8
+9823	Iblis Langit
+9824	Serangan udara dan penurunan di darat ×1.8
+9825	Gerbang Neraka
+9826	HP/gerak/frekuensi musuh biasa dan MILE/MILE bos ×1.8
+9827	Arak-arakan Raja
+9828	Peluang 1 bos lagi ikut 100%, kenaikan MILE kalahkan bos juga ×2
+9829	Pemburu Hadiah
+9830	Buronan diperkuat・tiap 1,500m・kalahkan dapat 180 MILE. Kenaikan MILE musuh & BONUS juga ×1.8
+9831	Kontrak Malaikat Maut
+9832	Puncak Zirah Berat
+9833	Pertumbuhan HP maks ×1.8・sentakan -40%・kebal setelah kena +0.3 dtk (penurunan daya lompat juga ×1.8)
+9834	Benteng Tak Tertembus
+9835	Penambahan HP maks dan pengurangan sentakan diperkuat, Shield maks +1 jika kurang dari 3 (penurunan kecepatan gerak juga makin besar)
+9836	Tanpa Menoleh
+9837	Kecepatan dan frekuensi musuh ×1.6, MILE +40%
+9838	Pandemonium
+9839	Penguatan musuh/elit/bos dan MILE/MILE bos ×1.6
+9840	Kesempurnaan Serba Bisa
+9841	Serangan/HP maks/kecepatan ×1.6 (semuanya di bawah kartu spesialis)
+9842	One More Mile
+9843	Efek MILE/MILE bos/EXP ×1.6

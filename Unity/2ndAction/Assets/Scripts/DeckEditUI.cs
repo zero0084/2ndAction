@@ -772,12 +772,10 @@ public class DeckEditUI : MonoBehaviour
                 if (i > 0) sb.Append('\n');
                 sb.Append(i == 0 ? mainTag : subTag);
                 if (i > 0) sb.Append(CardVariant.AbilityName(a.id)).Append("  ");
-                if (BalanceTuning.AttackUpHighLevel && a.id == "attack_up") sb.Append(CardVariant.AbilityEffectTextAt(a.id, a.stacks)); // 2026-10-11: 高い Lv の伸び(合計で出す)
-                else
-                {
-                    sb.Append(CardVariant.AbilityEffectText(a.id));
-                    if (a.stacks > 1) sb.Append($"  ×{a.stacks}");
-                }
+                // 2026-10-13: その能力の Lv(強化量、最大9)で実際に効く値。「1回分 ×強化量」は固定/2Lv/3Lvごとの効果で合わなかった
+                int alv = Mathf.Clamp(a.stacks, 1, CardVariant.MaxLevel);
+                sb.Append("Lv").Append(alv).Append("  ").Append(CardVariant.AbilityEffectTextAt(a.id, a.stacks));
+                if (a.stacks > CardVariant.MaxLevel) sb.Append(Loc.F("(強化量{0}・効くのはLv9まで)", a.stacks));
             }
             return sb.ToString();
         }
@@ -786,7 +784,7 @@ public class DeckEditUI : MonoBehaviour
         for (int i = 0; i < card.effects.Count; i++)
         {
             if (i > 0) sb.Append(" / ");
-            sb.Append(CardVariant.EffectLabel(card.effects[i].type)).Append(' ').Append(CardEffectFormat.Format(card.effects[i]));
+            sb.Append(CardVariant.EffectPart(card.effects[i]));
         }
         return sb.ToString();
     }

@@ -1,0 +1,242 @@
+9600	Termine la course sans encombre pour rapporter tes MILE
+9601	BOSS VAINCU !
+9602	Possédées {0}
+9603	Utilisables
+9604	Tiens 115km/h+ → OVERDRIVE dans {0} s
+9605	Taillade volante : puissance {0}, portée de base {1}m (plus longue avec la vitesse)
+9606	Riposte au blocage du bouclier : puissance {0}, rayon 3m
+9607	Invincible {0} s après un blocage au bouclier
+9608	Riposte de feu au blocage du bouclier : puissance {0}, brûlure {1}/s
+9609	Touché à 30% de HP ou moins → {0} cœurs rendus, recharge en {1}m
+9610	Touché à 1 cœur ou moins → invincible {0} s
+9611	HP à la résurrection : {0} cœurs (2 s d'invincibilité)
+9612	Les soins en trop à HP pleins deviennent 1 bouclier (jusqu'au max +1)
+9613	Absorbe des HP aussi sur les boss (1/10 de la chance normale)
+9614	Mêlée : coup en plus sur {0} ennemis derrière, puissance {1} / Projectiles : perforation +{2}
+9615	Onde de choc : puissance {0}, largeur {1}m (projectiles : rayon {2}m)
+9616	Explosion à l'élimination : puissance {0}, rayon {1}m (chaîne jusqu'à 3 niveaux)
+9617	Taillade de suivi en l'air : puissance {0}, rayon {1}m
+9618	Toucher en l'air rend un saut ({0} fois avant d'atterrir)
+9619	Onde de choc au sol : puissance {0}, longueur {1}m
+9620	Impact du coup final : puissance {0}, largeur {1}m
+9621	Combat de boss : élan +{0}%, vitesse d'approche des boss à plus de 6m +{1}%
+9622	Vitesse -10% pendant 0.4 s après une attaque avant/arrière
+9623	Les coups de 2 cœurs ou plus retirent 1 cœur de moins
+9624	Chance qu'un boss de plus se joigne : {0}%
+9625	Prime tous les {0}m, HP ×{1}, {2} MILE si vaincue
+9626	Vaincre un ennemi en feu → propagation : puissance {0}, rayon {1}m
+9627	Attaque contre ennemis refroidis/gelés +{0}%, éclatement au gel : puissance {1}
+9628	Tornade : puissance {0} ×3, rayon {1}m
+9629	Chance de saignement ×2 à HP pleins
+9630	Cette carte seule te donne 1 bouclier
+9631	Avance de {0}m, {1}% des HP max du boss en dégâts, bonus {2} s
+9633	(augmente avec le Lv)
+9634	(effet au max)
+9635	(bonus {0}, efficace jusqu'au Lv9)
+9636	Condition de déblocage remplie : {0}
+9637	Validé si tu termines la course sans encombre
+9639	Toi : chargement…
+9640	Toi : impossible de charger ton rang
+9641	Toi : nouveau record en attente d'envoi
+9642	Toi : aucun record dans le classement affiché
+9643	Envoi… {0}
+9644	Échec d'envoi, en attente de renvoi : {0}
+9645	En attente d'envoi : {0}
+9646	Impossible de charger le dernier classement (affichage précédent)
+9647	Attaque sans limite
+9648	Dégâts finaux ×1.5
+9649	Hypervitesse
+9650	Accélère, mini-attaques auto près des ennemis, protégé des obstacles et contacts
+9651	Portée fend-écran
+9652	Portée fortement accrue, les coups lancent une vague tranchante
+9653	Soif de sang
+9654	Chance d'absorption très accrue, le surplus devient un bouclier de sang
+9655	Mode Phénix
+9656	1 résurrection d'urgence après un coup fatal (distincte du PHÉNIX normal, perdue si inutilisée)
+9657	Brasier infernal
+9658	Brûlure renforcée qui se propage aux ennemis proches
+9659	Dieu du tonnerre
+9660	Foudre plus fréquente, chaîne +1
+9661	Éveil de l'EXP
+9662	Bonus d'EXP en plus (courbe de réduction inchangée)
+9663	Folie dorée
+9664	MILE×1.5 / dégâts subis ×1.3
+9665	Course de précision
+9666	Encore plus lent, mais attaque/vitesse d'attaque/invincibilité après coup accrues
+9667	Envol céleste
+9668	Effet de saut ×2.5, attaque aérienne +15%
+9669	Sauts multiples
+9670	Sauts aériens ×1.6, attaque aérienne +10%
+9671	Coureur des cieux
+9672	Effets de saut/attaque aérienne ×2, sauts aériens +2
+9673	Vitesse incarnée
+9674	Effet « la vitesse devient attaque » ×2
+9675	Moteur au max
+9676	Effet OVERDRIVE ×1.8 (plus facile à activer, plus fort)
+9677	D'un cheveu
+9678	Vitesse/invincibilité après coup ×1.8, plus invincibilité +0.4 s
+9679	Hyper rafale
+9680	Effet de vitesse d'attaque ×2.2
+9681	Maître des cieux
+9682	Effet d'attaque aérienne ×2, sauts aériens +1
+9683	Coup de frein
+9684	Effet d'attaque ×1.8 (ralentissement après l'attaque inchangé)
+9685	Premier coup fatal
+9686	Effet du 1er coup ×2.5
+9687	Art du coup final
+9688	Effet du coup final ×2.2, le coup final crée un impact (comme MAÎTRE DU COMBO +3)
+9689	Annihilateur
+9690	Effets d'attaque contre sbires/MILE d'éliminations ×2
+9691	Poing de la terre
+9692	Effet d'attaque au sol ×2.2, le coup final au sol crée une onde rasante (+3)
+9693	Lame en série
+9694	Hausse d'attaque des séries de coups ×2.2
+9695	Perforation totale
+9696	La mêlée perce 6 ennemis derrière à environ ×1.4 de puissance, perforation des projectiles +6
+9697	Grande onde de choc
+9698	Puissance de l'onde de choc environ ×1.4, zone élargie
+9699	Déchirure céleste
+9700	Taillade de suivi en l'air environ ×1.4 plus forte, zone élargie
+9701	Régicide
+9702	Effet d'attaque contre les boss ×2
+9703	Détonation en chaîne
+9704	Explosion à l'élimination environ ×1.4 plus forte, zone élargie (chaîne toujours de 3 niveaux max)
+9705	Double lame
+9706	Chance de coup supplémentaire ×2.2 (un coup supplémentaire n'en déclenche pas d'autre)
+9707	Taillade sonique
+9708	Taillade volante : puissance et portée accrues (taille inchangée)
+9709	Frappes divines
+9710	Effet de vitesse de l'attaque principale ×2.2
+9711	Longue lame
+9712	Effet de portée d'attaque ×1.8
+9713	Seigneur du ciel
+9714	Attaque aérienne et récupération de sauts aériens ×1.8
+9715	Fend-la-terre
+9716	Impact attaque basse/frappe plongeante/atterrissage ×2
+9717	Maîtrise des airs
+9718	Bonus des coups enchaînés en l'air ×2
+9719	Danse secrète
+9720	Impact du coup final environ ×1.5 plus fort, zone élargie
+9721	Haute tension
+9722	Puissance/immobilisation de la foudre ×1.8
+9723	Lame de givre
+9724	Chance et ralentissement du froid accrus (ralentissement max 70%), froids requis pour geler -1
+9725	Lame de bourrasque
+9726	Chance/puissance des lames de vent ×1.8, perforation +1
+9727	Brise-tellurique
+9728	Onde de choc au sol environ ×1.5 plus forte, longueur 8.6m→11.4m
+9729	Déferlante de coups
+9730	Coups intermédiaires/vitesse de l'attaque principale ×2
+9731	Antiaérien suprême
+9732	Attaque contre les ennemis en l'air ×2
+9733	Instinct du chasseur
+9734	Élan en combat de boss +36%→+72%, vitesse d'approche +27%→+54%
+9735	Âme ardente
+9736	Force/durée de la brûlure ×1.8
+9737	Feu infernal
+9738	Feu propagé en battant un ennemi en feu environ ×1.6 plus fort, zone élargie
+9739	Enfer glacé
+9740	Chance, ralentissement et durée du froid accrus (froids requis pour geler toujours au minimum de 2)
+9741	Zéro absolu
+9742	Éclatement des sbires gelés/attaque contre ennemis refroidis ×1.8
+9743	Chaîne de foudre
+9744	Chaîne de foudre 3→5 ennemis, portée de chaîne accrue
+9745	Empereur du tonnerre
+9746	Puissance/chaîne/zone de la foudre ×1.8
+9747	Tempête
+9748	Vitesse/portée/perforation des lames de vent ×1.8
+9749	Grande tornade
+9750	Tornade environ ×1.5 plus forte, zone élargie
+9751	Cœur de fer
+9752	Gain de HP max ×1.6 (max 20 cœurs, revient à la fin), soins +1
+9753	Tempête de boucliers
+9754	Recharge du bouclier en 8 s minimum (max de 3 inchangé)
+9755	Rendu au double
+9756	Puissance de base de la riposte au bouclier environ ×1.7
+9757	Volonté d'acier
+9758	Attaque à HP pleins/HP max ×2
+9759	Garde parfaite
+9760	Invincibilité après blocage au bouclier 1.3 s→2.2 s
+9761	Représailles ardentes
+9762	Riposte de feu au bouclier environ ×1.7 plus forte, brûlure renforcée
+9763	Dernier rempart
+9764	Invincibilité en tombant à 1 cœur 2.35 s→3.7 s
+9765	Vie débordante
+9766	Soins bonus +2→+4 cœurs (bouclier des soins en trop toujours 1)
+9767	Fièvre du sang
+9768	Attaque/absorption à HP bas ×2
+9769	Prédateur
+9770	Chance d'absorption ×2, absorption plus facile sur les boss
+9771	Indomptable
+9772	Recharge du soin de dernière chance 6,000m→1,500m (soin toujours de 3 cœurs)
+9773	Lame de sang
+9774	Chance/puissance du saignement ×1.8
+9775	Éclaireur
+9776	Effet d'EXP de distance ×2 (courbe toujours appliquée)
+9777	Vivres du long voyage
+9778	Effets d'EXP/HP max ×1.8
+9779	Savoir sans limite
+9780	Effet d'EXP ×1.8 (courbe toujours appliquée)
+9781	Torrent d'expérience
+9782	Effet d'EXP des ennemis/boss ×1.8
+9783	Route sans fin
+9784	Effets d'EXP/HP max ×1.6
+9785	Flair du trésor
+9786	Effets de MILE des trésors et récompenses/boss/distance ×2
+9787	Berserker
+9788	Attaque/vitesse d'attaque ×1.8 (les cœurs scellés le restent)
+9789	Appel de la horde
+9790	Fréquence des ennemis et MILE d'éliminations ×2
+9791	Bourreau
+9792	Effet des MILE d'éliminations ×2
+9793	Épreuve des forts
+9794	HP des sbires et MILE/EXP d'éliminations ×2
+9795	Ennemis véloces
+9796	Vitesse des sbires et MILE/EXP d'éliminations ×1.8
+9797	Dos au mur
+9798	Attaque à HP bas ×2
+9799	Canon fragile
+9800	Attaque ×1.8 (les cœurs scellés le restent)
+9801	Pouls à la limite
+9802	Vitesse d'attaque à HP bas ×2
+9803	Torrent de monstres
+9804	Fréquence des ennemis et EXP ×2
+9805	Marche des élites
+9806	Chance d'élite et MILE ×2
+9807	La horde
+9808	Fréquence des ennemis/MILE/EXP d'éliminations ×1.8
+9809	Défier les rois
+9810	(Combats de boss lancés pendant ce temps) HP et MILE de boss ×2
+9811	Tueur de géants
+9812	Attaque ×1.8, perte de vitesse d'attaque aussi ×1.8 (coups ultra-lourds)
+9813	Frénésie
+9814	Attaque/vitesse d'attaque à HP bas ×1.8
+9815	Force à rebours
+9816	Attaque et perte de vitesse ×1.8
+9817	Cœur brisé
+9818	Attaque et attaque par cœur scellé ×1.8
+9819	Alchimie
+9820	Perte d'EXP et gain de MILE ×2
+9821	Démon du sol
+9822	Attaque au sol et malus aérien ×1.8
+9823	Démon des cieux
+9824	Attaque aérienne et malus au sol ×1.8
+9825	Portes de l'enfer
+9826	HP/vitesse/fréquence des sbires et MILE/MILE de boss ×1.8
+9827	Cortège royal
+9828	Boss supplémentaire à 100%, gain de MILE de boss aussi ×2
+9829	Chasseur de primes
+9830	Cibles à prime renforcées tous les 1,500m, 180 MILE chacune. Gain de MILE d'éliminations et BONUS aussi ×1.8
+9831	Pacte de la Faucheuse
+9832	Colosse
+9833	Croissance des HP max ×1.8, recul -40%, invincibilité après coup +0.3 s (perte de saut aussi ×1.8)
+9834	Forteresse imprenable
+9835	Gain de HP max et réduction du recul renforcés, bouclier max +1 s'il est sous 3 (perte de vitesse accrue aussi)
+9836	Sans se retourner
+9837	Vitesse et fréquence des ennemis ×1.6, MILE +40%
+9838	Pandémonium
+9839	Renforts ennemis/élites/boss et MILE/MILE de boss ×1.6
+9840	Touche-à-tout
+9841	Attaque/HP max/vitesse ×1.6 (chacun sous les cartes spécialisées)
+9842	One More Mile
+9843	Effets de MILE/MILE de boss/EXP ×1.6

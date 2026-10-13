@@ -1,0 +1,242 @@
+9600	Úspěšně dokonči běh a MILE si odneseš
+9601	Boss poražen!
+9602	Vlastníš {0}
+9603	Použitelné
+9604	Drž 115km/h a víc → OVERDRIVE za {0} s
+9605	Létající sek: síla {0}・základní dolet {1}m (roste s rychlostí)
+9606	Protiútok po bloku Shield: síla {0}・dosah 3m
+9607	Nesmrtelnost po bloku Shield: {0} s
+9608	Ohnivý protiútok po bloku Shield: síla {0}・hoření {1}/s
+9609	Zásah tě srazí na HP 30% a níž → léčení {0} srdcí・znovu po {1}m
+9610	Zásah tě srazí na 1 srdce a níž → nesmrtelnost {0} s
+9611	HP po oživení: {0} srdce (2 s nesmrtelnost)
+9612	Přebytečné léčení při plném HP → 1 Shield (až do max. počtu +1)
+9613	Vysátí i při zásahu bosse (1/10 běžné šance na vysátí)
+9614	Zblízka: další útok na {0} nepřátel vzadu, síla {1} / střely: průraz +{2}
+9615	Rázová vlna: síla {0}・šířka {1}m (střely: poloměr {2}m)
+9616	Exploze při zabití: síla {0}・poloměr {1}m (řetěz max. 3×)
+9617	Navazující sek ve vzduchu: síla {0}・poloměr {1}m
+9618	Zásah ve vzduchu vrátí skok ({0}× do přistání)
+9619	Rázová vlna po zemi: síla {0}・délka {1}m
+9620	Rázová vlna závěrečného úderu série: síla {0}・šířka {1}m
+9621	Boj s bossem: výpad +{0}%・přibližování k bossovi dál než 6m +{1}%
+9622	Po útoku vpřed/vzad 0.4 s rychlost pohybu -10%
+9623	Zásahy za 2+ srdce o 1 srdce slabší
+9624	Šance, že se přidá další boss: {0}%
+9625	Hledaný nepřítel každých {0}m・HP×{1}・za poražení {2} MILE
+9626	Zabití hořícího nepřítele → šíření ohně: síla {0}・poloměr {1}m
+9627	Útok na prochlazené/zmrazené +{0}%・roztříštění zmrazených: síla {1}
+9628	Tornádo: síla {0}×3・poloměr {1}m
+9629	Při plném HP šance na krvácení ×2
+9630	I sama tato karta ti dá 1 Shield
+9631	Postup {0}m・bossovi {1}% max. HP・posílení {2} s
+9633	(roste s Lv)
+9634	(limit efektu)
+9635	(posílení {0}・účinné jen do Lv9)
+9636	Podmínka odemčení splněna: {0}
+9637	Potvrdí se, až běh úspěšně dokončíš
+9639	Ty: načítání…
+9640	Ty: pořadí se nepodařilo načíst
+9641	Ty: nový rekord čeká na odeslání
+9642	Ty: v zobrazeném žebříčku nemáš rekord
+9643	Odesílání… {0}
+9644	Odeslání selhalo, čeká na nový pokus: {0}
+9645	Čeká na odeslání: {0}
+9646	Nejnovější pořadí se nepodařilo načíst (zobrazeno předchozí)
+9647	ÚTOK BEZ LIMITU
+9648	Konečné poškození ×1.5
+9649	HYPERRYCHLOST
+9650	Zrychlení・automatický malý útok při střetu s nepřítelem・ochrana před překážkami a dotykem
+9651	DOSAH PŘES OBRAZOVKU
+9652	Dosah se výrazně prodlouží, zásah vyšle sečnou vlnu
+9653	KRVEŽÍZEŇ
+9654	Šance na vysátí výrazně roste, přebytek se mění v Blood Shield
+9655	REŽIM FÉNIXE
+9656	Jednou tě zachrání před smrtelným zásahem (nezávislé na kartě FÉNIX; nevyužité propadne)
+9657	PEKELNÝ OHEŇ
+9658	Silnější hoření a šíření ohně do okolí
+9659	BŮH HROMU
+9660	Blesk udeří snáz a řetěz přeskočí o 1 cíl víc
+9661	PROBUZENÍ EXP
+9662	Přidá posílení EXP (křivka slábnutí zůstává)
+9663	ZLATÉ ŠÍLENSTVÍ
+9664	MILE×1.5 / přijaté poškození×1.3
+9665	PŘESNÝ BĚH
+9666	Ještě pomalejší, ale roste útok/rychlost útoku/nesmrtelnost po zásahu
+9667	VZLET K NEBESŮM
+9668	Efekt síly skoku ×2.5, útok ve vzduchu +15%
+9669	VÍCENÁSOBNÝ SKOK
+9670	Počet skoků ve vzduchu ×1.6, útok ve vzduchu +10%
+9671	BĚŽEC NEBES
+9672	Efekt síly skoku/útoku ve vzduchu ×2, skoky ve vzduchu +2
+9673	VTĚLENÁ RYCHLOST
+9674	Efekt přeměny rychlosti v útok ×2
+9675	POHON NA HRANĚ
+9676	Efekt OVERDRIVE ×1.8 (snáz se spustí a je silnější)
+9677	O VLÁSEK
+9678	Rychlost/nesmrtelnost po zásahu ×1.8, navíc nesmrtelnost +0.4 s
+9679	HYPERSÉRIE
+9680	Efekt rychlosti útoku ×2.2
+9681	VLÁDCE OBLOHY
+9682	Efekt útoku ve vzduchu ×2, skoky ve vzduchu +1
+9683	BRZDNÝ ÚDER
+9684	Efekt síly útoku ×1.8 (zpomalení po útoku se nemění)
+9685	SMRTÍCÍ PRVNÍ ÚDER
+9686	Efekt prvního úderu ×2.5
+9687	UMĚNÍ ZAKONČENÍ
+9688	Efekt závěrečného úderu ×2.2, závěrečný úder vyšle rázovou vlnu (jako MISTR COMBO +3)
+9689	VYHLAZOVATEL
+9690	Efekt útoku na běžné nepřátele/MILE za zabití ×2
+9691	PĚST ZEMĚ
+9692	Efekt útoku na zemi ×2.2, závěrečný úder na zemi vyšle rázovou vlnu po zemi (+3)
+9693	ČEPEL SÉRIE
+9694	Růst útoku ze série zásahů ×2.2
+9695	TOTÁLNÍ PRŮRAZ
+9696	Zblízka průraz na 6 nepřátel vzadu se silou cca 1.4×, střely průraz +6
+9697	VELKÁ RÁZOVÁ VLNA
+9698	Síla rázové vlny cca 1.4× a větší dosah
+9699	TRHLINA NEBE
+9700	Síla navazujícího seku ve vzduchu cca 1.4× a větší dosah
+9701	KRÁLOVRAH
+9702	Efekt útoku na bosse ×2
+9703	ŘETĚZOVÝ VÝBUCH
+9704	Síla exploze při zabití cca 1.4× a větší dosah (řetěz stále max. 3×)
+9705	DVOJITÁ ČEPEL
+9706	Šance na úder navíc ×2.2 (úder navíc další nevyvolá)
+9707	NADZVUKOVÝ SEK
+9708	Síla a dolet létajícího seku rostou (velikost se nemění)
+9709	BLESKOVÉ RUCE
+9710	Efekt rychlosti hlavního útoku ×2.2
+9711	DLOUHÁ ČEPEL
+9712	Efekt dosahu útoku ×1.8
+9713	PÁN NEBES
+9714	Útok ve vzduchu a vracení skoků ve vzduchu ×1.8
+9715	DRTIČ ZEMĚ
+9716	Útok dolů/úder o zem/ráz při dopadu ×2
+9717	VLÁDA VZDUCHU
+9718	Efekt, který roste s trvalými zásahy ve vzduchu ×2
+9719	TANEC TAJNÉ TECHNIKY
+9720	Rázová vlna závěrečného úderu série: síla cca 1.5× a větší dosah
+9721	SUPERNAPĚTÍ
+9722	Síla/omráčení blesku ×1.8
+9723	MRAZIVÁ ČEPEL
+9724	Silnější šance na prochlazení a zpomalení (zpomalení max. 70%), ke zmrazení o 1 zásah méně
+9725	ČEPEL VICHRU
+9726	Šance/síla větrné čepele ×1.8, průraz +1
+9727	LÁMAČ ZEMSKÝCH ŽIL
+9728	Síla rázové vlny po zemi cca 1.5×, délka 8.6m→11.4m
+9729	PŘÍVAL ÚDERŮ
+9730	Útok průběžných úderů série/rychlost hlavního útoku ×2
+9731	PROTIVZDUŠNÝ MISTR
+9732	Útok na nepřátele ve vzduchu ×2
+9733	LOVECKÝ INSTINKT
+9734	Výpad v boji s bossem +36%→+72%・rychlost přibližování +27%→+54%
+9735	PLANOUCÍ DUŠE
+9736	Síla/délka hoření ×1.8
+9737	SPALUJÍCÍ OHEŇ
+9738	Oheň šířící se ze zabitých hořících nepřátel: síla cca 1.6× a větší dosah
+9739	LEDOVÉ PEKLO
+9740	Silnější šance, zpomalení i doba prochlazení (ke zmrazení stále minimum 2 zásahy)
+9741	ABSOLUTNÍ NULA
+9742	Roztříštění zmrazených běžných nepřátel/útok na prochlazené ×1.8
+9743	HROMOVÝ ŘETĚZ
+9744	Řetěz blesku 3→5 cílů a delší dosah řetězu
+9745	VLÁDCE HROMŮ
+9746	Síla/řetěz/dosah blesku ×1.8
+9747	VICHŘICE
+9748	Rychlost/dolet/průraz větrné čepele ×1.8
+9749	VELKÉ TORNÁDO
+9750	Síla tornáda cca 1.5× a větší dosah
+9751	ŽELEZNÉ SRDCE
+9752	Přírůstek max. HP ×1.6 (limit 20 srdcí, po skončení se vrátí), léčení +1
+9753	BOUŘE ŠTÍTŮ
+9754	Obnova Shield nejrychleji po 8 s (max. počet 3 se nemění)
+9755	DVOJNÁSOBNÁ ODPLATA
+9756	Základní síla protiútoku po bloku Shield cca 1.7×
+9757	OCELOVÁ VŮLE
+9758	Útok/max. HP při plném HP ×2
+9759	DOKONALÁ OBRANA
+9760	Nesmrtelnost po bloku Shield 1.3 s→2.2 s
+9761	OHNIVÁ ODPLATA
+9762	Síla ohnivého protiútoku po bloku Shield cca 1.7×, silnější hoření
+9763	POSLEDNÍ BAŠTA
+9764	Nesmrtelnost při poklesu na 1 srdce 2.35 s→3.7 s
+9765	PŘETÉKAJÍCÍ ŽIVOT
+9766	Léčení navíc +2→+4 srdce (Shield z přebytku léčení zůstává 1)
+9767	KRVAVÉ VZEPĚTÍ
+9768	Útok/vysátí při nízkém HP ×2
+9769	PREDÁTOR
+9770	Šance na vysátí ×2, snazší vysátí i z bossů
+9771	NEZLOMNÝ
+9772	Obnova léčení v nouzi 6,000m→1,500m (léčení stále 3 srdce)
+9773	KRVAVÁ ČEPEL
+9774	Šance/síla krvácení ×1.8
+9775	PRŮKOPNÍK
+9776	Efekt EXP za vzdálenost ×2 (podle křivky)
+9777	ZÁSOBY NA DLOUHOU CESTU
+9778	Efekt EXP/max. HP ×1.8
+9779	UČENÍ BEZ HRANIC
+9780	Efekt EXP ×1.8 (podle křivky)
+9781	PŘÍVAL ZKUŠENOSTÍ
+9782	Efekt EXP z nepřátel/bossů ×1.8
+9783	NEKONEČNÁ CESTA
+9784	Efekt EXP/max. HP ×1.6
+9785	ČICH NA POKLADY
+9786	Efekt MILE z pokladů a odměn/bossů/vzdálenosti ×2
+9787	BERSERKR
+9788	Útok/rychlost útoku ×1.8 (zapečetěná srdce zůstávají)
+9789	PŘIVOLÁNÍ HORDY
+9790	Výskyt nepřátel a MILE za zabití ×2
+9791	KAT
+9792	Efekt MILE za zabití ×2
+9793	ZKOUŠKA SILNÝCH
+9794	HP běžných nepřátel a MILE/EXP za zabití ×2
+9795	RYCHLÍ NEPŘÁTELÉ
+9796	Rychlost běžných nepřátel a MILE/EXP za zabití ×1.8
+9797	ZÁDA KE ZDI
+9798	Útok při nízkém HP ×2
+9799	SKLENĚNÉ DĚLO
+9800	Útok ×1.8 (zapečetěná srdce zůstávají)
+9801	TEP NA HRANĚ
+9802	Rychlost útoku při nízkém HP ×2
+9803	PŘÍVAL NESTVŮR
+9804	Výskyt nepřátel a EXP ×2
+9805	POCHOD ELITY
+9806	Šance na elitu a MILE ×2
+9807	HORDA
+9808	Výskyt nepřátel/MILE/EXP za zabití ×1.8
+9809	VÝZVA KRÁLŮM
+9810	(Boje s bossem začaté během efektu) HP bosse a MILE z bossů ×2
+9811	ZABIJÁK OBRŮ
+9812	Útok ×1.8, pokles rychlosti útoku také ×1.8 (supertěžký úder)
+9813	ŠÍLENSTVÍ
+9814	Útok/rychlost útoku při nízkém HP ×1.8
+9815	SÍLA PROTIPROUDU
+9816	Útok i pokles rychlosti ×1.8
+9817	ROZBITÉ SRDCE
+9818	Útok i útok za každé zapečetěné srdce ×1.8
+9819	ALCHYMIE
+9820	Pokles EXP i nárůst MILE ×2
+9821	DÉMON ZEMĚ
+9822	Útok na zemi i oslabení ve vzduchu ×1.8
+9823	DÉMON NEBES
+9824	Útok ve vzduchu i oslabení na zemi ×1.8
+9825	BRÁNA PEKEL
+9826	HP/pohyb/výskyt běžných nepřátel a MILE/MILE z bossů ×1.8
+9827	KRÁLOVSKÝ PRŮVOD
+9828	Šance na dalšího bosse 100%, nárůst MILE za poražení bossů také ×2
+9829	LOVEC ODMĚN
+9830	Silnější hledaní nepřátelé・každých 1,500m・za poražení 180 MILE. Nárůst MILE z nepřátel a BONUS také ×1.8
+9831	SMLOUVA SE SMRTKOU
+9832	MISTR TĚŽKÉ ZBROJE
+9833	Růst max. HP ×1.8・zapotácení -40%・nesmrtelnost po zásahu +0.3 s (pokles síly skoku také ×1.8)
+9834	NEDOBYTNÁ PEVNOST
+9835	Silnější přírůstek max. HP i omezení zapotácení, max. počet Shield +1, pokud je pod 3 (silnější je i pokles rychlosti pohybu)
+9836	NEOHLÍŽEJ SE
+9837	Rychlost a výskyt nepřátel ×1.6, MILE +40%
+9838	PANDEMONIUM
+9839	Posílení nepřátel/elity/bossů a MILE/MILE z bossů ×1.6
+9840	DOKONALÝ VŠESTRANNÍK
+9841	Útok/max. HP/rychlost ×1.6 (nic z toho nedosáhne specializovaných karet)
+9842	ONE MORE MILE
+9843	Efekt MILE/MILE z bossů/EXP ×1.6

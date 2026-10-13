@@ -1,0 +1,242 @@
+9600	Ukończ bieg pomyślnie, aby zabrać MILE do domu
+9601	Boss pokonany!
+9602	Posiadane {0}
+9603	Dostępne
+9604	Utrzymaj 115km/h lub więcej → OVERDRIVE za {0} s
+9605	Latające cięcie: obrażenia {0}・bazowy zasięg {1}m (rośnie z prędkością)
+9606	Kontratak po bloku Shieldem: obrażenia {0}・zasięg 3m
+9607	Nietykalność po bloku Shieldem: {0} s
+9608	Ognisty kontratak po bloku Shieldem: obrażenia {0}・podpalenie {1}/s
+9609	Trafienie przy HP 30% lub mniej → leczy serca: {0}・ponownie po {1}m
+9610	Trafienie przy 1 sercu lub mniej → nietykalność {0} s
+9611	HP po wskrzeszeniu: serca {0} (2 s nietykalności)
+9612	Nadmiar leczenia przy pełnym HP staje się 1 Shield (do maks. +1)
+9613	Wchłanianie także przy trafieniach w bossa (1/10 zwykłej szansy)
+9614	Wręcz: dodatkowy cios w {0} wrogów z tyłu, obrażenia {1} / pociski: przebicie +{2}
+9615	Fala uderzeniowa: obrażenia {0}・szerokość {1}m (pociski: promień {2}m)
+9616	Wybuch po pokonaniu: obrażenia {0}・promień {1}m (łańcuch do 3 razy)
+9617	Cięcie pościgowe w powietrzu: obrażenia {0}・promień {1}m
+9618	Trafienia w powietrzu odnawiają skok ({0} razy do lądowania)
+9619	Fala uderzeniowa po ziemi: obrażenia {0}・długość {1}m
+9620	Uderzenie ciosu kończącego serię: obrażenia {0}・szerokość {1}m
+9621	Walka z bossem: wypad +{0}%・zbliżanie do bossa dalej niż 6m +{1}%
+9622	Prędkość ruchu -10% przez 0.4 s po atakach w przód/w tył
+9623	Trafienia za 2+ serca zabierają 1 serce mniej
+9624	Szansa, że dołączy kolejny boss: {0}%
+9625	Poszukiwany co {0}m・HP×{1}・za pokonanie {2} MILE
+9626	Pokonaj płonącego wroga → ogień się rozprzestrzenia: obrażenia {0}・promień {1}m
+9627	Atak na wychłodzonych/zamrożonych +{0}%・roztrzaskanie przy zamrożeniu: obrażenia {1}
+9628	Tornado: obrażenia {0}×3・promień {1}m
+9629	Przy pełnym HP szansa na krwawienie ×2
+9630	Już sama ta karta daje 1 Shield
+9631	Ruch naprzód {0}m・obrażenia {1}% maks. HP bossa・wzmocnienie na {2} s
+9633	(rośnie z Lv)
+9634	(limit efektu)
+9635	(bonus {0}・działa do Lv9)
+9636	Warunek odblokowania spełniony: {0}
+9637	Zatwierdzi się po udanym ukończeniu biegu
+9639	Ty: wczytywanie…
+9640	Ty: nie udało się wczytać miejsca
+9641	Ty: nowy rekord czeka na wysłanie
+9642	Ty: brak rekordu w wyświetlanym rankingu
+9643	Wysyłanie… {0}
+9644	Błąd wysyłania・czeka na ponowienie: {0}
+9645	Czeka na wysłanie: {0}
+9646	Nie udało się wczytać aktualnego rankingu (poprzedni widok)
+9647	Atak ponad limit
+9648	Obrażenia końcowe ×1.5
+9649	Hiperprędkość
+9650	Przyspieszenie・automatyczny mały atak przy wrogach・ochrona przed przeszkodami i kontaktem
+9651	Zasięg tnący ekran
+9652	Zasięg mocno rośnie, a trafienia wypuszczają falę cięcia
+9653	Żądza krwi
+9654	Szansa na wchłanianie mocno rośnie, a nadmiar staje się Blood Shield
+9655	Tryb feniksa
+9656	Jedno awaryjne wskrzeszenie po śmiertelnym trafieniu (osobne od zwykłego FENIKSA; przepada, jeśli niewykorzystane)
+9657	Ogniste piekło
+9658	Wzmocnione podpalenie i ogień rozprzestrzeniający się wokół
+9659	Bóg piorunów
+9660	Pioruny uderzają częściej, a łańcuch ma +1
+9661	Przebudzenie EXP
+9662	Dodatkowe wzmocnienie EXP (krzywa spadku bez zmian)
+9663	Złoty szał
+9664	MILE×1.5 / otrzymywane obrażenia ×1.3
+9665	Precyzyjny bieg
+9666	Jeszcze wolniej, ale atak/szybkość ataku/nietykalność po trafieniu rosną
+9667	Niebiański lot
+9668	Efekt siły skoku ×2.5, atak w powietrzu +15%
+9669	Wielokrotny skok
+9670	Skoki w powietrzu ×1.6, atak w powietrzu +10%
+9671	Biegacz przestworzy
+9672	Efekty siły skoku/ataku w powietrzu ×2, skoki w powietrzu +2
+9673	Wcielenie pędu
+9674	Efekt zamiany prędkości w atak ×2
+9675	Napęd na granicy
+9676	Efekt OVERDRIVE ×1.8 (łatwiej wejść, mocniejszy)
+9677	O włos
+9678	Prędkość/nietykalność po trafieniu ×1.8 oraz nietykalność +0.4 s
+9679	Grad ciosów
+9680	Efekt szybkości ataku ×2.2
+9681	Władca przestworzy
+9682	Efekt ataku w powietrzu ×2, skoki w powietrzu +1
+9683	Hamujący cios
+9684	Efekt ataku ×1.8 (zwolnienie po ataku bez zmian)
+9685	Zabójczy pierwszy cios
+9686	Efekt pierwszego ciosu ×2.5
+9687	Sztuka ciosu kończącego
+9688	Efekt ciosu kończącego ×2.2, cios kończący wyzwala uderzenie (jak MISTRZ COMBO +3)
+9689	Niszczyciel
+9690	Efekty ataku na zwykłych wrogów/MILE za pokonanie ×2
+9691	Pięść ziemi
+9692	Efekt ataku na ziemi ×2.2, cios kończący na ziemi wypuszcza falę biegnącą po gruncie (+3)
+9693	Ostrze serii
+9694	Wzrost ataku za kolejne trafienia ×2.2
+9695	Pełne przebicie
+9696	Atak wręcz przebija 6 wrogów z tyłu z ok. 1.4× obrażeń, przebicie pocisków +6
+9697	Wielka fala uderzeniowa
+9698	Obrażenia fali uderzeniowej ok. 1.4× i większy zasięg
+9699	Rozdarcie nieba
+9700	Obrażenia cięcia pościgowego w powietrzu ok. 1.4× i większy zasięg
+9701	Królobójca
+9702	Efekt ataku na bossów ×2
+9703	Reakcja łańcuchowa
+9704	Wybuch po pokonaniu z ok. 1.4× obrażeń i większym zasięgiem (łańcuch nadal maks. 3)
+9705	Podwójne ostrze
+9706	Szansa na dodatkowy cios ×2.2 (dodatkowy cios nie wywołuje kolejnych)
+9707	Dźwiękowe cięcie
+9708	Obrażenia i zasięg latającego cięcia rosną (rozmiar bez zmian)
+9709	Boskie tempo
+9710	Efekt szybkości głównego ataku ×2.2
+9711	Długie ostrze
+9712	Efekt zasięgu ataku ×1.8
+9713	Pan niebios
+9714	Atak w powietrzu i odnawianie skoków w powietrzu ×1.8
+9715	Rozłupywacz ziemi
+9716	Atak w dół/uderzenie w ziemię/wstrząs przy lądowaniu ×2
+9717	Panowanie w powietrzu
+9718	Efekty rosnące przy ciągłych trafieniach w powietrzu ×2
+9719	Tajny taniec
+9720	Uderzenie ciosu kończącego serię z ok. 1.5× obrażeń i większym zasięgiem
+9721	Wysokie napięcie
+9722	Obrażenia/unieruchomienie pioruna ×1.8
+9723	Lodowe ostrze
+9724	Szansa i spowolnienie wychłodzenia mocniejsze (spowolnienie maks. 70%), trafień do zamrożenia -1
+9725	Ostrze wichury
+9726	Szansa/obrażenia ostrza wiatru ×1.8, przebicie +1
+9727	Łamacz żył ziemi
+9728	Obrażenia fali po ziemi ok. 1.5×, długość 8.6m→11.4m
+9729	Nawałnica ciosów
+9730	Środkowe ciosy serii/szybkość głównego ataku ×2
+9731	Mistrz przeciwlotniczy
+9732	Atak na wrogów w powietrzu ×2
+9733	Instynkt łowcy
+9734	Wypad w walce z bossem +36%→+72%・zbliżanie +27%→+54%
+9735	Płonąca dusza
+9736	Siła/czas podpalenia ×1.8
+9737	Piekielny ogień
+9738	Ogień rozprzestrzeniany po pokonaniu płonących wrogów ma ok. 1.6× obrażeń i większy zasięg
+9739	Lodowe więzienie
+9740	Szansa/spowolnienie/czas wychłodzenia mocniejsze (do zamrożenia nadal minimum 2 trafienia)
+9741	Zero absolutne
+9742	Roztrzaskanie zamrożonych zwykłych wrogów/atak na wychłodzonych ×1.8
+9743	Łańcuch piorunów
+9744	Łańcuch pioruna 3→5 wrogów, większy zasięg łańcucha
+9745	Cesarz piorunów
+9746	Obrażenia/łańcuch/zasięg pioruna ×1.8
+9747	Wichura
+9748	Prędkość/zasięg/przebicie ostrza wiatru ×1.8
+9749	Wielkie tornado
+9750	Obrażenia tornada ok. 1.5× i większy zasięg
+9751	Żelazne serce
+9752	Wzrost maks. HP ×1.6 (limit 20 serc; po końcu wraca), leczenie +1
+9753	Burza tarcz
+9754	Odnawianie Shielda nawet co 8 s (maks. 3 bez zmian)
+9755	Podwójny rewanż
+9756	Bazowe obrażenia kontrataku po bloku Shieldem ok. 1.7×
+9757	Stalowa wola
+9758	Atak/maks. HP przy pełnym HP ×2
+9759	Doskonała obrona
+9760	Nietykalność po bloku Shieldem 1.3 s→2.2 s
+9761	Ognisty odwet
+9762	Obrażenia ognistego kontrataku po bloku Shieldem ok. 1.7×, mocniejsze podpalenie
+9763	Ostatni bastion
+9764	Nietykalność, gdy zostaje 1 serce 2.35 s→3.7 s
+9765	Przelewające się życie
+9766	Dodatkowe leczenie serc +2→+4 (Shield z nadmiaru leczenia nadal 1)
+9767	Wrząca krew
+9768	Atak/wchłanianie przy niskim HP ×2
+9769	Drapieżnik
+9770	Szansa na wchłanianie ×2, łatwiej wchłaniać też z bossów
+9771	Niezłomny
+9772	Ponowne leczenie na skraju śmierci 6,000m→1,500m (leczenie nadal 3 serca)
+9773	Krwawe ostrze
+9774	Szansa/obrażenia krwawienia ×1.8
+9775	Pionier
+9776	Efekt EXP za dystans ×2 (krzywa nadal działa)
+9777	Zapasy na drogę
+9778	Efekty EXP/maks. HP ×1.8
+9779	Nauka bez granic
+9780	Efekt EXP ×1.8 (krzywa nadal działa)
+9781	Potok doświadczenia
+9782	Efekt EXP za wrogów/bossów ×1.8
+9783	Niekończąca się droga
+9784	Efekty EXP/maks. HP ×1.6
+9785	Węch do skarbów
+9786	Efekty MILE ze skarbów/nagród/bossów/dystansu ×2
+9787	Berserker
+9788	Atak/szybkość ataku ×1.8 (zapieczętowane serca bez zmian)
+9789	Zew hordy
+9790	Częstotliwość wrogów i MILE za pokonanie ×2
+9791	Kat
+9792	Efekt MILE za pokonanie ×2
+9793	Próba silnych
+9794	HP zwykłych wrogów i MILE/EXP za pokonanie ×2
+9795	Szybcy wrogowie
+9796	Prędkość zwykłych wrogów i MILE/EXP za pokonanie ×1.8
+9797	Pod ścianą
+9798	Atak przy niskim HP ×2
+9799	Szklane działo
+9800	Atak ×1.8 (zapieczętowane serca bez zmian)
+9801	Puls na granicy
+9802	Szybkość ataku przy niskim HP ×2
+9803	Potok potworów
+9804	Częstotliwość wrogów i EXP ×2
+9805	Marsz elity
+9806	Szansa na elitę i MILE ×2
+9807	Horda
+9808	Częstotliwość wrogów/MILE/EXP za pokonanie ×1.8
+9809	Wyzwanie dla króla
+9810	(Walki z bossem rozpoczęte w tym czasie) HP bossa i MILE za bossa ×2
+9811	Pogromca gigantów
+9812	Atak ×1.8, spadek szybkości ataku też ×1.8 (superciężki cios)
+9813	Szał
+9814	Atak/szybkość ataku przy niskim HP ×1.8
+9815	Siła pod prąd
+9816	Atak i spadek prędkości ×1.8
+9817	Złamane serce
+9818	Atak i atak za każde zapieczętowane serce ×1.8
+9819	Alchemia
+9820	Spadek EXP i wzrost MILE ×2
+9821	Demon ziemi
+9822	Atak na ziemi i kara w powietrzu ×1.8
+9823	Demon niebios
+9824	Atak w powietrzu i kara na ziemi ×1.8
+9825	Wrota piekieł
+9826	HP/ruch/częstotliwość zwykłych wrogów i MILE/MILE za bossa ×1.8
+9827	Królewski orszak
+9828	Szansa, że dołączy kolejny boss 100%, bonus MILE za pokonanie bossa też ×2
+9829	Łowca nagród
+9830	Poszukiwani silniejsi・co 1,500m・180 MILE za pokonanie. Bonus MILE za wrogów i BONUS też ×1.8
+9831	Pakt ze Żniwiarzem
+9832	Szczyt pancerza
+9833	Wzrost maks. HP ×1.8・odrzut -40%・nietykalność po trafieniu +0.3 s (spadek siły skoku też ×1.8)
+9834	Niezdobyta twierdza
+9835	Mocniejszy wzrost maks. HP i redukcja odrzutu, maks. Shieldów +1, jeśli mniej niż 3 (spadek prędkości ruchu też większy)
+9836	Bez oglądania się
+9837	Prędkość i częstotliwość wrogów ×1.6, MILE +40%
+9838	Pandemonium
+9839	Wzmocnienie wrogów/elit/bossów i MILE/MILE za bossa ×1.6
+9840	Wszechstronna doskonałość
+9841	Atak/maks. HP/prędkość ×1.6 (żadne nie dorównuje kartom specjalistycznym)
+9842	One More Mile
+9843	Efekty MILE/MILE za bossa/EXP ×1.6

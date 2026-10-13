@@ -60,6 +60,18 @@ public static class CardEffectFormat
         return false;
     }
 
+    // 2026-10-13: 合計の値(Lv ぶんを計算した後。「/3Lv」等の印は付けない)
+    public static string FormatTotal(EffectType t, float v)
+    {
+        string sign = v >= 0f ? "+" : "";
+        if (IsPercent(t))
+        {
+            float p = v * 100f;
+            return Mathf.Approximately(p, Mathf.Round(p)) ? $"{sign}{Mathf.RoundToInt(p)}%" : $"{sign}{p:0.#}%";
+        }
+        return Mathf.Approximately(v, Mathf.Round(v)) ? $"{sign}{Mathf.RoundToInt(v)}" : $"{sign}{v:0.##}";
+    }
+
     public static string Format(CardEffect effect)
     {
         if (effect == null) return "";

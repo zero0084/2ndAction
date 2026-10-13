@@ -1,0 +1,242 @@
+9600	Maliza mbio salama ili ubebe MILE nyumbani
+9601	Bosi ameuawa!
+9602	Unazo {0}
+9603	Zinapatikana
+9604	Dumisha 115km/h au zaidi → OVERDRIVE baada ya sek {0}
+9605	Kata inayoruka nguvu {0}・umbali wa msingi {1}m (huongezeka kwa kasi)
+9606	Kujibu ukizuia kwa Shield nguvu {0}・eneo 3m
+9607	Kutodhurika baada ya kuzuia kwa Shield sek {0}
+9608	Kujibu kwa moto ukizuia kwa Shield nguvu {0}・kuungua {1}/sek
+9609	Ukipigwa hadi HP 30% au chini → pona mioyo {0}・hufanya kazi tena baada ya {1}m
+9610	Ukipigwa hadi moyo 1 au chini → kutodhurika sek {0}
+9611	HP ukifufuka: mioyo {0} (sek 2 kutodhurika)
+9612	Uponyaji wa ziada HP ikiwa imejaa huwa Shield 1 (hadi idadi ya juu +1)
+9613	Kufyonza HP hata ukimgonga bosi (1/10 ya uwezekano wa kawaida)
+9614	Karibu: shambulio la ziada kwa maadui {0} nyuma nguvu {1} / silaha za mbali kupenya +{2}
+9615	Wimbi la mshtuko nguvu {0}・upana {1}m (silaha za mbali: nusu kipenyo {2}m)
+9616	Mlipuko ukiua nguvu {0}・nusu kipenyo {1}m (mnyororo hadi ngazi 3)
+9617	Kata ya kufuatilia hewani nguvu {0}・nusu kipenyo {1}m
+9618	Shambulio la angani likigonga hurudisha mruko (mara {0} hadi kutua)
+9619	Wimbi la mshtuko ardhini nguvu {0}・urefu {1}m
+9620	Mshtuko wa pigo la mwisho la mfululizo nguvu {0}・upana {1}m
+9621	Pambano la bosi: kusonga mbele +{0}%・kasi ya kumkaribia bosi aliye zaidi ya 6m +{1}%
+9622	Baada ya shambulio la mbele/nyuma, kasi ya mwendo -10% kwa sek 0.4
+9623	Pigo la mioyo 2 au zaidi hupunguzwa moyo 1
+9624	Uwezekano wa bosi mmoja zaidi kujiunga {0}%
+9625	Mhalifu mwenye zawadi kila {0}m・HP×{1}・muue upate {2} MILE
+9626	Ua adui anayeungua → moto husambaa nguvu {0}・nusu kipenyo {1}m
+9627	Shambulio kwa adui mwenye baridi/aliyeganda +{0}%・kuvunjika akiganda nguvu {1}
+9628	Kimbunga nguvu {0}×3・nusu kipenyo {1}m
+9629	HP ikiwa imejaa, uwezekano wa kuvuja damu ×2
+9630	Kadi hii peke yake inakuruhusu kuwa na Shield 1
+9631	Songa {0}m・uharibifu {1}% ya HP ya juu ya bosi・kuimarishwa sek {2}
+9633	(hupanda kwa Lv)
+9634	(kikomo cha athari)
+9635	(Kuimarisha {0}・hufanya kazi hadi Lv9)
+9636	Sharti la kufungua limetimia: {0}
+9637	Itathibitishwa ukimaliza mbio kwa mafanikio
+9639	Wewe: inapakia…
+9640	Wewe: nafasi haikuweza kupakiwa
+9641	Wewe: rekodi mpya inasubiri kutumwa
+9642	Wewe: huna rekodi katika viwango vinavyoonyeshwa
+9643	Inatuma… {0}
+9644	Imeshindwa・inasubiri kutuma tena {0}
+9645	Inasubiri kutumwa {0}
+9646	Viwango vipya havikuweza kupakiwa (vya awali vinaonyeshwa)
+9647	Shambulio Lisilo na Kikomo
+9648	Uharibifu wa mwisho ×1.5
+9649	Kasi Kuu
+9650	Kuongeza kasi, mashambulio madogo ya kiotomatiki karibu na maadui, kinga dhidi ya vizuizi na kugongana
+9651	Masafa ya Kupasua Skrini
+9652	Masafa marefu zaidi sana, wimbi la kukata linapogonga
+9653	Kiu ya Damu
+9654	Uwezekano wa kufyonza hupanda sana, ziada huwa Blood Shield
+9655	Hali ya Feniksi
+9656	Kufufuka kwa dharura mara 1 kutoka pigo la kifo (tofauti na FENIKSI ya kawaida. Hupotea isipotumika)
+9657	Jehanamu ya Moto
+9658	Kuungua kulikoimarishwa na moto unaosambaa kote
+9659	Hali ya Mungu wa Radi
+9660	Radi hutokea mara nyingi zaidi, mnyororo +1
+9661	Kuamka kwa EXP
+9662	Kuimarisha EXP zaidi (mkunjo wa kupungua haubadiliki)
+9663	Wazimu wa Dhahabu
+9664	MILE×1.5 / uharibifu unaopokea ×1.3
+9665	Mbio za Usahihi
+9666	Polepole zaidi, lakini shambulio/kasi ya shambulio/kutodhurika baada ya kupigwa hupanda
+9667	Kupaa Juu
+9668	Athari ya nguvu ya kuruka ×2.5, shambulio la angani +15%
+9669	Miruko Mingi
+9670	Idadi ya miruko ya hewani ×1.6, shambulio la angani +10%
+9671	Mkimbiaji wa Anga
+9672	Athari ya nguvu ya kuruka/shambulio la angani ×2, mruko wa hewani +2
+9673	Mfano wa Kasi
+9674	Athari ya kasi kuwa shambulio ×2
+9675	Msukumo wa Kikomo
+9676	Athari ya OVERDRIVE ×1.8 (huanza kwa urahisi, nguvu zaidi)
+9677	Kwa Nywele Moja
+9678	Kasi/kutodhurika baada ya kupigwa ×1.8, na kutodhurika +0.4 sek
+9679	Mapigo Mfululizo Makuu
+9680	Athari ya kasi ya shambulio ×2.2
+9681	Mtawala wa Anga
+9682	Athari ya shambulio la angani ×2, mruko wa hewani +1
+9683	Pigo la Breki
+9684	Athari ya nguvu ya shambulio ×1.8 (kupungua kasi baada ya shambulio hakubadiliki)
+9685	Pigo la Kwanza la Kifo
+9686	Athari ya pigo la kwanza ×2.5
+9687	Siri ya Pigo la Mwisho
+9688	Athari ya pigo la mwisho ×2.2, pigo la mwisho hutoa mshtuko (sawa na BINGWA WA COMBO +3)
+9689	Mwangamizi
+9690	Athari ya shambulio kwa maadui wadogo/MILE ya kuua ×2
+9691	Ngumi ya Ardhi
+9692	Athari ya shambulio la ardhini ×2.2, pigo la mwisho ardhini hutoa mshtuko unaokimbia ardhini (+3)
+9693	Wembe wa Mfululizo
+9694	Ongezeko la shambulio kwa mapigo mfululizo ×2.2
+9695	Kupenya Kote
+9696	Karibu: hupenya maadui 6 nyuma kwa nguvu takriban ×1.4, silaha za mbali kupenya +6
+9697	Wimbi Kuu la Mshtuko
+9698	Nguvu ya wimbi la mshtuko takriban ×1.4 na eneo la shambulio hupanuka
+9699	Kupasua Anga
+9700	Nguvu ya kata ya kufuatilia hewani takriban ×1.4, eneo pia hupanuka
+9701	Muuaji wa Mfalme
+9702	Athari ya shambulio kwa bosi ×2
+9703	Mnyororo wa Milipuko
+9704	Nguvu ya mlipuko ukiua takriban ×1.4・eneo hupanuka (mnyororo bado hadi ngazi 3)
+9705	Wembe Pacha
+9706	Uwezekano wa pigo 1 la ziada ×2.2 (pigo la ziada halizai jingine)
+9707	Kata ya Kasi ya Sauti
+9708	Nguvu na umbali wa kata inayoruka hupanda (ukubwa haubadiliki)
+9709	Mikono ya Kasi ya Mungu
+9710	Athari ya kasi ya shambulio kuu ×2.2
+9711	Wembe Mrefu
+9712	Athari ya eneo la shambulio ×1.8
+9713	Bwana wa Anga
+9714	Shambulio la angani na kurudishiwa mruko wa hewani ×1.8
+9715	Kupasua Ardhi
+9716	Mshtuko wa shambulio la chini/kubamiza/kutua ×2
+9717	Kutawala Anga
+9718	Athari inayopanda unavyoendelea kugonga hewani ×2
+9719	Ngoma ya Siri
+9720	Nguvu ya mshtuko wa pigo la mwisho la mfululizo takriban ×1.5・eneo hupanuka
+9721	Volti Kuu
+9722	Nguvu/kusimamisha kwa radi ×1.8
+9723	Wembe wa Barafu
+9724	Uwezekano na kupunguza kasi kwa baridi huimarishwa (hadi 70%), baridi zinazohitajika kuganda -1
+9725	Wembe wa Kimbunga
+9726	Uwezekano/nguvu ya wembe wa upepo ×1.8, kupenya +1
+9727	Kuvunja Mishipa ya Ardhi
+9728	Nguvu ya wimbi la mshtuko ardhini takriban ×1.5, urefu 8.6m→11.4m
+9729	Mafuriko ya Mapigo
+9730	Kasi ya mapigo ya kati ya mfululizo/shambulio kuu ×2
+9731	Kilele cha Kupiga Angani
+9732	Shambulio kwa maadui walio hewani ×2
+9733	Silika ya Mwindaji
+9734	Kusonga mbele katika pambano la bosi +36%→+72%・kasi ya kukaribia +27%→+54%
+9735	Roho Inayowaka
+9736	Nguvu/muda wa kuungua ×1.8
+9737	Moto Mkali
+9738	Nguvu ya moto unaosambaa ukimuua adui anayeungua takriban ×1.6・eneo hupanuka
+9739	Jela ya Barafu
+9740	Uwezekano, kupunguza kasi na muda wa baridi huimarishwa (baridi za kuganda bado chini kabisa mara 2)
+9741	Baridi Kamili
+9742	Kuvunjika kwa maadui wadogo walioganda/shambulio kwa adui mwenye baridi ×1.8
+9743	Mnyororo wa Radi
+9744	Mnyororo wa radi maadui 3→5, umbali wa mnyororo pia huongezeka
+9745	Mfalme wa Radi
+9746	Nguvu/mnyororo/eneo la radi ×1.8
+9747	Dhoruba
+9748	Kasi/umbali/kupenya kwa wembe wa upepo ×1.8
+9749	Kimbunga Kikuu
+9750	Nguvu ya kimbunga takriban ×1.5 na eneo pia hupanuka
+9751	Moyo wa Chuma
+9752	Ongezeko la HP ya juu ×1.6 (juu kabisa mioyo 20; hurudi mwishoni), kupona +1
+9753	Dhoruba ya Ngao
+9754	Muda wa kurudi kwa Shield hadi sek 8 tu (idadi ya juu 3 haibadiliki)
+9755	Kulipiza Mara Mbili
+9756	Nguvu ya msingi ya kujibu ukizuia kwa Shield takriban ×1.7
+9757	Nia ya Chuma
+9758	Shambulio/HP ya juu wakati HP imejaa ×2
+9759	Ulinzi Kamili
+9760	Kutodhurika baada ya kuzuia kwa Shield sek 1.3→2.2
+9761	Kisasi cha Moto
+9762	Nguvu ya kujibu kwa moto ukizuia kwa Shield takriban ×1.7・kuungua pia kwa nguvu zaidi
+9763	Ngome ya Mwisho
+9764	Kutodhurika ukibaki na moyo 1 sek 2.35→3.7
+9765	Uhai Unaofurika
+9766	Uponyaji wa ziada mioyo +2→+4 (Shield ya uponyaji wa ziada bado ni 1)
+9767	Damu Inayochemka
+9768	Shambulio/kufyonza HP ikiwa chini ×2
+9769	Mwindaji Mla
+9770	Uwezekano wa kufyonza ×2, rahisi kufyonza hata kwa bosi
+9771	Asiyeshindwa
+9772	Kupona karibu na kifo hufanya kazi tena 6,000m→1,500m (kupona bado mioyo 3)
+9773	Wembe wa Damu
+9774	Uwezekano/nguvu ya kuvuja damu ×1.8
+9775	Mfungua Njia
+9776	Athari ya EXP ya umbali ×2 (kupitia mkunjo)
+9777	Riziki ya Safari Ndefu
+9778	Athari ya EXP/HP ya juu ×1.8
+9779	Mafunzo Yasiyo na Kikomo
+9780	Athari ya EXP ×1.8 (kupitia mkunjo)
+9781	Mafuriko ya Uzoefu
+9782	Athari ya EXP ya maadui/bosi ×1.8
+9783	Njia Isiyo na Mwisho
+9784	Athari ya EXP/HP ya juu ×1.6
+9785	Pua ya Hazina
+9786	Athari ya MILE ya hazina・zawadi/bosi/umbali ×2
+9787	Mpiganaji Mkali
+9788	Shambulio/kasi ya shambulio ×1.8 (mioyo iliyofungwa haibadiliki)
+9789	Kuita Kundi
+9790	Marudio ya maadui na MILE ya kuua ×2
+9791	Mnyongaji
+9792	Athari ya MILE ya kuua ×2
+9793	Jaribu la Maadui Hodari
+9794	HP ya maadui wadogo na MILE/EXP ya kuua ×2
+9795	Maadui wa Upepo
+9796	Kasi ya maadui wadogo na MILE/EXP ya kuua ×1.8
+9797	Hakuna Kurudi Nyuma
+9798	Shambulio HP ikiwa chini ×2
+9799	Mzinga Unaovunjika
+9800	Shambulio ×1.8 (mioyo iliyofungwa haibadiliki)
+9801	Mapigo ya Kikomo
+9802	Kasi ya shambulio HP ikiwa chini ×2
+9803	Mafuriko ya Majini
+9804	Marudio ya maadui na EXP ×2
+9805	Maandamano ya Hodari
+9806	Uwezekano wa maadui hodari na MILE ×2
+9807	Kundi Kubwa
+9808	Marudio ya maadui/MILE/EXP ya kuua ×1.8
+9809	Kumpinga Mfalme
+9810	(Pambano la bosi linaloanza wakati huo) HP ya bosi na MILE ya bosi ×2
+9811	Muuaji wa Majitu
+9812	Shambulio ×1.8, kupungua kwa kasi ya shambulio pia ×1.8 (pigo zito sana)
+9813	Hasira Kali
+9814	Shambulio/kasi ya shambulio HP ikiwa chini ×1.8
+9815	Nguvu ya Kinyume
+9816	Shambulio na kupungua kwa kasi ×1.8
+9817	Moyo Uliovunjika
+9818	Shambulio na shambulio kwa kila moyo uliofungwa ×1.8
+9819	Alkemia
+9820	Kupungua kwa EXP na ongezeko la MILE ×2
+9821	Zimwi la Ardhi
+9822	Shambulio la ardhini na kupungua hewani ×1.8
+9823	Zimwi la Anga
+9824	Shambulio la angani na kupungua ardhini ×1.8
+9825	Lango la Jehanamu
+9826	HP/mwendo/marudio ya maadui wadogo na MILE/MILE ya bosi ×1.8
+9827	Msafara wa Mfalme
+9828	Uwezekano wa bosi mmoja zaidi kujiunga 100%, ongezeko la MILE ya kuua bosi pia ×2
+9829	Mwindaji wa Zawadi
+9830	Mhalifu mwenye zawadi ameimarishwa・kila 1,500m・muue upate 180 MILE. Ongezeko la MILE ya maadui & BONUS pia ×1.8
+9831	Mkataba wa Mvunaji
+9832	Kilele cha Silaha Nzito
+9833	Ukuaji wa HP ya juu ×1.8・kuyumba -40%・kutodhurika baada ya kupigwa +0.3 sek (kupungua kwa nguvu ya kuruka pia ×1.8)
+9834	Ngome Isiyoanguka
+9835	Ongezeko la HP ya juu na kupunguza kuyumba huimarishwa, Shield ya juu +1 ikiwa chini ya 3 (kupungua kwa kasi ya mwendo pia huongezeka)
+9836	Bila Kugeuka
+9837	Kasi na marudio ya maadui ×1.6, MILE +40%
+9838	Pandemonium
+9839	Kuimarishwa kwa maadui/hodari/bosi na MILE/MILE ya bosi ×1.6
+9840	Ukamilifu wa Kila Kitu
+9841	Shambulio/HP ya juu/kasi ×1.6 (hakuna inayofikia kadi maalum)
+9842	One More Mile
+9843	Athari ya MILE/MILE ya bosi/EXP ×1.6

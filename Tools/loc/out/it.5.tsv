@@ -1,0 +1,242 @@
+9600	Completa la corsa per portare a casa i MILE
+9601	Boss sconfitto!
+9602	Possedute {0}
+9603	Usabili
+9604	Mantieni almeno 115km/h → OVERDRIVE tra {0} s
+9605	Fendente volante: danno {0}・gittata base {1}m (cresce con la velocità)
+9606	Contrattacco parando con lo Shield: danno {0}・area 3m
+9607	Invulnerabilità dopo una parata con lo Shield: {0} s
+9608	Contrattacco di fuoco parando con lo Shield: danno {0}・bruciatura {1}/s
+9609	Colpito con HP al 30% o meno → cura {0} cuori・si riattiva dopo {1}m
+9610	Colpito con 1 cuore o meno → invulnerabile per {0} s
+9611	HP alla rianimazione: {0} cuori (2 s di invulnerabilità)
+9612	La cura in eccesso a HP pieni diventa 1 Shield (fino al massimo +1)
+9613	Assorbimento anche colpendo i boss (1/10 della probabilità normale)
+9614	Mischia: colpo extra su {0} nemici dietro, danno {1} / proiettili: perforazione +{2}
+9615	Onda d'urto: danno {0}・larghezza {1}m (proiettili: raggio {2}m)
+9616	Esplosione all'uccisione: danno {0}・raggio {1}m (catena fino a 3)
+9617	Fendente di inseguimento in aria: danno {0}・raggio {1}m
+9618	I colpi in aria ricaricano il salto ({0} volte fino all'atterraggio)
+9619	Onda d'urto a terra: danno {0}・lunghezza {1}m
+9620	Impatto del colpo finale della sequenza: danno {0}・larghezza {1}m
+9621	Battaglia coi boss: scatto +{0}%・avvicinamento ai boss oltre 6m +{1}%
+9622	Velocità di movimento -10% per 0.4 s dopo attacchi avanti/indietro
+9623	I colpi da 2+ cuori tolgono 1 cuore in meno
+9624	Probabilità che si aggiunga un altro boss: {0}%
+9625	Ricercato ogni {0}m・HP×{1}・sconfiggilo per {2} MILE
+9626	Uccidi un nemico in fiamme → il fuoco si propaga: danno {0}・raggio {1}m
+9627	Attacco contro nemici raffreddati/congelati +{0}%・frantumazione da congelamento: danno {1}
+9628	Tornado: danno {0}×3・raggio {1}m
+9629	A HP pieni, probabilità di sanguinamento ×2
+9630	Anche solo questa carta ti fa avere 1 Shield
+9631	Avanza di {0}m・danno pari al {1}% degli HP massimi del boss・potenziamento per {2} s
+9633	(cresce col Lv)
+9634	(limite dell'effetto)
+9635	(bonus {0}・vale fino al Lv9)
+9636	Condizione di sblocco soddisfatta: {0}
+9637	Si conferma se completi la corsa
+9639	Tu: caricamento…
+9640	Tu: impossibile caricare la posizione
+9641	Tu: nuovo record in attesa di invio
+9642	Tu: nessun record nella classifica mostrata
+9643	Invio… {0}
+9644	Invio fallito・in attesa di reinvio: {0}
+9645	In attesa di invio: {0}
+9646	Impossibile caricare la classifica aggiornata (mostro la precedente)
+9647	Attacco oltre il limite
+9648	Danno finale ×1.5
+9649	Ipervelocità
+9650	Accelera・mini attacco automatico sui nemici vicini・protegge da ostacoli e contatto
+9651	Gittata che squarcia lo schermo
+9652	Gittata molto più lunga e onda tagliente a ogni colpo
+9653	Sete di sangue
+9654	Probabilità di assorbimento molto più alta; l'eccesso diventa Blood Shield
+9655	Modalità fenice
+9656	1 rinascita d'emergenza da un colpo mortale (separata dalla FENICE normale; svanisce se non usata)
+9657	Inferno di fiamme
+9658	Bruciatura potenziata e fuoco che si propaga attorno
+9659	Dio del tuono
+9660	I fulmini cadono più spesso e la catena ha +1 bersaglio
+9661	Risveglio dell'EXP
+9662	Bonus EXP aggiuntivo (la curva di riduzione resta uguale)
+9663	Furia dorata
+9664	MILE×1.5 / danni subiti ×1.3
+9665	Corsa di precisione
+9666	Ancora più lento, ma attacco/velocità d'attacco/invulnerabilità dopo un colpo aumentano
+9667	Volo celeste
+9668	Effetto forza del salto ×2.5, attacco aereo +15%
+9669	Salti multipli
+9670	Salti in aria ×1.6, attacco aereo +10%
+9671	Corridore dei cieli
+9672	Effetti forza del salto/attacco aereo ×2, salti in aria +2
+9673	Velocità incarnata
+9674	Effetto velocità che diventa attacco ×2
+9675	Motore al limite
+9676	Effetto OVERDRIVE ×1.8 (si attiva più facilmente ed è più forte)
+9677	Per un pelo
+9678	Velocità/invulnerabilità dopo un colpo ×1.8, più invulnerabilità +0.4 s
+9679	Raffica furiosa
+9680	Effetto velocità d'attacco ×2.2
+9681	Signore dei cieli
+9682	Effetto attacco aereo ×2, salti in aria +1
+9683	Colpo frenato
+9684	Effetto attacco ×1.8 (il rallentamento dopo l'attacco non cambia)
+9685	Primo colpo letale
+9686	Effetto primo colpo ×2.5
+9687	Arte del colpo finale
+9688	Effetto colpo finale ×2.2, il colpo finale scatena un impatto (pari a MAESTRO COMBO +3)
+9689	Sterminatore
+9690	Effetti attacco contro nemici comuni/MILE da uccisioni ×2
+9691	Pugno della terra
+9692	Effetto attacco a terra ×2.2, il colpo finale a terra lancia un impatto che corre sul suolo (+3)
+9693	Lama a raffica
+9694	Aumento d'attacco per colpi consecutivi ×2.2
+9695	Perforazione totale
+9696	La mischia trapassa 6 nemici dietro con circa 1.4× di danno, perforazione proiettili +6
+9697	Grande onda d'urto
+9698	Danno dell'onda d'urto circa 1.4× e area più ampia
+9699	Squarcio aereo
+9700	Danno del fendente di inseguimento in aria circa 1.4× e area più ampia
+9701	Regicida
+9702	Effetto attacco contro i boss ×2
+9703	Reazione a catena
+9704	Esplosione all'uccisione con circa 1.4× di danno e area più ampia (catena sempre max 3)
+9705	Doppia lama
+9706	Probabilità di colpo extra ×2.2 (i colpi extra non ne generano altri)
+9707	Fendente sonico
+9708	Danno e gittata del fendente volante aumentano (la dimensione non cambia)
+9709	Mani divine
+9710	Effetto velocità dell'attacco principale ×2.2
+9711	Lama lunga
+9712	Effetto area d'attacco ×1.8
+9713	Padrone del cielo
+9714	Attacco aereo e recupero dei salti in aria ×1.8
+9715	Spaccaterra
+9716	Attacco in giù/schianto/impatto all'atterraggio ×2
+9717	Dominio aereo
+9718	Effetti che crescono colpendo di continuo in aria ×2
+9719	Danza segreta
+9720	Impatto del colpo finale della sequenza con circa 1.5× di danno e area più ampia
+9721	Altissima tensione
+9722	Danno/blocco del fulmine ×1.8
+9723	Lama glaciale
+9724	Probabilità e rallentamento del freddo potenziati (rallentamento max 70%), colpi per congelare -1
+9725	Lama di bufera
+9726	Probabilità/danno della lama di vento ×1.8, perforazione +1
+9727	Spezzavene
+9728	Danno dell'onda d'urto a terra circa 1.5×, lunghezza 8.6m→11.4m
+9729	Tempesta di colpi
+9730	Attacchi a metà sequenza/velocità dell'attacco principale ×2
+9731	Contraerea suprema
+9732	Attacco contro nemici in aria ×2
+9733	Istinto del cacciatore
+9734	Scatto nelle battaglie coi boss +36%→+72%・avvicinamento +27%→+54%
+9735	Anima ardente
+9736	Forza/durata della bruciatura ×1.8
+9737	Fuoco infernale
+9738	Il fuoco che si propaga uccidendo nemici in fiamme ha circa 1.6× di danno e area più ampia
+9739	Prigione di ghiaccio
+9740	Probabilità/rallentamento/durata del freddo potenziati (colpi per congelare restano al minimo di 2)
+9741	Zero assoluto
+9742	Frantumazione dei nemici comuni congelati/attacco contro raffreddati ×1.8
+9743	Catena di fulmini
+9744	Catena del fulmine 3→5 nemici, con portata maggiore
+9745	Imperatore del tuono
+9746	Danno/catena/area del fulmine ×1.8
+9747	Bufera
+9748	Velocità/gittata/perforazione della lama di vento ×1.8
+9749	Grande tornado
+9750	Danno del tornado circa 1.5× e area più ampia
+9751	Cuore d'acciaio
+9752	Aumento HP massimi ×1.6 (max 20 cuori; torna normale alla fine), cura +1
+9753	Tempesta di scudi
+9754	Ricarica dello Shield fino a un minimo di 8 s (il massimo di 3 non cambia)
+9755	Rendere il doppio
+9756	Danno base del contrattacco parando con lo Shield circa 1.7×
+9757	Volontà di ferro
+9758	Attacco/HP massimi a HP pieni ×2
+9759	Difesa perfetta
+9760	Invulnerabilità dopo una parata con lo Shield 1.3 s→2.2 s
+9761	Rappresaglia di fuoco
+9762	Danno del contrattacco di fuoco parando con lo Shield circa 1.7×, bruciatura più forte
+9763	Ultimo baluardo
+9764	Invulnerabilità quando resti con 1 cuore 2.35 s→3.7 s
+9765	Vita traboccante
+9766	Cura extra da +2→+4 cuori (lo Shield della cura in eccesso resta 1)
+9767	Ebbrezza di sangue
+9768	Attacco/assorbimento con HP bassi ×2
+9769	Predatore
+9770	Probabilità di assorbimento ×2, assorbi più facilmente anche dai boss
+9771	Indomito
+9772	Riattivazione della cura in fin di vita 6,000m→1,500m (la cura resta 3 cuori)
+9773	Lama di sangue
+9774	Probabilità/danno del sanguinamento ×1.8
+9775	Apripista
+9776	Effetto EXP da distanza ×2 (la curva resta applicata)
+9777	Provviste del viaggio
+9778	Effetti EXP/HP massimi ×1.8
+9779	Imparare oltre il limite
+9780	Effetto EXP ×1.8 (la curva resta applicata)
+9781	Fiume di esperienza
+9782	Effetto EXP da nemici/boss ×1.8
+9783	Strada senza fine
+9784	Effetti EXP/HP massimi ×1.6
+9785	Fiuto per i tesori
+9786	Effetti MILE da tesori/premi/boss/distanza ×2
+9787	Berserker
+9788	Attacco/velocità d'attacco ×1.8 (i cuori sigillati restano uguali)
+9789	Richiamo dell'orda
+9790	Frequenza dei nemici e MILE da uccisioni ×2
+9791	Boia
+9792	Effetto MILE da uccisioni ×2
+9793	Prova dei forti
+9794	HP dei nemici comuni e MILE/EXP da uccisioni ×2
+9795	Nemici fulminei
+9796	Velocità dei nemici comuni e MILE/EXP da uccisioni ×1.8
+9797	Spalle al muro
+9798	Attacco con HP bassi ×2
+9799	Cannone di vetro
+9800	Attacco ×1.8 (i cuori sigillati restano uguali)
+9801	Battito al limite
+9802	Velocità d'attacco con HP bassi ×2
+9803	Marea di mostri
+9804	Frequenza dei nemici ed EXP ×2
+9805	Marcia d'élite
+9806	Probabilità d'élite e MILE ×2
+9807	Orda
+9808	Frequenza dei nemici/MILE/EXP da uccisioni ×1.8
+9809	Sfida al re
+9810	(Battaglie coi boss iniziate nel frattempo) HP del boss e MILE dai boss ×2
+9811	Ammazzagiganti
+9812	Attacco ×1.8, calo della velocità d'attacco anche ×1.8 (colpo superpesante)
+9813	Frenesia
+9814	Attacco/velocità d'attacco con HP bassi ×1.8
+9815	Forza controcorrente
+9816	Attacco e calo di velocità ×1.8
+9817	Cuore infranto
+9818	Attacco e attacco per cuore sigillato ×1.8
+9819	Alchimia
+9820	Calo di EXP e aumento di MILE ×2
+9821	Demone della terra
+9822	Attacco a terra e malus in aria ×1.8
+9823	Demone dei cieli
+9824	Attacco in aria e malus a terra ×1.8
+9825	Porta dell'inferno
+9826	HP/movimento/frequenza dei nemici comuni e MILE/MILE dai boss ×1.8
+9827	Corteo reale
+9828	Probabilità che si aggiunga un altro boss 100%, bonus MILE dai boss sconfitti anche ×2
+9829	Cacciatore di taglie
+9830	Ricercati potenziati・ogni 1,500m・180 MILE a uccisione. Bonus MILE da uccisioni e BONUS anche ×1.8
+9831	Patto col Mietitore
+9832	Corazza suprema
+9833	Crescita HP massimi ×1.8・contraccolpo -40%・invulnerabilità dopo un colpo +0.3 s (calo della forza del salto anche ×1.8)
+9834	Fortezza inespugnabile
+9835	Aumento HP massimi e riduzione del contraccolpo potenziati, Shield massimi +1 se sotto 3 (anche il calo della velocità di movimento aumenta)
+9836	Senza voltarsi
+9837	Velocità e frequenza dei nemici ×1.6, MILE +40%
+9838	Pandemonio
+9839	Potenziamento di nemici/élite/boss e MILE/MILE dai boss ×1.6
+9840	Perfezione versatile
+9841	Attacco/HP massimi/velocità ×1.6 (nessuno raggiunge le carte specializzate)
+9842	One More Mile
+9843	Effetti MILE/MILE dai boss/EXP ×1.6

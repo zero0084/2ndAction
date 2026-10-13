@@ -1,0 +1,242 @@
+9600	Termină cursa cu bine ca să duci MILE acasă
+9601	Boss învins!
+9602	Deții {0}
+9603	Utilizabile
+9604	Menține 115km/h sau mai mult → OVERDRIVE în {0} s
+9605	Tăietură zburătoare: putere {0}・rază de bază {1}m (crește cu viteza)
+9606	Contraatac la blocarea cu Shield: putere {0}・rază 3m
+9607	Invincibilitate după blocarea cu Shield: {0} s
+9608	Contraatac de foc la blocarea cu Shield: putere {0}・ardere {1}/s
+9609	Lovit până la HP 30% sau mai puțin → vindecare {0} inimi・din nou după {1}m
+9610	Lovit până la 1 inimă sau mai puțin → invincibil {0} s
+9611	HP la reînviere: {0} inimi (2 s invincibil)
+9612	Vindecarea în plus la HP plin → 1 Shield (până la max. +1)
+9613	Absorbție și la lovirea bossului (1/10 din șansa normală)
+9614	Corp la corp: atac în plus pe {0} inamici din spate, putere {1} / proiectile: străpungere +{2}
+9615	Undă de șoc: putere {0}・lățime {1}m (proiectile: rază {2}m)
+9616	Explozie la învingere: putere {0}・rază {1}m (lanț de max. 3 trepte)
+9617	Tăietură suplimentară în aer: putere {0}・rază {1}m
+9618	Lovitura în aer reface săritura ({0}× până la aterizare)
+9619	Undă de șoc la sol: putere {0}・lungime {1}m
+9620	Impactul loviturii finale a seriei: putere {0}・lățime {1}m
+9621	Lupta cu bossul: pas la atac +{0}%・apropiere de boss aflat la peste 6m +{1}%
+9622	Viteză de mișcare -10% timp de 0.4 s după atac înainte/înapoi
+9623	Loviturile de 2+ inimi iau cu 1 inimă mai puțin
+9624	Șansă să mai apară un boss: {0}%
+9625	Inamic căutat la fiecare {0}m・HP×{1}・{2} MILE dacă îl învingi
+9626	Învingi un inamic care arde → foc extins: putere {0}・rază {1}m
+9627	Atac vs inamici răciți/înghețați +{0}%・spargere la îngheț: putere {1}
+9628	Tornadă: putere {0}×3・rază {1}m
+9629	La HP plin, șansa de sângerare ×2
+9630	Doar cu această carte poți avea 1 Shield
+9631	Avans {0}m・bossului {1}% din HP max.・întărire {2} s
+9633	(crește cu Lv)
+9634	(limita efectului)
+9635	(întărire {0}・are efect doar până la Lv9)
+9636	Condiție de deblocare îndeplinită: {0}
+9637	Se confirmă când termini cursa cu bine
+9639	Tu: se încarcă…
+9640	Tu: clasamentul nu s-a putut încărca
+9641	Tu: recordul nou așteaptă trimiterea
+9642	Tu: niciun record în clasamentul afișat
+9643	Se trimite… {0}
+9644	Trimitere eșuată, se va retrimite: {0}
+9645	Așteaptă trimiterea: {0}
+9646	Clasamentul nou nu s-a putut încărca (se afișează cel anterior)
+9647	ATAC FĂRĂ LIMITĂ
+9648	Daune finale ×1.5
+9649	HIPERVITEZĂ
+9650	Accelerare・mic atac automat la contactul cu inamicii・protecție la obstacole și contact
+9651	RAZĂ CARE TAIE ECRANUL
+9652	Raza crește mult, iar lovitura trimite o undă tăietoare
+9653	SETE DE SÂNGE
+9654	Șansa de absorbție crește mult, surplusul devine Blood Shield
+9655	MODUL FENIX
+9656	O reînviere de urgență la o lovitură fatală (separat de cartea FENIX; se pierde dacă nu e folosită)
+9657	INFERN
+9658	Ardere mai puternică și foc extins în jur
+9659	ZEUL TUNETULUI
+9660	Trăsnete mai dese, iar lanțul sare la încă 1 țintă
+9661	TREZIREA EXP
+9662	Adaugă o întărire EXP (curba de atenuare rămâne)
+9663	FRENEZIE DE AUR
+9664	MILE×1.5 / daune primite×1.3
+9665	ALERGARE DE PRECIZIE
+9666	Și mai lent, dar cresc atacul/viteza de atac/invincibilitatea după lovire
+9667	ZBOR CERESC
+9668	Efectul forței de salt ×2.5, atac în aer +15%
+9669	SALT MULTIPLU
+9670	Numărul de sărituri în aer ×1.6, atac în aer +10%
+9671	ALERGĂTORUL CERULUI
+9672	Efectul forței de salt/atacului în aer ×2, sărituri în aer +2
+9673	VITEZA ÎNTRUPATĂ
+9674	Efectul vitezei transformate în atac ×2
+9675	LA LIMITĂ
+9676	Efect OVERDRIVE ×1.8 (pornește mai ușor și e mai puternic)
+9677	LA UN FIR DE PĂR
+9678	Viteză/invincibilitate după lovire ×1.8, plus invincibilitate +0.4 s
+9679	HIPERSERIE
+9680	Efectul vitezei de atac ×2.2
+9681	STĂPÂNUL VĂZDUHULUI
+9682	Efectul atacului în aer ×2, sărituri în aer +1
+9683	LOVITURĂ DE FRÂNĂ
+9684	Efectul forței de atac ×1.8 (încetinirea după atac nu se schimbă)
+9685	PRIMA LOVITURĂ MORTALĂ
+9686	Efectul primei lovituri ×2.5
+9687	ARTA FINALULUI
+9688	Efectul loviturii finale ×2.2, lovitura finală trimite o undă (echivalent MAESTRU COMBO +3)
+9689	ANIHILATOR
+9690	Efectul atacului vs inamici obișnuiți/MILE din învingeri ×2
+9691	PUMNUL PĂMÂNTULUI
+9692	Efectul atacului la sol ×2.2, lovitura finală la sol trimite o undă pe sol (+3)
+9693	LAMA SERIEI
+9694	Creșterea atacului din seria de lovituri ×2.2
+9695	STRĂPUNGERE TOTALĂ
+9696	Corp la corp străpunge 6 inamici din spate cu putere de cca 1.4×, proiectile: străpungere +6
+9697	UNDA DE ȘOC SUPREMĂ
+9698	Puterea undei de șoc crește de cca 1.4×, iar raza se extinde
+9699	SFÂȘIEREA CERULUI
+9700	Puterea tăieturii suplimentare în aer cca 1.4×, iar raza se extinde
+9701	UCIGAȘ DE REGI
+9702	Efectul atacului vs boși ×2
+9703	EXPLOZII ÎN LANȚ
+9704	Puterea exploziei la învingere cca 1.4×, rază extinsă (lanțul rămâne de max. 3 trepte)
+9705	LAMĂ DUBLĂ
+9706	Șansa loviturii în plus ×2.2 (lovitura în plus nu declanșează alta)
+9707	TĂIETURĂ SONICĂ
+9708	Puterea și raza tăieturii zburătoare cresc (mărimea nu se schimbă)
+9709	MÂINI FULGER
+9710	Efectul vitezei atacului principal ×2.2
+9711	LAMĂ LUNGĂ
+9712	Efectul razei de atac ×1.8
+9713	DOMNUL CERULUI
+9714	Atac în aer și recuperarea săriturilor în aer ×1.8
+9715	SPĂRGĂTORUL PĂMÂNTULUI
+9716	Atac în jos/lovitură în sol/impactul la aterizare ×2
+9717	SUPREMAȚIE AERIANĂ
+9718	Efectul care crește cu lovituri continue în aer ×2
+9719	DANSUL TEHNICII SECRETE
+9720	Impactul loviturii finale a seriei: putere cca 1.5×, rază extinsă
+9721	SUPERTENSIUNE
+9722	Puterea/imobilizarea trăsnetului ×1.8
+9723	LAMA DE GHEAȚĂ
+9724	Șansa și încetinirea răcirii cresc (încetinire max. 70%), cu 1 lovitură mai puțin până la îngheț
+9725	LAMA VIJELIEI
+9726	Șansa/puterea lamei de vânt ×1.8, străpungere +1
+9727	SFĂRÂMĂTORUL ADÂNCURILOR
+9728	Puterea undei de șoc la sol cca 1.5×, lungime 8.6m→11.4m
+9729	VALUL DE LOVITURI
+9730	Atacul loviturilor din mijlocul seriei/viteza atacului principal ×2
+9731	MAESTRU ANTIAERIAN
+9732	Atac vs inamici în aer ×2
+9733	INSTINCT DE VÂNĂTOR
+9734	Pas la atac în lupta cu bossul +36%→+72%・viteza de apropiere +27%→+54%
+9735	SUFLET ÎN FLĂCĂRI
+9736	Puterea/durata arderii ×1.8
+9737	FOC MISTUITOR
+9738	Focul extins de la inamicii arși învinși: putere cca 1.6×, rază extinsă
+9739	INFERN DE GHEAȚĂ
+9740	Șansa, încetinirea și durata răcirii cresc (pentru îngheț rămân minimum 2 lovituri)
+9741	ZERO ABSOLUT
+9742	Spargerea inamicilor obișnuiți înghețați/atac vs inamici răciți ×1.8
+9743	LANȚ DE TUNETE
+9744	Lanțul trăsnetului 3→5 ținte, iar distanța lanțului crește
+9745	ÎMPĂRATUL TUNETULUI
+9746	Puterea/lanțul/raza trăsnetului ×1.8
+9747	FURTUNĂ
+9748	Viteza/distanța/străpungerea lamei de vânt ×1.8
+9749	TORNADA SUPREMĂ
+9750	Puterea tornadei cca 1.5×, iar raza se extinde
+9751	INIMĂ DE FIER
+9752	Creșterea HP max. ×1.6 (max. 20 inimi; revine la final), vindecare +1
+9753	FURTUNA SCUTURILOR
+9754	Refacerea Shield la minimum 8 s (numărul max. 3 nu se schimbă)
+9755	RĂZBUNARE DUBLĂ
+9756	Puterea de bază a contraatacului la blocarea cu Shield cca 1.7×
+9757	VOINȚĂ DE OȚEL
+9758	Atac/HP max. la HP plin ×2
+9759	APĂRARE PERFECTĂ
+9760	Invincibilitate după blocarea cu Shield 1.3 s→2.2 s
+9761	RĂZBUNAREA FLĂCĂRILOR
+9762	Puterea contraatacului de foc la blocarea cu Shield cca 1.7×, ardere mai puternică
+9763	ULTIMUL BASTION
+9764	Invincibilitate când ajungi la 1 inimă 2.35 s→3.7 s
+9765	VIAȚĂ DEBORDANTĂ
+9766	Vindecarea în plus +2→+4 inimi (Shield din surplus rămâne 1)
+9767	FIERBEREA SÂNGELUI
+9768	Atac/absorbție la HP scăzut ×2
+9769	PRĂDĂTOR
+9770	Șansa de absorbție ×2, absorbi mai ușor și de la boși
+9771	NEÎNFRÂNT
+9772	Reactivarea vindecării la HP critic 6,000m→1,500m (vindecarea rămâne 3 inimi)
+9773	LAMĂ DE SÂNGE
+9774	Șansa/puterea sângerării ×1.8
+9775	DESCHIZĂTORUL DE DRUM
+9776	Efectul EXP din distanță ×2 (după curbă)
+9777	PROVIZII DE DRUM LUNG
+9778	Efectul EXP/HP max. ×1.8
+9779	ÎNVĂȚARE FĂRĂ LIMITE
+9780	Efectul EXP ×1.8 (după curbă)
+9781	TORENT DE EXPERIENȚĂ
+9782	Efectul EXP din inamici/boși ×1.8
+9783	DRUM FĂRĂ SFÂRȘIT
+9784	Efectul EXP/HP max. ×1.6
+9785	NAS DE COMORI
+9786	Efectul MILE din comori și recompense/boși/distanță ×2
+9787	BERSERKER
+9788	Atac/viteză de atac ×1.8 (inimile sigilate rămân)
+9789	CHEAMĂ HOARDA
+9790	Apariția inamicilor și MILE din învingeri ×2
+9791	CĂLĂU
+9792	Efectul MILE din învingeri ×2
+9793	PROBA CELOR TARI
+9794	HP-ul inamicilor obișnuiți și MILE/EXP din învingeri ×2
+9795	INAMICI VIJELIOȘI
+9796	Viteza inamicilor obișnuiți și MILE/EXP din învingeri ×1.8
+9797	CU SPATELE LA ZID
+9798	Atac la HP scăzut ×2
+9799	TUN DE STICLĂ
+9800	Atac ×1.8 (inimile sigilate rămân)
+9801	PULS LA LIMITĂ
+9802	Viteză de atac la HP scăzut ×2
+9803	TORENT DE MONȘTRI
+9804	Apariția inamicilor și EXP ×2
+9805	MARȘUL ELITEI
+9806	Șansa de elită și MILE ×2
+9807	HOARDĂ
+9808	Apariția inamicilor/MILE/EXP din învingeri ×1.8
+9809	PROVOCAREA REGILOR
+9810	(Lupte cu boși începute în acest timp) HP-ul bossului și MILE de la boși ×2
+9811	UCIGAȘ DE URIAȘI
+9812	Atac ×1.8, scăderea vitezei de atac tot ×1.8 (lovitură ultragrea)
+9813	FRENEZIE
+9814	Atac/viteză de atac la HP scăzut ×1.8
+9815	PUTEREA CONTRASENSULUI
+9816	Atacul și scăderea vitezei ×1.8
+9817	INIMĂ FRÂNTĂ
+9818	Atacul și atacul pentru fiecare inimă sigilată ×1.8
+9819	ALCHIMIE
+9820	Scăderea EXP și creșterea MILE ×2
+9821	DEMONUL PĂMÂNTULUI
+9822	Atacul la sol și penalizarea în aer ×1.8
+9823	DEMONUL CERULUI
+9824	Atacul în aer și penalizarea la sol ×1.8
+9825	POARTA IADULUI
+9826	HP/mișcarea/apariția inamicilor obișnuiți și MILE/MILE de la boși ×1.8
+9827	CORTEGIUL REGAL
+9828	Șansa să mai apară un boss 100%, creșterea MILE din boși învinși tot ×2
+9829	VÂNĂTOR DE RECOMPENSE
+9830	Inamici căutați mai puternici・la fiecare 1,500m・180 MILE dacă îi învingi. Creșterea MILE din inamici și BONUS tot ×1.8
+9831	PACTUL SECERĂTOAREI
+9832	ARMURĂ GREA SUPREMĂ
+9833	Creșterea HP max. ×1.8・recul -40%・invincibilitate după lovire +0.3 s (scăderea forței de salt tot ×1.8)
+9834	FORTĂREAȚA DE NECUCERIT
+9835	Creșterea HP max. și reducerea reculului mai puternice, Shield max. +1 dacă e sub 3 (și scăderea vitezei de mișcare e mai mare)
+9836	FĂRĂ PRIVIRI ÎNAPOI
+9837	Viteza și apariția inamicilor ×1.6, MILE +40%
+9838	PANDEMONIU
+9839	Întărirea inamicilor/elitelor/boșilor și MILE/MILE de la boși ×1.6
+9840	UNIVERSAL DESĂVÂRȘIT
+9841	Atac/HP max./viteză ×1.6 (niciuna nu ajunge la cărțile specializate)
+9842	ONE MORE MILE
+9843	Efectul MILE/MILE de la boși/EXP ×1.6

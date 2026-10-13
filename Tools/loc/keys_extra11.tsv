@@ -1,0 +1,242 @@
+9600	ui	BonusZone.cs:655	無事にランを終えるとMILEを持ち帰れます
+9601	ui	BossDefeatPresentation.cs:50	ボス撃破!
+9602	ui	CardFusionUI.cs:621	所持{0}
+9603	ui	CardFusionUI.cs:621	使用可
+9604	ui	Cards/CardBehaviorText.cs:20	115km/h以上を維持 → OVERDRIVE発動まで{0}秒
+9605	ui	Cards/CardBehaviorText.cs:21	飛ぶ斬撃 威力{0}・基本飛距離{1}m(速度で延長)
+9606	ui	Cards/CardBehaviorText.cs:22	Shield で防いだ時の反撃 威力{0}・範囲3m
+9607	ui	Cards/CardBehaviorText.cs:23	Shield で防いだ後の無敵 {0}秒
+9608	ui	Cards/CardBehaviorText.cs:24	Shield で防いだ時の炎の反撃 威力{0}・炎上 毎秒{1}
+9609	ui	Cards/CardBehaviorText.cs:25	被弾でHP30%以下 → ハート{0}回復・再発動まで{1}m
+9610	ui	Cards/CardBehaviorText.cs:26	被弾でハート1つ以下 → 無敵{0}秒
+9611	ui	Cards/CardBehaviorText.cs:27	復活時のHP ハート{0}(2秒無敵)
+9612	ui	Cards/CardBehaviorText.cs:28	満タンで溢れた回復は Shield 1つに(最大数+1まで)
+9613	ui	Cards/CardBehaviorText.cs:29	ボス命中時もHP吸収(通常の吸収確率の1/10)
+9614	ui	Cards/CardBehaviorText.cs:30	近接: 後方{0}体へ追加攻撃 威力{1} / 飛び道具 貫通+{2}
+9615	ui	Cards/CardBehaviorText.cs:31	衝撃波 威力{0}・幅{1}m(飛び道具は半径{2}m)
+9616	ui	Cards/CardBehaviorText.cs:32	撃破時の爆発 威力{0}・半径{1}m(連鎖は3段まで)
+9617	ui	Cards/CardBehaviorText.cs:33	空中の追い斬り 威力{0}・半径{1}m
+9618	ui	Cards/CardBehaviorText.cs:34	空中攻撃命中でジャンプ回復(着地まで{0}回)
+9619	ui	Cards/CardBehaviorText.cs:35	地上の衝撃波 威力{0}・長さ{1}m
+9620	ui	Cards/CardBehaviorText.cs:36	連続攻撃の締めの衝撃 威力{0}・幅{1}m
+9621	ui	Cards/CardBehaviorText.cs:37	ボス戦 踏み込み+{0}%・6m超のボスへの接近速度+{1}%
+9622	ui	Cards/CardBehaviorText.cs:38	前後攻撃後0.4秒間 移動速度-10%
+9623	ui	Cards/CardBehaviorText.cs:39	ハート2つ以上の被弾をハート1つ分軽く
+9624	ui	Cards/CardBehaviorText.cs:40	ボスがもう1体加わる確率 {0}%
+9625	ui	Cards/CardBehaviorText.cs:41	賞金首 {0}mごと・HP×{1}・撃破で{2} MILE
+9626	ui	Cards/CardBehaviorText.cs:42	炎上中の敵を撃破 → 延焼 威力{0}・半径{1}m
+9627	ui	Cards/CardBehaviorText.cs:43	冷えた/凍結した敵への攻撃+{0}%・凍結時の砕け 威力{1}
+9628	ui	Cards/CardBehaviorText.cs:44	竜巻 威力{0}×3回・半径{1}m
+9629	ui	Cards/CardBehaviorText.cs:45	HP満タンの時 出血の確率×2
+9630	ui	Cards/CardBehaviorText.cs:46	このカードだけでも Shield を1つ持てる
+9631	ui	Cards/CardBehaviorText.cs:51	前進{0}m・ボスへ最大HPの{1}%ダメージ・強化{2}秒
+9633	ui	Data/CardVariant.cs:156	(Lvで伸びる)
+9634	ui	Data/CardVariant.cs:208	(効果上限)
+9635	ui	DeckEditUI.cs:778	(強化量{0}・効くのはLv9まで)
+9636	ui	GameManager.cs:1475	解放条件達成: {0}
+9637	ui	GameManager.cs:1475	ランを無事に終えると確定します
+9639	ui	Online/RankingPanel.cs:159	あなた: 読み込み中…
+9640	ui	Online/RankingPanel.cs:160	あなた: 順位を読み込めませんでした
+9641	ui	Online/RankingPanel.cs:161	あなた: 新しい記録を送信待ちです
+9642	ui	Online/RankingPanel.cs:162	あなた: 表示中の順位に記録がありません
+9643	ui	Online/RankingPanel.cs:168	送信中… {0}件
+9644	ui	Online/RankingPanel.cs:168	送信失敗・再送待ち {0}件
+9645	ui	Online/RankingPanel.cs:168	送信待ち {0}件
+9646	ui	Online/RankingPanel.cs:174	最新の順位を読み込めませんでした(前回の表示です)
+9647	ui	FinalEvolutionTuning:title	攻撃限界突破
+9648	ui	FinalEvolutionTuning:desc	最終ダメージ×1.5
+9649	ui	FinalEvolutionTuning:title	超高速状態
+9650	ui	FinalEvolutionTuning:desc	加速・接敵時に自動の小攻撃・障害物と接触から守る
+9651	ui	FinalEvolutionTuning:title	画面を切り裂く射程
+9652	ui	FinalEvolutionTuning:desc	射程が大きく伸び、命中時に斬撃波
+9653	ui	FinalEvolutionTuning:title	血の飢え
+9654	ui	FinalEvolutionTuning:desc	吸収の確率が大きく上がり、溢れた分は Blood Shield
+9655	ui	FinalEvolutionTuning:title	不死鳥状態
+9656	ui	FinalEvolutionTuning:desc	致死の被弾から1回だけ緊急復活(通常の PHOENIX とは別。使わずに終わると消える)
+9657	ui	FinalEvolutionTuning:title	炎獄
+9658	ui	FinalEvolutionTuning:desc	強化された炎上と、周囲への延焼
+9659	ui	FinalEvolutionTuning:title	雷神状態
+9660	ui	FinalEvolutionTuning:desc	落雷しやすく、連鎖が1つ増える
+9661	ui	FinalEvolutionTuning:title	経験値覚醒
+9662	ui	FinalEvolutionTuning:desc	EXP の強化を追加(減衰の曲線はそのまま)
+9663	ui	FinalEvolutionTuning:title	黄金暴走
+9664	ui	FinalEvolutionTuning:desc	MILE×1.5 / 受けるダメージ×1.3
+9665	ui	FinalEvolutionTuning:title	精密走法
+9666	ui	FinalEvolutionTuning:desc	さらに遅くなるが、攻撃/攻撃速度/被弾後の無敵が上がる
+9667	ui	FinalEvolutionTuning:title	天翔
+9668	ui	FinalEvolutionTuning:desc	ジャンプ力の効果×2.5、空中攻撃+15%
+9669	ui	FinalEvolutionTuning:title	多段跳躍
+9670	ui	FinalEvolutionTuning:desc	空中ジャンプの回数×1.6、空中攻撃+10%
+9671	ui	FinalEvolutionTuning:title	空を駆ける者
+9672	ui	FinalEvolutionTuning:desc	ジャンプ力/空中攻撃の効果×2、空中ジャンプ+2
+9673	ui	FinalEvolutionTuning:title	加速の化身
+9674	ui	FinalEvolutionTuning:desc	速さが攻撃になる効果×2
+9675	ui	FinalEvolutionTuning:title	限界駆動
+9676	ui	FinalEvolutionTuning:desc	OVERDRIVE の効果×1.8(入りやすく、強く)
+9677	ui	FinalEvolutionTuning:title	紙一重
+9678	ui	FinalEvolutionTuning:desc	速さ/被弾後の無敵×1.8、さらに無敵+0.4秒
+9679	ui	FinalEvolutionTuning:title	超連撃
+9680	ui	FinalEvolutionTuning:desc	攻撃速度の効果×2.2
+9681	ui	FinalEvolutionTuning:title	空の覇者
+9682	ui	FinalEvolutionTuning:desc	空中攻撃の効果×2、空中ジャンプ+1
+9683	ui	FinalEvolutionTuning:title	制動の一撃
+9684	ui	FinalEvolutionTuning:desc	攻撃力の効果×1.8(攻撃後の減速は変わらない)
+9685	ui	FinalEvolutionTuning:title	必殺の初撃
+9686	ui	FinalEvolutionTuning:desc	初撃の効果×2.5
+9687	ui	FinalEvolutionTuning:title	締めの極意
+9688	ui	FinalEvolutionTuning:desc	締めの効果×2.2、締めで衝撃(COMBO MASTER 相当+3)
+9689	ui	FinalEvolutionTuning:title	殲滅者
+9690	ui	FinalEvolutionTuning:desc	雑魚への攻撃/撃破のMILEの効果×2
+9691	ui	FinalEvolutionTuning:title	大地の拳
+9692	ui	FinalEvolutionTuning:desc	地上攻撃の効果×2.2、地上の締めで地を走る衝撃(+3)
+9693	ui	FinalEvolutionTuning:title	連撃の刃
+9694	ui	FinalEvolutionTuning:desc	連続ヒットの攻撃上昇×2.2
+9695	ui	FinalEvolutionTuning:title	全貫通
+9696	ui	FinalEvolutionTuning:desc	近接は後方6体へ貫通し威力約1.4倍、飛び道具の貫通+6
+9697	ui	FinalEvolutionTuning:title	大衝撃波
+9698	ui	FinalEvolutionTuning:desc	衝撃波の威力が約1.4倍になり、攻撃範囲も拡大
+9699	ui	FinalEvolutionTuning:title	空裂
+9700	ui	FinalEvolutionTuning:desc	空中の追い斬りの威力が約1.4倍、攻撃範囲も拡大
+9701	ui	FinalEvolutionTuning:title	王殺し
+9702	ui	FinalEvolutionTuning:desc	ボスへの攻撃の効果×2
+9703	ui	FinalEvolutionTuning:title	誘爆連鎖
+9704	ui	FinalEvolutionTuning:desc	撃破時の爆発の威力が約1.4倍・範囲拡大(連鎖は最大3段のまま)
+9705	ui	FinalEvolutionTuning:title	二重の刃
+9706	ui	FinalEvolutionTuning:desc	追加の1撃の確率×2.2(追加からは出ない)
+9707	ui	FinalEvolutionTuning:title	音速の斬撃
+9708	ui	FinalEvolutionTuning:desc	飛ぶ斬撃の威力と飛距離が上昇(大きさは変わらない)
+9709	ui	FinalEvolutionTuning:title	神速の手数
+9710	ui	FinalEvolutionTuning:desc	主攻撃の攻撃速度の効果×2.2
+9711	ui	FinalEvolutionTuning:title	長刃
+9712	ui	FinalEvolutionTuning:desc	攻撃範囲の効果×1.8
+9713	ui	FinalEvolutionTuning:title	天空の主
+9714	ui	FinalEvolutionTuning:desc	空中攻撃と空中ジャンプの取り戻し×1.8
+9715	ui	FinalEvolutionTuning:title	大地割り
+9716	ui	FinalEvolutionTuning:desc	下攻撃/叩きつけ/着地の衝撃×2
+9717	ui	FinalEvolutionTuning:title	制空
+9718	ui	FinalEvolutionTuning:desc	空中で当て続けるほど上がる効果×2
+9719	ui	FinalEvolutionTuning:title	奥義連舞
+9720	ui	FinalEvolutionTuning:desc	連続攻撃の締めの衝撃の威力が約1.5倍・範囲拡大
+9721	ui	FinalEvolutionTuning:title	超高電圧
+9722	ui	FinalEvolutionTuning:desc	雷の威力/足止め×1.8
+9723	ui	FinalEvolutionTuning:title	氷結の刃
+9724	ui	FinalEvolutionTuning:desc	冷えの確率・減速が強化(減速は最大70%)、凍結に必要な回数-1
+9725	ui	FinalEvolutionTuning:title	疾風刃
+9726	ui	FinalEvolutionTuning:desc	風刃の確率/威力×1.8、貫通+1
+9727	ui	FinalEvolutionTuning:title	地脈崩し
+9728	ui	FinalEvolutionTuning:desc	地上の衝撃波の威力が約1.5倍、長さ 8.6m→11.4m
+9729	ui	FinalEvolutionTuning:title	連撃怒涛
+9730	ui	FinalEvolutionTuning:desc	連撃の途中の攻撃/主攻撃の速さ×2
+9731	ui	FinalEvolutionTuning:title	対空の極み
+9732	ui	FinalEvolutionTuning:desc	空中の敵への攻撃×2
+9733	ui	FinalEvolutionTuning:title	狩人の本能
+9734	ui	FinalEvolutionTuning:desc	ボス戦の踏み込み+36%→+72%・接近の速さ+27%→+54%
+9735	ui	FinalEvolutionTuning:title	燃え盛る魂
+9736	ui	FinalEvolutionTuning:desc	炎上の強さ/長さ×1.8
+9737	ui	FinalEvolutionTuning:title	業火
+9738	ui	FinalEvolutionTuning:desc	炎上中の敵を倒すと広がる炎の威力が約1.6倍・範囲拡大
+9739	ui	FinalEvolutionTuning:title	氷獄
+9740	ui	FinalEvolutionTuning:desc	冷えの確率・減速・時間が強化(凍結に必要な回数は最少の2回のまま)
+9741	ui	FinalEvolutionTuning:title	絶対零度
+9742	ui	FinalEvolutionTuning:desc	凍結した雑魚の砕け/冷えた敵への攻撃×1.8
+9743	ui	FinalEvolutionTuning:title	雷鎖
+9744	ui	FinalEvolutionTuning:desc	落雷の連鎖が3体→5体、連鎖の距離も延長
+9745	ui	FinalEvolutionTuning:title	雷帝
+9746	ui	FinalEvolutionTuning:desc	雷の威力/連鎖/範囲×1.8
+9747	ui	FinalEvolutionTuning:title	暴風
+9748	ui	FinalEvolutionTuning:desc	風刃の速さ/距離/貫通×1.8
+9749	ui	FinalEvolutionTuning:title	大竜巻
+9750	ui	FinalEvolutionTuning:desc	竜巻の威力が約1.5倍になり、範囲も拡大
+9751	ui	FinalEvolutionTuning:title	鉄の心臓
+9752	ui	FinalEvolutionTuning:desc	最大HPの増加×1.6(上限ハート20。終われば戻る)、回復+1
+9753	ui	FinalEvolutionTuning:title	盾の嵐
+9754	ui	FinalEvolutionTuning:desc	Shield の回復間隔が最短8秒に(最大数3は変わらない)
+9755	ui	FinalEvolutionTuning:title	倍返し
+9756	ui	FinalEvolutionTuning:desc	Shield で防いだ時の反撃の基本威力が約1.7倍
+9757	ui	FinalEvolutionTuning:title	鋼の意志
+9758	ui	FinalEvolutionTuning:desc	満タンの間の攻撃/最大HP×2
+9759	ui	FinalEvolutionTuning:title	完全防御
+9760	ui	FinalEvolutionTuning:desc	Shield で防いだ後の無敵 1.3秒→2.2秒
+9761	ui	FinalEvolutionTuning:title	炎の報復
+9762	ui	FinalEvolutionTuning:desc	Shield で防いだ時の炎の反撃の威力 約1.7倍・炎上も強く
+9763	ui	FinalEvolutionTuning:title	最後の砦
+9764	ui	FinalEvolutionTuning:desc	ハート1つになった瞬間の無敵 2.35秒→3.7秒
+9765	ui	FinalEvolutionTuning:title	溢れる生命
+9766	ui	FinalEvolutionTuning:desc	追加回復がハート+2→+4に(溢れた回復の Shield は1つのまま)
+9767	ui	FinalEvolutionTuning:title	血の昂り
+9768	ui	FinalEvolutionTuning:desc	HP が低い時の攻撃/吸収×2
+9769	ui	FinalEvolutionTuning:title	捕食者
+9770	ui	FinalEvolutionTuning:desc	吸収の確率×2、ボスからも吸収しやすい
+9771	ui	FinalEvolutionTuning:title	不屈
+9772	ui	FinalEvolutionTuning:desc	瀕死からの回復の再発動 6,000m→1,500m(回復はハート3のまま)
+9773	ui	FinalEvolutionTuning:title	血刃
+9774	ui	FinalEvolutionTuning:desc	出血の確率/威力×1.8
+9775	ui	FinalEvolutionTuning:title	道を拓く者
+9776	ui	FinalEvolutionTuning:desc	距離の経験値の効果×2(曲線を通す)
+9777	ui	FinalEvolutionTuning:title	長旅の糧
+9778	ui	FinalEvolutionTuning:desc	経験値/最大HPの効果×1.8
+9779	ui	FinalEvolutionTuning:title	限界突破の学び
+9780	ui	FinalEvolutionTuning:desc	経験値の効果×1.8(曲線を通す)
+9781	ui	FinalEvolutionTuning:title	経験の奔流
+9782	ui	FinalEvolutionTuning:desc	敵/ボスの経験値の効果×1.8
+9783	ui	FinalEvolutionTuning:title	果てなき道
+9784	ui	FinalEvolutionTuning:desc	経験値/最大HPの効果×1.6
+9785	ui	FinalEvolutionTuning:title	宝の嗅覚
+9786	ui	FinalEvolutionTuning:desc	宝・報酬/ボス/距離の MILE の効果×2
+9787	ui	FinalEvolutionTuning:title	狂戦士
+9788	ui	FinalEvolutionTuning:desc	攻撃/攻撃速度×1.8(封印したハートはそのまま)
+9789	ui	FinalEvolutionTuning:title	群れを呼ぶ
+9790	ui	FinalEvolutionTuning:desc	敵の出現と撃破の MILE が×2
+9791	ui	FinalEvolutionTuning:title	処刑人
+9792	ui	FinalEvolutionTuning:desc	撃破の MILE の効果×2
+9793	ui	FinalEvolutionTuning:title	強敵の試練
+9794	ui	FinalEvolutionTuning:desc	雑魚の HP と、MILE/撃破の経験値が×2
+9795	ui	FinalEvolutionTuning:title	疾風の敵
+9796	ui	FinalEvolutionTuning:desc	雑魚の速さと、MILE/撃破の経験値が×1.8
+9797	ui	FinalEvolutionTuning:title	背水
+9798	ui	FinalEvolutionTuning:desc	HP が低い時の攻撃×2
+9799	ui	FinalEvolutionTuning:title	砕ける砲台
+9800	ui	FinalEvolutionTuning:desc	攻撃×1.8(封印したハートはそのまま)
+9801	ui	FinalEvolutionTuning:title	限界の鼓動
+9802	ui	FinalEvolutionTuning:desc	HP が低い時の攻撃速度×2
+9803	ui	FinalEvolutionTuning:title	魔物の奔流
+9804	ui	FinalEvolutionTuning:desc	敵の出現と経験値が×2
+9805	ui	FinalEvolutionTuning:title	精鋭の行進
+9806	ui	FinalEvolutionTuning:desc	精鋭の確率と MILE が×2
+9807	ui	FinalEvolutionTuning:title	大群
+9808	ui	FinalEvolutionTuning:desc	敵の出現/MILE/撃破の経験値が×1.8
+9809	ui	FinalEvolutionTuning:title	王への挑戦
+9810	ui	FinalEvolutionTuning:desc	(その間に始まるボス戦)ボスの HP とボス MILE が×2
+9811	ui	FinalEvolutionTuning:title	巨人殺し
+9812	ui	FinalEvolutionTuning:desc	攻撃×1.8、攻撃速度の低下も×1.8(超重量の一撃)
+9813	ui	FinalEvolutionTuning:title	狂乱
+9814	ui	FinalEvolutionTuning:desc	HP が低い時の攻撃/攻撃速度×1.8
+9815	ui	FinalEvolutionTuning:title	逆走の力
+9816	ui	FinalEvolutionTuning:desc	攻撃と速さの低下が×1.8
+9817	ui	FinalEvolutionTuning:title	砕けた心
+9818	ui	FinalEvolutionTuning:desc	攻撃と、封印したハートごとの攻撃×1.8
+9819	ui	FinalEvolutionTuning:title	錬金
+9820	ui	FinalEvolutionTuning:desc	経験値の低下と MILE の増加が×2
+9821	ui	FinalEvolutionTuning:title	地上の鬼
+9822	ui	FinalEvolutionTuning:desc	地上の攻撃と空中の低下が×1.8
+9823	ui	FinalEvolutionTuning:title	天上の鬼
+9824	ui	FinalEvolutionTuning:desc	空中の攻撃と地上の低下が×1.8
+9825	ui	FinalEvolutionTuning:title	地獄の門
+9826	ui	FinalEvolutionTuning:desc	雑魚の HP/動き/出現と MILE/ボス MILE が×1.8
+9827	ui	FinalEvolutionTuning:title	王の行列
+9828	ui	FinalEvolutionTuning:desc	ボスがもう1体加わる確率が100%、ボス撃破MILEの増加も×2
+9829	ui	FinalEvolutionTuning:title	賞金稼ぎ
+9830	ui	FinalEvolutionTuning:desc	賞金首が強化・1,500mごと・撃破で180 MILE。敵撃破・BONUSのMILEの増加も×1.8
+9831	ui	FinalEvolutionTuning:title	死神の契約
+9832	ui	FinalEvolutionTuning:title	重装の極み
+9833	ui	FinalEvolutionTuning:desc	最大HPの成長×1.8・のけぞり-40%・被弾後の無敵+0.3秒(ジャンプ力の低下も×1.8)
+9834	ui	FinalEvolutionTuning:title	不落の城塞
+9835	ui	FinalEvolutionTuning:desc	最大HPの増加・のけぞり軽減を強化、Shield の最大数が3未満なら+1(移動速度の低下も強まる)
+9836	ui	FinalEvolutionTuning:title	振り返らない
+9837	ui	FinalEvolutionTuning:desc	速さと敵の出現が×1.6、MILE+40%
+9838	ui	FinalEvolutionTuning:title	万魔殿
+9839	ui	FinalEvolutionTuning:desc	敵/精鋭/ボスの強化と MILE/ボス MILE が×1.6
+9840	ui	FinalEvolutionTuning:title	万能の完成
+9841	ui	FinalEvolutionTuning:desc	攻撃/最大HP/速さ×1.6(どれも専門のカードには及ばない)
+9842	ui	FinalEvolutionTuning:title	もう1マイル
+9843	ui	FinalEvolutionTuning:desc	MILE/ボス MILE/経験値の効果×1.6

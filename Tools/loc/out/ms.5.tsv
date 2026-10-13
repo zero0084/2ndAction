@@ -1,0 +1,242 @@
+9600	Tamatkan larian dengan selamat untuk membawa pulang MILE
+9601	Bos ditewaskan!
+9602	Ada {0}
+9603	Boleh guna
+9604	Kekalkan 115km/h ke atas → OVERDRIVE dalam {0} saat
+9605	Tebasan terbang kuasa {0}・jarak asas {1}m (bertambah ikut kelajuan)
+9606	Balasan apabila menahan dengan Shield kuasa {0}・kawasan 3m
+9607	Kebal selepas menahan dengan Shield {0} saat
+9608	Balasan api apabila menahan dengan Shield kuasa {0}・bakar {1}/saat
+9609	Terkena hingga HP 30% ke bawah → pulih {0} hati・aktif semula selepas {1}m
+9610	Terkena hingga tinggal 1 hati atau kurang → kebal {0} saat
+9611	HP semasa bangkit: {0} hati (kebal 2 saat)
+9612	Pemulihan berlebihan ketika penuh jadi 1 Shield (hingga maks +1)
+9613	Serap HP juga apabila mengenai bos (1/10 peluang serapan biasa)
+9614	Jarak dekat: serangan tambahan ke {0} musuh di belakang kuasa {1} / projektil tembus +{2}
+9615	Gelombang kejutan kuasa {0}・lebar {1}m (projektil: jejari {2}m)
+9616	Letupan semasa menewaskan kuasa {0}・jejari {1}m (berantai hingga 3 peringkat)
+9617	Tebasan susulan di udara kuasa {0}・jejari {1}m
+9618	Serangan udara yang kena memulihkan lompatan ({0} kali sehingga mendarat)
+9619	Gelombang kejutan darat kuasa {0}・panjang {1}m
+9620	Hentakan penamat serangan berturut kuasa {0}・lebar {1}m
+9621	Lawan bos: mara +{0}%・kelajuan mendekati bos melebihi 6m +{1}%
+9622	Selepas serangan depan/belakang, kelajuan gerak -10% selama 0.4 saat
+9623	Kerosakan 2 hati atau lebih dikurangkan 1 hati
+9624	Peluang 1 lagi bos turut serta {0}%
+9625	Buruan setiap {0}m・HP×{1}・tewaskan dapat {2} MILE
+9626	Tewaskan musuh terbakar → api merebak kuasa {0}・jejari {1}m
+9627	Serangan ke musuh sejuk/beku +{0}%・pecah semasa beku kuasa {1}
+9628	Puting beliung kuasa {0}×3・jejari {1}m
+9629	Ketika HP penuh, peluang pendarahan ×2
+9630	Kad ini sahaja sudah boleh simpan 1 Shield
+9631	Mara {0}m・kerosakan {1}% HP maks bos・penguatan {2} saat
+9633	(naik ikut Lv)
+9634	(had kesan)
+9635	(Penguatan {0}・berkesan hingga Lv9)
+9636	Syarat buka kunci tercapai: {0}
+9637	Dikunci jika larian tamat dengan jayanya
+9639	Anda: memuatkan…
+9640	Anda: gagal memuatkan kedudukan
+9641	Anda: rekod baharu menunggu dihantar
+9642	Anda: tiada rekod dalam kedudukan yang dipaparkan
+9643	Menghantar… {0}
+9644	Gagal hantar・menunggu hantar semula {0}
+9645	Menunggu dihantar {0}
+9646	Gagal memuatkan kedudukan terkini (paparan sebelumnya)
+9647	Serangan Tanpa Had
+9648	Kerosakan akhir ×1.5
+9649	Hiper Laju
+9650	Pecutan, serangan kecil automatik apabila dekat musuh, terlindung daripada halangan dan perlanggaran
+9651	Jarak Pembelah Skrin
+9652	Jarak jauh lebih panjang, gelombang tebasan apabila kena
+9653	Dahaga Darah
+9654	Peluang serapan naik besar, lebihannya jadi Blood Shield
+9655	Mod Feniks
+9656	Bangkit kecemasan 1 kali daripada serangan maut (berasingan daripada FENIKS biasa. Hilang jika tidak digunakan)
+9657	Neraka Api
+9658	Bakar yang diperkuat dan api merebak ke sekeliling
+9659	Mod Dewa Petir
+9660	Panahan petir lebih kerap, rantaian +1
+9661	Kebangkitan EXP
+9662	Tambahan penguatan EXP (lengkung susutan kekal)
+9663	Amukan Emas
+9664	MILE×1.5 / kerosakan diterima ×1.3
+9665	Larian Jitu
+9666	Lebih perlahan, tetapi serangan/kelajuan serangan/kebal selepas terkena naik
+9667	Terbang Tinggi
+9668	Kesan kuasa lompat ×2.5, serangan udara +15%
+9669	Lompatan Berganda
+9670	Bilangan lompatan udara ×1.6, serangan udara +10%
+9671	Penjelajah Langit
+9672	Kesan kuasa lompat/serangan udara ×2, lompatan udara +2
+9673	Jelmaan Pecutan
+9674	Kesan kelajuan jadi serangan ×2
+9675	Pemacu Had
+9676	Kesan OVERDRIVE ×1.8 (lebih mudah aktif, lebih kuat)
+9677	Nyaris
+9678	Kelajuan/kebal selepas terkena ×1.8, tambah kebal +0.4 saat
+9679	Serangan Super Berturut
+9680	Kesan kelajuan serangan ×2.2
+9681	Penguasa Udara
+9682	Kesan serangan udara ×2, lompatan udara +1
+9683	Hentakan Brek
+9684	Kesan serangan ×1.8 (perlahan selepas menyerang kekal)
+9685	Serangan Pertama Maut
+9686	Kesan serangan pertama ×2.5
+9687	Rahsia Penamat
+9688	Kesan penamat ×2.2, penamat mencetuskan hentakan (setara PAKAR COMBO +3)
+9689	Pemusnah
+9690	Kesan serangan ke musuh biasa/MILE tewaskan ×2
+9691	Penumbuk Bumi
+9692	Kesan serangan darat ×2.2, penamat di darat mencetuskan hentakan yang menjalar di tanah (+3)
+9693	Bilah Berturut
+9694	Kenaikan serangan daripada pukulan berturut ×2.2
+9695	Tembus Penuh
+9696	Jarak dekat tembus ke 6 musuh di belakang dengan kuasa kira-kira ×1.4, projektil tembus +6
+9697	Gelombang Kejutan Gergasi
+9698	Kuasa gelombang kejutan kira-kira ×1.4 dan kawasan serangan meluas
+9699	Pembelah Langit
+9700	Kuasa tebasan susulan di udara kira-kira ×1.4, kawasan serangan juga meluas
+9701	Pembunuh Raja
+9702	Kesan serangan ke bos ×2
+9703	Rantaian Letupan
+9704	Kuasa letupan semasa menewaskan kira-kira ×1.4・kawasan meluas (rantaian kekal maks 3 peringkat)
+9705	Bilah Berkembar
+9706	Peluang 1 serangan tambahan ×2.2 (serangan tambahan tidak mencetuskan lagi)
+9707	Tebasan Supersonik
+9708	Kuasa dan jarak tebasan terbang naik (saiz kekal)
+9709	Tangan Sepantas Dewa
+9710	Kesan kelajuan serangan utama ×2.2
+9711	Bilah Panjang
+9712	Kesan jarak serangan ×1.8
+9713	Tuan Angkasa
+9714	Serangan udara dan pemulihan lompatan udara ×1.8
+9715	Pembelah Bumi
+9716	Hentakan serangan bawah/hentaman/mendarat ×2
+9717	Kuasai Udara
+9718	Kesan yang naik selagi terus kena di udara ×2
+9719	Tarian Jurus Rahsia
+9720	Kuasa hentakan penamat serangan berturut kira-kira ×1.5・kawasan meluas
+9721	Voltan Ultra
+9722	Kuasa/henti petir ×1.8
+9723	Bilah Ais
+9724	Peluang dan perlahan sejuk diperkuat (perlahan maks 70%), sejuk yang diperlukan untuk beku -1
+9725	Bilah Ribut
+9726	Peluang/kuasa bilah angin ×1.8, tembus +1
+9727	Pemecah Urat Bumi
+9728	Kuasa gelombang kejutan darat kira-kira ×1.5, panjang 8.6m→11.4m
+9729	Asakan Berturut
+9730	Kelajuan serangan pertengahan rangkaian/serangan utama ×2
+9731	Puncak Anti-Udara
+9732	Serangan ke musuh di udara ×2
+9733	Naluri Pemburu
+9734	Mara semasa lawan bos +36%→+72%・kelajuan mendekat +27%→+54%
+9735	Jiwa Membara
+9736	Kekuatan/tempoh bakar ×1.8
+9737	Api Neraka
+9738	Kuasa api yang merebak apabila menewaskan musuh terbakar kira-kira ×1.6・kawasan meluas
+9739	Penjara Ais
+9740	Peluang, perlahan dan tempoh sejuk diperkuat (sejuk untuk beku kekal minimum 2 kali)
+9741	Sifar Mutlak
+9742	Pecahnya musuh biasa beku/serangan ke musuh sejuk ×1.8
+9743	Rantaian Petir
+9744	Rantaian panahan petir 3→5 musuh, jarak rantaian juga bertambah
+9745	Maharaja Petir
+9746	Kuasa/rantaian/kawasan petir ×1.8
+9747	Ribut Dahsyat
+9748	Kelajuan/jarak/tembus bilah angin ×1.8
+9749	Puting Beliung Gergasi
+9750	Kuasa puting beliung kira-kira ×1.5 dan kawasan juga meluas
+9751	Jantung Besi
+9752	Pertambahan HP maks ×1.6 (maks 20 hati, kembali selepas tamat), pemulihan +1
+9753	Ribut Perisai
+9754	Sela pulih Shield minimum 8 saat (maks 3 kekal)
+9755	Balas Berganda
+9756	Kuasa asas balasan apabila menahan dengan Shield kira-kira ×1.7
+9757	Tekad Waja
+9758	Serangan/HP maks selagi HP penuh ×2
+9759	Pertahanan Sempurna
+9760	Kebal selepas menahan dengan Shield 1.3 saat→2.2 saat
+9761	Pembalasan Api
+9762	Kuasa balasan api apabila menahan dengan Shield kira-kira ×1.7・bakar juga lebih kuat
+9763	Kubu Terakhir
+9764	Kebal saat tinggal 1 hati 2.35 saat→3.7 saat
+9765	Nyawa Melimpah
+9766	Pemulihan tambahan hati +2→+4 (Shield daripada pemulihan berlebihan kekal 1)
+9767	Darah Bergelora
+9768	Serangan/serapan ketika HP rendah ×2
+9769	Pemangsa
+9770	Peluang serapan ×2, lebih mudah menyerap daripada bos
+9771	Tidak Tunduk
+9772	Aktif semula pemulihan ketika nazak 6,000m→1,500m (pemulihan kekal 3 hati)
+9773	Bilah Darah
+9774	Peluang/kuasa pendarahan ×1.8
+9775	Pembuka Jalan
+9776	Kesan EXP jarak ×2 (melalui lengkung)
+9777	Bekalan Perjalanan Jauh
+9778	Kesan EXP/HP maks ×1.8
+9779	Pelajaran Tanpa Had
+9780	Kesan EXP ×1.8 (melalui lengkung)
+9781	Arus Pengalaman
+9782	Kesan EXP musuh/bos ×1.8
+9783	Jalan Tanpa Penghujung
+9784	Kesan EXP/HP maks ×1.6
+9785	Hidu Harta
+9786	Kesan MILE harta・ganjaran/bos/jarak ×2
+9787	Berserker
+9788	Serangan/kelajuan serangan ×1.8 (hati dimeterai kekal)
+9789	Seru Kawanan
+9790	Kekerapan musuh dan MILE tewaskan ×2
+9791	Algojo
+9792	Kesan MILE tewaskan ×2
+9793	Ujian Musuh Kuat
+9794	HP musuh biasa dan MILE/EXP tewaskan ×2
+9795	Musuh Sepantas Angin
+9796	Kelajuan musuh biasa dan MILE/EXP tewaskan ×1.8
+9797	Tiada Jalan Undur
+9798	Serangan ketika HP rendah ×2
+9799	Meriam Rapuh
+9800	Serangan ×1.8 (hati dimeterai kekal)
+9801	Degupan Had
+9802	Kelajuan serangan ketika HP rendah ×2
+9803	Arus Raksasa
+9804	Kekerapan musuh dan EXP ×2
+9805	Perarakan Elit
+9806	Peluang elit dan MILE ×2
+9807	Gerombolan
+9808	Kekerapan musuh/MILE/EXP tewaskan ×1.8
+9809	Cabar Sang Raja
+9810	(Lawan bos yang bermula dalam tempoh ini) HP bos dan MILE bos ×2
+9811	Pembunuh Gergasi
+9812	Serangan ×1.8, penurunan kelajuan serangan juga ×1.8 (hentakan super berat)
+9813	Amukan
+9814	Serangan/kelajuan serangan ketika HP rendah ×1.8
+9815	Kuasa Melawan Arus
+9816	Serangan dan penurunan kelajuan ×1.8
+9817	Hati yang Hancur
+9818	Serangan dan serangan setiap hati dimeterai ×1.8
+9819	Alkimia
+9820	Penurunan EXP dan kenaikan MILE ×2
+9821	Syaitan Darat
+9822	Serangan darat dan penurunan di udara ×1.8
+9823	Syaitan Langit
+9824	Serangan udara dan penurunan di darat ×1.8
+9825	Gerbang Neraka
+9826	HP/gerak/kekerapan musuh biasa dan MILE/MILE bos ×1.8
+9827	Perarakan Raja
+9828	Peluang 1 lagi bos turut serta 100%, kenaikan MILE tewaskan bos juga ×2
+9829	Pemburu Ganjaran
+9830	Buruan diperkuat・setiap 1,500m・tewaskan dapat 180 MILE. Kenaikan MILE musuh & BONUS juga ×1.8
+9831	Kontrak Malaikat Maut
+9832	Puncak Perisai Berat
+9833	Pertumbuhan HP maks ×1.8・sentakan -40%・kebal selepas terkena +0.3 saat (penurunan kuasa lompat juga ×1.8)
+9834	Kubu Tak Tertembus
+9835	Pertambahan HP maks dan pengurangan sentakan diperkuat, Shield maks +1 jika kurang daripada 3 (penurunan kelajuan gerak juga lebih besar)
+9836	Tanpa Menoleh
+9837	Kelajuan dan kekerapan musuh ×1.6, MILE +40%
+9838	Pandemonium
+9839	Penguatan musuh/elit/bos dan MILE/MILE bos ×1.6
+9840	Kesempurnaan Serba Boleh
+9841	Serangan/HP maks/kelajuan ×1.6 (semuanya di bawah kad pakar)
+9842	One More Mile
+9843	Kesan MILE/MILE bos/EXP ×1.6

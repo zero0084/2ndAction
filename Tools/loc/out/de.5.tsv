@@ -1,0 +1,242 @@
+9600	Beende den Lauf sicher, um die MILE mitzunehmen
+9601	BOSS BESIEGT!
+9602	Besitz {0}
+9603	Verfügbar
+9604	115km/h+ halten → OVERDRIVE in {0} Sek.
+9605	Fliegender Hieb: Stärke {0}, Grundreichweite {1}m (länger mit Tempo)
+9606	Konter beim Schildblock: Stärke {0}, Radius 3m
+9607	Unverwundbar {0} Sek. nach Schildblock
+9608	Feuerkonter beim Schildblock: Stärke {0}, Verbrennung {1}/Sek.
+9609	Treffer auf HP 30% oder weniger → {0} Herzen heilen, erneut nach {1}m
+9610	Treffer auf 1 Herz oder weniger → {0} Sek. unverwundbar
+9611	HP bei Wiederbelebung: {0} Herzen (2 Sek. unverwundbar)
+9612	Überschüssige Heilung bei vollen HP wird 1 Schild (bis Maximum +1)
+9613	Absorbiert HP auch bei Boss-Treffern (1/10 der normalen Chance)
+9614	Nahkampf: Zusatztreffer auf {0} Gegner dahinter, Stärke {1} / Geschosse: Durchbohren +{2}
+9615	Schockwelle: Stärke {0}, Breite {1}m (Geschosse: Radius {2}m)
+9616	Explosion beim Sieg: Stärke {0}, Radius {1}m (Kette bis 3 Stufen)
+9617	Nachhieb in der Luft: Stärke {0}, Radius {1}m
+9618	Treffer in der Luft geben einen Sprung zurück ({0}-mal bis zur Landung)
+9619	Boden-Schockwelle: Stärke {0}, Länge {1}m
+9620	Wucht des Abschlusshiebs: Stärke {0}, Breite {1}m
+9621	Bosskampf: Schrittweite +{0}%, Annäherung an Bosse über 6m +{1}%
+9622	Lauftempo -10% für 0.4 Sek. nach Vorwärts-/Rückwärtsangriffen
+9623	Treffer ab 2 Herzen richten 1 Herz weniger an
+9624	Chance auf einen weiteren Boss: {0}%
+9625	Kopfgeld alle {0}m, HP ×{1}, {2} MILE bei Sieg
+9626	Brennenden Gegner besiegen → Feuer breitet sich aus: Stärke {0}, Radius {1}m
+9627	Angriff gegen unterkühlte/eingefrorene Gegner +{0}%, Zerspringen beim Einfrieren: Stärke {1}
+9628	Tornado: Stärke {0} ×3, Radius {1}m
+9629	Blutungschance ×2 bei vollen HP
+9630	Schon diese Karte allein gibt dir 1 Schild
+9631	Vorstoß {0}m, {1}% der max. Boss-HP als Schaden, Verstärkung {2} Sek.
+9633	(steigt mit Lv)
+9634	(Effektgrenze)
+9635	(Verstärkung {0}, wirkt bis Lv9)
+9636	Freischaltbedingung erfüllt: {0}
+9637	Gilt, sobald du den Lauf sicher beendest
+9639	Du: Lädt…
+9640	Du: Rang konnte nicht geladen werden
+9641	Du: Neuer Rekord wartet auf Senden
+9642	Du: Kein Rekord in der angezeigten Rangliste
+9643	Wird gesendet… {0}
+9644	Senden fehlgeschlagen, wartet auf erneutes Senden: {0}
+9645	Wartet auf Senden: {0}
+9646	Aktuelle Rangliste konnte nicht geladen werden (letzter Stand)
+9647	Grenzenloser Angriff
+9648	Endschaden ×1.5
+9649	Hypertempo
+9650	Schneller, automatische Mini-Angriffe bei Gegnernähe, Schutz vor Hindernissen und Kontakt
+9651	Bildschirmspalter
+9652	Reichweite stark erhöht, Treffer erzeugen eine Hiebwelle
+9653	Blutdurst
+9654	Absorptionschance stark erhöht, Überschuss wird Blutschild
+9655	Phönix-Modus
+9656	1 Notfall-Wiederbelebung nach tödlichem Treffer (getrennt von normalem PHÖNIX, verfällt ungenutzt)
+9657	Inferno
+9658	Stärkere Verbrennung, die auf Gegner ringsum übergreift
+9659	Donnergott
+9660	Häufigere Blitzschläge, Kette +1
+9661	EXP-Erwachen
+9662	Zusätzliche EXP-Verstärkung (Abnahmekurve bleibt)
+9663	Goldrausch
+9664	MILE×1.5 / erlittener Schaden ×1.3
+9665	Präzisionslauf
+9666	Noch langsamer, aber Angriff/Angriffstempo/Unverwundbarkeit nach Treffer steigen
+9667	Himmelsflug
+9668	Sprungkraft-Effekt ×2.5, Luftangriff +15%
+9669	Mehrfachsprung
+9670	Luftsprünge ×1.6, Luftangriff +10%
+9671	Himmelsläufer
+9672	Sprungkraft-/Luftangriff-Effekt ×2, Luftsprünge +2
+9673	Tempo in Person
+9674	Effekt „Tempo wird Angriff“ ×2
+9675	Grenzantrieb
+9676	OVERDRIVE-Effekt ×1.8 (leichter auszulösen, stärker)
+9677	Haaresbreite
+9678	Tempo/Unverwundbarkeit nach Treffer ×1.8, zudem Unverwundbarkeit +0.4 Sek.
+9679	Hyperserie
+9680	Angriffstempo-Effekt ×2.2
+9681	Herrscher der Lüfte
+9682	Luftangriff-Effekt ×2, Luftsprünge +1
+9683	Bremsschlag
+9684	Angriffs-Effekt ×1.8 (Abbremsen nach Angriffen bleibt)
+9685	Tödlicher Erstschlag
+9686	Erstschlag-Effekt ×2.5
+9687	Kunst des Abschlusses
+9688	Abschlusshieb-Effekt ×2.2, Abschlusshiebe erzeugen Wucht (wie COMBO-MEISTER +3)
+9689	Vernichter
+9690	Effekt Angriff gegen Schergen/MILE aus Siegen ×2
+9691	Erdfaust
+9692	Bodenangriff-Effekt ×2.2, Abschlusshiebe am Boden erzeugen eine Boden-Schockwelle (+3)
+9693	Serienklinge
+9694	Angriffsplus durch Trefferserien ×2.2
+9695	Volldurchschlag
+9696	Nahkampf durchbohrt 6 Gegner dahinter mit ca. 1.4-facher Stärke, Durchbohren von Geschossen +6
+9697	Große Schockwelle
+9698	Schockwellen-Stärke ca. 1.4-fach, größere Fläche
+9699	Himmelsriss
+9700	Nachhieb in der Luft ca. 1.4-fach stärker, größere Fläche
+9701	Königsmörder
+9702	Effekt Angriff gegen Bosse ×2
+9703	Kettendetonation
+9704	Explosion beim Sieg ca. 1.4-fach stärker, größer (Kette bleibt max. 3 Stufen)
+9705	Doppelklinge
+9706	Chance auf Zusatzschlag ×2.2 (Zusatzschläge lösen keine weiteren aus)
+9707	Schallhieb
+9708	Fliegender Hieb: Stärke und Reichweite steigen (Größe bleibt)
+9709	Götterschnelle
+9710	Tempo-Effekt des Hauptangriffs ×2.2
+9711	Langklinge
+9712	Reichweiten-Effekt ×1.8
+9713	Herr des Himmels
+9714	Luftangriff und Rückgewinn von Luftsprüngen ×1.8
+9715	Erdspalter
+9716	Wucht von Abwärtsangriff/Sturzangriff/Landung ×2
+9717	Luftherrschaft
+9718	Bonus für Trefferfolgen in der Luft ×2
+9719	Geheimer Klingentanz
+9720	Wucht des Abschlusshiebs ca. 1.5-fach stärker, größere Fläche
+9721	Hochspannung
+9722	Blitz-Stärke/Lähmung ×1.8
+9723	Frostklinge
+9724	Kälte-Chance und Verlangsamung stärker (max. 70%), nötige Kältestapel zum Einfrieren -1
+9725	Sturmklinge
+9726	Windklingen-Chance/Stärke ×1.8, Durchbohren +1
+9727	Erdaderbrecher
+9728	Boden-Schockwelle ca. 1.5-fach stärker, Länge 8.6m→11.4m
+9729	Unaufhaltsame Serie
+9730	Mittlere Schläge/Hauptangriffstempo ×2
+9731	Flugabwehr-Gipfel
+9732	Angriff gegen Gegner in der Luft ×2
+9733	Jägerinstinkt
+9734	Bosskampf-Schrittweite +36%→+72%, Annäherung +27%→+54%
+9735	Lodernde Seele
+9736	Verbrennungsstärke/-dauer ×1.8
+9737	Höllenfeuer
+9738	Feuer beim Besiegen brennender Gegner ca. 1.6-fach stärker, größere Fläche
+9739	Eishölle
+9740	Kälte-Chance, Verlangsamung und Dauer stärker (Kältestapel zum Einfrieren bleiben beim Minimum 2)
+9741	Absoluter Nullpunkt
+9742	Zerspringen eingefrorener Schergen/Angriff gegen unterkühlte Gegner ×1.8
+9743	Blitzkette
+9744	Blitzkette 3→5 Gegner, größere Kettenreichweite
+9745	Donnerkaiser
+9746	Blitz-Stärke/Kette/Fläche ×1.8
+9747	Orkan
+9748	Windklingen-Tempo/Reichweite/Durchbohren ×1.8
+9749	Großer Tornado
+9750	Tornado ca. 1.5-fach stärker, größere Fläche
+9751	Eisenherz
+9752	Max.-HP-Zuwachs ×1.6 (Grenze 20 Herzen, danach zurück), Heilung +1
+9753	Schildsturm
+9754	Schild lädt in nur 8 Sek. nach (Maximum 3 bleibt)
+9755	Doppelte Vergeltung
+9756	Grundstärke des Konters beim Schildblock ca. 1.7-fach
+9757	Stahlwille
+9758	Angriff bei vollen HP/max. HP ×2
+9759	Perfekte Abwehr
+9760	Unverwundbar nach Schildblock 1.3 Sek.→2.2 Sek.
+9761	Feurige Vergeltung
+9762	Feuerkonter beim Schildblock ca. 1.7-fach stärker, stärkere Verbrennung
+9763	Letzte Bastion
+9764	Unverwundbar bei nur noch 1 Herz 2.35 Sek.→3.7 Sek.
+9765	Überfließendes Leben
+9766	Zusatzheilung +2→+4 Herzen (Schild aus Überschuss bleibt 1)
+9767	Blutrausch
+9768	Angriff/Absorption bei wenig HP ×2
+9769	Raubtier
+9770	Absorptionschance ×2, leichter auch von Bossen
+9771	Unbeugsam
+9772	Erneute Rettungsheilung 6,000m→1,500m (Heilung bleibt 3 Herzen)
+9773	Blutklinge
+9774	Blutungschance/-stärke ×1.8
+9775	Wegbereiter
+9776	Distanz-EXP-Effekt ×2 (Kurve gilt weiter)
+9777	Proviant der Reise
+9778	EXP-/Max.-HP-Effekt ×1.8
+9779	Grenzenloses Lernen
+9780	EXP-Effekt ×1.8 (Kurve gilt weiter)
+9781	Erfahrungsstrom
+9782	Gegner-/Boss-EXP-Effekt ×1.8
+9783	Endloser Weg
+9784	EXP-/Max.-HP-Effekt ×1.6
+9785	Schatzspürnase
+9786	MILE-Effekt aus Schätzen & Belohnungen/Bossen/Distanz ×2
+9787	Berserker
+9788	Angriff/Angriffstempo ×1.8 (versiegelte Herzen bleiben versiegelt)
+9789	Ruf der Horde
+9790	Gegnerhäufigkeit und MILE aus Siegen ×2
+9791	Henker
+9792	Effekt MILE aus Siegen ×2
+9793	Prüfung der Starken
+9794	Schergen-HP und MILE/EXP aus Siegen ×2
+9795	Flinke Feinde
+9796	Schergen-Tempo und MILE/EXP aus Siegen ×1.8
+9797	Mit dem Rücken zur Wand
+9798	Angriff bei wenig HP ×2
+9799	Berstende Kanone
+9800	Angriff ×1.8 (versiegelte Herzen bleiben versiegelt)
+9801	Puls am Limit
+9802	Angriffstempo bei wenig HP ×2
+9803	Monsterflut
+9804	Gegnerhäufigkeit und EXP ×2
+9805	Elitemarsch
+9806	Elite-Chance und MILE ×2
+9807	Der Schwarm
+9808	Gegnerhäufigkeit/MILE/EXP aus Siegen ×1.8
+9809	Herausforderung der Könige
+9810	(Bosskämpfe, die währenddessen beginnen) Boss-HP und Boss-MILE ×2
+9811	Riesentöter
+9812	Angriff ×1.8, Verlust an Angriffstempo ebenfalls ×1.8 (superschwere Schläge)
+9813	Raserei
+9814	Angriff/Angriffstempo bei wenig HP ×1.8
+9815	Kraft des Rückwärtsgangs
+9816	Angriff und Tempoverlust ×1.8
+9817	Gebrochenes Herz
+9818	Angriff und Angriff pro versiegeltem Herz ×1.8
+9819	Alchemie
+9820	EXP-Verlust und MILE-Zuwachs ×2
+9821	Bodendämon
+9822	Bodenangriff und Nachteil in der Luft ×1.8
+9823	Himmelsdämon
+9824	Luftangriff und Nachteil am Boden ×1.8
+9825	Höllentor
+9826	Schergen-HP/-Tempo/-Häufigkeit und MILE/Boss-MILE ×1.8
+9827	Königszug
+9828	Weiterer Boss zu 100%, Boss-MILE-Zuwachs ebenfalls ×2
+9829	Kopfgeldjäger
+9830	Stärkere Kopfgeldgegner alle 1,500m, je 180 MILE. Zuwachs an MILE aus Siegen & BONUS ebenfalls ×1.8
+9831	Pakt des Schnitters
+9832	Koloss
+9833	Max.-HP-Wachstum ×1.8, Rückstoß -40%, Unverwundbarkeit nach Treffer +0.3 Sek. (Sprungkraft-Verlust ebenfalls ×1.8)
+9834	Uneinnehmbare Festung
+9835	Mehr Max.-HP-Zuwachs und weniger Rückstoß, Schild-Maximum +1 falls unter 3 (Lauftempo-Verlust steigt auch)
+9836	Kein Blick zurück
+9837	Tempo und Gegnerhäufigkeit ×1.6, MILE +40%
+9838	Pandämonium
+9839	Verstärkung von Gegnern/Elite/Bossen und MILE/Boss-MILE ×1.6
+9840	Alleskönner
+9841	Angriff/max. HP/Tempo ×1.6 (jeweils unter den Spezialkarten)
+9842	One More Mile
+9843	MILE-/Boss-MILE-/EXP-Effekt ×1.6

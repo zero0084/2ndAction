@@ -1,0 +1,242 @@
+9600	Koşuyu başarıyla bitirirsen MILE'ı eve götürürsün
+9601	Boss yenildi!
+9602	Sahip {0}
+9603	Kullanılabilir
+9604	115km/h ve üstünü koru → TAM GAZ'a {0} sn
+9605	Uçan kesik: güç {0}・temel menzil {1}m (hızla uzar)
+9606	Shield ile engelleyince karşı saldırı: güç {0}・alan 3m
+9607	Shield ile engelledikten sonra dokunulmazlık {0} sn
+9608	Shield ile engelleyince ateşli karşı saldırı: güç {0}・yanma saniyede {1}
+9609	Hasarla HP 30% veya altına → {0} kalp iyileşme・yeniden {1}m sonra
+9610	Hasarla 1 kalp veya altına → {0} sn dokunulmazlık
+9611	Dirilişte HP: {0} kalp (2 sn dokunulmazlık)
+9612	HP doluyken taşan iyileşme 1 Shield olur (en fazla sayı +1'e kadar)
+9613	Boss'a isabette de can emme (normal can emme şansının 1/10'u)
+9614	Yakın: arkadaki {0} düşmana ek saldırı, güç {1} / mermi: delme +{2}
+9615	Şok dalgası: güç {0}・genişlik {1}m (mermide yarıçap {2}m)
+9616	Yenme patlaması: güç {0}・yarıçap {1}m (zincir en fazla 3 kademe)
+9617	Havada takip kesiği: güç {0}・yarıçap {1}m
+9618	Havada isabet zıplamayı geri verir (inişe kadar {0} kez)
+9619	Yerde şok dalgası: güç {0}・uzunluk {1}m
+9620	Seri bitiriş darbesi: güç {0}・genişlik {1}m
+9621	Boss savaşı: atılma +{0}%・6m'den uzak boss'a yaklaşma hızı +{1}%
+9622	İleri/geri saldırıdan sonra 0.4 sn hareket hızı -10%
+9623	2+ kalplik hasar 1 kalp hafifler
+9624	Bir boss daha katılma şansı {0}%
+9625	Aranan düşman her {0}m'de・HP×{1}・yenince {2} MILE
+9626	Yanan düşmanı yen → yangın yayılır: güç {0}・yarıçap {1}m
+9627	Üşümüş/donmuş düşmana saldırı +{0}%・donmuşu parçalama gücü {1}
+9628	Hortum: güç {0}×3・yarıçap {1}m
+9629	HP doluyken kanama şansı ×2
+9630	Bu kart tek başına da 1 Shield taşımanı sağlar
+9631	{0}m ilerleme・boss'a maks. HP'sinin {1}%'si hasar・{2} sn güçlenme
+9633	(Lv ile artar)
+9634	(etki sınırı)
+9635	(güçlenme {0}・yalnızca Lv9'a kadar etkili)
+9636	Kilit açma şartı sağlandı: {0}
+9637	Koşuyu başarıyla bitirince kesinleşir
+9639	Sen: yükleniyor…
+9640	Sen: sıralama yüklenemedi
+9641	Sen: yeni rekor gönderilmeyi bekliyor
+9642	Sen: gösterilen sıralamada rekorun yok
+9643	Gönderiliyor… {0} adet
+9644	Gönderilemedi, yeniden gönderim bekliyor: {0} adet
+9645	Gönderim bekliyor: {0} adet
+9646	Güncel sıralama yüklenemedi (önceki gösteriliyor)
+9647	SINIRSIZ SALDIRI
+9648	Son hasar ×1.5
+9649	HİPERHIZ
+9650	Hızlanma・düşmanla karşılaşınca otomatik küçük saldırı・engel ve temastan korunma
+9651	EKRANI YARAN MENZİL
+9652	Menzil çok uzar, isabette kesik dalgası çıkar
+9653	KAN AÇLIĞI
+9654	Can emme şansı çok artar, taşan kısım Blood Shield olur
+9655	ANKA MODU
+9656	Ölümcül darbeden 1 kez acil diriliş (normal ANKA kartından ayrı; kullanılmazsa kaybolur)
+9657	ATEŞ CEHENNEMİ
+9658	Güçlenmiş yanma ve çevreye yayılan ateş
+9659	YILDIRIM TANRISI
+9660	Yıldırım daha kolay düşer, zincir 1 artar
+9661	EXP UYANIŞI
+9662	Ek EXP güçlendirmesi (azalma eğrisi aynı kalır)
+9663	ALTIN ÇILGINLIĞI
+9664	MILE×1.5 / alınan hasar×1.3
+9665	HASSAS KOŞU
+9666	Daha da yavaşlarsın ama saldırı/saldırı hızı/hasar sonrası dokunulmazlık artar
+9667	GÖĞE YÜKSELİŞ
+9668	Zıplama gücü etkisi ×2.5, hava saldırısı +15%
+9669	ÇOKLU ZIPLAMA
+9670	Hava zıplaması sayısı ×1.6, hava saldırısı +10%
+9671	GÖKYÜZÜ KOŞUCUSU
+9672	Zıplama gücü/hava saldırısı etkisi ×2, hava zıplaması +2
+9673	HIZ CANAVARI
+9674	Hızı saldırıya çeviren etki ×2
+9675	SINIRDA SÜRÜŞ
+9676	TAM GAZ etkisi ×1.8 (daha kolay başlar, daha güçlü)
+9677	KIL PAYI
+9678	Hız/hasar sonrası dokunulmazlık ×1.8, ayrıca dokunulmazlık +0.4 sn
+9679	SÜPER SERİ
+9680	Saldırı hızı etkisi ×2.2
+9681	GÖKLERİN HÜKÜMDARI
+9682	Hava saldırısı etkisi ×2, hava zıplaması +1
+9683	FREN DARBESİ
+9684	Saldırı gücü etkisi ×1.8 (saldırı sonrası yavaşlama değişmez)
+9685	ÖLÜMCÜL İLK VURUŞ
+9686	İlk vuruş etkisi ×2.5
+9687	BİTİRİŞ USTALIĞI
+9688	Bitiriş etkisi ×2.2, bitirişte şok dalgası (COMBO USTASI +3 kadar)
+9689	YOK EDİCİ
+9690	Sıradan düşmana saldırı/yenme MILE'ı etkisi ×2
+9691	TOPRAK YUMRUĞU
+9692	Yer saldırısı etkisi ×2.2, yerdeki bitiriş yerde ilerleyen şok dalgası çıkarır (+3)
+9693	SERİ BIÇAK
+9694	Seri isabetle saldırı artışı ×2.2
+9695	TAM DELİŞ
+9696	Yakın saldırı arkadaki 6 düşmanı yaklaşık 1.4 kat güçle deler, mermi delme +6
+9697	BÜYÜK ŞOK DALGASI
+9698	Şok dalgası gücü yaklaşık 1.4 kat, alanı da genişler
+9699	GÖK YARIĞI
+9700	Havada takip kesiği gücü yaklaşık 1.4 kat, alanı da genişler
+9701	KRAL KATİLİ
+9702	Boss'a saldırı etkisi ×2
+9703	ZİNCİRLEME PATLAMA
+9704	Yenme patlaması gücü yaklaşık 1.4 kat, alan genişler (zincir yine en fazla 3 kademe)
+9705	ÇİFT BIÇAK
+9706	Ek vuruş şansı ×2.2 (ek vuruştan yenisi çıkmaz)
+9707	SES HIZINDA KESİK
+9708	Uçan kesiğin gücü ve menzili artar (boyutu değişmez)
+9709	ŞİMŞEK ELLER
+9710	Ana saldırı hızı etkisi ×2.2
+9711	UZUN BIÇAK
+9712	Saldırı menzili etkisi ×1.8
+9713	GÖKLERİN EFENDİSİ
+9714	Hava saldırısı ve hava zıplamasını geri kazanma ×1.8
+9715	YER YARAN
+9716	Aşağı saldırı/yere çakma/iniş darbesi ×2
+9717	HAVA HAKİMİYETİ
+9718	Havada vurmaya devam ettikçe artan etki ×2
+9719	GİZLİ SANAT DANSI
+9720	Seri bitiriş darbesinin gücü yaklaşık 1.5 kat, alan genişler
+9721	SÜPER VOLTAJ
+9722	Yıldırım gücü/durdurma ×1.8
+9723	BUZ BIÇAĞI
+9724	Üşüme şansı ve yavaşlatma güçlenir (yavaşlatma en fazla 70%), donma için gereken isabet -1
+9725	FIRTINA BIÇAĞI
+9726	Rüzgâr bıçağı şansı/gücü ×1.8, delme +1
+9727	YER DAMARI KIRAN
+9728	Yerde şok dalgası gücü yaklaşık 1.5 kat, uzunluk 8.6m→11.4m
+9729	SERİ SAĞANAK
+9730	Seri ortasındaki vuruşların saldırısı/ana saldırı hızı ×2
+9731	HAVA AVCISI
+9732	Havadaki düşmana saldırı ×2
+9733	AVCI İÇGÜDÜSÜ
+9734	Boss savaşında atılma +36%→+72%・yaklaşma hızı +27%→+54%
+9735	ALEV ALAN RUH
+9736	Yanmanın gücü/süresi ×1.8
+9737	KAVURAN ALEV
+9738	Yanan düşmanı yenince yayılan ateşin gücü yaklaşık 1.6 kat, alan genişler
+9739	BUZ CEHENNEMİ
+9740	Üşüme şansı, yavaşlatma ve süresi güçlenir (donma için gereken isabet en az 2'de kalır)
+9741	MUTLAK SIFIR
+9742	Donmuş sıradan düşmanı parçalama/üşümüş düşmana saldırı ×1.8
+9743	YILDIRIM ZİNCİRİ
+9744	Yıldırım zinciri 3→5 düşman, zincir mesafesi de uzar
+9745	YILDIRIM İMPARATORU
+9746	Yıldırım gücü/zinciri/alanı ×1.8
+9747	KASIRGA
+9748	Rüzgâr bıçağı hızı/menzili/delmesi ×1.8
+9749	DEV HORTUM
+9750	Hortum gücü yaklaşık 1.5 kat, alanı da genişler
+9751	DEMİR YÜREK
+9752	Maks. HP artışı ×1.6 (en fazla 20 kalp; bitince geri döner), iyileşme +1
+9753	KALKAN FIRTINASI
+9754	Shield dolum aralığı en az 8 sn (en fazla sayı 3 değişmez)
+9755	KATBEKAT KARŞILIK
+9756	Shield ile engelleme karşı saldırısının temel gücü yaklaşık 1.7 kat
+9757	ÇELİK İRADE
+9758	HP doluyken saldırı/maks. HP ×2
+9759	KUSURSUZ SAVUNMA
+9760	Shield ile engelleme sonrası dokunulmazlık 1.3 sn→2.2 sn
+9761	ALEVLİ İNTİKAM
+9762	Shield ile engellemedeki ateşli karşı saldırı gücü yaklaşık 1.7 kat, yanma da güçlenir
+9763	SON KALE
+9764	1 kalbe düşünce dokunulmazlık 2.35 sn→3.7 sn
+9765	TAŞAN HAYAT
+9766	Ek iyileşme +2→+4 kalp (taşan iyileşmeden Shield yine 1)
+9767	KAN COŞKUSU
+9768	Düşük HP'de saldırı/can emme ×2
+9769	YIRTICI
+9770	Can emme şansı ×2, boss'tan da daha kolay emersin
+9771	YILMAZ
+9772	Düşük HP iyileşmesinin yenilenmesi 6,000m→1,500m (iyileşme yine 3 kalp)
+9773	KAN BIÇAĞI
+9774	Kanama şansı/gücü ×1.8
+9775	YOL AÇAN
+9776	Mesafe EXP'si etkisi ×2 (eğri uygulanır)
+9777	UZUN YOLUN AZIĞI
+9778	EXP/maks. HP etkisi ×1.8
+9779	SINIRSIZ ÖĞRENME
+9780	EXP etkisi ×1.8 (eğri uygulanır)
+9781	TECRÜBE SELİ
+9782	Düşman/boss EXP'si etkisi ×1.8
+9783	BİTMEYEN YOL
+9784	EXP/maks. HP etkisi ×1.6
+9785	HAZİNE KOKUSU
+9786	Hazine ve ödül/boss/mesafe MILE'ı etkisi ×2
+9787	ÇILGIN SAVAŞÇI
+9788	Saldırı/saldırı hızı ×1.8 (mühürlü kalpler aynen kalır)
+9789	SÜRÜYÜ ÇAĞIR
+9790	Düşman çıkışı ve yenme MILE'ı ×2
+9791	CELLAT
+9792	Yenme MILE'ı etkisi ×2
+9793	GÜÇLÜLERİN SINAVI
+9794	Sıradan düşman HP'si ve MILE/yenme EXP'si ×2
+9795	RÜZGÂR GİBİ DÜŞMANLAR
+9796	Sıradan düşman hızı ve MILE/yenme EXP'si ×1.8
+9797	SIRTI DUVARA
+9798	Düşük HP'de saldırı ×2
+9799	CAM TOP
+9800	Saldırı ×1.8 (mühürlü kalpler aynen kalır)
+9801	SINIRDAKİ NABIZ
+9802	Düşük HP'de saldırı hızı ×2
+9803	CANAVAR SELİ
+9804	Düşman çıkışı ve EXP ×2
+9805	SEÇKİNLER YÜRÜYÜŞÜ
+9806	Seçkin şansı ve MILE ×2
+9807	BÜYÜK SÜRÜ
+9808	Düşman çıkışı/MILE/yenme EXP'si ×1.8
+9809	KRALLARA MEYDAN OKUMA
+9810	(Bu sürede başlayan boss savaşları) boss HP'si ve boss MILE'ı ×2
+9811	DEV AVCISI
+9812	Saldırı ×1.8, saldırı hızı düşüşü de ×1.8 (süper ağır darbe)
+9813	ÇILGINLIK
+9814	Düşük HP'de saldırı/saldırı hızı ×1.8
+9815	TERS YÖNÜN GÜCÜ
+9816	Saldırı ve hız düşüşü ×1.8
+9817	PARAMPARÇA KALP
+9818	Saldırı ve mühürlü kalp başına saldırı ×1.8
+9819	SİMYA
+9820	EXP düşüşü ve MILE artışı ×2
+9821	YERİN İBLİSİ
+9822	Yer saldırısı ve havadaki düşüş ×1.8
+9823	GÖĞÜN İBLİSİ
+9824	Hava saldırısı ve yerdeki düşüş ×1.8
+9825	CEHENNEM KAPISI
+9826	Sıradan düşman HP'si/hareketi/çıkışı ve MILE/boss MILE'ı ×1.8
+9827	KRAL ALAYI
+9828	Bir boss daha katılma şansı 100%, boss yenme MILE'ı artışı da ×2
+9829	ÖDÜL AVCISI
+9830	Aranan düşman güçlenir・her 1,500m'de・yenince 180 MILE. Düşman/BONUS MILE'ı artışı da ×1.8
+9831	AZRAİL'İN AHDİ
+9832	AĞIR ZIRH USTALIĞI
+9833	Maks. HP büyümesi ×1.8・sendeleme -40%・hasar sonrası dokunulmazlık +0.3 sn (zıplama gücü düşüşü de ×1.8)
+9834	ZAPTEDİLMEZ KALE
+9835	Maks. HP artışı ve sendeleme azalması güçlenir, en fazla Shield sayısı 3'ten azsa +1 (hareket hızı düşüşü de artar)
+9836	ARKANA BAKMA
+9837	Hız ve düşman çıkışı ×1.6, MILE +40%
+9838	PANDEMONYUM
+9839	Düşman/seçkin/boss güçlenmesi ve MILE/boss MILE'ı ×1.6
+9840	KUSURSUZ ÇOK YÖNLÜLÜK
+9841	Saldırı/maks. HP/hız ×1.6 (hiçbiri uzman kartlara yetişmez)
+9842	ONE MORE MILE
+9843	MILE/boss MILE'ı/EXP etkisi ×1.6

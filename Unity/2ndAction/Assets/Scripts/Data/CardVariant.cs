@@ -144,16 +144,26 @@ public sealed class CardVariant
         for (int i = 0; i < def.effects.Count; i++)
         {
             if (i > 0) sb.Append(" / ");
-            sb.Append(EffectLabel(def.effects[i].type)).Append(' ').Append(CardEffectFormat.Format(def.effects[i]));
+            sb.Append(EffectPart(def.effects[i]));
         }
         return sb.ToString();
     }
 
-    // 強化量ぶんを合計した効果(倍率系は既存の「取得回数ぶん重ねがけ」をそのまま適用する
-    // ため、表示は「1回分 ×強化量」で出す)。
+    // 1回分(Lv1)の効果の表示。挙動のカードは Lv1 で「何がどれだけ」
+    public static string EffectPart(CardEffect e)
+    {
+        if (e == null) return "";
+        if (CardEffectFormat.IsBehaviorLevel(e.type)) return CardBehaviorText.Describe(e.type, 1) + Loc.T("(Lvで伸びる)");
+        return EffectLabel(e.type) + " " + CardEffectFormat.Format(e);
+    }
+
+    // 2026-10-13: 強化量 = その能力の Lv。表示は「1回分 ×強化量」をやめ、その Lv で実際に効く値(固定/毎Lv/2Lvごと/3Lvごと・上限込み)。
+    // 1ランで能力ごとに Lv9 まで(それより大きい強化量は Lv9 として効く: GameManager.ApplyRunCardCapped)
     public static string AbilityLine(string abilityId, int stacks)
     {
-        return $"{AbilityName(abilityId)} ×{stacks}  ({AbilityEffectTextAt(abilityId, stacks)})";
+        int lv = Mathf.Clamp(stacks, 1, MaxLevel);
+        string over = stacks > MaxLevel ? Loc.F("(強化量{0}・効くのはLv9まで)", stacks) : "";
+        return $"{AbilityName(abilityId)} Lv{lv}{over}  ({AbilityEffectTextAt(abilityId, stacks)})";
     }
 
     // 2026-10-11: 強化量ぶんの効果の表示。ATTACK UP は高い Lv で伸びが大きい(BalanceTuning)ので「1回分 ×強化量」ではなく合計で出す
@@ -168,7 +178,59 @@ public sealed class CardVariant
                 return $"{EffectLabel(def.effects[0].type)} +{p:0.#}%";
             }
         }
-        return $"{AbilityEffectText(abilityId)} ×{stacks}";
+        return EffectsAtLevel(abilityId, Mathf.Clamp(stacks, 1, MaxLevel));
+    }
+
+    // その Lv で実際に効く効果(同じ種類の「毎Lv」と「固定」は合計して1つに)。挙動のカードは「何がどれだけ」(CardBehaviorText)
+    public static string EffectsAtLevel(string abilityId, int lv)
+    {
+        CardDefinition def = CardDatabase.FindBaseById(abilityId);
+        if (def == null || def.effects == null || def.effects.Count == 0) return "";
+        var order = new List<EffectType>();
+        var sum = new Dictionary<EffectType, float>();
+        foreach (var e in def.effects)
+        {
+            if (e == null) continue;
+            if (!order.Contains(e.type)) order.Add(e.type);
+            if (!CardEffectFormat.IsBehaviorLevel(e.type)) sum[e.type] = (sum.TryGetValue(e.type, out float v) ? v : 0f) + CardRules.Scale(e.scaling, e.value, lv);
+        }
+        var sb = new StringBuilder();
+        foreach (var t in order)
+        {
+            string part;
+            if (CardEffectFormat.IsBehaviorLevel(t)) part = CardBehaviorText.Describe(t, lv);
+            else
+            {
+                float v = sum[t];
+                float cap = DisplayCap(t);
+                bool capped = cap > 0f && v > cap;
+                if (capped) v = cap;
+                part = EffectLabel(t) + " " + CardEffectFormat.FormatTotal(t, v) + (capped ? Loc.T("(効果上限)") : "");
+            }
+            if (string.IsNullOrEmpty(part)) continue;
+            if (sb.Length > 0) sb.Append(" / ");
+            sb.Append(part);
+        }
+        return sb.ToString();
+    }
+
+    // 1つの効果の上限(実際の計算でこれ以上は効かない物。0 = 上限なし)
+    static float DisplayCap(EffectType t)
+    {
+        switch (t)
+        {
+            case EffectType.ShieldCapacity: return 3f;
+            case EffectType.BurnChance: case EffectType.ChillChance: case EffectType.LightningChance: case EffectType.WindBladeChance: case EffectType.BleedChance: return 1f;
+            case EffectType.DoubleAttackChance: return 0.9f;
+            case EffectType.LifestealChance: return 0.75f;
+            case EffectType.ChillSlow: return 0.7f;
+            case EffectType.LightningChains: return 8f;
+            case EffectType.LightningSplash: return 3f;
+            case EffectType.LightningShock: return 0.6f;
+            case EffectType.WindPierce: return 20f;
+            case EffectType.FreezeThresholdReduce: return 3f; // 凍結に必要な回数は最少2(基本5)
+        }
+        return 0f;
     }
 
     public string Describe()
@@ -279,7 +341,7 @@ public sealed class CardVariant
             case EffectType.LightningSplash: return "落雷の範囲(m)";
             case EffectType.WindSpeedPct: return "風刃の速さ";
             default:
-                if (CardEffectFormat.IsBehaviorLevel(type)) return "効果Lv";
+                if (CardEffectFormat.IsBehaviorLevel(type)) return ""; // 2026-10-13: 挙動のカードは CardBehaviorText で「何がどれだけ」を出す
                 return type.ToString();
         }
     }
