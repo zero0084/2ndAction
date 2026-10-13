@@ -1,0 +1,13 @@
+9500	ui	BossManager.cs:435	ボスを倒さないと先へ進めない!
+9501	ui	BossManager.LastDungeon.cs:518	BOSS RUSH  走りながら戦え!
+9502	ui	BossManager.LastDungeon.cs:552	残ったボスを倒せ!
+9503	ui	BossManager.cs:407	ラン再開! ボスはまだ追ってくる
+9504	ui	BossManager.cs:1022	BOSS RUSH! もう1体
+9505	ui	BossManager.LastDungeon.cs	WARNING  {0} が迫る!
+9506	ui	BonusZone.asset:perfectLabel	PERFECT: Treasure Goblin 全撃破
+9507	ui	BonusZone.asset:perfectLabel	PERFECT: Mimicから合計200 MILE以上 or 撃破
+9508	ui	BonusZone.asset:perfectLabel	PERFECT: Golden Slime 8割撃破
+9509	ui	BonusZone.asset:perfectLabel	PERFECT: Card Fairy 撃破
+9510	ui	BonusZone.asset:perfectLabel	PERFECT: Goblin / Slime 7割回収
+9511	ui	BonusZone.asset:perfectLabel	PERFECT: Goblin / Slime 6割回収
+9512	scene	Editor/SceneBuilder.cs:1356	カードをタップして\n詳細を確認

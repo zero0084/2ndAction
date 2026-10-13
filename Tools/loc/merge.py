@@ -12,7 +12,7 @@ NL = chr(10)
 BSN = chr(92) + 'n'
 
 keys = {}
-for name in ('keys.tsv', 'keys_extra.tsv', 'keys_extra2.tsv', 'keys_extra3.tsv', 'keys_extra4.tsv', 'keys_extra5.tsv', 'keys_extra6.tsv', 'keys_extra7.tsv', 'keys_extra8.tsv', 'keys_extra9.tsv'):
+for name in ('keys.tsv', 'keys_extra.tsv', 'keys_extra2.tsv', 'keys_extra3.tsv', 'keys_extra4.tsv', 'keys_extra5.tsv', 'keys_extra6.tsv', 'keys_extra7.tsv', 'keys_extra8.tsv', 'keys_extra9.tsv', 'keys_extra10.tsv'):
     path = os.path.join(HERE, name)
     if not os.path.exists(path): continue
     for line in io.open(path, encoding='utf-8'):
