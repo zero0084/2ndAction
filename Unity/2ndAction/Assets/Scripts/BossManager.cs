@@ -294,8 +294,9 @@ public partial class BossManager : MonoBehaviour
     {
         count = 1; kind = 0;
         family = GateFamily.Wild;
-        if (RushEnabled && k >= RushFirstK) return k <= RushLastK; // 90〜98k=ボスラッシュ(StartRushGateが出す)、99k以降=関門なし(静寂区間→三姉妹)
-        if (k < 1 || k >= 100) return false;                      // 100,000m = 三姉妹/死神
+        bool beyond = LastDungeonFlow.BeyondActive && k > 100; // ONE MORE MILE? の YES の後(2026-10-13 第3弾): 101km 以降は通常の関門が戻る
+        if (!beyond && RushEnabled && k >= RushFirstK) return k <= RushLastK; // 90〜98k=ボスラッシュ(StartRushGateが出す)、99k以降=関門なし(静寂区間→三姉妹)
+        if (k < 1 || (k >= 100 && !beyond)) return false;          // 100,000m = 三姉妹/死神
         // 関門はある(種類は戦闘の開始時にプールから抽選する: StartLastMilestoneGate)。ここでは格のプールの先頭を返す(確認用)
         var ld = LastDungeonBossTuning.I;
         var pool = k % 10 == 0 ? ld.pool10k : k % 5 == 0 ? ld.pool5k : ld.pool1k;
@@ -788,7 +789,15 @@ public partial class BossManager : MonoBehaviour
     // マルチプレイPhase 2 - 共有ボスの出現記録(HOST)/パペットの再構築(JOIN)用の入口。
     // デバッグ/自動テスト用: 100,000m到達と同じ死神の開始(BGMの切り替えも同じフラグ)をその場で起こす。
     public void DebugSpawnReaper() { if (deathSpawned) return; deathSpawned = true; SpawnDeath(); }
-    public void DebugMarkDeathSpawned() { deathSpawned = true; } // 開発版のエンドロール/ONE MORE MILE?から始める時: 100,000mの三姉妹戦/死神を出さない
+    public void DebugMarkDeathSpawned() { deathSpawned = true; }
+    // ONE MORE MILE? の YES の後(2026-10-13 第3弾): 三姉妹は済み。from(m)の次の 1km から関門を再び作る
+    public void BeginBeyondGates(float from)
+    {
+        deathSpawned = true;
+        int k = Mathf.Max(101, Mathf.CeilToInt(from / Mathf.Max(1f, gateIntervalMeters)));
+        gateK = k; currentGateK = k - 1; catchUpFloorK = k;
+        Debug.Log($"[BossRun] beyond: gates resume from {k * gateIntervalMeters:F0}m");
+    } // 開発版のエンドロール/ONE MORE MILE?から始める時: 100,000mの三姉妹戦/死神を出さない
 
     void SpawnDeath() { NetCombat.BeginBossSpawn(NetCombat.BossMethod.Reaper); try { SpawnDeathImpl(); } finally { NetCombat.EndBossSpawn(); } }
 

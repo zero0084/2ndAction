@@ -60,7 +60,20 @@ public static class SaveStore
 #endif
         S.DeleteAll();
     }
-    public static void Save() => S.Save();
+    // 2026-10-13 第3弾: まとめて書く間(BeginBatch〜EndBatch)は Save を遅らせ、最後に1回だけ書く(成功の確定を書きかけで残さない)
+    static int batchDepth; static bool batchPending;
+    public static bool InBatch => batchDepth > 0;
+    public static void BeginBatch() { batchDepth++; }
+    public static void EndBatch()
+    {
+        if (batchDepth > 0) batchDepth--;
+        if (batchDepth == 0 && batchPending) { batchPending = false; S.Save(); }
+    }
+    public static void Save()
+    {
+        if (batchDepth > 0) { batchPending = true; return; }
+        S.Save();
+    }
 }
 
 public enum HapticKind { Light, Hit, Heavy, Boss }

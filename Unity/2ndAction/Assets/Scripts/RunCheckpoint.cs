@@ -60,6 +60,7 @@ public static class RunCheckpoint
         public int runEnemyMile;
         public int runBossMile;
         public int runBonusMile; // BONUS ZONE(2026-09-29)の仮取得MILE(古いデータは0)
+        public bool ldBeyond; public float ldBeyondFrom, mileDistanceBase; // ラスダン ONE MORE MILE? の YES の後(2026-10-13 第3弾)
         public int runRingMile;  // 疾走出発のリングの代替報酬の仮取得MILE(2026-10-06、古いデータは0)
         // Bugfix 2026-09-06 - "ESCAPE解禁を1000m到達からBoss撃破後へ変更".
         // A one-way flag for this Run's lifetime (set true the moment the

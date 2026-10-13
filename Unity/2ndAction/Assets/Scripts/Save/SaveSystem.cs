@@ -132,6 +132,9 @@ public static class SaveSystem
         r.report = log.ToString();
         LastBoot = r;
         ReloadCaches();
+        // 2026-10-13 第3弾: 成功の確定の書きかけ(落ちた等)が残っていればやり直す(欠けも二重もなく)
+        try { if (CommitJournal.Pending) { CommitJournal.RecoverIfPending(); ReloadCaches(); } }
+        catch (Exception e) { Debug.LogError("[Save] commit journal recovery failed: " + e); }
         UnlockRules.RequeuePending(); // 解放したのに確認していないお知らせ(アプリが落ちても失わない)
         // 正常を確認できた状態を残す(壊れた値を直した後の状態)
         RotateLastGood();

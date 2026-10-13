@@ -111,6 +111,20 @@ public static class UnlockManager
         return names;
     }
 
+    // 書きかけの確定の復旧(CommitJournal、起動時)。GameManager の初期化の前でも保存の値へ直接足す。足した数を返す
+    public static int CommitStored(double reached)
+    {
+        var ids = new HashSet<string>();
+        foreach (var id in SaveStore.GetString(UnlockedIdsKey, "").Split(',')) if (!string.IsNullOrEmpty(id)) ids.Add(id);
+        int n = 0;
+        foreach (UnlockDefinition def in UnlockDatabase.AllUnlocks)
+            if (!ids.Contains(def.unlockId) && reached >= def.requiredDistance) { ids.Add(def.unlockId); n++; }
+        if (n == 0) return 0;
+        SaveStore.SetString(UnlockedIdsKey, string.Join(",", ids));
+        if (unlockedIds != null) foreach (var id in ids) unlockedIds.Add(id);
+        return n;
+    }
+
     // ランが終わった(成功/失敗/破棄)・新しいランを始める: 仮の解放を捨てる
     public static void ClearRun() { provisionalIds.Clear(); newlyUnlocked.Clear(); }
     public static int ProvisionalCount => provisionalIds.Count;

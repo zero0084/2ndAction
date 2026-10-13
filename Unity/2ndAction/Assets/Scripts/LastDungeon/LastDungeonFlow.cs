@@ -67,8 +67,14 @@ public class LastDungeonFlow : MonoBehaviour
         if (Instance == this) { Instance = null; ResetStatics(); }
     }
 
+    // ONE MORE MILE? の YES の後(2026-10-13 第3弾): BeyondFrom から先は、ラスダンの地形/障害物/敵/ボスの関門が戻る
+    public static bool BeyondActive { get; private set; }
+    public static float BeyondFrom { get; private set; } = float.MaxValue;
+    public static bool InBeyondWorld(float d) => BeyondActive && d >= BeyondFrom;
+
     static void ResetStatics()
     {
+        BeyondActive = false; BeyondFrom = float.MaxValue;
         BossManager.RushEnabled = false;
         BossManager.SuppressGates = false;
         BossManager.FinaleAt100k = null;
@@ -129,7 +135,14 @@ public class LastDungeonFlow : MonoBehaviour
             BossManager.FinaleAt100k = OnReach100k;
             credits = StaffCreditsData.LoadOrDefault();
             Preload();
-            SetState(State.Run);
+            if (gm.LdBeyond)
+            {
+                // YES の後の中断データから再開(2026-10-13 第3弾): 三姉妹/エンドロール/問いかけは繰り返さず、続きの世界から
+                SetState(State.Beyond);
+                EnterBeyondWorld(Mathf.Max(gm.LdBeyondFrom, gm.MaxDistance + 200f));
+                Debug.Log($"[EndingChoice] resumed after YES at {gm.MaxDistance:F0}m (world from {BeyondFrom:F0}m)");
+            }
+            else SetState(State.Run);
         }
         if (gm.IsGameOver) return;
         float d = gm.MaxDistance;
@@ -309,10 +322,23 @@ public class LastDungeonFlow : MonoBehaviour
         else StartCoroutine(StopByChoice());
     }
 
-    // YES: 走り続ける
+    // YES の後の世界: 三姉妹は済み・関門/敵/地形が戻る・経験値も入る(2026-10-13 第3弾)
+    void EnterBeyondWorld(float from)
+    {
+        BeyondActive = true;
+        BeyondFrom = from;
+        BossManager.SuppressGates = false;
+        GameManager.BlockExpGain = false;
+        GameManager.EscapeBlocked = false;
+        if (BossManager.Instance != null) BossManager.Instance.BeginBeyondGates(from);
+    }
+
+    // YES: クリアを確定して、同じランのまま続ける(2026-10-13 第3弾。以前は平らな道が続くだけで、敵/ボス/穴は出なかった)
     IEnumerator GoBeyond()
     {
         SetState(State.Beyond);
+        var gmY = GameManager.Instance;
+        if (gmY != null) { gmY.CommitClearAndContinue(); EnterBeyondWorld(gmY.LdBeyondFrom); }
         yield return new WaitForSeconds(1.4f);
         var pc = PlayerController.Instance;
         pc.IsStandingIdle = false;

@@ -11,13 +11,13 @@ public partial class GameManager : MonoBehaviour
 
     const string GameTitle = "One More Mile";
 
-    const string BestDistanceKey = "BestDistance";
-    const string BestTimeKey = "BestTime";
+    public const string BestDistanceKey = "BestDistance";
+    public const string BestTimeKey = "BestTime";
     const string OrientationKey = "PreferredOrientation";
     const string InvincibleKey = "InvincibleMode";
     const string DebugModeKey = "DebugMode";
     const string DeckKey = "DeckCardIds";
-    const string TotalMileKey = "TotalOwnedMile";
+    public const string TotalMileKey = "TotalOwnedMile";
     const string CharacterCardSlotsKey = "CharacterCardSlots";
     // キャラクター選択画面(2026-09-12) - 「選択キャラクター=次回NEW RUNで
     // 使用するキャラクター」の永続化キー。CharacterCardSlotsKeyと同じ
@@ -3546,6 +3546,53 @@ public partial class GameManager : MonoBehaviour
     {
         FinishRunCalls++;
         if (IsGameOver) { DeathLog($"FinishRun called again (#{FinishRunCalls}){(QaLegacyDeathBehaviour ? " (legacy: runs again)" : " - ignored")}"); if (!QaLegacyDeathBehaviour) return; }
+        // 2026-10-13 第3弾: 成功の確定は「控え(CommitJournal)を書く → 確定の書き込みを1回の保存にまとめる → 控えを消す」。
+        // 途中で落ちても、起動時に控えから書きかけの確定をやり直す(欠けも二重もない)
+        bool journal = IsWin && !DebugRun.WritesBlocked;
+        if (journal)
+        {
+            CommitJournal.CrashPoint("before");
+            WriteCommitJournal();
+            CommitJournal.CrashPoint("journal");
+            SaveStore.BeginBatch();
+        }
+        try { FinishRunCore(); }
+        finally
+        {
+            if (journal)
+            {
+                CommitJournal.CrashPoint("end");
+                CommitJournal.Clear();
+                SaveStore.EndBatch();
+                CommitJournal.CrashPoint("flushed");
+            }
+        }
+    }
+
+    void WriteCommitJournal()
+    {
+        var r = RunLedger.Current;
+        bool commit = RunLedger.WouldCommit(out _);
+        RunDistanceMile = DistanceMileNow; // FinishRunCore と同じ値(先に決めて、受け取る MILE を控えに書く)
+        var d = new CommitJournal.Data
+        {
+            runId = r != null ? r.runId : "", commit = commit, stageId = r != null ? r.stageId : "",
+            reached = System.Math.Max(r != null ? r.maxReached : 0.0, MaxDistanceExact), walked = r != null ? r.walked : 0.0,
+            mileBefore = TotalOwnedMile, mileAfter = Mathf.Max(0, TotalOwnedMile + RunMile), run = r,
+            clearCheckpoint = !NetRunLauncher.IsMultiplayerRun,
+        };
+        if (commit)
+        {
+            d.lifeAdd = d.stageId != BossManager.LastStageId && d.walked > 0.0;
+            d.lifeBefore = ProgressStats.LifetimeDistance; d.lifeAfter = d.lifeBefore + d.walked;
+            d.record = true; d.bestDistance = MaxDistance; d.bestTime = Time.time - runStartTime;
+            d.rankingEligible = Leaderboard.IsEligible(r, out _);
+        }
+        CommitJournal.Write(d);
+    }
+
+    void FinishRunCore()
+    {
         IsGameOver = true;
         gameOverRealtime = Time.realtimeSinceStartup;
         gameOverPausedTimer = 0f;
@@ -3555,7 +3602,7 @@ public partial class GameManager : MonoBehaviour
         if (!QaLegacyDeathBehaviour) GameOverCleanup(); // 2026-10-06: ボス/Encounter/補助/入力の片付け(撃破の処理は通さない)
         ProgressStats.Flush(true);
         // 2026-10-08(仕様変更): 正式な記録は成功(正規の帰還)の時だけ。ゲームオーバーは記録しない(お嬢様騎士の条件だけ見る)
-        if (IsWin) LastCommit = RunLedger.CommitSuccess(MaxDistanceExact);
+        if (IsWin) { LastCommit = RunLedger.CommitSuccess(MaxDistanceExact); CommitJournal.CrashPoint("commit"); }
         else { RunLedger.OnGameOver(MaxDistanceExact); LastCommit = RunLedger.LastResult; }
         UnlockRules.ClearRunFlags();
         UnlockManager.ClearRun(); // 2026-10-13: 仮の解放は成功の確定(CommitSuccess)でだけ残る
@@ -3623,6 +3670,7 @@ public partial class GameManager : MonoBehaviour
         if (IsWin)
         {
             AddMile(RunMile);
+            CommitJournal.CrashPoint("mile");
             if (!DebugRun.WritesBlocked && !NetRunLauncher.IsMultiplayerRun) TutorialProgress.MarkMileGuidePending(); // 初めての脱出の後: ホームでMILEの使い道を案内(2026-10-07)
         }
 
@@ -3632,6 +3680,7 @@ public partial class GameManager : MonoBehaviour
         // FINISH/Win() path).
         // マルチプレイRunの終了で、シングルの中断データ(CONTINUE)を消さない。
         if (!NetRunLauncher.IsMultiplayerRun) RunCheckpoint.Clear();
+        if (IsWin) CommitJournal.CrashPoint("checkpoint");
         NoteRunFinishedForAds(); // 広告: 初回ランの判定/MILE 2倍の元の額(通常分は上で保存済み、2026-10-10)
         DeathLog($"FinishRun done timeScale={Time.timeScale:F2}");
     }
@@ -3765,6 +3814,7 @@ public partial class GameManager : MonoBehaviour
         data.combo = ComboSystem.Export();             // COMBO(一時的な数え/通知済み)
         data.sprintSkippedMeters = SprintSkippedMeters; // 疾走出発(2026-10-05)
         data.ledger = RunLedger.Current; // 2026-10-08: 途中の数値(確定前)。使ったデバッグ機能も持ち越す
+        data.ldBeyond = LdBeyond; data.ldBeyondFrom = LdBeyondFrom; data.mileDistanceBase = MileDistanceBase; // ラスダンの YES の後(2026-10-13 第3弾)
     }
 
     // Item 9 - "RETURN TO HOME" - NOT a FINISH: Run MILE stays unconfirmed,
@@ -3838,6 +3888,7 @@ public partial class GameManager : MonoBehaviour
         RunBonusMile = data.runBonusMile;
         RunRingMile = data.runRingMile;
         RunBossMile = data.runBossMile;
+        RestoreBeyond(data); // ラスダンの YES の後(2026-10-13 第3弾)
         escapeUnlocked = data.escapeUnlocked;
 
         // プレイアブル主人公追加(2026-09-12、お嬢様騎士) - このRunが実際

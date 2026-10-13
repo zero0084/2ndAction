@@ -54,6 +54,13 @@ public static class ProgressStats
     }
 
     public static double LifetimeDistance { get { Load(); return lifetime; } }
+    // 書きかけの確定の復旧(CommitJournal)から: 確定の後の値をそのまま書く
+    public static void SetLifetimeForRecovery(double v)
+    {
+        Load();
+        lifetime = v; lastFlushed = v; dirty = false;
+        SaveStore.SetString(SaveKeys.LifetimeDistance, v.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+    }
 
     // ランで距離が伸びた分。100mを越えるたびに書き込む。
     public static void AddRunDistance(double meters)

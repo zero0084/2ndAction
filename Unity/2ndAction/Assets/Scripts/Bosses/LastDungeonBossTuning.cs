@@ -45,8 +45,8 @@ public class LastDungeonBossTuning : ScriptableObject
     public int rareMinGapKm = 20;
     [Tooltip("1回のランで出る最大の回数(ボスラッシュの分も含む)")]
     public int rareMaxPerRun = 2;
-    [Tooltip("90〜98km のボスラッシュで、1枠をこのボスに置き換える確率")]
-    [Range(0f, 1f)] public float rareRushChance = 0.20f;
+    [Tooltip("90〜98km のボスラッシュで、1枠をこのボスに置き換える確率(2026-10-13 第3弾: 当面 0 = ラッシュの候補から外し、通常の関門の希少ボスとしてだけ出す。開発用の -ldForceRareRush は残す)")]
+    [Range(0f, 1f)] public float rareRushChance = 0f;
     [Tooltip("ボスラッシュで置き換えてよい km の範囲(最後の 97/98km は避ける: 99km の足止めまでに倒しきれる余裕)")]
     public int rareRushMinK = 92, rareRushMaxK = 96;
     [Tooltip("希少な強敵の HP に追加で掛ける倍率")]

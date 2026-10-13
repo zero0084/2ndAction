@@ -244,5 +244,6 @@ public partial class GameManager
     }
 
     // 持ち帰りの MILE(距離ぶん)の距離: 疾走で飛ばした距離を除く
-    float MileDistanceForRun => Mathf.Max(0f, Mathf.Max(MaxDistance, HighestReachedDistance) - SprintSkippedMeters);
+    float MileDistanceForRun => Mathf.Max(0f, Mathf.Max(MaxDistance, HighestReachedDistance) - SprintSkippedMeters - MileDistanceBase); // MileDistanceBase = ラスダンの YES で受け取り済み(2026-10-13 第3弾)
+    void ResetRingMileForContinuation() { RunRingMile = 0; }
 }

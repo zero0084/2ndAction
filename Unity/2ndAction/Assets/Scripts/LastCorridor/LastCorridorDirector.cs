@@ -111,6 +111,7 @@ public class LastCorridorDirector : MonoBehaviour
     float PitChanceHard(float lx, float def)
     {
         if (!hardMode) return def;
+        if (LastDungeonFlow.InBeyondWorld(lx)) return Mathf.Lerp(pitChanceRange.x, pitChanceRange.y, SurgeAt(lx)); // YES の後(2026-10-13 第3弾): 通常の区間と同じ
         if (lx >= silenceFrom - 200f) return 0f;      // 静寂区間(とその手前)は穴なし
         if (lx >= rushFrom) return LastDungeonBossTuning.I.continuousRush ? LastDungeonBossTuning.I.runRushPitChance : 0.12f; // ボスラッシュ: 走りながら戦うので穴はさらに少なく(2026-10-06)
         if (lx < 300f) return Mathf.Min(def, 0.1f);
@@ -246,25 +247,25 @@ public class LastCorridorDirector : MonoBehaviour
         tm = t;
         active = true;
         tm.pitWidthAt = PitWidthAtHard;
-        tm.skyAllowedAt = lx => lx >= skyIslandsFrom && (!hardMode || lx < silenceFrom - 300f);
+        tm.skyAllowedAt = lx => lx >= skyIslandsFrom && (!hardMode || lx < silenceFrom - 300f || LastDungeonFlow.InBeyondWorld(lx));
         tm.pitChanceAt = PitChanceHard;
         tm.flatLengthAt = FlatLengthHard;
-        tm.forceFlatAt = lx => hardMode && lx >= silenceFrom - 150f; // 静寂区間から先は坂も穴もない一本道
+        tm.forceFlatAt = lx => hardMode && lx >= silenceFrom - 150f && !LastDungeonFlow.InBeyondWorld(lx); // 静寂区間から先は坂も穴もない一本道(YES の後の世界は除く)
         if (tm.cave != null) tm.cave.sectionPicker = PickSection;
         if (hardMode)
         {
             ObstacleSpawner.IntervalScaleAt = ObstacleIntervalHard;
             ObstacleSpawner.WeightScaleAt = ObstacleWeightHard;
-            ObstacleSpawner.SuppressAt = d => d >= silenceFrom - 60f;
+            ObstacleSpawner.SuppressAt = d => d >= silenceFrom - 60f && !LastDungeonFlow.InBeyondWorld(d);
             ObstacleSpawner.ExtraAheadAt = d =>
             {
                 var pc = PlayerController.Instance;
                 float v = pc != null ? pc.CurrentAutoRunSpeed : 0f;
-                return d < silenceFrom ? Mathf.Clamp(v * 1.4f - 12f, 0f, 60f) : 0f; // 100km/hで約+27m
+                return d < silenceFrom || LastDungeonFlow.InBeyondWorld(d) ? Mathf.Clamp(v * 1.4f - 12f, 0f, 60f) : 0f; // 100km/hで約+27m
             };
             EncounterDirector.PaceAt = d => Mathf.Lerp(encounterPaceRange.x, encounterPaceRange.y, SurgeAt(d));
             EncounterDirector.SurgeAt = SurgeAt;
-            EncounterDirector.SuppressAt = d => (BossManager.RushEnabled && d >= rushFrom - 60f) || d >= silenceFrom - 60f;
+            EncounterDirector.SuppressAt = d => !LastDungeonFlow.InBeyondWorld(d) && ((BossManager.RushEnabled && d >= rushFrom - 60f) || d >= silenceFrom - 60f);
             BonusZone.BlockedAt = d => d >= rushFrom - 2500f;
             EncounterDirector.Spawned -= OnEncounterSpawned;
             EncounterDirector.Spawned += OnEncounterSpawned;

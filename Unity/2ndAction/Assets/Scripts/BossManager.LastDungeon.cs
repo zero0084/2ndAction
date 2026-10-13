@@ -131,12 +131,16 @@ public partial class BossManager
         {
             if (a[i] == "-ldForceRare" && a[i + 1] == "1") DevForceRare = true;
             if (a[i] == "-ldForceRareRush" && a[i + 1] == "1") DevForceRareRush = true;
+            if (a[i] == "-ldForceRareAtK" && int.TryParse(a[i + 1], out int fk)) DevForceRareAtK = fk;
         }
     }
 #endif
     public static bool DevForceRareRush; // 開発用: ボスラッシュの計画に必ず入れる(-ldForceRareRush 1)
     public static bool DevRushNoSolo; // 開発用(比較の測定だけ): Solo の規則を外す。製品の動きは変えない(開発版の QA からだけ立てる)
     public static bool DevForceRare; // 開発用: 次の 0〜89km の関門を必ず希少な強敵にする(-ldForceRare 1 / デバッグ)
+    // 開発用(2026-10-13 第3弾、全キャラの通し試験): この km 以降で、本来メカドラゴンが出られる関門(5km/10km 格、rareMinKm 以降)の最初の1つで必ず出す。
+    // 本番の確率は変えない(開発版の起動引数 -ldForceRareAtK N からだけ。1回出たら消える)
+    public static int DevForceRareAtK = -1;
     public int RareCountThisRun => rareCountThisRun;
     bool RareAllowedAt(int k)
     {
@@ -151,6 +155,8 @@ public partial class BossManager
         var ld = LastDungeonBossTuning.I;
         why = "";
         bool force = Debug.isDebugBuild && DevForceRare;
+        if (!force && Debug.isDebugBuild && DevForceRareAtK > 0 && k >= DevForceRareAtK && k >= ld.rareMinKm && k % 5 == 0 && RareAllowedAt(k))
+        { DevForceRareAtK = -1; force = true; DevForceRare = true; }
         if (!force)
         {
             if (k < ld.rareMinKm || !RareAllowedAt(k)) return false;

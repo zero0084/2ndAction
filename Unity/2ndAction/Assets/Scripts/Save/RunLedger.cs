@@ -66,6 +66,23 @@ public static class RunLedger
 
     public static void End() { Current = null; }
 
+    // ラスダンの ONE MORE MILE? で YES(2026-10-13 第3弾): YES までを確定した後、同じランの続きを新しい ID の台帳にする。
+    // 使った機能/プレイ時間/開始時刻はそのまま(ランキングの検査は通しの時間で見る)。続きの確定は続きの台帳で一度だけ
+    public static void BeginContinuation(double reached)
+    {
+        var prev = Current;
+        if (prev == null) return;
+        Current = new Run
+        {
+            runId = Guid.NewGuid().ToString("N"), stageId = prev.stageId, characterId = prev.characterId,
+            maxReached = Math.Max(prev.maxReached, reached), walked = prev.walked, sprintFrom = prev.sprintFrom,
+            usedAuto = prev.usedAuto, usedSprint = prev.usedSprint, debugUsed = prev.debugUsed, debugWhat = prev.debugWhat,
+            multiplayer = prev.multiplayer, officialStage = prev.officialStage, testProfile = prev.testProfile, legacy = prev.legacy,
+            playSeconds = prev.playSeconds, startedUtc = prev.startedUtc,
+        };
+        Debug.Log($"[RunLedger] continuation {Current.runId.Substring(0, 8)} of {(prev.runId.Length >= 8 ? prev.runId.Substring(0, 8) : prev.runId)} from {reached:F0}m");
+    }
+
     public static bool IsCommitted(string runId) => !string.IsNullOrEmpty(runId) && Array.IndexOf(SaveStore.GetString(CommittedKey, "").Split(','), runId) >= 0;
 
     // ---------------------------------------------------------------- ラン中
@@ -112,10 +129,8 @@ public static class RunLedger
         if (IsCommitted(r.runId)) { res.skippedWhy = "already committed"; Debug.Log("[RunLedger] success already committed (" + r.runId.Substring(0, 8) + ")"); return res; }
 
         // 2026-10-13: 確定したランの ID を最初に書く(この後の SaveStore.Save で記録と一緒に残る。途中で落ちて再開しても二重に足さない)
-        var list = new List<string>(SaveStore.GetString(CommittedKey, "").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
-        list.Add(r.runId);
-        while (list.Count > 30) list.RemoveAt(0);
-        SaveStore.SetString(CommittedKey, string.Join(",", list));
+        // 第3弾: 確定の書き込みは GameManager.FinishRun が 1回の保存にまとめ、書きかけは CommitJournal が起動時にやり直す
+        MarkCommitted(r.runId);
 
         string stage = r.stageId;
         double best = GameManager.ReadStageBest(stage);
@@ -134,6 +149,24 @@ public static class RunLedger
         res.committed = true;
         Debug.Log($"[RunLedger] committed {r.runId.Substring(0, 8)} stage={stage} reached={r.maxReached:F0} walked={r.walked:F0} newBest={res.newBest} unlocked={res.unlockedStages.Count + res.unlockedChars.Count + res.unlockedOther.Count} auto={r.usedAuto} sprint={r.usedSprint} ranking={res.rankingEligible}");
         return res;
+    }
+
+    // 確定の印(確定したランの ID、最新30件)。CommitJournal の復旧からも使う
+    public static void MarkCommitted(string runId)
+    {
+        if (string.IsNullOrEmpty(runId) || IsCommitted(runId)) return;
+        var list = new List<string>(SaveStore.GetString(CommittedKey, "").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+        list.Add(runId);
+        while (list.Count > 30) list.RemoveAt(0);
+        SaveStore.SetString(CommittedKey, string.Join(",", list));
+    }
+
+    // CommitSuccess が記録として確定するか(書かずに判定だけ。CommitJournal の控え用)
+    public static bool WouldCommit(out string why)
+    {
+        var r = Current;
+        why = r == null ? "no run" : DebugRun.WritesBlocked ? "arena/practice/debug run" : r.debugUsed ? "debug feature used" : IsCommitted(r.runId) ? "already committed" : "";
+        return why == "";
     }
 
     // ゲームオーバー(本当に倒れた)。正式な記録には何も書かない。お嬢様騎士の条件だけ見る
