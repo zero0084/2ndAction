@@ -105,3 +105,11 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# 2026-10-14: 自動テストがプロジェクト直下に書き出すログ・撮影(再生成できる。消さずに手元へ残す)
+/*.txt
+/*Shots/
+# 端末ごとに作られる課金の設定と、パッケージの個人設定(コミットしない決まり)
+/[Aa]ssets/Resources/BillingMode.json
+/[Aa]ssets/Resources/BillingMode.json.meta
+/ProjectSettings/Packages/

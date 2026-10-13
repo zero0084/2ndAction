@@ -9,3 +9,18 @@
 # OS/エディタの一時ファイル
 .DS_Store
 Thumbs.db
+
+# 2026-10-14: コミットしない決まりの作業用ファイル(消さずに手元へ残す。必要な時は git add -f で入れられる)
+# 動画(大きいので入れない。今までに入れた物はそのまま)
+*.mp4
+# リポジトリ直下に置いた資料の書き出し
+/*.xlsx
+/*.pdf
+/*.png
+/*.zip
+# 確認用に撮った画像(報告書の .md は対象外)
+/Docs/BugFix_2026-10-10/**/*.png
+/Docs/Monetization_2026-10-10_shots/**/*.png
+/Docs/AttackArt_ArtAudit_2026-10-11/**/*.png
+/Docs/Fix_2026-10-11/**/*.png
+/Docs/Fix5_2026-10-11/**/*.png
