@@ -1,0 +1,99 @@
+== 01_seed (-srPhase seed)
+[sr] phase=seed profile=TEST boot=Existing from='' () preserved=[]
+[sr] boot report:
+[sr] backups(after): lastgood.json(ok)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+   (attempt 1: the app stopped without a result - 0
+1 emulator translation crash lines; retrying)
+   (attempt 2: the app stopped without a result - 0
+1 emulator translation crash lines; retrying)
+== 02_boot (-srPhase boot -srExpect Existing -srMile 7777 -srWriteExpect 1)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+[sr] boot report:
+[sr] backups(after): lastgood.json(ok) lastgood_prev.json(ok)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 03_lose (-srPhase boot -srLoseAtStart -srExpect RestoredFromBackup -srFrom lastgood -srMile 7777 -srCompare 1)
+[sr] phase=boot profile=TEST boot=RestoredFromBackup from='lastgood' (2026-10-13T17:23:51) preserved=[]
+[sr] boot report: DATA LOSS: no progress keys - restored 21 keys from lastgood (2026-10-13T17:23:51);
+[sr] before start-up: lastgood had MILE 7777; lastgood_prev had MILE 7777; deleted 21 test keys (backup files kept)
+[sr] backups(after): lastgood.json(ok) lastgood_prev.json(ok)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+   (attempt 1: the app stopped without a result - 0
+1 emulator translation crash lines; retrying)
+   (attempt 2: the app stopped without a result - 0
+1 emulator translation crash lines; retrying)
+== 04_boot (-srPhase boot -srExpect Existing -srMile 7777 -srCompare 1)
+   (attempt 1: the app stopped without a result - 0
+1 emulator translation crash lines; retrying)
+   (attempt 2: the app stopped without a result - 0
+1 emulator translation crash lines; retrying)
+== 05_set (-srPhase setmile -srValue 8888)
+   (attempt 1: the app stopped without a result - 0
+1 emulator translation crash lines; retrying)
+   (attempt 2: the app stopped without a result - 0
+1 emulator translation crash lines; retrying)
+== 06_boot (-srPhase boot -srExpect Existing -srMile 8888)
+== 07_corrupt (-srPhase boot -srLoseAtStart -srCorrupt lastgood -srExpect RestoredFromBackup -srFrom lastgood_prev -srMile prev -srCompare 1 -srDamaged 1)
+[sr] phase=boot profile=TEST boot=RestoredFromBackup from='lastgood_prev' (2026-10-13T17:43:32) preserved=[]
+[sr] boot report: DATA LOSS: no progress keys - restored 21 keys from lastgood_prev (2026-10-13T17:43:32);
+[sr] before start-up: lastgood had MILE 7777; lastgood_prev had MILE 7777; lastgood: cut 2604->1041 bytes; deleted 21 test keys (backup files kept)
+[sr] backups(after): corrupt_lastgood_20261013_174726.json lastgood.json(ok) lastgood_prev.json(ok)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 08_set (-srPhase setmile -srValue 1020)
+[sr] phase=setmile profile=TEST boot=Existing from='' () preserved=[]
+[sr] boot report:
+[sr] backups(after): corrupt_lastgood_20261013_174726.json lastgood.json(ok) lastgood_prev.json(ok)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+   (attempt 1: the app stopped without a result - 0
+1 emulator translation crash lines; retrying)
+   (attempt 2: the app stopped without a result - 0
+1 emulator translation crash lines; retrying)
+== 09_boot (-srPhase boot -srExpect Existing -srMile 1020)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+[sr] boot report:
+[sr] backups(after): corrupt_lastgood_20261013_174726.json lastgood.json(ok) lastgood_prev.json(ok)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 10_set (-srPhase setmile -srValue 5020)
+[sr] phase=setmile profile=TEST boot=Existing from='' () preserved=[]
+[sr] boot report:
+[sr] backups(after): corrupt_lastgood_20261013_174726.json lastgood.json(ok) lastgood_prev.json(ok)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 11_crash (-srPhase boot -qaBackupCrashAt cur-partial) crash: [Save] DEV CRASH while writing a backup at 'cur-partial'
+== 12_lose (-srPhase boot -srLoseAtStart -srExpect RestoredFromBackup -srFrom lastgood -srMile latest -srNotMile 5020 -srCompare 1)
+[sr] phase=boot profile=TEST boot=RestoredFromBackup from='lastgood' (2026-10-13T18:01:27) preserved=[]
+[sr] boot report: DATA LOSS: no progress keys - restored 21 keys from lastgood (2026-10-13T18:01:27);
+[sr] before start-up: lastgood had MILE 1020; lastgood_prev had MILE 1020; deleted 21 test keys (backup files kept)
+[sr] backups(after): corrupt_lastgood_20261013_174726.json lastgood.json(ok) lastgood_prev.json(ok)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+   (attempt 1: the app stopped without a result - 0
+1 emulator translation crash lines; retrying)
+== 13_boot (-srPhase boot -srExpect Existing -srCompare 1)
+[sr] phase=boot profile=TEST boot=Existing from='' () preserved=[]
+[sr] boot report:
+[sr] backups(after): corrupt_lastgood_20261013_174726.json lastgood.json(ok) lastgood_prev.json(ok)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== 14_bothbad (-srPhase boot -srLoseAtStart -srCorrupt both -srExpect NewGame -srMile 0 -srDamaged 1)
+[sr] phase=boot profile=TEST boot=NewGame from='' () preserved=[orphan_20261013_181455_lastgood.json,orphan_20261013_181455_lastgood_prev.json]
+[sr] boot report: no usable backup - kept the old backup files as orphan_20261013_181455_lastgood.json, orphan_20261013_181455_lastgood_prev.json; new game (schema 3, generation 0)tutorial: new data -> first-time guides enabled; unlocks: new data -> Wasteland Road + Swordsman only;
+[sr] before start-up: lastgood had MILE 1020; lastgood_prev had MILE 1020; lastgood: cut 2604->1041 bytes; lastgood_prev: cut 2604->1041 bytes; deleted 21 test keys (backup files kept)
+[sr] backups(after): corrupt_lastgood_20261013_174726.json lastgood.json(ok) orphan_20261013_181455_lastgood.json orphan_20261013_181455_lastgood_prev.json
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+   (attempt 1: the app stopped without a result - 0
+1 emulator translation crash lines; retrying)
+== 15_cleanup (-srPhase cleanup)
+[sr] phase=cleanup profile=TEST boot=Existing from='' () preserved=[]
+[sr] boot report:
+[sr] backups(after): lastgood.json(ok) lastgood_prev.json(ok)
+failures=0 warnings=0
+NO EXCEPTIONS LOGGED
+== totals:      11 failures=0 warnings=0
