@@ -14,7 +14,12 @@ using UnityEngine;
 //  ④ 検査と修復 … 壊れたJSON/異常な数値を見つけたら、直近の正常なバックアップから戻す(無ければその項目だけ初期値)。
 //     読み込みに失敗したからといって全体を上書きしない。
 //  バックアップ: Application.persistentDataPath/SaveBackups/(lastgood.json=毎回の起動で正常を確認した状態、
-//  pre_migration_*.json / release_reset_*.json / corrupt_*.txt)。
+//  lastgood_prev.json=その1つ前、pre_migration_*.json / release_reset_*.json / corrupt_*.txt / orphan_*.json)。
+//  ⓪ 2026-10-13 保存データの消失 … 進行のキーが1つも無いのに、進行の入った正常なバックアップが残っていれば、何かを書く前に
+//     そこから戻す(最新が壊れていれば1つ前)。正当な新規開始(新規インストール/データの消去)はバックアップも無いので新規のまま。
+//     意図した初期化(開発用の全初期化/テスト用データの消去)は、初期化の前にバックアップを別名へ移すので戻らない。
+//     戻せない時も、残っているバックアップは orphan_* として残す(空の状態で上書きしない)。
+//  バックアップの書き込みは一時ファイルに書き切ってから置き換える(書いている途中で落ちても、前の正常な控えが残る)。
 public static class SaveSystem
 {
     // 保存形式を変えたら上げて、Migrate に1段ぶんの変換を足す
@@ -22,12 +27,14 @@ public static class SaveSystem
     // 製品版(正式リリース)のビルドでだけ 1 にする。0=開発版。
     public const int BuildReleaseGeneration = 0;
 
-    public enum BootKind { NewGame, Existing, ReleaseReset }
+    public enum BootKind { NewGame, Existing, ReleaseReset, RestoredFromBackup }
     public class BootResult
     {
         public BootKind kind;
         public int schemaBefore, schemaAfter, generationBefore, generationAfter;
         public bool migrationFailed;
+        public string restoredFrom = "", restoredTime = ""; // ⓪ で戻したバックアップ(lastgood / lastgood_prev)と、その控えの時刻
+        public List<string> preserved = new List<string>(); // ⓪ で戻せず、別名で残したバックアップ
         public List<string> repairs = new List<string>();
         public string report = "";
     }
@@ -42,7 +49,11 @@ public static class SaveSystem
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         DebugRun.RecoverAfterCrash(); // 前回のデバッグラン(記録対象外)が終わらずに落ちていたら、進行を控えへ戻す
 #endif
-        try { Boot(BuildReleaseGeneration); }
+        int gen = BuildReleaseGeneration;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        gen = DevBootArgs(gen);
+#endif
+        try { Boot(gen); }
         catch (Exception e) { Debug.LogError("[Save] boot failed (the game continues with the data as it is): " + e); }
     }
 
@@ -55,6 +66,24 @@ public static class SaveSystem
         var log = new StringBuilder();
         bool hasSchema = SaveStore.HasKey(SaveKeys.SchemaVersion);
         bool anyProgress = AnyProgressKey();
+
+        // ⓪ 保存データの消失(2026-10-13): 進行のキーが1つも無い。正常なバックアップが残っていれば、初期値を書く前にそこから戻す
+        if (!anyProgress)
+        {
+            var snap = FindRestorableBackup(out string src);
+            if (snap != null)
+            {
+                int n = ApplyRestored(snap.items);
+                SaveStore.Save(); // 戻した物を先に書き切る(この後で落ちても戻した状態から始まる)
+                r.restoredFrom = src; r.restoredTime = snap.time ?? "";
+                log.Append($"DATA LOSS: no progress keys{(hasSchema ? " (format key present)" : "")} - restored {n} keys from {src} ({snap.time}); ");
+                Debug.LogWarning($"[Save] the progress keys were missing - restored {n} keys from the backup '{src}' saved at {snap.time}");
+                hasSchema = SaveStore.HasKey(SaveKeys.SchemaVersion);
+                anyProgress = AnyProgressKey();
+            }
+            else PreserveBackups("orphan", r.preserved, log); // 戻せる物が無い: 残っているバックアップは別名で残す(この後の起動で上書きしない)
+        }
+
         r.schemaBefore = hasSchema ? SaveStore.GetInt(SaveKeys.SchemaVersion, 0) : 0;
         // リリース世代の記録が無い既存のセーブ = この仕組みより前の開発データ(世代0)
         r.generationBefore = SaveStore.HasKey(SaveKeys.ReleaseGeneration) ? SaveStore.GetInt(SaveKeys.ReleaseGeneration, 0) : (hasSchema || anyProgress ? 0 : buildGeneration);
@@ -118,6 +147,7 @@ public static class SaveSystem
                 log.Append($"save generation {r.generationBefore} is newer than this build ({buildGeneration}) - nothing reset; ");
             }
             SaveStore.SetInt(SaveKeys.ReleaseGeneration, Math.Max(r.generationBefore, buildGeneration));
+            if (r.kind == BootKind.Existing && r.restoredFrom != "") r.kind = BootKind.RestoredFromBackup;
         }
 
         // ④ 検査と修復
@@ -138,6 +168,14 @@ public static class SaveSystem
         UnlockRules.RequeuePending(); // 解放したのに確認していないお知らせ(アプリが落ちても失わない)
         // 正常を確認できた状態を残す(壊れた値を直した後の状態)
         RotateLastGood();
+        if (r.restoredFrom != "")
+        {
+            string when = DateTime.TryParse(r.restoredTime, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime t)
+                ? t.ToString("yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture) : r.restoredTime;
+            // 戻したことは見落とされないように、ホームで OK を押すまで出すお知らせにする(数秒で消える帯にしない)
+            NoticeQueue.Enqueue("save_restored_" + r.restoredTime, Loc.T("セーブデータの復旧"),
+                Loc.F("セーブデータが見つからなかったため、{0} の控えから戻しました", when) + "\n" + Loc.T("この時点より後の進行は含まれていない場合があります"), null);
+        }
         Debug.Log($"[Save] boot: {r.kind} schema {r.schemaBefore}->{r.schemaAfter} generation {r.generationBefore}->{r.generationAfter} | {r.report}");
         return r;
     }
@@ -216,7 +254,7 @@ public static class SaveSystem
     // ===================================================================== //
     static void Validate(List<string> repairs)
     {
-        Lazy<Dictionary<string, Item>> lastGood = new Lazy<Dictionary<string, Item>>(() => ReadBackupFile("lastgood"));
+        Lazy<Dictionary<string, Item>> lastGood = new Lazy<Dictionary<string, Item>>(() => ToDict(FindRestorableBackup(out _, false)));
 
         // JSON: 所持カード
         ValidateJson<CardInventory.SaveWrapper>("OwnedCardsV1", w => w != null && w.stacks != null, repairs, lastGood);
@@ -395,18 +433,24 @@ public static class SaveSystem
     {
         get
         {
-            string d = System.IO.Path.Combine(Application.persistentDataPath, TestBackupSubdir ?? SaveProfile.BackupSubdir(SaveProfile.IsTest));
+            string root = Application.persistentDataPath;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // -memSave(保存をメモリだけにする検証): バックアップもこのプロセス専用の一時フォルダへ(通常のデータのバックアップに触れない)
+            if (MemorySaveStore.Active && TestBackupSubdir == null)
+                root = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "OneMoreMile_memSave", System.Diagnostics.Process.GetCurrentProcess().Id.ToString());
+#endif
+            string d = System.IO.Path.Combine(root, TestBackupSubdir ?? SaveProfile.BackupSubdir(SaveProfile.IsTest));
             try { System.IO.Directory.CreateDirectory(d); } catch { }
             return d;
         }
     }
 
-    static void WriteBackupFile(string name, List<Item> items, bool prune)
+    static void WriteBackupFile(string name, List<Item> items, bool prune, string crashTag = null)
     {
         try
         {
             var s = new Snapshot { reason = name, time = DateTime.Now.ToString("s"), schema = SaveStore.GetInt(SaveKeys.SchemaVersion, 0), generation = SaveStore.GetInt(SaveKeys.ReleaseGeneration, 0), items = items };
-            System.IO.File.WriteAllText(System.IO.Path.Combine(Dir, name + ".json"), JsonUtility.ToJson(s, true));
+            WriteAtomic(System.IO.Path.Combine(Dir, name + ".json"), JsonUtility.ToJson(s, true), crashTag);
             if (prune) Prune("pre_migration_", 5);
         }
         catch (Exception e) { Debug.LogWarning("[Save] backup write failed: " + e.Message); }
@@ -414,34 +458,151 @@ public static class SaveSystem
 
     static void WriteText(string name, string text)
     {
-        try { System.IO.File.WriteAllText(System.IO.Path.Combine(Dir, name), text); Prune("corrupt_", 10); }
+        try { WriteAtomic(System.IO.Path.Combine(Dir, name), text); Prune("corrupt_", 10); }
         catch (Exception e) { Debug.LogWarning("[Save] write failed: " + e.Message); }
     }
 
-    static Dictionary<string, Item> ReadBackupFile(string name)
+    // 調べる/救済するための控えを残す(上書きしない名前で)。CommitJournal が捨てた控え等
+    public static void KeepForInvestigation(string name, string text) => WriteText($"{name}_{Stamp()}.txt", text);
+
+    // 2026-10-13: 書いている途中で落ちても元のファイルが壊れないように、一時ファイルに書き切って(ディスクへ書き出して)から置き換える
+    static void WriteAtomic(string path, string text, string crashTag = null)
     {
-        try
+        string tmp = path + ".tmp";
+        byte[] bytes = new UTF8Encoding(false).GetBytes(text);
+        using (var fs = new System.IO.FileStream(tmp, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None))
         {
-            string p = System.IO.Path.Combine(Dir, name + ".json");
-            if (!System.IO.File.Exists(p)) return null;
-            var s = JsonUtility.FromJson<Snapshot>(System.IO.File.ReadAllText(p));
-            if (s == null || s.items == null) return null;
-            var d = new Dictionary<string, Item>();
-            foreach (var it in s.items) if (it != null && !string.IsNullOrEmpty(it.k)) d[it.k] = it;
-            return d;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (crashTag != null && DevBackupCrashAt == crashTag + "-partial") { fs.Write(bytes, 0, bytes.Length / 2); fs.Flush(true); DevBackupCrash(crashTag + "-partial"); }
+#endif
+            fs.Write(bytes, 0, bytes.Length);
+            fs.Flush(true);
         }
-        catch (Exception e) { Debug.LogWarning("[Save] backup read failed: " + e.Message); return null; }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (crashTag != null && DevBackupCrashAt == crashTag + "-tmp") DevBackupCrash(crashTag + "-tmp");
+#endif
+        if (!System.IO.File.Exists(path)) { System.IO.File.Move(tmp, path); return; }
+        try { System.IO.File.Replace(tmp, path, null); }
+        catch (Exception e)
+        {
+            // 置き換えが使えない環境: 消してから移す(この間に落ちても、もう一方の世代の控えと一時ファイルが残る)
+            Debug.LogWarning("[Save] File.Replace failed, using delete+move: " + e.GetType().Name);
+            System.IO.File.Delete(path);
+            System.IO.File.Move(tmp, path);
+        }
     }
 
-    static void RotateLastGood()
+    static Snapshot ReadSnapshot(string name)
+    {
+        string p = System.IO.Path.Combine(Dir, name + ".json");
+        try { return System.IO.File.Exists(p) ? ParseSnapshot(System.IO.File.ReadAllText(p)) : null; }
+        catch (Exception e) { Debug.LogWarning($"[Save] backup '{name}' could not be read: " + e.Message); return null; }
+    }
+
+    // 読めて、項目が1つ以上ある物だけを正常な控えとする(書いている途中で切れた JSON は読めない)
+    static Snapshot ParseSnapshot(string text)
     {
         try
         {
-            string cur = System.IO.Path.Combine(Dir, "lastgood.json"), prev = System.IO.Path.Combine(Dir, "lastgood_prev.json");
-            if (System.IO.File.Exists(cur)) System.IO.File.Copy(cur, prev, true);
+            var s = JsonUtility.FromJson<Snapshot>(text);
+            return s != null && s.items != null && s.items.Count > 0 ? s : null;
         }
-        catch { }
-        WriteBackupFile("lastgood", Capture(), false);
+        catch { return null; }
+    }
+
+    static Dictionary<string, Item> ToDict(Snapshot s)
+    {
+        if (s == null) return null;
+        var d = new Dictionary<string, Item>();
+        foreach (var it in s.items) if (it != null && !string.IsNullOrEmpty(it.k)) d[it.k] = it;
+        return d;
+    }
+
+    // 戻せる控え: 最新(lastgood)→ 1つ前(lastgood_prev)の順に、読めて進行が入っている物。requireProgress=false なら読めれば良い(項目単位の修復用)
+    static Snapshot FindRestorableBackup(out string source, bool requireProgress = true)
+    {
+        foreach (string name in new[] { "lastgood", "lastgood_prev" })
+        {
+            var s = ReadSnapshot(name);
+            if (s == null) { if (System.IO.File.Exists(System.IO.Path.Combine(Dir, name + ".json"))) Debug.LogWarning($"[Save] backup '{name}' is damaged - trying the previous one"); continue; }
+            if (requireProgress && !HasProgress(s)) continue;
+            source = name;
+            return s;
+        }
+        source = null;
+        return null;
+    }
+
+    static bool HasProgress(Snapshot s)
+    {
+        var prog = new HashSet<string>();
+        foreach (var e in SaveKeys.Expanded()) if (e.cat == SaveCategory.Progress) prog.Add(e.key);
+        foreach (var it in s.items) if (it != null && prog.Contains(it.k)) return true;
+        return false;
+    }
+
+    // 消えた後に戻す: 控えの値を書く。設定が今も残っていれば今の値を残す(控えより新しい)
+    static int ApplyRestored(List<Item> items)
+    {
+        var cat = new Dictionary<string, SaveCategory>();
+        foreach (var e in SaveKeys.Expanded()) cat[e.key] = e.cat;
+        int n = 0;
+        foreach (var it in items)
+        {
+            if (it == null || string.IsNullOrEmpty(it.k)) continue;
+            if (cat.TryGetValue(it.k, out SaveCategory c) && c == SaveCategory.Settings && SaveStore.HasKey(it.k)) continue;
+            Apply(it);
+            n++;
+        }
+        return n;
+    }
+
+    // 最新/1つ前の控えを、上書きされない別名へ移す(戻せなかった時 / 意図した初期化の前)。中身は消さない
+    static void PreserveBackups(string prefix, List<string> moved, StringBuilder log)
+    {
+        string stamp = Stamp();
+        foreach (string name in new[] { "lastgood", "lastgood_prev" })
+        {
+            string p = System.IO.Path.Combine(Dir, name + ".json");
+            try
+            {
+                if (!System.IO.File.Exists(p)) continue;
+                string to = System.IO.Path.Combine(Dir, $"{prefix}_{stamp}_{name}.json");
+                if (System.IO.File.Exists(to)) to = System.IO.Path.Combine(Dir, $"{prefix}_{stamp}_{Guid.NewGuid().ToString("N").Substring(0, 6)}_{name}.json");
+                System.IO.File.Move(p, to);
+                moved?.Add(System.IO.Path.GetFileName(to));
+            }
+            catch (Exception e) { Debug.LogWarning($"[Save] could not keep the backup '{name}': " + e.Message); }
+        }
+        if (moved != null && moved.Count > 0)
+        {
+            log?.Append($"no usable backup - kept the old backup files as {string.Join(", ", moved)}; ");
+            Debug.LogWarning($"[Save] the old backup files were kept as {string.Join(", ", moved)} (not overwritten)");
+            Prune(prefix + "_", 20);
+        }
+    }
+
+    // 起動のたびに「正常を確認した状態」を残す。最新の控えを1つ前へ回してから、新しい控えを書く。
+    // どの時点で落ちても、正常な控えが少なくとも1つ残る(壊れた最新は1つ前へ回さず、corrupt_* として残す)
+    static void RotateLastGood()
+    {
+        string cur = System.IO.Path.Combine(Dir, "lastgood.json"), prev = System.IO.Path.Combine(Dir, "lastgood_prev.json");
+        try
+        {
+            if (System.IO.File.Exists(cur))
+            {
+                string text = System.IO.File.ReadAllText(cur);
+                if (ParseSnapshot(text) != null) WriteAtomic(prev, text, "prev");
+                else
+                {
+                    string to = System.IO.Path.Combine(Dir, $"corrupt_lastgood_{Stamp()}.json");
+                    System.IO.File.Move(cur, to);
+                    Debug.LogWarning($"[Save] the latest backup was damaged - kept it as {System.IO.Path.GetFileName(to)}, the previous one is left as it is");
+                }
+            }
+        }
+        catch (Exception e) { Debug.LogWarning("[Save] backup rotation failed: " + e.Message); }
+        WriteBackupFile("lastgood", Capture(), false, "cur");
     }
 
     static void Prune(string prefix, int keep)
@@ -482,6 +643,35 @@ public static class SaveSystem
     public static string TestBackupSubdir;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 意図して全部を初期化する前に呼ぶ: 最新/1つ前の控えを別名(<reason>_*)へ移し、起動時の「消失からの復旧」で戻らないようにする(中身は消さない)
+    public static void ForgetBackupsForIntentionalReset(string reason) => PreserveBackups(reason, new List<string>(), null);
+    public static string BackupDir => Dir;
+    public static bool BackupFileValid(string path) { try { return System.IO.File.Exists(path) && ParseSnapshot(System.IO.File.ReadAllText(path)) != null; } catch { return false; } }
+
+    // 確認用(開発版): バックアップの書き込みの途中でプロセスを強制終了する(-qaBackupCrashAt prev-partial / prev-tmp / cur-partial / cur-tmp)。
+    // 起動時のリリース世代を変える(-qaReleaseGen N)。どちらもテスト用データ(または -memSave)の時だけ効く(通常のデータには使わない)
+    public static string DevBackupCrashAt = "";
+    static int DevBootArgs(int gen)
+    {
+        var a = QaArgs.All;
+        bool safe = SaveProfile.IsTest || MemorySaveStore.Active;
+        for (int i = 0; i < a.Length - 1; i++)
+        {
+            if (a[i] == "-qaBackupCrashAt") { if (safe) DevBackupCrashAt = a[i + 1]; else Debug.LogWarning("[Save] -qaBackupCrashAt ignored: only for the test data"); }
+            if (a[i] == "-qaReleaseGen" && int.TryParse(a[i + 1], out int g)) { if (safe) { gen = g; Debug.Log($"[Save] DEV: boot with release generation {g}"); } else Debug.LogWarning("[Save] -qaReleaseGen ignored: only for the test data"); }
+        }
+        return gen;
+    }
+    static void DevBackupCrash(string at)
+    {
+        Debug.Log($"[Save] DEV CRASH while writing a backup at '{at}'");
+#if !UNITY_EDITOR
+        System.Diagnostics.Process.GetCurrentProcess().Kill();
+#endif
+    }
+#endif
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
     // ===== 開発用のリセット(DEBUGパネル) =====
     // 進行だけ初期化(設定は残す)
     public static void DevResetProgress()
@@ -497,6 +687,7 @@ public static class SaveSystem
     public static void DevResetAll()
     {
         WriteBackupFile($"dev_reset_all_{Stamp()}", Capture(), false);
+        ForgetBackupsForIntentionalReset("dev_reset_all");
         foreach (var e in SaveKeys.Expanded()) SaveStore.DeleteKey(e.key);
         foreach (string k in SaveKeys.Legacy) SaveStore.DeleteKey(k);
         SaveStore.Save();

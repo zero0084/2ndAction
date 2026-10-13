@@ -52,6 +52,7 @@ public static class SaveKeys
         new Entry("BestDistance_legacyBackup", SaveCategory.Progress, SaveType.Float, "旧・共通BESTの退避(マップ別BEST導入時)"),
         new Entry("UnlockedIds", SaveCategory.Progress, SaveType.String, "距離で解放した敵/カード/エリア(カンマ区切り)"),
         new Entry("ActiveRunCheckpointV1", SaveCategory.Progress, SaveType.String, "中断中のラン(CONTINUE用のJSON)"),
+        new Entry(CommitJournal.Key, SaveCategory.Progress, SaveType.String, "成功の確定の控え(書きかけの確定を起動時にやり直す JSON。確定が終われば消える。進行なので製品版の初期化で一緒に消える、2026-10-13)"),
         new Entry("SelectedCharacterId", SaveCategory.Progress, SaveType.String, "選択中のキャラ"),
         new Entry("SelectedStageId", SaveCategory.Progress, SaveType.String, "選択中のステージ"),
         new Entry(LifetimeDistance, SaveCategory.Progress, SaveType.String, "累計走行距離(ラスダン解放の条件)"),

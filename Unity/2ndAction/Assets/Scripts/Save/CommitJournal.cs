@@ -29,6 +29,7 @@ public static class CommitJournal
         public bool clearCheckpoint = true; // マルチのランはシングルの中断データ(CONTINUE)を消さない
         public RunLedger.Run run;
         public long utc;
+        public int gen = -1; // 書いた時のリリース世代(2026-10-13。-1 = この項目より前の控え = 世代0)
     }
 
     public static bool Pending => SaveStore.HasKey(Key) && !string.IsNullOrEmpty(SaveStore.GetString(Key, ""));
@@ -39,6 +40,7 @@ public static class CommitJournal
     public static void Write(Data d)
     {
         d.utc = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        d.gen = SaveStore.GetInt(SaveKeys.ReleaseGeneration, 0);
         SaveStore.SetString(Key, JsonUtility.ToJson(d));
         SaveStore.Save();
         Debug.Log($"[CommitJournal] written run={Short(d.runId)} commit={d.commit} mile {d.mileBefore}->{d.mileAfter} reached={d.reached:F0}");
@@ -52,9 +54,20 @@ public static class CommitJournal
     {
         if (!Pending) return;
         Data d = null;
-        try { d = JsonUtility.FromJson<Data>(SaveStore.GetString(Key, "")); }
+        string raw = SaveStore.GetString(Key, "");
+        try { d = JsonUtility.FromJson<Data>(raw); }
         catch (Exception e) { Debug.LogWarning("[CommitJournal] unreadable journal, discarded: " + e.Message); }
-        if (d == null) { Clear(); SaveStore.Save(); return; }
+        if (d == null) { SaveSystem.KeepForInvestigation("discarded_journal_unreadable", raw); Clear(); SaveStore.Save(); return; }
+        // 2026-10-13: 今のデータより前の世代(製品版の初期化より前 = 開発版)の控えは反映しない(初期化した進行へ BEST/解放を戻さない)
+        int gen = SaveStore.GetInt(SaveKeys.ReleaseGeneration, 0);
+        if (Math.Max(d.gen, 0) < gen)
+        {
+            Debug.LogWarning($"[CommitJournal] a journal from release generation {Math.Max(d.gen, 0)} was found in generation {gen} data - not applied (kept in a file)");
+            SaveSystem.KeepForInvestigation("discarded_journal_gen" + Math.Max(d.gen, 0), raw);
+            Clear(); SaveStore.Save();
+            LastRecovery = "discarded (older generation)";
+            return;
+        }
         var log = new System.Text.StringBuilder();
         if (d.commit)
         {

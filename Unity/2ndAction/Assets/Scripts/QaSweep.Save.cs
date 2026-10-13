@@ -9,6 +9,7 @@ public partial class QaSweep
 {
     static void ClearRegistered()
     {
+        SaveSystem.ForgetBackupsForIntentionalReset("qa_clear"); // 2026-10-13: 意図した初期化(起動時の消失からの復旧で戻さない)
         foreach (var e in SaveKeys.Expanded()) PlayerPrefs.DeleteKey(e.key);
         foreach (string k in SaveKeys.Legacy) PlayerPrefs.DeleteKey(k);
         PlayerPrefs.Save();

@@ -107,6 +107,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaFix13b") { mode = "fix13b"; dir = a[i + 1]; }
             if (a[i] == "-qaCommitCrash") { mode = "commitcrash"; dir = a[i + 1]; }
             if (a[i] == "-qaBeyond") { mode = "beyond"; dir = a[i + 1]; }
+            if (a[i] == "-qaSaveRecover") { mode = "saverecover"; dir = a[i + 1]; }
             if (a[i] == "-qaCredits") { mode = "credits"; dir = a[i + 1]; }
         }
         if (mode == null) return;
@@ -147,7 +148,7 @@ public partial class QaSweep : MonoBehaviour
             if (type == LogType.Exception) { anyException = true; excCount++; if (exceptions.Count < 30) exceptions.Add(c + " | " + tr.Split('\n')[0]); }
         };
         // ホームのお知らせ(解放/デッキ12枚 等)は、それを確かめるテスト以外では自動で閉じる(テスト機の古いデータで毎回出るため)
-        NoticeQueue.QaAutoAcknowledge = !(mode == "deck" || mode == "unlock" || mode == "tutorial" || mode == "gacha");
+        NoticeQueue.QaAutoAcknowledge = !(mode == "deck" || mode == "unlock" || mode == "tutorial" || mode == "gacha" || mode == "saverecover");
         // 2026-10-10: マップ/キャラの解放を確かめるテスト以外は、全部を選べるようにする(保存しない)。未解放で別のマップへ黙って替わっていた
         UnlockRules.QaOverride = !(mode == "unlock" || mode == "tutorial" || mode == "records" || mode == "save" || mode == "saveshots");
         yield return new WaitForSecondsRealtime(2f);
@@ -233,6 +234,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "fix13b") yield return Fix13bModeQa();
         else if (mode == "commitcrash") yield return CommitCrashMode();
         else if (mode == "beyond") yield return BeyondMode();
+        else if (mode == "saverecover") yield return SaveRecoverMode();
         else if (mode == "credits") yield return CreditsMode();
         else yield return FullRunMode();
         L("");

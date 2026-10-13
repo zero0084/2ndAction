@@ -82,8 +82,9 @@ public static class SaveProfile
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public static int LastResetDeleted { get; private set; }
 
-    // テスト用データだけを全部消す(通常のデータのキーは読み替えずに直接 "test:" 付きを消すので触れない)
-    public static int DeleteTestData()
+    // テスト用データだけを全部消す(通常のデータのキーは読み替えずに直接 "test:" 付きを消すので触れない)。
+    // keepBackups = true はセーブの消失の確認用(保存キーだけが消えた状態を作る。バックアップのファイルは残す)
+    public static int DeleteTestData(bool keepBackups = false)
     {
         var keys = new HashSet<string>(TestKeys);
         foreach (var e in SaveKeys.Expanded()) keys.Add(e.key);
@@ -98,7 +99,7 @@ public static class SaveProfile
         testKeys = new HashSet<string>();
         Platform.Save.DeleteKey(TestKeysKey);
         // テスト用データのバックアップ/デバッグランの控え
-        try
+        if (!keepBackups) try
         {
             string dir = System.IO.Path.Combine(Application.persistentDataPath, BackupSubdir(true));
             if (System.IO.Directory.Exists(dir)) System.IO.Directory.Delete(dir, true);

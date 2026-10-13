@@ -1,0 +1,3 @@
+9905	ui	SaveSystem:restoredToast	セーブデータが見つからなかったため、{0} の控えから戻しました
+9906	ui	SaveSystem:restoredTitle	セーブデータの復旧
+9907	ui	SaveSystem:restoredNote	この時点より後の進行は含まれていない場合があります
