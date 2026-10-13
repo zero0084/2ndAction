@@ -19,6 +19,8 @@ public class CreditsRoad : MonoBehaviour
     public double ChoiceX { get; private set; }   // ここに着いたら選択エリア(自動前進を止める)
     public CreditWall Wall { get; private set; }
     public readonly List<CreditLetter> Letters = new List<CreditLetter>();
+    public readonly List<CreditPlaque> Plaques = new List<CreditPlaque>();     // 日本語の名前の銘板(2026-10-13 第3弾)
+    public readonly List<CreditText> Subtitles = new List<CreditText>();      // 役職の日本語の説明
     public readonly List<(string label, double x0, double x1)> Sections = new List<(string, double, double)>();
     public const int LetterOrder = RenderOrder.Enemy;
 
@@ -78,6 +80,28 @@ public class CreditsRoad : MonoBehaviour
             foreach (var n in e.names) nameW = Mathf.Max(nameW, GlyphFont.Measure(n) * nameCap);
             float g = Ground(x + nameW * 0.5f);
             float right = x;
+            bool plaque = false;
+            foreach (var n in e.names) if (!GlyphFont.CanRender(n)) plaque = true;
+            if (plaque)
+            {
+                // 2026-10-13 第3弾: 英数字の足場の文字で書けない名前(日本語など)は、乗れる銘板に表記どおり刻む(ローマ字にしない)。
+                // 複数の名前は順に並べる。役職(英字の足場の文字)と日本語の説明はその上に浮かべる
+                float px = x, topY = g;
+                foreach (var n in e.names)
+                {
+                    var pl = CreditPlaque.Create(transform, n, px, Ground(px + 3f), nameCap, LetterOrder);
+                    Plaques.Add(pl);
+                    Sections.Add((label, FloatingOrigin.ToLogical(px), FloatingOrigin.ToLogical(px + pl.Width)));
+                    topY = Mathf.Max(topY, pl.transform.position.y + pl.Height);
+                    px += pl.Width + Mathf.Max(2.5f, nameCap * 2.2f);
+                }
+                right = px;
+                float roleY = topY + 1.8f;
+                if (!string.IsNullOrEmpty(e.role)) PlaceLine(e.role, x, roleY, roleCap, 0f, 0f, false, false, false, 0.06f, label + " (role)");
+                if (!string.IsNullOrEmpty(e.subtitle)) Subtitles.Add(CreditText.Create(transform, Loc.T(e.subtitle), new Vector3(x + GlyphFont.Measure(e.role) * roleCap * 0.5f, roleY - 0.12f - SubH(roleCap) * 0.6f, 0f), SubH(roleCap), new Color(0.9f, 0.86f, 0.78f), LetterOrder + 1, true));
+                x = right + Mathf.Max(6f, e.gapAfter);
+                continue;
+            }
             switch (e.layout)
             {
                 case StaffCreditsData.Layout.Title:
@@ -110,6 +134,15 @@ public class CreditsRoad : MonoBehaviour
                     break;
                 }
             }
+            // 役職の日本語の説明(2026-10-13 第3弾): 役職の文字(英字)の下に、ゲーム世界の中の文字で添える
+            if (!string.IsNullOrEmpty(e.subtitle) && !string.IsNullOrEmpty(e.role))
+            {
+                float roleY = e.layout == StaffCreditsData.Layout.Arch ? g + 2.1f + nameCap * 1.45f + 0.4f
+                    : e.layout == StaffCreditsData.Layout.Stairs ? g + 4.9f
+                    : e.layout == StaffCreditsData.Layout.Title ? g + 3.1f
+                    : g + nameCap * 1.3f + 1.8f;
+                Subtitles.Add(CreditText.Create(transform, Loc.T(e.subtitle), new Vector3(x + GlyphFont.Measure(e.role) * roleCap * 0.5f, roleY - 0.12f - SubH(roleCap) * 0.6f, 0f), SubH(roleCap), new Color(0.9f, 0.86f, 0.78f), LetterOrder + 1, true));
+            }
             x = right + Mathf.Max(6f, e.gapAfter);
         }
 
@@ -127,6 +160,9 @@ public class CreditsRoad : MonoBehaviour
         ChoiceX = EndX + endW + 34.0;
         Debug.Log($"[LastDungeon][Credits] built {Letters.Count} letters, wall at {WallX:F0}m, END at {EndX:F0}m, choice at {ChoiceX:F0}m (logical)");
     }
+
+    // 役職の日本語の説明の文字の高さ(役職の文字より少し小さく、読める大きさ)
+    static float SubH(float roleCap) => Mathf.Max(0.42f, roleCap * 0.85f);
 
     // 今プレイヤーがいる区間の名前(テスト/演出用)。xはシーン座標
     public string SectionAt(float sceneX)

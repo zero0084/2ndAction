@@ -20,7 +20,8 @@ public class StaffCreditsData : ScriptableObject
     public class Entry
     {
         [Tooltip("役職(小さめの文字で宙に浮く)。空なら出さない")] public string role = "";
-        [Tooltip("名前(大きな文字)。複数可")] public string[] names = new string[0];
+        [Tooltip("役職の下に添える日本語の説明(足場の文字とは別の、ゲーム世界の中の文字)。空なら出さない(2026-10-13 第3弾)")] public string subtitle = "";
+        [Tooltip("名前(大きな文字)。複数可。英数字以外(日本語など)を含む名前は、乗れる銘板+刻んだ文字で表記どおりに出す")] public string[] names = new string[0];
         public Layout layout = Layout.Standing;
         [Tooltip("名前の文字の高さ(m)")] public float nameHeight = 1.7f;
         [Tooltip("攻撃で砕ける(false=揺れて光るだけ)")] public bool breakable;
@@ -51,9 +52,11 @@ public class StaffCreditsData : ScriptableObject
         d.entries = new List<Entry>
         {
             new Entry { role = "", names = new[] { "ONE MORE MILE" }, layout = Layout.Title, nameHeight = 1.5f, gapAfter = 34f },
-            new Entry { role = "PROGRAMMING", names = new[] { "IRENE" }, layout = Layout.Standing, nameHeight = 1.45f, gapAfter = 30f },
-            new Entry { role = "GAME DESIGN", names = new[] { "ESTELLE" }, layout = Layout.Arch, nameHeight = 1.3f, gapAfter = 30f },
-            new Entry { role = "ART / DESIGN", names = new[] { "ALICIA" }, layout = Layout.Stairs, nameHeight = 1.2f, gapAfter = 32f },
+            new Entry { role = "CREATED BY", subtitle = "制作", names = new[] { "マジル旅人" }, layout = Layout.Standing, nameHeight = 1.1f, gapAfter = 30f },
+            new Entry { role = "AI PROGRAMMING", subtitle = "AIアシスタント(プログラム)", names = new[] { "IRENE" }, layout = Layout.Standing, nameHeight = 1.45f, gapAfter = 30f },
+            new Entry { role = "AI GAME DESIGN", subtitle = "AIアシスタント(ゲームデザイン)", names = new[] { "ESTELLE" }, layout = Layout.Arch, nameHeight = 1.3f, gapAfter = 30f },
+            new Entry { role = "AI ART / DESIGN", subtitle = "AIアシスタント(アート・デザイン)", names = new[] { "ALICIA" }, layout = Layout.Stairs, nameHeight = 1.2f, gapAfter = 32f },
+            new Entry { role = "SPECIAL THANKS", names = new[] { "ペンタトゥットゥルー", "ルカ" }, layout = Layout.Standing, nameHeight = 1.0f, gapAfter = 26f },
             new Entry { role = "SPECIAL THANKS", names = new[] { "YOU" }, layout = Layout.Standing, nameHeight = 1.5f, breakable = true, gapAfter = 30f },
         };
         return d;
@@ -72,7 +75,7 @@ public static class GlyphFont
     {
         switch (c)
         {
-            case '?': return "q";
+            case '?': return "qmark"; // 2026-10-13 第3弾: 以前の "q" は Windows で glyph_Q と同じファイル名になり、Q の絵が ? で上書きされていた
             case '!': return "ex";
             case '/': return "slash";
             case '&': return "amp";
@@ -95,6 +98,14 @@ public static class GlyphFont
         if (s == null && crackStage > 0) return Get(c, crackStage - 1);
         cache[key] = s;
         return s;
+    }
+
+    // 足場の文字だけで書けるか(空白以外のすべての文字に絵がある)。書けない名前(日本語など)は銘板+刻んだ文字にする
+    public static bool CanRender(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return true;
+        foreach (char c in text) if (c != ' ' && Get(c) == null) return false;
+        return true;
     }
 
     // 文字列の幅(キャップハイト=1とした単位)

@@ -14,27 +14,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StaffCreditsData
   entries:
   - role: 
+    subtitle: 
     names:
     - ONE MORE MILE
     layout: 0
     nameHeight: 1.5
     breakable: 0
     gapAfter: 34
-  - role: PROGRAMMING
+  - role: CREATED BY
+    subtitle: "\u5236\u4F5C"
+    names:
+    - "\u30DE\u30B8\u30EB\u65C5\u4EBA"
+    layout: 1
+    nameHeight: 1.1
+    breakable: 0
+    gapAfter: 30
+  - role: AI PROGRAMMING
+    subtitle: "AI\u30A2\u30B7\u30B9\u30BF\u30F3\u30C8(\u30D7\u30ED\u30B0\u30E9\u30E0)"
     names:
     - IRENE
     layout: 1
     nameHeight: 1.45
     breakable: 0
     gapAfter: 30
-  - role: GAME DESIGN
+  - role: AI GAME DESIGN
+    subtitle: "AI\u30A2\u30B7\u30B9\u30BF\u30F3\u30C8(\u30B2\u30FC\u30E0\u30C7\u30B6\u30A4\u30F3)"
     names:
     - ESTELLE
     layout: 2
     nameHeight: 1.3
     breakable: 0
     gapAfter: 30
-  - role: ART / DESIGN
+  - role: AI ART / DESIGN
+    subtitle: "AI\u30A2\u30B7\u30B9\u30BF\u30F3\u30C8(\u30A2\u30FC\u30C8\u30FB\u30C7\u30B6\u30A4\u30F3)"
     names:
     - ALICIA
     layout: 3
@@ -42,6 +54,16 @@ MonoBehaviour:
     breakable: 0
     gapAfter: 32
   - role: SPECIAL THANKS
+    subtitle: 
+    names:
+    - "\u30DA\u30F3\u30BF\u30C8\u30A5\u30C3\u30C8\u30A5\u30EB\u30FC"
+    - "\u30EB\u30AB"
+    layout: 1
+    nameHeight: 1.0
+    breakable: 0
+    gapAfter: 26
+  - role: SPECIAL THANKS
+    subtitle: 
     names:
     - YOU
     layout: 1

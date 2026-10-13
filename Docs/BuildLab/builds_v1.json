@@ -1919,6 +1919,486 @@
     "speed_up"
    ],
    "takeFinalEvolution": true
+  },
+  {
+   "name": "swordsman_LD",
+   "character": "swordsman",
+   "type": "LD",
+   "note": "標準の近接。射程(LONG BLADE)と飛ぶ斬撃で間合いを補い、回復/復活で耐える",
+   "deck": [
+    "attack_up",
+    "boss_killer",
+    "double_attack",
+    "attack_speed_up",
+    "long_blade",
+    "sonic_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "iron_will"
+   ],
+   "charCards": [
+    "attack_up",
+    "heart_up",
+    "boss_killer"
+   ],
+   "priority": [
+    "attack_up",
+    "boss_killer",
+    "double_attack",
+    "attack_speed_up",
+    "long_blade",
+    "sonic_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "iron_will"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "dual_blade_LD",
+   "character": "dual_blade",
+   "type": "LD",
+   "note": "5連撃で手数が多い → 命中ごと/連続ヒットで伸びる効果(連撃・COMBO EDGE・吸収)",
+   "deck": [
+    "attack_up",
+    "boss_killer",
+    "double_attack",
+    "rapid_edge",
+    "combo_edge",
+    "sonic_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "predator"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "heart_up"
+   ],
+   "priority": [
+    "attack_up",
+    "boss_killer",
+    "double_attack",
+    "rapid_edge",
+    "combo_edge",
+    "sonic_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "predator"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "noble_lady_LD",
+   "character": "noble_lady",
+   "type": "LD",
+   "note": "最大HP30と低く攻撃が遅い → 射程/攻撃速度と回復。移動0.95を SPEED UP で補う",
+   "deck": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "long_blade",
+    "double_attack",
+    "sonic_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "speed_up"
+   ],
+   "charCards": [
+    "heart_up",
+    "attack_up",
+    "boss_killer"
+   ],
+   "priority": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "long_blade",
+    "double_attack",
+    "sonic_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "gunslinger_LD",
+   "character": "gunslinger",
+   "type": "LD",
+   "note": "約24mの射撃で安全に削れる → 火力と手数、耐久は最低限",
+   "deck": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "double_attack",
+    "rapid_edge",
+    "piercing_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "iron_will"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "double_attack",
+    "rapid_edge",
+    "piercing_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "iron_will"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "dragon_lancer_LD",
+   "character": "dragon_lancer",
+   "type": "LD",
+   "note": "一撃が重く攻撃が遅い(1.35)→ 攻撃速度と1撃目の強化",
+   "deck": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "rapid_edge",
+    "first_strike",
+    "double_attack",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "iron_will"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "rapid_edge",
+    "first_strike",
+    "double_attack",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "iron_will"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "archer_LD",
+   "character": "archer",
+   "type": "LD",
+   "note": "遠距離の単発 → 手数と貫通。移動0.93を SPEED UP で補う",
+   "deck": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "rapid_edge",
+    "double_attack",
+    "piercing_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "rapid_edge",
+    "double_attack",
+    "piercing_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "mage_LD",
+   "character": "mage",
+   "type": "LD",
+   "note": "HPが最も低い(20/40)→ 最大HP(HEART UP/LONG HAUL)と防御を厚く、魔弾の射程を延ばす",
+   "deck": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "double_attack",
+    "long_blade",
+    "heart_up",
+    "long_haul",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "iron_will"
+   ],
+   "charCards": [
+    "heart_up",
+    "attack_up",
+    "boss_killer"
+   ],
+   "priority": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "double_attack",
+    "long_blade",
+    "heart_up",
+    "long_haul",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "iron_will"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "fighter_LD",
+   "character": "fighter",
+   "type": "LD",
+   "note": "最短の近接4連撃 → 締めの一撃(COMBO PLUS)と連続ヒット、吸収で接近戦を耐える",
+   "deck": [
+    "attack_up",
+    "boss_killer",
+    "combo_plus",
+    "combo_edge",
+    "double_attack",
+    "rapid_edge",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "predator"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "heart_up"
+   ],
+   "priority": [
+    "attack_up",
+    "boss_killer",
+    "combo_plus",
+    "combo_edge",
+    "double_attack",
+    "rapid_edge",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "predator"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "ninja_LD",
+   "character": "ninja",
+   "type": "LD",
+   "note": "3mの踏み込み斬りの一撃型 → 1撃目と攻撃速度",
+   "deck": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "double_attack",
+    "first_strike",
+    "sonic_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "iron_will"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "heart_up"
+   ],
+   "priority": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "double_attack",
+    "first_strike",
+    "sonic_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "iron_will"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "miko_LD",
+   "character": "miko",
+   "type": "LD",
+   "note": "約12mの札 → 射程を延ばして安全な距離から",
+   "deck": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "double_attack",
+    "long_blade",
+    "piercing_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "iron_will"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "heart_up"
+   ],
+   "priority": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "double_attack",
+    "long_blade",
+    "piercing_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "iron_will"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "vampire_LD",
+   "character": "vampire",
+   "type": "LD",
+   "note": "吸血鬼らしく吸収/出血(BLOOD BLADE・PREDATOR・VAMPIRE)で回復しながら殴る",
+   "deck": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "double_attack",
+    "blood_blade",
+    "predator",
+    "vampire",
+    "heart_up",
+    "shield",
+    "second_wind",
+    "phoenix",
+    "combo_plus"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "vampire"
+   ],
+   "priority": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "double_attack",
+    "blood_blade",
+    "predator",
+    "vampire",
+    "heart_up",
+    "shield",
+    "second_wind",
+    "phoenix",
+    "combo_plus"
+   ],
+   "takeFinalEvolution": true
+  },
+  {
+   "name": "dragonkin_LD",
+   "character": "dragonkin",
+   "type": "LD",
+   "note": "HPが最も高い(50/60)→ 火力寄り。移動0.95を SPEED UP で補う",
+   "deck": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "double_attack",
+    "long_blade",
+    "sonic_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "speed_up"
+   ],
+   "charCards": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up"
+   ],
+   "priority": [
+    "attack_up",
+    "boss_killer",
+    "attack_speed_up",
+    "double_attack",
+    "long_blade",
+    "sonic_blade",
+    "heart_up",
+    "shield",
+    "vampire",
+    "second_wind",
+    "phoenix",
+    "speed_up"
+   ],
+   "takeFinalEvolution": true
   }
  ]
 }

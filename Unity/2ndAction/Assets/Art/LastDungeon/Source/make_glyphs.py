@@ -9,7 +9,7 @@ SIZE = 300          # フォントサイズ(px)
 STROKE = 12         # 縁取り
 PAD = STROKE + 6
 CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!/&.-',:+"
-NAMES = {"?": "q", "!": "ex", "/": "slash", "&": "amp", ".": "dot", "-": "dash", "'": "apos", ",": "comma", ":": "colon", "+": "plus"}
+NAMES = {"?": "qmark", "!": "ex", "/": "slash", "&": "amp", ".": "dot", "-": "dash", "'": "apos", ",": "comma", ":": "colon", "+": "plus"}
 
 os.makedirs(OUT, exist_ok=True)
 font = ImageFont.truetype(FONT, SIZE)
