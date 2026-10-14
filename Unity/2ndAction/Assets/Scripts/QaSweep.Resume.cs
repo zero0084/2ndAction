@@ -226,6 +226,9 @@ public partial class QaSweep
         }
         L($"[footing] LEGACY (before the fix): a pit within the 2-second stretch in {legacyPits}/{legacyRuns} continues at 8km");
 
+        // -qaResumeOnlyExistingPit N: 既存の穴の経路だけを N 回(調査用)
+        int onlyPit = int.Parse(Arg("-qaResumeOnlyExistingPit", "0"));
+        if (onlyPit > 0) { for (int i = 0; i < onlyPit; i++) { L($"---- existing pit #{i + 1}"); yield return ExistingPitCase(ch); } yield break; }
         yield return ExistingPitCase(ch);
 
         string[] stages = Arg("-qaResumeStages", "wasteland_road,natural_cave,sky_corridor,last_corridor").Split(',');
@@ -246,6 +249,14 @@ public partial class QaSweep
         yield return BeginRun(ch, "wasteland_road");
         WarpTo(8000f);
         var tm = TerrainManager.Instance;
+        // 固定の条件(2026-10-14、断続的な失敗の原因): ワープした直後は地形の始まりがプレイヤーのすぐ後ろ。その手前の高さは
+        // 最初の地面の高さであること(以前は一番先のチャンクの終わりの高さで、遠くの坂の高さの段差に見えた)
+        {
+            float fx = tm.FirstChunkStartX;
+            float? before0 = tm.GetHeightAt(fx - 4f), first = tm.GetHeightAt(fx + 0.01f);
+            Check(before0.HasValue && first.HasValue && Mathf.Abs(before0.Value - first.Value) < 0.01f && Mathf.Abs(before0.Value - tm.FirstGroundY) < 0.01f,
+                $"existing pit: the height just before the start of the terrain is the first ground height ({before0:F2} / {first:F2} / {tm.FirstGroundY:F2}; far end {tm.GetHeightAt(tm.GeneratedEndX - 0.01f):F2})");
+        }
         float? pit = null;
         float w = 0f;
         // 前方に生成済みの穴が見つかるまで少し走る
@@ -259,6 +270,7 @@ public partial class QaSweep
         if (!pit.HasValue) { Warn("existing pit: no generated pit found ahead - skipped"); yield return EndRun(); yield break; }
         TimeControl.Pause(this);
         float a = pit.Value - 6f, b = pit.Value + 14f;
+        string before = tm.DescribeChunks(a - 10f, b + 10f);
         int fixedPits = tm.SetResumeFlatZone(FloatingOrigin.ToLogical(a), FloatingOrigin.ToLogical(b));
         Check(fixedPits >= 1, $"existing pit: an already generated pit in the stretch was fixed ({fixedPits})");
         Check(!tm.FirstPitBetween(a, b).HasValue, "existing pit: no pit left in the stretch");
@@ -267,9 +279,10 @@ public partial class QaSweep
         {
             float? h = tm.GetHeightAt(x);
             if (!h.HasValue) { if (x >= a && x <= b) gaps++; prevH = float.NaN; continue; }
-            if (!float.IsNaN(prevH) && Mathf.Abs(h.Value - prevH) > 0.35f) steps++;
+            if (!float.IsNaN(prevH) && Mathf.Abs(h.Value - prevH) > 0.35f) { steps++; L($"   step at {FloatingOrigin.ToLogical(x):F2}m: {prevH:F2} -> {h.Value:F2} (zone {FloatingOrigin.ToLogical(a):F1}..{FloatingOrigin.ToLogical(b):F1})"); }
             prevH = h.Value;
         }
+        if (gaps > 0 || steps > 0) { L($"   chunks before the fix: {before}"); L($"   chunks after the fix : {tm.DescribeChunks(a - 10f, b + 10f)}"); }
         Check(gaps == 0 && steps == 0, $"existing pit: ground continuous through the fixed pit and its edges (gaps {gaps}, steps {steps})");
         // 見た目: 直した所の地面の絵(コライダー付きの地形の絵)がある
         var cam = Camera.main;
@@ -312,9 +325,19 @@ public partial class QaSweep
         // CONTINUE は自動で走り出す(2026-10-07)。足場は走り出す前(遷移の覆いの下)に作ってある。走り出す直前の位置で測る
         float pxStart = 0f; bool got = false;
         w = 0f; float retry = 0f;
+        bool firstSettle = true; string order = ""; var lastPhase = GameManager.ResumeGatePhase.None; float settleGenEnd = 0f, settleY = 0f, settleGround = float.NaN; bool settleGrounded = false; float moveBeforeGo = 0f, pxSettle = 0f;
         while (w < 15f)
         {
             if (!gm.HasStarted && retry <= 0f) { gm.ContinueActiveRun(); retry = 0.5f; }
+            if (gm.HasStarted && gm.ResumeGate != lastPhase) { order += $"{gm.ResumeGate}@{w:F2}s "; lastPhase = gm.ResumeGate; }
+            if (gm.HasStarted && gm.ResumeGate == GameManager.ResumeGatePhase.Settling && PlayerController.Instance != null && firstSettle)
+            {
+                firstSettle = false;
+                var tm0 = TerrainManager.Instance; var p0 = PlayerController.Instance;
+                pxSettle = FloatingOrigin.ToLogical(p0.transform.position.x); // 論理X(準備画面の間に浮動原点が動いても比べられる)
+                settleGenEnd = FloatingOrigin.ToLogical(tm0.GeneratedEndX); settleY = p0.transform.position.y; settleGround = tm0.GetHeightAt(p0.transform.position.x) ?? float.NaN; settleGrounded = p0.IsGrounded;
+            }
+            if (gm.HasStarted && gm.ResumeGateActive && PlayerController.Instance != null && !firstSettle) moveBeforeGo = Mathf.Max(moveBeforeGo, Mathf.Abs(FloatingOrigin.ToLogical(PlayerController.Instance.transform.position.x) - pxSettle));
             if (gm.HasStarted && gm.ResumeGate == GameManager.ResumeGatePhase.Settling && PlayerController.Instance != null) { pxStart = PlayerController.Instance.transform.position.x; got = true; }
             if (gm.HasStarted && gm.AutoResumes > 0) break;
             yield return null; w += Time.unscaledDeltaTime; retry -= Time.unscaledDeltaTime;
@@ -323,6 +346,13 @@ public partial class QaSweep
         var tm = TerrainManager.Instance;
         stopKeepAlive = true;
         Check(gm.AutoResumes > 0 && got, $"{name}: CONTINUE started running by itself");
+        if (!legacy) // legacy = 修正前の動きの再現(足場を作らない)なので対象外
+        {
+            float needS = Mathf.Max(gm.resumeSafeMinAhead, pc.NormalAutoRunSpeed * gm.resumeSafeSeconds);
+            L($"{name}: order [{order.Trim()}] at the ready screen: generated to +{settleGenEnd - pxSettle:F0}m (safe stretch {needS:F0}m), y {settleY:F2} on ground {settleGround:F2}, grounded {settleGrounded}, moved before GO {moveBeforeGo:F2}m");
+            Check(settleGenEnd - pxSettle >= needS - 0.01f && settleGrounded && !float.IsNaN(settleGround) && Mathf.Abs(settleY - (settleGround + pc.groundOffset)) < 0.02f && moveBeforeGo < 0.01f,
+                $"{name}: the terrain past the safe stretch is ready and the character stands on it before anything moves (moved {moveBeforeGo:F2}m before GO)");
+        }
         float px = got ? pxStart : pc.transform.position.x;
         float speed = pc.NormalAutoRunSpeed;
         float need = Mathf.Max(gm.resumeSafeMinAhead, speed * gm.resumeSafeSeconds);

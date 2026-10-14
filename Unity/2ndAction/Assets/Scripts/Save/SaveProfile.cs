@@ -161,17 +161,20 @@ public class TestDataLabel : MonoBehaviour
     GUIStyle style;
     void OnGUI()
     {
-        if (!SaveProfile.IsTest) return;
+        // 2026-10-14: Android の専用の試験ファイル(qa_filesave.txt)で起動している時も、ずっと見えるように出す
+        bool sticky = FileSaveStore.Sticky;
+        if (!SaveProfile.IsTest && !sticky) return;
         GUI.depth = -1000;
         if (style == null) style = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
         float s = Mathf.Max(1f, Mathf.Min(Screen.width, Screen.height) / 720f); // 短い辺基準(縦画面で大きくなりすぎない、2026-10-08)
         style.fontSize = Mathf.RoundToInt(13 * s);
-        var r = new Rect(Screen.width * 0.5f - 60 * s, 2 * s, 120 * s, 20 * s);
+        float bw = sticky ? 240 : 120;
+        var r = new Rect(Screen.width * 0.5f - bw * 0.5f * s, 2 * s, bw * s, 20 * s);
         var old = GUI.color;
         GUI.color = new Color(0.85f, 0.15f, 0.1f, 0.8f);
         GUI.DrawTexture(r, Texture2D.whiteTexture);
         GUI.color = Color.white;
-        GUI.Label(r, "TEST DATA", style);
+        GUI.Label(r, sticky ? "TEST FILE: " + System.IO.Path.GetFileName(FileSaveStore.FilePath) : "TEST DATA", style);
         GUI.color = old;
     }
 #endif

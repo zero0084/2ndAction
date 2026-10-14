@@ -18,6 +18,17 @@ public class FileSaveStore : ISaveStore
     public static bool Active { get; private set; }
     public static string Folder { get; private set; } = "";
     public static int Saves { get; private set; }
+    // 2026-10-14: Android の実機の確認用。アプリのフォルダの qa_filesave.txt(中身 = 専用のファイルの名前)がある間は、毎回の起動で専用のファイルを使う
+    // (qa_args.txt は読んだら消えるので、再起動の確認ができなかった)。消す: adb で消す / DEBUG → テストデータ → 「専用の試験ファイルを終わる」
+    public const string StickyFile = "qa_filesave.txt";
+    public static bool Sticky { get; private set; }
+    public static string FilePath { get; private set; } = "";
+    public static string StickyPath => System.IO.Path.Combine(Application.persistentDataPath, StickyFile);
+    public static bool EndSticky()
+    {
+        try { if (System.IO.File.Exists(StickyPath)) System.IO.File.Delete(StickyPath); Debug.Log("[FileSaveStore] sticky test file ended (the next start uses the normal save)"); return true; }
+        catch (Exception e) { Debug.LogWarning("[FileSaveStore] could not remove " + StickyFile + ": " + e.Message); return false; }
+    }
 
     FileSaveStore(string p)
     {
@@ -77,13 +88,27 @@ public class FileSaveStore : ISaveStore
 #if UNITY_ANDROID && !UNITY_EDITOR
         // Android は起動引数が渡せないので qa_args.txt(QaArgs)から
         if (p == null) { var q = QaArgs.All; for (int i = 0; i < q.Length - 1; i++) if (q[i] == "-fileSave") p = q[i + 1]; }
+        if (p == null)
+        {
+            try
+            {
+                if (System.IO.File.Exists(StickyPath))
+                {
+                    string s = System.IO.File.ReadAllText(StickyPath).Trim();
+                    // 名前だけ(アプリのフォルダの中)。空/フォルダの外を指す物は使わない(通常のデータで起動する)
+                    if (s.Length > 0 && s.IndexOfAny(new[] { '/', '\\', ':' }) < 0 && !s.Contains("..")) { p = System.IO.Path.Combine("qa_test", s); Sticky = true; }
+                    else Debug.LogWarning("[FileSaveStore] " + StickyFile + " must contain a plain file name; ignored");
+                }
+            }
+            catch (Exception e) { Debug.LogWarning("[FileSaveStore] " + e.Message); }
+        }
 #endif
         if (string.IsNullOrEmpty(p)) return;
         if (!System.IO.Path.IsPathRooted(p)) p = System.IO.Path.Combine(Application.persistentDataPath, p);
         Folder = System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(p));
         System.IO.Directory.CreateDirectory(Folder);
         Platform.Install(save: new FileSaveStore(p));
-        Active = true;
+        Active = true; FilePath = p;
         Debug.Log("[FileSaveStore] saves go to the dedicated test file " + p + " (normal save untouched)");
     }
 }

@@ -33,7 +33,7 @@ public static class DebugRun
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     [System.Serializable] class FileData { public string what; public string time; public List<SaveSystem.Item> items = new List<SaveSystem.Item>(); }
     static List<SaveSystem.Item> snapshot;
-    static string FilePath => System.IO.Path.Combine(Application.persistentDataPath, SaveProfile.DebugRunFile(SaveProfile.IsTest));
+    static string FilePath => System.IO.Path.Combine(SaveSystem.DataRoot, SaveProfile.DebugRunFile(SaveProfile.IsTest)); // 2026-10-14: 専用の保存の時は専用の場所
 
     public static void Begin(string what)
     {

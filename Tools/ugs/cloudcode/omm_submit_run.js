@@ -3,6 +3,9 @@
  * 端末から届いた値を検査してから、Leaderboards へ「自己ベストより長い時だけ」書く。
  * 検査の規則は Unity 側の LeaderboardRules(Assets/Scripts/Online/Leaderboard.cs)と同じ。
  * 2026-10-14: ソロ専用(CPU サポート/マルチのランは端末が送らず、届いても "solo only" で拒否する。サポート用の表/スクリプトは作らない)。
+ * 2026-10-14: 環境の分離。production の環境では、製品版(buildKind = "release")が production で作った記録(env = "production")だけを書く。
+ *   開発版/古い版(buildKind が無い)からの送信は "dev build" で拒否する。development 等の環境では開発版の送信を受け付ける。
+ *   context.environmentName が渡らない場合は環境の確認を省く(ログに残す)。※ 本物のサービスでは未確認。
  *
  * 前提(Dashboard):
  *  - Leaderboards: omm_best_wasteland_road / omm_best_natural_cave / omm_best_sky_corridor / omm_best_last_corridor
@@ -68,6 +71,17 @@ module.exports = async ({ params, context, logger }) => {
   const board = "omm_best_" + params.stageId;
   if (!STAGES.includes(params.stageId)) return { status: "rejected", message: "bad map" };
 
+  // 2026-10-14: 環境の分離(production へは製品版の、production で作った記録だけ)
+  const envName = context.environmentName;
+  if (envName === "production") {
+    if (params.buildKind !== "release" || params.env !== "production") {
+      logger.info(`rejected ${playerId} ${params.stageId}: dev build or other environment (buildKind=${params.buildKind}, env=${params.env})`);
+      return { status: "rejected", message: "dev build" };
+    }
+  } else if (envName === undefined) {
+    logger.info("environmentName not in context: environment check skipped");
+  }
+
   // 今の自己ベスト(無ければ 0)
   let best = 0;
   try {
@@ -116,4 +130,7 @@ module.exports.params = {
   // 2026-10-14: ソロの宣言(1 だけ受け付ける)。必須にすると古い版の送信が「失敗」扱いで再送され続けるので任意にして、validate で拒否する
   partySize: { type: "NUMERIC", required: false },
   allies: { type: "String", required: false },
+  // 2026-10-14: 環境の分離(古い版は送らないので任意。production では無い物を拒否する)
+  buildKind: { type: "String", required: false },
+  env: { type: "String", required: false },
 };

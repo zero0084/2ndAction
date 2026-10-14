@@ -1,0 +1,139 @@
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+using System.Collections;
+using UnityEngine;
+
+// ホームの「続きから」「はじめから」(2026-10-14)。専用の保存(-fileSave / -memSave)で行う。
+//  -qaHomeChoice <dir> -hcPhase shots|tap [-hcLangs ja,en,de,ru,fr,my]
+//   shots … 中断中のランを作り、言語ごとにホームを撮る。札の位置(重ならない・画面の中・間隔・大きさ)と確認の画面を調べる
+//   tap   … 実機/エミュレーター用: 押す場所を tap_req.txt に書き、外(adb)から本当に押してもらう。
+//           はじめから → 確認 → キャンセル(中断データが残る)→ はじめから → はじめから出発(マップ選択へ、中断データだけが消え、MILE/カードは同じ)
+//           → 中断中のランをもう一度作って「続きから」の札を押す → 同じ地点から再開
+public partial class QaSweep
+{
+    IEnumerator HcMakeCheckpoint(float dist)
+    {
+        yield return BeginRun("swordsman", "wasteland_road");
+        WarpTo(dist);
+        yield return new WaitForSecondsRealtime(1.2f);
+        stopKeepAlive = true;
+        yield return null;
+        typeof(GameManager).GetProperty("Lives").GetSetMethod(true).Invoke(gm, new object[] { Mathf.Max(1, gm.maxLives - 13) });
+        typeof(GameManager).GetMethod("SaveCheckpoint", NP).Invoke(gm, null);
+        yield return ResumeGoHome();
+        float w = 0f; while ((NoticeQueue.Open || w < 2f) && w < 10f) { yield return null; w += Time.unscaledDeltaTime; }
+    }
+
+    static bool Overlap(Rect a, Rect b) => a.width > 0 && b.width > 0 && a.Overlaps(b);
+    bool InsideScreen(Rect r) => r.xMin >= 0f && r.yMin >= 0f && r.xMax <= Screen.width && r.yMax <= Screen.height;
+
+    void HcCheckLayout(string tag)
+    {
+        var vis = gm.LastHomeSignRects; var hit = gm.LastHomeSignHitRects;
+        Rect c = vis[4], n = vis[5], ch = hit[4], nh = hit[5];
+        L($"[hc] {tag}: screen {Screen.width}x{Screen.height} continue {c} (hit {ch}) new {n} (hit {nh}) deck-sign {vis[1]}");
+        Check(c.width > 0 && n.width > 0, $"{tag}: both choices are shown");
+        Check(!Overlap(ch, nh) && nh.yMin - ch.yMax >= 6f, $"{tag}: the tap areas do not overlap and are spaced ({nh.yMin - ch.yMax:F0}px)");
+        Check(InsideScreen(ch) && InsideScreen(nh), $"{tag}: both tap areas are on the screen");
+        bool clash = false;
+        for (int i = 0; i < 4; i++) if (Overlap(vis[i], c) || Overlap(vis[i], n)) { clash = true; L($"   overlaps sign {i}: {vis[i]}"); }
+        Check(!clash, $"{tag}: no overlap with the other signs");
+        if (Debug.isDebugBuild)
+        {
+            var dbg = (Rect)typeof(GameManager).GetMethod("GetHomeDebugButtonRect", NP).Invoke(gm, null);
+            Check(!Overlap(dbg, ch) && !Overlap(dbg, nh), $"{tag}: no overlap with the DEBUG button (dev only) {dbg}");
+        }
+        float baseH = vis[1].height; // 1行の通常の札(デッキ編集)
+        Check(n.height >= baseH * 1.15f && c.height >= baseH * 1.2f, $"{tag}: larger than a normal sign (continue {c.height / Mathf.Max(1f, baseH):F2}x, new {n.height / Mathf.Max(1f, baseH):F2}x of {baseH:F0}px)");
+        Check(ch.height > c.height && nh.height > n.height, $"{tag}: the tap areas are larger than the drawn signs");
+    }
+
+    IEnumerator HomeChoiceMode()
+    {
+        float w0 = 0f;
+        while (GameManager.Instance == null && w0 < 10f) { yield return null; w0 += Time.unscaledDeltaTime; }
+        yield return new WaitForSecondsRealtime(1.5f);
+        gm = GameManager.Instance;
+        bool safe = FileSaveStore.Active || MemorySaveStore.Active || SaveProfile.IsTest;
+        Check(safe, "runs on a dedicated save only");
+        if (!safe) yield break;
+        string phase = Arg("-hcPhase", "shots");
+        L($"[hc] phase={phase} screen {Screen.width}x{Screen.height}");
+
+        // 中断データが無い時: 「出発」だけ(続きから/はじめからは出ない)
+        RunCheckpoint.Clear();
+        yield return new WaitForSecondsRealtime(0.6f);
+        Check(!gm.HomeShowsContinueChoice && gm.LastHomeSignRects[4].width > 0 && gm.LastHomeSignRects[5].width <= 0, "no suspended run: the normal 'depart' sign only");
+        Shot("home_no_continue"); yield return null; yield return null;
+
+        yield return HcMakeCheckpoint(1500f);
+
+        Check(RunCheckpoint.HasActiveRun, "a suspended run exists");
+        yield return new WaitForSecondsRealtime(0.6f);
+
+        if (phase == "shots")
+        {
+            string keepLang = Loc.Current;
+            foreach (var code in Arg("-hcLangs", "ja,en,de,ru,fr,my").Split(','))
+            {
+                Loc.Set(code, false);
+                yield return new WaitForSecondsRealtime(0.7f);
+                HcCheckLayout($"{code}");
+                Shot($"home_choice_{code}"); yield return null; yield return null;
+                // 確認の画面
+                typeof(GameManager).GetField("showNewRunConfirm", NP).SetValue(gm, true);
+                yield return new WaitForSecondsRealtime(0.4f);
+                Rect y = gm.LastNewRunYesRect, n = gm.LastNewRunNoRect;
+                Check(InsideScreen(y) && InsideScreen(n) && !Overlap(y, n) && y.height >= 60f, $"{code}: confirm buttons on the screen, separate, tall enough ({y.height:F0}px)");
+                Shot($"home_confirm_{code}"); yield return null; yield return null;
+                typeof(GameManager).GetField("showNewRunConfirm", NP).SetValue(gm, false);
+                yield return new WaitForSecondsRealtime(0.2f);
+            }
+            Loc.Set(keepLang, false);
+            Check(RunCheckpoint.HasActiveRun, "the suspended run is still there after the screenshots");
+            yield break;
+        }
+
+        // ---- tap: 外から本当に押してもらう ----
+        int mile0 = gm.TotalOwnedMile; string cards0 = SaveStore.GetString("OwnedCardsV1", ""), unlock0 = SaveStore.GetString(UnlockRules.StagesKey, "") + "|" + SaveStore.GetString(UnlockRules.CharsKey, "");
+        yield return TapAndWait("new1", gm.LastHomeSignRects[5], () => gm.NewRunConfirmOpen, 120f);
+        Check(gm.NewRunConfirmOpen, "tap 'はじめから' -> the confirmation opens");
+        yield return new WaitForSecondsRealtime(0.5f);
+        Shot("tap_confirm"); yield return null; yield return null;
+        yield return TapAndWait("cancel", gm.LastNewRunNoRect, () => !gm.NewRunConfirmOpen, 120f);
+        Check(!gm.NewRunConfirmOpen && RunCheckpoint.HasActiveRun && !gm.StageSelectIsOpen, "cancel -> back home, the suspended run is kept");
+        yield return new WaitForSecondsRealtime(0.8f);
+        yield return TapAndWait("new2", gm.LastHomeSignRects[5], () => gm.NewRunConfirmOpen, 120f);
+        yield return new WaitForSecondsRealtime(0.5f);
+        yield return TapAndWait("yes", gm.LastNewRunYesRect, () => gm.StageSelectIsOpen, 120f);
+        Check(gm.StageSelectIsOpen && !RunCheckpoint.HasActiveRun, "'はじめから出発' -> the suspended run ends and the map select opens");
+        Check(gm.TotalOwnedMile == mile0 && SaveStore.GetString("OwnedCardsV1", "") == cards0 && SaveStore.GetString(UnlockRules.StagesKey, "") + "|" + SaveStore.GetString(UnlockRules.CharsKey, "") == unlock0,
+            $"the owned MILE / cards / unlocks are not reset ({mile0} -> {gm.TotalOwnedMile})");
+        Shot("tap_stage_select"); yield return null; yield return null;
+        gm.CloseStageSelect();
+        yield return new WaitForSecondsRealtime(1.5f);
+        // 続きから(札)で再開
+        yield return HcMakeCheckpoint(2500f);
+        float want = RunCheckpoint.Load().checkpointDistance;
+        yield return new WaitForSecondsRealtime(0.6f);
+        yield return TapAndWait("continue", gm.LastHomeSignRects[4], () => GameManager.Instance != null && GameManager.Instance.HasStarted, 120f);
+        float w = 0f; while (w < 5f && (GameManager.Instance == null || !GameManager.Instance.HasStarted)) { yield return null; w += Time.unscaledDeltaTime; }
+        gm = GameManager.Instance;
+        Check(gm.HasStarted && Mathf.Abs(gm.MaxDistance - want) < 2f, $"tap '続きから' -> resumes at the saved point ({gm.MaxDistance:F0} vs {want:F0})");
+        yield return new WaitForSecondsRealtime(2f);
+        Shot("tap_resumed"); yield return null; yield return null;
+        yield return EndRun();
+    }
+
+    // 押す場所(画面の座標・左上が原点)を書いて、条件が満たされるまで待つ。外の adb が tap_req.txt を読んで押し、消す
+    IEnumerator TapAndWait(string name, Rect r, System.Func<bool> done, float timeout)
+    {
+        string p = System.IO.Path.Combine(outDir, "tap_req.txt");
+        System.IO.File.WriteAllText(p, $"{name} {Mathf.RoundToInt(r.center.x)} {Mathf.RoundToInt(r.center.y)}");
+        L($"[hc] tap request '{name}' at {r.center} (rect {r})");
+        float w = 0f;
+        while (!done() && w < timeout) { yield return null; w += Time.unscaledDeltaTime; }
+        try { if (System.IO.File.Exists(p)) System.IO.File.Delete(p); } catch { }
+        L($"[hc] '{name}' -> {(done() ? "done" : "TIMEOUT")} after {w:F1}s");
+    }
+}
+#endif

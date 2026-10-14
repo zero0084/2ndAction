@@ -1498,6 +1498,10 @@ public class TerrainManager : MonoBehaviour
             }
         }
 
+        // 2026-10-14: 一番手前のチャンクより前は、その最初の地面の高さ(GetSupportHeightAt と同じ)。以前は一番先のチャンクの
+        // 終わりの高さを返していて、地形の始まりの直後(ランの開始/ワープした直後)にその手前を測ると、遠くの坂の高さ(+3 / -1.5 等)の
+        // 段差に見えた(CONTINUE の足場の確認が断続的に失敗した原因)。生成の先より先は今までどおり最後の地面の高さ
+        if (chunks.Count > 0 && x < chunks[0].startX) { for (int i = 0; i < chunks.Count; i++) if (chunks[i].type != ChunkType.Pit) return chunks[i].startY; }
         return chunks.Count > 0 ? chunks[chunks.Count - 1].endY : (float?)0f;
     }
 
@@ -1666,6 +1670,25 @@ public class TerrainManager : MonoBehaviour
             if (c.type == ChunkType.Pit) return c.startX;
         }
         return null;
+    }
+
+    // 確認用(2026-10-14): 一番手前のチャンクの始まり(world X)と、最初の地面の高さ
+    public float FirstChunkStartX => chunks.Count > 0 ? chunks[0].startX : 0f;
+    public float FirstGroundY { get { for (int i = 0; i < chunks.Count; i++) if (chunks[i].type != ChunkType.Pit) return chunks[i].startY; return 0f; } }
+
+    // 確認用(2026-10-14): [worldA, worldB] のチャンクの並び(論理X / 種類 / 高さ)。CONTINUE の足場の調査のログ用
+    public string DescribeChunks(float worldA, float worldB)
+    {
+        var sb = new System.Text.StringBuilder();
+        for (int i = 0; i < chunks.Count; i++)
+        {
+            RuntimeChunk c = chunks[i];
+            if (c.endX < worldA) continue;
+            if (c.startX > worldB) break;
+            sb.Append($"[{FloatingOrigin.ToLogical(c.startX):F1}-{FloatingOrigin.ToLogical(c.endX):F1} {c.type} {c.startY:F2}->{c.endY:F2}] ");
+        }
+        sb.Append($"(generated to {FloatingOrigin.ToLogical(nextStartX):F1})");
+        return sb.ToString();
     }
 
     // 確認用: [worldA, worldB] で坂が何チャンクあるか / 高さの最小・最大

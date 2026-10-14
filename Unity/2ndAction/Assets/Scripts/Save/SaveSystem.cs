@@ -171,6 +171,7 @@ public static class SaveSystem
         UnlockRules.RequeuePending(); // 解放したのに確認していないお知らせ(アプリが落ちても失わない)
         try { int purged = Leaderboard.PurgeSupportEntries(); if (purged > 0) log.Append($"ranking: removed {purged} CPU-support record(s); "); } // 2026-10-14: ランキングはソロだけ
         catch (Exception e) { Debug.LogWarning("[Save] ranking purge failed: " + e.Message); }
+        try { Leaderboard.LogEnvironmentAtBoot(); } catch { } // 2026-10-14: 今の UGS の環境と、送らずに残している送信待ちの数
         // 正常を確認できた状態を残す(壊れた値を直した後の状態)
         RotateLastGood();
         if (r.restoredFrom != "")
@@ -453,18 +454,29 @@ public static class SaveSystem
         ReloadCaches();
     }
 
-    static string Dir
+    // 保存に付いて回るファイル(バックアップ/引き継ぎの途中の控え/デバッグランの控え)を置く場所。
+    // 2026-10-14: -memSave / -fileSave の時は、通常のデータの物に触れないよう専用の場所(以前はデバッグランの控えだけ通常の場所を使っていた)
+    public static string DataRoot
     {
         get
         {
             string root = Application.persistentDataPath;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            // -memSave(保存をメモリだけにする検証): バックアップもこのプロセス専用の一時フォルダへ(通常のデータのバックアップに触れない)
+            // -memSave(保存をメモリだけにする検証): このプロセス専用の一時フォルダへ(通常のデータのバックアップに触れない)
             if (MemorySaveStore.Active && TestBackupSubdir == null)
                 root = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "OneMoreMile_memSave", System.Diagnostics.Process.GetCurrentProcess().Id.ToString());
-            // -fileSave(保存を専用のファイルへ。再起動の確認用): バックアップもそのファイルの隣へ
+            // -fileSave(保存を専用のファイルへ。再起動の確認用): そのファイルの隣へ
             if (FileSaveStore.Active && TestBackupSubdir == null) root = FileSaveStore.Folder;
 #endif
+            return root;
+        }
+    }
+
+    static string Dir
+    {
+        get
+        {
+            string root = DataRoot;
             string d = System.IO.Path.Combine(root, TestBackupSubdir ?? SaveProfile.BackupSubdir(SaveProfile.IsTest));
             try { System.IO.Directory.CreateDirectory(d); } catch { }
             return d;

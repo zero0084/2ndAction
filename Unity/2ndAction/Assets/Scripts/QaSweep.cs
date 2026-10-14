@@ -95,6 +95,8 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaOnline") { mode = "online"; dir = a[i + 1]; }
             if (a[i] == "-qaRecords") { mode = "records"; dir = a[i + 1]; }
             if (a[i] == "-qaPortrait") { mode = "portrait"; dir = a[i + 1]; }
+            if (a[i] == "-qaHomeChoice") { mode = "homechoice"; dir = a[i + 1]; }
+            if (a[i] == "-qaUgsEnv") { mode = "ugsenv"; dir = a[i + 1]; }
             if (a[i] == "-qaFix5") { mode = "fix5"; dir = a[i + 1]; }
             if (a[i] == "-qaBuildLab") { mode = "buildlab"; dir = a[i + 1]; }
             if (a[i] == "-qaAtkFx") { mode = "atkfx"; dir = a[i + 1]; }
@@ -192,6 +194,8 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "cardsurvey") yield return CardSurveyMode();
         else if (mode == "bosskill") yield return BossKillMode();
         else if (mode == "resume") yield return ResumeMode();
+        else if (mode == "homechoice") yield return HomeChoiceMode();
+        else if (mode == "ugsenv") yield return UgsEnvMode();
         else if (mode == "cardfix") yield return CardFixMode();
         else if (mode == "hitaudit") yield return HitAuditMode();
         else if (mode == "cardv3") yield return CardV3Mode();

@@ -23,14 +23,16 @@ using UnityEngine;
 //      / ConnectionType=online / StageId / 最大8人。人数は MaxPlayers - AvailableSlots。
 //  ・認証は匿名(Anonymous)。トークンは SDK の正式な保存の仕組みに任せ、こちらでは PlayerPrefs/ファイル/公開の項目に保存しない。
 //    将来 Google Play 等の連携へは Authentication の別のサインインに差し替える(このクラスの SignInAsync の中だけ)。
-//  ・UGS の環境: 既定 "production"(UGS の既定で必ずある)。開発版は起動引数 -ugsEnv development で切り替えられる(Dashboard に作っておくこと)。
+//  ・UGS の環境(2026-10-14 改め): 製品版は必ず "production"、開発版は既定 "development"(production は選べない)。UgsEnvironment が決める。
+//    選んだ環境が無い/失敗した時も production へは切り替えない(初期化は1回だけ、この環境のまま「使えない」にする)。
 public static class OnlineServices
 {
     public enum State { Off, Initializing, Ready, Unavailable }
     public static State Status { get; private set; } = State.Off;
     public static string ErrorText { get; private set; } = "";   // プレイヤー向けの短い理由
     public static string ErrorDetail { get; private set; } = ""; // 開発版の表示/ログ用(秘密は含めない)
-    public static string EnvironmentName { get; private set; } = "production";
+    public static string EnvironmentName => UgsEnvironment.Name;
+    static bool initializedHere; // UnityServices をこのクラスが(UgsEnvironment の環境で)初期化した
     public static string PlayerId => Status == State.Ready && AuthenticationService.Instance.IsSignedIn ? AuthenticationService.Instance.PlayerId : "";
 
     public const string KeyMode = "GameMode", KeyProtocol = "ProtocolVersion", KeyGameVersion = "GameVersion", KeyRunState = "RunState", KeyConnection = "ConnectionType", KeyStage = "StageId", KeyRegion = "RelayRegion";
@@ -54,12 +56,20 @@ public static class OnlineServices
         {
             if (UnityServices.State != ServicesInitializationState.Initialized)
             {
-                EnvironmentName = EnvFromArgs();
                 string profile = ProfileFromArgs();
-                Log($"UGS Initialize (environment {EnvironmentName}{(profile != null ? ", profile " + profile : "")})");
+                Log($"UGS Initialize ({UgsEnvironment.Describe()}{(profile != null ? ", profile " + profile : "")})");
                 var opt = new InitializationOptions().SetEnvironmentName(EnvironmentName);
                 if (profile != null) opt.SetProfile(profile); // 開発版: 同じ PC の2つ目のプロセスを別の匿名プレイヤーにする(サインインの記録はプロフィールごと)
                 await UnityServices.InitializeAsync(opt);
+                initializedHere = true;
+            }
+            else if (!initializedHere)
+            {
+                // 他の所が先に(環境を指定せずに)初期化した = どの環境か確かめられない → 使わない(production に書くおそれがある)
+                Status = State.Unavailable; ErrorText = "ONLINE SERVICE UNAVAILABLE";
+                ErrorDetail = "Unity Services were initialized elsewhere; the environment cannot be confirmed";
+                Debug.LogWarning("[ONLINE] " + ErrorDetail + " (not used)");
+                return false;
             }
             if (!AuthenticationService.Instance.IsSignedIn)
             {
@@ -84,15 +94,6 @@ public static class OnlineServices
         return null;
     }
 
-    static string EnvFromArgs()
-    {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        var a = Environment.GetCommandLineArgs();
-        for (int i = 0; i < a.Length - 1; i++) if (a[i] == "-ugsEnv" && !string.IsNullOrEmpty(a[i + 1])) return a[i + 1];
-#endif
-        return "production";
-    }
-
     public static void ResetError() { if (Status == State.Unavailable) Status = State.Off; ErrorText = ""; ErrorDetail = ""; }
 
     static void Fail(string where, Exception e)
@@ -100,9 +101,12 @@ public static class OnlineServices
         Status = State.Unavailable;
         string all = e.ToString();
         bool notLinked = all.Contains("link your Unity project") || all.Contains("UnityProjectNotLinkedException") || all.Contains("project ID");
+        bool noEnv = all.IndexOf("environment", StringComparison.OrdinalIgnoreCase) >= 0 && (all.Contains("not found") || all.Contains("NotFound") || all.Contains("404") || all.Contains("invalid"));
         ErrorText = "ONLINE SERVICE UNAVAILABLE";
-        ErrorDetail = notLinked ? "project is not linked to Unity Cloud (Dashboard setup needed)" : $"{e.GetType().Name}: {FirstLine(e.Message)}";
-        Debug.LogWarning($"[ONLINE] Service error ({where}): {ErrorDetail}");
+        ErrorDetail = notLinked ? "project is not linked to Unity Cloud (Dashboard setup needed)"
+            : noEnv ? $"UGS environment '{EnvironmentName}' is missing (create it in the Dashboard; production is not used instead)"
+            : $"{e.GetType().Name}: {FirstLine(e.Message)}";
+        Debug.LogWarning($"[ONLINE] Service error ({where}, environment {EnvironmentName}): {ErrorDetail}");
     }
 
     static string FirstLine(string s) { if (string.IsNullOrEmpty(s)) return ""; int i = s.IndexOf('\n'); return i > 0 ? s.Substring(0, i) : s; }
@@ -427,7 +431,7 @@ public static class OnlineServices
 
     public static string DebugLine()
     {
-        if (NetSession.Connection != ConnectionType.Online) return "connection LOCAL";
+        if (NetSession.Connection != ConnectionType.Online) return $"connection LOCAL (UGS env {EnvironmentName})";
         return $"connection ONLINE (Relay {RelayProto}, region {RelayRegion}, relay {RelayHost}) session {(Current != null ? Current.Id : "-")} players {(Current != null ? $"{Current.PlayerCount}/{Current.MaxPlayers}" : "-")} env {EnvironmentName}";
     }
 }

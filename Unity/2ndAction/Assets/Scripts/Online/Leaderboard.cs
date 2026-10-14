@@ -18,6 +18,8 @@ using UnityEngine;
 //  ・端末からの値をそのまま信じない: サーバー(Cloud Code)が形式・範囲・速さ・時刻・疾走の行き先・重複・自己ベストを検査して書く
 //    (プレイヤーはランキングへ直接書けないよう Access Control で禁止する)。検査の規則は LeaderboardRules(このファイル)と
 //    Tools/ugs/cloudcode/omm_submit_run.js で同じにしてある。
+//  ・2026-10-14(マスター指定): 送信待ち/自己ベストには作った時の UGS の環境(env)を付け、今の環境で作った物だけを送る。
+//    別の環境の物・環境を付ける前の物(env が空)は送らずに残す(production へ振り替えない)。開発版は production へ送らない(UgsEnvironment.MaySubmit)。
 public static class Leaderboard
 {
     public const string JoinedKey = "Ranking.JoinedV1";      // 1 = 参加した(コードネームと記録の公開に同意)
@@ -29,7 +31,9 @@ public static class Leaderboard
     public static string BoardId(string stageId) => "omm_best_" + stageId;
     // 前の版(2026-10-14 の途中まで)が作ったサポートの記録か(取り除く対象)
     static bool WasSupport(Entry e) => e != null && (e.partySize > 1 || !string.IsNullOrEmpty(e.allies));
-    static bool SameBoard(Entry a, Entry b) => a != null && b != null && a.stageId == b.stageId;
+    // 同じ表 = 同じマップ + 同じ環境(開発用の環境の自己ベストが production の送信を止めないように)
+    static bool SameBoard(Entry a, Entry b) => a != null && b != null && a.stageId == b.stageId && (a.env ?? "") == (b.env ?? "");
+    static bool Sendable(Entry e) => e != null && UgsEnvironment.MaySubmit(e.env, out _);
 
     [Serializable]
     public class Entry
@@ -42,6 +46,7 @@ public static class Leaderboard
         public string appVersion = "";
         public int partySize = 1;     // 常に 1(ソロ)。前の版の端末に残ったサポートの記録を見分けるために読む(2〜4 = サポート)
         public string allies = "";    // 前の版のサポートの記録の仲間(読むだけ。送らない)
+        public string env = "";       // 2026-10-14: 作った時の UGS の環境(空 = 分ける前の版の物。送らない)
     }
     [Serializable] class EntryList { public List<Entry> items = new List<Entry>(); }
 
@@ -72,6 +77,7 @@ public static class Leaderboard
         startedUtc = r.startedUtc, committedUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
         appVersion = Application.version,
         partySize = 1, allies = "",
+        env = UgsEnvironment.Name,
     };
 
     // RunLedger.CommitSuccess から(資格のある成功だけ)
@@ -86,7 +92,7 @@ public static class Leaderboard
         if (Joined && better) Enqueue(e);
     }
 
-    public static Entry VerifiedBest(string stageId) => Load(VerifiedKey).items.Find(x => x.stageId == stageId && !WasSupport(x));
+    public static Entry VerifiedBest(string stageId) => Load(VerifiedKey).items.Find(x => x.stageId == stageId && !WasSupport(x) && x.env == UgsEnvironment.Name);
 
     // 起動時(SaveSystem.Boot): 前の版が残したサポートの記録を送信待ち/自己ベストから取り除く。ソロの物はそのまま。取り除いた数を返す
     public static int PurgeSupportEntries()
@@ -104,12 +110,18 @@ public static class Leaderboard
         return n;
     }
 
+    // 起動時(SaveSystem.Boot): 今の環境と、送れない(別の環境/分ける前の)送信待ちの数をログへ
+    public static void LogEnvironmentAtBoot()
+    {
+        Log($"{UgsEnvironment.Describe()}; {PendingCount} pending for this environment, {HeldCount} held (other environment or before the separation - never sent)");
+    }
+
     // ---------------------------------------------------------------- 参加
     public static void Join()
     {
         if (Joined) return;
         SaveStore.SetInt(JoinedKey, 1);
-        foreach (var e in Load(VerifiedKey).items) Enqueue(e); // 参加より前に確定した、資格のある自己ベスト
+        foreach (var e in Load(VerifiedKey).items) if (e.env == UgsEnvironment.Name) Enqueue(e); // 参加より前に確定した、資格のある自己ベスト(今の環境の物だけ)
         SaveStore.Save();
         Log("joined the ranking");
         _ = FlushAsync("join");
@@ -117,12 +129,14 @@ public static class Leaderboard
     public static void Leave() { SaveStore.SetInt(JoinedKey, 0); SaveStore.Save(); Log("left the ranking (nothing more is sent)"); }
 
     // ---------------------------------------------------------------- 投稿待ち
-    public static int PendingCount => Load(PendingKey).items.Count;
+    // 今の環境で送れる送信待ち(別の環境の物・環境を付ける前の物は HeldCount)
+    public static int PendingCount => Load(PendingKey).items.FindAll(Sendable).Count;
+    public static int HeldCount => Load(PendingKey).items.FindAll(x => !Sendable(x)).Count;
     // 2026-10-13: マップごとの送信待ち(順位の画面の「あなた」の状態を実際の送信待ちから出す)
-    public static int PendingCountFor(string stageId) { int n = 0; foreach (var e in Load(PendingKey).items) if (e != null && e.stageId == stageId) n++; return n; }
+    public static int PendingCountFor(string stageId) { int n = 0; foreach (var e in Load(PendingKey).items) if (e != null && e.stageId == stageId && Sendable(e)) n++; return n; }
     static void Enqueue(Entry e)
     {
-        if (IsSent(e.runId) || WasSupport(e)) return;
+        if (IsSent(e.runId) || WasSupport(e) || !Sendable(e)) return;
         var q = Load(PendingKey);
         if (q.items.Exists(x => x.runId == e.runId)) return;
         // 同じマップの、より短い投稿待ちは要らない(サーバーは自己ベストより短い物を書かない)
@@ -158,9 +172,16 @@ public static class Leaderboard
 
     public static async Task FlushAsync(string why)
     {
-        if (!Joined || Sending) return;
+        if (!Joined) return;
+        if (Sending) { Log($"send skipped ({why}): already sending"); return; }
         var backend = Backend;
         if (backend == null) return;
+        if (!UgsEnvironment.MaySubmit(UgsEnvironment.Name, out string block))
+        {
+            LastSendError = "blocked: " + block;
+            Log($"send blocked ({why}): {block} - {UgsEnvironment.Describe()}");
+            return;
+        }
         Sending = true;
         try
         {
@@ -170,7 +191,7 @@ public static class Leaderboard
             while (true)
             {
                 var q = Load(PendingKey);
-                var e = q.items.Find(x => !skip.Contains(x.runId));
+                var e = q.items.Find(x => !skip.Contains(x.runId) && Sendable(x)); // 別の環境の物は触らない(残す)
                 if (e == null) break;
                 var res = await backend.Submit(e, Codename.Current);
                 if (res.status == SubmitStatus.Failed) { skip.Add(e.runId); anyFailed = true; LastSendError = res.message; Log($"send failed ({why}) {e.stageId}: {res.message} - kept for retry"); continue; }
@@ -181,7 +202,7 @@ public static class Leaderboard
                 MarkSent(e.runId);
                 SaveStore.Save();
                 if (!anyFailed) LastSendError = "";
-                Log($"sent {e.stageId} {e.meters}m -> {res.status}{(string.IsNullOrEmpty(res.message) ? "" : " (" + res.message + ")")}");
+                Log($"sent {e.stageId} {e.meters}m to '{e.env}' -> {res.status}{(string.IsNullOrEmpty(res.message) ? "" : " (" + res.message + ")")}");
             }
         }
         catch (Exception ex) { LastSendError = ex.GetType().Name; Debug.LogWarning("[Ranking] send error: " + ex.GetType().Name + ": " + ex.Message); }

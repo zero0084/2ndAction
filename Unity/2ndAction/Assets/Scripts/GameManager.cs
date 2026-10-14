@@ -1941,7 +1941,10 @@ public partial class GameManager : MonoBehaviour
     {
         if (HomePortrait) { var pl = PortraitHome(); float dh = Mathf.Round(pl.chrome.height * 0.5f); return new Rect(pl.chrome.xMax - dh * 2.4f, pl.room.y + 8f, dh * 2.4f, dh); } // 縦: 部屋の絵の右上の角(押せる物が無い所)
         float h = Mathf.Clamp(Screen.height * 0.06f, 40f, 80f), w = h * 2.6f;
-        return new Rect(Screen.width * 0.6f - w * 0.5f, Screen.height - SafeBottom() - UiMargin - h, w, h);
+        var r = new Rect(Screen.width * 0.6f - w * 0.5f, Screen.height - SafeBottom() - UiMargin - h, w, h);
+        // 2026-10-14: 扉の下の「続きから」「はじめから」(長い言語では横に広い)に重ならないよう、右へずらす
+        for (int i = 4; i <= 5; i++) { Rect s = LastHomeSignHitRects[i]; if (s.width > 0 && s.Overlaps(r)) r.x = s.xMax + 12f; }
+        return r;
     }
 
     // ---- 縦画面のホーム(2026-10-08、依頼E-2)
@@ -4317,27 +4320,7 @@ public partial class GameManager : MonoBehaviour
                 }
                 if (roomFadeAlpha > 0.5f && UnlockRules.AnyNewStage) DrawNewDot(doorRect); // 2026-10-08: 新しいマップが増えた
 
-                if (RunCheckpoint.HasActiveRun && roomFadeAlpha > 0.5f)
-                {
-                    RunCheckpoint.Data cp = RunCheckpoint.Load();
-                    string continueLabel = $"CONTINUE\n{Mathf.FloorToInt(cp.checkpointDistance)}m CHECKPOINT";
-                    GUIStyle continueStyle = new GUIStyle(GUI.skin.label);
-                    continueStyle.fontSize = 16;
-                    continueStyle.fontStyle = FontStyle.Bold;
-                    continueStyle.alignment = TextAnchor.MiddleCenter;
-                    continueStyle.normal.textColor = new Color(1f, 0.85f, 0.4f);
-                    Rect continueLabelRect = new Rect(doorRect.x, doorRect.y - 54f, doorRect.width, 46f);
-                    DrawCenteredBackdrop(continueLabelRect, continueLabel, continueStyle);
-                    LocGUI.Label(continueLabelRect, continueLabel, continueStyle);
-
-                    // Item 13 - "Active Runが存在する状態でNEW RUNを開始で
-                    // きるようにする場合は確認を必ず入れてください".
-                    Rect newRunRect = new Rect(doorRect.x, doorRect.yMax + 6f, doorRect.width, 30f);
-                    if (roomInteractable && DrawStyledButton(newRunRect, "NEW RUN", 13f, primary: false))
-                    {
-                        showNewRunConfirm = true;
-                    }
-                }
+                // 2026-10-14: 中断中のランの「CONTINUE」の表示と小さな「NEW RUN」は、扉の下の「続きから」「はじめから」の札へ(GameManager.HomeSigns.cs)
 
                 // キャラクター選択画面(2026-09-12) - 参考画像の「マント+
                 // 剣が置かれている装備スペース」に相当する導線。既存の
@@ -6204,22 +6187,31 @@ public partial class GameManager : MonoBehaviour
         GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), Texture2D.whiteTexture);
         GUI.color = dimPrev;
 
-        float panelWidth = Mathf.Min(480f, Screen.width * 0.85f);
-        float panelHeight = 230f;
-        Rect panelRect = new Rect(Screen.width / 2f - panelWidth / 2f, Screen.height / 2f - panelHeight / 2f, panelWidth, panelHeight);
+        // 2026-10-14: 画面の大きさに合わせて拡大(以前は固定の画素数で、高解像度の端末では小さかった)。ボタンも高く
+        float s = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f);
+        Matrix4x4 keepM = GUI.matrix;
+        GUI.matrix = Matrix4x4.Scale(new Vector3(s, s, 1f)) * keepM;
+        float vw = Screen.width / s, vh = Screen.height / s;
+        float panelWidth = Mathf.Min(560f, vw * 0.9f);
+        float panelHeight = Mathf.Min(320f, vh - 24f);
+        Rect panelRect = new Rect(vw / 2f - panelWidth / 2f, vh / 2f - panelHeight / 2f, panelWidth, panelHeight);
         OrnateUi.DrawPanel(panelRect, 0.92f);
 
         GUIStyle msgStyle = new GUIStyle(GUI.skin.label);
-        msgStyle.fontSize = 20;
+        msgStyle.fontSize = 21;
         msgStyle.alignment = TextAnchor.MiddleCenter;
         msgStyle.wordWrap = true;
         msgStyle.normal.textColor = Color.white;
-        confirmScroll.Text(new Rect(panelRect.x + 24f, panelRect.y + 26f, panelRect.width - 48f, 100f),
-            "中断中のランと持ち帰り予定のMILEを\n破棄します。よろしいですか？", msgStyle, "newrun"); // 2026-10-08: 長い言語はスクロール
+        // 2026-10-14(マスター指定): 「はじめから」= 新しいランを出発(所持カード/MILE/解放などは初期化しない)。中断データだけを終える
+        confirmScroll.Text(new Rect(panelRect.x + 24f, panelRect.y + 22f, panelRect.width - 48f, panelHeight - 22f - 96f),
+            Loc.T("中断中のランを終了して、はじめから出発しますか？") + "\n\n" + Loc.T("持ち帰り予定の MILE は受け取れません。") + "\n" + Loc.T("所持カード・MILE・解放はそのままです。"), msgStyle, "newrun"); // 2026-10-08: 長い言語はスクロール。文の途中で折り返さないよう短い文に分ける
 
-        Rect yesRect = new Rect(panelRect.x + 28f, panelRect.yMax - 68f, panelRect.width / 2f - 42f, 50f);
-        Rect noRect = new Rect(panelRect.x + panelRect.width / 2f + 14f, panelRect.yMax - 68f, panelRect.width / 2f - 42f, 50f);
-        if (DrawStyledButton(yesRect, "破棄してNEW RUN", 15f, primary: true))
+        Rect yesRect = new Rect(panelRect.x + 24f, panelRect.yMax - 84f, panelRect.width / 2f - 36f, 62f);
+        Rect noRect = new Rect(panelRect.x + panelRect.width / 2f + 12f, panelRect.yMax - 84f, panelRect.width / 2f - 36f, 62f);
+        LastNewRunYesRect = new Rect(yesRect.x * s, yesRect.y * s, yesRect.width * s, yesRect.height * s); // 確認用(画面の座標)
+        LastNewRunNoRect = new Rect(noRect.x * s, noRect.y * s, noRect.width * s, noRect.height * s);
+        string yes = Loc.Auto("はじめから出発");
+        if (DrawStyledButton(yesRect, "はじめから出発", FitFont(yes, yesRect.width - 16f, 18f), primary: true))
         {
             showNewRunConfirm = false;
             RunCheckpoint.Clear();
@@ -6227,11 +6219,15 @@ public partial class GameManager : MonoBehaviour
             // 選んでから出発する(DepartFromStageSelect参照)。
             OpenStageSelect();
         }
-        if (DrawStyledButton(noRect, "キャンセル", 16f, primary: false))
+        if (DrawStyledButton(noRect, "キャンセル", 18f, primary: false))
         {
             showNewRunConfirm = false;
         }
+        GUI.matrix = keepM;
     }
+    public Rect LastNewRunYesRect { get; private set; }
+    public Rect LastNewRunNoRect { get; private set; }
+    public bool NewRunConfirmOpen => showNewRunConfirm;
 
     // Item 9 - small Gameplay Pause/Menu button (bottom-right, mirroring
     // the title screen's gear icon at bottom-left).

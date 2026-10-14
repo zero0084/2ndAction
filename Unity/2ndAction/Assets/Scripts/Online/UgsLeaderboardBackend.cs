@@ -24,6 +24,8 @@ public class UgsLeaderboardBackend : Leaderboard.IBackend
 
     public async Task<Leaderboard.SubmitResult> Submit(Leaderboard.Entry e, string codename)
     {
+        // 2026-10-14: 最後の確認。今の環境で作った物でなければ送らない(開発版 → production も止める)。失敗扱い = 送信待ちに残る
+        if (!UgsEnvironment.MaySubmit(e.env, out string block)) return new Leaderboard.SubmitResult(Leaderboard.SubmitStatus.Failed, "blocked: " + block);
         if (!await OnlineServices.EnsureReadyAsync()) return new Leaderboard.SubmitResult(Leaderboard.SubmitStatus.Failed, "service unavailable");
         try
         {
@@ -33,6 +35,7 @@ public class UgsLeaderboardBackend : Leaderboard.IBackend
                 { "playSeconds", e.playSeconds }, { "sprintFrom", e.sprintFrom }, { "usedAuto", e.usedAuto }, { "usedSprint", e.usedSprint },
                 { "startedUtc", e.startedUtc }, { "committedUtc", e.committedUtc }, { "appVersion", e.appVersion }, { "name", Codename.Sanitize(codename) },
                 { "partySize", 1 }, // ソロの宣言(サーバーは 1 以外 / 無い物を拒否する)
+                { "buildKind", UgsEnvironment.BuildKind }, { "env", e.env }, // 2026-10-14: production のスクリプトは release 以外を拒否する
             };
             string json = await CloudCodeService.Instance.CallEndpointAsync(SubmitScript, args);
             var reply = JsonUtility.FromJson<SubmitReply>(json ?? "{}") ?? new SubmitReply();

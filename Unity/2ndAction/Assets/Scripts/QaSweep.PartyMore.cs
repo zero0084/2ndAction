@@ -121,8 +121,9 @@ public partial class QaSweep
         SaveStore.SetString(Leaderboard.VerifiedKey, J(oldSup, oldSolo));
         int purged = Leaderboard.PurgeSupportEntries();
         Check(purged == 3, $"old support records are removed from the queue and the verified bests ({purged})");
-        Check(Leaderboard.PendingCount == 1 && Leaderboard.PendingCountFor("wasteland_road") == 1 && Leaderboard.PendingCountFor("natural_cave") == 0, "the solo pending post is kept, nothing moved to the solo board");
-        Check(Leaderboard.VerifiedBest("wasteland_road")?.meters == 2000, "the solo verified best is kept (the support 5000m is not moved to solo)");
+        // 2026-10-14(環境の分離): 前の版の物は環境が付いていないので、残すが送らない(HeldCount)
+        Check(Leaderboard.PendingCount == 0 && Leaderboard.HeldCount == 1 && Leaderboard.PendingCountFor("natural_cave") == 0, "the old solo pending post is kept (held, not sent), nothing moved to the solo board");
+        Check(SaveStore.GetString(Leaderboard.VerifiedKey, "").Contains(oldSolo.runId) && !SaveStore.GetString(Leaderboard.VerifiedKey, "").Contains(oldSup.runId), "the old solo verified best is kept (the support 5000m is not moved to solo)");
         Check(Leaderboard.PurgeSupportEntries() == 0, "a second start-up removes nothing more");
         // ② 資格: 一度でもサポートを使ったランは対象外(ソロは対象)
         var runSolo = new RunLedger.Run { runId = Id(), stageId = "wasteland_road", characterId = "swordsman", maxReached = 3000, playSeconds = 3000 / 25f + 10f, startedUtc = now - 200, officialStage = true };
@@ -132,7 +133,7 @@ public partial class QaSweep
         Check(!Leaderboard.IsEligible(runSup, out string w2) && w2.Contains("CPU support"), $"a CPU support run is not eligible ({w2})");
         Check(!Leaderboard.IsEligible(runSupGone, out string w3), $"a run that used support once is not eligible even with the size back to 1 ({w3})");
         Leaderboard.OnSuccessCommitted(runSolo);
-        Check(Leaderboard.PendingCount == 1 && Leaderboard.VerifiedBest("wasteland_road")?.meters == 3000, "a longer solo run replaces the shorter solo pending post");
+        Check(Leaderboard.PendingCount == 1 && Leaderboard.VerifiedBest("wasteland_road")?.meters == 3000, "a solo run is queued for this environment");
         // ③ サーバーの検査(サーバーの omm_submit_run.js と同じ): ソロだけ
         Check(LeaderboardRules.Validate(E(Id(), 100, 3, "archer,mage"), 0, null, now) == "solo only", "validation: a support entry is rejected (solo only)");
         Check(LeaderboardRules.Validate(E(Id(), 100, 1, "archer"), 0, null, now) == "solo only", "validation: allies with size 1 are rejected");

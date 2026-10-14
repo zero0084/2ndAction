@@ -119,7 +119,7 @@ public static class SaveTransfer
             savedAtLocal = DateTime.Now.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),
             saveSchema = SaveStore.GetInt(SaveKeys.SchemaVersion, 0),
             releaseGeneration = SaveStore.GetInt(SaveKeys.ReleaseGeneration, 0),
-            testData = SaveProfile.IsTest,
+            testData = IsTestSource,
         };
         foreach (var k in TransferKeys())
             if (SaveStore.HasKey(k.key)) f.items.Add(SaveSystem.ReadItem(k.key, k.type));
@@ -133,7 +133,18 @@ public static class SaveTransfer
         return back;
     }
 
-    public static string SuggestedFileName() => "OneMoreMile_save_" + DateTime.Now.ToString("yyyyMMdd_HHmm", CultureInfo.InvariantCulture) + ".json";
+    public static string SuggestedFileName() => (IsTestSource ? "OneMoreMile_TEST_save_" : "OneMoreMile_save_") + DateTime.Now.ToString("yyyyMMdd_HHmm", CultureInfo.InvariantCulture) + ".json";
+    // 2026-10-14: 開発版のテスト用データ / 専用の試験ファイル(-fileSave・qa_filesave.txt)/ -memSave から書き出す時は、ファイル名に TEST を付けて通常のデータの物と見分ける
+    static bool IsTestSource
+    {
+        get
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (FileSaveStore.Active || MemorySaveStore.Active) return true;
+#endif
+            return SaveProfile.IsTest;
+        }
+    }
 
     // ===================================================================== 検査
     public static Checked Check(string text)
@@ -472,7 +483,7 @@ public static class SaveTransfer
     {
         try
         {
-            string f = System.IO.Path.Combine(Application.persistentDataPath, SaveProfile.DebugRunFile(SaveProfile.IsTest));
+            string f = System.IO.Path.Combine(SaveSystem.DataRoot, SaveProfile.DebugRunFile(SaveProfile.IsTest)); // 2026-10-14: 専用の保存の時は通常のデータの控えに触れない
             if (System.IO.File.Exists(f)) System.IO.File.Move(f, f + ".before_import_" + DateTime.Now.ToString("yyyyMMdd_HHmmss", CultureInfo.InvariantCulture));
         }
         catch { }

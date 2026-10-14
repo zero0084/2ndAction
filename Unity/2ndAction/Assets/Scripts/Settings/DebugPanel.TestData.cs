@@ -17,6 +17,17 @@ public partial class DebugPanel
         GUI.Label(new Rect(x, y, full, 24f), $"今のデータ: {(SaveProfile.IsTest ? "テスト用データ(TEST DATA)" : "通常のデータ")}",
             UiKit.Label(17f, TextAnchor.MiddleLeft, true, SaveProfile.IsTest ? new Color(1f, 0.55f, 0.45f) : new Color(0.7f, 1f, 0.75f)));
         y += 28f;
+        // 2026-10-14: Android の専用の試験ファイル(qa_filesave.txt)で起動中。通常のデータは読み書きしていない
+        if (FileSaveStore.Active)
+        {
+            GUI.Label(new Rect(x, y, full, 20f), $"専用の試験ファイルで起動中: {FileSaveStore.FilePath}(通常のデータは読み書きしていません)", UiKit.Label(12f, TextAnchor.MiddleLeft, true, new Color(1f, 0.7f, 0.4f)));
+            y += 22f;
+            if (FileSaveStore.Sticky && UiKit.Button(new Rect(x, y, full, 40f), "専用の試験ファイルを終わる(次の起動から通常のデータ)", 15f, false, false))
+                testNote = FileSaveStore.EndSticky() ? "終わりました。アプリを完全に終了して起動し直すと通常のデータに戻ります" : "qa_filesave.txt を消せませんでした(adb で消してください)";
+            if (FileSaveStore.Sticky) y += 46f;
+            if (!string.IsNullOrEmpty(testNote)) { GUI.Label(new Rect(x, y, full, 20f), testNote, UiKit.Label(13f, TextAnchor.MiddleLeft, true, new Color(1f, 0.85f, 0.5f))); y += 22f; }
+            return; // 専用のファイルの中で TEST DATA の切り替えはしない(混ざらないように)
+        }
         GUI.Label(new Rect(x, y, full, 64f),
             "テスト用データは通常のデータと別の保存先です(MILE/カード/キャラ/解放/記録/中断中のラン/チュートリアルの進み)。\n"
             + "新規ユーザーと同じ初期状態から始まり、全開放はしません。設定(音量/画面揺れ/補助/言語/マルチ)と開発用の無敵/DEBUGモードは共有です。", lab);

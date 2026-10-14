@@ -80,6 +80,11 @@ public class RankingPanel : MonoBehaviour
         var panel = new Rect(sl + (w - sl - sr - pw) * 0.5f, st + (h - st - sb - ph) * 0.5f, pw, ph);
         OrnateUi.DrawPanel(panel, 0.95f);
         LocGUI.Label(new Rect(panel.x + 28f, panel.y + 14f, panel.width - 120f, 44f), "ランキング", UiKit.Label(28f, TextAnchor.MiddleLeft, true, new Color(1f, 0.86f, 0.45f)));
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // 2026-10-14: 開発版は公開のランキング(production)へは送らない。今の環境を必ず見せる(開発者向けなので訳さない)
+        GUI.Label(new Rect(panel.x + 200f, panel.y + 14f, panel.width - 300f, 44f), $"DEV  UGS env: {UgsEnvironment.Name}  (not the public ranking)" + (Leaderboard.HeldCount > 0 ? $"  held {Leaderboard.HeldCount}" : ""),
+            UiKit.Label(13f, TextAnchor.MiddleLeft, true, new Color(1f, 0.6f, 0.4f)));
+#endif
         if (UiKit.Button(new Rect(panel.xMax - 70f, panel.y + 14f, 50f, 46f), "×", 26f, false, false)) Close();
 
         var body = new Rect(panel.x + 24f, panel.y + 70f, panel.width - 48f, panel.height - 70f - 80f);
