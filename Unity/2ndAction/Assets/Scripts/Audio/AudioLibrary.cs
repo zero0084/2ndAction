@@ -182,6 +182,10 @@ public enum SeId
     UiOpen, UiClose, UiTab, UiToggle, UiDeny, UiSlider, Pause, Resume,
     // 闘技場/マルチ
     ArenaStart, ArenaWin, ArenaLose, NetJoin, NetLeave, NetDown, NetRevive,
+    // ---- 2026-10-14 ボスの声(BossVoice。種類の順は BossVoice.Kind と同じ: 獣/竜/昆虫/ゴーレム/人型/死神/機械) ----
+    BossRoarBeast, BossRoarDragon, BossRoarInsect, BossRoarGolem, BossRoarHumanoid, BossRoarReaper, BossRoarMech,
+    BossGrowlBeast, BossGrowlDragon, BossGrowlInsect, BossGrowlGolem, BossGrowlHumanoid, BossGrowlReaper, BossGrowlMech,
+    BossDeathBeast, BossDeathDragon, BossDeathInsect, BossDeathGolem, BossDeathHumanoid, BossDeathReaper, BossDeathMech,
 }
 
 [Serializable]

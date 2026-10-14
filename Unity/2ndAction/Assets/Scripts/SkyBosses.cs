@@ -32,7 +32,12 @@ public abstract partial class SkyBossBase : HazardBossBase
 
     protected Sprite[] BodyFrames => moveSprite != null ? new[] { idleSprite, moveSprite } : new[] { idleSprite };
 
-    protected void Sfx(AudioClip clip, float volume = 0.8f) => SkyBossSfx.Play(clip, volume);
+    // 2026-10-14: 共通の仮の咆哮(SkyBossSfx.Roar)は、ボスごとの声(BossVoice)に置き換える。入場中 = 登場の咆哮、それ以外 = うなり
+    protected void Sfx(AudioClip clip, float volume = 0.8f)
+    {
+        if (BossVoice.Enabled && clip == SkyBossSfx.Roar()) { if (!approachDone && IsEnteringForVoice) BossVoice.Arrive(this, DeathKey); else BossVoice.Growl(this, DeathKey); return; }
+        SkyBossSfx.Play(clip, volume);
+    }
 
     // 身体上の位置(fwd: 正面方向への半幅比、h: 身体の高さ比)のワールド座標。
     protected Vector3 BodyPoint(float fwd, float h)

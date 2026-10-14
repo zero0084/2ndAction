@@ -270,6 +270,10 @@ public class AudioManager : MonoBehaviour
 
     // SeIdで鳴らす。素材が複数ならランダム、ピッチ/音量を少し揺らす。短い間隔の連打は間引く。
     public bool PlaySe(SeId id, float volumeScale = 1f) => PlaySeInternal(id, volumeScale, 0f);
+    // 2026-10-14: 高さを変えて鳴らす(ボスの声: 同じ素材をボスごとの高さで)。音量/消音/同時に鳴る数の上限は PlaySe と同じ
+    public bool PlaySePitch(SeId id, float pitch, float volumeScale = 1f) => PlaySeInternal(id, volumeScale, 0f, pitch);
+    public void StopSe(SeId id) { foreach (var v in voices) if (v.hasId && v.id == id && v.src != null && v.src.isPlaying) v.src.Stop(); }
+    public float SinceLastPlayed(SeId id) => lastPlayed.TryGetValue(id, out float t) ? Time.unscaledTime - t : 999f;
 
     // 画面上の位置で鳴らす(左右に振る)。画面外の優先度の低い音は鳴らさない、高い音は小さく鳴らす。
     public bool PlaySeAt(SeId id, Vector3 worldPos, float volumeScale = 1f)
@@ -297,7 +301,7 @@ public class AudioManager : MonoBehaviour
     public static readonly bool LogSe = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-auLog") >= 0;
 #endif
 
-    bool PlaySeInternal(SeId id, float volumeScale, float pan)
+    bool PlaySeInternal(SeId id, float volumeScale, float pan, float pitchScale = 1f)
     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (QaSolo && id != QaSoloId) return false; // 測定中は測る音だけ
@@ -320,7 +324,7 @@ public class AudioManager : MonoBehaviour
         float vol = (e != null ? e.volume : 1f) * volumeScale;
         float pj = e != null ? e.pitchJitter : 0.03f, vj = e != null ? e.volumeJitter : 0.05f;
         var pri = e != null ? e.priority : SePriority.Normal;
-        PlayVoice(clip, vol * Random.Range(1f - vj, 1f + vj), Random.Range(1f - pj, 1f + pj), pri, id, true, pan, e != null ? Mathf.Max(1, e.maxVoices) : 3);
+        PlayVoice(clip, vol * Random.Range(1f - vj, 1f + vj), Random.Range(1f - pj, 1f + pj) * pitchScale, pri, id, true, pan, e != null ? Mathf.Max(1, e.maxVoices) : 3);
         if (pri == SePriority.Critical) DuckForImportantSe();
         return true;
     }

@@ -103,6 +103,16 @@ public class BossMilestonePresentation : MonoBehaviour
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySfx(clip);
     }
 
+    // AudioLibrary に登録がある SE はその設定で鳴らす(無ければ、このコンポーネントに入っている音を今までどおり)
+    void PlaySeOr(SeId id, AudioClip fallback)
+    {
+        var am = AudioManager.Instance;
+        if (am == null) return;
+        var e = am.Library != null ? am.Library.FindSe(id) : null;
+        if (e != null && e.clips != null && e.clips.Count > 0 && e.clips[0] != null) am.PlaySe(id); // 間隔の制限で鳴らない時も、別の音で鳴らし直さない
+        else PlaySfx(AudioManager.Se(id, fallback));
+    }
+
     void LogPresentation(string message)
     {
         if (debugLogEnabled) Debug.Log(message);
@@ -176,7 +186,7 @@ public class BossMilestonePresentation : MonoBehaviour
             if (AudioManager.Instance != null) AudioManager.Instance.DuckBgm(bgmDuckLevel, bgmDuckFadeDuration);
 
             // ===== 4. Boss Warning =====
-            PlaySfx(AudioManager.Se(SeId.BossWarning, bossWarningSe));
+            PlaySeOr(SeId.BossWarning, bossWarningSe); // 2026-10-14: AudioLibrary の設定(重低音・優先度・音量)と鳴った時刻(声が待つ)を使う
             yield return PlayWarning(Mathf.Max(0.2f, totalDuration * warningFraction));
             LogPresentation("[BossPresentation] Warning shown");
 
@@ -195,7 +205,7 @@ public class BossMilestonePresentation : MonoBehaviour
             if (GameManager.Instance != null) GameManager.Instance.LogBoss($"TimeScale = {Time.timeScale:F2} (auto)");
             if (GameManager.Instance != null) GameManager.Instance.LogBoss("SpawnPresentationEnd");
 
-            PlaySfx(AudioManager.Se(SeId.BossAppear, bossAppearSe));
+            PlaySeOr(SeId.BossAppear, bossAppearSe); // 2026-10-14: 重低音と重ならないよう AudioLibrary の音量(0.6)で
             SpawnOnce();
 
             // Hold the dark atmosphere a moment so the boss's own entrance/

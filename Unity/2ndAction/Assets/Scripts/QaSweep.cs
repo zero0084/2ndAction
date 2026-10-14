@@ -99,6 +99,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaUgsEnv") { mode = "ugsenv"; dir = a[i + 1]; }
             if (a[i] == "-qaUgsLive") { mode = "ugslive"; dir = a[i + 1]; }
             if (a[i] == "-qaLayers") { mode = "layers"; dir = a[i + 1]; }
+            if (a[i] == "-qaBossVoice") { mode = "bossvoice"; dir = a[i + 1]; }
             if (a[i] == "-qaFix5") { mode = "fix5"; dir = a[i + 1]; }
             if (a[i] == "-qaBuildLab") { mode = "buildlab"; dir = a[i + 1]; }
             if (a[i] == "-qaAtkFx") { mode = "atkfx"; dir = a[i + 1]; }
@@ -200,6 +201,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "ugsenv") yield return UgsEnvMode();
         else if (mode == "ugslive") yield return UgsLiveMode();
         else if (mode == "layers") yield return LayersMode();
+        else if (mode == "bossvoice") yield return BossVoiceMode();
         else if (mode == "cardfix") yield return CardFixMode();
         else if (mode == "hitaudit") yield return HitAuditMode();
         else if (mode == "cardv3") yield return CardV3Mode();

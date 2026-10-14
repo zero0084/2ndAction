@@ -217,6 +217,7 @@ public partial class MajinController : MonoBehaviour
     // method comment.
     IEnumerator ArrivalPresentation()
     {
+        BossVoice.Arrive(this, "Majin"); // 2026-10-14: 登場のうなり声
         if (hpBar != null) StartCoroutine(hpBar.RevealRoutine(hpBarRevealDuration));
 
         var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;

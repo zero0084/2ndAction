@@ -129,8 +129,9 @@ public static class AudioLibraryBuilder
         var se = lib.se;
         void S(SeId id, float vol, float pj, float gap, SePriority pri, int max, params AudioClip[] clips) { var e = E(id, vol, pj, gap, clips); e.priority = pri; e.maxVoices = max; se.Add(e); }
         // プレイヤー(移動は控えめ、既存の音の性格は残す)
-        S(SeId.Jump, 1f, 0.04f, 0.03f, Lo, 2, Se("old_jump_n"));
-        S(SeId.DoubleJump, 1f, 0.04f, 0.03f, Lo, 2, Se("old_double_jump_n"));
+        // 2026-10-14(マスターの依頼): 「ホーン」のような音 → 軽い「サッ」/ 二段は少し力強い「シュバッ」(gen_audio_v3.py)。元は old_jump_n / old_double_jump_n
+        S(SeId.Jump, 1f, 0.05f, 0.03f, Lo, 2, Se(SeUpdate20261014.Jump));
+        S(SeId.DoubleJump, 1f, 0.05f, 0.03f, Lo, 2, Se(SeUpdate20261014.DoubleJump));
         S(SeId.Land, 1f, 0.05f, 0.05f, Lo, 2, Se("old_landing_n"), Se("mv_land"));
         S(SeId.LandHeavy, 1f, 0.03f, 0.1f, No, 2, Se("mv_land_heavy"));
         S(SeId.AttackUp, 1f, 0.04f, 0.04f, No, 2, Se("atk_up_n"));
@@ -161,8 +162,9 @@ public static class AudioLibraryBuilder
         S(SeId.BossHit, 1f, 0.05f, 0.07f, Hi, 2, Se("boss_hit_n"));
         S(SeId.BossDefeat, 1f, 0f, 0.5f, Hi, 1, Se("boss_defeat_n"));
         S(SeId.BossFinalHit, 1f, 0f, 0.5f, Cr, 1, Se("boss_final_hit_n"));
-        S(SeId.BossWarning, 1f, 0f, 0.5f, Cr, 1, Se("boss_warning_n"));
-        S(SeId.BossAppear, 1f, 0f, 0.5f, Hi, 1, Se("boss_appear_n"));
+        // 2026-10-14: 遭遇の「ピンポーン」(boss_warning_n)→ 重低音の「ドォーン」。直後の登場の地鳴り(boss_appear_n)は重ならないよう小さく
+        S(SeId.BossWarning, 1f, 0f, 0.5f, Cr, 1, Se(SeUpdate20261014.Warning));
+        S(SeId.BossAppear, SeUpdate20261014.AppearVolume, 0f, 0.5f, Hi, 1, Se("boss_appear_n"));
         S(SeId.BossTelegraph, 1f, 0.04f, 0.15f, Hi, 2, Se("boss_telegraph"));
         S(SeId.BossTelegraphHeavy, 1f, 0.03f, 0.25f, Cr, 1, Se("boss_telegraph_heavy"));
         S(SeId.BossCharge, 1f, 0.03f, 0.3f, Hi, 1, Se("boss_charge"));
@@ -248,7 +250,64 @@ public static class AudioLibraryBuilder
         CW("mage", WeaponType.Magic); CW("miko", WeaponType.Spirit);
         CW("fighter", WeaponType.Strike); CW("dragonkin", WeaponType.Claw);
         CW("dragon_lancer", WeaponType.Lance); CW("vampire", WeaponType.Blood);
+        // 2026-10-14: ボスの声(BossVoice)
+        foreach (var e in SeUpdate20261014.VoiceEntries()) se.Add(e);
         return lib;
+    }
+
+    // 2026-10-14 の SE の改修を、今のアセットへ当てる(他の割り当てはそのまま)/ 元へ戻す
+    [MenuItem("Tools/OneMoreMile/Audio/Apply SE update 2026-10-14")]
+    public static void ApplySeUpdate20261014() => SeUpdate20261014.Apply(false);
+    [MenuItem("Tools/OneMoreMile/Audio/Revert SE update 2026-10-14 (old jump/warning, voices off)")]
+    public static void RevertSeUpdate20261014() => SeUpdate20261014.Apply(true);
+
+    public static class SeUpdate20261014
+    {
+        public const string Jump = "mv_jump_v3", DoubleJump = "mv_double_jump_v3", Warning = "boss_impact_v3";
+        public const string OldJump = "old_jump_n", OldDoubleJump = "old_double_jump_n", OldWarning = "boss_warning_n";
+        public const float AppearVolume = 0.6f;
+        static readonly string[] Kinds = { "beast", "dragon", "insect", "golem", "humanoid", "reaper", "mech" };
+
+        public static List<SeEntry> VoiceEntries()
+        {
+            var list = new List<SeEntry>();
+            for (int k = 0; k < Kinds.Length; k++)
+            {
+                list.Add(V((SeId)((int)SeId.BossRoarBeast + k), "bv_" + Kinds[k] + "_roar_v3", 1f, 1.5f, SePriority.Critical, 1)); // 登場の咆哮: BGM を一瞬下げて聞き取れるように(ボスごとに1回)
+                list.Add(V((SeId)((int)SeId.BossGrowlBeast + k), "bv_" + Kinds[k] + "_growl_v3", 1f, 1.0f, SePriority.High, 1));
+                list.Add(V((SeId)((int)SeId.BossDeathBeast + k), "bv_" + Kinds[k] + "_death_v3", 1f, 0.5f, SePriority.High, 2));
+            }
+            return list;
+        }
+        static SeEntry V(SeId id, string clip, float vol, float gap, SePriority pri, int max)
+        {
+            var e = E(id, vol, 0.03f, gap, Se(clip)); e.priority = pri; e.maxVoices = max; e.volumeJitter = 0.04f; return e;
+        }
+
+        public static void Apply(bool revert)
+        {
+            ConfigureImports();
+            var lib = AssetDatabase.LoadAssetAtPath<AudioLibrary>(AssetPath);
+            if (lib == null) { Debug.LogError("SeUpdate20261014: no library"); return; }
+            void SetClip(SeId id, string clip, float? vol = null)
+            {
+                var e = lib.se.Find(x => x != null && x.id == id);
+                if (e == null) { Debug.LogError("SeUpdate20261014: no entry " + id); return; }
+                var c = Se(clip);
+                if (c == null) { Debug.LogError("SeUpdate20261014: no clip " + clip); return; }
+                e.clips.Clear(); e.clips.Add(c);
+                if (vol.HasValue) e.volume = vol.Value;
+                Debug.Log($"SeUpdate20261014: {id} -> {clip}");
+            }
+            SetClip(SeId.Jump, revert ? OldJump : Jump);
+            SetClip(SeId.DoubleJump, revert ? OldDoubleJump : DoubleJump);
+            SetClip(SeId.BossWarning, revert ? OldWarning : Warning);
+            SetClip(SeId.BossAppear, "boss_appear_n", revert ? 1f : AppearVolume);
+            if (revert) lib.se.RemoveAll(x => x != null && x.id >= SeId.BossRoarBeast && x.id <= SeId.BossDeathMech); // 声の割り当てを外す = 鳴らない
+            else foreach (var e in VoiceEntries()) { lib.se.RemoveAll(x => x != null && x.id == e.id); lib.se.Add(e); }
+            EditorUtility.SetDirty(lib); AssetDatabase.SaveAssets();
+            Debug.Log("SeUpdate20261014: " + (revert ? "reverted" : "applied") + $" ({lib.se.Count} SE entries)");
+        }
     }
 
     // 仮音源の取り込み設定: 曲=ストリーミング、環境音/ジングル=圧縮のままメモリ、SE=展開して即再生

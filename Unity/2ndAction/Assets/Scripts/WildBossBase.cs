@@ -125,6 +125,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     float hitTimer;
     bool dead;
     bool entering = true;
+    protected bool IsEnteringForVoice => entering; // 2026-10-14: 声(BossVoice)が入場中かを見る
     Color baseColor = Color.white;
     readonly List<BossHitbox> hitboxes = new List<BossHitbox>();
     readonly List<BossTelegraphMarker> markers = new List<BossTelegraphMarker>();
@@ -192,7 +193,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (tune != null && tune.normalDamage > CombatScale.PlayerHit) foreach (var hb in hitboxes) if (hb != null && hb.damageAmount == CombatScale.PlayerHit) hb.damageAmount = tune.normalDamage;
         ApplyTransform();
         // マルチプレイPhase 2 - HOSTでは共有ボスとして登録。JOINでパペットとして作っている時はAIを始めない。
-        if (NetCombat.OnBossInit(this)) return;
+        if (NetCombat.OnBossInit(this)) { BossVoice.ArriveAfter(this, DeathKey, 1.2f); return; } // 2026-10-14: JOIN の端末でも登場の咆哮を自分で鳴らす(入場の時間ぶん後)
         StartCoroutine(Run());
     }
 
@@ -272,6 +273,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
         if (camFollow != null) camFollow.Shake(0.06f, 0.15f);
         entering = false;
+        BossVoice.Arrive(this, DeathKey); // 2026-10-14: 画面に入った時の咆哮(ボスごとに1回。天空のボスが入場で吠えた時はそれが1回目)
 
         // 複数体のときは体ごとに最初の攻撃を遅らせる(同時攻撃で回避不能にならないように)。
         if (slotIndex > 0) yield return Wait(slotIndex * initialDelayPerSlot);
@@ -1138,6 +1140,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         OneShotSpriteEffect.CreateTweened(BossFx.Ring(), c, col, 0.5f, bodyHeight * 0.4f, bodyHeight * 2.4f, 0.9f, 0f, default, 0f, RenderOrder.CombatFx, 0.1f);
         OneShotSpriteEffect.CreateTweened(BossFx.Ring(), c, new Color(1f, 1f, 1f, 0.8f), 0.35f, bodyHeight * 0.3f, bodyHeight * 1.6f, 0.8f, 0f, default, 0f, RenderOrder.CombatFx, 0.05f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossPhase); // 2026-10-06: 段階が上がる専用の音
+        BossVoice.Growl(this, DeathKey); // 2026-10-14: 段階が上がる時のうなり
         BossBattleHud.Banner(Phase >= PhaseCount ? "最終段階!" : "激昂!", col, 1.2f);
     }
 
@@ -1331,6 +1334,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         Debug.Log($"[BossBattle] {bossName} ULTIMATE '{title}' #{UltimatesUsed} t={Time.time - battleStartedAt:F1}s");
         BossBattleHud.Banner(title, color, 1.6f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossUltimate); // 2026-10-06: ボスの必殺技の専用の音
+        BossVoice.Growl(this, DeathKey); // 2026-10-14: 必殺技の始まりのうなり(同じボスは 6秒に1回まで)
         Shake(0.12f, 0.35f);
         return true;
     }

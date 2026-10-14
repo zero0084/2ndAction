@@ -269,6 +269,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     // still can't attack until this finishes.
     IEnumerator ArrivalPresentation()
     {
+        BossVoice.Arrive(this, "Dragon"); // 2026-10-14: 登場の咆哮
         if (hpBar != null) StartCoroutine(hpBar.RevealRoutine(hpBarRevealDuration));
 
         var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
@@ -908,6 +909,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         if (cf != null) cf.Shake(0.22f, 0.4f);
         OneShotSpriteEffect.CreateTweened(BossFx.Ring(), transform.position, new Color(1f, 0.4f, 0.2f, 0.95f), 0.5f, 1f, 6f, 0.9f, 0f, default, 0f, RenderOrder.CombatFx, 0.1f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossPhase);
+        BossVoice.Growl(this, "Dragon");
         BossBattleHud.Banner("最終段階!", new Color(1f, 0.4f, 0.25f), 1.2f);
     }
 
@@ -995,6 +997,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         BossBattleHud.Banner(ultName, new Color(1f, 0.45f, 0.15f), 1.6f);
         ultimateRunningFlag = true;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossUltimate);
+        BossVoice.Growl(this, "Dragon");
         // 上空へ
         float t = 0f;
         while (t < 0.6f)

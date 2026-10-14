@@ -29,6 +29,7 @@ public class ReaperAppearFx : MonoBehaviour
         fx.shade.sortingOrder = fx.baseOrder + 1;
         fx.shade.color = new Color(0.08f, 0.02f, 0.12f, 0f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning, 0.8f);
+        BossVoice.ArriveAfter(null, "Reaper", 0.9f); // 2026-10-14: 重低音の後に死神の不気味な声
     }
 
     void LateUpdate()

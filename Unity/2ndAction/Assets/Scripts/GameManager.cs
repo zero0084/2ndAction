@@ -1352,8 +1352,13 @@ public partial class GameManager : MonoBehaviour
     }
 
     void Update() { using (FrameCost.Scope("GM")) UpdateMeasured(); }
+    // 2026-10-14: ボスの声(BossVoice)は、ポーズ / ゲームオーバーになったら止める(短い音でも残らないように)
+    bool bossVoiceHushed;
+    void OnDestroy() { if (bossVoiceHushed || HasStarted) BossVoice.StopAll(); } // ホームへ戻る/読み直しで残さない
     void UpdateMeasured()
     {
+        bool hush = showPauseMenu || IsGameOver;
+        if (hush != bossVoiceHushed) { bossVoiceHushed = hush; if (hush) BossVoice.StopAll(); }
         HandleBackButton();
         UpdateCountdownSe();
         UpdateResumeGate(); // 中断セーブからの再開の準備時間(2026-10-03)
@@ -1691,6 +1696,7 @@ public partial class GameManager : MonoBehaviour
     void StartGame()
     {
         if (startTransitioning || HasStarted) return;
+        BossVoice.ResetRun(); // 2026-10-14: ボスごとの「もう吠えた」等の記録はランごと
         if (NetRunLauncher.InterceptDepart(SelectedStageId)) return; // DepartFromStageSelectと同じ(マルチプレイ時のみ)
         // Presentation pass - TOP->GAME now goes through the shared wipe
         // (see ScreenTransitionManager) instead of this file's own plain

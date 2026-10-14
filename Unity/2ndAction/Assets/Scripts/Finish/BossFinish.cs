@@ -133,6 +133,7 @@ public class BossFinish : MonoBehaviour
         FinishFx.Star(hp, h * 0.8f, new Color(1f, 0.97f, 0.85f, 1f), 0.3f);
         // 音(2026-10-06): 一番重い一撃(Critical: BGM を一瞬下げる)。倒した端末でなくても鳴らす(少し小さく)
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossFinishHit, localImpact ? 1f : 0.75f);
+        BossVoice.Death(b as UnityEngine.Object, b.DeathKey); // 2026-10-14: 断末魔(最後の一撃の音の少し後。全員の端末で鳴らす)
         FinishFx.Ring(center, h * 1.6f, new Color(1f, 1f, 1f, 0.75f), 0.32f);
         // 最初の反応(最後の一撃の向き/種類)。重いほど小さい
         float k = entry.deathKnockback * tn.reactionScale / Mathf.Max(0.3f, entry.deathMass);
