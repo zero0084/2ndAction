@@ -59,7 +59,14 @@ public class RemotePlayerAvatar : MonoBehaviour
         avatar.anim = root.AddComponent<PlayerAnimator>();
         avatar.anim.InitPuppet(template, def);
         // 識別用オーラ(2026-10-14): 参加番号の色/番号/コードネーム(全端末で同じ番号 = 同じ色)
-        ParticipantAura.Attach(root, sr, owner.PlayerNumber, false, false, owner.DisplayName);
+        var aura = ParticipantAura.Attach(root, sr, owner.PlayerNumber, false, false, owner.DisplayName);
+        if (aura != null)
+        {
+            aura.PnSource = () => owner != null ? owner.PlayerNumber : 0;
+            // 名前の高さ: 自分の端末のプレイヤーと同じ「当たり判定の上端」(分身は判定を持たないので、元のプレイヤーの判定の大きさから)
+            var tbox = template != null ? template.GetComponent<BoxCollider2D>() : null;
+            if (tbox != null) aura.HeadLocalY = (tbox.offset.y + tbox.size.y * 0.5f) * Mathf.Abs(template.transform.lossyScale.y);
+        }
         return avatar;
     }
 

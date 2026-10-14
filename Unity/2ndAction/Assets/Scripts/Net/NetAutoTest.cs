@@ -328,7 +328,7 @@ public partial class NetAutoTest : MonoBehaviour
         {
             string a = args[i];
             string next = i + 1 < args.Length ? args[i + 1] : "";
-            if (ParseWorldArg(a, next)) { }
+            if (ParseWorldArg(a, next) || ParseAuraArg(a, next)) { }
             else if (a == "-netAutoHost") role = "HOST";
             else if (a == "-netAutoJoin") { role = "JOIN"; joinIp = next; }
             else if (a == "-netAutoRoom") onlineRoom = next; // ONLINE: HOST が作る部屋の名前 / JOIN が一覧から探す名前
@@ -494,7 +494,8 @@ public partial class NetAutoTest : MonoBehaviour
                 Next(Step.WaitPlayers);
                 break;
             case Step.WaitPlayers:
-                if (NetSession.ConnectedPlayerCount >= expectPlayers && stepTime > 2f)
+                LobbyRejoinTick(stepTime);
+                if (NetSession.ConnectedPlayerCount >= expectPlayers && stepTime > 2f && HostMayDepart(stepTime) && (lobbyLeaveAt < 0f || lobbyRejoined))
                 {
                     L($"all {expectPlayers} players connected (players={NetSession.ConnectedPlayerCount})");
                     if (OnlineMode) L($"ONLINE {OnlineServices.DebugLine()}");
@@ -540,6 +541,8 @@ public partial class NetAutoTest : MonoBehaviour
                     break;
                 }
                 PeriodicLog(gm);
+                AuraLogTick(runTime);
+                SpreadTick();
                 SceneryTest(gm);
                 BossRunLog(gm);
                 WorldTick(gm);

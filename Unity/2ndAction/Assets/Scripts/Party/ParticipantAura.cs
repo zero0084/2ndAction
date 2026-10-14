@@ -27,6 +27,7 @@ public class ParticipantAura : MonoBehaviour
     public string Label { get; private set; } = "";
     public SpriteRenderer Body { get; private set; }
     public System.Func<bool> Hidden; // 倒れて消えている等(名前も出さない)
+    public System.Func<int> PnSource; // マルチ: 番号を毎回読み直す(つなぎ直しで HOST が元の番号へ戻した時に追従)
 
     SpriteRenderer[] glow;
     SpriteRenderer ring;
@@ -49,7 +50,12 @@ public class ParticipantAura : MonoBehaviour
         if (pc == null) return;
         var body = pc.VisualRenderer;
         if (CpuParty.Active) Attach(pc.gameObject, body, 1, true, false, Codename.Current);
-        else if (NetRunLauncher.IsMultiplayerRun && NetPlayer.Local != null && NetPlayer.Local.PlayerNumber > 0) Attach(pc.gameObject, body, NetPlayer.Local.PlayerNumber, true, false, NetPlayer.Local.DisplayName);
+        else if (NetRunLauncher.IsMultiplayerRun && NetPlayer.Local != null && NetPlayer.Local.PlayerNumber > 0)
+        {
+            var me = NetPlayer.Local;
+            var a = Attach(pc.gameObject, body, me.PlayerNumber, true, false, me.DisplayName);
+            if (a != null) a.PnSource = () => me != null ? me.PlayerNumber : 0;
+        }
         else RemoveFrom(pc.gameObject);
     }
 
@@ -69,6 +75,9 @@ public class ParticipantAura : MonoBehaviour
         if (ring != null) Destroy(ring.gameObject);
     }
 
+    static Material glowMat; static bool glowTried;
+    static Material GlowMat() { if (!glowTried) { glowTried = true; glowMat = Resources.Load<Material>("Effects/SpriteGlow"); } return glowMat; }
+
     void Build()
     {
         if (glow != null) foreach (var g in glow) if (g != null) Destroy(g.gameObject);
@@ -83,6 +92,7 @@ public class ParticipantAura : MonoBehaviour
             go.transform.SetParent(Body.transform, false);
             go.transform.localPosition = new Vector3(Mathf.Cos(ang), Mathf.Sin(ang), 0.001f) * th / Mathf.Max(0.01f, Mathf.Abs(Body.transform.lossyScale.x));
             var sr = go.AddComponent<SpriteRenderer>();
+            if (GlowMat() != null) sr.sharedMaterial = GlowMat(); // 絵の形だけを色で塗る(暗い色のキャラクターでも色が見える。普通の色の掛け算だと黒いまま)
             sr.sortingLayerID = Body.sortingLayerID;
             sr.sortingOrder = Body.sortingOrder - 2;
             glow[i] = sr;
@@ -99,6 +109,7 @@ public class ParticipantAura : MonoBehaviour
     void LateUpdate()
     {
         if (Body == null) return;
+        if (PnSource != null) { int p = PnSource(); if (p > 0) Pn = p; }
         float k = GameSettings.AuraIntensity;
         bool hidden = Hidden != null && Hidden();
         Color c = ColorOf(Pn);
@@ -130,7 +141,6 @@ public class ParticipantAura : MonoBehaviour
         }
     }
 
-    // 頭の上(名前の表示の位置)
     // 名前を出す位置: 体の当たり判定の上端(絵の上の透明な余白に左右されない。斜めの見せ方で近いと名前が離れすぎていた)。無ければ絵の上端
     public Vector3 HeadWorld
     {
@@ -139,11 +149,13 @@ public class ParticipantAura : MonoBehaviour
             if (Body == null) return transform.position + Vector3.up * 2f;
             if (bodyBox == null) bodyBox = GetComponent<BoxCollider2D>();
             if (bodyBox != null && bodyBox.enabled) { var bb = bodyBox.bounds; return new Vector3(bb.center.x, bb.max.y, Body.transform.position.z); }
+            if (HeadLocalY > 0f && Body.sprite != null) return new Vector3(Body.bounds.center.x, transform.position.y + HeadLocalY, Body.transform.position.z);
             if (Body.sprite != null) return new Vector3(Body.bounds.center.x, Body.bounds.max.y, Body.transform.position.z);
             return transform.position + Vector3.up * 2f;
         }
     }
     BoxCollider2D bodyBox;
+    public float HeadLocalY; // 当たり判定を持たない体(マルチの相手の分身): 足元からの頭の高さ
 
     static Sprite ringSprite;
     static Sprite RingSprite()
@@ -208,7 +220,7 @@ public class ParticipantLabels : MonoBehaviour
             float x = sp.x, y = Screen.height - sp.y;
             if (x < -100f || x > Screen.width + 100f || y < -40f || y > Screen.height + 40f) continue;
             // 2026-10-14(マスター指定): 短く。自分は YOU、CPU は CPU1〜3(P2 = CPU1)。人間の仲間は番号とコードネーム
-            string text = a.IsLocal ? "YOU" : a.IsCpu ? $"CPU{Mathf.Max(1, a.Pn - 1)}" : $"P{a.Pn} {a.Label}";
+            string text = a.IsLocal ? "YOU" : a.IsCpu ? $"CPU{Mathf.Max(1, a.Pn - 1)}" : HumanLabel(a);
             float w = style.CalcSize(new GUIContent(text)).x + 6f * s;
             placed.Add(new Tag { a = a, text = text, rect = new Rect(x - w * 0.5f, y - 24f * s, w, 22f * s) });
         }
@@ -248,6 +260,14 @@ public class ParticipantLabels : MonoBehaviour
             GUI.Label(r, t.text, style);
         }
     }
+    // 人間の仲間: 「P3 コードネーム」。コードネームが無い人(既定の表示名 = "P3" 等)は番号だけ
+    static string HumanLabel(ParticipantAura a)
+    {
+        string n = a.Label ?? "";
+        bool numberOnly = n.Length == 0 || (n.Length >= 2 && n[0] == 'P' && int.TryParse(n.Substring(1), out _));
+        return numberOnly ? $"P{a.Pn}" : $"P{a.Pn} {n}";
+    }
+
     // placed[start..end) (左から順) を、重ならない間隔で横に並べ直す。かたまりごとに中心を元の位置の平均に合わせる
     void Spread(int start, int end, float gap)
     {

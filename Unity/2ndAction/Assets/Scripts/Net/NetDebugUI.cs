@@ -618,6 +618,7 @@ public class NetDebugUI : MonoBehaviour
         {
             RemotePlayerAvatar a = p.Avatar;
             if (a == null || !a.IsShown) continue;
+            if (a.GetComponent<ParticipantAura>() != null) continue; // 2026-10-14: 識別用オーラの名前(ParticipantLabels)が出す
             Vector3 sp = cam.WorldToScreenPoint(a.HeadWorldPosition + Vector3.up * 0.3f);
             if (sp.z < 0f) continue;
             float gx = sp.x / s, gy = (Screen.height - sp.y) / s;
