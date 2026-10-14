@@ -203,6 +203,8 @@ public class ParticipantLabels : MonoBehaviour
         if (ParticipantAura.All.Count == 0 || Event.current.type != EventType.Repaint) return;
         var gm = GameManager.Instance;
         if (gm == null || !gm.HasStarted) return;
+        // カードの選択/報酬/一時停止/結果/設定などの画面が出ている間は出さない(IMGUI は uGUI の画面より上に描かれるので、名前が画面に重なっていた)
+        if (gm.IsGameOver || gm.LevelUpPending || gm.IsRewardSequenceRunning || gm.PauseMenuOpen || UiInputGate.ModalOpen) return;
         Camera cam = ObstacleWarning.ActiveCamera();
         if (cam == null) return;
         GUI.depth = 10;

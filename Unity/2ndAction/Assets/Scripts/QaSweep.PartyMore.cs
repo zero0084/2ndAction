@@ -152,10 +152,26 @@ public partial class QaSweep
         while (GameManager.Instance == null && w0 < 10f) { yield return null; w0 += Time.unscaledDeltaTime; }
         yield return new WaitForSecondsRealtime(1f);
         string views = Arg("-qaPartyViews", "0");
+        bool firstView = true;
         foreach (var vs in views.Split(','))
         {
             int view = int.Parse(vs);
             PortraitRunView.Set(view);
+            if (firstView)
+            {
+                // 出発の画面: CPU サポートのボタンと仲間の一覧
+                firstView = false;
+                var g0 = GameManager.Instance;
+                g0.OpenStageSelect();
+                yield return new WaitForSecondsRealtime(1.5f);
+                Shot("support_button"); yield return null; yield return null;
+                SupportDeparturePanel.DebugOpen(true);
+                yield return new WaitForSecondsRealtime(0.5f);
+                Shot("support_panel"); yield return null; yield return null;
+                SupportDeparturePanel.DebugOpen(false);
+                g0.CloseStageSelect();
+                yield return new WaitForSecondsRealtime(1.2f);
+            }
             GameSettings.SetAuraIntensity(0.6f, false);
             yield return BeginRun(Arg("-qaPartyChar", "swordsman"), Arg("-qaPartyStage", "wasteland_road"));
             typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);

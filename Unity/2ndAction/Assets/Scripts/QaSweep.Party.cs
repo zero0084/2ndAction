@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 
 // CPU サポートの確認(2026-10-14)。 -qaParty <dir> -cpuAllies a,b,c [-qaPartyChar swordsman] [-qaPartyStage wasteland_road] [-qaPartyFps 60]
-//   [-qaPartySec 60] [-qaPartyBoss family:kind] [-qaPartyVideo 秒] [-cpuRevive 秒]
+//   [-qaPartySec 60] [-qaPartyBoss family:kind] [-qaPartyVideo 秒] [-qaPartyKmh 100] [-cpuRevive 秒]
 //  A 追従と通常戦 / B ボス戦 / C 倒れる → 自動復帰 / D 離れた → 呼び戻し / E プレイヤーが倒れたらランの終わり
 // 報酬: 仲間が倒した敵の数と、ランの撃破数/MILE の増え方が同じ(人数分に増えない)ことを確かめる。
 public partial class QaSweep
@@ -29,8 +29,8 @@ public partial class QaSweep
         Shot("party_start");
         yield return null; yield return null;
 
-        // ---- A: 追従と通常戦 ----
-        SetKmh(100f);
+        // ---- A: 追従と通常戦 ----(-qaPartyKmh: 動画用に普段の速さで)
+        SetKmh(float.Parse(Arg("-qaPartyKmh", "100"), System.Globalization.CultureInfo.InvariantCulture));
         int kills0 = gm.EnemyKillCount, allyKills0 = AllyAttackRouter.Kills, allyHits0 = AllyAttackRouter.Hits, mile0 = gm.RunEnemyMile;
         int warps0 = CpuParty.TotalWarps;
         float inBand = 0f, total = 0f, maxBehind = 0f, maxAhead = 0f;

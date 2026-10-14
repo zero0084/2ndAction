@@ -54,6 +54,8 @@ public partial class LastDungeonQa : MonoBehaviour
     IEnumerator Start()
     {
         System.IO.Directory.CreateDirectory(outDir);
+        // 初めての人向けの説明(脱出の案内は止めて待つ)を出さない(新しいテスト用の保存だと YES の後で止まっていた。他の自動確認と同じ)
+        TutorialProgress.MarkOffered(); TutorialProgress.MarkEscapeGuideShown();
         Application.logMessageReceived += (c, tr, type) =>
         {
             if (type == LogType.Exception) { anyException = true; if (exceptions.Count < 30) exceptions.Add(c + " | " + tr.Split('\n')[0]); }

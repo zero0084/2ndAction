@@ -292,9 +292,10 @@ public class CpuParty : MonoBehaviour
             if (dx < -WarpBehind) { Warp(a, leader, "behind"); continue; }
             if (dx > WarpAhead) { Warp(a, leader, "ahead"); continue; }
             if (a.pc.transform.position.y < leader.transform.position.y - 12f) { Warp(a, leader, "fell"); continue; }
-            // 引っかかり: プレイヤーが走っているのに一定時間ほとんど進んでいない
-            if (!progress.TryGetValue(a, out var p) || a.pc.transform.position.x > p.x + 0.5f) progress[a] = (a.pc.transform.position.x, Time.time);
-            else if (Time.time - p.t > StuckSeconds && leader.CurrentAutoRunSpeed > 1f) { Warp(a, leader, "stuck"); progress.Remove(a); }
+            // 引っかかり: プレイヤーが実際に進んでいるのに一定時間ほとんど進んでいない
+            // (本来の速さではなく実測の速さで見る: ボスラッシュ等でプレイヤーが止まっている間に呼び戻しが続いていた)
+            if (!progress.TryGetValue(a, out var p) || a.pc.transform.position.x > p.x + 0.5f || LeaderSpeed <= 1f) progress[a] = (a.pc.transform.position.x, Time.time);
+            else if (Time.time - p.t > StuckSeconds) { Warp(a, leader, "stuck"); progress.Remove(a); }
         }
     }
 

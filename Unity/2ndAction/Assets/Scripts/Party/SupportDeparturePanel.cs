@@ -134,6 +134,17 @@ public class SupportDeparturePanel : MonoBehaviour
         if (e.type == EventType.MouseDown || e.type == EventType.MouseUp) e.Use();
     }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 確認用(撮影): 一覧を開く/閉じる
+    public static void DebugOpen(bool open)
+    {
+        var p = FindFirstObjectByType<SupportDeparturePanel>();
+        if (p == null) return;
+        if (open) { Open = true; UiInputGate.SupportPanelOpen = true; p.editing.Clear(); p.editing.AddRange(CpuParty.Request); }
+        else { Open = false; UiInputGate.SupportPanelOpen = false; }
+    }
+#endif
+
     void Close()
     {
         Open = false; UiInputGate.SupportPanelOpen = false; UiInputGate.LatchUntilRelease();
