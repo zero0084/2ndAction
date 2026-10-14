@@ -468,7 +468,7 @@ public class BonusZone : MonoBehaviour
     void OnGUI()
     {
         var gm = GameManager.Instance;
-        if (gm == null || !gm.HasStarted || gm.IsOverlayOpen) return;
+        if (gm == null || !gm.HasStarted || gm.RunMenuOpen) return; // 2026-10-14: カード選択/ポーズ/設定などの間は出さない(以前はサブ画面だけ)
         float dtu = Time.unscaledDeltaTime;
         if (!gm.IsGameOver && State != Phase.Idle && Current != null)
         {

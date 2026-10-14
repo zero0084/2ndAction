@@ -17,6 +17,9 @@ public class SprintDeparturePanel : MonoBehaviour
     }
 
     public static bool Open { get; private set; }
+    public static int LastButtonFrame { get; private set; } = -100; // 確認用(2026-10-14)
+    public static Rect LastButtonRect { get; private set; }
+    public static int Opens { get; private set; }
     string stageForPanel;
 
     void Update()
@@ -35,7 +38,9 @@ public class SprintDeparturePanel : MonoBehaviour
         if (gm == null || gm.HasStarted || !gm.StageSelectIsOpen || NetSession.IsActive || gm.stageSelectUI == null) return;
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (SettingsPanel.IsVisible || UiInputGate.DebugPanelOpen) return;
-        GUI.depth = -950;
+        // 2026-10-14(実機の不具合): CPU サポートの一覧を開いている間は、このボタンを描かない・押せない(以前は同じ深さで手前に出て「決定」の近くに重なった)
+        if (SupportDeparturePanel.Open) return;
+        GUI.depth = Open ? -960 : -950; // 開いた一覧は、閉じているボタン(-950)より必ず手前
         float s = RefScale;
         string stage = gm.stageSelectUI.SelectedStageIdInUi;
         if (string.IsNullOrEmpty(stage)) return;
@@ -49,9 +54,10 @@ public class SprintDeparturePanel : MonoBehaviour
         {
             int unlocked = 0;
             foreach (var d in SprintRecords.Destinations(stage)) if (d.unlocked) unlocked++;
+            if (Event.current.type == EventType.Repaint) { LastButtonFrame = Time.frameCount; LastButtonRect = btn; } // 確認用: 描いたフレームと場所
             if (UiKit.Button(btn, unlocked > 0 ? $"疾走出発({unlocked}地点)" : "疾走出発…", 26f * s, false, true, true))
             {
-                Open = true; stageForPanel = stage; UiInputGate.SprintPanelOpen = true;
+                Open = true; stageForPanel = stage; UiInputGate.SprintPanelOpen = true; Opens++;
                 if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Decide);
             }
             return;

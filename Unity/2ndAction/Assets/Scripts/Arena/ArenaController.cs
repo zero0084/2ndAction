@@ -272,7 +272,7 @@ public class ArenaController : MonoBehaviour
     void OnGUI()
     {
         if (!ArenaMode.Active) return;
-        GUI.depth = -2000;
+        GUI.depth = -1990; // 2026-10-14: 設定(-2000)と同じ深さだと、闘技場のボタンが設定の手前に出ることがあった → 設定より後ろ
         float s = S;
         var keep = GUI.matrix;
         GUI.matrix = Matrix4x4.Scale(new Vector3(s, s, 1f));

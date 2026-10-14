@@ -194,6 +194,7 @@ public class ParticipantAura : MonoBehaviour
 // IMGUI で頭の上に小さく。敵の警告(!)や HUD より奥(GUI.depth 10)。斜め上から見る表示ではそのカメラで位置を求める。
 public class ParticipantLabels : MonoBehaviour
 {
+    public static int LastLabelFrame { get; private set; } = -100; // 確認用(2026-10-14)
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Boot()
     {
@@ -213,10 +214,11 @@ public class ParticipantLabels : MonoBehaviour
         var gm = GameManager.Instance;
         if (gm == null || !gm.HasStarted) return;
         // カードの選択/報酬/一時停止/結果/設定などの画面が出ている間は出さない(IMGUI は uGUI の画面より上に描かれるので、名前が画面に重なっていた)
-        if (gm.IsGameOver || gm.LevelUpPending || gm.IsRewardSequenceRunning || gm.PauseMenuOpen || gm.IsOverlayOpen || UiInputGate.ModalOpen) return;
+        if (gm.RunScreenOpen) return; // カード選択/ポーズ/設定などの画面・結果の間は出さない(GameManager.RunScreenOpen にまとめた)
         Camera cam = ObstacleWarning.ActiveCamera();
         if (cam == null) return;
         GUI.depth = 10;
+        LastLabelFrame = Time.frameCount; // 確認用(2026-10-14): 名前の札を描いたフレーム
         float s = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.4f);
         if (style == null) { style = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.LowerCenter, fontStyle = FontStyle.Bold, wordWrap = false }; shadow = new GUIStyle(style); }
         style.fontSize = shadow.fontSize = Mathf.RoundToInt(15f * s);

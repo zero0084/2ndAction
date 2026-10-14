@@ -220,7 +220,7 @@ public partial class QaSweep
     IEnumerator TapAndWait(string name, Rect r, System.Func<bool> done, float timeout)
     {
         string p = System.IO.Path.Combine(outDir, "tap_req.txt");
-        System.IO.File.WriteAllText(p, $"{name} {Mathf.RoundToInt(r.center.x)} {Mathf.RoundToInt(r.center.y)}");
+        System.IO.File.WriteAllText(p, $"{name} {Mathf.RoundToInt(r.center.x)} {Mathf.RoundToInt(r.center.y)} {Screen.width} {Screen.height}");
         L($"[hc] tap request '{name}' at {r.center} (rect {r})");
         float w = 0f;
         while (!done() && w < timeout) { yield return null; w += Time.unscaledDeltaTime; }

@@ -20,6 +20,9 @@ public class SupportDeparturePanel : MonoBehaviour
     }
 
     public static bool Open { get; private set; }
+    public static Rect LastSummaryRect { get; private set; } // 確認用(2026-10-14、画面の座標)
+    public static Rect LastDecideRect { get; private set; }
+    public static int Decides { get; private set; }
     readonly List<string> editing = new List<string>();
 
     // 覚えている選択を読む(解放されていないキャラは外す)。開発用の -cpuAllies が付いていればそちらを優先
@@ -62,7 +65,7 @@ public class SupportDeparturePanel : MonoBehaviour
         if (gm == null || gm.HasStarted || !gm.StageSelectIsOpen || NetSession.IsActive || gm.stageSelectUI == null) return;
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         if (SettingsPanel.IsVisible || UiInputGate.DebugPanelOpen || SprintDeparturePanel.Open) return;
-        GUI.depth = -950;
+        GUI.depth = Open ? -960 : -950; // 2026-10-14: 開いた一覧は、閉じているボタン(疾走出発など -950)より必ず手前
         float s = RefScale;
         Rect dep = gm.stageSelectUI.DepartGuiRect;
         // 「出発」と「疾走出発」の組の上(同じ幅)
@@ -72,6 +75,7 @@ public class SupportDeparturePanel : MonoBehaviour
             : new Rect((Screen.width - pairW) * 0.5f, Screen.height - (40f + 76f + 70f) * s, pairW, 58f * s);
         if (!Open)
         {
+            LastSummaryRect = btn; LastDecideRect = Rect.zero;
             if (UiKit.Button(btn, Summary(), 22f * s, CpuParty.Request.Count > 0, false, true))
             {
                 Open = true; UiInputGate.SupportPanelOpen = true;
@@ -125,8 +129,10 @@ public class SupportDeparturePanel : MonoBehaviour
         {
             CpuParty.Request.Clear(); SaveChoice(); Close();
         }
+        LastDecideRect = new Rect(x + bw + gap, by, bw, 56f * s);
         if (UiKit.Button(new Rect(x + bw + gap, by, bw, 56f * s), "決定", 22f * s, true, false, true))
         {
+            Decides++;
             CpuParty.Request.Clear(); CpuParty.Request.AddRange(editing); SaveChoice(); Close();
         }
         if (UiKit.Button(new Rect(x + 2f * (bw + gap), by, bw, 56f * s), "閉じる", 22f * s, false, false, true)) Close();

@@ -6,10 +6,12 @@ using UnityEngine;
 //    背景の飾り(DecorationScatter 等、当たり判定なし)は対象にしない(ObstacleController.All と洞窟の針だけを見る)
 //  ・近づいた物だけ: 速さに合わせた先読みの距離(LookAheadSeconds 秒ぶん、最小/最大あり)の中で、近い順に最大 MaxWarned 個。
 //    通り過ぎた物/壊れた物/当たり判定が無くなった物はすぐ消す。落下物は着地するまで(既に専用の光の柱がある)出さない
-//  ・見た目: 絵の外側だけの赤い縁(SpriteRim と同じ形、塗りつぶさない)+ 小さな「!」(色だけに頼らない)。
+//  ・見た目: 絵の外側だけの赤い縁(SpriteRim と同じ形、塗りつぶさない)。
+//    2026-10-14(マスター指定): 小さな「!」の札は撤去(IMGUI なのでカード選択などの画面より手前に出ていた)。
+//    赤い縁も、カード選択・ポーズ・設定などの画面を開いている間は出さない(GameManager.RunScreenOpen)
 //    点滅はゆっくり(約0.8秒周期、明るさ 55〜100%)。白い閃光は使わない。設定で「輪郭のみ」(点滅なし)を選べる
 //  ・暗い洞窟でも見えるよう、縁は暗さの幕(CaveLighting、sortingOrder 100)より手前に描く(縁は絵の外側だけなので絵を隠さない)
-//  ・破壊/被弾の演出(白く光る/赤く点滅)と区別するため、色は赤の縁と「!」の札だけ(絵の色は変えない)
+//  ・破壊/被弾の演出(白く光る/赤く点滅)と区別するため、色は赤の縁だけ(絵の色は変えない)
 public class ObstacleWarning : MonoBehaviour
 {
     public static ObstacleWarning Instance { get; private set; }
@@ -17,6 +19,8 @@ public class ObstacleWarning : MonoBehaviour
     public const int MaxWarned = 4;
     public static int WarnedNow { get; private set; }   // 確認用
     public static int WarnedTotal { get; private set; }
+    public static bool HiddenByScreen { get; private set; } // 確認用: 画面を開いているので縁を出していない
+    public int VisibleRims { get { int n = 0; foreach (var kv in marks) if (kv.Value.rim != null && kv.Value.rim.enabled) n++; return n; } } // 確認用
 
     static readonly int MainTexId = Shader.PropertyToID("_MainTex"), UvRectId = Shader.PropertyToID("_UvRect"),
         Step1Id = Shader.PropertyToID("_Step1"), Step2Id = Shader.PropertyToID("_Step2"),
@@ -36,7 +40,6 @@ public class ObstacleWarning : MonoBehaviour
     readonly List<(SpriteRenderer sr, float dx)> candidates = new List<(SpriteRenderer, float)>();
     readonly HashSet<SpriteRenderer> want = new HashSet<SpriteRenderer>();
     readonly List<SpriteRenderer> drop = new List<SpriteRenderer>();
-    readonly List<Vector3> bangs = new List<Vector3>(); // 「!」を出す位置(ワールド、絵の上)
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Boot()
@@ -61,8 +64,9 @@ public class ObstacleWarning : MonoBehaviour
     void LateUpdate()
     {
         var gm = GameManager.Instance; var pc = PlayerController.Instance;
-        bool running = gm != null && gm.HasStarted && !gm.IsGameOver && pc != null && !gm.SprintActive && GameSettings.ObstacleWarn != 0;
-        candidates.Clear(); want.Clear(); bangs.Clear();
+        bool running = gm != null && gm.HasStarted && !gm.RunScreenOpen && pc != null && !gm.SprintActive && GameSettings.ObstacleWarn != 0;
+        HiddenByScreen = gm != null && gm.HasStarted && gm.RunScreenOpen;
+        candidates.Clear(); want.Clear();
         if (running)
         {
             float px = pc.transform.position.x, py = pc.transform.position.y;
@@ -112,9 +116,6 @@ public class ObstacleWarning : MonoBehaviour
             float pulse = blink ? Mathf.Lerp(0.55f, 1f, 0.5f + 0.5f * Mathf.Cos((now - m.since) * Mathf.PI * 2f / 0.8f)) : 0.95f;
             float fadeIn = Mathf.Clamp01((now - m.since) / 0.15f);
             UpdateRim(m, cam, pulse * fadeIn);
-            var b = sr.bounds;
-            bool ceiling = sr.name == "CeilingSpike";
-            bangs.Add(ceiling ? new Vector3(b.center.x, b.min.y - 0.35f, 0f) : new Vector3(b.center.x, b.max.y + 0.45f, 0f));
         }
     }
 
@@ -203,36 +204,5 @@ public class ObstacleWarning : MonoBehaviour
         mpb.SetColor(LightId, new Color(OuterRed.r, OuterRed.g, OuterRed.b, 1f));
         mpb.SetFloat(AlphaId, alpha * sr.color.a);
         m.rim.SetPropertyBlock(mpb);
-    }
-
-    // ===== 「!」の札(IMGUI、HUD の後ろ) =====
-    static Texture2D white;
-    static Texture2D White() { if (white == null) { white = new Texture2D(1, 1); white.SetPixel(0, 0, Color.white); white.Apply(); white.hideFlags = HideFlags.HideAndDontSave; } return white; }
-    void OnGUI()
-    {
-        if (Event.current.type != EventType.Repaint || bangs.Count == 0) return;
-        var gm = GameManager.Instance;
-        if (gm == null || !gm.HasStarted || gm.IsGameOver) return;
-        var cam = ActiveCamera();
-        if (cam == null) return;
-        GUI.depth = 5; // HUD(既定 0)より後ろ
-        float k = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2f);
-        float s = 22f * k;
-        var st = new GUIStyle(GUI.skin.label) { fontSize = Mathf.RoundToInt(17f * k), fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, normal = { textColor = Color.white } };
-        Color keep = GUI.color;
-        bool blink = GameSettings.ObstacleWarn == 1;
-        float a = blink ? Mathf.Lerp(0.7f, 1f, 0.5f + 0.5f * Mathf.Cos(Time.time * Mathf.PI * 2f / 0.8f)) : 1f;
-        foreach (var w in bangs)
-        {
-            Vector3 sp = cam.WorldToScreenPoint(w);
-            if (sp.z <= 0f || sp.x < -s || sp.x > Screen.width + s || sp.y < -s || sp.y > Screen.height + s) continue;
-            Rect r = new Rect(sp.x - s * 0.5f, Screen.height - sp.y - s * 0.5f, s, s);
-            // 暗い縁 + 赤い札 + 白い「!」
-            GUI.color = new Color(0.15f, 0f, 0f, 0.85f * a); GUI.DrawTexture(new Rect(r.x - 2f, r.y - 2f, r.width + 4f, r.height + 4f), White());
-            GUI.color = new Color(0.86f, 0.12f, 0.1f, a); GUI.DrawTexture(r, White());
-            GUI.color = new Color(1f, 1f, 1f, a);
-            GUI.Label(r, "!", st);
-        }
-        GUI.color = keep;
     }
 }

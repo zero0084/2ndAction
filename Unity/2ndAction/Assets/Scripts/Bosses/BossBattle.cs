@@ -145,7 +145,7 @@ public class BossBattleHud : MonoBehaviour
             if (f != null) for (int sz = 28; sz <= 40; sz++) f.RequestCharactersInTexture(all, sz, big.fontStyle);
         }
         var gm = GameManager.Instance;
-        if (gm == null || !gm.HasStarted || gm.IsGameOver) return;
+        if (gm == null || !gm.HasStarted || gm.RunScreenOpen) return; // 2026-10-14: カード選択などの画面の手前に出さない
         float s = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f);
         Matrix4x4 keep = GUI.matrix;
         GUI.matrix = Matrix4x4.Scale(new Vector3(s, s, 1f));

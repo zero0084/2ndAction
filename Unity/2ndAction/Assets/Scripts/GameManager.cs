@@ -1416,7 +1416,7 @@ public partial class GameManager : MonoBehaviour
         if (expBarFlashTimer > 0f) expBarFlashTimer -= Time.unscaledDeltaTime;
 
         // Item 3 - one-shot "ESCAPE AVAILABLE" banner countdown.
-        if (escapeAvailableBannerTimer > 0f) escapeAvailableBannerTimer -= Time.unscaledDeltaTime;
+        if (escapeAvailableBannerTimer > 0f && !CardChoiceShowing) escapeAvailableBannerTimer -= Time.unscaledDeltaTime; // 2026-10-14: カード選択の間は止める(閉じた後に残りを出す)
 
         // Bug #001 診断フェーズ (2026-09-08) - 毎フレーム末尾で呼ぶ(この
         // フレーム中に他の処理が行った状態変化を全て反映した「最終状態」
@@ -1464,6 +1464,8 @@ public partial class GameManager : MonoBehaviour
     void DrawUnlockAnnouncement()
     {
         if (currentUnlockAnnouncement == null || IsGameOver) return; // 2026-10-13: 結果画面の上には出さない(ラン中の仮のお知らせ)
+        if (CardChoiceShowing) return; // 2026-10-14: カード選択(uGUI)の上に重なっていた(縦画面で1枚目の見出しを隠す)→ 選んだ後に出す(時間はラン中だけ進む)
+        if (Event.current.type == EventType.Repaint) LastUnlockToastFrame = Time.frameCount; // 確認用
 
         // Fades in/out over the first and last 0.3s of the hold rather
         // than popping in and cutting off abruptly.
@@ -2479,6 +2481,16 @@ public partial class GameManager : MonoBehaviour
     // for its Freeze Snapshot/state-transition polling. None of these add
     // new behavior, they just expose what already exists.
     public bool LevelUpPending => levelUpPending;
+    // 2026-10-14(実機の不具合: カード選択の上に天井の針の「!」が出ていた): ラン中に画面を開いている間(カード選択とその開閉の演出 / ポーズ /
+    //   サブ画面 / 設定・確認などの共通の画面)。IMGUI は uGUI(カード選択)より必ず手前に描かれるので、世界に付いた表示
+    //   (障害物の赤い縁・名前の札・警告・コンボ等)はこの間は描かない。RunScreenOpen は結果の画面(ゲームオーバー)も含む
+    public bool RunMenuOpen => levelUpPending || IsRewardSequenceRunning || showPauseMenu || AnyOverlayOpen || UiInputGate.ModalOpen;
+    public bool RunScreenOpen => IsGameOver || RunMenuOpen;
+    bool CardChoiceShowing => levelUpPending || IsRewardSequenceRunning; // カード選択とその開閉の演出
+    public int LastUnlockToastFrame { get; private set; } = -100; // 確認用(2026-10-14)
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public void DebugShowUnlockToast(UnlockDefinition def) { currentUnlockAnnouncement = def; unlockAnnounceTimer = 30f; } // 確認用: お知らせを出す(長めに)
+#endif
     public bool LevelUpDeferredPending => pendingLevelUpCount > 0;
     public int PendingLevelUpCount => pendingLevelUpCount;
     public bool BossRewardDeferredPending => bossRewardDeferredPending;
@@ -6346,7 +6358,7 @@ public partial class GameManager : MonoBehaviour
     // crossed (see ReportDistance).
     void DrawEscapeAvailableBanner()
     {
-        if (escapeAvailableBannerTimer <= 0f) return;
+        if (escapeAvailableBannerTimer <= 0f || CardChoiceShowing) return; // 2026-10-14: カード選択の上に出さない
 
         float alpha = Mathf.Clamp01(escapeAvailableBannerTimer / 0.4f); // quick fade at the very end
         GUIStyle style = new GUIStyle(GUI.skin.label);

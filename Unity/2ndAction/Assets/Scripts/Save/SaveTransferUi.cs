@@ -212,7 +212,7 @@ public class SaveTransferUi : MonoBehaviour
     void OnGUI()
     {
         if (state == St.Closed) return;
-        GUI.depth = -2200; // 設定(-2000)より手前
+        GUI.depth = -2250; // 設定(-2000)・広告なしパス(-2200)より手前(2026-10-14: 同じ深さを避ける)
         int padLayer = PadNav.BeginLayer(12);
         float s = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 1f, 2.6f);
         Matrix4x4 keep = GUI.matrix;

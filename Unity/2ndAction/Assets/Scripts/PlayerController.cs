@@ -2233,7 +2233,7 @@ public partial class PlayerController : MonoBehaviour
     void OnGUI()
     {
         if (IsAlly) return; // 落下の警告/脱出のゲージはプレイヤーだけ
-        if (GameManager.Instance == null || GameManager.Instance.IsGameOver) return;
+        if (GameManager.Instance == null || GameManager.Instance.RunScreenOpen) return; // 2026-10-14: カード選択などの画面の手前に出さない
 
         DrawFallDeadlineWarning();
 

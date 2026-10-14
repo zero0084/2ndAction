@@ -141,6 +141,7 @@ public class ComboSystem : MonoBehaviour
     {
         var gm = GameManager.Instance;
         if (gm == null || !gm.HasStarted || gm.IsGameOver) return;
+        if (gm.RunMenuOpen) return; // 2026-10-14: カード選択などの画面の間は出さない(お知らせは閉じた後に出す)
         if (Time.unscaledTime > noticeUntil)
         {
             if (pendingNotice.Count == 0) return;

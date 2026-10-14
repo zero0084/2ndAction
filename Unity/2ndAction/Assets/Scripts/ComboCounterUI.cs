@@ -53,7 +53,7 @@ public class ComboCounterUI : MonoBehaviour
     void OnGUI()
     {
         if (ComboCount < showThreshold) return;
-        if (GameManager.Instance == null || GameManager.Instance.IsGameOver) return;
+        if (GameManager.Instance == null || GameManager.Instance.RunScreenOpen) return; // 2026-10-14: カード選択などの画面の手前に出さない
         if (BonusZone.Instance != null && BonusZone.Instance.State == BonusZone.Phase.Ending) return; // BONUS CLEAR/RESULT(1〜2秒)と同じ所に重なるので、その間は出さない
 
         if (style == null) style = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter }; // 毎回作らない(OnGUI は1フレームに何度も呼ばれる)
