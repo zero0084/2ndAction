@@ -113,6 +113,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaPartySprint") { mode = "partysprint"; dir = a[i + 1]; }
             if (a[i] == "-qaPartyRanking") { mode = "partyranking"; dir = a[i + 1]; }
             if (a[i] == "-qaPartyShots") { mode = "partyshots"; dir = a[i + 1]; }
+            if (a[i] == "-qaTransfer") { mode = "transfer"; dir = a[i + 1]; }
             if (a[i] == "-qaCredits") { mode = "credits"; dir = a[i + 1]; }
         }
         if (mode == null) return;
@@ -245,6 +246,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "partysprint") yield return PartySprintMode();
         else if (mode == "partyranking") yield return PartyRankingMode();
         else if (mode == "partyshots") yield return PartyShotsMode();
+        else if (mode == "transfer") yield return TransferMode();
         else if (mode == "credits") yield return CreditsMode();
         else yield return FullRunMode();
         L("");

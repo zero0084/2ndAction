@@ -64,6 +64,9 @@ public static class SaveSystem
         if (SaveProfile.IsTest) Debug.Log("[Save] boot: TEST DATA profile");
         var r = new BootResult();
         var log = new StringBuilder();
+        // 2026-10-14: データの引き継ぎ(読み込み)が途中で終わっていたら、何よりも先に同じ内容を最後まで適用する(新旧を混ぜない)
+        try { SaveTransfer.RecoverIfPending(log); }
+        catch (Exception e) { Debug.LogError("[Save] import recovery failed: " + e); }
         bool hasSchema = SaveStore.HasKey(SaveKeys.SchemaVersion);
         bool anyProgress = AnyProgressKey();
 
@@ -365,6 +368,24 @@ public static class SaveSystem
         return list;
     }
 
+    public static Item ReadItem(string key, SaveType t) => Read(key, t);
+    public static void ApplyItem(Item it) => Apply(it);
+    public static string BackupDirectory => Dir;
+    public static void WriteFileAtomic(string path, string text) => WriteAtomic(path, text);
+    // 名前を付けた全キーの控え(データの引き継ぎの直前など。prefix + 日時)。書けたら true。同じ接頭辞の古い物は keep 個まで残す
+    public static bool WriteNamedBackup(string prefix, int keep)
+    {
+        string name = prefix + Stamp();
+        try
+        {
+            var s = new Snapshot { reason = name, time = DateTime.Now.ToString("s"), schema = SaveStore.GetInt(SaveKeys.SchemaVersion, 0), generation = SaveStore.GetInt(SaveKeys.ReleaseGeneration, 0), items = Capture() };
+            WriteAtomic(System.IO.Path.Combine(Dir, name + ".json"), JsonUtility.ToJson(s, true));
+            Prune(prefix, keep);
+            return true;
+        }
+        catch (Exception e) { Debug.LogWarning("[Save] named backup failed: " + e.Message); return false; }
+    }
+
     static Item Read(string key, SaveType t)
     {
         string v = t == SaveType.Int ? SaveStore.GetInt(key).ToString(System.Globalization.CultureInfo.InvariantCulture)
@@ -439,6 +460,8 @@ public static class SaveSystem
             // -memSave(保存をメモリだけにする検証): バックアップもこのプロセス専用の一時フォルダへ(通常のデータのバックアップに触れない)
             if (MemorySaveStore.Active && TestBackupSubdir == null)
                 root = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "OneMoreMile_memSave", System.Diagnostics.Process.GetCurrentProcess().Id.ToString());
+            // -fileSave(保存を専用のファイルへ。再起動の確認用): バックアップもそのファイルの隣へ
+            if (FileSaveStore.Active && TestBackupSubdir == null) root = FileSaveStore.Folder;
 #endif
             string d = System.IO.Path.Combine(root, TestBackupSubdir ?? SaveProfile.BackupSubdir(SaveProfile.IsTest));
             try { System.IO.Directory.CreateDirectory(d); } catch { }

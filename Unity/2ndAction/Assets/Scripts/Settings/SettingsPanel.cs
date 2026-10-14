@@ -132,11 +132,12 @@ public class SettingsPanel : MonoBehaviour
         if (wide)
         {
             float colW = (view.width - 30f) * 0.5f;
-            contentH = Mathf.Max(drawnH, Mathf.Max(MeasureAudio() + 16f + MeasureLanguage() + 16f + MeasureProfile() + MeasureNoAds(), MeasureDisplay() + MeasureControls() + 16f));
+            contentH = Mathf.Max(drawnH, Mathf.Max(MeasureAudio() + 16f + MeasureLanguage() + 16f + MeasureProfile() + MeasureTransfer() + MeasureNoAds(), MeasureDisplay() + MeasureControls() + 16f));
             BeginScroll(view, contentH);
             float ya = DrawAudio(0f, 0f, colW, interactive);
             ya = DrawLanguage(0f, ya + 16f, colW, interactive);
             ya = DrawProfile(0f, ya + 16f, colW, interactive);
+            ya = DrawTransfer(0f, ya, colW, interactive);
             ya = DrawNoAds(0f, ya, colW, interactive);
             float y2 = DrawDisplay(colW + 30f, 0f, colW, interactive);
             y2 = DrawControls(colW + 30f, y2 + 16f, colW, interactive);
@@ -145,13 +146,14 @@ public class SettingsPanel : MonoBehaviour
         }
         else
         {
-            contentH = Mathf.Max(drawnH, MeasureAudio() + MeasureLanguage() + MeasureDisplay() + MeasureControls() + MeasureProfile() + MeasureNoAds() + 64f);
+            contentH = Mathf.Max(drawnH, MeasureAudio() + MeasureLanguage() + MeasureDisplay() + MeasureControls() + MeasureProfile() + MeasureTransfer() + MeasureNoAds() + 64f);
             BeginScroll(view, contentH);
             float y = DrawAudio(0f, 0f, view.width, interactive);
             y = DrawLanguage(0f, y + 16f, view.width, interactive);
             y = DrawDisplay(0f, y + 16f, view.width, interactive);
             y = DrawControls(0f, y + 16f, view.width, interactive);
             y = DrawProfile(0f, y + 16f, view.width, interactive);
+            y = DrawTransfer(0f, y, view.width, interactive);
             y = DrawNoAds(0f, y, view.width, interactive);
             EndScroll(view, contentH);
             if (Event.current.type == EventType.Repaint) drawnH = y + 12f;
@@ -604,6 +606,24 @@ public class SettingsPanel : MonoBehaviour
         y += RowH;
         y = Note(x, y, w, $"ランキングとマルチで表示する名前(最大{Codename.MaxLength}文字)。未設定でも遊べます。");
         return Note(x, y, w, "本名などの個人情報は入れないでください。");
+    }
+
+    // データ引き継ぎ(2026-10-14): 機種変更に備えた手動の書き出し/読み込み(SaveTransfer)。ホームでだけ
+    float MeasureTransfer() => 16f + HeadH + 4f + RowH * 2f + 22f * 4f;
+    float DrawTransfer(float x, float y, float w, bool interactive)
+    {
+        y = Head(x, y + 16f, w, "データ引き継ぎ");
+        bool can = SaveTransfer.CanRunNow(out string why);
+        RowLabel(x, y, "書き出し");
+        if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), "ファイルに書き出す", 19f, false, true, can) && interactive && can) SaveTransferUi.StartExport();
+        y += RowH;
+        RowLabel(x, y, "読み込み");
+        if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), "ファイルから読み込む", 19f, false, true, can) && interactive && can) SaveTransferUi.StartImport();
+        y += RowH;
+        if (!can) y = Note(x, y, w, why);
+        y = Note(x, y, w, "MILE・カード・デッキ・解放・記録をファイルにして、別の端末へ移せます。読み込むと今の進行はファイルの内容に置き換わります。");
+        y = Note(x, y, w, "端末の故障に備えるには、書き出したファイルを別の端末やパソコン、外部ストレージなどに保管してください。");
+        return Note(x, y, w, "設定・中断中のラン・広告なしパス(ストアで復元)・ランキングの登録は引き継がれません。");
     }
 
     // 広告なしパス/購入の復元/プライバシー(2026-10-10、依頼I)。Steam/PC(広告も課金も無い)では出さない
