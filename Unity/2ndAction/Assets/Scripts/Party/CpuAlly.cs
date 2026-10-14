@@ -28,7 +28,7 @@ public class CpuAlly : MonoBehaviour
     public readonly List<string> Picks = new List<string>(); // 取った順(中断データ用)
 
     // 確認用
-    public int HitsTaken, Downs, Revives, Warps, CardPicks, LandedHits;
+    public int HitsTaken, Downs, Revives, Warps, CardPicks, LandedHits, Falls;
     public string LastWarpReason = "";
     // プレイヤーからの目標の位置。ふだんは後ろ。前の近くに敵/ボスがいる時(Engaged)は、近接は少し前へ出て戦い、遠距離は後ろから撃つ
     public float FollowOffset => Engaged ? (IsMelee ? 0.9f + 0.7f * Index : -1.0f - 0.8f * Index) : -1.4f - 1.3f * Index;
@@ -122,6 +122,7 @@ public class CpuAlly : MonoBehaviour
         if (dmg > CombatScale.PlayerHit && Hp >= MaxHp && dmg >= Hp) dmg = Mathf.Max(CombatScale.PlayerHit, Hp - CombatScale.PlayerHit); // 満タンから1発では倒れない(プレイヤーと同じ)
         Hp = Mathf.Max(0, Hp - dmg);
         HitsTaken++;
+        if (isFall) Falls++;
         if (Hp <= 0) CpuParty.NotifyDown(this);
         return true;
     }
@@ -146,11 +147,15 @@ public class CpuAlly : MonoBehaviour
         var leader = PlayerController.Instance;
         if (pc == null || leader == null) { AutoSpeed = 0f; return; }
         // 走る速さ: プレイヤーの今の速さ × 位置の補正(目標より後ろなら少し速く、前なら少し遅く)
-        float baseSpeed = leader.CurrentAutoRunSpeed;
+        // 基準: プレイヤーが実際に進んでいる速さ(止まったら止まる)。走り出しの直後など測れていない時は本来の速さ
+        // (攻撃の踏み込みの一瞬の速さは拾わない: 本来の走る速さを上限にする)
+        float baseSpeed = CpuParty.LeaderSpeed > 0.5f ? Mathf.Min(CpuParty.LeaderSpeed, leader.CurrentAutoRunSpeed) : leader.CurrentAutoRunSpeed;
         UpdateEngaged(leader);
         float target = leader.transform.position.x + FollowOffset;
         float dx = pc.transform.position.x - target;
-        float k = Mathf.Clamp(1f - dx * 0.12f, 0.55f, 1.45f);
+        // 目標より後ろなら速く(大きく遅れた時はより速く追いつく)、前なら遅く
+        float k = Mathf.Clamp(1f - dx * 0.12f, 0.55f, dx < -6f ? 1.9f : 1.45f);
+        if (CpuParty.LeaderSpeed <= 0.5f && dx > 0f) k = 0f; // プレイヤーが止まっていて、目標より前: 止まる
         float ahead = pc.transform.position.x - leader.transform.position.x;
         if (ahead > (Engaged ? 4f : 3f)) k = Mathf.Min(k, 0.6f); // 前へ出すぎない(先に進んでイベントを起こさない)
         AutoSpeed = Mathf.Max(0f, baseSpeed * k);

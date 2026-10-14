@@ -7,7 +7,7 @@ using UnityEngine;
 //  ・倒れた仲間: 少しして姿を消し、ReviveSeconds 後にプレイヤーの近くの安全な場所で復帰(HP は ReviveHpFraction)。救助の操作は要らない
 //  ・離れすぎた/引っかかった/落ちた仲間: プレイヤーの近くの安全な場所へ戻す(穴・穴の縁・天井の針・障害物/敵/ボスの攻撃の中を避ける)
 //  ・プレイヤーが倒れたら従来どおりランの終わり(仲間はその場で止まる)
-// 調整値(初期値): ReviveSeconds=10秒 / ReviveHpFraction=0.5 / 姿を消すまで 1.2秒 / 後ろ 16m・前 9m で呼び戻し / 2.5秒進まなければ引っかかり
+// 調整値(初期値): ReviveSeconds=10秒 / ReviveHpFraction=0.5 / 姿を消すまで 1.2秒 / 後ろ 25m・前 9m で呼び戻し / 2.5秒進まなければ引っかかり
 public class CpuParty : MonoBehaviour
 {
     public const int AttackerBase = 100;
@@ -15,7 +15,7 @@ public class CpuParty : MonoBehaviour
     public static float ReviveSeconds = 10f;
     public static float ReviveHpFraction = 0.5f;
     public static float HideAfterDownSeconds = 1.2f;
-    public static float WarpBehind = 16f, WarpAhead = 9f, StuckSeconds = 2.5f;
+    public static float WarpBehind = 25f, WarpAhead = 9f, StuckSeconds = 2.5f; // 後ろは被弾ののけぞりで離れても、まず走って追いつく(呼び戻しは最後の手段)
 
     public static CpuParty Instance { get; private set; }
     public static readonly List<CpuAlly> Allies = new List<CpuAlly>();
@@ -24,6 +24,23 @@ public class CpuParty : MonoBehaviour
     public static bool Active => Allies.Count > 0;
     public static int Size => Allies.Count;
     public static int TotalWarps, TotalRevives; // 確認用
+    // プレイヤーが実際に進んでいる速さ(m/s、なめらかにした値)。仲間の走る速さの基準(プレイヤーがボス戦の演出/のけぞり等で
+    // 止まった時は仲間も止まる。「本来の走る速さ」を基準にすると、止まったプレイヤーを追い越していた)。時間で平均するので fps に左右されない
+    public static float LeaderSpeed { get; private set; }
+    double leaderLastDist = double.NaN;
+
+    void TrackLeaderSpeed(PlayerController leader)
+    {
+        float dt = Time.deltaTime;
+        double d = leader.DistanceExact;
+        if (dt <= 0f) return;
+        if (!double.IsNaN(leaderLastDist))
+        {
+            float v = (float)((d - leaderLastDist) / dt);
+            if (v > -80f && v < 200f) LeaderSpeed = Mathf.Lerp(LeaderSpeed, Mathf.Max(0f, v), 1f - Mathf.Exp(-dt / 0.12f)); // 疾走/ワープの跳びは捨てる
+        }
+        leaderLastDist = d;
+    }
 
     readonly Dictionary<CpuAlly, float> downSince = new Dictionary<CpuAlly, float>();
     readonly HashSet<CpuAlly> sprintHidden = new HashSet<CpuAlly>();
@@ -248,6 +265,7 @@ public class CpuParty : MonoBehaviour
         var leader = PlayerController.Instance;
         var gm = GameManager.Instance;
         if (leader == null || gm == null || Allies.Count == 0) return;
+        TrackLeaderSpeed(leader);
         bool running = gm.HasStarted && !gm.IsGameOver && !gm.CountdownActive && !gm.ResumeGateActive && Time.timeScale > 0f;
         // 疾走出発の演出の間: 仲間は姿を消し、到着してから近くへ置く(高速で動くプレイヤーへ毎フレーム呼び戻さない)
         if (gm.SprintActive)

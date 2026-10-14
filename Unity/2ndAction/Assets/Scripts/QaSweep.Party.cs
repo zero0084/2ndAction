@@ -37,7 +37,7 @@ public partial class QaSweep
         float vsec = float.Parse(Arg("-qaPartyVideo", "0"), System.Globalization.CultureInfo.InvariantCulture);
         if (vsec > 0f) StartCoroutine(RecordUltimate("party_run", vsec));
         float t = 0f, nextLog = 0f;
-        int frames = 0; float realA = 0f, worstMs = 0f;
+        int frames = 0; float realA = 0f, worstMs = 0f, aheadLogAt = 0f;
         while (t < secs && !gm.IsGameOver)
         {
             yield return null;
@@ -49,6 +49,7 @@ public partial class QaSweep
                 float dx = a.pc.transform.position.x - pc.transform.position.x;
                 total += dt; if (dx > -10f && dx < 3f) inBand += dt;
                 maxBehind = Mathf.Min(maxBehind, dx); maxAhead = Mathf.Max(maxAhead, dx);
+                if (dx > 6f && Time.time >= aheadLogAt) { aheadLogAt = Time.time + 0.5f; L($"[party A] ahead {dx:F1}m P{a.Pn} {a.CharacterId} leaderReact={pc.IsReacting} leaderY={pc.transform.position.y:F1} allyY={a.pc.transform.position.y:F1} leaderSpeed={CpuParty.LeaderSpeed:F1} allySpeed={a.AutoSpeed:F1} attacking={a.pc.AllyIsAttacking} engaged={a.Engaged}"); }
             }
             if (t >= nextLog)
             {
@@ -96,9 +97,14 @@ public partial class QaSweep
         if (v != null)
         {
             int rev0 = v.Revives;
-            v.SetHp(1);
-            typeof(PlayerController).GetField("hitInvincibleTimer", NP).SetValue(v.pc, 0f);
-            v.pc.TakeDamage(false, "qa");
+            // SHIELD のカード/のけぞり中で防がれることがあるので、倒れるまで少し間を空けて繰り返す
+            for (int k = 0; k < 20 && !v.Down; k++)
+            {
+                v.SetHp(1);
+                typeof(PlayerController).GetField("hitInvincibleTimer", NP).SetValue(v.pc, 0f);
+                v.pc.TakeDamage(false, "qa");
+                if (!v.Down) yield return new WaitForSeconds(0.3f);
+            }
             Check(v.Down, "C: an ally at 0 HP goes down (the run continues)");
             Check(!gm.IsGameOver, "C: the run does not end when an ally goes down");
             yield return new WaitForSeconds(CpuParty.HideAfterDownSeconds + 0.3f);
@@ -142,7 +148,7 @@ public partial class QaSweep
         yield return new WaitForSecondsRealtime(1f);
         Check(CpuParty.Allies.All(a => a == null || !a.pc.isActiveAndEnabled || true), "E: allies stop with the run");
         Check(gm.IsGameOver, "E: the player's death ends the run as before");
-        L($"[party] totals: allyHits={AllyAttackRouter.Hits} allyKills={AllyAttackRouter.Kills} warps={CpuParty.TotalWarps} revives={CpuParty.TotalRevives} " + string.Join(" | ", CpuParty.Allies.Select(a => $"P{a.Pn} {a.CharacterId} hitsTaken={a.HitsTaken} downs={a.Downs} picks={a.CardPicks} cards[{string.Join(",", a.Levels.Select(kv => kv.Key + ":" + kv.Value))}]")));
+        L($"[party] totals: allyHits={AllyAttackRouter.Hits} allyKills={AllyAttackRouter.Kills} warps={CpuParty.TotalWarps} revives={CpuParty.TotalRevives} " + string.Join(" | ", CpuParty.Allies.Select(a => $"P{a.Pn} {a.CharacterId} hitsTaken={a.HitsTaken} falls={a.Falls} downs={a.Downs} picks={a.CardPicks} cards[{string.Join(",", a.Levels.Select(kv => kv.Key + ":" + kv.Value))}]")));
         yield return EndRun();
     }
 }

@@ -131,7 +131,19 @@ public class ParticipantAura : MonoBehaviour
     }
 
     // 頭の上(名前の表示の位置)
-    public Vector3 HeadWorld => Body != null && Body.sprite != null ? new Vector3(Body.bounds.center.x, Body.bounds.max.y, Body.transform.position.z) : transform.position + Vector3.up * 2f;
+    // 名前を出す位置: 体の当たり判定の上端(絵の上の透明な余白に左右されない。斜めの見せ方で近いと名前が離れすぎていた)。無ければ絵の上端
+    public Vector3 HeadWorld
+    {
+        get
+        {
+            if (Body == null) return transform.position + Vector3.up * 2f;
+            if (bodyBox == null) bodyBox = GetComponent<BoxCollider2D>();
+            if (bodyBox != null && bodyBox.enabled) { var bb = bodyBox.bounds; return new Vector3(bb.center.x, bb.max.y, Body.transform.position.z); }
+            if (Body.sprite != null) return new Vector3(Body.bounds.center.x, Body.bounds.max.y, Body.transform.position.z);
+            return transform.position + Vector3.up * 2f;
+        }
+    }
+    BoxCollider2D bodyBox;
 
     static Sprite ringSprite;
     static Sprite RingSprite()
@@ -157,7 +169,7 @@ public class ParticipantAura : MonoBehaviour
     }
 }
 
-// 名前と番号(色だけに頼らない)。自分は「YOU」、人間の仲間は「P3 コードネーム」、CPU は「P2 キャラ名 CPU」。
+// 名前と番号(色だけに頼らない)。自分は「YOU」、CPU は「CPU1」〜「CPU3」、人間の仲間は「P3 コードネーム」。
 // IMGUI で頭の上に小さく。敵の警告(!)や HUD より奥(GUI.depth 10)。斜め上から見る表示ではそのカメラで位置を求める。
 public class ParticipantLabels : MonoBehaviour
 {
@@ -171,6 +183,8 @@ public class ParticipantLabels : MonoBehaviour
     }
 
     GUIStyle style, shadow;
+    struct Tag { public ParticipantAura a; public string text; public Rect rect; }
+    readonly System.Collections.Generic.List<Tag> placed = new System.Collections.Generic.List<Tag>();
 
     void OnGUI()
     {
@@ -183,21 +197,93 @@ public class ParticipantLabels : MonoBehaviour
         float s = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.4f);
         if (style == null) { style = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.LowerCenter, fontStyle = FontStyle.Bold, wordWrap = false }; shadow = new GUIStyle(style); }
         style.fontSize = shadow.fontSize = Mathf.RoundToInt(15f * s);
+        // 近くに並んだ時に名前が重ならないよう、重なる分は上へ1段ずつずらす(自分 → 番号の小さい順に場所を取る)
+        placed.Clear();
         foreach (var a in ParticipantAura.All)
         {
             if (a == null || a.Body == null || !a.Body.gameObject.activeInHierarchy) continue;
             if (a.Hidden != null && a.Hidden()) continue;
-            Vector3 sp = cam.WorldToScreenPoint(a.HeadWorld + Vector3.up * 0.25f);
+            Vector3 sp = cam.WorldToScreenPoint(a.HeadWorld + Vector3.up * 0.1f);
             if (sp.z <= 0f) continue;
             float x = sp.x, y = Screen.height - sp.y;
             if (x < -100f || x > Screen.width + 100f || y < -40f || y > Screen.height + 40f) continue;
-            string text = a.IsLocal ? $"P{a.Pn} YOU" : a.IsCpu ? $"P{a.Pn} {a.Label} CPU" : $"P{a.Pn} {a.Label}";
-            Color c = ParticipantAura.ColorOf(a.Pn);
-            var r = new Rect(x - 160f * s, y - 30f * s, 320f * s, 28f * s);
-            shadow.normal.textColor = new Color(0f, 0f, 0f, 0.75f);
-            GUI.Label(new Rect(r.x + 1.5f * s, r.y + 1.5f * s, r.width, r.height), text, shadow);
-            style.normal.textColor = Color.Lerp(c, Color.white, 0.35f);
-            GUI.Label(r, text, style);
+            // 2026-10-14(マスター指定): 短く。自分は YOU、CPU は CPU1〜3(P2 = CPU1)。人間の仲間は番号とコードネーム
+            string text = a.IsLocal ? "YOU" : a.IsCpu ? $"CPU{Mathf.Max(1, a.Pn - 1)}" : $"P{a.Pn} {a.Label}";
+            float w = style.CalcSize(new GUIContent(text)).x + 6f * s;
+            placed.Add(new Tag { a = a, text = text, rect = new Rect(x - w * 0.5f, y - 24f * s, w, 22f * s) });
+        }
+        // 重なりの解消: 同じ高さ(縦に重なる)の名前は横へ押し広げる(仲間の真上から大きく離れないよう、まとまりの中心は元の位置の平均)。
+        // 横に広げても収まらない(ほぼ真上に重なった)時だけ上へずらす
+        placed.Sort((p, q) => p.rect.center.x.CompareTo(q.rect.center.x));
+        float gap = 4f * s;
+        int start = 0;
+        while (start < placed.Count)
+        {
+            int end = start + 1;
+            while (end < placed.Count && Mathf.Abs(placed[end].rect.y - placed[start].rect.y) < placed[start].rect.height) end++;
+            Spread(start, end, gap);
+            start = end;
+        }
+        placed.Sort((p, q) => p.a.IsLocal != q.a.IsLocal ? (p.a.IsLocal ? -1 : 1) : p.a.Pn.CompareTo(q.a.Pn));
+        float step = 22f * s;
+        // ボス戦中は名前を薄く(ボスの HP/予兆の表示に重なっても読めるように)
+        float alpha = BossBattle.AnyBossFighting ? 0.55f : 1f;
+        for (int i = 0; i < placed.Count; i++)
+        {
+            var t = placed[i];
+            for (int guard = 0; guard < 8; guard++)
+            {
+                bool hit = false;
+                for (int j = 0; j < i; j++) if (placed[j].rect.Overlaps(t.rect)) { hit = true; break; }
+                if (!hit) break;
+                t.rect.y -= step;
+            }
+            placed[i] = t;
+            Color c = ParticipantAura.ColorOf(t.a.Pn);
+            var r = t.rect;
+            shadow.normal.textColor = new Color(0f, 0f, 0f, 0.75f * alpha);
+            GUI.Label(new Rect(r.x + 1.5f * s, r.y + 1.5f * s, r.width, r.height), t.text, shadow);
+            Color tc = Color.Lerp(c, Color.white, 0.35f); tc.a = alpha;
+            style.normal.textColor = tc;
+            GUI.Label(r, t.text, style);
         }
     }
+    // placed[start..end) (左から順) を、重ならない間隔で横に並べ直す。かたまりごとに中心を元の位置の平均に合わせる
+    void Spread(int start, int end, float gap)
+    {
+        if (end - start < 2) return;
+        // かたまり(cluster)を左から作り、重なったら結合して中心を合わせ直す
+        clusters.Clear();
+        for (int i = start; i < end; i++)
+        {
+            var c = new Cluster { first = i, last = i, sumCenter = placed[i].rect.center.x, width = placed[i].rect.width };
+            c.Place();
+            while (clusters.Count > 0)
+            {
+                var prev = clusters[clusters.Count - 1];
+                if (prev.left + prev.width + gap <= c.left) break;
+                clusters.RemoveAt(clusters.Count - 1);
+                c = new Cluster { first = prev.first, last = c.last, sumCenter = prev.sumCenter + c.sumCenter, width = prev.width + gap + c.width };
+                c.Place();
+            }
+            clusters.Add(c);
+        }
+        foreach (var c in clusters)
+        {
+            float x = c.left;
+            for (int i = c.first; i <= c.last; i++)
+            {
+                var t = placed[i];
+                t.rect.x = x;
+                x += t.rect.width + gap;
+                placed[i] = t;
+            }
+        }
+    }
+    struct Cluster
+    {
+        public int first, last; public float sumCenter, width, left;
+        public void Place() { int n = last - first + 1; left = sumCenter / n - width * 0.5f; }
+    }
+    readonly System.Collections.Generic.List<Cluster> clusters = new System.Collections.Generic.List<Cluster>();
 }
