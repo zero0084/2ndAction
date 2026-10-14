@@ -1,5 +1,6 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 // ホームの「続きから」「はじめから」(2026-10-14)。専用の保存(-fileSave / -memSave)で行う。
@@ -69,6 +70,49 @@ public partial class QaSweep
 
         Check(RunCheckpoint.HasActiveRun, "a suspended run exists");
         yield return new WaitForSecondsRealtime(0.6f);
+
+        if (phase == "loc")
+        {
+            // 2026-10-14: ホームの訳漏れの調査。30言語 × (中断中のランあり / 確認の画面 / 中断データなし)で、表に無い日本語が画面に出たかを集める
+            string keepLang = Loc.Current;
+            var shotLangs = Arg("-hcShotLangs", "en,de,ta,my,ar").Split(',');
+            var all = new System.Collections.Generic.SortedDictionary<string, System.Collections.Generic.SortedSet<string>>();
+            var unknown = new System.Collections.Generic.SortedSet<string>();
+            void Collect(string code)
+            {
+                foreach (var s in LocDebug.UntranslatedShown) { if (!all.TryGetValue(s, out var set)) all[s] = set = new System.Collections.Generic.SortedSet<string>(); set.Add(code); }
+                foreach (var s in LocDebug.UnknownLabels) unknown.Add(code + "\t" + s);
+            }
+            var codes = Loc.Languages.Select(l => l.code).Where(c => c != "ja").ToArray();
+            foreach (var code in codes)
+            {
+                Loc.Set(code, false); LocDebug.Reset();
+                yield return new WaitForSecondsRealtime(0.5f);
+                bool shot = System.Array.IndexOf(shotLangs, code) >= 0;
+                if (shot) { Shot($"loc_choice_{code}"); yield return null; yield return null; }
+                typeof(GameManager).GetField("showNewRunConfirm", NP).SetValue(gm, true);
+                yield return new WaitForSecondsRealtime(0.35f);
+                typeof(GameManager).GetField("showNewRunConfirm", NP).SetValue(gm, false);
+                yield return null;
+                Collect(code);
+            }
+            RunCheckpoint.Clear();
+            foreach (var code in codes)
+            {
+                Loc.Set(code, false); LocDebug.Reset();
+                yield return new WaitForSecondsRealtime(0.5f);
+                if (System.Array.IndexOf(shotLangs, code) >= 0) { Shot($"loc_depart_{code}"); yield return null; yield return null; }
+                Collect(code);
+            }
+            Loc.Set(keepLang, false);
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"# home untranslated survey, screen {Screen.width}x{Screen.height}, languages {codes.Length}");
+            foreach (var kv in all) sb.AppendLine($"UNTRANSLATED\t{kv.Key.Replace("\n", "\\n")}\t{kv.Value.Count}\t{string.Join(",", kv.Value)}");
+            foreach (var u in unknown) sb.AppendLine($"UNKNOWN_EN\t{u}");
+            System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, "home_loc_survey.tsv"), sb.ToString());
+            L($"[hc] loc survey: {all.Count} untranslated text(s) on the home: {string.Join(" / ", all.Keys.Select(k => k.Replace("\n", "\\n")))}");
+            yield break;
+        }
 
         if (phase == "shots")
         {

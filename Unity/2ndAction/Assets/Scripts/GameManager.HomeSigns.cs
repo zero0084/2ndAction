@@ -13,7 +13,10 @@ using UnityEngine;
 //  ・札の位置は物の矩形(部屋の絵 bgRoomRect の割合)から決めるので、縦横/回転の後も物と札とタップの範囲が一致する。画面の外へは出さない。
 public partial class GameManager
 {
-    public static string[] HomeSignLabels => new[] { "キャラ選択", "デッキ編集", "カード合成", "ガチャ", "出発" };
+    // 2026-10-14: 「キャラ選択」には単独の訳が無かった → 日本語以外は、行き先の画面の題名のレビュー済みの訳(keys.tsv の ID 242 "CHARACTER SELECT")を使う。
+    //   日本語はそのまま「キャラ選択」。「デッキ編集」はレビュー済みの訳が無いので、レビューの後に足す(Docs/LocReview_2026-10-14)
+    static string ReviewedKey(string ja, string reviewed) => Loc.Current == "ja" ? ja : reviewed;
+    public static string[] HomeSignLabels => new[] { ReviewedKey("キャラ選択", "CHARACTER SELECT"), "デッキ編集", "カード合成", "ガチャ", "出発" };
     public static int HomeSignTaps { get; private set; } // 確認用
     public Rect[] LastHomeSignRects { get; private set; } = new Rect[6];      // 4 = 出発 / 続きから、5 = はじめから
     public Rect[] LastHomeSignHitRects { get; private set; } = new Rect[6];
@@ -86,7 +89,7 @@ public partial class GameManager
         for (int i = 0; i < LastHomeSignRects.Length; i++) { LastHomeSignRects[i] = Rect.zero; LastHomeSignHitRects[i] = Rect.zero; }
         // キャラ選択: 肖像画の下(2行目に今のキャラの名前。以前の名前の表示はここへまとめた)
         var cdef = CharacterDatabase.FindById(SelectedCharacterId);
-        if (DrawHomeSign(0, new Vector2(characterRect.center.x, characterRect.yMax + 4f), true, HomeSignLabels[0], interactable, fade, 0f, cdef != null ? cdef.displayName : null))
+        if (DrawHomeSign(0, new Vector2(characterRect.center.x, characterRect.yMax + 4f), true, HomeSignLabels[0], interactable, fade, 0f, cdef != null ? Loc.Auto(cdef.displayName) : null)) // 2行目のキャラ名もレビュー済みの訳(keys.tsv の char の行)へ。以前は英語のまま
         { characterHotspotFlashTimer = roomHotspotFlashDuration; PlayRoomTap(); OpenCharacterSelect(); }
         // デッキ編集: ベッドの上のカードの上
         Vector2 deckAt = new Vector2(bgRoomRect.x + bgRoomRect.width * 0.17f, bgRoomRect.y + bgRoomRect.height * 0.63f);
