@@ -13,6 +13,7 @@ public class RankingPanel : MonoBehaviour
 
     bool open;
     int tab;
+    bool supportBoard; // CPU サポート(2026-10-14): ソロ / サポートありの表の切り替え
     readonly Dictionary<string, Leaderboard.Page> cache = new Dictionary<string, Leaderboard.Page>();
     string loadingStage, errorStage, errorText;
     float lastLoadAt = -100f;
@@ -50,12 +51,12 @@ public class RankingPanel : MonoBehaviour
     async void Load(bool force)
     {
         var tabs = Tabs(); if (tabs.Count == 0) return;
-        string st = tabs[Mathf.Clamp(tab, 0, tabs.Count - 1)];
+        string st = tabs[Mathf.Clamp(tab, 0, tabs.Count - 1)] + (supportBoard ? "|support" : "");
         if (loadingStage == st) return;
         if (!force && cache.ContainsKey(st) && Time.realtimeSinceStartup - lastLoadAt < 20f) return;
         if (Time.realtimeSinceStartup - lastLoadAt < 2f && force) return; // 連打で API を呼びすぎない
         loadingStage = st; errorStage = null; lastLoadAt = Time.realtimeSinceStartup;
-        try { var page = await Leaderboard.Backend.Load(st, 50); cache[st] = page; }
+        try { bool sup = st.EndsWith("|support"); var page = await Leaderboard.Backend.Load(sup ? st.Substring(0, st.Length - 8) : st, sup, 50); cache[st] = page; }
         catch (System.Exception e) { errorStage = st; errorText = e.GetType().Name; Debug.LogWarning("[Ranking] load failed: " + e.GetType().Name + ": " + e.Message); }
         finally { if (loadingStage == st) loadingStage = null; }
     }
@@ -143,16 +144,21 @@ public class RankingPanel : MonoBehaviour
             if (UiKit.Button(new Rect(r.x + i * (tw + 8f), r.y, tw, 44f), UnlockRules.StageName(tabs[i]), 17f, i == tab, false) && i != tab)
             { tab = i; list.Reset(); Load(force: false); }
         }
-        string st = tabs[tab];
-        float y = r.y + 54f;
+        string stage = tabs[tab];
+        // ソロ / サポートありの切り替え(サポートの記録はソロの表に混ぜない)
+        float bw2 = 180f;
+        if (UiKit.Button(new Rect(r.x, r.y + 52f, bw2, 36f), "ソロ", 16f, !supportBoard, false) && supportBoard) { supportBoard = false; list.Reset(); Load(force: false); }
+        if (UiKit.Button(new Rect(r.x + bw2 + 8f, r.y + 52f, bw2, 36f), "CPU サポート", 16f, supportBoard, false) && !supportBoard) { supportBoard = true; list.Reset(); Load(force: false); }
+        string st = stage + (supportBoard ? "|support" : "");
+        float y = r.y + 54f + 44f;
         cache.TryGetValue(st, out var page);
         var info = new GUIStyle(UiKit.Label(17f, TextAnchor.MiddleLeft, false, new Color(0.85f, 0.9f, 1f)));
 
         // 自分(上に固定)
         // 2026-10-13: 「あなた」の行は実際の状態から(読み込み中 / 読み込み失敗 / このマップの送信待ち / 順位に出ていない / 記録なし)。
         // 以前は送信待ちが無くても「投稿待ち」相当の文が出ていた。読み込み失敗と送信待ちが同時の時は、右の欄に送信待ちを別に出す
-        var best = Leaderboard.VerifiedBest(st);
-        int pendingHere = Leaderboard.PendingCountFor(st);
+        var best = Leaderboard.VerifiedBest(stage, supportBoard);
+        int pendingHere = Leaderboard.PendingCountFor(stage, supportBoard);
         bool loadingHere = loadingStage == st, failedHere = errorStage == st;
         string meLine;
         if (page != null && page.me != null) meLine = Loc.Auto("あなた") + $": #{page.me.rank}  {page.me.meters:N0}m"; // 順位は # で(言語ごとの順位の言い方に頼らない)
@@ -196,7 +202,7 @@ public class RankingPanel : MonoBehaviour
                 GUI.Label(new Rect(rr.x + 72f, rr.y, rr.width * 0.42f, rr.height), string.IsNullOrEmpty(row.name) ? "-" : row.name, cs); // 名前は訳さない
                 LocGUI.Label(new Rect(rr.x + 72f + rr.width * 0.42f, rr.y, rr.width * 0.2f, rr.height), $"{row.meters:N0}m", cs);
                 string ch = !string.IsNullOrEmpty(row.characterId) && UnlockRules.IsCharacterVisible(row.characterId) ? Loc.Auto(UnlockRules.CharName(row.characterId)) : "";
-                string marks = (row.usedAuto ? " AUTO" : "") + (row.usedSprint ? " 疾走" : "");
+                string marks = (row.usedAuto ? " AUTO" : "") + (row.usedSprint ? " 疾走" : "") + (string.IsNullOrEmpty(row.allies) ? "" : " +" + row.allies.Split(',').Length + "CPU");
                 LocGUI.Label(new Rect(rr.x + 72f + rr.width * 0.62f, rr.y, rr.width * 0.38f - 72f, rr.height), ch + marks, UiKit.Label(15f, TextAnchor.MiddleLeft, false, new Color(0.8f, 0.85f, 0.95f)));
             }
             list.End(view, contentH);

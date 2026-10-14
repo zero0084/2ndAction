@@ -697,7 +697,7 @@ public partial class EnemyController : MonoBehaviour
                     // (KnockbackRoutine)から速度ベース(ApplyGroundKnockback)
                     // へ全面変更。
                     if (!hitNoKnockback) ApplyGroundKnockback();
-                    if (PlayerController.Instance != null) PlayerController.Instance.NotifyGroundHitConnect();
+                    if (PlayerController.Instance != null && netReactionAttacker == 0) PlayerController.Instance.NotifyGroundHitConnect(); // 他の参加者/仲間の攻撃ではプレイヤーを減速させない
                 }
                 break;
         }
@@ -1150,6 +1150,7 @@ public partial class EnemyController : MonoBehaviour
 
     public int NetHp => NetReplica ? netDisplayHp : (hp < 0 ? Mathf.Max(1, maxHp) : Mathf.Max(0, hp));
     public bool IsDying => dying; // QA(2026-09-30): 撃破されたか
+    public bool IsDyingOrDead => dying;
     public bool NetIsReacting => IsReactingToHit;
 
     // 撃破報酬の付与(シングル/HOST自身がラストヒットなら従来どおりこの端末で付与)。
@@ -1242,6 +1243,23 @@ public partial class EnemyController : MonoBehaviour
         netReactionAttacker = attacker;
         if (killed) DecideFinishRemote(kind, Mathf.Max(1, damage), hpBefore, noStop: true); // (HOST の画面は他の人の撃破で止めない)
         NetCombat.AuthorityDamaged(NetId, attacker, Mathf.Max(1, damage), hp, (byte)kind, contactPoint, killed);
+        ProcessHit(kind, contactPoint, killed);
+    }
+
+    // CPU サポート(2026-10-14): 仲間の攻撃(AllyAttackRouter)。他の参加者の攻撃と同じ処理で、画面全体の HitStop は出さない。
+    // ノックバックの基準は仲間の位置(NetCombat.TryGetAttacker が CpuParty から引く)。撃破の報酬はランに1回(RegisterKillReward)
+    public void AllyApplyHit(int attacker, int damage, PlayerAttackKind kind, Vector3 contactPoint, PlayerAttackInfo info)
+    {
+        if (dying || NetReplica) return;
+        EnsureHp();
+        int hpBefore = hp;
+        hp -= Mathf.Max(1, damage);
+        bool killed = hp <= 0;
+        hitKnockbackScale = info != null ? info.knockbackScale : 1f; hitExtraStop = 0f; hitNoStop = true; hitNoKnockback = info != null && info.suppressKnockback;
+        netReactionAttacker = attacker;
+        if (killed) DecideFinishRemote(kind, Mathf.Max(1, damage), hpBefore, noStop: true);
+        NetCombat.AuthorityDamaged(NetId, attacker, Mathf.Max(1, damage), hp, (byte)kind, contactPoint, killed);
+        if (bonus != null) bonus.OnLocalHit(kind, isLaunched, killed, contactPoint); // BONUS ZONE: 仲間の撃破もパーティーの撃破として数える
         ProcessHit(kind, contactPoint, killed);
     }
 

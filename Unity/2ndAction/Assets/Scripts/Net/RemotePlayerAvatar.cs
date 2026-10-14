@@ -35,8 +35,9 @@ public class RemotePlayerAvatar : MonoBehaviour
             visualGO.transform.localPosition = templateSr.transform.localPosition;
             visualGO.transform.localScale = templateSr.transform.localScale;
             sr.sortingLayerID = templateSr.sortingLayerID;
-            // 自分のプレイヤーを常に手前に描く(相手は1段奥)。
-            sr.sortingOrder = templateSr.sortingOrder - 3;
+            // 自分のプレイヤーを常に手前に描く(前後は奥行き depthZ で付ける)。2026-10-14: 以前は順番を -3 にして地面より奥へ下がり、
+            // 斜め上から見る表示の立ち絵の対象(順番 1 以上)からも外れていた → 自分と同じ順番に
+            sr.sortingOrder = templateSr.sortingOrder;
             sr.color = templateSr.color;
             sr.sprite = templateSr.sprite;
             SpriteOutline templateOutline = templateSr.GetComponent<SpriteOutline>();
@@ -57,6 +58,8 @@ public class RemotePlayerAvatar : MonoBehaviour
         // PlayerAnimatorはAwakeで子のSpriteRendererを探すため、Visualを作った後に追加する。
         avatar.anim = root.AddComponent<PlayerAnimator>();
         avatar.anim.InitPuppet(template, def);
+        // 識別用オーラ(2026-10-14): 参加番号の色/番号/コードネーム(全端末で同じ番号 = 同じ色)
+        ParticipantAura.Attach(root, sr, owner.PlayerNumber, false, false, owner.DisplayName);
         return avatar;
     }
 

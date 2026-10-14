@@ -15,6 +15,9 @@ public class KitZone : MonoBehaviour
     static readonly List<KitZone> active = new List<KitZone>();
     public static int ActiveCount(Kind k) { int n = 0; foreach (var z in active) if (z != null && z.kind == k) n++; return n; }
     public static KitZone Find(Kind k) { foreach (var z in active) if (z != null && z.kind == k) return z; return null; }
+    // CPU サポート(2026-10-14): 「種類ごとに同時に1つまで」は置いた人ごと(仲間の巫女の結界がプレイヤーの結界を消さない)
+    public static KitZone Find(Kind k, PlayerController owner) { foreach (var z in active) if (z != null && z.kind == k && z.owner == owner) return z; return null; }
+    [System.NonSerialized] public PlayerController owner;
 
     public Kind kind;
     public float width, height, duration, tick, slow = 1f;
@@ -27,13 +30,14 @@ public class KitZone : MonoBehaviour
     public static int SlowedFrames; // テスト用: 敵の移動を実際に遅くしたフレーム数
 
     // center = 地面の上の中心(yは地面)。
-    public static KitZone Create(Kind k, Vector3 groundCenter, float width, float height, float duration, float tick, float damageScale, float slow)
+    public static KitZone Create(Kind k, Vector3 groundCenter, float width, float height, float duration, float tick, float damageScale, float slow, PlayerController owner = null)
     {
-        ClearKind(k);
+        ClearKind(k, owner);
         var go = new GameObject(k == Kind.Barrier ? "MikoBarrier" : "BurningGround");
-        go.tag = "PlayerAttack";
+        PlayerController.TagAttackObject(go, owner); // 仲間の範囲は "AllyAttack"
         go.transform.position = groundCenter;
         var z = go.AddComponent<KitZone>();
+        z.owner = owner;
         z.kind = k; z.width = width; z.height = height; z.duration = duration; z.tick = tick; z.slow = slow;
         z.col = go.AddComponent<BoxCollider2D>();
         z.col.isTrigger = true;
@@ -59,6 +63,18 @@ public class KitZone : MonoBehaviour
         for (int i = active.Count - 1; i >= 0; i--)
             if (active[i] == null) active.RemoveAt(i);
             else if (active[i].kind == k) { Destroy(active[i].gameObject); active.RemoveAt(i); }
+    }
+
+    // 置いた人の分だけ消す(owner = null はこの端末のプレイヤーが置いた物と、持ち主の無い物)
+    public static void ClearKind(Kind k, PlayerController owner)
+    {
+        var me = owner != null && !owner.IsAlly ? null : owner;
+        for (int i = active.Count - 1; i >= 0; i--)
+        {
+            if (active[i] == null) { active.RemoveAt(i); continue; }
+            var zo = active[i].owner != null && !active[i].owner.IsAlly ? null : active[i].owner;
+            if (active[i].kind == k && zo == me) { Destroy(active[i].gameObject); active.RemoveAt(i); }
+        }
     }
 
     public static void ClearAll()

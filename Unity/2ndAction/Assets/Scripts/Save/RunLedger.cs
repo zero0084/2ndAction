@@ -31,6 +31,11 @@ public static class RunLedger
         public bool legacy;         // この仕組みより前の中断データから再開した(使った機能を確かめられない)
         public float playSeconds;   // 走っていた時間(一時停止/カード選択の停止を除く)
         public long startedUtc;     // 開始時刻(Unix 秒)
+        // CPU サポート(2026-10-14): 一緒に走った CPU の仲間。partySize = 1(プレイヤー)+ 仲間の人数。0 は古いデータ(= 1)
+        public int partySize = 1;
+        public string supportIds = "";     // 仲間のキャラ(カンマ区切り、P2 から順)
+        public bool officialParty = true;  // 仲間が全員、正式に解放したキャラ(開発版の「全部選べる」で選んだキャラではない)
+        public bool Support => partySize > 1;
     }
 
     public static Run Current { get; private set; }
@@ -79,6 +84,7 @@ public static class RunLedger
             usedAuto = prev.usedAuto, usedSprint = prev.usedSprint, debugUsed = prev.debugUsed, debugWhat = prev.debugWhat,
             multiplayer = prev.multiplayer, officialStage = prev.officialStage, testProfile = prev.testProfile, legacy = prev.legacy,
             playSeconds = prev.playSeconds, startedUtc = prev.startedUtc,
+            partySize = prev.partySize, supportIds = prev.supportIds, officialParty = prev.officialParty, // CPU サポート
         };
         Debug.Log($"[RunLedger] continuation {Current.runId.Substring(0, 8)} of {(prev.runId.Length >= 8 ? prev.runId.Substring(0, 8) : prev.runId)} from {reached:F0}m");
     }

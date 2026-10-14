@@ -67,12 +67,12 @@ public class PlayerBullet : MonoBehaviour
         }
     }
 
-    public static GameObject Create(Sprite sprite, Vector3 position, Vector2 velocity, float lifetime)
+    public static GameObject Create(Sprite sprite, Vector3 position, Vector2 velocity, float lifetime, PlayerController owner = null)
     {
         GameObject go = new GameObject("PlayerBullet");
-        go.tag = "PlayerAttack";
+        PlayerController.TagAttackObject(go, owner); // CPU サポート: 仲間の弾は "AllyAttack"(2026-10-14)
         go.transform.position = position;
-        PlayerController.NoteShot(position, velocity); // 補助: 弾の高さ(2026-10-13 第3弾)
+        PlayerController.NoteShot(owner, position, velocity); // 補助: 弾の高さ(2026-10-13 第3弾)
         float angle = Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg;
         go.transform.rotation = Quaternion.Euler(0f, 0f, angle);
 

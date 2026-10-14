@@ -8,6 +8,10 @@ using UnityEngine;
 // ascension smoke trail.
 public class OneShotSpriteEffect : MonoBehaviour
 {
+    // CPU サポート(2026-10-14): 仲間の攻撃の演出は控えめに(自分と敵の攻撃の予兆を見やすくする)
+    public static float AllyFxAlpha = 0.45f;
+    static float AllyA => PlayerController.AllyContext > 0 ? AllyFxAlpha : 1f;
+
     static Sprite softDotSprite;
 
     // A small soft-edged circular particle, generated at runtime (a radial
@@ -62,6 +66,7 @@ public class OneShotSpriteEffect : MonoBehaviour
         var sr = go.AddComponent<SpriteRenderer>();
         sr.sprite = sprite;
         sr.sortingOrder = sortingOrder;
+        color.a *= AllyA;
         sr.color = color;
 
         var fx = go.AddComponent<OneShotSpriteEffect>();
@@ -115,6 +120,7 @@ public class OneShotSpriteEffect : MonoBehaviour
         var sr = go.AddComponent<SpriteRenderer>();
         sr.sprite = sprite;
         sr.sortingOrder = sortingOrder;
+        color.a *= AllyA;
         sr.color = color;
 
         var fx = go.AddComponent<OneShotSpriteEffect>();
@@ -167,6 +173,7 @@ public class OneShotSpriteEffect : MonoBehaviour
     {
         if (sprite == null) return null;
         if (startAlpha < 0f) startAlpha = color.a; // -1 sentinel: "use color's own alpha"
+        startAlpha *= AllyA; endAlpha *= AllyA; // CPU サポート: 仲間の演出は控えめに
 
         // Game Feel Visibility Pass - see GameFeelDebug's class comment.
         // Applied here (the one place every tweened effect funnels through)

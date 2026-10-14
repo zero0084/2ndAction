@@ -69,14 +69,14 @@ public partial class QaSweep
         Leaderboard.Join();
         yield return WaitTut(() => !Leaderboard.Sending && Leaderboard.PendingCount == 0, 5f);
         Leaderboard.Page page = null;
-        yield return Await(me.Load("wasteland_road", 50), p => page = p);
+        yield return Await(me.Load("wasteland_road", false, 50), p => page = p);
         Check(page != null && page.me != null && page.me.meters == 9000 && page.me.name == "QA Runner" && page.me.usedAuto, $"R: joining sends the verified best with the codename and the auto mark ({page?.me?.meters})");
         // 別プレイヤー(同じ距離 = 同じ順位、長い記録は上)
         var e1 = MakeEntry("wasteland_road", "archer", 9000, 400); var e2 = MakeEntry("wasteland_road", "mage", 15000, 900);
         yield return Await(other.Submit(e1, "Other A"), _ => { });
         var other2 = new MockBackend(dir, "player-third");
         yield return Await(other2.Submit(e2, "Third"), _ => { });
-        yield return Await(me.Load("wasteland_road", 50), p => page = p);
+        yield return Await(me.Load("wasteland_road", false, 50), p => page = p);
         var ranks = page.top.Select(x => $"{x.rank}:{x.name}:{x.meters}").ToList();
         L("[R] board " + string.Join(" | ", ranks));
         Check(page.top.Count == 3 && page.top[0].meters == 15000 && page.top[0].rank == 1 && page.top[1].rank == 2 && page.top[2].rank == 2 && page.me.rank == 2, "R: sorted by distance, equal distances share the rank (1, 2, 2)");
@@ -115,12 +115,12 @@ public partial class QaSweep
         MockBackend.SimulateOffline = false;
         yield return AwaitTask(Leaderboard.FlushAsync("qa"));
         yield return AwaitTask(Leaderboard.FlushAsync("qa again"));
-        yield return Await(me.Load("wasteland_road", 50), p => page = p);
+        yield return Await(me.Load("wasteland_road", false, 50), p => page = p);
         Check(Leaderboard.PendingCount == 0 && page.me.meters == 25000 && page.top.Count(x => x.isMe) == 1, $"R: resent once after reconnecting (best {page.me?.meters}m, one row)");
         // コードネームの変更: 本人は同じ、表示名だけ変わる
         Codename.Set("New Name");
         yield return WaitTut(() => false, 0.5f);
-        yield return Await(me.Load("wasteland_road", 50), p => page = p);
+        yield return Await(me.Load("wasteland_road", false, 50), p => page = p);
         Check(page.me != null && page.me.name == "New Name" && page.me.playerId == "player-me" && page.top.Count(x => x.isMe) == 1, "R: renaming keeps the same player and record");
         // 画面
         RankingPanel.OpenStatic();

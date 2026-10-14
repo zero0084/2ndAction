@@ -57,7 +57,7 @@ public partial class PlayerController
         Vector2 dir = new Vector2(Mathf.Cos(rad) * KitFacing, Mathf.Sin(rad));
         var proj = KitProjectile.Create(KitArt.OfudaSprite(), KitWorld(localFrom), dir * speed, p.ofudaLifetime,
             new Vector2(0.48f, 0.48f), new Vector2(0.34f, 0.3f), Color.white, PlayerAttackKind.Normal,
-            damageScale, 0.6f, 0f, new Color(1f, 0.85f, 0.55f, 0.45f), false);
+            damageScale, 0.6f, 0f, new Color(1f, 0.85f, 0.55f, 0.45f), false, owner: this);
         proj.spin = 720f;
         proj.name = seals ? "MikoOfuda" : "MikoOfudaFan";
         if (seals)
@@ -125,7 +125,7 @@ public partial class PlayerController
             AttackStep(-kitBackStep, 0.16f); // 2026-09-30: 後ろ攻撃で後退
             var proj = KitProjectile.Create(KitArt.PaperBirdSprite(), KitWorld(new Vector2(0.4f, 0.85f)), new Vector2(-p.shikiSpeed, 0f), p.shikiLifetime,
                 new Vector2(-0.7f, 0.55f), new Vector2(0.5f, 0.35f), Color.white, PlayerAttackKind.Normal,
-                p.shikiDamageScale, 1f, 0.03f, new Color(1f, 1f, 1f, 0.35f), false);
+                p.shikiDamageScale, 1f, 0.03f, new Color(1f, 1f, 1f, 0.35f), false, owner: this);
             proj.wobbleAmp = 0.18f; proj.wobbleFreq = 2.2f;
             proj.name = "MikoShikigami";
             if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(1);
@@ -170,7 +170,7 @@ public partial class PlayerController
             if (!g.HasValue && TerrainManager.Instance != null) { x = transform.position.x + 1f; g = TerrainManager.Instance.GetHeightAt(x); }
             float gy = g ?? transform.position.y;
             KitZone.Create(KitZone.Kind.Barrier, new Vector3(x, gy, 0f), p.barrierWidth * AttackRangeMultiplier, p.barrierHeight,
-                p.barrierDuration, p.barrierTick, p.barrierTickDamageScale, p.barrierSlow);
+                p.barrierDuration, p.barrierTick, p.barrierTickDamageScale, p.barrierSlow, owner: this);
             MikoBarriersPlaced++;
             SetKitPose("place", 1);
             if (KitProjectile.Ring != null)
@@ -187,9 +187,9 @@ public partial class PlayerController
     }
 
     // Run終了/死亡/復帰/キャラ切り替えで、置いた結界と貼った御札を必ず片付ける。
-    static void MikoCleanup()
+    void MikoCleanup()
     {
-        KitZone.ClearKind(KitZone.Kind.Barrier);
-        KitSealMark.ClearAll();
+        KitZone.ClearKind(KitZone.Kind.Barrier, this); // CPU サポート: 自分が置いた結界だけ
+        if (!IsAlly) KitSealMark.ClearAll();
     }
 }

@@ -108,6 +108,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaCommitCrash") { mode = "commitcrash"; dir = a[i + 1]; }
             if (a[i] == "-qaBeyond") { mode = "beyond"; dir = a[i + 1]; }
             if (a[i] == "-qaSaveRecover") { mode = "saverecover"; dir = a[i + 1]; }
+            if (a[i] == "-qaParty") { mode = "party"; dir = a[i + 1]; }
             if (a[i] == "-qaCredits") { mode = "credits"; dir = a[i + 1]; }
         }
         if (mode == null) return;
@@ -235,6 +236,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "commitcrash") yield return CommitCrashMode();
         else if (mode == "beyond") yield return BeyondMode();
         else if (mode == "saverecover") yield return SaveRecoverMode();
+        else if (mode == "party") yield return PartyMode();
         else if (mode == "credits") yield return CreditsMode();
         else yield return FullRunMode();
         L("");

@@ -63,12 +63,13 @@ public partial class PlayerController
     {
         var p = kitDef.vampire;
         bloodHealAcc = Mathf.Min(1.5f, bloodHealAcc + amount);
-        if (bloodHealAcc >= 1f && Time.time >= bloodNextHealTime && GameManager.Instance != null && GameManager.Instance.Lives < GameManager.Instance.maxLives)
+        if (bloodHealAcc >= 1f && Time.time >= bloodNextHealTime && GameManager.Instance != null && HpNow < HpMax)
         {
             bloodHealAcc -= 1f;
             bloodNextHealTime = Time.time + p.healCooldown;
             VampireHealsGiven++;
-            GameManager.Instance.KitHeal(CombatScale.PlayerHit); // ハート1つ分(10倍スケール)
+            if (IsAlly) { if (Ally != null) Ally.Heal(CombatScale.PlayerHit); } // CPU サポート: 仲間は自分の HP を回復
+            else GameManager.Instance.KitHeal(CombatScale.PlayerHit); // ハート1つ分(10倍スケール)
             OneShotSpriteEffect.CreateTweened(KitProjectile.Orb, transform.position + new Vector3(0f, 1.0f, 0f), new Color(1f, 0.3f, 0.35f, 0.9f), duration: 0.4f, startScale: 0.2f, endScale: 0.8f, sortingOrder: RenderOrder.SlashFx);
         }
     }
@@ -260,7 +261,7 @@ public partial class PlayerController
                 Vector2 v = new Vector2(Mathf.Cos(ang * Mathf.Deg2Rad), Mathf.Sin(ang * Mathf.Deg2Rad)) * p.batSpeed * (1f + 0.08f * i);
                 var bat = KitProjectile.Create(KitArt.BatSprite(), from + new Vector3(0f, (i - 1) * 0.12f, 0f), v, p.batLifetime,
                     new Vector2(-0.5f, 0.32f), new Vector2(0.4f, 0.25f), Color.white, PlayerAttackKind.Normal,
-                    p.batDamageScale * BloodPower, 0.6f, 0f, new Color(0.5f, 0.05f, 0.1f, 0.35f), false);
+                    p.batDamageScale * BloodPower, 0.6f, 0f, new Color(0.5f, 0.05f, 0.1f, 0.35f), false, owner: this);
                 bat.wobbleAmp = 0.08f; bat.wobbleFreq = 5f + i;
                 bat.name = "VampireBat";
                 var info = bat.GetComponent<PlayerAttackInfo>();

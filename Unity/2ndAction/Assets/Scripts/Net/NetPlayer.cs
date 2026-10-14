@@ -40,6 +40,35 @@ public class NetPlayer : NetworkBehaviour
     // コードネーム(2026-10-08)。表示名だけで、本人の識別は接続番号(OwnerClientId)。受け取った側でも整え直して表示する
     public readonly NetworkVariable<FixedString128Bytes> CodenameVar = new NetworkVariable<FixedString128Bytes>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
+    // 参加者の識別(2026-10-14、識別用オーラ): 端末ごとに変わらない鍵(オンラインはサービスのプレイヤー ID、LAN は端末の ID)。
+    // HOST は部屋の間「鍵 → 番号」を覚え、抜けた人が戻った時に同じ番号(= 同じ色)へ戻す。新しく入る人には、抜けている人の番号をなるべく使わない。
+    // 番号を詰め直すことはしない(途中で抜けても残った人の番号/色は変わらない)。ラン中の途中参加は今までどおり受け付けない
+    public readonly NetworkVariable<FixedString64Bytes> ParticipantKey = new NetworkVariable<FixedString64Bytes>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    public const string LocalKeyPref = "Net.ParticipantKeyV1";
+    static readonly Dictionary<string, int> sessionSlots = new Dictionary<string, int>(); // HOST: この部屋で使った「鍵 → 番号」
+    public static string LocalParticipantKey()
+    {
+        string pid = OnlineServices.PlayerId;
+        if (!string.IsNullOrEmpty(pid)) return "u:" + pid;
+        string k = SaveStore.GetString(LocalKeyPref, "");
+        if (string.IsNullOrEmpty(k)) { k = System.Guid.NewGuid().ToString("N"); SaveStore.SetString(LocalKeyPref, k); SaveStore.Save(); }
+        return "d:" + k;
+    }
+
+    void OnParticipantKeyChanged(FixedString64Bytes before, FixedString64Bytes now)
+    {
+        if (!IsServer) return;
+        string key = now.ToString();
+        if (string.IsNullOrEmpty(key)) return;
+        if (sessionSlots.TryGetValue(key, out int want) && want != Slot.Value)
+        {
+            bool taken = false;
+            foreach (var p in All) if (p != this && p.Slot.Value == want) { taken = true; break; }
+            if (!taken) { NetSession.Log($"Player {OwnerClientId} came back: slot {Slot.Value} -> {want} (same participant)"); Slot.Value = want; }
+        }
+        sessionSlots[key] = Slot.Value;
+    }
+
     public int PlayerNumber => Slot.Value >= 0 ? Slot.Value + 1 : 0;
     public static string TagOf(int playerNumber)
     {
@@ -84,12 +113,16 @@ public class NetPlayer : NetworkBehaviour
         // シーンの再読み込み(Run開始/Home復帰)をまたいでも接続を保つ。
         DontDestroyOnLoad(gameObject);
         All.Add(this);
+        if (IsServer && IsOwner) sessionSlots.Clear(); // HOST 自身 = 新しい部屋
+        ParticipantKey.OnValueChanged += OnParticipantKeyChanged;
         if (IsServer) Slot.Value = AssignSlot();
         if (IsOwner)
         {
             Local = this;
+            ParticipantKey.Value = new FixedString64Bytes(LocalParticipantKey());
             RefreshOwnerState();
         }
+        if (IsServer) OnParticipantKeyChanged(default, ParticipantKey.Value);
         NetSession.Log($"Player spawned clientId={OwnerClientId} ownerId={OwnerClientId} netObjectId={NetworkObjectId} isLocal={IsOwner} slot={Slot.Value}");
     }
 
@@ -111,15 +144,25 @@ public class NetPlayer : NetworkBehaviour
 
     int AssignSlot()
     {
-        for (int slot = 0; slot < NetSession.MaxPlayers; slot++)
+        // 抜けている人の番号(この部屋で使った鍵の番号のうち、今いない人の物)は、他が空いている間は使わない
+        var reserved = new HashSet<int>();
+        foreach (var kv in sessionSlots)
         {
-            bool used = false;
-            foreach (NetPlayer p in All)
-            {
-                if (p != this && p.Slot.Value == slot) { used = true; break; }
-            }
-            if (!used) return slot;
+            bool present = false;
+            foreach (NetPlayer p in All) if (p != this && p.ParticipantKey.Value.ToString() == kv.Key) { present = true; break; }
+            if (!present) reserved.Add(kv.Value);
         }
+        for (int pass = 0; pass < 2; pass++)
+            for (int slot = 0; slot < NetSession.MaxPlayers; slot++)
+            {
+                if (pass == 0 && reserved.Contains(slot)) continue;
+                bool used = false;
+                foreach (NetPlayer p in All)
+                {
+                    if (p != this && p.Slot.Value == slot) { used = true; break; }
+                }
+                if (!used) return slot;
+            }
         return All.Count - 1;
     }
 

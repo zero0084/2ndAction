@@ -219,7 +219,7 @@ public partial class PlayerController
             kitIFrameTimer = Mathf.Max(kitIFrameTimer, p.counterInvincible);
             Vector3 c = transform.position + new Vector3(0f, p.hitHeight, 0f);
             OneShotSpriteEffect.CreateTweened(KitProjectile.Ring, c, new Color(1f, 0.9f, 0.5f, 1f), duration: 0.25f, startScale: 0.3f, endScale: p.counterRadius * 2.2f, sortingOrder: RenderOrder.SlashFx);
-            HitStop.Begin(0.06f);
+            if (!IsAlly) HitStop.Begin(0.06f);
             float t = 0f;
             while (t < 0.05f)
             {
@@ -227,7 +227,7 @@ public partial class PlayerController
                 t += Time.deltaTime; yield return null;
             }
             SetKitPose("counter", 1);
-            KitBlast.Create(c, new KitBlast.Spec { radius = p.counterRadius * AttackRangeMultiplier, active = 0.12f, kind = PlayerAttackKind.Normal, damageScale = p.counterDamageScale, knockbackScale = p.counterKnockbackScale, hitStop = p.counterHitStop, fx = KitProjectile.Burst, tint = new Color(1f, 0.7f, 0.35f, 0.95f), fxScale = 1.1f, shake = 0.14f });
+            KitBlast.Create(c, new KitBlast.Spec { radius = p.counterRadius * AttackRangeMultiplier, active = 0.12f, kind = PlayerAttackKind.Normal, damageScale = p.counterDamageScale, knockbackScale = p.counterKnockbackScale, hitStop = p.counterHitStop, fx = KitProjectile.Burst, tint = new Color(1f, 0.7f, 0.35f, 0.95f), fxScale = 1.1f, shake = 0.14f }, owner: this);
             if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(3);
             t = 0f;
             while (t < 0.28f)
@@ -298,7 +298,7 @@ public partial class PlayerController
             lungeVelocityX = 0f;
             DisarmKitBox(token);
             SetKitPose("divekick", 1);
-            KitBlast.Create(transform.position + new Vector3(0.3f, 0.3f, 0f), new KitBlast.Spec { radius = p.diveKickImpactRadius * AttackRangeMultiplier, active = 0.1f, kind = PlayerAttackKind.DownImpact, damageScale = p.diveKickImpactDamageScale, knockbackScale = 1.5f, hitStop = p.diveKickHitStop, fx = KitProjectile.Burst, tint = new Color(1f, 0.8f, 0.55f, 0.9f), fxScale = 1f, shake = 0.1f });
+            KitBlast.Create(transform.position + new Vector3(0.3f, 0.3f, 0f), new KitBlast.Spec { radius = p.diveKickImpactRadius * AttackRangeMultiplier, active = 0.1f, kind = PlayerAttackKind.DownImpact, damageScale = p.diveKickImpactDamageScale, knockbackScale = 1.5f, hitStop = p.diveKickHitStop, fx = KitProjectile.Burst, tint = new Color(1f, 0.8f, 0.55f, 0.9f), fxScale = 1f, shake = 0.1f }, owner: this);
             OneShotSpriteEffect.CreateScatterBurst(KitProjectile.Puff, transform.position + new Vector3(0f, 0.1f, 0f), new Color(0.85f, 0.82f, 0.75f, 0.55f), 4, 0.45f, 0.3f, 0.55f, 2f, 2.5f, RenderOrder.EnvironmentFx);
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.LandHeavy); // 音の再設計(2026-10-06): 急降下の着地は重い着地音
             attackCooldownTimer = 0.2f;

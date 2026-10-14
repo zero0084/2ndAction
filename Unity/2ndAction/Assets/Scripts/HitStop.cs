@@ -75,7 +75,7 @@ public static class HitStop
         GetRunner().StartCoroutine(Freeze(durationRealSeconds));
         yield return new WaitForSecondsRealtime(durationRealSeconds);
     }
-    public static void Begin(float durationRealSeconds) { if (durationRealSeconds > 0f) GetRunner().StartCoroutine(Freeze(durationRealSeconds)); }
+    public static void Begin(float durationRealSeconds) { if (durationRealSeconds > 0f && PlayerController.AllyContext <= 0) GetRunner().StartCoroutine(Freeze(durationRealSeconds)); } // CPU サポート: 仲間の攻撃では止めない
     static float freezeStartRealtime = -1f;
 
     // 診断用(BossDiagnostics.BuildSnapshotから参照) - 通常時はIsActive=

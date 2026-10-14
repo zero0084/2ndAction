@@ -10,6 +10,8 @@ public static class GameSettings
     const string ShakeKey = "ScreenShakeEnabled";
     const string GlowKey = "GlowIntensity";
     const string ObstacleWarnKey = "ObstacleWarnMode"; // 2026-10-11: 障害物の警告 1 = 点滅あり / 2 = 輪郭のみ(点滅なし)
+    public const string AuraKey = "AuraIntensityV1";   // 2026-10-14: 識別用オーラ(マルチ/CPU サポート)の濃さ 0〜1。0 は名前と番号だけ
+    static float aura = 0.6f;
     static bool loaded;
     static bool shake = true;
     static float glow = 1f;
@@ -22,6 +24,7 @@ public static class GameSettings
         shake = SaveStore.GetInt(ShakeKey, 1) != 0;
         glow = Mathf.Clamp01(SaveStore.GetFloat(GlowKey, 1f));
         obstacleWarn = Mathf.Clamp(SaveStore.GetInt(ObstacleWarnKey, 1), 1, 2);
+        aura = Mathf.Clamp01(SaveStore.GetFloat(AuraKey, 0.6f));
     }
 
     public static void Reload() { loaded = false; } // セーブの初期化の後に読み直す(2026-10-01)
@@ -29,6 +32,14 @@ public static class GameSettings
     public static bool ScreenShake { get { Load(); return shake; } }
     public static float GlowIntensity { get { Load(); return glow; } }
     public static int ObstacleWarn { get { Load(); return obstacleWarn; } }
+    public static float AuraIntensity { get { Load(); return aura; } }
+    public static void SetAuraIntensity(float v, bool save = true)
+    {
+        Load();
+        aura = Mathf.Clamp01(v);
+        SaveStore.SetFloat(AuraKey, aura);
+        if (save) SaveStore.Save();
+    }
 
     public static void SetObstacleWarn(int mode)
     {
@@ -66,7 +77,8 @@ public static class UiInputGate
     public static bool DebugPanelOpen;
     static bool latch;
     public static bool SprintPanelOpen; // 疾走出発の行き先パネル(2026-10-05)
-    public static bool ModalOpen => SettingsPanel.IsVisible || DebugPanelOpen || SprintPanelOpen || TutorialRun.PanelOpen || FirstRunGuide.Open || NoticeQueue.Open || RankingPanel.IsOpen || AdManager.Showing || MonetizationUi.Open || LoadingScreen.BlocksInput; // 練習の説明/初回の案内(2026-10-07)、広告の表示中/広告なしパスの画面(2026-10-10)
+    public static bool SupportPanelOpen; // CPU サポートの仲間選び(2026-10-14)
+    public static bool ModalOpen => SettingsPanel.IsVisible || DebugPanelOpen || SprintPanelOpen || SupportPanelOpen || TutorialRun.PanelOpen || FirstRunGuide.Open || NoticeQueue.Open || RankingPanel.IsOpen || AdManager.Showing || MonetizationUi.Open || LoadingScreen.BlocksInput; // 練習の説明/初回の案内(2026-10-07)、広告の表示中/広告なしパスの画面(2026-10-10)
 
     // パネルを閉じた: 今押している指が離れるまで背後へ通さない
     public static void LatchUntilRelease() { latch = true; }

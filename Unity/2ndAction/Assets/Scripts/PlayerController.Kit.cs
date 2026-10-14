@@ -65,7 +65,7 @@ public partial class PlayerController
         {
             var go = new GameObject("KitHitbox");
             go.transform.SetParent(transform, false);
-            go.tag = "PlayerAttack";
+            TagAttackObject(go, this); // CPU サポート: 仲間の技の判定は "AllyAttack"
             kitHitInfo = go.AddComponent<PlayerAttackInfo>();
             kitHitbox = go.AddComponent<BoxCollider2D>();
             kitHitbox.isTrigger = true;
@@ -316,6 +316,7 @@ public partial class PlayerController
 
     void KitShake(float mag, float dur)
     {
+        if (IsAlly) return; // 仲間の技で画面を揺らさない
         var cam = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
         if (cam != null) cam.Shake(mag, dur);
     }

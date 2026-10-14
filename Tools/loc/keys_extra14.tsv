@@ -1,0 +1,9 @@
+9910	ui	CpuSupport	CPU サポート
+9911	ui	CpuSupport	CPU サポート: なし(ソロ)
+9912	ui	CpuSupport	CPU サポート: {0}人
+9913	ui	CpuSupport	CPU の仲間と一緒に走ります(最大3人)。仲間は自動で戦い、倒れても少しすると戻ってきます。報酬はあなたの分だけです。サポートありの記録は、ソロとは別のランキングになります。
+9914	ui	CpuSupport	選んだ仲間: {0}/{1}
+9915	ui	CpuSupport	なし(ソロ)
+9916	ui	CpuSupport	仲間の識別オーラ
+9917	ui	CpuSupport	ソロ
+9918	ui	CpuSupport	決定

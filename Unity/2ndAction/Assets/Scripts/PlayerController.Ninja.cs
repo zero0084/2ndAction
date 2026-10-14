@@ -117,7 +117,7 @@ public partial class PlayerController
                 Vector2 v = new Vector2(Mathf.Cos(ang * Mathf.Deg2Rad), Mathf.Sin(ang * Mathf.Deg2Rad)) * p.shurikenSpeed;
                 var proj = KitProjectile.Create(KitProjectile.ShurikenSprite(), pos + new Vector3(0f, i * 0.12f, 0f), v, p.shurikenLifetime,
                     new Vector2(0.32f, 0.32f), new Vector2(0.28f, 0.28f), Color.white, PlayerAttackKind.Normal,
-                    p.shurikenDamageScale, 0.7f, 0f, new Color(0.8f, 0.85f, 1f, 0.35f), false);
+                    p.shurikenDamageScale, 0.7f, 0f, new Color(0.8f, 0.85f, 1f, 0.35f), false, owner: this);
                 proj.spin = 1440f;
                 proj.name = "NinjaShuriken";
             }
@@ -201,7 +201,7 @@ public partial class PlayerController
             DisarmKitBox(token);
             if (!kitDiveLanded) yield break; // 着地しないまま(穴の上など)は何もしない
             SetKitPose("downdash", 1);
-            KitBlast.Create(transform.position + new Vector3(0.2f, 0.45f, 0f), new KitBlast.Spec { radius = p.landSlashRadius * AttackRangeMultiplier, active = 0.08f, kind = PlayerAttackKind.DownImpact, damageScale = p.landSlashDamageScale, knockbackScale = 1.2f, hitStop = 0.04f, fx = KitProjectile.Slash, tint = new Color(1f, 1f, 1f, 0.9f), fxScale = 0.9f, shake = 0.05f });
+            KitBlast.Create(transform.position + new Vector3(0.2f, 0.45f, 0f), new KitBlast.Spec { radius = p.landSlashRadius * AttackRangeMultiplier, active = 0.08f, kind = PlayerAttackKind.DownImpact, damageScale = p.landSlashDamageScale, knockbackScale = 1.2f, hitStop = 0.04f, fx = KitProjectile.Slash, tint = new Color(1f, 1f, 1f, 0.9f), fxScale = 0.9f, shake = 0.05f }, owner: this);
             OneShotSpriteEffect.CreateTweened(KitProjectile.Slash, transform.position + new Vector3(0.2f, 0.45f, 0f), NinjaCrimson, duration: 0.2f, startScale: 0.6f, endScale: 1.2f, rotationDegrees: 180f, sortingOrder: RenderOrder.SlashFx);
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.LandHeavy); // 音の再設計(2026-10-06): 急降下の着地は重い着地音
             attackCooldownTimer = 0.15f;

@@ -25,7 +25,8 @@ public class ColliderDebugView : MonoBehaviour
     {
         col = GetComponent<Collider2D>();
 
-        lr = gameObject.AddComponent<LineRenderer>();
+        lr = GetComponent<LineRenderer>(); // 2026-10-14: 複製した物(CPU の仲間など)には既に付いている(AddComponent は null を返す)
+        if (lr == null) lr = gameObject.AddComponent<LineRenderer>();
         lr.useWorldSpace = false;
         lr.startWidth = lineWidth;
         lr.endWidth = lineWidth;

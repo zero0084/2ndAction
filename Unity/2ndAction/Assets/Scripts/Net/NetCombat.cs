@@ -872,6 +872,7 @@ public class NetCombat : MonoBehaviour
     public static bool TryGetAttacker(int attacker, out Vector3 scenePos, out float forwardSpeed)
     {
         scenePos = Vector3.zero; forwardSpeed = 0f;
+        if (CpuParty.TryGetAttacker(attacker, out scenePos, out forwardSpeed)) return true; // CPU サポート(2026-10-14): 仲間の位置
         if (Instance == null || attacker <= 0 || attacker == LocalPlayerNumber)
         {
             PlayerController pc = PlayerController.Instance;

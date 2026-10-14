@@ -358,6 +358,7 @@ public class AudioManager : MonoBehaviour
 
     bool PlayVoice(AudioClip clip, float vol, float pitch, SePriority pri, SeId id, bool hasId, float pan, int maxSame)
     {
+        if (PlayerController.AllyContext > 0) return false; // CPU サポート(2026-10-14): 仲間の動き/攻撃の効果音は鳴らさない(自分の手応えを埋もれさせない)
         if (voices.Count == 0) EnsureVoices();
         float now = Time.unscaledTime;
         Voice pick = null;

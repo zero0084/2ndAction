@@ -253,9 +253,9 @@ public partial class HighSpeedAssist
         // 2026-10-13 第3弾(全キャラのラスダン通しで発見): 飛び道具が浮いているボスの下を素通りしていた。弓の矢は足元から 0.62m を水平に飛び、
         // 魔人は地面から 0.8m 以上浮くので、地上から撃ち続けても一度も当たらなかった(闘技場で 150秒・300回撃って 0)。
         // 弾の高さ(最後に撃った弾で覚える)がボスの判定の下端より下なら、着地が安全な時に跳び、届く高さで撃つ
-        if (pc.AssistForwardIsProjectile && !pc.AssistIsMageFlight && PlayerController.LastShotYOffset > 0f)
+        if (pc.AssistForwardIsProjectile && !pc.AssistIsMageFlight && pc.ShotYOffset > 0f)
         {
-            float shotY = feet + PlayerController.LastShotYOffset;
+            float shotY = feet + pc.ShotYOffset; // CPU サポート: 撃った本人の弾の高さ
             if (shotY < bb.min.y + 0.1f)
             {
                 if (grounded && !stayLow && Time.time >= manualJumpUntil && BossJumpSafe(pc, "ジャンプ(撃ち上げ)"))

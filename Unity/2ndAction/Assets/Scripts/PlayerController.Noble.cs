@@ -55,7 +55,7 @@ public partial class PlayerController
         hitInvincibleTimer = Mathf.Max(hitInvincibleTimer, inv + CardHurtInvincibleBonus);
         StartCoroutine(FlickerWhileInvincible());
         if (AudioManager.Instance != null) AudioManager.Instance.PlayPlayerDamage();
-        Platform.Haptics.Play(HapticKind.Hit);
+        if (!IsAlly) Platform.Haptics.Play(HapticKind.Hit);
         if (damageFlashEnabled && sr != null) StartCoroutine(DamageFlashRoutine());
         return true;
     }
@@ -79,7 +79,7 @@ public partial class PlayerController
 
     IEnumerator NobleAirSweep(AttackDirection dir)
     {
-        AttackStarted?.Invoke(dir);
+        if (!IsAlly) AttackStarted?.Invoke(dir);
         int gen = attackGeneration;
         isAttacking = true;
         comboWindowOpen = false; comboBuffered = false; comboCount = 1;
@@ -174,7 +174,7 @@ public partial class PlayerController
         Vector3 foot = transform.position + new Vector3(0.35f * (transform.localScale.x < 0f ? -1f : 1f), 0.08f, 0f);
         OneShotSpriteEffect.CreateTweened(BossFx.Ring(), foot + new Vector3(0f, 0.2f, 0f), new Color(1f, 0.85f, 0.45f, 0.9f), duration: 0.28f, startScale: 0.4f, endScale: 1.9f * R, sortingOrder: RenderOrder.SlashFx);
         OneShotSpriteEffect.CreateScatterBurst(CaveBossFx.RockChunk(), foot, new Color(0.85f, 0.78f, 0.65f, 1f), 7, 0.4f, 0.08f, 0.2f, 4f, 2.5f, RenderOrder.CombatFx);
-        var cam = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        var cam = Camera.main != null && !IsAlly ? Camera.main.GetComponent<CameraFollow>() : null;
         if (cam != null) cam.Shake(0.07f, 0.12f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.SlamImpact);
         SetKitPose("plunge", 1); noblePoseUntil = Time.time + 0.22f;

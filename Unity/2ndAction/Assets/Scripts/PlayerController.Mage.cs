@@ -174,7 +174,7 @@ public partial class PlayerController
             {
                 proj = KitProjectile.Create(KitProjectile.Orb, pos, new Vector2(p.boltSpeed * dirX, 0f), p.boltLifetime,
                     new Vector2(0.5f, 0.5f), new Vector2(0.36f, 0.36f), MageCyan, PlayerAttackKind.Normal,
-                    p.boltDamageScale, 1f, 0f, new Color(0.6f, 0.8f, 1f, 0.7f), false);
+                    p.boltDamageScale, 1f, 0f, new Color(0.6f, 0.8f, 1f, 0.7f), false, owner: this);
                 proj.blast = new KitBlast.Spec { radius = p.blastRadius, active = 0.1f, kind = PlayerAttackKind.Normal, damageScale = p.blastDamageScale, knockbackScale = p.blastKnockbackScale, hitStop = 0.04f, fx = KitProjectile.Burst, tint = new Color(0.65f, 0.85f, 1f, 0.95f), fxScale = 1.2f, shake = 0.04f };
                 proj.name = "MageBolt";
             }
@@ -182,7 +182,7 @@ public partial class PlayerController
             {
                 proj = KitProjectile.Create(KitProjectile.Orb, pos, new Vector2(p.backBoltSpeed * dirX, 0f), p.boltLifetime * 0.7f,
                     new Vector2(0.36f, 0.36f), new Vector2(0.28f, 0.28f), MageViolet, PlayerAttackKind.Normal,
-                    p.backDamageScale, 0.8f, 0f, new Color(0.7f, 0.6f, 1f, 0.55f), false);
+                    p.backDamageScale, 0.8f, 0f, new Color(0.7f, 0.6f, 1f, 0.55f), false, owner: this);
                 proj.name = "MageBolt_Back";
             }
             proj.spin = 360f;
@@ -212,7 +212,7 @@ public partial class PlayerController
         Vector3 pos = KitWorld(MageStaff + new Vector2(0f, 0.15f));
         var proj = KitProjectile.Create(KitProjectile.ThunderSpear, pos, dir * p.upBoltSpeed, p.boltLifetime * 0.8f,
             new Vector2(0.9f, 0.6f), new Vector2(0.7f, 0.3f), new Color(0.85f, 0.8f, 1f), PlayerAttackKind.Normal,
-            p.upDamageScale, 1.2f, 0.04f, new Color(0.8f, 0.75f, 1f, 0.6f));
+            p.upDamageScale, 1.2f, 0.04f, new Color(0.8f, 0.75f, 1f, 0.6f), owner: this);
         proj.blast = new KitBlast.Spec { radius = p.upBlastRadius, active = 0.1f, kind = PlayerAttackKind.Normal, damageScale = 1f, knockbackScale = 1.2f, hitStop = 0.04f, fx = KitProjectile.SkyBolt, tint = new Color(0.85f, 0.8f, 1f, 0.95f), fxScale = 1.4f, shake = 0.04f };
         proj.name = "MageBolt_Up";
         MageAttacked();
@@ -231,7 +231,7 @@ public partial class PlayerController
         Vector3 pos = KitWorld(new Vector2(0.35f, 0.35f));
         var proj = KitProjectile.Create(KitProjectile.Orb, pos, dir * p.downBoltSpeed, 1.2f,
             new Vector2(0.55f, 0.55f), new Vector2(0.4f, 0.4f), MageViolet, PlayerAttackKind.Down,
-            p.downDamageScale, 1f, 0.03f, new Color(0.7f, 0.55f, 1f, 0.7f), false);
+            p.downDamageScale, 1f, 0.03f, new Color(0.7f, 0.55f, 1f, 0.7f), false, owner: this);
         proj.stopAtGround = true;
         proj.spin = -540f;
         proj.blast = new KitBlast.Spec { radius = p.downBlastRadius, active = 0.12f, kind = PlayerAttackKind.DownImpact, damageScale = p.downBlastDamageScale, knockbackScale = 1.4f, hitStop = 0.05f, fx = KitProjectile.Burst, tint = new Color(0.75f, 0.6f, 1f, 0.95f), fxScale = 1.25f, shake = 0.08f };

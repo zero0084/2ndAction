@@ -88,6 +88,7 @@ public static class UnlockRules
         if (DevUnlockAll) return true;
         return Chars.Contains(id);
     }
+    public static bool OfficialCharacterUnlocked(string id) => id == StartCharacter || Chars.Contains(id); // CPU サポート: 記録の判定(開発版の全解放を含めない)
     // 2026-10-08: 未解放のキャラは一覧に出さない(竜人に限らず全員。鍵/シルエット/総数も出さない)
     public static bool IsCharacterVisible(string id) => IsCharacterUnlocked(id);
     public static bool IsStageVisible(string id) => IsStageUnlocked(id);

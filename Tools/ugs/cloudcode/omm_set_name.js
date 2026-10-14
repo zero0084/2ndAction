@@ -30,8 +30,8 @@ module.exports = async ({ params, context, logger }) => {
   const lb = new LeaderboardsApi({ accessToken: serviceToken });
   const name = sanitizeName(params.name);
   let updated = 0;
-  for (const stage of STAGES) {
-    const board = "omm_best_" + stage;
+  // 2026-10-14: CPU サポートの表(omm_support_*)の表示名も直す(表が無ければ飛ばす)
+  for (const board of STAGES.map(s => "omm_best_" + s).concat(STAGES.map(s => "omm_support_" + s))) {
     let entry = null;
     try { entry = (await lb.getLeaderboardPlayerScore(projectId, board, playerId)).data; } catch (e) { continue; }
     let meta = {};

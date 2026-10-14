@@ -116,6 +116,9 @@ public static class SaveKeys
         new Entry(AdManager.LastAdEndUtcKey, SaveCategory.Settings, SaveType.String, "最後に広告が終わった時刻(UTC ticks。次の広告までの間隔)"),
         new Entry(TrustedClock.LastSeenKey, SaveCategory.Settings, SaveType.String, "見た一番新しい時刻(UTC ticks。時計を戻して広告ガチャの回数を復活させない)"),
         new Entry("net.roomName", SaveCategory.Settings, SaveType.String, "マルチ: LAN の部屋の名前(空なら「端末名's Room」、2026-10-05)"),
+        new Entry(NetPlayer.LocalKeyPref, SaveCategory.Settings, SaveType.String, "マルチ: この端末の参加者の鍵(再接続で同じ番号/色に戻すため。オンラインはサービスの ID を使う、2026-10-14)"),
+        new Entry(GameSettings.AuraKey, SaveCategory.Settings, SaveType.Float, "識別用オーラ(マルチ/CPU サポート)の濃さ 0〜1(2026-10-14、既定 0.6)"),
+        new Entry(SupportDeparturePanel.PrefKey, SaveCategory.Settings, SaveType.String, "CPU サポート: 前回選んだ仲間(キャラの ID のカンマ区切り、最大3人。2026-10-14)"),
 
         // ---- 開発版のみ ----
         new Entry("InvincibleMode", SaveCategory.Dev, SaveType.Int, "無敵(開発版のみ)"),

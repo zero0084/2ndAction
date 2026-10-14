@@ -90,6 +90,8 @@ public static class RunCheckpoint
         public float sprintSkippedMeters;
         // 2026-10-08: このランの途中の数値(RunLedger)。古いデータは空(runId 無し = 使った機能を確かめられない)
         public RunLedger.Run ledger = new RunLedger.Run();
+        // CPU サポート(2026-10-14): 仲間の編成と状態(取ったカードの順/HP/倒れているか/復帰までの残り秒)。古いデータは空(ソロ)
+        public List<CpuParty.MemberState> party = new List<CpuParty.MemberState>();
     }
 
     static Data cached;

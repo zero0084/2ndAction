@@ -261,7 +261,7 @@ public partial class PlayerController
                 Vector2 dir = new Vector2(Mathf.Cos(a) * KitFacing, Mathf.Sin(a));
                 var f = KitProjectile.Create(flame != null ? flame : KitProjectile.Orb, KitWorld(new Vector2(0.55f, airborne ? 0.9f : 1.0f)), dir * p.breathSpeed, 0.9f,
                     new Vector2(0.55f, 0.55f), new Vector2(0.4f, 0.4f), new Color(1f, 0.6f + 0.1f * i, 0.25f, 1f), PlayerAttackKind.Normal,
-                    p.breathDamageScale, 0.7f, 0.02f, new Color(1f, 0.45f, 0.1f, 0.6f), true);
+                    p.breathDamageScale, 0.7f, 0.02f, new Color(1f, 0.45f, 0.1f, 0.6f), true, owner: this);
                 f.name = "DragonBreath";
                 f.stopAtGround = true;
                 f.pierce = -1; // 炎は敵を焼きながら抜けて地面まで届く(敵に当たって消えると燃える地面ができない)
@@ -289,12 +289,12 @@ public partial class PlayerController
     {
         if (kit != CharacterKit.Dragonkin || kitDef == null) return;
         var p = kitDef.dragonkin;
-        var cur = KitZone.Find(KitZone.Kind.Fire);
+        var cur = KitZone.Find(KitZone.Kind.Fire, this);
         if (cur != null && Mathf.Abs(cur.transform.position.x - at.x) < p.burnWidth * 0.5f && cur.Age < 0.6f) return;
         float? g = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(at.x) : null;
-        KitZone.Create(KitZone.Kind.Fire, new Vector3(at.x, g ?? at.y, 0f), p.burnWidth, 0.8f, p.burnDuration, p.burnTick, p.burnTickDamageScale, 1f);
+        KitZone.Create(KitZone.Kind.Fire, new Vector3(at.x, g ?? at.y, 0f), p.burnWidth, 0.8f, p.burnDuration, p.burnTick, p.burnTickDamageScale, 1f, owner: this);
         DragonBurnsCreated++;
     }
 
-    static void DragonCleanup() => KitZone.ClearKind(KitZone.Kind.Fire);
+    void DragonCleanup() => KitZone.ClearKind(KitZone.Kind.Fire, this); // CPU サポート: 自分が置いた物だけ
 }

@@ -67,7 +67,7 @@ public partial class PlayerController
         {
             var go = new GameObject("LanceHitbox");
             go.transform.SetParent(transform, false);
-            go.tag = "PlayerAttack";
+            TagAttackObject(go, this); // CPU サポート: 仲間の槍の判定は "AllyAttack"
             lanceAttackInfo = go.AddComponent<PlayerAttackInfo>();
             lanceAttackInfo.kind = PlayerAttackKind.Normal;
             lanceHitbox = go.AddComponent<BoxCollider2D>();
@@ -398,7 +398,7 @@ public partial class PlayerController
             OneShotSpriteEffect.CreateTweened(art, basePos + new Vector3(x, yOff, 0f), new Color(LanceFxJade.r, LanceFxJade.g, LanceFxJade.b, 0.75f),
                 duration: 0.22f + 0.05f * i, startScale: 0.5f, endScale: 1.1f, drift: new Vector3(6f + 2f * i, 0f, 0f), sortingOrder: RenderOrder.SlashFx);
         }
-        var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+        var camFollow = Camera.main != null && !IsAlly ? Camera.main.GetComponent<CameraFollow>() : null;
         if (camFollow != null) camFollow.Shake(0.06f, 0.12f);
     }
 
@@ -549,9 +549,9 @@ public partial class PlayerController
             ArmLanceHitbox(-r, r * 2f, d.lanceDiveImpactHeight * 0.45f, d.lanceDiveImpactHeight, 0f);
             LanceImpactFx.Spawn(transform.position, r, LanceThrustArt());
             if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.LandHeavy); // 音の再設計(2026-10-06): 急降下の着地は重い着地音
-            var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
+            var camFollow = Camera.main != null && !IsAlly ? Camera.main.GetComponent<CameraFollow>() : null;
             if (camFollow != null) camFollow.Shake(0.18f, 0.22f);
-            HitStop.Begin(d.lanceDiveImpactHitStop);
+            if (!IsAlly) HitStop.Begin(d.lanceDiveImpactHitStop);
             t = 0f;
             while (t < d.lanceDiveImpactActive)
             {

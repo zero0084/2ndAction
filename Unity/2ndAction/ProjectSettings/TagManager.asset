@@ -9,6 +9,8 @@ TagManager:
   - PlayerAttack
   - Boss
   - Obstacle
+  - Ally
+  - AllyAttack
   layers:
   - Default
   - TransparentFX

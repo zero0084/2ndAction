@@ -131,7 +131,7 @@ public class ObstacleWarning : MonoBehaviour
         foreach (var k in drop) marks.Remove(k);
     }
 
-    static Camera ActiveCamera()
+    public static Camera ActiveCamera()
     {
         var rig = PortraitCameraRig.Instance;
         if (rig != null && rig.IsActive && rig.cam != null) return rig.cam;

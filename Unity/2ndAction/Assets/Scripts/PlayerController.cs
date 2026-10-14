@@ -611,16 +611,15 @@ public partial class PlayerController : MonoBehaviour
             // 下の旧形式の固定値ボーナス(空中/地上/満HP/瀕死/加速)は v3 のカードでは0(古いアセット/開発用の互換)
             int power = AttackPower + (!isGrounded ? AirAttackPowerBonus : GroundAttackPowerBonus);
 
-            GameManager gm = GameManager.Instance;
-            if (gm != null && gm.maxLives > 0)
+            if (HpMax > 0) // CPU サポート: 仲間は自分の HP
             {
-                if (gm.Lives >= gm.maxLives)
+                if (HpNow >= HpMax)
                 {
                     power += FullHpAttackBonus;
                 }
                 else
                 {
-                    float missingFraction = 1f - (float)gm.Lives / gm.maxLives;
+                    float missingFraction = 1f - (float)HpNow / HpMax;
                     power += Mathf.RoundToInt(LowHpAttackBonus * missingFraction);
                 }
             }
@@ -648,11 +647,10 @@ public partial class PlayerController : MonoBehaviour
         get
         {
             int power = AttackPower + GroundAttackPowerBonus;
-            GameManager gm = GameManager.Instance;
-            if (gm != null && gm.maxLives > 0)
+            if (HpMax > 0)
             {
-                if (gm.Lives >= gm.maxLives) power += FullHpAttackBonus;
-                else power += Mathf.RoundToInt(LowHpAttackBonus * (1f - (float)gm.Lives / gm.maxLives));
+                if (HpNow >= HpMax) power += FullHpAttackBonus;
+                else power += Mathf.RoundToInt(LowHpAttackBonus * (1f - (float)HpNow / HpMax));
             }
             power += Mathf.RoundToInt(MomentumBonus * MomentumSpeedTerm);
             power += BossDamageBonus;
@@ -717,7 +715,7 @@ public partial class PlayerController : MonoBehaviour
     // lunge/recoil. Used by the boss to keep pace with ordinary running
     // without also cancelling out the player's attack-driven movement.
     // 開発用の闘技場(2026-10-04): 速度の指定があればそれ(停止 / 基準速度×カード・キャラの補正 / 実効速度固定)。通常は従来どおり
-    public float CurrentAutoRunSpeed => ArenaAutoSpeed() ?? (autoRunEnabled ? ApplyResumeAccel(CapSpeed(runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale)) : 0f); // CONTINUE の5秒加速(ResumeAccel.cs)
+    public float CurrentAutoRunSpeed => IsAlly && Ally != null ? Ally.AutoSpeed : ArenaAutoSpeed() ?? (autoRunEnabled ? ApplyResumeAccel(CapSpeed(runSpeed * EffectiveSpeedMultiplier() * DebugRunOnlyScale)) : 0f); // CONTINUE の5秒加速(ResumeAccel.cs)
 
     // 弾速の走行補正(2026-09-26) - 弾/飛び道具はすべて「プレイヤーの基本走行速度で一緒に流れる
     // 座標系」の中を、それぞれの設計速度で飛ぶ(=画面上の見た目の速さが走行速度に左右されない)。
@@ -970,8 +968,13 @@ public partial class PlayerController : MonoBehaviour
 
     void Awake()
     {
-        Instance = this;
-        ScriptedSpeedCapMps = float.PositiveInfinity; // シーンの読み直し(Retry/ホームへ戻る)で必ず解除
+        // CPU サポート(2026-10-14): 仲間として作られた時は Instance を奪わない(PlayerController.Ally.cs)
+        if (SpawningAlly) IsAlly = true;
+        else
+        {
+            Instance = this;
+            ScriptedSpeedCapMps = float.PositiveInfinity; // シーンの読み直し(Retry/ホームへ戻る)で必ず解除
+        }
         baseRunSpeed = runSpeed;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // 確認用(2026-09-30): 起動引数 -legacySpeedRamp で旧仕様(直線+5%/100m、上限36km/h)に戻して前後を比べる。
@@ -1009,7 +1012,11 @@ public partial class PlayerController : MonoBehaviour
         if (upAttackVacuumHitbox != null) upAttackVacuumHitbox.enabled = false;
     }
 
-    void Update() { using (FrameCost.Scope("Player")) UpdateMeasured(); }
+    void Update()
+    {
+        if (IsAlly) { AllyContext++; try { UpdateMeasured(); } finally { AllyContext--; } return; } // 仲間: 効果音を鳴らさない
+        using (FrameCost.Scope("Player")) UpdateMeasured();
+    }
     void UpdateMeasured()
     {
         TickResumeAccel(); // CONTINUE の5秒加速(ゲーム内時間)
@@ -1044,6 +1051,7 @@ public partial class PlayerController : MonoBehaviour
 
         if (GameManager.Instance != null && GameManager.Instance.IsGameOver)
         {
+            if (IsAlly) return; // 仲間: ランの終わりでその場に止まるだけ(倒れる演出/BGM はプレイヤーのもの)
             if (!hasDied)
             {
                 hasDied = true;
@@ -1091,12 +1099,15 @@ public partial class PlayerController : MonoBehaviour
         wasEscapeChargingLastFrame = IsEscapeCharging;
 
         // #100 ULTIMATE(2026-10-04): 必殺技の間は入力/通常の移動の代わりに、地面に沿って高速で走る(距離の報告は下の共通処理)
-        bool ultimateDriving = UltimateArt.Driving;
+        bool ultimateDriving = !IsAlly && UltimateArt.Driving; // #100 ULTIMATE はプレイヤーの技(仲間は通常どおり)
         if (ultimateDriving)
         {
             requestedFlick = null; touchActive = false; bufferedUpAttackTimer = 0f; escapeHoldTimer = 0f;
             UltimateMoveTick(Time.deltaTime);
         }
+        else
+        {
+        if (IsAlly) requestedFlick = Ally != null ? Ally.Decide() : null; // CPU サポート: 仲間は頭脳(CpuAlly)の判断が入力
         else
         {
         UpdatePointerInput();
@@ -1107,6 +1118,7 @@ public partial class PlayerController : MonoBehaviour
         // 高速時の自動操作補助(2026-09-28): 手動入力が無いフレームだけ、補助の判断を同じ入力経路へ入れる。
         // (ここへ来るのは停止/カード選択/カウントダウン/死亡/ダウン/終了のどれでもない時だけ)
         ApplyHighSpeedAssist();
+        }
         bool reactionBlocked = IsReacting;
         // 診断ログの詳細画面を開いている間は、スクロール操作がジャンプ/攻撃にならないよう入力を受け付けない。
         if (DiagnosticsOverlay.DetailOpen) reactionBlocked = true;
@@ -1118,6 +1130,7 @@ public partial class PlayerController : MonoBehaviour
         KitUpdate(); // 新4人: タイマー/引き絞り表示/安全装置(既存5人は何もしない)
         NobleUpdate(); // お嬢様の空中攻撃/急降下のポーズの片付け(2026-10-12)
 
+        if (IsAlly) return; // 仲間: 脱出/距離の報告はプレイヤーだけ
         if (!ultimateDriving) UpdateEscapeInput();
         UpdateEscapeVisuals();
 
@@ -1695,6 +1708,13 @@ public partial class PlayerController : MonoBehaviour
         if (GameManager.Instance == null) return;
         // 新4人(2026-09-27) - 忍者の瞬身のごく短い無敵/格闘家のカウンター成立(既存5人は常にfalse)。
         if (!isFall && KitInterceptDamage(source)) return;
+        // CPU サポート(2026-10-14): 仲間は自分の HP を減らす(ランの HP/Shield/カードの防御はプレイヤーのもの)
+        if (IsAlly)
+        {
+            if (Ally == null || !Ally.ApplyDamage(isFall, amount, source)) return;
+            ApplyDamageReaction(isFall);
+            return;
+        }
         if (!isFall && FinalEvolution.InterceptDamage(source, ref amount)) return; // FINAL EVOLUTION(SPEED/VAMPIRE/GREED)
         if (!isFall && CardProcs.ComboInterceptDamage(source)) return;              // COMBO(BLOOD AEGIS): 1回防ぐ
         // マルチプレイ: ダウン/脱落中は被弾しない。
@@ -1881,7 +1901,7 @@ public partial class PlayerController : MonoBehaviour
         // "the hit actually landed" moment, same as EnemyController's own
         // hit feedback (see section 20's "Feedbackの同期" brief).
         if (AudioManager.Instance != null) AudioManager.Instance.PlayPlayerDamage();
-        Platform.Haptics.Play(HapticKind.Hit); // 振動(今の機種では何もしない。家庭用機で差し替え。2026-10-06)
+        if (!IsAlly) Platform.Haptics.Play(HapticKind.Hit); // 振動(今の機種では何もしない。家庭用機で差し替え。2026-10-06)
         if (damageFlashEnabled && sr != null) StartCoroutine(DamageFlashRoutine());
         if (!isFall && !damageKnockbackEnabled) { /* ノックバック無効設定でもHurt停止は行う */ }
     }
@@ -2212,6 +2232,7 @@ public partial class PlayerController : MonoBehaviour
 
     void OnGUI()
     {
+        if (IsAlly) return; // 落下の警告/脱出のゲージはプレイヤーだけ
         if (GameManager.Instance == null || GameManager.Instance.IsGameOver) return;
 
         DrawFallDeadlineWarning();
@@ -2418,7 +2439,7 @@ public partial class PlayerController : MonoBehaviour
 
     IEnumerator DoAttack(AttackDirection dir)
     {
-        AttackStarted?.Invoke(dir);
+        if (!IsAlly) AttackStarted?.Invoke(dir); // 操作の練習など、プレイヤーの攻撃だけを数える
         // 二丁拳銃士(2026-09-23) - Forward/Backwardとも「面で斬る」既存の
         // 剣士コンボ(Lunge/Recoil/成長するHitbox)には一切乗せず、専用の
         // 弾丸ロジックへ完全に分岐する。isRanged=falseの既存3キャラの
@@ -2924,6 +2945,6 @@ public partial class PlayerController : MonoBehaviour
         if (rangedBulletSprite == null) return;
         float facing = transform.localScale.x >= 0f ? 1f : -1f;
         Vector3 spawnPos = transform.position + new Vector3(muzzleOffset.x * facing, muzzleOffset.y, 0f);
-        PlayerBullet.Create(rangedBulletSprite, spawnPos, worldDir.normalized * rangedBulletSpeed, rangedBulletLifetime);
+        PlayerBullet.Create(rangedBulletSprite, spawnPos, worldDir.normalized * rangedBulletSpeed, rangedBulletLifetime, owner: this);
     }
 }

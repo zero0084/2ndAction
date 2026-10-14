@@ -54,14 +54,13 @@ public partial class PlayerController
         float c = 0f;
         if (!isGrounded) c += CT(EffectType.AirPct) + airDominionStacks * CT(EffectType.AirDominionPct);
         else c += CT(EffectType.GroundPct);
-        var gm = GameManager.Instance;
-        if (gm != null && gm.maxLives > 0)
+        if (HpMax > 0) // CPU サポート: 仲間は自分の HP
         {
-            float f = (float)gm.Lives / gm.maxLives;
-            if (gm.Lives >= gm.maxLives) c += CT(EffectType.FullHpPct);
+            float f = (float)HpNow / HpMax;
+            if (HpNow >= HpMax) c += CT(EffectType.FullHpPct);
             if (f <= 0.5f) c += CT(EffectType.LowHp50Pct);
             if (f <= 0.25f) c += CT(EffectType.LowHp25Pct);
-            c += gm.SealedHearts * CT(EffectType.SealedHeartPct);
+            c += SealedHeartsNow * CT(EffectType.SealedHeartPct);
         }
         float mom = CT(EffectType.MomentumPct);
         if (mom != 0f) c += mom * MomentumFactor(CurrentRunKmh);
@@ -120,11 +119,10 @@ public partial class PlayerController
         {
             if (cardT == null) return 1f;
             float dyn = 0f;
-            var gm = GameManager.Instance;
             float low = CT(EffectType.LowHpAttackSpeedPct);
-            if (low != 0f && gm != null && gm.maxLives > 0)
+            if (low != 0f && HpMax > 0)
             {
-                float f = (float)gm.Lives / gm.maxLives;
+                float f = (float)HpNow / HpMax;
                 if (f <= 0.5f) dyn += low;
                 if (f <= 0.25f) dyn += low;
             }

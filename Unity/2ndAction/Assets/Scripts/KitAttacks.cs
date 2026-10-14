@@ -30,6 +30,7 @@ public class KitProjectile : MonoBehaviour
     public float wobbleAmp, wobbleFreq;
 
     public int HitCount { get; private set; }
+    [System.NonSerialized] public PlayerController owner; // 撃った人(null = この端末のプレイヤー)。CPU サポート(2026-10-14)
     public static int PierceThrough; // 確認用: 敵を貫いた回数(カード v3)
     Transform visual;
     float age;
@@ -80,7 +81,7 @@ public class KitProjectile : MonoBehaviour
         {
             if (ObstacleController.LegacyRules) return; // 前後比較テスト: 改修前は弾が障害物を素通りした
             var myCol = GetComponent<Collider2D>();
-            obs.ReceiveAttack(myCol);
+            if (owner == null || !owner.IsAlly) obs.ReceiveAttack(myCol); // 仲間の弾は AllyAttackRouter が壊す
             if (!obs.Broken || blast.radius > 0f) { Finish(other.ClosestPoint(transform.position), blast.radius > 0f); return; }
             if (pierce == 0) { Finish(transform.position, false); return; }
             if (pierce > 0) pierce--;
@@ -94,7 +95,7 @@ public class KitProjectile : MonoBehaviour
         if (!enemy && !boss) return;
         HitCount++;
         onHitEnemy?.Invoke(this, other);
-        if (boss && bossHitStop > 0f && PlayerController.Instance != null) HitStop.Begin(bossHitStop);
+        if (boss && bossHitStop > 0f && PlayerController.Instance != null && (owner == null || !owner.IsAlly)) HitStop.Begin(bossHitStop); // 仲間の弾では止めない
         if (blast.radius > 0f) { Finish(other.ClosestPoint(transform.position), true); return; }
         if (pierce == 0) { Finish(transform.position, false); return; }
         if (pierce > 0) { pierce--; PierceThrough++; }
@@ -104,7 +105,7 @@ public class KitProjectile : MonoBehaviour
     {
         if (done) return;
         done = true;
-        if (explode && blast.radius > 0f) KitBlast.Create(at, blast);
+        if (explode && blast.radius > 0f) KitBlast.Create(at, blast, owner);
         Destroy(gameObject);
     }
 
@@ -112,12 +113,12 @@ public class KitProjectile : MonoBehaviour
     // colliderSizeで判定の大きさ(回転は進行方向)。
     public static KitProjectile Create(Sprite sprite, Vector3 position, Vector2 velocity, float lifetime,
         Vector2 visualScale, Vector2 colliderSize, Color tint, PlayerAttackKind kind,
-        float damageScale, float knockbackScale, float hitStop, Color? trailColor = null, bool rotateToVelocity = true)
+        float damageScale, float knockbackScale, float hitStop, Color? trailColor = null, bool rotateToVelocity = true, PlayerController owner = null)
     {
         var go = new GameObject("KitProjectile");
-        go.tag = "PlayerAttack";
+        PlayerController.TagAttackObject(go, owner); // CPU サポート: 仲間の弾は "AllyAttack"(2026-10-14)
         go.transform.position = position;
-        PlayerController.NoteShot(position, velocity); // 補助: 弾の高さ(2026-10-13 第3弾)
+        PlayerController.NoteShot(owner, position, velocity); // 補助: 弾の高さ(2026-10-13 第3弾)
         if (rotateToVelocity) go.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg);
 
         var vis = new GameObject("Visual");
@@ -162,7 +163,7 @@ public class KitProjectile : MonoBehaviour
         info.knockbackScale = knockbackScale;
         info.hitStop = hitStop;
 
-        var p = go.AddComponent<KitProjectile>();
+        var p = go.AddComponent<KitProjectile>(); p.owner = owner;
         p.velocity = velocity;
         lifetime *= PlayerController.ProjectileTravelFactor; // Effective Attack Range: travel distance, not size (off by default)
         p.lifetime = lifetime;
@@ -229,10 +230,10 @@ public class KitBlast : MonoBehaviour
         public float shake;
     }
 
-    public static KitBlast Create(Vector3 center, Spec s)
+    public static KitBlast Create(Vector3 center, Spec s, PlayerController owner = null)
     {
         var go = new GameObject("KitBlast");
-        go.tag = "PlayerAttack";
+        PlayerController.TagAttackObject(go, owner); // CPU サポート: 仲間の爆風は "AllyAttack"
         go.transform.position = center;
         var col = go.AddComponent<CircleCollider2D>();
         col.isTrigger = true;
@@ -253,7 +254,7 @@ public class KitBlast : MonoBehaviour
             float size = s.radius * 2f * (s.fxScale > 0f ? s.fxScale : 1f);
             OneShotSpriteEffect.CreateTweened(s.fx, center, s.tint, duration: 0.26f, startScale: size * 0.45f, endScale: size, sortingOrder: RenderOrder.SlashFx, holdFraction: 0.25f);
         }
-        if (s.shake > 0f)
+        if (s.shake > 0f && (owner == null || !owner.IsAlly)) // 仲間の爆風で画面を揺らさない
         {
             var cam = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
             if (cam != null) cam.Shake(s.shake, 0.14f);

@@ -97,7 +97,7 @@ public partial class PlayerController
         Vector3 pos = KitWorld(p.muzzle);
         var proj = KitProjectile.Create(KitProjectile.Arrow, pos, new Vector2(speed, 0f), p.arrowLifetime,
             new Vector2(0.95f * sc, 0.95f * sc), new Vector2(0.8f * sc, 0.16f + 0.06f * i), tint, PlayerAttackKind.Normal,
-            ArcherPick(p.chargeDamageScale, i, 1f) , ArcherPick(p.chargeKnockbackScale, i, 1f), ArcherPick(p.chargeHitStop, i, 0f), trail);
+            ArcherPick(p.chargeDamageScale, i, 1f) , ArcherPick(p.chargeKnockbackScale, i, 1f), ArcherPick(p.chargeHitStop, i, 0f), trail, owner: this);
         proj.pierce = i >= 2 ? p.maxChargePierce : 0;
         proj.bossHitStop = i >= 2 ? ArcherPick(p.chargeHitStop, i, 0f) : 0f;
         proj.name = "ArcherArrow_" + (i == 0 ? "Normal" : i == 1 ? "Mid" : "Max");
@@ -147,7 +147,7 @@ public partial class PlayerController
             Vector3 pos = KitWorld(p.muzzle);
             var proj = KitProjectile.Create(KitProjectile.Arrow, pos, new Vector2(-p.arrowSpeed, 0f), p.arrowLifetime * 0.8f,
                 new Vector2(0.85f, 0.85f), new Vector2(0.72f, 0.16f), Color.white, PlayerAttackKind.Normal,
-                p.backDamageScale, p.backKnockbackScale, 0f, new Color(1f, 1f, 1f, 0.35f));
+                p.backDamageScale, p.backKnockbackScale, 0f, new Color(1f, 1f, 1f, 0.35f), owner: this);
             proj.name = "ArcherArrow_Back";
             ArcherAfterShot(0);
             if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(1);
@@ -170,7 +170,7 @@ public partial class PlayerController
         Vector3 pos = KitWorld(p.muzzle + new Vector2(0f, 0.15f));
         var proj = KitProjectile.Create(KitProjectile.Arrow, pos, dir * p.upArrowSpeed, p.arrowLifetime,
             new Vector2(1.05f, 1.05f), new Vector2(0.85f, 0.2f), new Color(1f, 0.95f, 0.8f), PlayerAttackKind.Normal,
-            p.upDamageScale, p.upKnockbackScale, p.upHitStop, new Color(1f, 0.9f, 0.6f, 0.6f));
+            p.upDamageScale, p.upKnockbackScale, p.upHitStop, new Color(1f, 0.9f, 0.6f, 0.6f), owner: this);
         proj.name = "ArcherArrow_Up";
         ArcherAfterShot(0);
         FlashKitPose("upshot", 0.3f);
@@ -198,7 +198,7 @@ public partial class PlayerController
             Vector3 pos = KitWorld(p.muzzle + new Vector2(0.05f, -0.1f));
             var proj = KitProjectile.Create(KitProjectile.Arrow, pos, dir * p.downArrowSpeed, p.arrowLifetime,
                 new Vector2(1.05f, 1.05f), new Vector2(0.85f, 0.2f), new Color(1f, 0.92f, 0.75f), PlayerAttackKind.Down,
-                p.downDamageScale, p.downKnockbackScale, p.downHitStop, new Color(1f, 0.85f, 0.5f, 0.65f));
+                p.downDamageScale, p.downKnockbackScale, p.downHitStop, new Color(1f, 0.85f, 0.5f, 0.65f), owner: this);
             proj.stopAtGround = true;
             proj.onGround = (pr, at) => OneShotSpriteEffect.CreateTweened(KitProjectile.Puff, at, new Color(0.85f, 0.8f, 0.72f, 0.7f), duration: 0.3f, startScale: 0.2f, endScale: 0.55f, sortingOrder: RenderOrder.CombatFx);
             proj.name = "ArcherArrow_Down";
@@ -240,7 +240,7 @@ public partial class PlayerController
             Vector3 pos = KitWorld(new Vector2(p.muzzle.x, p.lowShotHeight));
             var proj = KitProjectile.Create(KitProjectile.Arrow, pos, new Vector2(p.arrowSpeed, 0f), p.arrowLifetime,
                 new Vector2(0.95f, 0.95f), new Vector2(0.8f, 0.2f), Color.white, PlayerAttackKind.Normal,
-                p.lowDamageScale, p.lowKnockbackScale, 0.03f, new Color(1f, 1f, 1f, 0.4f));
+                p.lowDamageScale, p.lowKnockbackScale, 0.03f, new Color(1f, 1f, 1f, 0.4f), owner: this);
             proj.name = "ArcherArrow_Low";
             ArcherAfterShot(0);
             if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(1);

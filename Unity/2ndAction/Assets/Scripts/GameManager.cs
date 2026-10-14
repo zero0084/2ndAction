@@ -1563,6 +1563,8 @@ public partial class GameManager : MonoBehaviour
         ApplyCharacterBaseStats(CharacterDatabase.FindById(activeRunCharacterId));
         SetCharacterCardOwner(activeRunCharacterId); // そのキャラのキャラカード枠(2026-10-02)
         ApplyCharacterCardEffects();
+        CpuParty.BeginRun(); // CPU サポート(2026-10-14): 出発の前に選んだ仲間(0人なら何もしない)
+        ParticipantAura.AttachLocalPlayer(); // 識別用オーラ: 仲間/マルチの時だけ(ソロは従来の見た目)
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
         if (skipStartCountdown) { skipStartCountdown = false; CountdownActive = false; CountdownLabel = ""; return; } // 闘技場(2026-10-07): 開始の 3・2・1 を出さない
         if (!TryStartSprintInsteadOfCountdown()) StartCoroutine(RunStartCountdownRoutine()); // 疾走出発(2026-10-05)は演出の後に到着地点から
@@ -2272,6 +2274,7 @@ public partial class GameManager : MonoBehaviour
             Exp -= ExpToNext;
             Level++;
             ExpToNext = expBaseForLevel2 + expGrowthPerLevel * (Level - 1);
+            CpuParty.OnLeaderLevelUp(); // CPU サポート: 仲間も1枚取る(止めない)
             TriggerLevelUpChoice();
         }
     }
@@ -3496,6 +3499,7 @@ public partial class GameManager : MonoBehaviour
     public void RegisterBossDefeat(int mileReward = 50)
     {
         BossKillCount++;
+        CpuParty.OnBossDefeated(); // CPU サポート: 仲間も1枚取る(報酬はランに1回だけ。仲間の分は増やさない)
         GainExp(bossKillExp * KillExpScale);
         UltimateArt.OnBossKilled(); // #100 ULTIMATE の Gauge
         TryLifesteal();
@@ -3815,6 +3819,7 @@ public partial class GameManager : MonoBehaviour
         data.sprintSkippedMeters = SprintSkippedMeters; // 疾走出発(2026-10-05)
         data.ledger = RunLedger.Current; // 2026-10-08: 途中の数値(確定前)。使ったデバッグ機能も持ち越す
         data.ldBeyond = LdBeyond; data.ldBeyondFrom = LdBeyondFrom; data.mileDistanceBase = MileDistanceBase; // ラスダンの YES の後(2026-10-13 第3弾)
+        data.party = CpuParty.Export(); // CPU サポート(2026-10-14): 仲間の編成と状態
     }
 
     // Item 9 - "RETURN TO HOME" - NOT a FINISH: Run MILE stays unconfirmed,
@@ -3962,6 +3967,7 @@ public partial class GameManager : MonoBehaviour
         // 準備画面より前に地形を生成して、キャラをその地面へ立たせる(GameManager.ResumeGate.cs)。
         ApplyCheckpointSpeed(data); // 保存時の速さ(足場の安全区間もこの速さで測る)
         SetupResumeFooting(data.checkpointDistance);
+        CpuParty.RestoreFromCheckpoint(data.party); // CPU サポート(2026-10-14): 同じ仲間を、取ったカード/HP/倒れている状態のまま
 
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
 

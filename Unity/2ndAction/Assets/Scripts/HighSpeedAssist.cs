@@ -32,6 +32,13 @@ public partial class HighSpeedAssist : MonoBehaviour
 {
     public static HighSpeedAssist Instance { get; private set; }
 
+    // CPU サポート(2026-10-14): 仲間1人ごとの「判断役」。プレイヤーの補助(Instance)とは別のインスタンスで、
+    // 設定を読まない(常に全部 ON・常に作動)/地形の先読みの指示や出現位置の補正をしない/ランキングの「オート」の印を付けない。
+    // 判断の中身(地形の先読み・ボス戦の回避と攻撃)は同じものを、仲間の PlayerController に対して使う。
+    public static bool CreatingPlanner;
+    public bool IsPlanner { get; private set; }
+    PlayerController planOwner; // 今判断している本人
+
     [Header("発動条件(km/h)")]
     public bool assistEnabled = true;
     // 2026-09-29: 200/180 → 100/90(マスター指定)。ここ(またはInspector)で調整できる。
@@ -140,6 +147,13 @@ public partial class HighSpeedAssist : MonoBehaviour
 
     void Awake()
     {
+        if (CreatingPlanner)
+        {
+            IsPlanner = true;
+            assistEnabled = true; autoInBoss = autoAttack = autoAvoid = true; bossAssist = true;
+            engageKmh = 0f; releaseKmh = -1f; fullAssistKmh = 1f; Engaged = true;
+            return;
+        }
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         ReloadPrefs();
@@ -239,6 +253,7 @@ public partial class HighSpeedAssist : MonoBehaviour
 
     void Update()
     {
+        if (IsPlanner) { Engaged = true; if (planOwner != null) JudgedKmh = GameManager.SpeedKmh(planOwner.CurrentAutoRunSpeed); return; }
         PlayerController pc = PlayerController.Instance;
         GameManager gm = GameManager.Instance;
         if (pc == null || gm == null || !gm.HasStarted || gm.IsGameOver)
@@ -301,6 +316,7 @@ public partial class HighSpeedAssist : MonoBehaviour
     // ===================================================================== //
     public PlayerController.FlickDirection? Decide(PlayerController pc)
     {
+        planOwner = pc;
         bool resumed = lastDecideFrame < Time.frameCount - 1;
         lastDecideFrame = Time.frameCount;
         if (resumed)
@@ -805,9 +821,9 @@ public partial class HighSpeedAssist : MonoBehaviour
             {
                 box.oc = c.GetComponentInParent<ObstacleController>();
                 if (box.oc != null && (box.oc.Broken || !box.oc.isActiveAndEnabled)) continue;
-                if (box.oc != null && PlayerController.Instance != null)
+                if (box.oc != null && (planOwner != null || PlayerController.Instance != null))
                 {
-                    var pcq = PlayerController.Instance;
+                    var pcq = planOwner != null ? planOwner : PlayerController.Instance;
                     int dmg = Mathf.Max(1, Mathf.RoundToInt(pcq.AssistAttackPower * pcq.AssistForwardDamageScale));
                     box.quickBreak = box.breakable && box.oc.Hp <= dmg && pcq.AssistForwardLunge <= 0f;
                 }
@@ -829,7 +845,7 @@ public partial class HighSpeedAssist : MonoBehaviour
                 k = oc != null && oc.breakable ? 3 : 1; break;
             }
             if (t.CompareTag("Enemy") || t.CompareTag("Boss")) { k = 2; break; }
-            if (t.CompareTag("Player") || t.CompareTag("PlayerAttack") || t.CompareTag("Ground")) break;
+            if (t.CompareTag("Player") || t.CompareTag("PlayerAttack") || t.CompareTag("Ground") || t.CompareTag(PlayerController.AllyBodyTag) || t.CompareTag(PlayerController.AllyAttackTag)) break;
         }
         if (tagCache.Count > 4000) tagCache.Clear();
         tagCache[c] = k;
