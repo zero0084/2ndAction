@@ -37,7 +37,7 @@ public class ReaperSisterBoss : WildBossBase
         b.data = data;
         b.bossName = data != null && !string.IsNullOrEmpty(data.displayName) ? data.displayName : name;
         b.maxHp = hp;
-        b.mileReward = 800;
+        b.mileReward = RunRewards.BossMile(800, 1f); // 2026-10-15: 基本 × 1.5(最後の相手)
         b.bodyHeight = data != null ? Mathf.Max(3.8f, data.heightWorld * 1.75f) : 4.2f; // 追ってきた時より大きく(最後に真正面から向き合う相手)
         b.slotIndex = slot;
         b.slotSpacing = 3.6f;

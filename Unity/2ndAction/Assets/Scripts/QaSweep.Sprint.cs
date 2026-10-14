@@ -217,7 +217,8 @@ public partial class QaSweep
         Check(Mathf.Abs(dAtGo - arrival) < 3f && Mathf.Abs(bm.NextBossDistance - dest) < 1f, $"{tag}: arrives {SprintTuning.I.arriveBeforeMeters:F0}m before the {dest}m gate, next gate = {dest}m (d at go {dAtGo:F0})");
         Check(gm.ResumeGate == GameManager.ResumeGatePhase.None && goDelay < 1.5f, $"{tag}: runs on by itself after the arrival (no button / 3-2-1; {goDelay:F2}s)");
         Check(worstFrame < 0.25f, $"{tag}: no long stall at the arrival (worst frame {worstFrame * 1000f:F0}ms)");
-        Check(gm.Level == 1, $"{tag}: skipped distance gives no distance EXP / level-ups (Lv{gm.Level})");
+        int wantLv = GameManager.SprintArrivalLevelFor(arrival, gm.expBaseForLevel2, gm.expGrowthPerLevel); // 2026-10-15: 到着の距離に合わせた Lv(まとめてのレベルアップは無し)
+        Check(gm.Level == wantLv && gm.Exp < 1f && !gm.LevelUpPending && gm.PendingLevelUpCount == 0, $"{tag}: arrival level Lv{gm.Level} (want Lv{wantLv}) exp={gm.Exp:F0}/{gm.ExpToNext:F0}, no batched level-up choice");
         Check(Mathf.Abs(data.checkpointDistance - arrival) < 1f && data.upgradeHistoryCardIds.Count >= grants && Mathf.Abs(data.sprintSkippedMeters - arrival) < 1f, $"{tag}: CONTINUE data saved once at the arrival (history {data.upgradeHistoryCardIds.Count})");
         Check(data.runRingMile == gm.RunRingMile, $"{tag}: the ring MILE is in the CONTINUE data once ({data.runRingMile} / {gm.RunRingMile})");
         if (tag == "H")

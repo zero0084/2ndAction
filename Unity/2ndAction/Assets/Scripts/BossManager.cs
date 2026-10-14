@@ -1157,7 +1157,7 @@ public partial class BossManager : MonoBehaviour
         if (BattleTunedStage) boss.ApplyTuning(kind.ToString()); // ボス戦の強化(2026-10-01): 段階/必殺技/崩し
         ApplyRematchTo(boss); // 再戦の強化(2026-10-02)
         boss.slotIndex = index;
-        boss.mileReward = spec.mile;
+        boss.mileReward = RunRewards.BossMile(spec.mile, hpScale); // 2026-10-15: 基本 × 1.5 × 強さ(距離で伸びる HP / 再戦の強化)
         boss.bodyHeight = spec.height;
         boss.startGap = spec.gap + index * 3.5f; // 複数出現時は少しずつ間隔をずらす
         boss.defeatBurstColor = spec.burst;
@@ -1248,7 +1248,7 @@ public partial class BossManager : MonoBehaviour
         if (BattleTunedStage) boss.ApplyTuning(kind.ToString()); // 自然洞窟ボス強化(2026-10-04): 荒野街道と同じ段階/必殺技/崩し
         ApplyRematchTo(boss); // 再戦の強化(2026-10-02)
         boss.slotIndex = index;
-        boss.mileReward = spec.mile;
+        boss.mileReward = RunRewards.BossMile(spec.mile, hpScale); // 2026-10-15: 基本 × 1.5 × 強さ(距離で伸びる HP / 再戦の強化)
         boss.bodyHeight = spec.height;
         boss.startGap = spec.gap + index * 3.5f;
         boss.defeatBurstColor = spec.burst;
@@ -1347,6 +1347,8 @@ public partial class BossManager : MonoBehaviour
             dragon.landingAttackEnabled = currentGateK * gateIntervalMeters >= skyDragonLandingFromMeters;
             dragon.landingAttackChance = 0.2f;
             dragon.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(dragonMaxHp * RematchHpScaleOr(SkySmallBossHpScale())));
+            dragon.mileReward = RunRewards.BossMile(50, RematchHpScaleOr(SkySmallBossHpScale())); // 2026-10-15: 天空 1km の竜(小ボス。以前は既定の 50 のまま)
+            dragon.rewardClass = RunRewards.BossClass.Small;
             if (BattleTunedStage)
             {
                 // 天空ボス強化(2026-10-05): 第1段階=低空の噛みつきも使う / 必殺技 DRAGON FIRE CHARGE / 後の低空の隙 / 再戦の段階
@@ -1368,6 +1370,7 @@ public partial class BossManager : MonoBehaviour
         {
             majin.gameObject.name = "SkyMajin";
             majin.maxHp = EffectiveBossMaxHp(Mathf.RoundToInt(dragonMaxHp * majinHpMultiplier * RematchHpScaleOr(SkySmallBossHpScale())));
+            majin.mileReward = RunRewards.BossMile(100, RematchHpScaleOr(SkySmallBossHpScale())); // 2026-10-15: 天空 5km の魔人(以前は既定の 100 のまま)
             if (BattleTunedStage) majin.EnableSkyBattle(BossBattleTuning.I.For("Majin"), CurrentEncounterIsRematch ? currentTier : null, currentTier != null ? BossRematchTuning.I.tiers.IndexOf(currentTier) : -1); // 天空ボス強化(2026-10-05)
         });
     }
@@ -1435,7 +1438,7 @@ public partial class BossManager : MonoBehaviour
         if (BattleTunedStage) boss.ApplyTuning(kind.ToString()); // 天空ボス強化(2026-10-05): 荒野/洞窟と同じ段階/必殺技/崩し
         ApplyRematchTo(boss); // 再戦の強化(2026-10-02)
         boss.slotIndex = index;
-        boss.mileReward = spec.mile;
+        boss.mileReward = RunRewards.BossMile(spec.mile, RematchHpScaleOr(1f)); // 2026-10-15
         boss.bodyHeight = spec.height;
         boss.startGap = spec.gap + index * 3.5f;
         boss.defeatBurstColor = spec.burst;
@@ -1491,7 +1494,7 @@ public partial class BossManager : MonoBehaviour
         dragon.standoffDistance = standoff;
         dragon.chargeAttackEnabled = true;
         dragon.landingAttackEnabled = true;
-        dragon.mileReward = 450;
+        dragon.mileReward = RunRewards.BossMile(450, RematchHpScaleOr(1f)); // 2026-10-15: 荒野 80km の竜(大ボス)
         if (BattleTunedStage) dragon.EnableWastelandBattle(BossBattleTuning.I.For("Dragon"));
         dragon.finalHitSparkSprite = bossHitSparkSprite;
         dragon.bossDeathSmokeSprite = bossDeathSmokeSprite;

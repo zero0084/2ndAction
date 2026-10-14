@@ -20,7 +20,7 @@ public partial class DragonController
         if (!puppet && !finishRewarded)
         {
             finishRewarded = true; bossDefeatRegistered = true;
-            if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
+            if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward, RunRewards.BossExpFraction(rewardClass));
         }
         BossFinish.ClearBossHazards();
         float h = sr != null ? sr.bounds.size.y : 3f;
@@ -70,7 +70,7 @@ public partial class MajinController
         if (!puppet && !finishRewarded)
         {
             finishRewarded = true; bossDefeatRegistered = true;
-            if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
+            if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward, RunRewards.BossExpFraction(RunRewards.BossClass.Mid));
         }
         BossFinish.ClearBossHazards();
         float h = sr != null ? sr.bounds.size.y : 3f;

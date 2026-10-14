@@ -82,7 +82,7 @@ public abstract partial class WildBossBase : IBossDeathBody
         if (rewardRegistered) return;
         rewardRegistered = true;
         if (NetPuppet) return;
-        if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
+        if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward, RunRewards.BossExpFraction(RunRewards.ClassOf(DeathKey))); // 2026-10-15: EXP は格ごとの割合
     }
 
     // 遭遇の終了(ボス報酬の選択 / 次のボス / ラスダンのラッシュ / 死神の終幕)。撃破の見た目が終わった時に1回

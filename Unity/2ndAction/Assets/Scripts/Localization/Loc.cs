@@ -170,6 +170,9 @@ public static class Loc
     public static int KeyCount { get { if (current == null) Init(); return knownKeys.Count; } }
     public static int TableCount { get { if (current == null) Init(); return table.Count; } }
     public static bool HasTranslation(string code, string key) => LoadTable(code).ContainsKey(key);
+    // 2026-10-15: レビュー待ちの新しい文。日本語、または今の言語の訳が入った時だけ新しい文を使い、それまでは前の(レビュー済みの)文を出す
+    public static bool Ready(string key) { if (current == null) Init(); return current == "ja" || table.ContainsKey(key); }
+    public static string Reviewed(string newKey, string previousKey) => Ready(newKey) ? newKey : previousKey;
 
     // 元の文(キー)を今の言語へ。無ければ英語、それも無ければ元の文
     public static string T(string key)

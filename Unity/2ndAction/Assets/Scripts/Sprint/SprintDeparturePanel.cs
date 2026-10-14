@@ -21,6 +21,17 @@ public class SprintDeparturePanel : MonoBehaviour
     public static Rect LastButtonRect { get; private set; }
     public static int Opens { get; private set; }
     string stageForPanel;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    // 自動テスト用(2026-10-15): 行き先の一覧を開く/閉じる(ステージ選択を開いている時だけ表示される)
+    public static void DebugOpen(bool open)
+    {
+        var p = FindFirstObjectByType<SprintDeparturePanel>();
+        var gm = GameManager.Instance;
+        if (p == null || gm == null || gm.stageSelectUI == null) return;
+        if (open) { Open = true; p.stageForPanel = gm.stageSelectUI.SelectedStageIdInUi; UiInputGate.SprintPanelOpen = true; }
+        else { Open = false; UiInputGate.SprintPanelOpen = false; }
+    }
+#endif
 
     void Update()
     {
@@ -74,7 +85,7 @@ public class SprintDeparturePanel : MonoBehaviour
         y += 52f * s;
         // 2026-10-08: 説明は折り返し、長い言語ではスクロール(以前は1行のままで切れていた)
         var descSt = new GUIStyle(UiKit.Label(20f * s, TextAnchor.UpperLeft, false, new Color(0.85f, 0.9f, 1f))); descSt.wordWrap = true;
-        descScroll.Text(new Rect(x, y, w, 76f * s), "攻略済みの区間を一気に駆け抜け、選んだ関門の少し手前から走り始めます。ボス報酬のカードはランダムに自動取得。5,000mごとのリングに上下で高さを合わせると追加で1枚選べます。飛ばした距離のMILE・EXPは付きません。", descSt, stageForPanel);
+        descScroll.Text(new Rect(x, y, w, 76f * s), Loc.Reviewed("攻略済みの区間を一気に駆け抜け、選んだ関門の少し手前から走り始めます。ボス報酬のカードはランダムに自動取得。5,000mごとのリングに上下で高さを合わせると追加で1枚選べます。飛ばした距離のMILEは付きません。プレイヤーレベルは到着の距離に合わせて上がった状態で始まります。", "攻略済みの区間を一気に駆け抜け、選んだ関門の少し手前から走り始めます。ボス報酬のカードはランダムに自動取得。5,000mごとのリングに上下で高さを合わせると追加で1枚選べます。飛ばした距離のMILE・EXPは付きません。"), descSt, stageForPanel);
         y += 84f * s;
         var list = SprintRecords.Destinations(stageForPanel);
         // 行き先の一覧も、収まらない時はスクロール(ドラッグした指では行き先を選ばない)

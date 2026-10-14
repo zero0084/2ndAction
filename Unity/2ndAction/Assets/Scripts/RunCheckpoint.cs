@@ -59,6 +59,9 @@ public static class RunCheckpoint
         public int bossKillCount;
         public int runEnemyMile;
         public int runBossMile;
+        // 2026-10-15: 獲得 MILE の分配の人数と、種類ごとの端数の繰り越し、カード選択中に預かったボスの EXP
+        public int mileShare;
+        public float carryEnemy, carryBoss, carryBonus, carryRing, heldBossExp;
         public int runBonusMile; // BONUS ZONE(2026-09-29)の仮取得MILE(古いデータは0)
         public bool ldBeyond; public float ldBeyondFrom, mileDistanceBase; // ラスダン ONE MORE MILE? の YES の後(2026-10-13 第3弾)
         public int runRingMile;  // 疾走出発のリングの代替報酬の仮取得MILE(2026-10-06、古いデータは0)

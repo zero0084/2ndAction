@@ -377,6 +377,8 @@ public static class GroundFactory
         enemyController.deathCloudSprite = deathCloudSprite;
         enemyController.maxHp = Mathf.Max(1, maxHp);
         enemyController.mileReward = Mathf.Max(0, mileReward);
+        // 2026-10-15: 出た時の距離の強さに合わせた MILE の係数(HP と同じ距離の段。序盤は 1)
+        enemyController.MileDistanceFactor = DistanceTierManager.Instance != null ? RunRewards.EnemyMileFactor(DistanceTierManager.Instance.HpStrengthRatio) : 1f;
         if (bigKnockbackOnHit)
         {
             // Heavy Enemy - "画面端まで吹っ飛ばすような感じ" via the same

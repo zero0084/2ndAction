@@ -859,6 +859,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
 
     // 天空ボス強化(2026-10-05): 1,000m の天空ドラゴン。必殺技の名前/後の低空の隙/再戦の段階
     [System.NonSerialized] public bool skyMode;
+    [System.NonSerialized] public RunRewards.BossClass rewardClass = RunRewards.BossClass.Big; // 2026-10-15: 天空の 1km の竜は小ボス
     float staggerMul = 1f;
     public int RematchTier { get; private set; } = -1;
     public void ApplyRematchTier(BossRematchTuning.Tier tier, int tierIndex)
@@ -1166,7 +1167,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         if (bossDefeatRegistered) return;
         bossDefeatRegistered = true;
         if (NetPuppet) return; // JOINのパペット: 撃破報酬/ボス戦終了はHOSTとラストヒットの本人が処理する
-        if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
+        if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward, RunRewards.BossExpFraction(rewardClass));
         if (BossManager.Instance != null) BossManager.Instance.OnDragonDefeated();
     }
 

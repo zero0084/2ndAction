@@ -191,7 +191,7 @@ public partial class GameManager
     public int SprintGrantRingMile()
     {
         if (IsGameOver) return 0;
-        int add = Mathf.Max(0, SprintTuning.I.ringMileReward);
+        int add = ShareRingMile(Mathf.Max(0, SprintTuning.I.ringMileReward)); // 2026-10-15: 参加人数で分配(CPU サポートの時)
         RunRingMile += add;
         SprintRingMileRewards++;
         Debug.Log($"[Sprint] ring reward: +{add} MILE (all deck cards at run Lv{MaxRunCardLevel}; ring MILE total {RunRingMile}, run MILE {RunMile})");
@@ -235,12 +235,47 @@ public partial class GameManager
         SceneryCycle.ExtraPrefetchDistance = null; // 到着地点の背景は疾走の間に読み込み済み
         CountdownActive = false;
         SetupResumeFooting(arrival);
+        ApplySprintArrivalLevel(arrival); // 2026-10-15: 到着の距離に合わせたプレイヤーレベル(まとめてのレベルアップ/カードの選択は出さない)
         SaveCheckpoint(); // 到着の時点(取得したカード込み)を1回だけ。以後の CONTINUE はここから(自動取得/リングを重ねない)
         // 2026-10-10: 到着後の「準備ができたら再開」ボタンと 3-2-1 は撤去(マスター)。疾走の絵が実際のキャラへ重なり終わったら、
         // その時の速さのまま自動で走り出す(CONTINUE の5秒の加速はしない)。カードの選択の停止はそのまま
         BeginResumeGate(autoResume: true, accel: false, waitSprintOutro: true);
         { var pa = PlayerController.Instance != null ? PlayerController.Instance.GetComponent<PlayerAnimator>() : null; if (pa != null) FreezeDiagnostics.LogEvent("[VisualPose] sprint arrival " + pa.VisualPoseReport()); }
         Debug.Log($"[Sprint] arrived at {arrival:F0}m (destination {destination}m): auto grants {SprintAutoGrants} (no candidate {SprintAutoSkippedNoCandidate}), ring picks {SprintRingPicks}, ring MILE x{SprintRingMileRewards} (+{RunRingMile}), Lv{Level}, speed {(PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed * KmhPerMps : 0f):F0}km/h, next gate {(bm != null ? bm.NextBossDistance : 0f):F0}m");
+    }
+
+    // ---- 疾走出発の到着レベル(2026-10-15、マスターの依頼「疾走出発後のプレイヤーレベル調整」) ----
+    // 到着地点で、その距離を普通に走った時に近い「プレイヤーレベル」から始める(カードのレベルではない)。
+    //  ・到着の EXP 相当 = 到着の距離 × SprintArrivalExpPerMeter(0.87)→ そこまでの累計で届く一番高い Lv。90km(89,750m)で Lv50
+    //    (普通に走ると距離だけで 1EXP/m + 撃破の分が入るので、それより少し控えめ = 到着後もレベルアップが続く)
+    //  ・レベルの上限ではない(到着後は普段どおり上がる)。EXP は 0、次までの量は普段の式(150 + 60 ×(Lv − 1))
+    //  ・まとめてのレベルアップは起こさない: GainExp を通さずに値だけ入れる = レベルアップのカードの選択も、
+    //    CPU サポートの「プレイヤーのレベルアップで仲間も1枚」も出ない。距離/撃破の EXP の加算も無い
+    //  ・プレイヤーレベルは HP の回復以外に能力へ影響しない(攻撃/速さ/HP の最大はカードとキャラの値)
+    //  ・到着の SaveCheckpoint で1回だけ保存。CONTINUE はその Lv から(二重に上がらない)
+    public const float SprintArrivalExpPerMeter = 0.87f;
+    public static float CumulativeExpToLevel(int level, float baseExp = 150f, float growth = 60f)
+    {
+        int n = Mathf.Max(0, level - 1);
+        return n * baseExp + growth * n * (n - 1) * 0.5f;
+    }
+    public static int SprintArrivalLevelFor(float arrival, float baseExp = 150f, float growth = 60f)
+    {
+        float budget = Mathf.Max(0f, arrival) * SprintArrivalExpPerMeter;
+        int lv = 1;
+        while (lv < 999 && CumulativeExpToLevel(lv + 1, baseExp, growth) <= budget + 1e-3f) lv++;
+        return lv;
+    }
+    public int SprintArrivalLevel { get; private set; }
+    void ApplySprintArrivalLevel(float arrival)
+    {
+        int lv = SprintArrivalLevelFor(arrival, expBaseForLevel2, expGrowthPerLevel);
+        SprintArrivalLevel = lv;
+        if (lv <= Level) return; // すでに高い(ありえないが、下げはしない)
+        Level = lv;
+        Exp = 0f;
+        ExpToNext = expBaseForLevel2 + expGrowthPerLevel * (Level - 1);
+        Debug.Log($"[Sprint] arrival level Lv{Level} (arrival {arrival:F0}m x {SprintArrivalExpPerMeter} EXP/m), next Lv in {ExpToNext:F0} EXP - no level-up choices / CPU picks");
     }
 
     // 持ち帰りの MILE(距離ぶん)の距離: 疾走で飛ばした距離を除く

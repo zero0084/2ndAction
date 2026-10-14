@@ -641,7 +641,7 @@ public partial class MajinController : MonoBehaviour
         if (bossDefeatRegistered) return;
         bossDefeatRegistered = true;
         if (NetPuppet) return; // JOINのパペット: 撃破報酬/ボス戦終了はHOSTとラストヒットの本人が処理する
-        if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
+        if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward, RunRewards.BossExpFraction(RunRewards.BossClass.Mid));
         if (BossManager.Instance != null) BossManager.Instance.OnMajinDefeated();
     }
 

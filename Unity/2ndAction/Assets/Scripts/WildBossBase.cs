@@ -1518,7 +1518,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (defeatRegistered) return;
         defeatRegistered = true;
         if (NetPuppet) return; // JOINのパペット: 撃破報酬/ボス戦終了はHOSTとラストヒットの本人が処理する
-        if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward);
+        if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward, RunRewards.BossExpFraction(RunRewards.ClassOf(DeathKey))); // 2026-10-15: EXP は格ごとの割合
         if (DefeatOverride != null) { DefeatOverride(this); return; }
         if (BossManager.Instance != null) BossManager.Instance.OnWildBossDefeated(this);
     }

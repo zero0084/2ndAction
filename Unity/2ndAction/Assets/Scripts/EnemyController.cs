@@ -315,6 +315,8 @@ public partial class EnemyController : MonoBehaviour
     void OnDisable() { ActiveCount = Mathf.Max(0, ActiveCount - 1); }
     [System.NonSerialized] public bool IsElite;
     [System.NonSerialized] public float KillExpMultiplier = 1f;
+    [System.NonSerialized] public float MileDistanceFactor = 1f; // 2026-10-15: 出た時の距離の強さに合わせた MILE の係数
+    public float MileRewardBase => mileReward * Mathf.Max(0f, MileDistanceFactor); // 撃破の MILE の基本(人数で割る前)
     public void ResetHpToMax() { hp = Mathf.Max(1, maxHp); }
 
     // エリアルコンボ改修(2026-09-11) - 打ち上げ/叩き落とし中のY軸物理の
@@ -1159,7 +1161,7 @@ public partial class EnemyController : MonoBehaviour
         if (bonus != null) bonus.OnKilled(fallDeath);
         if (netReactionAttacker == 0 && !fallDeath) CardProcs.OnEnemyKilled(this); // v3: CHAIN EXPLOSION / INFERNO(この端末のプレイヤーが倒した時)
         if (NetCombat.RouteEnemyKillReward(NetId, fallDeath)) return;
-        if (GameManager.Instance != null) GameManager.Instance.RegisterEnemyKill(mileReward, KillExpMultiplier);
+        if (GameManager.Instance != null) GameManager.Instance.RegisterEnemyKill(MileRewardBase, KillExpMultiplier);
     }
 
     // JOIN: HOSTから届いた敵を「見た目と当たり判定だけ」のパペットにする。

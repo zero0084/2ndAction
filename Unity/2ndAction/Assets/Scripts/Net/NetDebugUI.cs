@@ -280,6 +280,7 @@ public class NetDebugUI : MonoBehaviour
         GUILayout.Space(8f);
         if (PadNav.LayoutButton(GUILayout.Button("CO-OP", buttonStyle, GUILayout.Height(64f)))) { NetRunLauncher.SelectedMode = MultiplayerGameMode.Coop; Go(MultiScreen.Choose); }
         GUILayout.Label(L("倒れたらDOWN。倒れた地点まで来た仲間(HP2以上)がHPを1つ渡すと復活。全員DOWNで終了。"), smallStyle);
+        if (Loc.Ready(SupportDeparturePanel.MileShareNote)) GUILayout.Label(L(SupportDeparturePanel.MileShareNote), smallStyle); // 2026-10-15: 協力は獲得 MILE を参加人数で分配(レビュー後に各言語)
         GUILayout.Space(8f);
         if (PadNav.LayoutButton(GUILayout.Button("VERSUS", buttonStyle, GUILayout.Height(64f)))) { NetRunLauncher.SelectedMode = MultiplayerGameMode.Versus; Go(MultiScreen.Choose); }
         GUILayout.Label(L("倒れたら脱落(復活なし)。最後の1人まで続き、到達距離で順位が決まる。"), smallStyle);

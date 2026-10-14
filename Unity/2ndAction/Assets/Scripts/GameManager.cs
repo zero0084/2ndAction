@@ -1357,6 +1357,8 @@ public partial class GameManager : MonoBehaviour
     void OnDestroy() { if (bossVoiceHushed || HasStarted) BossVoice.StopAll(); } // ホームへ戻る/読み直しで残さない
     void UpdateMeasured()
     {
+        WatchEncounterSaveFreeze(); // 2026-10-15: ボス戦の始めに1回保存して、報酬が決まるまで中断データを書き換えない
+        FlushHeldBossExp(); // 2026-10-15: カード選択中に預かったボスの EXP を、選び終えてから入れる
         bool hush = showPauseMenu || IsGameOver;
         if (hush != bossVoiceHushed) { bossVoiceHushed = hush; if (hush) BossVoice.StopAll(); }
         HandleBackButton();
@@ -1571,6 +1573,8 @@ public partial class GameManager : MonoBehaviour
         SetCharacterCardOwner(activeRunCharacterId); // そのキャラのキャラカード枠(2026-10-02)
         ApplyCharacterCardEffects();
         CpuParty.BeginRun(); // CPU サポート(2026-10-14): 出発の前に選んだ仲間(0人なら何もしない)
+        ResetEncounterSaveFreeze();
+        DecideMileShare(); // 2026-10-15: 獲得 MILE の分配の人数(ランの始めの編成/参加人数)
         ParticipantAura.AttachLocalPlayer(); // 識別用オーラ: 仲間/マルチの時だけ(ソロは従来の見た目)
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
         if (skipStartCountdown) { skipStartCountdown = false; CountdownActive = false; CountdownLabel = ""; return; } // 闘技場(2026-10-07): 開始の 3・2・1 を出さない
@@ -3487,30 +3491,12 @@ public partial class GameManager : MonoBehaviour
     // Kills no longer restore HP directly on their own (see the HEART UP /
     // VAMPIRE cards instead) - they grant EXP toward the next level-up, and
     // (with VAMPIRE) a chance to proc a small heal.
-    public void RegisterEnemyKill(int mileReward = 1, float expMul = 1f)
-    {
-        EnemyKillCount++;
-        GainExp(enemyKillExp * KillExpScale * Mathf.Max(0f, expMul)); // v3: 精鋭は EXP×2
-        UltimateArt.OnEnemyKilled(expMul > 1.5f); // #100 ULTIMATE の Gauge(発動中は溜まらない)
-        TryLifesteal();
-        // Card Expansion/Gacha Evolution Ver.1 - Tough/Fast/Elite Enemies,
-        // Treasure Hunter, Mob Killer, Executioner, Hell Mode, etc.
-        RunEnemyMile += Mathf.Max(0, Mathf.RoundToInt(mileReward * MileGainMultiplier * FinalEvolution.MileMul)); // FINAL EVOLUTION(GREED)
-    }
+    // 2026-10-15: RegisterEnemyKill / AddRunBonusMile / RegisterBossDefeat は Rewards/GameManager.RunRewards.cs(距離の係数・人数での分配・端数の繰り越し)
 
     // ===== BONUS ZONE(2026-09-29)の報酬の入口 =====
     // 報酬の計算はBonusZone/BonusEnemy、ここは既存のRun Progression(仮取得MILE/EXP/Card Choice)へ渡すだけ。
     // マルチ対応時は「報酬を受け取るPlayerの端末」でこれらを呼ぶ(敵撃破の報酬と同じ経路にできる形)。
     // 仮取得MILEへ加算(MILE獲得量アップ系カードの倍率込み)。実際に加算した量を返す。
-    public int AddRunBonusMile(int amount)
-    {
-        if (amount <= 0 || IsGameOver) return 0;
-        // カード v3: TREASURE HUNTER は宝・報酬(BONUS ZONE の宝運びゴブリン/黄金スライム/ミミック/CLEAR/PERFECT、WANTED の賞金)を増やす
-        int add = Mathf.Max(0, Mathf.RoundToInt(amount * MileGainMultiplier * FinalEvolution.MileMul * Mathf.Max(0f, 1f + Card.Get(EffectType.TreasureMilePct))));
-        RunBonusMile += add;
-        return add;
-    }
-
     // 通常のEXP(撃破/距離と同じGainExp、EXP UPカードの倍率込み)。実際に入った量を返す(選択中で捨てられた時は0)。
     public float GrantBonusExp(float amount)
     {
@@ -3527,23 +3513,6 @@ public partial class GameManager : MonoBehaviour
     {
         if (IsGameOver) return;
         TriggerLevelUpChoice();
-    }
-
-    public void RegisterBossDefeat(int mileReward = 50)
-    {
-        BossKillCount++;
-        CpuParty.OnBossDefeated(); // CPU サポート: 仲間も1枚取る(報酬はランに1回だけ。仲間の分は増やさない)
-        GainExp(bossKillExp * KillExpScale);
-        UltimateArt.OnBossKilled(); // #100 ULTIMATE の Gauge
-        TryLifesteal();
-        // Card Expansion/Gacha Evolution Ver.1 - Boss Challenge/Rush, One
-        // More Mile, Pandemonium, etc.
-        RunBossMile += Mathf.Max(0, Mathf.RoundToInt(mileReward * BossMileGainMultiplier * FinalEvolution.MileMul));
-        // Item 11 - a Boss kill is rare and meaningful enough to save
-        // immediately (unlike every ordinary enemy kill, which would be
-        // too frequent to write to disk each time - the periodic 100m save
-        // in ReportDistance already keeps RunEnemyMile reasonably fresh).
-        RequestInterruptSave(); // 2026-10-10: 戦闘中は間引いて保存(Android の保存は毎回 XML を書き直す)
     }
 
     void TryLifesteal() => TryLifesteal(1f);
@@ -3804,6 +3773,7 @@ public partial class GameManager : MonoBehaviour
         if (!HasStarted || IsGameOver) return;
         // マルチプレイRunはシングル用の中断データ(CONTINUE)を上書きしない。
         if (NetRunLauncher.IsMultiplayerRun) return;
+        if (encounterSaveFrozen) { InterruptSavesFrozen++; return; } // 2026-10-15: ボス戦の途中(再開はチェックポイントから = ボス戦の前の状態で)
         RunCheckpoint.Data data = RunCheckpoint.Load();
         data.active = true;
         FillCheckpointSnapshot(data);
@@ -3817,6 +3787,7 @@ public partial class GameManager : MonoBehaviour
     {
         if (!HasStarted || IsGameOver) return;
         if (NetRunLauncher.IsMultiplayerRun) return; // SaveInterruptStateと同じ理由
+        encounterSaveFrozen = false; // 2026-10-15: ボス戦の報酬が決まった = ここからまた普段どおり保存する
         RunCheckpoint.Data data = RunCheckpoint.Load();
         data.active = true;
         data.checkpointDistance = MaxDistance;
@@ -3841,6 +3812,7 @@ public partial class GameManager : MonoBehaviour
         data.runBonusMile = RunBonusMile;
         data.runRingMile = RunRingMile;
         data.runBossMile = RunBossMile;
+        FillRewardSnapshot(data); // 2026-10-15: 分配の人数/端数
         data.escapeUnlocked = escapeUnlocked;
         if (BossManager.Instance != null) BossManager.Instance.ExportPool(data); // ボスの再戦プール(2026-10-02)
         data.upgradeHistoryCardIds = new List<string>();
@@ -3904,6 +3876,7 @@ public partial class GameManager : MonoBehaviour
         RunCheckpoint.Data data = RunCheckpoint.Load();
 
         HasStarted = true;
+        ResetEncounterSaveFreeze(); // 2026-10-15
         runStartTime = Time.time;
         RunLedger.Resume(data.ledger, data.stageId, data.characterId, Mathf.Max(data.highestReachedDistance, data.checkpointDistance)); // 2026-10-08
         // 2026-10-13: 中断前に満たした距離の条件は「仮」のまま作り直す(お知らせは出し直さない。確定は再開後の結果で)
@@ -3926,6 +3899,7 @@ public partial class GameManager : MonoBehaviour
         RunBonusMile = data.runBonusMile;
         RunRingMile = data.runRingMile;
         RunBossMile = data.runBossMile;
+        RestoreRewardSnapshot(data); // 2026-10-15
         RestoreBeyond(data); // ラスダンの YES の後(2026-10-13 第3弾)
         escapeUnlocked = data.escapeUnlocked;
 

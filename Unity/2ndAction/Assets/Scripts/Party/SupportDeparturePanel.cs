@@ -6,6 +6,7 @@ using UnityEngine;
 // マルチの部屋に入っている間は出さない(人間のマルチへの CPU の補充は今回の対象外)。IMGUI で上に重ねる(SprintDeparturePanel と同じ作り)。
 public class SupportDeparturePanel : MonoBehaviour
 {
+    public const string MileShareNote = "獲得MILEは参加人数で分配"; // 2026-10-15(協力マルチの説明と同じ文)
     public const string PrefKey = "CpuSupportV1";
     readonly UiScroll listScroll = new UiScroll();
 
@@ -93,8 +94,14 @@ public class SupportDeparturePanel : MonoBehaviour
         LocGUI.Label(new Rect(x, y, w, 48f * s), "CPU サポート", UiKit.Label(32f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f)));
         y += 50f * s;
         var desc = new GUIStyle(UiKit.Label(19f * s, TextAnchor.UpperLeft, false, new Color(0.85f, 0.9f, 1f))) { wordWrap = true };
-        LocGUI.Label(new Rect(x, y, w, 80f * s), "CPU の仲間と一緒に走ります(最大3人)。仲間は自動で戦い、倒れても少しすると戻ってきます。報酬はあなたの分だけです。サポートを使ったランはランキングの対象外です(MILE・解放・自己ベストは通常どおり)。", desc);
+        // 2026-10-15: 獲得 MILE を参加人数で分配(新しい文はエステルのレビュー後に各言語へ。それまでは前の文)
+        LocGUI.Label(new Rect(x, y, w, 80f * s), Loc.Reviewed("CPU の仲間と一緒に走ります(最大3人)。仲間は自動で戦い、倒れても少しすると戻ってきます。仲間の取り分はあなたには入りません。サポートを使ったランはランキングの対象外です(解放・自己ベストは通常どおり)。", "CPU の仲間と一緒に走ります(最大3人)。仲間は自動で戦い、倒れても少しすると戻ってきます。報酬はあなたの分だけです。サポートを使ったランはランキングの対象外です(MILE・解放・自己ベストは通常どおり)。"), desc);
         y += 86f * s;
+        if (Loc.Ready(MileShareNote))
+        {
+            LocGUI.Label(new Rect(x, y, w, 28f * s), MileShareNote, UiKit.Label(19f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.86f, 0.45f)));
+            y += 30f * s;
+        }
         LocGUI.Label(new Rect(x, y, w, 30f * s), Loc.F("選んだ仲間: {0}/{1}", editing.Count, CpuParty.MaxAllies), UiKit.Label(20f * s, TextAnchor.MiddleLeft, true, Color.white));
         y += 34f * s;
 

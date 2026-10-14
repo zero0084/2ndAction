@@ -1254,6 +1254,7 @@ public partial class NetAutoTest : MonoBehaviour
         }
         L($"OBSTACLES role={role} {ObstacleLine()}");
         L(WorldSummary());
+        { var g = GameManager.Instance; if (g != null) L($"REWARD share=1/{g.MileShareCount} mode={NetMatch.Mode} enemyMile={g.RunEnemyMile} bossMile={g.RunBossMile} kills={g.EnemyKillCount} bossKills={g.BossKillCount} Lv={g.Level} exp={g.TotalExpEarned:F0} carry={g.MileCarryDebug:F2} takeHome={g.TakeHomeMile}"); } // 2026-10-15: 協力の MILE の分配
         L($"SUMMARY reason={reason} role={role} exceptions={exceptions} errors={errors} remoteShownSeconds={remoteShownSeconds} maxStepErr={totalMaxStepErr:F3} maxStep={totalMaxStep:F3} backSteps={totalBackSteps}/{totalFrames} sigA={sigA} sigB={sigB} sigC={sigC} ping avg={NetStats.SessionAvgPingMs:F0} max={NetStats.SessionMaxPingMs:F0} sim={NetLatencySim.DelayMs}");
         Invoke(nameof(Quit), 1f);
     }

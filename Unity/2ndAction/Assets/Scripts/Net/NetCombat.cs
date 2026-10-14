@@ -756,7 +756,8 @@ public class NetCombat : MonoBehaviour
         {
             w.WriteValueSafe(e.RunSeed);
             w.WriteValueSafe(OpDeath);
-            w.WriteValueSafe(e.Id); w.WriteValueSafe(lastHit); w.WriteValueSafe(e.LastDamagedBy); w.WriteValueSafe(cause); w.WriteValueSafe(e.MileReward);
+            w.WriteValueSafe(e.Id); w.WriteValueSafe(lastHit); w.WriteValueSafe(e.LastDamagedBy); w.WriteValueSafe(cause);
+            w.WriteValueSafe(RewardMileBase(e)); w.WriteValueSafe(RewardExpMul(e)); // 2026-10-15: 報酬の基本(距離/強さの係数込み、精鋭も)と EXP の倍率(雑魚)/割合(ボス)をHOSTが決めて送る
             w.WriteValueSafe(e.Enemy != null ? e.Enemy.NetFinishCode : e.Wild != null ? e.Wild.BossFinishCode : e.Dragon != null ? e.Dragon.BossFinishCode : e.Majin != null ? e.Majin.BossFinishCode : (ushort)0); // FINISH: 撃破の向き/種類(見た目は各端末で再生)
             if (e.SpawnSent) SendReliableToClients(w);
         }
@@ -772,8 +773,25 @@ public class NetCombat : MonoBehaviour
         if (!Instance.entities.TryGetValue(netId, out Entity e)) return false;
         if (!e.Dead) Instance.LockDeath(e, 0, fallDeath ? (byte)1 : (byte)2);
         int rewardee = e.LastHitPlayer > 0 ? e.LastHitPlayer : e.LastDamagedBy;
-        return rewardee > 0 && rewardee != LocalPlayerNumber; // JOIN側がDeathメッセージで自分で付与する
+        bool other = rewardee > 0 && rewardee != LocalPlayerNumber; // JOIN側がDeathメッセージで自分で付与する
+        // 2026-10-15: 協力マルチは HOST も分け前の MILE を受け取る(EXP はラストヒットの人だけ)
+        if (other && CoopShare && GameManager.Instance != null)
+        {
+            if (e.Kind == Kind.Boss) GameManager.Instance.RegisterBossDefeat(RewardMileBase(e), RewardExpMul(e), false);
+            else GameManager.Instance.RegisterEnemyKill(RewardMileBase(e), RewardExpMul(e), false);
+        }
+        return other;
     }
+
+    // 2026-10-15: 撃破の報酬の基本(人数で割る前)。雑魚は種類の MILE × 距離の係数(精鋭の ×3 も、倒した時の値で)。ボスは出した時に決めた値
+    static float RewardMileBase(Entity e) => e.Enemy != null ? e.Enemy.MileRewardBase : e.Wild != null ? e.Wild.mileReward : e.Dragon != null ? e.Dragon.mileReward : e.Majin != null ? e.Majin.mileReward : e.MileReward;
+    // 雑魚 = EXP の倍率(精鋭 ×2)/ ボス = 次のレベルまでの量に対する割合(格ごと)
+    static float RewardExpMul(Entity e) => e.Enemy != null ? e.Enemy.KillExpMultiplier
+        : e.Wild != null ? RunRewards.BossExpFraction(RunRewards.ClassOf(e.Wild.DeathKey))
+        : e.Dragon != null ? RunRewards.BossExpFraction(e.Dragon.rewardClass)
+        : RunRewards.BossExpFraction(RunRewards.BossClass.Mid);
+    // 協力マルチで、MILE を参加人数で分配する時(対戦は今までどおりラストヒットの人だけ)
+    static bool CoopShare => NetMatch.Mode == MultiplayerGameMode.Coop && GameManager.Instance != null && GameManager.Instance.MileShareCount > 1;
 
     public static bool RouteBossDefeatReward(int netId) => RouteEnemyKillReward(netId, false);
 
@@ -1144,7 +1162,8 @@ public class NetCombat : MonoBehaviour
 
     void HandleDeath(FastBufferReader r)
     {
-        r.ReadValueSafe(out int id); r.ReadValueSafe(out int lastHit); r.ReadValueSafe(out int lastDamagedBy); r.ReadValueSafe(out byte cause); r.ReadValueSafe(out int mile);
+        r.ReadValueSafe(out int id); r.ReadValueSafe(out int lastHit); r.ReadValueSafe(out int lastDamagedBy); r.ReadValueSafe(out byte cause);
+        r.ReadValueSafe(out float mileBase); r.ReadValueSafe(out float expMul);
         r.ReadValueSafe(out ushort finishCode);
         if (!entities.TryGetValue(id, out Entity e)) return;
         if (e.Enemy != null) { e.Enemy.NetFinishCode = cause == 0 ? finishCode : (ushort)0; e.Enemy.NetFinishLocal = lastHit == LocalPlayerNumber; }
@@ -1164,11 +1183,13 @@ public class NetCombat : MonoBehaviour
         else if (e.Majin != null) e.Majin.NetPuppetDie();
 
         // 撃破報酬はラストヒットしたプレイヤー本人の端末で付与する(HOSTは付与しない)。
+        // 2026-10-15: 協力マルチは、MILE を参加人数で分配して全員が受け取る(EXP と撃破数はラストヒットの人だけ)
         int rewardee = lastHit > 0 ? lastHit : lastDamagedBy;
-        if (rewardee == LocalPlayerNumber && GameManager.Instance != null)
+        if (GameManager.Instance != null && (rewardee == LocalPlayerNumber || CoopShare))
         {
-            if (e.Kind == Kind.Boss) GameManager.Instance.RegisterBossDefeat(mile);
-            else GameManager.Instance.RegisterEnemyKill(mile);
+            bool mine = rewardee == LocalPlayerNumber;
+            if (e.Kind == Kind.Boss) GameManager.Instance.RegisterBossDefeat(mileBase, expMul, mine);
+            else GameManager.Instance.RegisterEnemyKill(mileBase, expMul, mine);
         }
         if (GameManager.Instance != null && GameManager.Instance.DebugMode)
             NetDebugUI.Toast((e.Kind == Kind.Boss ? "BOSS LAST HIT: " : "ENEMY KILL: ") + P(lastHit > 0 ? lastHit : lastDamagedBy));
