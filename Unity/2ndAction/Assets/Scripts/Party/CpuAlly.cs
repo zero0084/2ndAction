@@ -157,8 +157,14 @@ public class CpuAlly : MonoBehaviour
         float k = Mathf.Clamp(1f - dx * 0.12f, 0.55f, dx < -6f ? 1.9f : 1.45f);
         if (CpuParty.LeaderSpeed <= 0.5f && dx > 0f) k = 0f; // プレイヤーが止まっていて、目標より前: 止まる
         float ahead = pc.transform.position.x - leader.transform.position.x;
-        if (ahead > (Engaged ? 4f : 3f)) k = Mathf.Min(k, 0.6f); // 前へ出すぎない(先に進んでイベントを起こさない)
-        AutoSpeed = Mathf.Max(0f, baseSpeed * k);
+        if (ahead > (Engaged ? 4f : 3f)) k = Mathf.Min(k, ahead > (Engaged ? 6f : 5f) ? 0f : 0.6f); // 前へ出すぎない(先に進んでイベントを起こさない)。さらに前なら止まって待つ
+        if (leader.IsReacting && ahead > 0f) k = Mathf.Min(k, 0.2f); // プレイヤーが被弾ののけぞり/押し戻し中: 前にいる仲間は待つ(勢いで置いていかない)
+        float v = baseSpeed * k;
+        // 1フレームでプレイヤーの前の上限(近くに敵: 4、ふだん: 3)を越えない。プレイヤーが急に止まった時(壁/被弾)、
+        // 測った速さは少し遅れて下がるため、低い fps ほど1フレームで大きく前へ出ていた(30fps で 9.8 前まで)
+        float dt = Mathf.Max(Time.deltaTime, 0.0001f);
+        v = Mathf.Min(v, Mathf.Max(0f, (leader.transform.position.x + (Engaged ? 4f : 3f) - pc.transform.position.x) / dt));
+        AutoSpeed = Mathf.Max(0f, v);
         if (!Down && pc.isActiveAndEnabled) ProbeDamage();
     }
 

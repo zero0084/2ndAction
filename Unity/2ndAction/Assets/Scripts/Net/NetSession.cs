@@ -340,7 +340,8 @@ public class NetSession : MonoBehaviour
             StatusText = $"HOST: {1 + others}/{MaxPlayers}人 接続中";
             // 2026-10-02(最大8人の予定): まだ他の参加者がいる時は通知だけ。全員いなくなった時は従来どおりの画面
             // 2026-10-13: 名前と文をつなげず1つの型にする(言語ごとに語順を変えられるように)
-            if (others > 0) NetDebugUI.Toast(Loc.F("P{0}が切断しました(残り{1}人)", pn > 0 ? pn.ToString() : "?", 1 + others));
+            // 2026-10-14: 部屋(出発前)で抜けた時も通知だけ(全員いなくなっても。以前は「接続が切れました」の画面が残り、戻ってきて出発したラン中に出ていた)
+            if (others > 0 || !NetRunLauncher.IsMultiplayerRun) NetDebugUI.Toast(Loc.F("P{0}が切断しました(残り{1}人)", pn > 0 ? pn.ToString() : "?", 1 + others));
             else RaiseConnectionLost("MULTIPLAYER CONNECTION LOST\n" + (pn > 0 ? Loc.F("{0}が切断しました", NetPlayer.TagOf(pn)) : Loc.T("相手プレイヤーが切断しました")));
             return;
         }

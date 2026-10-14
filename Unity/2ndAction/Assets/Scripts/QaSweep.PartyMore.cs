@@ -169,11 +169,21 @@ public partial class QaSweep
                 yield return new WaitForSecondsRealtime(0.5f);
                 Shot("support_panel"); yield return null; yield return null;
                 SupportDeparturePanel.DebugOpen(false);
-                g0.CloseStageSelect();
-                yield return new WaitForSecondsRealtime(1.2f);
+                // 本物の「出発」で出る(画面の閉じ方も普段どおり)
+                g0.SetSelectedCharacter(Arg("-qaPartyChar", "swordsman"));
+                g0.DepartFromStageSelect(Arg("-qaPartyStage", "wasteland_road"));
+                float wc = 0f;
+                while (!(GameManager.Instance != null && GameManager.Instance.HasStarted && !GameManager.Instance.CountdownActive) && wc < 20f) { yield return null; wc += Time.unscaledDeltaTime; }
+                gm = GameManager.Instance; pc = PlayerController.Instance;
+                stopKeepAlive = false; StartCoroutine(KeepAlive());
+                Check(!gm.IsOverlayOpen && CpuParty.Size == CpuParty.Request.Count, $"departed from the stage select with the allies ({CpuParty.Size}), the stage select is closed");
+            }
+            else
+            {
+                GameSettings.SetAuraIntensity(0.6f, false);
+                yield return BeginRun(Arg("-qaPartyChar", "swordsman"), Arg("-qaPartyStage", "wasteland_road"));
             }
             GameSettings.SetAuraIntensity(0.6f, false);
-            yield return BeginRun(Arg("-qaPartyChar", "swordsman"), Arg("-qaPartyStage", "wasteland_road"));
             typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
             float w = 0f; while (gm.CountdownActive && w < 10f) { yield return null; w += Time.unscaledDeltaTime; }
             SetKmh(60f);

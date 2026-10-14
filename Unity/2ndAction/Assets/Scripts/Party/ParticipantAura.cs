@@ -76,7 +76,16 @@ public class ParticipantAura : MonoBehaviour
     }
 
     static Material glowMat; static bool glowTried;
-    static Material GlowMat() { if (!glowTried) { glowTried = true; glowMat = Resources.Load<Material>("Effects/SpriteGlow"); } return glowMat; }
+    // 絵の形を1色で塗る(普通の重ね方: Resources/Shaders/SpriteSolid)。無ければ加算の SpriteGlow
+    static Material GlowMat()
+    {
+        if (glowTried) return glowMat;
+        glowTried = true;
+        var sh = Resources.Load<Shader>("Shaders/SpriteSolid");
+        if (sh != null && sh.isSupported) glowMat = new Material(sh) { name = "ParticipantAura Solid" };
+        else glowMat = Resources.Load<Material>("Effects/SpriteGlow");
+        return glowMat;
+    }
 
     void Build()
     {
@@ -113,7 +122,7 @@ public class ParticipantAura : MonoBehaviour
         float k = GameSettings.AuraIntensity;
         bool hidden = Hidden != null && Hidden();
         Color c = ColorOf(Pn);
-        float a = Mathf.Clamp01((IsLocal ? 0.75f : 0.55f) * k);
+        float a = Mathf.Clamp01((IsLocal ? 0.9f : 0.75f) * k); // 普通の重ね方(SpriteSolid)。仲間は自分より少し控えめ
         bool show = !hidden && k > 0.01f && Body.gameObject.activeInHierarchy;
         for (int i = 0; i < glow.Length; i++)
         {
@@ -204,7 +213,7 @@ public class ParticipantLabels : MonoBehaviour
         var gm = GameManager.Instance;
         if (gm == null || !gm.HasStarted) return;
         // カードの選択/報酬/一時停止/結果/設定などの画面が出ている間は出さない(IMGUI は uGUI の画面より上に描かれるので、名前が画面に重なっていた)
-        if (gm.IsGameOver || gm.LevelUpPending || gm.IsRewardSequenceRunning || gm.PauseMenuOpen || UiInputGate.ModalOpen) return;
+        if (gm.IsGameOver || gm.LevelUpPending || gm.IsRewardSequenceRunning || gm.PauseMenuOpen || gm.IsOverlayOpen || UiInputGate.ModalOpen) return;
         Camera cam = ObstacleWarning.ActiveCamera();
         if (cam == null) return;
         GUI.depth = 10;
