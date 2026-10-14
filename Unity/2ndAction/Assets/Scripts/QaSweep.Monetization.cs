@@ -19,7 +19,8 @@ public partial class QaSweep
         float w = 0f;
         yield return null;
         while (AdManager.Showing && w < timeout) { yield return null; w += Time.unscaledDeltaTime; }
-        yield return new WaitForSecondsRealtime(0.3f);
+        // 2026-10-14: 報酬広告を閉じた後、遅れて届く報酬を少し待つ(AdManager.LateRewardGrace)。その間はボタンが押せない
+        yield return new WaitForSecondsRealtime(AdManager.LateRewardGrace + 0.3f);
     }
 
     IEnumerator MonetSuccessRun(int enemyMile)

@@ -44,7 +44,20 @@ public interface IStoreService
 
 public static class Monetization
 {
-    public static MonetizationMode Mode { get; private set; } = MonetizationMode.None;
+    public static MonetizationMode Mode { get; private set; } = MonetizationMode.None;
+    // 2026-10-14: 本物のストアでレシートを検証できる状態か(GooglePlayTangle と OMM_IAP_TANGLE)。できない間は購入させない
+    // (払っても検証できず付与されない → Google 側で自動返金、になるのを防ぐ)。模擬/ストアなしは関係ない
+    public static bool PurchaseSetupComplete
+    {
+        get
+        {
+#if UNITY_ANDROID && OMM_UNITY_IAP && !OMM_IAP_TANGLE
+            return Mode != MonetizationMode.Store;
+#else
+            return true;
+#endif
+        }
+    }
     public static IAdService Ads { get; private set; }
     public static IStoreService Store { get; private set; }
     public static bool AdsOn => Ads != null;

@@ -17,15 +17,15 @@ public partial class QaSweep
     IEnumerator ResumeMode()
     {
         var snapSave = SaveSystem.Capture();
-        bool hadEaseKey = PlayerPrefs.HasKey(GameManager.ResumeEaseDevKey);
-        int easeKey = PlayerPrefs.GetInt(GameManager.ResumeEaseDevKey, -1);
+        bool hadEaseKey = SaveStore.HasKey(GameManager.ResumeEaseDevKey);
+        int easeKey = SaveStore.GetInt(GameManager.ResumeEaseDevKey, -1);
         autoPickHold = true;
         string ch = Arg("-qaResumeChar", "swordsman");
         string only = Arg("-qaResumeOnly", "all"); // all / gate / footing
         if (only == "all" || only == "footing") yield return FootingSuite(ch);
         if (only == "footing")
         {
-            if (hadEaseKey) PlayerPrefs.SetInt(GameManager.ResumeEaseDevKey, easeKey); else PlayerPrefs.DeleteKey(GameManager.ResumeEaseDevKey);
+            if (hadEaseKey) SaveStore.SetInt(GameManager.ResumeEaseDevKey, easeKey); else SaveStore.DeleteKey(GameManager.ResumeEaseDevKey);
             autoPickHold = false;
             SaveSystem.Restore(snapSave); CardInventory.ReloadFromPrefs(); RunCheckpoint.Reload();
             L("[resume] test machine save restored");
@@ -46,7 +46,7 @@ public partial class QaSweep
         Check(pc.transform.position.x > x0 + 2f, "D: the new run moves on its own");
         yield return EndRun();
 
-        if (hadEaseKey) PlayerPrefs.SetInt(GameManager.ResumeEaseDevKey, easeKey); else PlayerPrefs.DeleteKey(GameManager.ResumeEaseDevKey);
+        if (hadEaseKey) SaveStore.SetInt(GameManager.ResumeEaseDevKey, easeKey); else SaveStore.DeleteKey(GameManager.ResumeEaseDevKey);
         autoPickHold = false;
         SaveSystem.Restore(snapSave);
         CardInventory.ReloadFromPrefs();
@@ -76,7 +76,7 @@ public partial class QaSweep
     {
         // variant: 0 = 通常 / 1 = 加速の途中で再び中断して CONTINUE / 2 = 古い保存(速さの距離なし)
         L($"---- {name}: {ch} {dist:F0}m cards={string.Join(",", cards)} ease={ease} variant={variant}");
-        PlayerPrefs.SetInt(GameManager.ResumeEaseDevKey, ease ? 1 : 0);
+        SaveStore.SetInt(GameManager.ResumeEaseDevKey, ease ? 1 : 0);
         yield return BeginRun(ch, "wasteland_road");
         WarpTo(dist);
         yield return new WaitForSecondsRealtime(1.2f);
@@ -212,7 +212,7 @@ public partial class QaSweep
     {
         // 自動ジャンプ補助OFF・慣らしOFF(この2つに頼らずに落ちないこと)
         if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(false);
-        PlayerPrefs.SetInt(GameManager.ResumeEaseDevKey, 0);
+        SaveStore.SetInt(GameManager.ResumeEaseDevKey, 0);
         string[] speed3 = { "speed_up", "speed_up", "speed_up" };
         string[] speed8 = { "speed_up", "speed_up", "speed_up", "speed_up", "speed_up", "speed_up", "speed_up", "speed_up" };
 

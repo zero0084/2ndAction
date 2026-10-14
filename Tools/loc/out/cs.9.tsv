@@ -1,0 +1,62 @@
+9930	Ukládají se výsledky posledního běhu. Restartuj aplikaci a pak exportuj.
+9931	Exportovaná data se nepodařilo ověřit. Zkus to znovu.
+9932	Soubor je poškozený nebo byl změněn. Nelze importovat (tvá současná data se nezměnila).
+9933	Soubor pochází z novější verze aplikace. Aktualizuj aplikaci a pak importuj (tvá současná data se nezměnila).
+9934	Soubor je prázdný (tvá současná data se nezměnila).
+9935	Soubor je příliš velký. Nejde o soubor přenosu (tvá současná data se nezměnila).
+9936	Nejde o soubor přenosu této hry (tvá současná data se nezměnila).
+9937	Mezi vývojovou a vydanou verzí nelze přenášet (tvá současná data se nezměnila).
+9938	Soubor obsahuje neplatné hodnoty. Nelze importovat (tvá současná data se nezměnila).
+9939	V souboru chybí potřebná data. Nelze importovat (tvá současná data se nezměnila).
+9940	Přenos dat je možný na domovské obrazovce (ne během běhu ani při připojení k multiplayeru).
+9941	Tento soubor nelze importovat.
+9942	Před importem se nepodařilo vytvořit zálohu. Zkontroluj volné místo v zařízení (tvá současná data se nezměnila).
+9943	Import se nepodařilo připravit. Zkontroluj volné místo v zařízení (tvá současná data se nezměnila).
+9944	Předchozí přenos dat byl dokončen
+9945	Export se nezdařil
+9946	Exportováno
+9947	Uloženo do: {0}
+9948	Soubor se nepodařilo zapsat.
+9949	Nelze importovat
+9950	Soubor přenosu nenalezen. Vlož ho do této složky: {0}
+9951	Soubor se nepodařilo přečíst.
+9952	Soubor: {0}
+9953	Do zvoleného umístění nelze zapisovat. Zvol jiné.
+9954	Soubor se nepodařilo přečíst (tvá současná data se nezměnila).
+9955	Import se nezdařil
+9956	Přenos dat dokončen
+9957	Přerušené běhy se nepřenášejí.
+9958	Ulož si kopii i na jiné zařízení, PC nebo externí úložiště pro případ poruchy.
+9959	Export
+9960	Import
+9961	Zvol, kam uložit…
+9962	Zvol soubor přenosu…
+9963	Import souboru přenosu
+9964	Uloženo: {0}
+9965	Aplikace: {0}
+9966	Soubor
+9967	Toto zařízení
+9968	Vlastněné MILE
+9969	{0} druhů / {1} karet
+9970	{0} karet
+9971	Odemčené mapy
+9972	Odemčené postavy
+9973	Nejlepší vzdálenost
+9974	Celková vzdálenost
+9975	Odemčeno
+9976	Tvůj současný postup (MILE, karty, balíček, odemčení, rekordy) bude nahrazen obsahem tohoto souboru. Nic se nesčítá.
+9977	Přerušený běh na tomto zařízení bude zahozen.
+9978	Nastavení, Propustka bez reklam a registrace v žebříčku se nepřenášejí.
+9979	Nahradit současný postup
+9980	Varování před překážkami
+9981	Blikání
+9982	Jen obrys
+9983	Přenos dat
+9984	Exportovat do souboru
+9985	Importovat ze souboru
+9986	Ulož MILE, karty, balíček, odemčení a rekordy do souboru a přenes je do jiného zařízení. Import nahradí současný postup obsahem souboru.
+9987	Pro případ poruchy ulož exportovaný soubor na jiné zařízení, PC nebo externí úložiště.
+9988	Nastavení, přerušené běhy, Propustka bez reklam (obnov v obchodě) a registrace v žebříčku se nepřenášejí.
+9989	Jen sólo běhy (bez podpory CPU a multiplayeru)
+9990	Běž spolu se spojenci CPU (až 3). Spojenci bojují sami a chvíli po pádu se vrátí. Odměny jsou jen tvoje. Běhy s podporou se nepočítají do žebříčku (MILE, odemčení a osobní rekordy jako obvykle).
+9991	Nákup se připravuje

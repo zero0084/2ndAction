@@ -1,0 +1,62 @@
+9930	Applying your last run's results. Restart the app, then export.
+9931	Couldn't verify the exported data. Please try again.
+9932	The file is corrupted or has been modified. Can't import (your current data is unchanged).
+9933	This file was made by a newer version of the app. Update the app, then import (your current data is unchanged).
+9934	The file is empty (your current data is unchanged).
+9935	The file is too large. It's not a transfer file (your current data is unchanged).
+9936	This isn't a transfer file for this game (your current data is unchanged).
+9937	Data can't be transferred between dev and release versions (your current data is unchanged).
+9938	The file contains invalid values. Can't import (your current data is unchanged).
+9939	The file is missing required data. Can't import (your current data is unchanged).
+9940	Data transfer is available on the Home screen (not during a run or multiplayer connection).
+9941	This file can't be imported.
+9942	Couldn't write a backup before importing. Check your device's free space (your current data is unchanged).
+9943	Couldn't prepare the import. Check your device's free space (your current data is unchanged).
+9944	Finished the previous data transfer
+9945	Export failed
+9946	Exported
+9947	Saved to: {0}
+9948	Couldn't write the file.
+9949	Can't import
+9950	No transfer file found. Place it in this folder: {0}
+9951	Couldn't read the file.
+9952	File: {0}
+9953	Couldn't write to the chosen location. Please choose another.
+9954	Couldn't read the file (your current data is unchanged).
+9955	Import failed
+9956	Data transfer complete
+9957	Suspended runs are not included in the transfer.
+9958	Also keep a copy on another device, a PC, or external storage in case your device breaks.
+9959	Export
+9960	Import
+9961	Choose where to save…
+9962	Choose a transfer file…
+9963	Import Transfer File
+9964	Saved: {0}
+9965	App: {0}
+9966	File
+9967	This Device
+9968	MILE Owned
+9969	{0} types / {1} cards
+9970	{0} cards
+9971	Unlocked Maps
+9972	Unlocked Characters
+9973	Best Distance
+9974	Total Distance
+9975	Unlocked
+9976	Your current progress (MILE, cards, deck, unlocks, records) will be replaced by this file's contents. It won't be merged.
+9977	The suspended run on this device will be discarded.
+9978	Settings, the No-Ads Pass, and ranking registration are not transferred.
+9979	Replace Current Progress
+9980	Obstacle Warning
+9981	Flashing
+9982	Outline Only
+9983	Data Transfer
+9984	Export to File
+9985	Import from File
+9986	Save your MILE, cards, deck, unlocks, and records to a file and move them to another device. Importing replaces your current progress with the file's contents.
+9987	In case your device breaks, keep the exported file on another device, a PC, or external storage.
+9988	Settings, suspended runs, the No-Ads Pass (restore via the store), and ranking registration are not transferred.
+9989	Solo runs only (CPU support and multiplayer runs excluded)
+9990	Run together with CPU allies (up to 3). Allies fight automatically and come back a little while after going down. Rewards are yours only. Runs with support are excluded from rankings (MILE, unlocks, and personal bests work as usual).
+9991	Purchase is being prepared

@@ -1,0 +1,62 @@
+9930	Son koşunun sonuçları işleniyor. Uygulamayı yeniden başlatıp sonra dışa aktar.
+9931	Dışa aktarılan veriler doğrulanamadı. Lütfen tekrar dene.
+9932	Dosya bozuk veya değiştirilmiş. İçe aktarılamıyor (mevcut verilerin değişmedi).
+9933	Bu dosya uygulamanın daha yeni bir sürümüyle oluşturulmuş. Uygulamayı güncelleyip sonra içe aktar (mevcut verilerin değişmedi).
+9934	Dosya boş (mevcut verilerin değişmedi).
+9935	Dosya çok büyük. Bu bir aktarım dosyası değil (mevcut verilerin değişmedi).
+9936	Bu, bu oyunun aktarım dosyası değil (mevcut verilerin değişmedi).
+9937	Geliştirme ve yayın sürümleri arasında aktarım yapılamaz (mevcut verilerin değişmedi).
+9938	Dosyada geçersiz değerler var. İçe aktarılamıyor (mevcut verilerin değişmedi).
+9939	Dosyada gerekli veriler eksik. İçe aktarılamıyor (mevcut verilerin değişmedi).
+9940	Veri aktarımı ana ekrandan yapılabilir (koşu sırasında veya çok oyunculu bağlantıdayken yapılamaz).
+9941	Bu dosya içe aktarılamaz.
+9942	İçe aktarmadan önce yedek oluşturulamadı. Cihazdaki boş alanı kontrol et (mevcut verilerin değişmedi).
+9943	İçe aktarma hazırlanamadı. Cihazdaki boş alanı kontrol et (mevcut verilerin değişmedi).
+9944	Önceki veri aktarımı tamamlandı
+9945	Dışa aktarılamadı
+9946	Dışa aktarıldı
+9947	Kaydedilen yer: {0}
+9948	Dosya yazılamadı.
+9949	İçe aktarılamıyor
+9950	Aktarım dosyası yok. Şu klasöre koy: {0}
+9951	Dosya okunamadı.
+9952	Dosya: {0}
+9953	Seçilen konuma yazılamadı. Başka bir konum seç.
+9954	Dosya okunamadı (mevcut verilerin değişmedi).
+9955	İçe aktarılamadı
+9956	Veri aktarımı tamamlandı
+9957	Yarım kalan koşular aktarıma dahil değildir.
+9958	Cihazın bozulmasına karşı başka bir cihaza, PC'ye veya harici depolamaya da bir kopya sakla.
+9959	Dışa Aktar
+9960	İçe Aktar
+9961	Kayıt yerini seç…
+9962	Aktarım dosyasını seç…
+9963	Aktarım Dosyasını İçe Aktar
+9964	Kayıt tarihi: {0}
+9965	Uygulama: {0}
+9966	Dosya
+9967	Bu Cihaz
+9968	Sahip Olunan MILE
+9969	{0} tür / {1} kart
+9970	{0} kart
+9971	Açılan Haritalar
+9972	Açılan Karakterler
+9973	En İyi Mesafe
+9974	Toplam Mesafe
+9975	Açıldı
+9976	Mevcut ilerlemen (MILE, kartlar, deste, kilit açmalar, rekorlar) bu dosyanın içeriğiyle değiştirilecek. Toplanmaz.
+9977	Bu cihazdaki yarım kalan koşu silinecek.
+9978	Ayarlar, Reklamsız Geçiş ve sıralama kaydı aktarılmaz.
+9979	Mevcut İlerlemeyi Değiştir
+9980	Engel Uyarısı
+9981	Yanıp Sönen
+9982	Yalnızca Kontur
+9983	Veri Aktarımı
+9984	Dosyaya Aktar
+9985	Dosyadan Al
+9986	MILE, kartlar, deste, kilit açmalar ve rekorları bir dosyaya kaydedip başka cihaza taşıyabilirsin. İçe aktarınca mevcut ilerleme dosyanın içeriğiyle değiştirilir.
+9987	Cihazın bozulmasına karşı, dışa aktardığın dosyayı başka bir cihazda, PC'de veya harici depolamada sakla.
+9988	Ayarlar, yarım kalan koşular, Reklamsız Geçiş (mağazadan geri yükle) ve sıralama kaydı aktarılmaz.
+9989	Yalnızca solo koşular (CPU desteği ve çok oyunculu koşular hariç)
+9990	CPU müttefikleriyle birlikte koş (en fazla 3). Müttefikler otomatik savaşır ve düştükten kısa süre sonra geri döner. Ödüller yalnızca senin. Destekli koşular sıralamaya dahil değildir (MILE, kilit açmalar ve kişisel rekorlar her zamanki gibi).
+9991	Satın alma hazırlanıyor

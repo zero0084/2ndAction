@@ -1,0 +1,62 @@
+9930	Ergebnisse des letzten Laufs werden übernommen. Starte die App neu und exportiere dann.
+9931	Die exportierten Daten konnten nicht geprüft werden. Bitte versuche es erneut.
+9932	Die Datei ist beschädigt oder wurde verändert. Import nicht möglich (deine aktuellen Daten sind unverändert).
+9933	Diese Datei stammt aus einer neueren App-Version. Aktualisiere die App und importiere dann (deine aktuellen Daten sind unverändert).
+9934	Die Datei ist leer (deine aktuellen Daten sind unverändert).
+9935	Die Datei ist zu groß und keine Übertragungsdatei (deine aktuellen Daten sind unverändert).
+9936	Keine Übertragungsdatei dieses Spiels (deine aktuellen Daten sind unverändert).
+9937	Keine Übertragung zwischen Entwickler- und Release-Version möglich (deine aktuellen Daten sind unverändert).
+9938	Die Datei enthält ungültige Werte. Import nicht möglich (deine aktuellen Daten sind unverändert).
+9939	In der Datei fehlen nötige Daten. Import nicht möglich (deine aktuellen Daten sind unverändert).
+9940	Datenübertragung ist im Startbildschirm möglich (nicht während eines Laufs oder einer Multiplayer-Verbindung).
+9941	Diese Datei kann nicht importiert werden.
+9942	Vor dem Import konnte keine Sicherung erstellt werden. Prüfe den freien Speicher (deine aktuellen Daten sind unverändert).
+9943	Import konnte nicht vorbereitet werden. Prüfe den freien Speicher (deine aktuellen Daten sind unverändert).
+9944	Vorherige Datenübertragung abgeschlossen
+9945	Export fehlgeschlagen
+9946	Exportiert
+9947	Gespeichert in: {0}
+9948	Datei konnte nicht geschrieben werden.
+9949	Import nicht möglich
+9950	Keine Übertragungsdatei gefunden. Lege sie in diesen Ordner: {0}
+9951	Datei konnte nicht gelesen werden.
+9952	Datei: {0}
+9953	Am gewählten Ort konnte nicht gespeichert werden. Wähle einen anderen.
+9954	Datei konnte nicht gelesen werden (deine aktuellen Daten sind unverändert).
+9955	Import fehlgeschlagen
+9956	Datenübertragung abgeschlossen
+9957	Unterbrochene Läufe werden nicht übertragen.
+9958	Bewahre auch eine Kopie auf einem anderen Gerät, PC oder externen Speicher auf, falls dein Gerät kaputtgeht.
+9959	Exportieren
+9960	Importieren
+9961	Speicherort wählen…
+9962	Übertragungsdatei wählen…
+9963	Übertragungsdatei importieren
+9964	Gespeichert am: {0}
+9965	App: {0}
+9966	Datei
+9967	Dieses Gerät
+9968	MILE im Besitz
+9969	{0} Arten / {1} Karten
+9970	{0} Karten
+9971	Freigeschaltete Strecken
+9972	Freigeschaltete Charaktere
+9973	Beste Distanz
+9974	Gesamtdistanz
+9975	Freigeschaltet
+9976	Dein aktueller Fortschritt (MILE, Karten, Deck, Freischaltungen, Rekorde) wird durch den Inhalt dieser Datei ersetzt. Es wird nichts zusammengeführt.
+9977	Der unterbrochene Lauf auf diesem Gerät wird verworfen.
+9978	Einstellungen, Werbefrei-Pass und Ranglisten-Registrierung werden nicht übertragen.
+9979	Aktuellen Fortschritt ersetzen
+9980	Hindernis-Warnung
+9981	Blinkend
+9982	Nur Umriss
+9983	Datenübertragung
+9984	In Datei exportieren
+9985	Aus Datei importieren
+9986	Speichere MILE, Karten, Deck, Freischaltungen und Rekorde in einer Datei und übertrage sie auf ein anderes Gerät. Beim Import wird dein aktueller Fortschritt durch den Dateiinhalt ersetzt.
+9987	Falls dein Gerät kaputtgeht: Bewahre die exportierte Datei auf einem anderen Gerät, PC oder externen Speicher auf.
+9988	Einstellungen, unterbrochene Läufe, Werbefrei-Pass (über den Store wiederherstellen) und Ranglisten-Registrierung werden nicht übertragen.
+9989	Nur Solo-Läufe (Läufe mit CPU-Unterstützung und Multiplayer ausgenommen)
+9990	Laufe mit CPU-Verbündeten (bis zu 3). Verbündete kämpfen automatisch und kehren kurz nach einem K.O. zurück. Belohnungen gehören nur dir. Läufe mit Unterstützung zählen nicht für Ranglisten (MILE, Freischaltungen und persönliche Bestwerte wie gewohnt).
+9991	Kauf wird vorbereitet

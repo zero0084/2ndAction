@@ -92,9 +92,9 @@ public class CpuParty : MonoBehaviour
         var ids = new List<string>();
         bool official = true;
         foreach (var a in Allies) if (a != null) { ids.Add(a.CharacterId); if (!UnlockRules.OfficialCharacterUnlocked(a.CharacterId)) official = false; }
-        run.partySize = 1 + ids.Count;
-        run.supportIds = string.Join(",", ids);
-        run.officialParty = official;
+        // 一度でも使ったら下げない(仲間が倒れた/外れた後も「サポートあり」のまま = ランキングの対象外のまま)
+        if (1 + ids.Count >= run.partySize) { run.partySize = 1 + ids.Count; run.supportIds = string.Join(",", ids); }
+        run.officialParty = run.officialParty && official;
     }
 
     // ---- 中断データ ---- //

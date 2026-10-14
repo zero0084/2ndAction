@@ -6,6 +6,9 @@ using UnityEngine;
 
 // オンラインランキング(2026-10-08): ソロのマップ別「最高到達距離」。
 //  ・対象: 正規の帰還(脱出/ラスダンの終わり)で確定した距離だけ。各プレイヤー × 各マップで自己ベスト1件。距離の降順、同じ距離は同じ順位。
+//  ・2026-10-14(マスター指定): ランキングはソロ(CPU サポートなし)だけ。一度でも CPU サポートを使ったランは、途中で仲間が倒れても投稿しない
+//    (MILE・解放・ローカルの記録は今までどおり)。サポート用の表/スクリプトは作らない。前の版の端末に残ったサポートの送信待ち/自己ベストは
+//    起動時に取り除く(ソロへ振り替えない。PurgeSupportEntries)。
 //  ・対象外: マルチ / 闘技場 / 練習 / Debug Run / テストデータ / デバッグ機能(ワープ・無敵)を使ったラン(途中で OFF に戻しても)/
 //           この仕組みより前の記録・中断データ(成功やデバッグ未使用を確かめられない)/ 開発版の「全部選べる」で選んだ未解放のマップ。
 //  ・オートと疾走出発は使ってよい(使ったかを記録に残し、一覧に印を出す)。
@@ -24,10 +27,9 @@ public static class Leaderboard
 
     public static readonly string[] Stages = { "wasteland_road", "natural_cave", "sky_corridor", "last_corridor" };
     public static string BoardId(string stageId) => "omm_best_" + stageId;
-    // CPU サポート(2026-10-14): サポートありの記録はソロと別の表(omm_support_<マップ>)。自己ベスト/送信待ちも別に持つ
-    public static string BoardId(string stageId, bool support) => support ? "omm_support_" + stageId : "omm_best_" + stageId;
-    public static bool IsSupport(Entry e) => e != null && e.partySize > 1;
-    static bool SameBoard(Entry a, Entry b) => a != null && b != null && a.stageId == b.stageId && IsSupport(a) == IsSupport(b);
+    // 前の版(2026-10-14 の途中まで)が作ったサポートの記録か(取り除く対象)
+    static bool WasSupport(Entry e) => e != null && (e.partySize > 1 || !string.IsNullOrEmpty(e.allies));
+    static bool SameBoard(Entry a, Entry b) => a != null && b != null && a.stageId == b.stageId;
 
     [Serializable]
     public class Entry
@@ -38,8 +40,8 @@ public static class Leaderboard
         public bool usedAuto, usedSprint;
         public long startedUtc, committedUtc;
         public string appVersion = "";
-        public int partySize = 1;     // CPU サポート: 1 = ソロ / 2〜4 = 仲間あり(古いデータは 0 = ソロ)
-        public string allies = "";    // 仲間のキャラ(カンマ区切り)
+        public int partySize = 1;     // 常に 1(ソロ)。前の版の端末に残ったサポートの記録を見分けるために読む(2〜4 = サポート)
+        public string allies = "";    // 前の版のサポートの記録の仲間(読むだけ。送らない)
     }
     [Serializable] class EntryList { public List<Entry> items = new List<Entry>(); }
 
@@ -57,8 +59,7 @@ public static class Leaderboard
         if (r.multiplayer) { why = "multiplayer"; return false; }
         if (r.testProfile) { why = "test data"; return false; }
         if (!r.officialStage) { why = "map not officially unlocked (dev selection)"; return false; }
-        if (r.partySize > 1 + CpuParty.MaxAllies) { why = "bad party size"; return false; }
-        if (r.Support && !r.officialParty) { why = "ally not officially unlocked (dev selection)"; return false; }
+        if (r.Support || !string.IsNullOrEmpty(r.supportIds)) { why = "CPU support used (solo ranking only)"; return false; }
         if (r.maxReached < 1.0) { why = "no distance"; return false; }
         return true;
     }
@@ -70,7 +71,7 @@ public static class Leaderboard
         playSeconds = r.playSeconds, sprintFrom = r.sprintFrom, usedAuto = r.usedAuto, usedSprint = r.usedSprint,
         startedUtc = r.startedUtc, committedUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
         appVersion = Application.version,
-        partySize = Math.Max(1, r.partySize), allies = r.Support ? (r.supportIds ?? "") : "",
+        partySize = 1, allies = "",
     };
 
     // RunLedger.CommitSuccess から(資格のある成功だけ)
@@ -81,12 +82,27 @@ public static class Leaderboard
         var old = verified.items.Find(x => SameBoard(x, e));
         bool better = old == null || e.meters > old.meters;
         if (better) { verified.items.RemoveAll(x => SameBoard(x, e)); verified.items.Add(e); Store(VerifiedKey, verified); }
-        Log($"verified run {e.stageId}{(IsSupport(e) ? " [support x" + e.partySize + "]" : "")} {e.meters}m{(better ? " (new verified best)" : "")}");
+        Log($"verified run {e.stageId} {e.meters}m{(better ? " (new verified best)" : "")}");
         if (Joined && better) Enqueue(e);
     }
 
-    public static Entry VerifiedBest(string stageId) => VerifiedBest(stageId, false);
-    public static Entry VerifiedBest(string stageId, bool support) => Load(VerifiedKey).items.Find(x => x.stageId == stageId && IsSupport(x) == support);
+    public static Entry VerifiedBest(string stageId) => Load(VerifiedKey).items.Find(x => x.stageId == stageId && !WasSupport(x));
+
+    // 起動時(SaveSystem.Boot): 前の版が残したサポートの記録を送信待ち/自己ベストから取り除く。ソロの物はそのまま。取り除いた数を返す
+    public static int PurgeSupportEntries()
+    {
+        int n = 0;
+        foreach (var key in new[] { PendingKey, VerifiedKey })
+        {
+            if (!SaveStore.HasKey(key)) continue;
+            var l = Load(key);
+            int before = l.items.Count;
+            l.items.RemoveAll(WasSupport);
+            if (l.items.Count != before) { n += before - l.items.Count; Store(key, l); }
+        }
+        if (n > 0) { SaveStore.Save(); Log($"removed {n} CPU-support record(s) left by an older version (the solo ranking is not affected)"); }
+        return n;
+    }
 
     // ---------------------------------------------------------------- 参加
     public static void Join()
@@ -103,14 +119,13 @@ public static class Leaderboard
     // ---------------------------------------------------------------- 投稿待ち
     public static int PendingCount => Load(PendingKey).items.Count;
     // 2026-10-13: マップごとの送信待ち(順位の画面の「あなた」の状態を実際の送信待ちから出す)
-    public static int PendingCountFor(string stageId) => PendingCountFor(stageId, false);
-    public static int PendingCountFor(string stageId, bool support) { int n = 0; foreach (var e in Load(PendingKey).items) if (e != null && e.stageId == stageId && IsSupport(e) == support) n++; return n; }
+    public static int PendingCountFor(string stageId) { int n = 0; foreach (var e in Load(PendingKey).items) if (e != null && e.stageId == stageId) n++; return n; }
     static void Enqueue(Entry e)
     {
-        if (IsSent(e.runId)) return;
+        if (IsSent(e.runId) || WasSupport(e)) return;
         var q = Load(PendingKey);
         if (q.items.Exists(x => x.runId == e.runId)) return;
-        // 同じ表(マップ × ソロ/サポート)の、より短い投稿待ちは要らない(サーバーは自己ベストより短い物を書かない)。別の表の物は消さない
+        // 同じマップの、より短い投稿待ちは要らない(サーバーは自己ベストより短い物を書かない)
         q.items.RemoveAll(x => SameBoard(x, e) && x.meters <= e.meters);
         if (q.items.Exists(x => SameBoard(x, e) && x.meters > e.meters)) return;
         q.items.Add(e);
@@ -149,7 +164,7 @@ public static class Leaderboard
         Sending = true;
         try
         {
-            // 2026-10-14: 1件が送れなくても(サポートの表がまだ無い等)、他の表の送信待ちは送る。送れなかった物は残して後で送り直す
+            // 2026-10-14: 1件が送れなくても、他のマップの送信待ちは送る。送れなかった物は残して後で送り直す
             var skip = new HashSet<string>();
             bool anyFailed = false;
             while (true)
@@ -158,7 +173,7 @@ public static class Leaderboard
                 var e = q.items.Find(x => !skip.Contains(x.runId));
                 if (e == null) break;
                 var res = await backend.Submit(e, Codename.Current);
-                if (res.status == SubmitStatus.Failed) { skip.Add(e.runId); anyFailed = true; LastSendError = res.message; Log($"send failed ({why}) {e.stageId}{(IsSupport(e) ? " [support]" : "")}: {res.message} - kept for retry"); continue; }
+                if (res.status == SubmitStatus.Failed) { skip.Add(e.runId); anyFailed = true; LastSendError = res.message; Log($"send failed ({why}) {e.stageId}: {res.message} - kept for retry"); continue; }
                 // 受け付けた/自己ベストより短い/重複/拒否 は、どれも送り直さない
                 q = Load(PendingKey);
                 q.items.RemoveAll(x => x.runId == e.runId);
@@ -166,7 +181,7 @@ public static class Leaderboard
                 MarkSent(e.runId);
                 SaveStore.Save();
                 if (!anyFailed) LastSendError = "";
-                Log($"sent {e.stageId}{(IsSupport(e) ? " [support]" : "")} {e.meters}m -> {res.status}{(string.IsNullOrEmpty(res.message) ? "" : " (" + res.message + ")")}");
+                Log($"sent {e.stageId} {e.meters}m -> {res.status}{(string.IsNullOrEmpty(res.message) ? "" : " (" + res.message + ")")}");
             }
         }
         catch (Exception ex) { LastSendError = ex.GetType().Name; Debug.LogWarning("[Ranking] send error: " + ex.GetType().Name + ": " + ex.Message); }
@@ -192,7 +207,6 @@ public static class Leaderboard
         public string playerId = "", name = "", characterId = "";
         public int meters;
         public bool usedAuto, usedSprint, isMe;
-        public string allies = ""; // サポートの表: 仲間のキャラ
     }
     public class Page { public List<Row> top = new List<Row>(); public Row me; public int total; }
 
@@ -200,7 +214,7 @@ public static class Leaderboard
     {
         string Name { get; }
         Task<SubmitResult> Submit(Entry e, string codename);
-        Task<Page> Load(string stageId, bool support, int limit);
+        Task<Page> Load(string stageId, int limit);
         Task<bool> UpdateName(string codename);
     }
 
@@ -258,16 +272,12 @@ public static class LeaderboardRules
     public const float SpeedSlack = 1.2f, DistanceSlack = 300f;
     public static readonly string[] Characters = { "swordsman", "dual_blade", "noble_lady", "gunslinger", "dragon_lancer", "archer", "mage", "fighter", "ninja", "miko", "vampire", "dragonkin" };
 
-    // serverBest: そのプレイヤーの、そのマップの掲載中の記録(無ければ 0。疾走の行き先の検査はソロとサポートの高い方)。recentRunIds: サーバーが覚えている送信済みの runId
+    // serverBest: そのプレイヤーの、そのマップの掲載中の記録(無ければ 0)。recentRunIds: サーバーが覚えている送信済みの runId
     public static string Validate(Leaderboard.Entry e, int serverBest, ICollection<string> recentRunIds, long nowUtc)
     {
         if (e == null) return "empty";
-        // CPU サポート(2026-10-14): 人数 1〜4、仲間はキャラの一覧にあるキャラで人数-1 人。ソロは仲間なし
-        int party = Math.Max(1, e.partySize);
-        if (party > 4) return "bad party size";
-        var allies = string.IsNullOrEmpty(e.allies) ? new string[0] : e.allies.Split(',');
-        if (allies.Length != party - 1) return "party mismatch";
-        foreach (var a in allies) if (Array.IndexOf(Characters, a) < 0) return "bad ally";
+        // 2026-10-14: ソロだけ(CPU サポート/仲間ありの記録は受け付けない。サーバーの omm_submit_run.js も同じ)
+        if (e.partySize != 1 || !string.IsNullOrEmpty(e.allies)) return "solo only";
         if (string.IsNullOrEmpty(e.runId) || e.runId.Length != 32 || !IsHex(e.runId)) return "bad run id";
         if (Array.IndexOf(Leaderboard.Stages, e.stageId) < 0) return "bad map";
         if (Array.IndexOf(Characters, e.characterId) < 0) return "bad character";
@@ -292,8 +302,7 @@ public static class LeaderboardRules
 // 開発用の模擬サーバー(-lbMock <フォルダ> [-lbMockPlayer <ID>])。フォルダ内の JSON を全員で共有する
 public class MockBackend : Leaderboard.IBackend
 {
-    [Serializable] class Rec { public string playerId = "", name = "", characterId = "", stageId = "", runId = ""; public int meters; public bool usedAuto, usedSprint; public long updatedUtc; public bool support; public string allies = ""; }
-    public static bool SupportBoardsMissing; // テスト: サポートの表がまだ無いサーバー(送れずに残る)
+    [Serializable] class Rec { public string playerId = "", name = "", characterId = "", stageId = "", runId = ""; public int meters; public bool usedAuto, usedSprint; public long updatedUtc; }
     [Serializable] class Db { public List<Rec> recs = new List<Rec>(); public List<string> runIds = new List<string>(); }
     readonly string dir, player;
     public string Name => "mock(" + dir + ")";
@@ -312,32 +321,28 @@ public class MockBackend : Leaderboard.IBackend
     {
         await Task.Yield();
         if (SimulateOffline) return new Leaderboard.SubmitResult(Leaderboard.SubmitStatus.Failed, "offline (simulated)");
-        bool sup = Leaderboard.IsSupport(e);
-        if (sup && SupportBoardsMissing) return new Leaderboard.SubmitResult(Leaderboard.SubmitStatus.Failed, "support board not deployed (simulated)");
         var d = Read();
-        var mine = d.recs.Find(x => x.playerId == player && x.stageId == e.stageId && x.support == sup);
-        var other = d.recs.Find(x => x.playerId == player && x.stageId == e.stageId && x.support != sup);
-        int sprintRef = Math.Max(mine != null ? mine.meters : 0, other != null ? other.meters : 0);
+        var mine = d.recs.Find(x => x.playerId == player && x.stageId == e.stageId);
+        int sprintRef = mine != null ? mine.meters : 0; // サーバー(omm_submit_run.js)と同じ: そのマップの掲載中の自己ベスト
         string err = LeaderboardRules.Validate(e, sprintRef, d.runIds, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
         if (err == "duplicate") return new Leaderboard.SubmitResult(Leaderboard.SubmitStatus.Duplicate, err);
         if (err != "") return new Leaderboard.SubmitResult(Leaderboard.SubmitStatus.Rejected, err);
         d.runIds.Add(e.runId); if (d.runIds.Count > 500) d.runIds.RemoveAt(0);
         if (mine != null && e.meters <= mine.meters) { Write(d); return new Leaderboard.SubmitResult(Leaderboard.SubmitStatus.NotBetter, $"best {mine.meters}m"); }
-        if (mine == null) { mine = new Rec { playerId = player, stageId = e.stageId, support = sup }; d.recs.Add(mine); }
-        mine.meters = e.meters; mine.characterId = e.characterId; mine.usedAuto = e.usedAuto; mine.usedSprint = e.usedSprint; mine.allies = e.allies ?? "";
+        if (mine == null) { mine = new Rec { playerId = player, stageId = e.stageId }; d.recs.Add(mine); }
+        mine.meters = e.meters; mine.characterId = e.characterId; mine.usedAuto = e.usedAuto; mine.usedSprint = e.usedSprint;
         mine.name = Codename.Sanitize(codename); mine.runId = e.runId; mine.updatedUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         Write(d);
         return new Leaderboard.SubmitResult(Leaderboard.SubmitStatus.Accepted);
     }
 
-    public async Task<Leaderboard.Page> Load(string stageId, bool support, int limit)
+    public async Task<Leaderboard.Page> Load(string stageId, int limit)
     {
         await Task.Yield();
         if (SimulateOffline) throw new Exception("offline (simulated)");
-        if (support && SupportBoardsMissing) throw new Exception("support board not deployed (simulated)");
-        var all = Read().recs.FindAll(x => x.stageId == stageId && x.support == support);
+        var all = Read().recs.FindAll(x => x.stageId == stageId);
         all.Sort((a, b) => b.meters != a.meters ? b.meters.CompareTo(a.meters) : a.updatedUtc.CompareTo(b.updatedUtc));
-        var rows = all.ConvertAll(x => new Leaderboard.Row { playerId = x.playerId, name = x.name, characterId = x.characterId, meters = x.meters, usedAuto = x.usedAuto, usedSprint = x.usedSprint, isMe = x.playerId == player, allies = x.allies });
+        var rows = all.ConvertAll(x => new Leaderboard.Row { playerId = x.playerId, name = x.name, characterId = x.characterId, meters = x.meters, usedAuto = x.usedAuto, usedSprint = x.usedSprint, isMe = x.playerId == player });
         Leaderboard.AssignRanks(rows);
         var page = new Leaderboard.Page { total = rows.Count, me = rows.Find(x => x.isMe) };
         page.top = rows.GetRange(0, Math.Min(limit, rows.Count));

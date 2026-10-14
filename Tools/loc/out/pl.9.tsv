@@ -1,0 +1,62 @@
+9930	Zapisywanie wyników ostatniego biegu. Uruchom aplikację ponownie, a potem eksportuj.
+9931	Nie udało się sprawdzić wyeksportowanych danych. Spróbuj ponownie.
+9932	Plik jest uszkodzony lub został zmieniony. Nie można zaimportować (obecne dane się nie zmieniły).
+9933	Ten plik pochodzi z nowszej wersji aplikacji. Zaktualizuj aplikację, a potem importuj (obecne dane się nie zmieniły).
+9934	Plik jest pusty (obecne dane się nie zmieniły).
+9935	Plik jest za duży. To nie jest plik przeniesienia (obecne dane się nie zmieniły).
+9936	To nie jest plik przeniesienia tej gry (obecne dane się nie zmieniły).
+9937	Nie można przenosić między wersją deweloperską a wydaną (obecne dane się nie zmieniły).
+9938	Plik zawiera nieprawidłowe wartości. Nie można zaimportować (obecne dane się nie zmieniły).
+9939	W pliku brakuje wymaganych danych. Nie można zaimportować (obecne dane się nie zmieniły).
+9940	Przeniesienie danych jest dostępne na ekranie głównym (nie w trakcie biegu ani połączenia multiplayer).
+9941	Tego pliku nie można zaimportować.
+9942	Nie udało się zapisać kopii przed importem. Sprawdź wolne miejsce na urządzeniu (obecne dane się nie zmieniły).
+9943	Nie udało się przygotować importu. Sprawdź wolne miejsce na urządzeniu (obecne dane się nie zmieniły).
+9944	Dokończono poprzednie przeniesienie danych
+9945	Eksport nieudany
+9946	Wyeksportowano
+9947	Zapisano w: {0}
+9948	Nie udało się zapisać pliku.
+9949	Nie można zaimportować
+9950	Brak pliku przeniesienia. Umieść go w tym folderze: {0}
+9951	Nie udało się odczytać pliku.
+9952	Plik: {0}
+9953	Nie udało się zapisać w wybranym miejscu. Wybierz inne.
+9954	Nie udało się odczytać pliku (obecne dane się nie zmieniły).
+9955	Import nieudany
+9956	Przeniesienie danych zakończone
+9957	Przerwane biegi nie są przenoszone.
+9958	Przechowuj też kopię na innym urządzeniu, komputerze lub nośniku zewnętrznym na wypadek awarii.
+9959	Eksport
+9960	Import
+9961	Wybierz miejsce zapisu…
+9962	Wybierz plik przeniesienia…
+9963	Import pliku przeniesienia
+9964	Data zapisu: {0}
+9965	Aplikacja: {0}
+9966	Plik
+9967	To urządzenie
+9968	Posiadane MILE
+9969	{0} rodz. / {1} kart
+9970	{0} kart
+9971	Odblokowane mapy
+9972	Odblokowane postacie
+9973	Najlepszy dystans
+9974	Łączny dystans
+9975	Odblokowane
+9976	Obecny postęp (MILE, karty, talia, odblokowania, rekordy) zostanie zastąpiony zawartością tego pliku. Nic nie zostanie zsumowane.
+9977	Przerwany bieg na tym urządzeniu zostanie usunięty.
+9978	Ustawienia, Karnet Bez Reklam i rejestracja w rankingu nie są przenoszone.
+9979	Zastąp obecny postęp
+9980	Ostrzeżenie o przeszkodach
+9981	Miganie
+9982	Tylko kontur
+9983	Przeniesienie danych
+9984	Eksportuj do pliku
+9985	Importuj z pliku
+9986	Zapisz MILE, karty, talię, odblokowania i rekordy w pliku, aby przenieść je na inne urządzenie. Import zastępuje obecny postęp zawartością pliku.
+9987	Na wypadek awarii przechowuj wyeksportowany plik na innym urządzeniu, komputerze lub nośniku zewnętrznym.
+9988	Ustawienia, przerwane biegi, Karnet Bez Reklam (przywróć w sklepie) i rejestracja w rankingu nie są przenoszone.
+9989	Tylko biegi solo (bez wsparcia CPU i multiplayera)
+9990	Biegnij z sojusznikami CPU (maks. 3). Sojusznicy walczą sami i wracają chwilę po upadku. Nagrody są tylko dla ciebie. Biegi ze wsparciem nie liczą się do rankingu (MILE, odblokowania i rekordy osobiste jak zwykle).
+9991	Zakup w przygotowaniu

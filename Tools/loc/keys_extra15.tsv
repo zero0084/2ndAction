@@ -1,0 +1,62 @@
+9930	ui	SaveTransfer:110	前回のランの結果を反映しています。アプリを起動し直してから書き出してください。
+9931	ui	SaveTransfer:131	書き出したデータを確認できませんでした。もう一度お試しください。
+9932	ui	SaveTransfer:143	ファイルが壊れているか、内容が書き換えられています。読み込めません(今のデータは変わっていません)。
+9933	ui	SaveTransfer:144	新しいバージョンのアプリで作られたファイルです。アプリを更新してから読み込んでください(今のデータは変わっていません)。
+9934	ui	SaveTransfer:145	ファイルが空です(今のデータは変わっていません)。
+9935	ui	SaveTransfer:146	ファイルが大きすぎます。引き継ぎのファイルではありません(今のデータは変わっていません)。
+9936	ui	SaveTransfer:147	このゲームの引き継ぎファイルではありません(今のデータは変わっていません)。
+9937	ui	SaveTransfer:157	開発版と製品版の間では引き継げません(今のデータは変わっていません)。
+9938	ui	SaveTransfer:173	ファイルの中に正しくない値があります。読み込めません(今のデータは変わっていません)。
+9939	ui	SaveTransfer:177	ファイルに必要なデータが足りません。読み込めません(今のデータは変わっていません)。
+9940	ui	SaveTransfer:388	データの引き継ぎはホーム画面で行えます(ラン中・マルチ接続中はできません)。
+9941	ui	SaveTransfer:399	読み込めるファイルではありません。
+9942	ui	SaveTransfer:406	読み込みの前の控えを書けませんでした。端末の空き容量を確認してください(今のデータは変わっていません)。
+9943	ui	SaveTransfer:410	読み込みの準備ができませんでした。端末の空き容量を確認してください(今のデータは変わっていません)。
+9944	ui	SaveTransfer:461	前回のデータの引き継ぎを最後まで行いました
+9945	ui	SaveTransferUi:45	書き出せませんでした
+9946	ui	SaveTransferUi:65	書き出しました
+9947	ui	SaveTransferUi:65	保存先: {0}
+9948	ui	SaveTransferUi:68	ファイルを書けませんでした。
+9949	ui	SaveTransferUi:74	読み込めません
+9950	ui	SaveTransferUi:87	引き継ぎのファイルがありません。次のフォルダに置いてください: {0}
+9951	ui	SaveTransferUi:90	ファイルを読めませんでした。
+9952	ui	SaveTransferUi:113	ファイル: {0}
+9953	ui	SaveTransferUi:115	選んだ保存先に書けませんでした。別の保存先を選んでください。
+9954	ui	SaveTransferUi:121	ファイルを読めませんでした(今のデータは変わっていません)。
+9955	ui	SaveTransferUi:156	読み込めませんでした
+9956	ui	SaveTransferUi:160	データの引き継ぎが完了しました
+9957	ui	SaveTransferUi:174	中断中のランは引き継ぎに含まれません。
+9958	ui	SaveTransferUi:174	別の端末やパソコン、外部ストレージなどにも保管しておくと、端末の故障に備えられます。
+9959	ui	SaveTransferUi:229	書き出し
+9960	ui	SaveTransferUi:229	読み込み
+9961	ui	SaveTransferUi:231	保存先を選んでください…
+9962	ui	SaveTransferUi:231	引き継ぎのファイルを選んでください…
+9963	ui	SaveTransferUi:246	引き継ぎファイルの読み込み
+9964	ui	SaveTransferUi:249	保存日時: {0}
+9965	ui	SaveTransferUi:249	アプリ: {0}
+9966	ui	SaveTransferUi:254	ファイル
+9967	ui	SaveTransferUi:255	今の端末
+9968	ui	SaveTransferUi:257	所持MILE
+9969	ui	SaveTransferUi:258	{0}種類 / {1}枚
+9970	ui	SaveTransferUi:259	{0}枚
+9971	ui	SaveTransferUi:260	解放したマップ
+9972	ui	SaveTransferUi:261	解放したキャラ
+9973	ui	SaveTransferUi:262	最高距離
+9974	ui	SaveTransferUi:263	累計距離
+9975	ui	SaveTransferUi:264	解放済み
+9976	ui	SaveTransferUi:267	今の進行(MILE・カード・デッキ・解放・記録)は、このファイルの内容に置き換わります。合算はされません。
+9977	ui	SaveTransferUi:268	この端末の中断中のランは破棄されます。
+9978	ui	SaveTransferUi:269	設定・広告なしパス・ランキングの登録は引き継がれません。
+9979	ui	SaveTransferUi:273	現在の進行を置き換える
+9980	ui	SettingsPanel:477	障害物の警告
+9981	ui	SettingsPanel:477	点滅あり
+9982	ui	SettingsPanel:477	輪郭のみ
+9983	ui	SettingsPanel:615	データ引き継ぎ
+9984	ui	SettingsPanel:618	ファイルに書き出す
+9985	ui	SettingsPanel:621	ファイルから読み込む
+9986	ui	SettingsPanel:624	MILE・カード・デッキ・解放・記録をファイルにして、別の端末へ移せます。読み込むと今の進行はファイルの内容に置き換わります。
+9987	ui	SettingsPanel:625	端末の故障に備えるには、書き出したファイルを別の端末やパソコン、外部ストレージなどに保管してください。
+9988	ui	SettingsPanel:626	設定・中断中のラン・広告なしパス(ストアで復元)・ランキングの登録は引き継がれません。
+9989	ui	RankingPanel:148	ソロのランだけ(CPU サポート・マルチのランは対象外)
+9990	ui	SupportDeparturePanel:92	CPU の仲間と一緒に走ります(最大3人)。仲間は自動で戦い、倒れても少しすると戻ってきます。報酬はあなたの分だけです。サポートを使ったランはランキングの対象外です(MILE・解放・自己ベストは通常どおり)。
+9991	ui	MonetizationUi:61	購入の準備中です

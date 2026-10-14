@@ -1,0 +1,62 @@
+9930	Inilalapat ang resulta ng huling run. I-restart ang app, saka mag-export.
+9931	Hindi ma-verify ang na-export na data. Subukang muli.
+9932	Sira o binago ang file. Hindi ma-import (hindi nagbago ang kasalukuyang data).
+9933	Ginawa ang file na ito sa mas bagong bersyon ng app. I-update ang app, saka mag-import (hindi nagbago ang kasalukuyang data).
+9934	Walang laman ang file (hindi nagbago ang kasalukuyang data).
+9935	Masyadong malaki ang file. Hindi ito transfer file (hindi nagbago ang kasalukuyang data).
+9936	Hindi ito transfer file ng larong ito (hindi nagbago ang kasalukuyang data).
+9937	Hindi puwedeng maglipat sa pagitan ng dev at release na bersyon (hindi nagbago ang kasalukuyang data).
+9938	May maling value sa file. Hindi ma-import (hindi nagbago ang kasalukuyang data).
+9939	Kulang ang kailangang data sa file. Hindi ma-import (hindi nagbago ang kasalukuyang data).
+9940	Magagawa ang paglipat ng data sa Home screen (hindi habang may run o naka-connect sa multiplayer).
+9941	Hindi ma-import ang file na ito.
+9942	Hindi nakagawa ng backup bago mag-import. Tingnan ang libreng espasyo ng device (hindi nagbago ang kasalukuyang data).
+9943	Hindi naihanda ang pag-import. Tingnan ang libreng espasyo ng device (hindi nagbago ang kasalukuyang data).
+9944	Natapos ang naunang paglipat ng data
+9945	Nabigo ang pag-export
+9946	Na-export
+9947	Na-save sa: {0}
+9948	Hindi naisulat ang file.
+9949	Hindi ma-import
+9950	Walang transfer file. Ilagay ito sa folder na ito: {0}
+9951	Hindi mabasa ang file.
+9952	File: {0}
+9953	Hindi makapagsulat sa napiling lokasyon. Pumili ng iba.
+9954	Hindi mabasa ang file (hindi nagbago ang kasalukuyang data).
+9955	Nabigo ang pag-import
+9956	Tapos na ang paglipat ng data
+9957	Hindi kasama sa paglipat ang mga naka-pause na run.
+9958	Mag-imbak din ng kopya sa ibang device, PC, o external storage kung sakaling masira ang device.
+9959	I-export
+9960	I-import
+9961	Pumili kung saan ise-save…
+9962	Pumili ng transfer file…
+9963	I-import ang Transfer File
+9964	Petsa ng save: {0}
+9965	App: {0}
+9966	File
+9967	Device na Ito
+9968	MILE na Hawak
+9969	{0} uri / {1} card
+9970	{0} card
+9971	Mga Na-unlock na Mapa
+9972	Mga Na-unlock na Karakter
+9973	Pinakamalayong Distansya
+9974	Kabuuang Distansya
+9975	Na-unlock
+9976	Papalitan ng laman ng file na ito ang kasalukuyang progreso (MILE, card, deck, unlock, record). Hindi ito pagsasamahin.
+9977	Itatapon ang naka-pause na run sa device na ito.
+9978	Hindi nalilipat ang settings, No-Ads Pass, at pagpaparehistro sa ranking.
+9979	Palitan ang Kasalukuyang Progreso
+9980	Babala sa Hadlang
+9981	May Kislap
+9982	Outline Lang
+9983	Paglipat ng Data
+9984	I-export sa File
+9985	I-import mula sa File
+9986	I-save ang MILE, card, deck, unlock, at record sa isang file para ilipat sa ibang device. Kapag nag-import, papalitan ng laman ng file ang kasalukuyang progreso.
+9987	Kung sakaling masira ang device, itago ang na-export na file sa ibang device, PC, o external storage.
+9988	Hindi nalilipat ang settings, naka-pause na run, No-Ads Pass (i-restore sa store), at pagpaparehistro sa ranking.
+9989	Solo run lang (hindi kasama ang CPU support at multiplayer)
+9990	Tumakbo kasama ang mga CPU na kakampi (hanggang 3). Kusa silang lumalaban at bumabalik pagkaraan ng ilang sandali kapag bumagsak. Sa iyo lang ang gantimpala. Hindi kasama sa ranking ang mga run na may support (normal pa rin ang MILE, unlock, at personal best).
+9991	Inihahanda ang pagbili

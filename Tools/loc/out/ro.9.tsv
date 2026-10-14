@@ -1,0 +1,62 @@
+9930	Se aplică rezultatele ultimei curse. Repornește aplicația, apoi exportă.
+9931	Datele exportate nu au putut fi verificate. Încearcă din nou.
+9932	Fișierul este deteriorat sau a fost modificat. Nu se poate importa (datele actuale nu s-au schimbat).
+9933	Fișierul provine dintr-o versiune mai nouă a aplicației. Actualizează aplicația, apoi importă (datele actuale nu s-au schimbat).
+9934	Fișierul este gol (datele actuale nu s-au schimbat).
+9935	Fișierul este prea mare. Nu este un fișier de transfer (datele actuale nu s-au schimbat).
+9936	Nu este un fișier de transfer al acestui joc (datele actuale nu s-au schimbat).
+9937	Nu se poate transfera între versiunea de dezvoltare și cea finală (datele actuale nu s-au schimbat).
+9938	Fișierul conține valori nevalide. Nu se poate importa (datele actuale nu s-au schimbat).
+9939	Fișierului îi lipsesc date necesare. Nu se poate importa (datele actuale nu s-au schimbat).
+9940	Transferul datelor se face din ecranul principal (nu în timpul unei curse sau al unei conexiuni multiplayer).
+9941	Acest fișier nu poate fi importat.
+9942	Nu s-a putut crea o copie înainte de import. Verifică spațiul liber al dispozitivului (datele actuale nu s-au schimbat).
+9943	Importul nu a putut fi pregătit. Verifică spațiul liber al dispozitivului (datele actuale nu s-au schimbat).
+9944	Transferul de date anterior a fost finalizat
+9945	Export eșuat
+9946	Exportat
+9947	Salvat în: {0}
+9948	Fișierul nu a putut fi scris.
+9949	Nu se poate importa
+9950	Nu există fișier de transfer. Pune-l în acest folder: {0}
+9951	Fișierul nu a putut fi citit.
+9952	Fișier: {0}
+9953	Nu s-a putut scrie în locația aleasă. Alege alta.
+9954	Fișierul nu a putut fi citit (datele actuale nu s-au schimbat).
+9955	Import eșuat
+9956	Transfer de date finalizat
+9957	Cursele întrerupte nu sunt transferate.
+9958	Păstrează o copie și pe alt dispozitiv, PC sau stocare externă, în caz că dispozitivul se strică.
+9959	Export
+9960	Import
+9961	Alege unde salvezi…
+9962	Alege un fișier de transfer…
+9963	Import fișier de transfer
+9964	Data salvării: {0}
+9965	Aplicație: {0}
+9966	Fișier
+9967	Acest dispozitiv
+9968	MILE deținuți
+9969	{0} tipuri / {1} cărți
+9970	{0} cărți
+9971	Hărți deblocate
+9972	Personaje deblocate
+9973	Cea mai mare distanță
+9974	Distanță totală
+9975	Deblocat
+9976	Progresul actual (MILE, cărți, pachet, deblocări, recorduri) va fi înlocuit cu conținutul acestui fișier. Nu se adună.
+9977	Cursa întreruptă de pe acest dispozitiv va fi ștearsă.
+9978	Setările, Permisul Fără Reclame și înregistrarea în clasament nu sunt transferate.
+9979	Înlocuiește progresul actual
+9980	Avertizare obstacole
+9981	Cu clipire
+9982	Doar contur
+9983	Transfer de date
+9984	Exportă în fișier
+9985	Importă din fișier
+9986	Salvează MILE, cărțile, pachetul, deblocările și recordurile într-un fișier ca să le muți pe alt dispozitiv. Importul înlocuiește progresul actual cu conținutul fișierului.
+9987	În caz că dispozitivul se strică, păstrează fișierul exportat pe alt dispozitiv, PC sau stocare externă.
+9988	Setările, cursele întrerupte, Permisul Fără Reclame (restaurează din magazin) și înregistrarea în clasament nu sunt transferate.
+9989	Doar curse solo (fără sprijin CPU și multiplayer)
+9990	Aleargă alături de aliați CPU (până la 3). Aliații luptă singuri și revin la scurt timp după ce cad. Recompensele sunt doar ale tale. Cursele cu sprijin nu intră în clasament (MILE, deblocări și recorduri personale ca de obicei).
+9991	Achiziția se pregătește

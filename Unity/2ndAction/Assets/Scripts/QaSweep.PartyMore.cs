@@ -7,7 +7,7 @@ using UnityEngine;
 // CPU サポートの確認の続き(2026-10-14)。
 //  -qaPartyResume <dir> -cpuAllies a,b   … 中断 → CONTINUE で編成/取ったカード/HP/倒れている状態が引き継がれる。記録の人数も
 //  -qaPartySprint <dir> -cpuAllies a,b   … 疾走出発の到着の後、仲間がプレイヤーの近くにいる
-//  -qaPartyRanking <dir>                  … サポートの記録は別の表。サポートの表がまだ無いサーバーでも、ソロの送信待ちは送れる
+//  -qaPartyRanking <dir>                  … ランキングはソロだけ: サポートのランは対象外、前の版のサポートの送信待ちは取り除く(ソロへ振り替えない)
 public partial class QaSweep
 {
     IEnumerator PartyResumeMode()
@@ -95,6 +95,7 @@ public partial class QaSweep
         yield return EndRun();
     }
 
+    // 2026-10-14(仕様変更): ランキングはソロだけ。サポートありのランは投稿しない / 前の版のサポートの送信待ち・自己ベストは起動時に取り除く(ソロへ振り替えない)
     IEnumerator PartyRankingMode()
     {
         float w0 = 0f;
@@ -112,36 +113,37 @@ public partial class QaSweep
             partySize = party, allies = allies,
         };
         string Id() => System.Guid.NewGuid().ToString("N");
-        var solo = E(Id(), 3000, 1, ""); var sup = E(Id(), 5000, 3, "archer,mage");
-        // 確定の流れ(OnSuccessCommitted)と同じ: 自己ベスト → 送信待ち
-        var runSolo = new RunLedger.Run { runId = solo.runId, stageId = solo.stageId, characterId = "swordsman", maxReached = 3000, playSeconds = solo.playSeconds, startedUtc = solo.startedUtc, officialStage = true };
-        var runSup = new RunLedger.Run { runId = sup.runId, stageId = sup.stageId, characterId = "swordsman", maxReached = 5000, playSeconds = sup.playSeconds, startedUtc = sup.startedUtc, officialStage = true, partySize = 3, supportIds = "archer,mage" };
-        Check(Leaderboard.IsEligible(runSup, out string why) , $"a support run is eligible for the support board ({why})");
-        var runDevAlly = new RunLedger.Run { runId = Id(), stageId = "wasteland_road", characterId = "swordsman", maxReached = 100, playSeconds = 30, startedUtc = now - 40, officialStage = true, partySize = 2, supportIds = "archer", officialParty = false };
-        Check(!Leaderboard.IsEligible(runDevAlly, out string why2), $"an ally that is not officially unlocked makes the run ineligible ({why2})");
-        Leaderboard.OnSuccessCommitted(runSup);
+        // ① 前の版が残した物: サポートの送信待ち/自己ベスト(+ ソロの送信待ち/自己ベスト)
+        var oldSup = E(Id(), 5000, 3, "archer,mage"); var oldSolo = E(Id(), 2000, 1, "");
+        var oldSup2 = E(Id(), 4000, 2, "ninja"); oldSup2.stageId = "natural_cave";
+        string J(params Leaderboard.Entry[] es) => "{\"items\":[" + string.Join(",", es.Select(x => JsonUtility.ToJson(x))) + "]}";
+        SaveStore.SetString(Leaderboard.PendingKey, J(oldSup, oldSolo, oldSup2));
+        SaveStore.SetString(Leaderboard.VerifiedKey, J(oldSup, oldSolo));
+        int purged = Leaderboard.PurgeSupportEntries();
+        Check(purged == 3, $"old support records are removed from the queue and the verified bests ({purged})");
+        Check(Leaderboard.PendingCount == 1 && Leaderboard.PendingCountFor("wasteland_road") == 1 && Leaderboard.PendingCountFor("natural_cave") == 0, "the solo pending post is kept, nothing moved to the solo board");
+        Check(Leaderboard.VerifiedBest("wasteland_road")?.meters == 2000, "the solo verified best is kept (the support 5000m is not moved to solo)");
+        Check(Leaderboard.PurgeSupportEntries() == 0, "a second start-up removes nothing more");
+        // ② 資格: 一度でもサポートを使ったランは対象外(ソロは対象)
+        var runSolo = new RunLedger.Run { runId = Id(), stageId = "wasteland_road", characterId = "swordsman", maxReached = 3000, playSeconds = 3000 / 25f + 10f, startedUtc = now - 200, officialStage = true };
+        var runSup = new RunLedger.Run { runId = Id(), stageId = "wasteland_road", characterId = "swordsman", maxReached = 9000, playSeconds = 9000 / 25f + 10f, startedUtc = now - 500, officialStage = true, partySize = 3, supportIds = "archer,mage" };
+        var runSupGone = new RunLedger.Run { runId = Id(), stageId = "wasteland_road", characterId = "swordsman", maxReached = 9000, playSeconds = 400, startedUtc = now - 500, officialStage = true, partySize = 1, supportIds = "archer" };
+        Check(Leaderboard.IsEligible(runSolo, out string w1), $"a solo run is eligible ({w1})");
+        Check(!Leaderboard.IsEligible(runSup, out string w2) && w2.Contains("CPU support"), $"a CPU support run is not eligible ({w2})");
+        Check(!Leaderboard.IsEligible(runSupGone, out string w3), $"a run that used support once is not eligible even with the size back to 1 ({w3})");
         Leaderboard.OnSuccessCommitted(runSolo);
-        Check(Leaderboard.PendingCountFor("wasteland_road", true) == 1 && Leaderboard.PendingCountFor("wasteland_road", false) == 1, "a longer support run does not remove the solo pending post (separate boards)");
-        Check(Leaderboard.VerifiedBest("wasteland_road", false)?.meters == 3000 && Leaderboard.VerifiedBest("wasteland_road", true)?.meters == 5000, "verified bests are kept per board");
-        // サポートの表がまだ無いサーバー: サポートは残り、ソロは送れる
-        MockBackend.SupportBoardsMissing = true;
+        Check(Leaderboard.PendingCount == 1 && Leaderboard.VerifiedBest("wasteland_road")?.meters == 3000, "a longer solo run replaces the shorter solo pending post");
+        // ③ サーバーの検査(サーバーの omm_submit_run.js と同じ): ソロだけ
+        Check(LeaderboardRules.Validate(E(Id(), 100, 3, "archer,mage"), 0, null, now) == "solo only", "validation: a support entry is rejected (solo only)");
+        Check(LeaderboardRules.Validate(E(Id(), 100, 1, "archer"), 0, null, now) == "solo only", "validation: allies with size 1 are rejected");
+        Check(LeaderboardRules.Validate(E(Id(), 100, 1, ""), 0, null, now) == "", "validation: a solo entry is fine");
         Task t = Leaderboard.FlushAsync("qa");
-        float w = 0f; while (!t.IsCompleted && w < 5f) { yield return null; w += Time.unscaledDeltaTime; }
-        Check(Leaderboard.PendingCountFor("wasteland_road", false) == 0 && Leaderboard.PendingCountFor("wasteland_road", true) == 1, "support board missing: the solo post is sent, the support post stays pending");
-        MockBackend.SupportBoardsMissing = false;
-        t = Leaderboard.FlushAsync("qa2");
-        // (順位の画面の自動の再送が先に走っている時は、こちらの呼び出しはすぐ戻る。送信待ちが無くなるまで待つ)
-        w = 0f; while ((!t.IsCompleted || Leaderboard.Sending || Leaderboard.PendingCount > 0) && w < 8f) { yield return null; w += Time.unscaledDeltaTime; if (t.IsCompleted && !Leaderboard.Sending && Leaderboard.PendingCount > 0 && w > 1f) t = Leaderboard.FlushAsync("qa3"); }
-        Check(Leaderboard.PendingCount == 0, "after the support board exists, the pending support post is sent automatically");
-        Leaderboard.Page ps = null, pu = null;
-        var lt = me.Load("wasteland_road", false, 50); w = 0f; while (!lt.IsCompleted && w < 5f) { yield return null; w += Time.unscaledDeltaTime; } ps = lt.Result;
-        lt = me.Load("wasteland_road", true, 50); w = 0f; while (!lt.IsCompleted && w < 5f) { yield return null; w += Time.unscaledDeltaTime; } pu = lt.Result;
-        L($"[partyRanking] solo board: {string.Join(",", ps.top.Select(r => r.meters))} / support board: {string.Join(",", pu.top.Select(r => r.meters + "(" + r.allies + ")"))}");
-        Check(ps.top.Count == 1 && ps.top[0].meters == 3000 && pu.top.Count == 1 && pu.top[0].meters == 5000 && pu.top[0].allies == "archer,mage", "the support record is only on the support board");
-        // 検査: 仲間の数が合わない / 一覧にないキャラ は拒否
-        Check(LeaderboardRules.Validate(E(Id(), 100, 3, "archer"), 0, null, now) == "party mismatch", "validation: party size and allies must match");
-        Check(LeaderboardRules.Validate(E(Id(), 100, 2, "nobody"), 0, null, now) == "bad ally", "validation: unknown ally");
-        Check(LeaderboardRules.Validate(E(Id(), 100, 1, ""), 0, null, now) == "", "validation: an old/solo entry is still fine");
+        float w = 0f; while ((!t.IsCompleted || Leaderboard.Sending || Leaderboard.PendingCount > 0) && w < 8f) { yield return null; w += Time.unscaledDeltaTime; if (t.IsCompleted && !Leaderboard.Sending && Leaderboard.PendingCount > 0 && w > 1f) t = Leaderboard.FlushAsync("qa2"); }
+        Check(Leaderboard.PendingCount == 0 && Leaderboard.LastSendError == "", "the solo post is sent, nothing is left as 'pending' or 'failed'");
+        var lt = me.Load("wasteland_road", 50); w = 0f; while (!lt.IsCompleted && w < 5f) { yield return null; w += Time.unscaledDeltaTime; }
+        var ps = lt.Result;
+        L($"[partyRanking] solo board: {string.Join(",", ps.top.Select(r => r.meters))}");
+        Check(ps.top.Count == 1 && ps.top[0].meters == 3000, "the board has only the solo record");
         Leaderboard.DevReset();
         yield break;
     }

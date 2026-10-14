@@ -80,6 +80,7 @@ public static class NoAdsPass
     {
         var st = Monetization.Store;
         if (st == null || Busy) { done?.Invoke(new PurchaseResult { status = PurchaseStatus.NotReady, message = "ストアを利用できません" }); return; }
+        if (!Monetization.PurchaseSetupComplete) { LastNote = "購入の準備中です"; done?.Invoke(new PurchaseResult { status = PurchaseStatus.NotReady, message = "receipt validation not set up" }); return; } // 2026-10-14: 検証できない間は払わせない
         Busy = true; Purchasing = true;
         st.Purchase(MonetizationConfig.NoAdsProductId, r => AdManager.Post(() =>
         {

@@ -89,7 +89,7 @@ public class SupportDeparturePanel : MonoBehaviour
         LocGUI.Label(new Rect(x, y, w, 48f * s), "CPU サポート", UiKit.Label(32f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f)));
         y += 50f * s;
         var desc = new GUIStyle(UiKit.Label(19f * s, TextAnchor.UpperLeft, false, new Color(0.85f, 0.9f, 1f))) { wordWrap = true };
-        LocGUI.Label(new Rect(x, y, w, 80f * s), "CPU の仲間と一緒に走ります(最大3人)。仲間は自動で戦い、倒れても少しすると戻ってきます。報酬はあなたの分だけです。サポートありの記録は、ソロとは別のランキングになります。", desc);
+        LocGUI.Label(new Rect(x, y, w, 80f * s), "CPU の仲間と一緒に走ります(最大3人)。仲間は自動で戦い、倒れても少しすると戻ってきます。報酬はあなたの分だけです。サポートを使ったランはランキングの対象外です(MILE・解放・自己ベストは通常どおり)。", desc);
         y += 86f * s;
         LocGUI.Label(new Rect(x, y, w, 30f * s), Loc.F("選んだ仲間: {0}/{1}", editing.Count, CpuParty.MaxAllies), UiKit.Label(20f * s, TextAnchor.MiddleLeft, true, Color.white));
         y += 34f * s;

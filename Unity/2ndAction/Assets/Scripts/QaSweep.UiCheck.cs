@@ -62,7 +62,7 @@ public partial class QaSweep
         am.SetMuted(false); yield return null;
         L($"[audio] sfx output {sfxOn:F3} -> muted {sfxMuted:F3} -> unmuted {am.SfxOutputVolume:F3}; master={am.MasterVolume:F2}");
         Check(sfxOn > 0f && sfxMuted == 0f && Mathf.Abs(am.SfxOutputVolume - sfxOn) < 1e-4f, "mute silences and unmute restores the previous volume");
-        Check(Mathf.Abs(PlayerPrefs.GetFloat("MasterVolume", -1f) - 0.6f) < 0.01f, "volume is saved");
+        Check(Mathf.Abs(SaveStore.GetFloat("MasterVolume", -1f) - 0.6f) < 0.01f, "volume is saved");
         GameSettings.SetScreenShake(false);
         var cam = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
         if (cam != null) { cam.Shake(0.5f, 0.5f); Check(Field<float>(cam, "shakeTimer") <= 0f, "screen shake OFF: shakes are ignored"); }

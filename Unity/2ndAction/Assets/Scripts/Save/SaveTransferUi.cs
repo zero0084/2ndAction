@@ -180,6 +180,7 @@ public class SaveTransferUi : MonoBehaviour
 
     // ===================================================================== PC
     public static string DevImportPath = "", DevExportPath = "";
+    public static void DevResetResult() { LastResult = ""; LastRejectDetail = ""; }
     public static string LastExportPath { get; private set; } = "";
     public static string LastRejectDetail { get; private set; } = "";
     public static string PcFolder()

@@ -17,12 +17,10 @@ public class UgsLeaderboardBackend : Leaderboard.IBackend
 {
     public string Name => "UGS";
     public const string SubmitScript = "omm_submit_run", NameScript = "omm_set_name";
-    // CPU サポート(2026-10-14): サポートありの記録は別のスクリプト(omm_submit_support)だけへ送る。古いスクリプトは知らない値を無視して
-    // ソロの表へ書いてしまうため、同じスクリプトへは送らない。サーバーにまだ無い間は送れずに送信待ちへ残り、置かれた後に自動で送り直す
-    public const string SupportSubmitScript = "omm_submit_support";
+    // 2026-10-14: ランキングはソロだけ(CPU サポートの表/スクリプトは作らない)。送る記録は必ず partySize = 1 で、サーバーも 1 以外を拒否する
 
     [Serializable] class SubmitReply { public string status = "", message = ""; }
-    [Serializable] class Meta { public string n = "", c = "", p = ""; public int a, s; } // p = 仲間(サポートの表)
+    [Serializable] class Meta { public string n = "", c = ""; public int a, s; }
 
     public async Task<Leaderboard.SubmitResult> Submit(Leaderboard.Entry e, string codename)
     {
@@ -34,10 +32,9 @@ public class UgsLeaderboardBackend : Leaderboard.IBackend
                 { "runId", e.runId }, { "stageId", e.stageId }, { "characterId", e.characterId }, { "meters", e.meters },
                 { "playSeconds", e.playSeconds }, { "sprintFrom", e.sprintFrom }, { "usedAuto", e.usedAuto }, { "usedSprint", e.usedSprint },
                 { "startedUtc", e.startedUtc }, { "committedUtc", e.committedUtc }, { "appVersion", e.appVersion }, { "name", Codename.Sanitize(codename) },
+                { "partySize", 1 }, // ソロの宣言(サーバーは 1 以外 / 無い物を拒否する)
             };
-            bool support = Leaderboard.IsSupport(e);
-            if (support) { args["partySize"] = e.partySize; args["allies"] = e.allies ?? ""; }
-            string json = await CloudCodeService.Instance.CallEndpointAsync(support ? SupportSubmitScript : SubmitScript, args);
+            string json = await CloudCodeService.Instance.CallEndpointAsync(SubmitScript, args);
             var reply = JsonUtility.FromJson<SubmitReply>(json ?? "{}") ?? new SubmitReply();
             switch (reply.status)
             {
@@ -52,10 +49,10 @@ public class UgsLeaderboardBackend : Leaderboard.IBackend
         catch (Exception ex) { return new Leaderboard.SubmitResult(Leaderboard.SubmitStatus.Failed, ex.GetType().Name); }
     }
 
-    public async Task<Leaderboard.Page> Load(string stageId, bool support, int limit)
+    public async Task<Leaderboard.Page> Load(string stageId, int limit)
     {
         if (!await OnlineServices.EnsureReadyAsync()) throw new Exception("service unavailable");
-        string board = Leaderboard.BoardId(stageId, support);
+        string board = Leaderboard.BoardId(stageId);
         string me = OnlineServices.PlayerId;
         var page = new Leaderboard.Page();
         var top = await LeaderboardsService.Instance.GetScoresAsync(board, new GetScoresOptions { Limit = limit, IncludeMetadata = true });
@@ -102,7 +99,7 @@ public class UgsLeaderboardBackend : Leaderboard.IBackend
         {
             playerId = r.PlayerId, meters = (int)Math.Floor(r.Score), isMe = r.PlayerId == me,
             name = m != null && !string.IsNullOrEmpty(m.n) ? Codename.Sanitize(m.n) : "",
-            characterId = m != null ? m.c : "", usedAuto = m != null && m.a != 0, usedSprint = m != null && m.s != 0, allies = m != null ? m.p ?? "" : "",
+            characterId = m != null ? m.c : "", usedAuto = m != null && m.a != 0, usedSprint = m != null && m.s != 0,
         };
     }
 }

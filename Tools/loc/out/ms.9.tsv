@@ -1,0 +1,62 @@
+9930	Keputusan larian terakhir sedang digunakan. Mulakan semula aplikasi, kemudian eksport.
+9931	Data yang dieksport tidak dapat disahkan. Sila cuba lagi.
+9932	Fail rosak atau telah diubah. Tidak boleh diimport (data semasa tidak berubah).
+9933	Fail ini dibuat oleh versi aplikasi yang lebih baharu. Kemas kini aplikasi, kemudian import (data semasa tidak berubah).
+9934	Fail kosong (data semasa tidak berubah).
+9935	Fail terlalu besar. Ini bukan fail pindahan (data semasa tidak berubah).
+9936	Ini bukan fail pindahan permainan ini (data semasa tidak berubah).
+9937	Tidak boleh dipindah antara versi pembangunan dan versi keluaran (data semasa tidak berubah).
+9938	Fail mengandungi nilai tidak sah. Tidak boleh diimport (data semasa tidak berubah).
+9939	Fail kekurangan data yang diperlukan. Tidak boleh diimport (data semasa tidak berubah).
+9940	Pindahan data boleh dibuat di skrin Utama (tidak semasa larian atau sambungan berbilang pemain).
+9941	Fail ini tidak boleh diimport.
+9942	Gagal membuat sandaran sebelum import. Semak ruang kosong peranti (data semasa tidak berubah).
+9943	Gagal menyediakan import. Semak ruang kosong peranti (data semasa tidak berubah).
+9944	Pindahan data sebelumnya telah diselesaikan
+9945	Gagal mengeksport
+9946	Berjaya dieksport
+9947	Disimpan di: {0}
+9948	Gagal menulis fail.
+9949	Tidak boleh diimport
+9950	Tiada fail pindahan. Letakkan dalam folder ini: {0}
+9951	Gagal membaca fail.
+9952	Fail: {0}
+9953	Gagal menulis ke lokasi yang dipilih. Pilih lokasi lain.
+9954	Gagal membaca fail (data semasa tidak berubah).
+9955	Gagal mengimport
+9956	Pindahan data selesai
+9957	Larian yang dijeda tidak termasuk dalam pindahan.
+9958	Simpan juga salinan di peranti lain, PC atau storan luaran sekiranya peranti rosak.
+9959	Eksport
+9960	Import
+9961	Pilih lokasi simpan…
+9962	Pilih fail pindahan…
+9963	Import Fail Pindahan
+9964	Masa simpan: {0}
+9965	Aplikasi: {0}
+9966	Fail
+9967	Peranti Ini
+9968	MILE Dimiliki
+9969	{0} jenis / {1} kad
+9970	{0} kad
+9971	Peta Dibuka
+9972	Watak Dibuka
+9973	Jarak Terbaik
+9974	Jumlah Jarak
+9975	Dibuka
+9976	Kemajuan semasa (MILE, kad, dek, buka kunci, rekod) akan diganti dengan kandungan fail ini. Tidak digabungkan.
+9977	Larian yang dijeda di peranti ini akan dibuang.
+9978	Tetapan, Pas Tanpa Iklan dan pendaftaran kedudukan tidak dipindahkan.
+9979	Ganti Kemajuan Semasa
+9980	Amaran Halangan
+9981	Berkelip
+9982	Garis Luar Sahaja
+9983	Pindahan Data
+9984	Eksport ke Fail
+9985	Import dari Fail
+9986	Simpan MILE, kad, dek, buka kunci dan rekod ke dalam fail untuk dipindah ke peranti lain. Apabila diimport, kemajuan semasa diganti dengan kandungan fail.
+9987	Sekiranya peranti rosak, simpan fail eksport di peranti lain, PC atau storan luaran.
+9988	Tetapan, larian yang dijeda, Pas Tanpa Iklan (pulihkan melalui kedai) dan pendaftaran kedudukan tidak dipindahkan.
+9989	Larian solo sahaja (tanpa sokongan CPU dan berbilang pemain)
+9990	Berlari bersama sekutu CPU (maks. 3). Sekutu berlawan secara automatik dan kembali sejurus selepas tumbang. Ganjaran untuk anda sahaja. Larian dengan sokongan tidak dikira dalam kedudukan (MILE, buka kunci dan rekod peribadi seperti biasa).
+9991	Pembelian sedang disediakan

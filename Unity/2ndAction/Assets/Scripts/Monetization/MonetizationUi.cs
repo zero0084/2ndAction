@@ -57,8 +57,9 @@ public class MonetizationUi : MonoBehaviour
         float bh = 52f, bw = (full - 12f) / 2f;
         float by = Mathf.Max(y + 6f, p.yMax - 24f - bh - 34f);
         bool busy = NoAdsPass.Busy;
-        string buyLabel = owned ? Loc.T("購入済み") : string.IsNullOrEmpty(price) ? Loc.T("価格を取得できません") : Loc.F("購入する {0}", price);
-        bool canBuy = !owned && !busy && !string.IsNullOrEmpty(price) && !NoAdsPass.PendingPayment;
+        bool setup = Monetization.PurchaseSetupComplete;
+        string buyLabel = owned ? Loc.T("購入済み") : !setup ? Loc.T("購入の準備中です") : string.IsNullOrEmpty(price) ? Loc.T("価格を取得できません") : Loc.F("購入する {0}", price);
+        bool canBuy = setup && !owned && !busy && !string.IsNullOrEmpty(price) && !NoAdsPass.PendingPayment;
         if (UiKit.Button(new Rect(x, by, bw, bh), buyLabel, 18f, true, false, canBuy) && canBuy) NoAdsPass.Purchase(null);
         if (UiKit.Button(new Rect(x + bw + 12f, by, bw, bh), busy ? Loc.T("確認中…") : Loc.T("購入を復元"), 18f, false, false, !busy) && !busy) NoAdsPass.Check("restore button");
         if (!string.IsNullOrEmpty(NoAdsPass.LastNote)) GUI.Label(new Rect(x, by + bh + 4f, full, 30f), Loc.Auto(NoAdsPass.LastNote), new GUIStyle(small) { alignment = TextAnchor.MiddleCenter });

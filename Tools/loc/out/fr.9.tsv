@@ -1,0 +1,62 @@
+9930	Application des résultats de la dernière course. Relancez l'app, puis exportez.
+9931	Impossible de vérifier les données exportées. Veuillez réessayer.
+9932	Le fichier est corrompu ou a été modifié. Import impossible (vos données actuelles n'ont pas changé).
+9933	Ce fichier vient d'une version plus récente de l'app. Mettez l'app à jour, puis importez (vos données actuelles n'ont pas changé).
+9934	Le fichier est vide (vos données actuelles n'ont pas changé).
+9935	Le fichier est trop volumineux. Ce n'est pas un fichier de transfert (vos données actuelles n'ont pas changé).
+9936	Ce n'est pas un fichier de transfert de ce jeu (vos données actuelles n'ont pas changé).
+9937	Transfert impossible entre version de développement et version publique (vos données actuelles n'ont pas changé).
+9938	Le fichier contient des valeurs invalides. Import impossible (vos données actuelles n'ont pas changé).
+9939	Il manque des données nécessaires dans le fichier. Import impossible (vos données actuelles n'ont pas changé).
+9940	Le transfert de données se fait depuis l'accueil (pas pendant une course ni une connexion multijoueur).
+9941	Ce fichier ne peut pas être importé.
+9942	Impossible de créer une sauvegarde avant l'import. Vérifiez l'espace libre de l'appareil (vos données actuelles n'ont pas changé).
+9943	Impossible de préparer l'import. Vérifiez l'espace libre de l'appareil (vos données actuelles n'ont pas changé).
+9944	Le transfert de données précédent a été terminé
+9945	Échec de l'export
+9946	Exporté
+9947	Enregistré dans : {0}
+9948	Impossible d'écrire le fichier.
+9949	Import impossible
+9950	Aucun fichier de transfert. Placez-le dans ce dossier : {0}
+9951	Impossible de lire le fichier.
+9952	Fichier : {0}
+9953	Impossible d'écrire à l'emplacement choisi. Choisissez-en un autre.
+9954	Impossible de lire le fichier (vos données actuelles n'ont pas changé).
+9955	Échec de l'import
+9956	Transfert de données terminé
+9957	Les courses suspendues ne sont pas transférées.
+9958	Gardez aussi une copie sur un autre appareil, un PC ou un stockage externe en cas de panne.
+9959	Exporter
+9960	Importer
+9961	Choisissez où enregistrer…
+9962	Choisissez un fichier de transfert…
+9963	Importer un fichier de transfert
+9964	Enregistré le : {0}
+9965	App : {0}
+9966	Fichier
+9967	Cet appareil
+9968	MILE possédés
+9969	{0} types / {1} cartes
+9970	{0} cartes
+9971	Parcours débloqués
+9972	Persos débloqués
+9973	Meilleure distance
+9974	Distance totale
+9975	Débloqué
+9976	Votre progression actuelle (MILE, cartes, deck, déblocages, records) sera remplacée par le contenu de ce fichier. Rien ne sera fusionné.
+9977	La course suspendue sur cet appareil sera supprimée.
+9978	Les paramètres, le Pass Sans Pub et l'inscription au classement ne sont pas transférés.
+9979	Remplacer la progression
+9980	Alerte d'obstacle
+9981	Clignotant
+9982	Contour seul
+9983	Transfert de données
+9984	Exporter vers un fichier
+9985	Importer depuis un fichier
+9986	Enregistrez MILE, cartes, deck, déblocages et records dans un fichier pour les transférer sur un autre appareil. L'import remplace votre progression actuelle par le contenu du fichier.
+9987	En cas de panne, gardez le fichier exporté sur un autre appareil, un PC ou un stockage externe.
+9988	Les paramètres, les courses suspendues, le Pass Sans Pub (à restaurer via le store) et l'inscription au classement ne sont pas transférés.
+9989	Courses solo uniquement (hors soutien CPU et multijoueur)
+9990	Courez avec des alliés contrôlés par le CPU (jusqu'à 3). Ils combattent seuls et reviennent peu après être tombés. Les récompenses sont à vous seul. Les courses avec soutien ne comptent pas au classement (MILE, déblocages et records perso comme d'habitude).
+9991	Achat en préparation

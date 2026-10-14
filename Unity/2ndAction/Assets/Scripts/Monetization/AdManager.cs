@@ -105,6 +105,15 @@ public class AdManager : MonoBehaviour
         return true;
     }
 
+    public const float LateRewardGrace = 1.5f;
+    static System.Collections.IEnumerator LateDone(Func<bool> rewarded, Action done)
+    {
+        float t = 0f;
+        while (!rewarded() && t < LateRewardGrace) { yield return null; t += Time.unscaledDeltaTime; }
+        if (rewarded()) Debug.Log($"[Ads] the reward arrived {t:F2}s after the close");
+        done();
+    }
+
     // ---- 表示
     // onReward は正規の報酬通知の時だけ・1回だけ。onDone は必ず最後に1回(報酬の有無に関係なく)
     public static bool Show(AdKind kind, string tag, Action onReward, Action<bool> onDone)
@@ -132,6 +141,14 @@ public class AdManager : MonoBehaviour
             if (PlayerController.Instance != null) PlayerController.Instance.ClearPointerState();
             LastNote = $"{tag}: {o}{(string.IsNullOrEmpty(msg) ? "" : " " + msg)}{(rewarded ? " +reward" : "")}";
             Debug.Log($"[Ads] finished {kind} ({tag}) {o} {msg} rewarded={rewarded}");
+            // 2026-10-14: 報酬の通知は「閉じた」の後に届くことがある(SDK の順番は決まっていない)。報酬広告を最後まで出したのに
+            // まだ報酬が来ていない時は少し待ってから終わりを知らせる(「最後まで見なかった」と出した直後に報酬が付く、を防ぐ)
+            if (o == AdOutcome.Shown && kind == AdKind.Rewarded && !rewarded && inst != null)
+            {
+                inst.StartCoroutine(LateDone(() => rewarded, () => onDone?.Invoke(true)));
+                Monetization.Ads.Load(kind);
+                return;
+            }
             onDone?.Invoke(o == AdOutcome.Shown);
             Monetization.Ads.Load(kind); // 次の分
         }

@@ -28,10 +28,10 @@ public partial class QaSweep
         string only = Arg("-qaArenaOnly", "ABCDEFGHJKI");
         // 中断中のラン(CONTINUE)がある状態で試す: 闘技場の出入りで消えたり上書きされたりしないこと
         if (!RunCheckpoint.HasActiveRun) { RunCheckpoint.Save(new RunCheckpoint.Data { active = true, characterId = "swordsman", stageId = "wasteland_road" }); }
-        ckpt0 = PlayerPrefs.GetString(RunCheckpoint.Key, "");
+        ckpt0 = SaveStore.GetString(RunCheckpoint.Key, "");
         ownedAttack0 = CardInventory.GetTotalCount("attack_up");
         var save0 = SaveSystem.CaptureCategory(SaveCategory.Progress);
-        int assistPref0 = PlayerPrefs.GetInt("HighSpeedAssistEnabled", -1);
+        int assistPref0 = SaveStore.GetInt("HighSpeedAssistEnabled", -1);
         float best0 = gm.BestDistance;
 
         if (only.Contains('T')) yield return ArenaTransition();
@@ -349,13 +349,13 @@ public partial class QaSweep
         string diff = "";
         foreach (var a in save0) { var b = save1.FirstOrDefault(x => x.k == a.k); if (b == null || b.v != a.v) diff += a.k + " "; }
         foreach (var b in save1) if (!save0.Any(x => x.k == b.k)) diff += "+" + b.k + " ";
-        L($"[I] home: arena={ArenaMode.Active} debugRun={DebugRun.IsActive} encounter={(EncounterDirector.Instance != null ? EncounterDirector.Instance.enabled : (bool?)null)} assistPref {assistPref0} -> {PlayerPrefs.GetInt("HighSpeedAssistEnabled", -1)} best {best0:F0} -> {gm.BestDistance:F0} progress diff [{diff}]");
+        L($"[I] home: arena={ArenaMode.Active} debugRun={DebugRun.IsActive} encounter={(EncounterDirector.Instance != null ? EncounterDirector.Instance.enabled : (bool?)null)} assistPref {assistPref0} -> {SaveStore.GetInt("HighSpeedAssistEnabled", -1)} best {best0:F0} -> {gm.BestDistance:F0} progress diff [{diff}]");
         Check(!ArenaMode.Active && !ArenaMode.PendingStart && !DebugRun.WritesBlocked && !gm.HasStarted, "I: exit returns home and progress writes are allowed again");
-        Check(PlayerPrefs.GetString(RunCheckpoint.Key, "") == ckpt0 && RunCheckpoint.HasActiveRun, "I: the suspended run (CONTINUE) survives the arena untouched");
+        Check(SaveStore.GetString(RunCheckpoint.Key, "") == ckpt0 && RunCheckpoint.HasActiveRun, "I: the suspended run (CONTINUE) survives the arena untouched");
         Check(CardInventory.GetTotalCount("attack_up") == ownedAttack0, $"I: trial cards are not added to the owned cards (attack_up owned {ownedAttack0} -> {CardInventory.GetTotalCount("attack_up")})");
-        Check(gm.SelectedCharacterId == PlayerPrefs.GetString("SelectedCharacterId", gm.SelectedCharacterId), $"I: the selected character is the saved one ({gm.SelectedCharacterId})");
+        Check(gm.SelectedCharacterId == SaveStore.GetString("SelectedCharacterId", gm.SelectedCharacterId), $"I: the selected character is the saved one ({gm.SelectedCharacterId})");
         Check(diff.Length == 0 && Mathf.Approximately(best0, gm.BestDistance), "I: no progress save changed (BEST / MILE / cards / unlocks / lifetime distance / CONTINUE / selected character)");
-        Check(PlayerPrefs.GetInt("HighSpeedAssistEnabled", -1) == assistPref0 && (EncounterDirector.Instance == null || EncounterDirector.Instance.enabled) && !ArenaMode.Invincible, "I: the normal settings are untouched (assist / encounters / invincibility)");
+        Check(SaveStore.GetInt("HighSpeedAssistEnabled", -1) == assistPref0 && (EncounterDirector.Instance == null || EncounterDirector.Instance.enabled) && !ArenaMode.Invincible, "I: the normal settings are untouched (assist / encounters / invincibility)");
         // 通常のランは通常どおり(自然加速・速度の指定なし)
         RunCheckpoint.Clear(); // (試験用の中断データを片付けてから NEW RUN)
         yield return BeginRun("swordsman", "wasteland_road");
@@ -375,7 +375,7 @@ public partial class QaSweep
         }
         yield return new WaitForSecondsRealtime(2.5f);
         yield return ArenaShot("ui_0_home");
-        ArenaConfigStore.ResetLoaded(); PlayerPrefs.DeleteKey(SaveKeys.ArenaConfig); // 初めての人の状態
+        ArenaConfigStore.ResetLoaded(); SaveStore.DeleteKey(SaveKeys.ArenaConfig); // 初めての人の状態
         ArenaConfigStore.Load();
         var c = ArenaMode.Config;
         L($"[U] fresh config: char {c.character}, build {c.build.Count}, enemies {string.Join("/", c.enemies.Select(ArenaCatalog.NameOf))}, speed {c.speedMode}/{c.kmh}, invincible {c.invincible}, assist {c.assistMode}");
@@ -404,8 +404,8 @@ public partial class QaSweep
     IEnumerator ArenaCatalogTest()
     {
         L("== J: 未遭遇の敵/ボス ==");
-        bool hadSeen = PlayerPrefs.HasKey(SaveKeys.BossSeen); string seen0 = PlayerPrefs.GetString(SaveKeys.BossSeen, "");
-        PlayerPrefs.SetString(SaveKeys.BossSeen, "Wild/Wolf"); ProgressStats.Reload();
+        bool hadSeen = SaveStore.HasKey(SaveKeys.BossSeen); string seen0 = SaveStore.GetString(SaveKeys.BossSeen, "");
+        SaveStore.SetString(SaveKeys.BossSeen, "Wild/Wolf"); ProgressStats.Reload();
         var wild = ArenaCatalog.Items(2, false);
         var cave = ArenaCatalog.Items(3, false);
         int leaks = wild.Concat(cave).Count(i => !i.known && (i.label != ArenaCatalog.Unknown || i.sprite != null || !string.IsNullOrEmpty(i.id)));
@@ -422,7 +422,7 @@ public partial class QaSweep
         cfg.Sanitized();
         L("[J] sanitized: " + string.Join(", ", cfg.enemies.Select(ArenaCatalog.NameOf)));
         Check(cfg.enemies.Count == 2 && cfg.enemies.Any(e => e.kind == ArenaEnemyKind.WildBoss) && cfg.enemies.Any(e => e.kind == ArenaEnemyKind.Dummy), "J: a saved config drops unseen bosses and keeps the practice target");
-        if (hadSeen) PlayerPrefs.SetString(SaveKeys.BossSeen, seen0); else PlayerPrefs.DeleteKey(SaveKeys.BossSeen);
+        if (hadSeen) SaveStore.SetString(SaveKeys.BossSeen, seen0); else SaveStore.DeleteKey(SaveKeys.BossSeen);
         ProgressStats.Reload();
         yield break;
     }

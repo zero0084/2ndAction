@@ -169,6 +169,8 @@ public static class SaveSystem
         try { if (CommitJournal.Pending) { CommitJournal.RecoverIfPending(); ReloadCaches(); } }
         catch (Exception e) { Debug.LogError("[Save] commit journal recovery failed: " + e); }
         UnlockRules.RequeuePending(); // 解放したのに確認していないお知らせ(アプリが落ちても失わない)
+        try { int purged = Leaderboard.PurgeSupportEntries(); if (purged > 0) log.Append($"ranking: removed {purged} CPU-support record(s); "); } // 2026-10-14: ランキングはソロだけ
+        catch (Exception e) { Debug.LogWarning("[Save] ranking purge failed: " + e.Message); }
         // 正常を確認できた状態を残す(壊れた値を直した後の状態)
         RotateLastGood();
         if (r.restoredFrom != "")

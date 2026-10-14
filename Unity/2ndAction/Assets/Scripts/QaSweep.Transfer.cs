@@ -67,8 +67,8 @@ public partial class QaSweep
             if (a)
             {
                 SaveTransferUi.DevExportPath = fileA;
-                SaveTransferUi.StartExport();
-                yield return null;
+                SaveTransferUi.DevResetResult(); SaveTransferUi.StartExport();
+                yield return TrWait();
                 Check(SaveTransferUi.LastResult == "export-ok" && System.IO.File.Exists(fileA), $"bootA: exported ({SaveTransferUi.LastResult})");
                 var c = SaveTransfer.Check(System.IO.File.ReadAllText(fileA));
                 Check(c.ok, "bootA: the exported file passes the check " + c.detail);
@@ -118,14 +118,81 @@ public partial class QaSweep
         string expectA = System.IO.File.Exists(System.IO.Path.Combine(shared, "expectA.txt")) ? System.IO.File.ReadAllText(System.IO.Path.Combine(shared, "expectA.txt")) : "";
         string expectB = System.IO.File.Exists(System.IO.Path.Combine(shared, "expectB.txt")) ? System.IO.File.ReadAllText(System.IO.Path.Combine(shared, "expectB.txt")) : "";
         string textA = System.IO.File.Exists(fileA) ? System.IO.File.ReadAllText(fileA) : "";
-        Check(expectA != "" && textA != "", "the seed files exist");
+        if (phase != "importFile") Check(expectA != "" && textA != "", "the seed files exist");
+
+        if (phase == "importFile")
+        {
+            // 別の機種で書き出したファイル(-trFile)を読み込む: ファイルの各項目の値と同じになり、ファイルに無い引き継ぎのキーは消える
+            string path = Arg("-trFile", "");
+            var c = SaveTransfer.Check(System.IO.File.ReadAllText(path));
+            Check(c.ok, $"importFile: the file from {(c.data != null ? c.data.platform : "?")} passes the check {c.detail}");
+            if (!c.ok) yield break;
+            SaveTransferUi.DevImportPath = path;
+            SaveTransferUi.DevResetResult(); SaveTransferUi.StartImport();
+            yield return TrWait();
+            var oldGm = GameManager.Instance;
+            Check(SaveTransferUi.ConfirmReplace(), "importFile: applied");
+            float w = 0f; while ((GameManager.Instance == null || GameManager.Instance == oldGm || LoadingScreen.BlocksInput) && w < 20f) { yield return null; w += Time.unscaledDeltaTime; }
+            yield return new WaitForSecondsRealtime(1.5f);
+            gm = GameManager.Instance;
+            var want = c.data.items.ToDictionary(i => i.k, i => i.v);
+            var diff = new List<string>();
+            foreach (var k in SaveTransfer.TransferKeys())
+            {
+                bool has = SaveStore.HasKey(k.key);
+                if (want.TryGetValue(k.key, out var v)) { if (!has || SaveSystem.ReadItem(k.key, k.type).v != v) diff.Add(k.key); }
+                else if (has && k.key != "UnlockNotifiedV1" && k.key != "DeckCapacity12Notice") diff.Add(k.key + "(extra)");
+            }
+            Check(diff.Count == 0, $"importFile: the progress equals the file ({string.Join(",", diff)})");
+            Check(gm.TotalOwnedMile == c.data.summary.mile, $"importFile: MILE {gm.TotalOwnedMile} = file {c.data.summary.mile}");
+            yield break;
+        }
+
+        if (phase == "pickReject")
+        {
+            // 選ぶ画面で壊れたファイルを選ぶ(adb が選ぶ)→ 拒否の表示、何も変わらない
+            string before = TrSnapshot();
+            SaveTransferUi.DevResetResult(); SaveTransferUi.StartImport();
+            yield return TrWait();
+            Check(SaveTransferUi.LastResult == "import-reject", $"pickReject: a damaged file is rejected ({SaveTransferUi.LastResult})");
+            Shot("transfer_pick_reject");
+            yield return new WaitForSecondsRealtime(0.3f);
+            Check(TrSnapshot() == before && RunCheckpoint.HasActiveRun, "pickReject: nothing changed");
+            yield break;
+        }
+
+        if (phase == "pickCancel")
+        {
+            // 選ぶ画面で何も選ばずに戻る(adb が戻るキーを押す)→ 何も変わらない
+            string before = TrSnapshot();
+            SaveTransferUi.DevResetResult(); SaveTransferUi.StartImport();
+            yield return TrWait();
+            Check(SaveTransferUi.LastResult == "import-cancel", $"pickCancel: back from the picker = cancelled ({SaveTransferUi.LastResult})");
+            Check(TrSnapshot() == before && RunCheckpoint.HasActiveRun, "pickCancel: nothing changed");
+            yield break;
+        }
+
+        if (phase == "export")
+        {
+            // Android: 標準の保存先の選択で書き出す(adb が「保存」を押す)。PC: -trExportTo へ
+            if (Arg("-trExportTo", "") != "") SaveTransferUi.DevExportPath = Arg("-trExportTo", "");
+            float wn = 0f; while ((NoticeQueue.Open || wn < 4f) && wn < 15f) { yield return null; wn += Time.unscaledDeltaTime; }
+            SaveStore.Save();
+            System.IO.File.WriteAllText(System.IO.Path.Combine(shared, "expectExport.txt"), TrSnapshot());
+            SaveTransferUi.DevResetResult(); SaveTransferUi.StartExport();
+            yield return TrWait();
+            Check(SaveTransferUi.LastResult == "export-ok", $"export: written ({SaveTransferUi.LastResult})");
+            Shot("transfer_export_done");
+            yield return new WaitForSecondsRealtime(0.3f);
+            yield break;
+        }
 
         if (phase == "cancel")
         {
             string before = TrSnapshot();
             SaveTransferUi.DevImportPath = fileA;
-            SaveTransferUi.StartImport();
-            yield return null;
+            SaveTransferUi.DevResetResult(); SaveTransferUi.StartImport();
+            yield return TrWait();
             Check(SaveTransferUi.LastResult == "import-confirm", $"cancel: the confirmation is shown ({SaveTransferUi.LastResult})");
             Shot("transfer_confirm");
             yield return new WaitForSecondsRealtime(0.3f);
@@ -165,12 +232,13 @@ public partial class QaSweep
             {
                 var c = SaveTransfer.Check(text);
                 Check(!c.ok && c.error.Contains(expect), $"reject: {name} -> rejected '{c.error}' ({c.detail})");
-                // 画面の流れでも: 選んだ → 拒否の表示 → 何も変わらない
+                // 画面の流れでも: 選んだ → 拒否の表示 → 何も変わらない(Android は選択画面を通す pickReject で確かめる)
+                if (Application.platform == RuntimePlatform.Android) continue;
                 string path = System.IO.Path.Combine(outDir, "bad_" + name.Replace(' ', '_') + ".json");
                 System.IO.File.WriteAllText(path, text);
                 SaveTransferUi.DevImportPath = path;
-                SaveTransferUi.StartImport();
-                yield return null;
+                SaveTransferUi.DevResetResult(); SaveTransferUi.StartImport();
+                yield return TrWait();
                 Check(SaveTransferUi.LastResult == "import-reject" || (name == "empty" && SaveTransferUi.LastResult == "import-reject"), $"reject: {name} -> the screen shows the rejection ({SaveTransferUi.LastResult})");
                 if (name == "value edited") { Shot("transfer_reject"); yield return new WaitForSecondsRealtime(0.3f); }
                 SaveTransferUi.Instance.SendMessage("Close", SendMessageOptions.DontRequireReceiver);
@@ -199,8 +267,8 @@ public partial class QaSweep
             var crash = Arg("-qaTransferCrash", "");
             if (crash != "") SaveTransfer.DevCrashAt = crash;
             SaveTransferUi.DevImportPath = path;
-            SaveTransferUi.StartImport();
-            yield return null;
+            SaveTransferUi.DevResetResult(); SaveTransferUi.StartImport();
+            yield return TrWait();
             Check(SaveTransferUi.LastResult == "import-confirm", $"{phase}: confirmation shown ({SaveTransferUi.LastResult})");
             var oldGm = GameManager.Instance;
             bool ok = SaveTransferUi.ConfirmReplace();
@@ -241,6 +309,16 @@ public partial class QaSweep
             if (phase == "after" && Arg("-trExpect", "A") == "A") Check(b != null && b.report.Contains("finished an interrupted import") || Arg("-trWasDone", "0") == "1", "after: the interrupted import was finished at start-up");
             yield break;
         }
+    }
+
+    // 結果が出るまで待つ(PC はすぐ。Android は選択画面を操作し終わるまで)。adb 側へ「選択画面を開いた」を知らせる印も書く
+    IEnumerator TrWait(float max = 240f)
+    {
+        try { System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, "picker_open.txt"), System.DateTime.Now.ToString("s")); } catch { }
+        float w = 0f;
+        while (SaveTransferUi.LastResult == "" && w < max) { yield return null; w += Time.unscaledDeltaTime; }
+        try { System.IO.File.Delete(System.IO.Path.Combine(outDir, "picker_open.txt")); } catch { }
+        L($"[tr] result {SaveTransferUi.LastResult} after {w:F1}s {(SaveTransferUi.LastRejectDetail != "" ? "(" + SaveTransferUi.LastRejectDetail + ")" : "")}");
     }
 
     // 1項目を消して個数はそのまま(検査値で見つかる)

@@ -1,0 +1,62 @@
+9930	Hasil run terakhir sedang diterapkan. Mulai ulang aplikasi, lalu ekspor.
+9931	Data yang diekspor tidak dapat diperiksa. Coba lagi.
+9932	File rusak atau isinya telah diubah. Tidak bisa diimpor (data saat ini tidak berubah).
+9933	File ini dibuat oleh versi aplikasi yang lebih baru. Perbarui aplikasi, lalu impor (data saat ini tidak berubah).
+9934	File kosong (data saat ini tidak berubah).
+9935	File terlalu besar. Ini bukan file transfer (data saat ini tidak berubah).
+9936	Ini bukan file transfer game ini (data saat ini tidak berubah).
+9937	Tidak bisa transfer antara versi pengembangan dan versi rilis (data saat ini tidak berubah).
+9938	File berisi nilai yang tidak valid. Tidak bisa diimpor (data saat ini tidak berubah).
+9939	File kekurangan data yang diperlukan. Tidak bisa diimpor (data saat ini tidak berubah).
+9940	Transfer data bisa dilakukan di layar Beranda (tidak saat run atau terhubung multipemain).
+9941	File ini tidak bisa diimpor.
+9942	Gagal membuat cadangan sebelum impor. Periksa ruang kosong perangkat (data saat ini tidak berubah).
+9943	Gagal menyiapkan impor. Periksa ruang kosong perangkat (data saat ini tidak berubah).
+9944	Transfer data sebelumnya telah diselesaikan
+9945	Gagal mengekspor
+9946	Berhasil diekspor
+9947	Disimpan di: {0}
+9948	Gagal menulis file.
+9949	Tidak bisa diimpor
+9950	Tidak ada file transfer. Taruh di folder ini: {0}
+9951	Gagal membaca file.
+9952	File: {0}
+9953	Gagal menulis ke lokasi yang dipilih. Pilih lokasi lain.
+9954	Gagal membaca file (data saat ini tidak berubah).
+9955	Gagal mengimpor
+9956	Transfer data selesai
+9957	Run yang dijeda tidak ikut ditransfer.
+9958	Simpan juga salinan di perangkat lain, PC, atau penyimpanan eksternal untuk berjaga-jaga jika perangkat rusak.
+9959	Ekspor
+9960	Impor
+9961	Pilih lokasi penyimpanan…
+9962	Pilih file transfer…
+9963	Impor File Transfer
+9964	Waktu simpan: {0}
+9965	Aplikasi: {0}
+9966	File
+9967	Perangkat Ini
+9968	MILE Dimiliki
+9969	{0} jenis / {1} kartu
+9970	{0} kartu
+9971	Peta Terbuka
+9972	Karakter Terbuka
+9973	Jarak Terbaik
+9974	Total Jarak
+9975	Terbuka
+9976	Progres saat ini (MILE, kartu, dek, yang terbuka, rekor) akan diganti dengan isi file ini. Tidak digabungkan.
+9977	Run yang dijeda di perangkat ini akan dihapus.
+9978	Pengaturan, Pass Tanpa Iklan, dan pendaftaran peringkat tidak ditransfer.
+9979	Ganti Progres Saat Ini
+9980	Peringatan Rintangan
+9981	Berkedip
+9982	Garis Tepi Saja
+9983	Transfer Data
+9984	Ekspor ke File
+9985	Impor dari File
+9986	Simpan MILE, kartu, dek, yang terbuka, dan rekor ke file untuk dipindah ke perangkat lain. Saat diimpor, progres saat ini diganti dengan isi file.
+9987	Untuk berjaga-jaga jika perangkat rusak, simpan file ekspor di perangkat lain, PC, atau penyimpanan eksternal.
+9988	Pengaturan, run yang dijeda, Pass Tanpa Iklan (pulihkan lewat toko), dan pendaftaran peringkat tidak ditransfer.
+9989	Hanya run solo (tanpa bantuan CPU dan multipemain)
+9990	Berlari bersama sekutu CPU (maks. 3). Sekutu bertarung otomatis dan kembali tak lama setelah tumbang. Hadiah hanya untukmu. Run dengan bantuan tidak masuk peringkat (MILE, yang terbuka, dan rekor pribadi tetap seperti biasa).
+9991	Pembelian sedang disiapkan

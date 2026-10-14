@@ -2,6 +2,7 @@
  * One More Mile - ランキングへの投稿(Cloud Code, JavaScript)。2026-10-08
  * 端末から届いた値を検査してから、Leaderboards へ「自己ベストより長い時だけ」書く。
  * 検査の規則は Unity 側の LeaderboardRules(Assets/Scripts/Online/Leaderboard.cs)と同じ。
+ * 2026-10-14: ソロ専用(CPU サポート/マルチのランは端末が送らず、届いても "solo only" で拒否する。サポート用の表/スクリプトは作らない)。
  *
  * 前提(Dashboard):
  *  - Leaderboards: omm_best_wasteland_road / omm_best_natural_cave / omm_best_sky_corridor / omm_best_last_corridor
@@ -39,6 +40,8 @@ function sanitizeName(raw) {
 }
 
 function validate(p, serverBest, recentRuns, nowUtc) {
+  // 2026-10-14: ソロだけ。端末はソロの記録に partySize = 1 を付けて送る。CPU サポート(2〜4)/仲間あり/人数の無い送信(古い版)は書かない
+  if (Number(p.partySize) !== 1 || (p.allies !== undefined && String(p.allies) !== "")) return "solo only";
   if (!/^[0-9a-fA-F]{32}$/.test(p.runId || "")) return "bad run id";
   if (!STAGES.includes(p.stageId)) return "bad map";
   if (!CHARACTERS.includes(p.characterId)) return "bad character";
@@ -110,4 +113,7 @@ module.exports.params = {
   committedUtc: { type: "NUMERIC", required: true },
   appVersion: { type: "String", required: false },
   name: { type: "String", required: false },
+  // 2026-10-14: ソロの宣言(1 だけ受け付ける)。必須にすると古い版の送信が「失敗」扱いで再送され続けるので任意にして、validate で拒否する
+  partySize: { type: "NUMERIC", required: false },
+  allies: { type: "String", required: false },
 };
