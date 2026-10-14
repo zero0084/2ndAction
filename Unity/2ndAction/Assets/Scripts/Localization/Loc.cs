@@ -211,6 +211,7 @@ public static class Loc
         foreach (var v in nativeDisplay.Values) if (v == s) return s; // 並べ替え済みの名前
         if (cache.TryGetValue(s, out string hit)) return hit;
         string r = Lookup(s);
+        if (current != "ja" && (current.StartsWith("zh") ? Kana.IsMatch(r) : Jp.IsMatch(r))) LocDebug.ShownJapanese(current, s, r); // 2026-10-14: 画面に出る文に日本語が残った(一部だけ訳された物も)
         if (cache.Count > 6000) cache.Clear();
         cache[s] = r;
         return r;
@@ -270,7 +271,16 @@ public static class Loc
             var m = t.re.Match(s);
             if (!m.Success) continue;
             string r = Raw(t.key);
-            for (int g = 1; g < m.Groups.Count; g++) r = r.Replace("{" + (g - 1) + "}", Auto(m.Groups[g].Value)); // 差し込まれた語も訳す(カード名など)
+            bool leftJp = false;
+            for (int g = 1; g < m.Groups.Count; g++)
+            {
+                string part = Auto(m.Groups[g].Value); // 差し込まれた語も訳す(カード名など)
+                // 2026-10-14: 差し込みの部分が訳されないまま日本語で残る時は、この型を使わない
+                //  (「0回分」が「{0}分」に当たって「0回 min」と意味の違う文になっていた。訳が無いと分かる方がよい)
+                if (current != "ja" && (current.StartsWith("zh") ? Kana.IsMatch(part) : Jp.IsMatch(part))) { leftJp = true; break; }
+                r = r.Replace("{" + (g - 1) + "}", part);
+            }
+            if (leftJp) continue;
             return r;
         }
         found = false;
@@ -288,7 +298,9 @@ public static class LocDebug
     public static readonly HashSet<string> MissingKeys = new HashSet<string>();
     public static readonly HashSet<string> UntranslatedShown = new HashSet<string>();
     public static readonly HashSet<string> UnknownLabels = new HashSet<string>();
-    public static void Reset() { MissingKeys.Clear(); UntranslatedShown.Clear(); UnknownLabels.Clear(); }
+    public static readonly HashSet<string> JapaneseShown = new HashSet<string>(); // 2026-10-14: 表示する文に日本語が残った物(元の文 → 出た文)
+    public static void Reset() { MissingKeys.Clear(); UntranslatedShown.Clear(); UnknownLabels.Clear(); JapaneseShown.Clear(); }
+    public static void ShownJapanese(string lang, string src, string shown) { if (JapaneseShown.Count < 500) JapaneseShown.Add(src == shown ? src : src + "  =>  " + shown); }
     public static void Unknown(string s) { if (UnknownLabels.Count < 500) UnknownLabels.Add(s); }
     public static void Missing(string lang, string key)
     {
