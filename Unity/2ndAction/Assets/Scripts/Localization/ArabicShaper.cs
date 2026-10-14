@@ -87,7 +87,9 @@ public static class ArabicShaper
         if (string.IsNullOrEmpty(s)) return s;
         // 形を作る前の文字(U+0600〜06FF / 0750〜077F)がある時だけ。作り済み(表示形だけ)の文は二度並べ替えない
         bool any = false;
-        foreach (char c in s) if ((c >= '؀' && c <= 'ۿ') || (c >= 'ݐ' && c <= 'ݿ')) { any = true; break; }
+        // 2026-10-14: 文字(letter)だけで判定する。以前は ؟ ، などの句読点も同じ範囲にあるので、作り済みの文を二度目に並べ替えて崩していた
+        //   (確認の画面の本文など、Loc.T の後にもう一度 Loc.Auto を通る所。字がつながらず、行の向きも逆になっていた)
+        foreach (char c in s) if (((c >= '؀' && c <= 'ۿ') || (c >= 'ݐ' && c <= 'ݿ')) && char.IsLetter(c)) { any = true; break; }
         if (!any) return s;
         var lines = Shape(s).Split('\n');
         for (int i = 0; i < lines.Length; i++) lines[i] = ReorderLine(lines[i]);

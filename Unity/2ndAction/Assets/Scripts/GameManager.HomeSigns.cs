@@ -13,10 +13,9 @@ using UnityEngine;
 //  ・札の位置は物の矩形(部屋の絵 bgRoomRect の割合)から決めるので、縦横/回転の後も物と札とタップの範囲が一致する。画面の外へは出さない。
 public partial class GameManager
 {
-    // 2026-10-14: 「キャラ選択」には単独の訳が無かった → 日本語以外は、行き先の画面の題名のレビュー済みの訳(keys.tsv の ID 242 "CHARACTER SELECT")を使う。
-    //   日本語はそのまま「キャラ選択」。「デッキ編集」はレビュー済みの訳が無いので、レビューの後に足す(Docs/LocReview_2026-10-14)
-    static string ReviewedKey(string ja, string reviewed) => Loc.Current == "ja" ? ja : reviewed;
-    public static string[] HomeSignLabels => new[] { ReviewedKey("キャラ選択", "CHARACTER SELECT"), "デッキ編集", "カード合成", "ガチャ", "出発" };
+    // 2026-10-14: 「キャラ選択」(ID 10001、ホームの札と縦画面の下のボタン専用の短い訳)と「デッキ編集」(ID 10000)はエステルのレビュー済みの訳(Tools/loc/keys_extra17.tsv)。
+    //   キャラ選択の画面の題名(ID 242 CHARACTER SELECT)とは別の ID(題名の訳は変えない)
+    public static string[] HomeSignLabels => new[] { "キャラ選択", "デッキ編集", "カード合成", "ガチャ", "出発" };
     public static int HomeSignTaps { get; private set; } // 確認用
     public Rect[] LastHomeSignRects { get; private set; } = new Rect[6];      // 4 = 出発 / 続きから、5 = はじめから
     public Rect[] LastHomeSignHitRects { get; private set; } = new Rect[6];

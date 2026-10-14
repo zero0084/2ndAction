@@ -2003,7 +2003,7 @@ public partial class GameManager : MonoBehaviour
             Rect b = new Rect(pl.facility.x + i * (w + gap), pl.facility.y, w, pl.facility.height);
             bool ok = i == 3 ? (interactable || (gachaResultOpen && !showNewRunConfirm && !NetDebugUI.BlocksHomeInput && !UiInputGate.Blocked)) : interactable;
             if (i == 3 && gachaResultOpen) continue; // 確認中は本体を押す(下の窓と重ねない)
-            bool hit = DrawStyledButton(b, labels[i], FitFont(labels[i], b.width - 14f, fs), primary: i == 0, ornate: true);
+            bool hit = DrawStyledButton(b, labels[i], FitFont(labels[i], OrnateTextW(b), fs), primary: i == 0, ornate: true);
             if (!hit || !ok || fade <= 0.99f) continue;
             if (i == 0) OpenCharacterSelect();
             else if (i == 1) OpenDeckEdit();
@@ -2014,6 +2014,18 @@ public partial class GameManager : MonoBehaviour
     }
     // ボタンの文字が幅に入らない時(長い言語/縦画面の狭いボタン)だけ字を小さく(2026-10-08)
     GUIStyle fitFontStyle;
+    // 2026-10-14(エステルの指摘): 飾り枠のボタンは四隅の飾りに字が掛かっていた(縦画面の Fusão de cartas など)→ 字は内側の 78% に収める
+    static float OrnateTextW(Rect r) => r.width * 0.78f;
+    // 2026-10-14: 折り返す文の、行の数が変わらない一番狭い幅(中央揃えで行の長さが揃い、最後の1語だけの行ができにくい)
+    static float BalancedWrapWidth(string text, GUIStyle st, float maxW)
+    {
+        var c = new GUIContent(text);
+        float h = st.CalcHeight(c, maxW), one = st.CalcHeight(new GUIContent("A"), maxW);
+        if (h <= one * 1.5f) return maxW; // 1行に収まる
+        float lo = maxW * 0.45f, hi = maxW;
+        for (int i = 0; i < 12; i++) { float mid = (lo + hi) * 0.5f; if (st.CalcHeight(c, mid) <= h + 0.5f) hi = mid; else lo = mid; }
+        return Mathf.Min(maxW, hi + 2f);
+    }
     float FitFont(string text, float maxW, float fs)
     {
         if (fitFontStyle == null) fitFontStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, wordWrap = false };
@@ -5516,8 +5528,9 @@ public partial class GameManager : MonoBehaviour
         if (HomePortrait) fs = Mathf.Round(Mathf.Min(PortraitHome().chrome.height * 0.38f, PortraitChromeSlot(0).width * 0.17f)); // 縦: 4つ並びの幅に収まる字の大きさ
         Rect setRect = GetHomeSettingsButtonRect();
         // 2026-10-10(全体点検): 長い言語(Einstellungen 等)では歯車が字に重なり、字も極端に小さかった → 歯車の右の空きに字を収める
-        float gearS = setRect.height * 0.52f, gearX = setRect.x + Mathf.Max(6f, setRect.width * 0.06f);
-        Rect setText = new Rect(gearX + gearS + 4f, setRect.y, setRect.xMax - (gearX + gearS + 4f) - 8f, setRect.height);
+        // 2026-10-14: 歯車と字を飾り枠の四隅から離す(縦画面で歯車が左の飾りに重なっていた)
+        float gearS = setRect.height * 0.52f, gearX = setRect.x + Mathf.Max(6f, setRect.width * 0.12f);
+        Rect setText = new Rect(gearX + gearS + 4f, setRect.y, setRect.xMax - (gearX + gearS + 4f) - Mathf.Max(8f, setRect.width * 0.11f), setRect.height);
         if (DrawStyledButton(setRect, "", fs, primary: false, ornate: true)) SettingsPanel.OpenStatic();
         float setFs = FitFont("設定", setText.width, fs);
         if (setFs >= fs * 0.7f)
@@ -5526,18 +5539,18 @@ public partial class GameManager : MonoBehaviour
             LocGUI.Label(setText, "設定", UiKit.Label(setFs, TextAnchor.MiddleCenter, true, Color.white));
         }
         else UiKit.DrawGear(new Rect(setRect.center.x - gearS * 0.6f, setRect.y + (setRect.height - gearS * 1.2f) * 0.5f, gearS * 1.2f, gearS * 1.2f), 1f, new Color(1f, 0.88f, 0.55f)); // 字が読めない大きさになる言語: 歯車だけ
-        if (Platform.Online.LanMultiplayer && DrawStyledButton(GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel, FitFont(NetDebugUI.HomeButtonLabel, GetHomeMultiButtonRect().width - 12f, fs), primary: NetSession.IsActive, ornate: true)) NetDebugUI.OpenPanel();
+        if (Platform.Online.LanMultiplayer && DrawStyledButton(GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel, FitFont(NetDebugUI.HomeButtonLabel, OrnateTextW(GetHomeMultiButtonRect()), fs), primary: NetSession.IsActive, ornate: true)) NetDebugUI.OpenPanel();
         // 闘技場(2026-10-06 正式版): キャラやカードを自由に試せる練習場。マルチの部屋にいる間は出さない(ソロ用)
         // 闘技場: 天空回廊で30,000m到達+帰還で解放。2026-10-08: 未解放の間はボタンごと出さない(存在を見せない)。解放直後は NEW
         bool arenaOpen = UnlockRules.IsArenaUnlocked;
         if (arenaOpen && !NetSession.IsActive)
         {
             Rect ar = GetHomeArenaButtonRect();
-            if (DrawStyledButton(ar, "闘技場", FitFont("闘技場", ar.width - 12f, fs), primary: false, ornate: true)) { UnlockRules.MarkStageSeen(UnlockRules.Arena); ArenaConfigStore.Load(); ArenaLauncher.Launch("home", true); }
+            if (DrawStyledButton(ar, "闘技場", FitFont("闘技場", OrnateTextW(ar), fs), primary: false, ornate: true)) { UnlockRules.MarkStageSeen(UnlockRules.Arena); ArenaConfigStore.Load(); ArenaLauncher.Launch("home", true); }
             if (UnlockRules.NewArena) DrawNewDot(ar);
         }
         // ランキング(2026-10-08): 設定の下の段。参加は任意(ランキングの画面で)
-        if (!NetSession.IsActive && DrawStyledButton(GetHomeRankingButtonRect(), "ランキング", FitFont("ランキング", GetHomeRankingButtonRect().width - 12f, fs * 0.92f), primary: false, ornate: true)) RankingPanel.OpenStatic();
+        if (!NetSession.IsActive && DrawStyledButton(GetHomeRankingButtonRect(), "ランキング", FitFont("ランキング", OrnateTextW(GetHomeRankingButtonRect()), fs * 0.92f), primary: false, ornate: true)) RankingPanel.OpenStatic();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // 2026-10-09(依頼G-2): 開発版だけの入口。小さく薄く、ポップアップ(ガチャの結果など)が開いている間は出さない
         if (Debug.isDebugBuild && !gachaResultOpen && !UiInputGate.ModalOpen && !NetDebugUI.PanelOpen)
@@ -6193,18 +6206,36 @@ public partial class GameManager : MonoBehaviour
         GUI.matrix = Matrix4x4.Scale(new Vector3(s, s, 1f)) * keepM;
         float vw = Screen.width / s, vh = Screen.height / s;
         float panelWidth = Mathf.Min(560f, vw * 0.9f);
-        float panelHeight = Mathf.Min(320f, vh - 24f);
-        Rect panelRect = new Rect(vw / 2f - panelWidth / 2f, vh / 2f - panelHeight / 2f, panelWidth, panelHeight);
-        OrnateUi.DrawPanel(panelRect, 0.92f);
-
+        // 2026-10-14(エステルのレビュー): 長い言語(ビルマ語など)で本文がスクロールになっていた → 字は縮めず、本文の高さに合わせて枠を高くする
         GUIStyle msgStyle = new GUIStyle(GUI.skin.label);
         msgStyle.fontSize = 21;
         msgStyle.alignment = TextAnchor.MiddleCenter;
         msgStyle.wordWrap = true;
         msgStyle.normal.textColor = Color.white;
         // 2026-10-14(マスター指定): 「はじめから」= 新しいランを出発(所持カード/MILE/解放などは初期化しない)。中断データだけを終える
-        confirmScroll.Text(new Rect(panelRect.x + 24f, panelRect.y + 22f, panelRect.width - 48f, panelHeight - 22f - 96f),
-            Loc.T("中断中のランを終了して、はじめから出発しますか？") + "\n\n" + Loc.T("持ち帰り予定の MILE は受け取れません。") + "\n" + Loc.T("所持カード・MILE・解放はそのままです。"), msgStyle, "newrun"); // 2026-10-08: 長い言語はスクロール。文の途中で折り返さないよう短い文に分ける
+        // 9997 と 9998 は必ず並べて出す(エステルのレビュー: 9997 だけを単独で出さない)
+        string newRunMsg = Loc.T("中断中のランを終了して、はじめから出発しますか？") + "\n\n" + Loc.T("持ち帰り予定の MILE は受け取れません。") + "\n" + Loc.T("所持カード・所持MILE・解放状況は維持されます。");
+        string[] paras = { Loc.T("中断中のランを終了して、はじめから出発しますか？"), Loc.T("持ち帰り予定の MILE は受け取れません。"), Loc.T("所持カード・所持MILE・解放状況は維持されます。") };
+        float[] paraW = new float[paras.Length], paraH = new float[paras.Length];
+        float gapH = msgStyle.CalcHeight(new GUIContent("A"), panelWidth - 48f), total = gapH; // 1文目と2文目の間は1行あける
+        for (int i = 0; i < paras.Length; i++) { paraW[i] = BalancedWrapWidth(paras[i], msgStyle, panelWidth - 48f); paraH[i] = msgStyle.CalcHeight(new GUIContent(paras[i]), paraW[i]); total += paraH[i]; }
+        float panelHeight = Mathf.Min(Mathf.Max(320f, total + 22f + 96f + 8f), vh - 24f);
+        Rect panelRect = new Rect(vw / 2f - panelWidth / 2f, vh / 2f - panelHeight / 2f, panelWidth, panelHeight);
+        OrnateUi.DrawPanel(panelRect, 0.92f);
+        Rect msgRect = new Rect(panelRect.x + 24f, panelRect.y + 22f, panelRect.width - 48f, panelHeight - 22f - 96f);
+        // 2026-10-14(エステルのレビュー): 最後の1語だけが次の行に残る(英語の "unlocks." / "are.")→ 文ごとに、行の数が変わらない一番狭い幅で折り返して行の長さを揃える。
+        //   文言と改行は変えない。文はもう表示用に変換済み(Loc.T)なので、もう一度 Loc.Auto を通さずに描く。収まらない時だけ今までどおりスクロール
+        LastNewRunMsgHeight = total; LastNewRunMsgAreaHeight = msgRect.height; // 確認用: 本文が枠に収まるか
+        if (total <= msgRect.height)
+        {
+            float y = msgRect.y + (msgRect.height - total) * 0.5f;
+            for (int i = 0; i < paras.Length; i++)
+            {
+                GUI.Label(new Rect(msgRect.center.x - paraW[i] * 0.5f, y, paraW[i], paraH[i]), paras[i], msgStyle);
+                y += paraH[i] + (i == 0 ? gapH : 0f);
+            }
+        }
+        else confirmScroll.Text(msgRect, newRunMsg, msgStyle, "newrun"); // 2026-10-08: 長い言語はスクロール
 
         Rect yesRect = new Rect(panelRect.x + 24f, panelRect.yMax - 84f, panelRect.width / 2f - 36f, 62f);
         Rect noRect = new Rect(panelRect.x + panelRect.width / 2f + 12f, panelRect.yMax - 84f, panelRect.width / 2f - 36f, 62f);
@@ -6228,6 +6259,8 @@ public partial class GameManager : MonoBehaviour
     public Rect LastNewRunYesRect { get; private set; }
     public Rect LastNewRunNoRect { get; private set; }
     public bool NewRunConfirmOpen => showNewRunConfirm;
+    public float LastNewRunMsgHeight { get; private set; }
+    public float LastNewRunMsgAreaHeight { get; private set; }
 
     // Item 9 - small Gameplay Pause/Menu button (bottom-right, mirroring
     // the title screen's gear icon at bottom-left).

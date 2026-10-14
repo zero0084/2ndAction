@@ -1,0 +1,241 @@
+﻿文言ID	対象言語	確定の文言
+10000	ar	تعديل المجموعة
+10000	bn	ডেক সাজানো
+10000	cs	Úprava balíčku
+10000	de	Deck ändern
+10000	en	Edit Deck
+10000	es	Editar mazo
+10000	fa	ویرایش دسته
+10000	fil	Ayusin deck
+10000	fr	Éditer deck
+10000	hi	डेक संपादन
+10000	id	Edit Dek
+10000	it	Modifica mazzo
+10000	ja	デッキ編集
+10000	km	កែសំណុំកាត
+10000	ko	덱 편집
+10000	lo	ແກ້ໄຂຊຸດບັດ
+10000	ms	Edit Dek
+10000	my	ဒက်ခ်ပြင်ဆင်
+10000	pl	Edycja talii
+10000	pt-BR	Editar deck
+10000	ro	Editare pachet
+10000	ru	Правка колоды
+10000	sw	Hariri Deki
+10000	ta	டெக் திருத்தம்
+10000	th	แก้ไขเด็ค
+10000	tr	Deste düzenle
+10000	uk	Змінити колоду
+10000	vi	Chỉnh bộ bài
+10000	zh-Hans	编辑卡组
+10000	zh-Hant	編輯牌組
+9992	ar	متابعة
+9992	bn	চালিয়ে যান
+9992	cs	Pokračovat
+9992	de	Fortsetzen
+9992	en	Continue
+9992	es	Continuar
+9992	fa	ادامه
+9992	fil	Ituloy
+9992	fr	Continuer
+9992	hi	जारी रखें
+9992	id	Lanjutkan
+9992	it	Continua
+9992	ja	続きから
+9992	km	បន្ត
+9992	ko	이어하기
+9992	lo	ສືບຕໍ່
+9992	ms	Teruskan
+9992	my	ဆက်ပြေးမည်
+9992	pl	Kontynuuj
+9992	pt-BR	Continuar
+9992	ro	Continuă
+9992	ru	Продолжить
+9992	sw	Endelea
+9992	ta	தொடர்
+9992	th	เล่นต่อ
+9992	tr	Devam et
+9992	uk	Продовжити
+9992	vi	Tiếp tục
+9992	zh-Hans	继续
+9992	zh-Hant	繼續
+9993	ar	استئناف من {0}m
+9993	bn	{0}m থেকে আবার শুরু
+9993	cs	Pokračovat od {0}m
+9993	de	Ab {0}m fortsetzen
+9993	en	Resume from {0}m
+9993	es	Reanudar desde {0}m
+9993	fa	ادامه از {0}m
+9993	fil	Ituloy mula {0}m
+9993	fr	Reprendre à {0}m
+9993	hi	{0}m से फिर शुरू करें
+9993	id	Lanjut dari {0}m
+9993	it	Riprendi da {0}m
+9993	ja	{0}m から再開
+9993	km	បន្តពី {0}m
+9993	ko	{0}m부터 재개
+9993	lo	ສືບຕໍ່ຈາກ {0}m
+9993	ms	Sambung dari {0}m
+9993	my	{0}m မှ ပြန်စမည်
+9993	pl	Wznów od {0}m
+9993	pt-BR	Retomar de {0}m
+9993	ro	Reia de la {0}m
+9993	ru	Продолжить с {0}m
+9993	sw	Endelea kutoka {0}m
+9993	ta	{0}m இலிருந்து தொடர்
+9993	th	เล่นต่อจาก {0}m
+9993	tr	{0}m noktasından devam et
+9993	uk	Продовжити з {0}m
+9993	vi	Tiếp tục từ {0}m
+9993	zh-Hans	从 {0}m 继续
+9993	zh-Hant	從 {0}m 繼續
+9994	ar	البدء من جديد
+9994	bn	শুরু থেকে
+9994	cs	Začít znovu
+9994	de	Neu beginnen
+9994	en	Start Over
+9994	es	Empezar de nuevo
+9994	fa	شروع دوباره
+9994	fil	Magsimula muli
+9994	fr	Recommencer
+9994	hi	शुरू से
+9994	id	Mulai dari awal
+9994	it	Ricomincia
+9994	ja	はじめから
+9994	km	ចាប់ផ្ដើមឡើងវិញ
+9994	ko	처음부터
+9994	lo	ເລີ່ມໃໝ່
+9994	ms	Mula semula
+9994	my	အစကနေ
+9994	pl	Zacznij od nowa
+9994	pt-BR	Começar de novo
+9994	ro	De la început
+9994	ru	Начать заново
+9994	sw	Anza upya
+9994	ta	தொடக்கத்திலிருந்து
+9994	th	เริ่มใหม่
+9994	tr	Baştan başla
+9994	uk	Почати знову
+9994	vi	Chơi lại từ đầu
+9994	zh-Hans	重新开始
+9994	zh-Hant	重新開始
+9995	ar	بدء جولة جديدة
+9995	bn	নতুন রান শুরু
+9995	cs	Nový běh
+9995	de	Neuen Lauf starten
+9995	en	Start a New Run
+9995	es	Nueva carrera
+9995	fa	شروع دور جدید
+9995	fil	Bagong run
+9995	fr	Nouvelle course
+9995	hi	नया रन शुरू करें
+9995	id	Mulai run baru
+9995	it	Nuova corsa
+9995	ja	はじめから出発
+9995	km	ចាប់ផ្ដើមវគ្គថ្មី
+9995	ko	처음부터 출발
+9995	lo	ເລີ່ມຮອບໃໝ່
+9995	ms	Mula larian baharu
+9995	my	ပြေးပွဲအသစ် စမည်
+9995	pl	Nowy bieg
+9995	pt-BR	Nova corrida
+9995	ro	Cursă nouă
+9995	ru	Новый забег
+9995	sw	Anza mbio mpya
+9995	ta	புதிய ஓட்டம் தொடங்கு
+9995	th	เริ่มรันใหม่
+9995	tr	Yeni koşu başlat
+9995	uk	Новий забіг
+9995	vi	Bắt đầu lượt mới
+9995	zh-Hans	重新出发
+9995	zh-Hant	重新出發
+9996	ar	إنهاء الجولة المعلقة والبدء من جديد؟
+9996	bn	স্থগিত রানটি শেষ করে শুরু থেকে রওনা দেবেন?
+9996	cs	Ukončit přerušený běh a začít znovu?
+9996	de	Den unterbrochenen Lauf beenden und neu beginnen?
+9996	en	End this run and start over?
+9996	es	¿Terminar la carrera pausada y empezar de nuevo?
+9996	fa	دور متوقف‌شده را تمام می‌کنید و از نو شروع می‌کنید؟
+9996	fil	Tapusin ang naka-pause na run at magsimula muli?
+9996	fr	Terminer la course en pause et recommencer ?
+9996	hi	रुका हुआ रन खत्म करके शुरू से चलें?
+9996	id	Akhiri run yang dijeda dan mulai dari awal?
+9996	it	Terminare la corsa sospesa e ricominciare?
+9996	ja	中断中のランを終了して、はじめから出発しますか？
+9996	km	បញ្ចប់វគ្គដែលបានផ្អាក ហើយចាប់ផ្ដើមឡើងវិញ?
+9996	ko	중단 중인 런을 끝내고 처음부터 출발할까요?
+9996	lo	ຈົບຮອບທີ່ຢຸດໄວ້ ແລ້ວເລີ່ມໃໝ່ບໍ?
+9996	ms	Tamatkan larian yang dijeda dan mula semula?
+9996	my	ရပ်ထားသော ပြေးပွဲကို အဆုံးသတ်ပြီး အစကနေ စထွက်မလား?
+9996	pl	Zakończyć przerwany bieg i zacząć od nowa?
+9996	pt-BR	Encerrar a corrida pausada e começar de novo?
+9996	ro	Închei cursa întreruptă și pornești de la început?
+9996	ru	Завершить прерванный забег и начать заново?
+9996	sw	Kumaliza mbio zilizositishwa na kuanza upya?
+9996	ta	இடைநிறுத்திய ஓட்டத்தை முடித்து தொடக்கத்திலிருந்து புறப்படவா?
+9996	th	จบรันที่หยุดไว้แล้วเริ่มใหม่หรือไม่?
+9996	tr	Yarım kalan koşu bitirilip baştan başlansın mı?
+9996	uk	Завершити перерваний забіг і почати знову?
+9996	vi	Kết thúc lượt chạy đang tạm dừng và bắt đầu lại từ đầu?
+9996	zh-Hans	要结束暂停的本局并重新出发吗？
+9996	zh-Hant	要結束暫停中的本局並重新出發嗎？
+9997	ar	لن تحصل على MILE الذي كنت ستعود به.
+9997	bn	এই রানের MILE পাবেন না।
+9997	cs	MILE z tohoto běhu nezískáte.
+9997	de	Du erhältst keine MILE aus diesem Lauf.
+9997	en	You won't receive MILE from this run.
+9997	es	No recibirás los MILE que ibas a llevarte.
+9997	fa	MILE این دور را دریافت نمی‌کنید.
+9997	fil	Hindi mo makukuha ang MILE na iuuwi mo sana.
+9997	fr	Vous ne recevrez pas les MILE de cette course.
+9997	hi	इस रन के MILE नहीं मिलेंगे।
+9997	id	Kamu tidak akan menerima MILE dari run ini.
+9997	it	Non riceverai i MILE di questa corsa.
+9997	ja	持ち帰り予定の MILE は受け取れません。
+9997	km	អ្នកនឹងមិនទទួលបាន MILE ពីវគ្គនេះទេ។
+9997	ko	가지고 돌아올 예정이던 MILE은 받을 수 없습니다.
+9997	lo	ຈະບໍ່ໄດ້ຮັບ MILE ທີ່ຈະນຳກັບມາຈາກຮອບນີ້.
+9997	ms	Anda tidak akan menerima MILE daripada larian ini.
+9997	my	ဤပြေးပွဲမှ MILE ကို ရရှိမည်မဟုတ်ပါ။
+9997	pl	Nie otrzymasz MILE z tego biegu.
+9997	pt-BR	Você não receberá os MILE que levaria para casa.
+9997	ro	Nu vei primi MILE din această cursă.
+9997	ru	Вы не получите MILE за этот забег.
+9997	sw	Hutapata MILE za mbio hizi.
+9997	ta	இந்த ஓட்டத்தின் MILE கிடைக்காது.
+9997	th	จะไม่ได้รับ MILE ที่จะนำกลับมาจากรันนี้
+9997	tr	Bu koşudan getireceğin MILE'ı alamazsın.
+9997	uk	Ви не отримаєте MILE за цей забіг.
+9997	vi	Bạn sẽ không nhận được MILE từ lượt chạy này.
+9997	zh-Hans	无法获得预计带回的 MILE。
+9997	zh-Hant	無法獲得預計帶回的 MILE。
+9998	ar	تحتفظ ببطاقاتك ورصيد MILE والمحتوى الذي فتحته.
+9998	bn	আপনার সংগ্রহের কার্ড, জমা MILE ও আনলক করা বিষয়বস্তু থাকবে।
+9998	cs	Vlastněné karty, zůstatek MILE a odemčený obsah zůstanou.
+9998	de	Deine Karten, dein MILE-Guthaben und Freischaltungen bleiben erhalten.
+9998	en	You keep your owned cards, MILE balance and unlocks.
+9998	es	Conservas tus cartas, tu saldo de MILE y los desbloqueos.
+9998	fa	کارت‌ها، موجودی MILE و محتوای بازشدهٔ شما حفظ می‌شوند.
+9998	fil	Mananatili ang mga card mo, naipong MILE at mga na-unlock.
+9998	fr	Vos cartes, votre solde de MILE et le contenu débloqué sont conservés.
+9998	hi	आपके संग्रह के कार्ड, जमा MILE और अनलॉक की गई सामग्री बनी रहेगी।
+9998	id	Koleksi kartu, saldo MILE, dan konten yang sudah dibuka tetap tersimpan.
+9998	it	Conservi le tue carte, il saldo MILE e i contenuti sbloccati.
+9998	ja	所持カード・所持MILE・解放状況は維持されます。
+9998	km	កាតដែលអ្នកមាន សមតុល្យ MILE និងមាតិកាដែលបានដោះសោ នឹងនៅដដែល។
+9998	ko	보유 카드·보유 MILE·해금 상태는 유지됩니다.
+9998	lo	ບັດທີ່ມີ, ຍອດ MILE ແລະເນື້ອຫາທີ່ປົດລັອກແລ້ວຈະຍັງຄົງຢູ່.
+9998	ms	Koleksi kad, baki MILE dan kandungan yang telah dibuka kekal.
+9998	my	ပိုင်ဆိုင်ထားသော ကတ်များ၊ လက်ကျန် MILE နှင့် ဖွင့်ထားသောအကြောင်းအရာများကို ဆက်လက်ထိန်းသိမ်းထားပါမည်။
+9998	pl	Posiadane karty, saldo MILE i odblokowana zawartość pozostają.
+9998	pt-BR	Suas cartas, seu saldo de MILE e o conteúdo desbloqueado serão mantidos.
+9998	ro	Păstrezi cărțile deținute, soldul MILE și conținutul deblocat.
+9998	ru	Ваши карты, баланс MILE и открытый контент сохранятся.
+9998	sw	Kadi zako, salio la MILE na maudhui uliyofungua vitahifadhiwa.
+9998	ta	உங்களிடம் உள்ள அட்டைகள், MILE இருப்பு, திறக்கப்பட்ட உள்ளடக்கம் ஆகியவை மாறாது.
+9998	th	การ์ดที่มี ยอด MILE และสิ่งที่ปลดล็อกแล้วยังคงเดิม
+9998	tr	Sahip olduğun kartlar, MILE bakiyen ve açtığın içerikler korunur.
+9998	uk	Ваші карти, баланс MILE і відкритий вміст збережуться.
+9998	vi	Thẻ đã sở hữu, số dư MILE và nội dung đã mở khóa được giữ nguyên.
+9998	zh-Hans	已持有的卡牌、MILE 余额和已解锁内容保持不变。
+9998	zh-Hant	已持有的卡牌、MILE 餘額與已解鎖內容保持不變。

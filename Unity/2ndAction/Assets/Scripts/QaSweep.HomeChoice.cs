@@ -71,6 +71,54 @@ public partial class QaSweep
         Check(RunCheckpoint.HasActiveRun, "a suspended run exists");
         yield return new WaitForSecondsRealtime(0.6f);
 
+        if (phase == "verify")
+        {
+            // 2026-10-14: エステルのレビュー後の確認。30言語 × (中断中のランあり: 距離の桁 0 / 1,511 / 99,999 / 1,000,000 / 確認の画面 / 中断データなし)
+            string keepLang = Loc.Current;
+            var codes = Arg("-hcLangs", "") != "" ? Arg("-hcLangs", "").Split(',') : Loc.Languages.Select(l => l.code).ToArray();
+            var cpd = RunCheckpoint.Load();
+            float[] dists = { 0f, 1511f, 99999f, 1000000f };
+            foreach (var code in codes)
+            {
+                Loc.Set(code, false);
+                foreach (var d in dists)
+                {
+                    cpd.checkpointDistance = d; RunCheckpoint.Save(cpd); // 表示の確認だけ(専用の保存の中断データの距離を書き換える)
+                    yield return new WaitForSecondsRealtime(0.3f);
+                    HcCheckLayout($"{code} {d:N0}m");
+                    for (int i = 0; i < 4; i++) { var r = gm.LastHomeSignRects[i]; if (r.width > 0) Check(InsideScreen(r), $"{code}: sign {i} is on the screen {r}"); }
+                    if (d == 1511f || d == 1000000f) { Shot($"v_{code}_{d:0}"); yield return null; yield return null; }
+                }
+                typeof(GameManager).GetField("showNewRunConfirm", NP).SetValue(gm, true);
+                yield return new WaitForSecondsRealtime(0.35f);
+                Rect y = gm.LastNewRunYesRect, n = gm.LastNewRunNoRect;
+                L($"[hc] {code} confirm: text {gm.LastNewRunMsgHeight:F0} / area {gm.LastNewRunMsgAreaHeight:F0}");
+                if (Loc.IsRtl)
+                {
+                    string Cp(string s) => string.Join(" ", s.Take(14).Select(ch => ((int)ch).ToString("X4")));
+                    string q = Loc.T("中断中のランを終了して、はじめから出発しますか？"), qa = Loc.Auto(q), sign = Loc.Auto("はじめから");
+                    L($"[hc] {code} rtl: T='{Cp(q)}' Auto(T)='{Cp(qa)}' same={q == qa} sign='{Cp(sign)}'"); Check(q == qa, $"{code}: an already shaped right-to-left text is not reordered again");
+                }
+                Check(gm.LastNewRunMsgHeight <= gm.LastNewRunMsgAreaHeight, $"{code}: the confirm text fits without scrolling ({gm.LastNewRunMsgHeight:F0} <= {gm.LastNewRunMsgAreaHeight:F0})");
+                Check(InsideScreen(y) && InsideScreen(n) && !Overlap(y, n) && y.height >= 60f, $"{code}: confirm buttons on the screen, separate, tall enough");
+                Shot($"v_{code}_confirm"); yield return null; yield return null;
+                typeof(GameManager).GetField("showNewRunConfirm", NP).SetValue(gm, false);
+                yield return new WaitForSecondsRealtime(0.2f);
+            }
+            cpd.checkpointDistance = 1500f; RunCheckpoint.Save(cpd);
+            // 中断データなし: 「出発」だけ
+            RunCheckpoint.Clear();
+            foreach (var code in codes)
+            {
+                Loc.Set(code, false);
+                yield return new WaitForSecondsRealtime(0.35f);
+                Check(gm.LastHomeSignRects[4].width > 0 && gm.LastHomeSignRects[5].width <= 0 && InsideScreen(gm.LastHomeSignRects[4]), $"{code}: no suspended run -> 'depart' only");
+                Shot($"v_{code}_depart"); yield return null; yield return null;
+            }
+            Loc.Set(keepLang, false);
+            yield break;
+        }
+
         if (phase == "loc")
         {
             // 2026-10-14: ホームの訳漏れの調査。30言語 × (中断中のランあり / 確認の画面 / 中断データなし)で、表に無い日本語が画面に出たかを集める

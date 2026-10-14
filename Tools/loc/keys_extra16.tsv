@@ -4,4 +4,4 @@
 9995	ui	GameManager	はじめから出発
 9996	ui	GameManager	中断中のランを終了して、はじめから出発しますか？
 9997	ui	GameManager	持ち帰り予定の MILE は受け取れません。
-9998	ui	GameManager	所持カード・MILE・解放はそのままです。
+9998	ui	GameManager	所持カード・所持MILE・解放状況は維持されます。
