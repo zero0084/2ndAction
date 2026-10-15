@@ -357,6 +357,7 @@ public partial class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoChoiceAt") float.TryParse(next, out choiceAt);
             else if (a == "-netAutoChoiceHold") float.TryParse(next, out choiceHold);
             else if (a == "-netAutoMode") modeArg = next.ToLowerInvariant();
+            else if (a == "-netAutoRwKills" || a == "-netAutoEliteAt") ParseRewardArgs(a, next); // 2026-10-15 第2弾
             else if (a == "-netAutoKillAt") { foreach (string k in next.Split(',')) if (float.TryParse(k, out float kt)) killTimes.Add(kt); if (killTimes.Count > 0) killAt = killTimes[0]; damageTest = true; }
             else if (a == "-netAutoKillFall") killFall = true;
             else if (a == "-netAutoRevive") autoRevive = true;
@@ -553,6 +554,7 @@ public partial class NetAutoTest : MonoBehaviour
                 Phase3Test(gm);
                 if (step == Step.Done) break;
                 if (role == "HOST" && bossAt > 0f && !bossSpawned && runTime >= bossAt) SpawnTestBoss();
+                RewardKillTick(runTime);
                 BreakTest();
                 BossFxTest();
                 if (runTime >= runSeconds) Finish("run time elapsed");
@@ -1254,7 +1256,7 @@ public partial class NetAutoTest : MonoBehaviour
         }
         L($"OBSTACLES role={role} {ObstacleLine()}");
         L(WorldSummary());
-        { var g = GameManager.Instance; if (g != null) L($"REWARD share=1/{g.MileShareCount} mode={NetMatch.Mode} enemyMile={g.RunEnemyMile} bossMile={g.RunBossMile} kills={g.EnemyKillCount} bossKills={g.BossKillCount} Lv={g.Level} exp={g.TotalExpEarned:F0} carry={g.MileCarryDebug:F2} takeHome={g.TakeHomeMile}"); } // 2026-10-15: 協力の MILE の分配
+        { var g = GameManager.Instance; if (g != null) L($"REWARD mode={NetMatch.Mode} {RewardState(g)}"); } // 2026-10-15: 協力の MILE の分配
         L($"SUMMARY reason={reason} role={role} exceptions={exceptions} errors={errors} remoteShownSeconds={remoteShownSeconds} maxStepErr={totalMaxStepErr:F3} maxStep={totalMaxStep:F3} backSteps={totalBackSteps}/{totalFrames} sigA={sigA} sigB={sigB} sigC={sigC} ping avg={NetStats.SessionAvgPingMs:F0} max={NetStats.SessionMaxPingMs:F0} sim={NetLatencySim.DelayMs}");
         Invoke(nameof(Quit), 1f);
     }

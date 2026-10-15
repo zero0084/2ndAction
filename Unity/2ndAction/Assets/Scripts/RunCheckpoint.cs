@@ -22,6 +22,9 @@ public static class RunCheckpoint
     public class Data
     {
         public bool active;
+        // 2026-10-15 第2弾: true = ラン中の状態(距離/EXP/Lv/MILE と端数/カード/CPU/撃破数/HP)はチェックポイントの時点のもの。
+        // 中断の保存は ledger(記録の控え)だけを書き換える。false = 以前の形(中断の時点の状態)
+        public bool runAtCheckpoint;
         // ボスの再戦プール(2026-10-02)。bossPoolVersion=0 はこの仕組みより前の保存
         public int bossPoolVersion;
         public List<string> defeatedBosses = new List<string>();
@@ -61,7 +64,9 @@ public static class RunCheckpoint
         public int runBossMile;
         // 2026-10-15: 獲得 MILE の分配の人数と、種類ごとの端数の繰り越し、カード選択中に預かったボスの EXP
         public int mileShare;
-        public float carryEnemy, carryBoss, carryBonus, carryRing, heldBossExp;
+        public float carryEnemy, carryBoss, carryBonus, carryRing, heldBossExp; // carry* は以前の形(読み込みだけ)
+        public float mileCarry;
+        public int pendingLevelUps; // 2026-10-15 第2弾: ボス戦の間に上がってまだ選んでいないレベルアップ(再開で失わない)
         public int runBonusMile; // BONUS ZONE(2026-09-29)の仮取得MILE(古いデータは0)
         public bool ldBeyond; public float ldBeyondFrom, mileDistanceBase; // ラスダン ONE MORE MILE? の YES の後(2026-10-13 第3弾)
         public int runRingMile;  // 疾走出発のリングの代替報酬の仮取得MILE(2026-10-06、古いデータは0)

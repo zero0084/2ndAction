@@ -29,7 +29,11 @@ public partial class QaSweep
         for (int k = 0; k < 20 && !a2.Down; k++) { a2.SetHp(1); typeof(PlayerController).GetField("hitInvincibleTimer", NP).SetValue(a2.pc, 0f); a2.pc.TakeDamage(false, "qa"); if (!a2.Down) yield return new WaitForSeconds(0.3f); }
         a3.SetHp(Mathf.Max(1, a3.MaxHp / 2 + 3));
         yield return new WaitForSeconds(1.5f);
-        var before = CpuParty.Export();
+        // 2026-10-15 第2弾: 再開 = チェックポイントの状態(中断の時点ではない)。ここでチェックポイントを作り(ボスの報酬の直後と同じ)、
+        // その時の仲間の状態を基準にする。その後少し進めてから中断する
+        typeof(GameManager).GetMethod("SaveCheckpoint", NP).Invoke(gm, null);
+        var before = RunCheckpoint.Load().party;
+        yield return new WaitForSeconds(1.0f);
         string snap = string.Join(" | ", before.Select(m => $"{m.characterId} picks[{string.Join(",", m.picks)}] hp={m.hp} down={m.down} reviveIn={m.reviveIn:F1}"));
         L($"[partyResume] before suspend: {snap}");
         Check(before[0].down && before[0].reviveIn > 0f, "P2 is down before the suspend");

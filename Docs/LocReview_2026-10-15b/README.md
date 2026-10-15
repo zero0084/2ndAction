@@ -1,6 +1,13 @@
 # 報酬の見直しで変わった文のレビュー依頼(ChatGPT / エステル向け)— 2026-10-15
 
-ファイル: `reward_loc_review.tsv`(UTF-8、タブ区切り、90行 = 3件 × 30言語)。列は前回(2026-10-14 / 10-15)と同じです。
+ファイル: `reward_loc_review.tsv`(UTF-8、タブ区切り、90行 = 3件 × 30言語)。
+- このフォルダをまとめた `LocReview_2026-10-15b_for_Estelle.zip` を、そのままチャットに渡せます(TSV・この説明・画像)。
+- 列(2026-10-15 第2弾で追加):
+  - 文言ID / 対象言語 / 区分
+  - 既存文(日本語) / 修正文(日本語)
+  - 現在の文言(この言語) / 修正案
+  - 実際の仕様 / 差し込み変数
+  - 日本語の意味・変更点 / 表示箇所と文字数・改行の制約
 
 ## 3件
 | ID | 区分 | 日本語 | 場所 |
@@ -44,3 +51,10 @@
 - `images/sprint_landscape_ja.jpg` / `sprint_portrait_ja.jpg` / `sprint_landscape_en_old.jpg`: 疾走出発の画面。
   - 説明は長い時にスクロールします。
 - `images/coop_landscape_ja.jpg` / `coop_portrait_ja.jpg`: マルチのモードの選択(CO-OP の説明の下の1行)。
+
+## 反映待ちの管理(公開版までに解消)
+- 3件は `Scripts/Localization/LocPendingReview.cs` の一覧で管理しています。
+- 訳が入っていない言語では前の文が出ます。前の文は、MILE の分配と疾走の到着レベルより前の仕様の説明です。
+- 製品版(Development Build でない)の Android ビルドは、この3件の訳が全言語に入るまで止まります(`Editor/ReleaseBuildGuard.cs`)。
+  - 開発版の APK は今までどおり作れます。
+- 訳を反映したら、一覧から外します。

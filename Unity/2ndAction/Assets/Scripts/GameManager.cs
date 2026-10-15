@@ -1357,7 +1357,7 @@ public partial class GameManager : MonoBehaviour
     void OnDestroy() { if (bossVoiceHushed || HasStarted) BossVoice.StopAll(); } // ホームへ戻る/読み直しで残さない
     void UpdateMeasured()
     {
-        WatchEncounterSaveFreeze(); // 2026-10-15: ボス戦の始めに1回保存して、報酬が決まるまで中断データを書き換えない
+        EnsureStartCheckpoint(); // 2026-10-15 第2弾: 始めの 0m のチェックポイント(中断の保存はチェックポイントの状態を書き換えない)
         FlushHeldBossExp(); // 2026-10-15: カード選択中に預かったボスの EXP を、選び終えてから入れる
         bool hush = showPauseMenu || IsGameOver;
         if (hush != bossVoiceHushed) { bossVoiceHushed = hush; if (hush) BossVoice.StopAll(); }
@@ -1573,7 +1573,7 @@ public partial class GameManager : MonoBehaviour
         SetCharacterCardOwner(activeRunCharacterId); // そのキャラのキャラカード枠(2026-10-02)
         ApplyCharacterCardEffects();
         CpuParty.BeginRun(); // CPU サポート(2026-10-14): 出発の前に選んだ仲間(0人なら何もしない)
-        ResetEncounterSaveFreeze();
+        checkpointSnapshotThisRun = false;
         DecideMileShare(); // 2026-10-15: 獲得 MILE の分配の人数(ランの始めの編成/参加人数)
         ParticipantAura.AttachLocalPlayer(); // 識別用オーラ: 仲間/マルチの時だけ(ソロは従来の見た目)
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBgm();
@@ -3773,11 +3773,30 @@ public partial class GameManager : MonoBehaviour
         if (!HasStarted || IsGameOver) return;
         // マルチプレイRunはシングル用の中断データ(CONTINUE)を上書きしない。
         if (NetRunLauncher.IsMultiplayerRun) return;
-        if (encounterSaveFrozen) { InterruptSavesFrozen++; return; } // 2026-10-15: ボス戦の途中(再開はチェックポイントから = ボス戦の前の状態で)
         RunCheckpoint.Data data = RunCheckpoint.Load();
+        // 2026-10-15 第2弾(マスター): 再開はチェックポイントから走り直すので、ラン中の状態もチェックポイントの時点へそろえる。
+        // 以前は中断の時点の MILE/EXP/カード/撃破数を保存していて、走り直しの区間で同じ敵/ボスからもう一度報酬が出ていた。
+        // 中断の保存は記録の控え(ledger: 実際に走った距離/時間/デバッグ使用の印)だけを書き換える
+        if (checkpointSnapshotThisRun && data.active && data.runAtCheckpoint)
+        {
+            data.ledger = RunLedger.Current;
+            RunCheckpoint.Save(data);
+            InterruptSavesLedgerOnly++;
+            return;
+        }
         data.active = true;
         FillCheckpointSnapshot(data);
         RunCheckpoint.Save(data);
+    }
+    // チェックポイントの状態を、このランで保存したか(始め/ボスの報酬/疾走の到着/YES/CONTINUE)
+    bool checkpointSnapshotThisRun;
+    public int InterruptSavesLedgerOnly { get; private set; }
+    public bool CheckpointSnapshotThisRun => checkpointSnapshotThisRun;
+    // ランの始め(数え下ろしが終わった最初のフレーム): 0m のチェックポイント(この後の中断は、ここから走り直し)
+    void EnsureStartCheckpoint()
+    {
+        if (checkpointSnapshotThisRun || !HasStarted || IsGameOver || CountdownActive || NetRunLauncher.IsMultiplayerRun || ArenaMode.Active) return;
+        SaveCheckpoint();
     }
 
     // Item 7 - called once Boss Reward's card choice has fully resolved
@@ -3787,9 +3806,9 @@ public partial class GameManager : MonoBehaviour
     {
         if (!HasStarted || IsGameOver) return;
         if (NetRunLauncher.IsMultiplayerRun) return; // SaveInterruptStateと同じ理由
-        encounterSaveFrozen = false; // 2026-10-15: ボス戦の報酬が決まった = ここからまた普段どおり保存する
         RunCheckpoint.Data data = RunCheckpoint.Load();
         data.active = true;
+        data.runAtCheckpoint = true; checkpointSnapshotThisRun = true; // 2026-10-15 第2弾
         data.checkpointDistance = MaxDistance;
         FillCheckpointSpeed(data);
         FillCheckpointSnapshot(data);
@@ -3876,7 +3895,7 @@ public partial class GameManager : MonoBehaviour
         RunCheckpoint.Data data = RunCheckpoint.Load();
 
         HasStarted = true;
-        ResetEncounterSaveFreeze(); // 2026-10-15
+        checkpointSnapshotThisRun = true; // 2026-10-15 第2弾: 読み込んだ状態 = チェックポイント(以前の形の保存も、ここからはチェックポイント扱い)
         runStartTime = Time.time;
         RunLedger.Resume(data.ledger, data.stageId, data.characterId, Mathf.Max(data.highestReachedDistance, data.checkpointDistance)); // 2026-10-08
         // 2026-10-13: 中断前に満たした距離の条件は「仮」のまま作り直す(お知らせは出し直さない。確定は再開後の結果で)

@@ -9,8 +9,9 @@ using UnityEngine;
 public partial class GameManager
 {
     // 距離の MILE(FinishRun でも同じ式を使う)。疾走で飛ばした距離は除く
-    // 2026-10-15: 距離の MILE も参加人数で分配(100m ごとに 1 を人数で割る → 自分の補正)
-    int DistanceMileNow => Mathf.FloorToInt(MileDistanceForRun / 100f / Mathf.Max(1, MileShareCount) * Mathf.Max(0f, 1f + Card.Get(EffectType.DistanceMilePct)) + 1e-4f);
+    // 2026-10-15: 距離の MILE も参加人数で分配(100m ごとに 1 → 自分の補正 → 人数で割る)。
+    // 第2弾: ほかの経路の端数(mileCarry)もここで足して整数にする → 持ち帰り = floor(全経路の正確な合計)
+    int DistanceMileNow => Mathf.FloorToInt(DistanceMileExact + mileCarry + 1e-4f);
 
     // ラン中の画面中央の知らせ(ボスの登場/再開まで/COMBO/ラスダンの知らせ/必殺技の名前)が使ってよい一番上(実際の画面の座標)。
     // 2026-10-11(実機: イベント名/進行表示が上の HUD に重なった): 縦画面は左の列(BEST/距離/速度/持ち帰り予定)の下、

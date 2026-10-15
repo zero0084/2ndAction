@@ -1518,7 +1518,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (defeatRegistered) return;
         defeatRegistered = true;
         if (NetPuppet) return; // JOINのパペット: 撃破報酬/ボス戦終了はHOSTとラストヒットの本人が処理する
-        if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward, RunRewards.BossExpFraction(RunRewards.ClassOf(DeathKey))); // 2026-10-15: EXP は格ごとの割合
+        if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward, RunRewards.BossExpFraction(RewardClass)); // 2026-10-15: EXP は格ごとの割合(第2弾: 関門の役割)
         if (DefeatOverride != null) { DefeatOverride(this); return; }
         if (BossManager.Instance != null) BossManager.Instance.OnWildBossDefeated(this);
     }
@@ -1580,6 +1580,9 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // Floating Origin: 座標を戻した分、ボス自身のワールドXも戻す(プレイヤーとの間合いは不変)。
     // ================= マルチプレイPhase 2(共有ボス) =================
     [System.NonSerialized] public int NetId;
+    // 2026-10-15 第2弾: EXP の格(BossManager が関門の役割で決める。無ければ種類から)
+    [System.NonSerialized] public RunRewards.BossClass? rewardClassOverride;
+    public RunRewards.BossClass RewardClass => rewardClassOverride ?? RunRewards.ClassOf(DeathKey);
     [System.NonSerialized] public bool NetPuppet;
 
     // マルチプレイPhase 2.5: HOSTのAIが狙う相手(全ての活動中プレイヤーから選ばれる)。並走の基準速度もその相手。

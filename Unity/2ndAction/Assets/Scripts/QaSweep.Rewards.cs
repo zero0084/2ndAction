@@ -37,6 +37,10 @@ public partial class QaSweep
         if (phase == "all" || phase == "resume") yield return RwResume();
         if (phase == "all" || phase == "cpu") yield return RwCpu();
         if (phase == "all" || phase == "rush") yield return RwRush();
+        if (phase == "quit1") yield return RwQuit1();
+        if (phase == "quit2") yield return RwQuit2();
+        if (phase == "lvfreq") yield return RwLevelFreq();
+        if (phase == "rushlow") yield return RwRushLow();
         if (phase == "shots") yield return RwShots();
     }
 
@@ -71,7 +75,7 @@ public partial class QaSweep
     string RwChar => Arg("-rwChar", "swordsman");
     int rwShown;
     void RwSetShare(int n) => typeof(GameManager).GetProperty("MileShareCount").GetSetMethod(true).Invoke(gm, new object[] { n });
-    void RwClearCarry() { foreach (var f in new[] { "carryEnemy", "carryBoss", "carryBonus", "carryRing" }) typeof(GameManager).GetField(f, RwNP).SetValue(gm, 0f); }
+    void RwClearCarry() => typeof(GameManager).GetField("mileCarry", RwNP).SetValue(gm, 0f);
     float RwMileMul => gm.MileGainMultiplier * FinalEvolution.MileMul;
 
     // ---- 式 ----
@@ -109,12 +113,13 @@ public partial class QaSweep
         {
             RwSetShare(n); RwClearCarry();
             int m0 = gm.RunEnemyMile, b0 = gm.RunBossMile, k0 = gm.EnemyKillCount;
-            for (int i = 0; i < 120; i++) gm.RegisterEnemyKill(1f, 1f, false);
-            gm.RegisterBossDefeat(300f, 0f, false);
-            float expectE = 120f / n * mul, expectB = 300f / n * gm.BossMileGainMultiplier * FinalEvolution.MileMul;
+            for (int i = 0; i < 121; i++) gm.RegisterEnemyKill(1f, 1f, false);
+            gm.RegisterBossDefeat(301f, 0f, false);
+            float expectE = 121f / n * mul, expectB = 301f / n * gm.BossMileGainMultiplier * FinalEvolution.MileMul;
             int gotE = gm.RunEnemyMile - m0, gotB = gm.RunBossMile - b0;
-            L($"[rw] share 1/{n}: 120 kills x 1 MILE -> +{gotE} (expect {expectE:F2}), boss 300 -> +{gotB} (expect {expectB:F2}), carry {gm.MileCarryDebug:F3}");
-            Check(Mathf.Abs(gotE - Mathf.Floor(expectE + 1e-3f)) < 0.01f && Mathf.Abs(gotB - Mathf.Floor(expectB + 1e-3f)) < 0.01f, $"share 1/{n}: the split amount keeps the fractions (no per-kill rounding loss)");
+            float total = gotE + gotB + gm.MileCarryDebug;
+            L($"[rw] share 1/{n}: 121 kills x 1 MILE + boss 301 (base 422) -> enemy +{gotE} boss +{gotB} carry {gm.MileCarryDebug:F3} = {total:F3} (exact {expectE + expectB:F3})");
+            Check(Mathf.Abs(total - (expectE + expectB)) < 0.01f, $"share 1/{n}: integers + carry = the exact split (nothing lost, nothing doubled)");
             Check(gm.EnemyKillCount == k0, $"share 1/{n}: a share alone does not count a kill or give EXP");
             yield return null;
         }
@@ -221,45 +226,192 @@ public partial class QaSweep
         yield return EndRun();
     }
 
-    // ---- ボス戦の途中の中断 ----
-    IEnumerator RwResume()
+    // ---- 中断/再開: ラン中の状態がチェックポイントの時点へそろう(2026-10-15 第2弾) ----
+    struct RwSnap { public float d, exp, carry; public int lv, em, bm, kills, bkills, cards, lives, pend; public string party; }
+    RwSnap RwFromData(RunCheckpoint.Data x) => new RwSnap { d = x.checkpointDistance, exp = x.exp, carry = x.mileCarry, lv = x.level, em = x.runEnemyMile, bm = x.runBossMile, kills = x.enemyKillCount, bkills = x.bossKillCount, cards = x.upgradeHistoryCardIds.Count, lives = x.lives, pend = x.pendingLevelUps, party = RwParty(x.party) };
+    RwSnap RwNow() => new RwSnap { d = gm.MaxDistance, exp = gm.Exp, carry = gm.MileCarryDebug, lv = gm.Level, em = gm.RunEnemyMile, bm = gm.RunBossMile, kills = gm.EnemyKillCount, bkills = gm.BossKillCount, cards = RwHistoryCount, lives = gm.Lives, pend = gm.PendingLevelUpCount, party = RwParty(CpuParty.Export()) };
+    int RwHistoryCount => ((System.Collections.IList)typeof(GameManager).GetField("upgradeHistory", RwNP).GetValue(gm)).Count;
+    static string RwParty(List<CpuParty.MemberState> p) => p == null ? "" : string.Join(";", p.Select(m => JsonUtility.ToJson(m)));
+    static string RwS(RwSnap s) => $"d={s.d:F0} Lv{s.lv} exp={s.exp:F0} MILE e{s.em}/b{s.bm} carry={s.carry:F3} kills={s.kills}/{s.bkills} cards={s.cards} hp={s.lives} pendingLv={s.pend} party#{(s.party ?? "").GetHashCode():X}";
+    // 仲間の状態は、再開の後に動き出すと変わる(HP/位置)ので、取ったカードの部分で比べる
+    static string RwPartyCards(string party) => party == null ? "" : System.Text.RegularExpressions.Regex.Replace(party, "\"(hp|down|reviveIn)\":[^,}]*", "");
+    bool RwSame(RwSnap a, RwSnap b) => Mathf.Abs(a.d - b.d) < 1f && a.lv == b.lv && Mathf.Abs(a.exp - b.exp) < 0.01f && a.em == b.em && a.bm == b.bm && Mathf.Abs(a.carry - b.carry) < 1e-4f && a.kills == b.kills && a.bkills == b.bkills && a.cards == b.cards && (a.lives == b.lives || a.pend > 0 || b.pend > 0) && RwPartyCards(a.party) == RwPartyCards(b.party);
+    // (チェックポイントで順番待ちだったレベルアップは、再開の直後に出る = レベルアップの HP の回復で HP だけ変わる。順番待ちの数は下で別に見る)
+
+    // 1km のボスでチェックポイント → 1.3〜2km で雑魚/EXP を進める → 2km のボスを倒して報酬の選択中
+    IEnumerator RwProgressPastCheckpoint(string tag)
     {
-        L("== resume during a boss encounter ==");
-        yield return BeginRun(RwChar, "wasteland_road");
-        typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
         var res = new List<RwBossResult>();
-        yield return RwGate(1000f, "1km (sets the checkpoint)", res);
+        yield return RwGate(1000f, $"{tag} 1km (sets the checkpoint)", res);
+        WarpTo(1300f);
+        yield return new WaitForSecondsRealtime(1.5f);
+        int k = 0; float t = 0f;
+        while (k < 6 && t < 20f)
+        {
+            foreach (var e in RwEnemies().Where(x => Mathf.Abs(x.transform.position.x - pc.transform.position.x) < 30f).Take(6 - k).ToList()) { e.ApplyElementDamage(9999999, e.transform.position); k++; }
+            yield return new WaitForSecondsRealtime(0.4f); t += 0.4f;
+        }
         WarpTo(1930f);
         yield return WaitBossSpawn();
-        Check(gm.EncounterSaveFrozen, "resume: the interrupt data is frozen at the encounter start");
-        int bm0 = gm.RunBossMile, bk0 = gm.BossKillCount, em0 = gm.RunEnemyMile, lv0 = gm.Level;
         autoPickHold = true;
         KillAllBosses();
         float tw = 0f; while (!gm.IsRewardSequenceWaitingForSelection && tw < 15f) { yield return null; tw += Time.unscaledDeltaTime; }
-        int bmKilled = gm.RunBossMile;
-        L($"[rw] killed the 2km boss: boss MILE {bm0} -> {bmKilled}, kills {bk0} -> {gm.BossKillCount}, reward choice open {gm.IsRewardSequenceWaitingForSelection}, frozen saves {gm.InterruptSavesFrozen}");
-        Check(bmKilled > bm0, "resume: the kill pays in the run");
-        // 報酬を選ぶ前に中断(ホームへ)→ CONTINUE
-        var data0 = RunCheckpoint.Load();
-        Check(data0.runBossMile == bm0 && data0.bossKillCount == bk0, $"resume: the saved data still has the pre-encounter boss reward ({data0.runBossMile} == {bm0})");
-        autoPickHold = false;
-        typeof(GameManager).GetField("showPauseMenu", RwNP).SetValue(gm, false);
-        var old = gm;
-        gm.ReturnToHome();
-        float w = 0f;
-        while ((GameManager.Instance == null || GameManager.Instance == old || GameManager.Instance.HasStarted) && w < 15f) { yield return null; w += Time.unscaledDeltaTime; }
-        yield return new WaitForSecondsRealtime(0.8f);
-        gm = GameManager.Instance;
+        L($"[rw] {tag} before the interrupt: {RwS(RwNow())} (killed {k} enemies + the 2km boss, reward choice open {gm.IsRewardSequenceWaitingForSelection})");
+    }
+
+    IEnumerator RwResume()
+    {
+        L("== resume = checkpoint state ==");
+        foreach (int allies in new[] { 0, 2 })
+        {
+            string tag = allies == 0 ? "solo" : "cpu2";
+            CpuParty.Request.Clear(); if (allies > 0) { CpuParty.Request.Add("archer"); CpuParty.Request.Add("mage"); }
+            yield return BeginRun(RwChar, "wasteland_road");
+            typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
+            yield return RwProgressPastCheckpoint(tag);
+            var cp = RwFromData(RunCheckpoint.Load());
+            var now = RwNow();
+            L($"[rw] {tag} checkpoint data: {RwS(cp)}");
+            Check(now.em > cp.em || now.bm > cp.bm, $"{tag}: the run had progressed past the checkpoint (MILE e{cp.em}->{now.em} b{cp.bm}->{now.bm})");
+            Check(RunCheckpoint.Load().runAtCheckpoint && gm.InterruptSavesLedgerOnly > 0, $"{tag}: interrupt saves only update the ledger ({gm.InterruptSavesLedgerOnly})");
+            autoPickHold = false;
+            typeof(GameManager).GetField("showPauseMenu", RwNP).SetValue(gm, false);
+            var old = gm;
+            gm.ReturnToHome();
+            float w = 0f;
+            while ((GameManager.Instance == null || GameManager.Instance == old || GameManager.Instance.HasStarted) && w < 15f) { yield return null; w += Time.unscaledDeltaTime; }
+            yield return new WaitForSecondsRealtime(0.8f);
+            gm = GameManager.Instance;
+            int shownBefore = rwShown;
+            yield return ResumeContinue("rw");
+            stopKeepAlive = false; StartCoroutine(KeepAlive());
+            var back = RwNow();
+            L($"[rw] {tag} continued: {RwS(back)}");
+            Check(RwSame(back, cp), $"{tag}: CONTINUE restores the checkpoint state (distance/EXP/Lv/MILE+carry/kills/cards/HP/CPU cards)");
+            float tl = 0f; while (gm.PendingLevelUpCount > 0 || gm.LevelUpPending) { if ((tl += Time.unscaledDeltaTime) > 20f) break; yield return null; }
+            L($"[rw] {tag}: level-up choices offered after CONTINUE {rwShown - shownBefore} (queued at the checkpoint {cp.pend})");
+            Check(rwShown - shownBefore == cp.pend, $"{tag}: the level-ups queued at the checkpoint ({cp.pend}) are offered once after CONTINUE ({rwShown - shownBefore})");
+            typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
+            var res = new List<RwBossResult>();
+            int bm0 = gm.RunBossMile;
+            yield return RwGate(2000f, $"{tag} 2km again", res);
+            Check(res.Count == 1 && gm.RunBossMile - bm0 == res[0].mile && res[0].bosses >= 1, $"{tag}: the 2km boss pays once after the re-run (+{gm.RunBossMile - bm0})");
+            yield return EndRun();
+        }
+        CpuParty.Request.Clear();
+    }
+
+    // アプリの終了を想定: 報酬の選択中に OnApplicationPause(true) → テストの外でプロセスを止める → 次のプロセスで CONTINUE(-rwPhase quit2)
+    IEnumerator RwQuit1()
+    {
+        L("== quit during the reward choice (1/2) ==");
+        CpuParty.Request.Clear(); CpuParty.Request.Add("archer");
+        yield return BeginRun(RwChar, "wasteland_road");
+        typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
+        yield return RwProgressPastCheckpoint("quit");
+        var cp = RwFromData(RunCheckpoint.Load());
+        gm.SendMessage("OnApplicationPause", true);
+        System.IO.File.WriteAllText(Arg("-rwShared", outDir) + "/rw_quit_expect.json", JsonUtility.ToJson(new RwSnapJ(cp)));
+        L($"[rw] quit: paused the app with the reward choice open; expect on CONTINUE {RwS(cp)}");
+    }
+    [System.Serializable] class RwSnapJ { public float d, exp, carry; public int lv, em, bm, kills, bkills, cards, lives, pend; public string party; public RwSnapJ(RwSnap s) { d = s.d; exp = s.exp; carry = s.carry; lv = s.lv; em = s.em; bm = s.bm; kills = s.kills; bkills = s.bkills; cards = s.cards; lives = s.lives; pend = s.pend; party = s.party; } public RwSnap S => new RwSnap { d = d, exp = exp, carry = carry, lv = lv, em = em, bm = bm, kills = kills, bkills = bkills, cards = cards, lives = lives, pend = pend, party = party }; }
+    IEnumerator RwQuit2()
+    {
+        L("== quit during the reward choice (2/2): new process ==");
+        string p = Arg("-rwShared", outDir) + "/rw_quit_expect.json";
+        Check(System.IO.File.Exists(p) && RunCheckpoint.HasActiveRun, "quit2: the suspended run is there after the restart");
+        if (!System.IO.File.Exists(p)) yield break;
+        var cp = JsonUtility.FromJson<RwSnapJ>(System.IO.File.ReadAllText(p)).S;
         yield return ResumeContinue("rw");
         stopKeepAlive = false; StartCoroutine(KeepAlive());
+        var back = RwNow();
+        L($"[rw] quit2 continued: {RwS(back)} / expect {RwS(cp)}");
+        Check(RwSame(back, cp), "quit2: after an app kill during the reward choice, CONTINUE restores the checkpoint state");
+        Check(!gm.IsRewardSequenceWaitingForSelection, "quit2: no stale reward choice after the restart");
+        // 死亡: 未確定の MILE / 記録が残らない
+        int owned0 = gm.TotalOwnedMile; float best0 = gm.BestDistance; double life0 = ProgressStats.LifetimeDistance;
+        int th0 = gm.TakeHomeMile;
+        stopKeepAlive = true; typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, false);
+        yield return null;
+        for (int i = 0; i < 400 && !gm.IsGameOver; i++) { gm.TryDamagePlayer(false, "qa-rw-death", 99); yield return null; }
+        yield return new WaitForSecondsRealtime(1.5f);
+        L($"[rw] death: take-home was {th0}, owned {owned0}->{gm.TotalOwnedMile}, best {best0:F0}->{gm.BestDistance:F0}, lifetime {life0:F0}->{ProgressStats.LifetimeDistance:F0}, active run {RunCheckpoint.HasActiveRun}, commit {(gm.LastCommit != null ? gm.LastCommit.committed.ToString() : "none")}");
+        Check(gm.IsGameOver && !gm.IsWin, "death: the run ends as a game over");
+        Check(gm.TotalOwnedMile == owned0 && !RunCheckpoint.HasActiveRun && (gm.LastCommit == null || !gm.LastCommit.committed) && gm.BestDistance == best0 && ProgressStats.LifetimeDistance == life0, "death: no unconfirmed MILE, record or suspended run is kept");
+        yield return EndRun();
+        // 破棄(ホームの「はじめから出発」= RunCheckpoint.Clear)
+        CpuParty.Request.Clear();
+        yield return BeginRun(RwChar, "wasteland_road");
         typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
-        L($"[rw] continued at {gm.MaxDistance:F0}m: boss MILE {gm.RunBossMile} kills {gm.BossKillCount} Lv{gm.Level}");
-        Check(gm.RunBossMile == bm0 && gm.BossKillCount == bk0, $"resume: no boss reward carried over from the interrupted encounter ({gm.RunBossMile} == {bm0})");
-        // 同じボスを倒し直す → 1回分だけ
-        res.Clear();
-        yield return RwGate(2000f, "2km again", res);
-        Check(res.Count == 1 && gm.RunBossMile - bm0 == bmKilled - bm0, $"resume: defeating it again pays exactly once ({gm.RunBossMile - bm0} == {bmKilled - bm0})");
-        Check(!gm.EncounterSaveFrozen, "resume: saving resumes after the reward");
+        var res = new List<RwBossResult>();
+        yield return RwGate(1000f, "discard 1km", res);
+        owned0 = gm.TotalOwnedMile; best0 = gm.BestDistance; life0 = ProgressStats.LifetimeDistance;
+        int th = gm.TakeHomeMile;
+        typeof(GameManager).GetField("showPauseMenu", RwNP).SetValue(gm, false);
+        var old = gm; gm.ReturnToHome();
+        float w = 0f; while ((GameManager.Instance == null || GameManager.Instance == old || GameManager.Instance.HasStarted) && w < 15f) { yield return null; w += Time.unscaledDeltaTime; }
+        yield return new WaitForSecondsRealtime(0.8f); gm = GameManager.Instance;
+        bool had = RunCheckpoint.HasActiveRun;
+        RunCheckpoint.Clear(); // ホームの「はじめから出発」の確認と同じ1行
+        L($"[rw] discard: take-home was {th}, owned {owned0}->{gm.TotalOwnedMile}, best {best0:F0}->{gm.BestDistance:F0}, lifetime {life0:F0}->{ProgressStats.LifetimeDistance:F0}, active {had}->{RunCheckpoint.HasActiveRun}");
+        Check(had && !RunCheckpoint.HasActiveRun && gm.TotalOwnedMile == owned0 && gm.BestDistance == best0 && ProgressStats.LifetimeDistance == life0, "discard: no unconfirmed MILE or record is kept");
+    }
+
+    // ---- 疾走の到着からのレベルアップの頻度(到着の Lv を入れて、補助で普通に走る。ボスは実際の HP) ----
+    IEnumerator RwLevelFreq()
+    {
+        L("== level-up pace after a sprint arrival ==");
+        foreach (int km in Arg("-rwFreqKm", "10,50,90").Split(',').Select(int.Parse))
+        {
+            yield return BeginRun(RwChar, "wasteland_road");
+            typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
+            float arrival = km * 1000f - 250f;
+            WarpTo(arrival);
+            typeof(GameManager).GetMethod("ApplySprintArrivalLevel", RwNP).Invoke(gm, new object[] { arrival });
+            if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(true);
+            int lv0 = gm.Level; float t0 = Time.time, d0 = gm.MaxDistance;
+            var ups = new List<string>(); int lastLv = lv0; int bk0 = gm.BossKillCount; float bossAt = -1f, bossDoneAt = -1f;
+            float e0 = gm.TotalExpEarned, bossExp = 0f; int lastBk = gm.BossKillCount, ek0 = gm.EnemyKillCount; var bossNames = new List<string>();
+            float limit = float.Parse(Arg("-rwFreqSec", "240"));
+            while (Time.time - t0 < limit)
+            {
+                if (gm.Level != lastLv) { ups.Add($"Lv{gm.Level}@{Time.time - t0:F0}s/{gm.MaxDistance - d0:F0}m"); lastLv = gm.Level; }
+                if (bossAt < 0f && Bm.IsBossPhase) bossAt = Time.time - t0;
+                if (bossDoneAt < 0f && gm.BossKillCount > bk0) bossDoneAt = Time.time - t0;
+                if (gm.BossKillCount != lastBk) { bossExp += gm.LastBossExpGranted * (gm.BossKillCount - lastBk); bossNames.Add($"{gm.LastBossExpGranted:F0}@{gm.MaxDistance / 1000f:F1}km"); lastBk = gm.BossKillCount; }
+                yield return null;
+            }
+            float tot = gm.TotalExpEarned - e0, killExp = (gm.EnemyKillCount - ek0) * 15f;
+            L($"[rw] pace {km}km EXP: total {tot:F0} = bosses {bossExp:F0} ({gm.BossKillCount - bk0}: {string.Join(" ", bossNames)}) + enemies ~{killExp:F0} ({gm.EnemyKillCount - ek0}) + distance ~{tot - bossExp - killExp:F0} ({gm.MaxDistance - d0:F0}m)");
+            L($"[rw] pace {km}km: arrival Lv{lv0} -> Lv{gm.Level} in {limit:F0}s ({gm.MaxDistance - d0:F0}m, kills {gm.EnemyKillCount}, boss at {bossAt:F0}s defeated at {bossDoneAt:F0}s): {string.Join(", ", ups)}");
+            yield return EndRun();
+        }
+    }
+
+    // ---- 火力の低い構成(カード無し)でのラスダンのボスラッシュ。試験は倒さない(補助の自動攻撃だけ、無敵) ----
+    IEnumerator RwRushLow()
+    {
+        string ch = RwChar;
+        L($"== low-power rush ({ch}, no cards) ==");
+        yield return BeginRun(ch, "last_corridor");
+        typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
+        if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(true);
+        WarpTo(89900f);
+        typeof(GameManager).GetMethod("ApplySprintArrivalLevel", RwNP).Invoke(gm, new object[] { 89900f });
+        float t0 = Time.time, limit = float.Parse(Arg("-rwRushSec", "720"));
+        int k0 = gm.BossKillCount; float holdAt = -1f, lastLog = 0f;
+        var defeats = new List<string>();
+        int lastK = k0;
+        while (Time.time - t0 < limit)
+        {
+            var enc = Bm.CurrentBossEncounter;
+            if (gm.BossKillCount != lastK) { defeats.Add($"#{gm.BossKillCount - k0}@{Time.time - t0:F0}s/{gm.MaxDistance / 1000f:F1}km"); lastK = gm.BossKillCount; }
+            if (holdAt < 0f && Bm.HoldsRun && gm.MaxDistance >= 98990f) holdAt = Time.time - t0;
+            if (Time.time - lastLog > 30f) { lastLog = Time.time; L($"[rw]   {ch} t={Time.time - t0:F0}s d={gm.MaxDistance:F0} alive={Bm.AliveBossCount} defeated={gm.BossKillCount - k0} queue={(enc != null ? enc.Queued : -1)} holds={Bm.HoldsRun}"); }
+            if (gm.BossKillCount - k0 >= 9 && !Bm.IsBossPhase) break;
+            yield return null;
+        }
+        L($"[rw] low-power rush {ch}: defeated {gm.BossKillCount - k0}/9 in {Time.time - t0:F0}s, 99km hold from {holdAt:F0}s, reached {gm.MaxDistance:F0}m, {string.Join(", ", defeats)}");
         yield return EndRun();
     }
 
@@ -283,11 +435,24 @@ public partial class QaSweep
             // 結果の画面へ(ワープしたので記録の対象外の印を外す)
             RunLedger.DevClearDebug(); UnlockRules.RunSkipped = false;
             int hud = gm.TakeHomeMile, owned0 = gm.TotalOwnedMile;
+            float baseD = gm.DistanceMileBase, baseB = gm.MileBaseDbg[2], baseE = gm.MileBaseDbg[1], exact = gm.TakeHomeExactDebug, carry = gm.MileCarryDebug;
+            L($"[rw] cpu {n} detail: before split = distance {baseD:F3} + boss {baseB:F3} + enemy {baseE:F3} = {baseD + baseB + baseE:F3}; after split (1/{gm.MileShareCount}) = distance {gm.DistanceMileExact:F3} + boss {gm.MileExactDbg[2]:F3} + enemy {gm.MileExactDbg[1]:F3} = {exact:F3}; integers boss {gm.RunBossMile} enemy {gm.RunEnemyMile} carry {carry:F3}; take-home floor -> {hud}");
+            Check(hud == Mathf.FloorToInt(exact + 1e-3f), $"cpu {n}: take-home = floor(exact split total) ({hud} = floor({exact:F3}))");
             gm.Win();
             float w = 0f; while (!gm.ResultShown && w < 8f) { yield return null; w += Time.unscaledDeltaTime; }
             int got = gm.TotalOwnedMile - owned0;
             L($"[rw] cpu {n} (share 1/{gm.MileShareCount}): HUD take-home {hud}, result RunMile {gm.RunMile}, owned +{got} (distance {gm.RunDistanceMile} enemy {gm.RunEnemyMile} boss {gm.RunBossMile})");
             Check(hud == gm.RunMile && got == gm.RunMile, $"cpu {n}: HUD take-home = result = actually received ({hud} / {gm.RunMile} / {got})");
+            // 広告の MILE 2倍(開発版の -monetizationMock 1 の時だけ): 分配の後の額を、ランごとに1回だけ
+            if (Monetization.Mode == MonetizationMode.Mock)
+            {
+                int o1 = gm.TotalOwnedMile, db = gm.DoubleBase;
+                var claim = typeof(GameManager).GetMethod("StartDoubleClaim", RwNP);
+                claim.Invoke(gm, new object[] { true }); claim.Invoke(gm, new object[] { true });
+                yield return null;
+                L($"[rw] cpu {n} ad x2: base {db} (RunMile {gm.RunMile}), owned {o1} -> {gm.TotalOwnedMile}");
+                Check(db == gm.RunMile && gm.TotalOwnedMile == o1 + db, $"cpu {n}: MILE x2 adds the split amount once ({gm.TotalOwnedMile - o1} = {db})");
+            }
             yield return EndRun();
         }
         CpuParty.Request.Clear();

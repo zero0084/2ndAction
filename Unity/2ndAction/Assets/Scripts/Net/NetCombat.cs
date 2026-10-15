@@ -787,7 +787,7 @@ public class NetCombat : MonoBehaviour
     static float RewardMileBase(Entity e) => e.Enemy != null ? e.Enemy.MileRewardBase : e.Wild != null ? e.Wild.mileReward : e.Dragon != null ? e.Dragon.mileReward : e.Majin != null ? e.Majin.mileReward : e.MileReward;
     // 雑魚 = EXP の倍率(精鋭 ×2)/ ボス = 次のレベルまでの量に対する割合(格ごと)
     static float RewardExpMul(Entity e) => e.Enemy != null ? e.Enemy.KillExpMultiplier
-        : e.Wild != null ? RunRewards.BossExpFraction(RunRewards.ClassOf(e.Wild.DeathKey))
+        : e.Wild != null ? RunRewards.BossExpFraction(e.Wild.RewardClass)
         : e.Dragon != null ? RunRewards.BossExpFraction(e.Dragon.rewardClass)
         : RunRewards.BossExpFraction(RunRewards.BossClass.Mid);
     // 協力マルチで、MILE を参加人数で分配する時(対戦は今までどおりラストヒットの人だけ)

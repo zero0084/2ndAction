@@ -333,6 +333,23 @@ public partial class BossManager : MonoBehaviour
     float CurrentTargetDistance() => useWildSchedule ? WildTargetDistance() : nextBossDistance;
 
     public bool IsBossPhase { get; private set; }
+
+    // 2026-10-15 第2弾: ボスの EXP の格は「関門の役割」で決める(1km の関門 = 小 / 5km = 中 / 10km = 大 / ボスラッシュ = 大)。
+    // 以前(第1弾)はボスの種類で決めていて、11km 以降の 1km の関門で撃破済みの大ボスが再戦に出ると、毎km 大ボスの EXP(次の Lv の 80%)が入り、
+    // レベルアップが速くなりすぎていた(12km の 1km の関門で 984 EXP)。MILE は今までどおり種類と強さで決める。
+    // メカドラゴン / 死神(特別)は種類のまま。関門の外(開発用の出現など)も種類のまま。
+    public RunRewards.BossClass GateRewardClass(string key)
+    {
+        var byKind = RunRewards.ClassOf(key);
+        if (byKind == RunRewards.BossClass.Elite) return byKind;
+        if (RushGateK > 0 || (CurrentBossEncounter != null && CurrentBossEncounter.continuous)) return RunRewards.BossClass.Big;
+        int k = currentGateK;
+        if (!IsBossPhase || k <= 0) return byKind;
+        return k % 10 == 0 ? RunRewards.BossClass.Big : k % 5 == 0 ? RunRewards.BossClass.Mid : RunRewards.BossClass.Small;
+    }
+    static string KindKey(WildBossKind k) => "Wild/" + k;
+    static string KindKey(CaveBossKind k) => "Cave/" + k;
+    static string KindKey(SkyBossKind k) => "Sky/" + k;
     // Bugfix 2026-09-06, item "Boss戦中Distance停止" - called by GameManager
     // exactly where Boss Reward processing actually finishes (SaveCheckpoint
     // time), NOT at the boss's own death - see CheckEncounterComplete's own
@@ -1158,6 +1175,7 @@ public partial class BossManager : MonoBehaviour
         ApplyRematchTo(boss); // 再戦の強化(2026-10-02)
         boss.slotIndex = index;
         boss.mileReward = RunRewards.BossMile(spec.mile, hpScale); // 2026-10-15: 基本 × 1.5 × 強さ(距離で伸びる HP / 再戦の強化)
+        boss.rewardClassOverride = GateRewardClass(KindKey(kind)); // 2026-10-15 第2弾: EXP は関門の役割(1km/5km/10km)で
         boss.bodyHeight = spec.height;
         boss.startGap = spec.gap + index * 3.5f; // 複数出現時は少しずつ間隔をずらす
         boss.defeatBurstColor = spec.burst;
@@ -1249,6 +1267,7 @@ public partial class BossManager : MonoBehaviour
         ApplyRematchTo(boss); // 再戦の強化(2026-10-02)
         boss.slotIndex = index;
         boss.mileReward = RunRewards.BossMile(spec.mile, hpScale); // 2026-10-15: 基本 × 1.5 × 強さ(距離で伸びる HP / 再戦の強化)
+        boss.rewardClassOverride = GateRewardClass(KindKey(kind)); // 2026-10-15 第2弾: EXP は関門の役割(1km/5km/10km)で
         boss.bodyHeight = spec.height;
         boss.startGap = spec.gap + index * 3.5f;
         boss.defeatBurstColor = spec.burst;
@@ -1439,6 +1458,7 @@ public partial class BossManager : MonoBehaviour
         ApplyRematchTo(boss); // 再戦の強化(2026-10-02)
         boss.slotIndex = index;
         boss.mileReward = RunRewards.BossMile(spec.mile, RematchHpScaleOr(1f)); // 2026-10-15
+        boss.rewardClassOverride = GateRewardClass(KindKey(kind));
         boss.bodyHeight = spec.height;
         boss.startGap = spec.gap + index * 3.5f;
         boss.defeatBurstColor = spec.burst;

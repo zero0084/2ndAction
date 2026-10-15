@@ -34,6 +34,7 @@ public partial class GameManager
             // 続きの分は 0 から(距離の MILE は YES の地点から)
             MileDistanceBase += MileDistanceForRun;
             RunDistanceMile = 0; RunEnemyMile = 0; RunBossMile = 0; RunBonusMile = 0; ResetRingMileForContinuation();
+            ConsumeMileCarry(); // 2026-10-15: 端数は上の受け取りの整数化に含めた(1 未満はここで切り捨て)
             UnlockRules.ClearRunFlags();
             UnlockManager.ClearRun();
             RunLedger.BeginContinuation(MaxDistanceExact);

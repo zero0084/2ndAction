@@ -1054,7 +1054,8 @@ public partial class QaSweep
         yield return new WaitForSecondsRealtime(0.8f);
         gm = GameManager.Instance;
         w = 0f; float retry = 0f;
-        while (gm.ResumeGate != GameManager.ResumeGatePhase.Waiting && w < 12f)
+        // 2026-10-15: 2026-10-07 から再開は自動で走り出す(Waiting で止まらない)→ 再開の準備に入った所で比べる(以前は12秒走って被弾し、PHOENIX が使われてずれていた)
+        while (!(gm.HasStarted && (gm.ResumeGateActive || gm.ResumeGate == GameManager.ResumeGatePhase.Waiting)) && w < 12f)
         {
             if (!gm.HasStarted && retry <= 0f) { gm.ContinueActiveRun(); retry = 0.5f; }
             yield return null; w += Time.unscaledDeltaTime; retry -= Time.unscaledDeltaTime;
