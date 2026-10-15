@@ -86,6 +86,7 @@ public partial class QaSweep
     }
 
     // 体の中心がプレイヤーの前方 d m の地面に立つ敵(HPは大きく、攻撃しない)
+    int HaOnUpperRoute; // 上のルートの足元へ置いた回数(確認用)
     EnemyController HaSpawn(float d, string id = "goblin")
     {
         // 狙った位置へ直接出す(DebugSpawnEnemy は画面の右端の地面を探すので、穴/障害物があると失敗していた)。
@@ -107,6 +108,10 @@ public partial class QaSweep
         if (sb != null) sb.enabled = false;
         float x = pc.transform.position.x + d * HaFacing();
         float gy = TerrainManager.Instance.GetHeightAt(x) ?? pc.transform.position.y;
+        // 2026-10-15: プレイヤーが上のルート(荒野の上下の分かれ道)に立っている時、GetHeightAt は下の地面を返す →
+        // ダミーが下のルートに出て、水平に飛ぶ魔法が当たらず DPS が 0 になっていた。プレイヤーの足元の高さへ置く
+        var pcol = pc.GetComponent<Collider2D>();
+        if (pc.IsGrounded && pcol != null && pcol.bounds.min.y > gy + 1.0f) { gy = pcol.bounds.min.y; HaOnUpperRoute++; }
         var col = en.GetComponentInChildren<Collider2D>();
         float lift = col != null ? go.transform.position.y - col.bounds.min.y : 0f;
         go.transform.position = new Vector3(x - (col != null ? col.bounds.center.x - go.transform.position.x : 0f), gy + lift, go.transform.position.z);

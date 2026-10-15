@@ -138,6 +138,9 @@ public partial class QaSweep
             life0 = ProgressStats.LifetimeDistance;
             highAtContinue = cpB.highestReachedDistance; // 1回目の再開で走った所までは2回目では数えない(二重に足さない)
             yield return ResumeContinue(name + " again");
+            // 2026-10-15 第3弾: 中断の保存は記録の控えだけになった(ラン中の状態はチェックポイントのまま)→ 1回目の再開で走った所は
+            // 記録の控えの「到達した一番遠い所」に残る。新しく走った所 = そこより先
+            if (RunLedger.Current != null) highAtContinue = Mathf.Max(highAtContinue, (float)RunLedger.Current.maxReached);
             walked0 = RunLedger.Current != null ? RunLedger.Current.walked : 0;
             float target2 = GameManager.SpeedKmh(pc.NormalAutoRunSpeed);
             Check(pc.ResumeAccelActive && Mathf.Abs(target2 - target) < 1f, $"{name}: the second CONTINUE accelerates to the same speed ({target2:F1} vs {target:F1})");

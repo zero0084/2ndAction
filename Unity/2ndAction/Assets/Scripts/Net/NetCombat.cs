@@ -758,6 +758,7 @@ public class NetCombat : MonoBehaviour
             w.WriteValueSafe(OpDeath);
             w.WriteValueSafe(e.Id); w.WriteValueSafe(lastHit); w.WriteValueSafe(e.LastDamagedBy); w.WriteValueSafe(cause);
             w.WriteValueSafe(RewardMileBase(e)); w.WriteValueSafe(RewardExpMul(e)); // 2026-10-15: 報酬の基本(距離/強さの係数込み、精鋭も)と EXP の倍率(雑魚)/割合(ボス)をHOSTが決めて送る
+            w.WriteValueSafe(e.Enemy != null ? e.Enemy.WantedBounty : 0); // 2026-10-15(版6): WANTED の賞金(0 = 賞金首ではない)
             w.WriteValueSafe(e.Enemy != null ? e.Enemy.NetFinishCode : e.Wild != null ? e.Wild.BossFinishCode : e.Dragon != null ? e.Dragon.BossFinishCode : e.Majin != null ? e.Majin.BossFinishCode : (ushort)0); // FINISH: 撃破の向き/種類(見た目は各端末で再生)
             if (e.SpawnSent) SendReliableToClients(w);
         }
@@ -782,6 +783,8 @@ public class NetCombat : MonoBehaviour
         }
         return other;
     }
+
+    readonly HashSet<int> bountyPaid = new HashSet<int>(); // 2026-10-15: WANTED の賞金を受け取った敵(二重の知らせで二重にしない)
 
     // 2026-10-15: 撃破の報酬の基本(人数で割る前)。雑魚は種類の MILE × 距離の係数(精鋭の ×3 も、倒した時の値で)。ボスは出した時に決めた値
     static float RewardMileBase(Entity e) => e.Enemy != null ? e.Enemy.MileRewardBase : e.Wild != null ? e.Wild.mileReward : e.Dragon != null ? e.Dragon.mileReward : e.Majin != null ? e.Majin.mileReward : e.MileReward;
@@ -1164,6 +1167,7 @@ public class NetCombat : MonoBehaviour
     {
         r.ReadValueSafe(out int id); r.ReadValueSafe(out int lastHit); r.ReadValueSafe(out int lastDamagedBy); r.ReadValueSafe(out byte cause);
         r.ReadValueSafe(out float mileBase); r.ReadValueSafe(out float expMul);
+        r.ReadValueSafe(out int bounty);
         r.ReadValueSafe(out ushort finishCode);
         if (!entities.TryGetValue(id, out Entity e)) return;
         if (e.Enemy != null) { e.Enemy.NetFinishCode = cause == 0 ? finishCode : (ushort)0; e.Enemy.NetFinishLocal = lastHit == LocalPlayerNumber; }
@@ -1171,6 +1175,15 @@ public class NetCombat : MonoBehaviour
         if (e.Dragon != null) { e.Dragon.NetBossFinishCode = finishCode; e.Dragon.NetBossFinishLocal = lastHit == LocalPlayerNumber; }
         if (e.Majin != null) { e.Majin.NetBossFinishCode = finishCode; e.Majin.NetBossFinishLocal = lastHit == LocalPlayerNumber; }
         if (e.Dead) return;
+        // 2026-10-15: WANTED の賞金首(協力マルチ): 誰が倒しても、全員が同じ賞金を人数で分配して受け取る(HOST は自分の端末の WANTED の処理で受け取る)。
+        // 撃破の知らせが二重に届いても1回だけ(上の e.Dead と、受け取った ID の記録の両方で止める)
+        if (bounty > 0 && NetMatch.Mode == MultiplayerGameMode.Coop && GameManager.Instance != null && bountyPaid.Add(id))
+        {
+            int got = GameManager.Instance.AddRunBonusMile(bounty);
+            ChallengeSystem.NoteRemoteBounty();
+            BossBattleHud.Banner("BOUNTY!", new Color(1f, 0.85f, 0.3f), 1.2f);
+            Log("WANTED", $"bounty id={id} {bounty} MILE -> +{got} (1/{GameManager.Instance.MileShareCount})");
+        }
         e.Dead = true; e.Hp = 0; e.LastHitPlayer = lastHit; e.LastDamagedBy = lastDamagedBy; e.DeathCause = cause;
         StatDeaths++;
         string line = $"{KindTag(e.Kind)} KILL id={e.Id} LastHit={P(lastHit)} LastDamagedBy={P(lastDamagedBy)}";

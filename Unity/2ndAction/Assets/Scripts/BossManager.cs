@@ -568,7 +568,8 @@ public partial class BossManager : MonoBehaviour
         // end/pause the run - "100,000m到達でRunを強制終了しない".
         // マルチ(2026-10-11): HOST 自身の距離ではなく共有世界の進行距離(WorldProgress.FrontHigh: 最前の人の最高到達。シングルは自分の距離)。
         // JOIN が先頭でも、その人が 100,000m に着けば出る。一度出たら先頭が入れ替わっても/後ろへ下がっても二度と出さない(TryTrigger)
-        if (!deathSpawned && !ArenaMode.Active && WorldProgress.FrontHigh >= deathSpawnDistance && WorldProgress.TryTrigger("death_100k")) // 開発用の闘技場では死神/三姉妹を出さない
+        // 2026-10-15: 各マップのラッシュが残っている間は出さない(99km の足止めで距離は止まるが、念のため)
+        if (!deathSpawned && !ArenaMode.Active && !(IsBossPhase && MapRushActive) && WorldProgress.FrontHigh >= deathSpawnDistance && WorldProgress.TryTrigger("death_100k")) // 開発用の闘技場では死神/三姉妹を出さない
         {
             deathSpawned = true;
             if (GameManager.Instance.DebugMode) Debug.Log($"[Distance] {Mathf.RoundToInt(deathSpawnDistance)} reached");
@@ -901,6 +902,7 @@ public partial class BossManager : MonoBehaviour
         if (aliveDragonsThisEncounter <= 0 && aliveMajinsThisEncounter <= 0 && aliveWildThisEncounter <= 0)
         {
             BossDefeatedThisPhase = true; // BGM: 撃破したら道中曲へ戻す
+            if (MapRushActive) OnMapRushCleared(); // 2026-10-15: 各マップのラッシュを終えた(90km の門番を倒した扱い)
             // 疾走出発の解放(2026-10-05): ソロの通常ランで 10,000m 刻みの門番を実際に倒した記録(闘技場/DEBUG RUN/マルチは除く)
             if (useWildSchedule && currentGateK > 0 && currentGateK % 10 == 0 && !ArenaMode.Active && !NetRunLauncher.IsMultiplayerRun && GameManager.Instance != null)
                 SprintRecords.MarkGateCleared(GameManager.Instance.ActiveRunStageId, currentGateK);

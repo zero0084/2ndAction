@@ -12,6 +12,10 @@ public static class ChallengeSystem
 {
     public static int EliteSpawned, WantedSpawned, WantedKilled, WantedEscaped, SpawnsHeldByCap;
     public static void ResetCounters() { EliteSpawned = WantedSpawned = WantedKilled = WantedEscaped = SpawnsHeldByCap = 0; }
+    public static void NoteRemoteBounty() { WantedKilled++; } // 協力マルチの JOIN: HOST の賞金首の撃破を知らせで受け取った(2026-10-15)
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public static void DebugSpawnWanted(int lv) => SpawnWanted(Mathf.Max(1, lv)); // 自動テスト用(HOST)
+#endif
 
     static GameManager GM => GameManager.Instance;
     static float C(EffectType t) => GM != null ? GM.Card.Get(t) : 0f;
@@ -74,7 +78,7 @@ public static class ChallengeSystem
         for (int i = wanted.Count - 1; i >= 0; i--)
         {
             var w = wanted[i];
-            if (w == null || w.IsDying) { if (w != null && w.IsDying) { WantedKilled++; gm.AddRunBonusMile(20 + 10 * Mathf.Max(1, lv)); BossBattleHud.Banner("BOUNTY!", new Color(1f, 0.85f, 0.3f), 1.2f); } wanted.RemoveAt(i); continue; }
+            if (w == null || w.IsDying) { if (w != null && w.IsDying) { WantedKilled++; gm.AddRunBonusMile(w.WantedBounty > 0 ? w.WantedBounty : 20 + 10 * Mathf.Max(1, lv)); BossBattleHud.Banner("BOUNTY!", new Color(1f, 0.85f, 0.3f), 1.2f); } wanted.RemoveAt(i); continue; }
             var pc = PlayerController.Instance;
             if (pc != null && w.transform.position.x < pc.transform.position.x - 18f) { WantedEscaped++; wanted.RemoveAt(i); }
         }
@@ -104,6 +108,7 @@ public static class ChallengeSystem
         var e = go.GetComponent<EnemyController>();
         if (e == null) return;
         MakeElite(e, 3f + 0.3f * lv, true);
+        e.WantedBounty = 20 + 10 * Mathf.Max(1, lv); // 2026-10-15: 協力マルチでは撃破の知らせに載せて全員へ(人数で分配)
         wanted.Add(e);
         WantedSpawned++;
         BossBattleHud.Banner("WANTED! 賞金首が現れた", new Color(1f, 0.45f, 0.4f), 1.4f);

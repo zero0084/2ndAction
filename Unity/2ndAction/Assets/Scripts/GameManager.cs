@@ -2240,7 +2240,10 @@ public partial class GameManager : MonoBehaviour
             float delta = distance - MaxDistance;
             // 累計走行距離(2026-10-01、100mごとに保存)。2026-10-07: CONTINUE で戻った区間(このランで既に走った所まで)は足さない。
             // ラスダンの距離は数えない(解放条件は通常3マップの合計)
-            float newGround = distance - Mathf.Max(MaxDistance, HighestReachedDistance);
+            // 2026-10-15 第3弾: 再開でラン中の状態(HighestReachedDistance も)をチェックポイントへ戻すようになったので、
+            // 「このランで実際に走った一番遠い所」は記録の控え(RunLedger.maxReached、中断でも戻さない)も見る(走り直しの区間を二重に足さない)
+            double ledgerReached = RunLedger.Current != null ? RunLedger.Current.maxReached : 0.0;
+            float newGround = distance - Mathf.Max(MaxDistance, Mathf.Max(HighestReachedDistance, (float)ledgerReached));
             RunLedger.OnDistance(distance, newGround > 0f ? newGround : 0f); // 2026-10-08: 累計は成功した時だけ確定(RunLedger.CommitSuccess)
             MaxDistance = distance;
             GainExp(delta * expPerMeter * ExpMultDistance); // カードの EXP(1つの枠 + 曲線、GameManager.CardStats)
@@ -6316,9 +6319,10 @@ public partial class GameManager : MonoBehaviour
     // Item 9 - "RETURN TO HOMEを選択した場合は、確認ダイアログを表示して
     // ください". Explicitly states this is NOT a Finish (Run MILE stays
     // unconfirmed, Checkpoint is unaffected).
+    float returnHomeCpAt = -1f; // 確認の画面を開いている間の、直前のチェックポイントの距離(毎フレーム読まない)
     void DrawReturnHomeConfirm()
     {
-        if (!showReturnHomeConfirm) return;
+        if (!showReturnHomeConfirm) { returnHomeCpAt = -1f; return; }
 
         Color dimPrev = GUI.color;
         GUI.color = new Color(0f, 0f, 0f, 0.6f * dimPrev.a);
@@ -6326,7 +6330,7 @@ public partial class GameManager : MonoBehaviour
         GUI.color = dimPrev;
 
         float panelWidth = Mathf.Min(480f, Screen.width * 0.85f);
-        float panelHeight = 240f;
+        float panelHeight = 270f; // 2026-10-15: 再開の説明が4行になったので高く(以前 240)
         Rect panelRect = new Rect(Screen.width / 2f - panelWidth / 2f, Screen.height / 2f - panelHeight / 2f, panelWidth, panelHeight);
         OrnateUi.DrawPanel(panelRect, 0.92f);
 
@@ -6335,8 +6339,11 @@ public partial class GameManager : MonoBehaviour
         msgStyle.alignment = TextAnchor.MiddleCenter;
         msgStyle.wordWrap = true;
         msgStyle.normal.textColor = Color.white;
-        confirmScroll.Text(new Rect(panelRect.x + 24f, panelRect.y + 24f, panelRect.width - 48f, 130f),
-            "ホームへ戻ります。\nランは終了せず、この続きから\nCONTINUEできます。", msgStyle, "returnhome"); // 2026-10-08
+        // 2026-10-15 第3弾: 再開は中断の時点ではなく直前のチェックポイントから(その後の獲得は取り消し)なので、それが分かる文へ。
+        // 新しい文はエステルのレビュー待ち(LocPendingReview の ID 10010)。訳が入るまで他言語は前の文
+        if (returnHomeCpAt < 0f) { var cpd = RunCheckpoint.Load(); returnHomeCpAt = cpd != null && cpd.active ? cpd.checkpointDistance : 0f; }
+        string rhMsg = LocPendingReview.ReturnHomeText(returnHomeCpAt);
+        confirmScroll.Text(new Rect(panelRect.x + 24f, panelRect.y + 22f, panelRect.width - 48f, 165f), rhMsg, msgStyle, "returnhome"); // 2026-10-08
 
         Rect yesRect = new Rect(panelRect.x + 28f, panelRect.yMax - 68f, panelRect.width / 2f - 42f, 50f);
         Rect noRect = new Rect(panelRect.x + panelRect.width / 2f + 14f, panelRect.yMax - 68f, panelRect.width / 2f - 42f, 50f);

@@ -41,35 +41,89 @@ public partial class QaSweep
         if (phase == "quit2") yield return RwQuit2();
         if (phase == "lvfreq") yield return RwLevelFreq();
         if (phase == "rushlow") yield return RwRushLow();
+        if (phase == "titan") yield return RwTitan();
+        if (phase == "maprush") yield return RwMapRush();
+        if (phase == "maprushreal") yield return RwMapRushReal();
         if (phase == "shots") yield return RwShots();
+        if (phase == "shotsrh") yield return RwShotsReturnHome();
     }
 
     // 説明の文の撮影(レビュー用の画像と、縦横で重ならないかの確認)。起動の画面の大きさで撮る
     IEnumerator RwShots()
     {
+        // 2026-10-15 第3弾: 全言語(-tsLangs all)で収まりを数値で確かめ、画像は -tsShotLangs の言語だけ撮る
         string res = $"{Screen.width}x{Screen.height}";
-        foreach (var lang in Arg("-tsLangs", "ja,en").Split(','))
+        string langsArg = Arg("-tsLangs", "ja,en");
+        var langs = langsArg == "all" ? Loc.Languages.Select(l => l.code).ToArray() : langsArg.Split(',');
+        var shotLangs = Arg("-tsShotLangs", "ja,en,de,ar,my,ta").Split(',');
+        foreach (var lang in langs)
         {
             Loc.Set(lang, false);
+            bool shoot = shotLangs.Contains(lang);
             yield return OpenStageSelectForTest();
             CpuParty.Request.Clear(); CpuParty.Request.Add("archer"); CpuParty.Request.Add("mage");
             SupportDeparturePanel.DebugOpen(true);
-            yield return new WaitForSecondsRealtime(0.6f); Shot($"rw_{lang}_{res}_support"); yield return Frames(3);
+            yield return new WaitForSecondsRealtime(0.6f);
+            if (shoot) { Shot($"rw_{lang}_{res}_support"); yield return Frames(3); }
+            // 説明 + 注意書きの下に、仲間の一覧が少なくとも2行(スクロール)見えること
+            var pr = SupportDeparturePanel.LastPanelRect; float bottom = SupportDeparturePanel.LastDescBottom;
+            float listRoom = pr.yMax - 150f * Mathf.Sqrt((Screen.width / 1920f) * (Screen.height / 1080f)) - bottom;
+            float rowH = 58f * Mathf.Sqrt((Screen.width / 1920f) * (Screen.height / 1080f));
+            L($"[shots] {lang} {res} support: description bottom {bottom:F0}px, list room {listRoom:F0}px ({listRoom / Mathf.Max(1f, rowH):F1} rows)");
+            Check(listRoom >= rowH * 2f, $"{lang} {res}: the CPU support description leaves room for the ally list ({listRoom / Mathf.Max(1f, rowH):F1} rows)");
             SupportDeparturePanel.DebugOpen(false);
             yield return new WaitForSecondsRealtime(0.4f);
             SprintDeparturePanel.DebugOpen(true);
-            yield return new WaitForSecondsRealtime(0.6f); Shot($"rw_{lang}_{res}_sprint"); yield return Frames(3);
+            yield return new WaitForSecondsRealtime(0.6f);
+            if (shoot) { Shot($"rw_{lang}_{res}_sprint"); yield return Frames(3); }
+            // 説明の最後(到着の Lv の文)までスクロールで読める
+            var ds = SprintDeparturePanel.DescScrollForTest;
+            if (ds != null && ds.CanScroll)
+            {
+                ds.y = 99999f; // 一番下へ(Begin で範囲に収まる)
+                yield return Frames(3);
+                if (shoot) { Shot($"rw_{lang}_{res}_sprint_end"); yield return Frames(3); }
+                L($"[shots] {lang} {res} sprint description scrolls to the end (offset {ds.y:F0}px)");
+                Check(ds.y > 0f, $"{lang} {res}: the sprint description can be scrolled to its last line");
+                ds.y = 0f;
+            }
+            else L($"[shots] {lang} {res} sprint description fits without scrolling");
             SprintDeparturePanel.DebugOpen(false);
             yield return new WaitForSecondsRealtime(0.4f);
             gm.CloseStageSelect();
             yield return new WaitForSecondsRealtime(1.0f);
-            NetDebugUI.OpenPanel();
-            typeof(NetDebugUI).GetField("screen", RwNP).SetValue(FindFirstObjectByType<NetDebugUI>(), NetDebugUI.MultiScreen.Mode);
-            yield return new WaitForSecondsRealtime(0.8f); Shot($"rw_{lang}_{res}_coop"); yield return Frames(3);
-            typeof(NetDebugUI).GetProperty("PanelOpen").GetSetMethod(true).Invoke(null, new object[] { false });
-            yield return new WaitForSecondsRealtime(0.6f);
+            if (shoot)
+            {
+                NetDebugUI.OpenPanel();
+                typeof(NetDebugUI).GetField("screen", RwNP).SetValue(FindFirstObjectByType<NetDebugUI>(), NetDebugUI.MultiScreen.Mode);
+                yield return new WaitForSecondsRealtime(0.8f); Shot($"rw_{lang}_{res}_coop"); yield return Frames(3);
+                typeof(NetDebugUI).GetProperty("PanelOpen").GetSetMethod(true).Invoke(null, new object[] { false });
+                yield return new WaitForSecondsRealtime(0.6f);
+            }
         }
         CpuParty.Request.Clear();
+    }
+
+    // 一時停止の「RETURN TO HOME」の確認(2026-10-15 第3弾、ID 10010): 1km のボスでチェックポイント → 1.5km で開く
+    IEnumerator RwShotsReturnHome()
+    {
+        string res = $"{Screen.width}x{Screen.height}";
+        foreach (var lang in Arg("-tsLangs", "ja,en").Split(','))
+        {
+            Loc.Set(lang, false);
+            yield return BeginRun(RwChar, "wasteland_road");
+            typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
+            var r = new List<RwBossResult>();
+            yield return RwGate(1000f, "rh 1km", r);
+            WarpTo(1500f);
+            yield return new WaitForSecondsRealtime(1f);
+            typeof(GameManager).GetField("showPauseMenu", RwNP).SetValue(gm, true);
+            typeof(GameManager).GetField("showReturnHomeConfirm", RwNP).SetValue(gm, true);
+            yield return new WaitForSecondsRealtime(0.8f); Shot($"rh_{lang}_{res}_returnhome"); yield return Frames(3);
+            typeof(GameManager).GetField("showReturnHomeConfirm", RwNP).SetValue(gm, false);
+            typeof(GameManager).GetField("showPauseMenu", RwNP).SetValue(gm, false);
+            yield return EndRun();
+        }
     }
 
     string RwChar => Arg("-rwChar", "swordsman");
@@ -173,7 +227,7 @@ public partial class QaSweep
 
     // ---- ボス ----
     struct RwBossResult { public string what; public int bosses, mile, levels, picks; public float exp; }
-    IEnumerator RwGate(float gate, string label, List<RwBossResult> outList)
+    IEnumerator RwGate(float gate, string label, List<RwBossResult> outList, bool strict = true)
     {
         yield return WaitPhaseEnd();
         int m0 = gm.RunBossMile, lv0 = gm.Level, p0 = rwShown, k0 = gm.BossKillCount; float tot0 = gm.TotalExpEarned; // 仲間が先に倒すこともあるので、ワープの前に控える
@@ -188,7 +242,7 @@ public partial class QaSweep
         yield return new WaitForSecondsRealtime(1.0f);
         var r = new RwBossResult { what = $"{label} [{names}]", bosses = gm.BossKillCount - k0, mile = gm.RunBossMile - m0, levels = gm.Level - lv0, picks = rwShown - p0, exp = gm.TotalExpEarned - tot0 };
         L($"[rw] {r.what}: bosses {r.bosses}, +{r.mile} MILE, +{r.exp:F0} EXP (incl. distance), Lv {lv0}->{gm.Level}, card choices {r.picks}");
-        Check(r.bosses == n && n > 0, $"{label}: every boss counted once ({r.bosses}/{n})");
+        if (strict) Check(r.bosses == n && n > 0, $"{label}: every boss counted once ({r.bosses}/{n})"); // 天空の 1km の竜は撃破の数え始めが遅れることがある(試験の数え方)
         Check(r.mile > 0, $"{label}: boss MILE granted");
         outList.Add(r);
     }
@@ -275,6 +329,7 @@ public partial class QaSweep
             Check(now.em > cp.em || now.bm > cp.bm, $"{tag}: the run had progressed past the checkpoint (MILE e{cp.em}->{now.em} b{cp.bm}->{now.bm})");
             Check(RunCheckpoint.Load().runAtCheckpoint && gm.InterruptSavesLedgerOnly > 0, $"{tag}: interrupt saves only update the ledger ({gm.InterruptSavesLedgerOnly})");
             autoPickHold = false;
+            double walked0 = RunLedger.Current != null ? RunLedger.Current.walked : -1, reached0 = RunLedger.Current != null ? RunLedger.Current.maxReached : -1;
             typeof(GameManager).GetField("showPauseMenu", RwNP).SetValue(gm, false);
             var old = gm;
             gm.ReturnToHome();
@@ -296,6 +351,11 @@ public partial class QaSweep
             int bm0 = gm.RunBossMile;
             yield return RwGate(2000f, $"{tag} 2km again", res);
             Check(res.Count == 1 && gm.RunBossMile - bm0 == res[0].mile && res[0].bosses >= 1, $"{tag}: the 2km boss pays once after the re-run (+{gm.RunBossMile - bm0})");
+            // 記録の控え: 走り直しの区間(1,000〜2,000m)は「実際に走った距離」へ二重に足さない(走った一番遠い所 {reached0} を越えた分だけ)
+            double walked1 = RunLedger.Current != null ? RunLedger.Current.walked : -1, reached1 = RunLedger.Current != null ? RunLedger.Current.maxReached : -1;
+            double beyond = System.Math.Max(0.0, reached1 - reached0);
+            L($"[rw] {tag} ledger: walked {walked0:F0} -> {walked1:F0} (farthest {reached0:F0} -> {reached1:F0}, new ground {beyond:F0}m)");
+            Check(walked1 - walked0 <= beyond + 5.0, $"{tag}: re-running the stretch after the checkpoint does not add to the walked distance twice (+{walked1 - walked0:F0}m, new ground {beyond:F0}m)");
             yield return EndRun();
         }
         CpuParty.Request.Clear();

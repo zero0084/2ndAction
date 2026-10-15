@@ -401,14 +401,17 @@ public partial class SkyTitanBoss : SkyBossBase
     {
         while (true)
         {
-            if (UltimateReady(2)) { yield return JudgmentOfTitan(); continue; }
-            if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return SpearRain(); continue; }
+            // 2026-10-15: 必殺技/特殊攻撃も「攻撃の回数」に数え、身をかがめる番を特殊攻撃より先にする。
+            // 以前は再戦の最終強化(特殊攻撃 4秒 / 必殺技 9秒ごと、ボスラッシュの強さ)で毎回 必殺技 → 特殊攻撃 が先に来て、
+            // 身をかがめる(近接キャラが届く隙)が一度も来ず、黒剣士の攻撃が 60秒で 0 回しか当たらなかった。HP/攻撃力は変えていない
             if (kneelEveryAttacks > 0 && attacksSinceKneel >= kneelEveryAttacks)
             {
                 attacksSinceKneel = 0;
                 yield return KneelAndSlam();
                 continue;
             }
+            if (UltimateReady(2)) { yield return JudgmentOfTitan(); attacksSinceKneel++; continue; }
+            if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return SpearRain(); attacksSinceKneel++; continue; }
             int pick = BossAiUtil.PickNoRepeat(3, ref last);
             if (pick == 0) yield return FistSlam();
             else if (pick == 1) yield return Gust();

@@ -1,0 +1,3 @@
+10007	ui	SupportDeparturePanel / NetDebugUI (獲得MILEの分配の1行。LocPendingReview.MileShareNote)	獲得MILEは参加人数で分配
+10008	ui	SupportDeparturePanel (CPU サポートの説明。LocPendingReview.SupportDesc)	CPU の仲間と一緒に走ります(最大3人)。仲間は自動で戦い、倒れても少しすると戻ってきます。MILEは自分とCPUの仲間の合計人数で割り、自分の分だけ受け取れます。サポートを使ったランはランキングの対象外です(解放・自己ベストは通常どおり)。
+10009	ui	SprintDeparturePanel (疾走出発の説明。LocPendingReview.SprintDesc)	攻略済みの区間を一気に駆け抜け、選んだ関門の少し手前から走り始めます。ボス報酬のカードはランダムに自動取得。5,000mごとのリングに上下で高さを合わせると追加で1枚選べます。飛ばした距離のMILEは獲得できません。到着後は、到着地点の距離に応じて上がったプレイヤーLvで走り始めます。

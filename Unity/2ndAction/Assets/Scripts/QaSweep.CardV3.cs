@@ -180,9 +180,12 @@ public partial class QaSweep
         V3Reset(); V3Apply("attack_range_up", 9); float ar9 = pc.CardRangeFactor;
         V3Reset(); V3Apply("jump_power_up", 9); float jp9 = pc.CardJumpFactor;
         V3Reset(); V3Apply("heart_up", 9); float hu9 = gm.maxLives;
-        L($"[T] SPEED UP Lv9 {su9:F1}km/h (spec 127) / ATTACK UP Lv9 x{au9:F2} (1.45) / ATTACK SPEED UP Lv9 tempo x{as9:F2} (1.27) / RANGE Lv9 x{ar9:F2} (1.27) / JUMP Lv9 x{jp9:F2} (1.27) / HEART UP Lv9 maxHP {hu9} (50+90)");
+        float auSpec = AttackUpLv9Spec(out string auWhy);
+        L($"[T] ATTACK UP Lv9 spec: {auWhy}");
+        L($"[T] SPEED UP Lv9 {su9:F1}km/h (spec 127) / ATTACK UP Lv9 x{au9:F2} ({auSpec:F2}) / ATTACK SPEED UP Lv9 tempo x{as9:F2} (1.27) / RANGE Lv9 x{ar9:F2} (1.27) / JUMP Lv9 x{jp9:F2} (1.27) / HEART UP Lv9 maxHP {hu9} (50+90)");
         Check(Mathf.Abs(su9 - 127f) < 1.5f, "SPEED UP Lv9 = +27% (127 km/h at the natural cap)");
-        Check(Mathf.Abs(au9 - 1.45f) < 0.01f, "ATTACK UP Lv9 = +45%");
+        Check(Mathf.Abs(auSpec - 1.80f) < 0.005f, $"ATTACK UP Lv9 spec = +80% as the card text says ({auWhy})");
+        Check(Mathf.Abs(au9 - auSpec) < 0.01f, $"ATTACK UP Lv9 = x{auSpec:F2} (measured x{au9:F2})");
         Check(Mathf.Abs(as9 - 1.27f) < 0.01f, "ATTACK SPEED UP Lv9 = +27% attack speed");
         Check(Mathf.Abs(ar9 - 1.27f) < 0.01f && Mathf.Abs(jp9 - 1.27f) < 0.01f, "ATTACK RANGE UP / JUMP POWER UP Lv9 = +27%");
         Check(Mathf.RoundToInt(hu9) == 140, "HEART UP Lv9 = +9 hearts");
@@ -304,7 +307,7 @@ public partial class QaSweep
             V3Reset(); V3Apply("giant_slayer", 9); float wSlow = pc.SequenceResetWindow;
             V3Reset(); V3Apply("jump_power_up", 9); V3Apply("jump_count_up", 9); float jf = pc.CardJumpFactor; int jumps = pc.maxJumps; int alt = pc.MageExtraAltitudeLevels;
             sb.AppendLine($"{def.characterId}\t{atk:F2}\t{rng:F2}\t{prj:F2}\t{def.attackSpeedMultiplier / Mathf.Max(0.01f, pc.AttackSpeedMultiplier):F2}\t{main:F2}\t{jf:F2}\t{jumps}\t{alt}\t{w0:F2}\t{wFast:F2}\t{wSlow:F2}");
-            Check(Mathf.Abs(atk - 1.45f) < 0.01f, $"{def.characterId}: ATTACK UP Lv9 = +45%");
+            Check(Mathf.Abs(atk - AttackUpLv9Spec(out _)) < 0.01f, $"{def.characterId}: ATTACK UP Lv9 = x{AttackUpLv9Spec(out _):F2} (measured x{atk:F2})");
             Check(Mathf.Abs(rng - 1.27f) < 0.01f && Mathf.Abs(prj - 1.27f) < 0.01f, $"{def.characterId}: RANGE Lv9 = +27% (melee box and projectile travel)");
             Check(jumps == BalanceTuning.JumpCountFor(def) + 9, $"{def.characterId}: JUMP COUNT UP Lv9 = +9 ({jumps})");
             if (def.kit == CharacterKit.Mage) Check(alt == 3, $"mage: JUMP COUNT UP Lv9 = +3 altitude levels ({alt})");
@@ -688,7 +691,8 @@ public partial class QaSweep
                 pc.autoRunEnabled = false;
                 float slot = dummy.transform.position.x - pc.transform.position.x;
                 int prevHp = (int)HaEnemyHp.GetValue(dummy);
-                long dealtL = 0;
+                long dealtL = 0; int hits = 0; float dyMax = 0f; // 2026-10-15: 当たった回数(HP が減ったフレーム)と、ダミーとの高さの差の最大
+                int up0 = HaOnUpperRoute;
                 float t0 = Time.time, lastFlick = 0f;
                 while (Time.time - t0 < secs)
                 {
@@ -703,8 +707,9 @@ public partial class QaSweep
                         continue;
                     }
                     int hpNow = (int)HaEnemyHp.GetValue(dummy);
-                    if (hpNow < prevHp) dealtL += prevHp - hpNow;
+                    if (hpNow < prevHp) { dealtL += prevHp - hpNow; hits++; }
                     prevHp = hpNow;
+                    dyMax = Mathf.Max(dyMax, Mathf.Abs(dummy.transform.position.y - pc.transform.position.y));
                     float want = pc.transform.position.x + slot;
                     var tmz = TerrainManager.Instance;
                     if (!(bool)HaEnemyLaunched.GetValue(dummy) && Mathf.Abs(dummy.transform.position.x - want) > 0.5f && tmz != null && tmz.GetHeightAt(want).HasValue)
@@ -712,11 +717,12 @@ public partial class QaSweep
                 }
                 pc.autoRunEnabled = true;
                 float dps = dealtL / secs;
-                if (dps <= 0f) { L($"[B:{ch}] DIAG {b.name}: dummy={(dummy != null)} pos=({pc.transform.position.x:F1},{pc.transform.position.y:F1}) grounded={pc.IsGrounded}"); Shot($"v3dps_zero_{ch}_{b.name}"); }
+                if (dps <= 0f) { L($"[B:{ch}] DIAG {b.name}: dummy={(dummy != null)} pos=({pc.transform.position.x:F1},{pc.transform.position.y:F1}) grounded={pc.IsGrounded} dummyY={(dummy != null ? dummy.transform.position.y : 0f):F1} dyMax={dyMax:F1}"); Shot($"v3dps_zero_{ch}_{b.name}"); }
+                Check(dps > 0f, $"B {ch} {b.name}: the attacks hit the dummy and lower its HP ({hits} hits, height gap max {dyMax:F1}m, upper-route spawns {HaOnUpperRoute - up0})");
                 if (b.name == "none") baseDps = Mathf.Max(1f, dps);
                 string note = b.preset != null ? $"{b.preset} Lv{b.lv}" : "no cards";
                 sb.AppendLine($"{ch}\t{b.name}\t{dps:F1}\t{dps / Mathf.Max(1f, baseDps):F2}\t{hitMul:F2}\t{note}");
-                L($"[B:{ch}] {b.name,-10} dps {dps,7:F1}  x{dps / Mathf.Max(1f, baseDps):F2}  (1 hit x{hitMul:F2})");
+                L($"[B:{ch}] {b.name,-10} dps {dps,7:F1}  x{dps / Mathf.Max(1f, baseDps):F2}  (1 hit x{hitMul:F2}, hits {hits}, gap {dyMax:F1}m, player y {pc.transform.position.y:F1})");
                 V3Write("cardv3_dps.tsv", sb);
             }
             stopKeepAlive = false;
@@ -1023,6 +1029,19 @@ public partial class QaSweep
     }
 
     // ===================================================================== R
+    // ATTACK UP Lv9 の仕様の値(2026-10-15): 計算式から求める(測った値に合わせない)。
+    //  カードの値(1Lv あたり 5%)× Lv の係数(BalanceTuning.AttackUpLevelFactor: 2026-10-11 採用、Lv9 = 16。切っている時は Lv そのまま)
+    //  → 無条件の攻撃の曲線(CardRules.SoftAttack、0.8 まではそのまま)→ ×(1 + 値)。カードの説明「Lv9で+80%」と一致すること
+    float AttackUpLv9Spec(out string why)
+    {
+        var def = CardDatabase.FindById("attack_up");
+        float per = def != null && def.effects != null && def.effects.Count > 0 ? def.effects[0].value : 0.05f;
+        float factor = BalanceTuning.AttackUpHighLevel ? BalanceTuning.AttackUpLevelFactor(9) : 9f;
+        float raw = per * factor, eff = CardRules.SoftAttack(raw);
+        why = $"{per:P0}/Lv x factor {factor:F1} = raw {raw:P0} -> curve {eff:P0} -> x{1f + eff:F2}";
+        return 1f + eff;
+    }
+
     IEnumerator V3Continue()
     {
         L("== R: CONTINUE(カードの状態) ==");

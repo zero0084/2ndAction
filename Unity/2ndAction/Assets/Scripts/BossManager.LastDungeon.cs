@@ -28,6 +28,7 @@ public partial class BossManager
         public int Remaining => Mathf.Max(0, total - defeated);
         // 走りながらのボスラッシュ(2026-10-06)
         public bool continuous;
+        public bool mapRush;                            // 各マップの終盤のラッシュ(2026-10-15、BossManager.MapRush.cs): 同時に1体だけ
         public int firstK, nextK;                       // 予定の最初の節目 / 次に予約する節目(km)
         public readonly List<string> plan = new List<string>(); // 節目ごとのボス(firstK から)
         public bool lastReinforcementDone;              // 98kmの増援を予約した
@@ -287,6 +288,7 @@ public partial class BossManager
         int alive = ActiveCount(enc);
         why = "";
         if (alive == 0) return true;
+        if (enc.mapRush) { why = "map rush: one at a time"; return false; } // 2026-10-15: 各マップのラッシュは1体ずつ
         if (alive >= Mathf.Max(1, ld.maxSimultaneous)) { why = $"together {alive}/{ld.maxSimultaneous}"; return false; }
         var t = ld.TagsOf(key);
         // Solo(希少な強敵): 居る間は他のボスを足さない / 他のボスが居る間は出さない(2026-10-13)
@@ -370,7 +372,8 @@ public partial class BossManager
         // 同時に並ぶ間合いの枠(出ているボスが使っていない一番小さい番号)
         int slot = 0;
         for (; slot < 4; slot++) { bool used = false; foreach (var b in enc.activeBosses) if (b != null && !b.IsDead && b.slotIndex == slot) used = true; if (!used) break; }
-        SetLastDungeonStrength(s.key, (enc.continuous ? s.value : enc.gateK) * gateIntervalMeters, true, enc.continuous); // 走りながら: その節目の距離の強さ
+        if (enc.mapRush) SetMapRushStrength(s.key, s.value * gateIntervalMeters); // 2026-10-15: 各マップのラッシュ = その節目の距離の再戦の強さ × 倍率
+        else SetLastDungeonStrength(s.key, (enc.continuous ? s.value : enc.gateK) * gateIntervalMeters, true, enc.continuous); // 走りながら: その節目の距離の強さ
         lastSpawnedWild = null;
         if (fam == GateFamily.Cave)
         {
@@ -452,7 +455,9 @@ public partial class BossManager
     // BossManager.Update(関門の判定の前)から: 90kmの節目に着いたら、距離を止めずに始める
     bool TryStartContinuousRush()
     {
-        if (!RushEnabled || !ContinuousRush || !IsLastStage || !useWildSchedule || ArenaMode.Active) return false;
+        bool ldRush = RushEnabled && ContinuousRush && IsLastStage;
+        bool mapRush = !IsLastStage && MapRushStage; // 2026-10-15: 各マップの終盤のラッシュ(1体ずつ)
+        if (!(ldRush || mapRush) || !useWildSchedule || ArenaMode.Active) return false;
         if (gateK < RushFirstK || gateK > RushLastK) return false;
         if (GateDistance() < gateK * gateIntervalMeters) return false;
         StartContinuousRush(gateK);
@@ -464,6 +469,12 @@ public partial class BossManager
     {
         var ld = LastDungeonBossTuning.I;
         var plan = new List<string>();
+        if (!IsLastStage) // 2026-10-15: 各マップのラッシュは決まった9体(弱い順)
+        {
+            var fixedPlan = MapRushPlanFor(GameManager.Instance != null ? GameManager.Instance.ActiveRunStageId : "");
+            for (int k = fromK; k <= RushLastK; k++) plan.Add(fixedPlan[Mathf.Clamp(k - RushFirstK, 0, fixedPlan.Length - 1)]);
+            return plan;
+        }
         bool Usable(string key) => !string.IsNullOrEmpty(key) && ParseKey(key, out _, out _) && (ld.TagsOf(key) & LastDungeonBossTuning.Tag.NoRush) == 0 && !plan.Contains(key);
         for (int k = fromK; k <= RushLastK; k++)
         {
@@ -505,12 +516,17 @@ public partial class BossManager
         IsBossPhase = true;
         if (gm != null) gm.LogBoss("PhaseStart");
         gateK = fromK;
-        currentGateK = RushLastK; // 遭遇の終わりの次の関門の決め方(ChooseNextGate)を 99km 以降にする(ボスラッシュの関門を保留にしない)
+        bool map = !IsLastStage;
+        // 遭遇の終わりの次の関門の決め方(ChooseNextGate)を 99km 以降にする(ボスラッシュの関門を保留にしない)。
+        // 各マップのラッシュ(2026-10-15)は 99km の関門も出さない(ラッシュが 90〜99km の代わり)→ 次は 100km(関門なし)→ 101km
+        currentGateK = map ? RushLastK + 1 : RushLastK;
         aliveDragonsThisEncounter = 0; aliveMajinsThisEncounter = 0;
         ClearEnemiesForBoss();
         BeginEncounter(fromK, true);
         var enc = CurrentBossEncounter;
         enc.continuous = true;
+        enc.mapRush = map;
+        if (map) MapRushesStarted++;
         enc.firstK = fromK; enc.nextK = fromK;
         enc.plan.AddRange(BuildRushPlan(fromK));
         enc.total = RushLastK - fromK + 1;
@@ -525,7 +541,7 @@ public partial class BossManager
         // 距離は止めない: ラン再開と同じ状態(除外0を「折りたたみ済み」にして、報酬の後で二重に除外しない)
         if (gm != null) { gm.BeginBossDistanceExclusion(); gm.ResumeBossDistance(); }
         RunResumed = true; resumedAt = Time.time;
-        Debug.Log($"[BossRush] RUN RUSH Start at {(gm != null ? gm.MaxDistance : 0f):F0}m from {fromK}km: {enc.label} (bosses {enc.total}, together <={LastDungeonBossTuning.I.maxSimultaneous})");
+        Debug.Log($"[BossRush] RUN RUSH Start at {(gm != null ? gm.MaxDistance : 0f):F0}m from {fromK}km: {enc.label} (bosses {enc.total}, together <={(map ? 1 : LastDungeonBossTuning.I.maxSimultaneous)}{(map ? ", map rush" : "")})");
         BossBattleHud.Banner("BOSS RUSH  走りながら戦え!", new Color(1f, 0.45f, 0.3f), 2.0f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossWarning);
         rushZakoCheckAt = 0f; RushClearZako();

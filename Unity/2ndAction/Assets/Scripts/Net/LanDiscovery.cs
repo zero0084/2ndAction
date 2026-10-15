@@ -30,8 +30,8 @@ public class LanRoom
 
 public class LanDiscovery : MonoBehaviour
 {
-    public const int MultiplayerProtocolVersion = 5;   // 2026-10-15: 5 = 撃破の報酬を小数で送る(距離の係数/精鋭/ボスの EXP の割合)・協力マルチの MILE の分配
-    public const int PreviousProtocolVersion = 4;   // 2026-10-12: 4 = 位置/敵の状態を詰めた形・位置の中継を送り先ごとに1件へまとめる(3: 中継を HOST が送り先ごとに行う)
+    public const int MultiplayerProtocolVersion = 6;   // 2026-10-15: 6 = 撃破の知らせに WANTED の賞金(協力で全員へ分配)。5 = 撃破の報酬を小数で送る・協力マルチの MILE の分配
+    public const int PreviousProtocolVersion = 5;   // 2026-10-12: 4 = 位置/敵の状態を詰めた形・位置の中継を送り先ごとに1件へまとめる(3: 中継を HOST が送り先ごとに行う)
     //   // 2026-10-08: 2 = コードネーム(NetPlayer.CodenameVar)を追加   // 部屋の知らせ+ゲームの同期の版(違えば一覧で VERSION MISMATCH、接続も断る)
     // 知らせに載せる版(開発ビルドだけ -lanProtocol N で変えて、版違いの表示を確かめられる)
     public static int AdvertisedProtocol

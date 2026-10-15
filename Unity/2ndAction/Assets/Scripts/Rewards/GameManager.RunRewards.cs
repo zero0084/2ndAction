@@ -67,8 +67,10 @@ public partial class GameManager
     {
         if (amount <= 0 || IsGameOver) return 0;
         // カード v3: TREASURE HUNTER は宝・報酬(BONUS ZONE の宝運びゴブリン/黄金スライム/ミミック/CLEAR/PERFECT、WANTED の賞金)を増やす
-        // マルチ: BONUS ZONE は出ない。WANTED の賞金は HOST の端末だけで数える個人の報酬(今までどおり)なので割らない
-        float baseAmount = NetRunLauncher.IsMultiplayerRun ? amount : Share(amount);
+        // マルチ: BONUS ZONE は出ない。WANTED の賞金(2026-10-15 第3弾): 協力は全員が受け取り(撃破の知らせで共有)、ほかの MILE と同じく人数で分配。
+        // 対戦は今までどおり(HOST の端末だけ、割らない)
+        bool versus = NetRunLauncher.IsMultiplayerRun && NetMatch.Mode != MultiplayerGameMode.Coop;
+        float baseAmount = versus ? amount : Share(amount);
         float exact = baseAmount * MileGainMultiplier * FinalEvolution.MileMul * Mathf.Max(0f, 1f + Card.Get(EffectType.TreasureMilePct));
         Track(3, amount, exact);
         int add = TakeWhole(ref mileCarry, exact);

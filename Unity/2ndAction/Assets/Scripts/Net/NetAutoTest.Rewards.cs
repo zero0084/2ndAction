@@ -42,6 +42,26 @@ public partial class NetAutoTest
         var pc = PlayerController.Instance;
         Vector3 me = pc != null ? pc.transform.position : Vector3.zero;
         int pn = NetCombat.LocalPlayerNumber;
+        if (what == "wanted")
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (role == "HOST") { ChallengeSystem.DebugSpawnWanted(1); L($"RWK spawned a WANTED (bounty {20 + 10} MILE)"); }
+#endif
+            return;
+        }
+        if (what == "killall")
+        {
+            int n = 0;
+            foreach (var x in FindObjectsByType<EnemyController>(FindObjectsSortMode.None).Where(x => x != null && x.isActiveAndEnabled && x.NetId != 0 && !x.IsDying && x.bonus == null && x.transform.position.x > me.x - 3f && x.transform.position.x < me.x + 45f).ToList())
+            {
+                if (role == "HOST") x.NetApplyRemoteHit(pn, 9999999, PlayerAttackKind.Normal, x.transform.position);
+                else NetCombat.RequestHit(x.NetId, 9999999, PlayerAttackKind.Normal, x.transform.position);
+                n++;
+            }
+            L($"RWK P{pn} kills all {n} enemies ahead (WANTED included)");
+            rwLogAt = runTime + 1.5f; rwLogWhat = what;
+            return;
+        }
         if (what == "spawnboss")
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -71,6 +91,6 @@ public partial class NetAutoTest
     }
 
     static string RewardState(GameManager g) =>
-        $"share=1/{g.MileShareCount} enemyMile={g.RunEnemyMile} bossMile={g.RunBossMile} kills={g.EnemyKillCount} bossKills={g.BossKillCount} Lv={g.Level} exp={g.TotalExpEarned:F0} carry={g.MileCarryDebug:F3}"
+        $"share=1/{g.MileShareCount} enemyMile={g.RunEnemyMile} bossMile={g.RunBossMile} bonusMile={g.RunBonusMile} wanted={ChallengeSystem.WantedKilled} kills={g.EnemyKillCount} bossKills={g.BossKillCount} Lv={g.Level} exp={g.TotalExpEarned:F0} carry={g.MileCarryDebug:F3}"
         + $" base[e/b]={g.MileBaseDbg[1]:F3}/{g.MileBaseDbg[2]:F3} exact[e/b]={g.MileExactDbg[1]:F3}/{g.MileExactDbg[2]:F3} takeHome={g.TakeHomeMile} exactTotal={g.TakeHomeExactDebug:F3}";
 }

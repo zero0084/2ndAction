@@ -21,6 +21,7 @@ public class SprintDeparturePanel : MonoBehaviour
     public static Rect LastButtonRect { get; private set; }
     public static int Opens { get; private set; }
     string stageForPanel;
+    public static UiScroll DescScrollForTest => FindFirstObjectByType<SprintDeparturePanel>()?.descScroll; // 確認用(説明のスクロール)
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     // 自動テスト用(2026-10-15): 行き先の一覧を開く/閉じる(ステージ選択を開いている時だけ表示される)
     public static void DebugOpen(bool open)
@@ -75,7 +76,8 @@ public class SprintDeparturePanel : MonoBehaviour
         }
 
         // 行き先の一覧
-        float pw = 760f * s, ph = 900f * s;
+        float pw = Mathf.Min(Screen.width - 24f * s, 760f * s), ph = 900f * s;
+        if (Screen.height > Screen.width) ph = Mathf.Min(Screen.height - 24f * s, Mathf.Max(ph, Screen.height * 0.8f)); // 2026-10-15: 縦画面は下の空きも使う
         Rect panel = new Rect((Screen.width - pw) * 0.5f, (Screen.height - ph) * 0.5f, pw, ph);
         UiKit.Fill(new Rect(0, 0, Screen.width, Screen.height), new Color(0f, 0f, 0f, 0.55f));
         UiKit.Fill(panel, new Color(0.06f, 0.08f, 0.15f, 0.97f));
@@ -84,9 +86,12 @@ public class SprintDeparturePanel : MonoBehaviour
         LocGUI.Label(new Rect(x, y, w, 50f * s), $"疾走出発  {(st != null ? st.displayName : stageForPanel)}", UiKit.Label(34f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f)));
         y += 52f * s;
         // 2026-10-08: 説明は折り返し、長い言語ではスクロール(以前は1行のままで切れていた)
-        var descSt = new GUIStyle(UiKit.Label(20f * s, TextAnchor.UpperLeft, false, new Color(0.85f, 0.9f, 1f))); descSt.wordWrap = true;
-        descScroll.Text(new Rect(x, y, w, 76f * s), Loc.Reviewed(LocPendingReview.SprintDesc, LocPendingReview.SprintOld), descSt, stageForPanel);
-        y += 84f * s;
+        // 2026-10-15 第3弾(エステルの表示の確認): 縦画面は字を 1.35倍・説明の枠を高く(最後の到着 Lv の文まで読める。収まらない分はスクロール)
+        bool portrait = Screen.height > Screen.width;
+        float ts = portrait ? s * 1.35f : s, descH = (portrait ? 150f : 76f) * s;
+        var descSt = new GUIStyle(UiKit.Label(20f * ts, TextAnchor.UpperLeft, false, new Color(0.85f, 0.9f, 1f))); descSt.wordWrap = true;
+        descScroll.Text(new Rect(x, y, w, descH), LocPendingReview.SprintDesc, descSt, stageForPanel);
+        y += descH + 8f * s;
         var list = SprintRecords.Destinations(stageForPanel);
         // 行き先の一覧も、収まらない時はスクロール(ドラッグした指では行き先を選ばない)
         var listView = new Rect(x, y, w, Mathf.Max(68f * s, panel.yMax - 90f * s - y));

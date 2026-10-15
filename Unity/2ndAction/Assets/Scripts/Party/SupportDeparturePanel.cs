@@ -6,7 +6,9 @@ using UnityEngine;
 // マルチの部屋に入っている間は出さない(人間のマルチへの CPU の補充は今回の対象外)。IMGUI で上に重ねる(SprintDeparturePanel と同じ作り)。
 public class SupportDeparturePanel : MonoBehaviour
 {
-    public const string MileShareNote = LocPendingReview.MileShareNote; // 2026-10-15(協力マルチの説明と同じ文。レビュー待ちの一覧は LocPendingReview)
+    public const string MileShareNote = LocPendingReview.MileShareNote;
+    public static float LastDescBottom { get; private set; } // 確認用: 説明と注意書きの下の端(画面の座標)
+    public static Rect LastPanelRect { get; private set; } // 2026-10-15(協力マルチの説明と同じ文。レビュー待ちの一覧は LocPendingReview)
     public const string PrefKey = "CpuSupportV1";
     readonly UiScroll listScroll = new UiScroll();
 
@@ -87,21 +89,29 @@ public class SupportDeparturePanel : MonoBehaviour
         }
 
         float pw = Mathf.Min(Screen.width - 24f * s, 820f * s), ph = Mathf.Min(Screen.height - 24f * s, 920f * s);
+        if (Screen.height > Screen.width) ph = Mathf.Min(Screen.height - 24f * s, Mathf.Max(ph, Screen.height * 0.8f)); // 2026-10-15: 縦画面は下の空きも使う
         Rect panel = new Rect((Screen.width - pw) * 0.5f, (Screen.height - ph) * 0.5f, pw, ph);
         UiKit.Fill(new Rect(0, 0, Screen.width, Screen.height), new Color(0f, 0f, 0f, 0.55f));
         UiKit.Fill(panel, new Color(0.06f, 0.08f, 0.15f, 0.97f));
         float y = panel.y + 18f * s, x = panel.x + 26f * s, w = pw - 52f * s;
         LocGUI.Label(new Rect(x, y, w, 48f * s), "CPU サポート", UiKit.Label(32f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f)));
         y += 50f * s;
-        var desc = new GUIStyle(UiKit.Label(19f * s, TextAnchor.UpperLeft, false, new Color(0.85f, 0.9f, 1f))) { wordWrap = true };
-        // 2026-10-15: 獲得 MILE を参加人数で分配(新しい文はエステルのレビュー後に各言語へ。それまでは前の文)
-        LocGUI.Label(new Rect(x, y, w, 80f * s), Loc.Reviewed(LocPendingReview.SupportDesc, LocPendingReview.SupportOld), desc);
-        y += 86f * s;
+        // 2026-10-15 第3弾(エステルの表示の確認): 縦画面は説明の字が小さかった(幅で決まる倍率)→ 説明と注意書きは 1.35倍にし、
+        // 高さは実際の文の高さ(折り返し込み)で取る(下の一覧はスクロールするので、その分だけ短くなる)。字はこれ以上縮めない
+        float ts = Screen.height > Screen.width ? s * 1.35f : s;
+        var desc = new GUIStyle(UiKit.Label(19f * ts, TextAnchor.UpperLeft, false, new Color(0.85f, 0.9f, 1f))) { wordWrap = true };
+        string descText = Loc.Auto(LocPendingReview.SupportDesc);
+        float descH = Mathf.Max(40f * s, desc.CalcHeight(new GUIContent(descText), w));
+        LocGUI.Label(new Rect(x, y, w, descH), LocPendingReview.SupportDesc, desc);
+        y += descH + 6f * s;
         if (Loc.Ready(MileShareNote))
         {
-            LocGUI.Label(new Rect(x, y, w, 28f * s), MileShareNote, UiKit.Label(19f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.86f, 0.45f)));
-            y += 30f * s;
+            var note = new GUIStyle(UiKit.Label(19f * ts, TextAnchor.UpperLeft, true, new Color(1f, 0.86f, 0.45f))) { wordWrap = true }; // 長い言語は折り返す(1行に縮めない)
+            float noteH = note.CalcHeight(new GUIContent(Loc.Auto(MileShareNote)), w);
+            LocGUI.Label(new Rect(x, y, w, noteH), MileShareNote, note);
+            y += noteH + 4f * s;
         }
+        LastDescBottom = y; LastPanelRect = panel;
         LocGUI.Label(new Rect(x, y, w, 30f * s), Loc.F("選んだ仲間: {0}/{1}", editing.Count, CpuParty.MaxAllies), UiKit.Label(20f * s, TextAnchor.MiddleLeft, true, Color.white));
         y += 34f * s;
 

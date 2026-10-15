@@ -1142,6 +1142,7 @@ public partial class EnemyController : MonoBehaviour
     // ===================================================================== //
 
     [System.NonSerialized] public int NetId;
+    [System.NonSerialized] public int WantedBounty; // 2026-10-15: WANTED の賞金首の賞金(0 = 賞金首ではない)。HOST が出した時に決める
     [System.NonSerialized] public bool NetReplica;
     [System.NonSerialized] public bool NetRemoteReacting;
     [System.NonSerialized] public bool NetLocalFlashActive;
