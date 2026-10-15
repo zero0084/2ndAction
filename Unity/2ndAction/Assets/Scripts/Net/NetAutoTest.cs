@@ -357,7 +357,7 @@ public partial class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoChoiceAt") float.TryParse(next, out choiceAt);
             else if (a == "-netAutoChoiceHold") float.TryParse(next, out choiceHold);
             else if (a == "-netAutoMode") modeArg = next.ToLowerInvariant();
-            else if (a == "-netAutoRwKills" || a == "-netAutoEliteAt") ParseRewardArgs(a, next); // 2026-10-15 第2弾
+            else if (a == "-netAutoRwKills" || a == "-netAutoEliteAt" || a == "-netAutoRushLog") ParseRewardArgs(a, next); // 2026-10-15 第2弾
             else if (a == "-netAutoKillAt") { foreach (string k in next.Split(',')) if (float.TryParse(k, out float kt)) killTimes.Add(kt); if (killTimes.Count > 0) killAt = killTimes[0]; damageTest = true; }
             else if (a == "-netAutoKillFall") killFall = true;
             else if (a == "-netAutoRevive") autoRevive = true;

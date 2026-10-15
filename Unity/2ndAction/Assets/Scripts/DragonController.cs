@@ -987,8 +987,11 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         ScheduleNextAttack();
     }
 
+    public FireballController LastUltFireball { get; private set; } // 確認用(2026-10-15): 最後の必殺技の巨大火球
+    public int UltFireballsFired { get; private set; }
     IEnumerator GiantFireball()
     {
+        LastUltFireball = null;
         state = State.Telegraphing;
         if (AudioManager.Instance != null && !NetPuppet) AudioManager.Instance.PlaySeAt(SeId.BossTelegraph, transform.position); // 2026-10-06: 予兆の音
         UltimatesUsed++;
@@ -1045,6 +1048,8 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         fbc.ScaleUp(3f);
         fbc.damageAmount = CombatScale.PlayerHeavyHit;
         fbc.lifetime = 7f;
+        LastUltFireball = fbc; UltFireballsFired++;
+        if (Debug.isDebugBuild && player != null) Debug.Log($"[Dragon] ULT giant fireball fired from dx={from.x - player.position.x:F1} dy={from.y - player.position.y:F1} speed 6.5");
         var camF = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
         if (camF != null) camF.Shake(0.15f, 0.3f);
         state = State.Firing;

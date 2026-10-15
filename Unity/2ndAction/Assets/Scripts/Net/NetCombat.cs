@@ -29,7 +29,7 @@ public class NetCombat : MonoBehaviour
     const string MsgState = "OMM.CombatState";    // HOST→JOIN: 位置/姿勢(非信頼)
     const string MsgHit = "OMM.CombatHit";        // JOIN→HOST: ダメージ要求
 
-    const byte OpEnemySpawn = 1, OpBossSpawn = 2, OpDamage = 3, OpDeath = 4, OpDespawn = 5, OpReject = 6, OpBanner = 7;
+    const byte OpEnemySpawn = 1, OpBossSpawn = 2, OpDamage = 3, OpDeath = 4, OpDespawn = 5, OpReject = 6, OpBanner = 7, OpWanted = 8;
     const byte HitDamage = 1, HitVacuum = 2;
 
     public const float StateSendRate = 20f;
@@ -78,6 +78,7 @@ public class NetCombat : MonoBehaviour
         public EnemySpawnInfo SpawnInfo;
         public BossSpawnInfo BossSpawn;
         public bool SpawnSent;
+        public bool WantedSent; // 2026-10-15: WANTED の印を送った
         public int RunSeed;
         // HOST: 送信の間引き
         public double SentX; public float SentY; public float SentTime = -99f; public int SentHash;
@@ -418,6 +419,12 @@ public class NetCombat : MonoBehaviour
             {
                 SendSpawn(e);
                 e.SpawnSent = true;
+            }
+            // 2026-10-15 第4弾: WANTED の賞金首(協力)。出現の知らせの後に、賞金首であること(賞金)を送る(JOIN の見た目と数えを合わせる)
+            if (e.SpawnSent && !e.WantedSent && !e.Dead && e.Enemy != null && e.Enemy.WantedBounty > 0)
+            {
+                e.WantedSent = true;
+                SendWanted(e);
             }
             bool alive = e.Go != null && e.Go.activeInHierarchy;
             if (!alive)
@@ -1024,6 +1031,17 @@ public class NetCombat : MonoBehaviour
             case OpDamage: HandleDamage(r); break;
             case OpDeath: HandleDeath(r); break;
             case OpDespawn: HandleDespawn(r); break;
+            case OpWanted:
+            {
+                r.ReadValueSafe(out int wid); r.ReadValueSafe(out int bounty); r.ReadValueSafe(out byte wlv);
+                if (entities.TryGetValue(wid, out Entity we) && we.Enemy != null && !we.Dead)
+                {
+                    we.Enemy.WantedBounty = bounty;
+                    ChallengeSystem.MakeElite(we.Enemy, 1f, true); // 見た目(赤み/大きさ)だけ。HP/報酬の基本は HOST の値(撃破の知らせ)
+                    Log("WANTED", $"replica id={wid} marked as WANTED (bounty {bounty}, Lv{wlv})");
+                }
+                break;
+            }
             case OpBanner:
             {
                 r.ReadValueSafe(out FixedString128Bytes text); r.ReadValueSafe(out uint col); r.ReadValueSafe(out float secs);
@@ -1031,6 +1049,20 @@ public class NetCombat : MonoBehaviour
                 break;
             }
         }
+    }
+
+    void SendWanted(Entity e)
+    {
+        NetworkManager nm = NetSession.Manager;
+        if (nm == null || nm.CustomMessagingManager == null) return;
+        using (var w = new FastBufferWriter(64, Allocator.Temp))
+        {
+            w.WriteValueSafe(e.RunSeed);
+            w.WriteValueSafe(OpWanted);
+            w.WriteValueSafe(e.Id); w.WriteValueSafe(e.Enemy.WantedBounty); w.WriteValueSafe((byte)Mathf.Clamp(e.Enemy.WantedLevel, 0, 255));
+            SendReliableToClients(w);
+        }
+        Log("WANTED", $"sent id={e.Id} bounty={e.Enemy.WantedBounty} Lv{e.Enemy.WantedLevel}");
     }
 
     // 自然洞窟ボス強化(2026-10-04): ボスの大きな表示(段階/必殺技の名前/BREAK/隙)をJOINにも出す(HOSTのBossBattleHud.Bannerから)

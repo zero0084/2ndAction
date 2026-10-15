@@ -83,6 +83,7 @@ public static class UiInputGate
     // パネルを閉じた: 今押している指が離れるまで背後へ通さない
     public static void LatchUntilRelease() { latch = true; }
     public static void ClearLatch() { latch = false; } // GameOver の結果画面へ持ち越さない(2026-10-06)
+    public static bool DebugLatched => latch; // 確認用(2026-10-15)
 
     public static bool Blocked
     {

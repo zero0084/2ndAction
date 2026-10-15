@@ -574,7 +574,14 @@ public partial class BossManager
             enc.held99 = true;
             RunResumed = false;
             var gm = GameManager.Instance;
-            if (gm != null) { gm.ClampMaxDistanceTo((RushLastK + 1) * gateIntervalMeters); gm.BeginBossDistanceExclusion(); }
+            // 2026-10-15 第4弾: マルチは先頭の人の距離で足止めを決める。HOST が離れている(後ろ)時に HOST の距離を 99km へ動かすと、
+            // 全員の距離の基準(WorldRange)がずれるので、通常の関門と同じく HOST が近い時だけ合わせる
+            if (gm != null)
+            {
+                float target = (RushLastK + 1) * gateIntervalMeters, md = gm.MaxDistance;
+                if (!NetRunLauncher.IsMultiplayerRun || (md >= target - 0.5f && md - target < 30f)) gm.ClampMaxDistanceTo(target);
+                gm.BeginBossDistanceExclusion();
+            }
             Debug.Log($"[BossRush] 99km hold: {enc.Remaining} boss(es) remain (alive {ActiveCount(enc)}, queue {enc.Queued}) - the run stops until all are defeated");
             BossBattleHud.Banner("残ったボスを倒せ!", new Color(1f, 0.45f, 0.35f), 2.2f);
         }
@@ -588,6 +595,7 @@ public partial class BossManager
             SpawnRushBoss(enc, s);
             return;
         }
+        if (enc.mapRush && MapRushChoiceHold(enc)) return; // 2026-10-15 第4弾: ボスとボスの間のレベルアップの選択が終わるまで次を出さない
         if (enc.waiting.Count == 0 || Time.time - enc.lastSpawnAt < Mathf.Max(0f, ld.minSpawnSpacingSeconds)) return;
         for (int i = 0; i < enc.waiting.Count; i++)
         {

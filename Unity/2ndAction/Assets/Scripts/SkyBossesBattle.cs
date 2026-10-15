@@ -57,6 +57,7 @@ public partial class BehemothBoss
     IEnumerator ThunderApocalypse()
     {
         if (!StartUlt("THUNDER APOCALYPSE", new Color(0.6f, 0.85f, 1f))) yield break;
+        UltBeat($"start upgraded={Upgraded} RT={RT}");
         CaveDarkness.Set(0.32f);
         yield return MoveToGap(9f, 6f, 1.5f);
         Sfx(SkyBossSfx.Roar(), 1f);
@@ -67,18 +68,22 @@ public partial class BehemothBoss
         StrikeAt(-3.6f, 1.8f, 7f, 1.5f, Bolt, SkyStrike.Look.Bolt);
         StrikeAt(0.2f, 1.8f, 7f, 1.9f, Bolt, SkyStrike.Look.Bolt);
         if (Upgraded) { StrikeAt(6.8f, 1.8f, 7f, 2.3f, Bolt, SkyStrike.Look.Bolt); StrikeAt(-6.8f, 1.8f, 7f, 2.6f, Bolt, SkyStrike.Look.Bolt); }
+        UltBeat(Upgraded ? "strikes x5" : "strikes x3");
         PlayAttackPose(0.6f);
         yield return Wait(Upgraded ? 2.8f : 2.3f);
         // 地面を走る電撃(跳ぶ)
         LaneWarn(2f, 8f, 0f, 1.0f, 0.7f, LowLaneColor);
         yield return Wait(0.7f);
         WaveFrom(OffscreenAheadGap(), 1.6f, 0f, 1.0f, 10f, CaveLook.Lightning, true, 0.72f);
+        UltBeat("wave ahead");
         if (Upgraded)
         {
             yield return Wait(1.0f);
             WaveFrom(OffscreenBehindGap(), 1.6f, 0f, 1.0f, -10f, CaveLook.Lightning, true, 0.72f); // 左右から
+            UltBeat("wave behind");
             yield return Wait(1.0f);
             BandAt(0f, 9f, 2.3f, 4.2f, 0.85f, 0.4f, CaveLook.Lightning, true);                  // 空中の雷(地面にいる)
+            UltBeat("air band");
         }
         yield return Wait(1.4f);
         // 雷をまとった高速突進(跳ぶ)
@@ -89,15 +94,18 @@ public partial class BehemothBoss
         yield return Telegraph(0.95f, chargeMark);
         hornGlow.enabled = false;
         Sfx(SkyBossSfx.Whoosh(), 1f);
+        UltBeat("charge");
         yield return Swoop(Gap, OffscreenBehindGap(), 20f, 0f, charge);
         charge.damageAmount = HitDmg;
         CaveDarkness.Set(0f);
+        UltBeat("end");
         facing = -1f; facingLocked = false;
         yield return MoveToGap(3.5f, 18f, 1.5f);
         yield return CaveRecovery(3.4f, "帯電が消えた! 攻撃のチャンス!", new Vector2(1.05f, 0.85f), CaveLook.Lightning, new Vector2(0f, 0.8f));
     }
 
     protected override void SkyRestore() { StartCoroutine(Ambient()); if (hornGlow != null) hornGlow.enabled = false; charge.damageAmount = HitDmg; }
+
 }
 
 // ============ 20,000m 天空タイタン ============
@@ -368,6 +376,7 @@ public partial class FenrirBoss
     IEnumerator FenrirSkyHunt()
     {
         if (!StartUlt("FENRIR SKY HUNT", new Color(0.6f, 0.85f, 1f))) yield break;
+        UltBeat("start");
         if (giantBite == null)
         {
             Vector2 gc = new Vector2(FrontReach + 0.4f, 1.15f), gs = new Vector2(2.6f, 2.3f);
@@ -379,6 +388,7 @@ public partial class FenrirBoss
         facing = 1f; facingLocked = true;
         LaneWarn(0f, 9f, 0f, 1.24f, 0.7f, LowLaneColor);
         yield return Wait(0.7f);
+        UltBeat("pass ahead");
         yield return Swoop(Gap, 12f, 22f, 0f, pass);
         // 空中へ → 前方上空を走る(魔力の足跡が次の方向を示す: 後ろへ回る)
         yield return SetAltitude(3.6f, 0.35f);
@@ -392,12 +402,16 @@ public partial class FenrirBoss
         LaneWarn(-3f, 9f, 0f, 1.24f, 0.9f, LowLaneColor);
         yield return Wait(0.9f);
         // 後方から高速横断(跳ぶ)
+        UltBeat("pass behind");
         yield return Swoop(OffscreenBehindGap(), OffscreenAheadGap(), 24f, 0f, pass);
         pass.damageAmount = HitDmg;
         // 再び上空 → 正面から巨大噛みつき(背が高い=二段)
         facing = -1f; facingLocked = false;
         yield return SetAltitude(3f, 0.3f);
-        yield return MoveToGap(7f, 16f, 1.6f);
+        // 2026-10-15 修正: 以前は MoveToGap(7, 16m/s, 1.6秒) だけで、横断の後に前方の画面外(20m 以上)に居る時や、
+        // プレイヤーが止まっている(ボスはプレイヤーの自動走行の速さで並走する)時に戻り切れず、
+        // 巨大噛みつきが 20〜34m 先の画面外で空振りしていた(4回中2回)。間合いを見ながら速さを決めて、届く所まで戻る
+        yield return ApproachForBite(7f, 3.5f);
         yield return SetAltitude(0f, 0.3f);
         mouthGlow.enabled = true;
         StartCoroutine(FollowGlow(mouthGlow, 0.95f, 0.45f, 0.6f, 2.2f, 1.0f));
@@ -406,13 +420,34 @@ public partial class FenrirBoss
         yield return Telegraph(1.0f);
         mouthGlow.enabled = false;
         Sfx(SkyBossSfx.Whoosh(), 1f);
+        LastBiteGap = Gap;
+        UltBeat($"giant bite gap={Gap:F1}");
         StartCoroutine(DashMove(0.35f, 18f));
         yield return Strike(giantBite, 0.35f, 0.12f);
+        UltBeat("bite end");
         // 隙: 着地で滑る → 体勢を崩す
         SetPose(Pose.Landing);
         float t = 0f;
         while (t < 0.5f) { t += Time.deltaTime; relVelocity = -7f * (1f - t / 0.5f); if (Random.value < 0.4f) ImpactDust(new Vector3(worldX, GroundY, 0f), 2, 0.7f); yield return null; }
+        UltBeat("end");
         yield return CaveRecovery(3.2f, "着地で滑った! 攻撃のチャンス!", new Vector2(1.15f, 0.7f), CaveLook.Lightning, new Vector2(0f, 0.3f));
+    }
+
+    public float LastBiteGap { get; private set; } = float.NaN; // 確認用: 最後の巨大噛みつきを始めた時の間合い
+    // 間合い(Gap)を見ながら目標へ戻る。離れているほど速く(最大 34m/s)。並走の速さとプレイヤーの実際の速さがずれても届く
+    IEnumerator ApproachForBite(float target, float timeout)
+    {
+        SetPose(Pose.Move);
+        float t = 0f;
+        while (t < timeout && !IsDead && Mathf.Abs(Gap - target) > 0.4f)
+        {
+            relVelocity = Mathf.Clamp((target - Gap) * 3f, -34f, 34f);
+            if (Mathf.Abs(relVelocity) < 6f) relVelocity = Mathf.Sign(relVelocity) * 6f;
+            t += Time.deltaTime;
+            yield return null;
+        }
+        relVelocity = 0f;
+        SetPose(Pose.Idle);
     }
 
     protected override void SkyRestore()

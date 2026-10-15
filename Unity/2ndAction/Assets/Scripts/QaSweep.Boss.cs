@@ -172,7 +172,8 @@ public partial class QaSweep
             var cam = Camera.main; float vx = cam != null ? cam.WorldToViewportPoint(bC.transform.position).x : -1f;
             L($"[C] boss pushed out of the area: recovered {back} after {lostT:F1}s, now viewport x {vx:F2}, hp {hp0} -> {bC.Hp}, boss kills {kills0} -> {gm.BossKillCount}");
             Check(back && vx > 0f && vx < 1f && cam.WorldToViewportPoint(bC.transform.position).y > 0f, "C: a boss stuck outside the fighting area comes back in front of the player");
-            Check(bC.Hp == hp0 && gm.BossKillCount == kills0, "C: coming back does not heal the boss or give a reward");
+            // 戻るまでの間にプレイヤーの自動攻撃が当たることがある(減るのは正しい)→ 増えていない(回復しない)ことを確かめる
+            Check(bC.Hp <= hp0 && gm.BossKillCount == kills0, $"C: coming back does not heal the boss or give a reward (hp {hp0} -> {bC.Hp})");
         }
         float speedBefore = pc.CurrentAutoRunSpeed;
         int resetsBefore = bossLogNewRunReset;

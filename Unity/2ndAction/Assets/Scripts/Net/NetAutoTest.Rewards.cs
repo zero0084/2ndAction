@@ -14,6 +14,7 @@ using UnityEngine;
 public partial class NetAutoTest
 {
     readonly List<(float t, string what)> rwKills = new List<(float, string)>();
+    bool rushLog;
     int rwKillIndex;
     float eliteFrom = -1f;
     float rwLogAt = -1f; string rwLogWhat = "";
@@ -27,12 +28,30 @@ public partial class NetAutoTest
                 if (p.Length == 2 && float.TryParse(p[0], out float t)) rwKills.Add((t, p[1].Trim()));
             }
         else if (a == "-netAutoEliteAt") float.TryParse(next, out eliteFrom);
+        else if (a == "-netAutoRushLog") rushLog = next == "1";
+    }
+
+    // 2026-10-15 第4弾: 協力のボスラッシュの状態(3秒ごと)。出ているボス/これまでに見たボスの数(HOST の出現と JOIN のパペットで同じになるか)
+    float rushLogAt; readonly HashSet<WildBossBase> rushSeen = new HashSet<WildBossBase>(); int rushChoicesWithBoss; bool rushWasOpen;
+    void RushLogTick(float runTime, GameManager gm)
+    {
+        var bm = BossManager.Instance;
+        int alive = 0;
+        foreach (var b in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None))
+            if (b != null && !b.IsDead && !(b is ReaperSisterBoss)) { alive++; if (b.mileReward > 0 || true) rushSeen.Add(b); }
+        bool open = gm.LevelUpPending;
+        if (open && !rushWasOpen && alive > 0 && bm != null && bm.MapRushActive) rushChoicesWithBoss++;
+        rushWasOpen = open;
+        if (runTime < rushLogAt) return;
+        rushLogAt = runTime + 3f;
+        L($"RUSH t={runTime:F0} role={role} active={(bm != null && bm.MapRushActive)} phase={(bm != null && bm.IsBossPhase)} holds={(bm != null && bm.HoldsRun)} alive={alive} seen={rushSeen.Count} d={gm.MaxDistance:F0} bossMile={gm.RunBossMile} bossKills={gm.BossKillCount} Lv={gm.Level} choosing={open} pending={gm.PendingLevelUpCount} choicesWithBoss={rushChoicesWithBoss} rewards={gm.BossRewardChoicesStarted} reaper={(bm != null && bm.DeathSpawned)} nextGate={(bm != null ? bm.NextBossDistance : 0f):F0} exclEndsIgnored={gm.BossExclusionEndsIgnored}");
     }
 
     void RewardKillTick(float runTime)
     {
         var gm = GameManager.Instance;
         if (gm == null) return;
+        if (rushLog) RushLogTick(runTime, gm);
         if (role == "HOST" && eliteFrom >= 0f && runTime >= eliteFrom && runTime < eliteFrom + 3f)
             foreach (var e in FindObjectsByType<EnemyController>(FindObjectsSortMode.None))
                 if (e != null && !e.IsDyingOrReplica && e.bonus == null && !e.IsElite) ChallengeSystem.MakeElite(e, 1f);
@@ -46,6 +65,19 @@ public partial class NetAutoTest
         {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (role == "HOST") { ChallengeSystem.DebugSpawnWanted(1); L($"RWK spawned a WANTED (bounty {20 + 10} MILE)"); }
+#endif
+            return;
+        }
+        if (what == "wantedeff")
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // 2026-10-15 第4弾: ふだんの出現と同じ Lv の決め方(協力は参加者の一番高い Lv)。HOST が持っていなくても JOIN の Lv で出る
+            if (role == "HOST")
+            {
+                int hostOwn = Mathf.RoundToInt(gm.Card.Get(EffectType.WantedLevel));
+                int lv = ChallengeSystem.DebugSpawnWantedEffective();
+                L($"RWK spawned a WANTED with the effective Lv{lv} (HOST card Lv{hostOwn}, remote max Lv{NetPlayer.MaxRemoteWantedLevel()}) bounty {(lv > 0 ? 20 + 10 * lv : 0)} MILE");
+            }
 #endif
             return;
         }

@@ -372,7 +372,7 @@ public partial class BossManager : MonoBehaviour
     // SpawnsHeld  … 雑魚の出現を止めている(ラン再開から zakoResumeDelay 秒は止めたまま)。
     public bool RunResumed { get; private set; }
     public bool HoldsRun => IsBossPhase && !RunResumed;
-    public bool SpawnsHeld => IsBossPhase && (!RunResumed || Time.time - resumedAt < BossBattleTuning.I.zakoResumeDelay);
+    public bool SpawnsHeld => IsBossPhase && (!RunResumed || Time.time - resumedAt < BossBattleTuning.I.zakoResumeDelay || MapRushActive); // 2026-10-15: 各マップのラッシュの間は雑魚を出さない(出して消すの繰り返しにしない)
     public float EncounterSeconds => encounterTimer;
     public float ResumeSecondsTotal => resumeSeconds;
     public float ResumeSecondsLeft => Mathf.Max(0f, resumeSeconds - encounterTimer);

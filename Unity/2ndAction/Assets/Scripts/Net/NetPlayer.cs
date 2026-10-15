@@ -43,6 +43,9 @@ public class NetPlayer : NetworkBehaviour
     // 参加者の識別(2026-10-14、識別用オーラ): 端末ごとに変わらない鍵(オンラインはサービスのプレイヤー ID、LAN は端末の ID)。
     // HOST は部屋の間「鍵 → 番号」を覚え、抜けた人が戻った時に同じ番号(= 同じ色)へ戻す。新しく入る人には、抜けている人の番号をなるべく使わない。
     // 番号を詰め直すことはしない(途中で抜けても残った人の番号/色は変わらない)。ラン中の途中参加は今までどおり受け付けない
+    // 2026-10-15 第4弾: この人の WANTED のカードの有効 Lv(協力マルチで HOST が一番高い Lv を使う)
+    public readonly NetworkVariable<byte> WantedLevelVar = new NetworkVariable<byte>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    public static int MaxRemoteWantedLevel() { int m = 0; foreach (var p in All) if (p != null && p.IsSpawned) m = Mathf.Max(m, p.WantedLevelVar.Value); return m; }
     public readonly NetworkVariable<FixedString64Bytes> ParticipantKey = new NetworkVariable<FixedString64Bytes>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
     public const string LocalKeyPref = "Net.ParticipantKeyV1";
     static readonly Dictionary<string, int> sessionSlots = new Dictionary<string, int>(); // HOST: この部屋で使った「鍵 → 番号」
@@ -194,6 +197,8 @@ public class NetPlayer : NetworkBehaviour
         if (!CharacterId.Value.Equals(fs)) CharacterId.Value = fs;
         var cn = new FixedString128Bytes(FitBytes(global::Codename.Current, 120));
         if (!CodenameVar.Value.Equals(cn)) CodenameVar.Value = cn;
+        byte wl = (byte)(gm != null && gm.HasStarted && NetRunLauncher.IsMultiplayerRun ? Mathf.Clamp(Mathf.RoundToInt(gm.Card.Get(EffectType.WantedLevel)), 0, 255) : 0);
+        if (WantedLevelVar.Value != wl) WantedLevelVar.Value = wl;
     }
 
     // 送れる長さ(UTF-8 のバイト数)に、文字の途中で切らずに収める

@@ -47,6 +47,8 @@ public partial class QaSweep
         int m0 = gm.RunBossMile, k0 = gm.BossKillCount, lv0 = gm.Level, shown0 = rwShown;
         float d0 = gm.MaxDistance;
         rwSeen.Clear(); rwSeenInfo.Clear();
+        rwChoiceBetween = rwChoiceWithBoss = 0; int rewards0 = gm.BossRewardChoicesStarted;
+        StartCoroutine(RwWatchRushChoices()); // ラッシュの間ずっと: 選択が開いた時にボスが出ているか
         // 1体目が出て、距離が進み続ける
         float w = 0f; while (RwRushAlive().Count < 1 && w < 10f) { RwTrackRush(); yield return null; w += Time.unscaledDeltaTime; }
         yield return new WaitForSeconds(2f); RwTrackRush();
@@ -68,7 +70,7 @@ public partial class QaSweep
         Check(!Bm.DeathSpawned, $"{st}: no reaper while the rush remains");
         // 足止めの間: 攻撃 / ジャンプ / 後ろへの攻撃 が使える、ボスが画面の中・届く所に居る
         yield return RwHoldControls(st);
-        // 1体ずつ倒す(順番どおり / 報酬が1回ずつ / 同時に1体)
+        // 1体ずつ倒す(順番どおり / 報酬が1回ずつ / 同時に1体)。2026-10-15 第4弾: レベルアップの選択はボスとボスの間に出る
         w = 0f;
         while (Bm.IsBossPhase && w < 240f)
         {
@@ -88,6 +90,11 @@ public partial class QaSweep
         Check(kills == 9 && got == mileSum, $"{st}: each boss pays once ({kills} kills, +{got} = {mileSum})");
         Check(rwShown - shown0 == gm.Level - lv0 + 1, $"{st}: one rush reward + one choice per level-up ({rwShown - shown0} = {gm.Level - lv0} + 1)");
         Check(maxAlive <= 1, $"{st}: never more than one rush boss at once ({maxAlive})");
+        int choicesWithBoss = rwChoiceWithBoss, choicesBetween = rwChoiceBetween;
+        L($"[mr] {st} choices: opened between bosses {choicesBetween}, with a rush boss out {choicesWithBoss}, boss rewards {gm.BossRewardChoicesStarted - rewards0}");
+        Check(choicesWithBoss == 0, $"{st}: no level-up choice opens while a rush boss is out ({choicesWithBoss})");
+        Check(choicesBetween > 0, $"{st}: level-up choices are offered between the rush bosses ({choicesBetween})");
+        Check(gm.BossRewardChoicesStarted - rewards0 == 1, $"{st}: one boss reward for the whole rush ({gm.BossRewardChoicesStarted - rewards0})");
         Check(!Bm.IsBossPhase && Mathf.Abs(Bm.NextBossDistance - 101000f) < 1f, $"{st}: after the rush the next gate is 101km ({Bm.NextBossDistance:F0})");
         // 100km の死神(ふだんの関門は 99/100km に出ない)
         int phases0 = 0; bool sawGate = false;
@@ -99,9 +106,25 @@ public partial class QaSweep
         yield return EndRun();
     }
 
+    int rwChoiceBetween, rwChoiceWithBoss;
+    IEnumerator RwWatchRushChoices()
+    {
+        bool was = false;
+        while (Bm != null && Bm.IsBossPhase)
+        {
+            bool open = gm.LevelUpPending;
+            if (open && !was && !Bm.BossDefeatedThisPhase) { if (RwRushAlive().Any(b => !b.IsEntering || true)) rwChoiceWithBoss += RwRushAlive().Count > 0 ? 1 : 0; if (RwRushAlive().Count == 0) rwChoiceBetween++; }
+            was = open;
+            yield return null;
+        }
+    }
+
     // 99km の足止めの間の操作(ジャンプ / 前の攻撃 / 後ろの攻撃)と、ボスの位置
     IEnumerator RwHoldControls(string st)
     {
+        // 2026-10-15 第4弾: 足止めの時はボスとボスの間の選択が先に出ることがある → 選択が終わり、次のボスが出るまで待つ
+        float wb = 0f; while ((RwRushAlive().Count == 0 || RwRushAlive().Any(b => b.IsEntering)) && wb < 40f) { yield return null; wb += Time.unscaledDeltaTime; } // 登場の歩み寄りの後から測る
+        yield return new WaitForSeconds(1.0f);
         var cam = Camera.main;
         float y0 = pc.transform.position.y, yMax = y0; bool attacked = false, backAttacked = false;
         // 被弾ののけぞりの間は入力を受け付けない(ゲームの決まり)→ のけぞりが解けてから跳ぶ。跳べるまで数回試す
@@ -115,28 +138,42 @@ public partial class QaSweep
         }
         L($"[mr] {st} hold jump tries {jumpTries}");
         yield return new WaitForSeconds(0.6f);
-        StartCoroutine(Flick(PlayerController.FlickDirection.Forward));
-        for (int i = 0; i < 20; i++) { attacked |= pc.IsAttacking; yield return null; }
-        yield return new WaitForSeconds(0.6f);
-        StartCoroutine(Flick(PlayerController.FlickDirection.Backward));
-        for (int i = 0; i < 20; i++) { backAttacked |= pc.IsAttacking; yield return null; }
-        // ボスの位置を 6秒
-        float dxMax = 0f; int inView = 0, frames = 0;
-        float t0 = Time.time;
-        while (Time.time - t0 < 6f)
+        // 2026-10-15 第4弾: 前の攻撃の最中/のけぞりの間に払うと入力が通らない(ゲームの決まり)→ 攻撃が終わるのを待ち、通るまで数回試す
+        int atkTries = 0, backTries = 0;
+        for (; atkTries < 4 && !attacked; atkTries++)
         {
-            foreach (var b in RwRushAlive())
+            float wa = 0f; while ((pc.IsAttacking || pc.IsReacting) && wa < 3f) { yield return null; wa += Time.deltaTime; }
+            StartCoroutine(Flick(PlayerController.FlickDirection.Forward));
+            for (int i = 0; i < 40; i++) { attacked |= pc.IsAttacking; yield return null; }
+        }
+        for (; backTries < 4 && !backAttacked; backTries++)
+        {
+            float wa = 0f; while ((pc.IsAttacking || pc.IsReacting) && wa < 3f) { yield return null; wa += Time.deltaTime; }
+            yield return new WaitForSeconds(0.2f);
+            StartCoroutine(Flick(PlayerController.FlickDirection.Backward));
+            for (int i = 0; i < 40; i++) { backAttacked |= pc.IsAttacking; yield return null; }
+        }
+        L($"[mr] {st} hold attack tries {atkTries} / back attack tries {backTries}");
+        // ボスの位置を 6秒(ボスが居るフレームだけ。テストの攻撃で倒れて次のボスの前の選択に入ったら、次のボスを待って測る: 最長 40秒)
+        float dxMax = 0f; int inView = 0, frames = 0, freeGapFrames = 0;
+        float t0 = Time.time, measured = 0f;
+        while (measured < 6f && Time.time - t0 < 40f)
+        {
+            if (RwRushAlive().Count > 0 && !RwRushAlive().Any(b => b.IsEntering)) measured += Time.deltaTime;
+            foreach (var b in RwRushAlive().Where(x => !x.IsEntering)) // 登場の歩み寄りの間は数えない
             {
                 frames++;
-                dxMax = Mathf.Max(dxMax, Mathf.Abs(b.CenterWorld.x - pc.transform.position.x));
+                // 技でわざと離れている間(サーペントが潜って離れて戻る 等、間合いの制限を外す技)は距離に数えない。画面の中かどうかは全部のフレームで見る
+                if (!b.DebugFreeGap) dxMax = Mathf.Max(dxMax, Mathf.Abs(b.CenterWorld.x - pc.transform.position.x));
+                else freeGapFrames++;
                 var vp = cam != null ? cam.WorldToViewportPoint(b.CenterWorld) : new Vector3(0.5f, 0.5f, 1f);
                 if (vp.x > -0.05f && vp.x < 1.05f) inView++;
             }
             yield return null;
         }
-        L($"[mr] {st} during the 99km hold: jump +{yMax - y0:F1}m, attack {attacked}, back attack {backAttacked}, boss distance max {dxMax:F1}m, in view {inView}/{frames}");
+        L($"[mr] {st} during the 99km hold ({string.Join(",", RwRushAlive().Select(b => b.bossName))}): jump +{yMax - y0:F1}m, attack {attacked}, back attack {backAttacked}, boss distance max {dxMax:F1}m (frames in a move that leaves on purpose {freeGapFrames}), in view {inView}/{frames}");
         Check(yMax - y0 > 0.8f && attacked && backAttacked, $"{st}: jump / attack / back attack work during the 99km hold");
-        Check(frames == 0 || (inView >= frames * 0.95f && dxMax < 16f), $"{st}: the boss stays within reach during the hold (max {dxMax:F1}m, in view {inView}/{frames})");
+        Check(frames > 0 && inView >= frames * 0.95f && dxMax < 16f, $"{st}: the boss stays within reach during the hold (max {dxMax:F1}m, in view {inView}/{frames})");
     }
 
     // 中断と再開: 3体倒した所でホームへ → CONTINUE → ラッシュは最初から(予約の欠落なし)、報酬は二重にならない
@@ -219,6 +256,13 @@ public partial class QaSweep
                 if (gm.BossKillCount != lastK) { float t = Time.time - t0; lines.Add($"{current}@{t:F0}s(+{t - lastKillT:F0}s,{gm.MaxDistance / 1000f:F1}km)"); lastKillT = t; lastK = gm.BossKillCount; }
                 if (holdAt < 0f && Bm.HoldsRun && enc != null && enc.held99) holdAt = Time.time - t0;
                 if (rwShown != shownSeen) { choiceTimes.Add($"{Time.time - t0:F0}s"); shownSeen = rwShown; }
+                // 2026-10-15 切り分け: 1体に 60秒以上かかっている時は 20秒ごとにボスの様子を出す(HP / 登場中 / 動き / 間合い / 無敵 / 画面の位置 / プレイヤーの攻撃)
+                if (a.Count > 0 && Time.time - t0 - lastKillT > 60f && Time.time >= rwDiagAt)
+                {
+                    rwDiagAt = Time.time + 20f;
+                    var b = a[0]; var cam = Camera.main; var vp = cam != null ? cam.WorldToViewportPoint(b.CenterWorld) : Vector3.zero;
+                    L($"[mr] slow {b.bossName} t={Time.time - t0:F0}s hp={b.Hp} entering={b.IsEntering} act='{b.DebugAct}' gap={b.DebugGap:F1} freeGap={b.DebugFreeGap} invuln={b.DebugInvulnerable} vp=({vp.x:F2},{vp.y:F2}) playerAttacking={pc.IsAttacking} reacting={pc.IsReacting} inputLatched={UiInputGate.DebugLatched} choice={gm.IsRewardSequenceRunning}");
+                }
                 yield return null;
             }
             float total = Time.time - t0;

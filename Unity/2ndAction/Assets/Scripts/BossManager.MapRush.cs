@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// 各マップの終盤のボスラッシュ(2026-10-15、マスターの依頼「案A」)。荒野街道 / 自然洞窟 / 天空回廊(ソロ・CPU サポート)。
+// 各マップの終盤のボスラッシュ(2026-10-15、マスターの依頼「案A」)。荒野街道 / 自然洞窟 / 天空回廊(ソロ・CPU サポート・第4弾から協力マルチ)。
 //  ・90〜98km に、そのマップの大ボス9体を弱い順に1体ずつ。最後(98km)はそのマップで一番強いボス。
 //    荒野の 80km の竜は別の仕組み(DragonController)なので入れず、90km をゴブリンライダーにする。
 //  ・同時に出るのは1体だけ(ラスダンのラッシュは最大3体 + タグの規則。こちらは使わない)。
@@ -12,7 +12,7 @@ using UnityEngine;
 //  ・強さ: そのボスの節目の距離での再戦の強さ(BossRematchTuning: 距離の HP の倍率 × 段階の HP / 被弾量)× MapRushHpMul。
 //  ・報酬: 各ボスの MILE は種類と強さ、EXP は大ボスの格(80%)。ラッシュを終えると 90km の門番を倒した扱い(疾走出発の 90km の解放)。
 //  ・中断/再開: 再開はチェックポイント(ラッシュの前の最後のボスの報酬)から = ラッシュは最初からやり直し(予約は作り直す)。
-//  ・ラスダンのラッシュは変えていない(LastDungeonBossTuning のまま)。マルチは今までどおりの関門(このラッシュは無し)。
+//  ・ラスダンのラッシュは変えていない(LastDungeonBossTuning のまま)。協力マルチは HOST が管理(第4弾)、対戦は今までどおりの関門。
 public partial class BossManager
 {
     public static bool MapRushEnabled = true;
@@ -23,7 +23,9 @@ public partial class BossManager
 
     public bool MapRushActive => CurrentBossEncounter != null && CurrentBossEncounter.continuous && CurrentBossEncounter.mapRush;
     public int MapRushesStarted { get; private set; }
-    bool MapRushStage => MapRushEnabled && RematchStage && !NetRunLauncher.IsMultiplayerRun && !ArenaMode.Active;
+    // 2026-10-15 第4弾: 協力マルチも対象(HOST が出現/撃破/待ち列/完了を決め、全員が同じボスを共有。JOIN はラッシュの処理をしない)。対戦は対象外
+    bool MapRushStage => MapRushEnabled && RematchStage && !ArenaMode.Active &&
+        (!NetRunLauncher.IsMultiplayerRun || (NetMatch.Mode == MultiplayerGameMode.Coop && NetCombat.Authority));
 
     static string[] MapRushPlanFor(string stageId) =>
         stageId == "natural_cave" ? CaveRush : stageId == "sky_corridor" ? SkyRush : WastelandRush;
@@ -43,10 +45,50 @@ public partial class BossManager
         Debug.Log($"[MapRush] strength {key} at {d:F0}m: HP x{CurrentRematchHpMul:0.00} (distance x{distMul:0.00} * {currentTier.label} x{currentTier.hpMul:0.00} * rush x{MapRushHpMul:0.00}), damage x{DamageMul:0.0}");
     }
 
+    // ---- ボスとボスの間のレベルアップの選択(2026-10-15 第4弾、マスターの依頼) ----
+    // 以前はラッシュの間(ボス戦の間)のレベルアップの選択がすべて後回しで、ラッシュの後に 20回ほど続けて出ていた。
+    // 今: ボスを倒して次のボスがまだ出ていない間(予告もしていない)に、その時点の未処理の選択を順に全部出し、次のボスに強化を反映する。
+    //  ・ラッシュ全体のボスの報酬(1回)は今までどおり最後(BossDefeatedThisPhase の後は従来の流れ)
+    //  ・選択が残っている間 / 選択中 / 閉じた直後(MapRushChoiceGrace 秒)は、次のボスの予告を始めない
+    //  ・ソロ/CPU サポート: 選択中は今までどおり世界ごと止まる(TimeControl)。選択を閉じた時、押したままの指は離すまで無視する
+    //  ・協力マルチ(HOST): 誰かが選択中なら次のボスを待つ(最長 MapRushChoiceWaitCap 秒。選択中の人は今までどおり狙われず被弾しない)
+    //  ・ラスダンのラッシュ(同時に複数のボス)には使わない(生きているボスが居るので。適用の案は報告書)
+    public static float MapRushChoiceGrace = 0.8f, MapRushChoiceWaitCap = 15f;
+    public bool RushChoiceWindow
+    {
+        get
+        {
+            var enc = CurrentBossEncounter;
+            return enc != null && enc.continuous && enc.mapRush && IsBossPhase && !BossDefeatedThisPhase && ActiveCount(enc) == 0 && enc.telegraphing == null;
+        }
+    }
+    float rushChoiceClosedAt = -99f, rushChoiceWaitFrom = -1f; bool rushWasChoosing;
+    public int RushChoiceHolds { get; private set; }
+    bool MapRushChoiceHold(BossEncounter enc)
+    {
+        var gm = GameManager.Instance;
+        if (gm == null) return false;
+        bool multi = NetRunLauncher.IsMultiplayerRun;
+        var pc = PlayerController.Instance;
+        bool hostDown = multi && pc != null && pc.NetIsDowned; // DOWN の間は選択を開けないので、HOST の未処理の選択では待たない
+        bool local = !hostDown && (gm.PendingLevelUpCount > 0 || gm.LevelUpPending || gm.IsRewardSequenceRunning);
+        if (rushWasChoosing && !local) rushChoiceClosedAt = Time.unscaledTime;
+        rushWasChoosing = local;
+        bool remote = false;
+        if (NetRunLauncher.IsMultiplayerRun) foreach (var p in NetPlayer.All) if (p != null && NetMatch.IsPlayerChoosing(p.PlayerNumber)) remote = true;
+        bool hold = local || remote || Time.unscaledTime < rushChoiceClosedAt + MapRushChoiceGrace;
+        if (!hold) { rushChoiceWaitFrom = -1f; return false; }
+        if (rushChoiceWaitFrom < 0f) { rushChoiceWaitFrom = Time.unscaledTime; RushChoiceHolds++; }
+        // 協力マルチは選択中の人だけが止まる(世界は止まらない)ので、待ち続けない(上限 MapRushChoiceWaitCap 秒)。
+        // 上限を過ぎて次のボスが出ても、選択中の人は今までどおり狙われず被弾しない。ソロ/CPU は世界ごと止まっているので上限なし
+        if (multi && Time.unscaledTime - rushChoiceWaitFrom > MapRushChoiceWaitCap) return false;
+        return true;
+    }
+
     // ラッシュを終えた(全員倒した): 90km の門番を倒した扱い(疾走出発の 90km の解放)
     void OnMapRushCleared()
     {
-        if (GameManager.Instance != null && !DebugRun.WritesBlocked)
+        if (GameManager.Instance != null && !DebugRun.WritesBlocked && !NetRunLauncher.IsMultiplayerRun) // 疾走出発の記録はソロの通常ランだけ(通常の関門と同じ)
             SprintRecords.MarkGateCleared(GameManager.Instance.ActiveRunStageId, RushFirstK);
         Debug.Log($"[MapRush] cleared at {(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f):F0}m - next gate 101km, the reaper chase at 100km");
     }

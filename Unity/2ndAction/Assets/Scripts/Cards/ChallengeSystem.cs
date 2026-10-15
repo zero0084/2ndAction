@@ -15,7 +15,16 @@ public static class ChallengeSystem
     public static void NoteRemoteBounty() { WantedKilled++; } // 協力マルチの JOIN: HOST の賞金首の撃破を知らせで受け取った(2026-10-15)
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public static void DebugSpawnWanted(int lv) => SpawnWanted(Mathf.Max(1, lv)); // 自動テスト用(HOST)
+    // 自動テスト用(HOST): ふだんの出現と同じ Lv の決め方(協力は参加者の一番高い Lv)で出す。Lv 0 なら出さない
+    public static int DebugSpawnWantedEffective() { int lv = EffectiveWantedLevel(); if (lv > 0) SpawnWanted(lv); return lv; }
 #endif
+    // WANTED の有効 Lv。協力マルチは参加者の WANTED のうち一番高い Lv(人数分は足さない)。対戦/ソロは自分のカード
+    static int EffectiveWantedLevel()
+    {
+        int lv = Mathf.RoundToInt(C(EffectType.WantedLevel));
+        if (NetRunLauncher.IsMultiplayerRun && NetMatch.Mode == MultiplayerGameMode.Coop) lv = Mathf.Max(lv, NetPlayer.MaxRemoteWantedLevel());
+        return lv;
+    }
 
     static GameManager GM => GameManager.Instance;
     static float C(EffectType t) => GM != null ? GM.Card.Get(t) : 0f;
@@ -82,8 +91,11 @@ public static class ChallengeSystem
             var pc = PlayerController.Instance;
             if (pc != null && w.transform.position.x < pc.transform.position.x - 18f) { WantedEscaped++; wanted.RemoveAt(i); }
         }
-        if (lv <= 0) return;
         if (NetRunLauncher.IsMultiplayerRun && NetSession.IsActive && !NetCombat.Authority) return;
+        // 2026-10-15 第4弾(マスター): 協力マルチは参加者の WANTED のうち一番高い有効 Lv(HOST が持っていなくても JOIN が持っていれば出る)。
+        // 人数分の Lv や効果は足さない。対戦は今までどおり HOST のカードだけ
+        lv = EffectiveWantedLevel();
+        if (lv <= 0) return;
         if (BossManager.Instance != null && BossManager.Instance.HoldsRun) return;
         float d = gm.MaxDistance;
         if (nextWantedDistance < 0f) nextWantedDistance = d + WantedIntervalMeters(lv) * 0.5f;
@@ -109,6 +121,7 @@ public static class ChallengeSystem
         if (e == null) return;
         MakeElite(e, 3f + 0.3f * lv, true);
         e.WantedBounty = 20 + 10 * Mathf.Max(1, lv); // 2026-10-15: 協力マルチでは撃破の知らせに載せて全員へ(人数で分配)
+        e.WantedLevel = lv; // 強さ(HP)と賞金は出した時に決まる(後でカードの Lv が変わっても、この敵の値は変えない)
         wanted.Add(e);
         WantedSpawned++;
         BossBattleHud.Banner("WANTED! 賞金首が現れた", new Color(1f, 0.45f, 0.4f), 1.4f);

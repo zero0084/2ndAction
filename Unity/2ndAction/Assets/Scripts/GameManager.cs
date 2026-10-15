@@ -2177,8 +2177,11 @@ public partial class GameManager : MonoBehaviour
     // to the moment Distance froze", the reference point EndBossDistance
     // Exclusion needs to compute how far the Player travelled during the
     // fight.
+    bool bossExclusionBegun; // 2026-10-15 第4弾: 始めていない除外を終えない(マルチの JOIN はボス戦を始めないが、ボスの報酬を選び終えると End が呼ばれる)
+    public int BossExclusionEndsIgnored { get; private set; }
     public void BeginBossDistanceExclusion()
     {
+        bossExclusionBegun = true;
         bossPhaseEntryRawDistance = lastRawDistanceSeen;
         bossPhaseEntryRawDistanceExact = lastRawDistanceSeenExact;
         bossExclusionFolded = false;
@@ -2189,7 +2192,7 @@ public partial class GameManager : MonoBehaviour
     bool bossExclusionFolded;
     public void ResumeBossDistance()
     {
-        if (bossExclusionFolded) return;
+        if (bossExclusionFolded || !bossExclusionBegun) return;
         distanceExclusionOffset += (lastRawDistanceSeen - bossPhaseEntryRawDistance);
         distanceExclusionOffsetExact += (lastRawDistanceSeenExact - bossPhaseEntryRawDistanceExact);
         bossExclusionFolded = true;
@@ -2200,6 +2203,8 @@ public partial class GameManager : MonoBehaviour
     // raw movement into the permanent exclusion offset.
     public void EndBossDistanceExclusion()
     {
+        if (!bossExclusionBegun) { BossExclusionEndsIgnored++; Debug.Log("[Distance] EndBossDistanceExclusion without a begin - ignored (JOIN boss reward)"); return; }
+        bossExclusionBegun = false;
         if (bossExclusionFolded) { bossExclusionFolded = false; return; } // ラン再開で除外済み
         distanceExclusionOffset += (lastRawDistanceSeen - bossPhaseEntryRawDistance);
         distanceExclusionOffsetExact += (lastRawDistanceSeenExact - bossPhaseEntryRawDistanceExact);
@@ -2358,7 +2363,8 @@ public partial class GameManager : MonoBehaviour
         if (pendingLevelUpCount <= 0) return false;
         if (IsNetChoiceBlocked(out _)) return false; // マルチ: Run終了/脱落/DOWN中は開かない(UpdateDeferredLevelUpが扱う)
 
-        bool bossPhaseActive = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
+        // 2026-10-15 第4弾: 各マップのラッシュのボスとボスの間は、後回しのレベルアップを出してよい(BossManager.RushChoiceWindow)
+        bool bossPhaseActive = BossManager.Instance != null && BossManager.Instance.IsBossPhase && !BossManager.Instance.RushChoiceWindow;
         if (IsBossPresentationActive() || levelUpPending || bossPhaseActive || ChoiceUiBusy || UltimateArt.DefersChoices)
         {
             if (bossPhaseActive) LogBoss($"LevelUpDeferred(BossPhase, pending={pendingLevelUpCount})");
@@ -2428,7 +2434,7 @@ public partial class GameManager : MonoBehaviour
             return;
         }
 
-        bool bossPhaseActive = BossManager.Instance != null && BossManager.Instance.IsBossPhase;
+        bool bossPhaseActive = BossManager.Instance != null && BossManager.Instance.IsBossPhase && !BossManager.Instance.RushChoiceWindow; // 2026-10-15 第4弾
         if (IsBossPresentationActive() || levelUpPending || bossPhaseActive || ChoiceUiBusy || UltimateArt.DefersChoices)
         {
             levelUpDeferredTimer = -1f; // reset the buffer - only starts counting once every one of these actually clears
@@ -2506,6 +2512,7 @@ public partial class GameManager : MonoBehaviour
 #endif
     public bool LevelUpDeferredPending => pendingLevelUpCount > 0;
     public int PendingLevelUpCount => pendingLevelUpCount;
+    public int BossRewardChoicesStarted { get; private set; }
     public bool BossRewardDeferredPending => bossRewardDeferredPending;
     public PendingChoiceKind CurrentPendingChoiceKind => pendingChoiceKind;
     public bool IsRewardSequenceRunning => rewardCardSequence != null && rewardCardSequence.IsRunning;
@@ -2800,6 +2807,7 @@ public partial class GameManager : MonoBehaviour
     {
         LogBossRewardStage("RunBossRewardChoice entry");
         LogBoss("RewardStart");
+        BossRewardChoicesStarted++; // 確認用(2026-10-15: ラッシュの報酬は全体で1回)
         // マルチプレイPhase 2.5: ボス報酬は最後のボスのラストヒットを取った本人(RewardRecipient)だけ。
         // 本人がJOINなら、その端末へ選択を渡し、HOSTはボス戦の後始末(ボス戦終了/距離再開)だけ行う。
         if (NetCombat.Authority)
@@ -3196,6 +3204,8 @@ public partial class GameManager : MonoBehaviour
             pendingChoices = null;
             FreezeDiagnostics.LogEvent("[Pause] Choice resolved -> TimeControl.Resume(pendingChoice)");
             TimeControl.Resume(pendingChoiceTimeOwner);
+            // 2026-10-15 第4弾: ラッシュのボスとボスの間の選択は続けて出るので、決めた時の指(押したまま)を攻撃や次の選択へ引き継がない
+            if (BossManager.Instance != null && BossManager.Instance.MapRushActive) UiInputGate.LatchUntilRelease();
             // Bugfix 2026-09-08 - see UpdatePendingChoiceWatchdog's matching
             // comment for why this needs clearing on every resolution path,
             // not just left to persist until the next Level Up overwrites it.

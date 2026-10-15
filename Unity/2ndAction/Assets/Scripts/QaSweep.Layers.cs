@@ -100,6 +100,15 @@ public partial class QaSweep
                 float wc = 0f; while (gm.IsRewardSequenceRunning && !gm.IsRewardSequenceWaitingForSelection && wc < 3f) { yield return null; wc += Time.unscaledDeltaTime; }
             }
             yield return new WaitForSecondsRealtime(0.3f);
+            // 2026-10-15: 閉じた直後の 0.3秒に本物の LEVEL UP がもう一度来ることがある(走りながらの経験値)→ それも選んでから確かめる
+            for (int k = 0; k < 3 && (gm.DebugChoiceOpen || gm.IsRewardSequenceRunning); k++)
+            {
+                L($"[ly] run #{i + 1}: another real level up opened right after closing - picked");
+                var ids2 = gm.DebugPendingChoiceIds;
+                if (ids2.Length > 0) yield return PickInChoice(ids2[0]); else yield return new WaitForSecondsRealtime(0.3f);
+                float wc2 = 0f; while (gm.IsRewardSequenceRunning && wc2 < 3f) { yield return null; wc2 += Time.unscaledDeltaTime; }
+                yield return new WaitForSecondsRealtime(0.3f);
+            }
             Check(!gm.RunScreenOpen, $"run #{i + 1}: card choice closed");
             Check(gm.RunScreenOpen || Time.frameCount - gm.LastUnlockToastFrame <= 2, $"run #{i + 1}: after the choice the unlock toast comes back");
 

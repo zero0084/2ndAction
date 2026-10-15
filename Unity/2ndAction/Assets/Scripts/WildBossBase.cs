@@ -90,9 +90,20 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // 診断(2026-10-12、ボスへの命中不良の調査): 今の動き/間合い。テスト・診断の表示用
     public string DebugAct { get; protected set; } = "";
     public float DebugGap => Gap;
+    public bool DebugFreeGap => freeGap; // 技でわざと間合いの制限を外している間(追い越し/潜って離れる 等)
     public float DebugFrontDist => FrontDist;
     public float DebugRelVelocity => relVelocity;
     public bool DebugInvulnerable => invulnerable;
+    // 切り分け用(2026-10-15): 必殺技の各段の開始(開発版だけ。テストは「その段が実際に出たか」をこれで確かめる)
+    float ultBeatT0;
+    public readonly List<string> UltSteps = new List<string>(); // 最後の必殺技で実際に行った段
+    protected void UltBeat(string what)
+    {
+        if (!Debug.isDebugBuild) return;
+        if (what.StartsWith("start")) { ultBeatT0 = Time.time; UltSteps.Clear(); }
+        UltSteps.Add(what.Split(' ')[0] == "start" ? "start" : what);
+        Debug.Log($"[{GetType().Name}] ULT {what} @{Time.time - ultBeatT0:F2}s gap={Gap:F1}");
+    }
     public string DebugPose => pose.ToString();
     public int DebugRT => RematchTierApplied;
     public void DebugScaleHp(float mul) { maxHp = Mathf.Max(1, Mathf.RoundToInt(maxHp * mul)); Hp = maxHp; }
