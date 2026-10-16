@@ -47,7 +47,7 @@ public partial class NetAutoTest : MonoBehaviour
     bool rematchTest; float rematchLogTimer; bool rematchUnlocked; // ボスの再戦(2026-10-02): HOST/JOINで同じボスか
     bool passive;
     string bossKind = "Wolf";
-    float choiceAt = -1f, choiceHold = 0f;
+    float choiceAt = -1f, choiceHold = 0f; bool choiceOverPit;
     bool choiceForced;
     float choiceHoldUntil = -1f;
     float hpRefillTimer;
@@ -356,6 +356,7 @@ public partial class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoBossFx") { var ps = next.Split(':'); if (ps.Length >= 2) { float.TryParse(ps[0], out bossFxAt); bossFxMethod = ps[1]; if (ps.Length >= 3) float.TryParse(ps[2], out bossFxArg); } }
             else if (a == "-netAutoChoiceAt") float.TryParse(next, out choiceAt);
             else if (a == "-netAutoChoiceHold") float.TryParse(next, out choiceHold);
+            else if (a == "-netAutoChoiceOverPit") choiceOverPit = next == "1"; // 2026-10-16: 選択が開いた時に穴の真上へ(操作できない間に足場が無くなった場面)
             else if (a == "-netAutoMode") modeArg = next.ToLowerInvariant();
             else if (a == "-netAutoRwKills" || a == "-netAutoEliteAt" || a == "-netAutoRushLog" || a == "-netAutoKillWhenSeen" || a == "-netAutoRushDupOffer") ParseRewardArgs(a, next); // 2026-10-15 第2弾
             else if (a == "-netAutoKillAt") { foreach (string k in next.Split(',')) if (float.TryParse(k, out float kt)) killTimes.Add(kt); if (killTimes.Count > 0) killAt = killTimes[0]; damageTest = true; }
@@ -834,6 +835,20 @@ public partial class NetAutoTest : MonoBehaviour
             MethodInfo m = typeof(GameManager).GetMethod(choiceForceOpen ? "RunLevelUpChoice" : "TriggerLevelUpChoice", BindingFlags.Instance | BindingFlags.NonPublic);
             if (m != null) m.Invoke(gm, null);
             L($"choice FORCED on {role} (me=P{NetCombat.LocalPlayerNumber}) hold={choiceHold:F1}s open={gm.IsLocalChoiceOpen} ts={Time.timeScale:F2}");
+            if (choiceOverPit)
+            {
+                var pcp = PlayerController.Instance; var tmp = TerrainManager.Instance;
+                float? pit = pcp != null && tmp != null ? tmp.FirstPitBetween(pcp.transform.position.x + 3f, pcp.transform.position.x + 160f) : null;
+                if (pit.HasValue)
+                {
+                    // 穴の中(縁より下)へ: 選択が終わるとそのままでは落ちる場面
+                    float? rim = tmp.GetHeightAt(pit.Value - 1f);
+                    float y = (rim ?? pcp.transform.position.y) - 1.2f;
+                    pcp.transform.position = new Vector3(pit.Value + 0.6f, y, pcp.transform.position.z);
+                    L($"choice OVER PIT: moved into a pit at x={pit.Value + 0.6f:F1} y={y:F1} (rim {rim:F1}, ground there: {tmp.GetHeightAt(pit.Value + 0.6f).HasValue})");
+                }
+                else L("choice OVER PIT: no pit found ahead");
+            }
             SnapshotWorld(out choiceLastRemoteX, out choiceLastEnemySum, out choiceLastAttackCount);
             choiceLogTimer = 0f;
         }

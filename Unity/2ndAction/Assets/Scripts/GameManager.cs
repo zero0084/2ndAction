@@ -2190,6 +2190,19 @@ public partial class GameManager : MonoBehaviour
     // ボス戦の強化(2026-10-01): ボスが残ったままラン再開 - ここまでの戦闘中の移動を除外して、ここから距離を再び数える。
     // 遭遇の終わり(報酬の後)のEndBossDistanceExclusionでは二重に除外しない。
     bool bossExclusionFolded;
+    // 2026-10-16 第6弾: 協力の復帰で置き直した距離(d)を距離の除外へ足す(距離の報酬/EXP/累計を新たに付けない)。
+    // ボス戦で距離を止めている間(除外を始めて、まだ折りたたんでいない)は、その終わりの除外に含まれるので足さない
+    public int WarpExclusions { get; private set; }
+    public void ExcludeWarpDistance(float d)
+    {
+        if (Mathf.Abs(d) < 0.001f) return;
+        if (bossExclusionBegun && !bossExclusionFolded) { Debug.Log($"[Distance] warp {d:+0.0;-0.0}m during a held boss fight - covered by the fight's exclusion"); return; }
+        distanceExclusionOffset += d;
+        distanceExclusionOffsetExact += d;
+        WarpExclusions++;
+        Debug.Log($"[Distance] warp {d:+0.0;-0.0}m excluded from the run distance (no distance MILE/EXP for it)");
+    }
+
     public void ResumeBossDistance()
     {
         if (bossExclusionFolded || !bossExclusionBegun) return;
@@ -3223,7 +3236,7 @@ public partial class GameManager : MonoBehaviour
             FreezeDiagnostics.LogEvent("[Pause] Choice resolved -> TimeControl.Resume(pendingChoice)");
             TimeControl.Resume(pendingChoiceTimeOwner);
             // 2026-10-15 第4弾: ラッシュのボスとボスの間の選択は続けて出るので、決めた時の指(押したまま)を攻撃や次の選択へ引き継がない
-            if (BossManager.Instance != null && BossManager.Instance.MapRushActive) UiInputGate.LatchUntilRelease();
+            if (BossManager.Instance != null && BossManager.Instance.RushActive) UiInputGate.LatchUntilRelease(); // 第6弾: ラスダンのラッシュも
             // Bugfix 2026-09-08 - see UpdatePendingChoiceWatchdog's matching
             // comment for why this needs clearing on every resolution path,
             // not just left to persist until the next Level Up overwrites it.

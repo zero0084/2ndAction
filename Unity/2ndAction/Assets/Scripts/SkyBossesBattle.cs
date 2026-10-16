@@ -24,7 +24,9 @@ public abstract partial class SkyBossBase
     // 予兆の地点攻撃(落雷/光柱/拳/岩): プレイヤーからの距離で。走行と一緒に流れる(避け方=前後の攻撃の踏み込みで位置をずらす)
     protected SkyStrike StrikeAt(float relX, float width, float height, float warn, Color c, SkyStrike.Look look)
     {
-        return SkyStrike.Create(PlayerX + relX, width, height, warn, 0.3f, c, look);
+        var s = SkyStrike.Create(PlayerX + relX, width, height, warn, 0.3f, c, look);
+        if (s != null) { s.IntendedRelX = relX; s.Owner = bossName; } // 確認用: 狙った位置(プレイヤーからのずれ)
+        return s;
     }
 }
 

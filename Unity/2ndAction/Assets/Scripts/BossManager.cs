@@ -354,6 +354,20 @@ public partial class BossManager : MonoBehaviour
     // exactly where Boss Reward processing actually finishes (SaveCheckpoint
     // time), NOT at the boss's own death - see CheckEncounterComplete's own
     // comment for why IsBossPhase itself no longer flips false there.
+    // 2026-10-16 第6弾: ラスダン(ソロ/CPU)では、ラッシュの間に選べなかったレベルアップを、三姉妹戦の前に全部処理する。
+    // 選択が残っている/開いている間は三姉妹戦を始めない(念のため最長 10秒)
+    float finaleWaitFrom = -1f;
+    public int FinaleWaitedForChoices { get; private set; }
+    bool FinaleWaitsForChoices()
+    {
+        var gm = GameManager.Instance;
+        if (!IsLastStage || FinaleAt100k == null || gm == null || NetRunLauncher.IsMultiplayerRun || WorldProgress.FrontHigh < deathSpawnDistance) return false;
+        bool pending = gm.PendingLevelUpCount > 0 || gm.LevelUpPending || gm.IsRewardSequenceRunning || gm.BossRewardDeferredPending;
+        if (!pending) { finaleWaitFrom = -1f; return false; }
+        if (finaleWaitFrom < 0f) { finaleWaitFrom = Time.unscaledTime; FinaleWaitedForChoices++; Debug.Log($"[LastDungeon] 100km: {gm.PendingLevelUpCount} level-up choice(s) left - the sisters wait until they are done"); }
+        return Time.unscaledTime - finaleWaitFrom < 10f;
+    }
+
     public void EndBossPhase()
     {
         IsBossPhase = false; BossMusicKey = null; BossDefeatedThisPhase = false;
@@ -569,7 +583,7 @@ public partial class BossManager : MonoBehaviour
         // マルチ(2026-10-11): HOST 自身の距離ではなく共有世界の進行距離(WorldProgress.FrontHigh: 最前の人の最高到達。シングルは自分の距離)。
         // JOIN が先頭でも、その人が 100,000m に着けば出る。一度出たら先頭が入れ替わっても/後ろへ下がっても二度と出さない(TryTrigger)
         // 2026-10-15: 各マップのラッシュが残っている間は出さない(99km の足止めで距離は止まるが、念のため)
-        if (!deathSpawned && !ArenaMode.Active && !(IsBossPhase && MapRushActive) && WorldProgress.FrontHigh >= deathSpawnDistance && WorldProgress.TryTrigger("death_100k")) // 開発用の闘技場では死神/三姉妹を出さない
+        if (!deathSpawned && !ArenaMode.Active && !(IsBossPhase && MapRushActive) && !FinaleWaitsForChoices() && WorldProgress.FrontHigh >= deathSpawnDistance && WorldProgress.TryTrigger("death_100k")) // 開発用の闘技場では死神/三姉妹を出さない
         {
             deathSpawned = true;
             if (GameManager.Instance.DebugMode) Debug.Log($"[Distance] {Mathf.RoundToInt(deathSpawnDistance)} reached");

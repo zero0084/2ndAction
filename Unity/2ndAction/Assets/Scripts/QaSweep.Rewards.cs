@@ -44,6 +44,7 @@ public partial class QaSweep
         if (phase == "titan") yield return RwTitan();
         if (phase == "maprush") yield return RwMapRush();
         if (phase == "maprushreal") yield return RwMapRushReal();
+        if (phase == "ldrushreal") yield return RwLdRushReal(); // 2026-10-16 第6弾
         if (phase == "shots") yield return RwShots();
         if (phase == "shotsrh") yield return RwShotsReturnHome();
     }

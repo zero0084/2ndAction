@@ -48,7 +48,8 @@ public partial class NetMatch : MonoBehaviour
         public double FinalDistance;
         public int Kills, BossLastHits;
         public float InvulnUntil = -99f;      // HOSTの実時間
-        public float ChoiceEndedAt = -99f;    // 2026-10-16: カード選択を閉じた時刻(HOSTの実時間)。閉じた直後 ChoiceExitGrace 秒は被弾しない
+        public float ChoiceEndedAt = -99f;    // 2026-10-16: カード選択を閉じた時刻(HOSTの実時間)。閉じた直後 ChoiceExitGrace 秒は被弾しない(協力)
+        public readonly Dictionary<int, float> ChoiceStartX = new Dictionary<int, float>(); // 2026-10-16 第6弾: 選び始めた時の各プレイヤーの論理 X(復帰の判断)
         public readonly HashSet<long> HitKeys = new HashSet<long>();
         public int HitsTaken, ClaimsRejected;
         public bool Known;                    // HOSTがこの人の初期HPを受け取った
@@ -75,8 +76,9 @@ public partial class NetMatch : MonoBehaviour
 
     public static bool IsLocalAlive => IsPlayerActive(NetCombat.LocalPlayerNumber);
 
-    // 2026-10-16 第5弾(マスター): カード選択を閉じた直後に、閉じた時に重なっていた攻撃を避けられずに受けない(協力/対戦、落下は除く)。
-    // 見た目の無敵(点滅)は付けない。協力のラッシュで次のボスを最長15秒で出す時も、選んでいた人を守る
+    // 2026-10-16 第5弾(マスター): カード選択を閉じた直後に、閉じた時に重なっていた攻撃を避けられずに受けない(落下は除く)。
+    // 第6弾: 協力だけ(対戦は今までどおり選択中の保護だけ)。復帰で戻した時は、戻し終わった時から数える(NetMatch.Rejoin)。
+    // 見た目の無敵(点滅)は付けない
     public const float ChoiceExitGrace = 1.0f;
     public static int ChoiceExitGraceRejects { get; private set; } // 確認用
 
@@ -155,7 +157,7 @@ public partial class NetMatch : MonoBehaviour
             if (!me.Known) { me.Known = true; me.Hp = gm.Lives; me.MaxHp = gm.MaxLives; dirty = true; }
             if (me.State == PState.Alive && (me.Hp != gm.Lives || me.MaxHp != gm.MaxLives)) { me.Hp = gm.Lives; me.MaxHp = gm.MaxLives; dirty = true; }
             bool choosing = gm.IsLocalChoiceOpen;
-            if (me.Choosing != choosing) { if (!choosing) me.ChoiceEndedAt = Time.realtimeSinceStartup; me.Choosing = choosing; dirty = true; Log($"P{local} IsChoosingCard={choosing}"); }
+            if (me.Choosing != choosing) { if (!choosing) me.ChoiceEndedAt = Time.realtimeSinceStartup; me.Choosing = choosing; dirty = true; Log($"P{local} IsChoosingCard={choosing}"); HostOnChoosingChanged(me, choosing); }
             if (me.State == PState.Alive) me.Distance = pc.DistanceExact;
             foreach (NetPlayer p in NetPlayer.All)
             {
@@ -358,12 +360,17 @@ public partial class NetMatch : MonoBehaviour
                 }
                 break;
             }
+            case ReqRejoinDone:
+                OnRejoinDoneRequest(rec, r);
+                break;
             case ReqChoosing:
             {
                 r.ReadValueSafe(out bool ch);
                 if (rec.Choosing && !ch) rec.ChoiceEndedAt = Time.realtimeSinceStartup;
+                bool changed = rec.Choosing != ch;
                 rec.Choosing = ch; dirty = true;
                 Log($"P{pn} IsChoosingCard={ch}");
+                if (changed) HostOnChoosingChanged(rec, ch);
                 break;
             }
             case ReqDebugSetHp:
@@ -395,7 +402,7 @@ public partial class NetMatch : MonoBehaviour
         long key = ((long)kind << 32) | (uint)id;
         if (rec.State != PState.Alive) reject = $"not alive ({rec.State})";
         else if (!isFall && rec.Choosing) reject = "choosing card (paused in place)";
-        else if (!isFall && now < rec.ChoiceEndedAt + ChoiceExitGrace) { reject = $"just closed the card choice ({now - rec.ChoiceEndedAt:F2}s ago)"; ChoiceExitGraceRejects++; }
+        else if (!isFall && Mode == MultiplayerGameMode.Coop && now < rec.ChoiceEndedAt + ChoiceExitGrace) { reject = $"just closed the card choice ({now - rec.ChoiceEndedAt:F2}s ago)"; ChoiceExitGraceRejects++; }
         else if (!isFall && now < rec.InvulnUntil) reject = $"invulnerable {rec.InvulnUntil - now:F2}s";
         else if (kind != ClaimKind.Environment && rec.HitKeys.Contains(key)) reject = "same attack already hit";
         else if (kind == ClaimKind.EnemyContact)
@@ -527,6 +534,9 @@ public partial class NetMatch : MonoBehaviour
                 }
                 break;
             }
+            case SyncRejoin:
+                OnRejoinOrder(r);
+                break;
             case SyncRushReward:
             {
                 r.ReadValueSafe(out byte rpn); r.ReadValueSafe(out int serial);

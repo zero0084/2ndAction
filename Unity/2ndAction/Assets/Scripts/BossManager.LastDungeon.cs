@@ -595,7 +595,7 @@ public partial class BossManager
             SpawnRushBoss(enc, s);
             return;
         }
-        if (enc.mapRush && MapRushChoiceHold(enc)) return; // 2026-10-15 第4弾: ボスとボスの間のレベルアップの選択が終わるまで次を出さない
+        if (RushChoicesFor(enc) && MapRushChoiceHold(enc)) return; // 2026-10-15 第4弾: ボスとボスの間のレベルアップの選択が終わるまで次を出さない(第6弾: ラスダンも)
         if (enc.waiting.Count == 0 || Time.time - enc.lastSpawnAt < Mathf.Max(0f, ld.minSpawnSpacingSeconds)) return;
         for (int i = 0; i < enc.waiting.Count; i++)
         {

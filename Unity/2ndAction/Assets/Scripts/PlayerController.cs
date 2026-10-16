@@ -1699,6 +1699,7 @@ public partial class PlayerController : MonoBehaviour
         if (hasDied || IsFinishing) return;
         // #100 ULTIMATE: 発動中(+終わってから少し)は接触/敵の攻撃を受けない。発動中の落下は地面へ戻すだけ(終わった後の無敵は残さない)
         if (!isFall && UltimateArt.ProtectsFromHit) return;
+        if (!isFall && DebugIgnoreHits) return; // 確認用(自動テストの決まった条件: のけぞり/押し戻しで位置関係が変わらない)
         if (isFall && UltimateArt.ProtectsFromFall) { UltimateRescueToGround(); return; }
         // A fall past failY must always respawn the player, even mid-flicker
         // from a previous hit - otherwise falling while still hit-invincible
@@ -1722,7 +1723,7 @@ public partial class PlayerController : MonoBehaviour
         // マルチ(2026-09-28): カード選択中の本人は敵/ボスの攻撃を受けない(その場で一時停止中のため)。
         if (!isFall && NetIsChoosing) return;
         // 2026-10-16: 選択を閉じた直後(NetMatch.ChoiceExitGrace 秒)は、閉じた時に重なっていた攻撃を受けない
-        if (!isFall && NetMatch.Active && Time.realtimeSinceStartup < netChoiceEndedAt + NetMatch.ChoiceExitGrace) return;
+        if (!isFall && NetChoiceExitGraceActive) return;
 
         // Bugfix 2026-09-06, item 2 - GameOverReason passthrough for the
         // debug log in GameManager.TryDamagePlayer (isFall is already the
@@ -1794,14 +1795,15 @@ public partial class PlayerController : MonoBehaviour
     // シングルプレイは従来どおりTimeControlの一時停止で世界ごと止める(ここは通らない)。
     bool netChoosingHeld;
     float netChoiceEndedAt = -99f; // 2026-10-16: カード選択を閉じた時刻(実時間)
-    public bool NetChoiceExitGraceActive => NetMatch.Active && Time.realtimeSinceStartup < netChoiceEndedAt + NetMatch.ChoiceExitGrace;
+    // 2026-10-16 第6弾: 協力だけ(対戦は選択中の保護だけ)
+    public bool NetChoiceExitGraceActive => NetMatch.Active && NetMatch.Mode == MultiplayerGameMode.Coop && Time.realtimeSinceStartup < netChoiceEndedAt + NetMatch.ChoiceExitGrace;
     public bool NetIsChoosing
     {
         get
         {
             if (!NetMatch.Active || netDowned || hasDied || IsFinishing) return false;
             GameManager gm = GameManager.Instance;
-            return gm != null && gm.HasStarted && !gm.IsGameOver && gm.IsLocalChoiceOpen;
+            return gm != null && gm.HasStarted && !gm.IsGameOver && (gm.IsLocalChoiceOpen || netRejoinHold);
         }
     }
 
@@ -1836,9 +1838,101 @@ public partial class PlayerController : MonoBehaviour
     {
         netChoosingHeld = false;
         netChoiceEndedAt = Time.realtimeSinceStartup;
+        NetChoiceFootingCheck();
         touchActive = false;
         requestedFlick = null;
         FreezeDiagnostics.LogEvent($"[Net] CHOICE DONE - resume at x={transform.position.x:F2} dist={DistanceExact:F1}");
+    }
+
+    // ===== 協力: カード選択で大きく離れた時の復帰(2026-10-16 第6弾、NetMatch.Rejoin) =====
+    bool netRejoinHold; int netRejoinSerial;
+    public bool NetRejoining => netRejoinHold;
+    public static bool DebugIgnoreHits; // 確認用(2026-10-16、QaSweep の天空ボス L1/L2 だけが使う。製品では常に false)
+    public int NetRejoinsDone { get; private set; }
+    public int NetFootingFixes { get; private set; }
+    public string LastRejoinLog { get; private set; } = "";
+
+    // HOST が決めた位置(この端末の scene X)へ置き直す。DOWN/ランの終わりは何もしない。同じ指示は1回だけ
+    public void NetRejoinTo(float sceneX, int serial)
+    {
+        if (!NetMatch.Active || NetMatch.Mode != MultiplayerGameMode.Coop || netDowned || hasDied || IsFinishing) return;
+        var gm = GameManager.Instance;
+        if (gm == null || !gm.HasStarted || gm.IsGameOver) return;
+        if (serial <= netRejoinSerial) return;
+        netRejoinSerial = serial;
+        float d = sceneX - transform.position.x;
+        if (d <= 1f) return;
+        StartCoroutine(NetRejoinRoutine(sceneX, d, serial));
+    }
+
+    System.Collections.IEnumerator NetRejoinRoutine(float x, float d, int serial)
+    {
+        netRejoinHold = true;
+        CancelAttacksForReaction();
+        velocityY = 0f; knockbackTimer = 0f; lungeVelocityX = 0f; moveSlowTimer = 0f;
+        Reaction = ReactionKind.None; reactionTimer = 0f;
+        var gm = GameManager.Instance;
+        float fromX = transform.position.x;
+        if (gm != null) gm.ExcludeWarpDistance(d); // 飛ばした距離に距離の報酬/EXP を付けない
+        FreezeDiagnostics.NoteIntendedMove($"co-op rejoin after a card choice +{d:F0}m");
+        transform.position = new Vector3(x, transform.position.y, transform.position.z);
+        var tm = TerrainManager.Instance;
+        float w = 0f; float? g = null;
+        // 地形は全端末で同じ作り。この端末で地形ができるのを待つ(先の区画は次のフレームで作られる)
+        while (w < 1.5f && tm != null)
+        {
+            g = tm.GetHeightAt(x);
+            if (g.HasValue && RejoinSafety.IsSafe(tm, x, out _)) break;
+            yield return null; w += Time.unscaledDeltaTime;
+        }
+        if (tm != null && (!g.HasValue || !RejoinSafety.IsSafe(tm, x, out _)))
+        {
+            // この端末で危ない時(敵の出方のずれ等): 後ろへ探し直す(HOST の決めた位置より前には置かない)
+            float? s = RejoinSafety.FindSpot(x, Mathf.Max(fromX + 1f, x - 40f), out string why);
+            if (s.HasValue) { if (gm != null) gm.ExcludeWarpDistance(s.Value - x); x = s.Value; g = tm.GetHeightAt(x); }
+            else { if (gm != null) gm.ExcludeWarpDistance(fromX - x); x = fromX; g = tm.GetHeightAt(x); LastRejoinLog = $"no safe footing on this device ({why}) - stayed"; }
+        }
+        if (g.HasValue)
+        {
+            transform.position = new Vector3(x, g.Value + groundOffset, transform.position.z);
+            isGrounded = true; jumpsUsed = 0; onSky = false;
+        }
+        if (sr != null) sr.enabled = true;
+        netRejoinHold = false;
+        netChoiceEndedAt = Time.realtimeSinceStartup; // 戻し終わって操作できる時から、閉じた直後の保護を数える
+        UiInputGate.LatchUntilRelease();
+        NetRejoinsDone++;
+        if (LastRejoinLog == "" || !LastRejoinLog.StartsWith("no safe")) LastRejoinLog = $"moved {x - fromX:F0}m (serial {serial})";
+        Debug.Log($"[NET][REJOIN] P{NetCombat.LocalPlayerNumber} placed at {FloatingOrigin.ToLogical(x):F0} (moved {x - fromX:F0}m, waited {w:F2}s) serial {serial}");
+        NetMatch.ReportRejoinDone(serial, x);
+    }
+
+    // 選択を閉じた時: 操作できない間に足元が無くなっていたら(空中で選択が開いた/足場が消えた)、近くの安全な足場へ置く(協力)。
+    // 落下死を防ぐため。選ぶ前の DOWN/死亡は取り消さない(ここは生きている時だけ)
+    void NetChoiceFootingCheck()
+    {
+        if (!NetMatch.Active || NetMatch.Mode != MultiplayerGameMode.Coop || netDowned || hasDied || isGrounded || netRejoinHold) return;
+        var tm = TerrainManager.Instance;
+        if (tm == null) return;
+        float x = transform.position.x;
+        float? g = tm.GetHeightAt(x);
+        if (g.HasValue && transform.position.y - g.Value < 6f) return; // 足元に地面がある(ふつうに着地できる)
+        // ジャンプの途中で選択が開いた時は、跳んでいた勢いのまま進むので、すぐ前(6m)に足元より低い地面があれば着地できる → 何もしない。
+        // 穴の中に入ってしまっている(前の地面が足元より高い/無い)時だけ置き直す
+        for (float dx = 0.5f; dx <= 6f; dx += 0.5f) { float? h = tm.GetHeightAt(x + dx); if (h.HasValue && h.Value <= transform.position.y + 0.3f) return; }
+        // 前(穴の向こう側)を先に探す: 手前に置くと助走が無いまま同じ穴へ落ちる(2026-10-16 確認)。前に無ければ手前
+        float? spot = null;
+        for (float dx = 0f; dx <= 20f && !spot.HasValue; dx += 1f) if (RejoinSafety.IsSafe(tm, x + dx, out _)) spot = x + dx;
+        for (float dx = 1f; dx <= 14f && !spot.HasValue; dx += 1f) if (RejoinSafety.IsSafe(tm, x - dx, out _)) spot = x - dx;
+        if (!spot.HasValue) return;
+        float d = spot.Value - x;
+        var gm = GameManager.Instance;
+        if (gm != null && d > 0f) gm.ExcludeWarpDistance(d);
+        g = tm.GetHeightAt(spot.Value);
+        transform.position = new Vector3(spot.Value, g.Value + groundOffset, transform.position.z);
+        velocityY = 0f; isGrounded = true; jumpsUsed = 0;
+        NetFootingFixes++;
+        Debug.Log($"[NET][CHOICE] no footing under the player after the card choice - placed on safe ground {d:+0.0;-0.0}m");
     }
 
     // ===== マルチプレイPhase 3: DOWN(CO-OP) / 脱落(VERSUS) =====

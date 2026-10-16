@@ -381,6 +381,16 @@ public partial class QaSweep
         if (bm.NextBossDistance - gm.MaxDistance < 400f) WarpTo(Mathf.Floor(gm.MaxDistance / 1000f) * 1000f + 1500f);
     }
 
+    IEnumerator LForceUlt(WildBossBase b)
+    {
+        float w = 0f; while (w < 18f && b.UltimateRunning) { w += Time.deltaTime; yield return null; }
+        int u0 = b.UltimatesUsed;
+        b.DebugForceUltimate();
+        w = 0f; bool retried = false;
+        while (w < 8f && !b.UltimateRunning) { if (!retried && w > 3f) { retried = true; b.DebugForceUltimate(); } w += Time.deltaTime; yield return null; }
+        if (!b.UltimateRunning) L($"[L] the forced ultimate did not start (used {b.UltimatesUsed - u0})");
+    }
+
     IEnumerator SkyHighTierCase()
     {
         var bm = Bm;
@@ -395,24 +405,73 @@ public partial class QaSweep
         yield return new WaitForSeconds(2.5f);
         float w = 0f; while (w < 18f && b.UltimateRunning) { w += Time.deltaTime; yield return null; }
         yield return new WaitForSeconds(1f);
+        // 2026-10-16 第6弾(マスター): 検証を分ける。L1 = 決まった条件で「最後の段まで出る」「狙った位置に判定が出る」、
+        // L2 = BREAK で正しく中断される、L3 = 自由に動くプレイヤーへの命中(参考値、合否にしない)。
+        // 決まった条件: 補助を切る・入力なし(走りの速さのまま)・攻撃で崩しを溜めない → ボスとの位置関係が毎回同じ
+        var beh = b as BehemothBoss;
+        var has = HighSpeedAssist.Instance;
+        bool assistWas = has != null && has.assistEnabled;
+        if (has != null) has.SetEnabled(false);
         BossBattle.DebugNoStagger = true;
-        b.DebugForceUltimate();
-        w = 0f; while (w < 5f && !b.UltimateRunning) { w += Time.deltaTime; yield return null; }
-        int c0 = caveOver.Count; float t0 = Time.time; strikeOver.Clear(); hbOver.Clear(); hzCovered.Clear(); hbCovering.Clear();
+        PlayerController.DebugIgnoreHits = true; // 被弾ののけぞり/押し戻しで位置関係を変えない(足元を狙う落雷が当たって下がると、後の落雷の位置がずれて見えた)
+        // ---- L1
+        SkyStrike.Placements.Clear();
+        yield return LForceUlt(b);
+        float t0 = Time.time; int c0 = caveOver.Count; strikeOver.Clear(); hbOver.Clear(); hzCovered.Clear(); hbCovering.Clear();
+        // 2026-10-16: 落雷は「走りの速さ」で流れる。プレイヤーが段差/壁で止まると(補助なし・入力なし)、プレイヤーの方が走りからずれる →
+        // プレイヤーの走りからのずれを毎フレーム記録し、狙った位置から差し引いて比べる(地形に左右されない)
+        var frameT = new List<float>(); var frameRun = new List<float>(); var frameP = new List<float>(); float runAcc = 0f;
+        frameT.Add(Time.time); frameRun.Add(0f); frameP.Add(pc.transform.position.x);
+        w = 0f; while ((w < 28f && b.UltimateRunning) || w < 0f)
+        {
+            TrackSkyThreats(b); w += Time.deltaTime; yield return null;
+            runAcc += pc.CurrentAutoRunSpeed * Time.deltaTime; frameT.Add(Time.time); frameRun.Add(runAcc); frameP.Add(pc.transform.position.x);
+        }
+        for (float wl = 0f; wl < 0.6f; wl += Time.deltaTime) { yield return null; runAcc += pc.CurrentAutoRunSpeed * Time.deltaTime; frameT.Add(Time.time); frameRun.Add(runAcc); frameP.Add(pc.transform.position.x); } // 最後の落雷の判定まで
+        System.Func<float, int> at = tt => { int i = frameT.BinarySearch(tt); if (i < 0) i = ~i; return Mathf.Clamp(i, 0, frameT.Count - 1); };
+        var steps = beh != null ? new List<string>(beh.UltSteps) : new List<string>();
+        L($"[L1] steps: {string.Join(" > ", steps)} ({Time.time - t0:F1}s)");
+        Check(steps.Contains("strikes x5") && steps.Contains("wave ahead") && steps.Contains("wave behind") && steps.Contains("air band") && steps.Contains("charge") && steps.Contains("end"),
+            $"L1: the upgraded ultimate runs every beat to the last step (5 strikes / wave ahead / wave behind / air band / charge / end) [{string.Join(",", steps)}]");
+        var pl = SkyStrike.Placements.Where(x => x.owner == b.bossName && x.createdAt >= t0 - 0.5f).ToList();
+        // ずれ = (プレイヤーの動き) - (走りの速さの分の動き)。狙った位置 - ずれ = 判定が出るはずの位置(プレイヤーから見て)
+        System.Func<SkyStrike.Placement, float> drift = x => { int a = at(x.createdAt), c = at(x.firedAt); return (frameP[c] - frameP[a]) - (frameRun[c] - frameRun[a]); };
+        float maxErr = pl.Count > 0 ? pl.Max(x => Mathf.Abs(x.actualRelX - (x.intendedRelX - drift(x)))) : 99f;
+        float maxDrift = pl.Count > 0 ? pl.Max(x => Mathf.Abs(drift(x))) : 0f;
+        L($"[L1] lightning placed (aimed -> landed, player's own drift from the run): {string.Join(", ", pl.Select(x => $"{x.intendedRelX:+0.0;-0.0}->{x.actualRelX:+0.0;-0.0} (drift {drift(x):+0.0;-0.0})"))} (max error {maxErr:F2}m, max drift {maxDrift:F1}m)");
+        Check(pl.Count >= 5 && maxErr < 0.35f, $"L1: each lightning strike lands where it aimed (relative to the player) ({pl.Count} strikes, max error {maxErr:F2}m)");
+        int fixedDecisions = 0; { float last = -9f; foreach (var o in caveOver.Skip(c0).OrderBy(o => o.t)) { if (o.t - last > 0.35f) fixedDecisions++; last = o.t; } }
+        L($"[L1] (reference) threats over the standing player in the fixed condition: {fixedDecisions} [{string.Join(", ", caveOver.Skip(c0).OrderBy(o => o.t).Select(o => $"{o.src.Split(':').Last()}@{o.t - t0:F2}"))}]");
+        yield return new WaitForSeconds(3.5f); // 必殺技の後の隙を終える
+        w = 0f; while (w < 8f && b.Broken) { w += Time.deltaTime; yield return null; }
+        // ---- L2: 落雷の段の途中で BREAK → すぐ止まり、その後に新しい段/攻撃を出さない
+        SkyStrike.Placements.Clear();
+        yield return LForceUlt(b);
+        float t2 = Time.time;
+        w = 0f; while (w < 8f && b.UltimateRunning && (beh == null || !beh.UltSteps.Contains("strikes x5"))) { w += Time.deltaTime; yield return null; }
+        int stepsAtBreak = beh != null ? beh.UltSteps.Count : 0; int br0 = b.BreakCount; float tb = Time.time;
+        b.DebugForceBreak();
+        w = 0f; while (w < 1f && (b.UltimateRunning || BossBattle.UltimateActive)) { w += Time.deltaTime; yield return null; }
+        float stopIn = w;
+        bool brokeNow = b.BreakCount > br0 && b.Broken;
+        yield return new WaitForSeconds(3f);
+        int stepsAfter = beh != null ? beh.UltSteps.Count - stepsAtBreak : 0;
+        int strikesAfter = SkyStrike.Placements.Count(x => x.owner == b.bossName && x.createdAt > tb + 0.05f);
+        L($"[L2] BREAK {tb - t2:F2}s into the ultimate (after '{(beh != null && beh.UltSteps.Count > 0 ? beh.UltSteps[beh.UltSteps.Count - 1] : "-")}'): stopped in {stopIn:F2}s, broken={brokeNow}, new steps after {stepsAfter}, new strikes after {strikesAfter}");
+        Check(brokeNow && stopIn < 0.6f && !BossBattle.UltimateActive, $"L2: a BREAK stops the ultimate at once (stopped in {stopIn:F2}s, broken={brokeNow})");
+        Check(stepsAfter == 0 && strikesAfter == 0, $"L2: nothing new comes after the BREAK (steps {stepsAfter}, strikes {strikesAfter})");
+        w = 0f; while (w < 10f && b.Broken) { w += Time.deltaTime; yield return null; }
+        PlayerController.DebugIgnoreHits = false;
+        // ---- L3: 参考値(自由に動く: 補助あり、合否にしない)
+        if (has != null) has.SetEnabled(true);
+        BossBattle.DebugNoStagger = true;
+        yield return LForceUlt(b);
+        float t3 = Time.time; int c3 = caveOver.Count; strikeOver.Clear(); hbOver.Clear(); hzCovered.Clear(); hbCovering.Clear();
         w = 0f; while (w < 28f && b.UltimateRunning) { TrackSkyThreats(b); w += Time.deltaTime; yield return null; }
-        int decisions = 0; float last = -9f;
-        foreach (var o in caveOver.Skip(c0).OrderBy(o => o.t)) { if (o.t - last > 0.35f) decisions++; last = o.t; }
+        int decisions = 0; { float last = -9f; foreach (var o in caveOver.Skip(c3).OrderBy(o => o.t)) { if (o.t - last > 0.35f) decisions++; last = o.t; } }
+        L($"[L3] (reference, not a check) a freely moving player was threatened {decisions} times ({Time.time - t3:F1}s)");
         BossBattle.DebugNoStagger = false;
-        L($"[L] upgraded THUNDER APOCALYPSE: {Time.time - t0:F1}s decisions={decisions}");
-        // 2026-10-15 切り分け: 数えた物(何が・いつ・プレイヤーの位置)を全部出す
-        L($"[L] counted: {string.Join(", ", caveOver.Skip(c0).OrderBy(o => o.t).Select(o => $"{o.src}@{o.t - t0:F2}"))}");
-        // 2026-10-15 切り分け: 「プレイヤーの位置に重なった回数」は、プレイヤーの動き(跳ぶ/前へ出る)で 4〜6 と変わる(変更前の版でも 4 / 5)。
-        // 強化の追加の段が実際に出たかを、ボスの側の記録(UltSteps)で確かめる。重なった回数は目安(2 以上、下)
-        var beh = b as BehemothBoss; var steps = beh != null ? beh.UltSteps : new List<string>();
-        L($"[L] steps: {string.Join(" > ", steps)}");
-        Check(steps.Contains("strikes x5") && steps.Contains("wave behind") && steps.Contains("air band") && steps.Contains("charge") && steps.Contains("end"), $"L: the upgraded ultimate has its extra beats (5 strikes / wave from behind / air lightning) [{string.Join(",", steps)}]");
-        // 2026-10-16: 重なった回数はプレイヤーの動きで 2〜6 と揺れる(第4弾の切り分け)。段は上の UltSteps で確かめる → 目安は E と同じ 2回
-        Check(decisions >= 2, $"L: the upgraded ultimate threatens the player several times ({decisions} decisions)");
+        if (has != null) has.SetEnabled(assistWas);
         KillSkyBosses();
         yield return WaitPhaseEnd(30f);
         yield return new WaitForSeconds(1f);

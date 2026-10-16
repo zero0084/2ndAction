@@ -320,6 +320,10 @@ public class SkyFadeOut : MonoBehaviour
 public class SkyStrike : MonoBehaviour
 {
     public enum Look { Bolt, Pillar, Fist, Burst, Rock }
+    // 確認用(2026-10-16 第6弾、開発版): 狙った位置(プレイヤーからの横のずれ)と、判定が出た瞬間の実際のずれ
+    public struct Placement { public string owner; public Look look; public float intendedRelX, actualRelX, createdAt, firedAt; }
+    public static readonly System.Collections.Generic.List<Placement> Placements = new System.Collections.Generic.List<Placement>();
+    public float IntendedRelX = float.NaN; public string Owner = ""; float createdAt;
 
     float warn, active, width, height, timer, groundY;
     // 拳/落石が落ち始める高さ(地面から)。浮遊岩のように「上空で待機→落下」する攻撃では低くする。
@@ -347,6 +351,7 @@ public class SkyStrike : MonoBehaviour
     {
         var go = new GameObject("SkyStrike_" + look);
         var s = go.AddComponent<SkyStrike>();
+        s.createdAt = Time.time;
         s.warn = warn; s.active = active; s.width = width; s.height = height; s.color = color; s.look = look;
         s.groundY = GroundAt(worldX, PlayerController.Instance != null ? PlayerController.Instance.transform.position.y : 0f);
         go.transform.position = new Vector3(worldX, s.groundY, 0f);
@@ -449,6 +454,8 @@ public class SkyStrike : MonoBehaviour
     {
         fired = true;
         col.enabled = true;
+        if (Debug.isDebugBuild && !float.IsNaN(IntendedRelX) && PlayerController.Instance != null)
+            Placements.Add(new Placement { owner = Owner, look = look, intendedRelX = IntendedRelX, actualRelX = transform.position.x - PlayerController.Instance.transform.position.x, createdAt = createdAt, firedAt = Time.time });
         if (column != null) column.enabled = false;
         strikeSr.enabled = true;
         switch (look)

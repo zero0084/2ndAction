@@ -150,6 +150,12 @@ public class CentipedeBoss : CaveBossBase
         // 隙: ひっくり返る(大きな隙)
         yield return CaveRecovery(3.2f, "ひっくり返った! 大チャンス!", new Vector2(1.25f, 0.5f), CaveLook.Dirt, new Vector2(0f, 0.3f), 2.6f, 1.3f);
     }
+
+    // 2026-10-16 第6弾: 必殺技の途中で天井が途切れて落ちた時も、必殺技の最後と同じ隙(ひっくり返る)を出す
+    protected override IEnumerator OnCeilingLostInUltimate()
+    {
+        yield return CaveRecovery(3.2f, "ひっくり返った! 大チャンス!", new Vector2(1.25f, 0.5f), CaveLook.Dirt, new Vector2(0f, 0.3f), 2.6f, 1.3f);
+    }
 }
 
 // ===================================================================== //

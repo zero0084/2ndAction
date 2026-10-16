@@ -143,7 +143,11 @@ public partial class QaSweep
         yield return new WaitForSeconds(2.5f);
 
         // D/E/F: 必殺技
-        int ult0 = b.UltimatesUsed, viol0 = CaveHazard.Violations, rec0 = caveRecoveries.Count;
+        // 2026-10-16 第6弾: 必殺技を強制した時にプレイヤーの攻撃で崩れていると(崩れている間は技を出さない)始まらず、
+        // 次の崩しまで待って失敗していた(ムカデ)。崩れていたら解けるのを待ち、確かめる間は攻撃で崩しを溜めない(天空の J/L と同じ。強制の BREAK は効く)
+        w = 0f; while (w < 8f && b.Broken) { w += Time.deltaTime; yield return null; }
+        BossBattle.DebugNoStagger = true;
+        int ult0 = b.UltimatesUsed, viol0 = CaveHazard.Violations, rec0 = caveRecoveries.Count, ceilLost0 = HazardBossBase.CeilingLostInUltimate;
         w = 0f;
         // 割り込みは1回だけ(毎フレーム呼ぶと始まった必殺技をまた止めてしまう)。2秒で始まらなければもう1回
         b.DebugForceUltimate();
@@ -178,6 +182,7 @@ public partial class QaSweep
         // ボス本体の突進(地形の攻撃でない)で判断を求める必殺技もある: その時は本体の判定も数える
         L($"[{n}] ultimate {uLen:F1}s: terrain decisions={decisions} floor={sawFloor} ceiling={sawCeil} srcs=[{string.Join(",", overs.Select(o => o.src.Split(':').Last()).Distinct())}] seen=[{string.Join(",", seenKinds)}] breakDuringUlt={b.BreakCount > brU0}");
         if (b.BreakCount > brU0 && decisions < 2) L($"[{n}] E: ultimate was cut by a BREAK ({decisions} decisions before it)");
+        else if (HazardBossBase.CeilingLostInUltimate > ceilLost0 && decisions < 2) L($"[{n}] E: ultimate was cut because the ceiling ended (dropped -> recovery window; {decisions} decisions before it)"); // 2026-10-16: 地形で切れた時は崩しと同じ扱い
         else Check(decisions >= 2, $"{n} E: the ultimate asks for at least 2 decisions ({decisions}, terrain+body)");
         Check(CaveHazard.Violations == viol0, $"{n} E: no floor+ceiling overlap on the player during the ultimate ({CaveHazard.Violations - viol0})");
         // F: 隙
@@ -187,6 +192,7 @@ public partial class QaSweep
         Check(caveRecoveries.Count > rec0 || b.BreakCount > brU0, $"{n} F: a big recovery window (or a BREAK) follows the ultimate");
         w = 0f; while (w < 6f && caveRecoveries.Count > rec0 && b.isActiveAndEnabled && !b.IsDead && w < 5f) { w += Time.deltaTime; yield return null; }
 
+        BossBattle.DebugNoStagger = false;
         // G: 崩し(BREAK)
         w = 0f; while (w < 6f && b.Broken) { w += Time.deltaTime; yield return null; } // 自然にBREAKしていたら終わるのを待つ
         int br0 = b.BreakCount;

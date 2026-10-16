@@ -52,14 +52,20 @@ public partial class BossManager
     //  ・選択が残っている間 / 選択中 / 閉じた直後(MapRushChoiceGrace 秒)は、次のボスの予告を始めない
     //  ・ソロ/CPU サポート: 選択中は今までどおり世界ごと止まる(TimeControl)。選択を閉じた時、押したままの指は離すまで無視する
     //  ・協力マルチ(HOST): 誰かが選択中なら次のボスを待つ(最長 MapRushChoiceWaitCap 秒。選択中の人は今までどおり狙われず被弾しない)
-    //  ・ラスダンのラッシュ(同時に複数のボス)には使わない(生きているボスが居るので。適用の案は報告書)
+    //  ・2026-10-16 第6弾(マスター): ラスダンのラッシュ(最大3体)にも使う。生きているボスが 0体で予告もしていない「自然にできた合間」にだけ出す。
+    //    選択を閉じた後は、次の予告の前に出現の間隔(minSpawnSpacingSeconds)を取り直す(待ち列のボスをまとめて出さない)。
+    //    合間が無かった分は、全部倒した後(三姉妹戦の前、BossManager の 100km の確認)に残りを全部処理する
     public static float MapRushChoiceGrace = 0.8f, MapRushChoiceWaitCap = 15f;
+    public static bool LdRushChoices = true; // 比較用(-ldRushChoices 0 で以前の「最後にまとめて」)
+    public bool RushActive => CurrentBossEncounter != null && CurrentBossEncounter.continuous;
+    bool RushChoicesFor(BossEncounter enc) => enc != null && enc.continuous && (enc.mapRush || LdRushChoices);
+    public int RushChoiceSpacingResets { get; private set; } // 確認用
     public bool RushChoiceWindow
     {
         get
         {
             var enc = CurrentBossEncounter;
-            return enc != null && enc.continuous && enc.mapRush && IsBossPhase && !BossDefeatedThisPhase && ActiveCount(enc) == 0 && enc.telegraphing == null;
+            return RushChoicesFor(enc) && IsBossPhase && !BossDefeatedThisPhase && ActiveCount(enc) == 0 && enc.telegraphing == null;
         }
     }
     float rushChoiceClosedAt = -99f, rushChoiceWaitFrom = -1f; bool rushWasChoosing;
@@ -77,7 +83,12 @@ public partial class BossManager
         bool remote = false;
         if (NetRunLauncher.IsMultiplayerRun) foreach (var p in NetPlayer.All) if (p != null && NetMatch.IsPlayerChoosing(p.PlayerNumber)) remote = true;
         bool hold = local || remote || Time.unscaledTime < rushChoiceClosedAt + MapRushChoiceGrace;
-        if (!hold) { rushChoiceWaitFrom = -1f; return false; }
+        if (!hold)
+        {
+            // 選択を閉じた後: 次のボスの予告の前に、出現の間隔を取り直す(閉じた直後に待ち列から続けて出さない)
+            if (rushChoiceWaitFrom >= 0f) { enc.lastSpawnAt = Mathf.Max(enc.lastSpawnAt, Time.time); RushChoiceSpacingResets++; }
+            rushChoiceWaitFrom = -1f; return false;
+        }
         if (rushChoiceWaitFrom < 0f) { rushChoiceWaitFrom = Time.unscaledTime; RushChoiceHolds++; }
         // 協力マルチは選択中の人だけが止まる(世界は止まらない)ので、待ち続けない(上限 MapRushChoiceWaitCap 秒)。
         // 上限を過ぎて次のボスが出ても、選択中の人は今までどおり狙われず被弾しない。ソロ/CPU は世界ごと止まっているので上限なし

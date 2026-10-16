@@ -144,6 +144,7 @@ public static class BalanceTuning
         }
         for (int i = 0; i < a.Length - 1; i++)
         {
+            if (a[i] == "-ldRushChoices") { BossManager.LdRushChoices = a[i + 1] != "0"; Debug.Log($"[BalanceTuning] ldRushChoices={BossManager.LdRushChoices}"); continue; } // 比較用(2026-10-16)
             if (a[i] != "-standoffFix") continue; // 比較用: base = 修正前 / breather / lunge / breather,lunge = 両方
             string v = a[i + 1];
             BossSpecialBreather = v.Contains("breather"); AssistApproachLunge = v.Contains("lunge");

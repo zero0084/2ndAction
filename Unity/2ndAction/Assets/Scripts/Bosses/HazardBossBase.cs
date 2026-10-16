@@ -45,8 +45,10 @@ public abstract class HazardBossBase : WildBossBase
             else if (!ceilingLost && !IsDead && supportsInterrupt)
             {
                 ceilingLost = true; CeilingLostCount++;
-                Debug.Log($"[BossBattle] {bossName} lost the ceiling at x={worldX:F1}: dropping and back to normal moves");
-                InterruptAI(DropAfterLostCeiling());
+                bool inUlt = UltimateRunning;
+                if (inUlt) CeilingLostInUltimate++;
+                Debug.Log($"[BossBattle] {bossName} lost the ceiling at x={worldX:F1}{(inUlt ? " during the ultimate" : "")}: dropping and back to normal moves");
+                InterruptAI(DropAfterLostCeiling(inUlt));
             }
         }
     }
@@ -85,13 +87,18 @@ public abstract class HazardBossBase : WildBossBase
             }
         return true;
     }
-    IEnumerator DropAfterLostCeiling()
+    IEnumerator DropAfterLostCeiling(bool inUltimate)
     {
         onCeiling = true; extraScale = new Vector2(1f, -1f); freeGap = false; facingLocked = false;
         yield return DropFromCeiling(0.3f);
         ceilingLost = false;
-        yield return Recover(0.5f);
+        if (inUltimate) yield return OnCeilingLostInUltimate();
+        else yield return Recover(0.5f);
     }
+    // 2026-10-16 第6弾: 必殺技の途中で天井が途切れて落ちた時。以前は 0.5秒の構え直しだけで、必殺技の最後の隙(攻撃のチャンス)が出なかった
+    // (崩しで止めた時は崩れた隙が出るのに、地形で止まった時だけ何も無かった)。ボスごとに上書きする(既定は今までどおり)
+    public static int CeilingLostInUltimate; // 確認用
+    protected virtual IEnumerator OnCeilingLostInUltimate() { yield return Recover(0.5f); }
 
     protected override void OnInterrupted()
     {
