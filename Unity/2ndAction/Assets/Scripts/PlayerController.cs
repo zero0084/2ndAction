@@ -1852,6 +1852,20 @@ public partial class PlayerController : MonoBehaviour
     public int NetFootingFixes { get; private set; }
     public string LastRejoinLog { get; private set; } = "";
 
+    // 確認用(2026-10-16、開発版のログ): 置き直しの直前と2フレーム後の、距離/EXP/距離の MILE/累計の控え。
+    // 飛ばした距離が報酬に入っていれば、置き直しの分(数百 m)だけ増える。走った分(2フレームで 1m 前後)だけなら正しい
+    System.Collections.IEnumerator WarpRewardAudit(string what, float moved)
+    {
+        var gm = GameManager.Instance;
+        if (gm == null || !Debug.isDebugBuild) yield break;
+        float d0 = gm.MaxDistance, e0 = gm.TotalExpEarned, m0 = gm.DistanceMileBase; double w0 = RunLedger.Current != null ? RunLedger.Current.walked : 0;
+        yield return null; yield return null;
+        float d1 = gm.MaxDistance, e1 = gm.TotalExpEarned, m1 = gm.DistanceMileBase; double w1 = RunLedger.Current != null ? RunLedger.Current.walked : 0;
+        LastWarpAudit = $"{what} moved {moved:F1}m -> distance +{d1 - d0:F2}m, EXP +{e1 - e0:F1}, distance MILE base +{m1 - m0:F3}, ledger walked +{w1 - w0:F2}m (2 frames)";
+        Debug.Log("[NET][WARPAUDIT] " + LastWarpAudit);
+    }
+    public static string LastWarpAudit { get; private set; } = "";
+
     // HOST が決めた位置(この端末の scene X)へ置き直す。DOWN/ランの終わりは何もしない。同じ指示は1回だけ
     public void NetRejoinTo(float sceneX, int serial)
     {
@@ -1873,6 +1887,7 @@ public partial class PlayerController : MonoBehaviour
         Reaction = ReactionKind.None; reactionTimer = 0f;
         var gm = GameManager.Instance;
         float fromX = transform.position.x;
+        float auditD0 = gm != null ? gm.MaxDistance : 0f, auditE0 = gm != null ? gm.TotalExpEarned : 0f, auditM0 = gm != null ? gm.DistanceMileBase : 0f; double auditW0 = RunLedger.Current != null ? RunLedger.Current.walked : 0;
         if (gm != null) gm.ExcludeWarpDistance(d); // 飛ばした距離に距離の報酬/EXP を付けない
         FreezeDiagnostics.NoteIntendedMove($"co-op rejoin after a card choice +{d:F0}m");
         transform.position = new Vector3(x, transform.position.y, transform.position.z);
@@ -1905,6 +1920,13 @@ public partial class PlayerController : MonoBehaviour
         if (LastRejoinLog == "" || !LastRejoinLog.StartsWith("no safe")) LastRejoinLog = $"moved {x - fromX:F0}m (serial {serial})";
         Debug.Log($"[NET][REJOIN] P{NetCombat.LocalPlayerNumber} placed at {FloatingOrigin.ToLogical(x):F0} (moved {x - fromX:F0}m, waited {w:F2}s) serial {serial}");
         NetMatch.ReportRejoinDone(serial, x);
+        if (Debug.isDebugBuild && gm != null)
+        {
+            // 待っていた間(止まっている)の分も含めて、置き直しの前から2フレーム後までを比べる
+            yield return null; yield return null;
+            LastWarpAudit = $"rejoin moved {x - fromX:F1}m -> distance +{gm.MaxDistance - auditD0:F2}m, EXP +{gm.TotalExpEarned - auditE0:F1}, distance MILE base +{gm.DistanceMileBase - auditM0:F3}, ledger walked +{(RunLedger.Current != null ? RunLedger.Current.walked : 0) - auditW0:F2}m (from before the move to 2 frames after)";
+            Debug.Log("[NET][WARPAUDIT] " + LastWarpAudit);
+        }
     }
 
     // 選択を閉じた時: 操作できない間に足元が無くなっていたら(空中で選択が開いた/足場が消えた)、近くの安全な足場へ置く(協力)。
@@ -1933,6 +1955,7 @@ public partial class PlayerController : MonoBehaviour
         velocityY = 0f; isGrounded = true; jumpsUsed = 0;
         NetFootingFixes++;
         Debug.Log($"[NET][CHOICE] no footing under the player after the card choice - placed on safe ground {d:+0.0;-0.0}m");
+        StartCoroutine(WarpRewardAudit("footing fix", d));
     }
 
     // ===== マルチプレイPhase 3: DOWN(CO-OP) / 脱落(VERSUS) =====

@@ -41,13 +41,16 @@ public abstract class HazardBossBase : WildBossBase
         // 天井を這っている間は天井の高さに沿う。本物の天井が途切れたら(天井の無い区間へ出た等)、その場から降りて通常の行動へ(2026-10-07)
         if (onCeiling && !climbing)
         {
-            if (RealCeilingSpace(worldX) > 0f) yOffset = Mathf.MoveTowards(yOffset, HangY(worldX) - GroundY, 10f * dt);
+            var cs = CeilingStateAt(worldX, out float csSpace);
+            if (cs == CeilingState.Ok) { yOffset = Mathf.MoveTowards(yOffset, HangY(worldX) - GroundY, 10f * dt); ceilingUnknownNoted = false; }
+            else if (cs == CeilingState.NotGenerated) { if (!ceilingUnknownNoted) { ceilingUnknownNoted = true; CeilingNotGeneratedHolds++; Debug.Log($"[BossBattle] {bossName} ceiling not generated yet at x={worldX:F1} - keeps hanging (not a gap)"); } } // 今の高さのまま
             else if (!ceilingLost && !IsDead && supportsInterrupt)
             {
+                LastCeilingLost = $"{cs} (space {csSpace:F1}m)";
                 ceilingLost = true; CeilingLostCount++;
                 bool inUlt = UltimateRunning;
                 if (inUlt) CeilingLostInUltimate++;
-                Debug.Log($"[BossBattle] {bossName} lost the ceiling at x={worldX:F1}{(inUlt ? " during the ultimate" : "")}: dropping and back to normal moves");
+                Debug.Log($"[BossBattle] {bossName} lost the ceiling at x={worldX:F1}{(inUlt ? " during the ultimate" : "")} ({cs}, space {csSpace:F1}m, ceiling generated to {(TerrainManager.Instance != null && TerrainManager.Instance.cave != null ? TerrainManager.Instance.cave.GeneratedEndX - worldX : 0f):+0.0;-0.0}m ahead): dropping and back to normal moves");
                 InterruptAI(DropAfterLostCeiling(inUlt));
             }
         }
@@ -58,7 +61,27 @@ public abstract class HazardBossBase : WildBossBase
     public static string LastCeilingSkip = "";
     const float CeilingMinSpace = 4.2f;
     protected override bool IntentionallyAway => buried; // 地中に潜っている間は、画面から外れても戻さない(技の一部)
-    bool ceilingLost;
+    bool ceilingLost, ceilingUnknownNoted;
+    // 2026-10-16(マスターの確認): 天井の状態を分ける。NotGenerated = その位置の天井はまだ作っていない/もう捨てた(生成の範囲の都合)。
+    // これは「天井が無い」ではないので、落とす理由にも、技を選ばない理由にもしない。落とすのは本物の地形の理由(Open/High/Low)だけ
+    public enum CeilingState { Ok, NotGenerated, Low, High, Open, NoCave }
+    public static int CeilingNotGeneratedHolds { get; private set; } // 確認用: 天井が分からないので落とさずに待った回数(フレーム数ではなく回数)
+    public static string LastCeilingLost = "";
+    public CeilingState CeilingStateAt(float x, out float space)
+    {
+        space = -1f;
+        var tm = TerrainManager.Instance;
+        if (tm == null || tm.cave == null) return CeilingState.NoCave;
+        if (!tm.cave.CeilingKnownAt(x)) return CeilingState.NotGenerated;
+        float? c = tm.GetEffectiveCeilingHeightAt(x);
+        if (!c.HasValue) return CeilingState.NotGenerated;
+        float g = tm.GetHeightAt(x) ?? GroundY;
+        space = c.Value - g;
+        if (tm.cave.CeilingModeAt(x) == 4) return CeilingState.Open;
+        if (space < CeilingMinSpace) return CeilingState.Low;
+        if (space > 9.5f) return CeilingState.High;
+        return CeilingState.Ok;
+    }
     // その位置の本物の天井までの高さ(m)。天井が無い/低すぎる/高すぎる(画面の外)なら -1
     protected float RealCeilingSpace(float x)
     {
@@ -77,12 +100,12 @@ public abstract class HazardBossBase : WildBossBase
     {
         float ahead = 12f + TargetBaseSpeed() * Mathf.Min(seconds, 0.6f);
         for (float x = worldX - 3f; x <= worldX + ahead; x += 2.5f)
-            if (RealCeilingSpace(x) < 0f)
+            if (CeilingStateAt(x, out _) is var st && st != CeilingState.Ok && st != CeilingState.NotGenerated)
             {
                 CeilingSkipCount++;
                 var tm = TerrainManager.Instance;
                 float? c = tm != null ? tm.GetEffectiveCeilingHeightAt(x) : null, g = tm != null ? tm.GetHeightAt(x) : null;
-                LastCeilingSkip = $"x={x:F1} (boss {worldX:F1}, ahead {ahead:F0}m) ceiling={(c.HasValue ? c.Value.ToString("F1") : "none")} ground={(g.HasValue ? g.Value.ToString("F1") : "none")} need>={CeilingMinSpace:F1}";
+                LastCeilingSkip = $"{st} x={x:F1} (boss {worldX:F1}, ahead {ahead:F0}m) ceiling={(c.HasValue ? c.Value.ToString("F1") : "none")} ground={(g.HasValue ? g.Value.ToString("F1") : "none")} need>={CeilingMinSpace:F1}";
                 return false;
             }
         return true;

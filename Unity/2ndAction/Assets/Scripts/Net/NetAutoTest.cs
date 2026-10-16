@@ -844,8 +844,10 @@ public partial class NetAutoTest : MonoBehaviour
                     // 穴の中(縁より下)へ: 選択が終わるとそのままでは落ちる場面
                     float? rim = tmp.GetHeightAt(pit.Value - 1f);
                     float y = (rim ?? pcp.transform.position.y) - 1.2f;
+                    float fromX = pcp.transform.position.x;
                     pcp.transform.position = new Vector3(pit.Value + 0.6f, y, pcp.transform.position.z);
-                    L($"choice OVER PIT: moved into a pit at x={pit.Value + 0.6f:F1} y={y:F1} (rim {rim:F1}, ground there: {tmp.GetHeightAt(pit.Value + 0.6f).HasValue})");
+                    gm.ExcludeWarpDistance(pit.Value + 0.6f - fromX); // 試験の移動そのものは報酬に入れない(足場の直しの確認を分けるため)
+                    L($"choice OVER PIT: moved {pit.Value + 0.6f - fromX:F1}m into a pit at x={pit.Value + 0.6f:F1} y={y:F1} (rim {rim:F1}, ground there: {tmp.GetHeightAt(pit.Value + 0.6f).HasValue}; the test move is excluded)");
                 }
                 else L("choice OVER PIT: no pit found ahead");
             }

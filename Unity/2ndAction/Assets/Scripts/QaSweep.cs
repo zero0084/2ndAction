@@ -65,6 +65,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaMastery") { mode = "mastery"; dir = a[i + 1]; }
             if (a[i] == "-qaArena") { mode = "arena"; dir = a[i + 1]; }
             if (a[i] == "-qaCaveBoss") { mode = "caveboss"; dir = a[i + 1]; }
+            if (a[i] == "-qaCeilingAudit") { mode = "ceilaudit"; dir = a[i + 1]; } // 2026-10-16
             if (a[i] == "-qaBossAssist") { mode = "bossassist"; dir = a[i + 1]; }
             if (a[i] == "-qaFinalEvo") { mode = "finalevo"; dir = a[i + 1]; }
             if (a[i] == "-qaFe2") { mode = "fe2"; dir = a[i + 1]; }
@@ -213,6 +214,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "mastery") yield return MasteryMode();
         else if (mode == "arena") yield return ArenaMode_();
         else if (mode == "caveboss") yield return CaveBossMode();
+        else if (mode == "ceilaudit") yield return CeilingAuditMode();
         else if (mode == "bossassist") yield return BossAssistMode();
         else if (mode == "finalevo") yield return FinalEvoMode();
         else if (mode == "fe2") yield return Fe2Mode();

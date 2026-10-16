@@ -148,6 +148,15 @@ public partial class CaveStage : MonoBehaviour
     public bool Active { get; private set; }
     // 共通Encounter System(2026-09-27) - 天井を生成済みの右端(この先はまだ天井の高さが決まっていない)。
     public float GeneratedEndX => nodes.Count > 0 ? nodeBaseX + (nodes.Count - 1) * nodeSpacing : float.NegativeInfinity;
+    // 2026-10-16: 天井がまだ作られていない(前方の生成範囲の外)/もう捨てた(後方)位置か。ここは「天井が無い」ではなく「分からない」
+    public bool CeilingKnownAt(float x) => Active && nodes.Count >= 2 && x >= nodeBaseX && x < GeneratedEndX;
+    // その位置の天井の区間の種類(0 普通 / 1 針 / 2 低い / 3 高い空洞 / 4 抜けている)。分からなければ -1
+    public int CeilingModeAt(float x)
+    {
+        if (!CeilingKnownAt(x)) return -1;
+        int i = Mathf.Clamp(Mathf.FloorToInt((x - nodeBaseX) / nodeSpacing), 0, nodes.Count - 1);
+        return nodes[i].mode;
+    }
     public static int SpikeHitCount; // debug counter (Editor auto test)
 
     class Node { public float x, y; public int mode; } // mode: 0 normal, 1 spike, 2 low, 3 high(広い空洞), 4 open(天井が抜けている)
