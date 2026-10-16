@@ -240,7 +240,10 @@ public partial class QaSweep
             L($"== map rush real: {st} {ch} (mix Lv{lv}) ==");
             yield return BeginRun(ch, st);
             typeof(GameManager).GetProperty("InvincibleMode").SetValue(gm, true);
-            if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(true);
+            int killUntil = int.Parse(Arg("-rwRushKillUntil", "0"));
+            bool manual = Arg("-rwManual", "0") == "1", detail = Arg("-rwFightLog", killUntil > 0 ? "1" : "0") == "1", holdLast = Arg("-rwRushHoldLast", "0") == "1";
+            rwLastPx = -1e9f;
+            if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(!manual);
             foreach (var id in CardBuildPresets.Find("mix")) { var cd = CardDatabase.FindBaseById(id); if (cd != null) gm.ApplyCardEffectsStacked(cd, lv); }
             WarpTo(89900f);
             typeof(GameManager).GetMethod("ApplySprintArrivalLevel", RwNP).Invoke(gm, new object[] { 89900f });
@@ -256,12 +259,50 @@ public partial class QaSweep
                 if (gm.BossKillCount != lastK) { float t = Time.time - t0; lines.Add($"{current}@{t:F0}s(+{t - lastKillT:F0}s,{gm.MaxDistance / 1000f:F1}km)"); lastKillT = t; lastK = gm.BossKillCount; }
                 if (holdAt < 0f && Bm.HoldsRun && enc != null && enc.held99) holdAt = Time.time - t0;
                 if (rwShown != shownSeen) { choiceTimes.Add($"{Time.time - t0:F0}s"); shownSeen = rwShown; }
+                // 2026-10-16 にらみ合いの切り分け: -rwRushKillUntil N で最初の N 体は試験が倒す(N+1 体目からを補助/手動で戦う)
+                int killedNow = gm.BossKillCount - k0;
+                if (killedNow < killUntil)
+                {
+                    // -rwRushHoldLast 1: 最後に試験が倒すボス(killUntil 体目)は 99km の足止めが始まるまで残す → 次のボスが足止めの中で出る(にらみ合いが起きた条件)
+                    bool keep = holdLast && killedNow == killUntil - 1 && !(enc != null && enc.held99);
+                    PlayerController.DebugSpeedScale = 3f;
+                    if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(false);
+                    var ka = a.Where(x => !x.IsEntering && !x.IsDead).ToList();
+                    if (!keep && ka.Count > 0 && Time.time >= rwKillAt) { rwKillAt = Time.time + 0.5f; ka[0].TakeDamage(99999999, ka[0].CenterWorld); }
+                }
+                else if (killUntil > 0 && PlayerController.DebugSpeedScale != 1f) { PlayerController.DebugSpeedScale = 1f; if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(!manual); }
+                else if (a.Count > 0)
+                {
+                    var b = a[0];
+                    // ダメージが入らなかった一番長い時間(登場/無敵の間は数えない)= にらみ合いの長さ
+                    if (b != ndBoss) { ndBoss = b; ndHp = b.Hp; ndSince = Time.time; }
+                    else if (b.Hp < ndHp || b.IsEntering || b.DebugInvulnerable) { if (b.Hp < ndHp) ndHits++; ndHp = b.Hp; ndSince = Time.time; }
+                    else ndMax = Mathf.Max(ndMax, Time.time - ndSince);
+                    // 手動の操作(-rwManual 1): 補助を切り、人が前攻撃を連打するのと同じ(0.45秒ごと)
+                    // 飛んでいて高い所のボスには、人と同じく跳んでから前攻撃(地上の前攻撃は高さが届かない)
+                    if (manual && Time.time >= rwManualAt && !pc.IsAttacking)
+                    {
+                        rwManualAt = Time.time + 0.45f;
+                        bool high = b.AssistBounds.min.y > pc.transform.position.y + 1.4f;
+                        if (high && pc.IsGrounded) { StartCoroutine(Flick(PlayerController.FlickDirection.Up)); rwManualAt = Time.time + 0.2f; rwManualJumps++; }
+                        else StartCoroutine(Flick(PlayerController.FlickDirection.Forward));
+                    }
+                    if (detail && Time.time >= rwDetailAt)
+                    {
+                        rwDetailAt = Time.time + 1f;
+                        var hb = b.AssistBounds; float px = pc.transform.position.x;
+                        float dEdge = hb.min.x > px ? hb.min.x - px : (hb.max.x < px ? px - hb.max.x : 0f);
+                        float vx = rwLastPx > -1e8f ? (px - rwLastPx) / 1f : 0f; rwLastPx = px;
+                        var has = HighSpeedAssist.Instance;
+                        L($"[mr] fight {b.bossName} t={Time.time - t0:F0}s hp={b.Hp}/{b.maxHp} act='{b.DebugAct}' sp={b.SpecialsUsed}/{b.SpecialsDeferred} gap={b.DebugGap:F1} front={b.DebugFrontDist:F1} edge={dEdge:F1} half={b.HalfWidth:F1} slot={b.slotIndex} relV={b.DebugRelVelocity:F1} move={b.MoveScale:F2} wait={b.AiWaitScale:F2} aiTime={ElementStatus.AiTimeScaleOf(b.gameObject):F2} freeGap={b.DebugFreeGap} invuln={b.DebugInvulnerable} targetable={b.AssistTargetable} dy={b.CenterWorld.y - pc.transform.position.y:F1} | player vx={vx:F1} run={pc.CurrentAutoRunSpeed:F1} attacking={pc.IsAttacking} lunge={pc.LungeScaleNow:F2} reach={pc.AssistForwardReach:F1} plan='{(has != null ? has.BossPlan : "-")}' held99={(enc != null && enc.held99)}");
+                    }
+                }
                 // 2026-10-15 切り分け: 1体に 60秒以上かかっている時は 20秒ごとにボスの様子を出す(HP / 登場中 / 動き / 間合い / 無敵 / 画面の位置 / プレイヤーの攻撃)
                 if (a.Count > 0 && Time.time - t0 - lastKillT > 60f && Time.time >= rwDiagAt)
                 {
                     rwDiagAt = Time.time + 20f;
                     var b = a[0]; var cam = Camera.main; var vp = cam != null ? cam.WorldToViewportPoint(b.CenterWorld) : Vector3.zero;
-                    L($"[mr] slow {b.bossName} t={Time.time - t0:F0}s hp={b.Hp} entering={b.IsEntering} act='{b.DebugAct}' gap={b.DebugGap:F1} freeGap={b.DebugFreeGap} invuln={b.DebugInvulnerable} vp=({vp.x:F2},{vp.y:F2}) playerAttacking={pc.IsAttacking} reacting={pc.IsReacting} inputLatched={UiInputGate.DebugLatched} choice={gm.IsRewardSequenceRunning}");
+                    L($"[mr] slow {b.bossName} t={Time.time - t0:F0}s hp={b.Hp} entering={b.IsEntering} act='{b.DebugAct}' sp={b.SpecialsUsed}/{b.SpecialsDeferred} gap={b.DebugGap:F1} freeGap={b.DebugFreeGap} invuln={b.DebugInvulnerable} vp=({vp.x:F2},{vp.y:F2}) playerAttacking={pc.IsAttacking} reacting={pc.IsReacting} inputLatched={UiInputGate.DebugLatched} choice={gm.IsRewardSequenceRunning}");
                 }
                 yield return null;
             }
@@ -269,6 +310,13 @@ public partial class QaSweep
             float tw = 0f; while ((gm.IsRewardSequenceRunning || gm.LevelUpPending || gm.PendingLevelUpCount > 0) && tw < 240f) { if (rwShown != shownSeen) { choiceTimes.Add($"{Time.time - t0:F0}s"); shownSeen = rwShown; } yield return null; tw += Time.unscaledDeltaTime; }
             L($"[mr] real {st} {ch} mix Lv{lv}: {(Bm.IsBossPhase ? "NOT cleared" : "cleared")} in {total:F0}s ({total / 60f:F1} min), defeated {gm.BossKillCount - k0}/9, 99km hold from {(holdAt < 0f ? "-" : holdAt.ToString("F0") + "s")} (held {(holdAt < 0f ? 0f : total - holdAt):F0}s), Lv {lv0}->{gm.Level}, choices {rwShown - shown0} at [{string.Join(", ", choiceTimes)}]");
             L($"[mr] real {st} {ch}: {string.Join(" > ", lines)}");
+            if (killUntil > 0)
+            {
+                L($"[mr] standoff {st} {ch} manual={manual}: longest time with no damage {ndMax:F1}s, damage ticks {ndHits}, manual jumps {rwManualJumps}, assist approach lunges {(HighSpeedAssist.Instance != null ? HighSpeedAssist.Instance.BossApproachLunges : 0)}, specials deferred {(ndBoss != null ? ndBoss.SpecialsDeferred : 0)}");
+                if (Arg("-rwStandoffCheck", "0") == "1")
+                    Check(!Bm.IsBossPhase && ndMax < float.Parse(Arg("-rwStandoffMax", "25")), $"{st} {ch}{(manual ? " (manual)" : "")}: the last bosses are defeated with no long standoff (longest no-damage {ndMax:F1}s)");
+            }
+            ndBoss = null; ndMax = 0f; ndHits = 0; rwManualJumps = 0;
             yield return EndRun();
         }
     }

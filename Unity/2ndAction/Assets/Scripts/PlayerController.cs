@@ -1721,6 +1721,8 @@ public partial class PlayerController : MonoBehaviour
         if (NetMatch.Active && !NetMatch.IsLocalAlive) return;
         // マルチ(2026-09-28): カード選択中の本人は敵/ボスの攻撃を受けない(その場で一時停止中のため)。
         if (!isFall && NetIsChoosing) return;
+        // 2026-10-16: 選択を閉じた直後(NetMatch.ChoiceExitGrace 秒)は、閉じた時に重なっていた攻撃を受けない
+        if (!isFall && NetMatch.Active && Time.realtimeSinceStartup < netChoiceEndedAt + NetMatch.ChoiceExitGrace) return;
 
         // Bugfix 2026-09-06, item 2 - GameOverReason passthrough for the
         // debug log in GameManager.TryDamagePlayer (isFall is already the
@@ -1791,6 +1793,8 @@ public partial class PlayerController : MonoBehaviour
     // 敵/ボスの狙い(NetTargets)と被弾(TakeDamage/HOSTの判定)からは、選択中の間だけ外れる。
     // シングルプレイは従来どおりTimeControlの一時停止で世界ごと止める(ここは通らない)。
     bool netChoosingHeld;
+    float netChoiceEndedAt = -99f; // 2026-10-16: カード選択を閉じた時刻(実時間)
+    public bool NetChoiceExitGraceActive => NetMatch.Active && Time.realtimeSinceStartup < netChoiceEndedAt + NetMatch.ChoiceExitGrace;
     public bool NetIsChoosing
     {
         get
@@ -1831,6 +1835,7 @@ public partial class PlayerController : MonoBehaviour
     void NetChoosingRelease()
     {
         netChoosingHeld = false;
+        netChoiceEndedAt = Time.realtimeSinceStartup;
         touchActive = false;
         requestedFlick = null;
         FreezeDiagnostics.LogEvent($"[Net] CHOICE DONE - resume at x={transform.position.x:F2} dist={DistanceExact:F1}");

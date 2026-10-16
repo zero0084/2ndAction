@@ -19,7 +19,8 @@ public partial class HighSpeedAssist
     [Tooltip("回避の踏み切りに使う余裕(秒)")]
     public float bossJumpMargin = 0.04f;
 
-    public int BossDodgeJumps, BossDoubleJumps, BossStayLow, BossAttacks, BossDownAttacks, BossTerrainJumps, BossTerrainOverStayLow, BossShotJumps;
+    public int BossDodgeJumps, BossDoubleJumps, BossStayLow, BossAttacks, BossDownAttacks, BossTerrainJumps, BossTerrainOverStayLow, BossShotJumps, BossApproachLunges;
+    float outOfReachSince = -1f; // 2026-10-16: 届く距離の外にボスが居続けた時刻
     public string BossPlan { get; private set; } = "";
 
     bool BossFightNear(PlayerController pc)
@@ -233,7 +234,24 @@ public partial class HighSpeedAssist
         if (!PickBossTarget(pc, out string bestName, out Bounds bb, out float bestD)) { BossPlan = "攻撃できるボスがいない(無敵/地中/天井)"; return null; }
         Vector3 p = pc.transform.position;
         float reach = pc.AssistForwardIsProjectile ? 12f : Mathf.Max(pc.AssistForwardReach, bossApproachReach);
-        if (bestD > reach) { BossPlan = $"{bestName} まで {bestD:F1}m(届くのを待つ)"; return null; }
+        if (bestD > reach)
+        {
+            // 2026-10-16(にらみ合いの修正): 届く距離のすぐ外でボスが待っている時は、踏み込みの大きい前攻撃で寄る(手動の連打と同じ)。
+            // 前攻撃の踏み込みはボス戦の間、遠いほど大きく伸びる(BossBattle.LungeScale)。飛び道具のキャラは対象外(今までどおり)
+            if (BalanceTuning.AssistApproachLunge && !pc.AssistForwardIsProjectile && bestD <= BalanceTuning.AssistApproachMax && !stayLow && !pc.IsAttacking)
+            {
+                if (outOfReachSince < 0f) outOfReachSince = Time.time;
+                if (Time.time - outOfReachSince >= BalanceTuning.AssistApproachWait)
+                {
+                    outOfReachSince = Time.time; BossApproachLunges++;
+                    BossPlan = $"{bestName} まで {bestD:F1}m → 踏み込みで寄る";
+                    Act("前攻撃(寄る)", BossPlan);
+                    return PlayerController.FlickDirection.Forward;
+                }
+            }
+            BossPlan = $"{bestName} まで {bestD:F1}m(届くのを待つ)"; return null;
+        }
+        outOfReachSince = -1f;
         float feet = p.y, top = p.y + bodyH;
         // 空中で真上付近: 下攻撃(地面への衝撃で崩しが大きい)
         if (!grounded && pc.canUseDownAttack && bestD < 1.2f && bb.max.y < feet + 0.3f && !pc.AssistIsDiveOrHover && DiveLandsSafely(pc))

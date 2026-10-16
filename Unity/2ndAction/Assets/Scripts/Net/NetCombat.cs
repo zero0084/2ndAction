@@ -1211,10 +1211,11 @@ public class NetCombat : MonoBehaviour
         // 撃破の知らせが二重に届いても1回だけ(上の e.Dead と、受け取った ID の記録の両方で止める)
         if (bounty > 0 && NetMatch.Mode == MultiplayerGameMode.Coop && GameManager.Instance != null && bountyPaid.Add(id))
         {
+            float carry0 = GameManager.Instance.MileCarryDebug;
             int got = GameManager.Instance.AddRunBonusMile(bounty);
             ChallengeSystem.NoteRemoteBounty();
             BossBattleHud.Banner("BOUNTY!", new Color(1f, 0.85f, 0.3f), 1.2f);
-            Log("WANTED", $"bounty id={id} {bounty} MILE -> +{got} (1/{GameManager.Instance.MileShareCount})");
+            Log("WANTED", $"bounty id={id} {bounty} MILE -> +{got} (1/{GameManager.Instance.MileShareCount}, MILE x{GameManager.Instance.MileGainMultiplier:F2}, shared carry {carry0:F3} -> {GameManager.Instance.MileCarryDebug:F3})");
         }
         e.Dead = true; e.Hp = 0; e.LastHitPlayer = lastHit; e.LastDamagedBy = lastDamagedBy; e.DeathCause = cause;
         StatDeaths++;

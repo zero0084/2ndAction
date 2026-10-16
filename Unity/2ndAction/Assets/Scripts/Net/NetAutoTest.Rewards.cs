@@ -29,9 +29,12 @@ public partial class NetAutoTest
             }
         else if (a == "-netAutoEliteAt") float.TryParse(next, out eliteFrom);
         else if (a == "-netAutoRushLog") rushLog = next == "1";
+        else if (a == "-netAutoRushDupOffer") rushDupOffer = next == "1"; // 2026-10-16: HOST が完走報酬の知らせをもう一度送る(二重の知らせの確認)
+        else if (a == "-netAutoKillWhenSeen") { int.TryParse(next, out killWhenSeen); damageTest = true; } // 2026-10-16: N 体目のボスが見えたら自分を倒す(DOWN のまま完走する確認)
     }
 
     // 2026-10-15 第4弾: 協力のボスラッシュの状態(3秒ごと)。出ているボス/これまでに見たボスの数(HOST の出現と JOIN のパペットで同じになるか)
+    int killWhenSeen; bool rushDupOffer; float rushDupAt = -1f;
     float rushLogAt; readonly HashSet<WildBossBase> rushSeen = new HashSet<WildBossBase>(); int rushChoicesWithBoss; bool rushWasOpen;
     void RushLogTick(float runTime, GameManager gm)
     {
@@ -39,12 +42,21 @@ public partial class NetAutoTest
         int alive = 0;
         foreach (var b in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None))
             if (b != null && !b.IsDead && !(b is ReaperSisterBoss)) { alive++; if (b.mileReward > 0 || true) rushSeen.Add(b); }
+        if (killWhenSeen > 0 && rushSeen.Count >= killWhenSeen && killAt < 0f) { killAt = runTime; L($"RUSH kill self when boss #{killWhenSeen} is seen (t={runTime:F0})"); }
+        if (rushDupOffer && role == "HOST" && gm.RushRewardOffersReceived > 0 && rushDupAt < 0f) rushDupAt = runTime + 3f;
+        if (rushDupAt > 0f && runTime >= rushDupAt && bm != null)
+        {
+            rushDupAt = float.MaxValue;
+            int n = NetMatch.SendRushRewardOffers(bm.MapRushesStarted);
+            int n2 = NetMatch.SendRushRewardOffers(bm.MapRushesStarted);
+            L($"RUSH duplicate completion reward offers sent (serial {bm.MapRushesStarted}, {n}+{n2} messages)");
+        }
         bool open = gm.LevelUpPending;
         if (open && !rushWasOpen && alive > 0 && bm != null && bm.MapRushActive) rushChoicesWithBoss++;
         rushWasOpen = open;
         if (runTime < rushLogAt) return;
         rushLogAt = runTime + 3f;
-        L($"RUSH t={runTime:F0} role={role} active={(bm != null && bm.MapRushActive)} phase={(bm != null && bm.IsBossPhase)} holds={(bm != null && bm.HoldsRun)} alive={alive} seen={rushSeen.Count} d={gm.MaxDistance:F0} bossMile={gm.RunBossMile} bossKills={gm.BossKillCount} Lv={gm.Level} choosing={open} pending={gm.PendingLevelUpCount} choicesWithBoss={rushChoicesWithBoss} rewards={gm.BossRewardChoicesStarted} reaper={(bm != null && bm.DeathSpawned)} nextGate={(bm != null ? bm.NextBossDistance : 0f):F0} exclEndsIgnored={gm.BossExclusionEndsIgnored}");
+        L($"RUSH t={runTime:F0} role={role} active={(bm != null && bm.MapRushActive)} phase={(bm != null && bm.IsBossPhase)} holds={(bm != null && bm.HoldsRun)} alive={alive} seen={rushSeen.Count} d={gm.MaxDistance:F0} bossMile={gm.RunBossMile} bossKills={gm.BossKillCount} Lv={gm.Level} choosing={open} pending={gm.PendingLevelUpCount} choicesWithBoss={rushChoicesWithBoss} rewards={gm.BossRewardChoicesStarted} reaper={(bm != null && bm.DeathSpawned)} nextGate={(bm != null ? bm.NextBossDistance : 0f):F0} exclEndsIgnored={gm.BossExclusionEndsIgnored} rushReward[recv/ign/taken/owed]={gm.RushRewardOffersReceived}/{gm.RushRewardOffersIgnored}/{gm.RushRewardsTaken}/{gm.NetRushRewardOwed} graceRejects={NetMatch.ChoiceExitGraceRejects} lives={gm.Lives} table=[{(NetMatch.Instance != null ? NetMatch.Instance.DebugDescribe() : "")}]");
     }
 
     void RewardKillTick(float runTime)

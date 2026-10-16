@@ -108,10 +108,16 @@ public static class SaveProfile
         // テスト用データのバックアップ/デバッグランの控え
         if (!keepBackups) try
         {
-            string dir = System.IO.Path.Combine(Application.persistentDataPath, BackupSubdir(true));
-            if (System.IO.Directory.Exists(dir)) System.IO.Directory.Delete(dir, true);
-            string dr = System.IO.Path.Combine(Application.persistentDataPath, DebugRunFile(true));
-            if (System.IO.File.Exists(dr)) System.IO.File.Delete(dr);
+            // 2026-10-16 修正: バックアップの置き場所は SaveSystem.DataRoot(専用の保存ファイルの時はその場所)。
+            // 以前は常に persistentDataPath を消していたため、専用の保存ファイルで「作り直し」をすると古いテスト用の控えが残り、
+            // 次の起動処理で消したはずのテスト用データが控えから戻っていた(通常のデータには触れていない)
+            foreach (string root in new[] { SaveSystem.DataRoot, Application.persistentDataPath })
+            {
+                string dir = System.IO.Path.Combine(root, BackupSubdir(true));
+                if (System.IO.Directory.Exists(dir)) System.IO.Directory.Delete(dir, true);
+                string dr = System.IO.Path.Combine(root, DebugRunFile(true));
+                if (System.IO.File.Exists(dr)) System.IO.File.Delete(dr);
+            }
         }
         catch (System.Exception e) { Debug.LogWarning("[SaveProfile] could not delete the test backups: " + e.Message); }
         Platform.Save.Save();

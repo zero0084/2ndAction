@@ -2810,7 +2810,22 @@ public partial class GameManager : MonoBehaviour
         BossRewardChoicesStarted++; // 確認用(2026-10-15: ラッシュの報酬は全体で1回)
         // マルチプレイPhase 2.5: ボス報酬は最後のボスのラストヒットを取った本人(RewardRecipient)だけ。
         // 本人がJOINなら、その端末へ選択を渡し、HOSTはボス戦の後始末(ボス戦終了/距離再開)だけ行う。
-        if (NetCombat.Authority)
+        // 2026-10-16 第5弾: 協力の各マップのラッシュの完走報酬 = 参加者全員が1回ずつ(最後に倒した人だけではない)。MILE の分配は変えない
+        bool rushForAll = NetCombat.Authority && NetRunLauncher.IsMultiplayerRun && NetMatch.Mode == MultiplayerGameMode.Coop
+            && BossManager.Instance != null && BossManager.Instance.MapRushActive;
+        if (rushForAll)
+        {
+            int serial = BossManager.Instance.MapRushesStarted;
+            if (serial > netRushRewardSerial)
+            {
+                netRushRewardSerial = serial;
+                int sent = NetMatch.SendRushRewardOffers(serial);
+                netRushRewardOwed = NetMatch.LocalParticipating();
+                if (netRushRewardOwed) RushRewardOffersReceived++;
+                NetCombat.Log("BOSS", $"Map rush completion reward -> every participant (serial {serial}, sent to {sent} remote, HOST {(netRushRewardOwed ? "chooses" : "not participating")})");
+            }
+        }
+        else if (NetCombat.Authority)
         {
             int recipient = NetCombat.LastBossRewardRecipient;
             NetCombat.Log("BOSS", $"Reward Recipient = P{recipient} (local=P{NetCombat.LocalPlayerNumber})");
@@ -2826,8 +2841,9 @@ public partial class GameManager : MonoBehaviour
         }
         // マルチ(2026-09-28): この端末のプレイヤーがRun終了/脱落/DOWN中なら、ボス報酬の選択は出さない
         // (Resultより後に出ない・脱落後に新しい選択を始めない)。ボス戦の後始末だけは通常どおり行う。
-        if (IsNetChoiceBlocked(out _))
+        if (IsNetChoiceBlocked(out _) && !RushRewardAllowedWhileDown())
         {
+            netRushRewardOwed = false;
             Debug.Log($"[NET][CHOICE] Boss Reward not shown - {NetChoiceBlockReason()}");
             if (!IsGameOver)
             {
@@ -2853,6 +2869,7 @@ public partial class GameManager : MonoBehaviour
         if (pool.Count == 0)
         {
             LogBossRewardStage("RunBossRewardChoice: pool empty -> SaveCheckpoint");
+            netRushRewardOwed = false;
             // Bugfix 2026-09-07 (Bug #001, report item 4) - same
             // SaveCheckpoint-failure-must-not-block-resume guard as
             // ApplyUpgradeByCardId's matching try/catch.
@@ -3165,6 +3182,7 @@ public partial class GameManager : MonoBehaviour
         LogBossRewardStage($"Reward Selected (cardId={cardId})");
         bool wasBossReward = pendingChoiceKind == PendingChoiceKind.BossReward;
         if (wasBossReward) LogBoss("RewardCardSelected");
+        if (wasBossReward && netRushRewardOwed) { RushRewardsTaken++; netRushRewardOwed = false; Debug.Log($"[NET][CHOICE] rush completion reward taken ({cardId})"); }
 
         try
         {
@@ -3435,6 +3453,8 @@ public partial class GameManager : MonoBehaviour
         bool uiUp = levelUpPending || (rewardCardSequence != null && rewardCardSequence.IsRunning);
         if (!uiUp && !bossRewardDeferredPending) return;
         if (!IsNetChoiceBlocked(out bool dropQueued)) return;
+        // 2026-10-16: ラッシュの完走報酬は DOWN の間も選べる(開いている/待っているのがその報酬の時は閉じない)
+        if (RushRewardAllowedWhileDown() && ((levelUpPending && pendingChoiceKind == PendingChoiceKind.BossReward) || (!levelUpPending && bossRewardDeferredPending))) return;
         NetCloseAllChoices(NetChoiceBlockReason(), dropQueued);
     }
 
@@ -3499,6 +3519,29 @@ public partial class GameManager : MonoBehaviour
     {
         if (IsGameOver || !HasStarted) return;
         TriggerBossRewardChoice();
+    }
+
+    // 2026-10-16 第5弾: 協力のラッシュの完走報酬(この端末の人の分、1回)。DOWN の間も選べる。同じ番号は2回受け取らない
+    bool netRushRewardOwed; int netRushRewardSerial;
+    public int RushRewardOffersReceived { get; private set; }
+    public int RushRewardOffersIgnored { get; private set; }
+    public int RushRewardsTaken { get; private set; }
+    public bool NetRushRewardOwed => netRushRewardOwed;
+    public bool NetOfferRushReward(int serial)
+    {
+        if (IsGameOver || !HasStarted || serial <= netRushRewardSerial) { RushRewardOffersIgnored++; return false; }
+        netRushRewardSerial = serial;
+        RushRewardOffersReceived++;
+        netRushRewardOwed = true;
+        TriggerBossRewardChoice();
+        return true;
+    }
+    // ラッシュの完走報酬は DOWN の間も出す(ランの終わり/脱落は出さない)
+    bool RushRewardAllowedWhileDown()
+    {
+        if (!netRushRewardOwed || !NetMatch.Active || IsGameOver || NetRunLauncher.RunState == NetRunState.Finished || (NetMatch.Instance != null && NetMatch.Instance.RunOver)) return false;
+        var me = NetMatch.Get(NetCombat.LocalPlayerNumber);
+        return me != null && me.State == NetMatch.PState.Down;
     }
 
     // Kills no longer restore HP directly on their own (see the HEART UP /

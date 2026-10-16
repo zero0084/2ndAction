@@ -34,6 +34,7 @@ public class NoticeQueue : MonoBehaviour
         if (Instance != null && Instance.current.HasValue && Instance.current.Value.id == id) return;
         queuedIds.Add(id);
         queue.Add(new Notice { id = id, title = title, body = body, onShown = onShown, special = special });
+        Debug.Log($"[Notice] queued {id} (waiting {queue.Count})"); // 2026-10-16: 並べた/消えたを追えるように
     }
 
     // ラン中の小さな帯(止めない・操作を妨げない)。同時に複数あれば順番に3秒ずつ。詳しいお知らせはホームで
@@ -43,7 +44,11 @@ public class NoticeQueue : MonoBehaviour
     public static void Toast(string text) { if (!string.IsNullOrEmpty(text)) toasts.Enqueue(text); }
 
     // データ(通常/テスト用)を切り替えた時: 前のデータのお知らせを持ち越さない
-    public static void ClearAll() { queue.Clear(); queuedIds.Clear(); toasts.Clear(); if (Instance != null) { Instance.current = null; Instance.toastNow = null; } }
+    public static void ClearAll()
+    {
+        if (queue.Count > 0 || (Instance != null && Instance.current.HasValue)) Debug.Log($"[Notice] cleared {queue.Count} waiting notice(s){(Instance != null && Instance.current.HasValue ? " + the open one " + Instance.current.Value.id : "")} (data switched)");
+        queue.Clear(); queuedIds.Clear(); toasts.Clear(); if (Instance != null) { Instance.current = null; Instance.toastNow = null; }
+    }
 
     public static void DebugAnswer()
     {

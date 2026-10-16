@@ -1330,8 +1330,19 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     protected virtual void OnBattleTick(float dt) { }
 
     // ---- 特殊攻撃/必殺技の順番 ----
-    protected bool SpecialReady(int minPhase) => tune != null && Phase >= minPhase && Time.time - lastSpecialTime >= tune.specialCooldown;
-    protected void MarkSpecial() { lastSpecialTime = Time.time; SpecialsUsed++; }
+    // 2026-10-16(にらみ合いの修正): 特殊攻撃を続けて使う時は、間に普通の技を1回はさむ(BalanceTuning.BossSpecialBreather)。
+    // 同じフレームの中で何度呼ばれても同じ答え(AI の1回の選びで、別の段階の特殊攻撃の確かめが続く書き方があるため)
+    bool specialStreak; int specialSkipFrame = -1;
+    public int SpecialsDeferred { get; private set; } // 確認用: 普通の技をはさむために特殊攻撃を後回しにした回数
+    protected bool SpecialReady(int minPhase)
+    {
+        if (!(tune != null && Phase >= minPhase && Time.time - lastSpecialTime >= tune.specialCooldown)) return false;
+        if (!BalanceTuning.BossSpecialBreather) return true;
+        if (specialSkipFrame == Time.frameCount) return false;
+        if (specialStreak) { specialStreak = false; specialSkipFrame = Time.frameCount; SpecialsDeferred++; return false; }
+        return true;
+    }
+    protected void MarkSpecial() { lastSpecialTime = Time.time; SpecialsUsed++; specialStreak = true; }
     protected bool UltimateReady(int minPhase) => tune != null && tune.ultimateCooldown > 0f && Phase >= minPhase
         && Time.time - lastUltimateTime >= tune.ultimateCooldown && Time.time - phaseUnlockedAt >= tune.firstUltimateDelay && !BossBattle.UltimateActive;
 

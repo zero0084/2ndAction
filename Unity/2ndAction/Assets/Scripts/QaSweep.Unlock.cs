@@ -1,5 +1,6 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -253,22 +254,30 @@ public partial class QaSweep
         yield return UnlockRun(US, "swordsman", 500f, win: true, walked: (float)need + 10f);
         UnlockRules.DevUnlockAll = false;
         Check(ProgressStats.FinalDungeonUnlocked && UnlockRules.IsCharacterUnlocked("dragonkin"), $"H: reaper on all 3 maps + successful runs' lifetime >= 1,000,000m -> last dungeon + Dragonkin ({ProgressStats.LifetimeDistance:F0})");
+        Check(SaveStore.GetInt(UnlockRules.RevealShownKey, 0) == 0, "H: the reveal is not marked as shown before it appears");
         yield return EndRun();
         yield return ReloadHome();
-        bool sawReveal = false;
-        for (int i = 0; i < 10 && !sawReveal; i++)
-        {
-            yield return WaitTut(() => NoticeQueue.Open, 4f);
-            if (NoticeQueue.CurrentId == "lastdungeon_reveal") { sawReveal = true; break; }
-            if (!NoticeQueue.Open) break;
-            NoticeQueue.DebugAnswer(); yield return null;
-        }
-        Check(sawReveal, $"H: the special reveal is shown ({NoticeQueue.CurrentId})");
-        Shot("unlock_H_reveal");
-        yield return new WaitForSecondsRealtime(0.4f);
-        for (int i = 0; i < 6 && (NoticeQueue.Open || NoticeQueue.Pending > 0); i++) { NoticeQueue.DebugAnswer(); yield return WaitTut(() => NoticeQueue.Open, 2f); }
-        yield return ReloadHome(); yield return new WaitForSecondsRealtime(1.5f);
-        Check(!NoticeQueue.Open && SaveStore.GetInt(UnlockRules.RevealShownKey, 0) == 1, "H: the reveal is saved as shown");
+        // 2026-10-16 第5弾: 初めての脱出の後はホームで MILE の案内(FirstRunGuide)が先に出る → その間お知らせは待つ(仕様)。
+        // 以前は 4秒で「出ない」と判断していた → 案内を閉じ、出たお知らせを全部数える(ラスダンのお知らせは1回だけ)
+        var shownIds = new List<string>(); int revealShows = 0;
+        yield return CollectNotices(shownIds, 25f, () => { });
+        revealShows = shownIds.Count(x => x == "lastdungeon_reveal");
+        L($"[H] notices shown after the unlock: [{string.Join(", ", shownIds)}] (still waiting {NoticeQueue.Pending})");
+        Check(revealShows == 1, $"H: the special reveal is shown once at home after the official unlock ({revealShows})");
+        Check(SaveStore.GetInt(UnlockRules.RevealShownKey, 0) == 1, "H: the reveal is saved as shown");
+        // 画面の読み直し(ホームへ戻る)・再起動(起動時の並べ直し)でもう一度出ない
+        yield return ReloadHome(); UnlockRules.RequeuePending();
+        var againIds = new List<string>(); yield return CollectNotices(againIds, 6f, () => { });
+        Check(!againIds.Contains("lastdungeon_reveal"), $"H: the reveal does not come back after a reload / restart ([{string.Join(", ", againIds)}])");
+        // 確認する前に終わった(見ていない)場合: ランへ行って戻る / 再起動の並べ直し → 消えずに1回だけ出る
+        SaveStore.SetInt(UnlockRules.RevealShownKey, 0); SaveStore.Save();
+        UnlockRules.RequeuePending(); UnlockRules.RequeuePending(); // 再起動の並べ直しが重なっても1つ
+        yield return BeginRun("swordsman", UW); yield return new WaitForSecondsRealtime(1f);
+        Check(!NoticeQueue.Open, "H: the pending reveal does not open during a run");
+        yield return EndRun(); yield return ReloadHome();
+        var pend = new List<string>(); yield return CollectNotices(pend, 20f, () => { });
+        int pendShows = pend.Count(x => x == "lastdungeon_reveal");
+        Check(pendShows == 1 && SaveStore.GetInt(UnlockRules.RevealShownKey, 0) == 1, $"H: an unseen reveal survives a run and a restart, and shows once ({pendShows}) [{string.Join(", ", pend)}]");
 
         // ---- I 移行
         L("== I migration ==");
@@ -286,6 +295,19 @@ public partial class QaSweep
 
         SaveProfile.Switch(false, true);
         yield return ReloadHome();
+    }
+
+    // ホームで出たお知らせを順に「OK」して id を集める(案内 FirstRunGuide が開いていれば閉じる)。max 秒の間、何も出なくなったら(3秒)終わる
+    IEnumerator CollectNotices(List<string> ids, float max, System.Action onEach)
+    {
+        float w = 0f, quiet = 0f;
+        while (w < max && quiet < 3f)
+        {
+            if (FirstRunGuide.Open) { FirstRunGuideDebug.Answer(0); quiet = 0f; }
+            else if (NoticeQueue.Open) { ids.Add(NoticeQueue.CurrentId); if (NoticeQueue.CurrentId == "lastdungeon_reveal") Shot("unlock_H_reveal"); NoticeQueue.DebugAnswer(); onEach(); quiet = 0f; }
+            else quiet += Time.unscaledDeltaTime;
+            yield return null; w += Time.unscaledDeltaTime;
+        }
     }
 
     static string AllUiText()

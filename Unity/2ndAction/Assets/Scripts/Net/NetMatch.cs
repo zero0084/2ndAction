@@ -31,7 +31,7 @@ public partial class NetMatch : MonoBehaviour
     const string MsgToClients = "OMM.MatchSync"; // HOST→JOIN(Reliable)
 
     const byte ReqHello = 1, ReqClaim = 2, ReqHeal = 3, ReqSetMax = 4, ReqChoosing = 5, ReqDebugSetHp = 6, ReqRevive = 7, ReqDebugForceOut = 8;
-    const byte SyncTable = 1, SyncHitResult = 2, SyncBossReward = 3, SyncRunOver = 4, SyncRevived = 5, SyncPlayerFx = 6;
+    const byte SyncTable = 1, SyncHitResult = 2, SyncBossReward = 3, SyncRunOver = 4, SyncRevived = 5, SyncPlayerFx = 6, SyncRushReward = 7;
 
     public enum ClaimKind : byte { Environment = 0, EnemyContact = 1, Attack = 2 }
     public enum PState : byte { Alive = 0, Down = 1, Eliminated = 2, Out = 3 }
@@ -48,6 +48,7 @@ public partial class NetMatch : MonoBehaviour
         public double FinalDistance;
         public int Kills, BossLastHits;
         public float InvulnUntil = -99f;      // HOSTの実時間
+        public float ChoiceEndedAt = -99f;    // 2026-10-16: カード選択を閉じた時刻(HOSTの実時間)。閉じた直後 ChoiceExitGrace 秒は被弾しない
         public readonly HashSet<long> HitKeys = new HashSet<long>();
         public int HitsTaken, ClaimsRejected;
         public bool Known;                    // HOSTがこの人の初期HPを受け取った
@@ -73,6 +74,11 @@ public partial class NetMatch : MonoBehaviour
     }
 
     public static bool IsLocalAlive => IsPlayerActive(NetCombat.LocalPlayerNumber);
+
+    // 2026-10-16 第5弾(マスター): カード選択を閉じた直後に、閉じた時に重なっていた攻撃を避けられずに受けない(協力/対戦、落下は除く)。
+    // 見た目の無敵(点滅)は付けない。協力のラッシュで次のボスを最長15秒で出す時も、選んでいた人を守る
+    public const float ChoiceExitGrace = 1.0f;
+    public static int ChoiceExitGraceRejects { get; private set; } // 確認用
 
     // カード選択中(その場で一時停止中)か。敵/ボスの狙いと被弾の対象から外すのに使う(2026-09-28)。
     public static bool IsPlayerChoosing(int pn)
@@ -149,7 +155,7 @@ public partial class NetMatch : MonoBehaviour
             if (!me.Known) { me.Known = true; me.Hp = gm.Lives; me.MaxHp = gm.MaxLives; dirty = true; }
             if (me.State == PState.Alive && (me.Hp != gm.Lives || me.MaxHp != gm.MaxLives)) { me.Hp = gm.Lives; me.MaxHp = gm.MaxLives; dirty = true; }
             bool choosing = gm.IsLocalChoiceOpen;
-            if (me.Choosing != choosing) { me.Choosing = choosing; dirty = true; Log($"P{local} IsChoosingCard={choosing}"); }
+            if (me.Choosing != choosing) { if (!choosing) me.ChoiceEndedAt = Time.realtimeSinceStartup; me.Choosing = choosing; dirty = true; Log($"P{local} IsChoosingCard={choosing}"); }
             if (me.State == PState.Alive) me.Distance = pc.DistanceExact;
             foreach (NetPlayer p in NetPlayer.All)
             {
@@ -188,7 +194,10 @@ public partial class NetMatch : MonoBehaviour
             r = new Rec { Pn = pn, ClientId = clientId, Hp = 3 * CombatScale.HpPerHeart, MaxHp = 3 * CombatScale.HpPerHeart };
             recs[pn] = r;
         }
-        r.ClientId = clientId;
+        // 2026-10-16 修正: 「分からない(0)」で渡された時は、分かっている相手の端末の番号を上書きしない。
+        // 以前は撃破の記録(HostRecordKill)が JOIN の番号を 0(= HOST 自身)で上書きしていた。生きている JOIN は申告のたびに
+        // 正しい番号へ戻るが、DOWN の JOIN は何も送らないので戻らず、HOST からの知らせ(ボスの報酬/被弾の結果/復活 等)が届かなかった
+        if (clientId != NetworkManager.ServerClientId || pn == NetCombat.LocalPlayerNumber) r.ClientId = clientId;
         return r;
     }
 
@@ -352,6 +361,7 @@ public partial class NetMatch : MonoBehaviour
             case ReqChoosing:
             {
                 r.ReadValueSafe(out bool ch);
+                if (rec.Choosing && !ch) rec.ChoiceEndedAt = Time.realtimeSinceStartup;
                 rec.Choosing = ch; dirty = true;
                 Log($"P{pn} IsChoosingCard={ch}");
                 break;
@@ -385,6 +395,7 @@ public partial class NetMatch : MonoBehaviour
         long key = ((long)kind << 32) | (uint)id;
         if (rec.State != PState.Alive) reject = $"not alive ({rec.State})";
         else if (!isFall && rec.Choosing) reject = "choosing card (paused in place)";
+        else if (!isFall && now < rec.ChoiceEndedAt + ChoiceExitGrace) { reject = $"just closed the card choice ({now - rec.ChoiceEndedAt:F2}s ago)"; ChoiceExitGraceRejects++; }
         else if (!isFall && now < rec.InvulnUntil) reject = $"invulnerable {rec.InvulnUntil - now:F2}s";
         else if (kind != ClaimKind.Environment && rec.HitKeys.Contains(key)) reject = "same attack already hit";
         else if (kind == ClaimKind.EnemyContact)
@@ -513,6 +524,16 @@ public partial class NetMatch : MonoBehaviour
                 {
                     Log($"Boss reward offered to P{pn} (this device)");
                     gm.NetOfferBossReward();
+                }
+                break;
+            }
+            case SyncRushReward:
+            {
+                r.ReadValueSafe(out byte rpn); r.ReadValueSafe(out int serial);
+                if (rpn == local && gm != null)
+                {
+                    bool fresh = gm.NetOfferRushReward(serial);
+                    Log($"Rush completion reward serial {serial} for P{rpn} (this device) {(fresh ? "-> choice" : "-> already received, ignored")}");
                 }
                 break;
             }
@@ -656,6 +677,30 @@ public partial class NetMatch : MonoBehaviour
         Instance.Log($"Boss reward recipient = P{pn}");
         if (rec == null) return;
         SendToClients(w => { w.WriteValueSafe(SyncBossReward); w.WriteValueSafe((byte)pn); }, rec.ClientId);
+    }
+
+    // 2026-10-16 第5弾(マスター): 協力の各マップのラッシュの完走報酬は、完走した時にランへ参加している人(DOWN の人も)が1回ずつ選ぶ。
+    // HOST が参加者全員へ(自分以外)知らせる。serial = そのランのラッシュの番号(受け取る側は同じ番号を2回受け取らない)。戻り値 = 送った人数
+    public static int SendRushRewardOffers(int serial)
+    {
+        if (Instance == null || !NetCombat.Authority) return 0;
+        int sent = 0;
+        foreach (var rec in Instance.recs.Values)
+        {
+            if (rec == null || rec.Pn == NetCombat.LocalPlayerNumber) continue;
+            if (rec.State != PState.Alive && rec.State != PState.Down) continue; // 抜けた人/脱落した人には出さない
+            byte pn = (byte)rec.Pn;
+            SendToClients(w => { w.WriteValueSafe(SyncRushReward); w.WriteValueSafe(pn); w.WriteValueSafe(serial); }, rec.ClientId);
+            sent++;
+            Instance.Log($"Rush completion reward offered to P{rec.Pn} ({rec.State}) serial {serial}");
+        }
+        return sent;
+    }
+    // この端末の人がランへ参加中か(生きている / DOWN)
+    public static bool LocalParticipating()
+    {
+        var me = Get(NetCombat.LocalPlayerNumber);
+        return me == null || me.State == PState.Alive || me.State == PState.Down;
     }
 
     // HOST: 撃破の記録(Kill数/ボスのラストヒット数)。

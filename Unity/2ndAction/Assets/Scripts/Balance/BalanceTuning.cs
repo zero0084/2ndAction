@@ -27,6 +27,17 @@ public static class BalanceTuning
     public static float FlyerDriftDeadZone = 2f;  // ドラゴン/魔人: 本来の間合いからのずれがこれを超えた分を
     public static float FlyerDriftRate = 0.6f;    //   1秒あたりこの割合で戻す(一瞬の踏み込みにはすぐ付いていかない)
 
+    // ===== にらみ合いの修正(2026-10-16、マスターの依頼) =====
+    // 再戦の最終強化(特殊攻撃の間隔 4.2秒)では、特殊攻撃そのものの長さ(古代の魔王の床と天井の魔法 4.3秒 等)が間隔より長く、
+    // 終わった時には次の特殊攻撃がもう使える → 寄って攻撃する普通の技が一度も選ばれず、ボスが登場の位置(9m 前)から動かなかった。
+    // BossSpecialBreather: 特殊攻撃を続けて使う時は、間に普通の技を必ず1回はさむ(間隔そのものは変えない)
+    public static bool BossSpecialBreather = true;
+    // AssistApproachLunge: 自動の補助(近接)は、届く距離(7m)のすぐ外で待つボスにも、踏み込みの大きい前攻撃で寄る
+    // (以前は「届くのを待つ」だけで、ボスが寄ってこないと何分も攻撃しなかった)。手動の連打と同じ寄り方
+    public static bool AssistApproachLunge = true;
+    public static float AssistApproachWait = 1.5f;   // 届かないままこれだけ続いたら寄る
+    public static float AssistApproachMax = 14f;     // これより遠いボスには寄らない(画面の外の相手は追わない)
+
     // 自動の補助がドラゴン/魔人(専用の作りのボス)も攻撃する(2026-10-11)。以前は WildBossBase 系だけを狙っていた
     public static bool AssistFlyingBosses = true;
     // 自動の補助が格闘家の連撃を続けて押す(猶予/予約の間も押す)(2026-10-11)
@@ -130,6 +141,13 @@ public static class BalanceTuning
                 NobleGreatsword = v.Contains("ng"); NobleMoves = v.Contains("nm"); NobleJump = v.Contains("nj");
             }
             Debug.Log("[BalanceTuning] charTune " + v + ": " + DescribeChar);
+        }
+        for (int i = 0; i < a.Length - 1; i++)
+        {
+            if (a[i] != "-standoffFix") continue; // 比較用: base = 修正前 / breather / lunge / breather,lunge = 両方
+            string v = a[i + 1];
+            BossSpecialBreather = v.Contains("breather"); AssistApproachLunge = v.Contains("lunge");
+            Debug.Log($"[BalanceTuning] standoffFix {v}: specialBreather={BossSpecialBreather} approachLunge={AssistApproachLunge}");
         }
         for (int i = 0; i < a.Length - 1; i++)
         {

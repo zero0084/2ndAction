@@ -127,7 +127,7 @@ public partial class QaSweep
     }
 
     string RwChar => Arg("-rwChar", "swordsman");
-    int rwShown; float rwDiagAt;
+    int rwShown, rwManualJumps, ndHp, ndHits; float rwDiagAt, rwKillAt, rwManualAt, rwDetailAt, rwLastPx, ndSince, ndMax; WildBossBase ndBoss;
     void RwSetShare(int n) => typeof(GameManager).GetProperty("MileShareCount").GetSetMethod(true).Invoke(gm, new object[] { n });
     void RwClearCarry() => typeof(GameManager).GetField("mileCarry", RwNP).SetValue(gm, 0f);
     float RwMileMul => gm.MileGainMultiplier * FinalEvolution.MileMul;

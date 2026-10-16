@@ -407,11 +407,12 @@ public partial class QaSweep
         // 2026-10-15 切り分け: 数えた物(何が・いつ・プレイヤーの位置)を全部出す
         L($"[L] counted: {string.Join(", ", caveOver.Skip(c0).OrderBy(o => o.t).Select(o => $"{o.src}@{o.t - t0:F2}"))}");
         // 2026-10-15 切り分け: 「プレイヤーの位置に重なった回数」は、プレイヤーの動き(跳ぶ/前へ出る)で 4〜6 と変わる(変更前の版でも 4 / 5)。
-        // 強化の追加の段が実際に出たかを、ボスの側の記録(UltSteps)で確かめる。重なった回数は目安(3 以上)
+        // 強化の追加の段が実際に出たかを、ボスの側の記録(UltSteps)で確かめる。重なった回数は目安(2 以上、下)
         var beh = b as BehemothBoss; var steps = beh != null ? beh.UltSteps : new List<string>();
         L($"[L] steps: {string.Join(" > ", steps)}");
         Check(steps.Contains("strikes x5") && steps.Contains("wave behind") && steps.Contains("air band") && steps.Contains("charge") && steps.Contains("end"), $"L: the upgraded ultimate has its extra beats (5 strikes / wave from behind / air lightning) [{string.Join(",", steps)}]");
-        Check(decisions >= 3, $"L: the upgraded ultimate threatens the player several times ({decisions} decisions)");
+        // 2026-10-16: 重なった回数はプレイヤーの動きで 2〜6 と揺れる(第4弾の切り分け)。段は上の UltSteps で確かめる → 目安は E と同じ 2回
+        Check(decisions >= 2, $"L: the upgraded ultimate threatens the player several times ({decisions} decisions)");
         KillSkyBosses();
         yield return WaitPhaseEnd(30f);
         yield return new WaitForSeconds(1f);
