@@ -768,8 +768,12 @@ public partial class EnemyController : MonoBehaviour
 
         if (hitParticleEnabled)
         {
-            Sprite spark = hitSparkSprite != null ? hitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
-            OneShotSpriteEffect.CreateTweened(spark, contactPoint, hitParticleColor, duration: hitParticleDuration, startScale: hitParticleScale * 0.7f, endScale: hitParticleScale, sortingOrder: RenderOrder.CombatFx, holdFraction: hitParticleHoldFraction);
+            // アニメーション強化(2026-10-17): 命中の衝撃のコマがあればそれを使う(無ければ今までの1枚の火花)
+            if (!HitImpactFx.Spawn(contactPoint, hitParticleScale * 2f, Color.white))
+            {
+                Sprite spark = hitSparkSprite != null ? hitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
+                OneShotSpriteEffect.CreateTweened(spark, contactPoint, hitParticleColor, duration: hitParticleDuration, startScale: hitParticleScale * 0.7f, endScale: hitParticleScale, sortingOrder: RenderOrder.CombatFx, holdFraction: hitParticleHoldFraction);
+            }
         }
 
         if (hitStopEnabled && hitStopDur > 0f) yield return HitStop.Run(hitStopDur);
@@ -1050,8 +1054,12 @@ public partial class EnemyController : MonoBehaviour
 
         if (hitParticleEnabled)
         {
-            Sprite spark = hitSparkSprite != null ? hitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
-            OneShotSpriteEffect.CreateTweened(spark, contactPoint, hitParticleColor, duration: hitParticleDuration, startScale: hitParticleScale * 0.7f, endScale: hitParticleScale, sortingOrder: RenderOrder.CombatFx, holdFraction: hitParticleHoldFraction);
+            // アニメーション強化(2026-10-17): 命中の衝撃のコマがあればそれを使う(無ければ今までの1枚の火花)
+            if (!HitImpactFx.Spawn(contactPoint, hitParticleScale * 2f, Color.white))
+            {
+                Sprite spark = hitSparkSprite != null ? hitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
+                OneShotSpriteEffect.CreateTweened(spark, contactPoint, hitParticleColor, duration: hitParticleDuration, startScale: hitParticleScale * 0.7f, endScale: hitParticleScale, sortingOrder: RenderOrder.CombatFx, holdFraction: hitParticleHoldFraction);
+            }
         }
 
         if (hitFlashEnabled && sr != null) sr.color = hitFlashColor;

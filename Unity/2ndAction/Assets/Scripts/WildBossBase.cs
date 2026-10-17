@@ -466,10 +466,51 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     protected virtual Sprite PoseOverride() => null;
     protected float HitFlashTime => hitTimer; // 被弾の赤み/揺れの残り時間(姿勢の絵の切り替えに使う)
 
+    // アニメーション強化(2026-10-17): 姿勢ごとのコマ(Resources/BossAnim/<animKey>/)。各ボスの OnInit で animKey を入れる。無ければ今までどおり
+    protected string animKey;
+    BossAnimSet anim; bool animLoaded;
+    float hurtArtAt = -9f, hurtArtUntil = -9f;
+    protected BossAnimSet Anim
+    {
+        get { if (!animLoaded) { animLoaded = true; anim = BossAnimSet.Load(animKey); } return anim; }
+    }
+
+    Sprite PickAnimSprite()
+    {
+        var a = Anim;
+        if (a == null) return null;
+        if (UltimateRunning && a.ult != null && pose != Pose.Landing)
+        {
+            if (pose == Pose.Windup) return a.ult[0];
+            if (pose == Pose.Attack || pose == Pose.Move || pose == Pose.Fly) return a.ult[Mathf.Min(1, a.ult.Length - 1)];
+        }
+        if (pose == Pose.Landing && a.brk != null) return BossAnimSet.Progress(a.brk, poseTime / 0.45f); // BREAK・必殺技の後の隙
+        // 被弾の絵: 連続で当たっても毎回は出さない(0.7秒に1回、最初の一撃の赤みの前半だけ)。毎回出すと走りがカクつく
+        if (hitTimer > 0.08f && a.hurt != null && (pose == Pose.Idle || pose == Pose.Move))
+        {
+            if (hurtArtUntil < Time.time && Time.time - hurtArtAt > 0.7f) { hurtArtAt = Time.time; hurtArtUntil = Time.time + 0.12f; }
+            if (Time.time < hurtArtUntil) return a.hurt[0];
+        }
+        switch (pose)
+        {
+            case Pose.Windup: if (a.windup != null) return BossAnimSet.Progress(a.windup, windupProgress); break;
+            case Pose.Attack: if (a.attack != null) return BossAnimSet.Progress(a.attack, 1f - attackProgress); break;
+            case Pose.Move:
+            case Pose.Fly: if (a.HasMove) return BossAnimSet.Loop(a.move, a.moveFps, Time.time + loopTimeOffset); break;
+            case Pose.Idle:
+                if (locoStyle != LocoStyle.None && a.HasMove) return BossAnimSet.Loop(a.move, a.moveFps, Time.time + loopTimeOffset); // 走りながら待つボス
+                if (a.idle != null) return BossAnimSet.Loop(a.idle, a.idleFps, Time.time + loopTimeOffset);
+                break;
+        }
+        return null;
+    }
+
     Sprite PickSprite()
     {
         var po = PoseOverride();
         if (po != null) return po;
+        var an = PickAnimSprite();
+        if (an != null) return an;
         if (loopFrames != null && loopFrames.Length > 0 && (pose == Pose.Move || pose == Pose.Idle || pose == Pose.Fly))
             return loopFrames[Mathf.FloorToInt((Time.time + loopTimeOffset) * loopFps) % loopFrames.Length];
         switch (pose)
@@ -576,6 +617,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             case Pose.Landing: loco = 0.15f; break;
         }
         if (hitTimer > 0f) loco *= 0.5f;
+        if (Anim != null && Anim.HasMove) loco *= Anim.rigLocoScale; // 本物の走りのコマがある時は、格子の偽の脚の動きを弱める
         rig.Update(locoStyle, locoStyle == LocoStyle.None ? 0f : loco, Time.deltaTime, artFacesLeft ? -1f : 1f);
     }
 
@@ -1044,8 +1086,11 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         hitTimer = 0.16f;
         if (quietHit) { OnDamaged(amount); return; }
         Shake(0.06f, 0.1f);
-        Sprite spark = hitSparkSprite != null ? hitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
-        OneShotSpriteEffect.CreateTweened(spark, hitPos, Color.white, 0.14f, 0.35f, 0.6f, 1f, 0f, default, 0f, RenderOrder.CombatFx, 0.2f);
+        if (!HitImpactFx.Spawn(hitPos, 1.3f, Color.white)) // アニメーション強化(2026-10-17): 命中の衝撃のコマ(無ければ今までの火花)
+        {
+            Sprite spark = hitSparkSprite != null ? hitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
+            OneShotSpriteEffect.CreateTweened(spark, hitPos, Color.white, 0.14f, 0.35f, 0.6f, 1f, 0f, default, 0f, RenderOrder.CombatFx, 0.2f);
+        }
         if (hitStopOnHit > 0f) RunHitStop(hitStopOnHit);
 
         if (windingUp && interruptible) interrupted = true;
@@ -1301,6 +1346,9 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     // 自然洞窟ボス強化(2026-10-04): 開発用の強制操作(段階/必殺技/BREAK)。荒野街道のボスにも使える(IBossBattleDebug。ゲーム中は呼ばれない)
     public string DebugName => bossName;
     public bool DebugAlive => !dead && isActiveAndEnabled;
+    // 確認用(2026-10-17、アニメーションの確認動画): すぐに BREAK させる
+    public void DebugBreak() { if (!Broken && !dead) AddStagger(1e9f); }
+
     public void DebugSetPhase(int p)
     {
         if (tune == null || dead) return;
@@ -1668,8 +1716,11 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     {
         hitTimer = 0.16f;
         Shake(0.06f, 0.1f);
-        Sprite spark = hitSparkSprite != null ? hitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
-        OneShotSpriteEffect.CreateTweened(spark, hitPos, Color.white, 0.14f, 0.35f, 0.6f, 1f, 0f, default, 0f, RenderOrder.CombatFx, 0.2f);
+        if (!HitImpactFx.Spawn(hitPos, 1.3f, Color.white)) // アニメーション強化(2026-10-17): 命中の衝撃のコマ(無ければ今までの火花)
+        {
+            Sprite spark = hitSparkSprite != null ? hitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
+            OneShotSpriteEffect.CreateTweened(spark, hitPos, Color.white, 0.14f, 0.35f, 0.6f, 1f, 0f, default, 0f, RenderOrder.CombatFx, 0.2f);
+        }
         if (withHitStop && hitStopOnHit > 0f) RunHitStop(hitStopOnHit);
     }
 

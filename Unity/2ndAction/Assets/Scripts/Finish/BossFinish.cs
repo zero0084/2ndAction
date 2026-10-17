@@ -87,6 +87,7 @@ public class BossFinish : MonoBehaviour
     bool pivotBase;         // true = 足元を軸に回す(倒れる)/ false = 中心を軸に回す(転がる)
     Color tint = Color.white;
     int bounces; bool landed, impactDone, burstDone, explodeDone; float crashP, smokeTimer;
+    Sprite[] defeatArt; float defeatArtT; // 撃破の絵(2026-10-17、あるボスだけ)
     float realStart; bool zoomOn, slowOn, finished;
     float fxTimer;
     float[] cellRank, cellRnd; Vector2[] cellVel; float[] cellRot; bool[] cellLoose;
@@ -110,6 +111,8 @@ public class BossFinish : MonoBehaviour
     {
         var tn = BossDeathTuning.I;
         body = b; root = b.DeathRoot; rig = b.DeathRig; info = fi;
+        defeatArt = (b as WildBossBase) != null ? ((WildBossBase)b).DeathFrames : null;
+        if (defeatArt != null && defeatArt.Length == 0) defeatArt = null;
         entry = tn.For(b.DeathKey);
         h = Mathf.Max(0.5f, b.DeathBodyHeight);
         D = Mathf.Max(0.4f, fi.firstKill ? tn.firstKillSeconds : tn.rematchSeconds);
@@ -257,6 +260,19 @@ public class BossFinish : MonoBehaviour
                     }
                 }
                 else rotVel = Mathf.Lerp(rotVel, -Dir * 160f / Mathf.Max(1f, entry.deathMass), 1f - Mathf.Exp(-2f * dt));
+                if (defeatArt != null && rig != null)
+                {
+                    // 撃破の絵がある時: 宙では「吹き飛ぶ」絵(回転は小さく)、着地したら「倒れ込む → 横たわる」へ。絵が横たわっているので横倒しの回転はしない
+                    if (!landed) { rig.SetSprite(defeatArt[0]); rot = Mathf.Clamp(rot, -25f, 25f); rotVel *= 0.3f; }
+                    else
+                    {
+                        defeatArtT += dt;
+                        int k = defeatArt.Length > 1 ? Mathf.Min(defeatArt.Length - 1, 1 + (int)(defeatArtT / 0.2f)) : 0;
+                        rig.SetSprite(defeatArt[k]);
+                        rot = Mathf.Lerp(rot, 0f, 1f - Mathf.Exp(-12f * dt)); rotVel = 0f;
+                        oc.y = ground + h * 0.5f * sy;
+                    }
+                }
                 Dissolve(cam, p, 0.72f, new Color(1f, 0.95f, 0.8f));
                 if (!burstDone && p > 0.93f) { burstDone = true; FinishFx.BurstAt(W(cam, oc), h * 0.35f, new Color(1f, 0.9f, 0.6f), 16, true); }
                 break;

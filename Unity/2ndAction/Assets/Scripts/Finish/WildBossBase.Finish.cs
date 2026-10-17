@@ -18,6 +18,8 @@ public abstract partial class WildBossBase : IBossDeathBody
     public Transform DeathRoot => transform;
     public float DeathBodyHeight => bodyHeight;
     public BossRig DeathRig => rig;
+    // アニメーション強化(2026-10-17): 撃破の絵(Resources/BossAnim/<key>/defeat_*)。0 = 吹き飛ぶ、1〜 = 倒れ込む → 横たわる。無ければ null
+    public Sprite[] DeathFrames => Anim != null ? Anim.defeat : null;
     public string DeathKey => this is ReaperSisterBoss ? "Reaper" : (this is CaveBossBase ? "Cave/" : this is SkyBossBase ? "Sky/" : "Wild/") + bossName;
     public void SetDeathColor(Color c) => SetVisualColor(c);
     public void OnDeathVisualFinished()

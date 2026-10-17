@@ -35,7 +35,37 @@ public partial class PlayerController
 
     // 見た目: 技ごとのポーズ(PlayerAnimatorが最優先で表示)。framesがnullなら通常の絵。
     public Sprite[] KitPoseFrames { get; private set; }
-    public int KitPoseFrame { get; private set; }
+    // 2026-10-17 アニメーション強化: 技の中の時間に合わせて、ポーズの複数のコマを順に出せる(PlayKitPose)。
+    // 絵が1枚しか無いポーズは今までどおり(SetKitPose の番号のコマ)。KitPoseFrame へ書くと順送りは止まる
+    int kitPoseFrameRaw;
+    float kitSeqStart, kitSeqLen, kitSeqLead;
+    int kitSeqFrom, kitSeqTo;
+    public int KitPoseFrame
+    {
+        get
+        {
+            if (kitSeqLen > 0f && KitPoseFrames != null)
+            {
+                int last = Mathf.Min(kitSeqTo, KitPoseFrames.Length - 1);
+                int n = last - kitSeqFrom + 1;
+                if (n > 1)
+                {
+                    float t = Time.time - kitSeqStart;
+                    if (kitSeqLead > 0f)
+                    {
+                        // 最初のコマ(予備動作)は kitSeqLead 秒だけ。残りのコマを残りの時間で均等に
+                        if (t < kitSeqLead) return kitSeqFrom;
+                        float p = Mathf.Clamp01((t - kitSeqLead) / Mathf.Max(0.0001f, kitSeqLen - kitSeqLead));
+                        return kitSeqFrom + 1 + Mathf.Min(n - 2, (int)(p * (n - 1)));
+                    }
+                    float q = Mathf.Clamp01(t / kitSeqLen);
+                    return kitSeqFrom + Mathf.Min(n - 1, (int)(q * n));
+                }
+            }
+            return kitPoseFrameRaw;
+        }
+        private set { kitPoseFrameRaw = value; kitSeqLen = 0f; }
+    }
     public string KitPoseName { get; private set; }
     // isAttackingを持たない一瞬のポーズ(上攻撃の射撃等)の残り時間。
     float kitPoseTimer;
@@ -174,6 +204,18 @@ public partial class PlayerController
         KitPoseName = name;
         KitPoseFrames = FindPose(name);
         KitPoseFrame = frame;
+    }
+
+    // ポーズの from〜to のコマを seconds 秒かけて順に出す(最後のコマで止まる)。lead > 0 なら最初のコマ(予備動作)を lead 秒だけ見せる。
+    // 技の時間そのもの(判定・移動)は変えない。絵が1枚なら SetKitPose(name, from) と同じ
+    void PlayKitPose(string name, float seconds, float lead = 0f, int from = 0, int to = 99)
+    {
+        SetKitPose(name, from);
+        kitSeqStart = Time.time;
+        kitSeqLen = Mathf.Max(0.01f, seconds);
+        kitSeqLead = Mathf.Clamp(lead, 0f, kitSeqLen * 0.5f);
+        kitSeqFrom = from;
+        kitSeqTo = to;
     }
 
     // isAttackingを持たない一瞬のポーズ(ジャンプしながらの射撃など)。技の実行中は上書きしない。

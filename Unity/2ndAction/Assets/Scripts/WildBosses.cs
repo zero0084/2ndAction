@@ -56,6 +56,7 @@ public class WolfBoss : WildBossBase
         interruptible = false;    // スーパーアーマー(崩しで止める)
         supportsInterrupt = true;
         locoStyle = LocoStyle.Gallop;
+        animKey = "wolf"; // アニメーション強化の試作(2026-10-17): Resources/BossAnim/wolf
         enterSpeed = 9f;
         // 登場: 半分の確率で後方から追い抜いて前に出る(高速疾走で接近)。
         fromBehind = Random.value < wolfFromBehindChance;

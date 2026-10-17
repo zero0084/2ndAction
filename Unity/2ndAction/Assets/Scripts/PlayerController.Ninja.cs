@@ -50,6 +50,8 @@ public partial class PlayerController
         var p = kitDef.ninja;
         int gen = attackGeneration;
         int token = BeginKitMove("dashslash", true);
+        // 2026-10-17: 予備動作(ごく短く)→ 踏み込み → 斬り抜け。瞬身の時間は変えない
+        PlayKitPose("dashslash", p.dashTime, lead: 0.04f);
         SetSeqTag(NextSingleTag()); // main attack (single sequence, AttackSeq)
         try
         {
@@ -78,7 +80,7 @@ public partial class PlayerController
                 t += Time.deltaTime; yield return null;
             }
             lungeVelocityX = 0f;
-            SetKitPose("slashend", 0);
+            PlayKitPose("slashend", 0.05f + p.dashRecovery * AttackSpeedMultiplier); // 振り切り → 残心 → 戻り
             OneShotSpriteEffect.CreateTweened(KitProjectile.Slash, KitWorld(new Vector2(-dist * 0.45f, p.slashHeight)), new Color(1f, 1f, 1f, 0.9f), duration: 0.18f, startScale: dist * 0.45f, endScale: dist * 0.6f, rotationDegrees: 0f, sortingOrder: RenderOrder.SlashFx, holdFraction: 0.3f);
             OneShotSpriteEffect.CreateTweened(KitProjectile.Slash, KitWorld(new Vector2(-dist * 0.45f, p.slashHeight)), NinjaCrimson, duration: 0.22f, startScale: dist * 0.3f, endScale: dist * 0.5f, rotationDegrees: 8f, sortingOrder: RenderOrder.SlashFx);
             t = 0f;

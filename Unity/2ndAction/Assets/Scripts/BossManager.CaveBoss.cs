@@ -49,6 +49,7 @@ public partial class BossManager
         }
         string name;
         if (fam == GateFamily.Sky) { var sk = (SkyBossKind)kindValue; name = sk == SkyBossKind.Dragon ? "SkyDragon" : sk.ToString(); StartSkyGate(sk, count); }
+        else if (fam == GateFamily.Wild) { var wk = (WildBossKind)kindValue; name = wk.ToString(); StartWildGate(wk, count); } // 2026-10-17: 以前は荒野のボスでも洞窟のボス(同じ番号)を出していた
         else { var ck = (CaveBossKind)kindValue; name = ck.ToString(); StartCaveGate(ck, count); }
         // ラン再開までの秒数は本来の関門の種類で(1,000m系/5,000m系/10,000m専用)
         var e = BossBattleTuning.I.For(name);

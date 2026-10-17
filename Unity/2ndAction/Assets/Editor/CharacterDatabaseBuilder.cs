@@ -795,7 +795,10 @@ public static class CharacterDatabaseBuilder
         s.mainVisualPath = $"{PortraitFolder}/{s.id}_portrait.png";
         s.lancerPpu = ppu;
         s.bottomCenterPivot = true;
-        s.runFramesDir = a + prefix + "Run_v1"; s.runFramesPpu = ppu; s.runFpsOverride = 8f;
+        s.runFramesDir = a + prefix + "Run_v1"; s.runFramesPpu = ppu;
+        // 2026-10-17 アニメーション強化: 1周 0.5秒のまま、コマが増えたら速さも上げる(4コマ=8fps、8コマ=16fps)
+        int runCount = System.IO.Directory.Exists(s.runFramesDir) ? System.IO.Directory.GetFiles(s.runFramesDir, "*.png").Length : 4;
+        s.runFpsOverride = Mathf.Max(8f, runCount * 2f);
         s.jumpStartFramesDir = a + prefix + "Jump_v1"; s.jumpStartFramesPpu = ppu;
         s.jumpFramesDir = a + prefix + "Jump_v1"; s.jumpFramesPpu = ppu;
         s.doubleJumpFramesDir = a + prefix + "Jump_v1"; s.doubleJumpFramesPpu = ppu;

@@ -52,6 +52,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 843047c9c8f163944b02ff9771d50230, type: 3}
   - {fileID: 21300000, guid: 4975698405b32cd4b91c497849bce841, type: 3}
   - {fileID: 21300000, guid: 0f0b9d330a661b44b990dd45c3a22c99, type: 3}
+  - {fileID: 21300000, guid: e668947d6ba55c041a098361c1e955c1, type: 3}
+  - {fileID: 21300000, guid: 5a9bb1ee42ce78e438bd90524b6ffb24, type: 3}
+  - {fileID: 21300000, guid: 73f4de17bc690ac44a0e4c45af49e6f6, type: 3}
+  - {fileID: 21300000, guid: 05dcd78278c49b744b174b7e1885e594, type: 3}
   jumpStartFrames:
   - {fileID: 21300000, guid: 8c85249da2f71eb46b804aa8bf29b899, type: 3}
   jumpFrames:
@@ -60,9 +64,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 041083bcdca6a8643a69a0a891546441, type: 3}
   attackFrames:
   - {fileID: 21300000, guid: e123ac5d40d3d2a43a1fdac2c73da46b, type: 3}
+  - {fileID: 21300000, guid: 25ad76d262312b541bcc3706111a7194, type: 3}
+  - {fileID: 21300000, guid: a2c3048e27bf62540a3ecba200be6700, type: 3}
   doubleJumpFrames:
   - {fileID: 21300000, guid: 8c85249da2f71eb46b804aa8bf29b899, type: 3}
-  runFps: 8
+  runFps: 16
   attackFramesSmall: []
   attackFramesLarge: []
   downAttackFrames:
@@ -76,6 +82,8 @@ MonoBehaviour:
   hurtKnockbackMultiplier: 1
   hurtFrames:
   - {fileID: 21300000, guid: 5512771c3361c2a42bfb9ded27b4f442, type: 3}
+  - {fileID: 21300000, guid: 2fb95b84258d21d44aa022cc0660c9a6, type: 3}
+  - {fileID: 21300000, guid: 334576186ac8fe8489d0b1ede60b6eb4, type: 3}
   recoveryFrames: []
   hurtLeanDegrees: 12
   hurtStaggerDistance: 0.12
@@ -199,14 +207,21 @@ MonoBehaviour:
   - 0
   deathFrames:
   - {fileID: 21300000, guid: a865d3cccf4951f43bb1fea008fb562c, type: 3}
+  - {fileID: 21300000, guid: c2ab1bdcb14b0df408b880e0b547e444, type: 3}
+  - {fileID: 21300000, guid: 07be559d644c7f044a46a5aca0faa3d9, type: 3}
+  - {fileID: 21300000, guid: 1c5e3e4348bbf7540ad660f3ab275397, type: 3}
   kit: 4
   kitPoses:
   - name: dashslash
     frames:
     - {fileID: 21300000, guid: e123ac5d40d3d2a43a1fdac2c73da46b, type: 3}
+    - {fileID: 21300000, guid: 25ad76d262312b541bcc3706111a7194, type: 3}
+    - {fileID: 21300000, guid: a2c3048e27bf62540a3ecba200be6700, type: 3}
   - name: slashend
     frames:
     - {fileID: 21300000, guid: af10931b160350247a5a9bd46a390414, type: 3}
+    - {fileID: 21300000, guid: bcb15d5c00820354fadd6345416b6717, type: 3}
+    - {fileID: 21300000, guid: 5f028cdee75d8c9498def05626433ca7, type: 3}
   - name: throw
     frames:
     - {fileID: 21300000, guid: 262729185693aab41a233a86ad3e9cf1, type: 3}
