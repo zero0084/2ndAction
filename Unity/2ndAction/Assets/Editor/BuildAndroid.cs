@@ -47,4 +47,25 @@ public static class BuildAndroid
                    " size=" + report.summary.totalSize +
                    " path=" + report.summary.outputPath);
     }
+
+    // 容量の調査(2026-10-18): 番号を進めずに、指定の場所へ APK / AAB を作る(比較用。配布しない)
+    //   -executeMethod BuildAndroid.BuildProbe -probeOut Builds/SizeProbe/x.apk|x.aab
+    public static void BuildProbe()
+    {
+        string outPath = "Builds/SizeProbe/probe.apk";
+        var a = System.Environment.GetCommandLineArgs();
+        for (int i = 0; i < a.Length - 1; i++) if (a[i] == "-probeOut") outPath = a[i + 1];
+        Directory.CreateDirectory(Path.GetDirectoryName(outPath));
+        bool aab = outPath.EndsWith(".aab");
+        bool was = EditorUserBuildSettings.buildAppBundle;
+        PlayerSettings.Android.forceInternetPermission = true;
+        NetPrefabBuilder.Build();
+        try
+        {
+            EditorUserBuildSettings.buildAppBundle = aab;
+            var report = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, outPath, BuildTarget.Android, BuildOptions.Development);
+            Debug.Log("BuildAndroid: probe result=" + report.summary.result + " size=" + report.summary.totalSize + " path=" + report.summary.outputPath);
+        }
+        finally { EditorUserBuildSettings.buildAppBundle = was; }
+    }
 }

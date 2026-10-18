@@ -1,0 +1,1275 @@
+rank	path	category	sourcePx	importedPx	fileKB	beforeFormat	beforeMB	afterFormat	afterMB	multipleOf4	opaqueBBoxRatio	maxSize	mipmap	readWrite	spriteMode
+1	Assets/Resources/CardFrames/CardFrameRarity5.png	card	1237x1272	1237x1272	1239	ETC2_RGBA8 (無圧縮に落ちた)	6.29	ASTC_4x4	1.58	False	0.850	2048	False	False	Single
+2	Assets/Art/Effects/DoubleJumpRing.png	effect	1672x941	1672x941	1195	ETC2_RGBA8 (無圧縮に落ちた)	6.29	ASTC_6x6	0.70	False	0.829	2048	False	False	Single
+3	Assets/Art/Effects/GroundShadow.png	background	1672x941	1672x941	265	ETC2_RGBA8 (無圧縮に落ちた)	6.29	ASTC_6x6	0.70	False	0.160	2048	False	False	Single
+4	Assets/Art/Effects/GrassDust.png	effect	1672x941	1672x941	889	ETC2_RGBA8 (無圧縮に落ちた)	6.29	ASTC_6x6	0.70	False	0.487	2048	False	False	Single
+5	Assets/Art/UI/GachaMachine.png	ui	1145x1374	1145x1374	2784	ETC2_RGBA8 (無圧縮に落ちた)	6.29	ASTC_4x4	1.58	False	0.761	2048	False	False	Single
+6	Assets/Resources/CardFrames/CardFrameRarity4.png	card	1086x1448	1086x1448	985	ETC2_RGBA8 (無圧縮に落ちた)	6.29	ASTC_4x4	1.58	False	0.929	2048	False	False	Single
+7	Assets/Resources/CardFrames/CardFrameRarity2.png	card	1086x1448	1086x1448	868	ETC2_RGBA8 (無圧縮に落ちた)	6.29	ASTC_4x4	1.58	False	0.894	2048	False	False	Single
+8	Assets/Resources/CardCategoryIcons/Icon_Movement.png	card	1254x1254	1254x1254	908	ETC2_RGBA8 (無圧縮に落ちた)	6.29	ASTC_4x4	0.07	False	0.572	2048	False	False	Single
+9	Assets/Resources/CardCategoryIcons/Icon_Attack.png	card	1254x1254	1254x1254	560	ETC2_RGBA8 (無圧縮に落ちた)	6.29	ASTC_4x4	0.07	False	0.636	2048	False	False	Single
+10	Assets/Resources/CardCategoryIcons/Icon_Heal.png	card	1254x1254	1254x1254	976	ETC2_RGBA8 (無圧縮に落ちた)	6.29	ASTC_4x4	0.07	False	0.487	2048	False	False	Single
+11	Assets/Resources/CardCategoryIcons/Icon_Defense.png	card	1254x1254	1254x1254	958	ETC2_RGBA8 (無圧縮に落ちた)	6.29	ASTC_4x4	0.07	False	0.502	2048	False	False	Single
+12	Assets/Resources/CardCategoryIcons/Icon_Growth.png	card	1254x1254	1254x1254	1014	ETC2_RGBA8 (無圧縮に落ちた)	6.29	ASTC_4x4	0.07	False	0.562	2048	False	False	Single
+13	Assets/Resources/CardCategoryIcons/Icon_Special.png	card	1254x1254	1254x1254	668	ETC2_RGBA8 (無圧縮に落ちた)	6.29	ASTC_4x4	0.07	False	0.449	2048	False	False	Single
+14	Assets/Resources/CardCategoryIcons/Icon_Risk.png	card	1254x1254	1254x1254	734	ETC2_RGBA8 (無圧縮に落ちた)	6.29	ASTC_4x4	0.07	False	0.409	2048	False	False	Single
+15	Assets/Art/Enemy/enemy_v1.png	enemy	1155x1320	1155x1320	1810	ETC2_RGBA8 (無圧縮に落ちた)	6.10	ASTC_4x4	1.53	False	0.985	2048	False	False	Single
+16	Assets/Art/PlayerDownAttackLand_v1/downattackland_00.png	player	1071x1341	1071x1341	1108	ETC2_RGBA8 (無圧縮に落ちた)	5.74	ASTC_4x4	1.44	False	0.955	2048	False	False	Single
+17	Assets/Art/WildBoss/reaper_idle.png	boss	1001x1419	1001x1419	1434	ETC2_RGBA8 (無圧縮に落ちた)	5.68	ASTC_4x4	1.43	False	1.000	2048	False	False	Single
+18	Assets/Art/UI/TopCloud.png	ui	2172x724	2048x683	1491	ETC2_RGBA8 (無圧縮に落ちた)	5.60	ASTC_4x4	1.40	False	0.885	2048	False	False	Single
+19	Assets/Art/NobleLadyDoubleJump_v1/doublejump_00.png	player	976x1393	976x1393	1390	ETC2_RGBA8 (無圧縮に落ちた)	5.44	ASTC_4x4	1.36	False	0.994	2048	False	False	Single
+20	Assets/Art/Background/background.png	background	1792x1008	1792x1008	2156	ETC_RGB4 (無圧縮に落ちた)	5.42	ASTC_5x5	1.16	True	1.000	2048	False	False	Single
+21	Assets/Art/Effects/SlashArcBlue.png	effect	1492x897	1492x897	666	ETC2_RGBA8 (無圧縮に落ちた)	5.35	ASTC_6x6	0.60	False	0.989	2048	False	False	Single
+22	Assets/Art/Effects/SlashUpBlue.png	effect	904x1478	904x1478	728	ETC2_RGBA8 (無圧縮に落ちた)	5.34	ASTC_6x6	0.60	False	0.979	2048	False	False	Single
+23	Assets/Art/Effects/ImpactBurstBlue.png	effect	1634x795	1634x795	838	ETC2_RGBA8 (無圧縮に落ちた)	5.20	ASTC_6x6	0.58	False	0.990	2048	False	False	Single
+24	Assets/Art/Enemy/WastelandBird.png	enemy	1342x950	1342x950	1485	ETC2_RGBA8 (無圧縮に落ちた)	5.10	ASTC_4x4	1.28	False	0.986	2048	False	False	Single
+25	Assets/Art/VisualStyleV1/Ground/groundfill_wasteland.png	background	887x1774	887x1774	2220	ETC_RGB4 (無圧縮に落ちた)	4.72	ASTC_5x5	1.01	False	1.000	2048	False	False	Single
+26	Assets/Art/Background/WastelandBackground.png	background	1672x941	1672x941	2371	ETC_RGB4 (無圧縮に落ちた)	4.72	ASTC_5x5	1.01	False	1.000	2048	False	False	Single
+27	Assets/Art/Background/NightFloatingIsland.png	background	1672x941	1672x941	2374	ETC_RGB4 (無圧縮に落ちた)	4.72	ASTC_5x5	1.01	False	1.000	2048	False	False	Single
+28	Assets/Art/Background/CaveBackground.png	background	1672x941	1672x941	1880	ETC_RGB4 (無圧縮に落ちた)	4.72	ASTC_5x5	1.01	False	1.000	2048	False	False	Single
+29	Assets/Art/LastCorridor/Background/bg_late.png	background	1672x941	1672x941	2239	ETC_RGB4 (無圧縮に落ちた)	4.72	ASTC_5x5	1.01	False	1.000	2048	False	False	Single
+30	Assets/Art/LastCorridor/Background/bg_early.png	background	1672x941	1672x941	1930	ETC_RGB4 (無圧縮に落ちた)	4.72	ASTC_5x5	1.01	False	1.000	2048	False	False	Single
+31	Assets/Art/LastCorridor/Background/bg_final.png	background	1672x941	1672x941	1683	ETC_RGB4 (無圧縮に落ちた)	4.72	ASTC_5x5	1.01	False	1.000	2048	False	False	Single
+32	Assets/Art/LastCorridor/Background/bg_mid.png	background	1672x941	1672x941	2101	ETC_RGB4 (無圧縮に落ちた)	4.72	ASTC_5x5	1.01	False	1.000	2048	False	False	Single
+33	Assets/Art/WildBoss/demon_attack.png	boss	1294x882	1294x882	1078	ETC2_RGBA8 (無圧縮に落ちた)	4.57	ASTC_4x4	1.15	False	0.989	2048	False	False	Single
+34	Assets/Art/CaveBoss/ancientdemon_windup.png	boss	1026x1032	1026x1032	1324	ETC2_RGBA8 (無圧縮に落ちた)	4.24	ASTC_4x4	1.06	False	0.988	2048	False	False	Single
+35	Assets/Art/CaveBoss/crystalgolem_windup.png	boss	942x991	942x991	1285	ETC2_RGBA8 (無圧縮に落ちた)	3.73	ASTC_4x4	0.94	False	0.988	2048	False	False	Single
+36	Assets/Art/Cave/platform_cave_mid.png	background	1114x833	1114x833	1473	ETC2_RGBA8 (無圧縮に落ちた)	3.71	ASTC_5x5	0.60	False	0.685	2048	False	False	Single
+37	Assets/Art/WildBoss/serpent_attack.png	boss	1301x709	1301x709	827	ETC2_RGBA8 (無圧縮に落ちた)	3.69	ASTC_4x4	0.93	False	0.988	2048	False	False	Single
+38	Assets/Art/Effects/DiveTrailBlue.png	effect	558x1651	558x1651	856	ETC2_RGBA8 (無圧縮に落ちた)	3.69	ASTC_6x6	0.41	False	0.968	2048	False	False	Single
+39	Assets/Art/WildBoss/golem_attack.png	boss	1100x831	1100x831	1193	ETC2_RGBA8 (無圧縮に落ちた)	3.66	ASTC_4x4	0.92	False	0.988	2048	False	False	Single
+40	Assets/Art/VisualStyleV1/Ground/platform_mid.png	background	1150x768	1150x768	1109	ETC2_RGBA8 (無圧縮に落ちた)	3.53	ASTC_5x5	0.57	False	0.559	2048	False	False	Single
+41	Assets/Art/LancerRun_v1/run_02.png	player	1232x715	1232x715	426	ETC2_RGBA8 (無圧縮に落ちた)	3.52	ASTC_4x4	0.88	False	0.491	2048	False	False	Single
+42	Assets/Art/LancerRun_v1/run_03.png	player	1222x715	1222x715	460	ETC2_RGBA8 (無圧縮に落ちた)	3.50	ASTC_4x4	0.88	False	0.578	2048	False	False	Single
+43	Assets/Art/DragonkinPoses_v1/tail/tail_p1_01.png	player	1344x643	1344x643	636	ETC2_RGBA8 (無圧縮に落ちた)	3.46	ASTC_4x4	0.87	False	0.565	2048	False	False	Single
+44	Assets/Art/WildBoss/cyclops_attack.png	boss	1209x709	1209x709	775	ETC2_RGBA8 (無圧縮に落ちた)	3.43	ASTC_4x4	0.86	False	0.988	2048	False	False	Single
+45	Assets/Art/DragonkinPoses_v1/claw1/claw1_p0_00.png	player	1180x713	1180x713	717	ETC2_RGBA8 (無圧縮に落ちた)	3.37	ASTC_4x4	0.85	False	0.614	2048	False	False	Single
+46	Assets/Art/LancerRun_v1/run_07.png	player	1274x658	1274x658	408	ETC2_RGBA8 (無圧縮に落ちた)	3.35	ASTC_4x4	0.84	False	0.532	2048	False	False	Single
+47	Assets/Art/CaveBoss/ancientdemon_attack.png	boss	816x1019	816x1019	1290	ETC2_RGBA8 (無圧縮に落ちた)	3.33	ASTC_4x4	0.83	False	1.000	2048	False	False	Single
+48	Assets/Art/VampirePoses_v1/mist/mist_p0_01.png	player	1096x755	1096x755	545	ETC2_RGBA8 (無圧縮に落ちた)	3.31	ASTC_4x4	0.83	False	0.620	2048	False	False	Single
+49	Assets/Art/CaveBoss/crystalgolem_attack.png	boss	791x1039	791x1039	1418	ETC2_RGBA8 (無圧縮に落ちた)	3.29	ASTC_4x4	0.82	False	1.000	2048	False	False	Single
+50	Assets/Art/DragonkinPoses_v1/claw1/claw1_p1_01.png	player	1040x785	1040x785	916	ETC2_RGBA8 (無圧縮に落ちた)	3.27	ASTC_4x4	0.82	False	0.810	2048	False	False	Single
+51	Assets/Art/DragonkinPoses_v1/claw3/claw3_p0_00.png	player	1088x750	1088x750	821	ETC2_RGBA8 (無圧縮に落ちた)	3.26	ASTC_4x4	0.82	False	0.765	2048	False	False	Single
+52	Assets/Art/DragonkinPoses_v1/claw1/claw1_p1_00.png	player	1142x713	1142x713	682	ETC2_RGBA8 (無圧縮に落ちた)	3.26	ASTC_4x4	0.82	False	0.675	2048	False	False	Single
+53	Assets/Art/LancerRun_v1/run_04.png	player	1290x629	1290x629	439	ETC2_RGBA8 (無圧縮に落ちた)	3.25	ASTC_4x4	0.82	False	0.582	2048	False	False	Single
+54	Assets/Art/MikoRun_v1/run_03.png	player	1246x648	1246x648	693	ETC2_RGBA8 (無圧縮に落ちた)	3.23	ASTC_4x4	0.81	False	0.672	2048	False	False	Single
+55	Assets/Art/DragonkinPoses_v1/tail/tail_p0_00.png	player	1092x730	1092x730	706	ETC2_RGBA8 (無圧縮に落ちた)	3.19	ASTC_4x4	0.80	False	0.730	2048	False	False	Single
+56	Assets/Art/MikoPoses_v1/upfan/upfan_p0_02.png	player	1102x720	1102x720	814	ETC2_RGBA8 (無圧縮に落ちた)	3.17	ASTC_4x4	0.80	False	0.652	2048	False	False	Single
+57	Assets/Art/MikoRun_v1/run_04.png	player	1260x629	1260x629	726	ETC2_RGBA8 (無圧縮に落ちた)	3.17	ASTC_4x4	0.80	False	0.717	2048	False	False	Single
+58	Assets/Art/NinjaPoses_v1/downdash/downdash_p1_00.png	player	1142x676	1142x676	511	ETC2_RGBA8 (無圧縮に落ちた)	3.09	ASTC_4x4	0.77	False	0.531	2048	False	False	Single
+59	Assets/Art/LancerRun_v1/run_05.png	player	1222x629	1222x629	423	ETC2_RGBA8 (無圧縮に落ちた)	3.07	ASTC_4x4	0.77	False	0.502	2048	False	False	Single
+60	Assets/Art/LancerRun_v1/run_01.png	player	1130x677	1130x677	488	ETC2_RGBA8 (無圧縮に落ちた)	3.06	ASTC_4x4	0.77	False	0.596	2048	False	False	Single
+61	Assets/Art/CaveBoss/basilisk_windup.png	boss	853x891	853x891	1047	ETC2_RGBA8 (無圧縮に落ちた)	3.04	ASTC_4x4	0.76	False	0.986	2048	False	False	Single
+62	Assets/Art/LastCorridor/Terrain/ceiling_band.png	background	2053x369	2053x369	1248	ETC2_RGBA8 (無圧縮に落ちた)	3.03	ASTC_5x5	0.49	False	1.000	4096	False	False	None
+63	Assets/Art/PlayerDownAttack_v1/downattack_00.png	player	506x1491	506x1491	647	ETC2_RGBA8 (無圧縮に落ちた)	3.02	ASTC_4x4	0.76	False	0.945	2048	False	False	Single
+64	Assets/Art/PlayerDownAttack_v1/downattack_01.png	player	506x1491	506x1491	647	ETC2_RGBA8 (無圧縮に落ちた)	3.02	ASTC_4x4	0.76	False	0.945	2048	False	False	Single
+65	Assets/Art/MikoRun_v1/run_02.png	player	1162x646	1162x646	685	ETC2_RGBA8 (無圧縮に落ちた)	3.00	ASTC_4x4	0.75	False	0.649	2048	False	False	Single
+66	Assets/Art/DragonkinRun_v1/run_01.png	player	1364x550	1364x550	539	ETC2_RGBA8 (無圧縮に落ちた)	3.00	ASTC_4x4	0.75	False	0.578	2048	False	False	Single
+67	Assets/Art/MikoRun_v1/run_05.png	player	1234x607	1234x607	696	ETC2_RGBA8 (無圧縮に落ちた)	3.00	ASTC_4x4	0.75	False	0.618	2048	False	False	Single
+68	Assets/Art/CaveBoss/scorpionking_windup.png	boss	813x918	813x918	834	ETC2_RGBA8 (無圧縮に落ちた)	2.99	ASTC_4x4	0.75	False	0.986	2048	False	False	Single
+69	Assets/Art/DragonkinPoses_v1/breath/breath_p0_02.png	player	1062x696	1062x696	592	ETC2_RGBA8 (無圧縮に落ちた)	2.96	ASTC_4x4	0.74	False	0.580	2048	False	False	Single
+70	Assets/Art/WildBoss/hydra_windup.png	boss	1157x638	1157x638	769	ETC2_RGBA8 (無圧縮に落ちた)	2.95	ASTC_4x4	0.74	False	1.000	2048	False	False	Single
+71	Assets/Art/NinjaPoses_v1/updash/updash_p0_02.png	player	1106x665	1106x665	535	ETC2_RGBA8 (無圧縮に落ちた)	2.94	ASTC_4x4	0.74	False	0.708	2048	False	False	Single
+72	Assets/Art/NinjaPoses_v1/updash/updash_p0_01.png	player	1106x665	1106x665	486	ETC2_RGBA8 (無圧縮に落ちた)	2.94	ASTC_4x4	0.74	False	0.580	2048	False	False	Single
+73	Assets/Art/DragonkinPoses_v1/claw2/claw2_p0_00.png	player	1046x703	1046x703	705	ETC2_RGBA8 (無圧縮に落ちた)	2.94	ASTC_4x4	0.74	False	0.710	2048	False	False	Single
+74	Assets/Art/MikoRun_v1/run_07.png	player	1076x678	1076x678	663	ETC2_RGBA8 (無圧縮に落ちた)	2.92	ASTC_4x4	0.73	False	0.670	2048	False	False	Single
+75	Assets/Art/DragonkinRun_v1/run_06.png	player	1288x565	1288x565	459	ETC2_RGBA8 (無圧縮に落ちた)	2.91	ASTC_4x4	0.73	False	0.578	2048	False	False	Single
+76	Assets/Art/LancerRun_v1/run_00.png	player	1048x693	1048x693	492	ETC2_RGBA8 (無圧縮に落ちた)	2.91	ASTC_4x4	0.73	False	0.729	2048	False	False	Single
+77	Assets/Art/DragonkinPoses_v1/tail/tail_p1_00.png	player	1046x693	1046x693	646	ETC2_RGBA8 (無圧縮に落ちた)	2.90	ASTC_4x4	0.73	False	0.656	2048	False	False	Single
+78	Assets/Art/VampireFinishShort_v1/finish_00.png	player	1040x694	1040x694	558	ETC2_RGBA8 (無圧縮に落ちた)	2.89	ASTC_4x4	0.72	False	0.641	2048	False	False	Single
+79	Assets/Art/FighterRun_v1/run_04.png	player	1156x623	1156x623	482	ETC2_RGBA8 (無圧縮に落ちた)	2.88	ASTC_4x4	0.72	False	0.682	2048	False	False	Single
+80	Assets/Art/WildBoss/spider_windup.png	boss	1034x696	1034x696	917	ETC2_RGBA8 (無圧縮に落ちた)	2.88	ASTC_4x4	0.72	False	1.000	2048	False	False	Single
+81	Assets/Art/VampireRun_v1/run_02.png	player	1218x589	1218x589	486	ETC2_RGBA8 (無圧縮に落ちた)	2.87	ASTC_4x4	0.72	False	0.585	2048	False	False	Single
+82	Assets/Art/VampirePoses_v1/mist/mist_p0_02.png	player	1282x559	1282x559	696	ETC2_RGBA8 (無圧縮に落ちた)	2.87	ASTC_4x4	0.72	False	0.633	2048	False	False	Single
+83	Assets/Art/DragonkinPoses_v1/breath/breath_p0_00.png	player	928x770	928x770	779	ETC2_RGBA8 (無圧縮に落ちた)	2.86	ASTC_4x4	0.72	False	0.836	2048	False	False	Single
+84	Assets/Art/MikoRun_v1/run_00.png	player	1114x639	1114x639	698	ETC2_RGBA8 (無圧縮に落ちた)	2.85	ASTC_4x4	0.71	False	0.741	2048	False	False	Single
+85	Assets/Art/SkyBoss/guardian_attack.png	boss	993x716	993x716	707	ETC2_RGBA8 (無圧縮に落ちた)	2.84	ASTC_4x4	0.71	False	1.000	2048	False	False	Single
+86	Assets/Art/WildBoss/hydra_idle.png	boss	997x713	997x713	864	ETC2_RGBA8 (無圧縮に落ちた)	2.84	ASTC_4x4	0.72	False	1.000	2048	False	False	Single
+87	Assets/Art/VampireRun_v1/run_03.png	player	1280x555	1280x555	482	ETC2_RGBA8 (無圧縮に落ちた)	2.84	ASTC_4x4	0.71	False	0.593	2048	False	False	Single
+88	Assets/Art/WildBoss/griffin_attack.png	boss	957x742	957x742	976	ETC2_RGBA8 (無圧縮に落ちた)	2.84	ASTC_4x4	0.71	False	0.986	2048	False	False	Single
+89	Assets/Art/VampirePoses_v1/bats/bats_p0_01.png	player	1010x702	1010x702	580	ETC2_RGBA8 (無圧縮に落ちた)	2.84	ASTC_4x4	0.71	False	0.617	2048	False	False	Single
+90	Assets/Art/ArcherPoses_v1/upshot/upshot_p0_02.png	player	888x798	888x798	540	ETC2_RGBA8 (無圧縮に落ちた)	2.83	ASTC_4x4	0.71	False	0.801	2048	False	False	Single
+91	Assets/Art/DragonkinPoses_v1/breath/breath_p0_01.png	player	936x754	936x754	599	ETC2_RGBA8 (無圧縮に落ちた)	2.82	ASTC_4x4	0.71	False	0.732	2048	False	False	Single
+92	Assets/Art/Reapers/Eldest/idle.png	boss	777x907	777x907	1522	ETC2_RGBA8 (無圧縮に落ちた)	2.82	ASTC_4x4	0.71	False	1.000	2048	False	False	Single
+93	Assets/Art/VampireRun_v1/run_06.png	player	1226x574	1226x574	501	ETC2_RGBA8 (無圧縮に落ちた)	2.82	ASTC_4x4	0.71	False	0.589	2048	False	False	Single
+94	Assets/Art/WildBoss/knight_attack.png	boss	1108x635	1108x635	590	ETC2_RGBA8 (無圧縮に落ちた)	2.81	ASTC_4x4	0.70	False	0.987	2048	False	False	Single
+95	Assets/Art/MikoRun_v1/run_06.png	player	984x711	984x711	689	ETC2_RGBA8 (無圧縮に落ちた)	2.80	ASTC_4x4	0.70	False	0.654	2048	False	False	Single
+96	Built-in Texture2D: Splash Screen Unity Logo	other	x	0x0	0	None	2.80	None	2.80	True	None	None	None	None	None
+97	Assets/Art/DragonkinJump_v1/jump_00.png	player	1034x673	1034x673	492	ETC2_RGBA8 (無圧縮に落ちた)	2.78	ASTC_4x4	0.70	False	0.595	2048	False	False	Single
+98	Assets/Art/VampireRun_v1/run_07.png	player	1244x559	1244x559	470	ETC2_RGBA8 (無圧縮に落ちた)	2.78	ASTC_4x4	0.70	False	0.620	2048	False	False	Single
+99	Assets/Art/MageRun_v1/run_00.png	player	988x701	988x701	518	ETC2_RGBA8 (無圧縮に落ちた)	2.77	ASTC_4x4	0.70	False	0.710	2048	False	False	Single
+100	Assets/Art/DragonkinPoses_v1/claw2/claw2_p1_00.png	player	996x695	996x695	611	ETC2_RGBA8 (無圧縮に落ちた)	2.77	ASTC_4x4	0.69	False	0.725	2048	False	False	Single
+101	Assets/Art/VampireRun_v1/run_05.png	player	1302x531	1302x531	454	ETC2_RGBA8 (無圧縮に落ちた)	2.77	ASTC_4x4	0.69	False	0.538	2048	False	False	Single
+102	Assets/Art/DragonkinRun_v1/run_02.png	player	1274x541	1274x541	438	ETC2_RGBA8 (無圧縮に落ちた)	2.76	ASTC_4x4	0.69	False	0.564	2048	False	False	Single
+103	Assets/Art/MikoRun_v1/run_01.png	player	1126x612	1126x612	663	ETC2_RGBA8 (無圧縮に落ちた)	2.76	ASTC_4x4	0.69	False	0.619	2048	False	False	Single
+104	Assets/Art/FighterPoses_v1/uppercut/uppercut_p0_02.png	player	786x871	786x871	422	ETC2_RGBA8 (無圧縮に落ちた)	2.74	ASTC_4x4	0.69	False	0.570	2048	False	False	Single
+105	Assets/Art/CaveBoss/basilisk_idle.png	boss	833x821	833x821	1155	ETC2_RGBA8 (無圧縮に落ちた)	2.74	ASTC_4x4	0.69	False	1.000	2048	False	False	Single
+106	Assets/Art/NinjaPoses_v1/downdash/downdash_p0_00.png	player	988x691	988x691	464	ETC2_RGBA8 (無圧縮に落ちた)	2.73	ASTC_4x4	0.68	False	0.632	2048	False	False	Single
+107	Assets/Art/CaveBoss/basilisk_attack.png	boss	863x791	863x791	1195	ETC2_RGBA8 (無圧縮に落ちた)	2.73	ASTC_4x4	0.68	False	1.000	2048	False	False	Single
+108	Assets/Art/WildBoss/hydra_attack.png	boss	1056x643	1056x643	780	ETC2_RGBA8 (無圧縮に落ちた)	2.72	ASTC_4x4	0.68	False	0.990	2048	False	False	Single
+109	Assets/Art/EnemyAttack/burrow_worm_attack.png	enemy	786x863	786x863	943	ETC2_RGBA8 (無圧縮に落ちた)	2.71	ASTC_4x4	0.68	False	0.985	2048	False	False	Single
+110	Assets/Art/FighterRun_v1/run_01.png	player	1032x657	1032x657	515	ETC2_RGBA8 (無圧縮に落ちた)	2.71	ASTC_4x4	0.68	False	0.648	2048	False	False	Single
+111	Assets/Art/DragonkinRun_v1/run_03.png	player	1256x539	1256x539	418	ETC2_RGBA8 (無圧縮に落ちた)	2.71	ASTC_4x4	0.68	False	0.599	2048	False	False	Single
+112	Assets/Art/VampireRun_v1/run_01.png	player	1284x527	1284x527	455	ETC2_RGBA8 (無圧縮に落ちた)	2.71	ASTC_4x4	0.68	False	0.544	2048	False	False	Single
+113	Assets/Art/FighterRun_v1/run_00.png	player	1010x669	1010x669	546	ETC2_RGBA8 (無圧縮に落ちた)	2.70	ASTC_4x4	0.68	False	0.764	2048	False	False	Single
+114	Assets/Art/VampirePoses_v1/mist/mist_p0_00.png	player	1282x525	1282x525	585	ETC2_RGBA8 (無圧縮に落ちた)	2.69	ASTC_4x4	0.68	False	0.546	2048	False	False	Single
+115	Assets/Art/GunslingerFinishExtreme_v1/finish_00.png	player	822x815	822x815	808	ETC2_RGBA8 (無圧縮に落ちた)	2.68	ASTC_4x4	0.67	False	1.000	2048	False	False	Single
+116	Assets/Art/FighterPoses_v1/straight/straight_p1_00.png	player	1108x603	1108x603	454	ETC2_RGBA8 (無圧縮に落ちた)	2.67	ASTC_4x4	0.67	False	0.590	2048	False	False	Single
+117	Assets/Art/WildBoss/demon_windup.png	boss	787x848	787x848	795	ETC2_RGBA8 (無圧縮に落ちた)	2.67	ASTC_4x4	0.67	False	1.000	2048	False	False	Single
+118	Assets/Art/DragonkinRun_v1/run_04.png	player	1294x515	1294x515	430	ETC2_RGBA8 (無圧縮に落ちた)	2.67	ASTC_4x4	0.67	False	0.638	2048	False	False	Single
+119	Assets/Art/WildBoss/griffin_move.png	boss	840x793	840x793	1072	ETC2_RGBA8 (無圧縮に落ちた)	2.66	ASTC_4x4	0.67	False	1.000	2048	False	False	Single
+120	Assets/Art/CaveBoss/mole_windup.png	boss	819x813	819x813	933	ETC2_RGBA8 (無圧縮に落ちた)	2.66	ASTC_4x4	0.67	False	0.985	2048	False	False	Single
+121	Assets/Art/MageRun_v1/run_05.png	player	958x694	958x694	569	ETC2_RGBA8 (無圧縮に落ちた)	2.66	ASTC_4x4	0.67	False	0.782	2048	False	False	Single
+122	Assets/Art/ArcherPoses_v1/upshot/upshot_p0_00.png	player	844x787	844x787	499	ETC2_RGBA8 (無圧縮に落ちた)	2.66	ASTC_4x4	0.67	False	0.837	2048	False	False	Single
+123	Assets/Art/CaveBoss/crystalgolem_idle.png	boss	632x1050	632x1050	1344	ETC2_RGBA8 (無圧縮に落ちた)	2.65	ASTC_4x4	0.66	False	1.000	2048	False	False	Single
+124	Assets/Art/DragonkinPoses_v1/claw3/claw3_p1_01.png	player	1092x606	1092x606	724	ETC2_RGBA8 (無圧縮に落ちた)	2.65	ASTC_4x4	0.66	False	0.752	2048	False	False	Single
+125	Assets/Art/CaveBoss/ancientdemon_idle.png	boss	650x1017	650x1017	1116	ETC2_RGBA8 (無圧縮に落ちた)	2.64	ASTC_4x4	0.67	False	1.000	2048	False	False	Single
+126	Assets/Art/FighterRun_v1/run_07.png	player	1086x604	1086x604	443	ETC2_RGBA8 (無圧縮に落ちた)	2.62	ASTC_4x4	0.66	False	0.645	2048	False	False	Single
+127	Assets/Art/ArcherPoses_v1/upshot/upshot_p0_01.png	player	822x797	822x797	507	ETC2_RGBA8 (無圧縮に落ちた)	2.62	ASTC_4x4	0.66	False	0.827	2048	False	False	Single
+128	Assets/Art/CaveBoss/wormboss_attack.png	boss	810x808	810x808	1284	ETC2_RGBA8 (無圧縮に落ちた)	2.62	ASTC_4x4	0.66	False	1.000	2048	False	False	Single
+129	Assets/Art/MageFinishMedium_v1/finish_00.png	player	952x687	952x687	532	ETC2_RGBA8 (無圧縮に落ちた)	2.62	ASTC_4x4	0.66	False	0.743	2048	False	False	Single
+130	Assets/Art/MageFinishLong_v1/finish_00.png	player	942x693	942x693	494	ETC2_RGBA8 (無圧縮に落ちた)	2.61	ASTC_4x4	0.66	False	0.741	2048	False	False	Single
+131	Assets/Art/MageRun_v1/run_04.png	player	950x685	950x685	526	ETC2_RGBA8 (無圧縮に落ちた)	2.60	ASTC_4x4	0.66	False	0.745	2048	False	False	Single
+132	Assets/Art/ArcherRun_v1/run_00.png	player	1034x628	1034x628	471	ETC2_RGBA8 (無圧縮に落ちた)	2.60	ASTC_4x4	0.65	False	0.687	2048	False	False	Single
+133	Assets/Art/FighterRun_v1/run_03.png	player	1080x601	1080x601	449	ETC2_RGBA8 (無圧縮に落ちた)	2.60	ASTC_4x4	0.65	False	0.638	2048	False	False	Single
+134	Assets/Art/DragonkinPoses_v1/flap/flap_p0_01.png	player	854x760	854x760	529	ETC2_RGBA8 (無圧縮に落ちた)	2.60	ASTC_4x4	0.65	False	0.574	2048	False	False	Single
+135	Assets/Art/FighterRun_v1/run_06.png	player	1038x625	1038x625	442	ETC2_RGBA8 (無圧縮に落ちた)	2.60	ASTC_4x4	0.65	False	0.616	2048	False	False	Single
+136	Assets/Art/ArcherRun_v1/run_01.png	player	1034x626	1034x626	444	ETC2_RGBA8 (無圧縮に落ちた)	2.59	ASTC_4x4	0.65	False	0.636	2048	False	False	Single
+137	Assets/Art/FighterPoses_v1/jab/jab_p1_00.png	player	1074x602	1074x602	460	ETC2_RGBA8 (無圧縮に落ちた)	2.59	ASTC_4x4	0.65	False	0.677	2048	False	False	Single
+138	Assets/Art/VampirePoses_v1/dive/dive_p0_00.png	player	944x683	944x683	572	ETC2_RGBA8 (無圧縮に落ちた)	2.58	ASTC_4x4	0.65	False	0.700	2048	False	False	Single
+139	Assets/Art/CaveBoss/troll_windup.png	boss	701x918	701x918	798	ETC2_RGBA8 (無圧縮に落ちた)	2.57	ASTC_4x4	0.65	False	0.984	2048	False	False	Single
+140	Assets/Art/MikoPoses_v1/upfan/upfan_p0_01.png	player	942x679	942x679	649	ETC2_RGBA8 (無圧縮に落ちた)	2.56	ASTC_4x4	0.64	False	0.582	2048	False	False	Single
+141	Assets/Art/FighterRun_v1/run_02.png	player	1020x625	1020x625	451	ETC2_RGBA8 (無圧縮に落ちた)	2.55	ASTC_4x4	0.64	False	0.612	2048	False	False	Single
+142	Assets/Art/NobleLadyFinishExtreme_v1/finish_00.png	player	843x754	843x754	1071	ETC2_RGBA8 (無圧縮に落ちた)	2.54	ASTC_4x4	0.64	False	1.000	2048	False	False	Single
+143	Assets/Art/DragonkinFinishLong_v1/finish_00.png	player	1078x588	1078x588	534	ETC2_RGBA8 (無圧縮に落ちた)	2.54	ASTC_4x4	0.64	False	0.525	2048	False	False	Single
+144	Assets/Art/DragonkinStart_v1/start_00.png	player	882x716	882x716	675	ETC2_RGBA8 (無圧縮に落ちた)	2.53	ASTC_4x4	0.63	False	0.770	2048	False	False	Single
+145	Assets/Art/WildBoss/rider_attack.png	boss	936x674	936x674	785	ETC2_RGBA8 (無圧縮に落ちた)	2.52	ASTC_4x4	0.63	False	0.986	2048	False	False	Single
+146	Assets/Art/DualBladeFinishLong_v1/finish_00.png	player	610x1030	610x1030	798	ETC2_RGBA8 (無圧縮に落ちた)	2.51	ASTC_4x4	0.63	False	1.000	2048	False	False	Single
+147	Assets/Art/GunslingerFinishMedium_v1/finish_01.png	player	606x1036	606x1036	716	ETC2_RGBA8 (無圧縮に落ちた)	2.51	ASTC_4x4	0.63	False	1.000	2048	False	False	Single
+148	Assets/Art/FighterRun_v1/run_05.png	player	1074x584	1074x584	432	ETC2_RGBA8 (無圧縮に落ちた)	2.51	ASTC_4x4	0.63	False	0.585	2048	False	False	Single
+149	Assets/Art/WildBoss/spider_idle.png	boss	1057x591	1057x591	846	ETC2_RGBA8 (無圧縮に落ちた)	2.50	ASTC_4x4	0.63	False	1.000	2048	False	False	Single
+150	Assets/Art/DragonkinPoses_v1/claw3/claw3_p1_00.png	player	862x724	862x724	684	ETC2_RGBA8 (無圧縮に落ちた)	2.50	ASTC_4x4	0.63	False	0.755	2048	False	False	Single
+151	Assets/Art/CaveBoss/scorpionking_idle.png	boss	722x863	722x863	809	ETC2_RGBA8 (無圧縮に落ちた)	2.49	ASTC_4x4	0.63	False	1.000	2048	False	False	Single
+152	Assets/Art/NinjaPoses_v1/throw/throw_p0_01.png	player	962x645	962x645	478	ETC2_RGBA8 (無圧縮に落ちた)	2.48	ASTC_4x4	0.62	False	0.698	2048	False	False	Single
+153	Assets/Art/NinjaRun_v1/run_04.png	player	1146x541	1146x541	424	ETC2_RGBA8 (無圧縮に落ちた)	2.48	ASTC_4x4	0.62	False	0.653	2048	False	False	Single
+154	Assets/Art/NinjaPoses_v1/throw/throw_p0_02.png	player	1004x615	1004x615	504	ETC2_RGBA8 (無圧縮に落ちた)	2.47	ASTC_4x4	0.62	False	0.628	2048	False	False	Single
+155	Assets/Art/NinjaRun_v1/run_06.png	player	1130x546	1130x546	405	ETC2_RGBA8 (無圧縮に落ちた)	2.47	ASTC_4x4	0.62	False	0.596	2048	False	False	Single
+156	Assets/Art/WildBoss/cyclops_windup.png	boss	745x827	745x827	692	ETC2_RGBA8 (無圧縮に落ちた)	2.46	ASTC_4x4	0.62	False	1.000	2048	False	False	Single
+157	Assets/Art/CaveBoss/scorpion_windup.png	boss	783x786	783x786	649	ETC2_RGBA8 (無圧縮に落ちた)	2.46	ASTC_4x4	0.62	False	0.985	2048	False	False	Single
+158	Assets/Art/ArcherPoses_v1/downshot/downshot_p0_00.png	player	944x650	944x650	585	ETC2_RGBA8 (無圧縮に落ちた)	2.45	ASTC_4x4	0.62	False	0.792	2048	False	False	Single
+159	Assets/Art/DragonkinFinishShort_v1/finish_00.png	player	892x687	892x687	697	ETC2_RGBA8 (無圧縮に落ちた)	2.45	ASTC_4x4	0.61	False	0.782	2048	False	False	Single
+160	Assets/Art/WildBoss/rider_windup.png	boss	797x768	797x768	723	ETC2_RGBA8 (無圧縮に落ちた)	2.45	ASTC_4x4	0.61	False	1.000	2048	False	False	Single
+161	Assets/Art/DragonkinFinishMedium_v1/finish_00.png	player	924x662	924x662	546	ETC2_RGBA8 (無圧縮に落ちた)	2.45	ASTC_4x4	0.61	False	0.560	2048	False	False	Single
+162	Assets/Art/MageRun_v1/run_03.png	player	892x685	892x685	498	ETC2_RGBA8 (無圧縮に落ちた)	2.44	ASTC_4x4	0.61	False	0.759	2048	False	False	Single
+163	Assets/Art/ArcherPoses_v1/release/release_p0_00.png	player	870x701	870x701	493	ETC2_RGBA8 (無圧縮に落ちた)	2.44	ASTC_4x4	0.61	False	0.793	2048	False	False	Single
+164	Assets/Art/NinjaFinishMedium_v1/finish_00.png	player	1078x564	1078x564	440	ETC2_RGBA8 (無圧縮に落ちた)	2.43	ASTC_4x4	0.61	False	0.536	2048	False	False	Single
+165	Assets/Art/NobleLadyStart_v1/start_01.png	player	710x856	710x856	876	ETC2_RGBA8 (無圧縮に落ちた)	2.43	ASTC_4x4	0.61	False	1.000	2048	False	False	Single
+166	Assets/Art/CaveBoss/wormboss_idle.png	boss	649x936	649x936	1286	ETC2_RGBA8 (無圧縮に落ちた)	2.43	ASTC_4x4	0.61	False	1.000	2048	False	False	Single
+167	Assets/Art/DragonkinPoses_v1/claw2/claw2_p1_01.png	player	890x682	890x682	638	ETC2_RGBA8 (無圧縮に落ちた)	2.43	ASTC_4x4	0.61	False	0.793	2048	False	False	Single
+168	Assets/Art/MageRun_v1/run_01.png	player	838x724	838x724	529	ETC2_RGBA8 (無圧縮に落ちた)	2.43	ASTC_4x4	0.61	False	0.803	2048	False	False	Single
+169	Assets/Art/LancerFinishExtreme_v1/finish_01.png	player	878x691	878x691	389	ETC2_RGBA8 (無圧縮に落ちた)	2.43	ASTC_4x4	0.61	False	0.666	2048	False	False	Single
+170	Assets/Art/UI/CardBack.png	card	624x969	624x969	1625	ETC2_RGBA8 (無圧縮に落ちた)	2.42	ASTC_4x4	0.61	False	0.979	2048	False	False	Single
+171	Assets/Art/VampirePoses_v1/bats/bats_p0_02.png	player	926x652	926x652	579	ETC2_RGBA8 (無圧縮に落ちた)	2.42	ASTC_4x4	0.61	False	0.718	2048	False	False	Single
+172	Assets/Art/VampireJump_v1/jump_00.png	player	964x626	964x626	527	ETC2_RGBA8 (無圧縮に落ちた)	2.41	ASTC_4x4	0.61	False	0.676	2048	False	False	Single
+173	Assets/Art/WildBoss/golem_windup.png	boss	613x977	613x977	893	ETC2_RGBA8 (無圧縮に落ちた)	2.40	ASTC_4x4	0.60	False	1.000	2048	False	False	Single
+174	Assets/Art/DragonkinRun_v1/run_05.png	player	1202x498	1202x498	408	ETC2_RGBA8 (無圧縮に落ちた)	2.39	ASTC_4x4	0.60	False	0.576	2048	False	False	Single
+175	Assets/Art/NinjaRun_v1/run_05.png	player	1106x541	1106x541	404	ETC2_RGBA8 (無圧縮に落ちた)	2.39	ASTC_4x4	0.60	False	0.658	2048	False	False	Single
+176	Assets/Art/DragonkinPoses_v1/flap/flap_p0_00.png	player	768x779	768x779	601	ETC2_RGBA8 (無圧縮に落ちた)	2.39	ASTC_4x4	0.60	False	0.764	2048	False	False	Single
+177	Assets/Art/ArcherRun_v1/run_07.png	player	906x658	906x658	435	ETC2_RGBA8 (無圧縮に落ちた)	2.38	ASTC_4x4	0.60	False	0.693	2048	False	False	Single
+178	Assets/Art/FighterPoses_v1/uppercut/uppercut_p0_01.png	player	762x782	762x782	356	ETC2_RGBA8 (無圧縮に落ちた)	2.38	ASTC_4x4	0.60	False	0.606	2048	False	False	Single
+179	Assets/Art/GunslingerFinishLong_v1/finish_01.png	player	632x941	632x941	714	ETC2_RGBA8 (無圧縮に落ちた)	2.38	ASTC_4x4	0.60	False	1.000	2048	False	False	Single
+180	Assets/Art/ArcherPoses_v1/draw/draw_p0_02.png	player	848x699	848x699	472	ETC2_RGBA8 (無圧縮に落ちた)	2.37	ASTC_4x4	0.59	False	0.816	2048	False	False	Single
+181	Assets/Art/NobleLadyFinishLong_v1/finish_01.png	player	746x793	746x793	991	ETC2_RGBA8 (無圧縮に落ちた)	2.37	ASTC_4x4	0.60	False	1.000	2048	False	False	Single
+182	Assets/Art/DragonkinFinishLong_v1/finish_01.png	player	1010x585	1010x585	525	ETC2_RGBA8 (無圧縮に落ちた)	2.36	ASTC_4x4	0.60	False	0.548	2048	False	False	Single
+183	Assets/Art/MikoPoses_v1/throw/throw_p1_01.png	player	934x632	934x632	756	ETC2_RGBA8 (無圧縮に落ちた)	2.36	ASTC_4x4	0.59	False	0.755	2048	False	False	Single
+184	Assets/Art/NinjaPoses_v1/slashend/slashend_01.png	player	1166x504	1166x504	435	ETC2_RGBA8 (無圧縮に落ちた)	2.35	ASTC_4x4	0.59	False	0.567	2048	False	False	Single
+185	Assets/Art/NobleLadyFinishMedium_v1/finish_00.png	player	731x803	731x803	942	ETC2_RGBA8 (無圧縮に落ちた)	2.35	ASTC_4x4	0.59	False	1.000	2048	False	False	Single
+186	Assets/Art/NobleLadyFinishShort_v1/finish_00.png	player	730x800	730x800	925	ETC2_RGBA8 (無圧縮に落ちた)	2.34	ASTC_4x4	0.59	False	1.000	2048	False	False	Single
+187	Assets/Art/FighterFinishMedium_v1/finish_00.png	player	970x601	970x601	379	ETC2_RGBA8 (無圧縮に落ちた)	2.33	ASTC_4x4	0.59	False	0.547	2048	False	False	Single
+188	Assets/Art/WildBoss/serpent_windup.png	boss	705x819	705x819	788	ETC2_RGBA8 (無圧縮に落ちた)	2.31	ASTC_4x4	0.58	False	1.000	2048	False	False	Single
+189	Assets/Art/NobleLadyFinishShort_v1/finish_01.png	player	706x817	706x817	923	ETC2_RGBA8 (無圧縮に落ちた)	2.31	ASTC_4x4	0.58	False	1.000	2048	False	False	Single
+190	Assets/Art/FighterPoses_v1/counter/counter_p1_00.png	player	936x615	936x615	431	ETC2_RGBA8 (無圧縮に落ちた)	2.30	ASTC_4x4	0.58	False	0.655	2048	False	False	Single
+191	Assets/Art/DragonkinLand_v1/land_00.png	player	1018x564	1018x564	536	ETC2_RGBA8 (無圧縮に落ちた)	2.30	ASTC_4x4	0.58	False	0.640	2048	False	False	Single
+192	Assets/Art/DragonkinPoses_v1/flap/flap_p0_02.png	player	804x714	804x714	511	ETC2_RGBA8 (無圧縮に落ちた)	2.30	ASTC_4x4	0.58	False	0.674	2048	False	False	Single
+193	Assets/Art/DualBladeFinishLong_v1/finish_01.png	player	646x887	646x887	710	ETC2_RGBA8 (無圧縮に落ちた)	2.29	ASTC_4x4	0.58	False	1.000	2048	False	False	Single
+194	Assets/Art/ArcherPoses_v1/downshot/downshot_p0_02.png	player	878x652	878x652	588	ETC2_RGBA8 (無圧縮に落ちた)	2.29	ASTC_4x4	0.57	False	0.838	2048	False	False	Single
+195	Assets/Art/NinjaRun_v1/run_00.png	player	1088x526	1088x526	407	ETC2_RGBA8 (無圧縮に落ちた)	2.29	ASTC_4x4	0.57	False	0.597	2048	False	False	Single
+196	Assets/Art/CaveBoss/troll_idle.png	boss	680x841	680x841	974	ETC2_RGBA8 (無圧縮に落ちた)	2.29	ASTC_4x4	0.57	False	1.000	2048	False	False	Single
+197	Assets/Art/NinjaPoses_v1/slashend/slashend_00.png	player	1156x494	1156x494	438	ETC2_RGBA8 (無圧縮に落ちた)	2.28	ASTC_4x4	0.57	False	0.586	2048	False	False	Single
+198	Assets/Art/NinjaPoses_v1/throw/throw_p0_00.png	player	912x626	912x626	504	ETC2_RGBA8 (無圧縮に落ちた)	2.28	ASTC_4x4	0.57	False	0.698	2048	False	False	Single
+199	Assets/Art/CaveBoss/scorpionking_attack.png	boss	695x816	695x816	716	ETC2_RGBA8 (無圧縮に落ちた)	2.27	ASTC_4x4	0.57	False	1.000	2048	False	False	Single
+200	Assets/Art/NinjaRun_v1/run_07.png	player	1038x544	1038x544	396	ETC2_RGBA8 (無圧縮に落ちた)	2.26	ASTC_4x4	0.57	False	0.586	2048	False	False	Single
+201	Assets/Art/ArcherPoses_v1/lowshot/lowshot_p0_01.png	player	958x589	958x589	470	ETC2_RGBA8 (無圧縮に落ちた)	2.26	ASTC_4x4	0.57	False	0.767	2048	False	False	Single
+202	Assets/Art/ArcherPoses_v1/draw/draw_p0_01.png	player	824x683	824x683	466	ETC2_RGBA8 (無圧縮に落ちた)	2.25	ASTC_4x4	0.56	False	0.814	2048	False	False	Single
+203	Assets/Art/MageFinishMedium_v1/finish_01.png	player	806x698	806x698	501	ETC2_RGBA8 (無圧縮に落ちた)	2.25	ASTC_4x4	0.57	False	0.854	2048	False	False	Single
+204	Assets/Art/VampireFinishExtreme_v1/finish_00.png	player	1110x506	1110x506	426	ETC2_RGBA8 (無圧縮に落ちた)	2.25	ASTC_4x4	0.57	False	0.675	2048	False	False	Single
+205	Assets/Art/NobleLadyFinishMedium_v1/finish_01.png	player	673x834	673x834	924	ETC2_RGBA8 (無圧縮に落ちた)	2.25	ASTC_4x4	0.57	False	1.000	2048	False	False	Single
+206	Assets/Art/NobleLadyFinishLong_v1/finish_00.png	player	691x812	691x812	935	ETC2_RGBA8 (無圧縮に落ちた)	2.24	ASTC_4x4	0.56	False	1.000	2048	False	False	Single
+207	Assets/Art/PlayerFinishExtreme_v1/finish_00.png	player	772x726	772x726	752	ETC2_RGBA8 (無圧縮に落ちた)	2.24	ASTC_4x4	0.56	False	1.000	2048	False	False	Single
+208	Assets/Art/CaveBoss/mole_attack.png	boss	815x684	815x684	905	ETC2_RGBA8 (無圧縮に落ちた)	2.23	ASTC_4x4	0.56	False	1.000	2048	False	False	Single
+209	Assets/Art/FighterPoses_v1/straight/straight_p1_01.png	player	936x594	936x594	454	ETC2_RGBA8 (無圧縮に落ちた)	2.22	ASTC_4x4	0.56	False	0.730	2048	False	False	Single
+210	Assets/Art/NinjaStart_v1/start_03.png	player	1084x509	1084x509	356	ETC2_RGBA8 (無圧縮に落ちた)	2.21	ASTC_4x4	0.56	False	0.552	2048	False	False	Single
+211	Assets/Art/VampireFinishLong_v1/finish_00.png	player	910x604	910x604	437	ETC2_RGBA8 (無圧縮に落ちた)	2.20	ASTC_4x4	0.55	False	0.623	2048	False	False	Single
+212	Assets/Art/MikoPoses_v1/shiki/shiki_p0_01.png	player	824x667	824x667	669	ETC2_RGBA8 (無圧縮に落ちた)	2.20	ASTC_4x4	0.55	False	0.784	2048	False	False	Single
+213	Assets/Art/NinjaFinishShort_v1/finish_00.png	player	806x681	806x681	436	ETC2_RGBA8 (無圧縮に落ちた)	2.20	ASTC_4x4	0.55	False	0.661	2048	False	False	Single
+214	Assets/Art/PlayerFinishShort_v1/finish_00.png	player	756x725	756x725	520	ETC2_RGBA8 (無圧縮に落ちた)	2.19	ASTC_4x4	0.55	False	1.000	2048	False	False	Single
+215	Assets/Art/DualBladeFinishShort_v1/finish_01.png	player	696x787	696x787	589	ETC2_RGBA8 (無圧縮に落ちた)	2.19	ASTC_4x4	0.55	False	1.000	2048	False	False	Single
+216	Assets/Art/VampirePoses_v1/bloodslash/bloodslash_p1_01.png	player	852x641	852x641	677	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.805	2048	False	False	Single
+217	Assets/Art/MikoPoses_v1/throw/throw_p1_00.png	player	850x642	850x642	702	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.829	2048	False	False	Single
+218	Assets/Art/DragonIdle/idle_04.png	boss	900x606	900x606	502	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.807	2048	False	False	Single
+219	Assets/Art/DragonIdle/idle_07.png	boss	900x606	900x606	482	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.795	2048	False	False	Single
+220	Assets/Art/DragonFire/fire_04.png	boss	900x606	900x606	530	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.811	2048	False	False	Single
+221	Assets/Art/DragonIdle/idle_00.png	boss	900x606	900x606	511	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.874	2048	False	False	Single
+222	Assets/Art/DragonFire/fire_07.png	boss	900x606	900x606	489	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.795	2048	False	False	Single
+223	Assets/Art/DragonFire/fire_02.png	boss	900x606	900x606	505	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.890	2048	False	False	Single
+224	Assets/Art/DragonIdle/idle_01.png	boss	900x606	900x606	482	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.795	2048	False	False	Single
+225	Assets/Art/DragonFire/fire_00.png	boss	900x606	900x606	524	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.880	2048	False	False	Single
+226	Assets/Art/DragonFire/fire_01.png	boss	900x606	900x606	489	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.795	2048	False	False	Single
+227	Assets/Art/DragonIdle/idle_05.png	boss	900x606	900x606	429	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.671	2048	False	False	Single
+228	Assets/Art/DragonIdle/idle_03.png	boss	900x606	900x606	429	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.671	2048	False	False	Single
+229	Assets/Art/DragonIdle/idle_06.png	boss	900x606	900x606	491	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.886	2048	False	False	Single
+230	Assets/Art/DragonFire/fire_03.png	boss	900x606	900x606	427	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.676	2048	False	False	Single
+231	Assets/Art/DragonFire/fire_06.png	boss	900x606	900x606	505	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.890	2048	False	False	Single
+232	Assets/Art/DragonFire/fire_05.png	boss	900x606	900x606	427	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.676	2048	False	False	Single
+233	Assets/Art/DragonIdle/idle_02.png	boss	900x606	900x606	491	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.55	False	0.886	2048	False	False	Single
+234	Assets/Art/MageRun_v1/run_02.png	player	736x739	736x739	532	ETC2_RGBA8 (無圧縮に落ちた)	2.18	ASTC_4x4	0.54	False	0.815	2048	False	False	Single
+235	Assets/Art/NinjaRun_v1/run_02.png	player	1006x540	1006x540	362	ETC2_RGBA8 (無圧縮に落ちた)	2.17	ASTC_4x4	0.54	False	0.557	2048	False	False	Single
+236	Assets/Art/GunslingerStart_v1/start_00.png	player	637x852	637x852	620	ETC2_RGBA8 (無圧縮に落ちた)	2.17	ASTC_4x4	0.55	False	1.000	2048	False	False	Single
+237	Assets/Art/DualBladeFinishShort_v1/finish_00.png	player	821x661	821x661	608	ETC2_RGBA8 (無圧縮に落ちた)	2.17	ASTC_4x4	0.55	False	1.000	2048	False	False	Single
+238	Assets/Art/FighterPoses_v1/heavy/heavy_p1_00.png	player	1074x505	1074x505	417	ETC2_RGBA8 (無圧縮に落ちた)	2.17	ASTC_4x4	0.55	False	0.650	2048	False	False	Single
+239	Assets/Art/NinjaPoses_v1/downdash/downdash_p1_01.png	player	1152x469	1152x469	468	ETC2_RGBA8 (無圧縮に落ちた)	2.16	ASTC_4x4	0.54	False	0.552	2048	False	False	Single
+240	Assets/Art/CaveBoss/troll_attack.png	boss	827x653	827x653	770	ETC2_RGBA8 (無圧縮に落ちた)	2.16	ASTC_4x4	0.54	False	1.000	2048	False	False	Single
+241	Assets/Art/SkyBoss/jellyfish_attack.png	boss	909x594	909x594	701	ETC2_RGBA8 (無圧縮に落ちた)	2.16	ASTC_4x4	0.54	False	1.000	2048	False	False	Single
+242	Assets/Art/DragonkinPoses_v1/glide/glide_p0_01.png	player	910x592	910x592	425	ETC2_RGBA8 (無圧縮に落ちた)	2.16	ASTC_4x4	0.54	False	0.763	2048	False	False	Single
+243	Assets/Art/MageFinishLong_v1/finish_01.png	player	870x619	870x619	431	ETC2_RGBA8 (無圧縮に落ちた)	2.15	ASTC_4x4	0.54	False	0.815	2048	False	False	Single
+244	Assets/Art/ArcherPoses_v1/release/release_p0_01.png	player	768x701	768x701	465	ETC2_RGBA8 (無圧縮に落ちた)	2.15	ASTC_4x4	0.54	False	0.913	2048	False	False	Single
+245	Assets/Art/VampirePoses_v1/claw1/claw1_p1_00.png	player	974x552	974x552	486	ETC2_RGBA8 (無圧縮に落ちた)	2.15	ASTC_4x4	0.54	False	0.706	2048	False	False	Single
+246	Assets/Art/WildBoss/knight_windup.png	boss	635x846	635x846	512	ETC2_RGBA8 (無圧縮に落ちた)	2.15	ASTC_4x4	0.54	False	1.000	2048	False	False	Single
+247	Assets/Art/NobleLadyAttack_v1/attack_02.png	player	739x724	739x724	439	ETC2_RGBA8 (無圧縮に落ちた)	2.14	ASTC_4x4	0.54	False	0.523	2048	False	False	Single
+248	Assets/Art/BurrowWormRun/burrowworm_run_1.png	boss	752x711	752x711	860	ETC2_RGBA8 (無圧縮に落ちた)	2.14	ASTC_4x4	0.54	False	1.000	2048	False	False	Single
+249	Assets/Art/WildBoss/serpent_idle.png	boss	683x782	683x782	752	ETC2_RGBA8 (無圧縮に落ちた)	2.14	ASTC_4x4	0.54	False	1.000	2048	False	False	Single
+250	Assets/Art/FighterPoses_v1/jab/jab_p1_01.png	player	894x597	894x597	429	ETC2_RGBA8 (無圧縮に落ちた)	2.13	ASTC_4x4	0.54	False	0.740	2048	False	False	Single
+251	Assets/Art/MageHurt_v1/hurt_01.png	player	926x575	926x575	570	ETC2_RGBA8 (無圧縮に落ちた)	2.13	ASTC_4x4	0.53	False	0.704	2048	False	False	Single
+252	Assets/Art/ArcherPoses_v1/downshot/downshot_p0_01.png	player	814x649	814x649	551	ETC2_RGBA8 (無圧縮に落ちた)	2.11	ASTC_4x4	0.53	False	0.804	2048	False	False	Single
+253	Assets/Art/VampirePoses_v1/bloodslash/bloodslash_p1_00.png	player	888x590	888x590	675	ETC2_RGBA8 (無圧縮に落ちた)	2.10	ASTC_4x4	0.53	False	0.860	2048	False	False	Single
+254	Assets/Art/NinjaFinishShort_v1/finish_01.png	player	750x697	750x697	417	ETC2_RGBA8 (無圧縮に落ちた)	2.09	ASTC_4x4	0.53	False	0.650	2048	False	False	Single
+255	Assets/Art/CaveAntRun/caveant_run_1.png	enemy	678x771	678x771	420	ETC2_RGBA8 (無圧縮に落ちた)	2.09	ASTC_4x4	0.53	False	1.000	2048	False	False	Single
+256	Assets/Art/DragonkinFinishMedium_v1/finish_01.png	player	766x682	766x682	566	ETC2_RGBA8 (無圧縮に落ちた)	2.09	ASTC_4x4	0.53	False	0.702	2048	False	False	Single
+257	Assets/Art/MagePoses_v1/castUp/castUp_p0_02.png	player	886x589	886x589	536	ETC2_RGBA8 (無圧縮に落ちた)	2.09	ASTC_4x4	0.53	False	0.841	2048	False	False	Single
+258	Assets/Art/VampirePoses_v1/claw1/claw1_p1_01.png	player	1032x503	1032x503	459	ETC2_RGBA8 (無圧縮に落ちた)	2.08	ASTC_4x4	0.52	False	0.635	2048	False	False	Single
+259	Assets/Art/PlayerFinishMedium_v1/finish_00.png	player	673x771	673x771	479	ETC2_RGBA8 (無圧縮に落ちた)	2.08	ASTC_4x4	0.52	False	1.000	2048	False	False	Single
+260	Assets/Art/NinjaPoses_v1/dashslash/dashslash_02.png	player	1106x469	1106x469	431	ETC2_RGBA8 (無圧縮に落ちた)	2.07	ASTC_4x4	0.52	False	0.589	2048	False	False	Single
+261	Assets/Art/CaveBoss/batboss_windup.png	boss	765x678	765x678	568	ETC2_RGBA8 (無圧縮に落ちた)	2.07	ASTC_4x4	0.52	False	0.984	2048	False	False	Single
+262	Assets/Art/WildBoss/knight_idle.png	boss	671x771	671x771	419	ETC2_RGBA8 (無圧縮に落ちた)	2.07	ASTC_4x4	0.52	False	1.000	2048	False	False	Single
+263	Assets/Art/VampireFinishShort_v1/finish_01.png	player	782x659	782x659	384	ETC2_RGBA8 (無圧縮に落ちた)	2.06	ASTC_4x4	0.52	False	0.624	2048	False	False	Single
+264	Assets/Art/VampireFinishLong_v1/finish_01.png	player	734x701	734x701	427	ETC2_RGBA8 (無圧縮に落ちた)	2.06	ASTC_4x4	0.52	False	0.675	2048	False	False	Single
+265	Assets/Art/CaveBoss/mole_idle.png	boss	631x815	631x815	919	ETC2_RGBA8 (無圧縮に落ちた)	2.06	ASTC_4x4	0.52	False	1.000	2048	False	False	Single
+266	Assets/Art/MikoPoses_v1/shiki/shiki_p0_00.png	player	752x683	752x683	646	ETC2_RGBA8 (無圧縮に落ちた)	2.05	ASTC_4x4	0.51	False	0.830	2048	False	False	Single
+267	Assets/Art/CaveBoss/batboss_idle.png	boss	960x535	960x535	641	ETC2_RGBA8 (無圧縮に落ちた)	2.05	ASTC_4x4	0.51	False	1.000	2048	False	False	Single
+268	Assets/Art/NinjaRun_v1/run_01.png	player	994x516	994x516	362	ETC2_RGBA8 (無圧縮に落ちた)	2.05	ASTC_4x4	0.51	False	0.528	2048	False	False	Single
+269	Assets/Art/Reapers/Second/idle.png	boss	584x874	584x874	959	ETC2_RGBA8 (無圧縮に落ちた)	2.04	ASTC_4x4	0.51	False	1.000	2048	False	False	Single
+270	Assets/Art/DragonkinFinishShort_v1/finish_01.png	player	730x699	730x699	520	ETC2_RGBA8 (無圧縮に落ちた)	2.04	ASTC_4x4	0.51	False	0.693	2048	False	False	Single
+271	Assets/Art/MageFinishShort_v1/finish_00.png	player	732x695	732x695	482	ETC2_RGBA8 (無圧縮に落ちた)	2.04	ASTC_4x4	0.51	False	0.801	2048	False	False	Single
+272	Assets/Art/FighterHurt_v1/hurt_02.png	player	946x537	946x537	427	ETC2_RGBA8 (無圧縮に落ちた)	2.03	ASTC_4x4	0.51	False	0.739	2048	False	False	Single
+273	Assets/Art/CaveBoss/centipede_attack.png	boss	639x794	639x794	813	ETC2_RGBA8 (無圧縮に落ちた)	2.03	ASTC_4x4	0.51	False	1.000	2048	False	False	Single
+274	Assets/Art/MikoPoses_v1/upfan/upfan_p0_00.png	player	876x579	876x579	654	ETC2_RGBA8 (無圧縮に落ちた)	2.03	ASTC_4x4	0.51	False	0.823	2048	False	False	Single
+275	Assets/Art/ArcherPoses_v1/release/release_p0_02.png	player	848x595	848x595	468	ETC2_RGBA8 (無圧縮に落ちた)	2.02	ASTC_4x4	0.51	False	0.842	2048	False	False	Single
+276	Assets/Art/FighterPoses_v1/kick/kick_p1_00.png	player	786x641	786x641	409	ETC2_RGBA8 (無圧縮に落ちた)	2.02	ASTC_4x4	0.51	False	0.919	2048	False	False	Single
+277	Assets/Art/WildBoss/cyclops_idle.png	boss	652x771	652x771	619	ETC2_RGBA8 (無圧縮に落ちた)	2.01	ASTC_4x4	0.50	False	1.000	2048	False	False	Single
+278	Assets/Art/MikoJump_v1/jump_00.png	player	766x656	766x656	566	ETC2_RGBA8 (無圧縮に落ちた)	2.01	ASTC_4x4	0.50	False	0.694	2048	False	False	Single
+279	Assets/Art/GunslingerFinishShort_v1/finish_01.png	player	587x856	587x856	612	ETC2_RGBA8 (無圧縮に落ちた)	2.01	ASTC_4x4	0.50	False	1.000	2048	False	False	Single
+280	Assets/Art/MikoStart_v1/start_03.png	player	808x619	808x619	526	ETC2_RGBA8 (無圧縮に落ちた)	2.00	ASTC_4x4	0.50	False	0.684	2048	False	False	Single
+281	Assets/Art/DragonkinHurt_v1/hurt_02.png	player	970x515	970x515	463	ETC2_RGBA8 (無圧縮に落ちた)	2.00	ASTC_4x4	0.50	False	0.660	2048	False	False	Single
+282	Assets/Art/MikoPoses_v1/shiki/shiki_p0_02.png	player	740x675	740x675	695	ETC2_RGBA8 (無圧縮に落ちた)	2.00	ASTC_4x4	0.50	False	0.923	2048	False	False	Single
+283	Assets/Art/FighterStart_v1/start_02.png	player	802x621	802x621	411	ETC2_RGBA8 (無圧縮に落ちた)	1.99	ASTC_4x4	0.50	False	0.685	2048	False	False	Single
+284	Assets/Art/FighterFinishMedium_v1/finish_01.png	player	794x627	794x627	387	ETC2_RGBA8 (無圧縮に落ちた)	1.99	ASTC_4x4	0.50	False	0.664	2048	False	False	Single
+285	Assets/Art/FighterPoses_v1/divekick/divekick_p0_00.png	player	702x709	702x709	266	ETC2_RGBA8 (無圧縮に落ちた)	1.99	ASTC_4x4	0.50	False	0.339	2048	False	False	Single
+286	Assets/Art/LancerFinishLong_v1/finish_01.png	player	720x690	720x690	355	ETC2_RGBA8 (無圧縮に落ちた)	1.99	ASTC_4x4	0.50	False	0.681	2048	False	False	Single
+287	Assets/Art/DragonkinPoses_v1/glide/glide_p0_00.png	player	928x535	928x535	466	ETC2_RGBA8 (無圧縮に落ちた)	1.99	ASTC_4x4	0.50	False	0.714	2048	False	False	Single
+288	Assets/Art/NinjaPoses_v1/updash/updash_p0_00.png	player	1182x420	1182x420	473	ETC2_RGBA8 (無圧縮に落ちた)	1.99	ASTC_4x4	0.50	False	0.569	2048	False	False	Single
+289	Assets/Art/NinjaRun_v1/run_03.png	player	936x530	936x530	356	ETC2_RGBA8 (無圧縮に落ちた)	1.98	ASTC_4x4	0.50	False	0.586	2048	False	False	Single
+290	Assets/Art/CaveBoss/scorpion_idle.png	boss	726x681	726x681	587	ETC2_RGBA8 (無圧縮に落ちた)	1.98	ASTC_4x4	0.50	False	1.000	2048	False	False	Single
+291	Assets/Art/DoubleJumpDust/doublejumpdust_00.png	effect	1712x1152	1712x1152	634	ETC2_RGBA8	1.97	ASTC_6x6	0.88	True	0.511	2048	False	False	Single
+292	Assets/Art/DualBladeStart_v1/start_01.png	player	779x631	779x631	575	ETC2_RGBA8 (無圧縮に落ちた)	1.97	ASTC_4x4	0.49	False	1.000	2048	False	False	Single
+293	Assets/Art/FighterPoses_v1/jab/jab_p0_00.png	player	822x595	822x595	417	ETC2_RGBA8 (無圧縮に落ちた)	1.96	ASTC_4x4	0.49	False	0.807	2048	False	False	Single
+294	Assets/Art/FighterPoses_v1/straight/straight_p0_00.png	player	820x595	820x595	472	ETC2_RGBA8 (無圧縮に落ちた)	1.95	ASTC_4x4	0.49	False	0.820	2048	False	False	Single
+295	Assets/Art/NinjaPoses_v1/slashend/slashend_02.png	player	1004x485	1004x485	404	ETC2_RGBA8 (無圧縮に落ちた)	1.95	ASTC_4x4	0.49	False	0.526	2048	False	False	Single
+296	Assets/Art/SkyBoss/guardian_idle.png	boss	674x722	674x722	619	ETC2_RGBA8 (無圧縮に落ちた)	1.95	ASTC_4x4	0.49	False	1.000	2048	False	False	Single
+297	Assets/Art/PlayerFinishExtreme_v1/finish_01.png	player	804x603	804x603	714	ETC2_RGBA8 (無圧縮に落ちた)	1.94	ASTC_4x4	0.49	False	1.000	2048	False	False	Single
+298	Assets/Art/DualBladeFinishExtreme_v1/finish_01.png	player	788x614	788x614	610	ETC2_RGBA8 (無圧縮に落ちた)	1.94	ASTC_4x4	0.49	False	1.000	2048	False	False	Single
+299	Assets/Art/MikoPoses_v1/place/place_p1_01.png	player	996x485	996x485	460	ETC2_RGBA8 (無圧縮に落ちた)	1.93	ASTC_4x4	0.49	False	0.640	2048	False	False	Single
+300	Assets/Art/BurrowWormRun/burrowworm_run_0.png	boss	608x794	608x794	933	ETC2_RGBA8 (無圧縮に落ちた)	1.93	ASTC_4x4	0.48	False	1.000	2048	False	False	Single
+301	Assets/Art/Enemy/BurrowWorm.png	boss	608x794	608x794	933	ETC2_RGBA8 (無圧縮に落ちた)	1.93	ASTC_4x4	0.48	False	1.000	2048	False	False	Single
+302	Assets/Art/LancerLand_v1/land_00.png	player	1190x405	1190x405	308	ETC2_RGBA8 (無圧縮に落ちた)	1.93	ASTC_4x4	0.49	False	0.545	2048	False	False	Single
+303	Assets/Art/PlayerStart_v1/start_00.png	player	638x755	638x755	465	ETC2_RGBA8 (無圧縮に落ちた)	1.93	ASTC_4x4	0.48	False	1.000	2048	False	False	Single
+304	Assets/Art/NobleLadyDiveLand_v1/diveland_01.png	player	724x665	724x665	284	ETC2_RGBA8 (無圧縮に落ちた)	1.93	ASTC_4x4	0.48	False	0.529	2048	False	False	Single
+305	Assets/Art/NobleLadyDiveLand_v1/diveland_00.png	player	724x665	724x665	332	ETC2_RGBA8 (無圧縮に落ちた)	1.93	ASTC_4x4	0.48	False	0.417	2048	False	False	Single
+306	Assets/Art/NobleLadyPlunge_v1/plunge_00.png	player	724x665	724x665	340	ETC2_RGBA8 (無圧縮に落ちた)	1.93	ASTC_4x4	0.48	False	0.624	2048	False	False	Single
+307	Assets/Art/NobleLadyPlunge_v1/plunge_02.png	player	724x665	724x665	284	ETC2_RGBA8 (無圧縮に落ちた)	1.93	ASTC_4x4	0.48	False	0.529	2048	False	False	Single
+308	Assets/Art/NobleLadyPlunge_v1/plunge_01.png	player	724x665	724x665	332	ETC2_RGBA8 (無圧縮に落ちた)	1.93	ASTC_4x4	0.48	False	0.417	2048	False	False	Single
+309	Assets/Art/NobleLadyDive_v1/dive_00.png	player	724x665	724x665	340	ETC2_RGBA8 (無圧縮に落ちた)	1.93	ASTC_4x4	0.48	False	0.624	2048	False	False	Single
+310	Assets/Art/PlayerFinishShort_v1/finish_01.png	player	629x765	629x765	455	ETC2_RGBA8 (無圧縮に落ちた)	1.92	ASTC_4x4	0.49	False	1.000	2048	False	False	Single
+311	Assets/Art/WildBoss/griffin_idle.png	boss	794x606	794x606	690	ETC2_RGBA8 (無圧縮に落ちた)	1.92	ASTC_4x4	0.48	False	1.000	2048	False	False	Single
+312	Assets/Art/PlayerFinishLong_v1/finish_00.png	player	719x663	719x663	546	ETC2_RGBA8 (無圧縮に落ちた)	1.91	ASTC_4x4	0.48	False	1.000	2048	False	False	Single
+313	Assets/Art/CaveHopperRun/cavehopper_run_1.png	enemy	680x701	680x701	404	ETC2_RGBA8 (無圧縮に落ちた)	1.91	ASTC_4x4	0.48	False	1.000	2048	False	False	Single
+314	Assets/Art/MikoHurt_v1/hurt_01.png	player	786x606	786x606	677	ETC2_RGBA8 (無圧縮に落ちた)	1.91	ASTC_4x4	0.48	False	0.905	2048	False	False	Single
+315	Assets/Art/WildBoss/rider_idle.png	boss	719x662	719x662	692	ETC2_RGBA8 (無圧縮に落ちた)	1.90	ASTC_4x4	0.48	False	1.000	2048	False	False	Single
+316	Assets/Art/MageFinishExtreme_v1/finish_00.png	player	848x559	848x559	382	ETC2_RGBA8 (無圧縮に落ちた)	1.90	ASTC_4x4	0.48	False	0.898	2048	False	False	Single
+317	Assets/Art/GunslingerFinishExtreme_v1/finish_01.png	player	682x695	682x695	689	ETC2_RGBA8 (無圧縮に落ちた)	1.90	ASTC_4x4	0.48	False	1.000	2048	False	False	Single
+318	Assets/Art/RunnerRun/runner_run_2.png	enemy	654x724	654x724	295	ETC2_RGBA8 (無圧縮に落ちた)	1.89	ASTC_4x4	0.48	False	0.304	2048	False	False	Single
+319	Assets/Art/RunnerRun/runner_run_3.png	enemy	654x724	654x724	277	ETC2_RGBA8 (無圧縮に落ちた)	1.89	ASTC_4x4	0.48	False	0.291	2048	False	False	Single
+320	Assets/Art/RunnerRun/runner_run_0.png	enemy	654x724	654x724	227	ETC2_RGBA8 (無圧縮に落ちた)	1.89	ASTC_4x4	0.48	False	0.369	2048	False	False	Single
+321	Assets/Art/RunnerRun/runner_run_1.png	enemy	654x724	654x724	281	ETC2_RGBA8 (無圧縮に落ちた)	1.89	ASTC_4x4	0.48	False	0.307	2048	False	False	Single
+322	Assets/Art/GunslingerUpShot_v1/upshot_01.png	player	608x773	608x773	485	ETC2_RGBA8 (無圧縮に落ちた)	1.88	ASTC_4x4	0.47	False	0.992	2048	False	False	Single
+323	Assets/Art/VampireFinishMedium_v1/finish_01.png	player	648x725	648x725	455	ETC2_RGBA8 (無圧縮に落ちた)	1.88	ASTC_4x4	0.47	False	0.833	2048	False	False	Single
+324	Assets/Art/CaveBatRun/cavebat_run_0.png	enemy	988x475	988x475	547	ETC2_RGBA8 (無圧縮に落ちた)	1.88	ASTC_4x4	0.47	False	1.000	2048	False	False	Single
+325	Assets/Art/Enemy/CaveBat.png	enemy	988x475	988x475	547	ETC2_RGBA8 (無圧縮に落ちた)	1.88	ASTC_4x4	0.47	False	1.000	2048	False	False	Single
+326	Assets/Art/LancerFinishMedium_v1/finish_01.png	player	676x694	676x694	446	ETC2_RGBA8 (無圧縮に落ちた)	1.88	ASTC_4x4	0.47	False	0.841	2048	False	False	Single
+327	Assets/Art/NobleLadyLand_v1/land_00.png	player	647x724	647x724	446	ETC2_RGBA8 (無圧縮に落ちた)	1.87	ASTC_4x4	0.47	False	0.537	2048	False	False	Single
+328	Assets/Art/ArcherFinishMedium_v1/finish_00.png	player	782x598	782x598	426	ETC2_RGBA8 (無圧縮に落ちた)	1.87	ASTC_4x4	0.47	False	0.784	2048	False	False	Single
+329	Assets/Art/SkyBoss/skygolem_windup.png	boss	663x704	663x704	824	ETC2_RGBA8 (無圧縮に落ちた)	1.87	ASTC_4x4	0.47	False	1.000	2048	False	False	Single
+330	Assets/Art/VampireStart_v1/start_03.png	player	962x485	962x485	370	ETC2_RGBA8 (無圧縮に落ちた)	1.87	ASTC_4x4	0.47	False	0.554	2048	False	False	Single
+331	Assets/Art/FighterPoses_v1/backstep/backstep_p0_00.png	player	1002x464	1002x464	364	ETC2_RGBA8 (無圧縮に落ちた)	1.86	ASTC_4x4	0.47	False	0.501	2048	False	False	Single
+332	Assets/Art/FighterHurt_v1/hurt_01.png	player	800x581	800x581	460	ETC2_RGBA8 (無圧縮に落ちた)	1.86	ASTC_4x4	0.47	False	0.890	2048	False	False	Single
+333	Assets/Art/FighterFinishShort_v1/finish_00.png	player	660x702	660x702	380	ETC2_RGBA8 (無圧縮に落ちた)	1.85	ASTC_4x4	0.46	False	0.699	2048	False	False	Single
+334	Assets/Art/MikoLand_v1/land_00.png	player	856x541	856x541	467	ETC2_RGBA8 (無圧縮に落ちた)	1.85	ASTC_4x4	0.47	False	0.623	2048	False	False	Single
+335	Assets/Art/DragonkinStart_v1/start_02.png	player	864x534	864x534	443	ETC2_RGBA8 (無圧縮に落ちた)	1.85	ASTC_4x4	0.46	False	0.640	2048	False	False	Single
+336	Assets/Art/SkyBoss/skygolem_attack.png	boss	780x591	780x591	890	ETC2_RGBA8 (無圧縮に落ちた)	1.84	ASTC_4x4	0.46	False	1.000	2048	False	False	Single
+337	Assets/Art/DragonkinStart_v1/start_03.png	player	1086x423	1086x423	374	ETC2_RGBA8 (無圧縮に落ちた)	1.84	ASTC_4x4	0.46	False	0.524	2048	False	False	Single
+338	Assets/Art/NobleLadyFinishExtreme_v1/finish_01.png	player	882x520	882x520	661	ETC2_RGBA8 (無圧縮に落ちた)	1.83	ASTC_4x4	0.46	False	1.000	2048	False	False	Single
+339	Assets/Art/VampireHurt_v1/hurt_01.png	player	778x587	778x587	473	ETC2_RGBA8 (無圧縮に落ちた)	1.83	ASTC_4x4	0.46	False	0.856	2048	False	False	Single
+340	Assets/Art/SkyBoss/titan_attack.png	boss	728x627	728x627	801	ETC2_RGBA8 (無圧縮に落ちた)	1.83	ASTC_4x4	0.46	False	1.000	2048	False	False	Single
+341	Assets/Art/NinjaPoses_v1/dashslash/dashslash_01.png	player	968x471	968x471	422	ETC2_RGBA8 (無圧縮に落ちた)	1.82	ASTC_4x4	0.46	False	0.586	2048	False	False	Single
+342	Assets/Art/FighterPoses_v1/divekick/divekick_p1_01.png	player	1094x416	1094x416	308	ETC2_RGBA8 (無圧縮に落ちた)	1.82	ASTC_4x4	0.46	False	0.472	2048	False	False	Single
+343	Assets/Art/VampireFinishExtreme_v1/finish_01.png	player	812x559	812x559	414	ETC2_RGBA8 (無圧縮に落ちた)	1.82	ASTC_4x4	0.45	False	0.864	2048	False	False	Single
+344	Assets/Art/ArcherPoses_v1/draw/draw_p0_00.png	player	666x681	666x681	442	ETC2_RGBA8 (無圧縮に落ちた)	1.81	ASTC_4x4	0.46	False	0.840	2048	False	False	Single
+345	Assets/Art/VampirePoses_v1/claw1/claw1_p0_00.png	player	822x551	822x551	492	ETC2_RGBA8 (無圧縮に落ちた)	1.81	ASTC_4x4	0.45	False	0.794	2048	False	False	Single
+346	Assets/Art/ArcherRun_v1/run_03.png	player	802x564	802x564	320	ETC2_RGBA8 (無圧縮に落ちた)	1.81	ASTC_4x4	0.45	False	0.667	2048	False	False	Single
+347	Assets/Art/ArcherRun_v1/run_05.png	player	836x539	836x539	303	ETC2_RGBA8 (無圧縮に落ちた)	1.80	ASTC_4x4	0.45	False	0.641	2048	False	False	Single
+348	Assets/Art/DualBladeFinishMedium_v1/finish_01.png	player	547x823	547x823	573	ETC2_RGBA8 (無圧縮に落ちた)	1.80	ASTC_4x4	0.45	False	1.000	2048	False	False	Single
+349	Assets/Art/MikoPoses_v1/place/place_p1_00.png	player	926x486	926x486	491	ETC2_RGBA8 (無圧縮に落ちた)	1.80	ASTC_4x4	0.45	False	0.646	2048	False	False	Single
+350	Assets/Art/ArcherFinishExtreme_v1/finish_01.png	player	1044x431	1044x431	408	ETC2_RGBA8 (無圧縮に落ちた)	1.80	ASTC_4x4	0.45	False	0.843	2048	False	False	Single
+351	Assets/Art/LancerDive_v1/dive_00.png	player	718x626	718x626	299	ETC2_RGBA8 (無圧縮に落ちた)	1.80	ASTC_4x4	0.45	False	0.617	2048	False	False	Single
+352	Assets/Art/CaveBoss/centipede_windup.png	boss	849x529	849x529	580	ETC2_RGBA8 (無圧縮に落ちた)	1.80	ASTC_4x4	0.45	False	0.983	2048	False	False	Single
+353	Assets/Art/ArcherFinishShort_v1/finish_00.png	player	702x639	702x639	422	ETC2_RGBA8 (無圧縮に落ちた)	1.79	ASTC_4x4	0.45	False	0.888	2048	False	False	Single
+354	Assets/Art/MikoHurt_v1/hurt_00.png	player	694x646	694x646	656	ETC2_RGBA8 (無圧縮に落ちた)	1.79	ASTC_4x4	0.45	False	0.898	2048	False	False	Single
+355	Assets/Art/NobleLadyAir_v1/air_00.png	player	724x619	724x619	381	ETC2_RGBA8 (無圧縮に落ちた)	1.79	ASTC_4x4	0.45	False	0.677	2048	False	False	Single
+356	Assets/Art/NobleLadyAir_v1/air_01.png	player	724x619	724x619	344	ETC2_RGBA8 (無圧縮に落ちた)	1.79	ASTC_4x4	0.45	False	0.787	2048	False	False	Single
+357	Assets/Art/NobleLadyAir_v1/air_02.png	player	724x619	724x619	363	ETC2_RGBA8 (無圧縮に落ちた)	1.79	ASTC_4x4	0.45	False	0.756	2048	False	False	Single
+358	Assets/Art/MageJump_v1/jump_00.png	player	668x669	668x669	365	ETC2_RGBA8 (無圧縮に落ちた)	1.79	ASTC_4x4	0.45	False	0.711	2048	False	False	Single
+359	Assets/Art/MageLand_v1/land_00.png	player	668x669	668x669	365	ETC2_RGBA8 (無圧縮に落ちた)	1.79	ASTC_4x4	0.45	False	0.711	2048	False	False	Single
+360	Assets/Art/ArcherPoses_v1/lowshot/lowshot_p0_02.png	player	830x538	830x538	496	ETC2_RGBA8 (無圧縮に落ちた)	1.79	ASTC_4x4	0.45	False	0.823	2048	False	False	Single
+361	Assets/Art/GunslingerDownAttack_v1/downattack_02.png	player	649x685	649x685	470	ETC2_RGBA8 (無圧縮に落ちた)	1.78	ASTC_4x4	0.45	False	0.968	2048	False	False	Single
+362	Assets/Art/GunslingerUpShot_v1/upshot_02.png	player	640x694	640x694	492	ETC2_RGBA8 (無圧縮に落ちた)	1.78	ASTC_4x4	0.45	False	1.000	2048	False	False	Single
+363	Assets/Art/VampirePoses_v1/claw2/claw2_p0_00.png	player	722x615	722x615	505	ETC2_RGBA8 (無圧縮に落ちた)	1.78	ASTC_4x4	0.45	False	0.883	2048	False	False	Single
+364	Assets/Art/MageHurt_v1/hurt_00.png	player	768x578	768x578	562	ETC2_RGBA8 (無圧縮に落ちた)	1.78	ASTC_4x4	0.45	False	0.779	2048	False	False	Single
+365	Assets/Art/LancerHurt_v1/hurt_01.png	player	810x548	810x548	282	ETC2_RGBA8 (無圧縮に落ちた)	1.78	ASTC_4x4	0.45	False	0.695	2048	False	False	Single
+366	Assets/Art/FighterPoses_v1/kick/kick_p1_01.png	player	724x611	724x611	417	ETC2_RGBA8 (無圧縮に落ちた)	1.77	ASTC_4x4	0.44	False	0.863	2048	False	False	Single
+367	Assets/Art/DualBladeStart_v1/start_00.png	player	575x769	575x769	541	ETC2_RGBA8 (無圧縮に落ちた)	1.77	ASTC_4x4	0.44	False	1.000	2048	False	False	Single
+368	Assets/Art/DragonkinPoses_v1/glide/glide_p0_02.png	player	922x477	922x477	430	ETC2_RGBA8 (無圧縮に落ちた)	1.76	ASTC_4x4	0.44	False	0.819	2048	False	False	Single
+369	Assets/Art/WildBoss/wolf_attack.png	boss	974x451	974x451	534	ETC2_RGBA8 (無圧縮に落ちた)	1.76	ASTC_4x4	0.44	False	0.983	2048	False	False	Single
+370	Assets/Art/FighterPoses_v1/counter/counter_p0_00.png	player	722x607	722x607	382	ETC2_RGBA8 (無圧縮に落ちた)	1.75	ASTC_4x4	0.44	False	0.715	2048	False	False	Single
+371	Assets/Art/ArcherFinishLong_v1/finish_01.png	player	1092x401	1092x401	362	ETC2_RGBA8 (無圧縮に落ちた)	1.75	ASTC_4x4	0.44	False	0.751	2048	False	False	Single
+372	Assets/Art/FighterPoses_v1/backstep/backstep_p1_00.png	player	696x621	696x621	351	ETC2_RGBA8 (無圧縮に落ちた)	1.73	ASTC_4x4	0.43	False	0.770	2048	False	False	Single
+373	Assets/Art/SkyBoss/guardian_windup.png	boss	609x707	609x707	659	ETC2_RGBA8 (無圧縮に落ちた)	1.72	ASTC_4x4	0.43	False	1.000	2048	False	False	Single
+374	Assets/Art/VampirePoses_v1/dive/dive_p1_01.png	player	1056x407	1056x407	402	ETC2_RGBA8 (無圧縮に落ちた)	1.72	ASTC_4x4	0.43	False	0.682	2048	False	False	Single
+375	Assets/Art/MikoFinishShort_v1/finish_00.png	player	664x645	664x645	518	ETC2_RGBA8 (無圧縮に落ちた)	1.71	ASTC_4x4	0.43	False	0.733	2048	False	False	Single
+376	Assets/Art/DragonkinFinishExtreme_v1/finish_00.png	player	854x499	854x499	578	ETC2_RGBA8 (無圧縮に落ちた)	1.70	ASTC_4x4	0.43	False	0.807	2048	False	False	Single
+377	Assets/Art/MikoPoses_v1/throw/throw_p0_00.png	player	682x624	682x624	661	ETC2_RGBA8 (無圧縮に落ちた)	1.70	ASTC_4x4	0.43	False	0.897	2048	False	False	Single
+378	Assets/Art/FighterHurt_v1/hurt_00.png	player	734x579	734x579	432	ETC2_RGBA8 (無圧縮に落ちた)	1.70	ASTC_4x4	0.43	False	0.737	2048	False	False	Single
+379	Assets/Art/FighterPoses_v1/backstep/backstep_p1_01.png	player	1036x410	1036x410	381	ETC2_RGBA8 (無圧縮に落ちた)	1.70	ASTC_4x4	0.43	False	0.673	2048	False	False	Single
+380	Assets/Art/NinjaFinishMedium_v1/finish_01.png	player	774x546	774x546	406	ETC2_RGBA8 (無圧縮に落ちた)	1.69	ASTC_4x4	0.43	False	0.653	2048	False	False	Single
+381	Assets/Art/FighterFinishShort_v1/finish_01.png	player	626x675	626x675	342	ETC2_RGBA8 (無圧縮に落ちた)	1.69	ASTC_4x4	0.42	False	0.592	2048	False	False	Single
+382	Assets/Art/MikoFinishMedium_v1/finish_00.png	player	654x644	654x644	510	ETC2_RGBA8 (無圧縮に落ちた)	1.68	ASTC_4x4	0.42	False	0.769	2048	False	False	Single
+383	Assets/Art/VampireFinishMedium_v1/finish_00.png	player	580x725	580x725	424	ETC2_RGBA8 (無圧縮に落ちた)	1.68	ASTC_4x4	0.42	False	0.861	2048	False	False	Single
+384	Assets/Art/VampireLand_v1/land_00.png	player	926x454	926x454	419	ETC2_RGBA8 (無圧縮に落ちた)	1.68	ASTC_4x4	0.42	False	0.674	2048	False	False	Single
+385	Assets/Art/SkyBoss/jellyfish_windup.png	boss	743x565	743x565	545	ETC2_RGBA8 (無圧縮に落ちた)	1.68	ASTC_4x4	0.42	False	1.000	2048	False	False	Single
+386	Assets/Art/ArcherHurt_v1/hurt_02.png	player	770x545	770x545	346	ETC2_RGBA8 (無圧縮に落ちた)	1.68	ASTC_4x4	0.42	False	0.704	2048	False	False	Single
+387	Assets/Art/NinjaStart_v1/start_01.png	player	612x685	612x685	422	ETC2_RGBA8 (無圧縮に落ちた)	1.68	ASTC_4x4	0.42	False	0.694	2048	False	False	Single
+388	Assets/Art/DualBladeFinishExtreme_v1/finish_00.png	player	619x676	619x676	651	ETC2_RGBA8 (無圧縮に落ちた)	1.67	ASTC_4x4	0.42	False	1.000	2048	False	False	Single
+389	Assets/Art/MagePoses_v1/castUp/castUp_p0_01.png	player	528x791	528x791	451	ETC2_RGBA8 (無圧縮に落ちた)	1.67	ASTC_4x4	0.42	False	0.869	2048	False	False	Single
+390	Assets/Art/WildBoss/wolf_idle.png	boss	830x503	830x503	576	ETC2_RGBA8 (無圧縮に落ちた)	1.67	ASTC_4x4	0.42	False	1.000	2048	False	False	Single
+391	Assets/Art/Reapers/Second/move_01.png	boss	608x686	608x686	664	ETC2_RGBA8 (無圧縮に落ちた)	1.67	ASTC_4x4	0.42	False	0.875	2048	False	False	Single
+392	Assets/Art/Reapers/Second/move_00.png	boss	608x686	608x686	678	ETC2_RGBA8 (無圧縮に落ちた)	1.67	ASTC_4x4	0.42	False	0.896	2048	False	False	Single
+393	Assets/Art/Reapers/Second/move_03.png	boss	608x686	608x686	669	ETC2_RGBA8 (無圧縮に落ちた)	1.67	ASTC_4x4	0.42	False	0.879	2048	False	False	Single
+394	Assets/Art/Reapers/Second/move_02.png	boss	608x686	608x686	656	ETC2_RGBA8 (無圧縮に落ちた)	1.67	ASTC_4x4	0.42	False	0.853	2048	False	False	Single
+395	Assets/Art/NinjaStart_v1/start_02.png	player	896x465	896x465	363	ETC2_RGBA8 (無圧縮に落ちた)	1.67	ASTC_4x4	0.42	False	0.569	2048	False	False	Single
+396	Assets/Art/Reapers/Eldest/move_01.png	boss	624x667	624x667	697	ETC2_RGBA8 (無圧縮に落ちた)	1.66	ASTC_4x4	0.42	False	0.815	2048	False	False	Single
+397	Assets/Art/Reapers/Eldest/move_00.png	boss	624x667	624x667	763	ETC2_RGBA8 (無圧縮に落ちた)	1.66	ASTC_4x4	0.42	False	0.895	2048	False	False	Single
+398	Assets/Art/Reapers/Eldest/move_02.png	boss	624x667	624x667	730	ETC2_RGBA8 (無圧縮に落ちた)	1.66	ASTC_4x4	0.42	False	0.867	2048	False	False	Single
+399	Assets/Art/Reapers/Eldest/move_03.png	boss	624x667	624x667	684	ETC2_RGBA8 (無圧縮に落ちた)	1.66	ASTC_4x4	0.42	False	0.779	2048	False	False	Single
+400	Assets/Art/ArcherFinishShort_v1/finish_01.png	player	620x671	620x671	414	ETC2_RGBA8 (無圧縮に落ちた)	1.66	ASTC_4x4	0.42	False	0.969	2048	False	False	Single
+401	Assets/Art/ArcherStart_v1/start_03.png	player	810x512	810x512	311	ETC2_RGBA8 (無圧縮に落ちた)	1.66	ASTC_4x4	0.42	False	0.611	2048	False	False	Single
+402	Assets/Art/EnemyAttack/cave_hopper_attack.png	enemy	779x532	779x532	408	ETC2_RGBA8 (無圧縮に落ちた)	1.66	ASTC_4x4	0.42	False	0.982	2048	False	False	Single
+403	Assets/Art/ArcherPoses_v1/lowshot/lowshot_p0_00.png	player	812x507	812x507	448	ETC2_RGBA8 (無圧縮に落ちた)	1.65	ASTC_4x4	0.41	False	0.819	2048	False	False	Single
+404	Assets/Art/MikoStart_v1/start_00.png	player	598x688	598x688	520	ETC2_RGBA8 (無圧縮に落ちた)	1.65	ASTC_4x4	0.41	False	0.723	2048	False	False	Single
+405	Assets/Art/MikoPoses_v1/place/place_p0_00.png	player	670x612	670x612	603	ETC2_RGBA8 (無圧縮に落ちた)	1.64	ASTC_4x4	0.41	False	0.954	2048	False	False	Single
+406	Assets/Art/NinjaLand_v1/land_00.png	player	856x479	856x479	358	ETC2_RGBA8 (無圧縮に落ちた)	1.64	ASTC_4x4	0.41	False	0.579	2048	False	False	Single
+407	Assets/Art/MagePoses_v1/castDown/castDown_p0_02.png	player	690x594	690x594	480	ETC2_RGBA8 (無圧縮に落ちた)	1.64	ASTC_4x4	0.41	False	0.900	2048	False	False	Single
+408	Assets/Art/SkyBoss/phoenix_windup.png	boss	600x683	600x683	727	ETC2_RGBA8 (無圧縮に落ちた)	1.64	ASTC_4x4	0.41	False	1.000	2048	False	False	Single
+409	Assets/Art/FighterStart_v1/start_01.png	player	582x704	582x704	398	ETC2_RGBA8 (無圧縮に落ちた)	1.64	ASTC_4x4	0.41	False	0.834	2048	False	False	Single
+410	Assets/Art/FighterPoses_v1/kick/kick_p0_00.png	player	650x630	650x630	385	ETC2_RGBA8 (無圧縮に落ちた)	1.64	ASTC_4x4	0.41	False	0.718	2048	False	False	Single
+411	Assets/Art/MagePoses_v1/cast/cast_p1_01.png	player	650x628	650x628	477	ETC2_RGBA8 (無圧縮に落ちた)	1.63	ASTC_4x4	0.41	False	0.832	2048	False	False	Single
+412	Assets/Art/PlayerFinishMedium_v1/finish_01.png	player	549x743	549x743	438	ETC2_RGBA8 (無圧縮に落ちた)	1.63	ASTC_4x4	0.41	False	1.000	2048	False	False	Single
+413	Assets/Art/FighterPoses_v1/counter/counter_p1_01.png	player	666x610	666x610	392	ETC2_RGBA8 (無圧縮に落ちた)	1.63	ASTC_4x4	0.41	False	0.728	2048	False	False	Single
+414	Assets/Art/CaveBoss/batboss_attack.png	boss	535x756	535x756	559	ETC2_RGBA8 (無圧縮に落ちた)	1.62	ASTC_4x4	0.41	False	1.000	2048	False	False	Single
+415	Assets/Art/MageDeath_v1/death_00.png	player	598x672	598x672	359	ETC2_RGBA8 (無圧縮に落ちた)	1.61	ASTC_4x4	0.40	False	0.789	2048	False	False	Single
+416	Assets/Art/SkyBoss/titan_windup.png	boss	578x694	578x694	710	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	1.000	2048	False	False	Single
+417	Assets/Art/ShooterRun/shooter_run_2.png	enemy	554x724	554x724	497	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.446	2048	False	False	Single
+418	Assets/Art/ShooterRun/shooter_run_0.png	enemy	554x724	554x724	456	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.513	2048	False	False	Single
+419	Assets/Art/ShooterRun/shooter_run_3.png	enemy	554x724	554x724	496	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.488	2048	False	False	Single
+420	Assets/Art/ShooterRun/shooter_run_1.png	enemy	554x724	554x724	510	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.480	2048	False	False	Single
+421	Assets/Art/IrregularRun/irregular_run_0.png	enemy	554x724	554x724	383	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.288	2048	False	False	Single
+422	Assets/Art/IrregularRun/irregular_run_1.png	enemy	554x724	554x724	422	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.283	2048	False	False	Single
+423	Assets/Art/IrregularRun/irregular_run_2.png	enemy	554x724	554x724	414	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.281	2048	False	False	Single
+424	Assets/Art/IrregularRun/irregular_run_3.png	enemy	554x724	554x724	418	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.298	2048	False	False	Single
+425	Assets/Art/HeavyRun/heavy_run_3.png	enemy	554x724	554x724	409	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.306	2048	False	False	Single
+426	Assets/Art/GoblinRun/goblin_run_0.png	enemy	554x724	554x724	256	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.413	2048	False	False	Single
+427	Assets/Art/GoblinRun/goblin_run_1.png	enemy	554x724	554x724	247	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.348	2048	False	False	Single
+428	Assets/Art/GoblinRun/goblin_run_3.png	enemy	554x724	554x724	250	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.373	2048	False	False	Single
+429	Assets/Art/HeavyRun/heavy_run_1.png	enemy	554x724	554x724	399	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.233	2048	False	False	Single
+430	Assets/Art/HeavyRun/heavy_run_2.png	enemy	554x724	554x724	401	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.242	2048	False	False	Single
+431	Assets/Art/GoblinRun/goblin_run_2.png	enemy	554x724	554x724	256	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.415	2048	False	False	Single
+432	Assets/Art/HeavyRun/heavy_run_0.png	enemy	554x724	554x724	392	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.305	2048	False	False	Single
+433	Assets/Art/GunslingerDownAttack_v1/downattack_01.png	player	610x656	610x656	462	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	1.000	2048	False	False	Single
+434	Assets/Art/NinjaHurt_v1/hurt_02.png	player	946x423	946x423	338	ETC2_RGBA8 (無圧縮に落ちた)	1.60	ASTC_4x4	0.40	False	0.630	2048	False	False	Single
+435	Assets/Art/GunslingerDownAttack_v1/downattack_00.png	player	606x657	606x657	462	ETC2_RGBA8 (無圧縮に落ちた)	1.59	ASTC_4x4	0.40	False	1.000	2048	False	False	Single
+436	Assets/Art/DragonkinHurt_v1/hurt_00.png	player	702x567	702x567	459	ETC2_RGBA8 (無圧縮に落ちた)	1.59	ASTC_4x4	0.40	False	0.709	2048	False	False	Single
+437	Assets/Art/FighterPoses_v1/uppercut/uppercut_p0_00.png	player	912x435	912x435	348	ETC2_RGBA8 (無圧縮に落ちた)	1.59	ASTC_4x4	0.40	False	0.603	2048	False	False	Single
+438	Assets/Art/SkyBoss/skygolem_idle.png	boss	624x633	624x633	777	ETC2_RGBA8 (無圧縮に落ちた)	1.58	ASTC_4x4	0.40	False	1.000	2048	False	False	Single
+439	Assets/Art/MikoFinishLong_v1/finish_00.png	player	730x541	730x541	442	ETC2_RGBA8 (無圧縮に落ちた)	1.58	ASTC_4x4	0.40	False	0.634	2048	False	False	Single
+440	Assets/Art/SoldierAntRun/soldierant_run_1.png	enemy	783x504	783x504	478	ETC2_RGBA8 (無圧縮に落ちた)	1.58	ASTC_4x4	0.40	False	1.000	2048	False	False	Single
+441	Assets/Art/FighterPoses_v1/heavy/heavy_p1_01.png	player	772x511	772x511	388	ETC2_RGBA8 (無圧縮に落ちた)	1.58	ASTC_4x4	0.40	False	0.798	2048	False	False	Single
+442	Assets/Art/MikoFinishShort_v1/finish_01.png	player	560x703	560x703	512	ETC2_RGBA8 (無圧縮に落ちた)	1.57	ASTC_4x4	0.39	False	0.811	2048	False	False	Single
+443	Assets/Art/Effects/ForegroundCloudNew.png	effect	1536x1024	1536x1024	1457	ETC2_RGBA8	1.57	ASTC_6x6	0.70	True	0.550	2048	False	False	Single
+444	Assets/Resources/CardFrames/CardFrameRarity1.png	card	1024x1536	1024x1536	1310	ETC2_RGBA8	1.57	ASTC_4x4	1.57	True	0.865	2048	False	False	Single
+445	Assets/Resources/CardFrames/CardFrameRarity3.png	card	1024x1536	1024x1536	1621	ETC2_RGBA8	1.57	ASTC_4x4	1.57	True	0.945	2048	False	False	Single
+446	Assets/Art/Enemy/IrregularEnemy.png	enemy	1536x1024	1536x1024	2177	ETC2_RGBA8	1.57	ASTC_4x4	1.57	True	0.834	2048	False	False	Single
+447	Assets/Art/Effects/EnemyDeathSmoke.png	enemy	1536x1024	1536x1024	2397	ETC2_RGBA8	1.57	ASTC_6x6	0.70	True	0.893	2048	False	False	Single
+448	Assets/Art/Ground/CloudPlatform.png	background	1536x1024	1536x1024	1488	ETC2_RGBA8	1.57	ASTC_5x5	1.01	True	0.832	2048	False	False	Single
+449	Assets/Art/Decoration/DecorRuinsSign.png	background	1536x1024	1536x1024	2291	ETC2_RGBA8	1.57	ASTC_5x5	1.01	True	0.752	2048	False	False	Single
+450	Assets/Art/Effects/LandingPuff.png	effect	1536x1024	1536x1024	2066	ETC2_RGBA8	1.57	ASTC_6x6	0.70	True	0.673	2048	False	False	Single
+451	Assets/Art/Decoration/DecorFlowers.png	background	1536x1024	1536x1024	2306	ETC2_RGBA8	1.57	ASTC_5x5	1.01	True	0.733	2048	False	False	Single
+452	Assets/Art/Enemy/ShooterEnemy.png	enemy	1536x1024	1536x1024	2059	ETC2_RGBA8	1.57	ASTC_4x4	1.57	True	0.961	2048	False	False	Single
+453	Assets/Art/Enemy/HeavyEnemy.png	enemy	1536x1024	1536x1024	2684	ETC2_RGBA8	1.57	ASTC_4x4	1.57	True	0.957	2048	False	False	Single
+454	Assets/Art/Decoration/DecorGrass.png	background	1536x1024	1536x1024	1811	ETC2_RGBA8	1.57	ASTC_5x5	1.01	True	0.703	2048	False	False	Single
+455	Assets/Art/Decoration/DecorRock.png	background	1536x1024	1536x1024	2234	ETC2_RGBA8	1.57	ASTC_5x5	1.01	True	0.754	2048	False	False	Single
+456	Assets/Art/Enemy/RunnerEnemy.png	enemy	1536x1024	1536x1024	2164	ETC2_RGBA8	1.57	ASTC_4x4	1.57	True	0.909	2048	False	False	Single
+457	Assets/Art/UI/OrnateFrame.png	ui	1536x1024	1536x1024	1474	ETC2_RGBA8	1.57	ASTC_4x4	1.57	True	0.951	2048	False	False	Single
+458	Assets/Art/UI/CardFrames/CardBase.png	card	1024x1536	1024x1536	1636	ETC2_RGBA8	1.57	ASTC_4x4	1.57	True	0.733	2048	False	False	Single
+459	Assets/Art/Effects/HitSpark.png	effect	1536x1024	1536x1024	1943	ETC2_RGBA8	1.57	ASTC_6x6	0.70	True	0.857	2048	False	False	Single
+460	Assets/Art/Effects/RunDust.png	effect	1536x1024	1536x1024	1557	ETC2_RGBA8	1.57	ASTC_6x6	0.70	True	0.482	2048	False	False	Single
+461	Assets/Art/Effects/JumpPuff.png	effect	1536x1024	1536x1024	1563	ETC2_RGBA8	1.57	ASTC_6x6	0.70	True	0.445	2048	False	False	Single
+462	Assets/Art/NobleLadyJumpStart_v1/jumpstart_00.png	player	543x724	543x724	351	ETC2_RGBA8 (無圧縮に落ちた)	1.57	ASTC_4x4	0.39	False	0.297	2048	False	False	Single
+463	Assets/Art/MageFinishExtreme_v1/finish_01.png	player	1070x366	1070x366	438	ETC2_RGBA8 (無圧縮に落ちた)	1.57	ASTC_4x4	0.39	False	0.893	2048	False	False	Single
+464	Assets/Art/FighterPoses_v1/divekick/divekick_p1_00.png	player	602x650	602x650	318	ETC2_RGBA8 (無圧縮に落ちた)	1.57	ASTC_4x4	0.39	False	0.621	2048	False	False	Single
+465	Assets/Art/ArcherFinishMedium_v1/finish_01.png	player	630x621	630x621	382	ETC2_RGBA8 (無圧縮に落ちた)	1.57	ASTC_4x4	0.39	False	0.847	2048	False	False	Single
+466	Assets/Art/ArcherStart_v1/start_01.png	player	596x653	596x653	353	ETC2_RGBA8 (無圧縮に落ちた)	1.56	ASTC_4x4	0.39	False	0.742	2048	False	False	Single
+467	Assets/Art/LancerDive_v1/dive_01.png	player	502x774	502x774	258	ETC2_RGBA8 (無圧縮に落ちた)	1.55	ASTC_4x4	0.39	False	0.579	2048	False	False	Single
+468	Assets/Art/MageStart_v1/start_02.png	player	586x661	586x661	426	ETC2_RGBA8 (無圧縮に落ちた)	1.55	ASTC_4x4	0.39	False	0.792	2048	False	False	Single
+469	Assets/Art/VampireHurt_v1/hurt_00.png	player	626x618	626x618	481	ETC2_RGBA8 (無圧縮に落ちた)	1.55	ASTC_4x4	0.39	False	0.880	2048	False	False	Single
+470	Assets/Art/LancerHurt_v1/hurt_02.png	player	1046x368	1046x368	283	ETC2_RGBA8 (無圧縮に落ちた)	1.54	ASTC_4x4	0.39	False	0.687	2048	False	False	Single
+471	Assets/Art/SoldierAntRun/soldierant_run_0.png	enemy	763x504	763x504	501	ETC2_RGBA8 (無圧縮に落ちた)	1.54	ASTC_4x4	0.39	False	1.000	2048	False	False	Single
+472	Assets/Art/Enemy/SoldierAnt.png	enemy	763x504	763x504	501	ETC2_RGBA8 (無圧縮に落ちた)	1.54	ASTC_4x4	0.39	False	1.000	2048	False	False	Single
+473	Assets/Art/DragonkinStart_v1/start_01.png	player	572x670	572x670	421	ETC2_RGBA8 (無圧縮に落ちた)	1.53	ASTC_4x4	0.38	False	0.728	2048	False	False	Single
+474	Assets/Art/SkyBoss/titan_idle.png	boss	568x673	568x673	732	ETC2_RGBA8 (無圧縮に落ちた)	1.53	ASTC_4x4	0.38	False	1.000	2048	False	False	Single
+475	Assets/Art/ArcherFinishExtreme_v1/finish_00.png	player	714x533	714x533	397	ETC2_RGBA8 (無圧縮に落ちた)	1.52	ASTC_4x4	0.38	False	0.860	2048	False	False	Single
+476	Assets/Art/LancerThrust_v1/thrust_01.png	player	918x411	918x411	335	ETC2_RGBA8 (無圧縮に落ちた)	1.51	ASTC_4x4	0.38	False	0.916	2048	False	False	Single
+477	Assets/Art/DragonkinHurt_v1/hurt_01.png	player	682x553	682x553	474	ETC2_RGBA8 (無圧縮に落ちた)	1.51	ASTC_4x4	0.38	False	0.949	2048	False	False	Single
+478	Assets/Art/NinjaStart_v1/start_00.png	player	542x694	542x694	395	ETC2_RGBA8 (無圧縮に落ちた)	1.50	ASTC_4x4	0.38	False	0.728	2048	False	False	Single
+479	Assets/Art/MagePoses_v1/castDown/castDown_p0_00.png	player	568x662	568x662	541	ETC2_RGBA8 (無圧縮に落ちた)	1.50	ASTC_4x4	0.38	False	0.880	2048	False	False	Single
+480	Assets/Art/NobleLadyAttack_v1/attack_03.png	player	519x724	519x724	392	ETC2_RGBA8 (無圧縮に落ちた)	1.50	ASTC_4x4	0.38	False	0.482	2048	False	False	Single
+481	Assets/Art/ArcherStart_v1/start_02.png	player	530x705	530x705	367	ETC2_RGBA8 (無圧縮に落ちた)	1.49	ASTC_4x4	0.38	False	0.968	2048	False	False	Single
+482	Assets/Art/WildBoss/wolf_windup.png	boss	736x507	736x507	548	ETC2_RGBA8 (無圧縮に落ちた)	1.49	ASTC_4x4	0.37	False	1.000	2048	False	False	Single
+483	Assets/Art/CaveBoss/centipede_idle.png	boss	780x475	780x475	631	ETC2_RGBA8 (無圧縮に落ちた)	1.48	ASTC_4x4	0.37	False	1.000	2048	False	False	Single
+484	Assets/Art/MikoStart_v1/start_02.png	player	534x692	534x692	477	ETC2_RGBA8 (無圧縮に落ちた)	1.48	ASTC_4x4	0.37	False	0.743	2048	False	False	Single
+485	Assets/Art/LancerStart_v1/start_02.png	player	778x470	778x470	316	ETC2_RGBA8 (無圧縮に落ちた)	1.46	ASTC_4x4	0.37	False	0.808	2048	False	False	Single
+486	Assets/Art/VampireStart_v1/start_02.png	player	520x702	520x702	372	ETC2_RGBA8 (無圧縮に落ちた)	1.46	ASTC_4x4	0.37	False	0.945	2048	False	False	Single
+487	Assets/Art/SkyBoss/fenrir_idle.png	boss	839x433	839x433	598	ETC2_RGBA8 (無圧縮に落ちた)	1.45	ASTC_4x4	0.37	False	1.000	2048	False	False	Single
+488	Assets/Art/SkyBoss/fenrir_attack.png	boss	705x515	705x515	577	ETC2_RGBA8 (無圧縮に落ちた)	1.45	ASTC_4x4	0.37	False	1.000	2048	False	False	Single
+489	Assets/Art/CaveBoss/drake_windup.png	boss	695x522	695x522	555	ETC2_RGBA8 (無圧縮に落ちた)	1.45	ASTC_4x4	0.36	False	0.981	2048	False	False	Single
+490	Assets/Art/LancerStart_v1/start_01.png	player	514x705	514x705	285	ETC2_RGBA8 (無圧縮に落ちた)	1.45	ASTC_4x4	0.37	False	0.675	2048	False	False	Single
+491	Assets/Art/MagePoses_v1/cast/cast_p0_00.png	player	568x637	568x637	592	ETC2_RGBA8 (無圧縮に落ちた)	1.45	ASTC_4x4	0.36	False	0.949	2048	False	False	Single
+492	Assets/Art/LancerFinishShort_v1/finish_01.png	player	636x565	636x565	368	ETC2_RGBA8 (無圧縮に落ちた)	1.44	ASTC_4x4	0.36	False	0.979	2048	False	False	Single
+493	Assets/Art/NinjaFinishLong_v1/finish_00.png	player	714x500	714x500	360	ETC2_RGBA8 (無圧縮に落ちた)	1.43	ASTC_4x4	0.36	False	0.706	2048	False	False	Single
+494	Assets/Art/MageStart_v1/start_03.png	player	556x642	556x642	423	ETC2_RGBA8 (無圧縮に落ちた)	1.43	ASTC_4x4	0.36	False	0.920	2048	False	False	Single
+495	Assets/Art/LancerHurt_v1/hurt_00.png	player	760x469	760x469	253	ETC2_RGBA8 (無圧縮に落ちた)	1.43	ASTC_4x4	0.36	False	0.708	2048	False	False	Single
+496	Assets/Art/SkyBoss/skyserpent_windup.png	boss	804x443	804x443	467	ETC2_RGBA8 (無圧縮に落ちた)	1.42	ASTC_4x4	0.36	False	1.000	2048	False	False	Single
+497	Assets/Art/MikoFinishMedium_v1/finish_01.png	player	554x640	554x640	469	ETC2_RGBA8 (無圧縮に落ちた)	1.42	ASTC_4x4	0.36	False	0.791	2048	False	False	Single
+498	Assets/Art/CaveHopperRun/cavehopper_run_0.png	enemy	711x497	711x497	466	ETC2_RGBA8 (無圧縮に落ちた)	1.41	ASTC_4x4	0.36	False	1.000	2048	False	False	Single
+499	Assets/Art/Enemy/CaveHopper.png	enemy	711x497	711x497	466	ETC2_RGBA8 (無圧縮に落ちた)	1.41	ASTC_4x4	0.36	False	1.000	2048	False	False	Single
+500	Assets/Art/LancerBack_v1/back_00.png	player	710x494	710x494	349	ETC2_RGBA8 (無圧縮に落ちた)	1.40	ASTC_4x4	0.35	False	0.972	2048	False	False	Single
+501	Assets/Art/Effects/SlashUpBlueFrames/slashup_00.png	effect	483x722	483x722	62	ETC2_RGBA8 (無圧縮に落ちた)	1.40	ASTC_6x6	0.16	False	0.424	2048	False	False	Single
+502	Assets/Art/Effects/SlashUpBlueFrames/slashup_04.png	effect	483x722	483x722	42	ETC2_RGBA8 (無圧縮に落ちた)	1.40	ASTC_6x6	0.16	False	0.233	2048	False	False	Single
+503	Assets/Art/Effects/SlashUpBlueFrames/slashup_01.png	effect	483x722	483x722	325	ETC2_RGBA8 (無圧縮に落ちた)	1.40	ASTC_6x6	0.16	False	0.838	2048	False	False	Single
+504	Assets/Art/Effects/SlashUpBlueFrames/slashup_02.png	effect	483x722	483x722	210	ETC2_RGBA8 (無圧縮に落ちた)	1.40	ASTC_6x6	0.16	False	0.813	2048	False	False	Single
+505	Assets/Art/Effects/SlashUpBlueFrames/slashup_03.png	effect	483x722	483x722	122	ETC2_RGBA8 (無圧縮に落ちた)	1.40	ASTC_6x6	0.16	False	0.652	2048	False	False	Single
+506	Assets/Art/FighterPoses_v1/heavy/heavy_p0_00.png	player	756x461	756x461	419	ETC2_RGBA8 (無圧縮に落ちた)	1.39	ASTC_4x4	0.35	False	0.874	2048	False	False	Single
+507	Assets/Art/NinjaPoses_v1/dashslash/dashslash_00.png	player	700x497	700x497	430	ETC2_RGBA8 (無圧縮に落ちた)	1.39	ASTC_4x4	0.35	False	0.801	2048	False	False	Single
+508	Assets/Art/MikoStart_v1/start_01.png	player	500x694	500x694	465	ETC2_RGBA8 (無圧縮に落ちた)	1.39	ASTC_4x4	0.35	False	0.777	2048	False	False	Single
+509	Assets/Art/MageStart_v1/start_00.png	player	476x727	476x727	379	ETC2_RGBA8 (無圧縮に落ちた)	1.38	ASTC_4x4	0.35	False	0.752	2048	False	False	Single
+510	Assets/Art/VampireStart_v1/start_01.png	player	494x700	494x700	359	ETC2_RGBA8 (無圧縮に落ちた)	1.38	ASTC_4x4	0.35	False	0.777	2048	False	False	Single
+511	Assets/Art/VisualStyleV1/Ground/platform_right.png	background	450x768	450x768	353	ETC2_RGBA8 (無圧縮に落ちた)	1.38	ASTC_5x5	0.22	False	0.489	2048	False	False	Single
+512	Assets/Art/VisualStyleV1/Ground/platform_left.png	background	450x768	450x768	353	ETC2_RGBA8 (無圧縮に落ちた)	1.38	ASTC_5x5	0.22	False	0.489	2048	False	False	Single
+513	Assets/Art/LancerThrust_v1/thrust_00.png	player	822x418	822x418	341	ETC2_RGBA8 (無圧縮に落ちた)	1.37	ASTC_4x4	0.35	False	0.901	2048	False	False	Single
+514	Assets/Art/SkyBoss/phoenix_attack.png	boss	726x471	726x471	556	ETC2_RGBA8 (無圧縮に落ちた)	1.37	ASTC_4x4	0.34	False	1.000	2048	False	False	Single
+515	Assets/Art/VampireStart_v1/start_00.png	player	488x699	488x699	315	ETC2_RGBA8 (無圧縮に落ちた)	1.36	ASTC_4x4	0.34	False	0.719	2048	False	False	Single
+516	Assets/Art/CaveAntRun/caveant_run_0.png	enemy	733x461	733x461	407	ETC2_RGBA8 (無圧縮に落ちた)	1.35	ASTC_4x4	0.34	False	1.000	2048	False	False	Single
+517	Assets/Art/Enemy/CaveAnt.png	enemy	733x461	733x461	407	ETC2_RGBA8 (無圧縮に落ちた)	1.35	ASTC_4x4	0.34	False	1.000	2048	False	False	Single
+518	Assets/Art/Reapers/Youngest/idle.png	boss	494x684	494x684	630	ETC2_RGBA8 (無圧縮に落ちた)	1.35	ASTC_4x4	0.34	False	1.000	2048	False	False	Single
+519	Assets/Art/SkyBoss/skyserpent_attack.png	boss	802x421	802x421	488	ETC2_RGBA8 (無圧縮に落ちた)	1.35	ASTC_4x4	0.34	False	1.000	2048	False	False	Single
+520	Assets/Art/PlayerAttack_v1/attack_03.png	player	472x715	472x715	169	ETC2_RGBA8 (無圧縮に落ちた)	1.35	ASTC_4x4	0.34	False	0.396	2048	False	False	Single
+521	Assets/Art/LastCorridor/Obstacles/door_giant.png	background	521x643	521x643	629	ETC2_RGBA8 (無圧縮に落ちた)	1.34	ASTC_5x5	0.22	False	1.000	2048	False	False	Single
+522	Assets/Art/NinjaHurt_v1/hurt_00.png	player	662x506	662x506	410	ETC2_RGBA8 (無圧縮に落ちた)	1.34	ASTC_4x4	0.34	False	0.850	2048	False	False	Single
+523	Assets/Art/SkyBoss/skyserpent_idle.png	boss	811x412	811x412	488	ETC2_RGBA8 (無圧縮に落ちた)	1.34	ASTC_4x4	0.33	False	1.000	2048	False	False	Single
+524	Assets/Art/LastCorridor/Decor/arch.png	background	496x673	496x673	553	ETC2_RGBA8 (無圧縮に落ちた)	1.34	ASTC_5x5	0.22	False	1.000	2048	False	False	Single
+525	Assets/Art/LancerStart_v1/start_03.png	player	906x368	906x368	272	ETC2_RGBA8 (無圧縮に落ちた)	1.33	ASTC_4x4	0.33	False	0.600	2048	False	False	Single
+526	Assets/Art/VampirePoses_v1/claw2/claw2_p1_00.png	player	624x533	624x533	468	ETC2_RGBA8 (無圧縮に落ちた)	1.33	ASTC_4x4	0.33	False	0.949	2048	False	False	Single
+527	Assets/Art/LancerDeath_v1/death_02.png	player	632x526	632x526	275	ETC2_RGBA8 (無圧縮に落ちた)	1.33	ASTC_4x4	0.33	False	0.875	2048	False	False	Single
+528	Assets/Art/FighterFinishExtreme_v1/finish_00.png	player	938x353	938x353	301	ETC2_RGBA8 (無圧縮に落ちた)	1.32	ASTC_4x4	0.33	False	0.703	2048	False	False	Single
+529	Assets/Art/NinjaFinishLong_v1/finish_01.png	player	852x387	852x387	359	ETC2_RGBA8 (無圧縮に落ちた)	1.32	ASTC_4x4	0.33	False	0.729	2048	False	False	Single
+530	Assets/Art/LancerDown_v1/down_00.png	player	938x348	938x348	340	ETC2_RGBA8 (無圧縮に落ちた)	1.31	ASTC_4x4	0.33	False	0.948	2048	False	False	Single
+531	Assets/Art/PlayerAttack_v1/attack_02.png	player	447x715	447x715	139	ETC2_RGBA8 (無圧縮に落ちた)	1.28	ASTC_4x4	0.32	False	0.375	2048	False	False	Single
+532	Assets/Art/LancerDeath_v1/death_03.png	player	646x494	646x494	232	ETC2_RGBA8 (無圧縮に落ちた)	1.28	ASTC_4x4	0.32	False	0.845	2048	False	False	Single
+533	Assets/Art/NobleLadyJumpAir_v1/jumpair_00.png	player	439x724	439x724	370	ETC2_RGBA8 (無圧縮に落ちた)	1.27	ASTC_4x4	0.32	False	0.516	2048	False	False	Single
+534	Assets/Art/PlayerUpAttackGround_v1/upattackground_04.png	player	435x724	435x724	130	ETC2_RGBA8 (無圧縮に落ちた)	1.26	ASTC_4x4	0.32	False	0.314	2048	False	False	Single
+535	Assets/Art/PlayerUpAttackGround_v1/upattackground_02.png	player	435x724	435x724	274	ETC2_RGBA8 (無圧縮に落ちた)	1.26	ASTC_4x4	0.32	False	0.800	2048	False	False	Single
+536	Assets/Art/PlayerUpAttackAir_v1/upattackair_02.png	player	435x724	435x724	322	ETC2_RGBA8 (無圧縮に落ちた)	1.26	ASTC_4x4	0.32	False	0.901	2048	False	False	Single
+537	Assets/Art/PlayerUpAttackAir_v1/upattackair_04.png	player	435x724	435x724	143	ETC2_RGBA8 (無圧縮に落ちた)	1.26	ASTC_4x4	0.32	False	0.375	2048	False	False	Single
+538	Assets/Art/SkyBoss/leviathan_idle.png	boss	865x364	865x364	498	ETC2_RGBA8 (無圧縮に落ちた)	1.26	ASTC_4x4	0.32	False	1.000	2048	False	False	Single
+539	Assets/Art/PlayerUpAttackGround_v1/upattackground_00.png	player	434x724	434x724	121	ETC2_RGBA8 (無圧縮に落ちた)	1.26	ASTC_4x4	0.32	False	0.282	2048	False	False	Single
+540	Assets/Art/PlayerUpAttackGround_v1/upattackground_01.png	player	434x724	434x724	174	ETC2_RGBA8 (無圧縮に落ちた)	1.26	ASTC_4x4	0.32	False	0.647	2048	False	False	Single
+541	Assets/Art/PlayerUpAttackGround_v1/upattackground_03.png	player	434x724	434x724	173	ETC2_RGBA8 (無圧縮に落ちた)	1.26	ASTC_4x4	0.32	False	0.683	2048	False	False	Single
+542	Assets/Art/PlayerUpAttackAir_v1/upattackair_01.png	player	434x724	434x724	214	ETC2_RGBA8 (無圧縮に落ちた)	1.26	ASTC_4x4	0.32	False	0.798	2048	False	False	Single
+543	Assets/Art/PlayerUpAttackAir_v1/upattackair_00.png	player	434x724	434x724	143	ETC2_RGBA8 (無圧縮に落ちた)	1.26	ASTC_4x4	0.32	False	0.411	2048	False	False	Single
+544	Assets/Art/PlayerUpAttackAir_v1/upattackair_03.png	player	434x724	434x724	220	ETC2_RGBA8 (無圧縮に落ちた)	1.26	ASTC_4x4	0.32	False	0.727	2048	False	False	Single
+545	Assets/Art/WastelandBirdFlap/bird_flap_1.png	enemy	434x724	434x724	238	ETC2_RGBA8 (無圧縮に落ちた)	1.26	ASTC_4x4	0.32	False	0.443	2048	False	False	Single
+546	Assets/Art/WastelandBirdFlap/bird_flap_3.png	enemy	434x724	434x724	227	ETC2_RGBA8 (無圧縮に落ちた)	1.26	ASTC_4x4	0.32	False	0.419	2048	False	False	Single
+547	Assets/Art/WastelandBirdFlap/bird_flap_2.png	enemy	434x724	434x724	193	ETC2_RGBA8 (無圧縮に落ちた)	1.26	ASTC_4x4	0.32	False	0.358	2048	False	False	Single
+548	Assets/Art/WastelandBirdFlap/bird_flap_0.png	enemy	434x724	434x724	278	ETC2_RGBA8 (無圧縮に落ちた)	1.26	ASTC_4x4	0.32	False	0.545	2048	False	False	Single
+549	Assets/Art/ArcherJump_v1/jump_00.png	player	638x488	638x488	268	ETC2_RGBA8 (無圧縮に落ちた)	1.25	ASTC_4x4	0.31	False	0.679	2048	False	False	Single
+550	Assets/Art/FighterFinishExtreme_v1/finish_01.png	player	1404x221	1404x221	259	ETC2_RGBA8 (無圧縮に落ちた)	1.24	ASTC_4x4	0.31	False	0.616	2048	False	False	Single
+551	Assets/Art/NinjaJump_v1/jump_00.png	player	532x581	532x581	337	ETC2_RGBA8 (無圧縮に落ちた)	1.24	ASTC_4x4	0.31	False	0.907	2048	False	False	Single
+552	Assets/Art/GunslingerJumpStart_v1/gunslingerjumpstart_0.png	player	532x579	532x579	292	ETC2_RGBA8 (無圧縮に落ちた)	1.23	ASTC_4x4	0.31	False	1.000	2048	False	False	Single
+553	Assets/Art/GunslingerDoubleJump_v1/gunslingerdoublejump_0.png	player	532x579	532x579	292	ETC2_RGBA8 (無圧縮に落ちた)	1.23	ASTC_4x4	0.31	False	1.000	2048	False	False	Single
+554	Assets/Art/GunslingerJumpAir_v1/gunslingerjumpair_0.png	player	532x579	532x579	292	ETC2_RGBA8 (無圧縮に落ちた)	1.23	ASTC_4x4	0.31	False	1.000	2048	False	False	Single
+555	Assets/Art/SkyBoss/behemoth_idle.png	boss	732x417	732x417	459	ETC2_RGBA8 (無圧縮に落ちた)	1.22	ASTC_4x4	0.31	False	1.000	2048	False	False	Single
+556	Assets/Art/MageStart_v1/start_01.png	player	488x618	488x618	358	ETC2_RGBA8 (無圧縮に落ちた)	1.21	ASTC_4x4	0.30	False	0.851	2048	False	False	Single
+557	Assets/Art/GunslingerLand_v1/gunslingerland_0.png	player	552x545	552x545	377	ETC2_RGBA8 (無圧縮に落ちた)	1.20	ASTC_4x4	0.30	False	1.000	2048	False	False	Single
+558	Assets/Art/FighterPoses_v1/sweep/sweep_p0_00.png	player	890x338	890x338	280	ETC2_RGBA8 (無圧縮に落ちた)	1.20	ASTC_4x4	0.30	False	0.570	2048	False	False	Single
+559	Assets/Art/Cave/platform_cave_left.png	background	357x833	357x833	468	ETC2_RGBA8 (無圧縮に落ちた)	1.19	ASTC_5x5	0.19	False	0.655	2048	False	False	Single
+560	Assets/Art/Cave/platform_cave_right.png	background	357x833	357x833	468	ETC2_RGBA8 (無圧縮に落ちた)	1.19	ASTC_5x5	0.19	False	0.655	2048	False	False	Single
+561	Assets/Art/MikoFinishExtreme_v1/finish_01.png	player	574x514	574x514	394	ETC2_RGBA8 (無圧縮に落ちた)	1.18	ASTC_4x4	0.30	False	0.923	2048	False	False	Single
+562	Assets/Art/DualBladeRun_v1/run_02.png	player	594x495	594x495	248	ETC2_RGBA8 (無圧縮に落ちた)	1.18	ASTC_4x4	0.30	False	0.876	2048	False	False	Single
+563	Assets/Art/DualBladeRun_v1/run_04.png	player	594x495	594x495	231	ETC2_RGBA8 (無圧縮に落ちた)	1.18	ASTC_4x4	0.30	False	0.787	2048	False	False	Single
+564	Assets/Art/DualBladeRun_v1/run_05.png	player	594x495	594x495	241	ETC2_RGBA8 (無圧縮に落ちた)	1.18	ASTC_4x4	0.30	False	0.775	2048	False	False	Single
+565	Assets/Art/DualBladeRun_v1/run_01.png	player	594x495	594x495	256	ETC2_RGBA8 (無圧縮に落ちた)	1.18	ASTC_4x4	0.30	False	0.834	2048	False	False	Single
+566	Assets/Art/DualBladeRun_v1/run_06.png	player	594x495	594x495	231	ETC2_RGBA8 (無圧縮に落ちた)	1.18	ASTC_4x4	0.30	False	0.815	2048	False	False	Single
+567	Assets/Art/DualBladeRun_v1/run_03.png	player	594x495	594x495	230	ETC2_RGBA8 (無圧縮に落ちた)	1.18	ASTC_4x4	0.30	False	0.833	2048	False	False	Single
+568	Assets/Art/DualBladeRun_v1/run_00.png	player	594x495	594x495	234	ETC2_RGBA8 (無圧縮に落ちた)	1.18	ASTC_4x4	0.30	False	0.831	2048	False	False	Single
+569	Assets/Art/LastCorridor/Terrain/stake_0.png	background	354x829	354x829	431	ETC2_RGBA8 (無圧縮に落ちた)	1.17	ASTC_5x5	0.19	False	1.000	2048	False	False	Single
+570	Assets/Art/PlayerAttackLarge_v1/attacklarge_04.png	player	381x768	381x768	69	ETC2_RGBA8 (無圧縮に落ちた)	1.17	ASTC_4x4	0.30	False	0.234	2048	False	False	Single
+571	Assets/Art/LastCorridor/Terrain/stake_2.png	background	354x826	354x826	421	ETC2_RGBA8 (無圧縮に落ちた)	1.17	ASTC_5x5	0.19	False	1.000	2048	False	False	Single
+572	Assets/Art/BonusEnemy/treasure_goblin/death.png	enemy	791x369	791x369	362	ETC2_RGBA8 (無圧縮に落ちた)	1.17	ASTC_4x4	0.29	False	0.968	2048	False	False	Single
+573	Assets/Art/BonusEnemy/card_fairy/death.png	enemy	690x423	690x423	322	ETC2_RGBA8 (無圧縮に落ちた)	1.17	ASTC_4x4	0.29	False	0.970	2048	False	False	Single
+574	Assets/Art/SkyBoss/behemoth_attack.png	boss	746x391	746x391	518	ETC2_RGBA8 (無圧縮に落ちた)	1.17	ASTC_4x4	0.29	False	1.000	2048	False	False	Single
+575	Assets/Art/PlayerAttackLarge_v1/attacklarge_03.png	player	379x768	379x768	73	ETC2_RGBA8 (無圧縮に落ちた)	1.16	ASTC_4x4	0.29	False	0.289	2048	False	False	Single
+576	Assets/Art/MikoDeath_v1/death_02.png	player	680x427	680x427	327	ETC2_RGBA8 (無圧縮に落ちた)	1.16	ASTC_4x4	0.29	False	0.805	2048	False	False	Single
+577	Assets/Art/Obstacles_v1/obstacle_giantrock.png	background	570x508	570x508	542	ETC2_RGBA8 (無圧縮に落ちた)	1.16	ASTC_5x5	0.19	False	0.977	2048	False	False	Single
+578	Assets/Art/NinjaFinishExtreme_v1/finish_00.png	player	756x382	756x382	313	ETC2_RGBA8 (無圧縮に落ちた)	1.16	ASTC_4x4	0.29	False	0.874	2048	False	False	Single
+579	Assets/Art/LastCorridor/Terrain/platform_mid.png	background	760x378	760x378	402	ETC2_RGBA8 (無圧縮に落ちた)	1.15	ASTC_5x5	0.18	False	0.743	2048	False	False	Single
+580	Assets/Art/LancerDeath_v1/death_01.png	player	526x546	526x546	257	ETC2_RGBA8 (無圧縮に落ちた)	1.15	ASTC_4x4	0.29	False	0.842	2048	False	False	Single
+581	Assets/Art/VampireDeath_v1/death_01.png	player	676x423	676x423	366	ETC2_RGBA8 (無圧縮に落ちた)	1.14	ASTC_4x4	0.29	False	0.786	2048	False	False	Single
+582	Assets/Art/GunslingerAttackLarge_v1/attacklarge_01.png	player	603x474	603x474	285	ETC2_RGBA8 (無圧縮に落ちた)	1.14	ASTC_4x4	0.29	False	1.000	2048	False	False	Single
+583	Assets/Art/PlayerAttackLarge_v1/attacklarge_02.png	player	370x768	370x768	70	ETC2_RGBA8 (無圧縮に落ちた)	1.14	ASTC_4x4	0.29	False	0.266	2048	False	False	Single
+584	Assets/Art/LastCorridor/Terrain/stake_3.png	background	342x827	342x827	424	ETC2_RGBA8 (無圧縮に落ちた)	1.13	ASTC_5x5	0.18	False	1.000	2048	False	False	Single
+585	Assets/Art/NinjaFinishExtreme_v1/finish_01.png	player	1088x259	1088x259	276	ETC2_RGBA8 (無圧縮に落ちた)	1.13	ASTC_4x4	0.28	False	0.781	2048	False	False	Single
+586	Assets/Art/MikoDeath_v1/death_01.png	player	566x497	566x497	343	ETC2_RGBA8 (無圧縮に落ちた)	1.13	ASTC_4x4	0.28	False	0.840	2048	False	False	Single
+587	Assets/Art/LastCorridor/Terrain/stake_1.png	background	337x830	337x830	428	ETC2_RGBA8 (無圧縮に落ちた)	1.12	ASTC_5x5	0.18	False	1.000	2048	False	False	Single
+588	Assets/Art/GunslingerAttack_v1/attack_01.png	player	581x480	581x480	286	ETC2_RGBA8 (無圧縮に落ちた)	1.12	ASTC_4x4	0.28	False	1.000	2048	False	False	Single
+589	Assets/Art/BonusEnemy/treasure_goblin/hit.png	enemy	594x468	594x468	366	ETC2_RGBA8 (無圧縮に落ちた)	1.11	ASTC_4x4	0.28	False	0.970	2048	False	False	Single
+590	Assets/Art/NinjaHurt_v1/hurt_01.png	player	622x446	622x446	325	ETC2_RGBA8 (無圧縮に落ちた)	1.11	ASTC_4x4	0.28	False	0.854	2048	False	False	Single
+591	Assets/Art/GunslingerAttackSmall_v1/attacksmall_00.png	player	575x480	575x480	278	ETC2_RGBA8 (無圧縮に落ちた)	1.10	ASTC_4x4	0.28	False	1.000	2048	False	False	Single
+592	Assets/Art/SkyBoss/fenrir_windup.png	boss	654x421	654x421	491	ETC2_RGBA8 (無圧縮に落ちた)	1.10	ASTC_4x4	0.28	False	1.000	2048	False	False	Single
+593	Assets/Art/JumpDust/jumpdust_03.png	effect	640x430	640x430	185	ETC2_RGBA8 (無圧縮に落ちた)	1.10	ASTC_6x6	0.12	False	0.695	2048	False	False	Single
+594	Assets/Art/JumpDust/jumpdust_00.png	effect	640x430	640x430	106	ETC2_RGBA8 (無圧縮に落ちた)	1.10	ASTC_6x6	0.12	False	0.362	2048	False	False	Single
+595	Assets/Art/JumpDust/jumpdust_02.png	effect	640x430	640x430	246	ETC2_RGBA8 (無圧縮に落ちた)	1.10	ASTC_6x6	0.12	False	0.763	2048	False	False	Single
+596	Assets/Art/JumpDust/jumpdust_01.png	effect	640x430	640x430	197	ETC2_RGBA8 (無圧縮に落ちた)	1.10	ASTC_6x6	0.12	False	0.567	2048	False	False	Single
+597	Assets/Art/AscensionSmoke/smoke_01.png	effect	640x430	640x430	43	ETC2_RGBA8 (無圧縮に落ちた)	1.10	ASTC_6x6	0.12	False	0.392	2048	False	False	Single
+598	Assets/Art/AscensionSmoke/smoke_00.png	effect	640x430	640x430	11	ETC2_RGBA8 (無圧縮に落ちた)	1.10	ASTC_6x6	0.12	False	0.160	2048	False	False	Single
+599	Assets/Art/AscensionSmoke/smoke_02.png	effect	640x430	640x430	24	ETC2_RGBA8 (無圧縮に落ちた)	1.10	ASTC_6x6	0.12	False	0.549	2048	False	False	Single
+600	Assets/Art/AscensionSmoke/smoke_03.png	effect	640x430	640x430	5	ETC2_RGBA8 (無圧縮に落ちた)	1.10	ASTC_6x6	0.12	False	0.049	2048	False	False	Single
+601	Assets/Art/MikoFinishExtreme_v1/finish_00.png	player	630x435	630x435	332	ETC2_RGBA8 (無圧縮に落ちた)	1.10	ASTC_4x4	0.28	False	0.845	2048	False	False	Single
+602	Assets/Art/SkyBoss/leviathan_windup.png	boss	582x470	582x470	429	ETC2_RGBA8 (無圧縮に落ちた)	1.09	ASTC_4x4	0.28	False	1.000	2048	False	False	Single
+603	Assets/Art/MikoDeath_v1/death_00.png	player	648x421	648x421	320	ETC2_RGBA8 (無圧縮に落ちた)	1.09	ASTC_4x4	0.27	False	0.826	2048	False	False	Single
+604	Assets/Art/VampireDeath_v1/death_00.png	player	682x399	682x399	336	ETC2_RGBA8 (無圧縮に落ちた)	1.09	ASTC_4x4	0.27	False	0.811	2048	False	False	Single
+605	Assets/Art/SkyBoss/behemoth_windup.png	boss	652x417	652x417	515	ETC2_RGBA8 (無圧縮に落ちた)	1.09	ASTC_4x4	0.27	False	1.000	2048	False	False	Single
+606	Assets/Art/MagePoses_v1/castDown/castDown_p0_01.png	player	460x590	460x590	427	ETC2_RGBA8 (無圧縮に落ちた)	1.09	ASTC_4x4	0.27	False	0.970	2048	False	False	Single
+607	Assets/Art/MikoDeath_v1/death_03.png	player	736x367	736x367	281	ETC2_RGBA8 (無圧縮に落ちた)	1.08	ASTC_4x4	0.27	False	0.845	2048	False	False	Single
+608	Assets/Art/ArcherFinishLong_v1/finish_00.png	player	532x507	532x507	321	ETC2_RGBA8 (無圧縮に落ちた)	1.08	ASTC_4x4	0.27	False	0.918	2048	False	False	Single
+609	Assets/Art/GunslingerAttack_v1/attack_02.png	player	539x499	539x499	285	ETC2_RGBA8 (無圧縮に落ちた)	1.08	ASTC_4x4	0.27	False	0.991	2048	False	False	Single
+610	Assets/Art/FighterPoses_v1/sweep/sweep_p1_00.png	player	726x370	726x370	286	ETC2_RGBA8 (無圧縮に落ちた)	1.07	ASTC_4x4	0.27	False	0.799	2048	False	False	Single
+611	Assets/Art/FighterLand_v1/land_00.png	player	620x433	620x433	330	ETC2_RGBA8 (無圧縮に落ちた)	1.07	ASTC_4x4	0.27	False	0.972	2048	False	False	Single
+612	Assets/Art/GunslingerAttack_v1/attack_00.png	player	562x472	562x472	275	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	1.000	2048	False	False	Single
+613	Assets/Art/MageDeath_v1/death_01.png	player	684x387	684x387	350	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.916	2048	False	False	Single
+614	Assets/Art/ArcherHurt_v1/hurt_00.png	player	450x588	450x588	327	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.980	2048	False	False	Single
+615	Assets/Art/MajinIdle/idle_23.png	boss	420x630	420x630	170	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.906	2048	False	False	Single
+616	Assets/Art/MajinIdle/idle_14.png	boss	420x630	420x630	174	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.930	2048	False	False	Single
+617	Assets/Art/MajinIdle/idle_01.png	boss	420x630	420x630	179	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.916	2048	False	False	Single
+618	Assets/Art/MajinIdle/idle_06.png	boss	420x630	420x630	176	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.940	2048	False	False	Single
+619	Assets/Art/MajinIdle/idle_19.png	boss	420x630	420x630	176	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.932	2048	False	False	Single
+620	Assets/Art/MajinIdle/idle_10.png	boss	420x630	420x630	177	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.952	2048	False	False	Single
+621	Assets/Art/MajinIdle/idle_15.png	boss	420x630	420x630	175	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.938	2048	False	False	Single
+622	Assets/Art/MajinIdle/idle_12.png	boss	420x630	420x630	173	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.935	2048	False	False	Single
+623	Assets/Art/MajinIdle/idle_00.png	boss	420x630	420x630	175	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.923	2048	False	False	Single
+624	Assets/Art/MajinIdle/idle_20.png	boss	420x630	420x630	171	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.922	2048	False	False	Single
+625	Assets/Art/MajinIdle/idle_05.png	boss	420x630	420x630	178	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.927	2048	False	False	Single
+626	Assets/Art/MajinIdle/idle_16.png	boss	420x630	420x630	176	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.941	2048	False	False	Single
+627	Assets/Art/MajinIdle/idle_04.png	boss	420x630	420x630	176	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.913	2048	False	False	Single
+628	Assets/Art/MajinIdle/idle_22.png	boss	420x630	420x630	170	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.902	2048	False	False	Single
+629	Assets/Art/MajinIdle/idle_08.png	boss	420x630	420x630	178	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.954	2048	False	False	Single
+630	Assets/Art/MajinIdle/idle_18.png	boss	420x630	420x630	175	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.938	2048	False	False	Single
+631	Assets/Art/MajinIdle/idle_09.png	boss	420x630	420x630	183	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.954	2048	False	False	Single
+632	Assets/Art/MajinIdle/idle_13.png	boss	420x630	420x630	173	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.932	2048	False	False	Single
+633	Assets/Art/MajinIdle/idle_07.png	boss	420x630	420x630	180	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.948	2048	False	False	Single
+634	Assets/Art/MajinIdle/idle_02.png	boss	420x630	420x630	177	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.911	2048	False	False	Single
+635	Assets/Art/MajinIdle/idle_11.png	boss	420x630	420x630	177	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.949	2048	False	False	Single
+636	Assets/Art/MajinIdle/idle_17.png	boss	420x630	420x630	179	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.943	2048	False	False	Single
+637	Assets/Art/MajinIdle/idle_21.png	boss	420x630	420x630	173	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.907	2048	False	False	Single
+638	Assets/Art/MajinIdle/idle_03.png	boss	420x630	420x630	176	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.906	2048	False	False	Single
+639	Assets/Art/EnemyAttack/shooter_archer_attack.png	enemy	529x500	529x500	283	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	0.977	2048	False	False	Single
+640	Assets/Art/SkyBoss/leviathan_attack.png	boss	709x373	709x373	479	ETC2_RGBA8 (無圧縮に落ちた)	1.06	ASTC_4x4	0.27	False	1.000	2048	False	False	Single
+641	Assets/Art/FighterFinishLong_v1/finish_01.png	player	772x341	772x341	278	ETC2_RGBA8 (無圧縮に落ちた)	1.05	ASTC_4x4	0.27	False	0.687	2048	False	False	Single
+642	Assets/Art/UI/TopBackgroundHomeRoom.png	background	1536x1024	2048x1024	3924	ETC_RGB4	1.05	ASTC_4x4	2.10	True	1.000	2048	False	False	None
+643	Assets/Art/UI/PortraitAgingOverlay.png	ui	1086x1448	1024x1024	3486	ETC2_RGBA8	1.05	ASTC_4x4	1.05	True	1.000	2048	False	False	None
+644	Assets/Art/Effects/FusionMagicCircle.png	effect	1024x1024	1024x1024	1514	ETC2_RGBA8	1.05	ASTC_6x6	0.47	True	0.998	2048	False	False	Single
+645	Assets/Art/Icons/CardIcons/attack_range_up.png	card	1254x1254	1024x1024	1743	ETC2_RGBA8	1.05	ASTC_4x4	1.05	True	0.807	2048	False	False	None
+646	Assets/Art/Icons/CardIcons/treasure_hunter.png	card	1254x1254	1024x1024	1923	ETC2_RGBA8	1.05	ASTC_4x4	1.05	True	0.762	2048	False	False	None
+647	Assets/Art/Icons/CardIcons/jump_count_up.png	card	1254x1254	1024x1024	1072	ETC2_RGBA8	1.05	ASTC_4x4	1.05	True	0.652	2048	False	False	None
+648	Assets/Art/UI/PortraitFrame.png	ui	1086x1448	1024x1024	1185	ETC2_RGBA8	1.05	ASTC_4x4	1.05	True	0.736	2048	False	False	None
+649	Assets/Art/Icons/CardIcons/sky_runner.png	card	1254x1254	1024x1024	1515	ETC2_RGBA8	1.05	ASTC_4x4	1.05	True	0.752	2048	False	False	None
+650	Assets/Art/Icons/CardIcons/berserker.png	card	1254x1254	1024x1024	2348	ETC2_RGBA8	1.05	ASTC_4x4	1.05	True	0.890	2048	False	False	None
+651	Assets/Art/Icons/CardIcons/attack_up.png	card	1254x1254	1024x1024	1498	ETC2_RGBA8	1.05	ASTC_4x4	1.05	True	0.796	2048	False	False	None
+652	Assets/Art/Icons/CardIcons/executioner.png	card	1254x1254	1024x1024	2287	ETC2_RGBA8	1.05	ASTC_4x4	1.05	True	0.910	2048	False	False	None
+653	Assets/Art/Icons/CardIcons/speed_down.png	card	1254x1254	1024x1024	1580	ETC2_RGBA8	1.05	ASTC_4x4	1.05	True	0.724	2048	False	False	None
+654	Assets/Art/UI/TitleLogoV2.png	ui	2138x735	2048x512	1255	ETC2_RGBA8	1.05	ASTC_4x4	1.05	True	0.976	2048	False	False	None
+655	Assets/Art/Icons/CardIcons/greed.png	card	1254x1254	1024x1024	2316	ETC2_RGBA8	1.05	ASTC_4x4	1.05	True	0.925	2048	False	False	None
+656	Assets/Art/Icons/CardIcons/speed_up.png	card	1254x1254	1024x1024	1644	ETC2_RGBA8	1.05	ASTC_4x4	1.05	True	0.778	2048	False	False	None
+657	Assets/Art/GunslingerRun_v1/run_00.png	player	494x530	494x530	251	ETC2_RGBA8 (無圧縮に落ちた)	1.05	ASTC_4x4	0.26	False	1.000	2048	False	False	Single
+658	Assets/Art/GunslingerAttackSmall_v1/attacksmall_02.png	player	535x486	535x486	275	ETC2_RGBA8 (無圧縮に落ちた)	1.04	ASTC_4x4	0.26	False	0.989	2048	False	False	Single
+659	Assets/Art/LastCorridor/Decor/pillar.png	background	370x698	370x698	477	ETC2_RGBA8 (無圧縮に落ちた)	1.03	ASTC_5x5	0.17	False	1.000	2048	False	False	Single
+660	Assets/Art/GunslingerAttackSmall_v1/attacksmall_01.png	player	543x474	543x474	276	ETC2_RGBA8 (無圧縮に落ちた)	1.03	ASTC_4x4	0.26	False	1.000	2048	False	False	Single
+661	Assets/Art/GunslingerRun_v1/run_07.png	player	485x530	485x530	250	ETC2_RGBA8 (無圧縮に落ちた)	1.03	ASTC_4x4	0.26	False	1.000	2048	False	False	Single
+662	Assets/Art/GunslingerRun_v1/run_03.png	player	485x530	485x530	247	ETC2_RGBA8 (無圧縮に落ちた)	1.03	ASTC_4x4	0.26	False	1.000	2048	False	False	Single
+663	Assets/Art/GunslingerRun_v1/run_04.png	player	482x530	482x530	233	ETC2_RGBA8 (無圧縮に落ちた)	1.02	ASTC_4x4	0.26	False	1.000	2048	False	False	Single
+664	Assets/Art/PlayerAttack_v1/attack_04.png	player	356x715	356x715	107	ETC2_RGBA8 (無圧縮に落ちた)	1.02	ASTC_4x4	0.26	False	0.415	2048	False	False	Single
+665	Assets/Art/PlayerAttack_v1/attack_01.png	player	356x715	356x715	115	ETC2_RGBA8 (無圧縮に落ちた)	1.02	ASTC_4x4	0.26	False	0.421	2048	False	False	Single
+666	Assets/Art/GunslingerAttackLarge_v1/attacklarge_00.png	player	538x472	538x472	265	ETC2_RGBA8 (無圧縮に落ちた)	1.02	ASTC_4x4	0.26	False	1.000	2048	False	False	Single
+667	Assets/Art/LastCorridor/Decor/broken_pillar.png	background	477x529	477x529	404	ETC2_RGBA8 (無圧縮に落ちた)	1.01	ASTC_5x5	0.16	False	1.000	2048	False	False	Single
+668	Assets/Art/Effects/SlashArcBlueFrames/slash_02.png	effect	483x518	483x518	170	ETC2_RGBA8 (無圧縮に落ちた)	1.00	ASTC_6x6	0.11	False	0.675	2048	False	False	Single
+669	Assets/Art/Effects/SlashArcBlueFrames/slash_03.png	effect	483x518	483x518	96	ETC2_RGBA8 (無圧縮に落ちた)	1.00	ASTC_6x6	0.11	False	0.618	2048	False	False	Single
+670	Assets/Art/Effects/SlashArcBlueFrames/slash_01.png	effect	483x518	483x518	198	ETC2_RGBA8 (無圧縮に落ちた)	1.00	ASTC_6x6	0.11	False	0.729	2048	False	False	Single
+671	Assets/Art/Effects/SlashArcBlueFrames/slash_04.png	effect	483x518	483x518	40	ETC2_RGBA8 (無圧縮に落ちた)	1.00	ASTC_6x6	0.11	False	0.524	2048	False	False	Single
+672	Assets/Art/Effects/SlashArcBlueFrames/slash_00.png	effect	483x518	483x518	49	ETC2_RGBA8 (無圧縮に落ちた)	1.00	ASTC_6x6	0.11	False	0.485	2048	False	False	Single
+673	Assets/Art/PlayerAttackSmall_v1/attacksmall_02.png	player	290x858	290x858	82	ETC2_RGBA8 (無圧縮に落ちた)	1.00	ASTC_4x4	0.25	False	0.330	2048	False	False	Single
+674	Assets/Art/GunslingerRun_v1/run_05.png	player	469x530	469x530	209	ETC2_RGBA8 (無圧縮に落ちた)	0.99	ASTC_4x4	0.25	False	1.000	2048	False	False	Single
+675	Assets/Art/GunslingerRun_v1/run_06.png	player	468x530	468x530	98	ETC2_RGBA8 (無圧縮に落ちた)	0.99	ASTC_4x4	0.25	False	1.000	2048	False	False	Single
+676	Assets/Art/GunslingerRun_v1/run_02.png	player	464x530	464x530	211	ETC2_RGBA8 (無圧縮に落ちた)	0.98	ASTC_4x4	0.25	False	1.000	2048	False	False	Single
+677	Assets/Art/MageDeath_v1/death_02.png	player	752x327	752x327	295	ETC2_RGBA8 (無圧縮に落ちた)	0.98	ASTC_4x4	0.25	False	0.922	2048	False	False	Single
+678	Assets/Art/PlayerLand_v1/land_00.png	player	309x793	309x793	89	ETC2_RGBA8 (無圧縮に落ちた)	0.98	ASTC_4x4	0.25	False	0.304	2048	False	False	Single
+679	Assets/Art/FighterJump_v1/jump_00.png	player	482x504	482x504	326	ETC2_RGBA8 (無圧縮に落ちた)	0.97	ASTC_4x4	0.24	False	0.934	2048	False	False	Single
+680	Assets/Art/BonusEnemy/card_fairy/hit.png	enemy	519x468	519x468	310	ETC2_RGBA8 (無圧縮に落ちた)	0.97	ASTC_4x4	0.24	False	0.968	2048	False	False	Single
+681	Assets/Art/GunslingerRun_v1/run_01.png	player	454x530	454x530	212	ETC2_RGBA8 (無圧縮に落ちた)	0.96	ASTC_4x4	0.24	False	1.000	2048	False	False	Single
+682	Assets/Art/PlayerAttackSmall_v1/attacksmall_00.png	player	280x858	280x858	64	ETC2_RGBA8 (無圧縮に落ちた)	0.96	ASTC_4x4	0.24	False	0.273	2048	False	False	Single
+683	Assets/Art/VampireDeath_v1/death_02.png	player	698x343	698x343	309	ETC2_RGBA8 (無圧縮に落ちた)	0.96	ASTC_4x4	0.24	False	0.791	2048	False	False	Single
+684	Assets/Art/GunslingerAttackLarge_v1/attacklarge_02.png	player	495x481	495x481	299	ETC2_RGBA8 (無圧縮に落ちた)	0.95	ASTC_4x4	0.24	False	1.000	2048	False	False	Single
+685	Assets/Art/BonusEnemy/golden_slime/death.png	enemy	502x468	502x468	307	ETC2_RGBA8 (無圧縮に落ちた)	0.94	ASTC_4x4	0.24	False	0.967	2048	False	False	Single
+686	Assets/Art/ArcherDeath_v1/death_00.png	player	474x493	474x493	267	ETC2_RGBA8 (無圧縮に落ちた)	0.93	ASTC_4x4	0.24	False	0.885	2048	False	False	Single
+687	Assets/Art/PlayerAttackSmall_v1/attacksmall_03.png	player	272x858	272x858	67	ETC2_RGBA8 (無圧縮に落ちた)	0.93	ASTC_4x4	0.23	False	0.382	2048	False	False	Single
+688	Assets/Art/BonusEnemy/card_fairy/move/move_00.png	enemy	511x454	511x454	295	ETC2_RGBA8 (無圧縮に落ちた)	0.93	ASTC_4x4	0.23	False	0.967	2048	False	False	Single
+689	Assets/Art/DragonCharge/charge_03.png	boss	1168x784	1168x784	691	ETC2_RGBA8	0.92	ASTC_4x4	0.92	True	0.743	2048	False	False	Single
+690	Assets/Art/DragonCharge/charge_00.png	boss	1168x784	1168x784	728	ETC2_RGBA8	0.92	ASTC_4x4	0.92	True	0.695	2048	False	False	Single
+691	Assets/Art/DragonCharge/charge_05.png	boss	1168x784	1168x784	704	ETC2_RGBA8	0.92	ASTC_4x4	0.92	True	0.714	2048	False	False	Single
+692	Assets/Art/DragonCharge/charge_01.png	boss	1168x784	1168x784	695	ETC2_RGBA8	0.92	ASTC_4x4	0.92	True	0.722	2048	False	False	Single
+693	Assets/Art/DragonCharge/charge_06.png	boss	1168x784	1168x784	723	ETC2_RGBA8	0.92	ASTC_4x4	0.92	True	0.798	2048	False	False	Single
+694	Assets/Art/DragonCharge/charge_02.png	boss	1168x784	1168x784	680	ETC2_RGBA8	0.92	ASTC_4x4	0.92	True	0.720	2048	False	False	Single
+695	Assets/Art/DragonCharge/charge_04.png	boss	1168x784	1168x784	695	ETC2_RGBA8	0.92	ASTC_4x4	0.92	True	0.732	2048	False	False	Single
+696	Assets/Art/Decoration/Wasteland_v1/decor_cart.png	background	592x385	592x385	379	ETC2_RGBA8 (無圧縮に落ちた)	0.91	ASTC_5x5	0.15	False	0.966	2048	False	False	Single
+697	Assets/Art/PlayerAttack_v1/attack_00.png	player	318x715	318x715	112	ETC2_RGBA8 (無圧縮に落ちた)	0.91	ASTC_4x4	0.23	False	0.436	2048	False	False	Single
+698	Assets/Art/GunslingerHurt_v1/hurt_00.png	player	454x488	454x488	283	ETC2_RGBA8 (無圧縮に落ちた)	0.89	ASTC_4x4	0.22	False	0.982	2048	False	False	Single
+699	Assets/Art/Cave/ceiling_band.png	background	2032x424	2032x424	2042	ETC2_RGBA8	0.86	ASTC_5x5	0.55	True	1.000	4096	False	False	None
+700	Assets/Art/GunslingerHurt_v1/hurt_02.png	player	458x468	458x468	251	ETC2_RGBA8 (無圧縮に落ちた)	0.86	ASTC_4x4	0.22	False	0.981	2048	False	False	Single
+701	Assets/Art/GunslingerHurt_v1/hurt_01.png	player	441x485	441x485	255	ETC2_RGBA8 (無圧縮に落ちた)	0.86	ASTC_4x4	0.22	False	0.988	2048	False	False	Single
+702	Assets/Art/SkyEnemy/gargoyle/attack.png	enemy	489x434	489x434	276	ETC2_RGBA8 (無圧縮に落ちた)	0.85	ASTC_4x4	0.21	False	0.966	2048	False	False	Single
+703	Assets/Art/SkyEnemy/harpy/telegraph.png	enemy	479x436	479x436	276	ETC2_RGBA8 (無圧縮に落ちた)	0.84	ASTC_4x4	0.21	False	0.965	2048	False	False	Single
+704	Assets/Art/LancerRun_v1/run_06.png	player	1268x656	1268x656	392	ETC2_RGBA8	0.83	ASTC_4x4	0.83	True	0.483	2048	False	False	Single
+705	Assets/Art/DualBladeHurt_v1/hurt_00.png	player	429x482	429x482	260	ETC2_RGBA8 (無圧縮に落ちた)	0.83	ASTC_4x4	0.21	False	1.000	2048	False	False	Single
+706	Assets/Art/DragonkinRun_v1/run_00.png	player	1456x564	1456x564	583	ETC2_RGBA8	0.82	ASTC_4x4	0.82	True	0.626	2048	False	False	Single
+707	Assets/Art/PlayerAttackSmall_v1/attacksmall_01.png	player	239x858	239x858	65	ETC2_RGBA8 (無圧縮に落ちた)	0.82	ASTC_4x4	0.21	False	0.340	2048	False	False	Single
+708	Assets/Art/FighterDeath_v1/death_00.png	player	574x356	574x356	285	ETC2_RGBA8 (無圧縮に落ちた)	0.82	ASTC_4x4	0.21	False	0.845	2048	False	False	Single
+709	Assets/Art/PlayerLand_v1/land_01.png	player	254x793	254x793	77	ETC2_RGBA8 (無圧縮に落ちた)	0.81	ASTC_4x4	0.20	False	0.259	2048	False	False	Single
+710	Assets/Art/SkyEnemy/ancient_sentinel/death.png	enemy	568x354	568x354	283	ETC2_RGBA8 (無圧縮に落ちた)	0.80	ASTC_4x4	0.20	False	0.964	2048	False	False	Single
+711	Assets/Art/BonusEnemy/treasure_goblin/move/move_01.png	enemy	476x422	476x422	277	ETC2_RGBA8 (無圧縮に落ちた)	0.80	ASTC_4x4	0.20	False	0.965	2048	False	False	Single
+712	Assets/Art/VampireDeath_v1/death_03.png	player	750x267	750x267	268	ETC2_RGBA8 (無圧縮に落ちた)	0.80	ASTC_4x4	0.20	False	0.764	2048	False	False	Single
+713	Assets/Art/DualBladeHurt_v1/hurt_01.png	player	438x448	438x448	245	ETC2_RGBA8 (無圧縮に落ちた)	0.79	ASTC_4x4	0.20	False	0.998	2048	False	False	Single
+714	Assets/Art/Decoration/Wasteland_v1/decor_cratebarrel.png	background	622x315	622x315	402	ETC2_RGBA8 (無圧縮に落ちた)	0.78	ASTC_5x5	0.13	False	0.962	2048	False	False	Single
+715	Assets/Art/MageDeath_v1/death_03.png	player	672x290	672x290	262	ETC2_RGBA8 (無圧縮に落ちた)	0.78	ASTC_4x4	0.20	False	0.909	2048	False	False	Single
+716	Assets/Art/PlayerAttackLarge_v1/attacklarge_00.png	player	253x768	253x768	62	ETC2_RGBA8 (無圧縮に落ちた)	0.78	ASTC_4x4	0.20	False	0.296	2048	False	False	Single
+717	Assets/Art/LastCorridor/Decor/statue.png	background	335x580	335x580	374	ETC2_RGBA8 (無圧縮に落ちた)	0.78	ASTC_5x5	0.12	False	1.000	2048	False	False	Single
+718	Assets/Art/Decoration/Wasteland_v1/decor_signpost.png	background	432x446	432x446	284	ETC2_RGBA8 (無圧縮に落ちた)	0.77	ASTC_5x5	0.13	False	0.973	2048	False	False	Single
+719	Assets/Art/UI/Characters/dragon_lancer_main.png	ui	700x1100	700x1100	681	ETC2_RGBA8	0.77	ASTC_4x4	0.77	True	0.871	2048	False	False	None
+720	Assets/Art/UI/Characters/gunslinger_main.png	ui	700x1100	700x1100	590	ETC2_RGBA8	0.77	ASTC_4x4	0.77	True	0.774	2048	False	False	None
+721	Assets/Art/UI/Characters/dual_blade_main.png	ui	700x1100	700x1100	685	ETC2_RGBA8	0.77	ASTC_4x4	0.77	True	0.740	2048	False	False	None
+722	Assets/Art/UI/Characters/noble_lady_main.png	ui	700x1100	700x1100	834	ETC2_RGBA8	0.77	ASTC_4x4	0.77	True	0.743	2048	False	False	None
+723	Assets/Art/UI/Characters/dragonkin_main.png	ui	700x1100	700x1100	976	ETC2_RGBA8	0.77	ASTC_4x4	0.77	True	0.799	2048	False	False	None
+724	Assets/Art/UI/Characters/swordsman_main.png	ui	700x1100	700x1100	768	ETC2_RGBA8	0.77	ASTC_4x4	0.77	True	0.755	2048	False	False	None
+725	Assets/Art/UI/Characters/vampire_main.png	ui	700x1100	700x1100	780	ETC2_RGBA8	0.77	ASTC_4x4	0.77	True	0.778	2048	False	False	None
+726	Assets/Art/UI/Characters/fighter_main.png	ui	700x1100	700x1100	706	ETC2_RGBA8	0.77	ASTC_4x4	0.77	True	0.724	2048	False	False	None
+727	Assets/Art/UI/Characters/ninja_main.png	ui	700x1100	700x1100	546	ETC2_RGBA8	0.77	ASTC_4x4	0.77	True	0.479	2048	False	False	None
+728	Assets/Art/UI/Characters/mage_main.png	ui	700x1100	700x1100	1029	ETC2_RGBA8	0.77	ASTC_4x4	0.77	True	0.784	2048	False	False	None
+729	Assets/Art/UI/Characters/archer_main.png	ui	700x1100	700x1100	546	ETC2_RGBA8	0.77	ASTC_4x4	0.77	True	0.664	2048	False	False	None
+730	Assets/Art/UI/Characters/miko_main.png	ui	700x1100	700x1100	995	ETC2_RGBA8	0.77	ASTC_4x4	0.77	True	0.781	2048	False	False	None
+731	Assets/Art/SkyEnemy/gargoyle/wake.png	enemy	439x438	439x438	261	ETC2_RGBA8 (無圧縮に落ちた)	0.77	ASTC_4x4	0.19	False	0.964	2048	False	False	Single
+732	Assets/Art/PlayerRun_v1/run_05.png	player	265x724	265x724	81	ETC2_RGBA8 (無圧縮に落ちた)	0.77	ASTC_4x4	0.19	False	0.296	2048	False	False	Single
+733	Assets/Art/SkyEnemy/sky_slime/death.png	enemy	481x396	481x396	178	ETC2_RGBA8 (無圧縮に落ちた)	0.76	ASTC_4x4	0.19	False	0.961	2048	False	False	Single
+734	Assets/Art/SkyEnemy/storm_spirit/death.png	enemy	462x409	462x409	246	ETC2_RGBA8 (無圧縮に落ちた)	0.76	ASTC_4x4	0.19	False	0.963	2048	False	False	Single
+735	Assets/Art/PlayerAttackSmall_v1/attacksmall_04.png	player	219x858	219x858	67	ETC2_RGBA8 (無圧縮に落ちた)	0.75	ASTC_4x4	0.19	False	0.407	2048	False	False	Single
+736	Assets/Art/NinjaDeath_v1/death_00.png	player	518x362	518x362	289	ETC2_RGBA8 (無圧縮に落ちた)	0.75	ASTC_4x4	0.19	False	0.874	2048	False	False	Single
+737	Assets/Art/Decoration/Wasteland_v1/decor_fence.png	background	658x284	658x284	300	ETC2_RGBA8 (無圧縮に落ちた)	0.75	ASTC_5x5	0.12	False	0.966	2048	False	False	Single
+738	Assets/Art/PlayerRun_v1/run_03.png	player	254x724	254x724	72	ETC2_RGBA8 (無圧縮に落ちた)	0.74	ASTC_4x4	0.19	False	0.297	2048	False	False	Single
+739	Assets/Art/CaveBoss/wormboss_windup.png	boss	800x916	800x916	1359	ETC2_RGBA8	0.73	ASTC_4x4	0.73	True	0.986	2048	False	False	Single
+740	Assets/Art/SkyEnemy/celestial_knight/attack.png	enemy	495x370	495x370	214	ETC2_RGBA8 (無圧縮に落ちた)	0.73	ASTC_4x4	0.18	False	0.963	2048	False	False	Single
+741	Assets/Art/ArcherDeath_v1/death_01.png	player	542x337	542x337	244	ETC2_RGBA8 (無圧縮に落ちた)	0.73	ASTC_4x4	0.19	False	0.901	2048	False	False	Single
+742	Assets/Art/GunslingerStart_v1/start_01.png	player	892x812	892x812	761	ETC2_RGBA8	0.72	ASTC_4x4	0.72	True	1.000	2048	False	False	Single
+743	Assets/Art/BonusEnemy/mimic/move/move_01.png	enemy	516x350	516x350	252	ETC2_RGBA8 (無圧縮に落ちた)	0.72	ASTC_4x4	0.18	False	0.962	2048	False	False	Single
+744	Assets/Art/BonusEnemy/treasure_goblin/move/move_00.png	enemy	438x412	438x412	262	ETC2_RGBA8 (無圧縮に落ちた)	0.72	ASTC_4x4	0.18	False	0.963	2048	False	False	Single
+745	Assets/Art/DragonkinRun_v1/run_07.png	player	1276x564	1276x564	456	ETC2_RGBA8	0.72	ASTC_4x4	0.72	True	0.607	2048	False	False	Single
+746	Assets/Art/SkyEnemy/storm_spirit/hit.png	enemy	461x390	461x390	247	ETC2_RGBA8 (無圧縮に落ちた)	0.72	ASTC_4x4	0.18	False	0.962	2048	False	False	Single
+747	Assets/Art/WildBoss/spider_attack.png	boss	1100x648	1100x648	809	ETC2_RGBA8	0.71	ASTC_4x4	0.71	True	0.987	2048	False	False	Single
+748	Assets/Art/SkyEnemy/sky_hunter/idle.png	enemy	389x456	389x456	184	ETC2_RGBA8 (無圧縮に落ちた)	0.71	ASTC_4x4	0.18	False	0.962	2048	False	False	Single
+749	Assets/Art/FighterDeath_v1/death_01.png	player	556x319	556x319	264	ETC2_RGBA8 (無圧縮に落ちた)	0.71	ASTC_4x4	0.18	False	0.968	2048	False	False	Single
+750	Assets/Art/UI/HomeCurtainStandalone.png	ui	460x1536	460x1536	1038	ETC2_RGBA8	0.71	ASTC_4x4	0.71	True	0.924	2048	False	False	None
+751	Assets/Resources/Scenery/Wasteland/scn_C_evening.png	background	1672x941	1672x941	2657	ASTC_6x6	0.70	ASTC_6x6	0.70	False	1.000	2048	False	False	Single
+752	Assets/Resources/Scenery/Wasteland/scn_B_evening.png	background	1672x941	1672x941	2380	ASTC_6x6	0.70	ASTC_6x6	0.70	False	1.000	2048	False	False	Single
+753	Assets/Resources/Scenery/Wasteland/scn_A_evening.png	background	1672x941	1672x941	2542	ASTC_6x6	0.70	ASTC_6x6	0.70	False	1.000	2048	False	False	Single
+754	Assets/Resources/Scenery/Wasteland/scn_B_dawn.png	background	1672x941	1672x941	2356	ASTC_6x6	0.70	ASTC_6x6	0.70	False	1.000	2048	False	False	Single
+755	Assets/Resources/Scenery/Wasteland/scn_A_dawn.png	background	1672x941	1672x941	2274	ASTC_6x6	0.70	ASTC_6x6	0.70	False	1.000	2048	False	False	Single
+756	Assets/Resources/Scenery/Wasteland/scn_C_day.png	background	1672x941	1672x941	2691	ASTC_6x6	0.70	ASTC_6x6	0.70	False	1.000	2048	False	False	Single
+757	Assets/Resources/Scenery/Wasteland/scn_A_night.png	background	1672x941	1672x941	2379	ASTC_6x6	0.70	ASTC_6x6	0.70	False	1.000	2048	False	False	Single
+758	Assets/Resources/Scenery/Wasteland/scn_C_dawn.png	background	1672x941	1672x941	2601	ASTC_6x6	0.70	ASTC_6x6	0.70	False	1.000	2048	False	False	Single
+759	Assets/Resources/Scenery/Wasteland/scn_B_day.png	background	1672x941	1672x941	2373	ASTC_6x6	0.70	ASTC_6x6	0.70	False	1.000	2048	False	False	Single
+760	Assets/Resources/Scenery/Wasteland/scn_C_night.png	background	1672x941	1672x941	2685	ASTC_6x6	0.70	ASTC_6x6	0.70	False	1.000	2048	False	False	Single
+761	Assets/Resources/Scenery/Wasteland/scn_B_night.png	background	1672x941	1672x941	2406	ASTC_6x6	0.70	ASTC_6x6	0.70	False	1.000	2048	False	False	Single
+762	Assets/Art/SkyEnemy/harpy/dive.png	enemy	444x391	444x391	221	ETC2_RGBA8 (無圧縮に落ちた)	0.69	ASTC_4x4	0.17	False	0.962	2048	False	False	Single
+763	Assets/Art/NinjaDeath_v1/death_02.png	player	640x271	640x271	240	ETC2_RGBA8 (無圧縮に落ちた)	0.69	ASTC_4x4	0.17	False	0.867	2048	False	False	Single
+764	Assets/Art/WildBoss/griffin_windup.png	boss	840x824	840x824	941	ETC2_RGBA8	0.69	ASTC_4x4	0.69	True	0.977	2048	False	False	Single
+765	Assets/Art/LastCorridor/Terrain/lamp_torch.png	background	278x616	278x616	255	ETC2_RGBA8 (無圧縮に落ちた)	0.69	ASTC_5x5	0.11	False	1.000	2048	False	False	Single
+766	Assets/Art/LastCorridor/Decor/lamp.png	background	278x616	278x616	255	ETC2_RGBA8 (無圧縮に落ちた)	0.69	ASTC_5x5	0.11	False	1.000	2048	False	False	Single
+767	Assets/Art/BonusEnemy/card_fairy/idle.png	enemy	372x458	372x458	254	ETC2_RGBA8 (無圧縮に落ちた)	0.68	ASTC_4x4	0.17	False	0.961	2048	False	False	Single
+768	Assets/Art/GunslingerFinishLong_v1/finish_00.png	player	656x1036	656x1036	768	ETC2_RGBA8	0.68	ASTC_4x4	0.68	True	1.000	2048	False	False	Single
+769	Assets/Art/BonusEnemy/mimic/death.png	enemy	607x279	607x279	249	ETC2_RGBA8 (無圧縮に落ちた)	0.68	ASTC_4x4	0.17	False	0.959	2048	False	False	Single
+770	Assets/Art/LastCorridor/Obstacles/fallen_pillar.png	background	481x351	481x351	345	ETC2_RGBA8 (無圧縮に落ちた)	0.68	ASTC_5x5	0.11	False	1.000	2048	False	False	Single
+771	Assets/Art/FighterDeath_v1/death_03.png	player	868x194	868x194	231	ETC2_RGBA8 (無圧縮に落ちた)	0.67	ASTC_4x4	0.17	False	0.888	2048	False	False	Single
+772	Assets/Art/ArcherDeath_v1/death_02.png	player	622x268	622x268	217	ETC2_RGBA8 (無圧縮に落ちた)	0.67	ASTC_4x4	0.17	False	0.934	2048	False	False	Single
+773	Assets/Art/GunslingerFinishShort_v1/finish_00.png	player	784x844	784x844	717	ETC2_RGBA8	0.66	ASTC_4x4	0.66	True	1.000	2048	False	False	Single
+774	Assets/Art/VampireRun_v1/run_04.png	player	1224x536	1224x536	436	ETC2_RGBA8	0.66	ASTC_4x4	0.66	True	0.663	2048	False	False	Single
+775	Assets/Art/SkyEnemy/storm_spirit/idle.png	enemy	388x419	388x419	238	ETC2_RGBA8 (無圧縮に落ちた)	0.65	ASTC_4x4	0.16	False	0.961	2048	False	False	Single
+776	Assets/Art/DragonkinDeath_v1/death_02.png	player	530x302	530x302	256	ETC2_RGBA8 (無圧縮に落ちた)	0.64	ASTC_4x4	0.16	False	0.895	2048	False	False	Single
+777	Assets/Art/PlayerRun_v1/run_02.png	player	221x724	221x724	73	ETC2_RGBA8 (無圧縮に落ちた)	0.64	ASTC_4x4	0.16	False	0.315	2048	False	False	Single
+778	Assets/Art/PlayerRun_v1/run_01.png	player	221x724	221x724	77	ETC2_RGBA8 (無圧縮に落ちた)	0.64	ASTC_4x4	0.16	False	0.309	2048	False	False	Single
+779	Assets/Art/DragonkinDeath_v1/death_00.png	player	448x355	448x355	277	ETC2_RGBA8 (無圧縮に落ちた)	0.64	ASTC_4x4	0.16	False	0.944	2048	False	False	Single
+780	Assets/Art/DragonkinDeath_v1/death_01.png	player	570x279	570x279	250	ETC2_RGBA8 (無圧縮に落ちた)	0.64	ASTC_4x4	0.16	False	0.878	2048	False	False	Single
+781	Assets/Art/SkyEnemy/sky_slime/idle.png	enemy	475x334	475x334	185	ETC2_RGBA8 (無圧縮に落ちた)	0.63	ASTC_4x4	0.16	False	0.960	2048	False	False	Single
+782	Assets/Art/VampireRun_v1/run_00.png	player	1172x540	1172x540	456	ETC2_RGBA8	0.63	ASTC_4x4	0.63	True	0.670	2048	False	False	Single
+783	Assets/Art/BonusEnemy/treasure_goblin/idle.png	enemy	392x403	392x403	251	ETC2_RGBA8 (無圧縮に落ちた)	0.63	ASTC_4x4	0.16	False	0.960	2048	False	False	Single
+784	Assets/Art/BonusEnemy/mimic/hit.png	enemy	434x364	434x364	238	ETC2_RGBA8 (無圧縮に落ちた)	0.63	ASTC_4x4	0.16	False	0.960	2048	False	False	Single
+785	Assets/Art/FighterDeath_v1/death_02.png	player	594x264	594x264	219	ETC2_RGBA8 (無圧縮に落ちた)	0.63	ASTC_4x4	0.16	False	0.971	2048	False	False	Single
+786	Assets/Art/WildBoss/demon_idle.png	boss	708x884	708x884	832	ETC2_RGBA8	0.63	ASTC_4x4	0.63	True	1.000	2048	False	False	Single
+787	Assets/Art/MageRun_v1/run_06.png	player	848x736	848x736	610	ETC2_RGBA8	0.62	ASTC_4x4	0.62	True	0.804	2048	False	False	Single
+788	Assets/Art/MageRun_v1/run_07.png	player	896x696	896x696	539	ETC2_RGBA8	0.62	ASTC_4x4	0.62	True	0.788	2048	False	False	Single
+789	Assets/Art/DragonkinDeath_v1/death_03.png	player	594x261	594x261	230	ETC2_RGBA8 (無圧縮に落ちた)	0.62	ASTC_4x4	0.16	False	0.915	2048	False	False	Single
+790	Assets/Art/VampirePoses_v1/bats/bats_p0_00.png	player	976x632	976x632	698	ETC2_RGBA8	0.62	ASTC_4x4	0.62	True	0.821	2048	False	False	Single
+791	Assets/Art/GunslingerFinishMedium_v1/finish_00.png	player	600x1024	600x1024	650	ETC2_RGBA8	0.61	ASTC_4x4	0.61	True	1.000	2048	False	False	Single
+792	Assets/Art/PlayerRun_v1/run_00.png	player	211x724	211x724	70	ETC2_RGBA8 (無圧縮に落ちた)	0.61	ASTC_4x4	0.15	False	0.290	2048	False	False	Single
+793	Assets/Art/BonusEnemy/mimic/move/move_00.png	enemy	381x399	381x399	192	ETC2_RGBA8 (無圧縮に落ちた)	0.61	ASTC_4x4	0.15	False	0.959	2048	False	False	Single
+794	Assets/Art/UI/CardFrame.png	card	624x972	624x972	1167	ETC2_RGBA8	0.61	ASTC_4x4	0.61	True	0.982	2048	False	False	Single
+795	Assets/Art/MageFinishShort_v1/finish_01.png	player	848x708	848x708	520	ETC2_RGBA8	0.60	ASTC_4x4	0.60	True	0.838	2048	False	False	Single
+796	Assets/Art/FighterStart_v1/start_03.png	player	1040x576	1040x576	392	ETC2_RGBA8	0.60	ASTC_4x4	0.60	True	0.560	2048	False	False	Single
+797	Assets/Art/MikoHurt_v1/hurt_02.png	player	1004x596	1004x596	659	ETC2_RGBA8	0.60	ASTC_4x4	0.60	True	0.653	2048	False	False	Single
+798	Assets/Art/SkyEnemy/gargoyle/telegraph.png	enemy	364x410	364x410	211	ETC2_RGBA8 (無圧縮に落ちた)	0.60	ASTC_4x4	0.15	False	0.959	2048	False	False	Single
+799	Assets/Art/GunslingerDeath_v1/death_00.png	player	404x369	404x369	199	ETC2_RGBA8 (無圧縮に落ちた)	0.60	ASTC_4x4	0.15	False	0.936	2048	False	False	Single
+800	Assets/Art/SkyEnemy/harpy/move/move_00.png	enemy	318x468	318x468	216	ETC2_RGBA8 (無圧縮に落ちた)	0.60	ASTC_4x4	0.15	False	0.958	2048	False	False	Single
+801	Assets/Art/SkyEnemy/ancient_sentinel/hit.png	enemy	407x362	407x362	243	ETC2_RGBA8 (無圧縮に落ちた)	0.59	ASTC_4x4	0.15	False	0.959	2048	False	False	Single
+802	Assets/Art/SkyEnemy/harpy/hit.png	enemy	375x392	375x392	223	ETC2_RGBA8 (無圧縮に落ちた)	0.59	ASTC_4x4	0.15	False	0.959	2048	False	False	Single
+803	Assets/Art/SkyEnemy/sky_slime/hit.png	enemy	454x323	454x323	170	ETC2_RGBA8 (無圧縮に落ちた)	0.59	ASTC_4x4	0.15	False	0.956	2048	False	False	Single
+804	Assets/Art/SkyEnemy/gargoyle/hit.png	enemy	358x407	358x407	216	ETC2_RGBA8 (無圧縮に落ちた)	0.58	ASTC_4x4	0.15	False	0.958	2048	False	False	Single
+805	Assets/Art/NobleLadyStart_v1/start_00.png	player	664x860	664x860	960	ETC2_RGBA8	0.57	ASTC_4x4	0.57	True	1.000	2048	False	False	Single
+806	Assets/Art/SkyEnemy/gargoyle/death.png	enemy	361x394	361x394	202	ETC2_RGBA8 (無圧縮に落ちた)	0.57	ASTC_4x4	0.14	False	0.958	2048	False	False	Single
+807	Assets/Art/SkyEnemy/celestial_knight/move/move_01.png	enemy	390x364	390x364	135	ETC2_RGBA8 (無圧縮に落ちた)	0.57	ASTC_4x4	0.14	False	0.958	2048	False	False	Single
+808	Assets/Resources/Arena/arena_stands.png	background	1234x1024	1234x1024	2030	ASTC_6x6	0.56	ASTC_6x6	0.56	False	1.000	2048	False	False	Single
+809	Assets/Art/NinjaDeath_v1/death_03.png	player	692x203	692x203	204	ETC2_RGBA8 (無圧縮に落ちた)	0.56	ASTC_4x4	0.14	False	0.905	2048	False	False	Single
+810	Assets/Art/ArcherRun_v1/run_06.png	player	852x656	852x656	403	ETC2_RGBA8	0.56	ASTC_4x4	0.56	True	0.689	2048	False	False	Single
+811	Assets/Art/SkyEnemy/celestial_knight/move/move_00.png	enemy	384x362	384x362	134	ETC2_RGBA8 (無圧縮に落ちた)	0.56	ASTC_4x4	0.14	False	0.958	2048	False	False	Single
+812	Assets/Art/SkyEnemy/sky_hunter/recover.png	enemy	348x399	348x399	163	ETC2_RGBA8 (無圧縮に落ちた)	0.56	ASTC_4x4	0.14	False	0.957	2048	False	False	Single
+813	Assets/Art/SkyEnemy/gargoyle/idle.png	enemy	350x393	350x393	199	ETC2_RGBA8 (無圧縮に落ちた)	0.55	ASTC_4x4	0.14	False	0.957	2048	False	False	Single
+814	Assets/Art/Obstacles_v1/obstacle_breakabletree.png	background	416x329	416x329	270	ETC2_RGBA8 (無圧縮に落ちた)	0.55	ASTC_5x5	0.09	False	0.976	2048	False	False	Single
+815	Assets/Art/BonusEnemy/mimic/idle.png	enemy	381x359	381x359	201	ETC2_RGBA8 (無圧縮に落ちた)	0.55	ASTC_4x4	0.14	False	0.957	2048	False	False	Single
+816	Assets/Art/SkyEnemy/ancient_sentinel/move/move_01.png	enemy	323x422	323x422	241	ETC2_RGBA8 (無圧縮に落ちた)	0.55	ASTC_4x4	0.14	False	0.957	2048	False	False	Single
+817	Assets/Art/Cave/obstacle_wall.png	background	303x449	303x449	267	ETC2_RGBA8 (無圧縮に落ちた)	0.54	ASTC_5x5	0.09	False	1.000	2048	False	False	Single
+818	Assets/Art/SkyEnemy/celestial_knight/idle.png	enemy	369x368	369x368	119	ETC2_RGBA8 (無圧縮に落ちた)	0.54	ASTC_4x4	0.14	False	0.957	2048	False	False	Single
+819	Assets/Art/CaveBoss/scorpion_attack.png	boss	664x816	664x816	672	ETC2_RGBA8	0.54	ASTC_4x4	0.54	True	1.000	2048	False	False	Single
+820	Assets/Art/SkyEnemy/ancient_sentinel/telegraph.png	enemy	281x468	281x468	229	ETC2_RGBA8 (無圧縮に落ちた)	0.53	ASTC_4x4	0.13	False	0.955	2048	False	False	Single
+821	Assets/Art/SkyEnemy/sky_hunter/move/move_01.png	enemy	403x326	403x326	194	ETC2_RGBA8 (無圧縮に落ちた)	0.53	ASTC_4x4	0.13	False	0.956	2048	False	False	Single
+822	Assets/Art/LastCorridor/Obstacles/door_small.png	background	317x414	317x414	260	ETC2_RGBA8 (無圧縮に落ちた)	0.53	ASTC_5x5	0.09	False	1.000	2048	False	False	Single
+823	Assets/Art/PlayerJump_v1/jump_04.png	player	175x749	175x749	42	ETC2_RGBA8 (無圧縮に落ちた)	0.52	ASTC_4x4	0.13	False	0.288	2048	False	False	Single
+824	Assets/Art/UI/Characters/dragonkin_card.png	ui	522x959	512x1024	1062	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	1.000	2048	False	False	None
+825	Assets/Art/Cave/groundfill_cave.png	background	1024x1024	1024x1024	2014	ETC_RGB4	0.52	ASTC_5x5	0.67	True	1.000	4096	False	False	Single
+826	Assets/Art/UI/PortraitBackdrop.png	ui	1254x1254	1024x1024	2295	ETC_RGB4	0.52	ASTC_4x4	1.05	True	1.000	2048	False	False	None
+827	Assets/Art/UI/Characters/ninja_card.png	ui	435x879	512x1024	799	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	1.000	2048	False	False	None
+828	Assets/Art/LastCorridor/Terrain/groundfill.png	background	1024x1024	1024x1024	1604	ETC_RGB4	0.52	ASTC_5x5	0.67	True	1.000	2048	False	False	Single
+829	Assets/Art/UI/Characters/fighter_card.png	ui	431x879	512x1024	777	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	1.000	2048	False	False	None
+830	Assets/Art/UI/Characters/mage_card.png	ui	431x879	512x1024	855	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	1.000	2048	False	False	None
+831	Assets/Art/UI/Characters/miko_card.png	ui	523x959	512x1024	1061	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	1.000	2048	False	False	None
+832	Assets/Art/UI/Characters/archer_card.png	ui	430x879	512x1024	806	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	1.000	2048	False	False	None
+833	Assets/Art/UI/Characters/vampire_card.png	ui	522x959	512x1024	1025	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	1.000	2048	False	False	None
+834	Assets/Resources/LastDungeon/Fx/slab.png	effect	1024x512	1024x512	282	ETC2_RGBA8	0.52	ASTC_6x6	0.24	True	1.000	1024	False	False	Single
+835	Assets/Art/VisualStyleV1/Ground/platform_wasteland_mid.png	background	724x724	724x724	740	ETC2_RGBA8	0.52	ASTC_5x5	0.34	True	1.000	2048	False	False	Single
+836	Assets/Art/VisualStyleV1/Ground/platform_wasteland_left.png	background	724x724	724x724	724	ETC2_RGBA8	0.52	ASTC_5x5	0.34	True	1.000	2048	False	False	Single
+837	Assets/Art/VisualStyleV1/Ground/platform_wasteland_right.png	background	724x724	724x724	702	ETC2_RGBA8	0.52	ASTC_5x5	0.34	True	1.000	2048	False	False	Single
+838	Assets/Art/MikoFinishLong_v1/finish_01.png	player	808x644	808x644	523	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	0.631	2048	False	False	Single
+839	Assets/Art/MajinAttack/attack_02.png	boss	720x720	720x720	252	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	0.970	2048	False	False	Single
+840	Assets/Art/MajinAttack/attack_03.png	boss	720x720	720x720	232	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	0.928	2048	False	False	Single
+841	Assets/Art/MajinAttack/attack_04.png	boss	720x720	720x720	232	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	0.968	2048	False	False	Single
+842	Assets/Art/MajinAttack/attack_07.png	boss	720x720	720x720	253	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	0.727	2048	False	False	Single
+843	Assets/Art/MajinAttack/attack_06.png	boss	720x720	720x720	252	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	0.970	2048	False	False	Single
+844	Assets/Art/MajinAttack/attack_01.png	boss	720x720	720x720	253	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	0.727	2048	False	False	Single
+845	Assets/Art/MajinAttack/attack_05.png	boss	720x720	720x720	232	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	0.928	2048	False	False	Single
+846	Assets/Art/MajinAttack/attack_00.png	boss	720x720	720x720	224	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	0.599	2048	False	False	Single
+847	Assets/Art/PlayerStart_v1/start_01.png	player	856x604	856x604	495	ETC2_RGBA8	0.52	ASTC_4x4	0.52	True	1.000	2048	False	False	Single
+848	Assets/Art/PlayerJump_v1/jump_03.png	player	172x749	172x749	43	ETC2_RGBA8 (無圧縮に落ちた)	0.52	ASTC_4x4	0.13	False	0.276	2048	False	False	Single
+849	Assets/Art/GunslingerDeath_v1/death_01.png	player	425x302	425x302	181	ETC2_RGBA8 (無圧縮に落ちた)	0.51	ASTC_4x4	0.13	False	0.954	2048	False	False	Single
+850	Assets/Art/GunslingerDeath_v1/death_02.png	player	449x285	449x285	182	ETC2_RGBA8 (無圧縮に落ちた)	0.51	ASTC_4x4	0.13	False	0.930	2048	False	False	Single
+851	Assets/Art/GunslingerUpShot_v1/upshot_00.png	player	656x772	656x772	498	ETC2_RGBA8	0.51	ASTC_4x4	0.51	True	0.987	2048	False	False	Single
+852	Assets/Art/VampirePoses_v1/bloodslash/bloodslash_p0_00.png	player	1044x484	1044x484	578	ETC2_RGBA8	0.51	ASTC_4x4	0.51	True	0.681	2048	False	False	Single
+853	Assets/Art/SkyEnemy/storm_spirit/recover.png	enemy	318x397	318x397	183	ETC2_RGBA8 (無圧縮に落ちた)	0.51	ASTC_4x4	0.13	False	0.955	2048	False	False	Single
+854	Assets/Art/UI/HomeIdle/door_backdrop.png	ui	259x487	259x487	22	ETC2_RGBA8 (無圧縮に落ちた)	0.50	ASTC_4x4	0.13	False	0.896	2048	False	False	None
+855	Assets/Art/UI/HomeIdle/door_leaf.png	ui	259x487	259x487	298	ETC2_RGBA8 (無圧縮に落ちた)	0.50	ASTC_4x4	0.13	False	0.919	2048	False	False	None
+856	Assets/Art/PlayerJump_v1/jump_00.png	player	168x749	168x749	40	ETC2_RGBA8 (無圧縮に落ちた)	0.50	ASTC_4x4	0.13	False	0.251	2048	False	False	Single
+857	Assets/Art/SkyEnemy/sky_hunter/hit.png	enemy	350x354	350x354	161	ETC2_RGBA8 (無圧縮に落ちた)	0.50	ASTC_4x4	0.13	False	0.955	2048	False	False	Single
+858	Assets/Art/LancerUp_v1/up_00.png	player	716x692	716x692	328	ETC2_RGBA8	0.50	ASTC_4x4	0.50	True	0.887	2048	False	False	Single
+859	Assets/Art/BonusEnemy/golden_slime/hit.png	enemy	403x307	403x307	154	ETC2_RGBA8 (無圧縮に落ちた)	0.49	ASTC_4x4	0.12	False	0.955	2048	False	False	Single
+860	Assets/Art/BonusEnemy/golden_slime/idle.png	enemy	321x384	321x384	161	ETC2_RGBA8 (無圧縮に落ちた)	0.49	ASTC_4x4	0.12	False	0.955	2048	False	False	Single
+861	Assets/Art/SkyEnemy/celestial_knight/hit.png	enemy	410x299	410x299	143	ETC2_RGBA8 (無圧縮に落ちた)	0.49	ASTC_4x4	0.12	False	0.954	2048	False	False	Single
+862	Assets/Art/PlayerJump_v1/jump_01.png	player	163x749	163x749	42	ETC2_RGBA8 (無圧縮に落ちた)	0.49	ASTC_4x4	0.12	False	0.254	2048	False	False	Single
+863	Assets/Art/DualBladeFinishMedium_v1/finish_00.png	player	592x820	592x820	595	ETC2_RGBA8	0.49	ASTC_4x4	0.49	True	1.000	2048	False	False	Single
+864	Assets/Art/SkyBoss/phoenix_idle.png	boss	708x684	708x684	703	ETC2_RGBA8	0.48	ASTC_4x4	0.48	True	1.000	2048	False	False	Single
+865	Assets/Art/VampirePoses_v1/claw2/claw2_p1_01.png	player	920x524	920x524	501	ETC2_RGBA8	0.48	ASTC_4x4	0.48	True	0.702	2048	False	False	Single
+866	Assets/Art/VampirePoses_v1/dive/dive_p1_00.png	player	692x696	692x696	487	ETC2_RGBA8	0.48	ASTC_4x4	0.48	True	0.873	2048	False	False	Single
+867	Assets/Art/DualBladeAttackSmall_v1/attacksmall_02.png	player	393x306	393x306	136	ETC2_RGBA8 (無圧縮に落ちた)	0.48	ASTC_4x4	0.12	False	1.000	2048	False	False	Single
+868	Assets/Art/PlayerFinishLong_v1/finish_01.png	player	668x720	668x720	594	ETC2_RGBA8	0.48	ASTC_4x4	0.48	True	1.000	2048	False	False	Single
+869	Assets/Art/PlayerJump_v1/jump_02.png	player	160x749	160x749	39	ETC2_RGBA8 (無圧縮に落ちた)	0.48	ASTC_4x4	0.12	False	0.252	2048	False	False	Single
+870	Assets/Art/SkyEnemy/gargoyle/recover.png	enemy	316x379	316x379	186	ETC2_RGBA8 (無圧縮に落ちた)	0.48	ASTC_4x4	0.12	False	0.954	2048	False	False	Single
+871	Assets/Art/RunnerRun/runner_run_4.png	enemy	656x724	656x724	223	ETC2_RGBA8	0.48	ASTC_4x4	0.48	True	0.395	2048	False	False	Single
+872	Assets/Art/ArcherRun_v1/run_04.png	player	868x544	868x544	340	ETC2_RGBA8	0.47	ASTC_4x4	0.47	True	0.714	2048	False	False	Single
+873	Assets/Art/DualBladeAttackMid_v1/attackmid_02.png	player	386x304	386x304	138	ETC2_RGBA8 (無圧縮に落ちた)	0.47	ASTC_4x4	0.12	False	1.000	2048	False	False	Single
+874	Assets/Resources/Arena/arena_floor.png	background	1024x1024	1024x1024	1761	ASTC_6x6	0.47	ASTC_6x6	0.47	True	1.000	2048	False	False	Single
+875	Assets/Art/SkyEnemy/harpy/move/move_01.png	enemy	350x334	350x334	182	ETC2_RGBA8 (無圧縮に落ちた)	0.47	ASTC_4x4	0.12	False	0.954	2048	False	False	Single
+876	Assets/Art/Obstacles_v1/obstacle_smalltree.png	background	474x246	474x246	193	ETC2_RGBA8 (無圧縮に落ちた)	0.47	ASTC_5x5	0.08	False	0.967	2048	False	False	Single
+877	Assets/Art/FighterStart_v1/start_00.png	player	660x704	660x704	398	ETC2_RGBA8	0.46	ASTC_4x4	0.46	True	0.704	2048	False	False	Single
+878	Assets/Art/SkyEnemy/harpy/death.png	enemy	300x387	300x387	159	ETC2_RGBA8 (無圧縮に落ちた)	0.46	ASTC_4x4	0.12	False	0.953	2048	False	False	Single
+879	Assets/Art/SkyEnemy/harpy/recover.png	enemy	334x347	334x347	195	ETC2_RGBA8 (無圧縮に落ちた)	0.46	ASTC_4x4	0.12	False	0.954	2048	False	False	Single
+880	Assets/Art/MagePoses_v1/castUp/castUp_p0_00.png	player	792x584	792x584	503	ETC2_RGBA8	0.46	ASTC_4x4	0.46	True	0.801	2048	False	False	Single
+881	Assets/Art/VampireHurt_v1/hurt_02.png	player	932x496	932x496	432	ETC2_RGBA8	0.46	ASTC_4x4	0.46	True	0.722	2048	False	False	Single
+882	Assets/Art/ArcherDeath_v1/death_03.png	player	582x197	582x197	175	ETC2_RGBA8 (無圧縮に落ちた)	0.46	ASTC_4x4	0.12	False	0.981	2048	False	False	Single
+883	Assets/Art/SkyBoss/jellyfish_idle.png	boss	744x600	744x600	582	ETC2_RGBA8	0.45	ASTC_4x4	0.45	True	1.000	2048	False	False	Single
+884	Assets/Art/SkyEnemy/sky_hunter/death.png	enemy	341x326	341x326	125	ETC2_RGBA8 (無圧縮に落ちた)	0.44	ASTC_4x4	0.11	False	0.953	2048	False	False	Single
+885	Assets/Art/SkyEnemy/ancient_sentinel/move/move_00.png	enemy	262x422	262x422	212	ETC2_RGBA8 (無圧縮に落ちた)	0.44	ASTC_4x4	0.11	False	0.951	2048	False	False	Single
+886	Assets/Art/SkyEnemy/ancient_sentinel/idle.png	enemy	262x422	262x422	212	ETC2_RGBA8 (無圧縮に落ちた)	0.44	ASTC_4x4	0.11	False	0.951	2048	False	False	Single
+887	Assets/Art/DualBladeDeath_v1/death_01.png	player	366x302	366x302	180	ETC2_RGBA8 (無圧縮に落ちた)	0.44	ASTC_4x4	0.11	False	1.000	2048	False	False	Single
+888	Assets/Art/ArcherRun_v1/run_02.png	player	776x568	776x568	304	ETC2_RGBA8	0.44	ASTC_4x4	0.44	True	0.648	2048	False	False	Single
+889	Assets/Art/DualBladeDeath_v1/death_02.png	player	432x255	432x255	178	ETC2_RGBA8 (無圧縮に落ちた)	0.44	ASTC_4x4	0.11	False	1.000	2048	False	False	Single
+890	Assets/Art/MagePoses_v1/cast/cast_p1_00.png	player	744x592	744x592	427	ETC2_RGBA8	0.44	ASTC_4x4	0.44	True	0.776	2048	False	False	Single
+891	Assets/Art/Reapers/Youngest/move_00.png	boss	640x688	640x688	635	ETC2_RGBA8	0.44	ASTC_4x4	0.44	True	0.826	2048	False	False	Single
+892	Assets/Art/Reapers/Youngest/move_01.png	boss	640x688	640x688	591	ETC2_RGBA8	0.44	ASTC_4x4	0.44	True	0.709	2048	False	False	Single
+893	Assets/Art/Reapers/Youngest/move_02.png	boss	640x688	640x688	622	ETC2_RGBA8	0.44	ASTC_4x4	0.44	True	0.798	2048	False	False	Single
+894	Assets/Art/Reapers/Youngest/move_03.png	boss	640x688	640x688	583	ETC2_RGBA8	0.44	ASTC_4x4	0.44	True	0.727	2048	False	False	Single
+895	Assets/Art/SkyEnemy/sky_hound/move/move_01.png	enemy	409x265	409x265	118	ETC2_RGBA8 (無圧縮に落ちた)	0.43	ASTC_4x4	0.11	False	0.951	2048	False	False	Single
+896	Assets/Art/MageHurt_v1/hurt_02.png	player	664x648	664x648	491	ETC2_RGBA8	0.43	ASTC_4x4	0.43	True	0.852	2048	False	False	Single
+897	Assets/Art/DualBladeAttackLarge_v1/attacklarge_01.png	player	330x321	330x321	140	ETC2_RGBA8 (無圧縮に落ちた)	0.42	ASTC_4x4	0.11	False	0.950	2048	False	False	Single
+898	Assets/Art/SkyEnemy/sky_hunter/dive.png	enemy	432x242	432x242	117	ETC2_RGBA8 (無圧縮に落ちた)	0.42	ASTC_4x4	0.11	False	0.949	2048	False	False	Single
+899	Assets/Art/WildBoss/golem_idle.png	boss	488x852	488x852	848	ETC2_RGBA8	0.42	ASTC_4x4	0.42	True	1.000	2048	False	False	Single
+900	Assets/Art/LancerJump_v1/jump_00.png	player	796x520	796x520	302	ETC2_RGBA8	0.41	ASTC_4x4	0.41	True	0.647	2048	False	False	Single
+901	Assets/Art/SkyEnemy/sky_hound/attack.png	enemy	432x239	432x239	123	ETC2_RGBA8 (無圧縮に落ちた)	0.41	ASTC_4x4	0.10	False	0.949	2048	False	False	Single
+902	Assets/Art/GunslingerDeath_v1/death_03.png	player	550x187	550x187	140	ETC2_RGBA8 (無圧縮に落ちた)	0.41	ASTC_4x4	0.10	False	0.932	2048	False	False	Single
+903	Assets/Art/DualBladeDoubleJump_v1/doublejump_00.png	player	325x314	325x314	97	ETC2_RGBA8 (無圧縮に落ちた)	0.41	ASTC_4x4	0.10	False	0.951	2048	False	False	Single
+904	Assets/Art/SkyEnemy/harpy/idle.png	enemy	314x322	314x322	174	ETC2_RGBA8 (無圧縮に落ちた)	0.40	ASTC_4x4	0.10	False	0.950	2048	False	False	Single
+905	Assets/Art/ShooterRun/shooter_run_4.png	enemy	556x724	556x724	452	ETC2_RGBA8	0.40	ASTC_4x4	0.40	True	0.456	2048	False	False	Single
+906	Assets/Art/IrregularRun/irregular_run_4.png	enemy	556x724	556x724	384	ETC2_RGBA8	0.40	ASTC_4x4	0.40	True	0.295	2048	False	False	Single
+907	Assets/Art/GoblinRun/goblin_run_4.png	enemy	556x724	556x724	242	ETC2_RGBA8	0.40	ASTC_4x4	0.40	True	0.389	2048	False	False	Single
+908	Assets/Art/HeavyRun/heavy_run_4.png	enemy	556x724	556x724	384	ETC2_RGBA8	0.40	ASTC_4x4	0.40	True	0.246	2048	False	False	Single
+909	Assets/Art/LancerDive_v1/dive_02.png	player	772x520	772x520	304	ETC2_RGBA8	0.40	ASTC_4x4	0.40	True	0.627	2048	False	False	Single
+910	Assets/Art/SkyEnemy/sky_hound/hit.png	enemy	340x286	340x286	110	ETC2_RGBA8 (無圧縮に落ちた)	0.39	ASTC_4x4	0.10	False	0.949	2048	False	False	Single
+911	Assets/Art/DualBladeDeath_v1/death_03.png	player	538x179	538x179	133	ETC2_RGBA8 (無圧縮に落ちた)	0.39	ASTC_4x4	0.10	False	1.000	2048	False	False	Single
+912	Assets/Art/NobleLadyRun_v1/run_01.png	player	295x326	295x326	132	ETC2_RGBA8 (無圧縮に落ちた)	0.38	ASTC_4x4	0.10	False	0.994	2048	False	False	Single
+913	Assets/Art/DualBladeAttackMid_v1/attackmid_03.png	player	314x306	314x306	135	ETC2_RGBA8 (無圧縮に落ちた)	0.38	ASTC_4x4	0.10	False	1.000	2048	False	False	Single
+914	Assets/Art/SkyEnemy/sky_hound/move/move_00.png	enemy	406x235	406x235	116	ETC2_RGBA8 (無圧縮に落ちた)	0.38	ASTC_4x4	0.10	False	0.947	2048	False	False	Single
+915	Assets/Art/SkyEnemy/sky_hound/idle.png	enemy	363x262	363x262	127	ETC2_RGBA8 (無圧縮に落ちた)	0.38	ASTC_4x4	0.10	False	0.948	2048	False	False	Single
+916	Assets/Art/NobleLadyRun_v1/run_02.png	player	275x343	275x343	122	ETC2_RGBA8 (無圧縮に落ちた)	0.38	ASTC_4x4	0.10	False	0.987	2048	False	False	Single
+917	Assets/Art/DualBladeAttackLarge_v1/attacklarge_02.png	player	302x310	302x310	132	ETC2_RGBA8 (無圧縮に落ちた)	0.37	ASTC_4x4	0.09	False	1.000	2048	False	False	Single
+918	Assets/Art/DualBladeJumpStart_v1/jumpstart_00.png	player	297x315	297x315	117	ETC2_RGBA8 (無圧縮に落ちた)	0.37	ASTC_4x4	0.09	False	0.975	2048	False	False	Single
+919	Assets/Art/DualBladeAttackMid_v1/attackmid_01.png	player	305x305	305x305	147	ETC2_RGBA8 (無圧縮に落ちた)	0.37	ASTC_4x4	0.09	False	1.000	2048	False	False	Single
+920	Assets/Art/LancerStart_v1/start_00.png	player	540x688	540x688	291	ETC2_RGBA8	0.37	ASTC_4x4	0.37	True	0.876	2048	False	False	Single
+921	Assets/Art/NobleLadyAttack_v1/attack_01.png	player	512x724	512x724	425	ETC2_RGBA8	0.37	ASTC_4x4	0.37	True	0.669	2048	False	False	Single
+922	Assets/Art/DualBladeAttackSmall_v1/attacksmall_01.png	player	303x304	303x304	140	ETC2_RGBA8 (無圧縮に落ちた)	0.37	ASTC_4x4	0.09	False	1.000	2048	False	False	Single
+923	Assets/Art/EnemyAttack/soldier_ant_attack.png	enemy	860x428	860x428	449	ETC2_RGBA8	0.37	ASTC_4x4	0.37	True	0.981	2048	False	False	Single
+924	Assets/Art/BonusEnemy/mimic/wake.png	enemy	339x270	339x270	159	ETC2_RGBA8 (無圧縮に落ちた)	0.37	ASTC_4x4	0.09	False	0.947	2048	False	False	Single
+925	Assets/Art/SkyEnemy/sky_hound/recover.png	enemy	360x254	360x254	111	ETC2_RGBA8 (無圧縮に落ちた)	0.37	ASTC_4x4	0.09	False	0.947	2048	False	False	Single
+926	Assets/Art/DualBladeAttackMid_v1/attackmid_00.png	player	297x306	297x306	136	ETC2_RGBA8 (無圧縮に落ちた)	0.36	ASTC_4x4	0.09	False	1.000	2048	False	False	Single
+927	Assets/Art/NobleLadyRun_v1/run_04.png	player	274x331	274x331	130	ETC2_RGBA8 (無圧縮に落ちた)	0.36	ASTC_4x4	0.09	False	0.987	2048	False	False	Single
+928	Assets/Art/DualBladeAttackSmall_v1/attacksmall_03.png	player	301x301	301x301	135	ETC2_RGBA8 (無圧縮に落ちた)	0.36	ASTC_4x4	0.09	False	1.000	2048	False	False	Single
+929	Assets/Art/DualBladeLand_v1/land_00.png	player	284x314	284x314	126	ETC2_RGBA8 (無圧縮に落ちた)	0.36	ASTC_4x4	0.09	False	0.961	2048	False	False	Single
+930	Assets/Art/DualBladeDownAttackLand_v1/downattackland_00.png	player	283x314	283x314	123	ETC2_RGBA8 (無圧縮に落ちた)	0.36	ASTC_4x4	0.09	False	0.947	2048	False	False	Single
+931	Assets/Art/BonusEnemy/mimic/dormant.png	enemy	345x257	345x257	150	ETC2_RGBA8 (無圧縮に落ちた)	0.35	ASTC_4x4	0.09	False	0.946	2048	False	False	Single
+932	Assets/Art/LastCorridor/Background/LastCorridorThumbnail.png	background	768x432	1024x512	460	ETC_RGB4	0.35	ASTC_5x5	0.45	True	1.000	2048	True	False	None
+933	Assets/Art/Background/CaveThumbnail.png	background	768x432	1024x512	441	ETC_RGB4	0.35	ASTC_5x5	0.45	True	1.000	2048	True	False	None
+934	Assets/Art/DragonkinFinishExtreme_v1/finish_01.png	player	728x480	728x480	503	ETC2_RGBA8	0.35	ASTC_4x4	0.35	True	0.862	2048	False	False	Single
+935	Assets/Art/CaveBoss/drake_attack.png	boss	776x444	776x444	499	ETC2_RGBA8	0.34	ASTC_4x4	0.34	True	0.993	2048	False	False	Single
+936	Assets/Art/Cave/spike_0.png	background	208x413	208x413	98	ETC2_RGBA8 (無圧縮に落ちた)	0.34	ASTC_5x5	0.06	False	1.000	2048	False	False	Single
+937	Assets/Resources/LastDungeon/Glyphs/glyph_W.png	background	321x267	321x267	24	ETC2_RGBA8 (無圧縮に落ちた)	0.34	ASTC_4x4	0.09	False	0.869	512	False	False	Single
+938	Assets/Art/ArcherStart_v1/start_00.png	player	492x696	492x696	326	ETC2_RGBA8	0.34	ASTC_4x4	0.34	True	0.772	2048	False	False	Single
+939	Assets/Art/NobleLadyAttack_v1/attack_00.png	player	472x724	472x724	376	ETC2_RGBA8	0.34	ASTC_4x4	0.34	True	0.475	2048	False	False	Single
+940	Assets/Art/SkyEnemy/sky_hunter/telegraph.png	enemy	323x264	323x264	139	ETC2_RGBA8 (無圧縮に落ちた)	0.34	ASTC_4x4	0.09	False	0.946	2048	False	False	Single
+941	Assets/Art/LancerFinishExtreme_v1/finish_00.png	player	636x536	636x536	380	ETC2_RGBA8	0.34	ASTC_4x4	0.34	True	0.975	2048	False	False	Single
+942	Assets/Art/LancerFinishShort_v1/finish_00.png	player	636x536	636x536	380	ETC2_RGBA8	0.34	ASTC_4x4	0.34	True	0.975	2048	False	False	Single
+943	Assets/Art/LancerFinishMedium_v1/finish_00.png	player	636x536	636x536	380	ETC2_RGBA8	0.34	ASTC_4x4	0.34	True	0.975	2048	False	False	Single
+944	Assets/Art/LancerFinishLong_v1/finish_00.png	player	636x536	636x536	380	ETC2_RGBA8	0.34	ASTC_4x4	0.34	True	0.975	2048	False	False	Single
+945	Assets/Art/FighterPoses_v1/sweep/sweep_p1_01.png	player	780x436	780x436	332	ETC2_RGBA8	0.34	ASTC_4x4	0.34	True	0.678	2048	False	False	Single
+946	Assets/Art/ArcherLand_v1/land_00.png	player	756x448	756x448	285	ETC2_RGBA8	0.34	ASTC_4x4	0.34	True	0.669	2048	False	False	Single
+947	Assets/Art/SkyEnemy/celestial_knight/death.png	enemy	422x200	422x200	105	ETC2_RGBA8 (無圧縮に落ちた)	0.34	ASTC_4x4	0.08	False	0.942	2048	False	False	Single
+948	Assets/Art/NobleLadyRun_v1/run_00.png	player	290x290	290x290	131	ETC2_RGBA8 (無圧縮に落ちた)	0.34	ASTC_4x4	0.09	False	0.986	2048	False	False	Single
+949	Assets/Art/NobleLadyRun_v1/run_05.png	player	295x284	295x284	128	ETC2_RGBA8 (無圧縮に落ちた)	0.34	ASTC_4x4	0.08	False	0.993	2048	False	False	Single
+950	Assets/Art/CaveBoss/drake_idle.png	boss	656x504	656x504	518	ETC2_RGBA8	0.33	ASTC_4x4	0.33	True	1.000	2048	False	False	Single
+951	Assets/Art/FighterFinishLong_v1/finish_00.png	player	652x504	652x504	326	ETC2_RGBA8	0.33	ASTC_4x4	0.33	True	0.790	2048	False	False	Single
+952	Assets/Resources/LastDungeon/Glyphs/glyph_M.png	background	307x267	307x267	23	ETC2_RGBA8 (無圧縮に落ちた)	0.33	ASTC_4x4	0.08	False	0.865	512	False	False	Single
+953	Assets/Art/CaveBatRun/cavebat_run_1.png	enemy	524x616	524x616	413	ETC2_RGBA8	0.32	ASTC_4x4	0.32	True	1.000	2048	False	False	Single
+954	Assets/Art/ArcherHurt_v1/hurt_01.png	player	564x572	564x572	353	ETC2_RGBA8	0.32	ASTC_4x4	0.32	True	0.951	2048	False	False	Single
+955	Assets/Art/LastCorridor/Obstacles/pillar_stub.png	background	288x279	288x279	138	ETC2_RGBA8 (無圧縮に落ちた)	0.32	ASTC_5x5	0.05	False	1.000	2048	False	False	Single
+956	Assets/Art/DualBladeJumpAir_v1/jumpair_00.png	player	261x304	261x304	98	ETC2_RGBA8 (無圧縮に落ちた)	0.32	ASTC_4x4	0.08	False	0.974	2048	False	False	Single
+957	Assets/Art/WastelandBirdFlap/bird_flap_4.png	enemy	436x724	436x724	278	ETC2_RGBA8	0.32	ASTC_4x4	0.32	True	0.537	2048	False	False	Single
+958	Assets/Art/NobleLadyRun_v1/run_03.png	player	275x282	275x282	123	ETC2_RGBA8 (無圧縮に落ちた)	0.31	ASTC_4x4	0.08	False	0.986	2048	False	False	Single
+959	Assets/Art/Cave/spike_1.png	background	234x329	234x329	94	ETC2_RGBA8 (無圧縮に落ちた)	0.31	ASTC_5x5	0.05	False	1.000	2048	False	False	Single
+960	Assets/Art/DualBladeAttackLarge_v1/attacklarge_03.png	player	286x260	286x260	124	ETC2_RGBA8 (無圧縮に落ちた)	0.30	ASTC_4x4	0.08	False	1.000	2048	False	False	Single
+961	Assets/Art/NobleLadyHurt_v1/hurt_00.png	player	261x281	261x281	119	ETC2_RGBA8 (無圧縮に落ちた)	0.29	ASTC_4x4	0.08	False	0.940	2048	False	False	Single
+962	Assets/Art/NobleLadyHurt_v1/hurt_01.png	player	264x277	264x277	114	ETC2_RGBA8 (無圧縮に落ちた)	0.29	ASTC_4x4	0.07	False	0.924	2048	False	False	Single
+963	Assets/Art/LancerDeath_v1/death_00.png	player	536x540	536x540	245	ETC2_RGBA8	0.29	ASTC_4x4	0.29	True	0.788	2048	False	False	Single
+964	Assets/Resources/LastDungeon/Glyphs/glyph_H.png	background	260x267	260x267	13	ETC2_RGBA8 (無圧縮に落ちた)	0.28	ASTC_4x4	0.07	False	0.856	512	False	False	Single
+965	Assets/Resources/LastDungeon/Glyphs/glyph_amp.png	background	259x267	259x267	26	ETC2_RGBA8 (無圧縮に落ちた)	0.28	ASTC_4x4	0.07	False	0.885	512	False	False	Single
+966	Assets/Resources/LastDungeon/Glyphs/glyph_N_c3.png	background	257x267	257x267	20	ETC2_RGBA8 (無圧縮に落ちた)	0.27	ASTC_4x4	0.07	False	0.870	512	False	False	Single
+967	Assets/Resources/LastDungeon/Glyphs/glyph_N_c2.png	background	257x267	257x267	19	ETC2_RGBA8 (無圧縮に落ちた)	0.27	ASTC_4x4	0.07	False	0.870	512	False	False	Single
+968	Assets/Resources/LastDungeon/Glyphs/glyph_N_c1.png	background	257x267	257x267	18	ETC2_RGBA8 (無圧縮に落ちた)	0.27	ASTC_4x4	0.07	False	0.870	512	False	False	Single
+969	Assets/Resources/LastDungeon/Glyphs/glyph_N.png	background	257x267	257x267	18	ETC2_RGBA8 (無圧縮に落ちた)	0.27	ASTC_4x4	0.07	False	0.870	512	False	False	Single
+970	Assets/Resources/LastDungeon/Glyphs/glyph_D.png	background	255x267	255x267	17	ETC2_RGBA8 (無圧縮に落ちた)	0.27	ASTC_4x4	0.07	False	0.855	512	False	False	Single
+971	Assets/Resources/LastDungeon/Glyphs/glyph_O_c1.png	background	252x267	252x267	23	ETC2_RGBA8 (無圧縮に落ちた)	0.27	ASTC_4x4	0.07	False	0.885	512	False	False	Single
+972	Assets/Resources/LastDungeon/Glyphs/glyph_O_c3.png	background	252x267	252x267	24	ETC2_RGBA8 (無圧縮に落ちた)	0.27	ASTC_4x4	0.07	False	0.885	512	False	False	Single
+973	Assets/Resources/LastDungeon/Glyphs/glyph_O_c2.png	background	252x267	252x267	23	ETC2_RGBA8 (無圧縮に落ちた)	0.27	ASTC_4x4	0.07	False	0.885	512	False	False	Single
+974	Assets/Resources/LastDungeon/Glyphs/glyph_Q.png	background	252x267	252x267	22	ETC2_RGBA8 (無圧縮に落ちた)	0.27	ASTC_4x4	0.07	False	0.885	512	False	False	Single
+975	Assets/Resources/LastDungeon/Glyphs/glyph_O.png	background	252x267	252x267	21	ETC2_RGBA8 (無圧縮に落ちた)	0.27	ASTC_4x4	0.07	False	0.885	512	False	False	Single
+976	Assets/Art/NobleLadyHurt_v1/hurt_02.png	player	264x254	264x254	101	ETC2_RGBA8 (無圧縮に落ちた)	0.27	ASTC_4x4	0.07	False	0.933	2048	False	False	Single
+977	Assets/Resources/LastDungeon/Glyphs/glyph_V.png	background	250x267	250x267	17	ETC2_RGBA8 (無圧縮に落ちた)	0.27	ASTC_4x4	0.07	False	0.859	512	False	False	Single
+978	Assets/Art/Cave/obstacle_breakable.png	background	311x214	311x214	135	ETC2_RGBA8 (無圧縮に落ちた)	0.27	ASTC_5x5	0.04	False	1.000	2048	False	False	Single
+979	Assets/Art/LastCorridor/Terrain/ceiling_edge.png	background	180x369	180x369	109	ETC2_RGBA8 (無圧縮に落ちた)	0.27	ASTC_5x5	0.04	False	0.805	2048	False	False	Single
+980	Assets/Resources/LastDungeon/Glyphs/glyph_A.png	background	248x267	248x267	17	ETC2_RGBA8 (無圧縮に落ちた)	0.26	ASTC_4x4	0.07	False	0.859	512	False	False	Single
+981	Assets/Resources/LastDungeon/Glyphs/glyph_G.png	background	247x267	247x267	20	ETC2_RGBA8 (無圧縮に落ちた)	0.26	ASTC_4x4	0.07	False	0.884	512	False	False	Single
+982	Assets/Resources/LastDungeon/Glyphs/glyph_U.png	background	247x267	247x267	14	ETC2_RGBA8 (無圧縮に落ちた)	0.26	ASTC_4x4	0.07	False	0.873	512	False	False	Single
+983	Assets/Resources/LastDungeon/Glyphs/glyph_K.png	background	246x267	246x267	19	ETC2_RGBA8 (無圧縮に落ちた)	0.26	ASTC_4x4	0.07	False	0.855	512	False	False	Single
+984	Assets/Art/UI/Characters/NobleLadyItems/noble_lady_item_2.png	ui	724x724	512x512	610	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.701	2048	False	False	None
+985	Assets/Art/UI/Characters/DualBladeItems/dual_blade_item_1.png	ui	724x724	512x512	363	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.680	2048	False	False	None
+986	Assets/Art/UI/Characters/DualBladeItems/dual_blade_item_2.png	ui	724x724	512x512	390	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.810	2048	False	False	None
+987	Assets/Art/UI/Characters/NobleLadyItems/noble_lady_item_0.png	ui	724x724	512x512	230	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.840	2048	False	False	None
+988	Assets/Art/UI/Characters/DualBladeItems/dual_blade_item_0.png	ui	724x724	512x512	296	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.725	2048	False	False	None
+989	Assets/Art/UI/Characters/NobleLadyItems/noble_lady_item_1.png	ui	724x724	512x512	310	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.479	2048	False	False	None
+990	Assets/Art/Background/WastelandThumbnail.png	background	1200x600	1024x512	1792	ETC_RGB4	0.26	ASTC_5x5	0.34	True	1.000	2048	False	False	None
+991	Assets/Art/Icons/CardIcons/perfect_guard.png	card	392x589	512x512	291	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.799	2048	False	False	None
+992	Assets/Art/Icons/CardIcons/boss_challenge.png	card	392x589	512x512	236	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.687	2048	False	False	None
+993	Assets/Art/Icons/CardIcons/double_attack.png	card	392x589	512x512	413	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.744	2048	False	False	None
+994	Assets/Art/Icons/CardIcons/heart_breaker.png	card	392x589	512x512	323	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.811	2048	False	False	None
+995	Assets/Art/Icons/CardIcons/chain_explosion.png	card	392x589	512x512	273	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.748	2048	False	False	None
+996	Assets/Art/Icons/CardIcons/attack_speed_up.png	card	392x589	512x512	397	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.771	2048	False	False	None
+997	Assets/Art/Icons/CardIcons/elite_enemies.png	card	392x589	512x512	256	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.750	2048	False	False	None
+998	Assets/Art/Icons/CardIcons/thunder_strike.png	card	392x589	512x512	273	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.749	2048	False	False	None
+999	Assets/Art/UI/Characters/SwordsmanItems/swordsman_item_1.png	ui	724x724	512x512	774	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.879	2048	False	False	None
+1000	Assets/Art/Icons/CardIcons/exp_converter.png	card	392x589	512x512	260	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.591	2048	False	False	None
+1001	Assets/Art/UI/Characters/SwordsmanItems/swordsman_item_2.png	ui	724x724	512x512	596	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.849	2048	False	False	None
+1002	Assets/Art/Icons/CardIcons/ground_breaker.png	card	392x589	512x512	264	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.883	2048	False	False	None
+1003	Assets/Art/Icons/CardIcons/experience_burst.png	card	392x589	512x512	306	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.868	2048	False	False	None
+1004	Assets/Art/Icons/CardIcons/air_attack_up.png	card	392x589	512x512	324	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.692	2048	False	False	None
+1005	Assets/Art/Icons/CardIcons/berserk_drive.png	card	392x589	512x512	385	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.976	2048	False	False	None
+1006	Assets/Art/Icons/CardIcons/deaths_contract.png	card	392x589	512x512	353	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.834	2048	False	False	None
+1007	Assets/Art/Icons/CardIcons/ground_fighter.png	card	392x589	512x512	187	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.866	2048	False	False	None
+1008	Assets/Art/Icons/CardIcons/the_long_road.png	card	392x589	512x512	284	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.902	2048	False	False	None
+1009	Assets/Art/Icons/CardIcons/jump_power_up.png	card	392x589	512x512	344	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.923	2048	False	False	None
+1010	Assets/Art/Icons/CardIcons/piercing_blade.png	card	392x589	512x512	325	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.753	2048	False	False	None
+1011	Assets/Art/UI/Characters/SwordsmanItems/swordsman_item_0.png	ui	724x724	512x512	231	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.867	2048	False	False	None
+1012	Assets/Art/Icons/CardIcons/no_turning_back.png	card	392x589	512x512	285	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.736	2048	False	False	None
+1013	Assets/Art/Icons/CardIcons/flame_counter.png	card	392x589	512x512	270	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.773	2048	False	False	None
+1014	Assets/Art/Icons/CardIcons/tough_enemies.png	card	392x589	512x512	267	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.743	2048	False	False	None
+1015	Assets/Art/Icons/CardIcons/one_more_mile.png	card	392x589	512x512	285	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.759	2048	False	False	None
+1016	Assets/Art/Icons/CardIcons/high_voltage.png	card	392x589	512x512	325	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.833	2048	False	False	None
+1017	Assets/Art/Icons/CardIcons/air_dominion.png	card	392x589	512x512	282	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.665	2048	False	False	None
+1018	Assets/Art/Icons/CardIcons/brake_attack.png	card	392x589	512x512	279	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.827	2048	False	False	None
+1019	Assets/Resources/Effects/flamefeather.png	effect	512x512	512x512	149	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.512	2048	False	False	Single
+1020	Assets/Art/Icons/CardIcons/ground_zero.png	card	392x589	512x512	326	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.944	2048	False	False	None
+1021	Assets/Art/Icons/CardIcons/aerial_blade.png	card	392x589	512x512	289	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.839	2048	False	False	None
+1022	Assets/Art/Icons/CardIcons/blood_rush.png	card	392x589	512x512	291	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.883	2048	False	False	None
+1023	Assets/Art/Icons/CardIcons/sky_master.png	card	392x589	512x512	350	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.908	2048	False	False	None
+1024	Assets/Art/Icons/CardIcons/overdrive.png	card	392x589	512x512	272	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.630	2048	False	False	None
+1025	Assets/Resources/Effects/lancethrust.png	effect	512x512	512x512	86	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.221	2048	False	False	Single
+1026	Assets/Art/Icons/CardIcons/long_haul.png	card	392x589	512x512	235	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.861	2048	False	False	None
+1027	Assets/Art/Icons/CardIcons/close_call.png	card	392x589	512x512	256	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.598	2048	False	False	None
+1028	Assets/Art/Icons/CardIcons/wind_cutter.png	card	392x589	512x512	301	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.797	2048	False	False	None
+1029	Assets/Art/Icons/CardIcons/air_strike.png	card	392x589	512x512	240	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.805	2048	False	False	None
+1030	Assets/Art/Icons/CardIcons/boss_rush.png	card	392x589	512x512	290	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.775	2048	False	False	None
+1031	Assets/Art/Icons/CardIcons/combo_master.png	card	392x589	512x512	229	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.780	2048	False	False	None
+1032	Assets/Art/Icons/CardIcons/shockwave.png	card	392x589	512x512	267	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.785	2048	False	False	None
+1033	Assets/Art/Icons/CardIcons/iron_will.png	card	392x589	512x512	277	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.655	2048	False	False	None
+1034	Assets/Art/Icons/CardIcons/adrenaline.png	card	392x589	512x512	285	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.708	2048	False	False	None
+1035	Assets/Art/Icons/CardIcons/combo_rush.png	card	392x589	512x512	307	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.860	2048	False	False	None
+1036	Assets/Art/Icons/CardIcons/monster_rush.png	card	392x589	512x512	215	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.655	2048	False	False	None
+1037	Assets/Resources/Effects/crystalshard.png	effect	512x512	512x512	142	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.383	2048	False	False	Single
+1038	Assets/Art/Icons/CardIcons/pandemonium.png	card	392x589	512x512	326	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.811	2048	False	False	None
+1039	Assets/Resources/Effects/rockchunk.png	effect	512x512	512x512	326	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.885	2048	False	False	Single
+1040	Assets/Resources/Effects/thunderspear.png	effect	512x512	512x512	62	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.301	2048	False	False	Single
+1041	Assets/Art/Icons/CardIcons/pathfinder.png	card	392x589	512x512	304	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.838	2048	False	False	None
+1042	Assets/Art/Icons/CardIcons/long_blade.png	card	392x589	512x512	176	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.873	2048	False	False	None
+1043	Assets/Art/Icons/CardIcons/second_wind.png	card	392x589	512x512	307	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.876	2048	False	False	None
+1044	Assets/Art/Icons/CardIcons/hell_mode.png	card	392x589	512x512	293	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.850	2048	False	False	None
+1045	Assets/Art/Icons/CardIcons/giant_slayer.png	card	392x589	512x512	360	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.844	2048	False	False	None
+1046	Assets/Art/Icons/CardIcons/more_enemies.png	card	392x589	512x512	260	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.718	2048	False	False	None
+1047	Assets/Art/Icons/CardIcons/frost_edge.png	card	392x589	512x512	362	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.844	2048	False	False	None
+1048	Assets/Art/Icons/CardIcons/rapid_edge.png	card	392x589	512x512	257	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.728	2048	False	False	None
+1049	Assets/Resources/Effects/muzzleflash.png	effect	512x512	512x512	71	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.293	2048	False	False	Single
+1050	Assets/Art/Icons/CardIcons/fast_enemies.png	card	392x589	512x512	183	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.591	2048	False	False	None
+1051	Assets/Art/Icons/CardIcons/combo_edge.png	card	392x589	512x512	219	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.742	2048	False	False	None
+1052	Assets/Art/Icons/CardIcons/glass_cannon.png	card	392x589	512x512	318	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.836	2048	False	False	None
+1053	Assets/Art/Icons/CardIcons/blood_blade.png	card	392x589	512x512	272	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.834	2048	False	False	None
+1054	Assets/Resources/Effects/titanfist.png	effect	512x512	512x512	347	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.574	2048	False	False	Single
+1055	Assets/Art/Icons/CardIcons/boss_killer.png	card	392x589	512x512	312	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.799	2048	False	False	None
+1056	Assets/Art/Icons/CardIcons/first_strike.png	card	392x589	512x512	217	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.716	2048	False	False	None
+1057	Assets/Art/Icons/CardIcons/last_chance.png	card	392x589	512x512	370	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.831	2048	False	False	None
+1058	Assets/Art/Icons/CardIcons/flame_blade.png	card	392x589	512x512	373	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.842	2048	False	False	None
+1059	Assets/Art/Icons/CardIcons/heavy_impact.png	card	392x589	512x512	363	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.912	2048	False	False	None
+1060	Assets/Art/Icons/CardIcons/last_stand.png	card	392x589	512x512	325	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.871	2048	False	False	None
+1061	Assets/Art/Icons/CardIcons/heavy_armor.png	card	392x589	512x512	379	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.872	2048	False	False	None
+1062	Assets/Art/Icons/CardIcons/sonic_blade.png	card	392x589	512x512	211	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.799	2048	False	False	None
+1063	Assets/Art/Icons/CardIcons/reverse_gear.png	card	392x589	512x512	299	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.687	2048	False	False	None
+1064	Assets/Art/Icons/CardIcons/combo_plus.png	card	392x589	512x512	220	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.689	2048	False	False	None
+1065	Assets/Art/Icons/CardIcons/level_break.png	card	392x589	512x512	215	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.613	2048	False	False	None
+1066	Assets/Art/Icons/CardIcons/mob_killer.png	card	392x589	512x512	254	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.660	2048	False	False	None
+1067	Assets/Resources/Effects/cloudpuff.png	effect	512x512	512x512	207	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.656	2048	False	False	Single
+1068	Assets/Resources/Effects/arrow.png	effect	512x512	512x512	70	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.207	2048	False	False	Single
+1069	Assets/Art/Icons/CardIcons/counter.png	card	392x589	512x512	319	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.802	2048	False	False	None
+1070	Assets/Art/Icons/CardIcons/horde.png	card	392x589	512x512	275	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.834	2048	False	False	None
+1071	Assets/Resources/Effects/burst.png	effect	512x512	512x512	106	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.932	2048	False	False	Single
+1072	Assets/Resources/Effects/warning.png	effect	512x512	512x512	282	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.883	2048	False	False	Single
+1073	Assets/Art/Icons/CardIcons/fortress.png	card	392x589	512x512	340	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.738	2048	False	False	None
+1074	Assets/Art/Icons/CardIcons/wanted.png	card	392x589	512x512	279	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.652	2048	False	False	None
+1075	Assets/Art/Icons/CardIcons/phoenix.png	card	392x589	512x512	330	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.867	2048	False	False	None
+1076	Assets/Resources/Effects/skybolt.png	effect	512x512	512x512	66	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.404	2048	False	False	Single
+1077	Assets/Art/Icons/CardIcons/ultimate.png	card	392x589	512x512	386	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.872	2048	False	False	None
+1078	Assets/Art/Icons/CardIcons/exp_up.png	card	392x589	512x512	264	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.599	2048	False	False	None
+1079	Assets/Art/Icons/CardIcons/heart_up.png	card	392x589	512x512	245	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.807	2048	False	False	None
+1080	Assets/Resources/Effects/fireball.png	effect	512x512	512x512	271	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.850	2048	False	False	Single
+1081	Assets/Art/Icons/CardIcons/overheal.png	card	392x589	512x512	282	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.823	2048	False	False	None
+1082	Assets/Art/Icons/CardIcons/skybound.png	card	392x589	512x512	308	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.975	2048	False	False	None
+1083	Assets/Art/Icons/CardIcons/shield.png	card	392x589	512x512	315	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.807	2048	False	False	None
+1084	Assets/Art/Icons/CardIcons/predator.png	card	392x589	512x512	249	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.830	2048	False	False	None
+1085	Assets/Art/Icons/CardIcons/vampire.png	card	392x589	512x512	238	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.784	2048	False	False	None
+1086	Assets/Art/Icons/CardIcons/hunter.png	card	392x589	512x512	194	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.782	2048	False	False	None
+1087	Assets/Art/Icons/CardIcons/momentum.png	card	392x589	512x512	242	ETC2_RGBA8	0.26	ASTC_4x4	0.26	True	0.540	2048	False	False	None
+1088	Assets/Resources/Effects/slash.png	effect	512x512	512x512	90	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.740	2048	False	False	Single
+1089	Assets/Resources/Effects/orb.png	effect	512x512	512x512	187	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.973	2048	False	False	Single
+1090	Assets/Resources/Effects/ring.png	effect	512x512	512x512	113	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.977	2048	False	False	Single
+1091	Assets/Resources/Effects/fang.png	effect	512x512	512x512	97	ETC2_RGBA8	0.26	ASTC_6x6	0.12	True	0.604	2048	False	False	Single
+1092	Assets/Art/DualBladeAttackLarge_v1/attacklarge_00.png	player	275x234	275x234	119	ETC2_RGBA8 (無圧縮に落ちた)	0.26	ASTC_4x4	0.07	False	1.000	2048	False	False	Single
+1093	Assets/Art/LastCorridor/Terrain/platform_left.png	background	170x378	170x378	88	ETC2_RGBA8 (無圧縮に落ちた)	0.26	ASTC_5x5	0.04	False	0.677	2048	False	False	Single
+1094	Assets/Art/LastCorridor/Terrain/platform_right.png	background	170x378	170x378	83	ETC2_RGBA8 (無圧縮に落ちた)	0.26	ASTC_5x5	0.04	False	0.643	2048	False	False	Single
+1095	Assets/Art/Cave/spike_2.png	background	157x408	157x408	57	ETC2_RGBA8 (無圧縮に落ちた)	0.26	ASTC_5x5	0.04	False	1.000	2048	False	False	Single
+1096	Assets/Resources/BossAnim/wolf/attack_01.png	boss	1042x545	1024x536	548	ASTC_6x6	0.25	ASTC_6x6	0.25	True	0.730	2048	False	False	Single
+1097	Assets/Resources/BossAnim/wolf/attack_00.png	boss	834x656	834x656	513	ASTC_6x6	0.24	ASTC_6x6	0.24	False	0.889	2048	False	False	Single
+1098	Assets/Resources/LastDungeon/Glyphs/glyph_R.png	background	229x267	229x267	17	ETC2_RGBA8 (無圧縮に落ちた)	0.24	ASTC_4x4	0.06	False	0.854	512	False	False	Single
+1099	Assets/Resources/LastDungeon/Glyphs/glyph_C.png	background	223x267	223x267	17	ETC2_RGBA8 (無圧縮に落ちた)	0.24	ASTC_4x4	0.06	False	0.883	512	False	False	Single
+1100	Assets/Resources/LastDungeon/Glyphs/glyph_Y_c3.png	background	222x267	222x267	18	ETC2_RGBA8 (無圧縮に落ちた)	0.24	ASTC_4x4	0.06	False	0.864	512	False	False	Single
+1101	Assets/Resources/LastDungeon/Glyphs/glyph_Y_c1.png	background	222x267	222x267	17	ETC2_RGBA8 (無圧縮に落ちた)	0.24	ASTC_4x4	0.06	False	0.864	512	False	False	Single
+1102	Assets/Resources/LastDungeon/Glyphs/glyph_Y_c2.png	background	222x267	222x267	18	ETC2_RGBA8 (無圧縮に落ちた)	0.24	ASTC_4x4	0.06	False	0.864	512	False	False	Single
+1103	Assets/Resources/LastDungeon/Glyphs/glyph_Y.png	background	222x267	222x267	15	ETC2_RGBA8 (無圧縮に落ちた)	0.24	ASTC_4x4	0.06	False	0.864	512	False	False	Single
+1104	Assets/Resources/LastDungeon/Glyphs/glyph_X.png	background	218x267	218x267	21	ETC2_RGBA8 (無圧縮に落ちた)	0.23	ASTC_4x4	0.06	False	0.864	512	False	False	Single
+1105	Assets/Resources/LastDungeon/Glyphs/glyph_T.png	background	217x267	217x267	8	ETC2_RGBA8 (無圧縮に落ちた)	0.23	ASTC_4x4	0.06	False	0.849	512	False	False	Single
+1106	Assets/Resources/Bosses/MechDragon/vulcan_prep.png	boss	760x678	760x678	455	ASTC_6x6	0.23	ASTC_6x6	0.23	False	0.668	2048	False	False	Single
+1107	Assets/Resources/Bosses/MechDragon/laser_fire.png	boss	760x678	760x678	437	ASTC_6x6	0.23	ASTC_6x6	0.23	False	0.646	2048	False	False	Single
+1108	Assets/Resources/Bosses/MechDragon/laser_cool.png	boss	760x678	760x678	445	ASTC_6x6	0.23	ASTC_6x6	0.23	False	0.662	2048	False	False	Single
+1109	Assets/Resources/Bosses/MechDragon/vulcan_end.png	boss	760x678	760x678	453	ASTC_6x6	0.23	ASTC_6x6	0.23	False	0.659	2048	False	False	Single
+1110	Assets/Resources/Bosses/MechDragon/bomb_prep.png	boss	760x678	760x678	478	ASTC_6x6	0.23	ASTC_6x6	0.23	False	0.701	2048	False	False	Single
+1111	Assets/Resources/Bosses/MechDragon/laser_charge.png	boss	760x678	760x678	442	ASTC_6x6	0.23	ASTC_6x6	0.23	False	0.628	2048	False	False	Single
+1112	Assets/Resources/Bosses/MechDragon/bomb_drop.png	boss	760x678	760x678	476	ASTC_6x6	0.23	ASTC_6x6	0.23	False	0.707	2048	False	False	Single
+1113	Assets/Resources/Bosses/MechDragon/vulcan_fire.png	boss	760x678	760x678	463	ASTC_6x6	0.23	ASTC_6x6	0.23	False	0.671	2048	False	False	Single
+1114	Assets/Resources/Bosses/MechDragon/defeat2.png	boss	760x678	760x678	549	ASTC_6x6	0.23	ASTC_6x6	0.23	False	0.769	2048	False	False	Single
+1115	Assets/Resources/Bosses/MechDragon/recover.png	boss	760x678	760x678	526	ASTC_6x6	0.23	ASTC_6x6	0.23	False	0.717	2048	False	False	Single
+1116	Assets/Resources/Bosses/MechDragon/defeat.png	boss	760x678	760x678	613	ASTC_6x6	0.23	ASTC_6x6	0.23	False	0.825	2048	False	False	Single
+1117	Assets/Resources/Bosses/MechDragon/break.png	boss	760x678	760x678	507	ASTC_6x6	0.23	ASTC_6x6	0.23	False	0.755	2048	False	False	Single
+1118	Assets/Resources/Bosses/MechDragon/move.png	boss	760x678	760x678	426	ASTC_6x6	0.23	ASTC_6x6	0.23	False	0.639	2048	False	False	Single
+1119	Assets/Resources/Bosses/MechDragon/idle.png	boss	760x678	760x678	430	ASTC_6x6	0.23	ASTC_6x6	0.23	False	0.616	2048	False	False	Single
+1120	Assets/Resources/Bosses/MechDragon/hurt.png	boss	760x678	760x678	495	ASTC_6x6	0.23	ASTC_6x6	0.23	False	0.707	2048	False	False	Single
+1121	Assets/Resources/LastDungeon/Glyphs/glyph_Z.png	background	209x267	209x267	15	ETC2_RGBA8 (無圧縮に落ちた)	0.22	ASTC_4x4	0.06	False	0.852	512	False	False	Single
+1122	Assets/Resources/BossAnim/wolf/attack_03.png	boss	800x619	800x619	537	ASTC_6x6	0.22	ASTC_6x6	0.22	False	0.930	2048	False	False	Single
+1123	Assets/Art/SkyEnemy/storm_spirit/charge.png	enemy	472x468	472x468	307	ETC2_RGBA8	0.22	ASTC_4x4	0.22	True	0.966	2048	False	False	Single
+1124	Assets/Resources/BossAnim/wolf/attack_02.png	boss	898x548	898x548	570	ASTC_6x6	0.22	ASTC_6x6	0.22	False	0.983	2048	False	False	Single
+1125	Assets/Art/PlayerAttackLarge_v1/attacklarge_01.png	player	284x768	284x768	61	ETC2_RGBA8	0.22	ASTC_4x4	0.22	True	0.299	2048	False	False	Single
+1126	Assets/Resources/LastDungeon/Glyphs/glyph_B.png	background	201x267	201x267	16	ETC2_RGBA8 (無圧縮に落ちた)	0.21	ASTC_4x4	0.05	False	0.852	512	False	False	Single
+1127	Assets/Art/DualBladeDownAttack_v1/downattack_00.png	player	170x313	170x313	77	ETC2_RGBA8 (無圧縮に落ちた)	0.21	ASTC_4x4	0.05	False	0.932	2048	False	False	Single
+1128	Assets/Resources/LastDungeon/Glyphs/glyph_P.png	background	195x267	195x267	12	ETC2_RGBA8 (無圧縮に落ちた)	0.21	ASTC_4x4	0.05	False	0.851	512	False	False	Single
+1129	Assets/Art/SkyEnemy/sky_hound/death.png	enemy	402x128	402x128	79	ETC2_RGBA8 (無圧縮に落ちた)	0.21	ASTC_4x4	0.05	False	0.919	2048	False	False	Single
+1130	Assets/Resources/LastDungeon/Glyphs/glyph_E_c3.png	background	190x267	190x267	15	ETC2_RGBA8 (無圧縮に落ちた)	0.20	ASTC_4x4	0.05	False	0.851	512	False	False	Single
+1131	Assets/Resources/LastDungeon/Glyphs/glyph_E_c1.png	background	190x267	190x267	13	ETC2_RGBA8 (無圧縮に落ちた)	0.20	ASTC_4x4	0.05	False	0.851	512	False	False	Single
+1132	Assets/Resources/LastDungeon/Glyphs/glyph_E_c2.png	background	190x267	190x267	13	ETC2_RGBA8 (無圧縮に落ちた)	0.20	ASTC_4x4	0.05	False	0.851	512	False	False	Single
+1133	Assets/Resources/LastDungeon/Glyphs/glyph_L.png	background	190x267	190x267	8	ETC2_RGBA8 (無圧縮に落ちた)	0.20	ASTC_4x4	0.05	False	0.851	512	False	False	Single
+1134	Assets/Resources/LastDungeon/Glyphs/glyph_E.png	background	190x267	190x267	12	ETC2_RGBA8 (無圧縮に落ちた)	0.20	ASTC_4x4	0.05	False	0.851	512	False	False	Single
+1135	Assets/Art/NobleLadyDeath_v1/death_00.png	player	218x227	218x227	92	ETC2_RGBA8 (無圧縮に落ちた)	0.20	ASTC_4x4	0.05	False	0.885	2048	False	False	Single
+1136	Assets/Art/PlayerHurt_v1/hurt_01.png	player	239x204	239x204	60	ETC2_RGBA8 (無圧縮に落ちた)	0.20	ASTC_4x4	0.05	False	0.987	2048	False	False	Single
+1137	Assets/Resources/LastDungeon/Glyphs/glyph_S_c3.png	background	179x267	179x267	21	ETC2_RGBA8 (無圧縮に落ちた)	0.19	ASTC_4x4	0.05	False	0.879	512	False	False	Single
+1138	Assets/Resources/LastDungeon/Glyphs/glyph_S_c1.png	background	179x267	179x267	20	ETC2_RGBA8 (無圧縮に落ちた)	0.19	ASTC_4x4	0.05	False	0.879	512	False	False	Single
+1139	Assets/Resources/LastDungeon/Glyphs/glyph_S_c2.png	background	179x267	179x267	20	ETC2_RGBA8 (無圧縮に落ちた)	0.19	ASTC_4x4	0.05	False	0.879	512	False	False	Single
+1140	Assets/Resources/LastDungeon/Glyphs/glyph_S.png	background	179x267	179x267	19	ETC2_RGBA8 (無圧縮に落ちた)	0.19	ASTC_4x4	0.05	False	0.879	512	False	False	Single
+1141	Assets/Resources/LastDungeon/Glyphs/glyph_F.png	background	176x267	176x267	10	ETC2_RGBA8 (無圧縮に落ちた)	0.19	ASTC_4x4	0.05	False	0.849	512	False	False	Single
+1142	Assets/Art/PlayerHurt_v1/hurt_00.png	player	224x209	224x209	66	ETC2_RGBA8 (無圧縮に落ちた)	0.19	ASTC_4x4	0.05	False	1.000	2048	False	False	Single
+1143	Assets/Resources/BossAnim/wolf/ult_01.png	boss	1012x404	1012x404	575	ASTC_6x6	0.18	ASTC_6x6	0.18	True	0.882	2048	False	False	Single
+1144	Assets/Resources/BossAnim/wolf/move_00.png	boss	994x409	994x409	466	ASTC_6x6	0.18	ASTC_6x6	0.18	False	0.843	2048	False	False	Single
+1145	Assets/Resources/LastDungeon/Glyphs/glyph_plus.png	background	170x267	170x267	2	ETC2_RGBA8 (無圧縮に落ちた)	0.18	ASTC_4x4	0.05	False	0.600	512	False	False	Single
+1146	Assets/Resources/LastDungeon/Glyphs/glyph_4.png	background	167x267	167x267	12	ETC2_RGBA8 (無圧縮に落ちた)	0.18	ASTC_4x4	0.05	False	0.837	512	False	False	Single
+1147	Assets/Art/DualBladeHurt_v1/hurt_02.png	player	420x424	420x424	230	ETC2_RGBA8	0.18	ASTC_4x4	0.18	True	1.000	2048	False	False	Single
+1148	Assets/Art/GunslingerBullet.png	player	449x99	449x99	102	ETC2_RGBA8 (無圧縮に落ちた)	0.18	ASTC_4x4	0.05	False	1.000	2048	False	False	Single
+1149	Assets/Art/SkyEnemy/ancient_sentinel/attack.png	enemy	464x380	464x380	304	ETC2_RGBA8	0.18	ASTC_4x4	0.18	True	0.962	2048	False	False	Single
+1150	Assets/Resources/BossAnim/wolf/move_05.png	boss	952x414	952x414	469	ASTC_6x6	0.18	ASTC_6x6	0.18	False	0.936	2048	False	False	Single
+1151	Assets/Resources/BossAnim/wolf/defeat_00.png	boss	766x506	766x506	437	ASTC_6x6	0.17	ASTC_6x6	0.17	False	0.902	2048	False	False	Single
+1152	Assets/Resources/LastDungeon/Glyphs/glyph_2.png	background	163x267	163x267	14	ETC2_RGBA8 (無圧縮に落ちた)	0.17	ASTC_4x4	0.04	False	0.826	512	False	False	Single
+1153	Assets/Art/PlayerRun_v1/run_06.png	player	240x724	240x724	76	ETC2_RGBA8	0.17	ASTC_4x4	0.17	True	0.320	2048	False	False	Single
+1154	Assets/Resources/BossAnim/wolf/windup_01.png	boss	752x512	752x512	437	ASTC_6x6	0.17	ASTC_6x6	0.17	True	0.918	2048	False	False	Single
+1155	Assets/Resources/LastDungeon/Glyphs/glyph_7.png	background	162x267	162x267	11	ETC2_RGBA8 (無圧縮に落ちた)	0.17	ASTC_4x4	0.04	False	0.818	512	False	False	Single
+1156	Assets/Art/PlayerHurt_v1/hurt_02.png	player	224x191	224x191	56	ETC2_RGBA8 (無圧縮に落ちた)	0.17	ASTC_4x4	0.04	False	0.995	2048	False	False	Single
+1157	Assets/Resources/LastDungeon/Glyphs/glyph_0.png	background	160x267	160x267	15	ETC2_RGBA8 (無圧縮に落ちた)	0.17	ASTC_4x4	0.04	False	0.840	512	False	False	Single
+1158	Assets/Resources/LastDungeon/Glyphs/glyph_3.png	background	159x267	159x267	16	ETC2_RGBA8 (無圧縮に落ちた)	0.17	ASTC_4x4	0.04	False	0.840	512	False	False	Single
+1159	Assets/Resources/LastDungeon/Glyphs/glyph_8.png	background	158x267	158x267	18	ETC2_RGBA8 (無圧縮に落ちた)	0.17	ASTC_4x4	0.04	False	0.843	512	False	False	Single
+1160	Assets/Resources/LastDungeon/Glyphs/glyph_9.png	background	158x267	158x267	16	ETC2_RGBA8 (無圧縮に落ちた)	0.17	ASTC_4x4	0.04	False	0.840	512	False	False	Single
+1161	Assets/Resources/LastDungeon/Glyphs/glyph_5.png	background	158x267	158x267	14	ETC2_RGBA8 (無圧縮に落ちた)	0.17	ASTC_4x4	0.04	False	0.836	512	False	False	Single
+1162	Assets/Resources/LastDungeon/Glyphs/glyph_6.png	background	158x267	158x267	16	ETC2_RGBA8 (無圧縮に落ちた)	0.17	ASTC_4x4	0.04	False	0.840	512	False	False	Single
+1163	Assets/Art/DualBladeDeath_v1/death_00.png	player	444x380	444x380	225	ETC2_RGBA8	0.17	ASTC_4x4	0.17	True	1.000	2048	False	False	Single
+1164	Assets/Resources/BossAnim/wolf/move_01.png	boss	892x415	892x415	439	ASTC_6x6	0.17	ASTC_6x6	0.17	False	0.960	2048	False	False	Single
+1165	Assets/Resources/LastDungeon/Glyphs/glyph_1.png	background	155x267	155x267	9	ETC2_RGBA8 (無圧縮に落ちた)	0.17	ASTC_4x4	0.04	False	0.836	512	False	False	Single
+1166	Assets/Art/PlayerRun_v1/run_04.png	player	228x724	228x724	71	ETC2_RGBA8	0.17	ASTC_4x4	0.17	True	0.308	2048	False	False	Single
+1167	Assets/Resources/BossAnim/wolf/windup_00.png	boss	894x411	894x411	481	ASTC_6x6	0.16	ASTC_6x6	0.16	False	0.965	2048	False	False	Single
+1168	Assets/Resources/BossAnim/wolf/move_04.png	boss	888x411	888x411	389	ASTC_6x6	0.16	ASTC_6x6	0.16	False	0.899	2048	False	False	Single
+1169	Assets/Art/Obstacles_v1/obstacle_wall.png	background	416x392	416x392	335	ETC2_RGBA8	0.16	ASTC_5x5	0.11	True	0.980	2048	False	False	Single
+1170	Assets/Art/BonusEnemy/card_fairy/move/move_01.png	enemy	484x336	484x336	251	ETC2_RGBA8	0.16	ASTC_4x4	0.16	True	0.960	2048	False	False	Single
+1171	Assets/Art/SkyEnemy/celestial_knight/telegraph.png	enemy	360x444	360x444	168	ETC2_RGBA8	0.16	ASTC_4x4	0.16	True	0.960	2048	False	False	Single
+1172	Assets/Resources/BossAnim/wolf/windup_02.png	boss	860x411	860x411	436	ASTC_6x6	0.16	ASTC_6x6	0.16	False	0.930	2048	False	False	Single
+1173	Assets/Art/NobleLadyDeath_v1/death_01.png	player	239x166	239x166	77	ETC2_RGBA8 (無圧縮に落ちた)	0.16	ASTC_4x4	0.04	False	0.954	2048	False	False	Single
+1174	Assets/Art/NobleLadyDeath_v1/death_02.png	player	281x139	281x139	73	ETC2_RGBA8 (無圧縮に落ちた)	0.16	ASTC_4x4	0.04	False	0.892	2048	False	False	Single
+1175	Assets/Resources/LastDungeon/Glyphs/glyph_qmark.png	background	139x267	139x267	13	ETC2_RGBA8 (無圧縮に落ちた)	0.15	ASTC_4x4	0.04	False	0.862	512	False	False	Single
+1176	Assets/Art/NinjaDeath_v1/death_01.png	player	520x284	520x284	257	ETC2_RGBA8	0.15	ASTC_4x4	0.15	True	0.943	2048	False	False	Single
+1177	Packages/com.unity.multiplayer.tools/NetStatsMonitor/Implementation/UI/Resources/UnityMpToolsRnsmDefaultTheme.tss	ui	x	0x0	0	None	0.15	None	0.15	True	None	None	None	None	None
+1178	Assets/Art/SkyEnemy/sky_hunter/move/move_00.png	enemy	312x468	312x468	187	ETC2_RGBA8	0.15	ASTC_4x4	0.15	True	0.958	2048	False	False	Single
+1179	Assets/Resources/BossAnim/wolf/move_02.png	boss	762x420	762x420	383	ASTC_6x6	0.14	ASTC_6x6	0.14	False	0.971	2048	False	False	Single
+1180	Assets/Art/Cave/obstacle_rock.png	background	212x167	212x167	71	ETC2_RGBA8 (無圧縮に落ちた)	0.14	ASTC_5x5	0.02	False	1.000	2048	False	False	Single
+1181	Assets/Art/Obstacles_v1/obstacle_rock.png	background	256x138	256x138	65	ETC2_RGBA8 (無圧縮に落ちた)	0.14	ASTC_5x5	0.02	False	0.927	2048	False	False	Single
+1182	Assets/Art/NobleLadyDeath_v1/death_03.png	player	306x113	306x113	65	ETC2_RGBA8 (無圧縮に落ちた)	0.14	ASTC_4x4	0.04	False	0.885	2048	False	False	Single
+1183	Assets/Resources/BossAnim/wolf/ult_00.png	boss	736x417	736x417	521	ASTC_6x6	0.14	ASTC_6x6	0.14	False	0.922	2048	False	False	Single
+1184	Assets/Resources/Bosses/MechDragon/fx_explosion.png	boss	536x560	536x560	440	ASTC_6x6	0.14	ASTC_6x6	0.14	True	0.968	2048	False	False	Single
+1185	Assets/Resources/LastDungeon/Glyphs/glyph_J.png	background	125x267	125x267	5	ETC2_RGBA8 (無圧縮に落ちた)	0.13	ASTC_4x4	0.03	False	0.859	512	False	False	Single
+1186	Assets/Resources/BossAnim/wolf/move_03.png	boss	712x415	712x415	332	ASTC_6x6	0.13	ASTC_6x6	0.13	False	0.915	2048	False	False	Single
+1187	Assets/Art/UI/Characters/gunslinger_card.png	ui	300x750	256x512	536	ETC2_RGBA8	0.13	ASTC_4x4	0.13	True	1.000	2048	False	False	None
+1188	Assets/Resources/LastDungeon/Glyphs/glyph_slash.png	background	122x267	122x267	8	ETC2_RGBA8 (無圧縮に落ちた)	0.13	ASTC_4x4	0.03	False	0.909	512	False	False	Single
+1189	Assets/Resources/LastDungeon/Glyphs/glyph_I.png	background	122x267	122x267	6	ETC2_RGBA8 (無圧縮に落ちた)	0.13	ASTC_4x4	0.03	False	0.840	512	False	False	Single
+1190	Assets/Resources/LastDungeon/Glyphs/glyph_dash.png	background	118x267	118x267	2	ETC2_RGBA8 (無圧縮に落ちた)	0.13	ASTC_4x4	0.03	False	0.206	512	False	False	Single
+1191	Assets/Resources/BossAnim/wolf/defeat_01.png	boss	920x302	920x302	351	ASTC_6x6	0.13	ASTC_6x6	0.13	False	0.884	2048	False	False	Single
+1192	Assets/Resources/BossAnim/wolf/hurt_00.png	boss	514x530	514x530	327	ASTC_6x6	0.12	ASTC_6x6	0.12	False	0.933	2048	False	False	Single
+1193	Assets/Art/SkyEnemy/ancient_sentinel/recover.png	enemy	332x360	332x360	215	ETC2_RGBA8	0.12	ASTC_4x4	0.12	True	0.954	2048	False	False	Single
+1194	Assets/Resources/BossAnim/wolf/break_00.png	boss	614x428	614x428	307	ASTC_6x6	0.12	ASTC_6x6	0.12	False	0.864	2048	False	False	Single
+1195	Assets/Resources/BossAnim/wolf/defeat_02.png	boss	942x268	942x268	327	ASTC_6x6	0.11	ASTC_6x6	0.11	False	0.889	2048	False	False	Single
+1196	Assets/Art/SkyEnemy/celestial_knight/recover.png	enemy	340x332	340x332	132	ETC2_RGBA8	0.11	ASTC_4x4	0.11	True	0.953	2048	False	False	Single
+1197	Assets/Art/PlayerDeath_v1/death_01.png	player	218x127	218x127	48	ETC2_RGBA8 (無圧縮に落ちた)	0.11	ASTC_4x4	0.03	False	0.992	2048	False	False	Single
+1198	Assets/Art/PlayerDeath_v1/death_00.png	player	171x154	171x154	51	ETC2_RGBA8 (無圧縮に落ちた)	0.11	ASTC_4x4	0.03	False	0.948	2048	False	False	Single
+1199	Assets/Resources/Effects/Atk/rockpillar_0.png	effect	450x512	450x512	282	ASTC_6x6	0.10	ASTC_6x6	0.10	False	0.971	2048	False	False	Single
+1200	Assets/Resources/Effects/Atk/rockpillar_2.png	effect	450x512	450x512	239	ASTC_6x6	0.10	ASTC_6x6	0.10	False	0.926	2048	False	False	Single
+1201	Assets/Resources/Effects/Atk/rockpillar_1.png	effect	450x512	450x512	173	ASTC_6x6	0.10	ASTC_6x6	0.10	False	0.684	2048	False	False	Single
+1202	Assets/Resources/Effects/Atk/rockpillar_3.png	effect	450x512	450x512	187	ASTC_6x6	0.10	ASTC_6x6	0.10	False	0.688	2048	False	False	Single
+1203	Assets/Art/SkyEnemy/gargoyle/dormant.png	enemy	312x328	312x328	169	ETC2_RGBA8	0.10	ASTC_4x4	0.10	True	0.951	2048	False	False	Single
+1204	Assets/Art/DualBladeAttackSmall_v1/attacksmall_00.png	player	320x296	320x296	144	ETC2_RGBA8	0.09	ASTC_4x4	0.09	True	1.000	2048	False	False	Single
+1205	Assets/Resources/LastDungeon/Glyphs/glyph_comma.png	background	86x267	86x267	3	ETC2_RGBA8 (無圧縮に落ちた)	0.09	ASTC_4x4	0.02	False	0.254	512	False	False	Single
+1206	Assets/Resources/BossAnim/wolf/break_01.png	boss	824x245	824x245	260	ASTC_6x6	0.09	ASTC_6x6	0.09	False	0.907	2048	False	False	Single
+1207	Assets/Art/UI/HomeIdle/card_G.png	ui	198x111	198x111	21	ETC2_RGBA8 (無圧縮に落ちた)	0.09	ASTC_4x4	0.02	False	0.931	2048	False	False	None
+1208	Assets/Art/SkyEnemy/sky_hound/telegraph.png	enemy	344x248	344x248	107	ETC2_RGBA8	0.09	ASTC_4x4	0.09	True	0.945	2048	False	False	Single
+1209	Assets/Art/PlayerDeath_v1/death_03.png	player	254x83	254x83	38	ETC2_RGBA8 (無圧縮に落ちた)	0.08	ASTC_4x4	0.02	False	1.000	2048	False	False	Single
+1210	Assets/Resources/Bosses/MechDragon/fx_reticle.png	boss	427x427	427x427	97	ASTC_6x6	0.08	ASTC_6x6	0.08	False	0.945	2048	False	False	Single
+1211	Assets/Resources/LastDungeon/Glyphs/glyph_dot.png	background	75x267	75x267	3	ETC2_RGBA8 (無圧縮に落ちた)	0.08	ASTC_4x4	0.02	False	0.248	512	False	False	Single
+1212	Assets/Resources/LastDungeon/Glyphs/glyph_colon.png	background	75x267	75x267	6	ETC2_RGBA8 (無圧縮に落ちた)	0.08	ASTC_4x4	0.02	False	0.589	512	False	False	Single
+1213	Assets/Resources/LastDungeon/Glyphs/glyph_ex.png	background	75x267	75x267	8	ETC2_RGBA8 (無圧縮に落ちた)	0.08	ASTC_4x4	0.02	False	0.837	512	False	False	Single
+1214	Assets/Resources/Effects/Atk/burst_3.png	effect	512x346	512x346	141	ASTC_6x6	0.08	ASTC_6x6	0.08	False	0.490	2048	False	False	Single
+1215	Assets/Resources/Effects/Atk/burst_0.png	effect	512x346	512x346	175	ASTC_6x6	0.08	ASTC_6x6	0.08	False	0.504	2048	False	False	Single
+1216	Assets/Resources/Effects/Atk/burst_2.png	effect	512x346	512x346	231	ASTC_6x6	0.08	ASTC_6x6	0.08	False	0.780	2048	False	False	Single
+1217	Assets/Resources/Effects/Atk/burst_1.png	effect	512x346	512x346	314	ASTC_6x6	0.08	ASTC_6x6	0.08	False	0.963	2048	False	False	Single
+1218	Packages/com.unity.purchasing/Runtime/Purchasing/PaymentOption/Resources/com.unity.purchasing/Brands/GooglePayWhite.png	ui	432x172	432x172	11	ETC2_RGBA8	0.07	ETC2_RGBA8	0.07	True	None	2048	False	False	Multiple
+1219	Packages/com.unity.purchasing/Runtime/Purchasing/PaymentOption/Resources/com.unity.purchasing/Brands/GooglePay.png	ui	432x172	432x172	13	ETC2_RGBA8	0.07	ETC2_RGBA8	0.07	True	None	2048	False	False	Multiple
+1220	Assets/Art/Cave/torch.png	background	160x436	160x436	87	ETC2_RGBA8	0.07	ASTC_5x5	0.05	True	1.000	2048	False	False	Single
+1221	Assets/Art/LastCorridor/Obstacles/rubble.png	background	420x160	420x160	135	ETC2_RGBA8	0.07	ASTC_5x5	0.04	True	1.000	2048	False	False	Single
+1222	Assets/Resources/Effects/Atk/magicpillar_0.png	effect	285x512	285x512	129	ASTC_6x6	0.07	ASTC_6x6	0.07	False	0.907	2048	False	False	Single
+1223	Assets/Resources/Effects/Atk/magicpillar_1.png	effect	285x512	285x512	153	ASTC_6x6	0.07	ASTC_6x6	0.07	False	0.940	2048	False	False	Single
+1224	Assets/Resources/Effects/Atk/magicpillar_2.png	effect	285x512	285x512	158	ASTC_6x6	0.07	ASTC_6x6	0.07	False	0.977	2048	False	False	Single
+1225	Assets/Resources/Effects/Atk/magicpillar_3.png	effect	285x512	285x512	133	ASTC_6x6	0.07	ASTC_6x6	0.07	False	0.921	2048	False	False	Single
+1226	Assets/Art/Icons/Generated/Icon_character_ultimate.png	ui	256x256	256x256	2	ETC2_RGBA8	0.07	ASTC_4x4	0.07	True	0.712	2048	False	False	None
+1227	Assets/Art/Icons/Generated/Icon_burning_soul.png	ui	256x256	256x256	2	ETC2_RGBA8	0.07	ASTC_4x4	0.07	True	0.712	2048	False	False	None
+1228	Assets/Art/Icons/Generated/Icon_chain_lightning.png	ui	256x256	256x256	2	ETC2_RGBA8	0.07	ASTC_4x4	0.07	True	0.712	2048	False	False	None
+1229	Assets/Art/Icons/Generated/Icon_absolute_zero.png	ui	256x256	256x256	3	ETC2_RGBA8	0.07	ASTC_4x4	0.07	True	0.712	2048	False	False	None
+1230	Assets/Art/Icons/Generated/Icon_thunder_lord.png	ui	256x256	256x256	3	ETC2_RGBA8	0.07	ASTC_4x4	0.07	True	0.712	2048	False	False	None
+1231	Assets/Art/UI/Characters/dragon_lancer_card.png	ui	330x702	256x512	529	ETC_RGB4	0.07	ASTC_4x4	0.13	True	1.000	2048	False	False	None
+1232	Assets/Art/UI/Characters/dual_blade_portrait.png	ui	210x500	256x512	179	ETC_RGB4	0.07	ASTC_4x4	0.13	True	1.000	2048	False	False	None
+1233	Assets/Art/UI/Characters/swordsman_portrait.png	ui	255x505	256x512	216	ETC_RGB4	0.07	ASTC_4x4	0.13	True	1.000	2048	False	False	None
+1234	Assets/Art/UI/Characters/noble_lady_portrait.png	ui	210x500	256x512	193	ETC_RGB4	0.07	ASTC_4x4	0.13	True	1.000	2048	False	False	None
+1235	Assets/Art/Icons/Generated/Icon_ice_prison.png	ui	256x256	256x256	2	ETC2_RGBA8	0.07	ASTC_4x4	0.07	True	0.712	2048	False	False	None
+1236	Assets/Art/Icons/Generated/Icon_tornado.png	ui	256x256	256x256	3	ETC2_RGBA8	0.07	ASTC_4x4	0.07	True	0.712	2048	False	False	None
+1237	Assets/Art/Icons/Generated/Icon_gale.png	ui	256x256	256x256	2	ETC2_RGBA8	0.07	ASTC_4x4	0.07	True	0.712	2048	False	False	None
+1238	Assets/Art/Icons/Generated/Icon_inferno.png	ui	256x256	256x256	3	ETC2_RGBA8	0.07	ASTC_4x4	0.07	True	0.712	2048	False	False	None
+1239	Packages/com.unity.purchasing/Runtime/Purchasing/PaymentOption/Resources/com.unity.purchasing/Brands/GooglePlayWordmark.svg	ui	x	0x0	0	None	0.07	None	0.07	True	None	None	None	None	None
+1240	Packages/com.unity.purchasing/Runtime/Purchasing/PaymentOption/Resources/com.unity.purchasing/Brands/GooglePlayWordmarkWhite.svg	ui	x	0x0	0	None	0.07	None	0.07	True	None	None	None	None	None
+1241	Packages/com.unity.purchasing/Runtime/Purchasing/PaymentOption/Resources/com.unity.purchasing/Brands/AppleInAppPurchase1lnWhite.png	ui	370x44	370x44	7	ETC2_RGBA8 (無圧縮に落ちた)	0.07	ETC2_RGBA8	0.07	False	None	2048	False	False	Multiple
+1242	Packages/com.unity.purchasing/Runtime/Purchasing/PaymentOption/Resources/com.unity.purchasing/Brands/AppleInAppPurchase1ln.png	ui	370x44	370x44	7	ETC2_RGBA8 (無圧縮に落ちた)	0.07	ETC2_RGBA8	0.07	False	None	2048	False	False	Multiple
+1243	Assets/Resources/LastDungeon/Glyphs/glyph_apos.png	background	60x267	60x267	3	ETC2_RGBA8 (無圧縮に落ちた)	0.06	ASTC_4x4	0.02	False	0.346	512	False	False	Single
+1244	Assets/Resources/Effects/Atk/beam_0.png	effect	768x174	768x174	133	ASTC_6x6	0.06	ASTC_6x6	0.06	False	0.905	2048	False	False	Single
+1245	Assets/Resources/Effects/Atk/beam_3.png	effect	768x174	768x174	138	ASTC_6x6	0.06	ASTC_6x6	0.06	False	0.888	2048	False	False	Single
+1246	Assets/Resources/Effects/Atk/beam_1.png	effect	768x174	768x174	146	ASTC_6x6	0.06	ASTC_6x6	0.06	False	0.976	2048	False	False	Single
+1247	Assets/Resources/Effects/Atk/beam_2.png	effect	768x174	768x174	151	ASTC_6x6	0.06	ASTC_6x6	0.06	False	0.949	2048	False	False	Single
+1248	Assets/Resources/Bosses/MechDragon/fx_bomb.png	boss	485x255	485x255	160	ASTC_6x6	0.06	ASTC_6x6	0.06	False	0.929	2048	False	False	Single
+1249	Packages/com.unity.purchasing/Runtime/Purchasing/PaymentOption/Resources/com.unity.purchasing/Brands/GooglePlayWordmarkWhite.png	ui	424x80	424x80	8	ETC2_RGBA8	0.03	ETC2_RGBA8	0.03	True	None	2048	False	False	Multiple
+1250	Packages/com.unity.purchasing/Runtime/Purchasing/PaymentOption/Resources/com.unity.purchasing/Brands/GooglePlayWordmark.png	ui	424x80	424x80	8	ETC2_RGBA8	0.03	ETC2_RGBA8	0.03	True	None	2048	False	False	Multiple
+1251	Assets/Resources/Effects/HitImpact/impact_02.png	effect	256x256	256x256	77	ASTC_6x6	0.03	ASTC_6x6	0.03	True	0.992	2048	False	False	Single
+1252	Assets/Resources/Effects/HitImpact/impact_03.png	effect	256x256	256x256	88	ASTC_6x6	0.03	ASTC_6x6	0.03	True	0.918	2048	False	False	Single
+1253	Assets/Resources/Effects/HitImpact/impact_01.png	effect	256x256	256x256	40	ASTC_6x6	0.03	ASTC_6x6	0.03	True	0.754	2048	False	False	Single
+1254	Assets/Resources/Effects/HitImpact/impact_00.png	effect	256x256	256x256	9	ASTC_6x6	0.03	ASTC_6x6	0.03	True	0.203	2048	False	False	Single
+1255	Assets/Resources/Effects/HitImpact/impact_05.png	effect	256x256	256x256	9	ASTC_6x6	0.03	ASTC_6x6	0.03	True	0.672	2048	False	False	Single
+1256	Assets/Resources/Effects/HitImpact/impact_04.png	effect	256x256	256x256	41	ASTC_6x6	0.03	ASTC_6x6	0.03	True	0.988	2048	False	False	Single
+1257	Assets/Resources/Bosses/MechDragon/fx_bullet.png	boss	500x130	500x130	51	ASTC_6x6	0.03	ASTC_6x6	0.03	False	0.886	2048	False	False	Single
+1258	Assets/Art/PlayerDeath_v1/death_02.png	player	204x132	204x132	45	ETC2_RGBA8	0.03	ASTC_4x4	0.03	True	0.924	2048	False	False	Single
+1259	Packages/com.unity.purchasing/Runtime/Purchasing/PaymentOption/Resources/com.unity.purchasing/Brands/CodaWhite.png	ui	150x40	150x40	2	ETC2_RGBA8 (無圧縮に落ちた)	0.02	ETC2_RGBA8	0.02	False	None	2048	False	False	Multiple
+1260	Packages/com.unity.purchasing/Runtime/Purchasing/PaymentOption/Resources/com.unity.purchasing/Brands/Coda.png	ui	150x40	150x40	1	ETC2_RGBA8 (無圧縮に落ちた)	0.02	ETC2_RGBA8	0.02	False	None	2048	False	False	Multiple
+1261	Packages/com.unity.purchasing/Runtime/Purchasing/PaymentOption/Resources/com.unity.purchasing/Brands/ApplePayWhite.png	ui	121x48	121x48	1	ETC2_RGBA8 (無圧縮に落ちた)	0.02	ETC2_RGBA8	0.02	False	None	2048	False	False	Multiple
+1262	Packages/com.unity.purchasing/Runtime/Purchasing/PaymentOption/Resources/com.unity.purchasing/Brands/ApplePay.png	ui	121x48	121x48	1	ETC2_RGBA8 (無圧縮に落ちた)	0.02	ETC2_RGBA8	0.02	False	None	2048	False	False	Multiple
+1263	Assets/Art/UI/HomeIdle/card_H.png	ui	114x47	114x47	6	ETC2_RGBA8 (無圧縮に落ちた)	0.02	ASTC_4x4	0.01	False	0.834	2048	False	False	None
+1264	Assets/Art/UI/HomeIdle/card_E.png	ui	109x47	109x47	7	ETC2_RGBA8 (無圧縮に落ちた)	0.02	ASTC_4x4	0.01	False	0.824	2048	False	False	None
+1265	Assets/Art/UI/OrnateFrameSmall.png	ui	144x96	128x128	15	ETC2_RGBA8	0.02	ASTC_4x4	0.02	True	0.955	2048	False	False	None
+1266	Packages/com.unity.purchasing/Runtime/Purchasing/PaymentOption/Resources/com.unity.purchasing/Brands/StripeWhite.png	ui	94x40	94x40	1	ETC2_RGBA8 (無圧縮に落ちた)	0.02	ETC2_RGBA8	0.02	False	None	2048	False	False	Multiple
+1267	Assets/Art/UI/HomeIdle/card_D.png	ui	94x37	94x37	4	ETC2_RGBA8 (無圧縮に落ちた)	0.01	ASTC_4x4	0.00	False	0.819	2048	False	False	None
+1268	Assets/Art/UI/HomeIdle/card_A.png	ui	85x34	85x34	4	ETC2_RGBA8 (無圧縮に落ちた)	0.01	ASTC_4x4	0.00	False	0.803	2048	False	False	None
+1269	Assets/Art/UI/HomeIdle/card_B.png	ui	81x35	81x35	3	ETC2_RGBA8 (無圧縮に落ちた)	0.01	ASTC_4x4	0.00	False	0.804	2048	False	False	None
+1270	Assets/Art/UI/HomeIdle/card_C.png	ui	67x41	67x41	3	ETC2_RGBA8 (無圧縮に落ちた)	0.01	ASTC_4x4	0.00	False	0.790	2048	False	False	None
+1271	Resources/unity_builtin_extra	other	x	0x0	0	None	0.00	None	0.00	True	None	None	None	None	None
+1272	Assets/Art/square.png	other	64x64	64x64	0	ETC_RGB4	0.00	ASTC_4x4	0.00	True	1.000	2048	False	False	Single
+1273	Packages/com.unity.purchasing/Runtime/Purchasing/PaymentOption/Resources/com.unity.purchasing/Brands/WebshopWhite.png	ui	40x40	40x40	0	ETC2_RGBA8	0.00	ETC2_RGBA8	0.00	True	None	2048	False	False	Single
+1274	Packages/com.unity.purchasing/Runtime/Purchasing/PaymentOption/Resources/com.unity.purchasing/Brands/Webshop.png	ui	40x40	40x40	0	ETC2_RGBA8	0.00	ETC2_RGBA8	0.00	True	None	2048	False	False	Single
