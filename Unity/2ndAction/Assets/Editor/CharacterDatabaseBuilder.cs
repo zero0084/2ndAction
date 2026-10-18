@@ -129,6 +129,8 @@ public static class CharacterDatabaseBuilder
         public string hurtFramesDir;
         public string recoveryFramesDir;
         public string deathFramesDir;
+        // 2026-10-18 アニメーション強化: 最初の4人(lancerPpu を持たない)の被弾/倒れるフォルダの PPU(走りと同じ縮尺)
+        public float reactionPpu;
         public float hurtKnockbackMultiplier;
         public float hurtLeanDegrees;
         // 竜騎士は全アニメーションを同じ縮尺(シートごとの基準ポーズで正規化済み)で
@@ -182,6 +184,7 @@ public static class CharacterDatabaseBuilder
         Spec swordsman = DefaultBaseline;
         swordsman.id = "swordsman";
         swordsman.displayName = "SWORDSMAN";
+        swordsman.hurtFramesDir = "Assets/Art/PlayerHurt_v1"; swordsman.deathFramesDir = "Assets/Art/PlayerDeath_v1"; swordsman.reactionPpu = 186f; // 2026-10-18 被弾3コマ/倒れる4コマ(無ければ今までどおり)
         swordsman.subtitle = "The One Who Keeps Moving";
         swordsman.role = "BALANCED";
         swordsman.flavorText = "A lone swordsman who walks his own path.\nNo matter how many times he falls,\nhe rises again - because there is still\na further place to reach.";
@@ -214,6 +217,7 @@ public static class CharacterDatabaseBuilder
         Spec dualBlade = DefaultBaseline;
         dualBlade.id = "dual_blade";
         dualBlade.displayName = "DUAL BLADE";
+        dualBlade.hurtFramesDir = "Assets/Art/DualBladeHurt_v1"; dualBlade.deathFramesDir = "Assets/Art/DualBladeDeath_v1"; dualBlade.reactionPpu = 425f; // 2026-10-18 被弾3コマ/倒れる4コマ(無ければ今までどおり)
         dualBlade.subtitle = "Swift Steel, Endless Motion";
         dualBlade.role = "GROUND COMBO";
         dualBlade.flavorText = "A swift dual-wielder who chains strikes\ntogether without ever slowing down.\nSpeed and momentum are her greatest weapons.";
@@ -325,6 +329,7 @@ public static class CharacterDatabaseBuilder
         Spec nobleLady = DefaultBaseline;
         nobleLady.id = "noble_lady";
         nobleLady.displayName = "NOBLE LADY";
+        nobleLady.hurtFramesDir = "Assets/Art/NobleLadyHurt_v1"; nobleLady.deathFramesDir = "Assets/Art/NobleLadyDeath_v1"; nobleLady.reactionPpu = 272f; // 2026-10-18 被弾3コマ/倒れる4コマ(無ければ今までどおり)
         nobleLady.subtitle = "A Hero Not Yet Awakened";
         // マスターとエステル(相談用ChatGPT)のレビューで「HEAVY=強い/硬い
         // 印象があり、LIFE3・POWER1のこのキャラには誤解を招く」との指摘
@@ -434,6 +439,7 @@ public static class CharacterDatabaseBuilder
         Spec gunslinger = DefaultBaseline;
         gunslinger.id = "gunslinger";
         gunslinger.displayName = "GUNSLINGER";
+        gunslinger.hurtFramesDir = "Assets/Art/GunslingerHurt_v1"; gunslinger.deathFramesDir = "Assets/Art/GunslingerDeath_v1"; gunslinger.reactionPpu = 550f; // 2026-10-18 被弾3コマ/倒れる4コマ(無ければ今までどおり)
         gunslinger.subtitle = "One Shot, One Distance";
         gunslinger.role = "RANGED";
         gunslinger.flavorText = "Twin pistols, a single sharp line of fire.\nShe wins the fight before it ever\ncloses in - but let an enemy through,\nand she has no answer for it.";
@@ -596,7 +602,7 @@ public static class CharacterDatabaseBuilder
         lancer.bottomCenterPivot = true;
         lancer.runFramesDir = "Assets/Art/LancerRun_v1";
         lancer.runFramesPpu = lp;
-        lancer.runFpsOverride = 8f;
+        lancer.runFpsOverride = 16f; // 4コマ@8fps → 8コマ@16fps(周期0.5秒は同じ、2026-10-18)
         lancer.jumpStartFramesDir = "Assets/Art/LancerJump_v1";
         lancer.jumpStartFramesPpu = lp;
         lancer.jumpFramesDir = "Assets/Art/LancerJump_v1";
@@ -1163,9 +1169,11 @@ public static class CharacterDatabaseBuilder
             if (!string.IsNullOrEmpty(spec.lanceDiveFramesDir) && AssetDatabase.IsValidFolder(spec.lanceDiveFramesDir))
                 d.lanceDiveFrames = LoadAnimationFolder(spec.lanceDiveFramesDir, spec.lancerPpu);
         }
-        if (!string.IsNullOrEmpty(spec.hurtFramesDir)) d.hurtFrames = LoadAnimationFolder(spec.hurtFramesDir, spec.lancerPpu);
-        if (!string.IsNullOrEmpty(spec.recoveryFramesDir)) d.recoveryFrames = LoadAnimationFolder(spec.recoveryFramesDir, spec.lancerPpu);
-        if (!string.IsNullOrEmpty(spec.deathFramesDir)) d.deathFrames = LoadAnimationFolder(spec.deathFramesDir, spec.lancerPpu);
+        float rp = spec.lancerPpu > 0f ? spec.lancerPpu : spec.reactionPpu;
+        if (rp <= 0f) rp = 100f;
+        if (!string.IsNullOrEmpty(spec.hurtFramesDir)) d.hurtFrames = LoadAnimationFolder(spec.hurtFramesDir, rp);
+        if (!string.IsNullOrEmpty(spec.recoveryFramesDir)) d.recoveryFrames = LoadAnimationFolder(spec.recoveryFramesDir, rp);
+        if (!string.IsNullOrEmpty(spec.deathFramesDir)) d.deathFrames = LoadAnimationFolder(spec.deathFramesDir, rp);
         EditorUtility.SetDirty(d);
     }
 

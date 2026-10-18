@@ -224,13 +224,19 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 5f028cdee75d8c9498def05626433ca7, type: 3}
   - name: throw
     frames:
-    - {fileID: 21300000, guid: 262729185693aab41a233a86ad3e9cf1, type: 3}
+    - {fileID: 21300000, guid: 6fbbb9ce1bc565f408fcb2397b8885a9, type: 3}
+    - {fileID: 21300000, guid: 3bb6833807879044b9bb7ae5c479101f, type: 3}
+    - {fileID: 21300000, guid: 08bed6b7a87a1e141b71412f3343754a, type: 3}
   - name: updash
     frames:
-    - {fileID: 21300000, guid: cc8d7dd9187fe3d4588701053e3dad28, type: 3}
+    - {fileID: 21300000, guid: c525ee963391d41478ea6ed0bf216873, type: 3}
+    - {fileID: 21300000, guid: e36db78f98de1774b8c8d19303763d57, type: 3}
+    - {fileID: 21300000, guid: 0715a957ef9698c49a36f5eb737f631c, type: 3}
   - name: downdash
     frames:
-    - {fileID: 21300000, guid: 50e0f88feca52cc45964b7e2013caa80, type: 3}
+    - {fileID: 21300000, guid: 8523528da99ba5342b5d2c1470078b3e, type: 3}
+    - {fileID: 21300000, guid: 4d4b7325b29190c4ead0aadc1c1ea413, type: 3}
+    - {fileID: 21300000, guid: d68a29daf2cd2c448857f1520617101c, type: 3}
   archer:
     chargeMidTime: 0.55
     chargeMaxTime: 1.2

@@ -63,23 +63,34 @@ MonoBehaviour:
   landFrames:
   - {fileID: 21300000, guid: 40d8885239da66643885bd947e5d4250, type: 3}
   attackFrames:
-  - {fileID: 21300000, guid: 1ee999710b72b9d4c92bc79181ca4a55, type: 3}
+  - {fileID: 21300000, guid: 7ebcc2611de3452408b0e00037d1a851, type: 3}
+  - {fileID: 21300000, guid: 299dcc0924776f54f94cccecd13184c3, type: 3}
+  - {fileID: 21300000, guid: 967371d36a10bcf4f91cd0b5ac2bafc6, type: 3}
   doubleJumpFrames:
   - {fileID: 21300000, guid: a510dc8cfa99ab641afd2ff280bc084b, type: 3}
   runFps: 9
   attackFramesSmall:
-  - {fileID: 21300000, guid: afd7a7096de3ad746b9c7cc1be1e678f, type: 3}
+  - {fileID: 21300000, guid: bd2a45bac192cd448adf6ea50bc977ee, type: 3}
+  - {fileID: 21300000, guid: 6cc95310b5ce72c4e900de7f8bff5634, type: 3}
+  - {fileID: 21300000, guid: 76b8a4957dd47ce4cb57d718df92a786, type: 3}
   attackFramesLarge:
-  - {fileID: 21300000, guid: 2711cc2dace2d5443a20e98fcc3f406e, type: 3}
+  - {fileID: 21300000, guid: 5f76c639b15feda4d82e005e5023febe, type: 3}
+  - {fileID: 21300000, guid: b26100de07ca9f84db45530d24d96d41, type: 3}
+  - {fileID: 21300000, guid: 054ed30633ef7464fae893f98d48c37a, type: 3}
   downAttackFrames:
-  - {fileID: 21300000, guid: 4847e3ffcd608cc40be60a5a8f43da62, type: 3}
+  - {fileID: 21300000, guid: 0c3c74eda31671e498d4db62428b9b78, type: 3}
+  - {fileID: 21300000, guid: 850eb563c5f42b049ba7519f1a3172bd, type: 3}
+  - {fileID: 21300000, guid: 1fb7f4a9872ac91418542b03740100c8, type: 3}
   downAttackLandFrames: []
   hurtDuration: 0
   hurtInvincibleDuration: 0
   recoveryDuration: 0
   recoveryInvincibleDuration: 0
   hurtKnockbackMultiplier: 1
-  hurtFrames: []
+  hurtFrames:
+  - {fileID: 21300000, guid: efad35f6fa8e8e542b9ea50da8e8b9b2, type: 3}
+  - {fileID: 21300000, guid: 92b9f575e9070c84dbddabdd1134dd17, type: 3}
+  - {fileID: 21300000, guid: 58e4c20186edd514e9d2bc5d1a1b1768, type: 3}
   recoveryFrames: []
   hurtLeanDegrees: 12
   hurtStaggerDistance: 0.12
@@ -123,7 +134,9 @@ MonoBehaviour:
   hoverDuration: 0.22
   hoverFallSpeed: 0.6
   upShotFrames:
-  - {fileID: 21300000, guid: 912c22c105c96074087ae7dab85e21e2, type: 3}
+  - {fileID: 21300000, guid: 1b4bc2695ed21954b9a33200bca40352, type: 3}
+  - {fileID: 21300000, guid: f3e655cb943a3e64ab53c70094ff3979, type: 3}
+  - {fileID: 21300000, guid: 0b5206fa71b6d5a46824653cab437e15, type: 3}
   isLancer: 0
   lanceWindup: 0.12
   lanceThrustActive: 0.14
@@ -199,7 +212,11 @@ MonoBehaviour:
   - -0.48
   - -0.3
   - 0
-  deathFrames: []
+  deathFrames:
+  - {fileID: 21300000, guid: f19e15c0474312a48955b1bc5507978f, type: 3}
+  - {fileID: 21300000, guid: b93296b7c5b54d648bf2bed0dbeb61fc, type: 3}
+  - {fileID: 21300000, guid: 59455a77732f10b479bb8063344376cd, type: 3}
+  - {fileID: 21300000, guid: bd6ebd38e3ecb6d449e87971ff841eb3, type: 3}
   kit: 0
   kitPoses: []
   archer:

@@ -62,6 +62,13 @@ public partial class PlayerController
                     return kitSeqFrom + Mathf.Min(n - 1, (int)(q * n));
                 }
             }
+            if (kitPhase >= 0 && KitPoseFrames != null && KitPoseName != null && kitPhaseStarts.TryGetValue(KitPoseName, out var st))
+            {
+                int ph = Mathf.Clamp(kitPhase, 0, st.Length - 1);
+                int from = st[ph], to = ph + 1 < st.Length ? st[ph + 1] - 1 : KitPoseFrames.Length - 1;
+                // 最後の段は、技が続いている間に段が無い(=次の SetKitPose が来ない)ので最後のコマで止まる
+                return Mathf.Clamp(from + (int)((Time.time - kitPhaseAt) * KitPhaseFps), from, Mathf.Max(from, to));
+            }
             return kitPoseFrameRaw;
         }
         private set { kitPoseFrameRaw = value; kitSeqLen = 0f; }
@@ -70,6 +77,12 @@ public partial class PlayerController
     // isAttackingを持たない一瞬のポーズ(上攻撃の射撃等)の残り時間。
     float kitPoseTimer;
     readonly Dictionary<string, Sprite[]> kitPoseCache = new Dictionary<string, Sprite[]>();
+    // 2026-10-17 アニメーション強化(全キャラ): 「<技>_p0_NN / _p1_NN …」と名前に段(phase)が付いたコマ。
+    // SetKitPose(技, 段) で、その段のコマを KitPhaseFps で順に出して最後で止まる(0 = 構え〜、1 = 判定が出た〜)。
+    // 段の付いていない今までの絵は、今までどおり「番号のコマ」
+    readonly Dictionary<string, int[]> kitPhaseStarts = new Dictionary<string, int[]>();
+    const float KitPhaseFps = 14f;
+    int kitPhase = -1; float kitPhaseAt;
 
     // 近接判定(格闘家/忍者)。竜騎士のLanceHitboxと同じく、実行時に1つだけ作って使い回す。
     BoxCollider2D kitHitbox;
@@ -83,13 +96,19 @@ public partial class PlayerController
         kit = def.kit;
         kitDef = HasKit ? def : null;
         kitPoseCache.Clear();
+        kitPhaseStarts.Clear();
         // 体の当たり判定: 竜人だけ大きく、他のキャラは元の大きさ(既存キャラは常に1倍=変化なし)
         ApplyBodyScale(kit == CharacterKit.Dragonkin ? def.dragonkin.bodyScale : 1f);
         if (sr != null) sr.color = Color.white;
         // 技のポーズ(キットの無いお嬢様の空中攻撃/急降下も使う、2026-10-12)
         if (def.kitPoses != null)
             foreach (var p in def.kitPoses)
-                if (p != null && !string.IsNullOrEmpty(p.name) && p.frames != null && p.frames.Length > 0) kitPoseCache[p.name] = p.frames;
+                if (p != null && !string.IsNullOrEmpty(p.name) && p.frames != null && p.frames.Length > 0)
+                {
+                    kitPoseCache[p.name] = p.frames;
+                    var st = PhaseStarts(p.frames);
+                    if (st != null) kitPhaseStarts[p.name] = st;
+                }
         if (!HasKit) return;
         if (kitHitbox == null)
         {
@@ -204,6 +223,27 @@ public partial class PlayerController
         KitPoseName = name;
         KitPoseFrames = FindPose(name);
         KitPoseFrame = frame;
+        // 段の付いたコマ: この段の始まりから順送り
+        if (name != null && kitPhaseStarts.ContainsKey(name)) { kitPhase = frame; kitPhaseAt = Time.time; }
+        else kitPhase = -1;
+    }
+
+    // コマの名前の「_p<段>_」から各段の最初の番号を作る(段が無ければ null)。並びは名前順(p0 → p1 → p2)
+    static int[] PhaseStarts(Sprite[] frames)
+    {
+        var starts = new List<int>();
+        int last = -1;
+        for (int i = 0; i < frames.Length; i++)
+        {
+            string n = frames[i] != null ? frames[i].name : "";
+            int k = n.LastIndexOf("_p");
+            if (k < 0 || k + 2 >= n.Length || !char.IsDigit(n[k + 2])) return null;
+            int ph = n[k + 2] - '0';
+            if (ph < last) return null; // 並びが崩れている(想定外)→ 今までどおり
+            while (starts.Count <= ph) starts.Add(i); // 新しい段の始まり(飛んだ段も同じ所から)
+            last = ph;
+        }
+        return starts.Count > 0 ? starts.ToArray() : null;
     }
 
     // ポーズの from〜to のコマを seconds 秒かけて順に出す(最後のコマで止まる)。lead > 0 なら最初のコマ(予備動作)を lead 秒だけ見せる。

@@ -52,6 +52,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: d47ab09d57a0a844f9cd7c10f443af7e, type: 3}
   - {fileID: 21300000, guid: fec02f8ce3680f0418aa1630b38520b6, type: 3}
   - {fileID: 21300000, guid: fe21c435d9bd9e345892955bb158f0d2, type: 3}
+  - {fileID: 21300000, guid: a782e024c0607f4498514a261b6fadfc, type: 3}
+  - {fileID: 21300000, guid: cc01179a24c058442a0ce55f1c8d7e72, type: 3}
+  - {fileID: 21300000, guid: c250b2a8e332c2749b80bf5ae5d13be8, type: 3}
+  - {fileID: 21300000, guid: f7e5637cbc6b15646910f6f4ecdfd31d, type: 3}
   jumpStartFrames:
   - {fileID: 21300000, guid: 60a68e1bb1bc52e44b667563fcdbc702, type: 3}
   jumpFrames:
@@ -59,11 +63,12 @@ MonoBehaviour:
   landFrames:
   - {fileID: 21300000, guid: 79360ebd98464b340beaaf474a244eae, type: 3}
   attackFrames:
-  - {fileID: 21300000, guid: 056fb97844bd4794f90e79430a4fd8e2, type: 3}
-  - {fileID: 21300000, guid: edb9fd1621eaeb443b6f9280a6b9b491, type: 3}
+  - {fileID: 21300000, guid: 1dfcc9ec1d2514447a5afc0aa43b1f0c, type: 3}
+  - {fileID: 21300000, guid: e1d811ac73363124ab9fd09625604046, type: 3}
+  - {fileID: 21300000, guid: 69689defdf4daff40bdb79ce3eb3a346, type: 3}
   doubleJumpFrames:
   - {fileID: 21300000, guid: 60a68e1bb1bc52e44b667563fcdbc702, type: 3}
-  runFps: 8
+  runFps: 16
   attackFramesSmall: []
   attackFramesLarge: []
   downAttackFrames:
@@ -77,6 +82,8 @@ MonoBehaviour:
   hurtKnockbackMultiplier: 1.4
   hurtFrames:
   - {fileID: 21300000, guid: 331df63f5f68c034c993b450bf985322, type: 3}
+  - {fileID: 21300000, guid: 4f1b69888e8f23b4889833eca5619b09, type: 3}
+  - {fileID: 21300000, guid: f8db25e2ce6bc1e40a5c89c71e2bc58d, type: 3}
   recoveryFrames: []
   hurtLeanDegrees: 16
   hurtStaggerDistance: 0.12
@@ -201,18 +208,25 @@ MonoBehaviour:
   deathFrames:
   - {fileID: 21300000, guid: 58232fdb5d692604898075031928bb3b, type: 3}
   - {fileID: 21300000, guid: fb27fe16c78383841a9a1fe374a43d4f, type: 3}
+  - {fileID: 21300000, guid: 75c4b4211f90a904da35787d22787fc0, type: 3}
+  - {fileID: 21300000, guid: de7ef32e860bc0f49862ba37ed12a540, type: 3}
   kit: 2
   kitPoses:
   - name: cast
     frames:
-    - {fileID: 21300000, guid: 056fb97844bd4794f90e79430a4fd8e2, type: 3}
-    - {fileID: 21300000, guid: edb9fd1621eaeb443b6f9280a6b9b491, type: 3}
+    - {fileID: 21300000, guid: 1dfcc9ec1d2514447a5afc0aa43b1f0c, type: 3}
+    - {fileID: 21300000, guid: e1d811ac73363124ab9fd09625604046, type: 3}
+    - {fileID: 21300000, guid: 69689defdf4daff40bdb79ce3eb3a346, type: 3}
   - name: castUp
     frames:
-    - {fileID: 21300000, guid: 86a66b6776c08914dae9191bd8e3bd6e, type: 3}
+    - {fileID: 21300000, guid: 963a00aae6003fe4bbb1a495b6b24415, type: 3}
+    - {fileID: 21300000, guid: a457bb9d185f32c4b92dacb169cca279, type: 3}
+    - {fileID: 21300000, guid: b00d7533c0895ca4e85df9c6a74d3cd5, type: 3}
   - name: castDown
     frames:
-    - {fileID: 21300000, guid: 5de85d8a71f51a240b63bfda750aba45, type: 3}
+    - {fileID: 21300000, guid: 47ab2b8b8705922419bef4fadf689f09, type: 3}
+    - {fileID: 21300000, guid: 5d5cfc50da6d82f48a16743a640f9f25, type: 3}
+    - {fileID: 21300000, guid: 94b6e4f2bb050564d8b76025b6d70744, type: 3}
   archer:
     chargeMidTime: 0.55
     chargeMaxTime: 1.2

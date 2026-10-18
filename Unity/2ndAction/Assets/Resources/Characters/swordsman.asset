@@ -63,7 +63,10 @@ MonoBehaviour:
   recoveryDuration: 0
   recoveryInvincibleDuration: 0
   hurtKnockbackMultiplier: 0.85
-  hurtFrames: []
+  hurtFrames:
+  - {fileID: 21300000, guid: e2926c7d8ae295b4699095ba0b25379a, type: 3}
+  - {fileID: 21300000, guid: f658cfe38202170488aca4eb974481ba, type: 3}
+  - {fileID: 21300000, guid: a5ec9f137d1158f48b345fef0e739ebe, type: 3}
   recoveryFrames: []
   hurtLeanDegrees: 9
   hurtStaggerDistance: 0.07
@@ -182,7 +185,11 @@ MonoBehaviour:
   - -0.48
   - -0.3
   - 0
-  deathFrames: []
+  deathFrames:
+  - {fileID: 21300000, guid: 5d77aa103d69ef642a28231f6721e468, type: 3}
+  - {fileID: 21300000, guid: 8f7a1e5400abb6c4da2ab9912043397b, type: 3}
+  - {fileID: 21300000, guid: 47320948ac115a14fb05efa753e87713, type: 3}
+  - {fileID: 21300000, guid: bb06e1710c0787d41aa6bad5917519d1, type: 3}
   kit: 0
   kitPoses: []
   archer:

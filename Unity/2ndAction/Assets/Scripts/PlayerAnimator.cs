@@ -392,6 +392,8 @@ public class PlayerAnimator : MonoBehaviour
                        : p < 0.65f ? 1f - 0.15f * ((p - 0.3f) / 0.35f)
                        : 0.85f * (1f - Mathf.SmoothStep(0f, 1f, (p - 0.65f) / 0.35f));
             float stagger = Mathf.Sin(Mathf.Clamp01(p) * Mathf.PI);
+            // 2026-10-18 アニメーション強化: 被弾の絵が3コマ以上ある時は、のけぞり/よろけは絵が見せるので傾け・縮めはしない(後ろへの小さな動きだけ)
+            if (HasFrames(hurtFrames) && hurtFrames != defaultHurtFrames && hurtFrames.Length >= 3) lean = 0f;
             rot = visualBaseRot * Quaternion.Euler(0f, 0f, hurtLeanDegrees * lean); // 右向きの体は+Zで後ろへ倒れる
             pos += new Vector3(-hurtStaggerDistance * stagger, 0f, 0f);
             scl = new Vector3(visualBaseScale.x, visualBaseScale.y * (1f - 0.05f * lean), visualBaseScale.z);

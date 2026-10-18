@@ -52,6 +52,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 462720b761bb4e445b41f31ec0ddb657, type: 3}
   - {fileID: 21300000, guid: e6071684eb6e90741b7ee54bbfc356d8, type: 3}
   - {fileID: 21300000, guid: 720cd0bb8b2f6534fac845b762bb5d9a, type: 3}
+  - {fileID: 21300000, guid: f9aadc4b98261734bb153a92c8963d90, type: 3}
+  - {fileID: 21300000, guid: a3e82e9d462234e409abfcae1becbb83, type: 3}
+  - {fileID: 21300000, guid: 96c18b27d52b709458532ba258fd52e6, type: 3}
+  - {fileID: 21300000, guid: 45a6a7aea6085ae43a471fb4110256dc, type: 3}
   jumpStartFrames:
   - {fileID: 21300000, guid: 6be8c2ca1840696438d03b89503b3810, type: 3}
   jumpFrames:
@@ -59,10 +63,12 @@ MonoBehaviour:
   landFrames:
   - {fileID: 21300000, guid: 13dad7d2ccf57b240bb2726c5de41164, type: 3}
   attackFrames:
-  - {fileID: 21300000, guid: 57b0ef0a4eaacd74890adb8060895d3d, type: 3}
+  - {fileID: 21300000, guid: d8ef659a62af1b74e9d76b4d3e6f61ad, type: 3}
+  - {fileID: 21300000, guid: 9de36d3c21d34974cab8018ede775c2e, type: 3}
+  - {fileID: 21300000, guid: b1e635a8ea5b9954a99cc76f1a223903, type: 3}
   doubleJumpFrames:
   - {fileID: 21300000, guid: 6be8c2ca1840696438d03b89503b3810, type: 3}
-  runFps: 8
+  runFps: 16
   attackFramesSmall: []
   attackFramesLarge: []
   downAttackFrames:
@@ -76,6 +82,8 @@ MonoBehaviour:
   hurtKnockbackMultiplier: 0.5
   hurtFrames:
   - {fileID: 21300000, guid: d2049faa9e6dcaa40a408f2e1c881e47, type: 3}
+  - {fileID: 21300000, guid: 6e2132e64472f2245aa659c50bbacc62, type: 3}
+  - {fileID: 21300000, guid: 780f7b17f3541d24b9b926c7fc9ba2c2, type: 3}
   recoveryFrames: []
   hurtLeanDegrees: 6
   hurtStaggerDistance: 0.12
@@ -198,29 +206,46 @@ MonoBehaviour:
   - 0
   deathFrames:
   - {fileID: 21300000, guid: 1a6c321e3543ec9418e5d2855efbc317, type: 3}
+  - {fileID: 21300000, guid: 71ac1ab56852f51438df06fb54fbc7cd, type: 3}
+  - {fileID: 21300000, guid: a9898063451d24249952aabac3c50533, type: 3}
+  - {fileID: 21300000, guid: ec1d166a7e90159489489dba44fbcdf5, type: 3}
   kit: 7
   kitPoses:
   - name: claw1
     frames:
-    - {fileID: 21300000, guid: 57b0ef0a4eaacd74890adb8060895d3d, type: 3}
+    - {fileID: 21300000, guid: d8ef659a62af1b74e9d76b4d3e6f61ad, type: 3}
+    - {fileID: 21300000, guid: 9de36d3c21d34974cab8018ede775c2e, type: 3}
+    - {fileID: 21300000, guid: b1e635a8ea5b9954a99cc76f1a223903, type: 3}
   - name: claw2
     frames:
-    - {fileID: 21300000, guid: 8cd2b97edc30860438e74f722392e587, type: 3}
+    - {fileID: 21300000, guid: db5616e9e45d3f746aa889dfd68db6e5, type: 3}
+    - {fileID: 21300000, guid: 408ee02a5f0ec6e4985635856978dda8, type: 3}
+    - {fileID: 21300000, guid: 460f1d832d6c0914b9f771909dfebc7f, type: 3}
   - name: claw3
     frames:
-    - {fileID: 21300000, guid: 06283c7c5fb81824e8825d25ca766938, type: 3}
+    - {fileID: 21300000, guid: 20c3fa307905179468688498f333bdb6, type: 3}
+    - {fileID: 21300000, guid: 821359dcc9dd1374a808e787e73d5fde, type: 3}
+    - {fileID: 21300000, guid: 4f26c6254b8f5d94eace8eb664c92200, type: 3}
   - name: tail
     frames:
-    - {fileID: 21300000, guid: 9262b918c93a3294c823fcbd2eabfdfe, type: 3}
+    - {fileID: 21300000, guid: 1c8dc8b41e3cc734fb2151b0e437e5ce, type: 3}
+    - {fileID: 21300000, guid: aad03b4cfd8cda644b9bcfc6bdf782d1, type: 3}
+    - {fileID: 21300000, guid: a92035bb99ac7c646bd8a6bffe2bbb0c, type: 3}
   - name: flap
     frames:
-    - {fileID: 21300000, guid: 920c01e517a152c458826750a1c4df8a, type: 3}
+    - {fileID: 21300000, guid: de68b4bdb11740947897b645569b50a5, type: 3}
+    - {fileID: 21300000, guid: 74dc9220958b7384db5f82de52a09417, type: 3}
+    - {fileID: 21300000, guid: 60631ed9da48ce548a129c177efe4285, type: 3}
   - name: breath
     frames:
-    - {fileID: 21300000, guid: 005868b624cf18e47aec03f68ef0f272, type: 3}
+    - {fileID: 21300000, guid: 73fca3a8150d99e45a3f6f904f21679f, type: 3}
+    - {fileID: 21300000, guid: 071a8e1b05379e9488a9d6297390a211, type: 3}
+    - {fileID: 21300000, guid: e1d1cc365cb717a4a88368f87b1d4335, type: 3}
   - name: glide
     frames:
-    - {fileID: 21300000, guid: 4ad26b6b2d41f024a8bd063cbe789dc9, type: 3}
+    - {fileID: 21300000, guid: 6103727c9ce3a12499945fe36121bdf9, type: 3}
+    - {fileID: 21300000, guid: fac153aee0e4d2b4c9482554b5f59f54, type: 3}
+    - {fileID: 21300000, guid: 0f6acc70b16c9804c8e45f2dcace7198, type: 3}
   archer:
     chargeMidTime: 0.55
     chargeMaxTime: 1.2

@@ -79,7 +79,10 @@ MonoBehaviour:
   recoveryDuration: 0
   recoveryInvincibleDuration: 0
   hurtKnockbackMultiplier: 1.2
-  hurtFrames: []
+  hurtFrames:
+  - {fileID: 21300000, guid: 87c7db52170f04340944b46e196945c4, type: 3}
+  - {fileID: 21300000, guid: 073f8d1496d60984696fcb32afa89b01, type: 3}
+  - {fileID: 21300000, guid: 5b3d007b950e384438de676b61ffe3bf, type: 3}
   recoveryFrames: []
   hurtLeanDegrees: 20
   hurtStaggerDistance: 0.2
@@ -198,7 +201,11 @@ MonoBehaviour:
   - -0.48
   - -0.3
   - 0
-  deathFrames: []
+  deathFrames:
+  - {fileID: 21300000, guid: aa3e63b9923ee0641b1bdf7927b9b764, type: 3}
+  - {fileID: 21300000, guid: b529b54c03a305e4894b99647633095d, type: 3}
+  - {fileID: 21300000, guid: e5853e335b4a70e48a9001a229bdaade, type: 3}
+  - {fileID: 21300000, guid: 95021176df40e7344abcec48f8e76d3a, type: 3}
   kit: 0
   kitPoses:
   - name: air

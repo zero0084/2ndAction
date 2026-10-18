@@ -52,6 +52,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: c3a8fbd73aaf6b84ea22ddb007c7bde2, type: 3}
   - {fileID: 21300000, guid: 87d6375139ca65f4badb6abf2ac5a469, type: 3}
   - {fileID: 21300000, guid: af5465011ceeaa54bbecdcb2551c6d2a, type: 3}
+  - {fileID: 21300000, guid: 47366426ae729c745a4574ffad25790a, type: 3}
+  - {fileID: 21300000, guid: 72689f57e75281c43acbac1ab90c98c0, type: 3}
+  - {fileID: 21300000, guid: 4c3ecda3e8fd7bb488a52410141bf021, type: 3}
+  - {fileID: 21300000, guid: 954a6ec7d4c65e244983a36f693bb83d, type: 3}
   jumpStartFrames:
   - {fileID: 21300000, guid: 833aadd4b45229e4998f0fb17c422edb, type: 3}
   jumpFrames:
@@ -59,10 +63,12 @@ MonoBehaviour:
   landFrames:
   - {fileID: 21300000, guid: 16bc240857c899546ac25f29b1cc2ebd, type: 3}
   attackFrames:
-  - {fileID: 21300000, guid: a2a3ce17ba0f4e24dba4b7c8cab3266e, type: 3}
+  - {fileID: 21300000, guid: 2c955206eb4db0d43ba65cba1d9303be, type: 3}
+  - {fileID: 21300000, guid: 578a0281001214f47ae937fe29a92850, type: 3}
+  - {fileID: 21300000, guid: f0f5867ee4157004bb71dc4495370ebb, type: 3}
   doubleJumpFrames:
   - {fileID: 21300000, guid: 833aadd4b45229e4998f0fb17c422edb, type: 3}
-  runFps: 8
+  runFps: 16
   attackFramesSmall: []
   attackFramesLarge: []
   downAttackFrames:
@@ -76,6 +82,8 @@ MonoBehaviour:
   hurtKnockbackMultiplier: 1
   hurtFrames:
   - {fileID: 21300000, guid: f5152a004eff52042959ade1a6e63a63, type: 3}
+  - {fileID: 21300000, guid: 00de9bbaa6eef224db3ae002992fef13, type: 3}
+  - {fileID: 21300000, guid: dbfa1374c7550a5499c73e6dd8a9d6e5, type: 3}
   recoveryFrames: []
   hurtLeanDegrees: 10
   hurtStaggerDistance: 0.12
@@ -199,27 +207,41 @@ MonoBehaviour:
   - 0
   deathFrames:
   - {fileID: 21300000, guid: be0f9389a4a25304ea53d93afc9afc97, type: 3}
+  - {fileID: 21300000, guid: 58479fb360644874d96cf8f886d78b3b, type: 3}
+  - {fileID: 21300000, guid: 3e34e72d1a75e5249aad83bbc588ee42, type: 3}
+  - {fileID: 21300000, guid: 8915463e1916d9e4f9338da84274b73f, type: 3}
   kit: 6
   kitPoses:
   - name: claw1
     frames:
-    - {fileID: 21300000, guid: a2a3ce17ba0f4e24dba4b7c8cab3266e, type: 3}
+    - {fileID: 21300000, guid: 2c955206eb4db0d43ba65cba1d9303be, type: 3}
+    - {fileID: 21300000, guid: 578a0281001214f47ae937fe29a92850, type: 3}
+    - {fileID: 21300000, guid: f0f5867ee4157004bb71dc4495370ebb, type: 3}
   - name: claw2
     frames:
-    - {fileID: 21300000, guid: 05000a9de454bbf4da2be8fa9fb13588, type: 3}
+    - {fileID: 21300000, guid: 1a52ff7b533be8745bbda5e2d1e92a2b, type: 3}
+    - {fileID: 21300000, guid: 4f08caafc86364240b66c732c6ba063d, type: 3}
+    - {fileID: 21300000, guid: 5ec46ee4cfe40f84f8989d493c1469d9, type: 3}
   - name: bloodslash
     frames:
-    - {fileID: 21300000, guid: 245deb75f9bb7494fab9aff7927cf977, type: 3}
+    - {fileID: 21300000, guid: 5f7a5506e0fa6a945a0f17f707449cd4, type: 3}
+    - {fileID: 21300000, guid: 29ff77c866c1eab44a63c38cd0c4ff4d, type: 3}
+    - {fileID: 21300000, guid: 8ad4606ff0f00ce4ba1bae67a4f72461, type: 3}
   - name: bats
     frames:
-    - {fileID: 21300000, guid: 534080b6068ceec498cf7e20ef5578b4, type: 3}
+    - {fileID: 21300000, guid: 7e6f9fd5b18e1a843b56604154b89a3a, type: 3}
+    - {fileID: 21300000, guid: be5b85985af284b4eb9555fefd159523, type: 3}
+    - {fileID: 21300000, guid: b4db14a2655c290459b8da4571cb8958, type: 3}
   - name: mist
     frames:
-    - {fileID: 21300000, guid: 8536db63218b32641ab8a476e7dce261, type: 3}
+    - {fileID: 21300000, guid: 4eb836f4c5e4a5047ab0da4fb33daca1, type: 3}
+    - {fileID: 21300000, guid: 9ce10fe9229c314498c25a939d977fbf, type: 3}
+    - {fileID: 21300000, guid: caae288a179f3e047ac6bdaab1a3f1b0, type: 3}
   - name: dive
     frames:
-    - {fileID: 21300000, guid: 4448c80c60b28884c8eed4afb57898fd, type: 3}
-    - {fileID: 21300000, guid: 480e43d877913f74182bfb175abff4c7, type: 3}
+    - {fileID: 21300000, guid: e947701f3eb4bdc41bbd5708cd289edc, type: 3}
+    - {fileID: 21300000, guid: c8627aad858ffca49ba823613f176db2, type: 3}
+    - {fileID: 21300000, guid: be8b19a80b3e99c409b8209012cb2de4, type: 3}
   archer:
     chargeMidTime: 0.55
     chargeMaxTime: 1.2
