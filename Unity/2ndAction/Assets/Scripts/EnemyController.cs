@@ -235,6 +235,7 @@ public partial class EnemyController : MonoBehaviour
 
     SpriteRenderer sr;
     bool dying;
+    [System.NonSerialized] public int RewardsGranted;
 
     // ===== エリアルコンボ状態(Launched/Slamming) =====
     bool isLaunched;
@@ -312,7 +313,7 @@ public partial class EnemyController : MonoBehaviour
     // カードバランス v3(2026-10-03): 生きている雑魚の数(出現の安全の上限)/ 精鋭(ELITE/WANTED)
     public static int ActiveCount;
     void OnEnable() { ActiveCount++; }
-    void OnDisable() { ActiveCount = Mathf.Max(0, ActiveCount - 1); }
+    void OnDisable() { ActiveCount = Mathf.Max(0, ActiveCount - 1); ComboOnDisable(); }
     [System.NonSerialized] public bool IsElite;
     [System.NonSerialized] public float KillExpMultiplier = 1f;
     [System.NonSerialized] public float MileDistanceFactor = 1f; // 2026-10-15: 出た時の距離の強さに合わせた MILE の係数
@@ -340,6 +341,8 @@ public partial class EnemyController : MonoBehaviour
         if (isLaunched)
         {
             juggleElapsed += Time.deltaTime;
+            // エリアルコンボ改修(2026-10-18): この端末のプレイヤーのコンボ中は、斜め前の当たる所へ寄せる(EnemyController.AerialCombo)
+            if (comboAnchored && ComboAnchorStep()) return;
             launchVelocityY -= launchGravity * Time.deltaTime;
 
             // アエリアルコンボ追加調整(2026-09-12第2弾) - Slam中(縦の叩き
@@ -358,8 +361,31 @@ public partial class EnemyController : MonoBehaviour
                 }
                 launchVelocityX = PlayerForwardSpeed() + burst;
             }
+            // エリアルコンボ改修(2026-10-18): 叩き落としの間も主人公と並走する(以前は横の速さ 0 で、走り続ける主人公から
+            // 落下の間に数m置き去りになっていた)。主人公から見ると真下へ落ちる
+            else launchVelocityX = PlayerForwardSpeed();
 
+            Vector3 prevLaunchPos = transform.position;
             transform.position += new Vector3(launchVelocityX * Time.deltaTime, launchVelocityY * Time.deltaTime, 0f);
+            // エリアルコンボ改修(2026-10-18): 一番下の地面より下へ入った時。
+            //  前のフレームで既に地面より下(=穴の中)だった → 横へ流れて次の地面の下へ潜り込まない(その穴をまっすぐ落ちる)
+            //  上から入った(高速の上り坂で地面が速く上がってきた) → その地面へ降りる(坂の中へめり込まない)
+            if (TerrainManager.Instance != null)
+            {
+                var tmL = TerrainManager.Instance;
+                float? gHere = tmL.GetHeightAt(transform.position.x);
+                if (gHere.HasValue && transform.position.y < gHere.Value)
+                {
+                    float? gPrev = tmL.GetHeightAt(prevLaunchPos.x);
+                    bool wasInPit = !gPrev.HasValue || prevLaunchPos.y < gPrev.Value - 0.05f;
+                    if (wasInPit) { if (launchVelocityY < 0f) transform.position = new Vector3(prevLaunchPos.x, transform.position.y, transform.position.z); }
+                    else if (launchVelocityY <= 0f) { onUpperRoute = false; onIsland = false; LandFromLaunch(gHere.Value); return; }
+                    else transform.position = new Vector3(transform.position.x, gHere.Value, transform.position.z);
+                }
+            }
+            // エリアルコンボ改修(2026-10-18): 洞窟の低い天井へ打ち上げた敵がめり込まない。天井の段(急に低くなる所)へは横から入らない
+            if (CeilingStepAhead(transform.position.x)) transform.position = new Vector3(prevLaunchPos.x, transform.position.y, transform.position.z);
+            transform.position = new Vector3(transform.position.x, CeilingClampY(transform.position.x, transform.position.y, prevLaunchPos.y, hard: true), transform.position.z);
 
             // 実機フィードバック(2026-09-12第4弾) - 「Launchによって敵が
             // 足場の外へ移動した後でも、地面がない位置で立った状態になる
@@ -369,7 +395,8 @@ public partial class EnemyController : MonoBehaviour
             // 実在する地面が見つかった時だけ着地させ、見つからない間は
             // そのまま重力に従って落下を続けさせ、デッドラインを超えた
             // 時点で通常のノックバック経由の落下死と同じ扱いで撃破する。
-            float? groundY = SurfaceAt(transform.position.x);
+            // エリアルコンボ改修(2026-10-18): 今の高さ以下で一番高い床へ降りる(上ルートの床へ下から吸い上げられない)
+            float? groundY = LandingSurfaceAt(transform.position.x, transform.position.y - launchVelocityY * Time.deltaTime + 0.05f);
             if (groundY.HasValue && transform.position.y <= groundY.Value)
             {
                 LandFromLaunch(groundY.Value);
@@ -397,7 +424,12 @@ public partial class EnemyController : MonoBehaviour
         if (groundKnockbackTimer > 0f)
         {
             groundKnockbackTimer -= Time.deltaTime;
-            transform.position += new Vector3(groundKnockbackVelocityX * Time.deltaTime, 0f, 0f);
+            // エリアルコンボ改修(2026-10-18): 速すぎるノックバック(強い技の倍率×高速)は、主人公の速さ+12m/s まで(1フレームで数m跳んで見えた)
+            groundKnockbackVelocityX = Mathf.Min(groundKnockbackVelocityX, PlayerForwardSpeed() + 12f);
+            float kbX = transform.position.x + groundKnockbackVelocityX * Time.deltaTime;
+            float? kbG = SurfaceAt(kbX);
+            // エリアルコンボ改修(2026-10-18): 0.6m より高い段差は壁と同じ(叩きつけの後の大きな飛ばしで、段の上へ一瞬で乗り上げていた)
+            if (!kbG.HasValue || kbG.Value <= transform.position.y + 0.6f) transform.position = new Vector3(kbX, transform.position.y, transform.position.z);
             if (groundKnockbackTimer <= 0f)
             {
                 groundKnockbackVelocityX = 0f;
@@ -408,7 +440,9 @@ public partial class EnemyController : MonoBehaviour
         {
             groundFollowAssistTimer -= Time.deltaTime;
             float followSpeed = PlayerForwardSpeed() * groundFollowAssistFactor;
-            transform.position += new Vector3(followSpeed * Time.deltaTime, 0f, 0f);
+            float fX = transform.position.x + followSpeed * Time.deltaTime;
+            float? fG = SurfaceAt(fX);
+            if (!fG.HasValue || fG.Value <= transform.position.y + 0.6f) transform.position = new Vector3(fX, transform.position.y, transform.position.z); // 高い段差は壁(2026-10-18)
             if (groundFollowAssistTimer <= 0f && normalGrounded)
             {
                 // 接地中であればモーション処理を復帰する - 追従補正が
@@ -544,6 +578,8 @@ public partial class EnemyController : MonoBehaviour
             PlayerAttackKind kind = PlayerAttackKind.Normal;
             var info = other.GetComponent<PlayerAttackInfo>();
             if (info != null) kind = info.kind;
+            // エリアルコンボ改修(2026-10-18): カードの追加攻撃(elementProc)/結界や燃える地面の継続ダメージ(suppressHitStop)は手動の攻撃ではない
+            comboManualHit = info == null || (!info.elementProc && !info.suppressHitStop);
             netReactionAttacker = 0;
             if (killed) DecideFinishLocal(other, info, kind, Mathf.Max(1, damage), hpBefore); // FINISH(撃破の向き/種類)
             // 新4人(2026-09-27): 判定ごとのノックバック/HitStop倍率(既存5人の判定は既定値=従来どおり)。
@@ -559,7 +595,7 @@ public partial class EnemyController : MonoBehaviour
             // ヒットした瞬間、プレイヤーの落下速度を少しだけ弱める」。
             // 敵の生死や種類を問わず、プレイヤーが空中にいる間の命中で
             // 常に発動する。
-            if (PlayerController.Instance != null && !PlayerController.Instance.IsGrounded)
+            if (PlayerController.Instance != null && !PlayerController.Instance.IsGrounded && comboManualHit) // 手動の攻撃だけ(継続ダメージ/自動のカードで滞空を延ばさない)
             {
                 PlayerController.Instance.NotifyAerialHit();
             }
@@ -643,16 +679,34 @@ public partial class EnemyController : MonoBehaviour
     // の組み合わせから、実際のリアクションを振り分ける中心メソッド。
     void ProcessHit(PlayerAttackKind kind, Vector3 contactPoint, bool killed)
     {
+        // エリアルコンボ改修(2026-10-18): この端末のプレイヤーの攻撃(仲間/他の参加者は netReactionAttacker が 0 以外)
+        bool localHit = netReactionAttacker == 0;
+        bool manualLocal = localHit && comboManualHit;
+        comboManualHit = true;
+        bool wasLaunched = isLaunched;
+        if (manualLocal) ComboNoteLocalHit(kind, killed);
+        if (killed && comboAnchored) ComboAnchorEnd();
         if (!killed) ShowHitPose();
         // Enemy FINISH System(2026-10-06): HP 0 の瞬間に死亡/報酬を確定し、吹っ飛ぶのは見た目の分身(叩きつけも含む)
         if (killed && FinishEnabled && !NetReplica) { FinishDeath(contactPoint); return; }
         // item 8 - 下攻撃フィニッシュ。浮いている敵への下攻撃は、致死でも
         // 即座には死なせず、地面へ叩き落としてから結果を出す。
-        if (kind == PlayerAttackKind.Down && isLaunched)
+        // エリアルコンボ改修(2026-10-18): 急降下の着地の衝撃(DownImpact)が浮いた敵に当たった時も叩き落とす(締め)。
+        // 以前は空中の追撃と同じ扱いで、急降下の判定が外れると締めにならなかった
+        // 2026-10-18 追加の依頼: 空中の↓は「攻撃しながら下降」。コンボ中の敵へ手動の↓が当たっても終わらせず、下へ押す
+        // (地面へ届いたら叩きつけ。届く前なら → / ↑ でつなぎ直せる)。着地の衝撃(DownImpact)は地面での衝撃なので締め
+        if (kind == PlayerAttackKind.Down && isLaunched && manualLocal && ComboTryDownPush())
+        {
+            StartCoroutine(ReactToHit(contactPoint, HitStopForPlayerAttack()));
+            return;
+        }
+        if ((kind == PlayerAttackKind.Down || kind == PlayerAttackKind.DownImpact) && isLaunched)
         {
             StartCoroutine(ReactToHit(contactPoint, slamHitStopDuration));
             pendingDeathOnLand = killed;
             if (killed) dying = true; // これ以上の被弾判定は無視する(演出は着地までお預け)
+            if (comboAnchored) ComboAnchorEnd();
+            if (localHit) AerialComboFx.Slam(this);
             StartSlam();
             return;
         }
@@ -672,6 +726,7 @@ public partial class EnemyController : MonoBehaviour
                 // 移行可能」。
                 StartCoroutine(ReactToHit(contactPoint, hitStopDuration));
                 LaunchUpward();
+                if (manualLocal) ComboAnchorBegin(wasLaunched); // エリアルコンボ改修(2026-10-18)
                 break;
 
             case PlayerAttackKind.Down:
@@ -689,7 +744,8 @@ public partial class EnemyController : MonoBehaviour
                 {
                     // item 2 - 「浮いている敵を追撃、少し前方向へ運ぶ、
                     // 攻撃がつながっている間は簡単に地面へ落ちない」。
-                    ExtendJuggle();
+                    if (!localHit || manualLocal) ExtendJuggle(); // カードの追加攻撃/継続ダメージでは滞空を延ばさない(2026-10-18)
+                    if (manualLocal) ComboAnchorRefresh(); // エリアルコンボ改修(2026-10-18)
                 }
                 else
                 {
@@ -841,6 +897,7 @@ public partial class EnemyController : MonoBehaviour
     {
         if (NetReplica) { if (!dying) NetCombat.RequestVacuum(NetId, offsetFromPlayer, pullDuration); return; }
         if (dying || !isLaunched || beingVacuumed) return;
+        if (comboAnchored) { ComboAnchorRefresh(); LaunchUpward(); return; } // エリアルコンボ改修(2026-10-18): 位置は寄せが決める(吸い込みで天井へ持ち上げない)
         beingVacuumed = true;
         StartCoroutine(VacuumPickupRoutine(offsetFromPlayer, pullDuration));
     }
@@ -893,7 +950,7 @@ public partial class EnemyController : MonoBehaviour
 
     void ExtendJuggle()
     {
-        if (!isLaunched || juggleElapsed >= maxJuggleDuration) return;
+        if (!isLaunched || (juggleElapsed >= maxJuggleDuration && !comboAnchored)) return; // コンボ中(手動の攻撃が当たり続けている)は時間で打ち切らない
         launchVelocityY = Mathf.Max(launchVelocityY, juggleHoverFallSpeed);
         // item 5 - 「空中通常攻撃は敵を前へ運ぶ」。Launchと同じ短時間
         // バースト方式(Update()参照) - ヒットのたびに再スタートする。
@@ -916,6 +973,7 @@ public partial class EnemyController : MonoBehaviour
 
     void LandFromLaunch(float landY)
     {
+        if (comboAnchored) ComboAnchorEnd();
         isLaunched = false;
         bool wasSlamming = isSlamming;
         isSlamming = false;
@@ -944,6 +1002,7 @@ public partial class EnemyController : MonoBehaviour
         {
             // item 8 - 生存した場合も、地面到達の衝撃自体は演出として出す。
             StartCoroutine(SlamImpactRoutine());
+            ComboFinisherKnockback(); // エリアルコンボ改修(2026-10-18): 最後の一撃として前へ大きく飛ばす
         }
     }
 
@@ -1168,6 +1227,7 @@ public partial class EnemyController : MonoBehaviour
     // 撃破報酬の付与(シングル/HOST自身がラストヒットなら従来どおりこの端末で付与)。
     void RegisterKillReward(bool fallDeath)
     {
+        RewardsGranted++; // 確認用(QA): この敵の撃破の報酬を出した回数(1回だけのはず)
         if (bonus != null) bonus.OnKilled(fallDeath);
         if (netReactionAttacker == 0 && !fallDeath) CardProcs.OnEnemyKilled(this); // v3: CHAIN EXPLOSION / INFERNO(この端末のプレイヤーが倒した時)
         if (NetCombat.RouteEnemyKillReward(NetId, fallDeath)) return;

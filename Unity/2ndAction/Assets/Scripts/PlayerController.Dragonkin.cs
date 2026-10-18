@@ -94,7 +94,9 @@ public partial class PlayerController
                 break;
             case FlickDirection.Down:
                 if (!canUseDownAttack || isAttacking || attackCooldownTimer > 0f) return;
-                StartCoroutine(DragonBreath(!isGrounded));
+                // エリアルコンボ改修(2026-10-18): 空中で打ち上げた敵を追っている間は急降下で叩き落とす
+                if (AerialComboActive) StartCoroutine(DragonDive());
+                else StartCoroutine(DragonBreath(!isGrounded));
                 break;
         }
     }

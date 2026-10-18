@@ -50,13 +50,13 @@ public partial class PlayerController
         };
     }
 
-    KitProjectile MikoThrowOfuda(Vector2 localFrom, float angleDeg, float speed, float damageScale, bool seals)
+    KitProjectile MikoThrowOfuda(Vector2 localFrom, float angleDeg, float speed, float damageScale, bool seals, PlayerAttackKind kind = PlayerAttackKind.Normal)
     {
         var p = kitDef.miko;
         float rad = angleDeg * Mathf.Deg2Rad;
         Vector2 dir = new Vector2(Mathf.Cos(rad) * KitFacing, Mathf.Sin(rad));
         var proj = KitProjectile.Create(KitArt.OfudaSprite(), KitWorld(localFrom), dir * speed, p.ofudaLifetime,
-            new Vector2(0.48f, 0.48f), new Vector2(0.34f, 0.3f), Color.white, PlayerAttackKind.Normal,
+            new Vector2(0.48f, 0.48f), new Vector2(0.34f, 0.3f), Color.white, kind,
             damageScale, 0.6f, 0f, new Color(1f, 0.85f, 0.55f, 0.45f), false, owner: this);
         proj.spin = 720f;
         proj.name = seals ? "MikoOfuda" : "MikoOfudaFan";
@@ -143,7 +143,7 @@ public partial class PlayerController
     void MikoUpFan()
     {
         var p = kitDef.miko;
-        foreach (float a in p.upAngles) MikoThrowOfuda(new Vector2(0.35f, 1.0f), a, p.upSpeed, p.upDamageScale, false);
+        foreach (float a in p.upAngles) MikoThrowOfuda(new Vector2(0.35f, 1.0f), a, p.upSpeed, p.upDamageScale, false, PlayerAttackKind.Up); // エリアルコンボ改修(2026-10-18): 扇の札で浮かせる
         FlashKitPose("upfan", 0.3f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(2);
     }
@@ -164,6 +164,8 @@ public partial class PlayerController
                 if (!KitAlive(gen, token)) yield break;
                 t += Time.deltaTime; yield return null;
             }
+            // エリアルコンボ改修(2026-10-18): 空中で打ち上げた敵を追っている間は、その敵へ結界の印を押し当てて叩き落とす
+            if (!isGrounded) MikoSealStamp();
             // 前方の地面(穴なら足元寄りの地面)に結界を張る
             float x = transform.position.x + p.barrierForward;
             float? g = TerrainManager.Instance != null ? TerrainManager.Instance.GetHeightAt(x) : null;

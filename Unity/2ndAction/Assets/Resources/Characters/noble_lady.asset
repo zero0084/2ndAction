@@ -54,7 +54,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 4e45a29836f5acb45ad2bbc5538da7bc, type: 3}
   - {fileID: 21300000, guid: 06e0e3b836ad8d14c9861aee30198b57, type: 3}
   jumpStartFrames:
-  - {fileID: 21300000, guid: 837c6f131165d2246b6f71570b3cc0d4, type: 3}
+  - {fileID: 21300000, guid: 314f9469104551f4ea3850623fd7146a, type: 3}
+  - {fileID: 21300000, guid: 136d8177f6c3937428321cceb910bc15, type: 3}
+  - {fileID: 21300000, guid: 6abef72fc33c3ca4d8ce3b87847a1a13, type: 3}
   jumpFrames:
   - {fileID: 21300000, guid: c883120bad3f35e49b2a0b16bc503cb5, type: 3}
   landFrames:

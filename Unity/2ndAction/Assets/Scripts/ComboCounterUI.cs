@@ -37,15 +37,28 @@ public class ComboCounterUI : MonoBehaviour
         timer = resetWindow;
     }
 
+    // エリアルコンボ改修(2026-10-18): 空中追撃の段(AIR 2 / AIR 3 …)。「N HIT」の下に小さく出す(敵/足場/予告に重ねない)
+    public int AirStage { get; private set; }
+    float airTimer; bool airFinal;
+    public const float AirShowSeconds = 0.9f;
+    public static int AirMaxShown; // 確認用(QA): 表示した最大の段
+    public void RegisterAir(int stage, bool final)
+    {
+        if (stage < 2) return;
+        AirStage = stage; airFinal = final; airTimer = AirShowSeconds;
+        if (stage > AirMaxShown) AirMaxShown = stage;
+    }
+
     void Update()
     {
-        if (ComboCount <= 0) return;
+        if (ComboCount <= 0 && airTimer <= 0f) return;
         // Time.deltaTimeはLevel Up選択中(Time.timeScale=0)は自動的に0に
         // なるため、ここで特別な一時停止処理をしなくても選択中はコンボが
         // 減らずに凍結される(既存のHitStop/RewardCardSequence等と同じ
         // Time.timeScale依存の挙動)。
         timer -= Time.deltaTime;
         if (timer <= 0f) ComboCount = 0;
+        if (airTimer > 0f) { airTimer -= Time.deltaTime; if (airTimer <= 0f) AirStage = 0; }
     }
 
     GUIStyle style;
@@ -76,5 +89,19 @@ public class ComboCounterUI : MonoBehaviour
 
         style.normal.textColor = new Color(1f, 0.9f, 0.4f);
         LocGUI.Label(rect, text, style);
+
+        if (AirStage >= 2 && airTimer > 0f)
+        {
+            // 小さく・すぐ消える(最後の段=叩き落とし/撃破は少しだけ強い色)
+            float a = Mathf.Clamp01(airTimer / (AirShowSeconds * 0.4f));
+            int fs = style.fontSize; style.fontSize = Mathf.RoundToInt(22 * k);
+            Rect r2 = new Rect(rect.x, rect.y + rect.height * 0.78f, rect.width, 34f * k);
+            string t2 = $"AIR {AirStage}";
+            style.normal.textColor = new Color(0f, 0f, 0f, 0.8f * a);
+            foreach (Vector2 o in offsets) LocGUI.Label(new Rect(r2.x + o.x * 0.75f, r2.y + o.y * 0.75f, r2.width, r2.height), t2, style);
+            style.normal.textColor = airFinal ? new Color(1f, 0.62f, 0.35f, a) : new Color(0.75f, 0.92f, 1f, a);
+            LocGUI.Label(r2, t2, style);
+            style.fontSize = fs;
+        }
     }
 }

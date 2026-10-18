@@ -246,6 +246,11 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 6103727c9ce3a12499945fe36121bdf9, type: 3}
     - {fileID: 21300000, guid: fac153aee0e4d2b4c9482554b5f59f54, type: 3}
     - {fileID: 21300000, guid: 0f6acc70b16c9804c8e45f2dcace7198, type: 3}
+  - name: dive
+    frames:
+    - {fileID: 21300000, guid: ec53caef0e3f8f34da651f4be3027045, type: 3}
+    - {fileID: 21300000, guid: 997d6928273e9dc439f315fb0dd4a41a, type: 3}
+    - {fileID: 21300000, guid: a09db051b23cc084ba12d96e7ca92f9b, type: 3}
   archer:
     chargeMidTime: 0.55
     chargeMaxTime: 1.2

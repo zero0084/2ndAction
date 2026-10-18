@@ -330,6 +330,12 @@ public partial class PlayerController
     {
         if (requestedFlick == null) return;
         FlickDirection f = requestedFlick.Value;
+        // エリアルコンボ改修(2026-10-18): 空中のコンボ中の下(締め)は、出ている前の技の連打/後の隙を切って出す
+        // (以前は前の3〜4段が終わるまで受け付けず、締めの入力が消えていた)。急降下の最中は切らない
+        if (f == FlickDirection.Down && AerialComboActive && (isAttacking || attackCooldownTimer > 0f) && !kitDiveActive && canUseDownAttack)
+            CancelForAirFinisher();
+        // 2026-10-18 追加の依頼: 急降下の最中の → / ← は急降下をやめて空中の攻撃へつなぎ直す
+        if ((f == FlickDirection.Forward || f == FlickDirection.Backward) && kitDiveActive) TryDiveReconnect();
         switch (kit)
         {
             case CharacterKit.Archer: HandleArcherInput(f); break;

@@ -398,8 +398,10 @@ public static class CharacterDatabaseBuilder
         // にそのまま適用していた頃と同じ1周期の長さ(7/10=0.7秒)を保つよう、
         // 4コマ用に6fps(4/6≈0.67秒)へこのキャラだけ再生速度を落とす。
         nobleLady.runFpsOverride = 6f;
-        nobleLady.jumpStartFramesDir = "Assets/Art/NobleLadyJumpStart_v1";
-        nobleLady.jumpStartFramesPpu = 249f;
+        // エリアルコンボ改修(2026-10-18): 地上の上フリック = 大剣の振り上げ(打ち上げ)。構え → 振り上げ → 振り上げ切り の3コマ(エステル作)。
+        // 縮尺は1コマ目(しゃがんだ構え)を今の踏み込みの絵(281px ÷ 249)と同じ高さに合わせた
+        nobleLady.jumpStartFramesDir = "Assets/Art/NobleLadyLaunch_v1";
+        nobleLady.jumpStartFramesPpu = 307f;
         nobleLady.jumpFramesDir = "Assets/Art/NobleLadyJumpAir_v1";
         nobleLady.jumpFramesPpu = 350f;
         // お嬢様騎士 二段ジャンプ演出バグ修正(2026-09-13) - 剣を掲げる
@@ -787,7 +789,7 @@ public static class CharacterDatabaseBuilder
         dragonkin.hurtLeanDegrees = 6f;
         dragonkin.kit = CharacterKit.Dragonkin;
         FillKitArt(ref dragonkin, "Dragonkin", 510f, // 体が大きい(他の583より約14%大きく表示)
-             new[] { "claw1", "claw2", "claw3", "tail", "flap", "breath", "glide" });
+             new[] { "claw1", "claw2", "claw3", "tail", "flap", "breath", "glide", "dive" }); // dive: エリアルコンボ改修(2026-10-18)の急降下
 
         return new[] { swordsman, dualBlade, nobleLady, gunslinger, lancer, archer, mage, fighter, ninja, miko, vampire, dragonkin };
     }

@@ -48,6 +48,17 @@ public static class TimeControl
     public static float PresentationDriveSeconds => presentationDriving ? Time.realtimeSinceStartup - presentationSinceRealtime : 0f;
     public static bool IsPresentationDriving => presentationDriving;
     public static int ActiveReasonCount => pauseOwners.Count;
+    // エリアルコンボ改修(2026-10-18): 時間を止めているのがヒットストップだけか(この間も指は読む = 先行入力)。
+    // 停止メニュー/カード選択/演出などが1つでも重なっていれば false。
+    public static bool PausedOnlyByHitStop
+    {
+        get
+        {
+            if (pauseOwners.Count == 0 || presentationDriving) return false;
+            foreach (var o in pauseOwners) if (!HitStop.Owns(o)) return false;
+            return true;
+        }
+    }
 
     public static void Pause(object owner)
     {

@@ -23,6 +23,7 @@ public class MeleeReach : MonoBehaviour
     public float crossScale = 1f;
     public float nearPad;
     public bool speedAssist;
+    public const float UpAssistStartMps = 30f / 3.6f, UpAssistSeconds = 0.06f, UpAssistMax = 2.5f; // 打ち上げの高速補正(2026-10-18)
     public float speedAssistStartMps;
     public float speedAssistSeconds;
     public float speedAssistMax;
@@ -168,5 +169,25 @@ public class MeleeReach : MonoBehaviour
 
         if (i == 0) { size.x += grow; offset.x += shift; size.y *= crossScale; }
         else { size.y += grow; offset.y += shift; size.x *= crossScale; }
+
+        // エリアルコンボ改修(2026-10-18): 打ち上げ(上攻撃)も高速では前へ伸ばす。速いほど敵がすぐ後ろへ抜けて、打ち上げが
+        // 間に合わなかった(フリックを極端に急ぐ必要があった)。横の攻撃と同じ量だけ、縦の判定の「前」の幅を足す
+        if (vertical && info.kind == PlayerAttackKind.Up) // 全員(キャラの高速補正の設定に関係なく)
+        {
+            int j = 1 - i;
+            Vector3 dirX = j == 0 ? dx : dy;
+            float unitX = j == 0 ? ux : uy;
+            float fwd = Mathf.Sign(dirX.x);
+            if (Mathf.Abs(dirX.x) > 0.5f)
+            {
+                // 打ち上げはコンボの始まりなので、横の攻撃より早く(30km/h から)・広く(最大2.5m)。速さ×0.06秒 = その間に敵が近づく分
+                float v = owner.CurrentAutoRunSpeed;
+                float amt = Mathf.Clamp((v - UpAssistStartMps) * UpAssistSeconds, 0f, UpAssistMax);
+                LastSpeedAssist = Mathf.Max(LastSpeedAssist, amt);
+                float a = amt / unitX;
+                if (j == 0) { size.x += a; offset.x += fwd * a * 0.5f; }
+                else { size.y += a; offset.y += fwd * a * 0.5f; }
+            }
+        }
     }
 }

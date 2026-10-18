@@ -36,6 +36,7 @@ public static class HitStop
     // TimeControl側の同じ理由を消してしまう - 各呼び出しを独立させるため
     // 必ず別インスタンスにする)。
     static readonly List<object> activeOwners = new List<object>();
+    public static bool Owns(object o) => o != null && activeOwners.Contains(o); // TimeControl.PausedOnlyByHitStop 用
 
     // Bugfix 2026-09-08 (Bug #001 - "TimeScale Deadlock"仮説の検証/防御) -
     // マスター側の実機Freeze Snapshotで、IsBossPhase=true・Boss(Majin)2体

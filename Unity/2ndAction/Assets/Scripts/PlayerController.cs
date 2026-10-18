@@ -525,6 +525,8 @@ public partial class PlayerController : MonoBehaviour
         canUseDownAttack = def.canUseDownAttack;
         // お嬢様の空中からの振り下ろし(2026-10-12): 空中の下フリックで急降下(共通の操作。専用の入力は無い)
         if (def.characterId == "noble_lady" && BalanceTuning.NobleMoves) canUseDownAttack = true;
+        // エリアルコンボ改修(2026-10-18): お嬢様も大剣で打ち上げる(地上の上フリック = ジャンプ + 打ち上げ、二段目 = 空中の打ち上げ直し)
+        if (def.characterId == "noble_lady" && BalanceTuning.NobleMoves) { canUseUpAttack = true; canUseAirAttack = true; }
         if (def.characterId == "noble_lady" && BalanceTuning.NobleJump) jumpForce = baseJumpForce * BalanceTuning.NobleJumpForce; // 回数は JumpCountFor
         charHurtDuration = def.hurtDuration;
         charHurtInvincible = def.hurtInvincibleDuration;
@@ -901,6 +903,7 @@ public partial class PlayerController : MonoBehaviour
 
     bool comboWindowOpen;
     bool comboBuffered;
+    bool flickFromBuffer; // エリアルコンボ改修(2026-10-18): このフレームの入力は先行入力から出したもの
     AttackDirection bufferedDirection;
     int comboCount;
 
@@ -1064,12 +1067,25 @@ public partial class PlayerController : MonoBehaviour
         // input entirely rather than just letting Move() no-op on a zero
         // deltaTime, so a tap on a choice card doesn't also get recorded as
         // a leftover jump/attack gesture that fires the instant play resumes.
-        if (Time.timeScale <= 0f) return;
+        if (Time.timeScale <= 0f)
+        {
+            // エリアルコンボ改修(2026-10-18): ヒットストップ(命中の一瞬の停止)の間も指を読み、入ったフリックを先行入力として覚える。
+            // 以前はこの間の指の置き始めを見落とし、そのタッチ全体がフリックにならなかった。停止/カード選択などでは捨てる。
+            if (!IsAlly && TimeControl.PausedOnlyByHitStop && !UiInputGate.Blocked)
+            {
+                UpdatePointerInput();
+                if (requestedFlick.HasValue) FlickBufferStoreFrozen(requestedFlick.Value);
+                requestedFlick = null;
+            }
+            else FlickBufferClear();
+            return;
+        }
+        UpdateMotionVelocity();
 
         // マルチプレイPhase 3: DOWN(CO-OP)/脱落(VERSUS)中は走行も入力も止める(その場に留まる)。
-        if (netDowned) { NetDownedTick(); return; }
+        if (netDowned) { FlickBufferClear(); NetDownedTick(); return; }
         // マルチ(2026-09-28): カード選択中は選んでいる本人だけその場で一時停止する(世界は止めない)。
-        if (NetIsChoosing) { NetChoosingTick(); return; }
+        if (NetIsChoosing) { FlickBufferClear(); NetChoosingTick(); return; }
         if (netChoosingHeld) NetChoosingRelease();
 
         if (hitInvincibleTimer > 0f)
@@ -1102,7 +1118,7 @@ public partial class PlayerController : MonoBehaviour
         bool ultimateDriving = !IsAlly && UltimateArt.Driving; // #100 ULTIMATE はプレイヤーの技(仲間は通常どおり)
         if (ultimateDriving)
         {
-            requestedFlick = null; touchActive = false; bufferedUpAttackTimer = 0f; escapeHoldTimer = 0f;
+            requestedFlick = null; touchActive = false; bufferedUpAttackTimer = 0f; escapeHoldTimer = 0f; FlickBufferClear();
             UltimateMoveTick(Time.deltaTime);
         }
         else
@@ -1117,14 +1133,21 @@ public partial class PlayerController : MonoBehaviour
 #endif
         // 高速時の自動操作補助(2026-09-28): 手動入力が無いフレームだけ、補助の判断を同じ入力経路へ入れる。
         // (ここへ来るのは停止/カード選択/カウントダウン/死亡/ダウン/終了のどれでもない時だけ)
+        // エリアルコンボ改修(2026-10-18): このフレームに入力が無ければ、覚えている先行入力を入れる(補助の判断より優先)
+        flickFromBuffer = FlickBufferBefore();
         ApplyHighSpeedAssist();
         }
         bool reactionBlocked = IsReacting;
         // 診断ログの詳細画面を開いている間は、スクロール操作がジャンプ/攻撃にならないよう入力を受け付けない。
         if (DiagnosticsOverlay.DetailOpen) reactionBlocked = true;
-        if (reactionBlocked) { requestedFlick = null; bufferedUpAttackTimer = 0f; }
+        if (reactionBlocked) { requestedFlick = null; bufferedUpAttackTimer = 0f; FlickBufferClear(); }
+        FlickDirection? flickThisFrame = IsAlly ? null : requestedFlick;
+        bool busyBefore = InputBusy;
+        var sigBefore = CurrentSig();
         Move(allowJump: !wasEscapeChargingLastFrame && !reactionBlocked);
         if (!wasEscapeChargingLastFrame && !reactionBlocked) HandleAttackInput();
+        if (!IsAlly && !reactionBlocked && !wasEscapeChargingLastFrame) FlickBufferAfter(flickThisFrame, flickFromBuffer, busyBefore, sigBefore);
+        flickFromBuffer = false;
         }
         LancerSafetyUpdate(); // 竜騎士: 実行中の技が無いのに攻撃状態だけ残らないようにする(他キャラは何もしない)
         KitUpdate(); // 新4人: タイマー/引き絞り表示/安全装置(既存5人は何もしない)
@@ -1384,11 +1407,15 @@ public partial class PlayerController : MonoBehaviour
         // Hitbox+VFXのみ - ジャンプ物理・jumpsUsedには触れない、あくまで
         // 「攻撃の切り替え」であって追加のジャンプ高度を与えるものではな
         // い)を発動する。
+        // 2026-10-18 追加の依頼: 空中コンボ中、技(急降下)の最中の↑は、急降下をやめて空中の打ち上げへつなぎ直す
+        if (jumpPressed && (kitDiveActive || lanceDiving) && AerialComboActive) CancelForAirFinisher();
         if (jumpPressed && isDiveAttacking)
         {
             EndDiveAttack();
             velocityY = 0f;
             if (canUseAirAttack) StartCoroutine(DoUpAttack(true));
+            // 空中コンボ中は再上昇も(打ち上げ直した敵を追える高さへ)
+            if (AerialComboActive) { velocityY = jumpForce * 0.85f; CapComboHeight(); AerialRelaunches++; }
         }
         // 二丁拳銃士(2026-09-23) - Down Shotのホバー中に上フリックした場合も、
         // 剣士の「急降下→即キャンセルしてその場で上昇攻撃」と同じ考え方で
@@ -1403,6 +1430,12 @@ public partial class PlayerController : MonoBehaviour
         else if (jumpPressed && jumpsUsed < maxJumps)
         {
             FireJump();
+            if (AerialComboActive) CapComboHeight();
+        }
+        // 2026-10-18 追加の依頼: 二段ジャンプを使い切っていても、近くに追撃できる敵がいれば空中の再打ち上げ・再上昇
+        else if (jumpPressed && AerialRelaunchAvailable())
+        {
+            AerialRelaunch();
         }
         // 不具合修正(2026-09-08) - 「下攻撃を使用したあと、上攻撃ができな
         // くなる」の依頼に含まれていた「入力バッファ」対応(任意実装扱い)。
@@ -2105,17 +2138,22 @@ public partial class PlayerController : MonoBehaviour
     // OnTriggerEnter2Dが、プレイヤーが空中(!isGrounded)にいる間に攻撃が
     // 命中するたびに呼ぶ。地上にいる間の呼び出しは無視する(このAssist自体
     // が「空中攻撃時の滞空補助」なので、地上ヒットに意味はない)。
+    public const float AerialAssistWindowMin = 0.3f, AerialAssistMaxTotalMin = 1.6f, AerialAssistFallResetMin = -1.5f;
     public void NotifyAerialHit()
     {
         if (isGrounded) return;
-        if (aerialAssistTotalUsed >= aerialAssistMaxTotalDuration) return; // 安全装置 - 使い切ったら以降は効かない
+        // エリアルコンボ改修(2026-10-18): 追撃の後の滞空の猶予を少し長く(0.22 → 0.30秒、1回の滞空で合計 1.2 → 1.6秒まで)。
+        // 値はシーンに保存されているので、ここで下限を決める(Inspector で大きくした値はそのまま使う)
+        // 2026-10-18 追加の依頼: 空中コンボ中(打ち上げた敵へ手動の攻撃が当たり続けている間)は合計の上限を設けない。空振り/入力が止まれば窓が切れて落ちる
+        if (!AerialComboActive && aerialAssistTotalUsed >= Mathf.Max(aerialAssistMaxTotalDuration, AerialAssistMaxTotalMin)) return; // 安全装置 - 使い切ったら以降は効かない
 
         // ①落下速度を少しリセット(既にこれより遅い=上昇中/緩やかな場合は
         // 触らない)。
-        if (velocityY < aerialAssistFallResetSpeed) velocityY = aerialAssistFallResetSpeed;
+        float reset = Mathf.Max(aerialAssistFallResetSpeed, AerialAssistFallResetMin);
+        if (velocityY < reset) velocityY = reset;
         // ②短時間だけ重力を弱める(連続ヒットで延長 - 上限はMove()側の
         // 累積カウントで別途キャップする)。
-        aerialAssistTimer = aerialAssistWindowDuration;
+        aerialAssistTimer = Mathf.Max(aerialAssistWindowDuration, AerialAssistWindowMin);
     }
 
     // 実機フィードバック(2026-09-12第3弾) - EnemyController.ProcessHitが
@@ -2525,6 +2563,8 @@ public partial class PlayerController : MonoBehaviour
         // 空中↓フリック分岐=急降下/ホバーは竜騎士では何もしない)。
         if (isLancerCharacter && requestedFlick == FlickDirection.Down)
         {
+            // エリアルコンボ改修(2026-10-18): 空中のコンボ中の下(締め)は、出ている突きを切って急降下へ
+            if (canUseDownAttack && AerialComboActive && isAttacking && !lanceDiving) CancelForAirFinisher();
             if (canUseDownAttack) TryLanceDownThrust();
             return;
         }
@@ -2542,6 +2582,8 @@ public partial class PlayerController : MonoBehaviour
             return;
         }
 
+        // 2026-10-18 追加の依頼: 空中コンボ中、↓の急降下の最中の → / ← は急降下をやめて空中の攻撃へつなぎ直す
+        TryDiveReconnect();
         if (!isAttacking && attackCooldownTimer <= 0f)
         {
             comboCount = 0;
@@ -2786,6 +2828,7 @@ public partial class PlayerController : MonoBehaviour
     void TriggerUpAttackVacuum()
     {
         if (upAttackVacuumHitbox == null) return;
+        if (IsAlly) return; // エリアルコンボ改修(2026-10-18): 仲間の上攻撃でプレイヤーのコンボの敵を引き寄せない(瞬間移動のように見えた)
         Bounds b = upAttackVacuumHitbox.bounds;
         Collider2D[] hits = Physics2D.OverlapBoxAll(b.center, b.size, 0f);
         foreach (Collider2D col in hits)
@@ -2980,7 +3023,8 @@ public partial class PlayerController : MonoBehaviour
     {
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(1);
         float facing = transform.localScale.x >= 0f ? 1f : -1f;
-        FireRangedBullet(new Vector2(facing, 1f));
+        // エリアルコンボ改修(2026-10-18): 上向きの弾で敵を浮かせる(以前は Normal で打ち上げなし)
+        FireRangedBullet(new Vector2(facing, 1f), rangedMuzzleOffset, PlayerAttackKind.Up);
         upShotVisualTimer = rangedUpShotPoseDuration;
     }
 
@@ -2999,7 +3043,8 @@ public partial class PlayerController : MonoBehaviour
         int gen = hoverGeneration;
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAttack(2);
         float facing = transform.localScale.x >= 0f ? 1f : -1f;
-        FireRangedBullet(new Vector2(facing, -1f));
+        // エリアルコンボ改修(2026-10-18): 下向きの弾で浮いた敵を叩き落とす(コンボ中は対象へ向けて撃つ)
+        FireRangedBullet(new Vector2(facing, -1f), rangedMuzzleOffset, PlayerAttackKind.Down, AerialSlamAimAngle);
         StartCoroutine(EndHoverShotAfterDelay(gen));
     }
 
@@ -3062,11 +3107,18 @@ public partial class PlayerController : MonoBehaviour
     // rangedBulletSpriteが未設定(専用素材未生成)の間は安全に何もしない。
     void FireRangedBullet(Vector2 worldDir) => FireRangedBullet(worldDir, rangedMuzzleOffset);
 
-    void FireRangedBullet(Vector2 worldDir, Vector2 muzzleOffset)
+    void FireRangedBullet(Vector2 worldDir, Vector2 muzzleOffset) => FireRangedBullet(worldDir, muzzleOffset, PlayerAttackKind.Normal);
+
+    void FireRangedBullet(Vector2 worldDir, Vector2 muzzleOffset, PlayerAttackKind kind, float aimAngle = AerialAimMaxAngle)
     {
         if (rangedBulletSprite == null) return;
         float facing = transform.localScale.x >= 0f ? 1f : -1f;
         Vector3 spawnPos = transform.position + new Vector3(muzzleOffset.x * facing, muzzleOffset.y, 0f);
-        PlayerBullet.Create(rangedBulletSprite, spawnPos, worldDir.normalized * rangedBulletSpeed, rangedBulletLifetime, owner: this);
+        // エリアルコンボ改修(2026-10-18): 打ち上げた敵(近くのコンボ対象だけ)へ向けて撃つ。普段の射撃は今までどおり真っすぐ
+        if (kind != PlayerAttackKind.Up) worldDir = AerialComboAim(spawnPos, worldDir, aimAngle);
+        else worldDir = AerialLaunchAim(spawnPos, worldDir.normalized * rangedBulletSpeed); // 打ち上げの弾: 前の近くの敵へ
+        var go = PlayerBullet.Create(rangedBulletSprite, spawnPos, worldDir.normalized * rangedBulletSpeed, rangedBulletLifetime, owner: this);
+        var info = go != null ? go.GetComponent<PlayerAttackInfo>() : null;
+        if (info != null) info.kind = kind;
     }
 }

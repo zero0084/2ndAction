@@ -169,7 +169,7 @@ public partial class PlayerController
         Vector2 dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
         Vector3 pos = KitWorld(p.muzzle + new Vector2(0f, 0.15f));
         var proj = KitProjectile.Create(KitProjectile.Arrow, pos, dir * p.upArrowSpeed, p.arrowLifetime,
-            new Vector2(1.05f, 1.05f), new Vector2(0.85f, 0.2f), new Color(1f, 0.95f, 0.8f), PlayerAttackKind.Normal,
+            new Vector2(1.05f, 1.05f), new Vector2(0.85f, 0.2f), new Color(1f, 0.95f, 0.8f), PlayerAttackKind.Up, // エリアルコンボ改修(2026-10-18): 上向きの矢で打ち上げる
             p.upDamageScale, p.upKnockbackScale, p.upHitStop, new Color(1f, 0.9f, 0.6f, 0.6f), owner: this);
         proj.name = "ArcherArrow_Up";
         ArcherAfterShot(0);

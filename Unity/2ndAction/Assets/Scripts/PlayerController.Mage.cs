@@ -126,6 +126,8 @@ public partial class PlayerController
                 if (canUseUpAttack && attackCooldownTimer <= 0f && !isAttacking) MageCastUp();
                 break;
             case FlickDirection.Down:
+                // エリアルコンボ改修(2026-10-18): コンボ中に撃てない間の下は、高度を下げずに待つ(先行入力で、撃てる瞬間に高度を下げて撃つ)
+                if (AerialComboActive && (attackCooldownTimer > 0f || isAttacking)) return;
                 if (mageLevel > 0) { mageLevel--; MageAltitudeChanges++; }
                 if (canUseDownAttack && attackCooldownTimer <= 0f && !isAttacking) MageCastDown();
                 break;
@@ -211,7 +213,7 @@ public partial class PlayerController
         Vector2 dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
         Vector3 pos = KitWorld(MageStaff + new Vector2(0f, 0.15f));
         var proj = KitProjectile.Create(KitProjectile.ThunderSpear, pos, dir * p.upBoltSpeed, p.boltLifetime * 0.8f,
-            new Vector2(0.9f, 0.6f), new Vector2(0.7f, 0.3f), new Color(0.85f, 0.8f, 1f), PlayerAttackKind.Normal,
+            new Vector2(0.9f, 0.6f), new Vector2(0.7f, 0.3f), new Color(0.85f, 0.8f, 1f), PlayerAttackKind.Up, // エリアルコンボ改修(2026-10-18): 雷撃で浮かせる
             p.upDamageScale, 1.2f, 0.04f, new Color(0.8f, 0.75f, 1f, 0.6f), owner: this);
         proj.blast = new KitBlast.Spec { radius = p.upBlastRadius, active = 0.1f, kind = PlayerAttackKind.Normal, damageScale = 1f, knockbackScale = 1.2f, hitStop = 0.04f, fx = KitProjectile.SkyBolt, tint = new Color(0.85f, 0.8f, 1f, 0.95f), fxScale = 1.4f, shake = 0.04f };
         proj.name = "MageBolt_Up";

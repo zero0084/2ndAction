@@ -115,6 +115,11 @@ public class KitProjectile : MonoBehaviour
         Vector2 visualScale, Vector2 colliderSize, Color tint, PlayerAttackKind kind,
         float damageScale, float knockbackScale, float hitStop, Color? trailColor = null, bool rotateToVelocity = true, PlayerController owner = null)
     {
+        // エリアルコンボ改修(2026-10-18): 空中の追撃の間だけ、打ち上げた敵(近くのコンボ対象)へ向ける。
+        // 打ち上げの技(Up)はそのまま。叩き落としの技(Down)は前にいる対象へ向けてよい(角度の差が大きくても)
+        if (owner != null && kind != PlayerAttackKind.Up)
+            velocity = owner.AerialComboAim(position, velocity, kind == PlayerAttackKind.Down ? PlayerController.AerialSlamAimAngle : PlayerController.AerialAimMaxAngle);
+        else if (owner != null) velocity = owner.AerialLaunchAim(position, velocity); // 打ち上げの技: 前の近くの敵へ
         var go = new GameObject("KitProjectile");
         PlayerController.TagAttackObject(go, owner); // CPU サポート: 仲間の弾は "AllyAttack"(2026-10-14)
         go.transform.position = position;
