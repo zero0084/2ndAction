@@ -93,6 +93,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     public bool DebugFreeGap => freeGap; // 技でわざと間合いの制限を外している間(追い越し/潜って離れる 等)
     public float DebugFrontDist => FrontDist;
     public float DebugRelVelocity => relVelocity;
+    public Vector4 DebugMoveSplit { get; private set; }
     public bool DebugInvulnerable => invulnerable;
     // 切り分け用(2026-10-15): 必殺技の各段の開始(開発版だけ。テストは「その段が実際に出たか」をこれで確かめる)
     float ultBeatT0;
@@ -239,6 +240,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         hurtCol.offset = Vector2.zero;
         h.transform.localPosition = new Vector3(0f, bodyHeight * 0.5f, 0f);
         hurtBaseLocal = h.transform.localPosition;
+        hurtBaseSize = hurtCol.size;
         var fwd = h.AddComponent<BossHurtbox>();
         fwd.owner = this;
         var dbg = h.AddComponent<ColliderDebugView>();
@@ -324,7 +326,9 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             if (netTarget != null) netTarget.SetPreferred(leash.PreferTarget);
             if (leash.Active) baseSpeed *= leash.SpeedFactor;
         }
+        float wx0 = worldX;
         worldX += (baseSpeed + relVelocity * MoveScale) * dt; // MoveScale: ラスダンの移動速度(接近/間合い/突進)
+        float wxB = worldX;
 
         float px = PlayerX;
         float gap = worldX - px;
@@ -336,7 +340,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             float lo = leashOn && leash.AllowBehindTarget ? float.MinValue : minGap;
             float hi = maxGap;
             // BREAK 中: 普段の間合い(minGap/maxGap)より近くへ寄れる(届く位置へ寄せる処理のため。2026-10-07)
-            if (Broken) { lo = Mathf.Min(lo, -halfWidth - 3f); hi = Mathf.Max(hi, halfWidth + 3f); }
+            if (Broken || breakRecovering) { lo = Mathf.Min(lo, -halfWidth - 3f); hi = Mathf.Max(hi, halfWidth + 3f); }
             float excess = gap > hi ? gap - hi : gap < lo ? lo - gap : 0f;
             if (leashOn && excess > 6f)
             {
@@ -347,13 +351,16 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             {
                 // ボス戦の強化(2026-10-01): 追い越し/画面の外からの突進の直後だけ、瞬間移動させずに素早く戻す(それ以外は従来どおり即座に範囲内へ)
                 bool soft = Time.time - lastFreeGapTime < 1.5f;
-                if (gap > hi) worldX = soft && gap > hi + 3f ? Mathf.MoveTowards(worldX, px + hi, 22f * dt) : px + hi;
+                // 2026-10-18: BREAK の後(立ち直ってから約2.5秒)は、近くへ寄った位置から普段の間合いへ滑らかに戻る(一瞬で数m戻って見えた)
+                if (Time.time - BreakEndedAt < 2.5f && (gap > hi || gap < lo)) worldX = Mathf.MoveTowards(worldX, gap > hi ? px + hi : px + lo, 12f * dt);
+                else if (gap > hi) worldX = soft && gap > hi + 3f ? Mathf.MoveTowards(worldX, px + hi, 22f * dt) : px + hi;
                 else if (gap < lo) worldX = soft && gap < lo - 3f ? Mathf.MoveTowards(worldX, px + lo, 22f * dt) : px + lo;
             }
         }
         // 2026-10-11(攻略の再検証): プレイヤーの後ろ(前攻撃が届かない所)に張り付いたまま数分 当てられないことがあった
         // (自然洞窟の古代の魔人が 480秒 HP100% のまま 等)。技で後ろへ回る間(freeGap)/登場/BREAK/地中などは数えない。
         // 後ろに BossBehindSeconds 続いたら、走る速さに少し足して前の届く位置まで回り込む(瞬間移動はしない)
+        float wxC = worldX;
         if (BalanceTuning.BossFrontReturn && !entering && !freeGap && !Broken && !IntentionallyAway && !UltimateArt.ArenaFreeGap && !(leashOn && leash.AllowBehindTarget))
         {
             float g2 = worldX - px;
@@ -368,6 +375,9 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         }
         else { behindTime = 0f; frontReturning = false; }
         if (entering || Broken || FrontDist <= NearFrontDist) lastNearTime = Time.time;
+        float wxS = worldX;
+        BreakComboStep(dt); // BREAK 中に打ち上げたボスの位置 / 大型の膝つき(2026-10-18)
+        DebugMoveSplit = new Vector4(wxB - wx0, wxC - wxB, wxS - wxC, worldX - wxS); // 確認用: このフレームの移動(並走/間合いの補正/回り込み/BREAK の寄せ)
         BattleTick(dt);
         OffArenaWatch(dt, px);
 
@@ -416,10 +426,13 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (hurtCol != null)
         {
             float sy = Mathf.Clamp(extraScale.y, -1f, 1f); // 反転の途中(登る/降りる)も見た目と同じく連続で
-            hurtCol.transform.localPosition = new Vector3(hurtBaseLocal.x, hurtBaseLocal.y * sy, 0f);
+            float kn = 1f - KneelSquash * kneel; // BREAK の膝つき(2026-10-18): 絵と同じだけ低くなる
+            hurtCol.transform.localPosition = new Vector3(hurtBaseLocal.x, hurtBaseLocal.y * sy * kn, 0f);
+            if (kneel > 0f || hurtKneelApplied) { hurtCol.size = new Vector2(hurtBaseSize.x, hurtBaseSize.y * kn); hurtKneelApplied = kneel > 0f; }
         }
     }
-    Vector2 hurtBaseLocal;
+    Vector2 hurtBaseLocal, hurtBaseSize;
+    bool hurtKneelApplied;
 
     // 自然洞窟ボス拡張(2026-09-22) - 荒野街道は単一のflatな下ルートしか
     // 想定していなかったため`protected virtual`にし、洞窟ボス(上下ルート/
@@ -485,6 +498,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             if (pose == Pose.Attack || pose == Pose.Move || pose == Pose.Fly) return a.ult[Mathf.Min(1, a.ult.Length - 1)];
         }
         if (pose == Pose.Landing && a.brk != null) return BossAnimSet.Progress(a.brk, poseTime / 0.45f); // BREAK・必殺技の後の隙
+        if (flinchTimer > 0f && a.hurt != null && pose != Pose.Landing) return a.hurt[0]; // 怯み(2026-10-18)
         // 被弾の絵: 連続で当たっても毎回は出さない(0.7秒に1回、最初の一撃の赤みの前半だけ)。毎回出すと走りがカクつく
         if (hitTimer > 0.08f && a.hurt != null && (pose == Pose.Idle || pose == Pose.Move))
         {
@@ -599,6 +613,10 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             off.x += Mathf.Sin(Time.time * 70f) * 0.05f * h * k;
             tint = Color.Lerp(tint, new Color(1f, 0.25f, 0.25f, baseColor.a), 0.7f * Mathf.Clamp01(k));
         }
+        // 2026-10-18: 怯み(後ろへのけぞる) / BREAK で打ち上がっている間(上がる時は反り、落ちる時は前へ) / 大型の膝つき(低く)
+        if (flinchTimer > 0f) { float k = Mathf.Clamp01(flinchTimer / FlinchSeconds); rot += facing * 9f * k; off.x -= facing * 0.05f * h * k; }
+        if (juggle != null && juggle.Open && juggle.Airborne) rot += facing * Mathf.Clamp(juggle.VelY * 0.8f, -12f, 12f);
+        if (kneel > 0f) { sy *= 1f - KneelSquash * kneel; sx *= 1f + 0.06f * kneel; }
 
         sx *= extraScale.x;
         sy *= extraScale.y;
@@ -749,6 +767,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     protected IEnumerator Telegraph(float duration, params BossTelegraphMarker[] zones)
     {
         DebugAct = "Telegraph";
+        NoteTelegraphForBreakQa();
         // 複数体: 予備動作の開始を全体で少しずらす(同時に攻撃が重ならないように)。待つ間は走り続ける。
         float gateWait = 0f;
         while (Time.time < BossAttackGate.NextTime && !dead && gateWait < 2.5f)
@@ -908,6 +927,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         hurtCol.transform.localPosition = new Vector3(localCenter.x, localCenter.y, 0f);
         hurtBaseLocal = localCenter;
         hurtCol.size = new Vector2(Mathf.Max(0.3f, size.x), Mathf.Max(0.3f, size.y));
+        hurtBaseSize = hurtCol.size;
     }
 
     protected void SetVisualSortingOrder(int sortingOrder)
@@ -1011,6 +1031,9 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             var info = other.GetComponent<PlayerAttackInfo>();
             bool air = PlayerController.Instance != null && !PlayerController.Instance.IsGrounded;
             pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air);
+            // 2026-10-18: BREAK のコンボ用。カードの追加攻撃(elementProc)/結界や燃える地面(suppressHitStop)は手動の攻撃ではない
+            pendingKind = info != null ? info.kind : PlayerAttackKind.Normal;
+            pendingManual = info == null || (!info.elementProc && !info.suppressHitStop);
             NoteFinalAttack(other, info); // BOSS FINISH: 最後の一撃の向き/種類
             TakeDamage(dmg, other.bounds.center);
             return;
@@ -1044,6 +1067,8 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         float dmgScale = (Broken ? BossBattleTuning.I.breakDamageScale : 1f) * vulnerableScale;
         if (dmgScale > 1.001f) amount = Mathf.CeilToInt(amount * dmgScale);
         float stg = pendingStagger; pendingStagger = 0f;
+        PlayerAttackKind hitKind = pendingKind; bool manualHit = pendingManual && netAttacker <= 0 && !quietHit;
+        pendingKind = PlayerAttackKind.Normal; pendingManual = false;
         int hpBeforeHit = Hp;
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
@@ -1052,9 +1077,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         // マルチプレイPhase 2 - 相手プレイヤーの攻撃では、この端末のプレイヤーの空中補助/コンボは進めない。
         if (netAttacker <= 0 && !quietHit)
         {
-            if (PlayerController.Instance != null) PlayerController.Instance.NotifyAerialHit();
+            if (manualHit && PlayerController.Instance != null) PlayerController.Instance.NotifyAerialHit(); // 手動の攻撃だけ(カードの追加攻撃で滞空を延ばさない)
             if (ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
         }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (manualHit) QaLocalHit?.Invoke(this, hitKind, Hp <= 0);
+#endif
 
         if (Hp <= 0 && OnLethalDamage())
         {
@@ -1070,6 +1098,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (Hp <= 0)
         {
             dead = true;
+            BreakComboOnDeath(); // 打ち上げ中でも寄せをやめる(撃破の見た目はその位置から)
             StopAllCoroutines();
             DisableAllHitboxes();
             relVelocity = 0f;
@@ -1083,10 +1112,11 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
 
         CheckPhase();
         if (stg > 0f && !dead) AddStagger(stg);
+        if (manualHit && !dead) BreakComboOnHit(hitKind); // BREAK 中の打ち上げ/追撃/叩きつけ(2026-10-18)
         hitTimer = 0.16f;
         if (quietHit) { OnDamaged(amount); return; }
         Shake(0.06f, 0.1f);
-        if (!HitImpactFx.Spawn(hitPos, 1.3f, Color.white)) // アニメーション強化(2026-10-17): 命中の衝撃のコマ(無ければ今までの火花)
+        if (!HitImpactFx.Spawn(hitPos, 1.3f * ChainFxScale, Color.white)) // アニメーション強化(2026-10-17): 命中の衝撃のコマ(無ければ今までの火花)。BREAK のコンボ中は段ごとに少し大きく
         {
             Sprite spark = hitSparkSprite != null ? hitSparkSprite : OneShotSpriteEffect.SoftDotSprite();
             OneShotSpriteEffect.CreateTweened(spark, hitPos, Color.white, 0.14f, 0.35f, 0.6f, 1f, 0f, default, 0f, RenderOrder.CombatFx, 0.2f);
@@ -1229,10 +1259,11 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     void AddStagger(float v)
     {
         if (BossBattle.DebugNoStagger) return;
-        if (tune == null || tune.staggerMax <= 0f || Broken || phaseRoaring || entering) return;
-        stagger += v * staggerDefense;
+        if (tune == null || tune.staggerMax <= 0f || Broken || phaseRoaring || entering || breakRecovering) return;
+        float before = StaggerFraction;
+        stagger += v * staggerDefense * (Time.time < breakResistUntil ? PostBreakStaggerScale : 1f); // BREAK の直後は溜まりにくい(2026-10-18、続けて BREAK し続けない)
         lastStaggerTime = Time.time;
-        if (stagger < tune.staggerMax) return;
+        if (stagger < tune.staggerMax) { TryFlinch(before, StaggerFraction); return; } // 怯み(2026-10-18)
         stagger = tune.staggerMax;
         Broken = true;
         BreakCount++;
@@ -1250,60 +1281,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         Broken = false; stagger = 0f;
     }
 
-    // BREAK: 地面へ落ちて数秒無防備(攻撃しない、ダメージ増し)
-    IEnumerator BreakRoutine()
-    {
-        SetPose(Pose.Landing);
-        Shake(0.18f, 0.25f);
-        ImpactDust(new Vector3(worldX, GroundY, 0f), 12, 1.2f);
-        if (yOffset > 0.05f) StartCoroutine(SetAltitude(0f, 0.3f));
-        float t = 0f, starT = 0f;
-        float dur = tune.breakDuration;
-        while (t < dur && !dead)
-        {
-            t += Time.deltaTime;
-            starT -= Time.deltaTime;
-            relVelocity = -facing * 1.2f * Mathf.Clamp01(1f - t / 0.5f); // 少しよろけて下がる
-            // 2026-10-07: BREAK はプレイヤーへのご褒美の時間。体の手前の端が届かない距離(3m超)にいる時だけ、
-            // 届く位置(手前の端がプレイヤーから2m)へ滑らかに寄せる(瞬間移動しない)。届く位置にいるボスは動かさない
-            if (t > 0.3f)
-            {
-                float gapNow = worldX - PlayerX;
-                // 手前の端は被弾判定(hurtCol)で測る(絵の幅とは違うことがある)
-                float half = hurtCol != null && hurtCol.enabled ? hurtCol.bounds.extents.x : halfWidth;
-                float centerOff = hurtCol != null && hurtCol.enabled ? hurtCol.bounds.center.x - worldX : 0f;
-                float g = gapNow + centerOff;
-                float edge = Mathf.Abs(g) - half;
-                // 2026-10-10(全体点検): 後ろ側(突進/すり抜けの途中で BREAK した等)にいる時は、その場に留めず必ず前へ寄せる
-                // (以前は後ろ側の届く位置へ寄せて、そのまま後方へ流れて離れることがあった)。前にいる時は今までどおり
-                bool behind = g < -0.5f;
-                if (edge > BreakReach || behind) breakPulling = true;   // 届かない/後ろ → 寄せ始める
-                else if (edge <= 2.2f) breakPulling = false;  // 手前の端が2m付近まで来たら止める(届くぎりぎりで止めない)
-                if (breakPulling)
-                {
-                    float want = (half + 2f) - centerOff; // いつも前(プレイヤーの進む側)の届く位置
-                    BreakPulledFromBehind += behind ? 1 : 0;
-                    relVelocity = Mathf.Clamp((want - gapNow) / 0.25f, -45f, 45f);
-                }
-            }
-            SetBodyTint(Color.Lerp(new Color(0.7f, 0.8f, 1f), Color.white, Mathf.PingPong(t * 2.5f, 0.6f)));
-            if (starT <= 0f)
-            {
-                starT = 0.22f;
-                Vector3 hp = transform.position + new Vector3(Random.Range(-halfWidth * 0.5f, halfWidth * 0.5f), bodyHeight * Random.Range(0.75f, 1.05f), 0f);
-                OneShotSpriteEffect.CreateTweened(OneShotSpriteEffect.SoftDotSprite(), hp, new Color(1f, 0.95f, 0.45f, 1f), 0.4f, 0.25f, 0.05f, 1f, 0f, default, 0f, RenderOrder.CombatFx, 0.2f);
-            }
-            if (pose == Pose.Landing && poseTime > 0.45f) SetPose(Pose.Idle);
-            yield return null;
-        }
-        relVelocity = 0f; breakPulling = false;
-        SetBodyTint(Color.white);
-        Broken = false;
-        stagger = 0f;
-        staggerDefense = 1f;
-        if (restAltitude > 0.01f) yield return SetAltitude(restAltitude, 0.4f);
-        SetPose(Pose.Idle);
-    }
+    // BREAK の本体(地面へ崩れる/打ち上げ/膝つき/回復の予告/立ち直り)は WildBossBase.BreakCombo.cs(2026-10-18)
 
     // 行動の割り込み: 実行中の攻撃をすべて止め、状態を戻し、thenの後に行動(AI)をやり直す。
     protected void InterruptAI(IEnumerator then)
@@ -1323,6 +1301,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
 
     protected void ResetCombatState()
     {
+        BreakComboOnReset(); // 2026-10-18: BREAK/立ち直りの途中で止められても状態を残さない
         DisableAllHitboxes();
         windingUp = false; windupProgress = 0f; interrupted = false;
         phaseRoaring = false; // 2026-10-13: 咆哮の途中で割り込まれると true のまま残り、以後ずっと崩し(BREAK)が溜まらなかった
@@ -1371,7 +1350,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         BossBattle.LastUltimateEnd = -99f; // 必殺技の連続の間隔(2.5秒)を待たない(割り込みで今の必殺技を終わらせた後に戻す)
         return true;
     }
-    public void DebugForceBreak() { if (tune != null && tune.staggerMax > 0f) { bool keep = BossBattle.DebugNoStagger; BossBattle.DebugNoStagger = false; AddStagger(tune.staggerMax * 1.5f / Mathf.Max(0.1f, staggerDefense)); BossBattle.DebugNoStagger = keep; } }
+    public void DebugForceBreak() { breakResistUntil = -99f; if (tune != null && tune.staggerMax > 0f) { bool keep = BossBattle.DebugNoStagger; BossBattle.DebugNoStagger = false; AddStagger(tune.staggerMax * 1.5f / Mathf.Max(0.1f, staggerDefense)); BossBattle.DebugNoStagger = keep; } }
     // 各ボスが攻撃中に出した自分の物(溜めの玉など)を片付ける
     protected virtual void OnInterrupted() { }
     // 毎フレーム(行動のコルーチンとは別。割り込みで止まらない見た目の更新用)
@@ -1666,11 +1645,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     float netHitCooldown;
 
     // HOST: JOINのプレイヤーの攻撃を、この端末の攻撃と同じ被弾処理へ流す。
-    public void NetApplyRemoteHit(int attacker, int damage, Vector3 hitPos)
+    public void NetApplyRemoteHit(int attacker, int damage, Vector3 hitPos, PlayerAttackKind kind = PlayerAttackKind.Normal)
     {
         if (dead || invulnerable || NetPuppet) return;
         netAttacker = attacker;
-        pendingStagger = BossBattleTuning.I.staggerNormal;
+        // 2026-10-18: 協力の相手の攻撃は種類で崩しが溜まる(上/下攻撃は多め)。CPU の仲間は今までどおり通常の量
+        pendingStagger = PlayerController.AllyContext > 0 ? BossBattleTuning.I.staggerNormal : BossBattleTuning.I.StaggerFor(kind, false);
         try { TakeDamage(damage, hitPos); }
         finally { netAttacker = 0; }
     }
@@ -1788,7 +1768,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     }
 
     void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; BossBattle.Living.Add(this); }
-    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; BossBattle.Living.Remove(this); }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; BossBattle.Living.Remove(this); if (juggle != null) juggle.CloseBreak(); }
     void OnOriginShifted(float s) { worldX -= s; }
 
     void OnDestroy()

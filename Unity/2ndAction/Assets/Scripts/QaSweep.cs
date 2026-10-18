@@ -70,6 +70,8 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaMemProbe") { mode = "memprobe"; dir = a[i + 1]; } // 2026-10-18 容量の調査: メモリと画質の比較
             if (a[i] == "-qaAerial") { mode = "aerial"; dir = a[i + 1]; } // 2026-10-18 エリアルコンボ改修の確認
             if (a[i] == "-qaAerialVideo") { mode = "aerialvideo"; dir = a[i + 1]; } // 2026-10-18 エリアルコンボの比較動画
+            if (a[i] == "-qaBossAir") { mode = "bossair"; dir = a[i + 1]; } // 2026-10-18 ボスの怯み/BREAK 中のエリアルコンボ
+            if (a[i] == "-qaBossAirVideo") { mode = "bossairvideo"; dir = a[i + 1]; } // 2026-10-18 その比較動画
             if (a[i] == "-qaBossAssist") { mode = "bossassist"; dir = a[i + 1]; }
             if (a[i] == "-qaFinalEvo") { mode = "finalevo"; dir = a[i + 1]; }
             if (a[i] == "-qaFe2") { mode = "fe2"; dir = a[i + 1]; }
@@ -223,6 +225,8 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "memprobe") yield return MemProbeMode();
         else if (mode == "aerial") yield return AerialMode();
         else if (mode == "aerialvideo") yield return AerialVideoMode();
+        else if (mode == "bossair") yield return BossAirMode();
+        else if (mode == "bossairvideo") yield return BossAirVideoMode();
         else if (mode == "bossassist") yield return BossAssistMode();
         else if (mode == "finalevo") yield return FinalEvoMode();
         else if (mode == "fe2") yield return Fe2Mode();

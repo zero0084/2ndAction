@@ -159,7 +159,7 @@ public partial class MajinController : MonoBehaviour
     // 2026-10-13 第3弾: 戦っているボスの一覧(BossBattle.Living)に入れる。以前は入っておらず、補助が魔人を狙えなかった
     // (飛び道具のキャラは 150秒撃っても一度も当たらず、ボス戦の回避/攻撃の判断も働いていなかった)
     void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; BossBattle.Living.Add(this); }
-    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; BossBattle.Living.Remove(this); }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; BossBattle.Living.Remove(this); if (juggle != null) juggle.CloseBreak(); }
     void OnOriginShifted(float s) { trackedX -= s; homePos.x -= s; }
 
     public void Init(Transform playerTransform)
@@ -476,7 +476,8 @@ public partial class MajinController : MonoBehaviour
     {
         var box = GetComponent<BoxCollider2D>();
         float halfW = box != null ? box.bounds.extents.x : 1.2f;
-        float x = player.position.x + exposeReach + halfW;
+        Transform focus = BossJuggle.BreakFocus(player);
+        float x = ((Broken || breakRecovering) && focus != null ? focus.position.x : player.position.x) + exposeReach + halfW;
         float halfHeight = Mathf.Max(0.3f, hoverHeight - groundClearance);
         return new Vector3(x, GroundYAt(x) + exposeClearance + halfHeight, 0f);
     }
@@ -577,6 +578,8 @@ public partial class MajinController : MonoBehaviour
             var info = other.GetComponent<PlayerAttackInfo>();
             bool air = PlayerController.Instance != null && !PlayerController.Instance.IsGrounded;
             pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air); // 天空ボス強化: 崩し
+            pendingKind = info != null ? info.kind : PlayerAttackKind.Normal; // 2026-10-18: BREAK のコンボ用
+            pendingManual = info == null || (!info.elementProc && !info.suppressHitStop);
             NoteFinalAttack(other, info); // BOSS FINISH
             TakeDamage(damage);
             return;
@@ -596,6 +599,12 @@ public partial class MajinController : MonoBehaviour
         if (state == State.Dead || NetPuppet) return;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit); // ボス被弾(共通、連打は間引き)
         amount = ScaleIncoming(amount); // 天空ボス強化: BREAK/硬直中は大きく入る
+        PlayerAttackKind hitKind = pendingKind; bool manualHit = pendingManual && netAttacker == 0;
+        pendingKind = PlayerAttackKind.Normal; pendingManual = false;
+        // 2026-10-18: この端末のプレイヤーの手動の攻撃は、空中の滞空とコンボ数へ(荒野/洞窟/天空のボスと同じ)
+        if (manualHit && PlayerController.Instance != null) PlayerController.Instance.NotifyAerialHit();
+        if (netAttacker == 0 && ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
+        if (manualHit) QaNoteHit(hitKind);
 
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
@@ -605,12 +614,14 @@ public partial class MajinController : MonoBehaviour
         if (Hp <= 0)
         {
             state = State.Dead;
+            if (juggle != null) juggle.CloseBreak(); // 打ち上げ中でも寄せをやめる
             if (UltimateRunning) { UltimateRunning = false; BossBattle.EndUltimate(this); }
             if (hpBar != null) hpBar.SetSub(0f, false);
             if (BossFinish.Enabled) BeginBossFinish(false); else StartCoroutine(FinalHitAndDie());
             return;
         }
         BattleOnDamaged();
+        if (manualHit) BreakComboOnHit(hitKind); // BREAK 中の打ち上げ/追撃/叩きつけ(2026-10-18)
 
         // Game Feel pass, section 19 - see DragonController.TakeDamage's
         // matching comment.
@@ -756,10 +767,12 @@ public partial class MajinController : MonoBehaviour
     }
 
     // HOST: JOINのプレイヤーの攻撃を、この端末の攻撃と同じ被弾処理へ流す。
-    public void NetApplyRemoteHit(int attacker, int damage)
+    public void NetApplyRemoteHit(int attacker, int damage, PlayerAttackKind kind = PlayerAttackKind.Normal)
     {
         if (state == State.Dead || NetPuppet) return;
         netAttacker = attacker;
+        // 2026-10-18: 他の参加者/仲間の攻撃でも崩しが溜まる(以前は溜まらなかった)。CPU の仲間は通常の量
+        pendingStagger = PlayerController.AllyContext > 0 ? BossBattleTuning.I.staggerNormal : BossBattleTuning.I.StaggerFor(kind, false);
         try { TakeDamage(damage); }
         finally { netAttacker = 0; }
     }

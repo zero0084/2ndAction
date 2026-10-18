@@ -113,10 +113,11 @@ public partial class MajinController : IBossBattleDebug
     void AddStagger(float v)
     {
         if (BossBattle.DebugNoStagger) return;
-        if (battle == null || battle.staggerMax <= 0f || Broken || state == State.Entering || state == State.Dead) return;
-        stagger += v * staggerMul;
+        if (battle == null || battle.staggerMax <= 0f || Broken || state == State.Entering || state == State.Dead || breakRecovering) return;
+        float before = StaggerFraction;
+        stagger += v * staggerMul * (Time.time < breakResistUntil ? WildBossBase.PostBreakStaggerScale : 1f); // BREAK の直後は溜まりにくい(2026-10-18)
         lastStaggerTime = Time.time;
-        if (stagger < battle.staggerMax) return;
+        if (stagger < battle.staggerMax) { TryFlinchSimple(before, StaggerFraction); return; } // 怯み(2026-10-18)
         stagger = battle.staggerMax;
         BreakCount++;
         Debug.Log($"[BossBattle] Majin BREAK #{BreakCount}");
@@ -129,22 +130,7 @@ public partial class MajinController : IBossBattleDebug
         StartCoroutine(BreakRoutine());
     }
 
-    IEnumerator BreakRoutine()
-    {
-        Broken = true;
-        float keepHold = exposeHoldTime;
-        exposeHoldTime = battle != null ? battle.breakDuration : 3f;
-        yield return DescendExposed();
-        exposeHoldTime = keepHold;
-        Broken = false; stagger = 0f;
-        if (state == State.Dead) yield break;
-        if (sr != null) sr.color = Color.white;
-        yield return ReturnToHome(exposeReturnTime); // BREAK の後に、今の位置から(プレイヤー基準で)元の位置へ
-        if (state == State.Dead) yield break;
-        state = State.Idle;
-        SetFrames(idleFrames);
-        ScheduleNextAttack();
-    }
+    // BreakRoutine(降りる/打ち上げ/回復の予告/立ち直り)は MajinController.BreakCombo.cs(2026-10-18)
 
     // プレイヤー基準の位置(瞬間移動/必殺技の間は追従の代わりにこれで置く)
     Vector3 RelPos(float dx, float alt) { float x = player.position.x + dx; return new Vector3(x, GroundYAt(x) + alt, 0f); }
@@ -307,5 +293,5 @@ public partial class MajinController : IBossBattleDebug
         nextAttackTime = Time.time;
         return true;
     }
-    public void DebugForceBreak() { if (battle != null && battle.staggerMax > 0f) { bool keep = BossBattle.DebugNoStagger; BossBattle.DebugNoStagger = false; AddStagger(battle.staggerMax * 1.5f); BossBattle.DebugNoStagger = keep; } }
+    public void DebugForceBreak() { breakResistUntil = -99f; if (battle != null && battle.staggerMax > 0f) { bool keep = BossBattle.DebugNoStagger; BossBattle.DebugNoStagger = false; AddStagger(battle.staggerMax * 1.5f); BossBattle.DebugNoStagger = keep; } }
 }

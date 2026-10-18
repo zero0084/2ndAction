@@ -61,6 +61,7 @@ public abstract class HazardBossBase : WildBossBase
     public static string LastCeilingSkip = "";
     const float CeilingMinSpace = 4.2f;
     protected override bool IntentionallyAway => buried; // 地中に潜っている間は、画面から外れても戻さない(技の一部)
+    protected override bool FlinchBlocked => onCeiling || buried || climbing || ceilingLost; // 2026-10-18: 天井/地中の間は怯ませない(割り込むと位置が跳ぶ)
     bool ceilingLost, ceilingUnknownNoted;
     // 2026-10-16(マスターの確認): 天井の状態を分ける。NotGenerated = その位置の天井はまだ作っていない/もう捨てた(生成の範囲の都合)。
     // これは「天井が無い」ではないので、落とす理由にも、技を選ばない理由にもしない。落とすのは本物の地形の理由(Open/High/Low)だけ

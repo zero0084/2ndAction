@@ -198,7 +198,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
 
     // Floating Origin: 座標を戻した分、追従基準X/待機位置も戻す。
     void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; BossBattle.Living.Add(this); }
-    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; BossBattle.Living.Remove(this); }
+    void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; BossBattle.Living.Remove(this); if (juggle != null) juggle.CloseBreak(); }
     void OnOriginShifted(float s) { trackedX -= s; homePos.x -= s; }
 
     public void Init(Transform playerTransform)
@@ -777,6 +777,8 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
             var info = other.GetComponent<PlayerAttackInfo>();
             bool air = PlayerController.Instance != null && !PlayerController.Instance.IsGrounded;
             pendingStagger = BossBattleTuning.I.StaggerFor(info != null ? info.kind : PlayerAttackKind.Normal, air);
+            pendingKind = info != null ? info.kind : PlayerAttackKind.Normal; // 2026-10-18: BREAK のコンボ用
+            pendingManual = info == null || (!info.elementProc && !info.suppressHitStop);
             NoteFinalAttack(other, info); // BOSS FINISH
             TakeDamage(damage);
             return;
@@ -809,6 +811,12 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossHit); // ボス被弾(共通、連打は間引き)
         if (state == State.Stunned) amount = Mathf.CeilToInt(amount * BossBattleTuning.I.breakDamageScale);
         float stg = pendingStagger; pendingStagger = 0f;
+        PlayerAttackKind hitKind = pendingKind; bool manualHit = pendingManual && netAttacker == 0;
+        pendingKind = PlayerAttackKind.Normal; pendingManual = false;
+        // 2026-10-18: この端末のプレイヤーの手動の攻撃は、空中の滞空とコンボ数へ(荒野/洞窟/天空のボスと同じ)
+        if (manualHit && PlayerController.Instance != null) PlayerController.Instance.NotifyAerialHit();
+        if (netAttacker == 0 && ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
+        if (manualHit) QaNoteHit(hitKind);
 
         Hp = Mathf.Max(0, Hp - amount);
         if (hpBar != null) hpBar.SetFraction((float)Hp / maxHp);
@@ -824,6 +832,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
             // for its short death presentation instead of vanishing this
             // same frame.
             state = State.Dead;
+            if (juggle != null) juggle.CloseBreak(); // 打ち上げ中でも寄せをやめる
             BossBattle.EndUltimate(this);
             if (hpBar != null) hpBar.SetSub(0f, false);
             if (BossFinish.Enabled) BeginBossFinish(false); else StartCoroutine(FinalHitAndDie());
@@ -831,6 +840,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         }
         CheckBattlePhase();
         if (stg > 0f) AddStagger(stg);
+        if (manualHit) BreakComboOnHit(hitKind); // BREAK 中の打ち上げ/追撃/叩きつけ(2026-10-18)
 
         // Game Feel pass, section 19 - a very small camera shake, boss hits
         // only (regular EnemyController kills deliberately never do this -
@@ -917,10 +927,11 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     void AddStagger(float v)
     {
         if (BossBattle.DebugNoStagger) return;
-        if (battle == null || battle.staggerMax <= 0f || state == State.Stunned || state == State.Entering) return;
-        stagger += v * staggerMul;
+        if (battle == null || battle.staggerMax <= 0f || state == State.Stunned || state == State.Entering || breakRecovering) return;
+        float before = StaggerFraction;
+        stagger += v * staggerMul * (Time.time < breakResistUntil ? WildBossBase.PostBreakStaggerScale : 1f); // BREAK の直後は溜まりにくい(2026-10-18)
         lastStaggerTime = Time.time;
-        if (stagger < battle.staggerMax) return;
+        if (stagger < battle.staggerMax) { TryFlinchSimple(before, StaggerFraction); return; } // 怯み(2026-10-18)
         stagger = battle.staggerMax;
         BreakCount++;
         Debug.Log($"[BossBattle] Dragon BREAK #{BreakCount}");
@@ -947,45 +958,30 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     void StunFollow()
     {
         float dt = Time.deltaTime;
-        float px = player != null ? player.position.x : transform.position.x;
-        float ax = px + breakAnchorAhead;
+        Transform focus = BossJuggle.BreakFocus(player);
+        float px = focus != null ? focus.position.x : transform.position.x;
         // 当たり判定(体)の下端が地面の少し上に来る高さ(近接で届く高さ)。絵ではなく当たり判定で測る
         var box = GetComponent<BoxCollider2D>();
-        float bottomOffset = box != null ? transform.position.y - box.bounds.min.y : Mathf.Max(0.3f, hoverHeight - groundClearance);
+        // 2026-10-18: 地上の↑(打ち上げ)も届く所(体の手前の端がプレイヤーの前 約0.9m)。以前は体の中心が 4m 先(端は約2〜2.5m)
+        float ahead = breakAnchorAhead;
+        if (juggle != null && juggle.Accepting && box != null) { Bounds lb = BossJuggle.LiveBounds(box); ahead = Mathf.Min(breakAnchorAhead, lb.extents.x + WildBossBase.BreakComboEdge - (lb.center.x - transform.position.x)); }
+        float ax = px + ahead;
+        float bottomOffset = box != null ? transform.position.y - BossJuggle.LiveBounds(box).min.y : Mathf.Max(0.3f, hoverHeight - groundClearance); // 物理の更新を待たない今の範囲で(2026-10-18)
         float gy = GroundYAt(ax) + bottomOffset + breakBottomClearance;
         float k = 1f - Mathf.Exp(-dt / 0.15f);
         float x = transform.position.x + TargetBaseSpeed() * dt; // ① 走行に合わせて運ぶ
+        if (StunJuggleStep(x, GroundYAt(x) + bottomOffset + breakBottomClearance)) return; // 打ち上げ/落下の間(2026-10-18)
         x = Mathf.Lerp(x, ax, k);                                  // ② 届く位置へ寄せる
         stunY = Mathf.Lerp(transform.position.y, gy, 1f - Mathf.Exp(-dt / 0.1f));
+        float bodyX = box != null ? x + (BossJuggle.LiveBounds(box).center.x - transform.position.x) : x;
+        stunY = Mathf.Max(stunY, Mathf.Max(GroundYAt(x), GroundYAt(bodyX)) + bottomOffset); // 2026-10-18: 上り坂で体が地面へ入らない(高さは少し先の地面で決めているため)
         transform.position = new Vector3(x, stunY, 0f);
         if (BreakDiag) breakDiagGap = x - px;
     }
     public static bool BreakDiag; // 確認用(自動テスト): BREAK 中のプレイヤーとの距離
     [System.NonSerialized] public float breakDiagGap;
 
-    IEnumerator StunRoutine()
-    {
-        var cf = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
-        if (cf != null) cf.Shake(0.18f, 0.25f);
-        float t = 0f, star = 0f;
-        float dur = battle != null ? battle.breakDuration : 3f;
-        while (t < dur)
-        {
-            t += Time.deltaTime; star -= Time.deltaTime;
-            if (star <= 0f)
-            {
-                star = 0.25f;
-                OneShotSpriteEffect.CreateTweened(OneShotSpriteEffect.SoftDotSprite(), transform.position + new Vector3(Random.Range(-1f, 1f), Random.Range(0.6f, 1.4f), 0f), new Color(1f, 0.95f, 0.45f, 1f), 0.4f, 0.25f, 0.05f, 1f, 0f, default, 0f, RenderOrder.CombatFx, 0.2f);
-            }
-            yield return null;
-        }
-        stagger = 0f;
-        Debug.Log($"[BossBattle] Dragon BREAK end after {t:F2}s (duration {dur:F2}s)");
-        state = State.Landing; // 戻りの間は通常の追従をしない(体当たり判定の無い状態)
-        yield return ReturnToHome(0.6f);
-        state = State.Idle;
-        ScheduleNextAttack();
-    }
+    // StunRoutine(BREAK の長さ/回復の予告/立ち直り)は DragonController.BreakCombo.cs(2026-10-18)
 
     public FireballController LastUltFireball { get; private set; } // 確認用(2026-10-15): 最後の必殺技の巨大火球
     public int UltFireballsFired { get; private set; }
@@ -1121,7 +1117,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         nextAttackTime = Time.time;
         return true;
     }
-    public void DebugForceBreak() { if (battle != null && battle.staggerMax > 0f) { bool keep = BossBattle.DebugNoStagger; BossBattle.DebugNoStagger = false; AddStagger(battle.staggerMax * 1.5f / Mathf.Max(0.1f, staggerMul)); BossBattle.DebugNoStagger = keep; } }
+    public void DebugForceBreak() { breakResistUntil = -99f; if (battle != null && battle.staggerMax > 0f) { bool keep = BossBattle.DebugNoStagger; BossBattle.DebugNoStagger = false; AddStagger(battle.staggerMax * 1.5f / Mathf.Max(0.1f, staggerMul)); BossBattle.DebugNoStagger = keep; } }
 
     // Brief red flash to signal "that hit landed" while the boss is still
     // alive - a separate overlay from the (white) attack telegraph so the
@@ -1302,10 +1298,12 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     }
 
     // HOST: JOINのプレイヤーの攻撃を、この端末の攻撃と同じ被弾処理へ流す。
-    public void NetApplyRemoteHit(int attacker, int damage)
+    public void NetApplyRemoteHit(int attacker, int damage, PlayerAttackKind kind = PlayerAttackKind.Normal)
     {
         if (state == State.Dead || NetPuppet) return;
         netAttacker = attacker;
+        // 2026-10-18: 他の参加者/仲間の攻撃でも崩しが溜まる(以前は溜まらなかった)。CPU の仲間は通常の量
+        pendingStagger = PlayerController.AllyContext > 0 ? BossBattleTuning.I.staggerNormal : BossBattleTuning.I.StaggerFor(kind, false);
         try { TakeDamage(damage); }
         finally { netAttacker = 0; }
     }

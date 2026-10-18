@@ -372,7 +372,7 @@ public partial class QaSweep
         if (string.IsNullOrEmpty(aeOverlay)) return;
         if (aeStyle == null) aeStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold };
         aeStyle.fontSize = Mathf.RoundToInt(Screen.height * 0.035f);
-        var r = new Rect(Screen.width * 0.02f, Screen.height * 0.30f, Screen.width * 0.6f, Screen.height * 0.2f);
+        var r = new Rect(Screen.width * 0.02f, Screen.height * 0.40f, Screen.width * 0.6f, Screen.height * 0.2f); // 左上の HUD(距離/速さ/MILE)と重ならない高さ
         aeStyle.normal.textColor = Color.black;
         GUI.Label(new Rect(r.x + 2, r.y + 2, r.width, r.height), aeOverlay, aeStyle);
         aeStyle.normal.textColor = new Color(1f, 0.95f, 0.6f);

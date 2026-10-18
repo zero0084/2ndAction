@@ -135,8 +135,9 @@ public partial class PlayerController
     public Vector2 AerialComboAim(Vector2 origin, Vector2 dir, float maxAngle)
     {
         if (IsAlly || dir.sqrMagnitude < 1e-6f) return dir;
-        var t = EnemyController.LocalComboTarget;
+        var t = AirComboTargets.Local; // 雑魚 or BREAK 中のボス(2026-10-18)
         if (t == null || !t.IsComboAnchored || isGrounded) return dir; // 空中の追撃の間だけ
+        if (t is BossJuggle) maxAngle = Mathf.Max(maxAngle, BossAimMaxAngle); // BREAK 中のボスは体が大きい: 頭の上から撃つ時も体へ向ける(2026-10-18)
         AerialAimUsed++;
         Vector2 to = (Vector2)t.ComboAimPoint - origin;
         float dist = to.magnitude;
@@ -150,11 +151,12 @@ public partial class PlayerController
     public Vector2 AerialLaunchAim(Vector2 origin, Vector2 dir)
     {
         if (IsAlly || dir.sqrMagnitude < 1e-6f) return dir;
-        var e = EnemyController.FindComboCandidate(this, 4.5f, 2.2f);
+        var e = AirComboTargets.FindCandidate(this, 4.5f, 2.2f);
         if (e == null) return dir;
         Vector2 rel = (Vector2)e.ComboAimPoint - origin;
         // 弾は走りと一緒に流れるので、止まっている敵は自動前進の速さで近づいてくる。届く瞬間の位置へ向ける(数回の繰り返しで解く)
-        float sp = dir.magnitude, R = CurrentAutoRunSpeed;
+        // BREAK 中のボスはプレイヤーと並走している(近づいてこない)ので、先回りしない(2026-10-18)
+        float sp = dir.magnitude, R = e is BossJuggle ? 0f : CurrentAutoRunSpeed;
         Vector2 to = rel;
         if (sp > 0.1f)
             for (int k = 0; k < 4; k++) { float tt = to.magnitude / sp; to = new Vector2(rel.x - R * tt, rel.y); }
@@ -167,13 +169,14 @@ public partial class PlayerController
 
     public const float AerialAimMaxDistance = 9f;
     public const float AerialAimMaxAngle = 40f;
+    public const float BossAimMaxAngle = 70f;
     public const float AerialSlamAimAngle = 95f; // 叩き落としの技(斜め下の弾/矢/魔法)は、前にいる対象へ向けてよい
 
     // ---------------------------------------------------------------- キャラごとの締め(足りない所の追加)
 
     // この端末のプレイヤーが空中で、打ち上げた敵を寄せている最中(締めの技の切り替えに使う)
     public bool IsAerialDiving => isDiveAttacking || lanceDiving || kitDiveActive;
-    public bool AerialComboActive => !IsAlly && !isGrounded && EnemyController.LocalComboTarget != null && EnemyController.LocalComboTarget.IsComboAnchored;
+    public bool AerialComboActive => !IsAlly && !isGrounded && AirComboTargets.Local is IAirComboTarget t && t.IsComboAnchored;
 
     // 竜人: 空中のコンボ中の下 = 翼をたたんで急降下(爪で叩き落とし、着地で衝撃)。コンボ中でなければ今までどおり炎のブレス
     public static int DragonDives;
@@ -220,7 +223,7 @@ public partial class PlayerController
     public static int MikoSeals;
     void MikoSealStamp()
     {
-        var t = EnemyController.LocalComboTarget;
+        var t = AirComboTargets.Local;
         if (t == null || !t.IsComboAnchored) return;
         MikoSeals++;
         Vector3 c = t.ComboAimPoint;
@@ -257,7 +260,7 @@ public partial class PlayerController
     bool AerialRelaunchAvailable()
     {
         if (IsAlly || isGrounded || kit == CharacterKit.Mage) return false;
-        return EnemyController.FindComboCandidate(this, ComboRelaunchReachX, ComboRelaunchReachY) != null;
+        return AirComboTargets.FindCandidate(this, ComboRelaunchReachX, ComboRelaunchReachY) != null;
     }
 
     void AerialRelaunch()

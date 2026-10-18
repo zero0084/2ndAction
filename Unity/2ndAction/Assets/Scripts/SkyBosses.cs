@@ -602,7 +602,7 @@ public partial class SkyJellyfishBoss : SkyBossBase
             extraScale = new Vector2(1f - 0.06f * s, 1f + 0.09f * s);   // 傘の収縮
             float glow = 0.5f + 0.5f * Mathf.Sin(Time.time * 3.1f);
             SetBodyTint(Color.Lerp(Color.white, new Color(0.7f, 0.95f, 1f), glow * 0.6f));
-            if (approachDone && !windingUp && !lowHold) yOffset = HoverAlt + 0.25f * Mathf.Sin(Time.time * 1.3f);
+            if (approachDone && !windingUp && !lowHold && !BreakHoldsAltitude) yOffset = HoverAlt + 0.25f * Mathf.Sin(Time.time * 1.3f);
             mote -= Time.deltaTime;
             if (mote <= 0f && approachDone)
             {
@@ -677,6 +677,8 @@ public partial class SkyJellyfishBoss : SkyBossBase
 // 雲海ブレス(頭部を持ち上げる→長い溜め→巨大ブレス)。
 public partial class LeviathanBoss : SkyBossBase
 {
+    // 2026-10-18: BREAK 中は雲海から体ごと打ち上げない(長い体の一部しか出ていない) = 膝をつく扱い(位置はそのまま、低くなる)
+    protected override BossJuggle.Style BreakComboStyle => BossJuggle.Style.Kneel;
     BossHitbox erupt, cross, breath;
     SpriteRenderer shadowSr, finSr, mouthGlow;
     int last = -1;
@@ -1212,7 +1214,7 @@ public partial class SkyGolemBoss : SkyBossBase
         while (!IsDead)
         {
             float tt = Time.time;
-            if (approachDone && !windingUp) yOffset = FloatAlt + 0.18f * Mathf.Sin(tt * 1.6f);   // 浮遊感
+            if (approachDone && !windingUp && !BreakHoldsAltitude) yOffset = FloatAlt + 0.18f * Mathf.Sin(tt * 1.6f);   // 浮遊感
             if (coreGlow.enabled && pose != Pose.Windup)
             {
                 coreGlow.transform.position = BodyPoint(0.4f, 0.6f);
@@ -1381,7 +1383,7 @@ public partial class PhoenixBoss : SkyBossBase
                 Color c = Color.Lerp(Fire, new Color(1f, 0.85f, 0.3f, 1f), Random.value);
                 SkyDrift.Spawn(BossFx.Orb(), p, Vector2.one * Random.Range(0.3f, 0.7f), c, new Vector3(-facing * 1.5f, 0.8f, 0f), 0.5f, RenderOrder.Boss - 1);
             }
-            if (approachDone && !windingUp && pose != Pose.Attack && yOffset > 1.5f && yOffset < 3.5f)
+            if (approachDone && !windingUp && !BreakHoldsAltitude && pose != Pose.Attack && yOffset > 1.5f && yOffset < 3.5f)
             {
                 yOffset = Mathf.MoveTowards(yOffset, HoverAlt + 0.35f * Mathf.Sin(Time.time * 1.7f), Time.deltaTime * 2f);
             }
@@ -1829,7 +1831,7 @@ public partial class CelestialGuardianBoss : SkyBossBase
         float mote = 0f;
         while (!IsDead)
         {
-            if (approachDone && !windingUp && pose != Pose.Attack && yOffset < 1f) yOffset = HoverAlt + 0.15f * Mathf.Sin(Time.time * 2f);
+            if (approachDone && !windingUp && !BreakHoldsAltitude && pose != Pose.Attack && yOffset < 1f) yOffset = HoverAlt + 0.15f * Mathf.Sin(Time.time * 2f);
             mote -= Time.deltaTime;
             if (mote <= 0f && approachDone)
             {

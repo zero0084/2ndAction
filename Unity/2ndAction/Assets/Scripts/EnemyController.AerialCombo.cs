@@ -6,7 +6,7 @@ using UnityEngine;
 //  - 追撃が当たるたびに続く。当たらない時間が ComboAnchorWindow を超える/合計 ComboAnchorMaxTotal 秒/
 //    プレイヤーが着地/遠く離れた(ComboAnchorEngageDistance)/叩き落とし で終わり、あとは普通に落ちる
 //  - 補正の速さは ComboAnchorMaxCorrection まで(瞬間移動しない)。天井/段差/地面にめり込まない
-public partial class EnemyController
+public partial class EnemyController : IAirComboTarget
 {
     public const float ComboAnchorWindow = 0.9f;        // 打ち上げ/追撃のあと、寄せ続ける時間(秒)。竜騎士の突きのように1回が長い技でも次が間に合う
     public const float ComboAnchorMaxTotal = 30f;       // 安全装置だけ(2026-10-18 追加の依頼: 手動の攻撃が当たり続ける間は長いコンボを許す)
@@ -91,6 +91,14 @@ public partial class EnemyController
         if (!wasLaunched) comboRiseTimer = ComboRiseTime;
         if (LocalComboTarget != null && LocalComboTarget != this) LocalComboTarget.ComboAnchorEnd();
         LocalComboTarget = this;
+        BossJuggle.ReleaseLocal(); // ボスの BREAK のコンボから雑魚へ移った(同時に2体を寄せない。2026-10-18 ボス対応)
+    }
+
+    // ボスの BREAK のコンボが始まった: 寄せていた雑魚を手放す(普通に落ちる)
+    public static void ReleaseLocalComboTarget()
+    {
+        if (LocalComboTarget != null) LocalComboTarget.ComboAnchorEnd();
+        LocalComboTarget = null;
     }
 
 

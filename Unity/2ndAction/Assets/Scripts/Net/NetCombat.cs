@@ -855,9 +855,9 @@ public class NetCombat : MonoBehaviour
         }
         damage = Mathf.Clamp(damage, 1, 999999); // 2026-10-02: 10倍スケール+Lv9の大きな値
         if (e.Enemy != null) e.Enemy.NetApplyRemoteHit(attacker, damage, (PlayerAttackKind)attackKind, contact);
-        else if (e.Wild != null) e.Wild.NetApplyRemoteHit(attacker, damage, contact);
-        else if (e.Dragon != null) e.Dragon.NetApplyRemoteHit(attacker, damage);
-        else if (e.Majin != null) e.Majin.NetApplyRemoteHit(attacker, damage);
+        else if (e.Wild != null) e.Wild.NetApplyRemoteHit(attacker, damage, contact, (PlayerAttackKind)attackKind);
+        else if (e.Dragon != null) e.Dragon.NetApplyRemoteHit(attacker, damage, (PlayerAttackKind)attackKind);
+        else if (e.Majin != null) e.Majin.NetApplyRemoteHit(attacker, damage, (PlayerAttackKind)attackKind);
     }
 
     public static int PlayerNumberOfClient(ulong clientId)
