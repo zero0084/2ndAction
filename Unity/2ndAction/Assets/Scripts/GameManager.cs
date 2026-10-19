@@ -5681,29 +5681,10 @@ public partial class GameManager : MonoBehaviour
     // hover/active tint doesn't reliably fire on touch devices the same way
     // it does with a mouse, so this is driven explicitly from the caller
     // instead.
+    // 2026-10-19 見た目の完成度向上: UiKit.Button と同じ描き方へ(以前は文字の金と板の濃さが少し違う、ほぼ同じ別の描き方だった)。
+    // 選択中の上塗りは出さない(今までどおり)
     bool DrawStyledButton(Rect rect, string text, float fontSize, bool primary, bool ornate = false, float flashAlpha = 0f)
-    {
-        if (ornate) OrnateUi.DrawPanel(rect, primary ? 0.85f : 0.6f);
-        else UiBackdrop.Draw(rect, primary ? 0.85f : 0.55f);
-        bool pressed = UiKit.ButtonStateOverlay(rect, false, true); // 押している間は暗く(2026-10-09、依頼G-2)
-        GUIStyle style = new GUIStyle(GUI.skin.label);
-        style.fontSize = Mathf.RoundToInt(fontSize);
-        style.fontStyle = FontStyle.Bold;
-        style.alignment = TextAnchor.MiddleCenter;
-        style.normal.textColor = primary ? new Color(1f, 0.93f, 0.75f) : Color.white;
-        LocGUI.Label(pressed ? new Rect(rect.x, rect.y + 2f, rect.width, rect.height) : rect, text, style);
-
-        if (flashAlpha > 0.001f)
-        {
-            Color prevFlash = GUI.color;
-            GUI.color = new Color(1f, 0.95f, 0.8f, flashAlpha * 0.5f * prevFlash.a);
-            GUI.DrawTexture(rect, Texture2D.whiteTexture);
-            GUI.color = prevFlash;
-        }
-
-        bool pad = PadNav.Button(rect); // ゲームパッド/キーボードの決定(2026-10-06)
-        return GUI.Button(rect, GUIContent.none, GUIStyle.none) || pad;
-    }
+        => UiKit.ButtonCore(rect, text, fontSize, primary, ornate, true, false, flashAlpha);
 
     // ===== Home Room UI reconstruction pass ===== //
 
@@ -6219,6 +6200,9 @@ public partial class GameManager : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (DebugPanel.Instance != null && DebugPanel.Instance.Back()) return;
 #endif
+        // 2026-10-19: 設定の上に開く画面(データの削除/広告なしパス)を先に閉じる(以前は戻るで後ろの設定ごと閉じていた)
+        if (DataDeletionUi.IsOpen) { if (AccountDeletion.State == AccountDeletion.Phase.Confirm) AccountDeletion.CancelConfirm(); else DataDeletionUi.Close(); return; }
+        if (MonetizationUi.Open) { MonetizationUi.Close(); return; }
         if (SettingsPanel.LangListOpen) { SettingsPanel.CloseLangList(); return; } // 言語の一覧だけを閉じる(2026-10-09)
         if (SettingsPanel.IsVisible) { SettingsPanel.CloseStatic(); return; }
         if (NetDebugUI.PanelOpen) { NetDebugUI.ClosePanel(); return; }

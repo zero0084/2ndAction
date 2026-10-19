@@ -128,6 +128,15 @@ public static class Leaderboard
     }
     public static void Leave() { SaveStore.SetInt(JoinedKey, 0); SaveStore.Save(); Log("left the ranking (nothing more is sent)"); }
 
+    // 2026-10-19: オンラインのデータを削除した後(AccountDeletion)。参加/送信待ち/送信済み/資格のある自己ベストを消す
+    // (後でランキングに参加し直しても、削除した古い記録を新しい ID で送り直さない)。カード/MILE/進行/マップ別の BEST 表示は消さない
+    public static void ForgetAfterDeletion()
+    {
+        SaveStore.DeleteKey(JoinedKey); SaveStore.DeleteKey(PendingKey); SaveStore.DeleteKey(VerifiedKey); SaveStore.DeleteKey(SentKey);
+        SaveStore.Save();
+        Log("ranking state on this device cleared after the online data was deleted");
+    }
+
     // ---------------------------------------------------------------- 投稿待ち
     // 今の環境で送れる送信待ち(別の環境の物・環境を付ける前の物は HeldCount)
     public static int PendingCount => Load(PendingKey).items.FindAll(Sendable).Count;

@@ -132,7 +132,7 @@ public class SettingsPanel : MonoBehaviour
         if (wide)
         {
             float colW = (view.width - 30f) * 0.5f;
-            contentH = Mathf.Max(drawnH, Mathf.Max(MeasureAudio() + 16f + MeasureLanguage() + 16f + MeasureProfile() + MeasureTransfer() + MeasureNoAds(), MeasureDisplay() + MeasureControls() + 16f));
+            contentH = Mathf.Max(drawnH, Mathf.Max(MeasureAudio() + 16f + MeasureLanguage() + 16f + MeasureProfile() + MeasureTransfer() + MeasureNoAds(), MeasureDisplay() + MeasureControls() + 16f + MeasurePrivacy()));
             BeginScroll(view, contentH);
             float ya = DrawAudio(0f, 0f, colW, interactive);
             ya = DrawLanguage(0f, ya + 16f, colW, interactive);
@@ -141,12 +141,13 @@ public class SettingsPanel : MonoBehaviour
             ya = DrawNoAds(0f, ya, colW, interactive);
             float y2 = DrawDisplay(colW + 30f, 0f, colW, interactive);
             y2 = DrawControls(colW + 30f, y2 + 16f, colW, interactive);
+            y2 = DrawPrivacy(colW + 30f, y2, colW, interactive);
             EndScroll(view, contentH);
             if (Event.current.type == EventType.Repaint) drawnH = Mathf.Max(ya, y2) + 12f;
         }
         else
         {
-            contentH = Mathf.Max(drawnH, MeasureAudio() + MeasureLanguage() + MeasureDisplay() + MeasureControls() + MeasureProfile() + MeasureTransfer() + MeasureNoAds() + 64f);
+            contentH = Mathf.Max(drawnH, MeasureAudio() + MeasureLanguage() + MeasureDisplay() + MeasureControls() + MeasureProfile() + MeasureTransfer() + MeasureNoAds() + MeasurePrivacy() + 64f);
             BeginScroll(view, contentH);
             float y = DrawAudio(0f, 0f, view.width, interactive);
             y = DrawLanguage(0f, y + 16f, view.width, interactive);
@@ -155,6 +156,7 @@ public class SettingsPanel : MonoBehaviour
             y = DrawProfile(0f, y + 16f, view.width, interactive);
             y = DrawTransfer(0f, y, view.width, interactive);
             y = DrawNoAds(0f, y, view.width, interactive);
+            y = DrawPrivacy(0f, y, view.width, interactive);
             EndScroll(view, contentH);
             if (Event.current.type == EventType.Repaint) drawnH = y + 12f;
         }
@@ -649,6 +651,28 @@ public class SettingsPanel : MonoBehaviour
         }
         y = Note(x, y, w, string.IsNullOrEmpty(NoAdsPass.LastNote) ? "パスはストアのアカウントに紐づきます(購入の復元でセーブデータは戻りません)" : NoAdsPass.LastNote);
         return y;
+    }
+
+    // データとプライバシー(2026-10-19、Google Play の公開準備): プライバシーポリシー(ブラウザで開く)/ オンラインのデータの削除
+    bool policyTried;
+    float MeasurePrivacy() => 16f + HeadH + 4f + RowH * 2f + 22f * (policyTried ? 3f : 1f);
+    float DrawPrivacy(float x, float y, float w, bool interactive)
+    {
+        y = Head(x, y + 16f, w, "データとプライバシー");
+        RowLabel(x, y, "プライバシーポリシー");
+        if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), "ブラウザで開く", 19f, false, true) && interactive) { PrivacyLinks.OpenPolicy(); policyTried = true; }
+        y += RowH;
+        RowLabel(x, y, "データの削除");
+        if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), "内容を確認する", 19f, false, true) && interactive) DataDeletionUi.Open();
+        y += RowH;
+        if (policyTried)
+        {
+            // ブラウザが開かない端末向け: URL を見せてコピーできるようにする
+            y = Note(x, y, w, $"ページが開かない時は、次の URL をブラウザで開いてください: {PrivacyLinks.PolicyUrl}"); // 訳は Loc の型(…{0})で当たる
+            if (UiKit.Button(new Rect(x + w - 160f, y, 160f, 34f), "URLをコピー", 15f, false, false) && interactive) PrivacyLinks.Copy(PrivacyLinks.PolicyUrl);
+            y += 40f;
+        }
+        return Note(x, y, w, "ランキングの記録など、サーバー上のデータを削除できます(この端末のカードや進行は消えません)。");
     }
 
     // 遊び方(2026-10-07): 操作の練習をもう一度。ホームでだけ始められる(終わるとホームへ戻る)

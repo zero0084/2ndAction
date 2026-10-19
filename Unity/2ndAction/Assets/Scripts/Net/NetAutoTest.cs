@@ -44,6 +44,7 @@ public partial class NetAutoTest : MonoBehaviour
     // ボスの種類 / 強制レベルアップを一定時間選ばずに保持する(選択中も世界が進むかの確認)
     bool damageTest;
     int expectPlayers = 2; // -netAutoPlayers N(4人/8人の試験)
+    ushort autoPort = NetSession.DefaultPort; // -netAutoPort N
     bool rematchTest; float rematchLogTimer; bool rematchUnlocked; // ボスの再戦(2026-10-02): HOST/JOINで同じボスか
     bool passive;
     string bossKind = "Wolf";
@@ -349,6 +350,8 @@ public partial class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoBossHp") int.TryParse(next, out bossHp);
             else if (a == "-netAutoDamage") damageTest = true;
             else if (a == "-netAutoPlayers") int.TryParse(next, out expectPlayers);
+            else if (a == "-netAutoPort") ushort.TryParse(next, out autoPort); // 2026-10-19: HOST の待ち受け/JOIN の接続先のポート(通信の中身の確認で間に中継を挟む)
+            else if (a == "-netAutoCodename") Codename.Set(next); // 2026-10-19: 試験用のコードネーム(専用の保存ファイルで使う)
             else if (a == "-netAutoRematch") rematchTest = true;
             else if (a == "-netAutoPassive") passive = true;
             else if (a == "-netAutoBossKind") bossKind = next;
@@ -476,7 +479,7 @@ public partial class NetAutoTest : MonoBehaviour
                 if (role == "HOST")
                 {
                     if (modeArg != "") NetRunLauncher.SelectedMode = modeArg == "versus" ? MultiplayerGameMode.Versus : MultiplayerGameMode.Coop;
-                    if (NetSession.Instance.StartHost(NetSession.DefaultPort)) LanDiscovery.StartAdvertising(); // LAN の部屋の自動発見(2026-10-05)
+                    if (NetSession.Instance.StartHost(autoPort)) LanDiscovery.StartAdvertising(); // LAN の部屋の自動発見(2026-10-05)
                 }
                 else if (joinIp == "lan")
                 {
@@ -492,7 +495,7 @@ public partial class NetAutoTest : MonoBehaviour
                     Debug.Log($"[LAN] Join requested {room.roomId} '{room.roomName}' {room.address}:{room.port}");
                     NetSession.Instance.StartClient(room.address, room.port);
                 }
-                else NetSession.Instance.StartClient(joinIp, NetSession.DefaultPort);
+                else NetSession.Instance.StartClient(joinIp, autoPort);
                 Next(Step.WaitPlayers);
                 break;
             case Step.WaitPlayers:

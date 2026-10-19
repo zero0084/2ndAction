@@ -51,7 +51,8 @@ public class NetPlayer : NetworkBehaviour
     static readonly Dictionary<string, int> sessionSlots = new Dictionary<string, int>(); // HOST: この部屋で使った「鍵 → 番号」
     public static string LocalParticipantKey()
     {
-        string pid = OnlineServices.PlayerId;
+        // 2026-10-19: UGS の PlayerId は ONLINE の時だけ使う(LOCAL の相手へ渡す必要が無い。同じ起動でランキング/ONLINE を開いた後の LOCAL でも送らない)
+        string pid = NetSession.Connection == ConnectionType.Online ? OnlineServices.PlayerId : null;
         if (!string.IsNullOrEmpty(pid)) return "u:" + pid;
         string k = SaveStore.GetString(LocalKeyPref, "");
         if (string.IsNullOrEmpty(k)) { k = System.Guid.NewGuid().ToString("N"); SaveStore.SetString(LocalKeyPref, k); SaveStore.Save(); }

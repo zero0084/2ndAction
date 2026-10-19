@@ -18,7 +18,7 @@ public class NetDebugUI : MonoBehaviour
     public static bool BlocksHomeInput => PanelOpen || (instance != null && instance.BannerVisible);
     // 2026-10-01: ホームの「マルチ」ボタンはGameManagerが右上(所持MILEの下、設定の隣)に描き、ここを開く。
     public static string HomeButtonLabel => NetSession.IsActive ? $"マルチ {NetSession.ConnectedPlayerCount}/{NetSession.MaxPlayers}" : "マルチ";
-    public static void OpenPanel() { if (!(instance != null && instance.BannerVisible)) PanelOpen = true; }
+    public static void OpenPanel() { if (!(instance != null && instance.BannerVisible)) PanelOpen = true; LanSecurity.Prewarm(); } // 2026-10-19: LOCAL の暗号化の証明書を先に作る
     public static void ClosePanel() { PanelOpen = false; }
 
     string hostIpInput = "";

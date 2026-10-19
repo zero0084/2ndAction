@@ -30,8 +30,8 @@ public class LanRoom
 
 public class LanDiscovery : MonoBehaviour
 {
-    public const int MultiplayerProtocolVersion = 8;   // 2026-10-16: 8 = 協力のラッシュの完走報酬を参加者全員へ(SyncRushReward)。2026-10-15: 7 = WANTED の Lv(NetPlayer)と賞金首の印(OpWanted)・協力のボスラッシュ。6 = 撃破の知らせに WANTED の賞金
-    public const int PreviousProtocolVersion = 7;   // 2026-10-12: 4 = 位置/敵の状態を詰めた形・位置の中継を送り先ごとに1件へまとめる(3: 中継を HOST が送り先ごとに行う)
+    public const int MultiplayerProtocolVersion = 9;   // 2026-10-19: 9 = LOCAL の通信を DTLS で暗号化(LanSecurity)・部屋の案内に HOST の証明書・部屋の名前は汎用(ROOM xxxx)。2026-10-16: 8 = 協力のラッシュの完走報酬を参加者全員へ(SyncRushReward)。2026-10-15: 7 = WANTED の Lv(NetPlayer)と賞金首の印(OpWanted)・協力のボスラッシュ。6 = 撃破の知らせに WANTED の賞金
+    public const int PreviousProtocolVersion = 8;   // 2026-10-12: 4 = 位置/敵の状態を詰めた形・位置の中継を送り先ごとに1件へまとめる(3: 中継を HOST が送り先ごとに行う)
     //   // 2026-10-08: 2 = コードネーム(NetPlayer.CodenameVar)を追加   // 部屋の知らせ+ゲームの同期の版(違えば一覧で VERSION MISMATCH、接続も断る)
     // 知らせに載せる版(開発ビルドだけ -lanProtocol N で変えて、版違いの表示を確かめられる)
     public static int AdvertisedProtocol
@@ -70,7 +70,7 @@ public class LanDiscovery : MonoBehaviour
 
     Socket sock;
     float advTimer, probeTimer, pollTimer;
-    readonly byte[] buf = new byte[1024];
+    readonly byte[] buf = new byte[4096]; // 2026-10-19: 案内に HOST の証明書(約1.1KB)が入る
 
     public static void Ensure(GameObject host)
     {
@@ -79,12 +79,15 @@ public class LanDiscovery : MonoBehaviour
 
     void Awake() { Instance = this; }
 
-    // 2026-10-08: コードネームがあればそれを使う。無ければ "PLAYER"(端末名には本名が入っていることがあるので使わない)
+    // 2026-10-19: 部屋の名前は個人の情報を含まない汎用の名前「ROOM xxxx」(xxxx = 部屋ごとの番号)。
+    // 以前はコードネーム+'s Room で、暗号化していない案内として LAN の全員へ1秒ごとに流れていた(ONLINE の公開の部屋一覧にも)。
+    // コードネームは、つないだ後の暗号化した通信の中だけで送る(NetPlayer.CodenameVar)
+    static string shortCode;
     static string DefaultRoomName()
     {
-        string who = Codename.Current;
-        if (string.IsNullOrEmpty(who)) who = "PLAYER";
-        return who + "'s Room";
+        if (!string.IsNullOrEmpty(RoomId)) return "ROOM " + RoomId.Substring(0, 4).ToUpperInvariant();
+        if (string.IsNullOrEmpty(shortCode)) shortCode = Guid.NewGuid().ToString("N").Substring(0, 4).ToUpperInvariant();
+        return "ROOM " + shortCode;
     }
 
     // ---- HOST ----
@@ -92,6 +95,7 @@ public class LanDiscovery : MonoBehaviour
     {
         if (Instance == null) return;
         if (string.IsNullOrEmpty(RoomId)) RoomId = Guid.NewGuid().ToString("N").Substring(0, 8);
+        LanSecurity.Prewarm();
         if (!Advertising) Debug.Log($"[LAN] Advertising room {RoomId} '{RoomName}' {NetRunLauncher.SelectedMode} port {NetSession.Instance?.LastPort}");
         Advertising = true;
         Instance.advTimer = 0f;
@@ -141,7 +145,7 @@ public class LanDiscovery : MonoBehaviour
     // 必要な時だけソケット/MulticastLock を持つ
     void Refresh()
     {
-        bool need = Advertising || Discovering;
+        bool need = Advertising || Discovering || Time.unscaledTime < fetchUntil;
         if (need && sock == null) Open();
         else if (!need && sock != null) Close();
         LanMulticastLock.Set(need);
@@ -192,6 +196,7 @@ public class LanDiscovery : MonoBehaviour
     {
         if (sock == null) return;
         float dt = Time.unscaledDeltaTime;
+        if (fetchUntil > 0f && Time.unscaledTime >= fetchUntil) { fetchUntil = 0f; Refresh(); if (sock == null) return; }
         if (Advertising)
         {
             advTimer -= dt;
@@ -236,19 +241,41 @@ public class LanDiscovery : MonoBehaviour
                 if (Advertising) SendTo(Encode(), (IPEndPoint)from);
                 continue;
             }
-            if (Discovering && msg.StartsWith(Magic + "|")) OnRoomPacket(msg, ip);
+            if ((Discovering || fetchUntil > 0f) && msg.StartsWith(Magic + "|")) OnRoomPacket(msg, ip);
         }
     }
 
-    // OMMLAN|v|roomId|mode|players|max|inProgress|port|gameVersion|name
+    // 版9〜: OMMLAN|v|roomId|mode|players|max|inProgress|port|gameVersion|cert|name(cert = HOST の証明書の base64。秘密鍵は入れない)
+    // 版8まで: OMMLAN|v|roomId|mode|players|max|inProgress|port|gameVersion|name
     byte[] Encode()
     {
         var ns = NetSession.Instance;
         int players = Mathf.Max(1, NetSession.ConnectedPlayerCount);
         bool inProgress = NetRunLauncher.IsMultiplayerRun || NetRunLauncher.RunState != NetRunState.None;
         string name = RoomName.Replace("|", "/");
-        string s = $"{Magic}|{AdvertisedProtocol}|{RoomId}|{(int)NetRunLauncher.SelectedMode}|{players}|{NetSession.MaxPlayers}|{(inProgress ? 1 : 0)}|{(ns != null ? ns.LastPort : NetSession.DefaultPort)}|{Application.version}|{name}";
+        string cert = LanSecurity.Enabled ? LanSecurity.HostCertB64 : "-";
+        string s = $"{Magic}|{AdvertisedProtocol}|{RoomId}|{(int)NetRunLauncher.SelectedMode}|{players}|{NetSession.MaxPlayers}|{(inProgress ? 1 : 0)}|{(ns != null ? ns.LastPort : NetSession.DefaultPort)}|{Application.version}|{cert}|{name}";
         return Encoding.UTF8.GetBytes(s);
+    }
+
+    // IP を直接入れて参加する時(開発用の ADVANCED / 自動テスト): その HOST へ直接問い合わせて、部屋の案内(証明書)を受け取る
+    float fetchUntil;
+    string fetchIp;
+    public static void RequestRoomInfo(string ip, float seconds = 3f)
+    {
+        if (Instance == null || string.IsNullOrEmpty(ip)) return;
+        Instance.fetchUntil = Time.unscaledTime + seconds;
+        Instance.fetchIp = ip;
+        Instance.Refresh();
+        if (Instance.sock == null) return;
+        byte[] probe = Encoding.UTF8.GetBytes(Magic + "?|" + MultiplayerProtocolVersion);
+        try
+        {
+            if (IPAddress.TryParse(ip, out var addr)) { Instance.sock.SendTo(probe, new IPEndPoint(addr, DiscoveryPort)); PacketsSent++; }
+        }
+        catch (Exception e) { Debug.LogWarning("[LAN] room info request failed: " + e.Message); }
+        // 同じ端末の HOST(127.0.0.1)へは、同じポートを持つ自分のソケットが受け取ってしまうことがあるので、一斉送信でも尋ねる
+        if (IPAddress.TryParse(ip, out var a2) && IPAddress.IsLoopback(a2)) Instance.Broadcast(probe, "room info");
     }
 
     void OnRoomPacket(string msg, string ip)
@@ -260,7 +287,19 @@ public class LanDiscovery : MonoBehaviour
         if (id == RoomId && Advertising) return; // 自分の部屋
         int.TryParse(p[3], out int mode); int.TryParse(p[4], out int players); int.TryParse(p[5], out int max);
         ushort.TryParse(p[7], out ushort port);
-        string name = string.Join("|", p, 9, p.Length - 9);
+        int nameAt = 9;
+        if (ver >= 9 && p.Length >= 11)
+        {
+            nameAt = 10;
+            if (p[9] != "-")
+            {
+                LanSecurity.RememberHostCert(ip, p[9]);
+                // 同じ端末の HOST へ IP(127.0.0.1)で参加する時: 返事は端末の LAN の IP から届くので、尋ねた宛先の証明書としても覚える
+                if (fetchUntil > 0f && !string.IsNullOrEmpty(fetchIp) && fetchIp != ip && IPAddress.TryParse(fetchIp, out var fa) && IPAddress.IsLoopback(fa))
+                    LanSecurity.RememberHostCert(fetchIp, p[9]);
+            }
+        }
+        string name = string.Join("|", p, nameAt, p.Length - nameAt);
         var r = Rooms.Find(x => x.roomId == id);
         bool isNew = r == null;
         if (isNew) { r = new LanRoom { roomId = id }; Rooms.Add(r); }

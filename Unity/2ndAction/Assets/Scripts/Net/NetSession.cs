@@ -128,11 +128,17 @@ public class NetSession : MonoBehaviour
         nm.OnClientDisconnectCallback += OnClientDisconnected;
         nm.OnTransportFailure += OnTransportFailure;
         Manager = nm;
+        LanSecurity.Prewarm(); // 2026-10-19: LOCAL の暗号化の証明書を先に作っておく(鍵の生成に 0.5〜4秒かかる)
         return nm;
     }
 
-    void ConfigureTransport(string address, ushort port, string listenAddress)
+    // 2026-10-19: LOCAL の通信は DTLS で暗号化(LanSecurity)。HOST は自分の証明書と秘密鍵、JOIN は部屋の案内で受け取った HOST の証明書。
+    // 準備できない時は false(暗号化なしの通信には戻さない)
+    bool ConfigureTransport(string address, ushort port, string listenAddress)
     {
+        bool hosting = listenAddress != null;
+        bool secured = hosting ? LanSecurity.ApplyServer(transport) : LanSecurity.ApplyClient(transport, address);
+        if (!secured) return false;
         // 接続試行は1秒×10回(=約10秒で諦める)、無通信8秒で切断扱い。
         transport.ConnectTimeoutMS = 1000;
         transport.MaxConnectAttempts = 10;
@@ -142,6 +148,8 @@ public class NetSession : MonoBehaviour
         Connection = ConnectionType.Local;
         NetLatencySim.Apply(Manager.gameObject);
         NetStats.ResetSessionPing();
+        Debug.Log($"[LAN] secure transport {(LanSecurity.Enabled ? "DTLS" : "PLAIN(dev)")} {(hosting ? "host" : "client")} cert {LanSecurity.Fingerprint(hosting ? LanSecurity.HostCertB64 : null)}");
+        return true;
     }
 
     // ---- ONLINE PLAY(2026-10-07): Relay の接続先で HOST/Client を始める。版の照合/満員/途中参加の拒否/切断の処理は LOCAL と同じ
@@ -151,6 +159,7 @@ public class NetSession : MonoBehaviour
         transport.ConnectTimeoutMS = 1000;
         transport.MaxConnectAttempts = 15;
         transport.DisconnectTimeoutMS = 10000;
+        transport.UseEncryption = false; // 2026-10-19: LOCAL 用の証明書の設定を残さない(Relay の暗号化は Relay の接続情報 = DTLS が受け持つ。今までと同じ)
         transport.SetRelayServerData(data);
         // 版 + UGS の PlayerId(公開の識別子で秘密ではない)。HOST が切断した JOIN を Session から外すのに使う
         Manager.NetworkConfig.ConnectionData = Encoding.UTF8.GetBytes(ProtocolVersion + "|" + OnlineServices.PlayerId);
@@ -211,7 +220,12 @@ public class NetSession : MonoBehaviour
         ClearConnectionLost();
         LastPort = port;
         // 0.0.0.0で待ち受け - 同じWi-Fi/テザリング内の他端末から接続できる。
-        ConfigureTransport("127.0.0.1", port, "0.0.0.0");
+        if (!ConfigureTransport("127.0.0.1", port, "0.0.0.0"))
+        {
+            Log("Host start failed (secure setup: " + LanSecurity.LastError + ")");
+            StatusText = Loc.Reviewed("安全な通信を準備できなかったため、部屋を作成できませんでした", "部屋を作成できませんでした(他のアプリが通信を使用中の可能性)");
+            return false;
+        }
         Application.runInBackground = true;
         bool ok = nm.StartHost();
         if (!ok)
@@ -238,7 +252,18 @@ public class NetSession : MonoBehaviour
         ClearConnectionLost();
         LastHostAddress = hostAddress;
         LastPort = port;
-        ConfigureTransport(hostAddress, port, null);
+        if (!LanSecurity.HasHostCert(hostAddress) && LanSecurity.Enabled)
+        {
+            // IP を直接入れた時: 先にその HOST から部屋の案内(証明書)をもらってから接続する(最大6秒)
+            StartCoroutine(FetchCertThenJoin(hostAddress, port));
+            return true;
+        }
+        if (!ConfigureTransport(hostAddress, port, null))
+        {
+            StatusText = "JOINを開始できませんでした";
+            LastJoinFailure = "CONNECTION FAILED";
+            return false;
+        }
         Application.runInBackground = true;
         Log($"Client connecting to {hostAddress}:{port}");
         StatusText = $"接続中… {hostAddress}:{port}";
@@ -252,6 +277,30 @@ public class NetSession : MonoBehaviour
             Debug.Log($"[LAN] Join failed {hostAddress}:{port} (client start failed)");
         }
         return ok;
+    }
+
+    System.Collections.IEnumerator FetchCertThenJoin(string hostAddress, ushort port)
+    {
+        StatusText = $"接続中… {hostAddress}:{port}";
+        JoinPending = true; LastJoinFailure = "";
+        LanDiscovery.RequestRoomInfo(hostAddress, 6f);
+        float t = 0f, resend = 0.5f;
+        while (!LanSecurity.HasHostCert(hostAddress) && t < 6f)
+        {
+            t += Time.unscaledDeltaTime; resend -= Time.unscaledDeltaTime;
+            if (resend <= 0f) { resend = 0.5f; LanDiscovery.RequestRoomInfo(hostAddress, 6f - t); }
+            yield return null;
+        }
+        JoinPending = false;
+        if (!LanSecurity.HasHostCert(hostAddress))
+        {
+            Log($"Join failed {hostAddress}:{port} (no room info / certificate)");
+            StatusText = "JOINを開始できませんでした";
+            LastJoinFailure = "CONNECTION FAILED";
+            Debug.Log($"[LAN] Join failed {hostAddress}:{port} (no room info)");
+            yield break;
+        }
+        StartClient(hostAddress, port);
     }
 
     // 自分から切断する(HOSTならセッション終了)。

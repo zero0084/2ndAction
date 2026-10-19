@@ -78,7 +78,7 @@ public static class UiInputGate
     static bool latch;
     public static bool SprintPanelOpen; // 疾走出発の行き先パネル(2026-10-05)
     public static bool SupportPanelOpen; // CPU サポートの仲間選び(2026-10-14)
-    public static bool ModalOpen => SettingsPanel.IsVisible || DebugPanelOpen || SprintPanelOpen || SupportPanelOpen || SaveTransferUi.IsOpen || TutorialRun.PanelOpen || FirstRunGuide.Open || NoticeQueue.Open || RankingPanel.IsOpen || AdManager.Showing || MonetizationUi.Open || LoadingScreen.BlocksInput; // 練習の説明/初回の案内(2026-10-07)、広告の表示中/広告なしパスの画面(2026-10-10)
+    public static bool ModalOpen => SettingsPanel.IsVisible || DebugPanelOpen || SprintPanelOpen || SupportPanelOpen || SaveTransferUi.IsOpen || TutorialRun.PanelOpen || FirstRunGuide.Open || NoticeQueue.Open || RankingPanel.IsOpen || AdManager.Showing || MonetizationUi.Open || DataDeletionUi.IsOpen || LoadingScreen.BlocksInput; // 練習の説明/初回の案内(2026-10-07)、広告の表示中/広告なしパスの画面(2026-10-10)
 
     // パネルを閉じた: 今押している指が離れるまで背後へ通さない
     public static void LatchUntilRelease() { latch = true; }
@@ -125,16 +125,22 @@ public static class UiKit
     // 既存の DrawStyledButton と同じ見た目(濃紺/金枠)。押されたら true。
     // 2026-10-09(依頼G-2): 状態の見分け 通常 / 選択中(primary: 金の縁+淡い金) / 押している間(暗く+文字が少し沈む) / 使用不可(薄く+灰の文字)
     public static bool Button(Rect r, string text, float size, bool primary = false, bool ornate = true, bool enabled = true)
+        => ButtonCore(r, text, size, primary, ornate, enabled, primary && !ornate, 0f);
+
+    // ボタンの本体(2026-10-19: GameManager.DrawStyledButton もここを通す。以前は2つのほぼ同じ描き方で、文字の金/板の濃さが少しずつ違った)
+    //  showSelected: 選択中の上塗り(金の太い縁)を出すか / flashAlpha: 一瞬光らせる(押せるようになった時など)
+    public static bool ButtonCore(Rect r, string text, float size, bool primary, bool ornate, bool enabled, bool showSelected, float flashAlpha)
     {
         Color keep = GUI.color;
         if (!enabled) GUI.color = new Color(keep.r, keep.g, keep.b, keep.a * 0.45f);
         if (ornate) OrnateUi.DrawPanel(r, primary ? 0.9f : 0.7f);
         else UiBackdrop.Draw(r, primary ? 0.85f : 0.6f);
-        bool pressed = ButtonStateOverlay(r, primary && !ornate, enabled);
+        bool pressed = ButtonStateOverlay(r, showSelected, enabled);
         if (centered == null) centered = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold, wordWrap = false };
         centered.fontSize = Mathf.RoundToInt(size);
-        centered.normal.textColor = !enabled ? new Color(0.62f, 0.64f, 0.7f) : primary ? new Color(1f, 0.9f, 0.6f) : Color.white;
+        centered.normal.textColor = !enabled ? UiTheme.Disabled : primary ? UiTheme.GoldText : UiTheme.Text;
         LocGUI.Label(pressed ? new Rect(r.x, r.y + 2f, r.width, r.height) : r, text, centered);
+        if (flashAlpha > 0.001f) Fill(r, new Color(1f, 0.95f, 0.8f, flashAlpha * 0.5f));
         GUI.color = keep;
         bool pad = enabled && PadNav.Button(r); // ゲームパッド/キーボードの決定(2026-10-06)
         return (GUI.Button(r, GUIContent.none, GUIStyle.none) && enabled) || pad;
@@ -180,6 +186,7 @@ public static class UiKit
             Fill(new Rect(r.x, r.y, t, r.height), g); Fill(new Rect(r.xMax - t, r.y, t, r.height), g);
         }
         bool pressed = enabled && GUI.enabled && Input.GetMouseButton(0) && r.Contains(e.mousePosition) && !UiInputGate.Blocked;
+        // (選択中の金は UiTheme.GoldBright。上の値はそれと同じ)
         if (pressed) Fill(new Rect(r.x + 2f, r.y + 2f, r.width - 4f, r.height - 4f), new Color(0f, 0f, 0.02f, 0.32f));
         return pressed;
     }

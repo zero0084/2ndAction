@@ -1,0 +1,10 @@
+<!-- 2026-10-19 LOCAL PLAY の暗号化(LanSecurity): HOST の証明書を作る .NET の暗号の型を、IL2CPP のコードの削り(Managed Stripping)で消さない -->
+<linker>
+  <assembly fullname="System">
+    <namespace fullname="System.Security.Cryptography.X509Certificates" preserve="all"/>
+    <namespace fullname="System.Security.Cryptography" preserve="all"/>
+  </assembly>
+  <assembly fullname="mscorlib">
+    <namespace fullname="System.Security.Cryptography" preserve="all"/>
+  </assembly>
+</linker>

@@ -47,6 +47,45 @@ public static class OnlineServices
     static void Log(string m) => Debug.Log("[ONLINE] " + m);
 
     // ---------------------------------------------------------------- 初期化 + 匿名サインイン
+    // 2026-10-19: 初期化だけ(サインインしない = 新しい匿名アカウントを作らない)。データの削除の画面で「この端末にアカウントがあるか」を見るのに使う
+    public static async Task<bool> InitializeServicesAsync()
+    {
+        if (UnityServices.State == ServicesInitializationState.Initialized) return initializedHere;
+        if (Status == State.Initializing) { while (Status == State.Initializing) await Task.Yield(); return UnityServices.State == ServicesInitializationState.Initialized && initializedHere; }
+        try { return await InitCoreAsync(); }
+        catch (Exception e) { Fail("init", e); return false; }
+    }
+
+    // この端末に匿名アカウント(サインインの記録)があるか。初期化の後だけ正しい
+    public static bool HasStoredAccount => UnityServices.State == ServicesInitializationState.Initialized && initializedHere
+        && (AuthenticationService.Instance.IsSignedIn || AuthenticationService.Instance.SessionTokenExists);
+
+    // 2026-10-19: アカウントを削除した後。次にオンラインを使う時に、新しい匿名アカウントでサインインし直す
+    public static void ForgetAfterDeletion() { Status = State.Off; ErrorText = ""; ErrorDetail = ""; }
+
+    static async Task<bool> InitCoreAsync()
+    {
+        if (UnityServices.State != ServicesInitializationState.Initialized)
+        {
+            string profile = ProfileFromArgs();
+            Log($"UGS Initialize ({UgsEnvironment.Describe()}{(profile != null ? ", profile " + profile : "")})");
+            var opt = new InitializationOptions().SetEnvironmentName(EnvironmentName);
+            if (profile != null) opt.SetProfile(profile); // 開発版: 同じ PC の2つ目のプロセスを別の匿名プレイヤーにする(サインインの記録はプロフィールごと)
+            await UnityServices.InitializeAsync(opt);
+            initializedHere = true;
+            return true;
+        }
+        if (!initializedHere)
+        {
+            // 他の所が先に(環境を指定せずに)初期化した = どの環境か確かめられない → 使わない(production に書くおそれがある)
+            Status = State.Unavailable; ErrorText = "ONLINE SERVICE UNAVAILABLE";
+            ErrorDetail = "Unity Services were initialized elsewhere; the environment cannot be confirmed";
+            Debug.LogWarning("[ONLINE] " + ErrorDetail + " (not used)");
+            return false;
+        }
+        return true;
+    }
+
     public static async Task<bool> EnsureReadyAsync()
     {
         if (Status == State.Ready && UnityServices.State == ServicesInitializationState.Initialized && AuthenticationService.Instance.IsSignedIn) return true;
@@ -54,23 +93,7 @@ public static class OnlineServices
         Status = State.Initializing; ErrorText = ""; ErrorDetail = "";
         try
         {
-            if (UnityServices.State != ServicesInitializationState.Initialized)
-            {
-                string profile = ProfileFromArgs();
-                Log($"UGS Initialize ({UgsEnvironment.Describe()}{(profile != null ? ", profile " + profile : "")})");
-                var opt = new InitializationOptions().SetEnvironmentName(EnvironmentName);
-                if (profile != null) opt.SetProfile(profile); // 開発版: 同じ PC の2つ目のプロセスを別の匿名プレイヤーにする(サインインの記録はプロフィールごと)
-                await UnityServices.InitializeAsync(opt);
-                initializedHere = true;
-            }
-            else if (!initializedHere)
-            {
-                // 他の所が先に(環境を指定せずに)初期化した = どの環境か確かめられない → 使わない(production に書くおそれがある)
-                Status = State.Unavailable; ErrorText = "ONLINE SERVICE UNAVAILABLE";
-                ErrorDetail = "Unity Services were initialized elsewhere; the environment cannot be confirmed";
-                Debug.LogWarning("[ONLINE] " + ErrorDetail + " (not used)");
-                return false;
-            }
+            if (!await InitCoreAsync()) return false;
             if (!AuthenticationService.Instance.IsSignedIn)
             {
                 await AuthenticationService.Instance.SignInAnonymouslyAsync();
