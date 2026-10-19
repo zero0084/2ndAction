@@ -124,10 +124,14 @@ public class DeckEditUI : MonoBehaviour
     public RectTransform recommendButtonRect;
     public RectTransform clearButtonRect;
     public ConfirmDialogUI confirmDialog;
-    static readonly string[] FilterNames = { "ALL", "ATTACK", "DEFENSE", "SUPPORT", "SPECIAL" };
-    static readonly Color FilterActiveColor = new Color(0.83f, 0.68f, 0.32f, 0.95f);
+    // 2026-10-19 見た目の完成度向上: 絞り込みを今のカードの種類7つ+全て に(以前は古い分け方 ALL/ATTACK/DEFENSE/SUPPORT/SPECIAL の文字だけ)。
+    // タブは種類のアイコン(Resources/CardCategoryIcons、カードの左上と同じ絵)。作り直しは画面を開く時(EnsureCategoryTabs)
+    static readonly string[] FilterNames = { "ALL", "Movement", "Attack", "Defense", "Growth", "Heal", "Special", "Risk" };
+    static readonly Color FilterActiveColor = new Color(UiTheme.GoldEdge.r, UiTheme.GoldEdge.g, UiTheme.GoldEdge.b, 0.95f);
     static readonly Color FilterInactiveColor = new Color(0.08f, 0.09f, 0.16f, 0.85f);
     static readonly Color FilterActiveTextColor = new Color(0.08f, 0.06f, 0.02f);
+    Image[] filterIcons = new Image[0];
+    bool categoryTabsBuilt;
     string activeFilter = "ALL";
 
     // Maps the reference mockup's 5 filter buckets onto the existing
@@ -137,14 +141,59 @@ public class DeckEditUI : MonoBehaviour
     // "don't invent fields just for this screen" instruction.
     static bool MatchesFilter(CardCategory category, string filter)
     {
-        switch (filter)
+        if (string.IsNullOrEmpty(filter) || filter == "ALL") return true;
+        return category.ToString() == filter;
+    }
+
+    // シーンに作ってある5つのタブの並びの場所に、8つのタブ(全て+7種類)を作り直す。アイコンが無い時は種類の名前の文字
+    void EnsureCategoryTabs()
+    {
+        if (categoryTabsBuilt || filterButtonRects == null || filterButtonRects.Length == 0 || filterButtonRects[0] == null) return;
+        categoryTabsBuilt = true;
+        RectTransform first = filterButtonRects[0], last = filterButtonRects[filterButtonRects.Length - 1];
+        if (last == null) last = first;
+        Transform parent = first.parent;
+        float x0 = first.anchoredPosition.x, x1 = last.anchoredPosition.x + last.sizeDelta.x, y = first.anchoredPosition.y, h = first.sizeDelta.y;
+        Font font = filterButtonLabels.Length > 0 && filterButtonLabels[0] != null ? filterButtonLabels[0].font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        foreach (var r in filterButtonRects) if (r != null) r.gameObject.SetActive(false);
+        int n = FilterNames.Length;
+        const float spacing = 4f;
+        float w = (x1 - x0 - spacing * (n - 1)) / n;
+        var rects = new RectTransform[n]; var bgs = new Image[n]; var labels = new Text[n]; filterIcons = new Image[n];
+        for (int i = 0; i < n; i++)
         {
-            case "ATTACK": return category == CardCategory.Attack;
-            case "DEFENSE": return category == CardCategory.Defense;
-            case "SUPPORT": return category == CardCategory.Movement || category == CardCategory.Growth || category == CardCategory.Heal;
-            case "SPECIAL": return category == CardCategory.Special || category == CardCategory.Risk;
-            default: return true; // "ALL"
+            var go = new GameObject("FilterTab_" + FilterNames[i]);
+            go.transform.SetParent(parent, false);
+            var rt = go.AddComponent<RectTransform>();
+            rt.anchorMin = first.anchorMin; rt.anchorMax = first.anchorMax; rt.pivot = first.pivot;
+            rt.sizeDelta = new Vector2(w, h);
+            rt.anchoredPosition = new Vector2(x0 + i * (w + spacing), y);
+            var bg = go.AddComponent<Image>();
+            bg.color = FilterInactiveColor; bg.raycastTarget = false;
+            var lgo = new GameObject("Label");
+            lgo.transform.SetParent(go.transform, false);
+            var lr = lgo.AddComponent<RectTransform>();
+            lr.anchorMin = Vector2.zero; lr.anchorMax = Vector2.one; lr.offsetMin = lr.offsetMax = Vector2.zero;
+            var txt = lgo.AddComponent<Text>();
+            txt.font = font; txt.fontStyle = FontStyle.Bold; txt.alignment = TextAnchor.MiddleCenter; txt.raycastTarget = false;
+            txt.resizeTextForBestFit = true; txt.resizeTextMinSize = 8; txt.resizeTextMaxSize = 14;
+            Sprite icon = i == 0 ? null : CardCategoryIcons.GetIcon((CardCategory)System.Enum.Parse(typeof(CardCategory), FilterNames[i]));
+            if (icon != null)
+            {
+                var igo = new GameObject("Icon");
+                igo.transform.SetParent(go.transform, false);
+                var ir = igo.AddComponent<RectTransform>();
+                float s = Mathf.Min(w, h) - 6f;
+                ir.anchorMin = ir.anchorMax = new Vector2(0.5f, 0.5f); ir.sizeDelta = new Vector2(s, s); ir.anchoredPosition = Vector2.zero;
+                var img = igo.AddComponent<Image>();
+                img.sprite = icon; img.preserveAspect = true; img.raycastTarget = false;
+                filterIcons[i] = img;
+                txt.text = "";
+            }
+            else txt.text = i == 0 ? "ALL" : FilterNames[i]; // 「ALL」は今までどおり(訳の無い新しい文を増やさない)
+            rects[i] = rt; bgs[i] = bg; labels[i] = txt;
         }
+        filterButtonRects = rects; filterButtonBackgrounds = bgs; filterButtonLabels = labels;
     }
 
     void RefreshFilterHighlight()
@@ -154,6 +203,8 @@ public class DeckEditUI : MonoBehaviour
             bool active = FilterNames[i] == activeFilter;
             if (filterButtonBackgrounds[i] != null) filterButtonBackgrounds[i].color = active ? FilterActiveColor : FilterInactiveColor;
             if (i < filterButtonLabels.Length && filterButtonLabels[i] != null) filterButtonLabels[i].color = active ? FilterActiveTextColor : Color.white;
+            // 選ばれていない種類のアイコンは少し暗く(選んだ種類がひと目で分かる)
+            if (i < filterIcons.Length && filterIcons[i] != null) filterIcons[i].color = active ? Color.white : new Color(0.72f, 0.72f, 0.78f, 0.9f);
         }
     }
 
@@ -234,6 +285,7 @@ public class DeckEditUI : MonoBehaviour
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.DeckEdit);
         if (root != null) root.SetActive(true);
         ResetDetail();
+        EnsureCategoryTabs();
         activeFilter = "ALL";
         pendingEquipSlot = -1;
         RefreshFilterHighlight();

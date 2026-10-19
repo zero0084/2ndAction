@@ -8,13 +8,26 @@ public class BossAnimImporter : AssetPostprocessor
 {
     const string Dir = "Assets/Resources/BossAnim/";
 
+    // 2026-10-19: 待機の絵の PPU がボスごとに違う(死神三姉妹は 512)。同じフォルダに ppu.txt(数字だけ)があればその値。無ければ 100
+    // (ppu.txt を後から変えた時は、そのフォルダの絵を Reimport する)
+    static float FolderPpu(string path)
+    {
+        try
+        {
+            string f = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), "ppu.txt");
+            if (System.IO.File.Exists(f) && float.TryParse(System.IO.File.ReadAllText(f).Trim(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float v) && v > 1f) return v;
+        }
+        catch { }
+        return 100f;
+    }
+
     void OnPreprocessTexture()
     {
         if (!assetPath.Replace('\\', '/').StartsWith(Dir)) return;
         var ti = (TextureImporter)assetImporter;
         ti.textureType = TextureImporterType.Sprite;
         ti.spriteImportMode = SpriteImportMode.Single;
-        ti.spritePixelsPerUnit = 100f;
+        ti.spritePixelsPerUnit = FolderPpu(assetPath);
         ti.mipmapEnabled = false;
         ti.npotScale = TextureImporterNPOTScale.None;
         ti.alphaIsTransparency = true;

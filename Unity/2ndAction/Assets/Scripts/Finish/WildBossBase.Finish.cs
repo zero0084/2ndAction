@@ -19,7 +19,8 @@ public abstract partial class WildBossBase : IBossDeathBody
     public float DeathBodyHeight => bodyHeight;
     public BossRig DeathRig => rig;
     // アニメーション強化(2026-10-17): 撃破の絵(Resources/BossAnim/<key>/defeat_*)。0 = 吹き飛ぶ、1〜 = 倒れ込む → 横たわる。無ければ null
-    public Sprite[] DeathFrames => Anim != null ? Anim.defeat : null;
+    // 撃破のコマ(0 = 吹き飛ぶ/崩れ始め、1〜 = 倒れ込む → 動かなくなる)。姿勢の絵を自前で持つボス(メカドラゴン)は上書きする
+    public virtual Sprite[] DeathFrames => Anim != null ? Anim.defeat : null;
     public string DeathKey => this is ReaperSisterBoss ? "Reaper" : (this is CaveBossBase ? "Cave/" : this is SkyBossBase ? "Sky/" : "Wild/") + bossName;
     public void SetDeathColor(Color c) => SetVisualColor(c);
     public void OnDeathVisualFinished()

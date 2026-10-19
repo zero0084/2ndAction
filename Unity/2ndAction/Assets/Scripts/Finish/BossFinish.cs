@@ -489,6 +489,7 @@ public class BossFinish : MonoBehaviour
                 break;
             }
         }
+        if (entry.profile != BossDeathProfile.Beast) DefeatArtOther(p, ground);
         // ボス固有の上乗せ(プロファイル共通の上に)
         if (entry.specialFx == BossDeathFx.Lightning && p > 0.55f && p < 0.85f)
         {
@@ -501,6 +502,29 @@ public class BossFinish : MonoBehaviour
                 FinishFx.Flash(w, h * 0.5f, new Color(0.8f, 0.9f, 1f, 0.8f), 0.15f);
             }
         }
+    }
+
+    // 2026-10-19 見た目の完成度向上: 撃破のコマを獣以外の倒れ方でも使う(以前は獣だけ。人型/飛行/ゴーレム/蛇/巨人は絵を足しても出なかった)。
+    //  絵が倒れ込む姿を描いているので、手続きの縦つぶし/大きな傾きは弱める(二重に倒れて見えない)。
+    //  人型/ゴーレム/蛇/巨人: 進み 0.05〜0.6 で 0 → 最後のコマへ(最後で止まる)
+    //  飛行: 墜落するまで 0(吹き飛ぶ)、地面へ落ちてから 0.2 の間に 1〜最後へ
+    void DefeatArtOther(float p, float ground)
+    {
+        if (defeatArt == null || rig == null) return;
+        int n = defeatArt.Length, k;
+        if (entry.profile == BossDeathProfile.Flying)
+        {
+            if (!impactDone || n == 1) k = 0;
+            else k = Mathf.Clamp(1 + Mathf.FloorToInt(Mathf.InverseLerp(crashP, crashP + 0.2f, p) * (n - 1)), 1, n - 1);
+            rot = Mathf.Clamp(rot, -20f, 20f);
+        }
+        else
+        {
+            k = Mathf.Clamp(Mathf.FloorToInt(Mathf.InverseLerp(0.05f, 0.6f, p) * n), 0, n - 1);
+            rot = Mathf.Clamp(rot, -8f, 8f);
+            if (sy < 1f) { sy = Mathf.Lerp(sy, 1f, 0.75f); oc.y = Mathf.Max(oc.y, ground + h * 0.5f * sy); }
+        }
+        rig.SetSprite(defeatArt[k]);
     }
 
     // 体が光の粒になって消える(セルごとに少しずつ / セルが無ければ全体)

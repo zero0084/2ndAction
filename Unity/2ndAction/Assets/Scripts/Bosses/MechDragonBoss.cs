@@ -52,6 +52,18 @@ public partial class MechDragonBoss : SkyBossBase
     }
 
     static Sprite Art(string n) => n != null && art != null && art.TryGetValue(n, out var s) ? s : null;
+    // 2026-10-19: 撃破の絵(defeat → defeat2)。以前は撃破の後に姿勢の切り替えが止まるため、用意していた絵が出ていなかった
+    public override Sprite[] DeathFrames
+    {
+        get
+        {
+            Sprite a = Art("defeat"), b = Art("defeat2");
+            if (a == null && b == null) return base.DeathFrames;
+            if (a == null) return new[] { b };
+            if (b == null) return new[] { a };
+            return new[] { a, b };
+        }
+    }
 
     float deadAt = -1f, recoverUntil;
     bool wasBroken;

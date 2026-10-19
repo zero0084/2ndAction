@@ -14,8 +14,8 @@ public static class UiBackdrop
 {
     static Texture2D tex;
 
-    static readonly Color NavyFill = new Color(0.06f, 0.08f, 0.17f);
-    static readonly Color GoldEdge = new Color(0.83f, 0.68f, 0.32f);
+    static Color NavyFill => UiTheme.Navy;      // 2026-10-19: 色は UiTheme に集めた(値は同じ)
+    static Color GoldEdge => UiTheme.GoldEdge;
 
     static Texture2D Tex()
     {

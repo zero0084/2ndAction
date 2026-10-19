@@ -71,6 +71,9 @@ public class ReaperSisterBoss : WildBossBase
 
     protected override void OnInit()
     {
+        // 2026-10-19 見た目の完成度向上: 姿勢ごとのコマ(Resources/BossAnim/reaper_eldest|second|youngest/、ppu.txt=512、右向き)。
+        // 置いた姿勢だけ使い、無い姿勢は今までどおり(移動=moveFrames、溜め/攻撃=待機の絵)
+        animKey = "reaper_" + sister.ToString().ToLowerInvariant();
         if (data != null && data.moveFrames != null && data.moveFrames.Length > 0)
         {
             loopFrames = data.moveFrames;
@@ -170,6 +173,7 @@ public class ReaperSisterBoss : WildBossBase
     // ---- 長女 ----
     IEnumerator ScytheSweep(float windup)
     {
+        animVariant = 0; // コマ: 1つ目の技(windup/attack)
         yield return MoveToGap(3.4f, 3.5f, 3f);
         yield return Telegraph(windup, scytheMark);
         yield return Strike(scythe, 0.26f, 0.08f);
@@ -178,6 +182,7 @@ public class ReaperSisterBoss : WildBossBase
 
     IEnumerator StepAndSweep()
     {
+        animVariant = 0; // コマ: 1つ目の技(windup/attack)
         yield return MoveToGap(6.5f, 4f, 2.5f);
         yield return Telegraph(0.6f, scytheMark);
         yield return DashMove(0.25f, 12f); // 一歩で間合いを詰める
@@ -188,6 +193,7 @@ public class ReaperSisterBoss : WildBossBase
     // 地を這う斬撃: 地面に沿って進む紫の刃。跳んで越える(上攻撃/空中でも越えられる高さ)
     IEnumerator ReapingWave()
     {
+        animVariant = 1; // コマ: 2つ目の技(windupB/attackB)
         yield return MoveToGap(8.5f, 4f, 2.5f);
         yield return Telegraph(0.7f);
         PlayAttackPose(0.4f);
@@ -200,6 +206,7 @@ public class ReaperSisterBoss : WildBossBase
     // ---- 次女 ----
     IEnumerator DiveSlash()
     {
+        animVariant = 0; // コマ: 1つ目の技(windup/attack)
         bob = false;
         yield return SetAltitude(3.6f, 0.5f);
         yield return MoveToGap(3.0f, 5f, 2.5f);
@@ -215,6 +222,7 @@ public class ReaperSisterBoss : WildBossBase
 
     IEnumerator SoulOrbs()
     {
+        animVariant = 1; // コマ: 2つ目の技(windupB/attackB)
         yield return MoveToGap(9f, 4f, 2.5f);
         yield return Telegraph(0.55f);
         for (int i = 0; i < 3 && !IsDead; i++)
@@ -232,6 +240,7 @@ public class ReaperSisterBoss : WildBossBase
     // ---- 三女 ----
     IEnumerator HopSlam()
     {
+        animVariant = 0; // コマ: 1つ目の技(windup/attack)
         bob = false;
         yield return MoveToGap(7f, 4f, 2f);
         yield return Telegraph(0.5f, slamMark);
@@ -247,6 +256,7 @@ public class ReaperSisterBoss : WildBossBase
 
     IEnumerator SkipRush()
     {
+        animVariant = 0; // コマ: 1つ目の技(windup/attack)
         yield return MoveToGap(8f, 4f, 2f);
         yield return Telegraph(0.5f, spinMark);
         yield return DashMove(0.35f, 16f);
@@ -257,6 +267,7 @@ public class ReaperSisterBoss : WildBossBase
 
     IEnumerator SpinSlash()
     {
+        animVariant = 1; // コマ: 2つ目の技(windupB/attackB)
         yield return MoveToGap(3.2f, 4.5f, 2.5f);
         yield return Telegraph(0.55f, spinMark);
         yield return Strike(spin, 0.3f, 0.08f);

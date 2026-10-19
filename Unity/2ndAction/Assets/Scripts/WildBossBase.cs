@@ -481,6 +481,8 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
 
     // アニメーション強化(2026-10-17): 姿勢ごとのコマ(Resources/BossAnim/<animKey>/)。各ボスの OnInit で animKey を入れる。無ければ今までどおり
     protected string animKey;
+    // 2026-10-19: 技ごとの2つ目の溜め/攻撃のコマ(windupB/attackB)を使う時は 1。各技の始めで決める(無ければ1つ目のまま)
+    protected int animVariant;
     BossAnimSet anim; bool animLoaded;
     float hurtArtAt = -9f, hurtArtUntil = -9f;
     protected BossAnimSet Anim
@@ -507,8 +509,18 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         }
         switch (pose)
         {
-            case Pose.Windup: if (a.windup != null) return BossAnimSet.Progress(a.windup, windupProgress); break;
-            case Pose.Attack: if (a.attack != null) return BossAnimSet.Progress(a.attack, 1f - attackProgress); break;
+            case Pose.Windup:
+            {
+                var w = animVariant == 1 && a.windupB != null ? a.windupB : a.windup;
+                if (w != null) return BossAnimSet.Progress(w, windupProgress);
+                break;
+            }
+            case Pose.Attack:
+            {
+                var at = animVariant == 1 && a.attackB != null ? a.attackB : a.attack;
+                if (at != null) return BossAnimSet.Progress(at, 1f - attackProgress);
+                break;
+            }
             case Pose.Move:
             case Pose.Fly: if (a.HasMove) return BossAnimSet.Loop(a.move, a.moveFps, Time.time + loopTimeOffset); break;
             case Pose.Idle:
