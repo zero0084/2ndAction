@@ -80,13 +80,7 @@ public partial class QaSweep
             L($"[server] 3 {what}: {got}");
             Check(r != null && (r.status == "rejected" || r.status == "duplicate") && r.message == expect, $"3: the server rejects {what} ('{expect}')");
         }
-        Dictionary<string, object> Args(Leaderboard.Entry e, int party, string allies) => new Dictionary<string, object>
-        {
-            { "runId", e.runId }, { "stageId", e.stageId }, { "characterId", e.characterId }, { "meters", e.meters },
-            { "playSeconds", e.playSeconds }, { "sprintFrom", e.sprintFrom }, { "usedAuto", e.usedAuto }, { "usedSprint", e.usedSprint },
-            { "startedUtc", e.startedUtc }, { "committedUtc", e.committedUtc }, { "appVersion", e.appVersion }, { "name", "QA Live" },
-            { "partySize", party }, { "allies", allies }, { "buildKind", UgsEnvironment.BuildKind }, { "env", e.env },
-        };
+        Dictionary<string, object> Args(Leaderboard.Entry e, int party, string allies) => UgsLeaderboardBackend.SubmitArgs(e, "QA Live", party, allies);
         yield return Raw("a CPU support run (partySize 3)", Args(E(baseM + 900, UgsEnvironment.Name), 3, "archer,mage"), "solo only");
         yield return Raw("a run with allies (partySize 1 + allies)", Args(E(baseM + 900, UgsEnvironment.Name), 1, "ninja"), "solo only");
         var fast = E(baseM + 900, UgsEnvironment.Name); fast.playSeconds = 10f;

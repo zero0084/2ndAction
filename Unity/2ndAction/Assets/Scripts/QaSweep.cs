@@ -106,6 +106,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaHomeChoice") { mode = "homechoice"; dir = a[i + 1]; }
             if (a[i] == "-qaUgsEnv") { mode = "ugsenv"; dir = a[i + 1]; }
             if (a[i] == "-qaUgsLive") { mode = "ugslive"; dir = a[i + 1]; }
+            if (a[i] == "-qaUgsDev") { mode = "ugsdev"; dir = a[i + 1]; }
             if (a[i] == "-qaLayers") { mode = "layers"; dir = a[i + 1]; }
             if (a[i] == "-qaBossVoice") { mode = "bossvoice"; dir = a[i + 1]; }
             if (a[i] == "-qaRewards") { mode = "rewards"; dir = a[i + 1]; }
@@ -210,6 +211,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "homechoice") yield return HomeChoiceMode();
         else if (mode == "ugsenv") yield return UgsEnvMode();
         else if (mode == "ugslive") yield return UgsLiveMode();
+        else if (mode == "ugsdev") yield return UgsDevMode();
         else if (mode == "layers") yield return LayersMode();
         else if (mode == "bossvoice") yield return BossVoiceMode();
         else if (mode == "rewards") yield return RewardsMode();

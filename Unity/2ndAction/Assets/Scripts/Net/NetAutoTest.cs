@@ -141,6 +141,21 @@ public partial class NetAutoTest : MonoBehaviour
         var mode = modeArg == "versus" ? MultiplayerGameMode.Versus : MultiplayerGameMode.Coop;
         OnlineServices.Room room = null;
         int searches = 0;
+        // 2026-10-20: -netAutoQuick = 名前で探さず OnlineServices.QuickJoinAsync(選んだモードで入れる最初の部屋。QUICK PLAY の画面はまだ無い)
+        if (Array.Exists(Environment.GetCommandLineArgs(), x => x == "-netAutoQuick"))
+        {
+            bool qok = false;
+            for (int k = 1; k <= 10 && !qok && Time.realtimeSinceStartup - onlineT0 < 80f; k++)
+            {
+                qok = await OnlineServices.QuickJoinAsync(mode);
+                L($"ONLINE QUICK #{k}: ok={qok} rooms={OnlineServices.Rooms.Count} failure='{OnlineServices.LastJoinFailure}'");
+                if (!qok) { float w = Time.realtimeSinceStartup; while (Time.realtimeSinceStartup - w < 4f) await System.Threading.Tasks.Task.Yield(); }
+            }
+            var qs = OnlineServices.Current;
+            L($"ONLINE JOIN ok={qok} (quick) session={(qs != null ? qs.Id : "-")} name='{(qs != null ? qs.Name : "")}' players={(qs != null ? qs.PlayerCount : 0)}/{(qs != null ? qs.MaxPlayers : 0)} region={OnlineServices.RelayRegion} connection={NetSession.Connection} connected={NetSession.IsConnected}");
+            onlineOk = qok; onlineDone = true;
+            return;
+        }
         while (Time.realtimeSinceStartup - onlineT0 < 60f)
         {
             await OnlineServices.QueryAsync(mode);

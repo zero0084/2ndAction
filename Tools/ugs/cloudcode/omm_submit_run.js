@@ -3,6 +3,7 @@
  * 端末から届いた値を検査してから、Leaderboards へ「自己ベストより長い時だけ」書く。
  * 検査の規則は Unity 側の LeaderboardRules(Assets/Scripts/Online/Leaderboard.cs)と同じ。
  * 2026-10-14: ソロ専用(CPU サポート/マルチのランは端末が送らず、届いても "solo only" で拒否する。サポート用の表/スクリプトは作らない)。
+ * 2026-10-20: 引数は JSON の run 1つ(Cloud Code の引数の宣言は 10 個まで)。端末も同じ版でそろえること(UgsLeaderboardBackend.SubmitArgs)。
  * 2026-10-14: 環境の分離。production の環境では、製品版(buildKind = "release")が production で作った記録(env = "production")だけを書く。
  *   開発版/古い版(buildKind が無い)からの送信は "dev build" で拒否する。development 等の環境では開発版の送信を受け付ける。
  *   context.environmentName が渡らない場合は環境の確認を省く(ログに残す)。※ 本物のサービスでは未確認。
@@ -12,7 +13,7 @@
  *    並び順=高い順(降順)、更新の種類="Keep latest score"(自己ベストの判定はこのスクリプトが行う。表示名の更新で書き直すため)
  *  - Access Control: プレイヤーが Leaderboards へ直接書くのを禁止(Tools/ugs/access/omm_leaderboards.ac)
  *  - Cloud Save: 送信済みの runId を自分のプレイヤーデータ "omm_runs" に保存する
- * まだ実際のサービスでは動かしていない(プロジェクトが Unity Cloud に未連携のため)。連携後に確認する。
+ * 2026-10-20: development に配置して本物で確認(Docs/UgsDevelopment_2026-10-20)。
  */
 const { LeaderboardsApi } = require("@unity-services/leaderboards-1.1");
 const { DataApi } = require("@unity-services/cloud-save-1.4");
@@ -64,7 +65,12 @@ function validate(p, serverBest, recentRuns, nowUtc) {
   return "";
 }
 
-module.exports = async ({ params, context, logger }) => {
+module.exports = async ({ params: args, context, logger }) => {
+  // 2026-10-20: 記録は1つの JSON の引数 run にまとめて受け取る(宣言できる引数は 10 個まで、宣言しない引数はスクリプトへ届かない。
+  //   development で確かめた)。中の値の形と範囲は validate で確かめる
+  let params = args.run;
+  if (typeof params === "string") { try { params = JSON.parse(params); } catch (e) { params = null; } }
+  if (!params || typeof params !== "object" || Array.isArray(params)) return { status: "rejected", message: "bad request" };
   const { projectId, playerId, serviceToken } = context;
   const lb = new LeaderboardsApi({ accessToken: serviceToken });
   const cs = new DataApi({ accessToken: serviceToken });
@@ -115,22 +121,7 @@ module.exports = async ({ params, context, logger }) => {
 };
 
 module.exports.params = {
-  runId: { type: "String", required: true },
-  stageId: { type: "String", required: true },
-  characterId: { type: "String", required: true },
-  meters: { type: "NUMERIC", required: true },
-  playSeconds: { type: "NUMERIC", required: true },
-  sprintFrom: { type: "NUMERIC", required: true },
-  usedAuto: { type: "BOOLEAN", required: true },
-  usedSprint: { type: "BOOLEAN", required: true },
-  startedUtc: { type: "NUMERIC", required: true },
-  committedUtc: { type: "NUMERIC", required: true },
-  appVersion: { type: "String", required: false },
-  name: { type: "String", required: false },
-  // 2026-10-14: ソロの宣言(1 だけ受け付ける)。必須にすると古い版の送信が「失敗」扱いで再送され続けるので任意にして、validate で拒否する
-  partySize: { type: "NUMERIC", required: false },
-  allies: { type: "String", required: false },
-  // 2026-10-14: 環境の分離(古い版は送らないので任意。production では無い物を拒否する)
-  buildKind: { type: "String", required: false },
-  env: { type: "String", required: false },
+  // run: { runId, stageId, characterId, meters, playSeconds, sprintFrom, usedAuto, usedSprint, startedUtc, committedUtc,
+  //        appVersion, name, partySize(ソロの宣言。1 だけ受け付ける), allies, buildKind, env(環境の分離。production では release + production 以外を拒否) }
+  run: { type: "JSON", required: true },
 };

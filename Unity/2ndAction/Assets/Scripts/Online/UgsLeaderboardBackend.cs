@@ -29,14 +29,7 @@ public class UgsLeaderboardBackend : Leaderboard.IBackend
         if (!await OnlineServices.EnsureReadyAsync()) return new Leaderboard.SubmitResult(Leaderboard.SubmitStatus.Failed, "service unavailable");
         try
         {
-            var args = new Dictionary<string, object>
-            {
-                { "runId", e.runId }, { "stageId", e.stageId }, { "characterId", e.characterId }, { "meters", e.meters },
-                { "playSeconds", e.playSeconds }, { "sprintFrom", e.sprintFrom }, { "usedAuto", e.usedAuto }, { "usedSprint", e.usedSprint },
-                { "startedUtc", e.startedUtc }, { "committedUtc", e.committedUtc }, { "appVersion", e.appVersion }, { "name", Codename.Sanitize(codename) },
-                { "partySize", 1 }, // ソロの宣言(サーバーは 1 以外 / 無い物を拒否する)
-                { "buildKind", UgsEnvironment.BuildKind }, { "env", e.env }, // 2026-10-14: production のスクリプトは release 以外を拒否する
-            };
+            var args = SubmitArgs(e, Codename.Sanitize(codename), 1, "");
             string json = await CloudCodeService.Instance.CallEndpointAsync(SubmitScript, args);
             var reply = JsonUtility.FromJson<SubmitReply>(json ?? "{}") ?? new SubmitReply();
             switch (reply.status)
@@ -51,6 +44,22 @@ public class UgsLeaderboardBackend : Leaderboard.IBackend
         catch (CloudCodeException ex) { return new Leaderboard.SubmitResult(Leaderboard.SubmitStatus.Failed, "cloud code: " + ex.Reason); }
         catch (Exception ex) { return new Leaderboard.SubmitResult(Leaderboard.SubmitStatus.Failed, ex.GetType().Name); }
     }
+
+    // 2026-10-20: 記録は JSON の引数 run 1つにまとめて送る(Cloud Code の引数の宣言は 10 個まで、宣言しない引数はスクリプトへ届かない。
+    //  development で確かめた)。サーバーの omm_submit_run.js と同じ版でそろえること
+    public static Dictionary<string, object> SubmitArgs(Leaderboard.Entry e, string name, int partySize, string allies) => new Dictionary<string, object>
+    {
+        { "run", new Dictionary<string, object>
+            {
+                { "runId", e.runId }, { "stageId", e.stageId }, { "characterId", e.characterId }, { "meters", e.meters },
+                { "playSeconds", e.playSeconds }, { "sprintFrom", e.sprintFrom }, { "usedAuto", e.usedAuto }, { "usedSprint", e.usedSprint },
+                { "startedUtc", e.startedUtc }, { "committedUtc", e.committedUtc }, { "appVersion", e.appVersion }, { "name", name },
+                { "partySize", partySize }, // ソロの宣言(サーバーは 1 以外 / 無い物を拒否する)。端末はいつも 1(試験だけ別の値でサーバーの拒否を確かめる)
+                { "allies", allies },
+                { "buildKind", UgsEnvironment.BuildKind }, { "env", e.env }, // 2026-10-14: production のスクリプトは release 以外を拒否する
+            }
+        },
+    };
 
     public async Task<Leaderboard.Page> Load(string stageId, int limit)
     {

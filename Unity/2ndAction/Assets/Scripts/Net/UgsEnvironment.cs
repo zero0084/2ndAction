@@ -44,6 +44,7 @@ public static class UgsEnvironment
 #else
         name = Production; source = "release build (fixed)";
 #endif
+        Debug.Log($"[ONLINE] UGS Environment = {name} ({BuildKind} build, {source})"); // 2026-10-20: 起動のたびに1回(秘密は含まない)
     }
 
     // UGS の環境の名前: 英小文字/数字/-/_、1〜30 文字
@@ -66,4 +67,39 @@ public static class UgsEnvironment
     }
 
     public static string Describe() => $"UGS environment '{Name}' ({BuildKind} build, {Source}){(Ignored != "" ? " ignored " + Ignored : "")}";
+}
+
+// 2026-10-20(マスター依頼: development の APK だと分かるように): 開発版だけ、ラン中以外の画面の左下に「DEV BUILD · UGS development」
+public class UgsEnvironmentLabel : MonoBehaviour
+{
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    static void Boot()
+    {
+        if (FindAnyObjectByType<UgsEnvironmentLabel>() != null) return;
+        var go = new GameObject("[UgsEnvironmentLabel]");
+        DontDestroyOnLoad(go);
+        go.hideFlags = HideFlags.HideInHierarchy;
+        go.AddComponent<UgsEnvironmentLabel>();
+    }
+
+    GUIStyle style;
+    void OnGUI()
+    {
+        var gm = GameManager.Instance;
+        if (gm != null && gm.HasStarted && !gm.IsGameOver) return; // ラン中は出さない(HUD の邪魔をしない)
+        GUI.depth = -1000;
+        if (style == null) style = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft };
+        float s = Mathf.Max(1f, Mathf.Min(Screen.width, Screen.height) / 720f);
+        style.fontSize = Mathf.RoundToInt(12 * s);
+        var safe = Screen.safeArea;
+        var r = new Rect(safe.xMin + 6 * s, Screen.height - safe.yMin - 22 * s, 250 * s, 18 * s);
+        var old = GUI.color;
+        GUI.color = new Color(0f, 0f, 0f, 0.55f);
+        GUI.DrawTexture(r, Texture2D.whiteTexture);
+        GUI.color = UgsEnvironment.IsProduction ? new Color(1f, 0.5f, 0.4f) : new Color(0.55f, 1f, 0.7f);
+        GUI.Label(new Rect(r.x + 5 * s, r.y, r.width - 5 * s, r.height), "DEV BUILD · UGS " + UgsEnvironment.Name, style);
+        GUI.color = old;
+    }
+#endif
 }

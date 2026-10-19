@@ -13,11 +13,10 @@
  *
  * 返り値: { ok, cloudSave, leaderboards, message }。ok=false の時、アプリはアカウントを消さない(消せなかったデータが宙に浮かないように)。
  *
- * まだ本物のサービスでは動かしていない(development 環境ができてから確認する。production へはマスターの確認の後に配置)。
+ * 2026-10-20: development に配置して本物で確認(Docs/UgsDevelopment_2026-10-20)。production へはマスターの依頼の後に配置。
  * 必要な準備(Docs/PlayPrivacy_2026-10-19 の手順書):
  *  - サービスアカウント(権限: Leaderboards のスコアの削除 live_ops.leaderboards.scores.delete)
  *  - Secret Manager: OMM_ADMIN_BASIC(Cloud Code から読めるようにする)
- *  - ※ context.environmentId の名前は公式の資料で再確認すること(無い時は失敗として返す)
  */
 const { DataApi } = require("@unity-services/cloud-save-1.4");
 const axios = require("axios-1.6");
@@ -30,19 +29,21 @@ module.exports = async ({ params, context, logger, secretManager }) => {
   if (!playerId) { result.message = "not signed in"; return result; }
   if (!environmentId) { result.message = "environment unknown"; return result; }
 
-  // 1) Cloud Save(本人の既定の項目すべて)
-  const cs = new DataApi({ accessToken: serviceToken });
-  try {
-    await cs.deleteItems(projectId, playerId);
-    result.cloudSave = 1;
-  } catch (e) {
-    if (status(e) !== 404) { logger.error(`cloud save delete failed (${status(e)})`); result.message = "cloud save"; return result; }
-  }
-
-  // 2) Leaderboards(全部の表の本人の記録。Admin API はサービスアカウントの Basic 認証)
+  // 2026-10-20: 先に秘密(管理用の鍵)を読めるか確かめる。読めないのに Cloud Save だけ消すと「途中まで消えた」状態になるので、何も消さずに失敗を返す
   let auth = null;
   try { auth = (await secretManager.getSecret("OMM_ADMIN_BASIC")).value; } catch (e) { auth = null; }
   if (!auth) { logger.error("secret OMM_ADMIN_BASIC not available"); result.message = "not configured"; return result; }
+
+  // 1) Cloud Save(本人の項目すべて。このゲームが書くのは既定の項目だけだが、保護/公開の項目も残さない)
+  const cs = new DataApi({ accessToken: serviceToken });
+  for (const [what, del] of [["default", () => cs.deleteItems(projectId, playerId)],
+                             ["protected", () => cs.deleteProtectedItems(projectId, playerId)],
+                             ["public", () => cs.deletePublicItems(projectId, playerId)]]) {
+    try { await del(); result.cloudSave++; }
+    catch (e) { if (status(e) !== 404) { logger.error(`cloud save delete failed (${what}, ${status(e)})`); result.message = "cloud save"; return result; } }
+  }
+
+  // 2) Leaderboards(全部の表の本人の記録。Admin API はサービスアカウントの Basic 認証)
   const url = `https://services.api.unity.com/leaderboards/v1/projects/${projectId}/environments/${environmentId}/leaderboards/scores/players/${encodeURIComponent(playerId)}/purge`;
   try {
     await axios.delete(url, { headers: { Authorization: "Basic " + auth } });

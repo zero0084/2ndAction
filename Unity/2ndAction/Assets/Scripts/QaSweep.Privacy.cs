@@ -38,6 +38,10 @@ public partial class QaSweep
         Loc.Set(langs[0], false);
 
         // ---- B 本物の経路(開発版の環境のまま) ----
+        // 2026-10-20: 「前からアカウントがあったか」は初期化の後でないと分からない(以前は初期化の前に見ていて、development ができて
+        //  既存のサインインの記録で Ready になった時に誤って失敗にしていた)。初期化だけならサインインしない
+        var tInit = OnlineServices.InitializeServicesAsync();
+        w = 0f; while (!tInit.IsCompleted && w < 20f) { yield return null; w += Time.unscaledDeltaTime; }
         bool hadAccountBefore = OnlineServices.HasStoredAccount;
         DataDeletionUi.Open();
         w = 0f; while (AccountDeletion.Busy && w < 20f) { yield return null; w += Time.unscaledDeltaTime; }
