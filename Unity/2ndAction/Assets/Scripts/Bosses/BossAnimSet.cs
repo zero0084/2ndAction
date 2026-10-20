@@ -16,6 +16,8 @@ public class BossAnimSet
     public Sprite[] windupC, attackC, windupD, attackD;
     // 2026-10-20: 必殺技を外した後の専用の隙(サソリ: 尻尾が地面に刺さって抜けない)。使うかはボスが決める(PoseOverride)
     public Sprite[] exhaust;
+    // 2026-10-20: 地面へ潜る(dive_、潜り始め → 尾だけ残る)/ 地面を割って飛び出す(emerge_)。蛇・モグラ・ワームなど潜るボス用。使うかはボスが決める
+    public Sprite[] dive, emerge;
     public float idleFps = 6f, moveFps = 12f;
     // 本物の走りのコマがある時は、格子の変形(偽の脚の動き)を弱める
     public float rigLocoScale = 0.2f;
@@ -38,7 +40,7 @@ public class BossAnimSet
                 hurt = Pick(all, "hurt_"), brk = Pick(all, "break_"), ult = Pick(all, "ult_"), defeat = Pick(all, "defeat_"),
                 windupB = Pick(all, "windupB_"), attackB = Pick(all, "attackB_"),
                 recover = Pick(all, "recover_"), recoverB = Pick(all, "recoverB_"), breakLoop = Pick(all, "breakloop_"), rise = Pick(all, "rise_"),
-                windupC = Pick(all, "windupC_"), attackC = Pick(all, "attackC_"), windupD = Pick(all, "windupD_"), attackD = Pick(all, "attackD_"), exhaust = Pick(all, "exhaust_"),
+                windupC = Pick(all, "windupC_"), attackC = Pick(all, "attackC_"), windupD = Pick(all, "windupD_"), attackD = Pick(all, "attackD_"), exhaust = Pick(all, "exhaust_"), dive = Pick(all, "dive_"), emerge = Pick(all, "emerge_"),
             };
         }
         cache[key] = set;
