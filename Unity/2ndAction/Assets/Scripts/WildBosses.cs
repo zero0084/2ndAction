@@ -463,6 +463,8 @@ public class CyclopsBoss : WildBossBase
         supportsInterrupt = true;
         locoStyle = LocoStyle.Stride;
         footstepShake = true;
+        animKey = "cyclops"; // 2026-10-21: 姿勢ごとのコマ(Resources/BossAnim/cyclops、エステルさんと相談)。0=叩きつけ 1=足踏み 2=薙ぎ払い、必殺技=ult_、棍棒が抜けない隙=exhaust_
+        artPoseProceduralScale = 0.3f;
         enterSpeed = 6.5f;
         windupMoveFactor = 0.25f;
         float r = FrontReach;
@@ -489,9 +491,10 @@ public class CyclopsBoss : WildBossBase
         while (true)
         {
             if (UltimateReady(2)) { yield return SkyfallClub(); continue; }
-            if (SpecialReady(2)) { MarkSpecial(); yield return DoubleStomp(); continue; }
+            if (SpecialReady(2)) { MarkSpecial(); animVariant = 1; yield return DoubleStomp(); continue; }
             yield return Approach(2.2f, 1.7f, 8f);
             int pick = BossAiUtil.PickNoRepeat(3, ref lastPick);
+            animVariant = pick;
             if (pick == 0)
             {
                 yield return Telegraph(1.4f, slamMark);
@@ -539,6 +542,7 @@ public class CyclopsBoss : WildBossBase
     IEnumerator SkyfallClub()
     {
         if (!BeginUltimate("天崩しの大棍棒", new Color(1f, 0.6f, 0.25f))) { lastUltimateTime = Time.time - 10f; yield break; }
+        animVariant = 0; // コマ: ult_(両手で棍棒を真上へ → 全身で叩きつけ)
         yield return MoveToGap(10f, 4f, 2.2f);
         // 棍棒を頭上へ: 長い溜め(身体が赤熱)
         StartCoroutine(GlowFor(2.0f, new Color(1f, 0.5f, 0.25f)));
@@ -546,6 +550,7 @@ public class CyclopsBoss : WildBossBase
         StartCoroutine(Impact(0.0f, 6f));
         yield return Strike(megaSlam, 0.3f, 0.45f, 0.12f);
         EndAttack();
+        holdSlamArt = true; // 衝撃波と落石の間も、棍棒を地面に叩きつけた絵のまま(歩くコマで足踏みして見えないように)
         // 第1衝撃波(低い) → 第2衝撃波(背が高い)
         LaneWarn(1.0f, 4f, 0f, 1.15f, 0.6f, LowLaneColor);
         Shockwave(1.15f, 10f, true);
@@ -564,9 +569,21 @@ public class CyclopsBoss : WildBossBase
             yield return Wait(0.25f);
         }
         yield return Wait(0.6f);
-        // 棍棒が地面に刺さって抜けない(大きな隙)
+        // 棍棒が地面に刺さって抜けない(大きな隙)。専用の絵 exhaust_ があれば隙の間ずっとそれ
+        holdSlamArt = false;
+        exhaustArt = true;
         yield return Exhausted(3.0f, 2f, 1.2f);
+        exhaustArt = false;
     }
+
+    bool holdSlamArt;
+    protected override Sprite PoseOverride()
+    {
+        if (holdSlamArt && (!UltimateRunning || Broken || IsDead)) holdSlamArt = false;
+        if (holdSlamArt && Anim != null && Anim.ult != null && Anim.ult.Length > 1) return Anim.ult[1];
+        return base.PoseOverride();
+    }
+    protected override void OnInterrupted() { base.OnInterrupted(); holdSlamArt = false; }
 
     IEnumerator GlowFor(float seconds, Color c)
     {
