@@ -28,7 +28,22 @@ public partial class ReaperSisterBoss
     // 連携技の合図(ReaperFinaleBattle)
     float comboAt = -1f;
     public bool ComboPending => comboAt > 0f;
-    public void CueCombo(float at) { if (!IsDead && !Retreating) comboAt = at; }
+    public void CueCombo(float at) { if (!IsDead && !Retreating) { comboAt = at; StartCoroutine(ComboCall()); } }
+
+    // 2026-10-20: 合図の瞬間、三人が同時に「構える」(色の光と輪。今の技は止めない)。誰の番かは自分の番の ComboFlash で見せる
+    IEnumerator ComboCall()
+    {
+        Color glow = ReaperFx.SisterGlow(sister);
+        OneShotSpriteEffect.CreateTweened(BossFx.Ring(), CenterWorld, glow, 0.45f, bodyHeight * 1.3f, bodyHeight * 0.35f, 0f, 0.95f, default, 0f, RenderOrder.CombatFx, 0.0f);
+        float t = 0f;
+        while (t < 0.6f && !IsDead)
+        {
+            t += Time.deltaTime;
+            if (DebugAct != "Telegraph" && DebugAct != "Strike") SetBodyTint(Color.Lerp(tint, glow, 0.6f * Mathf.Sin(Mathf.Clamp01(t / 0.6f) * Mathf.PI)));
+            yield return null;
+        }
+        SetBodyTint(tint);
+    }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public int DebugForceMove = -1; // 確認用: 次の技をこの番号にする(一度使うと -1 に戻る)
@@ -154,7 +169,8 @@ public partial class ReaperSisterBoss
         animVariant = 0;
         yield return MoveToGap(10f, 7f, 2.5f);
         // 背後の黒い輪(魔法陣): 溜めの間に広がって回る
-        var ring = TempChild("UnderworldRing", BossFx.Ring(), new Color(0.35f, 0.08f, 0.5f, 0f), new Vector2(-0.5f, bodyHeight * 0.55f), RenderOrder.CombatFx - 1);
+        var ringArt = ReaperFx.Art("ring"); // 正式な魔法陣の絵(無ければ手続きの輪)
+        var ring = TempChild("UnderworldRing", ringArt != null ? ringArt : BossFx.Ring(), new Color(0.35f, 0.08f, 0.5f, 0f), new Vector2(-0.5f, bodyHeight * 0.55f), RenderOrder.CombatFx - 1);
         var inner = TempChild("UnderworldRingInner", BossFx.Ring(), new Color(0.05f, 0.0f, 0.08f, 0f), new Vector2(-0.5f, bodyHeight * 0.55f), RenderOrder.CombatFx - 2);
         StartCoroutine(SpinRing(ring, inner, 0.9f + waves * 0.5f + 0.7f));
         yield return Telegraph(0.9f);
@@ -212,8 +228,8 @@ public partial class ReaperSisterBoss
         yield return MoveToGap(7.5f, 4f, 2f);
         StartCoroutine(MawAt(1.05f));
         yield return Telegraph(0.75f);
-        PlayAttackPose(0.4f);
-        yield return Hold(0.65f);
+        // 2026-10-20: 攻撃の姿勢(握った手を振り下ろす)は、顎が閉じる瞬間に合わせて MawAt の中で出す(見た目だけ。噛みつきの時間は同じ)
+        yield return Hold(0.65f); // 2回目の予兆までの時間は以前と同じ
         StartCoroutine(MawAt(0.9f)); // 2回目(1回目を跳んで避けた着地の頃)
         yield return Hold(1.3f);
         yield return SetAltitude(baseHover, 0.5f);
@@ -237,6 +253,7 @@ public partial class ReaperSisterBoss
         yield return Hold(warn);
         if (IsDead || Retreating) yield break;
         ReaperBite.Spawn(this, shadow.transform.position, 2.6f, 1.15f, 0.32f); // 当たりは地面から 1.15m(顎の絵はもっと高く伸びる)
+        if (DebugAct != "Telegraph") PlayAttackPose(0.45f); // 次女: 握った手を振り下ろす = 顎が閉じる
         Shake(0.09f, 0.15f);
     }
 
@@ -541,20 +558,24 @@ public class ReaperBite : MonoBehaviour
         var rb = go.AddComponent<Rigidbody2D>(); rb.bodyType = RigidbodyType2D.Kinematic; rb.gravityScale = 0f;
         b.col = go.AddComponent<BoxCollider2D>(); b.col.isTrigger = true;
         b.col.size = b.size; b.col.offset = new Vector2(0f, height * 0.5f);
-        b.upper = b.Jaw("Upper", true); b.lower = b.Jaw("Lower", false);
+        var jaws = ReaperFx.Art("jaws");
+        if (jaws != null) { b.upper = b.Jaw("Jaws", false, jaws); b.jawArt = true; }
+        else { b.upper = b.Jaw("Upper", true); b.lower = b.Jaw("Lower", false); }
         var f = go.AddComponent<ReaperFrameFollower>(); f.life = active + 0.35f; f.snapGround = true; f.groundOffset = 0f;
         Spawned++;
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(SeId.BossAttack, groundPos);
         return b;
     }
 
-    SpriteRenderer Jaw(string name, bool top)
+    bool jawArt;
+    SpriteRenderer Jaw(string name, bool top, Sprite artSprite = null)
     {
         var g = new GameObject(name);
         g.transform.SetParent(transform, false);
         var r = g.AddComponent<SpriteRenderer>();
-        r.sprite = BossFx.Fang();
-        r.color = new Color(0.16f, 0.02f, 0.22f, 1f);
+        r.sprite = artSprite != null ? artSprite : BossFx.Fang();
+        r.color = artSprite != null ? Color.white : new Color(0.16f, 0.02f, 0.22f, 1f);
+        if (artSprite != null) { r.sortingOrder = RenderOrder.CombatFx + 2; g.transform.localScale = new Vector3(size.x * 1.25f, size.y * 1.4f, 1f); return r; }
         r.sortingOrder = RenderOrder.CombatFx + 2;
         g.transform.localScale = new Vector3(size.x, size.y * 0.85f * (top ? -1f : 1f), 1f); // 絵は当たりより大きめ(読みやすさ)
         return r;
@@ -567,6 +588,15 @@ public class ReaperBite : MonoBehaviour
         float close = Mathf.Clamp01(age / 0.12f);
         float sink = Mathf.Clamp01((age - active) / 0.3f);
         float h = size.y * (0.3f + 0.7f * close) * (1f - sink);
+        if (jawArt && upper != null)
+        {
+            // 正式な顎の絵(上下あごが向かい合う1枚): 地面から伸び上がって閉じ、沈む
+            upper.transform.localScale = new Vector3(size.x * 1.25f * (0.8f + 0.2f * close), size.y * 1.4f * (0.35f + 0.65f * close) * (1f - sink), 1f);
+            upper.transform.localPosition = new Vector3(0f, size.y * 0.7f * (0.35f + 0.65f * close) * (1f - sink), 0f);
+            upper.color = new Color(1f, 1f, 1f, 1f - sink);
+            if (col != null) col.enabled = age <= active;
+            return;
+        }
         if (upper != null) upper.transform.localPosition = new Vector3(0f, Mathf.Lerp(size.y * 1.1f, size.y * 0.72f, close) * (1f - sink), 0f);
         if (lower != null) lower.transform.localPosition = new Vector3(0f, size.y * 0.25f * (1f - sink), 0f);
         var c = new Color(0.16f, 0.02f, 0.22f, 1f - sink);

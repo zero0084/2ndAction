@@ -76,6 +76,7 @@ public partial class LastDungeonQa : MonoBehaviour
         else if (mode == "bosses") yield return BossesMode();
         else if (mode == "runrush") yield return RunRushMode();
         else if (mode == "sisters") yield return SistersMode();
+        else if (mode == "sisrec") yield return SistersRecordMode();
         else yield return FlowMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

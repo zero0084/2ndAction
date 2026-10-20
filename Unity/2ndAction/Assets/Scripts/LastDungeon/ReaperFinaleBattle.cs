@@ -30,6 +30,7 @@ public class ReaperFinaleBattle : MonoBehaviour
         var go = new GameObject("[ReaperFinaleBattle]");
         var b = go.AddComponent<ReaperFinaleBattle>();
         ReaperBullet.Prewarm(); // 2026-10-20: 弾/予兆の絵を先に作る
+        foreach (var k in new[] { "reaper_eldest", "reaper_second", "reaper_youngest" }) BossAnimSet.Load(k); // 姿勢の絵(各21枚)を登場の演出の間に読む(1人目の登場で止まらない)
         b.player = player;
         Instance = b;
         b.StartCoroutine(b.Run());
@@ -114,6 +115,7 @@ public class ReaperFinaleBattle : MonoBehaviour
                 {
                     float t0 = Time.time + 2.0f;
                     foreach (var x in alive) x.CueCombo(t0 + (int)x.sister * 0.9f);
+                    ReaperComboLink.Show(alive, 2.0f + 0.9f * 2f + 0.6f); // 三人を結ぶ光の線(連携技だと分かる合図。ゲームは止めない)
                     if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossCharge);
                     CombosCued++;
                     Debug.Log($"[ReaperBoss] Danse Macabre cued #{CombosCued}");

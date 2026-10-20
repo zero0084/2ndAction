@@ -20,7 +20,7 @@ public enum WildBossKind { Wolf, GoblinRider, Serpent, Cyclops, Spider, Golem, G
 // の変化になる。
 public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
 {
-    public enum Pose { Idle, Move, Windup, Attack, Fly, Landing }
+    public enum Pose { Idle, Move, Windup, Attack, Fly, Landing, Recover } // Recover(2026-10-20): 攻撃の後の戻りのコマ(recover_ がある時だけ)
 
     [Header("Identity")]
     public string bossName = "Boss";
@@ -499,14 +499,23 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             if (pose == Pose.Windup) return a.ult[0];
             if (pose == Pose.Attack || pose == Pose.Move || pose == Pose.Fly) return a.ult[Mathf.Min(1, a.ult.Length - 1)];
         }
+        // 2026-10-20: BREAK からの立ち直り(rise_)/ BREAK の間の繰り返し(breakloop_)。どちらも無いボスは今までどおり
+        if (breakRecovering && a.rise != null) return BossAnimSet.Progress(a.rise, poseTime / BreakRecoverSeconds);
+        // 打ち上げられて空中にいる間(BREAK のエリアルコンボ)は、崩れた1コマ目(地面に座り込むコマは地面に着いてから)
+        if (pose == Pose.Landing && a.brk != null && juggle != null && juggle.Open && juggle.Airborne) return a.brk[0];
         if (pose == Pose.Landing && a.brk != null) return BossAnimSet.Progress(a.brk, poseTime / 0.45f); // BREAK・必殺技の後の隙
-        if (flinchTimer > 0f && a.hurt != null && pose != Pose.Landing) return a.hurt[0]; // 怯み(2026-10-18)
+        // BREAK の間は、寄せ(移動)の間も移動のコマを回さない(以前は寄せの間に浮遊/歩きのコマが出て、BREAK に見えなかった)
+        if (Broken && !breakRecovering && a.breakLoop != null && (pose == Pose.Idle || pose == Pose.Move)) return BossAnimSet.Loop(a.breakLoop, 3f, Time.time + loopTimeOffset);
+        if (flinchTimer > 0f && a.hurt != null && pose != Pose.Landing) // 怯み(2026-10-18)。2枚以上なら崩れる → 立て直すの順に
+            return a.hurt.Length > 1 ? BossAnimSet.Progress(a.hurt, 1f - flinchTimer / FlinchSeconds) : a.hurt[0];
         // 被弾の絵: 連続で当たっても毎回は出さない(0.7秒に1回、最初の一撃の赤みの前半だけ)。毎回出すと走りがカクつく
         if (hitTimer > 0.08f && a.hurt != null && (pose == Pose.Idle || pose == Pose.Move))
         {
-            if (hurtArtUntil < Time.time && Time.time - hurtArtAt > 0.7f) { hurtArtAt = Time.time; hurtArtUntil = Time.time + 0.12f; }
-            if (Time.time < hurtArtUntil) return a.hurt[0];
+            float hurtLen = a.hurt.Length > 1 ? 0.28f : 0.12f; // 2枚以上: 少し崩れて立て直すまで(0.28秒。長く止まって見えない長さ)
+            if (hurtArtUntil < Time.time && Time.time - hurtArtAt > 0.7f) { hurtArtAt = Time.time; hurtArtUntil = Time.time + hurtLen; }
         }
+        if (a.hurt != null && Time.time < hurtArtUntil && (pose == Pose.Idle || pose == Pose.Move))
+            return a.hurt.Length > 1 ? BossAnimSet.Progress(a.hurt, (Time.time - hurtArtAt) / Mathf.Max(0.01f, hurtArtUntil - hurtArtAt)) : a.hurt[0];
         switch (pose)
         {
             case Pose.Windup:
@@ -519,6 +528,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             {
                 var at = animVariant == 1 && a.attackB != null ? a.attackB : a.attack;
                 if (at != null) return BossAnimSet.Progress(at, 1f - attackProgress);
+                break;
+            }
+            case Pose.Recover:
+            {
+                var r = animVariant == 1 && a.recoverB != null ? a.recoverB : a.recover;
+                if (r != null) return BossAnimSet.Progress(r, poseTime / Mathf.Max(0.05f, recoverArtSeconds));
                 break;
             }
             case Pose.Move:
@@ -536,6 +551,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         var po = PoseOverride();
         if (po != null) return po;
         var an = PickAnimSprite();
+        lastSpriteFromAnim = an != null;
         if (an != null) return an;
         if (loopFrames != null && loopFrames.Length > 0 && (pose == Pose.Move || pose == Pose.Idle || pose == Pose.Fly))
             return loopFrames[Mathf.FloorToInt((Time.time + loopTimeOffset) * loopFps) % loopFrames.Length];
@@ -548,6 +564,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             case Pose.Attack: return attackSprite != null ? attackSprite : idleSprite;
             case Pose.Fly: return moveSprite != null ? moveSprite : idleSprite;
             case Pose.Landing: return idleSprite;
+            case Pose.Recover: return attackSprite != null ? attackSprite : idleSprite;
             default:
                 // 待機(Idle)は「棒立ち」にしない: 移動アニメーションを持つボスはMove姿勢で表示する。
                 if (locoStyle != LocoStyle.None && moveSprite != null) return ((int)(Time.time * 6f) % 2 == 0) ? idleSprite : moveSprite;
@@ -593,7 +610,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
                 off.x = -facing * pullBackRatio * h * e;     // 後ろへ引く
                 sy = 1f - 0.08f * e;                          // 溜めて沈む
                 float blink = 0.5f + 0.5f * Mathf.Sin(Time.time * Mathf.Lerp(10f, 30f, p));
-                tint = Color.Lerp(baseColor, new Color(1f, 0.45f, 0.35f, baseColor.a), blink * Mathf.Clamp01(p * 1.4f));
+                tint = Color.Lerp(baseColor, new Color(windupTint.r, windupTint.g, windupTint.b, baseColor.a), blink * Mathf.Clamp01(p * 1.4f) * windupTintScale);
                 break;
             }
             case Pose.Attack:
@@ -610,6 +627,14 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
                 rot = Mathf.Sin(Time.time * 4f) * 4f;
                 sy = 1f + 0.05f * Mathf.Sin(Time.time * 12f);
                 break;
+            case Pose.Recover:
+            {
+                // 攻撃の前のめりから少しずつ戻る(戻りのコマと一緒に)
+                float k = Mathf.Clamp01(t / Mathf.Max(0.05f, recoverArtSeconds));
+                rot = -leanDegrees * 0.35f * (1f - k) * facing;
+                if (k >= 1f) SetPose(Pose.Idle);
+                break;
+            }
             case Pose.Landing:
             {
                 float k = Mathf.Clamp01(t / 0.35f);
@@ -619,6 +644,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             }
         }
 
+        // 2026-10-20: 溜め/攻撃/戻りに本物のコマがある時は、手続きの反り/踏み込み/伸び縮みを弱める(絵の姿勢と二重にならない。死神三姉妹は 0.3)
+        if (lastSpriteFromAnim && artPoseProceduralScale < 0.999f && (pose == Pose.Windup || pose == Pose.Attack || pose == Pose.Recover))
+        {
+            float k = artPoseProceduralScale;
+            rot *= k; off *= k; sx = 1f + (sx - 1f) * k; sy = 1f + (sy - 1f) * k;
+        }
         if (hitTimer > 0f)
         {
             float k = hitTimer / 0.16f;
@@ -628,7 +659,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         // 2026-10-18: 怯み(後ろへのけぞる) / BREAK で打ち上がっている間(上がる時は反り、落ちる時は前へ) / 大型の膝つき(低く)
         if (flinchTimer > 0f) { float k = Mathf.Clamp01(flinchTimer / FlinchSeconds); rot += facing * 9f * k; off.x -= facing * 0.05f * h * k; }
         if (juggle != null && juggle.Open && juggle.Airborne) rot += facing * Mathf.Clamp(juggle.VelY * 0.8f, -12f, 12f);
-        if (kneel > 0f) { sy *= 1f - KneelSquash * kneel; sx *= 1f + 0.06f * kneel; }
+        if (kneel > 0f)
+        {
+            // 2026-10-20: BREAK の絵(膝つき等)があるボスは、絵が膝をついているので手続きのつぶしを弱める(artPoseProceduralScale)
+            float kn = kneel * (Anim != null && (Anim.brk != null || Anim.breakLoop != null) ? artPoseProceduralScale : 1f);
+            sy *= 1f - KneelSquash * kn; sx *= 1f + 0.06f * kn;
+        }
 
         sx *= extraScale.x;
         sy *= extraScale.y;
@@ -871,10 +907,23 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         SetPose(Pose.Idle);
     }
 
+    // 2026-10-20: 戻りのコマ(recover_/recoverB_)がある時は、Recover の始めに順に見せてから待機へ(無いボスは今までどおりすぐ待機)
+    protected float recoverArtSeconds = 0.4f;
+    protected float artPoseProceduralScale = 1f; // 本物のコマの溜め/攻撃/戻りに掛ける手続きの変形の強さ(1 = 今までどおり)
+    bool lastSpriteFromAnim;
+    // 溜めの間の体の点滅(赤)。絵のある溜めでは弱める(死神三姉妹は弱め + 姉妹の色)
+    protected float windupTintScale = 1f;
+    protected Color windupTint = new Color(1f, 0.45f, 0.35f, 1f);
+    // 撃破の倒れ方の表(BossDeathTuning)のキー。既定は声と同じ DeathKey
+    public virtual string DeathProfileKey => DeathKey;
+
     protected IEnumerator Recover(float seconds)
     {
         DebugAct = "Recover";
         EndAttack();
+        var ra = Anim;
+        var rf = ra != null ? (animVariant == 1 && ra.recoverB != null ? ra.recoverB : ra.recover) : null;
+        if (rf != null) { recoverArtSeconds = Mathf.Clamp(seconds * 0.6f, 0.25f, 0.6f); SetPose(Pose.Recover); }
         yield return Wait(seconds);
     }
 

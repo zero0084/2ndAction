@@ -113,7 +113,7 @@ public class BossFinish : MonoBehaviour
         body = b; root = b.DeathRoot; rig = b.DeathRig; info = fi;
         defeatArt = (b as WildBossBase) != null ? ((WildBossBase)b).DeathFrames : null;
         if (defeatArt != null && defeatArt.Length == 0) defeatArt = null;
-        entry = tn.For(b.DeathKey);
+        entry = tn.For(b is WildBossBase wbk ? wbk.DeathProfileKey : b.DeathKey); // 2026-10-20: 死神三姉妹は姉妹ごとの倒れ方
         h = Mathf.Max(0.5f, b.DeathBodyHeight);
         D = Mathf.Max(0.4f, fi.firstKill ? tn.firstKillSeconds : tn.rematchSeconds);
         baseScale = root.localScale;
@@ -514,8 +514,11 @@ public class BossFinish : MonoBehaviour
         int n = defeatArt.Length, k;
         if (entry.profile == BossDeathProfile.Flying)
         {
-            if (!impactDone || n == 1) k = 0;
-            else k = Mathf.Clamp(1 + Mathf.FloorToInt(Mathf.InverseLerp(crashP, crashP + 0.2f, p) * (n - 1)), 1, n - 1);
+            // 2026-10-20: 落ちている間に 0〜(最後の1つ前)を順に、地面に着いたら最後のコマ(死神三姉妹: 力が抜ける → 落ちる → 倒れている)。
+            //  2コマのボス(メカドラゴン)は今までどおり 墜落まで 0 / 着地で 1
+            if (n == 1) k = 0;
+            else if (!impactDone) k = Mathf.Clamp(Mathf.FloorToInt(Mathf.InverseLerp(0.05f, crashP, p) * (n - 1)), 0, n - 2);
+            else k = n - 1;
             rot = Mathf.Clamp(rot, -20f, 20f);
         }
         else

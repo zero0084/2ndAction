@@ -44,7 +44,7 @@ public partial class ReaperSisterBoss : WildBossBase
         b.mileReward = RunRewards.BossMile(800, 1f); // 2026-10-15: 基本 × 1.5(最後の相手)
         b.bodyHeight = data != null ? Mathf.Max(3.8f, data.heightWorld * 1.75f) : 4.2f; // 追ってきた時より大きく(最後に真正面から向き合う相手)
         b.slotIndex = slot;
-        b.slotSpacing = 3.6f;
+        b.slotSpacing = 4.6f; // 2026-10-20: 三人同時で体が大きく重なっていた(3.6m)。正式な絵は横幅が広いので少し離す
         b.initialDelayPerSlot = 1.4f;
         b.startGap = gap;
         b.maxGap = 18f;
@@ -81,11 +81,15 @@ public partial class ReaperSisterBoss : WildBossBase
         animKey = "reaper_" + sister.ToString().ToLowerInvariant();
         if (data != null && data.moveFrames != null && data.moveFrames.Length > 0)
         {
-            loopFrames = data.moveFrames;
+            loopFrames = MatchIdleScale(data.moveFrames, idleSprite);
             loopFps = data.motion == ReaperMotion.Skip ? Mathf.Max(1f, data.skipRate * data.moveFrames.Length / 2f) : Mathf.Max(1f, data.moveFps);
             loopTimeOffset = (int)sister * 0.37f;
         }
         baseHover = sister == ReaperSister.Second ? 1.1f : 0f;
+        // 2026-10-20: 溜めの点滅は弱く・姉妹の色で(赤い影のように見えていた)。絵の溜めの姿勢を見せる
+        windupTintScale = 0.35f;
+        artPoseProceduralScale = 0.3f; // 溜め/攻撃/戻りの絵がある時は、絵の姿勢を主に(手続きの反り/踏み込みは弱く)
+        windupTint = ReaperFx.SisterGlow(sister);
         yOffset = baseHover;
         tint = sister == ReaperSister.Eldest ? new Color(0.92f, 0.88f, 1f) : sister == ReaperSister.Second ? new Color(0.86f, 0.92f, 1f) : new Color(1f, 0.9f, 0.96f);
         SetBodyTint(tint);
@@ -107,9 +111,44 @@ public partial class ReaperSisterBoss : WildBossBase
     }
 
     void OnDestroy() { All.Remove(this); }
+
+    // 2026-10-20: 移動のコマ(624×667 など)と待機の絵(777×907 など)は同じ PPU 512 だが描かれた大きさが違い、溜め/攻撃(待機の絵)に
+    // 入った瞬間に体が最大 36% 大きくなっていた。体の高さ(判定の bodyHeight)は待機の絵で決めているので、移動のコマを待機の絵の高さへそろえる
+    // (追跡モードの ReaperAnimator は元のコマのまま)。新しい姿勢の絵(Resources/BossAnim/reaper_*)も待機の絵と同じ縮尺で入れる
+    static Sprite[] MatchIdleScale(Sprite[] frames, Sprite idle)
+    {
+        if (idle == null || frames == null) return frames;
+        var o = new Sprite[frames.Length];
+        float target = idle.bounds.size.y;
+        for (int i = 0; i < frames.Length; i++)
+        {
+            var f = frames[i];
+            if (f == null) { o[i] = null; continue; }
+            float k = target / Mathf.Max(0.01f, f.bounds.size.y);
+            if (Mathf.Abs(k - 1f) < 0.02f) { o[i] = f; continue; }
+            Vector2 pivot = new Vector2(f.pivot.x / f.rect.width, f.pivot.y / f.rect.height);
+            o[i] = Sprite.Create(f.texture, f.rect, pivot, f.pixelsPerUnit / k, 0, SpriteMeshType.FullRect);
+            o[i].name = f.name;
+        }
+        return o;
+    }
+
+    // 撃破の倒れ方は姉妹ごと(BossDeathTuning "Reaper/Eldest" など)。断末魔の声は "Reaper" のまま
+    public override string DeathProfileKey => "Reaper/" + sister;
+
+    // BREAK の絵がまだ無い間は、BREAK/立ち直りの間に移動のコマ(歩く足)を回さず、待機の絵で崩れて見せる
+    protected override Sprite PoseOverride()
+    {
+        var a = Anim;
+        if (Retreating && a != null && a.hurt != null) return a.hurt[0]; // 前半の HP0: 崩れた姿勢のまま薄れて奥へ退く
+        bool hasBreakArt = a != null && (a.brk != null || a.breakLoop != null || a.rise != null);
+        if (!hasBreakArt && (Broken || BreakRecovering) && pose != Pose.Fly) return idleSprite;
+        return null;
+    }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public static bool DebugHold;
     public bool DebugHolding { get; private set; }
+    public void DebugSetAlpha(float a) => SetAlpha(a); // 撮影用: 他の姉妹を薄くして一人の動きを見やすく
     public Vector3 DebugHitboxCenter(string which) { var hb = which == "sever" ? sever : which == "swoop" ? swoop : which == "scythe" ? scythe : null; return hb != null ? hb.transform.position : Vector3.zero; }
     public bool DebugHitboxActive(string which) { var hb = which == "sever" ? sever : which == "swoop" ? swoop : which == "scythe" ? scythe : null; return hb != null && hb.IsActive; }
 #endif

@@ -36,6 +36,7 @@ public class ReaperBullet : MonoBehaviour
     public static void ResetStats() { Spawned = BrokenCount = ReflectedCount = ReflectHits = PlayerHits = HazardIgnored = 0; SpawnedByKind.Clear(); }
 
     SpriteRenderer body, rim, core;
+    float coreBase = 1f;
     BoxCollider2D col;
     float age, pulseSeed;
     ReaperSisterBoss target;
@@ -71,9 +72,29 @@ public class ReaperBullet : MonoBehaviour
     {
         ReaperFx.Colors(sister, kind, out bodyColor, out rimColor);
         int order = RenderOrder.CombatFx + 2; // 背景/ボスの体/攻撃の光より手前(埋もれない)
-        body = Layer("Body", ReaperFx.Fill(shape), bodyColor, order);
-        rim = Layer("Rim", ReaperFx.Rim(shape), rimColor, order + 1);
-        if (kind == ReaperBulletKind.Reflectable) core = Layer("Core", ReaperFx.Core(shape), Color.white, order + 2);
+        var art = ReaperFx.BodyArt(this.shape);
+        if (art != null)
+        {
+            // 正式な絵(2026-10-20): 白〜灰色の絵に姉妹の明るい色を掛ける(返せない弾/牙は色付きの絵なのでそのまま)。後ろに同じ絵を大きめに薄く敷いて光の縁にする
+            bool colored = kind == ReaperBulletKind.Hazard;
+            Color tintBody = colored ? Color.white : (kind == ReaperBulletKind.Reflectable ? Color.Lerp(rimColor, Color.white, 0.25f) : rimColor);
+            rim = Layer("Rim", art, new Color(rimColor.r, rimColor.g, rimColor.b, 0.55f), order - 1);
+            rim.transform.localScale = Vector3.one * 1.18f;
+            body = Layer("Body", art, tintBody, order);
+            bodyColor = tintBody;
+            if (kind == ReaperBulletKind.Reflectable)
+            {
+                var coreArt = ReaperFx.CoreArt();
+                core = Layer("Core", coreArt != null ? coreArt : ReaperFx.Core(this.shape), Color.white, order + 2);
+                if (coreArt != null) { coreBase = 0.75f; core.transform.localScale = Vector3.one * coreBase; }
+            }
+        }
+        else
+        {
+            body = Layer("Body", ReaperFx.Fill(shape), bodyColor, order);
+            rim = Layer("Rim", ReaperFx.Rim(shape), rimColor, order + 1);
+            if (kind == ReaperBulletKind.Reflectable) core = Layer("Core", ReaperFx.Core(shape), Color.white, order + 2);
+        }
         transform.localScale = new Vector3(size.x, size.y, 1f);
         var rb = gameObject.AddComponent<Rigidbody2D>();
         rb.bodyType = RigidbodyType2D.Kinematic;
@@ -156,7 +177,7 @@ public class ReaperBullet : MonoBehaviour
             case ReaperBulletKind.Reflectable:
                 // 芯が脈打つ + 輪郭が明るく光る(返せる合図)
                 float k = 0.75f + 0.25f * Mathf.Sin(t * 12f);
-                if (core != null) { core.color = new Color(1f, 1f, 1f, k); core.transform.localScale = Vector3.one * (0.9f + 0.12f * Mathf.Sin(t * 12f)); }
+                if (core != null) { core.color = new Color(1f, 1f, 1f, k); core.transform.localScale = Vector3.one * coreBase * (0.9f + 0.12f * Mathf.Sin(t * 12f)); }
                 rim.color = Color.Lerp(rimColor, Color.white, 0.35f + 0.25f * Mathf.Sin(t * 12f));
                 if (Random.value < 0.08f && !reflected)
                     OneShotSpriteEffect.CreateTweened(OneShotSpriteEffect.SoftDotSprite(), transform.position + (Vector3)(Random.insideUnitCircle * size.x * 0.45f), Color.white, 0.18f, 0.25f, 0.05f, 0.9f, 0f, default, 0f, RenderOrder.CombatFx + 4, 0.1f);
@@ -290,6 +311,7 @@ public class ReaperBullet : MonoBehaviour
     {
         foreach (ReaperBulletShape sh in System.Enum.GetValues(typeof(ReaperBulletShape))) { ReaperFx.Fill(sh); ReaperFx.Rim(sh); ReaperFx.Core(sh); }
         ReaperFx.Disc(); BossFx.Ring(); BossFx.Fang(); BossFx.WarnZone(); BossFx.Block(); OneShotSpriteEffect.SoftDotSprite();
+        foreach (var n in new[] { "crescent", "orb", "blade", "spike", "fangs", "core", "ring", "jaws" }) ReaperFx.Art(n);
     }
 
     public static void ClearAll()
@@ -413,6 +435,19 @@ public static class ReaperFx
             default: body = SisterBody(s); rim = SisterRim(s); break;
         }
     }
+
+    // 正式な絵(Resources/Effects/Reaper/、無ければ手続きの仮の絵)
+    static readonly Dictionary<string, Sprite> art = new Dictionary<string, Sprite>();
+    public static Sprite Art(string name)
+    {
+        if (art.TryGetValue(name, out var s)) return s;
+        s = Resources.Load<Sprite>("Effects/Reaper/" + name);
+        art[name] = s;
+        return s;
+    }
+    public static Sprite BodyArt(ReaperBulletShape s) => Art(s == ReaperBulletShape.Crescent ? "crescent" : s == ReaperBulletShape.Orb ? "orb"
+        : s == ReaperBulletShape.Blade ? "blade" : s == ReaperBulletShape.Spike ? "spike" : "fangs");
+    public static Sprite CoreArt() => Art("core");
 
     static Sprite softDisc;
     // 地面の影/予兆の円(横長に潰して使う)

@@ -6,10 +6,12 @@ using UnityEngine;
 // 姿勢名: idle(待機の繰り返し) / move(移動の繰り返し) / windup(溜めの時間に合わせて順に) / attack(攻撃の間に順に)
 //         hurt(被弾) / break(BREAK・必殺技の後の隙) / ult(必殺技: 0=構え 1=突進など) / defeat(撃破)
 //         windupB / attackB(2つ目の技の溜め/攻撃。ボスの技が animVariant = 1 にした時だけ使う。無ければ windup/attack)。2026-10-19 死神三姉妹
+//         2026-10-20(死神三姉妹のアニメーション品質): recover / recoverB(攻撃の後の戻り。Recover の始めに順に)、breakloop(BREAK の間の繰り返し。
+//         break の後)、rise(BREAK からの立ち直り)。hurt が2枚以上なら被弾/怯みの間に順に。どれも無いボスは今までどおり
 // どれも無ければ今までどおりの1枚絵(idle/windup/attack のスプライト)。絵は全部同じ縮尺(待機の絵と同じピクセルの大きさ)で、足元が下端。
 public class BossAnimSet
 {
-    public Sprite[] idle, move, windup, attack, hurt, brk, ult, defeat, windupB, attackB;
+    public Sprite[] idle, move, windup, attack, hurt, brk, ult, defeat, windupB, attackB, recover, recoverB, breakLoop, rise;
     public float idleFps = 6f, moveFps = 12f;
     // 本物の走りのコマがある時は、格子の変形(偽の脚の動き)を弱める
     public float rigLocoScale = 0.2f;
@@ -31,6 +33,7 @@ public class BossAnimSet
                 idle = Pick(all, "idle_"), move = Pick(all, "move_"), windup = Pick(all, "windup_"), attack = Pick(all, "attack_"),
                 hurt = Pick(all, "hurt_"), brk = Pick(all, "break_"), ult = Pick(all, "ult_"), defeat = Pick(all, "defeat_"),
                 windupB = Pick(all, "windupB_"), attackB = Pick(all, "attackB_"),
+                recover = Pick(all, "recover_"), recoverB = Pick(all, "recoverB_"), breakLoop = Pick(all, "breakloop_"), rise = Pick(all, "rise_"),
             };
         }
         cache[key] = set;

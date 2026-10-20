@@ -88,6 +88,10 @@ public class BossDeathTuning : ScriptableObject
         new BossEntry("Sky/MechDragon", BossDeathProfile.Flying, 2.4f, 6f, 16f, BossDeathFx.Lightning), // 希少な強敵: 火花を散らして落ちる
         new BossEntry("Majin", BossDeathProfile.Humanoid, 2.0f, 6f, 14f),
         new BossEntry("Reaper", BossDeathProfile.Humanoid, 1.4f, 6f, 14f),
+        // 2026-10-20: 姉妹ごとの倒れ方(長女 = 膝をつく人型 / 次女 = 浮遊が保てず落ちる / 三女 = 空中で崩れて落ちる)。声は "Reaper" のまま
+        new BossEntry("Reaper/Eldest", BossDeathProfile.Humanoid, 1.6f, 5f, 14f),
+        new BossEntry("Reaper/Second", BossDeathProfile.Flying, 1.2f, 4f, 14f),
+        new BossEntry("Reaper/Youngest", BossDeathProfile.Flying, 0.9f, 8f, 14f),
     };
 
     public BossEntry For(string key)
