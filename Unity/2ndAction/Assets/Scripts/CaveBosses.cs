@@ -44,6 +44,8 @@ public class CentipedeBoss : CaveBossBase
     {
         locoStyle = LocoStyle.Crawl;
         enterSpeed = 8.5f;
+        animKey = "centipede"; // 2026-10-20: 姿勢ごとのコマ(Resources/BossAnim/centipede、エステルさんと相談した21コマ)。0=噛みつき 1=体当たり 2=低い突進 3=背の高い突進
+        artPoseProceduralScale = 0.3f;
         Vector2 c = new Vector2(FrontReach + 0.6f, bodyHeight * 0.35f), s = new Vector2(2.0f, 1.1f);
         bite = NewHitbox("Bite", c, s, BossFx.Fang(), new Color(1f, 1f, 1f, 0.95f));
         biteMark = NewMarker(c, s);
@@ -63,6 +65,7 @@ public class CentipedeBoss : CaveBossBase
             if (UltimateReady(2) && CanUseCeiling(9f)) { yield return CaveCrawler(); continue; }
             if (SpecialReady(SpecialPhase) && CanUseCeiling(5f)) { MarkSpecial(); yield return CeilingChase(); continue; }
             int pick = BossAiUtil.PickNoRepeat(3, ref lastPick);
+            animVariant = pick == 0 ? 0 : pick == 1 ? 1 : 2;
             if (pick == 0) yield return Melee(bite, biteMark, 1.3f, 2.8f, 0.6f, 0.24f, 0.7f);
             else if (pick == 1)
             {
@@ -84,6 +87,7 @@ public class CentipedeBoss : CaveBossBase
     // 第2段階: 天井を並走して落石 → 目の前に落ちる
     IEnumerator CeilingChase()
     {
+        animVariant = 0;
         yield return MoveToGap(5f, 6f, 1.4f);
         yield return ClimbToCeiling(0.55f);
         freeGap = true;
@@ -108,6 +112,7 @@ public class CentipedeBoss : CaveBossBase
     IEnumerator CaveCrawler()
     {
         if (!StartUlt("CAVE CRAWLER", new Color(0.9f, 1f, 0.5f))) yield break;
+        animVariant = 0;
         freeGap = true;
         // ① 前方の壁を登る
         yield return MoveToGap(7f, 7f, 1.2f);
@@ -131,6 +136,7 @@ public class CentipedeBoss : CaveBossBase
         ShockFromFront(1.0f, 9f, CaveLook.Dirt, true);
         yield return Wait(0.35f);
         // ⑤ 地上を逆走(低い=跳ぶ: 2回目)
+        animVariant = 2; // コマ: 低い突進
         rush.damageAmount = UltimateDamage;
         facing = -1f; facingLocked = true;
         yield return Telegraph(0.75f, rushMark);
@@ -143,6 +149,7 @@ public class CentipedeBoss : CaveBossBase
         facing = 1f; facingLocked = true;
         LaneWarn(0f, 9f, 0f, 2.3f, 0.95f, TallLaneColor);
         Glow(0.9f, new Color(1f, 0.8f, 0.3f));
+        animVariant = 3; SetPose(Pose.Windup); // コマ: 前半を高く起こす(背の高い突進の予告。時間は同じ)
         yield return Wait(0.95f);
         tallRush.damageAmount = UltimateDamage;
         yield return Swoop(Gap, OffscreenAheadGap(), 15f, 0f, tallRush);

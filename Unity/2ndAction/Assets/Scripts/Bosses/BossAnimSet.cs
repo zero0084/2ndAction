@@ -12,6 +12,8 @@ using UnityEngine;
 public class BossAnimSet
 {
     public Sprite[] idle, move, windup, attack, hurt, brk, ult, defeat, windupB, attackB, recover, recoverB, breakLoop, rise;
+    // 2026-10-20: 3つ目/4つ目の技(animVariant 2 = C、3 = D)。ムカデの低い突進/背の高い突進
+    public Sprite[] windupC, attackC, windupD, attackD;
     public float idleFps = 6f, moveFps = 12f;
     // 本物の走りのコマがある時は、格子の変形(偽の脚の動き)を弱める
     public float rigLocoScale = 0.2f;
@@ -34,11 +36,17 @@ public class BossAnimSet
                 hurt = Pick(all, "hurt_"), brk = Pick(all, "break_"), ult = Pick(all, "ult_"), defeat = Pick(all, "defeat_"),
                 windupB = Pick(all, "windupB_"), attackB = Pick(all, "attackB_"),
                 recover = Pick(all, "recover_"), recoverB = Pick(all, "recoverB_"), breakLoop = Pick(all, "breakloop_"), rise = Pick(all, "rise_"),
+                windupC = Pick(all, "windupC_"), attackC = Pick(all, "attackC_"), windupD = Pick(all, "windupD_"), attackD = Pick(all, "attackD_"),
             };
         }
         cache[key] = set;
         return set;
     }
+
+    // 技の番号(animVariant)ごとの溜め/攻撃。その技のコマが無ければ1つ目の技のコマ
+    public Sprite[] WindupFor(int v) => (v == 1 ? windupB : v == 2 ? windupC : v == 3 ? windupD : null) ?? windup;
+    public Sprite[] AttackFor(int v) => (v == 1 ? attackB : v == 2 ? attackC : v == 3 ? attackD : null) ?? attack;
+    public Sprite[] RecoverFor(int v) => (v == 1 ? recoverB : null) ?? recover;
 
     static Sprite[] Pick(Sprite[] all, string prefix)
     {

@@ -481,7 +481,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
 
     // アニメーション強化(2026-10-17): 姿勢ごとのコマ(Resources/BossAnim/<animKey>/)。各ボスの OnInit で animKey を入れる。無ければ今までどおり
     protected string animKey;
-    // 2026-10-19: 技ごとの2つ目の溜め/攻撃のコマ(windupB/attackB)を使う時は 1。各技の始めで決める(無ければ1つ目のまま)
+    // 2026-10-19: 技ごとの2つ目の溜め/攻撃のコマ(windupB/attackB)を使う時は 1(2026-10-20: 2 = C、3 = D も)。各技の始めで決める(無ければ1つ目のまま)
     protected int animVariant;
     BossAnimSet anim; bool animLoaded;
     float hurtArtAt = -9f, hurtArtUntil = -9f;
@@ -494,7 +494,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     {
         var a = Anim;
         if (a == null) return null;
-        if (UltimateRunning && a.ult != null && pose != Pose.Landing && animVariant != 1) // 2026-10-20: 必殺技の中の2つ目の技(ライダーの魔法弾)はその技のコマ
+        if (UltimateRunning && a.ult != null && pose != Pose.Landing && animVariant == 0) // 2026-10-20: 必殺技の中の2つ目の技(ライダーの魔法弾)はその技のコマ
         {
             if (pose == Pose.Windup) return a.ult[0];
             // 2026-10-20: 3枚以上なら突進中は全部を繰り返す(ゴブリンライダーの騎乗突撃: 構える → 蹴る → 伸びる。脚が止まって見えないように)
@@ -523,19 +523,19 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         {
             case Pose.Windup:
             {
-                var w = animVariant == 1 && a.windupB != null ? a.windupB : a.windup;
+                var w = a.WindupFor(animVariant);
                 if (w != null) return BossAnimSet.Progress(w, windupProgress);
                 break;
             }
             case Pose.Attack:
             {
-                var at = animVariant == 1 && a.attackB != null ? a.attackB : a.attack;
+                var at = a.AttackFor(animVariant);
                 if (at != null) return BossAnimSet.Progress(at, 1f - attackProgress);
                 break;
             }
             case Pose.Recover:
             {
-                var r = animVariant == 1 && a.recoverB != null ? a.recoverB : a.recover;
+                var r = a.RecoverFor(animVariant);
                 if (r != null) return BossAnimSet.Progress(r, poseTime / Mathf.Max(0.05f, recoverArtSeconds));
                 break;
             }
@@ -925,7 +925,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         DebugAct = "Recover";
         EndAttack();
         var ra = Anim;
-        var rf = ra != null ? (animVariant == 1 && ra.recoverB != null ? ra.recoverB : ra.recover) : null;
+        var rf = ra != null ? ra.RecoverFor(animVariant) : null;
         if (rf != null) { recoverArtSeconds = Mathf.Clamp(seconds * 0.6f, 0.25f, 0.6f); SetPose(Pose.Recover); }
         yield return Wait(seconds);
     }
