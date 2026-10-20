@@ -33,6 +33,48 @@ public partial class QaSweep
         }
     }
 
+    IEnumerator DemoSpawnMobs(string[] ids)
+    {
+        for (int i = 0; i < 40; i++)
+        {
+            var ed = EncounterDirector.Instance;
+            var go = ed != null ? ed.DebugSpawnEnemy(ids[i % ids.Length], default) : null;
+            StartCoroutine(DemoHitMob(go));
+            yield return new WaitForSeconds(1.2f);
+        }
+    }
+
+    // 出した雑魚を、少し近づいてから 1回叩いて(被弾の絵)、0.6秒後に倒す(撃破の絵)。仲間の攻撃と同じ入口(AllyApplyHit)
+    IEnumerator DemoHitMob(GameObject go)
+    {
+        if (go == null) yield break;
+        yield return new WaitForSeconds(0.9f);
+        var ec = go != null ? go.GetComponent<EnemyController>() : null;
+        if (ec == null) yield break;
+        string id = ec.name;
+        ec.AllyApplyHit(0, 1, default, go.transform.position, null);
+        yield return new WaitForSeconds(0.1f);
+        DemoMobShot(ec, "hit");
+        yield return new WaitForSeconds(0.5f);
+        if (ec != null && ec.isActiveAndEnabled)
+        {
+            ec.AllyApplyHit(0, 99999, default, go.transform.position, null);
+            yield return new WaitForSeconds(0.08f);
+            DemoMobShot(ec, "death");
+        }
+    }
+
+    // 雑魚の被弾/撃破の瞬間のフレーム番号と画面の位置を書く(mob_shots.txt。撃破の後は分身が出るので、その位置の絵を見る)
+    int mobShotN;
+    void DemoMobShot(EnemyController ec, string what)
+    {
+        if (ec == null || Camera.main == null) return;
+        var sr = ec.GetComponentInChildren<SpriteRenderer>();
+        Vector3 sp = Camera.main.WorldToScreenPoint(sr != null ? sr.bounds.center : ec.transform.position);
+        string fn = $"{what}_{mobShotN++:000}@f{demoFrame:00000}"; // 撮影は DemoRecord の毎フレームの絵(同じフレームに2枚は撮れない)
+        System.IO.File.AppendAllText(System.IO.Path.Combine(outDir, "mob_shots.txt"), $"{fn}\t{ec.name}\t{sp.x:F0}\t{Screen.height - sp.y:F0}\t{(sr != null && sr.sprite != null ? sr.sprite.name : "-")}\n");
+    }
+
     IEnumerator AnimDemoMode()
     {
         Application.targetFrameRate = 60;
@@ -52,7 +94,11 @@ public partial class QaSweep
         PlayerController.DebugSpeedScale = float.Parse(Arg("-adSpeed", "1"), System.Globalization.CultureInfo.InvariantCulture);
         Time.captureFramerate = 30;
 
-        yield return DemoRecord("run", 3f);
+        // 2026-10-20: -adMobs goblin,flying_wyvern で、走りの間に雑魚を1.2秒ごとに目の前へ出す(被弾/撃破の絵の撮影)
+        string[] mobs = Arg("-adMobs", "").Split(new[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+        if (mobs.Length > 0) StartCoroutine(DemoSpawnMobs(mobs));
+        yield return DemoRecord("run", float.Parse(Arg("-adRun", "3"), System.Globalization.CultureInfo.InvariantCulture)); // 2026-10-20: -adRun で長く(雑魚の被弾/撃破の撮影)
+        if (Arg("-adRunOnly", "0") == "1") { Time.captureFramerate = 0; PlayerController.DebugSpeedScale = 1f; L($"[demo] total {demoFrame} frames"); yield break; }
 
         if (cave) Bm.DebugCaveEncounter((CaveBossKind)System.Enum.Parse(typeof(CaveBossKind), bossArg[1]), -1);
         else Bm.DebugWildEncounter((WildBossKind)System.Enum.Parse(typeof(WildBossKind), bossArg[1]), -1);

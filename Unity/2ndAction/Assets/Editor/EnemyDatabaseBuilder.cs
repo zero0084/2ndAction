@@ -157,6 +157,50 @@ public static class EnemyDatabaseBuilder
         return AssetDatabase.LoadAssetAtPath<Sprite>(path);
     }
 
+    // 被弾/撃破の絵(2026-10-20、エステルさんと相談): Assets/Art/EnemyPose/<走りのフォルダ名>/hit.png・death.png。
+    // 走りのフォルダ単位なので、同じ絵を使う色違い(goblin_elite 等)にも同じ絵が付く。縮尺は走りの1コマ目と同じPPU
+    // (画像側を事前にその縮尺へ合わせてある)、ピボットも1コマ目に合わせる(足元/中央)。被弾は0.3秒、撃破は吹き飛ぶ間に出る(EnemyController)
+    const string EnemyPoseArtDir = "Assets/Art/EnemyPose";
+    static Sprite LoadPoseSprite(Spec spec, string pose)
+    {
+        if (string.IsNullOrEmpty(spec.runFramesDir)) return null;
+        string path = $"{EnemyPoseArtDir}/{Path.GetFileName(spec.runFramesDir.TrimEnd('/'))}/{pose}.png";
+        if (!File.Exists(path)) return null;
+        Sprite[] frames = LoadRunFrames(spec.runFramesDir);
+        if (frames.Length == 0 || frames[0] == null) return null;
+        Sprite f0 = frames[0];
+        bool centerPivot = f0.pivot.y > f0.rect.height * 0.3f;
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+        var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = f0.pixelsPerUnit;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.mipmapEnabled = false;
+            var settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            settings.spriteAlignment = (int)(centerPivot ? SpriteAlignment.Center : SpriteAlignment.BottomCenter);
+            settings.spriteMeshType = SpriteMeshType.FullRect;
+            importer.SetTextureSettings(settings);
+            importer.SaveAndReimport();
+        }
+        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+    }
+
+    static bool SyncPoses(EnemyDefinition def, Spec spec)
+    {
+        Sprite hit = LoadPoseSprite(spec, "hit"), death = LoadPoseSprite(spec, "death");
+        if (hit == null && death == null) return false;
+        if (def.poses == null) def.poses = new EnemyPoseSprites();
+        bool changed = def.poses.hit != hit || def.poses.death != death;
+        def.poses.hit = hit; def.poses.death = death;
+        return changed;
+    }
+
     static Sprite[] LoadRunFrames(string folder)
     {
         if (string.IsNullOrEmpty(folder) || !Directory.Exists(folder)) return new Sprite[0];
@@ -224,6 +268,7 @@ public static class EnemyDatabaseBuilder
                 }
                 // 攻撃ポーズ(2026-09-26) - 手動調整値ではなく素材そのものなので、bulletSpriteと同じく
                 // 常に最新のPNG(Assets/Art/EnemyAttack/<id>_attack.png)へ同期する。
+                if (SyncPoses(existing, spec)) EditorUtility.SetDirty(existing); // 被弾/撃破の絵(2026-10-20)
                 Sprite attackForExisting = LoadAttackSprite(spec);
                 if (attackForExisting != null && existing.attackSprite != attackForExisting)
                 {
@@ -246,6 +291,7 @@ public static class EnemyDatabaseBuilder
             def.enableVisualFacing = spec.enableVisualFacing;
             def.defaultFacingRight = spec.defaultFacingRight;
             def.runFrames = !string.IsNullOrEmpty(spec.runFramesDir) ? LoadRunFrames(spec.runFramesDir) : null;
+            SyncPoses(def, spec);
             // Reward/MILE System Ver.1 - Spec.mileReward defaults to 0 (C#
             // struct default) when a Spec below doesn't set it explicitly;
             // treat that as "1" (Normal's value) rather than an accidental

@@ -29,5 +29,26 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 5d8684af0e80ea041827e9278cabf65e, type: 3}
   - {fileID: 21300000, guid: 32f7c0f69a7483b40867ef1df5997e73, type: 3}
   - {fileID: 21300000, guid: 6f9987db11efe84449e9d6896718ca76, type: 3}
+  attackSprite: {fileID: 0}
   mileReward: 2
   visualScaleMultiplier: 1
+  aiTier: 0
+  stageIds: []
+  bonusKind: 0
+  poses:
+    telegraph: {fileID: 0}
+    attack: {fileID: 0}
+    recover: {fileID: 0}
+    hit: {fileID: 21300000, guid: 2e2b0ad945958604f9cdeab4244066b5, type: 3}
+    death: {fileID: 21300000, guid: 9046063d07c582c42a471aff15242c44, type: 3}
+    dormant: {fileID: 0}
+    wake: {fileID: 0}
+    charge: {fileID: 0}
+    dive: {fileID: 0}
+  idleHoverAmplitude: 0
+  bodyColliderScale: {x: 1, y: 1}
+  bodyColliderOffset: {x: 0, y: 0}
+  launchScale: 1
+  knockbackScale: 1
+  finishMass: 0
+  finishKnockbackResistance: 0
