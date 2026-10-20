@@ -40,7 +40,10 @@ public partial class QaSweep
         // デッキから何枚か取る(うち1枚はキャラ固有カードと同じ → ★の札に+1)
         var apply = typeof(GameManager).GetMethod("ApplyUpgradeByCardId", NP);
         var pool = CardDatabase.AllCards.Where(c => c != null && c.icon != null && !CardVariant.IsVariantKey(c.cardId)).Select(c => c.cardId).Where(id => !have.Contains(id)).ToList();
-        foreach (string id in pool.Take(6)) { apply.Invoke(gm, new object[] { id }); yield return null; }
+        // 2026-10-20: -hudCards a,b,c で取るカードを指定(新しいアイコンの確認用)。3択もその先頭3枚から出す
+        string[] forced = Arg("-hudCards", "").Split(new[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+        foreach (string id in forced.Length > 0 ? forced.AsEnumerable() : pool.Take(6)) { apply.Invoke(gm, new object[] { id }); yield return null; }
+        if (forced.Length >= 3) gm.SetDeck(forced.Take(3));
         string charId = gm.CharacterCardIds.FirstOrDefault(x => !string.IsNullOrEmpty(x));
         if (charId != null) { apply.Invoke(gm, new object[] { charId }); L($"[hud] picked the character card {charId} from the deck too -> picks {gm.GetRunPickCount(charId)}"); }
         yield return new WaitForSecondsRealtime(0.8f);

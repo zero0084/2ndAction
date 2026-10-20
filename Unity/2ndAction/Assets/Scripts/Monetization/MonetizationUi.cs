@@ -25,7 +25,7 @@ public class MonetizationUi : MonoBehaviour
         var p = new Rect((w - pw) * 0.5f, (h - ph) * 0.5f, pw, ph);
         OrnateUi.DrawPanel(p, 0.96f);
         LocGUI.Label(new Rect(p.x + 24f, p.y + 12f, p.width - 100f, 44f), "広告なしパス(買い切り)", UiKit.Label(26f, TextAnchor.MiddleLeft, true, new Color(1f, 0.86f, 0.45f)));
-        if (UiKit.Button(new Rect(p.xMax - 66f, p.y + 12f, 48f, 42f), "×", 24f, false, false)) Close();
+        if (UiIcons.CloseButton(new Rect(p.xMax - 66f, p.y + 12f, 48f, 42f))) Close();
 
         float x = p.x + 28f, y = p.y + 66f, full = p.width - 56f;
         var body = new GUIStyle(UiKit.Label(16f, TextAnchor.UpperLeft, false, Color.white)) { wordWrap = true };

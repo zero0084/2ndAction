@@ -494,9 +494,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     {
         var a = Anim;
         if (a == null) return null;
-        if (UltimateRunning && a.ult != null && pose != Pose.Landing)
+        if (UltimateRunning && a.ult != null && pose != Pose.Landing && animVariant != 1) // 2026-10-20: 必殺技の中の2つ目の技(ライダーの魔法弾)はその技のコマ
         {
             if (pose == Pose.Windup) return a.ult[0];
+            // 2026-10-20: 3枚以上なら突進中は全部を繰り返す(ゴブリンライダーの騎乗突撃: 構える → 蹴る → 伸びる。脚が止まって見えないように)
+            if (a.ult.Length >= 3 && (pose == Pose.Attack || pose == Pose.Move || pose == Pose.Fly))
+                return BossAnimSet.Loop(a.ult, a.moveFps, Time.time + loopTimeOffset);
             if (pose == Pose.Attack || pose == Pose.Move || pose == Pose.Fly) return a.ult[Mathf.Min(1, a.ult.Length - 1)];
         }
         // 2026-10-20: BREAK からの立ち直り(rise_)/ BREAK の間の繰り返し(breakloop_)。どちらも無いボスは今までどおり

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: absolute_zero
   cardName: ABSOLUTE ZERO
-  icon: {fileID: 2800000, guid: b6a0b1c77698f0b489adabc83507dcb8, type: 3}
-  description: "命中時に冷えを与えることがある。敵が凍結すると追加ダメージ。冷えた/凍結した敵への攻撃+3%/Lv。凍結時間も延び、ボスの減速が強くなる"
+  icon: {fileID: 2800000, guid: e9329d451efc2164facb15fa23d14459, type: 3}
+  description: "\u547D\u4E2D\u6642\u306B\u51B7\u3048\u3092\u4E0E\u3048\u308B\u3053\u3068\u304C\u3042\u308B\u3002\u6575\u304C\u51CD\u7D50\u3059\u308B\u3068\u8FFD\u52A0\u30C0\u30E1\u30FC\u30B8\u3002\u51B7\u3048\u305F/\u51CD\u7D50\u3057\u305F\u6575\u3078\u306E\u653B\u6483+3%/Lv\u3002\u51CD\u7D50\u6642\u9593\u3082\u5EF6\u3073\u3001\u30DC\u30B9\u306E\u6E1B\u901F\u304C\u5F37\u304F\u306A\u308B"
   category: 1
   sortOrder: 178
   recommendPriority: 5

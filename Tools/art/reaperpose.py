@@ -104,4 +104,5 @@ def main():
         can.save(out)
         print(f'{out}: scale {scale:.3f} size {can.size} face {f["w"]}x{f["h"]} (idle {fi["w"]}x{fi["h"]})')
 
-main()
+if __name__ == "__main__":
+    main()

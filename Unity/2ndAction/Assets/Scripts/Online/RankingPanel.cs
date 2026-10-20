@@ -85,7 +85,7 @@ public class RankingPanel : MonoBehaviour
         GUI.Label(new Rect(panel.x + 200f, panel.y + 14f, panel.width - 300f, 44f), $"DEV  UGS env: {UgsEnvironment.Name}  (not the public ranking)" + (Leaderboard.HeldCount > 0 ? $"  held {Leaderboard.HeldCount}" : ""),
             UiKit.Label(13f, TextAnchor.MiddleLeft, true, new Color(1f, 0.6f, 0.4f)));
 #endif
-        if (UiKit.Button(new Rect(panel.xMax - 70f, panel.y + 14f, 50f, 46f), "×", 26f, false, false)) Close();
+        if (UiIcons.CloseButton(new Rect(panel.xMax - 70f, panel.y + 14f, 50f, 46f))) Close();
 
         var body = new Rect(panel.x + 24f, panel.y + 70f, panel.width - 48f, panel.height - 70f - 80f);
         if (!Leaderboard.Joined) DrawJoin(body);

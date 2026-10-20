@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: gale
   cardName: GALE
-  icon: {fileID: 2800000, guid: db12cc1b4c68c014b9601d0d590877bd, type: 3}
-  description: "命中で風刃が出ることがある。風刃の速さ+5%/Lv、飛距離+0.4m/Lv。風刃と飛び道具の貫通+1(Lv4〜で+2、Lv7〜で+3)"
+  icon: {fileID: 2800000, guid: b47134d9317b7de42bd064d0aaed648d, type: 3}
+  description: "\u547D\u4E2D\u3067\u98A8\u5203\u304C\u51FA\u308B\u3053\u3068\u304C\u3042\u308B\u3002\u98A8\u5203\u306E\u901F\u3055+5%/Lv\u3001\u98DB\u8DDD\u96E2+0.4m/Lv\u3002\u98A8\u5203\u3068\u98DB\u3073\u9053\u5177\u306E\u8CAB\u901A+1(Lv4\u301C\u3067+2\u3001Lv7\u301C\u3067+3)"
   category: 1
   sortOrder: 181
   recommendPriority: 5

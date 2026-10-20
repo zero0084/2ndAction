@@ -37,7 +37,7 @@ public class DataDeletionUi : MonoBehaviour
         OrnateUi.DrawPanel(p, 0.96f);
         LocGUI.Label(new Rect(p.x + 24f, p.y + 12f, p.width - 100f, 44f), "データの削除", UiKit.Label(26f, TextAnchor.MiddleLeft, true, UiTheme.GoldText));
         bool busy = AccountDeletion.Busy;
-        if (UiKit.Button(new Rect(p.xMax - 66f, p.y + 12f, 48f, 42f), "×", 24f, false, false, !busy)) Close();
+        if (UiIcons.CloseButton(new Rect(p.xMax - 66f, p.y + 12f, 48f, 42f), !busy)) Close();
 
         float x = p.x + 28f, y = p.y + 64f, full = p.width - 56f;
         var head = new GUIStyle(UiKit.Label(17f, TextAnchor.UpperLeft, true, UiTheme.GoldText)) { wordWrap = true };

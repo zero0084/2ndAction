@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: burning_soul
   cardName: BURNING SOUL
-  icon: {fileID: 2800000, guid: 31cc7fc58c363a24188ac2f29c8b32df, type: 3}
-  description: "炎上の威力+8%/Lv、炎上時間+0.25秒/Lv。このカードだけでも命中で炎上させる(確率 Lv1で7%、以降+2%/Lv)"
+  icon: {fileID: 2800000, guid: b5900ca799debd0498dc7a4fc4482c99, type: 3}
+  description: "\u708E\u4E0A\u306E\u5A01\u529B+8%/Lv\u3001\u708E\u4E0A\u6642\u9593+0.25\u79D2/Lv\u3002\u3053\u306E\u30AB\u30FC\u30C9\u3060\u3051\u3067\u3082\u547D\u4E2D\u3067\u708E\u4E0A\u3055\u305B\u308B(\u78BA\u7387
+    Lv1\u30677%\u3001\u4EE5\u964D+2%/Lv)"
   category: 1
   sortOrder: 175
   recommendPriority: 5

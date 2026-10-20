@@ -81,7 +81,7 @@ public partial class DebugPanel : MonoBehaviour
         // 2026-10-14: 今の UGS の環境(開発版は production を使わない)と、送らずに残しているランキングの送信待ち
         GUI.Label(new Rect(p.x + 24f, p.y + 44f, p.width - 48f, 18f), $"UGS env: {UgsEnvironment.Name} ({UgsEnvironment.Source})  ranking pending {Leaderboard.PendingCount} / held {Leaderboard.HeldCount}" + (UgsEnvironment.Ignored != "" ? "  ignored " + UgsEnvironment.Ignored : ""),
             UiKit.Label(11f, TextAnchor.MiddleLeft, false, new Color(0.75f, 0.9f, 1f)));
-        if (UiKit.Button(new Rect(p.xMax - 66f, p.y + 12f, 48f, 42f), "×", 24f, false, false)) SetOpen(false);
+        if (UiIcons.CloseButton(new Rect(p.xMax - 66f, p.y + 12f, 48f, 42f))) SetOpen(false);
         if (UiKit.Button(new Rect(p.xMax - 200f, p.y + 12f, 126f, 42f), page == 0 ? "セーブ…" : "← 一般", 17f, page != 0, false)) { page = page == 0 ? 1 : 0; confirmSave = 0; confirmReset = false; }
         if (page == 0 && UiKit.Button(new Rect(p.xMax - 352f, p.y + 12f, 146f, 42f), "ラスダン終盤…", 16f, false, false)) { page = 2; confirmSave = 0; confirmReset = false; }
         if (page == 0 && UiKit.Button(new Rect(p.xMax - 504f, p.y + 12f, 146f, 42f), "画面の記録…", 16f, false, false)) { page = 12; confirmSave = 0; confirmReset = false; } // HUD/安全領域(2026-10-10)

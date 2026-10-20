@@ -14,8 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: character_ultimate
   cardName: ULTIMATE
-  icon: {fileID: 2800000, guid: d900a69da3359be45babfc63653a373f, type: 3}
-  description: "Gaugeが100%で発動(左下のボタン)。キャラ固有の必殺技で画面内の通常の敵を一撃で倒し、ボスには最大HPの20〜40%のダメージ(Lvで上がる)。そのまま大きく前進し(Lv1 300m → Lv9 1000m。ボス関門などの手前で止まり、ボス戦中は前進しない)、しばらく強化が続く(Lv1 5秒 → Lv9 12秒)。Gaugeは距離・撃破・ボスへのダメージで溜まる"
+  icon: {fileID: 2800000, guid: 8dd27a1e938c01d45a0eb25f742571e7, type: 3}
+  description: "Gauge\u304C100%\u3067\u767A\u52D5(\u5DE6\u4E0B\u306E\u30DC\u30BF\u30F3)\u3002\u30AD\u30E3\u30E9\u56FA\u6709\u306E\u5FC5\u6BBA\u6280\u3067\u753B\u9762\u5185\u306E\u901A\u5E38\u306E\u6575\u3092\u4E00\u6483\u3067\u5012\u3057\u3001\u30DC\u30B9\u306B\u306F\u6700\u5927HP\u306E20\u301C40%\u306E\u30C0\u30E1\u30FC\u30B8(Lv\u3067\u4E0A\u304C\u308B)\u3002\u305D\u306E\u307E\u307E\u5927\u304D\u304F\u524D\u9032\u3057(Lv1
+    300m \u2192 Lv9 1000m\u3002\u30DC\u30B9\u95A2\u9580\u306A\u3069\u306E\u624B\u524D\u3067\u6B62\u307E\u308A\u3001\u30DC\u30B9\u6226\u4E2D\u306F\u524D\u9032\u3057\u306A\u3044)\u3001\u3057\u3070\u3089\u304F\u5F37\u5316\u304C\u7D9A\u304F(Lv1
+    5\u79D2 \u2192 Lv9 12\u79D2)\u3002Gauge\u306F\u8DDD\u96E2\u30FB\u6483\u7834\u30FB\u30DC\u30B9\u3078\u306E\u30C0\u30E1\u30FC\u30B8\u3067\u6E9C\u307E\u308B"
   category: 5
   sortOrder: 183
   recommendPriority: 5

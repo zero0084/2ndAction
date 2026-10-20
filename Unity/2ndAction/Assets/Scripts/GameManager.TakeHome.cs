@@ -72,6 +72,8 @@ public partial class GameManager
     // 金色の印(MILE)。金の縁 → 濃い金 → 明るい中心のひし形を重ねる(白い四角を回して塗る。ホームの札の印と同じ描き方)
     static void DrawMileMedal(Rect r)
     {
+        // 2026-10-20: 正式な絵(金の菱形の硬貨、UiIcons.Mile)があればそれ。菱形が縦長なので少し大きめの枠に収める
+        if (UiIcons.Mile != null) { UiIcons.Draw(new Rect(r.x - r.width * 0.1f, r.y - r.height * 0.15f, r.width * 1.2f, r.height * 1.3f), UiIcons.Mile); return; }
         Color keep = GUI.color; Matrix4x4 m = GUI.matrix;
         Vector2 c = r.center;
         GUIUtility.RotateAroundPivot(45f, c);

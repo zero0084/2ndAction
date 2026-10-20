@@ -3,7 +3,8 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 
-// アニメーション強化の試作の確認動画(2026-10-17): -qaAnimDemo <dir> [-adChar ninja] [-adSpeed 1]
+// アニメーション強化の試作の確認動画(2026-10-17): -qaAnimDemo <dir> [-adChar ninja] [-adSpeed 1] [-adBoss Wild:Wolf|Cave:Centipede] [-adFight 12]
+// 2026-10-20: -adBoss で他のボスも撮る(Cave は natural_cave で)。区切りは <dir>/demo_ranges.txt(名前 タブ 最初 タブ 最後)にも書く
 // 30fps で毎フレーム書き出す(<dir>/frames/f00000.png)。区切りは qa_animdemo.txt に書く(ffmpeg で動画にする)。
 //   1) 走り  2) オオカミと戦う(補助の自動攻撃: 通常攻撃・命中の衝撃・オオカミの走り/溜め/噛みつき)
 //   3) オオカミの必殺技  4) BREAK  5) プレイヤーの被弾  6) オオカミの撃破  7) プレイヤーが倒れる
@@ -11,15 +12,23 @@ public partial class QaSweep
 {
     int demoFrame;
     string demoDir;
+    WildBossBase demoFocus;
 
     IEnumerator DemoRecord(string label, float seconds)
     {
-        L($"[demo] {label}: frames {demoFrame}-{demoFrame + Mathf.RoundToInt(seconds * 30f) - 1} (t={demoFrame / 30f:F1}s)");
         int n = Mathf.RoundToInt(seconds * 30f);
+        L($"[demo] {label}: frames {demoFrame}-{demoFrame + n - 1} (t={demoFrame / 30f:F1}s)");
+        System.IO.File.AppendAllText(System.IO.Path.Combine(outDir, "demo_ranges.txt"), $"{label.Split(' ')[0]}\t{demoFrame}\t{demoFrame + n - 1}\n");
         for (int i = 0; i < n; i++)
         {
             yield return new WaitForEndOfFrame();
             ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(demoDir, $"f{demoFrame:00000}.png"));
+            if (demoFocus != null && Camera.main != null) // ボスのまわりを切り抜く一覧用(recsheet.py と同じ形: 画面の x / 上からの y / 体の高さ px)
+            {
+                Vector3 sp = Camera.main.WorldToScreenPoint(demoFocus.CenterWorld);
+                float hpx = Mathf.Abs(Camera.main.WorldToScreenPoint(demoFocus.CenterWorld + Vector3.up * demoFocus.bodyHeight).y - sp.y) * 2f;
+                System.IO.File.AppendAllText(System.IO.Path.Combine(outDir, "demo_pos.txt"), $"{demoFrame}\t{sp.x:F0}\t{Screen.height - sp.y:F0}\t{hpx:F0}\n");
+            }
             demoFrame++;
         }
     }
@@ -31,7 +40,9 @@ public partial class QaSweep
         Random.InitState(20261017);
         BossManager.NetTestBossHpOverride = 4000000;
         string ch = Arg("-adChar", "ninja");
-        yield return BeginRun(ch, "wasteland_road");
+        string[] bossArg = Arg("-adBoss", "Wild:Wolf").Split(':');
+        bool cave = bossArg[0] == "Cave";
+        yield return BeginRun(ch, cave ? "natural_cave" : "wasteland_road");
         SetGod(true);
         if (HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(true);
         demoDir = System.IO.Path.Combine(outDir, "frames");
@@ -43,20 +54,22 @@ public partial class QaSweep
 
         yield return DemoRecord("run", 3f);
 
-        Bm.DebugWildEncounter(WildBossKind.Wolf, -1);
+        if (cave) Bm.DebugCaveEncounter((CaveBossKind)System.Enum.Parse(typeof(CaveBossKind), bossArg[1]), -1);
+        else Bm.DebugWildEncounter((WildBossKind)System.Enum.Parse(typeof(WildBossKind), bossArg[1]), -1);
         yield return WaitBossSpawn(10f);
         var b = WildAlive().FirstOrDefault();
-        Check(b != null, "demo: the wolf appeared");
+        Check(b != null, "demo: the boss appeared");
         if (b == null) { Time.captureFramerate = 0; yield return EndRun(); yield break; }
-        yield return DemoRecord("fight (assist attacks, the wolf runs / winds up / bites)", 12f);
+        demoFocus = b;
+        yield return DemoRecord("fight (assist attacks, the boss runs / winds up / attacks)", float.Parse(Arg("-adFight", "12"), System.Globalization.CultureInfo.InvariantCulture));
 
         b.DebugForceUltimate();
         float w = 0f;
         while (w < 3f && !b.UltimateRunning) { w += Time.deltaTime; yield return null; }
-        yield return DemoRecord("wolf ultimate", 7f);
+        yield return DemoRecord("ultimate", float.Parse(Arg("-adUlt", "7"), System.Globalization.CultureInfo.InvariantCulture));
 
         b.DebugBreak();
-        yield return DemoRecord("BREAK", 3f);
+        yield return DemoRecord("BREAK", 4f);
 
         SetGod(false);
         var lives = typeof(GameManager).GetProperty("Lives").GetSetMethod(true);
@@ -67,7 +80,7 @@ public partial class QaSweep
         SetGod(true);
 
         b.TakeDamage(Mathf.Max(99999, b.Hp), b.CenterWorld);
-        yield return DemoRecord("wolf defeat", 3.5f);
+        yield return DemoRecord("defeat", 3.5f);
 
         SetGod(false);
         w = 0f;

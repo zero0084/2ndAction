@@ -4245,7 +4245,8 @@ public partial class GameManager : MonoBehaviour
             {
                 int padLayer = PadNav.BeginLayer(PadNav.HudLayer); // II はラン中の HUD(パッドでは START で開く)
                 BeginHud();
-                bool pauseTapped = DrawStyledButton(V(GetPauseButtonRect()), "II", 22f, primary: showPauseMenu);
+                bool pauseTapped = DrawStyledButton(V(GetPauseButtonRect()), "", 22f, primary: showPauseMenu);
+                UiIcons.DrawPause(V(GetPauseButtonRect())); // 2026-10-20: 文字の II → 角の丸い白銀の太い縦棒2本(エステルさんと相談: 操作の記号は白、コードで正確に)
                 EndHud();
                 PadNav.EndLayer(padLayer);
                 if (pauseTapped)
@@ -5001,6 +5002,7 @@ public partial class GameManager : MonoBehaviour
         float heartsNow = Lives / (float)per;
         int slotsMax = Mathf.CeilToInt(maxLives / (float)per - 0.001f);
         Rect hr = new Rect(rect.x + 12f, rect.y + 20f, rect.width - 16f, rect.height - 22f);
+        if (DrawHeartIcons(hr, heartStyle, flash, per, heartsNow, slotsMax)) return; // 2026-10-20: 正式なハートの絵(UiIcons)。無ければ下の文字の♥
         if (Lives >= 10 * per)
         {
             var hc = new GUIContent("♥ ×" + (Lives % per == 0 ? (Lives / per).ToString() : heartsNow.ToString("0.0")));
@@ -5047,6 +5049,69 @@ public partial class GameManager : MonoBehaviour
                 GUI.EndGroup();
             }
         }
+    }
+
+    // HP のハートを絵で描く(2026-10-20、エステルさんと相談: 満タンと空は同じ輪郭の2枚。端数は満タンの絵を左から途中まで切り抜く。
+    // 封印は空の絵を暗い紫にして斜めの帯を重ねる)。並べ方・はみ出しの決まりは文字の♥と同じ。絵が無ければ false
+    bool DrawHeartIcons(Rect hr, GUIStyle heartStyle, float flash, int per, float heartsNow, int slotsMax)
+    {
+        Texture2D full = UiIcons.HeartFull, empty = UiIcons.HeartEmpty;
+        if (full == null || empty == null) return false;
+        Color keep = GUI.color;
+        float size = heartStyle.fontSize; // 文字の♥と同じ大きさ(被弾で少し縮む)
+        Color tint = Color.Lerp(Color.white, new Color(1f, 1f, 1f, 0.45f), flash); // 被弾: 文字の♥は白く光った → 絵は点滅(縮みは同じ)
+        if (Lives >= 10 * per)
+        {
+            GUI.color = tint;
+            UiIcons.Draw(new Rect(hr.x, hr.y + 2f, size, size), full);
+            GUI.color = keep;
+            string n = "×" + (Lives % per == 0 ? (Lives / per).ToString() : heartsNow.ToString("0.0"));
+            LocGUI.Label(new Rect(hr.x + size + 4f, hr.y, hr.width - size - 4f, size + 4f), n, heartStyle);
+            return true;
+        }
+        int slots = slotsMax <= 10 ? slotsMax : Mathf.CeilToInt(heartsNow - 0.001f);
+        if (slots <= 0) return true;
+        float gap = size * 0.18f;
+        float need = slots * size + (slots - 1) * gap;
+        if (need > hr.width) { size = Mathf.Max(10f, size * hr.width / need); gap = size * 0.18f; }
+        float y = hr.y + 2f;
+        if (SealedHearts > 0 && slotsMax <= 10)
+        {
+            for (int k = 0; k < SealedHearts; k++)
+            {
+                float gx = hr.x + (slots + k) * (size + gap);
+                if (gx + size > hr.xMax + 2f) break;
+                GUI.color = new Color(0.55f, 0.45f, 0.7f, 0.9f);
+                UiIcons.Draw(new Rect(gx, y, size, size), empty);
+                // 斜めの帯(封印)
+                Matrix4x4 m = GUI.matrix;
+                GUIUtility.RotateAroundPivot(-35f, new Vector2(gx + size * 0.5f, y + size * 0.5f));
+                GUI.color = new Color(0.62f, 0.5f, 0.85f, 0.95f);
+                GUI.DrawTexture(new Rect(gx - size * 0.05f, y + size * 0.42f, size * 1.1f, size * 0.16f), Texture2D.whiteTexture);
+                GUI.matrix = m;
+            }
+        }
+        for (int i = 0; i < slots; i++)
+        {
+            Rect g = new Rect(hr.x + i * (size + gap), y, size, size);
+            float fill = Mathf.Clamp01(heartsNow - i);
+            GUI.color = keep;
+            if (fill < 0.999f) UiIcons.Draw(g, empty);
+            if (fill > 0.001f)
+            {
+                GUI.color = tint;
+                if (fill >= 0.999f) UiIcons.Draw(g, full);
+                else
+                {
+                    // 端数: 満タンの絵を左から途中まで
+                    GUI.BeginGroup(new Rect(g.x, g.y, g.width * fill, g.height));
+                    UiIcons.Draw(new Rect(0f, 0f, g.width, g.height), full);
+                    GUI.EndGroup();
+                }
+            }
+        }
+        GUI.color = keep;
+        return true;
     }
 
     // Groups the run's upgrade history by type and draws each as its icon
@@ -5650,12 +5715,23 @@ public partial class GameManager : MonoBehaviour
         if (Event.current.type != EventType.Repaint) return;
         float k = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 3.2f);
         float h = Mathf.Clamp(anchor.height * 0.16f, 20f, 34f), w = h * 2.3f;
+        Texture2D badge = UiIcons.NewBadge; // 2026-10-20: 正式な絵(金橙の札)。明滅は札の明るさで
+        if (badge != null) w = h * UiIcons.NewBadgeAspect;
         Rect r = new Rect(anchor.xMax - w * 0.85f, anchor.y - h * 0.25f, w, h);
         Color keep = GUI.color;
-        GUI.color = new Color(1f, 0.85f, 0.3f, 0.25f + 0.25f * k);
-        GUI.DrawTexture(new Rect(r.x - h * 0.3f, r.y - h * 0.3f, r.width + h * 0.6f, r.height + h * 0.6f), Texture2D.whiteTexture);
-        GUI.color = new Color(1f, Mathf.Lerp(0.72f, 0.92f, k), 0.2f, 0.95f);
-        GUI.DrawTexture(r, Texture2D.whiteTexture);
+        if (badge != null)
+        {
+            GUI.color = new Color(1f, 1f, 1f, 0.8f + 0.2f * k);
+            UiIcons.Draw(r, badge);
+            r = new Rect(r.x + w * 0.12f, r.y, w * 0.76f, h); // 文字は両端の斜めを除いた中央に
+        }
+        else
+        {
+            GUI.color = new Color(1f, 0.85f, 0.3f, 0.25f + 0.25f * k);
+            GUI.DrawTexture(new Rect(r.x - h * 0.3f, r.y - h * 0.3f, r.width + h * 0.6f, r.height + h * 0.6f), Texture2D.whiteTexture);
+            GUI.color = new Color(1f, Mathf.Lerp(0.72f, 0.92f, k), 0.2f, 0.95f);
+            GUI.DrawTexture(r, Texture2D.whiteTexture);
+        }
         GUI.color = keep;
         if (newDotStyle == null) newDotStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
         newDotStyle.fontSize = Mathf.RoundToInt(h * 0.62f);

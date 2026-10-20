@@ -18,10 +18,12 @@ public class NewBadge : MonoBehaviour
         rt.SetParent(parent, false);
         rt.anchorMin = rt.anchorMax = anchor;
         rt.pivot = new Vector2(0.5f, 0.5f);
-        rt.sizeDelta = new Vector2(96f, 40f) * scale;
+        var badge = UiIcons.NewBadgeSprite; // 2026-10-20: 正式な絵(金橙の札)。ホームの IMGUI の札と同じ絵
+        rt.sizeDelta = new Vector2(badge != null ? 40f * UiIcons.NewBadgeAspect : 96f, 40f) * scale;
         rt.anchoredPosition = offset;
         var img = go.AddComponent<Image>();
         img.color = new Color(1f, 0.78f, 0.18f, 0.95f);
+        if (badge != null) { img.sprite = badge; img.color = Color.white; img.preserveAspect = true; }
         img.raycastTarget = false;
         var tgo = new GameObject("Label", typeof(RectTransform));
         var trt = tgo.GetComponent<RectTransform>();
@@ -51,7 +53,8 @@ public class NewBadge : MonoBehaviour
     {
         phase += Time.unscaledDeltaTime * 3.2f;
         float k = 0.5f + 0.5f * Mathf.Sin(phase);
-        if (bg != null) bg.color = new Color(1f, Mathf.Lerp(0.70f, 0.92f, k), Mathf.Lerp(0.12f, 0.35f, k), 0.95f);
+        if (bg is Image im && im.sprite != null) { float v = Mathf.Lerp(0.85f, 1f, k); bg.color = new Color(v, v, v, 1f); } // 絵の札: 明るさだけ明滅
+        else if (bg != null) bg.color = new Color(1f, Mathf.Lerp(0.70f, 0.92f, k), Mathf.Lerp(0.12f, 0.35f, k), 0.95f);
         transform.localScale = Vector3.one * Mathf.Lerp(0.96f, 1.06f, k);
     }
 }

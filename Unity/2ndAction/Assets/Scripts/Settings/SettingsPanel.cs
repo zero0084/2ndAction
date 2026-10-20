@@ -124,7 +124,7 @@ public class SettingsPanel : MonoBehaviour
         LocGUI.Label(new Rect(panel.x + 28f, panel.y + 14f, panel.width - 120f, 44f), "設定", UiKit.Label(28f, TextAnchor.MiddleLeft, true, new Color(1f, 0.86f, 0.45f)));
         if (langOpen) LangPopupInput(panel);
         bool interactive = (state == St.Open || state == St.Opening) && !langOpen;
-        if (UiKit.Button(new Rect(panel.xMax - 70f, panel.y + 14f, 50f, 46f), "×", 26f, false, false) && interactive) Close();
+        if (UiIcons.CloseButton(new Rect(panel.xMax - 70f, panel.y + 14f, 50f, 46f)) && interactive) Close();
 
         // 内容(スクロール部分)
         var view = new Rect(panel.x + 20f, panel.y + 70f, panel.width - 40f, panel.height - 70f - 76f);

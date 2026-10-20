@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardDefinition
   cardId: ice_prison
   cardName: ICE PRISON
-  icon: {fileID: 2800000, guid: 8ae664774049bd9418df486738811e8c, type: 3}
-  description: "命中時に冷えを与えることがある。凍結に必要な冷えの回数が減る(Lv1〜3で4回、Lv4〜6で3回、Lv7〜9で2回)。冷えの確率と継続時間も上がる"
+  icon: {fileID: 2800000, guid: 6381f10e85dce9e43885c92978acd46e, type: 3}
+  description: "\u547D\u4E2D\u6642\u306B\u51B7\u3048\u3092\u4E0E\u3048\u308B\u3053\u3068\u304C\u3042\u308B\u3002\u51CD\u7D50\u306B\u5FC5\u8981\u306A\u51B7\u3048\u306E\u56DE\u6570\u304C\u6E1B\u308B(Lv1\u301C3\u30674\u56DE\u3001Lv4\u301C6\u30673\u56DE\u3001Lv7\u301C9\u30672\u56DE)\u3002\u51B7\u3048\u306E\u78BA\u7387\u3068\u7D99\u7D9A\u6642\u9593\u3082\u4E0A\u304C\u308B"
   category: 1
   sortOrder: 177
   recommendPriority: 5

@@ -1,5 +1,6 @@
 """sisrec の撮影から、場面ごとに「姉妹のまわりを切り抜いて並べた一覧」を作る。
-usage: recsheet.py <qdir> [label-filter] [--every N] [--cols C]
+usage: recsheet.py <qdir> [label-filter] [--every N] [--cols C] [--prefix sisrec|demo]
+  --prefix demo: -qaAnimDemo の demo_pos.txt / demo_ranges.txt(2026-10-20)
 """
 import sys, os
 from PIL import Image, ImageDraw
@@ -8,12 +9,13 @@ q = sys.argv[1]
 flt = sys.argv[2] if len(sys.argv) > 2 and not sys.argv[2].startswith('--') else ''
 every = int(sys.argv[sys.argv.index('--every') + 1]) if '--every' in sys.argv else 3
 cols = int(sys.argv[sys.argv.index('--cols') + 1]) if '--cols' in sys.argv else 10
+pre = sys.argv[sys.argv.index('--prefix') + 1] if '--prefix' in sys.argv else 'sisrec'
 pos = {}
-for l in open(os.path.join(q, 'sisrec_pos.txt'), encoding='utf-8'):
+for l in open(os.path.join(q, pre + '_pos.txt'), encoding='utf-8'):
     p = l.strip().split('\t')
     if len(p) == 4: pos[int(p[0])] = (float(p[1]), float(p[2]), float(p[3]))
 os.makedirs(os.path.join(q, 'zoom'), exist_ok=True)
-for l in open(os.path.join(q, 'sisrec_ranges.txt'), encoding='utf-8'):
+for l in open(os.path.join(q, pre + '_ranges.txt'), encoding='utf-8'):
     label, a, b = l.strip().split('\t'); a, b = int(a), int(b)
     if flt and flt not in label: continue
     tiles = []

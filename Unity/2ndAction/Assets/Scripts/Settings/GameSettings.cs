@@ -241,6 +241,17 @@ public static class UiKit
     static Texture2D gear;
     public static void DrawGear(Rect r, float scale, Color c)
     {
+        // 2026-10-20: 正式な絵(金の歯車、UiIcons.Gear)があればそれ。絵が金色なので、色は明るさと透明度だけ使う(無効の暗い色の時は暗く)
+        if (UiIcons.Gear != null)
+        {
+            float gs = Mathf.Min(r.width, r.height) * scale * 1.08f;
+            float v = Mathf.Min(1f, Mathf.Max(c.r, Mathf.Max(c.g, c.b)) * 1.15f);
+            Color k0 = GUI.color;
+            GUI.color = new Color(v, v, v, c.a * k0.a);
+            UiIcons.Draw(new Rect(r.center.x - gs * 0.5f, r.center.y - gs * 0.5f, gs, gs), UiIcons.Gear);
+            GUI.color = k0;
+            return;
+        }
         if (gear == null)
         {
             const int n = 64;

@@ -155,6 +155,8 @@ public class GoblinRiderBoss : WildBossBase
         supportsInterrupt = true;
         locoStyle = LocoStyle.Gallop;
         enterSpeed = 8f;
+        animKey = "goblin_rider"; // 2026-10-20: 姿勢ごとのコマ(Resources/BossAnim/goblin_rider。エステルさんと相談した25コマ)
+        artPoseProceduralScale = 0.3f; // 絵の姿勢を主に(手続きの反り/踏み込みは弱く)
         Vector2 c = new Vector2(FrontReach + 0.5f, 1.2f), s = new Vector2(2.6f, 2.4f);
         club = NewHitbox("Club", c, s, BossFx.Slash(), new Color(1f, 0.85f, 0.5f, 0.95f));
         clubMark = NewMarker(c, s);
@@ -191,6 +193,7 @@ public class GoblinRiderBoss : WildBossBase
             }
 
             yield return Approach(1.7f, 3.2f, 6f);
+            animVariant = 0; // コマ: 棍棒(windup/attack/recover)
             yield return Telegraph(0.9f, clubMark);
             yield return Strike(club, 0.25f, 0.06f);
             yield return Recover(0.8f);
@@ -206,6 +209,7 @@ public class GoblinRiderBoss : WildBossBase
         yield return MoveToGap(12f, 7f, 2.2f);
         yield return CastMagic(3);
         facing = -1f; facingLocked = true;
+        animVariant = 0; // コマ: 騎乗突撃(ult)
         yield return Telegraph(0.75f, rideMark);
         bool hit = false;
         ride.onHitPlayer = _ => hit = true;
@@ -219,6 +223,7 @@ public class GoblinRiderBoss : WildBossBase
 
     IEnumerator CastMagic(int count)
     {
+        animVariant = 1; // コマ: 魔法(windupB/attackB)。必殺技の中でもこちら
         StartCoroutine(ChargeOrb(1.0f));
         yield return Telegraph(1.0f);
         orb.enabled = false;
@@ -237,7 +242,8 @@ public class GoblinRiderBoss : WildBossBase
         yield return Recover(count > 1 ? 0.3f : 0.8f);
     }
 
-    Vector3 OrbWorldPos() => new Vector3(worldX + facing * FrontReach * 0.6f, GroundY + yOffset + bodyHeight * 0.95f, 0f);
+    // 2026-10-20: 魔法のコマ(windupB)がある時は、上げた手のひらの上(体の中心から体高の0.155前、0.95の高さ)。見た目だけで時間は同じ
+    Vector3 OrbWorldPos() => new Vector3(worldX + facing * (Anim != null && Anim.windupB != null ? bodyHeight * 0.155f : FrontReach * 0.6f), GroundY + yOffset + bodyHeight * 0.95f, 0f);
 
     IEnumerator ChargeOrb(float duration)
     {
