@@ -188,7 +188,7 @@ public static class CharacterDatabaseBuilder
         swordsman.subtitle = "The One Who Keeps Moving";
         swordsman.role = "BALANCED";
         swordsman.flavorText = "A lone swordsman who walks his own path.\nNo matter how many times he falls,\nhe rises again - because there is still\na further place to reach.";
-        swordsman.portraitPath = $"{PortraitFolder}/swordsman_portrait.png";
+        swordsman.portraitPath = $"{PortraitFolder}/swordsman_card.png"; // 2026-10-20: 他の9人と同じ作りの枠入りカード(エステルと相談)。古い swordsman_portrait.png は使わない
         swordsman.lifeRating = 3; swordsman.powerRating = 4; swordsman.speedRating = 3; swordsman.comboRating = 3;
         swordsman.challengeFlag = false;
         swordsman.sortOrder = 0;
@@ -221,7 +221,7 @@ public static class CharacterDatabaseBuilder
         dualBlade.subtitle = "Swift Steel, Endless Motion";
         dualBlade.role = "GROUND COMBO";
         dualBlade.flavorText = "A swift dual-wielder who chains strikes\ntogether without ever slowing down.\nSpeed and momentum are her greatest weapons.";
-        dualBlade.portraitPath = $"{PortraitFolder}/dual_blade_portrait.png";
+        dualBlade.portraitPath = $"{PortraitFolder}/dual_blade_card.png"; // 2026-10-20: 枠入りカード
         // マスター指示(2026-09-13、3人目主人公追加)の星評価方向どおり -
         // 「黒剣士より手数・速度寄り」と伝わる表示。LIFEは黒剣士と同等
         // (実際のbaseLives=5、黒剣士の3より多いので星も高め)。
@@ -337,7 +337,7 @@ public static class CharacterDatabaseBuilder
         // 13)。星評価を見て初めて弱さに気づく、というギャップ狙いを維持。
         nobleLady.role = "NOBLE KNIGHT";
         nobleLady.flavorText = "Clad in silver and gold, she wields a\ngreatsword said to fell dragons.\nHer legend, however, has yet to catch\nup with her armor.";
-        nobleLady.portraitPath = $"{PortraitFolder}/noble_lady_portrait.png";
+        nobleLady.portraitPath = $"{PortraitFolder}/noble_lady_card.png"; // 2026-10-20: 枠入りカード
         // 表示専用の星評価 - マスター提示例(LIFE3/POWER1/SPEED1/COMBO1)
         // に合わせ、他2キャラより明確に見劣りするようにする。
         nobleLady.lifeRating = 3; nobleLady.powerRating = 1; nobleLady.speedRating = 1; nobleLady.comboRating = 1;

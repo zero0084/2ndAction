@@ -22,7 +22,7 @@ MonoBehaviour:
     slowing down.
 
     Speed and momentum are her greatest weapons.'
-  portrait: {fileID: 2800000, guid: 40114704b1c395048a34252de46b5b07, type: 3}
+  portrait: {fileID: 2800000, guid: 7474a08adfcb5b844b1abe27c904880a, type: 3}
   mainVisual: {fileID: 2800000, guid: 370edb95842c064428e4159cd46c8180, type: 3}
   lifeRating: 4
   powerRating: 2
