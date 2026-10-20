@@ -109,10 +109,14 @@ public partial class QaSweep
         demoFocus = b;
         yield return DemoRecord("fight (assist attacks, the boss runs / winds up / attacks)", float.Parse(Arg("-adFight", "12"), System.Globalization.CultureInfo.InvariantCulture));
 
+        // 2026-10-20: -adUltCalm 1 で必殺技の間は補助の自動攻撃を止める(崩しで必殺技が途切れず、最後の隙の絵まで撮れる)
+        bool calm = Arg("-adUltCalm", "0") == "1";
+        if (calm && HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(false);
         b.DebugForceUltimate();
         float w = 0f;
         while (w < 3f && !b.UltimateRunning) { w += Time.deltaTime; yield return null; }
         yield return DemoRecord("ultimate", float.Parse(Arg("-adUlt", "7"), System.Globalization.CultureInfo.InvariantCulture));
+        if (calm && HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(true);
 
         b.DebugBreak();
         yield return DemoRecord("BREAK", 4f);

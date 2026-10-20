@@ -14,6 +14,8 @@ public class BossAnimSet
     public Sprite[] idle, move, windup, attack, hurt, brk, ult, defeat, windupB, attackB, recover, recoverB, breakLoop, rise;
     // 2026-10-20: 3つ目/4つ目の技(animVariant 2 = C、3 = D)。ムカデの低い突進/背の高い突進
     public Sprite[] windupC, attackC, windupD, attackD;
+    // 2026-10-20: 必殺技を外した後の専用の隙(サソリ: 尻尾が地面に刺さって抜けない)。使うかはボスが決める(PoseOverride)
+    public Sprite[] exhaust;
     public float idleFps = 6f, moveFps = 12f;
     // 本物の走りのコマがある時は、格子の変形(偽の脚の動き)を弱める
     public float rigLocoScale = 0.2f;
@@ -36,7 +38,7 @@ public class BossAnimSet
                 hurt = Pick(all, "hurt_"), brk = Pick(all, "break_"), ult = Pick(all, "ult_"), defeat = Pick(all, "defeat_"),
                 windupB = Pick(all, "windupB_"), attackB = Pick(all, "attackB_"),
                 recover = Pick(all, "recover_"), recoverB = Pick(all, "recoverB_"), breakLoop = Pick(all, "breakloop_"), rise = Pick(all, "rise_"),
-                windupC = Pick(all, "windupC_"), attackC = Pick(all, "attackC_"), windupD = Pick(all, "windupD_"), attackD = Pick(all, "attackD_"),
+                windupC = Pick(all, "windupC_"), attackC = Pick(all, "attackC_"), windupD = Pick(all, "windupD_"), attackD = Pick(all, "attackD_"), exhaust = Pick(all, "exhaust_"),
             };
         }
         cache[key] = set;

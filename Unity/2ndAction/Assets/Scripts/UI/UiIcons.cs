@@ -5,8 +5,8 @@ using UnityEngine;
 // 絵が無い時は null(呼ぶ側が今までのコードの描き方に戻る)
 public static class UiIcons
 {
-    static Texture2D mile, heartFull, heartEmpty, gear, newBadge;
-    static Sprite newBadgeSprite;
+    static Texture2D mile, heartFull, heartEmpty, gear, newBadge, chevron, plus;
+    static Sprite newBadgeSprite, chevronSprite, plusSprite;
     static bool loaded;
 
     static void Load()
@@ -18,6 +18,8 @@ public static class UiIcons
         heartEmpty = Resources.Load<Texture2D>("UI/Icons/heart_empty");
         gear = Resources.Load<Texture2D>("UI/Icons/gear");
         newBadge = Resources.Load<Texture2D>("UI/Icons/new_badge");
+        chevron = Resources.Load<Texture2D>("UI/Icons/chevron"); // 2026-10-20: uGUI の操作の記号(白銀、Tools/art/ctrlicons.py で DrawClose と同じ割合で作る)
+        plus = Resources.Load<Texture2D>("UI/Icons/plus");
     }
 
     public static Texture2D Mile { get { Load(); return mile; } }
@@ -36,6 +38,40 @@ public static class UiIcons
                 newBadgeSprite = Sprite.Create(newBadge, new Rect(0, 0, newBadge.width, newBadge.height), new Vector2(0.5f, 0.5f), 100f);
             return newBadgeSprite;
         }
+    }
+
+    static Sprite MakeSprite(ref Sprite cache, Texture2D tex)
+    {
+        Load();
+        if (cache == null && tex != null) cache = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
+        return cache;
+    }
+    // 右向きの「>」(左は反転して使う)と「+」
+    public static Sprite ChevronSprite { get { Load(); return MakeSprite(ref chevronSprite, chevron); } }
+    public static Sprite PlusSprite { get { Load(); return MakeSprite(ref plusSprite, plus); } }
+
+    // uGUI の文字の記号(「<」「>」「◀」「▶」「+」)を、同じ場所の白銀の絵に置き換える。text の GameObject に子の Image を作り、文字は消す。
+    // dir: -1 = 左向き、+1 = 右向き、0 = 「+」。size = 絵の一辺(px)。絵が無ければ何もしない(文字のまま)
+    public static UnityEngine.UI.Image ReplaceGlyph(UnityEngine.UI.Text text, int dir, float size)
+    {
+        if (text == null) return null;
+        Sprite sp = dir == 0 ? PlusSprite : ChevronSprite;
+        if (sp == null) return null;
+        var t = text.transform.Find("Icon");
+        UnityEngine.UI.Image img = t != null ? t.GetComponent<UnityEngine.UI.Image>() : null;
+        if (img == null)
+        {
+            var go = new GameObject("Icon", typeof(RectTransform));
+            var r = (RectTransform)go.transform;
+            r.SetParent(text.transform, false);
+            r.anchorMin = r.anchorMax = r.pivot = new Vector2(0.5f, 0.5f);
+            r.localScale = new Vector3(dir < 0 ? -1f : 1f, 1f, 1f);
+            img = go.AddComponent<UnityEngine.UI.Image>();
+            img.sprite = sp; img.preserveAspect = true; img.raycastTarget = false;
+        }
+        ((RectTransform)img.transform).sizeDelta = new Vector2(size, size);
+        text.color = new Color(text.color.r, text.color.g, text.color.b, 0f); // 文字は透明に(Text の有効/無効を切り替える既存の処理はそのまま効く)
+        return img;
     }
 
     // 操作の記号の色(白銀)。一時停止・閉じる・矢印など、コードで描く記号はこの色と太さにそろえる

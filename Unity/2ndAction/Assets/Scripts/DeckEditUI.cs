@@ -250,6 +250,7 @@ public class DeckEditUI : MonoBehaviour
         txt.font = charHeader != null ? charHeader.font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         txt.fontSize = 24; txt.fontStyle = FontStyle.Bold; txt.alignment = TextAnchor.MiddleCenter;
         txt.color = new Color(1f, 0.85f, 0.4f); txt.text = label; txt.raycastTarget = false;
+        UiIcons.ReplaceGlyph(txt, dir, 48f); // 2026-10-20: 白銀の矢印の絵(操作の記号)
         return r;
     }
     void CycleCharacterCardOwner(int dir)
@@ -367,7 +368,7 @@ public class DeckEditUI : MonoBehaviour
             ar.anchoredPosition = new Vector2(cx + dir * arrowDx, CharPanelTop - 78f - sh * 0.5f + 48f);
             var img = ar.GetComponent<Image>(); if (img != null) img.color = new Color(0.32f, 0.24f, 0.08f, 0.95f);
             if (ar.GetComponent<Outline>() == null) { var ol = ar.gameObject.AddComponent<Outline>(); ol.effectColor = new Color(1f, 0.82f, 0.38f, 0.9f); ol.effectDistance = new Vector2(2f, -2f); }
-            var t = ar.GetComponentInChildren<Text>(); if (t != null) { t.fontSize = 30; t.color = new Color(1f, 0.92f, 0.6f); }
+            var t = ar.GetComponentInChildren<Text>(); if (t != null) { t.fontSize = 30; t.color = new Color(1f, 0.92f, 0.6f); UiIcons.ReplaceGlyph(t, dir, 64f); }
         }
         // 3枠(大きく、間を空けて)+ 案内
         Font font = charHeader.font;
@@ -407,6 +408,7 @@ public class DeckEditUI : MonoBehaviour
             pt.font = font; pt.fontSize = 64; pt.fontStyle = FontStyle.Bold; pt.alignment = TextAnchor.MiddleCenter; pt.raycastTarget = false;
             pt.horizontalOverflow = HorizontalWrapMode.Overflow; pt.verticalOverflow = VerticalWrapMode.Overflow;
             pt.color = new Color(1f, 0.84f, 0.42f, 0.9f); pt.text = "+";
+            UiIcons.ReplaceGlyph(pt, 0, Mathf.Min(sw, 100f)); // 2026-10-20: 白銀の「+」の絵(操作の記号)
             charSlotPlus[i] = pt;
             charSlotHints[i] = t;
         }
@@ -422,7 +424,7 @@ public class DeckEditUI : MonoBehaviour
             var t = charSlotHints[i]; if (t == null || gm == null) continue;
             bool empty = string.IsNullOrEmpty(gm.CharacterCardIds[i]);
             t.text = Loc.Auto(i == pendingEquipSlot ? "一覧からカードを選ぶ" : empty ? "タップして設定" : "タップで外す");
-            if (charSlotPlus[i] != null) charSlotPlus[i].enabled = empty;
+            if (charSlotPlus[i] != null) charSlotPlus[i].gameObject.SetActive(empty); // 子の「+」の絵ごと
             t.color = i == pendingEquipSlot ? new Color(1f, 0.85f, 0.4f) : empty ? new Color(0.95f, 0.8f, 0.45f) : new Color(0.8f, 0.84f, 0.95f);
         }
     }

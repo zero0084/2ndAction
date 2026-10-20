@@ -333,9 +333,10 @@ public abstract class HazardBossBase : WildBossBase
         SetBodyTint(Color.white);
     }
 
+    protected virtual Vector3 FakeShotFrom() => FrontWorld(0.3f, bodyHeight * 0.75f); // 2026-10-20: 絵の発射口に合わせるボスは上書き
     protected void FakeShot(Color c, float relX)
     {
-        Vector3 from = FrontWorld(0.3f, bodyHeight * 0.75f);
+        Vector3 from = FakeShotFrom();
         var p = Projectile(BossFx.Orb(), c, from, new Vector2(0.6f, 0.6f), new Vector2((PlayerX + relX - from.x) * 1.6f, 4f), 0.5f, false);
         p.damage = false;
     }

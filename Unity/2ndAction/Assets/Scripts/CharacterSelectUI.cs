@@ -219,6 +219,9 @@ public class CharacterSelectUI : MonoBehaviour
     {
         gameObject.SetActive(true);
         layoutDone = false;
+        // 2026-10-20: 左右の矢印の文字「<」「>」を白銀の絵へ(一時停止・閉じると同じ操作の記号。2回目以降は何もしない)
+        foreach (var (a, d) in new[] { (carouselArrowLeft, -1), (carouselArrowRight, 1) })
+            if (a != null) UiIcons.ReplaceGlyph(a.Find("Glyph") != null ? a.Find("Glyph").GetComponent<Text>() : null, d, 76f);
         Canvas.ForceUpdateCanvases();
         ApplyOrientationLayout();
 

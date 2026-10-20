@@ -185,6 +185,8 @@ public class ScorpionBoss : CaveBossBase
     {
         locoStyle = LocoStyle.Crawl;
         enterSpeed = 8f;
+        animKey = "scorpion"; // 2026-10-20: 姿勢ごとのコマ(Resources/BossAnim/scorpion、エステルさんと相談)。0=ハサミ 1=毒針 2=突進 3=毒を飛ばす
+        artPoseProceduralScale = 0.3f;
         Vector2 cc = new Vector2(FrontReach + 0.5f, bodyHeight * 0.4f), cs = new Vector2(2.2f, 1.6f);
         claw = NewHitbox("Claw", cc, cs, BossFx.Fang(), new Color(0.9f, 0.7f, 1f, 0.95f));
         clawMark = NewMarker(cc, cs);
@@ -206,7 +208,19 @@ public class ScorpionBoss : CaveBossBase
         return sr;
     }
 
-    protected override void OnInterrupted() { base.OnInterrupted(); if (boltGlow != null) boltGlow.enabled = false; }
+    protected override void OnInterrupted() { base.OnInterrupted(); if (boltGlow != null) boltGlow.enabled = false; stuckArt = false; }
+
+    // 2026-10-20: 毒を飛ばすコマ(windupD_)があれば、溜めの毒の玉は絵に描いてあるので光の玉は出さず、弾は絵の針の先から出す
+    bool ArtBolt => Anim != null && Anim.windupD != null;
+    Vector3 StingerTipWorld() => new Vector3(worldX + facing * bodyHeight * 0.31f, GroundY + yOffset + bodyHeight * 0.76f, 0f);
+    protected override Vector3 FakeShotFrom() => ArtBolt ? StingerTipWorld() : base.FakeShotFrom();
+
+    bool stuckArt;
+    protected override Sprite PoseOverride()
+    {
+        if (stuckArt && !Broken && !IsDead && Anim != null && Anim.exhaust != null) return BossAnimSet.Loop(Anim.exhaust, 3f, Time.time);
+        return base.PoseOverride();
+    }
 
     protected override IEnumerator AI()
     {
@@ -223,6 +237,7 @@ public class ScorpionBoss : CaveBossBase
                 continue;
             }
             int pick = BossAiUtil.PickNoRepeat(3, ref lastPick);
+            animVariant = pick; // 0=ハサミ 1=毒針 2=突進
             if (pick == 0) yield return Melee(claw, clawMark, 1.3f, 2.6f, 0.6f, 0.26f, 0.8f);
             else if (pick == 1) yield return Melee(sting, stingMark, 2.8f, 2.4f, 0.7f, 0.24f, 0.9f);
             else { yield return Rush(rush, rushMark, 7f, 0.8f, 0.5f, 12f, false); yield return Recover(0.8f * RecoverMul); }
@@ -231,10 +246,11 @@ public class ScorpionBoss : CaveBossBase
 
     IEnumerator PoisonBolt()
     {
-        boltGlow.enabled = true;
+        animVariant = 3; // コマ: 毒を飛ばす
+        boltGlow.enabled = !ArtBolt;
         yield return Telegraph(0.9f);
         boltGlow.enabled = false;
-        Vector3 from = FrontWorld(0.4f, bodyHeight * 0.7f);
+        Vector3 from = ArtBolt ? StingerTipWorld() : FrontWorld(0.4f, bodyHeight * 0.7f);
         Projectile(BossFx.Orb(), new Color(0.4f, 1f, 0.35f), from, new Vector2(0.7f, 0.7f), AimFrom(from) * 8f, 3f, false);
         PlayAttackPose(0.25f);
         yield return Wait(0.25f);
@@ -245,7 +261,8 @@ public class ScorpionBoss : CaveBossBase
     IEnumerator PoisonRain(int count)
     {
         yield return MoveToGap(7.5f, 5f, 1.2f);
-        boltGlow.enabled = true;
+        animVariant = 3; // コマ: 毒を飛ばす
+        boltGlow.enabled = !ArtBolt;
         yield return Telegraph(0.75f);
         boltGlow.enabled = false;
         for (int i = 0; i < count && !IsDead; i++)
@@ -264,6 +281,7 @@ public class ScorpionBoss : CaveBossBase
         if (!StartUlt("SCORPION DEATH ZONE", new Color(0.5f, 1f, 0.4f))) yield break;
         // ① ハサミの薙ぎ払い → 地面すれすれの衝撃(跳ぶ)
         yield return MoveToGap(4f, 6f, 1.2f);
+        animVariant = 0; // コマ: ハサミ(薙ぎ払い)
         yield return Telegraph(0.9f, sweepMark);
         GroundRing(FrontWorld(0.8f, 0f), 4f, new Color(0.7f, 1f, 0.5f, 0.7f));
         ShockFromFront(1.1f, 9f, CaveLook.Poison, true, 2.0f);
@@ -277,12 +295,16 @@ public class ScorpionBoss : CaveBossBase
         boltGlow.enabled = false;
         // ③ 毒だまり(跳ぶ)
         yield return MoveToGap(8f, 7f, 0.8f);
+        animVariant = 3; PlayAttackPose(0.3f); // コマ: 毒を飛ばす
         for (int i = 0; i < (Upgraded ? 3 : 2); i++) { float rel = 4.5f + i * 3.6f; FakeShot(new Color(0.4f, 1f, 0.35f), rel); PoolAt(rel, 1.7f, 3.4f, 4f); }
         yield return Wait(1.6f);
         // ④ 高速突進(跳ぶ)
+        animVariant = 2; // コマ: 突進
         yield return Rush(rush, rushMark, 8.5f, 0.85f, 0.6f, 16f, true);
-        // 隙: 尻尾が地面に刺さる
-        yield return CaveRecovery(3.0f, "尻尾が地面に刺さった! 攻撃のチャンス!", new Vector2(1.08f, 0.82f), CaveLook.Dirt, new Vector2(0.7f, 0.1f));
+        // 隙: 尻尾が地面に刺さる(2026-10-20: 専用の絵 exhaust_ があれば、BREAK の絵の代わりにそれ)
+        stuckArt = true;
+        yield return CaveRecovery(3.0f, "尻尾が地面に刺さった! 攻撃のチャンス!", Anim != null && Anim.exhaust != null ? new Vector2(1.02f, 0.96f) : new Vector2(1.08f, 0.82f), CaveLook.Dirt, new Vector2(0.7f, 0.1f)); // 専用の絵は姿勢が描いてあるので、つぶしは弱く
+        stuckArt = false; // 隙の間ずっと(隙の中で手前へ滑ると姿勢が Move になるので、姿勢では判定しない)
     }
 }
 
