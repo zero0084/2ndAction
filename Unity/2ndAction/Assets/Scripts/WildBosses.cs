@@ -339,17 +339,7 @@ public class SerpentBoss : WildBossBase
         yield return Recover(0.8f);
     }
 
-    // 潜る/飛び出すのコマ(dive_ / emerge_)。diveT >= 0 の間は潜るコマを進み具合で、emergeUntil までは飛び出すコマ
-    float diveT = -1f, emergeUntil;
-    protected override Sprite PoseOverride()
-    {
-        var a = Anim;
-        if (a == null || Broken || IsDead) return null;
-        if (diveT >= 0f && a.dive != null) return BossAnimSet.Progress(a.dive, diveT);
-        if (Time.time < emergeUntil && a.emerge != null) return a.emerge[0];
-        return null;
-    }
-    protected override void OnInterrupted() { base.OnInterrupted(); diveT = -1f; emergeUntil = 0f; }
+    // 潜る/飛び出すのコマは WildBossBase の diveArtT / emergeArtUntil(潜るボス共通、技が途切れたら戻す)
 
     IEnumerator BurrowAttack()
     {
@@ -363,12 +353,12 @@ public class SerpentBoss : WildBossBase
         {
             t += Time.deltaTime;
             float f = t / 0.6f;
-            diveT = f;
+            diveArtT = f;
             yOffset = -bodyHeight * 0.6f * f; // 沈みながらフェード
-            SetAlpha(Anim != null && Anim.dive != null ? 1f - f * f : 1f - f); // 潜るコマがあれば、絵で沈むのを見せてから消える
+            SetAlpha(HasDiveArt ? 1f - f * f : 1f - f); // 潜るコマがあれば、絵で沈むのを見せてから消える
             yield return null;
         }
-        diveT = -1f;
+        diveArtT = -1f;
         yOffset = 0f; // 完全に透明になってから位置を戻す(潜行中は見えない)
 
         // 別位置へ(プレイヤー前方/後方どちらか) - 出現位置を予告してから出る
@@ -391,7 +381,7 @@ public class SerpentBoss : WildBossBase
         invulnerable = false;
         SetAlpha(1f);
         SetPose(Pose.Attack);
-        emergeUntil = Time.time + 0.6f; // 飛び出すコマ
+        emergeArtUntil = Time.time + 0.6f; // 飛び出すコマ
         ImpactDust(new Vector3(worldX, GroundY, 0f), 10, 1.1f);
         Shake(0.12f, 0.2f);
         StartCoroutine(SetAltitude(0f, 0.2f));
@@ -408,8 +398,8 @@ public class SerpentBoss : WildBossBase
         invulnerable = true;
         ImpactDust(new Vector3(worldX, GroundY, 0f), 12, 1.1f);
         float t = 0f;
-        while (t < 0.6f) { t += Time.deltaTime; float f = t / 0.6f; diveT = f; yOffset = -bodyHeight * 0.7f * f; SetAlpha(Anim != null && Anim.dive != null ? 1f - f * f : 1f - f); yield return null; }
-        diveT = -1f;
+        while (t < 0.6f) { t += Time.deltaTime; float f = t / 0.6f; diveArtT = f; yOffset = -bodyHeight * 0.7f * f; SetAlpha(HasDiveArt ? 1f - f * f : 1f - f); yield return null; }
+        diveArtT = -1f;
         yOffset = 0f;
         freeGap = true;
         // 地中を前方へ走る土煙(予兆)
@@ -430,7 +420,7 @@ public class SerpentBoss : WildBossBase
         SetPose(Pose.Attack);
         attackProgress = 1f;
         animVariant = 0;
-        emergeUntil = Time.time + 1.0f; // 飛び出すコマ
+        emergeArtUntil = Time.time + 1.0f; // 飛び出すコマ
         ImpactDust(new Vector3(worldX, GroundY, 0f), 16, 1.4f);
         Shake(0.2f, 0.35f);
         // 頭(低い=跳ぶ) → 胴体(高い=地面にいる/下攻撃で降りる) → 尾(低い=もう一度跳ぶ)

@@ -483,6 +483,9 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     protected string animKey;
     // 2026-10-19: 技ごとの2つ目の溜め/攻撃のコマ(windupB/attackB)を使う時は 1(2026-10-20: 2 = C、3 = D も)。各技の始めで決める(無ければ1つ目のまま)
     protected int animVariant;
+    protected float diveArtT = -1f, emergeArtUntil; // 潜る/飛び出すのコマ(PickAnimSprite)
+    protected bool exhaustArt; // 専用の隙のコマ(exhaust_)を出している間
+    protected bool HasDiveArt => Anim != null && Anim.dive != null;
     BossAnimSet anim; bool animLoaded;
     float hurtArtAt = -9f, hurtArtUntil = -9f;
     protected BossAnimSet Anim
@@ -502,6 +505,8 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
                 return BossAnimSet.Loop(a.ult, a.moveFps, Time.time + loopTimeOffset);
             if (pose == Pose.Attack || pose == Pose.Move || pose == Pose.Fly) return a.ult[Mathf.Min(1, a.ult.Length - 1)];
         }
+        // 2026-10-20: 必殺技の後の専用の隙(exhaust_、サソリの尾が刺さる・モグラが目を回す)。CaveRecovery の間ずっと
+        if (exhaustArt && !Broken && a.exhaust != null) return BossAnimSet.Loop(a.exhaust, 3f, Time.time + loopTimeOffset);
         // 2026-10-20: BREAK からの立ち直り(rise_)/ BREAK の間の繰り返し(breakloop_)。どちらも無いボスは今までどおり
         if (breakRecovering && a.rise != null) return BossAnimSet.Progress(a.rise, poseTime / BreakRecoverSeconds);
         // 打ち上げられて空中にいる間(BREAK のエリアルコンボ)は、崩れた1コマ目(地面に座り込むコマは地面に着いてから)
@@ -509,6 +514,9 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (pose == Pose.Landing && a.brk != null) return BossAnimSet.Progress(a.brk, poseTime / 0.45f); // BREAK・必殺技の後の隙
         // BREAK の間は、寄せ(移動)の間も移動のコマを回さない(以前は寄せの間に浮遊/歩きのコマが出て、BREAK に見えなかった)
         if (Broken && !breakRecovering && a.breakLoop != null && (pose == Pose.Idle || pose == Pose.Move)) return BossAnimSet.Loop(a.breakLoop, 3f, Time.time + loopTimeOffset);
+        // 2026-10-20: 潜る/飛び出すのコマ(dive_/emerge_)。diveArtT >= 0 の間は潜るコマを進み具合で、emergeArtUntil までは飛び出すコマ(潜るボス共通)
+        if (!Broken && diveArtT >= 0f && a.dive != null) return BossAnimSet.Progress(a.dive, diveArtT);
+        if (!Broken && Time.time < emergeArtUntil && a.emerge != null) return a.emerge[0];
         if (flinchTimer > 0f && a.hurt != null && pose != Pose.Landing) // 怯み(2026-10-18)。2枚以上なら崩れる → 立て直すの順に
             return a.hurt.Length > 1 ? BossAnimSet.Progress(a.hurt, 1f - flinchTimer / FlinchSeconds) : a.hurt[0];
         // 被弾の絵: 連続で当たっても毎回は出さない(0.7秒に1回、最初の一撃の赤みの前半だけ)。毎回出すと走りがカクつく
@@ -1390,6 +1398,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (UltimateRunning) { UltimateRunning = false; BossBattle.EndUltimate(this); }
         vulnerableScale = 1f;
         staggerDefense = 1f;
+        diveArtT = -1f; emergeArtUntil = 0f; exhaustArt = false; // 潜る/飛び出す/隙のコマも止める
         OnInterrupted();
     }
 

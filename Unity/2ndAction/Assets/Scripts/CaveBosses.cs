@@ -208,19 +208,13 @@ public class ScorpionBoss : CaveBossBase
         return sr;
     }
 
-    protected override void OnInterrupted() { base.OnInterrupted(); if (boltGlow != null) boltGlow.enabled = false; stuckArt = false; }
+    protected override void OnInterrupted() { base.OnInterrupted(); if (boltGlow != null) boltGlow.enabled = false; }
 
     // 2026-10-20: 毒を飛ばすコマ(windupD_)があれば、溜めの毒の玉は絵に描いてあるので光の玉は出さず、弾は絵の針の先から出す
     bool ArtBolt => Anim != null && Anim.windupD != null;
     Vector3 StingerTipWorld() => new Vector3(worldX + facing * bodyHeight * 0.31f, GroundY + yOffset + bodyHeight * 0.76f, 0f);
     protected override Vector3 FakeShotFrom() => ArtBolt ? StingerTipWorld() : base.FakeShotFrom();
 
-    bool stuckArt;
-    protected override Sprite PoseOverride()
-    {
-        if (stuckArt && !Broken && !IsDead && Anim != null && Anim.exhaust != null) return BossAnimSet.Loop(Anim.exhaust, 3f, Time.time);
-        return base.PoseOverride();
-    }
 
     protected override IEnumerator AI()
     {
@@ -301,10 +295,8 @@ public class ScorpionBoss : CaveBossBase
         // ④ 高速突進(跳ぶ)
         animVariant = 2; // コマ: 突進
         yield return Rush(rush, rushMark, 8.5f, 0.85f, 0.6f, 16f, true);
-        // 隙: 尻尾が地面に刺さる(2026-10-20: 専用の絵 exhaust_ があれば、BREAK の絵の代わりにそれ)
-        stuckArt = true;
-        yield return CaveRecovery(3.0f, "尻尾が地面に刺さった! 攻撃のチャンス!", Anim != null && Anim.exhaust != null ? new Vector2(1.02f, 0.96f) : new Vector2(1.08f, 0.82f), CaveLook.Dirt, new Vector2(0.7f, 0.1f)); // 専用の絵は姿勢が描いてあるので、つぶしは弱く
-        stuckArt = false; // 隙の間ずっと(隙の中で手前へ滑ると姿勢が Move になるので、姿勢では判定しない)
+        // 隙: 尻尾が地面に刺さる(2026-10-20: 専用の絵 exhaust_ があれば、CaveRecovery が隙の間ずっとそれを出す)
+        yield return CaveRecovery(3.0f, "尻尾が地面に刺さった! 攻撃のチャンス!", new Vector2(1.08f, 0.82f), CaveLook.Dirt, new Vector2(0.7f, 0.1f));
     }
 }
 
@@ -323,6 +315,8 @@ public class MoleBoss : CaveBossBase
     {
         locoStyle = LocoStyle.Crawl;
         enterSpeed = 7f;
+        animKey = "mole"; // 2026-10-20: 姿勢ごとのコマ(Resources/BossAnim/mole、エステルさんと相談した23コマ)。0=爪 1=突進、潜る/飛び出す=dive_/emerge_、目を回す隙=exhaust_
+        artPoseProceduralScale = 0.3f;
         Vector2 cc = new Vector2(FrontReach + 0.4f, bodyHeight * 0.4f), cs = new Vector2(2.2f, 1.6f);
         claw = NewHitbox("Claw", cc, cs, BossFx.Slash(), new Color(0.7f, 0.55f, 0.4f, 0.95f));
         clawMark = NewMarker(cc, cs);
@@ -337,6 +331,7 @@ public class MoleBoss : CaveBossBase
             if (UltimateReady(2)) { yield return UndergroundHunt(); continue; }
             if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return FakeBurrow(Enraged ? 3 : 2); continue; }
             int pick = BossAiUtil.PickNoRepeat(3, ref lastPick);
+            animVariant = pick == 1 ? 1 : 0;
             if (pick == 0) yield return Melee(claw, clawMark, 1.3f, 2.6f, 0.6f, 0.26f, 0.7f);
             else if (pick == 1) { yield return Rush(rush, rushMark, 5.5f, 0.75f, 0.35f, 10f, false); yield return Recover(0.8f * RecoverMul); }
             else yield return BurrowEmerge();

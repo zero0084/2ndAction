@@ -259,7 +259,8 @@ public abstract class HazardBossBase : WildBossBase
         buried = true; invulnerable = true; SetHurtboxEnabled(false);
         ImpactDust(new Vector3(worldX, GroundY, 0f), 8, 0.9f);
         float t = 0f, startY = yOffset;
-        while (t < dur && !IsDead) { t += Time.deltaTime; float f = Mathf.Clamp01(t / dur); yOffset = Mathf.Lerp(startY, -bodyHeight * 1.05f, f); SetAlpha(1f - f); yield return null; }
+        while (t < dur && !IsDead) { t += Time.deltaTime; float f = Mathf.Clamp01(t / dur); diveArtT = f; yOffset = Mathf.Lerp(startY, -bodyHeight * 1.05f, f); SetAlpha(HasDiveArt ? 1f - f * f : 1f - f); yield return null; }
+        diveArtT = -1f;
         SetAlpha(0f);
         if (tell && tunnelTell == null) tunnelTell = TellAt(0f, 30f, CaveTellStyle.Bulge, CaveLook.Dirt, true, true);
     }
@@ -296,6 +297,7 @@ public abstract class HazardBossBase : WildBossBase
         float t = 0f;
         while (t < warn - 0.12f && !IsDead) { t += Time.deltaTime; relVelocity = 0f; yield return null; }
         if (height > 2f) extraScale = new Vector2(1.25f, 1.25f);
+        emergeArtUntil = Time.time + 0.2f + active + 0.25f; // 飛び出すのコマ(あれば)
         yield return Surface(0.2f);
         SetPose(Pose.Attack);
         PlayAttackPose(0.3f);
@@ -354,11 +356,14 @@ public abstract class HazardBossBase : WildBossBase
         freeGap = false;
         BossBattleHud.Banner(banner, new Color(0.6f, 1f, 0.6f), 1.2f);
         Debug.Log($"[CaveBoss] {bossName} RECOVERY '{banner}' {seconds:F1}s");
+        bool artExhaust = Anim != null && Anim.exhaust != null; // 2026-10-20: 専用の隙の絵があれば、その絵を出し続け、手続きのつぶしは弱く(姿勢は絵に描いてある)
+        if (artExhaust) { exhaustArt = true; squash = Vector2.Lerp(Vector2.one, squash, 0.25f); }
         StartCoroutine(RecoveryLook(seconds, squash, fx, fxAt));
         float keepRest = restAltitude;
         bool lower = !float.IsNaN(groundAlt);
         if (lower) { restAltitude = groundAlt; StartCoroutine(SetAltitude(groundAlt, 0.35f)); }
         yield return Exhausted(seconds * (Enraged ? 0.85f : 1f), staggerMul, dmgMul);
+        exhaustArt = false;
         extraScale = Vector2.one;
         if (lower) { restAltitude = keepRest; yield return SetAltitude(keepRest, 0.5f); }
     }
