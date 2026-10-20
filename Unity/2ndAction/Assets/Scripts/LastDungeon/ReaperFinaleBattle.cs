@@ -29,13 +29,16 @@ public class ReaperFinaleBattle : MonoBehaviour
     {
         var go = new GameObject("[ReaperFinaleBattle]");
         var b = go.AddComponent<ReaperFinaleBattle>();
+        ReaperBullet.Prewarm(); // 2026-10-20: 弾/予兆の絵を先に作る
         b.player = player;
         Instance = b;
         b.StartCoroutine(b.Run());
         return b;
     }
 
-    void OnDestroy() { if (Instance == this) Instance = null; }
+    void OnDestroy() { if (Instance == this) Instance = null; ReaperBullet.ClearAll(); }
+    public static float ComboFirstDelay = 8f, ComboInterval = 16f; // 連携技の間隔(確認では短くする)
+    public int CombosCued { get; private set; }
 
     int Hp(int baseHp)
     {
@@ -99,7 +102,28 @@ public class ReaperFinaleBattle : MonoBehaviour
             Active.Add(b);
             yield return new WaitForSeconds(0.5f);
         }
-        while (GroupDefeated < Order.Length) yield return null;
+        // 2026-10-20: 連携技「死の舞踏」。三人がそろっている間、時間差の合図(長女 → 0.9秒 → 次女 → 0.9秒 → 三女)。
+        //  各自は今の技を終えてから合図の時刻に自分の番を出す(完全に同時にはしない)
+        float nextCombo = Time.time + ComboFirstDelay;
+        while (GroupDefeated < Order.Length)
+        {
+            if (Time.time >= nextCombo)
+            {
+                var alive = Active.FindAll(x => x != null && !x.IsDead && !x.Retreating && x.isActiveAndEnabled);
+                if (alive.Count >= 3 && alive.TrueForAll(x => !x.Broken && !x.ComboPending))
+                {
+                    float t0 = Time.time + 2.0f;
+                    foreach (var x in alive) x.CueCombo(t0 + (int)x.sister * 0.9f);
+                    if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.BossCharge);
+                    CombosCued++;
+                    Debug.Log($"[ReaperBoss] Danse Macabre cued #{CombosCued}");
+                    nextCombo = Time.time + ComboInterval;
+                }
+                else nextCombo = Time.time + 2f;
+            }
+            yield return null;
+        }
+        ReaperBullet.ClearAll();
 
         // ---- 勝利: RESULTへは行かない ----
         Current = Stage.Victory;

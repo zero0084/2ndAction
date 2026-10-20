@@ -136,6 +136,7 @@ public abstract class ReaperBase : MonoBehaviour
     public static void StopAllForRunEnd()
     {
         foreach (var r in FindObjectsByType<ReaperBase>(FindObjectsSortMode.None)) r.StopForRunEnd();
+        ReaperBullet.ClearAll(); // 2026-10-20: 三姉妹の正式戦の弾も残さない
     }
     void StopForRunEnd()
     {

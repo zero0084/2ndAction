@@ -49,7 +49,8 @@ public partial class LastDungeonQa : MonoBehaviour
 
     void L(string s) { log.AppendLine(s); Debug.Log("[LDQA] " + s); }
     void Check(bool ok, string what) { if (!ok) { failures++; L("  FAIL: " + what); } else L("  ok: " + what); }
-    void Shot(string name) { ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(outDir, $"{shotNo++:0000}_{name}.png")); }
+    int lastShotFrame = -99;
+    void Shot(string name) { lastShotFrame = Time.frameCount; ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(outDir, $"{shotNo++:0000}_{name}.png")); }
 
     IEnumerator Start()
     {
@@ -74,6 +75,7 @@ public partial class LastDungeonQa : MonoBehaviour
         else if (mode == "warps") yield return WarpsMode();
         else if (mode == "bosses") yield return BossesMode();
         else if (mode == "runrush") yield return RunRushMode();
+        else if (mode == "sisters") yield return SistersMode();
         else yield return FlowMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

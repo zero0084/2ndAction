@@ -8,8 +8,11 @@ using UnityEngine;
 //  次女(Second) … 低空に浮かぶ。上空から急降下して斬る / 魂の弾(3発、上下にずれる)
 //  三女(Youngest) … 楽しそうにスキップ。跳びかかり(着地に衝撃) / 前後の往復突進 / 回転斬り
 // 前半(ソロ)はHPが0になると倒れず「退く」(RetreatOnLethal)。後半(三人同時)は通常どおり撃破演出→DefeatOverride。
+// 2026-10-20(マスター依頼: 「避けるだけ」ではなく「攻めながら突破する」三姉妹): 各姉妹に主力の技を2つ(ReaperSisterBoss.Moves.cs)。
+//  飛び道具は ReaperBullet(壊せる/返せる/返せない)。返した弾が当たるとダメージ + 崩し(怯み/BREAK、調整は BossBattleTuning "ReaperSister")。
+//  三人同時の時は連携技「死の舞踏」(ReaperFinaleBattle が時間差で合図する)。以前の技は合間の小技として残す。
 // 移動のコマ送りは走行速度と無関係の一定テンポ(ReaperAnimatorと同じ考え方)。
-public class ReaperSisterBoss : WildBossBase
+public partial class ReaperSisterBoss : WildBossBase
 {
     public ReaperSisterData data;
     public ReaperSister sister;
@@ -18,6 +21,7 @@ public class ReaperSisterBoss : WildBossBase
     public bool Retreating { get; private set; }
     public float aggression = 1f;             // 後半は少し間隔を詰める(三人同時の分、個々は控えめ)
 
+    public static readonly System.Collections.Generic.List<ReaperSisterBoss> All = new System.Collections.Generic.List<ReaperSisterBoss>();
     BossHitbox scythe, dive, slam, spin;
     BossTelegraphMarker scytheMark, diveMark, slamMark, spinMark;
     bool bob = true;
@@ -65,6 +69,7 @@ public class ReaperSisterBoss : WildBossBase
         b.idleSprite = idle;
         b.windupSprite = idle;
         b.attackSprite = idle;
+        b.ApplyTuning("ReaperSister"); // 2026-10-20: 崩し(怯み/BREAK)。段階/必殺技は使わない
         b.Init(player);
         return b;
     }
@@ -85,17 +90,29 @@ public class ReaperSisterBoss : WildBossBase
         tint = sister == ReaperSister.Eldest ? new Color(0.92f, 0.88f, 1f) : sister == ReaperSister.Second ? new Color(0.86f, 0.92f, 1f) : new Color(1f, 0.9f, 0.96f);
         SetBodyTint(tint);
         Color purple = new Color(0.8f, 0.45f, 0.95f, 0.95f);
+        // 2026-10-20: 判定の位置は「正面が +x」(BossHitbox.Place)。以前は負の値で体の後ろに出ていた(大鎌/急降下が正面のプレイヤーに届かなかった)
         float h = bodyHeight;
-        scythe = NewHitbox("ReaperScythe", new Vector2(-(halfWidth * 0.5f + 1.5f), h * 0.45f), new Vector2(3.2f, h * 0.8f), BossFx.Slash(), purple);
-        scytheMark = NewMarker(new Vector2(-(halfWidth * 0.5f + 1.5f), h * 0.45f), new Vector2(3.2f, h * 0.8f));
-        dive = NewHitbox("ReaperDive", new Vector2(-1.2f, 0.9f), new Vector2(2.6f, 2.0f), BossFx.Slash(), new Color(0.5f, 0.8f, 1f, 0.95f));
-        diveMark = NewMarker(new Vector2(-1.2f, 0.9f), new Vector2(2.6f, 2.0f));
+        scythe = NewHitbox("ReaperScythe", new Vector2(halfWidth * 0.5f + 1.5f, h * 0.45f), new Vector2(3.2f, h * 0.8f), BossFx.Slash(), purple);
+        scytheMark = NewMarker(new Vector2(halfWidth * 0.5f + 1.5f, h * 0.45f), new Vector2(3.2f, h * 0.8f));
+        dive = NewHitbox("ReaperDive", new Vector2(1.2f, 0.9f), new Vector2(2.6f, 2.0f), BossFx.Slash(), new Color(0.5f, 0.8f, 1f, 0.95f));
+        diveMark = NewMarker(new Vector2(1.2f, 0.9f), new Vector2(2.6f, 2.0f));
         slam = NewHitbox("ReaperSlam", new Vector2(0f, 0.5f), new Vector2(4.2f, 1.1f), BossFx.Ring(), new Color(1f, 0.6f, 0.9f, 0.95f));
         slamMark = NewMarker(new Vector2(0f, 0.5f), new Vector2(4.2f, 1.1f));
         spin = NewHitbox("ReaperSpin", new Vector2(0f, h * 0.45f), new Vector2(3.6f, h * 0.9f), BossFx.Slash(), new Color(1f, 0.5f, 0.85f, 0.95f));
         spinMark = NewMarker(new Vector2(0f, h * 0.45f), new Vector2(3.6f, h * 0.9f));
+        InitMoves();
+        supportsInterrupt = true; // 2026-10-20: 怯み/BREAK で技を止めてよい(OnInterrupted で浮き/予兆を戻す)
+        if (!All.Contains(this)) All.Add(this);
         StartCoroutine(MotionLoop());
     }
+
+    void OnDestroy() { All.Remove(this); }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public static bool DebugHold;
+    public bool DebugHolding { get; private set; }
+    public Vector3 DebugHitboxCenter(string which) { var hb = which == "sever" ? sever : which == "swoop" ? swoop : which == "scythe" ? scythe : null; return hb != null ? hb.transform.position : Vector3.zero; }
+    public bool DebugHitboxActive(string which) { var hb = which == "sever" ? sever : which == "swoop" ? swoop : which == "scythe" ? scythe : null; return hb != null && hb.IsActive; }
+#endif
 
     // 移動のテンポ(浮遊の上下/スキップの跳ね/歩きの揺れ)を、攻撃中以外は常に付ける
     IEnumerator MotionLoop()
@@ -103,7 +120,7 @@ public class ReaperSisterBoss : WildBossBase
         while (!IsDead)
         {
             bobT += Time.deltaTime;
-            if (bob && !Retreating)
+            if (bob && !Retreating && !Broken && DebugAct != "Flinch")
             {
                 switch (sister)
                 {
@@ -148,25 +165,15 @@ public class ReaperSisterBoss : WildBossBase
         while (!IsDead)
         {
             if (Retreating) { yield return null; continue; }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (DebugHold) { DebugHolding = true; relVelocity = 0f; yield return null; continue; } // 確認用: 技を出さずに待つ
+            DebugHolding = false;
+#endif
+            // 三人同時の連携技(ReaperFinaleBattle の合図): 今の技を終えてから、合図の時刻に自分の番を出す
+            if (comboAt > 0f) { yield return ComboTurn(); continue; }
             n++;
-            switch (sister)
-            {
-                case ReaperSister.Eldest:
-                    if (n % 3 == 0) yield return ReapingWave();
-                    else if (n % 3 == 1) yield return ScytheSweep(0.75f);
-                    else yield return StepAndSweep();
-                    break;
-                case ReaperSister.Second:
-                    if (n % 2 == 0) yield return SoulOrbs();
-                    else yield return DiveSlash();
-                    break;
-                default:
-                    if (n % 3 == 0) yield return SkipRush();
-                    else if (n % 3 == 1) yield return HopSlam();
-                    else yield return SpinSlash();
-                    break;
-            }
-            yield return Wait(Mathf.Lerp(1.6f, 1.0f, Mathf.Clamp01(aggression - 1f)) * (slotIndex > 0 ? 1.2f : 1f));
+            yield return NextMove(n);
+            yield return Wait(Mathf.Lerp(1.4f, 0.9f, Mathf.Clamp01(aggression - 1f)) * (slotIndex > 0 ? 1.2f : 1f));
         }
     }
 
@@ -278,13 +285,29 @@ public class ReaperSisterBoss : WildBossBase
     protected override bool OnLethalDamage()
     {
         if (!retreatOnLethal) return false;
-        if (!Retreating) StartCoroutine(RetreatRoutine());
+        if (!Retreating)
+        {
+            Retreating = true;
+            StopAllCoroutines();   // 2026-10-20: BREAK/技の途中でも、退く動きだけにする
+            ResetCombatState();
+            StartCoroutine(RetreatRoutine());
+        }
         return true;
+    }
+
+    // 怯み/BREAK で技が止められた: 浮き/予兆/一時的な絵を戻し、移動の揺れを動かし直す
+    protected override void OnInterrupted()
+    {
+        bob = true;
+        ClearTemp();
+        comboAt = -1f;
+        if (!Retreating && !IsDead) StartCoroutine(MotionLoop());
     }
 
     IEnumerator RetreatRoutine()
     {
         Retreating = true;
+        ClearTemp();
         invulnerable = true;
         DisableCombatParts();
         SetHurtboxEnabled(false);

@@ -1061,6 +1061,17 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         }
     }
 
+    // 死神三姉妹(2026-10-20): プレイヤーが弾き返した弾が当たった(ReaperBullet)。ダメージ + 崩し(怯み/BREAK)。
+    //  弾き返しはプレイヤーの手動の操作なので、BREAK 中のコンボ/命中の数にも数える
+    public void TakeReflectedHit(int amount, float staggerMul, Vector3 at)
+    {
+        if (dead || invulnerable || NetPuppet) return;
+        pendingStagger = BossBattleTuning.I.staggerReflect * staggerMul;
+        pendingKind = PlayerAttackKind.Normal;
+        pendingManual = true;
+        TakeDamage(amount, at);
+    }
+
     // 属性(2026-10-03): 炎上/出血の継続ダメージ・連鎖の落雷。HP/段階/撃破は通常と同じ。被弾の音/揺れ/ヒットストップ/
     // コンボ数/予備動作の中断は起こさない(1秒に何度も入るため)。
     bool quietHit;
