@@ -51,7 +51,7 @@ public partial class QaSweep
         public float Top => W != null ? W.transform.position.y + W.bodyHeight : Live.max.y;
         public float Bottom => W != null ? W.transform.position.y : Live.min.y;
         public string Style => W != null ? W.DebugBreakStyle.ToString() : "Launch";
-        public string Act => W != null ? W.DebugAct : "-";
+        public string Act => W != null ? W.DebugAct : D != null ? D.DebugStateName : "-";
         public int Flinch => W != null ? W.FlinchCount : D != null ? D.FlinchCount : M != null ? M.FlinchCount : 0;
         public float StaggerFraction => W != null ? W.StaggerFraction : D != null ? D.StaggerFraction : M != null ? M.StaggerFraction : 0f;
         public float StaggerMax => W != null ? W.DebugStaggerMax : D != null ? D.DebugStaggerMax : M != null ? M.DebugStaggerMax : 0f;
@@ -217,6 +217,7 @@ public partial class QaSweep
 
             // ---- B: BREAK → 入力の列 ----
             int kills0 = gm.BossKillCount;
+            int led0 = RewardLedger.Entries.Count; string bossTag = RewardLedger.Tag(bc, boss.W != null ? boss.W.bossName : bc.name);
             int l0 = BossJuggle.Launches + BossJuggle.Relaunches, sl0 = BossJuggle.Slams, kn0 = BossJuggle.KneelHits, dp0 = BossJuggle.DownPushes, ks0 = BossJuggle.KneelSlams;
             w = 0f; while ((!pc.IsGrounded || pc.IsAttacking) && w < 2f) { yield return null; w += Time.deltaTime; }
             boss.ForceBreak();
@@ -243,7 +244,13 @@ public partial class QaSweep
                 float? ceil = tm != null ? tm.GetEffectiveCeilingHeightAt(pb.x) : null;
                 if (jj != null && jj.Airborne && ceil.HasValue) r.ceilOver = Mathf.Max(r.ceilOver, boss.Top - ceil.Value);
                 float? g = tm != null ? tm.GetSupportHeightAt(bc.transform.position.x) : (float?)null;
-                if (g.HasValue && r.style == "Launch") r.groundUnder = Mathf.Max(r.groundUnder, g.Value - boss.Bottom);
+                if (g.HasValue && r.style == "Launch")
+                {
+                    float un = g.Value - boss.Bottom;
+                    // 2026-10-21: めり込んだ瞬間の様子(どの状態・どの床の段で起きたか)
+                    if (un > 0.25f && un > r.groundUnder + 0.1f) log.Append($"[UNDER {un:F2} t={Time.time:F2} x={bc.transform.position.x:F1} gRoot={g.Value:F2} gBody={(tm.GetSupportHeightAt(bb.center.x)):F2} bottom={boss.Bottom:F2} air={(jj != null && jj.Airborne)} anc={(jj != null && jj.Anchored)} broken={boss.Broken} act={boss.Act}] ");
+                    r.groundUnder = Mathf.Max(r.groundUnder, un);
+                }
                 if (cam != null && boss.Broken)
                 {
                     Vector3 vp = cam.WorldToViewportPoint(pb);
@@ -310,7 +317,28 @@ public partial class QaSweep
                 if (!r.killed) log.Append($"[C: no kill, hits after hp1={hitCount - hk0} broken={boss.Broken}] ");
                 r.finishOk = BossFinish.Started == st0 + 1;
                 yield return BfWaitEncounterEnd();
-                r.rewardOnce = gm.BossKillCount == kills0 + 1;
+                // 2026-10-21: 報酬1回は「このボス(個体)」で数える。以前は撃破数の合計で比べていたため、150km/h で関門を越えて
+                //  報酬の直後に出た別のボス(関門の再戦のオオカミ等)を CPU の仲間が倒すと +2 になり、失敗に見えていた(二重取りではない)。
+                //  このボスの撃破の登録が1回・その後(次の撃破まで)にボスの報酬の選択が1回・MILE が入っている、を見る
+                // 別のボスが出て倒された時は、そのボスの報酬の選択が出るまで待つ(取りこぼしの確認のため。後回しの安全装置 12秒 + 余裕で最大30秒)
+                for (float wt = 0f; wt < 30f && gm.BossRewardChoicesStarted < gm.BossKillCount; wt += Time.unscaledDeltaTime) yield return null;
+                var led = new StringBuilder();
+                int myDefeats = 0, myChoices = 0, others = 0, myMile = 0, allChoices = 0; bool afterMine = false;
+                for (int li = Mathf.Min(led0, RewardLedger.Entries.Count); li < RewardLedger.Entries.Count; li++)
+                {
+                    var e = RewardLedger.Entries[li];
+                    if (!e.kind.StartsWith("Boss:")) led.Append(e).Append(" | ");
+                    if (e.kind == "BossDefeat")
+                    {
+                        if (e.tag == bossTag) { myDefeats++; afterMine = true; var m = System.Text.RegularExpressions.Regex.Match(e.detail, @"mile\+(\d+)"); if (m.Success) myMile += int.Parse(m.Groups[1].Value); }
+                        else { others++; afterMine = false; }
+                    }
+                    if (e.kind == "RewardChoice") { allChoices++; if (afterMine) myChoices++; }
+                }
+                // このボスの撃破の登録は1回・MILE が入った、かつ、この Run のボスの撃破の数と報酬の選択の数が同じ(取りこぼし・二重が無い)。
+                // 後回しの選択はまとめて後に出るので、どの選択がどの撃破の分かは順番では決めない(数で見る)
+                r.rewardOnce = myDefeats == 1 && myMile > 0 && gm.BossRewardChoicesStarted == gm.BossKillCount;
+                L($"[bossair] {tag} ledger target={bossTag} myDefeats={myDefeats} myChoices={myChoices} myMile={myMile} otherBossDefeats={others} allChoices={allChoices} runKills={gm.BossKillCount} runChoices={gm.BossRewardChoicesStarted} queuedExtra={GameManager.BossRewardsQueuedExtra} killsDelta={gm.BossKillCount - kills0}: {led}");
                 } finally { btq.phoenixRebirthOnFirst = rebirthKeep; btq.phoenixRebirthRematchChance = rebirthChanceKeep; }
             }
         }
@@ -369,6 +397,11 @@ public partial class QaSweep
         bool rev = Arg("-bvRev", "0") == "1";
         bvGap = float.Parse(Arg("-bvGap", "0.3"), System.Globalization.CultureInfo.InvariantCulture);
         bvOnce = rev;
+        // 2026-10-21 追加調査: -bvFinishAtWarn 1 = ↑→→→ をくり返し、締めの合図が出たら 0.15秒後に ↓(締めの試験と同じ入れ方)。
+        //  -bvOnlyNew 1 = 今の版の動きだけ撮る(別の版の exe で撮ったものと並べる時)
+        bool finAtWarn = Arg("-bvFinishAtWarn", "0") == "1", onlyNew = Arg("-bvOnlyNew", "0") == "1";
+        bool followup = Arg("-bvFollowup", "0") == "1"; // 「改修前」= APK 339 の動き(今回の追加調査の分だけを切る)
+        if (finAtWarn) bvOnce = true;
         demoDir = System.IO.Path.Combine(outDir, "frames");
         System.IO.Directory.CreateDirectory(demoDir);
         var tsv = new StringBuilder("char\tboss\tlegacy\tfrom\tto\tlog\n");
@@ -387,9 +420,10 @@ public partial class QaSweep
             if (EncounterDirector.Instance != null) EncounterDirector.Instance.enabled = false;
             if (BossManager.Instance != null) BossManager.Instance.enabled = true;
             yield return new WaitForSeconds(1.2f);
-            foreach (bool legacy in new[] { true, false })
+            foreach (bool legacy in onlyNew ? new[] { false } : new[] { true, false })
             {
-                if (rev) { BossJuggle.Enabled = true; ComboRevision.Legacy = legacy; } else BossJuggle.Enabled = !legacy;
+                if (followup) { BossJuggle.Enabled = true; ComboRevision.Legacy = false; ComboRevision.FollowupOff = legacy; }
+                else if (rev) { BossJuggle.Enabled = true; ComboRevision.Legacy = legacy; } else BossJuggle.Enabled = !legacy;
                 yield return BfWaitEncounterEnd();
                 BossManager.Instance.DebugSpawnBossForTest(fam, kind);
                 SetKmh(kmh);
@@ -417,18 +451,20 @@ public partial class QaSweep
                 void OnO(Component b, PlayerAttackKind k) { if (b == bc) log.Append(k == PlayerAttackKind.Up ? "u" : k == PlayerAttackKind.Down ? "d" : k == PlayerAttackKind.DownImpact ? "i" : "n"); }
                 WildBossBase.QaLocalHit += OnW; DragonController.QaLocalHit += OnO; MajinController.QaLocalHit += OnO;
                 int from = demoFrame;
+                int bvSlams0 = BossJuggle.Slams + BossJuggle.KneelSlams;
                 Time.captureFramerate = 30;
-                string head = $"{(legacy ? (rev ? "改修前(APK338)" : "改修前") : "改修後")}  {pc.CurrentAutoRunSpeed * 3.6f:F0}km/h\n入力: ";
+                string head = $"{(legacy ? (followup ? "改修前(APK339)" : rev ? "改修前(APK338)" : "改修前") : "改修後")}  {pc.CurrentAutoRunSpeed * 3.6f:F0}km/h\n入力: ";
                 string arrows = "";
                 bvArrows = "";
-                var inputs = StartCoroutine(BvInputs(seq));
-                int n = Mathf.RoundToInt((0.3f + seq.Length * bvGap + 2.4f) * 30f);
+                var inputs = StartCoroutine(finAtWarn ? BvInputsFinish(boss) : BvInputs(seq));
+                int n = Mathf.RoundToInt((finAtWarn ? 0.3f + 6.5f : 0.3f + seq.Length * bvGap + 2.4f) * 30f);
                 for (int i = 0; i < n; i++)
                 {
                     arrows = bvArrows;
                     var j = boss.Juggle;
-                    string st = boss.IsDead ? "撃破" : boss.Broken ? (boss.Warned ? (rev && !legacy ? "BREAK(締めの合図 ↓)" : "BREAK(回復の予告)") : "BREAK") + (j != null && j.Airborne ? " 打ち上げ中" : "") + (j != null && j.IsComboAnchored && j.AirHits >= 2 ? $" AIR {j.AirHits}" : "")
+                    string st = boss.IsDead ? "撃破" : boss.Broken ? (boss.Warned ? ((rev && !legacy) || followup ? "BREAK(締めの合図 ↓)" : "BREAK(回復の予告)") : "BREAK") + (j != null && j.Airborne ? " 打ち上げ中" : "") + (j != null && j.IsComboAnchored && j.AirHits >= 2 ? $" AIR {j.AirHits}" : "")
                         : boss.Recovering ? "立ち直り" : "通常";
+                    if (BossJuggle.Slams + BossJuggle.KneelSlams > bvSlams0) st += "  締めが入った";
                     aeOverlay = head + arrows + "\n" + st;
                     yield return new WaitForEndOfFrame();
                     ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(demoDir, $"f{demoFrame:00000}.png"));
@@ -444,7 +480,7 @@ public partial class QaSweep
                 if (boss.Valid && !boss.IsDead) boss.Kill();
                 yield return BfWaitEncounterEnd();
             }
-            BossJuggle.Enabled = true; ComboRevision.Legacy = false;
+            BossJuggle.Enabled = true; ComboRevision.Legacy = false; ComboRevision.FollowupOff = false;
             GameManager.BlockExpGain = false;
             SetGod(false);
             PlayerController.DebugSpeedScale = 1f;
@@ -456,6 +492,23 @@ public partial class QaSweep
 
     string bvArrows = "";
     float bvGap = 0.3f; bool bvOnce;
+    // ↑→→→ をくり返して、締めの合図(回復の予告)が出たら 0.15秒後に ↓ を1回
+    IEnumerator BvInputsFinish(BaBoss boss)
+    {
+        string[] loop = { "U", "F", "F", "F" };
+        for (int i = 0; i < 24 && boss.Valid && !boss.IsDead && boss.Broken && !boss.Warned; i++)
+        {
+            string k = loop[i % 4];
+            bvArrows += k == "U" ? "↑" : "→";
+            pc.debugInjectOnce = k == "U" ? PlayerController.FlickDirection.Up : PlayerController.FlickDirection.Forward;
+            float t = 0f; while (t < bvGap && !boss.Warned) { yield return null; t += Time.deltaTime; }
+        }
+        if (!boss.Valid || !boss.Warned) yield break;
+        yield return new WaitForSeconds(0.15f);
+        bvArrows += " ↓";
+        pc.debugInjectOnce = PlayerController.FlickDirection.Down;
+    }
+
     IEnumerator BvInputs(string[] seq)
     {
         for (int i = 0; i < seq.Length; i++)

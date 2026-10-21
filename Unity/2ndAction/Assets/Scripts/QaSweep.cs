@@ -73,6 +73,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaBossAir") { mode = "bossair"; dir = a[i + 1]; } // 2026-10-18 ボスの怯み/BREAK 中のエリアルコンボ
             if (a[i] == "-qaBossAirVideo") { mode = "bossairvideo"; dir = a[i + 1]; } // 2026-10-18 その比較動画
             if (a[i] == "-qaChain") { mode = "chain"; dir = a[i + 1]; } // 2026-10-21 コンボのつながり(入力ごとの受理/実行/命中)
+            if (a[i] == "-qaRewardQueue") { mode = "rewardqueue"; dir = a[i + 1]; } // 2026-10-21 後回しのボス報酬の選択が倒した数だけ出るか
             if (a[i] == "-qaKneelShots") { mode = "kneelshots"; dir = a[i + 1]; } // 2026-10-21 大型ボスの膝つきの見た目
             if (a[i] == "-qaPrivacy") { mode = "privacy"; dir = a[i + 1]; } // 2026-10-19 データとプライバシー(削除/ポリシー)
             if (a[i] == "-qaBossAssist") { mode = "bossassist"; dir = a[i + 1]; }
@@ -234,6 +235,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "bossair") yield return BossAirMode();
         else if (mode == "chain") yield return ChainMode();
         else if (mode == "kneelshots") yield return KneelShotsMode();
+        else if (mode == "rewardqueue") yield return RewardQueueMode();
         else if (mode == "bossairvideo") yield return BossAirVideoMode();
         else if (mode == "privacy") yield return PrivacyMode();
         else if (mode == "bossassist") yield return BossAssistMode();

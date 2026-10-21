@@ -1088,6 +1088,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     }
 
     public string DebugName => "Dragon";
+    public string DebugStateName => state.ToString(); // 確認用(QA)
     public bool DebugAlive => state != State.Dead && isActiveAndEnabled;
     public int PhaseCount => (battle != null && battle.phaseThresholds != null ? battle.phaseThresholds.Length : 0) + 1;
     public bool UltimateRunning => ultimateRunningFlag;
@@ -1170,6 +1171,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         if (bossDefeatRegistered) return;
         bossDefeatRegistered = true;
         if (NetPuppet) return; // JOINのパペット: 撃破報酬/ボス戦終了はHOSTとラストヒットの本人が処理する
+        RewardLedger.BossTag = RewardLedger.Tag(this, name);
         if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward, RunRewards.BossExpFraction(rewardClass));
         if (BossManager.Instance != null) BossManager.Instance.OnDragonDefeated();
     }

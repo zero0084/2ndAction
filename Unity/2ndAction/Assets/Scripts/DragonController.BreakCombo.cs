@@ -167,7 +167,18 @@ public partial class DragonController
         {
             r += Time.deltaTime;
             float x = transform.position.x + TargetBaseSpeed() * Time.deltaTime; // 走行に合わせて運ぶ
-            transform.position = new Vector3(x, transform.position.y, 0f);
+            // 2026-10-21 追加調査: 立ち直りの間も地面に沿う(以前は高さを止めたまま前へ運んでいたので、150km/h の上り坂で
+            // 0.5秒の間に体が地面へ最大 1.3m 入っていた)。下り坂ではなめらかに下がる
+            float y = transform.position.y;
+            var rbox = GetComponent<BoxCollider2D>();
+            if (rbox != null && ComboRevision.Followup)
+            {
+                float bottomOffset = transform.position.y - BossJuggle.LiveBounds(rbox).min.y;
+                float bodyX = x + (BossJuggle.LiveBounds(rbox).center.x - transform.position.x);
+                float rest = Mathf.Max(GroundYAt(x), GroundYAt(bodyX)) + bottomOffset + breakBottomClearance;
+                y = Mathf.Max(rest, Mathf.Lerp(y, rest, 1f - Mathf.Exp(-Time.deltaTime / 0.1f)));
+            }
+            transform.position = new Vector3(x, y, 0f);
             yield return null;
         }
         breakRecovering = false;

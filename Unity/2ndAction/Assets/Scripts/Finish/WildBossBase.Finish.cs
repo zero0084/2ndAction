@@ -85,6 +85,7 @@ public abstract partial class WildBossBase : IBossDeathBody
         if (rewardRegistered) return;
         rewardRegistered = true;
         if (NetPuppet) return;
+        RewardLedger.BossTag = RewardLedger.Tag(this, bossName);
         if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward, RunRewards.BossExpFraction(RewardClass)); // 2026-10-15: EXP は格ごとの割合(第2弾: 関門の役割)
     }
 

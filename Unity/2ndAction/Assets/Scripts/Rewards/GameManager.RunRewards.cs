@@ -97,6 +97,7 @@ public partial class GameManager
         int add = TakeWhole(ref mileCarry, exact);
         RunBossMile += add;
         LastBossMileGranted = add;
+        RewardLedger.Note("BossDefeat", $"grantExp={grantExp} mile+{add} bossMile={RunBossMile} kills={BossKillCount} exp={(grantExp ? LastBossExpGranted : 0f):F1}");
         // Item 11 - a Boss kill is rare and meaningful enough to save immediately
         RequestInterruptSave(); // 2026-10-10: 戦闘中は間引いて保存(Android の保存は毎回 XML を書き直す)
     }

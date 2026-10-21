@@ -353,6 +353,7 @@ public partial class GameManager : MonoBehaviour
         pendingLevelUpCount = 0;
         levelUpDeferredTimer = -1f;
         bossRewardDeferredPending = false;
+        bossRewardDeferredExtra = 0;
     }
 
     // 状態遷移ログ用(2026-10-02): フリーズ/二重遷移の調査で「最後にどの状態だったか」を1行で
@@ -414,6 +415,12 @@ public partial class GameManager : MonoBehaviour
     // Reward instead. The two also defer to EACH OTHER via levelUpPending
     // (shared field) so they can never show concurrently.
     bool bossRewardDeferredPending;
+    // 2026-10-21 追加調査: 後回しの間にもう1体のボスが倒された分(以前は後回しが「ある/ない」の1つだけで、2体目の報酬の選択が消えていた。
+    //  150km/h で CPU の仲間が次の関門のボスをすぐ倒した時に起きた)。後回しの選択を1つ出すたびに1つずつ次へ回す
+    int bossRewardDeferredExtra;
+    public int BossRewardDeferredExtra => bossRewardDeferredExtra; // 確認用
+    public static int BossRewardsQueuedExtra; // 確認用(自動テスト)
+    public static bool QaLegacyRewardMerge; // 確認用(自動テストの比較だけ): 改修前と同じく、後回しの間の2回目以降を数えない
     float bossRewardDeferredTimer = -1f;
 
     // Item 9 - small in-Gameplay Pause/Menu (RESUME / RETURN TO HOME).
@@ -2494,6 +2501,7 @@ public partial class GameManager : MonoBehaviour
     // DebugMode-gated and harmless to leave in permanently.
     public void LogBoss(string tag)
     {
+        RewardLedger.Note("Boss:" + tag, $"bossKills={BossKillCount} bossMile={RunBossMile}");
         // Bugfix 2026-09-08 (Bug #001 診断フェーズ) - fed into BossDiagnostics'
         // Ring Buffer unconditionally (NOT gated on DebugMode) - the whole
         // point of this diagnostic phase is catching an elusive freeze that
@@ -2539,6 +2547,7 @@ public partial class GameManager : MonoBehaviour
         if (ArenaMode.Active) { if (BossManager.Instance != null) BossManager.Instance.EndBossPhase(); return; }
         if (IsBossPresentationActive() || levelUpPending || ChoiceUiBusy || UltimateArt.DefersChoices)
         {
+            if (bossRewardDeferredPending && !QaLegacyRewardMerge) { bossRewardDeferredExtra++; BossRewardsQueuedExtra++; }
             bossRewardDeferredPending = true;
             LogBossRewardStage("BossRewardStart -> deferred (Presentation/LevelUp active)");
             return;
@@ -2607,6 +2616,7 @@ public partial class GameManager : MonoBehaviour
         if (IsGameOver)
         {
             bossRewardDeferredPending = false;
+            bossRewardDeferredExtra = 0;
             bossRewardDeferredTimer = -1f;
             bossRewardStuckTimer = 0f;
             return;
@@ -2622,8 +2632,9 @@ public partial class GameManager : MonoBehaviour
             // 診断専用ガード。
             if (!BossDiagnostics.DisableSafetyTimers && bossRewardStuckTimer >= BossRewardStuckTimeoutSeconds)
             {
-                Debug.LogWarning("[BossReward] Deferred wait exceeded " + BossRewardStuckTimeoutSeconds + "s (a Presentation's IsRunning is stuck true) - forcing Boss Reward through anyway.");
-                bossRewardDeferredPending = false;
+                Debug.LogWarning("[BossReward] Deferred wait exceeded " + BossRewardStuckTimeoutSeconds + "s (a Presentation's IsRunning is stuck true) - forcing Boss Reward through anyway."
+                    + $" milestone={(BossMilestonePresentation.Instance != null && BossMilestonePresentation.Instance.IsRunning)} defeat={(BossDefeatPresentation.Instance != null && BossDefeatPresentation.Instance.IsRunning)} finish={BossFinish.AnyRunning} levelUpPending={levelUpPending} choiceBusy={ChoiceUiBusy} ult={UltimateArt.DefersChoices} extra={bossRewardDeferredExtra}");
+                TakeDeferredBossReward();
                 bossRewardStuckTimer = 0f;
                 RunBossRewardChoice();
             }
@@ -2635,10 +2646,17 @@ public partial class GameManager : MonoBehaviour
         bossRewardDeferredTimer -= Time.unscaledDeltaTime;
         if (bossRewardDeferredTimer <= 0f)
         {
-            bossRewardDeferredPending = false;
+            TakeDeferredBossReward();
             bossRewardDeferredTimer = -1f;
             RunBossRewardChoice();
         }
+    }
+
+    // 後回しの選択を1つ出す。まだ残っていれば(後回しの間に倒されたボスの分)後回しのまま = 今の選択が終わった後に出る
+    void TakeDeferredBossReward()
+    {
+        if (bossRewardDeferredExtra > 0) { bossRewardDeferredExtra--; bossRewardDeferredPending = true; }
+        else bossRewardDeferredPending = false;
     }
 
     // Bugfix 2026-09-06 - "Boss撃破後にゲームが停止する", second half. Even
@@ -2821,6 +2839,7 @@ public partial class GameManager : MonoBehaviour
         LogBossRewardStage("RunBossRewardChoice entry");
         LogBoss("RewardStart");
         BossRewardChoicesStarted++; // 確認用(2026-10-15: ラッシュの報酬は全体で1回)
+        RewardLedger.Note("RewardChoice", $"started={BossRewardChoicesStarted}");
         // マルチプレイPhase 2.5: ボス報酬は最後のボスのラストヒットを取った本人(RewardRecipient)だけ。
         // 本人がJOINなら、その端末へ選択を渡し、HOSTはボス戦の後始末(ボス戦終了/距離再開)だけ行う。
         // 2026-10-16 第5弾: 協力の各マップのラッシュの完走報酬 = 参加者全員が1回ずつ(最後に倒した人だけではない)。MILE の分配は変えない
@@ -3493,6 +3512,7 @@ public partial class GameManager : MonoBehaviour
             levelUpDeferredTimer = -1f;
         }
         bossRewardDeferredPending = false;
+        bossRewardDeferredExtra = 0;
         bossRewardDeferredTimer = -1f;
         bossRewardStuckTimer = 0f;
         // ボス報酬を出さずに終えた場合も、ボス戦の後始末(距離/湧きの再開)は通常の決定時と同じに行う。
@@ -3695,6 +3715,7 @@ public partial class GameManager : MonoBehaviour
         pendingLevelUpCount = 0;
         levelUpDeferredTimer = -1f;
         bossRewardDeferredPending = false;
+        bossRewardDeferredExtra = 0;
         bossRewardDeferredTimer = -1f;
         NetRunLauncher.MarkFinished(IsWin ? "run finished (win)" : "run finished (game over)");
         levelUpPending = false;

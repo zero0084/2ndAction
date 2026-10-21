@@ -1665,6 +1665,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (defeatRegistered) return;
         defeatRegistered = true;
         if (NetPuppet) return; // JOINのパペット: 撃破報酬/ボス戦終了はHOSTとラストヒットの本人が処理する
+        RewardLedger.BossTag = RewardLedger.Tag(this, bossName);
         if (!NetCombat.RouteBossDefeatReward(NetId) && GameManager.Instance != null) GameManager.Instance.RegisterBossDefeat(mileReward, RunRewards.BossExpFraction(RewardClass)); // 2026-10-15: EXP は格ごとの割合(第2弾: 関門の役割)
         if (DefeatOverride != null) { DefeatOverride(this); return; }
         if (BossManager.Instance != null) BossManager.Instance.OnWildBossDefeated(this);
@@ -1880,7 +1881,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         }
     }
 
-    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; BossBattle.Living.Add(this); }
+    void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; BossBattle.Living.Add(this); RewardLedger.Note("BossEnable", RewardLedger.Tag(this, bossName)); }
     void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; BossBattle.Living.Remove(this); if (juggle != null) juggle.CloseBreak(); }
     void OnOriginShifted(float s) { worldX -= s; }
 

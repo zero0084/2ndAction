@@ -35,9 +35,10 @@ public partial class QaSweep
         readonly List<ChRec> fifo = new List<ChRec>();
         ChRec cur;
         int prevMs, prevSc;
-        PlayerController pc;
+        public PlayerController pc;
         public System.Func<Vector3?> aim;   // 対象の狙いの点(無ければ null)
         public System.Func<bool> anchored;
+        public JumpMon jumps; // 2026-10-21: 1フレームの跳び(相手の位置の急な変化)の記録
         public float maxOffX, maxOffY; public int driftFrames, anchoredFrames;
 
         public void Begin(PlayerController p)
@@ -89,6 +90,8 @@ public partial class QaSweep
         public void Tick()
         {
             if (pc == null) return;
+            // 1フレームの跳びは描画の終わりに測る(ChJumpTick)。ここ(Update の後・LateUpdate の前)ではカメラが前のフレームの位置のままで、
+            // カメラとの差が1フレーム分ずれて見えていた
             int ms = pc.DebugMoveStarts;
             if (ms > prevMs)
             {
@@ -147,6 +150,70 @@ public partial class QaSweep
         }
     }
 
+    // 2026-10-21: 相手(雑魚/ボス)の1フレームの跳び。プレイヤーに対して / 画面(カメラ)に対して の両方で測り、
+    //  0.9m/フレーム(60fps 換算)を越えたら、その時の内訳(プレイヤー/相手/カメラの動き、相手の足元の床の変化、ボスの移動の内訳、状態)を残す
+    public class JumpMon
+    {
+        public System.Func<Transform> target;
+        public System.Func<string> state;
+        public System.Func<Vector4> split;   // ボス: 並走/間合いの補正/回り込み/BREAK の寄せ(WildBossBase.DebugMoveSplit)
+        public readonly List<string> events = new List<string>();
+        public readonly List<float> eventTimes = new List<float>();
+        public float maxRelP, maxRelC;
+        public int count, playerWarps; // playerWarps: プレイヤーが1フレームで6m以上動いた(穴からの救出のワープ等。跳びの数には入れない)
+        bool has; double pX, tX, cX; float pY, tY, cY, tGround, stepPrev;
+        string lastState = "";
+        public const float Threshold = 0.9f;
+
+        public void Tick(PlayerController pc)
+        {
+            var t = target != null ? target() : null;
+            var cam = Camera.main;
+            if (t == null || cam == null || !t.gameObject.activeInHierarchy) { has = false; return; }
+            double off = FloatingOrigin.Offset;
+            double px = pc.transform.position.x + off, tx = t.position.x + off, cx = cam.transform.position.x + off;
+            float py = pc.transform.position.y, ty = t.position.y, cy = cam.transform.position.y;
+            var tm = TerrainManager.Instance;
+            float g = tm != null ? tm.GetSupportHeightAt(t.position.x) : 0f;
+            string st = state != null ? state() : "";
+            float dt = Time.deltaTime;
+            if (has && dt > 0f)
+            {
+                float k = 0.0167f / Mathf.Max(0.0167f, dt);
+                Vector2 dP = new Vector2((float)(px - pX), py - pY), dT = new Vector2((float)(tx - tX), ty - tY), dC = new Vector2((float)(cx - cX), cy - cY);
+                float relP = (dT - dP).magnitude * k, relC = (dT - dC).magnitude * k;
+                maxRelP = Mathf.Max(maxRelP, relP); maxRelC = Mathf.Max(maxRelC, relC);
+                if (dP.magnitude >= 6f) { playerWarps++; if (events.Count < 40) events.Add($"t={Time.time:F2} PLAYER WARP dP=({dP.x:F1},{dP.y:F1}) pY={py:F1}"); }
+                if ((relP > Threshold || relC > Threshold) && dP.magnitude < 6f)
+                {
+                    count++;
+                    Vector4 sp = split != null ? split() : Vector4.zero;
+                    string cause = Classify(dP, dT, dC, g - tGround, sp, st, lastState, pc);
+                    var cf = cam.GetComponent<CameraFollow>();
+                    float dStep = pc.ScreenStepOffset - stepPrev;
+                    if (relC > Threshold && relP <= Threshold) cause += "+cameraOnly" + (cf != null && cf.IsShaking ? "(shake)" : "") + (Mathf.Abs(dStep) > 0.3f ? $"(step{dStep:F2})" : "");
+                    if (events.Count < 40) events.Add($"t={Time.time:F2} relP={relP:F2} relC={relC:F2} dP=({dP.x:F2},{dP.y:F2}) dT=({dT.x:F2},{dT.y:F2}) dC=({dC.x:F2},{dC.y:F2}) dGround={g - tGround:F2} split=({sp.x:F2},{sp.y:F2},{sp.z:F2},{sp.w:F2}) pGround={pc.IsGrounded} state={st} prev={lastState} => {cause}");
+                    eventTimes.Add(Time.time);
+                }
+            }
+            pX = px; tX = tx; cX = cx; pY = py; tY = ty; cY = cy; tGround = g; lastState = st; stepPrev = pc.ScreenStepOffset; has = true;
+        }
+
+        static string Classify(Vector2 dP, Vector2 dT, Vector2 dC, float dGround, Vector4 sp, string st, string prev, PlayerController pc)
+        {
+            var c = new List<string>();
+            if (Mathf.Abs(dP.y) > 0.6f && Mathf.Abs(dT.y) < 0.3f) c.Add("playerVertical");
+            if (Mathf.Abs(dGround) > 0.5f && Mathf.Abs(dT.y - dGround) < 0.25f) c.Add("targetFloorStep");
+            if (Mathf.Abs(sp.y) > 0.4f) c.Add("bossGapCorrection");
+            if (Mathf.Abs(sp.z) > 0.4f) c.Add("bossFrontReturn");
+            if (Mathf.Abs(sp.w) > 0.4f) c.Add("juggle");
+            if (st != prev) c.Add($"stateChange({prev}->{st})");
+            if (Mathf.Abs(dT.x - dP.x) > 0.9f && Mathf.Abs(dP.x - pc.CurrentAutoRunSpeed * Time.deltaTime) > 0.6f) c.Add("playerLungeOrKnock");
+            if (c.Count == 0) c.Add("other");
+            return string.Join("+", c);
+        }
+    }
+
     struct ChSum { public int n, hit, whiff, acc, rej, pend; public float latSum, latMax; public int latN; public string rejWhy; }
 
     IEnumerator ChainMode()
@@ -162,6 +229,7 @@ public partial class QaSweep
         string[] seq = Arg("-chSeq", "U,F,F,F,U,F,F,F,D").Split(',');
         int fps = int.Parse(Arg("-chFps", "60"));
         ComboRevision.Legacy = Arg("-chLegacy", "0") == "1"; // 改修前の動き(比較用)
+        ComboRevision.FollowupOff = Arg("-chFollowupOff", "0") == "1"; // APK 339 の動き(今回の追加調査の分だけを切る。比較用)
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = fps;
         L($"[chain] fps={fps} screen={Screen.width}x{Screen.height} seq={string.Join("", seq)} gaps={string.Join("/", gaps)} speeds={string.Join("/", speeds)}");
@@ -231,9 +299,10 @@ public partial class QaSweep
         Application.targetFrameRate = 60;
     }
 
+    readonly StringBuilder jumpTsv = new StringBuilder("char\ttarget\tstage\tkmh\tgap\tjumps\tmaxRelPlayer\tmaxRelCamera\twhiffNearJump\tevents\n");
     void ChRow(StringBuilder tsv, StringBuilder itsv, Dictionary<string, ChSum> sum, string ch, string tg, string st, float kmh, int fps, float gap, ChTracker tr, string ends)
     {
-        int h = 0, w = 0, a = 0, r = 0, p = 0, cx = 0; float latSum = 0f, latMax = 0f; int latN = 0;
+        int h = 0, w = 0, a = 0, r = 0, p = 0, cx = 0, wj = 0; float latSum = 0f, latMax = 0f; int latN = 0;
         var lg = new StringBuilder(); var why = new StringBuilder();
         foreach (var x in tr.recs)
         {
@@ -241,11 +310,19 @@ public partial class QaSweep
             float lat = x.tExec >= 0f ? x.tExec - x.tIn : -1f;
             if (lat >= 0f) { latSum += lat; latN++; latMax = Mathf.Max(latMax, lat); }
             switch (c[0]) { case 'H': h++; break; case 'W': w++; break; case 'C': cx++; break; case 'A': a++; break; case 'R': r++; why.Append(c[1]); break; default: p++; break; }
-            lg.Append($"{x.dir}:{c}{(lat >= 0f ? $"+{lat:F2}" : "")}{(c == "W" ? $"({x.dx:F1},{x.dy:F1}{(x.anchoredAtExec ? "" : ",free")})" : "")} ");
+            bool nearJump = false;
+            if (tr.jumps != null && x.tExec >= 0f) foreach (float jt in tr.jumps.eventTimes) if (jt >= x.tExec - 0.25f && jt <= x.tExec + 0.35f) nearJump = true;
+            if (c == "W" && nearJump) { wj++; c = "Wj"; }
+            lg.Append($"{x.dir}:{c}{(lat >= 0f ? $"+{lat:F2}" : "")}{(c.StartsWith("W") ? $"({x.dx:F1},{x.dy:F1}{(x.anchoredAtExec ? "" : ",free")})" : "")} ");
             itsv.Append($"{ch}\t{tg}\t{st}\t{kmh:F0}\t{gap:F2}\t{x.idx}\t{x.dir}\t{c}\t{x.fates}\t{lat:F3}\t{x.swings}\t{x.hits}\t{x.dx:F2}\t{x.dy:F2}\t{x.anchoredAtExec}\n");
         }
         tsv.Append($"{ch}\t{tg}\t{st}\t{kmh:F0}\t{fps}\t{gap:F2}\t{tr.recs.Count}\t{h}\t{w}\t{a}\t{r}\t{p}\t{(latN > 0 ? latSum / latN : 0f):F3}\t{latMax:F3}\t{tr.maxOffX:F2}\t{tr.maxOffY:F2}\t{tr.driftFrames}\t{tr.anchoredFrames}\t{ends}\t{lg}\n");
-        L($"[chain] {ch,-13} {tg,-16} {st,-15} {kmh,3:F0}km/h gap={gap:F2} H={h} W={w} C={cx} A={a} R={r}({why}) P={p} lat={(latN > 0 ? latSum / latN : 0f):F2}/{latMax:F2} off={tr.maxOffX:F1},{tr.maxOffY:F1} drift={tr.driftFrames}/{tr.anchoredFrames} ends=[{ends}]  {lg}");
+        if (tr.jumps != null)
+        {
+            jumpTsv.Append($"{ch}\t{tg}\t{st}\t{kmh:F0}\t{gap:F2}\t{tr.jumps.count}\t{tr.jumps.maxRelP:F2}\t{tr.jumps.maxRelC:F2}\t{wj}\t{string.Join(" || ", tr.jumps.events)}\n");
+            System.IO.File.WriteAllText(System.IO.Path.Combine(outDir, "chain_jumps.tsv"), jumpTsv.ToString());
+        }
+        L($"[chain] {ch,-13} {tg,-16} {st,-15} {kmh,3:F0}km/h gap={gap:F2} jumps={(tr.jumps != null ? tr.jumps.count : 0)}{(tr.jumps != null && tr.jumps.playerWarps > 0 ? $"+warp{tr.jumps.playerWarps}" : "")}(maxP {(tr.jumps != null ? tr.jumps.maxRelP : 0f):F2} maxC {(tr.jumps != null ? tr.jumps.maxRelC : 0f):F2}) Wj={wj} H={h} W={w} C={cx} A={a} R={r}({why}) P={p} lat={(latN > 0 ? latSum / latN : 0f):F2}/{latMax:F2} off={tr.maxOffX:F1},{tr.maxOffY:F1} drift={tr.driftFrames}/{tr.anchoredFrames} ends=[{ends}]  {lg}");
         string key = $"{ch} {tg} {kmh:F0} gap{gap:F2}";
         sum.TryGetValue(key, out var s);
         s.n += tr.recs.Count; s.hit += h; s.whiff += w; s.acc += a; s.rej += r; s.pend += p; s.latSum += latSum; s.latN += latN; s.latMax = Mathf.Max(s.latMax, latMax); s.rejWhy += why.ToString();
@@ -281,7 +358,7 @@ public partial class QaSweep
             bool launched = t2.recs.Count > 0 && t2.recs[0].hits > 0;
             if (launched || att == 2)
             {
-                tr.recs.AddRange(t2.recs); tr.maxOffX = t2.maxOffX; tr.maxOffY = t2.maxOffY; tr.driftFrames = t2.driftFrames; tr.anchoredFrames = t2.anchoredFrames;
+                tr.recs.AddRange(t2.recs); tr.maxOffX = t2.maxOffX; tr.maxOffY = t2.maxOffY; tr.driftFrames = t2.driftFrames; tr.anchoredFrames = t2.anchoredFrames; tr.jumps = t2.jumps;
                 ends.Append(e2);
                 yield break;
             }
@@ -307,13 +384,15 @@ public partial class QaSweep
         }
         tr.aim = () => en != null && en.isActiveAndEnabled ? en.ComboAimPoint : (Vector3?)null;
         tr.anchored = () => en != null && en.isActiveAndEnabled && en.IsComboAnchored;
+        tr.jumps = new JumpMon { target = () => en != null && en.isActiveAndEnabled ? en.transform : null, state = () => en == null ? "-" : (en.IsLaunchedForCombo ? "air" : "gnd") + (en.IsComboAnchored ? "*" : "") };
         void OnHit(EnemyController e, PlayerAttackKind kind, bool wasLaunched, bool killed) { if (e == en) tr.OnTargetHit(); }
         EnemyController.LocalHit += OnHit;
         string lastEnd = en.ComboEndReason;
         int bs0 = EnemyController.ComboBlockedStep, bc0 = EnemyController.ComboBlockedCeiling, du0 = EnemyController.ComboDucked;
         var watch = StartCoroutine(ChWatch(() => { if (en != null && en.ComboEndReason != lastEnd) { lastEnd = en.ComboEndReason; if (!string.IsNullOrEmpty(lastEnd)) ends.Append(lastEnd + " "); } }));
+        var jtick = StartCoroutine(ChJumpTick(tr));
         try { yield return ChRunSeq(seq, gap, tr, () => en != null && en.isActiveAndEnabled); }
-        finally { EnemyController.LocalHit -= OnHit; StopCoroutine(watch); }
+        finally { EnemyController.LocalHit -= OnHit; StopCoroutine(watch); StopCoroutine(jtick); }
         int bs = EnemyController.ComboBlockedStep - bs0, bc = EnemyController.ComboBlockedCeiling - bc0, du = EnemyController.ComboDucked - du0;
         if (bs + bc + du > 0) ends.Append($"[blockStep={bs} blockCeil={bc} duck={du}] ");
         w = 0f;
@@ -323,6 +402,24 @@ public partial class QaSweep
     }
 
     IEnumerator ChWatch(System.Action a) { while (true) { a(); yield return null; } }
+
+    // 描画の終わり(カメラの LateUpdate の後)に、プレイヤー/相手/カメラの位置を測る = 画面に映る位置どうしの変化
+    IEnumerator ChJumpTick(ChTracker tr) { var eof = new WaitForEndOfFrame(); while (true) { yield return eof; if (tr.jumps != null && tr.pc != null) tr.jumps.Tick(tr.pc); } }
+
+    // 2026-10-21: 走り始めの加速(ResumeAccel)が終わるまで速さを合わせ続ける。Run の直後の1件目は、加速の途中の遅い速さに合わせた
+    //  倍率のまま加速が終わり、目標の数倍の速さ(1フレームで 6〜8m)になっていた(竜騎士 × 黒騎士で打ち上げが届かなかった原因)
+    IEnumerator ChSettleKmh(float kmh)
+    {
+        float prev = -1f; int calm = 0;
+        for (float w = 0f; w < 8f && calm < 20; w += Time.deltaTime)
+        {
+            SetKmh(kmh);
+            yield return null;
+            PlayerController.DebugSpeedScale = 1f; float nat = pc.CurrentAutoRunSpeed; SetKmh(kmh);
+            calm = prev > 0f && Mathf.Abs(nat - prev) < prev * 0.002f ? calm + 1 : 0;
+            prev = nat;
+        }
+    }
 
     IEnumerator ChBoss(string key, float kmh, float gap, string[] seq, ChTracker tr, StringBuilder ends)
     {
@@ -344,6 +441,9 @@ public partial class QaSweep
         SetKmh(kmh);
         yield return new WaitForSeconds(0.6f);
         yield return BaWaitCalm(boss);
+        float kmhBefore = pc.CurrentAutoRunSpeed * GameManager.KmhPerMps;
+        yield return ChSettleKmh(kmh);
+        L($"[chain] speed {key} target={kmh:F0} beforeSettle={kmhBefore:F0} now={pc.CurrentAutoRunSpeed * GameManager.KmhPerMps:F0} dist={pc.transform.position.x:F0}");
         w = 0f; while ((!pc.IsGrounded || pc.IsAttacking) && w < 2f) { yield return null; w += Time.deltaTime; }
         boss.ForceBreak();
         yield return null;
@@ -353,6 +453,12 @@ public partial class QaSweep
         Component bc = boss.C;
         tr.aim = () => boss.Valid && !boss.IsDead && boss.Juggle != null ? boss.Juggle.ComboAimPoint : (Vector3?)null;
         tr.anchored = () => boss.Valid && boss.Juggle != null && boss.Juggle.IsComboAnchored;
+        tr.jumps = new JumpMon
+        {
+            target = () => boss.Valid && !boss.IsDead ? bc.transform : null,
+            split = () => boss.W != null ? boss.W.DebugMoveSplit : Vector4.zero,
+            state = () => { var j = boss.Juggle; return (boss.Broken ? "B" : "") + (boss.Warned ? "w" : "") + (boss.Recovering ? "r" : "") + (j != null && j.Airborne ? "^" : "") + (j != null && j.Anchored ? "*" : "") + ":" + boss.Act; },
+        };
         void OnHitW(WildBossBase b, PlayerAttackKind k, bool lethal) { if (b == bc) tr.OnTargetHit(); }
         void OnHitO(Component b, PlayerAttackKind k) { if (b == bc) tr.OnTargetHit(); }
         WildBossBase.QaLocalHit += OnHitW; DragonController.QaLocalHit += OnHitO; MajinController.QaLocalHit += OnHitO;
@@ -364,7 +470,8 @@ public partial class QaSweep
             if (j != null && j.EndReason != lastEnd) { lastEnd = j.EndReason; if (!string.IsNullOrEmpty(lastEnd)) ends.Append(lastEnd + " "); }
             if (!warnedNoted && boss.Warned) { warnedNoted = true; ends.Append($"<warn@{tr.recs.Count}> "); }
         }));
-        int fs0 = BossJuggle.Slams + BossJuggle.KneelSlams, fh0 = BossJuggle.FinishHits;
+        var jtick = StartCoroutine(ChJumpTick(tr));
+        int fs0 = BossJuggle.Slams + BossJuggle.KneelSlams, fh0 = BossJuggle.FinishHits, fp0 = BossJuggle.FinishPushes;
         try
         {
             if (Arg("-chFinishAtWarn", "0") != "1") yield return ChRunSeq(seq, gap, tr, () => boss.Valid && !boss.IsDead && boss.Broken);
@@ -387,17 +494,30 @@ public partial class QaSweep
                     {
                         float t = 0f; while (t < 0.15f) { yield return null; tr.Tick(); t += Time.deltaTime; }
                         bool air = !pc.IsGrounded;
+                        var jj = boss.Juggle;
+                        var tmz = TerrainManager.Instance;
+                        float pg = tmz != null ? tmz.GetSupportHeightAt(pc.transform.position.x) : 0f, bg = tmz != null ? tmz.GetSupportHeightAt(boss.Live.center.x) : 0f;
+                        string at = $"remain={(boss.W != null ? boss.W.DebugBreakRemaining : -1f):F2} anchored={(jj != null && jj.Anchored)} bossAir={(jj != null && jj.Airborne)} style={boss.Style} pY={pc.transform.position.y:F1} pGnd={pg:F1} bGnd={bg:F1} hurtY={boss.Live.min.y:F1}..{boss.Live.max.y:F1}";
+                        Vector3 aimAtD = jj != null ? jj.ComboAimPoint : Vector3.zero;
+                        Vector2 relAtD = (Vector2)aimAtD - (Vector2)pc.transform.position;
                         d = tr.Inject(i, "D");
-                        t = 0f; while (t < 1.0f) { yield return null; tr.Tick(); t += Time.deltaTime; }
+                        string atExec = "";
+                        t = 0f;
+                        while (t < 1.0f)
+                        {
+                            yield return null; tr.Tick(); t += Time.deltaTime;
+                            if (atExec.Length == 0 && d.tExec >= 0f) atExec = $"exec: anchored={(boss.Juggle != null && boss.Juggle.Anchored)} broken={boss.Broken} remain={(boss.W != null ? boss.W.DebugBreakRemaining : -1f):F2} pAir={!pc.IsGrounded}";
+                        }
                         int slams = BossJuggle.Slams + BossJuggle.KneelSlams - fs0;
-                        ends.Append($"[finishAtWarn D={ChTracker.Code(d)} playerAir={air} slams={slams} finishHits={BossJuggle.FinishHits - fh0}] ");
+                        string endWhy = boss.Juggle != null ? boss.Juggle.EndReason : "";
+                        ends.Append($"[finishAtWarn D={ChTracker.Code(d)} fates={d.fates} lat={(d.tExec >= 0f ? d.tExec - d.tIn : -1f):F2} dx={d.dx:F2} dy={d.dy:F2} playerAir={air} slams={slams} finishHits={BossJuggle.FinishHits - fh0} pushes={BossJuggle.FinishPushes - fp0} atInput[{at} rel=({relAtD.x:F1},{relAtD.y:F1})] {atExec} endReason={endWhy} dead={boss.IsDead}] ");
                     }
                     else ends.Append("[finishAtWarn: no warn] ");
                 }
                 finally { tr.End(); }
             }
         }
-        finally { WildBossBase.QaLocalHit -= OnHitW; DragonController.QaLocalHit -= OnHitO; MajinController.QaLocalHit -= OnHitO; StopCoroutine(watch); }
+        finally { WildBossBase.QaLocalHit -= OnHitW; DragonController.QaLocalHit -= OnHitO; MajinController.QaLocalHit -= OnHitO; StopCoroutine(watch); StopCoroutine(jtick); }
         if (!boss.Broken) ends.Append($"[break ended after {tr.recs.Count} inputs] ");
         if (boss.Valid && !boss.IsDead) boss.Kill();
         yield return BfWaitEncounterEnd();

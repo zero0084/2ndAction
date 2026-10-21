@@ -516,7 +516,12 @@ public partial class PlayerController
             comboCount = 1;
             transform.localScale = Vector3.one;
             lanceDiving = true;
-            lanceMoveSlowFactor = d.lanceDiveHorizontalScale;
+            // 2026-10-21 追加調査: 空中コンボの締めの急降下は、走りの前進を止めない(以前は前進を 0.1倍にしていたので、150km/h では
+            // 寄せているボス/膝をついたボスとの差が毎秒 30m 以上開き、ボスだけが前へ流れて急降下が後ろで空振りしていた。45km/h では差が小さく当たる)。
+            // 画面ではカメラが付いてくるので、見た目はこれまでどおり真下へ落ちる
+            bool comboDiveAtStart = AerialComboActive && ComboRevision.Followup;
+            float diveSlow = comboDiveAtStart ? 1f : d.lanceDiveHorizontalScale;
+            lanceMoveSlowFactor = diveSlow;
             velocityY = 0f;
             aerialAssistTimer = 0f;
 
@@ -555,7 +560,8 @@ public partial class PlayerController
             lanceDiving = false;
             lanceDiveFalling = false;
             LanceFrameIndex = 2;
-            lanceMoveSlowFactor = 0.25f;
+            float impactSlow = comboDiveAtStart ? 0.7f : 0.25f; // コンボの締め: 着地の重さは残しつつ、叩きつけたボスから急に離されない
+            lanceMoveSlowFactor = impactSlow;
             if (lanceAttackInfo != null) lanceAttackInfo.kind = PlayerAttackKind.DownImpact;
             lanceDamageScale = d.lanceDiveImpactDamageScale;
             lanceKnockbackScale = d.lanceDiveImpactKnockbackScale;
@@ -580,7 +586,7 @@ public partial class PlayerController
             while (t < recovery)
             {
                 if (gen != attackGeneration || token != lanceGeneration) yield break;
-                lanceMoveSlowFactor = Mathf.Lerp(0.25f, 1f, t / Mathf.Max(0.01f, recovery));
+                lanceMoveSlowFactor = Mathf.Lerp(impactSlow, 1f, t / Mathf.Max(0.01f, recovery));
                 t += Time.deltaTime; yield return null;
             }
         }

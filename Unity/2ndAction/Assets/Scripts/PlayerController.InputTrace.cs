@@ -10,7 +10,7 @@ using UnityEngine;
 //  Ignored    = 動ける時だったが、何も起きなかった(地上の↓など)
 //  LandBuffered = ↑を着地の予約(地上の打ち上げ)へ回した
 //  Merged     = 同じ向きの次の段が既に予約されていたので、重ねなかった(予約は1つだけ)
-//  ゲームの動きは変えない。QA が QaFlickFate で受け取って、技が出たか/当たったかと組み合わせる。
+//  ゲームの動きは変えない(LastDownMoveAt だけは締めの判定で使う)。QA が QaFlickFate で受け取って、技が出たか/当たったかと組み合わせる。
 public partial class PlayerController
 {
     public enum FlickFate { Immediate, Reserved, FiredLater, Expired, Replaced, Cleared, Ignored, LandBuffered, Merged }
@@ -25,8 +25,12 @@ public partial class PlayerController
     // ヒットストップの間に入れても、本物の指と同じく先行入力として覚える(読むのは開発版だけ)
     [System.NonSerialized] public FlickDirection? debugInjectOnce;
 
+    // ↓ の入力で技が出た(予約された)最後の時刻。膝をついた大型のボスへの締め(地上の ↓ の技でも締めになる)の判定に使う(2026-10-21)
+    public float LastDownMoveAt { get; private set; } = -10f;
+
     void TraceFlick(int id, FlickDirection dir, FlickFate fate)
     {
+        if (dir == FlickDirection.Down && (fate == FlickFate.Immediate || fate == FlickFate.FiredLater)) LastDownMoveAt = Time.time;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (id > 0 && !IsAlly) QaFlickFate?.Invoke(id, dir, fate);
 #endif

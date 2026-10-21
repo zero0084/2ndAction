@@ -1541,6 +1541,7 @@ public partial class PlayerController : MonoBehaviour
                     aerialAssistTimer -= used;
                     aerialAssistTotalUsed += used;
                 }
+                ComboCeilingCap(); // 低い天井の下の BREAK コンボ: 天井につかえたボスより上へ行きすぎない(2026-10-21)
                 float vPrevY = velocityY;
                 float gNow = gravity * gravityScale;
                 velocityY -= gNow * dt;

@@ -105,6 +105,8 @@ public class CameraFollow : MonoBehaviour
     public static float BossFinishZoom = 1f;
     float bossZoomNow = 1f;
 
+    public bool IsShaking => shakeTimer > 0f; // 確認用(QA)
+
     void LateUpdate()
     {
         var pc = PlayerController.Instance;

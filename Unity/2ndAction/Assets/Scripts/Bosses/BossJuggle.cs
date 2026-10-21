@@ -53,6 +53,9 @@ public static class AirComboTargets
 public static class ComboRevision
 {
     public static bool Legacy;
+    // 2026-10-21 追加調査の分(竜騎士の締めの急降下の前進・↓の叩き落とし・低い天井・膝つきへの地上の↓・天空ドラゴンの立ち直り)だけを切る。確認用(比較の動画/試験)
+    public static bool FollowupOff;
+    public static bool Followup => !Legacy && !FollowupOff;
 }
 
 public class BossJuggle : IAirComboTarget
@@ -99,6 +102,15 @@ public class BossJuggle : IAirComboTarget
     public float MaxRise { get; private set; }   // 確認用: 地面からいちばん上がった高さ
     public string EndReason = "";
     float window, total, rise, down, lift, sink, landedFor;
+    // 2026-10-21 追加調査: 締めの合図の後の ↓ は、ボスを地面まで叩き落とす(叩きつけ = 締め)。以前は ↓ でもボスは「プレイヤーの高さ - 1.8m」までしか
+    //  下がらず、↓ が弾/魔法のキャラ(二丁拳銃士/魔法使い等。撃った後も空中に残る)は ↓ が当たっても地面へ届かないまま BREAK が終わっていた
+    float finishPush;
+    public const float FinishSlamSpeed = 14f, FinishPushMax = 0.6f, FinishSlamReach = 0.35f; // 叩き落とす速さの下限(m/秒)/ 長さの上限(秒)/ 地面へ届くまでの目安(秒)
+    public static int FinishPushes, GroundDownFinishes;
+    // 2026-10-21 追加調査: 天井でボスの体の中心が止まる高さ(+∞ = 天井なし)と体の高さの半分。プレイヤーが天井の下で上がりすぎて、
+    //  天井につかえたボス(体が大きい)の上を空振りしないよう、プレイヤー側で上がる高さを抑えるのに使う(PlayerController.ComboCeilingCap)
+    public float CeilCap { get; private set; } = float.PositiveInfinity;
+    public float HalfHeight { get; private set; }
     bool playerWasAir;
     readonly Dictionary<int, float> lastHitAt = new Dictionary<int, float>(); // 参加者ごとの最後の命中(引き継ぎの相手を選ぶ)
 
@@ -219,7 +231,8 @@ public class BossJuggle : IAirComboTarget
         Anchored = false; Owner = OwnerNone;
         Airborne = style == Style.Launch && airborne;
         VelY = 0f; AirHits = 0; MaxRise = 0f;
-        window = total = rise = down = lift = sink = 0f;
+        window = total = rise = down = lift = sink = finishPush = 0f;
+        CeilCap = float.PositiveInfinity;
         EndReason = "";
         lastHitAt.Clear();
         if (!open.Contains(this)) open.Add(this);
@@ -239,6 +252,7 @@ public class BossJuggle : IAirComboTarget
     // BREAK の時間が尽きた: 寄せを終える(浮いていれば落ちて、地面で立ち直る)
     public void EndCombo(string reason)
     {
+        if (Anchored && finishPush > 0f) return; // 締めの叩き落としの途中: 地面に着く(叩きつけ)まで続ける(最大 FinishPushMax 秒)
         if (Anchored) EndAnchor(reason);
         Accepting = false;
     }
@@ -247,7 +261,7 @@ public class BossJuggle : IAirComboTarget
     {
         Open = false; Accepting = false; Finishing = false;
         Anchored = false; Airborne = false; Owner = OwnerNone;
-        VelY = 0f; down = 0f;
+        VelY = 0f; down = 0f; finishPush = 0f;
         open.Remove(this);
         if (Local == this) Local = null;
     }
@@ -281,7 +295,7 @@ public class BossJuggle : IAirComboTarget
     {
         Anchored = false;
         Owner = OwnerNone;
-        window = 0f; lift = 0f; down = 0f;
+        window = 0f; lift = 0f; down = 0f; finishPush = 0f;
         EndReason = reason;
     }
 
@@ -308,7 +322,11 @@ public class BossJuggle : IAirComboTarget
             bool airHit = !a.grounded || kind == PlayerAttackKind.Up;
             if (byOther) { OwnerKeptOnOtherHit++; window = Mathf.Max(window, Window * 0.6f); AirHits++; KneelHits++; RegisterAir(isDown, who); }
             else if (airHit || Anchored) { BeginAnchor(who); AirHits++; KneelHits++; RegisterAir(isDown, who); }
-            if (isDown && Anchored) { KneelSlams++; if (Finishing) FinishSlams++; return true; }
+            // 2026-10-21 追加調査: 締めの合図の後は、着地して地上の ↓ の技(忍者の滑り込み等)を当てても締めになる。膝をついた大型は低いので
+            //  コンボの途中で着地しやすく、以前は地上の ↓ が「普通の命中」になって締めが入らなかった(↓ の入力から 0.6秒以内の命中だけ)
+            bool downFinish = isDown || (Finishing && ComboRevision.Followup && who == OwnerLocal && PlayerController.Instance != null
+                                         && Time.time - PlayerController.Instance.LastDownMoveAt < 0.6f);
+            if (downFinish && Anchored) { KneelSlams++; if (Finishing) FinishSlams++; if (!isDown) GroundDownFinishes++; return true; }
             return false;
         }
         if (kind == PlayerAttackKind.Up && !Finishing)
@@ -335,6 +353,7 @@ public class BossJuggle : IAirComboTarget
         {
             down = DownPushTime; lift = 0f; DownPushes++;
             if (kind == PlayerAttackKind.DownImpact) VelY = Mathf.Min(VelY, -14f);
+            if (Finishing) BeginFinishPush(); // 協力: 基準でない人の ↓ でも締めになる(縦に下ろすだけで、横の寄せは基準の人のまま)
         }
         else down = 0f; // ↓の後に → / ↑ が当たった: つなぎ直し
         RegisterAir(isDown, who);
@@ -347,12 +366,18 @@ public class BossJuggle : IAirComboTarget
         if (ComboCounterUI.Instance != null && AirHits >= 2) ComboCounterUI.Instance.RegisterAir(AirHits, final);
     }
 
+    void BeginFinishPush()
+    {
+        if (!ComboRevision.Followup || !Anchored || finishPush > 0f) return;
+        finishPush = FinishPushMax; FinishPushes++;
+    }
+
     // ↓の弾/札などから直接(プレイヤー側の締めの技)
     public bool ComboTryDownPush()
     {
         if (!Open || !Anchored) return false;
         if (IsReplica) return true; // JOIN: 押す処理は HOST(命中の報告)で
-        if (style == Style.Launch) { down = DownPushTime; lift = 0f; window = Window; DownPushes++; }
+        if (style == Style.Launch) { down = DownPushTime; lift = 0f; window = Window; DownPushes++; if (Finishing) BeginFinishPush(); }
         return true;
     }
 
@@ -366,11 +391,13 @@ public class BossJuggle : IAirComboTarget
     {
         slammed = false; landed = false;
         if (!Open || IsReplica) return Vector2.zero;
+        CeilCap = ceilCenterMax; HalfHeight = ext.y;
         Anchor a = AnchorOf(Owner);
         if (Anchored)
         {
             window -= dt; total += dt;
             if (Finishing) sink += FinishSinkPerSec * dt;
+            if (finishPush > 0f) { finishPush -= dt; down = Mathf.Max(down, 0.05f); }
             if (a.ok && !a.grounded) playerWasAir = true;
             if (!a.ok) { if (!TryHandoff("ownerGone")) EndAnchor("ownerGone"); }
             else if (window <= 0f || total > MaxTotal) { if (!TryHandoff("timeout")) { EndAnchor("timeout"); EndedTimeout++; } }
@@ -397,7 +424,7 @@ public class BossJuggle : IAirComboTarget
             Vector2 target = new Vector2(p.x + nearEdge + ext.x, p.y + sweet.y + lift + push - sink);
             if (!PushingDown) target.y = Mathf.Max(target.y, restCenterY);
             Vector2 diff = target - center;
-            if (diff.magnitude > EngageDistance) { if (!TryHandoff("far")) { EndAnchor($"far({diff.x:F1},{diff.y:F1})"); EndedFar++; } }
+            if ((finishPush > 0f ? Mathf.Abs(diff.x) : diff.magnitude) > EngageDistance) { if (!TryHandoff("far")) { EndAnchor($"far({diff.x:F1},{diff.y:F1})"); EndedFar++; } }
             else
             {
                 Vector2 corr = Vector2.ClampMagnitude(diff * Gain, MaxCorrection);
@@ -411,6 +438,8 @@ public class BossJuggle : IAirComboTarget
                 else { VelY -= Gravity * dt; vy = VelY; }    // まだ地上(打ち上げた直後): 普通に上がる
                 if (rise > 0f) { rise -= dt; vy = Mathf.Max(vy, RiseMinSpeed); }
                 vy = Mathf.Clamp(vy, -24f, 18f);
+                // 締めの叩き落とし: プレイヤーの高さに関係なく地面へ。高い所(飛ぶボス/高く上がったコンボ)からでも約0.35秒で届く速さ(毎秒 14〜32m)
+                if (finishPush > 0f) vy = Mathf.Min(vy, -Mathf.Clamp((center.y - restCenterY) / FinishSlamReach, FinishSlamSpeed, 32f));
                 VelY = vy;
             }
         }

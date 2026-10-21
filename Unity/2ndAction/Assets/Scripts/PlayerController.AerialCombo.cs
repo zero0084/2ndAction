@@ -331,6 +331,20 @@ public partial class PlayerController
     }
     public static int KneelHeightCaps; // 確認用
 
+    // 2026-10-21 追加調査: 低い天井の下で、打ち上げたボス(体が大きい)が天井につかえている時は、プレイヤーも攻撃の当たる高さ
+    // (足元 + 当たる所)がボスの体の上の方に収まる高さまでしか上がらない(以前はプレイヤーだけ天井近くまで上がり、ボスの上を空振りして
+    // 寄せの時間が切れていた: 洞窟の大コウモリ × 格闘家)。毎フレーム、上がる速さをその高さで止まる速さに抑える(急に止めない)
+    public static int CeilingComboCaps; // 確認用
+    void ComboCeilingCap()
+    {
+        if (!ComboRevision.Followup || velocityY <= 0f || !AerialComboActive) return;
+        if (!(AirComboTargets.Local is BossJuggle bj) || bj.style != BossJuggle.Style.Launch || float.IsInfinity(bj.CeilCap)) return;
+        float maxFeet = bj.CeilCap + bj.HalfHeight * 0.4f - AerialComboSweetSpot().y;
+        float room = maxFeet - (transform.position.y - groundOffset);
+        float vmax = room > 0f ? Mathf.Sqrt(2f * gravity * room) : 0f;
+        if (velocityY > vmax) { velocityY = vmax; CeilingComboCaps++; }
+    }
+
     // ↓の急降下の最中に → / ↑: 急降下をやめて、その場の空中の技へつなぎ直す(コンボ中だけ)
     bool TryDiveReconnect()
     {

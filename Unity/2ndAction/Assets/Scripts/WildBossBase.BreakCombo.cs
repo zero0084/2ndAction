@@ -306,6 +306,7 @@ public abstract partial class WildBossBase
     }
 
     float BreakExtendCap => Mathf.Max(tune.breakDuration * BreakExtendMaxRatio, BreakExtendMinCap);
+    public float DebugBreakRemaining => breakRoutineRunning && tune != null ? tune.breakDuration + breakExtra - BreakElapsed : -1f; // 確認用(2026-10-21)
     public Bounds LiveHurtBounds => hurtCol != null ? BossJuggle.LiveBounds(hurtCol) : new Bounds(CenterWorld, new Vector3(1f, bodyHeight, 1f));
     public float DebugBreakMax => tune != null ? tune.breakDuration + BreakExtendCap : 0f;
 
