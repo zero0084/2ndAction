@@ -38,7 +38,8 @@ public class BossAnimImporter : AssetPostprocessor
         ti.maxTextureSize = 2048;
         var s = new TextureImporterSettings();
         ti.ReadTextureSettings(s);
-        s.spriteAlignment = (int)SpriteAlignment.BottomCenter;
+        // 2026-10-21: piece_*(必殺技で画面を横切る体の部分など、ボス本体ではない絵)は中心ピボット
+        s.spriteAlignment = (int)(System.IO.Path.GetFileName(assetPath).StartsWith("piece_") ? SpriteAlignment.Center : SpriteAlignment.BottomCenter);
         s.spriteMeshType = SpriteMeshType.FullRect;
         ti.SetTextureSettings(s);
         var android = ti.GetPlatformTextureSettings("Android");

@@ -492,6 +492,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     protected int animVariant;
     protected float diveArtT = -1f, emergeArtUntil; // 潜る/飛び出すのコマ(PickAnimSprite)
     protected bool exhaustArt; // 専用の隙のコマ(exhaust_)を出している間
+    protected Sprite emergeArtOverride; // emergeArtUntil までの間、emerge_ の代わりに出すコマ(技ごとの飛び出し。期限が過ぎたら消える)
     protected bool HasDiveArt => Anim != null && Anim.dive != null;
     BossAnimSet anim; bool animLoaded;
     float hurtArtAt = -9f, hurtArtUntil = -9f;
@@ -523,6 +524,8 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (Broken && !breakRecovering && a.breakLoop != null && (pose == Pose.Idle || pose == Pose.Move)) return BossAnimSet.Loop(a.breakLoop, 3f, Time.time + loopTimeOffset);
         // 2026-10-20: 潜る/飛び出すのコマ(dive_/emerge_)。diveArtT >= 0 の間は潜るコマを進み具合で、emergeArtUntil までは飛び出すコマ(潜るボス共通)
         if (!Broken && diveArtT >= 0f && a.dive != null) return BossAnimSet.Progress(a.dive, diveArtT);
+        if (Time.time >= emergeArtUntil) emergeArtOverride = null;
+        if (!Broken && Time.time < emergeArtUntil && emergeArtOverride != null) return emergeArtOverride; // 2026-10-21: 技ごとの飛び出しのコマ(ワームの斜めの飛び出し等)
         if (!Broken && Time.time < emergeArtUntil && a.emerge != null) return a.emerge[0];
         if (flinchTimer > 0f && a.hurt != null && pose != Pose.Landing) // 怯み(2026-10-18)。2枚以上なら崩れる → 立て直すの順に
             return a.hurt.Length > 1 ? BossAnimSet.Progress(a.hurt, 1f - flinchTimer / FlinchSeconds) : a.hurt[0];
@@ -1412,7 +1415,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (UltimateRunning) { UltimateRunning = false; BossBattle.EndUltimate(this); }
         vulnerableScale = 1f;
         staggerDefense = 1f;
-        diveArtT = -1f; emergeArtUntil = 0f; exhaustArt = false; // 潜る/飛び出す/隙のコマも止める
+        diveArtT = -1f; emergeArtUntil = 0f; exhaustArt = false; emergeArtOverride = null; // 潜る/飛び出す/隙のコマも止める
         OnInterrupted();
     }
 

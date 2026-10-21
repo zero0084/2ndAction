@@ -165,7 +165,7 @@ public class CaveHazard : MonoBehaviour
         kind = k; src = source; timer = 0f; landed = false; released = false; activated = false; rockFalling = false; rockGround = float.NaN; rockVy = 0f;
         follow = null; followOffset = 0f; drift = 0f; damage = CombatScale.PlayerHit; heavy = false; strong = true;
         hitsLeft = 0; lastHitTime = -9f; rot = 0f; colShrink = 0.85f; fallDur = 0.35f; slowFactor = 1f; slowDuration = 0f;
-        onActivate = null; onLand = null; overReported = false;
+        onActivate = null; onLand = null; overReported = false; bodyAspect = 0f;
         col.enabled = false;
         foreach (var sr in new[] { band, body, shadow, pebA, pebB }) { sr.enabled = false; sr.flipY = false; sr.flipX = false; sr.transform.localPosition = Vector3.zero; sr.transform.localRotation = Quaternion.identity; sr.transform.localScale = Vector3.one; }
         gameObject.name = "CaveHazard_" + k;
@@ -368,6 +368,9 @@ public class CaveHazard : MonoBehaviour
     public void SetTint(Color c) { body.color = c; }
     // 見た目だけ別の絵にする(魔人の爪 = 斬撃など)。判定・予告はそのまま
     public void SetBodySprite(Sprite sp, bool flipX = false) { body.sprite = sp; body.flipX = flipX; AttackArt.Animate(body); }
+    // 2026-10-21: 横切る体(Wave)を専用の絵にした時、絵の縦横比を保つ(高さは判定の帯の 1.1倍、長さは判定の 1〜1.8倍の範囲。見た目は判定より大きく)
+    float bodyAspect;
+    public void KeepBodyAspect() { if (body.sprite != null) { Vector2 b = body.sprite.bounds.size; bodyAspect = b.x / Mathf.Max(0.01f, b.y); } }
 
     // ===================================================================== //
     // 毎フレーム
@@ -664,7 +667,12 @@ public class CaveHazard : MonoBehaviour
     {
         body.enabled = true;
         body.transform.localPosition = new Vector3(0f, (yLow + yHigh) * 0.5f, 0f);
-        SetSized(body, width, Mathf.Max(0.2f, yHigh - yLow));
+        if (bodyAspect > 0f)
+        {
+            float hgt = Mathf.Max(0.2f, yHigh - yLow) * 1.1f;
+            SetSized(body, Mathf.Clamp(hgt * bodyAspect, width, width * 1.8f), hgt);
+        }
+        else SetSized(body, width, Mathf.Max(0.2f, yHigh - yLow));
         SetCollider(yLow + (yHigh - yLow) * (1f - colShrink) * 0.5f, yHigh - (yHigh - yLow) * (1f - colShrink) * 0.5f);
     }
 

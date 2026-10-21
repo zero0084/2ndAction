@@ -531,7 +531,8 @@ public class WormBoss : CaveBossBase
     protected override void CaveInit()
     {
         locoStyle = LocoStyle.Slither;
-        animKey = "worm"; // 2026-10-21: 姿勢ごとのコマ(Resources/BossAnim/worm、エステルさんと相談)。噛みつき=windup_/attack_、潜る/飛び出す=dive_/emerge_、頭が地面に残る隙=exhaust_
+        animKey = "worm"; // 2026-10-21: 姿勢ごとのコマ(Resources/BossAnim/worm、エステルさんと相談、26枚)。噛みつき=windup_/attack_/recover_、潜る=dive_、真下からの飛び出し=emerge_、
+                          //  前方への斜めの飛び出し=attackB_(地上へ出る時=windupB_)、頭が地面に残る隙=exhaust_、必殺技で横切る頭/体節/尾=piece_head/body/tail
         artPoseProceduralScale = 0.3f;
         Vector2 bc = new Vector2(FrontReach + 0.4f, bodyHeight * 0.3f), bs = new Vector2(2.4f, 1.3f);
         bite = NewHitbox("Bite", bc, bs, BossFx.Fang(), new Color(0.5f, 0.9f, 0.55f, 0.95f));
@@ -558,14 +559,17 @@ public class WormBoss : CaveBossBase
             }
             else if (pick == 1)
             {
-                // 前方に飛び出して噛みつき
+                // 前方に飛び出して噛みつき(斜めに飛び出すコマ)
                 yield return TunnelTo(Random.Range(3.5f, 5f), 8f, 3f);
+                emergeArtOverride = Anim != null && Anim.attackB != null ? Anim.attackB[0] : null;
                 yield return EmergeStrike(2.4f, 1.2f, 0.7f, CaveLook.Flesh);
                 yield return Melee(bite, biteMark, 1.2f, 3f, 0.55f, 0.24f, 0.8f);
             }
             else
             {
                 yield return TunnelTo(3f, 8f, 3f);
+                // 地面を割って頭が出てくるコマ(windupB_)
+                if (Anim != null && Anim.windupB != null) { emergeArtOverride = Anim.windupB[0]; emergeArtUntil = Time.time + 0.45f; }
                 yield return Surface(0.3f);
                 yield return Melee(bite, biteMark, 1.2f, 3f, 0.6f, 0.24f, 0.9f);
             }
@@ -579,9 +583,19 @@ public class WormBoss : CaveBossBase
         TellAt(3f, 1.0f, CaveTellStyle.Bulge); TellAt(6f, 1.0f, CaveTellStyle.Bulge); TellAt(9f, 1.0f, CaveTellStyle.Bulge);
         LaneWarn(3f, 7f, 0f, 1.1f, 1.0f, LowLaneColor);
         yield return Wait(1.0f);
-        WaveFrom(OffscreenAheadGap(), 4.5f, 0f, 1.25f, 10f, CaveLook.Flesh, false, 0.72f);
+        Piece(WaveFrom(OffscreenAheadGap(), 4.5f, 0f, 1.25f, 10f, CaveLook.Flesh, false, 0.72f), "piece_body", false);
         yield return Wait(1.6f);
         yield return Recover(0.4f);
+    }
+
+    // 横切る体を専用の絵に(エステルさんの絵。頭は進む向き=左へ向ける / 尾の先は後ろ=右のまま)。絵が無ければ今までの見た目
+    static readonly System.Collections.Generic.Dictionary<string, Sprite> pieceCache = new System.Collections.Generic.Dictionary<string, Sprite>();
+    static void Piece(CaveHazard h, string name, bool flip)
+    {
+        if (h == null) return;
+        if (!pieceCache.TryGetValue(name, out var sp)) pieceCache[name] = sp = Resources.Load<Sprite>("BossAnim/worm/" + name);
+        if (sp == null) return;
+        h.SetBodySprite(sp, flip); h.SetTint(Color.white); h.KeepBodyAspect();
     }
 
     IEnumerator EarthBreaker()
@@ -595,18 +609,18 @@ public class WormBoss : CaveBossBase
         // ② 頭が頭上を通過(紫=地面にいる)
         LaneWarn(2f, 8f, 2.4f, 4.4f, 0.85f, HighLaneColor);
         yield return Wait(0.85f);
-        WaveFrom(ahead, 2.6f, 2.4f, 4.4f, 11f, CaveLook.Flesh, true, 0.7f);
+        Piece(WaveFrom(ahead, 2.6f, 2.4f, 4.4f, 11f, CaveLook.Flesh, true, 0.7f), "piece_head", true);
         yield return Wait(1.2f);
         // ③ 体の節が次々(低い=跳ぶ)。節の間隔は1回ずつ跳べる長さ
         int segs = Upgraded ? 4 : 3;
         LaneWarn(2f, 8f, 0f, 1.1f, 0.7f, LowLaneColor);
         yield return Wait(0.7f);
-        for (int i = 0; i < segs; i++) WaveFrom(ahead + i * 9f, 1.6f, 0f, 1.1f, 9f, CaveLook.Flesh, true, 0.7f);
+        for (int i = 0; i < segs; i++) Piece(WaveFrom(ahead + i * 9f, 1.6f, 0f, 1.1f, 9f, CaveLook.Flesh, true, 0.7f), "piece_body", false);
         yield return Wait(segs * 1.0f + 0.8f);
         // ④ 尻尾の薙ぎ払い(背が高い=二段ジャンプ)
         LaneWarn(2f, 8f, 0f, 2.3f, 0.9f, TallLaneColor);
         yield return Wait(0.9f);
-        WaveFrom(ahead, 2.0f, 0f, 2.3f, 9f, CaveLook.Flesh, true, 0.72f);
+        Piece(WaveFrom(ahead, 2.0f, 0f, 2.3f, 9f, CaveLook.Flesh, true, 0.72f), "piece_tail", false);
         yield return Wait(1.6f);
         // 頭が地面に残る(目の前に出てくる)
         freeGap = true;
