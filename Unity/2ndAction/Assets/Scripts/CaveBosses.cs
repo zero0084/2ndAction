@@ -737,7 +737,8 @@ public class CrystalGolemBoss : CaveBossBase
         if (!StartUlt("CRYSTAL PRISON", new Color(0.55f, 0.9f, 1f))) yield break;
         yield return MoveToGap(8f, 4f, 1.4f);
         CoreGlow(1f);
-        animVariant = 3; // コマ: コアを光らせる(④の結晶弾は 2 へ)
+        // コマ: 必殺技の専用の2枚(ult_: 溜め=両腕を頭上で交差 / 展開=結晶の檻)。絵が無ければ今までどおりコアを光らせる(3)。④の結晶弾は 2
+        animVariant = Anim != null && Anim.ult != null ? 0 : 3;
         // ① 位置の予告(床の魔法陣と天井のひび)
         TellAt(0f, 1.0f, CaveTellStyle.Circle, CaveLook.Crystal); TellAt(3.4f, 1.0f, CaveTellStyle.Circle, CaveLook.Crystal); TellAt(-3.4f, 1.0f, CaveTellStyle.Circle, CaveLook.Crystal);
         yield return Telegraph(0.8f);
@@ -761,6 +762,7 @@ public class CrystalGolemBoss : CaveBossBase
             WaveFrom(Gap - FrontReach, 1.0f, 0.2f, 1.1f, 10f, CaveLook.Crystal, true, 0.75f);
             yield return Wait(0.6f);
         }
+        if (Anim != null && Anim.ult != null) animVariant = 0; // ⑤ 巨大な柱の間は結晶の檻の姿勢に戻す
         // ⑤ 巨大な柱(3回で壊れる / 二段ジャンプ)
         PillarAt(7f, 2.4f, 0.9f, 3, 4.5f, CaveLook.Crystal, true);
         yield return Wait(2.6f);
