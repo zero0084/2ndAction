@@ -365,6 +365,10 @@ public partial class QaSweep
         string[] pairs = Arg("-bvPairs", "swordsman:Wild/BlackKnight,gunslinger:Wild/Griffin,noble_lady:Wild/Cyclops,dragon_lancer:Cave/Troll,fighter:Sky/Dragon,ninja:Sky/Titan").Split(',');
         float kmh = float.Parse(Arg("-bvKmh", "45"), System.Globalization.CultureInfo.InvariantCulture);
         string[] seq = Arg("-bvSeq", "U,F,F,F,U,F,F,F,D,F,F,F,D").Split(',');
+        // 2026-10-21: -bvRev 1 = 「改修前」を APK 338 の動き(ComboRevision.Legacy)にする(既定は 2026-10-18 の改修前 = BossJuggle.Enabled=false)
+        bool rev = Arg("-bvRev", "0") == "1";
+        bvGap = float.Parse(Arg("-bvGap", "0.3"), System.Globalization.CultureInfo.InvariantCulture);
+        bvOnce = rev;
         demoDir = System.IO.Path.Combine(outDir, "frames");
         System.IO.Directory.CreateDirectory(demoDir);
         var tsv = new StringBuilder("char\tboss\tlegacy\tfrom\tto\tlog\n");
@@ -385,7 +389,7 @@ public partial class QaSweep
             yield return new WaitForSeconds(1.2f);
             foreach (bool legacy in new[] { true, false })
             {
-                BossJuggle.Enabled = !legacy;
+                if (rev) { BossJuggle.Enabled = true; ComboRevision.Legacy = legacy; } else BossJuggle.Enabled = !legacy;
                 yield return BfWaitEncounterEnd();
                 BossManager.Instance.DebugSpawnBossForTest(fam, kind);
                 SetKmh(kmh);
@@ -405,7 +409,7 @@ public partial class QaSweep
                 w = 0f; while ((!pc.IsGrounded || pc.IsAttacking) && w < 2f) { yield return null; w += Time.deltaTime; }
                 boss.ForceBreak();
                 yield return new WaitForSecondsRealtime(0.2f);
-                float near = legacy ? 3.2f : (boss.Style == "Launch" ? 1.25f : 2.6f);
+                float near = legacy && !rev ? 3.2f : (boss.Style == "Launch" ? 1.25f : 2.6f);
                 w = 0f; while (w < 2f && BaEdge(boss) > near) { yield return null; w += Time.deltaTime; }
                 var log = new StringBuilder();
                 Component bc = boss.C;
@@ -414,16 +418,16 @@ public partial class QaSweep
                 WildBossBase.QaLocalHit += OnW; DragonController.QaLocalHit += OnO; MajinController.QaLocalHit += OnO;
                 int from = demoFrame;
                 Time.captureFramerate = 30;
-                string head = $"{(legacy ? "改修前" : "改修後")}  {pc.CurrentAutoRunSpeed * 3.6f:F0}km/h\n入力: ";
+                string head = $"{(legacy ? (rev ? "改修前(APK338)" : "改修前") : "改修後")}  {pc.CurrentAutoRunSpeed * 3.6f:F0}km/h\n入力: ";
                 string arrows = "";
                 bvArrows = "";
                 var inputs = StartCoroutine(BvInputs(seq));
-                int n = Mathf.RoundToInt((0.3f + seq.Length * 0.3f + 2.4f) * 30f);
+                int n = Mathf.RoundToInt((0.3f + seq.Length * bvGap + 2.4f) * 30f);
                 for (int i = 0; i < n; i++)
                 {
                     arrows = bvArrows;
                     var j = boss.Juggle;
-                    string st = boss.IsDead ? "撃破" : boss.Broken ? (boss.Warned ? "BREAK(回復の予告)" : "BREAK") + (j != null && j.Airborne ? " 打ち上げ中" : "") + (j != null && j.IsComboAnchored && j.AirHits >= 2 ? $" AIR {j.AirHits}" : "")
+                    string st = boss.IsDead ? "撃破" : boss.Broken ? (boss.Warned ? (rev && !legacy ? "BREAK(締めの合図 ↓)" : "BREAK(回復の予告)") : "BREAK") + (j != null && j.Airborne ? " 打ち上げ中" : "") + (j != null && j.IsComboAnchored && j.AirHits >= 2 ? $" AIR {j.AirHits}" : "")
                         : boss.Recovering ? "立ち直り" : "通常";
                     aeOverlay = head + arrows + "\n" + st;
                     yield return new WaitForEndOfFrame();
@@ -440,7 +444,7 @@ public partial class QaSweep
                 if (boss.Valid && !boss.IsDead) boss.Kill();
                 yield return BfWaitEncounterEnd();
             }
-            BossJuggle.Enabled = true;
+            BossJuggle.Enabled = true; ComboRevision.Legacy = false;
             GameManager.BlockExpGain = false;
             SetGod(false);
             PlayerController.DebugSpeedScale = 1f;
@@ -451,14 +455,16 @@ public partial class QaSweep
     }
 
     string bvArrows = "";
+    float bvGap = 0.3f; bool bvOnce;
     IEnumerator BvInputs(string[] seq)
     {
         for (int i = 0; i < seq.Length; i++)
         {
             var f = seq[i] == "U" ? PlayerController.FlickDirection.Up : seq[i] == "D" ? PlayerController.FlickDirection.Down : PlayerController.FlickDirection.Forward;
             bvArrows += seq[i] == "U" ? "↑" : seq[i] == "D" ? "↓" : "→";
+            if (bvOnce) { pc.debugInjectOnce = f; yield return new WaitForSeconds(bvGap); continue; } // 本物の1回のフリック(2026-10-21)
             yield return HaFlick(f);
-            yield return new WaitForSeconds(0.3f - 2f / 30f);
+            yield return new WaitForSeconds(bvGap - 2f / 30f);
         }
     }
 }

@@ -1074,6 +1074,9 @@ public partial class PlayerController : MonoBehaviour
             if (!IsAlly && TimeControl.PausedOnlyByHitStop && !UiInputGate.Blocked)
             {
                 UpdatePointerInput();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                if (debugInjectOnce.HasValue) { requestedFlick = debugInjectOnce; debugInjectOnce = null; }
+#endif
                 if (requestedFlick.HasValue) FlickBufferStoreFrozen(requestedFlick.Value);
                 requestedFlick = null;
             }
@@ -1130,6 +1133,7 @@ public partial class PlayerController : MonoBehaviour
         // Hurt/Recovery中は新規の攻撃/ジャンプ入力を受け付けない(入力は捨てる=終了後に暴発しない)。
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (debugInjectFlick.HasValue) { requestedFlick = debugInjectFlick; }
+        if (debugInjectOnce.HasValue) { requestedFlick = debugInjectOnce; debugInjectOnce = null; }
 #endif
         // 高速時の自動操作補助(2026-09-28): 手動入力が無いフレームだけ、補助の判断を同じ入力経路へ入れる。
         // (ここへ来るのは停止/カード選択/カウントダウン/死亡/ダウン/終了のどれでもない時だけ)
@@ -1852,7 +1856,7 @@ public partial class PlayerController : MonoBehaviour
         bufferedUpAttackTimer = 0f;
         touchActive = false; // 選択のタップをジャンプ/攻撃の操作として拾わない
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        debugInjectFlick = null;
+        debugInjectFlick = null; debugInjectOnce = null;
 #endif
         // 被弾後の無敵/リアクションの時間は選択中も通常どおり減らす(選択で無敵が延びない・
         // 無敵点滅が選択の間じゅう続いて相手の画面で消えたり点いたりしない)。
@@ -2718,6 +2722,7 @@ public partial class PlayerController : MonoBehaviour
         velocityY = jumpForce * jumpScale;
         isGrounded = false;
         jumpsUsed++;
+        fireJumpSerial++; // 2026-10-21: 空中の再打ち上げ(回数を戻してから跳ぶ)も「入力が受け付けられた」と分かるように
         if (jumpsUsed == 1)
         {
             JumpStarted?.Invoke();

@@ -422,12 +422,19 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     {
         float g = TerrainGround(worldX);
         transform.position = new Vector3(worldX, g + yOffset, 0f);
+        ApplyHurtShape();
+    }
+
+    void ApplyHurtShape()
+    {
         // 被弾判定は体の見た目に合わせる(天井にぶら下がる=体を上下反転した時は、判定も根元から下側へ。2026-10-07)
         if (hurtCol != null)
         {
             float sy = Mathf.Clamp(extraScale.y, -1f, 1f); // 反転の途中(登る/降りる)も見た目と同じく連続で
             float kn = 1f - KneelSquash * kneel; // BREAK の膝つき(2026-10-18): 絵と同じだけ低くなる
-            hurtCol.transform.localPosition = new Vector3(hurtBaseLocal.x, hurtBaseLocal.y * sy * kn, 0f);
+            // 2026-10-21: 止め絵の膝つきは上半身が前へ倒れる → 判定も少し前へ(絵と判定を合わせる)
+            float lean = kneel > 0f && !ComboRevision.Legacy && !(Anim != null && (Anim.brk != null || Anim.breakLoop != null)) ? facing * 0.06f * hurtBaseSize.x * kneel : 0f;
+            hurtCol.transform.localPosition = new Vector3(hurtBaseLocal.x + lean, hurtBaseLocal.y * sy * kn, 0f);
             if (kneel > 0f || hurtKneelApplied) { hurtCol.size = new Vector2(hurtBaseSize.x, hurtBaseSize.y * kn); hurtKneelApplied = kneel > 0f; }
         }
     }
@@ -670,12 +677,17 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         // 2026-10-18: 怯み(後ろへのけぞる) / BREAK で打ち上がっている間(上がる時は反り、落ちる時は前へ) / 大型の膝つき(低く)
         if (flinchTimer > 0f) { float k = Mathf.Clamp01(flinchTimer / FlinchSeconds); rot += facing * 9f * k; off.x -= facing * 0.05f * h * k; }
         if (juggle != null && juggle.Open && juggle.Airborne) rot += facing * Mathf.Clamp(juggle.VelY * 0.8f, -12f, 12f);
-        if (kneel > 0f)
+        bool kneelArt = Anim != null && (Anim.brk != null || Anim.breakLoop != null);
+        if (kneel > 0f && ComboRevision.Legacy && !kneelArt) { sy *= 1f - KneelSquash * kneel; sx *= 1f + 0.06f * kneel; } // 改修前: 縦につぶす
+        if (kneel > 0f && kneelArt)
         {
             // 2026-10-20: BREAK の絵(膝つき等)があるボスは、絵が膝をついているので手続きのつぶしを弱める(artPoseProceduralScale)
-            float kn = kneel * (Anim != null && (Anim.brk != null || Anim.breakLoop != null) ? artPoseProceduralScale : 1f);
+            float kn = kneel * artPoseProceduralScale;
             sy *= 1f - KneelSquash * kn; sx *= 1f + 0.06f * kn;
         }
+        // 2026-10-21: 止め絵のボスは縦につぶさず、格子リグで脚を折って上半身を前へ倒す(頭が下がる。高さは同じく約2割低く)
+        rig.Kneel = kneelArt || ComboRevision.Legacy ? 0f : kneel;
+        if (kneel > 0f && !kneelArt && !ComboRevision.Legacy) rot += -facing * 4f * kneel;
 
         sx *= extraScale.x;
         sy *= extraScale.y;
@@ -1151,6 +1163,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (dmgScale > 1.001f) amount = Mathf.CeilToInt(amount * dmgScale);
         float stg = pendingStagger; pendingStagger = 0f;
         PlayerAttackKind hitKind = pendingKind; bool manualHit = pendingManual && netAttacker <= 0 && !quietHit;
+        bool remoteManual = !ComboRevision.Legacy && pendingManual && netAttacker > 0 && !quietHit; // 2026-10-21: 協力の相手(人)の手動の攻撃(HOST の端末)。改修前は HOST だけ
         pendingKind = PlayerAttackKind.Normal; pendingManual = false;
         int hpBeforeHit = Hp;
         Hp = Mathf.Max(0, Hp - amount);
@@ -1196,6 +1209,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         CheckPhase();
         if (stg > 0f && !dead) AddStagger(stg);
         if (manualHit && !dead) BreakComboOnHit(hitKind); // BREAK 中の打ち上げ/追撃/叩きつけ(2026-10-18)
+        else if (remoteManual && !dead) BreakComboOnHit(hitKind, netAttacker); // 2026-10-21: JOIN の人も打ち上げ/追撃/締め(位置は HOST が決める)
         hitTimer = 0.16f;
         if (quietHit) { OnDamaged(amount); return; }
         Shake(0.06f, 0.1f);
@@ -1729,10 +1743,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     float netHitCooldown;
 
     // HOST: JOINのプレイヤーの攻撃を、この端末の攻撃と同じ被弾処理へ流す。
-    public void NetApplyRemoteHit(int attacker, int damage, Vector3 hitPos, PlayerAttackKind kind = PlayerAttackKind.Normal)
+    public void NetApplyRemoteHit(int attacker, int damage, Vector3 hitPos, PlayerAttackKind kind = PlayerAttackKind.Normal, bool manual = true)
     {
         if (dead || invulnerable || NetPuppet) return;
         netAttacker = attacker;
+        pendingKind = kind;
+        pendingManual = manual && PlayerController.AllyContext <= 0; // 2026-10-21: 人の手動の攻撃だけ BREAK のコンボへ(CPU の仲間はダメージと崩しだけ)
         // 2026-10-18: 協力の相手の攻撃は種類で崩しが溜まる(上/下攻撃は多め)。CPU の仲間は今までどおり通常の量
         pendingStagger = PlayerController.AllyContext > 0 ? BossBattleTuning.I.staggerNormal : BossBattleTuning.I.StaggerFor(kind, false);
         try { TakeDamage(damage, hitPos); }
@@ -1757,6 +1773,10 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         float dt = Time.deltaTime;
         poseTime += dt;
         if (hitTimer > 0f) hitTimer -= dt;
+        // 2026-10-21: 膝つき(HOST の BREAK の状態から)。見た目と被弾判定を HOST と同じだけ低く
+        float kneelWant = juggle != null && juggle.Open && juggle.style == BossJuggle.Style.Kneel ? 1f : 0f;
+        kneel = Mathf.MoveTowards(kneel, kneelWant, dt / (kneelWant > 0f ? 0.25f : BreakRecoverSeconds));
+        ApplyHurtShape();
         if (!dead) AnimateVisual();
     }
 
@@ -1770,7 +1790,9 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         var info = other.GetComponent<PlayerAttackInfo>();
         if (info != null) kind = info.kind;
         Vector3 hitPos = other.bounds.center;
-        NetCombat.RequestHit(NetId, dmg, kind, hitPos);
+        bool manual = info == null || (!info.elementProc && !info.suppressHitStop);
+        NetCombat.RequestHit(NetId, dmg, kind, hitPos, manual);
+        if (manual && juggle != null) juggle.NoteReplicaLocalHit(); // 2026-10-21: 空中の補助(再上昇/狙い)の相手として覚える
         if (PlayerController.Instance != null) PlayerController.Instance.NotifyAerialHit();
         if (ComboCounterUI.Instance != null) ComboCounterUI.Instance.RegisterHit();
         NetHitFx(hitPos, true);
@@ -1829,6 +1851,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         s.Order = (short)Mathf.Clamp(rig != null ? rig.SortingOrder : RenderOrder.Boss, short.MinValue, short.MaxValue);
         if (!entering) s.Flags |= NetCombat.FlagHpBar;
         if (hurtCol != null && hurtCol.enabled) s.Flags |= NetCombat.FlagHurtbox;
+        s.Combo = juggle != null ? juggle.NetPack() : (byte)0; // 2026-10-21: BREAK コンボの状態(JOIN の空中の補助/膝つきの見た目)
     }
 
     public void NetApplyVisual(NetCombat.State s)
@@ -1849,6 +1872,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             if (hpBar != null) StartCoroutine(hpBar.RevealRoutine(0.25f));
         }
         if (hurtCol != null) hurtCol.enabled = (s.Flags & NetCombat.FlagHurtbox) != 0;
+        if (s.Combo != 0 || (juggle != null && juggle.Open))
+        {
+            var st = (s.Combo & 128) != 0 ? BossJuggle.Style.Kneel : BossJuggle.Style.Launch;
+            if (juggle == null || juggle.style != st) juggle = new BossJuggle(st, () => LiveHurtBounds, bossName, this);
+            juggle.NetApplyReplica(s.Combo);
+        }
     }
 
     void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; BossBattle.Living.Add(this); }

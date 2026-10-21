@@ -99,10 +99,94 @@ public static class AerialComboFx
         UseAdd(r);
     }
 
+    // 2026-10-21: 締めの合図(回復の予告)。「そろそろ↓で締めよう」が伝わる、ほかの攻撃の光と見分けられる色と形:
+    //  ・紫の輪が BREAK の終わりの瞬間へ向けて体へ縮む(残り時間)。攻撃の光(白/金)・予告の赤・BREAK の金のどれとも違う色
+    //  ・頭の上に下向きの白銀の山形(↓)が、下へ弾むように点滅する
+    //  体の色も同じ紫で点滅させる(呼ぶ側の FinishTint)
+    public static readonly Color FinishTint = new Color(0.86f, 0.66f, 1f, 1f);
+    public static readonly Color FinishColor = new Color(0.78f, 0.45f, 1f, 0.95f);
+    public static int FinishCues; // 確認用(QA)
+    public static void FinishCue(Component host, System.Func<Vector3> center, float size, float seconds, System.Func<bool> alive)
+    {
+        if (host == null || center == null) return;
+        if (ComboRevision.Legacy) { RecoverWarn(center(), size); return; }
+        FinishCues++;
+        var go = new GameObject("FinishCue");
+        var cue = go.AddComponent<FinishCueFx>();
+        cue.Init(host, center, size, seconds, alive);
+    }
+    public static Material AddMaterial { get { Load(); return add; } }
+
     static void UseAdd(OneShotSpriteEffect fx)
     {
         if (fx == null || add == null) return;
         var r = fx.GetComponent<SpriteRenderer>();
         if (r != null) r.sharedMaterial = add;
+    }
+}
+
+// 締めの合図の見た目(AerialComboFx.FinishCue)。ボスが消える/BREAK が終わる/時間が来たら消える
+public class FinishCueFx : MonoBehaviour
+{
+    Component host;
+    System.Func<Vector3> center;
+    System.Func<bool> alive;
+    float size, seconds, t;
+    SpriteRenderer ring, arrow;
+
+    public void Init(Component h, System.Func<Vector3> c, float s, float secs, System.Func<bool> a)
+    {
+        host = h; center = c; size = s; seconds = Mathf.Max(0.2f, secs); alive = a;
+        ring = MakeChild("Ring", BossFx.Ring(), true);
+        arrow = MakeChild("Arrow", UiIcons.ChevronSprite, false);
+        if (arrow != null)
+        {
+            arrow.transform.localRotation = Quaternion.Euler(0f, 0f, -90f); // 右向きの「>」を下向きに
+            arrow.sortingOrder = RenderOrder.WorldUi + 1; // ボスの HP の帯より手前(頭の上で帯に隠れない)
+        }
+        Place();
+    }
+
+    SpriteRenderer MakeChild(string n, Sprite s, bool additive)
+    {
+        if (s == null) return null;
+        var go = new GameObject(n);
+        go.transform.SetParent(transform, false);
+        var r = go.AddComponent<SpriteRenderer>();
+        r.sprite = s;
+        r.sortingOrder = RenderOrder.CombatFx + 2;
+        if (additive && AerialComboFx.AddMaterial != null) r.sharedMaterial = AerialComboFx.AddMaterial;
+        return r;
+    }
+
+    void Place()
+    {
+        Vector3 c = center();
+        transform.position = new Vector3(c.x, c.y, 0f);
+        float k = Mathf.Clamp01(t / seconds);
+        float pulse = 0.5f + 0.5f * Mathf.Sin(t * 22f);
+        if (ring != null)
+        {
+            float sc = Mathf.Lerp(size * 1.5f, size * 0.42f, k);
+            ring.transform.localScale = new Vector3(sc, sc, 1f);
+            var col = AerialComboFx.FinishColor; col.a *= Mathf.Lerp(0.55f, 1f, pulse) * (k < 0.1f ? k / 0.1f : 1f);
+            ring.color = col;
+        }
+        if (arrow != null)
+        {
+            float bounce = Mathf.Repeat(t * 4f, 1f); // 1秒に4回、上から下へ
+            float a = Mathf.Sin(bounce * Mathf.PI);
+            float s = Mathf.Clamp(size * 0.28f, 0.6f, 1.4f) * 1.28f * 2.4f; // 128px / 100ppu。絵の山形は画像の中央の一部だけなので大きめに
+            arrow.transform.localScale = new Vector3(s, s, 1f);
+            arrow.transform.localPosition = new Vector3(0f, size * 0.62f + 1.1f - bounce * 0.5f, 0f); // HP の帯の上
+            arrow.color = new Color(0.95f, 0.72f, 1f, 0.35f + 0.65f * a); // 紫(輪と同じ系統)。空の明るい所でも見える濃さ
+        }
+    }
+
+    void Update()
+    {
+        t += Time.deltaTime;
+        if (host == null || (alive != null && !alive()) || t > seconds + 0.15f) { Destroy(gameObject); return; }
+        Place();
     }
 }

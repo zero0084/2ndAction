@@ -12,8 +12,11 @@ public partial class PlayerController
     // フリックを覚えておく時間(秒、ゲームの時間)。攻撃の最中に早めに入れた次の入力を、動ける瞬間に出す。
     public float flickBufferWindow = 0.45f; // 2026-10-18 追加の依頼: 前の技(約0.4秒)の最中に入れた次の入力が、出る前に消えないよう 0.3 → 0.45秒
 
+    // 2026-10-21 コンボのつながり改修: 予約は1つだけ。技の最中は時間を減らさずに待ち(長い技の竜騎士でも消えない)、
+    // 入れてから FlickBufferMaxAge 秒たった入力は出さない(操作をやめたのに古い入力で攻撃し続けない)
+    public const float FlickBufferMaxAge = 0.9f;
     FlickDirection? bufferedFlick;
-    float bufferedFlickTimer;
+    float bufferedFlickTimer, bufferedFlickAge;
     bool bufferedFlickOnce; // 上フリック/ヒットストップ中の入力: 1回だけ試して捨てる(ジャンプの二重発動を防ぐ)
     // 確認用(QA): 先行入力から出た技の数 / 捨てた数
     public static int FlickBufferFired, FlickBufferExpired, AerialAimUsed;
@@ -22,7 +25,7 @@ public partial class PlayerController
     struct ActSig
     {
         public bool attacking, comboBuffered, dive, hover, kitDive, lanceDive;
-        public int comboCount, kitGen, lanceGen, jumps, mageLevel, hoverShots;
+        public int comboCount, kitGen, lanceGen, jumps, mageLevel, hoverShots, jumpSerial;
         public float cooldown;
         public LanceMoveKind lanceMove;
     }
@@ -31,7 +34,7 @@ public partial class PlayerController
     {
         attacking = isAttacking, comboBuffered = comboBuffered, dive = isDiveAttacking, hover = isHoverShooting,
         kitDive = kitDiveActive, lanceDive = lanceDiving, comboCount = comboCount, kitGen = kitGeneration,
-        lanceGen = lanceGeneration, jumps = jumpsUsed, mageLevel = mageLevel, hoverShots = hoverShotsUsedThisAirtime,
+        lanceGen = lanceGeneration, jumps = jumpsUsed, mageLevel = mageLevel, hoverShots = hoverShotsUsedThisAirtime, jumpSerial = fireJumpSerial,
         cooldown = attackCooldownTimer, lanceMove = LanceMove,
     };
 
@@ -39,17 +42,31 @@ public partial class PlayerController
         a.attacking != b.attacking || a.comboBuffered != b.comboBuffered || a.dive != b.dive || a.hover != b.hover ||
         a.kitDive != b.kitDive || a.lanceDive != b.lanceDive || a.comboCount != b.comboCount || a.kitGen != b.kitGen ||
         a.lanceGen != b.lanceGen || a.jumps != b.jumps || a.mageLevel != b.mageLevel || a.hoverShots != b.hoverShots ||
-        a.lanceMove != b.lanceMove || b.cooldown > a.cooldown + 0.0001f;
+        a.lanceMove != b.lanceMove || a.jumpSerial != b.jumpSerial || b.cooldown > a.cooldown + 0.0001f;
 
     // 技の最中(この間の入力は、終わった/次の段の受付が開いた瞬間に出す)
     bool InputBusy => isAttacking || attackCooldownTimer > 0f || isDiveAttacking || kitDiveActive || lanceDiving || isHoverShooting;
 
-    public void FlickBufferClear() { bufferedFlick = null; bufferedFlickTimer = 0f; }
+    // 被弾/停止/カード選択など: 覚えている入力を捨てる
+    public void FlickBufferClear()
+    {
+        if (bufferedFlick.HasValue) TraceFlick(bufferedFlickId, bufferedFlick.Value, FlickFate.Cleared);
+        FlickBufferForget();
+    }
+    void FlickBufferForget() { bufferedFlick = null; bufferedFlickTimer = 0f; bufferedFlickId = 0; }
+
+    // 新しい入力を覚える(予約は1つだけ: 前に覚えていた入力は新しい入力に置き換える)
+    void FlickBufferStore(FlickDirection f, int id, bool once)
+    {
+        if (bufferedFlick.HasValue) TraceFlick(bufferedFlickId, bufferedFlick.Value, FlickFate.Replaced);
+        bufferedFlick = f; bufferedFlickTimer = flickBufferWindow; bufferedFlickAge = 0f; bufferedFlickOnce = once; bufferedFlickId = id;
+        TraceFlick(id, f, FlickFate.Reserved);
+    }
 
     // ヒットストップ(時間が止まっている間)に入ったフリック: 止まりが明けた最初のフレームで1回だけ試す
     void FlickBufferStoreFrozen(FlickDirection f)
     {
-        bufferedFlick = f; bufferedFlickTimer = flickBufferWindow; bufferedFlickOnce = true;
+        FlickBufferStore(f, NextFlickId(), true);
     }
 
     // 入力の処理の前: 今のフレームに入力が無ければ、覚えている入力を入れる
@@ -57,8 +74,9 @@ public partial class PlayerController
     {
         if (bufferedFlick.HasValue)
         {
-            bufferedFlickTimer -= Time.deltaTime;
-            if (bufferedFlickTimer <= 0f) { bufferedFlick = null; FlickBufferExpired++; }
+            bufferedFlickAge += Time.deltaTime;
+            if (!InputBusy || bufferedFlickOnce || ComboRevision.Legacy) bufferedFlickTimer -= Time.deltaTime; // 技の最中は待つ(次の段の受付/技の終わりまで)
+            if (bufferedFlickTimer <= 0f || (bufferedFlickAge > FlickBufferMaxAge && !ComboRevision.Legacy)) { TraceFlick(bufferedFlickId, bufferedFlick.Value, FlickFate.Expired); FlickBufferForget(); FlickBufferExpired++; }
         }
         if (requestedFlick.HasValue || !bufferedFlick.HasValue) return false;
         requestedFlick = bufferedFlick;
@@ -70,22 +88,33 @@ public partial class PlayerController
     {
         if (!flick.HasValue) return;
         bool accepted = SigAccepted(before, CurrentSig());
+        int id = fromBuffer ? bufferedFlickId : (LastFlickWasAssist ? 0 : NextFlickId());
         if (accepted)
         {
-            if (fromBuffer) FlickBufferFired++;
-            FlickBufferClear();
+            if (fromBuffer) { FlickBufferFired++; TraceFlick(id, flick.Value, FlickFate.FiredLater); FlickBufferForget(); }
+            else
+            {
+                if (bufferedFlick.HasValue) TraceFlick(bufferedFlickId, bufferedFlick.Value, FlickFate.Replaced); // 新しい入力が先に出た
+                FlickBufferForget();
+                TraceFlick(id, flick.Value, FlickFate.Immediate);
+            }
             return;
         }
         if (fromBuffer)
         {
-            // 上フリックとヒットストップ中の入力は1回だけ(上は着地の予約が別にある)
-            if (bufferedFlickOnce && !busyBefore) FlickBufferClear();
+            // 上フリックとヒットストップ中の入力は1回だけ(上は着地の予約が別にある)。
+            // 2026-10-21: 技が終わって動けるのに出なかった入力(着地した後の↓など)も捨てる(後でジャンプした瞬間に古い入力が出ない)
+            if (!busyBefore && (bufferedFlickOnce || !ComboRevision.Legacy)) { TraceFlick(id, flick.Value, FlickFate.Ignored); FlickBufferForget(); }
             return;
         }
         // 新しい入力: 上は既存の着地の予約に任せる(ここで覚えると着地後に二段目が出てしまう)
-        if (flick.Value == FlickDirection.Up) return;
-        if (!busyBefore) return; // 動ける時に受け付けられなかった入力(地上の下など)は捨てる
-        bufferedFlick = flick; bufferedFlickTimer = flickBufferWindow; bufferedFlickOnce = false;
+        if (flick.Value == FlickDirection.Up) { TraceFlick(id, flick.Value, bufferedUpAttackTimer > 0f ? FlickFate.LandBuffered : FlickFate.Ignored); return; }
+        if (!busyBefore) { TraceFlick(id, flick.Value, FlickFate.Ignored); return; } // 動ける時に受け付けられなかった入力(地上の下など)は捨てる
+        // 2026-10-21: 連撃の次の段が既に同じ向きで予約されている(comboBuffered)なら、重ねて覚えない(予約は1つだけ)
+        if (!ComboRevision.Legacy && comboBuffered && (flick.Value == FlickDirection.Forward || flick.Value == FlickDirection.Backward) &&
+            bufferedDirection == (flick.Value == FlickDirection.Forward ? AttackDirection.Forward : AttackDirection.Backward))
+        { TraceFlick(id, flick.Value, FlickFate.Merged); return; }
+        FlickBufferStore(flick.Value, id, false);
     }
 
     // ---------------------------------------------------------------- 並走の基準
@@ -109,13 +138,22 @@ public partial class PlayerController
     // ---------------------------------------------------------------- コンボの狙いの位置
 
     // 打ち上げた敵の体の中心を寄せる位置(プレイヤーの足元基準、前方向 +x)。キャラの空中攻撃が一番当たる所
-    public Vector2 AerialComboSweetSpot()
+    public Vector2 AerialComboSweetSpot() => SweetSpotFor(isRangedCharacter, isLancerCharacter, kit, IsNoble, lanceDiving, isDiveAttacking || kitDiveActive);
+
+    // 2026-10-21: 協力の相手(HOST から見た JOIN のプレイヤー)でも同じ「当たる所」を使えるように、キャラの定義から求める
+    public static Vector2 SweetSpotFor(CharacterDefinition def, bool diving)
+    {
+        if (def == null) return new Vector2(1.1f, 0.55f);
+        return SweetSpotFor(def.isRanged, def.isLancer, def.kit, def.characterId == "noble_lady", def.isLancer && diving, !def.isLancer && diving);
+    }
+
+    static Vector2 SweetSpotFor(bool ranged, bool lancer, CharacterKit kit, bool noble, bool lanceDive, bool dive)
     {
         // 急降下の最中: 落ちていく先(前の少し下)へ。真下へ落ちる技(竜騎士/剣士の急降下)でも叩き落とせる
-        if (lanceDiving) return new Vector2(0.0f, -0.05f); // 竜騎士の急降下: 真下への細い突きの判定の真ん中(足元の少し上〜下)
-        if (isDiveAttacking || kitDiveActive) return new Vector2(0.55f, -0.3f);
-        if (isRangedCharacter) return new Vector2(2.6f, 0.75f);           // 拳銃士: 横撃ちの弾の高さ
-        if (isLancerCharacter) return new Vector2(1.7f, 0.7f);            // 竜騎士: 突きの先
+        if (lanceDive) return new Vector2(ComboRevision.Legacy ? 0f : LanceComboDiveX, -0.05f); // 竜騎士の急降下: 真下への突きの判定の真ん中(足元の少し上〜下)。コンボ中は少し前(2026-10-21)
+        if (dive) return new Vector2(0.55f, -0.3f);
+        if (ranged) return new Vector2(2.6f, 0.75f);           // 拳銃士: 横撃ちの弾の高さ
+        if (lancer) return new Vector2(1.7f, 0.7f);            // 竜騎士: 突きの先
         switch (kit)
         {
             case CharacterKit.Archer: return new Vector2(2.8f, 0.7f);
@@ -126,7 +164,7 @@ public partial class PlayerController
             case CharacterKit.Vampire: return new Vector2(1.05f, 0.65f);
             case CharacterKit.Dragonkin: return new Vector2(1.15f, 0.7f);
         }
-        if (IsNoble && BalanceTuning.NobleMoves) return new Vector2(1.05f, 0.35f); // お嬢様: 空中の薙ぎ払い(前と下)
+        if (noble && BalanceTuning.NobleMoves) return new Vector2(1.05f, 0.35f); // お嬢様: 空中の薙ぎ払い(前と下)
         return new Vector2(1.1f, 0.55f);                                   // 黒剣士/双剣士: 通常攻撃の箱
     }
 
@@ -279,9 +317,19 @@ public partial class PlayerController
         if (tm == null) return;
         float floor = tm.GetFloorTopAt(transform.position.x);
         float h = transform.position.y - groundOffset - floor;
+        // 2026-10-21: 膝をついた大型のボス(動かない)とのコンボ: 上がりすぎて体の上を空振りしないよう、
+        // 攻撃の当たる高さ(足元 + 当たる所)が体の上端の少し下で止まる高さまで(上がる速さを、その高さで止まる速さに抑える)
+        if (!ComboRevision.Legacy && AirComboTargets.Local is BossJuggle bj && bj.IsComboAnchored && bj.style == BossJuggle.Style.Kneel)
+        {
+            float maxFeet = bj.TopY - 0.4f - AerialComboSweetSpot().y;
+            float room = maxFeet - (transform.position.y - groundOffset);
+            float vmax = room > 0f ? Mathf.Sqrt(2f * gravity * room) : 0.5f;
+            if (velocityY > vmax) { velocityY = vmax; KneelHeightCaps++; }
+        }
         if (h > ComboMaxHeight) { if (velocityY > 1.5f) velocityY = 1.5f; }
         else if (h > ComboMaxHeight - 2f && velocityY > 0f) velocityY *= 0.3f + 0.7f * Mathf.Clamp01((ComboMaxHeight - h) / 2f);
     }
+    public static int KneelHeightCaps; // 確認用
 
     // ↓の急降下の最中に → / ↑: 急降下をやめて、その場の空中の技へつなぎ直す(コンボ中だけ)
     bool TryDiveReconnect()

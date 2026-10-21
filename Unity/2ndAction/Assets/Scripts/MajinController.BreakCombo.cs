@@ -69,13 +69,13 @@ public partial class MajinController
         }
     }
 
-    void BreakComboOnHit(PlayerAttackKind kind)
+    void BreakComboOnHit(PlayerAttackKind kind, int who = BossJuggle.OwnerLocal) // who: 0 = この端末 / 1以上 = 協力の相手(HOST、2026-10-21)
     {
         if (juggle == null || !juggle.Open || !Broken) return;
         int l0 = BossJuggle.Launches, up0 = BossJuggle.Launches + BossJuggle.Relaunches, down0 = BossJuggle.DownPushes;
-        juggle.OnLocalHit(kind);
+        juggle.OnHit(kind, who);
         float cap = BreakExtendCap, baseDur = battle != null ? battle.breakDuration : 3f;
-        if (juggle.Anchored && juggle.Accepting) breakExtra = Mathf.Min(breakExtra + WildBossBase.BreakExtendPerHit, cap);
+        if (juggle.Anchored && juggle.Accepting && !breakWarned) breakExtra = Mathf.Min(breakExtra + WildBossBase.BreakExtendPerHit, cap);
         if (BossJuggle.Launches > l0) breakExtra = Mathf.Clamp(breakElapsed + WildBossBase.BreakLaunchMinRemain - baseDur, breakExtra, cap);
         if (BossJuggle.Launches + BossJuggle.Relaunches > up0)
         {
@@ -101,7 +101,7 @@ public partial class MajinController
         float? c = TerrainManager.Instance != null ? TerrainManager.Instance.GetEffectiveCeilingHeightAt(center.x) : null;
         if (c.HasValue) ceilMax = c.Value - b.extents.y - 0.1f;
         float restY = GroundYAt(x) + (rest.y - GroundYAt(rest.x));
-        Vector2 d = juggle.Step(center, b.extents, restY + off.y, ceilMax, dt, out bool slammed, out bool landed);
+        Vector2 d = juggle.Step(center, b.extents, restY + off.y, ceilMax, dt, out bool slammed, out bool landed, TargetBaseSpeed());
         transform.position = new Vector3(x + d.x, Mathf.Max(restY, transform.position.y + d.y), 0f);
         if (slammed)
         {
@@ -140,16 +140,17 @@ public partial class MajinController
         while (state == State.Exposed && player != null)
         {
             float total = dur + breakExtra;
+            if (t >= total && juggle.Anchored) juggle.EndCombo("breakEnd"); // 2026-10-21: 時間が尽きたら寄せを終える
             if (t >= total && !juggle.Airborne) break;
             if (t >= total + 1.5f) break; // 安全装置
             t += Time.deltaTime; breakElapsed = t;
             if (!breakWarned && t >= total - WildBossBase.BreakWarnSeconds)
             {
                 breakWarned = true;
-                juggle.StopAccepting();
-                AerialComboFx.RecoverWarn(transform.position, 2.6f);
+                juggle.BeginFinish(); // 2026-10-21: 締めの合図(→ / ↓ は届く、打ち上げ直しはしない)
+                AerialComboFx.FinishCue(this, () => transform.position, 2.6f, WildBossBase.BreakWarnSeconds, () => Broken && !IsDead);
             }
-            if (sr != null) sr.color = breakWarned ? Color.Lerp(Color.white, new Color(0.7f, 0.85f, 1f), Mathf.PingPong(t * 9f, 1f)) : recoveryTint;
+            if (sr != null) sr.color = breakWarned ? Color.Lerp(Color.white, AerialComboFx.FinishTint, Mathf.PingPong(t * 9f, 1f)) : recoveryTint;
             BreakPlace();
             yield return null;
         }

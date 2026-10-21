@@ -19,6 +19,10 @@ public class RemotePlayerAvatar : MonoBehaviour
     // 位置が届いているか(点滅などで絵が消えていても、位置は有効)。WorldRange/NetCombatの範囲計算に使う
     public bool HasRecentPosition => lastApplyTime > 0f && Time.unscaledTime - lastApplyTime < 2f;
     float lastApplyTime = -1f;
+    // 2026-10-21: ボスの BREAK コンボの基準(HOST が JOIN のプレイヤーへボスを寄せる)に使う、最後に届いた状態
+    public CharacterDefinition Def { get; private set; }
+    public bool Grounded { get; private set; }
+    public Vector2 ReportedVelocity { get; private set; } // 送った側が測った速さ(走行込み)
 
     public static RemotePlayerAvatar Create(PlayerAnimator template, CharacterDefinition def, NetPlayer owner)
     {
@@ -54,6 +58,7 @@ public class RemotePlayerAvatar : MonoBehaviour
         avatar.visual = visualGO.transform;
         avatar.sr = sr;
         avatar.owner = owner;
+        avatar.Def = def;
         avatar.depthZ = 0.01f * Mathf.Clamp(owner.PlayerNumber, 1, 16); // 相手同士が重なった時の前後(番号の小さい人が手前、毎フレーム入れ替わらない)
         // PlayerAnimatorはAwakeで子のSpriteRendererを探すため、Visualを作った後に追加する。
         avatar.anim = root.AddComponent<PlayerAnimator>();
@@ -74,6 +79,8 @@ public class RemotePlayerAvatar : MonoBehaviour
     {
         transform.position = new Vector3((float)(logicalX - FloatingOrigin.Offset), y, depthZ);
         lastApplyTime = Time.unscaledTime;
+        Grounded = (d.Flags & NetPlayerSnapshot.FlagGrounded) != 0;
+        ReportedVelocity = new Vector2(d.VX, d.VY);
         transform.rotation = Quaternion.Euler(0f, 0f, rootRotZ);
         transform.localScale = new Vector3(d.RootScaleX < 0f ? -1f : 1f, 1f, 1f);
         visual.localPosition = new Vector3(visPosX, visPosY, visual.localPosition.z);

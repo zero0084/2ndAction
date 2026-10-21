@@ -34,6 +34,7 @@ public class BossRig
     float amount;
 
     public float Phase;
+    public float Kneel; // 0..1: BREAK の膝つき(大型のボス、2026-10-21)。Update が脚を折り、上半身を前へ倒す
 
     public BossRig(Transform parent, int cols, int rows, int sortingOrder)
     {
@@ -237,7 +238,22 @@ public class BossRig
             }
 
             Vector2 p = pos[k];
-            cells[k].transform.localPosition = new Vector3(p.x + dx * a, p.y + dy * a, 0f);
+            float kx = 0f, kny = 0f;
+            if (Kneel > 0f)
+            {
+                // 2026-10-21: BREAK の膝つき(大型)。絵を縦につぶすのではなく、脚(下 42%)を折りたたんで低くし、
+                // 上半身は前へ倒して頭を下げる(高さは全体で約2割低くなる = 当たり判定と同じ)
+                const float leg = 0.42f;
+                float kn = Kneel;
+                if (v < leg) kny -= v * H * 0.36f * kn;
+                else
+                {
+                    float up = v - leg;
+                    kny -= leg * H * 0.36f * kn + up * up * 0.2f * H * kn;
+                    kx += fwdSign * up * 0.2f * W * kn;
+                }
+            }
+            cells[k].transform.localPosition = new Vector3(p.x + dx * a + kx, p.y + dy * a + kny, 0f);
         }
     }
 }

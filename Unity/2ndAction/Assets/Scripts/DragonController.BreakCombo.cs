@@ -69,13 +69,13 @@ public partial class DragonController
     }
 
     // TakeDamage から(この端末のプレイヤーの手動の攻撃)
-    void BreakComboOnHit(PlayerAttackKind kind)
+    void BreakComboOnHit(PlayerAttackKind kind, int who = BossJuggle.OwnerLocal) // who: 0 = この端末 / 1以上 = 協力の相手(HOST、2026-10-21)
     {
         if (juggle == null || !juggle.Open || state != State.Stunned) return;
         int l0 = BossJuggle.Launches, up0 = BossJuggle.Launches + BossJuggle.Relaunches, down0 = BossJuggle.DownPushes;
-        juggle.OnLocalHit(kind);
+        juggle.OnHit(kind, who);
         float cap = BreakExtendCap, baseDur = battle != null ? battle.breakDuration : 3f;
-        if (juggle.Anchored && juggle.Accepting) breakExtra = Mathf.Min(breakExtra + WildBossBase.BreakExtendPerHit, cap);
+        if (juggle.Anchored && juggle.Accepting && !breakWarned) breakExtra = Mathf.Min(breakExtra + WildBossBase.BreakExtendPerHit, cap);
         if (BossJuggle.Launches > l0) breakExtra = Mathf.Clamp(breakElapsed + WildBossBase.BreakLaunchMinRemain - baseDur, breakExtra, cap);
         if (BossJuggle.Launches + BossJuggle.Relaunches > up0)
         {
@@ -98,8 +98,11 @@ public partial class DragonController
         float ceilMax = float.PositiveInfinity;
         float? c = TerrainManager.Instance != null ? TerrainManager.Instance.GetEffectiveCeilingHeightAt(center.x) : null;
         if (c.HasValue) ceilMax = c.Value - b.extents.y - 0.1f;
-        Vector2 d = juggle.Step(center, b.extents, gy + off.y, ceilMax, dt, out bool slammed, out bool landed);
-        float ny = Mathf.Max(gy, transform.position.y + d.y);
+        Vector2 d = juggle.Step(center, b.extents, gy + off.y, ceilMax, dt, out bool slammed, out bool landed, TargetBaseSpeed());
+        // 2026-10-21: 床は動いた後の x で見る(高速の坂で、動く前の x の床に合わせて体が地面へ入っていた)
+        float floorOff = gy - GroundYAt(x);
+        float gyAfter = Mathf.Max(gy, GroundYAt(x + d.x) + floorOff);
+        float ny = Mathf.Max(gyAfter, transform.position.y + d.y);
         transform.position = new Vector3(x + d.x, ny, 0f);
         stunY = ny;
         if (slammed)
@@ -130,6 +133,7 @@ public partial class DragonController
         while (true)
         {
             float total = dur + breakExtra;
+            if (t >= total && juggle.Anchored) juggle.EndCombo("breakEnd"); // 2026-10-21: 時間が尽きたら寄せを終える
             if (t >= total && !juggle.Airborne) break;
             if (t >= total + 1.5f) break; // 安全装置
             t += Time.deltaTime; star -= Time.deltaTime;
@@ -137,10 +141,10 @@ public partial class DragonController
             if (!breakWarned && t >= total - WildBossBase.BreakWarnSeconds)
             {
                 breakWarned = true;
-                juggle.StopAccepting();
-                AerialComboFx.RecoverWarn(transform.position, 3.5f);
+                juggle.BeginFinish(); // 2026-10-21: 締めの合図(→ / ↓ は届く、打ち上げ直しはしない)
+                AerialComboFx.FinishCue(this, () => transform.position, 3.5f, WildBossBase.BreakWarnSeconds, () => Broken && !IsDead);
             }
-            if (sr != null) sr.color = breakWarned ? Color.Lerp(Color.white, new Color(0.7f, 0.85f, 1f), Mathf.PingPong(t * 9f, 1f)) : Color.white;
+            if (sr != null) sr.color = breakWarned ? Color.Lerp(Color.white, AerialComboFx.FinishTint, Mathf.PingPong(t * 9f, 1f)) : Color.white;
             if (star <= 0f && !breakWarned)
             {
                 star = 0.25f;

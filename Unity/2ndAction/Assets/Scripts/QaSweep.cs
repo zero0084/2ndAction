@@ -72,6 +72,8 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaAerialVideo") { mode = "aerialvideo"; dir = a[i + 1]; } // 2026-10-18 エリアルコンボの比較動画
             if (a[i] == "-qaBossAir") { mode = "bossair"; dir = a[i + 1]; } // 2026-10-18 ボスの怯み/BREAK 中のエリアルコンボ
             if (a[i] == "-qaBossAirVideo") { mode = "bossairvideo"; dir = a[i + 1]; } // 2026-10-18 その比較動画
+            if (a[i] == "-qaChain") { mode = "chain"; dir = a[i + 1]; } // 2026-10-21 コンボのつながり(入力ごとの受理/実行/命中)
+            if (a[i] == "-qaKneelShots") { mode = "kneelshots"; dir = a[i + 1]; } // 2026-10-21 大型ボスの膝つきの見た目
             if (a[i] == "-qaPrivacy") { mode = "privacy"; dir = a[i + 1]; } // 2026-10-19 データとプライバシー(削除/ポリシー)
             if (a[i] == "-qaBossAssist") { mode = "bossassist"; dir = a[i + 1]; }
             if (a[i] == "-qaFinalEvo") { mode = "finalevo"; dir = a[i + 1]; }
@@ -174,6 +176,7 @@ public partial class QaSweep : MonoBehaviour
         NoticeQueue.QaAutoAcknowledge = !(mode == "deck" || mode == "unlock" || mode == "tutorial" || mode == "gacha" || mode == "saverecover");
         // 2026-10-10: マップ/キャラの解放を確かめるテスト以外は、全部を選べるようにする(保存しない)。未解放で別のマップへ黙って替わっていた
         UnlockRules.QaOverride = !(mode == "unlock" || mode == "tutorial" || mode == "records" || mode == "save" || mode == "saveshots");
+        if (Arg("-comboLegacy", "0") == "1") { ComboRevision.Legacy = true; L("[qa] ComboRevision.Legacy = true (2026-10-21 のコンボの改修を切った比較)"); }
         yield return new WaitForSecondsRealtime(2f);
         if (mode != "buildlab") StartCoroutine(AutoPickCards()); // ビルド検証はビルドの方針で自分で選ぶ
         if (mode == "visual") yield return VisualMode();
@@ -229,6 +232,8 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "aerial") yield return AerialMode();
         else if (mode == "aerialvideo") yield return AerialVideoMode();
         else if (mode == "bossair") yield return BossAirMode();
+        else if (mode == "chain") yield return ChainMode();
+        else if (mode == "kneelshots") yield return KneelShotsMode();
         else if (mode == "bossairvideo") yield return BossAirVideoMode();
         else if (mode == "privacy") yield return PrivacyMode();
         else if (mode == "bossassist") yield return BossAssistMode();

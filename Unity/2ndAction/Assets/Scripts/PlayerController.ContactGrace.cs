@@ -85,8 +85,12 @@ public partial class PlayerController
         return facingSign > 0f ? col.bounds.min.x - half - margin : col.bounds.max.x + half + margin;
     }
 
+    // 2026-10-21: 手動の攻撃が敵/ボスに当たった時刻(竜騎士の突きの「当たったら早めに次の段へ」に使う)
+    public float LastAttackLandedAt { get; private set; } = -99f;
+
     public void NotifyAttackLanded(Component target, PlayerAttackInfo attack)
     {
+        if (target != null && (attack == null || (!attack.elementProc && !attack.suppressHitStop))) LastAttackLandedAt = Time.time;
         if (target != null && target is EnemyController) { lungeHitTarget = target; lungeHitTime = Time.time; }
         OnCardAttackLanded(target, attack); // カードバランス v3(AIR DOMINION / SKY MASTER)
         if (target == null || contactGraceDuration <= 0f) return;

@@ -26,7 +26,7 @@ public partial class EnemyController : IAirComboTarget
 
     bool comboAnchored;
     [System.NonSerialized] public string ComboEndReason = ""; // 確認用: 寄せが終わった理由
-    float comboAnchorTimer, comboAnchorTotal, comboLift;
+    float comboAnchorTimer, comboAnchorTotal, comboLift, comboLandedFor;
     bool comboPlayerWasAirborne;
     float comboRiseTimer; // 地上から打ち上げた直後: 必ず上がる時間(この間は着地しない)
     float comboLastFloorY = float.MinValue; // プレイヤーの足元の床(最後に分かった高さ)
@@ -34,6 +34,8 @@ public partial class EnemyController : IAirComboTarget
     // この命中がプレイヤー自身の手動の攻撃か(カードの追加攻撃/結界や燃える地面の継続ダメージは false = 滞空を延ばさない)
     [System.NonSerialized] public bool comboManualHit = true;
     public static int ComboDownPushes, ComboGroundSlams;
+    public static int ComboBlockedStep, ComboBlockedCeiling, ComboDucked; // 確認用(2026-10-21): 段差/天井の段で横の寄せが止まった/くぐったフレーム数
+    float comboBlockedAt = -9f; char comboBlockedKind = '-';
     int comboAirHits;
 
     public bool IsComboAnchored => comboAnchored && !dying;
@@ -85,6 +87,7 @@ public partial class EnemyController : IAirComboTarget
         var pc = PlayerController.Instance;
         if (pc == null || NetReplica) return;
         if (!comboAnchored) { comboAnchorTotal = 0f; comboPlayerWasAirborne = !pc.IsGrounded; ComboAnchorsStarted++; }
+        comboLandedFor = 0f;
         comboAnchored = true;
         comboAnchorTimer = ComboAnchorWindow;
         comboLift = wasLaunched ? 1.0f : 0f; // 空中の打ち上げ直しは少しだけ上へ(その後プレイヤーの二段ジャンプで追いつく)
@@ -144,7 +147,9 @@ public partial class EnemyController : IAirComboTarget
         bool playerAir = !pc.IsGrounded;
         if (playerAir) comboPlayerWasAirborne = true;
         if (comboAnchorTimer <= 0f || comboAnchorTotal > ComboAnchorMaxTotal) { ComboEndReason = "timeout"; ComboAnchorEndedTimeout++; ComboAnchorEnd(); return false; }
-        if (comboPlayerWasAirborne && !playerAir) { ComboEndReason = "playerLanded"; ComboAnchorEndedLanded++; ComboAnchorEnd(); return false; }
+        // 2026-10-21: 着地してから 0.25秒の猶予(高速の段差で一瞬浮いて着いただけで終わらない。跳び直せば続く)
+        if (comboPlayerWasAirborne && !playerAir) comboLandedFor += dt; else comboLandedFor = 0f;
+        if (comboPlayerWasAirborne && !playerAir && comboLandedFor > (ComboRevision.Legacy ? 0f : BossJuggle.LandGrace)) { ComboEndReason = "playerLanded"; ComboAnchorEndedLanded++; ComboAnchorEnd(); return false; }
 
         // プレイヤーが穴へ落ちた(足元の床より1m以上下): 寄せをやめる(敵を一緒に地面の中/穴の中へ引きずり込まない)
         var tmA = TerrainManager.Instance;
@@ -167,7 +172,7 @@ public partial class EnemyController : IAirComboTarget
         if (!pushingDown && gT.HasValue && target.y < gT.Value + ComboMinHeight) target.y = gT.Value + ComboMinHeight;
         Vector2 pos = transform.position;
         Vector2 diff = target - pos;
-        if (diff.magnitude > ComboAnchorEngageDistance) { ComboEndReason = $"far({diff.x:F1},{diff.y:F1})"; ComboAnchorEndedFar++; ComboAnchorEnd(); return false; }
+        if (diff.magnitude > ComboAnchorEngageDistance) { ComboEndReason = $"far({diff.x:F1},{diff.y:F1}{(Time.time - comboBlockedAt < 0.5f ? ",blk" + comboBlockedKind : "")})"; ComboAnchorEndedFar++; ComboAnchorEnd(); return false; }
 
         Vector2 corr = Vector2.ClampMagnitude(diff * ComboAnchorGain, ComboAnchorMaxCorrection);
         Vector2 pv = pc.MotionVelocity;
@@ -184,9 +189,27 @@ public partial class EnemyController : IAirComboTarget
         Vector3 np = transform.position + new Vector3(vx * dt, vy * dt, 0f);
         // 段差(壁のような高い地面)へは横に入らない
         float? gAhead = LandingSurfaceAt(np.x, transform.position.y + 0.3f);
-        if (gAhead.HasValue && gAhead.Value > transform.position.y + 0.6f) np.x = transform.position.x;
+        if (gAhead.HasValue && gAhead.Value > transform.position.y + 0.6f) { np.x = transform.position.x; ComboBlockedStep++; comboBlockedAt = Time.time; comboBlockedKind = 's'; }
         // 天井の段(急に0.6m以上低くなる所)は壁と同じ: 横から入らない(入ると一瞬で数m下へ押し下げられて見えた)
-        if (CeilingStepAhead(np.x)) np.x = transform.position.x;
+        if (CeilingStepAhead(np.x))
+        {
+            // 2026-10-21: 天井の段の下へ体が入るなら、横に止めずに下げてくぐらせる(下げる速さは毎秒 CeilingPushDownPerSec まで。
+            // 入りきるまでは横に進まない = 天井を突き抜けない)。以前は段の前で横に止まり続け、走るプレイヤーに置いていかれて寄せが切れていた
+            float? cA = LowestCeilingOverBody(np.x);
+            var bbA = BodyBounds();
+            float topOff = bbA.HasValue ? bbA.Value.max.y - transform.position.y : 1f;
+            float wantY = cA.HasValue ? cA.Value - topOff - 0.05f : transform.position.y;
+            float? floorA = cA.HasValue ? LandingSurfacePure(np.x, wantY + 0.05f, out _, out _) : null;
+            bool fits = !ComboRevision.Legacy && cA.HasValue && floorA.HasValue && wantY >= floorA.Value;
+            if (fits)
+            {
+                np.y = Mathf.Max(wantY, Mathf.Min(np.y, transform.position.y - CeilingPushDownPerSec * dt));
+                if (launchVelocityY > 0f) launchVelocityY = 0f;
+                if (np.y > wantY + 0.01f) np.x = transform.position.x; // まだ下がりきっていない
+                ComboDucked++;
+            }
+            else { np.x = transform.position.x; ComboBlockedCeiling++; comboBlockedAt = Time.time; comboBlockedKind = 'c'; }
+        }
         // 天井にめり込まない(頭が天井の少し下で止まる)
         np.y = CeilingClampY(np.x, np.y, transform.position.y, hard: true); // 寄せている間は天井の下へしっかり収める(天井が下がってきても、動きは連続なので跳ばない)
         transform.position = np;

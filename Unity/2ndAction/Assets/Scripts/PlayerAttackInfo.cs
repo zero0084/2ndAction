@@ -54,6 +54,7 @@ public class PlayerAttackInfo : MonoBehaviour
     // 飛び道具は1発ごとに別のGameObjectなので、生成時の番号のまま。
     static int swingCounter;
     public static int SwingCount => swingCounter; // 検証用: これまでの攻撃判定の発生回数(振り/発射/出し直し)
+    public static int LastHitSwingId; // 検証用(2026-10-21): 直前に敵/ボスへ当たった振りの番号
     public int SwingId { get; private set; }
     public void NewSwing() { SwingId = ++swingCounter; }
     // 判定を別の位置/大きさで出し直した(前の位置からの掃引はしない)
@@ -100,6 +101,9 @@ public class PlayerAttackInfo : MonoBehaviour
     // 敵/ボスが命中を受け付けた時(victim=受けた側)。命中の演出(AttackFlair)を出してからダメージを返す。
     public static int ScaleDamage(Collider2D attack, Component victim, int damage)
     {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        { var li = attack != null ? attack.GetComponent<PlayerAttackInfo>() : null; LastHitSwingId = li != null ? li.SwingId : 0; } // 確認用: 直前に当たった振りの番号(どの入力の技が当たったか)
+#endif
         if (attack != null && victim != null) NotifyFlair(attack, victim);
         // 高速時の相打ち対策(2026-09-30): 命中した相手との体の接触ダメージだけを短時間受けない(PlayerController.ContactGrace.cs)。
         // この端末のPlayerAttack判定はすべてこの端末のプレイヤーのもの(他のプレイヤーの攻撃は判定を持たない見た目だけ)。

@@ -38,6 +38,9 @@ public partial class PlayerController
     public float AttackHitStopOverride => isLancerCharacter ? lanceHitStop : 0f;
 
     public enum LanceMoveKind { None, Forward, Backward, Down, Up, Dive }
+    public const float LanceComboDiveX = 0.7f; // 空中コンボの急降下の判定の中心(前へ)。当たる所(AerialComboSweetSpot)も同じ
+    public static int LanceComboDives;
+    public static int LanceHitChains, LanceUpCooldownClears; // 確認用(2026-10-21): 当たったので早めに次の段へつないだ回数 / ↑で突きの待ちを消した回数
     public LanceMoveKind LanceMove { get; private set; }
     // 0=構え/1=突き(落下)/2=突き刺し着地(PlayerAnimatorが攻撃フェーズに合わせてコマを選ぶ)。
     public int LanceFrameIndex { get; private set; }
@@ -251,13 +254,13 @@ public partial class PlayerController
     // 判定を「開始位置startX〜長さlength、中心高さy、太さthick、角度deg」の帯に設定して有効化する。
     // いったん無効化してから有効化し直すので、前の攻撃で重なっていた敵にも改めて当たる。
     // fxDurationが正なら、絵の穂先から判定の終端まで突きの衝撃波を出す。
-    void ArmLanceHitbox(float startX, float length, float y, float thick, float deg, float fxDuration = 0f, float fxThickness = 1f, Color? fxTint = null)
+    void ArmLanceHitbox(float startX, float length, float y, float thick, float deg, float fxDuration = 0f, float fxThickness = 1f, Color? fxTint = null, float originX = 0f)
     {
         if (lanceHitbox == null) return;
         lanceHitbox.enabled = false;
         var t = lanceHitbox.transform;
         Vector2 dir = new Vector2(Mathf.Cos(deg * Mathf.Deg2Rad), Mathf.Sin(deg * Mathf.Deg2Rad));
-        Vector2 origin = new Vector2(0f, y);
+        Vector2 origin = new Vector2(originX, y);
         Vector2 center = origin + dir * (startX + length * 0.5f);
         t.localPosition = new Vector3(center.x, center.y, 0f);
         t.localRotation = Quaternion.Euler(0f, 0f, deg);
@@ -306,6 +309,7 @@ public partial class PlayerController
         lanceComboGraceTimer = 0f;
         int gen = attackGeneration;
         int token = BeginLanceMove(back ? LanceMoveKind.Backward : LanceMoveKind.Forward, true);
+        float moveStart = Time.time;
         try
         {
             comboCount = Mathf.Max(1, stage);
@@ -362,7 +366,11 @@ public partial class PlayerController
             while (t < recovery)
             {
                 if (gen != attackGeneration || token != lanceGeneration) yield break;
-                if (comboBuffered && t >= recovery * chainPoint) break;
+                // 2026-10-21 コンボのつながり改修: 突きが当たった時は、硬直の早めから次の段へ(空振りの時は今までどおり重い)。
+                // 3段目の締め(Dragon Pierce)も当たれば硬直の半ばから次へ(重さ・一撃の強さはそのまま、当てた後の待ちだけ短く)
+                float cp = chainPoint;
+                if (LastAttackLandedAt >= moveStart && !ComboRevision.Legacy) cp = back ? 0.5f : stage >= 3 ? 0.5f : 0.2f;
+                if (comboBuffered && t >= recovery * cp) { if (cp < chainPoint) LanceHitChains++; break; }
                 t += Time.deltaTime; yield return null;
             }
 
@@ -407,6 +415,9 @@ public partial class PlayerController
     IEnumerator DoLanceUpThrust()
     {
         var d = lancerDef;
+        // 2026-10-21 コンボのつながり改修: ↑で切った突きの硬直の待ち(attackCooldownTimer、3段目は約1秒)を持ち越さない。
+        // 以前は再打ち上げの後の → がその待ちで約1秒受け付けられず、打ち上げ直した敵へ追撃できなかった(次の → は1段目から)
+        if (!ComboRevision.Legacy && attackCooldownTimer > 0f) { attackCooldownTimer = 0f; lanceNextStage = 1; lanceComboGraceTimer = 0f; LanceUpCooldownClears++; }
         int token = BeginLanceMove(LanceMoveKind.Up, false);
         try
         {
@@ -525,7 +536,11 @@ public partial class PlayerController
             if (lanceAttackInfo != null) lanceAttackInfo.kind = PlayerAttackKind.Down;
             lanceDamageScale = 1f;
             lanceKnockbackScale = 1f;
-            ArmLanceHitbox(-0.2f, 1.25f, 0.35f, d.lanceThickness * 1.1f, -90f);
+            // 2026-10-21 コンボのつながり改修: 空中コンボの締めの急降下は、判定を少し前へ・太く(以前は足元の真下 ±0.23m だけで、
+            // 寄せた敵/ボスの手前の端(プレイヤーの前 0.25m〜)に届かず、ぴったり寄っていても空振りしていた)
+            bool comboDive = AerialComboActive && !ComboRevision.Legacy;
+            if (comboDive) LanceComboDives++;
+            ArmLanceHitbox(-0.2f, 1.25f, 0.35f, d.lanceThickness * (comboDive ? 3.3f : 1.1f), -90f, originX: comboDive ? LanceComboDiveX : 0f);
             ShowDiveTrail(true);
             t = 0f;
             while (!lanceDiveLanded && t < d.lanceDiveMaxTime)
@@ -593,9 +608,10 @@ public partial class PlayerController
             lanceDiveTrail.sprite = lanceThrustArt;
             lanceDiveTrail.sortingOrder = RenderOrder.SlashFx;
         }
-        lanceDiveTrail.transform.localPosition = new Vector3(0f, -0.35f, 0f);
+        bool comboDive = AerialComboActive && !ComboRevision.Legacy; // 空中コンボの締め: 判定と同じく少し前・太く(2026-10-21)
+        lanceDiveTrail.transform.localPosition = new Vector3(comboDive ? LanceComboDiveX * 0.6f : 0f, -0.35f, 0f);
         lanceDiveTrail.transform.localRotation = Quaternion.Euler(0f, 0f, -90f);
-        lanceDiveTrail.transform.localScale = new Vector3(1.5f, 1.2f, 1f);
+        lanceDiveTrail.transform.localScale = new Vector3(1.5f, comboDive ? 1.9f : 1.2f, 1f);
         lanceDiveTrail.color = new Color(LanceFxJade.r, LanceFxJade.g, LanceFxJade.b, 0.85f);
         lanceDiveTrail.enabled = true;
     }

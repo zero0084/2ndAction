@@ -134,6 +134,7 @@ public abstract partial class WildBossBase
         while (!dead)
         {
             float dur = baseDur + breakExtra;
+            if (t >= dur && juggle.Anchored) juggle.EndCombo("breakEnd"); // 2026-10-21: 時間が尽きたら寄せを終える(締めの合図の間は寄せ続けている)
             if (t >= dur && !juggle.Airborne) break;
             if (t >= dur + 1.5f) break; // 安全装置(落ちきらない時も BREAK は終わる)
             t += Time.deltaTime;
@@ -142,8 +143,9 @@ public abstract partial class WildBossBase
             if (!breakWarned && t >= dur - BreakWarnSeconds && BossJuggle.Enabled)
             {
                 breakWarned = true;
-                juggle.StopAccepting(); // 寄せをやめる(浮いていれば落ちて、地面で立ち直る)
-                AerialComboFx.RecoverWarn(CenterWorld, Mathf.Clamp(bodyHeight, 2.5f, 7f));
+                // 2026-10-21: 締めの合図。打ち上げ直しはしないが寄せは続ける(少しずつ下がる)→ の追撃と ↓ の締めは届く。BREAK の終わりは延びない
+                juggle.BeginFinish();
+                AerialComboFx.FinishCue(this, () => CenterWorld, Mathf.Clamp(bodyHeight, 2.5f, 7f), BreakWarnSeconds, () => Broken && !dead);
             }
             bool juggled = juggle.style == BossJuggle.Style.Launch && (juggle.Anchored || juggle.Airborne); // 大型は寄せの位置のまま(位置はここで決める)
             if (juggled) { relVelocity = 0f; breakPulling = false; }
@@ -184,7 +186,7 @@ public abstract partial class WildBossBase
                 }
             }
             // 回復が近い: 白く速く点滅(体の色だけ。予告の赤とは違う)
-            if (breakWarned) SetBodyTint(Color.Lerp(Color.white, new Color(0.7f, 0.85f, 1f), Mathf.PingPong(t * 9f, 1f)));
+            if (breakWarned) SetBodyTint(Color.Lerp(Color.white, ComboRevision.Legacy ? new Color(0.7f, 0.85f, 1f) : AerialComboFx.FinishTint, Mathf.PingPong(t * 9f, 1f))); // 締めの合図の紫(2026-10-21)
             else SetBodyTint(Color.Lerp(new Color(0.7f, 0.8f, 1f), Color.white, Mathf.PingPong(t * 2.5f, 0.6f)));
             if (starT <= 0f && !breakWarned)
             {
@@ -257,7 +259,7 @@ public abstract partial class WildBossBase
             float? c = CeilingWorldYAt(i <= 1 ? center.x + b.extents.x * i : center.x + b.extents.x + ahead);
             if (c.HasValue) ceilMax = Mathf.Min(ceilMax, c.Value - (bodyHeight - off.y) - 0.1f);
         }
-        Vector2 d = juggle.Step(center, b.extents, restCenterY, ceilMax, dt, out bool slammed, out bool landed);
+        Vector2 d = juggle.Step(center, b.extents, restCenterY, ceilMax, dt, out bool slammed, out bool landed, TargetBaseSpeed());
         worldX += d.x;
         yOffset = Mathf.Max(0f, rootY + d.y - TerrainGround(worldX));
         if (slammed)
@@ -276,14 +278,14 @@ public abstract partial class WildBossBase
         }
     }
 
-    // TakeDamage から(この端末のプレイヤーの手動の攻撃だけ)
-    void BreakComboOnHit(PlayerAttackKind kind)
+    // TakeDamage から(手動の攻撃だけ)。who: 0 = この端末のプレイヤー / 1以上 = 協力の相手(HOST の端末、2026-10-21)
+    void BreakComboOnHit(PlayerAttackKind kind, int who = BossJuggle.OwnerLocal)
     {
         if (juggle == null || !juggle.Open || !Broken) return;
         int up0 = BossJuggle.Launches + BossJuggle.Relaunches, down0 = BossJuggle.DownPushes, l0 = BossJuggle.Launches;
-        bool kneelSlam = juggle.OnLocalHit(kind);
+        bool kneelSlam = juggle.OnHit(kind, who);
         float cap = BreakExtendCap;
-        if (juggle.Anchored && juggle.Accepting)
+        if (juggle.Anchored && juggle.Accepting && !breakWarned) // 締めの合図の後は延びない(終わりの時刻が動かない = 合図を見て↓を狙える)
             breakExtra = Mathf.Min(breakExtra + BreakExtendPerHit, cap);
         // 打ち上げた(コンボの始まり): BREAK の終わり際でも、コンボをつなぐ時間を残す(上限の中で)
         if (BossJuggle.Launches > l0 || (kind == PlayerAttackKind.Up && juggle.Anchored && juggle.style == BossJuggle.Style.Kneel))

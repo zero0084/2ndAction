@@ -371,6 +371,7 @@ public partial class NetAutoTest : MonoBehaviour
             else if (a == "-netAutoPassive") passive = true;
             else if (a == "-netAutoBossKind") bossKind = next;
             else if (a == "-netAutoBreakAt") float.TryParse(next, out breakAt);
+            else if (a == "-netAutoBreakCombo" || a == "-netAutoComboLegacy" || a == "-netAutoComboShots" || a == "-netAutoComboGap" || a == "-netAutoComboSeq") ParseBreakComboArgs(a, next); // 2026-10-21
             else if (a == "-netAutoBossFx") { var ps = next.Split(':'); if (ps.Length >= 2) { float.TryParse(ps[0], out bossFxAt); bossFxMethod = ps[1]; if (ps.Length >= 3) float.TryParse(ps[2], out bossFxArg); } }
             else if (a == "-netAutoChoiceAt") float.TryParse(next, out choiceAt);
             else if (a == "-netAutoChoiceHold") float.TryParse(next, out choiceHold);
@@ -575,6 +576,7 @@ public partial class NetAutoTest : MonoBehaviour
                 if (role == "HOST" && bossAt > 0f && !bossSpawned && runTime >= bossAt) SpawnTestBoss();
                 RewardKillTick(runTime);
                 BreakTest();
+                BreakComboTick();
                 BossFxTest();
                 if (runTime >= runSeconds) Finish("run time elapsed");
                 break;
@@ -1148,6 +1150,7 @@ public partial class NetAutoTest : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         pc.debugInjectFlick = null;
         if (noBot) return; // 自動操作補助だけで走らせる
+        if (ComboWindowActive) return; // 2026-10-21: BREAK コンボの試験の間は、入力の列だけ(ボットの入力を混ぜない)
         float px = pc.transform.position.x;
         float lead = 1.1f * Mathf.Max(1f, pc.CurrentAutoRunSpeed / 5f);
         if (pc.IsGrounded && tm.IsNearPit(px + lead, 0.4f))

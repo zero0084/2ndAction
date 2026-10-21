@@ -812,6 +812,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         if (state == State.Stunned) amount = Mathf.CeilToInt(amount * BossBattleTuning.I.breakDamageScale);
         float stg = pendingStagger; pendingStagger = 0f;
         PlayerAttackKind hitKind = pendingKind; bool manualHit = pendingManual && netAttacker == 0;
+        bool remoteManual = !ComboRevision.Legacy && pendingManual && netAttacker > 0; // 2026-10-21: 協力の相手(人)の手動の攻撃(HOST の端末)。改修前は HOST だけ
         pendingKind = PlayerAttackKind.Normal; pendingManual = false;
         // 2026-10-18: この端末のプレイヤーの手動の攻撃は、空中の滞空とコンボ数へ(荒野/洞窟/天空のボスと同じ)
         if (manualHit && PlayerController.Instance != null) PlayerController.Instance.NotifyAerialHit();
@@ -841,6 +842,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         CheckBattlePhase();
         if (stg > 0f) AddStagger(stg);
         if (manualHit) BreakComboOnHit(hitKind); // BREAK 中の打ち上げ/追撃/叩きつけ(2026-10-18)
+        else if (remoteManual) BreakComboOnHit(hitKind, netAttacker); // 2026-10-21: JOIN の人も(位置は HOST が決める)
 
         // Game Feel pass, section 19 - a very small camera shake, boss hits
         // only (regular EnemyController kills deliberately never do this -
@@ -1298,10 +1300,12 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
     }
 
     // HOST: JOINのプレイヤーの攻撃を、この端末の攻撃と同じ被弾処理へ流す。
-    public void NetApplyRemoteHit(int attacker, int damage, PlayerAttackKind kind = PlayerAttackKind.Normal)
+    public void NetApplyRemoteHit(int attacker, int damage, PlayerAttackKind kind = PlayerAttackKind.Normal, bool manual = true)
     {
         if (state == State.Dead || NetPuppet) return;
         netAttacker = attacker;
+        pendingKind = kind;
+        pendingManual = manual && PlayerController.AllyContext <= 0; // 2026-10-21: 人の手動の攻撃だけ BREAK のコンボへ
         // 2026-10-18: 他の参加者/仲間の攻撃でも崩しが溜まる(以前は溜まらなかった)。CPU の仲間は通常の量
         pendingStagger = PlayerController.AllyContext > 0 ? BossBattleTuning.I.staggerNormal : BossBattleTuning.I.StaggerFor(kind, false);
         try { TakeDamage(damage); }
@@ -1327,7 +1331,9 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         PlayerAttackKind kind = PlayerAttackKind.Normal;
         var info = other.GetComponent<PlayerAttackInfo>();
         if (info != null) kind = info.kind;
-        NetCombat.RequestHit(NetId, damage, kind, transform.position);
+        bool manual = info == null || (!info.elementProc && !info.suppressHitStop);
+        NetCombat.RequestHit(NetId, damage, kind, transform.position, manual);
+        if (manual && juggle != null) juggle.NoteReplicaLocalHit(); // 2026-10-21: 空中の補助の相手として覚える
         var camFollow = Camera.main != null ? Camera.main.GetComponent<CameraFollow>() : null;
         if (camFollow != null) camFollow.Shake(0.08f, 0.1f);
         StartCoroutine(HitFlash());
@@ -1360,6 +1366,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
         if (sr != null) s.Color = NetPlayerSnapshot.PackColor(sr.color);
         if (flashOverlay != null && flashOverlay.enabled) { s.Flags |= NetCombat.FlagFlash; s.Flash = NetPlayerSnapshot.PackColor(flashOverlay.color); }
         if (hitFlashOverlay != null && hitFlashOverlay.enabled) s.Flags |= NetCombat.FlagHitFlash;
+        s.Combo = juggle != null ? juggle.NetPack() : (byte)0; // 2026-10-21: BREAK コンボの状態(JOIN の空中の補助)
     }
 
     bool netHpRevealed;
@@ -1390,6 +1397,7 @@ public partial class DragonController : MonoBehaviour, IBossBattleDebug
             netHpRevealed = true;
             if (hpBar != null) StartCoroutine(hpBar.RevealRoutine(0.25f));
         }
+        if (s.Combo != 0 || (juggle != null && juggle.Open)) EnsureJuggle().NetApplyReplica(s.Combo); // 2026-10-21
     }
 }
 
