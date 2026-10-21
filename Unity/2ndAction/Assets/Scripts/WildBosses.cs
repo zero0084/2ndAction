@@ -618,6 +618,8 @@ public class SpiderBoss : WildBossBase
         locoStyle = LocoStyle.Crawl;
         enterSpeed = 10f;
         windupMoveFactor = 0.3f;
+        animKey = "spider"; // 2026-10-21: 姿勢ごとのコマ(Resources/BossAnim/spider、エステルさんと相談)。0=噛みつき 1=前脚 2=跳びかかり(attackC_ 0=空中 1=着地) 3=糸
+        artPoseProceduralScale = 0.3f;
         float r = FrontReach;
         Vector2 a = new Vector2(r + 0.8f, 0.7f), sa = new Vector2(1.9f, 1.3f);
         bite = NewHitbox("Bite", a, sa, BossFx.Fang(), new Color(1f, 1f, 1f, 0.95f));
@@ -634,11 +636,27 @@ public class SpiderBoss : WildBossBase
         overleap.damageAmount = CombatScale.PlayerHeavyHit;
     }
 
+    // 跳びかかりの空中/着地・必殺技で這って横切る間のコマ
+    enum SpiderArt { None, Air, Land, Skitter }
+    SpiderArt spiderArt; float spiderArtUntil;
+    void SetSpiderArt(SpiderArt a, float sec = 99f) { spiderArt = a; spiderArtUntil = Time.time + sec; }
+    protected override Sprite PoseOverride()
+    {
+        var an = Anim;
+        if (an == null || Broken || IsDead || spiderArt == SpiderArt.None) return null;
+        if (Time.time > spiderArtUntil) { spiderArt = SpiderArt.None; return null; }
+        if (spiderArt == SpiderArt.Skitter && an.HasMove) return BossAnimSet.Loop(an.move, 18f, Time.time);
+        if (an.attackC == null) return null;
+        return spiderArt == SpiderArt.Air ? an.attackC[0] : an.attackC[an.attackC.Length - 1];
+    }
+    protected override void OnInterrupted() { base.OnInterrupted(); spiderArt = SpiderArt.None; }
+
     IEnumerator DeathDance()
     {
         if (!BeginUltimate("八脚の死の舞踏", new Color(0.85f, 0.75f, 1f))) { lastUltimateTime = Time.time - 10f; yield break; }
         // 糸の連射(低/中/高)。当たっても傷はないが足が鈍る
         yield return MoveToGap(9f, 6f, 1.5f);
+        animVariant = 3; // コマ: 糸
         yield return Telegraph(0.7f);
         float[] lift = { -0.6f, 0.6f, 1.8f };
         for (int i = 0; i < 3; i++)
@@ -655,18 +673,23 @@ public class SpiderBoss : WildBossBase
         // 地面を這って横切る(跳ぶ)
         LaneWarn(1.5f, 7f, 0f, 1.25f, 0.95f, LowLaneColor);
         yield return Wait(0.45f);
+        SetSpiderArt(SpiderArt.Skitter);
         yield return Swoop(OffscreenAheadGap(), OffscreenBehindGap(), sp, 0f, skitter);
         // 後ろから頭上を跳び越える(地面にいる)
         LaneWarn(1.5f, 7f, 2.5f, 4.4f, 0.95f, HighLaneColor);
         yield return Wait(0.45f);
+        SetSpiderArt(SpiderArt.Air);
         yield return Swoop(OffscreenBehindGap(), OffscreenAheadGap(), sp, 2.5f, overleap);
+        SetSpiderArt(SpiderArt.None);
         yOffset = 0f;
         freeGap = false;
         // 目の前へ跳びかかる(着地の瞬間に跳ぶ)
         yield return ReturnToBattle(7f, 16f);
         yield return JumpAttack(0.5f);
         BossBattleHud.Banner("チャンス!", new Color(0.6f, 1f, 0.6f), 0.9f);
+        exhaustArt = true;
         yield return Exhausted(2.8f, 2f, 1.2f);
+        exhaustArt = false;
     }
 
     protected override IEnumerator AI()
@@ -680,10 +703,13 @@ public class SpiderBoss : WildBossBase
                 yield return WebShot();
                 yield return JumpAttack(0.6f);
                 yield return JumpAttack(0.45f);
+                exhaustArt = true;
                 yield return Exhausted(1.4f, 1.6f, 1.1f);
+                exhaustArt = false;
                 continue;
             }
             int pick = BossAiUtil.PickNoRepeat(4, ref lastPick);
+            animVariant = pick;
             if (pick == 0)
             {
                 yield return Approach(1.4f, 3.0f, 6f);
@@ -713,6 +739,7 @@ public class SpiderBoss : WildBossBase
         windingUp = true;
         facingLocked = true;
         relVelocity = 0f;
+        animVariant = 2; // コマ: 跳びかかり(溜め=windupC_)
         SetPose(Pose.Windup);
         float t = 0f;
         while (t < windup)
@@ -724,7 +751,9 @@ public class SpiderBoss : WildBossBase
         windingUp = false;
         windupProgress = 0f;
 
+        SetSpiderArt(SpiderArt.Air);
         yield return Leap(0.8f, 3.0f, landGap - Gap);
+        SetSpiderArt(SpiderArt.Land, 0.45f);
         SetPose(Pose.Landing);
         ImpactDust(new Vector3(worldX, GroundY, 0f), 9, 1.0f);
         yield return Strike(land, 0.3f, 0.15f);
@@ -733,6 +762,7 @@ public class SpiderBoss : WildBossBase
 
     IEnumerator WebShot()
     {
+        animVariant = 3; // コマ: 糸
         yield return Telegraph(0.8f);
         Vector3 from = new Vector3(worldX + facing * FrontReach, GroundY + bodyHeight * 0.55f, 0f);
         Vector2 dir = AimFrom(from);
@@ -791,6 +821,8 @@ public class GolemBoss : WildBossBase
         footstepShake = true;
         enterSpeed = 3f;
         windupMoveFactor = 0.2f;
+        animKey = "golem"; // 2026-10-21: 姿勢ごとのコマ(Resources/BossAnim/golem、エステルさんと相談)。0=片拳 1=パンチ/投げ 2=地面叩き 3=両拳、コア露出=exhaust_
+        artPoseProceduralScale = 0.3f;
         yOffset = -bodyHeight * 0.85f;
         SetAlpha(0f);
         float r = FrontReach;
@@ -832,7 +864,7 @@ public class GolemBoss : WildBossBase
         core.transform.localScale = new Vector3(s, s, 1f);
     }
 
-    protected override void OnInterrupted() { coreBoost = 0f; }
+    protected override void OnInterrupted() { base.OnInterrupted(); coreBoost = 0f; }
 
     protected override IEnumerator AI()
     {
@@ -842,6 +874,7 @@ public class GolemBoss : WildBossBase
             if (SpecialReady(2)) { MarkSpecial(); yield return BoulderToss(); continue; }
             yield return Approach(2.3f, 1.2f, 9f);
             int pick = BossAiUtil.PickNoRepeat(Hp <= maxHp / 2 ? 4 : 3, ref lastPick);
+            animVariant = pick; // コマ: 0=片拳の叩きつけ 1=パンチ 2=地面叩き 3=両拳
             if (pick == 3)
             {
                 yield return Telegraph(2.3f, dblMark);
@@ -874,6 +907,7 @@ public class GolemBoss : WildBossBase
     IEnumerator BoulderToss()
     {
         yield return MoveToGap(9f, 3f, 2f);
+        animVariant = 1; // コマ: 投げ(パンチと同じ前への振り)
         yield return Telegraph(1.1f);
         for (int i = 0; i < 2; i++)
         {
@@ -892,6 +926,7 @@ public class GolemBoss : WildBossBase
         if (!BeginUltimate("大地の怒り", new Color(1f, 0.6f, 0.2f))) { lastUltimateTime = Time.time - 10f; yield break; }
         yield return MoveToGap(10f, 3f, 2.4f);
         coreBoost = 0.9f;
+        animVariant = 3; // コマ: 両拳(必殺技も)
         yield return Telegraph(1.8f, dblMark);
         StartCoroutine(Impact(6f));
         yield return Strike(dbl, 0.4f, 0.5f, 0.14f);
@@ -913,7 +948,9 @@ public class GolemBoss : WildBossBase
         // コア露出: 崩し/ダメージが大きく入る
         coreBoost = 1f;
         BossBattleHud.Banner("コア露出!", new Color(1f, 0.7f, 0.3f), 1.0f);
+        exhaustArt = true; // 専用の隙の絵(exhaust_: コア露出)
         yield return Exhausted(4.0f, 2.5f, 1.5f);
+        exhaustArt = false;
         coreBoost = 0f;
     }
 
@@ -963,6 +1000,8 @@ public class GriffinBoss : WildBossBase
     {
         supportsInterrupt = true;
         locoStyle = LocoStyle.Wing;
+        animKey = "griffin"; // 2026-10-21: 姿勢ごとのコマ(Resources/BossAnim/griffin、エステルさんと相談)。0=爪 1=低空突進/滑空 2=急降下 3=羽根の嵐、地面に降りた隙/墜落=exhaust_
+        artPoseProceduralScale = 0.3f;
         yOffset = 7f;
         windupMoveFactor = 0.6f;
         float r = FrontReach;
@@ -990,11 +1029,13 @@ public class GriffinBoss : WildBossBase
 
             // A: 地上で爪
             yield return Approach(1.7f, 3.2f, 6f);
+            animVariant = 0;
             yield return Telegraph(0.7f, clawMark);
             yield return Strike(claw, 0.25f);
             yield return Recover(0.6f);
 
             // B: 低空突進
+            animVariant = 1;
             yield return Telegraph(0.9f, chargeMark);
             SetPose(Pose.Fly);
             StartCoroutine(SetAltitude(0.9f, 0.25f));
@@ -1014,6 +1055,7 @@ public class GriffinBoss : WildBossBase
         yield return SetAltitude(3.6f, 0.5f);
         yield return MoveToGap(7f, 5f, 1.5f);
         SetPose(Pose.Fly);
+        animVariant = 3; // コマ: 羽根の嵐
         yield return Telegraph(0.8f);
         for (int wave = 0; wave < 2; wave++)
         {
@@ -1037,6 +1079,7 @@ public class GriffinBoss : WildBossBase
         if (!BeginUltimate("嵐の三連滑空", new Color(1f, 0.9f, 0.5f))) { lastUltimateTime = Time.time - 10f; yield break; }
         // 上空前方へ消える
         yield return ExitScreen(true, 18f, 4.5f);
+        animVariant = 1; // コマ: 滑空(低空突進と同じ)
         const float sp = 26f;
         // 1: 低空・前から(跳ぶ)
         LaneWarn(1.5f, 7f, 0f, 1.3f, 1.0f, LowLaneColor);
@@ -1054,7 +1097,9 @@ public class GriffinBoss : WildBossBase
         ImpactDust(new Vector3(worldX, GroundY, 0f), 16, 1.3f);
         Shake(0.18f, 0.3f);
         BossBattleHud.Banner("チャンス!", new Color(0.6f, 1f, 0.6f), 0.9f);
+        exhaustArt = true; // コマ: 墜落して倒れ込む
         yield return Exhausted(3.0f, 2.2f, 1.25f);
+        exhaustArt = false;
     }
 
     IEnumerator DiveSequence()
@@ -1068,6 +1113,7 @@ public class GriffinBoss : WildBossBase
 
         // 急降下の着地点を地面に予告(プレイヤーの現在位置)
         const float landGap = 0.5f;
+        animVariant = 2; // コマ: 急降下(溜め=上空で狙う、攻撃=降下)
         TrackedHazard.Create(PlayerX + landGap, 3.4f, 2.4f, 1.0f, 0f, Color.clear);
         facingLocked = true;
         float t = 0f;
@@ -1093,8 +1139,10 @@ public class GriffinBoss : WildBossBase
         // 着地: 長い隙(通常攻撃/コンボを当てるチャンス)
         EndAttack();
         SetPose(Pose.Landing);
+        exhaustArt = true; // コマ: 降りて息を整える(BREAK の絵にしない)
         SetBodyTint(new Color(0.75f, 0.85f, 1f));
         yield return Wait(3.0f);
+        exhaustArt = false;
         SetBodyTint(Color.white);
         SetPose(Pose.Idle);
     }

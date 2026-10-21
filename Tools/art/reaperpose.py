@@ -10,20 +10,34 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage
 
+def is_green_bg(a):
+    # 2026-10-21: 四隅が緑なら緑の背景(紫のボスはマゼンタだと体が抜けるので緑で生成する)
+    c = np.concatenate([a[:8, :8].reshape(-1, 3), a[:8, -8:].reshape(-1, 3), a[-8:, :8].reshape(-1, 3), a[-8:, -8:].reshape(-1, 3)])
+    m = c.mean(0)
+    return m[1] > 170 and m[0] < 110 and m[2] < 110
+
 def key(im):
     a = np.asarray(im.convert('RGB')).astype(np.int16)
     r, g, b = a[..., 0], a[..., 1], a[..., 2]
-    # マゼンタ(高い r と b、低い g)からの距離
-    mag = (r > 150) & (b > 150) & (g < 110) & (np.abs(r - b) < 90)
-    soft = (r > 120) & (b > 120) & (g < 140) & (np.abs(r - b) < 110) & ~mag
     alpha = np.full(r.shape, 255, np.uint8)
-    alpha[mag] = 0
-    alpha[soft] = 110
-    rgba = np.dstack([a.astype(np.uint8), alpha])
-    # 縁の色かぶり(despill): 半透明の所の赤/青を緑へ寄せる
-    sp = soft
-    rgba[sp, 0] = np.minimum(rgba[sp, 0], rgba[sp, 1] + 40)
-    rgba[sp, 2] = np.minimum(rgba[sp, 2], rgba[sp, 1] + 40)
+    if is_green_bg(a):
+        bgk = (g > 150) & (r < 120) & (b < 120) & (g - np.maximum(r, b) > 70)
+        soft = (g > 120) & (g - np.maximum(r, b) > 35) & ~bgk
+        alpha[bgk] = 0
+        alpha[soft] = 110
+        rgba = np.dstack([a.astype(np.uint8), alpha])
+        rgba[soft, 1] = np.minimum(rgba[soft, 1], np.maximum(rgba[soft, 0], rgba[soft, 2]) + 20)
+    else:
+        # マゼンタ(高い r と b、低い g)からの距離
+        mag = (r > 150) & (b > 150) & (g < 110) & (np.abs(r - b) < 90)
+        soft = (r > 120) & (b > 120) & (g < 140) & (np.abs(r - b) < 110) & ~mag
+        alpha[mag] = 0
+        alpha[soft] = 110
+        rgba = np.dstack([a.astype(np.uint8), alpha])
+        # 縁の色かぶり(despill): 半透明の所の赤/青を緑へ寄せる
+        sp = soft
+        rgba[sp, 0] = np.minimum(rgba[sp, 0], rgba[sp, 1] + 40)
+        rgba[sp, 2] = np.minimum(rgba[sp, 2], rgba[sp, 1] + 40)
     # 小さな点を消す(いちばん大きい塊と、その近くの大きめの塊だけ残す)
     m = alpha > 0
     lab, n = ndimage.label(m)

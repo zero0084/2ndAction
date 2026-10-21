@@ -531,6 +531,8 @@ public class WormBoss : CaveBossBase
     protected override void CaveInit()
     {
         locoStyle = LocoStyle.Slither;
+        animKey = "worm"; // 2026-10-21: 姿勢ごとのコマ(Resources/BossAnim/worm、エステルさんと相談)。噛みつき=windup_/attack_、潜る/飛び出す=dive_/emerge_、頭が地面に残る隙=exhaust_
+        artPoseProceduralScale = 0.3f;
         Vector2 bc = new Vector2(FrontReach + 0.4f, bodyHeight * 0.3f), bs = new Vector2(2.4f, 1.3f);
         bite = NewHitbox("Bite", bc, bs, BossFx.Fang(), new Color(0.5f, 0.9f, 0.55f, 0.95f));
         biteMark = NewMarker(bc, bs);
@@ -632,6 +634,8 @@ public class CrystalGolemBoss : CaveBossBase
         footstepShake = true;
         hitStopOnHit = 0.045f;
         windupMoveFactor = 0.25f;
+        animKey = "crystal_golem"; // 2026-10-21: 姿勢ごとのコマ(Resources/BossAnim/crystal_golem、エステルさんと相談)。0=拳 1=叩きつけ 2=結晶弾 3=コアを光らせる(結晶の場)、コア露出=exhaust_
+        artPoseProceduralScale = 0.3f;
         Vector2 pc = new Vector2(FrontReach + 0.5f, 0.9f), ps = new Vector2(2.6f, 1.8f);
         punch = NewHitbox("Punch", pc, ps, BossFx.Ring(), new Color(0.6f, 0.9f, 1f, 0.95f));
         punchMark = NewMarker(pc, ps);
@@ -661,6 +665,7 @@ public class CrystalGolemBoss : CaveBossBase
             if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return CrystalField(); continue; }
             yield return Approach(2.4f, 1.6f, 6f);
             int pick = BossAiUtil.PickNoRepeat(3, ref lastPick);
+            animVariant = pick;
             if (pick == 0)
             {
                 punch.damageAmount = HitDmg;
@@ -683,6 +688,7 @@ public class CrystalGolemBoss : CaveBossBase
 
     IEnumerator CrystalBolt()
     {
+        animVariant = 2; // コマ: 結晶弾
         yield return Retreat(2f, 0.6f);
         CoreGlow(0.5f);
         yield return Telegraph(1.0f);
@@ -699,7 +705,9 @@ public class CrystalGolemBoss : CaveBossBase
     {
         vulnerableScale = 1.2f;
         CoreGlow(0.9f);
+        animVariant = 3; // コマ: コアを光らせて地面へ力を流す
         yield return Telegraph(0.6f);
+        PlayAttackPose(0.4f);
         FloorAt(0f, 1.8f, 1.2f, 0.85f, 0.35f, CaveLook.Crystal);
         yield return Wait(0.6f);
         CeilAt(0f, 2.0f, 0.9f, 0.4f, CaveLook.Crystal);
@@ -715,6 +723,7 @@ public class CrystalGolemBoss : CaveBossBase
         if (!StartUlt("CRYSTAL PRISON", new Color(0.55f, 0.9f, 1f))) yield break;
         yield return MoveToGap(8f, 4f, 1.4f);
         CoreGlow(1f);
+        animVariant = 3; // コマ: コアを光らせる(④の結晶弾は 2 へ)
         // ① 位置の予告(床の魔法陣と天井のひび)
         TellAt(0f, 1.0f, CaveTellStyle.Circle, CaveLook.Crystal); TellAt(3.4f, 1.0f, CaveTellStyle.Circle, CaveLook.Crystal); TellAt(-3.4f, 1.0f, CaveTellStyle.Circle, CaveLook.Crystal);
         yield return Telegraph(0.8f);
@@ -733,6 +742,7 @@ public class CrystalGolemBoss : CaveBossBase
         {
             LaneWarn(2f, 6f, 0.2f, 1.1f, 0.6f, LowLaneColor);
             yield return Wait(0.6f);
+            animVariant = 2;
             PlayAttackPose(0.25f);
             WaveFrom(Gap - FrontReach, 1.0f, 0.2f, 1.1f, 10f, CaveLook.Crystal, true, 0.75f);
             yield return Wait(0.6f);
