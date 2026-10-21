@@ -492,6 +492,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     protected int animVariant;
     protected float diveArtT = -1f, emergeArtUntil; // 潜る/飛び出すのコマ(PickAnimSprite)
     protected bool exhaustArt; // 専用の隙のコマ(exhaust_)を出している間
+    protected Sprite[] exhaustArtFrames; // 2026-10-22: exhaustArt の間、exhaust_ の代わりに出すコマ(グリフォン: 急降下の着地=land_ / 必殺技の墜落=exhaust_)
     protected Sprite emergeArtOverride; // emergeArtUntil までの間、emerge_ の代わりに出すコマ(技ごとの飛び出し。期限が過ぎたら消える)
     protected bool HasDiveArt => Anim != null && Anim.dive != null;
     BossAnimSet anim; bool animLoaded;
@@ -514,7 +515,8 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             if (pose == Pose.Attack || pose == Pose.Move || pose == Pose.Fly) return a.ult[Mathf.Min(1, a.ult.Length - 1)];
         }
         // 2026-10-20: 必殺技の後の専用の隙(exhaust_、サソリの尾が刺さる・モグラが目を回す)。CaveRecovery の間ずっと
-        if (exhaustArt && !Broken && a.exhaust != null) return BossAnimSet.Loop(a.exhaust, 3f, Time.time + loopTimeOffset);
+        var exArt = exhaustArtFrames ?? a.exhaust;
+        if (exhaustArt && !Broken && exArt != null) return BossAnimSet.Loop(exArt, 3f, Time.time + loopTimeOffset);
         // 2026-10-20: BREAK からの立ち直り(rise_)/ BREAK の間の繰り返し(breakloop_)。どちらも無いボスは今までどおり
         if (breakRecovering && a.rise != null) return BossAnimSet.Progress(a.rise, poseTime / BreakRecoverSeconds);
         // 打ち上げられて空中にいる間(BREAK のエリアルコンボ)は、崩れた1コマ目(地面に座り込むコマは地面に着いてから)
@@ -1415,7 +1417,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (UltimateRunning) { UltimateRunning = false; BossBattle.EndUltimate(this); }
         vulnerableScale = 1f;
         staggerDefense = 1f;
-        diveArtT = -1f; emergeArtUntil = 0f; exhaustArt = false; emergeArtOverride = null; // 潜る/飛び出す/隙のコマも止める
+        diveArtT = -1f; emergeArtUntil = 0f; exhaustArt = false; exhaustArtFrames = null; emergeArtOverride = null; // 潜る/飛び出す/隙のコマも止める
         OnInterrupted();
     }
 

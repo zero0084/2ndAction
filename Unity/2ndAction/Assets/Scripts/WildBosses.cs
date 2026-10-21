@@ -1123,6 +1123,7 @@ public class GriffinBoss : WildBossBase
         facingLocked = true;
         float t = 0f;
         windingUp = true;
+        SetPose(Pose.Windup); // 2026-10-22: 狙う間は溜めのコマ(以前は羽ばたきのまま)
         while (t < 1.0f)
         {
             t += Time.deltaTime;
@@ -1144,10 +1145,12 @@ public class GriffinBoss : WildBossBase
         // 着地: 長い隙(通常攻撃/コンボを当てるチャンス)
         EndAttack();
         SetPose(Pose.Landing);
-        exhaustArt = true; // コマ: 降りて息を整える(BREAK の絵にしない)
+        exhaustArtFrames = Anim != null ? Anim.land : null; // コマ: 降りて息を整える(land_。無ければ exhaust_。BREAK の絵にしない)
+        exhaustArt = true;
         SetBodyTint(new Color(0.75f, 0.85f, 1f));
         yield return Wait(3.0f);
         exhaustArt = false;
+        exhaustArtFrames = null;
         SetBodyTint(Color.white);
         SetPose(Pose.Idle);
     }
