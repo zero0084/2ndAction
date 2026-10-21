@@ -560,7 +560,9 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
                 break;
             }
             case Pose.Move:
-            case Pose.Fly: if (a.HasMove) return BossAnimSet.Loop(a.move, a.moveFps, Time.time + loopTimeOffset); break;
+            case Pose.Fly:
+                if (pose == Pose.Fly && a.fly != null) return BossAnimSet.Loop(a.fly, a.moveFps, Time.time + loopTimeOffset); // 2026-10-22: 跳んでいる間の専用のコマ(黒騎士)
+                if (a.HasMove) return BossAnimSet.Loop(a.move, a.moveFps, Time.time + loopTimeOffset); break;
             case Pose.Idle:
                 if (locoStyle != LocoStyle.None && a.HasMove) return BossAnimSet.Loop(a.move, a.moveFps, Time.time + loopTimeOffset); // 走りながら待つボス
                 if (a.idle != null) return BossAnimSet.Loop(a.idle, a.idleFps, Time.time + loopTimeOffset);

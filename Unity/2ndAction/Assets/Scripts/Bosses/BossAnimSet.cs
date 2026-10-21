@@ -20,6 +20,8 @@ public class BossAnimSet
     public Sprite[] dive, emerge;
     // 2026-10-22: 着地して息を整える隙(land_、グリフォンの急降下の後)。墜落の隙(exhaust_)とは別の絵。使うかはボスが決める
     public Sprite[] land;
+    // 2026-10-22: 5つ目の技(animVariant 4 = E、黒騎士の空中斬り)/ 跳んでいる間(fly_、Pose.Fly。無ければ move_)
+    public Sprite[] windupE, attackE, fly;
     public float idleFps = 6f, moveFps = 12f;
     // 本物の走りのコマがある時は、格子の変形(偽の脚の動き)を弱める
     public float rigLocoScale = 0.2f;
@@ -43,6 +45,7 @@ public class BossAnimSet
                 windupB = Pick(all, "windupB_"), attackB = Pick(all, "attackB_"),
                 recover = Pick(all, "recover_"), recoverB = Pick(all, "recoverB_"), breakLoop = Pick(all, "breakloop_"), rise = Pick(all, "rise_"),
                 windupC = Pick(all, "windupC_"), attackC = Pick(all, "attackC_"), windupD = Pick(all, "windupD_"), attackD = Pick(all, "attackD_"), exhaust = Pick(all, "exhaust_"), dive = Pick(all, "dive_"), emerge = Pick(all, "emerge_"), land = Pick(all, "land_"),
+                windupE = Pick(all, "windupE_"), attackE = Pick(all, "attackE_"), fly = Pick(all, "fly_"),
             };
         }
         cache[key] = set;
@@ -50,8 +53,8 @@ public class BossAnimSet
     }
 
     // 技の番号(animVariant)ごとの溜め/攻撃。その技のコマが無ければ1つ目の技のコマ
-    public Sprite[] WindupFor(int v) => (v == 1 ? windupB : v == 2 ? windupC : v == 3 ? windupD : null) ?? windup;
-    public Sprite[] AttackFor(int v) => (v == 1 ? attackB : v == 2 ? attackC : v == 3 ? attackD : null) ?? attack;
+    public Sprite[] WindupFor(int v) => (v == 1 ? windupB : v == 2 ? windupC : v == 3 ? windupD : v == 4 ? windupE : null) ?? windup;
+    public Sprite[] AttackFor(int v) => (v == 1 ? attackB : v == 2 ? attackC : v == 3 ? attackD : v == 4 ? attackE : null) ?? attack;
     public Sprite[] RecoverFor(int v) => (v == 1 ? recoverB : null) ?? recover;
 
     static Sprite[] Pick(Sprite[] all, string prefix)

@@ -1482,6 +1482,8 @@ public class BlackKnightBoss : WildBossBase
         supportsInterrupt = true;
         locoStyle = LocoStyle.Run;
         enterSpeed = 10f;
+        animKey = "black_knight"; // 2026-10-22: 姿勢ごとのコマ(Resources/BossAnim/black_knight、エステルさんと相談、緑背景)。0=斬り 1=二連の2撃目(逆斬り) 2=踏み込み斬り 3=斬り上げ 4=空中斬り、跳ぶ間=fly_、三連閃=ult_、膝をつく隙=exhaust_
+        artPoseProceduralScale = 0.3f;
         float r = FrontReach;
         Vector2 a = new Vector2(r + 0.9f, 1.0f), sa = new Vector2(2.4f, 1.9f);
         slash = NewHitbox("Slash", a, sa, BossFx.Slash(), new Color(0.6f, 0.8f, 1f, 0.95f));
@@ -1515,21 +1517,25 @@ public class BlackKnightBoss : WildBossBase
             switch (pick)
             {
                 case 0: // 通常斬撃
+                    animVariant = 0;
                     yield return Approach(1.9f, 3.6f, 5f);
                     yield return Telegraph(0.45f, slashMark);
                     yield return Strike(slash, 0.2f, 0.05f);
                     yield return Recover(0.55f);
                     break;
                 case 1: // 二連斬り(2撃目はさらに短い予備動作)
+                    animVariant = 0;
                     yield return Approach(1.9f, 3.6f, 5f);
                     yield return Telegraph(0.45f, slashMark);
                     yield return Strike(slash, 0.2f, 0.05f);
                     EndAttack();
+                    animVariant = 1; // コマ: 切り返して逆斬り
                     yield return Telegraph(0.35f, slashMark);
                     yield return Strike(slash, 0.2f, 0.05f);
                     yield return Recover(0.8f);
                     break;
                 case 2: // 前方への踏み込み斬り
+                    animVariant = 2;
                     if (FrontDist > 6f) yield return Approach(5f, 3.6f, 4f);
                     yield return Telegraph(0.6f, dashMark);
                     StartCoroutine(DashMove(0.32f, 12f));
@@ -1537,6 +1543,7 @@ public class BlackKnightBoss : WildBossBase
                     yield return Recover(0.7f);
                     break;
                 case 3: // 切り上げ(空中のプレイヤーも狙う)
+                    animVariant = 3;
                     yield return Approach(1.6f, 3.6f, 5f);
                     yield return Telegraph(0.5f, upMark);
                     yield return Strike(up, 0.25f, 0.06f);
@@ -1552,16 +1559,19 @@ public class BlackKnightBoss : WildBossBase
     // プレイヤーと同じ形のエアリアルコンボ(各段に予備動作。入力は読まない)
     IEnumerator MimicAerialCombo()
     {
+        animVariant = 0;
         yield return Approach(1.9f, 3.8f, 5f);
         yield return Telegraph(0.45f, slashMark);          // 地上斬り
         yield return Strike(slash, 0.2f, 0.05f);
         EndAttack();
+        animVariant = 3;
         yield return Telegraph(0.4f, upMark);              // 切り上げ
         yield return Strike(up, 0.22f, 0.06f);
         EndAttack();
         SetPose(Pose.Fly);                                  // 跳躍
         yield return SetAltitude(2.6f, 0.3f);
         facingLocked = true;
+        animVariant = 4; // コマ: 空中で振りかぶる → 振り下ろす(叩きつけも同じ)
         yield return Telegraph(0.35f, airMark);            // 空中追撃(高い所=地面にいれば当たらない)
         yield return Strike(air, 0.22f, 0.06f);
         EndAttack();
@@ -1574,12 +1584,15 @@ public class BlackKnightBoss : WildBossBase
         ImpactDust(new Vector3(worldX, GroundY, 0f), 12, 1.1f);
         GroundRing(new Vector3(worldX, GroundY, 0f), 5.5f, new Color(0.7f, 0.8f, 1f, 0.9f));
         yield return Strike(slamHb, 0.25f, 0.18f, 0.05f);
+        exhaustArt = Anim != null && Anim.exhaust != null; // コマ: 剣を突き立てて膝をつく
         yield return Exhausted(1.3f, 1.6f, 1.1f);
+        exhaustArt = false;
     }
 
     IEnumerator DarkTripleRush()
     {
         if (!BeginUltimate("黒刃三連閃", new Color(0.6f, 0.7f, 1f))) { lastUltimateTime = Time.time - 10f; yield break; }
+        animVariant = 0; // コマ: 駆け抜け斬り(ult_)
         yield return ExitScreen(true, 20f, 0f);
         const float sp = 28f;
         LaneWarn(1.5f, 7f, 0f, 1.25f, 0.95f, LowLaneColor);
@@ -1593,16 +1606,20 @@ public class BlackKnightBoss : WildBossBase
         yield return Swoop(OffscreenAheadGap(), 1.4f, sp * 1.15f, 0f, rushLow);
         ImpactDust(new Vector3(worldX, GroundY, 0f), 12, 1.0f);
         BossBattleHud.Banner("チャンス!", new Color(0.6f, 1f, 0.6f), 0.9f);
+        exhaustArt = Anim != null && Anim.exhaust != null; // コマ: 膝をつく隙
         yield return Exhausted(3.0f, 2f, 1.25f);
+        exhaustArt = false;
     }
 
     IEnumerator AirAttack()
     {
         const float landGap = 1.0f;
         TrackedHazard.Create(PlayerX + landGap, 2.6f, 1.2f, 1.0f, 0f, Color.clear);
+        animVariant = 3; // コマ: しゃがんで跳ぶ準備(斬り上げの溜め) → 跳ぶ間=fly_ → 振り下ろし(4)
         yield return Telegraph(0.5f);
         StartCoroutine(Leap(0.75f, 3.2f, landGap - Gap));
         yield return Wait(0.4f);
+        animVariant = 4;
         yield return Strike(air, 0.35f, 0.1f);
         yield return Recover(0.8f);
     }
