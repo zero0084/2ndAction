@@ -408,6 +408,8 @@ public class TrollBoss : CaveBossBase
         locoStyle = LocoStyle.Stride;
         footstepShake = true;
         windupMoveFactor = 0.25f;
+        animKey = "troll"; // 2026-10-21: 姿勢ごとのコマ(Resources/BossAnim/troll、エステルさんと相談)。0=叩きつけ 1=横振り 2=足踏み 3=天井打ち、棍棒が抜けない隙=exhaust_
+        artPoseProceduralScale = 0.3f;
         Vector2 sc = new Vector2(FrontReach + 0.6f, 0.3f), ss = new Vector2(2.6f, 1.8f);
         slam = NewHitbox("Slam", sc, ss, BossFx.Ring(), new Color(1f, 0.75f, 0.3f, 0.95f));
         slamMark = NewMarker(sc, ss);
@@ -427,6 +429,7 @@ public class TrollBoss : CaveBossBase
             if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return CeilingStrike(Enraged || Upgraded ? 4 : 3); continue; }
             yield return Approach(2.2f, 1.8f, 6f);
             int pick = BossAiUtil.PickNoRepeat(3, ref lastPick);
+            animVariant = pick;
             if (pick == 0)
             {
                 slam.damageAmount = HitDmg;
@@ -447,6 +450,7 @@ public class TrollBoss : CaveBossBase
             {
                 // 足踏み: 天井から小石 → 前方に1つ落石
                 yield return Telegraph(0.8f);
+                PlayAttackPose(0.3f); // コマ: 踏み下ろす
                 Shake(0.1f, 0.2f);
                 ImpactDust(new Vector3(worldX, GroundY, 0f), 10, 1.1f);
                 RockAt(Random.Range(4f, 6f), 0.95f, 0.9f, 6f);
@@ -458,6 +462,7 @@ public class TrollBoss : CaveBossBase
     IEnumerator CeilingStrike(int rocks)
     {
         yield return MoveToGap(5f, 4f, 1.2f);
+        animVariant = 3; // コマ: 天井打ち
         yield return Telegraph(0.9f);
         PlayAttackPose(0.3f);
         Shake(0.14f, 0.25f);
@@ -471,6 +476,7 @@ public class TrollBoss : CaveBossBase
         if (!StartUlt("CAVE COLLAPSE", new Color(1f, 0.6f, 0.3f))) yield break;
         yield return MoveToGap(7f, 5f, 1.4f);
         // ① 棍棒で天井を叩く(長い溜め)
+        animVariant = 3; // コマ: 天井打ち
         Glow(1.0f, new Color(1f, 0.5f, 0.25f));
         yield return Telegraph(1.0f);
         PlayAttackPose(0.3f);
@@ -494,6 +500,7 @@ public class TrollBoss : CaveBossBase
         // ⑤ 最後の叩きつけ(衝撃波=跳ぶ)
         yield return MoveToGap(4f, 5f, 0.8f);
         megaSlam.damageAmount = UltimateDamage;
+        animVariant = 0; // コマ: 叩きつけ
         yield return Telegraph(1.0f, megaMark);
         ShockFromFront(1.1f, 9f, CaveLook.Dirt, true, 1.6f);
         yield return Strike(megaSlam, 0.3f, 0.2f, 0.06f);
