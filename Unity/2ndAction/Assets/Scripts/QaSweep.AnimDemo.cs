@@ -112,6 +112,9 @@ public partial class QaSweep
         // 2026-10-20: -adUltCalm 1 で必殺技の間は補助の自動攻撃を止める(崩しで必殺技が途切れず、最後の隙の絵まで撮れる)
         bool calm = Arg("-adUltCalm", "0") == "1";
         if (calm && HighSpeedAssist.Instance != null) HighSpeedAssist.Instance.SetEnabled(false);
+        // 2026-10-21: -adPhase n = 必殺技の前に段階を n へ(岩ゴーレムのように第3段階からの必殺技を撮る)
+        int adPhase = int.Parse(Arg("-adPhase", "0"));
+        if (adPhase > 0) b.DebugSetPhase(adPhase);
         b.DebugForceUltimate();
         float w = 0f;
         while (w < 3f && !b.UltimateRunning) { w += Time.deltaTime; yield return null; }

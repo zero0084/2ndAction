@@ -821,8 +821,11 @@ public class GolemBoss : WildBossBase
         footstepShake = true;
         enterSpeed = 3f;
         windupMoveFactor = 0.2f;
-        animKey = "golem"; // 2026-10-21: 姿勢ごとのコマ(Resources/BossAnim/golem、エステルさんと相談)。0=片拳 1=パンチ/投げ 2=地面叩き 3=両拳、コア露出=exhaust_
+        animKey = "golem"; // 2026-10-21: 姿勢ごとのコマ(Resources/BossAnim/golem、エステルさんと相談、24枚)。0=片拳 1=パンチ/投げ 2=地面叩き 3=両拳(必殺技も)、コア露出=exhaust_
         artPoseProceduralScale = 0.3f;
+        // 四足の歩き(両拳で地面を支える)の絵: 立った1枚絵より低く(約7割)横に広い(約2.2倍)。被弾判定を絵の胴に合わせる
+        // (立ち姿のままだと背中の上の何もない所に当たり、前の拳と頭には当たらなかった)
+        if (Anim != null && Anim.move != null) ConfigureHurtbox(new Vector2(0f, bodyHeight * 0.33f), new Vector2(bodyHeight * 1.0f, bodyHeight * 0.62f));
         yOffset = -bodyHeight * 0.85f;
         SetAlpha(0f);
         float r = FrontReach;
@@ -862,6 +865,8 @@ public class GolemBoss : WildBossBase
         Color c = core.color; c.a = Mathf.MoveTowards(c.a, want, dt * 2f); core.color = c;
         float s = bodyHeight * (0.22f + 0.2f * coreBoost + 0.04f * Mathf.Sin(Time.time * 9f));
         core.transform.localScale = new Vector3(s, s, 1f);
+        // 2026-10-21: 姿勢ごとのコマ(四足の歩き)がある時は、絵の胸のコアの位置(低く前)に合わせる。立った1枚絵の時は今までどおり胸の高さ
+        if (Anim != null && Anim.move != null) core.transform.localPosition = new Vector3(facing * bodyHeight * 0.25f, bodyHeight * 0.36f, 0f);
     }
 
     protected override void OnInterrupted() { base.OnInterrupted(); coreBoost = 0f; }
