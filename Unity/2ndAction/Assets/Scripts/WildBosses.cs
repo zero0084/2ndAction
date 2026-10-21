@@ -1193,6 +1193,8 @@ public class HydraBoss : WildBossBase
     {
         supportsInterrupt = true;
         locoStyle = LocoStyle.Slither;
+        animKey = "hydra"; // 2026-10-22: 姿勢ごとのコマ(Resources/BossAnim/hydra、エステルさんと相談、23枚・首は5本)。0=噛みつき連打 1=毒吐き 2=必殺技の地上 3=必殺技の空中、ブレス=ult_、隙=exhaust_
+        artPoseProceduralScale = 0.3f;
         SetAlpha(0f);
         yOffset = -bodyHeight * 0.85f;
         windupMoveFactor = 0.6f;
@@ -1223,6 +1225,7 @@ public class HydraBoss : WildBossBase
             int[] order = { 0, 1, 2 };
             for (int i = 2; i > 0; i--) { int j = Random.Range(0, i + 1); (order[i], order[j]) = (order[j], order[i]); }
             int count = Random.value < 0.4f ? 2 : 3; // 2頭だけの軽い波状も混ぜる
+            animVariant = 0; // コマ: 首を引き絞る(windup_) → 噛みつく首(attack_00)/入れ替わる首(attack_01)
             yield return Volley(order, count, stagger);
             yield return Recover(1.3f);
         }
@@ -1231,6 +1234,7 @@ public class HydraBoss : WildBossBase
     IEnumerator VenomSpit()
     {
         yield return MoveToGap(8f, 2.5f, 2f);
+        animVariant = 1; // コマ: 真ん中の首の喉が光る(windupB_) → 毒の塊を吐く(attackB_)
         yield return Telegraph(0.9f);
         for (int i = 0; i < 3; i++)
         {
@@ -1246,9 +1250,11 @@ public class HydraBoss : WildBossBase
     IEnumerator TriHeadAssault()
     {
         if (!BeginUltimate("三首の連撃", new Color(0.7f, 1f, 0.6f))) { lastUltimateTime = Time.time - 10f; yield break; }
+        animVariant = 2; // 寄る間は歩くコマ(0 のままだと必殺技の間ずっとブレスの絵になる)
         yield return MoveToGap(FrontReach + 1.5f, 3f, 2f);
         facingLocked = true;
         relVelocity = 0f;
+        animVariant = 2; // コマ: 上・中・下の二段に構える(windupC_) → 下の2本が地面すれすれに噛みつく(attackC_)
         SetPose(Pose.Windup);
         float baseRel = Gap - FrontReach; // 頭の届く範囲の起点(プレイヤーから見た前方の距離)
         // 1頭目: 地上(赤) / 2頭目: 空中(紫) / 3頭目: ブレス(橙)
@@ -1265,10 +1271,12 @@ public class HydraBoss : WildBossBase
         StartCoroutine(Strike(ultLow, 0.3f, 0.15f));
         yield return Wait(0.5f);
         EndAttack(); facingLocked = true;
+        animVariant = 3; // コマ: 上の2本が空中へ噛みつく(attackD_)
         StartCoroutine(Strike(ultHigh, 0.3f, 0.12f));
         yield return Wait(0.35f);
         // ブレス(背が高い帯が続く=二段ジャンプで上を越える)
         LaneWarn(baseRel - 2.5f, 5f, 0f, 2.3f, 0.6f, TallLaneColor);
+        animVariant = 0; // コマ: 5本の首が息を吸う → 炎(ult_)
         SetPose(Pose.Windup);
         yield return Wait(0.6f);
         PlayAttackPose(0.8f);
@@ -1279,7 +1287,9 @@ public class HydraBoss : WildBossBase
             yield return Wait(0.11f);
         }
         yield return Wait(0.5f);
+        exhaustArt = Anim != null && Anim.exhaust != null; // コマ: 吐き尽くして首を地面に垂らす隙(exhaust_)
         yield return Exhausted(3.0f, 2f, 1.25f);
+        exhaustArt = false;
     }
 
     IEnumerator Volley(int[] order, int count, float stagger)
