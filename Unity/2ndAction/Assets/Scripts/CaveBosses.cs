@@ -804,6 +804,8 @@ public class BatBoss : CaveBossBase
     protected override void CaveInit()
     {
         locoStyle = LocoStyle.Wing;
+        animKey = "bat"; // 2026-10-22: 姿勢ごとのコマ(Resources/BossAnim/bat、エステルさんと相談、緑背景)。0=爪 1=急降下(溜め→地面すれすれの滑空) 2=超音波、天井にぶら下がる間=land_(00待ち/01真下への超音波、天井では上下反転して出す)、地面に激突した隙=exhaust_(CaveRecovery)
+        artPoseProceduralScale = 0.3f;
         yOffset = 8f;
         restAltitude = 1.0f;
         Vector2 cc = new Vector2(FrontReach + 0.3f, bodyHeight * 0.4f), cs = new Vector2(2.4f, 1.6f);
@@ -818,7 +820,16 @@ public class BatBoss : CaveBossBase
         sonicGlow.enabled = false;
     }
 
-    protected override void OnInterrupted() { base.OnInterrupted(); if (sonicGlow != null) sonicGlow.enabled = false; restAltitude = 1.0f; }
+    protected override void OnInterrupted() { base.OnInterrupted(); if (sonicGlow != null) sonicGlow.enabled = false; restAltitude = 1.0f; HangArt(-1); }
+
+    // 天井にぶら下がる間のコマ(land_00 待ち / land_01 超音波)。-1 で終わり
+    void HangArt(int i)
+    {
+        var a = Anim;
+        if (i < 0 || a == null || a.land == null) { if (exhaustArtFrames != null) { exhaustArt = false; exhaustArtFrames = null; } return; }
+        exhaustArt = true;
+        exhaustArtFrames = new[] { a.land[Mathf.Min(i, a.land.Length - 1)] };
+    }
 
     float MaxSafeAltitude() => Mathf.Max(1.5f, CeilY(worldX) - GroundY - bodyHeight * 0.6f);
 
@@ -839,6 +850,7 @@ public class BatBoss : CaveBossBase
     {
         yield return SetAltitude(Mathf.Min(1.1f, MaxSafeAltitude()), 0.4f);
         claw.damageAmount = HitDmg;
+        animVariant = 0;
         yield return Approach(1.6f, 3.0f, 5f);
         yield return Telegraph(0.6f);
         yield return Strike(claw, 0.24f);
@@ -849,10 +861,12 @@ public class BatBoss : CaveBossBase
     IEnumerator DiveAttack(bool heavy)
     {
         float safeAlt = MaxSafeAltitude();
+        animVariant = 1;
         yield return SetAltitude(Mathf.Min(safeAlt, 4.2f), 0.5f);
         yield return MoveToGap(5f, 4f, 2f);
         TellAt(Gap, 0.75f, CaveTellStyle.Shadow);
         LaneWarn(Gap * 0.5f, Gap + 1f, 0f, 1.1f, 0.75f, LowLaneColor);
+        SetPose(Pose.Windup); // コマ: 翼をたたんで狙う → 滑空(Swoop が Attack にする)
         yield return Wait(0.75f);
         yield return SetAltitude(0.05f, 0.25f);
         Shake(0.1f, 0.15f);
@@ -870,6 +884,7 @@ public class BatBoss : CaveBossBase
 
     IEnumerator SonicAttack()
     {
+        animVariant = 2;
         sonicGlow.enabled = true;
         yield return Telegraph(0.9f);
         sonicGlow.enabled = false;
@@ -884,17 +899,21 @@ public class BatBoss : CaveBossBase
     IEnumerator CeilingHang()
     {
         yield return ClimbToCeiling(0.5f);
+        HangArt(0);
         freeGap = true;
         float t = 0f;
         var shadow = TellAt(0f, 1.6f, CaveTellStyle.Shadow, CaveLook.Dirt, true, true);
         while (t < 1.2f && !IsDead) { t += Time.deltaTime; relVelocity = Mathf.Clamp((0.6f - Gap) * 3f, -8f, 8f); yield return null; }
         relVelocity = 0f;
+        HangArt(1);
         sonicGlow.enabled = true;
         CeilAt(Gap, 2.4f, 0.85f, 0.4f, CaveLook.Magic);
         yield return Wait(1.3f);
         sonicGlow.enabled = false;
         if (shadow != null) shadow.EndEarly();
+        HangArt(0);
         yield return MoveToGap(4f, 8f, 0.8f);
+        HangArt(-1);
         yield return DropFromCeiling(0.35f);
         freeGap = false;
         yield return Recover(0.8f * RecoverMul);
