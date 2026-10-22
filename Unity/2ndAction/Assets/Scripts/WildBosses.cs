@@ -1496,6 +1496,7 @@ public class BlackKnightBoss : WildBossBase
         supportsInterrupt = true;
         locoStyle = LocoStyle.Run;
         enterSpeed = 10f;
+        moveTempoScale = 2.62f; // 2026-10-22 第3段階: 重量級の走り6コマ(踏み込む→体重が乗る→蹴る×左右、エステルさんと相談: 踏み込み0.11/荷重0.12/蹴り0.07秒=move_seq.txt)を1周約0.6秒で
         animKey = "black_knight"; // 2026-10-22: 姿勢ごとのコマ(Resources/BossAnim/black_knight、エステルさんと相談、緑背景)。0=斬り 1=二連の2撃目(逆斬り) 2=踏み込み斬り 3=斬り上げ 4=空中斬り、跳ぶ間=fly_、三連閃=ult_、膝をつく隙=exhaust_
         artPoseProceduralScale = 0.3f;
         float r = FrontReach;
