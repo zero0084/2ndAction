@@ -80,9 +80,19 @@ public class SprintDeparturePanel : MonoBehaviour
         if (Screen.height > Screen.width) ph = Mathf.Min(Screen.height - 24f * s, Mathf.Max(ph, Screen.height * 0.8f)); // 2026-10-15: 縦画面は下の空きも使う
         Rect panel = new Rect((Screen.width - pw) * 0.5f, (Screen.height - ph) * 0.5f, pw, ph);
         UiKit.Fill(new Rect(0, 0, Screen.width, Screen.height), new Color(0f, 0f, 0f, 0.55f));
-        UiKit.Fill(panel, new Color(0.06f, 0.08f, 0.15f, 0.97f));
+        // 2026-10-22(画面側の完成度向上): 共通の飾り枠の板 + 上にそのステージの絵の帯(行き先の場所が分かる。文字は絵の上に)
+        OrnateUi.DrawPanel(panel, 0.97f);
         float y = panel.y + 20f * s, x = panel.x + 28f * s, w = pw - 56f * s;
         var st = StageDatabase.FindById(stageForPanel);
+        if (st != null && st.thumbnail != null)
+        {
+            Rect band = new Rect(x - 6f * s, y - 4f * s, w + 12f * s, 58f * s);
+            Color kb = GUI.color; GUI.color = new Color(1f, 1f, 1f, 0.5f * kb.a);
+            GUI.DrawTexture(band, st.thumbnail, ScaleMode.ScaleAndCrop);
+            GUI.color = new Color(UiTheme.PanelFill.r, UiTheme.PanelFill.g, UiTheme.PanelFill.b, 0.45f * kb.a);
+            GUI.DrawTexture(band, Texture2D.whiteTexture);
+            GUI.color = kb;
+        }
         LocGUI.Label(new Rect(x, y, w, 50f * s), $"疾走出発  {(st != null ? st.displayName : stageForPanel)}", UiKit.Label(34f * s, TextAnchor.MiddleLeft, true, new Color(1f, 0.88f, 0.5f)));
         y += 52f * s;
         // 2026-10-08: 説明は折り返し、長い言語ではスクロール(以前は1行のままで切れていた)
@@ -98,11 +108,31 @@ public class SprintDeparturePanel : MonoBehaviour
         float listH = list.Count * 68f * s + (SprintRecords.DevUnlockAll ? 34f * s : 0f);
         listScroll.Begin(listView, listH, stageForPanel);
         float x0 = x; x = 0f; y = 0f;
+        float maxMeters = 1f; foreach (var d in list) maxMeters = Mathf.Max(maxMeters, d.meters);
         foreach (var d in list)
         {
             Rect row = new Rect(x, y, w - 12f, 62f * s);
             string label = d.unlocked ? $"{d.meters / 1000}km まで疾走   (約{SprintTuning.I.SecondsFor(d.meters):F0}秒 + リングのカード選択){(d.why == "DEBUG 全解放" ? "  [DEBUG 全解放]" : "")}" : $"{d.meters / 1000}km   🔒 {d.why}";
-            if (UiKit.Button(row, label, 24f * s, d.unlocked, false, d.unlocked) && d.unlocked)
+            // 2026-10-22: 行の左にアイコン(行ける = 出発の扉 / まだ = 鍵の絵。🔒 の字は絵に置き換える)、下に「どこまで行くか」の細い線
+            bool hitRow = UiKit.Button(row, "", 24f * s, d.unlocked, false, d.unlocked);
+            Texture2D rowIcon = d.unlocked ? UiIcons.Home("depart") : UiIcons.Lock;
+            float ic = 40f * s;
+            string shown = Loc.Auto(label);
+            if (rowIcon != null)
+            {
+                shown = shown.Replace("🔒 ", "").Replace("🔒", "");
+                Color ki = GUI.color; GUI.color = new Color(1f, 1f, 1f, (d.unlocked ? 1f : 0.7f) * ki.a);
+                UiIcons.Draw(new Rect(row.x + 12f * s, row.y + (row.height - ic) * 0.5f - 3f * s, ic, ic), rowIcon);
+                GUI.color = ki;
+            }
+            float tx = row.x + 12f * s + (rowIcon != null ? ic + 12f * s : 0f);
+            LocGUI.Label(new Rect(tx, row.y, row.xMax - tx - 10f * s, row.height - 8f * s), shown,
+                UiKit.Label(24f * s, TextAnchor.MiddleLeft, true, d.unlocked ? UiTheme.GoldHover : UiTheme.Disabled));
+            Rect track = new Rect(tx, row.yMax - 10f * s, row.xMax - tx - 16f * s, Mathf.Max(2f, 3f * s));
+            UiKit.Fill(track, new Color(1f, 1f, 1f, 0.1f));
+            UiKit.Fill(new Rect(track.x, track.y, track.width * Mathf.Clamp01(d.meters / maxMeters), track.height),
+                d.unlocked ? new Color(UiTheme.GoldBright.r, UiTheme.GoldBright.g, UiTheme.GoldBright.b, 0.85f) : new Color(UiTheme.Locked.r, UiTheme.Locked.g, UiTheme.Locked.b, 0.6f));
+            if (hitRow && d.unlocked)
             {
                 Open = false; UiInputGate.SprintPanelOpen = false;
                 UiInputGate.LatchUntilRelease();
