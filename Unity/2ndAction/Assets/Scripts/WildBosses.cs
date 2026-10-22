@@ -1361,6 +1361,8 @@ public class DemonBoss : WildBossBase
         supportsInterrupt = true;
         restAltitude = 0.6f;
         locoStyle = LocoStyle.Wing;
+        animKey = "demon"; // 2026-10-22: 姿勢ごとのコマ(Resources/BossAnim/demon、エステルさんと相談、緑背景)。0=爪 1=魔法弾 2=魔柱(地面魔法・魔柱の行進)、闇の巨大球=ult_、地上の隙=exhaust_
+        artPoseProceduralScale = 0.3f;
         yOffset = 5f;
         windupMoveFactor = 0.6f;
         Vector2 c = new Vector2(FrontReach + 1.0f, 1.6f), s = new Vector2(2.8f, 2.4f);
@@ -1377,6 +1379,7 @@ public class DemonBoss : WildBossBase
             int pick = BossAiUtil.PickNoRepeat(3, ref lastPick);
             if (pick == 0)
             {
+                animVariant = 0;
                 yield return Approach(1.9f, 2.6f, 6f);
                 yield return Telegraph(0.6f, clawMark);
                 yield return Strike(claw, 0.25f, 0.06f);
@@ -1391,6 +1394,7 @@ public class DemonBoss : WildBossBase
 
     IEnumerator MagicVolley(int count)
     {
+        animVariant = 1; // コマ: 手のひらに魔力の球 → 突き出して放つ
         yield return Telegraph(0.9f);
         for (int i = 0; i < count; i++)
         {
@@ -1410,6 +1414,7 @@ public class DemonBoss : WildBossBase
         // 予告(赤いゾーン)が出てから柱が立つ。2本は時間差。
         TrackedHazard.Create(PlayerX + 1.0f, 1.6f, 4.5f, 1.0f, 0.35f, new Color(0.85f, 0.3f, 1f, 0.8f));
         TrackedHazard.Create(PlayerX + 4.2f, 1.6f, 4.5f, 1.5f, 0.35f, new Color(0.85f, 0.3f, 1f, 0.8f));
+        animVariant = 2; // コマ: 両手を掲げる → 地面へ振り下ろす
         yield return Telegraph(1.0f);
         PlayAttackPose(0.4f);
         yield return Wait(0.6f);
@@ -1419,8 +1424,10 @@ public class DemonBoss : WildBossBase
     IEnumerator InfernalCircle()
     {
         if (!BeginUltimate("冥界の魔柱陣", new Color(0.85f, 0.4f, 1f))) { lastUltimateTime = Time.time - 10f; yield break; }
+        animVariant = 1; // 寄る間は羽ばたきのコマ(0 のままだと必殺技の絵になる)
         yield return MoveToGap(9f, 5f, 1.5f);
         // 巨大な闇の魔弾(反射できる)
+        animVariant = 0; // コマ: 闇の巨大な球を溜める → 投げつける(ult_)
         yield return Telegraph(1.2f);
         Vector3 from = HandPos();
         Vector2 dir = AimFrom(from);
@@ -1433,10 +1440,12 @@ public class DemonBoss : WildBossBase
         Shake(0.12f, 0.25f);
         yield return Wait(1.6f);
         // 前から/後ろから魔柱の行進
+        animVariant = 2; // コマ: 魔柱を呼ぶ(地面へ振り下ろす)
         Color c = new Color(0.85f, 0.3f, 1f, 0.9f);
         for (int side = 0; side < 2; side++)
         {
             float dirSign = side == 0 ? 1f : -1f;
+            PlayAttackPose(0.6f);
             for (int i = 0; i < 6; i++)
             {
                 float rel = dirSign * (8f - i * 1.8f);
@@ -1447,12 +1456,15 @@ public class DemonBoss : WildBossBase
         }
         // 地上へ降りて大きな隙
         yield return SetAltitude(0f, 0.3f);
+        exhaustArt = Anim != null && Anim.exhaust != null; // コマ: 地上で片膝をつく隙
         yield return Exhausted(3.0f, 2f, 1.25f);
+        exhaustArt = false;
         yield return SetAltitude(restAltitude, 0.4f);
     }
 
     IEnumerator PillarMarch()
     {
+        animVariant = 2;
         yield return Telegraph(0.8f);
         PlayAttackPose(0.6f);
         for (int i = 0; i < 6; i++)
