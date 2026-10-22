@@ -159,16 +159,17 @@ public static class UiKit
     }
     public static GUIStyle MakeButtonStyle(int fontSize)
     {
-        Color gold = new Color(0.83f, 0.68f, 0.32f, 1f);
-        if (btnNormal == null) btnNormal = FramedTex(new Color(0.07f, 0.09f, 0.19f, 0.96f), gold);
-        if (btnHover == null) btnHover = FramedTex(new Color(0.11f, 0.13f, 0.26f, 0.98f), new Color(1f, 0.84f, 0.42f, 1f));
-        if (btnActive == null) btnActive = FramedTex(new Color(0.03f, 0.04f, 0.09f, 0.98f), new Color(1f, 0.84f, 0.42f, 1f));
+        // 2026-10-22: 色は UiTheme に(値は同じ)
+        Color A(Color c, float a) => new Color(c.r, c.g, c.b, a);
+        if (btnNormal == null) btnNormal = FramedTex(A(UiTheme.ButtonFill, 0.96f), UiTheme.GoldEdge);
+        if (btnHover == null) btnHover = FramedTex(A(UiTheme.ButtonHoverFill, 0.98f), UiTheme.GoldHot);
+        if (btnActive == null) btnActive = FramedTex(A(UiTheme.NavyDeep, 0.98f), UiTheme.GoldHot);
         var st = new GUIStyle(GUI.skin.button) { fontSize = fontSize, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, border = new RectOffset(3, 3, 3, 3) };
-        st.normal.background = btnNormal; st.normal.textColor = new Color(0.95f, 0.95f, 1f);
-        st.hover.background = btnHover; st.hover.textColor = new Color(1f, 0.9f, 0.6f);
-        st.focused.background = btnHover; st.focused.textColor = new Color(1f, 0.9f, 0.6f);
-        st.active.background = btnActive; st.active.textColor = new Color(1f, 0.86f, 0.5f);
-        st.onNormal.background = btnHover; st.onNormal.textColor = new Color(1f, 0.9f, 0.6f);
+        st.normal.background = btnNormal; st.normal.textColor = UiTheme.TextButton;
+        st.hover.background = btnHover; st.hover.textColor = UiTheme.GoldHover;
+        st.focused.background = btnHover; st.focused.textColor = UiTheme.GoldHover;
+        st.active.background = btnActive; st.active.textColor = UiTheme.GoldPressed;
+        st.onNormal.background = btnHover; st.onNormal.textColor = UiTheme.GoldHover;
         return st;
     }
 
@@ -180,8 +181,8 @@ public static class UiKit
         if (e == null || e.type != EventType.Repaint) return false;
         if (selected)
         {
-            Fill(r, new Color(1f, 0.78f, 0.3f, 0.16f));
-            Color g = new Color(1f, 0.82f, 0.38f, 0.95f); float t = 3f;
+            Fill(r, UiTheme.SelectedTint);
+            Color g = new Color(UiTheme.GoldBright.r, UiTheme.GoldBright.g, UiTheme.GoldBright.b, 0.95f); float t = 3f;
             Fill(new Rect(r.x, r.y, r.width, t), g); Fill(new Rect(r.x, r.yMax - t, r.width, t), g);
             Fill(new Rect(r.x, r.y, t, r.height), g); Fill(new Rect(r.xMax - t, r.y, t, r.height), g);
         }
@@ -210,11 +211,12 @@ public static class UiKit
         float knob = r.height * 0.8f;
         float usable = r.width - knob;
         float x = r.x + knob * 0.5f + usable * Mathf.Clamp01(value);
-        Fill(track, new Color(0.07f, 0.09f, 0.18f, 0.95f));
-        Fill(new Rect(track.x, track.y, x - track.x, track.height), enabled ? new Color(0.95f, 0.8f, 0.4f, 0.95f) : new Color(0.5f, 0.5f, 0.55f, 0.9f));
+        Color A(Color c, float a) => new Color(c.r, c.g, c.b, a); // 2026-10-22: 色は UiTheme に(値は同じ)
+        Fill(track, A(UiTheme.SliderTrack, 0.95f));
+        Fill(new Rect(track.x, track.y, x - track.x, track.height), enabled ? A(UiTheme.SliderFill, 0.95f) : A(UiTheme.Locked, 0.9f));
         var k = new Rect(x - knob * 0.5f, r.center.y - knob * 0.5f, knob, knob);
-        Fill(k, enabled ? new Color(1f, 0.92f, 0.65f, 1f) : new Color(0.6f, 0.6f, 0.65f, 1f));
-        Fill(new Rect(k.x + 3f, k.y + 3f, k.width - 6f, k.height - 6f), new Color(0.12f, 0.15f, 0.3f, 1f));
+        Fill(k, enabled ? UiTheme.SliderKnob : new Color(0.6f, 0.6f, 0.65f, 1f));
+        Fill(new Rect(k.x + 3f, k.y + 3f, k.width - 6f, k.height - 6f), UiTheme.SliderKnobInner);
         if (!enabled) return value;
         // ゲームパッド/キーボード: フォーカス中は左右で 5% ずつ(2026-10-06)
         PadNav.Button(r, slider: true);

@@ -67,7 +67,8 @@ public static class OrnateUi
     public static void DrawPanel(Rect rect, float fillAlpha = 0.85f)
     {
         Color prev = GUI.color;
-        GUI.color = new Color(0.05f, 0.06f, 0.13f, fillAlpha * prev.a);
+        Color pf = UiTheme.PanelFill; // 2026-10-22: 色は UiTheme に(値は同じ)
+        GUI.color = new Color(pf.r, pf.g, pf.b, fillAlpha * prev.a);
         GUI.DrawTexture(rect, Texture2D.whiteTexture);
         GUI.color = prev;
 

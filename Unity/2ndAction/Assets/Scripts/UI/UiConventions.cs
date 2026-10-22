@@ -23,7 +23,7 @@ public static class UiConventions
         {
             t.text = Loc.Auto("« BACK");
             t.fontSize = BackFont; t.resizeTextMaxSize = BackFont;
-            t.color = new Color(0.92f, 0.93f, 0.98f);
+            t.color = UiTheme.TextBack; // 2026-10-22: UiTheme に(値は同じ)
             t.alignment = TextAnchor.MiddleCenter;
         }
     }

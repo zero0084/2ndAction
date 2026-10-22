@@ -1839,7 +1839,7 @@ public partial class GameManager : MonoBehaviour
     const int HudValueFontSize = 22;
     static readonly Color HudLabelColor = new Color(0.85f, 0.85f, 0.92f, 0.85f);
     static readonly Color HudValueColor = Color.white;
-    static readonly Color HudGoldColor = new Color(1f, 0.85f, 0.35f);
+    static Color HudGoldColor => UiTheme.Mile; // 2026-10-22: UiTheme に(値は同じ)
 
     // 縦画面(2026-10-08、依頼E-1): 狭い幅では BEST / Lv / HP の3つが1段に入らず重なる → 1段目 = Lv/EXP(左)+HP(右)、
     // BEST → 距離 → 速度 は2段目から左の列に積む(右の列はデッキの表示)。横画面は今までどおり
