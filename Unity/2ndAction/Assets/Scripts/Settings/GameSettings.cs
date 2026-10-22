@@ -157,6 +157,40 @@ public static class UiKit
         t.Apply();
         return t;
     }
+    // 文字の入力欄(2026-10-22 画面側の完成度向上): Unity 既定の白い欄ではなく、ボタンと同じ「濃紺 + 金の縁」。入力中は縁が明るい金
+    static Texture2D fieldNormal, fieldFocus;
+    static GUIStyle fieldStyle;
+    public static string TextField(Rect r, string value, float size, int maxLength = 64)
+    {
+        Color A(Color c, float a) => new Color(c.r, c.g, c.b, a);
+        if (fieldNormal == null) fieldNormal = FramedTex(A(UiTheme.NavyDeep, 0.96f), UiTheme.GoldEdge);
+        if (fieldFocus == null) fieldFocus = FramedTex(A(UiTheme.ButtonFill, 0.98f), UiTheme.GoldHot);
+        if (fieldStyle == null)
+        {
+            fieldStyle = new GUIStyle(GUI.skin.textField) { alignment = TextAnchor.MiddleLeft, border = new RectOffset(3, 3, 3, 3), padding = new RectOffset(10, 10, 3, 3), clipping = TextClipping.Clip };
+            fieldStyle.normal.background = fieldStyle.hover.background = fieldNormal;
+            fieldStyle.focused.background = fieldStyle.onFocused.background = fieldFocus;
+            fieldStyle.normal.textColor = fieldStyle.hover.textColor = fieldStyle.focused.textColor = fieldStyle.onFocused.textColor = UiTheme.Text;
+        }
+        fieldStyle.fontSize = Mathf.RoundToInt(size);
+        return GUI.TextField(r, value ?? "", maxLength, fieldStyle);
+    }
+
+    // 一覧の行の板(2026-10-22): Unity 既定の灰色の箱(GUI.skin.box)の代わり。濃紺 + 薄い金の縁
+    static GUIStyle rowBox;
+    public static GUIStyle RowBox
+    {
+        get
+        {
+            if (rowBox == null)
+            {
+                rowBox = new GUIStyle(GUI.skin.box) { border = new RectOffset(3, 3, 3, 3), padding = new RectOffset(10, 10, 8, 8) };
+                rowBox.normal.background = FramedTex(new Color(UiTheme.Navy.r, UiTheme.Navy.g, UiTheme.Navy.b, 0.92f), new Color(UiTheme.GoldEdge.r, UiTheme.GoldEdge.g, UiTheme.GoldEdge.b, 0.6f));
+            }
+            return rowBox;
+        }
+    }
+
     public static GUIStyle MakeButtonStyle(int fontSize)
     {
         // 2026-10-22: 色は UiTheme に(値は同じ)

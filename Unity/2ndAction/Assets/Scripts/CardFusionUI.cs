@@ -336,6 +336,8 @@ public class CardFusionUI : MonoBehaviour
             clr.rect.anchorMin = clr.rect.anchorMax = new Vector2(1, 1); clr.rect.pivot = new Vector2(1, 1);
             clr.rect.sizeDelta = new Vector2(52, 52); clr.rect.anchoredPosition = new Vector2(-4, -4);
             s.clearButton = clr.rect;
+            var clrIcon = UiIcons.ReplaceGlyph(clr.label, 0, 26f); // 2026-10-22: 文字の×を、共通の白銀の「+」を45°回した絵に(閉じる記号と同じ色・太さ)
+            if (clrIcon != null) clrIcon.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
             // ×ボタンは枠そのもののタップより優先(後から登録したものが優先される)
             slots[i] = s;
         }

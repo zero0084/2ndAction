@@ -418,7 +418,7 @@ public class ArenaController : MonoBehaviour
         var cfg = ArenaMode.Config;
         float lw = c.width * 0.54f;
         LocGUI.Label(new Rect(c.x, c.y, 50f, 34f), "検索", UiKit.Label(15f));
-        search = GUI.TextField(new Rect(c.x + 50f, c.y + 2f, lw - 50f, 32f), search ?? "");
+        search = UiKit.TextField(new Rect(c.x + 50f, c.y + 2f, lw - 50f, 32f), search ?? "", 16f); // 2026-10-22: 共通の入力欄(以前は Unity 既定の白い欄)
         float fw = (lw - 7f * 4f) / 8f;
         for (int i = 0; i < CardFilters.Length; i++)
             if (UiKit.Button(new Rect(c.x + i * (fw + 4f), c.y + 40f, fw, 34f), CardFilters[i], 13f, cardFilter == i, false)) cardFilter = i;
@@ -469,7 +469,7 @@ public class ArenaController : MonoBehaviour
                 if (UiKit.Button(new Rect(rr.xMax - 144f, rr.y + 4f, 44f, rr.height - 8f), "-", 18f, false, false)) { e.times--; if (e.times <= 0) { cfg.build.RemoveAt(i); break; } }
                 if (UiKit.Button(new Rect(rr.xMax - 96f, rr.y + 4f, 44f, rr.height - 8f), "+", 18f, false, false)) e.times = Mathf.Min(GameManager.MaxRunCardLevel, e.times + 1);
             }
-            if (UiKit.Button(new Rect(rr.xMax - 48f, rr.y + 4f, 44f, rr.height - 8f), "×", 18f, false, false)) { cfg.build.RemoveAt(i); break; }
+            if (UiIcons.CloseButton(new Rect(rr.xMax - 48f, rr.y + 4f, 44f, rr.height - 8f))) { cfg.build.RemoveAt(i); break; } // 2026-10-22: 文字の×を共通の閉じる記号へ
         }
         EndList();
     }
@@ -561,7 +561,7 @@ public class ArenaController : MonoBehaviour
             var rr = new Rect(0, i * rowH, rw - 20f, rowH - 4f);
             UiKit.Fill(rr, new Color(0.14f, 0.06f, 0.06f, 0.9f));
             LocGUI.Label(new Rect(8f, rr.y, rr.width - 60f, rr.height), $"{ArenaCatalog.NameOf(e)}  ×{e.count}{(e.kind == ArenaEnemyKind.Enemy ? $"  段階{e.tier + 1}" : "")}", UiKit.Label(15f));
-            if (UiKit.Button(new Rect(rr.xMax - 48f, rr.y + 4f, 44f, rr.height - 8f), "×", 18f, false, false)) { cfg.enemies.RemoveAt(i); break; }
+            if (UiIcons.CloseButton(new Rect(rr.xMax - 48f, rr.y + 4f, 44f, rr.height - 8f))) { cfg.enemies.RemoveAt(i); break; }
         }
         EndList();
         float dy = eR.yMax + 8f;

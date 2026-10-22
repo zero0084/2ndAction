@@ -391,7 +391,7 @@ public class NetDebugUI : MonoBehaviour
             onlineScroll = GUILayout.BeginScrollView(onlineScroll, GUILayout.Height(330f));
             foreach (var r in rooms)
             {
-                GUILayout.BeginHorizontal(GUI.skin.box);
+                GUILayout.BeginHorizontal(UiKit.RowBox);
                 GUILayout.BeginVertical();
                 GUILayout.Label(r.name, labelStyle);
                 GUILayout.Label($"{(r.GameMode == MultiplayerGameMode.Coop ? "CO-OP" : "VERSUS")}   {r.players}/{r.maxPlayers}   {r.StateLabel}", smallStyle);
@@ -468,7 +468,7 @@ public class NetDebugUI : MonoBehaviour
             sorted.Sort((a, b) => (a.mode == NetRunLauncher.SelectedMode ? 0 : 1).CompareTo(b.mode == NetRunLauncher.SelectedMode ? 0 : 1));
             foreach (var r in sorted)
             {
-                GUILayout.BeginHorizontal(GUI.skin.box);
+                GUILayout.BeginHorizontal(UiKit.RowBox);
                 GUILayout.BeginVertical();
                 GUILayout.Label(r.roomName, labelStyle);
                 GUILayout.Label($"{(r.mode == MultiplayerGameMode.Coop ? "CO-OP" : "VERSUS")}   {r.players}/{r.maxPlayers}   {r.StateLabel}", smallStyle);

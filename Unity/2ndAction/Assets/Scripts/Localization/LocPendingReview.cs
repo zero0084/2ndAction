@@ -32,7 +32,7 @@ public static class LocPendingReview
     public const string GachaStageNext = "カードガチャ Lv.{0}  次の進化まで {1}m"; // ID 10049 {0}=段階 {1}=距離(3桁区切り)
     public const string GachaStageMax = "カードガチャ Lv.{0}  最終進化済み";        // ID 10050(エステルの提案で「進化は最大」から変更)
 
-    // ID 10051〜10053(2026-10-22 RESULT の正式化): 前の文 = 今までの英語の見出し(訳が入るまで日本語以外は前の文)
+    // ID 10051〜10053(2026-10-22 RESULT の正式化): エステルのレビュー(Docs/LocReview_2026-10-23)を30言語へ反映済み(keys_extra21)
     public const string ResultNewBest = "NEW BEST!";                           // ID 10051(前: NEW + BEST)
     public const string ResultTakeHome = "持ち帰った MILE";                      // ID 10052(前: TOTAL MILE)
     public const string ResultRunBuild = "ラン中の強化(ラン中だけ・持ち帰りません)"; // ID 10053(前: UPGRADES OBTAINED)
@@ -78,6 +78,5 @@ public static class LocPendingReview
         ("10045", "削除できませんでした"),
         ("10046", "マルチプレイの部屋にいる間は削除できません。部屋を出てから試してください"),
         ("10047", "安全な通信を準備できなかったため、部屋を作成できませんでした"),
-        ("10051", ResultNewBest), ("10052", ResultTakeHome), ("10053", ResultRunBuild),
     };
 }
