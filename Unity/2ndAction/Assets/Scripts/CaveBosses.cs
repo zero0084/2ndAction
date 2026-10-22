@@ -1095,6 +1095,8 @@ public class BasiliskBoss : CaveBossBase
     {
         locoStyle = LocoStyle.Slither;
         enterSpeed = 10f;
+        animKey = "basilisk"; // 2026-10-22: 姿勢ごとのコマ(Resources/BossAnim/basilisk、エステルさんと相談、マゼンタ背景)。0=噛みつき 1=尾(後ろを打つ) 2=毒の息 3=石化の魔眼(体は止めて目だけ光る) 4=突進、目が弱った隙=exhaust_(CaveRecovery)
+        artPoseProceduralScale = 0.3f;
         Vector2 bc = new Vector2(FrontReach + 0.5f, bodyHeight * 0.3f), bs = new Vector2(2.4f, 1.2f);
         bite = NewHitbox("Bite", bc, bs, BossFx.Fang(), new Color(0.6f, 0.9f, 0.4f, 0.95f));
         biteMark = NewMarker(bc, bs);
@@ -1118,6 +1120,14 @@ public class BasiliskBoss : CaveBossBase
 
     protected override void OnInterrupted() { base.OnInterrupted(); if (gazeGlow != null) gazeGlow.enabled = false; }
 
+    // 絵があるときは目の光を頭(目の位置)へ寄せて小さく(体の真ん中に浮かないように)
+    void LateUpdate()
+    {
+        if (gazeGlow == null || !gazeGlow.enabled || Anim == null) return;
+        gazeGlow.transform.localPosition = new Vector3(facing * halfWidth * 0.82f / Mathf.Max(0.01f, Mathf.Abs(transform.localScale.x)), bodyHeight * 0.5f, 0f);
+        gazeGlow.transform.localScale = Vector3.one * 0.55f;
+    }
+
     protected override IEnumerator AI()
     {
         while (true)
@@ -1125,10 +1135,11 @@ public class BasiliskBoss : CaveBossBase
             if (UltimateReady(2)) { yield return PetrifyingGaze(); continue; }
             if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return Gaze(Random.value < 0.5f); continue; }
             int pick = BossAiUtil.PickNoRepeat(3, ref lastPick);
-            if (pick == 0) yield return Melee(bite, biteMark, 1.4f, 3.0f, 0.5f, 0.24f, 0.7f);
+            if (pick == 0) { animVariant = 0; yield return Melee(bite, biteMark, 1.4f, 3.0f, 0.5f, 0.24f, 0.7f); }
             else if (pick == 1)
             {
                 tail.damageAmount = HitDmg;
+                animVariant = 1;
                 yield return Telegraph(0.6f, tailMark);
                 yield return Strike(tail, 0.3f, 0.08f);
                 yield return Recover(0.8f * RecoverMul);
@@ -1136,6 +1147,7 @@ public class BasiliskBoss : CaveBossBase
             else
             {
                 breath.damageAmount = HitDmg;
+                animVariant = 2;
                 yield return Telegraph(0.7f, breathMark);
                 yield return Strike(breath, 0.5f, 0.05f);
                 yield return Recover(1.0f * RecoverMul);
@@ -1146,6 +1158,7 @@ public class BasiliskBoss : CaveBossBase
     // 石化の視線: 目が光る→ボスからプレイヤーへの帯(低い=跳ぶ/高い=地面にいる)。当たると短く動きが鈍るだけ(ダメージなし)
     IEnumerator Gaze(bool low)
     {
+        animVariant = 3; // 魔眼の溜め→発動(体は止めて目だけ光る)
         gazeGlow.enabled = true;
         float span = Mathf.Max(3f, Gap + 1.5f);
         BandAt(span * 0.5f - 1f, span, low ? 0f : 2.3f, low ? 1.1f : 3.8f, 0.9f, 0.35f, CaveLook.Gaze, false, 0, 0.75f, 0.8f);
@@ -1177,11 +1190,13 @@ public class BasiliskBoss : CaveBossBase
         yield return Wait(1.8f);
         // ④ ブレス(高い帯=地面にいる)
         BandAt(1.5f, 7f, 2.2f, 4.2f, 0.9f, 0.6f, CaveLook.Poison, true);
+        animVariant = 2;
         yield return Telegraph(0.9f, breathMark);
         PlayAttackPose(0.6f);
         yield return Wait(0.8f);
         gazeGlow.enabled = false;
         // ⑤ 突進(跳ぶ)
+        animVariant = 4;
         yield return Rush(rush, rushMark, 8f, 0.8f, 0.55f, 15f, true);
         yield return CaveRecovery(3.4f, "目が弱った! 攻撃のチャンス!", new Vector2(1.05f, 0.85f), CaveLook.Gaze, new Vector2(0.85f, 0.45f), 2.2f, 1.5f);
     }
