@@ -157,14 +157,53 @@ public class CharacterSelectUI : MonoBehaviour
         var gm = GameManager.Instance;
         if (charCardsText == null || gm == null || def == null) return;
         var slots = gm.GetCharacterCardsOf(def.characterId);
-        var sb = new System.Text.StringBuilder("<color=#FFD866><b>キャラカード</b></color>\n");
-        for (int i = 0; i < slots.ids.Length; i++)
+        // 2026-10-22: 「(空き) / (空き) / (空き)」の文字だけだった → 見出しの下に小さなカード枠を3つ(装備中はカードの絵、空きは「+」)
+        charCardsText.text = "<color=#FFD866><b>" + Loc.T("キャラカード") + "</b></color>";
+        EnsureCharCardSlots(slots.ids.Length);
+        for (int i = 0; i < charSlotViews.Length; i++)
         {
-            CardDefinition c = string.IsNullOrEmpty(slots.ids[i]) ? null : CardDatabase.FindById(slots.ids[i]);
-            string name = c == null ? $"<color=#8890A0>({Loc.T("空き")})</color>" : (CardVariant.IsVariantKey(slots.ids[i]) ? c.cardName : $"{c.cardName} Lv{Mathf.Max(1, slots.levels[i])}");
-            sb.Append(i == 0 ? "" : " / ").Append(name);
+            string id = i < slots.ids.Length ? slots.ids[i] : null;
+            CardDefinition c = string.IsNullOrEmpty(id) ? null : CardDatabase.FindById(id);
+            var v = charSlotViews[i];
+            v.art.texture = c != null ? c.icon : null;
+            v.art.enabled = c != null && c.icon != null;
+            v.plus.enabled = c == null;
+            v.frame.effectColor = c != null ? UiTheme.GoldBright : new Color(UiTheme.GoldEdge.r, UiTheme.GoldEdge.g, UiTheme.GoldEdge.b, 0.55f);
+            v.level.text = c != null && !CardVariant.IsVariantKey(id) ? "Lv" + Mathf.Max(1, slots.levels[i]) : "";
         }
-        charCardsText.text = Loc.Auto(sb.ToString());
+    }
+
+    struct CharSlotView { public RawImage art; public Image plus; public Outline frame; public Text level; }
+    CharSlotView[] charSlotViews = new CharSlotView[0];
+    void EnsureCharCardSlots(int n)
+    {
+        if (charSlotViews.Length == n || charCardsText == null) return;
+        var info = charCardsText.rectTransform.parent as RectTransform;
+        charSlotViews = new CharSlotView[n];
+        const float w = 44f, h = 64f, gap = 12f, left = 40f, top = -652f - 28f;
+        for (int i = 0; i < n; i++)
+        {
+            var r = new GameObject("CharCardSlot" + i, typeof(RectTransform)).GetComponent<RectTransform>();
+            r.SetParent(info, false);
+            r.anchorMin = r.anchorMax = new Vector2(0f, 1f); r.pivot = new Vector2(0f, 1f);
+            r.sizeDelta = new Vector2(w, h); r.anchoredPosition = new Vector2(left + i * (w + gap), top);
+            var bg = r.gameObject.AddComponent<Image>(); bg.color = UiTheme.ButtonFill; bg.raycastTarget = false;
+            var ol = r.gameObject.AddComponent<Outline>(); ol.effectDistance = new Vector2(1.5f, -1.5f); ol.useGraphicAlpha = false;
+            var ar = new GameObject("Art", typeof(RectTransform)).GetComponent<RectTransform>();
+            ar.SetParent(r, false); ar.anchorMin = Vector2.zero; ar.anchorMax = Vector2.one; ar.offsetMin = new Vector2(3f, 3f); ar.offsetMax = new Vector2(-3f, -3f);
+            var art = ar.gameObject.AddComponent<RawImage>(); art.raycastTarget = false;
+            var pr = new GameObject("Plus", typeof(RectTransform)).GetComponent<RectTransform>();
+            pr.SetParent(r, false); pr.anchorMin = pr.anchorMax = new Vector2(0.5f, 0.5f); pr.sizeDelta = new Vector2(24f, 24f);
+            var plus = pr.gameObject.AddComponent<Image>(); plus.sprite = UiIcons.PlusSprite; plus.preserveAspect = true; plus.raycastTarget = false;
+            plus.color = new Color(1f, 1f, 1f, 0.45f);
+            var lr = new GameObject("Lv", typeof(RectTransform)).GetComponent<RectTransform>();
+            lr.SetParent(r, false); lr.anchorMin = new Vector2(0f, 0f); lr.anchorMax = new Vector2(1f, 0f); lr.pivot = new Vector2(0.5f, 0f);
+            lr.sizeDelta = new Vector2(0f, 18f); lr.anchoredPosition = new Vector2(0f, 2f);
+            var lv = lr.gameObject.AddComponent<Text>(); lv.font = charCardsText.font; lv.fontSize = 14; lv.fontStyle = FontStyle.Bold;
+            lv.alignment = TextAnchor.MiddleCenter; lv.color = UiTheme.GoldText; lv.raycastTarget = false;
+            lr.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.8f);
+            charSlotViews[i] = new CharSlotView { art = art, plus = plus, frame = ol, level = lv };
+        }
     }
 
     // ---- 縦画面(2026-10-08、依頼E-1): 上に 立ち絵(左)+情報(右)、その下に横いっぱいのカルーセル。横画面は作った時の配置に戻す
@@ -219,6 +258,9 @@ public class CharacterSelectUI : MonoBehaviour
     {
         gameObject.SetActive(true);
         layoutDone = false;
+        // 2026-10-22: 動かすのはこのクラス自身。ScrollRect(Clamped)が残っていると、端のカードを中央へ寄せた位置を枠の端へ引き戻すので止める
+        // (Viewport と RectMask2D はそのまま使う)
+        if (carouselScroll != null) carouselScroll.enabled = false;
         // 2026-10-20: 左右の矢印の文字「<」「>」を白銀の絵へ(一時停止・閉じると同じ操作の記号。2回目以降は何もしない)
         foreach (var (a, d) in new[] { (carouselArrowLeft, -1), (carouselArrowRight, 1) })
             if (a != null) UiIcons.ReplaceGlyph(a.Find("Glyph") != null ? a.Find("Glyph").GetComponent<Text>() : null, d, 76f);
@@ -353,6 +395,8 @@ public class CharacterSelectUI : MonoBehaviour
         if (powerStarsText != null) powerStarsText.text = Loc.Auto(StarString(def.powerRating));
         if (speedStarsText != null) speedStarsText.text = Loc.Auto(StarString(def.speedRating));
         if (comboStarsText != null) comboStarsText.text = Loc.Auto(StarString(def.comboRating));
+        SetGauge(lifeStarsText, def.lifeRating); SetGauge(powerStarsText, def.powerRating);
+        SetGauge(speedStarsText, def.speedRating); SetGauge(comboStarsText, def.comboRating);
 
         if (mainVisualImage != null)
         {
@@ -375,6 +419,41 @@ public class CharacterSelectUI : MonoBehaviour
         yield return FadeCanvasGroup(mainVisualGroup, 0f, crossFadeDuration);
         mainVisualImage.sprite = newSprite;
         yield return FadeCanvasGroup(mainVisualGroup, 1f, crossFadeDuration);
+    }
+
+    // 2026-10-22: 能力は ★☆ の文字ではなく 5 段のゲージ(★の文字は隠して残す: 値は同じ)。段は角の無い四角、満ちた段は選択中と同じ金
+    readonly System.Collections.Generic.Dictionary<Text, Image[]> gauges = new System.Collections.Generic.Dictionary<Text, Image[]>();
+    static readonly Color GaugeEmpty = new Color(1f, 1f, 1f, 0.13f);
+    void SetGauge(Text starText, int rating)
+    {
+        if (starText == null) return;
+        if (!gauges.TryGetValue(starText, out var segs))
+        {
+            var tr = starText.rectTransform;
+            var box = new GameObject("Gauge", typeof(RectTransform)).GetComponent<RectTransform>();
+            box.SetParent(tr.parent, false);
+            box.anchorMin = tr.anchorMin; box.anchorMax = tr.anchorMax; box.pivot = tr.pivot;
+            box.anchoredPosition = tr.anchoredPosition; box.sizeDelta = tr.sizeDelta;
+            float w = Mathf.Max(60f, tr.rect.width), h = Mathf.Max(10f, tr.rect.height);
+            const float gap = 5f, segH = 14f;
+            float segW = Mathf.Min(30f, (w - gap * 4f) / 5f);
+            float total = segW * 5f + gap * 4f;
+            segs = new Image[5];
+            for (int k = 0; k < 5; k++)
+            {
+                var s = new GameObject("Seg" + k, typeof(RectTransform)).GetComponent<RectTransform>();
+                s.SetParent(box, false);
+                s.anchorMin = s.anchorMax = new Vector2(1f, 0.5f); s.pivot = new Vector2(1f, 0.5f); // 右寄せ(今の★と同じ位置)
+                s.sizeDelta = new Vector2(segW, segH);
+                s.anchoredPosition = new Vector2(-(total - (k + 1) * segW - k * gap), 0f);
+                segs[k] = s.gameObject.AddComponent<Image>();
+                segs[k].raycastTarget = false;
+            }
+            gauges[starText] = segs;
+            starText.enabled = false;
+        }
+        int filled = Mathf.Clamp(rating, 0, 5);
+        for (int k = 0; k < 5; k++) segs[k].color = k < filled ? UiTheme.GoldBright : GaugeEmpty;
     }
 
     static string StarString(int rating)
@@ -531,11 +610,9 @@ public class CharacterSelectUI : MonoBehaviour
     void UpdateCarouselHints()
     {
         int count = VisibleCount;
-        float x = carouselContent != null ? carouselContent.anchoredPosition.x : 0f;
-        float minX = carouselContent != null ? Mathf.Min(0f, -(carouselContent.rect.width - carouselViewportWidth)) : 0f;
         float pulse = 0.65f + 0.35f * Mathf.Sin(Time.unscaledTime * 4f);
-        SetArrow(carouselArrowLeft, x < -1f, pulse);
-        SetArrow(carouselArrowRight, x > minX + 1f, pulse);
+        SetArrow(carouselArrowLeft, selectedIndex > 0, pulse);
+        SetArrow(carouselArrowRight, selectedIndex < count - 1, pulse);
         if (carouselPageText != null) carouselPageText.text = Loc.Auto(count > 0 ? $"{selectedIndex + 1} / {count}" : "");
     }
 
@@ -549,11 +626,14 @@ public class CharacterSelectUI : MonoBehaviour
     // content.anchoredPosition.xが取り得る範囲([minX, 0])。カード列全体が
     // Viewportより狭い(キャラ数が少ない)場合はminX>0になり得るため、
     // その場合は0で頭打ちにする(コンテンツを右へはみ出させない)。
+    // 2026-10-22(画面側の完成度向上): 端のカードも Viewport の中央まで来られるようにした。以前は端のカードが枠の端に寄って止まり、
+    // 選んだ時の拡大(cardSelectedScale)で枠の外へはみ出した分が切れて見えていた。今は選んだカードはいつも中央・全体が見える
     float ClampContentX(float x)
     {
         if (carouselContent == null) return 0f;
-        float minX = Mathf.Min(0f, -(carouselContent.rect.width - carouselViewportWidth));
-        return Mathf.Clamp(x, minX, 0f);
+        float maxX = (carouselViewportWidth - cardWidth) * 0.5f;
+        float minX = maxX - Mathf.Max(0, VisibleCount - 1) * cardStride;
+        return Mathf.Clamp(x, minX, maxX);
     }
 
     // 指定したカードのインデックスをできる限りViewport中央へ持ってくる
@@ -584,11 +664,7 @@ public class CharacterSelectUI : MonoBehaviour
     {
         var all = CharacterDatabase.AllCharacters;
         if (carouselContent == null || all.Count == 0) return selectedIndex;
-        float currentX = carouselContent.anchoredPosition.x;
-        float minX = Mathf.Min(0f, -(carouselContent.rect.width - carouselViewportWidth));
-        const float edgeEpsilon = 1f;
-        if (currentX >= -edgeEpsilon) return 0;
-        if (currentX <= minX + edgeEpsilon) return VisibleCount - 1;
+        float currentX = carouselContent.anchoredPosition.x; // 2026-10-22: どのカードも中央へ来られるので、中央に一番近いカード
 
         float viewportCenterX = carouselViewportWidth * 0.5f;
         int nearest = 0;
@@ -639,6 +715,7 @@ public class CharacterSelectUI : MonoBehaviour
     void UpdateCardVisuals()
     {
         if (carouselContent == null || cardStride <= 0f) return;
+        FitGlows();
         float selectedCardCenterX = carouselContent.anchoredPosition.x + selectedIndex * cardStride + cardWidth * 0.5f;
         for (int i = 0; i < cardSlotRects.Length; i++)
         {
@@ -707,6 +784,39 @@ public class CharacterSelectUI : MonoBehaviour
         if (selectedIndex >= visibleCount) selectedIndex = Mathf.Max(0, visibleCount - 1);
     }
     bool markSeenOnApply;
+
+    // 2026-10-22: 選択中の金の縁(SelectionGlow)を、カードの絵が実際に描かれている範囲(縦横比を保って枠の中央)の外側 6px に合わせる。
+    // 以前は枠(スロット)全体の外側だったので、絵より幅の広いスロットでは金の板が片側に大きくはみ出して見えていた
+    bool glowsFitted;
+    void FitGlows()
+    {
+        if (glowsFitted) return;
+        glowsFitted = true;
+        for (int i = 0; i < cardSlotRects.Length && i < cardGlowImages.Length; i++)
+        {
+            var slot = cardSlotRects[i]; var glow = cardGlowImages[i];
+            if (slot == null || glow == null) continue;
+            var p = slot.Find("Portrait") as RectTransform;
+            var img = p != null ? p.GetComponent<Image>() : null;
+            if (img == null || img.sprite == null) continue;
+            Rect r = p.rect;
+            float sa = img.sprite.rect.width / Mathf.Max(1f, img.sprite.rect.height), w = r.width, h = r.height;
+            if (w / Mathf.Max(1f, h) > sa) w = h * sa; else h = w / sa;
+            Vector2 c = (Vector2)p.localPosition + new Vector2((0.5f - p.pivot.x) * r.width, (0.5f - p.pivot.y) * r.height);
+            var g = glow.rectTransform;
+            g.anchorMin = g.anchorMax = g.pivot = new Vector2(0.5f, 0.5f);
+            g.sizeDelta = new Vector2(w + 12f, h + 12f);
+            g.localPosition = c;
+        }
+    }
+
+    // 確認用(QaSweep -qaCharSelect): 選んで、カルーセルもそのカードを中央へ(演出なし)
+    public void DebugSelectAndCenter(int index)
+    {
+        SelectIndex(index);
+        snapping = false;
+        if (carouselContent != null) carouselContent.anchoredPosition = new Vector2(TargetContentXForIndex(index), carouselContent.anchoredPosition.y);
+    }
 
     // 言語を切り替えた時(2026-10-07)
     void OnEnable() { Loc.Changed += OnLocChanged; }

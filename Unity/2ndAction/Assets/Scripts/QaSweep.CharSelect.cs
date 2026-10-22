@@ -22,7 +22,7 @@ public partial class QaSweep
         var all = CharacterDatabase.AllCharacters;
         for (int i = 0; i < all.Count; i++)
         {
-            sel.Invoke(ui, new object[] { i });
+            ui.DebugSelectAndCenter(i); // 2026-10-22: カルーセルの位置も合わせる(以前は選ぶだけで、一覧は開いた時の位置のまま)
             yield return new WaitForSecondsRealtime(1.0f);
             var img = ui.mainVisualImage;
             string sprite = img != null && img.sprite != null ? $"{img.sprite.texture.name} {img.sprite.texture.width}x{img.sprite.texture.height}" : "none";
