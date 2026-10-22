@@ -1362,6 +1362,7 @@ public class DemonBoss : WildBossBase
         supportsInterrupt = true;
         restAltitude = 0.6f;
         locoStyle = LocoStyle.Wing;
+        moveTempoScale = 1.3f; // 2026-10-22 第3段階: 重量級の羽ばたき9枠(上×2→水平→下×2→新A×2→たたむ×2、エステルさん案: 1周約0.85秒、下ろしは速く・戻しはゆっくり)
         animKey = "demon"; // 2026-10-22: 姿勢ごとのコマ(Resources/BossAnim/demon、エステルさんと相談、緑背景)。0=爪 1=魔法弾 2=魔柱(地面魔法・魔柱の行進)、闇の巨大球=ult_、地上の隙=exhaust_
         artPoseProceduralScale = 0.3f;
         yOffset = 5f;

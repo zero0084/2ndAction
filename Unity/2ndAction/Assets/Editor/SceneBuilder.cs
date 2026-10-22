@@ -5118,6 +5118,13 @@ public static class SceneBuilder
     // 足元基準と同じ(pivotYはごく小さい値のまま)でありながら、実際に
     // 揃うのは頭の高さになる - 揺れ(ブレ)が足元側(=通常の走行の弾みと
     // して自然に見える)へ移る。
+    // バッチから: -executeMethod SceneBuilder.ReimportNobleLadyRun(キャラのデータを作り直さずに、お嬢様騎士の走りの取り込みだけ直す)
+    public static void ReimportNobleLadyRun()
+    {
+        ConfigureSpriteFolderImportWithSharedHeadPivot("Assets/Art/NobleLadyRun_v1", 272f);
+        AssetDatabase.SaveAssets();
+        Debug.Log("[SceneBuilder] ReimportNobleLadyRun done");
+    }
     internal static void ConfigureSpriteFolderImportWithSharedHeadPivot(string dir, float pixelsPerUnit)
     {
         if (!Directory.Exists(dir)) return;
@@ -5145,6 +5152,19 @@ public static class SceneBuilder
         // 他のコマにも通用する。
         int standingSpanPixels = 0;
         if (referenceFile != null) standingSpanPixels = Mathf.Max(0, highestYByFile[referenceFile] - lowestYByFile[referenceFile]);
+        // 2026-10-22 動きの見直し(お嬢様騎士の足が地面に沈む): 基準コマより背の高いコマ(脚を伸ばして接地しているコマ)は、頭の高さで
+        // そろえると足が接地線より下へ沈んでいた(1コマで最大 0.2 ほど)。沈むコマがある時は、沈む量の平均だけ全コマを上へ寄せ
+        // (頭の高さのそろいは保つ)、それでも残る分は足を接地線で止める(下の min)。沈むコマが無いフォルダは今までと全く同じ
+        {
+            int sinkSum = 0, sinkN = 0;
+            foreach (string f in files)
+            {
+                if (lowestYByFile[f] < 0) continue;
+                int sink = (highestYByFile[f] - standingSpanPixels) - lowestYByFile[f];
+                if (sink > 2) { sinkSum += sink; sinkN++; }
+            }
+            if (sinkN > 0) standingSpanPixels += Mathf.RoundToInt(sinkSum / (float)sinkN);
+        }
 
         foreach (string f in files)
         {
@@ -5172,7 +5192,9 @@ public static class SceneBuilder
             // をpivotYへ変換する(ConfigureSpriteFolderImportWithShared
             // GroundPivotと同じ「絶対ピクセル÷このコマの高さ」の式)。
             int virtualGroundPixels = highestYByFile[f] - standingSpanPixels;
-            float pivotY = height > 0 ? Mathf.Clamp01((float)virtualGroundPixels / height) : 0.5f;
+            if (lowestYByFile[f] >= 0) virtualGroundPixels = Mathf.Min(virtualGroundPixels, lowestYByFile[f]); // 足は接地線より下へ沈ませない
+            // 宙に浮いているコマ(両足が離れている)は頭の高さを保ったまま足が少し浮く = ピボットが絵の下端より下(負)になってよい
+            float pivotY = height > 0 ? Mathf.Clamp((float)virtualGroundPixels / height, -0.5f, 1f) : 0.5f;
             ApplyCustomPivot(importer, new Vector2(pivotX, pivotY));
             importer.SaveAndReimport();
         }

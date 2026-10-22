@@ -804,6 +804,7 @@ public class BatBoss : CaveBossBase
     protected override void CaveInit()
     {
         locoStyle = LocoStyle.Wing;
+        moveTempoScale = 2.45f; // 2026-10-22 第3段階: 羽ばたき10枠(上げ→A→水平→C→下げ×2→C→B×2→A、エステルさんと相談: 下ろしは速く・下で溜め・上げは折りたたんで戻す)を1周約0.5秒で
         animKey = "bat"; // 2026-10-22: 姿勢ごとのコマ(Resources/BossAnim/bat、エステルさんと相談、緑背景)。0=爪 1=急降下(溜め→地面すれすれの滑空) 2=超音波、天井にぶら下がる間=land_(00待ち/01真下への超音波、天井では上下反転して出す)、地面に激突した隙=exhaust_(CaveRecovery)
         artPoseProceduralScale = 0.3f;
         yOffset = 8f;

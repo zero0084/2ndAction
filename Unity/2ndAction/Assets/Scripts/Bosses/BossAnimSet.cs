@@ -47,6 +47,16 @@ public class BossAnimSet
                 windupC = Pick(all, "windupC_"), attackC = Pick(all, "attackC_"), windupD = Pick(all, "windupD_"), attackD = Pick(all, "attackD_"), exhaust = Pick(all, "exhaust_"), dive = Pick(all, "dive_"), emerge = Pick(all, "emerge_"), land = Pick(all, "land_"),
                 windupE = Pick(all, "windupE_"), attackE = Pick(all, "attackE_"), fly = Pick(all, "fly_"),
             };
+            // 2026-10-22 第3段階: 移動のループの再生順(move_seq.txt、move_ の番号を空白区切り)。同じ絵を何枠か続けて表示時間に差をつける
+            // (羽ばたきの「下ろしは速く・上げはゆっくり」等)。同じ絵の PNG を複製しないので、テクスチャのメモリは増えない
+            var seqText = Resources.Load<TextAsset>("BossAnim/" + key + "/move_seq");
+            if (seqText != null && set.move != null)
+            {
+                var seq = new List<Sprite>();
+                foreach (var tok in seqText.text.Replace(',', ' ').Split((char[])null, System.StringSplitOptions.RemoveEmptyEntries))
+                    if (int.TryParse(tok, out int i) && i >= 0 && i < set.move.Length) seq.Add(set.move[i]);
+                if (seq.Count > 0) set.move = seq.ToArray();
+            }
         }
         cache[key] = set;
         return set;
