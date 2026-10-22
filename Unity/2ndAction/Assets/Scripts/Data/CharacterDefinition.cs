@@ -122,6 +122,9 @@ public class CharacterDefinition : ScriptableObject
     public Sprite[] runFrames;
     public Sprite[] jumpStartFrames;
     public Sprite[] jumpFrames;
+    // 2026-10-22 動きの見直し 第3段階: 空中の上昇/落下の絵(あれば縦の速さで jumpFrames=頂点 と切り替える。無いキャラは今までどおり)
+    public Sprite[] jumpRiseFrames;
+    public Sprite[] jumpFallFrames;
     public Sprite[] landFrames;
     public Sprite[] attackFrames;
     // お嬢様騎士 二段ジャンプ演出バグ修正(2026-09-13) - 従来ここに

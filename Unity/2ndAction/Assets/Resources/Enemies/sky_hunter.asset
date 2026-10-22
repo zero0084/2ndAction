@@ -25,7 +25,9 @@ MonoBehaviour:
   defaultFacingRight: 0
   runFrames:
   - {fileID: 21300000, guid: 9b1ed9a46b9ad834b82781ee9477517b, type: 3}
+  - {fileID: 21300000, guid: cd6e7a2f38d3b4e4b89ee883fdbdb8b6, type: 3}
   - {fileID: 21300000, guid: ad26eb54cf588ed4bac2520a2bed7212, type: 3}
+  - {fileID: 21300000, guid: 08e7736a3126c2144a91c3e756d7a480, type: 3}
   attackSprite: {fileID: 21300000, guid: 9d35319b9596e044ab830e3b3584ca1c, type: 3}
   mileReward: 6
   visualScaleMultiplier: 1

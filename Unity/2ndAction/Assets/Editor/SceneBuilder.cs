@@ -4877,9 +4877,32 @@ public static class SceneBuilder
         ("Assets/Art/SoldierAntRun", 160f / 115f), ("Assets/Art/CaveHopperRun", 190f / 153f), ("Assets/Art/BurrowWormRun", 170f / 103f),
     };
     // バッチから: -executeMethod SceneBuilder.ReimportEnemyRunFolders(シーンを作り直さずに取り込みだけ直す)
+    // 2026-10-22 第3段階: 追加した絵の取り込み+敵/空の敵/キャラのデータを作り直す(シーンは作り直さない)。-executeMethod SceneBuilder.RebuildAnimStage3
+    public static void RebuildAnimStage3()
+    {
+        ReimportEnemyRunFolders();
+        EnemyDatabaseBuilder.Build();
+        SkyEnemyDatabase.Build();
+        // 既存の敵データは runFrames が空の時しか作り直さないので、コマを足した種は直接入れ直す
+        foreach (var (id, dir) in new[] { ("cave_ant", "Assets/Art/CaveAntRun"), ("cave_bat", "Assets/Art/CaveBatRun") })
+        {
+            var def = AssetDatabase.LoadAssetAtPath<EnemyDefinition>($"Assets/Resources/Enemies/{id}.asset");
+            if (def == null) continue;
+            var files = Directory.GetFiles(dir, "*.png"); System.Array.Sort(files);
+            var list = new List<Sprite>();
+            foreach (var f in files) { var s = AssetDatabase.LoadAssetAtPath<Sprite>(f.Replace(System.IO.Path.DirectorySeparatorChar, '/')); if (s != null) list.Add(s); }
+            def.runFrames = list.ToArray();
+            EditorUtility.SetDirty(def);
+            Debug.Log($"[SceneBuilder] {id} runFrames = {list.Count}");
+        }
+        CharacterDatabaseBuilder.Build();
+        AssetDatabase.SaveAssets();
+        Debug.Log("[SceneBuilder] RebuildAnimStage3 done");
+    }
     public static void ReimportEnemyRunFolders()
     {
         foreach (var e in EnemyRunFolders) ConfigureSpriteFolderImportWithFootPivotSharedSize(e.dir, e.height);
+        ConfigureSpriteFolderImport("Assets/Art/CaveBatRun", 365f); // 2026-10-22 第3段階: 羽ばたき4枚(中央ピボット・共通PPU)
         AssetDatabase.SaveAssets();
         Debug.Log("[SceneBuilder] ReimportEnemyRunFolders done");
     }
@@ -5155,6 +5178,7 @@ public static class SceneBuilder
         // 2026-10-22 動きの見直し(お嬢様騎士の足が地面に沈む): 基準コマより背の高いコマ(脚を伸ばして接地しているコマ)は、頭の高さで
         // そろえると足が接地線より下へ沈んでいた(1コマで最大 0.2 ほど)。沈むコマがある時は、沈む量の平均だけ全コマを上へ寄せ
         // (頭の高さのそろいは保つ)、それでも残る分は足を接地線で止める(下の min)。沈むコマが無いフォルダは今までと全く同じ
+        bool fixSink = false;
         {
             int sinkSum = 0, sinkN = 0;
             foreach (string f in files)
@@ -5163,7 +5187,8 @@ public static class SceneBuilder
                 int sink = (highestYByFile[f] - standingSpanPixels) - lowestYByFile[f];
                 if (sink > 2) { sinkSum += sink; sinkN++; }
             }
-            if (sinkN > 0) standingSpanPixels += Mathf.RoundToInt(sinkSum / (float)sinkN);
+            // 走りのフォルダだけ(攻撃の絵などは今までどおり)
+            if (sinkN > 0 && dir.Contains("Run_")) { standingSpanPixels += Mathf.RoundToInt(sinkSum / (float)sinkN); fixSink = true; }
         }
 
         foreach (string f in files)
@@ -5192,9 +5217,10 @@ public static class SceneBuilder
             // をpivotYへ変換する(ConfigureSpriteFolderImportWithShared
             // GroundPivotと同じ「絶対ピクセル÷このコマの高さ」の式)。
             int virtualGroundPixels = highestYByFile[f] - standingSpanPixels;
-            if (lowestYByFile[f] >= 0) virtualGroundPixels = Mathf.Min(virtualGroundPixels, lowestYByFile[f]); // 足は接地線より下へ沈ませない
-            // 宙に浮いているコマ(両足が離れている)は頭の高さを保ったまま足が少し浮く = ピボットが絵の下端より下(負)になってよい
-            float pivotY = height > 0 ? Mathf.Clamp((float)virtualGroundPixels / height, -0.5f, 1f) : 0.5f;
+            // 沈むコマがあったフォルダだけ: 足は接地線より下へ沈ませない / 宙に浮いているコマは頭の高さを保って足が浮く(ピボットが負でよい)。
+            // 沈むコマが無いフォルダ(双剣士・拳銃士など)は今までと全く同じ
+            if (fixSink && lowestYByFile[f] >= 0) virtualGroundPixels = Mathf.Min(virtualGroundPixels, lowestYByFile[f]);
+            float pivotY = height > 0 ? (fixSink ? Mathf.Clamp((float)virtualGroundPixels / height, -0.5f, 1f) : Mathf.Clamp01((float)virtualGroundPixels / height)) : 0.5f;
             ApplyCustomPivot(importer, new Vector2(pivotX, pivotY));
             importer.SaveAndReimport();
         }

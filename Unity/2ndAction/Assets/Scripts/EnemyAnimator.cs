@@ -93,6 +93,7 @@ public class EnemyAnimator : MonoBehaviour
     // 2026-10-22 動きの見直し: 待機の伸び縮みは控えめに(以前の ±12% はゴム風船のように見えた。スライム系だけ元の強さ)。
     // 待機 ⇔ 移動 ⇔ 攻撃の切り替えで大きさ/傾きが1フレームで戻らないよう、短く寄せる。走りのテンポは実際の移動の速さに合わせる
     float idleSquashScale = 0.33f;
+    bool idleUsesRunFrame;
     float curSy = 1f, curRot;
     float runTempo = 1f;
     void ApplyVisualPose(float sy, float rotDeg, bool snap = false)
@@ -149,6 +150,8 @@ public class EnemyAnimator : MonoBehaviour
         flapSpeed *= Random.Range(0.85f, 1.15f);
         swaySpeed *= Random.Range(0.8f, 1.2f);
         if (name.IndexOf("slime", System.StringComparison.OrdinalIgnoreCase) >= 0) idleSquashScale = 1f;
+        // 2026-10-22 第3段階: ゴブリンの待機は正面向きの絵だったので、止まっている時も走りの1枚目(横向き)にする(走りとの向きの入れ替わりを無くす)
+        idleUsesRunFrame = name.IndexOf("goblin", System.StringComparison.OrdinalIgnoreCase) >= 0 && name.IndexOf("treasure", System.StringComparison.OrdinalIgnoreCase) < 0;
     }
 
     void Update()
@@ -271,7 +274,8 @@ public class EnemyAnimator : MonoBehaviour
         bool hasRun = runFrames != null && runFrames.Length > 0;
         // 飛ぶ敵(ハーピー等)は横にほとんど動かなくても羽ばたきのコマを回し続ける
         bool flapping = controllerForPose != null && controllerForPose.movementType == EnemyMovementType.Flying;
-        bool moving = hasRun && (flapping || Mathf.Abs(transform.position.x - lastRootPos.x) > 0.0008f);
+        float movedX = Mathf.Abs(transform.position.x - lastRootPos.x);
+        bool moving = hasRun && (flapping || movedX > 0.0008f);
         float rate2 = hasRun ? RunRate(flapping) : runFrameRate;
         lastRootPos = transform.position;
         if (moving)
@@ -283,7 +287,7 @@ public class EnemyAnimator : MonoBehaviour
             return;
         }
         runFrameTimer = 0f;
-        if (inPoseSprite || hasRun) visualRenderer.sprite = hasRun && baseSprite == null ? runFrames[0] : baseSprite;
+        if (inPoseSprite || hasRun) visualRenderer.sprite = hasRun && (baseSprite == null || idleUsesRunFrame) ? runFrames[0] : baseSprite;
         inPoseSprite = false;
         // 待機: 浮遊する種は伸縮を控えめに(浮遊と二重に揺れないよう)
         float squash = (idleHoverAmplitude > 0f ? squashAmount * 0.4f : squashAmount) * idleSquashScale;

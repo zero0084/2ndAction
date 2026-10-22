@@ -57,9 +57,13 @@ MonoBehaviour:
   - {fileID: 21300000, guid: c250b2a8e332c2749b80bf5ae5d13be8, type: 3}
   - {fileID: 21300000, guid: f7e5637cbc6b15646910f6f4ecdfd31d, type: 3}
   jumpStartFrames:
-  - {fileID: 21300000, guid: 60a68e1bb1bc52e44b667563fcdbc702, type: 3}
+  - {fileID: 21300000, guid: 7ede012895351a14986465b8c93c0c1f, type: 3}
   jumpFrames:
   - {fileID: 21300000, guid: 60a68e1bb1bc52e44b667563fcdbc702, type: 3}
+  jumpRiseFrames:
+  - {fileID: 21300000, guid: 7ede012895351a14986465b8c93c0c1f, type: 3}
+  jumpFallFrames:
+  - {fileID: 21300000, guid: 2ce7b466083f5634c93dd8a0777d261f, type: 3}
   landFrames:
   - {fileID: 21300000, guid: 79360ebd98464b340beaaf474a244eae, type: 3}
   attackFrames:
@@ -67,7 +71,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: e1d811ac73363124ab9fd09625604046, type: 3}
   - {fileID: 21300000, guid: 69689defdf4daff40bdb79ce3eb3a346, type: 3}
   doubleJumpFrames:
-  - {fileID: 21300000, guid: 60a68e1bb1bc52e44b667563fcdbc702, type: 3}
+  - {fileID: 21300000, guid: 7ede012895351a14986465b8c93c0c1f, type: 3}
   runFps: 16
   attackFramesSmall: []
   attackFramesLarge: []

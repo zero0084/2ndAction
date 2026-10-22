@@ -50,6 +50,8 @@ MonoBehaviour:
   runFrames: []
   jumpStartFrames: []
   jumpFrames: []
+  jumpRiseFrames: []
+  jumpFallFrames: []
   landFrames: []
   attackFrames: []
   doubleJumpFrames: []

@@ -62,6 +62,7 @@ public static class CharacterDatabaseBuilder
         public float jumpStartFramesPpu;
         public string jumpFramesDir;
         public float jumpFramesPpu;
+        public string jumpRiseFramesDir, jumpFallFramesDir; // 2026-10-22: 空中の上昇/落下(無ければ空)
         // お嬢様騎士 二段ジャンプ演出バグ修正(2026-09-13) - 未指定のままだと
         // PlayerAnimator.doubleJumpFramesが黒剣士の焼き込みアート(空中上
         // 攻撃の絵)のままになる(CharacterDefinition.doubleJumpFramesの
@@ -611,6 +612,7 @@ public static class CharacterDatabaseBuilder
         lancer.jumpFramesPpu = lp;
         lancer.doubleJumpFramesDir = "Assets/Art/LancerJump_v1";
         lancer.doubleJumpFramesPpu = lp;
+        UseJumpRiseFall(ref lancer, "Assets/Art/Lancer");
         lancer.landFramesDir = "Assets/Art/LancerLand_v1";
         lancer.landFramesPpu = lp;
         lancer.attackFramesDir = "Assets/Art/LancerThrust_v1"; // 構え/突き
@@ -796,6 +798,15 @@ public static class CharacterDatabaseBuilder
 
     // 新4人の素材フォルダ(名前は Art/<prefix>Run_v1 等、ポーズは Art/<prefix>Poses_v1/<name>)。
     // まだ無いフォルダは読み込み時に空として扱う(LoadAnimationFolderのIsValidFolderガード)。
+    // 2026-10-22 動きの見直し 第3段階(エステルさんと相談): <prefix>JumpRise_v1 / JumpFall_v1 があれば、上昇(跳び上がり・二段ジャンプも)と落下の絵にする。
+    // 今の Jump_v1 は頂点(滞空)の絵として残す
+    static void UseJumpRiseFall(ref Spec s, string prefixPath)
+    {
+        string rise = prefixPath + "JumpRise_v1", fall = prefixPath + "JumpFall_v1";
+        if (AssetDatabase.IsValidFolder(rise)) { s.jumpRiseFramesDir = rise; s.jumpStartFramesDir = rise; s.doubleJumpFramesDir = rise; }
+        if (AssetDatabase.IsValidFolder(fall)) s.jumpFallFramesDir = fall;
+    }
+
     static void FillKitArt(ref Spec s, string prefix, float ppu, string[] poses)
     {
         string a = "Assets/Art/";
@@ -810,6 +821,7 @@ public static class CharacterDatabaseBuilder
         s.jumpStartFramesDir = a + prefix + "Jump_v1"; s.jumpStartFramesPpu = ppu;
         s.jumpFramesDir = a + prefix + "Jump_v1"; s.jumpFramesPpu = ppu;
         s.doubleJumpFramesDir = a + prefix + "Jump_v1"; s.doubleJumpFramesPpu = ppu;
+        UseJumpRiseFall(ref s, a + prefix);
         s.landFramesDir = a + prefix + "Land_v1"; s.landFramesPpu = ppu;
         // 攻撃中にポーズが無い瞬間の保険(黒剣士の攻撃絵が混ざらないように、自分の前攻撃ポーズを通常の攻撃絵にも使う)
         s.attackFramesDir = a + prefix + "Poses_v1/" + poses[0]; s.attackFramesPpu = ppu;
@@ -982,6 +994,8 @@ public static class CharacterDatabaseBuilder
                 existing.runFps = spec.runFpsOverride; // runFramesと同じ理由でfps上書き値も同期し直す(今回のfps 7→9変更も未反映になっていた)
                 existing.jumpStartFrames = LoadAnimationFolder(spec.jumpStartFramesDir, spec.jumpStartFramesPpu);
                 existing.jumpFrames = LoadAnimationFolder(spec.jumpFramesDir, spec.jumpFramesPpu);
+                existing.jumpRiseFrames = LoadAnimationFolder(spec.jumpRiseFramesDir, spec.jumpFramesPpu);
+                existing.jumpFallFrames = LoadAnimationFolder(spec.jumpFallFramesDir, spec.jumpFramesPpu);
                 existing.doubleJumpFrames = LoadAnimationFolder(spec.doubleJumpFramesDir, spec.doubleJumpFramesPpu);
                 existing.landFrames = LoadAnimationFolder(spec.landFramesDir, spec.landFramesPpu);
                 existing.attackFrames = LoadAttackFolder(spec.attackFramesDir, spec.attackFramesPpu, spec.attackHeadPivot);
@@ -1057,6 +1071,8 @@ public static class CharacterDatabaseBuilder
             def.runFrames = LoadRunAnimationFolder(spec.runFramesDir, spec.runFramesPpu);
             def.jumpStartFrames = LoadAnimationFolder(spec.jumpStartFramesDir, spec.jumpStartFramesPpu);
             def.jumpFrames = LoadAnimationFolder(spec.jumpFramesDir, spec.jumpFramesPpu);
+            def.jumpRiseFrames = LoadAnimationFolder(spec.jumpRiseFramesDir, spec.jumpFramesPpu);
+            def.jumpFallFrames = LoadAnimationFolder(spec.jumpFallFramesDir, spec.jumpFramesPpu);
             def.doubleJumpFrames = LoadAnimationFolder(spec.doubleJumpFramesDir, spec.doubleJumpFramesPpu);
             def.landFrames = LoadAnimationFolder(spec.landFramesDir, spec.landFramesPpu);
             def.attackFrames = LoadAttackFolder(spec.attackFramesDir, spec.attackFramesPpu, spec.attackHeadPivot);

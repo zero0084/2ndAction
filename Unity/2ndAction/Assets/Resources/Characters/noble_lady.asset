@@ -59,6 +59,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 6abef72fc33c3ca4d8ce3b87847a1a13, type: 3}
   jumpFrames:
   - {fileID: 21300000, guid: c883120bad3f35e49b2a0b16bc503cb5, type: 3}
+  jumpRiseFrames: []
+  jumpFallFrames: []
   landFrames:
   - {fileID: 21300000, guid: 35a95df5e08a2954095c1b17ab8b1c4c, type: 3}
   attackFrames:

@@ -42,9 +42,11 @@ public partial class QaSweep
                     yield return null; t += Time.deltaTime;
                     peak = Mathf.Max(peak, pc.transform.position.y);
                     hurtSeen |= pc.IsHurt;
-                    if (tLand < 0f && pc.transform.position.y <= groundY + 0.05f) tLand = t;
+                    if (tLand < 0f && pc.IsGrounded && t > 0.05f) tLand = t; // 着地(足場の高さが変わる所もあるので接地で判定)
                 }
                 float h0 = y0 - groundY;
+                float? gEnd = TerrainManager.Instance.GetHeightAt(pc.transform.position.x);
+                L($"[airhit] {ch} {kind}: end y={pc.transform.position.y - groundY:F2} grounded={pc.IsGrounded} terrainUnder={(gEnd.HasValue ? (gEnd.Value - groundY).ToString("F2") : "none")}");
                 L($"[airhit] {ch,-10} {kind,-6} height at hit {h0:F2}m, after 1 frame {y1 - groundY:F2}m, peak {peak - groundY:F2}m, landed {(tLand < 0 ? "no" : tLand.ToString("F2") + "s")} hurt={hurtSeen} airHits+{PlayerController.AirHits - air0} gameOver={gm.IsGameOver}");
                 if (kind == "ground") { Check(PlayerController.AirHits == air0, $"{ch} ground hit is not an air hit"); Check(hurtSeen, $"{ch} ground hit shows the hurt pose"); }
                 else
@@ -57,6 +59,22 @@ public partial class QaSweep
                     if (kind == "normal") Check(tLand > 0.15f, $"{ch} normal: falls naturally (not snapped) {tLand:F2}s");
                     if (kind == "death") Check(gm.IsGameOver, $"{ch} death: game over");
                 }
+                yield return EndRun();
+            }
+            // 2026-10-22 第3段階: 空中の絵が 上昇 → 頂点 → 落下 と切り替わるか(上昇/落下の絵があるキャラ)
+            {
+                yield return BeginRun(ch, "wasteland_road");
+                if (BossManager.Instance != null) BossManager.Instance.enabled = false;
+                if (EncounterDirector.Instance != null) EncounterDirector.Instance.enabled = false;
+                yield return new WaitForSeconds(1.0f);
+                while (!pc.IsGrounded) yield return null;
+                var srj = pc.GetComponentInChildren<PlayerAnimator>() != null ? pc.GetComponentInChildren<PlayerAnimator>().GetComponentInChildren<SpriteRenderer>() : null;
+                typeof(PlayerController).GetField("isGrounded", NP).SetValue(pc, false);
+                typeof(PlayerController).GetField("velocityY", NP).SetValue(pc, 10f);
+                var seq = new System.Collections.Generic.List<string>();
+                float tj = 0f;
+                while (tj < 2f) { yield return null; tj += Time.deltaTime; string nm = srj != null && srj.sprite != null ? srj.sprite.name : "-"; string tag = $"{nm}({(pc.VerticalVelocity > 0 ? "up" : "down")})"; if (seq.Count == 0 || !seq[seq.Count - 1].StartsWith(nm)) seq.Add(tag); if (pc.IsGrounded && tj > 0.2f) break; }
+                L($"[jumpart] {ch,-10} {string.Join(" > ", seq)}");
                 yield return EndRun();
             }
             // 走りのテンポ: 速いほど上がる(最大2倍)

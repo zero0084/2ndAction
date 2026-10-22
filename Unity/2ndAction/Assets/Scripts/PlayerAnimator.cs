@@ -15,6 +15,9 @@ public class PlayerAnimator : MonoBehaviour
 {
     public Sprite[] runFrames;
     public Sprite[] jumpFrames;
+    // 2026-10-22: 空中の上昇/落下の絵(キャラ別、無ければ null)。Jump の間は縦の速さで 上昇 / 頂点(jumpFrames) / 落下 を選ぶ
+    Sprite[] jumpRiseFrames, jumpFallFrames;
+    const float JumpPoseSpeed = 2.2f;
     public Sprite[] attackFrames;
     public Sprite[] attackFramesSmall;
     public Sprite[] attackFramesLarge;
@@ -317,6 +320,8 @@ public class PlayerAnimator : MonoBehaviour
         runFps = def.runFps > 0f ? def.runFps : defaultRunFps;
         jumpStartFrames = HasFrames(def.jumpStartFrames) ? def.jumpStartFrames : defaultJumpStartFrames;
         jumpFrames = HasFrames(def.jumpFrames) ? def.jumpFrames : defaultJumpFrames;
+        jumpRiseFrames = HasFrames(def.jumpRiseFrames) ? def.jumpRiseFrames : null;
+        jumpFallFrames = HasFrames(def.jumpFallFrames) ? def.jumpFallFrames : null;
         doubleJumpFrames = HasFrames(def.doubleJumpFrames) ? def.doubleJumpFrames : defaultDoubleJumpFrames;
         landFrames = HasFrames(def.landFrames) ? def.landFrames : defaultLandFrames;
         downAttackFrames = HasFrames(def.downAttackFrames) ? def.downAttackFrames : defaultDownAttackFrames;
@@ -588,6 +593,7 @@ public class PlayerAnimator : MonoBehaviour
     {
         runFrames = defaultRunFrames; runFps = defaultRunFps;
         jumpStartFrames = defaultJumpStartFrames; jumpFrames = defaultJumpFrames; doubleJumpFrames = defaultDoubleJumpFrames;
+        jumpRiseFrames = null; jumpFallFrames = null;
         landFrames = defaultLandFrames; downAttackFrames = defaultDownAttackFrames; downAttackLandFrames = defaultDownAttackLandFrames;
         upShotFrames = defaultUpShotFrames; hurtFrames = defaultHurtFrames; recoveryFrames = defaultRecoveryFrames;
         startFrames = defaultStartFrames; finishShortFrames = defaultFinishShortFrames; finishMediumFrames = defaultFinishMediumFrames;
@@ -839,7 +845,14 @@ public class PlayerAnimator : MonoBehaviour
             if (state == State.Attack && controller != null && controller.KitPoseFrames != null)
                 frameIndex = Mathf.Clamp(controller.KitPoseFrame, 0, frames.Length - 1);
 
-            SetSpriteSafe(frames[frameIndex]);
+            Sprite pick = frames[frameIndex];
+            if (state == State.Jump && controller != null && (jumpRiseFrames != null || jumpFallFrames != null))
+            {
+                float vy = controller.VerticalVelocity;
+                if (vy > JumpPoseSpeed && jumpRiseFrames != null) pick = jumpRiseFrames[0];
+                else if (vy < -JumpPoseSpeed && jumpFallFrames != null) pick = jumpFallFrames[0];
+            }
+            SetSpriteSafe(pick);
             ApplyLanceDiveOffset(frames);
         }
 

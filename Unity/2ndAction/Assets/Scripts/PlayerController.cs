@@ -2063,7 +2063,7 @@ public partial class PlayerController : MonoBehaviour
         DamageAppliedCount++;
         if (NobleArmorHit(isFall)) return; // お嬢様騎士の鎧(候補、既定は無効): 振っている間は止まらない
         // 2026-10-22: 空中での被弾は空中のまま(以前は被弾の瞬間に地面へ置き直していた)。落下(穴)と地上の被弾は今までどおり
-        bool airHit = !isFall && !isGrounded && !netDowned;
+        bool airHit = !isFall && !netDowned && IsClearlyAirborne();
         if (!airHit) RespawnAtCurrentPosition(isFall);
         // 被弾リアクション: 通常被弾=Hurt、落下復帰=Recovery。無敵時間はリアクション中から数え始め、
         // リアクションが終わってから点滅する(Hurt=被弾の瞬間、点滅=その後の無敵)。
@@ -2083,6 +2083,18 @@ public partial class PlayerController : MonoBehaviour
     // 2026-10-22: 空中での被弾。通常=軽く押し戻されて自然に落ちる / 重い一撃=大きく吹き飛んでから落ちる / 叩き落とし=地面へ強く落とす。
     // ダメージ量・無敵時間・リアクションの長さは地上と同じ(変えるのは空中の動きだけ)
     public static int AirHits { get; private set; } // 確認用
+    // 本当に空中にいるか(接地の判定は坂や段差で一瞬外れることがあるので、足元の地面からの高さでも確かめる)
+    bool IsClearlyAirborne()
+    {
+        if (isGrounded) return false;
+        var tm = TerrainManager.Instance;
+        if (tm == null) return true;
+        float x = transform.position.x, y = transform.position.y - groundOffset;
+        float? g = tm.GetHeightAt(x);
+        float? sky = onSky ? tm.GetSkyHeightAt(x) : null;
+        float floor = sky.HasValue && y >= sky.Value - 0.05f ? sky.Value : (g ?? float.NegativeInfinity);
+        return y - floor > 0.3f;
+    }
     float airHitPitGraceUntil;
     void AirHitReaction(bool heavy, bool slamDown)
     {

@@ -24,10 +24,31 @@ MonoBehaviour:
   enableVisualFacing: 1
   defaultFacingRight: 1
   runFrames:
+  - {fileID: 21300000, guid: e53b2124e6176174f8473cf0af8b870e, type: 3}
   - {fileID: 21300000, guid: 7768f643fdf6ff54a85370fc2baf6b5e, type: 3}
-  - {fileID: 21300000, guid: dc440dce29f080a44bba2ba9c224a1e9, type: 3}
+  - {fileID: 21300000, guid: 9a2015e04f0227e41b252d4d8d5f6330, type: 3}
+  - {fileID: 21300000, guid: cf93cdb76224bf544bdbadd4b94cba98, type: 3}
+  attackSprite: {fileID: 0}
   mileReward: 1
   visualScaleMultiplier: 1
   aiTier: 0
   stageIds:
   - natural_cave
+  bonusKind: 0
+  poses:
+    telegraph: {fileID: 0}
+    attack: {fileID: 0}
+    recover: {fileID: 0}
+    hit: {fileID: 0}
+    death: {fileID: 0}
+    dormant: {fileID: 0}
+    wake: {fileID: 0}
+    charge: {fileID: 0}
+    dive: {fileID: 0}
+  idleHoverAmplitude: 0
+  bodyColliderScale: {x: 1, y: 1}
+  bodyColliderOffset: {x: 0, y: 0}
+  launchScale: 1
+  knockbackScale: 1
+  finishMass: 0
+  finishKnockbackResistance: 0
