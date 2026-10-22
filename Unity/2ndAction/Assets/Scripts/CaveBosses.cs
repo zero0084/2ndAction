@@ -951,6 +951,8 @@ public class ScorpionKingBoss : CaveBossBase
     {
         locoStyle = LocoStyle.Crawl;
         footstepShake = true;
+        animKey = "scorpion_king"; // 2026-10-22: 姿勢ごとのコマ(Resources/BossAnim/scorpion_king、エステルさんと相談、緑背景)。処刑人: ハサミで制圧し尾で仕留める。0=ハサミ 1=毒針(尾の連撃も) 2=毒弾 3=床のトゲ(薙ぎ払いも) 4=処刑の突き、尾が抜けない隙=exhaust_(CaveRecovery)
+        artPoseProceduralScale = 0.3f;
         Vector2 cc = new Vector2(FrontReach + 0.5f, bodyHeight * 0.4f), cs = new Vector2(2.6f, 2.0f);
         claw = NewHitbox("Claw", cc, cs, BossFx.Fang(), new Color(0.9f, 0.5f, 0.6f, 0.95f));
         clawMark = NewMarker(cc, cs);
@@ -981,10 +983,11 @@ public class ScorpionKingBoss : CaveBossBase
                 continue;
             }
             int pick = BossAiUtil.PickNoRepeat(4, ref lastPick);
-            if (pick == 0) yield return Melee(claw, clawMark, 1.6f, 2.6f, 0.55f, 0.26f, 0.7f);
-            else if (pick == 1) yield return Melee(sting, stingMark, 3.0f, 2.4f, 0.6f, 0.24f, 0.8f);
+            if (pick == 0) { animVariant = 0; yield return Melee(claw, clawMark, 1.6f, 2.6f, 0.55f, 0.26f, 0.7f); }
+            else if (pick == 1) { animVariant = 1; yield return Melee(sting, stingMark, 3.0f, 2.4f, 0.6f, 0.24f, 0.8f); }
             else if (pick == 2 && Time.time - lastBoltTime > boltCooldown && Time.time >= ScorpionKingBoltGate.NextTime)
             {
+                animVariant = 2;
                 lastBoltTime = Time.time;
                 ScorpionKingBoltGate.NextTime = Time.time + ScorpionKingBoltGate.Interval;
                 boltGlow.enabled = true;
@@ -996,7 +999,7 @@ public class ScorpionKingBoss : CaveBossBase
                 yield return Wait(0.25f);
                 yield return Recover(0.9f * RecoverMul);
             }
-            else yield return SpikeRow(false);
+            else { animVariant = 3; yield return SpikeRow(false); }
         }
     }
 
@@ -1014,6 +1017,7 @@ public class ScorpionKingBoss : CaveBossBase
     IEnumerator MultiPoison()
     {
         yield return MoveToGap(7.5f, 5f, 1.2f);
+        animVariant = 2;
         boltGlow.enabled = true;
         yield return Telegraph(0.75f);
         boltGlow.enabled = false;
@@ -1025,6 +1029,7 @@ public class ScorpionKingBoss : CaveBossBase
     IEnumerator TailCombo()
     {
         yield return MoveToGap(3.5f, 5f, 1f);
+        animVariant = 1;
         yield return Telegraph(0.6f, stingMark);
         int hits = Upgraded ? 4 : 3;
         for (int i = 0; i < hits; i++)
@@ -1043,6 +1048,7 @@ public class ScorpionKingBoss : CaveBossBase
         if (!StartUlt("KING'S EXECUTION", new Color(1f, 0.45f, 0.55f))) yield break;
         // ① 薙ぎ払い(跳ぶ)
         yield return MoveToGap(4f, 6f, 1.2f);
+        animVariant = 3; // 薙ぎ払い=ハサミを床へ
         yield return Telegraph(0.85f, sweepMark);
         ShockFromFront(1.1f, 9f, CaveLook.Bone, true, 2.0f);
         PlayAttackPose(0.3f);
@@ -1063,6 +1069,7 @@ public class ScorpionKingBoss : CaveBossBase
         yield return MoveToGap(5f, 6f, 0.8f);
         LaneWarn(2f, 6f, 0f, 2.4f, 1.0f, TallLaneColor);
         Glow(1.0f, new Color(1f, 0.4f, 0.5f));
+        animVariant = 4; // 処刑の突き
         yield return Telegraph(1.0f, stingMark);
         PlayAttackPose(0.35f);
         WaveFrom(Gap - FrontReach, 2.2f, 0f, 2.4f, 10f, CaveLook.Bone, true, 0.72f);
