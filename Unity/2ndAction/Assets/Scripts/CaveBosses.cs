@@ -1317,6 +1317,8 @@ public class AncientDemonBoss : CaveBossBase
     protected override void CaveInit()
     {
         locoStyle = LocoStyle.Wing;
+        animKey = "ancient_demon"; // 2026-10-22: 姿勢ごとのコマ(Resources/BossAnim/ancient_demon、エステルさんと相談、緑背景)。静寂・儀式: 体はほぼ動かず魔法だけが広がる。0=爪 1=魔法弾 2=床/天井の魔法陣、ABYSSAL CAVERN=ult_、魔力切れ=exhaust_(CaveRecovery)
+        artPoseProceduralScale = 0.3f;
         yOffset = 4f;
         restAltitude = 1.4f;
         Vector2 cc = new Vector2(FrontReach + 0.5f, bodyHeight * 0.5f), cs = new Vector2(2.8f, 1.8f);
@@ -1331,7 +1333,7 @@ public class AncientDemonBoss : CaveBossBase
             if (UltimateReady(2)) { yield return AbyssalCavern(); continue; }
             if (SpecialReady(SpecialPhase)) { MarkSpecial(); yield return FloorCeilingMagic(); continue; }
             int pick = BossAiUtil.PickNoRepeat(4, ref lastPick);
-            if (pick == 0) yield return Melee(claw, clawMark, 1.8f, 2.6f, 0.6f, 0.26f, 0.8f, 0.06f);
+            if (pick == 0) { animVariant = 0; yield return Melee(claw, clawMark, 1.8f, 2.6f, 0.6f, 0.26f, 0.8f, 0.06f); }
             else if (pick == 1) yield return MagicShots(Enraged ? 3 : 2, false);
             else if (pick == 2) yield return GroundCircle(false);
             else yield return Teleport();
@@ -1344,6 +1346,7 @@ public class AncientDemonBoss : CaveBossBase
     {
         TellAt(0f, 0.9f, CaveTellStyle.Circle, CaveLook.Magic);
         FloorAt(0f, 2.2f, 1.2f, 0.9f, 0.35f, CaveLook.Magic, heavy);
+        animVariant = 2; // コマ: 両手を下へかざす → 開いて発動
         yield return Telegraph(0.9f);
         Shake(0.08f, 0.15f);
         PlayAttackPose(0.25f);
@@ -1353,6 +1356,7 @@ public class AncientDemonBoss : CaveBossBase
 
     IEnumerator MagicShots(int n, bool heavy)
     {
+        animVariant = 1; // コマ: 手のひらに球 → 指先で弾く
         yield return Telegraph(0.75f);
         for (int i = 0; i < n && !IsDead; i++)
         {
@@ -1381,12 +1385,14 @@ public class AncientDemonBoss : CaveBossBase
         SetAlpha(1f);
         invulnerable = false;
         freeGap = false;
+        animVariant = 0;
         yield return Melee(claw, clawMark, 1.8f, 3.2f, 0.6f, 0.26f, 0.8f, 0.06f);
     }
 
     // 床と天井の魔法(交互。CaveBossSafetyが必ず間を空ける)
     IEnumerator FloorCeilingMagic()
     {
+        animVariant = 2;
         yield return Telegraph(0.6f);
         FloorAt(0f, 2.2f, 1.2f, 0.85f, 0.35f, CaveLook.Magic);
         yield return Wait(0.9f);
@@ -1399,6 +1405,7 @@ public class AncientDemonBoss : CaveBossBase
     IEnumerator AbyssalCavern()
     {
         if (!StartUlt("ABYSSAL CAVERN", new Color(0.8f, 0.35f, 1f))) yield break;
+        animVariant = 1; // 寄る間は浮遊のコマ(0 のままだと必殺技の絵になる)
         yield return MoveToGap(7f, 6f, 1.2f);
         yield return SetAltitude(2.6f, 0.4f);
         Glow(1.0f, new Color(0.8f, 0.3f, 1f));
@@ -1406,10 +1413,12 @@ public class AncientDemonBoss : CaveBossBase
         CeilAt(0f, 3.2f, 0.9f, 0.5f, CaveLook.Magic, true);
         CeilAt(3.6f, 2.4f, 0.9f, 0.5f, CaveLook.Magic);
         CeilAt(-3.6f, 2.4f, 0.9f, 0.5f, CaveLook.Magic);
+        animVariant = 0; // コマ: 両手を掲げて魔法陣 → 両手を広げて展開(ult_)
         yield return Telegraph(0.9f);
         yield return Wait(0.8f);
         // B: 空中が安全(床一面の魔法=赤。跳ぶ/二段ジャンプで有効時間をやり過ごす)
         BossBattleHud.Banner("跳べ!", new Color(1f, 0.5f, 0.4f), 0.8f);
+        PlayAttackPose(1.6f);
         FloorAt(0f, 4.2f, 0.9f, 1.0f, 0.7f, CaveLook.Magic, true);
         FloorAt(4.2f, 4.2f, 0.9f, 1.0f, 0.7f, CaveLook.Magic);
         yield return Wait(1.9f);
