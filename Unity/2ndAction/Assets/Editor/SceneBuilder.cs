@@ -459,7 +459,7 @@ public static class SceneBuilder
         // 自身の実測ワールド高さ(954px÷PPU1020=0.9353)を渡すことで、5コマ
         // 全てがポートレートと寸分違わず同じワールド高さで描画されるように
         // なり、伸び縮み(ズレ)が原理的に解消される。
-        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/RunnerRun", 954f / 1020f);
+        ConfigureSpriteFolderImportWithFootPivotSharedSize("Assets/Art/RunnerRun", 954f / 1020f);
 
         // 敵アニメーション追加(2026-09-15) - マスター報告「各敵キャラの
         // アニメーションを追加してほしい」への対応、第1弾(Goblin)。ChatGPT
@@ -469,22 +469,22 @@ public static class SceneBuilder
         // Sizeをそのまま使い、targetWorldHeight=enemy_v1.png自身の実測ワー
         // ルド高さ(1308px÷PPU1053=1.2422)を渡すことで、最初から伸び縮み
         // (Runnerで発見したのと同じ種類のズレ)が起きない状態で導入する。
-        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/GoblinRun", 1308f / 1053f);
+        ConfigureSpriteFolderImportWithFootPivotSharedSize("Assets/Art/GoblinRun", 1308f / 1053f);
 
         // 敵アニメーション追加(2026-09-15) - 第2弾(Shooter)。ShooterEnemy.png
         // 自身の実測ワールド高さ(1009px÷PPU850=1.1871)をtargetWorldHeightに
         // 渡す。
-        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/ShooterRun", 1009f / 850f);
+        ConfigureSpriteFolderImportWithFootPivotSharedSize("Assets/Art/ShooterRun", 1009f / 850f);
 
         // 敵アニメーション追加(2026-09-15) - 第3弾(Heavy)。HeavyEnemy.png
         // 自身の実測ワールド高さ(996px÷PPU570=1.7474)をtargetWorldHeightに
         // 渡す。
-        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/HeavyRun", 996f / 570f);
+        ConfigureSpriteFolderImportWithFootPivotSharedSize("Assets/Art/HeavyRun", 996f / 570f);
 
         // 敵アニメーション追加(2026-09-15) - 第4弾(Irregular)。IrregularEnemy.
         // png自身の実測ワールド高さ(956px÷PPU1140=0.8386)をtargetWorld
         // Heightに渡す。
-        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/IrregularRun", 956f / 1140f);
+        ConfigureSpriteFolderImportWithFootPivotSharedSize("Assets/Art/IrregularRun", 956f / 1140f);
 
         // 敵アニメーション追加(2026-09-15) - 第5弾(Flying/Bird)、最後の1種。
         // 他4種と違い「走行」ではなく「羽ばたき」5コマ(WastelandBird.pngを
@@ -527,10 +527,10 @@ public static class SceneBuilder
         ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/CaveBat.png", 365f);
         // 本番素材差し替え(2026-09-23) - 実測794px÷481≒1.65u(同じ「Playerの約140%」を維持)。
         ConfigureAndLoadSpriteWithFootPivot("Assets/Art/Enemy/BurrowWorm.png", 481f);
-        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/CaveAntRun", 140f / 113f);
-        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/SoldierAntRun", 160f / 115f);
-        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/CaveHopperRun", 190f / 153f);
-        ConfigureSpriteFolderImportWithFootPivotUniformSize("Assets/Art/BurrowWormRun", 170f / 103f);
+        ConfigureSpriteFolderImportWithFootPivotSharedSize("Assets/Art/CaveAntRun", 140f / 113f);
+        ConfigureSpriteFolderImportWithFootPivotSharedSize("Assets/Art/SoldierAntRun", 160f / 115f);
+        ConfigureSpriteFolderImportWithFootPivotSharedSize("Assets/Art/CaveHopperRun", 190f / 153f);
+        ConfigureSpriteFolderImportWithFootPivotSharedSize("Assets/Art/BurrowWormRun", 170f / 103f);
         // Cave Batは羽ばたきで縦幅がコマごとに変わる(WastelandBirdFlapと
         // 同じ理由) - 足元Pivot/コマ別均一サイズではなく、中心Pivot+共有PPU
         // のConfigureSpriteFolderImportを使う。
@@ -4867,6 +4867,76 @@ public static class SceneBuilder
     // ド高さで描画されるようになり、伸び縮みが原理的に無くなる。足元
     // Pivot(X,Y自動検出)は既存のConfigureSpriteFolderImportWithFootPivotXY
     // と同じロジックをそのまま使うため、接地感には影響しない。
+    // 2026-10-22 動きの見直し: 雑魚の走りのコマ。以前の UniformSize は「コマごとに高さをそろえる PPU」+「一番下の足の位置を横の基準」で、
+    // 姿勢で高さが違うコマの体ごと大きさが変わり(最大4割)、足が替わるたびに体が横へ跳ねていた。
+    // ここではフォルダで1つの PPU(コマの高さの中央値 = 目標の高さ)、縦は足元(そのコマの一番下)、横は体の重心にする
+    public static readonly (string dir, float height)[] EnemyRunFolders =
+    {
+        ("Assets/Art/RunnerRun", 954f / 1020f), ("Assets/Art/GoblinRun", 1308f / 1053f), ("Assets/Art/ShooterRun", 1009f / 850f),
+        ("Assets/Art/HeavyRun", 996f / 570f), ("Assets/Art/IrregularRun", 956f / 1140f), ("Assets/Art/CaveAntRun", 140f / 113f),
+        ("Assets/Art/SoldierAntRun", 160f / 115f), ("Assets/Art/CaveHopperRun", 190f / 153f), ("Assets/Art/BurrowWormRun", 170f / 103f),
+    };
+    // バッチから: -executeMethod SceneBuilder.ReimportEnemyRunFolders(シーンを作り直さずに取り込みだけ直す)
+    public static void ReimportEnemyRunFolders()
+    {
+        foreach (var e in EnemyRunFolders) ConfigureSpriteFolderImportWithFootPivotSharedSize(e.dir, e.height);
+        AssetDatabase.SaveAssets();
+        Debug.Log("[SceneBuilder] ReimportEnemyRunFolders done");
+    }
+    internal static void ConfigureSpriteFolderImportWithFootPivotSharedSize(string dir, float targetWorldHeight)
+    {
+        if (!Directory.Exists(dir)) return;
+        string[] files = Directory.GetFiles(dir, "*.png");
+        if (files.Length == 0) return;
+        var heights = new List<int>();
+        foreach (string f in files) heights.Add(MeasureContentHeightPixels(f));
+        heights.Sort();
+        float median = heights[(heights.Count - 1) / 2];
+        float ppu = targetWorldHeight > 0.001f && median > 0 ? median / targetWorldHeight : 1000f;
+        // 2枚だけのフォルダ(アリ/ホッパー/ワーム)は2枚が別の姿勢(立ち上がる/跳ぶ)なので、今までどおりコマごとに高さをそろえる(横の基準だけ体の重心へ)
+        bool perFrame = files.Length <= 2;
+        foreach (string f in files)
+        {
+            string assetPath = f.Replace('\\', '/');
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            TextureImporter importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
+            if (importer == null) continue;
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            int hpx = perFrame ? MeasureContentHeightPixels(f) : 0;
+            importer.spritePixelsPerUnit = perFrame && hpx > 0 && targetWorldHeight > 0.001f ? hpx / targetWorldHeight : ppu;
+            importer.alphaIsTransparency = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.filterMode = FilterMode.Bilinear;
+            ApplyCustomPivot(importer, ComputeBodyCentroidFootPivot(f));
+            importer.SaveAndReimport();
+        }
+    }
+    // 縦 = そのコマの一番下(足元)、横 = 不透明な部分全体の重心(体の中心)
+    static Vector2 ComputeBodyCentroidFootPivot(string filePath)
+    {
+        byte[] bytes = File.ReadAllBytes(filePath);
+        Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        tex.LoadImage(bytes);
+        int w = tex.width, h = tex.height;
+        Color32[] px = tex.GetPixels32();
+        int lowestY = -1; double sx = 0, sw = 0;
+        for (int y = 0; y < h; y++)
+        {
+            int row = y * w;
+            for (int x = 0; x < w; x++)
+            {
+                byte a = px[row + x].a;
+                if (a <= 15) continue;
+                if (lowestY < 0) lowestY = y;
+                sx += x * (double)a; sw += a;
+            }
+        }
+        Object.DestroyImmediate(tex);
+        float cx = sw > 0 ? (float)(sx / sw) : w * 0.5f;
+        return new Vector2(Mathf.Clamp01((cx + 0.5f) / w), Mathf.Clamp01((lowestY < 0 ? 0 : lowestY) / (float)h));
+    }
+
     internal static void ConfigureSpriteFolderImportWithFootPivotUniformSize(string dir, float targetWorldHeight)
     {
         if (!Directory.Exists(dir)) return;

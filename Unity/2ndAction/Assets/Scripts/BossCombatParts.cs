@@ -150,6 +150,7 @@ public class BossHitbox : MonoBehaviour
 {
     public bool damagesPlayer = true;
     public int damageAmount = CombatScale.PlayerHit; // ボス戦の強化(2026-10-01): 必殺技の判定は強い一撃(PlayerHeavyHit)
+    public bool slamDown; // 2026-10-22: 叩き落とし(空中で当たったプレイヤーを地面へ落とす)。それ以外の攻撃は空中のまま
     public System.Action<PlayerController> onHitPlayer; // 追加効果(スロー等)
 
     BoxCollider2D col;
@@ -264,7 +265,7 @@ public class BossHitbox : MonoBehaviour
         if (!other.CompareTag("Player") || PlayerController.Instance == null) return;
         if (hitThisActivation) return; // 1回の攻撃判定でダメージは最大1回
         hitThisActivation = true;
-        PlayerController.Instance.TakeDamage(source: "BossCombatPart:" + name, amount: BossManager.ScaleDamage(damageAmount));
+        PlayerController.Instance.TakeDamage(source: "BossCombatPart:" + name, amount: BossManager.ScaleDamage(damageAmount), slamDown: slamDown);
         onHitPlayer?.Invoke(PlayerController.Instance);
     }
 }

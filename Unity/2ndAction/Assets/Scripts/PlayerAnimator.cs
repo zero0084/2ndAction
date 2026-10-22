@@ -159,6 +159,11 @@ public class PlayerAnimator : MonoBehaviour
     float frameTimer;
     int frameIndex;
     State state = State.Run;
+    // 2026-10-22 動きの見直し: 走りのコマは自分の時計(runPhase)で回す。攻撃/着地/被弾の後も走りの続きのコマから戻り(毎回1コマ目から
+    // 走り直さない)、走る速さに合わせてテンポを上げる(高速で足が滑って見えない。上げすぎてせわしくならないよう √ で最大2倍)
+    float runPhase, runTempo = 1f;
+    public static float RunTempoMax = 2f;
+    public float CurrentRunTempo => runTempo;
 
     // One-shot timers for the transient jump/land animations - set to the
     // clip's own length whenever the matching PlayerController event fires,
@@ -400,7 +405,9 @@ public class PlayerAnimator : MonoBehaviour
         }
         else
         {
-            float crouch = Mathf.Sin(Mathf.Clamp01(p) * Mathf.PI * 0.85f); // 沈んで、ゆっくり戻る
+            // 沈んで、ゆっくり戻る(2026-10-22: 最後は必ず元の高さへ。以前は途中の深さ(約45%)で終わり、終わる瞬間に高さがポンと戻っていた)
+            float pc = Mathf.Clamp01(p);
+            float crouch = pc < 0.3f ? Mathf.SmoothStep(0f, 1f, pc / 0.3f) : 1f - Mathf.SmoothStep(0f, 1f, (pc - 0.3f) / 0.7f);
             float s = 1f - recoveryCrouchDepth * crouch;
             scl = new Vector3(visualBaseScale.x * (1f + recoveryCrouchDepth * 0.4f * crouch), visualBaseScale.y * s, visualBaseScale.z);
             // 足元が浮かないよう、スプライトの下端を固定するぶん位置を下げる(pivotが中央でも足元でも成立)。
@@ -724,12 +731,24 @@ public class PlayerAnimator : MonoBehaviour
         else if (controller != null && controller.IsStandingIdle) newState = State.StartPrep;
         else newState = State.Run;
 
+        // 走りの時計は走っていない間も進める(戻った時に続きのコマから)
+        float baseRun = controller != null ? Mathf.Max(0.1f, controller.runSpeed) : 5f;
+        float spd = controller != null ? controller.CurrentAutoRunSpeed : baseRun;
+        float tempoWant = Mathf.Clamp(Mathf.Sqrt(Mathf.Max(0f, spd) / baseRun), 1f, RunTempoMax);
+        runTempo = Mathf.Lerp(runTempo, tempoWant, 1f - Mathf.Exp(-dt / 0.4f));
+        runPhase += dt * runFps * runTempo;
+        if (runPhase > 100000f) runPhase -= 100000f;
+
         if (newState != state)
         {
+            State prevState = state;
             state = newState;
             frameIndex = 0;
             frameTimer = 0f;
             if (newState == State.StartPrep || newState == State.Finish) startPrepElapsed = 0f;
+            // 2026-10-22: 空中で攻撃/二段ジャンプ等から戻った時は、跳び上がりの最初のコマから再生し直さない(空中の姿勢のまま)。
+            // 跳び上がり(JumpStart)から続く時だけ最初から
+            if (newState == State.Jump && prevState != State.JumpStart && HasFrames(jumpFrames)) frameIndex = jumpFrames.Length - 1;
         }
 
         Sprite[] frames = ResolveFrames(state, attackStage, controller != null ? controller.FinishTierIndex : 0);
@@ -787,11 +806,14 @@ public class PlayerAnimator : MonoBehaviour
                 _ => runFps
             };
 
-            frameTimer += dt;
-            if (frameTimer >= 1f / fps)
+            if (state == State.Run) frameIndex = Mathf.FloorToInt(runPhase); // 走り: 自分の時計で(下で frames.Length で回す)
+            else
             {
-                frameTimer = 0f;
-                frameIndex++;
+                // 2026-10-22: 余った時間を捨てない(以前は frameTimer = 0 で、設定より遅く・不規則なコマ送りになっていた)
+                frameTimer += dt;
+                float step = 1f / Mathf.Max(0.5f, fps);
+                int guard = 0;
+                while (frameTimer >= step && guard++ < 8) { frameTimer -= step; frameIndex++; }
             }
             // 不具合修正(2026-09-13深夜) - 実機のDevelopment Console上で
             // 「IndexOutOfRangeException: Index was outside the bounds of the

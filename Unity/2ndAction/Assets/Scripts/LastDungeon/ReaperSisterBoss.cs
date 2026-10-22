@@ -156,29 +156,37 @@ public partial class ReaperSisterBoss : WildBossBase
     // 移動のテンポ(浮遊の上下/スキップの跳ね/歩きの揺れ)を、攻撃中以外は常に付ける
     IEnumerator MotionLoop()
     {
+        float resumeT = 0f;
         while (!IsDead)
         {
             bobT += Time.deltaTime;
+            // 2026-10-22: 三女のスキップのコマ(loopFrames)を、跳ねと同じ時計で回す(着地のコマと実際の着地がずれていた)
+            if (sister == ReaperSister.Youngest && loopFrames != null) loopTimeOffset = bobT - Time.time;
             if (bob && !Retreating && !Broken && DebugAct != "Flinch")
             {
+                float target;
                 switch (sister)
                 {
                     case ReaperSister.Second:
-                        yOffset = baseHover + Mathf.Sin(bobT * 0.55f * Mathf.PI * 2f) * 0.18f;
+                        target = baseHover + Mathf.Sin(bobT * 0.55f * Mathf.PI * 2f) * 0.18f;
                         break;
                     case ReaperSister.Youngest:
                     {
                         float rate = data != null ? data.skipRate : 2.2f;
                         float hops = bobT * rate; float ph = hops - Mathf.Floor(hops);
                         bool floaty = ((int)hops) % 4 == 3;
-                        yOffset = (floaty ? Mathf.Sin(ph * Mathf.PI) * 0.7f : 4f * ph * (1f - ph) * 0.32f);
+                        target = (floaty ? Mathf.Sin(ph * Mathf.PI) * 0.7f : 4f * ph * (1f - ph) * 0.32f);
                         break;
                     }
                     default:
-                        yOffset = Mathf.Abs(Mathf.Sin(bobT * 2.5f * Mathf.PI * 0.5f)) * 0.05f;
+                        target = Mathf.Abs(Mathf.Sin(bobT * 2.5f * Mathf.PI * 0.5f)) * 0.05f;
                         break;
                 }
+                // 2026-10-22: 攻撃などの後に揺れへ戻る時は、今の高さから寄せる(以前は揺れの位相の高さへ1フレームで飛んでいた)
+                resumeT += Time.deltaTime;
+                yOffset = resumeT < 0.35f ? Mathf.Lerp(yOffset, target, 1f - Mathf.Exp(-Time.deltaTime / 0.07f)) : target;
             }
+            else resumeT = 0f;
             yield return null;
         }
     }

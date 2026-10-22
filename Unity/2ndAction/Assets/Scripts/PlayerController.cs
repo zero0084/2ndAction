@@ -302,6 +302,8 @@ public partial class PlayerController : MonoBehaviour
     public enum ReactionKind { None, Hurt, Recovery }
     public ReactionKind Reaction { get; private set; }
     public bool IsReacting => Reaction != ReactionKind.None;
+    const float ReactionSpeedRamp = 0.2f;
+    float reactionSpeedRampT = 1f;
     public bool IsHurt => Reaction == ReactionKind.Hurt;
     public bool IsRecovering => Reaction == ReactionKind.Recovery;
     // 0(開始)〜1(終了)。アニメーション側が姿勢を補間するのに使う。
@@ -1060,6 +1062,7 @@ public partial class PlayerController : MonoBehaviour
                 hasDied = true;
                 if (!GameManager.Instance.IsWin) OnDeath();
             }
+            if (!GameManager.Instance.IsWin) DeathFallTick();
             return;
         }
 
@@ -1348,7 +1351,13 @@ public partial class PlayerController : MonoBehaviour
         // Linear ease-out over knockbackDuration, not a flat velocity for
         // the whole window - reads as a shove that fades, not a sustained
         // shove-then-stop.
-        if (IsReacting) autoSpeed = 0f; // Hurt/Recovery中は自動前進を一時停止(重力/着地/ノックバックは通常どおり)
+        if (IsReacting) { autoSpeed = 0f; reactionSpeedRampT = 0f; } // Hurt/Recovery中は自動前進を一時停止(重力/着地/ノックバックは通常どおり)
+        else if (reactionSpeedRampT < ReactionSpeedRamp)
+        {
+            // 2026-10-22: 被弾/復帰の後は 0.2秒で走りへ戻す(以前は 0 → 最高速へ1フレームで戻り、画面がガクッと動いた)
+            reactionSpeedRampT += dt;
+            autoSpeed *= Mathf.SmoothStep(0.35f, 1f, Mathf.Clamp01(reactionSpeedRampT / ReactionSpeedRamp));
+        }
         // 竜騎士の急降下突き/突き刺し着地の間は前進をほぼ止める(ほぼ真下へ落ちる)。他キャラは常に1。
         if (isLancerCharacter) autoSpeed *= lanceMoveSlowFactor;
         if (HasKit) autoSpeed *= kitMoveSlowFactor * VampireRunBoost; // 新キャラの技の最中/吸血鬼のBlood Rush(既存5人は対象外)
@@ -1730,7 +1739,7 @@ public partial class PlayerController : MonoBehaviour
     // 短い文字列。省略可能(既存呼び出し全て無変更のままコンパイル通る)で、
     // 挙動には一切影響しない。GameManager.TryDamagePlayerのreasonへ渡す。
     // amount(2026-10-01): ボスの必殺技などの重い一撃(ハートの数)。既定1。満タンから1発で倒れることはない(GameManager側)。
-    public void TakeDamage(bool isFall = false, string source = null, int amount = CombatScale.PlayerHit)
+    public void TakeDamage(bool isFall = false, string source = null, int amount = CombatScale.PlayerHit, bool slamDown = false)
     {
         // GameManager.PresentationDamageLockでも防いでいるが、Finish演出中
         // (RUN正常終了)はPlayerController側でも二重に無敵化しておく。
@@ -1739,6 +1748,8 @@ public partial class PlayerController : MonoBehaviour
         if (!isFall && UltimateArt.ProtectsFromHit) return;
         if (!isFall && DebugIgnoreHits) return; // 確認用(自動テストの決まった条件: のけぞり/押し戻しで位置関係が変わらない)
         if (isFall && UltimateArt.ProtectsFromFall) { UltimateRescueToGround(); return; }
+        // 2026-10-22: 空中で被弾して(地面へ置き直さずに)そのまま穴へ落ちた時は、二重にダメージを受けない(足場へ戻すだけ)
+        if (isFall && Time.time < airHitPitGraceUntil) { airHitPitGraceUntil = 0f; ApplyDamageReaction(true); return; }
         // A fall past failY must always respawn the player, even mid-flicker
         // from a previous hit - otherwise falling while still hit-invincible
         // silently no-ops every frame and the player free-falls forever
@@ -1751,7 +1762,7 @@ public partial class PlayerController : MonoBehaviour
         if (IsAlly)
         {
             if (Ally == null || !Ally.ApplyDamage(isFall, amount, source)) return;
-            ApplyDamageReaction(isFall);
+            ApplyDamageReaction(isFall, amount, slamDown);
             return;
         }
         if (!isFall && FinalEvolution.InterceptDamage(source, ref amount)) return; // FINAL EVOLUTION(SPEED/VAMPIRE/GREED)
@@ -1784,7 +1795,7 @@ public partial class PlayerController : MonoBehaviour
         if (isFall && result == GameManager.DamageResult.Ignored && GameManager.Instance.LastDamageShielded) { ApplyDamageReaction(true); return; }
         if (result != GameManager.DamageResult.Hit) return;
         RecordDamageTaken(source);
-        ApplyDamageReaction(isFall);
+        ApplyDamageReaction(isFall, amount, slamDown);
     }
 
     // ===== マルチプレイPhase 2.5: JOINの被弾申告 =====
@@ -2047,14 +2058,17 @@ public partial class PlayerController : MonoBehaviour
     // 実際にダメージが入った回数(2026-10-08)。障害物などが「当たったが無効だった」と区別する(無効なら赤点滅も出ない)
     public int DamageAppliedCount { get; private set; }
 
-    void ApplyDamageReaction(bool isFall)
+    void ApplyDamageReaction(bool isFall, int amount = CombatScale.PlayerHit, bool slamDown = false)
     {
         DamageAppliedCount++;
         if (NobleArmorHit(isFall)) return; // お嬢様騎士の鎧(候補、既定は無効): 振っている間は止まらない
-        RespawnAtCurrentPosition(isFall);
+        // 2026-10-22: 空中での被弾は空中のまま(以前は被弾の瞬間に地面へ置き直していた)。落下(穴)と地上の被弾は今までどおり
+        bool airHit = !isFall && !isGrounded && !netDowned;
+        if (!airHit) RespawnAtCurrentPosition(isFall);
         // 被弾リアクション: 通常被弾=Hurt、落下復帰=Recovery。無敵時間はリアクション中から数え始め、
         // リアクションが終わってから点滅する(Hurt=被弾の瞬間、点滅=その後の無敵)。
         BeginReaction(isFall ? ReactionKind.Recovery : ReactionKind.Hurt);
+        if (airHit) AirHitReaction(amount >= BossManager.ScaleDamage(CombatScale.PlayerHeavyHit), slamDown);
         StartCoroutine(FlickerWhileInvincible());
 
         // Game Feel pass - flash/knockback/SE synchronized with this same
@@ -2064,6 +2078,45 @@ public partial class PlayerController : MonoBehaviour
         if (!IsAlly) Platform.Haptics.Play(HapticKind.Hit); // 振動(今の機種では何もしない。家庭用機で差し替え。2026-10-06)
         if (damageFlashEnabled && sr != null) StartCoroutine(DamageFlashRoutine());
         if (!isFall && !damageKnockbackEnabled) { /* ノックバック無効設定でもHurt停止は行う */ }
+    }
+
+    // 2026-10-22: 空中での被弾。通常=軽く押し戻されて自然に落ちる / 重い一撃=大きく吹き飛んでから落ちる / 叩き落とし=地面へ強く落とす。
+    // ダメージ量・無敵時間・リアクションの長さは地上と同じ(変えるのは空中の動きだけ)
+    public static int AirHits { get; private set; } // 確認用
+    float airHitPitGraceUntil;
+    void AirHitReaction(bool heavy, bool slamDown)
+    {
+        AirHits++;
+        FreezeDiagnostics.NoteIntendedMove(slamDown ? "air hit (slam down)" : heavy ? "air hit (heavy)" : "air hit");
+        aerialAssistTimer = 0f;
+        if (slamDown) velocityY = -16f;
+        else if (heavy)
+        {
+            velocityY = 6.5f;
+            if (damageKnockbackEnabled) ApplyKnockback(knockbackVelocityX * 1.6f, reactionTotal);
+        }
+        else velocityY = 1.2f;
+        airHitPitGraceUntil = Time.time + hitInvincibleTimer;
+    }
+
+    // 2026-10-22: 空中で倒れた時は、その場に浮いたままにせず、力を失って落ちてから倒れる(地面で止まる)
+    void DeathFallTick()
+    {
+        if (isGrounded) return;
+        float dt = Time.deltaTime;
+        if (dt <= 0f) return;
+        var tm = TerrainManager.Instance;
+        float x = transform.position.x, y = transform.position.y;
+        float? g = tm != null ? tm.GetHeightAt(x) : 0f;
+        float? sky = onSky && tm != null ? tm.GetSkyHeightAt(x) : null;
+        float surf = float.NegativeInfinity;
+        if (sky.HasValue && y >= sky.Value + groundOffset - 0.05f) surf = sky.Value + groundOffset;
+        else if (g.HasValue) surf = g.Value + groundOffset;
+        velocityY = Mathf.Max(velocityY - gravity * dt, -22f);
+        float ny = y + velocityY * dt;
+        if (ny <= surf) { ny = surf; velocityY = 0f; isGrounded = true; }
+        ny = Mathf.Max(ny, failY - 2f);
+        transform.position = new Vector3(x, ny, transform.position.z);
     }
 
     // 被弾リアクションの開始。実行中の攻撃はキャンセルし、Run/攻撃へは一度Normalを経由して戻す。

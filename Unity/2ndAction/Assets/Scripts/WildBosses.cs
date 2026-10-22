@@ -57,6 +57,7 @@ public class WolfBoss : WildBossBase
         supportsInterrupt = true;
         locoStyle = LocoStyle.Gallop;
         animKey = "wolf"; // アニメーション強化の試作(2026-10-17): Resources/BossAnim/wolf
+        artPoseProceduralScale = 0.3f; // 2026-10-22: 溜め/攻撃の絵の反り・踏み込みと手続きの動きが二重にならないように(他のボスと同じ)
         enterSpeed = 9f;
         // 登場: 半分の確率で後方から追い抜いて前に出る(高速疾走で接近)。
         fromBehind = Random.value < wolfFromBehindChance;
@@ -1512,6 +1513,7 @@ public class BlackKnightBoss : WildBossBase
         air = NewHitbox("Air", new Vector2(r + 0.7f, 0.8f), new Vector2(2.4f, 2.4f), BossFx.Slash(), new Color(0.6f, 0.8f, 1f, 0.95f));
         airMark = NewMarker(new Vector2(r + 0.7f, 0.8f), new Vector2(2.4f, 2.4f));
         slamHb = NewHitbox("Slam", new Vector2(r * 0.5f, 0.5f), new Vector2(5.5f, 1.0f), BossFx.Ring(), new Color(0.6f, 0.7f, 1f, 0.9f));
+        if (air != null) air.slamDown = true; // 2026-10-22: 空中追撃の振り下ろしは叩き落とし(空中で当たると地面へ落ちる)
         slamMark = NewMarker(new Vector2(r * 0.5f, 0.5f), new Vector2(5.5f, 1.0f));
         rushLow = NewHitbox("RushLow", new Vector2(0f, 0.6f), new Vector2(2.6f, 1.15f), BossFx.Slash(), new Color(0.55f, 0.7f, 1f, 0.9f));
         rushLow.damageAmount = CombatScale.PlayerHeavyHit;

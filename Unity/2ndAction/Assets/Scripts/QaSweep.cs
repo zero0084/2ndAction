@@ -98,6 +98,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaBreak") { mode = "break"; dir = a[i + 1]; }
             if (a[i] == "-qaFix4") { mode = "fix4"; dir = a[i + 1]; }
             if (a[i] == "-qaHitStall") { mode = "hitstall"; dir = a[i + 1]; }
+            if (a[i] == "-qaAirHit") { mode = "airhit"; dir = a[i + 1]; } // 2026-10-22 空中の被弾/空中で倒れる/走りのテンポ
             if (a[i] == "-qaTutorial") { mode = "tutorial"; dir = a[i + 1]; }
             if (a[i] == "-qaGacha") { mode = "gacha"; dir = a[i + 1]; }
             if (a[i] == "-qaDeck") { mode = "deck"; dir = a[i + 1]; }
@@ -184,6 +185,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "enemies") yield return EnemyMode();
         else if (mode == "ranged") yield return RangedMode();
         else if (mode == "falls") yield return FallsMode();
+        else if (mode == "airhit") yield return AirHitMode();
         else if (mode == "bossshots") yield return BossShotsMode();
         else if (mode == "branch") yield return BranchMode();
         else if (mode == "speedtime") yield return SpeedTimeMode();

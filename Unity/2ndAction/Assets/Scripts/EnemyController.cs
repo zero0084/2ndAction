@@ -841,9 +841,40 @@ public partial class EnemyController : MonoBehaviour
         {
             Color normal = sr.color;
             sr.color = hitFlashColor;
+            var ov = ShowWhiteFlash(true);
             yield return new WaitForSecondsRealtime(Mathf.Max(0.04f, hitFlashHoldDuration));
             if (sr != null) sr.color = normal;
+            if (ov != null) ov.enabled = false;
         }
+    }
+
+    // 2026-10-22: 被弾の白い光。sr.color を白にしても(掛け算なので)見た目が変わらなかったため、体の形を白で塗った絵を一瞬だけ重ねる
+    static Material whiteFlashMat; static bool whiteFlashTried;
+    SpriteRenderer whiteFlash;
+    SpriteRenderer ShowWhiteFlash(bool on)
+    {
+        if (sr == null) return null;
+        if (!whiteFlashTried)
+        {
+            whiteFlashTried = true;
+            var sh = Resources.Load<Shader>("Shaders/SpriteSolid");
+            if (sh != null && sh.isSupported) whiteFlashMat = new Material(sh) { name = "Enemy White Flash" };
+        }
+        if (whiteFlashMat == null) return null;
+        if (whiteFlash == null)
+        {
+            var go = new GameObject("HitWhiteFlash");
+            go.transform.SetParent(sr.transform, false);
+            whiteFlash = go.AddComponent<SpriteRenderer>();
+            whiteFlash.sharedMaterial = whiteFlashMat;
+        }
+        whiteFlash.sprite = sr.sprite;
+        whiteFlash.flipX = sr.flipX; whiteFlash.flipY = sr.flipY;
+        whiteFlash.sortingLayerID = sr.sortingLayerID;
+        whiteFlash.sortingOrder = sr.sortingOrder + 1;
+        whiteFlash.color = new Color(1f, 1f, 1f, 0.75f);
+        whiteFlash.enabled = on;
+        return whiteFlash;
     }
 
     // ===== 打ち上げ/空中追撃/叩き落とし =====

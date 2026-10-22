@@ -47,6 +47,7 @@ public class EnemyFacing : MonoBehaviour
     public bool alwaysFacePlayer = false;
 
     Vector3 lastPosition;
+    float flipPendingT; // 2026-10-22: 向きを変えるのを待っている時間
     float lastFacingDir = -1f; // -1=left, 1=right - defaults to facing left (the player's usual approach side) until the first real frame resolves it
 
     void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; }
@@ -91,6 +92,15 @@ public class EnemyFacing : MonoBehaviour
             facingDir = lastFacingDir;
         }
 
+        // 2026-10-22: 向きは少しの間(0.12秒)同じ向きを望んだ時だけ変える。ノックバックの押し戻しや漂いで向きがパタパタ反転していた
+        // (座標の付け替えの1フレームの大きな動きも無視される)
+        if (facingDir != lastFacingDir && !alwaysFacePlayer)
+        {
+            flipPendingT += Time.deltaTime;
+            if (flipPendingT < 0.12f) facingDir = lastFacingDir;
+            else flipPendingT = 0f;
+        }
+        else flipPendingT = 0f;
         lastFacingDir = facingDir;
         lastPosition = transform.position;
 

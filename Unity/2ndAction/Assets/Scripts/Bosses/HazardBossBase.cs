@@ -36,8 +36,14 @@ public abstract class HazardBossBase : WildBossBase
     protected void HazardBattleSetup() { interruptible = false; supportsInterrupt = true; }
 
 
+    float ceilingDropTo = float.NaN; // 天井から降りている途中の目標の高さ(NaN = 降りていない)
     protected override void OnBattleTick(float dt)
     {
+        if (!float.IsNaN(ceilingDropTo))
+        {
+            if (onCeiling || climbing || Broken) ceilingDropTo = float.NaN; // 別の動き(また張り付く/BREAK の落下)が始まった
+            else { yOffset = Mathf.MoveTowards(yOffset, ceilingDropTo, 16f * dt); if (Mathf.Abs(yOffset - ceilingDropTo) < 0.01f) ceilingDropTo = float.NaN; }
+        }
         // 天井を這っている間は天井の高さに沿う。本物の天井が途切れたら(天井の無い区間へ出た等)、その場から降りて通常の行動へ(2026-10-07)
         if (onCeiling && !climbing)
         {
@@ -127,7 +133,9 @@ public abstract class HazardBossBase : WildBossBase
     protected override void OnInterrupted()
     {
         if (ceilingLost) { climbing = false; return; } // 天井を見失った: 今の高さから滑らかに降りる(DropAfterLostCeiling)
-        if (onCeiling || buried) { yOffset = restAltitude; onCeiling = false; buried = false; }
+        // 2026-10-22: 天井で割り込まれた時は、1フレームで地面へ移らない。BREAK は崩れの落下に任せ(今の高さから落ちる)、それ以外は短く降りる
+        if (onCeiling && !buried) { onCeiling = false; if (!Broken) ceilingDropTo = restAltitude; }
+        else if (onCeiling || buried) { yOffset = restAltitude; onCeiling = false; buried = false; }
         climbing = false;
         SetHpBarOffset(bodyHeight + 0.6f);
         if (tunnelTell != null) { tunnelTell.EndEarly(); tunnelTell = null; }

@@ -200,6 +200,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         worldX = Mathf.Max(PlayerX + startGap, rightEdge) + 3f;
         lastGroundY = TerrainGround(worldX);
 
+        loopTimeOffset = Random.Range(0f, 4f); // 2026-10-22: 同じボスが並んでも動きがそろわない(三姉妹などは OnInit で上書き)
         OnInit();
         // ボス戦の強化(2026-10-01): 通常攻撃の被弾(ハートの数)を種類ごとに変えられる(必殺技の判定は各ボスが2に設定済み)
         if (tune != null && tune.normalDamage > CombatScale.PlayerHit) foreach (var hb in hitboxes) if (hb != null && hb.damageAmount == CombatScale.PlayerHit) hb.damageAmount = tune.normalDamage;
@@ -511,7 +512,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             if (pose == Pose.Windup) return a.ult[0];
             // 2026-10-20: 3枚以上なら突進中は全部を繰り返す(ゴブリンライダーの騎乗突撃: 構える → 蹴る → 伸びる。脚が止まって見えないように)
             if (a.ult.Length >= 3 && (pose == Pose.Attack || pose == Pose.Move || pose == Pose.Fly))
-                return BossAnimSet.Loop(a.ult, a.moveFps, Time.time + loopTimeOffset);
+                return BossAnimSet.Loop(a.ult, a.moveFps, moveClock + loopTimeOffset);
             if (pose == Pose.Attack || pose == Pose.Move || pose == Pose.Fly) return a.ult[Mathf.Min(1, a.ult.Length - 1)];
         }
         // 2026-10-20: 必殺技の後の専用の隙(exhaust_、サソリの尾が刺さる・モグラが目を回す)。CaveRecovery の間ずっと
@@ -557,15 +558,18 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             {
                 var r = a.RecoverFor(animVariant);
                 if (r != null) return BossAnimSet.Progress(r, poseTime / Mathf.Max(0.05f, recoverArtSeconds));
+                // 2026-10-22: 戻りのコマが無いボスは、攻撃の最後のコマを少し保ってから待機へ(攻撃の絵からいきなり走りへ飛ばない)
+                var ah = a.AttackFor(animVariant);
+                if (ah != null) return ah[ah.Length - 1];
                 break;
             }
             case Pose.Move:
             case Pose.Fly:
-                if (pose == Pose.Fly && a.fly != null) return BossAnimSet.Loop(a.fly, a.moveFps, Time.time + loopTimeOffset); // 2026-10-22: 跳んでいる間の専用のコマ(黒騎士)
-                if (a.HasMove) return BossAnimSet.Loop(a.move, a.moveFps, Time.time + loopTimeOffset); break;
+                if (pose == Pose.Fly && a.fly != null) return BossAnimSet.Loop(a.fly, a.moveFps, moveClock + loopTimeOffset); // 2026-10-22: 跳んでいる間の専用のコマ(黒騎士)
+                if (a.HasMove) return BossAnimSet.Loop(a.move, a.moveFps, moveClock + loopTimeOffset); break;
             case Pose.Idle:
-                if (locoStyle != LocoStyle.None && a.HasMove) return BossAnimSet.Loop(a.move, a.moveFps, Time.time + loopTimeOffset); // 走りながら待つボス
-                if (a.idle != null) return BossAnimSet.Loop(a.idle, a.idleFps, Time.time + loopTimeOffset);
+                if (locoStyle != LocoStyle.None && a.HasMove) return BossAnimSet.Loop(a.move, a.moveFps, moveClock + loopTimeOffset); // 走りながら待つボス
+                if (a.idle != null) return BossAnimSet.Loop(a.idle, a.idleFps, moveClock + loopTimeOffset);
                 break;
         }
         return null;
@@ -577,9 +581,13 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (po != null) return po;
         var an = PickAnimSprite();
         lastSpriteFromAnim = an != null;
+        lastSpriteFromLoop = false;
         if (an != null) return an;
         if (loopFrames != null && loopFrames.Length > 0 && (pose == Pose.Move || pose == Pose.Idle || pose == Pose.Fly))
+        {
+            lastSpriteFromLoop = true;
             return loopFrames[Mathf.FloorToInt((Time.time + loopTimeOffset) * loopFps) % loopFrames.Length];
+        }
         switch (pose)
         {
             case Pose.Move:
@@ -600,6 +608,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     void AnimateVisual()
     {
         if (visual == null || rig == null) return;
+        moveClock += Time.deltaTime * UpdateMoveTempo(Time.deltaTime);
         rig.SetSprite(PickSprite());
 
         float h = bodyHeight;
@@ -607,25 +616,46 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         Vector2 off = Vector2.zero;
         float rot = 0f, sx = 1f, sy = 1f;
         Color tint = baseColor;
+        // 2026-10-22 動きの見直し: 本物のコマ(走り/這い/羽ばたき)がある時は、1枚絵の頃の跳ね/前傾/伸び縮みを足さない(絵の動きと二重になってバタついていた)。
+        // 浮遊(羽ばたき/布)だけは、ゆっくりした上下と小さな揺れを残す。BREAK 中・隙の絵の間は揺らさない
+        bool framed = lastSpriteFromAnim || lastSpriteFromLoop;
+        bool airy = locoStyle == LocoStyle.Wing || locoStyle == LocoStyle.Cloth;
+        bool calm = Broken || exhaustArt;
+        float ph = loopTimeOffset * 1.7f;
 
         switch (pose)
         {
             case Pose.Idle:
-                if (locoStyle != LocoStyle.None)
+            case Pose.Move:
+                if (calm) break;
+                if (framed)
                 {
-                    off.y = Mathf.Abs(Mathf.Sin(Time.time * 8f)) * 0.03f * h;
-                    rot = -leanDegrees * 0.25f * facing;   // 前傾して走る
+                    if (airy) { off.y = Mathf.Sin(Time.time * 2.4f + ph) * 0.035f * h; rot = Mathf.Sin(Time.time * 1.3f + ph) * 1.2f; }
+                }
+                else if (airy)
+                {
+                    off.y = Mathf.Sin(Time.time * 2.6f + ph) * 0.05f * h; // 浮遊は床で跳ねない(なめらかに上下)
+                    rot = -leanDegrees * 0.2f * facing + Mathf.Sin(Time.time * 1.4f + ph) * 1.5f;
+                }
+                else if (pose == Pose.Idle)
+                {
+                    if (locoStyle != LocoStyle.None)
+                    {
+                        off.y = Mathf.Abs(Mathf.Sin(Time.time * 8f)) * 0.03f * h;
+                        rot = -leanDegrees * 0.25f * facing;   // 前傾して走る
+                    }
+                    else
+                    {
+                        sy = 1f + 0.025f * Mathf.Sin(Time.time * 2.4f);
+                        sx = 1f - 0.012f * Mathf.Sin(Time.time * 2.4f);
+                    }
                 }
                 else
                 {
-                    sy = 1f + 0.025f * Mathf.Sin(Time.time * 2.4f);
-                    sx = 1f - 0.012f * Mathf.Sin(Time.time * 2.4f);
+                    off.y = Mathf.Abs(Mathf.Sin(Time.time * 8f)) * 0.03f * h;
+                    rot = locoStyle == LocoStyle.None ? Mathf.Sin(Time.time * 8f) * 1.8f : -leanDegrees * 0.25f * facing;
+                    sy = 1f + 0.02f * Mathf.Sin(Time.time * 16f);
                 }
-                break;
-            case Pose.Move:
-                off.y = Mathf.Abs(Mathf.Sin(Time.time * 8f)) * 0.03f * h;
-                rot = locoStyle == LocoStyle.None ? Mathf.Sin(Time.time * 8f) * 1.8f : -leanDegrees * 0.25f * facing;
-                sy = 1f + 0.02f * Mathf.Sin(Time.time * 16f);
                 break;
             case Pose.Windup:
             {
@@ -648,6 +678,7 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
                 break;
             }
             case Pose.Fly:
+                if (framed) { off.y = Mathf.Sin(Time.time * 2.6f + ph) * 0.03f * h; rot = Mathf.Sin(Time.time * 1.6f + ph) * 1.5f; break; } // 2026-10-22: 絵の羽ばたき/跳躍の上で波打たない
                 off.y = Mathf.Sin(Time.time * 5f) * 0.10f * h;
                 rot = Mathf.Sin(Time.time * 4f) * 4f;
                 sy = 1f + 0.05f * Mathf.Sin(Time.time * 12f);
@@ -662,9 +693,11 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             }
             case Pose.Landing:
             {
+                if (breakRecovering) break; // 2026-10-22: 立ち直りの絵の上ではつぶさない
                 float k = Mathf.Clamp01(t / 0.35f);
-                sy = Mathf.Lerp(0.82f, 1f, k);
-                sx = Mathf.Lerp(1.12f, 1f, k);
+                float amt = framed && Anim != null && Anim.brk != null ? artPoseProceduralScale : 1f; // 崩れる絵がある時は弱く(二重につぶれない)
+                sy = 1f - 0.18f * (1f - k) * amt;
+                sx = 1f + 0.12f * (1f - k) * amt;
                 break;
             }
         }
@@ -675,6 +708,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
             float k = artPoseProceduralScale;
             rot *= k; off *= k; sx = 1f + (sx - 1f) * k; sy = 1f + (sy - 1f) * k;
         }
+        // 2026-10-22: 姿勢が変わる時に、傾き/位置/伸び縮みが1フレームで飛ばないように短く寄せる(約0.15秒)。攻撃の始まり(踏み込み)だけは即座に
+        if (pose != smPose) { smSnap = pose == Pose.Attack; smPose = pose; }
+        float bk = !smInit || smSnap ? 1f : 1f - Mathf.Exp(-Time.deltaTime / 0.05f);
+        smInit = true; smSnap = false;
+        smOff = Vector2.Lerp(smOff, off, bk); smRot = Mathf.Lerp(smRot, rot, bk); smSx = Mathf.Lerp(smSx, sx, bk); smSy = Mathf.Lerp(smSy, sy, bk);
+        off = smOff; rot = smRot; sx = smSx; sy = smSy;
         if (hitTimer > 0f)
         {
             float k = hitTimer / 0.16f;
@@ -714,8 +753,32 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         }
         if (hitTimer > 0f) loco *= 0.5f;
         if (Anim != null && Anim.HasMove) loco *= Anim.rigLocoScale; // 本物の走りのコマがある時は、格子の偽の脚の動きを弱める
+        if (calm) loco = 0f; // 2026-10-22: BREAK 中・隙の絵の間は格子も揺らさない
         rig.Update(locoStyle, locoStyle == LocoStyle.None ? 0f : loco, Time.deltaTime, artFacesLeft ? -1f : 1f);
     }
+
+    public Transform DebugVisual => visual; // 動きの測定用(QaSweep の撮影)
+    // 2026-10-22: 移動のループのテンポ。重いボスはゆっくり、軽いボスは速く。走る速さでも少し変える(足が滑って見えない)。
+    // 時計(moveClock)に掛けるので、テンポが変わってもコマの位置は飛ばない
+    float moveClock, moveTempo = 1f;
+    Vector2 smOff; float smRot, smSx = 1f, smSy = 1f; bool smInit, smSnap; Pose smPose;
+    bool lastSpriteFromLoop;
+    protected float moveTempoScale = 1f; // ボスごとの調整(1 = 既定)
+    float UpdateMoveTempo(float dt)
+    {
+        float k = locoStyle switch
+        {
+            LocoStyle.Stride => 0.62f, LocoStyle.Run => 0.85f, LocoStyle.Gallop => 0.95f, LocoStyle.Crawl => 0.85f,
+            LocoStyle.Slither => 0.8f, LocoStyle.Wing => 0.68f, LocoStyle.Cloth => 0.8f, _ => 1f,
+        };
+        float speed = Mathf.Abs(TargetBaseSpeed() + relVelocity);
+        bool airy = locoStyle == LocoStyle.Wing || locoStyle == LocoStyle.Cloth;
+        float sf = airy ? Mathf.Clamp(Mathf.Sqrt(speed / 9f), 0.92f, 1.12f) : Mathf.Clamp(Mathf.Sqrt(speed / 9f), 0.8f, 1.35f);
+        moveTempo = Mathf.Lerp(moveTempo, k * sf * moveTempoScale, 1f - Mathf.Exp(-dt / 0.3f));
+        return moveTempo;
+    }
+    // 移動の1周の長さ(秒)。足音の間隔に使う。コマが無ければ -1
+    float MoveCycleSeconds => Anim != null && Anim.HasMove ? Anim.move.Length / Mathf.Max(0.1f, Anim.moveFps * moveTempo) : -1f;
 
     protected void SetVisualColor(Color c)
     {
@@ -744,7 +807,8 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
         if (ground && yOffset < 0.5f)
         {
             stepDustTimer -= dt;
-            float interval = footstepShake ? 0.55f : 0.16f;
+            float cyc = MoveCycleSeconds;
+            float interval = footstepShake ? (cyc > 0f ? Mathf.Max(0.45f, cyc * 0.5f) : 0.55f) : 0.16f; // 2026-10-22: 重い足音は歩きの絵の周期に合わせる
             if (stepDustTimer <= 0f)
             {
                 stepDustTimer = interval;
@@ -950,10 +1014,12 @@ public abstract partial class WildBossBase : MonoBehaviour, IBossBattleDebug
     protected IEnumerator Recover(float seconds)
     {
         DebugAct = "Recover";
+        bool fromAttack = pose == Pose.Attack;
         EndAttack();
         var ra = Anim;
         var rf = ra != null ? ra.RecoverFor(animVariant) : null;
         if (rf != null) { recoverArtSeconds = Mathf.Clamp(seconds * 0.6f, 0.25f, 0.6f); SetPose(Pose.Recover); }
+        else if (fromAttack && ra != null && ra.AttackFor(animVariant) != null) { recoverArtSeconds = Mathf.Clamp(seconds * 0.3f, 0.15f, 0.28f); SetPose(Pose.Recover); } // 2026-10-22: 攻撃の余韻(最後のコマを少し保つ)
         yield return Wait(seconds);
     }
 

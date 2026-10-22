@@ -90,6 +90,29 @@ public class EnemyAnimator : MonoBehaviour
     Vector3 baseVisualScale;
     float phase;
     float swayPhase;
+    // 2026-10-22 動きの見直し: 待機の伸び縮みは控えめに(以前の ±12% はゴム風船のように見えた。スライム系だけ元の強さ)。
+    // 待機 ⇔ 移動 ⇔ 攻撃の切り替えで大きさ/傾きが1フレームで戻らないよう、短く寄せる。走りのテンポは実際の移動の速さに合わせる
+    float idleSquashScale = 0.33f;
+    float curSy = 1f, curRot;
+    float runTempo = 1f;
+    void ApplyVisualPose(float sy, float rotDeg, bool snap = false)
+    {
+        float k = snap ? 1f : 1f - Mathf.Exp(-Time.deltaTime / 0.07f);
+        curSy = Mathf.Lerp(curSy, sy, k); curRot = Mathf.Lerp(curRot, rotDeg, k);
+        visual.localScale = new Vector3(baseVisualScale.x, baseVisualScale.y * curSy, baseVisualScale.z);
+        visual.localRotation = Quaternion.Euler(0f, 0f, curRot);
+    }
+    // 走りのコマの速さ: 2枚だけの交互は落ち着かせる、実際に動いた速さでテンポを変える(突進は速く、ゆっくりはゆっくり)
+    float RunRate(bool flyer)
+    {
+        float r = runFrameRate * (runFrames != null && runFrames.Length <= 2 ? 0.6f : 1f);
+        if (flyer) return r;
+        float dt = Mathf.Max(0.0001f, Time.deltaTime);
+        float speed = Mathf.Abs(transform.position.x - lastRootPos.x) / dt;
+        if (speed > 60f) speed = 0f; // 座標の付け替え(Floating Origin)の1フレームは無視
+        runTempo = Mathf.Lerp(runTempo, Mathf.Clamp(Mathf.Sqrt(speed / 3.2f), 0.7f, 1.6f), 1f - Mathf.Exp(-dt / 0.25f));
+        return r * runTempo;
+    }
 
     void OnEnable() { FloatingOrigin.Shifted += OnOriginShifted; }
     void OnDisable() { FloatingOrigin.Shifted -= OnOriginShifted; }
@@ -125,6 +148,7 @@ public class EnemyAnimator : MonoBehaviour
         // of just repeating the same rhythm offset by a fixed amount.
         flapSpeed *= Random.Range(0.85f, 1.15f);
         swaySpeed *= Random.Range(0.8f, 1.2f);
+        if (name.IndexOf("slime", System.StringComparison.OrdinalIgnoreCase) >= 0) idleSquashScale = 1f;
     }
 
     void Update()
@@ -162,8 +186,7 @@ public class EnemyAnimator : MonoBehaviour
         {
             if (!inAttackPose) { inAttackPose = true; poseRestoreSprite = visualRenderer.sprite; }
             visualRenderer.sprite = attackSprite;
-            visual.localScale = baseVisualScale;
-            visual.localRotation = Quaternion.identity;
+            ApplyVisualPose(1f, 0f, true); // 攻撃の絵はそのままの大きさ・傾きで(すぐに)
             lastRootPos = transform.position;
             return;
         }
@@ -175,12 +198,15 @@ public class EnemyAnimator : MonoBehaviour
         }
 
         bool hasRunAnimation = runFrames != null && runFrames.Length > 0 && visualRenderer != null;
-        bool moving = hasRunAnimation && Mathf.Abs(transform.position.x - lastRootPos.x) > 0.0008f;
+        // 2026-10-22: 飛ぶ敵(洞窟コウモリ等)は横に動いていなくても羽ばたき続ける(以前は近づくと羽ばたきが止まって固まった)
+        bool flyer = controllerForPose != null && controllerForPose.movementType == EnemyMovementType.Flying;
+        bool moving = hasRunAnimation && (flyer || Mathf.Abs(transform.position.x - lastRootPos.x) > 0.0008f);
+        float rate = hasRunAnimation ? RunRate(flyer) : runFrameRate;
         lastRootPos = transform.position;
 
         if (moving)
         {
-            runFrameTimer += Time.deltaTime * runFrameRate;
+            runFrameTimer += Time.deltaTime * rate;
             int idx = Mathf.FloorToInt(runFrameTimer) % runFrames.Length;
             visualRenderer.sprite = runFrames[idx];
             // The run frames themselves already carry the motion/liveliness
@@ -188,8 +214,7 @@ public class EnemyAnimator : MonoBehaviour
             // animated pose would read as a wobble fighting the art, so
             // this holds Visual at its neutral scale/rotation while
             // actively cycling instead.
-            visual.localScale = baseVisualScale;
-            visual.localRotation = Quaternion.identity;
+            ApplyVisualPose(1f, 0f);
             return;
         }
 
@@ -204,8 +229,7 @@ public class EnemyAnimator : MonoBehaviour
         // character from the foot upward and never moves the foot itself.
         // Applies regardless of ownsRootMotion - this only ever touches
         // Visual, which no Behavior kind ever owns.
-        visual.localScale = new Vector3(baseVisualScale.x, baseVisualScale.y * (1f + s * squashAmount), baseVisualScale.z);
-        visual.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(swayPhase) * swayDegrees);
+        ApplyVisualPose(1f + s * squashAmount * idleSquashScale, Mathf.Sin(swayPhase) * swayDegrees * (idleSquashScale < 1f ? 0.6f : 1f));
     }
 
     // ===== 天空回廊Enemy(2026-09-28): 状態ごとの絵 =====
@@ -239,8 +263,7 @@ public class EnemyAnimator : MonoBehaviour
         {
             inPoseSprite = true;
             visualRenderer.sprite = want;
-            visual.localScale = baseVisualScale;
-            visual.localRotation = Quaternion.identity;
+            ApplyVisualPose(1f, 0f, true);
             lastRootPos = transform.position;
             return;
         }
@@ -249,13 +272,13 @@ public class EnemyAnimator : MonoBehaviour
         // 飛ぶ敵(ハーピー等)は横にほとんど動かなくても羽ばたきのコマを回し続ける
         bool flapping = controllerForPose != null && controllerForPose.movementType == EnemyMovementType.Flying;
         bool moving = hasRun && (flapping || Mathf.Abs(transform.position.x - lastRootPos.x) > 0.0008f);
+        float rate2 = hasRun ? RunRate(flapping) : runFrameRate;
         lastRootPos = transform.position;
         if (moving)
         {
-            runFrameTimer += Time.deltaTime * runFrameRate;
+            runFrameTimer += Time.deltaTime * rate2;
             visualRenderer.sprite = runFrames[Mathf.FloorToInt(runFrameTimer) % runFrames.Length];
-            visual.localScale = baseVisualScale;
-            visual.localRotation = Quaternion.identity;
+            ApplyVisualPose(1f, 0f);
             inPoseSprite = false;
             return;
         }
@@ -263,8 +286,7 @@ public class EnemyAnimator : MonoBehaviour
         if (inPoseSprite || hasRun) visualRenderer.sprite = hasRun && baseSprite == null ? runFrames[0] : baseSprite;
         inPoseSprite = false;
         // 待機: 浮遊する種は伸縮を控えめに(浮遊と二重に揺れないよう)
-        float squash = idleHoverAmplitude > 0f ? squashAmount * 0.4f : squashAmount;
-        visual.localScale = new Vector3(baseVisualScale.x, baseVisualScale.y * (1f + s * squash), baseVisualScale.z);
-        visual.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(swayPhase) * swayDegrees * (idleHoverAmplitude > 0f ? 0.5f : 1f));
+        float squash = (idleHoverAmplitude > 0f ? squashAmount * 0.4f : squashAmount) * idleSquashScale;
+        ApplyVisualPose(1f + s * squash, Mathf.Sin(swayPhase) * swayDegrees * (idleHoverAmplitude > 0f ? 0.5f : 1f) * (idleSquashScale < 1f ? 0.6f : 1f));
     }
 }

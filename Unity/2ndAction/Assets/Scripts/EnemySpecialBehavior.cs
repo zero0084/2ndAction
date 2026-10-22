@@ -219,6 +219,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
 
     float flyingBobSeed;
     float flyingBaseY;
+    bool flyingYInit; // 2026-10-22: 高さをなめらかに寄せ始めたか
 
     // 敵AI行動Tier試験実装(2026-09-16) - StationaryMelee(T1/T2)専用の状態。
     // 攻撃サイクルと移動サイクルは独立した2つの小さなステートマシンとして
@@ -471,7 +472,11 @@ public partial class EnemySpecialBehavior : MonoBehaviour
             float? ceil = TerrainManager.Instance.GetEffectiveCeilingHeightAt(x);
             if (ceil.HasValue) targetY = Mathf.Min(targetY, ceil.Value - flyingCeilingMargin);
         }
-        transform.position = new Vector3(x, targetY, transform.position.z);
+        // 2026-10-22: 高さはなめらかに寄せる(地形の段差で下限が変わると、高さがカクッと変わっていた)。出てきた最初のフレームはそのまま
+        float y = flyingYInit ? Mathf.Lerp(transform.position.y, targetY, 1f - Mathf.Exp(-Time.deltaTime / 0.12f)) : targetY;
+        if (flyingRespectCeiling && TerrainManager.Instance != null) { float? c2 = TerrainManager.Instance.GetEffectiveCeilingHeightAt(x); if (c2.HasValue) y = Mathf.Min(y, c2.Value - flyingCeilingMargin); } // 天井の中へは入らない
+        flyingYInit = true;
+        transform.position = new Vector3(x, y, transform.position.z);
 
         if (flyingDiveEnabled)
         {

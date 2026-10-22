@@ -28,6 +28,14 @@ public partial class QaSweep
                 Vector3 sp = Camera.main.WorldToScreenPoint(demoFocus.CenterWorld);
                 float hpx = Mathf.Abs(Camera.main.WorldToScreenPoint(demoFocus.CenterWorld + Vector3.up * demoFocus.bodyHeight).y - sp.y) * 2f;
                 System.IO.File.AppendAllText(System.IO.Path.Combine(outDir, "demo_pos.txt"), $"{demoFrame}\t{sp.x:F0}\t{Screen.height - sp.y:F0}\t{hpx:F0}\n");
+                // 2026-10-22: 動きの見直しの測定用(姿勢/絵/手続きの上下・傾き・伸び縮み/世界での高さ)
+                var vis = demoFocus.DebugVisual;
+                if (vis != null)
+                {
+                    var srr = vis.GetComponentInChildren<SpriteRenderer>();
+                    System.IO.File.AppendAllText(System.IO.Path.Combine(outDir, "demo_vis.txt"),
+                        $"{demoFrame}\t{demoFocus.DebugPose}\t{(srr != null && srr.sprite != null ? srr.sprite.name : "-")}\t{vis.localPosition.y / Mathf.Max(0.1f, demoFocus.bodyHeight):F4}\t{vis.localEulerAngles.z:F2}\t{Mathf.Abs(vis.localScale.y / Mathf.Max(0.0001f, Mathf.Abs(vis.localScale.x))):F4}\t{demoFocus.transform.position.y:F3}\n");
+                }
             }
             demoFrame++;
         }
