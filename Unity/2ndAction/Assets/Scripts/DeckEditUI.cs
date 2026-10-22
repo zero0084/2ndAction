@@ -436,6 +436,7 @@ public class DeckEditUI : MonoBehaviour
         if (root == null) return;
         UiConventions.PlaceBack(backButtonRect); // 2026-10-09(依頼G-2): 戻るは画面共通の左上
         BuildCharPanel();
+        BuildPolish();
         if (portraitColumns == null) { portraitColumns = root.GetComponent<PortraitColumns>(); if (portraitColumns == null) portraitColumns = root.AddComponent<PortraitColumns>(); }
         Canvas.ForceUpdateCanvases();
         portraitColumns.Apply();
@@ -659,7 +660,7 @@ public class DeckEditUI : MonoBehaviour
 
         if (countText != null)
         {
-            countText.text = Loc.Auto($"DECK {deck.Count} / {GameManager.DeckCapacity}");
+            countText.text = Loc.T("デッキ") + $"  {deck.Count} / {GameManager.DeckCapacity}"; // 2026-10-22: 見出しは訳のある「デッキ」
         }
         if (collectionCountText != null)
         {
@@ -667,8 +668,10 @@ public class DeckEditUI : MonoBehaviour
             int total = CardMastery.TotalCards;
             collectionCountText.horizontalOverflow = HorizontalWrapMode.Overflow;
             collectionCountText.supportRichText = true;
-            collectionCountText.text = Loc.Auto($"COLLECTION ({displayedStacks.Count})  <size=17><color=#ffe6a0>MAX {CardMastery.MaxCount}/{total}  AWAKENED {CardMastery.AwakenedCount}/{total}</color></size>");
+            collectionCountText.text = CollectionLabel + $" ({displayedStacks.Count})  <size=17><color=#ffe6a0>MAX {CardMastery.MaxCount}/{total}  AWAKENED {CardMastery.AwakenedCount}/{total}</color></size>";
         }
+        RefreshHeadings();
+        RefreshEmptyState();
 
         RefreshConvertButton();
     }
@@ -696,6 +699,130 @@ public class DeckEditUI : MonoBehaviour
     // Clears the center detail column back to its placeholder state - a
     // card selected in a PREVIOUS visit to this screen shouldn't still be
     // showing when it's reopened.
+    // ===== 2026-10-22 画面側の完成度向上 第2段階(カード) =====
+    //  ・見出しを日本語の言葉へ(COLLECTION → 所持カード[訳はレビュー待ち: Loc.Reviewed で他の言語は前の文] / DECK → デッキ[訳あり])
+    //  ・下の「おすすめ編成 / 全て外す」の文字が小さかった → 大きく
+    //  ・中央の詳細欄が未選択の時に大きく空いていた → 空のカード枠 + 案内 + 今のデッキの種類の内訳(種類のアイコンと枚数)
+    //  作りはシーンのまま、開いた時に1回だけ足す(BuildCharPanel と同じ)
+    public const string CollectionHeading = "所持カード"; // ID 10048(レビュー待ち)
+    static string CollectionLabel => Loc.Auto(Loc.Reviewed(CollectionHeading, "COLLECTION"));
+    bool polishBuilt;
+    Text collectionHeader, deckHeader;
+    GameObject emptyState;
+    RewardCardUI emptyCard;
+    Text emptyDeckHeading;
+    readonly Text[] emptyCatCounts = new Text[7];
+    readonly Image[] emptyCatIcons = new Image[7];
+    void BuildPolish()
+    {
+        if (polishBuilt || root == null) return;
+        polishBuilt = true;
+        var rootRt = root.transform as RectTransform;
+        var hc = rootRt.Find("Header_COLLECTION"); if (hc != null) collectionHeader = hc.GetComponent<Text>();
+        var hd = rootRt.Find("Header_DECK"); if (hd != null) deckHeader = hd.GetComponent<Text>();
+        foreach (var r in new[] { recommendButtonRect, clearButtonRect })
+        {
+            if (r == null) continue;
+            var t = r.GetComponentInChildren<Text>(true);
+            if (t != null) { t.resizeTextForBestFit = true; t.resizeTextMinSize = 14; LocTextBinder.Resize(t, UiTheme.UguiSize(UiTheme.TextRole.Button)); }
+        }
+        if (convertButtonLabel != null) { convertButtonLabel.resizeTextForBestFit = true; convertButtonLabel.resizeTextMinSize = 14; LocTextBinder.Resize(convertButtonLabel, 24); }
+        BuildEmptyState();
+        RefreshHeadings(); // 初めて開いた時は Refresh の後にここへ来る
+    }
+
+    void RefreshHeadings()
+    {
+        if (collectionHeader != null) collectionHeader.text = CollectionLabel;
+        if (deckHeader != null) deckHeader.text = Loc.T("デッキ");
+    }
+
+    void BuildEmptyState()
+    {
+        if (detailPreviewCard == null || detailPlaceholderLabel == null) return;
+        var panel = detailPreviewCard.rect.parent as RectTransform;
+        if (panel == null) return;
+        emptyState = new GameObject("EmptyState", typeof(RectTransform));
+        var es = (RectTransform)emptyState.transform;
+        es.SetParent(panel, false);
+        es.anchorMin = Vector2.zero; es.anchorMax = Vector2.one; es.offsetMin = es.offsetMax = Vector2.zero;
+        es.SetSiblingIndex(detailPreviewCard.rect.GetSiblingIndex());
+        // 空のカード枠(デッキの空き枠と同じ見た目。詳細のカードと同じ場所・大きさ)
+        var cardGO = Instantiate(detailPreviewCard.gameObject, es, false);
+        cardGO.name = "EmptyCard";
+        cardGO.SetActive(true);
+        emptyCard = cardGO.GetComponent<RewardCardUI>();
+        var cr = emptyCard.rect;
+        cr.anchorMin = cr.anchorMax = detailPreviewCard.rect.anchorMin; cr.pivot = detailPreviewCard.rect.pivot;
+        cr.anchoredPosition = detailPreviewCard.rect.anchoredPosition; cr.sizeDelta = detailPreviewCard.rect.sizeDelta;
+        emptyCard.ShowEmpty();
+        emptyCard.SetInteractable(false);
+        float cardBottom = cr.anchoredPosition.y - cr.sizeDelta.y; // 上端基準
+        // 案内(今までの文と同じ。カードの下へ)
+        var ph = detailPlaceholderLabel.rectTransform;
+        ph.anchorMin = new Vector2(0f, 1f); ph.anchorMax = new Vector2(1f, 1f); ph.pivot = new Vector2(0.5f, 1f);
+        ph.offsetMin = new Vector2(30f, 0f); ph.offsetMax = new Vector2(-30f, 0f);
+        ph.sizeDelta = new Vector2(-60f, 74f); ph.anchoredPosition = new Vector2(0f, cardBottom - 12f);
+        UiTheme.Apply(detailPlaceholderLabel, UiTheme.TextRole.Body, 1.1f);
+        detailPlaceholderLabel.color = UiTheme.TextSub;
+        detailPlaceholderLabel.alignment = TextAnchor.MiddleCenter;
+        // 今のデッキの種類の内訳(見出し「デッキ n / 12」+ 種類のアイコン×枚数を 4+3 で)
+        float y = cardBottom - 12f - 74f - 18f;
+        var line = NewUi("Line", es, new Vector2(0.5f, 1f), new Vector2(300f, 2f), new Vector2(0f, y));
+        line.gameObject.AddComponent<Image>().color = new Color(UiTheme.GoldEdge.r, UiTheme.GoldEdge.g, UiTheme.GoldEdge.b, 0.55f);
+        y -= 14f;
+        var hr = NewUi("DeckHeading", es, new Vector2(0.5f, 1f), new Vector2(360f, 40f), new Vector2(0f, y));
+        emptyDeckHeading = hr.gameObject.AddComponent<Text>();
+        emptyDeckHeading.font = detailPlaceholderLabel.font;
+        UiTheme.Apply(emptyDeckHeading, UiTheme.TextRole.Heading, 0.9f);
+        emptyDeckHeading.alignment = TextAnchor.MiddleCenter; emptyDeckHeading.raycastTarget = false;
+        y -= 48f;
+        const float cellW = 88f, cellH = 54f, icon = 42f;
+        for (int i = 0; i < 7; i++)
+        {
+            int row = i < 4 ? 0 : 1, col = i < 4 ? i : i - 4, perRow = row == 0 ? 4 : 3;
+            float x = (col - (perRow - 1) * 0.5f) * cellW;
+            var cell = NewUi("Cat" + i, es, new Vector2(0.5f, 1f), new Vector2(cellW, cellH), new Vector2(x, y - row * (cellH + 8f)));
+            var ic = NewUi("Icon", cell, new Vector2(0f, 0.5f), new Vector2(icon, icon), new Vector2(4f + icon * 0.5f, 0f));
+            ic.anchorMin = ic.anchorMax = new Vector2(0f, 0.5f); ic.pivot = new Vector2(0.5f, 0.5f);
+            emptyCatIcons[i] = ic.gameObject.AddComponent<Image>();
+            emptyCatIcons[i].sprite = CardCategoryIcons.GetIcon((CardCategory)i); emptyCatIcons[i].preserveAspect = true; emptyCatIcons[i].raycastTarget = false;
+            var tr = NewUi("Count", cell, new Vector2(0f, 0.5f), new Vector2(cellW - icon - 6f, cellH), new Vector2(icon + 6f, 0f));
+            tr.anchorMin = tr.anchorMax = new Vector2(0f, 0.5f); tr.pivot = new Vector2(0f, 0.5f);
+            emptyCatCounts[i] = tr.gameObject.AddComponent<Text>();
+            emptyCatCounts[i].font = detailPlaceholderLabel.font;
+            UiTheme.Apply(emptyCatCounts[i], UiTheme.TextRole.Number, 1f);
+            emptyCatCounts[i].alignment = TextAnchor.MiddleLeft; emptyCatCounts[i].raycastTarget = false;
+        }
+        RefreshEmptyState();
+    }
+
+    static RectTransform NewUi(string name, Transform parent, Vector2 anchor, Vector2 size, Vector2 pos)
+    {
+        var rt = new GameObject(name, typeof(RectTransform)).GetComponent<RectTransform>();
+        rt.SetParent(parent, false);
+        rt.anchorMin = rt.anchorMax = anchor; rt.pivot = new Vector2(0.5f, 1f);
+        rt.sizeDelta = size; rt.anchoredPosition = pos;
+        return rt;
+    }
+
+    void RefreshEmptyState()
+    {
+        if (emptyState == null) return;
+        bool show = string.IsNullOrEmpty(detailCardId);
+        if (emptyState.activeSelf != show) emptyState.SetActive(show);
+        var gm = GameManager.Instance;
+        if (!show || gm == null) return;
+        var counts = new int[7];
+        foreach (var id in gm.DeckCards) { var c = CardDatabase.FindById(id); if (c != null && (int)c.category >= 0 && (int)c.category < 7) counts[(int)c.category]++; }
+        if (emptyDeckHeading != null) emptyDeckHeading.text = Loc.T("デッキ"); // 枚数は下の「デッキ n / 12」にある
+        for (int i = 0; i < 7; i++)
+        {
+            if (emptyCatCounts[i] != null) { emptyCatCounts[i].text = "×" + counts[i]; emptyCatCounts[i].color = counts[i] > 0 ? UiTheme.Mile : UiTheme.Disabled; }
+            if (emptyCatIcons[i] != null) emptyCatIcons[i].color = counts[i] > 0 ? Color.white : new Color(0.55f, 0.55f, 0.6f, 0.7f);
+        }
+    }
+
     void ResetDetail()
     {
         if (detailIcon != null)
@@ -721,6 +848,7 @@ public class DeckEditUI : MonoBehaviour
         focusCardId = null;
         focusLevel = -1;
         RefreshConvertButton();
+        RefreshEmptyState();
     }
 
     // level = -1 for a Deck-slot-originated selection (Deck doesn't track
@@ -734,6 +862,7 @@ public class DeckEditUI : MonoBehaviour
         // Deck側から選んだ時(level=-1)も、表示用のLvはそのカードの所持Lv(合成カードはキー自体がLvを持つ)
         int shownLevel = level >= 1 ? level : Mathf.Max(1, CardInventory.GetHighestLevel(card.cardId));
         if (detailPlaceholderLabel != null) detailPlaceholderLabel.gameObject.SetActive(false);
+        if (emptyState != null) emptyState.SetActive(false);
         if (detailDivider != null) detailDivider.SetActive(true);
         if (detailPreviewCard != null && gmForData != null)
         {

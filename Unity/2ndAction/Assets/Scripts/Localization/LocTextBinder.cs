@@ -27,6 +27,15 @@ public class LocTextBinder : MonoBehaviour
         instance.pending = 1;
     }
 
+    // 2026-10-22: コードが後から文字を大きくした Text。訳した時の上限(元の大きさ)も新しい大きさにする(言語を切り替えても小さく戻らない)
+    public static void Resize(Text t, int size)
+    {
+        if (t == null) return;
+        t.fontSize = size;
+        if (t.resizeTextForBestFit) t.resizeTextMaxSize = size;
+        if (entries.TryGetValue(t, out var e)) { e.baseSize = size; e.baseMax = Mathf.Max(e.baseMax, size); }
+    }
+
     int pending;
     void LateUpdate()
     {

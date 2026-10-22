@@ -61,13 +61,14 @@ public static class UiTheme
         }
     }
 
-    // ---- レア度5色(★1〜5)。ガチャの値(★4 青 / ★5 橙)を基準に、★1〜3 を足した ----
+    // ---- レア度5色(★1〜5)。カードの枠の絵(Resources/CardFrames/CardFrameRarity1〜5)の色に合わせる:
+    //  ★1 細い金(くすんだ金) / ★2 銀 / ★3 金 / ★4 青い石の金(青) / ★5 橙の金(橙)。★3〜5 は今までのガチャの★の色と同じ ----
     public static Color Rarity(int r)
     {
         switch (Mathf.Clamp(r, 1, 5))
         {
-            case 1: return new Color(0.8f, 0.82f, 0.88f);
-            case 2: return new Color(0.55f, 0.9f, 0.6f);
+            case 1: return new Color(0.86f, 0.78f, 0.6f);
+            case 2: return new Color(0.84f, 0.88f, 0.95f);
             case 3: return new Color(1f, 0.85f, 0.4f);
             case 4: return new Color(0.65f, 0.8f, 1f);
             default: return new Color(1f, 0.65f, 0.2f);

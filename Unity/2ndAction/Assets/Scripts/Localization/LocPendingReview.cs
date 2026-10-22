@@ -27,6 +27,10 @@ public static class LocPendingReview
         ? Loc.T(ReturnHomeLine1) + "\n" + Loc.F(ReturnHomeLine2, Mathf.FloorToInt(checkpointMeters).ToString("N0")) + "\n" + Loc.T(ReturnHomeLine3)
         : ReturnHomeOld;
 
+    // ID 10048〜(2026-10-22 画面側の完成度向上 第2段階): 英語の開発表示風だった見出しを日本語の言葉へ。前の文 = 今までの英語
+    public const string GachaStageNext = "カードガチャ Lv.{0}  次の進化まで {1}m"; // ID 10049 {0}=段階 {1}=距離(3桁区切り)
+    public const string GachaStageMax = "カードガチャ Lv.{0}  進化は最大";          // ID 10050
+
     // ID 10012〜10047(2026-10-19): データとプライバシー(プライバシーポリシー/データの削除)と LOCAL の暗号化。レビュー待ち(Docs/LocReview_2026-10-19)。
     //  前の文が無い新しい画面なので、訳が入るまでは日本語のまま出る(開発版だけ)。製品版の Android ビルドは全言語の訳が入るまで止まる
     public static readonly (string id, string key)[] Pending =
@@ -68,5 +72,8 @@ public static class LocPendingReview
         ("10045", "削除できませんでした"),
         ("10046", "マルチプレイの部屋にいる間は削除できません。部屋を出てから試してください"),
         ("10047", "安全な通信を準備できなかったため、部屋を作成できませんでした"),
+        ("10048", DeckEditUI.CollectionHeading),
+        ("10049", GachaStageNext),
+        ("10050", GachaStageMax),
     };
 }

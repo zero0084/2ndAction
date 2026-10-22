@@ -4611,7 +4611,7 @@ public partial class GameManager : MonoBehaviour
             // 2026-10-10(全体点検): 横画面は HUD と同じ倍率で描く(2400x1080 等で小さすぎた)。縦画面は今までどおり
             if (!HomePortrait) BeginHud();
             DrawStatPanel(HomePortrait ? titleBestRect : V(titleBestRect), "BEST", FormatDistanceExact(BestDisplayValue), HudGoldColor, ornate: true);
-            DrawStatPanel(HomePortrait ? GetHomeMileRect() : V(GetHomeMileRect()), "MILE", TotalOwnedMile.ToString(), HudGoldColor, ornate: true);
+            DrawStatPanel(HomePortrait ? GetHomeMileRect() : V(GetHomeMileRect()), "MILE", TotalOwnedMile.ToString("N0"), HudGoldColor, ornate: true, mileCoin: true);
             if (!HomePortrait) EndHud();
 
             // 設定/マルチ/DEBUGのボタンは、背景・分離画像・演出・粒子より手前に描く(入力は上で先に判定済み)。
@@ -4884,7 +4884,8 @@ public partial class GameManager : MonoBehaviour
     // 示を一度だけ強調" (Scale 1.0->1.25->1.0, Color White->Gold->White).
     // Only the DISTANCE panel ever passes non-zero; every other caller's
     // default 0f leaves this identical to before.
-    void DrawStatPanel(Rect rect, string label, string valueText, Color valueColor, bool ornate = false, float flashIntensity = 0f)
+    // mileCoin(2026-10-22): 値の左に MILE のコイン(合成/ガチャ/RESULT と同じ絵)
+    void DrawStatPanel(Rect rect, string label, string valueText, Color valueColor, bool ornate = false, float flashIntensity = 0f, bool mileCoin = false)
     {
         if (ornate) OrnateUi.DrawPanel(rect, 0.85f);
         else UiBackdrop.Draw(rect, 0.85f);
@@ -4914,7 +4915,15 @@ public partial class GameManager : MonoBehaviour
             if (vs.x > availW && vs.x > 1f) valueStyle.fontSize = Mathf.Max(11, Mathf.FloorToInt(valueStyle.fontSize * availW / vs.x));
         }
         valueStyle.normal.textColor = flashIntensity > 0f ? Color.Lerp(valueColor, new Color(1f, 0.85f, 0.4f), flashIntensity) : valueColor;
-        LocGUI.Label(new Rect(rect.x + pad, rect.y + topPad + 16f, rect.width - pad * 2f, rect.height - topPad - 18f), valueText, valueStyle);
+        float coinW = 0f;
+        if (mileCoin)
+        {
+            float isz = HudValueFontSize * 0.95f;
+            float lineH = valueStyle.CalcHeight(new GUIContent("0"), 999f);
+            DrawMileMedal(new Rect(rect.x + pad, rect.y + topPad + 16f + (lineH - isz) * 0.5f, isz, isz));
+            coinW = isz + 8f;
+        }
+        LocGUI.Label(new Rect(rect.x + pad + coinW, rect.y + topPad + 16f, rect.width - pad * 2f - coinW, rect.height - topPad - 18f), valueText, valueStyle);
     }
 
     void DrawLevelAndExp()

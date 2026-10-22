@@ -48,6 +48,7 @@ public partial class GameManager
         CardInventory.AddCard(drawn.cardId, 1, 1);
         GachaPulls++;
         gachaRevealQueue.Add(drawn); gachaRevealNewQ.Add(isNew);
+        CardFaceRenderer.Prewarm(drawn, 1); // 2026-10-22: 確認で出す共通のカード面を先に描いておく
         if (!gachaResultOpen && gachaMachineShakeTimer <= 0f) gachaMachineShakeTimer = gachaMachineShakeDuration;
         deskHotspotFlashTimer = roomHotspotFlashDuration;
         if (AudioManager.Instance != null) { AudioManager.Instance.PlaySe(SeId.Gacha); AudioManager.Instance.PlaySe(SeId.Coin); }
@@ -146,7 +147,7 @@ public partial class GameManager
 
         if (highRarity && revealT > 0f)
         {
-            Color glow = card.rarity >= 5 ? new Color(1f, 0.65f, 0.2f) : new Color(0.6f, 0.75f, 1f);
+            Color glow = card.rarity >= 5 ? UiTheme.Rarity(5) : new Color(0.6f, 0.75f, 1f);
             float pulse = 0.4f + 0.6f * Mathf.Abs(Mathf.Sin(revealT * Mathf.PI * 5f));
             float pad = 26f * s * revealT;
             UiKit.Fill(new Rect(panel.x - pad, panel.y - pad, panel.width + pad * 2f, panel.height + pad * 2f), new Color(glow.r, glow.g, glow.b, pulse * revealT));
@@ -158,18 +159,15 @@ public partial class GameManager
         LocGUI.Label(new Rect(panel.x, y, panel.width, 36f * s), isNew ? "NEW CARD" : "DUPLICATE", UiKit.Label(26f * s, TextAnchor.MiddleCenter, true, isNew ? new Color(1f, 0.85f, 0.4f) : new Color(0.7f, 0.85f, 1f)));
         y += 40f * s;
 
-        // カード(絵 + レア度の枠)
-        float icon = Mathf.Min(panel.height * 0.36f, panel.width * 0.42f) * (highRarity ? 1f + 0.08f * revealT : 1f);
-        var iconRect = new Rect(panel.center.x - icon * 0.5f, y + icon * 0.2f, icon, icon);
-        Sprite frame = CardRarityFrames.GetFrame(card.rarity, null);
-        if (frame != null) { float fp = icon * 0.22f; GUI.DrawTexture(new Rect(iconRect.x - fp, iconRect.y - fp, iconRect.width + fp * 2f, iconRect.height + fp * 2f), frame.texture, ScaleMode.ScaleToFit); }
-        if (card.icon != null) GUI.DrawTexture(iconRect, card.icon, ScaleMode.ScaleToFit);
-        y = iconRect.yMax + icon * 0.24f;
+        // カード: 2026-10-22 デッキ編集/合成/3択と同じ共通のカード面(CardFaceRenderer)。描けるまでの一瞬は今までの絵+枠
+        float ch = Mathf.Min(panel.height * 0.47f, panel.width * 0.62f) * (highRarity ? 1f + 0.06f * revealT : 1f);
+        var cardRect = new Rect(panel.center.x - ch / 3f, y, ch * 2f / 3f, ch);
+        CardFaceRenderer.Draw(cardRect, card, 1);
+        y = cardRect.yMax + 8f * s;
 
         LocGUI.Label(new Rect(panel.x, y, panel.width, 40f * s), card.cardName, UiKit.Label(30f * s, TextAnchor.MiddleCenter, true, Color.white));
         y += 38f * s;
-        Color starC = card.rarity >= 5 ? new Color(1f, 0.65f, 0.2f) : card.rarity >= 4 ? new Color(0.65f, 0.8f, 1f) : new Color(1f, 0.85f, 0.4f);
-        LocGUI.Label(new Rect(panel.x, y, panel.width, 28f * s), card.RarityStars, UiKit.Label(22f * s, TextAnchor.MiddleCenter, true, starC));
+        LocGUI.Label(new Rect(panel.x, y, panel.width, 28f * s), card.RarityStars, UiKit.Label(22f * s, TextAnchor.MiddleCenter, true, UiTheme.Rarity(card.rarity)));
         y += 30f * s;
         // 効果の説明(折り返し)
         var desc = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.UpperCenter, wordWrap = true, fontSize = Mathf.RoundToInt(20f * s) };
@@ -184,12 +182,15 @@ public partial class GameManager
         y += dh + 6f * s;
 
         string masteryHint = CardMastery.IsAwakened(card.cardId) ? "  (AWAKENED済み)" : CardMastery.IsMaxReached(card.cardId) ? "  → 合成で MASTERY +1" : "";
-        LocGUI.Label(new Rect(panel.x, y, panel.width, 26f * s), $"Lv.1 +1   OWNED x{gachaResultOwnedCount}{masteryHint}", UiKit.Label(18f * s, TextAnchor.MiddleCenter, false, new Color(1f, 1f, 1f, 0.85f)));
+        // 2026-10-22: 所持は訳のある「所持 x{0}」。ガチャの段階は日本語の文へ(訳はレビュー待ち: 他の言語は前の英語の文)
+        LocGUI.Label(new Rect(panel.x, y, panel.width, 26f * s), "Lv.1 +1   " + Loc.F("所持 x{0}", gachaResultOwnedCount) + masteryHint, UiKit.Label(18f * s, TextAnchor.MiddleCenter, false, new Color(1f, 1f, 1f, 0.85f)));
         y += 26f * s;
         int st = CurrentGachaStage;
         float next = GachaStage.NextEvolutionDistance(st);
-        LocGUI.Label(new Rect(panel.x, y, panel.width, 22f * s), next > 0f ? $"CARD GACHA Lv.{st}   NEXT EVOLUTION {Mathf.FloorToInt(next)}m" : $"CARD GACHA Lv.{st}   MAX EVOLUTION",
-            UiKit.Label(14f * s, TextAnchor.MiddleCenter, false, new Color(0.75f, 0.85f, 1f, 0.85f)));
+        string stageLine = next > 0f
+            ? string.Format(Loc.Reviewed(LocPendingReview.GachaStageNext, "CARD GACHA Lv.{0}   NEXT EVOLUTION {1}m"), st, Mathf.FloorToInt(next).ToString("N0"))
+            : string.Format(Loc.Reviewed(LocPendingReview.GachaStageMax, "CARD GACHA Lv.{0}   MAX EVOLUTION"), st);
+        LocGUI.Label(new Rect(panel.x, y, panel.width, 24f * s), stageLine, UiKit.Label(16f * s, TextAnchor.MiddleCenter, false, UiTheme.TextSubBlue));
 
         // 下: 案内 + (パッド/キー用)閉じる
         string hint = gachaRevealQueue.Count > 0 ? $"タップで次へ(あと {gachaRevealQueue.Count} 枚)" : "タップで閉じる / ガチャ本体をタップでもう1回";

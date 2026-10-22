@@ -214,6 +214,16 @@ public class CardFusionUI : MonoBehaviour
         return (r, t, fill);
     }
 
+    // MILE のコイン(UiIcons.Mile。ホームの MILE 欄・ガチャ・RESULT と同じ絵)を板の左に
+    void AddMileCoin(RectTransform panel, float size, float left)
+    {
+        if (UiIcons.Mile == null) return;
+        var r = NewRect("MileCoin", panel, new Vector2(0, 0.5f), new Vector2(0, 0.5f), Vector2.zero, Vector2.zero);
+        r.pivot = new Vector2(0, 0.5f); r.sizeDelta = new Vector2(size, size); r.anchoredPosition = new Vector2(left, 0);
+        var raw = r.gameObject.AddComponent<RawImage>();
+        raw.texture = UiIcons.Mile; raw.raycastTarget = false;
+    }
+
     ScrollRect MakeScroll(string name, Transform parent, Vector2 aMin, Vector2 aMax, Vector2 oMin, Vector2 oMax, out RectTransform content)
     {
         var view = NewRect(name, parent, aMin, aMax, oMin, oMax);
@@ -255,7 +265,8 @@ public class CardFusionUI : MonoBehaviour
         title.text = Loc.Auto("カード合成");
         var milePanel = Panel("MilePanel", header, new Vector2(1, 0.5f), new Vector2(1, 0.5f), Vector2.zero, Vector2.zero, 2.4f);
         milePanel.pivot = new Vector2(1, 0.5f); milePanel.sizeDelta = new Vector2(330, 66); milePanel.anchoredPosition = new Vector2(-146, 0); // 右端は共通の設定ボタン(SettingsPanel.MenuGearRect)の場所
-        mileText = AddText(NewRect("Mile", milePanel, Vector2.zero, Vector2.one, new Vector2(14, 0), new Vector2(-14, 0)), 28, Gold, TextAnchor.MiddleCenter, true);
+        mileText = AddText(NewRect("Mile", milePanel, Vector2.zero, Vector2.one, new Vector2(58, 0), new Vector2(-14, 0)), 28, Gold, TextAnchor.MiddleCenter, true);
+        AddMileCoin(milePanel, 40f, 18f); // 2026-10-22: MILE は ホーム/ガチャ/RESULT と同じコインの絵を添える
 
         // ===== 左: 所持カード一覧 ===== //
         leftPanel = Panel("ListPanel", rootRect, new Vector2(0.01f, 0.02f), new Vector2(0.595f, 1f), Vector2.zero, new Vector2(0, -116));
@@ -267,6 +278,15 @@ public class CardFusionUI : MonoBehaviour
             float w = 1f / FilterLabels.Length;
             b.rect.anchorMin = new Vector2(w * i, 0); b.rect.anchorMax = new Vector2(w * (i + 1), 1);
             b.rect.offsetMin = new Vector2(3, 0); b.rect.offsetMax = new Vector2(-3, 0);
+            // 2026-10-22: デッキ編集と同じ種類のアイコン(カードの左上と同じ絵)を文字の左に。「すべて」は文字だけ
+            Sprite catIcon = i == 0 ? null : CardCategoryIcons.GetIcon((CardCategory)(i - 1));
+            if (catIcon != null)
+            {
+                var ir = NewRect("Icon", b.rect, new Vector2(0, 0.5f), new Vector2(0, 0.5f), Vector2.zero, Vector2.zero);
+                ir.pivot = new Vector2(0, 0.5f); ir.sizeDelta = new Vector2(34, 34); ir.anchoredPosition = new Vector2(8, 0);
+                var ii = AddImage(ir, Color.white, catIcon); ii.preserveAspect = true;
+                b.label.rectTransform.offsetMin = new Vector2(38, 2);
+            }
             filterButtons.Add(b);
         }
         var sortRow = NewRect("SortRow", leftPanel, new Vector2(0, 1), new Vector2(1, 1), new Vector2(22, -134), new Vector2(-22, -84));
