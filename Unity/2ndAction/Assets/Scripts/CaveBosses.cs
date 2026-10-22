@@ -1197,6 +1197,8 @@ public class DrakeBoss : CaveBossBase
         locoStyle = LocoStyle.Stride;
         footstepShake = true;
         enterSpeed = 9f;
+        animKey = "drake"; // 2026-10-22: 姿勢ごとのコマ(Resources/BossAnim/drake、エステルさんと相談、マゼンタ背景)。獣性・破壊: 四足の突進と地面を掘り砕く。0=噛みつき 1=爪 2=炎の息(咆哮も) 3=突進 4=尾で天井、潜る/飛び出す=dive_/emerge_、頭が下がった隙=exhaust_(CaveRecovery)
+        artPoseProceduralScale = 0.3f;
         Vector2 bc = new Vector2(FrontReach + 0.6f, bodyHeight * 0.55f), bs = new Vector2(2.6f, 1.4f);
         bite = NewHitbox("Bite", bc, bs, BossFx.Fang(), new Color(1f, 0.6f, 0.3f, 0.95f));
         biteMark = NewMarker(bc, bs);
@@ -1222,10 +1224,11 @@ public class DrakeBoss : CaveBossBase
                 continue;
             }
             int pick = BossAiUtil.PickNoRepeat(4, ref lastPick);
-            if (pick == 0) yield return Melee(bite, biteMark, 1.5f, 3.0f, 0.55f, 0.24f, 0.8f);
+            if (pick == 0) { animVariant = 0; yield return Melee(bite, biteMark, 1.5f, 3.0f, 0.55f, 0.24f, 0.8f); }
             else if (pick == 1)
             {
                 claw.damageAmount = HitDmg;
+                animVariant = 1;
                 yield return Telegraph(0.5f, clawMark);
                 StartCoroutine(DashMove(0.3f, 5f));
                 yield return Strike(claw, 0.26f);
@@ -1234,11 +1237,12 @@ public class DrakeBoss : CaveBossBase
             else if (pick == 2)
             {
                 breath.damageAmount = HitDmg;
+                animVariant = 2;
                 yield return Telegraph(0.9f, breathMark);
                 yield return Strike(breath, 0.55f, 0.06f);
                 yield return Recover(1.1f * RecoverMul);
             }
-            else { yield return Rush(rush, rushMark, 7.5f, 0.8f, 0.5f, 13f, false); yield return Recover(0.9f * RecoverMul); }
+            else { animVariant = 3; yield return Rush(rush, rushMark, 7.5f, 0.8f, 0.5f, 13f, false); yield return Recover(0.9f * RecoverMul); }
         }
     }
 
@@ -1252,6 +1256,7 @@ public class DrakeBoss : CaveBossBase
 
     IEnumerator TailCeiling()
     {
+        animVariant = 4; // コマ: 身を沈める → 尾で天井を打つ
         yield return Telegraph(0.8f);
         PlayAttackPose(0.3f);
         Shake(0.14f, 0.25f);
@@ -1264,6 +1269,7 @@ public class DrakeBoss : CaveBossBase
     IEnumerator DragonRage()
     {
         if (!StartUlt("CAVERN DRAGON RAGE", new Color(1f, 0.5f, 0.2f))) yield break;
+        animVariant = 2; // 必殺技は技ごとのコマ(咆哮=炎の溜め / ブレス / 突進)。ult_ は使わない
         yield return MoveToGap(7f, 6f, 1.2f);
         // ① 咆哮(天井にひび)
         Glow(0.9f, new Color(1f, 0.45f, 0.2f));
@@ -1288,6 +1294,7 @@ public class DrakeBoss : CaveBossBase
         yield return EmergeStrike(3.2f, 2.4f, 1.1f, CaveLook.Fire, true, 0.4f);
         if (Upgraded) { RockAt(6f, 1.0f, 0.9f, 6.5f); yield return Wait(0.6f); }
         // ⑥ 突進(跳ぶ)
+        animVariant = 3;
         yield return Rush(rush, rushMark, 7.5f, 0.8f, 0.55f, 15f, true);
         yield return CaveRecovery(4.0f, "頭が下がった! 長い反撃のチャンス!", new Vector2(1.1f, 0.75f), CaveLook.Fire, new Vector2(0.85f, 0.3f), 2.4f, 1.3f);
     }
