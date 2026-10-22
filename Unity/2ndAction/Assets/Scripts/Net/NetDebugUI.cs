@@ -73,11 +73,13 @@ public class NetDebugUI : MonoBehaviour
     {
         if (stylesForHeight == Screen.height && labelStyle != null) return;
         stylesForHeight = Screen.height;
+        // 2026-10-22(画面側の完成度向上): 文字の色は UiTheme(本文/補足/見出し)。補足は少し大きく・行間を空けて読みやすく
         labelStyle = new GUIStyle(GUI.skin.label) { fontSize = 20, wordWrap = true };
-        labelStyle.normal.textColor = new Color(0.92f, 0.94f, 1f);
-        smallStyle = new GUIStyle(labelStyle) { fontSize = 16 };
-        titleStyle = new GUIStyle(labelStyle) { fontSize = 24, fontStyle = FontStyle.Bold };
-        titleStyle.normal.textColor = new Color(1f, 0.86f, 0.45f);
+        labelStyle.normal.textColor = UiTheme.Text;
+        smallStyle = new GUIStyle(labelStyle) { fontSize = 17 };
+        smallStyle.normal.textColor = UiTheme.TextSubBlue;
+        titleStyle = new GUIStyle(labelStyle) { fontSize = 28, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft };
+        titleStyle.normal.textColor = UiTheme.GoldText;
         buttonStyle = UiKit.MakeButtonStyle(20); // 2026-10-09(依頼G-2): 他の画面と同じ 濃紺+金の縁
         fieldStyle = new GUIStyle(GUI.skin.textField) { fontSize = 22, alignment = TextAnchor.MiddleLeft };
         tagStyle = new GUIStyle(labelStyle) { fontSize = 18, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
@@ -161,12 +163,11 @@ public class NetDebugUI : MonoBehaviour
         Color keep = GUI.color;
         GUI.color = new Color(0f, 0f, 0f, 0.55f);
         GUI.DrawTexture(new Rect(0f, 0f, w, h), Texture2D.whiteTexture);
-        GUI.color = new Color(0.07f, 0.08f, 0.12f, 0.96f);
-        GUI.DrawTexture(panel, Texture2D.whiteTexture);
         GUI.color = keep;
-        GUI.Box(panel, "");
+        // 2026-10-22: 開発時の画面(Unity 既定の箱)だった → 他の画面と同じ飾り枠の板(OrnateUi)。中身は枠の飾りの内側に
+        OrnateUi.DrawPanel(panel, 0.96f);
         // 2026-10-08: 長い言語で文が増えても下のボタンへ届くよう、中身全体を指でスクロールできるようにする(収まる時は今までどおり)
-        Rect area = new Rect(panel.x + 20f, panel.y + 16f, pw - 40f, ph - 32f);
+        Rect area = new Rect(panel.x + 34f, panel.y + 28f, pw - 68f, ph - 56f);
         float max = Mathf.Max(0f, panelContentH - area.height);
         var ev = Event.current;
         if (max > 0.5f)
@@ -240,7 +241,7 @@ public class NetDebugUI : MonoBehaviour
 
     void DrawTop()
     {
-        GUILayout.Label("MULTIPLAYER", titleStyle);
+        TitleWithIcon("MULTIPLAYER");
         GUILayout.Space(10f);
         if (PadNav.LayoutButton(GUILayout.Button("LOCAL PLAY", buttonStyle, GUILayout.Height(70f)))) { online = false; Go(MultiScreen.Mode); }
         GUILayout.Label(L("同じWi-Fi、またはスマホのテザリングにつないだ端末どうしで遊びます(最大" + NetSession.MaxPlayers + "人)。"), smallStyle);
@@ -248,9 +249,28 @@ public class NetDebugUI : MonoBehaviour
         if (PadNav.LayoutButton(GUILayout.Button("ONLINE PLAY", buttonStyle, GUILayout.Height(70f)))) StartOnline();
         GUILayout.Label(L("インターネットで、離れた場所の人と遊びます(最大" + NetSession.MaxPlayers + "人)。"), smallStyle);
         GUILayout.FlexibleSpace();
-        if (PadNav.LayoutButton(GUILayout.Button(L("ADVANCED(IPを直接入力・開発用)"), buttonStyle, GUILayout.Height(40f)))) Go(MultiScreen.Advanced);
-        GUILayout.Space(6f);
+        // 2026-10-22: IP を直接入れる画面は開発版だけ(製品版では入口ごと出さない。以前は製品版にも出ていた)
+        if (Debug.isDebugBuild)
+        {
+            if (PadNav.LayoutButton(GUILayout.Button(L("ADVANCED(IPを直接入力・開発用)"), buttonStyle, GUILayout.Height(40f)))) Go(MultiScreen.Advanced);
+            GUILayout.Space(6f);
+        }
         if (PadNav.LayoutButton(GUILayout.Button(L("閉じる"), buttonStyle, GUILayout.Height(48f)))) ClosePanelFromUi();
+    }
+
+    // 見出し(2026-10-22): 左にホームの「マルチ」と同じアイコン
+    void TitleWithIcon(string title)
+    {
+        GUILayout.BeginHorizontal();
+        var icon = UiIcons.Home("multi");
+        if (icon != null)
+        {
+            Rect ir = GUILayoutUtility.GetRect(40f, 40f, GUILayout.Width(40f), GUILayout.Height(40f));
+            if (Event.current.type == EventType.Repaint) UiIcons.Draw(ir, icon);
+            GUILayout.Space(8f);
+        }
+        GUILayout.Label(title, titleStyle, GUILayout.Height(40f));
+        GUILayout.EndHorizontal();
     }
 
     // ONLINE PLAY を選んだ時に初めて UGS を初期化する(LOCAL/シングルでは一切使わない)
