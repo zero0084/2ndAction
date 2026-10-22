@@ -71,7 +71,7 @@ public static class StageDatabaseBuilder
             // Home画面改善依頼③(2026-09-15) - 新規画像生成はせず、既存の
             // 天空回廊デフォルト背景をそのままプレビューに流用する(マスター
             // 指示「新しい画像をUnity側で生成する必要はありません」に対応)。
-            thumbnailPath = "Assets/Art/Background/background.png",
+            thumbnailPath = "Assets/Art/Background/SkyCorridorThumbnail.png", // 2026-10-22: エステルさんと相談した専用の絵(以前は共通の背景 background.png の流用)
         },
         new Spec
         {

@@ -16,6 +16,9 @@ public partial class GameManager
     // 2026-10-14: 「キャラ選択」(ID 10001、ホームの札と縦画面の下のボタン専用の短い訳)と「デッキ編集」(ID 10000)はエステルのレビュー済みの訳(Tools/loc/keys_extra17.tsv)。
     //   キャラ選択の画面の題名(ID 242 CHARACTER SELECT)とは別の ID(題名の訳は変えない)
     public static string[] HomeSignLabels => new[] { "キャラ選択", "デッキ編集", "カード合成", "ガチャ", "出発" };
+    // 2026-10-22(画面側の完成度向上): 札のアイコン(UiIcons.Home)。縦画面の下のボタン列も同じ絵
+    public static readonly string[] HomeSignIcons = { "character", "deck", "fusion", "gacha", "depart" };
+    float homeSignUnifiedW; // 小さい札4枚(キャラ選択/デッキ編集/カード合成/ガチャ)の幅をそろえる(一番長い札に合わせる)
     public static int HomeSignTaps { get; private set; } // 確認用
     public Rect[] LastHomeSignRects { get; private set; } = new Rect[6];      // 4 = 出発 / 続きから、5 = はじめから
     public Rect[] LastHomeSignHitRects { get; private set; } = new Rect[6];
@@ -24,7 +27,7 @@ public partial class GameManager
     float HomeSignFont => Mathf.Clamp(bgRoomRect.height * 0.03f, 13f, 30f);
 
     // 札を1枚描く。押されたら true(タップの範囲 = 札)
-    bool DrawHomeSign(int idx, Vector2 anchor, bool below, string label, bool interactable, float fade, float phase, string sub = null, float scale = 1f, bool primary = false)
+    bool DrawHomeSign(int idx, Vector2 anchor, bool below, string label, bool interactable, float fade, float phase, string sub = null, float scale = 1f, bool primary = false, Texture2D icon = null, float minW = 0f)
     {
         float fs = HomeSignFont * scale;
         float padX = scale > 1.01f ? 2.2f : 1.4f, padY = scale > 1.01f ? 1.0f : 0.5f; // 大きい札は文字の周りの余白も広く
@@ -42,7 +45,10 @@ public partial class GameManager
             subSz = subSt.CalcSize(new GUIContent(sub));
             if (subSz.x + fs * padX > maxW) { subSt.fontSize = Mathf.Max(10, Mathf.FloorToInt(subSt.fontSize * (maxW - fs * padX) / Mathf.Max(1f, subSz.x))); subSz = subSt.CalcSize(new GUIContent(sub)); }
         }
-        float w = Mathf.Max(sz.x, subSz.x) + fs * padX, h = sz.y + subSz.y + fs * padY;
+        // アイコン(2026-10-22): 文字の左。大きさは1行目の文字の高さの 1.25 倍
+        float iconS = icon != null ? Mathf.Round(sz.y * 1.25f) : 0f, iconGap = icon != null ? fs * 0.3f : 0f;
+        float w = Mathf.Max(sz.x, subSz.x) + iconS + iconGap + fs * padX, h = Mathf.Max(sz.y + subSz.y, iconS) + fs * padY;
+        w = Mathf.Max(w, Mathf.Min(minW, maxW));
         Rect r = new Rect(anchor.x - w * 0.5f, below ? anchor.y : anchor.y - h, w, h);
         // 画面(安全な範囲)の中へ
         r.x = Mathf.Clamp(r.x, SafeLeft() + 4f, Screen.width - SafeRight() - 4f - r.width);
@@ -65,13 +71,24 @@ public partial class GameManager
         st.normal.textColor = new Color(1f, 0.93f, 0.7f, fade);
         GUI.color = Color.white;
         if (primary) st.normal.textColor = new Color(1f, 0.97f, 0.82f, fade);
-        if (subSt == null) GUI.Label(r, shown, st);
+        // アイコンがある時は「アイコン+文字」のまとまりを札の中央へ
+        Rect tr = r;
+        if (icon != null)
+        {
+            float blockW = iconS + iconGap + Mathf.Max(sz.x, subSz.x);
+            float bx = r.center.x - blockW * 0.5f;
+            Color k2 = GUI.color; GUI.color = new Color(1f, 1f, 1f, fade);
+            UiIcons.Draw(new Rect(bx, r.center.y - iconS * 0.5f, iconS, iconS), icon);
+            GUI.color = k2;
+            tr = new Rect(bx + iconS + iconGap, r.y, Mathf.Max(sz.x, subSz.x), r.height);
+        }
+        if (subSt == null) GUI.Label(tr, shown, st);
         else
         {
-            float top = r.y + fs * padY * 0.4f;
-            GUI.Label(new Rect(r.x, top, r.width, sz.y), shown, st);
+            float top = r.y + (r.height - sz.y - subSz.y) * 0.5f;
+            GUI.Label(new Rect(tr.x, top, tr.width, sz.y), shown, st);
             subSt.normal.textColor = new Color(HudGoldColor.r, HudGoldColor.g, HudGoldColor.b, 0.85f * fade);
-            GUI.Label(new Rect(r.x, top + sz.y - fs * 0.05f, r.width, subSz.y), sub, subSt);
+            GUI.Label(new Rect(tr.x, top + sz.y - fs * 0.05f, tr.width, subSz.y), sub, subSt);
         }
         GUI.color = keep;
         // タップの範囲: 大きい札は見た目より少し広く(縦の余白ぶん。隣の札とは重ならない間隔で並べる)
@@ -86,21 +103,30 @@ public partial class GameManager
     {
         if (fade < 0.05f) return;
         for (int i = 0; i < LastHomeSignRects.Length; i++) { LastHomeSignRects[i] = Rect.zero; LastHomeSignHitRects[i] = Rect.zero; }
+        // 小さい札4枚の幅をそろえる(アイコンが入った時だけ。文字だけの今の形は変えない)
+        homeSignUnifiedW = 0f;
+        if (UiIcons.Home(HomeSignIcons[0]) != null)
+        {
+            var mst = new GUIStyle(GUI.skin.label) { fontSize = Mathf.RoundToInt(HomeSignFont), fontStyle = FontStyle.Bold, wordWrap = false };
+            float lh = mst.CalcSize(new GUIContent("A")).y;
+            for (int k = 0; k < 4; k++) homeSignUnifiedW = Mathf.Max(homeSignUnifiedW, mst.CalcSize(new GUIContent(Loc.Auto(HomeSignLabels[k]))).x);
+            homeSignUnifiedW += Mathf.Round(lh * 1.25f) + HomeSignFont * 0.3f + HomeSignFont * 1.4f;
+        }
         // キャラ選択: 肖像画の下(2行目に今のキャラの名前。以前の名前の表示はここへまとめた)
         var cdef = CharacterDatabase.FindById(SelectedCharacterId);
-        if (DrawHomeSign(0, new Vector2(characterRect.center.x, characterRect.yMax + 4f), true, HomeSignLabels[0], interactable, fade, 0f, cdef != null ? Loc.Auto(cdef.displayName) : null)) // 2行目のキャラ名もレビュー済みの訳(keys.tsv の char の行)へ。以前は英語のまま
+        if (DrawHomeSign(0, new Vector2(characterRect.center.x, characterRect.yMax + 4f), true, HomeSignLabels[0], interactable, fade, 0f, cdef != null ? Loc.Auto(cdef.displayName) : null, icon: UiIcons.Home(HomeSignIcons[0]), minW: homeSignUnifiedW)) // 2行目のキャラ名もレビュー済みの訳(keys.tsv の char の行)へ。以前は英語のまま
         { characterHotspotFlashTimer = roomHotspotFlashDuration; PlayRoomTap(); OpenCharacterSelect(); }
         // デッキ編集: ベッドの上のカードの上
         Vector2 deckAt = new Vector2(bgRoomRect.x + bgRoomRect.width * 0.17f, bgRoomRect.y + bgRoomRect.height * 0.63f);
-        if (DrawHomeSign(1, deckAt, false, HomeSignLabels[1], interactable, fade, 1f))
+        if (DrawHomeSign(1, deckAt, false, HomeSignLabels[1], interactable, fade, 1f, icon: UiIcons.Home(HomeSignIcons[1]), minW: homeSignUnifiedW))
         { bedHotspotFlashTimer = roomHotspotFlashDuration; PlayRoomTap(); OpenDeckEdit(); }
         // カード合成: 本の山の上
-        if (DrawHomeSign(2, new Vector2(bookRect.center.x, bookRect.y + bookRect.height * 0.12f), false, HomeSignLabels[2], interactable, fade, 2f))
+        if (DrawHomeSign(2, new Vector2(bookRect.center.x, bookRect.y + bookRect.height * 0.12f), false, HomeSignLabels[2], interactable, fade, 2f, icon: UiIcons.Home(HomeSignIcons[2]), minW: homeSignUnifiedW))
         { bookHotspotFlashTimer = roomHotspotFlashDuration; PlayRoomTap(); OpenCardFusion(); }
         // ガチャ: 機械の下(上は横画面の設定/マルチのボタンと重なる)。横画面で「広告で1回引く」が機械の下にある時は、その下
         float gachaY = machineRect.yMax + 4f;
         if (!HomePortrait && AdGachaAvailable) gachaY = machineRect.yMax + 6f + 54f * GachaUiScale + 6f;
-        if (machineRect.width > 1f && !gachaResultOpen && DrawHomeSign(3, new Vector2(machineRect.center.x, gachaY), true, HomeSignLabels[3], interactable, fade, 3f))
+        if (machineRect.width > 1f && !gachaResultOpen && DrawHomeSign(3, new Vector2(machineRect.center.x, gachaY), true, HomeSignLabels[3], interactable, fade, 3f, icon: UiIcons.Home(HomeSignIcons[3]), minW: homeSignUnifiedW))
         { deskHotspotFlashTimer = roomHotspotFlashDuration; OnGachaMachineTapped(); }
         if (HomeShowsContinueChoice)
         {
@@ -115,7 +141,7 @@ public partial class GameManager
             { PlayRoomTap(); showNewRunConfirm = true; }
         }
         // 出発: 扉の下(中断中のランが無い時)
-        else if (DrawHomeSign(4, new Vector2(doorRect.center.x, doorRect.yMax + 6f), true, HomeSignLabels[4], interactable, fade, 4f))
+        else if (DrawHomeSign(4, new Vector2(doorRect.center.x, doorRect.yMax + 6f), true, HomeSignLabels[4], interactable, fade, 4f, icon: UiIcons.Home(HomeSignIcons[4])))
         { doorHotspotFlashTimer = roomHotspotFlashDuration; lastDoorRect = doorRect; OnDoorTapped(); }
     }
 

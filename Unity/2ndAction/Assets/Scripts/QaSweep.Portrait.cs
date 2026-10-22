@@ -166,11 +166,12 @@ public partial class QaSweep
             {
                 csTap.Invoke(cs, new object[] { Center(cs.cardSlotRects[1]) }); yield return new WaitForSecondsRealtime(0.5f);
                 Check(Sel() == 1, $"portrait: char select tap on card 1 selects it (got {Sel()})");
-                yield return Rot(true); Shot("rot_char_land");
+                Shot("rot_char_port_tapped"); // 2026-10-22: 回す前(情報の欄が選んだキャラと合っているか)
+                yield return Rot(true); Shot("rot_char_land"); yield return null; // 撮影はフレームの終わり: 次の操作は次のフレームで(2026-10-22: 同じフレームで押していて、情報の欄だけ次のキャラになって写っていた)
                 Check(Sel() == 1, $"portrait: selection kept after rotate to landscape (got {Sel()})");
                 csTap.Invoke(cs, new object[] { Center(cs.cardSlotRects[2]) }); yield return new WaitForSecondsRealtime(0.5f);
                 Check(Sel() == 2, $"landscape: tap on card 2 selects it after rotation (got {Sel()})");
-                yield return Rot(false); Shot("rot_char_port");
+                yield return Rot(false); Shot("rot_char_port"); yield return null;
                 Check(Sel() == 2, $"portrait: selection kept after rotate back (got {Sel()})");
                 csTap.Invoke(cs, new object[] { Center(cs.cardSlotRects[1]) }); yield return new WaitForSecondsRealtime(0.5f); // 端のカードは左右の矢印の下なので隣を押す
                 Check(Sel() == 1, $"portrait: tap on card 1 selects it after rotation (got {Sel()})");

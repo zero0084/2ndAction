@@ -2017,12 +2017,15 @@ public partial class GameManager : MonoBehaviour
         string[] labels = { HomeSignLabels[0], HomeSignLabels[1], HomeSignLabels[2], HomeSignLabels[3] }; // 部屋の札と同じ名前(2026-10-11)
         float gap = 8f, w = (pl.facility.width - gap * 3f) / 4f;
         float fs = Mathf.Round(Mathf.Min(pl.facility.height * 0.34f, w * 0.2f));
+        var rowPlan = new System.Collections.Generic.List<(Rect, string)>();
+        for (int i = 0; i < 4; i++) rowPlan.Add((new Rect(pl.facility.x + i * (w + gap), pl.facility.y, w, pl.facility.height), labels[i]));
+        HomeIconPlan plan = PlanHomeIconRow(rowPlan, fs);
         for (int i = 0; i < 4; i++)
         {
             Rect b = new Rect(pl.facility.x + i * (w + gap), pl.facility.y, w, pl.facility.height);
             bool ok = i == 3 ? (interactable || (gachaResultOpen && !showNewRunConfirm && !NetDebugUI.BlocksHomeInput && !UiInputGate.Blocked)) : interactable;
             if (i == 3 && gachaResultOpen) continue; // 確認中は本体を押す(下の窓と重ねない)
-            bool hit = DrawStyledButton(b, labels[i], FitFont(labels[i], OrnateTextW(b), fs), primary: i == 0, ornate: true);
+            bool hit = DrawHomeIconButton(b, UiIcons.Home(HomeSignIcons[i]), labels[i], plan, primary: i == 0); // 2026-10-22: 部屋の札と同じアイコン
             if (!hit || !ok || fade <= 0.99f) continue;
             if (i == 0) OpenCharacterSelect();
             else if (i == 1) OpenDeckEdit();
@@ -2031,6 +2034,44 @@ public partial class GameManager : MonoBehaviour
         }
         if (!gachaResultOpen) DrawAdGachaButton(new Rect(pl.facility.x + 3f * (w + gap), pl.facility.y, w, pl.facility.height), interactable, fade); // 広告で1回引く(2026-10-10)
     }
+    // ホームのアイコン付きボタン(2026-10-22 画面側の完成度向上): 右上の 設定/マルチ/ランキング/闘技場 と縦画面の入口の列を同じ決まりに。
+    //  ・1行に「アイコン+名前」。アイコンは字の高さに合わせた大きさ(字の 1.3 倍、ボタンの高さの 52% まで)。まとまりはボタンの中央
+    //  ・字の大きさは「列ごと」に1つ(PlanHomeIconRow: 列の中で一番入りにくい名前に合わせる)。同じ列で大きさがばらばらにならない
+    //  ・どうしても字が小さくなりすぎる(0.6 倍未満)長い言語では、その列は字だけ(名前の方がアイコンより大事)
+    struct HomeIconPlan { public bool icons; public float font; }
+    const float HomeIconPerFont = 1.3f, HomeIconGap = 6f;
+    float HomeIconFont(Rect r, string label, float fs)
+    {
+        float avail = OrnateTextW(r) - HomeIconGap;
+        if (fitFontStyle == null) fitFontStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, wordWrap = false };
+        fitFontStyle.fontSize = Mathf.RoundToInt(fs);
+        float k = fitFontStyle.CalcSize(new GUIContent(Loc.Auto(label))).x / Mathf.Max(1f, fs);
+        float f = avail / Mathf.Max(0.01f, k + HomeIconPerFont); // 字の幅 k*f + アイコン 1.3f が入る大きさ
+        return Mathf.Min(fs, Mathf.Floor(f));
+    }
+    HomeIconPlan PlanHomeIconRow(System.Collections.Generic.List<(Rect r, string label)> row, float fs)
+    {
+        float f = fs;
+        foreach (var b in row) f = Mathf.Min(f, HomeIconFont(b.r, b.label, fs));
+        if (f >= fs * 0.6f) return new HomeIconPlan { icons = true, font = f };
+        float t = fs;
+        foreach (var b in row) t = Mathf.Min(t, FitFont(b.label, OrnateTextW(b.r), fs));
+        return new HomeIconPlan { icons = false, font = t };
+    }
+    bool DrawHomeIconButton(Rect r, Texture2D icon, string label, HomeIconPlan plan, bool primary)
+    {
+        if (icon == null || !plan.icons)
+            return DrawStyledButton(r, label, Mathf.Min(plan.font, FitFont(label, OrnateTextW(r), plan.font)), primary: primary, ornate: true);
+        bool hit = DrawStyledButton(r, "", plan.font, primary: primary, ornate: true);
+        var st = UiKit.Label(plan.font, TextAnchor.MiddleLeft, true, Color.white);
+        float iconS = Mathf.Min(r.height * 0.52f, plan.font * HomeIconPerFont);
+        float tw = st.CalcSize(new GUIContent(Loc.Auto(label))).x;
+        float bx = r.center.x - (iconS + HomeIconGap + tw) * 0.5f;
+        UiIcons.Draw(new Rect(bx, r.y + (r.height - iconS) * 0.5f, iconS, iconS), icon);
+        LocGUI.Label(new Rect(bx + iconS + HomeIconGap, r.y, tw + 4f, r.height), label, st);
+        return hit;
+    }
+
     // ボタンの文字が幅に入らない時(長い言語/縦画面の狭いボタン)だけ字を小さく(2026-10-08)
     GUIStyle fitFontStyle;
     // 2026-10-14(エステルの指摘): 飾り枠のボタンは四隅の飾りに字が掛かっていた(縦画面の Fusão de cartas など)→ 字は内側の 78% に収める
@@ -5702,30 +5743,27 @@ public partial class GameManager : MonoBehaviour
         float fs = Mathf.Round(HomeButtonHeight * 0.32f);
         if (HomePortrait) fs = Mathf.Round(Mathf.Min(PortraitHome().chrome.height * 0.38f, PortraitChromeSlot(0).width * 0.17f)); // 縦: 4つ並びの幅に収まる字の大きさ
         Rect setRect = GetHomeSettingsButtonRect();
-        // 2026-10-10(全体点検): 長い言語(Einstellungen 等)では歯車が字に重なり、字も極端に小さかった → 歯車の右の空きに字を収める
-        // 2026-10-14: 歯車と字を飾り枠の四隅から離す(縦画面で歯車が左の飾りに重なっていた)
-        float gearS = setRect.height * 0.52f, gearX = setRect.x + Mathf.Max(6f, setRect.width * 0.12f);
-        Rect setText = new Rect(gearX + gearS + 4f, setRect.y, setRect.xMax - (gearX + gearS + 4f) - Mathf.Max(8f, setRect.width * 0.11f), setRect.height);
-        if (DrawStyledButton(setRect, "", fs, primary: false, ornate: true)) SettingsPanel.OpenStatic();
-        float setFs = FitFont("設定", setText.width, fs);
-        if (setFs >= fs * 0.7f)
-        {
-            UiKit.DrawGear(new Rect(gearX, setRect.y + (setRect.height - gearS) * 0.5f, gearS, gearS), 1f, new Color(1f, 0.88f, 0.55f));
-            LocGUI.Label(setText, "設定", UiKit.Label(setFs, TextAnchor.MiddleCenter, true, Color.white));
-        }
-        else UiKit.DrawGear(new Rect(setRect.center.x - gearS * 0.6f, setRect.y + (setRect.height - gearS * 1.2f) * 0.5f, gearS * 1.2f, gearS * 1.2f), 1f, new Color(1f, 0.88f, 0.55f)); // 字が読めない大きさになる言語: 歯車だけ
-        if (Platform.Online.LanMultiplayer && DrawStyledButton(GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel, FitFont(NetDebugUI.HomeButtonLabel, OrnateTextW(GetHomeMultiButtonRect()), fs), primary: NetSession.IsActive, ornate: true)) NetDebugUI.OpenPanel();
+        // 2026-10-22: 設定/マルチ/ランキング/闘技場 は同じ決まりのボタン(アイコン+名前、並び方と字の大きさは4つで1つ)。
+        //  以前の設定ボタンの工夫(長い言語では字を歯車の右の空きに収める・飾りの四隅から離す)は DrawHomeIconButton の横並びに引き継いだ
+        bool arenaOpen = UnlockRules.IsArenaUnlocked;
+        bool showMulti = Platform.Online.LanMultiplayer, showArena = arenaOpen && !NetSession.IsActive, showRanking = !NetSession.IsActive;
+        var chromeRow = new System.Collections.Generic.List<(Rect, string)> { (setRect, "設定") };
+        if (showMulti) chromeRow.Add((GetHomeMultiButtonRect(), NetDebugUI.HomeButtonLabel));
+        if (showArena) chromeRow.Add((GetHomeArenaButtonRect(), "闘技場"));
+        if (showRanking) chromeRow.Add((GetHomeRankingButtonRect(), "ランキング"));
+        HomeIconPlan chromePlan = PlanHomeIconRow(chromeRow, fs);
+        if (DrawHomeIconButton(setRect, UiIcons.Gear, "設定", chromePlan, primary: false)) SettingsPanel.OpenStatic();
+        if (showMulti && DrawHomeIconButton(GetHomeMultiButtonRect(), UiIcons.Home("multi"), NetDebugUI.HomeButtonLabel, chromePlan, primary: NetSession.IsActive)) NetDebugUI.OpenPanel();
         // 闘技場(2026-10-06 正式版): キャラやカードを自由に試せる練習場。マルチの部屋にいる間は出さない(ソロ用)
         // 闘技場: 天空回廊で30,000m到達+帰還で解放。2026-10-08: 未解放の間はボタンごと出さない(存在を見せない)。解放直後は NEW
-        bool arenaOpen = UnlockRules.IsArenaUnlocked;
-        if (arenaOpen && !NetSession.IsActive)
+        if (showArena)
         {
             Rect ar = GetHomeArenaButtonRect();
-            if (DrawStyledButton(ar, "闘技場", FitFont("闘技場", OrnateTextW(ar), fs), primary: false, ornate: true)) { UnlockRules.MarkStageSeen(UnlockRules.Arena); ArenaConfigStore.Load(); ArenaLauncher.Launch("home", true); }
+            if (DrawHomeIconButton(ar, UiIcons.Home("arena"), "闘技場", chromePlan, primary: false)) { UnlockRules.MarkStageSeen(UnlockRules.Arena); ArenaConfigStore.Load(); ArenaLauncher.Launch("home", true); }
             if (UnlockRules.NewArena) DrawNewDot(ar);
         }
         // ランキング(2026-10-08): 設定の下の段。参加は任意(ランキングの画面で)
-        if (!NetSession.IsActive && DrawStyledButton(GetHomeRankingButtonRect(), "ランキング", FitFont("ランキング", OrnateTextW(GetHomeRankingButtonRect()), fs * 0.92f), primary: false, ornate: true)) RankingPanel.OpenStatic();
+        if (showRanking && DrawHomeIconButton(GetHomeRankingButtonRect(), UiIcons.Home("ranking"), "ランキング", chromePlan, primary: false)) RankingPanel.OpenStatic();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // 2026-10-09(依頼G-2): 開発版だけの入口。小さく薄く、ポップアップ(ガチャの結果など)が開いている間は出さない
         if (Debug.isDebugBuild && !gachaResultOpen && !UiInputGate.ModalOpen && !NetDebugUI.PanelOpen)

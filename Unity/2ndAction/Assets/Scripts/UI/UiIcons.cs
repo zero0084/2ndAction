@@ -121,6 +121,19 @@ public static class UiIcons
     }
 
     // r の中に縦横比を保って描く(GUI.color の色が掛かる)
+    // ホームの入口のアイコン(2026-10-22、エステルさんと相談): Resources/UI/Icons/home_<名前>.png。
+    // 名前: character / deck / fusion / gacha / depart / multi / ranking / arena(設定は Gear)。無ければ null(札/ボタンは文字だけの今までの形)
+    static readonly System.Collections.Generic.Dictionary<string, Texture2D> homeIcons = new System.Collections.Generic.Dictionary<string, Texture2D>();
+    public static Texture2D Home(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return null;
+        if (!homeIcons.TryGetValue(name, out var t)) { t = Resources.Load<Texture2D>("UI/Icons/home_" + name); homeIcons[name] = t; }
+        return t;
+    }
+    // 未解放の鍵(ステージ選択など)。無ければ null
+    static Texture2D lockIcon; static bool lockLoaded;
+    public static Texture2D Lock { get { if (!lockLoaded) { lockLoaded = true; lockIcon = Resources.Load<Texture2D>("UI/Icons/lock"); } return lockIcon; } }
+
     public static void Draw(Rect r, Texture2D tex)
     {
         if (tex == null) return;

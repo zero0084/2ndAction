@@ -140,6 +140,22 @@ public class StageSelectUI : MonoBehaviour
     bool markSeenOnRefresh;
     bool layoutPortrait;
     public bool LastDungeonVisible { get; private set; }
+    // ステージの絵は開くたびにデータ(StageDefinition.thumbnail)から当てる(2026-10-22)。シーンに焼き込んだ絵を作り直さなくても、
+    // 絵を差し替えれば反映される(天空回廊は専用の絵 SkyCorridorThumbnail へ。以前は共通の背景の流用)
+    readonly System.Collections.Generic.Dictionary<Texture2D, Sprite> thumbSprites = new System.Collections.Generic.Dictionary<Texture2D, Sprite>();
+    void ApplyThumbnail(RectTransform slot, StageDefinition def)
+    {
+        if (slot == null || def == null || def.thumbnail == null) return;
+        var t = slot.Find("Thumbnail"); var img = t != null ? t.GetComponent<Image>() : null;
+        if (img == null || (img.sprite != null && img.sprite.texture == def.thumbnail)) return;
+        if (!thumbSprites.TryGetValue(def.thumbnail, out var sp))
+        {
+            sp = Sprite.Create(def.thumbnail, new Rect(0f, 0f, def.thumbnail.width, def.thumbnail.height), new Vector2(0.5f, 0.5f));
+            thumbSprites[def.thumbnail] = sp;
+        }
+        img.sprite = sp; img.type = Image.Type.Simple; img.preserveAspect = true; img.color = Color.white;
+    }
+
     void RefreshLocks(System.Collections.Generic.IReadOnlyList<StageDefinition> all)
     {
         if (slotHome == null || slotHome.Length != cardSlotRects.Length)
@@ -162,7 +178,14 @@ public class StageSelectUI : MonoBehaviour
             var lockLabel = slot.Find("LockLabel");
             if (lockLabel != null) lockLabel.gameObject.SetActive(false);
             var feat = slot.Find("FeatureText"); // 2026-10-08: 特徴の文は枠の中でスクロール(縮めない)
-            if (feat != null) UguiScrollText.Wrap(feat.GetComponent<Text>());
+            if (feat != null)
+            {
+                var ft = feat.GetComponent<Text>();
+                // 2026-10-22(画面側の完成度向上): 説明の文が小さく詰まっていた → 本文の大きさ・行間へ(下の空きを使う)
+                if (ft != null && ft.fontSize < 20) { LocTextBinder.Resize(ft, 20); ft.lineSpacing = 1.1f; }
+                UguiScrollText.Wrap(ft);
+            }
+            ApplyThumbnail(slot, all[i]);
             var cg = slot.GetComponent<CanvasGroup>();
             if (cg != null) cg.alpha = 1f;
             bool isNew = UnlockRules.IsNewStage(all[i].stageId);
