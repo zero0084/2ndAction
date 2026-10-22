@@ -700,11 +700,11 @@ public class DeckEditUI : MonoBehaviour
     // card selected in a PREVIOUS visit to this screen shouldn't still be
     // showing when it's reopened.
     // ===== 2026-10-22 画面側の完成度向上 第2段階(カード) =====
-    //  ・見出しを日本語の言葉へ(COLLECTION → 所持カード[訳はレビュー待ち: Loc.Reviewed で他の言語は前の文] / DECK → デッキ[訳あり])
+    //  ・見出しを日本語の言葉へ(COLLECTION → 所持カード[ID 10048、30言語の訳あり] / DECK → デッキ[訳あり])
     //  ・下の「おすすめ編成 / 全て外す」の文字が小さかった → 大きく
     //  ・中央の詳細欄が未選択の時に大きく空いていた → 空のカード枠 + 案内 + 今のデッキの種類の内訳(種類のアイコンと枚数)
     //  作りはシーンのまま、開いた時に1回だけ足す(BuildCharPanel と同じ)
-    public const string CollectionHeading = "所持カード"; // ID 10048(レビュー待ち)
+    public const string CollectionHeading = "所持カード"; // ID 10048(エステルのレビュー済み、30言語)
     static string CollectionLabel => Loc.Auto(Loc.Reviewed(CollectionHeading, "COLLECTION"));
     bool polishBuilt;
     Text collectionHeader, deckHeader;
