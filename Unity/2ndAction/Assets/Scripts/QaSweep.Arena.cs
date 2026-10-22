@@ -279,6 +279,9 @@ public partial class QaSweep
         yield return new WaitForSecondsRealtime(1.5f);
         Check(Mathf.Approximately(ArenaMode.Current.time, t0) && Mathf.Abs(pc.transform.position.x - x0) < 0.01f && Time.timeScale == 0f, $"E: while the settings panel is open nothing moves and time is not measured (t {t0:F2} -> {ArenaMode.Current.time:F2})");
         yield return ArenaShot("arena_panel");
+        // 2026-10-22: カード/相手のタブ(共通の入力欄・閉じる記号)も撮る
+        var tabF = typeof(ArenaController).GetField("tab", NP);
+        if (tabF != null) { tabF.SetValue(Arena, 1); yield return new WaitForSecondsRealtime(0.2f); yield return ArenaShot("arena_panel_cards"); tabF.SetValue(Arena, 2); yield return new WaitForSecondsRealtime(0.2f); yield return ArenaShot("arena_panel_enemies"); tabF.SetValue(Arena, 0); }
         Arena.SetPanel(false);
         yield return new WaitForSeconds(1f);
         Check(ArenaMode.Current.time > t0 + 0.8f && pc.transform.position.x > x0 + 5f && Time.timeScale > 0f, "E: after closing, the battle and measurement continue");

@@ -1101,8 +1101,24 @@ public partial class GameManager : MonoBehaviour
     // light) -> Stage4 MAGICAL (gold energy) -> StageMAX DEATH-TOUCHED
     // (dark metal + purple). Swap any case to Color.white once real
     // per-stage art exists - nothing else needs to change.
+    // 2026-10-23(エステルさんと相談): 段階ごとの正式な絵(Resources/UI/GachaMachine/stage<2..5>.png、同じ機械に部品を足した絵)。
+    // 5段階とも同じ1枚の一覧から切り出した絵(段階1も描き方をそろえるため一覧の絵)。正式な絵がある時は色を変えない(GachaMachineStageTint は白)
+    static readonly Texture2D[] gachaStageArt = new Texture2D[6];
+    static bool gachaStageArtLoaded;
+    Texture2D GachaMachineArt
+    {
+        get
+        {
+            EnsureGachaStageArt();
+            int st = Mathf.Clamp(CurrentGachaStage, 1, 5);
+            return gachaStageArt[st] != null ? gachaStageArt[st] : gachaMachineTexture; // 5段階とも同じ描き方の絵(エステル)。無ければ元の絵
+        }
+    }
+    static void EnsureGachaStageArt() { if (gachaStageArtLoaded) return; gachaStageArtLoaded = true; for (int i = 1; i <= 5; i++) gachaStageArt[i] = Resources.Load<Texture2D>("UI/GachaMachine/stage" + i); }
+    static bool GachaStageArtReady { get { EnsureGachaStageArt(); return gachaStageArt[2] != null; } }
     static Color GachaMachineStageTint(int stage)
     {
+        if (GachaStageArtReady) return Color.white;
         switch (stage)
         {
             case 1: return new Color(0.8f, 0.74f, 0.62f);
@@ -4608,7 +4624,7 @@ public partial class GameManager : MonoBehaviour
                     Matrix4x4 gachaPrevMatrix = GUI.matrix;
                     float gachaAngle = idleGacha.GachaAngle();
                     if (Mathf.Abs(gachaAngle) > 0.0001f) GUIUtility.RotateAroundPivot(gachaAngle, new Vector2(machineRect.center.x, machineRect.yMax));
-                    GUI.DrawTexture(machineRect, gachaMachineTexture, ScaleMode.ScaleToFit);
+                    GUI.DrawTexture(machineRect, GachaMachineArt, ScaleMode.ScaleToFit);
                     GUI.matrix = gachaPrevMatrix;
                     GUI.color = prevMachine;
                     // 揺れに合わせたコイン(装飾のみ。所持金・報酬処理とは無関係)。

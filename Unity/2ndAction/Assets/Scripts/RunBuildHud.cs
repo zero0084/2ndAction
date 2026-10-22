@@ -312,6 +312,14 @@ public class RunBuildHud : MonoBehaviour
     public readonly List<Rect> ComboRects = new List<Rect>();
     string comboDetailId; float comboDetailUntil;
     static GUIStyle comboIconStyle, comboDetailStyle, comboTitleStyle;
+    static readonly Dictionary<string, Texture2D> comboIcons = new Dictionary<string, Texture2D>();
+    public static Texture2D ComboIcon(string id)
+    {
+        if (string.IsNullOrEmpty(id)) return null;
+        if (!comboIcons.TryGetValue(id, out var t)) { t = Resources.Load<Texture2D>("UI/Combo/" + id); comboIcons[id] = t; }
+        return t;
+    }
+
     void DrawCombos(Rect grid, float slotSize)
     {
         ComboRects.Clear();
@@ -336,13 +344,19 @@ public class RunBuildHud : MonoBehaviour
             ComboRects.Add(r);
             float pulse = a.enhanced ? 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 8f) : 0f;
             if (a.enhanced) Round(Scale(r, 1.18f + 0.06f * pulse), new Color(1f, 0.6f, 0.2f, 0.5f + 0.3f * pulse)); // ENHANCED(最終進化中)
-            Round(r, new Color(0f, 0f, 0f, 0.55f));
-            Color c = a.def.color; c.a = 0.95f;
-            Round(Scale(r, 0.86f), c);
-            comboIconStyle.normal.textColor = Color.black;
-            LocGUI.Label(new Rect(r.x + 1f, r.y + 1f, r.width, r.height), a.def.iconText, comboIconStyle);
-            comboIconStyle.normal.textColor = Color.white;
-            LocGUI.Label(r, a.def.iconText, comboIconStyle);
+            // 2026-10-23: 正式な印(エステルさんと相談: 八角形の台 + 属性色の縁 + 白金の現象の印。Resources/UI/Combo/<id>.png)。無ければ今までの仮(色の丸+2文字)
+            Texture2D comboIcon = ComboIcon(a.def.id);
+            if (comboIcon != null) GUI.DrawTexture(Scale(r, 1.12f), comboIcon, ScaleMode.ScaleToFit, true);
+            else
+            {
+                Round(r, new Color(0f, 0f, 0f, 0.55f));
+                Color c = a.def.color; c.a = 0.95f;
+                Round(Scale(r, 0.86f), c);
+                comboIconStyle.normal.textColor = Color.black;
+                LocGUI.Label(new Rect(r.x + 1f, r.y + 1f, r.width, r.height), a.def.iconText, comboIconStyle);
+                comboIconStyle.normal.textColor = Color.white;
+                LocGUI.Label(r, a.def.iconText, comboIconStyle);
+            }
             if (a.awakened) { comboIconStyle.normal.textColor = new Color(1f, 0.85f, 0.35f); LocGUI.Label(new Rect(r.xMax - s * 0.38f, r.y - s * 0.22f, s * 0.4f, s * 0.4f), "★", comboIconStyle); }
             var ev = Event.current;
             if (ev.type == EventType.MouseDown && Scale(r, 1.2f).Contains(ev.mousePosition))
@@ -374,7 +388,10 @@ public class RunBuildHud : MonoBehaviour
         if (panel.yMax > Screen.height - 8f) panel.y = Screen.height - 8f - h;
         Round(panel, new Color(0.04f, 0.06f, 0.12f, 0.92f));
         comboTitleStyle.normal.textColor = d.def.color;
-        LocGUI.Label(new Rect(panel.x + 12f, panel.y + 6f, w - 24f, fs * 1.6f), "COMBO  " + d.def.displayName, comboTitleStyle);
+        var titleIcon = ComboIcon(d.def.id); // 2026-10-23: 名前の左に同じ印
+        float tix = titleIcon != null ? fs * 1.7f : 0f;
+        if (titleIcon != null) GUI.DrawTexture(new Rect(panel.x + 10f, panel.y + 4f, fs * 1.5f, fs * 1.5f), titleIcon, ScaleMode.ScaleToFit, true);
+        LocGUI.Label(new Rect(panel.x + 12f + tix, panel.y + 6f, w - 24f - tix, fs * 1.6f), "COMBO  " + d.def.displayName, comboTitleStyle);
         comboDetailStyle.normal.textColor = new Color(0.9f, 0.92f, 1f);
         GUI.Label(new Rect(panel.x + 12f, panel.y + fs * 1.8f, w - 24f, h), bodyTr, comboDetailStyle);
     }

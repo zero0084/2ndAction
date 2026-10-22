@@ -204,7 +204,7 @@ public partial class GameManager
             float pulse = 0.75f + 0.25f * Mathf.Sin(Time.unscaledTime * 4f);
             Color keep = GUI.color;
             GUI.color = new Color(1f, 0.95f, 0.8f, 1f);
-            GUI.DrawTexture(lastGachaMachineRect, gachaMachineTexture, ScaleMode.ScaleToFit);
+            GUI.DrawTexture(lastGachaMachineRect, GachaMachineArt, ScaleMode.ScaleToFit);
             GUI.color = keep;
             float lw = Mathf.Max(lastGachaMachineRect.width + 60f * s, 170f * s);
             float lx = Mathf.Clamp(lastGachaMachineRect.center.x - lw * 0.5f, 4f, Screen.width - lw - 4f); // 画面の端で切れない(縦画面、2026-10-08)
