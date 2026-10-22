@@ -2161,6 +2161,7 @@ public partial class GameManager : MonoBehaviour
 #endif
         if (!down) return false;
         if (PointerOnResultButton()) return false; // MILE 2倍のボタン(ボタンが受け取る、2026-10-10)
+        if (!PointerOnResultHome()) return false;  // 2026-10-22: 指/マウスは「ホームへ戻る」の上だけ(情報の上の誤タップ・カードのスクロールで戻らない)
         if (AdManager.Showing || leavingResult || doubleBusy) why = "ad showing";
         else if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) why = "screen transition";
         else if (SettingsPanel.IsVisible) why = "settings panel open";
@@ -3738,6 +3739,7 @@ public partial class GameManager : MonoBehaviour
         if (!QaLegacyDeathBehaviour) GameOverCleanup(); // 2026-10-06: ボス/Encounter/補助/入力の片付け(撃破の処理は通さない)
         ProgressStats.Flush(true);
         // 2026-10-08(仕様変更): 正式な記録は成功(正規の帰還)の時だけ。ゲームオーバーは記録しない(お嬢様騎士の条件だけ見る)
+        resultPrevBest = GetStageBest(activeRunStageId); // 2026-10-22: RESULT の「BEST 前 → 今回」用(確定の前に覚える)
         if (IsWin) { LastCommit = RunLedger.CommitSuccess(MaxDistanceExact); CommitJournal.CrashPoint("commit"); }
         else { RunLedger.OnGameOver(MaxDistanceExact); LastCommit = RunLedger.LastResult; }
         UnlockRules.ClearRunFlags();
@@ -4718,126 +4720,197 @@ public partial class GameManager : MonoBehaviour
     // Full results panel shown once the run ends - distance/time (each
     // starred if it beat the persisted best), kill counts, total EXP
     // earned, and how many level-up choices were taken this run.
+    // ===== RESULT(2026-10-22 画面側の完成度向上 第2段階: 正式化) =====
+    // 「今回どうだったか」を一目で: ①距離 ②MILE ③カード ④大事な更新 ⑤細かい結果 ⑥ホームへ戻る の順で強さを付ける。
+    //  ・成功/ゲームオーバーで骨格は同じ(中身だけ切り替え)。成功: 持ち帰った MILE / 失敗: 失った MILE と残るもの
+    //  ・NEW BEST は「確定した成功」で BEST を超えた時だけ(IsNewBestDistance = LastCommit.committed && newBest)。失敗の距離は記録しない(補足を小さく)
+    //  ・カードはラン中だけの強化(upgradeHistory。所持には入らない)→ 共通のカード面で数枚+残り件数、見出しで「持ち帰らない」と分かるように
+    //  ・ホームへは「ホームへ戻る」ボタンだけ(以前は画面のどこをタップしても戻った → 情報の上の誤タップで戻らない)。パッド/キーの決定・戻るはそのまま
+    //  ・距離と MILE は常に上(スクロールしない)。カード/更新/細かい結果は入らない時だけ中でスクロール。ボタンは常に下
     public Rect LastResultPanelRect { get; private set; } // お知らせ(トースト)を重ねないため(2026-10-10)
+    public Rect LastResultHomeRect { get; private set; }  // ホームへ戻るボタン(タップの判定。ResultTapThisFrame)
+    double resultPrevBest = -1; // このランの前の BEST(成功の確定の直前に覚える。更新の表示「前 → 今回」)
+    readonly UiScroll resultScroll = new UiScroll();
+    float ResultScale => Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 720f, 0.8f, 2.6f);
+
     void DrawResults()
     {
-        GUIStyle headlineStyle = new GUIStyle(GUI.skin.label);
-        headlineStyle.fontSize = 34;
-        headlineStyle.fontStyle = FontStyle.Bold;
-        headlineStyle.alignment = TextAnchor.MiddleCenter;
-        headlineStyle.normal.textColor = Color.white;
-        string headline = IsWin ? "GAME CLEAR" : "FAILED";
+        float s = ResultScale;
+        bool win = IsWin;
+        // 画面全体を少し暗く(後ろの HUD/プレイ画面より結果を前に)
+        UiKit.Fill(new Rect(0f, 0f, Screen.width, Screen.height), new Color(0f, 0f, 0f, 0.45f));
+        float margin = 16f * s;
+        float safeL = SafeLeft() + margin, safeR = Screen.width - SafeRight() - margin, safeT = SafeTop() + margin, safeB = Screen.height - SafeBottom() - margin;
+        float pw = Mathf.Min(safeR - safeL, 760f * s);
+        // 中身の高さ(③〜⑤ と下のボタン)を先に測って、板の高さを中身に合わせる(空いた所を作らない。入らない時は ③〜⑤ がスクロール)
+        var items = ResultUpdateLines(win);
+        float cardsH = upgradeHistory.Count > 0 ? 150f * s : 0f;
+        float updH = items.Count > 0 ? 34f * s + items.Count * 26f * s : 0f;
+        float detH = 30f * s;
+        float contentH = (cardsH > 0 ? cardsH + 10f * s : 0f) + (updH > 0 ? updH + 10f * s : 0f) + detH;
+        float monetH = DoubleOffered ? 92f * Mathf.Min(s, 1.4f) : 0f;
+        float btnH = 60f * s;
+        float needed = 24f * s + 44f * s + 112f * s + 10f * s + 96f * s + 10f * s + contentH + 12f * s + (monetH > 0f ? monetH + 6f * s : 0f) + btnH + 22f * s;
+        float ph = Mathf.Min(safeB - safeT, needed);
+        Rect panel = new Rect((safeL + safeR - pw) * 0.5f, (safeT + safeB - ph) * 0.5f, pw, ph);
+        OrnateUi.DrawPanel(panel, 0.95f);
+        LastResultPanelRect = panel;
+        float pad = 34f * s, x = panel.x + pad, w = pw - pad * 2f, y = panel.y + 24f * s;
 
-        float panelWidth = HudStacked ? Mathf.Min(560f, Screen.width - SafeLeft() - SafeRight() - 32f) : Mathf.Min(560f, Screen.width * 0.8f);
-        // 2026-10-08: 行の数に合わせて行の間隔を詰める(画面の低い端末/文の長い言語でも全部の行が枠に収まる。文字は1行のまま)
-        int rowCount = IsWin ? 8 + ((RunBonusMile > 0 || RunRingMile > 0) ? 1 : 0) + ((LastCommit != null && (LastCommit.unlockedStages.Count + LastCommit.unlockedChars.Count + LastCommit.unlockedOther.Count > 0 || (!LastCommit.committed && Debug.isDebugBuild))) ? 1 : 0) : 7;
-        float monetH = ResultMonetizationExtraHeight(); // MILE 2倍のボタン(2026-10-10)
-        float panelHeight = Mathf.Min(Screen.height * 0.92f, Mathf.Max(504f, 68f + rowCount * 34f + (upgradeHistory.Count > 0 ? 62f : 0f) + 50f) + monetH);
-        float rowStep = Mathf.Clamp((panelHeight - 68f - (upgradeHistory.Count > 0 ? 62f : 0f) - 50f - monetH) / Mathf.Max(1, rowCount), 22f, 34f);
-        Rect panelRect = new Rect(Screen.width / 2f - panelWidth / 2f, Screen.height / 2f - panelHeight / 2f, panelWidth, panelHeight);
-        if (HudStacked) panelRect.y = Mathf.Max(panelRect.y, Mathf.Min(HudLeftColumnBottom + 12f, Screen.height - SafeBottom() - panelHeight - 90f)); // 縦画面: 左の列(BEST/距離/速度/持ち帰り予定)の下から
-        UiBackdrop.Draw(panelRect, 0.8f);
-        LastResultPanelRect = panelRect;
+        // 見出し(GAME CLEAR / FAILED)
+        LocGUI.Label(new Rect(panel.x, y, pw, 40f * s), win ? "GAME CLEAR" : "FAILED", UiKit.Label(30f * s, TextAnchor.MiddleCenter, true, win ? UiTheme.GoldText : UiTheme.Danger));
+        y += 44f * s;
 
-        float y = panelRect.y + 16f;
-        LocGUI.Label(new Rect(panelRect.x, y, panelRect.width, 46f), headline, headlineStyle);
-        y += 52f;
-
-        GUIStyle rowStyle = new GUIStyle(GUI.skin.label);
-        rowStyle.fontSize = 20;
-        rowStyle.alignment = TextAnchor.MiddleLeft;
-        rowStyle.normal.textColor = Color.white;
-
-        void Row(string label, string value, bool star)
+        // ① 距離(いちばん大きく)
+        Rect dist = new Rect(x, y, w, 112f * s);
+        ResultBlock(dist, false);
+        LocGUI.Label(new Rect(dist.x + 14f * s, dist.y + 6f * s, dist.width * 0.5f, 22f * s), "DISTANCE", UiKit.Label(15f * s, TextAnchor.MiddleLeft, false, UiTheme.TextSub));
+        string distText = Mathf.FloorToInt(MaxDistance).ToString("N0") + " m";
+        LocGUI.Label(new Rect(dist.x, dist.y + 18f * s, dist.width, 60f * s), distText, UiKit.Label(50f * s, TextAnchor.MiddleCenter, true, UiTheme.Text));
+        if (win && IsNewBestDistance)
         {
-            string text = star ? $"{Loc.T(label)}: {value}  ★" : $"{Loc.T(label)}: {value}"; // 見出しだけ訳す(2026-10-07)
-            Color prevColor = rowStyle.normal.textColor;
-            rowStyle.normal.textColor = star ? new Color(1f, 0.85f, 0.3f) : Color.white;
-            LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, rowStep - 4f), text, rowStyle);
-            rowStyle.normal.textColor = prevColor;
-            y += rowStep;
+            // NEW BEST!: 金の札 + ごく軽い明滅(過剰にしない)
+            float pulse = 0.85f + 0.15f * Mathf.Sin(Time.unscaledTime * 3f);
+            string nb = ResultNewBestLabel;
+            var nst = UiKit.Label(17f * s, TextAnchor.MiddleCenter, true, new Color(0.15f, 0.1f, 0.02f));
+            float nw = Mathf.Min(dist.width * 0.4f, nst.CalcSize(new GUIContent(Loc.Auto(nb))).x + 24f * s);
+            Rect nr = new Rect(dist.xMax - nw - 12f * s, dist.y + 10f * s, nw, 28f * s);
+            UiKit.Fill(nr, new Color(UiTheme.GoldBright.r, UiTheme.GoldBright.g, UiTheme.GoldBright.b, pulse));
+            LocGUI.Label(nr, nb, nst);
         }
+        string sub;
+        Color subC = UiTheme.TextSub;
+        if (win) sub = Loc.T("BEST") + "  " + Mathf.FloorToInt((float)GetStageBest(activeRunStageId)).ToString("N0") + " m";
+        else { sub = Loc.T("今回の距離は、正式な記録(BEST・累計距離・ステージ/キャラの解放)には残りません"); subC = new Color(1f, 0.78f, 0.6f); }
+        var subSt = new GUIStyle(UiKit.Label(15f * s, TextAnchor.MiddleCenter, false, subC)) { wordWrap = true };
+        GUI.Label(new Rect(dist.x + 10f * s, dist.y + 76f * s, dist.width - 20f * s, 32f * s), sub, subSt);
+        y = dist.yMax + 10f * s;
 
-        // Reward/MILE System Ver.1, item 3 - "DISTANCE 23,400m +234 MILE"
-        // style: the MILE each category earned is folded directly into its
-        // existing row instead of adding 3 more rows, matching the brief's
-        // own example layout.
-        if (IsWin)
+        // ② MILE
+        Rect mile = new Rect(x, y, w, 96f * s);
+        ResultBlock(mile, false);
+        float coin = 40f * s;
+        if (win)
         {
-            Row("DISTANCE", $"{Mathf.FloorToInt(MaxDistance)}m  +{RunDistanceMile} MILE", IsNewBestDistance);
-            Row("TIME", FormatTime(RunTime), IsNewBestTime);
-            Row("ENEMIES DEFEATED", $"{EnemyKillCount}  +{RunEnemyMile} MILE", false);
-            Row("BOSSES DEFEATED", $"{BossKillCount}  +{RunBossMile} MILE", false);
-            if (RunBonusMile > 0 && RunRingMile > 0) Row("BONUS", $"ZONE +{RunBonusMile} / RING +{RunRingMile} MILE", false); // 行が増えすぎないよう1行に
-            else if (RunBonusMile > 0) Row("BONUS ZONE", $"+{RunBonusMile} MILE", false);
-            else if (RunRingMile > 0) Row("RING BONUS", $"+{RunRingMile} MILE", false);
-            Row("TOTAL EXP", Mathf.FloorToInt(TotalExpEarned).ToString(), false);
-            Row("UPGRADES OBTAINED", UpgradeCount.ToString(), false);
-            Row("TOTAL MILE", $"+{RunMile}  (WALLET {TotalOwnedMile})", false);
-            // 2026-10-08: 帰還で確定した解放(複数でも全部出す)/ 記録の対象外だった理由
-            if (LastCommit != null && LastCommit.committed && LastCommit.unlockedStages.Count + LastCommit.unlockedChars.Count + LastCommit.unlockedOther.Count > 0)
-            {
-                var names = new System.Collections.Generic.List<string>();
-                foreach (var id in LastCommit.unlockedStages) names.Add(Loc.Auto(UnlockRules.StageName(id)));
-                foreach (var id in LastCommit.unlockedChars) names.Add(Loc.Auto(UnlockRules.CharName(id)));
-                foreach (var n in LastCommit.unlockedOther) names.Add(Loc.Auto(n)); // 距離の解放(新しい敵など)
-                Color keepU = rowStyle.normal.textColor;
-                rowStyle.normal.textColor = new Color(1f, 0.85f, 0.3f);
-                LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, rowStep - 4f), "NEW: " + string.Join(" / ", names), rowStyle);
-                rowStyle.normal.textColor = keepU;
-                y += rowStep;
-            }
-            else if (LastCommit != null && !LastCommit.committed && !string.IsNullOrEmpty(LastCommit.skippedWhy) && Debug.isDebugBuild && !DebugRun.WritesBlocked)
-            {
-                Color keepU = rowStyle.normal.textColor;
-                rowStyle.normal.textColor = new Color(1f, 0.6f, 0.5f);
-                LocGUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, rowStep - 4f), "DEV: 記録の対象外 (" + LastCommit.skippedWhy + ")", rowStyle);
-                rowStyle.normal.textColor = keepU;
-                y += rowStep;
-            }
+            LocGUI.Label(new Rect(mile.x + 14f * s, mile.y + 6f * s, mile.width - 28f * s, 22f * s), Loc.Reviewed(LocPendingReview.ResultTakeHome, "TOTAL MILE"), UiKit.Label(15f * s, TextAnchor.MiddleLeft, false, UiTheme.TextSub));
+            string amt = "+" + RunMile.ToString("N0");
+            var ast = UiKit.Label(38f * s, TextAnchor.MiddleLeft, true, UiTheme.Mile);
+            float aw = ast.CalcSize(new GUIContent(amt)).x;
+            float bx = mile.center.x - (coin + 10f * s + aw) * 0.5f;
+            DrawMileMedal(new Rect(bx, mile.y + 26f * s, coin, coin));
+            GUI.Label(new Rect(bx + coin + 10f * s, mile.y + 22f * s, aw + 8f, 48f * s), amt, ast);
+            // 内訳 + 帰還後の所持(1行)
+            var parts = new System.Collections.Generic.List<string>();
+            if (RunDistanceMile > 0) parts.Add(Loc.T("DISTANCE") + " +" + RunDistanceMile.ToString("N0"));
+            if (RunEnemyMile > 0) parts.Add(Loc.T("ENEMIES DEFEATED") + " +" + RunEnemyMile.ToString("N0"));
+            if (RunBossMile > 0) parts.Add(Loc.T("BOSSES DEFEATED") + " +" + RunBossMile.ToString("N0"));
+            if (RunBonusMile + RunRingMile > 0) parts.Add(Loc.T("BONUS") + " +" + (RunBonusMile + RunRingMile).ToString("N0"));
+            string line = string.Join(" / ", parts) + (parts.Count > 0 ? "    " : "") + Loc.F("所持MILE  {0}", TotalOwnedMile.ToString("N0"));
+            LocGUI.Label(new Rect(mile.x + 10f * s, mile.y + 70f * s, mile.width - 20f * s, 22f * s), line, UiKit.Label(14f * s, TextAnchor.MiddleCenter, false, UiTheme.TextSub));
         }
         else
         {
-            // 2026-10-07: 倒れた時は MILE が入らない(このランの MILE は失う)。以前は「+N MILE」と出ていて、もらえたように見えた。
-            // 失ったもの / 残るもの をはっきり出す。2026-10-08(仕様変更): 倒れたランの距離は正式記録(BEST/累計/解放)に残らない
-            Row("DISTANCE", $"{Mathf.FloorToInt(MaxDistance)}m", IsNewBestDistance);
-            Row("TIME", FormatTime(RunTime), IsNewBestTime);
-            Row("ENEMIES / BOSSES", $"{EnemyKillCount} / {BossKillCount}", false);
-            Row("TOTAL EXP / UPGRADES", $"{Mathf.FloorToInt(TotalExpEarned)} / {UpgradeCount}", false);
-            Color keepRow = rowStyle.normal.textColor;
-            // 2026-10-08: 説明の行は折り返して、行の高さを文に合わせる(長い言語で重ならない)
-            var noteSt = new GUIStyle(rowStyle) { wordWrap = true, fontSize = 17 };
-            float NoteLine(string text, Color c)
-            {
-                noteSt.normal.textColor = c;
-                string t = Loc.Auto(text);
-                float hh = Mathf.Max(rowStep - 4f, noteSt.CalcHeight(new GUIContent(t), panelRect.width - 60f));
-                GUI.Label(new Rect(panelRect.x + 30f, y, panelRect.width - 60f, hh), t, noteSt);
-                return hh + 6f;
-            }
-            y += NoteLine($"失ったもの: このランのMILE {RunMile}", new Color(1f, 0.55f, 0.5f));
-            y += NoteLine("今回の距離は、正式な記録(BEST・累計距離・ステージ/キャラの解放)には残りません", new Color(1f, 0.75f, 0.55f));
-            y += NoteLine($"残るもの: これまでに確定した記録・カード・MILE(WALLET {TotalOwnedMile})", new Color(0.6f, 1f, 0.7f));
-            rowStyle.normal.textColor = keepRow;
+            // 失ったもの(警告色は値の行だけ)/ 残るもの
+            DrawMileMedal(new Rect(mile.x + 16f * s, mile.y + 12f * s, coin * 0.8f, coin * 0.8f));
+            var lst = new GUIStyle(UiKit.Label(19f * s, TextAnchor.MiddleLeft, true, UiTheme.Danger)) { wordWrap = true };
+            GUI.Label(new Rect(mile.x + 16f * s + coin * 0.8f + 10f * s, mile.y + 8f * s, mile.width - coin - 40f * s, 40f * s), Loc.F("失ったもの: このランのMILE {0}", RunMile.ToString("N0")), lst);
+            var kst = new GUIStyle(UiKit.Label(15f * s, TextAnchor.UpperLeft, false, UiTheme.Success)) { wordWrap = true };
+            GUI.Label(new Rect(mile.x + 16f * s, mile.y + 50f * s, mile.width - 32f * s, 44f * s), Loc.F("残るもの: これまでに確定した記録・カード・MILE(WALLET {0})", TotalOwnedMile.ToString("N0")), kst);
         }
+        y = mile.yMax + 10f * s;
 
-        if (upgradeHistory.Count > 0)
+        // 下: ホームへ戻る(+ 成功時の MILE 2倍)。先に場所を決めて、③〜⑤はその上の残りに入れる
+        float btnW = Mathf.Min(w, 380f * s);
+        Rect home = new Rect(panel.center.x - btnW * 0.5f, panel.yMax - 22f * s - btnH, btnW, btnH);
+        float bottom = home.y - 10f * s;
+        Rect monetArea = new Rect(x, bottom - monetH, w, monetH);
+        if (monetH > 0f) bottom = monetArea.y - 6f * s;
+
+        // ③〜⑤: 入らない時だけスクロール
+        Rect view = new Rect(x, y, w, Mathf.Max(30f * s, bottom - y));
+        resultScroll.Begin(view, contentH, "result" + win);
+        float cy = 0f;
+        if (cardsH > 0f) { DrawResultCards(new Rect(0f, cy, w, cardsH), s); cy += cardsH + 10f * s; }
+        if (updH > 0f)
         {
-            y += 6f;
-            DrawUpgradeHistoryRow(new Rect(panelRect.x + 20f, y, panelRect.width - 40f, 48f));
-            y += 56f;
+            Rect ub = new Rect(0f, cy, w, updH);
+            ResultBlock(ub, true);
+            LocGUI.Label(new Rect(ub.x + 14f * s, ub.y + 6f * s, ub.width - 28f * s, 22f * s), "NEW", UiKit.Label(15f * s, TextAnchor.MiddleLeft, true, UiTheme.GoldText));
+            for (int i = 0; i < items.Count; i++)
+                LocGUI.Label(new Rect(ub.x + 18f * s, ub.y + 30f * s + i * 26f * s, ub.width - 36f * s, 24f * s), items[i], UiKit.Label(17f * s, TextAnchor.MiddleLeft, true, UiTheme.GoldHover));
+            cy += updH + 10f * s;
         }
+        // ⑤ 細かい結果(1行、小さく)
+        string det = Loc.T("TIME") + " " + FormatTime(RunTime) + "    " + Loc.T("ENEMIES / BOSSES") + " " + EnemyKillCount + " / " + BossKillCount
+            + "    " + Loc.T("TOTAL EXP / UPGRADES") + " " + Mathf.FloorToInt(TotalExpEarned).ToString("N0") + " / " + UpgradeCount;
+        LocGUI.Label(new Rect(0f, cy, w, detH), det, UiKit.Label(14f * s, TextAnchor.MiddleCenter, false, UiTheme.TextSub));
+        resultScroll.End(view, contentH);
 
-        DrawResultMonetization(panelRect);
+        if (monetH > 0f) DrawResultMonetization(monetArea);
+        else resultDoubleRect = Rect.zero;
+
+        // ⑥ ホームへ戻る(共通のボタン。結果を読む間の待ち時間が終わるまでは押せない見た目)
         bool retryAllowed = SecondsSinceGameOver >= retryDelayAfterGameOver;
+        LastResultHomeRect = home;
+        UiKit.Button(home, Loc.T("ホームへ戻る"), 24f * s, true, true, retryAllowed); // 押した判定は Update の ResultTapThisFrame(パッド/キーも同じ所)
         if (!ResultShown && Event.current.type == EventType.Repaint) { ResultShown = true; DeathLog($"Result shown (reason={DeathReason}, timeScale={Time.timeScale:F2})"); }
-        if (retryAllowed)
+    }
+
+    string ResultNewBestLabel => Loc.Ready(LocPendingReview.ResultNewBest) ? LocPendingReview.ResultNewBest : Loc.T("NEW") + " " + Loc.T("BEST");
+
+    // 結果の小さな板(強調 = 大事な更新: 金の縁を少し強く)
+    static void ResultBlock(Rect r, bool emphasis)
+    {
+        UiKit.Fill(r, new Color(UiTheme.Navy.r, UiTheme.Navy.g, UiTheme.Navy.b, emphasis ? 0.95f : 0.8f));
+        Color e = emphasis ? UiTheme.GoldBright : new Color(UiTheme.GoldEdge.r, UiTheme.GoldEdge.g, UiTheme.GoldEdge.b, 0.55f);
+        float t = emphasis ? 2f : 1f;
+        UiKit.Fill(new Rect(r.x, r.y, r.width, t), e); UiKit.Fill(new Rect(r.x, r.yMax - t, r.width, t), e);
+        UiKit.Fill(new Rect(r.x, r.y, t, r.height), e); UiKit.Fill(new Rect(r.xMax - t, r.y, t, r.height), e);
+    }
+
+    // ④ 大事な更新(起きた時だけ): BEST の更新(前 → 今回)/ 新しいステージ / キャラ / 距離の解放(新しい敵など)
+    System.Collections.Generic.List<string> ResultUpdateLines(bool win)
+    {
+        var list = new System.Collections.Generic.List<string>();
+        if (win && IsNewBestDistance)
+            list.Add(ResultNewBestLabel + "   " + (resultPrevBest > 0 ? Mathf.FloorToInt((float)resultPrevBest).ToString("N0") + " m → " : "") + Mathf.FloorToInt(MaxDistance).ToString("N0") + " m");
+        if (LastCommit != null)
         {
-            GUIStyle retryStyle = new GUIStyle(GUI.skin.label);
-            retryStyle.fontSize = 20;
-            retryStyle.alignment = TextAnchor.MiddleCenter;
-            retryStyle.normal.textColor = new Color(1f, 1f, 1f, 0.85f);
-            LocGUI.Label(new Rect(panelRect.x, panelRect.yMax - 40f, panelRect.width, 30f), "▶ RETURN TO HOME", retryStyle); // 2026-10-10: 実際はホームへ戻る(以前の「Tap to Retry」はどの言語にも訳が無く、内容とも違った)
+            foreach (var id in LastCommit.unlockedStages) list.Add("NEW  " + Loc.Auto(UnlockRules.StageName(id)));
+            foreach (var id in LastCommit.unlockedChars) list.Add("NEW  " + Loc.Auto(UnlockRules.CharName(id)));
+            foreach (var n in LastCommit.unlockedOther) list.Add("NEW  " + Loc.Auto(n));
+            if (win && !LastCommit.committed && !string.IsNullOrEmpty(LastCommit.skippedWhy) && Debug.isDebugBuild && !DebugRun.WritesBlocked)
+                list.Add("DEV: 記録の対象外 (" + LastCommit.skippedWhy + ")");
+        }
+        return list;
+    }
+
+    // ③ 今回のラン中の強化(ラン中だけ。所持には入らない)。共通のカード面で、入るだけ並べて残りは「+N」
+    void DrawResultCards(Rect r, float s)
+    {
+        ResultBlock(r, false);
+        LocGUI.Label(new Rect(r.x + 14f * s, r.y + 6f * s, r.width - 28f * s, 22f * s), Loc.Reviewed(LocPendingReview.ResultRunBuild, "UPGRADES OBTAINED"), UiKit.Label(15f * s, TextAnchor.MiddleLeft, false, UiTheme.TextSub));
+        var counts = new Dictionary<CardDefinition, int>();
+        var order = new List<CardDefinition>();
+        foreach (CardDefinition c in upgradeHistory) { if (c == null) continue; if (!counts.ContainsKey(c)) { counts[c] = 0; order.Add(c); } counts[c]++; }
+        float ch = r.height - 36f * s, cw = ch * 2f / 3f, gap = 8f * s;
+        float avail = r.width - 28f * s;
+        int fit = Mathf.Max(1, Mathf.FloorToInt((avail + gap) / (cw + gap)));
+        bool more = order.Count > fit;
+        int show = more ? fit - 1 : order.Count;
+        float cx = r.x + 14f * s, cyy = r.y + 30f * s;
+        for (int i = 0; i < show; i++)
+        {
+            // 共通のカード面。Lv はこのランでの Lv
+            int lv = GetAbilityRunStack(order[i].cardId); // このランでの Lv(取った回数とキャラカードの分)
+            CardFaceRenderer.Draw(new Rect(cx, cyy, cw, ch), order[i], lv > 0 ? lv : counts[order[i]], plain: true); // 所持の NEW の札は出さない(ラン中の強化なので)
+            cx += cw + gap;
+        }
+        if (more)
+        {
+            Rect mr = new Rect(cx, cyy, cw, ch);
+            ResultBlock(mr, false);
+            LocGUI.Label(mr, "+" + (order.Count - show), UiKit.Label(26f * s, TextAnchor.MiddleCenter, true, UiTheme.GoldText));
         }
     }
 

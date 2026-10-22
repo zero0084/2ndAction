@@ -89,12 +89,26 @@ public partial class GameManager
         return resultDoubleRect.Contains(new Vector2(p.x, Screen.height - p.y));
     }
 
-    void DrawResultMonetization(Rect panelRect)
+    // ホームへ戻る(2026-10-22): 指/マウスで押した時は、そのボタンの上だけ受け付ける。キー(R)/パッド/確認用のタップは今までどおりどこでも
+    bool PointerOnResultHome()
+    {
+        bool pointer = Input.GetMouseButtonDown(0);
+        Vector2 p = Input.mousePosition;
+        for (int i = 0; i < Input.touchCount; i++) if (Input.GetTouch(i).phase == TouchPhase.Began) { p = Input.GetTouch(i).position; pointer = true; break; }
+        if (!pointer) return true;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (DebugResultTapPending) return true;
+#endif
+        if (LastResultHomeRect.width <= 0f) return true;
+        Rect hit = new Rect(LastResultHomeRect.x - 8f, LastResultHomeRect.y - 8f, LastResultHomeRect.width + 16f, LastResultHomeRect.height + 16f);
+        return hit.Contains(new Vector2(p.x, Screen.height - p.y));
+    }
+
+    // area = RESULT の下の、MILE 2倍のボタンと説明の場所(2026-10-22: 結果の作り直しで場所は呼ぶ側が決める)
+    void DrawResultMonetization(Rect area)
     {
         if (!DoubleOffered) { resultDoubleRect = Rect.zero; return; }
-        float pad = 24f;
-        Rect area = new Rect(panelRect.x + pad, panelRect.yMax - 40f - 92f, panelRect.width - pad * 2f, 88f);
-        Rect btn = new Rect(area.x, area.y, area.width, 50f);
+        Rect btn = new Rect(area.x, area.y, area.width, Mathf.Min(50f * ResultScale, area.height * 0.58f));
         resultDoubleRect = btn;
         var note = new GUIStyle(UiKit.Label(15f, TextAnchor.MiddleCenter, false, new Color(0.85f, 0.88f, 0.95f))) { wordWrap = true };
         // 受け取る前は「受け取ると」を付ける(まだ受け取っていない追加分を、もう手に入ったように見せない。2026-10-13)

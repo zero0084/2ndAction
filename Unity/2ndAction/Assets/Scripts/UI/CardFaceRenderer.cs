@@ -21,20 +21,21 @@ public class CardFaceRenderer : MonoBehaviour
     float faceH;
     readonly Dictionary<string, RenderTexture> cache = new Dictionary<string, RenderTexture>();
     readonly List<string> order = new List<string>();
-    readonly List<(string key, CardDefinition card, int level, int count)> pending = new List<(string, CardDefinition, int, int)>();
+    readonly List<(string key, CardDefinition card, int level, int count, bool plain)> pending = new List<(string, CardDefinition, int, int, bool)>();
     int locVersion = -1;
 
     // 共通のカード面の絵(まだ描けていなければ null。次のフレーム以降に用意される)
-    public static Texture Get(CardDefinition card, int level, int count = 0)
+    // plain: 所持の状態の札(NEW)を出さない(RESULT のラン中の強化など、所持と関係の無い所)
+    public static Texture Get(CardDefinition card, int level, int count = 0, bool plain = false)
     {
         if (card == null) return null;
         var r = Ensure();
         if (r == null) return null;
         if (r.locVersion != Loc.Version) r.ClearCache();
-        string key = card.cardId + "#" + level + "#" + count + (CardInventory.IsNewUnconfirmed(card.cardId) ? "#N" : ""); // NEW の札の有無も絵に入る
+        string key = card.cardId + "#" + level + "#" + count + (plain ? "#P" : CardInventory.IsNewUnconfirmed(card.cardId) ? "#N" : ""); // NEW の札の有無も絵に入る
         if (r.cache.TryGetValue(key, out var tex) && tex != null && tex.IsCreated()) return tex;
         foreach (var p in r.pending) if (p.key == key) return null;
-        r.pending.Add((key, card, level, count));
+        r.pending.Add((key, card, level, count, plain));
         return null;
     }
 
@@ -105,7 +106,9 @@ public class CardFaceRenderer : MonoBehaviour
         cam.targetTexture = tex;
         // 文字がぼけないよう、拡大はキャンバスの倍率で(縦いっぱい、上下に少しの余白。FocusScale の分も入れる)
         canvas.scaleFactor = TexH / (faceH * 1.08f * Mathf.Max(1f, face.rect.localScale.y));
-        face.ShowFrontImmediate(gm.MakeOwnedCardData(p.card, Mathf.Max(1, p.level), p.count));
+        var data = gm.MakeOwnedCardData(p.card, Mathf.Max(1, p.level), p.count);
+        if (p.plain) data.ShowNewBadge = false;
+        face.ShowFrontImmediate(data);
         face.SetInteractable(false);
         canvas.scaleFactor = TexH / (faceH * 1.08f * Mathf.Max(1f, face.rect.localScale.y));
         Canvas.ForceUpdateCanvases();
@@ -132,10 +135,10 @@ public class CardFaceRenderer : MonoBehaviour
     void OnDestroy() { ClearCache(); if (inst == this) inst = null; }
 
     // IMGUI で出す共通の形: 描けていればカード面、まだなら絵+レア度の枠(今までの簡易表示)。r はカードの縦横比(2:3)の枠
-    public static void Draw(Rect r, CardDefinition card, int level, int count = 0)
+    public static void Draw(Rect r, CardDefinition card, int level, int count = 0, bool plain = false)
     {
         if (card == null) return;
-        var tex = Get(card, level, count);
+        var tex = Get(card, level, count, plain);
         if (tex != null) { GUI.DrawTexture(r, tex, ScaleMode.ScaleToFit, true); return; }
         Sprite frame = CardRarityFrames.GetFrame(card.rarity, null);
         float ic = Mathf.Min(r.width, r.height) * 0.78f;

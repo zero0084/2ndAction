@@ -175,7 +175,7 @@ public static class UnlockRules
     {
         if (DebugRun.WritesBlocked || RunSkipped || string.IsNullOrEmpty(stageId)) return;
         bool runMap = System.Array.IndexOf(NormalMaps, stageId) >= 0 || stageId == BossManager.LastStageId;
-        if (runMap && reached <= NobleLadyMaxMeters) { UnlockChar(NobleLady); SaveStore.Save(); }
+        if (runMap && reached <= NobleLadyMaxMeters) { if (UnlockChar(NobleLady)) RunLedger.LastResult?.unlockedChars.Add(NobleLady); SaveStore.Save(); } // 2026-10-22: 解放したら RESULT の「大事な更新」へ
     }
 
     static void SaveReach(string stageId, bool flush)

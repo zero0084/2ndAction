@@ -99,6 +99,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaFix4") { mode = "fix4"; dir = a[i + 1]; }
             if (a[i] == "-qaHitStall") { mode = "hitstall"; dir = a[i + 1]; }
             if (a[i] == "-qaAirHit") { mode = "airhit"; dir = a[i + 1]; } // 2026-10-22 空中の被弾/空中で倒れる/走りのテンポ
+            if (a[i] == "-qaResult") { mode = "result"; dir = a[i + 1]; } // 2026-10-22 RESULT の正式化
             if (a[i] == "-qaTutorial") { mode = "tutorial"; dir = a[i + 1]; }
             if (a[i] == "-qaGacha") { mode = "gacha"; dir = a[i + 1]; }
             if (a[i] == "-qaDeck") { mode = "deck"; dir = a[i + 1]; }
@@ -221,6 +222,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "layers") yield return LayersMode();
         else if (mode == "bossvoice") yield return BossVoiceMode();
         else if (mode == "rewards") yield return RewardsMode();
+        else if (mode == "result") yield return ResultMode();
         else if (mode == "pauseloc") yield return PauseLocMode();
         else if (mode == "cardfix") yield return CardFixMode();
         else if (mode == "hitaudit") yield return HitAuditMode();
