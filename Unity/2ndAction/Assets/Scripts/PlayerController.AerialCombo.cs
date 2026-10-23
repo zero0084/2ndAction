@@ -18,6 +18,7 @@ public partial class PlayerController
     FlickDirection? bufferedFlick;
     float bufferedFlickTimer, bufferedFlickAge;
     bool bufferedFlickOnce; // 上フリック/ヒットストップ中の入力: 1回だけ試して捨てる(ジャンプの二重発動を防ぐ)
+    bool bufferedFlickFromTap; // 2026-10-23: 覚えた入力がタップ攻撃か(出す時に踏み込み無しを引き継ぐ)
     // 確認用(QA): 先行入力から出た技の数 / 捨てた数
     public static int FlickBufferFired, FlickBufferExpired, AerialAimUsed;
 
@@ -46,6 +47,7 @@ public partial class PlayerController
 
     // 技の最中(この間の入力は、終わった/次の段の受付が開いた瞬間に出す)
     bool InputBusy => isAttacking || attackCooldownTimer > 0f || isDiveAttacking || kitDiveActive || lanceDiving || isHoverShooting;
+    public bool QaInputBusy => InputBusy; // 確認用(-qaTap)
 
     // 被弾/停止/カード選択など: 覚えている入力を捨てる
     public void FlickBufferClear()
@@ -59,7 +61,7 @@ public partial class PlayerController
     void FlickBufferStore(FlickDirection f, int id, bool once)
     {
         if (bufferedFlick.HasValue) TraceFlick(bufferedFlickId, bufferedFlick.Value, FlickFate.Replaced);
-        bufferedFlick = f; bufferedFlickTimer = flickBufferWindow; bufferedFlickAge = 0f; bufferedFlickOnce = once; bufferedFlickId = id;
+        bufferedFlick = f; bufferedFlickTimer = flickBufferWindow; bufferedFlickAge = 0f; bufferedFlickOnce = once; bufferedFlickId = id; bufferedFlickFromTap = requestedFromTap;
         TraceFlick(id, f, FlickFate.Reserved);
     }
 
@@ -80,6 +82,7 @@ public partial class PlayerController
         }
         if (requestedFlick.HasValue || !bufferedFlick.HasValue) return false;
         requestedFlick = bufferedFlick;
+        requestedFromTap = bufferedFlickFromTap;
         return true;
     }
 

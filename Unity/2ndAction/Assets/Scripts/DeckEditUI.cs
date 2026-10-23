@@ -384,9 +384,21 @@ public class DeckEditUI : MonoBehaviour
             br.anchoredPosition = new Vector2(x0 + i * (sw + gap), CharPanelTop - 71f);
             var bimg = bgo.AddComponent<Image>(); bimg.color = new Color(0.1f, 0.13f, 0.26f, 0.95f); bimg.raycastTarget = false;
             var bol = bgo.AddComponent<Outline>(); bol.effectColor = new Color(1f, 0.82f, 0.38f, 0.85f); bol.effectDistance = new Vector2(2.5f, -2.5f);
-            sc.rect.SetAsLastSibling();
-            sc.rect.localScale = new Vector3(CharSlotScale, CharSlotScale, 1f);
-            sc.rect.anchoredPosition = new Vector2(x0 + i * (sw + gap), CharPanelTop - 78f);
+            // 2026-10-23: カードは「拡大した入れ物」の中へ。以前はカード自身の拡大(localScale)で大きくしていたが、
+            // カードを表示する時(ShowFrontImmediate/ShowEmpty)に拡大が 1 へ戻り、装着したカードが小さく上寄りになっていた。
+            // 入れ物は枠の中央、カードは入れ物の中央(縦横比 2:3 のまま、枠の内側いっぱい)。空き枠の輪郭も同じ大きさ・位置
+            var holdGo = new GameObject("CharSlotHolder" + i, typeof(RectTransform));
+            holdGo.transform.SetParent(rootRt, false);
+            var hold = (RectTransform)holdGo.transform;
+            hold.anchorMin = hold.anchorMax = top; hold.pivot = new Vector2(0.5f, 0.5f);
+            hold.sizeDelta = new Vector2(72f, 108f);
+            hold.anchoredPosition = new Vector2(x0 + i * (sw + gap), CharPanelTop - 71f - (sh + 14f) * 0.5f);
+            hold.localScale = new Vector3(CharSlotScale, CharSlotScale, 1f);
+            sc.rect.SetParent(hold, false);
+            sc.rect.anchorMin = sc.rect.anchorMax = sc.rect.pivot = new Vector2(0.5f, 0.5f);
+            sc.rect.sizeDelta = new Vector2(72f, 108f);
+            sc.rect.anchoredPosition = Vector2.zero;
+            hold.SetAsLastSibling();
             var hgo = new GameObject("CharSlotHint" + i, typeof(RectTransform));
             hgo.transform.SetParent(rootRt, false);
             var h = (RectTransform)hgo.transform;

@@ -868,10 +868,11 @@ public partial class PlayerController : MonoBehaviour
     public float LungeScaleNow => lungeScaleNow;
     void UpdateScreenStep(float dt)
     {
-        ScreenStepOffset = Mathf.Clamp(ScreenStepOffset * Mathf.Exp(-dt / Mathf.Max(0.01f, screenStepReturnTime)) + lungeVelocityX * lungeScaleNow * dt, -screenStepMax, screenStepMax);
+        float lv = EffectiveLungeX;
+        ScreenStepOffset = Mathf.Clamp(ScreenStepOffset * Mathf.Exp(-dt / Mathf.Max(0.01f, screenStepReturnTime)) + lv * lungeScaleNow * dt, -screenStepMax, screenStepMax);
         // 踏み込み/後退が始まった瞬間: 残像+速度線(AttackFlair)
-        if (Mathf.Abs(lungeVelocityX) > 1.2f && Mathf.Abs(prevLungeForFx) <= 1.2f) AttackFlair.Step(this, Mathf.Sign(lungeVelocityX));
-        prevLungeForFx = lungeVelocityX;
+        if (Mathf.Abs(lv) > 1.2f && Mathf.Abs(prevLungeForFx) <= 1.2f) AttackFlair.Step(this, Mathf.Sign(lv));
+        prevLungeForFx = lv;
     }
 
     // 攻撃に伴う短い前進(+)/後退(-)。技の途中で別の技/被弾に切り替わったら、そちらの設定を優先する。
@@ -1083,7 +1084,7 @@ public partial class PlayerController : MonoBehaviour
                 if (requestedFlick.HasValue) FlickBufferStoreFrozen(requestedFlick.Value);
                 requestedFlick = null;
             }
-            else FlickBufferClear();
+            else { FlickBufferClear(); tapValid = false; } // 停止/カード選択の間に置いた指・閉じた指はタップにしない
             return;
         }
         UpdateMotionVelocity();
@@ -1143,6 +1144,12 @@ public partial class PlayerController : MonoBehaviour
         // エリアルコンボ改修(2026-10-18): このフレームに入力が無ければ、覚えている先行入力を入れる(補助の判断より優先)
         flickFromBuffer = FlickBufferBefore();
         ApplyHighSpeedAssist();
+        // タップ攻撃: タップからの前攻撃なら、その技の前への踏み込みを消す。手動のフリック/キー/補助の入力が来たら戻す
+        if (requestedFlick.HasValue)
+        {
+            if (requestedFromTap && requestedFlick.Value == FlickDirection.Forward) { tapStepUntil = Time.time + 1.0f; if (!flickFromBuffer) TapAttacks++; }
+            else tapStepUntil = 0f;
+        }
         }
         bool reactionBlocked = IsReacting;
         // 診断ログの詳細画面を開いている間は、スクロール操作がジャンプ/攻撃にならないよう入力を受け付けない。
@@ -1188,11 +1195,36 @@ public partial class PlayerController : MonoBehaviour
         requestedFlick = null;
         flickCooldownTimer = 0f;
         escapeHoldTimer = 0f;
+        tapValid = false;
     }
+
+    // ===== タップ攻撃(2026-10-23 復活、マスターの依頼) =====
+    // 画面を短く触って、ほとんど動かさずに離した時だけ「前攻撃」(右フリックと同じ技)を出す。ただし追加の踏み込みは無し(TapStepSuppressed)。
+    //  ・指を置いた瞬間には出さない(離した時に確定)。フリックとして出た指からは出さない(上フリックの前に攻撃が出ない)
+    //  ・長押し(帰還の溜め)・UI(一時停止/取得カードの欄/COMBO の印/ULTIMATE など)で始まった指・止まっている間に置いた指・取り消された指からは出さない
+    //  ・指ぶれの許容は画面の短い辺に比べた割合(画面の大きさが変わっても同じ操作感)
+    //  ・出る技/攻撃の速さ/硬直/先行入力(1つだけ)/補助との重なり防止は、右フリックと同じ経路(HandleAttackInput / 先行入力 / NotifyManualInput)
+    public const float TapMaxSeconds = 0.25f;       // これより長く触っていたらタップではない(帰還の溜めは 0.3 秒から)
+    public const float TapSlopFraction = 0.025f;    // 動かしてよい距離 = 画面の短い辺 × 2.5%(最低 12px)
+    float TapSlopPx => Mathf.Max(12f, Mathf.Min(Screen.width, Screen.height) * TapSlopFraction);
+    bool tapValid, tapFlickFired;
+    float tapDownTime, tapMaxDist;
+    Vector2 tapOrigin;
+    bool requestedFromTap;      // このフレームの requestedFlick はタップから
+    float tapStepUntil;         // この時刻までに始まった/続いている前の技は、前への踏み込みを 0 にする(次の手動のフリックで解除)
+    public bool TapStepSuppressed => Time.time < tapStepUntil;
+    public static int TapAttacks;                    // 確認用: タップで出した前攻撃の数(入力として受け付けた回数)
+    public static string LastTapReject = "";         // 確認用: 最後にタップにしなかった理由
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public static bool DebugTapNow;                  // 確認用: 次のフレームを「タップした」として扱う
+#endif
+    // 踏み込み(前への lunge)だけを消した実際の移動量。後退(-)や他の動きはそのまま
+    float EffectiveLungeX => (lungeVelocityX > 0f && TapStepSuppressed) ? 0f : lungeVelocityX;
 
     void UpdatePointerInput()
     {
         requestedFlick = null;
+        requestedFromTap = false;
 
         Vector2 pointerPos;
         bool pointerJustDown, pointerJustUp, pointerDown;
@@ -1222,14 +1254,19 @@ public partial class PlayerController : MonoBehaviour
         // 開発用の闘技場のボタンで始まったタッチも操作にしない
         if (pointerJustDown && ArenaMode.BlocksPointer(pointerPos)) { touchActive = false; return; }
         // 説明/設定などの板が手前にある間と、板を閉じた指が離れるまでは操作にしない(2026-10-07: 練習の説明の「やってみる」の指で攻撃しない)
-        if (UiInputGate.Blocked) { touchActive = false; requestedFlick = null; return; }
+        if (UiInputGate.Blocked) { touchActive = false; requestedFlick = null; tapValid = false; return; }
         if (pointerJustDown)
         {
             touchStartPos = pointerPos;
             lastPointerPos = pointerPos;
             touchActive = true;
             flickCooldownTimer = 0f; // 新しいタッチ開始 - 前のタッチのクールダウンを引きずらない
+            // タップ攻撃: 置いた所と時刻(画面のボタンの上で始まった指はタップにしない)
+            tapOrigin = pointerPos; tapMaxDist = 0f; tapFlickFired = false; tapDownTime = Time.unscaledTime;
+            tapValid = !GameManager.PointerOnRunHudButton(pointerPos);
+            if (!tapValid) LastTapReject = "hud button";
         }
+        if (pointerDown && touchActive && tapValid) tapMaxDist = Mathf.Max(tapMaxDist, (pointerPos - tapOrigin).magnitude);
         // Bugfix 2026-09-08 - 「下攻撃を使用したあと、上攻撃ができなくなる」
         // の実装調査で発見した実際の原因の1つ: 指を離さず連続でスワイプ
         // する操作(下攻撃→着地→そのまま同じ指で上へ振り返す、という自然
@@ -1261,12 +1298,33 @@ public partial class PlayerController : MonoBehaviour
                 requestedFlick = ClassifyFlickDirection(totalDelta);
                 touchStartPos = pointerPos;
                 flickCooldownTimer = flickCooldown;
+                tapFlickFired = true; // フリックとして出た指からはタップを出さない
             }
         }
         if (flickCooldownTimer > 0f) flickCooldownTimer -= Time.unscaledDeltaTime;
 
         if (pointerDown) lastPointerPos = pointerPos;
-        if (pointerJustUp) touchActive = false;
+        if (pointerJustUp)
+        {
+            // タップ攻撃: 離した瞬間に確定(取り消された指 Canceled は除く)
+            bool canceled = Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Canceled;
+            if (touchActive && tapValid && !requestedFlick.HasValue)
+            {
+                tapMaxDist = Mathf.Max(tapMaxDist, (pointerPos - tapOrigin).magnitude);
+                float held = Time.unscaledTime - tapDownTime;
+                if (canceled) LastTapReject = "canceled";
+                else if (tapFlickFired) LastTapReject = "was a flick";
+                else if (held > TapMaxSeconds) LastTapReject = $"held {held:F2}s";
+                else if (tapMaxDist > TapSlopPx) LastTapReject = $"moved {tapMaxDist:F0}px > {TapSlopPx:F0}px";
+                else if (IsEscapeCharging || wasEscapeChargingLastFrame) LastTapReject = "escape charging";
+                else { requestedFlick = FlickDirection.Forward; requestedFromTap = true; LastTapReject = ""; }
+            }
+            touchActive = false;
+            tapValid = false;
+        }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (DebugTapNow) { DebugTapNow = false; if (!requestedFlick.HasValue) { requestedFlick = FlickDirection.Forward; requestedFromTap = true; } }
+#endif
 
         // キーボード/ゲームパッド(GameInput、2026-10-06。旧 Space=ジャンプ / Z,B=攻撃 のキーも含む)。
         // ドラッグの距離の仕組みは通らない(ボタンには距離が無い)。メニュー操作中(PadNav)は使わない。
@@ -1366,7 +1424,7 @@ public partial class PlayerController : MonoBehaviour
         // ボス戦(2026-10-01): 攻撃の前進/後退を大きくする(ボスが離れているほど前進を伸ばす。近いと伸ばしすぎない)
         lungeScaleNow = Mathf.Approximately(lungeVelocityX, 0f) ? 1f : BossBattle.LungeScale(lungeVelocityX, transform.position.x) * CardHunterLungeScale;
         if (!ArenaMode.FixedSpeed) autoSpeed *= CardAutoSpeedScale * CardHunterApproachScale(transform.position.x) * UltimateArt.BuffRunSpeedMul; // 闘技場の「実効速度固定」では補正を掛けない // v3: BRAKE ATTACK / HUNTER / #100 ULTIMATE の BUFF(勢い)
-        float newX = transform.position.x + (autoSpeed + lungeVelocityX * lungeScaleNow + effectiveKnockback) * dt;
+        float newX = transform.position.x + (autoSpeed + EffectiveLungeX * lungeScaleNow + effectiveKnockback) * dt; // タップ攻撃は前への踏み込み無し(EffectiveLungeX)
         float prevX = transform.position.x;
         // 2026-10-03: 踏み込みは、当てた敵の体の手前で止める(長い踏み込みのお嬢様騎士などが、当てた後もそのまま体へ入り込み
         // 接触ダメージを受けていた)。止めるのは踏み込みの分だけで、自動前進/ノックバックはそのまま。

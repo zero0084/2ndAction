@@ -81,8 +81,9 @@ public partial class PlayerController
             }
             lungeVelocityX = 0f;
             PlayKitPose("slashend", 0.05f + p.dashRecovery * AttackSpeedMultiplier); // 振り切り → 残心 → 戻り
-            OneShotSpriteEffect.CreateTweened(KitProjectile.Slash, KitWorld(new Vector2(-dist * 0.45f, p.slashHeight)), new Color(1f, 1f, 1f, 0.9f), duration: 0.18f, startScale: dist * 0.45f, endScale: dist * 0.6f, rotationDegrees: 0f, sortingOrder: RenderOrder.SlashFx, holdFraction: 0.3f);
-            OneShotSpriteEffect.CreateTweened(KitProjectile.Slash, KitWorld(new Vector2(-dist * 0.45f, p.slashHeight)), NinjaCrimson, duration: 0.22f, startScale: dist * 0.3f, endScale: dist * 0.5f, rotationDegrees: 8f, sortingOrder: RenderOrder.SlashFx);
+            float slashBack = TapStepSuppressed ? 0f : dist * 0.45f; // タップ攻撃(踏み込み無し)は通り抜けないので、斬撃はその場の前に
+            OneShotSpriteEffect.CreateTweened(KitProjectile.Slash, KitWorld(new Vector2(-slashBack, p.slashHeight)), new Color(1f, 1f, 1f, 0.9f), duration: 0.18f, startScale: dist * 0.45f, endScale: dist * 0.6f, rotationDegrees: 0f, sortingOrder: RenderOrder.SlashFx, holdFraction: 0.3f);
+            OneShotSpriteEffect.CreateTweened(KitProjectile.Slash, KitWorld(new Vector2(-slashBack, p.slashHeight)), NinjaCrimson, duration: 0.22f, startScale: dist * 0.3f, endScale: dist * 0.5f, rotationDegrees: 8f, sortingOrder: RenderOrder.SlashFx);
             t = 0f;
             while (t < 0.05f)
             {

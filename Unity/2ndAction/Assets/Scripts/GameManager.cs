@@ -1946,31 +1946,28 @@ public partial class GameManager : MonoBehaviour
     Rect GetHomeMileRect() => HomePortrait
         ? new Rect(Screen.width - SafeRight() - 16f - 190f, PortraitHome().statsY, 190f, 72f)
         : HudReal(VW - VSafeRight - UiMargin - 190f, VSafeTop + UiMargin, 190f, 72f); // 横: HUD と同じ倍率(高解像度で小さくならない)
-    Rect GetHomeMultiButtonRect()
+    // 横画面の 設定/マルチ/ランキング/闘技場(2026-10-23): 所持MILE の下に1列で縦に並べる(縦画面の並びと同じ順)。
+    // 以前は 2×2 で、左の列の下の段(ランキング)がガチャ機械の看板に重なっていた。右端の1列なら機械(部屋の 0.78〜0.88)と横に重ならない。
+    // 出していないボタン(マルチ無し/部屋に入っている間/闘技場が未解放)の分は詰める(列に穴を空けない)
+    Rect HomeChromeColumn(int kind)
     {
-        if (HomePortrait) return PortraitChromeSlot(1);
-        float h = HomeButtonHeight, w = h * 1.9f;
-        return new Rect(Screen.width - SafeRight() - UiMargin - w, GetHomeMileRect().yMax + 10f, w, h);
+        int idx = 0;
+        if (kind >= 1) idx++;                                                   // 設定の下
+        if (kind >= 2 && Platform.Online.LanMultiplayer) idx++;                 // マルチ
+        if (kind >= 3 && !NetSession.IsActive) idx++;                           // ランキング
+        float h = HomeButtonHeight, w = h * 1.9f, gap = 8f;
+        float right = Screen.width - SafeRight() - UiMargin;
+        // ガチャ機械(押せる範囲)の右端より右に収める。足りない画面(4:3 など)では、ボタンの幅だけ少し狭める(字は列で1つの大きさに縮む)
+        Rect mh = lastGachaMachineHitRect;
+        if (mh.width > 0f && right - w < mh.xMax + 2f) w = Mathf.Max(h * 1.3f, right - (mh.xMax + 2f)); // 実際に重なる時だけ狭める
+        float x = right - w;
+        float y0 = GetHomeMileRect().yMax + 10f;
+        return new Rect(x, y0 + idx * (h + gap), w, h);
     }
-    Rect GetHomeSettingsButtonRect()
-    {
-        if (HomePortrait) return PortraitChromeSlot(0);
-        Rect m = GetHomeMultiButtonRect();
-        return new Rect(m.x - m.width - 10f, m.y, m.width, m.height);
-    }
-    // 闘技場: マルチ/設定と同じ大きさ、その下の段の右端
-    Rect GetHomeArenaButtonRect()
-    {
-        if (HomePortrait) return PortraitChromeSlot(3);
-        Rect m = GetHomeMultiButtonRect();
-        return new Rect(m.x, m.yMax + 10f, m.width, m.height);
-    }
-    Rect GetHomeRankingButtonRect()
-    {
-        if (HomePortrait) return PortraitChromeSlot(2);
-        Rect m = GetHomeSettingsButtonRect();
-        return new Rect(m.x, m.yMax + 10f, m.width, m.height);
-    }
+    Rect GetHomeSettingsButtonRect() => HomePortrait ? PortraitChromeSlot(0) : HomeChromeColumn(0);
+    Rect GetHomeMultiButtonRect() => HomePortrait ? PortraitChromeSlot(1) : HomeChromeColumn(1);
+    Rect GetHomeRankingButtonRect() => HomePortrait ? PortraitChromeSlot(2) : HomeChromeColumn(2);
+    Rect GetHomeArenaButtonRect() => HomePortrait ? PortraitChromeSlot(3) : HomeChromeColumn(3);
     // 開発版のDEBUG: 部屋の操作対象(扉/ベッド/本/肖像画/ガチャ)と重ならない、扉と本の間の床の上(画面下)。
     Rect GetHomeDebugButtonRect()
     {
@@ -2053,7 +2050,7 @@ public partial class GameManager : MonoBehaviour
     // ホームのアイコン付きボタン(2026-10-22 画面側の完成度向上): 右上の 設定/マルチ/ランキング/闘技場 と縦画面の入口の列を同じ決まりに。
     //  ・1行に「アイコン+名前」。アイコンは字の高さに合わせた大きさ(字の 1.3 倍、ボタンの高さの 52% まで)。まとまりはボタンの中央
     //  ・字の大きさは「列ごと」に1つ(PlanHomeIconRow: 列の中で一番入りにくい名前に合わせる)。同じ列で大きさがばらばらにならない
-    //  ・どうしても字が小さくなりすぎる(0.6 倍未満)長い言語では、その列は字だけ(名前の方がアイコンより大事)
+    //  ・どうしても字が小さくなりすぎる(0.55 倍未満)長い言語では、その列は字だけ(名前の方がアイコンより大事)
     struct HomeIconPlan { public bool icons; public float font; }
     const float HomeIconPerFont = 1.3f, HomeIconGap = 6f;
     float HomeIconFont(Rect r, string label, float fs)
@@ -2069,7 +2066,7 @@ public partial class GameManager : MonoBehaviour
     {
         float f = fs;
         foreach (var b in row) f = Mathf.Min(f, HomeIconFont(b.r, b.label, fs));
-        if (f >= fs * 0.6f) return new HomeIconPlan { icons = true, font = f };
+        if (f >= fs * 0.55f) return new HomeIconPlan { icons = true, font = f };
         float t = fs;
         foreach (var b in row) t = Mathf.Min(t, FitFont(b.label, OrnateTextW(b.r), fs));
         return new HomeIconPlan { icons = false, font = t };
@@ -4638,9 +4635,12 @@ public partial class GameManager : MonoBehaviour
                     // ため、常時枠を重ねて貼り付け感を足す必要がなかった。
 
                     lastGachaMachineRect = machineRect;
+                    // 2026-10-23: 押せる範囲は絵の見える所だけ(絵の左右の透明な余白 9%/12.5% を除く。5段階とも同じ外形)。右上のボタンの列と重ならない
+                    Rect machineHit = new Rect(machineRect.x + machineRect.width * 0.09f, machineRect.y, machineRect.width * (1f - 0.09f - 0.125f), machineRect.height);
+                    lastGachaMachineHitRect = machineHit;
                     // 確認中も本体は押せる(確認を閉じて次の1回)。確認中のパッド/キーの選択は確認の層の中で行う
                     bool machineInteractable = (roomInteractable || (gachaResultOpen && !showNewRunConfirm && !NetDebugUI.BlocksHomeInput && !UiInputGate.Blocked));
-                    if (machineInteractable && ((!gachaResultOpen && PadNav.Button(machineRect)) | GUI.Button(machineRect, GUIContent.none, GUIStyle.none)) && roomFadeAlpha > 0.99f)
+                    if (machineInteractable && ((!gachaResultOpen && PadNav.Button(machineHit)) | GUI.Button(machineHit, GUIContent.none, GUIStyle.none)) && roomFadeAlpha > 0.99f)
                     {
                         OnGachaMachineTapped();
                     }
@@ -6562,6 +6562,30 @@ public partial class GameManager : MonoBehaviour
     // Item 9 - small Gameplay Pause/Menu button (bottom-right, mirroring
     // the title screen's gear icon at bottom-left).
     Rect GetPauseButtonRect() => HudReal(VW - VSafeRight - UiMargin - 52f, VH - VSafeBottom - UiMargin - 52f, 52f, 52f);
+    // タップ攻撃(2026-10-23): ラン中の画面のボタン(一時停止/取得カードの欄/COMBO の印)の上で始まった指は攻撃にしない。
+    // screenPos は Input の座標(左下が原点)
+    // 確認用(-qaHomeLayout): ガチャ機械の絵の範囲(押せる範囲)と、右上のボタンの範囲(IMGUI の座標)
+    public Rect DebugGachaMachineRect => lastGachaMachineHitRect;
+    Rect lastGachaMachineHitRect;
+    public Rect[] DebugHomeChromeRects() => new[] { GetHomeSettingsButtonRect(), Platform.Online.LanMultiplayer ? GetHomeMultiButtonRect() : Rect.zero, GetHomeRankingButtonRect(), UnlockRules.IsArenaUnlocked ? GetHomeArenaButtonRect() : Rect.zero };
+    public static bool PointerOnRunHudButton(Vector2 screenPos)
+    {
+        var gm = Instance;
+        Vector2 p = new Vector2(screenPos.x, Screen.height - screenPos.y);
+        if (gm != null && gm.HasStarted)
+        {
+            Rect pr = gm.GetPauseButtonRect();
+            if (new Rect(pr.x - 12f, pr.y - 12f, pr.width + 24f, pr.height + 24f).Contains(p)) return true;
+        }
+        var hud = RunBuildHud.Instance;
+        if (hud != null && hud.isActiveAndEnabled && hud.IsVisible)
+        {
+            Rect g = hud.LastGridRect;
+            if (g.width > 0f && new Rect(g.x - 8f, g.y - 8f, g.width + 16f, g.height + 16f).Contains(p)) return true;
+            foreach (var r in hud.ComboRects) if (new Rect(r.x - 8f, r.y - 8f, r.width + 16f, r.height + 16f).Contains(p)) return true;
+        }
+        return false;
+    }
 
     void DrawPauseMenu()
     {

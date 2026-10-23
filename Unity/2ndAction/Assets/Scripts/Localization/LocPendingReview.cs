@@ -37,6 +37,10 @@ public static class LocPendingReview
     public const string ResultTakeHome = "持ち帰った MILE";                      // ID 10052(前: TOTAL MILE)
     public const string ResultRunBuild = "ラン中の強化(ラン中だけ・持ち帰りません)"; // ID 10053(前: UPGRADES OBTAINED)
 
+    // ID 10054〜10055(2026-10-23 タップ攻撃の復活): 練習の説明に足す行。エステルのレビューを30言語へ反映済み(keys_extra22)
+    public const string TapAttackLine = "タップ: その場で前へ攻撃(踏み込みなし)。前へフリックすると、踏み込みながら攻撃します。"; // ID 10054
+    public const string TapAirLine = "浮いた敵へは、空中でタップを続けると追撃できます。上へフリックで高さを戻し、下へフリックで締めます。";    // ID 10055
+
     // ID 10012〜10047(2026-10-19): データとプライバシー(プライバシーポリシー/データの削除)と LOCAL の暗号化。レビュー待ち(Docs/LocReview_2026-10-19)。
     //  前の文が無い新しい画面なので、訳が入るまでは日本語のまま出る(開発版だけ)。製品版の Android ビルドは全言語の訳が入るまで止まる
     public static readonly (string id, string key)[] Pending =

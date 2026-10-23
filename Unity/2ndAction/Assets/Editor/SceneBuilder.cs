@@ -3388,7 +3388,10 @@ public static class SceneBuilder
         Texture2D transparentForeground = LoadIconTexture("Assets/Art/UI/AppIconForeground.png");
         if (transparentForeground != null)
         {
-            ConfigureAdaptiveIcon(icon, transparentForeground);
+            // 2026-10-23: アダプティブの背景は、黒剣士/城/月が中央の見える範囲(72dp)に入るよう縮めて周りを描き足した別の絵(エステルさん)。
+            // 丸いアイコンの枠は通常の正方形のアイコン(AppIcon)
+            Texture2D adaptiveBackground = LoadIconTexture("Assets/Art/UI/AppIconAdaptive.png");
+            ConfigureAdaptiveIcon(adaptiveBackground != null ? adaptiveBackground : icon, transparentForeground, icon);
         }
     }
 
@@ -3398,7 +3401,7 @@ public static class SceneBuilder
     // outside the mask); foreground is fully transparent since there's no
     // separate cutout element meant to sit above it. Also fills the "Round"
     // icon slot some launchers read directly, with the same full artwork.
-    static void ConfigureAdaptiveIcon(Texture2D background, Texture2D foreground)
+    static void ConfigureAdaptiveIcon(Texture2D background, Texture2D foreground, Texture2D roundIcon)
     {
         NamedBuildTarget target = NamedBuildTarget.Android;
 
@@ -3412,7 +3415,7 @@ public static class SceneBuilder
         PlatformIcon[] roundIcons = PlayerSettings.GetPlatformIcons(target, AndroidPlatformIconKind.Round);
         foreach (PlatformIcon slot in roundIcons)
         {
-            slot.SetTextures(new[] { background });
+            slot.SetTextures(new[] { roundIcon });
         }
         PlayerSettings.SetPlatformIcons(target, AndroidPlatformIconKind.Round, roundIcons);
     }

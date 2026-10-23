@@ -197,7 +197,8 @@ public partial class QaSweep
                 if (en == null || !en.isActiveAndEnabled) { log.Append("K "); break; }
                 var f = seq[si] == "U" ? PlayerController.FlickDirection.Up : seq[si] == "D" ? PlayerController.FlickDirection.Down : PlayerController.FlickDirection.Forward;
                 int swing0 = PlayerAttackInfo.SwingCount, hits0 = hitsOnTarget;
-                yield return HaFlick(f);
+                if (seq[si] == "T") { PlayerController.DebugTapNow = true; yield return null; yield return null; } // 2026-10-23: T = タップ攻撃
+                else yield return HaFlick(f);
                 float wait = si == 0 ? Mathf.Max(stepWait, 0.18f) : stepWait;
                 float t = 0f;
                 while (t < wait && en != null && en.isActiveAndEnabled)
@@ -360,8 +361,9 @@ public partial class QaSweep
         {
             if (en == null || !en.isActiveAndEnabled) yield break;
             var f = seq[i] == "U" ? PlayerController.FlickDirection.Up : seq[i] == "D" ? PlayerController.FlickDirection.Down : PlayerController.FlickDirection.Forward;
-            aeOverlay += seq[i] == "U" ? "↑" : seq[i] == "D" ? "↓" : "→";
-            yield return HaFlick(f);
+            aeOverlay += seq[i] == "U" ? "↑" : seq[i] == "D" ? "↓" : seq[i] == "T" ? "・" : "→";
+            if (seq[i] == "T") { PlayerController.DebugTapNow = true; yield return null; yield return null; }
+            else yield return HaFlick(f);
             yield return new WaitForSeconds(i == 0 ? 0.24f : 0.22f);
         }
     }

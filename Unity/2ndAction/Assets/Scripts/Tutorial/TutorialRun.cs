@@ -307,6 +307,16 @@ public class TutorialRun : MonoBehaviour
         }
     }
 
+    // タップ攻撃(2026-10-23 復活): 指の操作の時だけ、攻撃/打ち上げの説明に1行足す(訳がまだの言語は足さない = 前の説明のまま)
+    string ExplainWithTap()
+    {
+        string body = Loc.Auto(Explain());
+        if (GameInput.LastDevice == InputDeviceKind.Keyboard || GameInput.LastDevice == InputDeviceKind.Gamepad) return body;
+        string extra = CurrentStep == Step.Attack ? LocPendingReview.TapAttackLine : CurrentStep == Step.Launch ? LocPendingReview.TapAirLine : null;
+        if (extra == null || !Loc.Ready(extra)) return body;
+        return body + "\n\n" + Loc.T(extra);
+    }
+
     string Hint()
     {
         string ok(bool b) => b ? "OK" : "--";
@@ -354,7 +364,7 @@ public class TutorialRun : MonoBehaviour
             bodySt.fontSize = Mathf.RoundToInt(25 * s * k); bodySt.normal.textColor = Color.white;
             OrnateUi.DrawPanel(p, 0.95f);
             LocGUI.Label(new Rect(p.x + 20 * s, p.y + 10 * s * k, p.width - 40 * s, 46 * s * k), (CurrentStep == Step.End ? Loc.T(Title()) : $"{(int)CurrentStep} / 5  {Loc.T(Title())}"), titleSt);
-            bodyScroll.Text(new Rect(p.x + 28 * s, p.y + 56 * s * k, p.width - 56 * s, p.height - 130 * s * k), Explain(), bodySt, "step" + (int)CurrentStep); // 2026-10-08: 長い説明はスクロール(縮めない)
+            bodyScroll.Text(new Rect(p.x + 28 * s, p.y + 56 * s * k, p.width - 56 * s, p.height - 130 * s * k), ExplainWithTap(), bodySt, "step" + (int)CurrentStep); // 2026-10-08: 長い説明はスクロール(縮めない)
             float bw = 260 * s * k, bh = 58 * s * k, by = p.yMax - bh - 14 * s * k;
             if (CurrentStep == Step.End)
             {
