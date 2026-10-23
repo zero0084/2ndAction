@@ -2899,7 +2899,7 @@ public partial class GameManager : MonoBehaviour
         // 本人がJOINなら、その端末へ選択を渡し、HOSTはボス戦の後始末(ボス戦終了/距離再開)だけ行う。
         // 2026-10-16 第5弾: 協力の各マップのラッシュの完走報酬 = 参加者全員が1回ずつ(最後に倒した人だけではない)。MILE の分配は変えない
         bool rushForAll = NetCombat.Authority && NetRunLauncher.IsMultiplayerRun && NetMatch.Mode == MultiplayerGameMode.Coop
-            && BossManager.Instance != null && BossManager.Instance.MapRushActive;
+            && BossManager.Instance != null && (BossManager.Instance.MapRushActive || BossManager.Instance.TrioActive); // 2026-10-24: 95〜99km の3連戦の関門も
         if (rushForAll)
         {
             int serial = BossManager.Instance.MapRushesStarted;
@@ -2953,7 +2953,7 @@ public partial class GameManager : MonoBehaviour
         if (pool.Count == 0 && deckCards.Count > 0 && maxedInDeck == 0) foreach (var u in CardDatabase.UnlockedCards) if (CanStillPick(u)) pool.Add(u);
         if (pool.Count == 0 && maxedInDeck > 0) Debug.Log($"[Card] every deck card is at Lv{MaxRunCardLevel} - no card choice this time");
 
-        if (pool.Count == 0)
+        if (pool.Count == 0 && FinalEvolution.CandidateCount == 0) // 2026-10-24: FINAL EVOLUTION の候補があれば、それで3択を作る
         {
             LogBossRewardStage("RunBossRewardChoice: pool empty -> SaveCheckpoint");
             netRushRewardOwed = false;
@@ -2985,15 +2985,7 @@ public partial class GameManager : MonoBehaviour
             return;
         }
 
-        for (int i = pool.Count - 1; i > 0; i--)
-        {
-            int j = Random.Range(0, i + 1);
-            (pool[i], pool[j]) = (pool[j], pool[i]);
-        }
-
-        int pickCount = Mathf.Min(3, pool.Count);
-        pendingChoices = new CardDefinition[pickCount];
-        for (int i = 0; i < pickCount; i++) pendingChoices[i] = pool[i];
+        pendingChoices = ComposeChoice(pool, "BOSS REWARD");
 
         pendingChoiceKind = PendingChoiceKind.BossReward;
         levelUpPending = true;
@@ -3022,6 +3014,33 @@ public partial class GameManager : MonoBehaviour
     // (via Time.timeScale) until the player picks one - nearly everything
     // in this game drives its movement off Time.deltaTime, so this alone
     // freezes gameplay without having to touch every script individually.
+    // 3択の中身(2026-10-24、通常マップの終盤の作り直し): 通常のカード + FINAL EVOLUTION を同じ3枚の中に入れる。
+    //  ・FE の候補があれば最大1枠(通常のカードが2枚以上ある時)。通常のカードが足りない時は FE の候補で3枚まで埋める
+    //    (以前は通常のカードが足りないと FE が1枚だけで出ることがあった = 「特別な1枚の提示」にしない)
+    //  ・LEVEL UP / ボス報酬の両方(以前はボス報酬には出さなかった)。FE は右端(最後)に並べる
+    public static int ChoiceFeOffered, ChoiceFeFilled; // 確認用
+    CardDefinition[] ComposeChoice(List<CardDefinition> pool, string label)
+    {
+        for (int i = pool.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (pool[i], pool[j]) = (pool[j], pool[i]);
+        }
+        int feWant = FinalEvolution.CandidateCount > 0 ? Mathf.Max(1, 3 - Mathf.Min(pool.Count, 2)) : 0;
+        var fe = FinalEvolution.PickCandidates(feWant);
+        int normal = Mathf.Min(pool.Count, 3 - fe.Count);
+        var res = new CardDefinition[normal + fe.Count];
+        for (int i = 0; i < normal; i++) res[i] = pool[i];
+        for (int i = 0; i < fe.Count; i++) res[normal + i] = FinalEvolution.ChoiceCard(fe[i]);
+        if (fe.Count > 0)
+        {
+            ChoiceFeOffered += fe.Count;
+            if (fe.Count > 1) ChoiceFeFilled++;
+            Debug.Log($"[FinalEvo] offered {string.Join(",", fe)} in {label} (with {normal} normal card(s), {res.Length} total)");
+        }
+        return res;
+    }
+
     void RunLevelUpChoice()
     {
         // Leveling up always fully restores HP, regardless of whether a
@@ -3047,10 +3066,8 @@ public partial class GameManager : MonoBehaviour
         }
         if (pool.Count == 0 && deckCards.Count > 0 && maxedInDeck == 0) foreach (var u in CardDatabase.UnlockedCards) if (CanStillPick(u)) pool.Add(u);
         if (pool.Count == 0 && maxedInDeck > 0) Debug.Log($"[Card] every deck card is at Lv{MaxRunCardLevel} - no card choice this time");
-        // FINAL EVOLUTION(2026-10-04): READY の能力があれば、3択のうち最大1枠を FINAL EVOLUTION の候補に(通常の LEVEL UP だけ)
-        string feCandidate = FinalEvolution.PickCandidate();
-
-        if (pool.Count == 0 && feCandidate == null)
+        // FINAL EVOLUTION(2026-10-04 / 2026-10-24): 通常の3択の中に入る(ComposeChoice)
+        if (pool.Count == 0 && FinalEvolution.CandidateCount == 0)
         {
             // No cards available to draw from at all - level up "quietly"
             // instead of opening the card choice screen. Critically must
@@ -3060,20 +3077,7 @@ public partial class GameManager : MonoBehaviour
             return;
         }
 
-        for (int i = pool.Count - 1; i > 0; i--)
-        {
-            int j = Random.Range(0, i + 1);
-            (pool[i], pool[j]) = (pool[j], pool[i]);
-        }
-
-        int pickCount = Mathf.Min(feCandidate != null ? 2 : 3, pool.Count);
-        pendingChoices = new CardDefinition[pickCount + (feCandidate != null ? 1 : 0)];
-        for (int i = 0; i < pickCount; i++) pendingChoices[i] = pool[i];
-        if (feCandidate != null)
-        {
-            pendingChoices[pickCount] = FinalEvolution.ChoiceCard(feCandidate);
-            Debug.Log($"[FinalEvo] offered {feCandidate} in LEVEL UP (with {pickCount} normal card(s))");
-        }
+        pendingChoices = ComposeChoice(pool, "LEVEL UP");
 
         pendingChoiceKind = PendingChoiceKind.LevelUp;
         levelUpPending = true;
@@ -4290,6 +4294,7 @@ public partial class GameManager : MonoBehaviour
             DrawStatPanel(V(GetDistancePanelRect()), "DISTANCE", FormatDistanceExact(SprintActive && SprintRunner.Instance != null ? SprintRunner.Instance.DistanceNow : MaxDistanceExact), HudValueColor, flashIntensity: DistanceFlashIntensity); // 疾走中(リングの3択)は疾走の距離
             DrawSpeedHud();
             DrawTakeHomeHud(); // 2026-10-11: 持ち帰り予定 MILE
+            DrawFinalEvoHud(); // 2026-10-24: FINAL EVOLUTION の残り時間
 
             if (!ArenaMode.Active) DrawLevelAndExp();
             DrawHeartsPanel();

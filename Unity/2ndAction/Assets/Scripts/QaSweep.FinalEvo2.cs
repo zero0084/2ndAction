@@ -124,15 +124,35 @@ public partial class QaSweep
         var act1 = FeSnap();
         Check(!FeSame(lv9, act1), $"B: the FINAL EVOLUTION changes the stats ({string.Join(", ", FeDiff(lv9, act1).Take(4))})");
 
-        // C: ACTIVE 中の LEVEL UP に同じ FE は出ない
+        // C: ACTIVE 中の LEVEL UP。2026-10-24 から(FinalEvolution.UnifiedSeconds > 0): ほかに READY が無ければ同じ FE も出る(取り直し)。
+        //    取り直しは残りを 60秒へ戻すだけ(重ならない)。この試験は以前の長さ(-feSeconds 0)で回し、新しい仕様は -qaMapFinale の FE で確かめる
+        if (FinalEvolution.UnifiedSeconds <= 0f)
+        {
+            gm.DebugTriggerLevelUp();
+            yield return WaitChoiceOpen();
+            var idsOld = gm.DebugPendingChoiceIds;
+            Check(!idsOld.Contains(FinalEvolution.ChoicePrefix + atk), $"C: while ACTIVE the same FE is not offered [{string.Join(",", idsOld)}]");
+            int sb = FinalEvolution.Uses(atk);
+            Check(!FinalEvolution.Activate(atk) && FinalEvolution.Uses(atk) == sb, "C: the same FE cannot stack (Activate refused while ACTIVE)");
+            string oc = idsOld.FirstOrDefault(x => !FinalEvolution.IsChoiceId(x));
+            if (oc != null) yield return PickInChoice(oc);
+        }
+        else
+        {
         gm.DebugTriggerLevelUp();
         yield return WaitChoiceOpen();
         var idsC = gm.DebugPendingChoiceIds;
-        Check(!idsC.Contains(FinalEvolution.ChoicePrefix + atk), $"C: while ACTIVE the same FE is not offered [{string.Join(",", idsC)}]");
-        int stackBefore = FinalEvolution.Uses(atk);
-        Check(!FinalEvolution.Activate(atk) && FinalEvolution.Uses(atk) == stackBefore, "C: the same FE cannot stack (Activate refused while ACTIVE)");
+        bool otherReady = FinalEvolutionTuning.I.entries.Any(e => e != null && e.abilityId != atk && FinalEvolution.StageOf(e.abilityId) == FinalEvolution.Stage.Ready);
+        Check(otherReady ? !idsC.Contains(FinalEvolution.ChoicePrefix + atk) : idsC.Contains(FinalEvolution.ChoicePrefix + atk), $"C: while ACTIVE the same FE is offered only when no other FE is READY (other READY {otherReady}) [{string.Join(",", idsC)}]");
+        int stackBefore = FinalEvolution.Uses(atk), refBefore = FinalEvolution.Refreshes;
+        float mulBefore = FinalEvolution.AttackMul;
+        FinalEvolution.DebugSetRemaining(atk, 20f);
+        bool refreshed = FinalEvolution.Activate(atk);
+        Check(refreshed && FinalEvolution.Refreshes == refBefore + 1 && Mathf.Abs(FinalEvolution.Remaining(atk) - FinalEvolution.UnifiedSeconds) < 0.01f && Mathf.Approximately(FinalEvolution.AttackMul, mulBefore),
+            $"C: re-acquiring while ACTIVE resets the time to {FinalEvolution.UnifiedSeconds:0}s without stacking (remaining {FinalEvolution.Remaining(atk):F1}, mul {mulBefore:F2} -> {FinalEvolution.AttackMul:F2})");
         string otherC = idsC.FirstOrDefault(x => !FinalEvolution.IsChoiceId(x));
         if (otherC != null) yield return PickInChoice(otherC);
+        }
         lv9 = null; // 通常カードを1枚取ったので基準を取り直す(終わった時に比べる)
 
         // D: 終わる → READY へ戻る(待ちなし)
@@ -269,7 +289,7 @@ public partial class QaSweep
         FinalEvolution.DebugMakeReady("speed_up");
         FeActivate("speed_up");
         bool never = true; for (int i = 0; i < 20; i++) if (FinalEvolution.PickCandidate() == "speed_up") never = false;
-        Check(never, "fairness: an ACTIVE FE is never picked as a candidate");
+        Check(never, "fairness: while other FE are READY, an ACTIVE FE is not picked (re-acquiring comes after the READY ones)");
         FinalEvolution.DebugEnd("speed_up");
         Shot("fe2_R_hud");
         yield return V3End();

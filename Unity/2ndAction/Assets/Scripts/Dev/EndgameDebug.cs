@@ -45,12 +45,20 @@ public partial class EndgameDebug : MonoBehaviour
         LongBuild.Mix => "mix", LongBuild.Attack => "attack", LongBuild.Fire => "fire", LongBuild.Lightning => "lightning", _ => null,
     };
     public static string LongDistanceLabel(float d) => d >= 99000f ? "100km付近" : $"{d / 1000f:0}km";
+    // 通常マップの終盤(2026-10-24): その距離ちょうどへ(関門の直後ではなく手前)。90km のボス / 雑魚の大群 / 95km の3連戦 / 99km の3連戦 / 100km の死神
+    public static readonly float[] FinaleDistances = { 89850f, 91000f, 94850f, 98850f, 99850f };
+    public static string FinaleDistanceLabel(float d) => d switch
+    {
+        89850f => "90kmボス\nの手前", 91000f => "91km\n雑魚の大群", 94850f => "95km 3連戦\nの手前", 98850f => "99km 3連戦\nの手前", _ => "100km死神\nの手前",
+    };
+    static bool pendingExact;
+    public static void LaunchFinale(string stage, float d, LongBuild build, Profile prof) { LaunchLong(stage, d, build, prof); pendingExact = true; }
 
     public static void LaunchLong(string stage, float d, LongBuild build, Profile prof)
     {
         if (Instance == null) return;
         if (Instance.Launching) { Debug.Log("[EndgameDebug] launch ignored (already launching)"); return; }
-        pending = null;
+        pending = null; pendingExact = false;
         pendingLong = (stage, d, build); pendingProfile = prof;
         Instance.Launches++;
         Debug.Log($"[EndgameDebug] LAUNCH long-distance {stage} {d:F0}m build={build} profile={prof} - reloading the scene for a clean start");
@@ -86,9 +94,11 @@ public partial class EndgameDebug : MonoBehaviour
         var ids = build == LongBuild.Retest ? RetestDeckB : preset != null ? CardBuildPresets.Find(preset) : null;
         if (ids != null)
             foreach (var id in ids) { var c = CardDatabase.FindBaseById(id); if (c != null) gm.ApplyCardEffectsStacked(c, 9); }
-        // 関門(1kmごと)の直後へ。100km はステージの節目(三姉妹など)の手前の 99km
-        Warp(gm, d + 150f);
-        Debug.Log($"[EndgameDebug] long-distance check: {currentLabel} at {d + 150f:F0}m | atk x{(PlayerController.Instance != null ? PlayerController.Instance.CardAttackFactor : 1f):F2} enemyHp(x1) {(DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(1f) : 0)}");
+        // 関門(1kmごと)の直後へ。100km はステージの節目(三姉妹など)の手前の 99km。終盤の確認(LaunchFinale)はその距離ちょうど
+        bool exact = pendingExact; pendingExact = false;
+        if (!exact) d += 150f;
+        Warp(gm, d);
+        Debug.Log($"[EndgameDebug] long-distance check: {currentLabel} at {d:F0}m | atk x{(PlayerController.Instance != null ? PlayerController.Instance.CardAttackFactor : 1f):F2} enemyHp(x1) {(DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(1f) : 0)}");
         Status = $"{currentLabel}({ProfileLabel(prof)})開始";
         Launching = false;
     }

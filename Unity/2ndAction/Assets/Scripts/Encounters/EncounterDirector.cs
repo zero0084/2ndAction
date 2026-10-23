@@ -80,7 +80,24 @@ public class EncounterDirector : MonoBehaviour
     public static System.Func<float, float> PaceAt;
     public static System.Func<float, float> SurgeAt;
     float planDistance; // 今決めているEncounterの走行距離(SurgeAt用)
-    float Pace(float d) => (PaceAt != null ? Mathf.Max(0.2f, PaceAt(d)) : 1f) * SpawnGapFactor;
+    float Pace(float d) => (PaceAt != null ? Mathf.Max(0.2f, PaceAt(d)) : 1f) * RushPace(d) * SpawnGapFactor;
+
+    // ===== 通常マップの終盤の雑魚の大群(2026-10-24、BossManager.MapFinale.cs) =====
+    // 90km のボスの後〜95,000m: 1km ごとの段階(波)で、Encounter どうしの間隔を詰め(RushPaceByWave)、激しい方へ寄せる(RushSurgeByWave)。
+    //  段階 0 (90-91km) ラッシュの始まり・まだ普通寄り / 1 (91-92) 飛ぶ敵が多い / 2 (92-93) 地上の大物+混成 / 3 (93-94) ほぼ途切れない / 4 (94-95) 最大
+    //  休憩(Rest)は段階が上がるほど減らし、3〜4 では入れない。1つの Encounter の中身(Formation)は今までどおり(1か所に重ねない)。
+    //  生きている敵の上限(CardRules.MaxLivingEnemiesForSpawn)と、同時に攻撃できる敵の上限(ZakoAttackLimiter)はそのまま効く。
+    public static float[] RushPaceByWave = { 0.5f, 0.4f, 0.35f, 0.25f, 0.18f };
+    public static float[] RushSurgeByWave = { 0.55f, 0.7f, 0.85f, 1f, 1f };
+    public static float[] RushRestScaleByWave = { 0.6f, 0.25f, 0.2f, 0f, 0f };
+    public static int RushPlans; // 確認用: 雑魚の大群の区間で決めた Encounter の数
+    public static int RushMembers; // 確認用: 雑魚の大群の区間で出した敵の数
+    static int RushWaveAt(float d)
+    {
+        var bm = BossManager.Instance;
+        return bm != null && bm.ZakoRushAt(d) ? BossManager.ZakoRushWave(d) : -1;
+    }
+    static float RushPace(float d) { int w = RushWaveAt(d); return w < 0 ? 1f : RushPaceByWave[w]; }
 
     // ===== 敵出現率のカード(2026-10-03) =====
     // GameManager.EnemySpawnRateMultiplier(1 + MORE ENEMIES/HORDE/GREED/... の合計)を、このDirectorでは
@@ -306,6 +323,12 @@ public class EncounterDirector : MonoBehaviour
             if (nextAnchor < playerLogical + ahead) nextAnchor = playerLogical + ahead;
             return;
         }
+        if (BossManager.FinaleQuietAt(RefDistance)) // 2026-10-24: 通常マップの 95〜100km(3連戦の区間)は雑魚を出さない
+        {
+            WaitReason = "map finale 95-100km (no zako)"; lastCommitTime = Time.time;
+            if (nextAnchor < playerLogical + ahead) nextAnchor = playerLogical + ahead;
+            return;
+        }
         bool bossPhase = (BossManager.Instance != null && BossManager.Instance.SpawnsHeld) || CaveBossSafety.HoldZako; // ボス戦の強化: ラン再開後は雑魚を戻す / 自然洞窟ボスの必殺技中は出さない
         bool pauseNow = bossPhase || gm.IsDistanceInSafeZone(RefDistance) || gm.CountdownActive || gm.ResumeGateActive || (refIsLocal && pc.IsFinishing);
         if (pauseNow)
@@ -379,6 +402,7 @@ public class EncounterDirector : MonoBehaviour
             // 2026-10-02: 止める区間(ボスラッシュ/静寂)は「出す位置の距離」でも判定する(以前はプレイヤーの距離だけで、
             // 89,9xxmで決めた出現位置が90,000mの先=ボスラッシュの中へ雑魚を置いていた)
             if (SuppressAt != null && SuppressAt(runDistance - DebugDistanceOffset)) { SuppressedFrames++; nextAnchor += 20f; continue; }
+            if (BossManager.FinaleQuietAt(runDistance - DebugDistanceOffset)) { nextAnchor += 20f; continue; } // 95km から先は置かない
             // 二重生成の防止(3.1): 同じ出現位置(1m単位)は1回しか決めない。最前の人が入れ替わっても基準点は前へしか進まないが、念のためHOSTで一意に管理する。
             long key = (long)System.Math.Round(nextAnchor);
             if (plannedAnchors.Contains(key)) { DuplicateAnchorsBlocked++; nextAnchor = key + 1.0; continue; }
@@ -615,6 +639,9 @@ public class EncounterDirector : MonoBehaviour
     static float SpeedScale(PlayerController pc) => Mathf.Max(1f, pc.SpeedRatio);
 
     float GapScale(float speed) => 1f + profile.gapSpeedScale * (speed - 1f);
+    // 雑魚の大群(2026-10-24): 速さで間隔を広げる分を外す(終盤は速く、広げたままだと画面に1〜2体しか居なかった)
+    public static float RushSpeedGapKeep = 0.15f; // 速さで広げる分のうち残す割合
+    float RushGapScale(float speed, float d) => RushWaveAt(d) >= 0 ? Mathf.Lerp(1f, GapScale(speed), RushSpeedGapKeep) : GapScale(speed);
 
     static float VisibleAhead(PlayerController pc)
     {
@@ -685,7 +712,9 @@ public class EncounterDirector : MonoBehaviour
         EncounterIntensity prev = n > 1 ? intensityHistory[n - 2] : EncounterIntensity.Easy;
         if (n == 0) { w[0] = 0f; w[3] = 0f; } // 最初はEasy/Mediumから
         // ラストダンジョン: 難易度の波(激しい区間ほどHard寄り・休憩が減る、落ち着く区間は休憩/Easy寄り)
-        float surge = SurgeAt != null ? Mathf.Clamp01(SurgeAt(planDistance)) : -1f;
+        int rushWave = RushWaveAt(planDistance); // 2026-10-24: 通常マップの終盤の雑魚の大群
+        float surge = SurgeAt != null ? Mathf.Clamp01(SurgeAt(planDistance)) : rushWave >= 0 ? RushSurgeByWave[rushWave] : -1f;
+        if (rushWave >= 0) { RushPlans++; w[0] *= RushRestScaleByWave[rushWave]; }
         if (surge >= 0f)
         {
             w[0] *= Mathf.Lerp(1.8f, 0.3f, surge);
@@ -696,8 +725,8 @@ public class EncounterDirector : MonoBehaviour
         // 休憩を挟まない戦闘が続きすぎたら必ず休憩(呼吸)を入れる。
         int sinceRest = 0;
         for (int i = n - 1; i >= 0 && intensityHistory[i] != EncounterIntensity.Rest; i--) sinceRest++;
-        int maxNoRest = Mathf.Max(1, profile.maxEncountersWithoutRest) + (surge >= 0.75f ? 2 : 0);
-        if (n > 0 && sinceRest >= maxNoRest) return EncounterIntensity.Rest;
+        int maxNoRest = Mathf.Max(1, profile.maxEncountersWithoutRest) + (surge >= 0.75f ? 2 : 0) + (rushWave >= 0 ? 3 : 0);
+        if (n > 0 && sinceRest >= maxNoRest && (rushWave < 0 || RushRestScaleByWave[rushWave] > 0f)) return EncounterIntensity.Rest;
         switch (last)
         {
             case EncounterIntensity.Rest: w[0] *= profile.afterRestRestMultiplier; break;
@@ -705,7 +734,7 @@ public class EncounterDirector : MonoBehaviour
             case EncounterIntensity.Medium: w[3] *= profile.afterMediumHardMultiplier; break;
             case EncounterIntensity.Hard: w[3] *= profile.afterHardHardMultiplier; w[0] *= profile.afterHardRestMultiplier; break;
         }
-        if (last == EncounterIntensity.Hard && prev == EncounterIntensity.Hard) w[3] = 0f;
+        if (last == EncounterIntensity.Hard && prev == EncounterIntensity.Hard && rushWave < 3) w[3] = 0f; // 大群の 93km 以降は Hard の連続も許す
         if (last == EncounterIntensity.Rest && prev == EncounterIntensity.Rest) w[0] = 0f;
         float sum = w[0] + w[1] + w[2] + w[3];
         if (sum <= 0f) return EncounterIntensity.Easy;
@@ -739,6 +768,7 @@ public class EncounterDirector : MonoBehaviour
             if (probe.Clearance < profile.narrowClearance) w *= f.narrowAffinity;
             else if (probe.Clearance >= profile.wideClearance) w *= f.wideAffinity;
             if (probe.FlatRun >= profile.straightLength) w *= f.straightAffinity;
+            w *= RushFormationBias(f); // 2026-10-24: 雑魚の大群の段階(飛ぶ敵が多い/地上の大物+混成)
             // 同じFormationの連続防止(絶対禁止ではない)
             int idx = formationHistory.LastIndexOf(f.formationId);
             if (idx >= 0)
@@ -754,6 +784,22 @@ public class EncounterDirector : MonoBehaviour
         float r = R01() * total;
         foreach (var c in cands) { if (r < c.w) return c.f; r -= c.w; }
         return cands[cands.Count - 1].f;
+    }
+
+    // 雑魚の大群の段階ごとの Formation の寄せ方: 段階1 は飛ぶ敵の枠がある組を、段階2 は地上と空の混成と地上の多い組を多めに
+    float RushFormationBias(EncounterFormation f)
+    {
+        int wave = RushWaveAt(planDistance);
+        if (wave != 1 && wave != 2) return 1f;
+        int air = 0, ground = 0;
+        foreach (var s in f.slots)
+        {
+            if (s == null) continue;
+            if (s.kind == EncounterSlotKind.AirLow || s.kind == EncounterSlotKind.AirMiddle || s.kind == EncounterSlotKind.AirHigh) air++;
+            else if (s.kind == EncounterSlotKind.GroundFront || s.kind == EncounterSlotKind.GroundMiddle || s.kind == EncounterSlotKind.GroundRear) ground++;
+        }
+        if (wave == 1) return air > 0 ? 3f : 0.5f;
+        return air > 0 && ground > 0 ? 2.5f : ground >= 3 ? 2f : 0.8f;
     }
 
     float Spacing(EncounterFormation f, float speed) => 1f + f.spacingSpeedScale * (Mathf.Min(speed, Mathf.Max(1f, profile.maxSpacingSpeed)) - 1f);
@@ -1006,7 +1052,7 @@ public class EncounterDirector : MonoBehaviour
         Commit(rec);
         OnEncounterSpawned?.Invoke(rec, f, spawnedGos);
         Spawned?.Invoke(rec, f, spawnedGos);
-        nextAnchor = rec.endLogical + Range(GapRange(intensity)) * GapScale(speed) * Pace(runDistance);
+        nextAnchor = rec.endLogical + Range(GapRange(intensity)) * RushGapScale(speed, runDistance) * Pace(runDistance);
         if (Debug.isDebugBuild && nextAnchor - refLogical > 300.0) Debug.Log($"[ENCOUNTER] next anchor far: +{nextAnchor - refLogical:F0}m after #{rec.index} (end +{rec.endLogical - refLogical:F0}m, gap {GapRange(intensity)} x speed {GapScale(speed):F2} x pace {Pace(runDistance):F2}, speed x{speed:F2})");
         return true;
     }
@@ -1264,7 +1310,7 @@ public class EncounterDirector : MonoBehaviour
     void DoRest(float runDistance, EncounterDistanceBand band, float speed, string reason, bool short_ = false)
     {
         var rec = new Record { index = ++encounterIndex, distance = runDistance, band = band != null ? band.bandName : "-", intensity = EncounterIntensity.Rest, formation = "rest", reason = reason };
-        float len = short_ ? 10f : Range(profile.restLength) * GapScale(speed) * Pace(runDistance);
+        float len = short_ ? 10f : Range(profile.restLength) * RushGapScale(speed, runDistance) * Pace(runDistance);
         rec.anchorLogical = nextAnchor;
         rec.endLogical = nextAnchor + len;
         if (!short_) Commit(rec);
@@ -1284,6 +1330,7 @@ public class EncounterDirector : MonoBehaviour
             while (formationHistory.Count > Mathf.Max(1, profile.historySize)) formationHistory.RemoveAt(0);
         }
         IntensityCounts[(int)rec.intensity]++;
+        if (RushWaveAt(rec.distance) >= 0) RushMembers += rec.members.Count; // 確認用: 雑魚の大群で出した敵の数
         encounterHistory.Add(rec.formation);
         if (encounterHistory.Count > 8) encounterHistory.RemoveAt(0);
         FormationCounts[rec.formation] = FormationCounts.TryGetValue(rec.formation, out int c) ? c + 1 : 1;

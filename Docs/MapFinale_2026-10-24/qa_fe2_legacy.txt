@@ -1,0 +1,68 @@
+[tuning] readyMeters=5000 usesPerRun=0 entries=99 awakenedBonus=0.1
+== R: 再使用の必須テスト A〜O ==
+[pick] fe|attack_up resolved after 0.6s
+[pick] speed_down resolved after 0.6s
+[pick] fe|attack_up resolved after 0.6s
+[J: EXP] during: ExpMultDist 2.8->3.1, ExpMultKill 2.8->3.1, ExpBucketDist 1.8->2.4, FE.ExpBucket 0->0.6
+[K: MILE] during: FE.MileMul 1->1.5, FE.DamageTakenMul 1->1.3
+[fair] attack_up=2 exp_up=4 greed=3 (other READY abilities share the slot too)
+== A: 全対象カード(データから)==
+[A] cards 100, FE targets 99
+[A] objects by name (top increases): Outline+16, GroundShadow+2, Enemy+2, Mid+1, FxTweened+1, GroundSegment+1, Decor_decor_cratebarrel+1, GroundFill+1, Visual+1, [ObstacleFx]+1
+[A] 99 passed, 0 failed; effects/projectiles 11 -> 12, all objects (incl. terrain/enemies while running) 492 -> 518 after all 99 cards x 11 windows
+== S: 組み合わせの負荷 ==
+[S] Attack+AttackSpeed+DoubleAttack objects by name: Mid+41, GroundSegment+41, Outline+40, GroundFill+31, WallHazard+31, Right+17, Left+16, BranchUndersideFill+10, Decor_decor_signpost+7, GroundShadow+5
+[S] Attack+AttackSpeed+DoubleAttack 3 8 16.7 50.0 16.7 10 -1432 13 47 0 0 0 0 9->12 558->819 - True 0
+[S] Fire+Inferno+BurningSoul objects by name: Mid+39, GroundSegment+39, Outline-32, GroundFill+29, WallHazard+28, Left+15, Right+15, BranchUndersideFill+10, Decor_decor_cart+6, Decor_decor_signpost+5
+[S] Fire+Inferno+BurningSoul 3 8 16.7 33.3 16.7 6 6432 14 3996 202 78 0 75 14->12 583->729 - True 0
+[S] Lightning+ChainLightning+ThunderLord objects by name: GroundSegment+40, Mid+40, GroundFill+30, WallHazard+25, Outline+16, Right+14, Left+13, FxTweened+12, BranchUndersideFill+10, Decor_decor_signpost+7
+[S] Lightning+ChainLightning+ThunderLord 3 8 16.8 33.3 16.7 5 5020 7 318 0 0 318 0 0->12 561->795 - True 0
+[S] Speed+Momentum+Overdrive objects by name: Mid+66, GroundSegment+66, GroundFill+46, Outline+40, WallHazard+36, Left+21, BranchUndersideFill+20, Right+19, Decor_decor_fence+15, Decor_decor_cart+11
+[S] Speed+Momentum+Overdrive 3 8 16.7 33.3 16.7 6 3652 13 0 0 0 0 0 10->8 568->947 - True 0
+[S] Vampire+Overheal+Blood objects by name: Outline+72, GroundSegment+41, Mid+41, GroundFill+31, WallHazard+12, BranchUndersideFill+10, Decor_decor_signpost+9, GroundShadow+9, Visual+9, Enemy+9
+[S] Vampire+Overheal+Blood 5 8 16.7 50.0 16.7 7 5964 10 0 0 0 0 0 8->4 549->802 - True 0
+[S] EXP x4 objects by name: Outline+56, GroundSegment+37, Mid+37, WallHazard+28, GroundFill+27, Right+15, Left+15, BranchUndersideFill+10, FxTweened+9, Visual+8
+[S] EXP x4 4 8 16.7 33.3 16.7 6 6368 14 0 0 0 0 0 0->9 555->832 - True 0
+[S] MILE x4 objects by name: Outline+64, GroundSegment+61, Mid+61, GroundFill+41, WallHazard+37, Left+21, Right+20, BranchUndersideFill+20, Decor_decor_signpost+12, Decor_decor_cratebarrel+10
+[S] MILE x4 4 8 16.7 16.7 16.7 6 4652 10 0 0 0 0 0 9->9 533->925 - True 0
+[S] HellMode+Pandemonium+Horde objects by name: Outline+88, Mid+62, GroundSegment+62, GroundFill+42, WallHazard+30, BranchUndersideFill+20, Right+17, Left+17, Visual+11, GroundShadow+11
+[S] HellMode+Pandemonium+Horde 3 8 16.8 33.3 16.7 5 5180 13 0 0 0 0 0 2->10 547->971 - True 0
+[S] phoenix lethal hits: Hit:lives25:fe1:phx0  Ignored:lives10:fe1:phx0  Ignored:lives10:fe1:phx0
+[S] Phoenix+LastChance+SecondWind objects by name: Outline+48, GroundSegment+43, Mid+43, GroundFill+33, WallHazard+14, BranchUndersideFill+10, Decor_decor_cratebarrel+9, Decor_decor_cart+9, Left+8, Right+8
+[S] Phoenix+LastChance+SecondWind 3 8 16.7 33.3 16.7 5 5480 11 0 0 0 0 0 12->9 546->805 - True 0
+[S] ULTIMATE activation with 6 FEs: True 
+[S] FE x6 + ULTIMATE objects by name: Mid+119, GroundSegment+119, GroundFill+89, WallHazard+59, Outline-48, Left+33, Right+32, BranchUndersideFill+30, Decor_decor_signpost+24, Decor_decor_cart+17
+[S] FE x6 + ULTIMATE 6 8 16.7 50.0 16.7 10 -3180 14 3622 206 44 301 148 6->3 568->1066 - True 0
+== P: 実時間の10回反復 ==
+[P] speed_up objects by name, cycle 1 -> 10: GroundSegment+102, Mid+102, Outline+72, GroundFill+72, WallHazard+53, BranchUndersideFill+30, Left+30, Right+29, Decor_decor_cart+15, fx+13
+[P] speed_up: activations 10, effects/projectiles after each window 11 -> 8 (max 14), all objects 641 -> 1241, listeners 0 -> 0, tracked 0
+[P] attack_range_up objects by name, cycle 1 -> 10: Outline+48, Mid+47, GroundSegment+47, GroundFill+37, WallHazard+18, Left+10, Decor_decor_fence+10, BranchUndersideFill+10, Right+10, Decor_decor_cart+7
+[P] attack_range_up: activations 10, effects/projectiles after each window 7 -> 7 (max 12), all objects 1261 -> 1536, listeners 0 -> 0, tracked 0
+[P] flame_blade objects by name, cycle 1 -> 10: Outline+80, Mid+70, GroundSegment+70, GroundFill+50, WallHazard+32, BranchUndersideFill+20, Left+18, Right+18, Decor_decor_cart+12, Decor_decor_fence+11
+[P] flame_blade: activations 10, effects/projectiles after each window 7 -> 12 (max 12), all objects 1575 -> 2011, listeners 0 -> 0, tracked 0
+[P] thunder_strike objects by name, cycle 1 -> 10: fx-68, Outline+56, GroundSegment+52, Mid+52, GroundFill+42, WallHazard+26, Right+14, Left+14, Decor_decor_cratebarrel+13, BranchUndersideFill+10
+[P] thunder_strike: activations 10, effects/projectiles after each window 10 -> 1 (max 10), all objects 2360 -> 2612, listeners 0 -> 0, tracked 0
+[P] tornado objects by name, cycle 1 -> 10: Outline+96, GroundSegment+45, Mid+45, GroundFill+35, WallHazard+18, Enemy+12, Visual+12, GroundShadow+12, BranchUndersideFill+10, Right+10
+[P] tornado: activations 10, effects/projectiles after each window 11 -> 1 (max 14), all objects 2561 -> 2870, listeners 0 -> 0, tracked 0
+[P] gale objects by name, cycle 1 -> 10: Outline+112, GroundSegment+63, Mid+63, GroundFill+43, WallHazard+29, BranchUndersideFill+20, Right+17, Left+16, Visual+15, Enemy+14
+[P] gale: activations 10, effects/projectiles after each window 11 -> 9 (max 14), all objects 2913 -> 3358, listeners 0 -> 0, tracked 0
+[P] shockwave objects by name, cycle 1 -> 10: Outline+80, GroundSegment+67, Mid+67, GroundFill+47, WallHazard+30, fx-27, BranchUndersideFill+20, Right+17, Left+17, Decor_decor_cart+13
+[P] shockwave: activations 10, effects/projectiles after each window 2 -> 5 (max 12), all objects 3383 -> 3785, listeners 0 -> 0, tracked 0
+[P] chain_explosion objects by name, cycle 1 -> 10: Outline-472, Mid-416, GroundSegment-416, GroundFill-306, WallHazard-172, BranchUndersideFill-110, Right-97, Left-97, Decor_decor_cratebarrel-66, Decor_decor_cart-62
+[P] chain_explosion: activations 10, effects/projectiles after each window 1 -> 6 (max 14), all objects 3871 -> 1358, listeners 0 -> 0, tracked 0
+[P] vampire objects by name, cycle 1 -> 10: Outline+88, Mid+64, GroundSegment+64, GroundFill+44, WallHazard+34, BranchUndersideFill+20, Right+19, Left+19, Decor_decor_cratebarrel+14, Visual+12
+[P] vampire: activations 10, effects/projectiles after each window 0 -> 11 (max 13), all objects 1371 -> 1813, listeners 0 -> 0, tracked 0
+[P] phoenix objects by name, cycle 1 -> 10: Outline-176, Mid-114, GroundSegment-114, GroundFill-84, WallHazard-66, Left-36, Right-36, BranchUndersideFill-30, Decor_decor_cart-25, Enemy-22
+[P] phoenix: activations 10, effects/projectiles after each window 0 -> 10 (max 16), all objects 1888 -> 1099, listeners 0 -> 0, tracked 0
+[P] more_enemies objects by name, cycle 1 -> 10: Outline+112, Mid+62, GroundSegment+62, GroundFill+42, WallHazard+29, BranchUndersideFill+20, Left+17, Right+16, Visual+15, Enemy+14
+[P] more_enemies: activations 10, effects/projectiles after each window 0 -> 1 (max 14), all objects 1129 -> 1573, listeners 0 -> 0, tracked 0
+[P] horde objects by name, cycle 1 -> 10: Mid+71, GroundSegment+71, GroundFill+51, WallHazard+36, Outline+24, Left+20, BranchUndersideFill+20, Right+20, Decor_decor_fence+13, Decor_decor_cart+10
+[P] horde: activations 10, effects/projectiles after each window 0 -> 4 (max 9), all objects 1595 -> 1984, listeners 0 -> 0, tracked 0
+[P] greed objects by name, cycle 1 -> 10: Outline-160, GroundSegment-102, Mid-102, GroundFill-72, WallHazard-71, Left-40, Right-37, BranchUndersideFill-30, Enemy-20, Visual-18
+[P] greed: activations 10, effects/projectiles after each window 0 -> 3 (max 16), all objects 2050 -> 1319, listeners 0 -> 0, tracked 0
+[P] exp_up objects by name, cycle 1 -> 10: GroundSegment+66, Mid+66, Outline+56, GroundFill+46, WallHazard+32, BranchUndersideFill+20, Left+19, Right+17, Decor_decor_cratebarrel+12, Decor_decor_cart+10
+[P] exp_up: activations 10, effects/projectiles after each window 1 -> 0 (max 14), all objects 1338 -> 1730, listeners 0 -> 0, tracked 0
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

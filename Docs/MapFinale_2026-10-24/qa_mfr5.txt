@@ -1,0 +1,25 @@
+== map finale flow: wasteland_road (swordsman, mix Lv5, fight real) ==
+[A] wasteland_road 90km Wild/BlackKnight: down in 25s
+[B] wasteland_road zako rush 161s: 90-91km on-screen avg 2.8 max 7 kills 10 attackers≤3 | 91-92km on-screen avg 4.7 max 9 kills 29 attackers≤3 | 92-93km on-screen avg 5.0 max 10 kills 29 attackers≤3 | 93-94km on-screen avg 7.3 max 12 kills 26 attackers≤3 | 94-95km on-screen avg 6.1 max 15 kills 31 attackers≤3
+[B] wasteland_road kills 125, EXP +14346, Lv 51->56 (+5), card choices 6, plans 156, enemies placed 486, attack slots granted 164 denied 120 max held 3/3
+[C] wasteland_road 95km: GoblinRider 19s > Cyclops 22s > Griffin 28s | gaps 2.8/2.8s
+[C] wasteland_road 96km: 1 level-up choice(s) between boss 1 and 2
+[C] wasteland_road 96km: Wolf 13s > Spider 28s > BlackKnight 37s | gaps 4.1/2.8s
+[C] wasteland_road 97km: 1 level-up choice(s) between boss 2 and 3
+[C] wasteland_road 97km: Griffin 35s > Golem 23s > Dragon 20s | gaps 2.8/4.1s
+[C] wasteland_road 98km: 1 level-up choice(s) between boss 2 and 3
+[C] wasteland_road 98km: Spider 24s > BlackKnight 42s > Demon 28s | gaps 2.9/4.1s
+[C] wasteland_road 99km: 2 level-up choice(s) between boss 2 and 3
+[C] wasteland_road 99km: Dragon 20s > Dragon 0s > Hydra 25s | gaps 1.0/3.8s
+[E] wasteland_road 95-99km: Lv 56->69 (+13), card choices 17 (incl. 5 boss rewards), bosses spawned 15
+[G] wasteland_road total 90-100km: Lv 51->69, card choices 25, FE active 0, run time 778s
+
+[trio] 95km: GOBLINRIDER > CYCLOPS > GRIFFIN | kill s: 23.6/23.5/29.1
+[trio] 96km: WOLF > SPIDER > BLACKKNIGHT | kill s: 13.9/29.6/37.7
+[trio] 97km: GRIFFIN > GOLEM > DRAGON | kill s: 36.1/24.4/21.3
+[trio] 98km: SPIDER > BLACKKNIGHT > DEMON | kill s: 25.6/42.9/28.6
+[trio] 99km: DRAGON > HYDRA > BLACKKNIGHT | kill s: 20.9/25.8/32.9
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

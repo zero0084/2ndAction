@@ -349,6 +349,8 @@ public partial class EnemySpecialBehavior
 
     void StartTelegraph(float duration)
     {
+        // 同時に攻撃できる上限(2026-10-24、雑魚の大群): 空いていなければ少し待つ(呼ぶ側は skyCooldown <= 0 を見ている)
+        if (!AttackSlot(duration + 1.2f)) { skyCooldown = 0.4f; gargoyleAttackers.Remove(this); return; }
         skyState = SkyState.Telegraph;
         skyTimer = skyStateTotal = duration;
         skyFacing = SkyFacingToPlayer();

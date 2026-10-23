@@ -15,6 +15,11 @@ using UnityEngine;
 //            usesPerRun(既定0=制限なし)は将来の特殊カード用。uses = 発動の回数(制限には使わない)。
 //   効果   … FinalEvolutionTuning の各カード = 増幅(そのカード自身の効果×amplify)+追加(EffectType)+代表9枚の専用の処理。
 //            増幅/追加は GameManager.RecomputeCardStats が毎回作り直す値に乗るだけ(終われば作り直して何も残らない)。
+// 2026-10-24(通常マップの終盤の作り直し、マスターの依頼):
+//   ・長さ … 全カード共通で「実際にランが進んでいる時間」の 60秒(UnifiedSeconds。時間型/距離型/AWAKENED の延長は使わない)。
+//            Time.deltaTime で数える = カード選択/一時停止/ヒットストップ/時間の止まる演出/RESULT(更新しない)の間は減らない。
+//   ・再取得 … ACTIVE の能力も候補に出る。選ぶと残りを 60秒へ戻す(足さない。効果は掛け直さない = PHOENIX の復活は戻らない)。
+//   ・提示 … 通常の LEVEL UP / ボス報酬の3択の中に入る(GameManager.ComposeChoice)。通常のカードが足りない時は FE で3枚まで埋める。
 // 効果は既存の計算の「外側」に一時的に掛ける(Card Balance V3 の通常値・EXP の減衰の曲線・ULTIMATE には触らない)。
 // ランの中だけの状態(Game Over / ホームへ戻る / 新しいランで消える)。CONTINUE は RunCheckpoint.Data.finalEvolution で戻す。
 public class FinalEvolution : MonoBehaviour
@@ -55,6 +60,27 @@ public class FinalEvolution : MonoBehaviour
     public static event System.Action<string, bool> Activated; // 専用SE等のフック(能力, AWAKENED)
 
     static FinalEvolutionTuning T => FinalEvolutionTuning.I;
+
+    // 2026-10-24: 全カード共通の長さ(秒、実際にランが進んでいる時間)。0 以下なら以前の仕様(カードごとの秒/m + AWAKENED の延長)
+    public static float UnifiedSeconds = 60f;
+    public static int Refreshes; // 確認用: ACTIVE 中に取り直して 60秒へ戻した回数
+    static bool CountsTime(FinalEvolutionTuning.Entry e) => UnifiedSeconds > 0f || e.kind == FinalEvolutionTuning.Kind.Time;
+    static float DurationOf(FinalEvolutionTuning.Entry e, bool awake)
+    {
+        if (UnifiedSeconds > 0f) return UnifiedSeconds;
+        float mul = awake ? 1f + T.awakenedDurationBonus : 1f;
+        return (e.kind == FinalEvolutionTuning.Kind.Time ? e.durationSeconds : e.durationMeters) * mul;
+    }
+    public static bool CountsSeconds(string abilityId) { var e = T.For(abilityId); return e != null && CountsTime(e); }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void DevArgs()
+    {
+        var a = QaArgs.All;
+        for (int i = 0; i < a.Length - 1; i++)
+            if (a[i] == "-feSeconds" && float.TryParse(a[i + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float v)) UnifiedSeconds = v; // 比較用(0 = 以前の長さ)
+    }
+#endif
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Boot()
@@ -126,7 +152,7 @@ public class FinalEvolution : MonoBehaviour
             var s = St(e.abilityId);
             if (s.active)
             {
-                s.remaining -= e.kind == FinalEvolutionTuning.Kind.Time ? Time.deltaTime : dd;
+                s.remaining -= CountsTime(e) ? Time.deltaTime : dd; // 2026-10-24: 時間は Time.deltaTime(止まっている間は減らない)
                 if (s.remaining <= 0f) End(e.abilityId);
                 continue;
             }
@@ -159,25 +185,43 @@ public class FinalEvolution : MonoBehaviour
     public static bool OffersAllowed => !(T.disableInMultiplayer && NetRunLauncher.IsMultiplayerRun);
 
     // READY の中から1つ(候補に出た回数が少ないものから、同数はランダム)。無ければ null
-    public static string PickCandidate()
+    public static string PickCandidate() { var l = PickCandidates(1); return l.Count > 0 ? l[0] : null; }
+
+    // 2026-10-24: 候補を最大 max 個。READY(まだ ACTIVE でない)を先に、足りなければ ACTIVE の能力(取り直し = 60秒へ戻す)も。
+    // それぞれ候補に出た回数が少ないものから(同数はランダム)。選んだものだけ offers を増やす
+    public static List<string> PickCandidates(int max)
     {
-        if (Instance == null || !OffersAllowed) return null;
+        var res = new List<string>();
+        if (Instance == null || !OffersAllowed || max <= 0) return res;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        // FINAL EVOLUTION TEST: 選んだ能力を候補にする(DEBUG RUN の中だけ。READY で ACTIVE でない時だけ)
-        if (DebugForceCandidate != null && DebugRun.IsActive && Instance.states.TryGetValue(DebugForceCandidate, out var fs) && fs.ready && !fs.active && T.For(fs.id) != null) { fs.offers++; return fs.id; }
+        // FINAL EVOLUTION TEST: 選んだ能力を候補にする(DEBUG RUN の中だけ。READY か ACTIVE の時)
+        if (DebugForceCandidate != null && DebugRun.IsActive && Instance.states.TryGetValue(DebugForceCandidate, out var fs) && (fs.ready || fs.active) && T.For(fs.id) != null) { fs.offers++; res.Add(fs.id); }
 #endif
-        var list = new List<SaveState>();
-        int best = int.MaxValue;
-        foreach (var s in Instance.states.Values)
+        foreach (bool activeGroup in new[] { false, true })
         {
-            if (!s.ready || s.active || T.For(s.id) == null) continue;
-            if (s.offers < best) { best = s.offers; list.Clear(); }
-            if (s.offers == best) list.Add(s);
+            if (activeGroup && UnifiedSeconds <= 0f) break; // 以前の仕様: ACTIVE は候補に出ない
+            var group = new List<SaveState>();
+            foreach (var s in Instance.states.Values)
+            {
+                if (T.For(s.id) == null || res.Contains(s.id)) continue;
+                if (activeGroup ? !s.active : (!s.ready || s.active)) continue;
+                group.Add(s);
+            }
+            for (int i = group.Count - 1; i > 0; i--) { int j = Random.Range(0, i + 1); (group[i], group[j]) = (group[j], group[i]); }
+            group.Sort((x, y) => x.offers.CompareTo(y.offers)); // 同数の順はもともとランダムでよい
+            foreach (var s in group) { if (res.Count >= max) break; s.offers++; res.Add(s.id); }
         }
-        if (list.Count == 0) return null;
-        var pick = list[Random.Range(0, list.Count)];
-        pick.offers++;
-        return pick.id;
+        return res;
+    }
+    public static int CandidateCount
+    {
+        get
+        {
+            if (Instance == null || !OffersAllowed) return 0;
+            int n = 0;
+            foreach (var s in Instance.states.Values) if (T.For(s.id) != null && (s.ready || (s.active && UnifiedSeconds > 0f))) n++;
+            return n;
+        }
     }
 
     public static bool IsChoiceId(string cardId) => cardId != null && cardId.StartsWith(ChoicePrefix);
@@ -212,7 +256,7 @@ public class FinalEvolution : MonoBehaviour
         var c = ChoiceCard(abilityId);
         var e = T.For(abilityId);
         float mul = IsAwakenedFor(abilityId) ? 1f + T.awakenedDurationBonus : 1f;
-        string dur = e == null ? "" : e.kind == FinalEvolutionTuning.Kind.Time ? $"{e.durationSeconds * mul:0.#}秒間" : $"次の{e.durationMeters * mul:#,0}m";
+        string dur = e == null ? "" : UnifiedSeconds > 0f ? $"{UnifiedSeconds:0.#}秒間" : e.kind == FinalEvolutionTuning.Kind.Time ? $"{e.durationSeconds * mul:0.#}秒間" : $"次の{e.durationMeters * mul:#,0}m";
         return new RewardCardData
         {
             CardId = c.cardId,
@@ -236,18 +280,30 @@ public class FinalEvolution : MonoBehaviour
         if (Instance == null || abilityId == null) return false;
         var e = T.For(abilityId);
         var s = Instance.St(abilityId);
+        if (e != null && s.active && UnifiedSeconds > 0f)
+        {
+            // 2026-10-24: ACTIVE 中に取り直した → 残りを 60秒へ戻す(足さない)。効果は掛かったまま(掛け直さない)
+            float before = s.remaining;
+            s.remaining = DurationOf(e, IsAwakenedFor(abilityId));
+            s.uses++; Refreshes++;
+            Instance.activatedAtUnscaled = Time.unscaledTime;
+            Instance.lastActivated = abilityId;
+            Debug.Log($"[FinalEvo] REFRESH {abilityId}: {before:F1}s -> {s.remaining:F0}s (uses={s.uses})");
+            BossBattleHud.Banner("FINAL EVOLUTION  " + (CardDatabase.FindBaseById(abilityId)?.cardName ?? abilityId) + $"  {s.remaining:0}s", new Color(1f, 0.72f, 0.3f), 1.3f);
+            if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.FinalEvolutionActivate);
+            return true;
+        }
         if (e == null || s.active || !s.ready) { Debug.LogWarning($"[FinalEvo] activate refused {abilityId} (ready={s.ready} active={s.active})"); return false; }
         bool awake = IsAwakenedFor(abilityId);
-        float mul = awake ? 1f + T.awakenedDurationBonus : 1f;
         s.ready = false; s.active = true; s.uses++; s.spent = false;
-        s.remaining = (e.kind == FinalEvolutionTuning.Kind.Time ? e.durationSeconds : e.durationMeters) * mul;
+        s.remaining = DurationOf(e, awake);
         Instance.ApplyEffects(abilityId);
         RecomputeStats(); // 増幅/追加を能力値へ
         Activations++;
         Instance.activatedAtUnscaled = Time.unscaledTime;
         Instance.lastActivated = abilityId;
         Instance.lastWasAwakened = awake;
-        Debug.Log($"[FinalEvo] ACTIVATE {abilityId} ({e.kind} {s.remaining:F0}{(e.kind == FinalEvolutionTuning.Kind.Time ? "s" : "m")}) awakened={awake} uses={s.uses}");
+        Debug.Log($"[FinalEvo] ACTIVATE {abilityId} ({(CountsTime(e) ? "Time" : "Distance")} {s.remaining:F0}{(CountsTime(e) ? "s" : "m")}) awakened={awake} uses={s.uses}");
         BossBattleHud.Banner("FINAL EVOLUTION  " + (CardDatabase.FindBaseById(abilityId)?.cardName ?? abilityId), awake ? new Color(1f, 0.9f, 0.45f) : new Color(1f, 0.72f, 0.3f), 1.5f);
         if (GameManager.Instance != null) HitStop.Begin(0.08f);
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.FinalEvolutionActivate); // 2026-10-06
@@ -312,6 +368,14 @@ public class FinalEvolution : MonoBehaviour
             if (e == null || e.bonuses == null) continue;
             foreach (var b in e.bonuses) if (b != null && b.type != EffectType.MaxHpHearts && b.type != EffectType.SacrificeHearts) totals.Add(b.type, b.value);
         }
+    }
+    // HUD 用(2026-10-24): ACTIVE の能力と残り(秒)。残りの少ない順
+    public static void ActiveRemaining(List<KeyValuePair<string, float>> into)
+    {
+        into.Clear();
+        if (Instance == null) return;
+        foreach (var s in Instance.states.Values) if (s.active && CountsSeconds(s.id)) into.Add(new KeyValuePair<string, float>(s.id, s.remaining));
+        into.Sort((x, y) => x.Value.CompareTo(y.Value));
     }
     public static int ActiveCount { get { if (Instance == null) return 0; int n = 0; foreach (var s in Instance.states.Values) if (s.active) n++; return n; } }
 
@@ -575,7 +639,8 @@ public class FinalEvolution : MonoBehaviour
             if (s == null || string.IsNullOrEmpty(s.id)) continue;
             // 第1段階の保存(USED = 使い終わって READY でない)は、再使用の仕様では READY に戻す(資格と初回の距離は済んでいる)
             bool readyNow = s.ready || (!s.active && s.eligible && s.uses > 0 && (T.usesPerRun <= 0 || s.uses < T.usesPerRun));
-            Instance.states[s.id] = new SaveState { id = s.id, eligible = s.eligible, eligibleAt = s.eligibleAt, ready = readyNow && !s.active, active = s.active, uses = s.uses, remaining = s.remaining, offers = s.offers, spent = s.active && s.spent };
+            float rem = UnifiedSeconds > 0f ? Mathf.Min(s.remaining, UnifiedSeconds) : s.remaining; // 2026-10-24: 以前の距離型(m)の残りは秒の上限へ
+            Instance.states[s.id] = new SaveState { id = s.id, eligible = s.eligible, eligibleAt = s.eligibleAt, ready = readyNow && !s.active, active = s.active, uses = s.uses, remaining = rem, offers = s.offers, spent = s.active && s.spent };
             if (s.active)
             {
                 Instance.ApplyEffects(s.id); // ResetRun の後なので二重にはならない

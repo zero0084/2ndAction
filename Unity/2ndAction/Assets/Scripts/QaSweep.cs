@@ -127,6 +127,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaBossDiag") { mode = "bossdiag"; dir = a[i + 1]; }
             if (a[i] == "-qaTextShots") { mode = "textshots"; dir = a[i + 1]; }
             if (a[i] == "-qaLocUi") { mode = "locui"; dir = a[i + 1]; }
+            if (a[i] == "-qaMapFinale") { mode = "mapfinale"; dir = a[i + 1]; }
             if (a[i] == "-qaMech") { mode = "mech"; dir = a[i + 1]; }
             if (a[i] == "-qaNobleMoves") { mode = "noblemoves"; dir = a[i + 1]; }
             if (a[i] == "-qaFix13b") { mode = "fix13b"; dir = a[i + 1]; }
@@ -291,6 +292,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "bossdiag") yield return BossDiagMode();
         else if (mode == "textshots") yield return TextShotsMode();
         else if (mode == "locui") yield return LocUiMode();
+        else if (mode == "mapfinale") yield return MapFinaleMode();
         else if (mode == "mech") yield return MechMode();
         else if (mode == "noblemoves") yield return NobleMovesMode();
         else if (mode == "fix13b") yield return Fix13bModeQa();

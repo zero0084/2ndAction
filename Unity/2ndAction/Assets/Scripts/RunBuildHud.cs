@@ -581,7 +581,7 @@ public class RunBuildHud : MonoBehaviour
         {
             float rem = FinalEvolution.Remaining(ab);
             var e = FinalEvolutionTuning.I.For(ab);
-            string txt = e != null && e.kind == FinalEvolutionTuning.Kind.Distance ? (rem >= 1000f ? $"{rem / 1000f:0.0}km" : $"{rem:0}m") : $"{Mathf.CeilToInt(rem)}s";
+            string txt = e != null && !FinalEvolution.CountsSeconds(ab) ? (rem >= 1000f ? $"{rem / 1000f:0.0}km" : $"{rem:0}m") : $"{Mathf.CeilToInt(rem)}s";
             numStyle.fontSize = Mathf.Max(9, Mathf.RoundToInt(body.height * 0.26f));
             var tc = new GUIContent(txt);
             var ts = numStyle.CalcSize(tc);

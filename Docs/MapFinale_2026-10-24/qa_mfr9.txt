@@ -1,0 +1,28 @@
+== map finale flow: natural_cave (swordsman, mix Lv9, fight real) ==
+[A] natural_cave 90km Cave/AncientDemon: down in 20s
+[B] natural_cave zako rush 144s: 90-91km on-screen avg 2.8 max 7 kills 28 attackers≤3 | 91-92km on-screen avg 3.8 max 7 kills 39 attackers≤3 | 92-93km on-screen avg 4.6 max 8 kills 57 attackers≤3 | 93-94km on-screen avg 5.3 max 9 kills 52 attackers≤3 | 94-95km on-screen avg 5.0 max 9 kills 44 attackers≤3
+[B] natural_cave kills 220, EXP +23759, Lv 52->59 (+7), card choices 9, plans 172, enemies placed 480, attack slots granted 153 denied 277 max held 3/3
+[C] natural_cave 95km: 1 level-up choice(s) between boss 2 and 3
+[C] natural_cave 95km: Scorpion 10s > Troll 18s > Bat 32s | gaps 2.8/4.1s
+[C] natural_cave 96km: 1 level-up choice(s) between boss 1 and 2
+[C] natural_cave 96km: Mole 30s > Worm 33s > AncientDemon 26s | gaps 4.1/2.8s
+[C] natural_cave 97km: 1 level-up choice(s) between boss 1 and 2
+[C] natural_cave 97km: Bat 31s > CrystalGolem 30s > Basilisk 19s | gaps 4.1/2.8s
+[C] natural_cave 98km: 1 level-up choice(s) between boss 1 and 2
+[C] natural_cave 98km: 1 level-up choice(s) between boss 2 and 3
+[C] natural_cave 98km: Worm 36s > AncientDemon 23s > Drake 18s | gaps 4.1/4.1s
+[C] natural_cave 99km: 1 level-up choice(s) between boss 1 and 2
+[C] natural_cave 99km: 1 level-up choice(s) between boss 2 and 3
+[C] natural_cave 99km: Basilisk 18s > ScorpionKing 21s > AncientDemon 29s | gaps 4.1/4.1s
+[E] natural_cave 95-99km: Lv 59->74 (+15), card choices 19 (incl. 5 boss rewards), bosses spawned 15
+[G] natural_cave total 90-100km: Lv 52->75, card choices 31, FE active 0, run time 719s
+
+[trio] 95km: SCORPION > TROLL > BAT | kill s: 13.9/18.9/33.4
+[trio] 96km: MOLE > WORM > ANCIENTDEMON | kill s: 30.7/34.0/27.1
+[trio] 97km: BAT > CRYSTALGOLEM > BASILISK | kill s: 32.4/30.8/20.1
+[trio] 98km: WORM > ANCIENTDEMON > DRAKE | kill s: 37.2/24.0/19.4
+[trio] 99km: BASILISK > SCORPIONKING > ANCIENTDEMON | kill s: 18.7/22.4/30.0
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

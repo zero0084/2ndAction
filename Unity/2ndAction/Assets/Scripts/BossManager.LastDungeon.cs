@@ -456,7 +456,7 @@ public partial class BossManager
     bool TryStartContinuousRush()
     {
         bool ldRush = RushEnabled && ContinuousRush && IsLastStage;
-        bool mapRush = !IsLastStage && MapRushStage; // 2026-10-15: 各マップの終盤のラッシュ(1体ずつ)
+        bool mapRush = !IsLastStage && MapRushStage && !MapFinaleEnabled; // 2026-10-15: 各マップの終盤のラッシュ(1体ずつ)。2026-10-24 から 90km の関門 + 雑魚の大群 + 95〜99km の3連戦(MapFinale)
         if (!(ldRush || mapRush) || !useWildSchedule || ArenaMode.Active) return false;
         if (gateK < RushFirstK || gateK > RushLastK) return false;
         if (GateDistance() < gateK * gateIntervalMeters) return false;
@@ -663,6 +663,7 @@ public partial class BossManager
         RunEndStopped = true;
         var enc = CurrentBossEncounter;
         if (enc != null) { enc.waiting.Clear(); enc.telegraphing = null; }
+        CurrentTrio = null;
         RunResumed = false; encounterResumable = false; pendingChosen = false;
         int n = 0;
         foreach (var b in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None))

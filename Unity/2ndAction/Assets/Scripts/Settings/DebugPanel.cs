@@ -372,6 +372,13 @@ public partial class DebugPanel
                 EndgameDebug.LaunchLong(EndgameDebug.SelectedLongStage, ds[i], EndgameDebug.SelectedLongBuild, EndgameDebug.SelectedProfile == EndgameDebug.Profile.Normal ? EndgameDebug.Profile.Normal : EndgameDebug.Profile.Sturdy);
         }
         y += 64f;
+        // 通常マップの終盤(2026-10-24): その距離の手前へ(90km のボス → 雑魚の大群 → 95〜99km の3連戦 → 100km の死神)
+        var fds = EndgameDebug.FinaleDistances;
+        float fw = (full - 8f * (fds.Length - 1)) / fds.Length;
+        for (int i = 0; i < fds.Length; i++)
+            if (UiKit.Button(new Rect(x + i * (fw + 8f), y, fw, 50f), EndgameDebug.FinaleDistanceLabel(fds[i]), 12f, false, false) && !busy && EndgameDebug.SelectedLongStage != "last_corridor")
+                EndgameDebug.LaunchFinale(EndgameDebug.SelectedLongStage, fds[i], EndgameDebug.SelectedLongBuild, EndgameDebug.SelectedProfile == EndgameDebug.Profile.Normal ? EndgameDebug.Profile.Normal : EndgameDebug.Profile.Sturdy);
+        y += 56f;
         GUI.Label(new Rect(x, y, full, 36f), "カードは Lv9 で付ける(CARD BALANCE TEST と同じ構成)。雑魚HPは「HP倍率1の雑魚」の目安。カードの能力値は DEBUGモード ON → ラン中の CARD TEST の「ビルド」タブで見られる",
             UiKit.Label(12f, TextAnchor.UpperLeft, false, new Color(0.8f, 0.8f, 0.85f)));
         y += 38f;

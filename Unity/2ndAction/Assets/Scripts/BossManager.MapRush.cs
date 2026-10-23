@@ -65,6 +65,7 @@ public partial class BossManager
         get
         {
             var enc = CurrentBossEncounter;
+            if (TrioChoiceWindow) return true; // 2026-10-24: 95〜99km の3連戦のボスとボスの間
             return RushChoicesFor(enc) && IsBossPhase && !BossDefeatedThisPhase && ActiveCount(enc) == 0 && enc.telegraphing == null;
         }
     }

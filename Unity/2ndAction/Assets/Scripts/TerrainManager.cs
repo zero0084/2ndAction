@@ -637,6 +637,7 @@ public class TerrainManager : MonoBehaviour
     public bool IsBranchNear(float x, float margin)
     {
         if (!routeBranchEnabled) return false;
+        SkipFinaleBranch();
         foreach (BranchRange r in branchRanges)
         {
             if (x >= r.forkX - margin && x <= r.mergeX + margin) return true;
@@ -653,6 +654,7 @@ public class TerrainManager : MonoBehaviour
     {
         forkX = mergeX = 0f; generated = false;
         if (!routeBranchEnabled) return false;
+        SkipFinaleBranch();
         BranchRange best = null;
         foreach (BranchRange r in branchRanges) if (r.mergeX > x && (best == null || r.forkX < best.forkX)) best = r;
         if (best != null) { forkX = best.forkX; mergeX = best.mergeX; generated = true; return true; }
@@ -1244,10 +1246,33 @@ public class TerrainManager : MonoBehaviour
     // 進める(下のwhileループ)。そうしないと、この区間で生成される地上
     // チャンクがGetPitChance/GetEnemyChanceの危険度ブースト(IsInBranch
     // Route判定)を受け損ねてしまう。
+    // 2026-10-24: 通常マップの 90〜95km(雑魚の大群)は上下ルートに分けない(敵が2つのルートに分かれて群れにならなかった)。
+    // 次の分岐の予定がその区間に掛かっていたら、区間の先(BossManager.FinaleBranchResumeRun)へ送る。ソロ/CPU サポートだけ
+    // (マルチは全端末の地形を同じにする必要があるので変えない)。分岐の予定を読む所(生成/IsBranchNear/TryGetBranchAfter)で呼ぶ
+    bool SkipFinaleBranch()
+    {
+        if (!routeBranchEnabled) return false;
+        float fork = nextBranchX, merge = fork + branchRampLength * 2f + branchLength;
+        float fromRun = SceneToRunDistance(fork), toRun = SceneToRunDistance(merge);
+        if (!BossManager.FinaleNoBranchBetween(fromRun, toRun)) return false;
+        float push = Mathf.Max(50f, BossManager.FinaleBranchResumeRun - fromRun);
+        nextBranchX = fork + push;
+        Debug.Log($"[Terrain] route branch at {fromRun:F0}m moved to {fromRun + push:F0}m (map finale zako rush: one road)");
+        return true;
+    }
+
+    // 場面の X(m)→ 走行距離(m)の目安(プレイヤーの今の距離から)。2026-10-24 終盤の区間の判定用
+    static float SceneToRunDistance(float sceneX)
+    {
+        var gm = GameManager.Instance; var pc = PlayerController.Instance;
+        return gm == null || pc == null ? 0f : gm.MaxDistance + (sceneX - pc.transform.position.x);
+    }
+
     void GenerateNextBranch()
     {
         float forkX = nextBranchX;
         float mergeX = forkX + branchRampLength * 2f + branchLength;
+        if (SkipFinaleBranch()) return; // 2026-10-24: 予定の分岐が雑魚の大群の区間に掛かる → 区間の先へ送った
         branchRanges.Add(new BranchRange { forkX = forkX, mergeX = mergeX });
 
         while (nextStartX < mergeX) GenerateNext();
@@ -2114,6 +2139,8 @@ public class TerrainManager : MonoBehaviour
         bool airborne = def.movementType == EnemyMovementType.Flying;
         EnemyMovementType movementType = airborne ? EnemyMovementType.Flying : EnemyMovementType.Ground;
         int maxHp = DistanceTierManager.Instance != null ? DistanceTierManager.Instance.EnemyHpFor(def.hpMultiplier) : CombatScale.K;
+        // 2026-10-24: 通常マップの 90〜95km の雑魚の大群は1体ずつを軽く(高速で走り抜けながら斬り進めるように。数で押す)
+        if (BossManager.ZakoRushNow) maxHp = Mathf.Max(1, Mathf.RoundToInt(maxHp * BossManager.ZakoRushHpMul));
         float y = pos.y + (airborne ? 0f : groundEnemyHeight);
         GameObject enemyGO = GroundFactory.CreateEnemy(transform, def.sprite, new Vector2(pos.x, y), def.tint, enemyHitSparkSprite, enemyDeathCloudSprite,
             movementType, enemyGroundShadowSprite, maxHp, behaviorKind, def.bigKnockbackOnHit, shooterProjectileSprite, def.enableVisualFacing,

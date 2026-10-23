@@ -483,7 +483,8 @@ public partial class EnemySpecialBehavior : MonoBehaviour
             flyingDiveTimer -= EDt;
             if (flyingDiveTimer <= 0f && Mathf.Abs(dx) <= flyingDiveRange)
             {
-                StartFlyingDiveTelegraph();
+                if (AttackSlot(flyingDiveTelegraphDuration + 1.2f)) StartFlyingDiveTelegraph();
+                else flyingDiveTimer = 0.4f; // 同時に攻撃できる上限(雑魚の大群): 少し待つ
             }
         }
     }
@@ -515,6 +516,9 @@ public partial class EnemySpecialBehavior : MonoBehaviour
 
         flyingDiveTimer = Random.Range(flyingDiveIntervalMin, flyingDiveIntervalMax);
     }
+
+    // 同時に攻撃できる雑魚の上限(2026-10-24、通常マップの 90〜95km の雑魚の大群だけ。ZakoAttackLimiter)
+    bool AttackSlot(float seconds) => ZakoAttackLimiter.TryBegin(this, seconds);
 
     void StartFlyingDiveTelegraph()
     {
@@ -648,6 +652,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         if (absDx > shooterRange) return;
 
         shooterTimer -= EDt * BossBattle.ZakoAttackScale; // ボスの必殺技中は撃つ間隔を空ける(2026-10-01)
+        if (shooterTimer <= 0f && !AttackSlot(0.9f)) shooterTimer = 0.35f; // 同時に攻撃できる上限(雑魚の大群)
         if (shooterTimer <= 0f)
         {
             shooterTimer = shooterCooldown;
@@ -708,7 +713,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
         switch (rusherState)
         {
             case RusherState.Idle:
-                if (absDx <= rusherDetectionRange)
+                if (absDx <= rusherDetectionRange && AttackSlot(rusherTelegraphDuration + 1.2f))
                 {
                     rusherState = RusherState.Telegraph;
                     if (AudioManager.Instance != null) AudioManager.Instance.PlaySeAt(SeId.EnemyTelegraph, transform.position); // 音の再設計(2026-10-06): 敵の予兆(画面内だけ)
@@ -834,7 +839,8 @@ public partial class EnemySpecialBehavior : MonoBehaviour
                 // 続く(攻撃サイクルを止めているわけではない)。
                 if (meleeAttackTimer <= 0f && meleeMoveState != MeleeMoveState.Hop)
                 {
-                    StartMeleeTelegraph();
+                    if (AttackSlot(1.6f)) StartMeleeTelegraph();
+                    else meleeAttackTimer = 0.4f; // 同時に攻撃できる上限(雑魚の大群)
                 }
                 break;
 
@@ -1002,7 +1008,8 @@ public partial class EnemySpecialBehavior : MonoBehaviour
                 // Hop中(空中)は新規攻撃を開始しない - StationaryMelee T2と同じ理由。
                 if (hopperAttackTimer <= 0f && hopperMoveState != HopperMoveState.Hop)
                 {
-                    StartHopperTelegraph();
+                    if (AttackSlot(1.6f)) StartHopperTelegraph();
+                    else hopperAttackTimer = 0.4f; // 同時に攻撃できる上限(雑魚の大群)
                 }
                 break;
 
@@ -1163,7 +1170,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
                     float dxAhead = transform.position.x - player.position.x;
                     float runSpeed = PlayerController.Instance != null ? PlayerController.Instance.CurrentAutoRunSpeed : 0f;
                     float lead = Mathf.Max(wormAttackRange, runSpeed * (wormTelegraphDuration + wormEmergeDuration) + wormLeadMargin);
-                    if (dxAhead > 0f && dxAhead <= lead)
+                    if (dxAhead > 0f && dxAhead <= lead && AttackSlot(wormTelegraphDuration + wormEmergeDuration + 1f))
                     {
                         wormApproachTriggered = true;
                         StartWormTelegraph();
@@ -1172,7 +1179,7 @@ public partial class EnemySpecialBehavior : MonoBehaviour
                 }
                 if (wormTimer <= 0f)
                 {
-                    if (player != null && Mathf.Abs(player.position.x - transform.position.x) <= wormAttackRange)
+                    if (player != null && Mathf.Abs(player.position.x - transform.position.x) <= wormAttackRange && AttackSlot(wormTelegraphDuration + wormEmergeDuration + 1f))
                     {
                         StartWormTelegraph();
                     }

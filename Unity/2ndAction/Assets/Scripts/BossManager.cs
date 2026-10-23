@@ -313,15 +313,15 @@ public partial class BossManager : MonoBehaviour
         }
         else if (IsSkyStage)
         {
-            while (guard++ < 20 && !ResolveSkyGate(gateK, out _, out _)) gateK++;
+            while (guard++ < 20 && (!ResolveSkyGate(gateK, out _, out _) || FinaleSkipsGate(gateK))) gateK++;
         }
         else if (IsCaveStage)
         {
-            while (guard++ < 20 && !ResolveCaveGate(gateK, out _, out _)) gateK++;
+            while (guard++ < 20 && (!ResolveCaveGate(gateK, out _, out _) || FinaleSkipsGate(gateK))) gateK++;
         }
         else
         {
-            while (guard++ < 20 && !ResolveGate(gateK, out _, out _)) gateK++;
+            while (guard++ < 20 && (!ResolveGate(gateK, out _, out _) || FinaleSkipsGate(gateK))) gateK++; // 2026-10-24: 91〜94km は雑魚の大群(関門なし)
         }
     }
 
@@ -342,6 +342,8 @@ public partial class BossManager : MonoBehaviour
     {
         var byKind = RunRewards.ClassOf(key);
         if (byKind == RunRewards.BossClass.Elite) return byKind;
+        // 2026-10-24: 95〜99km の3連戦は格ごと(C1/C2 = 小、C3 = 中。15体 + 関門の報酬5回でレベルアップが多くなりすぎないように)
+        if (CurrentTrio != null && IsBossPhase) { int c = CurrentTrio.classes[Mathf.Clamp(CurrentTrio.idx, 0, CurrentTrio.classes.Count - 1)]; return c >= 2 ? RunRewards.BossClass.Mid : RunRewards.BossClass.Small; }
         if (RushGateK > 0 || (CurrentBossEncounter != null && CurrentBossEncounter.continuous)) return RunRewards.BossClass.Big;
         int k = currentGateK;
         if (!IsBossPhase || k <= 0) return byKind;
@@ -372,7 +374,7 @@ public partial class BossManager : MonoBehaviour
     {
         IsBossPhase = false; BossMusicKey = null; BossDefeatedThisPhase = false;
         ResetRematchEncounter();
-        CurrentBossEncounter = null; encounterHasCave = false; bossKeys.Clear(); RushGateK = 0;
+        CurrentBossEncounter = null; encounterHasCave = false; bossKeys.Clear(); RushGateK = 0; CurrentTrio = null;
         if (RunResumed) Debug.Log($"[BossRun] BossPhaseEnd after resumed run (d={(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f):F0})");
         RunResumed = false; encounterResumable = false;
         if (pendingChosen) { nextGateNotBefore = Time.time + Mathf.Max(0f, BossBattleTuning.I.pendingSafeDelay); pendingChosen = false; }
@@ -484,6 +486,7 @@ public partial class BossManager : MonoBehaviour
     bool GateExists(int k)
     {
         if (IsLastStage) return ResolveLastGate(k, out _, out _, out _);
+        if (FinaleSkipsGate(k)) return false;
         if (IsSkyStage) return ResolveSkyGate(k, out _, out _);
         if (IsCaveStage) return ResolveCaveGate(k, out _, out _);
         return ResolveGate(k, out _, out _);
@@ -583,7 +586,7 @@ public partial class BossManager : MonoBehaviour
         // マルチ(2026-10-11): HOST 自身の距離ではなく共有世界の進行距離(WorldProgress.FrontHigh: 最前の人の最高到達。シングルは自分の距離)。
         // JOIN が先頭でも、その人が 100,000m に着けば出る。一度出たら先頭が入れ替わっても/後ろへ下がっても二度と出さない(TryTrigger)
         // 2026-10-15: 各マップのラッシュが残っている間は出さない(99km の足止めで距離は止まるが、念のため)
-        if (!deathSpawned && !ArenaMode.Active && !(IsBossPhase && MapRushActive) && !FinaleWaitsForChoices() && WorldProgress.FrontHigh >= deathSpawnDistance && WorldProgress.TryTrigger("death_100k")) // 開発用の闘技場では死神/三姉妹を出さない
+        if (!deathSpawned && !ArenaMode.Active && !(IsBossPhase && (MapRushActive || TrioActive)) && !FinaleWaitsForChoices() && WorldProgress.FrontHigh >= deathSpawnDistance && WorldProgress.TryTrigger("death_100k")) // 開発用の闘技場では死神/三姉妹を出さない
         {
             deathSpawned = true;
             if (GameManager.Instance.DebugMode) Debug.Log($"[Distance] {Mathf.RoundToInt(deathSpawnDistance)} reached");
@@ -595,6 +598,8 @@ public partial class BossManager : MonoBehaviour
         CaveBossTick(); // 自然洞窟ボス強化(2026-10-04): ボス区間をプレイヤーに追従
         TickResume();
         LastDungeonTick(); // ラスダンのボス構成(2026-10-05): ボスラッシュの増援/消えたボスの見張り/入口の足止め
+        TrioTick();        // 通常マップの終盤(2026-10-24): 95〜99km のボス3体の関門の次のボス
+        ZakoRushTick();    // 90〜95km の雑魚の大群の段階の知らせ
         if (IsBossPhase) return;
         if (Time.time < nextGateNotBefore) return; // 保留していたボスは、前のボスの報酬の後に少し空けてから
         if (SuppressGates) return; // ラストダンジョンの静寂区間〜エンディング: 通常のボスの関門を作らない
@@ -915,6 +920,8 @@ public partial class BossManager : MonoBehaviour
     {
         if (aliveDragonsThisEncounter <= 0 && aliveMajinsThisEncounter <= 0 && aliveWildThisEncounter <= 0)
         {
+            if (TrioContinues()) return; // 2026-10-24: 95〜99km の3連戦 = まだ次のボスがいる(関門は終わらない)
+            if (CurrentTrio != null) TrioCleared();
             BossDefeatedThisPhase = true; // BGM: 撃破したら道中曲へ戻す
             if (MapRushActive) OnMapRushCleared(); // 2026-10-15: 各マップのラッシュを終えた(90km の門番を倒した扱い)
             // 疾走出発の解放(2026-10-05): ソロの通常ランで 10,000m 刻みの門番を実際に倒した記録(闘技場/DEBUG RUN/マルチは除く)
@@ -997,7 +1004,7 @@ public partial class BossManager : MonoBehaviour
     {
         IsBossPhase = false;
         RunResumed = false; encounterResumable = false; pendingChosen = false; catchUpFloorK = 0; nextGateNotBefore = 0f; // ボス戦の強化: 再開/ワープで保留を持ち越さない
-        CurrentBossEncounter = null; RushGateK = 0; encounterHasCave = false; bossKeys.Clear();
+        CurrentBossEncounter = null; RushGateK = 0; encounterHasCave = false; bossKeys.Clear(); CurrentTrio = null;
         nextBossDistance = checkpointDistance + EffectiveRepeatInterval();
 
         // 荒野街道スケジュール: チェックポイント距離より先の最初のエントリへ。
@@ -1029,6 +1036,9 @@ public partial class BossManager : MonoBehaviour
             StartLastMilestoneGate(); // 0〜89km: 格ごとのプールから抽選(ラスダンの倍率つき)
             return;
         }
+
+        // 通常マップの終盤(2026-10-24): 95〜99km はボス3体を1体ずつ
+        if (FinaleTrioGate(gateK)) { ResetRematchEncounter(); CurrentEncounterKey = ""; StartTrioGate(gateK); return; }
 
         if (IsSkyStage)
         {

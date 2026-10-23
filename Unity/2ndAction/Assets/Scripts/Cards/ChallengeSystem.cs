@@ -42,6 +42,9 @@ public static class ChallengeSystem
     public static bool SpawnHeldByCap()
     {
         if (LivingEnemies < CardRules.MaxLivingEnemiesForSpawn) return false;
+        // 2026-10-24: 通常マップの雑魚の大群は、もう走り過ぎた敵(一番後ろの人より 20m 以上後ろ)を数えない
+        // (後ろに残った敵で上限に届き、91〜93km にほとんど出なくなっていた。後ろの敵は BossManager が片付ける)
+        if (BossManager.ZakoRushNow && BossManager.RushEnemiesAhead(20f) < CardRules.MaxLivingEnemiesForSpawn) return false;
         SpawnsHeldByCap++;
         return true;
     }

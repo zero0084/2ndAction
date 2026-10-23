@@ -1,0 +1,70 @@
+== map finale flow: wasteland_road (swordsman, mix Lv5, fight kill) ==
+[A] wasteland_road 90km Wild/BlackKnight: down in 0s
+[B] wasteland_road zako rush 154s: 90-91km on-screen avg 2.8 max 7 kills 21 attackers≤3 | 91-92km on-screen avg 3.9 max 7 kills 17 attackers≤3 | 92-93km on-screen avg 5.2 max 10 kills 23 attackers≤3 | 93-94km on-screen avg 6.5 max 11 kills 29 attackers≤3 | 94-95km on-screen avg 5.1 max 10 kills 29 attackers≤3
+[B] wasteland_road kills 119, EXP +13571, Lv 51->55 (+4), card choices 5, plans 158, enemies placed 469, attack slots granted 168 denied 150 max held 3/3
+[C] wasteland_road 95km: 1 level-up choice(s) between boss 1 and 2
+[C] wasteland_road 95km: Cyclops 0s > Wolf 0s > Spider 0s | gaps 3.8/2.5s
+[C] wasteland_road 96km: 1 level-up choice(s) between boss 2 and 3
+[C] wasteland_road 96km: GoblinRider 0s > Griffin 0s > BlackKnight 0s | gaps 2.5/3.8s
+[C] wasteland_road 97km: 1 level-up choice(s) between boss 1 and 2
+[C] wasteland_road 97km: Spider 0s > Golem 0s > Dragon 0s | gaps 3.8/2.5s
+[C] wasteland_road 98km: 1 level-up choice(s) between boss 2 and 3
+[C] wasteland_road 98km: Griffin 0s > BlackKnight 0s > Hydra 0s | gaps 2.5/3.8s
+[C] wasteland_road 99km: 2 level-up choice(s) between boss 1 and 2
+[C] wasteland_road 99km: Dragon 0s > Demon 0s > BlackKnight 0s | gaps 4.6/2.5s
+[E] wasteland_road 95-99km: Lv 55->69 (+14), card choices 18 (incl. 5 boss rewards), bosses spawned 15
+[G] wasteland_road total 90-100km: Lv 51->70, card choices 26, FE active 0, run time 355s
+== map finale flow: natural_cave (swordsman, mix Lv5, fight kill) ==
+[A] natural_cave 90km Cave/AncientDemon: down in 0s
+[B] natural_cave zako rush 153s: 90-91km on-screen avg 3.3 max 10 kills 30 attackers≤3 | 91-92km on-screen avg 4.7 max 9 kills 27 attackers≤3 | 92-93km on-screen avg 4.7 max 8 kills 33 attackers≤3 | 93-94km on-screen avg 5.3 max 9 kills 45 attackers≤3 | 94-95km on-screen avg 5.9 max 10 kills 31 attackers≤3
+[B] natural_cave kills 166, EXP +15399, Lv 51->56 (+5), card choices 6, plans 160, enemies placed 454, attack slots granted 149 denied 135 max held 3/3
+[C] natural_cave 95km: 1 level-up choice(s) between boss 2 and 3
+[C] natural_cave 95km: Troll 0s > Mole 0s > Bat 0s | gaps 2.5/3.8s
+[C] natural_cave 96km: 1 level-up choice(s) between boss 2 and 3
+[C] natural_cave 96km: Scorpion 0s > CrystalGolem 0s > AncientDemon 0s | gaps 2.5/3.8s
+[C] natural_cave 97km: 1 level-up choice(s) between boss 2 and 3
+[C] natural_cave 97km: Bat 0s > Worm 0s > Basilisk 0s | gaps 2.5/3.8s
+[C] natural_cave 98km: 1 level-up choice(s) between boss 1 and 2
+[C] natural_cave 98km: CrystalGolem 0s > AncientDemon 0s > Drake 0s | gaps 3.8/2.5s
+[C] natural_cave 99km: 1 level-up choice(s) between boss 1 and 2
+[C] natural_cave 99km: Basilisk 0s > ScorpionKing 0s > AncientDemon 0s | gaps 3.8/2.5s
+[E] natural_cave 95-99km: Lv 56->67 (+11), card choices 15 (incl. 5 boss rewards), bosses spawned 15
+[G] natural_cave total 90-100km: Lv 51->68, card choices 24, FE active 0, run time 363s
+== map finale flow: sky_corridor (swordsman, mix Lv5, fight kill) ==
+[A] sky_corridor 90km Sky/Guardian: down in 0s
+[B] sky_corridor zako rush 155s: 90-91km on-screen avg 2.5 max 7 kills 10 attackers≤3 | 91-92km on-screen avg 4.1 max 7 kills 19 attackers≤3 | 92-93km on-screen avg 5.2 max 9 kills 15 attackers≤3 | 93-94km on-screen avg 6.2 max 9 kills 24 attackers≤3 | 94-95km on-screen avg 6.1 max 12 kills 28 attackers≤3
+[B] sky_corridor kills 96, EXP +15360, Lv 51->56 (+5), card choices 6, plans 170, enemies placed 457, attack slots granted 185 denied 284 max held 3/3
+[C] sky_corridor 95km: 1 level-up choice(s) between boss 2 and 3
+[C] sky_corridor 95km: Titan 0s > Dragon 0s > Jellyfish 0s | gaps 3.7/3.8s
+[C] sky_corridor 96km: 1 level-up choice(s) between boss 1 and 2
+[C] sky_corridor 96km: Majin 0s > Leviathan 0s > Guardian 0s | gaps 3.8/2.5s
+[C] sky_corridor 97km: 1 level-up choice(s) between boss 2 and 3
+[C] sky_corridor 97km: Jellyfish 0s > Fenrir 0s > SkyGolem 0s | gaps 2.5/3.8s
+[C] sky_corridor 98km: 1 level-up choice(s) between boss 1 and 2
+[C] sky_corridor 98km: 1 level-up choice(s) between boss 2 and 3
+[C] sky_corridor 98km: Leviathan 0s > Guardian 0s > SkySerpent 0s | gaps 3.8/3.8s
+[C] sky_corridor 99km: 1 level-up choice(s) between boss 1 and 2
+[C] sky_corridor 99km: 1 level-up choice(s) between boss 2 and 3
+[C] sky_corridor 99km: SkyGolem 0s > Phoenix 0s > Guardian 0s | gaps 3.8/3.8s
+[E] sky_corridor 95-99km: Lv 56->70 (+14), card choices 18 (incl. 5 boss rewards), bosses spawned 15
+[G] sky_corridor total 90-100km: Lv 51->70, card choices 26, FE active 0, run time 375s
+
+[trio] 95km: CYCLOPS > WOLF > SPIDER | kill s: 4.1/1.1/1.1
+[trio] 96km: GOBLINRIDER > GRIFFIN > BLACKKNIGHT | kill s: 1.1/1.1/1.1
+[trio] 97km: SPIDER > GOLEM > DRAGON | kill s: 1.1/1.1/1.1
+[trio] 98km: GRIFFIN > BLACKKNIGHT > HYDRA | kill s: 1.1/1.1/1.1
+[trio] 99km: DRAGON > DEMON > BLACKKNIGHT | kill s: 1.1/1.1/1.1
+[trio] 95km: TROLL > MOLE > BAT | kill s: 4.1/1.1/1.1
+[trio] 96km: SCORPION > CRYSTALGOLEM > ANCIENTDEMON | kill s: 1.1/1.1/1.1
+[trio] 97km: BAT > WORM > BASILISK | kill s: 1.1/1.1/1.1
+[trio] 98km: CRYSTALGOLEM > ANCIENTDEMON > DRAKE | kill s: 1.1/1.1/1.1
+[trio] 99km: BASILISK > SCORPIONKING > ANCIENTDEMON | kill s: 1.1/1.1/1.1
+[trio] 95km: TITAN > DRAGON > JELLYFISH | kill s: 4.1/2.3/1.1
+[trio] 96km: MAJIN > LEVIATHAN > GUARDIAN | kill s: 2.3/1.1/1.1
+[trio] 97km: JELLYFISH > FENRIR > SKYGOLEM | kill s: 1.1/1.1/1.1
+[trio] 98km: LEVIATHAN > GUARDIAN > SKYSERPENT | kill s: 1.1/1.1/1.1
+[trio] 99km: SKYGOLEM > PHOENIX > GUARDIAN | kill s: 1.1/1.1/1.1
+
+failures=0 warnings=0
+ALL CHECKS PASSED
+NO EXCEPTIONS LOGGED

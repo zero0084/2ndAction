@@ -138,6 +138,7 @@ public class BonusZone : MonoBehaviour
         if (NetMatch.Active && !Profile.allowInMultiplayer) return false;
         if (BlockedAt != null && BlockedAt(gm.MaxDistance)) return false; // ラストダンジョンの終盤(ボスラッシュ〜エンディング)
         var bm = BossManager.Instance;
+        if (bm != null && (bm.ZakoRushAt(gm.MaxDistance) || bm.FinaleNoZakoAt(gm.MaxDistance))) return false; // 2026-10-24: 通常マップの 90〜100km(雑魚の大群/3連戦)は出さない
         if (bm != null && bm.NextBossDistance > 0f && bm.NextBossDistance - gm.MaxDistance < Profile.minDistanceToNextBoss) return false;
         var pc = PlayerController.Instance;
         return pc != null && !pc.IsFinishing;
