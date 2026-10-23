@@ -181,7 +181,7 @@ def render(edl, lang, out, work, raw, caps, mode, ln):
         f = font(56, "Medium")
         txt = caps[ec][lang]
         tw = d.textlength(txt, font=f)
-        d.text(((W - tw) / 2, H * 0.78), txt, font=f, fill=(238, 240, 248, 255))
+        d.text(((W - tw) / 2, H * 0.78), txt, font=f, fill=(228, 218, 186, 255))  # エステル: ロゴの金より控えめな白金色
         img.save(p)
         inputs += ["-loop", "1", "-t", f"{total:.3f}", "-framerate", str(FPS), "-i", p]
         a0 = total - end_dur + edl.get("end_caption_at", 0.7)

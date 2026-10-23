@@ -10,7 +10,7 @@
    "loop": true,
    "at": 0,
    "from": 0,
-   "dur": 37.5,
+   "dur": 36.9,
    "gain": 0.33,
    "fade_in": 0.2,
    "fade_out": 1.2
@@ -18,7 +18,7 @@
   {
    "file": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Audio/Placeholder/Bgm/bgm_boss_strong_n.wav",
    "loop": true,
-   "at": 36.7,
+   "at": 36.1,
    "from": 0,
    "dur": 28.4,
    "gain": 0.36,
@@ -72,7 +72,7 @@
   },
   {
    "shot": "cap_en2/raw/cave",
-   "in": 5.8,
+   "in": 11.9,
    "dur": 2.0,
    "caption": "cap_chars",
    "vf": "eq=gamma=1.08:saturation=1.04"
@@ -103,8 +103,8 @@
   },
   {
    "shot": "cap_en2/raw/cave",
-   "in": 0.0,
-   "dur": 2.2,
+   "in": 8.3,
+   "dur": 1.6,
    "caption": "cap_maps",
    "vf": "eq=gamma=1.08:saturation=1.04"
   },
