@@ -64,8 +64,8 @@ public static class UnlockRules
     public static bool QaOverride;
     public static bool DevUnlockAll
     {
-        get { return Debug.isDebugBuild && (QaOverride || SaveStore.GetInt(DevUnlockAllKey, 0) != 0); }
-        set { if (Debug.isDebugBuild) { SaveStore.SetInt(DevUnlockAllKey, value ? 1 : 0); SaveStore.Save(); } }
+        get { return DevGate.On && (QaOverride || SaveStore.GetInt(DevUnlockAllKey, 0) != 0); }
+        set { if (DevGate.On) { SaveStore.SetInt(DevUnlockAllKey, value ? 1 : 0); SaveStore.Save(); } }
     }
 
     // ---------------------------------------------------------------- 問い合わせ

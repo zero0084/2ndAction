@@ -4261,8 +4261,11 @@ public partial class GameManager : MonoBehaviour
         buildStyle.normal.textColor = new Color(1f, 1f, 1f, 0.6f);
         string buildText = "build " + Application.version;
         Rect buildRect = new Rect(Screen.width * 0.66f, Screen.height - 26f, 240f, 22f);
-        UiBackdrop.Draw(buildRect, 0.35f);
-        LocGUI.Label(buildRect, buildText, buildStyle);
+        if (!StoreCapture.Clean) // ストア素材の撮影中は出さない(2026-10-23)
+        {
+            UiBackdrop.Draw(buildRect, 0.35f);
+            LocGUI.Label(buildRect, buildText, buildStyle);
+        }
 
         // Distance/level/EXP/BEST/hearts are the in-run HUD - meaningless
         // (and, per feedback, just visual clutter) on the title screen or
@@ -5703,7 +5706,7 @@ public partial class GameManager : MonoBehaviour
     // EXP, or anything else a real run would.
     public void DebugSetBestDistance(float value)
     {
-        if (!Debug.isDebugBuild) return; // Release Build safety net, same pattern as DebugWarpToDistance
+        if (!DevGate.On) return; // Release Build safety net, same pattern as DebugWarpToDistance
         BestDistance = value;
         SaveStore.SetFloat(BestDistanceKey, BestDistance);
         SaveStore.Save();
@@ -5768,7 +5771,7 @@ public partial class GameManager : MonoBehaviour
 
     public void DebugWarpToDistance(float targetDistance)
     {
-        if (!Debug.isDebugBuild) return; // Release Build safety net - a stray call can never actually warp outside a dev build
+        if (!DevGate.On) return; // Release Build safety net - a stray call can never actually warp outside a dev build (or the store capture build)
         UnlockRules.RunSkipped = true; // 距離を飛ばしたランは解放に数えない(2026-10-07)
         RunLedger.MarkDebug("warp"); // 2026-10-08: このランは正式記録/ランキングの対象外(OFF に戻しても)
         MaxDistance = targetDistance;

@@ -88,6 +88,7 @@ public class UgsEnvironmentLabel : MonoBehaviour
     {
         var gm = GameManager.Instance;
         if (gm != null && gm.HasStarted && !gm.IsGameOver) return; // ラン中は出さない(HUD の邪魔をしない)
+        if (StoreCapture.Clean) return; // ストア素材の撮影中
         GUI.depth = -1000;
         if (style == null) style = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft };
         float s = Mathf.Max(1f, Mathf.Min(Screen.width, Screen.height) / 720f);

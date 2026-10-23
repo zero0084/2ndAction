@@ -140,6 +140,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaTransfer") { mode = "transfer"; dir = a[i + 1]; }
             if (a[i] == "-qaPersist") { mode = "persist"; dir = a[i + 1]; }
             if (a[i] == "-qaCredits") { mode = "credits"; dir = a[i + 1]; }
+            if (a[i] == "-storeCapture") { mode = "storecapture"; dir = a[i + 1]; } // 2026-10-23 Steam のストア素材の撮影
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -299,6 +300,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "transfer") yield return TransferMode();
         else if (mode == "persist") yield return PersistMode();
         else if (mode == "credits") yield return CreditsMode();
+        else if (mode == "storecapture") yield return StoreCaptureMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);
@@ -368,7 +370,7 @@ public partial class QaSweep : MonoBehaviour
         bool autoGuide = !(mode == "tutorial" || mode == "unlock" || mode == "portrait" || mode == "loc");
         while (true)
         {
-            if (autoGuide && FirstRunGuide.Open) { Debug.Log("[QA] first-run guide auto-answered " + FirstRunGuide.Showing); FirstRunGuideDebug.Answer(FirstRunGuide.Showing == FirstRunGuide.Kind.DoorPrompt ? 1 : 0); } // 扉の案内は「そのまま始める」
+            if (autoGuide && !scGuideHold && FirstRunGuide.Open) { Debug.Log("[QA] first-run guide auto-answered " + FirstRunGuide.Showing); FirstRunGuideDebug.Answer(FirstRunGuide.Showing == FirstRunGuide.Kind.DoorPrompt ? 1 : 0); } // 扉の案内は「そのまま始める」
             var g = GameManager.Instance;
             if (g != null && !autoPickHold && g.IsRewardSequenceWaitingForSelection)
             {

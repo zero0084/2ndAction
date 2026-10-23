@@ -170,6 +170,7 @@ public class TestDataLabel : MonoBehaviour
         // 2026-10-14: Android の専用の試験ファイル(qa_filesave.txt)で起動している時も、ずっと見えるように出す
         bool sticky = FileSaveStore.Sticky;
         if (!SaveProfile.IsTest && !sticky) return;
+        if (StoreCapture.Clean) return; // ストア素材の撮影中
         GUI.depth = -1000;
         if (style == null) style = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
         float s = Mathf.Max(1f, Mathf.Min(Screen.width, Screen.height) / 720f); // 短い辺基準(縦画面で大きくなりすぎない、2026-10-08)
