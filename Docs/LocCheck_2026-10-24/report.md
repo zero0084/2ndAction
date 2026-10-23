@@ -44,7 +44,10 @@
 ## 4. License screen on the Windows product build
 
 - Checked on 10-23 with the Windows product build: it opens, scrolls to the end with the mouse wheel, and Esc closes it. The save was restored exactly afterwards.
-- Re-check after these translations: see §6.
+- **Re-checked on 2026-10-24 with a product build that includes these translations** (BuildWindowsProduct, build 2026-10-24 0143): Settings → "License / View" opens it → the mouse wheel reaches the last line of the text ("OTHER DEALINGS IN THE SOFTWARE.") → Esc returns to Settings (`windows_product_license.png`). The settings screen's × is in the right place too.
+  - The product build runs on the real save, so I backed up the registry (HKCU\Software\DefaultCompany\One More Mile) and the LocalLow save first and restored them after the check: the registry export hash matches, and all 30 LocalLow files match (0 differences).
+  - At startup, the "Deck limit is now 12 cards" notice (still unread on that save) appeared and I pressed OK. Marking it read was also undone by the restore above.
+  - After the product build, the Unity batch process showed an "application error" window as it exited (the build itself Succeeded). The window was left over after the process had ended, so I just closed it. It's not a game bug.
 
 ## 5. Online
 
