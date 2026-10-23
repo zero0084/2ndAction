@@ -1,6 +1,6 @@
 {
  "tsv": "../text/about.tsv",
- "images_dir": "../screenshots/ja",
+ "images_dir": "../screenshots/{lang}",
  "width": 1232,
  "items": [
   {"name": "omm_about_01_run", "title": "about_run_title", "body": "about_run_body", "images": ["omm_ss_01_wasteland_speed.png"]},

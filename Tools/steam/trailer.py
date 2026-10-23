@@ -67,7 +67,24 @@ def main():
     work = os.path.join(os.path.dirname(out), "_work_" + lang)
     os.makedirs(work, exist_ok=True)
     raw = edl["raw"]
+    mode = os.environ.get("TRAILER_MODE", "video")  # video / audio / stem_se / stem_bgm(音の大きさの確認用)
+    loud = None if mode.startswith("stem") else edl.get("loudness")  # 目標の音の大きさ(LUFS)。2回: 測ってから合わせる
+    ln = ""
+    if loud is not None:
+        tmp = os.path.join(work, "measure.wav")
+        render(edl, lang, tmp, work, raw, caps, "audio", "")
+        r = subprocess.run([FF, "-hide_banner", "-i", tmp, "-af", f"loudnorm=I={loud}:TP=-1.5:LRA=11:print_format=json", "-f", "null", "-"],
+                           capture_output=True, text=True, encoding="utf-8", errors="replace")
+        js = json.loads(r.stderr[r.stderr.rindex("{"):r.stderr.rindex("}") + 1])
+        ln = (f",loudnorm=I={loud}:TP=-1.5:LRA=11:measured_I={js['input_i']}:measured_TP={js['input_tp']}:"
+              f"measured_LRA={js['input_lra']}:measured_thresh={js['input_thresh']}:offset={js['target_offset']}:linear=true")
+        print(f"loudness before {js['input_i']} LUFS -> {loud}")
+    render(edl, lang, out, work, raw, caps, mode, ln)
+
+
+def render(edl, lang, out, work, raw, caps, mode, ln):
     inputs, filters, vlabels, alabels = [], [], [], []
+    video = mode == "video"
     t = 0.0
     cap_spans = []  # (id, start, end)
     for i, c in enumerate(edl["cuts"]):
@@ -76,17 +93,29 @@ def main():
         inputs += ["-ss", f'{c["in"]:.3f}', "-t", f'{c["dur"]:.3f}', "-i", src]
         inputs += ["-ss", f'{c["in"]:.3f}', "-t", f'{c["dur"]:.3f}', "-i", wav]
         k = i * 2
-        filters.append(f"[{k}:v]format=yuv420p,setpts=PTS-STARTPTS,fps={FPS}[v{i}]")
+        if video:
+            # zoom: 小さい再生画面でもキャラが分かるよう、実際の映像を少し寄せる(切り抜いて拡大。cx/cy は寄せる中心の割合)
+            z = c.get("zoom", 1.0)
+            crop = ""
+            if z > 1.001:
+                cx, cy = c.get("cx", 0.5), c.get("cy", 0.5)
+                crop = (f"crop=w=iw/{z}:h=ih/{z}:x='max(0,min(iw-ow,iw*{cx}-ow/2))':y='max(0,min(ih-oh,ih*{cy}-oh/2))',"
+                        f"scale={W}:{H}:flags=lanczos,")
+            filters.append(f"[{k}:v]{crop}format=yuv420p,setpts=PTS-STARTPTS,fps={FPS}[v{i}]")
         filters.append(f"[{k + 1}:a]aresample=48000,asetpts=PTS-STARTPTS,apad=whole_dur={c['dur']:.3f}[a{i}]")
         vlabels.append(f"[v{i}]")
         alabels.append(f"[a{i}]")
-        cid = c.get("caption")
+        cid = c.get("caption")  # 無し: この場面は字幕を出さない(画面の説明の板と重なる時など)
         if cid:
             if cap_spans and cap_spans[-1][0] == cid and abs(cap_spans[-1][2] - t) < 1e-3:
                 cap_spans[-1] = (cid, cap_spans[-1][1], t + c["dur"])
             else:
                 cap_spans.append((cid, t, t + c["dur"]))
         t += c["dur"]
+    # 字幕は長い区間でも cap_max 秒まで(読み終えたら消す)
+    cap_max = edl.get("cap_max")
+    if cap_max:
+        cap_spans = [(cid, a, min(b, a + cap_max)) for cid, a, b in cap_spans]
     n = len(edl["cuts"])
     base = n * 2  # 入力の番号: 切り出し(映像/音)の後
     # エンドカード
@@ -94,12 +123,14 @@ def main():
     end_card(edl["logo"], endp, edl.get("tagline", {}).get(lang))
     end_dur = edl.get("end", 4.5)
     inputs += ["-loop", "1", "-t", f"{end_dur:.3f}", "-framerate", str(FPS), "-i", endp]
-    filters.append(f"[{base}:v]format=yuv420p,fade=t=in:st=0:d=0.6[vend]")
+    if video:
+        filters.append(f"[{base}:v]format=yuv420p,fade=t=in:st=0:d=0.6[vend]")
     vlabels.append("[vend]")
     filters.append(f"anullsrc=r=48000:cl=stereo,atrim=0:{end_dur:.3f}[aend]")
     alabels.append("[aend]")
     total = t + end_dur
-    filters.append("".join(vlabels) + f"concat=n={n + 1}:v=1:a=0[vcat]")
+    if video:
+        filters.append("".join(vlabels) + f"concat=n={n + 1}:v=1:a=0[vcat]")
     filters.append("".join(alabels) + f"concat=n={n + 1}:v=0:a=1[se]")
     idx = base + 1
     # 字幕
@@ -108,10 +139,11 @@ def main():
         p = os.path.join(work, f"cap_{j}.png")
         caption_png(caps[cid][lang], p)
         inputs += ["-loop", "1", "-t", f"{total:.3f}", "-framerate", str(FPS), "-i", p]
-        fi, fo = 0.25, 0.25
-        filters.append(f"[{idx}:v]format=rgba,fade=t=in:st={a:.3f}:d={fi}:alpha=1,fade=t=out:st={b - fo:.3f}:d={fo}:alpha=1[c{j}]")
-        filters.append(f"{vcur}[c{j}]overlay=0:0:enable='between(t,{a:.3f},{b:.3f})'[vc{j}]")
-        vcur = f"[vc{j}]"
+        fi, fo = 0.25, 0.3
+        if video:
+            filters.append(f"[{idx}:v]format=rgba,fade=t=in:st={a:.3f}:d={fi}:alpha=1,fade=t=out:st={b - fo:.3f}:d={fo}:alpha=1[c{j}]")
+            filters.append(f"{vcur}[c{j}]overlay=0:0:enable='between(t,{a:.3f},{b:.3f})'[vc{j}]")
+            vcur = f"[vc{j}]"
         idx += 1
     # BGM(ゲームの BGM を通しで)
     blabels = []
@@ -125,19 +157,27 @@ def main():
                        f"adelay={int(b.get('at', 0) * 1000)}|{int(b.get('at', 0) * 1000)},apad=whole_dur={total:.3f}[b{j}]")
         blabels.append(f"[b{j}]")
         idx += 1
-    filters.append(f"[se]volume={edl.get('se_gain', 1.0)}[se2]")
-    filters.append("[se2]" + "".join(blabels) + f"amix=inputs={1 + len(blabels)}:normalize=0:duration=first,alimiter=limit=0.93,atrim=0:{total:.3f}[aout]")
+    se_gain = 0.0 if mode == "stem_bgm" else edl.get("se_gain", 1.0)
+    filters.append(f"[se]volume={se_gain}[se2]")
+    if mode == "stem_se":
+        filters.append(f"[se2]atrim=0:{total:.3f}[aout]")
+        for bl in blabels:
+            filters.append(f"{bl}anullsink")
+    else:
+        filters.append("[se2]" + "".join(blabels) + f"amix=inputs={1 + len(blabels)}:normalize=0:duration=first,alimiter=limit=0.93,atrim=0:{total:.3f}{ln}{",alimiter=limit=0.82:level=false" if ln else ""}[aout]")
     fc = ";\n".join(filters)
-    fcp = os.path.join(work, "filter.txt")
+    fcp = os.path.join(work, f"filter_{mode}.txt")
     open(fcp, "w", encoding="utf-8").write(fc)
-    cmd = [FF, "-y", "-loglevel", "error"] + inputs + ["-/filter_complex", fcp, "-map", vcur, "-map", "[aout]",
-           "-c:v", "libx264", "-preset", "slow", "-crf", "16", "-pix_fmt", "yuv420p", "-r", str(FPS), "-profile:v", "high",
-           "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out]
-    print(f"total {total:.2f}s, {n} cuts, {len(cap_spans)} captions")
+    if video:
+        cmd = [FF, "-y", "-loglevel", "error"] + inputs + ["-/filter_complex", fcp, "-map", vcur, "-map", "[aout]",
+               "-c:v", "libx264", "-preset", "slow", "-crf", "16", "-pix_fmt", "yuv420p", "-r", str(FPS), "-profile:v", "high",
+               "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", out]
+    else:
+        cmd = [FF, "-y", "-loglevel", "error"] + inputs + ["-/filter_complex", fcp, "-map", "[aout]", "-c:a", "pcm_s16le", "-ar", "48000", out]
+    print(f"[{mode}] total {total:.2f}s, {n} cuts, {len(cap_spans)} captions: " + ", ".join(f"{cid} {a:.1f}-{b:.1f}" for cid, a, b in cap_spans))
     r = subprocess.run(cmd)
     if r.returncode != 0:
         sys.exit(f"ffmpeg failed ({r.returncode})")
-
 
 if __name__ == "__main__":
     main()

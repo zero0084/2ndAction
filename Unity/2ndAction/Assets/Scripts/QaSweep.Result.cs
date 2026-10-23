@@ -1,3 +1,4 @@
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -81,3 +82,4 @@ public partial class QaSweep
         Check(h.height >= 40f, $"{tag}: the HOME button is big enough ({h.height:F0}px)");
     }
 }
+#endif

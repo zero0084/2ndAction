@@ -3,7 +3,7 @@
 ## 調査で分かったこと
 - 開発版(Development Build)の画面には、Unity が描く「Development Build」の透かしが必ず出る(消せない)。画面下の「build …」の表示もラン中に出る。→ 素材は開発版では撮れない
 - 既存の撮影の仕組み(-qaAerialVideo / -qaTapVideo / EncounterDemoCapture など)は 30fps の静止画の連番だけで、音は録れない(音は実時間で鳴るので、固定のフレームの速さで撮ると音がずれる)
-- ゲームの BGM/SE は、このプロジェクトのスクリプトで作った音(Tools/audio/gen_audio*.py。権利はプロジェクトのもの)。ファイルの説明は「仮音源」
+- ゲームの BGM/SE は、ほとんどがこのプロジェクトのスクリプトで作った音(Tools/audio/gen_audio*.py)。【2026-10-23 訂正】一部(効果音 16 件とその音量調整版 15 件、TitleBgm/GameplayBgm)は ChatGPT 由来。詳しくは audio_rights.md
 - ネタバレ: ラスダン(last_corridor)・死神三姉妹(各マップの 100,000m)・エンディング。開発版ではステージ選択にラスダンが見える
 - 製品版でもある仕組み: 自動前進・オートの補助(高速時のジャンプ/攻撃)・CPU サポート・闘技場(ボスとの練習)・BONUS ZONE
 
@@ -39,5 +39,5 @@
 - about/omm_about_auto_run_ja.png / _en.png …
 
 ## 確認したいこと(マスター)
-- BGM/SE は今のゲームの音(スクリプトで作った音)をそのまま使ってよいか
+- BGM/SE の権利 → audio_rights.md(一部が ChatGPT 由来・MS Basic の表示が必要)
 - 字幕の文言は、まず日本語/英語の案を作ってエステルさんに見てもらう

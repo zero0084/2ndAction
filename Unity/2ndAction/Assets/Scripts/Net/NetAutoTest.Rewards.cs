@@ -1,3 +1,5 @@
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+// 2026-10-23: 開発版(Editor / Development Build)だけ。製品版では起動引数で動かせない(Steam の起動オプションから入れてしまうため)
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -138,3 +140,4 @@ public partial class NetAutoTest
         $"share=1/{g.MileShareCount} enemyMile={g.RunEnemyMile} bossMile={g.RunBossMile} bonusMile={g.RunBonusMile} wanted={ChallengeSystem.WantedKilled} kills={g.EnemyKillCount} bossKills={g.BossKillCount} Lv={g.Level} exp={g.TotalExpEarned:F0} carry={g.MileCarryDebug:F3}"
         + $" base[e/b]={g.MileBaseDbg[1]:F3}/{g.MileBaseDbg[2]:F3} exact[e/b]={g.MileExactDbg[1]:F3}/{g.MileExactDbg[2]:F3} takeHome={g.TakeHomeMile} exactTotal={g.TakeHomeExactDebug:F3}";
 }
+#endif

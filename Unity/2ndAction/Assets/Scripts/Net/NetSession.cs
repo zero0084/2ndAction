@@ -82,7 +82,9 @@ public class NetSession : MonoBehaviour
         go.AddComponent<NetRunLauncher>();
         go.AddComponent<NetPing>(); // 往復時間の計測(2026-10-07)
         go.AddComponent<LanDiscovery>(); // LAN の部屋の自動発見(2026-10-05、ゲームの同期とは別)
-        if (NetAutoTest.ShouldRun) go.AddComponent<NetAutoTest>();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (NetAutoTest.ShouldRun) go.AddComponent<NetAutoTest>(); // 試験用のボット(開発版だけ、2026-10-23)
+#endif
     }
 
     void Awake()

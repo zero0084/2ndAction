@@ -1,3 +1,5 @@
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+// 2026-10-23: 開発版(Editor / Development Build)だけ。製品版では起動引数で動かせない(Steam の起動オプションから入れてしまうため)
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -186,3 +188,4 @@ public partial class NetAutoTest
             + (role == "HOST" ? $" bossSamples={bossSamples} bossMaxNearestGap={bossMaxNearestGap:F0} bossRejoins={bossRejoins} stillSeparated=[{string.Join(",", sepSince.Keys)}] leashFrames={BossLeash.LeashFrames} retarget={BossLeash.RetargetRequests} snaps={BossLeash.Snaps}" : "");
     }
 }
+#endif

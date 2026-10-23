@@ -1,3 +1,5 @@
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+// 2026-10-23: 開発版(Editor / Development Build)だけ。製品版では起動引数で動かせない(Steam の起動オプションから入れてしまうため)
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -358,4 +360,5 @@ public static class RunBuildHudTestMenu
         EditorApplication.EnterPlaymode();
     }
 }
+#endif
 #endif

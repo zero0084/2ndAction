@@ -132,12 +132,15 @@ public class EncounterDirector : MonoBehaviour
         // (2026-10-01修正: 以前は profile だけを空にして profileStage を残していたため、同じステージで次のランを始めると
         //  「ステージは変わっていない」と判断されて Profile が読み直されず、そのラン中ずっと敵が出なかった)。
         UnityEngine.SceneManagement.SceneManager.sceneLoaded += (s, m) => { profileStage = null; ResetState(null); boundGm = null; boundStarted = false; };
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // 試験用の固定(開発版だけ、2026-10-23: 製品版では記録の対象のランの敵の出方を起動引数で変えられないように)
         string[] args = System.Environment.GetCommandLineArgs();
         for (int i = 0; i + 1 < args.Length; i++)
         {
             if (args[i] == "-encounterForce") { ForcedFormation = args[i + 1]; ForcedRemaining = -1; }
             if (args[i] == "-encounterSeed" && int.TryParse(args[i + 1], out int seed)) fixedSeed = seed;
         }
+#endif
     }
 
     int fixedSeed = int.MinValue;

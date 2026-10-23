@@ -108,7 +108,8 @@ def main():
     W = lay.get("width", 1232)
     os.makedirs(outdir, exist_ok=True)
     for item in lay["items"]:
-        img = compose(item, rows, lang, W, os.path.join(base, lay.get("images_dir", ".")))
+        idir = lay.get("images_dir", ".").replace("{lang}", lang)  # 言語ごとの撮影画像(その言語の UI)
+        img = compose(item, rows, lang, W, os.path.join(base, idir))
         p = os.path.join(outdir, f'{item["name"]}_{lang}.png')
         img.save(p)
         img.resize((616, int(round(img.height * 616 / W))), Image.LANCZOS).save(p.replace(".png", "_616.png"))
