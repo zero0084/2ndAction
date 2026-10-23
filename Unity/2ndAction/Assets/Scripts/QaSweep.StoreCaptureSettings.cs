@@ -72,7 +72,7 @@ public partial class QaSweep
         // 設定の画面と同じ段(0〜4)で動かす: BGM 4 → 1 → 3、SE 4 → 3
         foreach (int lv in new[] { 3, 2, 1 }) { am.SetBgmVolumeLevel(lv); yield return ScWait(0.35f); }
         ScStill("bgm_down");
-        yield return ScWait(0.6f);
+        yield return ScWait(1.3f); // 2026-10-24 エステル: 25% の状態を1秒以上聞かせてから戻す
         foreach (int lv in new[] { 2, 3 }) { am.SetBgmVolumeLevel(lv); yield return ScWait(0.35f); }
         yield return ScWait(0.3f);
         am.SetSfxVolumeLevel(3); ScStill("sfx");

@@ -1,0 +1,8 @@
+id	ja	en	note
+st_hook	操作は、あなたに合わせて。	Play your way.	冒頭(設定トレーラー)
+st_auto	オートモード・自動攻撃・自動回避	Auto Mode, Auto Attack, Auto Avoid	設定でONにする
+st_auto_play	ジャンプも攻撃も、自動で	Jumps and attacks, automated.	閉じた後の自動のプレイ(英語は 2026-10-24 エステルの案)
+st_display	画面揺れ・警告・発光を好みに	Tune screen shake, warnings and glow	表示の設定
+st_volume	BGMと効果音は別々に調整	Set music and SFX separately	音量の設定
+st_portrait	縦画面は3つの見え方から	Three views for portrait play	縦画面のラン表示
+st_end	自分のペースで、自分の走りを。	Your pace. Your way.	ロゴの一言(2026-10-24 エステル: 「どこまでも」は無限に走れる印象のため変更)

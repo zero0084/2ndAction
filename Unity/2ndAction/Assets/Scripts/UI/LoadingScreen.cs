@@ -256,6 +256,8 @@ public class LoadingScreen : MonoBehaviour
         string s = Loc.Auto(text);
         Vector2 sz = st.CalcSize(new GUIContent(s));
         if (!st.wordWrap && sz.x > r.width && sz.x > 1f) st.fontSize = Mathf.Max(12, Mathf.FloorToInt(st.fontSize * r.width / sz.x));
+        // 2026-10-24: 折り返す見出しも枠の高さに収まるまで縮める(ミャンマー語などは字が高く、2行目が枠の下で切れていた)
+        if (st.wordWrap) while (st.fontSize > 12 && st.CalcHeight(new GUIContent(s), r.width) > r.height) st.fontSize--;
         GUI.Label(r, s, st);
     }
 }

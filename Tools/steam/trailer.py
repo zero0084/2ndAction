@@ -31,6 +31,7 @@ def font(size, weight="Bold"):
 def caption_png(text, path, pos="bottom"):
     # 画面の下 1/4 の左寄り。暗い帯 + 白文字(縁取り)。HUD(上の帯/右下の一時停止)と重ならない位置
     # pos="top": 画面の下にゲームの板がある場面(カードの選択など)。上の HUD の下・中央に、暗い板を敷いて出す
+    # pos="band": 下と同じ位置で、字幕の後ろに濃い帯(設定の画面など、字幕の下にゲームの文字がある場面)
     img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     if pos == "top":
         f = font(70)
@@ -51,6 +52,10 @@ def caption_png(text, path, pos="bottom"):
     f = font(80)  # 2026-10-23 エステル: Steam の小さい再生画面(600px 前後)でも読める大きさに(64 → 80)
     d = ImageDraw.Draw(img)
     x, y = 96, H - 196
+    if pos == "band":
+        # 2026-10-24 エステル: 設定の画面の上に出す字幕は、位置は同じ(左下)のまま、字幕の後ろに濃い帯を敷く(字の高さ+上下 12〜16px)
+        l, t, r, b2 = d.textbbox((x, y), text, font=f, stroke_width=5)
+        d.rounded_rectangle([l - 28, y - 40, r + 28, b2 + 16], radius=12, fill=(5, 8, 20, 215))
     d.text((x, y), text, font=f, fill=(255, 255, 255, 255), stroke_width=5, stroke_fill=(10, 12, 24, 255))
     # 金の短い線(ゲームの UI の金色)
     d.rectangle([x, y - 24, x + 140, y - 17], fill=(232, 196, 102, 255))
