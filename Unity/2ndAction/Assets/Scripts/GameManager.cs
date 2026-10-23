@@ -6437,6 +6437,7 @@ public partial class GameManager : MonoBehaviour
         if (DebugPanel.Instance != null && DebugPanel.Instance.Back()) return;
 #endif
         // 2026-10-19: 設定の上に開く画面(データの削除/広告なしパス)を先に閉じる(以前は戻るで後ろの設定ごと閉じていた)
+        if (LicensesUi.IsOpen) { LicensesUi.Close(); return; }
         if (DataDeletionUi.IsOpen) { if (AccountDeletion.State == AccountDeletion.Phase.Confirm) AccountDeletion.CancelConfirm(); else DataDeletionUi.Close(); return; }
         if (MonetizationUi.Open) { MonetizationUi.Close(); return; }
         if (SettingsPanel.LangListOpen) { SettingsPanel.CloseLangList(); return; } // 言語の一覧だけを閉じる(2026-10-09)

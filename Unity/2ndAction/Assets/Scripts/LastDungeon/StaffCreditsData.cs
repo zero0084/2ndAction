@@ -56,6 +56,7 @@ public class StaffCreditsData : ScriptableObject
             new Entry { role = "AI PROGRAMMING", subtitle = "AIアシスタント(プログラム)", names = new[] { "IRENE" }, layout = Layout.Standing, nameHeight = 1.45f, gapAfter = 30f },
             new Entry { role = "AI GAME DESIGN", subtitle = "AIアシスタント(ゲームデザイン)", names = new[] { "ESTELLE" }, layout = Layout.Arch, nameHeight = 1.3f, gapAfter = 30f },
             new Entry { role = "AI ART / DESIGN", subtitle = "AIアシスタント(アート・デザイン)", names = new[] { "ALICIA" }, layout = Layout.Stairs, nameHeight = 1.2f, gapAfter = 32f },
+            new Entry { role = "SOUNDFONT", subtitle = "BGMの音源(MuseScore, MIT ライセンス)", names = new[] { "MS BASIC" }, layout = Layout.Standing, nameHeight = 1.1f, gapAfter = 28f }, // 2026-10-23: MS Basic の謝辞(全文は設定の「ライセンス」)
             new Entry { role = "SPECIAL THANKS", names = new[] { "ペンタトゥットゥルー", "ルカ" }, layout = Layout.Standing, nameHeight = 1.0f, gapAfter = 26f },
             new Entry { role = "SPECIAL THANKS", names = new[] { "YOU" }, layout = Layout.Standing, nameHeight = 1.5f, breakable = true, gapAfter = 30f },
         };

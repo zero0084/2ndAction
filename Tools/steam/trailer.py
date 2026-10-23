@@ -57,10 +57,10 @@ def caption_png(text, path, pos="bottom"):
     img.save(path)
 
 
-def end_card(logo, path, tagline=None):
+def end_card(logo, path, tagline=None, scale=1.0):
     img = Image.new("RGBA", (W, H), (6, 9, 22, 255))
     lg = Image.open(logo).convert("RGBA")
-    s = min(1300 / lg.width, 520 / lg.height)
+    s = min(1300 / lg.width, 520 / lg.height) * scale  # scale: 2026-10-23 エステル(大きさの比較 1.0/1.2/1.4)。縦横比はそのまま
     lg = lg.resize((int(lg.width * s), int(lg.height * s)), Image.LANCZOS)
     img.alpha_composite(lg, ((W - lg.width) // 2, (H - lg.height) // 2 - 40))
     if tagline:
@@ -82,14 +82,28 @@ def main():
     loud = None if mode.startswith("stem") else edl.get("loudness")  # 目標の音の大きさ(LUFS)。2回: 測ってから合わせる
     ln = ""
     if loud is not None:
+        # 2026-10-23: loudnorm は必要な上げ幅が大きいと動的な処理へ切り替わり、ピークが超えた。
+        # 代わりに「全体の音量を上げる → 4倍の細かさで見るリミッター(真のピークを抑える)」を2回の測定で合わせる
         tmp = os.path.join(work, "measure.wav")
-        render(edl, lang, tmp, work, raw, caps, "audio", "")
-        r = subprocess.run([FF, "-hide_banner", "-i", tmp, "-af", f"loudnorm=I={loud}:TP=-1.5:LRA=11:print_format=json", "-f", "null", "-"],
-                           capture_output=True, text=True, encoding="utf-8", errors="replace")
-        js = json.loads(r.stderr[r.stderr.rindex("{"):r.stderr.rindex("}") + 1])
-        ln = (f",loudnorm=I={loud}:TP=-1.5:LRA=11:measured_I={js['input_i']}:measured_TP={js['input_tp']}:"
-              f"measured_LRA={js['input_lra']}:measured_thresh={js['input_thresh']}:offset={js['target_offset']}:linear=true")
-        print(f"loudness before {js['input_i']} LUFS -> {loud}")
+
+        def measure(chain):
+            render(edl, lang, tmp, work, raw, caps, "audio", chain)
+            r = subprocess.run([FF, "-hide_banner", "-i", tmp, "-af", "ebur128=framelog=quiet:peak=true", "-f", "null", "-"],
+                               capture_output=True, text=True, encoding="utf-8", errors="replace")
+            txt = r.stderr[r.stderr.rindex("Summary:"):]
+            i = float(txt.split("I:")[1].split("LUFS")[0])
+            tp = float(txt.split("Peak:")[1].split("dBFS")[0])
+            return i, tp
+
+        lim = 10 ** (edl.get("tp", -1.5) / 20.0)
+        chain = lambda g: f",volume={g:.2f}dB,aresample=192000,alimiter=limit={lim:.4f}:attack=1:release=60:level=false,aresample=48000"
+        i0, tp0 = measure("")
+        g = loud - i0
+        for _ in range(2):
+            i1, tp1 = measure(chain(g))
+            g += loud - i1
+        ln = chain(g)
+        print(f"loudness: before {i0:.2f} LUFS / TP {tp0:.2f} -> gain {g:.2f} dB (check {i1:.2f} LUFS / TP {tp1:.2f})")
     render(edl, lang, out, work, raw, caps, mode, ln)
 
 
@@ -112,26 +126,28 @@ def render(edl, lang, out, work, raw, caps, mode, ln):
                 cx, cy = c.get("cx", 0.5), c.get("cy", 0.5)
                 crop = (f"crop=w=iw/{z}:h=ih/{z}:x='max(0,min(iw-ow,iw*{cx}-ow/2))':y='max(0,min(ih-oh,ih*{cy}-oh/2))',"
                         f"scale={W}:{H}:flags=lanczos,")
-            filters.append(f"[{k}:v]{crop}format=yuv420p,setpts=PTS-STARTPTS,fps={FPS}[v{i}]")
+            # vf: この場面だけの軽い調整(例: 暗い洞窟を少しだけ明るく "eq=gamma=1.08")
+            grade = (c["vf"] + ",") if c.get("vf") else ""
+            filters.append(f"[{k}:v]{crop}{grade}format=yuv420p,setpts=PTS-STARTPTS,fps={FPS}[v{i}]")
         filters.append(f"[{k + 1}:a]aresample=48000,asetpts=PTS-STARTPTS,apad=whole_dur={c['dur']:.3f}[a{i}]")
         vlabels.append(f"[v{i}]")
         alabels.append(f"[a{i}]")
         cid = c.get("caption")  # 無し: この場面は字幕を出さない(画面の説明の板と重なる時など)
         if cid:
             if cap_spans and cap_spans[-1][0] == cid and abs(cap_spans[-1][2] - t) < 1e-3:
-                cap_spans[-1] = (cid, cap_spans[-1][1], t + c["dur"], cap_spans[-1][3])
+                cap_spans[-1] = (cid, cap_spans[-1][1], t + c["dur"], cap_spans[-1][3], cap_spans[-1][4])
             else:
-                cap_spans.append((cid, t, t + c["dur"], c.get("cap_pos", "bottom")))
+                cap_spans.append((cid, t, t + c["dur"], c.get("cap_pos", "bottom"), c.get("cap_max")))  # cap_max: この字幕だけの最長
         t += c["dur"]
     # 字幕は長い区間でも cap_max 秒まで(読み終えたら消す)
     cap_max = edl.get("cap_max")
     if cap_max:
-        cap_spans = [(cid, a, min(b, a + cap_max), ps) for cid, a, b, ps in cap_spans]
+        cap_spans = [(cid, a, min(b, a + (cm or cap_max)), ps, cm) for cid, a, b, ps, cm in cap_spans]
     n = len(edl["cuts"])
     base = n * 2  # 入力の番号: 切り出し(映像/音)の後
     # エンドカード
     endp = os.path.join(work, "end.png")
-    end_card(edl["logo"], endp, edl.get("tagline", {}).get(lang))
+    end_card(edl["logo"], endp, edl.get("tagline", {}).get(lang), edl.get("logo_scale", 1.0))
     end_dur = edl.get("end", 4.5)
     inputs += ["-loop", "1", "-t", f"{end_dur:.3f}", "-framerate", str(FPS), "-i", endp]
     if video:
@@ -146,7 +162,7 @@ def render(edl, lang, out, work, raw, caps, mode, ln):
     idx = base + 1
     # 字幕
     vcur = "[vcat]"
-    for j, (cid, a, b, ps) in enumerate(cap_spans):
+    for j, (cid, a, b, ps, _) in enumerate(cap_spans):
         p = os.path.join(work, f"cap_{j}.png")
         caption_png(caps[cid][lang], p, ps)
         inputs += ["-loop", "1", "-t", f"{total:.3f}", "-framerate", str(FPS), "-i", p]
@@ -155,6 +171,25 @@ def render(edl, lang, out, work, raw, caps, mode, ln):
             filters.append(f"[{idx}:v]format=rgba,fade=t=in:st={a:.3f}:d={fi}:alpha=1,fade=t=out:st={b - fo:.3f}:d={fo}:alpha=1[c{j}]")
             filters.append(f"{vcur}[c{j}]overlay=0:0:enable='between(t,{a:.3f},{b:.3f})'[vc{j}]")
             vcur = f"[vc{j}]"
+        idx += 1
+    # ロゴの前後の短い一言(end_caption = 字幕の表の id)。ロゴのフェードインの後に出て、ロゴの余韻のうちに消える
+    ec = edl.get("end_caption")
+    if ec:
+        p = os.path.join(work, "end_caption.png")
+        img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        d = ImageDraw.Draw(img)
+        f = font(56, "Medium")
+        txt = caps[ec][lang]
+        tw = d.textlength(txt, font=f)
+        d.text(((W - tw) / 2, H * 0.78), txt, font=f, fill=(238, 240, 248, 255))
+        img.save(p)
+        inputs += ["-loop", "1", "-t", f"{total:.3f}", "-framerate", str(FPS), "-i", p]
+        a0 = total - end_dur + edl.get("end_caption_at", 0.7)
+        a1 = a0 + edl.get("end_caption_dur", 2.4)
+        if video:
+            filters.append(f"[{idx}:v]format=rgba,fade=t=in:st={a0:.3f}:d=0.4:alpha=1,fade=t=out:st={a1 - 0.5:.3f}:d=0.5:alpha=1[ecap]")
+            filters.append(f"{vcur}[ecap]overlay=0:0:enable='between(t,{a0:.3f},{a1:.3f})'[vec]")
+            vcur = "[vec]"
         idx += 1
     # BGM(ゲームの BGM を通しで)
     blabels = []
@@ -175,7 +210,7 @@ def render(edl, lang, out, work, raw, caps, mode, ln):
         for bl in blabels:
             filters.append(f"{bl}anullsink")
     else:
-        filters.append("[se2]" + "".join(blabels) + f"amix=inputs={1 + len(blabels)}:normalize=0:duration=first,alimiter=limit=0.93,atrim=0:{total:.3f}{ln}{",alimiter=limit=0.82:level=false" if ln else ""}[aout]")
+        filters.append("[se2]" + "".join(blabels) + f"amix=inputs={1 + len(blabels)}:normalize=0:duration=first,alimiter=limit=0.93,atrim=0:{total:.3f}{ln}[aout]")
     fc = ";\n".join(filters)
     fcp = os.path.join(work, f"filter_{mode}.txt")
     open(fcp, "w", encoding="utf-8").write(fc)
@@ -185,7 +220,7 @@ def render(edl, lang, out, work, raw, caps, mode, ln):
                "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", out]
     else:
         cmd = [FF, "-y", "-loglevel", "error"] + inputs + ["-/filter_complex", fcp, "-map", "[aout]", "-c:a", "pcm_s16le", "-ar", "48000", out]
-    print(f"[{mode}] total {total:.2f}s, {n} cuts, {len(cap_spans)} captions: " + ", ".join(f"{cid} {a:.1f}-{b:.1f}" for cid, a, b, _ in cap_spans))
+    print(f"[{mode}] total {total:.2f}s, {n} cuts, {len(cap_spans)} captions: " + ", ".join(f"{cid} {a:.1f}-{b:.1f}" for cid, a, b, _, __ in cap_spans))
     r = subprocess.run(cmd)
     if r.returncode != 0:
         sys.exit(f"ffmpeg failed ({r.returncode})")

@@ -655,7 +655,7 @@ public class SettingsPanel : MonoBehaviour
 
     // データとプライバシー(2026-10-19、Google Play の公開準備): プライバシーポリシー(ブラウザで開く)/ オンラインのデータの削除
     bool policyTried;
-    float MeasurePrivacy() => 16f + HeadH + 4f + RowH * 2f + 22f * (policyTried ? 3f : 1f);
+    float MeasurePrivacy() => 16f + HeadH + 4f + RowH * 3f + 22f * (policyTried ? 3f : 1f);
     float DrawPrivacy(float x, float y, float w, bool interactive)
     {
         y = Head(x, y + 16f, w, "データとプライバシー");
@@ -664,6 +664,10 @@ public class SettingsPanel : MonoBehaviour
         y += RowH;
         RowLabel(x, y, "データの削除");
         if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), "内容を確認する", 19f, false, true) && interactive) DataDeletionUi.Open();
+        y += RowH;
+        // 2026-10-23: 使っている素材の著作権表示とライセンス(MS Basic など、原文のまま)
+        RowLabel(x, y, LocPendingReview.LicensesTitle);
+        if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), LocPendingReview.LicensesOpen, 19f, false, true) && interactive) LicensesUi.Open();
         y += RowH;
         if (policyTried)
         {

@@ -140,6 +140,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaTransfer") { mode = "transfer"; dir = a[i + 1]; }
             if (a[i] == "-qaPersist") { mode = "persist"; dir = a[i + 1]; }
             if (a[i] == "-qaCredits") { mode = "credits"; dir = a[i + 1]; }
+            if (a[i] == "-qaLicenses") { mode = "licenses"; dir = a[i + 1]; } // 2026-10-23 ライセンスの画面
             if (a[i] == "-storeCapture") { mode = "storecapture"; dir = a[i + 1]; } // 2026-10-23 Steam のストア素材の撮影
         }
         if (mode == null) return;
@@ -301,6 +302,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "persist") yield return PersistMode();
         else if (mode == "credits") yield return CreditsMode();
         else if (mode == "storecapture") yield return StoreCaptureMode();
+        else if (mode == "licenses") yield return LicensesModeQa();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

@@ -41,11 +41,18 @@ public static class LocPendingReview
     public const string TapAttackLine = "タップ: その場で前へ攻撃(踏み込みなし)。前へフリックすると、踏み込みながら攻撃します。"; // ID 10054
     public const string TapAirLine = "浮いた敵へは、空中でタップを続けると追撃できます。上へフリックで高さを戻し、下へフリックで締めます。";    // ID 10055
 
+    // ID 10056〜10058(2026-10-23 MS Basic のライセンス表示): 設定の「ライセンス」。レビュー待ち(Docs/LocReview_2026-10-23d)。
+    //  ライセンスの本文は原文(英語)のまま出すので訳さない
+    public const string LicensesTitle = "ライセンス";                                                   // ID 10056(設定の行と画面の見出し)
+    public const string LicensesOpen = "表示する";                                                     // ID 10057
+    public const string LicensesNote = "このゲームで使っている素材の著作権表示とライセンスです(原文のまま掲載しています)。"; // ID 10058
+
     // ID 10012〜10047(2026-10-19): データとプライバシー(プライバシーポリシー/データの削除)と LOCAL の暗号化。レビュー待ち(Docs/LocReview_2026-10-19)。
     //  前の文が無い新しい画面なので、訳が入るまでは日本語のまま出る(開発版だけ)。製品版の Android ビルドは全言語の訳が入るまで止まる
     public static readonly (string id, string key)[] Pending =
     {
         ("10010", ReturnHomeLine2), ("10011", ReturnHomeLine3),
+        ("10056", LicensesTitle), ("10057", LicensesOpen), ("10058", LicensesNote),
         ("10012", "データとプライバシー"),
         ("10013", "プライバシーポリシー"),
         ("10014", "ブラウザで開く"),

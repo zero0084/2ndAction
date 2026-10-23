@@ -7,3 +7,5 @@ cap_chars	戦い方の違う仲間たち	Heroes with their own fighting styles	�
 cap_maps	荒野、洞窟、天空	Wasteland. Caverns. Sky.	マップ
 cap_boss	巨大なボスに挑め	Take on colossal bosses	ボス戦
 cap_escape	持ち帰るか、もう1マイル走るか	Cash out — or run one more mile?	脱出/続行
+cap_escape2	報酬を持ち帰るか、さらに先へ進むか。	Cash out — or run one more mile?	脱出判断(第5稿)
+cap_choice	決めるのはあなたです。	The choice is yours.	脱出判断の締め(第5稿、有無を比較)

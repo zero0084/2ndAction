@@ -53,6 +53,14 @@ MonoBehaviour:
     nameHeight: 1.2
     breakable: 0
     gapAfter: 32
+  - role: SOUNDFONT
+    subtitle: "BGMの音源(MuseScore, MIT ライセンス)"
+    names:
+    - MS BASIC
+    layout: 1
+    nameHeight: 1.1
+    breakable: 0
+    gapAfter: 28
   - role: SPECIAL THANKS
     subtitle: 
     names:
