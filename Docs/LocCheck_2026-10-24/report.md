@@ -1,54 +1,54 @@
-# Translations and display checks (2026-10-24)
+# 訳の反映と表示の確認(2026-10-24)
 
-## 1. Translations applied (Estelle's review → 30 languages)
+## 1. 反映した訳(エステルのレビュー → 30言語)
 
-| ID | Content | State |
+| ID | 内容 | 状態 |
 |---|---|---|
-| 10010–10011 | 2nd and 3rd lines of the "Return to Home" confirmation in the pause menu | Applied to 30 languages |
-| 10012–10047 | Settings "Data & Privacy", the data-deletion screen and its confirmation, the LOCAL encryption message | Applied to 30 languages (unreviewed since 10-19 → done) |
-| 10056–10058 | License screen (row name / button / note) | English is Master's approved wording; other languages checked for meaning and display width |
-| 10059 | RESULT success heading 「脱出成功！」/ "ESCAPED!" | Applied to 30 languages |
-| 10060–10062 | Loading-failure frame (Japanese-only since 10-11, found during this check) | Applied to 30 languages |
+| 10010〜10011 | 一時停止の「ホームへ戻る」の確認の2行目・3行目 | 30言語へ反映 |
+| 10012〜10047 | 設定「データとプライバシー」、データの削除の画面と確認、LOCAL の暗号化の文 | 30言語へ反映(10-19 から未レビューだったもの → 済み) |
+| 10056〜10058 | ライセンスの画面(行の名前 / ボタン / 説明) | 英語はマスター承認の案、ほかの言語は意味と表示幅を確認 |
+| 10059 | RESULT の成功の見出し「脱出成功！」/ "ESCAPED!" | 30言語へ反映 |
+| 10060〜10062 | 読み込みの失敗の枠(10-11 から日本語のままだった。今回の確認で見つけた) | 30言語へ反映 |
 
-- The quoted button name in 10026 (the ad-free pass line) now matches each language's existing "Restore Purchases" button (ID 8133) (`Tools/loc/est23/fix10026.py`, log in `fix10026.log`).
-- `{0}` (distance / URL / email) is kept in every language, and no translation has a line break inside it (checked by merge_add).
-- Estelle's raw text and the collection scripts: `Tools/loc/est23/`
-- **LocPendingReview.Pending is empty**, so ReleaseBuildGuard (the guard on the Android product build) no longer stops on the **translation** condition.
-  - It is still stopped by the production ad-unit IDs, the production app ID and the purchase-receipt verification (GooglePlayTangle). These are your settings to enter, Master, and I haven't touched them.
+- 10026(広告なしパスの行)の引用のボタン名は、各言語の既存のボタン「購入を復元」(ID 8133)にそろえた(`Tools/loc/est23/fix10026.py`、記録 `fix10026.log`)
+- `{0}`(距離 / URL / メールアドレス)は全言語で残っていること、訳の中に改行が無いことを確認(merge_add の検査)
+- エステルの返事の原文と集める道具: `Tools/loc/est23/`
+- **LocPendingReview.Pending は空**になったので、ReleaseBuildGuard(Android 製品版のビルドの止め)は**翻訳**の条件では止まらない
+  - 本番の広告枠 ID・本番のアプリ ID・課金のレシート検証(GooglePlayTangle)の条件では今も止まる。これはマスターが入れる設定で、私は触っていない
 
-## 2. Display check in 30 languages (Windows, 1920x1080, `-qaLocUi`, dedicated save)
+## 2. 30言語の表示の確認(Windows 1920x1080、`-qaLocUi`、専用の保存)
 
-`sheets/`: one image per screen with 30 languages side by side (left to right, top to bottom: ja, en, ar, bn, cs, de, es, fa, fil, fr, hi, id, it, km, ko, lo, ms, my, pl, pt-BR, ro, ru, sw, ta, th, tr, uk, vi, zh-Hans, zh-Hant).
+`sheets/`: 画面ごとに30言語を並べた画像(左上から ja, en, ar, bn, cs, de, es, fa, fil, fr, hi, id, it, km, ko, lo, ms, my, pl, pt-BR, ro, ru, sw, ta, th, tr, uk, vi, zh-Hans, zh-Hant)
 
-| Screen | Result |
+| 画面 | 結果 |
 |---|---|
-| RESULT (success) | Heading fits on one line in all 30 languages (TextFit overflow 0) |
-| Settings: Data & Privacy | Fits in all 30 languages |
-| Data-deletion screen / confirmation (mocked, no network) | Fits in all 30 languages; "can't be undone" and "cards, MILE, progress and the ad-free pass are not deleted" are shown |
-| License (first page / scrolled to the end) | Opens and reaches the last line of the text in all 30 languages |
-| Loading-failure frame | **Burmese (my) "Loading is taking longer than expected" was clipped on line 2 → fixed** (a wrapping heading now shrinks until it fits the frame; `LoadingScreen.FitLabel`). Re-checked with my/ta/km/ja/en; after the fix it's `sheets/loadfail_slow_my_after_fix.png` |
+| RESULT(成功) | 30言語とも見出しが1行に収まる(TextFit のはみ出し 0) |
+| 設定「データとプライバシー」 | 30言語とも収まる |
+| データの削除の画面 / 確認(模擬、通信なし) | 30言語とも収まる。「取り消せない」「カード・MILE・進行と広告なしパスは消えない」が出ている |
+| ライセンス(最初 / 最後まで送った所) | 30言語とも開いて、本文の最後の行まで送れる |
+| 読み込みの失敗の枠 | **ミャンマー語(my)の「読み込みに時間がかかっています」の2行目が切れていた → 修正**(折り返す見出しも枠に収まるまで縮める: `LoadingScreen.FitLabel`)。修正後に my/ta/km/ja/en で再確認(`sheets/loadfail_slow_my_after_fix.png`) |
 
-- On the first check, the Thai shot was hidden behind the "loading is taking too long" frame (a load over 25s because an APK build was running at the same time). On the re-check without the load, Thai displayed normally.
+- 1回目の確認では、タイ語の場面が「読み込みに時間がかかっています」の枠に隠れていた(APK のビルドを同時に動かしていて、読み込みが25秒を超えたため)。負荷の無い再確認ではタイ語も正常に表示された
 
-## 3. License screen on Android
+## 3. Android でのライセンスの画面
 
-- **Tested on the Android emulator (AVD omm_test, 1080x2400, landscape) with APK 360 (development build).** No real device was available this time; on-device testing is still open.
-- Steps: launch with a dedicated save (`-fileSave emu_lic/save.json`) → Settings → scroll the settings screen with real touch swipes (`adb input touchscreen swipe`) → License "View" → swipe the text up to the end → Android back key.
-- Results (`android_license/`):
-  - Opens.
-  - Reaches the end of the text ("OTHER DEALINGS IN THE SOFTWARE.", which matches the last line of the original), and further swipes don't move it.
-  - The back key returns to Settings.
-  - The × is drawn in the right place too (after the fix).
-- The development build has the same License screen as the product build. The Android product build can't be made right now because of the guard in §1.
+- **Android エミュレーター(AVD omm_test、1080x2400、横画面)で、APK 360(開発版)を使って確認した。** 今回は実機が使えなかったので、実機での確認は未実施
+- 手順: 専用の保存(`-fileSave emu_lic/save.json`)で起動 → 設定 → 設定の画面を本物のタッチのスワイプ(`adb input touchscreen swipe`)で送る → ライセンス「表示する」→ 本文を上へスワイプして最後まで → Android の戻るキー
+- 結果(`android_license/`):
+  - 開く
+  - 本文の最後("OTHER DEALINGS IN THE SOFTWARE."、原文の最後の行と一致)まで送れて、それ以上スワイプしても動かない
+  - 戻るキーで設定へ戻る
+  - × も正しい位置に出る(修正後)
+- 開発版のライセンスの画面は製品版と同じもの。Android の製品版は、1 の止めのため今は作れない
 
-## 4. License screen on the Windows product build
+## 4. Windows 製品版でのライセンスの画面
 
-- Checked on 10-23 with the Windows product build: it opens, scrolls to the end with the mouse wheel, and Esc closes it. The save was restored exactly afterwards.
-- **Re-checked on 2026-10-24 with a product build that includes these translations** (BuildWindowsProduct, build 2026-10-24 0143): Settings → "License / View" opens it → the mouse wheel reaches the last line of the text ("OTHER DEALINGS IN THE SOFTWARE.") → Esc returns to Settings (`windows_product_license.png`). The settings screen's × is in the right place too.
-  - The product build runs on the real save, so I backed up the registry (HKCU\Software\DefaultCompany\One More Mile) and the LocalLow save first and restored them after the check: the registry export hash matches, and all 30 LocalLow files match (0 differences).
-  - At startup, the "Deck limit is now 12 cards" notice (still unread on that save) appeared and I pressed OK. Marking it read was also undone by the restore above.
-  - After the product build, the Unity batch process showed an "application error" window as it exited (the build itself Succeeded). The window was left over after the process had ended, so I just closed it. It's not a game bug.
+- 10-23 に Windows 製品版で確認済み(開く・マウスのホイールで最後まで送れる・Esc で閉じる。保存はあとで元と同じに戻した)
+- **2026-10-24 に、今回の訳を入れた製品版(BuildWindowsProduct、build 2026-10-24 0143)で再確認**: 設定 →「ライセンス / 表示する」で開く → ホイールで本文の最後("OTHER DEALINGS IN THE SOFTWARE.")まで → Esc で設定へ戻る(`windows_product_license.png`)。設定の画面の × も正しい位置に出る
+  - 製品版は実際の保存で動くため、先にレジストリ(HKCU\Software\DefaultCompany\One More Mile)と LocalLow の保存を控え、確認の後に元へ戻した: レジストリは書き出しのハッシュが一致、LocalLow は30ファイルすべて一致(差 0)
+  - 起動の時に、その保存ではまだ読んでいなかった「デッキ上限が12枚になりました」のお知らせが出たので OK を押した(既読になった分も上の復元で元に戻っている)
+  - 製品版のビルドの後、Unity(バッチ)が終わる時に「アプリケーション エラー」の窓を出した(ビルド自体は Succeeded)。窓はプロセスが終わった後に残っていたものなので、閉じただけ。ゲームの不具合ではない
 
-## 5. Online
+## 5. オンライン
 
-- Not tested this time. As before, only **sign-in and room search** count as checked; actual co-op and versus play are **unverified**.
+- 今回は試していない。これまでどおり、**サインインと部屋の検索まで**を確認済みとし、実際の協力・対戦のプレイは**未確認**
