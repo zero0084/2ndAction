@@ -1,0 +1,62 @@
+続きの13言語(my / pl / pt-BR / ro / ru / sw / ta / th / tr / uk / vi / zh-Hans / zh-Hant)をお願いします。
+ChatGPT の発言:
+
+承知しました！残りの 13言語 × 3件＝39行 です。
+
+前回と同じく「言語コード → ID → 訳」の3列TSVで、ゲームの読み込み画面に合わせて短く自然な表現にしています。
+
+tsv
+my	10060	ဖွင့်ရန် မျှော်လင့်ထားသည်ထက် အချိန်ပိုကြာနေပါသည်
+my	10061	ဂိမ်းမြင်ကွင်းကို ဖွင့်၍မရပါ
+my	10062	ထပ်မံကြိုးစားရန်
+pl	10060	Wczytywanie trwa dłużej niż oczekiwano
+pl	10061	Nie udało się wczytać sceny
+pl	10062	Spróbuj ponownie
+pt-BR	10060	O carregamento está demorando mais que o esperado
+pt-BR	10061	Não foi possível carregar a cena
+pt-BR	10062	Tentar novamente
+ro	10060	Încărcarea durează mai mult decât era de așteptat
+ro	10061	Nu s-a putut încărca scena
+ro	10062	Încearcă din nou
+ru	10060	Загрузка занимает больше времени, чем ожидалось
+ru	10061	Не удалось загрузить сцену
+ru	10062	Повторить
+sw	10060	Kupakia kunachukua muda mrefu kuliko ilivyotarajiwa
+sw	10061	Imeshindikana kupakia eneo la mchezo
+sw	10062	Jaribu Tena
+ta	10060	ஏற்றுவதற்கு எதிர்பார்த்ததை விட அதிக நேரம் ஆகிறது
+ta	10061	காட்சியை ஏற்ற முடியவில்லை
+ta	10062	மீண்டும் முயற்சிக்கவும்
+th	10060	การโหลดใช้เวลานานกว่าที่คาดไว้
+th	10061	ไม่สามารถโหลดฉากได้
+th	10062	ลองอีกครั้ง
+tr	10060	Yükleme beklenenden uzun sürüyor
+tr	10061	Sahne yüklenemedi
+tr	10062	Tekrar Dene
+uk	10060	Завантаження триває довше, ніж очікувалося
+uk	10061	Не вдалося завантажити сцену
+uk	10062	Спробувати знову
+vi	10060	Đang tải lâu hơn dự kiến
+vi	10061	Không thể tải cảnh
+vi	10062	Thử lại
+zh-Hans	10060	加载时间比预期更长
+zh-Hans	10061	无法加载场景
+zh-Hans	10062	重试
+zh-Hant	10060	載入時間比預期更長
+zh-Hant	10061	無法載入場景
+zh-Hant	10062	重試
+
+これで 10060〜10062の29言語・計87行 がそろいました。
+
+今回の3件は、エラーを必要以上に深刻に見せず、「読み込みが遅い」「読み込みに失敗した」「再試行する」を明確に区別しています。
+
+実機では特に、ドイツ語・フランス語・ポルトガル語の10060が2行以内に収まることと、アラビア語・ペルシャ語の表示方向をご確認ください。
+
+PDF に変換
+ChatGPT は間違えることがあります。重要な情報は確認してください。
+最新の応答
+
+
+
+
+Instant

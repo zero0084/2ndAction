@@ -1,0 +1,198 @@
+次は ro / id / ms / vi をお願いします(同じ形、42件ずつ、コードブロック)。
+ChatGPT の発言:
+
+承知しました！今回は ルーマニア語（ro）・インドネシア語（id）・マレー語（ms）・ベトナム語（vi） の4言語、各42件・合計168行です。
+
+これまでと同じく、{0}、MILE、ONLINE PLAY、CONTINUE、LOCAL を維持し、データ削除の不可逆性と、端末内データ・広告なしパスが消えないことを明確にしています。
+
+ルーマニア語（ro）42件
+tsv
+ro	10010	Cursa nu se va încheia. Poți folosi CONTINUE de la ultimul punct de control ({0}m).
+ro	10011	MILE, EXP și cărțile obținute după acel punct de control vor fi pierdute.
+ro	10012	Date și confidențialitate
+ro	10013	Politica de confidențialitate
+ro	10014	Deschide în browser
+ro	10015	Șterge datele
+ro	10016	Vezi detaliile
+ro	10017	Dacă pagina nu se deschide, accesează acest URL în browser: {0}
+ro	10018	Copiază URL
+ro	10019	Poți șterge datele stocate pe serverele noastre, precum rezultatele tale din clasamente. Cărțile și progresul de pe acest dispozitiv nu vor fi șterse.
+ro	10020	Ce se va șterge (date de pe server)
+ro	10021	• Rezultatele tale din clasamente (toate hărțile) și numele de cod afișat
+ro	10022	• Istoricul rezultatelor trimise în clasamente
+ro	10023	• ID-ul tău anonim de jucător pentru funcțiile online
+ro	10024	Ce nu se va șterge (date de pe dispozitiv)
+ro	10025	• Cărți, MILE, personaje deblocate, progres, setări și nume de cod
+ro	10026	• Abonamentul fără reclame (gestionat prin contul magazinului; rămâne disponibil după ștergere prin „Restabilește achizițiile”)
+ro	10027	ID-ul tău de jucător
+ro	10028	Funcțiile online (clasamente / ONLINE PLAY) nu au fost încă folosite pe acest dispozitiv.
+ro	10029	Nu s-a putut realiza conexiunea la serviciul online.
+ro	10030	Copiază ID
+ro	10031	Copiat
+ro	10032	Dacă ai dezinstalat aplicația sau nu îți poți șterge datele aici, trimite un e-mail la {0}, menționând ID-ul tău de jucător.
+ro	10033	Dacă participi din nou în clasamente după ștergere, rezultatele tale vor fi înregistrate cu un ID nou.
+ro	10034	Verifică-ți conexiunea și încearcă din nou sau contactează-ne la adresa de e-mail de mai sus.
+ro	10035	Se șterge…
+ro	10036	Șters
+ro	10037	Șterge
+ro	10038	Sigur vrei să îți ștergi datele?
+ro	10039	Rezultatele tale din clasamente, istoricul rezultatelor trimise și ID-ul tău anonim de jucător pentru funcțiile online vor fi șterse de pe serverele noastre. Această acțiune este ireversibilă, iar datele șterse nu pot fi recuperate.
+ro	10040	Cărțile, MILE și progresul de pe acest dispozitiv, precum și achiziția abonamentului fără reclame, nu vor fi șterse.
+ro	10041	Anulează
+ro	10042	Datele tale au fost șterse de pe serverele noastre.
+ro	10043	Nu s-au putut șterge datele de pe serverele noastre.
+ro	10044	Nu s-a putut șterge contul.
+ro	10045	Nu s-au putut șterge datele.
+ro	10046	Nu îți poți șterge datele cât timp te afli într-o cameră multiplayer. Ieși din cameră și încearcă din nou.
+ro	10047	Nu s-a putut crea camera LOCAL deoarece nu s-a putut stabili o conexiune securizată.
+ro	10056	Licențe
+ro	10057	Vezi
+ro	10058	Notificări privind drepturile de autor și licențele materialelor terțe folosite în acest joc (reproduse în limba originală).
+ro	10059	EVADARE REUȘITĂ!
+インドネシア語（id）42件
+tsv
+id	10010	Run tidak akan berakhir. Kamu bisa menggunakan CONTINUE dari checkpoint terakhir ({0}m).
+id	10011	MILE, EXP, dan kartu yang diperoleh setelah checkpoint tersebut akan hilang.
+id	10012	Data dan Privasi
+id	10013	Kebijakan Privasi
+id	10014	Buka di Browser
+id	10015	Hapus Data
+id	10016	Lihat Detail
+id	10017	Jika halaman tidak terbuka, buka URL berikut di browser: {0}
+id	10018	Salin URL
+id	10019	Kamu dapat menghapus data yang tersimpan di server kami, seperti catatan peringkatmu. Kartu dan progres di perangkat ini tidak akan dihapus.
+id	10020	Yang akan dihapus (data server)
+id	10021	• Catatan peringkatmu (semua peta) dan nama kode yang ditampilkan
+id	10022	• Riwayat catatan yang dikirim ke peringkat
+id	10023	• ID pemain anonim untuk fitur online
+id	10024	Yang tidak akan dihapus (data perangkat)
+id	10025	• Kartu, MILE, karakter yang terbuka, progres, pengaturan, dan nama kode
+id	10026	• Pass bebas iklan (dikelola melalui akun toko; tetap tersedia setelah penghapusan melalui "Pulihkan Pembelian")
+id	10027	ID Pemainmu
+id	10028	Fitur online (peringkat / ONLINE PLAY) belum pernah digunakan di perangkat ini.
+id	10029	Tidak dapat terhubung ke layanan online.
+id	10030	Salin ID
+id	10031	Tersalin
+id	10032	Jika kamu telah menghapus aplikasi atau tidak dapat menghapus data di sini, kirim email ke {0} dengan mencantumkan ID pemainmu.
+id	10033	Jika kamu mengikuti peringkat lagi setelah penghapusan, catatanmu akan disimpan dengan ID baru.
+id	10034	Periksa koneksimu dan coba lagi, atau hubungi kami melalui alamat email di atas.
+id	10035	Menghapus…
+id	10036	Terhapus
+id	10037	Hapus
+id	10038	Yakin ingin menghapus datamu?
+id	10039	Catatan peringkatmu, riwayat catatan yang dikirim, dan ID pemain anonim untuk fitur online akan dihapus dari server kami. Tindakan ini tidak dapat dibatalkan dan data yang dihapus tidak dapat dipulihkan.
+id	10040	Kartu, MILE, dan progres di perangkat ini, serta pembelian pass bebas iklan, tidak akan dihapus.
+id	10041	Batal
+id	10042	Datamu telah dihapus dari server kami.
+id	10043	Gagal menghapus data dari server kami.
+id	10044	Gagal menghapus akun.
+id	10045	Gagal menghapus data.
+id	10046	Kamu tidak dapat menghapus data saat berada di ruang multiplayer. Keluar dari ruang tersebut lalu coba lagi.
+id	10047	Tidak dapat membuat ruang LOCAL karena koneksi aman tidak dapat dibuat.
+id	10056	Lisensi
+id	10057	Lihat
+id	10058	Pemberitahuan hak cipta dan lisensi untuk materi pihak ketiga yang digunakan dalam game ini (ditampilkan dalam bahasa aslinya).
+id	10059	BERHASIL KABUR!
+マレー語（ms）42件
+tsv
+ms	10010	Larian tidak akan tamat. Anda boleh menggunakan CONTINUE dari pusat pemeriksaan terakhir ({0}m).
+ms	10011	MILE, EXP dan kad yang diperoleh selepas pusat pemeriksaan itu akan hilang.
+ms	10012	Data dan Privasi
+ms	10013	Dasar Privasi
+ms	10014	Buka dalam Pelayar
+ms	10015	Padam Data
+ms	10016	Lihat Butiran
+ms	10017	Jika halaman tidak dibuka, buka URL berikut dalam pelayar anda: {0}
+ms	10018	Salin URL
+ms	10019	Anda boleh memadam data yang disimpan pada pelayan kami, seperti rekod kedudukan anda. Kad dan kemajuan pada peranti ini tidak akan dipadam.
+ms	10020	Perkara yang akan dipadam (data pelayan)
+ms	10021	• Rekod kedudukan anda (semua peta) dan nama kod yang dipaparkan
+ms	10022	• Sejarah rekod yang dihantar ke kedudukan
+ms	10023	• ID pemain tanpa nama untuk ciri dalam talian
+ms	10024	Perkara yang tidak akan dipadam (data peranti)
+ms	10025	• Kad, MILE, watak yang dibuka, kemajuan, tetapan dan nama kod
+ms	10026	• Pas tanpa iklan (diurus melalui akaun gedung anda; masih tersedia selepas pemadaman melalui "Pulihkan Pembelian")
+ms	10027	ID Pemain Anda
+ms	10028	Ciri dalam talian (kedudukan / ONLINE PLAY) belum digunakan pada peranti ini.
+ms	10029	Tidak dapat menyambung ke perkhidmatan dalam talian.
+ms	10030	Salin ID
+ms	10031	Disalin
+ms	10032	Jika anda telah menyahpasang aplikasi atau tidak dapat memadam data di sini, hantarkan e-mel ke {0} berserta ID pemain anda.
+ms	10033	Jika anda menyertai kedudukan semula selepas pemadaman, rekod anda akan disimpan menggunakan ID baharu.
+ms	10034	Semak sambungan anda dan cuba lagi, atau hubungi kami melalui alamat e-mel di atas.
+ms	10035	Memadam…
+ms	10036	Dipadam
+ms	10037	Padam
+ms	10038	Adakah anda pasti mahu memadam data anda?
+ms	10039	Rekod kedudukan anda, sejarah rekod yang dihantar dan ID pemain tanpa nama untuk ciri dalam talian akan dipadam daripada pelayan kami. Tindakan ini tidak boleh dibatalkan dan data yang dipadam tidak boleh dipulihkan.
+ms	10040	Kad, MILE dan kemajuan pada peranti ini serta pembelian pas tanpa iklan tidak akan dipadam.
+ms	10041	Batal
+ms	10042	Data anda telah dipadam daripada pelayan kami.
+ms	10043	Tidak dapat memadam data daripada pelayan kami.
+ms	10044	Tidak dapat memadam akaun.
+ms	10045	Tidak dapat memadam data.
+ms	10046	Anda tidak boleh memadam data semasa berada dalam bilik berbilang pemain. Keluar dari bilik dan cuba lagi.
+ms	10047	Tidak dapat mencipta bilik LOCAL kerana sambungan selamat tidak dapat diwujudkan.
+ms	10056	Lesen
+ms	10057	Lihat
+ms	10058	Notis hak cipta dan lesen untuk bahan pihak ketiga yang digunakan dalam permainan ini (dipaparkan dalam bahasa asal).
+ms	10059	BERJAYA MELARIKAN DIRI!
+ベトナム語（vi）42件
+tsv
+vi	10010	Lượt chạy sẽ không kết thúc. Bạn có thể dùng CONTINUE từ điểm kiểm tra gần nhất ({0}m).
+vi	10011	MILE, EXP và thẻ nhận được sau điểm kiểm tra đó sẽ bị mất.
+vi	10012	Dữ liệu và quyền riêng tư
+vi	10013	Chính sách quyền riêng tư
+vi	10014	Mở trong trình duyệt
+vi	10015	Xóa dữ liệu
+vi	10016	Xem chi tiết
+vi	10017	Nếu trang không mở được, hãy mở URL sau trong trình duyệt: {0}
+vi	10018	Sao chép URL
+vi	10019	Bạn có thể xóa dữ liệu lưu trên máy chủ của chúng tôi, chẳng hạn như thành tích xếp hạng. Thẻ và tiến trình trên thiết bị này sẽ không bị xóa.
+vi	10020	Nội dung sẽ bị xóa (dữ liệu máy chủ)
+vi	10021	• Thành tích xếp hạng của bạn (tất cả bản đồ) và mật danh hiển thị
+vi	10022	• Lịch sử thành tích đã gửi lên bảng xếp hạng
+vi	10023	• ID người chơi ẩn danh dùng cho tính năng trực tuyến
+vi	10024	Nội dung không bị xóa (dữ liệu thiết bị)
+vi	10025	• Thẻ, MILE, nhân vật đã mở khóa, tiến trình, cài đặt và mật danh
+vi	10026	• Vé không quảng cáo (do tài khoản cửa hàng quản lý; vẫn có thể sử dụng sau khi xóa dữ liệu qua "Khôi phục giao dịch mua")
+vi	10027	ID người chơi của bạn
+vi	10028	Thiết bị này chưa từng sử dụng các tính năng trực tuyến (xếp hạng / ONLINE PLAY).
+vi	10029	Không thể kết nối với dịch vụ trực tuyến.
+vi	10030	Sao chép ID
+vi	10031	Đã sao chép
+vi	10032	Nếu bạn đã gỡ cài đặt ứng dụng hoặc không thể xóa dữ liệu tại đây, hãy gửi email đến {0} kèm ID người chơi của bạn.
+vi	10033	Nếu bạn tham gia bảng xếp hạng lần nữa sau khi xóa dữ liệu, thành tích của bạn sẽ được ghi bằng ID mới.
+vi	10034	Kiểm tra kết nối rồi thử lại hoặc liên hệ với chúng tôi qua địa chỉ email ở trên.
+vi	10035	Đang xóa…
+vi	10036	Đã xóa
+vi	10037	Xóa
+vi	10038	Bạn có chắc muốn xóa dữ liệu của mình không?
+vi	10039	Thành tích xếp hạng, lịch sử thành tích đã gửi và ID người chơi ẩn danh dùng cho tính năng trực tuyến của bạn sẽ bị xóa khỏi máy chủ của chúng tôi. Thao tác này không thể hoàn tác và dữ liệu đã xóa không thể khôi phục.
+vi	10040	Thẻ, MILE và tiến trình trên thiết bị này, cũng như giao dịch mua vé không quảng cáo, sẽ không bị xóa.
+vi	10041	Hủy
+vi	10042	Dữ liệu của bạn đã được xóa khỏi máy chủ của chúng tôi.
+vi	10043	Không thể xóa dữ liệu khỏi máy chủ của chúng tôi.
+vi	10044	Không thể xóa tài khoản.
+vi	10045	Không thể xóa dữ liệu.
+vi	10046	Bạn không thể xóa dữ liệu khi đang ở trong phòng nhiều người chơi. Hãy rời phòng rồi thử lại.
+vi	10047	Không thể tạo phòng LOCAL vì không thể thiết lập kết nối an toàn.
+vi	10056	Giấy phép
+vi	10057	Xem
+vi	10058	Thông báo bản quyền và giấy phép của tài nguyên bên thứ ba được sử dụng trong trò chơi này (giữ nguyên ngôn ngữ gốc).
+vi	10059	THOÁT THÀNH CÔNG!
+
+以上、4言語×42件＝168行です。
+
+10059は各言語で「脱出成功」を表す短い見出しにしています。10026の「購入を復元」は、それぞれの言語で自然な仮訳を使用しました。
+
+次は th / fil / my / km の4言語へ進められます。
+
+PDF に変換
+ChatGPT は間違えることがあります。重要な情報は確認してください。
+最新の応答
+
+
+
+
+Instant

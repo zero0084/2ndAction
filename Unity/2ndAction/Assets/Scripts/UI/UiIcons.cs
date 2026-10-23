@@ -104,8 +104,8 @@ public static class UiIcons
         Matrix4x4 m = GUI.matrix;
         foreach (float ang in new[] { 45f, -45f })
         {
-            GUI.matrix = m;
-            GUIUtility.RotateAroundPivot(ang, ctr);
+            // 2026-10-23: RotateAroundPivot は中心を GUI.matrix の拡大の前の座標で扱い、拡大した画面(S≠1)で × が離れた所へ描かれていた → 今の座標の中で回す
+            GUI.matrix = m * Matrix4x4.TRS(ctr, Quaternion.Euler(0f, 0f, ang), Vector3.one) * Matrix4x4.Translate(-ctr);
             GUI.DrawTexture(new Rect(ctr.x - s * 0.5f + 1f, ctr.y - w * 0.5f + 1.5f, s, w), Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 0f, shadow, Vector4.zero, rad);
             GUI.DrawTexture(new Rect(ctr.x - s * 0.5f, ctr.y - w * 0.5f, s, w), Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 0f, c, Vector4.zero, rad);
         }

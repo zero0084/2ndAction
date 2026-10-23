@@ -1,0 +1,448 @@
+=====BODY=====
+翻訳のレビューと作成をお願いします(アイリーンより)。公開ビルドの前に、未レビューの文をすべて整備したいです。
+
+【対象】42件(IDと日本語/英語案/表示の制約)
+・10010〜10011: 一時停止の「ホームへ戻る」の確認の2行目と3行目
+・10012〜10047: 設定「データとプライバシー」とデータの削除の画面、LOCAL の暗号化の文(2026-10-19 から未レビュー)
+・10056〜10058: ライセンスの画面(英語はマスター承認済み)
+・10059: RESULT の成功の見出しを「GAME CLEAR」から変更(日本語「脱出成功！」、英語「ESCAPED!」はマスターの方針)
+
+【守ってほしいこと】
+・{0} は必ず残す(10010 = 距離、10017 = URL、10032 = メールアドレス)
+・MILE、ONLINE PLAY、CONTINUE、LOCAL は英字のまま
+・削除の画面は「取り消せない」「この端末のカード・MILE・進行と広告なしパスは消えない」を弱めない
+・10059 は大きな見出し1行(短く)。ゲーム全体のクリアではなく、このランの脱出(帰還)の成功。「!」はその言語の自然な形で
+・行の中に改行を入れない
+・10026 の「購入を復元」は、ゲームの既存のボタン名に合わせて私の側で置き換えるので、仮の訳で構いません
+
+【お願いの順番】
+1) まず英語案(10010〜10047)の見直し。直す所だけ「ID / 直した英語 / 理由」で
+2) 次に訳を、4言語ずつコードブロックで。1行 = 「言語コード<TAB>ID<TAB>訳」。最初は ko / zh-Hans / zh-Hant / fr でお願いします
+   (残りの言語: de es pt-BR it pl uk ru tr cs ro id ms vi th fil my km lo hi bn ta ar fa sw。英語 en の最終版も同じ形で)
+
+ID	日本語	英語案	表示の制約
+10010	ランは終了せず、直前のチェックポイント({0}m)からCONTINUEできます。	The run won't end; you can CONTINUE from the last checkpoint ({0}m).	一時停止の確認(幅 約430px、字 19px、中央揃え、自動で折り返し)
+10011	それより後に獲得したMILE・EXP・カードは取り消されます。	MILE, EXP and cards earned after it will be undone.	同上
+10012	データとプライバシー	Data & Privacy	設定: 欄の見出し
+10013	プライバシーポリシー	Privacy Policy	設定: 行の名前(幅160px、長い時は2行)
+10014	ブラウザで開く	Open in Browser	設定: ボタン
+10015	データの削除	Delete Data	設定: 行の名前 / 削除の画面の題名
+10016	内容を確認する	Review	設定: ボタン(削除の画面を開く)
+10017	ページが開かない時は、次の URL をブラウザで開いてください: {0}	If the page doesn't open, open this URL in your browser: {0}	設定: 説明
+10018	URLをコピー	Copy URL	小さいボタン
+10019	ランキングの記録など、サーバー上のデータを削除できます(この端末のカードや進行は消えません)。	You can delete data stored on our servers, such as your ranking records (cards and progress on this device are not deleted).	設定: 説明
+10020	削除するもの(サーバー上のデータ)	What will be deleted (data on our servers)	削除の画面: 見出し
+10021	・ランキングの記録(すべてのマップ)と、掲載中のコードネーム	• Your ranking records (all maps) and the code name shown with them	箇条書き
+10022	・ランキングへ送った記録の履歴	• The history of records you sent to the ranking	箇条書き
+10023	・オンライン用の匿名のプレイヤーID	• Your anonymous online player ID	箇条書き
+10024	削除しないもの(この端末のデータ)	What will NOT be deleted (data on this device)	見出し
+10025	・カード・MILE・解放したキャラクター・進行・設定・コードネーム	• Cards, MILE, unlocked characters, progress, settings and code name	箇条書き
+10026	・広告なしパス(ストアのアカウントで管理。削除した後も「購入を復元」で使えます)	• The ad-free pass (managed by your store account; after deletion you can still use it with "Restore Purchase")	箇条書き
+10027	あなたのプレイヤーID	Your player ID	見出し
+10028	この端末では、まだオンライン機能(ランキング・ONLINE PLAY)を使っていません	You haven't used online features (ranking / ONLINE PLAY) on this device yet	IDの代わり
+10029	オンラインのサービスに接続できませんでした	Couldn't connect to the online service	IDの代わり/結果
+10030	IDをコピー	Copy ID	小さいボタン(幅120px)
+10031	コピーしました	Copied	小さいボタン
+10032	アプリを削除した後や、ここで削除できない時は、プレイヤーIDを書いて {0} へご連絡ください。	If you've deleted the app or can't delete here, contact {0} with your player ID.	説明
+10033	削除した後にランキングへ参加すると、新しいIDで記録します。	If you join the ranking again after deleting, a new ID will be used.	説明
+10034	通信を確認してもう一度試すか、上のメールでご連絡ください。	Check your connection and try again, or contact us at the email above.	失敗の時の説明
+10035	削除しています…	Deleting…	ボタン(処理中)
+10036	削除しました	Deleted	ボタン(完了)
+10037	削除する	Delete	ボタン
+10038	本当に削除しますか?	Are you sure you want to delete?	確認の見出し
+10039	サーバー上のランキングの記録・送った記録の履歴・オンライン用の匿名のプレイヤーIDを削除します。この操作は取り消せません。	This deletes your ranking records, the history of records you sent, and your anonymous online player ID from our servers. This can't be undone.	確認: 注意(赤)
+10040	この端末のカード・MILE・進行と、広告なしパスの購入は消えません。	Your cards, MILE and progress on this device and your ad-free pass purchase are not deleted.	確認: 説明
+10041	やめる	Cancel	確認: ボタン
+10042	サーバー上のデータを削除しました	Your data on our servers has been deleted	結果(緑)
+10043	サーバーのデータを削除できませんでした	Couldn't delete the data on our servers	結果(赤)
+10044	アカウントを削除できませんでした	Couldn't delete the account	結果(赤)
+10045	削除できませんでした	Couldn't delete	結果(赤)
+10046	マルチプレイの部屋にいる間は削除できません。部屋を出てから試してください	You can't delete while in a multiplayer room. Leave the room and try again	結果(赤)
+10047	安全な通信を準備できなかったため、部屋を作成できませんでした	Couldn't create the room because a secure connection couldn't be prepared	マルチ(LOCAL): 部屋を作れない時
+10056	ライセンス	Licenses	行の名前(幅 約180px)/見出し1行
+10057	表示する	View	ボタンの中、短く
+10058	このゲームで使っている素材の著作権表示とライセンスです(原文のまま掲載しています)。	Copyright notices and licenses for third-party material used in this game (reproduced in the original language).	1〜2行
+10059	脱出成功！	ESCAPED!	RESULT の見出し(大きい文字1行、短く)
+…
+展開
+ChatGPT の発言:
+
+アイリーン、承知しました。今回は公開ビルド前の翻訳なので、特にデータ削除の不可逆性、端末内データの保護、操作名の統一を優先して確認しました。
+
+日本語原文は基本的にそのままで問題ありません。英語案も全体として良好ですが、いくつか修正をおすすめします。
+
+1. 英語案の修正（10010〜10047）
+
+変更を推奨するものだけ掲載します。
+
+ID
+
+	
+
+修正後の英語
+
+	
+
+理由
+
+
+
+
+10010
+
+	
+
+The run won't end. You can CONTINUE from the last checkpoint (0m).
+
+	
+
+2文に分けて読みやすくする
+
+
+
+
+10011
+
+	
+
+MILE, EXP, and cards earned after that checkpoint will be lost.
+
+	
+
+undone より失われる対象が明確
+
+
+
+
+10019
+
+	
+
+You can delete server-stored data, including ranking records. Cards and progress on this device will not be deleted.
+
+	
+
+端末内データが消えないことを独立した文で強調
+
+
+
+
+10022
+
+	
+
+• Your ranking submission history
+
+	
+
+短く、意味も明確
+
+
+
+
+10026
+
+	
+
+• Your ad-free pass (managed by your store account; still available after deletion via "Restore Purchases")
+
+	
+
+購入の復元に一般的な英語表現を使用。実際のボタン名を優先
+
+
+
+
+10028
+
+	
+
+Online features (rankings / ONLINE PLAY) haven't been used on this device yet.
+
+	
+
+個人ではなく端末についての説明に統一
+
+
+
+
+10032
+
+	
+
+If you've uninstalled the app or can't delete your data here, email 0 with your player ID.
+
+	
+
+アプリのアンインストールとメール連絡を明確化
+
+
+
+
+10033
+
+	
+
+If you participate in the rankings again after deletion, your records will use a new ID.
+
+	
+
+記録と新IDの関係を明確化
+
+
+
+
+10038
+
+	
+
+Are you sure you want to delete your data?
+
+	
+
+削除対象を明確化
+
+
+
+
+10040
+
+	
+
+Your cards, MILE, and progress on this device, as well as your ad-free pass purchase, will not be deleted.
+
+	
+
+広告なしパスの購入も消えないことを明確化
+
+
+
+
+10044
+
+	
+
+Couldn't delete your account
+
+	
+
+失敗対象を明確化。ただし、サーバー上で実際に削除する対象が匿名IDだけなら account という語の妥当性は要確認
+
+
+
+
+10046
+
+	
+
+You can't delete data while in a multiplayer room. Leave the room and try again.
+
+	
+
+削除対象を明示し、句点を補完
+
+
+
+
+10047
+
+	
+
+Couldn't create the room because a secure connection couldn't be established.
+
+	
+
+established が通信エラーとして自然
+
+追加で気になる点： 10025の「コードネームは端末に残る」と、10021の「ランキング掲載中のコードネームは削除する」は両立します。ただし、削除後に再びランキングへ送信した際、古いコードネームが自動的に再掲載される可能性があるなら、その挙動は公開前に確認しておきたいです。
+
+また10010の CONTINUE は機能名として英字のまま維持しています。
+
+2. 翻訳 TSV — 最初の4言語
+
+以下は ko / zh-Hans / zh-Hant / fr の順です。10010〜10047、10056〜10059の42件、合計168行です。{0}、MILE、ONLINE PLAY、CONTINUE、LOCAL は維持しています。
+
+韓国語（ko）
+tsv
+ko	10010	런은 종료되지 않습니다. 마지막 체크포인트({0}m)에서 CONTINUE할 수 있습니다.
+ko	10011	그 체크포인트 이후에 획득한 MILE, EXP, 카드는 사라집니다.
+ko	10012	데이터 및 개인정보
+ko	10013	개인정보 처리방침
+ko	10014	브라우저에서 열기
+ko	10015	데이터 삭제
+ko	10016	내용 확인
+ko	10017	페이지가 열리지 않으면 다음 URL을 브라우저에서 열어 주세요: {0}
+ko	10018	URL 복사
+ko	10019	랭킹 기록 등 서버에 저장된 데이터를 삭제할 수 있습니다. 이 기기의 카드와 진행 상황은 삭제되지 않습니다.
+ko	10020	삭제되는 항목(서버 데이터)
+ko	10021	• 모든 맵의 랭킹 기록과 표시된 코드네임
+ko	10022	• 랭킹에 제출한 기록의 이력
+ko	10023	• 온라인용 익명 플레이어 ID
+ko	10024	삭제되지 않는 항목(기기 데이터)
+ko	10025	• 카드, MILE, 해금한 캐릭터, 진행 상황, 설정, 코드네임
+ko	10026	• 광고 제거 패스(스토어 계정에서 관리하며, 삭제 후에도 '구매 복원'으로 사용할 수 있습니다)
+ko	10027	내 플레이어 ID
+ko	10028	이 기기에서는 아직 온라인 기능(랭킹 / ONLINE PLAY)을 사용하지 않았습니다.
+ko	10029	온라인 서비스에 연결하지 못했습니다.
+ko	10030	ID 복사
+ko	10031	복사 완료
+ko	10032	앱을 삭제했거나 여기서 데이터를 삭제할 수 없다면 플레이어 ID를 적어 {0}으로 이메일을 보내 주세요.
+ko	10033	삭제 후 랭킹에 다시 참가하면 새로운 ID로 기록됩니다.
+ko	10034	인터넷 연결을 확인하고 다시 시도하거나 위 이메일 주소로 문의해 주세요.
+ko	10035	삭제 중…
+ko	10036	삭제 완료
+ko	10037	삭제
+ko	10038	정말 데이터를 삭제하시겠습니까?
+ko	10039	서버에 저장된 랭킹 기록, 제출 기록 이력, 온라인용 익명 플레이어 ID가 삭제됩니다. 이 작업은 취소하거나 되돌릴 수 없습니다.
+ko	10040	이 기기의 카드, MILE, 진행 상황과 광고 제거 패스 구매 내역은 삭제되지 않습니다.
+ko	10041	취소
+ko	10042	서버 데이터가 삭제되었습니다.
+ko	10043	서버 데이터를 삭제하지 못했습니다.
+ko	10044	계정을 삭제하지 못했습니다.
+ko	10045	삭제하지 못했습니다.
+ko	10046	멀티플레이 방에 있는 동안에는 데이터를 삭제할 수 없습니다. 방을 나간 후 다시 시도해 주세요.
+ko	10047	보안 연결을 설정하지 못해 LOCAL 방을 만들 수 없습니다.
+ko	10056	라이선스
+ko	10057	보기
+ko	10058	이 게임에 사용된 외부 자료의 저작권 표시와 라이선스입니다(원문 그대로 표시).
+ko	10059	탈출 성공!
+簡体字中国語（zh-Hans）
+tsv
+zh-Hans	10010	本次跑程不会结束。你可以从上一个检查点（{0}m）CONTINUE。
+zh-Hans	10011	该检查点之后获得的MILE、EXP和卡牌将会失去。
+zh-Hans	10012	数据与隐私
+zh-Hans	10013	隐私政策
+zh-Hans	10014	在浏览器中打开
+zh-Hans	10015	删除数据
+zh-Hans	10016	查看详情
+zh-Hans	10017	如果页面无法打开，请在浏览器中访问以下URL：{0}
+zh-Hans	10018	复制URL
+zh-Hans	10019	你可以删除排行榜记录等存储在服务器上的数据。本设备上的卡牌和游戏进度不会被删除。
+zh-Hans	10020	将删除的内容（服务器数据）
+zh-Hans	10021	• 所有地图的排行榜记录及显示的代号
+zh-Hans	10022	• 提交至排行榜的记录历史
+zh-Hans	10023	• 在线功能使用的匿名玩家ID
+zh-Hans	10024	不会删除的内容（本设备数据）
+zh-Hans	10025	• 卡牌、MILE、已解锁角色、游戏进度、设置和代号
+zh-Hans	10026	• 免广告通行证（由商店账号管理，删除后仍可通过“恢复购买”继续使用）
+zh-Hans	10027	你的玩家ID
+zh-Hans	10028	本设备尚未使用在线功能（排行榜 / ONLINE PLAY）。
+zh-Hans	10029	无法连接在线服务。
+zh-Hans	10030	复制ID
+zh-Hans	10031	已复制
+zh-Hans	10032	如果你已卸载应用或无法在此删除数据，请附上玩家ID发送邮件至{0}。
+zh-Hans	10033	删除后再次参加排行榜时，将使用新的ID记录成绩。
+zh-Hans	10034	请检查网络连接后重试，或通过上方邮箱联系我们。
+zh-Hans	10035	正在删除…
+zh-Hans	10036	已删除
+zh-Hans	10037	删除
+zh-Hans	10038	确定要删除数据吗？
+zh-Hans	10039	这将删除服务器上的排行榜记录、提交记录历史以及在线功能使用的匿名玩家ID。此操作无法撤销或恢复。
+zh-Hans	10040	本设备上的卡牌、MILE、游戏进度以及免广告通行证的购买记录不会被删除。
+zh-Hans	10041	取消
+zh-Hans	10042	服务器上的数据已删除。
+zh-Hans	10043	无法删除服务器上的数据。
+zh-Hans	10044	无法删除账号。
+zh-Hans	10045	删除失败。
+zh-Hans	10046	在多人游戏房间内无法删除数据。请退出房间后重试。
+zh-Hans	10047	无法建立安全连接，因此无法创建LOCAL房间。
+zh-Hans	10056	许可证
+zh-Hans	10057	查看
+zh-Hans	10058	此处列出本游戏使用的第三方素材的版权声明和许可证（保留原文）。
+zh-Hans	10059	成功脱出！
+繁体字中国語（zh-Hant）
+tsv
+zh-Hant	10010	本次跑程不會結束。你可以從上一個檢查點（{0}m）CONTINUE。
+zh-Hant	10011	該檢查點之後獲得的MILE、EXP和卡牌將會失去。
+zh-Hant	10012	資料與隱私
+zh-Hant	10013	隱私權政策
+zh-Hant	10014	在瀏覽器中開啟
+zh-Hant	10015	刪除資料
+zh-Hant	10016	查看詳情
+zh-Hant	10017	如果頁面無法開啟，請在瀏覽器中開啟以下URL：{0}
+zh-Hant	10018	複製URL
+zh-Hant	10019	你可以刪除排行榜紀錄等儲存在伺服器上的資料。本裝置上的卡牌和遊戲進度不會被刪除。
+zh-Hant	10020	將刪除的內容（伺服器資料）
+zh-Hant	10021	• 所有地圖的排行榜紀錄及顯示的代號
+zh-Hant	10022	• 提交至排行榜的紀錄歷史
+zh-Hant	10023	• 線上功能使用的匿名玩家ID
+zh-Hant	10024	不會刪除的內容（本裝置資料）
+zh-Hant	10025	• 卡牌、MILE、已解鎖角色、遊戲進度、設定和代號
+zh-Hant	10026	• 免廣告通行證（由商店帳號管理，刪除後仍可透過「恢復購買」繼續使用）
+zh-Hant	10027	你的玩家ID
+zh-Hant	10028	本裝置尚未使用線上功能（排行榜 / ONLINE PLAY）。
+zh-Hant	10029	無法連線至線上服務。
+zh-Hant	10030	複製ID
+zh-Hant	10031	已複製
+zh-Hant	10032	如果你已解除安裝應用程式或無法在此刪除資料，請附上玩家ID寄送電子郵件至{0}。
+zh-Hant	10033	刪除後再次參加排行榜時，將使用新的ID記錄成績。
+zh-Hant	10034	請檢查網路連線後重試，或透過上方電子郵件地址聯絡我們。
+zh-Hant	10035	正在刪除…
+zh-Hant	10036	已刪除
+zh-Hant	10037	刪除
+zh-Hant	10038	確定要刪除資料嗎？
+zh-Hant	10039	這將刪除伺服器上的排行榜紀錄、提交紀錄歷史以及線上功能使用的匿名玩家ID。此操作無法撤銷或復原。
+zh-Hant	10040	本裝置上的卡牌、MILE、遊戲進度以及免廣告通行證的購買紀錄不會被刪除。
+zh-Hant	10041	取消
+zh-Hant	10042	伺服器上的資料已刪除。
+zh-Hant	10043	無法刪除伺服器上的資料。
+zh-Hant	10044	無法刪除帳號。
+zh-Hant	10045	刪除失敗。
+zh-Hant	10046	在多人遊戲房間內無法刪除資料。請離開房間後重試。
+zh-Hant	10047	無法建立安全連線，因此無法建立LOCAL房間。
+zh-Hant	10056	授權條款
+zh-Hant	10057	查看
+zh-Hant	10058	此處列出本遊戲使用的第三方素材之著作權聲明與授權條款（保留原文）。
+zh-Hant	10059	成功脫出！
+フランス語（fr）
+tsv
+fr	10010	La partie ne se terminera pas. Vous pourrez utiliser CONTINUE depuis le dernier point de contrôle ({0}m).
+fr	10011	Les MILE, l'EXP et les cartes obtenus après ce point de contrôle seront perdus.
+fr	10012	Données et confidentialité
+fr	10013	Politique de confidentialité
+fr	10014	Ouvrir dans le navigateur
+fr	10015	Supprimer les données
+fr	10016	Consulter
+fr	10017	Si la page ne s'ouvre pas, ouvrez cette URL dans votre navigateur : {0}
+fr	10018	Copier l'URL
+fr	10019	Vous pouvez supprimer les données stockées sur nos serveurs, notamment vos records de classement. Les cartes et la progression sur cet appareil ne seront pas supprimées.
+fr	10020	Données supprimées (serveurs)
+fr	10021	• Vos records de classement (toutes les cartes) et le nom de code affiché
+fr	10022	• L'historique de vos records soumis au classement
+fr	10023	• Votre identifiant de joueur anonyme en ligne
+fr	10024	Données conservées (cet appareil)
+fr	10025	• Cartes, MILE, personnages débloqués, progression, paramètres et nom de code
+fr	10026	• Pass sans publicité (géré par votre compte de boutique ; toujours disponible après suppression via « Restaurer les achats »)
+fr	10027	Votre identifiant de joueur
+fr	10028	Les fonctions en ligne (classements / ONLINE PLAY) n'ont pas encore été utilisées sur cet appareil.
+fr	10029	Connexion au service en ligne impossible.
+fr	10030	Copier l'ID
+fr	10031	Copié
+fr	10032	Si vous avez désinstallé l'application ou ne pouvez pas supprimer vos données ici, envoyez un e-mail à {0} en indiquant votre identifiant de joueur.
+fr	10033	Si vous participez de nouveau aux classements après la suppression, vos records seront enregistrés avec un nouvel identifiant.
+fr	10034	Vérifiez votre connexion et réessayez, ou contactez-nous à l'adresse e-mail ci-dessus.
+fr	10035	Suppression…
+fr	10036	Supprimé
+fr	10037	Supprimer
+fr	10038	Voulez-vous vraiment supprimer vos données ?
+fr	10039	Cette opération supprime de nos serveurs vos records de classement, l'historique des records soumis et votre identifiant de joueur anonyme en ligne. Elle est irréversible et ne peut pas être annulée.
+fr	10040	Vos cartes, vos MILE et votre progression sur cet appareil, ainsi que l'achat de votre pass sans publicité, ne seront pas supprimés.
+fr	10041	Annuler
+fr	10042	Vos données ont été supprimées de nos serveurs.
+fr	10043	Impossible de supprimer les données de nos serveurs.
+fr	10044	Impossible de supprimer le compte.
+fr	10045	Suppression impossible.
+fr	10046	Vous ne pouvez pas supprimer vos données tant que vous êtes dans un salon multijoueur. Quittez le salon et réessayez.
+fr	10047	Impossible de créer le salon LOCAL : la connexion sécurisée n'a pas pu être établie.
+fr	10056	Licences
+fr	10057	Voir
+fr	10058	Mentions de droits d'auteur et licences des éléments
+PDF に変換
+ChatGPT は間違えることがあります。重要な情報は確認してください。
+最新の応答
+
+
+
+
+Instant
+=====PRE=====

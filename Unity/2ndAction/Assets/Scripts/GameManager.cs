@@ -4777,7 +4777,8 @@ public partial class GameManager : MonoBehaviour
         float pad = 34f * s, x = panel.x + pad, w = pw - pad * 2f, y = panel.y + 24f * s;
 
         // 見出し(GAME CLEAR / FAILED)
-        LocGUI.Label(new Rect(panel.x, y, pw, 40f * s), win ? "GAME CLEAR" : "FAILED", UiKit.Label(30f * s, TextAnchor.MiddleCenter, true, win ? UiTheme.GoldText : UiTheme.Danger));
+        // 2026-10-23: 成功の見出しは「脱出成功！」(ESCAPED!)。訳が入るまでは前の GAME CLEAR(LocPendingReview 10059)
+        LocGUI.Label(new Rect(panel.x, y, pw, 40f * s), win ? Loc.Reviewed(LocPendingReview.ResultEscaped, LocPendingReview.ResultEscapedOld) : "FAILED", UiKit.Label(30f * s, TextAnchor.MiddleCenter, true, win ? UiTheme.GoldText : UiTheme.Danger));
         y += 44f * s;
 
         // ① 距離(いちばん大きく)

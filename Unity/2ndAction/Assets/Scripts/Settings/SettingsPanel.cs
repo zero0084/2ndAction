@@ -665,10 +665,6 @@ public class SettingsPanel : MonoBehaviour
         RowLabel(x, y, "データの削除");
         if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), "内容を確認する", 19f, false, true) && interactive) DataDeletionUi.Open();
         y += RowH;
-        // 2026-10-23: 使っている素材の著作権表示とライセンス(MS Basic など、原文のまま)
-        RowLabel(x, y, LocPendingReview.LicensesTitle);
-        if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), LocPendingReview.LicensesOpen, 19f, false, true) && interactive) LicensesUi.Open();
-        y += RowH;
         if (policyTried)
         {
             // ブラウザが開かない端末向け: URL を見せてコピーできるようにする
@@ -676,7 +672,11 @@ public class SettingsPanel : MonoBehaviour
             if (UiKit.Button(new Rect(x + w - 160f, y, 160f, 34f), "URLをコピー", 15f, false, false) && interactive) PrivacyLinks.Copy(PrivacyLinks.PolicyUrl);
             y += 40f;
         }
-        return Note(x, y, w, "ランキングの記録など、サーバー上のデータを削除できます(この端末のカードや進行は消えません)。");
+        y = Note(x, y, w, "ランキングの記録など、サーバー上のデータを削除できます(この端末のカードや進行は消えません)。");
+        // 2026-10-23: 使っている素材の著作権表示とライセンス(MS Basic など、原文のまま)。削除の説明の後に置く(説明がこの行の物に見えないように)
+        RowLabel(x, y, LocPendingReview.LicensesTitle);
+        if (UiKit.Button(new Rect(x + LabelW, y + 6f, w - LabelW, RowH - 12f), LocPendingReview.LicensesOpen, 19f, false, true) && interactive) LicensesUi.Open();
+        return y + RowH;
     }
 
     // 遊び方(2026-10-07): 操作の練習をもう一度。ホームでだけ始められる(終わるとホームへ戻る)

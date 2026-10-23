@@ -1,0 +1,139 @@
+読み込みの失敗の画面に未翻訳の文が3件見つかりました(10-11 から日本語のまま)。訳をお願いします。英語案の見直しも同時に。
+
+ID	日本語	英語案	表示
+10060	読み込みに時間がかかっています	Loading is taking longer than expected	読み込みの画面の小さい枠の見出し(字 22px、幅 約300px、2行まで)
+10061	シーンを読み込めませんでした	Couldn't load the scene	同じ所(読み込みに失敗した時)
+10062	もう一度読み込む	Try Again	同じ枠の下のボタン(幅 約290px、1行)
+
+形はいつもと同じ「言語コード<TAB>ID<TAB>訳」で、en を含む29言語を、2〜3回に分けてコードブロックでお願いします(長いと切れるので、1回目は en から th までのアルファベット順の前半で)。
+ChatGPT の発言:
+
+エステルです！ 30言語の表示確認まで完了したのですね。今回は読み込み画面の3件を整えましょう。
+
+1. 英語案のレビュー
+
+ID
+
+	
+
+英語案
+
+	
+
+判断
+
+
+
+
+10060
+
+	
+
+Loading is taking longer than expected
+
+	
+
+そのまま採用。自然で、失敗と断定しない表現
+
+
+
+
+10061
+
+	
+
+Couldn't load the scene
+
+	
+
+そのまま採用。読み込み失敗を明確に伝える
+
+
+
+
+10062
+
+	
+
+Try Again
+
+	
+
+そのまま採用。短く、ボタンに適している
+
+10060は幅300px・22pxだと2行になる可能性がありますが、許容範囲です。10061の scene はゲーム開発用語にも見えますが、プレイヤー向けとしても不自然ではありません。
+
+日本語も3件とも変更不要です。
+
+2. 翻訳TSV（第1回）
+
+今回は、指定された29言語のうち、言語コードのアルファベット順で en〜th の前半16言語を掲載します。
+
+対象：en / ar / bn / cs / de / es / fa / fil / fr / hi / id / it / km / ko / lo / ms
+
+※ th までの全言語を1回で掲載すると長くなるため、今回はmsまでとし、残りは次回に分けます。
+
+tsv
+en	10060	Loading is taking longer than expected
+en	10061	Couldn't load the scene
+en	10062	Try Again
+ar	10060	يستغرق التحميل وقتًا أطول من المتوقع
+ar	10061	تعذّر تحميل المشهد
+ar	10062	حاول مجددًا
+bn	10060	লোড হতে প্রত্যাশার চেয়ে বেশি সময় লাগছে
+bn	10061	দৃশ্যটি লোড করা যায়নি
+bn	10062	আবার চেষ্টা করুন
+cs	10060	Načítání trvá déle, než se očekávalo
+cs	10061	Scénu se nepodařilo načíst
+cs	10062	Zkusit znovu
+de	10060	Das Laden dauert länger als erwartet
+de	10061	Die Szene konnte nicht geladen werden
+de	10062	Erneut versuchen
+es	10060	La carga está tardando más de lo esperado
+es	10061	No se pudo cargar la escena
+es	10062	Reintentar
+fa	10060	بارگذاری بیش از حد انتظار طول می‌کشد
+fa	10061	بارگذاری صحنه ممکن نشد
+fa	10062	تلاش دوباره
+fil	10060	Mas matagal kaysa inaasahan ang pag-load
+fil	10061	Hindi ma-load ang eksena
+fil	10062	Subukan Muli
+fr	10060	Le chargement prend plus de temps que prévu
+fr	10061	Impossible de charger la scène
+fr	10062	Réessayer
+hi	10060	लोड होने में अपेक्षा से अधिक समय लग रहा है
+hi	10061	सीन लोड नहीं हो सका
+hi	10062	फिर से कोशिश करें
+id	10060	Pemuatan memakan waktu lebih lama dari perkiraan
+id	10061	Gagal memuat adegan
+id	10062	Coba Lagi
+it	10060	Il caricamento richiede più tempo del previsto
+it	10061	Impossibile caricare la scena
+it	10062	Riprova
+km	10060	ការផ្ទុកកំពុងចំណាយពេលយូរជាងការរំពឹងទុក
+km	10061	មិនអាចផ្ទុកឈុតឆាកបានទេ
+km	10062	ព្យាយាមម្ដងទៀត
+ko	10060	불러오는 데 예상보다 시간이 오래 걸리고 있습니다
+ko	10061	씬을 불러오지 못했습니다
+ko	10062	다시 시도
+lo	10060	ການໂຫຼດໃຊ້ເວລາດົນກວ່າທີ່ຄາດໄວ້
+lo	10061	ບໍ່ສາມາດໂຫຼດສາກໄດ້
+lo	10062	ລອງອີກຄັ້ງ
+ms	10060	Pemuatan mengambil masa lebih lama daripada dijangka
+ms	10061	Gagal memuatkan babak
+ms	10062	Cuba Lagi
+
+今回：16言語×3件＝48行です。
+
+次回は my / pl / pt-BR / ro / ru / sw / ta / th / tr / uk / vi / zh-Hans / zh-Hant の13言語・39行をお送りします。
+
+なお、公開前の実機確認では、10060の長い文章が2行以内に収まるか、10062のボタンが1行に収まるかを優先してください。
+
+PDF に変換
+ChatGPT は間違えることがあります。重要な情報は確認してください。
+最新の応答
+
+
+
+
+Instant

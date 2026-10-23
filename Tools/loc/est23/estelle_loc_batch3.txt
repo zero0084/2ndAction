@@ -1,0 +1,152 @@
+次は it / pl / uk をお願いします(同じ形、42件ずつ、コードブロック)。
+ChatGPT の発言:
+
+承知しました！今回は イタリア語（it）・ポーランド語（pl）・ウクライナ語（uk） の3言語、各42件・合計126行です。
+
+前回確定した英語の修正内容を反映し、{0}、MILE、ONLINE PLAY、CONTINUE、LOCAL は維持しています。10059はゲーム全体のクリアではなく、ランからの脱出成功を表す短い見出しにしています。
+
+イタリア語（it）42件
+tsv
+it	10010	La corsa non terminerà. Puoi usare CONTINUE dall'ultimo checkpoint ({0}m).
+it	10011	I MILE, l'EXP e le carte ottenuti dopo quel checkpoint andranno persi.
+it	10012	Dati e privacy
+it	10013	Informativa sulla privacy
+it	10014	Apri nel browser
+it	10015	Elimina dati
+it	10016	Visualizza dettagli
+it	10017	Se la pagina non si apre, apri questo URL nel browser: {0}
+it	10018	Copia URL
+it	10019	Puoi eliminare i dati memorizzati sui nostri server, come i tuoi risultati in classifica. Le carte e i progressi su questo dispositivo non verranno eliminati.
+it	10020	Dati che verranno eliminati (server)
+it	10021	• I tuoi risultati in classifica (tutte le mappe) e il nome in codice visualizzato
+it	10022	• La cronologia dei risultati inviati alla classifica
+it	10023	• Il tuo ID giocatore anonimo per le funzioni online
+it	10024	Dati che verranno conservati (dispositivo)
+it	10025	• Carte, MILE, personaggi sbloccati, progressi, impostazioni e nome in codice
+it	10026	• Pass senza pubblicità (gestito dal tuo account dello store; disponibile anche dopo l'eliminazione tramite «Ripristina acquisti»)
+it	10027	Il tuo ID giocatore
+it	10028	Le funzioni online (classifiche / ONLINE PLAY) non sono ancora state utilizzate su questo dispositivo.
+it	10029	Impossibile connettersi al servizio online.
+it	10030	Copia ID
+it	10031	Copiato
+it	10032	Se hai disinstallato l'app o non riesci a eliminare i tuoi dati da qui, invia un'e-mail a {0} indicando il tuo ID giocatore.
+it	10033	Se partecipi nuovamente alle classifiche dopo l'eliminazione, i tuoi risultati verranno registrati con un nuovo ID.
+it	10034	Controlla la connessione e riprova, oppure contattaci all'indirizzo e-mail indicato sopra.
+it	10035	Eliminazione…
+it	10036	Eliminato
+it	10037	Elimina
+it	10038	Vuoi davvero eliminare i tuoi dati?
+it	10039	I tuoi risultati in classifica, la cronologia dei risultati inviati e il tuo ID giocatore anonimo per le funzioni online verranno eliminati dai nostri server. Questa operazione è irreversibile e non può essere annullata.
+it	10040	Le tue carte, i MILE e i progressi su questo dispositivo, così come l'acquisto del pass senza pubblicità, non verranno eliminati.
+it	10041	Annulla
+it	10042	I tuoi dati sono stati eliminati dai nostri server.
+it	10043	Impossibile eliminare i dati dai nostri server.
+it	10044	Impossibile eliminare l'account.
+it	10045	Eliminazione non riuscita.
+it	10046	Non puoi eliminare i tuoi dati mentre sei in una stanza multigiocatore. Esci dalla stanza e riprova.
+it	10047	Impossibile creare la stanza LOCAL perché non è stato possibile stabilire una connessione sicura.
+it	10056	Licenze
+it	10057	Visualizza
+it	10058	Note sul copyright e licenze dei materiali di terze parti utilizzati in questo gioco (riprodotti nella lingua originale).
+it	10059	FUGA RIUSCITA!
+ポーランド語（pl）42件
+tsv
+pl	10010	Bieg nie zostanie zakończony. Możesz użyć CONTINUE od ostatniego punktu kontrolnego ({0}m).
+pl	10011	MILE, EXP i karty zdobyte po tym punkcie kontrolnym zostaną utracone.
+pl	10012	Dane i prywatność
+pl	10013	Polityka prywatności
+pl	10014	Otwórz w przeglądarce
+pl	10015	Usuń dane
+pl	10016	Zobacz szczegóły
+pl	10017	Jeśli strona się nie otworzy, otwórz ten URL w przeglądarce: {0}
+pl	10018	Kopiuj URL
+pl	10019	Możesz usunąć dane zapisane na naszych serwerach, takie jak twoje wyniki w rankingach. Karty i postępy na tym urządzeniu nie zostaną usunięte.
+pl	10020	Co zostanie usunięte (dane serwera)
+pl	10021	• Twoje wyniki w rankingach (wszystkie mapy) i wyświetlany kryptonim
+pl	10022	• Historia wyników przesłanych do rankingu
+pl	10023	• Twój anonimowy identyfikator gracza online
+pl	10024	Co zostanie zachowane (dane urządzenia)
+pl	10025	• Karty, MILE, odblokowane postacie, postępy, ustawienia i kryptonim
+pl	10026	• Przepustka bez reklam (zarządzana przez konto w sklepie; dostępna również po usunięciu danych przez „Przywróć zakupy”)
+pl	10027	Twój identyfikator gracza
+pl	10028	Na tym urządzeniu nie korzystano jeszcze z funkcji online (rankingi / ONLINE PLAY).
+pl	10029	Nie udało się połączyć z usługą online.
+pl	10030	Kopiuj ID
+pl	10031	Skopiowano
+pl	10032	Jeśli aplikacja została odinstalowana lub nie możesz usunąć tutaj swoich danych, wyślij wiadomość e-mail na adres {0}, podając swój identyfikator gracza.
+pl	10033	Jeśli po usunięciu danych ponownie weźmiesz udział w rankingach, twoje wyniki będą zapisywane pod nowym identyfikatorem.
+pl	10034	Sprawdź połączenie i spróbuj ponownie lub skontaktuj się z nami pod powyższym adresem e-mail.
+pl	10035	Usuwanie…
+pl	10036	Usunięto
+pl	10037	Usuń
+pl	10038	Czy na pewno chcesz usunąć swoje dane?
+pl	10039	Twoje wyniki w rankingach, historia przesłanych wyników i anonimowy identyfikator gracza online zostaną usunięte z naszych serwerów. Tej operacji nie można cofnąć ani przywrócić usuniętych danych.
+pl	10040	Twoje karty, MILE i postępy na tym urządzeniu oraz zakup przepustki bez reklam nie zostaną usunięte.
+pl	10041	Anuluj
+pl	10042	Twoje dane zostały usunięte z naszych serwerów.
+pl	10043	Nie udało się usunąć danych z naszych serwerów.
+pl	10044	Nie udało się usunąć konta.
+pl	10045	Nie udało się usunąć danych.
+pl	10046	Nie możesz usunąć danych, gdy jesteś w pokoju wieloosobowym. Opuść pokój i spróbuj ponownie.
+pl	10047	Nie udało się utworzyć pokoju LOCAL, ponieważ nie można było nawiązać bezpiecznego połączenia.
+pl	10056	Licencje
+pl	10057	Zobacz
+pl	10058	Informacje o prawach autorskich i licencjach materiałów stron trzecich użytych w tej grze (zamieszczone w oryginalnym języku).
+pl	10059	UDANA UCIECZKA!
+ウクライナ語（uk）42件
+tsv
+uk	10010	Забіг не завершиться. Ви зможете скористатися CONTINUE з останньої контрольної точки ({0}m).
+uk	10011	MILE, EXP і картки, отримані після цієї контрольної точки, буде втрачено.
+uk	10012	Дані та конфіденційність
+uk	10013	Політика конфіденційності
+uk	10014	Відкрити у браузері
+uk	10015	Видалити дані
+uk	10016	Переглянути деталі
+uk	10017	Якщо сторінка не відкривається, відкрийте цю URL-адресу у браузері: {0}
+uk	10018	Копіювати URL
+uk	10019	Ви можете видалити дані, що зберігаються на наших серверах, зокрема ваші результати в рейтингах. Картки та прогрес на цьому пристрої не буде видалено.
+uk	10020	Що буде видалено (дані сервера)
+uk	10021	• Ваші результати в рейтингах (усі мапи) та відображуване кодове ім'я
+uk	10022	• Історія результатів, надісланих до рейтингу
+uk	10023	• Ваш анонімний ідентифікатор гравця для онлайн-функцій
+uk	10024	Що залишиться (дані пристрою)
+uk	10025	• Картки, MILE, розблоковані персонажі, прогрес, налаштування та кодове ім'я
+uk	10026	• Перепустка без реклами (керується обліковим записом магазину; після видалення даних залишається доступною через «Відновити покупки»)
+uk	10027	Ваш ідентифікатор гравця
+uk	10028	На цьому пристрої ще не використовувалися онлайн-функції (рейтинги / ONLINE PLAY).
+uk	10029	Не вдалося підключитися до онлайн-сервісу.
+uk	10030	Копіювати ID
+uk	10031	Скопійовано
+uk	10032	Якщо ви видалили застосунок або не можете видалити дані тут, надішліть листа на адресу {0}, указавши свій ідентифікатор гравця.
+uk	10033	Якщо після видалення даних ви знову братимете участь у рейтингах, ваші результати записуватимуться з новим ідентифікатором.
+uk	10034	Перевірте з'єднання та спробуйте ще раз або зв'яжіться з нами за електронною адресою вище.
+uk	10035	Видалення…
+uk	10036	Видалено
+uk	10037	Видалити
+uk	10038	Ви впевнені, що хочете видалити свої дані?
+uk	10039	Ваші результати в рейтингах, історію надісланих результатів і анонімний ідентифікатор гравця для онлайн-функцій буде видалено з наших серверів. Цю дію неможливо скасувати, а видалені дані — відновити.
+uk	10040	Ваші картки, MILE і прогрес на цьому пристрої, а також придбана перепустка без реклами не будуть видалені.
+uk	10041	Скасувати
+uk	10042	Ваші дані видалено з наших серверів.
+uk	10043	Не вдалося видалити дані з наших серверів.
+uk	10044	Не вдалося видалити обліковий запис.
+uk	10045	Не вдалося видалити дані.
+uk	10046	Не можна видалити дані, перебуваючи в багатокористувацькій кімнаті. Вийдіть із кімнати та спробуйте ще раз.
+uk	10047	Не вдалося створити кімнату LOCAL, оскільки не вдалося встановити захищене з'єднання.
+uk	10056	Ліцензії
+uk	10057	Переглянути
+uk	10058	Повідомлення про авторські права та ліцензії на сторонні матеріали, використані в цій грі (наведено мовою оригіналу).
+uk	10059	УСПІШНА ВТЕЧА!
+
+以上、3言語×42件＝126行です。
+
+次は予定どおり ru / tr / cs の3言語です。
+
+PDF に変換
+ChatGPT は間違えることがあります。重要な情報は確認してください。
+最新の応答
+
+
+
+
+Instant

@@ -128,7 +128,14 @@ def render(edl, lang, out, work, raw, caps, mode, ln):
                         f"scale={W}:{H}:flags=lanczos,")
             # vf: この場面だけの軽い調整(例: 暗い洞窟を少しだけ明るく "eq=gamma=1.08")
             grade = (c["vf"] + ",") if c.get("vf") else ""
-            filters.append(f"[{k}:v]{crop}{grade}format=yuv420p,setpts=PTS-STARTPTS,fps={FPS}[v{i}]")
+            if c.get("pillar"):
+                # pillar: 縦長の撮影(縦画面の表示)を中央に置き、左右は同じ映像をぼかして暗くした背景で埋める
+                filters.append(f"[{k}:v]{grade}split[p{i}a][p{i}b];"
+                               f"[p{i}b]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},boxblur=24:2,eq=brightness=-0.2[p{i}bg];"
+                               f"[p{i}a]scale=-2:{H}:flags=lanczos[p{i}fg];"
+                               f"[p{i}bg][p{i}fg]overlay=(W-w)/2:0,format=yuv420p,setpts=PTS-STARTPTS,fps={FPS}[v{i}]")
+            else:
+                filters.append(f"[{k}:v]{crop}{grade}format=yuv420p,setpts=PTS-STARTPTS,fps={FPS}[v{i}]")
         filters.append(f"[{k + 1}:a]aresample=48000,asetpts=PTS-STARTPTS,apad=whole_dur={c['dur']:.3f}[a{i}]")
         vlabels.append(f"[v{i}]")
         alabels.append(f"[a{i}]")

@@ -1,0 +1,156 @@
+次は ru / tr / cs をお願いします(同じ形、42件ずつ、コードブロック)。英語の最終版は見直しを反映して私の側で作ったので不要です。
+ChatGPT の発言:
+
+承知しました！今回は ロシア語（ru）・トルコ語（tr）・チェコ語（cs） の3言語、各42件・合計126行です。
+
+これまでと同じく、{0}、MILE、ONLINE PLAY、CONTINUE、LOCAL は維持しています。削除操作の不可逆性と、端末内のカード・MILE・進行・広告なしパスが消えないことも明確にしています。
+
+英語の最終版は省略します。
+
+ロシア語（ru）42件
+tsv
+ru	10010	Забег не завершится. Вы сможете использовать CONTINUE с последней контрольной точки ({0}m).
+ru	10011	MILE, EXP и карты, полученные после этой контрольной точки, будут потеряны.
+ru	10012	Данные и конфиденциальность
+ru	10013	Политика конфиденциальности
+ru	10014	Открыть в браузере
+ru	10015	Удалить данные
+ru	10016	Подробнее
+ru	10017	Если страница не открывается, откройте этот URL в браузере: {0}
+ru	10018	Копировать URL
+ru	10019	Вы можете удалить данные, хранящиеся на наших серверах, включая результаты в рейтингах. Карты и прогресс на этом устройстве не будут удалены.
+ru	10020	Что будет удалено (данные сервера)
+ru	10021	• Ваши результаты в рейтингах (все карты) и отображаемое кодовое имя
+ru	10022	• История результатов, отправленных в рейтинг
+ru	10023	• Ваш анонимный ID игрока для онлайн-функций
+ru	10024	Что останется (данные устройства)
+ru	10025	• Карты, MILE, разблокированные персонажи, прогресс, настройки и кодовое имя
+ru	10026	• Пропуск без рекламы (привязан к аккаунту магазина; после удаления данных остаётся доступен через «Восстановить покупки»)
+ru	10027	Ваш ID игрока
+ru	10028	На этом устройстве ещё не использовались онлайн-функции (рейтинги / ONLINE PLAY).
+ru	10029	Не удалось подключиться к онлайн-сервису.
+ru	10030	Копировать ID
+ru	10031	Скопировано
+ru	10032	Если вы удалили приложение или не можете удалить данные здесь, отправьте письмо на {0}, указав свой ID игрока.
+ru	10033	Если после удаления данных вы снова примете участие в рейтингах, ваши результаты будут записываться с новым ID.
+ru	10034	Проверьте подключение и попробуйте снова или свяжитесь с нами по адресу электронной почты выше.
+ru	10035	Удаление…
+ru	10036	Удалено
+ru	10037	Удалить
+ru	10038	Вы уверены, что хотите удалить свои данные?
+ru	10039	Ваши результаты в рейтингах, история отправленных результатов и анонимный ID игрока для онлайн-функций будут удалены с наших серверов. Это действие нельзя отменить, а удалённые данные — восстановить.
+ru	10040	Ваши карты, MILE и прогресс на этом устройстве, а также покупка пропуска без рекламы не будут удалены.
+ru	10041	Отмена
+ru	10042	Ваши данные удалены с наших серверов.
+ru	10043	Не удалось удалить данные с наших серверов.
+ru	10044	Не удалось удалить аккаунт.
+ru	10045	Не удалось удалить данные.
+ru	10046	Нельзя удалить данные, находясь в многопользовательской комнате. Выйдите из комнаты и попробуйте снова.
+ru	10047	Не удалось создать комнату LOCAL, поскольку не удалось установить защищённое соединение.
+ru	10056	Лицензии
+ru	10057	Просмотр
+ru	10058	Уведомления об авторских правах и лицензии на сторонние материалы, используемые в этой игре (приведены на языке оригинала).
+ru	10059	ПОБЕГ УДАЛСЯ!
+トルコ語（tr）42件
+tsv
+tr	10010	Koşu sona ermeyecek. Son kontrol noktasından ({0}m) CONTINUE ile devam edebilirsin.
+tr	10011	Bu kontrol noktasından sonra kazanılan MILE, EXP ve kartlar kaybedilecek.
+tr	10012	Veriler ve Gizlilik
+tr	10013	Gizlilik Politikası
+tr	10014	Tarayıcıda Aç
+tr	10015	Verileri Sil
+tr	10016	Ayrıntıları Gör
+tr	10017	Sayfa açılmazsa şu URL'yi tarayıcında aç: {0}
+tr	10018	URL'yi Kopyala
+tr	10019	Sıralama kayıtların gibi sunucularımızda saklanan verileri silebilirsin. Bu cihazdaki kartların ve ilerlemen silinmez.
+tr	10020	Silinecekler (sunucu verileri)
+tr	10021	• Sıralama kayıtların (tüm haritalar) ve görüntülenen kod adın
+tr	10022	• Sıralamaya gönderdiğin kayıtların geçmişi
+tr	10023	• Çevrimiçi özellikler için anonim oyuncu kimliğin
+tr	10024	Korunacaklar (cihaz verileri)
+tr	10025	• Kartlar, MILE, açılmış karakterler, ilerleme, ayarlar ve kod adı
+tr	10026	• Reklamsız geçiş (mağaza hesabın tarafından yönetilir; veriler silindikten sonra da "Satın Alımları Geri Yükle" ile kullanılabilir)
+tr	10027	Oyuncu Kimliğin
+tr	10028	Bu cihazda çevrimiçi özellikler (sıralamalar / ONLINE PLAY) henüz kullanılmadı.
+tr	10029	Çevrimiçi hizmete bağlanılamadı.
+tr	10030	ID'yi Kopyala
+tr	10031	Kopyalandı
+tr	10032	Uygulamayı kaldırdıysan veya verilerini buradan silemiyorsan oyuncu kimliğini belirterek {0} adresine e-posta gönder.
+tr	10033	Veriler silindikten sonra sıralamalara yeniden katılırsan kayıtların yeni bir kimlikle tutulur.
+tr	10034	Bağlantını kontrol edip tekrar dene veya yukarıdaki e-posta adresinden bizimle iletişime geç.
+tr	10035	Siliniyor…
+tr	10036	Silindi
+tr	10037	Sil
+tr	10038	Verilerini silmek istediğinden emin misin?
+tr	10039	Sıralama kayıtların, gönderdiğin kayıtların geçmişi ve çevrimiçi özellikler için anonim oyuncu kimliğin sunucularımızdan silinecek. Bu işlem geri alınamaz ve silinen veriler kurtarılamaz.
+tr	10040	Bu cihazdaki kartların, MILE ve ilerlemen ile reklamsız geçiş satın alımın silinmeyecek.
+tr	10041	İptal
+tr	10042	Verilerin sunucularımızdan silindi.
+tr	10043	Sunucularımızdaki veriler silinemedi.
+tr	10044	Hesap silinemedi.
+tr	10045	Veriler silinemedi.
+tr	10046	Çok oyunculu bir odadayken verilerini silemezsin. Odadan çıkıp tekrar dene.
+tr	10047	Güvenli bağlantı kurulamadığı için LOCAL odası oluşturulamadı.
+tr	10056	Lisanslar
+tr	10057	Görüntüle
+tr	10058	Bu oyunda kullanılan üçüncü taraf materyallerin telif hakkı bildirimleri ve lisansları (özgün dillerinde sunulmuştur).
+tr	10059	KAÇIŞ BAŞARILI!
+チェコ語（cs）42件
+tsv
+cs	10010	Běh neskončí. Pomocí CONTINUE můžeš pokračovat od posledního kontrolního bodu ({0}m).
+cs	10011	MILE, EXP a karty získané po tomto kontrolním bodu budou ztraceny.
+cs	10012	Data a soukromí
+cs	10013	Zásady ochrany osobních údajů
+cs	10014	Otevřít v prohlížeči
+cs	10015	Smazat data
+cs	10016	Zobrazit podrobnosti
+cs	10017	Pokud se stránka neotevře, otevři tuto URL v prohlížeči: {0}
+cs	10018	Kopírovat URL
+cs	10019	Můžeš smazat data uložená na našich serverech, například své záznamy v žebříčcích. Karty a postup na tomto zařízení nebudou smazány.
+cs	10020	Co bude smazáno (data serveru)
+cs	10021	• Tvé záznamy v žebříčcích (všechny mapy) a zobrazené krycí jméno
+cs	10022	• Historie výsledků odeslaných do žebříčku
+cs	10023	• Tvé anonymní ID hráče pro online funkce
+cs	10024	Co zůstane zachováno (data zařízení)
+cs	10025	• Karty, MILE, odemčené postavy, postup, nastavení a krycí jméno
+cs	10026	• Průkaz bez reklam (spravovaný účtem obchodu; i po smazání dat zůstane dostupný přes „Obnovit nákupy“)
+cs	10027	Tvé ID hráče
+cs	10028	Na tomto zařízení zatím nebyly použity online funkce (žebříčky / ONLINE PLAY).
+cs	10029	Nepodařilo se připojit k online službě.
+cs	10030	Kopírovat ID
+cs	10031	Zkopírováno
+cs	10032	Pokud jsi aplikaci odinstaloval(a) nebo zde nemůžeš smazat svá data, pošli e-mail na {0} a uveď své ID hráče.
+cs	10033	Pokud se po smazání dat znovu zapojíš do žebříčků, tvé výsledky se budou ukládat pod novým ID.
+cs	10034	Zkontroluj připojení a zkus to znovu, nebo nás kontaktuj na výše uvedené e-mailové adrese.
+cs	10035	Mazání…
+cs	10036	Smazáno
+cs	10037	Smazat
+cs	10038	Opravdu chceš smazat svá data?
+cs	10039	Tvé záznamy v žebříčcích, historie odeslaných výsledků a anonymní ID hráče pro online funkce budou smazány z našich serverů. Tuto akci nelze vrátit zpět a smazaná data nelze obnovit.
+cs	10040	Tvé karty, MILE a postup na tomto zařízení ani nákup průkazu bez reklam nebudou smazány.
+cs	10041	Zrušit
+cs	10042	Tvá data byla smazána z našich serverů.
+cs	10043	Nepodařilo se smazat data z našich serverů.
+cs	10044	Nepodařilo se smazat účet.
+cs	10045	Nepodařilo se smazat data.
+cs	10046	Dokud jsi v místnosti pro více hráčů, nemůžeš smazat svá data. Opusť místnost a zkus to znovu.
+cs	10047	Nepodařilo se vytvořit místnost LOCAL, protože nebylo možné navázat zabezpečené připojení.
+cs	10056	Licence
+cs	10057	Zobrazit
+cs	10058	Upozornění na autorská práva a licence k materiálům třetích stran použitým v této hře (uvedeno v původním jazyce).
+cs	10059	ÚSPĚŠNÝ ÚNIK!
+
+以上、ru / tr / cs の126行です。
+
+10059はそれぞれ「脱出成功」を意味する短い表現にし、RESULT画面の大きな1行見出しに収まることを優先しました。実際のフォントによる表示幅は、公開ビルドで最終確認してください。
+
+次は ro / id / ms の3言語へ進められます。
+
+PDF に変換
+ChatGPT は間違えることがあります。重要な情報は確認してください。
+最新の応答
+
+
+
+
+Instant

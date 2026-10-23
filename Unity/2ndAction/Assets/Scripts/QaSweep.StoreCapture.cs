@@ -76,6 +76,11 @@ public partial class QaSweep
                 "boss_cave" => ScBossShot(s, "dual_blade", "natural_cave", 1, (int)CaveBossKind.CrystalGolem, 16150f),
                 "boss_sky" => ScBossShot(s, "archer", "sky_corridor", 2, (int)SkyBossKind.Behemoth, 16150f, false), // 天空は足場が細く、脱出の溜め(補助のジャンプが止まる)で落ちる
                 "start" => ScStartShot(s, "swordsman"),
+                "set_auto" => ScSetAutoShot(s),
+                "set_volume" => ScSetVolumeShot(s),
+                "set_display" => ScSetDisplayShot(s),
+                "set_portrait" => ScSetPortraitShot(s),
+                "result" => ScBossShot(s, "swordsman", "wasteland_road", 0, (int)WildBossKind.Cyclops, 12150f, true, 25f), // 2026-10-23: 脱出 → RESULT(脱出成功！)の撮り直し用
                 _ => null,
             };
             if (body == null) { L($"[capture] unknown shot {s}"); continue; }
@@ -355,12 +360,14 @@ public partial class QaSweep
 
     // ボス戦: 関門と同じ出し方(BossManager の関門の生成)。撃破 → 報酬 → 脱出の説明 → 長押しで脱出 → RESULT
     // 関門は 1km ごと。次の関門の前に脱出まで終えるよう、関門の直後から始める
-    IEnumerator ScBossShot(string name, string ch, string stage, int family, int kind, float distance, bool escape = true)
+    IEnumerator ScBossShot(string name, string ch, string stage, int family, int kind, float distance, bool escape = true, float killAfter = 0f)
     {
         yield return ScBegin(ch, stage, distance, 10);
         yield return new WaitForSeconds(1.5f);
         var bm = FindFirstObjectByType<BossManager>();
         if (bm == null) { L("[capture] no BossManager"); yield return ScEnd(); yield break; }
+        // 脱出と RESULT だけを撮る時は、戦いの間も平らな所(穴に落ちて失敗にならない)。先の地形は作り済みなので、平らな区間に入ってから呼ぶ
+        if (killAfter > 0f) yield return ScWaitReach(ScFlatStage(160f, 1300f));
         bm.DebugSpawnBossForTest(family, kind);
         yield return null;
         autoPickHold = true;
@@ -373,7 +380,10 @@ public partial class QaSweep
             yield return ScWait(0.5f); t += 0.5f;
             if (t >= 2f && stills < 12 && Mathf.Repeat(t, 2f) < 0.25f) { ScStill($"t{t:00}"); stills++; }
             bool alive = GameObject.FindGameObjectsWithTag("Boss").Any(o => o.activeInHierarchy);
-            if (!alive || gm.IsRewardSequenceWaitingForSelection) break;
+            if (!alive || gm.IsRewardSequenceWaitingForSelection || gm.IsGameOver) break;
+            // killAfter: 脱出と RESULT だけを撮る時、戦いが長引いたら撃破の演出つきで倒す(戦いの場面には使わない)
+            if (killAfter > 0f && t >= killAfter && Mathf.Repeat(t, 2f) < 0.25f)
+                foreach (var bb in FindObjectsByType<WildBossBase>(FindObjectsSortMode.None)) if (bb != null && !bb.IsDead && bb.isActiveAndEnabled && !bb.IsEntering) bb.DebugKillWithAttack(BossFinalAttack.Forward);
         }
         L($"[capture] {name}: boss fight {t:F1}s, boss alive={GameObject.FindGameObjectsWithTag("Boss").Any(o => o.activeInHierarchy)} at {gm.MaxDistance:F0}m");
         // 撃破の演出 → 報酬の選択
