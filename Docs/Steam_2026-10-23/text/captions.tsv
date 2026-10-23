@@ -2,7 +2,7 @@ id	ja	en	note
 cap_run	走り続けろ。	Keep running.	0-5s 疾走
 cap_flick	前・後ろ・上・下、4方向に攻撃	Strike in four directions	通常戦闘
 cap_air	打ち上げて、空中で決めろ	Launch them. Finish them in the air.	エリアルコンボ
-cap_cards	3枚から1枚。走りながら強くなる	Pick 1 of 3. Power up as you run.	カード選択
+cap_cards	3枚から1枚。走りながら強くなる	Choose 1 of 3. Power up as you run.	カード選択
 cap_chars	戦い方の違う仲間たち	Heroes with their own fighting styles	別キャラ
 cap_maps	荒野、洞窟、天空	Wasteland. Caverns. Sky.	マップ
 cap_boss	巨大なボスに挑め	Take on colossal bosses	ボス戦

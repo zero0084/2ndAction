@@ -3,10 +3,90 @@
  "images_dir": "../screenshots/{lang}",
  "width": 1232,
  "items": [
-  {"name": "omm_about_01_run", "title": "about_run_title", "body": "about_run_body", "images": ["omm_ss_01_wasteland_speed.png"]},
-  {"name": "omm_about_02_aerial", "title": "about_air_title", "body": "about_air_body", "images": ["omm_ss_03_boss_break.png", "omm_ss_02_aerial_combo.png", "_extra/boss_juggle_slam.png"], "crop": [240, 180, 1200, 675]},
-  {"name": "omm_about_03_cards", "title": "about_cards_title", "body": "about_cards_body", "images": ["omm_ss_04_card_choice.png", "_extra/card_picked.png"], "crop": [360, 260, 1200, 675]},
-  {"name": "omm_about_04_boss_escape", "title": "about_boss_title", "body": "about_boss_body", "images": ["omm_ss_06_sky_boss.png", "omm_ss_alt_escape_guide.png", "omm_ss_09_escape_decision.png"], "crop": [240, 180, 1440, 810]},
-  {"name": "omm_about_05_world", "title": "about_world_title", "body": "about_world_body", "images": ["omm_ss_07_gunslinger.png", "omm_ss_05_cave.png", "omm_ss_06_sky_boss.png"]}
+  {
+   "name": "omm_about_01_run",
+   "title": "about_run_title",
+   "body": "about_run_body",
+   "images": [
+    "omm_ss_01_wasteland_speed.png"
+   ]
+  },
+  {
+   "name": "omm_about_02_aerial",
+   "title": "about_air_title",
+   "body": "about_air_body",
+   "images": [
+    "omm_ss_03_boss_break.png",
+    "omm_ss_02_aerial_combo.png",
+    "_extra/boss_juggle_slam.png"
+   ],
+   "crop": [
+    240,
+    180,
+    1200,
+    675
+   ]
+  },
+  {
+   "name": "omm_about_03_cards",
+   "title": "about_cards_title",
+   "body": "about_cards_body",
+   "images": [
+    "omm_ss_04_card_choice.png",
+    "_extra/card_picked.png"
+   ],
+   "crop": [
+    360,
+    260,
+    1200,
+    675
+   ]
+  },
+  {
+   "name": "omm_about_04_boss_escape",
+   "title": "about_boss_title",
+   "body": "about_boss_body",
+   "images": [
+    "omm_ss_05_sky_boss.png",
+    "omm_ss_alt_escape_guide.png",
+    "omm_ss_09_escape_decision.png"
+   ],
+   "crop": [
+    240,
+    180,
+    1440,
+    810
+   ],
+   "crops": [
+    null,
+    [
+     560,
+     300,
+     800,
+     450
+    ],
+    null
+   ],
+   "crops_en": [
+    null,
+    [
+     230,
+     0,
+     1200,
+     675
+    ],
+    null
+   ]
+  },
+  {
+   "name": "omm_about_05_world",
+   "title": "about_world_title",
+   "body": "about_world_body",
+   "images": [
+    "omm_ss_06_gunslinger.png",
+    "omm_ss_08_cave.png",
+    "omm_ss_05_sky_boss.png"
+   ]
+  }
  ]
 }

@@ -101,9 +101,11 @@ public partial class GameManager
         UiBackdrop.Draw(r, 0.85f);
         const float pad = 10f, icon = 16f;
         DrawMileMedal(new Rect(r.x + pad, r.y + 5f, icon, icon));
+        // 2026-10-23: 「持ち帰り予定」は訳の表に無く、英語などでも日本語のままだった → 日本語以外はレビュー済みの「持ち帰り予定MILE」(Take-home MILE)の訳へつなぐ
+        string labelKey = Loc.IsJapanese ? "持ち帰り予定" : "持ち帰り予定MILE";
         var labelStyle = FitStyle(new GUIStyle(GUI.skin.label) { fontSize = HudLabelFontSize, alignment = TextAnchor.MiddleLeft, normal = { textColor = HudLabelColor } },
-            "持ち帰り予定", r.width - pad * 2f - icon - 4f);
-        LocGUI.Label(new Rect(r.x + pad + icon + 4f, r.y + 3f, r.width - pad * 2f - icon - 4f, 20f), "持ち帰り予定", labelStyle);
+            labelKey, r.width - pad * 2f - icon - 4f);
+        LocGUI.Label(new Rect(r.x + pad + icon + 4f, r.y + 3f, r.width - pad * 2f - icon - 4f, 20f), labelKey, labelStyle);
         string value = FormatMile(TakeHomeMile) + " MILE";
         var valueStyle = FitStyle(new GUIStyle(GUI.skin.label) { fontSize = 18, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleRight, normal = { textColor = HudGoldColor } },
             value, r.width - pad * 2f);

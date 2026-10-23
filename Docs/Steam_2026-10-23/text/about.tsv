@@ -1,11 +1,11 @@
 id	ja	en	note
-about_run_title	走るのは自動。攻撃は4方向	You run. You strike in 4 directions.	自動前進+4方向攻撃
+about_run_title	走るのは自動。攻撃は4方向	Auto-run. Attack in four directions.	自動前進+4方向攻撃
 about_run_body	キャラクターは止まらずに走り続ける。前・後ろ・上・下の4方向への攻撃で、敵を斬り、打ち上げ、叩き落とす。	Your hero never stops running. Attack forward, back, up, or down to slash, launch, and slam your enemies.	
 about_air_title	打ち上げて、空中コンボ	Launch them into an air combo	エリアルコンボ
 about_air_body	上への攻撃で敵を打ち上げ、空中で追撃。下への攻撃で地面へ叩きつけて締める。	Attack upward to launch, chase them through the air, then attack downward to slam them into the ground.	
-about_cards_title	3枚から1枚。走りながら強くなる	Pick 1 of 3. Power up as you run.	カード強化
+about_cards_title	3枚から1枚。走りながら強くなる	Choose 1 of 3. Power up as you run.	カード強化
 about_cards_body	レベルが上がるたびに3枚のカードから1枚を選ぶ。炎・雷・氷、攻撃の速さ、HP——ランの中で組み合わせを作っていく。	Each level-up offers three cards. Fire, lightning, ice, attack speed, more hearts — build a new combination every run.	
-about_boss_title	ボスを倒したら、持ち帰るか、もう1マイルか	Beat the boss. Cash out — or one more mile?	ボス撃破+脱出の判断
+about_boss_title	ボスを倒したら、持ち帰るか、もう1マイルか	Beat the boss. Cash out — or run one more mile?	ボス撃破+脱出の判断
 about_boss_body	巨大なボスを倒すと脱出できるようになる。脱出すれば稼いだMILEを持ち帰れる。走り続ければもっと稼げるが、倒れたらそのランのMILEは失う。	Defeat a giant boss and you can escape, taking your MILE home. Keep running to earn more — but fall, and that run's MILE is lost.	
 about_world_title	荒野、洞窟、天空。戦い方の違う仲間たち	Wasteland, caverns, and sky — with heroes who fight their own way	マップ/キャラ
 about_world_body	剣、二刀、銃、魔法、忍術……キャラクターごとに攻撃の形が変わる。荒野の景色は、走った距離とともに昼から夜へ移り変わる。	Sword, twin blades, guns, magic, ninjutsu — each hero attacks differently. Out in the wasteland, day turns to night the farther you run.	

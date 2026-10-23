@@ -1,0 +1,160 @@
+{
+ "raw": "C:/Users/0084k/AppData/Local/Temp/claude/C--GameProject-1stRPG/972e48a6-cec8-40d5-8275-62f59fbcb3de/scratchpad",
+ "captions": "C:/GameProject/2ndAction/Docs/Steam_2026-10-23/text/captions.tsv",
+ "logo": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Art/UI/TitleLogoV2.png",
+ "end": 4.5,
+ "se_gain": 1.0,
+ "bgm": [
+  {
+   "file": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Audio/Placeholder/Bgm/bgm_wasteland_middle_n.wav",
+   "loop": true,
+   "at": 0,
+   "from": 0,
+   "dur": 41.4,
+   "gain": 0.33,
+   "fade_in": 0.2,
+   "fade_out": 1.2
+  },
+  {
+   "file": "C:/GameProject/2ndAction/Unity/2ndAction/Assets/Audio/Placeholder/Bgm/bgm_boss_strong_n.wav",
+   "loop": true,
+   "at": 40.6,
+   "from": 0,
+   "dur": 29.7,
+   "gain": 0.36,
+   "fade_in": 0.3,
+   "fade_out": 3.5
+  }
+ ],
+ "cuts": [
+  {
+   "shot": "cap_a2/raw/run_day",
+   "in": 6.0,
+   "dur": 2.5,
+   "caption": "cap_run"
+  },
+  {
+   "shot": "cap_a1/raw/run_wasteland",
+   "in": 4.0,
+   "dur": 2.5,
+   "caption": "cap_run"
+  },
+  {
+   "shot": "cap_a2/raw/dual",
+   "in": 10.4,
+   "dur": 1.6,
+   "caption": "cap_flick"
+  },
+  {
+   "shot": "cap_a1/raw/gunslinger",
+   "in": 8.0,
+   "dur": 3.0,
+   "caption": "cap_flick"
+  },
+  {
+   "shot": "cap_a3/raw/aerial",
+   "in": 0.5,
+   "dur": 2.0,
+   "caption": "cap_air"
+  },
+  {
+   "shot": "cap_a2/raw/boss_fight",
+   "in": 11.6,
+   "dur": 4.5,
+   "caption": "cap_air"
+  },
+  {
+   "shot": "cap_a3/raw/cards",
+   "in": 1.4,
+   "dur": 5.2,
+   "caption": "cap_cards",
+   "cap_pos": "top"
+  },
+  {
+   "shot": "cap_a1/raw/cave",
+   "in": 4.5,
+   "dur": 3.0,
+   "caption": "cap_chars"
+  },
+  {
+   "shot": "cap_a1/raw/sky",
+   "in": 5.0,
+   "dur": 3.0,
+   "caption": "cap_chars"
+  },
+  {
+   "shot": "cap_a2/raw/run_day",
+   "in": 2.0,
+   "dur": 3.0,
+   "caption": "cap_maps"
+  },
+  {
+   "shot": "cap_a1/raw/run_wasteland",
+   "in": 7.0,
+   "dur": 2.5,
+   "caption": "cap_maps"
+  },
+  {
+   "shot": "cap_a1/raw/gunslinger",
+   "in": 4.0,
+   "dur": 2.5,
+   "caption": "cap_maps"
+  },
+  {
+   "shot": "cap_a1/raw/cave",
+   "in": 0.0,
+   "dur": 2.5,
+   "caption": "cap_maps"
+  },
+  {
+   "shot": "cap_a2/raw/boss_sky_fight",
+   "in": 0.5,
+   "dur": 3.0,
+   "caption": "cap_maps"
+  },
+  {
+   "shot": "cap_a2/raw/boss_fight",
+   "in": 3.5,
+   "dur": 3.5,
+   "caption": "cap_boss"
+  },
+  {
+   "shot": "cap_a2/raw/boss_sky_fight",
+   "in": 5.5,
+   "dur": 4.0,
+   "caption": "cap_boss"
+  },
+  {
+   "shot": "cap_a2/raw/boss_cave_fight",
+   "in": 62.8,
+   "dur": 6.0,
+   "caption": "cap_boss"
+  },
+  {
+   "shot": "cap_a2/raw/boss_fight",
+   "in": 16.0,
+   "dur": 3.0,
+   "caption": "cap_boss"
+  },
+  {
+   "shot": "cap_a1/raw/boss_fight",
+   "in": 82.0,
+   "dur": 2.3,
+   "caption": null
+  },
+  {
+   "shot": "cap_a2/raw/boss_escape",
+   "in": 1.5,
+   "dur": 4.0,
+   "caption": "cap_escape"
+  },
+  {
+   "shot": "cap_a2/raw/boss_escape",
+   "in": 7.0,
+   "dur": 2.2,
+   "caption": "cap_escape"
+  }
+ ],
+ "cap_max": 4.5,
+ "loudness": -14
+}

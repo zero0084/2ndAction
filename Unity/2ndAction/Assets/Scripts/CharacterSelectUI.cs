@@ -158,7 +158,7 @@ public class CharacterSelectUI : MonoBehaviour
         if (charCardsText == null || gm == null || def == null) return;
         var slots = gm.GetCharacterCardsOf(def.characterId);
         // 2026-10-22: 「(空き) / (空き) / (空き)」の文字だけだった → 見出しの下に小さなカード枠を3つ(装備中はカードの絵、空きは「+」)
-        charCardsText.text = "<color=#FFD866><b>" + Loc.T("キャラカード") + "</b></color>";
+        charCardsText.text = Loc.T("<color=#FFD866><b>キャラカード</b></color>"); // 2026-10-23: 訳の表にあるのはこの形(「キャラカード」だけでは訳が無く日本語のままだった)
         EnsureCharCardSlots(slots.ids.Length);
         for (int i = 0; i < charSlotViews.Length; i++)
         {

@@ -46,12 +46,17 @@ def wrap(d, text, f, width, lang):
     return lines
 
 
-def picture(item, W, base):
+def picture(item, W, base, lang="ja"):
     paths = [os.path.join(base, p) for p in item["images"]]
     ims = [Image.open(p).convert("RGB") for p in paths]
     if "crop" in item:
         x, y, w, h = item["crop"]
         ims = [im.crop((x, y, x + w, y + h)) for im in ims]
+    # crops: 画像ごとの切り抜き(実際の画面の一部を大きく見せるだけ。合成はしない)。null はその画像だけ切り抜かない
+    for i, c in enumerate(item.get("crops_" + lang, item.get("crops", []))):  # 言語ごとに画面の配置が違う時は crops_en など
+        if c:
+            x, y, w, h = c
+            ims[i] = Image.open(paths[i]).convert("RGB").crop((x, y, x + w, y + h))
     gap = 8
     n = len(ims)
     cw = (W - gap * (n - 1)) // n
@@ -61,26 +66,27 @@ def picture(item, W, base):
         out.paste(im.resize((cw, ch), Image.LANCZOS), (i * (cw + gap), 0))
         if n > 1 and item.get("step_numbers", True):
             d = ImageDraw.Draw(out)
-            r = 26
-            cx, cy = i * (cw + gap) + 18 + r, 18 + r
+            r = 21  # 2026-10-23 エステル: HUD を隠す面積を減らす(26 → 21、約 80%)
+            cx, cy = i * (cw + gap) + 12 + r, ch - 12 - r  # 左下(HUD は上にある)
             d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=NAVY, outline=GOLD, width=3)
-            f = font(30)
+            f = font(28)
             s = str(i + 1)
-            d.text((cx - d.textlength(s, font=f) / 2, cy - 20), s, font=f, fill=GOLD)
+            d.text((cx - d.textlength(s, font=f) / 2, cy - 19), s, font=f, fill=GOLD)
     return out
 
 
 def compose(item, rows, lang, W, base):
-    pic = picture(item, W, base)
+    pic = picture(item, W, base, lang)
     title = rows[item["title"]][lang]
     body = rows[item["body"]][lang]
     probe = ImageDraw.Draw(Image.new("RGB", (10, 10)))
-    tf, bf = font(46 if lang == "ja" else 44), font(28 if lang == "ja" else 27, "Regular")
+    # 2026-10-23 エステル: 本文は 616px 表示で 14px 以上 → 原稿 30px(太さも少し上げる)
+    tf, bf = font(48 if lang == "ja" else 46), font(31 if lang == "ja" else 30, "Medium")
     pad = 40
     tl = wrap(probe, title, tf, W - pad * 2, lang)
     bl = wrap(probe, body, bf, W - pad * 2, lang)
-    th = len(tl) * 62
-    bh = len(bl) * (46 if lang == "ja" else 42)
+    th = len(tl) * 64
+    bh = len(bl) * (50 if lang == "ja" else 45)
     H = pic.height + pad + 14 + th + 18 + bh + pad
     img = Image.new("RGB", (W, H), NAVY)
     img.paste(pic, (0, 0))
@@ -91,11 +97,11 @@ def compose(item, rows, lang, W, base):
     y += 14
     for line in tl:
         d.text((pad, y), line, font=tf, fill=GOLD)
-        y += 62
+        y += 64
     y += 18
     for line in bl:
         d.text((pad, y), line, font=bf, fill=TEXT)
-        y += 46 if lang == "ja" else 42
+        y += 50 if lang == "ja" else 45
     return img
 
 

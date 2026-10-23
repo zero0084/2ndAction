@@ -28,21 +28,32 @@ def font(size, weight="Bold"):
     return f
 
 
-def caption_png(text, path):
+def caption_png(text, path, pos="bottom"):
     # 画面の下 1/4 の左寄り。暗い帯 + 白文字(縁取り)。HUD(上の帯/右下の一時停止)と重ならない位置
+    # pos="top": 画面の下にゲームの板がある場面(カードの選択など)。上の HUD の下・中央に、暗い板を敷いて出す
     img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    if pos == "top":
+        f = font(70)
+        d = ImageDraw.Draw(img)
+        tw = d.textlength(text, font=f)
+        x, y = (W - tw) / 2, 150
+        d.rounded_rectangle([x - 36, y - 30, x + tw + 36, y + 100], radius=14, fill=(5, 8, 20, 170))
+        d.text((x, y), text, font=f, fill=(255, 255, 255, 255), stroke_width=5, stroke_fill=(10, 12, 24, 255))
+        d.rectangle([x, y - 24, x + 140, y - 17], fill=(232, 196, 102, 255))
+        img.save(path)
+        return
     band = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(band)
-    for i in range(220):  # 下から上へ薄くなる帯
-        a = int(150 * (1 - i / 220) ** 1.6)
+    for i in range(260):  # 下から上へ薄くなる帯
+        a = int(160 * (1 - i / 260) ** 1.6)
         d.line([(0, H - 1 - i), (W, H - 1 - i)], fill=(5, 8, 20, a))
     img.alpha_composite(band)
-    f = font(64)
+    f = font(80)  # 2026-10-23 エステル: Steam の小さい再生画面(600px 前後)でも読める大きさに(64 → 80)
     d = ImageDraw.Draw(img)
-    x, y = 96, H - 168
-    d.text((x, y), text, font=f, fill=(255, 255, 255, 255), stroke_width=4, stroke_fill=(10, 12, 24, 255))
+    x, y = 96, H - 196
+    d.text((x, y), text, font=f, fill=(255, 255, 255, 255), stroke_width=5, stroke_fill=(10, 12, 24, 255))
     # 金の短い線(ゲームの UI の金色)
-    d.rectangle([x, y - 22, x + 120, y - 16], fill=(232, 196, 102, 255))
+    d.rectangle([x, y - 24, x + 140, y - 17], fill=(232, 196, 102, 255))
     img.save(path)
 
 
@@ -108,14 +119,14 @@ def render(edl, lang, out, work, raw, caps, mode, ln):
         cid = c.get("caption")  # 無し: この場面は字幕を出さない(画面の説明の板と重なる時など)
         if cid:
             if cap_spans and cap_spans[-1][0] == cid and abs(cap_spans[-1][2] - t) < 1e-3:
-                cap_spans[-1] = (cid, cap_spans[-1][1], t + c["dur"])
+                cap_spans[-1] = (cid, cap_spans[-1][1], t + c["dur"], cap_spans[-1][3])
             else:
-                cap_spans.append((cid, t, t + c["dur"]))
+                cap_spans.append((cid, t, t + c["dur"], c.get("cap_pos", "bottom")))
         t += c["dur"]
     # 字幕は長い区間でも cap_max 秒まで(読み終えたら消す)
     cap_max = edl.get("cap_max")
     if cap_max:
-        cap_spans = [(cid, a, min(b, a + cap_max)) for cid, a, b in cap_spans]
+        cap_spans = [(cid, a, min(b, a + cap_max), ps) for cid, a, b, ps in cap_spans]
     n = len(edl["cuts"])
     base = n * 2  # 入力の番号: 切り出し(映像/音)の後
     # エンドカード
@@ -135,9 +146,9 @@ def render(edl, lang, out, work, raw, caps, mode, ln):
     idx = base + 1
     # 字幕
     vcur = "[vcat]"
-    for j, (cid, a, b) in enumerate(cap_spans):
+    for j, (cid, a, b, ps) in enumerate(cap_spans):
         p = os.path.join(work, f"cap_{j}.png")
-        caption_png(caps[cid][lang], p)
+        caption_png(caps[cid][lang], p, ps)
         inputs += ["-loop", "1", "-t", f"{total:.3f}", "-framerate", str(FPS), "-i", p]
         fi, fo = 0.25, 0.3
         if video:
@@ -174,7 +185,7 @@ def render(edl, lang, out, work, raw, caps, mode, ln):
                "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", out]
     else:
         cmd = [FF, "-y", "-loglevel", "error"] + inputs + ["-/filter_complex", fcp, "-map", "[aout]", "-c:a", "pcm_s16le", "-ar", "48000", out]
-    print(f"[{mode}] total {total:.2f}s, {n} cuts, {len(cap_spans)} captions: " + ", ".join(f"{cid} {a:.1f}-{b:.1f}" for cid, a, b in cap_spans))
+    print(f"[{mode}] total {total:.2f}s, {n} cuts, {len(cap_spans)} captions: " + ", ".join(f"{cid} {a:.1f}-{b:.1f}" for cid, a, b, _ in cap_spans))
     r = subprocess.run(cmd)
     if r.returncode != 0:
         sys.exit(f"ffmpeg failed ({r.returncode})")
