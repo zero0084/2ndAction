@@ -140,6 +140,8 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaTransfer") { mode = "transfer"; dir = a[i + 1]; }
             if (a[i] == "-qaPersist") { mode = "persist"; dir = a[i + 1]; }
             if (a[i] == "-qaCredits") { mode = "credits"; dir = a[i + 1]; }
+            if (a[i] == "-qaTouchProbe") { mode = "touchprobe"; dir = a[i + 1]; } // 2026-10-23 本物の指の結果の記録(Android の adb)
+            if (a[i] == "-qaTouchFlick") { mode = "touchflick"; dir = a[i + 1]; } // 2026-10-23 フリックの復旧(指の経路で確認)
             if (a[i] == "-qaLicenses") { mode = "licenses"; dir = a[i + 1]; } // 2026-10-23 ライセンスの画面
             if (a[i] == "-storeCapture") { mode = "storecapture"; dir = a[i + 1]; } // 2026-10-23 Steam のストア素材の撮影
         }
@@ -303,6 +305,8 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "credits") yield return CreditsMode();
         else if (mode == "storecapture") yield return StoreCaptureMode();
         else if (mode == "licenses") yield return LicensesModeQa();
+        else if (mode == "touchflick") yield return TouchFlickMode();
+        else if (mode == "touchprobe") yield return TouchProbeMode();
         else yield return FullRunMode();
         L("");
         foreach (var e in exceptions) L("[EXC] " + e);

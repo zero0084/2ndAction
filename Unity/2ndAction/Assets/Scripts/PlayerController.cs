@@ -1217,6 +1217,8 @@ public partial class PlayerController : MonoBehaviour
     public static string LastTapReject = "";         // 確認用: 最後にタップにしなかった理由
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public static bool DebugTapNow;                  // 確認用: 次のフレームを「タップした」として扱う
+    // 確認用(2026-10-23): 画面の指の代わり。active の間は Input の代わりにこれを読む(位置は画面のピクセル、down = 触れている)
+    public static class DebugPointer { public static bool active, down, prevDown; public static Vector2 pos; }
 #endif
     // 踏み込み(前への lunge)だけを消した実際の移動量。後退(-)や他の動きはそのまま
     float EffectiveLungeX => (lungeVelocityX > 0f && TapStepSuppressed) ? 0f : lungeVelocityX;
@@ -1229,6 +1231,18 @@ public partial class PlayerController : MonoBehaviour
         Vector2 pointerPos;
         bool pointerJustDown, pointerJustUp, pointerDown;
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (DebugPointer.active)
+        {
+            // 確認用: 本物の指と同じ経路(開始 → 移動 → 離す)を通す。技を直接呼ばない
+            pointerPos = DebugPointer.pos;
+            pointerJustDown = DebugPointer.down && !DebugPointer.prevDown;
+            pointerJustUp = !DebugPointer.down && DebugPointer.prevDown;
+            pointerDown = DebugPointer.down;
+            DebugPointer.prevDown = DebugPointer.down;
+        }
+        else
+#endif
         if (Input.touchCount > 0)
         {
             Touch t = Input.GetTouch(0);
@@ -1266,7 +1280,6 @@ public partial class PlayerController : MonoBehaviour
             tapValid = !GameManager.PointerOnRunHudButton(pointerPos);
             if (!tapValid) LastTapReject = "hud button";
         }
-        if (pointerDown && touchActive && tapValid) tapMaxDist = Mathf.Max(tapMaxDist, (pointerPos - tapOrigin).magnitude);
         // Bugfix 2026-09-08 - 「下攻撃を使用したあと、上攻撃ができなくなる」
         // の実装調査で発見した実際の原因の1つ: 指を離さず連続でスワイプ
         // する操作(下攻撃→着地→そのまま同じ指で上へ振り返す、という自然
@@ -1301,6 +1314,10 @@ public partial class PlayerController : MonoBehaviour
                 tapFlickFired = true; // フリックとして出た指からはタップを出さない
             }
         }
+        // タップ攻撃: 置いた所から動いた最大の距離。2026-10-23 実機の不具合の修正: この行を上の if (pointerJustDown) と
+        // else if(フリックの判定)の間に入れていたため、else if が この行の if に付いてしまい、通常の操作領域(tapValid)では
+        // フリックの判定が一度も通らなかった(上下左右のフリック攻撃とジャンプが出ない)。判定の連なりの外で数える
+        if (pointerDown && touchActive && tapValid) tapMaxDist = Mathf.Max(tapMaxDist, (pointerPos - tapOrigin).magnitude);
         if (flickCooldownTimer > 0f) flickCooldownTimer -= Time.unscaledDeltaTime;
 
         if (pointerDown) lastPointerPos = pointerPos;
