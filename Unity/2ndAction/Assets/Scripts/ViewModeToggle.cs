@@ -51,7 +51,9 @@ public class ViewModeToggle : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(toggleKey)) Toggle();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (Input.GetKeyDown(toggleKey)) Toggle(); // 2026-10-25: 確認用のキー。製品版では効かない(V が割り当てのキーと重ならない)
+#endif
     }
 
     void ApplyCameras()

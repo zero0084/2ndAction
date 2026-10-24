@@ -130,6 +130,14 @@ public class FirstRunGuide : MonoBehaviour
     // ---------------------------------------------------------------- 表示
     static string HoldIn()
     {
+        // 2026-10-25: PC はキー設定の今の割り当て(マウスは左ボタンの長押しでも脱出できる)
+        if (InputBindings.Rebindable)
+        {
+            var dev = GameInput.LastDevice;
+            if (dev == InputDeviceKind.Mouse) return Loc.T("マウスの左ボタンを3秒長押し");
+            string h = dev == InputDeviceKind.Keyboard || dev == InputDeviceKind.Gamepad ? InputBindings.HintFor(GameAction.Hold, dev) : null;
+            if (h != null) return Loc.Shape(Loc.Plain("{0}を3秒長押し").Replace("{0}", h));
+        }
         switch (GameInput.LastDevice)
         {
             case InputDeviceKind.Keyboard: return "H キー(またはマウスのボタン)を3秒長押し";

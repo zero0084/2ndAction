@@ -1,0 +1,63 @@
+10072	Attaque haute
+10073	Attaque avant
+10074	Attaque arrière
+10075	Fuite (maintenir)
+10076	Pause
+10077	Monter
+10078	Descendre
+10079	Gauche
+10080	Droite
+10081	Onglet précédent
+10082	Onglet suivant
+10083	Molette haut
+10084	Molette bas
+10085	Clic gauche
+10086	Clic droit
+10087	Clic milieu
+10088	Touches
+10089	Clavier et souris
+10090	Manette
+10091	Rétablir par défaut
+10092	Bouton 1
+10093	Bouton 2
+10094	Touche 1
+10095	Touche 2
+10096	Souris
+10097	Aucune manette connectée
+10098	Commandes en course
+10099	Commandes des menus
+10100	Le stick gauche et la croix directionnelle (déplacement dans les menus) fonctionnent toujours.
+10101	Esc (retour / pause), Enter (valider) et les flèches (navigation dans les menus) restent toujours utilisables.
+10102	Glisser avec le bouton gauche est un balayage (attaques dans quatre directions et saut). Un clic gauche fait l'action assignée à « Clic gauche » dans le tableau ci-dessus.
+10103	Le saut et l'attaque haute sont le même mouvement (au sol, tu sautes en attaquant vers le haut).
+10104	Une même touche ne peut pas être attribuée à plusieurs actions de course ni à plusieurs actions de menu. Elle peut toutefois être utilisée à la fois pour une action de course et une action de menu.
+10105	Appuie sur un nouveau bouton
+10106	Appuie sur un bouton de la souris ou tourne la molette
+10107	Appuie sur une nouvelle touche
+10108	Échap pour annuler ({0})
+10109	Non assigné
+10110	Cette touche est déjà utilisée pour « {0} »
+10111	La touche de cette action ne peut pas être modifiée
+10112	Échanger
+10113	Rétablir les touches par défaut ?
+10114	Toutes les assignations du clavier, de la souris et de la manette reviendront à leur état d'origine.
+10115	Conserver ces paramètres d'affichage ?
+10116	Retour aux paramètres précédents dans {0} secondes
+10117	Garder
+10118	Revenir aux paramètres précédents
+10119	Écran
+10120	Mode d'affichage
+10121	Plein écran
+10122	Fenêtré
+10123	Résolution
+10124	Appliquer
+10125	VSync
+10126	Limite de FPS
+10127	Illimitée
+10128	La vitesse du jeu est la même quel que soit le nombre de FPS.
+10129	Tant que la synchro verticale est activée, la fréquence d'images suit celle de l'écran.
+10130	Après « Appliquer », le mode d'affichage et la résolution reviennent en arrière si tu ne confirmes pas dans les 10 secondes.
+10131	Modifier
+10132	Modifier les touches du clavier, de la souris et de la manette.
+10133	Maintiens le bouton gauche de la souris 3 s
+10134	Maintiens {0} 3 s

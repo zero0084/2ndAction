@@ -329,7 +329,7 @@ public class SprintRunner : MonoBehaviour
     {
         if (QaRingPolicy >= 0) return;
         // キー(↑↓ W S)/ パッド(十字キー・スティック・A=上 / B=下)。GameInput(2026-10-06)
-        if (!PadNav.MenuActive && (GameInput.Down(GameAction.NavUp) || GameInput.Down(GameAction.Jump))) MoveLane(1);
+        if (!PadNav.MenuActive && (GameInput.Down(GameAction.NavUp) || GameInput.Down(GameAction.Jump) || GameInput.Down(GameAction.AttackUp))) MoveLane(1); // 上攻撃(PC の W・↑)も上(2026-10-25)
         if (!PadNav.MenuActive && (GameInput.Down(GameAction.NavDown) || GameInput.Down(GameAction.AttackDown))) MoveLane(-1);
         Vector2 p = Input.mousePosition;
         if (Input.touchCount > 0) p = Input.GetTouch(0).position;

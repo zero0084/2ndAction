@@ -1,0 +1,63 @@
+10072	Ataque arriba
+10073	Ataque adelante
+10074	Ataque atrás
+10075	Escapar (mantener)
+10076	Pausa
+10077	Mover arriba
+10078	Mover abajo
+10079	Mover a la izquierda
+10080	Mover a la derecha
+10081	Pestaña anterior
+10082	Pestaña siguiente
+10083	Rueda arriba
+10084	Rueda abajo
+10085	Clic izquierdo
+10086	Clic derecho
+10087	Clic central
+10088	Configuración de teclas
+10089	Teclado y ratón
+10090	Mando
+10091	Restaurar predeterminados
+10092	Botón 1
+10093	Botón 2
+10094	Tecla 1
+10095	Tecla 2
+10096	Ratón
+10097	No hay ningún mando conectado
+10098	Controles en la carrera
+10099	Controles de menú
+10100	El stick izquierdo y la cruceta (movimiento en menús) siempre funcionan.
+10101	Esc (volver / pausa), Enter (confirmar) y las flechas (moverse por los menús) siempre funcionan.
+10102	Arrastrar con el botón izquierdo es un deslizamiento (ataques en cuatro direcciones y salto). Un clic izquierdo hace la acción asignada a «Clic izquierdo» en la tabla de arriba.
+10103	El salto y el ataque arriba son el mismo movimiento (en el suelo saltas mientras atacas hacia arriba).
+10104	No puedes asignar la misma tecla a varias acciones de la carrera ni a varias acciones del menú. Sin embargo, puedes usar la misma tecla para una acción de carrera y otra de menú.
+10105	Pulsa un botón nuevo
+10106	Pulsa un botón del ratón o gira la rueda
+10107	Pulsa una tecla nueva
+10108	Esc para cancelar ({0})
+10109	Sin asignar
+10110	Esta tecla ya se usa para «{0}»
+10111	La tecla de esta acción no se puede cambiar
+10112	Intercambiar
+10113	¿Restaurar los controles predeterminados?
+10114	Todas las asignaciones de teclado, ratón y mando volverán a su estado original.
+10115	¿Mantener estos ajustes de pantalla?
+10116	Se restaurará la configuración anterior en {0} segundos
+10117	Mantener
+10118	Revertir
+10119	Pantalla
+10120	Modo de pantalla
+10121	Pantalla completa
+10122	Ventana
+10123	Resolución
+10124	Aplicar
+10125	VSync
+10126	Límite de FPS
+10127	Sin límite
+10128	La velocidad del juego es la misma con cualquier FPS.
+10129	Con la sincronización vertical activada, la tasa de fotogramas sigue la frecuencia de la pantalla.
+10130	Tras pulsar «Aplicar», el modo de pantalla y la resolución se revierten si no confirmas en 10 segundos.
+10131	Cambiar
+10132	Cambia las asignaciones de teclado, ratón y mando.
+10133	Mantén pulsado el botón izquierdo del ratón 3 s
+10134	Mantén pulsado {0} 3 s

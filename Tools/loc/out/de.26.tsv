@@ -1,0 +1,63 @@
+10072	Aufwärtsangriff
+10073	Vorwärtsangriff
+10074	Rückwärtsangriff
+10075	Fliehen (halten)
+10076	Pause
+10077	Nach oben
+10078	Nach unten
+10079	Nach links
+10080	Nach rechts
+10081	Vorheriger Tab
+10082	Nächster Tab
+10083	Mausrad hoch
+10084	Mausrad runter
+10085	Linksklick
+10086	Rechtsklick
+10087	Mittelklick
+10088	Tastenbelegung
+10089	Tastatur & Maus
+10090	Gamepad
+10091	Standardbelegung
+10092	Taste 1
+10093	Taste 2
+10094	Taste 1
+10095	Taste 2
+10096	Maus
+10097	Kein Gamepad verbunden
+10098	Steuerung im Lauf
+10099	Menüsteuerung
+10100	Linker Stick und Steuerkreuz (Menübewegung) funktionieren immer.
+10101	Esc (zurück / Pause), Enter (bestätigen) und die Pfeiltasten (Menübewegung) funktionieren immer.
+10102	Ziehen mit der linken Maustaste ist ein Wischen (Angriffe in vier Richtungen und Sprung). Ein Linksklick führt die Aktion aus, die oben „Linksklick“ zugewiesen ist.
+10103	Sprung und Aufwärtsangriff sind dieselbe Bewegung (am Boden springst du und greifst dabei nach oben an).
+10104	Eine Taste darf innerhalb der Laufsteuerung oder der Menüsteuerung nicht mehrfach belegt werden. Für Lauf- und Menüsteuerung darf jedoch dieselbe Taste verwendet werden.
+10105	Drücke eine neue Taste
+10106	Drücke eine Maustaste oder dreh das Mausrad
+10107	Drücke eine neue Taste
+10108	Esc zum Abbrechen ({0})
+10109	Nicht belegt
+10110	Diese Taste ist bereits für „{0}“ belegt
+10111	Die Taste für diese Aktion kann nicht geändert werden
+10112	Tauschen
+10113	Standardbelegung wiederherstellen?
+10114	Alle Belegungen für Tastatur, Maus und Gamepad werden auf den Ausgangszustand zurückgesetzt.
+10115	Diese Anzeigeeinstellungen beibehalten?
+10116	Vorherige Anzeige in {0} Sekunden wiederherstellen
+10117	Beibehalten
+10118	Wiederherstellen
+10119	Bildschirm
+10120	Anzeigemodus
+10121	Vollbild
+10122	Fenster
+10123	Auflösung
+10124	Übernehmen
+10125	VSync
+10126	FPS-Limit
+10127	Unbegrenzt
+10128	Die Spielgeschwindigkeit bleibt unabhängig von der FPS-Zahl gleich.
+10129	Solange VSync auf ON steht, richtet sich die Bildrate nach der Bildwiederholrate des Bildschirms.
+10130	Nach „Übernehmen“ werden Anzeigemodus und Auflösung zurückgesetzt, wenn du nicht innerhalb von 10 Sekunden bestätigst.
+10131	Ändern
+10132	Belegung von Tastatur, Maus und Gamepad ändern.
+10133	Linke Maustaste 3 Sek. halten
+10134	{0} 3 Sek. halten

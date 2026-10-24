@@ -1,0 +1,63 @@
+10072	Pataas na Atake
+10073	Pasulong na Atake
+10074	Paatras na Atake
+10075	Tumakas (pindutin nang matagal)
+10076	I-pause
+10077	Pataas
+10078	Pababa
+10079	Pakaliwa
+10080	Pakanan
+10081	Nakaraang Tab
+10082	Susunod na Tab
+10083	Wheel Pataas
+10084	Wheel Pababa
+10085	Left Click
+10086	Right Click
+10087	Middle Click
+10088	Mga Key
+10089	Keyboard at Mouse
+10090	Gamepad
+10091	Ibalik sa Default
+10092	Button 1
+10093	Button 2
+10094	Key 1
+10095	Key 2
+10096	Mouse
+10097	Walang nakakonektang gamepad
+10098	Kontrol sa Takbo
+10099	Kontrol sa Menu
+10100	Laging gumagana ang kaliwang stick at D-pad (paggalaw sa menu).
+10101	Laging gumagana ang Esc (bumalik / i-pause), Enter (kumpirmahin), at ang arrow keys (paggalaw sa menu).
+10102	Ang paghila gamit ang kaliwang button ay flick (atake sa apat na direksyon at talon). Ang left click ay gagawin ang aksiyong nakatalaga sa "Left Click" sa talaan sa itaas.
+10103	Iisang galaw ang talon at pataas na atake (sa lupa, tumatalon ka habang umaatake pataas).
+10104	Hindi maaaring italaga ang parehong key sa maraming aksyon sa run o sa maraming aksyon sa menu. Pero maaaring gamitin ang parehong key para sa isang aksyon sa run at isang aksyon sa menu.
+10105	Pindutin ang bagong button
+10106	Pindutin ang isang button ng mouse o paikutin ang wheel
+10107	Pindutin ang bagong key
+10108	Esc para kanselahin ({0})
+10109	Walang nakatalaga
+10110	Ginagamit na ang key na ito para sa "{0}"
+10111	Hindi mapapalitan ang mga key ng aksiyong ito
+10112	Pagpalitin
+10113	Ibalik sa default na mga key?
+10114	Babalik sa orihinal ang lahat ng nakatalaga sa keyboard, mouse, at gamepad.
+10115	Panatilihin ang display na ito?
+10116	Babalik sa loob ng {0} segundo
+10117	Panatilihin
+10118	Ibalik
+10119	Screen
+10120	Display Mode
+10121	Full Screen
+10122	Window
+10123	Resolution
+10124	Ilapat
+10125	VSync
+10126	Limit ng FPS
+10127	Walang limit
+10128	Pareho ang bilis ng laro sa anumang FPS.
+10129	Habang ON ang VSync, sinusundan ng frame rate ang refresh rate ng screen.
+10130	Pagkatapos ng "Ilapat", babalik ang display mode at resolution kapag hindi kinumpirma sa loob ng 10 segundo.
+10131	Baguhin
+10132	Baguhin ang nakatalaga sa keyboard, mouse, at gamepad.
+10133	Pindutin nang matagal ang kaliwang button ng mouse nang 3 segundo
+10134	Pindutin nang matagal ang {0} nang 3 segundo

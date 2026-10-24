@@ -8,7 +8,7 @@ using UnityEngine;
 //    揺れ/発光=GameSettings)。スライダーは動かしている間に反映し、離した時に保存する。
 //  ・時間は止めない(マルチプレイ中に開いても共有世界を止めない。ポーズからはポーズのまま開く)。
 //  ・縦長の画面では1列、横長では2列。収まらない時は内容部分だけ指でスクロールできる。
-public class SettingsPanel : MonoBehaviour
+public partial class SettingsPanel : MonoBehaviour
 {
     public static SettingsPanel Instance { get; private set; }
 
@@ -42,6 +42,7 @@ public class SettingsPanel : MonoBehaviour
         if (state == St.Open || state == St.Opening) return;
         if (ScreenTransitionManager.Instance != null && ScreenTransitionManager.Instance.IsTransitioning) return;
         state = St.Opening; t = 0f; scroll = Vector2.zero; dragging = false; nameEditing = false;
+        keyView = false; capturing = false; conflictOpen = false; resetAsk = false; selMode = -1; drawnH = 0f; // 2026-10-25
         PlaySe(true);
     }
 
@@ -49,13 +50,15 @@ public class SettingsPanel : MonoBehaviour
     {
         if (state == St.Closed || state == St.Closing) return;
         state = St.Closing; t = 0f;
+        if (capturing) EndCapture("close");
+        if (DisplaySettings.PendingConfirm) DisplaySettings.Revert("settings closed");
         GameSettings.Save();
         PortraitRunView.NotifyIfPending(); // 2026-10-08: ラン中に変えた縦のラン表示は閉じた時に反映
         UiInputGate.LatchUntilRelease();
         PlaySe(false);
     }
 
-    void ForceClose() { state = St.Closed; t = 0f; dragging = false; }
+    void ForceClose() { state = St.Closed; t = 0f; dragging = false; if (capturing) EndCapture("force close"); if (DisplaySettings.PendingConfirm) DisplaySettings.Revert("force close"); }
 
     static void PlaySe(bool open)
     {
@@ -67,6 +70,7 @@ public class SettingsPanel : MonoBehaviour
     {
         if (state == St.Closed) return;
         t += Time.unscaledDeltaTime;
+        UpdateCapture();
         if (state == St.Opening && t >= OpenTime) { state = St.Open; t = 0f; }
         else if (state == St.Closing && t >= CloseTime) { state = St.Closed; t = 0f; }
     }
@@ -121,21 +125,23 @@ public class SettingsPanel : MonoBehaviour
         GUIUtility.ScaleAroundPivot(new Vector2(scale, scale), panel.center * s);
 
         OrnateUi.DrawPanel(panel, 0.94f);
-        LocGUI.Label(new Rect(panel.x + 28f, panel.y + 14f, panel.width - 120f, 44f), "設定", UiKit.Label(28f, TextAnchor.MiddleLeft, true, new Color(1f, 0.86f, 0.45f)));
+        LocGUI.Label(new Rect(panel.x + 28f, panel.y + 14f, panel.width - 120f, 44f), keyView ? "キー設定" : "設定", UiKit.Label(28f, TextAnchor.MiddleLeft, true, new Color(1f, 0.86f, 0.45f)));
         if (langOpen) LangPopupInput(panel);
-        bool interactive = (state == St.Open || state == St.Opening) && !langOpen;
+        bool interactive = (state == St.Open || state == St.Opening) && !langOpen && !PanelModalOpen;
         if (UiIcons.CloseButton(new Rect(panel.xMax - 70f, panel.y + 14f, 50f, 46f)) && interactive) Close();
 
         // 内容(スクロール部分)
         var view = new Rect(panel.x + 20f, panel.y + 70f, panel.width - 40f, panel.height - 70f - 76f);
         float contentH;
-        if (wide)
+        if (keyView) DrawKeyPage(view, interactive);
+        else if (wide)
         {
             float colW = (view.width - 30f) * 0.5f;
-            contentH = Mathf.Max(drawnH, Mathf.Max(MeasureAudio() + 16f + MeasureLanguage() + 16f + MeasureProfile() + MeasureTransfer() + MeasureNoAds(), MeasureDisplay() + MeasureControls() + 16f + MeasurePrivacy()));
+            contentH = Mathf.Max(drawnH, Mathf.Max(MeasureAudio() + 16f + MeasureLanguage() + 16f + MeasureScreen() + 16f + MeasureProfile() + MeasureTransfer() + MeasureNoAds(), MeasureDisplay() + MeasureControls() + 16f + MeasurePrivacy()));
             BeginScroll(view, contentH);
             float ya = DrawAudio(0f, 0f, colW, interactive);
             ya = DrawLanguage(0f, ya + 16f, colW, interactive);
+            if (PlatformCaps.SupportsWindowMode) ya = DrawScreen(0f, ya + 16f, colW, interactive);
             ya = DrawProfile(0f, ya + 16f, colW, interactive);
             ya = DrawTransfer(0f, ya, colW, interactive);
             ya = DrawNoAds(0f, ya, colW, interactive);
@@ -147,10 +153,11 @@ public class SettingsPanel : MonoBehaviour
         }
         else
         {
-            contentH = Mathf.Max(drawnH, MeasureAudio() + MeasureLanguage() + MeasureDisplay() + MeasureControls() + MeasureProfile() + MeasureTransfer() + MeasureNoAds() + MeasurePrivacy() + 64f);
+            contentH = Mathf.Max(drawnH, MeasureAudio() + MeasureLanguage() + MeasureScreen() + MeasureDisplay() + MeasureControls() + MeasureProfile() + MeasureTransfer() + MeasureNoAds() + MeasurePrivacy() + 64f);
             BeginScroll(view, contentH);
             float y = DrawAudio(0f, 0f, view.width, interactive);
             y = DrawLanguage(0f, y + 16f, view.width, interactive);
+            if (PlatformCaps.SupportsWindowMode) y = DrawScreen(0f, y + 16f, view.width, interactive);
             y = DrawDisplay(0f, y + 16f, view.width, interactive);
             y = DrawControls(0f, y + 16f, view.width, interactive);
             y = DrawProfile(0f, y + 16f, view.width, interactive);
@@ -161,8 +168,9 @@ public class SettingsPanel : MonoBehaviour
             if (Event.current.type == EventType.Repaint) drawnH = y + 12f;
         }
 
-        if (UiKit.Button(new Rect(panel.center.x - 110f, panel.yMax - 66f, 220f, 52f), "閉じる", 22f, true) && interactive) Close();
+        if (UiKit.Button(new Rect(panel.center.x - 110f, panel.yMax - 66f, 220f, 52f), keyView ? "戻る" : "閉じる", 22f, true) && interactive) { if (keyView) HandleBack(); else Close(); }
         if (langOpen) DrawLangPopup(panel);
+        DrawPanelModal(panel);
 
         GUI.matrix = Matrix4x4.Scale(new Vector3(s, s, 1f));
         GUI.color = keepColor;
@@ -464,12 +472,12 @@ public class SettingsPanel : MonoBehaviour
     }
 
     // ---------------------------------------------------------------- 表示
-    float MeasureDisplay() => HeadH + 4f + RowH * 5f + 22f + RowH * 2f - 14f + 90f + 44f + 24f + 22f; // 説明が2行に折り返す分。ラン表示は見出しの行+選択の行
+    float MeasureDisplay() => PlatformCaps.SupportsOrientation ? HeadH + 4f + RowH * 5f + 22f + RowH * 2f - 14f + 90f + 44f + 24f + 22f : HeadH + 4f + RowH * 4f + 24f; // 説明が2行に折り返す分。ラン表示は見出しの行+選択の行
     float DrawDisplay(float x, float y, float w, bool interactive)
     {
         var gm = GameManager.Instance;
         y = Head(x, y, w, "表示");
-        if (gm != null)
+        if (gm != null && PlatformCaps.SupportsOrientation)
         {
             // 2026-10-09(依頼G): 横 / 縦 は端末の自動回転に関係なくその向きに固定。自動 だけ端末の回転の設定に従う
             RowLabel(x, y, "画面の向き");
@@ -479,8 +487,8 @@ public class SettingsPanel : MonoBehaviour
             y += RowH;
             y = Note(x, y, w, "自動: 端末の自動回転の設定に従います");
         }
-        else y += RowH;
-        y = DrawPortraitRunView(x, y, w, interactive);
+        else if (PlatformCaps.SupportsOrientation) y += RowH;
+        if (PlatformCaps.SupportsOrientation) y = DrawPortraitRunView(x, y, w, interactive); // 2026-10-25: 画面の向き/縦画面のラン表示は向きを変えられる環境だけ
         y = ChoiceRow(x, y, w, "画面揺れ", GameSettings.ScreenShake ? 1 : 0, "OFF", "ON", interactive, c => GameSettings.SetScreenShake(c == 1));
         y = ChoiceRow(x, y, w, "障害物の警告", GameSettings.ObstacleWarn == 1 ? 0 : 1, "点滅あり", "輪郭のみ", interactive, c => GameSettings.SetObstacleWarn(c == 0 ? 1 : 2)); // 2026-10-11
         y = SliderRow(x, y, w, "発光演出", GameSettings.GlowIntensity, Pct(GameSettings.GlowIntensity), true, interactive, (v, rel) => GameSettings.SetGlowIntensity(v, rel));
@@ -564,11 +572,12 @@ public class SettingsPanel : MonoBehaviour
     // ---------------------------------------------------------------- 操作(2026-10-08: オートの個別設定)
     // 全体の ON/OFF と開始の速さ(今までの「補助開始速度」。距離ではなく走る速さで始まる)は今までどおり。
     // ボス戦でもオート / 自動攻撃 / 自動回避 を個別に切り替える。説明は実際に対応している範囲だけ(必ず避けられるとは書かない)
-    float MeasureControls() => HeadH + 4f + MeasureMaxSpeed() + RowH * 5f + 22f * 6f + 12f + RowH + 22f;
+    float MeasureControls() => HeadH + 4f + MeasureKeyRow() + MeasureMaxSpeed() + RowH * 5f + 22f * 6f + 12f + RowH + 22f;
     float DrawControls(float x, float y, float w, bool interactive)
     {
         var hsa = HighSpeedAssist.Instance;
         y = Head(x, y, w, "操作");
+        y = DrawKeyRow(x, y, w, interactive); // 2026-10-25: キー設定(PC)
         y = DrawMaxSpeed(x, y, w, interactive, hsa);
         if (hsa == null) return Note(x, y, w, "(自動補助は使えません)");
         y = ChoiceRow(x, y, w, "オートモード", hsa.assistEnabled ? 1 : 0, "OFF", "ON", interactive, c => hsa.SetEnabled(c == 1));

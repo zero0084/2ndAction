@@ -1,0 +1,63 @@
+10072	Đánh lên
+10073	Đánh tới
+10074	Đánh lùi
+10075	Thoát (giữ)
+10076	Tạm dừng
+10077	Lên
+10078	Xuống
+10079	Sang trái
+10080	Sang phải
+10081	Thẻ trước
+10082	Thẻ sau
+10083	Cuộn lên
+10084	Cuộn xuống
+10085	Nhấp trái
+10086	Nhấp phải
+10087	Nhấp giữa
+10088	Gán phím
+10089	Bàn phím & chuột
+10090	Tay cầm
+10091	Khôi phục mặc định
+10092	Nút 1
+10093	Nút 2
+10094	Phím 1
+10095	Phím 2
+10096	Chuột
+10097	Chưa kết nối tay cầm
+10098	Điều khiển khi chạy
+10099	Điều khiển menu
+10100	Cần trái và nút hướng (di chuyển trong menu) luôn dùng được.
+10101	Esc (quay lại / tạm dừng), Enter (xác nhận) và phím mũi tên (di chuyển trong menu) luôn dùng được.
+10102	Kéo bằng nút trái là vuốt (đánh bốn hướng và nhảy). Nhấp trái thực hiện thao tác được gán cho "Nhấp trái" trong bảng trên.
+10103	Nhảy và đánh lên là cùng một động tác (trên mặt đất, bạn vừa nhảy vừa đánh lên).
+10104	Không thể gán cùng một phím cho nhiều thao tác trong lượt chạy hoặc nhiều thao tác trong menu. Tuy nhiên, có thể dùng cùng phím cho một thao tác trong lượt chạy và một thao tác trong menu.
+10105	Hãy nhấn nút mới
+10106	Hãy nhấn nút chuột hoặc lăn con lăn
+10107	Hãy nhấn phím mới
+10108	Esc để hủy ({0})
+10109	Chưa gán
+10110	Phím này đã được dùng cho "{0}"
+10111	Không thể đổi phím của thao tác này
+10112	Hoán đổi
+10113	Khôi phục gán phím mặc định?
+10114	Mọi gán phím của bàn phím, chuột và tay cầm sẽ trở về trạng thái ban đầu.
+10115	Giữ hiển thị này?
+10116	Trở lại sau {0} giây
+10117	Giữ nguyên
+10118	Khôi phục
+10119	Màn hình
+10120	Chế độ hiển thị
+10121	Toàn màn hình
+10122	Cửa sổ
+10123	Độ phân giải
+10124	Áp dụng
+10125	Đồng bộ dọc
+10126	Giới hạn FPS
+10127	Không giới hạn
+10128	Tốc độ trò chơi như nhau ở mọi FPS.
+10129	Khi đồng bộ dọc ở ON, tốc độ khung hình theo tần số quét của màn hình.
+10130	Sau khi nhấn "Áp dụng", chế độ hiển thị và độ phân giải sẽ trở lại nếu bạn không xác nhận trong 10 giây.
+10131	Thay đổi
+10132	Thay đổi gán phím của bàn phím, chuột và tay cầm.
+10133	Giữ nút trái chuột 3 giây
+10134	Giữ {0} 3 giây

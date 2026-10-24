@@ -1,0 +1,63 @@
+10072	Serangan atas
+10073	Serangan depan
+10074	Serangan belakang
+10075	Kabur (tahan)
+10076	Jeda
+10077	Naik
+10078	Turun
+10079	Ke kiri
+10080	Ke kanan
+10081	Tab sebelumnya
+10082	Tab berikutnya
+10083	Gulir ke atas
+10084	Gulir ke bawah
+10085	Klik kiri
+10086	Klik kanan
+10087	Klik tengah
+10088	Pengaturan tombol
+10089	Keyboard & mouse
+10090	Gamepad
+10091	Kembalikan default
+10092	Tombol 1
+10093	Tombol 2
+10094	Tombol 1
+10095	Tombol 2
+10096	Mouse
+10097	Tidak ada gamepad yang terhubung
+10098	Kontrol saat berlari
+10099	Kontrol menu
+10100	Stik kiri dan D-pad (gerak di menu) selalu bisa dipakai.
+10101	Esc (kembali / jeda), Enter (konfirmasi), dan tombol panah (gerak di menu) selalu bisa dipakai.
+10102	Menyeret dengan tombol kiri adalah flick (serangan empat arah dan lompat). Klik kiri menjalankan aksi yang diatur untuk "Klik kiri" di tabel atas.
+10103	Lompat dan serangan atas adalah gerakan yang sama (di darat kamu melompat sambil menyerang ke atas).
+10104	Tombol yang sama tidak dapat ditetapkan ke beberapa aksi dalam kontrol run maupun kontrol menu. Namun, tombol yang sama boleh digunakan untuk satu aksi run dan satu aksi menu.
+10105	Tekan tombol baru
+10106	Tekan tombol mouse atau putar roda
+10107	Tekan tombol baru
+10108	Esc untuk batal ({0})
+10109	Belum diatur
+10110	Tombol ini sudah dipakai untuk "{0}"
+10111	Tombol untuk aksi ini tidak bisa diubah
+10112	Tukar
+10113	Kembalikan pengaturan tombol default?
+10114	Semua pengaturan keyboard, mouse, dan gamepad akan kembali ke kondisi awal.
+10115	Pertahankan tampilan ini?
+10116	Kembali dalam {0} detik
+10117	Pertahankan
+10118	Kembalikan
+10119	Layar
+10120	Mode tampilan
+10121	Layar penuh
+10122	Jendela
+10123	Resolusi
+10124	Terapkan
+10125	VSync
+10126	Batas FPS
+10127	Tanpa batas
+10128	Kecepatan game sama di FPS berapa pun.
+10129	Saat VSync ON, laju bingkai mengikuti refresh rate layar.
+10130	Setelah "Terapkan", mode tampilan dan resolusi akan kembali jika tidak dikonfirmasi dalam 10 detik.
+10131	Ubah
+10132	Ubah pengaturan keyboard, mouse, dan gamepad.
+10133	Tahan tombol kiri mouse 3 detik
+10134	Tahan {0} 3 detik

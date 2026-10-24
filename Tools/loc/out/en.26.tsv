@@ -1,0 +1,63 @@
+10072	Up Attack
+10073	Forward Attack
+10074	Back Attack
+10075	Escape (hold)
+10076	Pause
+10077	Move Up
+10078	Move Down
+10079	Move Left
+10080	Move Right
+10081	Previous Tab
+10082	Next Tab
+10083	Wheel Up
+10084	Wheel Down
+10085	Left Click
+10086	Right Click
+10087	Middle Click
+10088	Key Bindings
+10089	Keyboard & Mouse
+10090	Gamepad
+10091	Restore Defaults
+10092	Button 1
+10093	Button 2
+10094	Key 1
+10095	Key 2
+10096	Mouse
+10097	No gamepad connected
+10098	In-Run Controls
+10099	Menu Controls
+10100	The left stick and D-pad (menu movement) always work.
+10101	Esc (back / pause), Enter (confirm), and the arrow keys (menu movement) always work.
+10102	Dragging with the left button is a flick (attacks in four directions and jump). A left click does the action assigned to Left Click in the table above.
+10103	Jump and Up Attack are the same move (on the ground you jump while attacking upward).
+10104	The same key cannot be assigned to multiple actions within the same context. You can use the same key for both run and menu controls.
+10105	Press a new button
+10106	Press a mouse button or turn the wheel
+10107	Press a new key
+10108	Esc to cancel ({0})
+10109	Unassigned
+10110	This key is already used for "{0}"
+10111	The key for this action cannot be changed.
+10112	Swap
+10113	Restore the default bindings?
+10114	All keyboard, mouse, and gamepad bindings will return to their original settings.
+10115	Keep this display setting?
+10116	Reverting in {0} seconds
+10117	Keep
+10118	Revert
+10119	Screen
+10120	Display Mode
+10121	Fullscreen
+10122	Windowed
+10123	Resolution
+10124	Apply
+10125	VSync
+10126	FPS Limit
+10127	Unlimited
+10128	Game speed is the same at any FPS.
+10129	While VSync is ON, the frame rate follows the display's refresh rate.
+10130	After you press Apply, the display mode and resolution revert unless you confirm within 10 seconds.
+10131	Change
+10132	Change the keyboard, mouse, and gamepad bindings.
+10133	Hold the left mouse button for 3 seconds
+10134	Hold {0} for 3 seconds

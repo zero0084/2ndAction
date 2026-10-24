@@ -1,0 +1,63 @@
+10072	Atac în sus
+10073	Atac înainte
+10074	Atac înapoi
+10075	Evadare (ține apăsat)
+10076	Pauză
+10077	Sus
+10078	Jos
+10079	Stânga
+10080	Dreapta
+10081	Fila anterioară
+10082	Fila următoare
+10083	Rotiță în sus
+10084	Rotiță în jos
+10085	Clic stânga
+10086	Clic dreapta
+10087	Clic mijloc
+10088	Taste
+10089	Tastatură și mouse
+10090	Controler
+10091	Restabilește implicitele
+10092	Buton 1
+10093	Buton 2
+10094	Tastă 1
+10095	Tastă 2
+10096	Mouse
+10097	Niciun controler conectat
+10098	Control în cursă
+10099	Control în meniu
+10100	Stick-ul stâng și crucea direcțională (mișcare în meniu) funcționează mereu.
+10101	Esc (înapoi / pauză), Enter (confirmă) și săgețile (mișcare în meniu) funcționează mereu.
+10102	Tragerea cu butonul stâng este un glisaj (atacuri în patru direcții și salt). Un clic stânga face acțiunea atribuită lui „Clic stânga” din tabelul de mai sus.
+10103	Saltul și atacul în sus sunt aceeași mișcare (pe sol sari atacând în sus).
+10104	Aceeași tastă nu poate fi atribuită mai multor acțiuni din timpul cursei sau mai multor acțiuni din meniu. Totuși, poate fi folosită atât pentru o acțiune din cursă, cât și pentru una din meniu.
+10105	Apasă un buton nou
+10106	Apasă un buton al mouse-ului sau rotește rotița
+10107	Apasă o tastă nouă
+10108	Esc pentru anulare ({0})
+10109	Neatribuit
+10110	Tasta este deja folosită pentru „{0}”
+10111	Tastele acestei acțiuni nu pot fi schimbate
+10112	Schimbă între ele
+10113	Restabilești atribuirile implicite?
+10114	Toate atribuirile pentru tastatură, mouse și controler revin la starea inițială.
+10115	Păstrezi această afișare?
+10116	Revenire în {0} secunde
+10117	Păstrează
+10118	Revino
+10119	Ecran
+10120	Mod de afișare
+10121	Ecran complet
+10122	Fereastră
+10123	Rezoluție
+10124	Aplică
+10125	Sincronizare verticală
+10126	Limită FPS
+10127	Nelimitat
+10128	Viteza jocului este aceeași la orice FPS.
+10129	Cât timp sincronizarea verticală este ON, rata de cadre urmează rata de reîmprospătare a ecranului.
+10130	După „Aplică”, modul de afișare și rezoluția revin dacă nu confirmi în 10 secunde.
+10131	Schimbă
+10132	Schimbă atribuirile pentru tastatură, mouse și controler.
+10133	Ține apăsat butonul stâng al mouse-ului 3 s
+10134	Ține apăsat {0} 3 s

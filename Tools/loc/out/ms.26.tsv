@@ -1,0 +1,63 @@
+10072	Serangan atas
+10073	Serangan depan
+10074	Serangan belakang
+10075	Lolos (tahan)
+10076	Jeda
+10077	Naik
+10078	Turun
+10079	Ke kiri
+10080	Ke kanan
+10081	Tab sebelumnya
+10082	Tab seterusnya
+10083	Roda ke atas
+10084	Roda ke bawah
+10085	Klik kiri
+10086	Klik kanan
+10087	Klik tengah
+10088	Tetapan kekunci
+10089	Papan kekunci & tetikus
+10090	Pad permainan
+10091	Pulihkan lalai
+10092	Butang 1
+10093	Butang 2
+10094	Kekunci 1
+10095	Kekunci 2
+10096	Tetikus
+10097	Tiada pad permainan disambungkan
+10098	Kawalan semasa larian
+10099	Kawalan menu
+10100	Batang kiri dan D-pad (gerak dalam menu) sentiasa boleh digunakan.
+10101	Esc (kembali / jeda), Enter (sahkan) dan kekunci anak panah (gerak dalam menu) sentiasa boleh digunakan.
+10102	Menyeret dengan butang kiri ialah leret (serangan empat arah dan lompat). Klik kiri melakukan tindakan yang ditetapkan untuk "Klik kiri" dalam jadual di atas.
+10103	Lompat dan serangan atas ialah gerakan yang sama (di tanah anda melompat sambil menyerang ke atas).
+10104	Kekunci yang sama tidak boleh ditetapkan kepada beberapa tindakan dalam kawalan larian atau beberapa tindakan dalam kawalan menu. Namun, kekunci yang sama boleh digunakan untuk satu tindakan larian dan satu tindakan menu.
+10105	Tekan butang baharu
+10106	Tekan butang tetikus atau putar roda
+10107	Tekan kekunci baharu
+10108	Esc untuk batal ({0})
+10109	Tidak ditetapkan
+10110	Kekunci ini sudah digunakan untuk "{0}"
+10111	Kekunci tindakan ini tidak boleh diubah
+10112	Tukar ganti
+10113	Pulihkan tetapan kekunci lalai?
+10114	Semua tetapan papan kekunci, tetikus dan pad permainan akan kembali kepada asal.
+10115	Kekalkan paparan ini?
+10116	Kembali dalam {0} saat
+10117	Kekalkan
+10118	Kembalikan
+10119	Skrin
+10120	Mod paparan
+10121	Skrin penuh
+10122	Tetingkap
+10123	Resolusi
+10124	Guna
+10125	VSync
+10126	Had FPS
+10127	Tiada had
+10128	Kelajuan permainan sama pada sebarang FPS.
+10129	Semasa VSync ON, kadar bingkai mengikut kadar segar semula skrin.
+10130	Selepas "Guna", mod paparan dan resolusi akan kembali jika tidak disahkan dalam 10 saat.
+10131	Ubah
+10132	Ubah tetapan papan kekunci, tetikus dan pad permainan.
+10133	Tahan butang kiri tetikus 3 saat
+10134	Tahan {0} 3 saat

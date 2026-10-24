@@ -1,0 +1,63 @@
+10072	Útok nahoru
+10073	Útok vpřed
+10074	Útok vzad
+10075	Útěk (podržet)
+10076	Pauza
+10077	Nahoru
+10078	Dolů
+10079	Doleva
+10080	Doprava
+10081	Předchozí karta
+10082	Další karta
+10083	Kolečko nahoru
+10084	Kolečko dolů
+10085	Levé tlačítko
+10086	Pravé tlačítko
+10087	Prostřední tlačítko
+10088	Přiřazení kláves
+10089	Klávesnice a myš
+10090	Gamepad
+10091	Obnovit výchozí
+10092	Tlačítko 1
+10093	Tlačítko 2
+10094	Klávesa 1
+10095	Klávesa 2
+10096	Myš
+10097	Není připojen gamepad
+10098	Ovládání v běhu
+10099	Ovládání nabídky
+10100	Levá páčka a křížový ovladač (pohyb v nabídce) fungují vždy.
+10101	Esc (zpět / pauza), Enter (potvrdit) a šipky (pohyb v nabídce) fungují vždy.
+10102	Tažení levým tlačítkem je švihnutí (útoky do čtyř směrů a skok). Kliknutí levým tlačítkem provede akci přiřazenou k „Levé tlačítko“ v tabulce výše.
+10103	Skok a útok nahoru jsou stejný pohyb (na zemi vyskočíš a zároveň útočíš nahoru).
+10104	Stejnou klávesu nelze přiřadit více akcím během běhu ani více akcím v nabídce. Lze ji však použít pro jednu akci během běhu a jednu akci v nabídce.
+10105	Stiskni nové tlačítko
+10106	Stiskni tlačítko myši nebo otoč kolečkem
+10107	Stiskni novou klávesu
+10108	Esc pro zrušení ({0})
+10109	Nepřiřazeno
+10110	Tato klávesa už je použita pro „{0}“
+10111	Klávesy této akce nelze změnit
+10112	Prohodit
+10113	Obnovit výchozí přiřazení?
+10114	Všechna přiřazení klávesnice, myši a gamepadu se vrátí do původního stavu.
+10115	Ponechat toto zobrazení?
+10116	Návrat za {0} s
+10117	Ponechat
+10118	Vrátit
+10119	Obrazovka
+10120	Režim zobrazení
+10121	Celá obrazovka
+10122	Okno
+10123	Rozlišení
+10124	Použít
+10125	Vertikální synchronizace
+10126	Limit FPS
+10127	Bez omezení
+10128	Rychlost hry je stejná při jakémkoli FPS.
+10129	Když je vertikální synchronizace na ON, snímková frekvence se řídí obnovovací frekvencí obrazovky.
+10130	Po „Použít“ se režim zobrazení a rozlišení vrátí zpět, pokud je do 10 sekund nepotvrdíš.
+10131	Změnit
+10132	Změň přiřazení klávesnice, myši a gamepadu.
+10133	Drž levé tlačítko myši 3 s
+10134	Drž {0} 3 s

@@ -1223,7 +1223,7 @@ public partial class PlayerController : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public static bool DebugTapNow;                  // 確認用: 次のフレームを「タップした」として扱う
     // 確認用(2026-10-23): 画面の指の代わり。active の間は Input の代わりにこれを読む(位置は画面のピクセル、down = 触れている)
-    public static class DebugPointer { public static bool active, down, prevDown; public static Vector2 pos; }
+    public static class DebugPointer { public static bool active, down, prevDown, mouse; public static Vector2 pos; } // mouse: PC のマウスの左ボタンとして扱う(2026-10-25)
 #endif
     // 踏み込み(前への lunge)だけを消した実際の移動量。後退(-)や他の動きはそのまま
     float EffectiveLungeX => (lungeVelocityX > 0f && TapStepSuppressed) ? 0f : lungeVelocityX;
@@ -1235,6 +1235,7 @@ public partial class PlayerController : MonoBehaviour
 
         Vector2 pointerPos;
         bool pointerJustDown, pointerJustUp, pointerDown;
+        bool pointerFromMouse = false; // 2026-10-25: PC のマウス(左クリックのタップはキー設定で割り当てた行動)
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (DebugPointer.active)
@@ -1245,6 +1246,7 @@ public partial class PlayerController : MonoBehaviour
             pointerJustUp = !DebugPointer.down && DebugPointer.prevDown;
             pointerDown = DebugPointer.down;
             DebugPointer.prevDown = DebugPointer.down;
+            pointerFromMouse = DebugPointer.mouse && PlatformCaps.SupportsMouse;
         }
         else
 #endif
@@ -1259,6 +1261,7 @@ public partial class PlayerController : MonoBehaviour
         else
         {
             pointerPos = Input.mousePosition;
+            pointerFromMouse = PlatformCaps.SupportsMouse;
             pointerJustDown = Input.GetMouseButtonDown(0);
             pointerJustUp = Input.GetMouseButtonUp(0);
             pointerDown = Input.GetMouseButton(0);
@@ -1339,7 +1342,7 @@ public partial class PlayerController : MonoBehaviour
                 else if (held > TapMaxSeconds) LastTapReject = $"held {held:F2}s";
                 else if (tapMaxDist > TapSlopPx) LastTapReject = $"moved {tapMaxDist:F0}px > {TapSlopPx:F0}px";
                 else if (IsEscapeCharging || wasEscapeChargingLastFrame) LastTapReject = "escape charging";
-                else { requestedFlick = FlickDirection.Forward; requestedFromTap = true; LastTapReject = ""; }
+                else { requestedFlick = FlickDirection.Forward; requestedFromTap = true; LastTapReject = ""; if (pointerFromMouse) ApplyMouseTapBinding(); }
             }
             touchActive = false;
             tapValid = false;
@@ -1350,7 +1353,7 @@ public partial class PlayerController : MonoBehaviour
 
         // キーボード/ゲームパッド(GameInput、2026-10-06。旧 Space=ジャンプ / Z,B=攻撃 のキーも含む)。
         // ドラッグの距離の仕組みは通らない(ボタンには距離が無い)。メニュー操作中(PadNav)は使わない。
-        if (!PadNav.MenuActive)
+        if (!PadNav.MenuActive && !UiInputGate.ModalOpen) // 2026-10-25: 設定(キー設定の待ち受け)を開いている間のキーで技を出さない
         {
             if (GameInput.Down(GameAction.Jump) || GameInput.Down(GameAction.AttackUp)) requestedFlick = FlickDirection.Up;
             else if (GameInput.Down(GameAction.AttackForward)) requestedFlick = FlickDirection.Forward;
@@ -1358,6 +1361,25 @@ public partial class PlayerController : MonoBehaviour
             else if (GameInput.Down(GameAction.AttackDown)) requestedFlick = FlickDirection.Down;
             if (requestedFlick.HasValue) { LastPadFlick = requestedFlick; PadFlicks++; }
         }
+    }
+
+    // PC の左クリック(離した時のタップ)を、キー設定で左クリックに割り当てた行動にする(2026-10-25)。初期は前攻撃 = 今までのタップと同じ。
+    //  ドラッグのフリックは今までどおり(固定)。タッチのタップはいつも前攻撃(Android の操作は変えない)
+    public static int MouseTapActions { get; private set; }
+    void ApplyMouseTapBinding()
+    {
+        var act = InputBindings.Mouse0Action();
+        MouseTapActions++;
+        if (act == null) { requestedFlick = null; requestedFromTap = false; LastTapReject = "left click unbound"; return; }
+        switch (act.Value)
+        {
+            case GameAction.AttackForward: return; // タップ攻撃(踏み込みなし)のまま
+            case GameAction.Jump: case GameAction.AttackUp: requestedFlick = FlickDirection.Up; break;
+            case GameAction.AttackBack: requestedFlick = FlickDirection.Backward; break;
+            case GameAction.AttackDown: requestedFlick = FlickDirection.Down; break;
+            default: requestedFlick = null; GameInput.Pulse(act.Value); break;
+        }
+        requestedFromTap = false;
     }
 
     // 方向攻撃システム Ver.2、項目7 - 4方向化後も「斜めフリックなどは、最

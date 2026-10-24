@@ -28,7 +28,8 @@ public enum GameAction
     Count
 }
 
-public enum InputDeviceKind { Touch, Keyboard, Gamepad }
+// Mouse(2026-10-25): PC でマウスを使った時。タッチと同じくフォーカスの枠は出さない(UsingNonTouch = キーボード/パッドだけ)
+public enum InputDeviceKind { Touch, Keyboard, Gamepad, Mouse }
 
 public interface IInputSource
 {
@@ -55,12 +56,15 @@ public class GameInput : MonoBehaviour
 
     // 最後に使った機器。タッチ/マウスを使えばフォーカスの枠を消し、パッド/キーで出す
     public static InputDeviceKind LastDevice { get; private set; } = InputDeviceKind.Touch;
-    public static bool UsingNonTouch => LastDevice != InputDeviceKind.Touch;
+    public static bool UsingNonTouch => LastDevice == InputDeviceKind.Keyboard || LastDevice == InputDeviceKind.Gamepad;
     public static string LastSourceName { get; private set; } = "";
 
     // 自動テスト用: 次のフレームにこの行動を押したことにする
     static readonly HashSet<GameAction> injected = new HashSet<GameAction>();
     public static void Inject(GameAction a) { injected.Add(a); }
+    // 左クリック(タップ)に割り当てた行動のうち、フリックでない物(ULTIMATE など)を次のフレームに1回押したことにする(機器はそのまま)
+    static readonly HashSet<GameAction> pulsed = new HashSet<GameAction>();
+    public static void Pulse(GameAction a) { pulsed.Add(a); }
     public static void DebugMarkDevice(InputDeviceKind k) { LastDevice = k; }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -70,14 +74,17 @@ public class GameInput : MonoBehaviour
         var go = new GameObject("[GameInput]");
         DontDestroyOnLoad(go);
         Instance = go.AddComponent<GameInput>();
+        InputBindings.EnsureLoaded();
         if (sources.Count == 0) SetSources(DefaultSources());
         go.AddComponent<PadNav>();
+        Debug.Log("[GameInput] " + PlatformCaps.Describe());
     }
 
-    // 機種ごとの入力元。家庭用機ではここを差し替える
+    // 機種ごとの入力元。家庭用機ではここを差し替える。割り当ては InputBindings の表(PC はキー設定、ほかは今までの固定の表)
     static IEnumerable<IInputSource> DefaultSources()
     {
         yield return new KeyboardInputSource();
+        if (PlatformCaps.SupportsMouse) yield return new MouseInputSource();
         yield return new LegacyGamepadInputSource();
     }
 
@@ -93,7 +100,11 @@ public class GameInput : MonoBehaviour
     {
         if (frame == Time.frameCount) return;
         frame = Time.frameCount;
-        bool touch = Input.touchCount > 0 || Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1);
+        // タッチ: 画面に指。マウスのある環境(PC)ではマウスの操作は Mouse(2026-10-25)。マウスの無い環境は今までどおりクリックもタッチ扱い
+        bool touch = Input.touchCount > 0;
+        bool mouse = false;
+        if (!PlatformCaps.SupportsMouse) touch |= Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1);
+        else if (!touch) mouse = MouseActivity();
         for (int i = 0; i < held.Length; i++) { prevHeld[i] = held[i]; held[i] = false; consumed[i] = false; repeatFire[i] = false; }
         foreach (var s in sources)
         {
@@ -108,7 +119,10 @@ public class GameInput : MonoBehaviour
         }
         foreach (var a in injected) { held[(int)a] = true; prevHeld[(int)a] = false; LastDevice = InputDeviceKind.Gamepad; LastSourceName = "inject"; }
         injected.Clear();
+        foreach (var a in pulsed) { held[(int)a] = true; prevHeld[(int)a] = false; }
+        pulsed.Clear();
         if (touch) LastDevice = InputDeviceKind.Touch;
+        else if (mouse) { LastDevice = InputDeviceKind.Mouse; LastSourceName = "mouse"; }
         // 押し続けた時の繰り返し(メニューの移動/スクロール)
         float now = Time.unscaledTime;
         for (int i = 0; i < held.Length; i++)
@@ -133,14 +147,31 @@ public class GameInput : MonoBehaviour
         return true;
     }
     public static bool IsConsumed(GameAction a) { Refresh(); return consumed[(int)a]; }
+
+    // マウスを使ったか(PC): ボタン/ホイール、または少し大きく動かした(机の振動くらいでは切り替えない)
+    static float mouseMoveAccum, mouseMoveSince;
+    static Vector3 lastMousePos;
+    static bool MouseActivity()
+    {
+        if (!Input.mousePresent) return false;
+        for (int b = 0; b < 7; b++) if (Input.GetMouseButtonDown(b)) return true;
+        if (Mathf.Abs(Input.mouseScrollDelta.y) > 0.01f) return true;
+        Vector3 p = Input.mousePosition;
+        float d = (p - lastMousePos).magnitude;
+        lastMousePos = p;
+        if (LastDevice == InputDeviceKind.Mouse || d > 400f) { mouseMoveAccum = 0f; return false; } // 窓の外から戻った時の飛びは数えない
+        float now = Time.unscaledTime;
+        if (now - mouseMoveSince > 0.5f) { mouseMoveAccum = 0f; mouseMoveSince = now; }
+        mouseMoveAccum += d;
+        return mouseMoveAccum > 40f;
+    }
 }
 
-// ================================================================= ボタン配置(仮。Xbox 配置の表記。PS: A=×, B=○, X=□, Y=△)
-//  ラン中: A=ジャンプ(上) / X=前攻撃 / Y=後ろ攻撃 / B=下攻撃 / 右スティック=フリックと同じ4方向 / RB(または RT)=ULTIMATE / START=一時停止
-//          BACK(View)長押し=脱出(1000m 以降)
-//  メニュー: 左スティック・十字キー=移動 / A=決定 / B=戻る / LB・RB=タブ / 右スティック上下=スクロール / START=一時停止
-//  キーボード: 矢印/WASD=移動 / Enter・Space=決定 / Esc・Backspace=戻る / P=一時停止 / Q・E=タブ
-//              ラン中: Space・W・↑=ジャンプ / Z・→・D=前 / B・X・←・A=後ろ / S・↓=下 / C=ULTIMATE / H 長押し=脱出(今までのキーも残す)
+// ================================================================= 割り当て(2026-10-25 から InputBindings の表を読む)
+//  PC の初期配置(キー設定で変えられる): ジャンプ Space/右クリック/A、上攻撃 W・↑/ホイール上/右スティック↑、前 D・→/左クリック/X・右スティック→、
+//   後ろ A・←/マウス4/Y・右スティック←、下 S・↓/ホイール下/B・右スティック↓、ULTIMATE C/中クリック/RB・RT、脱出 H/BACK、一時停止 P/START
+//  メニュー: 決定 Space/A(Enter は固定)、戻る Backspace/B(Esc は固定)、移動 WASD(矢印・左スティック・十字キーは固定)、タブ Q・E/LB・RB、スクロール PgUp・PgDn/右スティック上下
+//  Android など(キー設定なし): 2026-10-06 からの固定の表のまま(InputBindings.SetLegacy)
 public static class GamepadBindings
 {
     public const KeyCode A = KeyCode.JoystickButton0, B = KeyCode.JoystickButton1, X = KeyCode.JoystickButton2, Y = KeyCode.JoystickButton3;
@@ -152,36 +183,20 @@ public class KeyboardInputSource : IInputSource
 {
     public string Name => "keyboard";
     public InputDeviceKind Kind => InputDeviceKind.Keyboard;
-    static bool K(KeyCode k) => Input.GetKey(k);
-
-    public bool Held(GameAction a)
-    {
-        switch (a)
-        {
-            case GameAction.Jump: return K(KeyCode.Space) || K(KeyCode.W) || K(KeyCode.UpArrow);
-            case GameAction.AttackForward: return K(KeyCode.Z) || K(KeyCode.D) || K(KeyCode.RightArrow);
-            case GameAction.AttackBack: return K(KeyCode.B) || K(KeyCode.X) || K(KeyCode.A) || K(KeyCode.LeftArrow);
-            case GameAction.AttackUp: return false;
-            case GameAction.AttackDown: return K(KeyCode.S) || K(KeyCode.DownArrow);
-            case GameAction.Ultimate: return K(KeyCode.C);
-            case GameAction.Confirm: return K(KeyCode.Return) || K(KeyCode.KeypadEnter) || K(KeyCode.Space);
-            case GameAction.Cancel: return K(KeyCode.Escape) || K(KeyCode.Backspace);
-            case GameAction.Pause: return K(KeyCode.P);
-            case GameAction.NavUp: return K(KeyCode.UpArrow) || K(KeyCode.W);
-            case GameAction.NavDown: return K(KeyCode.DownArrow) || K(KeyCode.S);
-            case GameAction.NavLeft: return K(KeyCode.LeftArrow) || K(KeyCode.A);
-            case GameAction.NavRight: return K(KeyCode.RightArrow) || K(KeyCode.D);
-            case GameAction.TabPrev: return K(KeyCode.Q);
-            case GameAction.TabNext: return K(KeyCode.E);
-            case GameAction.ScrollUp: return K(KeyCode.PageUp);
-            case GameAction.ScrollDown: return K(KeyCode.PageDown);
-            case GameAction.Hold: return K(KeyCode.H);
-        }
-        return false;
-    }
-    // Esc は Android の「戻る」でもあるので、機器の切り替えには数えない(スマホで戻るを押してもフォーカスの枠を出さない)
-    public bool AnyActivity() => Input.anyKeyDown && !Input.GetMouseButtonDown(0) && !Input.GetMouseButtonDown(1) && !Input.GetKeyDown(KeyCode.Escape) && !PadKeyDown();
+    public bool Held(GameAction a) => InputBindings.KeyboardHeld(a);
+    // Esc は Android の「戻る」でもあるので、機器の切り替えには数えない(スマホで戻るを押してもフォーカスの枠を出さない)。マウスのボタンも数えない
+    public bool AnyActivity() => Input.anyKeyDown && !MouseKeyDown() && !Input.GetKeyDown(KeyCode.Escape) && !PadKeyDown();
     static bool PadKeyDown() { for (int i = 0; i < 12; i++) if (Input.GetKeyDown(KeyCode.JoystickButton0 + i)) return true; return false; }
+    static bool MouseKeyDown() { for (int i = 0; i < 7; i++) if (Input.GetMouseButtonDown(i)) return true; return false; }
+}
+
+// マウスのボタン(右/中/4/5…)とホイール(PC だけ。左クリックはタッチと同じ道 = PlayerController)
+public class MouseInputSource : IInputSource
+{
+    public string Name => "mouse";
+    public InputDeviceKind Kind => InputDeviceKind.Mouse;
+    public bool Held(GameAction a) => InputBindings.MouseHeld(a);
+    public bool AnyActivity() => false; // 機器の切り替えは GameInput.MouseActivity(動かしただけでも)
 }
 
 // 旧 Input Manager のジョイスティック(PC の XInput パッド)。軸は InputManager.asset の "Pad *"
@@ -189,56 +204,6 @@ public class LegacyGamepadInputSource : IInputSource
 {
     public string Name => "gamepad";
     public InputDeviceKind Kind => InputDeviceKind.Gamepad;
-    bool axesOk = true;
-    float lx, ly, rx, ry, dx, dy, lt, rt;
-    int frame = -1;
-
-    float Axis(string n)
-    {
-        if (!axesOk) return 0f;
-        try { return Input.GetAxisRaw(n); }
-        catch (System.ArgumentException) { axesOk = false; Debug.LogWarning("[GameInput] gamepad axes are missing in InputManager.asset"); return 0f; }
-    }
-    void Read()
-    {
-        if (frame == Time.frameCount) return;
-        frame = Time.frameCount;
-        lx = Axis("Pad LX"); ly = Axis("Pad LY"); rx = Axis("Pad RX"); ry = Axis("Pad RY");
-        dx = Axis("Pad DX"); dy = Axis("Pad DY"); lt = Axis("Pad LT"); rt = Axis("Pad RT");
-    }
-    static bool K(KeyCode k) => Input.GetKey(k);
-    const float T = GamepadBindings.StickThreshold;
-
-    public bool Held(GameAction a)
-    {
-        Read();
-        switch (a)
-        {
-            case GameAction.Jump: return K(GamepadBindings.A) || ry > T;
-            case GameAction.AttackForward: return K(GamepadBindings.X) || rx > T;
-            case GameAction.AttackBack: return K(GamepadBindings.Y) || rx < -T;
-            case GameAction.AttackUp: return false;
-            case GameAction.AttackDown: return K(GamepadBindings.B) || ry < -T;
-            case GameAction.Ultimate: return K(GamepadBindings.RB) || rt > 0.5f;
-            case GameAction.Confirm: return K(GamepadBindings.A);
-            case GameAction.Cancel: return K(GamepadBindings.B);
-            case GameAction.Pause: return K(GamepadBindings.Start);
-            case GameAction.NavUp: return ly > T || dy > 0.5f;
-            case GameAction.NavDown: return ly < -T || dy < -0.5f;
-            case GameAction.NavLeft: return lx < -T || dx < -0.5f;
-            case GameAction.NavRight: return lx > T || dx > 0.5f;
-            case GameAction.TabPrev: return K(GamepadBindings.LB);
-            case GameAction.TabNext: return K(GamepadBindings.RB);
-            case GameAction.ScrollUp: return ry > T;
-            case GameAction.ScrollDown: return ry < -T;
-            case GameAction.Hold: return K(GamepadBindings.Back);
-        }
-        return false;
-    }
-    public bool AnyActivity()
-    {
-        Read();
-        for (int i = 0; i < 12; i++) if (Input.GetKey(KeyCode.JoystickButton0 + i)) return true;
-        return Mathf.Abs(lx) > T || Mathf.Abs(ly) > T || Mathf.Abs(rx) > T || Mathf.Abs(ry) > T || Mathf.Abs(dx) > 0.5f || Mathf.Abs(dy) > 0.5f;
-    }
+    public bool Held(GameAction a) => InputBindings.PadHeld(a);
+    public bool AnyActivity() => InputBindings.PadAnyActivity();
 }

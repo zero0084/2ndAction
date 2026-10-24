@@ -1398,7 +1398,9 @@ public partial class GameManager : MonoBehaviour
         {
             // Starting now happens only via the on-screen START button (see
             // OnGUI) - Space is kept as an Editor-testing convenience.
-            if (Input.GetKeyDown(KeyCode.Space)) StartGame();
+#if UNITY_EDITOR
+            if (Input.GetKeyDown(KeyCode.Space)) StartGame(); // 2026-10-25: 製品版でホームの Space がランを直接始めていた → Editor だけ
+#endif
 
             // Drives the title screen's one-shot intro fade (logo -> START/
             // DECK -> BEST) - unscaled since nothing pauses time here, and
@@ -6422,6 +6424,8 @@ public partial class GameManager : MonoBehaviour
     // 遷移中は何もしない(連打で二重に開閉しない)。ホームではアプリを終了させない。
     void HandleBackButton()
     {
+        // キー設定の待ち受け中(2026-10-25): 押したキー/ボタンは割り当てに使う。Esc だけ取り消し(戻る)
+        if (SettingsPanel.CapturingInput) { if (Input.GetKeyDown(KeyCode.Escape)) DoBack(); return; }
         if (Input.GetKeyDown(KeyCode.Escape)) { DoBack(); return; }
         // ゲームパッドの B / Backspace(2026-10-06): メニューを操作している時/ホームだけ(ラン中の B は下攻撃)
         if (GameInput.Down(GameAction.Cancel) && (PadNav.MenuActive || !HasStarted)) DoBack();
@@ -6453,6 +6457,7 @@ public partial class GameManager : MonoBehaviour
         if (DataDeletionUi.IsOpen) { if (AccountDeletion.State == AccountDeletion.Phase.Confirm) AccountDeletion.CancelConfirm(); else DataDeletionUi.Close(); return; }
         if (MonetizationUi.Open) { MonetizationUi.Close(); return; }
         if (SettingsPanel.LangListOpen) { SettingsPanel.CloseLangList(); return; } // 言語の一覧だけを閉じる(2026-10-09)
+        if (SettingsPanel.HandleBack()) return; // キー設定の待ち受け/確認の窓/キー設定のページ/画面の確認(2026-10-25)
         if (SettingsPanel.IsVisible) { SettingsPanel.CloseStatic(); return; }
         if (NetDebugUI.PanelOpen) { NetDebugUI.ClosePanel(); return; }
         if (!HasStarted)

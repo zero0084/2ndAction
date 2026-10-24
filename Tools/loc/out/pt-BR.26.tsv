@@ -1,0 +1,63 @@
+10072	Ataque para cima
+10073	Ataque para frente
+10074	Ataque para trás
+10075	Fugir (segurar)
+10076	Pausa
+10077	Mover para cima
+10078	Mover para baixo
+10079	Mover para a esquerda
+10080	Mover para a direita
+10081	Aba anterior
+10082	Próxima aba
+10083	Roda para cima
+10084	Roda para baixo
+10085	Clique esquerdo
+10086	Clique direito
+10087	Clique do meio
+10088	Teclas
+10089	Teclado e mouse
+10090	Controle
+10091	Restaurar padrão
+10092	Botão 1
+10093	Botão 2
+10094	Tecla 1
+10095	Tecla 2
+10096	Mouse
+10097	Nenhum controle conectado
+10098	Controles na corrida
+10099	Controles do menu
+10100	O analógico esquerdo e o direcional (movimento nos menus) sempre funcionam.
+10101	Esc (voltar / pausa), Enter (confirmar) e as setas (movimento nos menus) sempre funcionam.
+10102	Arrastar com o botão esquerdo é um deslize (ataques nas quatro direções e pulo). Um clique esquerdo faz a ação atribuída a "Clique esquerdo" na tabela acima.
+10103	Pulo e ataque para cima são o mesmo movimento (no chão você pula atacando para cima).
+10104	A mesma tecla não pode ser atribuída a várias ações de corrida nem a várias ações de menu. Porém, ela pode ser usada tanto em uma ação de corrida quanto em uma ação de menu.
+10105	Pressione um novo botão
+10106	Pressione um botão do mouse ou gire a roda
+10107	Pressione uma nova tecla
+10108	Esc para cancelar ({0})
+10109	Sem atribuição
+10110	Esta tecla já é usada para "{0}"
+10111	As teclas desta ação não podem ser alteradas
+10112	Trocar
+10113	Restaurar as teclas padrão?
+10114	Todas as atribuições de teclado, mouse e controle voltarão ao estado original.
+10115	Manter esta exibição?
+10116	Voltando em {0} segundos
+10117	Manter
+10118	Reverter
+10119	Tela
+10120	Modo de exibição
+10121	Tela cheia
+10122	Janela
+10123	Resolução
+10124	Aplicar
+10125	Sincronização vertical
+10126	Limite de FPS
+10127	Ilimitado
+10128	A velocidade do jogo é a mesma em qualquer FPS.
+10129	Com a sincronização vertical ligada, a taxa de quadros segue a taxa de atualização da tela.
+10130	Depois de "Aplicar", o modo de exibição e a resolução voltam ao anterior se você não confirmar em 10 segundos.
+10131	Alterar
+10132	Altere as atribuições de teclado, mouse e controle.
+10133	Segure o botão esquerdo do mouse por 3 s
+10134	Segure {0} por 3 s

@@ -1,0 +1,63 @@
+10072	Atak w górę
+10073	Atak do przodu
+10074	Atak do tyłu
+10075	Ucieczka (przytrzymaj)
+10076	Pauza
+10077	W górę
+10078	W dół
+10079	W lewo
+10080	W prawo
+10081	Poprzednia karta
+10082	Następna karta
+10083	Kółko w górę
+10084	Kółko w dół
+10085	Lewy przycisk
+10086	Prawy przycisk
+10087	Środkowy przycisk
+10088	Przypisanie klawiszy
+10089	Klawiatura i mysz
+10090	Pad
+10091	Przywróć domyślne
+10092	Przycisk 1
+10093	Przycisk 2
+10094	Klawisz 1
+10095	Klawisz 2
+10096	Mysz
+10097	Nie podłączono pada
+10098	Sterowanie w biegu
+10099	Sterowanie w menu
+10100	Lewa gałka i krzyżak (ruch w menu) działają zawsze.
+10101	Esc (wróć / pauza), Enter (zatwierdź) i strzałki (ruch w menu) działają zawsze.
+10102	Przeciąganie lewym przyciskiem to przesunięcie (ataki w czterech kierunkach i skok). Kliknięcie lewym przyciskiem wykonuje akcję przypisaną do „Lewy przycisk” w tabeli powyżej.
+10103	Skok i atak w górę to ten sam ruch (na ziemi skaczesz, atakując w górę).
+10104	Tego samego klawisza nie można przypisać do kilku działań podczas biegu ani do kilku działań w menu. Można jednak używać tego samego klawisza do jednego działania podczas biegu i jednego w menu.
+10105	Naciśnij nowy przycisk
+10106	Naciśnij przycisk myszy lub obróć kółko
+10107	Naciśnij nowy klawisz
+10108	Esc, aby anulować ({0})
+10109	Nieprzypisany
+10110	Ten klawisz jest już używany do „{0}”
+10111	Klawiszy tej akcji nie można zmienić
+10112	Zamień
+10113	Przywrócić domyślne przypisania?
+10114	Wszystkie przypisania klawiatury, myszy i pada wrócą do stanu początkowego.
+10115	Zachować ten tryb wyświetlania?
+10116	Powrót za {0} s
+10117	Zachowaj
+10118	Przywróć
+10119	Ekran
+10120	Tryb wyświetlania
+10121	Pełny ekran
+10122	Okno
+10123	Rozdzielczość
+10124	Zastosuj
+10125	Synchronizacja pionowa
+10126	Limit FPS
+10127	Bez limitu
+10128	Szybkość gry jest taka sama przy każdym FPS.
+10129	Gdy synchronizacja pionowa jest na ON, liczba klatek dopasowuje się do częstotliwości odświeżania ekranu.
+10130	Po „Zastosuj” tryb wyświetlania i rozdzielczość wrócą do poprzednich, jeśli nie potwierdzisz ich w ciągu 10 sekund.
+10131	Zmień
+10132	Zmień przypisania klawiatury, myszy i pada.
+10133	Przytrzymaj lewy przycisk myszy przez 3 s
+10134	Przytrzymaj {0} przez 3 s

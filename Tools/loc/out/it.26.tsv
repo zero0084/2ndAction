@@ -1,0 +1,63 @@
+10072	Attacco in alto
+10073	Attacco in avanti
+10074	Attacco all'indietro
+10075	Fuga (tieni premuto)
+10076	Pausa
+10077	Su
+10078	Giù
+10079	Sinistra
+10080	Destra
+10081	Scheda precedente
+10082	Scheda successiva
+10083	Rotella su
+10084	Rotella giù
+10085	Clic sinistro
+10086	Clic destro
+10087	Clic centrale
+10088	Tasti
+10089	Tastiera e mouse
+10090	Controller
+10091	Ripristina predefiniti
+10092	Pulsante 1
+10093	Pulsante 2
+10094	Tasto 1
+10095	Tasto 2
+10096	Mouse
+10097	Nessun controller collegato
+10098	Comandi in corsa
+10099	Comandi dei menu
+10100	La levetta sinistra e la croce direzionale (movimento nei menu) funzionano sempre.
+10101	Esc (indietro / pausa), Invio (conferma) e le frecce (movimento nei menu) funzionano sempre.
+10102	Trascinare con il tasto sinistro è uno scorrimento (attacchi in quattro direzioni e salto). Un clic sinistro esegue l'azione assegnata a "Clic sinistro" nella tabella sopra.
+10103	Salto e attacco in alto sono la stessa mossa (a terra salti attaccando verso l'alto).
+10104	Lo stesso tasto non può essere assegnato a più azioni durante la corsa né a più azioni nei menu. Può però essere usato sia per un'azione di corsa sia per un'azione dei menu.
+10105	Premi un nuovo pulsante
+10106	Premi un tasto del mouse o gira la rotella
+10107	Premi un nuovo tasto
+10108	Esc per annullare ({0})
+10109	Non assegnato
+10110	Questo tasto è già usato per "{0}"
+10111	Il tasto di questa azione non può essere modificato
+10112	Scambia
+10113	Ripristinare i tasti predefiniti?
+10114	Tutte le assegnazioni di tastiera, mouse e controller torneranno allo stato iniziale.
+10115	Mantenere queste impostazioni dello schermo?
+10116	Le impostazioni precedenti verranno ripristinate tra {0} secondi
+10117	Mantieni
+10118	Ripristina le impostazioni precedenti
+10119	Schermo
+10120	Modalità schermo
+10121	Schermo intero
+10122	Finestra
+10123	Risoluzione
+10124	Applica
+10125	VSync
+10126	Limite FPS
+10127	Illimitato
+10128	La velocità di gioco è la stessa con qualsiasi FPS.
+10129	Con la sincronia verticale attiva, la frequenza dei fotogrammi segue quella dello schermo.
+10130	Dopo "Applica", modalità e risoluzione tornano indietro se non confermi entro 10 secondi.
+10131	Modifica
+10132	Modifica le assegnazioni di tastiera, mouse e controller.
+10133	Tieni premuto il tasto sinistro del mouse per 3 s
+10134	Tieni premuto {0} per 3 s

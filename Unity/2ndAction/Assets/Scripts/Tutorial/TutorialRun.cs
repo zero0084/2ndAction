@@ -267,19 +267,24 @@ public class TutorialRun : MonoBehaviour
     public void Retry() { TutorialLauncher.Relaunch("retry"); }
 
     // ---------------------------------------------------------------- 表示
-    static string Key(string touch, string keys, string pad)
+    // 2026-10-25: PC はキー設定の今の割り当てを出す(キーを変えると案内も変わる)。最後に使った機器(キーボード/マウス/パッド)の物。
+    //  キー設定の無い環境(Android の Bluetooth キーボード/パッド)は今までの文のまま
+    static string Key(string touch, string keys, string pad, GameAction a)
     {
-        switch (GameInput.LastDevice)
+        var dev = GameInput.LastDevice;
+        if (InputBindings.Rebindable && dev != InputDeviceKind.Touch)
+            return (a == GameAction.Jump ? InputBindings.HintForUp(dev) : InputBindings.HintFor(a, dev)) ?? Loc.T(touch);
+        switch (dev)
         {
             case InputDeviceKind.Keyboard: return keys;
             case InputDeviceKind.Gamepad: return pad;
             default: return touch;
         }
     }
-    static string FwdIn => Key("右(前)へフリック", "→ / D / Z キー", "X ボタン(右スティック →)");
-    static string BackIn => Key("左(後ろ)へフリック", "← / A / X キー", "Y ボタン(右スティック ←)");
-    static string UpIn => Key("上へフリック", "↑ / W / Space キー", "A ボタン(右スティック ↑)");
-    static string DownIn => Key("下へフリック", "↓ / S キー", "B ボタン(右スティック ↓)");
+    static string FwdIn => Key("右(前)へフリック", "→ / D / Z キー", "X ボタン(右スティック →)", GameAction.AttackForward);
+    static string BackIn => Key("左(後ろ)へフリック", "← / A / X キー", "Y ボタン(右スティック ←)", GameAction.AttackBack);
+    static string UpIn => Key("上へフリック", "↑ / W / Space キー", "A ボタン(右スティック ↑)", GameAction.Jump);
+    static string DownIn => Key("下へフリック", "↓ / S キー", "B ボタン(右スティック ↓)", GameAction.AttackDown);
 
     string Title()
     {
@@ -311,7 +316,7 @@ public class TutorialRun : MonoBehaviour
     string ExplainWithTap()
     {
         string body = Loc.Auto(Explain());
-        if (GameInput.LastDevice == InputDeviceKind.Keyboard || GameInput.LastDevice == InputDeviceKind.Gamepad) return body;
+        if (GameInput.LastDevice == InputDeviceKind.Keyboard || GameInput.LastDevice == InputDeviceKind.Gamepad || GameInput.LastDevice == InputDeviceKind.Mouse) return body; // マウスは割り当ての案内(左クリック)を出す
         string extra = CurrentStep == Step.Attack ? LocPendingReview.TapAttackLine : CurrentStep == Step.Launch ? LocPendingReview.TapAirLine : null;
         if (extra == null || !Loc.Ready(extra)) return body;
         return body + "\n\n" + Loc.T(extra);

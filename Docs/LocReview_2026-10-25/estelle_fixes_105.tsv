@@ -1,0 +1,105 @@
+en	10104	The same key cannot be assigned to multiple actions within the same context. You can use the same key for both run and menu controls.
+en	10111	The key for this action cannot be changed.
+zh-Hans	10089	键盘与鼠标
+zh-Hans	10098	本局操作
+zh-Hans	10104	同一操作类别内，一个按键不能分配给多个操作。本局操作和菜单操作可以使用相同的按键。
+zh-Hans	10114	将键盘、鼠标和手柄的所有按键设置恢复为默认状态。
+zh-Hans	10119	屏幕
+zh-Hans	10132	可以更改键盘、鼠标和手柄的按键设置。
+zh-Hant	10089	鍵盤與滑鼠
+zh-Hant	10104	同一操作類別內，一個按鍵不能指派給多個操作。奔跑時與選單中可以使用相同的按鍵。
+zh-Hant	10114	將鍵盤、滑鼠和手把的所有按鍵設定恢復為預設狀態。
+zh-Hant	10119	螢幕
+zh-Hant	10132	可以變更鍵盤、滑鼠和手把的按鍵設定。
+ko	10098	런 중 조작
+ko	10104	같은 조작 구분에서는 하나의 키를 여러 동작에 지정할 수 없습니다. 런 중 조작과 메뉴 조작에는 같은 키를 사용할 수 있습니다.
+ko	10114	키보드・마우스・게임패드의 키 배정을 모두 기본 설정으로 되돌립니다.
+ko	10132	키보드・마우스・게임패드의 키 배정을 변경할 수 있습니다.
+es	10088	Configuración de teclas
+es	10101	Esc (volver / pausa), Enter (confirmar) y las flechas (moverse por los menús) siempre funcionan.
+es	10104	No puedes asignar la misma tecla a varias acciones de la carrera ni a varias acciones del menú. Sin embargo, puedes usar la misma tecla para una acción de carrera y otra de menú.
+es	10111	La tecla de esta acción no se puede cambiar
+es	10115	¿Mantener estos ajustes de pantalla?
+es	10116	Se restaurará la configuración anterior en {0} segundos
+es	10125	VSync
+fr	10101	Esc (retour / pause), Enter (valider) et les flèches (navigation dans les menus) restent toujours utilisables.
+fr	10104	Une même touche ne peut pas être attribuée à plusieurs actions de course ni à plusieurs actions de menu. Elle peut toutefois être utilisée à la fois pour une action de course et une action de menu.
+fr	10111	La touche de cette action ne peut pas être modifiée
+fr	10115	Conserver ces paramètres d'affichage ?
+fr	10116	Retour aux paramètres précédents dans {0} secondes
+fr	10118	Revenir aux paramètres précédents
+fr	10125	VSync
+de	10091	Standardbelegung
+de	10104	Eine Taste darf innerhalb der Laufsteuerung oder der Menüsteuerung nicht mehrfach belegt werden. Für Lauf- und Menüsteuerung darf jedoch dieselbe Taste verwendet werden.
+de	10111	Die Taste für diese Aktion kann nicht geändert werden
+de	10115	Diese Anzeigeeinstellungen beibehalten?
+de	10116	Vorherige Anzeige in {0} Sekunden wiederherstellen
+de	10118	Wiederherstellen
+de	10128	Die Spielgeschwindigkeit bleibt unabhängig von der FPS-Zahl gleich.
+it	10104	Lo stesso tasto non può essere assegnato a più azioni durante la corsa né a più azioni nei menu. Può però essere usato sia per un'azione di corsa sia per un'azione dei menu.
+it	10111	Il tasto di questa azione non può essere modificato
+it	10115	Mantenere queste impostazioni dello schermo?
+it	10116	Le impostazioni precedenti verranno ripristinate tra {0} secondi
+it	10118	Ripristina le impostazioni precedenti
+it	10125	VSync
+pt-BR	10104	A mesma tecla não pode ser atribuída a várias ações de corrida nem a várias ações de menu. Porém, ela pode ser usada tanto em uma ação de corrida quanto em uma ação de menu.
+pt-BR	10117	Manter
+pt-BR	10118	Reverter
+ru	10104	Одну клавишу нельзя назначить нескольким действиям в забеге или нескольким действиям в меню. Но одну и ту же клавишу можно использовать и в забеге, и в меню.
+ru	10117	Сохранить
+ru	10118	Вернуть
+uk	10104	Одну клавішу не можна призначити кільком діям під час забігу або кільком діям у меню. Але ту саму клавішу можна використовувати і під час забігу, і в меню.
+uk	10117	Залишити
+uk	10118	Повернути
+pl	10104	Tego samego klawisza nie można przypisać do kilku działań podczas biegu ani do kilku działań w menu. Można jednak używać tego samego klawisza do jednego działania podczas biegu i jednego w menu.
+pl	10117	Zachowaj
+pl	10118	Przywróć
+cs	10104	Stejnou klávesu nelze přiřadit více akcím během běhu ani více akcím v nabídce. Lze ji však použít pro jednu akci během běhu a jednu akci v nabídce.
+cs	10117	Ponechat
+cs	10118	Vrátit
+ro	10104	Aceeași tastă nu poate fi atribuită mai multor acțiuni din timpul cursei sau mai multor acțiuni din meniu. Totuși, poate fi folosită atât pentru o acțiune din cursă, cât și pentru una din meniu.
+ro	10117	Păstrează
+ro	10118	Revino
+tr	10104	Aynı tuş, koşu kontrollerinde birden fazla eyleme veya menü kontrollerinde birden fazla eyleme atanamaz. Ancak koşu ve menü kontrollerinde aynı tuş kullanılabilir.
+tr	10117	Koru
+tr	10118	Geri Al
+ar	10104	لا يمكن تعيين المفتاح نفسه لأكثر من إجراء ضمن عناصر التحكم أثناء الركض، ولا لأكثر من إجراء ضمن عناصر التحكم في القائمة. لكن يمكن استخدام المفتاح نفسه لإجراء أثناء الركض وآخر في القائمة.
+ar	10117	إبقاء
+ar	10118	تراجع
+fa	10104	یک کلید را نمی‌توان به چند عمل در کنترل‌های دویدن یا چند عمل در کنترل‌های منو اختصاص داد. اما می‌توان از همان کلید برای یک عمل هنگام دویدن و یک عمل در منو استفاده کرد.
+fa	10117	نگه‌دار
+fa	10118	بازگردانی
+hi	10104	रन के नियंत्रणों में एक ही कुंजी कई क्रियाओं को नहीं दी जा सकती। मेनू के नियंत्रणों में भी ऐसा नहीं किया जा सकता। लेकिन रन और मेनू में एक ही कुंजी का उपयोग किया जा सकता है।
+hi	10117	रखें
+hi	10118	वापस करें
+bn	10104	রানের নিয়ন্ত্রণে একই কী একাধিক কাজে দেওয়া যাবে না। মেনুর নিয়ন্ত্রণেও একই নিয়ম প্রযোজ্য। তবে রান ও মেনুর একটি করে কাজে একই কী ব্যবহার করা যাবে।
+ta	10104	ரன் கட்டுப்பாடுகளில் ஒரே விசையைப் பல செயல்களுக்கு ஒதுக்க முடியாது. மெனு கட்டுப்பாடுகளிலும் அவ்வாறே. ஆனால் ரன்னில் ஒரு செயலுக்கும் மெனுவில் ஒரு செயலுக்கும் ஒரே விசையைப் பயன்படுத்தலாம்.
+ta	10117	வைத்திரு
+ta	10118	மீட்டமை
+id	10104	Tombol yang sama tidak dapat ditetapkan ke beberapa aksi dalam kontrol run maupun kontrol menu. Namun, tombol yang sama boleh digunakan untuk satu aksi run dan satu aksi menu.
+id	10117	Pertahankan
+id	10118	Kembalikan
+th	10104	ไม่สามารถกำหนดปุ่มเดียวกันให้หลายคำสั่งภายในรันหรือภายในเมนูได้ แต่สามารถใช้ปุ่มเดียวกันสำหรับคำสั่งหนึ่งในรันและอีกคำสั่งหนึ่งในเมนูได้
+th	10117	ใช้ต่อ
+th	10118	คืนค่าเดิม
+vi	10104	Không thể gán cùng một phím cho nhiều thao tác trong lượt chạy hoặc nhiều thao tác trong menu. Tuy nhiên, có thể dùng cùng phím cho một thao tác trong lượt chạy và một thao tác trong menu.
+vi	10117	Giữ nguyên
+vi	10118	Khôi phục
+ms	10104	Kekunci yang sama tidak boleh ditetapkan kepada beberapa tindakan dalam kawalan larian atau beberapa tindakan dalam kawalan menu. Namun, kekunci yang sama boleh digunakan untuk satu tindakan larian dan satu tindakan menu.
+ms	10117	Kekalkan
+ms	10118	Kembalikan
+fil	10104	Hindi maaaring italaga ang parehong key sa maraming aksyon sa run o sa maraming aksyon sa menu. Pero maaaring gamitin ang parehong key para sa isang aksyon sa run at isang aksyon sa menu.
+fil	10117	Panatilihin
+fil	10118	Ibalik
+sw	10104	Huwezi kuweka kitufe kilekile kwa vitendo vingi ndani ya vidhibiti vya mbio au ndani ya vidhibiti vya menyu. Hata hivyo, unaweza kutumia kitufe kilekile kwa kitendo kimoja cha mbio na kimoja cha menyu.
+sw	10117	Hifadhi
+sw	10118	Rejesha
+km	10104	មិនអាចកំណត់គ្រាប់ចុចដូចគ្នាសម្រាប់សកម្មភាពច្រើនក្នុងការគ្រប់គ្រងពេលរត់ ឬក្នុងការគ្រប់គ្រងម៉ឺនុយបានទេ។ ប៉ុន្តែអាចប្រើគ្រាប់ចុចដូចគ្នាសម្រាប់សកម្មភាពមួយពេលរត់ និងសកម្មភាពមួយក្នុងម៉ឺនុយបាន។
+km	10117	រក្សាទុក
+km	10118	ត្រឡប់វិញ
+lo	10104	ບໍ່ສາມາດກຳນົດປຸ່ມດຽວກັນໃຫ້ຫຼາຍຄຳສັ່ງພາຍໃນການຄວບຄຸມຂະນະແລ່ນ ຫຼື ພາຍໃນການຄວບຄຸມເມນູໄດ້. ແຕ່ສາມາດໃຊ້ປຸ່ມດຽວກັນສຳລັບໜຶ່ງຄຳສັ່ງຂະນະແລ່ນ ແລະ ໜຶ່ງຄຳສັ່ງໃນເມນູໄດ້.
+lo	10117	ຄົງໄວ້
+lo	10118	ຄືນຄ່າເດີມ
+my	10104	ပြေးနေစဉ် ထိန်းချုပ်မှုများအတွင်း သို့မဟုတ် မီနူးထိန်းချုပ်မှုများအတွင်း ခလုတ်တစ်ခုတည်းကို လုပ်ဆောင်ချက်များစွာအတွက် သတ်မှတ်၍မရပါ။ သို့သော် ပြေးနေစဉ် လုပ်ဆောင်ချက်တစ်ခုနှင့် မီနူးလုပ်ဆောင်ချက်တစ်ခုအတွက် ခလုတ်တစ်ခုတည်းကို အသုံးပြုနိုင်ပါသည်။
+my	10117	ဆက်ထား
+my	10118	ပြန်ထား

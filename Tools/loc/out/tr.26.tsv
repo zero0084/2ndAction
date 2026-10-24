@@ -1,0 +1,63 @@
+10072	Yukarı saldırı
+10073	İleri saldırı
+10074	Geri saldırı
+10075	Kaçış (basılı tut)
+10076	Duraklat
+10077	Yukarı
+10078	Aşağı
+10079	Sola
+10080	Sağa
+10081	Önceki sekme
+10082	Sonraki sekme
+10083	Tekerlek yukarı
+10084	Tekerlek aşağı
+10085	Sol tık
+10086	Sağ tık
+10087	Orta tık
+10088	Tuş atamaları
+10089	Klavye ve fare
+10090	Oyun kumandası
+10091	Varsayılana dön
+10092	Düğme 1
+10093	Düğme 2
+10094	Tuş 1
+10095	Tuş 2
+10096	Fare
+10097	Bağlı oyun kumandası yok
+10098	Koşu kontrolleri
+10099	Menü kontrolleri
+10100	Sol çubuk ve yön tuşları (menüde hareket) her zaman çalışır.
+10101	Esc (geri / duraklat), Enter (onayla) ve ok tuşları (menüde hareket) her zaman çalışır.
+10102	Sol tuşla sürüklemek kaydırmadır (dört yöne saldırı ve zıplama). Sol tık, yukarıdaki tabloda "Sol tık"a atanan eylemi yapar.
+10103	Zıplama ve yukarı saldırı aynı harekettir (yerde yukarı saldırırken zıplarsın).
+10104	Aynı tuş, koşu kontrollerinde birden fazla eyleme veya menü kontrollerinde birden fazla eyleme atanamaz. Ancak koşu ve menü kontrollerinde aynı tuş kullanılabilir.
+10105	Yeni bir düğmeye bas
+10106	Bir fare düğmesine bas veya tekerleği çevir
+10107	Yeni bir tuşa bas
+10108	İptal için Esc ({0})
+10109	Atanmadı
+10110	Bu tuş zaten "{0}" için kullanılıyor
+10111	Bu eylemin tuşları değiştirilemez
+10112	Değiştir
+10113	Varsayılan atamalara dönülsün mü?
+10114	Tüm klavye, fare ve oyun kumandası atamaları ilk hâline döner.
+10115	Bu görüntü ayarı kalsın mı?
+10116	{0} saniye sonra geri dönülecek
+10117	Koru
+10118	Geri Al
+10119	Ekran
+10120	Görüntü modu
+10121	Tam ekran
+10122	Pencere
+10123	Çözünürlük
+10124	Uygula
+10125	Dikey senkronizasyon
+10126	FPS sınırı
+10127	Sınırsız
+10128	Oyun hızı her FPS'de aynıdır.
+10129	Dikey senkronizasyon ON iken kare hızı ekranın yenileme hızını izler.
+10130	"Uygula"dan sonra 10 saniye içinde onaylamazsan görüntü modu ve çözünürlük geri döner.
+10131	Değiştir
+10132	Klavye, fare ve oyun kumandası atamalarını değiştir.
+10133	Sol fare tuşunu 3 saniye basılı tut
+10134	{0} tuşunu 3 saniye basılı tut

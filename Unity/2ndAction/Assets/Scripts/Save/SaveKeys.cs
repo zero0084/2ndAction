@@ -120,6 +120,11 @@ public static class SaveKeys
         new Entry(NetPlayer.LocalKeyPref, SaveCategory.Settings, SaveType.String, "マルチ: この端末の参加者の鍵(再接続で同じ番号/色に戻すため。オンラインはサービスの ID を使う、2026-10-14)"),
         new Entry(GameSettings.AuraKey, SaveCategory.Settings, SaveType.Float, "識別用オーラ(マルチ/CPU サポート)の濃さ 0〜1(2026-10-14、既定 0.6)"),
         new Entry(SupportDeparturePanel.PrefKey, SaveCategory.Settings, SaveType.String, "CPU サポート: 前回選んだ仲間(キャラの ID のカンマ区切り、最大3人。2026-10-14)"),
+        new Entry(InputBindings.PrefKey, SaveCategory.Settings, SaveType.String, "キー設定(PC だけ。v1|行動=キー1,キー2,マウス/パッド1,パッド2。無ければ初期の表。Android は読まない、2026-10-25)"),
+        new Entry(DisplaySettings.ModeKey, SaveCategory.Settings, SaveType.Int, "PC の表示モード 0=フルスクリーン/1=ボーダーレス/2=ウィンドウ(確定した時だけ保存。無ければ Unity の既定、2026-10-25)"),
+        new Entry(DisplaySettings.ResKey, SaveCategory.Settings, SaveType.String, "PC の解像度 \"幅x高さ\"(確定した時だけ保存、2026-10-25)"),
+        new Entry(DisplaySettings.VSyncKey, SaveCategory.Settings, SaveType.Int, "PC の垂直同期 1/0(既定1、2026-10-25)"),
+        new Entry(DisplaySettings.FpsKey, SaveCategory.Settings, SaveType.Int, "PC の FPS 上限(垂直同期 OFF の時。0=無制限、2026-10-25)"),
 
         // ---- 開発版のみ ----
         new Entry("InvincibleMode", SaveCategory.Dev, SaveType.Int, "無敵(開発版のみ)"),

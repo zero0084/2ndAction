@@ -149,6 +149,8 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaTouchFlick") { mode = "touchflick"; dir = a[i + 1]; } // 2026-10-23 フリックの復旧(指の経路で確認)
             if (a[i] == "-qaLicenses") { mode = "licenses"; dir = a[i + 1]; } // 2026-10-23 ライセンスの画面
             if (a[i] == "-storeCapture") { mode = "storecapture"; dir = a[i + 1]; } // 2026-10-23 Steam のストア素材の撮影
+            if (a[i] == "-qaInput") { mode = "input"; dir = a[i + 1]; } // 2026-10-25 操作・設定の整理(キー/マウス/パッド/キー設定/画面設定)
+            if (a[i] == "-qaFps") { mode = "fps"; dir = a[i + 1]; } // 2026-10-25 FPS 上限で速さが変わらないか
         }
         if (mode == null) return;
         Application.runInBackground = true;
@@ -273,6 +275,8 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "sprint") yield return SprintMode();
         else if (mode == "charselect") yield return CharSelectMode();
         else if (mode == "pad") yield return PadMode();
+        else if (mode == "input") yield return InputMode();
+        else if (mode == "fps") yield return FpsMode();
         else if (mode == "finish") yield return FinishMode();
         else if (mode == "bossfinish") yield return BossFinishMode();
         else if (mode == "audio") yield return AudioMode();

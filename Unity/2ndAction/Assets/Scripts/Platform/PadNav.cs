@@ -41,6 +41,7 @@ public class PadNav : MonoBehaviour
 
     // メニュー操作が有効か(パッド/キーを使っていて、HUD 以外の候補がある)
     public static bool MenuActive { get; private set; }
+    public static bool Suspended; // 2026-10-25: キー設定の待ち受け中はメニュー操作を止める
     public static bool ShowFocus => MenuActive && hasFocus && GameInput.UsingNonTouch;
     public static int Candidates => prev.Count;
     public static Rect FocusRect => focusRect;
@@ -66,6 +67,7 @@ public class PadNav : MonoBehaviour
     {
         ScrollRequest = 0;
         confirmPending = false;
+        if (Suspended) { MenuActive = false; return; } // キー設定の待ち受け中(押したボタン/スティックを割り当てに使う。フォーカスを動かさない)
         int top = int.MinValue;
         foreach (var c in prev) if (c.layer > top) top = c.layer;
         MenuActive = prev.Count > 0 && top > HudLayer && GameInput.UsingNonTouch;
