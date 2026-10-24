@@ -1,0 +1,9 @@
+10063	Top Speed
+10064	(Standard)
+10065	{0}: about {1} km/h
+10066	Slower
+10067	Standard
+10068	Faster
+10069	Sets the top speed reached through natural acceleration. Character speed differences and speed card effects still apply.
+10070	Cannot be changed during a run. Takes effect on your next run.
+10071	High-speed assist may not activate at this top speed because it's below the AUTO start speed.

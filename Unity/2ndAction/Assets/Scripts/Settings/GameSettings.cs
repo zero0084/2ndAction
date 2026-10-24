@@ -11,6 +11,11 @@ public static class GameSettings
     const string GlowKey = "GlowIntensity";
     const string ObstacleWarnKey = "ObstacleWarnMode"; // 2026-10-11: 障害物の警告 1 = 点滅あり / 2 = 輪郭のみ(点滅なし)
     public const string AuraKey = "AuraIntensityV1";   // 2026-10-14: 識別用オーラ(マルチ/CPU サポート)の濃さ 0〜1。0 は名前と番号だけ
+    // 2026-10-24: 最高速度(自然に加速した時の上限)の倍率 %。60〜120、5刻み。値が無い(既存のセーブ)= 100(今までと同じ)。
+    // 難易度ではなく「遊びやすい速さの好み」。キャラごとの速さの違い・速さのカード・一時的な加速には掛けない(PlayerController.NaturalMultiplierAt)
+    public const string MaxSpeedKey = "MaxSpeedPercentV1";
+    public const int MaxSpeedMin = 60, MaxSpeedMax = 120, MaxSpeedStep = 5, MaxSpeedDefault = 100;
+    static int maxSpeed = MaxSpeedDefault;
     static float aura = 0.6f;
     static bool loaded;
     static bool shake = true;
@@ -25,6 +30,18 @@ public static class GameSettings
         glow = Mathf.Clamp01(SaveStore.GetFloat(GlowKey, 1f));
         obstacleWarn = Mathf.Clamp(SaveStore.GetInt(ObstacleWarnKey, 1), 1, 2);
         aura = Mathf.Clamp01(SaveStore.GetFloat(AuraKey, 0.6f));
+        maxSpeed = SnapMaxSpeed(SaveStore.GetInt(MaxSpeedKey, MaxSpeedDefault));
+    }
+
+    // 5% 刻みへ丸めて 60〜120 に収める(保存の値が壊れていても / タッチでも中途半端な値にしない)
+    public static int SnapMaxSpeed(int pct) => Mathf.Clamp(Mathf.RoundToInt(pct / (float)MaxSpeedStep) * MaxSpeedStep, MaxSpeedMin, MaxSpeedMax);
+    public static int MaxSpeedPercent { get { Load(); return maxSpeed; } }
+    public static void SetMaxSpeedPercent(int pct)
+    {
+        Load();
+        maxSpeed = SnapMaxSpeed(pct);
+        SaveStore.SetInt(MaxSpeedKey, maxSpeed);
+        SaveStore.Save();
     }
 
     public static void Reload() { loaded = false; } // セーブの初期化の後に読み直す(2026-10-01)

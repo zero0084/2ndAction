@@ -182,6 +182,11 @@ public static class Loc
         return Display(Raw(key));
     }
 
+    // 2026-10-24: 並べ替え/字形の処理をする前の訳(F の引数に入れる文字・いくつかの訳をつないでから Shape で1回だけ処理する時)。
+    // T の結果を F の引数に入れると、アラビア文字/インドの文字で2回処理されて崩れる
+    public static string Plain(string key) => string.IsNullOrEmpty(key) ? key : Raw(key);
+    public static string Shape(string s) { if (current == null) Init(); return string.IsNullOrEmpty(s) ? s : Display(s); }
+
     public static string F(string key, params object[] args)
     {
         string s = Raw(key);

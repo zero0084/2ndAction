@@ -51,6 +51,17 @@ public static class LocPendingReview
     public const string ResultEscapedOld = "GAME CLEAR";
     public const string LicensesNote = "このゲームで使っている素材の著作権表示とライセンスです(原文のまま掲載しています)。"; // ID 10058
 
+    // 最高速度の設定(2026-10-24、設定 → 操作)。エステルのレビュー済み・30言語へ反映済み(Tools/loc/keys_extra25.tsv)
+    public const string MaxSpeedTitle = "最高速度";                                                     // ID 10063
+    public const string MaxSpeedStandardSuffix = "(標準)";                                              // ID 10064(100% の後ろ)
+    public const string MaxSpeedEstimate = "{0}: 約 {1}km/h";                                           // ID 10065 {0}=キャラ名 {1}=速さ
+    public const string MaxSpeedSlow = "ゆっくり";                                                       // ID 10066
+    public const string MaxSpeedStandard = "標準";                                                       // ID 10067
+    public const string MaxSpeedFast = "速い";                                                           // ID 10068
+    public const string MaxSpeedNote = "自然に加速した時の最高速度です。キャラごとの速さの違いと速さのカードの効果はそのまま残ります。"; // ID 10069
+    public const string MaxSpeedLocked = "ラン中は変更できません。次のランから反映されます。";             // ID 10070
+    public const string MaxSpeedBelowAssist = "この最高速度では、高速補助が作動しない場合があります(オート開始速度より遅いため)。"; // ID 10071
+
     // ID 10012〜10047(2026-10-19): データとプライバシー(プライバシーポリシー/データの削除)と LOCAL の暗号化。レビュー待ち(Docs/LocReview_2026-10-19)。
     //  前の文が無い新しい画面なので、訳が入るまでは日本語のまま出る(開発版だけ)。製品版の Android ビルドは全言語の訳が入るまで止まる
     //  2026-10-23: 10010〜10047・10056〜10059 をエステルのレビュー(Tools/loc/est23、42件 × 29言語)で 30言語へ反映 → すべて外した

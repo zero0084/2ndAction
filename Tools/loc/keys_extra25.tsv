@@ -1,0 +1,9 @@
+10063	ui	Settings/SettingsPanel.cs 最高速度 レビュー 2026-10-24 (エステル)	最高速度
+10064	ui	Settings/SettingsPanel.cs 最高速度 レビュー 2026-10-24 (エステル)	(標準)
+10065	ui	Settings/SettingsPanel.cs 最高速度 レビュー 2026-10-24 (エステル)	{0}: 約 {1}km/h
+10066	ui	Settings/SettingsPanel.cs 最高速度 レビュー 2026-10-24 (エステル)	ゆっくり
+10067	ui	Settings/SettingsPanel.cs 最高速度 レビュー 2026-10-24 (エステル)	標準
+10068	ui	Settings/SettingsPanel.cs 最高速度 レビュー 2026-10-24 (エステル)	速い
+10069	ui	Settings/SettingsPanel.cs 最高速度 レビュー 2026-10-24 (エステル)	自然に加速した時の最高速度です。キャラごとの速さの違いと速さのカードの効果はそのまま残ります。
+10070	ui	Settings/SettingsPanel.cs 最高速度 レビュー 2026-10-24 (エステル)	ラン中は変更できません。次のランから反映されます。
+10071	ui	Settings/SettingsPanel.cs 最高速度 レビュー 2026-10-24 (エステル)	この最高速度では、高速補助が作動しない場合があります(オート開始速度より遅いため)。

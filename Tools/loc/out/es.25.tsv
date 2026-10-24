@@ -1,0 +1,9 @@
+10063	Velocidad máxima
+10064	(Estándar)
+10065	{0}: aprox. {1} km/h
+10066	Más lento
+10067	Estándar
+10068	Más rápido
+10069	Establece la velocidad máxima alcanzada mediante la aceleración natural. Se mantienen las diferencias de velocidad entre personajes y los efectos de las cartas de velocidad.
+10070	No se puede cambiar durante una carrera. Se aplicará a partir de la siguiente carrera.
+10071	Es posible que la asistencia a alta velocidad no se active con este límite, ya que está por debajo de la Velocidad de inicio AUTO.

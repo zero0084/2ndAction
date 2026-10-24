@@ -1,0 +1,9 @@
+10063	Azami Hız
+10064	(Standart)
+10065	{0}: yaklaşık {1} km/sa
+10066	Daha yavaş
+10067	Standart
+10068	Daha hızlı
+10069	Doğal hızlanmayla ulaşılabilecek azami hızı belirler. Karakterlerin hız farkları ve hız kartlarının etkileri değişmez.
+10070	Koşu sırasında değiştirilemez. Sonraki koşudan itibaren geçerli olur.
+10071	Bu azami hızda yüksek hız desteği devreye girmeyebilir, çünkü AUTO başlama hızı değerinin altındadır.

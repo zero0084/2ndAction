@@ -104,13 +104,18 @@ public partial class PlayerController : MonoBehaviour
     // 自然加速の上限倍率(100km/h ÷ 18km/h ≒ 5.56)
     public float NaturalCapMultiplier => Mathf.Max(1.01f, naturalSpeedCapKmh / GameManager.KmhPerMps / CommonBaseRunSpeed);
     // 走行距離(論理)での自然加速の倍率。地形/敵の間隔の決定(TerrainManager)もこれを使う。
+    // 2026-10-24: 上限だけにプレイヤーの「最高速度」の設定(UserSpeedScale)を掛ける。加速の曲線(18km/h から +5%/100m)は同じ。
+    // キャラの速さ(groundMobilityMultiplier)と速さのカードは runSpeed に入っているので、この後で掛かる = キャラの差は残る。
     public float NaturalMultiplierAt(float distance)
     {
         if (distance <= speedUpStartDistance) return 1f;
         float steps = (distance - speedUpStartDistance) / 100f;
         float m = speedRampMode == SpeedRampMode.Compound ? Mathf.Pow(1f + speedUpPer100m, steps) : 1f + steps * speedUpPer100m;
-        return Mathf.Min(m, NaturalCapMultiplier);
+        return Mathf.Min(m, Mathf.Max(1.01f, NaturalCapMultiplier * UserSpeedScale));
     }
+    // プレイヤーの最高速度の設定(1 = 100%)。マルチは全端末で地形/敵の間隔を同じにするため常に 100%。
+    // 闘技場/チュートリアルは自分の速さ(ArenaAutoSpeed/TutorialMode)を使うので関係ない。設定はラン中には変えられない(SettingsPanel)
+    public static float UserSpeedScale => NetRunLauncher.IsMultiplayerRun ? 1f : GameSettings.MaxSpeedPercent / 100f;
     // 自然加速の上限に届く距離(m)
     public float NaturalCapDistance => speedRampMode == SpeedRampMode.Compound
         ? speedUpStartDistance + 100f * Mathf.Log(NaturalCapMultiplier) / Mathf.Log(1f + Mathf.Max(0.0001f, speedUpPer100m))

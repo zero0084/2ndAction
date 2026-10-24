@@ -102,6 +102,7 @@ public static class SaveKeys
         new Entry("ScreenShakeEnabled", SaveCategory.Settings, SaveType.Int, "画面揺れ"),
         new Entry("ObstacleWarnMode", SaveCategory.Settings, SaveType.Int, "障害物の警告(1 点滅あり / 2 輪郭のみ)"),
         new Entry("GlowIntensity", SaveCategory.Settings, SaveType.Float, "発光演出の強さ 0〜1"),
+        new Entry(GameSettings.MaxSpeedKey, SaveCategory.Settings, SaveType.Int, "最高速度 % (60〜120、5刻み。無ければ 100)"),
         new Entry("HighSpeedAssistEnabled", SaveCategory.Settings, SaveType.Int, "オートモード(高速時の自動操作補助)全体"),
         new Entry("HighSpeedAssistEngageKmh", SaveCategory.Settings, SaveType.Float, "オート開始速度(km/h)"),
         new Entry(HighSpeedAssist.BossPrefKey, SaveCategory.Settings, SaveType.Int, "ボス戦でもオート(既定1、2026-10-08)"),

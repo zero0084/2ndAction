@@ -228,7 +228,13 @@ public class SettingsPanel : MonoBehaviour
     {
         var st = new GUIStyle(UiKit.Label(20f));
         float max = LabelW - 8f;
-        if (st.CalcSize(new GUIContent(Loc.Auto(text))).x > max) { st = new GUIStyle(UiKit.Label(16f)); st.wordWrap = true; }
+        string shown = Loc.Auto(text);
+        if (st.CalcSize(new GUIContent(shown)).x > max)
+        {
+            st = new GUIStyle(UiKit.Label(16f)); st.wordWrap = true;
+            // 2026-10-24: 1語が長くて折り返せない時(ドイツ語の Höchstgeschwindigkeit など)は語の途中で切れないように小さくする
+            if (shown.IndexOf(' ') < 0) while (st.fontSize > 12 && st.CalcSize(new GUIContent(shown)).x > max) st.fontSize--;
+        }
         LocGUI.Label(new Rect(x, y, max, RowH), text, st);
     }
 
@@ -558,11 +564,12 @@ public class SettingsPanel : MonoBehaviour
     // ---------------------------------------------------------------- 操作(2026-10-08: オートの個別設定)
     // 全体の ON/OFF と開始の速さ(今までの「補助開始速度」。距離ではなく走る速さで始まる)は今までどおり。
     // ボス戦でもオート / 自動攻撃 / 自動回避 を個別に切り替える。説明は実際に対応している範囲だけ(必ず避けられるとは書かない)
-    float MeasureControls() => HeadH + 4f + RowH * 5f + 22f * 6f + 12f + RowH + 22f;
+    float MeasureControls() => HeadH + 4f + MeasureMaxSpeed() + RowH * 5f + 22f * 6f + 12f + RowH + 22f;
     float DrawControls(float x, float y, float w, bool interactive)
     {
         var hsa = HighSpeedAssist.Instance;
         y = Head(x, y, w, "操作");
+        y = DrawMaxSpeed(x, y, w, interactive, hsa);
         if (hsa == null) return Note(x, y, w, "(自動補助は使えません)");
         y = ChoiceRow(x, y, w, "オートモード", hsa.assistEnabled ? 1 : 0, "OFF", "ON", interactive, c => hsa.SetEnabled(c == 1));
         bool on = hsa.assistEnabled;
@@ -580,6 +587,47 @@ public class SettingsPanel : MonoBehaviour
         y = Note(x, y, w, "手動操作を優先します。「ボス戦でもオート」がOFFなら、ボス戦中は自動操作しません。");
         y = Note(x, y, w, "※ ボス戦でもオートは、ボスと戦っている間は速さに関係なく働きます。");
         return DrawHowToPlay(x, y + 12f, w, interactive);
+    }
+
+    // ---------------------------------------------------------------- 最高速度(2026-10-24)
+    // 自然に加速した時の最高速度の倍率(60〜120%、5刻み)。難易度ではなく遊びやすい速さの好み(EASY/HARD とは書かない)。
+    //  ・−/+ で 5% ずつ(タッチでも中途半端な値にならない)。100% は「(標準)」
+    //  ・下に、選んでいるキャラの目安(カードなし)と、ゆっくり/標準/速い
+    //  ・ラン中は変えられない(次のランから)。高速補助の設定とは独立(勝手に変えない)。目安が補助の開始速度より低ければ小さく知らせる
+    float MeasureMaxSpeed() => RowH + 22f * 3f;
+    float DrawMaxSpeed(float x, float y, float w, bool interactive, HighSpeedAssist hsa)
+    {
+        int pct = GameSettings.MaxSpeedPercent;
+        bool canEdit = interactive && !HasStartedRun;
+        RowLabel(x, y, LocPendingReview.MaxSpeedTitle);
+        float bx = x + LabelW, bw = w - LabelW, btn = Mathf.Min(64f, bw * 0.3f);
+        if (UiKit.Button(new Rect(bx, y + 7f, btn, RowH - 14f), "−", 22f, false, false, canEdit && pct > GameSettings.MaxSpeedMin))
+        { GameSettings.SetMaxSpeedPercent(pct - GameSettings.MaxSpeedStep); if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiToggle); }
+        if (UiKit.Button(new Rect(bx + bw - btn, y + 7f, btn, RowH - 14f), "+", 22f, false, false, canEdit && pct < GameSettings.MaxSpeedMax))
+        { GameSettings.SetMaxSpeedPercent(pct + GameSettings.MaxSpeedStep); if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.UiToggle); }
+        pct = GameSettings.MaxSpeedPercent;
+        string val = pct == GameSettings.MaxSpeedDefault ? Loc.Shape($"{pct}% " + Loc.Plain(LocPendingReview.MaxSpeedStandardSuffix)) : $"{pct}%";
+        // 長い言語(「100% (Стандарт)」など)でも1行に収まるまで小さくする
+        var vst = new GUIStyle(UiKit.Label(20f, TextAnchor.MiddleCenter, true, canEdit ? Color.white : new Color(0.65f, 0.65f, 0.7f))) { wordWrap = false };
+        float vw = bw - btn * 2f - 8f;
+        while (vst.fontSize > 12 && vst.CalcSize(new GUIContent(val)).x > vw) vst.fontSize--;
+        GUI.Label(new Rect(bx + btn + 4f, y, vw, RowH), val, vst);
+        y += RowH;
+        // 選んでいるキャラの目安(自然に加速した時の最高速度、カードなし)
+        var gm = GameManager.Instance;
+        var def = gm != null ? CharacterDatabase.FindById(gm.SelectedCharacterId) : null;
+        var pc = PlayerController.Instance;
+        float capKmh = pc != null ? pc.naturalSpeedCapKmh : 100f;
+        float kmh = capKmh * (def != null ? Mathf.Max(0.01f, def.groundMobilityMultiplier) : 1f) * pct / 100f;
+        string tag = pct < GameSettings.MaxSpeedDefault ? LocPendingReview.MaxSpeedSlow : pct > GameSettings.MaxSpeedDefault ? LocPendingReview.MaxSpeedFast : LocPendingReview.MaxSpeedStandard;
+        // 名前と目安の言葉は処理前の訳でつないで、最後に1回だけ並べ替え/字形の処理をする(アラビア文字・インドの文字で崩れないように)
+        string who = def != null ? Loc.Plain(def.displayName) : "";
+        string est = Loc.Plain(LocPendingReview.MaxSpeedEstimate).Replace("{0}", who).Replace("{1}", Mathf.RoundToInt(kmh).ToString());
+        y = Note(x, y, w, Loc.Shape(est + "  " + Loc.Plain(tag)));
+        if (HasStartedRun) y = Note(x, y, w, LocPendingReview.MaxSpeedLocked);
+        else if (hsa != null && hsa.assistEnabled && kmh < hsa.EngageSettingKmh - 0.5f) y = Note(x, y, w, LocPendingReview.MaxSpeedBelowAssist);
+        else y = Note(x, y, w, LocPendingReview.MaxSpeedNote);
+        return y;
     }
 
     // ---------------------------------------------------------------- プロフィール(2026-10-08: コードネーム)

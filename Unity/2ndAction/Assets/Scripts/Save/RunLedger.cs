@@ -36,9 +36,15 @@ public static class RunLedger
         public string supportIds = "";     // 仲間のキャラ(カンマ区切り、P2 から順)
         public bool officialParty = true;  // 仲間が全員、正式に解放したキャラ(開発版の「全部選べる」で選んだキャラではない)
         public bool Support => partySize > 1;
+        // 最高速度の設定(2026-10-24、将来のランキング用。今は記録するだけ)。古いデータ(この項目が無い)は 100 として読む。
+        // speedSettingMax = このランで使った一番大きい値(中断中に設定を変えて CONTINUE した時も分かるように)
+        public int speedSettingPercent = 100;
+        public int speedSettingMax = 100;
     }
 
     public static Run Current { get; private set; }
+    // 今のランの最高速度の設定(マルチは常に 100% で走る)
+    static int SpeedSettingNow => NetRunLauncher.IsMultiplayerRun ? 100 : GameSettings.MaxSpeedPercent;
     public static bool Active => Current != null;
 
     // ---------------------------------------------------------------- 開始 / 再開
@@ -52,14 +58,21 @@ public static class RunLedger
             testProfile = SaveProfile.IsTest,
             officialStage = stageId == BossManager.LastStageId ? ProgressStats.FinalDungeonUnlocked : UnlockRules.OfficialStageUnlocked(stageId),
             startedUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            speedSettingPercent = SpeedSettingNow, speedSettingMax = SpeedSettingNow,
         };
-        Debug.Log($"[RunLedger] begin {Current.runId.Substring(0, 8)} stage={stageId} char={characterId}{(multiplayer ? " multi" : "")}");
+        Debug.Log($"[RunLedger] begin {Current.runId.Substring(0, 8)} stage={stageId} char={characterId}{(multiplayer ? " multi" : "")} speed {Current.speedSettingPercent}%");
     }
 
     // CONTINUE: 中断データの台帳をそのまま使う(無い = この仕組みより前の中断データ)
     public static void Resume(Run saved, string stageId, string characterId, double reached)
     {
-        if (saved != null && !string.IsNullOrEmpty(saved.runId)) { Current = saved; }
+        if (saved != null && !string.IsNullOrEmpty(saved.runId))
+        {
+            Current = saved;
+            // 中断の間に最高速度の設定を変えた: 再開後はその設定で走る(一番大きい値を残す)
+            Current.speedSettingPercent = SpeedSettingNow;
+            Current.speedSettingMax = Math.Max(Current.speedSettingMax, SpeedSettingNow);
+        }
         else
         {
             BeginNew(stageId, characterId, false);
@@ -85,6 +98,7 @@ public static class RunLedger
             multiplayer = prev.multiplayer, officialStage = prev.officialStage, testProfile = prev.testProfile, legacy = prev.legacy,
             playSeconds = prev.playSeconds, startedUtc = prev.startedUtc,
             partySize = prev.partySize, supportIds = prev.supportIds, officialParty = prev.officialParty, // CPU サポート
+            speedSettingPercent = prev.speedSettingPercent, speedSettingMax = prev.speedSettingMax, // 最高速度の設定(2026-10-24)
         };
         Debug.Log($"[RunLedger] continuation {Current.runId.Substring(0, 8)} of {(prev.runId.Length >= 8 ? prev.runId.Substring(0, 8) : prev.runId)} from {reached:F0}m");
     }
