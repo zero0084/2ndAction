@@ -4919,8 +4919,16 @@ public static class SceneBuilder
         heights.Sort();
         float median = heights[(heights.Count - 1) / 2];
         float ppu = targetWorldHeight > 0.001f && median > 0 ? median / targetWorldHeight : 1000f;
-        // 2枚だけのフォルダ(アリ/ホッパー/ワーム)は2枚が別の姿勢(立ち上がる/跳ぶ)なので、今までどおりコマごとに高さをそろえる(横の基準だけ体の重心へ)
-        bool perFrame = files.Length <= 2;
+        // 2枚だけのフォルダ(アリ/ホッパー/ワーム): 以前はコマごとに高さをそろえていたが、跳ぶ/縮む姿勢の高さの違いが体の大きさの違いになり、
+        // 1枚ごとに体が膨らむ/縮む(横幅で3〜4割)ように見えた(2026-10-24)。同じ縮尺の絵なので PPU を共通にする。
+        // 基準は1枚目の今の縮尺(攻撃/被弾の絵は1枚目の PPU に合わせて作ってあるので、その釣り合いを変えない)
+        System.Array.Sort(files);
+        if (files.Length <= 2)
+        {
+            int h0 = MeasureContentHeightPixels(files[0]);
+            if (h0 > 0 && targetWorldHeight > 0.001f) ppu = h0 / targetWorldHeight;
+        }
+        bool perFrame = false;
         foreach (string f in files)
         {
             string assetPath = f.Replace('\\', '/');

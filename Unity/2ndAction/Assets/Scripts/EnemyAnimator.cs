@@ -96,6 +96,16 @@ public class EnemyAnimator : MonoBehaviour
     bool idleUsesRunFrame;
     float curSy = 1f, curRot;
     float runTempo = 1f;
+    // 2026-10-24(実機: 一部の敵がドタバタ): 「動いている」をフレームごとの移動量だけで決めていたので、
+    // 追跡の止まる距離の境目・穴の手前・不規則な動きで 動く/止まる が細かく入れ替わり、そのたびに走りが1枚目へ戻って
+    // 待機の伸び縮みと交互に出ていた。最後に動いてから少しの間は「動いている」のまま(走りを続ける)
+    const float MovingHoldSeconds = 0.25f;
+    float movingHeldUntil = -1f;
+    bool HeldMoving(bool rawMoving)
+    {
+        if (rawMoving) { movingHeldUntil = Time.time + MovingHoldSeconds; return true; }
+        return Time.time < movingHeldUntil;
+    }
     void ApplyVisualPose(float sy, float rotDeg, bool snap = false)
     {
         float k = snap ? 1f : 1f - Mathf.Exp(-Time.deltaTime / 0.07f);
@@ -203,7 +213,7 @@ public class EnemyAnimator : MonoBehaviour
         bool hasRunAnimation = runFrames != null && runFrames.Length > 0 && visualRenderer != null;
         // 2026-10-22: 飛ぶ敵(洞窟コウモリ等)は横に動いていなくても羽ばたき続ける(以前は近づくと羽ばたきが止まって固まった)
         bool flyer = controllerForPose != null && controllerForPose.movementType == EnemyMovementType.Flying;
-        bool moving = hasRunAnimation && (flyer || Mathf.Abs(transform.position.x - lastRootPos.x) > 0.0008f);
+        bool moving = hasRunAnimation && HeldMoving(flyer || Mathf.Abs(transform.position.x - lastRootPos.x) > 0.0008f);
         float rate = hasRunAnimation ? RunRate(flyer) : runFrameRate;
         lastRootPos = transform.position;
 
@@ -275,7 +285,7 @@ public class EnemyAnimator : MonoBehaviour
         // 飛ぶ敵(ハーピー等)は横にほとんど動かなくても羽ばたきのコマを回し続ける
         bool flapping = controllerForPose != null && controllerForPose.movementType == EnemyMovementType.Flying;
         float movedX = Mathf.Abs(transform.position.x - lastRootPos.x);
-        bool moving = hasRun && (flapping || movedX > 0.0008f);
+        bool moving = hasRun && HeldMoving(flapping || movedX > 0.0008f);
         float rate2 = hasRun ? RunRate(flapping) : runFrameRate;
         lastRootPos = transform.position;
         if (moving)

@@ -23,8 +23,9 @@ public class BossAnimSet
     // 2026-10-22: 5つ目の技(animVariant 4 = E、黒騎士の空中斬り)/ 跳んでいる間(fly_、Pose.Fly。無ければ move_)
     public Sprite[] windupE, attackE, fly;
     public float idleFps = 6f, moveFps = 12f;
-    // 本物の走りのコマがある時は、格子の変形(偽の脚の動き)を弱める
-    public float rigLocoScale = 0.2f;
+    // 本物の走りのコマがある時は、格子の変形(偽の脚の動き)を足さない。
+    // 2026-10-24: 以前は 0.2 残していたが、絵の脚とは別の周期で下半身が横へ(絵の幅の約3%)揺れて、絵の動きと競ってバタついて見えた
+    public float rigLocoScale = 0f;
 
     public bool HasMove => move != null && move.Length > 0;
 

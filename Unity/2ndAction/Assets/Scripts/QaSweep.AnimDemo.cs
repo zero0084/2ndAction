@@ -47,7 +47,7 @@ public partial class QaSweep
         {
             var ed = EncounterDirector.Instance;
             var go = ed != null ? ed.DebugSpawnEnemy(ids[i % ids.Length], default) : null;
-            StartCoroutine(DemoHitMob(go));
+            if (Arg("-adMobHit", "1") == "1") StartCoroutine(DemoHitMob(go)); // 2026-10-24: -adMobHit 0 で叩かない(走り/動きだけを撮る)
             yield return new WaitForSeconds(1.2f);
         }
     }

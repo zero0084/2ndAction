@@ -12,6 +12,7 @@ using UnityEngine;
 public partial class QaSweep
 {
     StringBuilder ajSb;
+    readonly List<EnemyController> ajMobs = new List<EnemyController>();
     int ajFrame;
 
     static readonly string[] AjAllMobs = { "goblin", "chaser_runner", "rusher_runner", "shooter_archer", "heavy_ogre", "irregular_imp", "goblin_elite",
@@ -32,7 +33,7 @@ public partial class QaSweep
         }
         else if (bossArg != "none") bosses.AddRange(bossArg.Split(','));
         string[] mobs = mobArg == "all" ? AjAllMobs : mobArg == "none" ? new string[0] : mobArg.Split(',');
-        ajSb = new StringBuilder("frame\tt\twho\tid\tpose\tsprite\trootX\trootY\tminY\tmaxY\tminX\tmaxX\tcx\tvisY\tvisSy\tvisRot\tgroundY\tspeedKmh\n");
+        ajSb = new StringBuilder("frame\tt\twho\tid\tpose\tsprite\trootX\trootY\tpivX\tpivY\tsclX\tsclY\tvisRot\tgroundY\tspeedKmh\tflipX\n");
 
         // 雑魚: マップごとにまとめて、1.0秒ごとに目の前へ出す(倒さない)
         foreach (var group in mobs.GroupBy(MobStage))
@@ -49,11 +50,11 @@ public partial class QaSweep
                 float t = 0f, nextSpawn = 0f;
                 while (t < secs)
                 {
-                    if (t >= nextSpawn) { var ed = EncounterDirector.Instance; if (ed != null) ed.DebugSpawnEnemy(id, default); nextSpawn += 1.0f; }
+                    if (t >= nextSpawn) { var ed = EncounterDirector.Instance; var go = ed != null ? ed.DebugSpawnEnemy(id, default) : null; if (go != null) ajMobs.Add(go.GetComponent<EnemyController>()); nextSpawn += 1.0f; }
                     yield return null; t += Time.deltaTime;
-                    foreach (var ec in FindObjectsByType<EnemyController>(FindObjectsSortMode.None))
-                        if (ec != null && ec.isActiveAndEnabled && ec.name.StartsWith(id)) AjLogMob(ec, id);
+                    foreach (var ec in ajMobs) if (ec != null && ec.isActiveAndEnabled) AjLogMob(ec, id);
                 }
+                ajMobs.Clear();
                 foreach (var ec in FindObjectsByType<EnemyController>(FindObjectsSortMode.None)) if (ec != null) ec.gameObject.SetActive(false);
             }
             PlayerController.DebugSpeedScale = 1f;
@@ -107,7 +108,7 @@ public partial class QaSweep
         if (sr == null || sr.sprite == null) return;
         var sb = ec.GetComponent<EnemySpecialBehavior>();
         string pose = sb != null ? sb.CurrentPose.ToString() : "-";
-        AjRow("mob" + AjKey(ec), id, pose, sr, ec.transform, sr.transform);
+        AjRow("mob" + AjKey(ec), id, pose, sr.sprite.name, ec.transform, sr.transform, sr.flipX);
     }
 
     readonly Dictionary<EnemyController, int> ajKeys = new Dictionary<EnemyController, int>();
@@ -116,19 +117,24 @@ public partial class QaSweep
     void AjLogBoss(WildBossBase b, string id)
     {
         var vis = b.DebugVisual;
-        var sr = vis != null ? vis.GetComponentInChildren<SpriteRenderer>() : null;
-        if (sr == null || sr.sprite == null) return;
-        AjRow("boss", id, b.DebugPose, sr, b.transform, vis);
+        if (vis == null) return;
+        // 絵は BossRig の格子(セルの SpriteRenderer)で描く。今の絵は rig.current、絵の pivot は visual の原点
+        var rig = typeof(WildBossBase).GetField("rig", NP).GetValue(b);
+        var cur = rig != null ? rig.GetType().GetField("current", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(rig) as Sprite : null;
+        if (cur == null) { var sr = vis.GetComponentInChildren<SpriteRenderer>(); cur = sr != null ? sr.sprite : null; }
+        if (cur == null) return;
+        AjRow("boss", id, b.DebugPose, cur.name, b.transform, vis, false);
     }
 
-    void AjRow(string who, string id, string pose, SpriteRenderer sr, Transform root, Transform vis)
+    void AjRow(string who, string id, string pose, string sprite, Transform root, Transform vis, bool flipX)
     {
-        var bd = sr.bounds; var tm = TerrainManager.Instance;
+        var tm = TerrainManager.Instance;
         float gy = tm != null ? tm.GetSupportHeightAt(root.position.x) : 0f;
         var ic = System.Globalization.CultureInfo.InvariantCulture;
-        ajSb.Append(string.Format(ic, "{0}\t{1:F4}\t{2}\t{3}\t{4}\t{5}\t{6:F4}\t{7:F4}\t{8:F4}\t{9:F4}\t{10:F4}\t{11:F4}\t{12:F4}\t{13:F4}\t{14:F4}\t{15:F2}\t{16:F4}\t{17:F1}\n",
-            Time.frameCount, Time.time, who, id, pose, sr.sprite.name, root.position.x, root.position.y, bd.min.y, bd.max.y, bd.min.x, bd.max.x, bd.center.x,
-            vis.localPosition.y, vis.localScale.y, vis.localEulerAngles.z, gy, pc != null ? GameManager.SpeedKmh(pc.CurrentAutoRunSpeed) : 0f));
+        Vector3 p = vis.position, sc = vis.lossyScale;
+        ajSb.Append(string.Format(ic, "{0}\t{1:F4}\t{2}\t{3}\t{4}\t{5}\t{6:F4}\t{7:F4}\t{8:F4}\t{9:F4}\t{10:F4}\t{11:F4}\t{12:F2}\t{13:F4}\t{14:F1}\t{15}\n",
+            Time.frameCount, Time.time, who, id, pose, sprite, root.position.x, root.position.y, p.x, p.y, sc.x, sc.y, vis.eulerAngles.z, gy,
+            pc != null ? GameManager.SpeedKmh(pc.CurrentAutoRunSpeed) : 0f, flipX ? 1 : 0));
         ajFrame++;
     }
 }
