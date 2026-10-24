@@ -76,6 +76,7 @@ public partial class QaSweep
                 "boss_cave" => ScBossShot(s, "dual_blade", "natural_cave", 1, (int)CaveBossKind.CrystalGolem, 16150f),
                 "boss_sky" => ScBossShot(s, "archer", "sky_corridor", 2, (int)SkyBossKind.Behemoth, 16150f, false), // 天空は足場が細く、脱出の溜め(補助のジャンプが止まる)で落ちる
                 "start" => ScStartShot(s, "swordsman"),
+                "charsel" => ScCharSelectShot(s, Arg("-scCharAt", "ninja")),
                 "set_auto" => ScSetAutoShot(s),
                 "set_volume" => ScSetVolumeShot(s),
                 "set_display" => ScSetDisplayShot(s),
@@ -136,7 +137,16 @@ public partial class QaSweep
             ffIn.Write(buf, 0, buf.Length);
             if (scStillName != null)
             {
-                System.IO.File.WriteAllBytes(System.IO.Path.Combine(outDir, "stills", $"{name}_{scStillNo++:00}_{scStillName}.png"), tex.EncodeToPNG());
+                // 2026-10-24: -scSuper N で静止画だけ N 倍の解像度で撮る(縦画面 1080x1920 は画面より高い窓が作れないため、608x1080 の窓を2倍で)
+                int sup = int.Parse(Arg("-scSuper", "1"));
+                if (sup > 1)
+                {
+                    var big = ScreenCapture.CaptureScreenshotAsTexture(sup);
+                    System.IO.File.WriteAllBytes(System.IO.Path.Combine(outDir, "stills", $"{name}_{scStillNo++:00}_{scStillName}.png"), big.EncodeToPNG());
+                    L($"[capture] still x{sup}: {big.width}x{big.height}");
+                    Destroy(big);
+                }
+                else System.IO.File.WriteAllBytes(System.IO.Path.Combine(outDir, "stills", $"{name}_{scStillNo++:00}_{scStillName}.png"), tex.EncodeToPNG());
                 L($"[capture] still {name} {scStillName} @frame {frames}");
                 scStillName = null;
             }
@@ -432,6 +442,33 @@ public partial class QaSweep
     }
 
     // 出発(カウントダウン → 走り出し)
+    // キャラ選択(2026-10-24、Google Play のスクリーンショット): ホームからキャラ選択を開き、カルーセルの真ん中のキャラを選んだ所
+    IEnumerator ScCharSelectShot(string name, string ch)
+    {
+        float w = 0f;
+        while ((GameManager.Instance == null || GameManager.Instance.HasStarted) && w < 10f) { yield return null; w += Time.unscaledDeltaTime; }
+        gm = GameManager.Instance;
+        UnlockRules.DevUnlockAll = Arg("-scAllChars", "1") == "1"; // 撮影用の保存: 全員を選べる状態(鍵の絵を出さない)
+        yield return new WaitForSecondsRealtime(1.5f);
+        var ui = gm.characterSelectUI != null ? gm.characterSelectUI : FindFirstObjectByType<CharacterSelectUI>(FindObjectsInactive.Include);
+        Check(ui != null, "charsel: the character select screen exists");
+        if (ui == null) yield break;
+        ScRecStart(name);
+        yield return ScWait(0.5f);
+        gm.OpenCharacterSelect(); // ホームのボタンと同じ入口(画面の切り替え → 開く)
+        yield return ScWait(1.6f);
+        int idx = -1;
+        var all = CharacterDatabase.AllCharacters;
+        for (int i = 0; i < all.Count; i++) if (all[i].characterId == ch) { idx = i; break; }
+        if (idx >= 0) ui.DebugSelectAndCenter(idx);
+        yield return ScWait(1.5f);
+        ScStill("charsel");
+        yield return ScWait(1.0f);
+        yield return ScRecStop();
+        gm.CloseCharacterSelect();
+        yield return new WaitForSecondsRealtime(1.0f);
+    }
+
     IEnumerator ScStartShot(string name, string ch)
     {
         float w = 0f;

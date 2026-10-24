@@ -341,6 +341,8 @@ public partial class NetAutoTest : MonoBehaviour
 
     void Awake()
     {
+        // 2026-10-24: ストア素材の撮影(-scClean): 開発用の表示(build の番号/DEV BUILD/TEST FILE)を出さない
+        if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-scClean") >= 0) StoreCapture.Clean = true;
         string[] args = Environment.GetCommandLineArgs();
         for (int i = 0; i < args.Length; i++)
         {
