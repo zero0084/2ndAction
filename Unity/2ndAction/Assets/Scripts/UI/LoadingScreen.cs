@@ -36,6 +36,10 @@ public class LoadingScreen : MonoBehaviour
     public static float WorstFrameWhileBusy { get; private set; } // 読み込み中のいちばん長いフレーム(表示が固まっていないか)
 
     bool busy, failed, shownThisLoad;
+    // 起動直後(2026-10-24): 起動ロゴ(Unity の起動画面の仕組み、背景 #060810)の後は、パネルと文字を出さずに同じ色の無地だけで覆う
+    // (ロゴ → 暗い画面 → 「読み込み中…」のパネル → ホーム、と途中で別の表示が一瞬入らないように)。失敗した時は今までどおりの表示
+    bool quiet;
+    static readonly Color QuietColor = new Color(6f / 255f, 8f / 255f, 16f / 255f, 1f);
     float since, alpha, blockUntil;
     string reason = "", failText = "";
     int buildIndex;
@@ -69,7 +73,7 @@ public class LoadingScreen : MonoBehaviour
 
     void Begin(string why)
     {
-        busy = true; failed = false; shownThisLoad = false; failText = ""; WorstFrameWhileBusy = 0f;
+        busy = true; failed = false; shownThisLoad = false; failText = ""; WorstFrameWhileBusy = 0f; quiet = false;
         since = Time.realtimeSinceStartup; reason = why; LastReason = why;
         TimeControl.Pause(pauseOwner);
         SetEventSystems(false);
@@ -139,6 +143,7 @@ public class LoadingScreen : MonoBehaviour
     IEnumerator StartupRoutine()
     {
         Begin("startup");
+        quiet = true; alpha = 1f; // 最初のフレームから覆う(重いフレームの間にホームが半分だけ見えないように)
         yield return SettleRoutine();
     }
 
@@ -167,7 +172,7 @@ public class LoadingScreen : MonoBehaviour
     void Update()
     {
         if (busy && Time.realtimeSinceStartup - since > 0.05f) WorstFrameWhileBusy = Mathf.Max(WorstFrameWhileBusy, Time.unscaledDeltaTime);
-                bool want = busy && (failed || Time.realtimeSinceStartup - since >= ShowAfter);
+                bool want = busy && (failed || quiet || Time.realtimeSinceStartup - since >= ShowAfter);
         if (want && !shownThisLoad) { shownThisLoad = true; TimesShown++; }
         alpha = Mathf.MoveTowards(alpha, want ? 1f : 0f, Time.unscaledDeltaTime / (want ? 0.15f : 0.12f));
     }
@@ -191,6 +196,13 @@ public class LoadingScreen : MonoBehaviour
         float a = alpha;
         Color keep = GUI.color;
         float sw = Screen.width, sh = Screen.height;
+        if (quiet && !failed)
+        {
+            GUI.color = new Color(QuietColor.r, QuietColor.g, QuietColor.b, a);
+            GUI.DrawTexture(new Rect(0, 0, sw, sh), White());
+            GUI.color = keep;
+            return;
+        }
         GUI.color = new Color(0.04f, 0.05f, 0.11f, 0.94f * a);
         GUI.DrawTexture(new Rect(0, 0, sw, sh), White());
         // 中央の飾り枠(縦横どちらでも中央に収まる大きさ)
