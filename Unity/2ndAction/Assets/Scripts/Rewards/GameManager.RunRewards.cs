@@ -49,6 +49,7 @@ public partial class GameManager
     // 雑魚: mileBase = 種類の MILE × 距離の係数(精鋭は ×3 済み)。grantExp=false は協力マルチの分け前だけ(EXP/撃破数はラストヒットの人)
     public void RegisterEnemyKill(float mileBase = 1f, float expMul = 1f, bool grantExp = true)
     {
+        if (EscapeFrozen) return; // 脱出の成功の確定後は報酬を増やさない(2026-10-24)
         if (grantExp)
         {
             EnemyKillCount++;
@@ -65,7 +66,7 @@ public partial class GameManager
     // BONUS ZONE / WANTED の MILE(宝の補正込み)。実際に整数として入った量を返す
     public int AddRunBonusMile(int amount)
     {
-        if (amount <= 0 || IsGameOver) return 0;
+        if (amount <= 0 || IsGameOver || EscapeFrozen) return 0;
         // カード v3: TREASURE HUNTER は宝・報酬(BONUS ZONE の宝運びゴブリン/黄金スライム/ミミック/CLEAR/PERFECT、WANTED の賞金)を増やす
         // マルチ: BONUS ZONE は出ない。WANTED の賞金(2026-10-15 第3弾): 協力は全員が受け取り(撃破の知らせで共有)、ほかの MILE と同じく人数で分配。
         // 対戦は今までどおり(HOST の端末だけ、割らない)
@@ -81,6 +82,7 @@ public partial class GameManager
     // ボス: mileBase = 種類の MILE × 1.5 × 強さの係数(出した時に決めた値)/ expFraction = 次のレベルまでの量に対する割合
     public void RegisterBossDefeat(float mileBase, float expFraction, bool grantExp = true)
     {
+        if (EscapeFrozen) return; // 脱出の成功の確定後は報酬を増やさない(2026-10-24)
         if (grantExp)
         {
             BossKillCount++;

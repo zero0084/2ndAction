@@ -149,6 +149,8 @@ public partial class QaSweep
         w = 0f;
         while ((GameManager.Instance == null || GameManager.Instance == old) && w < 8f) { yield return null; w += Time.unscaledDeltaTime; }
         bool home = GameManager.Instance != null && GameManager.Instance != old && !GameManager.Instance.HasStarted;
+        // RESULT は時間を止める(2026-10-23〜)。読み直した直後(新しいホームの Start の前)はまだ 0 なので、少し待って戻るのを見る
+        float wt = 0f; while (home && Time.timeScale <= 0f && wt < 2f) { yield return null; wt += Time.unscaledDeltaTime; }
         L($"[reaperDeath] {tag}: home={home} after {w:F1}s timeScale={Time.timeScale:F2}");
         Check(home && Time.timeScale > 0f, $"{tag}: back to HOME after the result");
         gm = GameManager.Instance;

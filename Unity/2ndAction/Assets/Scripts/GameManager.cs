@@ -1391,7 +1391,7 @@ public partial class GameManager : MonoBehaviour
         if (HasStarted && !IsGameOver) using (FrameCost.Scope("GM.Cards")) { UpdateCardRunState(); ChallengeSystem.Tick(); } // カードバランス v3(LAST CHANCE の再発動 / WANTED)
         if (HasStarted && !IsGameOver)
         {
-            RunLedger.Tick(Time.deltaTime); // 走っていた時間(止まっている間は 0)
+            if (!EscapeConfirmed) RunLedger.Tick(Time.deltaTime); // 走っていた時間(止まっている間は 0。脱出の確定後の演出は数えない)
             if (InvincibleMode) RunLedger.MarkDebug("invincible"); // 2026-10-08: 無敵(開発版)を使ったランは対象外のまま
         }
         if (!HasStarted)
@@ -2299,6 +2299,7 @@ public partial class GameManager : MonoBehaviour
         lastRawDistanceSeen = rawDistance;
         // 開発用の闘技場(2026-10-04): 距離は「距離条件」のまま止める(敵の強さにだけ使う。距離のイベント/EXP/解放/保存を起こさない)
         if (ArenaMode.Active || TutorialMode.Active) return; // 操作の練習(2026-10-07)も同じ
+        if (EscapeFrozen) return; // 脱出の成功の確定後: 演出の減速で進んだ分は数えない(2026-10-24)
         float distance = rawDistance - distanceExclusionOffset;
 
         // Distance Level Design Ver.1.1, item 1 - Boss Gate: while a Boss
@@ -2370,7 +2371,7 @@ public partial class GameManager : MonoBehaviour
         // マルチプレイPhase 2.5: マルチでは選択中も世界(=距離/撃破)が進むため、その間のEXPは捨てずに
         // 貯め、レベルアップは選択が終わってから順に出す(pendingLevelUpCountの既存の後回し処理)。
         if (amount <= 0f || (levelUpPending && !NetMatch.Active)) return;
-        if (BlockExpGain) return;
+        if (BlockExpGain || EscapeFrozen) return;
 
         // "EXP UP" cards raise expGainMultiplier above 1 - applied once
         // here so it covers every EXP source (distance, kills, bosses)
@@ -3390,6 +3391,7 @@ public partial class GameManager : MonoBehaviour
         LastDamageShielded = false;
         Vector3 dmgPos = PlayerController.Instance != null ? PlayerController.Instance.transform.position : Vector3.zero;
         if (IsGameOver) { DamageAfterDeathIgnored++; return DamageResult.Ignored; } // 死亡済み: 以後のダメージ/死亡要求は無視
+        if (IgnoreAfterEscape($"damage reason={reason} amount={amount}")) return DamageResult.Ignored; // 脱出の成功が確定した後は敗北にしない(2026-10-24)
         if (PresentationDamageLock) { FreezeDiagnostics.LogEvent($"[Damage] Ignored(PresentationDamageLock) reason={reason} pos=({dmgPos.x:F2},{dmgPos.y:F2})"); return DamageResult.Ignored; }
         if (TutorialMode.Active) return DamageResult.Ignored; // 操作の練習はダメージなし(2026-10-07)
         // 開発用の闘技場: 本来受けるはずだったダメージを記録。闘技場の無敵(通常の無敵の設定とは別、保存しない)なら受けない
@@ -3461,6 +3463,7 @@ public partial class GameManager : MonoBehaviour
             if (!NetRunLauncher.IsMultiplayerRun) RunCheckpoint.Clear(); // マルチプレイRunの死亡でシングルのCONTINUEを消さない
             DeathReason = reason;
             DeathLog($"Player death confirmed reason={reason}");
+            EscapeLog($"defeat confirmed reason={reason} (escape charging={(PlayerController.Instance != null && PlayerController.Instance.IsEscapeCharging)})");
             FinishRun();
             return DamageResult.GameOver;
         }
@@ -3590,6 +3593,7 @@ public partial class GameManager : MonoBehaviour
     public void ReapPlayer(string reason)
     {
         if (IsGameOver) { DamageAfterDeathIgnored++; DeathLog($"ReapPlayer ignored (already dead) reason={reason}"); return; }
+        if (IgnoreAfterEscape($"reap reason={reason}")) return; // HP を減らす前に止める(2026-10-24)
         if (!HasStarted || InvincibleMode) return;
         DeathLog($"ReapPlayer reason={reason} livesBefore={Lives} timeScale={Time.timeScale:F2} reasons={TimeControl.DescribeActiveReasons()} choice={levelUpPending} bossPhase={(BossManager.Instance != null && BossManager.Instance.IsBossPhase)}");
         if (NetRunLauncher.IsMultiplayerRun) { if (PlayerController.Instance != null) PlayerController.Instance.TakeDamage(source: reason); return; }
@@ -3601,6 +3605,7 @@ public partial class GameManager : MonoBehaviour
     public void NetForceGameOver(string reason)
     {
         if (IsGameOver) return;
+        if (IgnoreAfterEscape($"net game over reason={reason}")) return; // 自分は脱出に成功した(2026-10-24)
         Debug.Log($"[GameOver] Reason={reason} (decided by HOST)");
         Lives = 0;
         FinishRun();
@@ -3691,7 +3696,8 @@ public partial class GameManager : MonoBehaviour
 
     public void Win()
     {
-        if (IsGameOver) return;
+        if (IsGameOver) { EscapeLog($"Win() ignored: the run already ended (win={IsWin} reason={DeathReason})"); return; }
+        EscapeLog($"Win() -> commit (confirmed={EscapeConfirmed} d={MaxDistance:F1})");
         IsWin = true;
         FinishRun();
     }
@@ -3739,7 +3745,7 @@ public partial class GameManager : MonoBehaviour
         {
             d.lifeAdd = d.stageId != BossManager.LastStageId && d.walked > 0.0;
             d.lifeBefore = ProgressStats.LifetimeDistance; d.lifeAfter = d.lifeBefore + d.walked;
-            d.record = true; d.bestDistance = MaxDistance; d.bestTime = Time.time - runStartTime;
+            d.record = true; d.bestDistance = MaxDistance; d.bestTime = RunEndTime - runStartTime;
             d.rankingEligible = Leaderboard.IsEligible(r, out _);
         }
         CommitJournal.Write(d);
@@ -3784,7 +3790,7 @@ public partial class GameManager : MonoBehaviour
         // Time.time itself doesn't advance while paused for a level-up
         // choice (Time.timeScale = 0), so this naturally excludes any time
         // spent on those pauses from the recorded run time.
-        RunTime = Time.time - runStartTime;
+        RunTime = RunEndTime - runStartTime; // 脱出の成功の確定までの時間(演出の分は含めない)
 
         // マップ別BEST: そのランのステージIDの記録だけを更新する(帰還/ゲームオーバーの確定タイミングは従来どおりここ)。
         // マップ別BEST は RunLedger.CommitSuccess が成功の時だけ書く(2026-10-08)
@@ -4716,7 +4722,7 @@ public partial class GameManager : MonoBehaviour
             return;
         }
 
-        if (!QuietFinish) DrawResults();
+        if (!QuietFinish) { NoteResultShown(); DrawResults(); }
         DrawStartTransitionOverlay();
     }
 

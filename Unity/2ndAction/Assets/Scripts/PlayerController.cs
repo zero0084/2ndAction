@@ -1036,7 +1036,7 @@ public partial class PlayerController : MonoBehaviour
         // マスターの動画確認が終わったら残すか削除するか相談する。
         if (Input.GetKeyDown(KeyCode.Comma) && GameManager.Instance != null) GameManager.Instance.DebugWarpToDistance(500f);
         if (Input.GetKeyDown(KeyCode.Period) && GameManager.Instance != null) GameManager.Instance.DebugWarpToDistance(60000f);
-        if (Input.GetKeyDown(KeyCode.Slash) && !isAscending) StartCoroutine(DoFinishSequence());
+        if (Input.GetKeyDown(KeyCode.Slash) && !isAscending && GameManager.Instance != null && GameManager.Instance.TryConfirmEscape("debug key")) StartCoroutine(DoFinishSequence());
 #endif
         bool hasStarted = GameManager.Instance == null || GameManager.Instance.HasStarted;
         // Stage01地形挙動修整(2026-09-17), item4 - Run開始カウントダウン中
@@ -2397,6 +2397,9 @@ public partial class PlayerController : MonoBehaviour
     // resets the timer back to 0 with no separate cancel step needed -
     // UpdateEscapeVisuals/OnGUI below already read escapeHoldTimer<=0 as
     // "not charging" and disappear on their own the very next frame.
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public static bool QaEscapeHold;
+#endif
     void UpdateEscapeInput()
     {
         if (isAscending) return;
@@ -2407,6 +2410,9 @@ public partial class PlayerController : MonoBehaviour
             : Input.GetMouseButton(0);
         if (!down && !PadNav.MenuActive && GameInput.Held(GameAction.Hold)) down = true; // パッドの BACK / キーの H を長押し
         if (UiInputGate.Blocked) down = false; // 説明の板の「わかった」を押した指で脱出を溜めない(2026-10-07)
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (QaEscapeHold) down = true; // 自動試験: 止めたままの長押し(-qaEscape)
+#endif
         // 2026-10-11(実機: 戦闘中に MILE の内訳が出たり消えたり): 指を動かした(フリック/攻撃の操作)長押しは脱出に数えない。
         // 一度動いた指は離すまで数えない(時間を持ち越さない)。止めたままの長押しは今までどおり3秒で脱出
         Vector2 hp = Input.touchCount > 0 ? Input.GetTouch(0).position : (Vector2)Input.mousePosition;
@@ -2424,7 +2430,10 @@ public partial class PlayerController : MonoBehaviour
         escapeHoldTimer += Time.deltaTime;
         if (escapeHoldTimer >= escapeHoldDuration)
         {
-            StartCoroutine(DoFinishSequence());
+            // 2026-10-24: 長押しが完了した時点で成功を確定してから演出を始める(敗北が先なら確定せず、演出も出さない)
+            GameManager.Instance.EscapeLog($"hold complete {escapeHoldTimer:F2}s");
+            if (GameManager.Instance.TryConfirmEscape("hold")) StartCoroutine(DoFinishSequence());
+            else escapeHoldTimer = 0f;
         }
     }
 
@@ -2448,7 +2457,7 @@ public partial class PlayerController : MonoBehaviour
         if (HasKit) { CancelKitMoves(); KitOnRunEnd(); }
 
         IsFinishing = true;
-        if (GameManager.Instance != null) GameManager.Instance.SetPresentationDamageLock(true);
+        if (GameManager.Instance != null) { GameManager.Instance.SetPresentationDamageLock(true); GameManager.Instance.EscapeLog("finish motion start"); }
         FinishTierIndex = ResolveFinishTier(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f);
         FinishProgress = 0f;
 
@@ -2478,7 +2487,10 @@ public partial class PlayerController : MonoBehaviour
 
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.SetPresentationDamageLock(false);
+            // 2026-10-24: 被弾の禁止は外さない(以前はここで外していて、暗転が覆うまでの間に死神の一撃で敗北になっていた)。
+            // 成功は長押しの完了で確定済み(GameManager.EscapeConfirmed)。RESULT の後はシーンを読み直すので残っても困らない
+            GameManager.Instance.EscapeLog("finish motion end -> transition");
+            if (GameManager.QaLegacyEscape) GameManager.Instance.SetPresentationDamageLock(false); // 比較用: 以前の動き
             // Finish→Result間の間(ま)追加(2026-09-24) - 以前は余韻の直後に
             // Win()を同期的に呼ぶだけで、Result画面が無演出のまま瞬間的に
             // 切り替わっていた(マスター報告「Result遷移が不自然」の原因)。
@@ -2487,7 +2499,8 @@ public partial class PlayerController : MonoBehaviour
             // 画面が完全に覆われた瞬間にWin()を呼ぶことで、テンポを壊さない
             // 程度の短い暗転を挟む。CharacterSelectUI.Close()と同じ、nullなら
             // 直接Win()を呼ぶ防御パターン。
-            if (ScreenTransitionManager.Instance != null)
+            // ほかの切り替えの最中だと PlayTransition は何もしない(Win が呼ばれずに止まる)ので、その時は直接 Win
+            if (ScreenTransitionManager.Instance != null && (!ScreenTransitionManager.Instance.IsTransitioning || GameManager.QaLegacyEscape))
                 ScreenTransitionManager.Instance.PlayTransition(() => GameManager.Instance.Win());
             else
                 GameManager.Instance.Win();
