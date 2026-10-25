@@ -151,7 +151,7 @@ out[CL & ~EB] = N[CL & ~EB]  # 新しいマント(無ければ透明)
 # 合成でできた小さな穴(まわりを絵に囲まれた透明な所、400px 未満)を、まわりの色で埋める(cape モード)。元の絵にあった穴は埋めない
 if '--mode' in a and opt(a, '--mode', '') == 'cape':
     solid = out[..., 3] > 128
-    holes = ndimage.binary_fill_holes(solid) & ~solid & ~(al > 128)
+    holes = ndimage.binary_fill_holes(solid) & ~solid & ((al > 128) | (N0[..., 3] > 128))  # 元か新しい絵のどちらかで埋まっていた所だけ(元の絵の透明なすき間は埋めない)
     lh, nh = ndimage.label(holes)
     if nh:
         szh = ndimage.sum(holes, lh, range(1, nh + 1))
@@ -161,6 +161,12 @@ if '--mode' in a and opt(a, '--mode', '') == 'cape':
             col = ndimage.gaussian_filter(out[..., c] * solid, 3) / np.maximum(wgt, 1e-3)
             out[..., c] = np.where(holes, col, out[..., c])
         out[..., 3] = np.where(holes, 255, out[..., 3])
+# --erase 多角形: 範囲の中を透明にする(穴埋めの後に。合成の名残で、元にも新しい絵にも要らない所)
+for i_, t_ in enumerate(a):
+    if t_ == '--erase':
+        v_ = list(map(float, a[i_ + 1].split(',')))
+        im_ = Image.new('L', (P.shape[1], P.shape[0]), 0); _ID.Draw(im_).polygon(list(zip(v_[0::2], v_[1::2])), fill=255)
+        out[np.array(im_) > 0] = 0
 Image.fromarray(out.clip(0, 255).astype(np.uint8)).save(outp)
 kept = int(P.sum()); oa = int((al > 128).sum()); removed = int(((al > 128) & ~P & (N[..., 3] < 60)).sum())
 print(os.path.basename(op), dict(kept_original_px=kept, original_px=oa, new_px=int((N[..., 3] > 128).sum()), old_removed_px=removed))

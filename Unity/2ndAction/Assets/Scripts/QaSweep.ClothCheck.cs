@@ -111,6 +111,20 @@ public partial class QaSweep
         yield return ClothRecord("combo", 5f, i => (i % 75 == 6 || i % 75 == 18 || i % 75 == 30) ? ClothInject(F) : null);
         // 空中の上攻撃(ジャンプ中にもう一度↑)と、下攻撃 → 着地の突き刺し
         yield return ClothRecord("air", 6f, i => (i == 6 || i == 22 || i == 90 || i == 106) ? ClothInject(U) : (i == 40 || i == 124) ? ClothInject(D) : null);
+        // 倒れる(ゲームオーバー)。最後に撮る。倒れる絵は結果の画面が出る前に流れるので、とどめの直後から撮る
+        SetGod(false);
+        stopKeepAlive = true;
+        var livesP = typeof(GameManager).GetProperty("Lives").GetSetMethod(true);
+        yield return ClothRecord("death", 3f, i =>
+        {
+            if (i % 6 == 0 && !gm.IsGameOver)
+            {
+                livesP.Invoke(gm, new object[] { 1 });
+                SetPrivate(pc, "hitInvincibleTimer", 0f);
+                pc.TakeDamage(false, "cloth-death");
+            }
+            return null;
+        });
         yield return EndRun();
 
         // 2) 暗い洞窟: 走り + 攻撃

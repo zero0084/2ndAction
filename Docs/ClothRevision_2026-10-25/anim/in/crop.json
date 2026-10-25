@@ -376,5 +376,68 @@
    4288,
    5376
   ]
+ },
+ "PlayerHurt_v1__hurt_00.png": {
+  "y0": 0,
+  "y1": 212,
+  "scale": 4,
+  "size": [
+   896,
+   848
+  ]
+ },
+ "PlayerHurt_v1__hurt_01.png": {
+  "y0": 0,
+  "y1": 204,
+  "scale": 4,
+  "size": [
+   960,
+   816
+  ]
+ },
+ "PlayerHurt_v1__hurt_02.png": {
+  "y0": 0,
+  "y1": 192,
+  "scale": 4,
+  "size": [
+   896,
+   768
+  ]
+ },
+ "PlayerDeath_v1__death_00.png": {
+  "y0": 0,
+  "y1": 156,
+  "scale": 4,
+  "size": [
+   688,
+   624
+  ]
+ },
+ "PlayerDeath_v1__death_01.png": {
+  "y0": 0,
+  "y1": 128,
+  "scale": 4,
+  "size": [
+   880,
+   512
+  ]
+ },
+ "PlayerDeath_v1__death_02.png": {
+  "y0": 0,
+  "y1": 132,
+  "scale": 4,
+  "size": [
+   816,
+   528
+  ]
+ },
+ "PlayerDeath_v1__death_03.png": {
+  "y0": 0,
+  "y1": 84,
+  "scale": 4,
+  "size": [
+   1024,
+   336
+  ]
  }
 }
