@@ -2,7 +2,9 @@
 using System.Collections;
 using UnityEngine;
 
-// 布表現の見直しの実ゲーム確認(2026-10-25): -qaClothCheck <dir> [-ccChar swordsman] [-ccFast 3]
+// 布表現の見直しの実ゲーム確認(2026-10-25): -qaClothCheck <dir> [-ccChar swordsman] [-ccFast 3] [-ccOnly sf|card]
+//  -ccOnly card: キャラのカード(portrait)が出る所を撮る(ホームの額縁 / キャラ選択の選択中・非選択 / 闘技場のキャラ欄)
+//  -ccOnly sf: 出発(カウントダウン→GO→走り)と、距離4段階の本物の脱出(減速→到着のポーズ→暗転→結果)だけを撮る
 //  キャラ選択の立ち絵を撮影 → 荒野で 普通の速さの走り / 高速の走り / 走り→攻撃・ジャンプ攻撃・下攻撃・被弾 → 暗い洞窟の走りと攻撃 を、
 //  30fps で毎フレーム書き出す(<dir>/frames/f00000.png、区切りは <dir>/demo_ranges.txt)。
 //  プレイヤーの絵の名前・状態・画面の位置を毎フレーム <dir>/cloth_vis.txt に書く(揺れ・7→1 のつながりの測定用)
@@ -30,7 +32,7 @@ public partial class QaSweep
                 Vector3 bt = Camera.main.WorldToScreenPoint(new Vector3(b.center.x, b.max.y, 0f));
                 Vector3 bb = Camera.main.WorldToScreenPoint(new Vector3(b.center.x, b.min.y, 0f));
                 System.IO.File.AppendAllText(System.IO.Path.Combine(outDir, "cloth_vis.txt"),
-                    $"{demoFrame}\t{label}\t{spr}\t{tex}\t{sp.x:F1}\t{Screen.height - sp.y:F1}\t{Screen.height - bt.y:F1}\t{Screen.height - bb.y:F1}\t{p.IsGrounded}\n");
+                    $"{demoFrame}\t{label}\t{spr}\t{tex}\t{sp.x:F1}\t{Screen.height - sp.y:F1}\t{Screen.height - bt.y:F1}\t{Screen.height - bb.y:F1}\t{p.IsGrounded}\t{Time.realtimeSinceStartup:F3}\n");
             }
             demoFrame++;
         }
@@ -57,6 +59,108 @@ public partial class QaSweep
         SetGod(true);
     }
 
+    // 出発: ランを始めてからカウントダウンの間も撮る(BeginRun はカウントダウンが終わるまで待つため別に書く)
+    IEnumerator ClothBeginRecordStart(string ch, string stage)
+    {
+        float w = 0f;
+        while ((GameManager.Instance == null || GameManager.Instance.HasStarted) && w < 10f) { yield return null; w += Time.unscaledDeltaTime; }
+        gm = GameManager.Instance;
+        gm.SetSelectedCharacter(ch);
+        gm.SetSelectedStage(stage);
+        // カウントダウンは実時間(WaitForSecondsRealtime)、出発のコマはゲームの時間で進む。撮影の時間を固定すると実時間だけが先に進み
+        // 2コマ目が出る前に GO になるので、ここだけ固定せずに撮る(1コマごとの実時刻は cloth_vis.txt の最後の列。動画はそれで組む)
+        Time.captureFramerate = 0;
+        typeof(GameManager).GetMethod("StartGame", NP).Invoke(gm, null);
+        yield return ClothRecord("start", 5f); // 3・2・1・GO の約3秒 + 走り出し
+        w = 0f;
+        while (!(gm.HasStarted && !gm.CountdownActive) && w < 20f) { yield return null; w += Time.unscaledDeltaTime; }
+        pc = PlayerController.Instance;
+        stopKeepAlive = false;
+        StartCoroutine(KeepAlive());
+    }
+
+    // 本物の脱出(長押しの完了)。到着のポーズに入ったら長押しをやめる
+    IEnumerator ClothEscape()
+    {
+        SetPrivate(gm, "escapeUnlocked", true);
+        SetPrivate(pc, "escapeHoldTimer", pc.escapeHoldDuration - 0.02f);
+        PlayerController.QaEscapeHold = true;
+        float w = 0f;
+        while (!pc.IsFinishing && w < 3f) { yield return null; w += Time.unscaledDeltaTime; }
+        PlayerController.QaEscapeHold = false;
+        L($"[cloth] escape: finishing={pc.IsFinishing} tier={pc.FinishTierIndex} d={gm.MaxDistance:F0}");
+    }
+
+    // 出発と、距離4段階(0=1km未満 / 1=10km未満 / 2=50km未満 / 3=それ以上)の到着 → 結果の画面
+    IEnumerator ClothStartFinish(string ch)
+    {
+        float[] dists = { 500f, 5000f, 20000f, 60000f };
+        for (int k = 0; k < dists.Length; k++)
+        {
+            if (k == 0) yield return ClothBeginRecordStart(ch, "wasteland_road");
+            else yield return BeginRun(ch, "wasteland_road");
+            SetGod(true);
+            if (BossManager.Instance != null) BossManager.Instance.enabled = false;
+            WarpTo(dists[k]);
+            RunLedger.DevClearDebug();
+            yield return new WaitForSeconds(1.5f);
+            RunLedger.DevClearDebug();
+            Time.captureFramerate = 30;
+            yield return ClothRecord($"finish_t{k}", 5.5f, i => i == 15 ? ClothEscape() : null);
+            Time.captureFramerate = 0;
+            PlayerController.QaEscapeHold = false;
+            Check(gm.IsGameOver && gm.IsWin, $"cloth: finish tier {k} reached the result (win={gm.IsWin})");
+            yield return EndRun();
+        }
+    }
+
+    IEnumerator ClothCardShots(string ch)
+    {
+        float w = 0f;
+        while ((GameManager.Instance == null || GameManager.Instance.HasStarted) && w < 15f) { yield return null; w += Time.unscaledDeltaTime; }
+        gm = GameManager.Instance;
+        gm.SetSelectedCharacter(ch);
+        yield return new WaitForSecondsRealtime(3.5f); // タイトルのフェード
+        Shot($"card_home_{ch}");
+        yield return null; yield return null;
+        // キャラ選択: 選択中 / となりを選んだ時(このキャラのカードは非選択)
+        gm.OpenCharacterSelect();
+        yield return new WaitForSecondsRealtime(1.5f);
+        var ui = FindFirstObjectByType<CharacterSelectUI>();
+        var all = CharacterDatabase.AllCharacters;
+        int idx = -1;
+        for (int i = 0; i < all.Count; i++) if (all[i].characterId == ch) idx = i;
+        if (ui != null && idx >= 0)
+        {
+            ui.DebugSelectAndCenter(idx);
+            yield return new WaitForSecondsRealtime(1.2f); Shot($"card_select_{ch}_selected"); yield return null; yield return null;
+            ui.DebugSelectAndCenter(idx + 1 < all.Count ? idx + 1 : idx - 1);
+            yield return new WaitForSecondsRealtime(1.2f); Shot($"card_select_{ch}_unselected"); yield return null; yield return null;
+            ui.DebugSelectAndCenter(idx);
+            yield return new WaitForSecondsRealtime(0.8f);
+            ui.Close();
+            yield return new WaitForSecondsRealtime(1.2f);
+        }
+        // 闘技場のキャラ欄(読み直しの後に設定の画面が開く)
+        ArenaMode.Config.character = ch;
+        ArenaLauncher.Launch("qa cloth card", true);
+        w = 0f;
+        while (!(ArenaMode.Active && ArenaController.Instance != null && ArenaController.Instance.PanelOpen) && w < 30f) { yield return null; w += Time.unscaledDeltaTime; }
+        yield return new WaitForSecondsRealtime(1.5f);
+        var ac = ArenaController.Instance;
+        Check(ac != null && ac.PanelOpen, "cloth card: the arena setup opened");
+        if (ac != null)
+        {
+            ac.Tab = 0;
+            ArenaMode.Config.character = ch;
+            yield return new WaitForSecondsRealtime(0.6f); Shot($"card_arena_{ch}_selected"); yield return null; yield return null;
+            string other = all[idx + 1 < all.Count ? idx + 1 : idx - 1].characterId;
+            ArenaMode.Config.character = other;
+            yield return new WaitForSecondsRealtime(0.6f); Shot($"card_arena_{ch}_unselected"); yield return null; yield return null;
+            ArenaMode.Config.character = ch;
+        }
+    }
+
     IEnumerator ClothCheckMode()
     {
         Application.targetFrameRate = 60;
@@ -64,6 +168,14 @@ public partial class QaSweep
         float fast = float.Parse(Arg("-ccFast", "3"), System.Globalization.CultureInfo.InvariantCulture);
         demoDir = System.IO.Path.Combine(outDir, "frames");
         System.IO.Directory.CreateDirectory(demoDir);
+        if (Arg("-ccOnly", "") == "card") { yield return ClothCardShots(ch); yield break; }
+        if (Arg("-ccOnly", "") == "sf")
+        {
+            yield return ClothStartFinish(ch);
+            L($"[cloth] total {demoFrame} frames");
+            Check(demoFrame > 600, "cloth: frames written");
+            yield break;
+        }
 
         // 0) キャラ選択の立ち絵
         float w = 0f;

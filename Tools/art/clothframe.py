@@ -1,5 +1,5 @@
 """走りの1コマ: 4倍に拡大して編集してもらった絵を、元のコマと同じ大きさ・位置へ戻す(2026-10-25 布表現の見直し)。
-usage: clothframe.py <編集された絵.png> <元のコマ.png> <crop.json> <出力.png> [--head 0.2] [--debug <dir>]
+usage: clothframe.py <編集された絵.png> <元のコマ.png> <crop.json> <出力.png> [--head 0.2] [--debug <dir>] [--fit-auto] [--fit-left [--fit-left-waist 0.55]]
   1. マゼンタを抜く → 2. 元のコマ(4倍)と布以外の形で倍率・位置を合わせる → 3. 1/4 に縮めて元のキャンバスへ
   4. 頭(中身の上から --head の割合、ピボットより右)だけ元の画素に戻す(コマ間で顔がぶれないように)
   元のコマのキャンバスの外へ出た布は切れるので、はみ出し量を表示する。
@@ -80,7 +80,7 @@ if '--fit-left' in a and over['left'] > 0:
     target = PADL + 2 * S
     k = (xa - tipx) / (xa - target)
     ys_, _ = np.where(al); t_, b_ = ys_.min(), ys_.max()
-    waist = t_ + 0.55 * (b_ - t_)
+    waist = t_ + float(opt(a, '--fit-left-waist', '0.55')) * (b_ - t_)  # 寄せる行の下限(中身の高さに対する割合。1.2 なら全部の行)
     yy, xx = np.mgrid[0:padded.shape[0], 0:ref.shape[1]].astype(float)
     w = np.clip((waist + 30 - yy) / 60.0, 0, 1)  # 腰の上で1、腰の下で0(なめらかに)
     xxp = xx + PADL

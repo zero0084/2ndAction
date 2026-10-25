@@ -5,4 +5,5 @@ PY="C:/Users/0084k/.cache/codex-runtimes/codex-primary-runtime/dependencies/pyth
 for f in "$@"; do d=${f%%/*}; n=${f##*/}; extra=$(grep -P "^$f\t" $W/clears.txt | cut -f2-); mkdir -p $W/local/$d $W/dbg/$d
   eff=""; case "$d" in PlayerAttack*|PlayerUpAttack*|PlayerDownAttack*) eff="--effects";; esac
   case "$d" in PlayerUpAttack*) eff="$eff --waist 0.8";; esac  # 剣を高く掲げるので、中身の上端は剣先。腰の高さを下げる
+  case "$d" in PlayerStart*|PlayerFinish*) eff="$eff --despeck 300";; esac  # 古いマントを抜いてちぎれた粒を消す(第5群から)
   "$PY" Tools/art/clothlocal.py $A/$f.png $W/aligned/$d/$n.png $W/local/$d/$n.png --near 3 --mode cape $eff $extra --debug $W/dbg/$d; done

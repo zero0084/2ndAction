@@ -131,6 +131,14 @@ for i_, t_ in enumerate(a):
         if t_ == '--clearred': poly_ &= (r - np.maximum(g, b) > 20) | ((al > 0) & (al < 160) & (r > np.maximum(g, b)))  # 範囲の中の赤い所だけ(白い光の筋は残す)
         CL |= poly_
 P &= ~CL
+# 範囲指定(--keep 多角形、何回でも): 範囲の中は元の絵をそのまま使う(透明なすき間も元のまま。赤い柄の巻きなど、色でマントと見なされた体の一部)
+KP = np.zeros(P.shape, bool)
+for i_, t_ in enumerate(a):
+    if t_ == '--keep':
+        v_ = list(map(float, a[i_ + 1].split(',')))
+        im_ = Image.new('L', (P.shape[1], P.shape[0]), 0); _ID.Draw(im_).polygon(list(zip(v_[0::2], v_[1::2])), fill=255)
+        KP |= np.array(im_) > 0
+P |= KP & (al > 30)
 # 体の本体とつながらず、新しいマントのすぐ近く(8px)にある小さな塊は、古いマントの名残(cape モードだけ)
 if '--mode' in a and opt(a, '--mode', '') == 'cape':
     solidP = P & (al > 100)
@@ -161,12 +169,38 @@ if '--mode' in a and opt(a, '--mode', '') == 'cape':
             col = ndimage.gaussian_filter(out[..., c] * solid, 3) / np.maximum(wgt, 1e-3)
             out[..., c] = np.where(holes, col, out[..., c])
         out[..., 3] = np.where(holes, 255, out[..., 3])
+out[KP] = O[KP]
+# --smooth x0,y0,x1,y1: 範囲の中を周りの色でなじませる(新しい絵に残った四角い段差・小さな透明の点用。人物の画素には使わない)
+for i_, t_ in enumerate(a):
+    if t_ == '--smooth':
+        x0_, y0_, x1_, y1_ = map(int, a[i_ + 1].split(','))
+        so_ = (out[..., 3] > 128).astype(float)
+        w_ = ndimage.gaussian_filter(so_, 2.5)
+        sm_ = np.dstack([ndimage.gaussian_filter(out[..., c] * so_, 2.5) / np.maximum(w_, 1e-3) for c in range(3)])
+        bx_ = np.zeros(so_.shape, bool); bx_[y0_:y1_, x0_:x1_] = True
+        fe_ = ndimage.gaussian_filter(bx_.astype(float), 1.5)[..., None]  # 範囲の縁はなめらかに
+        out[..., :3] = np.where((w_ > 0.5)[..., None], out[..., :3] * (1 - fe_) + sm_ * fe_, out[..., :3])
+        out[..., 3] = np.where(bx_ & (w_ > 0.5), 255, out[..., 3])
 # --erase 多角形: 範囲の中を透明にする(穴埋めの後に。合成の名残で、元にも新しい絵にも要らない所)
 for i_, t_ in enumerate(a):
     if t_ == '--erase':
         v_ = list(map(float, a[i_ + 1].split(',')))
         im_ = Image.new('L', (P.shape[1], P.shape[0]), 0); _ID.Draw(im_).polygon(list(zip(v_[0::2], v_[1::2])), fill=255)
         out[np.array(im_) > 0] = 0
+# --despeck N: 合成の結果ちぎれて浮いた小さな粒(N px 未満)を消す。元の絵か新しい絵では本体とつながっていた所だけ(元から離れていた火花などは残す)
+if '--despeck' in a:
+    lim = float(opt(a, '--despeck', '300'))
+    def _main(alpha):
+        lb, nb = ndimage.label(alpha > 20, structure=np.ones((3, 3)))
+        return lb == (int(np.argmax(ndimage.sum(alpha > 20, lb, range(1, nb + 1)))) + 1) if nb else alpha > 255
+    attached = _main(al) | _main(N0[..., 3])
+    so = out[..., 3] > 20
+    lab4, n4 = ndimage.label(so, structure=np.ones((3, 3)))
+    if n4 > 1:
+        sz4 = ndimage.sum(so, lab4, range(1, n4 + 1)); main4 = int(np.argmax(sz4)) + 1
+        drop4 = [i + 1 for i, v in enumerate(sz4) if i + 1 != main4 and v < lim and attached[lab4 == i + 1].mean() > 0.5]
+        if drop4: out[np.isin(lab4, drop4)] = 0
+        print('  despeck', len(drop4), 'of', n4 - 1)
 Image.fromarray(out.clip(0, 255).astype(np.uint8)).save(outp)
 kept = int(P.sum()); oa = int((al > 128).sum()); removed = int(((al > 128) & ~P & (N[..., 3] < 60)).sum())
 print(os.path.basename(op), dict(kept_original_px=kept, original_px=oa, new_px=int((N[..., 3] > 128).sum()), old_removed_px=removed))

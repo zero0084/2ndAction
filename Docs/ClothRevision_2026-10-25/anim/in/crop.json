@@ -439,5 +439,95 @@
    1024,
    336
   ]
+ },
+ "PlayerStart_v1__start_00.png": {
+  "y0": 0,
+  "y1": 756,
+  "scale": 4,
+  "size": [
+   2560,
+   3024
+  ]
+ },
+ "PlayerStart_v1__start_01.png": {
+  "y0": 0,
+  "y1": 604,
+  "scale": 4,
+  "size": [
+   3424,
+   2416
+  ]
+ },
+ "PlayerFinishShort_v1__finish_00.png": {
+  "y0": 0,
+  "y1": 728,
+  "scale": 4,
+  "size": [
+   3024,
+   2912
+  ]
+ },
+ "PlayerFinishShort_v1__finish_01.png": {
+  "y0": 0,
+  "y1": 768,
+  "scale": 4,
+  "size": [
+   2528,
+   3072
+  ]
+ },
+ "PlayerFinishMedium_v1__finish_00.png": {
+  "y0": 0,
+  "y1": 772,
+  "scale": 4,
+  "size": [
+   2704,
+   3088
+  ]
+ },
+ "PlayerFinishMedium_v1__finish_01.png": {
+  "y0": 0,
+  "y1": 744,
+  "scale": 4,
+  "size": [
+   2208,
+   2976
+  ]
+ },
+ "PlayerFinishLong_v1__finish_00.png": {
+  "y0": 0,
+  "y1": 664,
+  "scale": 4,
+  "size": [
+   2880,
+   2656
+  ]
+ },
+ "PlayerFinishLong_v1__finish_01.png": {
+  "y0": 0,
+  "y1": 720,
+  "scale": 4,
+  "size": [
+   2672,
+   2880
+  ]
+ },
+ "PlayerFinishExtreme_v1__finish_00.png": {
+  "y0": 0,
+  "y1": 728,
+  "scale": 4,
+  "size": [
+   3088,
+   2912
+  ]
+ },
+ "PlayerFinishExtreme_v1__finish_01.png": {
+  "y0": 0,
+  "y1": 604,
+  "scale": 4,
+  "size": [
+   3216,
+   2416
+  ]
  }
 }
