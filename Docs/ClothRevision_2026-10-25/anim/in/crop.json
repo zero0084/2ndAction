@@ -259,5 +259,122 @@
    1536,
    912
   ]
+ },
+ "PlayerUpAttackGround_v1__upattackground_00.png": {
+  "y0": 357,
+  "y1": 672,
+  "scale": 4,
+  "size": [
+   1744,
+   1260
+  ]
+ },
+ "PlayerUpAttackGround_v1__upattackground_01.png": {
+  "y0": 116,
+  "y1": 672,
+  "scale": 4,
+  "size": [
+   1744,
+   2224
+  ]
+ },
+ "PlayerUpAttackGround_v1__upattackground_02.png": {
+  "y0": 21,
+  "y1": 672,
+  "scale": 4,
+  "size": [
+   1744,
+   2604
+  ]
+ },
+ "PlayerUpAttackGround_v1__upattackground_03.png": {
+  "y0": 127,
+  "y1": 672,
+  "scale": 4,
+  "size": [
+   1744,
+   2180
+  ]
+ },
+ "PlayerUpAttackGround_v1__upattackground_04.png": {
+  "y0": 342,
+  "y1": 672,
+  "scale": 4,
+  "size": [
+   1744,
+   1320
+  ]
+ },
+ "PlayerUpAttackAir_v1__upattackair_00.png": {
+  "y0": 280,
+  "y1": 670,
+  "scale": 4,
+  "size": [
+   1744,
+   1560
+  ]
+ },
+ "PlayerUpAttackAir_v1__upattackair_01.png": {
+  "y0": 35,
+  "y1": 671,
+  "scale": 4,
+  "size": [
+   1744,
+   2544
+  ]
+ },
+ "PlayerUpAttackAir_v1__upattackair_02.png": {
+  "y0": 0,
+  "y1": 724,
+  "scale": 4,
+  "size": [
+   1744,
+   2896
+  ]
+ },
+ "PlayerUpAttackAir_v1__upattackair_03.png": {
+  "y0": 102,
+  "y1": 679,
+  "scale": 4,
+  "size": [
+   1744,
+   2308
+  ]
+ },
+ "PlayerUpAttackAir_v1__upattackair_04.png": {
+  "y0": 301,
+  "y1": 676,
+  "scale": 4,
+  "size": [
+   1744,
+   1500
+  ]
+ },
+ "PlayerDownAttack_v1__downattack_00.png": {
+  "y0": 0,
+  "y1": 1492,
+  "scale": 4,
+  "size": [
+   2032,
+   5968
+  ]
+ },
+ "PlayerDownAttack_v1__downattack_01.png": {
+  "y0": 0,
+  "y1": 1492,
+  "scale": 4,
+  "size": [
+   2032,
+   5968
+  ]
+ },
+ "PlayerDownAttackLand_v1__downattackland_00.png": {
+  "y0": 0,
+  "y1": 1344,
+  "scale": 4,
+  "size": [
+   4288,
+   5376
+  ]
  }
 }

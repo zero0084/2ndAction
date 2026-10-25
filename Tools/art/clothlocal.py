@@ -24,7 +24,8 @@ N = np.array(Image.open(np_).convert('RGBA')).astype(float)
 assert O.shape == N.shape, (O.shape, N.shape)
 N0 = N.copy()  # 新しい絵の全部(範囲指定の所で使う)
 r, g, b, al = O[..., 0], O[..., 1], O[..., 2], O[..., 3]
-warm = (r - np.maximum(g, b) > 8) & (np.abs(g - b) < 20)          # 元のマントらしい赤み(鎧の茶色の縁は含まない)
+warm = ((r - np.maximum(g, b) > 8) & (np.abs(g - b) < 20)) | ((r - np.maximum(g, b) > 40) & (g < r * 0.42))  # 肌(緑が強い)は含めない。元のマントらしい赤み(鎧の茶色の縁は含まない。ピンク寄りの強い赤も含める)
+warm0 = warm.copy()
 # 斬撃などのエフェクト(明るいピンク〜白の光)。古いマントの赤(暗い赤)と区別して、元の画素のまま残す
 # --effects の時だけ(斬撃のある攻撃のコマ)。ピンクの光(赤が強く、緑/青も少しある)から、まわりの明るい所(白い芯)へ広げる。
 # 白っぽいだけの所(古いマントの縁の白い線)は起点にしない
@@ -38,6 +39,14 @@ if '--effects' in a:
     bright = (al > 10) & (np.maximum(np.maximum(r, g), b) > 150)
     effO = pink.copy()
     for _ in range(4): effO = ndimage.binary_dilation(effO) & bright
+    # 飛び散る赤い破片: 赤みのある小さな塊で、一番大きな赤い面(古いマント)から 6px 以上離れている物
+    wa = (al > 30) & ((r - np.maximum(g, b)) > 8)
+    lw, nw_ = ndimage.label(wa)
+    if nw_:
+        szw = ndimage.sum(wa, lw, range(1, nw_ + 1)); big_ = int(np.argmax(szw)) + 1
+        nearBig = ndimage.binary_dilation(lw == big_, iterations=6)
+        shards = [i + 1 for i, v in enumerate(szw) if i + 1 != big_ and v < szw.max() * 0.03 and not (nearBig & (lw == i + 1)).any()]
+        effO |= np.isin(lw, shards)
 warm &= ~effO
 cand = (al >= 200) & ~warm                                          # 元の「体かもしれない」所
 nb = body_mask(N.astype(np.uint8)) > 0                              # 新しい絵の体
@@ -57,6 +66,10 @@ if '--mode' in a and opt(a, '--mode', '') == 'cape':
     if n2:
         sz2 = ndimage.sum(ncape, lab2, range(1, n2 + 1))
         ncape = np.isin(lab2, [i + 1 for i, v in enumerate(sz2) if v >= sz2.max() * 0.05])  # 小さな赤(鎧の縁)はマントにしない
+    # エフェクト扱いの所でも、新しいマントから 10px 以内は古いマントの名残として扱う(上攻撃の明るい赤のマントが破片に見えるため)
+    effO &= ~ndimage.binary_dilation(ncape, iterations=10)
+    warm = warm0 & ~effO
+    cand = (al >= 200) & ~warm
     distC = ndimage.distance_transform_edt(~ncape)
     dark = O[..., :3].max(axis=2) < 70
     # 古いマントの近く = 大きな赤い面(マント)の近くだけ。手袋や鎧の小さな赤い縁の近くは含めない
@@ -111,10 +124,12 @@ P &= ~EB
 from PIL import ImageDraw as _ID
 CL = np.zeros(P.shape, bool)
 for i_, t_ in enumerate(a):
-    if t_ == '--clear':
+    if t_ in ('--clear', '--clearred'):
         v_ = list(map(float, a[i_ + 1].split(',')))
         im_ = Image.new('L', (P.shape[1], P.shape[0]), 0); _ID.Draw(im_).polygon(list(zip(v_[0::2], v_[1::2])), fill=255)
-        CL |= np.array(im_) > 0
+        poly_ = np.array(im_) > 0
+        if t_ == '--clearred': poly_ &= (r - np.maximum(g, b) > 20) | ((al > 0) & (al < 160) & (r > np.maximum(g, b)))  # 範囲の中の赤い所だけ(白い光の筋は残す)
+        CL |= poly_
 P &= ~CL
 # 体の本体とつながらず、新しいマントのすぐ近く(8px)にある小さな塊は、古いマントの名残(cape モードだけ)
 if '--mode' in a and opt(a, '--mode', '') == 'cape':
@@ -133,6 +148,19 @@ out = N * (1 - m) + O * m
 out[..., 3] = np.maximum(N[..., 3] * (1 - m[..., 0]), O[..., 3] * m[..., 0])
 out[EB] = N0[EB]
 out[CL & ~EB] = N[CL & ~EB]  # 新しいマント(無ければ透明)
+# 合成でできた小さな穴(まわりを絵に囲まれた透明な所、400px 未満)を、まわりの色で埋める(cape モード)。元の絵にあった穴は埋めない
+if '--mode' in a and opt(a, '--mode', '') == 'cape':
+    solid = out[..., 3] > 128
+    holes = ndimage.binary_fill_holes(solid) & ~solid & ~(al > 128)
+    lh, nh = ndimage.label(holes)
+    if nh:
+        szh = ndimage.sum(holes, lh, range(1, nh + 1))
+        holes = np.isin(lh, [i + 1 for i, v in enumerate(szh) if v < 400])
+        wgt = ndimage.gaussian_filter(solid.astype(float), 3)
+        for c in range(3):
+            col = ndimage.gaussian_filter(out[..., c] * solid, 3) / np.maximum(wgt, 1e-3)
+            out[..., c] = np.where(holes, col, out[..., c])
+        out[..., 3] = np.where(holes, 255, out[..., 3])
 Image.fromarray(out.clip(0, 255).astype(np.uint8)).save(outp)
 kept = int(P.sum()); oa = int((al > 128).sum()); removed = int(((al > 128) & ~P & (N[..., 3] < 60)).sum())
 print(os.path.basename(op), dict(kept_original_px=kept, original_px=oa, new_px=int((N[..., 3] > 128).sum()), old_removed_px=removed))

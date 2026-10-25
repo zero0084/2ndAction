@@ -109,6 +109,8 @@ public partial class QaSweep
         });
         // 2026-10-25: 3段のコンボ(1段目 attacksmall / 2段目 attack / 3段目 attacklarge)。前攻撃を続けて入れる
         yield return ClothRecord("combo", 5f, i => (i % 75 == 6 || i % 75 == 18 || i % 75 == 30) ? ClothInject(F) : null);
+        // 空中の上攻撃(ジャンプ中にもう一度↑)と、下攻撃 → 着地の突き刺し
+        yield return ClothRecord("air", 6f, i => (i == 6 || i == 22 || i == 90 || i == 106) ? ClothInject(U) : (i == 40 || i == 124) ? ClothInject(D) : null);
         yield return EndRun();
 
         // 2) 暗い洞窟: 走り + 攻撃
