@@ -67,6 +67,7 @@ public partial class QaSweep : MonoBehaviour
             if (a[i] == "-qaCaveBoss") { mode = "caveboss"; dir = a[i + 1]; }
             if (a[i] == "-qaCeilingAudit") { mode = "ceilaudit"; dir = a[i + 1]; } // 2026-10-16
             if (a[i] == "-qaAnimDemo") { mode = "animdemo"; dir = a[i + 1]; } // 2026-10-17 アニメーション強化の確認動画
+            if (a[i] == "-qaClothCheck") { mode = "clothcheck"; dir = a[i + 1]; } // 2026-10-25 布表現の見直しの実ゲーム確認
             if (a[i] == "-qaMemProbe") { mode = "memprobe"; dir = a[i + 1]; } // 2026-10-18 容量の調査: メモリと画質の比較
             if (a[i] == "-qaAerial") { mode = "aerial"; dir = a[i + 1]; } // 2026-10-18 エリアルコンボ改修の確認
             if (a[i] == "-qaAerialVideo") { mode = "aerialvideo"; dir = a[i + 1]; } // 2026-10-18 エリアルコンボの比較動画
@@ -251,6 +252,7 @@ public partial class QaSweep : MonoBehaviour
         else if (mode == "caveboss") yield return CaveBossMode();
         else if (mode == "ceilaudit") yield return CeilingAuditMode();
         else if (mode == "animdemo") yield return AnimDemoMode();
+        else if (mode == "clothcheck") yield return ClothCheckMode();
         else if (mode == "memprobe") yield return MemProbeMode();
         else if (mode == "aerial") yield return AerialMode();
         else if (mode == "aerialvideo") yield return AerialVideoMode();
