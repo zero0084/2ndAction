@@ -15,7 +15,7 @@
 
 | キャラ | 布の部分 | 傷みの強さ | 方針(エステルと合意) |
 |---|---|---|---|
-| 黒剣士 | 赤いマント全体・腰の前垂れ | 強 | 仕立てた2〜3枚の大きな分割マント(**代表・試作済み**) |
+| 黒剣士 | 赤いマント全体・腰の前垂れ | 強 | **肩から裾までつながった一枚の大きなマント**(マスターの指示で 2〜3枚の分割から変更)。前垂れ2枚は別の衣装として残す(**代表・試作済み**) |
 | 双剣士 | 青い布の帯(細切れ) | 強 | 細い帯を幅広の布へ。流れる方向と面積は保つ |
 | 弓使い | 緑の外套 | 強 | 柔らかい連続した面へ。躍動感は保つ |
 | 忍者 | 赤いマフラー | 強 | 速度感(長くたなびく形)を保つ |
@@ -54,13 +54,25 @@
   - これから使う指示は、下の共通指示に置き換えます。
   - 「No holes, fraying…」のような**否定の文の中でだけ**使います。肯定の描写には使いません(エステルの提案)。
 
-## 3. 共通の生成指示(OneMoreMile Cloth Refinement v1.0、エステルと確定)
+## 3. 共通の生成指示(OneMoreMile Cloth Refinement v1.1)
+
+v1.0 からの変更(2026-10-25、マスターの指示):
+
+- 「布を2〜3枚のパネルに分ける」を必須にしない。
+- 布は、それぞれの衣装の元の構造に合わせる。
+  - 一枚のマントは一枚のまま。
+  - 帯やマフラーは帯のまま。
+  - 元から分かれた布は分かれたまま。
+- 段々に重なる層は作らない。しわは布の流れに沿わせる。
+- 黒剣士のマントは「肩から裾までつながった一枚の大きな布」にする。この指定は黒剣士だけ。
 
 ```
 Refine only the existing fabric while preserving the character's original identity, silhouette, pose, scale, position, colors, and art style.
-Create well-maintained, durable, finely woven matte fabric with broad, continuous folds shaped by gravity, wind, and natural fabric tension.
+Respect the original construction of each garment: keep a single cloak as one continuous sheet, keep scarves and sashes as strips, and keep separately tailored pieces separate. Do not split one garment into multiple panels or stacked tiers.
+Create well-maintained, durable, finely woven matte fabric with broad, continuous folds shaped by gravity, wind, and natural fabric tension. Folds follow the direction of the flow, not across it.
 Use soft, low sheen only along the ridges of large folds (matte wool-blend, not glossy, not satin).
-Fabric panels must have coherent attachment points, natural overlaps, visible thickness, and smooth, intact, finished hems.
+Show volume with large folds, natural turnbacks, and the shaded reverse side of the fabric, not with layered strips.
+The fabric must have coherent attachment points, visible thickness, and smooth, intact, finished hems.
 Preserve the original direction, overall area, and motion of the cloth.
 Avoid holes, fraying, shredded strips, ragged edges, granular or mottled highlights, scratches, and flame-like fabric tips.
 Preserve all non-fabric materials and original character details.
@@ -99,7 +111,8 @@ For animation, maintain consistent panel count, attachment points, volume, lengt
    - 黒剣士は右の帯を約13%、左を数px 寄せた。
 4. `Tools/art/clothrestore.py`: 布以外(首から上の顔・髪・剣・手)を元の画素に戻す。
    - 境目は 1.5px ぼかす。小さな塊(裂けた布の影など)は戻さない。
-5. `Tools/art/clothboard.py`: 比較画像を作る。
+5. (必要な時だけ)`Tools/art/clothtip.py`: 細く伸びすぎた布の先端だけを縦に縮める。黒剣士 v6 の右下の裾の先で使用。
+6. `Tools/art/clothboard.py`: 比較画像を作る(何枚でも横に並べる)。`Tools/art/clothscreen.py`: キャラ選択画面に重ねた見本。
    - 全身の前後と拡大
    - 等倍(440 / 200 / 62px)
 6. エステルが前後をレビューする。
@@ -111,7 +124,10 @@ For animation, maintain consistent panel count, attachment points, volume, lengt
 | v1 | マントを仕立てた分割マントへ | 裂け・穴は消えた。まだら模様と前垂れの尖りが残る |
 | v2 | まだら模様と前垂れを修正 | 前垂れが幅広の1枚になり、元の鋭さが弱い。マントが元より右へ約30px はみ出す |
 | v3 | 前垂れを2枚に戻し、肩のムラを軽減 | エステル承認。ただし右へのはみ出しは残った(x=1008、元は 979) |
-| **v3 確定案** | v3 + 範囲合わせ(clothfit) + 顔・髪・剣を元の画素へ(clothrestore) | エステル最終承認。表示枠の中に収まる(x 56〜687) |
+| v3 確定案 | v3 + 範囲合わせ(clothfit) + 顔・髪・剣を元の画素へ(clothrestore) | エステル承認。表示枠の中に収まる(x 56〜687)。**マスター: 布が何重にも重なって見える → 一枚布へ** |
+| v4 | v3 を元に一枚布へ(左側・前垂れ・顔は維持) | 左側は一枚にまとまった。右側が横に4段の層に見える(しわが流れと直角) |
+| v5 | しわを肩から右下への放射状に、外から見える裾は右端の1本、翻りは1か所 | 一枚布として読める。右下の裾の先が細い尾のよう |
+| **v6(一枚布の確定案)** | v5 + 範囲合わせ + 顔などを元の画素へ + 右下の裾の先だけ局所的に短く(clothtip) | エステル最終判定: 合格。表示枠の中(x 56〜687)で切れない |
 
 ## 6. ファイルの対応(元画像は変更なし)
 
@@ -122,14 +138,16 @@ For animation, maintain consistent panel count, attachment points, volume, lengt
 | エステルの編集版 | `proto/raw/swordsman_v1_raw.png` / `v2` / `v3` |
 | 範囲合わせ後 | `proto/raw/swordsman_v3fit_raw.png` |
 | 確定案(元画像の座標、透過) | `proto/swordsman_v3face_aligned_raw.png` |
-| **確定案(700x1100、ゲーム用と同じ置き方)** | `proto/swordsman_v3final_main.png` |
-| 比較 | `proto/cmp_swordsman_final.jpg`(全身+拡大A/B)、`_zoom2.jpg`(拡大C/D/E)、`_small.jpg`(等倍)、`_charselect.jpg`(キャラ選択画面に重ねた見本) |
+| 前の試作 v3(700x1100) | `proto/swordsman_v3final_main.png`(比較 `proto/cmp_swordsman_final*.jpg`) |
+| エステルの一枚布の編集版 | `proto/raw/swordsman_v4_raw.png` / `v5` |
+| **一枚布の確定案 v6(700x1100、ゲーム用と同じ置き方)** | `proto/swordsman_v6final_main.png`(元画像の座標: `proto/swordsman_v6_aligned_raw.png`) |
+| **比較(元画像 / v3 / v6)** | `proto/cmp_swordsman_onecloth.jpg`(全身)、`_zoom.jpg`(拡大A〜D)、`_small.jpg`(等倍 440/200/62px)、`_charselect.jpg`(キャラ選択画面に重ねた見本)、`proto/tail_v5_v6.jpg`(裾の先の手直し) |
 | 相談に使った資料 | `consult/` |
 
 ## 7. 次
 
-1. マスターが見た目を確認する。
-2. 黒剣士の走り7コマへ展開する。
+1. マスターが一枚布 v6 の見た目を確認する(**走りはその後**)。
+2. 黒剣士の走り7コマへ展開する(一枚布の構造で)。
    - 今のコマを元に布だけ直す。
    - 色・裾・しわの連続性とちらつきを確認する。
    - 足元・位置・縮尺・画像の大きさ・ピボットは今のまま。
