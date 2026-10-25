@@ -1,0 +1,56 @@
+{
+ "DualBladeStart_v1__start_00.png": {
+  "y0": 0,
+  "y1": 772,
+  "scale": 4,
+  "size": [
+   2304,
+   3088
+  ]
+ },
+ "DualBladeFinishShort_v1__finish_01.png": {
+  "y0": 0,
+  "y1": 788,
+  "scale": 4,
+  "size": [
+   2784,
+   3152
+  ]
+ },
+ "DualBladeFinishMedium_v1__finish_00.png": {
+  "y0": 0,
+  "y1": 816,
+  "scale": 4,
+  "size": [
+   2368,
+   3264
+  ]
+ },
+ "DualBladeFinishMedium_v1__finish_01.png": {
+  "y0": 0,
+  "y1": 824,
+  "scale": 4,
+  "size": [
+   2192,
+   3296
+  ]
+ },
+ "DualBladeFinishLong_v1__finish_00.png": {
+  "y0": 0,
+  "y1": 1029,
+  "scale": 4,
+  "size": [
+   2448,
+   4116
+  ]
+ },
+ "DualBladeFinishLong_v1__finish_01.png": {
+  "y0": 0,
+  "y1": 888,
+  "scale": 4,
+  "size": [
+   2592,
+   3552
+  ]
+ }
+}

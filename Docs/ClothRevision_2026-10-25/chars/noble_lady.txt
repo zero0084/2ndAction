@@ -1,0 +1,14 @@
+# お嬢様騎士(noble_lady) 布の設定
+id=noble_lady
+prefix=NobleLady
+CLOTH_SPEC=205-250,0.25,1,0.1,1;0-360,0,0.14,0.72,1
+CLOTH_MODE=agree
+portrait_mode=agree
+erase_args=--min 6000 --thick 14
+ERASE_SPEC=205-250,0.25,1,0.1,1
+erase_note=青だけ消す(白の裏地は剣・鎧と同じ色で消すと刃まで消える)。境界の割合の判定はマントが髪と体に広く接するので使わない
+structure=青と白のスカート・垂れ布(上品で整った裾、白い裏地と金の模様・縁取りは残す)
+keep=顔・金髪・鎧・大剣・脚
+note=白い裏地と白い鎧が同じ色なので agree(元と新しい絵の両方で布でない所だけ元の画素)
+compose_args=--islands 600 --noadd 8 --keepgone
+FIT_SPEC=205-250,0.25,1,0.1,1

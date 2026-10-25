@@ -1,0 +1,12 @@
+# 巫女(miko) 布の設定
+id=miko
+prefix=Miko
+CLOTH_SPEC=345-15,0.55,1,0.25,1;0-360,0,0.12,0.75,1
+CLOTH_MODE=agree
+portrait_mode=agree
+erase_args=--min 6000 --thick 14 --edgefrac 0.15
+ERASE_SPEC=345-15,0.55,1,0.25,1
+erase_note=赤い袴だけ消す(白い袖は肌・紙垂と近いので残し、エステルに描き直してもらう)
+structure=白い袖と赤い袴の布端(なめらかに)。紙垂・飾り紐・房・模様は装飾として残す
+keep=顔・髪・髪飾り・大幣・足袋・草履
+compose_args=--islands 600 --noadd 8 --keepgone

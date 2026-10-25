@@ -392,3 +392,4 @@ For animation, maintain consistent panel count, attachment points, volume, lengt
 - アニメ: 並べた絵 8枚 + 1コマずつ 7コマ(走り5・6、被弾2・3、倒れる1〜4)。合成は agree。**体の輪郭まわりは新しい絵**(元の画素は体の芯だけ)。
 - 実ゲーム(`-qaClothCheck -ccChar dual_blade`、通常・3倍・切り替え・コンボ・空中・倒れる・洞窟 / `-ccOnly sf` 出発と距離4段階の到着 / `-ccOnly card`): いずれも失敗 0・例外 0、本物の保存は無変更。`chars/dual_blade/review/ingame_*.jpg`
 - 残り(エステル): 腰の短いスカートの裾のギザギザ(切れ込みは意匠として残し、傷みに見える所だけ)。立ち姿の到着コマを優先。
+- 腰の短いスカート: 立ち姿の6コマ(出発1、到着の短2・中1・中2・長1・長2)の裾のギザギザを整理(切れ込みは意匠として残す)。合成は直した後のコマを基準に agree。

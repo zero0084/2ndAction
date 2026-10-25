@@ -17,6 +17,7 @@ def cut(path):
     r, g, b = im[..., 0], im[..., 1], im[..., 2]
     m = np.minimum(r, b) - g
     alpha = np.clip((95 - m) / (95 - 35), 0, 1)
+    alpha = np.where(r - b > 60, 1.0, alpha)  # 赤い布の明るいピンク寄りの所(赤が青より十分強い)はマゼンタの背景ではない(2026-10-25 忍者のマフラーが半透明に抜けていた)
     spill = np.clip(np.minimum(r, b) - g, 0, None) * (1 - alpha * 0.6)
     r2 = r - spill; b2 = b - spill
     solid = alpha > 0.5

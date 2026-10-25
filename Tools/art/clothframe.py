@@ -32,7 +32,13 @@ def _cands():
     if abs(E.shape[1] / E.shape[0] - ref.shape[1] / ref.shape[0]) < 0.01:
         out.append(('resize', ref.shape[1] / E.shape[1], 0, 0))
     # (2) 体の形の相関
-    s2, x2, y2, _ = fit_transform(ref, E, SCALES); out.append(('corr', s2, x2, y2))
+    # 大きなコマ(4倍で幅2000px超、忍者など)は半分の大きさで探してから移動量を2倍に戻す(結果はほぼ同じで数倍速い)
+    if ref.shape[1] > 2000:
+        def _half(x): im = Image.fromarray(x); return np.array(im.resize((im.width // 2, im.height // 2), Image.LANCZOS))
+        s2, x2, y2, _ = fit_transform(_half(ref), _half(E), SCALES); x2, y2 = x2 * 2, y2 * 2
+    else:
+        s2, x2, y2, _ = fit_transform(ref, E, SCALES)
+    out.append(('corr', s2, x2, y2))
     # (3) 頭のてっぺんと足元
     def ext(img):
         al = img[..., 3] > 128; bm = ndimage.binary_opening(body_mask(img) > 0, iterations=2)

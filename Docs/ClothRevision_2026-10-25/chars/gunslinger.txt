@@ -1,0 +1,11 @@
+# 拳銃士(gunslinger) 布の設定
+id=gunslinger
+prefix=Gunslinger
+CLOTH_SPEC=12-40,0.3,0.85,0.12,0.62;348-10,0.55,1,0.25,1
+CLOTH_MODE=agree
+portrait_mode=agree
+erase_args=--min 6000 --thick 14 --edgefrac 0.06
+structure=茶色のロングコート(左右の裾、仕立てのよい厚手の布、赤い裏地)
+keep=顔・髪・二丁の銃・ホルスター・ベルト・脚
+note=コートとベルト・ホルスターが同じ茶色なので agree
+compose_args=--islands 600 --noadd 8 --keepgone

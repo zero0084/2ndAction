@@ -1,0 +1,12 @@
+# 格闘家(fighter) 布の設定(色は立ち絵で測って更新)
+id=fighter
+prefix=Fighter
+CLOTH_SPEC=345-12,0.55,1,0.15,1
+CLOTH_MODE=erase
+compose_args=--thick 3 --edgefrac 0.3
+erase_args=--min 6000 --thick 12 --edgefrac 0.3
+structure=腰の帯と、そこから垂れる幅のあるしなやかな布(端は2本程度)。動きを妨げない長さ
+keep=顔・髪・筋肉・拳・手甲・鎧・脚
+portrait_mode=agree
+note=髪も同じ赤なので、髪の一部が新しい絵の物になる(体の描き直しとして記録)
+portrait_spec=348-15,0.6,1,0.42,1

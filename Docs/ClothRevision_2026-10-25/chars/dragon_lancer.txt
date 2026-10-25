@@ -1,0 +1,10 @@
+# 竜騎士(dragon_lancer) 布の設定
+id=dragon_lancer
+prefix=Lancer
+CLOTH_SPEC=160-215,0.2,1,0.1,1;215-260,0.15,1,0.08,1
+CLOTH_MODE=agree
+compose_args=--thick 3.5 --edgefrac 0.4 --islands 600 --noadd 8 --keepgone
+erase_args=--min 6000 --thick 14 --edgefrac 0.4
+structure=肩から背中へかかる青緑の布と腰布(重さと厚みのある布、鎧との境界を明確に、重力で垂れる)。縁の金の刺繍は残す
+keep=顔・髪・鎧(胸の青緑の鱗は鎧なので布ではない)・槍・脚
+portrait_mode=agree

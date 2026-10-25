@@ -111,11 +111,74 @@ if '--mode' in a and opt(a, '--mode', '') == 'agree':
     # 2026-10-25(双剣士の走り): 新しい絵を基本にして、元と新しい絵の両方で「布でない不透明」の所だけ元の画素を使う。
     # 剣と布が同じ色のキャラ(双剣士の刃の青い光)では色で布を分けられず、腕や剣が二重になったり欠けたりしたため。
     # 体の芯は元の画素、輪郭のずれた所や布の所は新しい絵になる(体の描き直しは輪郭だけ)
+    if '--noadd' in a:
+        # 2026-10-26(拳銃士の射撃): エステルが元に無い物(銃口の光・煙・本など)を描き足すと、元が透明な所は新しい絵になるので残る。
+        # 元の輪郭から --noadd px より離れた所の、布の色(と布のすぐ近く)でない新しい画素は使わない
+        nc_ = clothmask(N, CLOTH) & (N[..., 3] > 100)
+        drop_ = (ndimage.distance_transform_edt(al < 30) > float(opt(a, '--noadd', '8'))) & ~ndimage.binary_dilation(nc_, iterations=4)
+        N = N.copy(); N[..., 3][drop_] = 0
     obody = (al > 128) & ~clothmask(O, CLOTH)
     nbody = (N[..., 3] > 128) & ~clothmask(N, CLOTH)
     both = ndimage.binary_opening(obody & nbody, iterations=1)
     P = ndimage.binary_erosion(both, iterations=int(opt(a, '--core', '1')))
     ncape = clothmask(N, CLOTH) & (N[..., 3] > 100)
+    if '--islands' in a:
+        # 2026-10-25(弓使いの決めポーズ): 新しい布の刺繍(布の色でない)と元の刺繍が重なる所で元の画素が島のように残り、布に黒い斑点が出た。
+        # 体の本体から離れた小さな島(--islands px 以下)は元の画素を使わない(そこは位置を合わせた新しい絵になる)
+        imax = float(opt(a, '--islands', '300')); lbI, nI = ndimage.label(P)
+        if nI:
+            szI = ndimage.sum(P, lbI, range(1, nI + 1))
+            P &= np.isin(lbI, [k + 1 for k, v in enumerate(szI) if v > imax])
+    if '--keepgone' in a:
+        # 2026-10-26(拳銃士の射撃): エステルが腕や銃の位置を変えると、元の体がある所で新しい絵が透明になり、体が欠けた。
+        # 元の体(布の色でない不透明、本体につながる塊)のうち新しい絵が透明な所は元の画素を使う。古い布の近く(3px)は除く
+        lbG, nG = ndimage.label(obody)
+        if nG:
+            szG = ndimage.sum(obody, lbG, range(1, nG + 1)); mainG = np.isin(lbG, [k + 1 for k, v in enumerate(szG) if v >= 0.05 * szG.max()])
+            gone_ = mainG & (N[..., 3] < 30) & ~ndimage.binary_dilation(clothmask(O, CLOTH) & (al > 30), iterations=3)
+            P |= gone_
+if '--mode' in a and opt(a, '--mode', '') == 'erase':
+    # 2026-10-25(忍者): 古い布を消した絵をエステルに渡す方式の合成。新しい絵の体は使わない(ポーズや剣の位置が変わっても元のまま)。
+    #  ① 元の古い布 = 布の色の大きく太い塊(clotherase.py と同じ考え。細い房飾りなどは残る)を消す
+    #  ② 体の本体から離れて浮いた元の切れ端も消す
+    #  ③ 新しい絵の布(布の色の大きな塊)を、消した所と透明な所にだけ置く(体の上には重ねない)
+    minsz = float(opt(a, '--minsz', '150')); thick = float(opt(a, '--thick', '3.5'))
+    oc_all = clothmask(O, CLOTH) & (al > 30)
+    # 布の色の塊ごとに、大きく太い物(=古い布)をまるごと消す。房飾りが古い布に触れていると一緒に消えるので、③で新しい絵の房飾りを戻す
+    lb_, nb_ = ndimage.label(oc_all); old = np.zeros(al.shape, bool)
+    if nb_:
+        sz_ = ndimage.sum(oc_all, lb_, range(1, nb_ + 1)); dt_ = ndimage.distance_transform_edt(oc_all)
+        mx_ = ndimage.maximum(dt_, lb_, range(1, nb_ + 1))
+        ids_ = [i + 1 for i, (v, t) in enumerate(zip(sz_, mx_)) if v >= minsz and t > thick]
+        ef_ = float(opt(a, '--edgefrac', '0'))
+        if ef_ > 0:  # 竜騎士など、布と同じ色の鎧(胸の鱗)がある時: 輪郭のうち背景(透明)に触れる割合が ef_ 以上の塊だけを古い布とする
+            bgn_ = ndimage.binary_dilation(al <= 30, iterations=2); keep_ids = []
+            for i in ids_:
+                cm_ = ndimage.binary_fill_holes(lb_ == i); edge_ = cm_ & ~ndimage.binary_erosion(cm_)
+                if (edge_ & bgn_).sum() >= ef_ * max(1, edge_.sum()): keep_ids.append(i)
+            ids_ = keep_ids
+        old = np.isin(lb_, ids_)
+    belowR = np.ones(al.shape, bool)
+    if '--below' in a:
+        # 2026-10-26(拳銃士): コート・髪・肌が同じ茶色。直すのは腰から下の裾だけなので、古い布として消すのも新しい布を置くのも、
+        # 外接の箱の上から --below の割合(ベルトの辺り)より下だけにする。上半身は元のまま
+        ysB = np.where((al > 30).any(axis=1))[0]
+        if len(ysB): belowR[: int(ysB[0] + float(opt(a, '--below', '0.45')) * (ysB[-1] - ysB[0]))] = False
+        old &= belowR
+    old = ndimage.binary_dilation(old, iterations=2) & (al > 0) & belowR
+    base = (al > 30) & ~old
+    lb2, nb2 = ndimage.label(base, structure=np.ones((3, 3)))
+    if nb2 > 1:
+        sz2_ = ndimage.sum(base, lb2, range(1, nb2 + 1)); main_ = int(np.argmax(sz2_)) + 1
+        base = np.isin(lb2, [i + 1 for i, v in enumerate(sz2_) if i + 1 == main_ or v >= sz2_.max() * float(opt(a, '--keepfrac', '0.08'))])
+    nc_all = clothmask(N, CLOTH) & (N[..., 3] > 100)
+    lb3, nb3 = ndimage.label(nc_all)
+    if nb3:
+        sz3_ = ndimage.sum(nc_all, lb3, range(1, nb3 + 1)); nc_all = np.isin(lb3, [i + 1 for i, v in enumerate(sz3_) if v >= float(opt(a, '--newmin', '25'))])
+    ncape = nc_all & belowR
+    P = base
+    takeNew = ncape & ~ndimage.binary_erosion(base, iterations=1)
+    N = N * takeNew[..., None]
 if '--mode' in a and opt(a, '--mode', '') == 'color':
     # 布の色が体(鎧・肌・髪)とはっきり違うキャラ用(双剣士の青緑など、2026-10-25): 腰の上下の規則を使わず、色だけで決める。
     # 新しい絵にする所 = 元の布の色の所(大きな塊 + その縁の半透明・暗い縁) + 新しい絵の布の色の所。それ以外は元の画素
@@ -178,9 +241,18 @@ for i_, t_ in enumerate(a):
         v_ = list(map(float, a[i_ + 1].split(',')))
         im_ = Image.new('L', (P.shape[1], P.shape[0]), 0); _ID.Draw(im_).polygon(list(zip(v_[0::2], v_[1::2])), fill=255)
         KP |= np.array(im_) > 0
+if '--keeptop' in a:
+    # 2026-10-26(拳銃士): コート・髪・肌・ベルトがどれも茶色で、色では布と体を分けられず、顔や手が欠けたり銃が二重になった。
+    # 直すのはコートの裾だけなので、元の絵の上から --keeptop の割合(外接の箱の高さ)までは元の絵をそのまま使う(透明な所も元のまま)
+    ys_ = np.where((al > 30).any(axis=1))[0]
+    if len(ys_): KP[: int(ys_[0] + float(opt(a, '--keeptop', '0.45')) * (ys_[-1] - ys_[0]))] = True
+if '--keephsv' in a:
+    # 2026-10-26(魔法使いの杖の宝石・魔法の光): 布と同じ青紫で色では布と分けられず、エステルの絵の宝石の色がコマごとに変わった。
+    # 元の絵で明るく鮮やかな所(この色の範囲)は、少し広げて元の画素を使う
+    KP |= ndimage.binary_dilation(clothmask(O, opt(a, '--keephsv', '')) & (al > 30), iterations=3) & (al > 0)
 P |= KP & (al > 30)
 # 体の本体とつながらず、新しいマントのすぐ近く(8px)にある小さな塊は、古いマントの名残(cape モードだけ)
-if '--mode' in a and opt(a, '--mode', '') in ('cape', 'color'):
+if '--mode' in a and opt(a, '--mode', '') in ('cape', 'color', 'erase'):
     solidP = P & (al > 100)
     lab3, n3 = ndimage.label(solidP, structure=np.ones((3, 3)))
     if n3 > 1:
@@ -197,7 +269,7 @@ out[..., 3] = np.maximum(N[..., 3] * (1 - m[..., 0]), O[..., 3] * m[..., 0])
 out[EB] = N0[EB]
 out[CL & ~EB] = N[CL & ~EB]  # 新しいマント(無ければ透明)
 # 合成でできた小さな穴(まわりを絵に囲まれた透明な所、400px 未満)を、まわりの色で埋める(cape モード)。元の絵にあった穴は埋めない
-if '--mode' in a and opt(a, '--mode', '') in ('cape', 'color'):
+if '--mode' in a and opt(a, '--mode', '') in ('cape', 'color', 'erase'):
     solid = out[..., 3] > 128
     holes = ndimage.binary_fill_holes(solid) & ~solid & ((al > 128) | (N0[..., 3] > 128))  # 元か新しい絵のどちらかで埋まっていた所だけ(元の絵の透明なすき間は埋めない)
     lh, nh = ndimage.label(holes)

@@ -27,8 +27,25 @@ if cmd == 'make':
 elif cmd == 'split':
     src, layp, outd = sys.argv[2:5]; suf = sys.argv[5] if len(sys.argv) > 5 else 'a'
     E = Image.open(src).convert('RGB'); lay = json.load(open(layp)); os.makedirs(outd, exist_ok=True)
+    # 2026-10-25: エステルが人物を区画の中で動かしたり大きくしたりすることがあるので、区画で切らずに
+    # 「マゼンタでない塊」を見つけ、重心が入る区画へ割り当てて、その外接の箱で切る(倍率は区画→元の4倍の比のまま)
+    import numpy as np
+    from scipy import ndimage
+    A = np.array(E).astype(int)
+    fg = ~((A[..., 0] > 190) & (A[..., 1] < 90) & (A[..., 2] > 190))
+    fg = ndimage.binary_opening(fg, iterations=2)
+    lb, nb = ndimage.label(ndimage.binary_dilation(fg, iterations=6))
+    cms = ndimage.center_of_mass(fg, lb, range(1, nb + 1)); szs = ndimage.sum(fg, lb, range(1, nb + 1))
     for c in lay['cells']:
-        x0, y0, x1, y1 = c['box']; px = 0.02  # 少し広めに切る(はみ出した布も拾う)
+        x0, y0, x1, y1 = c['box']; px = 0.02
+        cx0, cy0, cx1, cy1 = (x0 - 0.03) * E.width, (y0 - 0.03) * E.height, (x1 + 0.03) * E.width, (y1 + 0.03) * E.height
+        ids = [i + 1 for i, (cm, sz) in enumerate(zip(cms, szs)) if sz > 400 and cx0 <= cm[1] <= cx1 and cy0 <= cm[0] <= cy1]
+        if ids and os.environ.get('SPLIT_MODE') != 'cell':  # SPLIT_MODE=cell: 区画の割合で切る(エステルが配置を保った時はこちらが安定)
+            ys, xs = np.where(np.isin(lb, ids) & fg); m = 12
+            bx = (max(0, xs.min() - m), max(0, ys.min() - m), min(E.width, xs.max() + m), min(E.height, ys.max() + m))
+            k = c['size'][0] / ((x1 - x0) * E.width)  # 区画 → 元の4倍
+            tile = E.crop(bx); tile.resize((max(1, int(tile.width * k)), max(1, int(tile.height * k))), Image.LANCZOS).save(os.path.join(outd, f"{c['key']}_{suf}.png"))
+            continue
         bx = (int((x0 - px) * E.width), int((y0 - px) * E.height), int((x1 + px) * E.width), int((y1 + px) * E.height))
         tile = E.crop(bx)
         # 元の x4 の大きさへ(余白を含めた比率のまま)

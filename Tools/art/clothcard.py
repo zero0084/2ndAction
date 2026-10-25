@@ -57,8 +57,8 @@ if BD.any():
     col = np.dstack([ndimage.gaussian_filter(N[..., c] * rawN, 4) / np.maximum(wgt, 1e-3) for c in range(3)])
     N = np.where((fillp & ~rawN)[..., None], col, N)  # 範囲は体の輪郭に沿わせる(外の背景まで含めると、背景がマントの色で埋まる)
     take = (take & ~BD) | fillp
-m = ndimage.gaussian_filter(take.astype(float), 1.0)
-m = np.where(take, np.maximum(m, 0.0), m) * win * ~KP
+m = ndimage.gaussian_filter(take.astype(float), float(opt('--feather', '1.0')))  # --full の時は窓の縁をなめらかに(--feather 8 など)
+m = (m if '--feather' in a else np.where(take, np.maximum(m, 0.0), m)) * win * ~KP
 m = np.clip(m * 1.6, 0, 1)
 if BD.any(): m[BD & ~take] = 0  # 体の範囲では、ぼかしの縁でも新しい絵の体を混ぜない
 m = m[..., None]

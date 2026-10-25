@@ -30,7 +30,7 @@ case "$cmd" in
   fit)
     fn=$1; shift; fo=${fn%/*}; n=${fn##*/}; mkdir -p $W/aligned/$fo
     src=$(ls -t $W/out/${fo##*/}__${n}_?.png 2>/dev/null | head -1)  # clothprep の名前は「フォルダの最後の名前__コマ」。一番新しい版(_a/_b...)
-    "$PY" Tools/art/clothframe.py "$src" $O/$fn.png $W/in/crop.json $W/aligned/$fo/$n.png --fit-auto --fit-left --scales-rel 0.88,1.12,0.004 "$@" | grep -E "^  ->|overflow" ;;
+    FS=$(grep "^FIT_SPEC=" "$CF" | cut -d= -f2-); CLOTH_SPEC=${FS:-$CLOTH_SPEC} "$PY" Tools/art/clothframe.py "$src" $O/$fn.png $W/in/crop.json $W/aligned/$fo/$n.png --fit-auto --fit-left $(echo "$@" | grep -q -- "--scales" || echo "--scales-rel 0.88,1.12,0.004") "$@" | grep -E "^  ->|overflow" ;;
   compose)
     for fn in "$@"; do fo=${fn%/*}; n=${fn##*/}; ex=$(grep -P "^$fn\t" $W/clears.txt 2>/dev/null | cut -f2-); mkdir -p $W/local/$fo $W/dbg/$fo
       "$PY" Tools/art/clothlocal.py $O/$fn.png $W/aligned/$fo/$n.png $W/local/$fo/$n.png --near 3 --mode ${CLOTH_MODE:-cape} --despeck ${DESPECK:-800} $extra_all $ex --debug $W/dbg/$fo | tail -1; done ;;
@@ -40,7 +40,7 @@ case "$cmd" in
     "$PY" Tools/art/clothsheet2.py split $W/sheets/${nm}_out.png $W/sheets/${nm}.json $W/out $suf
     for k in $("$PY" -c "import json;print(' '.join(c['key'] for c in json.load(open('$W/sheets/${nm}.json'))['cells']))"); do
       fo=$(cd $O && ls -d ${k%%__*} 2>/dev/null || find . -path "./${prefix}*" -type d -name "${k%%__*}" | sed 's#^\./##' | head -1); n=${k##*__}
-      bash "$0" $id fit $fo/$n && bash "$0" $id compose $fo/$n; done ;;
+      bash "$0" $id fit $fo/$n --scales ${SHEET_SCALES:-0.8,1.25,0.005} && bash "$0" $id compose $fo/$n; done ;;
   candidate)
     n=0; for f in $(cd $W/local && find . -name "*.png" | sed 's#^\./##'); do mkdir -p "$D/ingame/candidate/Art/$(dirname $f)"; cp "$W/local/$f" "$D/ingame/candidate/Art/$f"; n=$((n+1)); done
     for f in main card; do [ -f $W/${id}_$f.png ] && { mkdir -p $D/ingame/candidate/Art/UI/Characters; cp $W/${id}_$f.png $D/ingame/candidate/Art/UI/Characters/; n=$((n+1)); }; done

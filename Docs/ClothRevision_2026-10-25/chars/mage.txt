@@ -1,0 +1,10 @@
+# 魔法使い(mage) 布の設定
+id=mage
+prefix=Mage
+CLOTH_SPEC=215-290,0.15,1,0.06,1
+CLOTH_MODE=agree
+portrait_mode=agree
+erase_args=--min 6000 --thick 14 --edgefrac 0.15
+structure=重なった青紫のローブ(層を整理、大きな布面と自然な重なり、刺繍と金の装飾は残す)
+keep=顔・銀髪・フード・杖・本・魔法のエフェクト・脚
+compose_args=--keephsv 200-290,0.5,1,0.85,1 --islands 600 --noadd 8 --keepgone
