@@ -713,6 +713,8 @@ public class PlayerAnimator : MonoBehaviour
         // カウントダウン中は敵/障害物自体が出現しないため)が、念のため
         // 一番上でチェックする。
         if (controller != null && controller.IsDeadPosing && HasFrames(deathFrames)) newState = State.Death;
+        // 2026-10-25: 空中で脱出が確定した時は、着地するまで落下の絵(終了ポーズは地面に立ってから)
+        else if (controller != null && controller.IsFinishFalling) newState = State.Jump;
         else if (controller != null && controller.IsFinishing) newState = State.Finish;
         // マルチ(2026-09-28): カード選択中の一時停止も、走りの絵ではなく開始準備の構えで立ち止まって見せる。
         else if (controller != null && (controller.IsPreparingStart || controller.NetIsChoosing)) newState = State.StartPrep;

@@ -564,7 +564,10 @@ public partial class PlayerController : MonoBehaviour
     // 死亡時の専用ポーズ(CharacterDefinition.deathFrames)を持つキャラは、消えて爆散する
     // 代わりにその場でポーズを見せる(PlayerAnimatorがState.Deathで再生)。
     bool charHasDeathFrames;
-    public bool IsDeadPosing => hasDied && charHasDeathFrames;
+    // 2026-10-25: 脱出成功で終わった時は倒れるポーズにしない(以前は IsGameOver で hasDied が立ち、結果画面の裏で death へ切り替わっていた)。
+    // 到着の最後のコマのまま(State.Finish、FinishProgress=1)
+    public bool IsDeadPosing => hasDied && charHasDeathFrames && !runEndedByWin;
+    bool runEndedByWin;
     public bool HasDied => hasDied; // BGM: 倒れている間は曲を戻さない(CO-OPの復活で戻す)
 
     // Grown by "AIR ATTACK UP" - only added on top of AttackPower while
@@ -1066,6 +1069,7 @@ public partial class PlayerController : MonoBehaviour
             if (!hasDied)
             {
                 hasDied = true;
+                runEndedByWin = GameManager.Instance.IsWin;
                 if (!GameManager.Instance.IsWin) OnDeath();
             }
             if (!GameManager.Instance.IsWin) DeathFallTick();
@@ -2476,22 +2480,38 @@ public partial class PlayerController : MonoBehaviour
         if (attackHitbox != null) attackHitbox.enabled = false;
         if (upAttackHitbox != null) upAttackHitbox.enabled = false;
         EndDiveAttack();
+        if (isLancerCharacter) CancelLanceMoves();
         if (HasKit) { CancelKitMoves(); KitOnRunEnd(); }
 
         IsFinishing = true;
-        if (GameManager.Instance != null) { GameManager.Instance.SetPresentationDamageLock(true); GameManager.Instance.EscapeLog("finish motion start"); }
+        // 2026-10-25: 空中で確定した時は、先に自然に落ちて着地してから終了ポーズ(以前は空中で止まり、地上用のポーズのまま浮いていた)。
+        // 落ちている間も成功は取り消さない(被弾/落下では負けない: PresentationDamageLock + IsFinishing)。魔法使いは浮遊のまま(KitFinishTick)
+        IsFinishFalling = kit != CharacterKit.Mage && !isGrounded;
+        FinishAirborneAtConfirm = IsFinishFalling;
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SetPresentationDamageLock(true);
+            GameManager.Instance.EscapeLog(IsFinishFalling ? $"finish motion start (airborne y={transform.position.y:F2} vy={velocityY:F1}, fall first)" : "finish motion start");
+        }
         FinishTierIndex = ResolveFinishTier(GameManager.Instance != null ? GameManager.Instance.MaxDistance : 0f);
         FinishProgress = 0f;
 
-        // 減速(既定0.22秒、0.15〜0.30秒枠): 現在の自動前進速度から自然に0へ。
+        // 減速(既定0.22秒、0.15〜0.30秒枠): 現在の自動前進速度から自然に0へ。空中なら同時に落ち、着地するまで続ける
         float startSpeed = runSpeed * EffectiveSpeedMultiplier();
-        float t = 0f;
-        while (t < finishDecelDuration)
+        float t = 0f, fallT = 0f;
+        while (t < finishDecelDuration || IsFinishFalling)
         {
-            t += Time.deltaTime;
-            float speed = Mathf.Lerp(startSpeed, 0f, Mathf.Clamp01(t / finishDecelDuration));
-            transform.position += Vector3.right * speed * Time.deltaTime;
-            KitFinishTick(Time.deltaTime); // 魔法使い: 高く飛んでいても浮遊の最低高度へ降りる(他キャラは何もしない)
+            float dt = Time.deltaTime;
+            bool decelling = t < finishDecelDuration;
+            if (decelling) t += dt;
+            float speed = decelling ? Mathf.Lerp(startSpeed, 0f, Mathf.Clamp01(t / finishDecelDuration)) : 0f;
+            if (IsFinishFalling)
+            {
+                fallT += dt;
+                if (FinishFallTick(dt, speed * dt, t >= finishDecelDuration, fallT)) yield return FinishPitHop();
+            }
+            else transform.position += Vector3.right * speed * dt;
+            KitFinishTick(dt); // 魔法使い: 高く飛んでいても浮遊の最低高度へ降りる(他キャラは何もしない)
             yield return null;
         }
 
@@ -2534,6 +2554,94 @@ public partial class PlayerController : MonoBehaviour
         for (int i = 0; i < finishTierBoundaries.Length; i++)
             if (distance < finishTierBoundaries[i]) return i;
         return finishTierBoundaries.Length;
+    }
+
+    // 正常終了の着地(2026-10-25)。IsFinishFalling の間は PlayerAnimator が落下の絵を出し、着地してから State.Finish へ
+    public bool IsFinishFalling { get; private set; }
+    public bool FinishAirborneAtConfirm { get; private set; } // 確認用: 確定した時に空中だった
+    public static int FinishAirLandings { get; private set; } // 確認用: 空中で確定→着地した回数
+    public static int FinishPitHops { get; private set; }     // 確認用: 穴の上で確定→足場へ跳び移った回数
+
+    // 1フレーム分の落下。足場の面に届いたら着地して false。足場が無い(穴の上で減速も終わった/落ちすぎた/長すぎる)時は true(跳び移りへ)
+    bool FinishFallTick(float dt, float dx, bool decelDone, float fallT)
+    {
+        var tm = TerrainManager.Instance;
+        float x = transform.position.x + dx, y = transform.position.y;
+        if (tm == null) { FinishLand(x, y, onSky); return false; }
+        velocityY = Mathf.Max(velocityY - gravity * dt, -22f);
+        float ny = y + velocityY * dt;
+        float? ceil = tm.GetCeilingLimitY(x);
+        if (ceil.HasValue && ny > ceil.Value) { ny = Mathf.Max(ceil.Value, Mathf.Min(y, ny)); if (velocityY > 0f) velocityY = 0f; }
+
+        // 足元の面: 上ルート/乗れる面は足が上にある時だけ、下ルートの地面は常に(下へ入り込んでいたら押し上げる)
+        float feet = y - groundOffset;
+        float? sky = tm.GetSkyHeightAt(x, feet);
+        float? g = tm.GetHeightAt(x);
+        // (穴の中へ落ちてから縁の下へ入った時は、押し上げずに跳び移りへ)
+        bool belowGround = g.HasValue && feet < g.Value - 0.5f;
+        float surf = float.NegativeInfinity; bool surfSky = false;
+        if (sky.HasValue && feet >= sky.Value - 0.05f) { surf = sky.Value + groundOffset; surfSky = true; }
+        if (g.HasValue && !belowGround && g.Value + groundOffset > surf) { surf = g.Value + groundOffset; surfSky = false; }
+
+        if (!float.IsNegativeInfinity(surf) && ny <= surf) { FinishLand(x, surf, surfSky); return false; }
+        transform.position = new Vector3(x, ny, transform.position.z);
+        if (float.IsNegativeInfinity(surf) && (belowGround || decelDone || ny < failY + 1.5f)) return true; // 穴の上: 落ちて負けないよう足場へ
+        return fallT > 4f; // 安全装置: いつまでも着地しない
+    }
+
+    void FinishLand(float x, float surfY, bool sky)
+    {
+        transform.position = new Vector3(x, surfY, transform.position.z);
+        transform.rotation = Quaternion.identity;
+        velocityY = 0f;
+        isGrounded = true;
+        onSky = sky;
+        jumpsUsed = 0;
+        hoverShotsUsedThisAirtime = 0;
+        aerialAssistTimer = 0f;
+        aerialAssistTotalUsed = 0f;
+        IsFinishFalling = false;
+        FinishAirLandings++;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySe(SeId.Land);
+        Landed?.Invoke();
+        if (GameManager.Instance != null) GameManager.Instance.EscapeLog($"finish landed x={x:F2} y={surfY:F2} sky={sky}");
+    }
+
+    // 穴の上で確定した時の例外: 近い方の足場(同じ距離なら前)へ短い弧で跳び移って着地する
+    IEnumerator FinishPitHop()
+    {
+        FinishPitHops++;
+        var tm = TerrainManager.Instance;
+        Vector3 from = transform.position;
+        float tx = FinishLandingX(from.x);
+        float ty = ((tm != null ? tm.GetHeightAt(tx) : null) ?? (from.y - groundOffset)) + groundOffset;
+        if (GameManager.Instance != null) GameManager.Instance.EscapeLog($"finish over a pit x={from.x:F2} y={from.y:F2} -> hop to x={tx:F2}");
+        float dur = Mathf.Clamp(Mathf.Abs(tx - from.x) / 10f, 0.25f, 0.6f);
+        float c = 2f * (Mathf.Max(from.y, ty) + 0.8f) - 0.5f * (from.y + ty); // 中間で 0.8m 上を通る2次曲線
+        float t = 0f;
+        while (t < dur)
+        {
+            t += Time.deltaTime;
+            float u = Mathf.Clamp01(t / dur);
+            float y = (1f - u) * (1f - u) * from.y + 2f * u * (1f - u) * c + u * u * ty;
+            transform.position = new Vector3(Mathf.Lerp(from.x, tx, Mathf.SmoothStep(0f, 1f, u)), y, from.z);
+            if (u < 1f) yield return null;
+        }
+        FinishLand(tx, ty, false);
+    }
+
+    float FinishLandingX(float x)
+    {
+        var tm = TerrainManager.Instance;
+        if (tm == null || tm.GetHeightAt(x).HasValue) return x;
+        const float Step = 0.25f, Margin = 0.75f, Range = 24f;
+        for (float d = Step; d <= Range; d += Step)
+            for (int s = 1; s >= -1; s -= 2)
+            {
+                float edge = x + s * d;
+                if (tm.GetHeightAt(edge).HasValue && tm.GetHeightAt(edge + s * Margin).HasValue) return edge + s * Margin;
+            }
+        return tm.FindSafeRespawnX(x);
     }
 
     // Item 4 - "長押し開始 -> 足元付近に薄い青+金の帰還魔法陣...0秒->1秒->

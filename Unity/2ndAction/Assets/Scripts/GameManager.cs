@@ -1247,7 +1247,19 @@ public partial class GameManager : MonoBehaviour
     // 結果画面の「Tap to Retry」までの待ちは実時間で数える(何かが時間を止めていても結果画面から先へ進める)。
     float gameOverRealtime;
     public float SecondsSinceGameOver => !IsGameOver ? 0f : QaLegacyDeathBehaviour ? Time.time - gameOverTime : Time.realtimeSinceStartup - gameOverRealtime;
-    public bool RetryAllowedNow => IsGameOver && !QuietFinish && SecondsSinceGameOver >= retryDelayAfterGameOver;
+    public bool RetryAllowedNow => IsGameOver && !QuietFinish && ResultRevealed && SecondsSinceGameOver >= retryDelayAfterGameOver;
+    // 2026-10-25: FAILED の結果画面は、倒れるアニメ(death のコマ)を最後まで見せてから出す(以前はとどめの直後に結果画面が中央を覆い、
+    // 倒れる絵がほぼ見えなかった)。待ちは倒れるコマの長さ+少しの間(上限 2秒)。成功の時は待たない(暗転の後に出る)。
+    // 確定(報酬/記録)と Tap to Retry の時間(retryDelayAfterGameOver)は今までどおり FinishRun の時点から
+    public float ResultRevealDelay { get; private set; }
+    public bool ResultRevealed => IsWin || QaLegacyDeathBehaviour || SecondsSinceGameOver >= ResultRevealDelay;
+    float DeathPoseRevealSeconds()
+    {
+        var pc = PlayerController.Instance;
+        var anim = pc != null ? pc.GetComponent<PlayerAnimator>() : null;
+        if (anim == null || anim.deathFrames == null || anim.deathFrames.Length == 0) return 0.6f; // 倒れる絵が無いキャラは消える演出(約0.6秒)
+        return Mathf.Min(2f, anim.deathFrames.Length / Mathf.Max(0.5f, anim.deathFps) + 0.35f);
+    }
     public string DeathReason { get; private set; } = "";
     public int FinishRunCalls { get; private set; }        // 自動テスト用: 1回だけのはず
     public int DamageAfterDeathIgnored { get; private set; } // 死亡後に来て無視したダメージ/即死の要求
@@ -3757,6 +3769,7 @@ public partial class GameManager : MonoBehaviour
     {
         IsGameOver = true;
         gameOverRealtime = Time.realtimeSinceStartup;
+        ResultRevealDelay = IsWin ? 0f : DeathPoseRevealSeconds();
         gameOverPausedTimer = 0f;
         DeathLog($"FinishRun win={IsWin} reason={DeathReason} timeScaleBefore={Time.timeScale:F2} reasons={TimeControl.DescribeActiveReasons()} hitStop={HitStop.ActiveCount} choice={levelUpPending} seq={IsRewardSequenceRunning}");
         // 死神(三姉妹)は追跡/攻撃/接触判定をここで止める(死因が何であっても)
@@ -4724,7 +4737,7 @@ public partial class GameManager : MonoBehaviour
             return;
         }
 
-        if (!QuietFinish) { NoteResultShown(); DrawResults(); }
+        if (!QuietFinish && ResultRevealed) { NoteResultShown(); DrawResults(); }
         DrawStartTransitionOverlay();
     }
 
