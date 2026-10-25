@@ -1,0 +1,7 @@
+# 双剣士(dual_blade) 布の設定。CLOTH_SPEC は clothcmp.clothmask の書式(色相 h0-h1, 彩度 min,max, 明度 min,max)
+id=dual_blade
+prefix=DualBlade
+CLOTH_SPEC=175-245,0.2,1,0.08,1
+structure=腰の後ろの同じベルト付近から3本の独立した布帯(上段=細く長く肩の方へ少し上がる 長さ55% 幅8% / 中段=一番幅広の主役 65% 12% / 下段=短く後ろ下へ 40% 7%)。首元の小さな布も同じ色の整った布
+keep=髪(灰色の長い髪・ポニーテール)・双剣・鎧・脚・ブーツ
+CLOTH_MODE=agree

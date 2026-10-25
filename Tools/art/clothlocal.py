@@ -5,7 +5,9 @@
 走りで試した「色だけで古いマントを見分ける」方法は、古いマントの黒い縁と鎧を取り違えて体が欠けた。
 新しい絵の体の位置も条件に入れて、体から離れた黒い縁(古いマント)は残さない。
 ※ 色と位置の判定だけでは完成としない。元画像との比較(顔・手・鎧・剣の欠け、黒い縁の残り、つなぎ目)で確かめる。
-usage: clothlocal.py <元のコマ.png> <合わせた新しい絵.png> <出力.png> [--near 3] [--mode cape] [--clear 多角形] [--replace 箱] [--debug <dir>]
+usage: clothlocal.py <元のコマ.png> <合わせた新しい絵.png> <出力.png> [--near 3] [--mode cape] [--cloth 色の範囲] [--clear 多角形] [--replace 箱] [--debug <dir>]
+  --cloth h0-h1,smin,smax,vmin,vmax[;...](2026-10-25 全12人へ): 布の色(色相は度、h0>h1 なら 0 をまたぐ。彩度・明度は 0〜1)。
+    無ければ黒剣士の赤いマントの判定。キャラごとの値は Docs/ClothRevision_2026-10-25/chars/<id>.txt
   --mode cape(推奨): 新しい絵は新しいマントと古いマントの所だけに使い、体は元の画素のまま
   出力の画像の大きさは元と同じ。--debug に色分け(灰=元を残した/赤=新しい絵/青=元の絵を消した所)を書く。
 """
@@ -14,7 +16,7 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from clothcmp import body_mask
+from clothcmp import body_mask, clothmask
 
 def opt(a, n, d): return a[a.index(n) + 1] if n in a else d
 op, np_, outp = sys.argv[1:4]; a = sys.argv[4:]
@@ -24,7 +26,9 @@ N = np.array(Image.open(np_).convert('RGBA')).astype(float)
 assert O.shape == N.shape, (O.shape, N.shape)
 N0 = N.copy()  # 新しい絵の全部(範囲指定の所で使う)
 r, g, b, al = O[..., 0], O[..., 1], O[..., 2], O[..., 3]
-warm = ((r - np.maximum(g, b) > 8) & (np.abs(g - b) < 20)) | ((r - np.maximum(g, b) > 40) & (g < r * 0.42))  # 肌(緑が強い)は含めない。元のマントらしい赤み(鎧の茶色の縁は含まない。ピンク寄りの強い赤も含める)
+CLOTH = opt(a, '--cloth', os.environ.get('CLOTH_SPEC'))
+if CLOTH: warm = clothmask(O, CLOTH)
+else: warm = ((r - np.maximum(g, b) > 8) & (np.abs(g - b) < 20)) | ((r - np.maximum(g, b) > 40) & (g < r * 0.42))  # 肌(緑が強い)は含めない。元のマントらしい赤み(鎧の茶色の縁は含まない。ピンク寄りの強い赤も含める)
 warm0 = warm.copy()
 # 斬撃などのエフェクト(明るいピンク〜白の光)。古いマントの赤(暗い赤)と区別して、元の画素のまま残す
 # --effects の時だけ(斬撃のある攻撃のコマ)。ピンクの光(赤が強く、緑/青も少しある)から、まわりの明るい所(白い芯)へ広げる。
@@ -56,7 +60,7 @@ P = cand & (dist <= near)
 if '--mode' in a and opt(a, '--mode', '') == 'cape':
     # 逆の考え方: 新しい絵にするのは「新しいマント」と「元の古いマントらしい所」だけ。それ以外は元のまま(体の内側に新旧のつなぎ目を作らない)
     nr, ng, nbl = N[..., 0], N[..., 1], N[..., 2]
-    ncape = (nr > 40) & (nr > ng * 1.4) & (nr > nbl * 1.4) & (N[..., 3] > 100)
+    ncape = (clothmask(N, CLOTH) if CLOTH else ((nr > 40) & (nr > ng * 1.4) & (nr > nbl * 1.4))) & (N[..., 3] > 100)
     if '--effects' in a: ncape &= ~((nr > 170) & ((ng > 70) | (nbl > 70)))  # 新しい絵のエフェクト(明るいピンクの光)はマントにしない
     ncape = ndimage.binary_opening(ncape, iterations=2)  # 細い赤(新しい絵の剣の赤い筋など)はマントにしない
     # 頭(元の中身の上から 20%)では、元の体(赤くない不透明)を優先する(新しい絵の襟や髪の位置のずれで顔を覆わない)
@@ -103,6 +107,42 @@ if '--mode' in a and opt(a, '--mode', '') == 'cape':
     P = (al > 30) & ~takeNew
     # 新しい絵の画素は、マントの所と古いマントの所だけで使う(体のはみ出し分を足すと、元の輪郭の白い縁が内側に取り残されて線になる)
     N = N * takeNew[..., None]
+if '--mode' in a and opt(a, '--mode', '') == 'agree':
+    # 2026-10-25(双剣士の走り): 新しい絵を基本にして、元と新しい絵の両方で「布でない不透明」の所だけ元の画素を使う。
+    # 剣と布が同じ色のキャラ(双剣士の刃の青い光)では色で布を分けられず、腕や剣が二重になったり欠けたりしたため。
+    # 体の芯は元の画素、輪郭のずれた所や布の所は新しい絵になる(体の描き直しは輪郭だけ)
+    obody = (al > 128) & ~clothmask(O, CLOTH)
+    nbody = (N[..., 3] > 128) & ~clothmask(N, CLOTH)
+    both = ndimage.binary_opening(obody & nbody, iterations=1)
+    P = ndimage.binary_erosion(both, iterations=int(opt(a, '--core', '1')))
+    ncape = clothmask(N, CLOTH) & (N[..., 3] > 100)
+if '--mode' in a and opt(a, '--mode', '') == 'color':
+    # 布の色が体(鎧・肌・髪)とはっきり違うキャラ用(双剣士の青緑など、2026-10-25): 腰の上下の規則を使わず、色だけで決める。
+    # 新しい絵にする所 = 元の布の色の所(大きな塊 + その縁の半透明・暗い縁) + 新しい絵の布の色の所。それ以外は元の画素
+    minsz = float(opt(a, '--minsz', '40'))
+    def bigparts(m):
+        lb, nb_ = ndimage.label(m)
+        if not nb_: return m
+        sz_ = ndimage.sum(m, lb, range(1, nb_ + 1)); return np.isin(lb, [i + 1 for i, v in enumerate(sz_) if v >= minsz])
+    oc = bigparts(clothmask(O, CLOTH) & (al > 30)) & ~effO
+    nc = bigparts(clothmask(N, CLOTH) & (N[..., 3] > 100))
+    darkEdge = ((al < 200) | (O[..., :3].max(axis=2) < 60)) & ndimage.binary_dilation(oc, iterations=int(opt(a, '--edge', '3')))
+    takeNew = ndimage.binary_dilation(oc, iterations=1) | darkEdge | ndimage.binary_dilation(nc, iterations=1)
+    keepBody = ndimage.binary_erosion((al > 200) & ~clothmask(O, CLOTH), iterations=int(opt(a, '--core', '4')))  # 体の芯は必ず元のまま
+    takeNew &= ~keepBody & ~effO
+    # 体の輪郭の内側(腰の短いスカートなど、体に重なる布)は元のまま。新しい絵は、元も新しい絵も布の所だけ使う
+    # (新しい絵の体の位置が少しずれていると、内側の布を外した所に別の体が見えるため)
+    interior = ndimage.binary_closing(ndimage.binary_opening((al > 128) & ~clothmask(O, CLOTH), iterations=1), iterations=int(opt(a, '--interior', '5')))
+    takeNew &= ~interior | (nc & oc)
+    # 新しい絵の「布でない画素」(体・剣)は、元の体のすぐ近くだけで使う。離れた所は透明に
+    # (新しい絵では腕や剣が少しずれて描かれることがあり、古い布の所でそれを拾うと腕が二重に見えるため)
+    obody = (al > 128) & ~clothmask(O, CLOTH)
+    nearBody = ndimage.distance_transform_edt(~obody) <= float(opt(a, '--bodynear', '3'))
+    strayNew = takeNew & ~nc & (N[..., 3] > 30) & ~nearBody
+    N[strayNew] = 0
+    ncape = nc
+    P = (al > 30) & ~takeNew
+    N = N * takeNew[..., None]
 lab, n = ndimage.label(P)
 if n:
     sz = ndimage.sum(P, lab, range(1, n + 1))
@@ -140,7 +180,7 @@ for i_, t_ in enumerate(a):
         KP |= np.array(im_) > 0
 P |= KP & (al > 30)
 # 体の本体とつながらず、新しいマントのすぐ近く(8px)にある小さな塊は、古いマントの名残(cape モードだけ)
-if '--mode' in a and opt(a, '--mode', '') == 'cape':
+if '--mode' in a and opt(a, '--mode', '') in ('cape', 'color'):
     solidP = P & (al > 100)
     lab3, n3 = ndimage.label(solidP, structure=np.ones((3, 3)))
     if n3 > 1:
@@ -157,7 +197,7 @@ out[..., 3] = np.maximum(N[..., 3] * (1 - m[..., 0]), O[..., 3] * m[..., 0])
 out[EB] = N0[EB]
 out[CL & ~EB] = N[CL & ~EB]  # 新しいマント(無ければ透明)
 # 合成でできた小さな穴(まわりを絵に囲まれた透明な所、400px 未満)を、まわりの色で埋める(cape モード)。元の絵にあった穴は埋めない
-if '--mode' in a and opt(a, '--mode', '') == 'cape':
+if '--mode' in a and opt(a, '--mode', '') in ('cape', 'color'):
     solid = out[..., 3] > 128
     holes = ndimage.binary_fill_holes(solid) & ~solid & ((al > 128) | (N0[..., 3] > 128))  # 元か新しい絵のどちらかで埋まっていた所だけ(元の絵の透明なすき間は埋めない)
     lh, nh = ndimage.label(holes)

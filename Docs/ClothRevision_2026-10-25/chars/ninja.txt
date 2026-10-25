@@ -1,0 +1,8 @@
+# 忍者(ninja) 布の設定
+id=ninja
+prefix=Ninja
+CLOTH_SPEC=342-10,0.62,1,0.1,1;235-290,0.2,1,0.04,1
+CLOTH_MODE=agree
+structure=首元から流れる1本の長い赤いマフラー(2本の端に分かれてもよいが枝分かれしない)。速さを感じる長いなびき
+keep=顔(マスク)・黒髪のポニーテール・鎧・短刀・脚
+erase_args=--min 8000 --thick 20

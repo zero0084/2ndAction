@@ -32,9 +32,26 @@ def cut(path):
     a = alpha * mask
     return np.dstack([np.dstack([r2, g, b2]).clip(0, 255), a * 255]).astype(np.uint8)
 
+def clothmask(img, spec):
+    # 色相・彩度・明度の範囲のどれかに入る所(布の色)
+    rr, gg, bb = img[..., 0] / 255.0, img[..., 1] / 255.0, img[..., 2] / 255.0
+    mx = np.maximum(np.maximum(rr, gg), bb); mn = np.minimum(np.minimum(rr, gg), bb); d = mx - mn
+    h = np.zeros_like(mx); nz = d > 1e-6
+    hr = nz & (mx == rr); hg = nz & (mx == gg) & ~hr; hb = nz & ~hr & ~hg
+    h[hr] = (60 * ((gg - bb)[hr] / d[hr])) % 360; h[hg] = 60 * ((bb - rr)[hg] / d[hg]) + 120; h[hb] = 60 * ((rr - gg)[hb] / d[hb]) + 240
+    sat = np.where(mx > 1e-6, d / np.maximum(mx, 1e-6), 0)
+    m = np.zeros(mx.shape, bool)
+    for part in spec.split(';'):
+        hs, s0, s1, v0, v1 = part.split(','); h0, h1 = map(float, hs.split('-'))
+        hm = ((h >= h0) & (h <= h1)) if h0 <= h1 else ((h >= h0) | (h <= h1))
+        m |= hm & (sat >= float(s0)) & (sat <= float(s1)) & (mx >= float(v0)) & (mx <= float(v1))
+    return m
+
 def body_mask(rgba):
-    """布(赤)以外の不透明な所。顔・鎧・剣の位置合わせに使う"""
+    """布以外の不透明な所。顔・鎧・剣の位置合わせに使う。布の色は環境変数 CLOTH_SPEC(clothmask の書式、無ければ赤)"""
     rgb = rgba[..., :3].astype(float); a = rgba[..., 3] > 128
+    spec = os.environ.get('CLOTH_SPEC')
+    if spec: return (a & ~clothmask(rgb, spec)).astype(float)
     r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
     red = (r > 90) & (r > g * 1.8) & (r > b * 1.8)
     return (a & ~red).astype(float)

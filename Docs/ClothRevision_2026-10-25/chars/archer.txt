@@ -1,0 +1,8 @@
+# 弓使い(archer) 布の設定
+id=archer
+prefix=Archer
+CLOTH_SPEC=75-160,0.18,1,0.08,1
+CLOTH_MODE=agree
+erase_args=--min 6000 --thick 14
+structure=緑の肩掛け(肩から胸、連続した柔らかな布)と腰布(腰から下へ垂れる連続した面)。縁のオレンジの刺繍は残す
+keep=顔・髪・革鎧・弓・矢・矢筒・脚

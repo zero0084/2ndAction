@@ -1,0 +1,15 @@
+# 布表現の見直し(全12人): 大きな中間ファイルはローカルだけ(エステルの元の出力は out/、縮小の記録は out_small/ をコミット)
+*/in/
+*/in_erased/
+*/sheets/*.png
+*/out/
+*/aligned/
+*/dbg/
+*/portrait*/*_aligned_raw.png
+*/portrait*/*_orig_cut.png
+*/portrait*/*_orig_replaced_check.png
+*/portrait*/*_local_raw.png
+*/portrait*/dbg/
+*/portrait*/raw_*.png
+*/card/card_x2.png
+*/card/out/

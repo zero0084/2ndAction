@@ -14,6 +14,8 @@ from clothcmp import cut, fit_transform, place
 def opt(a, n, d): return a[a.index(n) + 1] if n in a else d
 edit, origp, cropj, outp = sys.argv[1:5]; a = sys.argv[5:]
 head_frac = float(opt(a, '--head', '0.2')); dbg = opt(a, '--debug', None)
+# 倍率を探す範囲(--scales 0.9,1.1,0.0025)。並べた絵を切り分けた物は 1.0 の近くだけでよい(探す範囲が広いと1コマ数分かかる)
+_sc = [float(v) for v in opt(a, '--scales', '0.50,1.40,0.005').split(',')]; SCALES = np.arange(_sc[0], _sc[1], _sc[2])
 name = os.path.basename(origp)
 _cj = json.load(open(cropj)); _k2 = os.path.basename(os.path.dirname(origp)) + '__' + name
 ci = _cj[_k2] if _k2 in _cj else _cj[name]  # clothprep.py は「フォルダ名__名前」で書く
@@ -21,6 +23,8 @@ O = Image.open(origp).convert('RGBA')
 S = ci['scale']; y0, y1 = ci['y0'], ci['y1']
 ref = np.array(O.crop((0, y0, O.width, y1)).resize((O.width * S, (y1 - y0) * S), Image.LANCZOS))
 E = cut(edit)
+if '--scales-rel' in a:  # 倍率は「元の幅 / 編集された絵の幅」の前後だけ探す(1コマで返ってきた絵は約1.7倍、並べた絵の切り出しは約1倍)
+    _r = [float(v) for v in opt(a, '--scales-rel', '0.9,1.1,0.004').split(',')]; _b = ref.shape[1] / E.shape[1]; SCALES = np.arange(_r[0], _r[1], _r[2]) * _b
 def _cands():
     from clothcmp import body_mask
     out = []
@@ -28,7 +32,7 @@ def _cands():
     if abs(E.shape[1] / E.shape[0] - ref.shape[1] / ref.shape[0]) < 0.01:
         out.append(('resize', ref.shape[1] / E.shape[1], 0, 0))
     # (2) 体の形の相関
-    s2, x2, y2, _ = fit_transform(ref, E, np.arange(0.50, 1.40, 0.005)); out.append(('corr', s2, x2, y2))
+    s2, x2, y2, _ = fit_transform(ref, E, SCALES); out.append(('corr', s2, x2, y2))
     # (3) 頭のてっぺんと足元
     def ext(img):
         al = img[..., 3] > 128; bm = ndimage.binary_opening(body_mask(img) > 0, iterations=2)
@@ -62,7 +66,7 @@ elif '--fit-height' in a:
     s = (rb - rt) / (eb - et)
     dx = int(round(rhx - ehx * s)); dy = int(round(rb - eb * s)); sc = float('nan')
 else:
-    s, dx, dy, sc = fit_transform(ref, E, np.arange(0.50, 1.40, 0.005))
+    s, dx, dy, sc = fit_transform(ref, E, SCALES)
 big = np.array(place(E, s, dx, dy, (ref.shape[1], ref.shape[0])))
 # はみ出し(左右上下)
 full = np.array(place(E, s, dx + 400, dy + 400, (ref.shape[1] + 800, ref.shape[0] + 800)))[..., 3] > 128
