@@ -15,12 +15,39 @@ def opt(a, n, d): return a[a.index(n) + 1] if n in a else d
 edit, origp, cropj, outp = sys.argv[1:5]; a = sys.argv[5:]
 head_frac = float(opt(a, '--head', '0.2')); dbg = opt(a, '--debug', None)
 name = os.path.basename(origp)
-ci = json.load(open(cropj))[name]
+_cj = json.load(open(cropj)); _k2 = os.path.basename(os.path.dirname(origp)) + '__' + name
+ci = _cj[_k2] if _k2 in _cj else _cj[name]  # clothprep.py は「フォルダ名__名前」で書く
 O = Image.open(origp).convert('RGBA')
 S = ci['scale']; y0, y1 = ci['y0'], ci['y1']
 ref = np.array(O.crop((0, y0, O.width, y1)).resize((O.width * S, (y1 - y0) * S), Image.LANCZOS))
 E = cut(edit)
-if '--fit-height' in a:
+def _cands():
+    from clothcmp import body_mask
+    out = []
+    # (1) 同じ比率で返ってきた時は、そのまま元の大きさへ縮める(エステルは入力の絵を編集しているので、これが一番正確なことが多い)
+    if abs(E.shape[1] / E.shape[0] - ref.shape[1] / ref.shape[0]) < 0.01:
+        out.append(('resize', ref.shape[1] / E.shape[1], 0, 0))
+    # (2) 体の形の相関
+    s2, x2, y2, _ = fit_transform(ref, E, np.arange(0.50, 1.40, 0.005)); out.append(('corr', s2, x2, y2))
+    # (3) 頭のてっぺんと足元
+    def ext(img):
+        al = img[..., 3] > 128; bm = ndimage.binary_opening(body_mask(img) > 0, iterations=2)
+        ys, xs = np.where(bm); t = ys.min(); b = np.where(al)[0].max()
+        return t, b, xs[ys < t + 0.12 * (b - t)].mean()
+    rt, rb, rhx = ext(ref); et, eb, ehx = ext(E); s3 = (rb - rt) / (eb - et)
+    out.append(('height', s3, int(round(rhx - ehx * s3)), int(round(rb - eb * s3))))
+    rb_ = ndimage.binary_opening(body_mask(ref) > 0, iterations=1)
+    best = None
+    for name_, s_, x_, y_ in out:
+        pb = ndimage.binary_opening(body_mask(np.array(place(E, s_, x_, y_, (ref.shape[1], ref.shape[0])))) > 0, iterations=1)
+        dice = 2 * (rb_ & pb).sum() / (rb_.sum() + pb.sum() + 1e-9)
+        print(f'  fit {name_}: scale {s_:.3f} dx {x_} dy {y_} body-dice {dice:.3f}')
+        if best is None or dice > best[4]: best = (name_, s_, x_, y_, dice)
+    return best
+if '--fit-auto' in a:
+    _b = _cands(); s, dx, dy, sc = _b[1], _b[2], _b[3], _b[4]
+    print(f'  -> {_b[0]}')
+elif '--fit-height' in a:
     # 頭のてっぺんと足元の高さを元とそろえる(コマごとに頭が上下しないように)。横は頭(上 15%)の中心をそろえる
     from clothcmp import body_mask
     def ext(img):
