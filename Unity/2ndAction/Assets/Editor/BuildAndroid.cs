@@ -48,6 +48,28 @@ public static class BuildAndroid
                    " path=" + report.summary.outputPath);
     }
 
+    // ストア用の AAB(2026-10-25 v1.0 容量監査、まだ使っていない。公開・署名・番号はマスターが決める)
+    //  ・製品版(Development なし)、Split Application Binary = ON(中身を install-time asset pack へ。base を 200MB 未満にする:
+    //    分けないと base が約 396MB で Google Play の上限 200MB を超える。分けると base 約 168MB)
+    //  ・番号は進めない / 署名の設定は今の PlayerSettings のまま(鍵は触らない)。出力: Builds/Store/OneMoreMile.aab
+    [MenuItem("Tools/2ndAction/Build Android AAB (Store, split)")]
+    public static void BuildStoreAab()
+    {
+        const string outPath = "Builds/Store/OneMoreMile.aab";
+        Directory.CreateDirectory(Path.GetDirectoryName(outPath));
+        bool wasAab = EditorUserBuildSettings.buildAppBundle, wasSplit = PlayerSettings.Android.splitApplicationBinary;
+        PlayerSettings.Android.forceInternetPermission = true;
+        NetPrefabBuilder.Build();
+        try
+        {
+            EditorUserBuildSettings.buildAppBundle = true;
+            PlayerSettings.Android.splitApplicationBinary = true;
+            var report = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, outPath, BuildTarget.Android, BuildOptions.None);
+            Debug.Log("BuildAndroid: store aab result=" + report.summary.result + " path=" + report.summary.outputPath);
+        }
+        finally { EditorUserBuildSettings.buildAppBundle = wasAab; PlayerSettings.Android.splitApplicationBinary = wasSplit; AssetDatabase.SaveAssets(); }
+    }
+
     // 容量の調査(2026-10-18): 番号を進めずに、指定の場所へ APK / AAB を作る(比較用。配布しない)
     //   -executeMethod BuildAndroid.BuildProbe -probeOut Builds/SizeProbe/x.apk|x.aab
     public static void BuildProbe()
@@ -58,14 +80,20 @@ public static class BuildAndroid
         Directory.CreateDirectory(Path.GetDirectoryName(outPath));
         bool aab = outPath.EndsWith(".aab");
         bool was = EditorUserBuildSettings.buildAppBundle;
+        // 2026-10-25 v1.0 容量監査: -probeSplit 1 = Split Application Binary(AAB の中身を install-time asset pack へ分ける。
+        // Google Play は base モジュールのダウンロードを 200MB までしか受け付けないため、ストアの AAB はこれが要る)
+        bool split = false;
+        for (int i = 0; i < a.Length - 1; i++) if (a[i] == "-probeSplit") split = a[i + 1] == "1";
+        bool wasSplit = PlayerSettings.Android.splitApplicationBinary;
         PlayerSettings.Android.forceInternetPermission = true;
         NetPrefabBuilder.Build();
         try
         {
             EditorUserBuildSettings.buildAppBundle = aab;
+            if (split) PlayerSettings.Android.splitApplicationBinary = true;
             var report = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, outPath, BuildTarget.Android, BuildOptions.Development);
-            Debug.Log("BuildAndroid: probe result=" + report.summary.result + " size=" + report.summary.totalSize + " path=" + report.summary.outputPath);
+            Debug.Log("BuildAndroid: probe result=" + report.summary.result + " size=" + report.summary.totalSize + " path=" + report.summary.outputPath + " split=" + split);
         }
-        finally { EditorUserBuildSettings.buildAppBundle = was; }
+        finally { EditorUserBuildSettings.buildAppBundle = was; PlayerSettings.Android.splitApplicationBinary = wasSplit; AssetDatabase.SaveAssets(); }
     }
 }

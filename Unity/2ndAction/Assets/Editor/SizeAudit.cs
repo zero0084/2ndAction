@@ -11,7 +11,7 @@ using UnityEngine;
 // 書き出す物:
 //   report_files.tsv   … ビルドの出力ファイル(役割・大きさ)。summary.totalSize の中身の確認用
 //   report_assets.tsv  … 詰め込まれた素材ごとの大きさ(元の素材・型・出力先)
-//   textures.tsv       … ビルドに入った画像の取り込み設定と Android での大きさ
+//   textures.tsv       … ビルドに入った画像の取り込み設定と Android / Windows(Standalone)の形式
 public static class SizeAudit
 {
     static string Arg(string name, string def)
@@ -48,7 +48,7 @@ public static class SizeAudit
     {
         string outDir = Arg("-sizeOut", "Builds/SizeAudit/astc");
         Directory.CreateDirectory(outDir);
-        var formats = new[] { TextureFormat.ASTC_4x4, TextureFormat.ASTC_5x5, TextureFormat.ASTC_6x6 };
+        var formats = Arg("-cmpFormats", "ASTC_4x4,ASTC_5x5,ASTC_6x6").Split(',').Select(s => (TextureFormat)System.Enum.Parse(typeof(TextureFormat), s)).ToArray(); // 2026-10-25: -cmpFormats BC7,DXT5 で Windows の形式も
         var sb = new StringBuilder("file\tformat\tbytes\tpsnr\n");
         foreach (var path in Arg("-astcFiles", "").Split(';').Where(s => s.Length > 0))
         {
@@ -115,7 +115,7 @@ public static class SizeAudit
         var getStorage = System.Type.GetType("UnityEditor.TextureUtil, UnityEditor")?.GetMethod("GetStorageMemorySizeLong",
             System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
         sb.Clear();
-        sb.AppendLine("path\tpackedAndroid\tsrcW\tsrcH\timpW\timpH\tfileBytes\ttextureType\tspriteMode\tppu\tdefaultMax\tcompression\tcrunched\tandroidOverride\tandroidFormat\tandroidMax\tfinalFormat\tmipmap\treadable\talphaSource\tnpot\tfilter\tsprites");
+        sb.AppendLine("path\tpackedAndroid\tsrcW\tsrcH\timpW\timpH\tfileBytes\ttextureType\tspriteMode\tppu\tdefaultMax\tcompression\tcrunched\tandroidOverride\tandroidFormat\tandroidMax\tfinalFormat\tmipmap\treadable\talphaSource\tnpot\tfilter\tsprites\tpcOverride\tpcFormat\tpcMax\tpcFinalFormat");
         foreach (var kv in texSizes.OrderByDescending(k => k.Value))
         {
             string p = kv.Key;
@@ -125,13 +125,16 @@ public static class SizeAudit
             var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(p);
             var android = ti.GetPlatformTextureSettings("Android");
             var auto = ti.GetAutomaticFormat("Android");
+            var pc = ti.GetPlatformTextureSettings("Standalone"); // 2026-10-25: Windows の形式も
+            var pcAuto = ti.GetAutomaticFormat("Standalone");
             long fileBytes = File.Exists(p) ? new FileInfo(p).Length : 0;
             int spriteCount = AssetDatabase.LoadAllAssetsAtPath(p).OfType<Sprite>().Count();
             sb.AppendLine(string.Join("\t", new object[] {
                 p, kv.Value, sw, sh, tex != null ? tex.width : 0, tex != null ? tex.height : 0, fileBytes,
                 ti.textureType, ti.spriteImportMode, ti.spritePixelsPerUnit, ti.maxTextureSize, ti.textureCompression, ti.crunchedCompression,
                 android.overridden, android.format, android.maxTextureSize, android.overridden ? android.format.ToString() : auto.ToString(),
-                ti.mipmapEnabled, ti.isReadable, ti.alphaSource, ti.npotScale, ti.filterMode, spriteCount }));
+                ti.mipmapEnabled, ti.isReadable, ti.alphaSource, ti.npotScale, ti.filterMode, spriteCount,
+                pc.overridden, pc.format, pc.maxTextureSize, pc.overridden ? pc.format.ToString() : pcAuto.ToString() }));
         }
         File.WriteAllText(Path.Combine(outDir, "textures.tsv"), sb.ToString());
         Debug.Log($"SizeAudit: wrote {outDir} (files={report.GetFiles().Length} packedAssets={report.packedAssets.Length} textures={texSizes.Count})");

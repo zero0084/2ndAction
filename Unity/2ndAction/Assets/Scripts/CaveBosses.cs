@@ -590,6 +590,7 @@ public class WormBoss : CaveBossBase
 
     // 横切る体を専用の絵に(エステルさんの絵。頭は進む向き=左へ向ける / 尾の先は後ろ=右のまま)。絵が無ければ今までの見た目
     static readonly System.Collections.Generic.Dictionary<string, Sprite> pieceCache = new System.Collections.Generic.Dictionary<string, Sprite>();
+    public static void ClearPieceCache() => pieceCache.Clear(); // 2026-10-25: シーンを読み直した時に手放す(BossAnimSet.OnSceneLoaded)
     static void Piece(CaveHazard h, string name, bool flip)
     {
         if (h == null) return;

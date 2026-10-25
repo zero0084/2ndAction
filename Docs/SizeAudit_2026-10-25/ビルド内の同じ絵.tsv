@@ -1,0 +1,48 @@
+2	6.60	0.27	Assets/Resources/BossAnim/scorpion_king/move_03.png	Assets/Resources/BossAnim/scorpion_king/move_01.png
+2	6.59	0.27	Assets/Resources/BossAnim/black_knight/windupE_00.png	Assets/Resources/BossAnim/black_knight/fly_00.png
+2	6.58	0.27	Assets/Resources/BossAnim/scorpion_king/windup_00.png	Assets/Resources/BossAnim/scorpion_king/windupD_00.png
+2	4.89	0.45	Assets/Resources/BossAnim/reaper_eldest/breakloop_01.png	Assets/Resources/BossAnim/reaper_eldest/break_01.png
+2	4.18	0.12	Assets/Resources/BossAnim/cyclops/breakloop_00.png	Assets/Resources/BossAnim/cyclops/break_01.png
+2	4.06	0.16	Assets/Resources/BossAnim/drake/move_01.png	Assets/Resources/BossAnim/drake/move_03.png
+2	3.89	0.23	Assets/Resources/BossAnim/mole/breakloop_00.png	Assets/Resources/BossAnim/mole/break_01.png
+2	3.66	0.15	Assets/Resources/BossAnim/basilisk/windupE_00.png	Assets/Resources/BossAnim/basilisk/move_02.png
+2	3.02	0.76	Assets/Art/PlayerDownAttack_v1/downattack_00.png	Assets/Art/PlayerDownAttack_v1/downattack_01.png
+2	2.82	0.12	Assets/Resources/BossAnim/bat/breakloop_00.png	Assets/Resources/BossAnim/bat/break_01.png
+2	2.73	0.11	Assets/Resources/BossAnim/basilisk/breakloop_00.png	Assets/Resources/BossAnim/basilisk/break_01.png
+2	2.61	0.18	Assets/Resources/BossAnim/goblin_rider/breakloop_00.png	Assets/Resources/BossAnim/goblin_rider/break_01.png
+2	2.35	0.10	Assets/Resources/BossAnim/serpent/breakloop_00.png	Assets/Resources/BossAnim/serpent/break_01.png
+2	2.18	0.55	Assets/Art/DragonIdle/idle_07.png	Assets/Art/DragonIdle/idle_01.png
+2	2.18	0.55	Assets/Art/DragonFire/fire_07.png	Assets/Art/DragonFire/fire_01.png
+2	2.18	0.55	Assets/Art/DragonFire/fire_02.png	Assets/Art/DragonFire/fire_06.png
+2	2.18	0.55	Assets/Art/DragonIdle/idle_05.png	Assets/Art/DragonIdle/idle_03.png
+2	2.18	0.55	Assets/Art/DragonIdle/idle_06.png	Assets/Art/DragonIdle/idle_02.png
+2	2.18	0.55	Assets/Art/DragonFire/fire_03.png	Assets/Art/DragonFire/fire_05.png
+2	1.93	0.48	Assets/Art/BurrowWormRun/burrowworm_run_0.png	Assets/Art/Enemy/BurrowWorm.png
+2	1.93	0.48	Assets/Art/NobleLadyDiveLand_v1/diveland_01.png	Assets/Art/NobleLadyPlunge_v1/plunge_02.png
+2	1.93	0.48	Assets/Art/NobleLadyDiveLand_v1/diveland_00.png	Assets/Art/NobleLadyPlunge_v1/plunge_01.png
+2	1.93	0.48	Assets/Art/NobleLadyPlunge_v1/plunge_00.png	Assets/Art/NobleLadyDive_v1/dive_00.png
+3	3.75	0.94	Assets/Art/CaveBatRun/cavebat_run_1.png	Assets/Art/CaveBatRun/cavebat_run_3.png	Assets/Art/Enemy/CaveBat.png
+2	1.79	0.45	Assets/Art/MageJump_v1/jump_00.png	Assets/Art/MageLand_v1/land_00.png
+2	1.72	0.19	Assets/Resources/BossAnim/reaper_second/breakloop_01.png	Assets/Resources/BossAnim/reaper_second/break_01.png
+2	1.68	0.19	Assets/Resources/BossAnim/scorpion/breakloop_00.png	Assets/Resources/BossAnim/scorpion/break_01.png
+2	1.67	0.27	Assets/Resources/BossAnim/scorpion_king/windupB_00.png	Assets/Resources/BossAnim/scorpion_king/windupC_00.png
+2	1.55	0.39	Assets/Art/SkyEnemy/sky_hunter/move/move_03.png	Assets/Art/SkyEnemy/sky_hunter/move/move_01.png
+2	1.54	0.39	Assets/Art/SoldierAntRun/soldierant_run_0.png	Assets/Art/Enemy/SoldierAnt.png
+2	1.42	0.16	Assets/Resources/BossAnim/centipede/breakloop_00.png	Assets/Resources/BossAnim/centipede/break_00.png
+2	1.41	0.36	Assets/Art/CaveHopperRun/cavehopper_run_0.png	Assets/Art/Enemy/CaveHopper.png
+2	1.36	0.15	Assets/Resources/BossAnim/reaper_youngest/breakloop_01.png	Assets/Resources/BossAnim/reaper_youngest/break_01.png
+3	2.70	0.68	Assets/Art/CaveAntRun/caveant_run_1.png	Assets/Art/CaveAntRun/caveant_run_3.png	Assets/Art/Enemy/CaveAnt.png
+3	2.49	0.41	Assets/Resources/BossAnim/drake/windupE_00.png	Assets/Resources/BossAnim/drake/windup_00.png	Assets/Resources/BossAnim/drake/windupD_00.png
+3	2.46	0.62	Assets/Art/GunslingerJumpStart_v1/gunslingerjumpstart_0.png	Assets/Art/GunslingerDoubleJump_v1/gunslingerdoublejump_0.png	Assets/Art/GunslingerJumpAir_v1/gunslingerjumpair_0.png
+2	1.22	0.22	Assets/Resources/BossAnim/spider/breakloop_00.png	Assets/Resources/BossAnim/spider/break_01.png
+2	1.14	0.19	Assets/Resources/BossAnim/black_knight/ult_01.png	Assets/Resources/BossAnim/black_knight/ult_00.png
+2	1.11	0.13	Assets/Resources/BossAnim/troll/breakloop_00.png	Assets/Resources/BossAnim/troll/break_01.png
+2	0.93	0.15	Assets/Resources/BossAnim/basilisk/move_01.png	Assets/Resources/BossAnim/basilisk/move_03.png
+2	0.90	0.23	Assets/Art/SkyEnemy/harpy/move/move_01.png	Assets/Art/SkyEnemy/harpy/move/move_03.png
+2	0.69	0.11	Assets/Art/LastCorridor/Terrain/lamp_torch.png	Assets/Art/LastCorridor/Decor/lamp.png
+2	0.52	0.52	Assets/Art/MajinAttack/attack_02.png	Assets/Art/MajinAttack/attack_06.png
+2	0.52	0.52	Assets/Art/MajinAttack/attack_03.png	Assets/Art/MajinAttack/attack_05.png
+2	0.52	0.52	Assets/Art/MajinAttack/attack_07.png	Assets/Art/MajinAttack/attack_01.png
+2	0.44	0.11	Assets/Art/SkyEnemy/ancient_sentinel/move/move_00.png	Assets/Art/SkyEnemy/ancient_sentinel/idle.png
+2	0.35	0.16	Assets/Resources/BossAnim/centipede/breakloop_01.png	Assets/Resources/BossAnim/centipede/break_01.png
+4	1.02	1.02	Assets/Art/LancerFinishExtreme_v1/finish_00.png	Assets/Art/LancerFinishShort_v1/finish_00.png	Assets/Art/LancerFinishMedium_v1/finish_00.png	Assets/Art/LancerFinishLong_v1/finish_00.png

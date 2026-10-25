@@ -29,6 +29,12 @@ public class BossRig
     static readonly Dictionary<(Sprite, int, int), Sprite[]> sharedCache = new Dictionary<(Sprite, int, int), Sprite[]>();
     static readonly Dictionary<(Sprite, int, int), Vector2[]> sharedPos = new Dictionary<(Sprite, int, int), Vector2[]>();
     bool TryPos(Sprite s, out Vector2[] pos) { pos = null; return s != null && sharedPos.TryGetValue((s, cols, rows), out pos); }
+    // 2026-10-25: シーンを読み直した時に手放す(BossAnimSet.OnSceneLoaded から。その時ボスは残っていない)
+    public static void ClearSharedCache()
+    {
+        foreach (var set in sharedCache.Values) foreach (var sp in set) if (sp != null) Object.Destroy(sp);
+        sharedCache.Clear(); sharedPos.Clear();
+    }
     Sprite current;
     Vector2 spriteSize = Vector2.one;
     float amount;

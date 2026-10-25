@@ -31,6 +31,32 @@ public class BossAnimSet
 
     static readonly Dictionary<string, BossAnimSet> cache = new Dictionary<string, BossAnimSet>();
 
+    // 2026-10-25 v1.0 容量監査: 読み込んだボスのコマはランが終わっても static に残り、ラスダン(ボスラッシュ)の後はホームへ戻っても
+    // 全部のボスの絵がメモリに残っていた。シーンを読み直した時(ランの終わり → ホーム、もう一度)に手放して、使っていない素材を片付ける。
+    // ランの途中は今までどおり(一度読んだボスは残す。もう一度出た時に読み直しの待ちを作らない)
+    public static int CachedSets => cache.Count;
+    public static int Releases { get; private set; }
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    static void HookSceneLoads()
+    {
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    static void OnSceneLoaded(UnityEngine.SceneManagement.Scene s, UnityEngine.SceneManagement.LoadSceneMode mode)
+    {
+        if (mode != UnityEngine.SceneManagement.LoadSceneMode.Single || cache.Count == 0) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-noBossCacheClear") >= 0) return; // 比較の試験用
+#endif
+        int n = cache.Count;
+        cache.Clear();
+        BossRig.ClearSharedCache();
+        WormBoss.ClearPieceCache();
+        Resources.UnloadUnusedAssets();
+        Releases++;
+        Debug.Log($"[BossAnimSet] released {n} boss frame sets on scene load");
+    }
+
     public static BossAnimSet Load(string key)
     {
         if (string.IsNullOrEmpty(key)) return null;

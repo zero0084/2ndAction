@@ -1,0 +1,1256 @@
+path	old	new	left	right	top	bottom	alignment	oldPivot	newPivot
+Assets/Resources/BossAnim/bat/windup_00.png	1700x1206	1700x1208	0	0	2	0	7		
+Assets/Resources/BossAnim/bat/hurt_00.png	1700x1203	1700x1204	0	0	1	0	7		
+Assets/Resources/BossAnim/bat/attack_00.png	1700x1194	1700x1196	0	0	2	0	7		
+Assets/Resources/BossAnim/bat/attackC_00.png	1700x1162	1700x1164	0	0	2	0	7		
+Assets/Resources/BossAnim/bat/move_01.png	1700x1149	1700x1152	0	0	3	0	7		
+Assets/Resources/BossAnim/bat/windupC_00.png	1700x1138	1700x1140	0	0	2	0	7		
+Assets/Resources/BossAnim/demon/move_03.png	1700x1031	1700x1032	0	0	1	0	7		
+Assets/Resources/BossAnim/ancient_demon/move_00.png	1700x1025	1700x1028	0	0	3	0	7		
+Assets/Resources/BossAnim/griffin/windupD_00.png	1700x1014	1700x1016	0	0	2	0	7		
+Assets/Resources/BossAnim/ancient_demon/attackC_00.png	1700x1007	1700x1008	0	0	1	0	7		
+Assets/Resources/BossAnim/crystal_golem/ult_00.png	1700x1007	1700x1008	0	0	1	0	7		
+Assets/Resources/BossAnim/demon/break_00.png	1700x1001	1700x1004	0	0	3	0	7		
+Assets/Resources/BossAnim/ancient_demon/ult_00.png	1700x999	1700x1000	0	0	1	0	7		
+Assets/Resources/BossAnim/crystal_golem/ult_01.png	1700x994	1700x996	0	0	2	0	7		
+Assets/Resources/BossAnim/demon/move_00.png	1700x993	1700x996	0	0	3	0	7		
+Assets/Resources/BossAnim/demon/attack_00.png	1700x990	1700x992	0	0	2	0	7		
+Assets/Resources/BossAnim/demon/windup_00.png	1700x990	1700x992	0	0	2	0	7		
+Assets/Resources/BossAnim/ancient_demon/break_00.png	1700x990	1700x992	0	0	2	0	7		
+Assets/Resources/BossAnim/griffin/hurt_00.png	1700x990	1700x992	0	0	2	0	7		
+Assets/Resources/BossAnim/bat/attackB_00.png	1700x987	1700x988	0	0	1	0	7		
+Assets/Resources/BossAnim/demon/defeat_00.png	1700x987	1700x988	0	0	1	0	7		
+Assets/Resources/BossAnim/ancient_demon/move_02.png	1700x987	1700x988	0	0	1	0	7		
+Assets/Resources/BossAnim/ancient_demon/move_01.png	1700x987	1700x988	0	0	1	0	7		
+Assets/Resources/BossAnim/ancient_demon/windup_00.png	1700x986	1700x988	0	0	2	0	7		
+Assets/Resources/BossAnim/crystal_golem/attackD_00.png	1700x985	1700x988	0	0	3	0	7		
+Assets/Resources/BossAnim/demon/ult_00.png	1700x985	1700x988	0	0	3	0	7		
+Assets/Resources/BossAnim/scorpion_king/attackE_00.png	1700x983	1700x984	0	0	1	0	7		
+Assets/Resources/BossAnim/scorpion_king/attackC_00.png	1700x983	1700x984	0	0	1	0	7		
+Assets/Resources/BossAnim/scorpion_king/windupE_00.png	1700x983	1700x984	0	0	1	0	7		
+Assets/Resources/BossAnim/griffin/defeat_00.png	1700x982	1700x984	0	0	2	0	7		
+Assets/Resources/BossAnim/ancient_demon/move_03.png	1700x982	1700x984	0	0	2	0	7		
+Assets/Resources/BossAnim/scorpion_king/attackB_00.png	1700x981	1700x984	0	0	3	0	7		
+Assets/Resources/BossAnim/demon/hurt_00.png	1700x981	1700x984	0	0	3	0	7		
+Assets/Resources/BossAnim/crystal_golem/windupB_00.png	1700x979	1700x980	0	0	1	0	7		
+Assets/Resources/BossAnim/ancient_demon/defeat_00.png	1700x979	1700x980	0	0	1	0	7		
+Assets/Resources/BossAnim/demon/ult_01.png	1700x979	1700x980	0	0	1	0	7		
+Assets/Resources/BossAnim/hydra/attackD_00.png	1700x977	1700x980	0	0	3	0	7		
+Assets/Resources/BossAnim/ancient_demon/windupB_00.png	1700x977	1700x980	0	0	3	0	7		
+Assets/Resources/BossAnim/ancient_demon/attackB_00.png	1700x974	1700x976	0	0	2	0	7		
+Assets/Resources/BossAnim/ancient_demon/windupC_00.png	1700x974	1700x976	0	0	2	0	7		
+Assets/Resources/BossAnim/griffin/attack_00.png	1700x974	1700x976	0	0	2	0	7		
+Assets/Resources/BossAnim/scorpion_king/move_00.png	1700x971	1700x972	0	0	1	0	7		
+Assets/Resources/BossAnim/griffin/move_00.png	1700x971	1700x972	0	0	1	0	7		
+Assets/Resources/BossAnim/griffin/attackC_00.png	1700x970	1700x972	0	0	2	0	7		
+Assets/Resources/BossAnim/hydra/defeat_00.png	1700x970	1700x972	0	0	2	0	7		
+Assets/Resources/BossAnim/scorpion_king/move_03.png	1700x970	1700x972	0	0	2	0	7		
+Assets/Resources/BossAnim/scorpion_king/move_01.png	1700x970	1700x972	0	0	2	0	7		
+Assets/Resources/BossAnim/black_knight/windupE_00.png	1700x969	1700x972	0	0	3	0	7		
+Assets/Resources/BossAnim/scorpion_king/attackD_00.png	1700x969	1700x972	0	0	3	0	7		
+Assets/Resources/BossAnim/black_knight/fly_00.png	1700x969	1700x972	0	0	3	0	7		
+Assets/Resources/BossAnim/scorpion_king/windup_00.png	1700x967	1700x968	0	0	1	0	7		
+Assets/Resources/BossAnim/scorpion_king/windupD_00.png	1700x967	1700x968	0	0	1	0	7		
+Assets/Resources/BossAnim/crystal_golem/exhaust_00.png	1700x966	1700x968	0	0	2	0	7		
+Assets/Resources/BossAnim/demon/windupC_00.png	1700x966	1700x968	0	0	2	0	7		
+Assets/Resources/BossAnim/griffin/break_00.png	1700x966	1700x968	0	0	2	0	7		
+Assets/Resources/BossAnim/scorpion_king/attack_00.png	1700x965	1700x968	0	0	3	0	7		
+Assets/Resources/BossAnim/demon/move_01.png	1700x962	1700x964	0	0	2	0	7		
+Assets/Resources/BossAnim/demon/move_02.png	1700x962	1700x964	0	0	2	0	7		
+Assets/Resources/BossAnim/hydra/hurt_00.png	1700x961	1700x964	0	0	3	0	7		
+Assets/Resources/BossAnim/scorpion_king/exhaust_00.png	1700x959	1700x960	0	0	1	0	7		
+Assets/Resources/BossAnim/black_knight/attackB_00.png	1700x957	1700x960	0	0	3	0	7		
+Assets/Resources/BossAnim/crystal_golem/move_00.png	1700x955	1700x956	0	0	1	0	7		
+Assets/Resources/BossAnim/crystal_golem/move_02.png	1700x951	1700x952	0	0	1	0	7		
+Assets/Resources/BossAnim/bat/break_00.png	1700x950	1700x952	0	0	2	0	7		
+Assets/Resources/BossAnim/crystal_golem/move_03.png	1700x950	1700x952	0	0	2	0	7		
+Assets/Resources/BossAnim/griffin/windupB_00.png	1700x949	1700x952	0	0	3	0	7		
+Assets/Resources/BossAnim/crystal_golem/attack_00.png	1700x947	1700x948	0	0	1	0	7		
+Assets/Resources/BossAnim/crystal_golem/windupC_00.png	1700x947	1700x948	0	0	1	0	7		
+Assets/Resources/BossAnim/black_knight/windup_00.png	1700x945	1700x948	0	0	3	0	7		
+Assets/Resources/BossAnim/crystal_golem/windup_00.png	1700x943	1700x944	0	0	1	0	7		
+Assets/Resources/BossAnim/hydra/windupC_00.png	1700x942	1700x944	0	0	2	0	7		
+Assets/Resources/BossAnim/bat/move_02.png	1700x942	1700x944	0	0	2	0	7		
+Assets/Resources/BossAnim/scorpion_king/move_02.png	1700x941	1700x944	0	0	3	0	7		
+Assets/Resources/BossAnim/crystal_golem/defeat_00.png	1700x939	1700x940	0	0	1	0	7		
+Assets/Resources/BossAnim/black_knight/defeat_00.png	1700x937	1700x940	0	0	3	0	7		
+Assets/Resources/BossAnim/ancient_demon/hurt_00.png	1700x937	1700x940	0	0	3	0	7		
+Assets/Resources/BossAnim/bat/move_05.png	1700x937	1700x940	0	0	3	0	7		
+Assets/Resources/BossAnim/drake/emerge_00.png	1700x935	1700x936	0	0	1	0	7		
+Assets/Resources/BossAnim/griffin/move_03.png	1700x934	1700x936	0	0	2	0	7		
+Assets/Resources/BossAnim/black_knight/hurt_00.png	1700x931	1700x932	0	0	1	0	7		
+Assets/Resources/BossAnim/crystal_golem/break_00.png	1700x931	1700x932	0	0	1	0	7		
+Assets/Resources/BossAnim/bat/defeat_01.png	1700x930	1700x932	0	0	2	0	7		
+Assets/Resources/CardFrames/CardFrameRarity5.png	1237x1272	1240x1272	1	2	0	0	0		
+Assets/Resources/CardFrames/CardFrameRarity4.png	1086x1448	1088x1448	1	1	0	0	0		
+Assets/Resources/CardFrames/CardFrameRarity2.png	1086x1448	1088x1448	1	1	0	0	0		
+Assets/Resources/CardCategoryIcons/Icon_Movement.png	1254x1254	1256x1256	1	1	1	1	0		
+Assets/Resources/CardCategoryIcons/Icon_Attack.png	1254x1254	1256x1256	1	1	1	1	0		
+Assets/Resources/CardCategoryIcons/Icon_Heal.png	1254x1254	1256x1256	1	1	1	1	0		
+Assets/Resources/CardCategoryIcons/Icon_Defense.png	1254x1254	1256x1256	1	1	1	1	0		
+Assets/Resources/CardCategoryIcons/Icon_Growth.png	1254x1254	1256x1256	1	1	1	1	0		
+Assets/Resources/CardCategoryIcons/Icon_Special.png	1254x1254	1256x1256	1	1	1	1	0		
+Assets/Resources/CardCategoryIcons/Icon_Risk.png	1254x1254	1256x1256	1	1	1	1	0		
+Assets/Resources/BossAnim/ancient_demon/exhaust_00.png	1700x925	1700x928	0	0	3	0	7		
+Assets/Resources/BossAnim/scorpion_king/hurt_00.png	1700x922	1700x924	0	0	2	0	7		
+Assets/Resources/BossAnim/crystal_golem/attackB_00.png	1700x921	1700x924	0	0	3	0	7		
+Assets/Resources/BossAnim/crystal_golem/defeat_01.png	1700x917	1700x920	0	0	3	0	7		
+Assets/Resources/BossAnim/hydra/ult_01.png	1700x915	1700x916	0	0	1	0	7		
+Assets/Resources/BossAnim/drake/dive_00.png	1700x902	1700x904	0	0	2	0	7		
+Assets/Resources/BossAnim/hydra/windup_00.png	1700x898	1700x900	0	0	2	0	7		
+Assets/Resources/BossAnim/demon/exhaust_00.png	1700x895	1700x896	0	0	1	0	7		
+Assets/Resources/BossAnim/griffin/move_01.png	1700x894	1700x896	0	0	2	0	7		
+Assets/Resources/BossAnim/hydra/move_03.png	1700x891	1700x892	0	0	1	0	7		
+Assets/Resources/BossAnim/demon/defeat_01.png	1700x887	1700x888	0	0	1	0	7		
+Assets/Resources/BossAnim/hydra/move_02.png	1700x886	1700x888	0	0	2	0	7		
+Assets/Resources/BossAnim/hydra/move_00.png	1700x879	1700x880	0	0	1	0	7		
+Assets/Resources/BossAnim/hydra/move_01.png	1700x877	1700x880	0	0	3	0	7		
+Assets/Resources/BossAnim/bat/rise_00.png	1700x874	1700x876	0	0	2	0	7		
+Assets/Resources/BossAnim/black_knight/recover_00.png	1700x871	1700x872	0	0	1	0	7		
+Assets/Resources/BossAnim/drake/attackB_00.png	1700x871	1700x872	0	0	1	0	7		
+Assets/Resources/BossAnim/crystal_golem/rise_00.png	1700x870	1700x872	0	0	2	0	7		
+Assets/Resources/BossAnim/hydra/attack_01.png	1700x865	1700x868	0	0	3	0	7		
+Assets/Resources/BossAnim/hydra/attackB_00.png	1700x862	1700x864	0	0	2	0	7		
+Assets/Resources/BossAnim/bat/land_01.png	1700x854	1700x856	0	0	2	0	7		
+Assets/Resources/BossAnim/ancient_demon/defeat_01.png	1700x850	1700x852	0	0	2	0	7		
+Assets/Resources/BossAnim/drake/defeat_00.png	1700x845	1700x848	0	0	3	0	7		
+Assets/Art/PlayerDownAttackLand_v1/downattackland_00.png	1071x1341	1072x1344	0	1	3	0	9	0.546,0.172	0.545490672,0.171616071
+Assets/Resources/BossAnim/cyclops/break_00.png	2000x717	2000x720	0	0	3	0	7		
+Assets/Resources/BossAnim/bat/land_00.png	1700x843	1700x844	0	0	1	0	7		
+Assets/Resources/BossAnim/griffin/attackB_00.png	1700x841	1700x844	0	0	3	0	7		
+Assets/Resources/BossAnim/drake/hurt_00.png	1700x841	1700x844	0	0	3	0	7		
+Assets/Resources/BossAnim/hydra/rise_00.png	1700x839	1700x840	0	0	1	0	7		
+Assets/Resources/BossAnim/black_knight/defeat_01.png	1700x837	1700x840	0	0	3	0	7		
+Assets/Art/WildBoss/reaper_idle.png	1001x1419	1004x1420	1	2	1	0	9	0.5,0.0	0.499501992,0
+Assets/Resources/BossAnim/scorpion_king/break_00.png	1700x829	1700x832	0	0	3	0	7		
+Assets/Resources/BossAnim/black_knight/move_00.png	1700x826	1700x828	0	0	2	0	7		
+Assets/Resources/BossAnim/hydra/attack_00.png	1700x819	1700x820	0	0	1	0	7		
+Assets/Resources/BossAnim/bat/breakloop_01.png	1700x817	1700x820	0	0	3	0	7		
+Assets/Resources/BossAnim/black_knight/move_03.png	1700x814	1700x816	0	0	2	0	7		
+Assets/Resources/BossAnim/basilisk/defeat_00.png	1700x810	1700x812	0	0	2	0	7		
+Assets/Resources/BossAnim/black_knight/move_04.png	1700x803	1700x804	0	0	1	0	7		
+Assets/Resources/BossAnim/cyclops/ult_00.png	1400x974	1400x976	0	0	2	0	7		
+Assets/Resources/BossAnim/black_knight/windupB_00.png	1700x801	1700x804	0	0	3	0	7		
+Assets/Art/NobleLadyDoubleJump_v1/doublejump_00.png	976x1393	976x1396	0	0	3	0	9	0.40899247,0.0028715003	0.40899247,0.00286532945
+Assets/Resources/BossAnim/black_knight/move_05.png	1700x798	1700x800	0	0	2	0	7		
+Assets/Resources/BossAnim/black_knight/break_00.png	1700x795	1700x796	0	0	1	0	7		
+Assets/Resources/BossAnim/troll/defeat_00.png	1800x750	1800x752	0	0	2	0	7		
+Assets/Resources/BossAnim/griffin/breakloop_00.png	1700x783	1700x784	0	0	1	0	7		
+Assets/Resources/BossAnim/hydra/defeat_01.png	1700x779	1700x780	0	0	1	0	7		
+Assets/Resources/BossAnim/serpent/windupC_00.png	1700x777	1700x780	0	0	3	0	7		
+Assets/Resources/BossAnim/serpent/hurt_00.png	1700x777	1700x780	0	0	3	0	7		
+Assets/Resources/BossAnim/griffin/attackD_00.png	1700x770	1700x772	0	0	2	0	7		
+Assets/Resources/BossAnim/basilisk/windupC_00.png	1700x766	1700x768	0	0	2	0	7		
+Assets/Resources/BossAnim/serpent/recover_00.png	1700x751	1700x752	0	0	1	0	7		
+Assets/Resources/BossAnim/basilisk/windup_00.png	1700x750	1700x752	0	0	2	0	7		
+Assets/Art/Enemy/WastelandBird.png	1342x950	1344x952	1	1	2	0	9	0.5,0.004210526	0.5,0.00420168036
+Assets/Resources/BossAnim/black_knight/exhaust_00.png	1700x746	1700x748	0	0	2	0	7		
+Assets/Resources/BossAnim/reaper_eldest/defeat_00.png	1078x1176	1080x1176	1	1	0	0	7		
+Assets/Resources/BossAnim/troll/attackC_00.png	1600x791	1600x792	0	0	1	0	7		
+Assets/Resources/BossAnim/black_knight/windupD_00.png	1700x743	1700x744	0	0	1	0	7		
+Assets/Resources/BossAnim/black_knight/move_01.png	1700x742	1700x744	0	0	2	0	7		
+Assets/Resources/BossAnim/troll/attack_00.png	1600x787	1600x788	0	0	1	0	7		
+Assets/Resources/BossAnim/cyclops/ult_01.png	2000x629	2000x632	0	0	3	0	7		
+Assets/Resources/BossAnim/spider/attackC_00.png	1600x781	1600x784	0	0	3	0	7		
+Assets/Resources/BossAnim/spider/break_00.png	1600x779	1600x780	0	0	1	0	7		
+Assets/Resources/BossAnim/spider/breakloop_01.png	1600x775	1600x776	0	0	1	0	7		
+Assets/Resources/BossAnim/black_knight/windupC_00.png	1700x723	1700x724	0	0	1	0	7		
+Assets/Resources/BossAnim/reaper_eldest/breakloop_01.png	1082x1130	1084x1132	1	1	2	0	7		
+Assets/Resources/BossAnim/reaper_eldest/break_01.png	1082x1130	1084x1132	1	1	2	0	7		
+Assets/Resources/BossAnim/reaper_eldest/breakloop_00.png	1082x1129	1084x1132	1	1	3	0	7		
+Assets/Resources/BossAnim/troll/attackB_00.png	1800x669	1800x672	0	0	3	0	7		
+Assets/Resources/BossAnim/crystal_golem/breakloop_00.png	1700x703	1700x704	0	0	1	0	7		
+Assets/Resources/BossAnim/troll/attackD_00.png	1400x849	1400x852	0	0	3	0	7		
+Assets/Resources/BossAnim/troll/defeat_01.png	1800x657	1800x660	0	0	3	0	7		
+Assets/Resources/BossAnim/cyclops/defeat_01.png	2000x587	2000x588	0	0	1	0	7		
+Assets/Resources/BossAnim/troll/windupD_00.png	1400x835	1400x836	0	0	1	0	7		
+Assets/Resources/BossAnim/crystal_golem/break_01.png	1700x683	1700x684	0	0	1	0	7		
+Assets/Resources/BossAnim/cyclops/exhaust_00.png	1600x723	1600x724	0	0	1	0	7		
+Assets/Resources/BossAnim/mole/windup_01.png	1400x825	1400x828	0	0	3	0	7		
+Assets/Resources/BossAnim/scorpion_king/break_01.png	1700x679	1700x680	0	0	1	0	7		
+Assets/Resources/BossAnim/reaper_eldest/hurt_01.png	1030x1118	1032x1120	1	1	2	0	7		
+Assets/Resources/BossAnim/serpent/defeat_00.png	1700x675	1700x676	0	0	1	0	7		
+Assets/Art/WildBoss/demon_attack.png	1294x882	1296x884	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/serpent/break_00.png	1700x671	1700x672	0	0	1	0	7		
+Assets/Resources/BossAnim/cyclops/breakloop_01.png	2000x570	2000x572	0	0	2	0	7		
+Assets/Resources/BossAnim/cyclops/windup_01.png	1400x813	1400x816	0	0	3	0	7		
+Assets/Resources/BossAnim/drake/rise_00.png	1700x666	1700x668	0	0	2	0	7		
+Assets/Resources/BossAnim/cyclops/attackB_00.png	1600x705	1600x708	0	0	3	0	7		
+Assets/Resources/BossAnim/cyclops/windup_00.png	1400x805	1400x808	0	0	3	0	7		
+Assets/Resources/BossAnim/spider/windupB_00.png	1600x699	1600x700	0	0	1	0	7		
+Assets/Resources/BossAnim/troll/windupB_00.png	1600x695	1600x696	0	0	1	0	7		
+Assets/Resources/BossAnim/troll/windup_01.png	1400x794	1400x796	0	0	2	0	7		
+Assets/Resources/BossAnim/cyclops/attack_00.png	1400x790	1400x792	0	0	2	0	7		
+Assets/Resources/BossAnim/serpent/attack_01.png	1700x649	1700x652	0	0	3	0	7		
+Assets/Resources/BossAnim/reaper_eldest/recoverB_00.png	1000x1102	1000x1104	0	0	2	0	7		
+Assets/Resources/BossAnim/spider/defeat_00.png	1600x687	1600x688	0	0	1	0	7		
+Assets/Resources/BossAnim/troll/windupC_00.png	1400x783	1400x784	0	0	1	0	7		
+Assets/Resources/BossAnim/griffin/break_01.png	1700x642	1700x644	0	0	2	0	7		
+Assets/Resources/BossAnim/worm/piece_body.png	1983x550	1984x552	0	1	1	1	0		
+Assets/Resources/BossAnim/basilisk/rise_00.png	1700x639	1700x640	0	0	1	0	7		
+Assets/Resources/BossAnim/spider/hurt_00.png	1600x678	1600x680	0	0	2	0	7		
+Assets/Resources/BossAnim/hydra/breakloop_00.png	1700x638	1700x640	0	0	2	0	7		
+Assets/Resources/BossAnim/basilisk/break_00.png	1700x633	1700x636	0	0	3	0	7		
+Assets/Resources/BossAnim/troll/attack_01.png	1800x597	1800x600	0	0	3	0	7		
+Assets/Resources/BossAnim/troll/windup_00.png	1400x767	1400x768	0	0	1	0	7		
+Assets/Resources/BossAnim/drake/defeat_01.png	1700x629	1700x632	0	0	3	0	7		
+Assets/Resources/BossAnim/black_knight/defeat_02.png	1700x627	1700x628	0	0	1	0	7		
+Assets/Resources/BossAnim/troll/move_02.png	1400x758	1400x760	0	0	2	0	7		
+Assets/Resources/BossAnim/drake/recover_00.png	1700x623	1700x624	0	0	1	0	7		
+Assets/Resources/BossAnim/reaper_eldest/rise_01.png	902x1174	904x1176	1	1	2	0	7		
+Assets/Art/CaveBoss/ancientdemon_windup.png	1026x1032	1028x1032	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/cyclops/move_03.png	1400x754	1400x756	0	0	2	0	7		
+Assets/Resources/BossAnim/mole/defeat_00.png	1400x751	1400x752	0	0	1	0	7		
+Assets/Resources/BossAnim/cyclops/move_01.png	1400x751	1400x752	0	0	1	0	7		
+Assets/Resources/BossAnim/troll/hurt_00.png	1400x750	1400x752	0	0	2	0	7		
+Assets/Resources/BossAnim/drake/attack_00.png	1700x617	1700x620	0	0	3	0	7		
+Assets/Resources/BossAnim/cyclops/breakloop_00.png	2000x523	2000x524	0	0	1	0	7		
+Assets/Resources/BossAnim/cyclops/break_01.png	2000x523	2000x524	0	0	1	0	7		
+Assets/Resources/BossAnim/mole/hurt_00.png	1400x739	1400x740	0	0	1	0	7		
+Assets/Resources/BossAnim/cyclops/move_00.png	1400x735	1400x736	0	0	1	0	7		
+Assets/Resources/BossAnim/cyclops/move_02.png	1400x735	1400x736	0	0	1	0	7		
+Assets/Resources/BossAnim/mole/windup_00.png	1400x733	1400x736	0	0	3	0	7		
+Assets/Art/DragonkinJumpRise_v1/rise_00.png	1411x727	1412x728	0	1	1	0	9	0.5,0.0	0.499645892,0
+Assets/Resources/BossAnim/spider/defeat_01.png	1600x639	1600x640	0	0	1	0	7		
+Assets/Resources/BossAnim/drake/move_02.png	1700x601	1700x604	0	0	3	0	7		
+Assets/Resources/BossAnim/cyclops/windupC_00.png	1600x638	1600x640	0	0	2	0	7		
+Assets/Resources/BossAnim/cyclops/attackC_00.png	1800x565	1800x568	0	0	3	0	7		
+Assets/Resources/BossAnim/drake/move_01.png	1700x597	1700x600	0	0	3	0	7		
+Assets/Resources/BossAnim/drake/move_03.png	1700x597	1700x600	0	0	3	0	7		
+Assets/Resources/BossAnim/reaper_eldest/recover_00.png	998x1006	1000x1008	1	1	2	0	7		
+Assets/Resources/BossAnim/golem/windupD_00.png	1400x714	1400x716	0	0	2	0	7		
+Assets/Resources/BossAnim/drake/breakloop_00.png	1700x587	1700x588	0	0	1	0	7		
+Assets/Resources/BossAnim/black_knight/breakloop_00.png	1700x585	1700x588	0	0	3	0	7		
+Assets/Resources/BossAnim/black_knight/break_01.png	1700x585	1700x588	0	0	3	0	7		
+Assets/Resources/BossAnim/reaper_eldest/hurt_00.png	1050x943	1052x944	1	1	1	0	7		
+Assets/Resources/BossAnim/ancient_demon/breakloop_00.png	1700x582	1700x584	0	0	2	0	7		
+Assets/Resources/BossAnim/cyclops/recover_00.png	1400x705	1400x708	0	0	3	0	7		
+Assets/Resources/BossAnim/serpent/windup_01.png	1300x758	1300x760	0	0	2	0	7		
+Assets/Resources/BossAnim/worm/move_01.png	1300x757	1300x760	0	0	3	0	7		
+Assets/Resources/BossAnim/reaper_eldest/windupB_01.png	858x1144	860x1144	1	1	0	0	7		
+Assets/Resources/BossAnim/serpent/move_02.png	1300x755	1300x756	0	0	1	0	7		
+Assets/Resources/BossAnim/basilisk/attackC_00.png	1700x577	1700x580	0	0	3	0	7		
+Assets/Resources/BossAnim/serpent/move_03.png	1300x754	1300x756	0	0	2	0	7		
+Assets/Resources/BossAnim/serpent/move_00.png	1300x753	1300x756	0	0	3	0	7		
+Assets/Resources/BossAnim/worm/defeat_00.png	1300x749	1300x752	0	0	3	0	7		
+Assets/Art/DragonkinPoses_v1/dive/dive_p0_01.png	1498x650	1500x652	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/serpent/move_01.png	1300x749	1300x752	0	0	3	0	7		
+Assets/Resources/BossAnim/mole/breakloop_00.png	1400x695	1400x696	0	0	1	0	7		
+Assets/Resources/BossAnim/mole/break_01.png	1400x695	1400x696	0	0	1	0	7		
+Assets/Resources/BossAnim/basilisk/attackD_00.png	1700x570	1700x572	0	0	2	0	7		
+Assets/Resources/BossAnim/basilisk/windupD_00.png	1700x569	1700x572	0	0	3	0	7		
+Assets/Resources/BossAnim/mole/exhaust_00.png	1400x690	1400x692	0	0	2	0	7		
+Assets/Resources/BossAnim/mole/breakloop_01.png	1400x690	1400x692	0	0	2	0	7		
+Assets/Resources/BossAnim/worm/emerge_00.png	1300x743	1300x744	0	0	1	0	7		
+Assets/Resources/BossAnim/cyclops/hurt_00.png	1400x689	1400x692	0	0	3	0	7		
+Assets/Resources/BossAnim/drake/attackD_00.png	1700x566	1700x568	0	0	2	0	7		
+Assets/Resources/BossAnim/golem/attack_01.png	1400x687	1400x688	0	0	1	0	7		
+Assets/Resources/BossAnim/golem/attack_00.png	1400x685	1400x688	0	0	3	0	7		
+Assets/Resources/BossAnim/reaper_second/hurt_00.png	930x1030	932x1032	1	1	2	0	7		
+Assets/Art/CaveBatRun/cavebat_run_2.png	988x969	988x972	0	0	2	1	0		
+Assets/Art/DragonkinPoses_v1/dive/dive_p0_00.png	1340x714	1340x716	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/golem/windup_01.png	1400x681	1400x684	0	0	3	0	7		
+Assets/Resources/BossAnim/worm/move_00.png	1300x729	1300x732	0	0	3	0	7		
+Assets/Resources/BossAnim/mole/defeat_01.png	1400x673	1400x676	0	0	3	0	7		
+Assets/Resources/BossAnim/drake/exhaust_00.png	1700x554	1700x556	0	0	2	0	7		
+Assets/Resources/BossAnim/drake/break_00.png	1700x554	1700x556	0	0	2	0	7		
+Assets/Resources/BossAnim/reaper_second/hurt_01.png	900x1038	900x1040	0	0	2	0	7		
+Assets/Resources/BossAnim/mole/move_03.png	1400x667	1400x668	0	0	1	0	7		
+Assets/Resources/BossAnim/mole/move_00.png	1400x667	1400x668	0	0	1	0	7		
+Assets/Resources/BossAnim/mole/move_02.png	1400x667	1400x668	0	0	1	0	7		
+Assets/Art/CaveBoss/crystalgolem_windup.png	942x991	944x992	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/worm/attackB_00.png	1300x717	1300x720	0	0	3	0	7		
+Assets/Resources/BossAnim/mole/recover_00.png	1400x665	1400x668	0	0	3	0	7		
+Assets/Resources/BossAnim/mole/move_01.png	1400x663	1400x664	0	0	1	0	7		
+Assets/Resources/BossAnim/spider/attackD_00.png	1600x578	1600x580	0	0	2	0	7		
+Assets/Resources/BossAnim/worm/break_00.png	1300x710	1300x712	0	0	2	0	7		
+Assets/Art/WildBoss/serpent_attack.png	1301x709	1304x712	1	2	3	0	9	0.5,0.0	0.499616564,0
+Assets/Resources/BossAnim/ancient_demon/break_01.png	1700x542	1700x544	0	0	2	0	7		
+Assets/Resources/BossAnim/reaper_second/attackB_00.png	888x1037	888x1040	0	0	3	0	7		
+Assets/Resources/BossAnim/reaper_second/windupB_01.png	902x1015	904x1016	1	1	1	0	7		
+Assets/Resources/BossAnim/basilisk/windupE_00.png	1700x538	1700x540	0	0	2	0	7		
+Assets/Resources/BossAnim/basilisk/move_02.png	1700x538	1700x540	0	0	2	0	7		
+Assets/Resources/BossAnim/mole/dive_00.png	1400x653	1400x656	0	0	3	0	7		
+Assets/Art/WildBoss/golem_attack.png	1100x831	1100x832	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/mole/attack_01.png	1400x651	1400x652	0	0	1	0	7		
+Assets/Resources/BossAnim/worm/piece_head.png	1509x603	1512x604	1	2	1	0	0		
+Assets/Resources/BossAnim/mole/rise_00.png	1400x649	1400x652	0	0	3	0	7		
+Assets/Resources/BossAnim/reaper_eldest/attackB_01.png	1178x767	1180x768	1	1	1	0	7		
+Assets/Resources/BossAnim/golem/attackD_00.png	1400x645	1400x648	0	0	3	0	7		
+Assets/Resources/BossAnim/reaper_eldest/attackB_00.png	1046x863	1048x864	1	1	1	0	7		
+Assets/Resources/BossAnim/basilisk/move_00.png	1700x530	1700x532	0	0	2	0	7		
+Assets/Resources/BossAnim/worm/move_03.png	1300x693	1300x696	0	0	3	0	7		
+Assets/Resources/BossAnim/reaper_eldest/windupB_00.png	830x1084	832x1084	1	1	0	0	7		
+Assets/Resources/BossAnim/golem/defeat_00.png	1400x642	1400x644	0	0	2	0	7		
+Assets/Resources/BossAnim/spider/recover_00.png	1600x561	1600x564	0	0	3	0	7		
+Assets/Resources/BossAnim/worm/attack_00.png	1300x687	1300x688	0	0	1	0	7		
+Assets/Resources/BossAnim/worm/move_02.png	1300x687	1300x688	0	0	1	0	7		
+Assets/Resources/BossAnim/reaper_second/rise_01.png	854x1044	856x1044	1	1	0	0	7		
+Assets/Resources/BossAnim/reaper_second/windup_01.png	892x993	892x996	0	0	3	0	7		
+Assets/Resources/BossAnim/spider/move_00.png	1600x553	1600x556	0	0	3	0	7		
+Assets/Resources/BossAnim/spider/windup_00.png	1600x551	1600x552	0	0	1	0	7		
+Assets/Resources/BossAnim/spider/move_03.png	1600x551	1600x552	0	0	1	0	7		
+Assets/Art/LancerRun_v1/run_02.png	1232x715	1232x716	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/crystal_golem/defeat_02.png	1700x518	1700x520	0	0	2	0	7		
+Assets/Resources/BossAnim/demon/defeat_02.png	1700x517	1700x520	0	0	3	0	7		
+Assets/Resources/BossAnim/golem/defeat_01.png	1400x627	1400x628	0	0	1	0	7		
+Assets/Resources/BossAnim/griffin/defeat_02.png	1700x515	1700x516	0	0	1	0	7		
+Assets/Resources/BossAnim/spider/move_02.png	1600x547	1600x548	0	0	1	0	7		
+Assets/Resources/BossAnim/golem/windupB_00.png	1400x625	1400x628	0	0	3	0	7		
+Assets/Art/LancerRun_v1/run_03.png	1222x715	1224x716	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/spider/attack_00.png	1600x542	1600x544	0	0	2	0	7		
+Assets/Resources/BossAnim/reaper_second/break_00.png	826x1049	828x1052	1	1	3	0	7		
+Assets/Art/DragonkinPoses_v1/tail/tail_p1_01.png	1344x643	1344x644	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/golem/move_01.png	1400x617	1400x620	0	0	3	0	7		
+Assets/Art/WildBoss/cyclops_attack.png	1209x709	1212x712	1	2	3	0	9	0.5,0.0	0.499587459,0
+Assets/Resources/BossAnim/golem/windup_00.png	1400x611	1400x612	0	0	1	0	7		
+Assets/Resources/BossAnim/golem/move_03.png	1400x606	1400x608	0	0	2	0	7		
+Assets/Art/DragonkinJumpFall_v1/fall_00.png	1199x704	1200x704	0	1	0	0	9	0.5,0.0	0.499583333,0
+Assets/Resources/BossAnim/bat/defeat_02.png	1700x495	1700x496	0	0	1	0	7		
+Assets/Art/DragonkinPoses_v1/claw1/claw1_p0_00.png	1180x713	1180x716	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/LancerRun_v1/run_07.png	1274x658	1276x660	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/golem/move_02.png	1400x597	1400x600	0	0	3	0	7		
+Assets/Resources/BossAnim/serpent/windupB_00.png	1700x491	1700x492	0	0	1	0	7		
+Assets/Art/CaveBoss/ancientdemon_attack.png	816x1019	816x1020	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/VampirePoses_v1/mist/mist_p0_01.png	1096x755	1096x756	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_second/windup_00.png	816x1013	816x1016	0	0	3	0	7		
+Assets/Resources/BossAnim/golem/attackB_00.png	1400x590	1400x592	0	0	2	0	7		
+Assets/Resources/BossAnim/reaper_second/defeat_01.png	778x1061	780x1064	1	1	3	0	7		
+Assets/Resources/BossAnim/goblin_rider/windup_00.png	1300x633	1300x636	0	0	3	0	7		
+Assets/Resources/BossAnim/reaper_second/attackB_01.png	830x991	832x992	1	1	1	0	7		
+Assets/Art/CaveBoss/crystalgolem_attack.png	791x1039	792x1040	0	1	1	0	9	0.5,0.0	0.499368687,0
+Assets/Resources/BossAnim/reaper_second/defeat_00.png	824x997	824x1000	0	0	3	0	7		
+Assets/Art/DragonkinPoses_v1/claw1/claw1_p1_01.png	1040x785	1040x788	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinPoses_v1/claw3/claw3_p0_00.png	1088x750	1088x752	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinPoses_v1/claw1/claw1_p1_00.png	1142x713	1144x716	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_second/windupB_00.png	784x1037	784x1040	0	0	3	0	7		
+Assets/Art/LancerRun_v1/run_04.png	1290x629	1292x632	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/spider/attackC_01.png	1600x506	1600x508	0	0	2	0	7		
+Assets/Art/MikoRun_v1/run_03.png	1246x648	1248x648	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/worm/breakloop_00.png	1300x617	1300x620	0	0	3	0	7		
+Assets/Art/DragonkinPoses_v1/tail/tail_p0_00.png	1092x730	1092x732	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/spider/windupC_00.png	1600x497	1600x500	0	0	3	0	7		
+Assets/Art/MikoPoses_v1/upfan/upfan_p0_02.png	1102x720	1104x720	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoRun_v1/run_04.png	1260x629	1260x632	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_eldest/attack_00.png	1146x687	1148x688	1	1	1	0	7		
+Assets/Resources/BossAnim/worm/defeat_01.png	1300x605	1300x608	0	0	3	0	7		
+Assets/Resources/BossAnim/drake/break_01.png	1700x462	1700x464	0	0	2	0	7		
+Assets/Resources/BossAnim/spider/exhaust_00.png	1600x490	1600x492	0	0	2	0	7		
+Assets/Resources/BossAnim/worm/attack_01.png	1300x599	1300x600	0	0	1	0	7		
+Assets/Resources/BossAnim/mole/dive_01.png	1400x554	1400x556	0	0	2	0	7		
+Assets/Resources/BossAnim/goblin_rider/windupB_00.png	1300x594	1300x596	0	0	2	0	7		
+Assets/Art/NinjaPoses_v1/downdash/downdash_p1_00.png	1142x676	1144x676	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/golem/exhaust_00.png	1400x550	1400x552	0	0	2	0	7		
+Assets/Resources/BossAnim/golem/breakloop_00.png	1400x550	1400x552	0	0	2	0	7		
+Assets/Art/LancerRun_v1/run_05.png	1222x629	1224x632	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/worm/rise_00.png	1300x591	1300x592	0	0	1	0	7		
+Assets/Art/LancerRun_v1/run_01.png	1130x677	1132x680	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_second/attack_01.png	758x1005	760x1008	1	1	3	0	7		
+Assets/Art/CaveBoss/basilisk_windup.png	853x891	856x892	1	2	1	0	9	0.5,0.0	0.499415888,0
+Assets/Resources/BossAnim/troll/defeat_02.png	2000x379	2000x380	0	0	1	0	7		
+Assets/Resources/BossAnim/goblin_rider/break_00.png	1300x581	1300x584	0	0	3	0	7		
+Assets/Art/PlayerDownAttack_v1/downattack_00.png	506x1491	508x1492	1	1	1	0	9	0.568,0.582	0.567732283,0.58160992
+Assets/Art/PlayerDownAttack_v1/downattack_01.png	506x1491	508x1492	1	1	1	0	9	0.568,0.582	0.567732283,0.58160992
+Assets/Resources/BossAnim/serpent/defeat_01.png	1700x443	1700x444	0	0	1	0	7		
+Assets/Resources/BossAnim/basilisk/attackB_00.png	1700x443	1700x444	0	0	1	0	7		
+Assets/Resources/BossAnim/reaper_second/recoverB_00.png	760x989	760x992	0	0	3	0	7		
+Assets/Resources/BossAnim/basilisk/attackE_00.png	1700x442	1700x444	0	0	2	0	7		
+Assets/Art/MikoRun_v1/run_02.png	1162x646	1164x648	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinRun_v1/run_01.png	1364x550	1364x552	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoRun_v1/run_05.png	1234x607	1236x608	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/scorpionking_windup.png	813x918	816x920	1	2	2	0	9	0.5,0.0	0.499387255,0
+Assets/Resources/BossAnim/goblin_rider/move_03.png	1300x570	1300x572	0	0	2	0	7		
+Assets/Resources/BossAnim/basilisk/defeat_02.png	1700x435	1700x436	0	0	1	0	7		
+Assets/Art/DragonkinPoses_v1/breath/breath_p0_02.png	1062x696	1064x696	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/hydra_windup.png	1157x638	1160x640	1	2	2	0	9	0.5,0.0	0.499568966,0
+Assets/Resources/BossAnim/goblin_rider/attack_00.png	1300x567	1300x568	0	0	1	0	7		
+Assets/Resources/BossAnim/goblin_rider/recover_00.png	1300x567	1300x568	0	0	1	0	7		
+Assets/Resources/BossAnim/goblin_rider/hurt_00.png	1300x566	1300x568	0	0	2	0	7		
+Assets/Art/NinjaPoses_v1/updash/updash_p0_02.png	1106x665	1108x668	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaPoses_v1/updash/updash_p0_01.png	1106x665	1108x668	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinPoses_v1/claw2/claw2_p0_00.png	1046x703	1048x704	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/drake/defeat_02.png	1700x431	1700x432	0	0	1	0	7		
+Assets/Resources/BossAnim/basilisk/breakloop_01.png	1700x431	1700x432	0	0	1	0	7		
+Assets/Resources/BossAnim/reaper_second/defeat_02.png	1468x497	1468x500	0	0	3	0	7		
+Assets/Art/MikoRun_v1/run_07.png	1076x678	1076x680	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinRun_v1/run_06.png	1288x565	1288x568	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/goblin_rider/windup_01.png	1300x559	1300x560	0	0	1	0	7		
+Assets/Art/LancerRun_v1/run_00.png	1048x693	1048x696	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinPoses_v1/tail/tail_p1_00.png	1046x693	1048x696	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/VampireFinishShort_v1/finish_00.png	1040x694	1040x696	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/worm/exhaust_00.png	1300x555	1300x556	0	0	1	0	7		
+Assets/Resources/BossAnim/goblin_rider/move_01.png	1300x554	1300x556	0	0	2	0	7		
+Assets/Art/FighterRun_v1/run_04.png	1156x623	1156x624	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/spider_windup.png	1034x696	1036x696	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/VampireRun_v1/run_02.png	1218x589	1220x592	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/VampirePoses_v1/mist/mist_p0_02.png	1282x559	1284x560	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinPoses_v1/breath/breath_p0_00.png	928x770	928x772	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/VampireJumpFall_v1/fall_00.png	1052x677	1052x680	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoRun_v1/run_00.png	1114x639	1116x640	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyBoss/guardian_attack.png	993x716	996x716	1	2	0	0	9	0.5,0.0	0.499497992,0
+Assets/Art/WildBoss/hydra_idle.png	997x713	1000x716	1	2	3	0	9	0.5,0.0014025245	0.4995,0.001396648
+Assets/Art/VampireRun_v1/run_03.png	1280x555	1280x556	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/griffin_attack.png	957x742	960x744	1	2	2	0	9	0.5,0.0	0.499479167,0
+Assets/Resources/BossAnim/mole/windupB_00.png	1400x507	1400x508	0	0	1	0	7		
+Assets/Resources/BossAnim/reaper_second/rise_00.png	746x951	748x952	1	1	1	0	7		
+Assets/Art/VampirePoses_v1/bats/bats_p0_01.png	1010x702	1012x704	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherPoses_v1/upshot/upshot_p0_02.png	888x798	888x800	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/goblin_rider/attack_02.png	1300x543	1300x544	0	0	1	0	7		
+Assets/Art/DragonkinPoses_v1/breath/breath_p0_01.png	936x754	936x756	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/bat/breakloop_00.png	1700x415	1700x416	0	0	1	0	7		
+Assets/Resources/BossAnim/bat/break_01.png	1700x415	1700x416	0	0	1	0	7		
+Assets/Art/Reapers/Eldest/idle.png	777x907	780x908	1	2	1	0	9	0.5,0.0	0.499358974,0
+Assets/Art/VampireRun_v1/run_06.png	1226x574	1228x576	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/knight_attack.png	1108x635	1108x636	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/hydra/defeat_02.png	1700x413	1700x416	0	0	3	0	7		
+Assets/Art/MikoRun_v1/run_06.png	984x711	984x712	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/goblin_rider/defeat_00.png	1300x538	1300x540	0	0	2	0	7		
+Assets/Resources/BossAnim/reaper_eldest/attack_01.png	1076x650	1076x652	0	0	2	0	7		
+Assets/Art/DragonkinJump_v1/jump_00.png	1034x673	1036x676	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/VampireRun_v1/run_07.png	1244x559	1244x560	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/MageRun_v1/run_00.png	988x701	988x704	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinPoses_v1/claw2/claw2_p1_00.png	996x695	996x696	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/VampireRun_v1/run_05.png	1302x531	1304x532	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBatRun/cavebat_run_0.png	988x699	988x700	0	0	1	0	0		
+Assets/Art/DragonkinRun_v1/run_02.png	1274x541	1276x544	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoRun_v1/run_01.png	1126x612	1128x612	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterPoses_v1/uppercut/uppercut_p0_02.png	786x871	788x872	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/basilisk_idle.png	833x821	836x824	1	2	3	0	9	0.5,0.0	0.499401914,0
+Assets/Resources/BossAnim/basilisk/breakloop_00.png	1700x402	1700x404	0	0	2	0	7		
+Assets/Resources/BossAnim/basilisk/break_01.png	1700x402	1700x404	0	0	2	0	7		
+Assets/Art/NinjaPoses_v1/downdash/downdash_p0_00.png	988x691	988x692	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/basilisk_attack.png	863x791	864x792	0	1	1	0	9	0.5,0.0	0.499421296,0
+Assets/Art/WildBoss/hydra_attack.png	1056x643	1056x644	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/EnemyAttack/burrow_worm_attack.png	786x863	788x864	1	1	1	0	7		
+Assets/Art/DragonkinRun_v1/run_03.png	1256x539	1256x540	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/VampireRun_v1/run_01.png	1284x527	1284x528	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/basilisk/exhaust_00.png	1700x397	1700x400	0	0	3	0	7		
+Assets/Resources/BossAnim/goblin_rider/rise_00.png	1300x518	1300x520	0	0	2	0	7		
+Assets/Art/VampirePoses_v1/mist/mist_p0_00.png	1282x525	1284x528	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoJumpRise_v1/rise_00.png	987x679	988x680	0	1	1	0	9	0.5,0.0	0.499493927,0
+Assets/Art/GunslingerFinishExtreme_v1/finish_00.png	822x815	824x816	1	1	1	0	9	0.9108644,0.0	0.909867156,0
+Assets/Resources/BossAnim/serpent/breakloop_01.png	1700x394	1700x396	0	0	2	0	7		
+Assets/Resources/BossAnim/goblin_rider/move_05.png	1300x514	1300x516	0	0	2	0	7		
+Assets/Art/FighterPoses_v1/straight/straight_p1_00.png	1108x603	1108x604	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/demon_windup.png	787x848	788x848	0	1	0	0	9	0.5,0.0	0.499365482,0
+Assets/Art/DragonkinRun_v1/run_04.png	1294x515	1296x516	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/griffin_move.png	840x793	840x796	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/mole_windup.png	819x813	820x816	0	1	3	0	9	0.5,0.0	0.499390244,0
+Assets/Art/MageRun_v1/run_05.png	958x694	960x696	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherPoses_v1/upshot/upshot_p0_00.png	844x787	844x788	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/crystalgolem_idle.png	632x1050	632x1052	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinPoses_v1/claw3/claw3_p1_01.png	1092x606	1092x608	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/ancientdemon_idle.png	650x1017	652x1020	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/goblin_rider/defeat_01.png	1300x507	1300x508	0	0	1	0	7		
+Assets/Resources/BossAnim/goblin_rider/move_02.png	1300x505	1300x508	0	0	3	0	7		
+Assets/Art/FighterRun_v1/run_07.png	1086x604	1088x604	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherPoses_v1/upshot/upshot_p0_01.png	822x797	824x800	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/wormboss_attack.png	810x808	812x808	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/MageFinishMedium_v1/finish_00.png	952x687	952x688	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/mole/attackB_00.png	1800x363	1800x364	0	0	1	0	7		
+Assets/Art/MageFinishLong_v1/finish_00.png	942x693	944x696	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/goblin_rider/breakloop_00.png	1300x502	1300x504	0	0	2	0	7		
+Assets/Resources/BossAnim/goblin_rider/break_01.png	1300x502	1300x504	0	0	2	0	7		
+Assets/Art/MageRun_v1/run_04.png	950x685	952x688	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterRun_v1/run_03.png	1080x601	1080x604	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinPoses_v1/flap/flap_p0_01.png	854x760	856x760	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterRun_v1/run_06.png	1038x625	1040x628	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterPoses_v1/jab/jab_p1_00.png	1074x602	1076x604	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/VampirePoses_v1/dive/dive_p0_00.png	944x683	944x684	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/troll_windup.png	701x918	704x920	1	2	2	0	9	0.5,0.0	0.499289773,0
+Assets/Art/MikoPoses_v1/upfan/upfan_p0_01.png	942x679	944x680	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/centipede/defeat_00.png	1500x425	1500x428	0	0	3	0	7		
+Assets/Art/FighterRun_v1/run_02.png	1020x625	1020x628	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/VampireJumpRise_v1/rise_00.png	1018x626	1020x628	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/goblin_rider/attack_01.png	1300x490	1300x492	0	0	2	0	7		
+Assets/Resources/BossAnim/goblin_rider/move_04.png	1300x489	1300x492	0	0	3	0	7		
+Assets/Art/NobleLadyFinishExtreme_v1/finish_00.png	843x754	844x756	0	1	2	0	9	0.72237194,0.0	0.721516049,0
+Assets/Art/DragonkinFinishLong_v1/finish_00.png	1078x588	1080x588	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinStart_v1/start_00.png	882x716	884x716	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/rider_attack.png	936x674	936x676	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/DualBladeFinishLong_v1/finish_00.png	610x1030	612x1032	1	1	2	0	9	0.4406498,0.0	0.440843755,0
+Assets/Resources/BossAnim/worm/dive_01.png	1300x483	1300x484	0	0	1	0	7		
+Assets/Art/GunslingerFinishMedium_v1/finish_01.png	606x1036	608x1036	1	1	0	0	9	0.3792428,0.0	0.379640028,0
+Assets/Art/FighterRun_v1/run_05.png	1074x584	1076x584	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/worm/break_01.png	1300x482	1300x484	0	0	2	0	7		
+Assets/Art/WildBoss/spider_idle.png	1057x591	1060x592	1	2	1	0	9	0.5,0.0016920473	0.499528302,0.00168918911
+Assets/Art/DragonkinPoses_v1/claw3/claw3_p1_00.png	862x724	864x724	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/scorpionking_idle.png	722x863	724x864	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaPoses_v1/throw/throw_p0_01.png	962x645	964x648	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaRun_v1/run_04.png	1146x541	1148x544	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaPoses_v1/throw/throw_p0_02.png	1004x615	1004x616	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaRun_v1/run_06.png	1130x546	1132x548	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/cyclops_windup.png	745x827	748x828	1	2	1	0	9	0.5,0.0	0.499331551,0
+Assets/Art/CaveBoss/scorpion_windup.png	783x786	784x788	0	1	2	0	9	0.5,0.0	0.499362245,0
+Assets/Resources/BossAnim/golem/defeat_02.png	1400x439	1400x440	0	0	1	0	7		
+Assets/Art/ArcherPoses_v1/downshot/downshot_p0_00.png	944x650	944x652	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinFinishShort_v1/finish_00.png	892x687	892x688	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/rider_windup.png	797x768	800x768	1	2	0	0	9	0.5,0.0	0.499375,0
+Assets/Art/DragonkinFinishMedium_v1/finish_00.png	924x662	924x664	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/MageRun_v1/run_03.png	892x685	892x688	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherPoses_v1/release/release_p0_00.png	870x701	872x704	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaFinishMedium_v1/finish_00.png	1078x564	1080x564	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/NobleLadyStart_v1/start_01.png	710x856	712x856	1	1	0	0	9	0.4121681,0.0	0.412414819,0
+Assets/Art/CaveBoss/wormboss_idle.png	649x936	652x936	1	2	0	0	9	0.5,0.0	0.499233129,0
+Assets/Art/DragonkinPoses_v1/claw2/claw2_p1_01.png	890x682	892x684	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/MageRun_v1/run_01.png	838x724	840x724	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/LancerFinishExtreme_v1/finish_01.png	878x691	880x692	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/VampirePoses_v1/bats/bats_p0_02.png	926x652	928x652	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/VampireJump_v1/jump_00.png	964x626	964x628	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/scorpion/hurt_00.png	1000x603	1000x604	0	0	1	0	7		
+Assets/Art/WildBoss/golem_windup.png	613x977	616x980	1	2	3	0	9	0.5,0.0	0.499188312,0
+Assets/Art/DragonkinRun_v1/run_05.png	1202x498	1204x500	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaRun_v1/run_05.png	1106x541	1108x544	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinPoses_v1/flap/flap_p0_00.png	768x779	768x780	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterPoses_v1/uppercut/uppercut_p0_01.png	762x782	764x784	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/GunslingerFinishLong_v1/finish_01.png	632x941	632x944	0	0	3	0	9	0.4125047,0.0	0.4125047,0
+Assets/Art/ArcherPoses_v1/draw/draw_p0_02.png	848x699	848x700	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/NobleLadyFinishLong_v1/finish_01.png	746x793	748x796	1	1	3	0	9	0.6634959,0.0	0.663058745,0
+Assets/Art/DragonkinFinishLong_v1/finish_01.png	1010x585	1012x588	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/mole/defeat_02.png	1400x422	1400x424	0	0	2	0	7		
+Assets/Art/MikoPoses_v1/throw/throw_p1_01.png	934x632	936x632	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/MageJumpFall_v1/fall_00.png	867x679	868x680	0	1	1	0	9	0.5,0.0	0.499423963,0
+Assets/Art/NinjaPoses_v1/slashend/slashend_01.png	1166x504	1168x504	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/NobleLadyFinishMedium_v1/finish_00.png	731x803	732x804	0	1	1	0	9	0.6827842,0.0	0.681851435,0
+Assets/Resources/BossAnim/serpent/breakloop_00.png	1700x345	1700x348	0	0	3	0	7		
+Assets/Resources/BossAnim/serpent/break_01.png	1700x345	1700x348	0	0	3	0	7		
+Assets/Resources/BossAnim/cyclops/defeat_02.png	2000x293	2000x296	0	0	3	0	7		
+Assets/Art/EnemyPose/WastelandBirdFlap/death.png	634x924	636x924	1	1	0	0	0		
+Assets/Art/EnemyPose/WastelandBirdFlap/hit.png	634x924	636x924	1	1	0	0	0		
+Assets/Art/NobleLadyFinishShort_v1/finish_00.png	730x800	732x800	1	1	0	0	9	0.91548955,0.0	0.914354333,0
+Assets/Art/MageJumpRise_v1/rise_00.png	802x728	804x728	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/goblin_rider/ult_02.png	1300x449	1300x452	0	0	3	0	7		
+Assets/Art/FighterFinishMedium_v1/finish_00.png	970x601	972x604	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/serpent_windup.png	705x819	708x820	1	2	1	0	9	0.5,0.0	0.499293785,0
+Assets/Art/NobleLadyFinishShort_v1/finish_01.png	706x817	708x820	1	1	3	0	9	0.70189184,0.0	0.701321524,0
+Assets/Art/FighterPoses_v1/counter/counter_p1_00.png	936x615	936x616	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinLand_v1/land_00.png	1018x564	1020x564	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinPoses_v1/flap/flap_p0_02.png	804x714	804x716	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/DualBladeFinishLong_v1/finish_01.png	646x887	648x888	1	1	1	0	9	0.52298874,0.0	0.522917787,0
+Assets/Art/ArcherPoses_v1/downshot/downshot_p0_02.png	878x652	880x652	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaRun_v1/run_00.png	1088x526	1088x528	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/troll_idle.png	680x841	680x844	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaPoses_v1/slashend/slashend_00.png	1156x494	1156x496	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/scorpion/windupB_01.png	1000x571	1000x572	0	0	1	0	7		
+Assets/Resources/BossAnim/scorpion/defeat_00.png	1000x571	1000x572	0	0	1	0	7		
+Assets/Resources/BossAnim/scorpion/attack_00.png	1000x571	1000x572	0	0	1	0	7		
+Assets/Art/NinjaPoses_v1/throw/throw_p0_00.png	912x626	912x628	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/scorpion/attack_01.png	1000x570	1000x572	0	0	2	0	7		
+Assets/Resources/BossAnim/wolf/attack_01.png	1042x545	1044x548	1	1	3	0	7		
+Assets/Art/CaveBoss/scorpionking_attack.png	695x816	696x816	0	1	0	0	9	0.5,0.0	0.499281609,0
+Assets/Resources/BossAnim/scorpion/attackD_00.png	1000x567	1000x568	0	0	1	0	7		
+Assets/Resources/BossAnim/scorpion/move_00.png	1000x567	1000x568	0	0	1	0	7		
+Assets/Resources/BossAnim/scorpion/move_02.png	1000x566	1000x568	0	0	2	0	7		
+Assets/Resources/BossAnim/scorpion/move_03.png	1000x565	1000x568	0	0	3	0	7		
+Assets/Art/NinjaRun_v1/run_07.png	1038x544	1040x544	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherPoses_v1/lowshot/lowshot_p0_01.png	958x589	960x592	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/scorpion/move_01.png	1000x563	1000x564	0	0	1	0	7		
+Assets/Art/ArcherPoses_v1/draw/draw_p0_01.png	824x683	824x684	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/MageFinishMedium_v1/finish_01.png	806x698	808x700	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/VampireFinishExtreme_v1/finish_00.png	1110x506	1112x508	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/NobleLadyFinishMedium_v1/finish_01.png	673x834	676x836	1	2	2	0	9	0.71373326,0.0	0.712045095,0
+Assets/Art/NobleLadyFinishLong_v1/finish_00.png	691x812	692x812	0	1	0	0	9	0.6505317,0.0	0.649591625,0
+Assets/Art/PlayerFinishExtreme_v1/finish_00.png	772x726	772x728	0	0	2	0	9	0.33007428,0.0	0.33007428,0
+Assets/Resources/BossAnim/scorpion/windupB_00.png	1000x559	1000x560	0	0	1	0	7		
+Assets/Resources/BossAnim/scorpion/attackB_00.png	1000x559	1000x560	0	0	1	0	7		
+Assets/Resources/BossAnim/scorpion/break_00.png	1000x559	1000x560	0	0	1	0	7		
+Assets/Art/CaveBoss/mole_attack.png	815x684	816x684	0	1	0	0	9	0.5,0.0	0.499387255,0
+Assets/Art/FighterPoses_v1/straight/straight_p1_01.png	936x594	936x596	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/scorpion/windup_00.png	1000x554	1000x556	0	0	2	0	7		
+Assets/Resources/BossAnim/scorpion/rise_00.png	1000x554	1000x556	0	0	2	0	7		
+Assets/Art/NinjaStart_v1/start_03.png	1084x509	1084x512	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/VampireFinishLong_v1/finish_00.png	910x604	912x604	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoPoses_v1/shiki/shiki_p0_01.png	824x667	824x668	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaFinishShort_v1/finish_00.png	806x681	808x684	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/PlayerFinishShort_v1/finish_00.png	756x725	756x728	0	0	3	0	9	0.56815046,0.0	0.56815046,0
+Assets/Art/DualBladeFinishShort_v1/finish_01.png	696x787	696x788	0	0	1	0	9	0.56989247,0.0	0.56989247,0
+Assets/Resources/BossAnim/wolf/attack_00.png	834x656	836x656	1	1	0	0	7		
+Assets/Art/VampirePoses_v1/bloodslash/bloodslash_p1_01.png	852x641	852x644	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/scorpion/windup_01.png	1000x546	1000x548	0	0	2	0	7		
+Assets/Art/MikoPoses_v1/throw/throw_p1_00.png	850x642	852x644	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonIdle/idle_04.png	900x606	900x608	0	0	1	1	0		
+Assets/Art/DragonIdle/idle_07.png	900x606	900x608	0	0	1	1	0		
+Assets/Art/DragonFire/fire_04.png	900x606	900x608	0	0	1	1	0		
+Assets/Art/DragonIdle/idle_00.png	900x606	900x608	0	0	1	1	0		
+Assets/Art/DragonFire/fire_07.png	900x606	900x608	0	0	1	1	0		
+Assets/Art/DragonFire/fire_02.png	900x606	900x608	0	0	1	1	0		
+Assets/Art/DragonIdle/idle_01.png	900x606	900x608	0	0	1	1	0		
+Assets/Art/DragonFire/fire_00.png	900x606	900x608	0	0	1	1	0		
+Assets/Art/DragonFire/fire_01.png	900x606	900x608	0	0	1	1	0		
+Assets/Art/DragonIdle/idle_05.png	900x606	900x608	0	0	1	1	0		
+Assets/Art/DragonIdle/idle_03.png	900x606	900x608	0	0	1	1	0		
+Assets/Art/DragonIdle/idle_06.png	900x606	900x608	0	0	1	1	0		
+Assets/Art/DragonFire/fire_03.png	900x606	900x608	0	0	1	1	0		
+Assets/Art/DragonFire/fire_06.png	900x606	900x608	0	0	1	1	0		
+Assets/Art/DragonFire/fire_05.png	900x606	900x608	0	0	1	1	0		
+Assets/Art/DragonIdle/idle_02.png	900x606	900x608	0	0	1	1	0		
+Assets/Resources/BossAnim/scorpion/recover_00.png	1000x545	1000x548	0	0	3	0	7		
+Assets/Resources/BossAnim/reaper_eldest/defeat_01.png	914x596	916x596	1	1	0	0	7		
+Assets/Art/MageRun_v1/run_02.png	736x739	736x740	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaRun_v1/run_02.png	1006x540	1008x540	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/GunslingerStart_v1/start_00.png	637x852	640x852	1	2	0	0	9	0.5198209,0.0	0.51894674,0
+Assets/Art/DualBladeFinishShort_v1/finish_00.png	821x661	824x664	1	2	3	0	9	0.39477557,0.0	0.394551873,0
+Assets/Art/FighterPoses_v1/heavy/heavy_p1_00.png	1074x505	1076x508	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaPoses_v1/downdash/downdash_p1_01.png	1152x469	1152x472	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/troll_attack.png	827x653	828x656	0	1	3	0	9	0.5,0.0	0.499396135,0
+Assets/Art/SkyBoss/jellyfish_attack.png	909x594	912x596	1	2	2	0	9	0.5,0.0	0.499451754,0
+Assets/Art/DragonkinPoses_v1/glide/glide_p0_01.png	910x592	912x592	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/MageFinishLong_v1/finish_01.png	870x619	872x620	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherPoses_v1/release/release_p0_01.png	768x701	768x704	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/VampirePoses_v1/claw1/claw1_p1_00.png	974x552	976x552	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/knight_windup.png	635x846	636x848	0	1	2	0	9	0.5,0.0	0.499213836,0
+Assets/Art/NobleLadyAttack_v1/attack_02.png	739x724	740x724	0	1	0	0	9	0.46127233,0.13950276	0.460648989,0.13950276
+Assets/Art/BurrowWormRun/burrowworm_run_1.png	752x711	752x712	0	0	1	0	9	0.5172042,0.0	0.5172042,0
+Assets/Art/WildBoss/serpent_idle.png	683x782	684x784	0	1	2	0	9	0.5,0.0	0.499269006,0
+Assets/Resources/BossAnim/serpent/dive_00.png	1700x314	1700x316	0	0	2	0	7		
+Assets/Art/FighterPoses_v1/jab/jab_p1_01.png	894x597	896x600	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/MageHurt_v1/hurt_01.png	926x575	928x576	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherPoses_v1/downshot/downshot_p0_01.png	814x649	816x652	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterRun_v1/run_00.png	891x590	892x592	0	1	2	0	9	0.5,0.0	0.499439462,0
+Assets/Art/VampirePoses_v1/bloodslash/bloodslash_p1_00.png	888x590	888x592	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaFinishShort_v1/finish_01.png	750x697	752x700	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinFinishMedium_v1/finish_01.png	766x682	768x684	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/MagePoses_v1/castUp/castUp_p0_02.png	886x589	888x592	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/VampirePoses_v1/claw1/claw1_p1_01.png	1032x503	1032x504	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/PlayerFinishMedium_v1/finish_00.png	673x771	676x772	1	2	1	0	9	0.5220946,0.0	0.521256902,0
+Assets/Art/NinjaPoses_v1/dashslash/dashslash_02.png	1106x469	1108x472	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/goblin_rider/ult_00.png	1300x399	1300x400	0	0	1	0	7		
+Assets/Art/CaveBoss/batboss_windup.png	765x678	768x680	1	2	2	0	9	0.5,0.0	0.499348958,0
+Assets/Art/WildBoss/knight_idle.png	671x771	672x772	0	1	1	0	9	0.5,0.0	0.499255952,0
+Assets/Resources/BossAnim/reaper_youngest/break_00.png	744x695	744x696	0	0	1	0	7		
+Assets/Art/VampireFinishShort_v1/finish_01.png	782x659	784x660	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/Bosses/MechDragon/vulcan_prep.png	760x678	760x680	0	0	2	0	7		
+Assets/Resources/Bosses/MechDragon/laser_fire.png	760x678	760x680	0	0	2	0	7		
+Assets/Resources/Bosses/MechDragon/laser_cool.png	760x678	760x680	0	0	2	0	7		
+Assets/Resources/Bosses/MechDragon/vulcan_end.png	760x678	760x680	0	0	2	0	7		
+Assets/Resources/Bosses/MechDragon/bomb_prep.png	760x678	760x680	0	0	2	0	7		
+Assets/Resources/Bosses/MechDragon/laser_charge.png	760x678	760x680	0	0	2	0	7		
+Assets/Resources/Bosses/MechDragon/bomb_drop.png	760x678	760x680	0	0	2	0	7		
+Assets/Resources/Bosses/MechDragon/vulcan_fire.png	760x678	760x680	0	0	2	0	7		
+Assets/Resources/Bosses/MechDragon/defeat2.png	760x678	760x680	0	0	2	0	7		
+Assets/Resources/Bosses/MechDragon/recover.png	760x678	760x680	0	0	2	0	7		
+Assets/Resources/Bosses/MechDragon/defeat.png	760x678	760x680	0	0	2	0	7		
+Assets/Resources/Bosses/MechDragon/break.png	760x678	760x680	0	0	2	0	7		
+Assets/Resources/Bosses/MechDragon/move.png	760x678	760x680	0	0	2	0	7		
+Assets/Resources/Bosses/MechDragon/idle.png	760x678	760x680	0	0	2	0	7		
+Assets/Resources/Bosses/MechDragon/hurt.png	760x678	760x680	0	0	2	0	7		
+Assets/Art/VampireFinishLong_v1/finish_01.png	734x701	736x704	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/mole_idle.png	631x815	632x816	0	1	1	0	9	0.5,0.0	0.499208861,0
+Assets/Art/MikoPoses_v1/shiki/shiki_p0_00.png	752x683	752x684	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/batboss_idle.png	960x535	960x536	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaRun_v1/run_01.png	994x516	996x516	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/Reapers/Second/idle.png	584x874	584x876	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinFinishShort_v1/finish_01.png	730x699	732x700	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/MageFinishShort_v1/finish_00.png	732x695	732x696	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterHurt_v1/hurt_02.png	946x537	948x540	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/centipede_attack.png	639x794	640x796	0	1	2	0	9	0.5,0.0	0.49921875,0
+Assets/Art/MikoPoses_v1/upfan/upfan_p0_00.png	876x579	876x580	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_youngest/defeat_00.png	726x696	728x696	1	1	0	0	7		
+Assets/Art/ArcherPoses_v1/release/release_p0_02.png	848x595	848x596	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterPoses_v1/kick/kick_p1_00.png	786x641	788x644	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/cyclops_idle.png	652x771	652x772	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/NobleLadyLaunch_v1/launch_01.png	765x657	768x660	1	2	3	0	9	0.29604822,0.0	0.296193865,0
+Assets/Art/MikoJump_v1/jump_00.png	766x656	768x656	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/GunslingerFinishShort_v1/finish_01.png	587x856	588x856	0	1	0	0	9	0.6354704,0.0	0.634389668,0
+Assets/Art/MikoStart_v1/start_03.png	808x619	808x620	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinHurt_v1/hurt_02.png	970x515	972x516	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoPoses_v1/shiki/shiki_p0_02.png	740x675	740x676	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/scorpion/attackB_01.png	1000x499	1000x500	0	0	1	0	7		
+Assets/Art/FighterStart_v1/start_02.png	802x621	804x624	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterFinishMedium_v1/finish_01.png	794x627	796x628	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterPoses_v1/divekick/divekick_p0_00.png	702x709	704x712	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/LancerFinishLong_v1/finish_01.png	720x690	720x692	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinPoses_v1/glide/glide_p0_00.png	928x535	928x536	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaPoses_v1/updash/updash_p0_00.png	1182x420	1184x420	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaRun_v1/run_03.png	936x530	936x532	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/LancerJumpFall_v1/fall_00.png	948x523	948x524	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/wolf/attack_03.png	800x619	800x620	0	0	1	0	7		
+Assets/Art/CaveBoss/scorpion_idle.png	726x681	728x684	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/wolf/attack_02.png	898x548	900x548	1	1	0	0	7		
+Assets/Art/DualBladeStart_v1/start_01.png	779x631	780x632	0	1	1	0	9	0.05521588,0.0	0.0551450904,0
+Assets/Art/FighterPoses_v1/jab/jab_p0_00.png	822x595	824x596	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterPoses_v1/straight/straight_p0_00.png	820x595	820x596	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaPoses_v1/slashend/slashend_02.png	1004x485	1004x488	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyBoss/guardian_idle.png	674x722	676x724	1	1	2	0	9	0.5,0.0013850415	0.5,0.00138121542
+Assets/Resources/BossAnim/scorpion/exhaust_00.png	1000x486	1000x488	0	0	2	0	7		
+Assets/Art/PlayerFinishExtreme_v1/finish_01.png	804x603	804x604	0	0	1	0	9	0.676768,0.0	0.676768,0
+Assets/Art/DualBladeFinishExtreme_v1/finish_01.png	788x614	788x616	0	0	2	0	9	0.8654033,0.0	0.8654033,0
+Assets/Art/MikoPoses_v1/place/place_p1_01.png	996x485	996x488	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/worm/piece_tail.png	964x501	964x504	0	0	2	1	0		
+Assets/Art/BurrowWormRun/burrowworm_run_0.png	608x794	608x796	0	0	2	0	9	0.5852284,0.0	0.5852284,0
+Assets/Art/Enemy/BurrowWorm.png	608x794	608x796	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/LancerLand_v1/land_00.png	1190x405	1192x408	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/PlayerStart_v1/start_00.png	638x755	640x756	1	1	1	0	9	0.3805535,0.0	0.38092677,0
+Assets/Art/NobleLadyDiveLand_v1/diveland_01.png	724x665	724x668	0	0	3	0	9	0.45885712,0.012030075	0.45885712,0.0119760477
+Assets/Art/NobleLadyDiveLand_v1/diveland_00.png	724x665	724x668	0	0	3	0	9	0.3726713,0.018045112	0.3726713,0.0179640711
+Assets/Art/NobleLadyPlunge_v1/plunge_00.png	724x665	724x668	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NobleLadyPlunge_v1/plunge_02.png	724x665	724x668	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NobleLadyPlunge_v1/plunge_01.png	724x665	724x668	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NobleLadyDive_v1/dive_00.png	724x665	724x668	0	0	3	0	9	0.66389084,0.058646616	0.66389084,0.058383233
+Assets/Art/PlayerFinishShort_v1/finish_01.png	629x765	632x768	1	2	3	0	9	0.39837053,0.0	0.398061809,0
+Assets/Art/WildBoss/griffin_idle.png	794x606	796x608	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/PlayerFinishLong_v1/finish_00.png	719x663	720x664	0	1	1	0	9	0.42178378,0.0	0.421197969,0
+Assets/Art/CaveHopperRun/cavehopper_run_1.png	680x701	680x704	0	0	3	0	9	0.48996937,0.0	0.48996937,0
+Assets/Art/MikoHurt_v1/hurt_01.png	786x606	788x608	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/rider_idle.png	719x662	720x664	0	1	2	0	9	0.5,0.0	0.499305556,0
+Assets/Art/MageFinishExtreme_v1/finish_00.png	848x559	848x560	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/GunslingerFinishExtreme_v1/finish_01.png	682x695	684x696	1	1	1	0	9	0.58704704,0.0	0.586792516,0
+Assets/Art/RunnerRun/runner_run_2.png	654x724	656x724	1	1	0	0	9	0.5449953,0.25552487	0.544858119,0.25552487
+Assets/Art/RunnerRun/runner_run_3.png	654x724	656x724	1	1	0	0	9	0.49085933,0.2596685	0.490887198,0.2596685
+Assets/Art/RunnerRun/runner_run_0.png	654x724	656x724	1	1	0	0	9	0.55406994,0.2762431	0.553905093,0.2762431
+Assets/Art/RunnerRun/runner_run_1.png	654x724	656x724	1	1	0	0	9	0.58899647,0.2596685	0.588725139,0.2596685
+Assets/Resources/BossAnim/serpent/attackB_00.png	1700x278	1700x280	0	0	2	0	7		
+Assets/Art/ArcherRun_v1/run_01.png	883x535	884x536	0	1	1	0	9	0.5,0.0	0.499434389,0
+Assets/Art/GunslingerUpShot_v1/upshot_01.png	608x773	608x776	0	0	3	0	9	0.3139417,0.0090556275	0.3139417,0.00902061863
+Assets/Art/VampireFinishMedium_v1/finish_01.png	648x725	648x728	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBatRun/cavebat_run_1.png	988x475	988x476	0	0	1	0	0		
+Assets/Art/CaveBatRun/cavebat_run_3.png	988x475	988x476	0	0	1	0	0		
+Assets/Art/Enemy/CaveBat.png	988x475	988x476	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/LancerFinishMedium_v1/finish_01.png	676x694	676x696	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/NobleLadyLand_v1/land_00.png	647x724	648x724	0	1	0	0	9	0.6433933,0.07320442	0.642400409,0.07320442
+Assets/Art/ArcherFinishMedium_v1/finish_00.png	782x598	784x600	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyBoss/skygolem_windup.png	663x704	664x704	0	1	0	0	9	0.5,0.0	0.499246988,0
+Assets/Art/VampireStart_v1/start_03.png	962x485	964x488	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_youngest/windup_01.png	678x687	680x688	1	1	1	0	7		
+Assets/Art/FighterPoses_v1/backstep/backstep_p0_00.png	1002x464	1004x464	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterHurt_v1/hurt_01.png	800x581	800x584	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterFinishShort_v1/finish_00.png	660x702	660x704	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoLand_v1/land_00.png	856x541	856x544	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinStart_v1/start_02.png	864x534	864x536	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyBoss/skygolem_attack.png	780x591	780x592	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherRun_v1/run_00.png	871x529	872x532	0	1	3	0	9	0.5,0.0	0.499426606,0
+Assets/Art/DragonkinStart_v1/start_03.png	1086x423	1088x424	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/NobleLadyFinishExtreme_v1/finish_01.png	882x520	884x520	1	1	0	0	9	0.6479865,0.0	0.647651689,0
+Assets/Art/VampireHurt_v1/hurt_01.png	778x587	780x588	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyBoss/titan_attack.png	728x627	728x628	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_youngest/windup_00.png	660x691	660x692	0	0	1	0	7		
+Assets/Art/NinjaPoses_v1/dashslash/dashslash_01.png	968x471	968x472	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterPoses_v1/divekick/divekick_p1_01.png	1094x416	1096x416	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_youngest/defeat_01.png	696x653	696x656	0	0	3	0	7		
+Assets/Art/VampireFinishExtreme_v1/finish_01.png	812x559	812x560	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherPoses_v1/draw/draw_p0_00.png	666x681	668x684	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/VampirePoses_v1/claw1/claw1_p0_00.png	822x551	824x552	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherRun_v1/run_03.png	802x564	804x564	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherRun_v1/run_05.png	836x539	836x540	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/centipede/hurt_00.png	960x469	960x472	0	0	3	0	7		
+Assets/Art/DualBladeFinishMedium_v1/finish_01.png	547x823	548x824	0	1	1	0	9	0.6785101,0.0	0.677271943,0
+Assets/Art/MikoPoses_v1/place/place_p1_00.png	926x486	928x488	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherFinishExtreme_v1/finish_01.png	1044x431	1044x432	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/LancerDive_v1/dive_00.png	718x626	720x628	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/centipede_windup.png	849x529	852x532	1	2	3	0	9	0.5,0.0	0.499413146,0
+Assets/Art/ArcherFinishShort_v1/finish_00.png	702x639	704x640	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/worm/defeat_02.png	1300x345	1300x348	0	0	3	0	7		
+Assets/Art/MikoHurt_v1/hurt_00.png	694x646	696x648	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/NobleLadyAir_v1/air_00.png	724x619	724x620	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/NobleLadyAir_v1/air_01.png	724x619	724x620	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/NobleLadyAir_v1/air_02.png	724x619	724x620	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/MageJump_v1/jump_00.png	668x669	668x672	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/MageLand_v1/land_00.png	668x669	668x672	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherPoses_v1/lowshot/lowshot_p0_02.png	830x538	832x540	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/GunslingerDownAttack_v1/downattack_02.png	649x685	652x688	1	2	3	0	9	0.0936613,0.03357664	0.0947640854,0.0334302302
+Assets/Art/GunslingerUpShot_v1/upshot_02.png	640x694	640x696	0	0	2	0	9	0.41899484,0.0	0.41899484,0
+Assets/Art/VampirePoses_v1/claw2/claw2_p0_00.png	722x615	724x616	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/MageHurt_v1/hurt_00.png	768x578	768x580	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/LancerHurt_v1/hurt_01.png	810x548	812x548	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/scorpion/defeat_01.png	1000x443	1000x444	0	0	1	0	7		
+Assets/Art/FighterPoses_v1/kick/kick_p1_01.png	724x611	724x612	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/DualBladeStart_v1/start_00.png	575x769	576x772	0	1	3	0	9	0.6659931,0.0	0.664836862,0
+Assets/Art/LancerJumpRise_v1/rise_00.png	796x553	796x556	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinPoses_v1/glide/glide_p0_02.png	922x477	924x480	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/wolf_attack.png	974x451	976x452	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_youngest/defeat_02.png	1188x369	1188x372	0	0	3	0	7		
+Assets/Art/FighterPoses_v1/counter/counter_p0_00.png	722x607	724x608	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherFinishLong_v1/finish_01.png	1092x401	1092x404	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/centipede/windupB_00.png	960x455	960x456	0	0	1	0	7		
+Assets/Art/ArcherJumpFall_v1/fall_00.png	768x566	768x568	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterPoses_v1/backstep/backstep_p1_00.png	696x621	696x624	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/centipede/rise_00.png	960x450	960x452	0	0	2	0	7		
+Assets/Resources/BossAnim/reaper_second/breakloop_01.png	808x533	808x536	0	0	3	0	7		
+Assets/Resources/BossAnim/reaper_second/break_01.png	808x533	808x536	0	0	3	0	7		
+Assets/Art/SkyBoss/guardian_windup.png	609x707	612x708	1	2	1	0	9	0.5,0.0	0.499183007,0
+Assets/Art/VampirePoses_v1/dive/dive_p1_01.png	1056x407	1056x408	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoFinishShort_v1/finish_00.png	664x645	664x648	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaJumpFall_v1/fall_00.png	737x581	740x584	1	2	3	0	9	0.5,0.0	0.499324324,0
+Assets/Art/DragonkinFinishExtreme_v1/finish_00.png	854x499	856x500	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoPoses_v1/throw/throw_p0_00.png	682x624	684x624	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterHurt_v1/hurt_00.png	734x579	736x580	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterPoses_v1/backstep/backstep_p1_01.png	1036x410	1036x412	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/centipede/move_00.png	960x442	960x444	0	0	2	0	7		
+Assets/Resources/BossAnim/reaper_youngest/hurt_01.png	636x666	636x668	0	0	2	0	7		
+Assets/Resources/BossAnim/centipede/defeat_01.png	1500x282	1500x284	0	0	2	0	7		
+Assets/Art/NinjaFinishMedium_v1/finish_01.png	774x546	776x548	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterFinishShort_v1/finish_01.png	626x675	628x676	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoFinishMedium_v1/finish_00.png	654x644	656x644	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/scorpion/breakloop_00.png	1000x421	1000x424	0	0	3	0	7		
+Assets/Resources/BossAnim/scorpion/break_01.png	1000x421	1000x424	0	0	3	0	7		
+Assets/Resources/BossAnim/reaper_second/breakloop_00.png	808x521	808x524	0	0	3	0	7		
+Assets/Art/VampireFinishMedium_v1/finish_00.png	580x725	580x728	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/centipede/move_01.png	960x438	960x440	0	0	2	0	7		
+Assets/Art/VampireLand_v1/land_00.png	926x454	928x456	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyBoss/jellyfish_windup.png	743x565	744x568	0	1	3	0	9	0.5,0.0	0.499327957,0
+Assets/Art/ArcherHurt_v1/hurt_02.png	770x545	772x548	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/centipede/move_03.png	960x437	960x440	0	0	3	0	7		
+Assets/Art/NinjaStart_v1/start_01.png	612x685	612x688	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/scorpion/breakloop_01.png	1000x419	1000x420	0	0	1	0	7		
+Assets/Art/DualBladeFinishExtreme_v1/finish_00.png	619x676	620x676	0	1	0	0	9	0.46344146,0.0	0.462693974,0
+Assets/Art/MagePoses_v1/castUp/castUp_p0_01.png	528x791	528x792	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/wolf_idle.png	830x503	832x504	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/Reapers/Second/move_01.png	608x686	608x688	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/Reapers/Second/move_00.png	608x686	608x688	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/Reapers/Second/move_03.png	608x686	608x688	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/Reapers/Second/move_02.png	608x686	608x688	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaStart_v1/start_02.png	896x465	896x468	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaJumpRise_v1/rise_00.png	717x581	720x584	1	2	3	0	9	0.5,0.0	0.499305556,0
+Assets/Art/Reapers/Eldest/move_01.png	624x667	624x668	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/Reapers/Eldest/move_00.png	624x667	624x668	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/Reapers/Eldest/move_02.png	624x667	624x668	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/Reapers/Eldest/move_03.png	624x667	624x668	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherFinishShort_v1/finish_01.png	620x671	620x672	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherStart_v1/start_03.png	810x512	812x512	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/EnemyAttack/cave_hopper_attack.png	779x532	780x532	0	1	0	0	7		
+Assets/Art/ArcherPoses_v1/lowshot/lowshot_p0_00.png	812x507	812x508	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoStart_v1/start_00.png	598x688	600x688	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoPoses_v1/place/place_p0_00.png	670x612	672x612	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaLand_v1/land_00.png	856x479	856x480	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/MagePoses_v1/castDown/castDown_p0_02.png	690x594	692x596	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyBoss/phoenix_windup.png	600x683	600x684	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterStart_v1/start_01.png	582x704	584x704	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterPoses_v1/kick/kick_p0_00.png	650x630	652x632	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/MagePoses_v1/cast/cast_p1_01.png	650x628	652x628	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/goblin_rider/defeat_02.png	1300x314	1300x316	0	0	2	0	7		
+Assets/Art/PlayerFinishMedium_v1/finish_01.png	549x743	552x744	1	2	1	0	9	0.70082855,0.0	0.698831293,0
+Assets/Art/FighterJumpFall_v1/fall_00.png	651x625	652x628	0	1	3	0	9	0.5,0.0	0.499233129,0
+Assets/Resources/BossAnim/wolf/move_00.png	994x409	996x412	1	1	3	0	7		
+Assets/Art/FighterPoses_v1/counter/counter_p1_01.png	666x610	668x612	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherRun_v1/run_06.png	725x558	728x560	1	2	2	0	9	0.5,0.0	0.499313187,0
+Assets/Art/CaveBoss/batboss_attack.png	535x756	536x756	0	1	0	0	9	0.5,0.0	0.499067164,0
+Assets/Art/MageDeath_v1/death_00.png	598x672	600x672	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyBoss/titan_windup.png	578x694	580x696	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/ShooterRun/shooter_run_2.png	554x724	556x724	1	1	0	0	9	0.5153702,0.18646409	0.515314912,0.18646409
+Assets/Art/ShooterRun/shooter_run_0.png	554x724	556x724	1	1	0	0	9	0.5562157,0.19475138	0.556013485,0.19475138
+Assets/Art/ShooterRun/shooter_run_3.png	554x724	556x724	1	1	0	0	9	0.48890692,0.2058011	0.488946823,0.2058011
+Assets/Art/ShooterRun/shooter_run_1.png	554x724	556x724	1	1	0	0	9	0.56317043,0.18922652	0.562943198,0.18922652
+Assets/Art/IrregularRun/irregular_run_0.png	554x724	556x724	1	1	0	0	9	0.54783624,0.32596686	0.547664167,0.32596686
+Assets/Art/IrregularRun/irregular_run_1.png	554x724	556x724	1	1	0	0	9	0.5305905,0.32596686	0.530480462,0.32596686
+Assets/Art/IrregularRun/irregular_run_2.png	554x724	556x724	1	1	0	0	9	0.50282395,0.35359117	0.502813792,0.35359117
+Assets/Art/IrregularRun/irregular_run_3.png	554x724	556x724	1	1	0	0	9	0.49237865,0.31906077	0.492406065,0.31906077
+Assets/Art/HeavyRun/heavy_run_3.png	554x724	556x724	1	1	0	0	9	0.47960088,0.2776243	0.479674258,0.2776243
+Assets/Art/GoblinRun/goblin_run_0.png	554x724	556x724	1	1	0	0	9	0.53863984,0.22237569	0.538500848,0.22237569
+Assets/Art/GoblinRun/goblin_run_1.png	554x724	556x724	1	1	0	0	9	0.52573735,0.21823205	0.52564477,0.21823205
+Assets/Art/GoblinRun/goblin_run_3.png	554x724	556x724	1	1	0	0	9	0.517255,0.21961325	0.517192932,0.21961325
+Assets/Art/HeavyRun/heavy_run_1.png	554x724	556x724	1	1	0	0	9	0.47922966,0.28038675	0.479304373,0.28038675
+Assets/Art/HeavyRun/heavy_run_2.png	554x724	556x724	1	1	0	0	9	0.47874373,0.28314918	0.478820191,0.28314918
+Assets/Art/GoblinRun/goblin_run_2.png	554x724	556x724	1	1	0	0	9	0.530282,0.23066299	0.530173072,0.23066299
+Assets/Art/HeavyRun/heavy_run_0.png	554x724	556x724	1	1	0	0	9	0.48520932,0.28314918	0.485262524,0.28314918
+Assets/Art/CaveAntRun/caveant_run_2.png	863x464	864x464	0	1	0	0	9	0.41937736,0.01724138	0.41889197,0.01724138
+Assets/Art/GunslingerDownAttack_v1/downattack_01.png	610x656	612x656	1	1	0	0	9	0.029656492,0.0	0.0311935623,0
+Assets/Art/NinjaHurt_v1/hurt_02.png	946x423	948x424	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/GunslingerDownAttack_v1/downattack_00.png	606x657	608x660	1	1	3	0	9	0.029673116,0.0	0.0312202439,0
+Assets/Art/DragonkinHurt_v1/hurt_00.png	702x567	704x568	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/serpent/defeat_02.png	1700x234	1700x236	0	0	2	0	7		
+Assets/Art/FighterPoses_v1/uppercut/uppercut_p0_00.png	912x435	912x436	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/centipede/windup_01.png	960x413	960x416	0	0	3	0	7		
+Assets/Art/SkyBoss/skygolem_idle.png	624x633	624x636	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoFinishLong_v1/finish_00.png	730x541	732x544	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/SoldierAntRun/soldierant_run_1.png	783x504	784x504	0	1	0	0	9	0.4605324,0.0	0.459944986,0
+Assets/Art/FighterPoses_v1/heavy/heavy_p1_01.png	772x511	772x512	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/wolf/move_05.png	952x414	952x416	0	0	2	0	7		
+Assets/Art/FighterJumpRise_v1/rise_00.png	622x633	624x636	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoFinishShort_v1/finish_01.png	560x703	560x704	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_youngest/rise_01.png	584x673	584x676	0	0	3	0	7		
+Assets/Art/MageFinishExtreme_v1/finish_01.png	1070x366	1072x368	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterPoses_v1/divekick/divekick_p1_00.png	602x650	604x652	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherFinishMedium_v1/finish_01.png	630x621	632x624	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherStart_v1/start_01.png	596x653	596x656	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/LancerDive_v1/dive_01.png	502x774	504x776	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyEnemy/sky_hunter/move/move_03.png	830x468	832x468	1	1	0	0	9	0.66385543,0.042735044	0.663461547,0.042735044
+Assets/Art/SkyEnemy/sky_hunter/move/move_01.png	830x468	832x468	1	1	0	0	9	0.66385543,0.042735044	0.663461547,0.042735044
+Assets/Resources/BossAnim/scorpion/attackC_00.png	1240x313	1240x316	0	0	3	0	7		
+Assets/Resources/BossAnim/wolf/defeat_00.png	766x506	768x508	1	1	2	0	7		
+Assets/Art/MageStart_v1/start_02.png	586x661	588x664	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/VampireHurt_v1/hurt_00.png	626x618	628x620	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveAntRun/caveant_run_0.png	819x470	820x472	0	1	2	0	9	0.42661923,0.05319149	0.426098963,0.0529661023
+Assets/Art/LancerHurt_v1/hurt_02.png	1046x368	1048x368	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/SoldierAntRun/soldierant_run_0.png	763x504	764x504	0	1	0	0	9	0.45961097,0.0	0.459009385,0
+Assets/Art/Enemy/SoldierAnt.png	763x504	764x504	0	1	0	0	9	0.5,0.0	0.49934555,0
+Assets/Art/DragonkinStart_v1/start_01.png	572x670	572x672	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyBoss/titan_idle.png	568x673	568x676	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_youngest/recover_00.png	646x591	648x592	1	1	1	0	7		
+Assets/Art/ArcherFinishExtreme_v1/finish_00.png	714x533	716x536	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/centipede/attack_01.png	960x394	960x396	0	0	2	0	7		
+Assets/Resources/BossAnim/centipede/attack_00.png	960x394	960x396	0	0	2	0	7		
+Assets/Resources/BossAnim/reaper_youngest/attack_01.png	662x571	664x572	1	1	1	0	7		
+Assets/Art/LancerThrust_v1/thrust_01.png	918x411	920x412	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinHurt_v1/hurt_01.png	682x553	684x556	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaStart_v1/start_00.png	542x694	544x696	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/MagePoses_v1/castDown/castDown_p0_00.png	568x662	568x664	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/NobleLadyAttack_v1/attack_03.png	519x724	520x724	0	1	0	0	9	0.6919355,0.1422652	0.690604855,0.1422652
+Assets/Art/ArcherStart_v1/start_02.png	530x705	532x708	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/WildBoss/wolf_windup.png	736x507	736x508	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/CaveBoss/centipede_idle.png	780x475	780x476	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/wolf/move_01.png	892x415	892x416	0	0	1	0	7		
+Assets/Art/MikoStart_v1/start_02.png	534x692	536x692	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/wolf/windup_00.png	894x411	896x412	1	1	1	0	7		
+Assets/Art/LancerStart_v1/start_02.png	778x470	780x472	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/VampireStart_v1/start_02.png	520x702	520x704	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/wolf/move_04.png	888x411	888x412	0	0	1	0	7		
+Assets/Art/SkyBoss/fenrir_idle.png	839x433	840x436	0	1	3	0	9	0.5,0.0023094688	0.499404762,0.00229357796
+Assets/Art/SkyBoss/fenrir_attack.png	705x515	708x516	1	2	1	0	9	0.5,0.0	0.499293785,0
+Assets/Resources/BossAnim/reaper_youngest/attackB_01.png	614x591	616x592	1	1	1	0	7		
+Assets/Art/CaveBoss/drake_windup.png	695x522	696x524	0	1	2	0	9	0.5,0.0	0.499281609,0
+Assets/Art/LancerStart_v1/start_01.png	514x705	516x708	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/MagePoses_v1/cast/cast_p0_00.png	568x637	568x640	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_youngest/hurt_00.png	600x602	600x604	0	0	2	0	7		
+Assets/Art/LancerFinishShort_v1/finish_01.png	636x565	636x568	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaFinishLong_v1/finish_00.png	714x500	716x500	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/MageStart_v1/start_03.png	556x642	556x644	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/LancerHurt_v1/hurt_00.png	760x469	760x472	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyBoss/skyserpent_windup.png	804x443	804x444	0	0	1	0	9	0.5,0.0022573364	0.5,0.00225225231
+Assets/Art/MikoFinishMedium_v1/finish_01.png	554x640	556x640	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/centipede/breakloop_00.png	960x369	960x372	0	0	3	0	7		
+Assets/Resources/BossAnim/centipede/break_00.png	960x369	960x372	0	0	3	0	7		
+Assets/Resources/BossAnim/wolf/windup_02.png	860x411	860x412	0	0	1	0	7		
+Assets/Art/CaveHopperRun/cavehopper_run_0.png	711x497	712x500	0	1	3	0	9	0.50158966,0.0	0.50088518,0
+Assets/Art/Enemy/CaveHopper.png	711x497	712x500	0	1	3	0	9	0.5,0.0	0.499297753,0
+Assets/Resources/BossAnim/reaper_youngest/rise_00.png	582x607	584x608	1	1	1	0	7		
+Assets/Art/LancerBack_v1/back_00.png	710x494	712x496	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/Effects/SlashUpBlueFrames/slashup_00.png	483x722	484x724	0	1	1	1	0		
+Assets/Art/Effects/SlashUpBlueFrames/slashup_04.png	483x722	484x724	0	1	1	1	0		
+Assets/Art/Effects/SlashUpBlueFrames/slashup_01.png	483x722	484x724	0	1	1	1	0		
+Assets/Art/Effects/SlashUpBlueFrames/slashup_02.png	483x722	484x724	0	1	1	1	0		
+Assets/Art/Effects/SlashUpBlueFrames/slashup_03.png	483x722	484x724	0	1	1	1	0		
+Assets/Art/FighterPoses_v1/heavy/heavy_p0_00.png	756x461	756x464	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaPoses_v1/dashslash/dashslash_00.png	700x497	700x500	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoStart_v1/start_01.png	500x694	500x696	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/MageStart_v1/start_00.png	476x727	476x728	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/VampireStart_v1/start_01.png	494x700	496x700	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/LancerThrust_v1/thrust_00.png	822x418	824x420	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_youngest/breakloop_00.png	752x455	752x456	0	0	1	0	7		
+Assets/Art/SkyBoss/phoenix_attack.png	726x471	728x472	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/VampireStart_v1/start_00.png	488x699	488x700	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_youngest/breakloop_01.png	752x453	752x456	0	0	3	0	7		
+Assets/Resources/BossAnim/reaper_youngest/break_01.png	752x453	752x456	0	0	3	0	7		
+Assets/Art/CaveAntRun/caveant_run_1.png	733x461	736x464	1	2	3	0	9	0.43641993,0.0	0.43599974,0
+Assets/Art/CaveAntRun/caveant_run_3.png	733x461	736x464	1	2	3	0	9	0.43641993,0.0	0.43599974,0
+Assets/Art/Enemy/CaveAnt.png	733x461	736x464	1	2	3	0	9	0.5,0.0	0.499320652,0
+Assets/Art/Reapers/Youngest/idle.png	494x684	496x684	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyBoss/skyserpent_attack.png	802x421	804x424	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/PlayerAttack_v1/attack_03.png	472x715	472x716	0	0	1	0	9	0.5,0.2881119	0.5,0.287709509
+Assets/Art/NinjaHurt_v1/hurt_00.png	662x506	664x508	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyBoss/skyserpent_idle.png	811x412	812x412	0	1	0	0	9	0.5,0.0	0.499384236,0
+Assets/Art/LancerStart_v1/start_03.png	906x368	908x368	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/VampirePoses_v1/claw2/claw2_p1_00.png	624x533	624x536	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/LancerDeath_v1/death_02.png	632x526	632x528	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterFinishExtreme_v1/finish_00.png	938x353	940x356	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaFinishLong_v1/finish_01.png	852x387	852x388	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/LancerDown_v1/down_00.png	938x348	940x348	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/wolf/move_02.png	762x420	764x420	1	1	0	0	7		
+Assets/Art/PlayerAttack_v1/attack_02.png	447x715	448x716	0	1	1	0	9	0.5,0.28671327	0.498883929,0.286312832
+Assets/Art/LancerDeath_v1/death_03.png	646x494	648x496	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/NobleLadyJumpAir_v1/jumpair_00.png	439x724	440x724	0	1	0	0	9	0.4416698,0.20856354	0.440666005,0.20856354
+Assets/Art/PlayerUpAttackGround_v1/upattackground_04.png	435x724	436x724	0	1	0	0	9	0.5968869,0.10497238	0.595517893,0.10497238
+Assets/Art/PlayerUpAttackGround_v1/upattackground_02.png	435x724	436x724	0	1	0	0	9	0.5848225,0.10497238	0.583481164,0.10497238
+Assets/Art/PlayerUpAttackAir_v1/upattackair_02.png	435x724	436x724	0	1	0	0	9	0.426,0.523	0.425022936,0.523
+Assets/Art/PlayerUpAttackAir_v1/upattackair_04.png	435x724	436x724	0	1	0	0	9	0.576,0.351	0.574678899,0.351
+Assets/Art/SkyBoss/leviathan_idle.png	865x364	868x364	1	2	0	0	9	0.5,0.0	0.499423963,0
+Assets/Art/PlayerUpAttackGround_v1/upattackground_00.png	434x724	436x724	1	1	0	0	9	0.54609644,0.10497238	0.545884988,0.10497238
+Assets/Art/PlayerUpAttackGround_v1/upattackground_01.png	434x724	436x724	1	1	0	0	9	0.5618007,0.10497238	0.561517211,0.10497238
+Assets/Art/PlayerUpAttackGround_v1/upattackground_03.png	434x724	436x724	1	1	0	0	9	0.54798335,0.10497238	0.547763243,0.10497238
+Assets/Art/PlayerUpAttackAir_v1/upattackair_01.png	434x724	436x724	1	1	0	0	9	0.53,0.406	0.529862385,0.406
+Assets/Art/PlayerUpAttackAir_v1/upattackair_00.png	434x724	436x724	1	1	0	0	9	0.564,0.351	0.563706422,0.351
+Assets/Art/PlayerUpAttackAir_v1/upattackair_03.png	434x724	436x724	1	1	0	0	9	0.449,0.406	0.449233945,0.406
+Assets/Art/WastelandBirdFlap/bird_flap_1.png	434x724	436x724	1	1	0	0	0		
+Assets/Art/WastelandBirdFlap/bird_flap_3.png	434x724	436x724	1	1	0	0	0		
+Assets/Art/WastelandBirdFlap/bird_flap_2.png	434x724	436x724	1	1	0	0	0		
+Assets/Art/WastelandBirdFlap/bird_flap_0.png	434x724	436x724	1	1	0	0	0		
+Assets/Art/ArcherJump_v1/jump_00.png	638x488	640x488	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/FighterFinishExtreme_v1/finish_01.png	1404x221	1404x224	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaJump_v1/jump_00.png	532x581	532x584	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/GunslingerJumpStart_v1/gunslingerjumpstart_0.png	532x579	532x580	0	0	1	0	9	0.17282851,0.0	0.17282851,0
+Assets/Art/GunslingerDoubleJump_v1/gunslingerdoublejump_0.png	532x579	532x580	0	0	1	0	9	0.17282851,0.0	0.17282851,0
+Assets/Art/GunslingerJumpAir_v1/gunslingerjumpair_0.png	532x579	532x580	0	0	1	0	9	0.17282851,0.0	0.17282851,0
+Assets/Resources/BossAnim/wolf/ult_00.png	736x417	736x420	0	0	3	0	7		
+Assets/Art/SkyBoss/behemoth_idle.png	732x417	732x420	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_youngest/attackB_00.png	562x541	564x544	1	1	3	0	7		
+Assets/Art/MageStart_v1/start_01.png	488x618	488x620	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/GunslingerLand_v1/gunslingerland_0.png	552x545	552x548	0	0	3	0	9	0.9004055,0.0	0.9004055,0
+Assets/Art/FighterPoses_v1/sweep/sweep_p0_00.png	890x338	892x340	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/reaper_eldest/defeat_02.png	932x321	932x324	0	0	3	0	7		
+Assets/Resources/BossAnim/centipede/attackC_00.png	960x309	960x312	0	0	3	0	7		
+Assets/Resources/BossAnim/wolf/move_03.png	712x415	712x416	0	0	1	0	7		
+Assets/Art/MikoFinishExtreme_v1/finish_01.png	574x514	576x516	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/DualBladeRun_v1/run_02.png	594x495	596x496	1	1	1	0	9	0.49123633,0.014141414	0.491265738,0.0141129031
+Assets/Art/DualBladeRun_v1/run_04.png	594x495	596x496	1	1	1	0	9	0.70698166,0.0	0.706287091,0
+Assets/Art/DualBladeRun_v1/run_05.png	594x495	596x496	1	1	1	0	9	0.670962,0.014141414	0.670388302,0.0141129031
+Assets/Art/DualBladeRun_v1/run_01.png	594x495	596x496	1	1	1	0	9	0.578254,0.014141414	0.577991403,0.0141129031
+Assets/Art/DualBladeRun_v1/run_06.png	594x495	596x496	1	1	1	0	9	0.48226225,0.014141414	0.482321773,0.0141129031
+Assets/Art/DualBladeRun_v1/run_03.png	594x495	596x496	1	1	1	0	9	0.46454325,0.002020202	0.464662232,0.00201612901
+Assets/Art/DualBladeRun_v1/run_00.png	594x495	596x496	1	1	1	0	9	0.69740975,0.0	0.696747301,0
+Assets/Art/PlayerAttackLarge_v1/attacklarge_04.png	381x768	384x768	1	2	0	0	9	0.5,0.3294271	0.498697917,0.3294271
+Assets/Art/EnemyPose/GoblinRun/hit.png	700x418	700x420	0	0	2	0	7		
+Assets/Art/BonusEnemy/treasure_goblin/death.png	791x369	792x372	0	1	3	0	9	0.5,0.010840109	0.499368687,0.0107526888
+Assets/Art/BonusEnemy/card_fairy/death.png	690x423	692x424	1	1	1	0	9	0.5,0.009456265	0.5,0.00943396249
+Assets/Art/SkyBoss/behemoth_attack.png	746x391	748x392	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/PlayerAttackLarge_v1/attacklarge_03.png	379x768	380x768	0	1	0	0	9	0.5,0.3294271	0.498684211,0.3294271
+Assets/Art/MikoDeath_v1/death_02.png	680x427	680x428	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/NinjaFinishExtreme_v1/finish_00.png	756x382	756x384	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/LancerDeath_v1/death_01.png	526x546	528x548	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/VampireDeath_v1/death_01.png	676x423	676x424	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/GunslingerAttackLarge_v1/attacklarge_01.png	603x474	604x476	0	1	2	0	9	0.45480558,0.004219409	0.454052591,0.00420168039
+Assets/Art/PlayerAttackLarge_v1/attacklarge_02.png	370x768	372x768	1	1	0	0	9	0.5,0.3294271	0.5,0.3294271
+Assets/Art/NinjaFinishExtreme_v1/finish_01.png	1088x259	1088x260	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoDeath_v1/death_01.png	566x497	568x500	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/GunslingerAttack_v1/attack_01.png	581x480	584x480	1	2	0	0	9	0.46619835,0.016666668	0.465515824,0.016666668
+Assets/Art/BonusEnemy/treasure_goblin/hit.png	594x468	596x468	1	1	0	0	9	0.50084174,0.008547009	0.500838915,0.008547009
+Assets/Resources/BossAnim/wolf/defeat_01.png	920x302	920x304	0	0	2	0	7		
+Assets/Art/NinjaHurt_v1/hurt_01.png	622x446	624x448	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/GunslingerAttackSmall_v1/attacksmall_00.png	575x480	576x480	0	1	0	0	9	0.4994285,0.0	0.498561437,0
+Assets/Art/SkyBoss/fenrir_windup.png	654x421	656x424	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/JumpDust/jumpdust_03.png	640x430	640x432	0	0	1	1	0		
+Assets/Art/JumpDust/jumpdust_00.png	640x430	640x432	0	0	1	1	0		
+Assets/Art/JumpDust/jumpdust_02.png	640x430	640x432	0	0	1	1	0		
+Assets/Art/JumpDust/jumpdust_01.png	640x430	640x432	0	0	1	1	0		
+Assets/Art/AscensionSmoke/smoke_01.png	640x430	640x432	0	0	1	1	0		
+Assets/Art/AscensionSmoke/smoke_00.png	640x430	640x432	0	0	1	1	0		
+Assets/Art/AscensionSmoke/smoke_02.png	640x430	640x432	0	0	1	1	0		
+Assets/Art/AscensionSmoke/smoke_03.png	640x430	640x432	0	0	1	1	0		
+Assets/Art/MikoFinishExtreme_v1/finish_00.png	630x435	632x436	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyBoss/leviathan_windup.png	582x470	584x472	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoDeath_v1/death_00.png	648x421	648x424	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/wolf/hurt_00.png	514x530	516x532	1	1	2	0	7		
+Assets/Art/VampireDeath_v1/death_00.png	682x399	684x400	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyBoss/behemoth_windup.png	652x417	652x420	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/MagePoses_v1/castDown/castDown_p0_01.png	460x590	460x592	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/MikoDeath_v1/death_03.png	736x367	736x368	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherFinishLong_v1/finish_00.png	532x507	532x508	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/GunslingerAttack_v1/attack_02.png	539x499	540x500	0	1	1	0	9	0.3541993,0.054108217	0.353543375,0.0540000006
+Assets/Art/FighterPoses_v1/sweep/sweep_p1_00.png	726x370	728x372	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/centipede/defeat_02.png	1500x179	1500x180	0	0	1	0	7		
+Assets/Art/FighterLand_v1/land_00.png	620x433	620x436	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Art/GunslingerAttack_v1/attack_00.png	562x472	564x472	1	1	0	0	9	0.44449845,0.0	0.444695264,0
+Assets/Art/MageDeath_v1/death_01.png	684x387	684x388	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/MajinIdle/idle_23.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_14.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_01.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_06.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_19.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_10.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_15.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_12.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_00.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_20.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_05.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_16.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_04.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_22.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_08.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_18.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_09.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_13.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_07.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_02.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_11.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_17.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_21.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/MajinIdle/idle_03.png	420x630	420x632	0	0	1	1	0		
+Assets/Art/ArcherHurt_v1/hurt_00.png	450x588	452x588	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/EnemyAttack/shooter_archer_attack.png	529x500	532x500	1	2	0	0	7		
+Assets/Art/SkyBoss/leviathan_attack.png	709x373	712x376	1	2	3	0	9	0.5,0.0	0.499297753,0
+Assets/Art/FighterFinishLong_v1/finish_01.png	772x341	772x344	0	0	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/wolf/break_00.png	614x428	616x428	1	1	0	0	7		
+Assets/Art/GunslingerRun_v1/run_00.png	494x530	496x532	1	1	2	0	9	0.64748466,0.0	0.646889964,0
+Assets/Art/GunslingerAttackSmall_v1/attacksmall_02.png	535x486	536x488	0	1	2	0	9	0.7063587,0.012345679	0.705040867,0.012295082
+Assets/Art/GunslingerAttackSmall_v1/attacksmall_01.png	543x474	544x476	0	1	2	0	9	0.5000858,0.0	0.499166525,0
+Assets/Art/GunslingerRun_v1/run_07.png	485x530	488x532	1	2	2	0	9	0.5606902,0.0	0.559292514,0
+Assets/Art/GunslingerRun_v1/run_03.png	485x530	488x532	1	2	2	0	9	0.5606902,0.0	0.559292514,0
+Assets/Art/GunslingerRun_v1/run_04.png	482x530	484x532	1	1	2	0	9	0.61451125,0.0	0.614038063,0
+Assets/Art/PlayerAttack_v1/attack_04.png	356x715	356x716	0	0	1	0	9	0.5,0.2895105	0.5,0.289106156
+Assets/Art/PlayerAttack_v1/attack_01.png	356x715	356x716	0	0	1	0	9	0.5,0.28671327	0.5,0.286312832
+Assets/Art/GunslingerAttackLarge_v1/attacklarge_00.png	538x472	540x472	1	1	0	0	9	0.49051946,0.0	0.490554573,0
+Assets/Resources/BossAnim/wolf/defeat_02.png	942x268	944x268	1	1	0	0	7		
+Assets/Art/Effects/SlashArcBlueFrames/slash_02.png	483x518	484x520	0	1	1	1	0		
+Assets/Art/Effects/SlashArcBlueFrames/slash_03.png	483x518	484x520	0	1	1	1	0		
+Assets/Art/Effects/SlashArcBlueFrames/slash_01.png	483x518	484x520	0	1	1	1	0		
+Assets/Art/Effects/SlashArcBlueFrames/slash_04.png	483x518	484x520	0	1	1	1	0		
+Assets/Art/Effects/SlashArcBlueFrames/slash_00.png	483x518	484x520	0	1	1	1	0		
+Assets/Art/PlayerAttackSmall_v1/attacksmall_02.png	290x858	292x860	1	1	2	0	9	0.5,0.2983683	0.5,0.29767442
+Assets/Art/GunslingerRun_v1/run_05.png	469x530	472x532	1	2	2	0	9	0.4443681,0.0	0.443662371,0
+Assets/Art/GunslingerRun_v1/run_06.png	468x530	468x532	0	0	2	0	9	0.38259855,0.0	0.38259855,0
+Assets/Art/GunslingerRun_v1/run_02.png	464x530	464x532	0	0	2	0	9	0.36819723,0.0	0.36819723,0
+Assets/Art/MageDeath_v1/death_02.png	752x327	752x328	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/PlayerLand_v1/land_00.png	309x793	312x796	1	2	3	0	9	0.5,0.23203026	0.498397436,0.231155774
+Assets/Art/FighterJump_v1/jump_00.png	482x504	484x504	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/BonusEnemy/card_fairy/hit.png	519x468	520x468	0	1	0	0	9	0.5,0.008547009	0.499038462,0.008547009
+Assets/Art/GunslingerRun_v1/run_01.png	454x530	456x532	1	1	2	0	9	0.4628649,0.0	0.463027773,0
+Assets/Art/PlayerAttackSmall_v1/attacksmall_00.png	280x858	280x860	0	0	2	0	9	0.5,0.2983683	0.5,0.29767442
+Assets/Art/VampireDeath_v1/death_02.png	698x343	700x344	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/GunslingerAttackLarge_v1/attacklarge_02.png	495x481	496x484	0	1	3	0	9	0.3590383,0.01871102	0.358314432,0.0185950426
+Assets/Art/BonusEnemy/golden_slime/death.png	502x468	504x468	1	1	0	0	9	0.5,0.008547009	0.5,0.008547009
+Assets/Art/ArcherDeath_v1/death_00.png	474x493	476x496	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/PlayerAttackSmall_v1/attacksmall_03.png	272x858	272x860	0	0	2	0	9	0.5,0.2983683	0.5,0.29767442
+Assets/Art/BonusEnemy/card_fairy/move/move_00.png	511x454	512x456	0	1	2	0	9	0.5,0.008810572	0.499023438,0.00877192914
+Assets/Resources/Effects/Atk/rockpillar_0.png	450x512	452x512	1	1	0	0	0		
+Assets/Resources/Effects/Atk/rockpillar_2.png	450x512	452x512	1	1	0	0	0		
+Assets/Resources/Effects/Atk/rockpillar_1.png	450x512	452x512	1	1	0	0	0		
+Assets/Resources/Effects/Atk/rockpillar_3.png	450x512	452x512	1	1	0	0	0		
+Assets/Art/PlayerAttack_v1/attack_00.png	318x715	320x716	1	1	1	0	9	0.5,0.28671327	0.5,0.286312832
+Assets/Art/SkyEnemy/harpy/move/move_01.png	600x374	600x376	0	0	2	0	9	0.5258333,0.11497326	0.5258333,0.1143617
+Assets/Art/SkyEnemy/harpy/move/move_03.png	600x374	600x376	0	0	2	0	9	0.5258333,0.11497326	0.5258333,0.1143617
+Assets/Art/NobleLadyLaunch_v1/launch_00.png	625x358	628x360	1	2	2	0	9	0.7005941,0.0	0.69883967,0
+Assets/Art/GunslingerHurt_v1/hurt_00.png	454x488	456x488	1	1	0	0	9	0.6899755,0.018442623	0.689142274,0.018442623
+Assets/Art/GunslingerHurt_v1/hurt_02.png	458x468	460x468	1	1	0	0	9	0.50363415,0.021367522	0.503618349,0.021367522
+Assets/Art/GunslingerHurt_v1/hurt_01.png	441x485	444x488	1	2	3	0	9	0.3685292,0.01443299	0.36829139,0.0143442626
+Assets/Art/SkyEnemy/gargoyle/attack.png	489x434	492x436	1	2	2	0	9	0.5,0.00921659	0.49898374,0.00917431206
+Assets/Resources/BossAnim/scorpion/defeat_02.png	1000x211	1000x212	0	0	1	0	7		
+Assets/Art/SkyEnemy/harpy/telegraph.png	479x436	480x436	0	1	0	0	9	0.5,0.0091743115	0.498958333,0.0091743115
+Assets/Art/DualBladeHurt_v1/hurt_00.png	429x482	432x484	1	2	2	0	9	0.6634528,0.0	0.661160304,0
+Assets/Art/PlayerAttackSmall_v1/attacksmall_01.png	239x858	240x860	0	1	2	0	9	0.5,0.2983683	0.497916667,0.29767442
+Assets/Art/FighterDeath_v1/death_00.png	574x356	576x356	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Resources/BossAnim/wolf/break_01.png	824x245	824x248	0	0	3	0	7		
+Assets/Art/PlayerLand_v1/land_01.png	254x793	256x796	1	1	3	0	9	0.5,0.23076923	0.5,0.229899497
+Assets/Art/SkyEnemy/ancient_sentinel/death.png	568x354	568x356	0	0	2	0	9	0.5,0.011299435	0.5,0.011235955
+Assets/Art/BonusEnemy/treasure_goblin/move/move_01.png	476x422	476x424	0	0	2	0	9	0.5,0.009478673	0.5,0.00943396228
+Assets/Art/VampireDeath_v1/death_03.png	750x267	752x268	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/DualBladeHurt_v1/hurt_01.png	438x448	440x448	1	1	0	0	9	0.9014792,0.0	0.899654295,0
+Assets/Art/MageDeath_v1/death_03.png	672x290	672x292	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/PlayerAttackLarge_v1/attacklarge_00.png	253x768	256x768	1	2	0	0	9	0.5,0.3268229	0.498046875,0.3268229
+Assets/Art/SkyEnemy/gargoyle/wake.png	439x438	440x440	0	1	2	0	9	0.5,0.00913242	0.498863636,0.009090909
+Assets/Art/PlayerRun_v1/run_05.png	265x724	268x724	1	2	0	0	9	0.5,0.3218232	0.498134328,0.3218232
+Assets/Art/SkyEnemy/sky_slime/death.png	481x396	484x396	1	2	0	0	9	0.4989605,0.01010101	0.497933885,0.01010101
+Assets/Art/SkyEnemy/storm_spirit/death.png	462x409	464x412	1	1	3	0	9	0.5,0.009779952	0.5,0.00970873876
+Assets/Art/PlayerAttackSmall_v1/attacksmall_04.png	219x858	220x860	0	1	2	0	9	0.5,0.2983683	0.497727273,0.29767442
+Assets/Art/NinjaDeath_v1/death_00.png	518x362	520x364	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/PlayerRun_v1/run_03.png	254x724	256x724	1	1	0	0	9	0.5,0.35082874	0.5,0.35082874
+Assets/Art/SkyEnemy/celestial_knight/attack.png	495x370	496x372	0	1	2	0	9	0.5,0.010810811	0.498991935,0.0107526884
+Assets/Art/ArcherDeath_v1/death_01.png	542x337	544x340	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Resources/Bosses/MechDragon/fx_reticle.png	427x427	428x428	0	1	1	0	0		
+Assets/Art/BonusEnemy/mimic/move/move_01.png	516x350	516x352	0	0	2	0	9	0.5,0.011428571	0.5,0.0113636359
+Assets/Art/BonusEnemy/treasure_goblin/move/move_00.png	438x412	440x412	1	1	0	0	9	0.5,0.009708738	0.5,0.009708738
+Assets/Art/SkyEnemy/storm_spirit/hit.png	461x390	464x392	1	2	2	0	9	0.5,0.010256411	0.498922414,0.0102040824
+Assets/Art/SkyEnemy/sky_hunter/idle.png	389x456	392x456	1	2	0	0	9	0.5,0.00877193	0.49872449,0.00877193
+Assets/Art/FighterDeath_v1/death_01.png	556x319	556x320	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Resources/Effects/Atk/burst_3.png	512x346	512x348	0	0	1	1	0		
+Assets/Resources/Effects/Atk/burst_0.png	512x346	512x348	0	0	1	1	0		
+Assets/Resources/Effects/Atk/burst_2.png	512x346	512x348	0	0	1	1	0		
+Assets/Resources/Effects/Atk/burst_1.png	512x346	512x348	0	0	1	1	0		
+Assets/Art/SkyEnemy/harpy/dive.png	444x391	444x392	0	0	1	0	9	0.5,0.010230179	0.5,0.0102040816
+Assets/Art/NinjaDeath_v1/death_02.png	640x271	640x272	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/BonusEnemy/card_fairy/idle.png	372x458	372x460	0	0	2	0	9	0.5,0.008733625	0.5,0.00869565272
+Assets/Art/BonusEnemy/mimic/death.png	607x279	608x280	0	1	1	0	9	0.50082374,0.014336918	0.500000017,0.0142857147
+Assets/Art/FighterDeath_v1/death_03.png	868x194	868x196	0	0	2	0	9	0.5,0.0	0.5,0
+Assets/Art/ArcherDeath_v1/death_02.png	622x268	624x268	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyEnemy/storm_spirit/idle.png	388x419	388x420	0	0	1	0	9	0.5,0.00954654	0.5,0.00952381014
+Assets/Art/DragonkinDeath_v1/death_02.png	530x302	532x304	1	1	2	0	9	0.5,0.0	0.5,0
+Assets/Art/PlayerRun_v1/run_02.png	221x724	224x724	1	2	0	0	9	0.5,0.31906077	0.497767857,0.31906077
+Assets/Art/PlayerRun_v1/run_01.png	221x724	224x724	1	2	0	0	9	0.5,0.31767955	0.497767857,0.31767955
+Assets/Art/DragonkinDeath_v1/death_00.png	448x355	448x356	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinDeath_v1/death_01.png	570x279	572x280	1	1	1	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyEnemy/sky_slime/idle.png	475x334	476x336	0	1	2	0	9	0.5,0.011976048	0.49894958,0.011904762
+Assets/Art/BonusEnemy/treasure_goblin/idle.png	392x403	392x404	0	0	1	0	9	0.5,0.009925558	0.5,0.00990098979
+Assets/Art/BonusEnemy/mimic/hit.png	434x364	436x364	1	1	0	0	9	0.5,0.010989011	0.5,0.010989011
+Assets/Art/FighterDeath_v1/death_02.png	594x264	596x264	1	1	0	0	9	0.5,0.0	0.5,0
+Assets/Art/DragonkinDeath_v1/death_03.png	594x261	596x264	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/PlayerRun_v1/run_00.png	211x724	212x724	0	1	0	0	9	0.5,0.31906077	0.497641509,0.31906077
+Assets/Art/BonusEnemy/mimic/move/move_00.png	381x399	384x400	1	2	1	0	9	0.5,0.010025063	0.498697917,0.0100000003
+Assets/Art/SkyEnemy/gargoyle/telegraph.png	364x410	364x412	0	0	2	0	9	0.5,0.009756098	0.5,0.0097087383
+Assets/Art/GunslingerDeath_v1/death_00.png	404x369	404x372	0	0	3	0	9	0.49396244,0.059620596	0.49396244,0.0591397847
+Assets/Art/SkyEnemy/harpy/move/move_00.png	318x468	320x468	1	1	0	0	9	0.5,0.008547009	0.5,0.008547009
+Assets/Art/SkyEnemy/ancient_sentinel/hit.png	407x362	408x364	0	1	2	0	9	0.5,0.011049724	0.49877451,0.0109890112
+Assets/Art/SkyEnemy/harpy/hit.png	375x392	376x392	0	1	0	0	9	0.5,0.010204081	0.498670213,0.010204081
+Assets/Art/SkyEnemy/sky_slime/hit.png	454x323	456x324	1	1	1	0	9	0.5011013,0.012383901	0.50109647,0.0123456791
+Assets/Resources/Effects/Atk/magicpillar_0.png	285x512	288x512	1	2	0	0	0		
+Assets/Resources/Effects/Atk/magicpillar_1.png	285x512	288x512	1	2	0	0	0		
+Assets/Resources/Effects/Atk/magicpillar_2.png	285x512	288x512	1	2	0	0	0		
+Assets/Resources/Effects/Atk/magicpillar_3.png	285x512	288x512	1	2	0	0	0		
+Assets/Art/SkyEnemy/gargoyle/hit.png	358x407	360x408	1	1	1	0	9	0.5,0.00982801	0.5,0.00980392174
+Assets/Art/SkyEnemy/gargoyle/death.png	361x394	364x396	1	2	2	0	9	0.49861497,0.010152284	0.497252759,0.0101010098
+Assets/Art/SkyEnemy/celestial_knight/move/move_01.png	390x364	392x364	1	1	0	0	9	0.5,0.010989011	0.5,0.010989011
+Assets/Art/NinjaDeath_v1/death_03.png	692x203	692x204	0	0	1	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyEnemy/celestial_knight/move/move_00.png	384x362	384x364	0	0	2	0	9	0.5,0.011049724	0.5,0.0109890112
+Assets/Art/SkyEnemy/sky_hunter/recover.png	348x399	348x400	0	0	1	0	9	0.5,0.010025063	0.5,0.0100000003
+Assets/Art/SkyEnemy/gargoyle/idle.png	350x393	352x396	1	1	3	0	9	0.5,0.010178117	0.5,0.0101010101
+Assets/Art/BonusEnemy/mimic/idle.png	381x359	384x360	1	2	1	0	9	0.5,0.011142061	0.498697917,0.0111111108
+Assets/Art/SkyEnemy/ancient_sentinel/move/move_01.png	323x422	324x424	0	1	2	0	9	0.5,0.009478673	0.49845679,0.00943396228
+Assets/Art/SkyEnemy/celestial_knight/idle.png	369x368	372x368	1	2	0	0	9	0.501355,0.013586956	0.499999987,0.013586956
+Assets/Resources/Effects/Atk/beam_0.png	768x174	768x176	0	0	1	1	0		
+Assets/Resources/Effects/Atk/beam_3.png	768x174	768x176	0	0	1	1	0		
+Assets/Resources/Effects/Atk/beam_1.png	768x174	768x176	0	0	1	1	0		
+Assets/Resources/Effects/Atk/beam_2.png	768x174	768x176	0	0	1	1	0		
+Assets/Art/SkyEnemy/ancient_sentinel/telegraph.png	281x468	284x468	1	2	0	0	9	0.5,0.008547009	0.498239437,0.008547009
+Assets/Art/SkyEnemy/sky_hunter/move/move_02.png	403x326	404x328	0	1	2	0	9	0.5,0.012269938	0.498762376,0.0121951213
+Assets/Art/PlayerJump_v1/jump_04.png	175x749	176x752	0	1	3	0	9	0.5,0.26034713	0.497159091,0.259308511
+Assets/Art/PlayerJump_v1/jump_03.png	172x749	172x752	0	0	3	0	9	0.5,0.36448598	0.5,0.363031914
+Assets/Art/GunslingerDeath_v1/death_01.png	425x302	428x304	1	2	2	0	9	0.86102355,0.046357617	0.857324787,0.0460526327
+Assets/Art/GunslingerDeath_v1/death_02.png	449x285	452x288	1	2	3	0	9	0.88017344,0.07017544	0.87654397,0.0694444458
+Assets/Art/SkyEnemy/storm_spirit/recover.png	318x397	320x400	1	1	3	0	9	0.5,0.010075566	0.5,0.00999999925
+Assets/Art/PlayerJump_v1/jump_00.png	168x749	168x752	0	0	3	0	9	0.5,0.39252338	0.5,0.390957462
+Assets/Art/SkyEnemy/sky_hunter/hit.png	350x354	352x356	1	1	2	0	9	0.5,0.011299435	0.5,0.011235955
+Assets/Art/BonusEnemy/golden_slime/hit.png	403x307	404x308	0	1	1	0	9	0.5,0.0130293155	0.498762376,0.0129870125
+Assets/Resources/Bosses/MechDragon/fx_bomb.png	485x255	488x256	1	2	1	0	0		
+Assets/Art/BonusEnemy/golden_slime/idle.png	321x384	324x384	1	2	0	0	9	0.5,0.010416667	0.49845679,0.010416667
+Assets/Art/SkyEnemy/celestial_knight/hit.png	410x299	412x300	1	1	1	0	9	0.5,0.013377926	0.5,0.0133333329
+Assets/Art/PlayerJump_v1/jump_01.png	163x749	164x752	0	1	3	0	9	0.5,0.4245661	0.49695122,0.422872352
+Assets/Art/DualBladeAttackSmall_v1/attacksmall_02.png	393x306	396x308	1	2	2	0	9	0.5742554,0.0	0.572430233,0
+Assets/Art/PlayerJump_v1/jump_02.png	160x749	160x752	0	0	3	0	9	0.5,0.44993323	0.5,0.448138284
+Assets/Art/SkyEnemy/gargoyle/recover.png	316x379	316x380	0	0	1	0	9	0.5,0.01055409	0.5,0.0105263161
+Assets/Art/DualBladeAttackMid_v1/attackmid_02.png	386x304	388x304	1	1	0	0	9	0.5733054,0.0	0.572927537,0
+Assets/Art/SkyEnemy/harpy/move/move_02.png	350x334	352x336	1	1	2	0	9	0.5,0.011976048	0.5,0.011904762
+Assets/Art/SkyEnemy/harpy/death.png	300x387	300x388	0	0	1	0	9	0.5,0.010335918	0.5,0.010309279
+Assets/Art/SkyEnemy/harpy/recover.png	334x347	336x348	1	1	1	0	9	0.5,0.011527377	0.5,0.0114942524
+Assets/Art/ArcherDeath_v1/death_03.png	582x197	584x200	1	1	3	0	9	0.5,0.0	0.5,0
+Assets/Art/SkyEnemy/sky_hunter/death.png	341x326	344x328	1	2	2	0	9	0.5,0.012269938	0.498546512,0.0121951213
+Assets/Art/SkyEnemy/ancient_sentinel/move/move_00.png	262x422	264x424	1	1	2	0	9	0.5,0.009478673	0.5,0.00943396228
+Assets/Art/SkyEnemy/ancient_sentinel/idle.png	262x422	264x424	1	1	2	0	9	0.5,0.009478673	0.5,0.00943396228
+Assets/Art/DualBladeDeath_v1/death_01.png	366x302	368x304	1	1	2	0	9	0.7171689,0.0	0.715988634,0
+Assets/Art/DualBladeDeath_v1/death_02.png	432x255	432x256	0	0	1	0	9	0.7208676,0.0	0.7208676,0
+Assets/Art/SkyEnemy/sky_hound/move/move_01.png	409x265	412x268	1	2	3	0	9	0.5,0.01509434	0.498786408,0.0149253735
+Assets/Art/DualBladeAttackLarge_v1/attacklarge_01.png	330x321	332x324	1	1	3	0	9	0.617594,0.049844235	0.616885602,0.0493827143
+Assets/Art/SkyEnemy/sky_hunter/dive.png	432x242	432x244	0	0	2	0	9	0.4976852,0.016528925	0.4976852,0.016393442
+Assets/Art/SkyEnemy/sky_hound/attack.png	432x239	432x240	0	0	1	0	9	0.5,0.016736401	0.5,0.016666666
+Assets/Art/GunslingerDeath_v1/death_03.png	550x187	552x188	1	1	1	0	9	0.74088687,0.069518715	0.740014091,0.0691489346
+Assets/Art/DualBladeDoubleJump_v1/doublejump_00.png	325x314	328x316	1	2	2	0	9	0.18778461,0.015923567	0.189115848,0.0158227849
+Assets/Art/SkyEnemy/harpy/idle.png	314x322	316x324	1	1	2	0	9	0.5,0.0124223605	0.5,0.0123456793
+Assets/Art/SkyEnemy/sky_hound/hit.png	340x286	340x288	0	0	2	0	9	0.5,0.013986014	0.5,0.0138888889
+Assets/Art/DualBladeDeath_v1/death_03.png	538x179	540x180	1	1	1	0	9	0.5726465,0.0	0.572377439,0
+Assets/Art/NobleLadyRun_v1/run_01.png	295x326	296x328	0	1	2	0	9	0.55180764,-0.018404908	0.549943425,-0.018292683
+Assets/Art/DualBladeAttackMid_v1/attackmid_03.png	314x306	316x308	1	1	2	0	9	0.6625202,0.0	0.661491591,0
+Assets/Art/SkyEnemy/sky_hound/move/move_00.png	406x235	408x236	1	1	1	0	9	0.5,0.017021276	0.5,0.0169491519
+Assets/Art/SkyEnemy/sky_hound/idle.png	363x262	364x264	0	1	2	0	9	0.5,0.015267176	0.498626374,0.0151515156
+Assets/Art/NobleLadyRun_v1/run_02.png	275x343	276x344	0	1	1	0	9	0.49204546,0.002915452	0.490262687,0.00290697685
+Assets/Art/DualBladeAttackLarge_v1/attacklarge_02.png	302x310	304x312	1	1	2	0	9	0.6230607,0.0	0.62225109,0
+Assets/Art/DualBladeJumpStart_v1/jumpstart_00.png	297x315	300x316	1	2	1	0	9	0.9165459,0.012698413	0.910713774,0.0126582281
+Assets/Art/DualBladeAttackMid_v1/attackmid_01.png	305x305	308x308	1	2	3	0	9	0.85703313,0.0	0.851932158,0
+Assets/Art/DualBladeAttackSmall_v1/attacksmall_01.png	303x304	304x304	0	1	0	0	9	0.6737516,0.0	0.671535312,0
+Assets/Art/BonusEnemy/mimic/wake.png	339x270	340x272	0	1	2	0	9	0.5,0.014814815	0.498529412,0.0147058825
+Assets/Art/SkyEnemy/sky_hound/recover.png	360x254	360x256	0	0	2	0	9	0.5,0.015748031	0.5,0.0156249995
+Assets/Art/DualBladeAttackMid_v1/attackmid_00.png	297x306	300x308	1	2	2	0	9	0.6595526,0.0	0.656290407,0
+Assets/Art/NobleLadyRun_v1/run_04.png	274x331	276x332	1	1	1	0	9	0.54404706,-0.003021148	0.543727878,-0.00301204816
+Assets/Art/DualBladeAttackSmall_v1/attacksmall_03.png	301x301	304x304	1	2	3	0	9	0.63253766,0.0	0.629584986,0
+Assets/Art/DualBladeLand_v1/land_00.png	284x314	284x316	0	0	2	0	9	0.63562286,0.012738854	0.63562286,0.0126582283
+Assets/Art/DualBladeDownAttackLand_v1/downattackland_00.png	283x314	284x316	0	1	2	0	9	0.5491313,0.012738854	0.547197739,0.0126582283
+Assets/Art/BonusEnemy/mimic/dormant.png	345x257	348x260	1	2	3	0	9	0.5,0.015564202	0.498563218,0.0153846151
+Assets/Art/SkyEnemy/sky_hunter/telegraph.png	323x264	324x264	0	1	0	0	9	0.5,0.015151516	0.49845679,0.015151516
+Assets/Art/SkyEnemy/celestial_knight/death.png	422x200	424x200	1	1	0	0	9	0.49881518,0.02	0.498820769,0.02
+Assets/Art/NobleLadyRun_v1/run_00.png	290x290	292x292	1	1	2	0	9	0.44383493,-0.14482759	0.444219622,-0.14383562
+Assets/Art/NobleLadyRun_v1/run_05.png	295x284	296x284	0	1	0	0	9	0.40407205,-0.16901408	0.402706942,-0.16901408
+Assets/Art/DualBladeJumpAir_v1/jumpair_00.png	261x304	264x304	1	2	0	0	9	0.15552072,0.013157895	0.157541318,0.013157895
+Assets/Art/NobleLadyRun_v1/run_03.png	275x282	276x284	0	1	2	0	9	0.70103,-0.17730497	0.698490036,-0.176056343
+Assets/Art/DualBladeAttackLarge_v1/attacklarge_03.png	286x260	288x260	1	1	0	0	9	0.68308306,0.0	0.68181165,0
+Assets/Art/NobleLadyHurt_v1/hurt_00.png	261x281	264x284	1	2	3	0	9	0.6762244,0.06049822	0.672327911,0.0598591543
+Assets/Art/NobleLadyHurt_v1/hurt_01.png	264x277	264x280	0	0	3	0	9	0.76931715,0.07581227	0.76931715,0.0749999957
+Assets/Art/NobleLadyHurt_v1/hurt_02.png	264x254	264x256	0	0	2	0	9	0.49295184,0.06692913	0.49295184,0.0664062462
+Assets/Resources/Bosses/MechDragon/fx_bullet.png	500x130	500x132	0	0	1	1	0		
+Assets/Art/DualBladeAttackLarge_v1/attacklarge_00.png	275x234	276x236	0	1	2	0	9	0.5184985,0.0	0.516619882,0
+Assets/Art/DualBladeDownAttack_v1/downattack_00.png	170x313	172x316	1	1	3	0	9	0.7546628,0.0127795525	0.751701605,0.0126582276
+Assets/Art/SkyEnemy/sky_hound/death.png	402x128	404x128	1	1	0	0	9	0.5,0.03125	0.5,0.03125
+Assets/Art/NobleLadyDeath_v1/death_00.png	218x227	220x228	1	1	1	0	9	0.55316854,0.11453745	0.55268519,0.114035093
+Assets/Art/PlayerHurt_v1/hurt_01.png	239x204	240x204	0	1	0	0	9	0.59621775,0.004901961	0.593733509,0.004901961
+Assets/Art/PlayerHurt_v1/hurt_00.png	224x209	224x212	0	0	3	0	9	0.5859933,0.0	0.5859933,0
+Assets/Art/GunslingerBullet.png	449x99	452x100	1	2	1	0	9	0.5,0.5	0.498893805,0.495
+Assets/Art/PlayerHurt_v1/hurt_02.png	224x191	224x192	0	0	1	0	9	0.4655122,0.005235602	0.4655122,0.00520833324
+Assets/Art/NobleLadyDeath_v1/death_01.png	239x166	240x168	0	1	2	0	9	0.765576,0.042168673	0.7623861,0.041666665
+Assets/Art/NobleLadyDeath_v1/death_02.png	281x139	284x140	1	2	1	0	9	0.6064106,0.107913665	0.603525981,0.107142853
+Assets/Art/NobleLadyDeath_v1/death_03.png	306x113	308x116	1	1	3	0	9	0.6934056,0.11504425	0.692149719,0.112068968
+Assets/Art/PlayerDeath_v1/death_01.png	218x127	220x128	1	1	1	0	9	0.9304967,0.007874016	0.926583094,0.00781250025
+Assets/Art/PlayerDeath_v1/death_00.png	171x154	172x156	0	1	2	0	9	0.43263274,0.051948052	0.430117433,0.0512820513
+Assets/Art/PlayerDeath_v1/death_03.png	254x83	256x84	1	1	1	0	9	0.7748949,0.0	0.772747284,0
