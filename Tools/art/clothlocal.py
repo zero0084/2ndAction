@@ -117,11 +117,27 @@ if '--mode' in a and opt(a, '--mode', '') == 'agree':
         nc_ = clothmask(N, CLOTH) & (N[..., 3] > 100)
         drop_ = (ndimage.distance_transform_edt(al < 30) > float(opt(a, '--noadd', '8'))) & ~ndimage.binary_dilation(nc_, iterations=4)
         N = N.copy(); N[..., 3][drop_] = 0
+    if '--keephsv' in a:
+        # 2026-10-26(魔法使い): 杖の宝石は布と同じ青で、エステルが杖の角度を変えると宝石が二重になった。元の宝石の近く以外の新しい宝石は使わない
+        kh_ = opt(a, '--keephsv', '')
+        N = N.copy(); N[..., 3][clothmask(N, kh_) & ~ndimage.binary_dilation(clothmask(O, kh_) & (al > 30), iterations=3)] = 0
     obody = (al > 128) & ~clothmask(O, CLOTH)
     nbody = (N[..., 3] > 128) & ~clothmask(N, CLOTH)
     both = ndimage.binary_opening(obody & nbody, iterations=1)
     P = ndimage.binary_erosion(both, iterations=int(opt(a, '--core', '1')))
     ncape = clothmask(N, CLOTH) & (N[..., 3] > 100)
+    if '--noghost' in a:
+        # 2026-10-26(魔法使い): 元の布の所にエステルの絵の脚や杖(布の色でない太い塊)がずれて描かれ、体が二重になった。
+        # 元が布・新しい絵も布でない・元の体から --noghost px 以上離れた太い塊は、近くの新しい布の色で埋める(細い刺繍の線は開いて除外)
+        oclG = clothmask(O, CLOTH) & (al > 30)
+        g_ = oclG & ~ncape & (N[..., 3] > 100) & (ndimage.distance_transform_edt(~obody) > float(opt(a, '--noghost', '4')))
+        g_ = ndimage.binary_opening(g_, iterations=3)
+        if g_.any() and ncape.any():
+            _, (iy_, ix_) = ndimage.distance_transform_edt(~ncape, return_indices=True)
+            N = N.copy(); N[g_] = N[iy_[g_], ix_[g_]]
+    if '--keepbody' in a:
+        # 2026-10-26(魔法使い): エステルが杖の角度や脚を少し変えると二重になる。元の「布の色でない不透明」(体・杖・髪)はすべて元の画素
+        P |= ndimage.binary_erosion(obody, iterations=1)
     if '--islands' in a:
         # 2026-10-25(弓使いの決めポーズ): 新しい布の刺繍(布の色でない)と元の刺繍が重なる所で元の画素が島のように残り、布に黒い斑点が出た。
         # 体の本体から離れた小さな島(--islands px 以下)は元の画素を使わない(そこは位置を合わせた新しい絵になる)
@@ -137,6 +153,21 @@ if '--mode' in a and opt(a, '--mode', '') == 'agree':
             szG = ndimage.sum(obody, lbG, range(1, nG + 1)); mainG = np.isin(lbG, [k + 1 for k, v in enumerate(szG) if v >= 0.05 * szG.max()])
             gone_ = mainG & (N[..., 3] < 30) & ~ndimage.binary_dilation(clothmask(O, CLOTH) & (al > 30), iterations=3)
             P |= gone_
+if '--mode' in a and opt(a, '--mode', '') == 'patch':
+    # 2026-10-26(吸血鬼): マントの表地が服と同じ黒で、色で消せず、エステルの絵は体が少しずれる。体は元のまま一切使わず、
+    #  ① 元の不透明のうち新しい絵の外形(少し広げた)の外 = 破れた房・ほつれ → 消す
+    #  ② 元が透明で新しい絵が布(赤)かその近くの所 = 穴・欠けた縁 → 新しい絵で埋める
+    #  ③ 元も新しい絵も赤い布の所 = マントの裏地 → 新しい絵(点々の傷みを消す)
+    nsil = ndimage.binary_dilation(N[..., 3] > 100, iterations=int(opt(a, '--grow', '3')))
+    ncl = clothmask(N, CLOTH) & (N[..., 3] > 100)
+    nearCl = ndimage.binary_dilation(ncl, iterations=int(opt(a, '--near_cl', '8'))) & (N[..., 3] > 100)
+    ocl = clothmask(O, CLOTH) & (al > 30)
+    keepO = (al > 30) & nsil
+    fillN = (al <= 30) & nearCl
+    swapN = ndimage.binary_erosion(ocl, iterations=1) & ncl
+    P = keepO & ~swapN
+    ncape = fillN | swapN
+    N = N * ncape[..., None]
 if '--mode' in a and opt(a, '--mode', '') == 'erase':
     # 2026-10-25(忍者): 古い布を消した絵をエステルに渡す方式の合成。新しい絵の体は使わない(ポーズや剣の位置が変わっても元のまま)。
     #  ① 元の古い布 = 布の色の大きく太い塊(clotherase.py と同じ考え。細い房飾りなどは残る)を消す
@@ -246,6 +277,23 @@ if '--keeptop' in a:
     # 直すのはコートの裾だけなので、元の絵の上から --keeptop の割合(外接の箱の高さ)までは元の絵をそのまま使う(透明な所も元のまま)
     ys_ = np.where((al > 30).any(axis=1))[0]
     if len(ys_): KP[: int(ys_[0] + float(opt(a, '--keeptop', '0.45')) * (ys_[-1] - ys_[0]))] = True
+if '--keephead' in a:
+    # 2026-10-26(吸血鬼): 新しい絵の顔が少しずれて二重になる。頭(上から --keephead の割合の高さ、頭の横幅+余白)だけは元の絵のまま。
+    # 上の行を丸ごと守る --keeptop と違い、頭の横に広がる肩のマントは描き直しを使える
+    ys_ = np.where((al > 30).any(axis=1))[0]
+    if len(ys_):
+        h_ = ys_[-1] - ys_[0]; y1_ = int(ys_[0] + float(opt(a, '--keephead', '0.2')) * h_)
+        hb_ = (al[ys_[0]: y1_] > 30) & clothmask(O[ys_[0]: y1_], opt(a, '--headspec', '0-360,0,0.3,0.55,1'))  # 頭の横幅は明るい髪・肌で測る(黒いマントの先を含めない)
+        lbh_, nh_ = ndimage.label(ndimage.binary_closing(hb_, iterations=2))
+        if nh_: hb_ = lbh_ == (int(np.argmax(ndimage.sum(hb_, lbh_, range(1, nh_ + 1)))) + 1)  # 一番大きな明るい塊(髪)。マントの銀の飾りは含めない
+        xs_ = np.where(hb_.any(axis=0))[0]
+        if len(xs_): mg_ = int(0.04 * O.shape[1]); KP[: y1_, max(0, xs_[0] - mg_): xs_[-1] + mg_] = True
+if '--band' in a:
+    # 2026-10-26(竜人): 翼・鱗・尾も布と同じ赤。直すのは腰の布だけなので、外接の箱の高さの割合 a〜b の帯の外は元の絵のまま
+    ys_ = np.where((al > 30).any(axis=1))[0]
+    if len(ys_):
+        b0_, b1_ = [float(v) for v in opt(a, '--band', '0.35,0.8').split(',')]; h_ = ys_[-1] - ys_[0]
+        KP[: int(ys_[0] + b0_ * h_)] = True; KP[int(ys_[0] + b1_ * h_):] = True
 if '--keephsv' in a:
     # 2026-10-26(魔法使いの杖の宝石・魔法の光): 布と同じ青紫で色では布と分けられず、エステルの絵の宝石の色がコマごとに変わった。
     # 元の絵で明るく鮮やかな所(この色の範囲)は、少し広げて元の画素を使う

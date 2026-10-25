@@ -40,3 +40,7 @@ GunslingerFinishLong_v1/finish_00.png {'scale': 2.629, 'dx': 0, 'dy': 2, 'score'
 GunslingerFinishExtreme_v1/finish_01.png {'scale': 2.235, 'dx': -90, 'dy': -8, 'score': 0.782
 GunslingerFinishExtreme_v1/finish_00.png {'scale': 2.462, 'dx': -90, 'dy': -36, 'score': 0.572
 GunslingerDownAttack_v1/downattack_02.png {'scale': 2.136, 'dx': -2, 'dy': 0, 'score': 0.764
+GunslingerDeath_v1/death_02.png {'scale': 1.113, 'dx': 12, 'dy': -17, 'score': 0.524
+GunslingerDownAttack_v1/downattack_01.png {'scale': 2.021, 'dx': 0, 'dy': 0, 'score': 0.734
+GunslingerDeath_v1/death_02.png {'scale': 1.151, 'dx': 0, 'dy': 0, 'score': 0.803
+GunslingerUpShot_v1/upshot_02.png {'scale': 2.13, 'dx': 0, 'dy': 0, 'score': 0.789

@@ -30,7 +30,7 @@ case "$cmd" in
   fit)
     fn=$1; shift; fo=${fn%/*}; n=${fn##*/}; mkdir -p $W/aligned/$fo
     src=$(ls -t $W/out/${fo##*/}__${n}_?.png 2>/dev/null | head -1)  # clothprep の名前は「フォルダの最後の名前__コマ」。一番新しい版(_a/_b...)
-    FS=$(grep "^FIT_SPEC=" "$CF" | cut -d= -f2-); CLOTH_SPEC=${FS:-$CLOTH_SPEC} "$PY" Tools/art/clothframe.py "$src" $O/$fn.png $W/in/crop.json $W/aligned/$fo/$n.png --fit-auto --fit-left $(echo "$@" | grep -q -- "--scales" || echo "--scales-rel 0.88,1.12,0.004") "$@" | grep -E "^  ->|overflow" ;;
+    FS=$(grep "^FIT_SPEC=" "$CF" | cut -d= -f2-); grep -q "^FIT_PREFER_RESIZE=1" "$CF" && export FIT_PREFER_RESIZE=1; CLOTH_SPEC=${FS:-$CLOTH_SPEC} "$PY" Tools/art/clothframe.py "$src" $O/$fn.png $W/in/crop.json $W/aligned/$fo/$n.png --fit-auto --fit-left $(echo "$@" | grep -q -- "--scales" || echo "--scales-rel 0.88,1.12,0.004") "$@" | grep -E "^  ->|overflow" ;;
   compose)
     for fn in "$@"; do fo=${fn%/*}; n=${fn##*/}; ex=$(grep -P "^$fn\t" $W/clears.txt 2>/dev/null | cut -f2-); mkdir -p $W/local/$fo $W/dbg/$fo
       "$PY" Tools/art/clothlocal.py $O/$fn.png $W/aligned/$fo/$n.png $W/local/$fo/$n.png --near 3 --mode ${CLOTH_MODE:-cape} --despeck ${DESPECK:-800} $extra_all $ex --debug $W/dbg/$fo | tail -1; done ;;

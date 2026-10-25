@@ -2,11 +2,12 @@
 id=fighter
 prefix=Fighter
 CLOTH_SPEC=345-12,0.55,1,0.15,1
-CLOTH_MODE=erase
-compose_args=--thick 3 --edgefrac 0.3
+CLOTH_MODE=agree
+compose_args=--islands 600 --noadd 8 --keepgone --keephead 0.18 --headspec 0-360,0,1,0,1
 erase_args=--min 6000 --thick 12 --edgefrac 0.3
 structure=腰の帯と、そこから垂れる幅のあるしなやかな布(端は2本程度)。動きを妨げない長さ
 keep=顔・髪・筋肉・拳・手甲・鎧・脚
 portrait_mode=agree
 note=髪も同じ赤なので、髪の一部が新しい絵の物になる(体の描き直しとして記録)
 portrait_spec=348-15,0.6,1,0.42,1
+mode_note=2026-10-26 erase では古い布の細い切れ端が残ったので agree(頭は --keephead で元のまま)。赤がやや鮮やかになるので clothrecolor で全コマの色をそろえる

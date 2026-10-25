@@ -4,5 +4,6 @@
 cd "$(dirname "$0")/../.." || exit 1
 id=$1; key=$2; dl=$3; suf=${4:-b}; O=Docs/ClothRevision_2026-10-25/ingame/original/Art
 fo=${key%%__*}; n=${key##*__}
-d=$(cd $O && ls -d $fo 2>/dev/null || find . -type d -name "$fo" | sed 's#^\./##' | head -1)
+pf=$(grep "^prefix=" Docs/ClothRevision_2026-10-25/chars/$id.txt | cut -d= -f2)  # 2026-10-26: 技の名前(claw2 等)は他のキャラにもあるので、そのキャラの接頭辞の下だけ探す
+d=$(cd $O && ls -d $fo 2>/dev/null || find . -type d -path "./${pf}*" -name "$fo" | sed "s#^./##" | head -1)
 bash Tools/art/clothsingle.sh $id $d/$n $dl $suf 2>&1 | grep -o "^$n.png {'scale': [0-9.]*, 'dx': -*[0-9]*, 'dy': -*[0-9]*, 'score': [0-9.]*" | head -1 | sed "s#^#$d/#" >> Docs/ClothRevision_2026-10-25/chars/$id/q.log
